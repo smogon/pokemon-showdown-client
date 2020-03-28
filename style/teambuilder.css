@@ -1,3 +1,220 @@
+/*********************************************************
+ * Teambuilder list
+ *********************************************************/
+
+ .folderpane {
+	position: absolute;
+	left: 0;
+	top: 0;
+	bottom: 0;
+	padding: 0;
+	border-left: 5px solid #d7e3ec;
+	width: 154px;
+	overflow: auto;
+	overflow-x: hidden;
+}
+.teampane {
+	position: absolute;
+	left: 159px;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	padding: 5px 0 5px 8px;
+	overflow: auto;
+}
+@media (max-width:649px) {
+	.folderpane {
+		display: none;
+	}
+	.teampane {
+		left: 0;
+	}
+}
+
+.folderlist {
+	height: 100%;
+	width: 154px;
+	display: table;
+	margin: 0;
+	padding: 0;
+	border: 0;
+}
+.folderlist .folder,
+.folderlist .foldersep {
+	display: table-row;
+	margin: 0;
+	padding: 0;
+	border: 0;
+	height: 30px;
+}
+.folderlist .foldersep {
+	height: 15px;
+}
+.folderlist .foldersep:before {
+	display: table-cell;
+	height: 15px;
+	background: #d7e3ec;
+	border-right: 1px solid #888888;
+	content: '';
+}
+.folderlistafter {
+	display: table-row;
+	margin: 0;
+	padding: 0;
+	border: 0;
+	height: auto;
+}
+.folderlistbefore {
+	display: table-row;
+	margin: 0;
+	padding: 0;
+	border: 0;
+	height: 12px;
+	content: '';
+}
+.folderlistafter:before,
+.folderlistbefore:before {
+	display: table-cell;
+	background: #d7e3ec;
+	margin: 0;
+	padding: 0;
+	border: 0;
+	border-right: 1px solid #888888;
+	content: '';
+}
+
+.folderpane i {
+	display: inline-block;
+	width: 16px;
+	color: #777777;
+}
+.folderpane h3 {
+	margin: 0;
+	padding: 13px 0 0 0;
+	height: 17px;
+	font-size: 9pt;
+	background: #d7e3ec;
+	color: black;
+	border-right: 1px solid #888888;
+}
+.folder .selectFolder {
+	display: block;
+	padding: 0 0 0 7px;
+	border: 0;
+	border-right: 1px solid #888888;
+	background: #d7e3ec;
+	color: black;
+	width: auto;
+	max-width: 146px; /* I have no idea why this is required and width doesn't work */
+	padding-top: 7px;
+	height: 23px;
+	font-size: 9pt;
+	font-family: Verdana, sans-serif;
+	white-space: nowrap;
+	overflow: hidden;
+	text-align: left;
+	cursor: pointer;
+	user-select: none;
+	-webkit-user-select: none;
+}
+.folder .selectFolder:hover {
+	background: #c7d3dc;
+}
+.folder .selectFolder:active {
+	background: #b7c3cc;
+}
+.folder .selectFolder.active {
+	background: #27333c;
+	color: white;
+}
+.folder.cur .selectFolder,
+.folder.cur .selectFolder:hover,
+.folder.cur .selectFolder:active {
+	padding-top: 6px;
+	height: 22px;
+	cursor: default;
+	background: transparent;
+	color: black;
+	border-top: 1px solid #888888;
+	border-bottom: 1px solid #888888;
+	border-left: 1px solid #888888;
+	border-right: 0;
+	padding-left: 6px;
+	border-top-left-radius: 3px;
+	border-bottom-left-radius: 3px;
+}
+
+/* believe me, there was no other way to do this */
+.folderhack1,
+.folderhack2 {
+	position: absolute;
+	display: block;
+	left: 0;
+	width: 1px;
+	height: 1px;
+	background: #d7e3ec;
+	content: '';
+}
+.folderhack1 {
+	top: 0;
+}
+.folderhack2 {
+	bottom: 0;
+}
+.folderhack3 {
+	position: relative;
+	height: 30px;
+}
+
+.teamlist, .teamdropdown {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+.teamlist li {
+	margin: 3px 0;
+	padding: 0;
+}
+.teamdropdown li {
+	display: inline-block;
+	margin: 3px;
+	padding: 0;
+}
+
+
+.teamlist button {
+	background: transparent;
+	border: 1px solid transparent;
+	border-radius: 4px;
+	padding: 2px 5px;
+	margin: 0;
+	font-size: 9pt;
+	font-family: Verdana, sans-serif;
+}
+.teamlist button:hover {
+	border-color: #888888;
+	background: #D5D5D5;
+}
+.teamlist button i {
+	margin-right: 2px;
+}
+
+
+/*********************************************************
+ * Teambuilder editor
+ *********************************************************/
+
+.teamname {
+	margin: 10px 0 17px 0;
+}
+.teamname .textbox {
+	width: 100%;
+	box-sizing: border-box;
+	font-size: 15pt;
+	font-weight: bold;
+	padding: 4px 6px;
+}
+
 .teamtextbox {
   width: 100%;
   padding-top: 8px;

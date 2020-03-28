@@ -25,22 +25,8 @@ class PSTeambuilder {
 			buf += '|' + toID(set.item);
 
 			// ability
-			let species = Dex.getSpecies(set.species || set.name);
-			let abilities = species.abilities;
 			id = toID(set.ability);
-			if (abilities) {
-				if (id === toID(abilities['0'])) {
-					buf += '|';
-				} else if (id === toID(abilities['1'])) {
-					buf += '|1';
-				} else if (id === toID(abilities['H'])) {
-					buf += '|H';
-				} else {
-					buf += '|' + id;
-				}
-			} else {
-				buf += '|' + id;
-			}
+			buf += '|' + (id || '-');
 
 			// moves
 			buf += '|';
@@ -71,7 +57,7 @@ class PSTeambuilder {
 			}
 
 			// gender
-			if (set.gender && set.gender !== species.gender) {
+			if (set.gender) {
 				buf += '|' + set.gender;
 			} else {
 				buf += '|';
@@ -126,6 +112,7 @@ class PSTeambuilder {
 
 		for (const setBuf of buf.split(`]`)) {
 			const parts = setBuf.split(`|`);
+			if (parts.length < 11) continue;
 			let set: PokemonSet = {species: '', moves: []};
 			team.push(set);
 
@@ -140,7 +127,9 @@ class PSTeambuilder {
 
 			// ability
 			const species = Dex.getSpecies(set.species);
-			set.ability = (species.baseSpecies === 'Zygarde' && parts[3] === 'H') ?
+			set.ability = parts[3] === '-' ?
+				'' :
+				(species.baseSpecies === 'Zygarde' && parts[3] === 'H') ?
 				'Power Construct' :
 				['', '0', '1', 'H', 'S'].includes(parts[3]) ?
 				species.abilities[parts[3] as '0' || '0'] || (parts[3] === '' ? '' : '!!!ERROR!!!') :
@@ -414,7 +403,7 @@ class PSTeambuilder {
 		while (lines.length && !lines[0]) lines.shift();
 		while (lines.length && !lines[lines.length - 1]) lines.pop();
 
-		if (lines.length === 1) {
+		if (lines.length === 1 && lines[0].includes('|')) {
 			return this.unpackTeam(lines[0]);
 		}
 		for (let line of lines) {

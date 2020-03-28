@@ -234,24 +234,19 @@ button:disabled {
 }
 
 .option {
-	display: block;
-	font-size: 8pt;
-	font-family: Verdana, Helvetica, Arial, sans-serif;
-	margin: 0 0 0 6px;
-	padding: 2px 3px;
-	border: 1px solid transparent;
-	border-radius: 2px;
 	background: transparent;
-	color: black;
-	width: 204px;
+	border: 1px solid transparent;
+	border-radius: 4px;
+	padding: 2px 5px;
+	margin: 0;
+	font-size: 9pt;
+	font-family: Verdana, sans-serif;
 	text-align: left;
-
-	box-sizing: border-box;
+	white-space: nowrap;
+	overflow: hidden;
 }
 .option.sel {
 	border-color: #999999;
-	white-space: nowrap;
-	overflow: hidden;
 }
 .option:hover,
 .option.sel:hover {
@@ -261,14 +256,14 @@ button:disabled {
 }
 
 .dark .option {
-	color: #AAA;
+	color: #DDD;
 	box-shadow: none;
 }
 .dark .option:hover,
 .dark .option.sel:hover {
-	border-color: #AAAAAA;
-	background-color: #AAAAAA;
-	color: black;
+	border-color: #777777;
+	background: rgba(100, 100, 100, 0.5);
+	color: #FFFFFF;
 }
 
 hr {

@@ -154,6 +154,7 @@ class PSTeams extends PSStreamModel<'team' | 'format'> {
 	usesLocalLadder = false;
 	list: Team[] = [];
 	byKey: {[key: string]: Team | undefined} = {};
+	deletedTeams: [Team, number][] = [];
 	constructor() {
 		super();
 		try {
@@ -192,12 +193,33 @@ class PSTeams extends PSStreamModel<'team' | 'format'> {
 		this.list = [];
 		for (const line of buffer.split('\n')) {
 			const team = this.unpackLine(line);
-			if (team) {
-				this.list.push(team);
-				this.byKey[team.key] = team;
-			}
+			if (team) this.push(team);
 		}
 		this.update('team');
+	}
+	push(team: Team) {
+		team.key = this.getKey(team.name);
+		this.list.push(team);
+		this.byKey[team.key] = team;
+	}
+	unshift(team: Team) {
+		team.key = this.getKey(team.name);
+		this.list.unshift(team);
+		this.byKey[team.key] = team;
+	}
+	delete(team: Team) {
+		const teamIndex = this.list.indexOf(team);
+		if (teamIndex < 0) return false;
+		this.deletedTeams.push([team, teamIndex]);
+		this.list.splice(teamIndex, 1);
+		delete this.byKey[team.key];
+	}
+	undelete() {
+		if (!this.deletedTeams.length) return;
+		const [team, teamIndex] = this.deletedTeams.pop()!;
+		this.list.splice(teamIndex, 0, team);
+		if (this.byKey[team.key]) team.key = this.getKey(team.name);
+		this.byKey[team.key] = team;
 	}
 	unpackOldBuffer(buffer: string) {
 		alert("Your team storage format is too old for PS. You'll need to upgrade it at https://play.pokemonshowdown.com/recoverteams.html");
@@ -213,6 +235,7 @@ class PSTeams extends PSStreamModel<'team' | 'format'> {
 		try {
 			localStorage.setItem('showdown_teams', this.packAll(this.list));
 		} catch {}
+		this.update('team');
 	}
 	unpackLine(line: string): Team | null {
 		let pipeIndex = line.indexOf('|');
@@ -224,14 +247,13 @@ class PSTeams extends PSStreamModel<'team' | 'format'> {
 		let format = bracketIndex > 0 ? line.slice(0, bracketIndex) : 'gen7';
 		if (format.slice(0, 3) !== 'gen') format = 'gen6' + format;
 		const name = line.slice(slashIndex + 1, pipeIndex);
-		const key = this.getKey(name);
 		return {
 			name,
 			format: format as ID,
-			packedTeam: line.slice(pipeIndex + 1),
 			folder: line.slice(bracketIndex + 1, slashIndex > 0 ? slashIndex : bracketIndex + 1),
+			packedTeam: line.slice(pipeIndex + 1),
 			iconCache: null,
-			key,
+			key: '',
 		};
 	}
 }
@@ -485,7 +507,13 @@ class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 			}
 		}}
 	}
+	handleMessage(msg: string) {
+		return false;
+	}
 	send(msg: string, direct?: boolean) {
+		if (!direct && !msg) return;
+		if (!direct && this.handleMessage(msg)) return;
+
 		const id = this.id === 'lobby' ? '' : this.id;
 		PS.send(id + '|' + msg);
 	}

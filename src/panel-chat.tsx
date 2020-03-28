@@ -113,7 +113,7 @@ class ChatRoom extends PSRoom {
 			PS.send(`|/pm ${this.pmTarget}, ${line}`);
 			return;
 		}
-		super.send(line);
+		super.send(line, true);
 	}
 	setUsers(count: number, usernames: string[]) {
 		this.userCount = count;
