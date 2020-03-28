@@ -106,7 +106,7 @@ const BattleNatures: {[k in NatureName]: {plus?: StatName, minus?: StatName}} = 
 		minus: 'atk',
 	},
 };
-const BattleStatIDs = {
+const BattleStatIDs: {[k: string]: StatName | undefined} = {
 	HP: 'hp',
 	hp: 'hp',
 	Atk: 'atk',
@@ -127,33 +127,15 @@ const BattleStatIDs = {
 	Spd: 'spe',
 	spe: 'spe',
 };
-const BattlePOStatNames = { // only used for interacting with PO
-	hp: 'HP',
-	atk: 'Atk',
-	def: 'Def',
-	spa: 'SAtk',
-	spd: 'SDef',
-	spe: 'Spd',
-};
-const BattleStatNames = { // proper style
+/** Stat short names */
+const BattleStatNames = {
 	hp: 'HP',
 	atk: 'Atk',
 	def: 'Def',
 	spa: 'SpA',
 	spd: 'SpD',
 	spe: 'Spe',
-};
-const BattleStats = {
-	hp: 'HP',
-	atk: 'Attack',
-	def: 'Defense',
-	spa: 'Sp. Atk',
-	spd: 'Sp. Def',
-	spe: 'Speed',
-	accuracy: 'accuracy',
-	evasion: 'evasiveness',
-	spc: 'Special',
-};
+} as const;
 
 const BattleBaseSpeciesChart = [
 	'pikachu',
@@ -1461,7 +1443,6 @@ class Species implements Effect {
 if (typeof require === 'function') {
 	// in Node
 	(global as any).BattleBaseSpeciesChart = BattleBaseSpeciesChart;
-	(global as any).BattleStats = BattleStats;
 	(global as any).BattleNatures = BattleNatures;
 	(global as any).PureEffect = PureEffect;
 	(global as any).Species = Species;

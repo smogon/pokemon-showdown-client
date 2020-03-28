@@ -1633,7 +1633,7 @@ class Battle {
 			if (this.gen === 1 && stat === 'spa') stat = 'spc';
 			let amount = parseInt(args[3], 10);
 			if (amount === 0) {
-				this.scene.resultAnim(poke, 'Highest ' + BattleStats[stat], 'neutral');
+				this.scene.resultAnim(poke, 'already ' + poke.getBoost(stat), 'neutral');
 				this.log(args, kwArgs);
 				break;
 			}
@@ -1660,7 +1660,7 @@ class Battle {
 			if (this.gen === 1 && stat === 'spa') stat = 'spc';
 			let amount = parseInt(args[3], 10);
 			if (amount === 0) {
-				this.scene.resultAnim(poke, 'Lowest ' + BattleStats[stat], 'bad');
+				this.scene.resultAnim(poke, 'already ' + poke.getBoost(stat), 'neutral');
 				this.log(args, kwArgs);
 				break;
 			}
