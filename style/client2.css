@@ -535,6 +535,12 @@ p.or:after {
 	padding: 0;
 	list-style: none;
 	font-size: 8pt;
+	float: left;
+}
+.options .option {
+	display: block;
+	width: 224px;
+	box-sizing: border-box;
 }
 .options h3 {
 	margin: 5px 0 0 -2px;

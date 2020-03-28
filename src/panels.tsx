@@ -139,7 +139,7 @@ class PSRoomPanel<T extends PSRoom = PSRoom> extends preact.Component<{room: T}>
 }
 
 function PSPanelWrapper(props: {
-	room: PSRoom, children: preact.ComponentChildren, scrollable?: boolean, width?: number,
+	room: PSRoom, children: preact.ComponentChildren, scrollable?: boolean, width?: number | 'auto',
 }) {
 	const room = props.room;
 	if (room.location === 'mini-window') {
@@ -377,7 +377,7 @@ class PSMain extends preact.Component {
 			right: right === null ? `auto` : `${-right}px`,
 		};
 	}
-	static getPopupStyle(room: PSRoom, width?: number): any {
+	static getPopupStyle(room: PSRoom, width?: number | 'auto'): any {
 		if (room.location === 'modal-popup' || !room.parentElem) {
 			return {width: width || 480};
 		}
@@ -414,7 +414,7 @@ class PSMain extends preact.Component {
 				style.top = Math.max(0, availableHeight - height);
 			}
 			let offsetLeft = offset.left + sourceWidth;
-			if (offsetLeft + width > document.documentElement.clientWidth) {
+			if (width !== 'auto' && offsetLeft + width > document.documentElement.clientWidth) {
 				style.right = 1;
 			} else {
 				style.left = offsetLeft;
@@ -434,7 +434,7 @@ class PSMain extends preact.Component {
 			}
 
 			let availableWidth = document.documentElement.clientWidth - offset.left;
-			if (availableWidth < width + 10) {
+			if (width !== 'auto' && availableWidth < width + 10) {
 				style.right = 10;
 			} else {
 				style.left = offset.left;
