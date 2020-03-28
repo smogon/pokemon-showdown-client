@@ -174,6 +174,13 @@ class TeamPanel extends PSRoomPanel<TeamRoom> {
 		PS.removeRoom(this.props.room);
 		PS.join('teambuilder' as RoomID);
 	};
+	rename = (e: Event) => {
+		const textbox = e.currentTarget as HTMLInputElement;
+		const room = this.props.room;
+
+		room.team!.name = textbox.value.trim();
+		PS.teams.save();
+	};
 	render() {
 		const room = this.props.room;
 		const team = PS.teams.byKey[room.id.slice(5)];
@@ -194,9 +201,10 @@ class TeamPanel extends PSRoomPanel<TeamRoom> {
 				<button class="button" onClick={this.backToList}>
 					<i class="fa fa-chevron-left"></i> List
 				</button>
-				<h2>
-					{team.name}
-				</h2>
+				<label class="label teamname">
+					Team name:
+					<input class="textbox" type="text" value={team.name} onInput={this.rename} onChange={this.rename} onKeyUp={this.rename} />
+				</label>
 				<TeamTextbox team={team} />
 			</div>
 		</PSPanelWrapper>;
