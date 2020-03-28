@@ -572,7 +572,7 @@ const Dex = new class implements ModdedDex {
 				options.gender = pokemon.gender;
 			}
 			if (pokemon.volatiles.dynamax) isDynamax = true;
-			pokemon = pokemon.getCosmeticFormeName();
+			pokemon = pokemon.getSpeciesForme();
 		}
 		const species = Dex.getSpecies(pokemon);
 		let spriteData = {
@@ -760,7 +760,7 @@ const Dex = new class implements ModdedDex {
 
 		let id = toID(pokemon);
 		if (!pokemon || typeof pokemon === 'string') pokemon = null;
-		if (pokemon?.cosmeticFormeName) id = toID(pokemon.cosmeticFormeName);
+		if (pokemon?.speciesForme) id = toID(pokemon.speciesForme);
 		// @ts-ignore
 		if (pokemon?.volatiles?.formechange && !pokemon.volatiles.transform) {
 			// @ts-ignore
