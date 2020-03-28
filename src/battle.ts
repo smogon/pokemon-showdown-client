@@ -36,7 +36,7 @@ type HPColor = 'r' | 'y' | 'g';
 
 class Pokemon implements PokemonDetails, PokemonHealth {
 	name = '';
-	cosmeticFormeName = '';
+	speciesForme = '';
 
 	/**
 	 * A string representing information extractable from textual
@@ -104,7 +104,7 @@ class Pokemon implements PokemonDetails, PokemonHealth {
 
 	constructor(data: PokemonDetails, side: Side) {
 		this.side = side;
-		this.cosmeticFormeName = data.cosmeticFormeName;
+		this.speciesForme = data.speciesForme;
 
 		this.details = data.details;
 		this.name = data.name;
@@ -515,15 +515,15 @@ class Pokemon implements PokemonDetails, PokemonHealth {
 		const [types, addedType] = this.getTypes(serverPokemon);
 		return addedType ? types.concat(addedType) : types;
 	}
-	getCosmeticFormeName(serverPokemon?: ServerPokemon): string {
+	getSpeciesForme(serverPokemon?: ServerPokemon): string {
 		return this.volatiles.formechange ? this.volatiles.formechange[1] :
-			(serverPokemon ? serverPokemon.cosmeticFormeName : this.cosmeticFormeName);
+			(serverPokemon ? serverPokemon.speciesForme : this.speciesForme);
 	}
 	getSpecies(serverPokemon?: ServerPokemon) {
-		return this.side.battle.dex.getSpecies(this.getCosmeticFormeName(serverPokemon));
+		return this.side.battle.dex.getSpecies(this.getSpeciesForme(serverPokemon));
 	}
 	getBaseSpecies() {
-		return this.side.battle.dex.getSpecies(this.cosmeticFormeName);
+		return this.side.battle.dex.getSpecies(this.speciesForme);
 	}
 	reset() {
 		this.clearVolatile();
@@ -531,7 +531,7 @@ class Pokemon implements PokemonDetails, PokemonHealth {
 		this.fainted = false;
 		this.status = '';
 		this.moveTrack = [];
-		this.name = this.name || this.cosmeticFormeName;
+		this.name = this.name || this.speciesForme;
 	}
 	// This function is used for two things:
 	//   1) The percentage to display beside the HP bar.
@@ -754,7 +754,7 @@ class Side {
 						if (curPoke === poke) continue;
 						if (curPoke.fainted) continue;
 						if (this.active.indexOf(curPoke) >= 0) continue;
-						if (curPoke.cosmeticFormeName === 'Zoroark' || curPoke.cosmeticFormeName === 'Zorua' || curPoke.ability === 'Illusion') {
+						if (curPoke.speciesForme === 'Zoroark' || curPoke.speciesForme === 'Zorua' || curPoke.ability === 'Illusion') {
 							illusionFound = curPoke;
 							break;
 						}
@@ -957,7 +957,7 @@ enum Playback {
 interface PokemonDetails {
 	details: string;
 	name: string;
-	cosmeticFormeName: string;
+	speciesForme: string;
 	level: number;
 	shiny: boolean;
 	gender: GenderName | '';
@@ -2227,18 +2227,18 @@ class Battle {
 			poke.removeVolatile('typeadd' as ID);
 			poke.removeVolatile('typechange' as ID);
 
-			let newCosmeticFormeName = args[2];
-			let commaIndex = newCosmeticFormeName.indexOf(',');
+			let newSpeciesForme = args[2];
+			let commaIndex = newSpeciesForme.indexOf(',');
 			if (commaIndex !== -1) {
-				let level = newCosmeticFormeName.substr(commaIndex + 1).trim();
+				let level = newSpeciesForme.substr(commaIndex + 1).trim();
 				if (level.charAt(0) === 'L') {
 					poke.level = parseInt(level.substr(1), 10);
 				}
-				newCosmeticFormeName = args[2].substr(0, commaIndex);
+				newSpeciesForme = args[2].substr(0, commaIndex);
 			}
-			let species = this.dex.getSpecies(newCosmeticFormeName);
+			let species = this.dex.getSpecies(newSpeciesForme);
 
-			poke.cosmeticFormeName = newCosmeticFormeName;
+			poke.speciesForme = newSpeciesForme;
 			poke.ability = poke.baseAbility = (species.abilities ? species.abilities['0'] : '');
 
 			poke.details = args[2];
@@ -2261,18 +2261,18 @@ class Battle {
 			poke.boosts = {...tpoke.boosts};
 			poke.copyTypesFrom(tpoke);
 			poke.ability = tpoke.ability;
-			const cosmeticFormeName = (tpoke.volatiles.formechange ? tpoke.volatiles.formechange[1] : tpoke.cosmeticFormeName);
+			const speciesForme = (tpoke.volatiles.formechange ? tpoke.volatiles.formechange[1] : tpoke.speciesForme);
 			const pokemon = tpoke;
 			const shiny = tpoke.shiny;
 			const gender = tpoke.gender;
 			poke.addVolatile('transform' as ID, pokemon, shiny, gender);
-			poke.addVolatile('formechange' as ID, cosmeticFormeName);
+			poke.addVolatile('formechange' as ID, speciesForme);
 			for (const trackedMove of tpoke.moveTrack) {
 				poke.rememberMove(trackedMove[0], 0);
 			}
 			this.scene.animTransform(poke);
 			this.scene.resultAnim(poke, 'Transformed', 'good');
-			this.log(['-transform', args[1], args[2], tpoke.cosmeticFormeName], kwArgs);
+			this.log(['-transform', args[1], args[2], tpoke.speciesForme], kwArgs);
 			break;
 		}
 		case '-formechange': {
@@ -2883,7 +2883,7 @@ class Battle {
 		const isTeamPreview = !name;
 		output.details = details;
 		output.name = name;
-		output.cosmeticFormeName = name;
+		output.speciesForme = name;
 		output.level = 100;
 		output.shiny = false;
 		output.gender = '';
@@ -2902,7 +2902,7 @@ class Battle {
 			output.level = parseInt(splitDetails[1].substr(1), 10) || 100;
 		}
 		if (splitDetails[0]) {
-			output.cosmeticFormeName = splitDetails[0];
+			output.speciesForme = splitDetails[0];
 		}
 		return output;
 	}
