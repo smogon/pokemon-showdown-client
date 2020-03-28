@@ -523,7 +523,7 @@ const Dex = new class implements ModdedDex {
 		return species.tier;
 	}
 
-	getType(type: any): Effect {
+	getType(type: any): Effect & {damageTaken?: AnyObject, HPivs?: Partial<StatsTable>, HPdvs: Partial<StatsTable>} {
 		if (!type || typeof type === 'string') {
 			let id = toID(type) as string;
 			id = id.substr(0, 1).toUpperCase() + id.substr(1);

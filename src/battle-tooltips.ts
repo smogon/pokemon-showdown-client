@@ -406,7 +406,7 @@ class BattleTooltips {
 		if (move.zMoveBoost) {
 			let boosts = Object.keys(move.zMoveBoost) as StatName[];
 			boostText = boosts.map(stat =>
-				BattleStats[stat] + ' +' + move.zMoveBoost![stat]
+				BattleTextParser.stat(stat) + ' +' + move.zMoveBoost![stat]
 			).join(', ');
 		}
 		return boostText;

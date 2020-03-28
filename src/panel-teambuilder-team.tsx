@@ -6,14 +6,15 @@
  */
 
 class TeamRoom extends PSRoom {
-	sets: PokemonSet[] | null = null;
+	team: Team | null = null;
 }
 
-class TeamTextbox extends preact.Component<{sets: PokemonSet[]}> {
+class TeamTextbox extends preact.Component<{team: Team}> {
 	setInfo: {
 		species: string,
 		bottomY: number,
 	}[] = [];
+	sets: PokemonSet[] = [];
 	textbox: HTMLTextAreaElement = null!;
 	heightTester: HTMLTextAreaElement = null!;
 	activeType: 'pokemon' | 'move' | 'item' | 'ability' | '' = '';
@@ -98,7 +99,7 @@ class TeamTextbox extends preact.Component<{sets: PokemonSet[]}> {
 				} else {
 					this.activeType = 'pokemon';
 				}
-				this.search.setType(this.activeType, 'gen7ou' as ID, this.props.sets[setIndex]);
+				this.search.setType(this.activeType, 'gen7ou' as ID, this.sets[setIndex]);
 				this.search.find('');
 			}
 
@@ -111,14 +112,22 @@ class TeamTextbox extends preact.Component<{sets: PokemonSet[]}> {
 			}
 
 			textbox.style.height = `${bottomY + 100}px`;
+			this.save();
 		}
 		this.forceUpdate();
 	};
+	save() {
+		const sets = PSTeambuilder.importTeam(this.textbox.value);
+		this.props.team.packedTeam = PSTeambuilder.packTeam(sets);
+		this.props.team.iconCache = null;
+		PS.teams.save();
+	}
 	componentDidMount() {
 		this.textbox = this.base!.getElementsByClassName('teamtextbox')[0] as HTMLTextAreaElement;
 		this.heightTester = this.base!.getElementsByClassName('heighttester')[0] as HTMLTextAreaElement;
 
-		const exportedTeam = PSTeambuilder.exportTeam(this.props.sets);
+		this.sets = PSTeambuilder.unpackTeam(this.props.team.packedTeam);
+		const exportedTeam = PSTeambuilder.exportTeam(this.sets);
 		this.textbox.value = exportedTeam;
 		this.update();
 	}
@@ -179,8 +188,7 @@ class TeamPanel extends PSRoomPanel<TeamRoom> {
 			</PSPanelWrapper>;
 		}
 
-		const sets = room.sets || PSTeambuilder.unpackTeam(team!.packedTeam);
-		if (!room.sets) room.sets = sets;
+		if (!room.team) room.team = team;
 		return <PSPanelWrapper room={room} scrollable>
 			<div class="pad">
 				<button class="button" onClick={this.backToList}>
@@ -189,7 +197,7 @@ class TeamPanel extends PSRoomPanel<TeamRoom> {
 				<h2>
 					{team.name}
 				</h2>
-				<TeamTextbox sets={sets} />
+				<TeamTextbox team={team} />
 			</div>
 		</PSPanelWrapper>;
 	}

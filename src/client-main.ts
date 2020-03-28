@@ -178,9 +178,6 @@ class PSTeams extends PSStreamModel<'team' | 'format'> {
 		}
 		return key;
 	}
-	save() {
-		// noop by default
-	}
 	unpackAll(buffer: string | null) {
 		if (!buffer) {
 			this.list = [];
@@ -207,6 +204,16 @@ class PSTeams extends PSStreamModel<'team' | 'format'> {
 		this.list = [];
 		return;
 	}
+	packAll(teams: Team[]) {
+		return teams.map(team => (
+			(team.format ? `${team.format}]` : ``) + (team.folder ? `${team.folder}/` : ``) + team.name + `|` + team.packedTeam
+		)).join('\n');
+	}
+	save() {
+		try {
+			localStorage.setItem('showdown_teams', this.packAll(this.list));
+		} catch {}
+	}
 	unpackLine(line: string): Team | null {
 		let pipeIndex = line.indexOf('|');
 		if (pipeIndex < 0) return null;
@@ -223,7 +230,7 @@ class PSTeams extends PSStreamModel<'team' | 'format'> {
 			format: format as ID,
 			packedTeam: line.slice(pipeIndex + 1),
 			folder: line.slice(bracketIndex + 1, slashIndex > 0 ? slashIndex : bracketIndex + 1),
-			iconCache: '',
+			iconCache: null,
 			key,
 		};
 	}
