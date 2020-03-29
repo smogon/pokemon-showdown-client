@@ -747,7 +747,7 @@ const Dex = new class implements ModdedDex {
 		return num;
 	}
 
-	getPokemonIcon(pokemon: string | Pokemon | ServerPokemon | null, facingLeft?: boolean) {
+	getPokemonIcon(pokemon: string | Pokemon | ServerPokemon | PokemonSet | null, facingLeft?: boolean) {
 		if (pokemon === 'pokeball') {
 			return `background:transparent url(${Dex.resourcePrefix}sprites/pokemonicons-pokeball-sheet.png) no-repeat scroll -0px 4px`;
 		} else if (pokemon === 'pokeball-statused') {
@@ -760,6 +760,7 @@ const Dex = new class implements ModdedDex {
 
 		let id = toID(pokemon);
 		if (!pokemon || typeof pokemon === 'string') pokemon = null;
+		// @ts-ignore
 		if (pokemon?.speciesForme) id = toID(pokemon.speciesForme);
 		// @ts-ignore
 		if (pokemon?.species) id = toID(pokemon.species);
@@ -772,7 +773,7 @@ const Dex = new class implements ModdedDex {
 
 		let top = Math.floor(num / 12) * 30;
 		let left = (num % 12) * 40;
-		let fainted = (pokemon?.fainted ? `;opacity:.3;filter:grayscale(100%) brightness(.5)` : ``);
+		let fainted = ((pokemon as Pokemon | ServerPokemon)?.fainted ? `;opacity:.3;filter:grayscale(100%) brightness(.5)` : ``);
 		return `background:transparent url(${Dex.resourcePrefix}sprites/pokemonicons-sheet.png?g8) no-repeat scroll -${left}px -${top}px${fainted}`;
 	}
 
