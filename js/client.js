@@ -401,9 +401,12 @@ function toId() {
 			this.topbar = new Topbar({el: $('#header')});
 			if (this.down) {
 				this.isDisconnected = true;
-			} else if (location.origin === 'https://smogtours.psim.us') {
-				this.isDisconnected = true;
-				alert("The Smogtours server does not support HTTPS. Please use http://smogtours.psim.us");
+			// } else if (location.origin === 'http://smogtours.psim.us') {
+			// 	this.isDisconnected = true;
+			// 	this.addPopup(Popup, {
+			// 		message: "The Smogtours server no longer supports HTTP. Please use https://smogtours.psim.us",
+			// 		type: 'modal'
+			// 	});
 			} else {
 				if (document.location.hostname === 'play.pokemonshowdown.com' || Config.testclient) {
 					this.addRoom('rooms', null, true);
@@ -711,7 +714,7 @@ function toId() {
 
 			var self = this;
 			var constructSocket = function () {
-				var protocol = (Config.server.port === 443) ? 'https' : 'http';
+				var protocol = (Config.server.port === 443 || Config.server.https) ? 'https' : 'http';
 				Config.server.host = $.trim(Config.server.host);
 				return new SockJS(protocol + '://' + Config.server.host + ':' +
 					Config.server.port + Config.sockjsprefix, [], {timeout: 5 * 60 * 1000});
