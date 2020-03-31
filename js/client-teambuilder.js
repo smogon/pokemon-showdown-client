@@ -2737,10 +2737,11 @@
 			var name = e.currentTarget.name;
 			if (this.curChartName !== name) return;
 			var id = toID(e.currentTarget.value);
+			if (id in BattleAliases) id = toID(BattleAliases[id]);
 			var val = '';
 			switch (name) {
 			case 'pokemon':
-				val = (id in BattlePokedex ? BattlePokedex[id].species : '');
+				val = (id in BattlePokedex ? Dex.getSpecies(e.currentTarget.value).name : '');
 				break;
 			case 'ability':
 				if (id in BattleItems && this.curTeam.format == "gen8dualwielding") {
@@ -3212,7 +3213,7 @@
 		setForm: function (form) {
 			var species = Dex.getSpecies(this.curSet.species);
 			if (form && form !== species.form) {
-				this.curSet.species = Dex.getSpecies(species.baseSpecies + form).species;
+				this.curSet.species = Dex.getSpecies(species.baseSpecies + form).name;
 			} else if (!form) {
 				this.curSet.species = species.baseSpecies;
 			}
