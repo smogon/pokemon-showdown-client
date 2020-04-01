@@ -655,10 +655,20 @@ const Dex = new class implements ModdedDex {
 
 		if (options.shiny && mechanicsGen > 1) dir += '-shiny';
 
-		// April Fool's 2014
+		// April Fool's
 		if (window.Config && Config.server && Config.server.afd || options.afd) {
 			dir = 'afd' + dir;
 			spriteData.url += dir + '/' + name + '.png';
+			// Duplicate code but needed to make AFD tinymax work
+			if (isDynamax && !options.noScale) {
+				spriteData.w *= 0.25;
+				spriteData.h *= 0.25;
+				spriteData.y += -22;
+			} else if (species.isTotem && !options.noScale) {
+				spriteData.w *= 0.5;
+				spriteData.h *= 0.5;
+				spriteData.y += -11;
+			}
 			return spriteData;
 		}
 
@@ -711,7 +721,7 @@ const Dex = new class implements ModdedDex {
 			spriteData.w *= 2;
 			spriteData.h *= 2;
 			spriteData.y += -22;
-		} else if ((species.isTotem || isDynamax) && !options.noScale) {
+		} else if (species.isTotem && !options.noScale) {
 			spriteData.w *= 1.5;
 			spriteData.h *= 1.5;
 			spriteData.y += -11;
