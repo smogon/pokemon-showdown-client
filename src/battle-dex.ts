@@ -559,10 +559,16 @@ const Dex = new class implements ModdedDex {
 		document.getElementsByTagName('body')[0].appendChild(el);
 	}
 	getSpriteData(pokemon: Pokemon | Species | string, siden: number, options: {
-		gen?: number, shiny?: boolean, gender?: GenderName, afd?: boolean, noScale?: boolean, mod?: string,
+		gen?: number,
+		shiny?: boolean,
+		gender?: GenderName,
+		afd?: boolean,
+		noScale?: boolean,
+		mod?: string,
+		dynamax?: boolean,
 	} = {gen: 6}) {
 		const mechanicsGen = options.gen || 6;
-		let isDynamax = false;
+		let isDynamax = !!options.dynamax;
 		if (pokemon instanceof Pokemon) {
 			if (pokemon.volatiles.transform) {
 				options.shiny = pokemon.volatiles.transform[2];
