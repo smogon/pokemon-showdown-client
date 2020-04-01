@@ -655,11 +655,12 @@ const Dex = new class implements ModdedDex {
 
 		if (options.shiny && mechanicsGen > 1) dir += '-shiny';
 
-		// April Fool's
+		// April Fool's 2014
 		if (window.Config && Config.server && Config.server.afd || options.afd) {
 			dir = 'afd' + dir;
 			spriteData.url += dir + '/' + name + '.png';
 			// Duplicate code but needed to make AFD tinymax work
+			// April Fool's 2020
 			if (isDynamax && !options.noScale) {
 				spriteData.w *= 0.25;
 				spriteData.h *= 0.25;

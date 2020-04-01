@@ -249,6 +249,7 @@ exports.BattleTextAFD = {
 		start: "  [POKEMON] can no longer escape!",
 	},
 	dynamax: {
+		// April Fool's 2020
 		start: "  ([POKEMON]'s Tinymax!)",
 		end: "  ([POKEMON] returned to normal!)",
 		block: "  The move was blocked by the power of Tinymax!",
