@@ -659,6 +659,17 @@ const Dex = new class implements ModdedDex {
 		if (window.Config && Config.server && Config.server.afd || options.afd) {
 			dir = 'afd' + dir;
 			spriteData.url += dir + '/' + name + '.png';
+			// Duplicate code but needed to make AFD tinymax work
+			// April Fool's 2020
+			if (isDynamax && !options.noScale) {
+				spriteData.w *= 0.25;
+				spriteData.h *= 0.25;
+				spriteData.y += -22;
+			} else if (species.isTotem && !options.noScale) {
+				spriteData.w *= 0.5;
+				spriteData.h *= 0.5;
+				spriteData.y += -11;
+			}
 			return spriteData;
 		}
 

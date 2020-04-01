@@ -248,6 +248,13 @@ exports.BattleTextAFD = {
 	trapped: {
 		start: "  [POKEMON] can no longer escape!",
 	},
+	dynamax: {
+		// April Fool's 2020
+		start: "  ([POKEMON]'s Tinymax!)",
+		end: "  ([POKEMON] returned to normal!)",
+		block: "  The move was blocked by the power of Tinymax!",
+		fail: "  [POKEMON] shook its head. It seems like it can't use this move...",
+	},
 
 	// weather
 	sandstorm: {
