@@ -914,8 +914,8 @@ p.or:after {
 
 .roomcounters {
 	max-width: 480px;
-  margin: 4px 0 10px;
-  text-align: center;
+	margin: 8px 0 15px 0;
+	text-align: center;
 }
 .roomcounters button {
 	margin: 0 auto;
@@ -923,22 +923,38 @@ p.or:after {
 	height: 60px;
 	padding: 3px 8px;
 	text-align: center;
+	vertical-align: middle;
 	font-size: 10pt;
+	position: relative;
 }
 .roomcounters button strong {
 	display: block;
 	font-size: 18pt;
 	font-weight: normal;
 }
-.roomcounters .icon-left {
-	display: inline-block;
-	vertical-align: middle;
-	transform: scaleX(-1);
-	-webkit-transform: scaleX(-1);
+.roomcounters .usercount {
+	display: block;
+	width: 49px;
+	height: 63px;
+	position: absolute;
+	left: -30px;
+	bottom: -5px;
+	background: url(https://play.pokemonshowdown.com/sprites/gen5/meloetta.png) center no-repeat;
 }
-.roomcounters .icon-right {
-	display: inline-block;
-	vertical-align: middle;
+.roomcounters button:hover .usercount {
+	background: url(https://play.pokemonshowdown.com/sprites/gen5ani/meloetta.gif) center no-repeat;
+}
+.roomcounters .battlecount {
+	display: block;
+	width: 46px;
+	height: 76px;
+	position: absolute;
+	right: -30px;
+	bottom: -10px;
+	background: url(https://play.pokemonshowdown.com/sprites/gen5/meloetta-pirouette.png) center no-repeat;
+}
+.roomcounters button:hover .battlecount {
+	background: url(https://play.pokemonshowdown.com/sprites/gen5ani/meloetta-pirouette.gif) center no-repeat;
 }
 
 .roomlist {
