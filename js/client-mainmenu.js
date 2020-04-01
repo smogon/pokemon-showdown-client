@@ -1038,7 +1038,7 @@
 					$elements.remove();
 					$chatElem.append('<div class="chat uhtml-' + toID(parts[0]) + ' chatmessage-' + toID(name) + '">' + BattleLog.sanitizeHTML(html) + '</div>');
 				}
-				return '';
+				return {message: '', noNotify: isChat};
 			case 'raw':
 				return {message: '<div class="chat chatmessage-' + toID(name) + '">' + BattleLog.sanitizeHTML(target) + '</div>', noNotify: isChat};
 			case 'nonotify':
