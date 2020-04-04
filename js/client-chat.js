@@ -436,6 +436,7 @@
 			}
 
 			switch (cmd.toLowerCase()) {
+			case 'chal':
 			case 'chall':
 			case 'challenge':
 				var targets = target.split(',');
