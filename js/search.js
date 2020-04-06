@@ -1102,7 +1102,7 @@
 						}
 					}
 					if (BattleMovedex[i].gen > this.gen) continue;
-					if (BattleMovedex[i].isZ || BattleMovedex[i].isMax || BattleMovedex[i].isNonstandard || BattleMovedex[i].isUnreleased) continue;
+					if (BattleMovedex[i].isZ || BattleMovedex[i].isMax || BattleMovedex[i].isNonstandard) continue;
 					moves.push(i);
 				}
 			}
