@@ -307,7 +307,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			const tier = (() => {
 				if (isNatDex) {
 					let tier = species.tier;
-					if (species.tier === 'Illegal' || species.isNonstandard === 'Past' || species.isUnreleased === 'Past') tier = Dex.mod('gen7').getSpecies(species.name).tier;
+					if (species.tier === 'Unreleased' || species.isNonstandard === 'Past') tier = Dex.mod('gen7').getSpecies(species.name).tier;
 					let banlist = Dex.getFormat('gen8nationaldex').banlist;
 					if (
 						banlist.includes(species.name) ||
@@ -338,13 +338,6 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 					if (species.tier === 'CAP LC') tier = 'LC';
 					if (species.tier === 'CAP NFE') tier = 'NFE';
 					if (species.tier === 'CAP') tier = 'OU';
-					if (species.isUnreleased) {
-						if (species.isUnreleased === 'Past') {
-							tier = Dex.mod('gen7').getSpecies(species.name).tier;
-						} else {
-							tier = 'Unreleased';
-						}
-					}
 					let banlist = Dex.getFormat('gen8metronomebattle').banlist;
 					let bst = 0;
 					for (const stat of Object.values(species.baseStats)) {
