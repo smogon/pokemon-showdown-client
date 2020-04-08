@@ -288,6 +288,13 @@ Storage.makeLoadTracker = function () {
 			callback[0].call(callback[1], value);
 		}
 	};
+	tracker.update = function (value) {
+		tracker.value = value;
+		for (var i = 0; i < tracker.callbacks.length; i++) {
+			var callback = tracker.callbacks[i];
+			callback[0].call(callback[1], value);
+		}
+	};
 	tracker.unload = function () {
 		if (!tracker.isLoaded) return;
 		tracker.isLoaded = false;
@@ -369,10 +376,8 @@ Storage.initPrefs = function () {
 			// that feel a need to MitM HTTPS poorly
 			Storage.whenPrefsLoaded.load();
 			if (!Storage.whenTeamsLoaded.isLoaded) {
-				Storage.whenTeamsLoaded.isStalled = true;
-				if (window.app && app.rooms['teambuilder']) {
-					app.rooms['teambuilder'].updateTeamInterface();
-				}
+				Storage.whenTeamsLoaded.error = 'stalled';
+				Storage.whenTeamsLoaded.update();
 			}
 		}, 2000);
 	}
@@ -487,13 +492,11 @@ Storage.postCrossOriginMessage = function (data) {
 	try {
 		// I really hope this is a Chrome bug that this can fail
 		return Storage.crossOriginFrame.postMessage(data, Storage.origin);
-	} catch (e) {
+	} catch (err) {
 		Storage.whenPrefsLoaded.load();
 		if (!Storage.whenTeamsLoaded.isLoaded) {
-			Storage.whenTeamsLoaded.isStalled = true;
-			if (window.app && app.rooms['teambuilder']) {
-				app.rooms['teambuilder'].updateTeamInterface();
-			}
+			Storage.whenTeamsLoaded.error = err;
+			Storage.whenTeamsLoaded.update();
 		}
 	}
 	return false;
@@ -1453,7 +1456,11 @@ Storage.nwLoadTeams = function () {
 	var localApp = window.app;
 	var dirOffset = this.dir.length + 6;
 	Storage.nwFindTextFilesRecursive(this.dir + 'Teams', function (err, files) {
-		if (err) return;
+		if (err) {
+			Storage.whenTeamsLoaded.error = err;
+			Storage.whenTeamsLoaded.update();
+			return;
+		}
 		self.teams = [];
 		self.nwTeamsLeft = files.length;
 		if (!self.nwTeamsLeft) {
