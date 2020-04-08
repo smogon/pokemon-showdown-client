@@ -865,6 +865,9 @@
 		curTeamFormat: '',
 		curTeamIndex: 0,
 		renderTeams: function (formatid, teamIndex) {
+			if (Storage.whenTeamsLoaded.error) {
+				return '<button class="select teamselect" name="joinRoom" value="teambuilder"><em class="message-error">Error loading teams</em></button>';
+			}
 			if (!Storage.teams || !window.BattleFormats) {
 				return '<button class="select teamselect" name="team" disabled><em>Loading...</em></button>';
 			}
