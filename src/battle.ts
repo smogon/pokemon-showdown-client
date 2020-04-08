@@ -3020,7 +3020,9 @@ class Battle {
 		return null;
 	}
 	getPokemon(pokemonid: string | undefined) {
-		if (!pokemonid || pokemonid === '??' || pokemonid === 'null') return null;
+		if (!pokemonid || pokemonid === '??' || pokemonid === 'null' || pokemonid === 'false') {
+			return null;
+		}
 		const {siden, slot, pokemonid: parsedPokemonid} = this.parsePokemonId(pokemonid);
 		pokemonid = parsedPokemonid;
 
@@ -3030,6 +3032,7 @@ class Battle {
 
 		// search player's pokemon
 		if (!isInactive && side.active[slot]) return side.active[slot];
+
 		for (const pokemon of side.pokemon) {
 			if (isInactive && side.active.includes(pokemon)) continue;
 			if (pokemon.ident === pokemonid) { // name matched, good enough
