@@ -518,6 +518,7 @@ function toId() {
 				self.rooms[''].updateFormats();
 				$('.pm-log-add form').html('<small>You are disconnected and cannot chat.</small>');
 				$('.chat-log-add').html('<small>You are disconnected and cannot chat.</small>');
+				$('.battle-log-add').html('<small>You are disconnected and cannot chat.</small>');
 
 				self.reconnectPending = (message || true);
 				if (!self.popups.length) self.addPopup(ReconnectPopup, {message: message});
