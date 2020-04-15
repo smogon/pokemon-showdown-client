@@ -295,9 +295,9 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 		const isVGC = (genIdent === -7.5);
 		const genNum = Math.floor(isDoubles ? -genIdent : genIdent);
 		const gen = (() => {
-		if (isLetsGo) return 'letsgo';
-		if (isPetMod) return 'roulettemons';
-		else return 'gen' + genNum;
+			if (isLetsGo) return 'letsgo';
+			if (isPetMod) return 'roulettemons';
+			else return 'gen' + genNum;
 		})();
 // process.stdout.write("" + gen + (isDoubles ? " doubles" : "") + "... ");
 		const pokemon = Object.keys(Dex.data.Pokedex);
