@@ -299,7 +299,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			if (isPetMod) return 'roulettemons';
 			else return 'gen' + genNum;
 		})();
-// process.stdout.write("" + gen + (isDoubles ? " doubles" : "") + "... ");
+		// process.stdout.write("" + gen + (isDoubles ? " doubles" : "") + "... ");
 		const pokemon = Object.keys(Dex.data.Pokedex);
 		pokemon.sort();
 		const tierTable = {};
