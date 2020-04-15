@@ -807,6 +807,11 @@
 			this.mod = 'natdex';
 			if (!format) format = 'ou';
 		}
+		var isPetMod = format.startsWith('petmodroulettemons');
+		if (isPetMod) {
+			format = format.slice(18);
+			this.mod = 'petmod';
+		}
 		var isMetBattle = format.includes('metronome');
 		if (isMetBattle) this.mod = 'natdex';
 		var requirePentagon = (format === 'battlespotsingles' || format === 'battledoubles' || format.slice(0, 3) === 'vgc');
@@ -831,12 +836,14 @@
 			} else if (table['gen' + this.gen + 'doubles'] && (format.includes('doubles') || format.includes('vgc') || format.includes('triples') || format.endsWith('lc') || format.endsWith('lcuu')) && !isLetsGo) {
 				table = table['gen' + this.gen + 'doubles'];
 				isDoublesOrBS = true;
-			} else if (this.gen < 8) {
-				table = table['gen' + this.gen];
 			} else if (isLetsGo) {
 				table = table['letsgo'];
+			} else if (this.gen < 8) {
+				table = table['gen' + this.gen];
 			} else if (isNatDex) {
 				table = table['natdex'];
+			} else if (isPetMod) {
+				table = table['roulettemons'];
 			} else if (isMetBattle) {
 				table = table['metronome'];
 			}
