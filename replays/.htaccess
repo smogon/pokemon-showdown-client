@@ -28,6 +28,7 @@ RewriteRule ^replay\/(.*)$ /$1 [R=302,L]
 RewriteRule ^battle-([A-Za-z0-9-]+)?$ /$1 [R=302,L]
 
 RewriteRule ^search/?$ search.php [L,QSA]
+RewriteRule ^search\.json$ search.json.php [L,QSA]
 RewriteRule ^([A-Za-z0-9-]+)$ battle.php?name=$1 [L,QSA]
 RewriteRule ^([A-Za-z0-9-]+)/manage$ battle.php?name=$1&manage [L,QSA]
 RewriteRule ^([A-Za-z0-9-]+)\.log$ battle.log.php?name=$1 [L,QSA]
