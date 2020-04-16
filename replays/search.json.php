@@ -1,7 +1,8 @@
 <?php
 
 $username = @$_REQUEST['user'];
-$format = ($username ? '' : @$_REQUEST['format']);
+$username2 = @$_REQUEST['user2'];
+$format = @$_REQUEST['format'];
 $contains = (@$_REQUEST['contains']);
 $byRating = isset($_REQUEST['rating']);
 $isPrivate = isset($_REQUEST['private']);
@@ -14,20 +15,26 @@ include_once '../lib/ntbb-session.lib.php';
 
 $username = $users->userid($username);
 $isPrivateAllowed = ($username === $curuser['userid'] || $curuser['userid'] === 'zarel');
+if ($isPrivate && !$isPrivateAllowed) {
+	die('"ERROR: access denied"');
+}
 
 $page = intval($_REQUEST['page'] ?? 0);
 
 $replays = null;
 if ($page > 25) {
-	// no
-} else if ($username) {
-	if (!$isPrivate || $isPrivateAllowed) {
-		$replays = $Replays->search(["username" => $username, "isPrivate" => $isPrivate, "page" => $page]);
-	}
+	die('"ERROR: page limit is 25"');
+} else if ($username || $format) {
+	$replays = $Replays->search([
+		"username" => $username,
+		"username2" => $username2,
+		"format" => $format,
+		"byRating" => $byRating,
+		"isPrivate" => $isPrivate,
+		"page" => $page
+	]);
 } else if ($contains) {
 	$replays = $Replays->fullSearch($contains, $page);
-} else if ($format) {
-	$replays = $Replays->search(["format" => $format, "byRating" => $byRating, "page" => $page]);
 } else {
 	$replays = $Replays->recent();
 }
