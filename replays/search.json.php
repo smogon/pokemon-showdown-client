@@ -7,7 +7,7 @@ $contains = (@$_REQUEST['contains']);
 $byRating = isset($_REQUEST['rating']);
 $isPrivate = isset($_REQUEST['private']);
 
-header('Content-type: application/json');
+header('Content-Type: application/json');
 if (!$isPrivate) header('Access-Control-Allow-Origin: *');
 
 require_once 'replays.lib.php';
@@ -41,7 +41,7 @@ if ($page > 25) {
 
 if ($replays) {
 	foreach ($replays as &$replay) {
-		if ($replay['password']) {
+		if ($replay['password'] ?? null) {
 			$replay['id'] .= '-' . $replay['password'];
 		}
 		unset($replay['password']);
