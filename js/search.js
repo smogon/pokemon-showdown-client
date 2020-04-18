@@ -644,6 +644,7 @@
 			return '';
 		}
 
+		if (learnsetid === 'pikachugmax') return 'pikachu';
 		if (learnsetid === 'lycanrocdusk' || (speciesid === 'rockruff' && learnsetid === 'rockruff')) return 'rockruffdusk';
 		var species = BattlePokedex[learnsetid];
 		if (!species) return '';
