@@ -869,7 +869,12 @@
 					var parts = this.choice.choices[i].split(' ');
 					switch (parts[0]) {
 					case 'move':
-						var move = this.request.active[i].moves[parseInt(parts[1], 10) - 1].move;
+						var move;
+						if (this.request.active[i].maxMoves && !this.request.active[i].canDynamax) { // it's a max move
+							move = this.request.active[i].maxMoves.maxMoves[parseInt(parts[1], 10) - 1].move;
+						} else { // it's a normal move
+							move = this.request.active[i].moves[parseInt(parts[1], 10) - 1].move;
+						}
 						var target = '';
 						buf += myActive[i].speciesForme + ' will ';
 						if (parts.length > 2) {
@@ -884,7 +889,7 @@
 							}
 							if (targetPos === 'dynamax') {
 								move = this.request.active[i].maxMoves.maxMoves[parseInt(parts[1], 10) - 1].move;
-								buf += 'dynamax, then ';
+								buf += 'Dynamax, then ';
 								targetPos = parts[3];
 							}
 							if (targetPos) {
@@ -900,10 +905,6 @@
 								} else {
 									target = ''; // targeting an empty slot
 								}
-							}
-						} else {
-							if (this.request.active[i].maxMoves && !this.request.active[i].canDynamax) {
-								move = this.request.active[i].maxMoves.maxMoves[parseInt(parts[1], 10) - 1].move;
 							}
 						}
 						buf += 'use ' + Dex.getMove(move).name + (target ? ' against ' + target : '') + '.<br />';
