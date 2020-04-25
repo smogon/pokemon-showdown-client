@@ -322,7 +322,6 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 						tier = 'OU';
 						return tier;
 					}
-					if (['Meltan', 'Melmetal'].includes(species.name)) tier = 'OU';
 					if (species.isGigantamax) tier = '(Uber)';
 					return tier;
 				}
@@ -477,7 +476,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 
 		const tierOrder = (() => {
 			if (isNatDex) {
-				return ["CAP", "CAP NFE", "CAP LC", "AG", "Uber", "OU", "UUBL", "(OU)", "UU", "RUBL", "RU", "NUBL", "NU", "PUBL", "PU", "(PU)", "NFE", "LC Uber", "LC"];
+				return ["CAP", "CAP NFE", "CAP LC", "AG", "Uber", "(Uber)", "OU", "UUBL", "(OU)", "UU", "RUBL", "RU", "NUBL", "NU", "PUBL", "PU", "(PU)", "NFE", "LC Uber", "LC"];
 			}
 			if (isLetsGo) {
 				return ["Uber", "OU", "UU", "NFE", "LC"];
