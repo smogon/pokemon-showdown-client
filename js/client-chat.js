@@ -561,14 +561,7 @@
 				return false;
 
 			case 'news':
-				var newsId = '1990';
-				app.rooms[''].addPseudoPM({
-					title: 'News',
-					html: '<iframe src="/news-embed.php?news' + (window.nodewebkit || document.location.protocol === 'https:' ? '&amp;https' : '') + '" width="270" height="400" border="0" style="border:0;width:100%;height:100%;display:block"></iframe>',
-					attributes: 'data-newsid="' + newsId + '"',
-					cssClass: 'news-embed',
-					height: 400
-				});
+				app.rooms[''].addNews();
 				return false;
 			case 'autojoin':
 			case 'cmd':
