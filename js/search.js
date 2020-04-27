@@ -649,7 +649,7 @@
 		var species = BattlePokedex[learnsetid];
 		if (!species) return '';
 		if (species.prevo) return species.prevo;
-		if (species.inheritsFrom) return species.inheritsFrom;
+		if (species.changesFrom) return species.changesFrom;
 		return '';
 	};
 	Search.prototype.filteredMoves = function () {
