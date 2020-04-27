@@ -1062,7 +1062,14 @@
 				buf = '<div class="pad"><button name="back"><i class="fa fa-chevron-left"></i> List</button> <input class="textbox teamnameedit" type="text" class="teamnameedit" size="30" value="' + BattleLog.escapeHTML(this.curTeam.name) + '" /> <button name="saveImport"><i class="fa fa-upload"></i> Import/Export</button> <button name="saveImport" class="savebutton"><i class="fa fa-floppy-o"></i> Save</button></div>';
 				buf += '<div class="teamedit"><textarea class="textbox" rows="17">' + BattleLog.escapeHTML(Storage.exportTeam(this.curSetList)) + '</textarea></div>';
 			} else {
-				buf = '<div class="pad"><button name="back"><i class="fa fa-chevron-left"></i> List</button> <input class="textbox teamnameedit" type="text" class="teamnameedit" size="30" value="' + BattleLog.escapeHTML(this.curTeam.name) + '" /> <button name="import"><i class="fa fa-upload"></i> Import/Export</button></div>';
+				buf = '<div class="pad"><button name="back"><i class="fa fa-chevron-left"></i> List</button> ';
+				buf += '<input class="textbox teamnameedit" type="text" class="teamnameedit" size="30" value="' + BattleLog.escapeHTML(this.curTeam.name) + '" /> ';
+				buf += '<button name="import"><i class="fa fa-upload"></i> Import/Export</button> ';
+				buf += '<form style="display:inline" method="post" action="https://pokepast.es/create" target="_blank">';
+				buf += '<button type="submit"><input type="hidden" name="paste" value="' + BattleLog.escapeHTML(Storage.exportTeam(this.curSetList)) + '">';
+				buf += '<input type="hidden" name="title" value="' + BattleLog.escapeHTML(this.curTeam.name) + '">';
+				buf += '<input type="hidden" name="author" value="' + BattleLog.escapeHTML(app.user.get('name')) + '">';
+				buf += '<i class="fa fa-upload"></i> Export to PokePaste</button></form></div>';
 				buf += '<div class="teamchartbox">';
 				buf += '<ol class="teamchart">';
 				buf += '<li>' + this.clipboardHTML() + '</li>';
