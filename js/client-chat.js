@@ -561,7 +561,8 @@
 				return false;
 
 			case 'news':
-				var newsId = Number(Storage.prefs('newsid'));
+				var newsId = '1990';
+				if (newsId === '' + Dex.prefs('readnews')) return;
 				app.rooms[''].addPseudoPM({
 					title: 'News',
 					html: '<iframe src="/news-embed.php?news' + (window.nodewebkit || document.location.protocol === 'https:' ? '&amp;https' : '') + '" width="270" height="400" border="0" style="border:0;width:100%;height:100%;display:block"></iframe>',
