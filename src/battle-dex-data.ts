@@ -1327,7 +1327,7 @@ class Species implements Effect {
 	readonly battleOnly: string | string[] | null;
 	readonly isNonstandard: string | null;
 	readonly unreleasedHidden: boolean | 'Past';
-	readonly inheritsFrom: string | null;
+	readonly changesFrom: string | null;
 
 	constructor(id: ID, name: string, data: any) {
 		if (!data || typeof data !== 'object') data = {};
@@ -1406,7 +1406,7 @@ class Species implements Effect {
 		this.battleOnly = data.battleOnly || (this.isGigantamax ? this.baseSpecies : null);
 		this.isNonstandard = data.isNonstandard || null;
 		this.unreleasedHidden = data.unreleasedHidden || false;
-		this.inheritsFrom = data.inheritsFrom || null;
+		this.changesFrom = data.changesFrom || null;
 		if (!this.gen) {
 			if (this.num >= 810 || this.forme === 'Galar' || this.isGigantamax) {
 				this.gen = 8;
