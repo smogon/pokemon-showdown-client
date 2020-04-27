@@ -560,6 +560,15 @@
 				}
 				return false;
 
+			case 'news':
+				app.rooms[''].addPseudoPM({
+					title: 'News',
+					html: '<iframe src="/news-embed.php?news' + (window.nodewebkit || document.location.protocol === 'https:' ? '&amp;https' : '') + '" width="270" height="400" border="0" style="border:0;width:100%;height:100%;display:block"></iframe>',
+					attributes: 'data-newsid="' + newsId + '"',
+					cssClass: 'news-embed',
+					height: 400
+				});
+				return false;
 			case 'autojoin':
 			case 'cmd':
 			case 'crq':
@@ -645,7 +654,17 @@
 			case 'logout':
 				app.user.logout();
 				return false;
-
+			case 'news':
+				var newsId = '1990';
+				if (newsId === '' + Dex.prefs('readnews')) return;
+				app.addPseudoPM({
+					title: 'Latest News',
+					html: '<iframe src="/news-embed.php?news' + (window.nodewebkit || document.location.protocol === 'https:' ? '&amp;https' : '') + '" width="270" height="400" border="0" style="border:0;width:100%;height:100%;display:block"></iframe>',
+					attributes: 'data-newsid="' + newsId + '"',
+					cssClass: 'news-embed',
+					height: 400
+				});
+				break;
 			case 'showdebug':
 				this.add('Debug battle messages: ON');
 				Dex.prefs('showdebug', true);
@@ -1013,6 +1032,9 @@
 				case 'user':
 				case 'open':
 					this.add('/user [user] - Open a popup containing the user [user]\'s avatar, name, rank, and chatroom list.');
+					return false;
+				case 'news':
+					this.add('/news - Opens a popup containing the news.');
 					return false;
 				case 'ignore':
 				case 'unignore':
