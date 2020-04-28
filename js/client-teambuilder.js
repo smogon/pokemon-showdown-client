@@ -796,6 +796,13 @@
 			this.exportMode = true;
 			this.update();
 		},
+		pokepasteExport: function () {
+			console.log("HI");
+			document.getElementById("pasteData").value = BattleLog.escapeHTML(Storage.exportTeam(this.curSetList));
+			document.getElementById("pasteTitle").value = BattleLog.escapeHTML(this.curTeam.name);
+			document.getElementById("pasteAuthor").value = BattleLog.escapeHTML(app.user.get('name'));
+			document.getElementById("pokepasteForm").submit();
+		},
 
 		// drag and drop
 
@@ -1065,11 +1072,11 @@
 				buf = '<div class="pad"><button name="back"><i class="fa fa-chevron-left"></i> List</button> ';
 				buf += '<input class="textbox teamnameedit" type="text" class="teamnameedit" size="30" value="' + BattleLog.escapeHTML(this.curTeam.name) + '" /> ';
 				buf += '<button name="import"><i class="fa fa-upload"></i> Import/Export</button> ';
-				buf += '<form style="display:inline" method="post" action="https://pokepast.es/create" target="_blank">';
-				buf += '<input type="hidden" name="title" value="' + BattleLog.escapeHTML(this.curTeam.name) + '">';
-				buf += '<input type="hidden" name="paste" value="' + BattleLog.escapeHTML(Storage.exportTeam(this.curSetList)) + '">';
-				buf += '<input type="hidden" name="author" value="' + BattleLog.escapeHTML(app.user.get('name')) + '">';
-				buf += '<button type="submit"><i class="fa fa-upload"></i> Export to PokePaste</button></form></div>';
+				buf += '<form id="pokepasteForm" style="display:inline" method="post" action="https://pokepast.es/create" target="_blank">';
+				buf += '<input type="hidden" name="title" id="pasteTitle">';
+				buf += '<input type="hidden" name="paste" id="pasteData">';
+				buf += '<input type="hidden" name="author" id="pasteAuthor">';
+				buf += '<button name="pokepasteExport" type="submit"><i class="fa fa-upload"></i> Export to PokePaste</button></form></div>';
 				buf += '<div class="teamchartbox">';
 				buf += '<ol class="teamchart">';
 				buf += '<li>' + this.clipboardHTML() + '</li>';
