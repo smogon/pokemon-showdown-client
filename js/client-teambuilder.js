@@ -797,9 +797,9 @@
 			this.update();
 		},
 		pokepasteExport: function () {
-			document.getElementById("pasteData").value = BattleLog.escapeHTML(Storage.exportTeam(this.curSetList));
-			document.getElementById("pasteTitle").value = BattleLog.escapeHTML(this.curTeam.name);
-			document.getElementById("pasteAuthor").value = BattleLog.escapeHTML(app.user.get('name'));
+			document.getElementById("pasteData").value = Storage.exportTeam(this.curSetList);
+			document.getElementById("pasteTitle").value = this.curTeam.name;
+			document.getElementById("pasteAuthor").value = app.user.get('name');
 			document.getElementById("pokepasteForm").submit();
 		},
 
