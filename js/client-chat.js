@@ -560,6 +560,9 @@
 				}
 				return false;
 
+			case 'news':
+				app.rooms[''].addNews();
+				return false;
 			case 'autojoin':
 			case 'cmd':
 			case 'crq':
@@ -645,7 +648,6 @@
 			case 'logout':
 				app.user.logout();
 				return false;
-
 			case 'showdebug':
 				this.add('Debug battle messages: ON');
 				Dex.prefs('showdebug', true);
@@ -1013,6 +1015,9 @@
 				case 'user':
 				case 'open':
 					this.add('/user [user] - Open a popup containing the user [user]\'s avatar, name, rank, and chatroom list.');
+					return false;
+				case 'news':
+					this.add('/news - Opens a popup containing the news.');
 					return false;
 				case 'ignore':
 				case 'unignore':
