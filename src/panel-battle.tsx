@@ -257,11 +257,11 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 	};
 	componentDidMount() {
 		const $elem = $(this.base!);
-		const battle = new Battle($elem.find('.battle'), $elem.find('.battle-log'));
+		const battle = new Battle($elem.find<HTMLElement>('.battle'), $elem.find<HTMLElement>('.battle-log'));
 		this.props.room.battle = battle;
 		battle.endCallback = () => this.forceUpdate();
 		battle.play();
-		(battle.scene as BattleScene).tooltips.listen($elem.find('.battle-controls'));
+		(battle.scene as BattleScene).tooltips.listen($elem.find<HTMLElement>('.battle-controls'));
 		super.componentDidMount();
 	}
 	receiveLine(args: Args) {

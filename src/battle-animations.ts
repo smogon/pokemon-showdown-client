@@ -244,7 +244,7 @@ class BattleScene {
 		this.updateBgm();
 		if (this.battle.resumeButton) {
 			this.$frame.append('<div class="playbutton"><button data-action="resume"><i class="fa fa-play icon-play"></i> Resume</button></div>');
-			this.$frame.find('div.playbutton button').click(this.battle.resumeButton);
+			this.$frame.find<HTMLElement>('div.playbutton button').click(this.battle.resumeButton);
 		}
 	}
 	resume() {
