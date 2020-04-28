@@ -797,7 +797,6 @@
 			this.update();
 		},
 		pokepasteExport: function () {
-			console.log("HI");
 			document.getElementById("pasteData").value = BattleLog.escapeHTML(Storage.exportTeam(this.curSetList));
 			document.getElementById("pasteTitle").value = BattleLog.escapeHTML(this.curTeam.name);
 			document.getElementById("pasteAuthor").value = BattleLog.escapeHTML(app.user.get('name'));
