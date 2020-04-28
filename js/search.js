@@ -648,8 +648,8 @@
 		if (learnsetid === 'lycanrocdusk' || (speciesid === 'rockruff' && learnsetid === 'rockruff')) return 'rockruffdusk';
 		var species = BattlePokedex[learnsetid];
 		if (!species) return '';
-		if (species.prevo) return species.prevo;
-		if (species.changesFrom) return species.changesFrom;
+		if (species.prevo) return toID(species.prevo);
+		if (species.changesFrom) return toID(species.changesFrom);
 		return '';
 	};
 	Search.prototype.filteredMoves = function () {
