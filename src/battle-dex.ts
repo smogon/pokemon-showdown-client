@@ -465,6 +465,13 @@ const Dex = new class implements ModdedDex {
 		if (window.BattleAliases && id in BattleAliases) {
 			name = BattleAliases[id];
 			id = toID(name);
+		} else if (window.BattlePokedex && !(id in BattlePokedex) && window.BattleBaseSpeciesChart) {
+			for (const baseSpeciesId of BattleBaseSpeciesChart) {
+				if (formid.startsWith(baseSpeciesId)) {
+					id = baseSpeciesId;
+					break;
+				}
+			}
 		}
 		if (!window.BattlePokedex) window.BattlePokedex = {};
 		let data = window.BattlePokedex[id];
