@@ -3184,7 +3184,7 @@
 			this.chartIndex = data.index;
 			var species = Dex.getSpecies(this.curSet.species);
 			var baseid = toID(species.baseSpecies);
-			var forms = [baseid].concat(species.cosmeticFormes);
+			var forms = [baseid].concat(species.cosmeticFormes.map(toID));
 			var spriteDir = Dex.resourcePrefix + 'sprites/';
 			var spriteSize = 96;
 			var spriteDim = 'width: 96px; height: 96px;';

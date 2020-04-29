@@ -1308,11 +1308,10 @@ class Species implements Effect {
 	readonly eggGroups: ReadonlyArray<string>;
 
 	// format data
-	readonly otherFormes: ReadonlyArray<ID> | null;
-	// TODO: rename to cosmeticForms
-	readonly cosmeticFormes: ReadonlyArray<ID> | null;
-	readonly evos: ReadonlyArray<ID> | null;
-	readonly prevo: ID;
+	readonly otherFormes: ReadonlyArray<string> | null;
+	readonly cosmeticFormes: ReadonlyArray<string> | null;
+	readonly evos: ReadonlyArray<string> | null;
+	readonly prevo: string;
 	readonly evoType: 'trade' | 'useItem' | 'levelMove' | 'levelExtra' | 'levelFriendship' | 'levelHold' | 'other' | '';
 	readonly evoLevel: number;
 	readonly evoMove: string;
@@ -1324,10 +1323,10 @@ class Species implements Effect {
 	readonly isMega: boolean;
 	readonly isGigantamax: boolean;
 	readonly isPrimal: boolean;
-	readonly battleOnly: string | string[] | null;
+	readonly battleOnly: string | string[] | undefined;
 	readonly isNonstandard: string | null;
 	readonly unreleasedHidden: boolean | 'Past';
-	readonly changesFrom: string | null;
+	readonly changesFrom: string | undefined;
 
 	constructor(id: ID, name: string, data: any) {
 		if (!data || typeof data !== 'object') data = {};
@@ -1401,12 +1400,12 @@ class Species implements Effect {
 
 		this.isTotem = false;
 		this.isMega = false;
-		this.isGigantamax = !!(this.forme && this.forme.endsWith('Gmax'));
+		this.isGigantamax = !!(this.forme?.endsWith('Gmax'));
 		this.isPrimal = false;
-		this.battleOnly = data.battleOnly || (this.isGigantamax ? this.baseSpecies : null);
+		this.battleOnly = data.battleOnly || (this.isGigantamax ? this.baseSpecies : undefined);
 		this.isNonstandard = data.isNonstandard || null;
 		this.unreleasedHidden = data.unreleasedHidden || false;
-		this.changesFrom = data.changesFrom || null;
+		this.changesFrom = data.changesFrom || undefined;
 		if (!this.gen) {
 			if (this.num >= 810 || this.forme === 'Galar' || this.isGigantamax) {
 				this.gen = 8;
