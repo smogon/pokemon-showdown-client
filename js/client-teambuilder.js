@@ -1071,11 +1071,6 @@
 				buf = '<div class="pad"><button name="back"><i class="fa fa-chevron-left"></i> List</button> ';
 				buf += '<input class="textbox teamnameedit" type="text" class="teamnameedit" size="30" value="' + BattleLog.escapeHTML(this.curTeam.name) + '" /> ';
 				buf += '<button name="import"><i class="fa fa-upload"></i> Import/Export</button> ';
-				buf += '<form id="pokepasteForm" style="display:inline" method="post" action="https://pokepast.es/create" target="_blank">';
-				buf += '<input type="hidden" name="title" id="pasteTitle">';
-				buf += '<input type="hidden" name="paste" id="pasteData">';
-				buf += '<input type="hidden" name="author" id="pasteAuthor">';
-				buf += '<button name="pokepasteExport" type="submit"><i class="fa fa-upload"></i> Export to PokePaste</button></form></div>';
 				buf += '<div class="teamchartbox">';
 				buf += '<ol class="teamchart">';
 				buf += '<li>' + this.clipboardHTML() + '</li>';
@@ -1114,6 +1109,11 @@
 					buf += '<li><button name="addPokemon" class="button big"><i class="fa fa-plus"></i> Add Pok&eacute;mon</button></li>';
 				}
 				buf += '</ol>';
+				buf += '<form id="pokepasteForm" style="display:inline" method="post" action="https://pokepast.es/create" target="_blank">';
+				buf += '<input type="hidden" name="title" id="pasteTitle">';
+				buf += '<input type="hidden" name="paste" id="pasteData">';
+				buf += '<input type="hidden" name="author" id="pasteAuthor">';
+				buf += '<button name="pokepasteExport" type="submit" class="button exportbutton"><i class="fa fa-upload"></i> Upload to PokePaste</button></form>';
 				buf += '</div>';
 			}
 			this.$el.html('<div class="teamwrapper">' + buf + '</div>');
