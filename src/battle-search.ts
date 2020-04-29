@@ -691,8 +691,8 @@ class BattleSearch {
 						}
 						types.push(type);
 					}
-					for (const formeid of baseSpecies.otherFormes) {
-						const forme = Dex.getSpecies(formeid);
+					for (const formeName of baseSpecies.otherFormes) {
+						const forme = Dex.getSpecies(formeName);
 						for (const type of forme.types) {
 							if (forme.battleOnly || ['Alola', 'Alola-Totem', 'Galar', 'Galar-Zen'].includes(species.forme)) {
 								continue;
@@ -1045,7 +1045,7 @@ class BattleSearch {
 		}
 		let species = BattlePokedex[learnsetid];
 		if (!species) return '' as ID;
-		if (species.prevo) return species.prevo as ID;
+		if (species.prevo) return toID(species.prevo);
 		let baseSpecies = species.baseSpecies;
 		if (baseSpecies !== species.name && (baseSpecies === 'Rotom' || baseSpecies === 'Pumpkaboo')) {
 			return toID(species.baseSpecies);

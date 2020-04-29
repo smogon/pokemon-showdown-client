@@ -44,9 +44,9 @@ function sizeObj(path) {
 function updateSizes() {
 	for (let baseid in Dex.data.Pokedex) {
 		let species = Dex.getSpecies(baseid);
-		for (let formid of [''].concat(species.cosmeticFormes || [])) {
+		for (let formeName of [''].concat(species.cosmeticFormes || [])) {
 			let spriteid = species.spriteid;
-			if (formid) spriteid += '-' + formid.slice(species.id.length);
+			if (formeName) spriteid += '-' + toID(formeName).slice(species.id.length);
 			let id = toID(spriteid);
 
 			{

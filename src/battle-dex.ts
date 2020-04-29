@@ -484,7 +484,7 @@ const Dex = new class implements ModdedDex {
 			window.BattlePokedex[id] = species;
 		}
 
-		if (formid === id || !species.cosmeticFormes || !species.cosmeticFormes.includes(formid)) {
+		if (formid === id || !species.cosmeticFormes || !species.cosmeticFormes.map(toID).includes(formid)) {
 			return species;
 		}
 		let forme = formid.slice(id.length);
