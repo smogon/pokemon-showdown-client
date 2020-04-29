@@ -2965,6 +2965,10 @@ a.ilink.yours {
 .teamwrapper.scaled .teamchartbox {
 	bottom: auto;
 }
+.exportbutton {
+	margin-left: 6px;
+	margin-bottom: 3px;
+}
 .teamchartbox.individual {
 	overflow: visible;
 }
