@@ -1142,7 +1142,7 @@
 
 			// icon
 			buf += '<div class="setcol setcol-icon">';
-			if (species.cosmeticFormes && species.baseSpecies !== 'Unown') {
+			if (species.cosmeticFormes) {
 				buf += '<div class="setcell-sprite changeform"><i class="fa fa-caret-down"></i></div>';
 			} else {
 				buf += '<div class="setcell-sprite"></div>';
@@ -2522,7 +2522,7 @@
 			}
 
 			buf += '</form>';
-			if (species.cosmeticFormes && species.baseSpecies !== 'Unown') {
+			if (species.cosmeticFormes) {
 				buf += '<button class="altform">Change sprite</button>';
 			}
 
