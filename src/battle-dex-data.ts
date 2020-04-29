@@ -138,61 +138,8 @@ const BattleStatNames = {
 } as const;
 
 const BattleBaseSpeciesChart = [
-	'pikachu',
-	'pichu',
-	'unown',
-	'castform',
-	'deoxys',
-	'burmy',
-	'wormadam',
-	'cherrim',
-	'shellos',
-	'gastrodon',
-	'rotom',
-	'giratina',
-	'shaymin',
-	'arceus',
-	'basculin',
-	'darmanitan',
-	'deerling',
-	'sawsbuck',
-	'tornadus',
-	'thundurus',
-	'landorus',
-	'kyurem',
-	'keldeo',
-	'meloetta',
-	'genesect',
-	'vivillon',
-	'flabebe',
-	'floette',
-	'florges',
-	'furfrou',
-	'aegislash',
-	'pumpkaboo',
-	'gourgeist',
-	'meowstic',
-	'hoopa',
-	'zygarde',
-	'lycanroc',
-	'wishiwashi',
-	'minior',
-	'mimikyu',
-	'greninja',
-	'oricorio',
-	'silvally',
-	'necrozma',
-
-	// alola totems
-	'raticate',
-	'marowak',
-	'kommoo',
-
-	// mega evolutions
-	'charizard',
-	'mewtwo',
-	// others are hardcoded by ending with 'mega'
-];
+	"unown", "burmy", "shellos", "gastrodon", "deerling", "sawsbuck", "vivillon", "flabebe", "floette", "florges", "furfrou", "minior", "alcremie", "pokestarufo", "pokestarbrycenman", "pokestarmt", "pokestarmt2", "pokestartransport", "pokestargiant", "pokestarhumanoid", "pokestarmonster", "pokestarf00", "pokestarf002", "pokestarspirit", "pokestarblackdoor", "pokestarwhitedoor", "pokestarblackbelt",
+] as ID[];
 
 const BattlePokemonIconIndexes: {[id: string]: number} = {
 	egg: 900 + 1,
@@ -1335,36 +1282,6 @@ class Species implements Effect {
 		this.id = id;
 		this.gen = data.gen || 0;
 		this.exists = ('exists' in data ? !!data.exists : true);
-		if (!data.abilities &&
-			!['hooh', 'hakamoo', 'jangmoo', 'kommoo', 'porygonz'].includes(this.id)) {
-			const dashIndex = name.indexOf('-');
-			if (this.id === 'kommoototem') {
-				data.baseSpecies = 'Kommo-o';
-				data.forme = 'Totem';
-			} else if (dashIndex > 0) {
-				data.baseSpecies = name.slice(0, dashIndex);
-				data.forme = name.slice(dashIndex + 1);
-			}
-		}
-		if (!data.abilities) {
-			// deprecated BattleBaseSpeciesChart
-			for (const baseid of BattleBaseSpeciesChart) {
-				if (this.id.length > baseid.length && this.id.slice(0, baseid.length) === baseid) {
-					data.baseSpecies = baseid;
-					data.forme = this.id.slice(baseid.length);
-				}
-			}
-			if (this.id !== 'yanmega' && this.id.slice(-4) === 'mega') {
-				data.baseSpecies = this.id.slice(0, -4);
-				data.forme = this.id.slice(-4);
-			} else if (this.id.slice(-6) === 'primal') {
-				data.baseSpecies = this.id.slice(0, -6);
-				data.forme = this.id.slice(-6);
-			} else if (this.id.slice(-5) === 'alola') {
-				data.baseSpecies = this.id.slice(0, -5);
-				data.forme = this.id.slice(-5);
-			}
-		}
 		this.baseSpecies = data.baseSpecies || name;
 		this.forme = data.forme || '';
 		const baseId = toID(this.baseSpecies);
