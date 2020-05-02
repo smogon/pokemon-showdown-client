@@ -1143,7 +1143,9 @@ class Move implements Effect {
 		this.isMax = data.isMax || false;
 		this.gmaxPower = data.gmaxPower || 0;
 		if (this.category !== 'Status' && !this.gmaxPower) {
-			if (!this.basePower) {
+			if (this.isZ || this.isMax) {
+				this.gmaxPower = 1;
+			} else if (!this.basePower) {
 				this.gmaxPower = 100;
 			} else if (['Fighting', 'Poison'].includes(this.type)) {
 				if (this.basePower >= 150) {
@@ -1179,7 +1181,7 @@ class Move implements Effect {
 				}
 			}
 		}
-		if (this.category !== 'Status' && !this.zMovePower) {
+		if (this.category !== 'Status' && !this.zMovePower && !this.isZ && !this.isMax) {
 			let basePower = this.basePower;
 			if (Array.isArray(this.multihit)) basePower *= 3;
 			if (!basePower) {
