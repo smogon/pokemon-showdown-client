@@ -534,6 +534,9 @@ exports.BattleText = {
 	geomancy: {
 		prepare: "[POKEMON] is absorbing power!",
 	},
+	gmaxchistrike: {
+		start: "#focusenergy",
+	},
 	gmaxsteelsurge: {
 		start: "  Sharp-pointed pieces of steel started floating around [PARTY]!",
 		end: "  The pieces of steel surrounding [PARTY] disappeared!",
