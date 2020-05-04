@@ -113,6 +113,7 @@ class TeamTextbox extends preact.Component<{team: Team}> {
 				}
 				this.search.setType(this.activeType, 'gen7ou' as ID, this.sets[setIndex]);
 				this.search.find('');
+				window.search = this.search;
 			}
 
 			index = nlIndex + 1;
