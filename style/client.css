@@ -1224,6 +1224,11 @@ p.or:after {
 	margin: 8px 0 15px 0;
 	text-align: center;
 }
+@media (max-width: 382px) {
+	.roomcounters {
+		margin: 38px 0 15px 0;
+	}
+}
 .roomcounters button {
 	margin: 0 auto;
 	width: 120px;
@@ -2061,28 +2066,28 @@ a.ilink.yours {
 	font-size: 8pt;
 }
 .megaevo {
-    clear: both;
-    display: block;
-    width: 180px;
-    margin: 0 auto 0;
-    position: relative;
-    top: 6px;
-    left: -7px;
-    padding: 2px;
-    text-align: center;
+		clear: both;
+		display: block;
+		width: 180px;
+		margin: 0 auto 0;
+		position: relative;
+		top: 6px;
+		left: -7px;
+		padding: 2px;
+		text-align: center;
 
-    cursor: pointer;
-    border: 1px solid #BBB;
-    border-radius: 3px;
-    color: #333;
-    background: #EEF2F5;
-    font-size: 10pt;
-    font-weight: bold;
+		cursor: pointer;
+		border: 1px solid #BBB;
+		border-radius: 3px;
+		color: #333;
+		background: #EEF2F5;
+		font-size: 10pt;
+		font-weight: bold;
 }
 .megaevo:hover {
-    border-color: #888;
-    background: #E5E5E5;
-    color: black;
+		border-color: #888;
+		background: #E5E5E5;
+		color: black;
 }
 
 .switchmenu,
@@ -3471,10 +3476,10 @@ a.ilink.yours {
 }
 
 .dark .teambar button:disabled, .dark .teambar button:disabled:hover, .dark .teambar button:disabled:active {
-    color: #ffffff;
-    background: #2d343a;
-    border-color: #6bacc5;
-    opacity: 1;
+		color: #ffffff;
+		background: #2d343a;
+		border-color: #6bacc5;
+		opacity: 1;
 }
 
 .dark .teambuilder-results .result a.hover,

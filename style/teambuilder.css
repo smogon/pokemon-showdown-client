@@ -216,54 +216,58 @@
 }
 
 .teamtextbox {
-  width: 100%;
-  padding-top: 8px;
-  padding-left: 100px;
-  box-sizing: border-box;
-  line-height: 20px;
+	width: 100%;
+	padding-top: 8px;
+	padding-left: 100px;
+	box-sizing: border-box;
+	line-height: 20px;
 }
 .teaminnertextbox {
-  width: 320px;
-  height: 18px;
-  left: 96px;
-  position: absolute;
-  pointer-events: none;
+	width: 320px;
+	height: 18px;
+	left: 96px;
+	position: absolute;
+	pointer-events: none;
 
 	border: 1px solid #4488CC;
-  border-radius: 3px;
+	border-radius: 3px;
 	box-shadow: inset 0px 1px 2px #D2D2D2, 0px 0px 5px #66AADD;
 	background: transparent;
 }
 
 .searchresults {
-  background: #f2f2f2;
-  border: 1px solid #888888;
-  border-radius: 2px;
+	background: #f2f2f2;
+	border: 1px solid #888888;
+	border-radius: 2px;
 
-  position: fixed;
-  bottom: 5px;
-  left: 5px;
-  width: 640px;
-  min-height: 200px;
-  max-height: 400px;
-  overflow: auto;
+	position: absolute;
+	top: 300px;
+	right: -13px;
+	width: 624px;
+	min-height: 150px;
+}
+
+.closesearch {
+	position: absolute;
+	top: 1px;
+	right: 1px;
 }
 
 .teameditor {
-  position: relative;
+	position: relative;
 }
 .teameditor .heighttester {
-  position: absolute;
-  top: 0;
-  left: 0;
-  overflow-y: hidden;
-  height: 10px;
-  /* I have no clue what the default <textarea> box-sizing is but "content-box" doesn't mean what you'd think */
-  box-sizing: border-box;
+	position: absolute;
+	top: 0;
+	left: 0;
+	overflow-y: hidden;
+	height: 10px;
+	/* I have no clue what the default <textarea> box-sizing is but "content-box" doesn't mean what you'd think */
+	box-sizing: border-box;
 }
 .teameditor hr {
-  position: absolute;
-  pointer-events: none;
-  left: 10px;
-  right: 10px;
+	position: absolute;
+	pointer-events: none;
+	left: 10px;
+	right: 10px;
 }

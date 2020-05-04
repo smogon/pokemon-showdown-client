@@ -197,25 +197,23 @@ class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
 
 	render() {
 		const room = this.props.room;
-		let teams: (Team | null)[];
+		let teams: (Team | null)[] = PS.teams.list.slice();
+
+		if (PS.teams.deletedTeams.length) {
+			const undeleteIndex = PS.teams.deletedTeams[PS.teams.deletedTeams.length - 1][1];
+			teams.splice(undeleteIndex, 0, null);
+		}
 
 		let filterFolder: string | null = null;
 		let filterFormat: string | null = null;
 		if (room.curFolder) {
 			if (room.curFolder.slice(-1) === '/') {
 				filterFolder = room.curFolder.slice(0, -1);
-				teams = PS.teams.list.filter(team => team.folder === filterFolder);
+				teams = teams.filter(team => !team || team.folder === filterFolder);
 			} else {
 				filterFormat = room.curFolder;
-				teams = PS.teams.list.filter(team => team.format === filterFormat);
+				teams = teams.filter(team => !team || team.format === filterFormat);
 			}
-		} else {
-			teams = PS.teams.list.slice();
-		}
-
-		if (PS.teams.deletedTeams.length) {
-			const undeleteIndex = PS.teams.deletedTeams[PS.teams.deletedTeams.length - 1][1];
-			teams.splice(undeleteIndex, 0, null);
 		}
 
 		return <PSPanelWrapper room={room}>

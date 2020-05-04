@@ -19,6 +19,7 @@ class TeamTextbox extends preact.Component<{team: Team}> {
 	heightTester: HTMLTextAreaElement = null!;
 	activeType: 'pokemon' | 'move' | 'item' | 'ability' | '' = '';
 	activeOffsetY = -1;
+	activeSetIndex = -1;
 	search = new BattleSearch();
 	getYAt(index: number, value: string) {
 		if (index < 0) return 10;
@@ -27,6 +28,11 @@ class TeamTextbox extends preact.Component<{team: Team}> {
 	}
 	input = () => this.update();
 	select = () => this.update(true);
+	closeMenu = () => {
+		this.activeType = '';
+		this.forceUpdate();
+		this.textbox.focus();
+	};
 	update = (cursorOnly?: boolean) => {
 		const textbox = this.textbox;
 		this.heightTester.style.width = `${textbox.offsetWidth}px`;
@@ -36,6 +42,7 @@ class TeamTextbox extends preact.Component<{team: Team}> {
 		let setIndex = -1;
 		if (!cursorOnly) this.setInfo = [];
 		this.activeOffsetY = -1;
+		this.activeSetIndex = -1;
 		this.activeType = '';
 
 		const selectionStart = textbox.selectionStart || 0;
@@ -84,6 +91,7 @@ class TeamTextbox extends preact.Component<{team: Team}> {
 			if (index <= selectionStart && selectionEnd <= selectionEndCutoff) {
 				// both ends within range
 				this.activeOffsetY = this.getYAt(index - 1, value);
+				this.activeSetIndex = setIndex;
 
 				const lcLine = line.toLowerCase().trim();
 				if (lcLine.startsWith('ability:')) {
@@ -98,6 +106,10 @@ class TeamTextbox extends preact.Component<{team: Team}> {
 					// leave activeType blank
 				} else {
 					this.activeType = 'pokemon';
+					const atIndex = line.indexOf('@');
+					if (atIndex >= 0 && selectionStart > index + atIndex) {
+						this.activeType = 'item';
+					}
 				}
 				this.search.setType(this.activeType, 'gen7ou' as ID, this.sets[setIndex]);
 				this.search.find('');
@@ -164,7 +176,10 @@ class TeamTextbox extends preact.Component<{team: Team}> {
 					<div class="teaminnertextbox" style={{top: this.activeOffsetY - 1}}></div>
 				}
 			</div>
-			{this.activeType && <PSSearchResults search={this.search} />}
+			{this.activeType && <div class="searchresults" style={{top: this.activeSetIndex >= 0 ? this.setInfo[this.activeSetIndex].bottomY - 12 : 0}}>
+				<button class="button closesearch" onClick={this.closeMenu}><i class="fa fa-times"></i> Close</button>
+				<PSSearchResults search={this.search} />
+			</div>}
 		</div>;
 	}
 }
