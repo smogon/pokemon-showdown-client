@@ -795,7 +795,7 @@ class BattlePokemonSearch extends BattleTypedSearch<'pokemon'> {
 		} else if (dex.gen === 7 && requirePentagon) {
 			table = table['gen' + dex.gen + 'vgc'];
 			isDoublesOrBS = true;
-		} else if (table['gen' + dex.gen + 'doubles'] && !this.isLetsGo && (
+		} else if (table['gen' + dex.gen + 'doubles'] && dex.gen > 4 && !this.isLetsGo && (
 			format.includes('doubles') || format.includes('vgc') || format.includes('triples') ||
 			format.endsWith('lc') || format.endsWith('lcuu')
 		)) {
@@ -836,7 +836,7 @@ class BattlePokemonSearch extends BattleTypedSearch<'pokemon'> {
 		else if (format.startsWith('lc') || format.endsWith('lc')) tierSet = tierSet.slice(slices["LC Uber"]);
 		else if (format === 'anythinggoes' || format === 'ag') tierSet = agTierSet.concat(tierSet.slice(slices.Uber));
 		else if (format === 'balancedhackmons' || format === 'bh') tierSet = agTierSet.concat(tierSet.slice(slices.Uber));
-		else if (format === 'doublesou') tierSet = tierSet.slice(slices.DOU);
+		else if (format === 'doublesou' && dex.gen > 4) tierSet = tierSet.slice(slices.DOU);
 		else if (format === 'doublesuu') tierSet = tierSet.slice(slices.DUU);
 		else if (format === 'doublesnu') tierSet = tierSet.slice(slices.DNU || slices.DUU);
 		else if (this.isLetsGo) tierSet = tierSet.slice(slices.Uber);
