@@ -14,7 +14,7 @@ node_modules/
 /js/battle-animations.js
 /js/battle-tooltips.js
 /js/battle-scene-stub.js
-/js/battle-search.js
+/js/battle-dex-search.js
 /js/battle-searchresults.js
 /js/client-core.js
 /js/client-main.js

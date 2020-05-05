@@ -27,7 +27,7 @@ module.exports = {
 		"BattleTextParser": false,
 
 		// Generic global variables
-		"Config": false, "BattleSearch": false, "soundManager": false, "Storage": false, "Dex": false,
+		"Config": false, "BattleSearch": false, "soundManager": false, "Storage": false, "Dex": false, "DexSearch": false,
 		"app": false, "toID": false, "toRoomid": false, "toUserid": false, "toName": false, "PSUtils": false, "MD5": false,
 		"ChatHistory": false, "Topbar": false, "UserList": false,
 

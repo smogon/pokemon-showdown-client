@@ -20,7 +20,7 @@ class TeamTextbox extends preact.Component<{team: Team}> {
 	activeType: 'pokemon' | 'move' | 'item' | 'ability' | '' = '';
 	activeOffsetY = -1;
 	activeSetIndex = -1;
-	search = new BattleSearch();
+	search = new DexSearch();
 	getYAt(index: number, value: string) {
 		if (index < 0) return 10;
 		this.heightTester.value = value.slice(0, index);
