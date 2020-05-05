@@ -829,7 +829,7 @@
 			} else if (this.gen === 7 && requirePentagon) {
 				table = table['gen' + this.gen + 'vgc'];
 				isDoublesOrBS = true;
-			} else if (table['gen' + this.gen + 'doubles'] && (format.includes('doubles') || format.includes('vgc') || format.includes('triples') || format.endsWith('lc') || format.endsWith('lcuu')) && !isLetsGo) {
+			} else if (table['gen' + this.gen + 'doubles'] && this.gen > 4 && (format.includes('doubles') || format.includes('vgc') || format.includes('triples') || format.endsWith('lc') || format.endsWith('lcuu')) && !isLetsGo) {
 				table = table['gen' + this.gen + 'doubles'];
 				isDoublesOrBS = true;
 			} else if (this.gen < 8) {
@@ -870,7 +870,7 @@
 			else if (format.startsWith('lc') || format.endsWith('lc')) tierSet = tierSet.slice(slices["LC Uber"]);
 			else if (format === 'anythinggoes' || format === 'ag') tierSet = tierSet.slice(slices.AG || slices.Uber);
 			else if (format === 'balancedhackmons' || format === 'bh') tierSet = tierSet.slice(slices.AG || slices.Uber);
-			else if (format === 'doublesou') tierSet = tierSet.slice(slices.DOU);
+			else if (format === 'doublesou' && this.gen > 4) tierSet = tierSet.slice(slices.DOU);
 			else if (format === 'doublesuu') tierSet = tierSet.slice(slices.DUU);
 			else if (format === 'doublesnu') tierSet = tierSet.slice(slices.DNU || slices.DUU);
 			else if (isLetsGo) tierSet = tierSet.slice(slices.Uber);

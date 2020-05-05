@@ -369,7 +369,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 				if (species.tier === 'CAP' || species.tier === 'CAP NFE' || species.tier === 'CAP LC') {
 					return species.tier;
 				}
-				if (isDoubles) {
+				if (isDoubles && genNum > 4) {
 					return species.doublesTier;
 				}
 				return species.tier;
@@ -484,7 +484,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			if (isVGC) {
 				return ["Mythical", "Restricted Legendary", "Regular", "NFE", "LC"];
 			}
-			if (isDoubles) {
+			if (isDoubles && genNum > 4) {
 				return ["DUber", "(DUber)", "DOU", "DBL", "(DOU)", "DUU", "(DUU)", "New", "NFE", "LC Uber", "LC"];
 			}
 			if (gen === 'gen1' || gen === 'gen2' || gen === 'gen3') {
