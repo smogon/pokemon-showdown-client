@@ -29,7 +29,7 @@ declare const BattleTeambuilderTable: any;
 /**
  * Backend for search UIs.
  */
-class BattleSearch {
+class DexSearch {
 	query = '';
 
 	/**
@@ -99,7 +99,7 @@ class BattleSearch {
 	find(query: string) {
 		query = toID(query);
 		if (this.query === query && this.results) {
-			return this.results;
+			return false;
 		}
 		this.query = query;
 		if (!query) {
@@ -107,12 +107,17 @@ class BattleSearch {
 		} else {
 			this.results = this.textSearch(query);
 		}
+		return true;
 	}
 
 	setType(searchType: SearchType | '', format = '' as ID, speciesOrSet: ID | PokemonSet = '' as ID) {
 		// invalidate caches
 		this.results = null;
 
+		if (searchType !== this.typedSearch?.searchType) {
+			this.filters = null;
+			this.sortCol = null;
+		}
 		this.typedSearch = this.getTypedSearch(searchType, format, speciesOrSet);
 	}
 
@@ -166,6 +171,15 @@ class BattleSearch {
 		return true;
 	}
 
+	toggleSort(sortCol: string) {
+		if (this.sortCol === sortCol) {
+			this.sortCol = null;
+		} else {
+			this.sortCol = sortCol;
+		}
+		this.results = null;
+	}
+
 	filterLabel(filterType: string) {
 		if (this.typedSearch && this.typedSearch.searchType !== filterType) {
 			return 'Filter';
@@ -189,7 +203,7 @@ class BattleSearch {
 		// If searchType exists, we're searching mainly for results of that type.
 		// We'll still search for results of other types, but those results
 		// will only be used to filter results for that type.
-		let searchTypeIndex = (searchType ? BattleSearch.typeTable[searchType] : -1);
+		let searchTypeIndex = (searchType ? DexSearch.typeTable[searchType] : -1);
 
 		/** searching for "Psychic type" will make the type come up over the move */
 		let qFilterType: 'type' | '' = '';
@@ -201,7 +215,7 @@ class BattleSearch {
 		}
 
 		// i represents the location of the search index we're looking at
-		let i = BattleSearch.getClosest(query);
+		let i = DexSearch.getClosest(query);
 		this.exactMatch = (BattleSearchIndex[i][0] === query);
 
 		// Even with output buffer buckets, we make multiple passes through
@@ -244,7 +258,7 @@ class BattleSearch {
 			if (['sub', 'tr'].includes(query) || toID(BattleAliases[query]).slice(0, query.length) !== query) {
 				queryAlias = toID(BattleAliases[query]);
 				let aliasPassType: SearchPassType = (queryAlias === 'hiddenpower' ? 'exact' : 'normal');
-				searchPasses.unshift([aliasPassType, BattleSearch.getClosest(queryAlias), queryAlias]);
+				searchPasses.unshift([aliasPassType, DexSearch.getClosest(queryAlias), queryAlias]);
 			}
 			this.exactMatch = true;
 		}
@@ -329,7 +343,7 @@ class BattleSearch {
 				if (passType === 'alias') continue;
 			}
 
-			let typeIndex = BattleSearch.typeTable[type];
+			let typeIndex = DexSearch.typeTable[type];
 
 			// For performance, with a query length of 1, we only fill the first bucket
 			if (query.length === 1 && typeIndex !== (searchType ? searchTypeIndex : 1)) continue;
@@ -388,12 +402,12 @@ class BattleSearch {
 				// searchType buckets are always on top (but under bucket 0), so
 				// illegal results will be seamlessly right under legal results.
 				if (!bufs[typeIndex].length && !bufs[0].length) {
-					bufs[0] = [['header', BattleSearch.typeName[type]]];
+					bufs[0] = [['header', DexSearch.typeName[type]]];
 				}
 				if (!(id in illegal)) typeIndex = 0;
 			} else {
 				if (!bufs[typeIndex].length) {
-					bufs[typeIndex] = [['header', BattleSearch.typeName[type]]];
+					bufs[typeIndex] = [['header', DexSearch.typeName[type]]];
 				}
 			}
 
@@ -478,7 +492,7 @@ class BattleSearch {
 				break;
 			}
 		}
-		return buf.concat(illegalBuf);
+		return [...buf, ...illegalBuf];
 	}
 
 	static getClosest(query: string) {
@@ -554,7 +568,7 @@ abstract class BattleTypedSearch<T extends SearchType> {
 
 		if (format.slice(0, 3) === 'gen') {
 			const gen = (Number(format.charAt(3)) || 6);
-			format = format.slice(4) as ID;
+			format = (format.slice(4) || 'customgame') as ID;
 			this.dex = Dex.forGen(gen);
 		} else if (!format) {
 			this.dex = Dex;
@@ -612,8 +626,15 @@ abstract class BattleTypedSearch<T extends SearchType> {
 			illegalResults = [];
 			for (const result of this.baseResults) {
 				if (this.filter(result, filters)) {
-					results.push(result);
+					if (results.length && result[0] === 'header' && results[results.length - 1][0] === 'header') {
+						results[results.length - 1] = result;
+					} else {
+						results.push(result);
+					}
 				}
+			}
+			if (results.length && results[results.length - 1][0] === 'header') {
+				results.pop();
 			}
 			for (const result of this.baseIllegalResults) {
 				if (this.filter(result, filters)) {
@@ -630,7 +651,12 @@ abstract class BattleTypedSearch<T extends SearchType> {
 			if (illegalResults) illegalResults = this.sort(illegalResults, sortCol);
 		}
 
-		if (illegalResults) results = results.concat(illegalResults);
+		if (this.sortRow) {
+			results = [this.sortRow, ...results];
+		}
+		if (illegalResults && illegalResults.length) {
+			results = [...results, ['header', "Illegal results"], ...illegalResults];
+		}
 		return results;
 	}
 	protected nextLearnsetid(learnsetid: ID, speciesid?: ID) {
@@ -713,7 +739,7 @@ class BattlePokemonSearch extends BattleTypedSearch<'pokemon'> {
 		return BattlePokedex;
 	}
 	getDefaultResults(): SearchRow[] {
-		let results: SearchRow[] = [['sortpokemon', '']];
+		let results: SearchRow[] = [];
 		for (let id in BattlePokedex) {
 			switch (id) {
 			case 'bulbasaur':
@@ -953,7 +979,7 @@ class BattleAbilitySearch extends BattleTypedSearch<'ability'> {
 					badAbilities.push(['ability', id]);
 				}
 			}
-			abilitySet = goodAbilities.concat(poorAbilities).concat(badAbilities);
+			abilitySet = [...goodAbilities, ...poorAbilities, ...badAbilities];
 			if (species.isMega) {
 				if (format === 'almostanyability') {
 					abilitySet.unshift(['html', `Will be <strong>${species.abilities['0']}</strong> after Mega Evolving.`]);
@@ -1019,12 +1045,12 @@ class BattleItemSearch extends BattleTypedSearch<'item'> {
 }
 
 class BattleMoveSearch extends BattleTypedSearch<'move'> {
-	sortRow: SearchRow = ['sortpokemon', ''];
+	sortRow: SearchRow = ['sortmove', ''];
 	getTable() {
 		return BattleMovedex;
 	}
 	getDefaultResults(): SearchRow[] {
-		let results: SearchRow[] = [['sortmove', '']];
+		let results: SearchRow[] = [];
 		results.push(['header', "Moves"]);
 		for (let id in BattleMovedex) {
 			switch (id) {
@@ -1310,7 +1336,7 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 				uselessMoves.push(['move', id as ID]);
 			}
 		}
-		return usableMoves.concat(uselessMoves);
+		return [...usableMoves, ...uselessMoves];
 	}
 	filter(row: SearchRow, filters: string[][]) {
 		if (!filters) return true;

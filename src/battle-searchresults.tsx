@@ -1,13 +1,13 @@
 /**
  * Search Results
  *
- * Code for displaying sesrch results from battle-search.ts
+ * Code for displaying sesrch results from battle-dex-search.ts
  *
  * @author Guangcong Luo <guangcongluo@gmail.com>
  * @license AGPLv3
  */
 
-class PSSearchResults extends preact.Component<{search: BattleSearch}> {
+class PSSearchResults extends preact.Component<{search: DexSearch}> {
 	readonly URL_ROOT = '//dex.pokemonshowdown.com/';
 
 	renderPokemonSortRow() {
