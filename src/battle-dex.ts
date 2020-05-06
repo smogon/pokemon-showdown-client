@@ -501,7 +501,6 @@ const Dex = new class implements ModdedDex {
 						baseForme: "",
 						baseSpecies: species.name,
 						otherFormes: null,
-						cosmeticFormes: null,
 					});
 					window.BattlePokedexAltForms[formid] = species;
 					break;
