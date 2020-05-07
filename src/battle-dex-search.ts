@@ -682,8 +682,11 @@ abstract class BattleTypedSearch<T extends SearchType> {
 		if (!species) return '' as ID;
 		if (species.prevo) return toID(species.prevo);
 		let baseSpecies = species.baseSpecies;
-		if (baseSpecies !== species.name || species.changesFrom) {
-			return species.changesFrom ? toID(species.changesFrom) : toID(species.baseSpecies);
+		if (species.changesFrom) {
+			return toID(species.changesFrom);
+		}
+		if (baseSpecies !== species.name && baseSpecies === 'Pumpkaboo') {
+			return toID(species.baseSpecies);
 		}
 		return '' as ID;
 	}
