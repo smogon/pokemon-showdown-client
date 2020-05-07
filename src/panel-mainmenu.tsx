@@ -5,7 +5,7 @@
  * @license AGPLv3
  */
 
-type RoomCategory = 'casual' | 'competitive' | 'language' | 'other';
+type RoomCategory = 'activity' | 'casual' | 'competitive' | 'language' | 'social';
 type RoomInfo = {title: string, desc?: string, userCount?: number, subRooms?: string[]};
 
 class MainMenuRoom extends PSRoom {

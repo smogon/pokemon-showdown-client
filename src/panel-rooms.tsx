@@ -58,8 +58,8 @@ class RoomsPanel extends PSRoomPanel {
 
 		const rooms = PS.mainmenu.roomsCache;
 		let roomList = [
-			...(rooms.official || []), ...(rooms.pspl || []), ...((rooms.chat || {}).casual || []), ...((rooms.chat || {}).competitive || []),
-			...((rooms.chat || {}).competitive || []), ...((rooms.chat || {}).other || []),
+			...(rooms.official || []), ...(rooms.pspl || []), ...((rooms.chat || {}).activity || []), ...((rooms.chat || {}).casual || []),
+			...((rooms.chat || {}).competitive || []), ...((rooms.chat || {}).language || []), ...((rooms.chat || {}).social || []),
 		];
 		for (const room of roomList) {
 			if (!room.subRooms) continue;
@@ -130,10 +130,11 @@ class RoomsPanel extends PSRoomPanel {
 			roomList = [
 				this.renderRoomList("Official chat rooms", rooms.official),
 				this.renderRoomList("PSPL winner", rooms.pspl),
+				this.renderRoomList("Activity-based rooms", (rooms.chat || {}).activity),
 				this.renderRoomList("Casual rooms", (rooms.chat || {}).casual),
-				this.renderRoomList("Competitive rooms", (rooms.chat || {}).competitive),
+				this.renderRoomList("Competitive/Tier rooms", (rooms.chat || {}).competitive),
 				this.renderRoomList("Language rooms", (rooms.chat || {}).language),
-				this.renderRoomList("Other rooms", (rooms.chat || {}).other),
+				this.renderRoomList("Social rooms", (rooms.chat || {}).social),
 			];
 		}
 
