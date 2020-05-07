@@ -520,7 +520,7 @@ class DexSearch {
 abstract class BattleTypedSearch<T extends SearchType> {
 	searchType: T;
 	/**
-	 * Dex for the formatType/generation to search.
+	 * Dex for the mod/generation to search.
 	 */
 	dex: ModdedDex = Dex;
 	/**
