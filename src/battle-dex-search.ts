@@ -1218,7 +1218,8 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 					let learnsetEntry = learnset[moveid];
 					/* if (requirePentagon && learnsetEntry.indexOf('p') < 0) {
 						continue;
-					} else */ if (galarBornLegality && learnsetEntry.indexOf('g') < 0) {
+					} */
+					if (galarBornLegality && learnsetEntry.indexOf('g') < 0) {
 						continue;
 					} else if (!learnsetEntry.includes(gen)) {
 						continue;
