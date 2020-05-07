@@ -57,7 +57,10 @@ class RoomsPanel extends PSRoomPanel {
 		let exactMatch = false;
 
 		const rooms = PS.mainmenu.roomsCache;
-		let roomList = [...(rooms.official || []), ...(rooms.pspl || []), ...(rooms.chat || [])];
+		let roomList = [
+			...(rooms.official || []), ...(rooms.pspl || []), ...((rooms.chat || {}).casual || []), ...((rooms.chat || {}).competitive || []),
+			...((rooms.chat || {}).competitive || []), ...((rooms.chat || {}).other || []),
+		];
 		for (const room of roomList) {
 			if (!room.subRooms) continue;
 			for (const title of room.subRooms) {
@@ -127,7 +130,10 @@ class RoomsPanel extends PSRoomPanel {
 			roomList = [
 				this.renderRoomList("Official chat rooms", rooms.official),
 				this.renderRoomList("PSPL winner", rooms.pspl),
-				this.renderRoomList("Chat rooms", rooms.chat),
+				this.renderRoomList("Casual rooms", (rooms.chat || {}).casual),
+				this.renderRoomList("Competitive rooms", (rooms.chat || {}).competitive),
+				this.renderRoomList("Language rooms", (rooms.chat || {}).language),
+				this.renderRoomList("Other rooms", (rooms.chat || {}).other),
 			];
 		}
 

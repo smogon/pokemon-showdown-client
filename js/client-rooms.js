@@ -86,7 +86,14 @@
 			}
 			this.$('.roomlist').first().html('<h2 class="rooms-officialchatrooms">Official chat rooms</h2>' + _.map(rooms.official, this.renderRoomBtn).join("") +
 				(rooms.pspl && rooms.pspl.length ? '<a href="https://www.smogon.com/forums/threads/3649563/" target="_blank"><h2 class="rooms-psplchatrooms">PSPL Winner</h2></a>' + _.map(rooms.pspl, this.renderRoomBtn).join("") : ''));
-			this.$('.roomlist').last().html('<h2 class="rooms-chatrooms">Chat rooms</h2>' + _.map(rooms.chat.sort(this.compareRooms), this.renderRoomBtn).join(""));
+			if (rooms.chat) {
+				this.$('.roomlist').last().html(
+					(rooms.chat.casual.length ? '<h2 class="rooms-chatrooms">Casual rooms</h2>' + _.map(rooms.chat.casual.sort(this.compareRooms), this.renderRoomBtn).join("") : '') +
+					(rooms.chat.competitive.length ? '<h2 class="rooms-chatrooms">Competitive rooms</h2>' + _.map(rooms.chat.competitive.sort(this.compareRooms), this.renderRoomBtn).join("") : '') +
+					(rooms.chat.language.length ? '<h2 class="rooms-chatrooms">Language rooms</h2>' + _.map(rooms.chat.language.sort(this.compareRooms), this.renderRoomBtn).join("") : '') +
+					(rooms.chat.other.length ? '<h2 class="rooms-chatrooms">Other rooms</h2>' + _.map(rooms.chat.other.sort(this.compareRooms), this.renderRoomBtn).join("") : '')
+				);
+			}
 		},
 		roomlist: function () {
 			app.joinRoom('battles');

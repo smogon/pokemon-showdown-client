@@ -5,6 +5,7 @@
  * @license AGPLv3
  */
 
+type RoomCategory = 'casual' | 'competitive' | 'language' | 'other';
 type RoomInfo = {title: string, desc?: string, userCount?: number, subRooms?: string[]};
 
 class MainMenuRoom extends PSRoom {
@@ -19,7 +20,7 @@ class MainMenuRoom extends PSRoom {
 	roomsCache: {
 		battleCount?: number,
 		userCount?: number,
-		chat?: RoomInfo[],
+		chat?: {[k in RoomCategory]: RoomInfo[]},
 		official?: RoomInfo[],
 		pspl?: RoomInfo[],
 	} = {};
