@@ -647,7 +647,7 @@ abstract class BattleTypedSearch<T extends SearchType> {
 				}
 			}
 		} else {
-			results = [...this.baseResults];
+			results = this.baseResults.filter(result => result[0] !== 'header');
 			illegalResults = null;
 		}
 
