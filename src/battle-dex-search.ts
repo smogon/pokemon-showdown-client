@@ -686,6 +686,7 @@ abstract class BattleTypedSearch<T extends SearchType> {
 			return toID(species.changesFrom);
 		}
 		if (baseSpecies !== species.name && baseSpecies === 'Pumpkaboo') {
+			// Pumpkaboo-Super event
 			return toID(species.baseSpecies);
 		}
 		return '' as ID;
