@@ -2606,6 +2606,7 @@ class PokemonSprite extends Sprite {
 			destinybond: '<span class="good">Destiny&nbsp;Bond</span>',
 			snatch: '<span class="good">Snatch</span>',
 			grudge: '<span class="good">Grudge</span>',
+			charge: '<span class="good">Charge</span>',
 			endure: '<span class="good">Endure</span>',
 			focuspunch: '<span class="neutral">Focusing</span>',
 			shelltrap: '<span class="neutral">Trap&nbsp;set</span>',

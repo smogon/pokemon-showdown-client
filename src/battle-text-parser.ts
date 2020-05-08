@@ -123,8 +123,11 @@ class BattleTextParser {
 				return {args: ['-block', pokemon, effect, arg3], kwArgs};
 			}
 
+			if (id === 'charge') {
+				return {args: ['-singlemove', pokemon, effect], kwArgs: {of: target}};
+			}
 			if ([
-				'bind', 'wrap', 'clamp', 'whirlpool', 'firespin', 'magmastorm', 'sandtomb', 'infestation', 'charge', 'trapped',
+				'bind', 'wrap', 'clamp', 'whirlpool', 'firespin', 'magmastorm', 'sandtomb', 'infestation', 'trapped',
 			].includes(id)) {
 				return {args: ['-start', pokemon, effect], kwArgs: {of: target}};
 			}
