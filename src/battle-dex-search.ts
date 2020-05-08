@@ -119,6 +119,7 @@ class DexSearch {
 			this.sortCol = null;
 		}
 		this.typedSearch = this.getTypedSearch(searchType, format, speciesOrSet);
+		if (this.typedSearch) this.dex = this.typedSearch.dex;
 	}
 
 	addFilter(entry: SearchFilter): boolean {
