@@ -200,13 +200,13 @@
 			var pokemon = this.engine.dex.getSpecies(id);
 			return this.renderPokemonRow(pokemon, matchStart, matchLength, errorMessage, attrs);
 		case 'move':
-			var move = BattleMovedex[id];
+			var move = this.engine.dex.getMove(id);
 			return this.renderMoveRow(move, matchStart, matchLength, errorMessage, attrs);
 		case 'item':
-			var item = BattleItems[id];
+			var item = this.engine.dex.getItem(id);
 			return this.renderItemRow(item, matchStart, matchLength, errorMessage, attrs);
 		case 'ability':
-			var ability = BattleAbilities[id];
+			var ability = this.engine.dex.getAbility(id);
 			return this.renderAbilityRow(ability, matchStart, matchLength, errorMessage, attrs);
 		case 'type':
 			var type = {name: id[0].toUpperCase() + id.substr(1)};
@@ -474,16 +474,7 @@
 		}
 
 		// desc
-		var desc = (item.shortDesc || item.desc);
-		if (this.gen < 8) {
-			for (var i = this.gen; i < 8; i++) {
-				if (id in BattleTeambuilderTable['gen' + i].overrideItemDesc) {
-					desc = BattleTeambuilderTable['gen' + i].overrideItemDesc[id];
-					break;
-				}
-			}
-		}
-		buf += '<span class="col itemdesccol">' + BattleLog.escapeHTML(desc) + '</span> ';
+		buf += '<span class="col itemdesccol">' + BattleLog.escapeHTML(item.shortDesc) + '</span> ';
 
 		buf += '</a></li>';
 
@@ -509,17 +500,7 @@
 			return buf;
 		}
 
-		var desc = (ability.shortDesc || ability.desc);
-		if (this.gen < 8) {
-			for (var i = this.gen; i < 8; i++) {
-				if (id in BattleTeambuilderTable['gen' + i].overrideAbilityDesc) {
-					desc = BattleTeambuilderTable['gen' + i].overrideAbilityDesc[id];
-					break;
-				}
-			}
-		}
-
-		buf += '<span class="col abilitydesccol">' + BattleLog.escapeHTML(desc) + '</span> ';
+		buf += '<span class="col abilitydesccol">' + BattleLog.escapeHTML(ability.shortDesc) + '</span> ';
 
 		buf += '</a></li>';
 
@@ -558,41 +539,22 @@
 			return buf;
 		}
 
-		var table = (this.gen < 8 ? BattleTeambuilderTable['gen' + this.gen] : null);
-
 		// type
 		buf += '<span class="col typecol">';
-		var type = move.type;
-		if (table && id in table.overrideMoveType) type = table.overrideMoveType[id];
-		buf += Dex.getTypeIcon(type);
-		var category = this.gen > 3 || move.category === 'Status' ? move.category : Dex.getGen3Category(type);
-		buf += '<img src="' + Dex.resourcePrefix + 'sprites/categories/' + category + '.png" alt="' + category + '" height="14" width="32" />';
+		buf += Dex.getTypeIcon(move.type);
+		buf += '<img src="' + Dex.resourcePrefix + 'sprites/categories/' + move.category + '.png" alt="' + move.category + '" height="14" width="32" />';
 		buf += '</span> ';
 
 		// power, accuracy, pp
 		var basePower = move.basePower;
 		var accuracy = move.accuracy;
 		var pp = move.pp;
-		if (table) {
-			if (id in table.overrideBP) basePower = table.overrideBP[id];
-			if (id in table.overrideAcc) accuracy = table.overrideAcc[id];
-			if (id in table.overridePP) pp = table.overridePP[id];
-		}
 		buf += '<span class="col labelcol">' + (move.category !== 'Status' ? ('<em>Power</em><br />' + (basePower || '&mdash;')) : '') + '</span> ';
 		buf += '<span class="col widelabelcol"><em>Accuracy</em><br />' + (accuracy && accuracy !== true ? accuracy + '%' : '&mdash;') + '</span> ';
 		buf += '<span class="col pplabelcol"><em>PP</em><br />' + (pp === 1 || move.noPPBoosts ? pp : pp * 8 / 5) + '</span> ';
 
 		// desc
-		var desc = (move.shortDesc || move.desc);
-		if (this.gen < 8) {
-			for (var i = this.gen; i < 8; i++) {
-				if (id in BattleTeambuilderTable['gen' + i].overrideMoveDesc) {
-					desc = BattleTeambuilderTable['gen' + i].overrideMoveDesc[id];
-					break;
-				}
-			}
-		}
-		buf += '<span class="col movedesccol">' + BattleLog.escapeHTML(desc) + '</span> ';
+		buf += '<span class="col movedesccol">' + BattleLog.escapeHTML(move.shortDesc) + '</span> ';
 
 		buf += '</a></li>';
 
