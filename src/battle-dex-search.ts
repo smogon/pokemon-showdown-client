@@ -652,8 +652,12 @@ abstract class BattleTypedSearch<T extends SearchType> {
 		}
 
 		if (sortCol) {
+			results = results.filter(([rowType]) => rowType === this.searchType);
 			results = this.sort(results, sortCol);
-			if (illegalResults) illegalResults = this.sort(illegalResults, sortCol);
+			if (illegalResults) {
+				illegalResults = illegalResults.filter(([rowType]) => rowType === this.searchType);
+				illegalResults = this.sort(illegalResults, sortCol);
+			}
 		}
 
 		if (this.sortRow) {
@@ -912,10 +916,8 @@ class BattlePokemonSearch extends BattleTypedSearch<'pokemon'> {
 		}
 		return true;
 	}
-	sort(results: SearchRow[], sortCol: string | null) {
-		if (!sortCol) return results;
-		results = results.filter(([rowType]) => rowType === 'pokemon');
-		if (['hp', 'atk', 'def', 'spa', 'spd', 'spe' as string | null].includes(sortCol)) {
+	sort(results: SearchRow[], sortCol: string) {
+		if (['hp', 'atk', 'def', 'spa', 'spd', 'spe'].includes(sortCol)) {
 			return results.sort(([rowType1, id1], [rowType2, id2]) => {
 				const stat1 = BattlePokedex[id1].baseStats[sortCol as StatName];
 				const stat2 = BattlePokedex[id2].baseStats[sortCol as StatName];
@@ -1391,7 +1393,7 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 		}
 		return true;
 	}
-	sort(results: SearchRow[], sortCol: string | null): SearchRow[] {
+	sort(results: SearchRow[], sortCol: string): SearchRow[] {
 		switch (sortCol) {
 		case 'power':
 			let powerTable: {[id: string]: number | undefined} = {
