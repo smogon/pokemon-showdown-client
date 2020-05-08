@@ -970,13 +970,14 @@ class Item implements Effect {
 	readonly zMove: string | true | null;
 	readonly zMoveType: TypeName | '';
 	readonly zMoveFrom: string;
-	readonly zMoveUser: string[] | null;
+	readonly zMoveUser: readonly string[] | null;
 	readonly onPlate: TypeName;
 	readonly onMemory: TypeName;
 	readonly onDrive: TypeName;
 	readonly fling: any;
 	readonly naturalGift: any;
 	readonly isPokeball: boolean;
+	readonly itemUser?: readonly string[];
 
 	constructor(id: ID, name: string, data: any) {
 		if (!data || typeof data !== 'object') data = {};
@@ -1003,6 +1004,7 @@ class Item implements Effect {
 		this.fling = data.fling || null;
 		this.naturalGift = data.naturalGift || null;
 		this.isPokeball = !!data.isPokeball;
+		this.itemUser = data.itemUser;
 
 		if (!this.gen) {
 			if (this.num >= 577) {
