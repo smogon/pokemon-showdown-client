@@ -1052,8 +1052,25 @@ class BattleItemSearch extends BattleTypedSearch<'item'> {
 		}
 		return table.itemSet;
 	}
-	getBaseResults() {
-		return this.getDefaultResults();
+	getBaseResults(): SearchRow[] {
+		if (!this.species) return this.getDefaultResults();
+		const speciesName = this.dex.getSpecies(this.species).name;
+		const results = this.getDefaultResults();
+		const speciesSpecific: SearchRow[] = [];
+		for (const row of results) {
+			if (row[0] !== 'item') continue;
+			if (this.dex.getItem(row[1]).itemUser?.includes(speciesName)) {
+				speciesSpecific.push(row);
+			}
+		}
+		if (speciesSpecific.length) {
+			return [
+				['header', "Specific to " + speciesName],
+				...speciesSpecific,
+				...results,
+			];
+		}
+		return results;
 	}
 	filter(row: SearchRow, filters: string[][]) {
 		if (!filters) return true;
