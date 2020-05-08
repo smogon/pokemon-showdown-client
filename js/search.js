@@ -168,6 +168,8 @@
 	};
 	Search.prototype.setType = function (qType, format, set, cur) {
 		this.engine.setType(qType, format, set);
+		this.filters = this.engine.filters;
+		this.sortCol = this.engine.sortCol;
 		this.cur = cur || {};
 		var firstElem;
 		for (var id in cur) {
