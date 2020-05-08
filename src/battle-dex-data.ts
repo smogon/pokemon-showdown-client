@@ -1088,7 +1088,6 @@ class Move implements Effect {
 
 	readonly desc: string;
 	readonly shortDesc: string;
-	readonly isViable: boolean;
 	readonly isNonstandard: string | null;
 	readonly isZ: ID;
 	readonly zMove?: {
@@ -1128,7 +1127,6 @@ class Move implements Effect {
 		// TODO: move to text.js
 		this.desc = data.desc;
 		this.shortDesc = data.shortDesc;
-		this.isViable = !!data.isViable;
 		this.isNonstandard = data.isNonstandard || null;
 		this.isZ = data.isZ || '';
 		this.zMove = data.zMove || {};
