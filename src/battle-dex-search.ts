@@ -697,6 +697,9 @@ abstract class BattleTypedSearch<T extends SearchType> {
 		return '' as ID;
 	}
 	protected canLearn(speciesid: ID, moveid: ID) {
+		if (this.dex.gen >= 8 && this.dex.getMove(moveid).isNonstandard === 'Past' && this.formatType !== 'natdex') {
+			return false;
+		}
 		let genChar = `${this.dex.gen}`;
 		if (
 			this.format.startsWith('vgc') ||
@@ -715,9 +718,6 @@ abstract class BattleTypedSearch<T extends SearchType> {
 		while (learnsetid) {
 			let learnset = BattleTeambuilderTable.learnsets[learnsetid];
 			if (learnset && (moveid in learnset) && learnset[moveid].includes(genChar)) {
-				if (this.dex.gen >= 8 && this.dex.getMove(moveid).isNonstandard === 'Past' && this.formatType !== 'natdex') {
-					return false;
-				}
 				return true;
 			}
 			learnsetid = this.nextLearnsetid(learnsetid, speciesid);
