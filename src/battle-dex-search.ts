@@ -697,8 +697,15 @@ abstract class BattleTypedSearch<T extends SearchType> {
 		return '' as ID;
 	}
 	protected canLearn(speciesid: ID, moveid: ID) {
+		if (this.dex.gen >= 8 && this.dex.getMove(moveid).isNonstandard === 'Past' && this.formatType !== 'natdex') {
+			return false;
+		}
 		let genChar = `${this.dex.gen}`;
-		if (this.format.startsWith('vgc')) {
+		if (
+			this.format.startsWith('vgc') ||
+			this.format.startsWith('battlespot') ||
+			this.format.startsWith('battlestadium')
+		) {
 			if (this.dex.gen === 8) {
 				genChar = 'g';
 			} else if (this.dex.gen === 7) {
@@ -1224,7 +1231,7 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 		let species = dex.getSpecies(this.species);
 		const format = this.format;
 		const isBH = (format === 'balancedhackmons' || format === 'bh');
-		const galarBornLegality = (format.includes('battlestadium') || (format.slice(0, 3) === 'vgc' && this.dex.gen === 8));
+		const galarBornLegality = (format.includes('battlestadium') || (format.startsWith('vgc') && this.dex.gen === 8));
 
 		const abilityid = this.set ? toID(this.set.ability) : '' as ID;
 		const itemid = this.set ? toID(this.set.item) : '' as ID;
@@ -1243,7 +1250,7 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 					/* if (requirePentagon && learnsetEntry.indexOf('p') < 0) {
 						continue;
 					} */
-					if (galarBornLegality && learnsetEntry.indexOf('g') < 0) {
+					if (galarBornLegality && !learnsetEntry.includes('g')) {
 						continue;
 					} else if (!learnsetEntry.includes(gen)) {
 						continue;
