@@ -1122,7 +1122,7 @@
 		},
 		renderSet: function (set, i) {
 			var species = Dex.getSpecies(set.species);
-			var isLetsGo = this.curTeam.format.startsWith('gen7letsgo');
+			var isLetsGo = this.curTeam.format.includes('letsgo');
 			var isNatDex = this.curTeam.format.includes('nationaldex');
 			var buf = '<li value="' + i + '">';
 			if (!set.species) {
@@ -1727,7 +1727,7 @@
 
 			var stats = {hp:'', atk:'', def:'', spa:'', spd:'', spe:''};
 
-			var supportsEVs = !this.curTeam.format.startsWith('gen7letsgo');
+			var supportsEVs = !this.curTeam.format.includes('letsgo');
 
 			// stat cell
 			var buf = '<span class="statrow statrow-head"><label></label> <span class="statgraph"></span> <em>' + (supportsEVs ? 'EV' : 'AV') + '</em></span>';
@@ -1989,7 +1989,7 @@
 			var nature = BattleNatures[set.nature || 'Serious'];
 			if (!nature) nature = {};
 
-			var supportsEVs = !this.curTeam.format.startsWith('gen7letsgo');
+			var supportsEVs = !this.curTeam.format.includes('letsgo');
 			// var supportsAVs = !supportsEVs && this.curTeam.format.endsWith('norestrictions');
 			var defaultEV = this.curTeam.gen <= 2 ? 252 : 0;
 			var maxEV = supportsEVs ? 252 : 200;
@@ -2240,7 +2240,7 @@
 			var inputName = '';
 			inputName = e.currentTarget.name;
 			var val = Math.abs(parseInt(e.currentTarget.value, 10));
-			var supportsEVs = !this.curTeam.format.startsWith('gen7letsgo');
+			var supportsEVs = !this.curTeam.format.includes('letsgo');
 			var supportsAVs = !supportsEVs && this.curTeam.format.endsWith('norestrictions');
 			var set = this.curSet;
 			if (!set) return;
@@ -2361,7 +2361,7 @@
 			var val = +slider.value;
 			var originalVal = val;
 			var result = this.getStat(stat, set, val);
-			var supportsEVs = !this.curTeam.format.startsWith('gen7letsgo');
+			var supportsEVs = !this.curTeam.format.includes('letsgo');
 			var supportsAVs = !supportsEVs && this.curTeam.format.endsWith('norestrictions');
 			if (supportsEVs) {
 				while (val > 0 && this.getStat(stat, set, val - 4) == result) val -= 4;
@@ -2463,7 +2463,7 @@
 		updateDetailsForm: function () {
 			var buf = '';
 			var set = this.curSet;
-			var isLetsGo = this.curTeam.format.startsWith('gen7letsgo');
+			var isLetsGo = this.curTeam.format.includes('letsgo');
 			var isNatDex = this.curTeam.gen === 8 && this.curTeam.format.includes('nationaldex');
 			var species = Dex.getSpecies(set.species);
 			if (!set) return;
@@ -2491,7 +2491,7 @@
 				if (isLetsGo) {
 					buf += '<div class="formrow"><label class="formlabel">Happiness:</label><div><input type="number" name="happiness" value="70" class="textbox inputform numform" /></div></div>';
 				} else {
-					buf += '<div class="formrow"><label class="formlabel">Happiness:</label><div><input type="number" min="0" max="255" step="1" name="happiness" value="' + (typeof set.happiness === 'number' ? set.happiness : 255) + '" class="textbox inputform numform" /></div></div>';
+					if (this.curTeam.gen < 8 || isNatDex) buf += '<div class="formrow"><label class="formlabel">Happiness:</label><div><input type="number" min="0" max="255" step="1" name="happiness" value="' + (typeof set.happiness === 'number' ? set.happiness : 255) + '" class="textbox inputform numform" /></div></div>';
 				}
 
 				buf += '<div class="formrow"><label class="formlabel">Shiny:</label><div>';
@@ -2510,7 +2510,7 @@
 				buf += '</select></div></div>';
 			}
 
-			if (this.curTeam.gen === 7 || isNatDex) {
+			if (!isLetsGo && (this.curTeam.gen === 7 || isNatDex)) {
 				buf += '<div class="formrow"><label class="formlabel" title="Hidden Power Type">Hidden Power:</label><div><select name="hptype">';
 				buf += '<option value=""' + (!set.hpType ? ' selected="selected"' : '') + '>(automatic type)</option>'; // unset
 				for (var type in exports.BattleTypeChart) {
@@ -2531,6 +2531,8 @@
 		detailsChange: function () {
 			var set = this.curSet;
 			if (!set) return;
+			var isLetsGo = this.curTeam.format.includes('letsgo');
+			var isNatDex = this.curTeam.format.includes('nationaldex');
 
 			// level
 			var level = parseInt(this.$chart.find('input[name=level]').val(), 10);
@@ -2587,13 +2589,13 @@
 			buf += '<span class="detailcell detailcell-first"><label>Level</label>' + (set.level || 100) + '</span>';
 			if (this.curTeam.gen > 1) {
 				buf += '<span class="detailcell"><label>Gender</label>' + GenderChart[set.gender || 'N'] + '</span>';
-				if (this.curTeam.format.startsWith('gen7letsgo')) {
+				if (isLetsGo) {
 					buf += '<span class="detailcell"><label>Happiness</label>70</span>';
 				} else {
-					buf += '<span class="detailcell"><label>Happiness</label>' + (typeof set.happiness === 'number' ? set.happiness : 255) + '</span>';
+					if (this.curTeam.gen < 8 || isNatDex) buf += '<span class="detailcell"><label>Happiness</label>' + (typeof set.happiness === 'number' ? set.happiness : 255) + '</span>';
 				}
 				buf += '<span class="detailcell"><label>Shiny</label>' + (set.shiny ? 'Yes' : 'No') + '</span>';
-				buf += '<span class="detailcell"><label>HP Type</label>' + (set.hpType || 'Dark') + '</span>';
+				if (!isLetsGo && (this.curTeam.gen < 8 || isNatDex)) buf += '<span class="detailcell"><label>HP Type</label>' + (set.hpType || 'Dark') + '</span>';
 			}
 			this.$('button[name=details]').html(buf);
 
@@ -3074,7 +3076,7 @@
 		// Stat calculator
 
 		getStat: function (stat, set, evOverride, natureOverride) {
-			var supportsEVs = !this.curTeam.format.startsWith('gen7letsgo');
+			var supportsEVs = !this.curTeam.format.includes('letsgo');
 			var supportsAVs = !supportsEVs;
 			if (!set) set = this.curSet;
 			if (!set) return 0;
