@@ -88,11 +88,11 @@
 				(rooms.pspl && rooms.pspl.length ? '<a href="https://www.smogon.com/forums/threads/3649563/" target="_blank"><h2 class="rooms-psplchatrooms">PSPL Winner</h2></a>' + _.map(rooms.pspl, this.renderRoomBtn).join("") : ''));
 			if (rooms.chat) {
 				this.$('.roomlist').last().html(
-					(rooms.chat.activity.length ? '<h2 class="rooms-chatrooms">Activity-based rooms</h2>' + _.map(rooms.chat.activity.sort(this.compareRooms), this.renderRoomBtn).join("") : '') +
-					(rooms.chat.casual.length ? '<h2 class="rooms-chatrooms">Casual rooms</h2>' + _.map(rooms.chat.casual.sort(this.compareRooms), this.renderRoomBtn).join("") : '') +
-					(rooms.chat.competitive.length ? '<h2 class="rooms-chatrooms">Competitive/Tier rooms</h2>' + _.map(rooms.chat.competitive.sort(this.compareRooms), this.renderRoomBtn).join("") : '') +
-					(rooms.chat.language.length ? '<h2 class="rooms-chatrooms">Language rooms</h2>' + _.map(rooms.chat.language.sort(this.compareRooms), this.renderRoomBtn).join("") : '') +
-					(rooms.chat.social.length ? '<h2 class="rooms-chatrooms">Social rooms</h2>' + _.map(rooms.chat.social.sort(this.compareRooms), this.renderRoomBtn).join("") : '')
+					(rooms.chat.activity.length ? '<details><summary class="rooms-chatrooms category-names">Activity-based rooms</summary>' + _.map(rooms.chat.activity.sort(this.compareRooms), this.renderRoomBtn).join("") + '</details>' : '') +
+					(rooms.chat.casual.length ? '<details><summary class="rooms-chatrooms category-names">Casual rooms</summary>' + _.map(rooms.chat.casual.sort(this.compareRooms), this.renderRoomBtn).join("") + '</details>' : '') +
+					(rooms.chat.competitive.length ? '<details><summary class="room-chatrooms category-names">Competitive/Tier rooms</summary>' + _.map(rooms.chat.competitive.sort(this.compareRooms), this.renderRoomBtn).join("") + '</details>' : '') +
+					(rooms.chat.language.length ? '<details><summary class="room-chatrooms category-names">Language rooms</summary>' + _.map(rooms.chat.language.sort(this.compareRooms), this.renderRoomBtn).join("") + '</details>' : '') +
+					(rooms.chat.social.length ? '<details><summary class="room-chatrooms category-names">Social rooms</summary>' + _.map(rooms.chat.social.sort(this.compareRooms), this.renderRoomBtn).join("") + '</details>' : '')
 				);
 			}
 		},
