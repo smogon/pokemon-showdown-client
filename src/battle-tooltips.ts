@@ -1812,10 +1812,10 @@ class BattleStatGuesser {
 		this.ignoreEVLimits = (
 			this.dex.gen < 3 ||
 			this.formatid.endsWith('hackmons') ||
-			this.formatid === 'gen8metronomebattle' ||
+			this.formatid.includes('metronomebattle') ||
 			this.formatid.endsWith('norestrictions')
 		);
-		this.supportsEVs = !this.formatid.startsWith('gen7letsgo');
+		this.supportsEVs = !this.formatid.includes('letsgo');
 		this.supportsAVs = !this.supportsEVs && this.formatid.endsWith('norestrictions');
 	}
 	guess(set: PokemonSet) {

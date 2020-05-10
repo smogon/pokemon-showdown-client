@@ -543,7 +543,7 @@ abstract class BattleTypedSearch<T extends SearchType> {
 	 */
 	set: PokemonSet | null = null;
 
-	protected formatType: 'natdex' | 'letsgo' | 'doubles' | null = null;
+	protected formatType: 'metronome' | 'natdex' | 'letsgo' | 'doubles' | null = null;
 
 	/**
 	 * Cached copy of what the results list would be with only base filters
@@ -582,7 +582,9 @@ abstract class BattleTypedSearch<T extends SearchType> {
 			if (!format) format = 'ou' as ID;
 		}
 		if (this.formatType === 'letsgo') format = format.slice(6) as ID;
-		if (format.includes('metronome')) this.formatType = 'natdex';
+		if (format.includes('metronome')) {
+			this.formatType = 'metronome';
+		}
 		this.format = format;
 
 		this.species = '' as ID;
@@ -725,10 +727,10 @@ abstract class BattleTypedSearch<T extends SearchType> {
 		return false;
 	}
 	getTier(pokemon: Species) {
-		if (this.formatType === 'letsgo') return pokemon.tier;
-		if (this.formatType === 'natdex') return pokemon.num >= 0 ? String(pokemon.num) : pokemon.tier;
+		if (this.formatType === 'metronome' || this.formatType === 'natdex') return pokemon.num >= 0 ? String(pokemon.num) : pokemon.tier;
 		let table = window.BattleTeambuilderTable;
-		const tableKey = this.formatType === 'doubles' ? `gen${this.dex.gen}doubles` : `gen${this.dex.gen}`;
+		const tableKey = this.formatType === 'doubles' ? `gen${this.dex.gen}doubles` :
+			this.formatType === 'letsgo' ? 'letsgo' : `gen${this.dex.gen}`;
 		if (table && table[tableKey]) {
 			table = table[tableKey];
 		}
@@ -823,13 +825,13 @@ class BattlePokemonSearch extends BattleTypedSearch<'pokemon'> {
 		)) {
 			table = table['gen' + dex.gen + 'doubles'];
 			isDoublesOrBS = true;
-		} else if (dex.gen < 8) {
+		} else if (dex.gen < 8 && !this.formatType) {
 			table = table['gen' + dex.gen];
 		} else if (this.formatType === 'letsgo') {
 			table = table['letsgo'];
 		} else if (this.formatType === 'natdex') {
 			table = table['natdex'];
-		} else if (this.format === 'metronomebattle') {
+		} else if (this.formatType === 'metronome') {
 			table = table['metronome'];
 		}
 
@@ -985,7 +987,7 @@ class BattleAbilitySearch extends BattleTypedSearch<'ability'> {
 			abilitySet.push(['header', "Special Event Ability"]);
 			abilitySet.push(['ability', toID(species.abilities['S'])]);
 		}
-		if (format === 'almostanyability' || isBH) {
+		if (format === 'almostanyability' || format === 'metronomebattle' || isBH) {
 			let abilities: ID[] = [];
 			for (let i in BattleAbilities) {
 				if (BattleAbilities[i].isNonstandard) continue;
@@ -1047,7 +1049,7 @@ class BattleItemSearch extends BattleTypedSearch<'item'> {
 			table = table['gen' + this.dex.gen];
 		} else if (this.formatType === 'natdex') {
 			table = table['natdex'];
-		} else if (this.format === 'metronomebattle') {
+		} else if (this.formatType === 'metronome') {
 			table = table['metronome'];
 		}
 		if (!table.itemSet) {
@@ -1149,6 +1151,10 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 
 		if (this.formatType === 'letsgo') {
 			if (id === 'megadrain') return true;
+		}
+
+		if (this.formatType === 'metronome') {
+			if (id === 'metronome') return true;
 		}
 
 		if (itemid === 'pidgeotite') abilityid = 'noguard' as ID;
@@ -1353,6 +1359,7 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 				}
 			}
 		}
+		if (this.formatType === 'metronome') moves = ['metronome'];
 		if (format === 'stabmons') {
 			for (let id in BattleMovedex) {
 				let types = [];
