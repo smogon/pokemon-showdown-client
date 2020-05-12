@@ -716,6 +716,9 @@ abstract class BattleTypedSearch<T extends SearchType> {
 				genChar = 'p';
 			}
 		}
+		if (this.dex.getSpecies(speciesid).isGigantamax) {
+			genChar = 'g';
+		}
 		let learnsetid = this.nextLearnsetid(speciesid);
 		while (learnsetid) {
 			let learnset = BattleTeambuilderTable.learnsets[learnsetid];
