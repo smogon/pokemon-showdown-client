@@ -1308,7 +1308,7 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 					/* if (requirePentagon && learnsetEntry.indexOf('p') < 0) {
 						continue;
 					} */
-					if (galarBornLegality && !learnsetEntry.includes('g')) {
+					if ((galarBornLegality || species.isGigantamax) && !learnsetEntry.includes('g')) {
 						continue;
 					} else if (!learnsetEntry.includes(gen)) {
 						continue;
