@@ -1370,7 +1370,7 @@ class Species implements Effect {
 		this.battleOnly = data.battleOnly || (this.isGigantamax ? this.baseSpecies : undefined);
 		this.isNonstandard = data.isNonstandard || null;
 		this.unreleasedHidden = data.unreleasedHidden || false;
-		this.changesFrom = data.changesFrom || undefined;
+		this.changesFrom = data.changesFrom || (this.isGigantamax ? this.baseSpecies : undefined);
 		if (!this.gen) {
 			if (this.num >= 810 || this.forme === 'Galar' || this.isGigantamax) {
 				this.gen = 8;
