@@ -671,31 +671,28 @@ abstract class BattleTypedSearch<T extends SearchType> {
 		}
 		return results;
 	}
-	protected nextLearnsetid(learnsetid: ID, speciesid?: ID) {
-		if (!speciesid) {
-			if (learnsetid in BattleTeambuilderTable.learnsets) return learnsetid;
-			let baseLearnsetid = BattlePokedex[learnsetid] && toID(BattlePokedex[learnsetid].baseSpecies);
-			if (!baseLearnsetid) {
-				baseLearnsetid = toID(BattleAliases[learnsetid]);
-			}
-			if (baseLearnsetid in BattleTeambuilderTable.learnsets) return baseLearnsetid;
-			return '' as ID;
+	protected firstLearnsetid(speciesid: ID) {
+		if (speciesid in BattleTeambuilderTable.learnsets) return speciesid;
+		const species = BattlePokedex[speciesid];
+		let baseLearnsetid = species && toID(species.baseSpecies);
+		if (!baseLearnsetid) {
+			baseLearnsetid = toID(BattleAliases[speciesid]);
 		}
-
+		if (baseLearnsetid in BattleTeambuilderTable.learnsets) return baseLearnsetid;
+		return '' as ID;
+	}
+	protected nextLearnsetid(learnsetid: ID, speciesid: ID) {
 		if (learnsetid === 'lycanrocdusk' || (speciesid === 'rockruff' && learnsetid === 'rockruff')) {
 			return 'rockruffdusk' as ID;
 		}
-		let species = BattlePokedex[learnsetid];
+		const species = BattlePokedex[learnsetid];
 		if (!species) return '' as ID;
-		if (species.prevo) return toID(species.prevo);
-		let baseSpecies = species.baseSpecies;
-		if (species.changesFrom) {
-			return toID(species.changesFrom);
-		}
-		if (baseSpecies !== species.name && baseSpecies === 'Pumpkaboo') {
-			// Pumpkaboo-Super event
-			return toID(species.baseSpecies);
-		}
+
+		if (learnsetid === 'pumpkaboosuper') return 'pumpkaboo' as ID;
+
+		const next = species.battleOnly || species.changesFrom || species.prevo;
+		if (next) return toID(next);
+
 		return '' as ID;
 	}
 	protected canLearn(speciesid: ID, moveid: ID) {
@@ -716,7 +713,10 @@ abstract class BattleTypedSearch<T extends SearchType> {
 				genChar = 'p';
 			}
 		}
-		let learnsetid = this.nextLearnsetid(speciesid);
+		if (this.dex.getSpecies(speciesid).isGigantamax) {
+			genChar = 'g';
+		}
+		let learnsetid = this.firstLearnsetid(speciesid);
 		while (learnsetid) {
 			let learnset = BattleTeambuilderTable.learnsets[learnsetid];
 			if (learnset && (moveid in learnset) && learnset[moveid].includes(genChar)) {
@@ -1286,12 +1286,13 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 		let species = dex.getSpecies(this.species);
 		const format = this.format;
 		const isBH = (format === 'balancedhackmons' || format === 'bh');
-		const galarBornLegality = (format.includes('battlestadium') || (format.startsWith('vgc') && this.dex.gen === 8));
+		const galarBornLegality = format.includes('battlestadium') || (format.startsWith('vgc') && this.dex.gen === 8) ||
+			species.isGigantamax;
 
 		const abilityid = this.set ? toID(this.set.ability) : '' as ID;
 		const itemid = this.set ? toID(this.set.item) : '' as ID;
 
-		let learnsetid = this.nextLearnsetid(species.id);
+		let learnsetid = this.firstLearnsetid(species.id);
 		let moves: string[] = [];
 		let sketchMoves: string[] = [];
 		let sketch = false;
