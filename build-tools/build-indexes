@@ -289,7 +289,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 	for (const genIdent of [8.3, 8.2, 8.1, 8, -8, 7.1, 7, -7.5, -7, 6, -6, 5, -5, 4, -4, 3, 2, 1]) {
 		const isLetsGo = (genIdent === 7.1);
 		const isMetBattle = (genIdent === 8.2);
-		const isNFE = (genIdent === 8.3);
+		const isNFE = (('' + genIdent).endsWith('.3'));
 		const isNatDex = (genIdent === 8.1);
 		const isDoubles = (genIdent < 0);
 		const isVGC = (genIdent === -7.5);
@@ -351,7 +351,8 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 					let tier = species.tier;
 					const feInCurrentGen = species.evos && Dex.getSpecies(species.evos[0]).gen > genNum;
 					if (!species.nfe || feInCurrentGen) tier = 'Illegal';
-					const banlist = Dex.getFormat(gen + 'nfe').banlist;
+					const format = Dex.getFormat(gen + 'nfe');
+					const banlist = format.exists ? format.banlist : [];
 					if (banlist.includes(species.name) || banlist.includes(species.name + '-Base')) {
 						tier = 'Uber';
 					}
