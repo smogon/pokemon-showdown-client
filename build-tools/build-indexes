@@ -286,9 +286,10 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 	let buf = '// DO NOT EDIT - automatically built with build-tools/build-indexes\n\n';
 
 	// process.stdout.write("\n  ");
-	for (const genIdent of [8.2, 8.1, 8, -8, 7.1, 7, -7.5, -7, 6, -6, 5, -5, 4, -4, 3, 2, 1]) {
+	for (const genIdent of [8.3, 8.2, 8.1, 8, -8, 7.1, 7, -7.5, -7, 6, -6, 5, -5, 4, -4, 3, 2, 1]) {
 		const isLetsGo = (genIdent === 7.1);
 		const isMetBattle = (genIdent === 8.2);
+		const isNFE = (('' + genIdent).endsWith('.3'));
 		const isNatDex = (genIdent === 8.1);
 		const isDoubles = (genIdent < 0);
 		const isVGC = (genIdent === -7.5);
@@ -300,7 +301,6 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 		const tierTable = {};
 		const overrideTier = {};
 		const zuBans = {};
-		const nfeBans = {};
 		for (const id of pokemon) {
 			const species = Dex.mod(gen).getSpecies(id);
 			if (species.gen > genNum) continue;
@@ -345,6 +345,17 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 					if (bst > 625) tier = 'Illegal';
 					if (banlist.includes(species.name) || banlist.includes(species.name + '-Base')) tier = 'Illegal';
 					if (species.types.includes('Steel')) tier = 'Illegal';
+					return tier;
+				}
+				if (isNFE) {
+					let tier = species.tier;
+					const feInCurrentGen = species.evos && Dex.getSpecies(species.evos[0]).gen > genNum;
+					if (!species.nfe || feInCurrentGen) tier = 'Illegal';
+					const format = Dex.getFormat(gen + 'nfe');
+					const banlist = format.exists ? format.banlist : [];
+					if (banlist.includes(species.name) || banlist.includes(species.name + '-Base')) {
+						tier = 'Uber';
+					}
 					return tier;
 				}
 				if (isLetsGo) {
@@ -413,18 +424,6 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 					zuBans[baseSpecies.id] = 1;
 				}
 			}
-
-			if (genNum >= 8) {
-				let banlist = Dex.getFormat(gen + 'nfe').banlist;
-				for (const ban of banlist) {
-					let baseSpecies = Dex.mod(gen).getSpecies(ban.endsWith('-Base') ? ban.slice(0, -5) : ban);
-					if (!baseSpecies.exists) continue;
-					const tierRank = {AG:1, Uber:1, OU:1, UUBL:1, UU:1, RUBL:1, RU:1, NUBL:1, NU:1, PUBL:1, PU:1, "(PU)":1, NFE:0, "LC Uber":0, LC:0};
-					let baseTier = baseSpecies.tier;
-					if (!['NFE', 'LC Uber', 'LC'].includes(baseTier) && baseTier in tierRank && tierRank[baseTier] > 0) continue;
-					nfeBans[baseSpecies.id] = 1;
-				}
-			}
 		}
 
 		const tiers = [];
@@ -441,6 +440,11 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			BattleTeambuilderTable['metronome'].tiers = tiers;
 			BattleTeambuilderTable['metronome'].items = items;
 			BattleTeambuilderTable['metronome'].formatSlices = formatSlices;
+		} else if (isNFE) {
+			BattleTeambuilderTable[gen + 'nfe'] = {};
+			BattleTeambuilderTable[gen + 'nfe'].tiers = tiers;
+			BattleTeambuilderTable[gen + 'nfe'].overrideTier = overrideTier;
+			BattleTeambuilderTable[gen + 'nfe'].formatSlices = formatSlices;
 		} else if (isLetsGo) {
 			BattleTeambuilderTable['letsgo'] = {};
 			BattleTeambuilderTable['letsgo'].learnsets = {};
@@ -461,7 +465,6 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			BattleTeambuilderTable.items = items;
 			BattleTeambuilderTable.overrideTier = overrideTier;
 			BattleTeambuilderTable.zuBans = zuBans;
-			BattleTeambuilderTable.nfeBans = nfeBans;
 			BattleTeambuilderTable.formatSlices = formatSlices;
 		} else {
 			BattleTeambuilderTable[gen] = {};
