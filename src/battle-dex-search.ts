@@ -727,7 +727,9 @@ abstract class BattleTypedSearch<T extends SearchType> {
 		return false;
 	}
 	getTier(pokemon: Species) {
-		if (this.formatType === 'metronome' || this.formatType === 'natdex') return pokemon.num >= 0 ? String(pokemon.num) : pokemon.tier;
+		if (this.formatType === 'metronome' || this.formatType === 'natdex') {
+			return pokemon.num >= 0 ? String(pokemon.num) : pokemon.tier;
+		}
 		let table = window.BattleTeambuilderTable;
 		const tableKey = this.formatType === 'doubles' ? `gen${this.dex.gen}doubles` :
 			this.formatType === 'letsgo' ? 'letsgo' : `gen${this.dex.gen}`;
