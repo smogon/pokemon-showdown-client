@@ -543,7 +543,7 @@ abstract class BattleTypedSearch<T extends SearchType> {
 	 */
 	set: PokemonSet | null = null;
 
-	protected formatType: 'metronome' | 'natdex' | 'letsgo' | 'doubles' | null = null;
+	protected formatType: 'doubles' | 'letsgo' | 'metronome' | 'natdex' | 'nfe' | null = null;
 
 	/**
 	 * Cached copy of what the results list would be with only base filters
@@ -585,6 +585,7 @@ abstract class BattleTypedSearch<T extends SearchType> {
 		if (format.includes('metronome')) {
 			this.formatType = 'metronome';
 		}
+		if (format.endsWith('nfe')) this.formatType = 'nfe';
 		this.format = format;
 
 		this.species = '' as ID;
@@ -732,7 +733,8 @@ abstract class BattleTypedSearch<T extends SearchType> {
 		}
 		let table = window.BattleTeambuilderTable;
 		const tableKey = this.formatType === 'doubles' ? `gen${this.dex.gen}doubles` :
-			this.formatType === 'letsgo' ? 'letsgo' : `gen${this.dex.gen}`;
+			this.formatType === 'letsgo' ? 'letsgo' :
+			this.formatType === 'nfe' ? `gen${this.dex.gen}nfe` : `gen${this.dex.gen}`;
 		if (table && table[tableKey]) {
 			table = table[tableKey];
 		}
@@ -835,6 +837,8 @@ class BattlePokemonSearch extends BattleTypedSearch<'pokemon'> {
 			table = table['natdex'];
 		} else if (this.formatType === 'metronome') {
 			table = table['metronome'];
+		} else if (this.formatType === 'nfe') {
+			table = table['gen' + dex.gen + 'nfe'];
 		}
 
 		if (!table.tierSet) {
@@ -858,7 +862,6 @@ class BattlePokemonSearch extends BattleTypedSearch<'pokemon'> {
 		else if (format === 'nu') tierSet = tierSet.slice(slices.NU);
 		else if (format === 'pu') tierSet = tierSet.slice(slices.PU || slices.NU);
 		else if (format === 'zu') tierSet = tierSet.slice(slices.ZU || slices.PU || slices.NU);
-		else if (format === 'nfe') tierSet = tierSet.slice(slices.NFE);
 		else if (format === 'lc' || format === 'lcuu') tierSet = tierSet.slice(slices.LC);
 		else if (format === 'cap') tierSet = tierSet.slice(0, slices.Uber).concat(tierSet.slice(slices.OU));
 		else if (format === 'caplc') tierSet = tierSet.slice(slices['CAP LC'], slices.Uber).concat(tierSet.slice(slices.LC));
@@ -882,13 +885,6 @@ class BattlePokemonSearch extends BattleTypedSearch<'pokemon'> {
 		if (format === 'zu' && dex.gen >= 7) {
 			tierSet = tierSet.filter(function (r) {
 				if (r[1] in table.zuBans) return false;
-				return true;
-			});
-		}
-
-		if (format === 'nfe' && dex.gen >= 8) {
-			tierSet = tierSet.filter(function (r) {
-				if (r[1] in table.nfeBans) return false;
 				return true;
 			});
 		}
