@@ -758,7 +758,7 @@ class BattleLog {
 
 		let formattedTime;
 		// Try using Intl API if it exists
-		if (window.Intl?.DateTimeFormat) {
+		if ((window as any).Intl?.DateTimeFormat) {
 			formattedTime = new Intl.DateTimeFormat(undefined, {
 				month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric',
 			}).format(parsedTime);
