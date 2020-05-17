@@ -1318,7 +1318,7 @@ function toId() {
 							if (!target || target === 'search') {
 								target = '.';
 							} else {
-								target = 'battle-' + target;
+								if (target.slice(0, 7) !== "battle-") target = 'battle-' + target;
 							}
 						}
 						if (target.indexOf('/') < 0 && target.indexOf('.') < 0 && !shortLinks.test(target)) {
