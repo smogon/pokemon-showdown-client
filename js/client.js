@@ -1317,7 +1317,7 @@ function toId() {
 						if (isReplayLink) {
 							if (!target || target === 'search') {
 								target = '.';
-							} else {
+							} else if (target.slice(0, 7) !== "battle-") {
 								target = 'battle-' + target;
 							}
 						}
