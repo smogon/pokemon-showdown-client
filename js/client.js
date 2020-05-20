@@ -2020,6 +2020,12 @@ function toId() {
 		receive: function (data) {
 			//
 		},
+		/**
+		 * Send a user a specific PM
+		 */
+		whisper: function (data, button) {
+			app.send(`/pm ${button.attributes.name.value.split('-')[1]}, ${data}`);
+		},
 
 		// layout
 
