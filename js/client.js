@@ -1853,7 +1853,7 @@ function toId() {
 				autojoins.push(room.id.indexOf('-') >= 0 ? room.id : (room.title || room.id));
 				if (room.id === 'staff' || room.id === 'upperstaff' || (Config.server.id !== 'showdown' && room.id === 'lobby')) continue;
 				autojoinCount++;
-				if (autojoinCount >= 10) break;
+				if (autojoinCount >= 15) break;
 			}
 			var curAutojoin = (Dex.prefs('autojoin') || '');
 			if (typeof curAutojoin !== 'string') {
