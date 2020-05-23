@@ -3092,9 +3092,8 @@ a.ilink.yours {
 	height: 16px;
 	font-size: 9pt;
 }
-input[type=range]{
+.selector:not(*:root), input[type=range]{
 	-webkit-appearance: none;
-	
 }
 input[type=range]::-webkit-slider-runnable-track {
     width: 300px;
