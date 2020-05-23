@@ -3092,7 +3092,39 @@ a.ilink.yours {
 	height: 16px;
 	font-size: 9pt;
 }
-
+input[type=range]{
+	-webkit-appearance: none;
+	
+}
+input[type=range]::-webkit-slider-runnable-track {
+    width: 300px;
+    height: 3px;
+    background: rgb(164,174,177);
+    border: none;
+    border-radius: 3px;
+}
+input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    border: lightblue;
+    height: 16px;
+    width: 16px;
+    border-radius: 50%;
+    background: white;
+	margin-top: -6px;
+	box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+}
+input[type=range]:focus {
+    outline: none;
+}
+input[type=range]:focus::-webkit-slider-runnable-track {
+    background: rgb(164,174,177);
+}
+input[type=range]:hover::-webkit-slider-thumb {
+	height: 18px;
+	width: 18px;
+	margin-top: -7px;
+	box-shadow: 0 0 2pt 2pt rgba(0, 89, 253, 0.5);
+}
 .detailsform .formrow {
 	padding-left: 100px;
 }
