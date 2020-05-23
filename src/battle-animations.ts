@@ -812,14 +812,16 @@ class BattleScene {
 		}
 		return buf; // weather not found
 	}
-	sideConditionLeft(cond: [string, number, number, number], siden: number) {
-		if (!cond[2] && !cond[3]) return '';
-		let buf = '<br />' + (siden ? "Foe's " : "") + Dex.getMove(cond[0]).name;
+	sideConditionLeft(cond: [string, number, number, number], siden: number, all?: boolean) {
+		if (!cond[2] && !cond[3] && !all) return '';
+		let buf = `<br />${siden && !all ? "Foe's " : ""}${Dex.getMove(cond[0]).name}`;
+		if (this.battle.gen < 7 && this.battle.hardcoreMode) return buf;
+
+		if (!cond[2] && !cond[3]) return buf;
 		if (!cond[2] && cond[3]) {
 			cond[2] = cond[3];
 			cond[3] = 0;
 		}
-		if (this.battle.gen < 7 && this.battle.hardcoreMode) return buf;
 		if (!cond[3]) {
 			return buf + ' <small>(' + cond[2] + ' turn' + (cond[2] === 1 ? '' : 's') + ')</small>';
 		}
@@ -827,13 +829,39 @@ class BattleScene {
 	}
 	weatherLeft() {
 		if (this.battle.gen < 7 && this.battle.hardcoreMode) return '';
-		if (this.battle.weatherMinTimeLeft !== 0) {
-			return ` <small>(${this.battle.weatherMinTimeLeft} or ${this.battle.weatherTimeLeft} turns)</small>`;
+
+		let weatherhtml = ``;
+
+		if (this.battle.weather) {
+			const weatherNameTable: {[id: string]: string} = {
+				sunnyday: 'Sun',
+				desolateland: 'Intense Sun',
+				raindance: 'Rain',
+				primordialsea: 'Heavy Rain',
+				sandstorm: 'Sandstorm',
+				hail: 'Hail',
+				deltastream: 'Strong Winds',
+			};
+			weatherhtml = `${weatherNameTable[this.battle.weather] || this.battle.weather}`;
+			if (this.battle.weatherMinTimeLeft !== 0) {
+				weatherhtml += ` <small>(${this.battle.weatherMinTimeLeft} or ${this.battle.weatherTimeLeft} turns)</small>`;
+			} else if (this.battle.weatherTimeLeft !== 0) {
+				weatherhtml += ` <small>(${this.battle.weatherTimeLeft} turn${this.battle.weatherTimeLeft === 1 ? '' : 's'})</small>`;
+			}
 		}
-		if (this.battle.weatherTimeLeft !== 0) {
-			return ` <small>(${this.battle.weatherTimeLeft} turn${this.battle.weatherTimeLeft === 1 ? '' : 's'})</small>`;
+
+		for (const pseudoWeather of this.battle.pseudoWeather) {
+			weatherhtml += this.pseudoWeatherLeft(pseudoWeather);
 		}
-		return '';
+
+		return weatherhtml;
+	}
+	sideConditionsLeft(side: Side, all?: boolean) {
+		let buf = ``;
+		for (const id in side.sideConditions) {
+			buf += this.sideConditionLeft(side.sideConditions[id], side.n, all);
+		}
+		return buf;
 	}
 	upkeepWeather() {
 		const isIntense = ['desolateland', 'primordialsea', 'deltastream'].includes(this.curWeather);
@@ -846,15 +874,6 @@ class BattleScene {
 	updateWeather(instant?: boolean) {
 		if (!this.animating) return;
 		let isIntense = false;
-		const weatherNameTable: {[id: string]: string} = {
-			sunnyday: 'Sun',
-			desolateland: 'Intense Sun',
-			raindance: 'Rain',
-			primordialsea: 'Heavy Rain',
-			sandstorm: 'Sandstorm',
-			hail: 'Hail',
-			deltastream: 'Strong Winds',
-		};
 		let weather = this.battle.weather;
 		let terrain = '' as ID;
 		for (const pseudoWeatherData of this.battle.pseudoWeather) {
@@ -875,18 +894,11 @@ class BattleScene {
 			isIntense = true;
 		}
 
-		let weatherhtml = '';
-		if (weather) {
-			weatherhtml += '<br />' + (weatherNameTable[weather] || weather) + this.weatherLeft();
-		}
-		for (const pseudoWeather of this.battle.pseudoWeather) {
-			weatherhtml += this.pseudoWeatherLeft(pseudoWeather);
-		}
+		let weatherhtml = this.weatherLeft();
 		for (const side of this.battle.sides) {
-			for (const id in side.sideConditions) {
-				weatherhtml += this.sideConditionLeft(side.sideConditions[id], side.n);
-			}
+			weatherhtml += this.sideConditionsLeft(side);
 		}
+		if (weatherhtml) weatherhtml = `<br />` + weatherhtml;
 
 		if (instant) {
 			this.$weather.html('<em>' + weatherhtml + '</em>');
@@ -928,7 +940,7 @@ class BattleScene {
 			this.$turn.html('');
 			return;
 		}
-		this.$turn.html('<div class="turn">Turn ' + this.battle.turn + '</div>');
+		this.$turn.html('<div class="turn has-tooltip" data-tooltip="field" data-ownheight="1">Turn ' + this.battle.turn + '</div>');
 	}
 	incrementTurn() {
 		if (!this.animating) return;
@@ -936,7 +948,7 @@ class BattleScene {
 		const turn = this.battle.turn;
 		if (!turn) return;
 		const $prevTurn = this.$turn.children();
-		const $newTurn = $('<div class="turn">Turn ' + turn + '</div>');
+		const $newTurn = $('<div class="turn has-tooltip" data-tooltip="field" data-ownheight="1">Turn ' + turn + '</div>');
 		$newTurn.css({
 			opacity: 0,
 			left: 160,
