@@ -263,7 +263,7 @@ class BattleTooltips {
 		 * This is important for the move/switch menus so the tooltip doesn't
 		 * cover up buttons above the hovered button.
 		 */
-		const ownHeight = !!elem.dataset.ownheight;
+		let ownHeight = !!elem.dataset.ownheight;
 
 		let buf: string;
 		switch (type) {
@@ -329,25 +329,43 @@ class BattleTooltips {
 			buf = this.showPokemonTooltip(pokemon, serverPokemon);
 			break;
 		}
+		case 'field': {
+			buf = this.showFieldTooltip();
+			break;
+		}
 		default:
-			throw new Error(`unrecognized type`);
+			// "throws" an error without crashing
+			Promise.resolve(new Error(`unrecognized type`));
+			buf = `<p class="message-error" style="white-space: pre-wrap">${new Error(`unrecognized type`).stack}</p>`;
 		}
 
-		let offset = {
-			left: 150,
-			top: 500,
-		};
-		if (elem) offset = $(elem).offset()!;
-		let x = offset.left - 2;
-		if (elem) {
-			offset = (ownHeight ? $(elem) : $(elem).parent()).offset()!;
-		}
-		let y = offset.top - 5;
+		this.placeTooltip(buf, elem, ownHeight);
+		return true;
+	}
 
-		if (y < 140) y = 140;
-		// if (x > room.leftWidth + 335) x = room.leftWidth + 335;
-		if (x > $(window).width()! - 305) x = Math.max($(window).width()! - 305, 0);
-		if (x < 0) x = 0;
+	placeTooltip(innerHTML: string, hoveredElem?: HTMLElement, notRelativeToParent?: boolean) {
+		let $elem;
+		if (hoveredElem) {
+			$elem = $(hoveredElem);
+		} else {
+			$elem = (this.battle.scene as BattleScene).$turn;
+			notRelativeToParent = true;
+		}
+
+		let hoveredX1 = $elem.offset()!.left;
+
+		if (!notRelativeToParent) {
+			$elem = $elem.parent();
+		}
+
+		let hoveredY1 = $elem.offset()!.top;
+		let hoveredY2 = hoveredY1 + $elem.outerHeight()!;
+
+		// (x, y) are the left and top offsets of #tooltipwrapper, which mark the
+		// BOTTOM LEFT CORNER of the tooltip
+
+		let x = Math.max(hoveredX1 - 2, 0);
+		let y = Math.max(hoveredY1 - 5, 0);
 
 		let $wrapper = $('#tooltipwrapper');
 		if (!$wrapper.length) {
@@ -367,21 +385,32 @@ class BattleTooltips {
 			left: x,
 			top: y,
 		});
-		buf = `<div class="tooltipinner"><div class="tooltip">${buf}</div></div>`;
-		$wrapper.html(buf).appendTo(document.body);
+		innerHTML = `<div class="tooltipinner"><div class="tooltip">${innerHTML}</div></div>`;
+		$wrapper.html(innerHTML).appendTo(document.body);
 		BattleTooltips.elem = $wrapper.find('.tooltip')[0] as HTMLDivElement;
 		BattleTooltips.isLocked = false;
-		if (elem) {
-			let height = $(BattleTooltips.elem).height()!;
-			if (height > y) {
-				y += height + 10;
-				if (ownHeight) y += $(elem).height()!;
-				else y += $(elem).parent().height()!;
-				y = Math.min(y, document.documentElement.clientHeight);
+
+		let height = $(BattleTooltips.elem).outerHeight()!;
+		if (y - height < 1) {
+			// tooltip is too tall to fit above the element:
+			// try to fit it below it instead
+			y = hoveredY2 + height + 5;
+			if (y > document.documentElement.clientHeight) {
+				// tooltip is also too tall to fit below the element:
+				// just place it at the top of the screen
+				y = height + 1;
+			}
+			$wrapper.css('top', y);
+		} else if (y < 75) {
+			// tooltip is pretty high up, put it below the element if it fits
+			y = hoveredY2 + height + 5;
+			if (y < document.documentElement.clientHeight) {
+				// it fits
 				$wrapper.css('top', y);
 			}
 		}
-		BattleTooltips.parentElem = elem;
+
+		BattleTooltips.parentElem = hoveredElem || null;
 		return true;
 	}
 
@@ -808,6 +837,27 @@ class BattleTooltips {
 			text += `</p>`;
 		}
 		return text;
+	}
+
+	showFieldTooltip() {
+		const scene = this.battle.scene as BattleScene;
+		let buf = `<table style="border: 0; border-collapse: collapse; vertical-align: top; padding: 0; width: 100%"><tr>`;
+
+		let atLeastOne = false;
+		for (const side of this.battle.sides) {
+			const sideConditions = scene.sideConditionsLeft(side, true);
+			if (sideConditions) atLeastOne = true;
+			buf += `<td><p class="section"><strong>${BattleLog.escapeHTML(side.name)}</strong>${sideConditions || "<br />(no conditions)"}</p></td>`;
+		}
+		buf += `</tr><table>`;
+		if (!atLeastOne) buf = ``;
+
+		let weatherbuf = scene.weatherLeft() || `(no weather)`;
+		if (weatherbuf.startsWith('<br />')) {
+			weatherbuf = weatherbuf.slice(6);
+		}
+		buf = `<p>${weatherbuf}</p>` + buf;
+		return `<p>${buf}</p>`;
 	}
 
 	/**
