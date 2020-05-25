@@ -410,6 +410,12 @@ class BattleTooltips {
 			}
 		}
 
+		let width = $(BattleTooltips.elem).outerWidth()!;
+		if (x > document.documentElement.clientWidth - width - 2) {
+			x = document.documentElement.clientWidth - width - 2;
+			$wrapper.css('left', x);
+		}
+
 		BattleTooltips.parentElem = hoveredElem || null;
 		return true;
 	}
