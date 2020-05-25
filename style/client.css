@@ -995,7 +995,6 @@ p.or:after {
 	max-height: 300px;
 	background: rgba(242,247,250,.925);
 	color: black;
-	word-wrap: break-word;
 	border: 1px solid #AAAAAA;
 	border-top: 0;
 	border-bottom: 0;
@@ -1003,6 +1002,7 @@ p.or:after {
 	overflow: auto;
 	-webkit-overflow-scrolling: touch;
 	overflow-scrolling: touch;
+	word-wrap: break-word;
 }
 .pm-buttonbar {
 	padding-bottom: 3px;
@@ -1314,12 +1314,12 @@ p.or:after {
 	font-size: 10pt;
 	background: rgba(242,247,250,.5);
 	color: black;
-	word-wrap: break-word;
 
 	overflow: auto;
 	overflow-x: hidden;
 	-webkit-overflow-scrolling: touch;
 	overflow-scrolling: touch;
+	word-wrap: break-word;
 }
 .chat-log-add {
 	position: absolute;
