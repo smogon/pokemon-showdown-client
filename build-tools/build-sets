@@ -5,12 +5,12 @@ const fs = require("fs");
 const child_process = require('child_process');
 const path = require("path");
 
-process.stdout.write("Importing sets from @pokemon-showdown/sets... ");
+process.stdout.write("Importing sets from @smogon/sets... ");
 
 const shell = cmd => child_process.execSync(cmd, {stdio: 'inherit', cwd: path.resolve(__dirname, '..')});
-shell(`npm install --no-audit --no-save @pokemon-showdown/sets`);
+shell(`npm install --no-audit --no-save @smogon/sets`);
 
-const src = path.resolve(__dirname, '../node_modules/@pokemon-showdown/sets');
+const src = path.resolve(__dirname, '../node_modules/@smogon/sets');
 const dest = path.resolve(__dirname, '../data/sets');
 
 try {

@@ -1557,7 +1557,7 @@
 
 			if (!formatSets) return;
 
-			var sets = $.extend({}, formatSets['smogon.com/dex'][species], formatSets['smogon.com/stats'][species]);
+			var sets = $.extend({}, formatSets['dex'][species], formatSets['stats'][species]);
 
 			$setDiv.text('Sample sets: ');
 			for (var set in sets) {
@@ -1570,7 +1570,7 @@
 			var species = this.curSet.species;
 
 			var setName = this.$(button).text();
-			var smogonSet = formatSets['smogon.com/dex'][species][setName] || formatSets['smogon.com/stats'][species][setName];
+			var smogonSet = formatSets['dex'][species][setName] || formatSets['stats'][species][setName];
 			var curSet = $.extend({}, this.curSet, smogonSet);
 
 			var text = Storage.exportTeam([curSet]);
