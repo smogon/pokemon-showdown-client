@@ -65,13 +65,23 @@ class Replays {
 
 		return $replay;
 	}
-	function edit($replay) {
-		if ($replay['private']) {
-			$res = $this->db->prepare("UPDATE ps_replays SET private = ? WHERE id = ? LIMIT 1");
-			$res->execute([$replay['private'], $replay['id']]);
+	function edit(&$replay) {
+		if ($replay['private'] === 3) {
+			$replay['private'] = 3;
+			$res = $this->db->prepare("UPDATE ps_replays SET private = 3, password = NULL WHERE id = ? LIMIT 1");
+			$res->execute([$replay['id']]);
+		} else if ($replay['private'] === 2) {
+			$replay['private'] = 1;
+			$replay['password'] = NULL;
+			$res = $this->db->prepare("UPDATE ps_replays SET private = 1, password = NULL WHERE id = ? LIMIT 1");
+			$res->execute([$replay['id']]);
+		} else if ($replay['private']) {
+			if (!$replay['password']) $replay['password'] = $this->genPassword();
+			$res = $this->db->prepare("UPDATE ps_replays SET private = 1, password = ? WHERE id = ? LIMIT 1");
+			$res->execute([$replay['password'], $replay['id']]);
 		} else {
-			$res = $this->db->prepare("UPDATE ps_replays SET private = ?, password = NULL WHERE id = ? LIMIT 1");
-			$res->execute([$replay['private'], $replay['id']]);
+			$res = $this->db->prepare("UPDATE ps_replays SET private = 0, password = NULL WHERE id = ? LIMIT 1");
+			$res->execute([$replay['id']]);
 		}
 		return;
 	}
