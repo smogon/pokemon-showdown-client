@@ -280,6 +280,7 @@ select {
 
 input[type=range] {
 	-webkit-appearance: none;
+	-moz-appearance: range;
 	cursor: pointer;
 	height: 18px;
 	background: transparent;
