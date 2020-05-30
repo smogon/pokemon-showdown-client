@@ -838,7 +838,7 @@
 			case 'ladder':
 				if (app.localLadder) return text;
 				if (!target) {
-					if (this.battle) target =  app.user.get('userid') + ", " + this.id.split('-')[1];
+					if (this.battle) target = app.user.get('userid') + ", " + this.id.split('-')[1];
 					else target = app.user.get('userid');
 				}
 
