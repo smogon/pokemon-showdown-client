@@ -837,7 +837,12 @@
 			case 'rating':
 			case 'ladder':
 				if (app.localLadder) return text;
-				if (!target) target = app.user.get('userid');
+				if (!target) {
+					target = app.user.get('userid');
+				}
+				if (this.battle && !target.includes(',')) {
+					target += ", " + this.id.split('-')[1];
+				}
 
 				var targets = target.split(',');
 				var formatTargeting = false;
@@ -900,7 +905,7 @@
 					}
 					if (hiddenFormats.length) {
 						if (hiddenFormats.length === data.length) {
-							buffer += '<tr class="no-matches"><td colspan="6"><em>This user has not played any ladder games that match the format targeting.</em></td></tr>';
+							buffer += '<tr class="no-matches"><td colspan="8"><em>This user has not played any ladder games that match "' + BattleLog.escapeHTML(Object.keys(gens).concat(Object.keys(formats)).join(', ')) + '".</em></td></tr>';
 						}
 						buffer += '<tr><td colspan="8"><button name="showOtherFormats">' + hiddenFormats.slice(0, 3).join(', ') + (hiddenFormats.length > 3 ? ' and ' + (hiddenFormats.length - 3) + ' other formats' : '') + ' not shown</button></td></tr>';
 					}
