@@ -6,9 +6,10 @@
  */
 
 class ChatRoom extends PSRoom {
-	readonly classType: string = 'chat';
+	readonly classType: 'chat' | 'battle' = 'chat';
 	users: {[userid: string]: string} = {};
 	userCount = 0;
+	readonly canConnect = true;
 
 	// PM-only properties
 	pmTarget: string | null = null;
@@ -77,22 +78,22 @@ class ChatRoom extends PSRoom {
 			return true;
 		} case 'reject': {
 			this.challengedFormat = null;
-			this.update('');
+			this.update(null);
 			return false;
 		}}
 		return false;
 	}
 	openChallenge() {
 		if (!this.pmTarget) {
-			this.receive(`|error|Can only be used in a PM.`);
+			this.receiveLine([`error`, `Can only be used in a PM.`]);
 			return;
 		}
 		this.challengeMenuOpen = true;
-		this.update('');
+		this.update(null);
 	}
 	cancelChallenge() {
 		if (!this.pmTarget) {
-			this.receive(`|error|Can only be used in a PM.`);
+			this.receiveLine([`error`, `Can only be used in a PM.`]);
 			return;
 		}
 		if (this.challengingFormat) {
@@ -102,19 +103,17 @@ class ChatRoom extends PSRoom {
 		} else {
 			this.challengeMenuOpen = false;
 		}
-		this.update('');
+		this.update(null);
 	}
 	send(line: string, direct?: boolean) {
 		this.updateTarget();
+		if (!direct && !line) return;
 		if (!direct && this.handleMessage(line)) return;
 		if (this.pmTarget) {
 			PS.send(`|/pm ${this.pmTarget}, ${line}`);
 			return;
 		}
-		super.send(line);
-	}
-	receive(line: string) {
-		this.update(line);
+		super.send(line, true);
 	}
 	setUsers(count: number, usernames: string[]) {
 		this.userCount = count;
@@ -123,13 +122,13 @@ class ChatRoom extends PSRoom {
 			const userid = toID(username);
 			this.users[userid] = username;
 		}
-		this.update('');
+		this.update(null);
 	}
 	addUser(username: string) {
 		const userid = toID(username);
 		if (!(userid in this.users)) this.userCount++;
 		this.users[userid] = username;
-		this.update('');
+		this.update(null);
 	}
 	removeUser(username: string, noUpdate?: boolean) {
 		const userid = toID(username);
@@ -137,12 +136,12 @@ class ChatRoom extends PSRoom {
 			this.userCount--;
 			delete this.users[userid];
 		}
-		if (!noUpdate) this.update('');
+		if (!noUpdate) this.update(null);
 	}
 	renameUser(username: string, oldUsername: string) {
 		this.removeUser(oldUsername, true);
 		this.addUser(username);
-		this.update('');
+		this.update(null);
 	}
 	destroy() {
 		if (this.pmTarget) this.connected = false;
@@ -152,6 +151,7 @@ class ChatRoom extends PSRoom {
 
 class ChatTextEntry extends preact.Component<{
 	room: PSRoom, onMessage: (msg: string) => void, onKey: (e: KeyboardEvent) => boolean,
+	left?: number,
 }> {
 	subscription: PSSubscription | null = null;
 	textbox: HTMLTextAreaElement = null!;
@@ -295,7 +295,9 @@ class ChatTextEntry extends preact.Component<{
 		return true;
 	}
 	render() {
-		return <div class="chat-log-add hasuserlist" onClick={this.focusIfNoSelection}>
+		return <div
+			class="chat-log-add hasuserlist" onClick={this.focusIfNoSelection} style={{left: this.props.left || 0}}
+		>
 			<form class="chatbox">
 				<label style={{color: BattleLog.usernameColor(PS.user.userid)}}>{PS.user.name}:</label>
 				<textarea
@@ -344,7 +346,7 @@ class ChatPanel extends PSRoomPanel<ChatRoom> {
 		PS.send(`|/challenge ${room.pmTarget}, ${format}`);
 		room.challengeMenuOpen = false;
 		room.challengingFormat = format;
-		room.update('');
+		room.update(null);
 	};
 	acceptChallenge = (e: Event, format: string, team?: Team) => {
 		const room = this.props.room;
@@ -353,10 +355,11 @@ class ChatPanel extends PSRoomPanel<ChatRoom> {
 		PS.send(`|/utm ${packedTeam}`);
 		this.props.room.send(`/accept`);
 		room.challengedFormat = null;
-		room.update('');
+		room.update(null);
 	};
 	render() {
 		const room = this.props.room;
+		const tinyLayout = room.width < 450;
 
 		const challengeTo = room.challengingFormat ? <div class="challenge">
 			<TeamForm format={room.challengingFormat} onSubmit={null}>
@@ -364,31 +367,37 @@ class ChatPanel extends PSRoomPanel<ChatRoom> {
 			</TeamForm>
 		</div> : room.challengeMenuOpen ? <div class="challenge">
 			<TeamForm onSubmit={this.makeChallenge}>
-				<button type="submit" class="button disabled"><strong>Challenge</strong></button> {}
+				<button type="submit" class="button"><strong>Challenge</strong></button> {}
 				<button name="cmd" value="/cancelchallenge" class="button">Cancel</button>
 			</TeamForm>
 		</div> : null;
 
 		const challengeFrom = room.challengedFormat ? <div class="challenge">
 			<TeamForm format={room.challengedFormat} onSubmit={this.acceptChallenge}>
-				<button type="submit" class="button disabled"><strong>Accept</strong></button> {}
+				<button type="submit" class="button"><strong>Accept</strong></button> {}
 				<button name="cmd" value="/reject" class="button">Reject</button>
 			</TeamForm>
 		</div> : null;
 
-		return <PSPanelWrapper room={this.props.room}>
+		return <PSPanelWrapper room={room}>
 			<div class="tournament-wrapper hasuserlist"></div>
-			<ChatLog class="chat-log hasuserlist" room={this.props.room} onClick={this.focusIfNoSelection}>
+			<ChatLog class="chat-log" room={this.props.room} onClick={this.focusIfNoSelection} left={tinyLayout ? 0 : 146}>
 				{challengeTo || challengeFrom && [challengeTo, challengeFrom]}
 			</ChatLog>
-			<ChatTextEntry room={this.props.room} onMessage={this.send} onKey={this.onKey} />
-			<ChatUserList room={this.props.room} />
+			<ChatTextEntry room={this.props.room} onMessage={this.send} onKey={this.onKey} left={tinyLayout ? 0 : 146} />
+			<ChatUserList room={this.props.room} minimized={tinyLayout} />
 		</PSPanelWrapper>;
 	}
 }
 
-class ChatUserList extends preact.Component<{room: ChatRoom}> {
+class ChatUserList extends preact.Component<{room: ChatRoom, left?: number, minimized?: boolean}> {
 	subscription: PSSubscription | null = null;
+	state = {
+		expanded: false,
+	};
+	toggleExpanded = () => {
+		this.setState({expanded: !this.state.expanded});
+	};
 	componentDidMount() {
 		this.subscription = this.props.room.subscribe(msg => {
 			if (!msg) this.forceUpdate();
@@ -400,61 +409,51 @@ class ChatUserList extends preact.Component<{room: ChatRoom}> {
 	render() {
 		const room = this.props.room;
 		let userList = Object.entries(room.users) as [ID, string][];
-		userList.sort(ChatUserList.compareUsers);
-		function colorStyle(userid: ID) {
-			return {color: BattleLog.usernameColor(userid)};
-		}
-		return <ul class="userlist">
-			<li class="userlist-count" style="text-align:center;padding:2px 0"><small>{room.userCount} users</small></li>
+		PSUtils.sortBy(userList, ([id, name]) => (
+			[name === '#Zarel', PS.server.getGroup(name.charAt(0)).order, !name.endsWith('@!'), id]
+		));
+		return <ul class={'userlist' + (this.props.minimized ? (this.state.expanded ? ' userlist-maximized' : ' userlist-minimized') : '')} style={{left: this.props.left || 0}}>
+			<li class="userlist-count" style="text-align:center;padding:2px 0" onClick={this.toggleExpanded}><small>{room.userCount} users</small></li>
 			{userList.map(([userid, name]) => {
 				const groupSymbol = name.charAt(0);
 				const group = PS.server.groups[groupSymbol] || {type: 'user', order: 0};
+				let color;
+				if (name.endsWith('@!')) {
+					name = name.slice(0, -2);
+					color = '#888888';
+				} else {
+					color = BattleLog.usernameColor(userid);
+				}
 				return <li key={userid}><button class="userbutton username" data-name={name}>
 					<em class={`group${['leadership', 'staff'].includes(group.type!) ? ' staffgroup' : ''}`}>
 						{groupSymbol}
 					</em>
 					{group.type === 'leadership' ?
-						<strong><em style={colorStyle(userid)}>{name.substr(1)}</em></strong>
+						<strong><em style={{color}}>{name.substr(1)}</em></strong>
 					: group.type === 'staff' ?
-						<strong style={colorStyle(userid)}>{name.substr(1)}</strong>
+						<strong style={{color}}>{name.substr(1)}</strong>
 					:
-						<span style={colorStyle(userid)}>{name.substr(1)}</span>
+						<span style={{color}}>{name.substr(1)}</span>
 					}
 				</button></li>;
 			})}
 		</ul>;
 	}
-	static compareUsers([userid1, name1]: [ID, string], [userid2, name2]: [ID, string]) {
-		if (userid1 === userid2) return 0;
-		let rank1 = (
-			PS.server.groups[name1.charAt(0)] || {order: 10006.5}
-		).order;
-		let rank2 = (
-			PS.server.groups[name2.charAt(0)] || {order: 10006.5}
-		).order;
-
-		if (userid1 === 'zarel' && rank1 === 10003) rank1 = 10000.5;
-		if (userid2 === 'zarel' && rank2 === 10003) rank2 = 10000.5;
-		if (rank1 !== rank2) return rank1 - rank2;
-		return (userid1 > userid2 ? 1 : -1);
-	}
 }
 
 class ChatLog extends preact.Component<{
 	class: string, room: ChatRoom, onClick?: (e: Event) => void, children?: preact.ComponentChildren,
+	left?: number, top?: number, noSubscription?: boolean;
 }> {
-	log: BattleLog = null!;
+	log: BattleLog | null = null;
 	subscription: PSSubscription | null = null;
 	componentDidMount() {
-		this.log = new BattleLog(this.base! as HTMLDivElement);
-		this.subscription = this.props.room.subscribe(msg => {
-			if (!msg) return;
-			const tokens = PS.lineParse(msg);
+		if (!this.props.noSubscription) {
+			this.log = new BattleLog(this.base! as HTMLDivElement);
+		}
+		this.subscription = this.props.room.subscribe(tokens => {
+			if (!tokens) return;
 			switch (tokens[0]) {
-			case 'title':
-				this.props.room.title = tokens[1];
-				PS.update();
-				return;
 			case 'users':
 				const usernames = tokens[1].split(',');
 				const count = parseInt(usernames.shift()!, 10);
@@ -470,7 +469,7 @@ class ChatLog extends preact.Component<{
 				this.props.room.renameUser(tokens[1], tokens[2]);
 				break;
 			}
-			this.log.add(tokens);
+			if (!this.props.noSubscription) this.log!.add(tokens);
 		});
 		this.setControlsJSX(this.props.children);
 	}
@@ -481,25 +480,37 @@ class ChatLog extends preact.Component<{
 		if (props.class !== this.props.class) {
 			this.base!.className = props.class;
 		}
+		if (props.left !== this.props.left) this.base!.style.left = `${props.left || 0}px`;
+		if (props.top !== this.props.top) this.base!.style.top = `${props.top || 0}px`;
 		this.setControlsJSX(props.children);
-		this.log.updateScroll();
+		this.updateScroll();
 		return false;
 	}
 	setControlsJSX(jsx: preact.ComponentChildren | undefined) {
 		const children = this.base!.children;
-		let controlsElem: HTMLDivElement | undefined = children[children.length - 1] as HTMLDivElement;
-		if (controlsElem.className !== 'controls') controlsElem = undefined;
+		let controlsElem = children[children.length - 1] as HTMLDivElement | undefined;
+		if (controlsElem && controlsElem.className !== 'controls') controlsElem = undefined;
 		if (!jsx) {
 			if (!controlsElem) return;
 			preact.render(null, this.base!, controlsElem);
-			this.log.updateScroll();
+			this.updateScroll();
 			return;
 		}
 		preact.render(<div class="controls">{jsx}</div>, this.base!, controlsElem);
-		this.log.updateScroll();
+		this.updateScroll();
+	}
+	updateScroll() {
+		if (this.log) {
+			this.log.updateScroll();
+		} else if (this.props.room.battle) {
+			this.log = (this.props.room.battle as Battle).scene.log;
+			this.log.updateScroll();
+		}
 	}
 	render() {
-		return <div class={this.props.class} role="log" onClick={this.props.onClick}></div>;
+		return <div class={this.props.class} role="log" onClick={this.props.onClick} style={{
+			left: this.props.left || 0, top: this.props.top || 0,
+		}}></div>;
 	}
 }
 

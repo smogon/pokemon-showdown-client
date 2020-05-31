@@ -56,12 +56,12 @@ if ($replay['inputlog']) {
 }
 
 if (isset($_REQUEST['json'])) {
-	header('Content-type: application/json');
+	header('Content-Type: application/json');
 	header('Access-Control-Allow-Origin: *');
 	die(json_encode($replay));
 	die();
 }
 
-header('Content-type: text/plain');
+header('Content-Type: text/plain');
 header('Access-Control-Allow-Origin: *');
 echo $replay['log'];

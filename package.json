@@ -9,7 +9,8 @@
     "url": "https://github.com/Zarel/Pokemon-Showdown-Client.git"
   },
   "scripts": {
-    "test": "eslint --config=.eslintrc.js --cache --cache-file=eslint-cache/base js/ data/ && eslint --config=build-tools/.eslintrc.js --cache --cache-file=eslint-cache/build build-tools/update build-tools/build-indexes && tslint --project . && tsc && node build && mocha",
+    "lint": "eslint --config=.eslintrc.js --cache --cache-file=eslint-cache/base js/ data/ && eslint --config=build-tools/.eslintrc.js --cache --cache-file=eslint-cache/build build-tools/update build-tools/build-indexes && tslint --project .",
+    "test": "npm run lint && tsc && node build && mocha test/*.js",
     "fix": "eslint --config=.eslintrc.js --fix js/ && eslint --config=build-tools/.eslintrc.js --fix build-tools/update build-tools/build-indexes",
     "build": "node build",
     "build-full": "node build full"
@@ -18,13 +19,15 @@
     "@babel/cli": "^7.2.3",
     "@babel/core": "^7.3.3",
     "@babel/plugin-proposal-class-properties": "^7.3.3",
+    "@babel/plugin-proposal-optional-chaining": "^7.6.0",
     "@babel/plugin-transform-member-expression-literals": "^7.2.0",
     "@babel/plugin-transform-property-literals": "^7.2.0",
     "@babel/plugin-transform-react-jsx": "^7.3.0",
     "@babel/preset-env": "^7.3.1",
     "@babel/preset-typescript": "^7.3.3",
     "google-auth-library": "^3.1.0",
-    "image-size": "^0.7.2"
+    "image-size": "^0.7.2",
+    "output-file-sync": "^2.0.1"
   },
   "devDependencies": {
     "@types/jquery": "^3.3.29",
@@ -33,7 +36,7 @@
     "mocha": "^6.0.2",
     "preact": "^8.3.1",
     "tslint": "^5.13.0",
-    "typescript": "^3.4.5"
+    "typescript": "^3.7.0"
   },
   "private": true
 }

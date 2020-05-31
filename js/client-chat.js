@@ -43,18 +43,48 @@
 					animate: false,
 					extraSpace: 0
 				});
-				if (this === app.curSideRoom || this === app.curRoom) {
+				if (document.activeElement.tagName.toLowerCase() !== 'textarea' && (this === app.curSideRoom || this === app.curRoom)) {
 					this.$chatbox.focus();
 				}
 			}
 		},
 
-		focus: function () {
-			if (this.$chatbox) {
-				this.$chatbox.focus();
-			} else {
-				this.$('button[name=login]').focus();
+		focus: function (e, focusTextbox) {
+			var target = e && e.target;
+			if (target && target.tagName === 'TEXTAREA') {
+				// this workaround works for iOS 12 but not iOS 13
+				/* if (window.isiOS) {
+					// iOS will not bring up a keyboard unless you manually blur and refocus
+					$(target).blur();
+					setTimeout(function () {
+						$(target).focus();
+					}, 0);
+				} */
+				return;
 			}
+			if (!this.$chatbox) {
+				this.$('button[name=login]').focus();
+				return;
+			}
+			if (focusTextbox || $(target).closest('.chat-log-add, .battle-log-add').length) {
+				this.$chatbox.focus();
+				return;
+			}
+
+			if (window.isiOS) {
+				// Preventing the on-screen keyboard leads to other bugs, so we have to
+				// avoid focusing the textbox altogether. Sorry, Bluetooth keyboard users!
+				return;
+			}
+			// this will prevent a on-screen keyboard from appearing (in Android and iOS,
+			// and hopefully also Windows and Chrome OS in tablet mode)
+			this.$chatbox.blur();
+			this.$chatbox[0].readOnly = true;
+			this.$chatbox.focus();
+			var chatbox = this.$chatbox[0];
+			setTimeout(function () {
+				chatbox.readOnly = false;
+			}, 0);
 		},
 
 		focusText: function () {
@@ -406,6 +436,7 @@
 			}
 
 			switch (cmd.toLowerCase()) {
+			case 'chal':
 			case 'chall':
 			case 'challenge':
 				var targets = target.split(',');
@@ -517,12 +548,21 @@
 						type: 'modal',
 						htmlMessage: "Extracted team data:<br /><textarea rows=\"10\" cols=\"60\">" + BattleLog.escapeHTML(JSON.stringify(Storage.teams)) + "</textarea>"
 					});
+				} else if (target === 'nw') {
+					try {
+						nw.Window.get().showDevTools();
+					} catch (e) {
+						this.add('|error|' + e.message);
+					}
 				} else {
 					this.add('|error|Unknown debug command.');
 					this.add('|error|Are you looking for /showdebug and /hidedebug?');
 				}
 				return false;
 
+			case 'news':
+				app.rooms[''].addNews();
+				return false;
 			case 'autojoin':
 			case 'cmd':
 			case 'crq':
@@ -608,7 +648,6 @@
 			case 'logout':
 				app.user.logout();
 				return false;
-
 			case 'showdebug':
 				this.add('Debug battle messages: ON');
 				Dex.prefs('showdebug', true);
@@ -774,6 +813,7 @@
 				} else {
 					if (target === 'delete') {
 						Dex.prefs('highlights', false);
+						this.updateHighlightRegExp({});
 						this.add("All highlights cleared");
 					} else if (['show', 'list', 'roomshow', 'roomlist'].includes(target)) {
 						// Shows a list of the current highlighting words
@@ -797,7 +837,12 @@
 			case 'rating':
 			case 'ladder':
 				if (app.localLadder) return text;
-				if (!target) target = app.user.get('userid');
+				if (!target) {
+					target = app.user.get('userid');
+				}
+				if (this.battle && !target.includes(',')) {
+					target += ", " + this.id.split('-')[1];
+				}
 
 				var targets = target.split(',');
 				var formatTargeting = false;
@@ -860,7 +905,7 @@
 					}
 					if (hiddenFormats.length) {
 						if (hiddenFormats.length === data.length) {
-							buffer += '<tr class="no-matches"><td colspan="6"><em>This user has not played any ladder games that match the format targeting.</em></td></tr>';
+							buffer += '<tr class="no-matches"><td colspan="8"><em>This user has not played any ladder games that match "' + BattleLog.escapeHTML(Object.keys(gens).concat(Object.keys(formats)).join(', ')) + '".</em></td></tr>';
 						}
 						buffer += '<tr><td colspan="8"><button name="showOtherFormats">' + hiddenFormats.slice(0, 3).join(', ') + (hiddenFormats.length > 3 ? ' and ' + (hiddenFormats.length - 3) + ' other formats' : '') + ' not shown</button></td></tr>';
 					}
@@ -923,8 +968,12 @@
 			case 'avatar':
 				var parts = target.split(',');
 				var avatar = parts[0].toLowerCase().replace(/[^a-z0-9-]+/g, '');
+				// Replace avatar number with name before sending it to the server, only the client knows what to do with the numbers
+				if (window.BattleAvatarNumbers && Object.prototype.hasOwnProperty.call(window.BattleAvatarNumbers, avatar)) {
+					avatar = window.BattleAvatarNumbers[avatar];
+				}
 				Dex.prefs('avatar', avatar);
-				return text; // Send the /avatar command through to the server.
+				return '/avatar ' + avatar; // Send the command through to the server.
 
 			case 'afd':
 				var cleanedTarget = toID(target);
@@ -971,6 +1020,9 @@
 				case 'user':
 				case 'open':
 					this.add('/user [user] - Open a popup containing the user [user]\'s avatar, name, rank, and chatroom list.');
+					return false;
+				case 'news':
+					this.add('/news - Opens a popup containing the news.');
 					return false;
 				case 'ignore':
 				case 'unignore':
@@ -1044,7 +1096,7 @@
 		challengeUserdetails: function (data) {
 			app.off('response:userdetails', this.challengeUserdetails);
 
-			if (!data || this.challengeData.userid !== data.userid) return;
+			if (!data) return;
 
 			if (data.rooms === false) {
 				this.add('This player does not exist or is not online.');
@@ -1052,7 +1104,8 @@
 			}
 
 			app.focusRoom('');
-			var name = data.name || this.challengeData.userid;
+			// if foe has changed name, challengeData.userid will be wrong, so defer to data
+			var name = data.name || data.userid;
 			if (/^[a-z0-9]/i.test(name)) name = ' ' + name;
 			app.rooms[''].challenge(name, this.challengeData.format, this.challengeData.team);
 		},
@@ -1128,7 +1181,7 @@
 		maxWidth: 1024,
 		isSideRoom: true,
 		initialize: function () {
-			var buf = '<div class="tournament-wrapper"></div><div class="chat-log"><div class="inner" role="log"></div></div></div><div class="chat-log-add">Connecting...</div><ul class="userlist"></ul>';
+			var buf = '<div class="tournament-wrapper"></div><div class="chat-log"><div class="inner message-log" role="log"></div></div></div><div class="chat-log-add">Connecting...</div><ul class="userlist"></ul>';
 			this.$el.addClass('ps-room-light').html(buf);
 
 			this.$chatAdd = this.$('.chat-log-add');
@@ -1387,6 +1440,8 @@
 						// but it's now always applied
 						$messages = this.$chat.find('.chatmessage-' + user);
 						if (!$messages.length) break;
+						var lineCount = parseInt(row[3], 10) || 0;
+						if (lineCount) $messages = $messages.slice(-lineCount);
 						$messages.hide().addClass('revealed').find('button').parent().remove();
 						this.$chat.children().last().append(' <button name="toggleMessages" value="' + user + '" class="subtle"><small>(' + $messages.length + ' line' + ($messages.length > 1 ? 's' : '') + ' from ' + user + ' hidden)</small></button>');
 					}
@@ -1577,7 +1632,7 @@
 			}
 
 			var isHighlighted = userid !== app.user.get('userid') && this.getHighlight(message);
-			var parsedMessage = MainMenuRoom.parseChatMessage(message, name, ChatRoom.getTimestamp('chat', msgTime), isHighlighted);
+			var parsedMessage = MainMenuRoom.parseChatMessage(message, name, ChatRoom.getTimestamp('chat', msgTime), isHighlighted, this.$chat, true);
 			if (typeof parsedMessage === 'object' && 'noNotify' in parsedMessage) {
 				mayNotify = mayNotify && !parsedMessage.noNotify;
 				parsedMessage = parsedMessage.message;

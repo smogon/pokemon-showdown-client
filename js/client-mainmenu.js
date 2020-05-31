@@ -8,8 +8,11 @@
 			'keydown textarea': 'keyDown',
 			'keyup textarea': 'keyUp',
 			'click .username': 'clickUsername',
+			'click .header-username': 'clickUsername',
 			'click .closebutton': 'closePM',
 			'click .minimizebutton': 'minimizePM',
+			'click .pm-challenge': 'clickPMButtonBarChallenge',
+			'click .pm-userOptions':'clickPMButtonBarUserOptions',
 			'click .pm-window': 'clickPMBackground',
 			'dblclick .pm-window h3': 'dblClickPMHeader',
 			'focus textarea': 'onFocusPM',
@@ -33,7 +36,7 @@
 				} else {
 					buf += '<p class="error"><strong>Pok&eacute;mon Showdown is offline due to technical difficulties!</strong></p>';
 				}
-				buf += '<p><div style="text-align:center"><img width="96" height="96" src="//play.pokemonshowdown.com/sprites/bw/teddiursa.png" alt="" /></div> Bear with us as we freak out.</p>';
+				buf += '<p><div style="text-align:center"><img width="96" height="96" src="//play.pokemonshowdown.com/sprites/gen5/teddiursa.png" alt="" /></div> Bear with us as we freak out.</p>';
 				buf += '<p>(We\'ll be back up in a few hours.)</p>';
 				buf += '</div>';
 			} else {
@@ -93,6 +96,13 @@
 				}
 				if (!hasUnread) self.minimizePM($news);
 			});
+
+			if (!app.roomsFirstOpen && window.location.host !== 'demo.psim.us' && window.innerWidth < 630) {
+				if (Config.roomsFirstOpenScript) {
+					Config.roomsFirstOpenScript(true);
+				}
+				app.roomsFirstOpen = 2;
+			}
 		},
 
 		addPseudoPM: function (options) {
@@ -131,7 +141,7 @@
 
 		addPM: function (name, message, target) {
 			var userid = toUserid(name);
-			if (app.ignore[userid] && name.substr(0, 1) in {' ': 1, '!': 1, '✖': 1, '‽': 1}) return;
+			if (app.ignore[userid] && name.substr(0, 1) in {' ': 1, '+': 1, '!': 1, '✖': 1, '‽': 1}) return;
 
 			var isSelf = (toID(name) === app.user.get('userid'));
 			var oName = isSelf ? target : name;
@@ -143,7 +153,7 @@
 
 			var autoscroll = ($chatFrame.scrollTop() + 60 >= $chat.height() - $chatFrame.height());
 
-			var parsedMessage = MainMenuRoom.parseChatMessage(message, name, ChatRoom.getTimestamp('pms'), false, $chat);
+			var parsedMessage = MainMenuRoom.parseChatMessage(message, name, ChatRoom.getTimestamp('pms'), false, $chat, false);
 			var mayNotify = true;
 			if (typeof parsedMessage === 'object' && 'noNotify' in parsedMessage) {
 				mayNotify = !parsedMessage.noNotify;
@@ -180,14 +190,17 @@
 				var group = name.charAt(0);
 				if (group === ' ') {
 					group = '';
+				} else if (/[a-zA-Z0-9]/.test(group)) {
+					group = '';
+					name = ' ' + name;
 				} else {
 					group = '<small>' + BattleLog.escapeHTML(group) + '</small>';
 				}
-				var buf = '<div class="pm-window pm-window-' + userid + '" data-userid="' + userid + '" data-name="' + name + '">';
+				var buf = '<div class="pm-window pm-window-' + userid + '" data-userid="' + userid + '" data-name="' + BattleLog.escapeHTML(name) + '">';
 				buf += '<h3><button class="closebutton" href="' + app.root + 'teambuilder" tabindex="-1" aria-label="Close"><i class="fa fa-times-circle"></i></button>';
 				buf += '<button class="minimizebutton" href="' + app.root + 'teambuilder" tabindex="-1" aria-label="Minimize"><i class="fa fa-minus-circle"></i></button>';
 				buf += group + BattleLog.escapeHTML(name.substr(1)) + '</h3>';
-				buf += '<div class="pm-log"><div class="inner" role="log"></div></div>';
+				buf += '<div class="pm-log"><div class="pm-buttonbar"><button class="pm-challenge">Challenge</button><button class="pm-userOptions">...</button></div><div class="inner" role="log"></div></div>';
 				buf += '<div class="pm-log-add"><form class="chatbox nolabel"><textarea class="textbox" type="text" size="70" autocomplete="off" name="message"></textarea></form></div></div>';
 				$pmWindow = $(buf).prependTo(this.$pmBox);
 				$pmWindow.find('textarea').autoResize({
@@ -275,7 +288,7 @@
 			}
 
 			var $pmHeader = $pmWindow.find('h3');
-			var $pmContent = $pmWindow.find('.pm-log, .pm-log-add');
+			var $pmContent = $pmWindow.find('.pm-log, .pm-log-add, .pm-buttonbar');
 			if (!$pmWindow.data('minimized')) {
 				$pmContent.hide();
 				$pmHeader.addClass('pm-minimized');
@@ -287,6 +300,23 @@
 			}
 
 			$pmWindow.find('h3').removeClass('pm-notifying');
+		},
+		clickUsername: function (e) {
+			e.stopPropagation();
+			var name = $(e.currentTarget).data('name') || $(e.currentTarget).text();
+			app.addPopup(UserPopup, {name: name, sourceEl: e.currentTarget});
+		},
+		clickPMButtonBarChallenge: function (e) {
+			var name = $(e.currentTarget).closest('.pm-window').data('name');
+			app.rooms[''].requestNotifications();
+			app.focusRoom('');
+			app.rooms[''].challenge(name);
+		},
+		clickPMButtonBarUserOptions: function (e) {
+			e.stopPropagation();
+			var name = $(e.currentTarget).closest('.pm-window').data('name');
+			var userid = toID($(e.currentTarget).closest('.pm-window').data('name'));
+			app.addPopup(UserOptions, {name: name, userid: userid, sourceEl: e.currentTarget});
 		},
 		focusPM: function (name) {
 			this.openPM(name).prependTo(this.$pmBox).find('textarea[name=message]').focus();
@@ -452,11 +482,6 @@
 			return true;
 		},
 		chatHistories: {},
-		clickUsername: function (e) {
-			e.stopPropagation();
-			var name = $(e.currentTarget).data('name') || $(e.currentTarget).text();
-			app.addPopup(UserPopup, {name: name, sourceEl: e.currentTarget});
-		},
 		clickPMBackground: function (e) {
 			if (!e.shiftKey && !e.cmdKey && !e.ctrlKey) {
 				if (window.getSelection && !window.getSelection().isCollapsed) {
@@ -723,7 +748,13 @@
 				return;
 			}
 
-			if (format) format = toID(format);
+			if (format) {
+				var formatParts = format.split('@@@');
+				formatParts[0] = toID(formatParts[0]);
+				if (!formatParts[0].startsWith('gen')) formatParts[0] = 'gen8' + formatParts[0];
+				format = formatParts[1] ? formatParts[0] + '@@@' + formatParts[1] : formatParts[0];
+			}
+
 			var teamIndex;
 			if (Storage.teams && team) {
 				team = toID(team);
@@ -775,7 +806,9 @@
 			var teamIndex = $pmWindow.find('button[name=team]').val();
 			var team = null;
 			if (Storage.teams[teamIndex]) team = Storage.teams[teamIndex];
-			if (!window.BattleFormats[format].team && !team) {
+
+			// if it's a custom format, let the user figure it out
+			if (window.BattleFormats[format] && !window.BattleFormats[format].team && !team) {
 				app.addPopupMessage("You need to go into the Teambuilder and build a team for this format.");
 				return;
 			}
@@ -817,8 +850,8 @@
 			if (!noChoice) {
 				this.curFormat = formatid;
 				if (!this.curFormat) {
-					if (BattleFormats['gen7randombattle']) {
-						this.curFormat = 'gen7randombattle';
+					if (BattleFormats['gen8randombattle']) {
+						this.curFormat = 'gen8randombattle';
 					} else for (var i in BattleFormats) {
 						if (!BattleFormats[i].searchShow || !BattleFormats[i].challengeShow) continue;
 						this.curFormat = i;
@@ -832,6 +865,9 @@
 		curTeamFormat: '',
 		curTeamIndex: 0,
 		renderTeams: function (formatid, teamIndex) {
+			if (Storage.whenTeamsLoaded.error) {
+				return '<button class="select teamselect" name="joinRoom" value="teambuilder"><em class="message-error">Error loading teams</em></button>';
+			}
 			if (!Storage.teams || !window.BattleFormats) {
 				return '<button class="select teamselect" name="team" disabled><em>Loading...</em></button>';
 			}
@@ -928,11 +964,16 @@
 					app.addPopup(Popup, {htmlMessage: "Zarel is very busy; please don't contact him this way. If you're looking for help, try <a href=\"/help\">joining the Help room</a>?"});
 					return;
 				}
+				if (target === '~') {
+					app.focusRoom('');
+					app.rooms[''].focusPM('~');
+					return;
+				}
 				app.addPopup(UserPopup, {name: target});
 			});
 		}
 	}, {
-		parseChatMessage: function (message, name, timestamp, isHighlighted, $chatElem) {
+		parseChatMessage: function (message, name, timestamp, isHighlighted, $chatElem, isChat) {
 			var showMe = !((Dex.prefs('chatformatting') || {}).hideme);
 			var group = ' ';
 			if (!/[A-Za-z0-9]/.test(name.charAt(0))) {
@@ -984,7 +1025,7 @@
 			case 'error':
 				return '<div class="chat message-error">' + BattleLog.escapeHTML(target) + '</div>';
 			case 'html':
-				return '<div class="chat chatmessage-' + toID(name) + hlClass + mineClass + '">' + timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <em>' + BattleLog.sanitizeHTML(target) + '</em></div>';
+				return {message: '<div class="chat chatmessage-' + toID(name) + hlClass + mineClass + '">' + timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <em>' + BattleLog.sanitizeHTML(target) + '</em></div>', noNotify: isChat};
 			case 'uhtml':
 			case 'uhtmlchange':
 				var parts = target.split(',');
@@ -993,16 +1034,16 @@
 				if (!html) {
 					$elements.remove();
 				} else if (!$elements.length) {
-					$chatElem.append('<div class="chat uhtml-' + toID(parts[0]) + '">' + BattleLog.sanitizeHTML(html) + '</div>');
+					$chatElem.append('<div class="chat uhtml-' + toID(parts[0]) + ' chatmessage-' + toID(name) + '">' + BattleLog.sanitizeHTML(html) + '</div>');
 				} else if (cmd === 'uhtmlchange') {
 					$elements.html(BattleLog.sanitizeHTML(html));
 				} else {
 					$elements.remove();
-					$chatElem.append('<div class="chat uhtml-' + toID(parts[0]) + '">' + BattleLog.sanitizeHTML(html) + '</div>');
+					$chatElem.append('<div class="chat uhtml-' + toID(parts[0]) + ' chatmessage-' + toID(name) + '">' + BattleLog.sanitizeHTML(html) + '</div>');
 				}
-				return '';
+				return {message: '', noNotify: isChat};
 			case 'raw':
-				return '<div class="chat">' + BattleLog.sanitizeHTML(target) + '</div>';
+				return {message: '<div class="chat chatmessage-' + toID(name) + '">' + BattleLog.sanitizeHTML(target) + '</div>', noNotify: isChat};
 			case 'nonotify':
 				return {message: '<div class="chat">' + timestamp + BattleLog.sanitizeHTML(target) + '</div>', noNotify: true};
 			default:
@@ -1050,7 +1091,7 @@
 				}
 				var formatName = BattleLog.escapeFormat(format.id);
 				if (formatName.charAt(0) !== '[') formatName = '[Gen 6] ' + formatName;
-				formatName = formatName.replace('[Gen 7] ', '');
+				formatName = formatName.replace('[Gen 8] ', '');
 				formatName = formatName.replace('[Gen 7 ', '[');
 				bufs[curBuf] += '<li><button name="selectFormat" value="' + i + '"' + (curFormat === i ? ' class="sel"' : '') + '>' + formatName + '</button></li>';
 			}
@@ -1108,8 +1149,11 @@
 			this.room = data.room;
 			this.isMoreTeams = data.isMoreTeams || false;
 			var format = BattleFormats[data.format];
+			if (data.format.includes('@@@')) {
+				format = BattleFormats[toID(data.format.split('@@@')[0])];
+			}
 
-			var teamFormat = (format.teambuilderFormat || (format.isTeambuilderFormat ? data.format : false));
+			var teamFormat = (format.teambuilderFormat || (format.isTeambuilderFormat ? format.id : false));
 			this.teamFormat = teamFormat;
 			if (!teams.length) {
 				bufs[curBuf] = '<li><p><em>You have no teams</em></p></li>';

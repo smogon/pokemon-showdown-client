@@ -34,7 +34,7 @@ class BattleLog {
 			elem.setAttribute('role', 'log');
 			elem.innerHTML = '';
 			innerElem = document.createElement('div');
-			innerElem.className = 'inner';
+			innerElem.className = 'inner message-log';
 			elem.appendChild(innerElem);
 		}
 		this.innerElem = innerElem;
@@ -42,7 +42,7 @@ class BattleLog {
 		if (scene) {
 			this.scene = scene;
 			const preemptElem = document.createElement('div');
-			preemptElem.className = 'inner-preempt';
+			preemptElem.className = 'inner-preempt message-log';
 			elem.appendChild(preemptElem);
 			this.preemptElem = preemptElem;
 			this.battleParser = new BattleTextParser();
@@ -63,13 +63,13 @@ class BattleLog {
 		this.elem.onscroll = null;
 	}
 	add(args: Args, kwArgs?: KWArgs, preempt?: boolean) {
-		if (kwArgs && kwArgs.silent) return;
+		if (kwArgs?.silent) return;
 		let divClass = 'chat';
 		let divHTML = '';
 		let noNotify: boolean | undefined;
 		switch (args[0]) {
 		case 'chat': case 'c': case 'c:':
-			let battle = this.scene && this.scene.battle;
+			let battle = this.scene?.battle;
 			let name;
 			let message;
 			if (args[0] === 'c:') {
@@ -80,12 +80,12 @@ class BattleLog {
 				message = args[2];
 			}
 			let rank = name.charAt(0);
-			if (battle && battle.ignoreSpects && ' +'.includes(rank)) return;
-			if (battle && battle.ignoreOpponent) {
+			if (battle?.ignoreSpects && ' +'.includes(rank)) return;
+			if (battle?.ignoreOpponent) {
 				if ('\u2605\u2606'.includes(rank) && toUserid(name) !== app.user.get('userid')) return;
 			}
-			if (window.app && app.ignore && app.ignore[toUserid(name)] && ' +\u2605\u2606'.includes(rank)) return;
-			let isHighlighted = window.app && app.rooms && app.rooms[battle!.roomid].getHighlight(message);
+			if (window.app?.ignore?.[toUserid(name)] && ' +\u2605\u2606'.includes(rank)) return;
+			let isHighlighted = window.app?.rooms?.[battle!.roomid].getHighlight(message);
 			[divClass, divHTML, noNotify] = this.parseChatMessage(message, name, '', isHighlighted);
 			if (!noNotify && isHighlighted) {
 				let notifyTitle = "Mentioned by " + name + " in " + battle!.roomid;
@@ -143,7 +143,8 @@ class BattleLog {
 			const user = toID(args[2]) || toID(args[1]);
 			this.unlinkChatFrom(user);
 			if (args[2]) {
-				this.hideChatFrom(user);
+				const lineCount = parseInt(args[3], 10);
+				this.hideChatFrom(user, true, lineCount);
 			}
 			return;
 		}
@@ -154,6 +155,7 @@ class BattleLog {
 
 		case 'seed': case 'choice': case ':': case 'timer':
 		case 'J': case 'L': case 'N': case 'spectator': case 'spectatorleave':
+		case 'initdone':
 			return;
 
 		default:
@@ -190,12 +192,17 @@ class BattleLog {
 		case 'turn':
 			const h2elem = document.createElement('h2');
 			h2elem.className = 'battle-history';
-			let turnMessage = this.battleParser!.parseArgs(args, {}).trim();
-			if (!turnMessage.startsWith('==') || !turnMessage.endsWith('==')) {
-				throw new Error("Turn message must be a heading.");
+			let turnMessage;
+			if (this.battleParser) {
+				turnMessage = this.battleParser.parseArgs(args, {}).trim();
+				if (!turnMessage.startsWith('==') || !turnMessage.endsWith('==')) {
+					throw new Error("Turn message must be a heading.");
+				}
+				turnMessage = turnMessage.slice(2, -2).trim();
+				this.battleParser.curLineSection = 'break';
+			} else {
+				turnMessage = `Turn ${args[1]}`;
 			}
-			turnMessage = turnMessage.slice(2, -2).trim();
-			this.battleParser!.curLineSection = 'break';
 			h2elem.innerHTML = BattleLog.escapeHTML(turnMessage);
 			this.addSpacer();
 			this.addNode(h2elem);
@@ -300,37 +307,38 @@ class BattleLog {
 			this.prependDiv('notice uhtml-' + id, BattleLog.sanitizeHTML(html));
 		}
 	}
-	hideChatFrom(userid: ID, showRevealButton = true) {
+	hideChatFrom(userid: ID, showRevealButton = true, lineCount = 0) {
 		const classStart = 'chat chatmessage-' + userid + ' ';
-		let lastNode;
-		let count = 0;
-		for (const node of this.innerElem.childNodes as any) {
+		let nodes: HTMLElement[] = [];
+		for (const node of this.innerElem.childNodes as any as HTMLElement[]) {
 			if (node.className && (node.className + ' ').startsWith(classStart)) {
-				node.style.display = 'none';
-				node.className = 'revealed ' + node.className;
-				count++;
+				nodes.push(node);
 			}
-			lastNode = node;
 		}
 		if (this.preemptElem) {
-			for (const node of this.preemptElem.childNodes as any) {
+			for (const node of this.preemptElem.childNodes as any as HTMLElement[]) {
 				if (node.className && (node.className + ' ').startsWith(classStart)) {
-					node.style.display = 'none';
-					node.className = 'revealed ' + node.className;
-					count++;
+					nodes.push(node);
 				}
-				lastNode = node;
 			}
 		}
-		if (!count || !showRevealButton) return;
+		if (lineCount) nodes = nodes.slice(-lineCount);
+
+		for (const node of nodes) {
+			node.style.display = 'none';
+			node.className = 'revealed ' + node.className;
+		}
+		if (!nodes.length || !showRevealButton) return;
 		const button = document.createElement('button');
 		button.name = 'toggleMessages';
 		button.value = userid;
 		button.className = 'subtle';
-		button.innerHTML = '<small>(' + count + ' line' + (count > 1 ? 's' : '') + ' from ' + userid + ' hidden)</small>';
+		button.innerHTML = `<small>(${nodes.length} line${nodes.length > 1 ? 's' : ''} from ${userid} hidden)</small>`;
+		const lastNode = nodes[nodes.length - 1];
 		lastNode.appendChild(document.createTextNode(' '));
 		lastNode.appendChild(button);
 	}
+
 	static unlinkNodeList(nodeList: ArrayLike<HTMLElement>, classStart: string) {
 		for (const node of nodeList as HTMLElement[]) {
 			if (node.className && (node.className + ' ').startsWith(classStart)) {
@@ -348,6 +356,7 @@ class BattleLog {
 			}
 		}
 	}
+
 	unlinkChatFrom(userid: ID) {
 		const classStart = 'chat chatmessage-' + userid + ' ';
 		const innerNodeList = this.innerElem.childNodes;
@@ -377,7 +386,8 @@ class BattleLog {
 	}
 
 	static escapeHTML(str: string, jsEscapeToo?: boolean) {
-		str = getString(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+		if (typeof str !== 'string') return '';
+		str = str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 		if (jsEscapeToo) str = str.replace(/\\/g, '\\\\').replace(/'/g, '\\\'');
 		return str;
 	}
@@ -397,7 +407,7 @@ class BattleLog {
 	static usernameColor(name: ID) {
 		if (this.colorCache[name]) return this.colorCache[name];
 		let hash;
-		if (window.Config && Config.customcolors && Config.customcolors[name]) {
+		if (window.Config?.customcolors?.[name]) {
 			hash = MD5(Config.customcolors[name]);
 		} else {
 			hash = MD5(name);
@@ -406,6 +416,31 @@ class BattleLog {
 		let S = parseInt(hash.substr(0, 4), 16) % 50 + 40; // 40 to 89
 		let L = Math.floor(parseInt(hash.substr(8, 4), 16) % 20 + 30); // 30 to 49
 
+		let {R, G, B} = this.HSLToRGB(H, S, L);
+		let lum = R * R * R * 0.2126 + G * G * G * 0.7152 + B * B * B * 0.0722; // 0.013 (dark blue) to 0.737 (yellow)
+
+		let HLmod = (lum - 0.2) * -150; // -80 (yellow) to 28 (dark blue)
+		if (HLmod > 18) HLmod = (HLmod - 18) * 2.5;
+		else if (HLmod < 0) HLmod = (HLmod - 0) / 3;
+		else HLmod = 0;
+		// let mod = ';border-right: ' + Math.abs(HLmod) + 'px solid ' + (HLmod > 0 ? 'red' : '#0088FF');
+		let Hdist = Math.min(Math.abs(180 - H), Math.abs(240 - H));
+		if (Hdist < 15) {
+			HLmod += (15 - Hdist) / 3;
+		}
+
+		L += HLmod;
+
+		let {R: r, G: g, B: b} = this.HSLToRGB(H, S, L);
+		const toHex = (x: number) => {
+			const hex = Math.round(x * 255).toString(16);
+			return hex.length === 1 ? '0' + hex : hex;
+		};
+		this.colorCache[name] = `#${toHex(r)}${toHex(g)}${toHex(b)}`;
+		return this.colorCache[name];
+	}
+
+	static HSLToRGB(H: number, S: number, L: number) {
 		let C = (100 - Math.abs(2 * L - 100)) * S / 100 / 100;
 		let X = C * (1 - Math.abs((H / 60) % 2 - 1));
 		let m = L / 100 - C / 2;
@@ -424,27 +459,12 @@ class BattleLog {
 		let R = R1 + m;
 		let G = G1 + m;
 		let B = B1 + m;
-		let lum = R * R * R * 0.2126 + G * G * G * 0.7152 + B * B * B * 0.0722; // 0.013 (dark blue) to 0.737 (yellow)
-
-		let HLmod = (lum - 0.2) * -150; // -80 (yellow) to 28 (dark blue)
-		if (HLmod > 18) HLmod = (HLmod - 18) * 2.5;
-		else if (HLmod < 0) HLmod = (HLmod - 0) / 3;
-		else HLmod = 0;
-		// let mod = ';border-right: ' + Math.abs(HLmod) + 'px solid ' + (HLmod > 0 ? 'red' : '#0088FF');
-		let Hdist = Math.min(Math.abs(180 - H), Math.abs(240 - H));
-		if (Hdist < 15) {
-			HLmod += (15 - Hdist) / 3;
-		}
-
-		L += HLmod;
-
-		this.colorCache[name] = `hsl(${H},${S}%,${L}%)`;
-		return this.colorCache[name];
+		return {R, G, B};
 	}
 
 	static prefs(name: string) {
 		// @ts-ignore
-		if (window.Storage && Storage.prefs) return Storage.prefs(name);
+		if (window.Storage?.prefs) return Storage.prefs(name);
 		// @ts-ignore
 		if (window.PS) return PS.prefs[name];
 		return undefined;
@@ -453,7 +473,7 @@ class BattleLog {
 	parseChatMessage(
 		message: string, name: string, timestamp: string, isHighlighted?: boolean
 	): [string, string, boolean?] {
-		let showMe = !(BattleLog.prefs('chatformatting') || {}).hideme;
+		let showMe = !BattleLog.prefs('chatformatting')?.hideme;
 		let group = ' ';
 		if (!/[A-Za-z0-9]/.test(name.charAt(0))) {
 			// Backwards compatibility
@@ -463,8 +483,7 @@ class BattleLog {
 		const colorStyle = ` style="color:${BattleLog.usernameColor(toID(name))}"`;
 		const clickableName = `<small>${BattleLog.escapeHTML(group)}</small><span class="username" data-name="${BattleLog.escapeHTML(name)}">${BattleLog.escapeHTML(name)}</span>`;
 		let hlClass = isHighlighted ? ' highlighted' : '';
-		let isMine = (window.app && app.user && app.user.get('name') === name) ||
-			(window.PS && PS.user.name === name);
+		let isMine = (window.app?.user?.get('name') === name) || (window.PS?.user.name === name);
 		let mineClass = isMine ? ' mine' : '';
 
 		let cmd = '';
@@ -573,7 +592,7 @@ class BattleLog {
 	}
 
 	static interstice = (() => {
-		const whitelist: string[] = (window.Config && Config.whitelist) ? Config.whitelist : [];
+		const whitelist: string[] = window.Config?.whitelist || [];
 		const patterns = whitelist.map(entry => new RegExp(
 			`^(https?:)?//([A-Za-z0-9-]*\\.)?${entry}(/.*)?`,
 		'i'));
@@ -594,7 +613,7 @@ class BattleLog {
 		};
 	})();
 
-	static tagPolicy: (tagName: string, attribs: string[]) => any = null!;
+	static tagPolicy: ((tagName: string, attribs: string[]) => any) | null = null;
 	static initSanitizeHTML() {
 		if (this.tagPolicy) return;
 		if (!('html4' in window)) {
@@ -739,7 +758,7 @@ class BattleLog {
 
 		let formattedTime;
 		// Try using Intl API if it exists
-		if (window.Intl && Intl.DateTimeFormat) {
+		if ((window as any).Intl?.DateTimeFormat) {
 			formattedTime = new Intl.DateTimeFormat(undefined, {
 				month: 'long', day: 'numeric', hour: 'numeric', minute: 'numeric',
 			}).format(parsedTime);
@@ -751,8 +770,9 @@ class BattleLog {
 		return '<time>' + BattleLog.escapeHTML(formattedTime) + '</time>';
 	}
 	static sanitizeHTML(input: string) {
+		if (typeof input !== 'string') return '';
 		this.initSanitizeHTML();
-		const sanitized = html.sanitizeWithPolicy(getString(input), this.tagPolicy) as string;
+		const sanitized = html.sanitizeWithPolicy(input, this.tagPolicy) as string;
 		// <time> parsing requires ISO 8601 time. While more time formats are
 		// supported by most JavaScript implementations, it isn't required, and
 		// how to exactly enforce ignoring user agent timezone setting is not obvious.

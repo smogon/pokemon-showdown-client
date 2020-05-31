@@ -1,3 +1,13 @@
+/**
+ * Text parser
+ *
+ * No dependencies
+ * Optional dependency: BattleText
+ *
+ * @author Guangcong Luo <guangcongluo@gmail.com>
+ * @license MIT
+ */
+
 declare const BattleText: {[id: string]: {[templateName: string]: string}};
 
 type Args = [string, ...string[]];
@@ -15,12 +25,14 @@ class BattleTextParser {
 		this.perspective = perspective;
 	}
 
-	static parseLine(line: string): {args: Args, kwArgs: KWArgs} {
+	static parseLine(line: string, noDefault: true): Args | null;
+	static parseLine(line: string): Args;
+	static parseLine(line: string, noDefault?: boolean): Args | null {
 		if (!line.startsWith('|')) {
-			return {args: ['', line], kwArgs: {}};
+			return ['', line];
 		}
 		if (line === '|') {
-			return {args: ['done'], kwArgs: {}};
+			return ['done'];
 		}
 		const index = line.indexOf('|', 1);
 		const cmd = line.slice(1, index);
@@ -28,23 +40,28 @@ class BattleTextParser {
 		case 'chatmsg': case 'chatmsg-raw': case 'raw': case 'error': case 'html':
 		case 'inactive': case 'inactiveoff': case 'warning':
 		case 'fieldhtml': case 'controlshtml': case 'bigerror':
-		case 'debug': case 'tier':
-			return {args: [cmd, line.slice(index + 1)], kwArgs: {}};
-		case 'c': case 'chat': case 'uhtml': case 'uhtmlchange':
+		case 'debug': case 'tier': case 'challstr': case 'popup': case '':
+			return [cmd, line.slice(index + 1)];
+		case 'c': case 'chat': case 'uhtml': case 'uhtmlchange': case 'queryresponse':
 			// three parts
 			const index2a = line.indexOf('|', index + 1);
-			return {args: [cmd, line.slice(index + 1, index2a), line.slice(index2a + 1)], kwArgs: {}};
-		case 'c:':
+			return [cmd, line.slice(index + 1, index2a), line.slice(index2a + 1)];
+		case 'c:': case 'pm':
 			// four parts
 			const index2b = line.indexOf('|', index + 1);
 			const index3b = line.indexOf('|', index2b + 1);
-			return {
-				args: [cmd, line.slice(index + 1, index2b), line.slice(index2b + 1, index3b), line.slice(index3b + 1)],
-				kwArgs: {},
-			};
+			return [cmd, line.slice(index + 1, index2b), line.slice(index2b + 1, index3b), line.slice(index3b + 1)];
 		}
-		let args: Args = line.slice(1).split('|') as any;
-		let kwArgs: KWArgs = {};
+		if (noDefault) return null;
+		return line.slice(1).split('|') as [string, ...string[]];
+	}
+
+	static parseBattleLine(line: string): {args: Args, kwArgs: KWArgs} {
+		let args = this.parseLine(line, true);
+		if (args) return {args, kwArgs: {}};
+
+		args = line.slice(1).split('|') as [string, ...string[]];
+		const kwArgs: KWArgs = {};
 		while (args.length > 1) {
 			const lastArg = args[args.length - 1];
 			if (lastArg.charAt(0) !== '[') break;
@@ -92,6 +109,8 @@ class BattleTextParser {
 
 			if (id === 'wonderguard') return {args: ['-immune', pokemon], kwArgs: {from: 'ability:Wonder Guard'}};
 
+			if (id === 'beatup' && kwArgs.of) return {args, kwArgs: {name: kwArgs.of}};
+
 			if ([
 				'ingrain', 'quickguard', 'wideguard', 'craftyshield', 'matblock', 'protect', 'mist', 'safeguard',
 				'electricterrain', 'mistyterrain', 'psychicterrain', 'telepathy', 'stickyhold', 'suctioncups', 'aromaveil',
@@ -104,8 +123,11 @@ class BattleTextParser {
 				return {args: ['-block', pokemon, effect, arg3], kwArgs};
 			}
 
+			if (id === 'charge') {
+				return {args: ['-singlemove', pokemon, effect], kwArgs: {of: target}};
+			}
 			if ([
-				'bind', 'wrap', 'clamp', 'whirlpool', 'firespin', 'magmastorm', 'sandtomb', 'infestation', 'charge', 'trapped',
+				'bind', 'wrap', 'clamp', 'whirlpool', 'firespin', 'magmastorm', 'sandtomb', 'infestation', 'trapped',
 			].includes(id)) {
 				return {args: ['-start', pokemon, effect], kwArgs: {of: target}};
 			}
@@ -118,7 +140,7 @@ class BattleTextParser {
 				kwArgs.item = arg3;
 			} else if (id === 'magnitude') {
 				kwArgs.number = arg3;
-			} else if (id === 'skillswap' || id === 'mummy') {
+			} else if (id === 'skillswap' || id === 'mummy' || id === 'wanderingspirit') {
 				kwArgs.ability = arg3;
 				kwArgs.ability2 = arg4;
 			} else if (['spite', 'grudge', 'forewarn', 'sketch', 'leppaberry', 'mysteryberry'].includes(id)) {
@@ -126,6 +148,13 @@ class BattleTextParser {
 				kwArgs.number = arg4;
 			}
 			args = ['-activate', pokemon, effect, target || ''];
+			break;
+		}
+
+		case '-fail': {
+			if (kwArgs.from === 'ability: Flower Veil') {
+				return {args: ['-block', kwArgs.of, 'ability: Flower Veil'], kwArgs: {of: args[1]}};
+			}
 			break;
 		}
 
@@ -159,7 +188,7 @@ class BattleTextParser {
 	extractMessage(buf: string) {
 		let out = '';
 		for (const line of buf.split('\n')) {
-			const {args, kwArgs} = BattleTextParser.parseLine(line);
+			const {args, kwArgs} = BattleTextParser.parseBattleLine(line);
 			out += this.parseArgs(args, kwArgs) || '';
 		}
 		return out;
@@ -167,7 +196,7 @@ class BattleTextParser {
 
 	fixLowercase(input: string) {
 		if (this.lowercaseRegExp === undefined) {
-			const prefixes = ['pokemon', 'opposingPokemon', 'team', 'opposingTeam'].map(templateId => {
+			const prefixes = ['pokemon', 'opposingPokemon', 'team', 'opposingTeam', 'party', 'opposingParty'].map(templateId => {
 				const template = BattleText.default[templateId];
 				if (template.charAt(0) === template.charAt(0).toUpperCase()) return '';
 				const bracketIndex = template.indexOf('[');
@@ -175,7 +204,7 @@ class BattleTextParser {
 				return template;
 			}).filter(prefix => prefix);
 			if (prefixes.length) {
-				let buf = `((?:^|\n)(?:  |  \\\(|  \\\[)?)(` +
+				let buf = `((?:^|\n)(?:  |  \\\(|\\\[)?)(` +
 					prefixes.map(BattleTextParser.escapeRegExp).join('|') +
 					`)`;
 				this.lowercaseRegExp = new RegExp(buf, 'g');
@@ -245,6 +274,14 @@ class BattleTextParser {
 		return '';
 	}
 
+	party(side: string) {
+		side = side.slice(0, 2);
+		if (side === (this.perspective === 0 ? 'p1' : 'p2')) {
+			return BattleText.default.party;
+		}
+		return BattleText.default.opposingParty;
+	}
+
 	static effectId(effect?: string) {
 		if (!effect) return '';
 		if (effect.startsWith('item:') || effect.startsWith('move:')) {
@@ -297,7 +334,7 @@ class BattleTextParser {
 		return BattleText.default.abilityActivation.replace('[POKEMON]', this.pokemon(holder)).replace('[ABILITY]', this.effect(name)) + '\n';
 	}
 
-	stat(stat: string) {
+	static stat(stat: string) {
 		const entry = BattleText[stat || "stats"];
 		if (!entry || !entry.statName) return `???stat:${stat}???`;
 		return entry.statName;
@@ -430,12 +467,16 @@ class BattleTextParser {
 				case 'necrozmaultra': id = 'ultranecroziumz'; break;
 				case 'darmanitanzen': id = 'zenmode'; break;
 				case 'darmanitan': id = 'zenmode'; templateName = 'transformEnd'; break;
+				case 'darmanitangalarzen': id = 'zenmode'; break;
+				case 'darmanitangalar': id = 'zenmode'; templateName = 'transformEnd'; break;
 				case 'aegislashblade': id = 'stancechange'; break;
 				case 'aegislash': id = 'stancechange'; templateName = 'transformEnd'; break;
 				case 'wishiwashischool': id = 'schooling'; break;
 				case 'wishiwashi': id = 'schooling'; templateName = 'transformEnd'; break;
 				case 'miniormeteor': id = 'shieldsdown'; break;
 				case 'minior': id = 'shieldsdown'; templateName = 'transformEnd'; break;
+				case 'eiscuenoice': id = 'iceface'; break;
+				case 'eiscue': id = 'iceface'; templateName = 'transformEnd'; break;
 				}
 			} else if (newSpecies) {
 				id = 'transform';
@@ -521,7 +562,7 @@ class BattleTextParser {
 			if (kwArgs.block) templateId = 'block';
 			if (kwArgs.upkeep) templateId = 'upkeep';
 			if (id === 'reflect' || id === 'lightscreen') templateId = 'startGen1';
-			if (templateId === 'start' && kwArgs.from && kwArgs.from.startsWith('item:')) {
+			if (templateId === 'start' && kwArgs.from?.startsWith('item:')) {
 				templateId += 'FromItem';
 			}
 			const template = this.template(templateId, effect);
@@ -538,7 +579,7 @@ class BattleTextParser {
 			}
 			let templateId = 'end';
 			let template = '';
-			if (kwArgs.from && kwArgs.from.startsWith('item:')) {
+			if (kwArgs.from?.startsWith('item:')) {
 				template = this.template('endFromItem', effect);
 			}
 			if (!template) template = this.template(templateId, effect);
@@ -654,7 +695,7 @@ class BattleTextParser {
 				return template.replace('[POKEMON]', this.pokemon(pokemon));
 			}
 			const line1 = this.maybeAbility(kwArgs.from, kwArgs.of || pokemon);
-			if (kwArgs.from && kwArgs.from.startsWith('item:')) {
+			if (kwArgs.from?.startsWith('item:')) {
 				const template = this.template('endFromItem', status);
 				return line1 + template.replace('[POKEMON]', this.pokemon(pokemon)).replace('[ITEM]', this.effect(kwArgs.from));
 			}
@@ -689,14 +730,14 @@ class BattleTextParser {
 			let [, side, effect] = args;
 			let template = this.template('start', effect, 'NODEFAULT');
 			if (!template) template = this.template('startTeamEffect').replace('[EFFECT]', this.effect(effect));
-			return template.replace('[TEAM]', this.team(side));
+			return template.replace('[TEAM]', this.team(side)).replace('[PARTY]', this.party(side));
 		}
 
 		case '-sideend': {
 			let [, side, effect] = args;
 			let template = this.template('end', effect, 'NODEFAULT');
 			if (!template) template = this.template('endTeamEffect').replace('[EFFECT]', this.effect(effect));
-			return template.replace('[TEAM]', this.team(side));
+			return template.replace('[TEAM]', this.team(side)).replace('[PARTY]', this.party(side));
 		}
 
 		case '-weather': {
@@ -793,8 +834,8 @@ class BattleTextParser {
 			if (kwArgs.ability2) {
 				line1 += this.ability(kwArgs.ability2, target);
 			}
-			if (kwArgs.move || kwArgs.number || kwArgs.item) {
-				template = template.replace('[MOVE]', kwArgs.move).replace('[NUMBER]', kwArgs.number).replace('[ITEM]', kwArgs.item);
+			if (kwArgs.move || kwArgs.number || kwArgs.item || kwArgs.name) {
+				template = template.replace('[MOVE]', kwArgs.move).replace('[NUMBER]', kwArgs.number).replace('[ITEM]', kwArgs.item).replace('[NAME]', kwArgs.name);
 			}
 			return line1 + template.replace('[POKEMON]', this.pokemon(pokemon)).replace('[TARGET]', this.pokemon(target)).replace('[SOURCE]', this.pokemon(kwArgs.of));
 		}
@@ -859,11 +900,12 @@ class BattleTextParser {
 			else if (amount === 0) templateId += '0';
 			if (amount && kwArgs.zeffect) {
 				templateId += (kwArgs.multiple ? 'MultipleFromZEffect' : 'FromZEffect');
-			} else if (amount && kwArgs.from && kwArgs.from.startsWith('item:')) {
-				templateId += 'FromItem';
+			} else if (amount && kwArgs.from?.startsWith('item:')) {
+				const template = this.template(templateId + 'FromItem', kwArgs.from);
+				return line1 + template.replace('[POKEMON]', this.pokemon(pokemon)).replace('[STAT]', BattleTextParser.stat(stat)).replace('[ITEM]', this.effect(kwArgs.from));
 			}
 			const template = this.template(templateId, kwArgs.from);
-			return line1 + template.replace('[POKEMON]', this.pokemon(pokemon)).replace('[STAT]', this.stat(stat));
+			return line1 + template.replace('[POKEMON]', this.pokemon(pokemon)).replace('[STAT]', BattleTextParser.stat(stat));
 		}
 
 		case '-setboost': {
@@ -947,10 +989,6 @@ class BattleTextParser {
 
 			if (id === 'unboost') {
 				template = this.template(stat ? 'failSingular' : 'fail', 'unboost');
-				if (BattleTextParser.effectId(kwArgs.from) === 'flowerveil') {
-					template = this.template('block', kwArgs.from);
-					pokemon = kwArgs.of;
-				}
 				return line1 + template.replace('[POKEMON]', this.pokemon(pokemon)).replace('[STAT]', stat);
 			}
 

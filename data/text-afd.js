@@ -8,6 +8,8 @@ exports.BattleTextAFD = {
 		opposingPokemon: "a villainous [NICKNAME]",
 		team: "your faithful alliance",
 		opposingTeam: "the forces of evil",
+		party: "your ally Pok\u00E9mon",
+		opposingParty: "the opposing Pok\u00E9mon",
 
 		turn: "== Phase [NUMBER] ==",
 		switchIn: "[TRAINER] would have us contend with [FULLNAME]!",
@@ -246,6 +248,13 @@ exports.BattleTextAFD = {
 	trapped: {
 		start: "  [POKEMON] can no longer escape!",
 	},
+	dynamax: {
+		// April Fool's 2020
+		start: "  ([POKEMON]'s Tinymax!)",
+		end: "  ([POKEMON] returned to normal!)",
+		block: "  The move was blocked by the power of Tinymax!",
+		fail: "  [POKEMON] shook its head. It seems like it can't use this move...",
+	},
 
 	// weather
 	sandstorm: {
@@ -305,6 +314,7 @@ exports.BattleTextAFD = {
 	grassyterrain: {
 		start: "  Grass grew to cover the battlefield!",
 		end: "  The grass disappeared from the battlefield.",
+		heal: "  [POKEMON]'s HP was restored.",
 	},
 	mistyterrain: {
 		start: "  Mist swirls around the battlefield!",

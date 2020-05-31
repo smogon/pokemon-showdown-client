@@ -5,7 +5,6 @@
 /index.html
 /preactalpha.html
 /data/*
-!/data/learnsets-g6.js
 node_modules/
 eslint-cache/
 .DS_Store
@@ -17,6 +16,7 @@ package-lock.json
 /js/battle.js
 /js/battledata.js
 /js/battle-log.js
+/js/battle-choices.js
 /js/battle-text-parser.js
 /js/battle-dex.js
 /js/battle-dex-data.js
@@ -24,7 +24,7 @@ package-lock.json
 /js/battle-animations.js
 /js/battle-tooltips.js
 /js/battle-scene-stub.js
-/js/battle-search.js
+/js/battle-dex-search.js
 /js/battle-searchresults.js
 /js/client-core.js
 /js/client-main.js
@@ -38,6 +38,7 @@ package-lock.json
 /js/panel-teambuilder.js
 /js/panel-teambuilder-team.js
 /js/panel-teamdropdown.js
+/js/panel-battle.js
 
 /replays/caches/
 /replays/replay-config.inc.php

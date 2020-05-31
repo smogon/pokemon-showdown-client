@@ -82,11 +82,10 @@ if (!window.console) {
  *********************************************************************/
 // PS's model classes are defined here
 
-const PSURL = (() => {
-	let prefix = '';
-	if (document.location!.protocol !== 'http:') prefix = 'https:';
-	return prefix + '//play.pokemonshowdown.com/';
-})();
+const PSURL = (
+	(document.location!.protocol !== 'http:' ? 'https:' : '') +
+	'//play.pokemonshowdown.com/'
+);
 
 class PSSubscription {
 	observable: PSModel | PSStreamModel<any>;
@@ -145,6 +144,11 @@ class PSStreamModel<T = string> {
 			}
 			this.updates = [];
 		}
+		return subscription;
+	}
+	subscribeAndRun(listener: (value: T) => void) {
+		const subscription = this.subscribe(listener);
+		subscription.listener(null);
 		return subscription;
 	}
 	update(value: T) {

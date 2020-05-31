@@ -37,7 +37,6 @@ case 'full':
 	execSync(`node ./build-tools/build-indexes`, options);
 	execSync(`node ./build-tools/build-learnsets`, options);
 	execSync(`node ./build-tools/build-minidex`, options);
-	execSync(`node ./replays/build`, options);
 	full = ' full';
 	break;
 case 'indexes':
@@ -49,6 +48,9 @@ case 'learnsets':
 case 'minidex':
 case 'sprites':
 	execSync(`node ./build-tools/build-minidex`, options);
+	break;
+case 'sets':
+	execSync(`node ./build-tools/build-sets`, options);
 	break;
 case 'replays':
 	execSync(`node ./replays/build`, options);
@@ -67,9 +69,9 @@ default:
 
 execSync(`node ./build-tools/update` + full, options);
 
-if (process.argv[2] === 'full') {
+if (full) {
 	try {
-		fs.statSync('../replays/build');
-		execSync(`node ../replays/build`, options);
+		fs.statSync('./replays/build');
+		execSync(`node ./replays/build`, options);
 	} catch (e) {}
 }

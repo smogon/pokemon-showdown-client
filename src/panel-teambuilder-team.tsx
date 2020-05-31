@@ -5,16 +5,22 @@
  * @license AGPLv3
  */
 
-class TeamTextbox extends preact.Component<{sets: PokemonSet[]}> {
+class TeamRoom extends PSRoom {
+	team: Team | null = null;
+}
+
+class TeamTextbox extends preact.Component<{team: Team}> {
 	setInfo: {
 		species: string,
 		bottomY: number,
 	}[] = [];
+	sets: PokemonSet[] = [];
 	textbox: HTMLTextAreaElement = null!;
 	heightTester: HTMLTextAreaElement = null!;
 	activeType: 'pokemon' | 'move' | 'item' | 'ability' | '' = '';
 	activeOffsetY = -1;
-	search = new BattleSearch();
+	activeSetIndex = -1;
+	search = new DexSearch();
 	getYAt(index: number, value: string) {
 		if (index < 0) return 10;
 		this.heightTester.value = value.slice(0, index);
@@ -22,6 +28,11 @@ class TeamTextbox extends preact.Component<{sets: PokemonSet[]}> {
 	}
 	input = () => this.update();
 	select = () => this.update(true);
+	closeMenu = () => {
+		this.activeType = '';
+		this.forceUpdate();
+		this.textbox.focus();
+	};
 	update = (cursorOnly?: boolean) => {
 		const textbox = this.textbox;
 		this.heightTester.style.width = `${textbox.offsetWidth}px`;
@@ -31,6 +42,7 @@ class TeamTextbox extends preact.Component<{sets: PokemonSet[]}> {
 		let setIndex = -1;
 		if (!cursorOnly) this.setInfo = [];
 		this.activeOffsetY = -1;
+		this.activeSetIndex = -1;
 		this.activeType = '';
 
 		const selectionStart = textbox.selectionStart || 0;
@@ -57,6 +69,9 @@ class TeamTextbox extends preact.Component<{sets: PokemonSet[]}> {
 				if (!cursorOnly) {
 					const atIndex = line.indexOf('@');
 					let species = atIndex >= 0 ? line.slice(0, atIndex).trim() : line;
+					if (species.endsWith(' (M)') || species.endsWith(' (F)')) {
+						species = species.slice(0, -4);
+					}
 					if (species.endsWith(')')) {
 						const parenIndex = species.lastIndexOf(' (');
 						if (parenIndex >= 0) {
@@ -76,6 +91,7 @@ class TeamTextbox extends preact.Component<{sets: PokemonSet[]}> {
 			if (index <= selectionStart && selectionEnd <= selectionEndCutoff) {
 				// both ends within range
 				this.activeOffsetY = this.getYAt(index - 1, value);
+				this.activeSetIndex = setIndex;
 
 				const lcLine = line.toLowerCase().trim();
 				if (lcLine.startsWith('ability:')) {
@@ -90,9 +106,14 @@ class TeamTextbox extends preact.Component<{sets: PokemonSet[]}> {
 					// leave activeType blank
 				} else {
 					this.activeType = 'pokemon';
+					const atIndex = line.indexOf('@');
+					if (atIndex >= 0 && selectionStart > index + atIndex) {
+						this.activeType = 'item';
+					}
 				}
-				this.search.setType(this.activeType, 'gen7ou' as ID, this.props.sets[setIndex]);
+				this.search.setType(this.activeType, 'gen7ou' as ID, this.sets[setIndex]);
 				this.search.find('');
+				window.search = this.search;
 			}
 
 			index = nlIndex + 1;
@@ -104,14 +125,22 @@ class TeamTextbox extends preact.Component<{sets: PokemonSet[]}> {
 			}
 
 			textbox.style.height = `${bottomY + 100}px`;
+			this.save();
 		}
 		this.forceUpdate();
 	};
+	save() {
+		const sets = PSTeambuilder.importTeam(this.textbox.value);
+		this.props.team.packedTeam = PSTeambuilder.packTeam(sets);
+		this.props.team.iconCache = null;
+		PS.teams.save();
+	}
 	componentDidMount() {
 		this.textbox = this.base!.getElementsByClassName('teamtextbox')[0] as HTMLTextAreaElement;
 		this.heightTester = this.base!.getElementsByClassName('heighttester')[0] as HTMLTextAreaElement;
 
-		const exportedTeam = PSTeambuilder.exportTeam(this.props.sets);
+		this.sets = PSTeambuilder.unpackTeam(this.props.team.packedTeam);
+		const exportedTeam = PSTeambuilder.exportTeam(this.sets);
 		this.textbox.value = exportedTeam;
 		this.update();
 	}
@@ -138,7 +167,7 @@ class TeamTextbox extends preact.Component<{sets: PokemonSet[]}> {
 
 					const top = Math.floor(num / 12) * 30;
 					const left = (num % 12) * 40;
-					const iconStyle = `background:transparent url(${Dex.resourcePrefix}sprites/smicons-sheet.png?a5) no-repeat scroll -${left}px -${top}px`;
+					const iconStyle = `background:transparent url(${Dex.resourcePrefix}sprites/pokemonicons-sheet.png) no-repeat scroll -${left}px -${top}px`;
 
 					return <span class="picon" style={
 						`top:${prevOffset + 1}px;left:50px;position:absolute;${iconStyle}`
@@ -148,16 +177,25 @@ class TeamTextbox extends preact.Component<{sets: PokemonSet[]}> {
 					<div class="teaminnertextbox" style={{top: this.activeOffsetY - 1}}></div>
 				}
 			</div>
-			{this.activeType && <PSSearchResults search={this.search} />}
+			{this.activeType && <div class="searchresults" style={{top: this.activeSetIndex >= 0 ? this.setInfo[this.activeSetIndex].bottomY - 12 : 0}}>
+				<button class="button closesearch" onClick={this.closeMenu}><i class="fa fa-times"></i> Close</button>
+				<PSSearchResults search={this.search} />
+			</div>}
 		</div>;
 	}
 }
 
-class TeamPanel extends PSRoomPanel {
-	sets: PokemonSet[] | null = null;
+class TeamPanel extends PSRoomPanel<TeamRoom> {
 	backToList = () => {
 		PS.removeRoom(this.props.room);
 		PS.join('teambuilder' as RoomID);
+	};
+	rename = (e: Event) => {
+		const textbox = e.currentTarget as HTMLInputElement;
+		const room = this.props.room;
+
+		room.team!.name = textbox.value.trim();
+		PS.teams.save();
 	};
 	render() {
 		const room = this.props.room;
@@ -173,24 +211,24 @@ class TeamPanel extends PSRoomPanel {
 			</PSPanelWrapper>;
 		}
 
-		const sets = this.sets || PSTeambuilder.unpackTeam(team!.packedTeam);
-		if (!this.sets) this.sets = sets;
+		if (!room.team) room.team = team;
 		return <PSPanelWrapper room={room} scrollable>
 			<div class="pad">
 				<button class="button" onClick={this.backToList}>
 					<i class="fa fa-chevron-left"></i> List
 				</button>
-				<h2>
-					{team.name}
-				</h2>
-				<TeamTextbox sets={sets} />
+				<label class="label teamname">
+					Team name:
+					<input class="textbox" type="text" value={team.name} onInput={this.rename} onChange={this.rename} onKeyUp={this.rename} />
+				</label>
+				<TeamTextbox team={team} />
 			</div>
 		</PSPanelWrapper>;
 	}
 }
 
 PS.roomTypes['team'] = {
-	Model: PSRoom,
+	Model: TeamRoom,
 	Component: TeamPanel,
 	title: "Team",
 };

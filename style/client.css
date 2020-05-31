@@ -85,23 +85,11 @@ hr {
 	border-right: 0;
 }
 
-button, summary {
-	cursor: pointer;
-}
-button:disabled {
-	cursor: default;
-}
 select {
 	font-size: 9pt;
 	font-family: Verdana, Helvetica, Arial, sans-serif;
 }
 
-.dark a {
-	color: #4488EE;
-}
-.dark a:visited {
-	color: #AA81F2;
-}
 /* .dark a.button {
 	color: #222222;
 	text-shadow: 0 1px 0 white;
@@ -196,7 +184,6 @@ select {
 	border-radius: 5px;
 }
 */
-.dark .button,
 .dark .folderButton,
 .dark .tabbar a.button,
 .dark .popupmenu .folderButton,
@@ -217,7 +204,6 @@ select {
 	color: #F9F9F9;
 }
 
-.dark .button:hover,
 .dark .popupmenu button.folderButtonOpen:hover,
 .dark .folderButton:hover,
 .dark .popupmenu button.folderButton:hover,
@@ -236,7 +222,6 @@ select {
 .dark .tabbar a.button.notifying:hover {
 	background: #92C2D3;
 }
-.dark .button:active,
 .dark .tabbar a.button:active {
 	background: #3A3A3A;
 	border-color: #EEEEEE;
@@ -369,7 +354,6 @@ select {
 	border-radius: 0;
 }
 
-.button,
 .popupmenu button.button {
 	outline: none;
 	cursor: pointer;
@@ -437,7 +421,6 @@ select {
 	font-size: 12pt;
 	padding: 5px 10px;
 }
-.button:hover,
 .popupmenu button.folderButton:hover,
 .popupmenu button.folderButtonOpen:hover,
 .popupmenu button.button:hover {
@@ -445,14 +428,10 @@ select {
 	background: linear-gradient(to bottom,  #f2f2f2,  #c2c2c2);
 	border-color: #606060;
 }
-.button:active,
 .popupmenu button.button:active {
 	background: linear-gradient(to bottom,  #cfcfcf,  #f2f2f2);
 }
 
-.button.disabled,
-.button.disabled:hover,
-.button.disabled:active,
 .mainmenuwrapper .menugroup .button.disabled,
 .mainmenuwrapper .menugroup .button.disabled:hover,
 .mainmenuwrapper .menugroup .button.disabled:active {
@@ -570,6 +549,7 @@ select {
 .tabbar a.cur + .closebutton {
 	top: 2px;
 }
+.header-username,
 .closebutton,
 .minimizebutton {
 	text-decoration: none;
@@ -585,11 +565,17 @@ select {
 .closebutton:hover {
 	color: #BB2222;
 }
+span.header-username:hover {
+	color: #333333;
+}
 .minimizebutton:hover,
 .pm-window h3:hover .minimizebutton {
 	color: #333333;
 }
 .pm-window h3 .closebutton:hover + .minimizebutton {
+	color: #999999 !important;
+}
+.pm-window h3 span.header-username:hover + .minimizebutton {
 	color: #999999 !important;
 }
 .closebutton:active,
@@ -617,6 +603,7 @@ select {
 	box-shadow: inset 0 0px 2px rgba(255,255,255,1);
 	font-size: 11pt;
 	padding: 4px 28px 4px 6px;
+	width: 120px;
 	height: 18px;
 	text-align: left;
 	border-radius: 0;
@@ -1008,7 +995,6 @@ p.or:after {
 	max-height: 300px;
 	background: rgba(242,247,250,.925);
 	color: black;
-	word-wrap: break-word;
 	border: 1px solid #AAAAAA;
 	border-top: 0;
 	border-bottom: 0;
@@ -1016,6 +1002,10 @@ p.or:after {
 	overflow: auto;
 	-webkit-overflow-scrolling: touch;
 	overflow-scrolling: touch;
+	word-wrap: break-word;
+}
+.pm-buttonbar {
+	padding-bottom: 3px;
 }
 .pm-log-add {
 	color: black;
@@ -1231,11 +1221,14 @@ p.or:after {
 	margin-bottom: 10px;
 }
 .roomcounters {
-	margin: 4px auto;
-	max-width: 400px;
-}
-.roomcounters td {
+	max-width: 480px;
+	margin: 8px 0 15px 0;
 	text-align: center;
+}
+@media (max-width: 382px) {
+	.roomcounters {
+		margin: 38px 0 15px 0;
+	}
 }
 .roomcounters button {
 	margin: 0 auto;
@@ -1243,22 +1236,38 @@ p.or:after {
 	height: 60px;
 	padding: 3px 8px;
 	text-align: center;
+	vertical-align: middle;
 	font-size: 10pt;
+	position: relative;
 }
 .roomcounters button strong {
 	display: block;
 	font-size: 18pt;
 	font-weight: normal;
 }
-.roomcounters .icon-left {
-	display: inline-block;
-	vertical-align: middle;
-	transform:scaleX(-1);
-	webkit-transform:scaleX(-1);
+.roomcounters .usercount {
+	display: block;
+	width: 49px;
+	height: 63px;
+	position: absolute;
+	left: -30px;
+	bottom: -5px;
+	background: url(https://play.pokemonshowdown.com/sprites/gen5/meloetta.png) center no-repeat;
 }
-.roomcounters .icon-right {
-	display: inline-block;
-	vertical-align: middle;
+.roomcounters button:hover .usercount {
+	background: url(https://play.pokemonshowdown.com/sprites/gen5ani/meloetta.gif) center no-repeat;
+}
+.roomcounters .battlecount {
+	display: block;
+	width: 46px;
+	height: 76px;
+	position: absolute;
+	right: -30px;
+	bottom: -10px;
+	background: url(https://play.pokemonshowdown.com/sprites/gen5/meloetta-pirouette.png) center no-repeat;
+}
+.roomcounters button:hover .battlecount {
+	background: url(https://play.pokemonshowdown.com/sprites/gen5ani/meloetta-pirouette.gif) center no-repeat;
 }
 
 .roomlist {
@@ -1305,12 +1314,12 @@ p.or:after {
 	font-size: 10pt;
 	background: rgba(242,247,250,.5);
 	color: black;
-	word-wrap: break-word;
 
 	overflow: auto;
 	overflow-x: hidden;
 	-webkit-overflow-scrolling: touch;
 	overflow-scrolling: touch;
+	word-wrap: break-word;
 }
 .chat-log-add {
 	position: absolute;
@@ -1326,6 +1335,13 @@ p.or:after {
 .pm-log .chat {
 	padding: 3px 0 3px 0;
 	font-size: 9pt;
+}
+.chat-log .chat.mine,
+.pm-log .chat.mine {
+	margin-left: -8px;
+	margin-right: -8px;
+	padding-left: 8px;
+	padding-right: 8px;
 }
 .chat em {
 	padding: 0 4px 0 3px;
@@ -1674,6 +1690,19 @@ a.ilink.yours {
 	-webkit-overflow-scrolling: touch;
 	overflow-scrolling: touch;
 }
+.pm-buttonbar {
+	height: 21px;
+}
+.pm-buttonbar button {
+	float: left;
+	font: 8pt Verdana, sans-serif;
+	height: 21px;
+	background: #EEF2F5;
+	color: black;
+	border: 0;
+	border-right: 1px solid #AAAAAA;
+	border-bottom: 1px solid #AAAAAA;
+}
 .userlist-minimized {
 	height: 21px;
 	bottom: auto;
@@ -1692,7 +1721,8 @@ a.ilink.yours {
 	cursor: pointer;
 }
 .userlist-minimized .userlist-count:hover,
-.userlist-maximized .userlist-count:hover {
+.userlist-maximized .userlist-count:hover,
+.pm-buttonbar button:hover {
 	background: #DEE4EA;
 }
 .chat-log.hasuserlist,
@@ -2037,28 +2067,28 @@ a.ilink.yours {
 	font-size: 8pt;
 }
 .megaevo {
-    clear: both;
-    display: block;
-    width: 180px;
-    margin: 0 auto 0;
-    position: relative;
-    top: 6px;
-    left: -7px;
-    padding: 2px;
-    text-align: center;
+		clear: both;
+		display: block;
+		width: 180px;
+		margin: 0 auto 0;
+		position: relative;
+		top: 6px;
+		left: -7px;
+		padding: 2px;
+		text-align: center;
 
-    cursor: pointer;
-    border: 1px solid #BBB;
-    border-radius: 3px;
-    color: #333;
-    background: #EEF2F5;
-    font-size: 10pt;
-    font-weight: bold;
+		cursor: pointer;
+		border: 1px solid #BBB;
+		border-radius: 3px;
+		color: #333;
+		background: #EEF2F5;
+		font-size: 10pt;
+		font-weight: bold;
 }
 .megaevo:hover {
-    border-color: #888;
-    background: #E5E5E5;
-    color: black;
+		border-color: #888;
+		background: #E5E5E5;
+		color: black;
 }
 
 .switchmenu,
@@ -2941,6 +2971,10 @@ a.ilink.yours {
 .teamwrapper.scaled .teamchartbox {
 	bottom: auto;
 }
+.exportbutton {
+	margin-left: 6px;
+	margin-bottom: 3px;
+}
 .teamchartbox.individual {
 	overflow: visible;
 }
@@ -3040,7 +3074,7 @@ a.ilink.yours {
 	width: 193px;
 	margin-right: 9px;
 	margin-left: 5px;
-	padding-top: 4px;
+	padding-top: 2px;
 	text-align: center;
 }
 .evslider {
@@ -3111,6 +3145,11 @@ a.ilink.yours {
 	overflow: hidden;
 	max-height: 21pt;
 	display: block;
+}
+.usergroup {
+	color: #333;
+	font-size: 8pt;
+	font-weight: bold;
 }
 
 .userdetails {
@@ -3234,12 +3273,14 @@ a.ilink.yours {
 	background: #444444;
 	color: #DDD;
 }
-.dark .userlist-minimized {
+.dark .userlist-minimized,
+.dark .pm-buttonbar button {
 	background: #444444;
 	color: #4488EE;
 }
 .dark .userlist-minimized .userlist-count:hover,
-.dark .userlist-maximized .userlist-count:hover {
+.dark .userlist-maximized .userlist-count:hover,
+.dark .pm-buttonbar button:hover {
 	background: #666666;
 }
 
@@ -3271,6 +3312,10 @@ a.ilink.yours {
 	border-color: #888;
 
 	box-shadow: 2px 2px 3px rgba(0,0,0,.2);
+}
+
+.dark .usergroup {
+	color: #BBB;
 }
 
 .dark .popupmenu button,
@@ -3432,10 +3477,10 @@ a.ilink.yours {
 }
 
 .dark .teambar button:disabled, .dark .teambar button:disabled:hover, .dark .teambar button:disabled:active {
-    color: #ffffff;
-    background: #2d343a;
-    border-color: #6bacc5;
-    opacity: 1;
+		color: #ffffff;
+		background: #2d343a;
+		border-color: #6bacc5;
+		opacity: 1;
 }
 
 .dark .teambuilder-results .result a.hover,

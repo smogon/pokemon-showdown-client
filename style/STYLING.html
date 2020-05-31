@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<meta charset="utf-8" />
+<title>Styling</title>
+<script>
+/** @type {'?' | 'error' | 'success'} */
+var customCssLoaded = '?';
+function updateCustomCss() {
+  const message = document.getElementById('custom-css-message');
+  if (!message) return;
+  if (customCssLoaded === 'success') {
+    message.innerHTML = "<strong>Custom CSS was successfully loaded.</strong>";
+  }
+}
+function customCssErrored() { customCssLoaded = 'error'; updateCustomCss(); }
+function customCssSuccess() { customCssLoaded = 'success'; updateCustomCss(); }
+</script>
+
+<link rel="stylesheet" href="./battle.css" />
+<link rel="stylesheet" href="./custom.css" onerror="customCssErrored()" onload="customCssSuccess()" />
+<link rel="stylesheet" href="./font-awesome.css" />
+<style>
+html {
+  background: #EEE;
+  font: 12pt Verdana, sans-serif;
+}
+.wrapper {
+  max-width: 975px;
+  margin: 0 auto;
+}
+h1, h2, p {
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+}
+.light-container, .dark-container {
+  float: left;
+  width: 290px;
+  min-height: 50px;
+  margin-left: 10px;
+  padding: 8px 10px;
+  font-size: 10pt;
+
+  background: #CCDDEE;
+  color: #000;
+  border: 1px solid #111;
+}
+.dark-container {
+  background: #223344;
+  color: #EEE;
+}
+.dark-container.code {
+  background: #333;
+  color: #DDD;
+  overflow-wrap: break-word;
+}
+.clear {
+  clear: both;
+}
+</style>
+
+<div class="wrapper">
+
+  <h1>Styling reference</h1>
+
+  <p>
+    This is a reference of the out-of-the-box CSS available for bots and chat plugins to use.
+  </p>
+  <p>
+    It's also useful for servers wanting to write custom CSS, to see how the changes look. <span id="custom-css-message">Add a file named <code>custom.css</code> in this directory and refresh to see how it looks.</span>
+  </p>
+  <script> updateCustomCss(); </script>
+  <p>
+    We tend not to follow modern flat design. Instead, we give buttons a 3D effect, to improve their accessibility.
+  </p>
+
+  <h2>Buttons and links</h2>
+
+  <p>
+    Buttons and links are grouped together because they're kind of similar: If you click them, they perform an action. A link is just a special kind of button, a button that only performs navigation.
+  </p>
+  <p>
+    It's common practice to make important links look like buttons, but buttons should never look like links. Links should be implemented with an <code>&lt;a></code> tag, never with a button, so that they can be opened in a new window (by middle-clicking or right-clicking).
+  </p>
+  <p>
+    Buttons always get the pointer-finger mouse cursor, like links. This helps reinforce that they're clickable.
+  </p>
+
+  <p><code>.button</code></p>
+
+  <p>
+    Regular buttons always need <code>class="button"</code> to look like buttons &ndash; this is so you can apply other classes/styles if you want them to look like other things.
+  </p>
+  <p>
+    Notice the active (pressed down) styling.
+  </p>
+
+  <div class="light-container">
+    <button class="button"><strong>Do the thing</strong></button>
+    <a href="./" class="button">Cancel</a>
+  </div>
+  <div class="dark-container dark">
+    <button class="button"><strong>Do the thing</strong></button>
+    <a href="./" class="button">Cancel</a>
+  </div>
+  <div class="dark-container code dark">
+    &lt;button class="button">&lt;strong>Do the thing&lt;/strong>&lt;/button>
+    &lt;a href="./" class="button">Cancel&lt;/a>
+  </div>
+  <div class="clear"></div>
+
+  <p><code>.button.disabled</code></p>
+
+  <p>
+    Disabled buttons are faded out. Implementing <code>disabled</code> as a class lets you detect when they're moused-over (for tooltips) and clicked, if necessary. Do also set the <code>disabled</code> attribute if you don't need to do that, though, for accessibility reasons.
+  </p>
+
+  <div class="light-container">
+    <button class="button disabled" disabled><strong>Do the thing</strong></button>
+    <a href="./" class="button disabled">Cancel</a>
+  </div>
+  <div class="dark-container dark">
+    <button class="button disabled" disabled><strong>Do the thing</strong></button>
+    <a href="./" class="button disabled">Cancel</a>
+  </div>
+  <div class="dark-container code dark">
+    &lt;button class="button disabled">&lt;strong>Do the thing&lt;/strong>&lt;/button>
+    &lt;a href="./" class="button disabled">Cancel&lt;/a>
+  </div>
+  <div class="clear"></div>
+
+  <p><code>a</code></p>
+
+  <p>
+    Links use browser default styling, including purple visited links. Dark mode lightens the default styling a bit (at a specificity of 2 classes, which you will hate when you're trying to make links look like other things), to keep them readable.
+  </p>
+
+  <div class="light-container">
+    Play <a href="https://pokemonshowdown.com/">Showdown!</a>
+  </div>
+  <div class="dark-container dark">
+    Play <a href="https://pokemonshowdown.com/">Showdown!</a>
+  </div>
+  <div class="dark-container code dark">
+    Play &lt;a href="https://pokemonshowdown.com/">Showdown!&lt;/a>
+  </div>
+  <div class="clear"></div>
+
+  <p><code>.blocklink</code></p>
+
+  <p>
+    Links that span an entire block.
+  </p>
+
+  <div class="light-container">
+    <a class="blocklink" href="https://pokemonshowdown.com/">Showdown!</a>
+  </div>
+  <div class="dark-container dark">
+    <a class="blocklink" href="https://pokemonshowdown.com/">Showdown!</a>
+  </div>
+  <div class="dark-container code dark">
+    &lt;a class="blocklink" href="https://pokemonshowdown.com/">Showdown!&lt;/a>
+  </div>
+  <div class="clear"></div>
+
+  <p><code>.subtle</code></p>
+
+  <p>Subtle links are links that are unimportant. They look like normal text until moused over, because they would make text look unnecessarily cluttered.</p>
+  <p>Subtle buttons look a bit different because they're still intended to look vaguely clickable, just not attention-drawing.</p>
+  <p>Subtle links are used in credits, and for usernames in battle logs.</p>
+
+  <div class="light-container">
+    <button class="subtle"><strong>Do the thing</strong></button>
+    <a href="./" class="subtle">Cancel</a>
+  </div>
+  <div class="dark-container dark">
+    <button class="subtle"><strong>Do the thing</strong></button>
+    <a href="./" class="subtle">Cancel</a>
+  </div>
+  <div class="dark-container code dark">
+    &lt;button class="subtle">&lt;strong>Do the thing&lt;/strong>&lt;/button>
+    &lt;a href="./" class="subtle">Cancel&lt;/a>
+  </div>
+  <div class="clear"></div>
+
+  <h2>Forms</h2>
+
+  <p>
+    Not currently available to bots or chat plugins.
+  </p>
+
+  <p><code>.textbox</code></p>
+
+  <p>
+    Has hover and focus appearances, unlike most native text boxes. Label optional.
+  </p>
+
+  <div class="light-container">
+    <label class="label">Name: <input type="text" class="textbox" /></label>
+  </div>
+  <div class="dark-container dark">
+    <label class="label">Name: <input type="text" class="textbox" /></label>
+  </div>
+  <div class="dark-container code dark">
+    &lt;label class="label">Name: &lt;input type="text" class="textbox" />&lt;/label>
+  </div>
+  <div class="clear"></div>
+
+  <p><code>.option, .option.sel</code></p>
+
+  <p>
+    This is used for a button taking the role of <code>&lt;option></code> (in a drop-down selection menu). Normal button styling would look really cluttered, so option buttons are much subtler.
+  </p>
+  <p>
+    The currently-selected option should be given the <code>sel</code> class.
+  </p>
+
+  <div class="light-container">
+    <button class="option sel">Do the first thing</button>
+    <button class="option">Do the second thing</button>
+    <button class="option">Do the third thing</button>
+  </div>
+  <div class="dark-container dark">
+    <button class="option sel">Do the first thing</button>
+    <button class="option">Do the second thing</button>
+    <button class="option">Do the third thing</button>
+  </div>
+  <div class="dark-container code dark">
+    &lt;button class="option sel">Do the first thing&lt;/button>
+    &lt;button class="option">Do the second thing&lt;/button>
+    &lt;button class="option">Do the third thing&lt;/button>
+  </div>
+  <div class="clear"></div>
+
+  <p><code>.checkbox</code></p>
+
+  <p>
+    This makes checkboxes look slightly nicer. We don't currently try to override the built-in checkbox widget, just make it a bit bigger, add the usual finger-cursor, and add a hover effect.
+  </p>
+
+  <div class="light-container">
+    <label class="checkbox"><input type="checkbox" /> This is a checkbox</label>
+  </div>
+  <div class="dark-container dark">
+    <label class="checkbox"><input type="checkbox" /> This is a checkbox</label>
+  </div>
+  <div class="dark-container code dark">
+    &lt;label class="checkbox">&lt;input type="checkbox" /> This is a checkbox&lt;/label>
+  </div>
+  <div class="clear"></div>
+
+  <h2>Chat features</h2>
+
+  <p><code>code</code></p>
+
+  <div class="light-container">
+    <code>/([a-z]*)/g</code> is a regex.
+  </div>
+  <div class="dark-container dark">
+    <code>/([a-z]*)/g</code> is a regex.
+  </div>
+  <div class="dark-container code dark">
+    &lt;code>/([a-z]*)/g&lt;/code> is a regex.
+  </div>
+  <div class="clear"></div>
+
+  <p><code>.spoiler</code></p>
+
+  <p>
+    Clicking the spoiler tag in PS will make the spoiler stay visible (requires JavaScript).
+  </p>
+  <p>
+    Remember that spoilers can have <code>&lt;code></code> tags inside them, which should only be readable if shown.
+  </p>
+
+  <div class="light-container">
+    Spoiler: <span class="spoiler">The <code>butler</code> did it</span><br />
+    Clicked spoiler: <span class="spoiler-shown">The <code>butler</code> did it</span>
+  </div>
+  <div class="dark-container dark">
+    Spoiler: <span class="spoiler">The <code>butler</code> did it</span><br />
+    Clicked spoiler: <span class="spoiler-shown">The <code>butler</code> did it</span>
+  </div>
+  <div class="dark-container code dark">
+    Spoiler: &lt;span class="spoiler">The &lt;code>butler&lt;/code> did it&lt;/span>&lt;br />
+    Clicked spoiler: &lt;span class="spoiler-shown">The &lt;code>butler&lt;/code> did it&lt;/span>
+  </div>
+  <div class="clear"></div>
+  <script>
+    function clickSpoiler(event) {
+      if (event.currentTarget.className === 'spoiler') {
+        event.currentTarget.className = 'spoiler-shown';
+      } else if (event.currentTarget.className === 'spoiler-shown') {
+        event.currentTarget.className = 'spoiler';
+      }
+    }
+    var spoilers = document.getElementsByClassName('spoiler');
+    for (var i = 0; i < spoilers.length; i++) spoilers[i].onclick = clickSpoiler;
+    spoilers = document.getElementsByClassName('spoiler-shown');
+    for (var i = 0; i < spoilers.length; i++) spoilers[i].onclick = clickSpoiler;
+  </script>
+
+  <p><code>details.readmore</code></p>
+
+  <p>
+    Does not require JavaScript! As you can see, it's implemented with <code>&lt;details></code> and <code>&lt;summary></code>.
+  </p>
+  <p>
+    For accessibility reasons, the "read more" button can only appear at the end of a line (using <code>&lt;/summary</code> to replace a <code>&lt;br /></code>).
+  </p>
+
+  <div class="light-container">
+    <details class="readmore"><summary>This is<br />some text</summary>This is<br />some more</details>
+  </div>
+  <div class="dark-container dark">
+    <details class="readmore"><summary>This is<br />some text</summary>This is<br />some more</details>
+  </div>
+  <div class="dark-container code dark">
+    &lt;details class="readmore">&lt;summary>This is&lt;br />some text&lt;/summary>This is&lt;br />some more&lt;/details>
+  </div>
+  <div class="clear"></div>
+
+  <p><code>.broadcast-blue, .broadcast-green, .broadcast-red</code></p>
+
+  <p>
+    Remember that broadcasts can have links inside them, which should be readable.
+  </p>
+
+  <div class="light-container">
+    <div class="broadcast-blue"><strong>Important:</strong> Something <a href="./">happened</a>!</div>
+    <div class="broadcast-green"><strong>Yay:</strong> Something <a href="./">succeeded</a>!</div>
+    <div class="broadcast-red"><strong>Error:</strong> Something <a href="./">failed</a>!</div>
+  </div>
+  <div class="dark-container dark">
+    <div class="broadcast-blue"><strong>Important:</strong> Something <a href="./">happened</a>!</div>
+    <div class="broadcast-green"><strong>Yay:</strong> Something <a href="./">succeeded</a>!</div>
+    <div class="broadcast-red"><strong>Error:</strong> Something <a href="./">failed</a>!</div>
+  </div>
+  <div class="dark-container code dark">
+    &lt;div class="broadcast-blue">&lt;strong>Important:&lt;/strong> Something &lt;a href="./">happened&lt;/a>!&lt;/div>
+    &lt;div class="broadcast-green">&lt;strong>Yay:&lt;/strong> Something &lt;a href="./">succeeded&lt;/a>!&lt;/div>
+    &lt;div class="broadcast-red">&lt;strong>Error:&lt;/strong> Something &lt;a href="./">failed&lt;/a>!&lt;/div>
+  </div>
+  <div class="clear"></div>
+
+  <p><code>.message-error</code></p>
+
+  <div class="light-container">
+    <p class="message-error"><strong>Error:</strong> Something went wrong!</p>
+  </div>
+  <div class="dark-container dark">
+    <p class="message-error"><strong>Error:</strong> Something went wrong!</p>
+  </div>
+  <div class="dark-container code dark">
+    &lt;p class="message-error">&lt;strong>Error:&lt;/strong> Something went wrong!&lt;/p>
+  </div>
+  <div class="clear"></div>
+
+  <p><code>.message-log</code></p>
+
+  <div class="light-container">
+    <div class="message-log"><div class="chat"><small>[12:34] </small><strong><small>~</small>Zarel:</strong> <q>Hello!</q></div></div>
+  </div>
+  <div class="dark-container dark">
+    <div class="message-log"><div class="chat"><small>[12:34] </small><strong><small>~</small>Zarel:</strong> <q>Hello!</q></div></div>
+  </div>
+  <div class="dark-container code dark">
+    &lt;div class="message-log">&lt;div class="chat">&lt;small>[12:34] &lt;/small>&lt;strong>&lt;small>~&lt;/small>Zarel:&lt;/strong> &lt;q>Hello!&lt;/q>&lt;/div>&lt;/div>
+  </div>
+  <div class="clear"></div>
+
+</div>

@@ -106,7 +106,7 @@ const BattleNatures: {[k in NatureName]: {plus?: StatName, minus?: StatName}} = 
 		minus: 'atk',
 	},
 };
-const BattleStatIDs = {
+const BattleStatIDs: {[k: string]: StatName | undefined} = {
 	HP: 'hp',
 	hp: 'hp',
 	Atk: 'atk',
@@ -127,234 +127,222 @@ const BattleStatIDs = {
 	Spd: 'spe',
 	spe: 'spe',
 };
-const BattlePOStatNames = { // only used for interacting with PO
-	hp: 'HP',
-	atk: 'Atk',
-	def: 'Def',
-	spa: 'SAtk',
-	spd: 'SDef',
-	spe: 'Spd',
-};
-const BattleStatNames = { // proper style
+/** Stat short names */
+const BattleStatNames = {
 	hp: 'HP',
 	atk: 'Atk',
 	def: 'Def',
 	spa: 'SpA',
 	spd: 'SpD',
 	spe: 'Spe',
-};
-const BattleStats = {
-	hp: 'HP',
-	atk: 'Attack',
-	def: 'Defense',
-	spa: 'Special Attack',
-	spd: 'Special Defense',
-	spe: 'Speed',
-	accuracy: 'accuracy',
-	evasion: 'evasiveness',
-	spc: 'Special',
-};
+} as const;
 
 const BattleBaseSpeciesChart = [
-	'pikachu',
-	'pichu',
-	'unown',
-	'castform',
-	'deoxys',
-	'burmy',
-	'wormadam',
-	'cherrim',
-	'shellos',
-	'gastrodon',
-	'rotom',
-	'giratina',
-	'shaymin',
-	'arceus',
-	'basculin',
-	'darmanitan',
-	'deerling',
-	'sawsbuck',
-	'tornadus',
-	'thundurus',
-	'landorus',
-	'kyurem',
-	'keldeo',
-	'meloetta',
-	'genesect',
-	'vivillon',
-	'flabebe',
-	'floette',
-	'florges',
-	'furfrou',
-	'aegislash',
-	'pumpkaboo',
-	'gourgeist',
-	'meowstic',
-	'hoopa',
-	'zygarde',
-	'lycanroc',
-	'wishiwashi',
-	'minior',
-	'mimikyu',
-	'greninja',
-	'oricorio',
-	'silvally',
-	'necrozma',
-
-	// alola totems
-	'raticate',
-	'marowak',
-	'kommoo',
-
-	// mega evolutions
-	'charizard',
-	'mewtwo',
-	// others are hardcoded by ending with 'mega'
-];
+	"unown", "burmy", "shellos", "gastrodon", "deerling", "sawsbuck", "vivillon", "flabebe", "floette", "florges", "furfrou", "minior", "alcremie", "pokestarufo", "pokestarbrycenman", "pokestarmt", "pokestarmt2", "pokestartransport", "pokestargiant", "pokestarhumanoid", "pokestarmonster", "pokestarf00", "pokestarf002", "pokestarspirit", "pokestarblackdoor", "pokestarwhitedoor", "pokestarblackbelt",
+] as ID[];
 
 const BattlePokemonIconIndexes: {[id: string]: number} = {
-	egg: 816 + 1,
-	pikachubelle: 816 + 2,
-	pikachulibre: 816 + 3,
-	pikachuphd: 816 + 4,
-	pikachupopstar: 816 + 5,
-	pikachurockstar: 816 + 6,
-	pikachucosplay: 816 + 7,
-	// unown gap
-	castformrainy: 816 + 35,
-	castformsnowy: 816 + 36,
-	castformsunny: 816 + 37,
-	deoxysattack: 816 + 38,
-	deoxysdefense: 816 + 39,
-	deoxysspeed: 816 + 40,
-	burmysandy: 816 + 41,
-	burmytrash: 816 + 42,
-	wormadamsandy: 816 + 43,
-	wormadamtrash: 816 + 44,
-	cherrimsunshine: 816 + 45,
-	shelloseast: 816 + 46,
-	gastrodoneast: 816 + 47,
-	rotomfan: 816 + 48,
-	rotomfrost: 816 + 49,
-	rotomheat: 816 + 50,
-	rotommow: 816 + 51,
-	rotomwash: 816 + 52,
-	giratinaorigin: 816 + 53,
-	shayminsky: 816 + 54,
-	unfezantf: 816 + 55,
-	basculinbluestriped: 816 + 56,
-	darmanitanzen: 816 + 57,
-	deerlingautumn: 816 + 58,
-	deerlingsummer: 816 + 59,
-	deerlingwinter: 816 + 60,
-	sawsbuckautumn: 816 + 61,
-	sawsbucksummer: 816 + 62,
-	sawsbuckwinter: 816 + 63,
-	frillishf: 816 + 64,
-	jellicentf: 816 + 65,
-	tornadustherian: 816 + 66,
-	thundurustherian: 816 + 67,
-	landorustherian: 816 + 68,
-	kyuremblack: 816 + 69,
-	kyuremwhite: 816 + 70,
-	keldeoresolute: 816 + 71,
-	meloettapirouette: 816 + 72,
-	vivillonarchipelago: 816 + 73,
-	vivilloncontinental: 816 + 74,
-	vivillonelegant: 816 + 75,
-	vivillonfancy: 816 + 76,
-	vivillongarden: 816 + 77,
-	vivillonhighplains: 816 + 78,
-	vivillonicysnow: 816 + 79,
-	vivillonjungle: 816 + 80,
-	vivillonmarine: 816 + 81,
-	vivillonmodern: 816 + 82,
-	vivillonmonsoon: 816 + 83,
-	vivillonocean: 816 + 84,
-	vivillonpokeball: 816 + 85,
-	vivillonpolar: 816 + 86,
-	vivillonriver: 816 + 87,
-	vivillonsandstorm: 816 + 88,
-	vivillonsavanna: 816 + 89,
-	vivillonsun: 816 + 90,
-	vivillontundra: 816 + 91,
-	pyroarf: 816 + 92,
-	flabebeblue: 816 + 93,
-	flabebeorange: 816 + 94,
-	flabebewhite: 816 + 95,
-	flabebeyellow: 816 + 96,
-	floetteblue: 816 + 97,
-	floetteeternal: 816 + 98,
-	floetteorange: 816 + 99,
-	floettewhite: 816 + 100,
-	floetteyellow: 816 + 101,
-	florgesblue: 816 + 102,
-	florgesorange: 816 + 103,
-	florgeswhite: 816 + 104,
-	florgesyellow: 816 + 105,
-	furfroudandy: 816 + 106,
-	furfroudebutante: 816 + 107,
-	furfroudiamond: 816 + 108,
-	furfrouheart: 816 + 109,
-	furfroukabuki: 816 + 110,
-	furfroulareine: 816 + 111,
-	furfroumatron: 816 + 112,
-	furfroupharaoh: 816 + 113,
-	furfroustar: 816 + 114,
-	meowsticf: 816 + 115,
-	aegislashblade: 816 + 116,
-	hoopaunbound: 816 + 118,
-	rattataalola: 816 + 119,
-	raticatealola: 816 + 120,
-	raichualola: 816 + 121,
-	sandshrewalola: 816 + 122,
-	sandslashalola: 816 + 123,
-	vulpixalola: 816 + 124,
-	ninetalesalola: 816 + 125,
-	diglettalola: 816 + 126,
-	dugtrioalola: 816 + 127,
-	meowthalola: 816 + 128,
-	persianalola: 816 + 129,
-	geodudealola: 816 + 130,
-	graveleralola: 816 + 131,
-	golemalola: 816 + 132,
-	grimeralola: 816 + 133,
-	mukalola: 816 + 134,
-	exeggutoralola: 816 + 135,
-	marowakalola: 816 + 136,
-	greninjaash: 816 + 137,
-	zygarde10: 816 + 138,
-	zygardecomplete: 816 + 139,
-	oricoriopompom: 816 + 140,
-	oricoriopau: 816 + 141,
-	oricoriosensu: 816 + 142,
-	lycanrocmidnight: 816 + 143,
-	wishiwashischool: 816 + 144,
-	miniormeteor: 816 + 145,
-	miniororange: 816 + 146,
-	minioryellow: 816 + 147,
-	miniorgreen: 816 + 148,
-	miniorblue: 816 + 149,
-	miniorviolet: 816 + 150,
-	miniorindigo: 816 + 151,
-	magearnaoriginal: 816 + 152,
-	pikachuoriginal: 816 + 153,
-	pikachuhoenn: 816 + 154,
-	pikachusinnoh: 816 + 155,
-	pikachuunova: 816 + 156,
-	pikachukalos: 816 + 157,
-	pikachualola: 816 + 158,
-	pikachupartner: 816 + 159,
-	lycanrocdusk: 816 + 160,
-	necrozmaduskmane: 816 + 161,
-	necrozmadawnwings: 816 + 162,
-	necrozmaultra: 816 + 163,
-	pikachustarter: 816 + 164,
-	eeveestarter: 816 + 165,
+	egg: 900 + 1,
+	pikachubelle: 900 + 2,
+	pikachulibre: 900 + 3,
+	pikachuphd: 900 + 4,
+	pikachupopstar: 900 + 5,
+	pikachurockstar: 900 + 6,
+	pikachucosplay: 900 + 7,
+	unownexclamation: 900 + 8,
+	unownquestion: 900 + 9,
+	unownb: 900 + 10,
+	unownc: 900 + 11,
+	unownd: 900 + 12,
+	unowne: 900 + 13,
+	unownf: 900 + 14,
+	unowng: 900 + 15,
+	unownh: 900 + 16,
+	unowni: 900 + 17,
+	unownj: 900 + 18,
+	unownk: 900 + 19,
+	unownl: 900 + 20,
+	unownm: 900 + 21,
+	unownn: 900 + 22,
+	unowno: 900 + 23,
+	unownp: 900 + 24,
+	unownq: 900 + 25,
+	unownr: 900 + 26,
+	unowns: 900 + 27,
+	unownt: 900 + 28,
+	unownu: 900 + 29,
+	unownv: 900 + 30,
+	unownw: 900 + 31,
+	unownx: 900 + 32,
+	unowny: 900 + 33,
+	unownz: 900 + 34,
+	castformrainy: 900 + 35,
+	castformsnowy: 900 + 36,
+	castformsunny: 900 + 37,
+	deoxysattack: 900 + 38,
+	deoxysdefense: 900 + 39,
+	deoxysspeed: 900 + 40,
+	burmysandy: 900 + 41,
+	burmytrash: 900 + 42,
+	wormadamsandy: 900 + 43,
+	wormadamtrash: 900 + 44,
+	cherrimsunshine: 900 + 45,
+	shelloseast: 900 + 46,
+	gastrodoneast: 900 + 47,
+	rotomfan: 900 + 48,
+	rotomfrost: 900 + 49,
+	rotomheat: 900 + 50,
+	rotommow: 900 + 51,
+	rotomwash: 900 + 52,
+	giratinaorigin: 900 + 53,
+	shayminsky: 900 + 54,
+	unfezantf: 900 + 55,
+	basculinbluestriped: 900 + 56,
+	darmanitanzen: 900 + 57,
+	deerlingautumn: 900 + 58,
+	deerlingsummer: 900 + 59,
+	deerlingwinter: 900 + 60,
+	sawsbuckautumn: 900 + 61,
+	sawsbucksummer: 900 + 62,
+	sawsbuckwinter: 900 + 63,
+	frillishf: 900 + 64,
+	jellicentf: 900 + 65,
+	tornadustherian: 900 + 66,
+	thundurustherian: 900 + 67,
+	landorustherian: 900 + 68,
+	kyuremblack: 900 + 69,
+	kyuremwhite: 900 + 70,
+	keldeoresolute: 900 + 71,
+	meloettapirouette: 900 + 72,
+	vivillonarchipelago: 900 + 73,
+	vivilloncontinental: 900 + 74,
+	vivillonelegant: 900 + 75,
+	vivillonfancy: 900 + 76,
+	vivillongarden: 900 + 77,
+	vivillonhighplains: 900 + 78,
+	vivillonicysnow: 900 + 79,
+	vivillonjungle: 900 + 80,
+	vivillonmarine: 900 + 81,
+	vivillonmodern: 900 + 82,
+	vivillonmonsoon: 900 + 83,
+	vivillonocean: 900 + 84,
+	vivillonpokeball: 900 + 85,
+	vivillonpolar: 900 + 86,
+	vivillonriver: 900 + 87,
+	vivillonsandstorm: 900 + 88,
+	vivillonsavanna: 900 + 89,
+	vivillonsun: 900 + 90,
+	vivillontundra: 900 + 91,
+	pyroarf: 900 + 92,
+	flabebeblue: 900 + 93,
+	flabebeorange: 900 + 94,
+	flabebewhite: 900 + 95,
+	flabebeyellow: 900 + 96,
+	floetteblue: 900 + 97,
+	floetteeternal: 900 + 98,
+	floetteorange: 900 + 99,
+	floettewhite: 900 + 100,
+	floetteyellow: 900 + 101,
+	florgesblue: 900 + 102,
+	florgesorange: 900 + 103,
+	florgeswhite: 900 + 104,
+	florgesyellow: 900 + 105,
+	furfroudandy: 900 + 106,
+	furfroudebutante: 900 + 107,
+	furfroudiamond: 900 + 108,
+	furfrouheart: 900 + 109,
+	furfroukabuki: 900 + 110,
+	furfroulareine: 900 + 111,
+	furfroumatron: 900 + 112,
+	furfroupharaoh: 900 + 113,
+	furfroustar: 900 + 114,
+	meowsticf: 900 + 115,
+	aegislashblade: 900 + 116,
+	hoopaunbound: 900 + 118,
+	rattataalola: 900 + 119,
+	raticatealola: 900 + 120,
+	raichualola: 900 + 121,
+	sandshrewalola: 900 + 122,
+	sandslashalola: 900 + 123,
+	vulpixalola: 900 + 124,
+	ninetalesalola: 900 + 125,
+	diglettalola: 900 + 126,
+	dugtrioalola: 900 + 127,
+	meowthalola: 900 + 128,
+	persianalola: 900 + 129,
+	geodudealola: 900 + 130,
+	graveleralola: 900 + 131,
+	golemalola: 900 + 132,
+	grimeralola: 900 + 133,
+	mukalola: 900 + 134,
+	exeggutoralola: 900 + 135,
+	marowakalola: 900 + 136,
+	greninjaash: 900 + 137,
+	zygarde10: 900 + 138,
+	zygardecomplete: 900 + 139,
+	oricoriopompom: 900 + 140,
+	oricoriopau: 900 + 141,
+	oricoriosensu: 900 + 142,
+	lycanrocmidnight: 900 + 143,
+	wishiwashischool: 900 + 144,
+	miniormeteor: 900 + 145,
+	miniororange: 900 + 146,
+	minioryellow: 900 + 147,
+	miniorgreen: 900 + 148,
+	miniorblue: 900 + 149,
+	miniorindigo: 900 + 150,
+	miniorviolet: 900 + 151,
+	magearnaoriginal: 900 + 152,
+	pikachuoriginal: 900 + 153,
+	pikachuhoenn: 900 + 154,
+	pikachusinnoh: 900 + 155,
+	pikachuunova: 900 + 156,
+	pikachukalos: 900 + 157,
+	pikachualola: 900 + 158,
+	pikachupartner: 900 + 159,
+	lycanrocdusk: 900 + 160,
+	necrozmaduskmane: 900 + 161,
+	necrozmadawnwings: 900 + 162,
+	necrozmaultra: 900 + 163,
+	pikachustarter: 900 + 164,
+	eeveestarter: 900 + 165,
+	meowthgalar: 900 + 166,
+	ponytagalar: 900 + 167,
+	rapidashgalar: 900 + 168,
+	farfetchdgalar: 900 + 169,
+	weezinggalar: 900 + 170,
+	mrmimegalar: 900 + 171,
+	corsolagalar: 900 + 172,
+	zigzagoongalar: 900 + 173,
+	linoonegalar: 900 + 174,
+	darumakagalar: 900 + 175,
+	darmanitangalar: 900 + 176,
+	darmanitangalarzen: 900 + 177,
+	yamaskgalar: 900 + 178,
+	stunfiskgalar: 900 + 179,
+	cramorantgulping: 900 + 180,
+	cramorantgorging: 900 + 181,
+	toxtricitylowkey: 900 + 182,
+	sinisteaantique: 854,
+	polteageistantique: 855,
+	alcremierubycream: 900 + 183,
+	alcremiematchacream: 900 + 184,
+	alcremiemintcream: 900 + 185,
+	alcremielemoncream: 900 + 186,
+	alcremiesaltedcream: 900 + 187,
+	alcremierubyswirl: 900 + 188,
+	alcremiecaramelswirl: 900 + 189,
+	alcremierainbowswirl: 900 + 190,
+	eiscuenoice: 900 + 191,
+	indeedeef: 900 + 192,
+	morpekohangry: 900 + 193,
+	zaciancrowned: 900 + 194,
+	zamazentacrowned: 900 + 195,
+	slowpokegalar: 900 + 196,
 
 	gumshoostotem: 735,
-	raticatealolatotem: 816 + 120,
-	marowakalolatotem: 816 + 136,
+	raticatealolatotem: 900 + 120,
+	marowakalolatotem: 900 + 136,
 	araquanidtotem: 752,
 	lurantistotem: 754,
 	salazzletotem: 758,
@@ -365,207 +353,255 @@ const BattlePokemonIconIndexes: {[id: string]: number} = {
 	ribombeetotem: 743,
 	kommoototem: 784,
 
-	venusaurmega: 984 + 0,
-	charizardmegax: 984 + 1,
-	charizardmegay: 984 + 2,
-	blastoisemega: 984 + 3,
-	beedrillmega: 984 + 4,
-	pidgeotmega: 984 + 5,
-	alakazammega: 984 + 6,
-	slowbromega: 984 + 7,
-	gengarmega: 984 + 8,
-	kangaskhanmega: 984 + 9,
-	pinsirmega: 984 + 10,
-	gyaradosmega: 984 + 11,
-	aerodactylmega: 984 + 12,
-	mewtwomegax: 984 + 13,
-	mewtwomegay: 984 + 14,
-	ampharosmega: 984 + 15,
-	steelixmega: 984 + 16,
-	scizormega: 984 + 17,
-	heracrossmega: 984 + 18,
-	houndoommega: 984 + 19,
-	tyranitarmega: 984 + 20,
-	sceptilemega: 984 + 21,
-	blazikenmega: 984 + 22,
-	swampertmega: 984 + 23,
-	gardevoirmega: 984 + 24,
-	sableyemega: 984 + 25,
-	mawilemega: 984 + 26,
-	aggronmega: 984 + 27,
-	medichammega: 984 + 28,
-	manectricmega: 984 + 29,
-	sharpedomega: 984 + 30,
-	cameruptmega: 984 + 31,
-	altariamega: 984 + 32,
-	banettemega: 984 + 33,
-	absolmega: 984 + 34,
-	glaliemega: 984 + 35,
-	salamencemega: 984 + 36,
-	metagrossmega: 984 + 37,
-	latiasmega: 984 + 38,
-	latiosmega: 984 + 39,
-	kyogreprimal: 984 + 40,
-	groudonprimal: 984 + 41,
-	rayquazamega: 984 + 42,
-	lopunnymega: 984 + 43,
-	garchompmega: 984 + 44,
-	lucariomega: 984 + 45,
-	abomasnowmega: 984 + 46,
-	gallademega: 984 + 47,
-	audinomega: 984 + 48,
-	dianciemega: 984 + 49,
+	venusaurmega: 1104 + 0,
+	charizardmegax: 1104 + 1,
+	charizardmegay: 1104 + 2,
+	blastoisemega: 1104 + 3,
+	beedrillmega: 1104 + 4,
+	pidgeotmega: 1104 + 5,
+	alakazammega: 1104 + 6,
+	slowbromega: 1104 + 7,
+	gengarmega: 1104 + 8,
+	kangaskhanmega: 1104 + 9,
+	pinsirmega: 1104 + 10,
+	gyaradosmega: 1104 + 11,
+	aerodactylmega: 1104 + 12,
+	mewtwomegax: 1104 + 13,
+	mewtwomegay: 1104 + 14,
+	ampharosmega: 1104 + 15,
+	steelixmega: 1104 + 16,
+	scizormega: 1104 + 17,
+	heracrossmega: 1104 + 18,
+	houndoommega: 1104 + 19,
+	tyranitarmega: 1104 + 20,
+	sceptilemega: 1104 + 21,
+	blazikenmega: 1104 + 22,
+	swampertmega: 1104 + 23,
+	gardevoirmega: 1104 + 24,
+	sableyemega: 1104 + 25,
+	mawilemega: 1104 + 26,
+	aggronmega: 1104 + 27,
+	medichammega: 1104 + 28,
+	manectricmega: 1104 + 29,
+	sharpedomega: 1104 + 30,
+	cameruptmega: 1104 + 31,
+	altariamega: 1104 + 32,
+	banettemega: 1104 + 33,
+	absolmega: 1104 + 34,
+	glaliemega: 1104 + 35,
+	salamencemega: 1104 + 36,
+	metagrossmega: 1104 + 37,
+	latiasmega: 1104 + 38,
+	latiosmega: 1104 + 39,
+	kyogreprimal: 1104 + 40,
+	groudonprimal: 1104 + 41,
+	rayquazamega: 1104 + 42,
+	lopunnymega: 1104 + 43,
+	garchompmega: 1104 + 44,
+	lucariomega: 1104 + 45,
+	abomasnowmega: 1104 + 46,
+	gallademega: 1104 + 47,
+	audinomega: 1104 + 48,
+	dianciemega: 1104 + 49,
+	charizardgmax: 1104 + 50,
+	butterfreegmax: 1104 + 51,
+	pikachugmax: 1104 + 52,
+	meowthgmax: 1104 + 53,
+	machampgmax: 1104 + 54,
+	gengargmax: 1104 + 55,
+	kinglergmax: 1104 + 56,
+	laprasgmax: 1104 + 57,
+	eeveegmax: 1104 + 58,
+	snorlaxgmax: 1104 + 59,
+	garbodorgmax: 1104 + 60,
+	melmetalgmax: 1104 + 61,
+	corviknightgmax: 1104 + 62,
+	orbeetlegmax: 1104 + 63,
+	drednawgmax: 1104 + 64,
+	coalossalgmax: 1104 + 65,
+	flapplegmax: 1104 + 66,
+	appletungmax: 1104 + 67,
+	sandacondagmax: 1104 + 68,
+	toxtricitygmax: 1104 + 69,
+	toxtricitylowkeygmax: 1104 + 69,
+	centiskorchgmax: 1104 + 70,
+	hatterenegmax: 1104 + 71,
+	grimmsnarlgmax: 1104 + 72,
+	alcremiegmax: 1104 + 73,
+	copperajahgmax: 1104 + 74,
+	duraludongmax: 1104 + 75,
+	eternatuseternamax: 1104 + 76,
 
-	syclant: 1152 + 0,
-	revenankh: 1152 + 1,
-	pyroak: 1152 + 2,
-	fidgit: 1152 + 3,
-	stratagem: 1152 + 4,
-	arghonaut: 1152 + 5,
-	kitsunoh: 1152 + 6,
-	cyclohm: 1152 + 7,
-	colossoil: 1152 + 8,
-	krilowatt: 1152 + 9,
-	voodoom: 1152 + 10,
-	tomohawk: 1152 + 11,
-	necturna: 1152 + 12,
-	mollux: 1152 + 13,
-	aurumoth: 1152 + 14,
-	malaconda: 1152 + 15,
-	cawmodore: 1152 + 16,
-	volkraken: 1152 + 17,
-	plasmanta: 1152 + 18,
-	naviathan: 1152 + 19,
-	crucibelle: 1152 + 20,
-	crucibellemega: 1152 + 21,
-	kerfluffle: 1152 + 22,
-	pajantom: 1152 + 23,
-	jumbao: 1152 + 24,
-	caribolt: 1152 + 25,
-	smokomodo: 1152 + 26,
-	snaelstrom: 1152 + 27,
-	equilibra: 1152 + 28,
+	syclant: 1296 + 0,
+	revenankh: 1296 + 1,
+	pyroak: 1296 + 2,
+	fidgit: 1296 + 3,
+	stratagem: 1296 + 4,
+	arghonaut: 1296 + 5,
+	kitsunoh: 1296 + 6,
+	cyclohm: 1296 + 7,
+	colossoil: 1296 + 8,
+	krilowatt: 1296 + 9,
+	voodoom: 1296 + 10,
+	tomohawk: 1296 + 11,
+	necturna: 1296 + 12,
+	mollux: 1296 + 13,
+	aurumoth: 1296 + 14,
+	malaconda: 1296 + 15,
+	cawmodore: 1296 + 16,
+	volkraken: 1296 + 17,
+	plasmanta: 1296 + 18,
+	naviathan: 1296 + 19,
+	crucibelle: 1296 + 20,
+	crucibellemega: 1296 + 21,
+	kerfluffle: 1296 + 22,
+	pajantom: 1296 + 23,
+	jumbao: 1296 + 24,
+	caribolt: 1296 + 25,
+	smokomodo: 1296 + 26,
+	snaelstrom: 1296 + 27,
+	equilibra: 1296 + 28,
 
-	syclar: 1188 + 0,
-	embirch: 1188 + 1,
-	flarelm: 1188 + 2,
-	breezi: 1188 + 3,
-	scratchet: 1188 + 4,
-	necturine: 1188 + 5,
-	cupra: 1188 + 6,
-	argalis: 1188 + 7,
-	brattler: 1188 + 8,
-	cawdet: 1188 + 9,
-	volkritter: 1188 + 10,
-	snugglow: 1188 + 11,
-	floatoy: 1188 + 12,
-	caimanoe: 1188 + 13,
-	pluffle: 1188 + 14,
-	rebble: 1188 + 15,
-	tactite: 1188 + 16,
-	privatyke: 1188 + 17,
-	nohface: 1188 + 18,
-	monohm: 1188 + 19,
-	duohm: 1188 + 20,
-	// protowatt: 1188 + 21,
-	voodoll: 1188 + 22,
-	mumbao: 1188 + 23,
-	fawnifer: 1188 + 24,
-	electrelk: 1188 + 25,
-	smogecko: 1188 + 26,
-	smoguana: 1188 + 27,
-	swirlpool: 1188 + 28,
-	coribalis: 1188 + 29,
+	syclar: 1332 + 0,
+	embirch: 1332 + 1,
+	flarelm: 1332 + 2,
+	breezi: 1332 + 3,
+	scratchet: 1332 + 4,
+	necturine: 1332 + 5,
+	cupra: 1332 + 6,
+	argalis: 1332 + 7,
+	brattler: 1332 + 8,
+	cawdet: 1332 + 9,
+	volkritter: 1332 + 10,
+	snugglow: 1332 + 11,
+	floatoy: 1332 + 12,
+	caimanoe: 1332 + 13,
+	pluffle: 1332 + 14,
+	rebble: 1332 + 15,
+	tactite: 1332 + 16,
+	privatyke: 1332 + 17,
+	nohface: 1332 + 18,
+	monohm: 1332 + 19,
+	duohm: 1332 + 20,
+	// protowatt: 1332 + 21,
+	voodoll: 1332 + 22,
+	mumbao: 1332 + 23,
+	fawnifer: 1332 + 24,
+	electrelk: 1332 + 25,
+	smogecko: 1332 + 26,
+	smoguana: 1332 + 27,
+	swirlpool: 1332 + 28,
+	coribalis: 1332 + 29,
+	justyke: 1332 + 30,
 };
 
 const BattlePokemonIconIndexesLeft: {[id: string]: number} = {
-	pikachubelle: 1044 + 0,
-	pikachupopstar: 1044 + 1,
-	clefairy: 1044 + 2,
-	clefable: 1044 + 3,
-	jigglypuff: 1044 + 4,
-	wigglytuff: 1044 + 5,
-	dugtrioalola: 1044 + 6,
-	poliwhirl: 1044 + 7,
-	poliwrath: 1044 + 8,
-	mukalola: 1044 + 9,
-	kingler: 1044 + 10,
-	croconaw: 1044 + 11,
-	cleffa: 1044 + 12,
-	igglybuff: 1044 + 13,
-	politoed: 1044 + 14,
-	// unown gap
-	sneasel: 1044 + 35,
-	teddiursa: 1044 + 36,
-	roselia: 1044 + 37,
-	zangoose: 1044 + 38,
-	seviper: 1044 + 39,
-	castformsnowy: 1044 + 40,
-	absolmega: 1044 + 41,
-	absol: 1044 + 42,
-	regirock: 1044 + 43,
-	torterra: 1044 + 44,
-	budew: 1044 + 45,
-	roserade: 1044 + 46,
-	magmortar: 1044 + 47,
-	togekiss: 1044 + 48,
-	rotomwash: 1044 + 49,
-	shayminsky: 1044 + 50,
-	emboar: 1044 + 51,
-	pansear: 1044 + 52,
-	simisear: 1044 + 53,
-	drilbur: 1044 + 54,
-	excadrill: 1044 + 55,
-	sawk: 1044 + 56,
-	lilligant: 1044 + 57,
-	garbodor: 1044 + 58,
-	solosis: 1044 + 59,
-	vanilluxe: 1044 + 60,
-	amoonguss: 1044 + 61,
-	klink: 1044 + 62,
-	klang: 1044 + 63,
-	klinklang: 1044 + 64,
-	litwick: 1044 + 65,
-	golett: 1044 + 66,
-	golurk: 1044 + 67,
-	kyuremblack: 1044 + 68,
-	kyuremwhite: 1044 + 69,
-	kyurem: 1044 + 70,
-	keldeoresolute: 1044 + 71,
-	meloetta: 1044 + 72,
-	greninja: 1044 + 73,
-	greninjaash: 1044 + 74,
-	furfroudebutante: 1044 + 75,
-	barbaracle: 1044 + 76,
-	clauncher: 1044 + 77,
-	clawitzer: 1044 + 78,
-	sylveon: 1044 + 79,
-	klefki: 1044 + 80,
-	zygarde: 1044 + 81,
-	zygarde10: 1044 + 82,
-	zygardecomplete: 1044 + 83,
-	dartrix: 1044 + 84,
-	steenee: 1044 + 85,
-	tsareena: 1044 + 86,
-	comfey: 1044 + 87,
-	miniormeteor: 1044 + 88,
-	minior: 1044 + 89,
-	miniororange: 1044 + 90,
-	minioryellow: 1044 + 91,
-	miniorgreen: 1044 + 92,
-	miniorblue: 1044 + 93,
-	miniorviolet: 1044 + 94,
-	miniorindigo: 1044 + 95,
-	dhelmise: 1044 + 96,
-	necrozma: 1044 + 97,
-	marshadow: 1044 + 98,
-	pikachuoriginal: 1044 + 99,
-	pikachupartner: 1044 + 100,
-	necrozmaduskmane: 1044 + 101,
-	necrozmadawnwings: 1044 + 102,
-	necrozmaultra: 1044 + 103,
-	stakataka: 1044 + 104,
-	blacephalon: 1044 + 105,
+	pikachubelle: 1188 + 0,
+	pikachupopstar: 1188 + 1,
+	clefairy: 1188 + 2,
+	clefable: 1188 + 3,
+	jigglypuff: 1188 + 4,
+	wigglytuff: 1188 + 5,
+	dugtrioalola: 1188 + 6,
+	poliwhirl: 1188 + 7,
+	poliwrath: 1188 + 8,
+	mukalola: 1188 + 9,
+	kingler: 1188 + 10,
+	croconaw: 1188 + 11,
+	cleffa: 1188 + 12,
+	igglybuff: 1188 + 13,
+	politoed: 1188 + 14,
+	unownb: 1188 + 15,
+	unownc: 1188 + 16,
+	unownd: 1188 + 17,
+	unowne: 1188 + 18,
+	unownf: 1188 + 19,
+	unowng: 1188 + 20,
+	unownh: 1188 + 21,
+	unownj: 1188 + 22,
+	unownk: 1188 + 23,
+	unownl: 1188 + 24,
+	unownm: 1188 + 25,
+	unownn: 1188 + 26,
+	unownp: 1188 + 27,
+	unownq: 1188 + 28,
+	unownquestion: 1188 + 29,
+	unownr: 1188 + 30,
+	unowns: 1188 + 31,
+	unownt: 1188 + 32,
+	unownv: 1188 + 33,
+	unownz: 1188 + 34,
+	sneasel: 1188 + 35,
+	teddiursa: 1188 + 36,
+	roselia: 1188 + 37,
+	zangoose: 1188 + 38,
+	seviper: 1188 + 39,
+	castformsnowy: 1188 + 40,
+	absolmega: 1188 + 41,
+	absol: 1188 + 42,
+	regirock: 1188 + 43,
+	torterra: 1188 + 44,
+	budew: 1188 + 45,
+	roserade: 1188 + 46,
+	magmortar: 1188 + 47,
+	togekiss: 1188 + 48,
+	rotomwash: 1188 + 49,
+	shayminsky: 1188 + 50,
+	emboar: 1188 + 51,
+	pansear: 1188 + 52,
+	simisear: 1188 + 53,
+	drilbur: 1188 + 54,
+	excadrill: 1188 + 55,
+	sawk: 1188 + 56,
+	lilligant: 1188 + 57,
+	garbodor: 1188 + 58,
+	solosis: 1188 + 59,
+	vanilluxe: 1188 + 60,
+	amoonguss: 1188 + 61,
+	klink: 1188 + 62,
+	klang: 1188 + 63,
+	klinklang: 1188 + 64,
+	litwick: 1188 + 65,
+	golett: 1188 + 66,
+	golurk: 1188 + 67,
+	kyuremblack: 1188 + 68,
+	kyuremwhite: 1188 + 69,
+	kyurem: 1188 + 70,
+	keldeoresolute: 1188 + 71,
+	meloetta: 1188 + 72,
+	greninja: 1188 + 73,
+	greninjaash: 1188 + 74,
+	furfroudebutante: 1188 + 75,
+	barbaracle: 1188 + 76,
+	clauncher: 1188 + 77,
+	clawitzer: 1188 + 78,
+	sylveon: 1188 + 79,
+	klefki: 1188 + 80,
+	zygarde: 1188 + 81,
+	zygarde10: 1188 + 82,
+	zygardecomplete: 1188 + 83,
+	dartrix: 1188 + 84,
+	steenee: 1188 + 85,
+	tsareena: 1188 + 86,
+	comfey: 1188 + 87,
+	miniormeteor: 1188 + 88,
+	minior: 1188 + 89,
+	miniororange: 1188 + 90,
+	minioryellow: 1188 + 91,
+	miniorgreen: 1188 + 92,
+	miniorblue: 1188 + 93,
+	miniorviolet: 1188 + 94,
+	miniorindigo: 1188 + 95,
+	dhelmise: 1188 + 96,
+	necrozma: 1188 + 97,
+	marshadow: 1188 + 98,
+	pikachuoriginal: 1188 + 99,
+	pikachupartner: 1188 + 100,
+	necrozmaduskmane: 1188 + 101,
+	necrozmadawnwings: 1188 + 102,
+	necrozmaultra: 1188 + 103,
+	stakataka: 1188 + 104,
+	blacephalon: 1188 + 105,
 };
 
 const BattleAvatarNumbers: {[k: string]: string} = {
@@ -894,9 +930,9 @@ interface Effect {
 	readonly id: ID;
 	readonly name: string;
 	readonly gen: number;
-	readonly effectType: 'Item' | 'Move' | 'Ability' | 'Template' | 'PureEffect';
+	readonly effectType: 'Item' | 'Move' | 'Ability' | 'Species' | 'PureEffect';
 	/**
-	 * Do we have data on this item/move/ability/template?
+	 * Do we have data on this item/move/ability/species?
 	 * WARNING: Always false if the relevant data files aren't loaded.
 	 */
 	readonly exists: boolean;
@@ -934,13 +970,14 @@ class Item implements Effect {
 	readonly zMove: string | true | null;
 	readonly zMoveType: TypeName | '';
 	readonly zMoveFrom: string;
-	readonly zMoveUser: string[] | null;
+	readonly zMoveUser: readonly string[] | null;
 	readonly onPlate: TypeName;
 	readonly onMemory: TypeName;
 	readonly onDrive: TypeName;
 	readonly fling: any;
 	readonly naturalGift: any;
 	readonly isPokeball: boolean;
+	readonly itemUser?: readonly string[];
 
 	constructor(id: ID, name: string, data: any) {
 		if (!data || typeof data !== 'object') data = {};
@@ -967,6 +1004,7 @@ class Item implements Effect {
 		this.fling = data.fling || null;
 		this.naturalGift = data.naturalGift || null;
 		this.isPokeball = !!data.isPokeball;
+		this.itemUser = data.itemUser;
 
 		if (!this.gen) {
 			if (this.num >= 577) {
@@ -1027,6 +1065,11 @@ interface MoveFlags {
 	sound?: 1 | 0;
 }
 
+type MoveTarget = 'normal' | 'any' | 'adjacentAlly' | 'adjacentFoe' | 'adjacentAllyOrSelf' | // single-target
+	'self' | 'randomNormal' | // single-target, automatic
+	'allAdjacent' | 'allAdjacentFoes' | // spread
+	'allySide' | 'foeSide' | 'all'; // side and field
+
 class Move implements Effect {
 	// effect
 	readonly effectType = 'Move';
@@ -1041,25 +1084,25 @@ class Move implements Effect {
 	readonly type: TypeName;
 	readonly category: 'Physical' | 'Special' | 'Status';
 	readonly priority: number;
-	readonly target:
-		'normal' | 'any' | 'adjacentAlly' | 'adjacentFoe' | 'adjacentAllyOrSelf' | // single-target
-		'self' | 'randomNormal' | // single-target, automatic
-		'allAdjacent' | 'allAdjacentFoes' | // spread
-		'allySide' | 'foeSide' | 'all'; // side and field
+	readonly target: MoveTarget;
 	readonly flags: Readonly<MoveFlags>;
 	readonly critRatio: number;
 
 	readonly desc: string;
 	readonly shortDesc: string;
-	readonly isViable: boolean;
-	readonly isNonstandard: boolean;
+	readonly isNonstandard: string | null;
 	readonly isZ: ID;
-	readonly zMovePower: number;
-	readonly zMoveEffect: string;
-	readonly zMoveBoost: {[stat in StatName]?: number} | null;
+	readonly zMove?: {
+		basePower?: number,
+		effect?: string,
+		boost?: {[stat in StatName]?: number},
+	};
+	readonly isMax: boolean | string;
+	readonly maxMove: {basePower: number};
 	readonly ohko: true | 'Ice' | null;
 	readonly recoil: number[] | null;
 	readonly heal: number[] | null;
+	readonly multihit: number[] | number | null;
 	readonly hasCustomRecoil: boolean;
 	readonly noPPBoosts: boolean;
 	readonly secondaries: ReadonlyArray<any> | null;
@@ -1086,18 +1129,86 @@ class Move implements Effect {
 		// TODO: move to text.js
 		this.desc = data.desc;
 		this.shortDesc = data.shortDesc;
-		this.isViable = !!data.isViable;
-		this.isNonstandard = !!data.isNonstandard;
+		this.isNonstandard = data.isNonstandard || null;
 		this.isZ = data.isZ || '';
-		this.zMovePower = data.zMovePower || 0;
-		this.zMoveEffect = data.zMoveEffect || '';
-		this.zMoveBoost = data.zMoveBoost || null;
+		this.zMove = data.zMove || {};
 		this.ohko = data.ohko || null;
 		this.recoil = data.recoil || null;
 		this.heal = data.heal || null;
+		this.multihit = data.multihit || null;
 		this.hasCustomRecoil = data.hasCustomRecoil || false;
 		this.noPPBoosts = data.noPPBoosts || false;
 		this.secondaries = data.secondaries || (data.secondary ? [data.secondary] : null);
+
+		this.isMax = data.isMax || false;
+		this.maxMove = data.maxMove || {basePower: 0};
+		if (this.category !== 'Status' && !this.maxMove?.basePower) {
+			if (this.isZ || this.isMax) {
+				this.maxMove = {basePower: 1};
+			} else if (!this.basePower) {
+				this.maxMove = {basePower: 100};
+			} else if (['Fighting', 'Poison'].includes(this.type)) {
+				if (this.basePower >= 150) {
+					this.maxMove = {basePower: 100};
+				} else if (this.basePower >= 110) {
+					this.maxMove = {basePower: 95};
+				} else if (this.basePower >= 75) {
+					this.maxMove = {basePower: 90};
+				} else if (this.basePower >= 65) {
+					this.maxMove = {basePower: 85};
+				} else if (this.basePower >= 55) {
+					this.maxMove = {basePower: 80};
+				} else if (this.basePower >= 45) {
+					this.maxMove = {basePower: 75};
+				} else  {
+					this.maxMove = {basePower: 70};
+				}
+			} else {
+				if (this.basePower >= 150) {
+					this.maxMove = {basePower: 150};
+				} else if (this.basePower >= 110) {
+					this.maxMove = {basePower: 140};
+				} else if (this.basePower >= 75) {
+					this.maxMove = {basePower: 130};
+				} else if (this.basePower >= 65) {
+					this.maxMove = {basePower: 120};
+				} else if (this.basePower >= 55) {
+					this.maxMove = {basePower: 110};
+				} else if (this.basePower >= 45) {
+					this.maxMove = {basePower: 100};
+				} else  {
+					this.maxMove = {basePower: 90};
+				}
+			}
+		}
+		if (this.category !== 'Status' && !this.zMove && !this.isZ && !this.isMax) {
+			let basePower = this.basePower;
+			this.zMove = {};
+			if (Array.isArray(this.multihit)) basePower *= 3;
+			if (!basePower) {
+				this.zMove.basePower = 100;
+			} else if (basePower >= 140) {
+				this.zMove.basePower = 200;
+			} else if (basePower >= 130) {
+				this.zMove.basePower = 195;
+			} else if (basePower >= 120) {
+				this.zMove.basePower = 190;
+			} else if (basePower >= 110) {
+				this.zMove.basePower = 185;
+			} else if (basePower >= 100) {
+				this.zMove.basePower = 180;
+			} else if (basePower >= 90) {
+				this.zMove.basePower = 175;
+			} else if (basePower >= 80) {
+				this.zMove.basePower = 160;
+			} else if (basePower >= 70) {
+				this.zMove.basePower = 140;
+			} else if (basePower >= 60) {
+				this.zMove.basePower = 120;
+			} else {
+				this.zMove.basePower = 100;
+			}
+		}
 
 		this.num = data.num || 0;
 		if (!this.gen) {
@@ -1141,7 +1252,11 @@ class Ability implements Effect {
 		this.shortDesc = data.shortDesc || data.desc || '';
 		this.desc = data.desc || data.shortDesc || '';
 		if (!this.gen) {
-			if (this.num >= 165) {
+			if (this.num >= 234) {
+				this.gen = 8;
+			} else if (this.num >= 192) {
+				this.gen = 7;
+			} else if (this.num >= 165) {
 				this.gen = 6;
 			} else if (this.num >= 124) {
 				this.gen = 5;
@@ -1154,17 +1269,15 @@ class Ability implements Effect {
 	}
 }
 
-class Template implements Effect {
+class Species implements Effect {
 	// effect
-	readonly effectType = 'Template';
+	readonly effectType = 'Species';
 	readonly id: ID;
 	readonly name: string;
 	readonly gen: number;
 	readonly exists: boolean;
 
 	// name
-	readonly species: string;
-	readonly speciesid: ID;
 	readonly baseSpecies: string;
 	readonly forme: string;
 	readonly formeid: string;
@@ -1190,61 +1303,33 @@ class Template implements Effect {
 	readonly eggGroups: ReadonlyArray<string>;
 
 	// format data
-	readonly otherFormes: ReadonlyArray<ID> | null;
-	// TODO: rename to cosmeticForms
-	readonly otherForms: ReadonlyArray<ID> | null;
-	readonly evos: ReadonlyArray<ID> | null;
-	readonly prevo: ID;
+	readonly otherFormes: ReadonlyArray<string> | null;
+	readonly cosmeticFormes: ReadonlyArray<string> | null;
+	readonly evos: ReadonlyArray<string> | null;
+	readonly prevo: string;
+	readonly evoType: 'trade' | 'useItem' | 'levelMove' | 'levelExtra' | 'levelFriendship' | 'levelHold' | 'other' | '';
 	readonly evoLevel: number;
-	readonly evoType: 'trade' | 'stone' | 'levelMove' | 'levelExtra' | '';
+	readonly evoMove: string;
+	readonly evoItem: string;
+	readonly evoCondition: string;
 	readonly requiredItem: string;
 	readonly tier: string;
 	readonly isTotem: boolean;
 	readonly isMega: boolean;
+	readonly isGigantamax: boolean;
 	readonly isPrimal: boolean;
-	readonly battleOnly: boolean;
-	readonly isNonstandard: boolean;
-	readonly unreleasedHidden: boolean;
+	readonly battleOnly: string | string[] | undefined;
+	readonly isNonstandard: string | null;
+	readonly unreleasedHidden: boolean | 'Past';
+	readonly changesFrom: string | undefined;
 
 	constructor(id: ID, name: string, data: any) {
 		if (!data || typeof data !== 'object') data = {};
-		if (data.name || data.species) name = data.name || data.species;
+		if (data.name) name = data.name;
 		this.name = Dex.sanitizeName(name);
 		this.id = id;
 		this.gen = data.gen || 0;
 		this.exists = ('exists' in data ? !!data.exists : true);
-		this.species = this.name;
-		this.speciesid = this.id;
-		if (!data.abilities &&
-			!['hooh', 'hakamoo', 'jangmoo', 'kommoo', 'porygonz'].includes(this.id)) {
-			const dashIndex = name.indexOf('-');
-			if (this.id === 'kommoototem') {
-				data.baseSpecies = 'Kommo-o';
-				data.forme = 'Totem';
-			} else if (dashIndex > 0) {
-				data.baseSpecies = name.slice(0, dashIndex);
-				data.forme = name.slice(dashIndex + 1);
-			}
-		}
-		if (!data.abilities) {
-			// deprecated BattleBaseSpeciesChart
-			for (const baseid of BattleBaseSpeciesChart) {
-				if (this.id.length > baseid.length && this.id.slice(0, baseid.length) === baseid) {
-					data.baseSpecies = baseid;
-					data.forme = this.id.slice(baseid.length);
-				}
-			}
-			if (this.id !== 'yanmega' && this.id.slice(-4) === 'mega') {
-				data.baseSpecies = this.id.slice(0, -4);
-				data.forme = this.id.slice(-4);
-			} else if (this.id.slice(-6) === 'primal') {
-				data.baseSpecies = this.id.slice(0, -6);
-				data.forme = this.id.slice(-6);
-			} else if (this.id.slice(-5) === 'alola') {
-				data.baseSpecies = this.id.slice(0, -5);
-				data.forme = this.id.slice(-5);
-			}
-		}
 		this.baseSpecies = data.baseSpecies || name;
 		this.forme = data.forme || '';
 		const baseId = toID(this.baseSpecies);
@@ -1256,7 +1341,6 @@ class Template implements Effect {
 
 		this.num = data.num || 0;
 		this.types = data.types || ['???'];
-		let abilities: any = {0: "No Ability"};
 		this.abilities = data.abilities || {0: "No Ability"};
 		this.baseStats = data.baseStats || {hp: 0, atk: 0, def: 0, spa: 0, spd: 0, spe: 0};
 		this.weightkg = data.weightkg || 0;
@@ -1268,36 +1352,41 @@ class Template implements Effect {
 		this.eggGroups = data.eggGroups || [];
 
 		this.otherFormes = data.otherFormes || null;
-		this.otherForms = data.otherForms || null;
+		this.cosmeticFormes = data.cosmeticFormes || null;
 		this.evos = data.evos || null;
 		this.prevo = data.prevo || '';
-		this.evoLevel = data.evoLevel || 0;
 		this.evoType = data.evoType || '';
+		this.evoLevel = data.evoLevel || 0;
+		this.evoMove = data.evoMove || '';
+		this.evoItem = data.evoItem || '';
+		this.evoCondition = data.evoCondition || '';
 		this.requiredItem = data.requiredItem || '';
 		this.tier = data.tier || '';
 
 		this.isTotem = false;
 		this.isMega = false;
+		this.isGigantamax = !!(this.forme?.endsWith('Gmax'));
 		this.isPrimal = false;
-		this.battleOnly = !!data.battleOnly;
-		this.isNonstandard = !!data.isNonstandard;
-		this.unreleasedHidden = !!data.unreleasedHidden;
+		this.battleOnly = data.battleOnly || (this.isGigantamax ? this.baseSpecies : undefined);
+		this.isNonstandard = data.isNonstandard || null;
+		this.unreleasedHidden = data.unreleasedHidden || false;
+		this.changesFrom = data.changesFrom || undefined;
 		if (!this.gen) {
-			if (this.forme && ['-mega', '-megax', '-megay'].includes(this.formeid)) {
+			if (this.num >= 810 || this.forme === 'Galar' || this.isGigantamax) {
+				this.gen = 8;
+			} else if (this.num >= 722 || this.formeid === '-alola' || this.formeid === '-starter') {
+				this.gen = 7;
+			} else if (this.forme && ['-mega', '-megax', '-megay'].includes(this.formeid)) {
 				this.gen = 6;
 				this.isMega = true;
-				this.battleOnly = true;
+				this.battleOnly = this.baseSpecies;
 			} else if (this.formeid === '-primal') {
 				this.gen = 6;
 				this.isPrimal = true;
-				this.battleOnly = true;
+				this.battleOnly = this.baseSpecies;
 			} else if (this.formeid === '-totem' || this.formeid === '-alolatotem') {
 				this.gen = 7;
 				this.isTotem = true;
-			} else if (this.formeid === '-alola' || this.formeid === '-starter') {
-				this.gen = 7;
-			} else if (this.num >= 722) {
-				this.gen = 7;
 			} else if (this.num >= 650) {
 				this.gen = 6;
 			} else if (this.num >= 494) {
@@ -1318,10 +1407,9 @@ class Template implements Effect {
 if (typeof require === 'function') {
 	// in Node
 	(global as any).BattleBaseSpeciesChart = BattleBaseSpeciesChart;
-	(global as any).BattleStats = BattleStats;
 	(global as any).BattleNatures = BattleNatures;
 	(global as any).PureEffect = PureEffect;
-	(global as any).Template = Template;
+	(global as any).Species = Species;
 	(global as any).Ability = Ability;
 	(global as any).Item = Item;
 	(global as any).Move = Move;

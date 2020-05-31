@@ -136,22 +136,20 @@ class RoomsPanel extends PSRoomPanel {
 				<i class="fa fa-caret-right"></i> Hide
 			</button>
 			<div class="roomcounters">
-				<span
-					style="background:transparent url(https://play.pokemonshowdown.com/sprites/smicons-sheet.png?a5) no-repeat scroll -0px -2790px;"
-					class="picon icon-left"
-					title="Meloetta is PS's mascot! The Aria forme is about using its voice, and represents our chatrooms."
-				></span> {}
 				<button class="button" data-href="/users" title="Find an online user">
+					<span
+						class="pixelated usercount"
+						title="Meloetta is PS's mascot! The Aria forme is about using its voice, and represents our chatrooms."
+					></span>
 					<strong>{rooms.userCount || '-'}</strong> users online
 				</button> {}
 				<button class="button" data-href="/battles" title="Watch an active battle">
+					<span
+						class="pixelated battlecount"
+						title="Meloetta is PS's mascot! The Pirouette forme is Fighting-type, and represents our battles."
+					></span>
 					<strong>{rooms.battleCount || '-'}</strong> active battles
-				</button> {}
-				<span
-					style="background:transparent url(https://play.pokemonshowdown.com/sprites/smicons-sheet.png?a5) no-repeat scroll -0px -2220px"
-					class="picon icon-right"
-					title="Meloetta is PS's mascot! The Pirouette forme is Fighting-type, and represents our battles."
-				></span>
+				</button>
 			</div>
 			<div>
 				<input
@@ -171,7 +169,7 @@ class RoomsPanel extends PSRoomPanel {
 		return <div class="roomlist">
 			<h2>{title}</h2>
 			{sortedRooms.map(roomInfo => <div>
-				<a href={`/${toID(roomInfo.title)}`} class="ilink">
+				<a href={`/${toID(roomInfo.title)}`} class="blocklink">
 					{roomInfo.userCount !== undefined && <small style="float:right">({roomInfo.userCount} users)</small>}
 					<strong><i class="fa fa-comment-o"></i> {roomInfo.title}<br /></strong>
 					<small>{roomInfo.desc || ''}</small>

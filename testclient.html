@@ -1,13 +1,13 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html>
 	<head>
-		<meta charset="utf-8" />
+		<meta charset="UTF-8" />
 		<meta id="viewport" name="viewport" content="width=device-width" />
 		<title>Showdown!</title>
 		<link rel="shortcut icon" href="favicon.ico" id="dynamic-favicon" />
+		<link rel="stylesheet" href="style/battle.css" />
 		<link rel="stylesheet" href="style/client.css" />
 		<link rel="stylesheet" href="style/sim-types.css" />
-		<link rel="stylesheet" href="style/battle.css" />
 		<link rel="stylesheet" href="style/utilichart.css" />
 		<link rel="stylesheet" href="style/font-awesome.css" />
 		<meta name="robots" content="noindex" />
@@ -71,6 +71,7 @@
 		<script src="js/lib/jquery-cookie.js"></script>
 		<script src="js/lib/autoresize.jquery.min.js"></script>
 		<script src="js/lib/soundmanager2-nodebug-jsmin.js"></script>
+		<script src="config/testclient-key.js"></script>
 		<script>
 			soundManager.setup({url: 'swf/'});
 		</script>
@@ -117,6 +118,7 @@
 
 		<script src="data/search-index.js" onerror="loadRemoteData(this.src)"></script>
 		<script src="data/teambuilder-tables.js" onerror="loadRemoteData(this.src)"></script>
+		<script src="js/battle-dex-search.js"></script>
 		<script src="js/search.js"></script>
 
 		<script src="data/aliases.js" async="async" onerror="loadRemoteData(this.src)"></script>

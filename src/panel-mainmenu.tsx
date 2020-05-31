@@ -12,6 +12,7 @@ class MainMenuRoom extends PSRoom {
 	userdetailsCache: {[userid: string]: {
 		userid: ID,
 		avatar?: string | number,
+		status?: string,
 		group?: string,
 		rooms?: {[roomid: string]: {isPrivate?: true, p1?: string, p2?: string}},
 	}} = {};
@@ -22,40 +23,46 @@ class MainMenuRoom extends PSRoom {
 		official?: RoomInfo[],
 		pspl?: RoomInfo[],
 	} = {};
-	receive(line: string) {
-		const tokens = PS.lineParse(line);
-		switch (tokens[0]) {
-		case 'challstr':
+	receiveLine(args: Args) {
+		const [cmd] = args;
+		switch (cmd) {
+		case 'challstr': {
+			const [, challstr] = args;
 			PSLoginServer.query({
 				act: 'upkeep',
-				challstr: tokens[1],
+				challstr,
 			}, res => {
 				if (!res) return;
 				if (!res.loggedin) return;
 				this.send(`/trn ${res.username},0,${res.assertion}`);
 			});
 			return;
-		case 'updateuser':
-			PS.user.setName(tokens[1], tokens[2] === '1', tokens[3]);
+		} case 'updateuser': {
+			const [, fullName, namedCode, avatar] = args;
+			PS.user.setName(fullName, namedCode === '1', avatar);
 			return;
-		case 'updatechallenges':
-			this.receiveChallenges(tokens[1]);
+		} case 'updatechallenges': {
+			const [, challengesBuf] = args;
+			this.receiveChallenges(challengesBuf);
 			return;
-		case 'queryresponse':
-			this.handleQueryResponse(tokens[1] as ID, JSON.parse(tokens[2]));
+		} case 'queryresponse': {
+			const [, queryId, responseJSON] = args;
+			this.handleQueryResponse(queryId as ID, JSON.parse(responseJSON));
 			return;
-		case 'pm':
-			this.handlePM(tokens[1], tokens[2], tokens[3]);
+		} case 'pm': {
+			const [, user1, user2, message] = args;
+			this.handlePM(user1, user2, message);
 			return;
-		case 'formats':
-			this.parseFormats(tokens);
+		} case 'formats': {
+			this.parseFormats(args);
 			return;
-		case 'popup':
-			alert(tokens[1]);
+		} case 'popup': {
+			const [, message] = args;
+			alert(message.replace(/\|\|/g, '\n'));
 			return;
-		}
+		}}
 		const lobby = PS.rooms['lobby'];
-		if (lobby) lobby.receive(line);
+		if (lobby) lobby.receiveLine(args);
 	}
 	receiveChallenges(dataBuf: string) {
 		let json;
@@ -73,12 +80,12 @@ class MainMenuRoom extends PSRoom {
 			if (!room.pmTarget) continue;
 			const targetUserid = toID(room.pmTarget);
 			if (!room.challengedFormat && !(targetUserid in json.challengesFrom) &&
-				!room.challengingFormat && (json.challengeTo || {}).to !== targetUserid) {
+				!room.challengingFormat && json.challengeTo?.to !== targetUserid) {
 				continue;
 			}
 			room.challengedFormat = json.challengesFrom[targetUserid] || null;
-			room.challengingFormat = json.challengeTo.to === targetUserid ? json.challengeTo.format : null;
-			room.update('');
+			room.challengingFormat = json.challengeTo?.to === targetUserid ? json.challengeTo.format : null;
+			room.update(null);
 		}
 	}
 	parseFormats(formatsList: string[]) {
@@ -164,7 +171,7 @@ class MainMenuRoom extends PSRoom {
 						isTeambuilderFormat = false;
 					}
 				}
-				if (BattleFormats[id] && BattleFormats[id].isTeambuilderFormat) {
+				if (BattleFormats[id]?.isTeambuilderFormat) {
 					isTeambuilderFormat = true;
 				}
 				// make sure formats aren't out-of-order
@@ -217,7 +224,7 @@ class MainMenuRoom extends PSRoom {
 			}, true);
 			room = PS.rooms[roomid]!;
 		}
-		room.receive(`|c|${user1}|${message}`);
+		room.receiveLine([`c`, user1, message]);
 		PS.update();
 	}
 	handleQueryResponse(id: ID, response: any) {
@@ -231,24 +238,64 @@ class MainMenuRoom extends PSRoom {
 				Object.assign(userdetails, response);
 			}
 			const userRoom = PS.rooms[`user-${userid}`] as UserRoom;
-			if (userRoom) userRoom.update('');
+			if (userRoom) userRoom.update(null);
 			break;
 		case 'rooms':
 			this.roomsCache = response;
 			const roomsRoom = PS.rooms[`rooms`] as RoomsRoom;
-			if (roomsRoom) roomsRoom.update('');
+			if (roomsRoom) roomsRoom.update(null);
 			break;
+		case 'roomlist':
+			const battlesRoom = PS.rooms[`battles`] as BattlesRoom;
+			if (battlesRoom) {
+				const battleTable = response.rooms;
+				const battles = [];
+				for (const battleid in battleTable) {
+					battleTable[battleid].id = battleid;
+					battles.push(battleTable[battleid]);
+				}
+				battlesRoom.battles = battles;
+				battlesRoom.update(null);
+			}
 		}
 	}
 }
 
-class MainMenuPanel extends PSRoomPanel {
+class NewsPanel extends PSRoomPanel {
+	render() {
+		return <PSPanelWrapper room={this.props.room} scrollable>
+			<div class="mini-window-body" dangerouslySetInnerHTML={{__html: PS.newsHTML}}></div>
+		</PSPanelWrapper>;
+	}
+}
+
+class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
 	focus() {
 		(this.base!.querySelector('button.big') as HTMLButtonElement).focus();
 	}
 	submit = (e: Event) => {
 		alert('todo: implement');
 	};
+	renderMiniRoom(room: PSRoom) {
+		const roomType = PS.roomTypes[room.type];
+		const Panel = roomType ? roomType.Component : PSRoomPanel;
+		return <Panel key={room.id} room={room} />;
+	}
+	renderMiniRooms() {
+		return PS.miniRoomList.map(roomid => {
+			const room = PS.rooms[roomid]!;
+			return <div class="pmbox">
+				<div class="mini-window">
+					<h3>
+						<button class="closebutton" name="closeRoom" value={roomid} aria-label="Close" tabIndex={-1}><i class="fa fa-times-circle"></i></button>
+						<button class="minimizebutton" tabIndex={-1}><i class="fa fa-minus-circle"></i></button>
+						{room.title}
+					</h3>
+					{this.renderMiniRoom(room)}
+				</div>
+			</div>;
+		});
+	}
 	render() {
 		const onlineButton = ' button' + (PS.isOffline ? ' disabled' : '');
 		const searchButton = (PS.down ? <div class="menugroup" style="background: rgba(10,10,10,.6)">
@@ -259,7 +306,7 @@ class MainMenuPanel extends PSRoomPanel {
 			}
 			<p>
 				<div style={{textAlign: 'center'}}>
-					<img width="96" height="96" src="//play.pokemonshowdown.com/sprites/bw/teddiursa.png" alt="" />
+					<img width="96" height="96" src="//play.pokemonshowdown.com/sprites/gen5/teddiursa.png" alt="" />
 				</div>
 				Bear with us as we freak out.
 			</p>
@@ -274,22 +321,7 @@ class MainMenuPanel extends PSRoomPanel {
 			<div class="mainmenuwrapper">
 				<div class="leftmenu">
 					<div class="activitymenu">
-						<div class="pmbox">
-							<div class="pm-window news-embed" data-newsid="<!-- newsid -->">
-								<h3>
-									<button class="closebutton" tabIndex={-1}><i class="fa fa-times-circle"></i></button>
-									<button class="minimizebutton" tabIndex={-1}><i class="fa fa-minus-circle"></i></button>
-									News
-								</h3>
-								<div class="pm-log" style="max-height:none">
-									<div class="newsentry">
-										<h4>Test client</h4>
-										<p>Welcome to the test client! You can test client changes here!</p>
-										<p>&mdash;<strong>Zarel</strong> <small class="date">on Sep 25, 2015</small></p>
-									</div>
-								</div>
-							</div>
-						</div>
+						{this.renderMiniRooms()}
 					</div>
 					<div class="mainmenu">
 						{searchButton}
@@ -332,10 +364,7 @@ class MainMenuPanel extends PSRoomPanel {
 class FormatDropdown extends preact.Component<{format?: string, onChange?: JSX.EventHandler<Event>}> {
 	base?: HTMLButtonElement;
 	getFormat() {
-		if (this.base && this.base.value) {
-			return this.base.value;
-		}
-		return '[Gen 7] Random Battle';
+		return this.base?.value || '[Gen 7] Random Battle';
 	}
 	componentDidMount() {
 		this.base!.value = this.getFormat();
@@ -379,18 +408,18 @@ class TeamDropdown extends preact.Component<{format: string}> {
 	change = () => this.forceUpdate();
 	render() {
 		const formatid = PS.teams.teambuilderFormat(this.props.format);
-		const formatData = window.BattleFormats && BattleFormats[formatid];
+		const formatData = window.BattleFormats?.[formatid];
 		if (formatData && formatData.team) {
 			return <button class="select teamselect preselected" name="team" value="random" disabled>
 				<div class="team">
 					<strong>Random team</strong>
 					<small>
-						<span class="picon" style="float:left;background:transparent url(https://play.pokemonshowdown.com/sprites/smicons-sheet.png?a6) no-repeat scroll -0px -0px"></span>
-						<span class="picon" style="float:left;background:transparent url(https://play.pokemonshowdown.com/sprites/smicons-sheet.png?a6) no-repeat scroll -0px -0px"></span>
-						<span class="picon" style="float:left;background:transparent url(https://play.pokemonshowdown.com/sprites/smicons-sheet.png?a6) no-repeat scroll -0px -0px"></span>
-						<span class="picon" style="float:left;background:transparent url(https://play.pokemonshowdown.com/sprites/smicons-sheet.png?a6) no-repeat scroll -0px -0px"></span>
-						<span class="picon" style="float:left;background:transparent url(https://play.pokemonshowdown.com/sprites/smicons-sheet.png?a6) no-repeat scroll -0px -0px"></span>
-						<span class="picon" style="float:left;background:transparent url(https://play.pokemonshowdown.com/sprites/smicons-sheet.png?a6) no-repeat scroll -0px -0px"></span>
+						<span class="picon" style="float:left;background:transparent url(https://play.pokemonshowdown.com/sprites/pokemonicons-sheet.png?a6) no-repeat scroll -0px -0px"></span>
+						<span class="picon" style="float:left;background:transparent url(https://play.pokemonshowdown.com/sprites/pokemonicons-sheet.png?a6) no-repeat scroll -0px -0px"></span>
+						<span class="picon" style="float:left;background:transparent url(https://play.pokemonshowdown.com/sprites/pokemonicons-sheet.png?a6) no-repeat scroll -0px -0px"></span>
+						<span class="picon" style="float:left;background:transparent url(https://play.pokemonshowdown.com/sprites/pokemonicons-sheet.png?a6) no-repeat scroll -0px -0px"></span>
+						<span class="picon" style="float:left;background:transparent url(https://play.pokemonshowdown.com/sprites/pokemonicons-sheet.png?a6) no-repeat scroll -0px -0px"></span>
+						<span class="picon" style="float:left;background:transparent url(https://play.pokemonshowdown.com/sprites/pokemonicons-sheet.png?a6) no-repeat scroll -0px -0px"></span>
 					</small>
 				</div>
 			</button>;
@@ -439,6 +468,10 @@ class TeamForm extends preact.Component<{
 		</form>;
 	}
 }
+
+PS.roomTypes['news'] = {
+	Component: NewsPanel,
+};
 
 PS.roomTypes['mainmenu'] = {
 	Model: MainMenuRoom,

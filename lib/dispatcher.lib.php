@@ -529,9 +529,9 @@ class LadderActionHandler {
 	// There's no need to make a database query for this.
 	private function getUserData($username) {
 		if (!$username) $username = '';
-		if (mb_strlen($username) > 18) return false;
 		$userid = strtr($username, "ABCDEFGHIJKLMNOPQRSTUVWXYZ", "abcdefghijklmnopqrstuvwxyz");
 		$userid = preg_replace('/[^A-Za-z0-9]+/', '', $userid);
+		if (mb_strlen($userid) > 18) return false;
 		return array('userid' => $userid, 'username' => $username);
 	}
 

@@ -2238,6 +2238,7 @@ const BattleMoveAnims: AnimTable = {
 			}, 'decel', 'fade');
 		},
 	},
+
 	craftyshield: {
 		anim: BattleOtherAnims.selfstatus.anim,
 	},
@@ -16613,6 +16614,51 @@ const BattleMoveAnims: AnimTable = {
 			}, 'ballistic');
 		},
 	},
+	gmaxsteelsurge: {
+		anim(scene, [attacker, defender]) {
+			scene.showEffect('greenmetal1', {
+				x: attacker.x,
+				y: attacker.y,
+				z: attacker.z,
+				scale: 0.1,
+				opacity: 0.5,
+			}, {
+				x: defender.leftof(-30),
+				y: defender.y - 20,
+				z: defender.z,
+				scale: 0.3,
+				opacity: 1,
+			}, 'ballistic');
+			scene.showEffect('greenmetal2', {
+				x: attacker.x,
+				y: attacker.y,
+				z: attacker.z,
+				scale: 0.1,
+				opacity: 0.5,
+				time: 250,
+			}, {
+				x: defender.leftof(35),
+				y: defender.y - 15,
+				z: defender.z,
+				scale: 0.3,
+				opacity: 1,
+			}, 'ballistic');
+			scene.showEffect('greenmetal1', {
+				x: attacker.x,
+				y: attacker.y,
+				z: attacker.z,
+				scale: 0.1,
+				opacity: 0.5,
+				time: 125,
+			}, {
+				x: defender.leftof(50),
+				y: defender.y - 10,
+				z: defender.z,
+				scale: 0.3,
+				opacity: 1,
+			}, 'ballistic');
+		},
+	},
 	spikes: {
 		anim(scene, [attacker, defender]) {
 			scene.showEffect('caltrop', {
@@ -30725,3 +30771,70 @@ BattleMoveAnims['genesissupernova'] = {anim: BattleMoveAnims['psychoboost'].anim
 BattleMoveAnims['10000000voltthunderbolt'] = {anim: BattleMoveAnims['triattack'].anim};
 BattleMoveAnims['menacingmoonrazemaelstrom'] = {anim: BattleMoveAnims['moongeistbeam'].anim};
 BattleMoveAnims['lightthatburnsthesky'] = {anim: BattleMoveAnims['fusionflare'].anim};
+
+BattleMoveAnims['maxflutterby'] = BattleMoveAnims['savagespinout'];
+BattleMoveAnims['gmaxbefuddle'] = BattleMoveAnims['savagespinout'];
+BattleMoveAnims['maxdarkness'] = BattleMoveAnims['maliciousmoonsault'];
+BattleMoveAnims['gmaxsnooze'] = BattleMoveAnims['maliciousmoonsault'];
+BattleMoveAnims['maxwyrmwind'] = BattleMoveAnims['devastatingdrake'];
+BattleMoveAnims['gmaxdepletion'] = BattleMoveAnims['devastatingdrake'];
+BattleMoveAnims['maxlightning'] = BattleMoveAnims['gigavolthavoc'];
+BattleMoveAnims['maxstarfall'] = BattleMoveAnims['twinkletackle'];
+BattleMoveAnims['gmaxfinale'] = BattleMoveAnims['twinkletackle'];
+BattleMoveAnims['gmaxsmite'] = BattleMoveAnims['twinkletackle'];
+BattleMoveAnims['maxknuckle'] = BattleMoveAnims['alloutpummeling'];
+BattleMoveAnims['maxflare'] = BattleMoveAnims['infernooverdrive'];
+BattleMoveAnims['gmaxcentiferno'] = BattleMoveAnims['infernooverdrive'];
+BattleMoveAnims['maxairstream'] = BattleMoveAnims['supersonicskystrike'];
+BattleMoveAnims['maxphantasm'] = BattleMoveAnims['neverendingnightmare'];
+BattleMoveAnims['maxovergrowth'] = BattleMoveAnims['bloomdoom'];
+BattleMoveAnims['maxquake'] = BattleMoveAnims['tectonicrage'];
+BattleMoveAnims['gmaxsandblast'] = BattleMoveAnims['tectonicrage'];
+BattleMoveAnims['maxhailstorm'] = BattleMoveAnims['subzeroslammer'];
+BattleMoveAnims['gmaxresonance'] = BattleMoveAnims['subzeroslammer'];
+BattleMoveAnims['maxstrike'] = BattleMoveAnims['breakneckblitz'];
+BattleMoveAnims['gmaxcuddle'] = BattleMoveAnims['breakneckblitz'];
+BattleMoveAnims['gmaxreplenish'] = BattleMoveAnims['breakneckblitz'];
+BattleMoveAnims['maxooze'] = BattleMoveAnims['aciddownpour'];
+BattleMoveAnims['gmaxmalodor'] = BattleMoveAnims['aciddownpour'];
+BattleMoveAnims['maxmindstorm'] = BattleMoveAnims['shatteredpsyche'];
+BattleMoveAnims['gmaxgravitas'] = BattleMoveAnims['shatteredpsyche'];
+BattleMoveAnims['maxrockfall'] = BattleMoveAnims['continentalcrush'];
+BattleMoveAnims['maxsteelspike'] = BattleMoveAnims['corkscrewcrash'];
+BattleMoveAnims['maxgeyser'] = BattleMoveAnims['hydrovortex'];
+
+BattleMoveAnims['dynamaxcannon'] = {anim: BattleMoveAnims['dragonpulse'].anim};
+BattleMoveAnims['snipeshot'] = {anim: BattleMoveAnims['waterpulse'].anim};
+BattleMoveAnims['jawlock'] = {anim: BattleMoveAnims['crunch'].anim};
+BattleMoveAnims['stuffcheeks'] = {anim: BattleMoveAnims['stockpile'].anim};
+BattleMoveAnims['noretreat'] = {anim: BattleMoveAnims['stockpile'].anim};
+BattleMoveAnims['tarshot'] = {anim: BattleMoveAnims['mudbomb'].anim};
+BattleMoveAnims['magicpowder'] = {anim: BattleMoveAnims['spore'].anim};
+BattleMoveAnims['dragondarts'] = {anim: BattleMoveAnims['dragonbreath'].anim};
+BattleMoveAnims['teatime'] = {anim: BattleMoveAnims['healbell'].anim};
+BattleMoveAnims['octolock'] = {anim: BattleMoveAnims['bind'].anim};
+BattleMoveAnims['boltbeak'] = {anim: BattleMoveAnims['spark'].anim};
+BattleMoveAnims['courtchange'] = {anim: BattleMoveAnims['skillswap'].anim};
+BattleMoveAnims['clangoroussoul'] = {anim: BattleMoveAnims['extremeevoboost'].anim};
+BattleMoveAnims['bodypress'] = {anim: BattleMoveAnims['heavyslam'].anim};
+BattleMoveAnims['decorate'] = {anim: BattleMoveAnims['spore'].anim};
+BattleMoveAnims['drumbeating'] = {anim: BattleMoveAnims['magicalleaf'].anim};
+BattleMoveAnims['snaptrap'] = {anim: BattleMoveAnims['magicalleaf'].anim};
+BattleMoveAnims['pyroball'] = {anim: BattleMoveAnims['flameburst'].anim};
+BattleMoveAnims['behemothblade'] = {anim: BattleMoveAnims['smartstrike'].anim};
+BattleMoveAnims['behemothbash'] = {anim: BattleMoveAnims['smartstrike'].anim};
+BattleMoveAnims['aurawheel'] = {anim: BattleMoveAnims['discharge'].anim};
+BattleMoveAnims['breakingswipe'] = {anim: BattleMoveAnims['dragonclaw'].anim};
+BattleMoveAnims['branchpoke'] = {anim: BattleMoveAnims['vinewhip'].anim};
+BattleMoveAnims['overdrive'] = {anim: BattleMoveAnims['discharge'].anim};
+BattleMoveAnims['appleacid'] = {anim: BattleMoveAnims['energyball'].anim};
+BattleMoveAnims['gravapple'] = {anim: BattleMoveAnims['energyball'].anim};
+BattleMoveAnims['spiritbreak'] = {anim: BattleMoveAnims['moonblast'].anim};
+BattleMoveAnims['lifedew'] = {anim: BattleMoveAnims['bubblebeam'].anim};
+BattleMoveAnims['obstruct'] = {anim: BattleMoveAnims['kingsshield'].anim};
+BattleMoveAnims['maxguard'] = {anim: BattleMoveAnims['banefulbunker'].anim};
+BattleMoveAnims['falsesurrender'] = {anim: BattleMoveAnims['feintattack'].anim};
+BattleMoveAnims['meteorassault'] = {anim: BattleMoveAnims['aurasphere'].anim};
+BattleMoveAnims['eternabeam'] = {anim: BattleMoveAnims['roaroftime'].anim};
+BattleMoveAnims['steelbeam'] = {anim: BattleMoveAnims['magnetbomb'].anim};
+BattleMoveAnims['strangesteam'] = {anim: BattleMoveAnims['dazzlinggleam'].anim};

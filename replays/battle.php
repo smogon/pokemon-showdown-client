@@ -52,10 +52,11 @@ if (file_exists('caches/' . $id . '.inc.php')) {
 	}
 	$replay = $Replays->get($id, $forcecache);
 }
-if (!$replay) {
+if (!$replay || ($replay['private'] === 3 && !$manage)) {
 	include '404.php';
 	die();
 }
+$fullid = $id . ($replay['password'] ? '-' . $replay['password'] . 'pw' : '');
 
 if (@$replay['private']) {
 	header('X-Robots-Tag: noindex');
@@ -130,7 +131,7 @@ $panels->start();
 
 			<?php if (@$replay['private']) echo '<strong>THIS REPLAY IS PRIVATE</strong> - make sure you have the owner\'s permission to share<br />'; ?>
 
-			<pre class="urlbox" style="word-wrap: break-word;"><?php echo htmlspecialchars('http://replay.pokemonshowdown.com/'.$fullid); ?></pre>
+			<pre class="urlbox" style="word-wrap: break-word;"><?php echo htmlspecialchars('https://replay.pokemonshowdown.com/'.$fullid); ?></pre>
 
 			<h1 style="font-weight:normal;text-align:left"><strong><?= htmlspecialchars($format) ?></strong>: <a href="//pokemonshowdown.com/users/<?= userid($replay['p1']) ?>" class="subtle"><?= htmlspecialchars($replay['p1']) ?></a> vs. <a href="//pokemonshowdown.com/users/<?= userid($replay['p2']) ?>" class="subtle"><?= htmlspecialchars($replay['p2']) ?></a></h1>
 			<p style="padding:0 1em;margin-top:0">
@@ -146,15 +147,25 @@ if ($manage) {
 		echo '<p>Edited.</p>';
 	}
 ?>
-			<form action="/<?= $replay['id'] ?>/manage" method="post" style="margin-top:1em" data-target="replace">
+			Change privacy: <form action="/<?= $replay['id'] ?>/manage" method="post" style="display: inline" data-target="replace">
+				<?php $users->csrfData(); ?>
+				<input type="hidden" name="private" value="3" />
+				<button type="submit" name="private" value="3"<?= $replay['private'] === 3 ? ' disabled' : '' ?>>Deleted</button>
+			</form>
+			<form action="/<?= $replay['id'] ?>/manage" method="post" style="display: inline" data-target="replace">
 				<?php $users->csrfData(); ?>
 				<input type="hidden" name="private" value="1" />
-				<button type="submit" name="private" value="1">Private</button>
+				<button type="submit" name="private" value="1"<?= $replay['private'] === 1 && $replay['password'] ? ' disabled' : '' ?>>Private</button>
 			</form>
-			<form action="/<?= $replay['id'] ?>/manage" method="post" style="margin-top:1em" data-target="replace">
+			<form action="/<?= $replay['id'] ?>/manage" method="post" style="display: inline" data-target="replace">
+				<?php $users->csrfData(); ?>
+				<input type="hidden" name="private" value="2" />
+				<button type="submit" name="private" value="2"<?= $replay['private'] === 1 && !$replay['password'] ? ' disabled' : '' ?>>Private (no password)</button>
+			</form>
+			<form action="/<?= $replay['id'] ?>/manage" method="post" style="display: inline" data-target="replace">
 				<?php $users->csrfData(); ?>
 				<input type="hidden" name="private" value="0" />
-				<button type="submit" name="private" value="0">Public</button>
+				<button type="submit" name="private" value="0"<?= !$replay['private'] ? ' disabled' : '' ?>>Public</button>
 			</form>
 <?php
 }

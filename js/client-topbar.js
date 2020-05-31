@@ -670,10 +670,14 @@
 			buf += '<p><button name="close">Cancel</button></p>';
 			this.$el.html(buf).css('max-width', 780);
 		},
-		setAvatar: function (i) {
-			app.send('/avatar ' + i);
+		setAvatar: function (avatar) {
+			// Replace avatar number with name before sending it to the server, only the client knows what to do with the numbers
+			if (window.BattleAvatarNumbers && Object.prototype.hasOwnProperty.call(window.BattleAvatarNumbers, avatar)) {
+				avatar = window.BattleAvatarNumbers[avatar];
+			}
+			app.send('/avatar ' + avatar);
 			app.send('/cmd userdetails ' + app.user.get('userid'));
-			Dex.prefs('avatar', i);
+			Dex.prefs('avatar', avatar);
 			this.close();
 		}
 	});
@@ -800,6 +804,12 @@
 			if (data.error) {
 				buf += '<p class="error">' + BattleLog.escapeHTML(data.error) + '</p>';
 				if (data.error.indexOf('inappropriate') >= 0) {
+					// log out so we don't autologin to a bad name if we refresh
+					$.post(app.user.getActionPHP(), {
+						act: 'logout',
+						userid: app.user.get('userid')
+					});
+
 					buf += '<p>Keep in mind these rules:</p>';
 					buf += '<ol>';
 					buf += '<li>Usernames may not impersonate a recognized user (a user with %, @, &, or ~ next to their name).</li>';
@@ -915,7 +925,7 @@
 			buf += '<p><label class="label">Username: <strong><input type="text" name="name" value="' + BattleLog.escapeHTML(data.name || app.user.get('name')) + '" style="color:inherit;background:transparent;border:0;font:inherit;font-size:inherit;display:block" readonly autocomplete="username" /></strong></label></p>';
 			buf += '<p><label class="label">Password: <input class="textbox autofocus" type="password" name="password" autocomplete="new-password" /></label></p>';
 			buf += '<p><label class="label">Password (confirm): <input class="textbox" type="password" name="cpassword" autocomplete="new-password" /></label></p>';
-			buf += '<p><label class="label"><img src="' + Dex.resourcePrefix + 'sprites/bwani/pikachu.gif" alt="An Electric-type mouse that is the mascot of the Pok\u00E9mon franchise." /></label></p>';
+			buf += '<p><label class="label"><img src="' + Dex.resourcePrefix + 'sprites/gen5ani/pikachu.gif" alt="An Electric-type mouse that is the mascot of the Pok\u00E9mon franchise." /></label></p>';
 			buf += '<p><label class="label">What is this pokemon? <input class="textbox" type="text" name="captcha" value="' + BattleLog.escapeHTML(data.captcha) + '" /></label></p>';
 			buf += '<p class="buttonbar"><button type="submit"><strong>Register</strong></button> <button name="close">Cancel</button></p></form>';
 			this.$el.html(buf);

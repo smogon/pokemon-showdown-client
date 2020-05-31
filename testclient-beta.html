@@ -1,9 +1,10 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html><head>
-	<meta charset="utf-8" />
+	<meta charset="UTF-8" />
 	<meta name="viewport" content="width=device-width" />
 	<title>Showdown!</title>
 	<link rel="shortcut icon" href="favicon.ico" id="dynamic-favicon" />
+	<link rel="stylesheet" href="style/battle.css" />
 	<link rel="stylesheet" href="style/client2.css" />
 	<meta name="robots" content="noindex" />
 	<meta http-equiv="X-UA-Compatible" content="IE=Edge" />
@@ -46,7 +47,6 @@
 			document.head.appendChild(linkEl);
 		}
 		linkStyle("style/sim-types.css");
-		linkStyle("style/battle.css");
 		linkStyle("style/teambuilder.css");
 		linkStyle("style/battle-search.css");
 		linkStyle("style/font-awesome.css");
@@ -55,6 +55,7 @@
 	<script src="js/client-core.js"></script>
 
 	<script src="js/battle-dex.js"></script>
+	<script src="js/battle-text-parser.js"></script>
 	<script src="js/client-main.js"></script>
 	<script src="js/lib/sockjs-1.4.0-nwjsfix.min.js"></script>
 	<script src="js/client-connection.js"></script>
@@ -69,6 +70,15 @@
 	<script src="js/battle-log.js"></script>
 	<script src="js/panel-chat.js"></script>
 
+	<script src="js/lib/soundmanager2-nodebug-jsmin.js"></script>
+	<script src="js/lib/jquery-2.1.4.min.js"></script>
+	<script src="data/graphics.js"></script>
+	<script src="data/text.js"></script>
+	<script src="js/battle-tooltips.js"></script>
+	<script src="js/battle.js"></script>
+	<script src="js/battle-choices.js"></script>
+	<script src="js/panel-battle.js"></script>
+
 	<script src="js/battle-dex-data.js"></script>
 	<script src="data/pokedex.js"></script>
 	<script src="data/moves.js"></script>
@@ -78,8 +88,11 @@
 	<script src="data/teambuilder-tables.js"></script>
 	<script src="js/panel-teamdropdown.js"></script>
 	<script src="js/panel-teambuilder.js?"></script>
-	<script src="js/battle-search.js?"></script>
+	<script src="js/battle-dex-search.js?"></script>
 	<script src="js/battle-searchresults.js?"></script>
 	<script src="js/panel-teambuilder-team.js?"></script>
+
+	<script src="https://play.pokemonshowdown.com/data/pokedex-mini.js"></script>
+	<script src="https://play.pokemonshowdown.com/data/pokedex-mini-bw.js"></script>
 
 </body></html>

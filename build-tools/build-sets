@@ -1,0 +1,25 @@
+#!/usr/bin/env node
+'use strict';
+
+const fs = require("fs");
+const child_process = require('child_process');
+const path = require("path");
+
+process.stdout.write("Importing sets from @pokemon-showdown/sets... ");
+
+const shell = cmd => child_process.execSync(cmd, {stdio: 'inherit', cwd: path.resolve(__dirname, '..')});
+shell(`npm install --no-audit --no-save @pokemon-showdown/sets`);
+
+const src = path.resolve(__dirname, '../node_modules/@pokemon-showdown/sets');
+const dest = path.resolve(__dirname, '../data/sets');
+
+try {
+	fs.mkdirSync(dest);
+} catch (err) {
+	if (err.code !== 'EEXIST') throw err;
+}
+
+for (const file of fs.readdirSync(src)) {
+	if (!file.endsWith('.json')) continue;
+	fs.copyFileSync(`${src}/${file}`, `${dest}/${file}`);
+}

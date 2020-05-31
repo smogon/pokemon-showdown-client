@@ -133,26 +133,26 @@ function resolvePokemon($pokemon)
 	}
 	$lastPokemon = $pokemon;
 	
-	if ($GLOBALS['BattlePokemon'][getSpecies($pokemon)]['number'] >= 494)
+	if ($GLOBALS['BattlePokemon'][getSpeciesForme($pokemon)]['number'] >= 494)
 	{
 		$GLOBALS['gen'] = 5;
 	}
-	if ($GLOBALS['BattlePokemon'][getSpecies($pokemon)]['number'] >= 387 && $GLOBALS['gen'] < 4)
+	if ($GLOBALS['BattlePokemon'][getSpeciesForme($pokemon)]['number'] >= 387 && $GLOBALS['gen'] < 4)
 	{
 		$GLOBALS['gen'] = 4;
 	}
-	if ($GLOBALS['BattlePokemon'][getSpecies($pokemon)]['number'] >= 252 && $GLOBALS['gen'] < 4)
+	if ($GLOBALS['BattlePokemon'][getSpeciesForme($pokemon)]['number'] >= 252 && $GLOBALS['gen'] < 4)
 	{
 		$GLOBALS['gen'] = 3;
 	}
-	if ($GLOBALS['BattlePokemon'][getSpecies($pokemon)]['number'] >= 152 && $GLOBALS['gen'] < 4)
+	if ($GLOBALS['BattlePokemon'][getSpeciesForme($pokemon)]['number'] >= 152 && $GLOBALS['gen'] < 4)
 	{
 		$GLOBALS['gen'] = 2;
 	}
 	
 	return $pokemon;
 }
-function getSpecies($pokemon)
+function getSpeciesForme($pokemon)
 {
 	global $currentpokemon;
 	if ($currentpokemon[$pokemon]) $pokemon = $currentpokemon[$pokemon];

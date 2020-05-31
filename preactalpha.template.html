@@ -1,10 +1,11 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html><head>
-	<meta charset="utf-8" />
+	<meta charset="UTF-8" />
 	<meta name="viewport" content="width=device-width" />
 	<title>Showdown!</title>
 	<link rel="shortcut icon" href="favicon.ico" id="dynamic-favicon" />
-	<link rel="stylesheet" href="/style/client2.css" />
+	<link rel="stylesheet" href="/style/battle.css?" />
+	<link rel="stylesheet" href="/style/client2.css?" />
 	<meta name="robots" content="noindex" />
 	<meta http-equiv="X-UA-Compatible" content="IE=Edge" />
 	<!--[if lte IE 8]><script>
@@ -46,7 +47,6 @@
 			document.head.appendChild(linkEl);
 		}
 		linkStyle("/style/sim-types.css");
-		linkStyle("/style/battle.css");
 		linkStyle("/style/teambuilder.css");
 		linkStyle("style/battle-search.css");
 		linkStyle("/style/font-awesome.css");
@@ -54,6 +54,7 @@
 	<script defer src="/js/client-core.js?"></script>
 
 	<script defer src="/js/battle-dex.js?"></script>
+	<script defer src="/js/battle-text-parser.js?"></script>
 	<script defer src="/js/client-main.js?"></script>
 	<script defer src="/js/lib/sockjs-1.4.0-nwjsfix.min.js?"></script>
 	<script defer src="/js/client-connection.js?"></script>
@@ -68,6 +69,15 @@
 	<script defer src="/js/battle-log.js?"></script>
 	<script defer src="/js/panel-chat.js?"></script>
 
+	<script defer src="/js/lib/soundmanager2-nodebug-jsmin.js"></script>
+	<script defer src="/js/lib/jquery-2.1.4.min.js"></script>
+	<script defer src="/data/graphics.js?"></script>
+	<script defer src="/data/text.js?"></script>
+	<script defer src="/js/battle-tooltips.js"></script>
+	<script defer src="/js/battle.js?"></script>
+	<script defer src="/js/battle-choices.js?"></script>
+	<script defer src="/js/panel-battle.js?"></script>
+
 	<script defer src="/js/battle-dex-data.js?"></script>
 	<script defer src="/data/pokedex.js?"></script>
 	<script defer src="/data/moves.js?"></script>
@@ -75,10 +85,13 @@
 	<script defer src="/data/abilities.js?"></script>
 	<script defer src="/data/search-index.js?"></script>
 	<script defer src="/data/teambuilder-tables.js?"></script>
-	<script defer src="/js/panel-teamdropdown.js"></script>
+	<script defer src="/js/panel-teamdropdown.js?"></script>
 	<script defer src="/js/panel-teambuilder.js?"></script>
-	<script defer src="/js/battle-search.js?"></script>
+	<script defer src="/js/battle-dex-search.js?"></script>
 	<script defer src="/js/battle-searchresults.js?"></script>
 	<script defer src="/js/panel-teambuilder-team.js?"></script>
+
+	<script defer src="/data/pokedex-mini.js?"></script>
+	<script defer src="/data/pokedex-mini-bw.js?"></script>
 
 </body></html>

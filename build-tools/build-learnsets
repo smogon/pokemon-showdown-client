@@ -22,94 +22,35 @@ const Dex = require('../data/Pokemon-Showdown/.sim-dist/dex').Dex;
 const toID = Dex.getId;
 
 function updateLearnsets(callback) {
-	const reservedKeywords = ['return']; // `return` is the only ES3+ reserved keyword that (currently) raises conflicts
-	const numberRegExp = new RegExp('^[0-9]*');
-	const reservedRegExp = new RegExp('^(' + reservedKeywords.join('|') + '|\\d.*)$', 'g');
+	const numberRegExp = /^[0-9]*/;
+	const reservedRegExp = /^(return|\d.*)$/g; // `return` is the only ES3+ reserved keyword that (currently) raises conflicts
 	const alphabetize = (a, b) => a.localeCompare(b);
-	const getLsetGen = lset => lset.charAt(0);
 
-	const padNumString = function (str) {
-		switch (str.length) {
-		case 1: return '00' + str;
-		case 2: return '0' + str;
-		case 3: return '' + str;
-		}
-	};
-	const inLearnset = function (lset, learnset) {
-		const secondChar = lset.charAt(1);
-		if (secondChar !== 'L') return learnset.indexOf(lset) >= 0;
-
-		const firstFragment = lset.substr(0, 2);
-		const levelFragment = lset.substring(2, 5);
-		const paddedLevel = padNumString(levelFragment);
-		for (let i = 0, len = learnset.length; i < len; i++) {
-			if (learnset[i].substring(0, 2) !== firstFragment) continue;
-			// ignore PSdex starter moves sorting data
-			if (paddedLevel === padNumString(learnset[i].substring(2, 5))) return true;
-		}
-		return false;
-	};
 	const formatLset = function (lset) {
 		const secondChar = lset.charAt(1);
 		if (secondChar !== 'L') return lset;
 		const firstFragment = lset.substr(0, 2);
 		const levelFragment = lset.substr(2).match(numberRegExp)[0];
 		const sortFragment = lset.substr(2 + levelFragment.length);
-		return firstFragment + padNumString(levelFragment) + sortFragment;
+		return firstFragment + levelFragment.padStart(3, '0') + sortFragment;
 	};
 
 	const Pokedex = Dex.data.Pokedex;
 	const Learnsets = Dex.data.Learnsets;
 	const newLearnsetsG6 = {};
 
-	let oldLearnsetsG6;
-	try {
-		oldLearnsetsG6 = require(path.join(rootDir, 'data', 'learnsets-g6.js')).BattleLearnsets;
-	} catch (err) {
-		if (err.code !== 'MODULE_NOT_FOUND') return callback(err);
-		oldLearnsetsG6 = {};
-	}
-
 	for (const speciesid in Learnsets) {
-		if (!oldLearnsetsG6[speciesid] || !oldLearnsetsG6[speciesid].learnset) {
-			if (!Pokedex[speciesid] && speciesid !== 'rockruffdusk') console.log("ERROR: " + speciesid + " not found in Pokedex");
-			console.log("NEW ENTRY at learnsets-g6.js: " + speciesid + ".");
-			oldLearnsetsG6[speciesid] = {learnset: {}};
-		}
-	}
-	for (const speciesid in oldLearnsetsG6) {
-		if (!oldLearnsetsG6[speciesid] || !oldLearnsetsG6[speciesid].learnset) return callback(new TypeError("Invalid `learnsets-g6.js` entry for " + speciesid + "."));
-		if (!Learnsets[speciesid]) {
-			console.log("REMOVED ENTRY at learnsets-g6.js: " + (Pokedex[speciesid] ? Pokedex[speciesid].species : speciesid) + ".");
-			continue;
-		}
 		const newLearnset = {};
-		const oldLearnset = oldLearnsetsG6[speciesid].learnset;
 		const fullLearnset = Learnsets[speciesid].learnset;
-		if (!fullLearnset) return callback(new TypeError("Invalid data at `learnsets.js` for " + speciesid + "."));
-
-		// copy, but ignore moves removed in main file
-		for (const moveid in oldLearnset) {
-			if (!Array.isArray(oldLearnset[moveid])) return callback(new TypeError("Invalid data at `learnsets-g6.js` for " + speciesid + ":" + moveid + "."));
-			if (!fullLearnset[moveid]) continue;
-			newLearnset[moveid] = [];
-			for (let i = 0, len = oldLearnset[moveid].length; i < len; i++) {
-				if (!inLearnset(oldLearnset[moveid][i], fullLearnset[moveid])) continue;
-				newLearnset[moveid].push(oldLearnset[moveid][i]);
-			}
-		}
 
 		for (const moveid in fullLearnset) {
-			if (!Array.isArray(fullLearnset[moveid])) return callback(new TypeError("Invalid data at `learnsets.js` for " + speciesid + ":" + moveid + "."));
-
-			if (!newLearnset[moveid]) newLearnset[moveid] = [];
-			newLearnset[moveid] = newLearnset[moveid].map(formatLset);
-			for (let i = 0, len = fullLearnset[moveid].length; i < len; i++) {
-				if (getLsetGen(fullLearnset[moveid][i]) !== '7') continue;
-				if (inLearnset(fullLearnset[moveid][i], newLearnset[moveid])) continue;
-				newLearnset[moveid].push(formatLset(fullLearnset[moveid][i]));
-			}
-			newLearnset[moveid].sort(alphabetize);
+			newLearnset[moveid] = fullLearnset[moveid].filter(
+				learned => "87".includes(learned.charAt(0))
+			).map(
+				formatLset
+			).sort(
+				alphabetize
+			);
 		}
 
 		newLearnsetsG6[speciesid] = {learnset: newLearnset};
@@ -123,15 +64,15 @@ function updateLearnsets(callback) {
 		if (b.num <= 0 && a.num > 0) return 1;
 		if (a.num <= 0 && b.num <= 0) return b.num - a.num;
 		return a.num - b.num;
-	}).map(template => toID(template.species));
+	}).map(species => toID(species.name));
 
-	for (let i = 0, len = pokemonList.length; i < len; i++) {
-		const entry = newLearnsetsG6[pokemonList[i]];
+	for (const speciesid of pokemonList) {
+		const entry = newLearnsetsG6[speciesid];
 		if (!entry || !entry.learnset) continue;
-		const lsetSerialized = '{' + Object.keys(entry.learnset).sort(alphabetize).map(function (moveid) {
-			return moveid.replace(reservedRegExp, '"$1"') + ':' + JSON.stringify(entry.learnset[moveid]);
-		}).join(',') + '}';
-		buf.push(pokemonList[i] + ':{learnset:' + lsetSerialized + '}');
+		const lsetSerialized = '{' + Object.keys(entry.learnset).sort(alphabetize).map(
+			moveid => moveid.replace(reservedRegExp, '"$1"') + ':' + JSON.stringify(entry.learnset[moveid])
+		).join(',') + '}';
+		buf.push(speciesid + ':{learnset:' + lsetSerialized + '}');
 	}
 
 	const writeStream = fs.createWriteStream(path.join(rootDir, 'data', 'learnsets-g6.js')).on('error', callback);

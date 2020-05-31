@@ -13,6 +13,8 @@ if (preg_match('/^([a-z0-9-_\.]*?)\.psim\.us$/', $host, $m)) {
 }
 
 $protocol = @$_REQUEST['protocol'] ?? 'http:';
+$portType = ($protocol === 'http:' ? 'port' : 'httpsport');
+if ($protocol === 'https:') $config['https'] = true;
 
 if ($config['host'] !== 'showdown') {
 	include_once '../pokemonshowdown.com/config/servers.inc.php';
@@ -37,8 +39,8 @@ if ($config['host'] !== 'showdown') {
 		} else {
 			$config['host'] = $server['server'];
 			if (!isset($config['port'])) {
-				$config['port'] = $server['port'];
-			} else if ($config['port'] !== $server['port']) {
+				$config['port'] = $server[$portType] ?? 443;
+			} else if ($config['port'] !== ($server[$portType] ?? 443)) {
 				$config['id'] .= ':' . $config['port'];
 			}
 			if (isset($server['altport'])) $config['altport'] = $server['altport'];
@@ -72,7 +74,6 @@ if ($config['host'] !== 'showdown') {
 		}
 	}
 }
-if ($protocol === 'https:') $config['port'] = 443;
 
 if (@$config['redirect']) {
 ?>
@@ -98,6 +99,7 @@ header('P3P: CP="NOI CUR ADM DEV COM NAV STA OUR IND"');
 <body>
 <script>
 
+var configHost = <?php echo json_encode($config['host']) ?>;
 var config = <?php echo json_encode(json_encode($config)) ?>;
 var yourOrigin = <?php echo json_encode($protocol . '//' . $host) ?>;
 var myOrigin = 'https://play.pokemonshowdown.com';
@@ -144,7 +146,7 @@ function messageHandler(e) {
 }
 
 window.addEventListener('message', messageHandler);
-if (config.host !== 'showdown') postReply('c' + config);
+if (configHost !== 'showdown') postReply('c' + config);
 var storageAvailable = false;
 try {
 	var testVal = '' + Date.now();

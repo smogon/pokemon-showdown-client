@@ -1,18 +1,20 @@
 /**
  * Search Results
  *
- * Code for displaying sesrch results from battle-search.ts
+ * Code for displaying sesrch results from battle-dex-search.ts
  *
  * @author Guangcong Luo <guangcongluo@gmail.com>
  * @license AGPLv3
  */
 
-class PSSearchResults extends preact.Component<{search: BattleSearch}> {
+class PSSearchResults extends preact.Component<{search: DexSearch}> {
+	readonly URL_ROOT = '//dex.pokemonshowdown.com/';
+
 	renderPokemonSortRow() {
 		const search = this.props.search;
 		const sortCol = search.sortCol;
 		return <li class="result"><div class="sortrow">
-			<button class={`sortcol numsortcol${!sortCol ? ' cur' : ''}`}>{!sortCol ? 'Sort: ' : (search.defaultResults && !search.filters ? 'Tier' : 'Number')}</button>
+			<button class={`sortcol numsortcol${!sortCol ? ' cur' : ''}`}>{!sortCol ? 'Sort: ' : search.firstPokemonColumn}</button>
 			<button class={`sortcol pnamesortcol${sortCol === 'name' ? ' cur' : ''}`} data-sort="name">Name</button>
 			<button class={`sortcol typesortcol${sortCol === 'type' ? ' cur' : ''}`} data-sort="type">Types</button>
 			<button class={`sortcol abilitysortcol${sortCol === 'ability' ? ' cur' : ''}`} data-sort="ability">Abilities</button>
@@ -40,7 +42,7 @@ class PSSearchResults extends preact.Component<{search: BattleSearch}> {
 
 	renderPokemonRow(id: ID, matchStart: number, matchEnd: number, errorMessage?: preact.ComponentChildren) {
 		const search = this.props.search;
-		const pokemon = search.dex.getTemplate(id);
+		const pokemon = search.dex.getSpecies(id);
 		if (!pokemon) return <li class="result">Unrecognized pokemon</li>;
 
 		let tagStart = (pokemon.forme ? pokemon.name.length - pokemon.forme.length - 1 : 0);
@@ -48,14 +50,14 @@ class PSSearchResults extends preact.Component<{search: BattleSearch}> {
 		const stats = pokemon.baseStats;
 		let bst = 0;
 		for (const stat of Object.values(stats)) bst += stat;
-		if (search.gen < 2) bst -= stats['spd'];
+		if (search.dex.gen < 2) bst -= stats['spd'];
 
 		if (errorMessage) {
-			return <li class="result"><a href={`${search.urlRoot}pokemon/${id}`} data-target="push" data-entry={`pokemon|${pokemon.name}`}>
+			return <li class="result"><a href={`${this.URL_ROOT}pokemon/${id}`} data-target="push" data-entry={`pokemon|${pokemon.name}`}>
 				<span class="col numcol">{search.getTier(pokemon)}</span>
 
 				<span class="col iconcol">
-					<span style={Dex.getPokemonIcon(pokemon)}></span>
+					<span style={Dex.getPokemonIcon(pokemon.id)}></span>
 				</span>
 
 				<span class="col pokemonnamecol">{this.renderName(pokemon.name, matchStart, matchEnd, tagStart)}</span>
@@ -64,11 +66,11 @@ class PSSearchResults extends preact.Component<{search: BattleSearch}> {
 			</a></li>;
 		}
 
-		return <li class="result"><a href={`${search.urlRoot}pokemon/${id}`} data-target="push" data-entry={`pokemon|${pokemon.name}`}>
+		return <li class="result"><a href={`${this.URL_ROOT}pokemon/${id}`} data-target="push" data-entry={`pokemon|${pokemon.name}`}>
 			<span class="col numcol">{search.getTier(pokemon)}</span>
 
 			<span class="col iconcol">
-				<span style={Dex.getPokemonIcon(pokemon)}></span>
+				<span style={Dex.getPokemonIcon(pokemon.id)}></span>
 			</span>
 
 			<span class="col pokemonnamecol">{this.renderName(pokemon.name, matchStart, matchEnd, tagStart)}</span>
@@ -79,12 +81,12 @@ class PSSearchResults extends preact.Component<{search: BattleSearch}> {
 				)}
 			</span>
 
-			{search.gen >= 3 && (pokemon.abilities['1'] ?
+			{search.dex.gen >= 3 && (pokemon.abilities['1'] ?
 				<span class="col twoabilitycol">{pokemon.abilities['0']}<br />{pokemon.abilities['1']}</span>
 			:
 				<span class="col abilitycol">{pokemon.abilities['0']}</span>
 			)}
-			{search.gen >= 5 && (pokemon.abilities['S'] ?
+			{search.dex.gen >= 5 && (pokemon.abilities['S'] ?
 				<span class={`col twoabilitycol${pokemon.unreleasedHidden ? ' unreleasedhacol' : ''}`}>{pokemon.abilities['H'] || ''}<br />{pokemon.abilities['S']}</span>
 			: pokemon.abilities['H'] ?
 				<span class={`col abilitycol${pokemon.unreleasedHidden ? ' unreleasedhacol' : ''}`}>{pokemon.abilities['H']}</span>
@@ -95,9 +97,9 @@ class PSSearchResults extends preact.Component<{search: BattleSearch}> {
 			<span class="col statcol"><em>HP</em><br />{stats.hp}</span>
 			<span class="col statcol"><em>Atk</em><br />{stats.atk}</span>
 			<span class="col statcol"><em>Def</em><br />{stats.def}</span>
-			{search.gen > 2 && <span class="col statcol"><em>SpA</em><br />{stats.spa}</span>}
-			{search.gen > 2 && <span class="col statcol"><em>SpD</em><br />{stats.spd}</span>}
-			{search.gen < 2 && <span class="col statcol"><em>Spc</em><br />{stats.spa}</span>}
+			{search.dex.gen > 2 && <span class="col statcol"><em>SpA</em><br />{stats.spa}</span>}
+			{search.dex.gen > 2 && <span class="col statcol"><em>SpD</em><br />{stats.spd}</span>}
+			{search.dex.gen < 2 && <span class="col statcol"><em>Spc</em><br />{stats.spa}</span>}
 			<span class="col statcol"><em>Spe</em><br />{stats.spe}</span>
 			<span class="col bstcol"><em>BST<br />{bst}</em></span>
 		</a></li>;
@@ -142,7 +144,7 @@ class PSSearchResults extends preact.Component<{search: BattleSearch}> {
 		const item = search.dex.getItem(id);
 		if (!item) return <li class="result">Unrecognized item</li>;
 
-		return <li class="result"><a href={`${search.urlRoot}items/${id}`} data-target="push" data-entry={`item|${item.name}`}>
+		return <li class="result"><a href={`${this.URL_ROOT}items/${id}`} data-target="push" data-entry={`item|${item.name}`}>
 			<span class="col itemiconcol">
 				<span style={Dex.getItemIcon(item)}></span>
 			</span>
@@ -160,7 +162,7 @@ class PSSearchResults extends preact.Component<{search: BattleSearch}> {
 		const ability = search.dex.getAbility(id);
 		if (!ability) return <li class="result">Unrecognized ability</li>;
 
-		return <li class="result"><a href={`${search.urlRoot}abilitys/${id}`} data-target="push" data-entry={`ability|${ability.name}`}>
+		return <li class="result"><a href={`${this.URL_ROOT}abilitys/${id}`} data-target="push" data-entry={`ability|${ability.name}`}>
 			<span class="col namecol">{this.renderName(ability.name, matchStart, matchEnd)}</span>
 
 			{errorMessage}
@@ -177,14 +179,14 @@ class PSSearchResults extends preact.Component<{search: BattleSearch}> {
 		const tagStart = (move.name.startsWith('Hidden Power') ? 12 : 0);
 
 		if (errorMessage) {
-			return <li class="result"><a href={`${search.urlRoot}move/${id}`} data-target="push" data-entry={`move|${move.name}`}>
+			return <li class="result"><a href={`${this.URL_ROOT}move/${id}`} data-target="push" data-entry={`move|${move.name}`}>
 				<span class="col movenamecol">{this.renderName(move.name, matchStart, matchEnd, tagStart)}</span>
 
 				{errorMessage}
 			</a></li>;
 		}
 
-		return <li class="result"><a href={`${search.urlRoot}move/${id}`} data-target="push" data-entry={`move|${move.name}`}>
+		return <li class="result"><a href={`${this.URL_ROOT}move/${id}`} data-target="push" data-entry={`move|${move.name}`}>
 			<span class="col movenamecol">{this.renderName(move.name, matchStart, matchEnd, tagStart)}</span>
 
 			<span class="col typecol">
@@ -211,7 +213,7 @@ class PSSearchResults extends preact.Component<{search: BattleSearch}> {
 		const search = this.props.search;
 		const name = id.charAt(0).toUpperCase() + id.slice(1);
 
-		return <li class="result"><a href={`${search.urlRoot}types/${id}`} data-target="push" data-entry={`type|${name}`}>
+		return <li class="result"><a href={`${this.URL_ROOT}types/${id}`} data-target="push" data-entry={`type|${name}`}>
 			<span class="col namecol">{this.renderName(name, matchStart, matchEnd)}</span>
 
 			<span class="col typecol">
@@ -226,7 +228,7 @@ class PSSearchResults extends preact.Component<{search: BattleSearch}> {
 		const search = this.props.search;
 		const name = id.charAt(0).toUpperCase() + id.slice(1);
 
-		return <li class="result"><a href={`${search.urlRoot}categories/${id}`} data-target="push" data-entry={`category|${name}`}>
+		return <li class="result"><a href={`${this.URL_ROOT}categories/${id}`} data-target="push" data-entry={`category|${name}`}>
 			<span class="col namecol">{this.renderName(name, matchStart, matchEnd)}</span>
 
 			<span class="col typecol">
@@ -243,7 +245,7 @@ class PSSearchResults extends preact.Component<{search: BattleSearch}> {
 		const name = (window.BattleArticleTitles && window.BattleArticleTitles[id]) ||
 			(id.charAt(0).toUpperCase() + id.substr(1));
 
-		return <li class="result"><a href={`${search.urlRoot}articles/${id}`} data-target="push" data-entry={`article|${name}`}>
+		return <li class="result"><a href={`${this.URL_ROOT}articles/${id}`} data-target="push" data-entry={`article|${name}`}>
 			<span class="col namecol">{this.renderName(name, matchStart, matchEnd)}</span>
 
 			<span class="col movedesccol">{isSearchType ? "(search type)" : "(article)"}</span>
@@ -266,7 +268,7 @@ class PSSearchResults extends preact.Component<{search: BattleSearch}> {
 			name = id.charAt(0).toUpperCase() + id.slice(1);
 		}
 
-		return <li class="result"><a href={`${search.urlRoot}egggroups/${id}`} data-target="push" data-entry={`egggroup|${name}`}>
+		return <li class="result"><a href={`${this.URL_ROOT}egggroups/${id}`} data-target="push" data-entry={`egggroup|${name}`}>
 			<span class="col namecol">{this.renderName(name, matchStart, matchEnd)}</span>
 
 			<span class="col movedesccol">(egg group)</span>
@@ -286,7 +288,7 @@ class PSSearchResults extends preact.Component<{search: BattleSearch}> {
 		};
 		const name = tierTable[id] || id.toUpperCase();
 
-		return <li class="result"><a href={`${search.urlRoot}tiers/${id}`} data-target="push" data-entry={`tier|${name}`}>
+		return <li class="result"><a href={`${this.URL_ROOT}tiers/${id}`} data-target="push" data-entry={`tier|${name}`}>
 			<span class="col namecol">{this.renderName(name, matchStart, matchEnd)}</span>
 
 			<span class="col movedesccol">(tier)</span>
@@ -306,10 +308,11 @@ class PSSearchResults extends preact.Component<{search: BattleSearch}> {
 		}
 
 		let errorMessage: preact.ComponentChild = null;
-		if (search.qType && search.qType !== type) {
-			errorMessage = <span class="col filtercol"><em>Filter</em></span>;
-		} else if (search.legalityFilter && !(id in search.legalityFilter)) {
-			errorMessage = <span class="col illegalcol"><em>{search.legalityLabel}</em></span>;
+		let label;
+		if ((label = search.filterLabel(type))) { // tslint:disable-line
+			errorMessage = <span class="col filtercol"><em>{label}</em></span>;
+		} else if ((label = search.illegalLabel(id as ID))) { // tslint:disable-line
+			errorMessage = <span class="col illegalcol"><em>{label}</em></span>;
 		}
 
 		switch (type) {
@@ -350,7 +353,7 @@ class PSSearchResults extends preact.Component<{search: BattleSearch}> {
 
 	render() {
 		const search = this.props.search;
-		return <div class="searchresults"><ul class="dexlist">
+		return <ul class="dexlist">
 			{search.filters && <p>
 				Filters: {}
 				{search.filters.map(([type, name]) =>
@@ -358,14 +361,14 @@ class PSSearchResults extends preact.Component<{search: BattleSearch}> {
 						${name} <i class="fa fa-times-circle"></i>
 					</button>
 				)}
-				{!search.q && <small style="color: #888">(backspace = delete filter)</small>}
+				{!search.query && <small style="color: #888">(backspace = delete filter)</small>}
 			</p>}
 			{search.results &&
 			// TODO: implement windowing
-			// for now, just show first ten results
-			search.results.slice(0, 10).map(result =>
+			// for now, just show first twenty results
+			search.results.slice(0, 20).map(result =>
 				this.renderRow(result)
 			)}
-		</ul></div>;
+		</ul>;
 	}
 }

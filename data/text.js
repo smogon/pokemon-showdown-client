@@ -8,6 +8,8 @@ exports.BattleText = {
 		opposingPokemon: "the opposing [NICKNAME]",
 		team: "your team",
 		opposingTeam: "the opposing team",
+		party: "your ally Pok\u00E9mon",
+		opposingParty: "the opposing Pok\u00E9mon",
 
 		turn: "== Turn [NUMBER] ==",
 		switchIn: "[TRAINER] sent out [FULLNAME]!",
@@ -21,7 +23,7 @@ exports.BattleText = {
 
 		zEffect: "  [POKEMON] unleases its full-force Z-Move!",
 		move: "[POKEMON] used **[MOVE]**!",
-		abilityActivation: "  [[POKEMON]'s [ABILITY]]",
+		abilityActivation: "[[POKEMON]'s [ABILITY]]",
 
 		mega: "  [POKEMON]'s [ITEM] is reacting to the Key Stone!",
 		megaNoItem: "  [POKEMON] is reacting to [TRAINER]'s Key Stone!",
@@ -41,7 +43,7 @@ exports.BattleText = {
 		// n.b. this is the default message for in-battle forme changes
 		// for the move Transform and ability Imposter, see the entry for the move Transform
 		transform: "[POKEMON] transformed!",
-		typeChange: "  [POKEMON] transformed into the [TYPE] type!",
+		typeChange: "  [POKEMON]'s type changed to [TYPE]!",
 		typeChangeFromEffect: "  [POKEMON]'s [EFFECT] made it the [TYPE] type!",
 		typeAdd: "  [TYPE] type was added to [POKEMON]!",
 
@@ -56,7 +58,7 @@ exports.BattleText = {
 		changeAbility: "  [POKEMON] acquired [ABILITY]!",
 		addItem: "  [POKEMON] obtained one [ITEM].", // Trick, Switcheroo
 		takeItem: "  [POKEMON] stole [SOURCE]'s [ITEM]!", // Thief, Covet, Magician, Pickpocket
-		eatItem: "  [POKEMON] ate its [ITEM]!",
+		eatItem: "  ([POKEMON] ate its [ITEM]!)",
 		useGem: "  The [ITEM] strengthened [POKEMON]'s power!",
 		eatItemWeaken: "  The [ITEM] weakened damage to [POKEMON]!",
 		removeItem: "  [POKEMON] lost its [ITEM]!",
@@ -65,10 +67,10 @@ exports.BattleText = {
 
 		damage: "  ([POKEMON] was hurt!)",
 		damagePercentage: "  ([POKEMON] lost [PERCENTAGE] of its health!)",
-		damageFromPokemon: "  [POKEMON] is hurt by [SOURCE]'s [ITEM]!", // Jaboca/Rowap Berry
-		damageFromItem: "  [POKEMON] is hurt by its [ITEM]!", // Sticky Barb
+		damageFromPokemon: "  [POKEMON] was hurt by [SOURCE]'s [ITEM]!", // Jaboca/Rowap Berry
+		damageFromItem: "  [POKEMON] was hurt by its [ITEM]!", // Sticky Barb
 		damageFromPartialTrapping: "  [POKEMON] is hurt by [MOVE]!",
-		heal: "  [POKEMON] restored its HP.",
+		heal: "  [POKEMON] had its HP restored.",
 		healFromZEffect: "  [POKEMON] restored its HP using its Z-Power!",
 		healFromEffect: "  [POKEMON] restored HP using its [EFFECT]!",
 
@@ -117,8 +119,8 @@ exports.BattleText = {
 		noTarget: "  But there was no target...", // gen 5 and earlier
 		ohko: "  It's a one-hit KO!",
 		combine: "  The two moves have become one! It's a combined move!",
-		hitCount: "  Hit [NUMBER] times!",
-		hitCountSingular: "  Hit 1 time!",
+		hitCount: "  The Pok\u00E9mon was hit [NUMBER] times!",
+		hitCountSingular: "  The Pok\u00E9mon was hit 1 time!",
 	},
 
 	// stats
@@ -135,11 +137,11 @@ exports.BattleText = {
 		statShortName: "Def",
 	},
 	spa: {
-		statName: "Special Attack",
+		statName: "Sp. Atk",
 		statShortName: "SpA",
 	},
 	spd: {
-		statName: "Special Defense",
+		statName: "Sp. Def",
 		statShortName: "SpD",
 	},
 	spe: {
@@ -164,8 +166,8 @@ exports.BattleText = {
 	brn: {
 		start: "  [POKEMON] was burned!",
 		startFromItem: "  [POKEMON] was burned by the [ITEM]!",
-		alreadyStarted: "  [POKEMON] already has a burn.",
-		end: "  [POKEMON]'s burn was healed.",
+		alreadyStarted: "  [POKEMON] is already burned!",
+		end: "  [POKEMON]'s burn was healed!",
 		endFromItem: "  [POKEMON]'s [ITEM] healed its burn!",
 		damage: "  [POKEMON] was hurt by its burn!",
 	},
@@ -179,15 +181,15 @@ exports.BattleText = {
 	},
 	par: {
 		start: "  [POKEMON] is paralyzed! It may be unable to move!",
-		alreadyStarted: "  [POKEMON] is already paralyzed.",
-		end: "  [POKEMON] was cured of paralysis.",
+		alreadyStarted: "  [POKEMON] is already paralyzed!",
+		end: "  [POKEMON] was cured of paralysis!",
 		endFromItem: "  [POKEMON]'s [ITEM] cured its paralysis!",
 		cant: "[POKEMON] is paralyzed! It can't move!",
 	},
 	psn: {
 		start: "  [POKEMON] was poisoned!",
-		alreadyStarted: "  [POKEMON] is already poisoned.",
-		end: "  [POKEMON] was cured of its poisoning.",
+		alreadyStarted: "  [POKEMON] is already poisoned!",
+		end: "  [POKEMON] was cured of its poisoning!",
 		endFromItem: "  [POKEMON]'s [ITEM] cured its poison!",
 		damage: "  [POKEMON] was hurt by poison!",
 	},
@@ -224,6 +226,9 @@ exports.BattleText = {
 	flinch: {
 		cant: "[POKEMON] flinched and couldn't move!",
 	},
+	heal: {
+		fail: "  [POKEMON]'s HP is full!",
+	},
 	healreplacement: {
 		activate: "  [POKEMON] will restore its replacement's HP using its Z-Power!",
 	},
@@ -234,7 +239,7 @@ exports.BattleText = {
 		cant: "[POKEMON] must recharge!",
 	},
 	recoil: {
-		damage: "  [POKEMON] is damaged by the recoil!",
+		damage: "  [POKEMON] was damaged by the recoil!",
 	},
 	unboost: {
 		fail: "  [POKEMON]'s stats were not lowered!",
@@ -246,32 +251,38 @@ exports.BattleText = {
 	trapped: {
 		start: "  [POKEMON] can no longer escape!",
 	},
+	dynamax: {
+		start: "  ([POKEMON]'s Dynamax!)",
+		end: "  ([POKEMON] returned to normal!)",
+		block: "  The move was blocked by the power of Dynamax!",
+		fail: "  [POKEMON] shook its head. It seems like it can't use this move...",
+	},
 
 	// weather
 	sandstorm: {
 		weatherName: "Sandstorm",
 		start: "  A sandstorm kicked up!",
 		end: "  The sandstorm subsided.",
-		upkeep: "  The sandstorm is raging.",
+		upkeep: "  (The sandstorm is raging.)",
 		damage: "  [POKEMON] is buffeted by the sandstorm!",
 	},
 	sunnyday: {
 		weatherName: "Sun",
 		start: "  The sunlight turned harsh!",
-		end: "  The sunlight faded.",
-		upkeep: "  (The sunlight is strong!)",
+		end: "  The harsh sunlight faded.",
+		upkeep: "  (The sunlight is strong.)",
 	},
 	raindance: {
 		weatherName: "Rain",
 		start: "  It started to rain!",
 		end: "  The rain stopped.",
-		upkeep: "  (Rain continues to fall!)",
+		upkeep: "  (Rain continues to fall.)",
 	},
 	hail: {
 		weatherName: "Hail",
 		start: "  It started to hail!",
 		end: "  The hail stopped.",
-		upkeep: "  The hail is crashing down.",
+		upkeep: "  (The hail is crashing down.)",
 		damage: "  [POKEMON] is buffeted by the hail!",
 	},
 	desolateland: {
@@ -298,23 +309,24 @@ exports.BattleText = {
 
 	// terrain
 	electricterrain: {
-		start: "  An electric current runs across the battlefield!",
+		start: "  An electric current ran across the battlefield!",
 		end: "  The electricity disappeared from the battlefield.",
-		block: "  [POKEMON] surrounds itself with electrified terrain!",
+		block: "  [POKEMON] is protected by the Electric Terrain!",
 	},
 	grassyterrain: {
 		start: "  Grass grew to cover the battlefield!",
 		end: "  The grass disappeared from the battlefield.",
+		heal: "  [POKEMON]'s HP was restored.",
 	},
 	mistyterrain: {
-		start: "  Mist swirls around the battlefield!",
+		start: "  Mist swirled around the battlefield!",
 		end: "  The mist disappeared from the battlefield.",
 		block: "  [POKEMON] surrounds itself with a protective mist!",
 	},
 	psychicterrain: {
 		start: "  The battlefield got weird!",
 		end: "  The weirdness disappeared from the battlefield!",
-		block: "  [POKEMON] surrounds itself with psychic terrain!",
+		block: "  [POKEMON] is protected by the Psychic Terrain!",
 	},
 
 	// field effects
@@ -322,7 +334,7 @@ exports.BattleText = {
 		start: "  Gravity intensified!",
 		end: "  Gravity returned to normal!",
 		cant: "[POKEMON] can't use [MOVE] because of gravity!",
-		activate: "[POKEMON] couldn't stay airborne because of gravity!",
+		activate: "[POKEMON] fell from the sky due to the gravity!",
 	},
 	magicroom: {
 		start: "  It created a bizarre area in which Pok\u00E9mon's held items lose their effects!",
@@ -358,7 +370,7 @@ exports.BattleText = {
 	},
 	attract: {
 		start: "  [POKEMON] fell in love!",
-		startFromItem: "  [POKEMON] fell in love from the [ITEM]!",
+		startFromItem: "  [POKEMON] fell in love because of the [ITEM]!",
 		end: "  [POKEMON] got over its infatuation!",
 		endFromItem: "  [POKEMON] cured its infatuation using its [ITEM]!",
 		activate: "  [POKEMON] is in love with [TARGET]!",
@@ -375,10 +387,10 @@ exports.BattleText = {
 		start: "  [POKEMON] started heating up its beak!",
 	},
 	beatup: {
-		activate: "  [TARGET]'s attack!", // past gen only
+		activate: "  [NAME]'s attack!", // past gen only
 	},
 	bestow: {
-		takeItem: "  [POKEMON] received [ITEM] from [SOURCE]!",
+		takeItem: "  [SOURCE] gave [POKEMON] its [ITEM]!",
 	},
 	bide: {
 		start: "  [POKEMON] is storing energy!",
@@ -414,6 +426,9 @@ exports.BattleText = {
 		start: "  [SOURCE] clamped down on [POKEMON]!",
 		move: "#wrap", // gen 1 only
 	},
+	courtchange: {
+		activate: "  [POKEMON] swapped the battle effects affecting each side of the field!",
+	},
 	craftyshield: {
 		start: "  Crafty Shield protected [TEAM]!",
 		block: "  Crafty Shield protected [POKEMON]!",
@@ -430,8 +445,8 @@ exports.BattleText = {
 		failWrongForme: "But [POKEMON] can't use it the way it is now!",
 	},
 	destinybond: {
-		start: "[POKEMON] is hoping to take its attacker down with it!",
-		activate: "  [POKEMON] took its attacker down with it!",
+		start: "  [POKEMON] is hoping to take its attacker down with it!",
+		activate: "[POKEMON] took its attacker down with it!",
 	},
 	dig: {
 		prepare: "[POKEMON] burrowed its way under the ground!",
@@ -458,7 +473,7 @@ exports.BattleText = {
 		end: "  [POKEMON] can use items again!",
 	},
 	encore: {
-		start: "  [POKEMON] received an encore!",
+		start: "  [POKEMON] must do an encore!",
 		end: "  [POKEMON]'s encore ended!",
 	},
 	endure: {
@@ -475,7 +490,7 @@ exports.BattleText = {
 		activate: "#waterpledge",
 		start: "  A sea of fire enveloped [TEAM]!",
 		end: "  The sea of fire around [TEAM] disappeared!",
-		damage: "  [POKEMON] is hurt by the sea of fire!",
+		damage: "  [POKEMON] was hurt by the sea of fire!",
 	},
 	firespin: {
 		start: "  [POKEMON] became trapped in the fiery vortex!",
@@ -518,6 +533,22 @@ exports.BattleText = {
 	},
 	geomancy: {
 		prepare: "[POKEMON] is absorbing power!",
+	},
+	gmaxchistrike: {
+		start: "#focusenergy",
+	},
+	gmaxsteelsurge: {
+		start: "  Sharp-pointed pieces of steel started floating around [PARTY]!",
+		end: "  The pieces of steel surrounding [PARTY] disappeared!",
+		damage: "  The sharp steel bit into [POKEMON]!",
+	},
+	gmaxvolcalith: {
+		start: "  [PARTY] became surrounded by rocks!",
+		damage: "  [POKEMON] is hurt by the rocks thrown out by G-Max Volcalith!",
+	},
+	gmaxwildfire: {
+		start: "  [PARTY] were surrounded by fire!",
+		damage: "  [POKEMON] is burning up within G-Max Wildfire’s flames!",
 	},
 	grasspledge: {
 		activate: "#waterpledge",
@@ -573,11 +604,11 @@ exports.BattleText = {
 	},
 	ingrain: {
 		start: "  [POKEMON] planted its roots!",
-		block: "  [POKEMON] anchored itself with its roots!",
+		block: "  [POKEMON] is anchored in place with its roots!",
 		heal: "  [POKEMON] absorbed nutrients with its roots!",
 	},
 	instruct: {
-		activate: "  [TARGET] used the move instructed by [POKEMON]!",
+		activate: "  [TARGET] followed [POKEMON]'s instructions!",
 	},
 	iondeluge: {
 		activate: "  A deluge of ions showers the battlefield!",
@@ -622,6 +653,10 @@ exports.BattleText = {
 	magmastorm: {
 		start: "  [POKEMON] became trapped by swirling magma!",
 	},
+	magnetrise: {
+		start: "  [POKEMON] levitated with electromagnetism!",
+		end: "  [POKEMON]'s electromagnetism wore off!",
+	},
 	magnitude: {
 		activate: "  Magnitude [NUMBER]!",
 	},
@@ -629,10 +664,8 @@ exports.BattleText = {
 		start: "  [POKEMON] intends to flip up a mat and block incoming attacks!",
 		block: "  [MOVE] was blocked by the kicked-up mat!",
 	},
-	magnetrise: {
-		start: "  [POKEMON] levitated with electromagnetism!",
-		end: "  [POKEMON]'s electromagnetism wore off!",
-		// "The electromagnetism of [POKEMON] wore off!" // PO artifact?
+	maxguard: {
+		activate: "  [POKEMON] protected itself!",
 	},
 	memento: {
 		heal: "  [POKEMON]'s HP was restored by the Z-Power!",
@@ -660,6 +693,12 @@ exports.BattleText = {
 	nightmare: {
 		start: "  [POKEMON] began having a nightmare!",
 		damage: "  [POKEMON] is locked in a nightmare!",
+	},
+	noretreat: {
+		start: "  [POKEMON] can no longer escape because it used No Retreat!",
+	},
+	octolock: {
+		start: "  [POKEMON] can no longer escape because of Octolock!",
 	},
 	painsplit: {
 		activate: "  The battlers shared their pain!",
@@ -770,7 +809,7 @@ exports.BattleText = {
 		start: "  [POKEMON] fell straight down!",
 	},
 	snatch: {
-		start: "  [POKEMON] waits for a target to make a move!",
+		start: "  [POKEMON] is waiting for a target to make a move!",
 		activate: "  [POKEMON] snatched [TARGET]'s move!",
 	},
 	solarbeam: {
@@ -788,7 +827,7 @@ exports.BattleText = {
 	spikes: {
 		start: "  Spikes were scattered on the ground all around [TEAM]!",
 		end: "  The spikes disappeared from the ground around [TEAM]!",
-		damage: "  [POKEMON] is hurt by the spikes!",
+		damage: "  [POKEMON] was hurt by the spikes!",
 	},
 	spikyshield: {
 		damage: "#roughskin",
@@ -809,7 +848,7 @@ exports.BattleText = {
 		damage: "  Pointed stones dug into [POKEMON]!",
 	},
 	stickyweb: {
-		start: "  A sticky web spreads out on the ground around [TEAM]!",
+		start: "  A sticky web has been laid out on the ground around [TEAM]!",
 		end: "  The sticky web has disappeared from the ground around [TEAM]!",
 		activate: "  [POKEMON] was caught in a sticky web!",
 	},
@@ -831,9 +870,12 @@ exports.BattleText = {
 		start: "  The Tailwind blew from behind [TEAM]!",
 		end: "  [TEAM]'s Tailwind petered out!",
 	},
+	tarshot: {
+		start: "  [POKEMON] became weaker to fire!",
+	},
 	taunt: {
 		start: "  [POKEMON] fell for the taunt!",
-		end: "  [POKEMON]'s taunt wore off!",
+		end: "  [POKEMON] shook off the taunt!",
 		cant: "[POKEMON] can't use [MOVE] after the taunt!",
 	},
 	telekinesis: {
@@ -845,7 +887,7 @@ exports.BattleText = {
 	},
 	torment: {
 		start: "  [POKEMON] was subjected to torment!",
-		end: "  [POKEMON]'s torment wore off!",
+		end: "  [POKEMON] is no longer tormented!",
 	},
 	toxicspikes: {
 		start: "  Poison spikes were scattered on the ground all around [TEAM]!",
@@ -898,7 +940,7 @@ exports.BattleText = {
 
 	// abilities
 	aftermath: {
-		damage: "  [POKEMON] is hurt!",
+		damage: "  [POKEMON] was hurt!",
 	},
 	airlock: {
 		start: "  The effects of the weather disappeared.",
@@ -957,7 +999,7 @@ exports.BattleText = {
 		block: "  [POKEMON] surrounded itself with a veil of petals!",
 	},
 	forewarn: {
-		activate: "  It was alerted to [TARGET]'s [MOVE]!",
+		activate: "  [TARGET]'s [MOVE] was revealed!",
 		activateNoTarget: "  [POKEMON]'s Forewarn alerted it to [MOVE]!",
 	},
 	frisk: {
@@ -988,6 +1030,9 @@ exports.BattleText = {
 	magicbounce: {
 		move: '#magiccoat',
 	},
+	mimicry: {
+		activate: "  [POKEMON] returned to its original type!",
+	},
 	mindblown: {
 		damage: "  ([POKEMON] cut its own HP to power up its move!)",
 	},
@@ -1000,8 +1045,15 @@ exports.BattleText = {
 	naturalcure: {
 		activate: "  ([POKEMON] is cured by its Natural Cure!)",
 	},
+	neutralizinggas: {
+		start: "  Neutralizing gas filled the area!",
+		end: "  The effects of the neutralizing gas wore off!",
+	},
 	owntempo: {
-		block: "  [POKEMON] doesn't become confused!",
+		block: "  [POKEMON] cannot be confused!",
+	},
+	perishbody: {
+		start: "  Both Pok\u00E9mon will faint in three turns!",
 	},
 	persistent: {
 		activate: "  [POKEMON] extends [MOVE] by 2 turns!",
@@ -1051,9 +1103,6 @@ exports.BattleText = {
 		start: "  [POKEMON] can't get it going!",
 		end: "  [POKEMON] finally got its act together!",
 	},
-	solarpower: {
-		damage: "  ([POKEMON] was hurt by its Solar Power.)",
-	},
 	stancechange: {
 		transform: "Changed to Blade Forme!",
 		transformEnd: "Changed to Shield Forme!",
@@ -1068,16 +1117,16 @@ exports.BattleText = {
 		activate: "  [POKEMON] endured the hit!",
 	},
 	suctioncups: {
-		block: "  [POKEMON] anchors itself!",
+		block: "  [POKEMON] is anchored in place with its suction cups!",
 	},
 	sweetveil: {
-		block: "  [POKEMON] surrounded itself with a veil of sweetness!",
+		block: "  [POKEMON] can't fall asleep due to a veil of sweetness!",
 	},
 	symbiosis: {
 		activate: "  [POKEMON] shared its [ITEM] with [TARGET]!",
 	},
 	telepathy: {
-		block: "  [POKEMON] avoids attacks by its ally Pok\u00E9mon!",
+		block: "  [POKEMON] can't be hit by attacks from its ally Pok\u00E9mon!",
 	},
 	teravolt: {
 		start: "  [POKEMON] is radiating a bursting aura!",
@@ -1094,6 +1143,9 @@ exports.BattleText = {
 	unnerve: {
 		start: "  [TEAM] is too nervous to eat Berries!",
 	},
+	wanderingspirit: {
+		activate: "#skillswap",
+	},
 	zenmode: {
 		transform: 'Zen Mode triggered!',
 		transformEnd: 'Zen Mode ended!',
@@ -1105,7 +1157,7 @@ exports.BattleText = {
 		end: "  [POKEMON]'s Air Balloon popped!",
 	},
 	custapberry: {
-		activate: "  [POKEMON]'s Custap Berry let it move first!",
+		activate: "  [POKEMON] can act faster than normal, thanks to its Custap Berry!",
 	},
 	ejectbutton: {
 		end: "  [POKEMON] is switched out with the Eject Button!",
@@ -1117,7 +1169,7 @@ exports.BattleText = {
 		end: "  [POKEMON] hung on using its Focus Sash!",
 	},
 	leppaberry: {
-		activate: "  [POKEMON] restored PP to its [MOVE] move using Leppa Berry!",
+		activate: "  [POKEMON] restored PP to its move [MOVE] using its Leppa Berry!",
 	},
 	lifeorb: {
 		damage: "  [POKEMON] lost some of its HP!",
@@ -1129,10 +1181,10 @@ exports.BattleText = {
 		end: "  [POKEMON] became fully charged due to its Power Herb!",
 	},
 	protectivepads: {
-		block: "  [POKEMON] protected itself with the Protective Pads!",
+		block: "  [POKEMON] protected itself with its Protective Pads!",
 	},
 	quickclaw: {
-		activate: "  [POKEMON]'s Quick Claw let it move first!",
+		activate: "  [POKEMON] can act faster than normal, thanks to its Quick Claw!",
 	},
 	redcard: {
 		end: "  [POKEMON] held up its Red Card against [TARGET]!",
@@ -1145,6 +1197,6 @@ exports.BattleText = {
 		activate: "[POKEMON] regained its true power through Ultra Burst!",
 	},
 	whiteherb: {
-		end: "  [POKEMON] returned its status to normal using its White Herb!",
+		end: "  [POKEMON] returned its stats to normal using its White Herb!",
 	},
 };
