@@ -634,6 +634,7 @@
 				var challenge = data.challengeTo;
 				var name = challenge.to;
 				var userid = toID(name);
+				var teammate = challenge.teammate;
 				var $challenge = this.openChallenge(name);
 
 				var buf = '<form class="battleform"><p>Waiting for ' + BattleLog.escapeHTML(name) + '...</p>';
@@ -741,7 +742,7 @@
 		},
 
 		// challenge buttons
-		challenge: function (name, format, team) {
+		challenge: function (name, format, team, teammate) {
 			var userid = toID(name);
 			var $challenge = this.$('.pm-window-' + userid + ' .challenge');
 			if ($challenge.length && !$challenge.find('button[name=dismissChallenge]').length) {
@@ -781,9 +782,24 @@
 			var format = $pmWindow.find('button[name=format]').val();
 			var teamIndex = $pmWindow.find('button[name=team]').val();
 			var team = null;
+			var teammate = null;
 			if (Storage.teams[teamIndex]) team = Storage.teams[teamIndex];
 			if (format.indexOf('@@@') === -1 && !window.BattleFormats[format].team && !team) {
 				app.addPopupMessage("You need to go into the Teambuilder and build a team for this format.");
+				return;
+			}
+			if (BattleFormats[toID(format)].isMultiBattle) {
+				app.addPopupPrompt("Invite a user:", "Invite user", function (target) {
+					if (!target) return;
+					teammate = ', ' + target;
+				});
+				if (!teammate) {
+					app.addPopupMessage("This is a multi battle format. You need one more player");
+					return;
+				}
+				target.disabled = true;
+				app.sendTeam(team);
+				app.send('/accept ' + userid + teammate);
 				return;
 			}
 

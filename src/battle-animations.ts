@@ -612,7 +612,6 @@ class BattleScene {
 	updateSidebar(side: Side) {
 		if (!this.animating) return;
 		let noShow = this.battle.hardcoreMode && this.battle.gen < 7;
-<<<<<<< HEAD
 
 		let speciesOverage = this.battle.speciesClause ? Infinity : Math.max(side.pokemon.length - side.totalPokemon, 0);
 		const sidebarIcons: (
