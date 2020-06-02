@@ -1058,7 +1058,7 @@ class Battle {
 	teamPreviewCount = 0;
 	speciesClause = false;
 	tier = '';
-	gameType: 'singles' | 'doubles' | 'triples' = 'singles';
+	gameType: 'singles' | 'doubles' | 'multi' | 'triples' = 'singles';
 	rated: string | boolean = false;
 	isBlitz = false;
 	endLastTurnPending = false;
@@ -3125,6 +3125,7 @@ class Battle {
 				this.yourSide.active = [null];
 				break;
 			case 'doubles':
+			case 'multi':
 				this.mySide.active = [null, null];
 				this.yourSide.active = [null, null];
 				break;
