@@ -10,6 +10,8 @@ type BattleDesc = {
 	minElo?: number | string,
 	p1?: string,
 	p2?: string,
+	p3?: string,
+	p4?: string,
 };
 
 class BattlesRoom extends PSRoom {
@@ -47,7 +49,7 @@ class BattlesPanel extends PSRoomPanel<BattlesRoom> {
 		return <div><a href={`/${battle.id}`} class="blocklink">
 			{minEloMessage && <small style="float:right">({minEloMessage})</small>}
 			<small>[{format}]</small><br />
-			<em class="p1">{battle.p1}</em> <small class="vs">vs.</small> <em class="p2">{battle.p2}</em>
+			<em class="p1">{battle.p1}</em> & <em class="p3">{battle.p3}</em> <small class="vs">vs.</small> <em class="p2">{battle.p2}</em> & <em class="p4">{battle.p4}</em>
 		</a></div>;
 	}
 	render() {

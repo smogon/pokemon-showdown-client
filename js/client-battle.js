@@ -400,6 +400,9 @@
 						done: 0,
 						count: 1
 					};
+					if (this.battle.gameType === 'multi') {
+						this.choice.count = 1;
+					}
 					if (this.battle.gameType === 'doubles') {
 						this.choice.count = 2;
 					}
