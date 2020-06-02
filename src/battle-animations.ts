@@ -612,6 +612,7 @@ class BattleScene {
 	updateSidebar(side: Side) {
 		if (!this.animating) return;
 		let noShow = this.battle.hardcoreMode && this.battle.gen < 7;
+<<<<<<< HEAD
 
 		let speciesOverage = this.battle.speciesClause ? Infinity : Math.max(side.pokemon.length - side.totalPokemon, 0);
 		const sidebarIcons: (
@@ -654,6 +655,7 @@ class BattleScene {
 			sidebarIcons.push(['empty', null]);
 		}
 
+		let sliceCount = 0;
 		let pokemonhtml = '';
 		for (let i = 0; i < sidebarIcons.length; i++) {
 			const [iconType, pokeIndex] = sidebarIcons[i];
@@ -681,6 +683,10 @@ class BattleScene {
 			} else {
 				const details = this.getDetailsText(poke);
 				pokemonhtml += `<span${tooltipCode} style="` + Dex.getPokemonIcon(poke, !side.n) + `" aria-label="${details}"></span>`;
+			}
+			if (i === side.teamSliceIndicies[sliceCount]) {
+				sliceCount++;
+				pokemonhtml += `</div><div class="teamicons">`;
 			}
 			if (i % 3 === 2) pokemonhtml += `</div><div class="teamicons">`;
 		}
