@@ -38,6 +38,7 @@
 			// details
 			'change .detailsform input': 'detailsChange',
 			'change .detailsform select': 'detailsChange',
+			'submit .detailsform': 'detailsChange',
 			'click .changeform' : 'altForm',
 			'click .altform' : 'altForm',
 
@@ -2528,7 +2529,9 @@
 
 			this.$chart.html(buf);
 		},
-		detailsChange: function () {
+		detailsChange: function (e) {
+			e.preventDefault();
+			e.stopPropagation();
 			var set = this.curSet;
 			if (!set) return;
 			var isLetsGo = this.curTeam.format.includes('letsgo');
