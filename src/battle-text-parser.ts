@@ -136,7 +136,7 @@ class BattleTextParser {
 				return {args: ['-fieldactivate', effect], kwArgs: {}};
 			}
 
-			if (id === 'symbiosis') {
+			if (id === 'symbiosis' || id === 'poltergeist') {
 				kwArgs.item = arg3;
 			} else if (id === 'magnitude') {
 				kwArgs.number = arg3;
