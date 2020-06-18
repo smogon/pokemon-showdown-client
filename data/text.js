@@ -1077,6 +1077,9 @@ exports.BattleText = {
 	queenlymajesty: {
 		block: "#damp",
 	},
+	quickdraw: {
+		activate: "  Quick Draw made [POKEMON] move faster!",
+	},
 	rebound: {
 		move: '#magiccoat',
 	},
