@@ -426,6 +426,9 @@ exports.BattleText = {
 		start: "  [SOURCE] clamped down on [POKEMON]!",
 		move: "#wrap", // gen 1 only
 	},
+	corrosivegas: {
+		removeItem: "  [SOURCE] corroded [POKEMON]'s [ITEM]!",
+	},
 	courtchange: {
 		activate: "  [POKEMON] swapped the battle effects affecting each side of the field!",
 	},
