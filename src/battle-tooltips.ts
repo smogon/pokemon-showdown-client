@@ -551,8 +551,8 @@ class BattleTooltips {
 				// TODO look into if client knows if a pokemon (on its side) can gmax rather than dynamax.
 				// If not, tell client so we can use it for tooltips.
 				let maxMove = gmaxMove ? gmaxMove :
-					this.battle.dex.getMove(BattleTooltips.maxMoveTable[move.type as TypeName]);
-				if (maxMove.id === 'maxlightning' && serverPokemon.speciesForme === 'Morpeko-Hangry' && move.id === 'aurawheel') {
+					this.battle.dex.getMove(BattleTooltips.maxMoveTable[move.type]);
+				if (move.id === 'aurawheel' && pokemon.getSpeciesForme() === 'Morpeko-Hangry') {
 					maxMove = this.battle.dex.getMove(BattleTooltips.maxMoveTable['Dark']);
 				}
 				if (move.id === 'weatherball') {
@@ -674,6 +674,10 @@ class BattleTooltips {
 				text += 'Nearly always moves last <em>(priority &minus;' + (-move.priority) + ')</em>.</p><p>';
 			} else if (move.priority === 1) {
 				text += 'Usually moves first <em>(priority +' + move.priority + ')</em>.</p><p>';
+			} else {
+				if (move.id === 'grassyglide' && this.battle.hasPseudoWeather('Grassy Terrrain')) {
+					text += 'Usually moves first <em>(priority +1)</em>.</p><p>';
+				}
 			}
 
 			text += '' + (move.desc || move.shortDesc) + '</p>';
