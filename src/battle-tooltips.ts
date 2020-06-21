@@ -1335,7 +1335,7 @@ class BattleTooltips {
 
 		// Other abilities that change the move type.
 		const noTypeOverride = [
-			'judgment', 'multiattack', 'naturalgift', 'revelationdance', 'struggle', 'technoblast', 'weatherball',
+			'judgment', 'multiattack', 'naturalgift', 'revelationdance', 'struggle', 'technoblast', 'terrainpulse', 'weatherball',
 		];
 		const allowTypeOverride = !noTypeOverride.includes(move.id);
 
@@ -1648,7 +1648,7 @@ class BattleTooltips {
 			}
 		}
 		const noTypeOverride = [
-			'judgment', 'multiattack', 'naturalgift', 'revelationdance', 'struggle', 'technoblast', 'weatherball',
+			'judgment', 'multiattack', 'naturalgift', 'revelationdance', 'struggle', 'technoblast', 'terrainpulse', 'weatherball',
 		];
 		if (move.category !== 'Status' && !noTypeOverride.includes(move.id)) {
 			if (move.type === 'Normal') {
@@ -1721,13 +1721,13 @@ class BattleTooltips {
 				value.modify(0.5, 'Misty Terrain + grounded target');
 			}
 		}
-		if (move.id === 'expandingforce' && this.battle.hasPseudoWeather('Psychic Terrain')) {
+		if (move.id === 'expandingforce' && this.battle.hasPseudoWeather('Psychic Terrain') && pokemon.isGrounded(serverPokemon)) {
 			value.modify(1.5, 'Expanding Force + Psychic Terrain boost');
 		}
 		if (move.id === 'mistyexplosion' && this.battle.hasPseudoWeather('Misty Terrain')) {
 			value.modify(1.5, 'Misty Explosion + Misty Terrain boost');
 		}
-		if (move.id === 'risingvoltage' && this.battle.hasPseudoWeather('Electric Terrain')) {
+		if (move.id === 'risingvoltage' && this.battle.hasPseudoWeather('Electric Terrain') && target?.isGrounded()) {
 			value.modify(2, 'Rising Voltage + Electric Terrain boost');
 		}
 		if (
