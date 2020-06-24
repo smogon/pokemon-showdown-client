@@ -537,6 +537,10 @@ exports.BattleText = {
 	geomancy: {
 		prepare: "[POKEMON] is absorbing power!",
 	},
+	gmaxcannonade: {
+		start: "  [PARTY] got caught in the vortex of water!",
+		damage: "  [POKEMON] is hurt by G-Max Cannonade’s vortex!",
+	},
 	gmaxchistrike: {
 		start: "#focusenergy",
 	},
@@ -544,6 +548,10 @@ exports.BattleText = {
 		start: "  Sharp-pointed pieces of steel started floating around [PARTY]!",
 		end: "  The pieces of steel surrounding [PARTY] disappeared!",
 		damage: "  The sharp steel bit into [POKEMON]!",
+	},
+	gmaxvinelash: {
+		start: "  [PARTY] got trapped with vines!",
+		damage: "  [POKEMON] is hurt by G-Max Vine Lash’s ferocious beating!",
 	},
 	gmaxvolcalith: {
 		start: "  [PARTY] became surrounded by rocks!",
