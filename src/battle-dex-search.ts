@@ -674,10 +674,10 @@ abstract class BattleTypedSearch<T extends SearchType> {
 	}
 	protected firstLearnsetid(speciesid: ID) {
 		if (speciesid in BattleTeambuilderTable.learnsets) return speciesid;
-		const species = BattlePokedex[speciesid];
-		let baseLearnsetid = species && toID(species.baseSpecies);
-		if (!baseLearnsetid) {
-			baseLearnsetid = toID(BattleAliases[speciesid]);
+		const species = this.dex.getSpecies(speciesid);
+		let baseLearnsetid = species.exists && toID(species.baseSpecies);
+		if (typeof species.battleOnly === 'string' && species.battleOnly !== species.baseSpecies) {
+			baseLearnsetid = toID(species.battleOnly);
 		}
 		if (baseLearnsetid in BattleTeambuilderTable.learnsets) return baseLearnsetid;
 		return '' as ID;
@@ -686,12 +686,12 @@ abstract class BattleTypedSearch<T extends SearchType> {
 		if (learnsetid === 'lycanrocdusk' || (speciesid === 'rockruff' && learnsetid === 'rockruff')) {
 			return 'rockruffdusk' as ID;
 		}
-		const species = BattlePokedex[learnsetid];
-		if (!species) return '' as ID;
+		const lsetSpecies = this.dex.getSpecies(learnsetid);
+		if (!lsetSpecies.exists) return '' as ID;
 
-		if (learnsetid === 'pumpkaboosuper') return 'pumpkaboo' as ID;
+		if (lsetSpecies.id === 'pumpkaboosuper') return 'pumpkaboo' as ID;
 
-		const next = species.battleOnly || species.changesFrom || species.prevo;
+		const next = lsetSpecies.battleOnly || lsetSpecies.changesFrom || lsetSpecies.prevo;
 		if (next) return toID(next);
 
 		return '' as ID;
@@ -1389,7 +1389,7 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 					}
 				}
 				if (species.battleOnly) species = baseSpecies;
-				if (baseSpecies.otherFormes && baseSpecies.baseSpecies !== 'Wormadam') {
+				if (baseSpecies.otherFormes && ['Wormadam', 'Urshifu'].includes(baseSpecies.baseSpecies)) {
 					for (const type of baseSpecies.types) {
 						if (['Alola', 'Alola-Totem', 'Galar', 'Galar-Zen'].includes(species.forme)) {
 							continue;
@@ -1406,8 +1406,8 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 						}
 					}
 				}
-				if (types.indexOf(BattleMovedex[id].type) < 0) continue;
-				if (moves.indexOf(id as ID) >= 0) continue;
+				if (!types.includes(BattleMovedex[id].type)) continue;
+				if (moves.includes(id as ID)) continue;
 				if (!BattleMovedex[id].gen) {
 					if (BattleMovedex[id].num >= 743) {
 						BattleMovedex[id].gen = 8;
