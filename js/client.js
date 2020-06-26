@@ -509,10 +509,7 @@ function toId() {
 
 				if (showNotification !== false && (self.popups.length || !self.focused) && window.Notification) {
 					self.rooms[''].requestNotifications();
-					var disconnect = new Notification("Disconnected!", {lang: 'en', body: "You have been disconnected from Pokémon Showdown."});
-					disconnect.onclick = function (e) {
-						window.focus();
-					};
+					self.rooms[''].notifyOnce("Disconnected", "You have been disconnected from Pokémon Showdown.", 'disconnected');
 				}
 
 				self.rooms[''].updateFormats();
