@@ -2413,7 +2413,7 @@ function toId() {
 			order: 10001
 		},
 		'&': {
-			name: "Leader (&amp;)",
+			name: "Administrator (&amp;)",
 			type: 'leadership',
 			order: 10002
 		},
