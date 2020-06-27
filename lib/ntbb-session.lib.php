@@ -101,10 +101,10 @@ class NTBBSession {
 	}
 
 	function getIp() {
-		$ip = $_SERVER['REMOTE_ADDR'];
+		$ip = $_SERVER['REMOTE_ADDR'] ?? '';
 		foreach ($this->trustedproxies as &$proxyip) {
 			if ($this->cidr_match($ip, $proxyip)) {
-				$parts = explode(',', $_SERVER['HTTP_X_FORWARDED_FOR']);
+				$parts = explode(',', $_SERVER['HTTP_X_FORWARDED_FOR'] ?? '');
 				$ip = array_pop($parts);
 				break;
 			}
