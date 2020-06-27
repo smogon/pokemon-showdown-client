@@ -312,7 +312,7 @@ class PSServer {
 			order: 101,
 		},
 		'&': {
-			name: "Leader (&)",
+			name: "Administrator (&)",
 			type: 'leadership',
 			order: 102,
 		},
