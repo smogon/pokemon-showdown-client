@@ -139,8 +139,8 @@
 						if (post.summaryHTML) html += '<p>' + post.summaryHTML + '</p>';
 						html += '<p>';
 						if (post.author) html += '—<strong>' + post.author + '</strong>';
-						if (post.date && !isNaN(parseInt(post.date, 10))) {
-							html += '<small class="date"> on ' + new Date(parseInt(post.date, 10) * 1000).toDateString() + '</small>';
+						if (post.date) {
+							html += '<small class="date"> on ' + new Date(post.date * 1000).toDateString() + '</small>';
 						}
 						html += '</p></div>';
 					}
