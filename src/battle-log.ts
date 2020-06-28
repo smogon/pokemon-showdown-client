@@ -95,7 +95,13 @@ class BattleLog {
 
 		case 'join': case 'j': {
 			const user = BattleTextParser.parseNameParts(args[1]);
-			divHTML = '<small>' + BattleLog.escapeHTML(user.group + user.name) + ' joined.</small>';
+			const removal = '<div class="' + divClass + '"><small>' + BattleLog.escapeHTML(user.group + user.name) + ' left.</small></div>';
+			const html = (preempt ? this.preemptElem : this.innerElem).innerHTML;
+			if (html.includes(removal)) {
+				(preempt ? this.preemptElem : this.innerElem).innerHTML = html.replace(removal, '');
+			} else {
+				divHTML = '<small>' + BattleLog.escapeHTML(user.group + user.name) + ' joined.</small>';
+			}
 			break;
 		}
 		case 'leave': case 'l': {
