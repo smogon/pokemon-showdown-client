@@ -130,7 +130,7 @@
 				dataType: "json",
 				success: function (data) {
 					var html = '';
-					for (var i in [0, 1]) {
+					for (var i = 0; i < 2; i++) {
 						var post = data[i];
 						var hasRead = data[i].id && Dex.prefs('readnews') === '' + data[i].id;
 
