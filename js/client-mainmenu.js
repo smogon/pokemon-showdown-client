@@ -124,10 +124,10 @@
 		// news
 
 		addNews: function () {
+			var self = this;
 			$.ajax({
-				dataType: "json",
 				url: "https://pokemonshowdown.com/news.json",
-				context: this,
+				dataType: "json",
 				success: function (data) {
 					var html = '';
 					for (var i in [0, 1]) {
@@ -144,7 +144,7 @@
 						}
 						html += '</p></div>';
 					}
-					this.addPseudoPM({
+					self.addPseudoPM({
 						title: 'Latest News',
 						html: html,
 						attributes: 'data-newsid="' + (data[0].id ? data[0].id : '1990') + '"',
