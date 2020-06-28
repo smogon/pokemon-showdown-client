@@ -1552,8 +1552,6 @@
 			var formattedUser = user.group + user.name;
 			if (action === 'join' && this.joinLeave['leave'].includes(formattedUser)) {
 				this.joinLeave['leave'].splice(this.joinLeave['leave'].indexOf(formattedUser), 1);
-			} else if (action === 'leave' && this.joinLeave['join'].includes(formattedUser)) {
-				this.joinLeave['join'].splice(this.joinLeave['join'].indexOf(formattedUser), 1);
 			} else {
 				this.joinLeave[action].push(formattedUser);
 			}
