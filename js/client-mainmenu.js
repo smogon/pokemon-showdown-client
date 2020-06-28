@@ -124,14 +124,34 @@
 		// news
 
 		addNews: function () {
-			var newsId = '1990';
-			if (newsId === '' + Dex.prefs('readnews')) return;
-			this.addPseudoPM({
-				title: 'Latest News',
-				html: '<iframe src="/news-embed.php?news' + (window.nodewebkit || document.location.protocol === 'https:' ? '&amp;https' : '') + '" width="270" height="400" border="0" style="border:0;width:100%;height:100%;display:block"></iframe>',
-				attributes: 'data-newsid="' + newsId + '"',
-				cssClass: 'news-embed',
-				height: 400
+			$.ajax({
+				dataType: "json",
+				url: "https://pokemonshowdown.com/news.json",
+				context: this,
+				success: data => {
+					let html = '';
+					for (const i in [0, 1]) {
+						const post = data[i];
+						const hasRead = data[i].id && Dex.prefs('readnews') === '' + data[i].id;
+
+						html += `<div class="newsentry${hasRead ? '' : ' unread'}">`;
+						if (post.title) html += `<h4>${post.title}</h4>`;
+						if (post.summaryHTML) html += `<p>${post.summaryHTML}</p>`;
+						html += '<p>';
+						if (post.author) html += `—<strong>${post.author}</strong>`;
+						if (post.date && !isNaN(parseInt(post.date))) {
+							html += `<small class="date"> on ${new Date(parseInt(post.date) * 1000).toDateString()}</small>`;
+						}
+						html += '</p></div>';
+					}
+					this.addPseudoPM({
+						title: 'Latest News',
+						html: html,
+						attributes: `data-newsid="${data[0].id ? data[0].id : '1990'}"`,
+						cssClass: 'news-embed',
+						maxHeight: 'none'
+					});
+				}
 			});
 		},
 
