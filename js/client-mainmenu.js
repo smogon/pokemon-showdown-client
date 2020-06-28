@@ -128,26 +128,26 @@
 				dataType: "json",
 				url: "https://pokemonshowdown.com/news.json",
 				context: this,
-				success: data => {
-					let html = '';
-					for (const i in [0, 1]) {
-						const post = data[i];
-						const hasRead = data[i].id && Dex.prefs('readnews') === '' + data[i].id;
+				success: function (data) {
+					var html = '';
+					for (var i in [0, 1]) {
+						var post = data[i];
+						var hasRead = data[i].id && Dex.prefs('readnews') === '' + data[i].id;
 
-						html += `<div class="newsentry${hasRead ? '' : ' unread'}">`;
-						if (post.title) html += `<h4>${post.title}</h4>`;
-						if (post.summaryHTML) html += `<p>${post.summaryHTML}</p>`;
+						html += '<div class="newsentry' + (hasRead ? '' : ' unread') + '">';
+						if (post.title) html += '<h4>' + post.title + '</h4>';
+						if (post.summaryHTML) html += '<p>' + post.summaryHTML + '</p>';
 						html += '<p>';
-						if (post.author) html += `—<strong>${post.author}</strong>`;
-						if (post.date && !isNaN(parseInt(post.date))) {
-							html += `<small class="date"> on ${new Date(parseInt(post.date) * 1000).toDateString()}</small>`;
+						if (post.author) html += '—<strong>' + post.author + '</strong>';
+						if (post.date && !isNaN(parseInt(post.date, 10))) {
+							html += '<small class="date"> on ' + new Date(parseInt(post.date, 10) * 1000).toDateString() + '</small>';
 						}
 						html += '</p></div>';
 					}
 					this.addPseudoPM({
 						title: 'Latest News',
 						html: html,
-						attributes: `data-newsid="${data[0].id ? data[0].id : '1990'}"`,
+						attributes: 'data-newsid="' + (data[0].id ? data[0].id : '1990') + '"',
 						cssClass: 'news-embed',
 						maxHeight: 'none'
 					});
