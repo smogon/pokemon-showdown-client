@@ -93,22 +93,54 @@ class BattleLog {
 			}
 			break;
 
-		case 'join': case 'j': {
+		case 'join': case 'j': case 'leave': case 'l': {
 			const user = BattleTextParser.parseNameParts(args[1]);
-			const removal = '<div class="' + divClass + '"><small>' + BattleLog.escapeHTML(user.group + user.name) + ' left.</small></div>';
-			const html = (preempt ? this.preemptElem : this.innerElem).innerHTML;
-			if (html.includes(removal)) {
-				(preempt ? this.preemptElem : this.innerElem).innerHTML = html.replace(removal, '');
+			const formattedUser = BattleLog.escapeHTML(user.group + user.name);
+			const allMessages = (preempt ? this.preemptElem : this.innerElem).children;
+			const joinMessage = allMessages.item(allMessages.length - 1);
+			const rawJoinsLeaves =  joinMessage?.innerHTML.split(/<\/?small>/).join('');
+			const isJoin = args[0].includes('j');
+			let joins: string[] = [];
+			let leaves: string[] = [];
+			let rawLeaves;
+
+			if (rawJoinsLeaves?.includes(' joined')) {
+				const joinSplit = rawJoinsLeaves?.split(';')[0].replace(' joined', '').split(' and ');
+				joins = joinSplit[0].split(', ');
+				if (joinSplit.length > 1) joins.push(joinSplit[1]);
+				if (rawJoinsLeaves.includes('; ')) rawLeaves = rawJoinsLeaves?.split('; ')[1];
 			} else {
-				divHTML = '<small>' + BattleLog.escapeHTML(user.group + user.name) + ' joined.</small>';
+				if (rawJoinsLeaves) rawLeaves = rawJoinsLeaves;
 			}
+
+			if (rawLeaves) {
+				const leaveSplit = rawLeaves.replace(' left', '').split(' and ');
+				leaves = leaveSplit[0].split(', ');
+				if (leaveSplit.length > 1) leaves.push(leaveSplit[1]);
+			}
+
+			if (!(joins.length || leaves.length) || !(joinMessage && joinMessage.className.includes("joins"))) {
+				divHTML = `<small>${formattedUser} ${isJoin ? ' joined' : ' left'}</small>`;
+				divClass += ' joins';
+				break;
+			}
+
+			if (isJoin && leaves.includes(formattedUser)) {
+				leaves.splice(leaves.indexOf(formattedUser));
+			} else if (isJoin) {
+				joins.push(formattedUser);
+			} else {
+				leaves.push(formattedUser);
+			}
+
+			joinMessage.innerHTML = '<small>' +
+				(joins.length ? `${joins.join(', ').replace(/,\s([^,]+)$/, ' and $1')} joined` : '') +
+				(joins.length && leaves.length ? '; ' : '') +
+				(leaves.length ? `${leaves.join(', ').replace(/,\s([^,]*)$/, ' and $1')} left` : '') +
+				'</small></div>';
 			break;
 		}
-		case 'leave': case 'l': {
-			const user = BattleTextParser.parseNameParts(args[1]);
-			divHTML = '<small>' + BattleLog.escapeHTML(user.group + user.name) + ' left.</small>';
-			break;
-		}
+
 		case 'name': case 'n': {
 			const user = BattleTextParser.parseNameParts(args[1]);
 			if (toID(args[2]) !== toID(user.name)) {
