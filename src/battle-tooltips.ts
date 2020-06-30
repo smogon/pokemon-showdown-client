@@ -1721,7 +1721,11 @@ class BattleTooltips {
 				value.modify(0.5, 'Misty Terrain + grounded target');
 			}
 		}
-		if (move.id === 'expandingforce' && this.battle.hasPseudoWeather('Psychic Terrain') && pokemon.isGrounded(serverPokemon)) {
+		if (
+			move.id === 'expandingforce' &&
+			this.battle.hasPseudoWeather('Psychic Terrain') &&
+			pokemon.isGrounded(serverPokemon)
+		) {
 			value.modify(1.5, 'Expanding Force + Psychic Terrain boost');
 		}
 		if (move.id === 'mistyexplosion' && this.battle.hasPseudoWeather('Misty Terrain')) {
