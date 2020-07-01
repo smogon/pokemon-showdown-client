@@ -370,7 +370,8 @@ class Pokemon implements PokemonDetails, PokemonHealth {
 		}
 		if (this.boosts[boostStat] > 6) this.boosts[boostStat] = 6;
 		if (this.boosts[boostStat] < -6) this.boosts[boostStat] = -6;
-		if (boostStat === 'accuracy' || boostStat === 'evasion') {
+		const isRBY = this.side.battle.gen <= 1 && !this.side.battle.tier.includes('Stadium');
+		if (!isRBY && (boostStat === 'accuracy' || boostStat === 'evasion')) {
 			if (this.boosts[boostStat] > 0) {
 				let goodBoostTable = [
 					'1&times;', '1.33&times;', '1.67&times;', '2&times;', '2.33&times;', '2.67&times;', '3&times;',
