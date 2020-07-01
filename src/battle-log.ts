@@ -21,6 +21,11 @@ class BattleLog {
 	atBottom = true;
 	className: string;
 	battleParser: BattleTextParser | null = null;
+	joinLeave: {
+		joins: string[],
+		leaves: string[],
+		element: HTMLDivElement,
+	} | null = null;
 	/**
 	 * * -1 = spectator: "Red sent out Pikachu!" "Blue's Eevee used Tackle!"
 	 * * 0 = player 1: "Go! Pikachu!" "The opposing Eevee used Tackle!"
@@ -67,6 +72,7 @@ class BattleLog {
 		let divClass = 'chat';
 		let divHTML = '';
 		let noNotify: boolean | undefined;
+		if (!['join', 'j', 'leave', 'l'].includes(args[0])) this.joinLeave = null;
 		switch (args[0]) {
 		case 'chat': case 'c': case 'c:':
 			let battle = this.scene?.battle;
@@ -96,48 +102,31 @@ class BattleLog {
 		case 'join': case 'j': case 'leave': case 'l': {
 			const user = BattleTextParser.parseNameParts(args[1]);
 			const formattedUser = BattleLog.escapeHTML(user.group + user.name);
-			const allMessages = (preempt ? this.preemptElem : this.innerElem).children;
-			const joinMessage = allMessages.item(allMessages.length - 1);
-			const rawJoinsLeaves =  joinMessage?.innerHTML.split(/<\/?small>/).join('');
 			const isJoin = args[0].includes('j');
-			let joins: string[] = [];
-			let leaves: string[] = [];
-			let rawLeaves;
+			if (!this.joinLeave) {
+				this.joinLeave = {
+					joins: [],
+					leaves: [],
+					element: document.createElement('div') as HTMLDivElement,
+				};
+			}
 
-			if (rawJoinsLeaves?.includes(' joined')) {
-				const joinSplit = rawJoinsLeaves?.split(';')[0].replace(' joined', '').split(' and ');
-				joins = joinSplit[0].split(', ');
-				if (joinSplit.length > 1) joins.push(joinSplit[1]);
-				if (rawJoinsLeaves.includes('; ')) rawLeaves = rawJoinsLeaves?.split('; ')[1];
+			if (isJoin && this.joinLeave.leaves.includes(formattedUser)) {
+				this.joinLeave.leaves.splice(this.joinLeave.leaves.indexOf(formattedUser), 1);
 			} else {
-				if (rawJoinsLeaves) rawLeaves = rawJoinsLeaves;
+				this.joinLeave[isJoin ? "joins" : "leaves"].push(formattedUser);
 			}
 
-			if (rawLeaves) {
-				const leaveSplit = rawLeaves.replace(' left', '').split(' and ');
-				leaves = leaveSplit[0].split(', ');
-				if (leaveSplit.length > 1) leaves.push(leaveSplit[1]);
+			let buf = '';
+			if (this.joinLeave.joins.length) {
+				buf += this.displayJoinLeaves(this.joinLeave.joins, 'joined');
 			}
-
-			if (!(joins.length || leaves.length) || !(joinMessage && joinMessage.className.includes("joins"))) {
-				divHTML = `<small>${formattedUser} ${isJoin ? ' joined' : ' left'}</small>`;
-				divClass += ' joins';
-				break;
+			if (this.joinLeave.leaves.length) {
+				if (this.joinLeave.joins.length) buf += '; ';
+				buf += this.displayJoinLeaves(this.joinLeave.leaves, 'left') + '<br />';
 			}
-
-			if (isJoin && leaves.includes(formattedUser)) {
-				leaves.splice(leaves.indexOf(formattedUser));
-			} else if (isJoin) {
-				joins.push(formattedUser);
-			} else {
-				leaves.push(formattedUser);
-			}
-
-			joinMessage.innerHTML = '<small>' +
-				(joins.length ? `${joins.join(', ').replace(/,\s([^,]+)$/, ' and $1')} joined` : '') +
-				(joins.length && leaves.length ? '; ' : '') +
-				(leaves.length ? `${leaves.join(', ').replace(/,\s([^,]*)$/, ' and $1')} left` : '') +
-				'</small></div>';
+			this.joinLeave.element.innerHTML = `<small style="color: #555555">${buf}</small>`;
+			(preempt ? this.preemptElem : this.innerElem).append(this.joinLeave.element);
 			break;
 		}
 
@@ -259,6 +248,30 @@ class BattleLog {
 			this.message(...this.parseLogMessage(line));
 			break;
 		}
+	}
+	displayJoinLeaves(preList: string[], action: string) {
+		let message = '';
+		const list: string[] = [];
+		for (const user of preList) {
+			if (!list.includes(user)) list.push(user);
+		}
+		for (let j = 0; j < list.length; j++) {
+			if (j >= 5) {
+				message += `, and ${list.length - 5} others`;
+				break;
+			}
+			if (j > 0) {
+				if (j === 1 && list.length === 2) {
+					message += ' and ';
+				} else if (j === list.length - 1) {
+					message += ', and ';
+				} else {
+					message += ', ';
+				}
+			}
+			message += BattleLog.escapeHTML(list[j]);
+		}
+		return `${message} ${action}`;
 	}
 	/**
 	 * To avoid trolling with nicknames, we can't just run this through
