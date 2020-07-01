@@ -107,7 +107,7 @@ class BattleLog {
 				this.joinLeave = {
 					joins: [],
 					leaves: [],
-					element: document.createElement('div') as HTMLDivElement,
+					element: document.createElement('div'),
 				};
 				this.joinLeave.element.className = 'chat';
 			}
