@@ -257,22 +257,16 @@ class BattleLog {
 			if (!listNoDuplicates.includes(user)) listNoDuplicates.push(user);
 		}
 		list = listNoDuplicates;
-		for (let i = 0; i < list.length; i++) {
+
+		if (list.length === 1) return list[0];
+		if (list.length === 2) return `${list[0]} and ${list[1]}`;
+		for (let i = 0; i < list.length - 1; i++) {
 			if (i >= 5) {
-				message += `, and ${list.length - 5} others`;
-				break;
+				return `${message}and ${list.length - 5} others`;
 			}
-			if (i > 0) {
-				if (i === 1 && list.length === 2) {
-					message += ' and ';
-				} else if (i === list.length - 1) {
-					message += ', and ';
-				} else {
-					message += ', ';
-				}
-			}
-			message += list[i];
+			message += `${list[i]}, `;
 		}
+		return `${message}and ${list[list.length - 1]}`;
 		return message;
 	}
 	/**
