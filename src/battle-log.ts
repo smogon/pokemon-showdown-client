@@ -102,13 +102,14 @@ class BattleLog {
 		case 'join': case 'j': case 'leave': case 'l': {
 			const user = BattleTextParser.parseNameParts(args[1]);
 			const formattedUser = BattleLog.escapeHTML(user.group + user.name);
-			const isJoin = args[0].includes('j');
+			const isJoin = (args[0].charAt(0) === 'j');
 			if (!this.joinLeave) {
 				this.joinLeave = {
 					joins: [],
 					leaves: [],
 					element: document.createElement('div') as HTMLDivElement,
 				};
+				this.joinLeave.element.className = 'chat';
 			}
 
 			if (isJoin && this.joinLeave.leaves.includes(formattedUser)) {
@@ -125,9 +126,9 @@ class BattleLog {
 				if (this.joinLeave.joins.length) buf += '; ';
 				buf += this.displayJoinLeaves(this.joinLeave.leaves, 'left') + '<br />';
 			}
-			this.joinLeave.element.innerHTML = `<small style="color: #555555">${buf}</small>`;
+			this.joinLeave.element.innerHTML = `<small>${buf}</small>`;
 			(preempt ? this.preemptElem : this.innerElem).append(this.joinLeave.element);
-			break;
+			return;
 		}
 
 		case 'name': case 'n': {
