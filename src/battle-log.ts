@@ -120,13 +120,13 @@ class BattleLog {
 
 			let buf = '';
 			if (this.joinLeave.joins.length) {
-				buf += this.displayJoinLeaves(this.joinLeave.joins, 'joined');
+				buf += `${this.textList(this.joinLeave.joins)} joined`;
 			}
 			if (this.joinLeave.leaves.length) {
-				if (this.joinLeave.joins.length) buf += '; ';
-				buf += this.displayJoinLeaves(this.joinLeave.leaves, 'left') + '<br />';
+				if (this.joinLeave.joins.length) buf += `; `;
+				buf += `${this.textList(this.joinLeave.leaves)} left`;
 			}
-			this.joinLeave.element.innerHTML = `<small>${buf}</small>`;
+			this.joinLeave.element.innerHTML = `<small>${BattleLog.escapeHTML(buf)}</small>`;
 			(preempt ? this.preemptElem : this.innerElem).append(this.joinLeave.element);
 			return;
 		}
@@ -250,29 +250,30 @@ class BattleLog {
 			break;
 		}
 	}
-	displayJoinLeaves(preList: string[], action: string) {
+	textList(list: string[]) {
 		let message = '';
-		const list: string[] = [];
-		for (const user of preList) {
-			if (!list.includes(user)) list.push(user);
+		const listNoDuplicates: string[] = [];
+		for (const user of list) {
+			if (!listNoDuplicates.includes(user)) listNoDuplicates.push(user);
 		}
-		for (let j = 0; j < list.length; j++) {
-			if (j >= 5) {
+		list = listNoDuplicates;
+		for (let i = 0; i < list.length; i++) {
+			if (i >= 5) {
 				message += `, and ${list.length - 5} others`;
 				break;
 			}
-			if (j > 0) {
-				if (j === 1 && list.length === 2) {
+			if (i > 0) {
+				if (i === 1 && list.length === 2) {
 					message += ' and ';
-				} else if (j === list.length - 1) {
+				} else if (i === list.length - 1) {
 					message += ', and ';
 				} else {
 					message += ', ';
 				}
 			}
-			message += BattleLog.escapeHTML(list[j]);
+			message += list[i];
 		}
-		return `${message} ${action}`;
+		return message;
 	}
 	/**
 	 * To avoid trolling with nicknames, we can't just run this through
