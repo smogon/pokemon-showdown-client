@@ -308,9 +308,9 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 				if (isNatDex) {
 					let tier = species.tier;
 					const unobtainables = [
-						'Eevee-Starter', 'Floette-Eternal', 'Pichu-Spiky-eared', 'Pikachu-Belle', 'Pikachu-Cosplay', 'Pikachu-Libre', 'Pikachu-PhD', 'Pikachu-Pop-Star', 'Pikachu-Rock-Star', 'Pikachu-Starter', 'Magearna-Original', 'Eternatus-Eternamax',
+						'Eevee-Starter', 'Floette-Eternal', 'Pichu-Spiky-eared', 'Pikachu-Belle', 'Pikachu-Cosplay', 'Pikachu-Libre', 'Pikachu-PhD', 'Pikachu-Pop-Star', 'Pikachu-Rock-Star', 'Pikachu-Starter', 'Eternatus-Eternamax',
 					].map(toID);
-					if (species.isNonstandard && !['Past'].includes(species.isNonstandard) && species.id !== 'slowpoke') return 'Illegal';
+					if (species.isNonstandard && !['Past'].includes(species.isNonstandard)) return 'Illegal';
 					if (unobtainables.includes(species.id)) return 'Illegal';
 					const uuBanlist = Dex.getFormat('gen8nationaldexuu').banlist.map(toID);
 					const ouBanlist = Dex.getFormat('gen8nationaldex').banlist.map(toID);
