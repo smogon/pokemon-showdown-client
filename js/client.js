@@ -1274,7 +1274,8 @@ function toId() {
 			if (serverid && serverid !== 'showdown') id = serverid + '-' + id;
 			$.post(app.user.getActionPHP() + '?act=uploadreplay', {
 				log: data.log,
-				id: id
+				password: data.password || '',
+				id: id,
 			}, function (data) {
 				if (silent) return;
 				var sData = data.split(':');
