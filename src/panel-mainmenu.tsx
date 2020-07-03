@@ -306,7 +306,7 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
 			}
 			<p>
 				<div style={{textAlign: 'center'}}>
-					<img width="96" height="96" src="//play.pokemonshowdown.com/sprites/gen5/teddiursa.png" alt="" />
+					<img width="96" height="96" src={`//${Config.routes.client}/sprites/gen5/teddiursa.png`} alt="" />
 				</div>
 				Bear with us as we freak out.
 			</p>
@@ -349,10 +349,10 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
 				<div class="mainmenufooter">
 					<div class="bgcredit"></div>
 					<small>
-						<a href="//dex.pokemonshowdown.com/" target="_blank">Pok&eacute;dex</a> | {}
-						<a href="//replay.pokemonshowdown.com/" target="_blank">Replays</a> | {}
-						<a href="//pokemonshowdown.com/rules" target="_blank">Rules</a> | {}
-						<a href="//pokemonshowdown.com/credits" target="_blank">Credits</a> | {}
+						<a href={`//${Config.routes.dex}/`} target="_blank">Pok&eacute;dex</a> | {}
+						<a href={`//${Config.routes.replays}/`} target="_blank">Replays</a> | {}
+						<a href={`//${Config.routes.root}/rules`} target="_blank">Rules</a> | {}
+						<a href={`//${Config.routes.dex}/credits`} target="_blank">Credits</a> | {}
 						<a href="//smogon.com/forums/" target="_blank">Forum</a>
 					</small>
 				</div>
@@ -414,12 +414,12 @@ class TeamDropdown extends preact.Component<{format: string}> {
 				<div class="team">
 					<strong>Random team</strong>
 					<small>
-						<span class="picon" style="float:left;background:transparent url(https://play.pokemonshowdown.com/sprites/pokemonicons-sheet.png?a6) no-repeat scroll -0px -0px"></span>
-						<span class="picon" style="float:left;background:transparent url(https://play.pokemonshowdown.com/sprites/pokemonicons-sheet.png?a6) no-repeat scroll -0px -0px"></span>
-						<span class="picon" style="float:left;background:transparent url(https://play.pokemonshowdown.com/sprites/pokemonicons-sheet.png?a6) no-repeat scroll -0px -0px"></span>
-						<span class="picon" style="float:left;background:transparent url(https://play.pokemonshowdown.com/sprites/pokemonicons-sheet.png?a6) no-repeat scroll -0px -0px"></span>
-						<span class="picon" style="float:left;background:transparent url(https://play.pokemonshowdown.com/sprites/pokemonicons-sheet.png?a6) no-repeat scroll -0px -0px"></span>
-						<span class="picon" style="float:left;background:transparent url(https://play.pokemonshowdown.com/sprites/pokemonicons-sheet.png?a6) no-repeat scroll -0px -0px"></span>
+						<span class="picon" style={`float:left;background:transparent url(https://${Config.routes.client}/sprites/pokemonicons-sheet.png?a6) no-repeat scroll -0px -0px`}></span>
+						<span class="picon" style={`float:left;background:transparent url(https://${Config.routes.client}/sprites/pokemonicons-sheet.png?a6) no-repeat scroll -0px -0px`}></span>
+						<span class="picon" style={`float:left;background:transparent url(https://${Config.routes.client}/sprites/pokemonicons-sheet.png?a6) no-repeat scroll -0px -0px`}></span>
+						<span class="picon" style={`float:left;background:transparent url(https://${Config.routes.client}/sprites/pokemonicons-sheet.png?a6) no-repeat scroll -0px -0px`}></span>
+						<span class="picon" style={`float:left;background:transparent url(https://${Config.routes.client}/sprites/pokemonicons-sheet.png?a6) no-repeat scroll -0px -0px`}></span>
+						<span class="picon" style={`float:left;background:transparent url(https://${Config.routes.client}/sprites/pokemonicons-sheet.png?a6) no-repeat scroll -0px -0px`}></span>
 					</small>
 				</div>
 			</button>;

@@ -59,7 +59,7 @@ class PSPrefs extends PSStreamModel<string | null> {
 
 	storageEngine: 'localStorage' | 'iframeLocalStorage' | '' = '';
 	storage: {[k: string]: any} = {};
-	readonly origin = 'https://play.pokemonshowdown.com';
+	readonly origin = `https://${Config.routes.client}`;
 	constructor() {
 		super();
 
@@ -222,7 +222,7 @@ class PSTeams extends PSStreamModel<'team' | 'format'> {
 		this.byKey[team.key] = team;
 	}
 	unpackOldBuffer(buffer: string) {
-		alert("Your team storage format is too old for PS. You'll need to upgrade it at https://play.pokemonshowdown.com/recoverteams.html");
+		alert(`Your team storage format is too old for PS. You'll need to upgrade it at https://${Config.routes.client}/recoverteams.html`);
 		this.list = [];
 		return;
 	}
@@ -298,13 +298,13 @@ interface PSGroup {
 }
 
 class PSServer {
-	id = 'showdown';
-	host = 'sim3.psim.us';
-	port = 8000;
-	altport = 80;
-	registered = true;
+	id = Config.defaultserver.id;
+	host = Config.defaultserver.host;
+	port = Config.defaultserver.port;
+	altport = Config.defaultserver.altport;
+	registered = Config.defaultserver.registered;
 	prefix = '/showdown';
-	protocol: 'http' | 'https' = 'https';
+	protocol: 'http' | 'https' = Config.defaultserver.https ? 'https' : 'http';
 	groups: {[symbol: string]: PSGroup} = {
 		'~': {
 			name: "Administrator (~)",

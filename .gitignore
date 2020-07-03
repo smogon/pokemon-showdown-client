@@ -4,6 +4,7 @@
 /index.php
 /index.html
 /preactalpha.html
+/crossprotocol.html
 /data/*
 node_modules/
 eslint-cache/
@@ -39,6 +40,7 @@ package-lock.json
 /js/panel-teambuilder-team.js
 /js/panel-teamdropdown.js
 /js/panel-battle.js
+/js/replay-embed.js
 
 /replays/caches/
 /replays/replay-config.inc.php
