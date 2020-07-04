@@ -127,7 +127,7 @@ class BattleLog {
 				buf += `${this.textList(this.joinLeave.leaves)} left`;
 			}
 			this.joinLeave.element.innerHTML = `<small>${BattleLog.escapeHTML(buf)}</small>`;
-			(preempt ? this.preemptElem : this.innerElem).append(this.joinLeave.element);
+			(preempt ? this.preemptElem : this.innerElem).appendChild(this.joinLeave.element);
 			return;
 		}
 

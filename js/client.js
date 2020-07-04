@@ -1275,7 +1275,7 @@ function toId() {
 			$.post(app.user.getActionPHP() + '?act=uploadreplay', {
 				log: data.log,
 				password: data.password || '',
-				id: id,
+				id: id
 			}, function (data) {
 				if (silent) return;
 				var sData = data.split(':');
