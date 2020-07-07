@@ -1203,9 +1203,9 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 		case 'hiddenpowerice':
 			return !moves.includes('icebeam') && !moves.includes('aurorabeam');
 		case 'hiddenpowerflying':
-			return (species.baseSpecies === 'Gyarados' || species.baseSpecies === 'Aerodactyl' || species.baseSpecies === 'Salamence' || species.baseSpecies === 'Charizard' || species.baseSpecies === 'Crobat' || species.baseSpecies === 'Dragonite' || species.baseSpecies === 'Ninjask' || species.baseSpecies === 'Swellow' || species.baseSpecies === 'Gligar') && dex.gen < 4;
+			return dex.gen < 4 && !moves.includes('drillpeck');
 		case 'hiddenpowerbug':
-			return (species.baseSpecies === 'Forretress' || species.baseSpecies === 'Pinsir' || species.baseSpecies === 'Armaldo' || species.baseSpecies === 'Ninjask' || species.baseSpecies === 'Tyranitar' || species.baseSpecies === 'Scizor' || species.baseSpecies === 'Aerodactyl' || species.baseSpecies === 'Dugtrio' || species.baseSpecies === 'Flygon' || species.baseSpecies === 'Marowak' || species.baseSpecies === 'Machamp' || species.baseSpecies === 'Sandslash') && dex.gen < 4;
+			return dex.gen < 4 && !moves.includes('megahorn');
 		case 'hiddenpowerpsychic':
 			return species.baseSpecies === 'Unown';
 		case 'hyperspacefury':
