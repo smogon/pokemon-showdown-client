@@ -870,9 +870,28 @@ const Dex = new class implements ModdedDex {
 	}
 
 	getTypeIcon(type: string, b?: boolean) { // b is just for utilichart.js
-		if (!type) return '';
+		type = this.getType(type).name;
+		if (!type) type = '???';
 		let sanitizedType = type.replace(/\?/g, '%3f');
 		return '<img src="' + Dex.resourcePrefix + 'sprites/types/' + sanitizedType + '.png" alt="' + type + '" height="14" width="32"' + (b ? ' class="b"' : '') + ' />';
+	}
+
+	getCategoryIcon(categoryOrMove: string) {
+		let sanitizedCategory = '';
+		switch(toID(categoryOrMove)) {
+		case 'physical': sanitizedCategory = 'Physical'; break;
+		case 'special': sanitizedCategory = 'Special'; break;
+		case 'status': sanitizedCategory = 'Status'; break;
+		default:
+			const move = this.getMove(categoryOrMove);
+			if (!move.exists) {
+				sanitizedCategory = 'undefined';
+			} else {
+				sanitizedCategory = move.category;
+			}
+			break;
+		}
+		return '<img src="' + Dex.resourcePrefix + 'sprites/categories/' + sanitizedCategory + '.png" alt="' + categoryOrMove + '" height="14" width="32" />';
 	}
 
 	getPokeballs() {
