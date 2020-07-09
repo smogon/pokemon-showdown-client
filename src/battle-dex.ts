@@ -873,12 +873,12 @@ const Dex = new class implements ModdedDex {
 		type = this.getType(type).name;
 		if (!type) type = '???';
 		let sanitizedType = type.replace(/\?/g, '%3f');
-		return '<img src="' + Dex.resourcePrefix + 'sprites/types/' + sanitizedType + '.png" alt="' + type + '" height="14" width="32"' + (b ? ' class="b"' : '') + ' />';
+		return '<img src="' + Dex.resourcePrefix + 'sprites/types/' + sanitizedType + '.png" alt="' + type + '" height="14" width="32"  class="pixelated' + (b ? ' b' : '') + '" />';
 	}
 
 	getCategoryIcon(categoryOrMove: string) {
 		let sanitizedCategory = '';
-		switch(toID(categoryOrMove)) {
+		switch (toID(categoryOrMove)) {
 		case 'physical': sanitizedCategory = 'Physical'; break;
 		case 'special': sanitizedCategory = 'Special'; break;
 		case 'status': sanitizedCategory = 'Status'; break;
@@ -891,7 +891,7 @@ const Dex = new class implements ModdedDex {
 			}
 			break;
 		}
-		return '<img src="' + Dex.resourcePrefix + 'sprites/categories/' + sanitizedCategory + '.png" alt="' + categoryOrMove + '" height="14" width="32" />';
+		return '<img src="' + Dex.resourcePrefix + 'sprites/categories/' + sanitizedCategory + '.png" alt="' + categoryOrMove + '" height="14" width="32" class="pixelated" />';
 	}
 
 	getPokeballs() {
