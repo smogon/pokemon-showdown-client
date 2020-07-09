@@ -543,7 +543,7 @@
 		// type
 		buf += '<span class="col typecol">';
 		buf += Dex.getTypeIcon(move.type);
-		buf += Dex.getCategoryIcon(move.name);
+		buf += Dex.getCategoryIcon(move.category);
 		buf += '</span> ';
 
 		// power, accuracy, pp
@@ -581,7 +581,7 @@
 		// type
 		buf += '<span class="col typecol">';
 		buf += Dex.getTypeIcon(move.type);
-		buf += Dex.getCategoryIcon(move.name);
+		buf += Dex.getCategoryIcon(move.category);
 		buf += '</span> ';
 
 		// power, accuracy, pp
@@ -618,7 +618,7 @@
 		// type
 		buf += '<span class="col typecol">';
 		buf += Dex.getTypeIcon(move.type);
-		buf += Dex.getCategoryIcon(move.name);
+		buf += Dex.getCategoryIcon(move.category);
 		buf += '</span> ';
 
 		// power, accuracy, pp

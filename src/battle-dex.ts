@@ -879,9 +879,11 @@ const Dex = new class implements ModdedDex {
 	getCategoryIcon(categoryOrMove: string) {
 		let sanitizedCategory = '';
 		switch (toID(categoryOrMove)) {
-		case 'physical': sanitizedCategory = 'Physical'; break;
-		case 'special': sanitizedCategory = 'Special'; break;
-		case 'status': sanitizedCategory = 'Status'; break;
+		case 'physical':
+		case 'special':
+		case 'status':
+			sanitizedCategory = toID(sanitizedCategory)[0].toUpperCase() + toID(sanitizedCategory).substr(1);
+			break;
 		default:
 			const move = this.getMove(categoryOrMove);
 			if (!move.exists) {
