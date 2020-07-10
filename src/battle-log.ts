@@ -687,6 +687,8 @@ class BattleLog {
 			'marquee::width': 0,
 			'psicon::pokemon': 0,
 			'psicon::item': 0,
+			'psicon::type': 0,
+			'psicon::category': 0,
 			'*::aria-label': 0,
 			'*::aria-hidden': 0,
 		});
@@ -728,7 +730,7 @@ class BattleLog {
 				let styleValueIndex = -1;
 				let iconAttrib = null;
 				for (let i = 0; i < attribs.length - 1; i += 2) {
-					if (attribs[i] === 'pokemon' || attribs[i] === 'item') {
+					if (attribs[i] === 'pokemon' || attribs[i] === 'item' || attribs[i] === 'type' || attribs[i] === 'category') {
 						// If declared more than once, use the later.
 						iconAttrib = attribs.slice(i, i + 2);
 					} else if (attribs[i] === 'class') {
@@ -760,6 +762,10 @@ class BattleLog {
 						attribs[styleValueIndex] = attribs[styleValueIndex] ?
 							Dex.getItemIcon(iconAttrib[1]) + '; ' + attribs[styleValueIndex] :
 							Dex.getItemIcon(iconAttrib[1]);
+					} else if (iconAttrib[0] === 'type') {
+						tagName = Dex.getTypeIcon(iconAttrib[1]).slice(1, -3);
+					} else if (iconAttrib[0] === 'category') {
+						tagName = Dex.getCategoryIcon(iconAttrib[1]).slice(1, -3);
 					}
 				}
 			}
