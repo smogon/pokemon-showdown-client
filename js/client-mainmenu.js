@@ -413,7 +413,9 @@
 				break;
 			default:
 				if (!userid) userid = '~';
-				text = ('\n' + text).replace(/\n\n/g, '\n').replace(/\n/g, '\n/pm ' + userid + ', ').substr(1);
+				if (text.startsWith('\n')) text = text.slice(1);
+				if (text.endsWith('\n')) text = text.slice(0, -1);
+				text = ('\n' + text).replace(/\n/g, '\n/pm ' + userid + ', ').slice(1);
 				if (text.length > 80000) {
 					app.addPopupMessage("Your message is too long.");
 					return;
