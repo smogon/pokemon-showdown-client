@@ -873,27 +873,23 @@ const Dex = new class implements ModdedDex {
 		type = this.getType(type).name;
 		if (!type) type = '???';
 		let sanitizedType = type.replace(/\?/g, '%3f');
-		return '<img src="' + Dex.resourcePrefix + 'sprites/types/' + sanitizedType + '.png" alt="' + type + '" height="14" width="32"  class="pixelated' + (b ? ' b' : '') + '" />';
+		return `<img src="${Dex.resourcePrefix}sprites/types/${sanitizedType}.png" alt="${type}" height="14" width="32" class="pixelated${b ? ' b' : ''}" />`;
 	}
 
-	getCategoryIcon(categoryOrMove: string) {
+	getCategoryIcon(category: string) {
+		const categoryID = toID(category);
 		let sanitizedCategory = '';
-		switch (toID(categoryOrMove)) {
+		switch (categoryID) {
 		case 'physical':
 		case 'special':
 		case 'status':
-			sanitizedCategory = toID(sanitizedCategory)[0].toUpperCase() + toID(sanitizedCategory).substr(1);
+			sanitizedCategory = categoryID.charAt(0).toUpperCase() + categoryID.slice(1);
 			break;
 		default:
-			const move = this.getMove(categoryOrMove);
-			if (!move.exists) {
-				sanitizedCategory = 'undefined';
-			} else {
-				sanitizedCategory = move.category;
-			}
+			sanitizedCategory = 'undefined';
 			break;
 		}
-		return '<img src="' + Dex.resourcePrefix + 'sprites/categories/' + sanitizedCategory + '.png" alt="' + categoryOrMove + '" height="14" width="32" class="pixelated" />';
+		return `<img src="${Dex.resourcePrefix}sprites/categories/${sanitizedCategory}.png" alt="${sanitizedCategory}" height="14" width="32" class="pixelated" />`;
 	}
 
 	getPokeballs() {
