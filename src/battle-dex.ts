@@ -882,7 +882,7 @@ const Dex = new class implements ModdedDex {
 		case 'physical':
 		case 'special':
 		case 'status':
-			sanitizedCategory = toID(sanitizedCategory)[0].toUpperCase() + toID(sanitizedCategory).substr(1);
+			sanitizedCategory = toID(categoryOrMove)[0].toUpperCase() + toID(categoryOrMove).substr(1);
 			break;
 		default:
 			const move = this.getMove(categoryOrMove);
