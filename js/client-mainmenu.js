@@ -43,6 +43,7 @@
 				buf += '<div class="menugroup"><form class="battleform" data-search="1">';
 				buf += '<p><label class="label">Format:</label>' + this.renderFormats() + '</p>';
 				buf += '<p><label class="label">Team:</label>' + this.renderTeams() + '</p>';
+				buf += '<p><label class="checkbox"><input type="checkbox" name="private" ' + (Storage.prefs('disallowspectators') ? 'checked' : '') + ' /> <abbr title="You can still invite spectators by giving them the URL or using the /invite command">Don\'t allow spectators</abbr></label></p>';
 				buf += '<p><button class="button mainmenu1 big" name="search"><strong>Battle!</strong><br /><small>Find a random opponent</small></button></p></form></div>';
 			}
 
@@ -682,6 +683,7 @@
 						var buf = '<form class="battleform"><p>' + BattleLog.escapeHTML(name) + ' wants to battle!</p>';
 						buf += '<p><label class="label">Format:</label>' + self.renderFormats(format, true) + '</p>';
 						buf += '<p><label class="label">Team:</label>' + self.renderTeams(format) + '</p>';
+						buf += '<p><label class="checkbox"><input type="checkbox" name="private" ' + (Storage.prefs('disallowspectators') ? 'checked' : '') + ' /> <abbr title="You can still invite spectators by giving them the URL or using the /invite command">Don\'t allow spectators</abbr></label></p>';
 						buf += '<p class="buttonbar"><button name="acceptChallenge"><strong>Accept</strong></button> <button name="rejectChallenge">Reject</button></p></form>';
 						$challenge.html(buf);
 						if (format.substr(0, 4) === 'gen5') atLeastOneGen5 = true;
@@ -792,6 +794,7 @@
 			var buf = '<form class="battleform"><p>Challenge ' + BattleLog.escapeHTML(name) + '?</p>';
 			buf += '<p><label class="label">Format:</label>' + this.renderFormats(format) + '</p>';
 			buf += '<p><label class="label">Team:</label>' + this.renderTeams(format, teamIndex) + '</p>';
+			buf += '<p><label class="checkbox"><input type="checkbox" name="private" ' + (Storage.prefs('disallowspectators') ? 'checked' : '') + ' /> <abbr title="You can still invite spectators by giving them the URL or using the /invite command">Don\'t allow spectators</abbr></label></p>';
 			buf += '<p class="buttonbar"><button name="makeChallenge"><strong>Challenge</strong></button> <button name="dismissChallenge">Cancel</button></p></form>';
 			$challenge.html(buf);
 		},
@@ -802,6 +805,7 @@
 
 			var format = $pmWindow.find('button[name=format]').val();
 			var teamIndex = $pmWindow.find('button[name=team]').val();
+			var privacy = this.adjustPrivacy($pmWindow.find('input[name=private]').is(':checked'));
 			var team = null;
 			if (Storage.teams[teamIndex]) team = Storage.teams[teamIndex];
 			if (format.indexOf('@@@') === -1 && !window.BattleFormats[format].team && !team) {
@@ -811,7 +815,7 @@
 
 			target.disabled = true;
 			app.sendTeam(team);
-			app.send('/accept ' + userid);
+			app.send(privacy + '/accept ' + userid);
 		},
 		rejectChallenge: function (i, target) {
 			var userid = $(target).closest('.pm-window').data('userid');
@@ -826,6 +830,7 @@
 
 			var format = $pmWindow.find('button[name=format]').val();
 			var teamIndex = $pmWindow.find('button[name=team]').val();
+			var privacy = this.adjustPrivacy($pmWindow.find('input[name=private]').is(':checked'));
 			var team = null;
 			if (Storage.teams[teamIndex]) team = Storage.teams[teamIndex];
 
@@ -841,7 +846,7 @@
 
 			$(target).closest('.challenge').html(buf);
 			app.sendTeam(team);
-			app.send('/challenge ' + userid + ', ' + format);
+			app.send(privacy + '/challenge ' + userid + ', ' + format);
 		},
 		cancelChallenge: function (i, target) {
 			var userid = $(target).closest('.pm-window').data('userid');
@@ -853,6 +858,12 @@
 		},
 		format: function (format, button) {
 			if (window.BattleFormats) app.addPopup(FormatPopup, {format: format, sourceEl: button});
+		},
+		adjustPrivacy: function (disallowSpectators) {
+			Storage.prefs('disallowspectators', disallowSpectators);
+			if (disallowSpectators) return '/noreply /ionext\n'; // TODO: switch to /hidenext once it adds a password
+			var settings = app.user.get('settings');
+			return (settings.hiddenNextBattle ? '/noreply /hidenext off\n' : '') + (settings.inviteOnlyNextBattle ? '/noreply /ionext off\n' : '');
 		},
 		team: function (team, button) {
 			var format = $(button).closest('form').find('button[name=format]').val();
@@ -945,6 +956,7 @@
 
 			var $formatButton = $searchForm.find('button[name=format]');
 			var $teamButton = $searchForm.find('button[name=team]');
+			var $privacyCheckbox = $searchForm.find('input[name=private]');
 
 			var format = $formatButton.val();
 			var teamIndex = $teamButton.val();
@@ -965,8 +977,9 @@
 			$searchForm.append('<p class="cancel buttonbar"><button name="cancelSearch">Cancel</button></p>');
 
 			app.sendTeam(team);
+			var self = this;
 			this.searchDelay = setTimeout(function () {
-				app.send('/search ' + format);
+				app.send(self.adjustPrivacy($privacyCheckbox.is(':checked')) + '/search ' + format);
 			}, 3000);
 		},
 		cancelSearch: function () {
