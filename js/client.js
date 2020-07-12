@@ -190,7 +190,7 @@ function toId() {
 			this.normalizeList = normalizeList;
 		},
 		updateSetting: function (setting, value) {
-			var settings = this.get('settings');
+			var settings = _.clone(this.get('settings'));
 			if (settings[setting] !== value) {
 				switch (setting) {
 				case 'blockPMs':
@@ -202,6 +202,7 @@ function toId() {
 				default:
 					throw new TypeError('Unknown setting:' + setting);
 				}
+				// Optimistically update, might get corrected by the |updateuser| response
 				settings[setting] = value;
 				this.set('settings', settings);
 			}
@@ -984,7 +985,7 @@ function toId() {
 					}, function () {}, 'text');
 				}
 
-				var settings = app.user.get('settings');
+				var settings = _.clone(app.user.get('settings'));
 				if (parts.length > 4) {
 					// Update our existing settings based on what the server has sent us.
 					// This approach is more robust as it works regardless of whether the

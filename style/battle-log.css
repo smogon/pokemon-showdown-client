@@ -158,7 +158,7 @@ button:disabled {
 .checkbox input {
 	width: 14px;
 	height: 14px;
-	vertical-align: 1px;
+	vertical-align: -3px;
 	cursor: pointer;
 }
 .checkbox i {
