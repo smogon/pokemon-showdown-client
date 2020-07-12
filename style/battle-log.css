@@ -171,7 +171,8 @@ button:disabled {
 	color: black;
 	text-shadow: none;
 }
-.dark .checkbox:hover {
+.dark .checkbox:hover,
+.menugroup .checkbox:hover {
 	background: #383838;
 	color: white;
 }
