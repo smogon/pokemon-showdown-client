@@ -185,10 +185,11 @@ class PSTeambuilder {
 
 			// happiness
 			if (parts[11]) {
-				let misc = parts[11].split(',', 3);
+				let misc = parts[11].split(',', 4);
 				set.happiness = (misc[0] ? Number(misc[0]) : undefined);
 				set.hpType = misc[1];
 				set.pokeball = misc[2];
+				set.gigantamax = !!misc[3];
 			}
 		}
 
@@ -276,6 +277,9 @@ class PSTeambuilder {
 		if (typeof set.happiness === 'number' && set.happiness !== 255 && !isNaN(set.happiness)) {
 			text += `Happiness: ${set.happiness}  \n`;
 		}
+		if (set.gigantamax) {
+			text += `Gigantamax: Yes  \n`;
+		}
 
 		text += `\n`;
 		return text;
@@ -342,6 +346,8 @@ class PSTeambuilder {
 		} else if (line.startsWith('Hidden Power: ')) {
 			line = line.slice(14);
 			set.hpType = line;
+		} else if (line === 'Gigantamax: Yes') {
+			set.gigantamax = true;
 		} else if (line.startsWith('EVs: ')) {
 			line = line.slice(5);
 			let evLines = line.split('/');
@@ -465,7 +471,7 @@ class PSTeambuilder {
 
 				line = line.slice(3, -3).trim();
 				[curTeam.format, line] = this.splitPrefix(line, ']', 1) as [ID, string];
-				if (!curTeam.format) curTeam.format = 'gen7' as ID;
+				if (!curTeam.format) curTeam.format = 'gen8' as ID;
 				else if (!curTeam.format.startsWith('gen')) curTeam.format = `gen6${curTeam.format}` as ID;
 
 				[curTeam.folder, curTeam.name] = this.splitPrefix(line, '/');

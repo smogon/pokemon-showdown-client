@@ -498,6 +498,7 @@ const Dex = new class implements ModdedDex {
 			pokemon = pokemon.getSpeciesForme();
 		}
 		const species = Dex.getSpecies(pokemon);
+		// if (isDynamax && species.canGigantamax) isDynamax = false;
 		let spriteData = {
 			gen: mechanicsGen,
 			w: 96,
@@ -510,6 +511,7 @@ const Dex = new class implements ModdedDex {
 			shiny: options.shiny,
 		};
 		let name = species.spriteid;
+		// if (isDynamax && species.canGigantamax) name += `-gmax`;
 		let dir;
 		let facing;
 		if (siden) {
@@ -541,6 +543,10 @@ const Dex = new class implements ModdedDex {
 		let animationData = null;
 		let miscData = null;
 		let speciesid = species.id;
+		if (isDynamax && species.canGigantamax) {
+			speciesid = speciesid + '-gmax' as ID;
+			isDynamax = false;
+		}
 		if (species.isTotem) speciesid = toID(name);
 		if (baseDir === '' && window.BattlePokemonSprites) {
 			animationData = BattlePokemonSprites[speciesid];

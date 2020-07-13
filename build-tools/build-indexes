@@ -8,8 +8,13 @@ const child_process = require("child_process");
 const rootDir = path.resolve(__dirname, '..');
 process.chdir(rootDir);
 
+<<<<<<< HEAD
 if (!fs.existsSync('data/pokemon-showdown')) {
 	child_process.execSync('git clone https://github.com/smogon/pokemon-showdown.git', {
+=======
+if (!fs.existsSync('data/Pokemon-Showdown')) {
+	child_process.execSync('git clone -b proper-gmax https://github.com/KrisXV/pokemon-showdown.git', {
+>>>>>>> Simulate Gigantamax properly
 		cwd: 'data',
 	});
 }
@@ -344,7 +349,6 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 								['zygardecomplete', 'necrozmaultra'].includes(species.id)) {
 								tier = 'Uber';
 							}
-							if (species.isGigantamax) tier = '(Uber)';
 							if (species.id.includes('eternamax')) tier = 'Illegal';
 						}
 					}
@@ -992,8 +996,6 @@ process.stdout.write("Building `data/pokedex.js`... ");
 			// console.log('formatsentry:' + id);
 			const formatsEntry = Dex.data.FormatsData[id];
 			if (formatsEntry.tier) entry.tier = formatsEntry.tier;
-			if (formatsEntry.requiredItem) entry.requiredItem = formatsEntry.requiredItem;
-			if (formatsEntry.battleOnly) entry.battleOnly = formatsEntry.battleOnly;
 			if (formatsEntry.isNonstandard) entry.isNonstandard = formatsEntry.isNonstandard;
 			if (formatsEntry.unreleasedHidden) entry.unreleasedHidden = formatsEntry.unreleasedHidden;
 		}

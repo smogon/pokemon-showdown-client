@@ -1162,6 +1162,8 @@ Storage.importTeam = function (buffer, teams) {
 		} else if (line.substr(0, 14) === 'Hidden Power: ') {
 			line = line.substr(14);
 			curSet.hpType = line;
+		} else if (line === 'Gigantamax: Yes') {
+			curSet.gigantamax = true;
 		} else if (line.substr(0, 5) === 'EVs: ') {
 			line = line.substr(5);
 			var evLines = line.split('/');
@@ -1279,6 +1281,9 @@ Storage.exportTeam = function (team) {
 		}
 		if (curSet.hpType) {
 			text += 'Hidden Power: ' + curSet.hpType + "  \n";
+		}
+		if (curSet.gigantamax) {
+			text += 'Gigantamax: Yes  \n';
 		}
 		var first = true;
 		if (curSet.evs) {

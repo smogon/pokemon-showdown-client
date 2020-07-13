@@ -714,9 +714,6 @@ abstract class BattleTypedSearch<T extends SearchType> {
 				genChar = 'p';
 			}
 		}
-		if (this.dex.getSpecies(speciesid).isGigantamax) {
-			genChar = 'g';
-		}
 		let learnsetid = this.firstLearnsetid(speciesid);
 		while (learnsetid) {
 			let learnset = BattleTeambuilderTable.learnsets[learnsetid];
@@ -1298,8 +1295,7 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 		let species = dex.getSpecies(this.species);
 		const format = this.format;
 		const isBH = (format === 'balancedhackmons' || format === 'bh');
-		const galarBornLegality = format.includes('battlestadium') || (format.startsWith('vgc') && this.dex.gen === 8) ||
-			species.isGigantamax;
+		const galarBornLegality = format.includes('battlestadium') || (format.startsWith('vgc') && this.dex.gen === 8);
 
 		const abilityid = this.set ? toID(this.set.ability) : '' as ID;
 		const itemid = this.set ? toID(this.set.item) : '' as ID;

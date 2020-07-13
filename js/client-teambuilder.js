@@ -1177,6 +1177,9 @@
 						buf += '<span class="detailcell"><label>HP Type</label>' + (set.hpType || 'Dark') + '</span>';
 					}
 				}
+				if (this.curTeam.gen === 8 && species.canGigantamax) {
+					buf += '<span class="detailcell"><label>Gmax</label>' + (set.gigantamax ? 'Yes' : 'No') + '</span>';
+				}
 			}
 			buf += '</button></div></div>';
 
@@ -2501,6 +2504,13 @@
 				buf += '<label><input type="radio" name="shiny" value="yes"' + (set.shiny ? ' checked' : '') + ' /> Yes</label> ';
 				buf += '<label><input type="radio" name="shiny" value="no"' + (!set.shiny ? ' checked' : '') + ' /> No</label>';
 				buf += '</div></div>';
+
+				if (species.canGigantamax) {
+					buf += '<div class="formrow"><label class="formlabel">Gigantamax:</label></div>';
+					buf += '<label><input type="radio" name="gigantamax" value="yes"' + (set.gigantamax ? ' checked' : '') + ' /> Yes</label> ';
+					buf += '<label><input type="radio" name="gigantamax" value="no"' + (!set.gigantamax ? ' checked' : '') + ' /> No</label>';
+					buf += '</div></div>';
+				}
 			}
 
 			if (this.curTeam.gen > 2) {
@@ -2536,6 +2546,7 @@
 			e.stopPropagation();
 			var set = this.curSet;
 			if (!set) return;
+			var species = Dex.getSpecies(set.species);
 			var isLetsGo = this.curTeam.format.includes('letsgo');
 			var isNatDex = this.curTeam.format.includes('nationaldex');
 
@@ -2558,6 +2569,14 @@
 				set.shiny = true;
 			} else {
 				delete set.shiny;
+			}
+
+			// gigantamax
+			var gmax = (this.$chart.find('input[name=gigantamax]:checked').val() === 'yes');
+			if (gmax) {
+				set.gigantamax = true;
+			} else {
+				delete set.gigantamax;
 			}
 
 			// gender
@@ -2601,6 +2620,7 @@
 				}
 				buf += '<span class="detailcell"><label>Shiny</label>' + (set.shiny ? 'Yes' : 'No') + '</span>';
 				if (!isLetsGo && (this.curTeam.gen < 8 || isNatDex)) buf += '<span class="detailcell"><label>HP Type</label>' + (set.hpType || 'Dark') + '</span>';
+				if (this.curTeam.gen === 8 && species.canGigantamax) buf += '<span class="detailcell"><label>Gmax</label>' + (set.gigantamax ? 'Yes' : 'No') + '</span>';
 			}
 			this.$('button[name=details]').html(buf);
 
@@ -2822,6 +2842,7 @@
 				set.gender = 'F';
 				if (set.happiness) delete set.happiness;
 				if (set.shiny) delete set.shiny;
+				if (set.gigantamax) delete set.gigantamax;
 				set.item = 'Starf Berry';
 				set.ability = 'Harvest';
 				set.moves = ['Substitute', 'Horn Leech', 'Earthquake', 'Phantom Force'];
@@ -2846,6 +2867,7 @@
 				}
 				if (set.happiness) delete set.happiness;
 				if (set.shiny) delete set.shiny;
+				if (set.gigantamax) delete set.gigantamax;
 				set.item = 'Leftovers';
 				set.ability = 'Battle Armor';
 				set.moves = ['Acupressure', 'Knock Off', 'Rest', 'Sleep Talk'];
@@ -3059,6 +3081,7 @@
 			if (species.gender && species.gender !== 'N') set.gender = species.gender;
 			if (set.happiness) delete set.happiness;
 			if (set.shiny) delete set.shiny;
+			if (set.gigantamax) delete set.gigantamax;
 			if (this.curTeam.format.indexOf('hackmons') < 0) {
 				set.item = (species.requiredItem || '');
 			} else {
