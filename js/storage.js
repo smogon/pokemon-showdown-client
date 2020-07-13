@@ -635,7 +635,7 @@ Storage.unpackAllTeams = function (buffer) {
 	if (buffer.charAt(0) === '[' && $.trim(buffer).indexOf('\n') < 0) {
 		// old format
 		return JSON.parse(buffer).map(function (oldTeam) {
-			var format = oldTeam.format || 'gen7';
+			var format = oldTeam.format || 'gen8';
 			if (format && format.slice(0, 3) !== 'gen') format = 'gen6' + format;
 			return {
 				name: oldTeam.name || '',
@@ -657,7 +657,7 @@ Storage.unpackLine = function (line) {
 	if (bracketIndex > pipeIndex) bracketIndex = -1;
 	var slashIndex = line.lastIndexOf('/', pipeIndex);
 	if (slashIndex < 0) slashIndex = bracketIndex; // line.slice(slashIndex + 1, pipeIndex) will be ''
-	var format = bracketIndex > 0 ? line.slice(0, bracketIndex) : 'gen7';
+	var format = bracketIndex > 0 ? line.slice(0, bracketIndex) : 'gen8';
 	if (format && format.slice(0, 3) !== 'gen') format = 'gen6' + format;
 	return {
 		name: line.slice(slashIndex + 1, pipeIndex),
@@ -760,9 +760,10 @@ Storage.packTeam = function (team) {
 			buf += '|';
 		}
 
-		if (set.pokeball || (set.hpType && !hasHP)) {
+		if (set.pokeball || (set.hpType && !hasHP) || set.gigantamax) {
 			buf += ',' + (set.hpType || '');
 			buf += ',' + toID(set.pokeball);
+			buf += ',' + (set.gigantamax ? 'G' : '');
 		}
 	}
 
@@ -867,14 +868,15 @@ Storage.fastUnpackTeam = function (buf) {
 		j = buf.indexOf(']', i);
 		var misc = undefined;
 		if (j < 0) {
-			if (i < buf.length) misc = buf.substring(i).split(',', 3);
+			if (i < buf.length) misc = buf.substring(i).split(',', 4);
 		} else {
-			if (i !== j) misc = buf.substring(i, j).split(',', 3);
+			if (i !== j) misc = buf.substring(i, j).split(',', 4);
 		}
 		if (misc) {
 			set.happiness = (misc[0] ? Number(misc[0]) : 255);
 			set.hpType = misc[1];
 			set.pokeball = misc[2];
+			set.gigantamax = !!misc[3];
 		}
 		if (j < 0) break;
 		i = j + 1;
@@ -982,14 +984,15 @@ Storage.unpackTeam = function (buf) {
 		j = buf.indexOf(']', i);
 		var misc = undefined;
 		if (j < 0) {
-			if (i < buf.length) misc = buf.substring(i).split(',', 3);
+			if (i < buf.length) misc = buf.substring(i).split(',', 4);
 		} else {
-			if (i !== j) misc = buf.substring(i, j).split(',', 3);
+			if (i !== j) misc = buf.substring(i, j).split(',', 4);
 		}
 		if (misc) {
 			set.happiness = (misc[0] ? Number(misc[0]) : 255);
 			set.hpType = misc[1];
 			set.pokeball = misc[2];
+			set.gigantamax = !!misc[3];
 		}
 		if (j < 0) break;
 		i = j + 1;
@@ -1088,7 +1091,7 @@ Storage.importTeam = function (buffer, teams) {
 		} else if (line.substr(0, 3) === '===' && teams) {
 			team = [];
 			line = $.trim(line.substr(3, line.length - 6));
-			var format = 'gen7';
+			var format = 'gen8';
 			var bracketIndex = line.indexOf(']');
 			if (bracketIndex >= 0) {
 				format = line.substr(1, bracketIndex - 1);
