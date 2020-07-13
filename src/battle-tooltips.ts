@@ -587,10 +587,12 @@ class BattleTooltips {
 						maxMove = this.battle.dex.getMove(BattleTooltips.maxMoveTable['Psychic']);
 					}
 				}
+				const basePower = ['gmaxdrumsolo', 'gmaxfireball', 'gmaxhydrosnipe'].includes(maxMove.id) ?
+					maxMove.basePower : move.maxMove.basePower;
 				move = new Move(maxMove.id, maxMove.name, {
 					...maxMove,
 					category: move.category,
-					basePower: move.maxMove!.basePower,
+					basePower,
 				});
 			}
 		}
