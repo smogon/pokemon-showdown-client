@@ -13,6 +13,8 @@
 			buf += '<p><button name="joinRoomPopup" class="button">Join other room</button></p></div>';
 			this.$el.html(buf);
 			app.on('response:rooms', this.update, this);
+			var settings = Dex.prefs('serversettings');
+			if (settings) app.send('/updatesettings ' + JSON.stringify(settings));
 			app.send('/cmd rooms');
 			app.user.on('change:named', this.updateUser, this);
 			this.update();
