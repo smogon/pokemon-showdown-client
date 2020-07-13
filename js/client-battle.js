@@ -695,18 +695,10 @@
 
 				var switchMenu = '';
 				if (trapped) {
-					switchMenu += '<em>You are trapped and cannot switch!</em>';
+					switchMenu += '<em>You are trapped and cannot switch!</em><br />';
+					switchMenu += this.displayParty(switchables, trapped);
 				} else {
-					for (var i = 0; i < switchables.length; i++) {
-						var pokemon = switchables[i];
-						pokemon.name = pokemon.ident.substr(4);
-						var tooltipArgs = 'switchpokemon|' + i;
-						if (pokemon.fainted || i < this.battle.mySide.active.length || this.choice.switchFlags[i]) {
-							switchMenu += '<button class="disabled has-tooltip" name="chooseDisabled" value="' + BattleLog.escapeHTML(pokemon.name) + (pokemon.fainted ? ',fainted' : i < this.battle.mySide.active.length ? ',active' : '') + '" data-tooltip="' + BattleLog.escapeHTML(tooltipArgs) + '"><span class="picon" style="' + Dex.getPokemonIcon(pokemon) + '"></span>' + BattleLog.escapeHTML(pokemon.name) + (pokemon.hp ? '<span class="' + pokemon.getHPColorClass() + '"><span style="width:' + (Math.round(pokemon.hp * 92 / pokemon.maxhp) || 1) + 'px"></span></span>' + (pokemon.status ? '<span class="status ' + pokemon.status + '"></span>' : '') : '') + '</button> ';
-						} else {
-							switchMenu += '<button name="chooseSwitch" value="' + i + '" class="has-tooltip" data-tooltip="' + BattleLog.escapeHTML(tooltipArgs) + '"><span class="picon" style="' + Dex.getPokemonIcon(pokemon) + '"></span>' + BattleLog.escapeHTML(pokemon.name) + '<span class="' + pokemon.getHPColorClass() + '"><span style="width:' + (Math.round(pokemon.hp * 92 / pokemon.maxhp) || 1) + 'px"></span></span>' + (pokemon.status ? '<span class="status ' + pokemon.status + '"></span>' : '') + '</button> ';
-						}
-					}
+					switchMenu += this.displayParty(switchables, trapped);
 					if (this.finalDecisionSwitch && this.battle.gen > 2) {
 						switchMenu += '<em style="display:block;clear:both">You <strong>might</strong> be trapped, so you won\'t be able to cancel a switch!</em><br/>';
 					}
@@ -725,6 +717,20 @@
 					'</div>'
 				);
 			}
+		},
+		displayParty: function (switchables, trapped) {
+			var party = '';
+			for (var i = 0; i < switchables.length; i++) {
+				var pokemon = switchables[i];
+				pokemon.name = pokemon.ident.substr(4);
+				var tooltipArgs = 'switchpokemon|' + i;
+				if (pokemon.fainted || i < this.battle.mySide.active.length || this.choice.switchFlags[i] || trapped) {
+					party += '<button class="disabled has-tooltip" name="chooseDisabled" value="' + BattleLog.escapeHTML(pokemon.name) + (pokemon.fainted ? ',fainted' : trapped ? ',trapped' : i < this.battle.mySide.active.length ? ',active' : '') + '" data-tooltip="' + BattleLog.escapeHTML(tooltipArgs) + '"><span class="picon" style="' + Dex.getPokemonIcon(pokemon) + '"></span>' + BattleLog.escapeHTML(pokemon.name) + (pokemon.hp ? '<span class="' + pokemon.getHPColorClass() + '"><span style="width:' + (Math.round(pokemon.hp * 92 / pokemon.maxhp) || 1) + 'px"></span></span>' + (pokemon.status ? '<span class="status ' + pokemon.status + '"></span>' : '') : '') + '</button> ';
+				} else {
+					party += '<button name="chooseSwitch" value="' + i + '" class="has-tooltip" data-tooltip="' + BattleLog.escapeHTML(tooltipArgs) + '"><span class="picon" style="' + Dex.getPokemonIcon(pokemon) + '"></span>' + BattleLog.escapeHTML(pokemon.name) + '<span class="' + pokemon.getHPColorClass() + '"><span style="width:' + (Math.round(pokemon.hp * 92 / pokemon.maxhp) || 1) + 'px"></span></span>' + (pokemon.status ? '<span class="status ' + pokemon.status + '"></span>' : '') + '</button> ';
+				}
+			}
+			return party;
 		},
 		updateSwitchControls: function (type) {
 			var pos = this.choice.choices.length;
@@ -1201,6 +1207,8 @@
 			data = data.split(',');
 			if (data[1] === 'fainted') {
 				app.addPopupMessage("" + data[0] + " has no energy left to battle!");
+			} else if (data[1] === 'trapped') {
+				app.addPopupMessage("You are trapped and cannot select " + data[0] + "!");
 			} else if (data[1] === 'active') {
 				app.addPopupMessage("" + data[0] + " is already in battle!");
 			} else {
