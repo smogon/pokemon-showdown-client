@@ -8,13 +8,8 @@ const child_process = require("child_process");
 const rootDir = path.resolve(__dirname, '..');
 process.chdir(rootDir);
 
-<<<<<<< HEAD
 if (!fs.existsSync('data/pokemon-showdown')) {
 	child_process.execSync('git clone https://github.com/smogon/pokemon-showdown.git', {
-=======
-if (!fs.existsSync('data/Pokemon-Showdown')) {
-	child_process.execSync('git clone -b proper-gmax https://github.com/KrisXV/pokemon-showdown.git', {
->>>>>>> Simulate Gigantamax properly
 		cwd: 'data',
 	});
 }
