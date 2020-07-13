@@ -47,6 +47,7 @@
 			this.battle.startCallback = function () { self.updateControls(); };
 			this.battle.stagnateCallback = function () { self.updateControls(); };
 
+			if (Dex.prefs('autotimer')) this.setTimer('on');
 			this.battle.play();
 		},
 		events: {
@@ -1393,10 +1394,12 @@
 			var rightPanelBattlesPossible = (MainMenuRoom.prototype.bestWidth + BattleRoom.prototype.minWidth < $(window).width());
 			var buf = '<p><strong>In this battle</strong></p>';
 			buf += '<p><label class="optlabel"><input type="checkbox" name="hardcoremode"' + (this.battle.hardcoreMode ? ' checked' : '') + '/> Hardcore mode (hide info not shown in-game) (beta)</label></p>';
-			buf += '<p><label class="optlabel"><input type="checkbox" name="ignorespects"' + (this.battle.ignoreSpects ? ' checked' : '') + '/> Ignore Spectators</label></p>';
-			buf += '<p><label class="optlabel"><input type="checkbox" name="ignoreopp"' + (this.battle.ignoreOpponent ? ' checked' : '') + '/> Ignore Opponent</label></p>';
+			buf += '<p><label class="optlabel"><input type="checkbox" name="ignorespects"' + (this.battle.ignoreSpects ? ' checked' : '') + '/> Ignore spectators</label></p>';
+			buf += '<p><label class="optlabel"><input type="checkbox" name="ignoreopp"' + (this.battle.ignoreOpponent ? ' checked' : '') + '/> Ignore opponent</label></p>';
 			buf += '<p><strong>All battles</strong></p>';
 			buf += '<p><label class="optlabel"><input type="checkbox" name="ignorenicks"' + (Dex.prefs('ignorenicks') ? ' checked' : '') + ' /> Ignore nicknames</label></p>';
+			buf += '<p><label class="optlabel"><input type="checkbox" name="allignorespects"' + (Dex.prefs('ignorespects') ? ' checked' : '') + '/> Ignore spectators</label></p>';
+			buf += '<p><label class="optlabel"><input type="checkbox" name="autotimer"' + (Dex.prefs('autotimer') ? ' checked' : '') + '/> Automatically start timer</label></p>';
 			if (rightPanelBattlesPossible) buf += '<p><label class="optlabel"><input type="checkbox" name="rightpanelbattles"' + (Dex.prefs('rightpanelbattles') ? ' checked' : '') + ' /> Open new battles on the right side</label></p>';
 			buf += '<p><button name="close">Close</button></p>';
 			this.$el.html(buf);
@@ -1406,6 +1409,8 @@
 			'change input[name=ignorenicks]': 'toggleIgnoreNicks',
 			'change input[name=ignoreopp]': 'toggleIgnoreOpponent',
 			'change input[name=hardcoremode]': 'toggleHardcoreMode',
+			'change input[name=allignorespects]': 'toggleAllIgnoreSpects',
+			'change input[name=autotimer]': 'toggleAutoTimer',
 			'change input[name=rightpanelbattles]': 'toggleRightPanelBattles'
 		},
 		toggleHardcoreMode: function (e) {
@@ -1427,6 +1432,11 @@
 				$messages.show();
 			}
 		},
+		toggleAllIgnoreSpects: function (e) {
+			var ignoreSpects = !!e.currentTarget.checked;
+			Dex.prefs('ignorespects', ignoreSpects);
+			if (ignoreSpects && !this.battle.ignoreSpects) this.$el.find('input[name=ignoreSpects]').click();
+		},
 		toggleIgnoreNicks: function (e) {
 			this.battle.ignoreNicks = !!e.currentTarget.checked;
 			Dex.prefs('ignorenicks', this.battle.ignoreNicks);
@@ -1437,6 +1447,11 @@
 			this.battle.ignoreOpponent = !!e.currentTarget.checked;
 			this.battle.add('Opponent ' + (this.battle.ignoreOpponent ? '' : 'no longer ') + 'ignored.');
 			this.battle.resetToCurrentTurn();
+		},
+		toggleAutoTimer: function (e) {
+			var autoTimer = !!e.currentTarget.checked;
+			Dex.prefs('autotimer', autoTimer);
+			if (autoTimer) this.room.setTimer('on');
 		},
 		toggleRightPanelBattles: function (e) {
 			Dex.prefs('rightpanelbattles', !!e.currentTarget.checked);
