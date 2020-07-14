@@ -5,6 +5,7 @@ mb_internal_encoding('UTF-8');
 $psconfig = [
 
 	'sysops' => ['zarel'],
+	'autolock_ip' => [],
 
 // password and SID hashing settings
 
