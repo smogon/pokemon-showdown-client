@@ -336,6 +336,8 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 					hasBase = ouBanlist.includes(species.id + 'base');
 					if (ouBanlist.includes(species.id)) {
 						tier = 'Uber';
+					} else if (species.name.includes('-Gmax')) {
+						return '(Uber)';
 					} else {
 						if (hasBase) {
 							tier = 'Uber';
