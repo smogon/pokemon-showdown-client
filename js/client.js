@@ -2758,7 +2758,12 @@ function toId() {
 				'<p><b>5.</b> English only, unless specified otherwise.</p>' +
 				'<p>(Note: You can opt out of chat rules in private chat rooms and battle rooms, but only if all ROs or players agree to it.)</p>';
 			if (!warning) {
-				buf += '<b>Usernames</b><br /><br />Your username can be chosen and changed at any time. Keep in mind:<br /><br /><b>1.</b> Usernames may not impersonate a recognized user (a user with %, @, or &amp; next to their name) or a famous person/organization that uses PS or is associated with Pokémon.<br /><br /><b>2.</b> Usernames may not be derogatory or insulting in nature, to an individual or group (insulting yourself is okay as long as it\'s not too serious).<br /><br /><b>3.</b> Usernames may not directly reference sexual activity, or be excessively disgusting.<br /><br />This policy is less restrictive than that of many places, so you might see some "borderline" nicknames that might not be accepted elsewhere. You might consider it unfair that they are allowed to keep their nickname. The fact remains that their nickname follows the above rules, and if you were asked to choose a new name, yours does not.';
+				buf += '<p><b>Usernames</b></p>' +
+					'<p>Your username can be chosen and changed at any time. Keep in mind:</p>' +
+					'<p><b>1.</b> Usernames may not impersonate a recognized user (a user with %, @, or &amp; next to their name) or a famous person/organization that uses PS or is associated with Pokémon.</p>' +
+					'<p><b>2.</b> Usernames may not be derogatory or insulting in nature, to an individual or group (insulting yourself is okay as long as it\'s not too serious).</p>' +
+					'<p><b>3.</b> Usernames may not directly reference sexual activity, or be excessively disgusting.</p>' +
+					'<p>This policy is less restrictive than that of many places, so you might see some "borderline" nicknames that might not be accepted elsewhere. You might consider it unfair that they are allowed to keep their nickname. The fact remains that their nickname follows the above rules, and if you were asked to choose a new name, yours does not.</p>';
 			}
 			if (warning) {
 				buf += '<p class="buttonbar"><button name="close" disabled>Close</button><small class="overlay-warn"> You will be able to close this in 5 seconds</small></p>';
