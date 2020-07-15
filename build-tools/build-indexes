@@ -420,9 +420,9 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 					return species.tier;
 				}
 				if (isDoubles && genNum > 4) {
-					return species.name.includes('-Gmax') ? "DOU" : species.tier;
+					return species.doublesTier;
 				}
-				return species.name.includes('-Gmax') ? "(Uber)" : species.tier;
+				return species.tier;
 			})();
 			overrideTier[species.id] = tier;
 			if (species.forme) {
