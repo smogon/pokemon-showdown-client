@@ -1407,6 +1407,7 @@
 			buf += '<p><strong>All battles</strong></p>';
 			buf += '<p><label class="optlabel"><input type="checkbox" name="ignorenicks"' + (Dex.prefs('ignorenicks') ? ' checked' : '') + ' /> Ignore nicknames</label></p>';
 			buf += '<p><label class="optlabel"><input type="checkbox" name="allignorespects"' + (Dex.prefs('ignorespects') ? ' checked' : '') + '/> Ignore spectators</label></p>';
+			buf += '<p><label class="optlabel"><input type="checkbox" name="allignoreopp"' + (Dex.prefs('ignoreopp') ? ' checked' : '') + '/> Ignore opponent</label></p>';
 			buf += '<p><label class="optlabel"><input type="checkbox" name="autotimer"' + (Dex.prefs('autotimer') ? ' checked' : '') + '/> Automatically start timer</label></p>';
 			if (rightPanelBattlesPossible) buf += '<p><label class="optlabel"><input type="checkbox" name="rightpanelbattles"' + (Dex.prefs('rightpanelbattles') ? ' checked' : '') + ' /> Open new battles on the right side</label></p>';
 			buf += '<p><button name="close">Close</button></p>';
@@ -1418,6 +1419,7 @@
 			'change input[name=ignoreopp]': 'toggleIgnoreOpponent',
 			'change input[name=hardcoremode]': 'toggleHardcoreMode',
 			'change input[name=allignorespects]': 'toggleAllIgnoreSpects',
+			'change input[name=allignoreopp]': 'toggleAllIgnoreOpponent',
 			'change input[name=autotimer]': 'toggleAutoTimer',
 			'change input[name=rightpanelbattles]': 'toggleRightPanelBattles'
 		},
@@ -1443,7 +1445,7 @@
 		toggleAllIgnoreSpects: function (e) {
 			var ignoreSpects = !!e.currentTarget.checked;
 			Dex.prefs('ignorespects', ignoreSpects);
-			if (ignoreSpects && !this.battle.ignoreSpects) this.$el.find('input[name=ignoreSpects]').click();
+			if (ignoreSpects && !this.battle.ignoreSpects) this.$el.find('input[name=ignorespects]').click();
 		},
 		toggleIgnoreNicks: function (e) {
 			this.battle.ignoreNicks = !!e.currentTarget.checked;
@@ -1455,6 +1457,11 @@
 			this.battle.ignoreOpponent = !!e.currentTarget.checked;
 			this.battle.add('Opponent ' + (this.battle.ignoreOpponent ? '' : 'no longer ') + 'ignored.');
 			this.battle.resetToCurrentTurn();
+		},
+		toggleAllIgnoreOpponent: function (e) {
+			var ignoreOpponent = !!e.currentTarget.checked;
+			Dex.prefs('ignoreopp', ignoreOpponent);
+			if (ignoreOpponent && !this.battle.ignoreOpponent) this.$el.find('input[name=ignoreopp]').click();
 		},
 		toggleAutoTimer: function (e) {
 			var autoTimer = !!e.currentTarget.checked;
