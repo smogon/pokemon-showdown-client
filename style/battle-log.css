@@ -152,13 +152,13 @@ button:disabled {
 	font-size: 10pt;
 	display: block;
 	cursor: pointer;
-	padding: 1px 6px 3px 2px;
+	padding: 2px 6px 2px 2px;
 	border-radius: 4px;
 }
 .checkbox input {
 	width: 14px;
 	height: 14px;
-	vertical-align: 1px;
+	vertical-align: -2px;
 	cursor: pointer;
 }
 .checkbox i {
@@ -169,8 +169,10 @@ button:disabled {
 .checkbox:hover {
 	background: #D5D5D5;
 	color: black;
+	text-shadow: none;
 }
-.dark .checkbox:hover {
+.dark .checkbox:hover,
+.menugroup .checkbox:hover {
 	background: #383838;
 	color: white;
 }

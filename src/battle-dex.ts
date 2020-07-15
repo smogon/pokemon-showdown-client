@@ -757,7 +757,7 @@ const Dex = new class implements ModdedDex {
 			num = BattlePokedex[id].num;
 		}
 		if (num < 0) num = 0;
-		if (num > 890) num = 0;
+		if (num > 893) num = 0;
 
 		if (window.BattlePokemonIconIndexes?.[id]) {
 			num = BattlePokemonIconIndexes[id];
@@ -803,7 +803,7 @@ const Dex = new class implements ModdedDex {
 		let top = Math.floor(num / 12) * 30;
 		let left = (num % 12) * 40;
 		let fainted = ((pokemon as Pokemon | ServerPokemon)?.fainted ? `;opacity:.3;filter:grayscale(100%) brightness(.5)` : ``);
-		return `background:transparent url(${Dex.resourcePrefix}sprites/pokemonicons-sheet.png?g8) no-repeat scroll -${left}px -${top}px${fainted}`;
+		return `background:transparent url(${Dex.resourcePrefix}sprites/pokemonicons-sheet.png?d1) no-repeat scroll -${left}px -${top}px${fainted}`;
 	}
 
 	getTeambuilderSpriteData(pokemon: any, gen: number = 0): TeambuilderSpriteData {
@@ -823,7 +823,7 @@ const Dex = new class implements ModdedDex {
 		if (pokemon.shiny) spriteData.shiny = true;
 		if (Dex.prefs('nopastgens')) gen = 6;
 		let xydexExists = (!species.isNonstandard || species.isNonstandard === 'Past') || [
-			"pikachustarter", "eeveestarter", "meltan", "melmetal", "fidgit", "stratagem", "tomohawk", "mollux", "crucibelle", "crucibellemega", "kerfluffle", "pajantom", "jumbao", "caribolt", "smokomodo", "snaelstrom", "equilibra", "scratchet", "pluffle", "smogecko", "pokestarufo", "pokestarufo2", "pokestarbrycenman", "pokestarmt", "pokestarmt2", "pokestargiant", "pokestarhumanoid", "pokestarmonster", "pokestarf00", "pokestarf002", "pokestarspirit",
+			"pikachustarter", "eeveestarter", "meltan", "melmetal", "fidgit", "stratagem", "tomohawk", "mollux", "crucibelle", "crucibellemega", "kerfluffle", "pajantom", "jumbao", "caribolt", "smokomodo", "snaelstrom", "equilibra", "astrolotl", "scratchet", "pluffle", "smogecko", "pokestarufo", "pokestarufo2", "pokestarbrycenman", "pokestarmt", "pokestarmt2", "pokestargiant", "pokestarhumanoid", "pokestarmonster", "pokestarf00", "pokestarf002", "pokestarspirit",
 		].includes(species.id);
 		if (species.gen === 8) xydexExists = false;
 		if ((!gen || gen >= 6) && xydexExists) {
@@ -870,9 +870,26 @@ const Dex = new class implements ModdedDex {
 	}
 
 	getTypeIcon(type: string, b?: boolean) { // b is just for utilichart.js
-		if (!type) return '';
+		type = this.getType(type).name;
+		if (!type) type = '???';
 		let sanitizedType = type.replace(/\?/g, '%3f');
-		return '<img src="' + Dex.resourcePrefix + 'sprites/types/' + sanitizedType + '.png" alt="' + type + '" height="14" width="32"' + (b ? ' class="b"' : '') + ' />';
+		return `<img src="${Dex.resourcePrefix}sprites/types/${sanitizedType}.png" alt="${type}" height="14" width="32" class="pixelated${b ? ' b' : ''}" />`;
+	}
+
+	getCategoryIcon(category: string) {
+		const categoryID = toID(category);
+		let sanitizedCategory = '';
+		switch (categoryID) {
+		case 'physical':
+		case 'special':
+		case 'status':
+			sanitizedCategory = categoryID.charAt(0).toUpperCase() + categoryID.slice(1);
+			break;
+		default:
+			sanitizedCategory = 'undefined';
+			break;
+		}
+		return `<img src="${Dex.resourcePrefix}sprites/categories/${sanitizedCategory}.png" alt="${sanitizedCategory}" height="14" width="32" class="pixelated" />`;
 	}
 
 	getPokeballs() {

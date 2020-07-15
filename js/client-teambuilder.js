@@ -38,6 +38,7 @@
 			// details
 			'change .detailsform input': 'detailsChange',
 			'change .detailsform select': 'detailsChange',
+			'submit .detailsform': 'detailsChange',
 			'click .changeform' : 'altForm',
 			'click .altform' : 'altForm',
 
@@ -1406,18 +1407,18 @@
 			var buf = '';
 			for (var i = 0; i < this.clipboardCount(); i++) {
 				var res = this.clipboard[i];
-				var species = Dex.getSpecies(res.name);
+				var species = Dex.getSpecies(res.species);
 
 				buf += '<div class="result" data-id="' + i + '">';
-				buf += '<div class="section"><span class="icon" style="' + Dex.getPokemonIcon(res.name) + '"></span>';
-				buf += '<span class="species">' + (species.name === species.baseSpecies ? species.name : (species.baseSpecies + '-<small>' + species.name.substr(species.baseSpecies.length + 1) + '</small>')) + '</span></div>';
-				buf += '<div class="section"><span class="ability-item">' + (res.ability || '<i>No ability</i>') + '<br />' + (res.item || '<i>No item</i>') + '</span></div>';
+				buf += '<div class="section"><span class="icon" style="' + Dex.getPokemonIcon(species.name) + '"></span>';
+				buf += '<span class="species">' + (species.name === species.baseSpecies ? BattleLog.escapeHTML(species.name) : (BattleLog.escapeHTML(species.baseSpecies) + '-<small>' + BattleLog.escapeHTML(species.name.substr(species.baseSpecies.length + 1)) + '</small>')) + '</span></div>';
+				buf += '<div class="section"><span class="ability-item">' + (BattleLog.escapeHTML(res.ability) || '<i>No ability</i>') + '<br />' + (BattleLog.escapeHTML(res.item) || '<i>No item</i>') + '</span></div>';
 				buf += '<div class="section no-border">';
 				for (var j = 0; j < 4; j++) {
 					if (!(j & 1)) {
 						buf += '<span class="moves">';
 					}
-					buf += (res.moves[j] || '<i>No move</i>') + (!(j & 1) ? '<br />' : '');
+					buf += (BattleLog.escapeHTML(res.moves[j]) || '<i>No move</i>') + (!(j & 1) ? '<br />' : '');
 					if (j & 1) {
 						buf += '</span>';
 					}
@@ -1557,7 +1558,7 @@
 
 			if (!formatSets) return;
 
-			var sets = $.extend({}, formatSets['smogon.com/dex'][species], formatSets['smogon.com/stats'][species]);
+			var sets = $.extend({}, formatSets['dex'][species], formatSets['stats'][species]);
 
 			$setDiv.text('Sample sets: ');
 			for (var set in sets) {
@@ -1570,7 +1571,7 @@
 			var species = this.curSet.species;
 
 			var setName = this.$(button).text();
-			var smogonSet = formatSets['smogon.com/dex'][species][setName] || formatSets['smogon.com/stats'][species][setName];
+			var smogonSet = formatSets['dex'][species][setName] || formatSets['stats'][species][setName];
 			var curSet = $.extend({}, this.curSet, smogonSet);
 
 			var text = Storage.exportTeam([curSet]);
@@ -2470,7 +2471,7 @@
 			buf += '<div class="resultheader"><h3>Details</h3></div>';
 			buf += '<form class="detailsform">';
 
-			buf += '<div class="formrow"><label class="formlabel">Level:</label><div><input type="number" min="1" max="100" step="1" name="level" value="' + BattleLog.escapeHTML(set.level || 100) + '" class="textbox inputform numform" /></div></div>';
+			buf += '<div class="formrow"><label class="formlabel">Level:</label><div><input type="number" min="1" max="100" step="1" name="level" value="' + (typeof set.level === 'number' ? set.level : 100) + '" class="textbox inputform numform" /></div></div>';
 
 			if (this.curTeam.gen > 1) {
 				buf += '<div class="formrow"><label class="formlabel">Gender:</label><div>';
@@ -2528,7 +2529,9 @@
 
 			this.$chart.html(buf);
 		},
-		detailsChange: function () {
+		detailsChange: function (e) {
+			e.preventDefault();
+			e.stopPropagation();
 			var set = this.curSet;
 			if (!set) return;
 			var isLetsGo = this.curTeam.format.includes('letsgo');

@@ -307,22 +307,60 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			const tier = (() => {
 				if (isNatDex) {
 					let tier = species.tier;
-					if (species.tier === 'Unreleased' || species.isNonstandard === 'Past') tier = Dex.mod('gen7').getSpecies(species.name).tier;
-					let banlist = Dex.getFormat('gen8nationaldex').banlist;
-					if (
-						banlist.includes(species.name) ||
-						banlist.includes(species.name + '-Base') ||
-						banlist.includes(species.baseSpecies) ||
-						['Zygarde-Complete', 'Necrozma-Ultra'].includes(species.name)
-					) {
-						tier = 'Uber';
-						if (species.name === 'Eternatus-Eternamax') tier = 'Illegal';
-						return tier;
-					} else if (tier === 'Uber' && !species.isGigantamax) { // This check is for Pokemon tiered as Uber but aren't in the banlist for National Dex
-						tier = 'OU';
-						return tier;
+					const unobtainables = [
+						'Eevee-Starter', 'Floette-Eternal', 'Pichu-Spiky-eared', 'Pikachu-Belle', 'Pikachu-Cosplay', 'Pikachu-Libre', 'Pikachu-PhD', 'Pikachu-Pop-Star', 'Pikachu-Rock-Star', 'Pikachu-Starter', 'Eternatus-Eternamax',
+					].map(toID);
+					if (species.isNonstandard && !['Past'].includes(species.isNonstandard)) return 'Illegal';
+					if (unobtainables.includes(species.id)) return 'Illegal';
+					const uuBanlist = Dex.getFormat('gen8nationaldexuu').banlist.map(toID);
+					const ouBanlist = Dex.getFormat('gen8nationaldex').banlist.map(toID);
+					const uublIndex = uuBanlist.map(toID).indexOf('nduubl');
+					let hasBase = uuBanlist.includes(species.id + 'base');
+					if (!uuBanlist.includes(species.id)) {
+						tier = 'UU';
+					} else {
+						if (hasBase) {
+							if (uuBanlist.indexOf(species.id + 'base') >= uublIndex) {
+								tier = 'UUBL';
+							} else {
+								tier = 'OU';
+							}
+						} else {
+							if (uuBanlist.indexOf(species.id) >= uublIndex) {
+								tier = 'UUBL';
+							} else {
+								tier = 'OU';
+							}
+						}
 					}
-					if (species.isGigantamax) tier = '(Uber)';
+					hasBase = ouBanlist.includes(species.id + 'base');
+					if (ouBanlist.includes(species.id)) {
+						tier = 'Uber';
+					} else {
+						if (hasBase) {
+							tier = 'Uber';
+						} else {
+							if (ouBanlist.includes(toID(species.baseSpecies)) ||
+								['zygardecomplete', 'necrozmaultra'].includes(species.id)) {
+								tier = 'Uber';
+							}
+							if (species.isGigantamax) tier = '(Uber)';
+							if (species.id.includes('eternamax')) tier = 'Illegal';
+						}
+					}
+					if (species.nfe) {
+						if (
+							ouBanlist.includes(species.id) || ouBanlist.includes(species.id + 'base') || ouBanlist.includes(toID(species.baseSpecies)) ||
+							uuBanlist.includes(species.id) || uuBanlist.includes(species.id + 'base')
+						) {
+							return tier;
+						}
+						if (species.prevo) {
+							tier = 'NFE';
+						} else {
+							tier = 'LC';
+						}
+					}
 					return tier;
 				}
 				if (isMetBattle) {
@@ -1026,6 +1064,16 @@ process.stdout.write("Building `data/moves,items,abilities,typechart,learnsets.j
 	const FormatsData = requireNoCache('../data/Pokemon-Showdown/.data-dist/formats-data.js').BattleFormatsData;
 	const buf = 'exports.BattleFormatsData = ' + es3stringify(FormatsData) + ';';
 	fs.writeFileSync('data/formats-data.js', buf);
+}
+
+/*********************************************************
+ * Build formats.js
+ *********************************************************/
+
+{
+	const Formats = requireNoCache('../data/Pokemon-Showdown/.config-dist/formats.js').Formats;
+	const buf = 'exports.Formats = ' + es3stringify(Formats) + ';';
+	fs.writeFileSync('data/formats.js', buf);
 }
 
 /*********************************************************

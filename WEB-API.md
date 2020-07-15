@@ -3,6 +3,8 @@ Pokémon Showdown website APIs
 
 Most PS APIs that you would want to access programmatically are available by adding `.json` to the URL.
 
+They all have `Access-Control-Allow-Origin: *`, so you can access them directly using AJAX.
+
 
 Replays
 -------
@@ -56,3 +58,11 @@ Ladders
 -------
 
 https://pokemonshowdown.com/ladder/gen8ou.json
+
+
+News
+----
+
+https://pokemonshowdown.com/news.json
+
+https://pokemonshowdown.com/news/270.json

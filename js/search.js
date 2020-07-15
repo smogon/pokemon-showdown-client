@@ -543,7 +543,7 @@
 		// type
 		buf += '<span class="col typecol">';
 		buf += Dex.getTypeIcon(move.type);
-		buf += '<img src="' + Dex.resourcePrefix + 'sprites/categories/' + move.category + '.png" alt="' + move.category + '" height="14" width="32" />';
+		buf += Dex.getCategoryIcon(move.category);
 		buf += '</span> ';
 
 		// power, accuracy, pp
@@ -581,7 +581,7 @@
 		// type
 		buf += '<span class="col typecol">';
 		buf += Dex.getTypeIcon(move.type);
-		buf += '<img src="' + Dex.resourcePrefix + 'sprites/categories/' + move.category + '.png" alt="' + move.category + '" height="14" width="32" />';
+		buf += Dex.getCategoryIcon(move.category);
 		buf += '</span> ';
 
 		// power, accuracy, pp
@@ -618,7 +618,7 @@
 		// type
 		buf += '<span class="col typecol">';
 		buf += Dex.getTypeIcon(move.type);
-		buf += '<img src="' + Dex.resourcePrefix + 'sprites/categories/' + move.category + '.png" alt="' + move.category + '" height="14" width="32" />';
+		buf += Dex.getCategoryIcon(move.category);
 		buf += '</span> ';
 
 		// power, accuracy, pp
@@ -674,9 +674,7 @@
 		buf += '<span class="col namecol">' + name + '</span> ';
 
 		// category
-		buf += '<span class="col typecol">';
-		buf += '<img src="' + Dex.resourcePrefix + 'sprites/categories/' + category.name + '.png" alt="' + category.name + '" height="14" width="32" />';
-		buf += '</span> ';
+		buf += '<span class="col typecol">' + Dex.getCategoryIcon(category.name) + '</span> ';
 
 		// error
 		if (errorMessage) {

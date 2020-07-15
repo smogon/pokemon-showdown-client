@@ -514,18 +514,35 @@ class BattleTooltips {
 				zEffect = this.getStatusZMoveEffect(move);
 			} else {
 				let moveName = BattleTooltips.zMoveTable[item.zMoveType as TypeName];
-				const zMove = this.battle.dex.getMove(moveName);
+				let zMove = this.battle.dex.getMove(moveName);
 				let movePower = move.zMove!.basePower;
 				// the different Hidden Power types don't have a Z power set, fall back on base move
 				if (!movePower && move.id.startsWith('hiddenpower')) {
 					movePower = this.battle.dex.getMove('hiddenpower').zMove!.basePower;
+				}
+				if (move.id === 'weatherball') {
+					switch (this.battle.weather) {
+					case 'sunnyday':
+					case 'desolateland':
+						zMove = this.battle.dex.getMove(BattleTooltips.zMoveTable['Fire']);
+						break;
+					case 'raindance':
+					case 'primordialsea':
+						zMove = this.battle.dex.getMove(BattleTooltips.zMoveTable['Water']);
+						break;
+					case 'sandstorm':
+						zMove = this.battle.dex.getMove(BattleTooltips.zMoveTable['Rock']);
+						break;
+					case 'hail':
+						zMove = this.battle.dex.getMove(BattleTooltips.zMoveTable['Ice']);
+						break;
+					}
 				}
 				move = new Move(zMove.id, zMove.name, {
 					...zMove,
 					category: move.category,
 					basePower: movePower,
 				});
-				// TODO: Weather Ball type-changing shenanigans
 			}
 		} else if (isZOrMax === 'maxmove') {
 			if (move.category === 'Status') {
@@ -533,12 +550,49 @@ class BattleTooltips {
 			} else {
 				// TODO look into if client knows if a pokemon (on its side) can gmax rather than dynamax.
 				// If not, tell client so we can use it for tooltips.
-				const maxMove = gmaxMove ? gmaxMove :
-					this.battle.dex.getMove(BattleTooltips.maxMoveTable[move.type as TypeName]);
+				let maxMove = gmaxMove ? gmaxMove :
+					this.battle.dex.getMove(BattleTooltips.maxMoveTable[move.type]);
+				if (move.id === 'aurawheel' && pokemon.getSpeciesForme() === 'Morpeko-Hangry') {
+					maxMove = this.battle.dex.getMove(BattleTooltips.maxMoveTable['Dark']);
+				}
+				if (move.id === 'weatherball') {
+					const item = this.battle.dex.getItem(pokemon.item);
+					switch (this.battle.weather) {
+					case 'sunnyday':
+					case 'desolateland':
+						if (item.id === 'utilityumbrella') break;
+						maxMove = this.battle.dex.getMove(BattleTooltips.maxMoveTable['Fire']);
+						break;
+					case 'raindance':
+					case 'primordialsea':
+						if (item.id === 'utilityumbrella') break;
+						maxMove = this.battle.dex.getMove(BattleTooltips.maxMoveTable['Water']);
+						break;
+					case 'sandstorm':
+						maxMove = this.battle.dex.getMove(BattleTooltips.maxMoveTable['Rock']);
+						break;
+					case 'hail':
+						maxMove = this.battle.dex.getMove(BattleTooltips.maxMoveTable['Ice']);
+						break;
+					}
+				}
+				if (move.id === 'terrainpulse') {
+					if (this.battle.hasPseudoWeather('Electric Terrain')) {
+						maxMove = this.battle.dex.getMove(BattleTooltips.maxMoveTable['Electric']);
+					} else if (this.battle.hasPseudoWeather('Grassy Terrain')) {
+						maxMove = this.battle.dex.getMove(BattleTooltips.maxMoveTable['Grass']);
+					} else if (this.battle.hasPseudoWeather('Misty Terrain')) {
+						maxMove = this.battle.dex.getMove(BattleTooltips.maxMoveTable['Fairy']);
+					} else if (this.battle.hasPseudoWeather('Psychic Terrain')) {
+						maxMove = this.battle.dex.getMove(BattleTooltips.maxMoveTable['Psychic']);
+					}
+				}
+				const basePower = ['gmaxdrumsolo', 'gmaxfireball', 'gmaxhydrosnipe'].includes(maxMove.id) ?
+					maxMove.basePower : move.maxMove.basePower;
 				move = new Move(maxMove.id, maxMove.name, {
 					...maxMove,
 					category: move.category,
-					basePower: move.maxMove!.basePower,
+					basePower,
 				});
 			}
 		}
@@ -549,7 +603,7 @@ class BattleTooltips {
 		let [moveType, category] = this.getMoveType(move, value);
 
 		text += Dex.getTypeIcon(moveType);
-		text += ` <img src="${Dex.resourcePrefix}sprites/categories/${category}.png" alt="${category}" /></h2>`;
+		text += ` ${Dex.getCategoryIcon(category)}</h2>`;
 
 		// Check if there are more than one active Pokémon to check for multiple possible BPs.
 		let showingMultipleBasePowers = false;
@@ -622,6 +676,10 @@ class BattleTooltips {
 				text += 'Nearly always moves last <em>(priority &minus;' + (-move.priority) + ')</em>.</p><p>';
 			} else if (move.priority === 1) {
 				text += 'Usually moves first <em>(priority +' + move.priority + ')</em>.</p><p>';
+			} else {
+				if (move.id === 'grassyglide' && this.battle.hasPseudoWeather('Grassy Terrrain')) {
+					text += 'Usually moves first <em>(priority +1)</em>.</p><p>';
+				}
 			}
 
 			text += '' + (move.desc || move.shortDesc) + '</p>';
@@ -1260,15 +1318,26 @@ class BattleTooltips {
 				break;
 			}
 		}
+		if (move.id === 'terrainpulse') {
+			if (this.battle.hasPseudoWeather('Electric Terrain')) {
+				moveType = 'Electric';
+			} else if (this.battle.hasPseudoWeather('Grassy Terrain')) {
+				moveType = 'Grass';
+			} else if (this.battle.hasPseudoWeather('Misty Terrain')) {
+				moveType = 'Fairy';
+			} else if (this.battle.hasPseudoWeather('Psychic Terrain')) {
+				moveType = 'Psychic';
+			}
+		}
 
 		// Aura Wheel as Morpeko-Hangry changes the type to Dark
-		if (move.id === 'aurawheel' && value.pokemon.getSpecies().name === 'Morpeko-Hangry') {
+		if (move.id === 'aurawheel' && value.pokemon.getSpeciesForme() === 'Morpeko-Hangry') {
 			moveType = 'Dark';
 		}
 
 		// Other abilities that change the move type.
 		const noTypeOverride = [
-			'judgment', 'multiattack', 'naturalgift', 'revelationdance', 'struggle', 'technoblast', 'weatherball',
+			'judgment', 'multiattack', 'naturalgift', 'revelationdance', 'struggle', 'technoblast', 'terrainpulse', 'weatherball',
 		];
 		const allowTypeOverride = !noTypeOverride.includes(move.id);
 
@@ -1452,6 +1521,16 @@ class BattleTooltips {
 		if (move.id === 'weatherball') {
 			value.weatherModify(2);
 		}
+		if (move.id === 'terrainpulse') {
+			if (
+				this.battle.hasPseudoWeather('Electric Terrain') ||
+				this.battle.hasPseudoWeather('Grassy Terrain') ||
+				this.battle.hasPseudoWeather('Misty Terrain') ||
+				this.battle.hasPseudoWeather('Psychic Terrain')
+			) {
+				value.modify(2, 'Terrain Pulse boost');
+			}
+		}
 		if (
 			move.id === 'watershuriken' && pokemon.getSpeciesForme() === 'Greninja-Ash' && pokemon.ability === 'Battle Bond'
 		) {
@@ -1571,7 +1650,7 @@ class BattleTooltips {
 			}
 		}
 		const noTypeOverride = [
-			'judgment', 'multiattack', 'naturalgift', 'revelationdance', 'struggle', 'technoblast', 'weatherball',
+			'judgment', 'multiattack', 'naturalgift', 'revelationdance', 'struggle', 'technoblast', 'terrainpulse', 'weatherball',
 		];
 		if (move.category !== 'Status' && !noTypeOverride.includes(move.id)) {
 			if (move.type === 'Normal') {
@@ -1643,6 +1722,28 @@ class BattleTooltips {
 			if (target ? target.isGrounded() : true) {
 				value.modify(0.5, 'Misty Terrain + grounded target');
 			}
+		}
+		if (
+			move.id === 'expandingforce' &&
+			this.battle.hasPseudoWeather('Psychic Terrain') &&
+			pokemon.isGrounded(serverPokemon)
+		) {
+			value.modify(1.5, 'Expanding Force + Psychic Terrain boost');
+		}
+		if (move.id === 'mistyexplosion' && this.battle.hasPseudoWeather('Misty Terrain')) {
+			value.modify(1.5, 'Misty Explosion + Misty Terrain boost');
+		}
+		if (move.id === 'risingvoltage' && this.battle.hasPseudoWeather('Electric Terrain') && target?.isGrounded()) {
+			value.modify(2, 'Rising Voltage + Electric Terrain boost');
+		}
+		if (
+			move.id === 'steelroller' &&
+			!this.battle.hasPseudoWeather('Electric Terrain') &&
+			!this.battle.hasPseudoWeather('Grassy Terrain') &&
+			!this.battle.hasPseudoWeather('Misty Terrain') &&
+			!this.battle.hasPseudoWeather('Psychic Terrain')
+		) {
+			value.set(0, 'no Terrain');
 		}
 
 		// Item

@@ -21,6 +21,11 @@ class BattleLog {
 	atBottom = true;
 	className: string;
 	battleParser: BattleTextParser | null = null;
+	joinLeave: {
+		joins: string[],
+		leaves: string[],
+		element: HTMLDivElement,
+	} | null = null;
 	/**
 	 * * -1 = spectator: "Red sent out Pikachu!" "Blue's Eevee used Tackle!"
 	 * * 0 = player 1: "Go! Pikachu!" "The opposing Eevee used Tackle!"
@@ -67,6 +72,7 @@ class BattleLog {
 		let divClass = 'chat';
 		let divHTML = '';
 		let noNotify: boolean | undefined;
+		if (!['join', 'j', 'leave', 'l'].includes(args[0])) this.joinLeave = null;
 		switch (args[0]) {
 		case 'chat': case 'c': case 'c:':
 			let battle = this.scene?.battle;
@@ -93,16 +99,38 @@ class BattleLog {
 			}
 			break;
 
-		case 'join': case 'j': {
+		case 'join': case 'j': case 'leave': case 'l': {
 			const user = BattleTextParser.parseNameParts(args[1]);
-			divHTML = '<small>' + BattleLog.escapeHTML(user.group + user.name) + ' joined.</small>';
-			break;
+			const formattedUser = user.group + user.name;
+			const isJoin = (args[0].charAt(0) === 'j');
+			if (!this.joinLeave) {
+				this.joinLeave = {
+					joins: [],
+					leaves: [],
+					element: document.createElement('div'),
+				};
+				this.joinLeave.element.className = 'chat';
+			}
+
+			if (isJoin && this.joinLeave.leaves.includes(formattedUser)) {
+				this.joinLeave.leaves.splice(this.joinLeave.leaves.indexOf(formattedUser), 1);
+			} else {
+				this.joinLeave[isJoin ? "joins" : "leaves"].push(formattedUser);
+			}
+
+			let buf = '';
+			if (this.joinLeave.joins.length) {
+				buf += `${this.textList(this.joinLeave.joins)} joined`;
+			}
+			if (this.joinLeave.leaves.length) {
+				if (this.joinLeave.joins.length) buf += `; `;
+				buf += `${this.textList(this.joinLeave.leaves)} left`;
+			}
+			this.joinLeave.element.innerHTML = `<small>${BattleLog.escapeHTML(buf)}</small>`;
+			(preempt ? this.preemptElem : this.innerElem).appendChild(this.joinLeave.element);
+			return;
 		}
-		case 'leave': case 'l': {
-			const user = BattleTextParser.parseNameParts(args[1]);
-			divHTML = '<small>' + BattleLog.escapeHTML(user.group + user.name) + ' left.</small>';
-			break;
-		}
+
 		case 'name': case 'n': {
 			const user = BattleTextParser.parseNameParts(args[1]);
 			if (toID(args[2]) !== toID(user.name)) {
@@ -153,7 +181,7 @@ class BattleLog {
 			divHTML = '<div class="chat"><small style="color:#999">[DEBUG] ' + BattleLog.escapeHTML(args[1]) + '.</small></div>';
 			break;
 
-		case 'seed': case 'choice': case ':': case 'timer':
+		case 'seed': case 'choice': case ':': case 'timer': case 't:':
 		case 'J': case 'L': case 'N': case 'spectator': case 'spectatorleave':
 		case 'initdone':
 			return;
@@ -221,6 +249,25 @@ class BattleLog {
 			this.message(...this.parseLogMessage(line));
 			break;
 		}
+	}
+	textList(list: string[]) {
+		let message = '';
+		const listNoDuplicates: string[] = [];
+		for (const user of list) {
+			if (!listNoDuplicates.includes(user)) listNoDuplicates.push(user);
+		}
+		list = listNoDuplicates;
+
+		if (list.length === 1) return list[0];
+		if (list.length === 2) return `${list[0]} and ${list[1]}`;
+		for (let i = 0; i < list.length - 1; i++) {
+			if (i >= 5) {
+				return `${message}and ${list.length - 5} others`;
+			}
+			message += `${list[i]}, `;
+		}
+		return `${message}and ${list[list.length - 1]}`;
+		return message;
 	}
 	/**
 	 * To avoid trolling with nicknames, we can't just run this through
@@ -640,6 +687,8 @@ class BattleLog {
 			'marquee::width': 0,
 			'psicon::pokemon': 0,
 			'psicon::item': 0,
+			'psicon::type': 0,
+			'psicon::category': 0,
 			'*::aria-label': 0,
 			'*::aria-hidden': 0,
 		});
@@ -681,7 +730,7 @@ class BattleLog {
 				let styleValueIndex = -1;
 				let iconAttrib = null;
 				for (let i = 0; i < attribs.length - 1; i += 2) {
-					if (attribs[i] === 'pokemon' || attribs[i] === 'item') {
+					if (attribs[i] === 'pokemon' || attribs[i] === 'item' || attribs[i] === 'type' || attribs[i] === 'category') {
 						// If declared more than once, use the later.
 						iconAttrib = attribs.slice(i, i + 2);
 					} else if (attribs[i] === 'class') {
@@ -713,6 +762,10 @@ class BattleLog {
 						attribs[styleValueIndex] = attribs[styleValueIndex] ?
 							Dex.getItemIcon(iconAttrib[1]) + '; ' + attribs[styleValueIndex] :
 							Dex.getItemIcon(iconAttrib[1]);
+					} else if (iconAttrib[0] === 'type') {
+						tagName = Dex.getTypeIcon(iconAttrib[1]).slice(1, -3);
+					} else if (iconAttrib[0] === 'category') {
+						tagName = Dex.getCategoryIcon(iconAttrib[1]).slice(1, -3);
 					}
 				}
 			}

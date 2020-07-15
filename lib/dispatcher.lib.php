@@ -82,16 +82,12 @@ class ActionDispatcher {
 		$ip = $this->getIp();
 		if (!isset($PokemonServers[$serverid])) {
 			// Try to find the server by source IP, rather than by serverid.
-			foreach ($PokemonServers as &$i) {
-				if (!isset($i['ipcache'])) {
-					$i['ipcache'] = gethostbyname($i['server']);
-				}
-				if ($i['ipcache'] === $ip) {
-					$server =& $i;
-					break;
+			if ($serverid === 'testtimeout') {
+				foreach ($PokemonServers as &$i) {
+					gethostbyname($i['server']);
 				}
 			}
-			if (!$server) return null;
+			return null;
 		} else {
 			$server =& $PokemonServers[$serverid];
 			if (empty($server['skipipcheck']) && empty($server['token']) && $serverid !== 'showdown') {
@@ -102,7 +98,7 @@ class ActionDispatcher {
 			}
 		}
 		if (!empty($server['token'])) {
-			if ($server['token'] !== md5($this->reqData['servertoken'])) return null;
+			if ($server['token'] !== md5($this->reqData['servertoken'] ?? '')) return null;
 		}
 		return $server;
 	}
