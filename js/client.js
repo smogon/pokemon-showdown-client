@@ -2409,7 +2409,7 @@ function toId() {
 	});
 
 	Config.groups = Config.groups || {
-	   '~': {
+	'~': {
 			name: "Administrator (~)",
 			type: 'leadership',
 			order: 10001
