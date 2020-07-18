@@ -1736,6 +1736,7 @@ function toId() {
 				return false;
 			}
 			room.id = newid;
+			if (room.battle) room.battle.roomid = newid;
 			room.title = newtitle;
 			room.$el[0].id = 'room-' + newid;
 			this.rooms[newid] = room;
