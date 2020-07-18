@@ -1255,15 +1255,8 @@ class Battle {
 		if (turnNum === this.turn + 1) {
 			this.endLastTurnPending = true;
 		}
-		if (this.turn && !this.usesUpkeep) this.updatePseudoWeatherLeft(); // for compatibility with old replays
+		if (this.turn && !this.usesUpkeep) this.updateTurnCounters(); // for compatibility with old replays
 		this.turn = turnNum;
-
-		if (this.mySide.active[0]) this.mySide.active[0]!.clearTurnstatuses();
-		if (this.mySide.active[1]) this.mySide.active[1]!.clearTurnstatuses();
-		if (this.mySide.active[2]) this.mySide.active[2]!.clearTurnstatuses();
-		if (this.yourSide.active[0]) this.yourSide.active[0]!.clearTurnstatuses();
-		if (this.yourSide.active[1]) this.yourSide.active[1]!.clearTurnstatuses();
-		if (this.yourSide.active[2]) this.yourSide.active[2]!.clearTurnstatuses();
 
 		if (!this.fastForward) this.turnsSinceMoved++;
 
@@ -1283,13 +1276,6 @@ class Battle {
 	resetTurnsSinceMoved() {
 		this.turnsSinceMoved = 0;
 		this.scene.updateAcceleration();
-	}
-	updateToxicTurns() {
-		for (const side of this.sides) {
-			for (const poke of side.active) {
-				if (poke?.status === 'tox') poke.statusData.toxicTurns++;
-			}
-		}
 	}
 	changeWeather(weatherName: string, poke?: Pokemon, isUpkeep?: boolean, ability?: Effect) {
 		let weather = toID(weatherName);
@@ -1325,7 +1311,7 @@ class Battle {
 		this.weather = weather;
 		this.scene.updateWeather();
 	}
-	updatePseudoWeatherLeft() {
+	updateTurnCounters() {
 		for (const pWeather of this.pseudoWeather) {
 			if (pWeather[1]) pWeather[1]--;
 			if (pWeather[2]) pWeather[2]--;
@@ -1335,6 +1321,12 @@ class Battle {
 				let cond = side.sideConditions[id];
 				if (cond[2]) cond[2]--;
 				if (cond[3]) cond[3]--;
+			}
+			for (const poke of side.active) {
+				if (poke) {
+					if (poke.status === 'tox') poke.statusData.toxicTurns++;
+					poke.clearTurnstatuses();
+				}
 			}
 		}
 		this.scene.updateWeather();
@@ -3097,8 +3089,7 @@ class Battle {
 		}
 		case 'upkeep': {
 			this.usesUpkeep = true;
-			this.updatePseudoWeatherLeft();
-			this.updateToxicTurns();
+			this.updateTurnCounters();
 			break;
 		}
 		case 'turn': {
