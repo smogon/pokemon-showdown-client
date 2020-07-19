@@ -352,7 +352,7 @@
 			// this.choice.choices = array of choice strings
 			// this.choice.switchFlags = dict of pokemon indexes that have a switch pending
 			// this.choice.switchOutFlags = ???
-			// this.choice.freedomDegrees = in a switch request: number of empty slots that can't be replaced
+			// this.choice.forcedSwitchLocations = in a switch request: whether Pokémon must be sent on the left
 			// this.choice.type = determines what the current choice screen to be displayed is
 			// this.choice.waiting = true if the choice has been sent and we're just waiting for the next turn
 
@@ -374,15 +374,21 @@
 						choices: [],
 						switchFlags: {},
 						switchOutFlags: {},
-						freedomDegrees: 0,
+						useSwitchLocations: false,
 						canSwitch: 0
 					};
 
 					if (this.request.forceSwitch !== true) {
-						var faintedLength = _.filter(this.request.forceSwitch, function (fainted) {return fainted;}).length;
-						var freedomDegrees = faintedLength - _.filter(switchables.slice(this.battle.mySide.active.length), function (mon) {return !mon.fainted;}).length;
-						this.choice.freedomDegrees = Math.max(freedomDegrees, 0);
-						this.choice.canSwitch = faintedLength - this.choice.freedomDegrees;
+						var faintedActiveCount = _.filter(this.request.forceSwitch, function (fainted) {return fainted;}).length;
+						var nonFaintedSwitchablesCount = _.filter(switchables.slice(this.battle.mySide.active.length), function (mon) {return !mon.fainted;}).length;
+						var forcedSwitchLocations = !!this.request.forcedSwitchLocations;
+
+						this.choice.canSwitch = Math.min(faintedActiveCount, nonFaintedSwitchablesCount);
+						if (this.battle.hardcoreMode) {
+							this.choice.useSwitchLocations = faintedActiveCount >= 2 && (!forcedSwitchLocations || faintedActiveCount <= nonFaintedSwitchablesCount);
+						} else {
+							this.choice.useSwitchLocations = !forcedSwitchLocations && nonFaintedSwitchablesCount < faintedActiveCount;
+						}
 					}
 				}
 				this.updateSwitchControls(type);
@@ -735,7 +741,7 @@
 		updateSwitchControls: function (type) {
 			var pos = this.choice.choices.length;
 
-			if (type !== 'switchposition' && this.request.forceSwitch !== true && !this.choice.freedomDegrees) {
+			if (type !== 'switchposition' && this.request.forceSwitch !== true && !this.choice.useSwitchLocations) {
 				while (!this.request.forceSwitch[pos] && pos < 6) {
 					pos = this.choice.choices.push('pass');
 				}
@@ -773,7 +779,7 @@
 					'</div>'
 				);
 			} else {
-				if (this.choice.freedomDegrees >= 1) {
+				if (this.choice.useSwitchLocations) {
 					requestTitle += "Choose a Pokémon to send to battle!";
 				} else {
 					requestTitle += "Switch <strong>" + BattleLog.escapeHTML(switchables[pos].name) + "</strong> to:";
@@ -1144,7 +1150,7 @@
 
 			if (pos !== undefined) { // pos === undefined if called by chooseSwitchTarget()
 				this.choice.switchFlags[pos] = true;
-				if (this.choice.freedomDegrees >= 1) {
+				if (this.choice.useSwitchLocations) {
 					// Request selection of a Pokémon that will be switched out.
 					this.choice.type = 'switchposition';
 					this.updateControlsForPlayer();
@@ -1157,10 +1163,10 @@
 				return;
 			}
 
-			// After choosing the position to which a pokemon will switch in (Doubles/Triples end-game).
+			// After choosing the position to which a pokemon will switch in (multiple Pokémon fainted).
 			if (!this.request || this.request.requestType !== 'switch') return false; //??
-			if (this.choice.canSwitch > _.filter(this.choice.choices, function (choice) {return choice;}).length) {
-				// More switches are pending.
+			var allSwitchesDone = this.choice.canSwitch <= _.filter(this.choice.choices, function (choice) {return choice && choice.startsWith('switch ');}).length;
+			if (!allSwitchesDone) {
 				this.choice.type = 'switch2';
 				this.updateControlsForPlayer();
 				return false;
@@ -1230,6 +1236,10 @@
 			var myActive = this.battle.mySide.active;
 
 			if (this.request.requestType === 'switch' && this.request.forceSwitch !== true) {
+				var allSwitchesDone = this.choice.canSwitch <= _.filter(choices, function (choice) {return choice && choice.startsWith('switch ');}).length;
+				if (allSwitchesDone) {
+					return false;
+				}
 				while (choices.length < myActive.length && !this.request.forceSwitch[choices.length]) {
 					choices.push('pass');
 				}
