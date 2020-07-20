@@ -15,6 +15,7 @@ function requireScript(url) {
 linkStyle('https://play.pokemonshowdown.com/style/font-awesome.css?');
 linkStyle('https://play.pokemonshowdown.com/style/battle.css?a7');
 linkStyle('https://play.pokemonshowdown.com/style/replay.css?a7');
+linkStyle('https://play.pokemonshowdown.com/style/utilichart.css?a7');
 
 requireScript('https://play.pokemonshowdown.com/js/lib/jquery-1.11.0.min.js');
 requireScript('https://play.pokemonshowdown.com/js/lib/lodash.compat.js');
