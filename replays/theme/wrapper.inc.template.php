@@ -29,6 +29,7 @@ function ThemeHeaderTemplate() {
 	<link rel="stylesheet" href="//pokemonshowdown.com/theme/main.css" />
 	<link rel="stylesheet" href="//play.pokemonshowdown.com/style/battle.css?" />
 	<link rel="stylesheet" href="//play.pokemonshowdown.com/style/replay.css?" />
+	<link rel="stylesheet" href="//play.pokemonshowdown.com/style/utilichart.css?" />
 
 	<!-- Workarounds for IE bugs to display trees correctly. -->
 	<!--[if lte IE 6]><style> li.tree { height: 1px; } </style><![endif]-->
