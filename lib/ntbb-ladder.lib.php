@@ -158,7 +158,7 @@ class NTBBLadder {
 				}
 				$rp = $this->getrp();
 				$ladderdb->query(
-					"INSERT INTO `{$ladderdb->prefix}ladder` (`formatid`,`userid`,`username`,`rptime`) VALUES (?,?,?,?)",
+					"INSERT INTO `{$ladderdb->prefix}ladder` (`formatid`,`userid`,`username`,`rptime`,`rpdata`,`col1`) VALUES (?,?,?,?,'',0)",
 					[$this->formatid, $user['userid'], $user['username'], $rp]
 				);
 				$user['rating'] = array(

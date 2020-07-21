@@ -2,6 +2,8 @@
 
 mb_internal_encoding('UTF-8');
 
+$routes = json_decode(file_get_contents(__DIR__ . '/routes.json'), true);
+
 $psconfig = [
 
 	'sysops' => ['zarel'],
@@ -21,6 +23,9 @@ $psconfig = [
 	'database' => '',
 	'prefix' => 'ps_',
 	'charset' => 'utf8',
+
+// routes
+	'routes' => $routes,
 
 // CORS requests
 

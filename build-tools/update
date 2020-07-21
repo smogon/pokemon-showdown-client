@@ -17,6 +17,13 @@ const thisDir = __dirname;
 const rootDir = path.resolve(thisDir, '..');
 process.chdir(rootDir);
 
+const AUTOCONFIG_START = '/*** Begin automatically generated configuration ***/';
+const AUTOCONFIG_END = '/*** End automatically generated configuration ***/';
+
+function escapeRegex(string) {
+	return string.replace(/[\/\*\.]/g, '\\$&');
+}
+
 /*********************************************************
  * Update version number
  *********************************************************/
@@ -36,9 +43,27 @@ try {
 	version += ` (${head.slice(0, 8)}${head !== origin ? `/${origin.slice(0, 8)}` : ''})`;
 } catch (e) {}
 
-let configBuf = fs.readFileSync('config/config.js', {encoding: 'utf8'});
-configBuf = configBuf.replace(/\/\* version \*\/[^;\n]*;/, `/* version */ Config.version = ${JSON.stringify(version)};`);
+const routes = JSON.parse(fs.readFileSync('config/routes.json'));
+const autoconfigRegex = new RegExp(`${escapeRegex(AUTOCONFIG_START)}[^]+${escapeRegex(AUTOCONFIG_END)}`);
+const autoconfig = `${AUTOCONFIG_START}
+Config.version = ${JSON.stringify(version)};
 
+Config.routes = {
+	root: '${routes.root}',
+	client: '${routes.client}',
+	dex: '${routes.dex}',
+	replays: '${routes.replays}',
+	users: '${routes.users}',
+};
+${AUTOCONFIG_END}`;
+
+// remove old automatically generated configuration and add the new one
+let configBuf = fs.readFileSync('config/config.js', {encoding: 'utf8'});
+if (autoconfigRegex.test(configBuf)) {
+	configBuf = configBuf.replace(autoconfigRegex, autoconfig);
+} else {
+	configBuf += autoconfig;
+}
 fs.writeFileSync('config/config.js', configBuf);
 console.log("DONE");
 
@@ -82,31 +107,50 @@ if (!ignoreGraphics) {
  * Update cachebuster and News
  *********************************************************/
 
-function updateIndex() {
-	// add hashes to js and css files
-	process.stdout.write("Updating hashes... ");
+const URL_REGEX = /(src|href)="\/(.*?)(\?[a-z0-9]*?)?"/g;
+
+function updateURL(a, b, c, d) {
+	c = c.replace('/replay.pokemonshowdown.com/', '/' + routes.replays + '/');
+	c = c.replace('/dex.pokemonshowdown.com/', '/' + routes.dex + '/');
+	c = c.replace('/play.pokemonshowdown.com/', '/' + routes.client + '/');
+	c = c.replace('/pokemonshowdown.com/', '/' + routes.root + '/');
+
+	if (d) {
+		let hash = Math.random(); // just in case creating the hash fails
+		try {
+			const filename = c.replace('/' + routes.client + '/', '');
+			const fstr = fs.readFileSync(filename, {encoding: 'utf8'});
+			hash = crypto.createHash('md5').update(fstr).digest('hex').substr(0, 8);
+		} catch (e) {}
+
+		return b + '="/' + c + '?' + hash + '"';
+	} else {
+		return b + '="/' + c + '"';
+	}
+}
+
+function writeFiles(indexContents, preactIndexContents, crossprotocolContents, replayEmbedContents) {
+	process.stdout.write("Writing new HTML files... ");
+	fs.writeFileSync('index.html', indexContents);
+	fs.writeFileSync('preactalpha.html', preactIndexContents);
+	fs.writeFileSync('crossprotocol.html', crossprotocolContents);
+	console.log("DONE");
+	process.stdout.write("Writing replay-embed.js... ");
+	fs.writeFileSync('js/replay-embed.js', replayEmbedContents);
+	console.log("DONE");
+}
+
+function updateFiles() {
+	// add hashes to js and css files and rewrite URLs
+	process.stdout.write("Updating hashes and URLs... ");
 	let indexContents = fs.readFileSync('index.template.html', {encoding: 'utf8'});
-	indexContents = indexContents.replace(/(src|href)="\/(.*?)\?[a-z0-9]*?"/g, function (a, b, c) {
-		let hash = Math.random(); // just in case creating the hash fails
-		try {
-			const filename = c.replace('/play.pokemonshowdown.com/', '');
-			const fstr = fs.readFileSync(filename, {encoding: 'utf8'});
-			hash = crypto.createHash('md5').update(fstr).digest('hex').substr(0, 8);
-		} catch (e) {}
-
-		return b + '="/' + c + '?' + hash + '"';
-	});
-	let indexContents2 = fs.readFileSync('preactalpha.template.html', {encoding: 'utf8'});
-	indexContents2 = indexContents2.replace(/(src|href)="\/(.*?)\?[a-z0-9]*?"/g, function (a, b, c) {
-		let hash = Math.random(); // just in case creating the hash fails
-		try {
-			const filename = c.replace('/play.pokemonshowdown.com/', '');
-			const fstr = fs.readFileSync(filename, {encoding: 'utf8'});
-			hash = crypto.createHash('md5').update(fstr).digest('hex').substr(0, 8);
-		} catch (e) {}
-
-		return b + '="/' + c + '?' + hash + '"';
-	});
+	indexContents = indexContents.replace(URL_REGEX, updateURL);
+	let preactIndexContents = fs.readFileSync('preactalpha.template.html', {encoding: 'utf8'});
+	preactIndexContents = preactIndexContents.replace(URL_REGEX, updateURL);
+	let crossprotocolContents = fs.readFileSync('crossprotocol.template.html', {encoding: 'utf8'});
+	crossprotocolContents = crossprotocolContents.replace(URL_REGEX, updateURL);
+	let replayEmbedContents = fs.readFileSync('js/replay-embed.template.js', {encoding: 'utf8'});
+	replayEmbedContents = replayEmbedContents.replace(/play\.pokemonshowdown\.com/g, routes.client);
 	console.log("DONE");
 
 	// add news, only if it's actually likely to exist
@@ -128,12 +172,11 @@ function updateIndex() {
 			indexContents = indexContents.replace(/<!-- news -->/g, newsData[1]);
 			console.log("DONE");
 
-			process.stdout.write("Writing new `index.html` file... ");
-			fs.writeFileSync('index.html', indexContents);
-			fs.writeFileSync('preactalpha.html', indexContents2);
-			console.log("DONE");
+			writeFiles(indexContents, preactIndexContents, crossprotocolContents, replayEmbedContents);
 		});
+	} else {
+		writeFiles(indexContents, preactIndexContents, crossprotocolContents, replayEmbedContents);
 	}
 }
 
-updateIndex();
+updateFiles();

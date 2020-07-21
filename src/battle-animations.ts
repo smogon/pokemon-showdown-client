@@ -89,6 +89,17 @@ class BattleScene {
 
 	constructor(battle: Battle, $frame: JQuery, $logFrame: JQuery) {
 		this.battle = battle;
+		if (window.soundManager) {
+			soundManager.setup({url: `https://${Config.routes.client}/swf/`});
+			if (window.Replays) soundManager.onready(window.Replays.soundReady);
+			soundManager.onready(() => {
+				soundManager.createSound({
+					id: 'notif',
+					url: `https://${Config.routes.client}/audio/notification.wav`,
+				});
+			});
+		}
+
 		$frame.addClass('battle');
 		this.$frame = $frame;
 		this.log = new BattleLog($logFrame[0] as HTMLDivElement, this);

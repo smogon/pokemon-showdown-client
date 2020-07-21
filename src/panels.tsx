@@ -299,7 +299,7 @@ class PSMain extends preact.Component {
 		if (href) {
 			// yes that's what we needed
 		} else if (PS.server.id === 'showdown') {
-			if (elem.host && elem.host !== 'play.pokemonshowdown.com' && elem.host !== 'psim.us') {
+			if (elem.host && elem.host !== Config.routes.client && elem.host !== 'psim.us') {
 				return null;
 			}
 			href = elem.pathname;

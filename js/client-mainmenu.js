@@ -56,7 +56,7 @@
 			this.$('.mainmenu').html(buf);
 
 			// right menu
-			if (document.location.hostname === 'play.pokemonshowdown.com') {
+			if (document.location.hostname === Config.routes.client) {
 				this.$('.rightmenu').html('<div class="menugroup"><p><button class="button mainmenu1 onlineonly disabled" name="joinRoom" value="rooms">Join chat</button></p></div>');
 			} else {
 				this.$('.rightmenu').html('<div class="menugroup"><p><button class="button mainmenu1 onlineonly disabled" name="joinRoom" value="lobby">Join lobby chat</button></p></div>');
@@ -127,7 +127,7 @@
 		addNews: function () {
 			var self = this;
 			$.ajax({
-				url: "https://pokemonshowdown.com/news.json",
+				url: "https://" + Config.routes.root + "/news.json",
 				dataType: "json",
 				success: function (data) {
 					var html = '';

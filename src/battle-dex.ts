@@ -113,17 +113,6 @@ if (typeof window === 'undefined') {
 	window.exports = window;
 }
 
-if (window.soundManager) {
-	soundManager.setup({url: 'https://play.pokemonshowdown.com/swf/'});
-	if (window.Replays) soundManager.onready(window.Replays.soundReady);
-	soundManager.onready(() => {
-		soundManager.createSound({
-			id: 'notif',
-			url: 'https://play.pokemonshowdown.com/audio/notification.wav',
-		});
-	});
-}
-
 // @ts-ignore
 window.nodewebkit = !!(typeof process !== 'undefined' && process.versions && process.versions['node-webkit']);
 
@@ -277,15 +266,15 @@ const Dex = new class implements ModdedDex {
 	resourcePrefix = (() => {
 		let prefix = '';
 		if (window.document?.location?.protocol !== 'http:') prefix = 'https:';
-		return `${prefix}//play.pokemonshowdown.com/`;
+		return `${prefix}//${window.Config ? Config.routes.client : 'play.pokemonshowdown.com'}/`;
 	})();
 
 	fxPrefix = (() => {
 		if (window.document?.location?.protocol === 'file:') {
-			if (window.Replays) return `https://play.pokemonshowdown.com/fx/`;
+			if (window.Replays) return `https://${window.Config ? Config.routes.client : 'play.pokemonshowdown.com'}/fx/`;
 			return `fx/`;
 		}
-		return `//play.pokemonshowdown.com/fx/`;
+		return `//${window.Config ? Config.routes.client : 'play.pokemonshowdown.com'}/fx/`;
 	})();
 
 	loadedSpriteData = {xy: 1, bw: 0};

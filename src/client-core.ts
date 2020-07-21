@@ -82,10 +82,7 @@ if (!window.console) {
  *********************************************************************/
 // PS's model classes are defined here
 
-const PSURL = (
-	(document.location!.protocol !== 'http:' ? 'https:' : '') +
-	'//play.pokemonshowdown.com/'
-);
+const PSURL = `${document.location!.protocol !== 'http:' ? 'https:' : ''}//${Config.routes.client}/`;
 
 class PSSubscription {
 	observable: PSModel | PSStreamModel<any>;
@@ -215,7 +212,7 @@ const PSBackground = new class extends PSStreamModel {
 		if (!bgid) {
 			if (location.host === 'smogtours.psim.us') {
 				bgid = 'shaymin';
-			} else if (location.host === 'play.pokemonshowdown.com') {
+			} else if (location.host === Config.routes.client) {
 				const bgs = ['horizon', 'ocean', 'waterfall', 'shaymin', 'charizards'];
 				bgid = bgs[Math.floor(Math.random() * 5)];
 				if (bgid === this.curId) bgid = bgs[Math.floor(Math.random() * 5)];

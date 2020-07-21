@@ -88,8 +88,8 @@ class PSHeader extends preact.Component<{style: {}}> {
 		return <div id="header" class="header" style={this.props.style}>
 			<img
 				class="logo"
-				src="https://play.pokemonshowdown.com/pokemonshowdownbeta.png"
-				srcset="https://play.pokemonshowdown.com/pokemonshowdownbeta@2x.png 2x"
+				src={`https://${Config.routes.client}/pokemonshowdownbeta.png`}
+				srcset={`https://${Config.routes.client}/pokemonshowdownbeta@2x.png 2x`}
 				alt="Pokémon Showdown! (beta)"
 				width="146" height="44"
 			/>
@@ -227,7 +227,7 @@ class UserPanel extends PSRoomPanel<UserRoom> {
 						src={Dex.resolveAvatar('' + (user.avatar || 'unknown'))}
 					/>
 				}
-				<strong><a href={`//pokemonshowdown.com/users/${user.userid}`} target="_blank" style={away ? {color: '#888888'} : null}>{name}</a></strong><br />
+				<strong><a href={`//${Config.routes.users}/${user.userid}`} target="_blank" style={away ? {color: '#888888'} : null}>{name}</a></strong><br />
 				{status && <div class="userstatus">{status}</div>}
 				{groupName && <div class="usergroup roomgroup">{groupName}</div>}
 				{globalGroupName && <div class="usergroup globalgroup">{globalGroupName}</div>}

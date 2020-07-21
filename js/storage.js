@@ -1,15 +1,3 @@
-Config.origindomain = 'play.pokemonshowdown.com';
-// `defaultserver` specifies the server to use when the domain name in the
-// address bar is `Config.origindomain`.
-Config.defaultserver = {
-	id: 'showdown',
-	host: 'sim3.psim.us',
-	port: 443,
-	httpport: 8000,
-	altport: 80,
-	registered: true
-};
-
 function Storage() {}
 
 Storage.initialize = function () {
@@ -64,7 +52,7 @@ Storage.bg = {
 		if (!bgid) {
 			if (location.host === 'smogtours.psim.us') {
 				bgid = 'shaymin';
-			} else if (location.host === 'play.pokemonshowdown.com') {
+			} else if (location.host === Config.routes.client) {
 				bgid = ['horizon', 'ocean', 'waterfall', 'shaymin', 'charizards', 'psday'][Math.floor(Math.random() * 6)];
 			} else {
 				$(document.body).css({
@@ -226,7 +214,7 @@ if (!Storage.bg.id) {
 // localStorage is banned, and since prefs are cached in other
 // places in certain cases.
 
-Storage.origin = 'https://play.pokemonshowdown.com';
+Storage.origin = 'https://' + Config.routes.client;
 
 Storage.prefs = function (prop, value, save) {
 	if (value === undefined) {
@@ -357,9 +345,9 @@ Storage.initPrefs = function () {
 
 	$(window).on('message', Storage.onMessage);
 
-	if (document.location.hostname !== Config.origindomain) {
+	if (document.location.hostname !== Config.routes.client) {
 		$(
-			'<iframe src="https://play.pokemonshowdown.com/crossdomain.php?host=' +
+			'<iframe src="https://' + Config.routes.client + '/crossdomain.php?host=' +
 			encodeURIComponent(document.location.hostname) +
 			'&path=' + encodeURIComponent(document.location.pathname.substr(1)) +
 			'&protocol=' + encodeURIComponent(document.location.protocol) +
@@ -368,7 +356,7 @@ Storage.initPrefs = function () {
 	} else {
 		Config.server = Config.server || Config.defaultserver;
 		$(
-			'<iframe src="https://play.pokemonshowdown.com/crossprotocol.html?v1.2" style="display: none;"></iframe>'
+			'<iframe src="https://' + Config.routes.client + '/crossprotocol.html?v1.2" style="display: none;"></iframe>'
 		).appendTo('body');
 		setTimeout(function () {
 			// HTTPS may be blocked
@@ -397,7 +385,7 @@ Storage.onMessage = function ($e) {
 		Config.server = JSON.parse(data.substr(1));
 		if (Config.server.registered && Config.server.id !== 'showdown' && Config.server.id !== 'smogtours') {
 			var $link = $('<link rel="stylesheet" ' +
-				'href="//play.pokemonshowdown.com/customcss.php?server=' +
+				'href="//' + Config.routes.client + '/customcss.php?server=' +
 				encodeURIComponent(Config.server.id) + '" />');
 			$('head').append($link);
 		}
@@ -432,7 +420,7 @@ Storage.onMessage = function ($e) {
 
 			// in Safari, cross-origin local storage is apparently treated as session
 			// storage, so mirror the storage in the current origin just in case
-			if (document.location.hostname === Config.origindomain) {
+			if (document.location.hostname === Config.routes.client) {
 				try {
 					localStorage.setItem('showdown_teams_local', packedTeams);
 				} catch (e) {}

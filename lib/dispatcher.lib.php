@@ -243,7 +243,7 @@ class DefaultActionHandler {
 	}
 
 	public function logout($dispatcher, &$reqData, &$out) {
-		global $users, $curuser;
+		global $users, $curuser, $psconfig;
 
 		if (!$_POST ||
 				!isset($reqData['userid']) ||
@@ -252,7 +252,7 @@ class DefaultActionHandler {
 			die;
 		}
 		$users->logout(); // this kills the `sid` cookie
-		setcookie('showdown_username', '', time()-60*60*24*2, '/', 'play.pokemonshowdown.com');
+		setcookie('showdown_username', '', time()-60*60*24*2, '/', $psconfig['routes']['client']);
 		$out['actionsuccess'] = true;
 	}
 
@@ -492,7 +492,7 @@ class DefaultActionHandler {
 		// The ] denotes that it was successful
 		die(']A friend request has been sent to ' . $player['username'] . '!');
 	}
-	
+
 	/**
 	 * This function simply removes the friend given in the query string.
 	 */
