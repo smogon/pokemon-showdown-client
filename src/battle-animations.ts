@@ -30,6 +30,17 @@ This license DOES NOT extend to any other files in this repository.
 
 */
 
+if (window.soundManager) {
+	soundManager.setup({url: `https://${Config.routes.client}/swf/`});
+	if (window.Replays) soundManager.onready(window.Replays.soundReady);
+	soundManager.onready(() => {
+		soundManager.createSound({
+			id: 'notif',
+			url: `https://${Config.routes.client}/audio/notification.wav`,
+		});
+	});
+}
+
 class BattleScene {
 	battle: Battle;
 	animating = true;
@@ -89,16 +100,6 @@ class BattleScene {
 
 	constructor(battle: Battle, $frame: JQuery, $logFrame: JQuery) {
 		this.battle = battle;
-		if (window.soundManager) {
-			soundManager.setup({url: `https://${Config.routes.client}/swf/`});
-			if (window.Replays) soundManager.onready(window.Replays.soundReady);
-			soundManager.onready(() => {
-				soundManager.createSound({
-					id: 'notif',
-					url: `https://${Config.routes.client}/audio/notification.wav`,
-				});
-			});
-		}
 
 		$frame.addClass('battle');
 		this.$frame = $frame;
