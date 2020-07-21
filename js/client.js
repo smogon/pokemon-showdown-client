@@ -373,7 +373,7 @@ function toId() {
 			app.socket.close();
 		},
 		setPersistentName: function (name) {
-			if (location.host !== 'play.pokemonshowdown.com') return;
+			if (location.host !== Config.routes.client) return;
 			$.cookie('showdown_username', (name !== undefined) ? name : this.get('name'), {
 				expires: 14
 			});
@@ -409,7 +409,7 @@ function toId() {
 			// 		type: 'modal'
 			// 	});
 			} else {
-				if (document.location.hostname === 'play.pokemonshowdown.com' || Config.testclient) {
+				if (document.location.hostname === Config.routes.client || Config.testclient) {
 					this.addRoom('rooms', null, true);
 				} else {
 					this.addRoom('lobby', null, true);
@@ -887,7 +887,7 @@ function toId() {
 				} else if (data === 'nonexistent' && Config.server.id && roomid.slice(0, 7) === 'battle-' && errormessage) {
 					var replayid = roomid.slice(7);
 					if (Config.server.id !== 'showdown') replayid = Config.server.id + '-' + replayid;
-					var replayLink = 'https://replay.pokemonshowdown.com/' + replayid;
+					var replayLink = 'https://' + Config.routes.replays + '/' + replayid;
 					$.ajax(replayLink + '.json', {dataType: 'json'}).done(function (replay) {
 						if (replay) {
 							var title = BattleLog.escapeHTML(replay.p1) + ' vs. ' + BattleLog.escapeHTML(replay.p2);
@@ -1304,9 +1304,9 @@ function toId() {
 				if (this.className === 'closebutton') return; // handled elsewhere
 				if (this.className.indexOf('minilogo') >= 0) return; // handled elsewhere
 				if (!this.href) return; // should never happen
-				var isReplayLink = this.host === 'replay.pokemonshowdown.com' && Config.server.id === 'showdown';
+				var isReplayLink = this.host === Config.routes.replays && Config.server.id === 'showdown';
 				if ((
-					isReplayLink || ['play.pokemonshowdown.com', 'psim.us', location.host].includes(this.host)
+					isReplayLink || [Config.routes.client, 'psim.us', location.host].includes(this.host)
 				) && this.className !== 'no-panel-intercept') {
 					if (!e.cmdKey && !e.metaKey && !e.ctrlKey) {
 						var target = this.pathname.substr(1);
@@ -1383,7 +1383,7 @@ function toId() {
 					this.fixedWidth = true;
 				}
 			}
-			if (!app.roomsFirstOpen && !this.down && $(window).width() >= 916 && document.location.hostname === 'play.pokemonshowdown.com') {
+			if (!app.roomsFirstOpen && !this.down && $(window).width() >= 916 && document.location.hostname === Config.routes.client) {
 				this.addRoom('rooms');
 			}
 			this.updateLayout();
@@ -2516,7 +2516,7 @@ function toId() {
 
 			var buf = '<div class="userdetails">';
 			if (avatar) buf += '<img class="trainersprite' + (userid === ownUserid ? ' yours' : '') + '" src="' + Dex.resolveAvatar(avatar) + '" />';
-			buf += '<strong><a href="//pokemonshowdown.com/users/' + userid + '" target="_blank">' + BattleLog.escapeHTML(name) + '</a></strong><br />';
+			buf += '<strong><a href="//' + Config.routes.users + '/' + userid + '" target="_blank">' + BattleLog.escapeHTML(name) + '</a></strong><br />';
 			var offline = data.rooms === false;
 			if (data.status || offline) {
 				var status = offline ? '(Offline)' : data.status.startsWith('!') ? data.status.slice(1) : data.status;
@@ -2723,7 +2723,7 @@ function toId() {
 		initialize: function (data) {
 			var buf = '';
 			buf = '<p>Your replay has been uploaded! It\'s available at:</p>';
-			buf += '<p><a href="https://replay.pokemonshowdown.com/' + data.id + '" target="_blank" class="no-panel-intercept">https://replay.pokemonshowdown.com/' + data.id + '</a></p>';
+			buf += '<p><a href="https://' + Config.routes.replays + '/' + data.id + '" target="_blank" class="no-panel-intercept">https://' + Config.routes.replays + '/' + data.id + '</a></p>';
 			buf += '<p><button class="autofocus" name="close">Close</button></p>';
 			this.$el.html(buf).css('max-width', 620);
 		},

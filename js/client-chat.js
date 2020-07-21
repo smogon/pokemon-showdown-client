@@ -912,7 +912,7 @@
 					var userid = toID(targets[0]);
 					var registered = app.user.get('registered');
 					if (registered && registered.userid === userid) {
-						buffer += '<tr><td colspan="8" style="text-align:right"><a href="//pokemonshowdown.com/users/' + userid + '">Reset W/L</a></tr></td>';
+						buffer += '<tr><td colspan="8" style="text-align:right"><a href="//' + Config.routes.users + '/' + userid + '">Reset W/L</a></tr></td>';
 					}
 					buffer += '</table></div>';
 					self.add('|raw|' + buffer);
