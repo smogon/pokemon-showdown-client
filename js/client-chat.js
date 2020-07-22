@@ -1275,9 +1275,7 @@
 			if (autoscroll) {
 				this.$chatFrame.scrollTop(this.$chat.height());
 			}
-			if (!app.focused && !Dex.prefs('mute') && Dex.prefs('notifvolume')) {
-				soundManager.getSoundById('notif').setVolume(Dex.prefs('notifvolume')).play();
-			}
+			if (!app.focused) app.playNotificationSound();
 		},
 		addRow: function (line) {
 			var name, name2, silent;
@@ -1382,9 +1380,7 @@
 
 				case 'notify':
 					if (row[3] && !this.getHighlight(row[3])) return;
-					if (!Dex.prefs('mute') && Dex.prefs('notifvolume')) {
-						soundManager.getSoundById('notif').setVolume(Dex.prefs('notifvolume')).play();
-					}
+					app.playNotificationSound();
 					this.notifyOnce(row[1], row[2], 'highlight');
 					break;
 
@@ -1392,9 +1388,7 @@
 					var notifyOnce = row[4] !== '!';
 					if (!notifyOnce) row[4] = '';
 					if (row[4] && !this.getHighlight(row[4])) return;
-					if (!this.notifications && !Dex.prefs('mute') && Dex.prefs('notifvolume')) {
-						soundManager.getSoundById('notif').setVolume(Dex.prefs('notifvolume')).play();
-					}
+					if (!this.notifications) app.playNotificationSound();
 					this.notify(row[2], row[3], row[1], notifyOnce);
 					break;
 
@@ -1651,9 +1645,7 @@
 			}
 
 			if (mayNotify && isHighlighted) {
-				if (!Dex.prefs('mute') && Dex.prefs('notifvolume')) {
-					soundManager.getSoundById('notif').setVolume(Dex.prefs('notifvolume')).play();
-				}
+				app.playNotificationSound();
 				var $lastMessage = this.$chat.children().last();
 				var notifyTitle = "Mentioned by " + name + (this.id === 'lobby' ? '' : " in " + this.title);
 				var notifyText = $lastMessage.html().indexOf('<span class="spoiler">') >= 0 ? '(spoiler)' : $lastMessage.children().last().text();

@@ -5,13 +5,6 @@
 } */
 //setTimeout(function(){updateProgress(true)}, 10000);
 
-if (window.soundManager) {
-	soundManager.onready(function(){
-		soundManager.ready = true;
-		$('.soundchooser, .startsoundchooser').show();
-	});
-}
-
 // Panels
 
 var Topbar = Panels.Topbar.extend({
@@ -162,7 +155,7 @@ var ReplayPanel = Panels.StaticPanel.extend({
 		var rc2 = this.$('.replay-controls-2')[0];
 		if (rc2) rc2.innerHTML = rc2.innerHTML;
 
-		if (window.soundManager && soundManager.ready) this.$('.soundchooser, .startsoundchooser').show();
+		if (window.HTMLAudioElement) this.$('.soundchooser, .startsoundchooser').show();
 	},
 	clickReplayDownloadButton: function (e) {
 		var filename = (this.battle.tier || 'Battle').replace(/[^A-Za-z0-9]/g, '');

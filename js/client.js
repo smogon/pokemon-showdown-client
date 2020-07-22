@@ -215,7 +215,7 @@ function toId() {
 		getActionPHP: function () {
 			var ret = '/~~' + Config.server.id + '/action.php';
 			if (Config.testclient) {
-				ret = 'https://' + Config.origindomain + ret;
+				ret = 'https://' + Config.routes.client + ret;
 			}
 			return (this.getActionPHP = function () {
 				return ret;
@@ -1883,6 +1883,12 @@ function toId() {
 				}
 			}
 			Dex.prefs('autojoin', curAutojoin);
+		},
+
+		playNotificationSound: function () {
+			if (window.BattleSound && !Dex.prefs('mute')) {
+				BattleSound.playSound('audio/notification.wav', Dex.prefs('notifvolume'));
+			}
 		},
 
 		/*********************************************************
