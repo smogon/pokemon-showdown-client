@@ -776,7 +776,7 @@
 				var formatParts = format.split('@@@');
 				formatParts[0] = toID(formatParts[0]);
 				if (!formatParts[0].startsWith('gen')) formatParts[0] = 'gen8' + formatParts[0];
-				format = formatParts[1] ? formatParts[0] + '@@@' + formatParts[1] : formatParts[0];
+				format = formatParts[1] ? formatParts[0] + '@@@' + formatParts.slice(1).join(',') : formatParts[0];
 			}
 
 			var teamIndex;
