@@ -215,7 +215,7 @@ function toId() {
 		getActionPHP: function () {
 			var ret = '/~~' + Config.server.id + '/action.php';
 			if (Config.testclient) {
-				ret = 'https://' + Config.origindomain + ret;
+				ret = 'https://' + Config.routes.client + ret;
 			}
 			return (this.getActionPHP = function () {
 				return ret;
