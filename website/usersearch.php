@@ -4,11 +4,11 @@ error_reporting(E_ALL);
 ini_set('display_errors', TRUE);
 ini_set('display_startup_errors', TRUE);
 
-include '../play.pokemonshowdown.com/lib/ntbb-session.lib.php';
-include '../play.pokemonshowdown.com/lib/ntbb-ladder.lib.php';
-include 'lib/panels.lib.php';
+include __DIR__ . '/../lib/ntbb-session.lib.php';
+include __DIR__ . '/../lib/ntbb-ladder.lib.php';
+include __DIR__ . '/../lib/panels.lib.php';
 
-include_once 'config/config.inc.php';
+include_once __DIR__ . '/../config/config.inc.php';
 
 $userid = false;
 $user = false;

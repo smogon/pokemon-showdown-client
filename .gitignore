@@ -47,4 +47,15 @@ package-lock.json
 /replays/replay-config.inc.php
 /replays/theme/wrapper.inc.php
 
+/website/sprites/
+/website/audio/
+/website/config/
+/website/files
+/website/images/
+/website/.pages-cached/
+/website/cms/node_modules
+
+/lib/altaccesslog.txt
+/lib/htmlpurifier/HTMLPurifier/DefinitionCache/Serializer/
+
 .vscode

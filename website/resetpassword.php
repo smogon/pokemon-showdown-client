@@ -1,7 +1,7 @@
 <?php
 
 include 'style/wrapper.inc.php';
-include '../play.pokemonshowdown.com/lib/ntbb-session.lib.php';
+include __DIR__ . '/../lib/ntbb-session.lib.php';
 
 $page = 'resetpassword';
 $pageTitle = "Reset Password";

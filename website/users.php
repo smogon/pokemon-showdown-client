@@ -4,7 +4,7 @@ error_reporting(E_ALL);
 ini_set('display_errors', TRUE);
 ini_set('display_startup_errors', TRUE);
 
-include_once 'config/config.inc.php';
+include_once __DIR__ . '/../config/config.inc.php';
 
 $ntbb_groups = array(
 	array(
@@ -38,9 +38,9 @@ $ntbb_groups = array(
 );
 $STANDINGS = $psconfig['standings'];
 
-include '../play.pokemonshowdown.com/lib/ntbb-session.lib.php';
-include '../play.pokemonshowdown.com/lib/ntbb-ladder.lib.php';
-include 'lib/panels.lib.php';
+include __DIR__ . '/../lib/ntbb-session.lib.php';
+include __DIR__ . '/../lib/ntbb-ladder.lib.php';
+include __DIR__ . '/../lib/panels.lib.php';
 
 $authLevel = 0;
 $auth2FA = substr($curuser['email'] ?? '', -1) === '@';
@@ -113,7 +113,7 @@ if (@$_REQUEST['user']) {
 }
 
 if ($authLevel >= 3) {
-	file_put_contents('/var/www/html/pokemonshowdown.com/lib/altaccesslog.txt', "{$curuser['username']} - $userid\n", FILE_APPEND);
+	file_put_contents(__DIR__ . '/../lib/altaccesslog.txt', "{$curuser['username']} - $userid\n", FILE_APPEND);
 }
 
 if (isset($_REQUEST['json'])) {

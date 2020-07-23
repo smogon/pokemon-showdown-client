@@ -4,9 +4,9 @@ error_reporting(E_ALL);
 ini_set('display_errors', TRUE);
 ini_set('display_startup_errors', TRUE);
 
-include '../play.pokemonshowdown.com/lib/ntbb-session.lib.php';
-include '../play.pokemonshowdown.com/lib/ntbb-ladder.lib.php';
-include 'lib/panels.lib.php';
+include __DIR__ . '/../lib/ntbb-session.lib.php';
+include __DIR__ . '/../lib/ntbb-ladder.lib.php';
+include __DIR__ . '/../lib/panels.lib.php';
 
 $lowerstaff = $curuser['group'] == 4 || $curuser['group'] == 5;
 $upperstaff = $curuser['group'] == 2 || $curuser['group'] == 6;

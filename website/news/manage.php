@@ -2,22 +2,22 @@
 
 error_reporting(E_ALL);
 
-include_once '../../play.pokemonshowdown.com/lib/ntbb-session.lib.php';
-include_once '../config/news.inc.php';
+include_once __DIR__ . '/../../lib/ntbb-session.lib.php';
+include_once __DIR__ . '/../../config/news.inc.php';
 include_once 'include.php';
 
 if (@$curuser['group'] != 2 && @$curuser['group'] != 6) die('access denied');
 
 function saveNews() {
 	global $newsCache, $latestNewsCache;
-	file_put_contents('../config/news.inc.php', '<?php
+	file_put_contents(__DIR__ . '/../../config/news.inc.php', '<?php
 
 $latestNewsCache = '.var_export($GLOBALS['latestNewsCache'], true).';
 $newsCache = '.var_export($GLOBALS['newsCache'], true).';
 ');
 
 	date_default_timezone_set('America/Los_Angeles');
-	$indexData = file_get_contents('../../play.pokemonshowdown.com/index.html');
+	$indexData = file_get_contents(__DIR__ . '/../../index.html');
 	$indexData = preg_replace('/					<div class="pm-log" style="max-height:none">
 						.*?
 					<\/div>
@@ -26,7 +26,7 @@ $newsCache = '.var_export($GLOBALS['newsCache'], true).';
 					</div>
 ', $indexData, 1);
 	$indexData = preg_replace('/ data-newsid="[^"]*">/', ' data-newsid="'.getNewsId().'">', $indexData, 1);
-	file_put_contents('../../play.pokemonshowdown.com/index.html', $indexData);
+	file_put_contents(__DIR__ . '/../../index.html', $indexData);
 }
 
 include '../style/wrapper.inc.php';

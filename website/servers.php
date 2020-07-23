@@ -1,7 +1,7 @@
 <?php
 
-include_once 'config/servers.inc.php';
-include_once '../play.pokemonshowdown.com/lib/ntbb-session.lib.php';
+include_once __DIR__ . '/../config/servers.inc.php';
+include_once __DIR__ . '/../lib/ntbb-session.lib.php';
 include 'style/wrapper.inc.php';
 
 $id = '';
@@ -22,7 +22,7 @@ $page = 'servers';
 $pageTitle = "Servers";
 
 function saveservers() {
-	file_put_contents('config/servers.inc.php', '<?php
+	file_put_contents(__DIR__ . '/../config/servers.inc.php', '<?php
 
 /* if ((substr($_SERVER[\'REMOTE_ADDR\'],0,11) === \'69.164.163.\') ||
 		(@substr($_SERVER[\'HTTP_X_FORWARDED_FOR\'],0,11) === \'69.164.163.\')) {
