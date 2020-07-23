@@ -140,15 +140,13 @@ class BattleLog {
 		case 'name': case 'n': {
 			const user = BattleTextParser.parseNameParts(args[1]);
 			if (toID(args[2]) === toID(user.name)) return;
-			if (!this.lastRename) {
+			if (!this.lastRename || toID(this.lastRename.to) !== toID(user.name)) {
 				this.lastRename = {
 					from: args[2],
 					to: '',
 					element: document.createElement('div'),
 				};
 				this.lastRename.element.className = 'chat';
-			} else if (toID(this.lastRename.to) !== toID(user.name)) {
-				this.lastRename.from = args[2];
 			}
 			this.lastRename.to = user.group + user.name;
 			this.lastRename.element.innerHTML = `<small>${BattleLog.escapeHTML(this.lastRename.to)} renamed from ${BattleLog.escapeHTML(this.lastRename.from)}.</small>`;
