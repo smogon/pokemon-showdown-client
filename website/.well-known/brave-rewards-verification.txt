@@ -1,0 +1,4 @@
+This is a Brave Rewards publisher verification file.
+
+Domain: pokemonshowdown.com
+Token: 24519f467898f7d5f6be552c96684184b2e10a27ee1d70d055f71bfcc4cef030
