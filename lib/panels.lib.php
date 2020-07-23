@@ -1,6 +1,6 @@
 <?php
 
-include_once dirname(__FILE__).'/../theme/wrapper.inc.php';
+include_once dirname(__FILE__).'/../website/theme/wrapper.inc.php';
 
 class Panels {
 	var $output = 'normal';
