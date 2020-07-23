@@ -3,7 +3,6 @@
 // dependencies
 ///////////////
 
-declare var soundManager: any;
 // Caja
 declare var html4: any;
 declare var html: any;

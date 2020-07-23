@@ -63,17 +63,13 @@
 				break;
 
 			case 'notify':
-				if (!Dex.prefs('mute') && Dex.prefs('notifvolume')) {
-					soundManager.getSoundById('notif').setVolume(Dex.prefs('notifvolume')).play();
-				}
+				app.playNotificationSound();
 				this.notifyOnce(row[1], row.slice(2).join('|'), 'highlight');
 				break;
 
 			case 'tempnotify':
 				var notifyOnce = row[4] !== '!';
-				if (!this.notifications && !Dex.prefs('mute') && Dex.prefs('notifvolume')) {
-					soundManager.getSoundById('notif').setVolume(Dex.prefs('notifvolume')).play();
-				}
+				if (!this.notifications) app.playNotificationSound();
 				this.notify(row[2], row[3], row[1], notifyOnce);
 				break;
 
