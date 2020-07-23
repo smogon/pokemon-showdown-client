@@ -1005,9 +1005,13 @@
 			// documentation of client commands
 			case 'help':
 				switch (toID(target)) {
+				case 'chal':
+				case 'chall':
 				case 'challenge':
 					this.add('/challenge - Open a prompt to challenge a user to a battle.');
 					this.add('/challenge [user] - Challenge the user [user] to a battle.');
+					this.add('/challenge [user], [format] - Challenge the user [user] to a battle in the specified [format].');
+					this.add('/challenge [user], [format] @@@ [Added Rule], [!Removed Rule], [-Banned thing], [*Restricted thing], [+Unbanned/unrestricted thing] - Challenge the user [user] to a battle in the specified [format] with the custom rules added on.');
 					return false;
 				case 'accept':
 					this.add('/accept - Accept a challenge if only one is pending.');
