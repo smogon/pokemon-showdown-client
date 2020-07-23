@@ -98,7 +98,7 @@ else if ($_REQUEST['name'])// && $REPLAYS[$_REQUEST['name']])
 		<link rel="stylesheet" href="/style/replayer.css" />
 		<script src="/js/jquery-1.9.1.min.js"></script>
 		<script src="/js/jquery-cookie.js"></script>
-		<script src="/js/soundmanager2.js"></script>
+		<script src="/js/battle-sound.js"></script>
 		<script src="/js/battledata.js"></script>
 		<script src="/data/pokedex-mini.js"></script>
 		<script src="/data/graphics.js"></script>

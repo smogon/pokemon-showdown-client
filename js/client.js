@@ -1885,6 +1885,12 @@ function toId() {
 			Dex.prefs('autojoin', curAutojoin);
 		},
 
+		playNotificationSound: function () {
+			if (window.BattleSound && !Dex.prefs('mute')) {
+				BattleSound.playSound('audio/notification.wav', Dex.prefs('notifvolume'));
+			}
+		},
+
 		/*********************************************************
 		 * Popups
 		 *********************************************************/

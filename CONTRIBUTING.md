@@ -29,7 +29,7 @@ PS loads itself in phases:
 - `client-connection.ts`
   - Connect to server
 - Preact
-- SoundManager
+- BattleSound
 - `panel-mainmenu.tsx`
 - `panel-rooms.tsx`
 - `panels.tsx`
