@@ -2,7 +2,7 @@
 
 error_reporting(0);
 
-include '../style/wrapper.inc.php';
+include __DIR__ . '/../style/wrapper.inc.php';
 
 $page = 'june2013attack';
 $pageTitle = "June 2013 attack";

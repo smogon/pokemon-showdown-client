@@ -2,7 +2,7 @@
 
 error_reporting(0);
 
-include '../style/wrapper.inc.php';
+include __DIR__ . '/../style/wrapper.inc.php';
 
 $page = '0.9';
 $pageTitle = "Version 0.9";

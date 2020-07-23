@@ -1,6 +1,6 @@
 <?php
 
-include '../config/news.inc.php';
+include __DIR__ . '/../../config/news.inc.php';
 
 $topic = @$newsCache[$_GET['id']];
 if (!$topic) {
@@ -8,7 +8,7 @@ if (!$topic) {
 	die("Invalid newsid");
 }
 
-include '../style/wrapper.inc.php';
+include __DIR__ . '/../style/wrapper.inc.php';
 
 $page = 'news';
 $pageTitle = $topic['title'];
