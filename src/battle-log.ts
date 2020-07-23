@@ -26,6 +26,11 @@ class BattleLog {
 		leaves: string[],
 		element: HTMLDivElement,
 	} | null = null;
+	lastRename: {
+		from: string,
+		to: string,
+		element: HTMLDivElement,
+	} | null = null;
 	/**
 	 * * -1 = spectator: "Red sent out Pikachu!" "Blue's Eevee used Tackle!"
 	 * * 0 = player 1: "Go! Pikachu!" "The opposing Eevee used Tackle!"
@@ -73,6 +78,7 @@ class BattleLog {
 		let divHTML = '';
 		let noNotify: boolean | undefined;
 		if (!['join', 'j', 'leave', 'l'].includes(args[0])) this.joinLeave = null;
+		if (!['name', 'n'].includes(args[0])) this.lastRename = null;
 		switch (args[0]) {
 		case 'chat': case 'c': case 'c:':
 			let battle = this.scene?.battle;
@@ -133,11 +139,21 @@ class BattleLog {
 
 		case 'name': case 'n': {
 			const user = BattleTextParser.parseNameParts(args[1]);
-			if (toID(args[2]) !== toID(user.name)) {
-				divHTML = '<small>' + BattleLog.escapeHTML(user.group + user.name) + ' renamed from ' + BattleLog.escapeHTML(args[2]) + '.</small>';
+			if (toID(args[2]) === toID(user.name)) return;
+			if (!this.lastRename || toID(this.lastRename.to) !== toID(user.name)) {
+				this.lastRename = {
+					from: args[2],
+					to: '',
+					element: document.createElement('div'),
+				};
+				this.lastRename.element.className = 'chat';
 			}
-			break;
+			this.lastRename.to = user.group + user.name;
+			this.lastRename.element.innerHTML = `<small>${BattleLog.escapeHTML(this.lastRename.to)} renamed from ${BattleLog.escapeHTML(this.lastRename.from)}.</small>`;
+			(preempt ? this.preemptElem : this.innerElem).appendChild(this.lastRename.element);
+			return;
 		}
+
 		case 'chatmsg': case '':
 			divHTML = BattleLog.escapeHTML(args[1]);
 			break;
