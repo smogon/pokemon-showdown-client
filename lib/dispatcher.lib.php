@@ -391,7 +391,7 @@ class DefaultActionHandler {
 			return;
 		}
 		// No need to sanitise $server['id'] because it should be safe already.
-		$cssfile = dirname(__FILE__) . '/../../pokemonshowdown.com/config/customcss/' . $server['id'] . '.css';
+		$cssfile = dirname(__FILE__) . '/config/customcss/' . $server['id'] . '.css';
 		@unlink($cssfile);
 	}
 

@@ -1,2 +1,2 @@
 <?php
-include '../pokemonshowdown.com/news/embed.php';
+include 'website/news/embed.php';

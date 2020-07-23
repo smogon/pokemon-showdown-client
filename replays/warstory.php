@@ -75,7 +75,7 @@ setInterval(update, 300);
 else if ($_REQUEST['name'])// && $REPLAYS[$_REQUEST['name']])
 {
 
-	include '../../pokemonshowdown.com/lib/ntbb-database.lib.php';
+	include __DIR__ . '/../lib/ntbb-database.lib.php';
 
 	$res = $psdb->query("SELECT * FROM `ntbb_replays` WHERE `id` = '".$psdb->escape($_REQUEST['name'])."'");
 	$replay = $psdb->fetch_assoc($res);
