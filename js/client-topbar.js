@@ -872,6 +872,7 @@
 		submit: function (data) {
 			this.close();
 			if (!$.trim(data.username)) return;
+			app.user.set('attemptedName', data.username);
 			app.user.rename(data.username);
 		}
 	});

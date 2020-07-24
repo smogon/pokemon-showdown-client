@@ -1039,6 +1039,16 @@ function toId() {
 				var maxWidth;
 				var type = 'semimodal';
 				data = data.substr(7);
+				if (data.substr(0, 15) === '|forceregister|') {
+					data = data.substr(15);
+					var username = app.user.get('attemptedName');
+					if (!username) username = name;
+					app.addPopup(RegisterPopup, {
+						name: username,
+						error: data,
+					});
+					break;
+				}
 				if (data.substr(0, 6) === '|wide|') {
 					data = data.substr(6);
 					maxWidth = 960;
