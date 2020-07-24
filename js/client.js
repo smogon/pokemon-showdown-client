@@ -2508,14 +2508,16 @@ function toId() {
 			var userid = data.userid;
 			var name = data.name;
 			var avatar = data.avatar || '';
-			var group = ((Config.groups[data.roomGroup] || {}).name || '');
+			var groupName = ((Config.groups[data.roomGroup] || {}).name || '');
 			var globalGroup = (Config.groups[data.group || Config.defaultGroup || ' '] || null);
 			var globalGroupName = '';
 			if (globalGroup && globalGroup.name) {
-				if (!group || group === globalGroup.name) {
-					group = (globalGroup.type === 'punishment' ? "" : "Global ") + globalGroup.name;
+				if (globalGroup.type === 'punishment') {
+					globalGroupName = globalGroup.name;
+				} else if (!groupName || groupName === globalGroup.name) {
+					groupName = "Global " + globalGroup.name;
 				} else {
-					globalGroupName = (globalGroup.type === 'punishment' ? "" : "Global ") + globalGroup.name;
+					globalGroupName = "Global " + globalGroup.name;
 				}
 			}
 			var ownUserid = app.user.get('userid');
@@ -2528,8 +2530,8 @@ function toId() {
 				var status = offline ? '(Offline)' : data.status.startsWith('!') ? data.status.slice(1) : data.status;
 				buf += '<span class="userstatus' + (offline ? ' offline' : '') + '">' + BattleLog.escapeHTML(status) + '<br /></span>';
 			}
-			if (group) {
-				buf += '<small class="usergroup roomgroup">' + group + '</small>';
+			if (groupName) {
+				buf += '<small class="usergroup roomgroup">' + groupName + '</small>';
 				if (globalGroupName) buf += '<br />';
 			}
 			if (globalGroupName) {
