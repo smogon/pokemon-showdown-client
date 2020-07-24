@@ -2509,13 +2509,13 @@ function toId() {
 			var name = data.name;
 			var avatar = data.avatar || '';
 			var group = ((Config.groups[data.roomGroup] || {}).name || '');
-			var globalgroup = ((Config.groups[(data.group || Config.defaultGroup || ' ')] || {}).name || '');
-			if (globalgroup) {
-				if (!group || group === globalgroup) {
-					group = "Global " + globalgroup;
-					globalgroup = '';
+			var globalGroupObject = (Config.groups[(data.group || Config.defaultGroup || ' ')] || null);
+			var globalgroup = '';
+			if (globalGroupObject && globalGroupObject.name) {
+				if (!group || group === globalGroupObject.name) {
+					group = (globalGroupObject.type === 'punishment' ? "" : "Global ") + globalGroupObject.name;
 				} else {
-					globalgroup = "Global " + globalgroup;
+					globalgroup = (globalGroupObject.type === 'punishment' ? "" : "Global ") + globalGroupObject.name;
 				}
 			}
 			var ownUserid = app.user.get('userid');
