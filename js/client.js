@@ -2514,6 +2514,7 @@ function toId() {
 			if (globalGroup && globalGroup.name) {
 				if (globalGroup.type === 'punishment') {
 					globalGroupName = globalGroup.name;
+					groupName = '';
 				} else if (!groupName || groupName === globalGroup.name) {
 					groupName = "Global " + globalGroup.name;
 				} else {
