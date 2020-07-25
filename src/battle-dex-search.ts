@@ -1193,15 +1193,15 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 		case 'headbutt':
 			return abilityid === 'serenegrace';
 		case 'hiddenpowerelectric':
-			return !moves.includes('thunderbolt');
+			return (dex.gen < 4 && !moves.includes('thunderpunch')) && !moves.includes('thunderbolt');
 		case 'hiddenpowerfighting':
-			return !moves.includes('aurasphere') && !moves.includes('focusblast');
+			return (dex.gen < 4 && !moves.includes('brickbreak')) && !moves.includes('aurasphere') && !moves.includes('focusblast');
 		case 'hiddenpowerfire': case 'mysticalfire':
-			return !moves.includes('flamethrower');
+			return (dex.gen < 4 && !moves.includes('firepunch')) && !moves.includes('flamethrower') && !moves.includes('fireblast');
 		case 'hiddenpowergrass':
-			return !moves.includes('energyball') && !moves.includes('gigadrain');
+			return !moves.includes('energyball') && !moves.includes('grassknot') || (dex.gen > 3 && !moves.includes('gigadrain'));
 		case 'hiddenpowerice':
-			return !moves.includes('icebeam') && !moves.includes('aurorabeam');
+			return (dex.gen < 4 && !moves.includes('icepunch')) && !moves.includes('icebeam') || (dex.gen > 3 && !moves.includes('aurorabeam'));
 		case 'hiddenpowerflying':
 			return dex.gen < 4 && !moves.includes('drillpeck');
 		case 'hiddenpowerbug':
@@ -1219,7 +1219,7 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 		case 'infestation':
 			return moves.includes('stickyweb');
 		case 'irontail':
-			return !moves.includes('ironhead') && (species.types.includes('Steel') || !moves.includes('gunkshot'));
+			return (dex.gen >= 6 && !moves.includes('ironhead') && !moves.includes('gunkshot') && !moves.includes('poisonjab')) || ((species.types.includes('Steel') && !moves.includes('ironhead')));
 		case 'jumpkick':
 			return !moves.includes('highjumpkick');
 		case 'leechlife':
