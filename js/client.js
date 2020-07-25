@@ -2513,7 +2513,7 @@ function toId() {
 			var globalGroupName = '';
 			if (globalGroup && globalGroup.name) {
 				if (globalGroup.type === 'punishment') {
-					globalGroupName = globalGroup.name;
+					groupName = globalGroup.name;
 				} else if (!groupName || groupName === globalGroup.name) {
 					groupName = "Global " + globalGroup.name;
 				} else {
