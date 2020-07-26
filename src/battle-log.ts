@@ -184,14 +184,26 @@ class BattleLog {
 			return;
 
 		case 'unlink': {
+			// |unlink| is deprecated in favor of |hidelines|
 			const user = toID(args[2]) || toID(args[1]);
 			this.unlinkChatFrom(user);
 			if (args[2]) {
 				const lineCount = parseInt(args[3], 10);
-				this.hideChatFrom(user, args[1] === 'clear', lineCount);
+				this.hideChatFrom(user, true, lineCount);
 			}
 			return;
 		}
+
+		case 'hidelines': {
+			const user = toID(args[2]);
+			this.unlinkChatFrom(user);
+			if (args[1] === 'hide' || args[1] === 'delete') {
+				const lineCount = parseInt(args[3], 10);
+				this.hideChatFrom(user, args[1] === 'hide', lineCount);
+			}
+			return;
+		}
+
 		case 'debug':
 			divClass = 'debug';
 			divHTML = '<div class="chat"><small style="color:#999">[DEBUG] ' + BattleLog.escapeHTML(args[1]) + '.</small></div>';
