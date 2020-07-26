@@ -188,7 +188,7 @@ class BattleLog {
 			this.unlinkChatFrom(user);
 			if (args[2]) {
 				const lineCount = parseInt(args[3], 10);
-				this.hideChatFrom(user, true, lineCount);
+				this.hideChatFrom(user, args[1] === 'clear', lineCount);
 			}
 			return;
 		}
