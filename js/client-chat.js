@@ -1451,7 +1451,7 @@
 					var $messages = $('.chatmessage-' + user);
 					if (!$messages.length) break;
 					$messages.find('a').contents().unwrap();
-					if (row[1] === 'hide' || row[1] === 'delete') {
+					if (row[1] !== 'unlink') {
 						$messages = this.$chat.find('.chatmessage-' + user);
 						if (!$messages.length) break;
 						var lineCount = parseInt(row[3], 10) || 0;
