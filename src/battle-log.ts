@@ -197,7 +197,7 @@ class BattleLog {
 		case 'hidelines': {
 			const user = toID(args[2]);
 			this.unlinkChatFrom(user);
-			if (args[1] === 'hide' || args[1] === 'delete') {
+			if (args[1] !== 'unlink') {
 				const lineCount = parseInt(args[3], 10);
 				this.hideChatFrom(user, args[1] === 'hide', lineCount);
 			}
