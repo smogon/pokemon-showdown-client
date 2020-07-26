@@ -1425,6 +1425,7 @@
 					break;
 
 				case 'unlink':
+					// |unlink| is deprecated in favor of |hidelines|
 					// note: this message has global effects, but it's handled here
 					// so that it can be included in the scrollback buffer.
 					if (Dex.prefs('nounlink')) return;
@@ -1444,7 +1445,21 @@
 						this.$chat.children().last().append(' <button name="toggleMessages" value="' + user + '" class="subtle"><small>(' + $messages.length + ' line' + ($messages.length > 1 ? 's' : '') + ' from ' + user + ' hidden)</small></button>');
 					}
 					break;
-
+				case 'hidelines':
+					if (Dex.prefs('nounlink')) return;
+					var user = toID(row[2]);
+					var $messages = $('.chatmessage-' + user);
+					if (!$messages.length) break;
+					$messages.find('a').contents().unwrap();
+					if (row[1] !== 'unlink') {
+						$messages = this.$chat.find('.chatmessage-' + user);
+						if (!$messages.length) break;
+						var lineCount = parseInt(row[3], 10) || 0;
+						if (lineCount) $messages = $messages.slice(-lineCount);
+						$messages.hide().addClass('revealed').find('button').parent().remove();
+						if (row[1] === 'hide') this.$chat.children().last().append(' <button name="toggleMessages" value="' + user + '" class="subtle"><small>(' + $messages.length + ' line' + ($messages.length > 1 ? 's' : '') + ' from ' + user + ' hidden)</small></button>');
+					}
+					break;
 				case 'tournament':
 				case 'tournaments':
 					if (Dex.prefs('tournaments') === 'hide') {

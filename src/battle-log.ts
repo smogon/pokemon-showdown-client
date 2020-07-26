@@ -184,6 +184,7 @@ class BattleLog {
 			return;
 
 		case 'unlink': {
+			// |unlink| is deprecated in favor of |hidelines|
 			const user = toID(args[2]) || toID(args[1]);
 			this.unlinkChatFrom(user);
 			if (args[2]) {
@@ -192,6 +193,17 @@ class BattleLog {
 			}
 			return;
 		}
+
+		case 'hidelines': {
+			const user = toID(args[2]);
+			this.unlinkChatFrom(user);
+			if (args[1] !== 'unlink') {
+				const lineCount = parseInt(args[3], 10);
+				this.hideChatFrom(user, args[1] === 'hide', lineCount);
+			}
+			return;
+		}
+
 		case 'debug':
 			divClass = 'debug';
 			divHTML = '<div class="chat"><small style="color:#999">[DEBUG] ' + BattleLog.escapeHTML(args[1]) + '.</small></div>';
