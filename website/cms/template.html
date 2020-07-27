@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width" />
+<title>{title} - Pok&eacute;mon Showdown!</title>
+<meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+<link rel="stylesheet" href="/style/main.css?v13" />
+<!-- Google Analytics -->
+<script>
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-26211653-1', 'pokemonshowdown.com', {'allowLinker': true});
+ga('require', 'linker');
+
+ga('linker:autoLink', ['pokemonshowdown.com', 'play.pokemonshowdown.com', 'replay.pokemonshowdown.com']);
+ga('send', 'pageview');
+</script>
+<!-- End Google Analytics -->
+
+<div id="wrapper">
+	<div class="header"><div class="header-inner">
+		<ul class="nav">
+			<li><a class="button nav-first" href="/"><img src="/images/pokemonshowdownbeta.png" alt="Pok&eacute;mon Showdown! (beta)" /> Home</a></li>
+			<li><a class="button" href="/dex/">Pok&eacute;dex</a></li>
+			<li><a class="button" href="//replay.pokemonshowdown.com/">Replays</a></li>
+			<li><a class="button" href="/ladder/">Ladder</a></li>
+			<li><a class="button nav-last" href="/forums/">Forum</a></li>
+		</ul>
+		<ul class="nav nav-play">
+			<li><a class="button greenbutton nav-first nav-last" href="//play.pokemonshowdown.com/">Play</a></li>
+		</ul>
+		<div style="clear:both"></div>
+	</div></div>
+	<div class="main">
+		{content}
+	</div>
+	<div class="footer">
+		<p>
+			<small><a href="/rules">Rules</a> | <a href="/privacy">Privacy policy</a> | <a href="/credits">Credits</a> | <a href="/contact">Contact</a></small>
+		</p>
+	</div>
+</div></body>

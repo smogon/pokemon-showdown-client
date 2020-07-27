@@ -1,0 +1,45 @@
+#!/usr/bin/env node
+'use strict';
+
+const fs = require('fs');
+const showdown = require('showdown');
+const converter = new showdown.Converter({
+	tables: true,
+	simpleLineBreaks: true,
+	requireSpaceBeforeHeadingText: true,
+	simplifiedAutoLink: true,
+	literalMidWordUnderscores: true,
+	literalMidWordAsterisks: true,
+	openLinksInNewWindow: true,
+});
+
+process.chdir(__dirname);
+
+const files = fs.readdirSync('../pages/');
+const template = '' + fs.readFileSync('template.html');
+
+for (const file of files) {
+	if (!file.endsWith('.md')) continue;
+	if (/[A-Z]/.test(file)) continue;
+	let buf = '' + fs.readFileSync('../pages/' + file);
+	const name = file.slice(0, -3);
+	const nlIndex = buf.indexOf('\n');
+	const title = buf.slice(2, nlIndex);
+	const secondHashIndex = buf.indexOf('\n# ');
+	if (secondHashIndex > 0 && buf.slice(nlIndex, secondHashIndex).trim() === '') {
+		buf = buf.slice(secondHashIndex + 1);
+	}
+	buf = converter.makeHtml(buf);
+	buf = buf.replace(/<a href="http/g, `<a target="_blank" href="http`);
+
+	buf = buf.replace(/\n/g, '\n\t\t').replace(/\n\t\t\n/g, '\n\n');
+
+	buf = template.replace('{title}', title).replace('{content}', buf);
+	buf = buf.replace(`<a href="/${name}">`, `<a href="/${name}" class="cur">`);
+	// showdown doesn't do this automatically
+	buf = buf.replace(/é/g, '&eacute;');
+
+	fs.writeFileSync('../.pages-cached/' + name + '.html', buf);
+}
+
+console.log("Done.");

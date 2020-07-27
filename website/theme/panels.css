@@ -1,0 +1,368 @@
+/**
+ * Panels CSS file
+ *
+ * @author Guangcong Luo
+ */
+
+/* Global layout */
+
+html,
+body,
+div,
+form {
+	padding: 0;
+	margin: 0;
+}
+
+body,
+textarea,
+.textbox {
+	font-family: Verdana, Helvetica, Arial, sans-serif;
+	font-size: 11pt;
+}
+
+a {
+	color: #3A4A66;
+}
+a:hover {
+	color: #8195b8;
+}
+
+button {
+	cursor: pointer;
+	font-size: 9pt;
+	padding: 3px 6px;
+}
+
+a img {
+	border: 0;
+}
+
+.sep {
+	display: none;
+}
+
+.textbox {
+	border: 1px solid #A6BBD4;
+	margin: 0;
+	padding: 2px;
+	font-family: Verdana, Helvetica, Arial, sans-serif;
+	font-size: 10pt;
+	border: 1px solid #AAAAAA;
+	border-radius: 3px;
+	box-shadow: inset 0px 1px 2px #CCCCCC, 1px 1px 0 rgba(255,255,255,.6);
+	background: #F8FBFD;
+}
+.textbox:hover {
+	border-color: #474747;
+	box-shadow: inset 0px 1px 2px #D2D2D2, 1px 1px 0 rgba(255,255,255,.6);
+	background: #FFFFFF;
+}
+.textbox:focus {
+	outline: 0 none;
+	border: 1px solid #004488;
+	box-shadow: inset 0px 1px 2px #D2D2D2, 0px 0px 5px #2266AA;
+	background: #FFFFFF;
+}
+
+/* header layout */
+
+.userbar {
+	float: right;
+}
+
+.nav,
+.nav li,
+.nav-play,
+.nav-play li {
+	display: block;
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	float: left;
+}
+
+.nav {
+	padding: 15px 6px 15px 6px;
+}
+
+.header .nav {
+	padding: 15px 0 15px 155px;
+}
+
+.header .nav-play {
+	padding: 15px 0 15px 10px;
+}
+
+.nav .button {
+	position: relative;
+	padding: 5px 10px;
+	margin: 0 -1px 0 0;
+	border-radius: 0;
+}
+
+.nav .button img {
+	position: absolute;
+	top: -8px;
+	left: -150px;
+}
+
+.nav .button:hover {
+	z-index: 10;
+}
+
+.nav li:first-child .button {
+	border-top-left-radius: 5px;
+	border-bottom-left-radius: 5px;
+}
+
+.nav li:last-child .button {
+	border-top-right-radius: 5px;
+	border-bottom-right-radius: 5px;
+}
+
+a.button {
+	padding: 5px 10px;
+	display: inline-block;
+}
+.nav a.button {
+	display: inline;
+}
+.button {
+	outline: none;
+	cursor: pointer;
+	text-align: center;
+	text-decoration: none;
+	text-shadow: 0 1px 0 rgba(255,255,255,.4);
+	border-radius: 5px;
+	-webkit-box-shadow: 0 1px 2px rgba(0,0,0,.2), inset 0 -1px 2px rgba(255,255,255,1);
+	-moz-box-shadow: 0 1px 2px rgba(0,0,0,.2), inset 0 -1px 2px rgba(255,255,255,1);
+	box-shadow: 0 1px 2px rgba(0,0,0,.2), inset 0 -1px 2px rgba(255,255,255,1);
+	white-space: nowrap;
+	/* default colors */
+	font-family: inherit;
+	font-size: inherit;
+	color: #222222;
+	border: solid 1px #AAAAAA;
+	background: #e3e3e3;
+	background: -webkit-gradient(linear, left top, left bottom, from(#f6f6f6), to(#e3e3e3));
+	background: -moz-linear-gradient(top,  #f6f6f6,  #e3e3e3);
+	background: linear-gradient(top,  #f6f6f6,  #e3e3e3);
+	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#f6f6f6', endColorstr='#e3e3e3');
+}
+.button.cur,
+.button.cur:hover,
+.button:disabled,
+.button:disabled:hover {
+	color: #888888;
+	background: #f8f8f8;
+	-webkit-box-shadow: 0 1px 2px rgba(0,0,0,.2);
+	-moz-box-shadow: 0 1px 2px rgba(0,0,0,.2);
+	box-shadow: 0 1px 2px rgba(0,0,0,.2);
+}
+.button.cur:hover {
+	border-color: #888888;
+}
+.button:disabled {
+	cursor: default;
+}
+
+.button:hover {
+	background: #cfcfcf;
+	background: -webkit-gradient(linear, left top, left bottom, from(#f2f2f2), to(#cfcfcf));
+	background: -moz-linear-gradient(top,  #f2f2f2,  #cfcfcf);
+	background: linear-gradient(top,  #f2f2f2,  #cfcfcf);
+	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#f2f2f2', endColorstr='#cfcfcf');
+	border-color: #606060;
+	color: #222222;
+}
+
+.button:active {
+	background: -webkit-gradient(linear, left top, left bottom, from(#cfcfcf), to(#f2f2f2));
+	background: -moz-linear-gradient(top,  #cfcfcf,  #f2f2f2);
+	background: linear-gradient(top,  #cfcfcf,  #f2f2f2);
+	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#cfcfcf', endColorstr='#f2f2f2');
+}
+
+.greenbutton {
+	background: hsl(100,30%,93%);
+	background: -webkit-gradient(linear, left top, left bottom, from(hsl(100,30%,97%)), to(hsl(100,30%,84%)));
+	background: -moz-linear-gradient(top,  hsl(100,30%,97%),  hsl(100,30%,84%));
+	background: linear-gradient(top,  hsl(100,30%,97%),  hsl(100,30%,84%));
+	border-color: hsl(100,30%,70%);
+	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#f6f6f6', endColorstr='#e3e3e3');
+}
+
+.greenbutton:hover {
+	background: hsl(100,30%,87%);
+	background: -webkit-gradient(linear, left top, left bottom, from(hsl(100,30%,94%)), to(hsl(100,30%,77%)));
+	background: -moz-linear-gradient(top,  hsl(100,30%,94%),  hsl(100,30%,77%));
+	background: linear-gradient(top,  hsl(100,30%,94%),  hsl(100,30%,77%));
+	border-color: hsl(100,30%,41%);
+}
+
+.greenbutton:active {
+	background: hsl(100,30%,77%);
+	background: -webkit-gradient(linear, left top, left bottom, from(hsl(100,30%,77%)), to(hsl(100,30%,83%)));
+	background: -moz-linear-gradient(top,  hsl(100,30%,77%),  hsl(100,30%,83%));
+	background: linear-gradient(top,  hsl(100,30%,77%),  hsl(100,30%,83%));
+	border-color: hsl(100,30%,41%);
+}
+
+.footer {
+	font-size: 9pt;
+	color: #999999;
+	margin-top: 40px;
+	text-align: center;
+}
+
+/* panel layout */
+
+.pfx-topbar {
+	padding: 0;
+	margin: 0;
+	text-align: center;
+
+	height: 50px;
+	background: #E5ECFB;
+	background: -webkit-gradient(linear, left top, left bottom, from(#E8EEFC), to(#D7DEEA));
+	background: -moz-linear-gradient(top,  #E8EEFC,  #D7DEEA);
+	background: linear-gradient(top,  #E8EEFC,  #D7DEEA);
+	filter:  progid:DXImageTransform.Microsoft.gradient(startColorstr='#E8EEFC', endColorstr='#D7DEEA');
+	text-shadow: white 0px 1px 0;
+	border-bottom: 1px solid #2A4066;
+}
+.pfx-topbar .userbar {
+	padding: 12px 15px 0 10px;
+}
+.titlebar.pfx-title {
+	border-top: 0;
+	border-left: 0;
+}
+.pfx-panel {
+	margin-left: -1px;
+	border-left: 1px solid #2A4066;
+	background: white;
+	box-shadow: inset 2px 2px 2px rgba(0,0,0,.15);
+}
+.pfx-go-left, .pfx-go-right {
+	position: absolute;
+	display: block;
+	top: 51px;
+	bottom: 0;
+	width:35px;
+
+	margin: 0 0 0 -1px;
+	padding: 0;
+}
+.pfx-go-left {
+	left: 0;
+	background: #FFFFFF url(go-left.png) no-repeat scroll left 10px center;
+}
+.pfx-go-right {
+	right: 0;
+	background: #FFFFFF url(go-right.png) no-repeat scroll right 10px center;
+
+	border-left: 1px solid #2A4066;
+}
+.pfx-go-left:hover, .pfx-go-right:hover {
+	background-color: #DEE6F5;
+}
+.pfx-go-left:active, .pfx-go-right:active {
+	background: #C9CFD6;
+}
+
+.pfx-body, h2.pfx-body {
+	max-width: 720px;
+	margin: 0 auto;
+	box-sizing: border-box;
+}
+
+.pfx-loading {
+	position: absolute;
+	top: 20px;
+	left: 50%;
+	margin: 0 0 0 -80px;
+	width: 160px;
+	text-align: center;
+
+	border: 1px solid #acb6e7;
+	color: #9ca6d7;
+	box-shadow: inset 1px 1px 0 #ffffff, inset -1px -1px 0 #c7cdee, 2px 2px 3px rgba(0,0,0,.1);
+	background: #EEF0FA none;
+	padding: 5px 0;
+	border-radius: 5px;
+	font-size: 18pt;
+}
+
+.pfx-backbutton {
+	display: block;
+	padding: 2px 4px;
+	margin: 3px 8px 0 5px;
+	background: #F0F5FC none;
+	border: 1px solid #A6BBD4;
+	text-decoration: none;
+	font-size: 9pt;
+	float: left;
+	white-space: nowrap;
+	border-radius: 6px;
+	box-shadow: inset 1px 1px 0 rgba(255,255,255,.6), 1px 1px 2px rgba(0,0,0,.08);
+}
+.pfx-backbutton:first-letter {
+	position: relative;
+	font-size: 8pt;
+	vertical-align: top;
+}
+.pfx-backbutton:hover {
+	background: #E1E8F0 none;
+	border: 1px solid #889EBC;
+	text-decoration: none;
+	color: #2A3A56;
+}
+.pfx-backbutton:active {
+	padding: 3px 4px 1px 4px;
+	background: #C9CFD6;
+	color: #000000;
+	border-color: #7689A3;
+	box-shadow: inset -1px -1px 0 rgba(255,255,255,.6), 1px 1px 2px rgba(0,0,0,.08);
+}
+
+/* popup */
+
+.pfx-popup-bg {
+	position: fixed;
+	top: 0; bottom: 0; left: 0; right: 0;
+	height: 100%;
+	width: 100%;
+	background: #d1dceb none;
+	z-index: 10;
+	opacity: 0.3;
+	filter: alpha(opacity=30);
+}
+
+.pfx-popup {
+	position: absolute;
+	padding: 15px;
+	background: #F5F7FE;
+	border: 1px solid #a6bbd4;
+	z-index: 11;
+
+	margin: -1px 0;
+
+	border-radius: 6px;
+	box-shadow: inset 1px 1px 0 #ffffff, inset -1px -1px 0 #DDDDDD, 2px 2px 3px rgba(0,0,0,.2);
+}
+
+/* topbar */
+
+.pfx-topbar .header {
+	margin: 0;
+	width: auto;
+	min-height: 48px;
+}
+@media all and (min-width: 900px) {
+	.pfx-topbar .header {
+		margin: 0 auto;
+		max-width: 605px;
+	}
+}
