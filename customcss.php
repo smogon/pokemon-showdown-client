@@ -2,7 +2,7 @@
 
 ini_set('max_execution_time', 60); // 1 minute
 
-require_once __DIR__ . '/../pokemonshowdown.com/config/servers.inc.php';
+require_once __DIR__ . '/config/servers.inc.php';
 require_once __DIR__ . '/config/config.inc.php';
 
 spl_autoload_register(function ($class) {

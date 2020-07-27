@@ -6,7 +6,7 @@ ini_set('display_startup_errors', TRUE);
 
 include 'theme/panels.lib.php';
 // require_once '../../pokemonshowdown.com/lib/ntbb-database.lib.php';
-require_once '../../pokemonshowdown.com/config/servers.inc.php';
+require_once __DIR__ . '/../config/servers.inc.php';
 
 $panels->setPageTitle('Replays');
 $panels->setPageDescription('Watch replays of battles on Pokémon Showdown!');
