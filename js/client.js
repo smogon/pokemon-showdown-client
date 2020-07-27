@@ -2397,9 +2397,11 @@ function toId() {
 
 		register: function () {
 			var registered = app.user.get('registered');
+			app.closePopup();
 			if (!registered || registered.userid !== app.user.get('userid')) {
-				app.closePopup();
 				app.addPopup(RegisterPopup);
+			} else {
+				app.addPopupMessage("You are already registered!");
 			}
 		},
 	});
