@@ -1,6 +1,8 @@
 <?php
 
-include __DIR__.'/../config/news.inc.php';
+// in theory this file is no longer used
+
+include __DIR__ . '/../../config/news.inc.php';
 
 function readableDate($time=0) {
 	if (!$time) {

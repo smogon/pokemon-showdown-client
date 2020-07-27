@@ -2,7 +2,7 @@
 
 $forum_id = 3;
 
-include '../config/news.inc.php';
+include __DIR__ . '/../../config/news.inc.php';
 
 include '../style/wrapper.inc.php';
 

@@ -3,14 +3,14 @@
 error_reporting(E_ALL);
 
 include_once '../../play.pokemonshowdown.com/lib/ntbb-session.lib.php';
-include_once '../config/news.inc.php';
+include_once __DIR__ . '/../../config/news.inc.php';
 include_once 'include.php';
 
 if (@$curuser['group'] != 2 && @$curuser['group'] != 6) die('access denied');
 
 function saveNews() {
 	global $newsCache, $latestNewsCache;
-	file_put_contents('../config/news.inc.php', '<?php
+	file_put_contents(__DIR__ . '/../../config/news.inc.php', '<?php
 
 $latestNewsCache = '.var_export($GLOBALS['latestNewsCache'], true).';
 $newsCache = '.var_export($GLOBALS['newsCache'], true).';
