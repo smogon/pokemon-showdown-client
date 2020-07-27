@@ -1,6 +1,6 @@
 <?php
 
-include '../config/news.inc.php';
+include __DIR__ . '/../../config/news.inc.php';
 
 $topic = @$newsCache[$_GET['id']];
 if (!$topic) {

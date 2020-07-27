@@ -32,7 +32,7 @@ if ($_SERVER['REQUEST_URI'] === '/secure') {
 }
 
 $serverbits = '';
-$serverbitscache = 'config/userbitscache.html';
+$serverbitscache = __DIR__ . '/../config/userbitscache.html';
 $lastmodified = @filemtime($serverbitscache);
 if ($lastmodified && (time() - $lastmodified < 60 * 10)) {
 	$serverbits = file_get_contents($serverbitscache);
@@ -344,7 +344,7 @@ BrowserDetect.init();
 					</p-->
 
 <?php
-include 'config/news.inc.php';
+include __DIR__ . '/../config/news.inc.php';
 function readableDate($time=0) {
 	if (!$time) {
 		$time = time();
