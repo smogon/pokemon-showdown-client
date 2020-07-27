@@ -2393,7 +2393,17 @@ function toId() {
 
 		close: function () {
 			app.closePopup();
-		}
+		},
+
+		register: function () {
+			var registered = app.user.get('registered');
+			app.closePopup();
+			if (!registered || registered.userid !== app.user.get('userid')) {
+				app.addPopup(RegisterPopup);
+			} else {
+				app.addPopupMessage("You are already registered!");
+			}
+		},
 	});
 
 	var PromptPopup = this.PromptPopup = Popup.extend({
