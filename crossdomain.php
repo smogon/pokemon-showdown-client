@@ -19,7 +19,7 @@ $portType = ($protocol === 'http:' ? 'port' : 'httpsport');
 if ($protocol === 'https:') $config['https'] = true;
 
 if ($config['host'] !== 'showdown') {
-	include_once '../pokemonshowdown.com/config/servers.inc.php';
+	include_once __DIR__ . '/config/servers.inc.php';
 
 	$hyphenpos = strrpos($config['host'], '-');
 	if ($hyphenpos) {
