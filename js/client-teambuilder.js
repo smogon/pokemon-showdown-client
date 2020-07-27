@@ -799,7 +799,7 @@
 		},
 		pokepasteExport: function () {
 			var team = Storage.exportTeam(this.curSetList);
-			if (!team) return app.addPopupMessage("You cannot upload a blank team!");
+			if (!team) return app.addPopupMessage("Add a Pokémon to your team before uploading it!");
 			document.getElementById("pasteData").value = team;
 			document.getElementById("pasteTitle").value = this.curTeam.name;
 			document.getElementById("pasteAuthor").value = app.user.get('name');
