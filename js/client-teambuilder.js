@@ -798,7 +798,9 @@
 			this.update();
 		},
 		pokepasteExport: function () {
-			document.getElementById("pasteData").value = Storage.exportTeam(this.curSetList);
+			var team = Storage.exportTeam(this.curSetList);
+			if (!team) return app.addPopupMessage("Add a Pokémon to your team before uploading it!");
+			document.getElementById("pasteData").value = team;
 			document.getElementById("pasteTitle").value = this.curTeam.name;
 			document.getElementById("pasteAuthor").value = app.user.get('name');
 			document.getElementById("pokepasteForm").submit();
