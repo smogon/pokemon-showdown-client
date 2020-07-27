@@ -1,0 +1,105 @@
+
+p {
+	line-height: 130%;
+}
+h1 {
+	text-align: center;
+	margin: 0;
+	padding: 15px;
+	font-size: 16pt;
+}
+.pfx-backbutton {
+	margin-top: 20px;
+}
+
+.ladderlist {
+	max-width: 240px;
+}
+.ladder {
+	padding: 0 15px 15px 15px;
+	max-width: 600px;
+}
+.ladder table {
+	margin: 0 auto;
+}
+.ladder table, .ladder td, .ladder th {
+	border-collapse: collapse;
+	border: 1px solid #BBBBBB;
+}
+.ladder td, th {
+	padding: 3px 5px;
+}
+.ladder th {
+	text-align: left;
+	font-size: 9pt;
+	background: #EEEEEE;
+}
+
+.laddernav, .laddernav li {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+.laddernav {
+	margin: 0 15px 15px 15px;
+}
+
+a.subtle {
+	text-decoration: none;
+}
+a.subtle:hover {
+	text-decoration: underline;
+}
+
+.laddernav .button {
+	display: block;
+	position: relative;
+	padding: 5px 10px;
+	margin: 0 0 -1px 0;
+	border-radius: 0;
+}
+.laddernav .button:hover {
+	z-index: 10;
+}
+.laddernav .button.nav-first {
+	border-top-left-radius: 5px;
+	border-top-right-radius: 5px;
+}
+.laddernav .button.nav-last {
+	border-bottom-left-radius: 5px;
+	border-bottom-right-radius: 5px;
+}
+
+/* replay */
+
+.linklist {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+.linklist a {
+	display: block;
+	margin: 2px 0px 8px 0px;
+	padding: 3px 7px 4px 7px;
+	border: 1px solid #BBCCDD;
+	background: #F8FBFD;
+
+	border-radius: 4px;
+	text-decoration: none;
+	color: #336699;
+	text-shadow: #ffffff 0px -1px 0;
+	box-shadow: 1px 1px 1px #D5D5D5;
+	cursor: pointer;
+
+	overflow: hidden;
+	white-space: nowrap;
+}
+.linklist a small {
+	font-size: 9pt;
+	color: #6699CC;
+}
+.linklist a:hover {
+	border: 1px solid #8899AA;
+	background: #F1F4F9;
+	color: #224466;
+}
