@@ -2,6 +2,7 @@
 
 include 'style/wrapper.inc.php';
 include '../lib/ntbb-session.lib.php';
+include_once __DIR__ . '/../config/config.inc.php';
 
 $page = 'resetpassword';
 $pageTitle = "Reset Password";
@@ -58,7 +59,7 @@ if (!$user) {
 		The password for <?php echo htmlspecialchars($user['username']); ?> was <strong>successfully changed</strong>!.
 	</p>
 	<p class="mainbutton">
-		<a class="button greenbutton" href="http://play.pokemonshowdown.com/">Play online</a>
+		<a class="button greenbutton" href="http://<?= $psconfig['routes']['client'] ?>/">Play online</a>
 	</p>
 <?php
 	} else {
