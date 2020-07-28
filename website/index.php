@@ -2,6 +2,7 @@
 
 // error_reporting(0);
 
+include_once __DIR__ . '/../config/config.inc.php';
 include 'style/wrapper.inc.php';
 
 function servercmp($a, $b) {
@@ -53,7 +54,7 @@ if ($lastmodified && (time() - $lastmodified < 60 * 10)) {
 	foreach ($PokemonServers as &$server) {
 		$server['sortorder'] = $sortorder++;
 		if ($server['id'] === 'showdown') {
-			$server['uri'] = $externProtocol . '//play.pokemonshowdown.com';
+			$server['uri'] = $externProtocol . '//' . $psconfig['routes']['client'];
 		} else {
 			$server['uri'] = 'http://' . $server['id'] . '.psim.us';
 		}
@@ -130,16 +131,16 @@ includeHeaderBottom();
 				</p>
 				<p class="mainbutton" id="play-online">
 <?php if (isset($_REQUEST['insecure'])) { ?>
-					<a class="button greenbutton" href="http://play.pokemonshowdown.com/?insecure">Play (insecure mode)</a>
+					<a class="button greenbutton" href="http://<?= $psconfig['routes']['client'] ?>/?insecure">Play (insecure mode)</a>
 <?php } else { ?>
-					<a class="button greenbutton" href="<?= $externProtocol ?>//play.pokemonshowdown.com/">Play online</a>
+					<a class="button greenbutton" href="<?= $externProtocol ?>//<?= $psconfig['routes']['client'] ?>/">Play online</a>
 <?php } ?>
 				</p>
 				<p class="mainbutton" id="win-install" style="display:none;text-align:center;color:#777;margin:-10px 0 -0px 0">
-					or<br /><a href="https://pokemonshowdown.com/autodownload/win">Install <small>(Windows)</small></a>
+					or<br /><a href="https://<?= $psconfig['routes']['root'] ?>/autodownload/win">Install <small>(Windows)</small></a>
 				</p>
 				<p class="mainbutton" id="mac-install" style="display:none;text-align:center;color:#777;margin:-10px 0 -0px 0">
-					or<br /><a href="https://pokemonshowdown.com/autodownload/mac">Install <small>(OS X)</small></a>
+					or<br /><a href="https://<?= $psconfig['routes']['root'] ?>/autodownload/mac">Install <small>(OS X)</small></a>
 				</p>
 				<!--p class="mainbutton" id="chrome-install" style="display:none">
 					<a class="button greenbutton" href="http://play.pokemonshowdown.com/showdown.crx">Install Chrome app</a>
@@ -312,7 +313,7 @@ BrowserDetect.init();
 						<a href="http://www.smogon.com/stats/" target="_blank"><i class="fa fa-sort-amount-desc"></i> Usage stats</a>
 					</li>
 					<li>
-						<a href="https://github.com/Zarel/Pokemon-Showdown" target="_blank"><i class="fa fa-github"></i> GitHub repository</a>
+						<a href="https://github.com/smogon/Pokemon-Showdown" target="_blank"><i class="fa fa-github"></i> GitHub repository</a>
 					</li>
 				</ul>
 				<p style="text-align: center; clear: both">
@@ -340,7 +341,7 @@ BrowserDetect.init();
 					</p></blockquote>
 					<h2>Open-source</h2>
 					<p>
-						Pok&eacute;mon Showdown is actively developed in the <a href="https://github.com/Zarel/Pokemon-Showdown">Pok&eacute;mon Showdown GitHub repository</a>. Come lend a hand!
+						Pok&eacute;mon Showdown is actively developed in the <a href="https://github.com/smogon/Pokemon-Showdown">Pok&eacute;mon Showdown GitHub repository</a>. Come lend a hand!
 					</p-->
 
 <?php

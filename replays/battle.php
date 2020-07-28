@@ -4,8 +4,8 @@ error_reporting(E_ALL);
 ini_set('display_errors', TRUE);
 ini_set('display_startup_errors', TRUE);
 
-require_once __DIR__ . '/theme/panels.lib.php';
 require_once __DIR__ . '/../config/config.inc.php';
+require_once __DIR__ . '/theme/panels.lib.php';
 
 $id = $_REQUEST['name'] ?? '';
 $password = '';

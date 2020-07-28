@@ -1,5 +1,7 @@
 <?php
 
+include_once __DIR__ . '/../config/config.inc.php';
+
 header('X-Robots-Tag: noindex');
 
 if (!isset($_REQUEST['uri'])) {
@@ -29,7 +31,7 @@ includeHeaderBottom();
 			<div class="ps-ad" style="margin: 0 auto;max-width: 728px;">
 <!-- BEGIN JS TAG - [728x90] < - DO NOT MODIFY -->
 <script type="text/javascript">
-document.write('<SCR'+'IPT SRC="http://ads.sonobi.com/ttj?id=1871931&referrer=pokemonshowdown.com&cb='+(parseInt(Math.random()*100000))+'" TYPE="text/javascript"></SCR'+'IPT>');
+document.write('<SCR'+'IPT SRC="http://ads.sonobi.com/ttj?id=1871931&referrer=<?= $psconfig['routes']['root'] ?>&cb='+(parseInt(Math.random()*100000))+'" TYPE="text/javascript"></SCR'+'IPT>');
 </script>
 <!-- END TAG -->
 			</div>

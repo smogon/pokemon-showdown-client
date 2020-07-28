@@ -1,7 +1,7 @@
 <?php
 
-require_once __DIR__ . '/ntbb-database.lib.php';
 require_once __DIR__ . '/../config/config.inc.php';
+require_once __DIR__ . '/ntbb-database.lib.php';
 // require_once dirname(__FILE__) . '/password_compat/lib/password.php';
 
 $curuser = false;
