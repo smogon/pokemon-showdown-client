@@ -4,7 +4,7 @@ error_reporting(E_ALL);
 ini_set('display_errors', TRUE);
 ini_set('display_startup_errors', TRUE);
 
-include_once 'config/config.inc.php';
+include_once __DIR__ . '/../config/config.inc.php';
 
 $ntbb_groups = array(
 	array(
@@ -38,8 +38,8 @@ $ntbb_groups = array(
 );
 $STANDINGS = $psconfig['standings'];
 
-include '../play.pokemonshowdown.com/lib/ntbb-session.lib.php';
-include '../play.pokemonshowdown.com/lib/ntbb-ladder.lib.php';
+include '../lib/ntbb-session.lib.php';
+include '../lib/ntbb-ladder.lib.php';
 include 'lib/panels.lib.php';
 
 $authLevel = 0;
