@@ -41,7 +41,7 @@ ga('send', 'pageview');
 }
 
 function includeHeaderBottom() {
-	global $page, $pageTitle, $headerData;
+	global $page, $pageTitle, $headerData, $psconfig;
 ?>
 	</head>
 	<body><div id="wrapper">
@@ -62,7 +62,7 @@ function includeHeaderBottom() {
 }
 
 function includeHeader() {
-	global $page, $pageTitle, $headerData;
+	global $page, $pageTitle, $headerData, $psconfig;
 	includeHeaderTop();
 	includeHeaderBottom();
 }
