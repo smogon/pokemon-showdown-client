@@ -9,6 +9,7 @@ node_modules/
 /js/battle-choices.js
 /js/battle-text-parser.js
 /js/battle-dex.js
+/js/battle-sound.js
 /js/battle-dex-data.js
 /js/battle-animations-moves.js
 /js/battle-animations.js
