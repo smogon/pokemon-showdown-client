@@ -1,7 +1,8 @@
 <?php
 
-include_once __DIR__ . '/../../config/config.inc.php';
 // in theory this file is no longer used
+
+include_once __DIR__ . '/../../config/config.inc.php';
 include __DIR__ . '/../../config/news.inc.php';
 
 function readableDate($time=0) {

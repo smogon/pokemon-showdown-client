@@ -4,10 +4,10 @@ error_reporting(E_ALL);
 ini_set('display_errors', TRUE);
 ini_set('display_startup_errors', TRUE);
 
+include_once __DIR__ . '/../config/config.inc.php';
 include '../lib/ntbb-session.lib.php';
 include '../lib/ntbb-ladder.lib.php';
 include 'lib/panels.lib.php';
-include_once __DIR__ . '/../config/config.inc.php';
 
 $lowerstaff = $curuser['group'] == 4 || $curuser['group'] == 5;
 $upperstaff = $curuser['group'] == 2 || $curuser['group'] == 6;

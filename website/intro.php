@@ -1,7 +1,7 @@
 <?php
 
-include 'style/wrapper.inc.php';
 include_once __DIR__ . '/../config/config.inc.php';
+include 'style/wrapper.inc.php';
 
 $page = 'intro';
 $pageTitle = "Intro";

@@ -1,8 +1,8 @@
 <?php
 
+include_once __DIR__ . '/../config/config.inc.php';
 include 'style/wrapper.inc.php';
 include '../lib/ntbb-session.lib.php';
-include_once __DIR__ . '/../config/config.inc.php';
 
 $page = 'resetpassword';
 $pageTitle = "Reset Password";
