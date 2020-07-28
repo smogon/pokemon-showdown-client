@@ -1,13 +1,13 @@
 <?php
 
-include_once __DIR__ . '/../config/config.inc.php';
+include_once __DIR__ . '/../../config/config.inc.php';
 
 /********************************************************************
  * Header
  ********************************************************************/
 
 function ThemeHeaderTemplate() {
-	global $panels;
+	global $panels, $psconfig;
 ?>
 <!DOCTYPE html>
 <html><head>
