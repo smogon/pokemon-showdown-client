@@ -618,9 +618,6 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			case 'expertbelt':
 				greatItems.push(id);
 				break;
-			case 'mail':
-				badItems.push(id);
-				break;
 			case 'salacberry':
 				if (genNum === 3) greatItems.push(id);
 				else goodItems.push(id);

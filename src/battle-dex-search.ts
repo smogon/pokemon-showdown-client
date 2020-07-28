@@ -1201,7 +1201,7 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 		case 'hiddenpowergrass':
 			return !moves.includes('energyball') && !moves.includes('grassknot') || (dex.gen > 3 && !moves.includes('gigadrain'));
 		case 'hiddenpowerice':
-			return (dex.gen < 4 && !moves.includes('icepunch')) && !moves.includes('icebeam') || (dex.gen > 3 && !moves.includes('aurorabeam'));
+			return !moves.includes('icebeam') && (dex.gen >= 4 || !moves.includes('icepunch');
 		case 'hiddenpowerflying':
 			return dex.gen < 4 && !moves.includes('drillpeck');
 		case 'hiddenpowerbug':
