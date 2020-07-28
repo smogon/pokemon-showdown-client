@@ -403,8 +403,8 @@ class DefaultActionHandler {
 	 *       if a request has been sent by the player and is still pending,
 	 *       or a comma if it is a received friend request.
 	 *     [username] is the username (yes, NAME, not id) of the player.
-	 * Example: Zarel|,haunter|#chaos
-	 *   Zarel is already on the friend list, a friend request from haunter is
+	 * Example: Zarel|,bmelts|#chaos
+	 *   Zarel is already on the friend list, a friend request from bmelts is
 	 *   still waiting for approval, and a friend request has been sent to
 	 *   chaos.
 	 */
