@@ -3,7 +3,7 @@
 //debug_print_backtrace();
 //die();
 
-include_once dirname(__FILE__).'/../config/config.inc.php';
+include_once __DIR__ . '/../../config/config.inc.php';
 
 class NTBBDatabase {
 	var $db = null;
