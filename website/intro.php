@@ -1,5 +1,6 @@
 <?php
 
+include_once __DIR__ . '/../config/config.inc.php';
 include 'style/wrapper.inc.php';
 
 $page = 'intro';
@@ -46,8 +47,8 @@ includeHeader();
 				All attacking moves are either Physical or Special moves. Physical moves use your attacker's Attack stat against your target's Defense stat, while Special moves use your attacker's Special Attack stat against the target's Special Defense stat.
 			</p>
 			<blockquote><p>
-				<img src="//play.pokemonshowdown.com/sprites/categories/Physical.png" alt="[Physical]" /> Physical<br />
-				<img src="//play.pokemonshowdown.com/sprites/categories/Special.png" alt="[Special]" /> Special<br />
+				<img src="//<?= $psconfig['routes']['client'] ?>/sprites/categories/Physical.png" alt="[Physical]" /> Physical<br />
+				<img src="//<?= $psconfig['routes']['client'] ?>/sprites/categories/Special.png" alt="[Special]" /> Special<br />
 			</p></blockquote>
 			<p>
 				In game and online, these icons will remind you of whether a move is Physical or Special. Remember that a Pokémon with high Attack and low Special Attack should usually be using only Physical moves, and vice versa.
@@ -144,7 +145,7 @@ includeHeader();
 			</p>
 			<h3>Set-up and phazing</h3>
 			<p>
-				Because you're giving up an entire turn that could have been used attacking, most moves that do nothing but raise or lower stats are useless. The exception is boosting moves that can help set up a Pokémon to sweep. 
+				Because you're giving up an entire turn that could have been used attacking, most moves that do nothing but raise or lower stats are useless. The exception is boosting moves that can help set up a Pokémon to sweep.
 			</p>
 			<p>
 				A sweep is the act of a Pokémon knocking out multiple opposing Pokémon in a row. Certain moves, such as Swords Dance, Dragon Dance, Shell Smash, and Calm Mind raise your Pokémon's attacking stats and Speed to the point where it could defeat all your opponent's remaining Pokémon that threaten it in one hit.
@@ -172,7 +173,7 @@ includeHeader();
 				Well, now you have a basic idea of how competitive battling works. If you'd like to dive straight in, play Pokémon Showdown! Our Random Battle format is great for learning the basics of competitive play.
 			</p>
 			<p class="mainbutton">
-				<a class="button greenbutton" href="//play.pokemonshowdown.com/">Play online</a>
+				<a class="button greenbutton" href="//<?= $psconfig['routes']['client'] ?>/">Play online</a>
 			</p>
 			<p>
 				If you'd like more help, Smogon University offers a <a href="http://www.smogon.com/forums/forumdisplay.php?f=42" target="_blank">Battling 101 program</a>, where you will be paired with a tutor.

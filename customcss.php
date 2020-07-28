@@ -2,8 +2,8 @@
 
 ini_set('max_execution_time', 60); // 1 minute
 
-require_once __DIR__ . '/config/servers.inc.php';
 require_once __DIR__ . '/config/config.inc.php';
+require_once __DIR__ . '/config/servers.inc.php';
 
 spl_autoload_register(function ($class) {
 	require_once('lib/css-sanitizer/'.str_replace('\\', DIRECTORY_SEPARATOR, $class).'.php');

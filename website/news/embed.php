@@ -2,6 +2,7 @@
 
 // in theory this file is no longer used
 
+include_once __DIR__ . '/../../config/config.inc.php';
 include __DIR__ . '/../../config/news.inc.php';
 
 function readableDate($time=0) {
@@ -67,7 +68,7 @@ src="//pagead2.googlesyndication.com/pagead/show_ads.js">
 			<h1><?php echo htmlspecialchars($topic['title']); ?></h1>
 			<?php echo @$topic['summary_html'] ?>
 			<p>
-				&mdash;<strong><?php echo $topic['authorname']; ?></strong> <small class="date">on <?php echo readableDate($topic['date']); ?></small> <small><a href="http://pokemonshowdown.com/forums/viewtopic.php?f=3&amp;t=<?= $topic['topic_id'] ?>" target="_blank" onclick="return window.parent.app.clickLink(event)">Read more / comments</a></small>
+				&mdash;<strong><?php echo $topic['authorname']; ?></strong> <small class="date">on <?php echo readableDate($topic['date']); ?></small> <small><a href="http://<?= $psconfig['routes']['root'] ?>/forums/viewtopic.php?f=3&amp;t=<?= $topic['topic_id'] ?>" target="_blank" onclick="return window.parent.app.clickLink(event)">Read more / comments</a></small>
 			</p>
 <?php
 		break;

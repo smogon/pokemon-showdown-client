@@ -4,6 +4,7 @@ error_reporting(E_ALL);
 ini_set('display_errors', TRUE);
 ini_set('display_startup_errors', TRUE);
 
+include_once __DIR__ . '/../config/config.inc.php';
 include '../lib/ntbb-session.lib.php';
 include '../lib/ntbb-ladder.lib.php';
 include 'lib/panels.lib.php';
@@ -30,7 +31,7 @@ if ($_REQUEST['user'] ?? null) {
 
 	if (substr($_SERVER['REQUEST_URI'], 0, 13) === '/users/?user=') {
 		// really wish this could be done with mod_rewrite
-		header('Location: http://pokemonshowdown.com/users/'.$userid);
+		header('Location: http://' . $psconfig['routes']['users'] . '/' .$userid);
 		die();
 	}
 

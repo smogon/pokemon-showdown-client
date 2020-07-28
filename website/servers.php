@@ -1,5 +1,6 @@
 <?php
 
+include_once __DIR__ . '/../config/config.inc.php';
 include_once __DIR__ . '/../config/servers.inc.php';
 include_once '../lib/ntbb-session.lib.php';
 include 'style/wrapper.inc.php';
@@ -182,7 +183,7 @@ exports.servertoken = '<?= $token ?>';</textarea></p>
 <?php } ?>
 			<p>
 <?php if ($entry['id'] === 'showdown') { ?>
-				<small><a href="//play.pokemonshowdown.com" target="_blank"><code>play.pokemonshowdown.com</code></a></small>
+				<small><a href="//<?= $psconfig['routes']['client'] ?>" target="_blank"><code><?= $psconfig['routes']['client'] ?></code></a></small>
 <?php } else { ?>
 				<small><a href="http://<?= $entry['id'] ?>.psim.us" target="_blank"><code><?= $entry['id'] ?>.psim.us</code></a></small>
 <?php } ?>
@@ -190,7 +191,7 @@ exports.servertoken = '<?= $token ?>';</textarea></p>
 <?php if (@$entry['owner']) { ?><p>Owner: <?= htmlspecialchars($entry['owner']); ?></p><?php } ?>
 <?php if ($entry['id'] !== 'showdown' && $is_owner) { ?>
 			<p id="editserverbutton">
-				<button onclick="document.getElementById('editserver').style.display = 'block';document.getElementById('editserverbutton').style.display = 'none';return false">Edit server</button> <button onclick="document.location.href = ('http://play.pokemonshowdown.com/customcss.php?server=<?= $entry['id'] ?>&amp;invalidate')">Reload custom CSS</button>
+				<button onclick="document.getElementById('editserver').style.display = 'block';document.getElementById('editserverbutton').style.display = 'none';return false">Edit server</button> <button onclick="document.location.href = ('http://<?= $psconfig['routes']['client'] ?>/customcss.php?server=<?= $entry['id'] ?>&amp;invalidate')">Reload custom CSS</button>
 			</p>
 			<div id="editserver" style="display:none"><form method="post"><?php $users->csrfData(); ?>
 				<h1>Edit server</h1>
@@ -362,7 +363,7 @@ foreach ($activeservers as $server) {
 					</td>
 					<td>
 <?php if ($entry['id'] === 'showdown') { ?>
-						<small><a href="//play.pokemonshowdown.com" target="_blank"><code>play.pokemonshowdown.com</code></a></small>
+						<small><a href="//<?= $psconfig['routes']['client'] ?>" target="_blank"><code><?= $psconfig['routes']['client'] ?></code></a></small>
 <?php } else { ?>
 						<small><a href="http://<?= $entry['id'] ?>.psim.us" target="_blank"><code><?= $entry['id'] ?>.psim.us</code></a></small>
 <?php } ?>
