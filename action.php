@@ -9,7 +9,7 @@ License: GPLv2 or later
 
 error_reporting(E_ALL);
 
-include_once __DIR__ . '/config/';
+include_once __DIR__ . '/config/config.inc.php';
 
 if (@$_GET['act'] === 'dlteam') {
 	header("Content-Type: text/plain; charset=utf-8");
