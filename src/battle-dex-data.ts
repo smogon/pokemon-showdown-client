@@ -504,6 +504,7 @@ const BattlePokemonIconIndexes: {[id: string]: number} = {
 	swirlpool: 1332 + 28,
 	coribalis: 1332 + 29,
 	justyke: 1332 + 30,
+	solotl: 1332 + 31,
 };
 
 const BattlePokemonIconIndexesLeft: {[id: string]: number} = {
