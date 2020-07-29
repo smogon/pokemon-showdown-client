@@ -1247,6 +1247,9 @@
 		receive: function (data) {
 			this.add(data);
 		},
+		getUserGroup: function (userid) {
+			return (app.rooms[this.id].users[userid] || {group: ' '}).group;
+		},
 		add: function (log) {
 			if (typeof log === 'string') log = log.split('\n');
 			var autoscroll = false;
@@ -1457,7 +1460,12 @@
 						var lineCount = parseInt(row[3], 10) || 0;
 						if (lineCount) $messages = $messages.slice(-lineCount);
 						$messages.hide().addClass('revealed').find('button').parent().remove();
-						if (row[1] === 'hide') this.$chat.children().last().append(' <button name="toggleMessages" value="' + user + '" class="subtle"><small>(' + $messages.length + ' line' + ($messages.length > 1 ? 's' : '') + ' from ' + user + ' hidden)</small></button>');
+						var staffGroups = Object.keys(Config.groups).filter(function (group) {
+							return ['staff', 'leadership'].includes(Config.groups[group].type);
+						});
+						if (row[1] === 'hide' || staffGroups.includes(this.getUserGroup(app.user.get('userid')))) {
+							this.$chat.children().last().append(' <button name="toggleMessages" value="' + user + '" class="subtle"><small>(' + $messages.length + ' line' + ($messages.length > 1 ? 's' : '') + ' from ' + user + ' hidden)</small></button>');
+						}
 					}
 					break;
 				case 'tournament':
