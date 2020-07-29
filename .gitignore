@@ -49,5 +49,6 @@ package-lock.json
 /replays/theme/wrapper.inc.php
 
 /website/.well-known/
+/website/.pages-cached/
 /website/files/
 /website/images/

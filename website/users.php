@@ -113,7 +113,7 @@ if (@$_REQUEST['user']) {
 }
 
 if ($authLevel >= 3) {
-	file_put_contents('/var/www/html/pokemonshowdown.com/lib/altaccesslog.txt', "{$curuser['username']} - $userid\n", FILE_APPEND);
+	file_put_contents(__DIR__ . '/../config/altaccesslog.txt', "{$curuser['username']} - $userid\n", FILE_APPEND);
 }
 
 if (isset($_REQUEST['json'])) {
