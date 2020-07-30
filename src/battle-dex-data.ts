@@ -1328,7 +1328,7 @@ class Species implements Effect {
 	readonly tier: string;
 	readonly isTotem: boolean;
 	readonly isMega: boolean;
-	readonly isGigantamax: boolean;
+	readonly canGigantamax: boolean;
 	readonly isPrimal: boolean;
 	readonly battleOnly: string | string[] | undefined;
 	readonly isNonstandard: string | null;
@@ -1377,14 +1377,14 @@ class Species implements Effect {
 
 		this.isTotem = false;
 		this.isMega = false;
-		this.isGigantamax = !!(this.forme?.endsWith('Gmax'));
+		this.canGigantamax = !!data.canGigantamax;
 		this.isPrimal = false;
-		this.battleOnly = data.battleOnly || (this.isGigantamax ? this.baseSpecies : undefined);
+		this.battleOnly = data.battleOnly || undefined;
 		this.isNonstandard = data.isNonstandard || null;
 		this.unreleasedHidden = data.unreleasedHidden || false;
 		this.changesFrom = data.changesFrom || undefined;
 		if (!this.gen) {
-			if (this.num >= 810 || this.forme === 'Galar' || this.isGigantamax) {
+			if (this.num >= 810 || this.formeid.startsWith('-galar')) {
 				this.gen = 8;
 			} else if (this.num >= 722 || this.formeid === '-alola' || this.formeid === '-starter') {
 				this.gen = 7;

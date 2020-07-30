@@ -1951,6 +1951,8 @@ interface PokemonSet {
 	pokeball?: string;
 	/** Defaults to the type of your Hidden Power in Moves, otherwise Dark */
 	hpType?: string;
+	/** Defaults to no (can only be yes for certain Pokemon) */
+	gigantamax?: boolean;
 }
 
 class BattleStatGuesser {
