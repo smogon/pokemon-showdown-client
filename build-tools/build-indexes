@@ -336,6 +336,8 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 					hasBase = ouBanlist.includes(species.id + 'base');
 					if (ouBanlist.includes(species.id)) {
 						tier = 'Uber';
+					} else if (species.name.includes('-Gmax')) {
+						return '(Uber)';
 					} else {
 						if (hasBase) {
 							tier = 'Uber';
@@ -344,7 +346,6 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 								['zygardecomplete', 'necrozmaultra'].includes(species.id)) {
 								tier = 'Uber';
 							}
-							if (species.isGigantamax) tier = '(Uber)';
 							if (species.id.includes('eternamax')) tier = 'Illegal';
 						}
 					}
@@ -992,8 +993,6 @@ process.stdout.write("Building `data/pokedex.js`... ");
 			// console.log('formatsentry:' + id);
 			const formatsEntry = Dex.data.FormatsData[id];
 			if (formatsEntry.tier) entry.tier = formatsEntry.tier;
-			if (formatsEntry.requiredItem) entry.requiredItem = formatsEntry.requiredItem;
-			if (formatsEntry.battleOnly) entry.battleOnly = formatsEntry.battleOnly;
 			if (formatsEntry.isNonstandard) entry.isNonstandard = formatsEntry.isNonstandard;
 			if (formatsEntry.unreleasedHidden) entry.unreleasedHidden = formatsEntry.unreleasedHidden;
 		}

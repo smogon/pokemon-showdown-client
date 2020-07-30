@@ -498,6 +498,8 @@ const Dex = new class implements ModdedDex {
 			pokemon = pokemon.getSpeciesForme();
 		}
 		const species = Dex.getSpecies(pokemon);
+		// Gmax sprites are already extremely large, so we don't need to double.
+		if (species.name.endsWith('-Gmax')) isDynamax = false;
 		let spriteData = {
 			gen: mechanicsGen,
 			w: 96,
