@@ -42,10 +42,10 @@ includeHeader();
 
 			<ul>
 				<li><p>[<strong>Anubis, Lusamine</strong>] <small>&ndash; Research (game mechanics), Sysadmin</small></p></li>
-				<li><p><strong>Austin Couturier</strong> <small>&ndash; Development (damage calculator)</small></p></li>
+				<li><p><strong>Austin Couturier</strong> [Austin] <small>&ndash; Development (damage calculator)</small></p></li>
 				<li><p><strong>Kevin Lau</strong> [Ascriptmaster] <small>&ndash; Development, Art (battle animations)</small></p></li>
 				<li><p><strong>Konrad Borowski</strong> [xfix] <small>&ndash; Development</small></p></li>
-				<li><p><strong>Kris Johnson</strong> <small>&ndash; Development</small></p></li>
+				<li><p><strong>Kris Johnson</strong> [Kris] <small>&ndash; Development</small></p></li>
 				<li><p><strong>Leonard Craft III</strong> [DaWoblefet] <small>&ndash; Research (game mechanics)</small></p></li>
 				<li><p><strong>Neil Rashbrook</strong> [urkerab] <small>&ndash; Development</small></p></li>
 				<li><p>[<strong>peach</strong>] <small>&ndash; Development</small></p></li>
@@ -76,7 +76,7 @@ includeHeader();
 				<li><p><a href="http://leparagon.deviantart.com/" target="_blank" class="subtle">[<strong>leparagon</strong>]</a> <small>&ndash; Art (sprites, minisprite resizing)</small></p></li>
 				<li><p><strong>Luke Harmon-Vellotti</strong> [moo, CheeseMuffin] <small>&ndash; Development</small></p></li>
 				<li><p><strong>Russell Jones</strong> [SadisticMystic] <small>&ndash; Research (game mechanics)</small></p></li>
-				<li><p><strong>Spandan Punwatkar</strong> <small>&ndash; Development</small></p></li>
+				<li><p><strong>Spandan Punwatkar</strong> [Spandan] <small>&ndash; Development</small></p></li>
 				<li><p><strong>Waleed Hassan</strong> [jetou] <small>&ndash; Development</small></p></li>
 			</ul>
 
