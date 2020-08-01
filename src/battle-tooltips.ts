@@ -1519,7 +1519,9 @@ class BattleTooltips {
 			}
 		}
 		if (move.id === 'weatherball') {
-			value.weatherModify(2);
+			if (this.battle.weather !== 'deltastream') {
+				value.weatherModify(2);
+			}
 		}
 		if (move.id === 'terrainpulse') {
 			if (
