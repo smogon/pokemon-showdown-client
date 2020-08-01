@@ -1725,6 +1725,7 @@
 	var UserList = this.UserList = Backbone.View.extend({
 		initialize: function (options) {
 			this.room = options.room;
+			this.innerMessageLog = $('div.inner.message-log');
 		},
 		events: {
 			'click .userlist-count': 'toggleUserlist'
@@ -1754,15 +1755,14 @@
 		toggleUserlist: function (e) {
 			e.preventDefault();
 			e.stopPropagation();
-			const innerMessageLog = $('div.inner.message-log');
 			if (this.$el.hasClass('userlist-minimized')) {
 				this.$el.removeClass('userlist-minimized');
 				this.$el.addClass('userlist-maximized');
-				innerMessageLog.addClass('inner-chat-userlist-maximized');
+				this.innerMessageLog.addClass('inner-chat-userlist-maximized');
 			} else if (this.$el.hasClass('userlist-maximized')) {
 				this.$el.removeClass('userlist-maximized');
 				this.$el.addClass('userlist-minimized');
-				innerMessageLog.removeClass('inner-chat-userlist-maximized');
+				this.innerMessageLog.removeClass('inner-chat-userlist-maximized');
 			}
 		},
 		show: function () {
