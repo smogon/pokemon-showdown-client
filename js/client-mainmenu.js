@@ -376,7 +376,7 @@
 			var spaceIndex = text.indexOf(' ');
 			if (text.substr(0, 2) !== '//' && text.charAt(0) === '/' || text.charAt(0) === '!') {
 				if (spaceIndex > 0) {
-					data = text.substr(spaceIndex);
+					data = text.substr(spaceIndex + 1);
 					cmd = text.substr(1, spaceIndex - 1);
 				} else {
 					data = '';
@@ -400,6 +400,13 @@
 					$chat.append('<div class="chat">User ' + userid + ' no longer ignored.</div>');
 				}
 				break;
+			case 'nick':
+				if ($.trim(data)) {
+					app.user.rename(data);
+				} else {
+					app.addPopup(LoginPopup);
+				}
+				return false;
 			case 'challenge':
 				this.challenge(userid, data);
 				break;
