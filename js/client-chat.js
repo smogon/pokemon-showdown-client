@@ -1758,11 +1758,15 @@
 			if (this.$el.hasClass('userlist-minimized')) {
 				this.$el.removeClass('userlist-minimized');
 				this.$el.addClass('userlist-maximized');
-				this.innerMessageLog.addClass('inner-chat-userlist-maximized');
+				if (this.innerMessageLog != null) {
+					this.innerMessageLog.addClass('inner-chat-userlist-maximized');
+				}
 			} else if (this.$el.hasClass('userlist-maximized')) {
 				this.$el.removeClass('userlist-maximized');
 				this.$el.addClass('userlist-minimized');
-				this.innerMessageLog.removeClass('inner-chat-userlist-maximized');
+				if (this.innerMessageLog != null) {
+					this.innerMessageLog.removeClass('inner-chat-userlist-maximized');
+				}
 			}
 		},
 		show: function () {
