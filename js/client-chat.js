@@ -1,5 +1,15 @@
 (function ($) {
 
+	// function to hide the user list and widen the chat
+	const removeUserList = () => {
+		$('ul.battle-userlist.userlist').removeClass('userlist-maximized');
+		$('ul.battle-userlist.userlist').addClass('userlist-minimized');
+		const innerMessageLog = $('div.inner.message-log');
+		console.log(innerMessageLog);
+		if (this.innerMessageLog != null) {
+			this.innerMessageLog.removeClass('inner-chat-userlist-maximized');
+		}
+	}
 	var ConsoleRoom = this.ConsoleRoom = Room.extend({
 		type: 'chat',
 		title: '',
@@ -60,6 +70,7 @@
 						$(target).focus();
 					}, 0);
 				} */
+				removeUserList();
 				return;
 			}
 			if (!this.$chatbox) {
@@ -1131,7 +1142,8 @@
 			app.user.off('change', this.updateUser, this);
 			Room.prototype.destroy.call(this, alreadyLeft);
 		}
-	}, {
+	}, 
+	{
 		toggleFormatChar: function (textbox, formatChar) {
 			if (!textbox.setSelectionRange) return false;
 
@@ -1728,7 +1740,7 @@
 			this.innerMessageLog = $('div.inner.message-log');
 		},
 		events: {
-			'click .userlist-count': 'toggleUserlist'
+			'click .userlist-count': 'toggleUserlist',
 		},
 		construct: function () {
 			var buf = '';

@@ -1723,7 +1723,8 @@ a.ilink.yours {
 	background: #DEE4EA;
 }
 .inner-chat-userlist-maximized {
-	transform: translateX(146px);
+	position: absolute;
+	left: 145px;
 }
 .chat-log.hasuserlist,
 .chat-log-add.hasuserlist,
