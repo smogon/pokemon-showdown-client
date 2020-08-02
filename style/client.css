@@ -1725,6 +1725,7 @@ a.ilink.yours {
 .inner-chat-userlist-maximized {
 	position: absolute;
 	left: 145px;
+	right: 0px;
 }
 .chat-log.hasuserlist,
 .chat-log-add.hasuserlist,
