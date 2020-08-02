@@ -585,7 +585,11 @@ abstract class BattleTypedSearch<T extends SearchType> {
 		if (format.includes('metronome')) {
 			this.formatType = 'metronome';
 		}
-		if (format.endsWith('nfe')) this.formatType = 'nfe';
+		if (format.endsWith('nfe')) {
+			format = format.slice(3) as ID;
+			this.formatType = 'nfe';
+			if (!format) format = 'ou' as ID;
+		}
 		this.format = format;
 
 		this.species = '' as ID;
