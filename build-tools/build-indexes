@@ -317,7 +317,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 					if (Dex.getRuleTable(ou).isBannedSpecies(species) || species.id === 'zygardecomplete' || species.id === 'necrozmaultra') return 'Uber';
 					if (Dex.getRuleTable(ou).has('dynamaxclause') && species.name.endsWith('Gmax')) return '(Uber)';
 					if (Dex.getRuleTable(uu).isBannedSpecies(species)) {
-						if (uu.banlist.map(toID).indexOf(species.id) >= uublIndex || uu.banlist.map(toID).indexOf(species.id + 'base') >= uublIndex){
+						if (uu.banlist.map(toID).indexOf(species.id) >= uublIndex || uu.banlist.map(toID).indexOf(species.id + 'base') >= uublIndex) {
 							return 'UUBL';
 						} else {
 							return 'OU';
