@@ -74,6 +74,13 @@
 				return;
 			}
 
+			if ($(target).closest('.battle-userlist, .userlist').length) {
+				return;
+			}
+
+			$('ul.battle-userlist.userlist').removeClass('userlist-maximized');
+			$('ul.battle-userlist.userlist').addClass('userlist-minimized');
+			$('div.inner.message-log').removeClass('inner-chat-userlist-maximized');
 			if (window.isiOS) {
 				// Preventing the on-screen keyboard leads to other bugs, so we have to
 				// avoid focusing the textbox altogether. Sorry, Bluetooth keyboard users!
