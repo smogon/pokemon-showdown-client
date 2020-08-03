@@ -39,7 +39,7 @@ if ($lastmodified && (time() - $lastmodified < 60 * 10)) {
 	$serverbits = file_get_contents($serverbitscache);
 } else {
 	include_once __DIR__ . '/../config/servers.inc.php';
-	include_once 'lib/ntbb-database.lib.php';
+	include_once __DIR__ . '/../lib/ntbb-database.lib.php';
 	$query = $psdb->query("SELECT `serverid`, `date`, `usercount` FROM `ntbb_userstats`");
 	$usercount = array();
 	$timenow = time();
