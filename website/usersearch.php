@@ -132,7 +132,7 @@ if (!$ip && !$entry) {
 		<div class="ladder"><table>
 <?php
 	$usermodlog = $psdb->query("SELECT * FROM `ntbb_usermodlog` WHERE `ip` = '".$psdb->escape($ip)."'");
-	while ($row = $psdb->fetch($usermodlog)) {
+	while ($row = $psdb->fetch_assoc($usermodlog)) {
 		$entry = $row['entry'];
 		$fromindex = strpos($entry, " from: ");
 		if ($fromindex !== false) $entry = substr($entry, 0, $fromindex);
