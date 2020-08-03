@@ -1,6 +1,6 @@
 <?php
 include_once 'style/wrapper.inc.php';
-include_once 'lib/ntbb-database.lib.php';
+include_once __DIR__ . '/../lib/ntbb-database.lib.php';
 
 $startDate = 0;
 $endDate = time() * 1000;
@@ -54,7 +54,7 @@ function printJsonResults($startDate, $endDate) {
 	$maxResults = 1000;
 	// This should be approximately
 	//   ((date of last stat) - (date of first stat)) / $maxResults
-	$intervalLimit = 1000 * 60 * 60; 
+	$intervalLimit = 1000 * 60 * 60;
 	$interval = (int)(($endDate - $startDate) / $maxResults);
 	if ($interval > $intervalLimit) {
 		$interval = $intervalLimit;

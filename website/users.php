@@ -218,7 +218,7 @@ if (!$user) {
 
 			$user['banstate'] = @$_POST['standing'];
 			$count = $psdb->query("SELECT COUNT(*) FROM ntbb_users WHERE ip = '".$psdb->escape($user['ip'])."' LIMIT 1");
-			$count = $psdb->fetch($count);
+			$count = $psdb->fetch_assoc($count);
 			$count = $count['COUNT(*)'];
 ?>
 		<div style="border: 1px solid #DDAA88; padding: 0 1em; margin-bottom: 1em">

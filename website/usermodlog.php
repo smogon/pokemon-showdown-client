@@ -5,9 +5,9 @@ ini_set('display_errors', TRUE);
 ini_set('display_startup_errors', TRUE);
 
 include_once __DIR__ . '/../config/config.inc.php';
-include '../lib/ntbb-session.lib.php';
-include '../lib/ntbb-ladder.lib.php';
-include 'lib/panels.lib.php';
+include __DIR__ . '/../lib/ntbb-session.lib.php';
+include __DIR__ . '/../lib/ntbb-ladder.lib.php';
+include __DIR__ . '/lib/panels.lib.php';
 
 $lowerstaff = $curuser['group'] == 4 || $curuser['group'] == 5;
 $upperstaff = $curuser['group'] == 2 || $curuser['group'] == 6;
@@ -130,7 +130,7 @@ if ($upperstaff) {
 	// $sessions = $psdb->fetch($res);
 	if ($user['outdatedpassword']) echo '<p>&#x2713; Abandoned account: Most recent login was before April 2013</p>';
 	$atLeastOne = false;
-	while ($session = $psdb->fetch($res)) {
+	while ($session = $psdb->fetch_assoc($res)) {
 		// var_export($session);
 		// echo '<p style="font-size:8pt;margin:4px 0">[' . date("M j, Y", $session['time']) . '] Logged in from ' . $session['ip'] . '</p>';
 ?>
@@ -149,7 +149,7 @@ if ($upperstaff) {
 <?php
 
 	$usermodlog = $psdb->query("SELECT * FROM `ntbb_usermodlog` WHERE `userid` = '".$psdb->escape($userid)."'");
-	while ($row = $psdb->fetch($usermodlog)) {
+	while ($row = $psdb->fetch_assoc($usermodlog)) {
 		$entry = $row['entry'];
 		$fromindex = strpos($entry, " from: ");
 		if ($fromindex !== false) $entry = substr($entry, 0, $fromindex);
