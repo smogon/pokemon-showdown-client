@@ -1177,6 +1177,8 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 			return ['technician', 'serenegrace'].includes(abilityid) || !moves.includes('powergem');
 		case 'aurawheel':
 			return species.baseSpecies === 'Morpeko';
+		case 'aurorabeam':
+			return !moves.includes('icebeam');
 		case 'bellydrum':
 			return moves.includes('extremespeed') || moves.includes('aquajet') || abilityid === 'unburden';
 		case 'counter':
