@@ -34,8 +34,6 @@ type WeatherState = [string, number, number];
 type EffectTable = {[effectid: string]: EffectState};
 type HPColor = 'r' | 'y' | 'g';
 
-const PLAYER_GROUP = '\u2606';
-
 class Pokemon implements PokemonDetails, PokemonHealth {
 	name = '';
 	speciesForme = '';
@@ -3180,35 +3178,31 @@ class Battle {
 			break;
 		}
 		case 'join': case 'j': case 'J': {
-			const user = BattleTextParser.parseNameParts(args[1]);
 			if (this.roomid) {
-				const room = app!.rooms[this.roomid];
-				const userid = toUserid(user.name);
+				let room = app!.rooms[this.roomid];
+				let user = BattleTextParser.parseNameParts(args[1]);
+				let userid = toUserid(user.name);
 				if (!room.users[userid]) room.userCount.users++;
 				room.users[userid] = user;
 				room.userList.add(userid);
 				room.userList.updateUserCount();
 				room.userList.updateNoUsersOnline();
 			}
-			if (!this.ignoreSpects || user.group === PLAYER_GROUP) {
-				this.log(args, undefined, preempt);
-			}
+			this.log(args, undefined, preempt);
 			break;
 		}
 		case 'leave': case 'l': case 'L': {
-			const user = BattleTextParser.parseNameParts(args[1]);
 			if (this.roomid) {
-				const room = app!.rooms[this.roomid];
-				const userid = toUserid(user.name);
+				let room = app!.rooms[this.roomid];
+				let user = args[1];
+				let userid = toUserid(user);
 				if (room.users[userid]) room.userCount.users--;
 				delete room.users[userid];
 				room.userList.remove(userid);
 				room.userList.updateUserCount();
 				room.userList.updateNoUsersOnline();
 			}
-			if (!this.ignoreSpects || user.group === PLAYER_GROUP) {
-				this.log(args, undefined, preempt);
-			}
+			this.log(args, undefined, preempt);
 			break;
 		}
 		case 'name': case 'n': case 'N': {
