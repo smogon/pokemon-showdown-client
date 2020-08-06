@@ -4,10 +4,8 @@
 Adapted from [this thread](http://www.smogon.com/forums/threads/mystery-ratings-demystified.3498232/).
 
 ### TL;DR
----
 COIL is a system that was developed for suspect requirement purposes. Your COIL score is a function of your GXE and the number of battles you have had on the ladder. The higher your GXE, the fewer number of battles you'll need to achieve reqs.
 
----
 If you're participating in a suspect test, you may have noticed that you achieve requirementss based not on your usual ladder rating, but on a mysterious score called COIL. This "mystery rating" is a system Antrr designed for determining requirements for suspect tests.
 
 In the past, determining requirements has been a thorny issue, due to the fact that conventional rating systems (like ELO and Glicko) are designed to measure skill, not achievement. So oftentimes, the top-rated player has been someone who's, say, gone 20-0, vs. a player with a few losses but with many more games. Does that player deserve requirementss? The consensus has been an emphatic "no" (whether that person deserves to top the ladder is a separate question). But so if estimated skill alone shouldn't determine player rating, what should?
