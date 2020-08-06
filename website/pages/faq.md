@@ -115,10 +115,6 @@ Pokémon in Random Battles are randomly generated from PU and above, whereas in 
 
 GXE stands for Glicko X-Act Estimate. The number shown is the estimated percent chance that a player has of winning against any other random player.
 
-### What does COIL mean?
-
-COIL is a system developed for suspect tests. Before banning a Pokemon, we host a suspect test. If you enter a suspect test your performance on the suspect test ladder will be kept separate from your original score on that ladder. To vote after the suspect test you must achieve a COIL of around 2700-2800. If you want to know more about COIL, have a look at [Antar's COIL FAQ](https://pokemonshowdown.com/pages/coil).
-
 ### What is a suspect test?
 
 A suspect test is a ladder where the tier is testing a specific move, Pokémon, or ability to see if it is overcentralizing or outright broken in a given mode. Reaching a specific COIL would allow a user to vote on the suspect test and have their opinion be calculated in the tiering results.
@@ -131,11 +127,13 @@ By using the `/smogdex [pokemon]` command you can find the updates analysis for 
 
 ### How do I find a battle?
 
-Click the Battle! button located on the homepage which will instantly search for a ladder match. To change to a certain tier simply click the bar under Format: and choose the one you want. To change your team click the bar under Team:.
+Click the "Battle!" button located on the homepage, which will instantly search for a ladder match.
+
+The default format is Random Battle. You can choose a different format and team before clicking "Battle!".
 
 ### How can I battle my friend or a specific person?
 
-If you want to challenge a specific user, click their username and click Challenge. You can also type `/challenge [username]`, and then select the tier you want to play and choose the team you'd like to use.
+If you want to challenge a specific user, click their username or click "Find a user" in the Main Menu and type in their username. After that, click "Challenge", select the format you want to play, and choose the team you'd like to use.
 
 ### Why can I only use this move?
 
