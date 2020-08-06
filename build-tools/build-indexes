@@ -577,16 +577,24 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			case 'assaultvest':
 			case 'focussash':
 			case 'powerherb':
-			case 'mentalherb':
 			case 'rockyhelmet':
 			case 'heavydutyboots':
 			case 'expertbelt':
+			case 'salacberry':
 				greatItems.push(id);
 				break;
+			case 'mentalherb':
+				if (genNum > 4) greatItems.push(id);
+				else poorItems.push(id);
+				break;
 			case 'lumberry':
-			case 'sitrusberry':
-				if (genNum === 2 || genNum >= 7) goodItems.push(id);
+				if (genNum === 2 || genNum > 6) goodItems.push(id);
 				else greatItems.push(id);
+				break;
+			case 'sitrusberry':
+				if (genNum > 6) goodItems.push(id);
+				else if (genNum > 3 && genNum < 7) greatItems.push(id);
+				else poorItems.push(id);
 				break;
 			case 'aguavberry':
 			case 'figyberry':
