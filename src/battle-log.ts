@@ -107,6 +107,7 @@ class BattleLog {
 
 		case 'join': case 'j': case 'leave': case 'l': {
 			const user = BattleTextParser.parseNameParts(args[1]);
+			if (battle?.ignoreSpects && ' +'.includes(user.group)) return;
 			const formattedUser = user.group + user.name;
 			const isJoin = (args[0].charAt(0) === 'j');
 			if (!this.joinLeave) {
