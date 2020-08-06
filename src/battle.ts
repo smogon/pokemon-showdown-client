@@ -3188,9 +3188,7 @@ class Battle {
 				room.userList.updateUserCount();
 				room.userList.updateNoUsersOnline();
 			}
-			if (!this.ignoreSpects) {
-				this.log(args, undefined, preempt);
-			}
+			this.log(args, undefined, preempt);
 			break;
 		}
 		case 'leave': case 'l': case 'L': {
@@ -3204,9 +3202,7 @@ class Battle {
 				room.userList.updateUserCount();
 				room.userList.updateNoUsersOnline();
 			}
-			if (!this.ignoreSpects) {
-				this.log(args, undefined, preempt);
-			}
+			this.log(args, undefined, preempt);
 			break;
 		}
 		case 'name': case 'n': case 'N': {
