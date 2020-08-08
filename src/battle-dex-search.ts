@@ -1395,7 +1395,7 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 					}
 				}
 				if (species.battleOnly) species = baseSpecies;
-				if (baseSpecies.otherFormes && ['Wormadam', 'Urshifu'].includes(baseSpecies.baseSpecies)) {
+				if (baseSpecies.otherFormes && !['Wormadam', 'Urshifu'].includes(baseSpecies.baseSpecies)) {
 					for (const type of baseSpecies.types) {
 						if (['Alola', 'Alola-Totem', 'Galar', 'Galar-Zen'].includes(species.forme)) {
 							continue;
