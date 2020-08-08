@@ -19,7 +19,7 @@ const thisDir = __dirname;
 const rootDir = path.resolve(thisDir, '..');
 
 const Dex = require('../data/pokemon-showdown/.sim-dist/dex').Dex;
-const toID = Dex.getId;
+const toID = Dex.toID;
 
 function updateLearnsets(callback) {
 	const numberRegExp = /^[0-9]*/;
