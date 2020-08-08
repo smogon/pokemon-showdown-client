@@ -7,7 +7,7 @@ process.chdir(path.resolve(__dirname, '..'));
 const imageSize = require('image-size');
 
 const Dex = require('./../data/pokemon-showdown/.sim-dist/dex').Dex;
-const toID = Dex.getId;
+const toID = Dex.toID;
 
 process.stdout.write("Updating animated sprite dimensions... ");
 
