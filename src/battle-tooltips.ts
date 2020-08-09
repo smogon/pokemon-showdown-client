@@ -344,7 +344,7 @@ class BattleTooltips {
 			// "throws" an error without crashing
 			Promise.resolve(new Error(`unrecognized type`));
 			buf = `<p class="message-error" style="white-space: pre-wrap">${new Error(`unrecognized type`).stack}</p>`;
-			tooltipType = 'unnknown';
+			tooltipType = 'unknown';
 		}
 
 		this.placeTooltip(buf, elem, ownHeight, tooltipType);
@@ -389,13 +389,11 @@ class BattleTooltips {
 		} else {
 			$wrapper.removeClass('tooltip-locked');
 		}
-		$wrapper.removeClass();
-		$wrapper.addClass(`tooltip-${tooltipType}`);
 		$wrapper.css({
 			left: x,
 			top: y,
 		});
-		innerHTML = `<div class="tooltipinner"><div class="tooltip">${innerHTML}</div></div>`;
+		innerHTML = `<div class="tooltipinner"><div class="tooltip ${tooltipType ? 'tooltip-' + tooltipType : ''}">${innerHTML}</div></div>`;
 		$wrapper.html(innerHTML).appendTo(document.body);
 		BattleTooltips.elem = $wrapper.find('.tooltip')[0] as HTMLDivElement;
 		BattleTooltips.isLocked = false;
