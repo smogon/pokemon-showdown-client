@@ -298,11 +298,10 @@ class BattleTooltips {
 						index++;
 					}
 				}
-				tooltipType = 'pokemon';
 			} else {
 				buf = this.showPokemonTooltip(pokemon);
-				tooltipType = 'pokemon';
 			}
+			tooltipType = 'pokemon';
 			break;
 		}
 		case 'activepokemon': { // activepokemon|SIDE|ACTIVE
