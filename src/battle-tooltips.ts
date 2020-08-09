@@ -339,11 +339,11 @@ class BattleTooltips {
 			buf = `<p class="message-error" style="white-space: pre-wrap">${new Error(`unrecognized type`).stack}</p>`;
 		}
 
-		this.placeTooltip(buf, elem, ownHeight);
+		this.placeTooltip(buf, elem, ownHeight, type);
 		return true;
 	}
 
-	placeTooltip(innerHTML: string, hoveredElem?: HTMLElement, notRelativeToParent?: boolean) {
+	placeTooltip(innerHTML: string, hoveredElem?: HTMLElement, notRelativeToParent?: boolean, type?: string) {
 		let $elem;
 		if (hoveredElem) {
 			$elem = $(hoveredElem);
@@ -385,7 +385,7 @@ class BattleTooltips {
 			left: x,
 			top: y,
 		});
-		innerHTML = `<div class="tooltipinner"><div class="tooltip">${innerHTML}</div></div>`;
+		innerHTML = `<div class="tooltipinner"><div class="tooltip tooltip-${type}">${innerHTML}</div></div>`;
 		$wrapper.html(innerHTML).appendTo(document.body);
 		BattleTooltips.elem = $wrapper.find('.tooltip')[0] as HTMLDivElement;
 		BattleTooltips.isLocked = false;
