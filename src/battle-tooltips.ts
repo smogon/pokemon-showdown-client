@@ -266,6 +266,7 @@ class BattleTooltips {
 		let ownHeight = !!elem.dataset.ownheight;
 
 		let buf: string;
+		let tooltipType: string;
 		switch (type) {
 		case 'move':
 		case 'zmove':
@@ -277,6 +278,7 @@ class BattleTooltips {
 			let gmaxMove = args[3] ? this.battle.dex.getMove(args[3]) : undefined;
 			if (!pokemon) return false;
 			buf = this.showMoveTooltip(move, type, pokemon, serverPokemon, gmaxMove);
+			tooltipType = 'move';
 			break;
 		}
 
@@ -296,8 +298,10 @@ class BattleTooltips {
 						index++;
 					}
 				}
+				tooltipType = 'pokemon';
 			} else {
 				buf = this.showPokemonTooltip(pokemon);
+				tooltipType = 'pokemon';
 			}
 			break;
 		}
@@ -314,6 +318,7 @@ class BattleTooltips {
 			}
 			if (!pokemon) return false;
 			buf = this.showPokemonTooltip(pokemon, serverPokemon, true);
+			tooltipType = 'active-pokemon';
 			break;
 		}
 		case 'switchpokemon': { // switchpokemon|POKEMON
@@ -327,23 +332,26 @@ class BattleTooltips {
 			}
 			let serverPokemon = this.battle.myPokemon![activeIndex];
 			buf = this.showPokemonTooltip(pokemon, serverPokemon);
+			tooltipType = 'switch-pokemon';
 			break;
 		}
 		case 'field': {
 			buf = this.showFieldTooltip();
+			tooltipType = 'field';
 			break;
 		}
 		default:
 			// "throws" an error without crashing
 			Promise.resolve(new Error(`unrecognized type`));
 			buf = `<p class="message-error" style="white-space: pre-wrap">${new Error(`unrecognized type`).stack}</p>`;
+			tooltipType = 'unnknown';
 		}
 
-		this.placeTooltip(buf, elem, ownHeight);
+		this.placeTooltip(buf, elem, ownHeight, tooltipType);
 		return true;
 	}
 
-	placeTooltip(innerHTML: string, hoveredElem?: HTMLElement, notRelativeToParent?: boolean) {
+	placeTooltip(innerHTML: string, hoveredElem?: HTMLElement, notRelativeToParent?: boolean, tooltipType?: string) {
 		let $elem;
 		if (hoveredElem) {
 			$elem = $(hoveredElem);
@@ -381,6 +389,8 @@ class BattleTooltips {
 		} else {
 			$wrapper.removeClass('tooltip-locked');
 		}
+		$wrapper.removeClass();
+		$wrapper.addClass(`tooltip-${tooltipType}`);
 		$wrapper.css({
 			left: x,
 			top: y,
