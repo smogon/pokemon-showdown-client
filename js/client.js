@@ -2751,7 +2751,7 @@ function toId() {
 		submit: function (i) {
 			this.close();
 		},
-		copyReplayLink: function() {
+		copyReplayLink: function () {
 			var copyText = document.querySelector("#replayLink");
 			var dummyReplayLink = document.createElement("input");
 			// This is a hack. You can only "select" an input field. The trick is to create a short lived input element and destroy it after a copy.
@@ -2761,7 +2761,7 @@ function toId() {
 			copyText.appendChild(dummyReplayLink);
 			dummyReplayLink.select();
 			document.execCommand("copy");
-			copyText.removeChild(dummyReplayLink);		  
+			copyText.removeChild(dummyReplayLink);
 		}
 	});
 
