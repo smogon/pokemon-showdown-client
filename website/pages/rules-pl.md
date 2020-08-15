@@ -32,7 +32,7 @@
 
 Twoja nazwa użytkownika może być wybrana i zmieniona w dowolnym czasie (przez wylogowanie i zalogowanie z nową nazwą). Pamiętaj że:
 
-1. **Nazwy użytkowników nie mogą podszywać się** pod znaną osobę (`%`, `@`, `&` lub `~` na lewo od nazwy) czy sławnej osoby/organizacji która używa PS albo jest powiązana z serią Pokémon.
+1. **Nazwy użytkowników nie mogą podszywać się** pod znaną osobę (`%`, `@`, `#` lub `&` na lewo od nazwy) czy sławnej osoby/organizacji która używa PS albo jest powiązana z serią Pokémon.
 
 2. **Nazwy użytkowników nie mogą obrażać** użytkownika albo grupy (można obrażać siebie, jeżeli to nie jest zbyt poważne).
 

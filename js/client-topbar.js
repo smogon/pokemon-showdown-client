@@ -812,7 +812,7 @@
 
 					buf += '<p>Keep in mind these rules:</p>';
 					buf += '<ol>';
-					buf += '<li>Usernames may not impersonate a recognized user (a user with %, @, or & next to their name).</li>';
+					buf += '<li>Usernames may not impersonate a recognized user (a user with %, @, #, or & next to their name).</li>';
 					buf += '<li>Usernames may not be derogatory or insulting in nature, to an individual or group (insulting yourself is okay as long as it\'s not too serious).</li>';
 					buf += '<li>Usernames may not directly reference sexual activity, or be excessively disgusting.</li>';
 					buf += '</ol>';
@@ -971,7 +971,7 @@
 					buf += '<ol>';
 					buf += '<li>Usernames may not be derogatory or insulting in nature, to an individual or group (insulting yourself is okay as long as it\'s not too serious).</li>';
 					buf += '<li>Usernames may not reference sexual activity, directly or indirectly.</li>';
-					buf += '<li>Usernames may not impersonate a recognized user (a user with %, @, or & next to their name).</li>';
+					buf += '<li>Usernames may not impersonate a recognized user (a user with %, @, #, or & next to their name).</li>';
 					buf += '</ol>';
 				}
 			} else if (data.reason) {

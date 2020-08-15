@@ -2779,7 +2779,7 @@ function toId() {
 			if (!warning) {
 				buf += '<p><b>Usernames</b></p>' +
 					'<p>Your username can be chosen and changed at any time. Keep in mind:</p>' +
-					'<p><b>1.</b> Usernames may not impersonate a recognized user (a user with %, @, or &amp; next to their name) or a famous person/organization that uses PS or is associated with Pokémon.</p>' +
+					'<p><b>1.</b> Usernames may not impersonate a recognized user (a user with %, @, #, or &amp; next to their name) or a famous person/organization that uses PS or is associated with Pokémon.</p>' +
 					'<p><b>2.</b> Usernames may not be derogatory or insulting in nature, to an individual or group (insulting yourself is okay as long as it\'s not too serious).</p>' +
 					'<p><b>3.</b> Usernames may not directly reference sexual activity, or be excessively disgusting.</p>' +
 					'<p>This policy is less restrictive than that of many places, so you might see some "borderline" nicknames that might not be accepted elsewhere. You might consider it unfair that they are allowed to keep their nickname. The fact remains that their nickname follows the above rules, and if you were asked to choose a new name, yours does not.</p>';
