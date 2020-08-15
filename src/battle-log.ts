@@ -670,7 +670,7 @@ class BattleLog {
 	static interstice = (() => {
 		const whitelist: string[] = Config.whitelist;
 		const patterns = whitelist.map(entry => new RegExp(
-			`^(https?:)?//([A-Za-z0-9-]*\\.)?${entry}(/.*)?`,
+			`^(https?:)?//([A-Za-z0-9-]*\\.)?${entry.replace(/\./g, '\\.')}(/.*)?`,
 		'i'));
 		return {
 			isWhitelisted(uri: string) {
