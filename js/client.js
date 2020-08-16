@@ -2757,7 +2757,7 @@ function toId() {
 			// This is a hack. You can only "select" an input field. The trick is to create a short lived input element and destroy it after a copy.
 			dummyReplayLink.id = "dummyReplayLink";
 			dummyReplayLink.value = copyText.href;
-			dummyReplayLink.setAttribute("style", "absolute; left: -1000px; top: -1000px");
+			dummyReplayLink.style.position = 'absolute';
 			copyText.appendChild(dummyReplayLink);
 			dummyReplayLink.select();
 			document.execCommand("copy");
