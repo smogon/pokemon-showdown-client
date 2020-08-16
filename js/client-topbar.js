@@ -442,6 +442,7 @@
 			'change input[name=bwgfx]': 'setBwgfx',
 			'change input[name=nopastgens]': 'setNopastgens',
 			'change select[name=tournaments]': 'setTournaments',
+			'change select[name=language]': 'setLanguage',
 			'change input[name=blockchallenges]': 'setBlockchallenges',
 			'change input[name=blockpms]': 'setBlockpms',
 			'change input[name=inchatpm]': 'setInchatpm',
@@ -501,6 +502,17 @@
 				buf += '<p><label class="optlabel"><input type="checkbox" name="temporarynotifications"' + (Dex.prefs('temporarynotifications') ? ' checked' : '') + ' /> Notifications disappear automatically</label></p>';
 			}
 			buf += '<p><label class="optlabel"><input type="checkbox" name="refreshprompt"' + (Dex.prefs('refreshprompt') ? ' checked' : '') + '> Prompt on refresh</label></p>';
+			var curLang = toID(Dex.prefs('serversettings').language) || 'english';
+			var possibleLanguages = [
+				"English", "Dutch", "French", "German", "Hindi", "Italian", "Japanese", "Portuguese", "Simplified Chinese",
+				"Spanish", "Traditional Chinese", "Turkish",
+			];
+			buf += '<p><label class="optlabel">Language: <select name="language">';
+			for (var i = 0; i < possibleLanguages.length; i++) {
+				var language = possibleLanguages[i];
+				buf += '<option value="' + toID(language) + '"' + (toID(language) === curLang ? ' selected="selected"' : '') + '>' + language + '</option>';
+			}
+			buf += '</select></label></p>';
 
 			var tours = Dex.prefs('tournaments') || 'notify';
 			buf += '<p><label class="optlabel">Tournaments: <select name="tournaments"><option value="notify"' + (tours === 'notify' ? ' selected="selected"' : '') + '>Notifications</option><option value="nonotify"' + (tours === 'nonotify' ? ' selected="selected"' : '') + '>No Notifications</option><option value="hide"' + (tours === 'hide' ? ' selected="selected"' : '') + '>Hide</option></select></label></p>';
@@ -564,6 +576,9 @@
 		setTournaments: function (e) {
 			var tournaments = e.currentTarget.value;
 			Dex.prefs('tournaments', tournaments);
+		},
+		setLanguage: function (e) {
+			app.user.updateSetting('language', e.currentTarget.value);
 		},
 		setBlockpms: function (e) {
 			app.user.updateSetting('blockPMs', !!e.currentTarget.checked);
