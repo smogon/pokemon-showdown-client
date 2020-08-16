@@ -1344,7 +1344,7 @@ class BattleTooltips {
 		if (allowTypeOverride && move.flags['sound'] && value.abilityModify(0, 'Liquid Voice')) {
 			moveType = 'Water';
 		}
-		if (allowTypeOverride && category !== 'Status') {
+		if (allowTypeOverride && category !== 'Status' && !move.isZ) {
 			if (moveType === 'Normal') {
 				if (value.abilityModify(0, 'Aerilate')) moveType = 'Flying';
 				if (value.abilityModify(0, 'Galvanize')) moveType = 'Electric';
@@ -1654,7 +1654,7 @@ class BattleTooltips {
 		const noTypeOverride = [
 			'judgment', 'multiattack', 'naturalgift', 'revelationdance', 'struggle', 'technoblast', 'terrainpulse', 'weatherball',
 		];
-		if (move.category !== 'Status' && !noTypeOverride.includes(move.id)) {
+		if (move.category !== 'Status' && !noTypeOverride.includes(move.id) && !move.isZ && !move.isMax) {
 			if (move.type === 'Normal') {
 				value.abilityModify(this.battle.gen > 6 ? 1.2 : 1.3, "Aerilate");
 				value.abilityModify(this.battle.gen > 6 ? 1.2 : 1.3, "Galvanize");
