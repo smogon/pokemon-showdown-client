@@ -2077,6 +2077,9 @@ class Battle {
 					poke.itemEffect = 'bestowed';
 					this.scene.resultAnim(poke, item.name, 'neutral');
 					break;
+				case 'poltergeist':
+					poke.itemEffect = 'poltergeisted';
+					break;
 				case 'switcheroo':
 				case 'trick':
 					poke.itemEffect = 'tricked';
