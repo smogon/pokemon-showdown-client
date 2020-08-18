@@ -1193,7 +1193,8 @@ class Move implements Effect {
 				}
 			}
 		}
-		if (this.category !== 'Status' && !this.zMove && !this.isZ && !this.isMax) {
+
+		if (this.category !== 'Status' && !this.isZ && !this.isMax) {
 			let basePower = this.basePower;
 			this.zMove = {};
 			if (Array.isArray(this.multihit)) basePower *= 3;
