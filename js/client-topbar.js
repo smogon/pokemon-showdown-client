@@ -503,14 +503,23 @@
 			}
 			buf += '<p><label class="optlabel"><input type="checkbox" name="refreshprompt"' + (Dex.prefs('refreshprompt') ? ' checked' : '') + '> Prompt on refresh</label></p>';
 			var curLang = toID(Dex.prefs('serversettings').language) || 'english';
-			var possibleLanguages = [
-				"English", "Dutch", "French", "German", "Hindi", "Italian", "Japanese", "Portuguese", "Simplified Chinese",
-				"Spanish", "Traditional Chinese", "Turkish",
-			];
+			var possibleLanguages = {
+				"Deutsche": 'german',
+				"English": 'english',
+				"Español": 'spanish',
+				"Français": 'french',
+				"Italiano": 'italian',
+				"Nederlands": 'dutch',
+				"Português": 'portuguese',
+				"Türkçe": 'turkish',
+				"हिंदी": 'hindi',
+				"日本語": 'japanese',
+				"简体中文": 'simplifiedchinese',
+				"中文": 'traditionalchinese',
+			};
 			buf += '<p><label class="optlabel">Language: <select name="language">';
-			for (var i = 0; i < possibleLanguages.length; i++) {
-				var language = possibleLanguages[i];
-				buf += '<option value="' + toID(language) + '"' + (toID(language) === curLang ? ' selected="selected"' : '') + '>' + language + '</option>';
+			for (var name in possibleLanguages) {
+				buf += '<option value="' + possibleLanguages[name] + '"' + (possibleLanguages[name] === curLang ? ' selected="selected"' : '') + '>' + name + '</option>';
 			}
 			buf += '</select></label></p>';
 
