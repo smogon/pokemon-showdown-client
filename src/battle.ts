@@ -2618,6 +2618,10 @@ class Battle {
 			let target = this.getPokemon(args[3]);
 			this.activateAbility(poke, effect);
 			switch (effect.id) {
+			case 'poltergeist':
+				poke.item = kwArgs.item;
+				poke.itemEffect = 'disturbed';
+				break;
 			case 'grudge':
 				poke.rememberMove(kwArgs.move, Infinity);
 				break;
