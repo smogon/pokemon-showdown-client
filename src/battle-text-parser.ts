@@ -136,7 +136,7 @@ class BattleTextParser {
 				return {args: ['-fieldactivate', effect], kwArgs: {}};
 			}
 
-			if (id === 'symbiosis') {
+			if (id === 'symbiosis' || id === 'poltergeist') {
 				kwArgs.item = arg3;
 			} else if (id === 'magnitude') {
 				kwArgs.number = arg3;
@@ -634,10 +634,6 @@ class BattleTextParser {
 			if (['thief', 'covet', 'bestow', 'magician', 'pickpocket'].includes(id)) {
 				const template = this.template('takeItem', kwArgs.from);
 				return line1 + template.replace('[POKEMON]', this.pokemon(pokemon)).replace('[ITEM]', this.effect(item)).replace('[SOURCE]', this.pokemon(target || kwArgs.of));
-			}
-			if (id === 'poltergeist') {
-				const template = this.template('item', kwArgs.from);
-				return line1 + template.replace('[POKEMON]', this.pokemon(pokemon)).replace('[ITEM]', this.effect(item));
 			}
 			if (id === 'frisk') {
 				const hasTarget = kwArgs.of && pokemon && kwArgs.of !== pokemon;

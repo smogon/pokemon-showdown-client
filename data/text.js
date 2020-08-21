@@ -732,7 +732,7 @@ exports.BattleText = {
 		removeItem: '#bugbite',
 	},
 	poltergeist: {
-		item: "  [POKEMON] is about to be attacked by its [ITEM]!",
+		activate: "  [POKEMON] is about to be attacked by its [ITEM]!",
 	},
 	powder: {
 		start: "  [POKEMON] is covered in powder!",
