@@ -199,6 +199,9 @@ function toId() {
 				case 'blockChallenges':
 					app.send(value ? '/blockchallenges' : '/unblockchallenges');
 					break;
+				case 'language':
+					app.send('/language ' + value);
+					break;
 				default:
 					throw new TypeError('Unknown setting:' + setting);
 				}
