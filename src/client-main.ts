@@ -519,7 +519,7 @@ class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 	}
 	destroy() {
 		if (this.connected) {
-			this.send('/leave', true);
+			this.send('/noreply /leave', true);
 			this.connected = false;
 		}
 	}
