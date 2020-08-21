@@ -27,7 +27,7 @@
 			app.send('/join ' + this.id);
 		},
 		leave: function () {
-			app.send('/leave ' + this.id);
+			app.send('/noreply /leave ' + this.id);
 		},
 		login: function () {
 			app.addPopup(LoginPopup);

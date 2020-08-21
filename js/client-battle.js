@@ -68,7 +68,7 @@
 			this.$el.removeClass('showing-chat');
 		},
 		leave: function () {
-			if (!this.expired) app.send('/leave ' + this.id);
+			if (!this.expired) app.send('/noreply /leave ' + this.id);
 			if (this.battle) this.battle.destroy();
 		},
 		requestLeave: function (e) {
