@@ -1234,7 +1234,7 @@
 			app.send('/join ' + this.id);
 		},
 		leave: function () {
-			app.send('/leave ' + this.id);
+			app.send('/noreply /leave ' + this.id);
 			app.updateAutojoin();
 		},
 		requestLeave: function (e) {
