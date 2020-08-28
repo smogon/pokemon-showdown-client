@@ -504,7 +504,7 @@
 			buf += '<p><label class="optlabel"><input type="checkbox" name="refreshprompt"' + (Dex.prefs('refreshprompt') ? ' checked' : '') + '> Prompt on refresh</label></p>';
 			var curLang = toID(Dex.prefs('serversettings').language) || 'english';
 			var possibleLanguages = {
-				"Deutsche": 'german',
+				"Deutsch": 'german',
 				"English": 'english',
 				"Español": 'spanish',
 				"Français": 'french',
