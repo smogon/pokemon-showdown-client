@@ -97,7 +97,7 @@
 				if (idChunks.length <= 1) {
 					if (idChunks[0] === 'uploadedreplay') formatid = 'Uploaded Replay';
 				} else {
-					formatid = idChunks[idChunks.length - 2];
+					formatid = idChunks[0];
 				}
 				if (!name) {
 					var p1 = (room.battle && room.battle.p1 && room.battle.p1.name) || '';
