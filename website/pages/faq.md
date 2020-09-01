@@ -143,7 +143,7 @@ Make sure you check your Pokemon's items - items such as Assault Vest, Choice Ba
 
 An endless battle is, as the name implies, a battle that cannot end. The common components of an endless battle are Pokemon that trap the target (via Block, Shadow Tag, or Arena Trap), moves that heal the opponent (usually Heal Pulse), ways to keep your own Pokemon healthy (Slack Off, Recover, or Roost), Leppa Berries to restore the user's lost PP, and continual generation of Leppa Berries (via Recycle).
  
-The opponent is forced to Struggle, and because Struggle can never run out of PP, the battle would go on forever since a player can continuously heal both Pokemon (and prevent them from fainting). Battles are capped at 1000 turns; if that number of turns is reached, the battle ends and results in a tie. If you encounter a "strategy" like this, alert a global staff member by either sending them a PM or with a help ticket using `/report`.
+The opponent is forced to Struggle, and because Struggle can never run out of PP, the battle would go on forever since a player can continuously heal both Pokemon (and prevent them from fainting). Battles are capped at 1000 turns; if that number of turns is reached, the battle ends and results in a tie. You can also offer a tie to your opponent by using the `/offertie` command after at least 100 turns have passed.
 
 ### If the battle ends with both Pokemon fainting, who wins?
 
