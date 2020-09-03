@@ -41,7 +41,6 @@ includeHeader();
 			<h2><span>Major Contributors</span></h2>
 
 			<ul>
-				<li><p>[<strong>Anubis, Lusamine</strong>] <small>&ndash; Research (game mechanics), Sysadmin</small></p></li>
 				<li><p><strong>Austin Couturier</strong> [Austin] <small>&ndash; Development (damage calculator)</small></p></li>
 				<li><p><strong>Kevin Lau</strong> [Ascriptmaster] <small>&ndash; Development, Art (battle animations)</small></p></li>
 				<li><p><strong>Konrad Borowski</strong> [xfix] <small>&ndash; Development</small></p></li>
