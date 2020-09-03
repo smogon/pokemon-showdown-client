@@ -171,7 +171,10 @@ if (!$ip && !$entry) {
 	$userlist = $psdb->query("SELECT `ntbb_users`.`username`, `ntbb_users`.`userid`, `ntbb_users`.`banstate` FROM `ntbb_users` INNER JOIN `ntbb_usermodlog` ON `ntbb_users`.`userid` = `ntbb_usermodlog`.`userid` WHERE `entry` LIKE ?", [$entry]);
 	if ($csrfOk && isset($_POST['standing'])) {
 		$newStanding = intval($_POST['standing']);
-		$psdb->query("UPDATE ntbb_users SET banstate = ? WHERE ip = ? AND banstate != 100", [$newStanding, $ip]);
+		$psdb->query(
+			"UPDATE ntbb_users SET banstate = ? WHERE userid IN (" . implode(',', $userlist) . ") AND banstate != 100",
+			[$newStanding]
+		);
 
 		foreach ($userlist as $row) {
 			$modlogentry = "Standing changed to $newStanding ({$STANDINGS[$newStanding]}): {$_POST['allreason']}";
