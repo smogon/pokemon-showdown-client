@@ -23,7 +23,6 @@ includeHeader();
 				<li><p><strong>Andrew Werner</strong> [HoeenHero] <small>&ndash; Development</small></p></li>
 				<li><p><a href="http://monsan.to/" target="_blank" class="subtle"><strong>Chris Monsanto</strong> [chaos]</a> <small>&ndash; Sysadmin</small></p></li>
 				<li><p><strong>Mathieu Dias-Martins</strong> [Marty] <small>&ndash; Research (game mechanics), Development</small></p></li>
-				<li><p><a href="https://pkmn.cc/" target="_blank" class="subtle"><strong>Kirk Scheibelhut</strong> [pre] </a><small>&ndash; Development, Sysadmin</small></p></li>
 				<li><p>[<strong>The Immortal</strong>] <small>&ndash; Development</small></p></li>
 			</ul>
 
