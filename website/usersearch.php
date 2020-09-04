@@ -171,18 +171,21 @@ if (!$ip && !$entry) {
 	$userlist = $psdb->query("SELECT `ntbb_users`.`username`, `ntbb_users`.`userid`, `ntbb_users`.`banstate` FROM `ntbb_users` INNER JOIN `ntbb_usermodlog` ON `ntbb_users`.`userid` = `ntbb_usermodlog`.`userid` WHERE `entry` LIKE ?", [$entry]);
 	if ($csrfOk && isset($_POST['standing'])) {
 		$newStanding = intval($_POST['standing']);
-		$psdb->query(
-			"UPDATE ntbb_users SET banstate = ? WHERE userid IN (" . implode(',', $userlist) . ") AND banstate != 100",
-			[$newStanding]
-		);
 
+		$users = array();
 		foreach ($userlist as $row) {
 			$modlogentry = "Standing changed to $newStanding ({$STANDINGS[$newStanding]}): {$_POST['allreason']}";
 			$psdb->query(
 				"INSERT INTO `{$psdb->prefix}usermodlog` (`userid`,`actorid`,`date`,`ip`,`entry`) VALUES (?, ?, ?, ?, ?)",
 				[$row['userid'], $curuser['userid'], time(), $users->getIp(), $modlogentry]
 			);
+			array_push($users, $psdb->escape($row['userid']));
 		}
+
+		$psdb->query(
+			"UPDATE ntbb_users SET banstate = ? WHERE userid IN (" . implode(',', $users) . ") AND banstate != 100",
+			[$newStanding]
+		);
 
 ?>
 		<div style="border: 1px solid #DDAA88; padding: 0 1em; margin-bottom: 1em">
