@@ -20,7 +20,7 @@ Type `/roomauth (room)` to see the member of staff of a room; if a name is **bol
 
 ### I was locked / globally banned unfairly. How can I appeal?
 
-Post a [discipline appeal](http://www.smogon.com/forums/threads/discipline-appeal-rules.3583479), but make sure to read the guidelines before posting.
+You can post a discipline appeal using [the forum guidelines](http://www.smogon.com/forums/threads/discipline-appeal-rules.3583479) or you can open a help ticket by typing `/appeal` whilst online on PS!
 
 ### How do I report a user?
 
@@ -38,7 +38,7 @@ To register, click on the settings gear in the top right corner, and then click 
 
 ### Can I speak in a language other than English?
 
-In most rooms, no. However, PS offers many language-specific rooms: Spanish, Portuguese, French, German, Italian, Dutch, Chinese, Japanese, and Hindi.
+In most rooms, no. However, PS offers many language-specific rooms: Español, Português, Français, Deutsche, Italiano, Nederlands, Chinese, and Hindi.
 
 ### How do I change my avatar?
 
@@ -54,7 +54,7 @@ It is not possible to change a username color. To get a new color you must chang
 
 ### How do I add a Pokémon to my avatar? / How do I get a custom avatar?
 
-Only Global Drivers and higher (`%`, `@`, `&`) and contributors to PS! (e.g. programmers) are permitted custom avatars. Custom avatars have to be manually implemented so it just isn't practical to add them for every user that asks. While there are exceptions to this rule, you likely aren't one of them.
+Only Global Drivers and higher (`%`, `@`, and `&`), contributors to PS! (e.g. programmers) or Smogon (badgeholders) are permitted custom avatars. Custom avatars have to be manually implemented so it just isn't practical to add them for every user that asks. While there are exceptions to this rule, you likely aren't one of them.
 
 ### How do I make a room?
 
@@ -83,7 +83,7 @@ Currently PS! does not have a friends system; however, one is planned.
 
 ### Why did the server restart?
 
-Servers restart to implement updates. They are quick (taking under a second) and occur approximately once a week.
+Servers restart to implement updates. They are quick (taking under a second) and occur periodically. 
 
 ### How do I join a tournament?
 
@@ -103,9 +103,9 @@ To change the background, click on the settings cog in the top right corner, the
 
 Smogon is the most comprehensive and accurate online resource for competitive Pokemon battling, comprising strategy articles, guides, forums and its own simulator, Pokémon Showdown. Smogon's tiering is the basis for Pokémon Showdown.
 
-### What do AG, Ubers, OU, BL, UU, BL2, RU, BL3 or NU stand for?
+### What does AG, Ubers, OU, UU, RU, NU or LC stand for?
 
-If you want to know more about a specific tier you can use the command `/tier [tiername]`; it will show you information about that format.
+If you want to know more about a specific tier you can use the command `/tier [tier name]`; it will show you information about that format. For more information on other tiers available please visit [the Smogon dex](https://www.smogon.com/dex/ss/formats/).
 
 ### What is the difference between Random Battle and Battle Factory?
 
@@ -139,21 +139,11 @@ If you want to challenge a specific user, click their username or click "Find a 
 
 Make sure you check your Pokemon's items - items such as Assault Vest, Choice Band, Choice Scarf and Choice Specs will limit your move choices.
 
-### Why is mega x not faster than y?
-
-In Generation 6, turn order is decided before Mega Evolution. If your base form is slower than the opposing Pokemon the turn you Mega Evolve, you will be outsped.
-
-Generation 7 changed the mechanics so that Mega Evolving immediately changes the speed of the evolving Pokemon, meaning that if Pokemon A Mega Evolves and is initially slower then the opposing Pokemon, it will proceed to outspeed it during the same turn.
-
-### How do I mega evolve my Rayquaza?
-
-Rayquaza needs to know the move Dragon Ascent in order for it to Mega Evolve. It is the only Mega Evolution that doesn't require a Mega Stone to Mega Evolve. Also, since Mega Rayquaza is banned in Ubers, you must play a format such as Anything Goes to use it.
-
 ### What is an endless battle?
 
 An endless battle is, as the name implies, a battle that cannot end. The common components of an endless battle are Pokemon that trap the target (via Block, Shadow Tag, or Arena Trap), moves that heal the opponent (usually Heal Pulse), ways to keep your own Pokemon healthy (Slack Off, Recover, or Roost), Leppa Berries to restore the user's lost PP, and continual generation of Leppa Berries (via Recycle).
-
-The opponent is forced to Struggle, and because Struggle can never run out of PP, the battle would go on forever since a player can continuously heal both Pokemon (and prevent them from fainting). Endless battles are banned - if you encounter a "strategy" like this, alert a staff member in the [Help room](https://psim.us/help).
+ 
+The opponent is forced to Struggle, and because Struggle can never run out of PP, the battle would go on forever since a player can continuously heal both Pokemon (and prevent them from fainting). Battles are capped at 1000 turns; if that number of turns is reached, the battle ends and results in a tie. You can also offer a tie to your opponent by using the `/offertie` command after at least 100 turns have passed.
 
 ### If the battle ends with both Pokemon fainting, who wins?
 
@@ -183,4 +173,4 @@ Similarly, Clefable cannot both know Soft-Boiled and use its hidden ability Unaw
 
 Type `/rank` and in the box there will be a link to 'Reset W/L'. Following this link allows you to reset your ratio. Note that your other rankings will be unaffected; only your win/loss ratio will change. To change these other rankings, you can start off fresh with a new account.
 
-<small>(originally by [Relados](https://www.smogon.com/forums/members/relados.148715/) and [Zarel](https://www.smogon.com/forums/members/zarel.102803/); updated by [Blitzamirin](https://www.smogon.com/forums/members/blitzamirin.101585/), [Kalalokki](https://www.smogon.com/forums/members/kalalokki.199661/), Kasumi, [shnen](https://www.smogon.com/forums/members/shnen.107178/), Sobi, [Finland](https://www.smogon.com/forums/members/finland.517429/), [Vacate](https://www.smogon.com/forums/members/vacate.189371/) and [verbatim](https://www.smogon.com/forums/members/verbatim.93103/); converted to Markdown for the PS! website by [Annika](https://www.smogon.com/forums/members/annika.434112/))</small>
+<small>(originally by [Relados](https://www.smogon.com/forums/members/relados.148715/) and [Zarel](https://www.smogon.com/forums/members/zarel.102803/); updated by [Blitzamirin](https://www.smogon.com/forums/members/blitzamirin.101585/), [Kalalokki](https://www.smogon.com/forums/members/kalalokki.199661/), Kasumi, [shnen](https://www.smogon.com/forums/members/shnen.107178/), Sobi, [Finland](https://www.smogon.com/forums/members/finland.517429/), [Vacate](https://www.smogon.com/forums/members/vacate.189371/), [verbatim](https://www.smogon.com/forums/members/verbatim.93103/), [Zodiax](https://www.smogon.com/forums/members/zodiax.202547/), and [Iyarito](https://www.smogon.com/forums/members/iyarito.219578/); converted to Markdown for the PS! website by [Annika](https://www.smogon.com/forums/members/annika.434112/))</small>
