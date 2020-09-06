@@ -16,7 +16,7 @@ Mitglieder des Raumstaffs besitzen Berechtigungen, welche sich ausschließlich a
 
 **Room Owner (`#`)** können alles obrige und zusätzlich Nutzer bis zu Room Moderator befördern, Ankündigungen im Raum anzeigen lassen und die Raum-Einführung einstellen.
 
-**Global Driver (`%`)** können Nutzer sowohl in Räumen als auch serverweit verwarnen, Nutzer für 7 oder 60 Minuten stummschalten, Nutzer für 3 Tage oder eine Woche serverweit sperren, Nutzernamen ändern, Statusmeldungen von Nutzern entfernen, Zweitaccounts von Nutzern einsehen und ältere Chatlogs sowie Modlogs in allen Räumen einsehen. 
+**Global Driver (`%`)** können Nutzer sowohl in Räumen als auch serverweit verwarnen, Nutzer für 7 oder 60 Minuten stummschalten, Nutzer für 2 Tage oder eine Woche serverweit sperren, Nutzernamen ändern, Statusmeldungen von Nutzern entfernen, Zweitaccounts von Nutzern einsehen und ältere Chatlogs sowie Modlogs in allen Räumen einsehen. 
 
 **Global Moderator (`@`)** können alles obrige und zusätzlich Nutzer vom Server verbannen, alle Berechtigungen eines Raum-Moderators ausführen und die IP-Adresse von Nutzern einsehen.
 
