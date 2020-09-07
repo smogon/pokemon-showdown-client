@@ -131,6 +131,8 @@ RewriteCond %{HTTP:CF-Connecting-IP} !=198.27.67.31
 RewriteCond %{HTTP:CF-Connecting-IP} !=162.243.13.96
 RewriteRule ^.* https://pokemonshowdown.com/ [R=303,L]
 
+AddType 'text/plain; charset=UTF-8' json5
+
 RewriteRule ^replay/battle-([A-Za-z0-9-]+)$ https://replay.pokemonshowdown.com/$1 [R=302,L]
 RewriteRule ^replay/turn_(.+)\.png$ replay/turn-image.php?data=$1 [L,QSA]
 
