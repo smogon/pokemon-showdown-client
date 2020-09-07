@@ -119,6 +119,7 @@ if ($authLevel >= 3) {
 if (isset($_REQUEST['json'])) {
 	header('Content-Type: application/json');
 	header('Access-Control-Allow-Origin: *');
+	if (!$user) die('null');
 	$ladder = new NTBBLadder('');
 	$ladder->getAllRatings($user);
 	$ratings = [];
