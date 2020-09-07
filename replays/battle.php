@@ -53,11 +53,11 @@ if (file_exists('caches/' . $id . '.inc.php')) {
 	}
 	$replay = $Replays->get($id, $forcecache);
 }
-if (!$replay || ($replay['private'] === 3 && !$manage)) {
+if (!$replay || (@$replay['private'] === 3 && !$manage)) {
 	include '404.php';
 	die();
 }
-$fullid = $id . ($replay['password'] ? '-' . $replay['password'] . 'pw' : '');
+$fullid = $id . (@$replay['password'] ? '-' . $replay['password'] . 'pw' : '');
 
 if (@$replay['private']) {
 	header('X-Robots-Tag: noindex');
