@@ -173,8 +173,8 @@ if (!$ip && !$entry) {
 		$newStanding = intval($_POST['standing']);
 
 		$psdb->query(
-			"UPDATE {$psdb->prefix}users, {$psdb->prefix}usermodlog INNER JOIN " +
-			"{$psdb->prefix}usermodlog ON {$psdb->prefix}usermodlog.userid = {$psdb->prefix}users.userid " +
+			"UPDATE {$psdb->prefix}users, {$psdb->prefix}usermodlog " +
+			"INNER JOIN {$psdb->prefix}usermodlog ON {$psdb->prefix}usermodlog.userid = {$psdb->prefix}users.userid " +
 			"SET {$psdb->prefix}users.banstate = ? WHERE {$psdb->prefix}usermodlog.entry LIKE ? AND banstate != 100",
 			[$newStanding, $entry]
 		);
