@@ -179,7 +179,7 @@ if (!$ip && !$entry) {
 				"INSERT INTO `{$psdb->prefix}usermodlog` (`userid`,`actorid`,`date`,`ip`,`entry`) VALUES (?, ?, ?, ?, ?)",
 				[$row['userid'], $curuser['userid'], time(), $users->getIp(), $modlogentry]
 			);
-			array_push($users, $psdb->escape($row['userid']));
+			$users []= $psdb->escape($row['userid']);
 		}
 
 		$psdb->query(
