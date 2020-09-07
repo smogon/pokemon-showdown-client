@@ -985,6 +985,11 @@ process.stdout.write("Building `data/moves,items,abilities,typechart,learnsets.j
 
 {
 	const Moves = requireNoCache('../data/pokemon-showdown/.data-dist/moves.js').Moves;
+	for (const id in Moves) {
+		const move = Dex.getMove(Moves[id].name);
+		if (move.desc) Moves[id].desc = move.desc;
+		if (move.shortDesc) Moves[id].shortDesc = move.shortDesc;
+	}
 	const buf = 'exports.BattleMovedex = ' + es3stringify(Moves) + ';';
 	fs.writeFileSync('data/moves.js', buf);
 }
@@ -995,6 +1000,11 @@ process.stdout.write("Building `data/moves,items,abilities,typechart,learnsets.j
 
 {
 	const Items = requireNoCache('../data/pokemon-showdown/.data-dist/items.js').Items;
+	for (const id in Items) {
+		const move = Dex.getItem(Items[id].name);
+		if (move.desc) Items[id].desc = move.desc;
+		if (move.shortDesc) Items[id].shortDesc = move.shortDesc;
+	}
 	const buf = 'exports.BattleItems = ' + es3stringify(Items) + ';';
 	fs.writeFileSync('data/items.js', buf);
 }
@@ -1005,6 +1015,11 @@ process.stdout.write("Building `data/moves,items,abilities,typechart,learnsets.j
 
 {
 	const Abilities = requireNoCache('../data/pokemon-showdown/.data-dist/abilities.js').Abilities;
+	for (const id in Abilities) {
+		const move = Dex.getAbility(Abilities[id].name);
+		if (move.desc) Abilities[id].desc = move.desc;
+		if (move.shortDesc) Abilities[id].shortDesc = move.shortDesc;
+	}
 	const buf = 'exports.BattleAbilities = ' + es3stringify(Abilities) + ';';
 	fs.writeFileSync('data/abilities.js', buf);
 }
