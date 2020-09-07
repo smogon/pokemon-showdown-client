@@ -172,7 +172,7 @@ if (!$ip && !$entry) {
 	if ($csrfOk && isset($_POST['standing'])) {
 		$newStanding = intval($_POST['standing']);
 
-		$users = array();
+		$users = [];
 		foreach ($userlist as $row) {
 			$modlogentry = "Standing changed to $newStanding ({$STANDINGS[$newStanding]}): {$_POST['allreason']}";
 			$psdb->query(
