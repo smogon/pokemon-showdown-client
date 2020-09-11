@@ -67,7 +67,7 @@ includeHeader();
 				<li><p><strong>Cody Thompson</strong> [Rising_Dusk] <small>&ndash; Development</small></p></li>
 				<li><p>[<strong>Honko</strong>] <small>&ndash; Development (damage calculator)</small></p></li>
 				<li><p><strong>Ian Clail</strong> [Layell] <small>&ndash; Art (battle graphics, sprites)</small></p></li>
-				<li><p><strong>Mia A.</strong> [mia-pi] <small>&ndash; Development</small></p></li>
+				<li><p><strong>Mia A.</strong> [Mia] <small>&ndash; Development</small></p></li>
 				<li><p><strong>Jacob McLemore</strong> <small>&ndash; Development</small></p></li>
 				<li><p><strong>Erik Bruce</strong> [Kalalokki] <small>&ndash; Art (minisprite resizing)</small></p></li>
 				<li><p><a href="https://panpawn.github.io/" target="_blank" class="subtle"><strong>Jeremy Piemonte</strong> [panpawn]</a> <small>&ndash; Development</small></p></li>
