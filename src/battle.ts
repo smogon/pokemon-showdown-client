@@ -475,7 +475,7 @@ class Pokemon implements PokemonDetails, PokemonHealth {
 		} else {
 			types = this.getSpecies(serverPokemon).types;
 		}
-		if (this.hasTurnstatus('roost') && types.includes('Flying')) {
+		if (this.hasTurnstatus('roost' as ID) && types.includes('Flying')) {
 			types = types.filter(typeName => typeName !== 'Flying');
 			if (!types.length) types = ['Normal'];
 		}
