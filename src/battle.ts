@@ -475,7 +475,7 @@ class Pokemon implements PokemonDetails, PokemonHealth {
 		} else {
 			types = this.getSpecies(serverPokemon).types;
 		}
-		if (this.volatiles.roost && types.includes('Flying')) {
+		if (this.hasTurnstatus('roost') && types.includes('Flying')) {
 			types = types.filter(typeName => typeName !== 'Flying');
 			if (!types.length) types = ['Normal'];
 		}
@@ -2549,11 +2549,10 @@ class Battle {
 		case '-singleturn': {
 			let poke = this.getPokemon(args[1])!;
 			let effect = Dex.getEffect(args[2]);
-			poke.addTurnstatus(effect.id);
-
 			if (effect.id === 'roost' && !poke.getTypeList().includes('Flying')) {
 				break;
 			}
+			poke.addTurnstatus(effect.id);
 			switch (effect.id) {
 			case 'roost':
 				this.scene.resultAnim(poke, 'Landed', 'neutral');
