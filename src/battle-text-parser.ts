@@ -512,7 +512,7 @@ class BattleTextParser {
 		case 'move': {
 			const [, pokemon, move] = args;
 			let line1 = this.maybeAbility(kwArgs.from, kwArgs.of || pokemon);
-			if (kwArgs.zEffect) {
+			if (kwArgs.zeffect) {
 				line1 = this.template('zEffect').replace('[POKEMON]', this.pokemon(pokemon));
 			}
 			const template = this.template('move', kwArgs.from);
