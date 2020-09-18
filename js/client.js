@@ -2434,13 +2434,13 @@ function toId() {
 			type: 'leadership',
 			order: 10001
 		},
-		'&': {
-			name: "Administrator (&amp;)",
+		'#': {
+			name: "Room Owner (#)",
 			type: 'leadership',
 			order: 10002
 		},
-		'#': {
-			name: "Room Owner (#)",
+		'&': {
+			name: "Administrator (&amp;)",
 			type: 'leadership',
 			order: 10003
 		},
