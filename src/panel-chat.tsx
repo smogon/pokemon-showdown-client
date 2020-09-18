@@ -410,7 +410,7 @@ class ChatUserList extends preact.Component<{room: ChatRoom, left?: number, mini
 		const room = this.props.room;
 		let userList = Object.entries(room.users) as [ID, string][];
 		PSUtils.sortBy(userList, ([id, name]) => (
-			[name === '#Zarel', PS.server.getGroup(name.charAt(0)).order, !name.endsWith('@!'), id]
+			[PS.server.getGroup(name.charAt(0)).order, !name.endsWith('@!'), id]
 		));
 		return <ul class={'userlist' + (this.props.minimized ? (this.state.expanded ? ' userlist-maximized' : ' userlist-minimized') : '')} style={{left: this.props.left || 0}}>
 			<li class="userlist-count" style="text-align:center;padding:2px 0" onClick={this.toggleExpanded}><small>{room.userCount} users</small></li>
