@@ -1472,65 +1472,64 @@ class BattleScene {
 		if (this.bgmNum === bgmNum) return;
 		this.bgmNum = bgmNum;
 
-		let ext = window.nodewebkit ? '.ogg' : '.mp3';
 		switch (bgmNum) {
 		case -1:
-			this.bgm = BattleSound.loadBgm('audio/bw2-homika-dogars' + ext, 1661, 68131, this.bgm);
+			this.bgm = BattleSound.loadBgm('audio/bw2-homika-dogars.mp3', 1661, 68131, this.bgm);
 			break;
 		case -2:
-			this.bgm = BattleSound.loadBgm('audio/xd-miror-b' + ext, 9000, 57815, this.bgm);
+			this.bgm = BattleSound.loadBgm('audio/xd-miror-b.mp3', 9000, 57815, this.bgm);
 			break;
 		case -3:
-			this.bgm = BattleSound.loadBgm('audio/colosseum-miror-b' + ext, 896, 47462, this.bgm);
+			this.bgm = BattleSound.loadBgm('audio/colosseum-miror-b.mp3', 896, 47462, this.bgm);
 			break;
 		case 1:
-			this.bgm = BattleSound.loadBgm('audio/dpp-trainer' + ext, 13440, 96959, this.bgm);
+			this.bgm = BattleSound.loadBgm('audio/dpp-trainer.mp3', 13440, 96959, this.bgm);
 			break;
 		case 2:
-			this.bgm = BattleSound.loadBgm('audio/dpp-rival' + ext, 13888, 66352, this.bgm);
+			this.bgm = BattleSound.loadBgm('audio/dpp-rival.mp3', 13888, 66352, this.bgm);
 			break;
 		case 3:
-			this.bgm = BattleSound.loadBgm('audio/hgss-johto-trainer' + ext, 23731, 125086, this.bgm);
+			this.bgm = BattleSound.loadBgm('audio/hgss-johto-trainer.mp3', 23731, 125086, this.bgm);
 			break;
 		case 4:
-			this.bgm = BattleSound.loadBgm('audio/hgss-kanto-trainer' + ext, 13003, 94656, this.bgm);
+			this.bgm = BattleSound.loadBgm('audio/hgss-kanto-trainer.mp3', 13003, 94656, this.bgm);
 			break;
 		case 5:
-			this.bgm = BattleSound.loadBgm('audio/bw-trainer' + ext, 14629, 110109, this.bgm);
+			this.bgm = BattleSound.loadBgm('audio/bw-trainer.mp3', 14629, 110109, this.bgm);
 			break;
 		case 6:
-			this.bgm = BattleSound.loadBgm('audio/bw-rival' + ext, 19180, 57373, this.bgm);
+			this.bgm = BattleSound.loadBgm('audio/bw-rival.mp3', 19180, 57373, this.bgm);
 			break;
 		case 7:
-			this.bgm = BattleSound.loadBgm('audio/bw-subway-trainer' + ext, 15503, 110984, this.bgm);
+			this.bgm = BattleSound.loadBgm('audio/bw-subway-trainer.mp3', 15503, 110984, this.bgm);
 			break;
 		case 8:
-			this.bgm = BattleSound.loadBgm('audio/bw2-kanto-gym-leader' + ext, 14626, 58986, this.bgm);
+			this.bgm = BattleSound.loadBgm('audio/bw2-kanto-gym-leader.mp3', 14626, 58986, this.bgm);
 			break;
 		case 9:
-			this.bgm = BattleSound.loadBgm('audio/bw2-rival' + ext, 7152, 68708, this.bgm);
+			this.bgm = BattleSound.loadBgm('audio/bw2-rival.mp3', 7152, 68708, this.bgm);
 			break;
 		case 10:
-			this.bgm = BattleSound.loadBgm('audio/xy-trainer' + ext, 7802, 82469, this.bgm);
+			this.bgm = BattleSound.loadBgm('audio/xy-trainer.mp3', 7802, 82469, this.bgm);
 			break;
 		case 11:
-			this.bgm = BattleSound.loadBgm('audio/xy-rival' + ext, 7802, 58634, this.bgm);
+			this.bgm = BattleSound.loadBgm('audio/xy-rival.mp3', 7802, 58634, this.bgm);
 			break;
 		case 12:
-			this.bgm = BattleSound.loadBgm('audio/oras-trainer' + ext, 13579, 91548, this.bgm);
+			this.bgm = BattleSound.loadBgm('audio/oras-trainer.mp3', 13579, 91548, this.bgm);
 			break;
 		case 13:
-			this.bgm = BattleSound.loadBgm('audio/oras-rival' + ext, 14303, 69149, this.bgm);
+			this.bgm = BattleSound.loadBgm('audio/oras-rival.mp3', 14303, 69149, this.bgm);
 			break;
 		case 14:
-			this.bgm = BattleSound.loadBgm('audio/sm-trainer' + ext, 8323, 89230, this.bgm);
+			this.bgm = BattleSound.loadBgm('audio/sm-trainer.mp3', 8323, 89230, this.bgm);
 			break;
 		case -101:
-			this.bgm = BattleSound.loadBgm('audio/spl-elite4' + ext, 3962, 152509, this.bgm);
+			this.bgm = BattleSound.loadBgm('audio/spl-elite4.mp3', 3962, 152509, this.bgm);
 			break;
 		case 15:
 		default:
-			this.bgm = BattleSound.loadBgm('audio/sm-rival' + ext, 11389, 62158, this.bgm);
+			this.bgm = BattleSound.loadBgm('audio/sm-rival.mp3', 11389, 62158, this.bgm);
 			break;
 		}
 	}
