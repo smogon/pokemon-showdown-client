@@ -555,7 +555,7 @@ const Dex = new class implements ModdedDex {
 		if (!animationData) animationData = {};
 		if (!miscData) miscData = {};
 
-		if (miscData.num > 0) {
+		if (miscData.num !== 0 && miscData.num > -5000) {
 			let baseSpeciesid = toID(species.baseSpecies);
 			spriteData.cryurl = 'audio/cries/' + baseSpeciesid;
 			let formeid = species.formeid;
