@@ -12,13 +12,14 @@
 		<link rel="stylesheet" href="style/font-awesome.css" />
 		<meta name="robots" content="noindex" />
 		<meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+		<script src="https://play.pokemonshowdown.com/config/config.js"></script>
 		<script>
 			function loadRemoteData(src) {
 				var scriptEl = document.createElement('script');
 				scriptEl.src = src.replace(/.*\/?data\//g, 'https://play.pokemonshowdown.com/data/');
 				document.head.appendChild(scriptEl);
 			}
-			var Config = {testclient: true};
+			Config.testclient = true;
 			(function() {
 				if (location.search !== '') {
 					var m = /\?~~(([^:\/]*)(:[0-9]*)?)/.exec(location.search);
@@ -67,14 +68,12 @@
 		<script>
 			document.getElementById('loading-message').innerHTML += ' DONE<br />Loading libraries...';
 		</script>
+		<script nomodule src="/js/lib/ps-polyfill.js"></script>
 		<script src="js/lib/jquery-2.1.4.min.js"></script>
 		<script src="js/lib/jquery-cookie.js"></script>
 		<script src="js/lib/autoresize.jquery.min.js"></script>
-		<script src="js/lib/soundmanager2-nodebug-jsmin.js"></script>
+		<script src="js/battle-sound.js"></script>
 		<script src="config/testclient-key.js"></script>
-		<script>
-			soundManager.setup({url: 'swf/'});
-		</script>
 		<script src="js/lib/html-css-sanitizer-minified.js"></script>
 		<script src="js/lib/lodash.core.js"></script>
 		<script src="js/lib/backbone.js"></script>
@@ -85,7 +84,6 @@
 			window.exports = window;
 		</script>
 
-		<script src="https://play.pokemonshowdown.com/config/config.js"></script>
 		<script src="js/battledata.js" onerror="alert('You must build the client with `node build` before using testclient.html')"></script>
 		<script src="data/pokedex-mini.js" onerror="loadRemoteData(this.src)"></script>
 		<script src="data/pokedex-mini-bw.js" onerror="loadRemoteData(this.src)"></script>

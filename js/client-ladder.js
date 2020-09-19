@@ -1,6 +1,9 @@
 (function ($) {
 
 	var HTMLRoom = this.HTMLRoom = this.Room.extend({
+		events: {
+			'click .username': 'clickUsername'
+		},
 		type: 'html',
 		title: 'Page',
 		initialize: function () {
@@ -24,7 +27,7 @@
 			app.send('/join ' + this.id);
 		},
 		leave: function () {
-			app.send('/leave ' + this.id);
+			app.send('/noreply /leave ' + this.id);
 		},
 		login: function () {
 			app.addPopup(LoginPopup);
@@ -63,17 +66,13 @@
 				break;
 
 			case 'notify':
-				if (!Dex.prefs('mute') && Dex.prefs('notifvolume')) {
-					soundManager.getSoundById('notif').setVolume(Dex.prefs('notifvolume')).play();
-				}
+				app.playNotificationSound();
 				this.notifyOnce(row[1], row.slice(2).join('|'), 'highlight');
 				break;
 
 			case 'tempnotify':
 				var notifyOnce = row[4] !== '!';
-				if (!this.notifications && !Dex.prefs('mute') && Dex.prefs('notifvolume')) {
-					soundManager.getSoundById('notif').setVolume(Dex.prefs('notifvolume')).play();
-				}
+				if (!this.notifications) app.playNotificationSound();
 				this.notify(row[2], row[3], row[1], notifyOnce);
 				break;
 
@@ -82,7 +81,12 @@
 				break;
 
 			}
-		}
+		},
+		clickUsername: function (e) {
+			e.stopPropagation();
+			var name = $(e.currentTarget).data('name') || $(e.currentTarget).text();
+			app.addPopup(UserPopup, {name: name, sourceEl: e.currentTarget});
+		},
 	});
 
 	this.LadderRoom = HTMLRoom.extend({
@@ -112,7 +116,7 @@
 		leave: function () {},
 		update: function () {
 			if (!this.curFormat) {
-				var buf = '<div class="ladder pad"><p>See a user\'s ranking with <a class="button" href="//pokemonshowdown.com/users/" target="_blank">User lookup</a></p>' +
+				var buf = '<div class="ladder pad"><p>See a user\'s ranking with <a class="button" href="//' + Config.routes.users + '/" target="_blank">User lookup</a></p>' +
 					//'<p><strong style="color:red">I\'m really really sorry, but as a warning: we\'re going to reset the ladder again soon to fix some more ladder bugs.</strong></p>' +
 					'<p>(btw if you couldn\'t tell the ladder screens aren\'t done yet; they\'ll look nicer than this once I\'m done.)</p>' +
 					'<p><button name="selectFormat" value="help" class="button"><i class="fa fa-info-circle"></i> How the ladder works</button></p><ul>';

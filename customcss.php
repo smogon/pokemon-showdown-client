@@ -2,7 +2,8 @@
 
 ini_set('max_execution_time', 60); // 1 minute
 
-include '../pokemonshowdown.com/config/servers.inc.php';
+require_once __DIR__ . '/config/config.inc.php';
+require_once __DIR__ . '/config/servers.inc.php';
 
 spl_autoload_register(function ($class) {
 	require_once('lib/css-sanitizer/'.str_replace('\\', DIRECTORY_SEPARATOR, $class).'.php');
@@ -31,7 +32,7 @@ if (empty($customcssuri)) {
 }
 
 // No need to sanitise $server because it should be safe already.
-$cssfile = '../pokemonshowdown.com/config/customcss/' . $server . '.css';
+$cssfile = __DIR__ . '/config/customcss/' . $server . '.css';
 
 $lastmodified = @filemtime($cssfile);
 $timenow = time();
@@ -70,11 +71,11 @@ if ($curlret) {
 		// Parse a stylesheet from a string
 		$parser = Parser::newFromString($curlret);
 		$stylesheet = $parser->parseStylesheet();
- 
+
 		// Apply sanitization to the stylehseet
 		$sanitizer = StylesheetSanitizer::newDefault();
 		$newStylesheet = $sanitizer->sanitize( $stylesheet );
- 
+
 		// Convert the sanitized stylesheet back to text
 		$outputcss = Wikimedia\CSS\Util::stringify( $newStylesheet, [ 'minify' => true ] );
 
@@ -98,7 +99,7 @@ if ($invalidate) {
 	Done: <?= htmlspecialchars($customcssuri) ?> was reloaded.
 </p>
 <p>
-	<a href="http://pokemonshowdown.com/servers/<?= $server ?>">Back to server management</a>
+	<a href="http://<?= $psconfig['routes']['root'] ?>/servers/<?= $server ?>">Back to server management</a>
 </p>
 <?php
 }

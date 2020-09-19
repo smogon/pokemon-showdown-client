@@ -4,7 +4,8 @@ error_reporting(E_ALL);
 ini_set('display_errors', TRUE);
 ini_set('display_startup_errors', TRUE);
 
-include_once 'theme/panels.lib.php';
+require_once __DIR__ . '/../config/config.inc.php';
+require_once __DIR__ . '/theme/panels.lib.php';
 
 $id = $_REQUEST['name'] ?? '';
 $password = '';
@@ -52,11 +53,11 @@ if (file_exists('caches/' . $id . '.inc.php')) {
 	}
 	$replay = $Replays->get($id, $forcecache);
 }
-if (!$replay || ($replay['private'] === 3 && !$manage)) {
+if (!$replay || (@$replay['private'] === 3 && !$manage)) {
 	include '404.php';
 	die();
 }
-$fullid = $id . ($replay['password'] ? '-' . $replay['password'] . 'pw' : '');
+$fullid = $id . (@$replay['password'] ? '-' . $replay['password'] . 'pw' : '');
 
 if (@$replay['private']) {
 	header('X-Robots-Tag: noindex');
@@ -70,7 +71,7 @@ if (@$replay['password']) {
 		}
 		$url = '/' . $id . '-' . $replay['password'] . 'pw';
 		echo '<p>This private replay now has a new harder-to-guess URL:</p>';
-		echo '<p><a href="' . $url . '" data-target="replace">https://replay.pokemonshowdown.com' . $url . '</a></p>';
+		echo '<p><a href="' . $url . '" data-target="replace">https://' . $psconfig['routes']['replays'] . $url . '</a></p>';
 		die();
 	}
 	if ($password !== $replay['password'] && !$manage) {
@@ -131,9 +132,9 @@ $panels->start();
 
 			<?php if (@$replay['private']) echo '<strong>THIS REPLAY IS PRIVATE</strong> - make sure you have the owner\'s permission to share<br />'; ?>
 
-			<pre class="urlbox" style="word-wrap: break-word;"><?php echo htmlspecialchars('https://replay.pokemonshowdown.com/'.$fullid); ?></pre>
+			<pre class="urlbox" style="word-wrap: break-word;"><?php echo htmlspecialchars('https://'.$psconfig['routes']['replays'].'/'.$fullid); ?></pre>
 
-			<h1 style="font-weight:normal;text-align:left"><strong><?= htmlspecialchars($format) ?></strong>: <a href="//pokemonshowdown.com/users/<?= userid($replay['p1']) ?>" class="subtle"><?= htmlspecialchars($replay['p1']) ?></a> vs. <a href="//pokemonshowdown.com/users/<?= userid($replay['p2']) ?>" class="subtle"><?= htmlspecialchars($replay['p2']) ?></a></h1>
+			<h1 style="font-weight:normal;text-align:left"><strong><?= htmlspecialchars($format) ?></strong>: <a href="//<?= $psconfig['routes']['users'] ?>/<?= userid($replay['p1']) ?>" class="subtle"><?= htmlspecialchars($replay['p1']) ?></a> vs. <a href="//<?= $psconfig['routes']['users'] ?>/<?= userid($replay['p2']) ?>" class="subtle"><?= htmlspecialchars($replay['p2']) ?></a></h1>
 			<p style="padding:0 1em;margin-top:0">
 				<small class="uploaddate" data-timestamp="<?= @$replay['uploadtime'] ?? @$replay['date'] ?>"><em>Uploaded:</em> <?php echo date("M j, Y", @$replay['uploadtime'] ?? @$replay['date']); ?><?= @$replay['rating'] ? ' | <em>Rating:</em> ' . $replay['rating'] : '' ?></small>
 			</p>
@@ -175,9 +176,9 @@ if ($manage) {
 		<input type="hidden" name="replayid" value="<?php echo htmlspecialchars($replay['id']); ?>" />
 		<!--
 
-You can get this log directly at https://replay.pokemonshowdown.com/<?php echo $replay['id']; ?>.log
+You can get this log directly at https://<?php echo $psconfig['routes']['replays']; ?>/<?php echo $replay['id']; ?>.log
 
-Or with metadata at https://replay.pokemonshowdown.com/<?php echo $replay['id']; ?>.json
+Or with metadata at https://<?php echo $psconfig['routes']['replays']; ?>/<?php echo $replay['id']; ?>.json
 
 Most PS pages you'd want to scrape will have a .json version!
 

@@ -339,6 +339,9 @@ const BattlePokemonIconIndexes: {[id: string]: number} = {
 	zaciancrowned: 900 + 194,
 	zamazentacrowned: 900 + 195,
 	slowpokegalar: 900 + 196,
+	slowbrogalar: 900 + 197,
+	zarudedada: 900 + 198,
+	pikachuworld: 900 + 199,
 
 	gumshoostotem: 735,
 	raticatealolatotem: 900 + 120,
@@ -431,6 +434,13 @@ const BattlePokemonIconIndexes: {[id: string]: number} = {
 	copperajahgmax: 1104 + 74,
 	duraludongmax: 1104 + 75,
 	eternatuseternamax: 1104 + 76,
+	venusaurgmax: 1104 + 77,
+	blastoisegmax: 1104 + 78,
+	rillaboomgmax: 1104 + 79,
+	cinderacegmax: 1104 + 80,
+	inteleongmax: 1104 + 81,
+	urshifugmax: 1104 + 82,
+	urshifurapidstrikegmax: 1104 + 83,
 
 	syclant: 1296 + 0,
 	revenankh: 1296 + 1,
@@ -461,6 +471,7 @@ const BattlePokemonIconIndexes: {[id: string]: number} = {
 	smokomodo: 1296 + 26,
 	snaelstrom: 1296 + 27,
 	equilibra: 1296 + 28,
+	astrolotl: 1296 + 29,
 
 	syclar: 1332 + 0,
 	embirch: 1332 + 1,
@@ -493,6 +504,7 @@ const BattlePokemonIconIndexes: {[id: string]: number} = {
 	swirlpool: 1332 + 28,
 	coribalis: 1332 + 29,
 	justyke: 1332 + 30,
+	solotl: 1332 + 31,
 };
 
 const BattlePokemonIconIndexesLeft: {[id: string]: number} = {
@@ -1181,7 +1193,8 @@ class Move implements Effect {
 				}
 			}
 		}
-		if (this.category !== 'Status' && !this.zMove && !this.isZ && !this.isMax) {
+
+		if (this.category !== 'Status' && !this.isZ && !this.isMax) {
 			let basePower = this.basePower;
 			this.zMove = {};
 			if (Array.isArray(this.multihit)) basePower *= 3;
@@ -1316,7 +1329,7 @@ class Species implements Effect {
 	readonly tier: string;
 	readonly isTotem: boolean;
 	readonly isMega: boolean;
-	readonly isGigantamax: boolean;
+	readonly canGigantamax: boolean;
 	readonly isPrimal: boolean;
 	readonly battleOnly: string | string[] | undefined;
 	readonly isNonstandard: string | null;
@@ -1365,14 +1378,14 @@ class Species implements Effect {
 
 		this.isTotem = false;
 		this.isMega = false;
-		this.isGigantamax = !!(this.forme?.endsWith('Gmax'));
+		this.canGigantamax = !!data.canGigantamax;
 		this.isPrimal = false;
-		this.battleOnly = data.battleOnly || (this.isGigantamax ? this.baseSpecies : undefined);
+		this.battleOnly = data.battleOnly || undefined;
 		this.isNonstandard = data.isNonstandard || null;
 		this.unreleasedHidden = data.unreleasedHidden || false;
 		this.changesFrom = data.changesFrom || undefined;
 		if (!this.gen) {
-			if (this.num >= 810 || this.forme === 'Galar' || this.isGigantamax) {
+			if (this.num >= 810 || this.formeid.startsWith('-galar')) {
 				this.gen = 8;
 			} else if (this.num >= 722 || this.formeid === '-alola' || this.formeid === '-starter') {
 				this.gen = 7;

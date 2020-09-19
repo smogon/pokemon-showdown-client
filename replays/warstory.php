@@ -20,7 +20,7 @@ if (!$name)
 	<div class="wrapper">
 <noscript>turn on javascript</noscript>
 <form id="form" onsubmit="return doSubmit()">
-1. if you haven't done so, upload a replay <a href="https://replay.pokemonshowdown.com/">https://replay.pokemonshowdown.com/</a>, get its URL, and come back here.
+1. if you haven't done so, upload a replay <a href="https://<?= $psconfig['routes']['replays'] ?>/">https://<?= $psconfig['routes']['replays'] ?>/</a>, get its URL, and come back here.
 <br />
 2. Paste the URL: <input type="text" size="90" id="text" onkeyup="update()" onchange="update()" />
 <br />
@@ -35,16 +35,16 @@ function doSubmit()
 	if (val.substr(0,7) === 'http://') val = val.substr(7);
 	if (val.substr(0,8) === 'http://') val = val.substr(8);
 	if (val.substr(0,4) === 'www.') val = val.substr(4);
-	if (val.substr(0,'replay.pokemonshowdown.com/'.length) === 'replay.pokemonshowdown.com/')
+	if (val.substr(0,'<?= $psconfig['routes']['replays'] ?>/'.length) === '<?= $psconfig['routes']['replays'] ?>/')
 	{
-		val = val.substr('replay.pokemonshowdown.com/'.length);
+		val = val.substr('<?= $psconfig['routes']['replays'] ?>/'.length);
 		ok = true;
 	}
 
 	if (!ok) return false;
 	else
 	{
-		document.location.href = 'http://replay.pokemonshowdown.com/warstory-'+val;
+		document.location.href = 'http://<?= $psconfig['routes']['replays'] ?>/warstory-'+val;
 		return false;
 	}
 }
@@ -56,9 +56,9 @@ function update()
 	if (val.substr(0,7) === 'http://') val = val.substr(7);
 	if (val.substr(0,8) === 'http://') val = val.substr(8);
 	if (val.substr(0,4) === 'www.') val = val.substr(4);
-	if (val.substr(0,'replay.pokemonshowdown.com/'.length) === 'replay.pokemonshowdown.com/')
+	if (val.substr(0,'<?= $psconfig['routes']['replays'] ?>/'.length) === '<?= $psconfig['routes']['replays'] ?>/')
 	{
-		val = val.substr('replay.pokemonshowdown.com/'.length);
+		val = val.substr('<?= $psconfig['routes']['replays'] ?>/'.length);
 		ok = true;
 	}
 
@@ -98,7 +98,7 @@ else if ($_REQUEST['name'])// && $REPLAYS[$_REQUEST['name']])
 		<link rel="stylesheet" href="/style/replayer.css" />
 		<script src="/js/jquery-1.9.1.min.js"></script>
 		<script src="/js/jquery-cookie.js"></script>
-		<script src="/js/soundmanager2.js"></script>
+		<script src="/js/battle-sound.js"></script>
 		<script src="/js/battledata.js"></script>
 		<script src="/data/pokedex-mini.js"></script>
 		<script src="/data/graphics.js"></script>
@@ -200,7 +200,7 @@ function turnCallback(battle)
 		Bswitch = null;
 	}
 
-	imagestring = '<div><img src="http://play.pokemonshowdown.com/replay/turn_'+imagestring+'.png" /></div>';
+	imagestring = '<div><img src="http://<?= $psconfig['routes']['client'] ?>/replay/turn_'+imagestring+'.png" /></div>';
 	$('#warstory').append($('#battle-log .inner').html());
 	$('#battle-log .inner').html('');
 	var lastchild = $('#warstory').children().last();
@@ -265,20 +265,20 @@ function endCallback(battle)
 	var teamcode = '[hide="'+battle.mySide.name+'\'s team"]';
 	for (var i=0; i<battle.mySide.pokemon.length && i<6; i++)
 	{
-		teamcode += '[img]http://play.pokemonshowdown.com/sprites/gen5/'+battle.mySide.pokemon[i].spriteid+'.png[/img]';
+		teamcode += '[img]http://<?= $psconfig['routes']['client'] ?>/sprites/gen5/'+battle.mySide.pokemon[i].spriteid+'.png[/img]';
 	}
 	teamcode += '[/hide]'+"\n";
 	teamcode += '[hide="'+battle.yourSide.name+'\'s team"]';
 	for (var i=0; i<battle.yourSide.pokemon.length && i<6; i++)
 	{
-		teamcode += '[img]http://play.pokemonshowdown.com/sprites/gen5/'+battle.yourSide.pokemon[i].spriteid+'.png[/img]';
+		teamcode += '[img]http://<?= $psconfig['routes']['client'] ?>/sprites/gen5/'+battle.yourSide.pokemon[i].spriteid+'.png[/img]';
 	}
 	teamcode += '[/hide]'+"\n\n";
 
 	bbcode = teamcode + bbcode;
 
-	bbcode = "[indent]>>>[url=\"http://play.pokemonshowdown.com/replay/battle-<?php echo $name ?>\"][size=\"3\"]Click to [b]watch this replay[/b]![/size][/url]<<<[/indent]\n\n"+bbcode;
-	bbcode += "\n\n[indent]>>>[url=\"http://play.pokemonshowdown.com/replay/battle-<?php echo $name ?>\"][size=\"3\"]Click to [b]watch this replay[/b]![/size][/url]<<<[/indent]";
+	bbcode = "[indent]>>>[url=\"http://<?= $psconfig['routes']['client'] ?>/replay/battle-<?php echo $name ?>\"][size=\"3\"]Click to [b]watch this replay[/b]![/size][/url]<<<[/indent]\n\n"+bbcode;
+	bbcode += "\n\n[indent]>>>[url=\"http://<?= $psconfig['routes']['client'] ?>/replay/battle-<?php echo $name ?>\"][size=\"3\"]Click to [b]watch this replay[/b]![/size][/url]<<<[/indent]";
 	$('#warstory').prepend('<textarea rows="20" cols="90"></textarea>');
 	$('#warstory textarea').text(bbcode);
 }

@@ -1,12 +1,14 @@
 <?php
 $config = array();
 
+require_once __DIR__ . '/config/config.inc.php';
+
 $host = strtolower(strval(@$_REQUEST['host']));
 if (preg_match('/^([a-z0-9-_\.]*?)\.psim\.us$/', $host, $m)) {
 	$config['host'] = $m[1];
 	if ($config['host'] === 'logs') die; // not authorised
 	if ($config['host'] === 'sim') die; // not authorised
-} else if ($host === 'play.pokemonshowdown.com') {
+} else if ($host === $psconfig['routes']['client']) {
 	$config['host'] = 'showdown';
 } else {
 	die; // not authorised
@@ -17,7 +19,7 @@ $portType = ($protocol === 'http:' ? 'port' : 'httpsport');
 if ($protocol === 'https:') $config['https'] = true;
 
 if ($config['host'] !== 'showdown') {
-	include_once '../pokemonshowdown.com/config/servers.inc.php';
+	include_once __DIR__ . '/config/servers.inc.php';
 
 	$hyphenpos = strrpos($config['host'], '-');
 	if ($hyphenpos) {
@@ -102,7 +104,7 @@ header('P3P: CP="NOI CUR ADM DEV COM NAV STA OUR IND"');
 var configHost = <?php echo json_encode($config['host']) ?>;
 var config = <?php echo json_encode(json_encode($config)) ?>;
 var yourOrigin = <?php echo json_encode($protocol . '//' . $host) ?>;
-var myOrigin = 'https://play.pokemonshowdown.com';
+var myOrigin = 'https://<?php echo $psconfig['routes']['client'] ?>';
 
 function postReply (message) {
 	if (window.parent.postMessage === postReply) return;

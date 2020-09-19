@@ -38,6 +38,7 @@
 			// details
 			'change .detailsform input': 'detailsChange',
 			'change .detailsform select': 'detailsChange',
+			'submit .detailsform': 'detailsChange',
 			'click .changeform' : 'altForm',
 			'click .altform' : 'altForm',
 
@@ -797,7 +798,9 @@
 			this.update();
 		},
 		pokepasteExport: function () {
-			document.getElementById("pasteData").value = Storage.exportTeam(this.curSetList);
+			var team = Storage.exportTeam(this.curSetList);
+			if (!team) return app.addPopupMessage("Add a Pokémon to your team before uploading it!");
+			document.getElementById("pasteData").value = team;
 			document.getElementById("pasteTitle").value = this.curTeam.name;
 			document.getElementById("pasteAuthor").value = app.user.get('name');
 			document.getElementById("pokepasteForm").submit();
@@ -828,7 +831,7 @@
 			var urlprefix = "data:text/plain;base64,";
 			if (document.location.protocol === 'https:') {
 				// Chrome is dumb and doesn't support data URLs in HTTPS
-				urlprefix = "https://play.pokemonshowdown.com/action.php?act=dlteam&team=";
+				urlprefix = "https://" + Config.routes.client + "/action.php?act=dlteam&team=";
 			}
 			var contents = Storage.exportTeam(team.team).replace(/\n/g, '\r\n');
 			var downloadurl = "text/plain:" + filename + ":" + urlprefix + encodeURIComponent(window.btoa(unescape(encodeURIComponent(contents))));
@@ -1174,6 +1177,11 @@
 						buf += '<span class="detailcell"><label>HP Type</label>' + (set.hpType || 'Dark') + '</span>';
 					}
 				}
+				if (this.curTeam.gen === 8) {
+					if (species.canGigantamax || species.name.indexOf('-Gmax') >= 0) {
+						buf += '<span class="detailcell"><label>Gmax</label>' + (set.gigantamax ? 'Yes' : 'No') + '</span>';
+					}
+				}
 			}
 			buf += '</button></div></div>';
 
@@ -1406,18 +1414,18 @@
 			var buf = '';
 			for (var i = 0; i < this.clipboardCount(); i++) {
 				var res = this.clipboard[i];
-				var species = Dex.getSpecies(res.name);
+				var species = Dex.getSpecies(res.species);
 
 				buf += '<div class="result" data-id="' + i + '">';
-				buf += '<div class="section"><span class="icon" style="' + Dex.getPokemonIcon(res.name) + '"></span>';
-				buf += '<span class="species">' + (species.name === species.baseSpecies ? species.name : (species.baseSpecies + '-<small>' + species.name.substr(species.baseSpecies.length + 1) + '</small>')) + '</span></div>';
-				buf += '<div class="section"><span class="ability-item">' + (res.ability || '<i>No ability</i>') + '<br />' + (res.item || '<i>No item</i>') + '</span></div>';
+				buf += '<div class="section"><span class="icon" style="' + Dex.getPokemonIcon(species.name) + '"></span>';
+				buf += '<span class="species">' + (species.name === species.baseSpecies ? BattleLog.escapeHTML(species.name) : (BattleLog.escapeHTML(species.baseSpecies) + '-<small>' + BattleLog.escapeHTML(species.name.substr(species.baseSpecies.length + 1)) + '</small>')) + '</span></div>';
+				buf += '<div class="section"><span class="ability-item">' + (BattleLog.escapeHTML(res.ability) || '<i>No ability</i>') + '<br />' + (BattleLog.escapeHTML(res.item) || '<i>No item</i>') + '</span></div>';
 				buf += '<div class="section no-border">';
 				for (var j = 0; j < 4; j++) {
 					if (!(j & 1)) {
 						buf += '<span class="moves">';
 					}
-					buf += (res.moves[j] || '<i>No move</i>') + (!(j & 1) ? '<br />' : '');
+					buf += (BattleLog.escapeHTML(res.moves[j]) || '<i>No move</i>') + (!(j & 1) ? '<br />' : '');
 					if (j & 1) {
 						buf += '</span>';
 					}
@@ -1537,7 +1545,7 @@
 			// We fetch this as 'text' and JSON.parse it ourserves in order to have consistent behavior
 			// between the localdev CORS helper and the real jQuery.get function, which would already parse
 			// this into an object based on the content-type header.
-			$.get('https://play.pokemonshowdown.com/data/sets/' + format + '.json', {}, function (data) {
+			$.get('https://' + Config.routes.client + '/data/sets/' + format + '.json', {}, function (data) {
 				try {
 					self.smogonSets[format] = JSON.parse(data);
 				} catch (e) {
@@ -1557,7 +1565,7 @@
 
 			if (!formatSets) return;
 
-			var sets = $.extend({}, formatSets['smogon.com/dex'][species], formatSets['smogon.com/stats'][species]);
+			var sets = $.extend({}, formatSets['dex'][species], formatSets['stats'][species]);
 
 			$setDiv.text('Sample sets: ');
 			for (var set in sets) {
@@ -1570,7 +1578,7 @@
 			var species = this.curSet.species;
 
 			var setName = this.$(button).text();
-			var smogonSet = formatSets['smogon.com/dex'][species][setName] || formatSets['smogon.com/stats'][species][setName];
+			var smogonSet = formatSets['dex'][species][setName] || formatSets['stats'][species][setName];
 			var curSet = $.extend({}, this.curSet, smogonSet);
 
 			var text = Storage.exportTeam([curSet]);
@@ -2470,7 +2478,7 @@
 			buf += '<div class="resultheader"><h3>Details</h3></div>';
 			buf += '<form class="detailsform">';
 
-			buf += '<div class="formrow"><label class="formlabel">Level:</label><div><input type="number" min="1" max="100" step="1" name="level" value="' + BattleLog.escapeHTML(set.level || 100) + '" class="textbox inputform numform" /></div></div>';
+			buf += '<div class="formrow"><label class="formlabel">Level:</label><div><input type="number" min="1" max="100" step="1" name="level" value="' + (typeof set.level === 'number' ? set.level : 100) + '" class="textbox inputform numform" /></div></div>';
 
 			if (this.curTeam.gen > 1) {
 				buf += '<div class="formrow"><label class="formlabel">Gender:</label><div>';
@@ -2498,6 +2506,19 @@
 				buf += '<label><input type="radio" name="shiny" value="yes"' + (set.shiny ? ' checked' : '') + ' /> Yes</label> ';
 				buf += '<label><input type="radio" name="shiny" value="no"' + (!set.shiny ? ' checked' : '') + ' /> No</label>';
 				buf += '</div></div>';
+
+				if (species.canGigantamax) {
+					buf += '<div class="formrow"><label class="formlabel">Gigantamax:</label></div>';
+					buf += '<label><input type="radio" name="gigantamax" value="yes"' + (set.gigantamax ? ' checked' : '') + ' /> Yes</label> ';
+					buf += '<label><input type="radio" name="gigantamax" value="no"' + (!set.gigantamax ? ' checked' : '') + ' /> No</label>';
+					buf += '</div></div>';
+				}
+				if (species.name.indexOf('-Gmax') >= 0) {
+					buf += '<div class="formrow"><label class="formlabel">Gigantamax:</label></div>';
+					buf += '<label><input type="radio" name="gigantamax" value="yes" checked /> Yes</label> ';
+					buf += '<label><input type="radio" name="gigantamax" value="no" /> No</label>';
+					buf += '</div></div>';
+				}
 			}
 
 			if (this.curTeam.gen > 2) {
@@ -2528,9 +2549,12 @@
 
 			this.$chart.html(buf);
 		},
-		detailsChange: function () {
+		detailsChange: function (e) {
+			e.preventDefault();
+			e.stopPropagation();
 			var set = this.curSet;
 			if (!set) return;
+			var species = Dex.getSpecies(set.species);
 			var isLetsGo = this.curTeam.format.includes('letsgo');
 			var isNatDex = this.curTeam.format.includes('nationaldex');
 
@@ -2553,6 +2577,14 @@
 				set.shiny = true;
 			} else {
 				delete set.shiny;
+			}
+
+			// gigantamax
+			var gmax = (this.$chart.find('input[name=gigantamax]:checked').val() === 'yes');
+			if (gmax) {
+				set.gigantamax = true;
+			} else {
+				delete set.gigantamax;
 			}
 
 			// gender
@@ -2596,6 +2628,13 @@
 				}
 				buf += '<span class="detailcell"><label>Shiny</label>' + (set.shiny ? 'Yes' : 'No') + '</span>';
 				if (!isLetsGo && (this.curTeam.gen < 8 || isNatDex)) buf += '<span class="detailcell"><label>HP Type</label>' + (set.hpType || 'Dark') + '</span>';
+				if (this.curTeam.gen === 8) {
+					if (species.canGigantamax) {
+						buf += '<span class="detailcell"><label>Gmax</label>' + (set.gigantamax ? 'Yes' : 'No') + '</span>';
+					} else if (species.name.indexOf('-Gmax') >= 0) {
+						buf += '<span class="detailcell"><label>Gmax</label>Yes</span>';
+					}
+				}
 			}
 			this.$('button[name=details]').html(buf);
 
@@ -2817,6 +2856,7 @@
 				set.gender = 'F';
 				if (set.happiness) delete set.happiness;
 				if (set.shiny) delete set.shiny;
+				if (set.gigantamax) delete set.gigantamax;
 				set.item = 'Starf Berry';
 				set.ability = 'Harvest';
 				set.moves = ['Substitute', 'Horn Leech', 'Earthquake', 'Phantom Force'];
@@ -2841,6 +2881,7 @@
 				}
 				if (set.happiness) delete set.happiness;
 				if (set.shiny) delete set.shiny;
+				if (set.gigantamax) delete set.gigantamax;
 				set.item = 'Leftovers';
 				set.ability = 'Battle Armor';
 				set.moves = ['Acupressure', 'Knock Off', 'Rest', 'Sleep Talk'];
@@ -3054,6 +3095,7 @@
 			if (species.gender && species.gender !== 'N') set.gender = species.gender;
 			if (set.happiness) delete set.happiness;
 			if (set.shiny) delete set.shiny;
+			if (set.gigantamax) delete set.gigantamax;
 			if (this.curTeam.format.indexOf('hackmons') < 0) {
 				set.item = (species.requiredItem || '');
 			} else {

@@ -29,6 +29,7 @@ function ThemeHeaderTemplate() {
 	<link rel="stylesheet" href="//pokemonshowdown.com/theme/main.css" />
 	<link rel="stylesheet" href="//play.pokemonshowdown.com/style/battle.css?" />
 	<link rel="stylesheet" href="//play.pokemonshowdown.com/style/replay.css?" />
+	<link rel="stylesheet" href="//play.pokemonshowdown.com/style/utilichart.css?" />
 
 	<!-- Workarounds for IE bugs to display trees correctly. -->
 	<!--[if lte IE 6]><style> li.tree { height: 1px; } </style><![endif]-->
@@ -87,10 +88,7 @@ function ThemeFooterTemplate() {
 
 	<script src="//play.pokemonshowdown.com/js/lib/jquery-cookie.js"></script>
 	<script src="//play.pokemonshowdown.com/js/lib/html-sanitizer-minified.js"></script>
-	<script src="//play.pokemonshowdown.com/js/lib/soundmanager2-nodebug-jsmin.js?"></script>
-	<script>
-		soundManager.setup({url: '//play.pokemonshowdown.com/swf/'});
-	</script>
+	<script src="//play.pokemonshowdown.com/js/battle-sound.js?"></script>
 	<script src="//play.pokemonshowdown.com/config/config.js?"></script>
 	<script src="//play.pokemonshowdown.com/js/battledata.js?"></script>
 	<script src="//play.pokemonshowdown.com/data/pokedex-mini.js?"></script>

@@ -15,12 +15,14 @@ function requireScript(url) {
 linkStyle('https://play.pokemonshowdown.com/style/font-awesome.css?');
 linkStyle('https://play.pokemonshowdown.com/style/battle.css?a7');
 linkStyle('https://play.pokemonshowdown.com/style/replay.css?a7');
+linkStyle('https://play.pokemonshowdown.com/style/utilichart.css?a7');
 
+requireScript('https://play.pokemonshowdown.com/js/lib/ps-polyfill.js');
+requireScript('https://play.pokemonshowdown.com/config/config.js?a7');
 requireScript('https://play.pokemonshowdown.com/js/lib/jquery-1.11.0.min.js');
 requireScript('https://play.pokemonshowdown.com/js/lib/lodash.compat.js');
 requireScript('https://play.pokemonshowdown.com/js/lib/html-sanitizer-minified.js');
-requireScript('https://play.pokemonshowdown.com/js/lib/soundmanager2-nodebug-jsmin.js');
-requireScript('https://play.pokemonshowdown.com/js/config.js?a7');
+requireScript('https://play.pokemonshowdown.com/js/battle-sound.js');
 requireScript('https://play.pokemonshowdown.com/js/battledata.js?a7');
 requireScript('https://play.pokemonshowdown.com/data/pokedex-mini.js?a7');
 requireScript('https://play.pokemonshowdown.com/data/pokedex-mini-bw.js?a7');
@@ -66,16 +68,11 @@ var Replays = {
 		// eslint-disable-next-line no-self-assign
 		if (rc2) rc2.innerHTML = rc2.innerHTML;
 
-		if (window.soundManager && soundManager.ready) this.soundReady();
+		if (window.HTMLAudioElement) $('.soundchooser, .startsoundchooser').show();
 		this.reset();
 	},
 	"$": function (sel) {
 		return this.$el.find(sel);
-	},
-	soundReady: function () {
-		if (Replays.isSoundReady) return;
-		Replays.isSoundReady = true;
-		$('.soundchooser, .startsoundchooser').show();
 	},
 	clickChangeSetting: function (e) {
 		e.preventDefault();

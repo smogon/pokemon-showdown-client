@@ -1,0 +1,118 @@
+# -FrontPage-
+
+IndexIgnore .htaccess */.??* *~ *# */HEADER* */README* */_vti*
+
+<Limit GET POST>
+order deny,allow
+deny from all
+allow from all
+</Limit>
+<Limit PUT DELETE>
+order deny,allow
+deny from all
+</Limit>
+AuthName pokemonshowdown.com
+AuthUserFile /home/pokemon/public_html/_vti_pvt/service.pwd
+AuthGroupFile /home/pokemon/public_html/_vti_pvt/service.grp
+
+AddType text/plain .phps
+AddType application/octet-stream .heapsnapshot
+AddType application/x-tgz .tgz
+AddType application/x-chrome-extension .crx
+AddType application/x-web-app-manifest+json .webapp
+
+<Files ~ "\.md$">
+    Header set Content-Type "text/markdown; charset=utf-8"
+</Files>
+
+<IfModule mod_rewrite.c>
+RewriteEngine on
+
+RewriteCond %{HTTP:X-Forwarded-Proto} ^http$
+RewriteCond %{QUERY_STRING} !^insecure [NC]
+RewriteRule ^(.*)$ https://pokemonshowdown.com/$1 [R=302,NE,L]
+
+RewriteCond %{HTTP_HOST} ^(www\.)?forum\.pokemonshowdown\.com$ [NC]
+RewriteRule ^(.*)$ https://pokemonshowdown.com/forums/ [R=301,NE,L]
+
+RewriteCond %{HTTP_HOST} !^pokemonshowdown\.com$
+RewriteRule ^(.*)$ https://pokemonshowdown.com/$1 [R=301,NE,L]
+
+RewriteRule ^secure$ ./ [L,QSA]
+
+RewriteRule ^privacy$ /.pages-cached/privacy.html [L,QSA]
+RewriteRule ^rules/?$ /.pages-cached/rules.html [L,QSA]
+RewriteRule ^contact/?$ /.pages-cached/contact.html [L,QSA]
+RewriteRule ^credits$ credits.php [L,QSA]
+RewriteRule ^userstats$ userstats.php [L,QSA]
+RewriteRule ^interstice$ interstice.php [L,QSA]
+RewriteRule ^versions$ versions.php [L,QSA]
+RewriteRule ^intro$ intro.php [L,QSA]
+RewriteRule ^news/version0.9/?$ news/version0.9.php [L,QSA]
+RewriteRule ^news/june2013attack/?$ news/june2013attack.php [L]
+RewriteRule ^news/([0-9]+)/?$ news/view.php?id=$1 [L]
+RewriteRule ^news/?([0-9]*)\.json$ news/viewjson.php?id=$1 [L,QSA]
+RewriteRule ^ladder/(.*)\.json$ ladder.php?format=$1&json [L,QSA]
+RewriteRule ^ladder/?(.*)$ ladder.php?format=$1 [L,QSA]
+RewriteRule ^users/?$ users.php [L,QSA]
+RewriteRule ^users/(.*)\.json$ users.php?user=$1&json [L,QSA]
+RewriteRule ^users/(.*)/modlog$ usermodlog.php?user=$1 [L,QSA]
+RewriteRule ^users/(.*)$ users.php?user=$1 [L,QSA]
+RewriteRule ^usersearch/?$ usersearch.php [L,QSA]
+RewriteRule ^resetpassword/?(.*)$ resetpassword.php?token=$1 [L,QSA]
+RewriteRule ^damagecalc/wall\/?$ https://calc.pokemonshowdown.com/honkalculate.html?mode=all-vs-one [R=302,L,QSA]
+RewriteRule ^damagecalc/coverage\/?$ https://calc.pokemonshowdown.com/honkalculate.html?mode=one-vs-all [R=302,L,QSA]
+RewriteRule ^damagecalc\/(.*)$ https://calc.pokemonshowdown.com/$1 [R=302,L,QSA]
+RewriteRule ^damagecalc$ https://calc.pokemonshowdown.com/ [R=302,L,QSA]
+RewriteRule ^pages/([a-z0-9-]+)/?$ /.pages-cached/$1.html [L,QSA]
+
+# RewriteRule ^battle-([A-Za-z0-9-]+)?$ /replay/$1 [R=302,L]
+
+RewriteRule ^autodownload\/?([A-Za-z0-9-]+)?$ autodownload.php?os=$1 [L,QSA]
+
+RewriteRule ^servers\/?([A-Za-z0-9-]+)?$ servers.php?id=$1 [L,QSA]
+RewriteRule ^servers\/([A-Za-z0-9-]+)\.json$ servers.php?id=$1&json [L,QSA]
+
+# RewriteRule ^replay\/?search/?$ replay/search.php [L,QSA]
+# RewriteRule ^replay\/?([A-Za-z0-9-]+)$ replay/battle.php?name=$1 [L,QSA]
+
+RewriteRule ^replay\/(.*)$ http://replay.pokemonshowdown.com/$1 [R=302,L]
+RewriteRule ^dex\/(.*)$ http://dex.pokemonshowdown.com/$1 [R=302,L]
+RewriteRule ^pokedex\/(.*)$ http://dex.pokemonshowdown.com/$1 [R=302,L]
+
+RewriteRule ^forums?\/?(index\.php)?$ http://smogon.com/forums/ [R=302,L]
+RewriteRule ^forums\/.*$ forums/moved.php [L]
+
+RewriteRule ^appeals?\/?$ https://play.pokemonshowdown.com/view-help-request--appeal [R=302,L]
+RewriteRule ^report\/?$ https://play.pokemonshowdown.com/view-help-request--report [R=302,L]
+RewriteRule ^help\/?$ https://play.pokemonshowdown.com/help [R=302,L]
+RewriteRule ^rooms?suggestions?\/?$ http://www.smogon.com/forums/threads/room-suggestions-are-no-longer-being-taken.3522130/ [R=302,L]
+RewriteRule ^suggestions?\/?$ http://www.smogon.com/forums/threads/suggestions.3534365/ [R=302,L]
+RewriteRule ^adminrequests?\/?$ http://www.smogon.com/forums/threads/names-rooms-and-servers-contacting-senior-staff.3538721/ [R=302,L]
+RewriteRule ^bugs?(reports?)?\/?$ http://www.smogon.com/forums/threads/bug-reports-v2-0-read-op-before-posting.3469932/ [R=302,L]
+RewriteRule ^faq\/?$ http://www.smogon.com/forums/posts/6774128/ [R=302,L]
+
+RewriteRule ^whatismyip$ whatismyip.php [L,QSA]
+RewriteRule ^stats$ stats.php [L,QSA]
+
+RewriteRule ^topsekritsim\.php$ /lobby [R=301,L]
+RewriteRule ^topsekrit3\.php$ /lobby [R=301,L]
+RewriteRule ^temporary508\.php$ /lobby [R=301,L]
+RewriteRule ^temporary508\.php$ /lobby [R=301,L]
+
+RewriteRule ^standalone\-teambuilder/?$ teambuilder.php [L,QSA]
+
+RewriteRule ^user(/.*)?$ /users$1 [R=301,L]
+RewriteRule ^sprites(/.*)?$ https://play.pokemonshowdown.com/sprites$1 [R=301,L]
+RewriteRule ^audio(/.*)?$ https://play.pokemonshowdown.com/audio$1 [R=301,L]
+RewriteRule ^fx(/.*)?$ https://play.pokemonshowdown.com/fx$1 [R=301,L]
+RewriteRule ^pokemonshowdownbeta\.png$ https://play.pokemonshowdown.com/pokemonshowdownbeta.png [R=301,L]
+
+RewriteRule ^config/ - [F]
+RewriteRule ^\.git/ - [F]
+RewriteRule ^lib/ - [F]
+
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteRule ^(apple-touch-icon-precomposed\.png)$ - [R=404,L]
+
+</IfModule>

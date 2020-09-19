@@ -1,15 +1,3 @@
-Config.origindomain = 'play.pokemonshowdown.com';
-// `defaultserver` specifies the server to use when the domain name in the
-// address bar is `Config.origindomain`.
-Config.defaultserver = {
-	id: 'showdown',
-	host: 'sim3.psim.us',
-	port: 443,
-	httpport: 8000,
-	altport: 80,
-	registered: true
-};
-
 function Storage() {}
 
 Storage.initialize = function () {
@@ -64,7 +52,7 @@ Storage.bg = {
 		if (!bgid) {
 			if (location.host === 'smogtours.psim.us') {
 				bgid = 'shaymin';
-			} else if (location.host === 'play.pokemonshowdown.com') {
+			} else if (location.host === Config.routes.client) {
 				bgid = ['horizon', 'ocean', 'waterfall', 'shaymin', 'charizards', 'psday'][Math.floor(Math.random() * 6)];
 			} else {
 				$(document.body).css({
@@ -120,7 +108,7 @@ Storage.bg = {
 				break;
 			case 'psday':
 				hues = ["24.705882352941174,25.37313432835821%", "260.4651162790697,59.44700460829492%", "165.3191489361702,46.07843137254901%", "16.363636363636367,42.63565891472869%", "259.04761904761904,34.05405405405405%", "24.705882352941174,25.37313432835821%"];
-				attrib = '<a href="https://pokemonshowdown.com/news/216" target="_blank" class="subtle">Pokemon Showdown Day!</a>';
+				attrib = 'Pok&eacute;mon Showdown Day background <small>by LifeisDANK</small>';
 				break;
 			case 'digimon':
 				hues = ["170.45454545454544,27.500000000000004%", "84.70588235294119,13.821138211382115%", "112.50000000000001,7.8431372549019605%", "217.82608695652175,54.761904761904766%", "0,1.6949152542372816%", ""];
@@ -226,7 +214,7 @@ if (!Storage.bg.id) {
 // localStorage is banned, and since prefs are cached in other
 // places in certain cases.
 
-Storage.origin = 'https://play.pokemonshowdown.com';
+Storage.origin = 'https://' + Config.routes.client;
 
 Storage.prefs = function (prop, value, save) {
 	if (value === undefined) {
@@ -357,9 +345,9 @@ Storage.initPrefs = function () {
 
 	$(window).on('message', Storage.onMessage);
 
-	if (document.location.hostname !== Config.origindomain) {
+	if (document.location.hostname !== Config.routes.client) {
 		$(
-			'<iframe src="https://play.pokemonshowdown.com/crossdomain.php?host=' +
+			'<iframe src="https://' + Config.routes.client + '/crossdomain.php?host=' +
 			encodeURIComponent(document.location.hostname) +
 			'&path=' + encodeURIComponent(document.location.pathname.substr(1)) +
 			'&protocol=' + encodeURIComponent(document.location.protocol) +
@@ -368,7 +356,7 @@ Storage.initPrefs = function () {
 	} else {
 		Config.server = Config.server || Config.defaultserver;
 		$(
-			'<iframe src="https://play.pokemonshowdown.com/crossprotocol.html?v1.2" style="display: none;"></iframe>'
+			'<iframe src="https://' + Config.routes.client + '/crossprotocol.html?v1.2" style="display: none;"></iframe>'
 		).appendTo('body');
 		setTimeout(function () {
 			// HTTPS may be blocked
@@ -397,7 +385,7 @@ Storage.onMessage = function ($e) {
 		Config.server = JSON.parse(data.substr(1));
 		if (Config.server.registered && Config.server.id !== 'showdown' && Config.server.id !== 'smogtours') {
 			var $link = $('<link rel="stylesheet" ' +
-				'href="//play.pokemonshowdown.com/customcss.php?server=' +
+				'href="//' + Config.routes.client + '/customcss.php?server=' +
 				encodeURIComponent(Config.server.id) + '" />');
 			$('head').append($link);
 		}
@@ -432,7 +420,7 @@ Storage.onMessage = function ($e) {
 
 			// in Safari, cross-origin local storage is apparently treated as session
 			// storage, so mirror the storage in the current origin just in case
-			if (document.location.hostname === Config.origindomain) {
+			if (document.location.hostname === Config.routes.client) {
 				try {
 					localStorage.setItem('showdown_teams_local', packedTeams);
 				} catch (e) {}
@@ -647,7 +635,7 @@ Storage.unpackAllTeams = function (buffer) {
 	if (buffer.charAt(0) === '[' && $.trim(buffer).indexOf('\n') < 0) {
 		// old format
 		return JSON.parse(buffer).map(function (oldTeam) {
-			var format = oldTeam.format || 'gen7';
+			var format = oldTeam.format || 'gen8';
 			if (format && format.slice(0, 3) !== 'gen') format = 'gen6' + format;
 			return {
 				name: oldTeam.name || '',
@@ -669,7 +657,7 @@ Storage.unpackLine = function (line) {
 	if (bracketIndex > pipeIndex) bracketIndex = -1;
 	var slashIndex = line.lastIndexOf('/', pipeIndex);
 	if (slashIndex < 0) slashIndex = bracketIndex; // line.slice(slashIndex + 1, pipeIndex) will be ''
-	var format = bracketIndex > 0 ? line.slice(0, bracketIndex) : 'gen7';
+	var format = bracketIndex > 0 ? line.slice(0, bracketIndex) : 'gen8';
 	if (format && format.slice(0, 3) !== 'gen') format = 'gen6' + format;
 	return {
 		name: line.slice(slashIndex + 1, pipeIndex),
@@ -772,9 +760,10 @@ Storage.packTeam = function (team) {
 			buf += '|';
 		}
 
-		if (set.pokeball || (set.hpType && !hasHP)) {
+		if (set.pokeball || (set.hpType && !hasHP) || set.gigantamax) {
 			buf += ',' + (set.hpType || '');
 			buf += ',' + toID(set.pokeball);
+			buf += ',' + (set.gigantamax ? 'G' : '');
 		}
 	}
 
@@ -879,14 +868,15 @@ Storage.fastUnpackTeam = function (buf) {
 		j = buf.indexOf(']', i);
 		var misc = undefined;
 		if (j < 0) {
-			if (i < buf.length) misc = buf.substring(i).split(',', 3);
+			if (i < buf.length) misc = buf.substring(i).split(',', 4);
 		} else {
-			if (i !== j) misc = buf.substring(i, j).split(',', 3);
+			if (i !== j) misc = buf.substring(i, j).split(',', 4);
 		}
 		if (misc) {
 			set.happiness = (misc[0] ? Number(misc[0]) : 255);
 			set.hpType = misc[1];
 			set.pokeball = misc[2];
+			set.gigantamax = !!misc[3];
 		}
 		if (j < 0) break;
 		i = j + 1;
@@ -994,14 +984,15 @@ Storage.unpackTeam = function (buf) {
 		j = buf.indexOf(']', i);
 		var misc = undefined;
 		if (j < 0) {
-			if (i < buf.length) misc = buf.substring(i).split(',', 3);
+			if (i < buf.length) misc = buf.substring(i).split(',', 4);
 		} else {
-			if (i !== j) misc = buf.substring(i, j).split(',', 3);
+			if (i !== j) misc = buf.substring(i, j).split(',', 4);
 		}
 		if (misc) {
 			set.happiness = (misc[0] ? Number(misc[0]) : 255);
 			set.hpType = misc[1];
 			set.pokeball = misc[2];
+			set.gigantamax = !!misc[3];
 		}
 		if (j < 0) break;
 		i = j + 1;
@@ -1100,7 +1091,7 @@ Storage.importTeam = function (buffer, teams) {
 		} else if (line.substr(0, 3) === '===' && teams) {
 			team = [];
 			line = $.trim(line.substr(3, line.length - 6));
-			var format = 'gen7';
+			var format = 'gen8';
 			var bracketIndex = line.indexOf(']');
 			if (bracketIndex >= 0) {
 				format = line.substr(1, bracketIndex - 1);
@@ -1174,6 +1165,8 @@ Storage.importTeam = function (buffer, teams) {
 		} else if (line.substr(0, 14) === 'Hidden Power: ') {
 			line = line.substr(14);
 			curSet.hpType = line;
+		} else if (line === 'Gigantamax: Yes') {
+			curSet.gigantamax = true;
 		} else if (line.substr(0, 5) === 'EVs: ') {
 			line = line.substr(5);
 			var evLines = line.split('/');
@@ -1291,6 +1284,9 @@ Storage.exportTeam = function (team) {
 		}
 		if (curSet.hpType) {
 			text += 'Hidden Power: ' + curSet.hpType + "  \n";
+		}
+		if (curSet.gigantamax) {
+			text += 'Gigantamax: Yes  \n';
 		}
 		var first = true;
 		if (curSet.evs) {

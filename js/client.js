@@ -190,7 +190,7 @@ function toId() {
 			this.normalizeList = normalizeList;
 		},
 		updateSetting: function (setting, value) {
-			var settings = this.get('settings');
+			var settings = _.clone(this.get('settings'));
 			if (settings[setting] !== value) {
 				switch (setting) {
 				case 'blockPMs':
@@ -199,9 +199,13 @@ function toId() {
 				case 'blockChallenges':
 					app.send(value ? '/blockchallenges' : '/unblockchallenges');
 					break;
+				case 'language':
+					app.send('/language ' + value);
+					break;
 				default:
 					throw new TypeError('Unknown setting:' + setting);
 				}
+				// Optimistically update, might get corrected by the |updateuser| response
 				settings[setting] = value;
 				this.set('settings', settings);
 			}
@@ -214,7 +218,7 @@ function toId() {
 		getActionPHP: function () {
 			var ret = '/~~' + Config.server.id + '/action.php';
 			if (Config.testclient) {
-				ret = 'https://' + Config.origindomain + ret;
+				ret = 'https://' + Config.routes.client + ret;
 			}
 			return (this.getActionPHP = function () {
 				return ret;
@@ -372,7 +376,7 @@ function toId() {
 			app.socket.close();
 		},
 		setPersistentName: function (name) {
-			if (location.host !== 'play.pokemonshowdown.com') return;
+			if (location.host !== Config.routes.client) return;
 			$.cookie('showdown_username', (name !== undefined) ? name : this.get('name'), {
 				expires: 14
 			});
@@ -408,7 +412,7 @@ function toId() {
 			// 		type: 'modal'
 			// 	});
 			} else {
-				if (document.location.hostname === 'play.pokemonshowdown.com' || Config.testclient) {
+				if (document.location.hostname === Config.routes.client || Config.testclient) {
 					this.addRoom('rooms', null, true);
 				} else {
 					this.addRoom('lobby', null, true);
@@ -509,10 +513,7 @@ function toId() {
 
 				if (showNotification !== false && (self.popups.length || !self.focused) && window.Notification) {
 					self.rooms[''].requestNotifications();
-					var disconnect = new Notification("Disconnected!", {lang: 'en', body: "You have been disconnected from Pokémon Showdown."});
-					disconnect.onclick = function (e) {
-						window.focus();
-					};
+					self.rooms[''].notifyOnce("Disconnected", "You have been disconnected from Pokémon Showdown.", 'disconnected');
 				}
 
 				self.rooms[''].updateFormats();
@@ -889,7 +890,7 @@ function toId() {
 				} else if (data === 'nonexistent' && Config.server.id && roomid.slice(0, 7) === 'battle-' && errormessage) {
 					var replayid = roomid.slice(7);
 					if (Config.server.id !== 'showdown') replayid = Config.server.id + '-' + replayid;
-					var replayLink = 'https://replay.pokemonshowdown.com/' + replayid;
+					var replayLink = 'https://' + Config.routes.replays + '/' + replayid;
 					$.ajax(replayLink + '.json', {dataType: 'json'}).done(function (replay) {
 						if (replay) {
 							var title = BattleLog.escapeHTML(replay.p1) + ' vs. ' + BattleLog.escapeHTML(replay.p2);
@@ -987,7 +988,7 @@ function toId() {
 					}, function () {}, 'text');
 				}
 
-				var settings = app.user.get('settings');
+				var settings = _.clone(app.user.get('settings'));
 				if (parts.length > 4) {
 					// Update our existing settings based on what the server has sent us.
 					// This approach is more robust as it works regardless of whether the
@@ -1281,6 +1282,7 @@ function toId() {
 			if (serverid && serverid !== 'showdown') id = serverid + '-' + id;
 			$.post(app.user.getActionPHP() + '?act=uploadreplay', {
 				log: data.log,
+				password: data.password || '',
 				id: id
 			}, function (data) {
 				if (silent) return;
@@ -1309,13 +1311,13 @@ function toId() {
 				if (this.className === 'closebutton') return; // handled elsewhere
 				if (this.className.indexOf('minilogo') >= 0) return; // handled elsewhere
 				if (!this.href) return; // should never happen
-				var isReplayLink = this.host === 'replay.pokemonshowdown.com' && Config.server.id === 'showdown';
+				var isReplayLink = this.host === Config.routes.replays && Config.server.id === 'showdown';
 				if ((
-					isReplayLink || ['play.pokemonshowdown.com', 'psim.us', location.host].includes(this.host)
+					isReplayLink || [Config.routes.client, 'psim.us', location.host].includes(this.host)
 				) && this.className !== 'no-panel-intercept') {
 					if (!e.cmdKey && !e.metaKey && !e.ctrlKey) {
 						var target = this.pathname.substr(1);
-						var shortLinks = /^(rooms?suggestions?|suggestions?|adminrequests?|bugs?|bugreports?|rules?|faq|credits?|news|privacy|contact|dex|insecure|replays?|forgotpassword)$/;
+						var shortLinks = /^(rooms?suggestions?|suggestions?|adminrequests?|bugs?|bugreports?|rules?|faq|credits?|news|privacy|contact|dex|insecure|replays?|forgotpassword|devdiscord)$/;
 						if (target === 'appeal' || target === 'appeals') target = 'view-help-request--appeal';
 						if (target === 'report') target = 'view-help-request--report';
 						if (isReplayLink) {
@@ -1388,7 +1390,7 @@ function toId() {
 					this.fixedWidth = true;
 				}
 			}
-			if (!app.roomsFirstOpen && !this.down && $(window).width() >= 916 && document.location.hostname === 'play.pokemonshowdown.com') {
+			if (!app.roomsFirstOpen && !this.down && $(window).width() >= 916 && document.location.hostname === Config.routes.client) {
 				this.addRoom('rooms');
 			}
 			this.updateLayout();
@@ -1741,6 +1743,7 @@ function toId() {
 				return false;
 			}
 			room.id = newid;
+			if (room.battle) room.battle.roomid = newid;
 			room.title = newtitle;
 			room.$el[0].id = 'room-' + newid;
 			this.rooms[newid] = room;
@@ -1857,7 +1860,7 @@ function toId() {
 				autojoins.push(room.id.indexOf('-') >= 0 ? room.id : (room.title || room.id));
 				if (room.id === 'staff' || room.id === 'upperstaff' || (Config.server.id !== 'showdown' && room.id === 'lobby')) continue;
 				autojoinCount++;
-				if (autojoinCount >= 10) break;
+				if (autojoinCount >= 15) break;
 			}
 			var curAutojoin = (Dex.prefs('autojoin') || '');
 			if (typeof curAutojoin !== 'string') {
@@ -1887,6 +1890,12 @@ function toId() {
 				}
 			}
 			Dex.prefs('autojoin', curAutojoin);
+		},
+
+		playNotificationSound: function () {
+			if (window.BattleSound && !Dex.prefs('mute')) {
+				BattleSound.playSound('audio/notification.wav', Dex.prefs('notifvolume'));
+			}
 		},
 
 		/*********************************************************
@@ -2391,7 +2400,17 @@ function toId() {
 
 		close: function () {
 			app.closePopup();
-		}
+		},
+
+		register: function () {
+			var registered = app.user.get('registered');
+			app.closePopup();
+			if (!registered || registered.userid !== app.user.get('userid')) {
+				app.addPopup(RegisterPopup);
+			} else {
+				app.addPopupMessage("You are already registered!");
+			}
+		},
 	});
 
 	var PromptPopup = this.PromptPopup = Popup.extend({
@@ -2419,13 +2438,13 @@ function toId() {
 			type: 'leadership',
 			order: 10001
 		},
-		'&': {
-			name: "Leader (&amp;)",
+		'#': {
+			name: "Room Owner (#)",
 			type: 'leadership',
 			order: 10002
 		},
-		'#': {
-			name: "Room Owner (#)",
+		'&': {
+			name: "Administrator (&amp;)",
 			type: 'leadership',
 			order: 10003
 		},
@@ -2506,32 +2525,34 @@ function toId() {
 			var userid = data.userid;
 			var name = data.name;
 			var avatar = data.avatar || '';
-			var group = ((Config.groups[data.roomGroup] || {}).name || '');
-			var globalgroup = ((Config.groups[(data.group || Config.defaultGroup || ' ')] || {}).name || '');
-			if (globalgroup) {
-				if (!group || group === globalgroup) {
-					group = "Global " + globalgroup;
-					globalgroup = '';
+			var groupName = ((Config.groups[data.roomGroup] || {}).name || '');
+			var globalGroup = (Config.groups[data.group || Config.defaultGroup || ' '] || null);
+			var globalGroupName = '';
+			if (globalGroup && globalGroup.name) {
+				if (globalGroup.type === 'punishment') {
+					groupName = globalGroup.name;
+				} else if (!groupName || groupName === globalGroup.name) {
+					groupName = "Global " + globalGroup.name;
 				} else {
-					globalgroup = "Global " + globalgroup;
+					globalGroupName = "Global " + globalGroup.name;
 				}
 			}
 			var ownUserid = app.user.get('userid');
 
 			var buf = '<div class="userdetails">';
 			if (avatar) buf += '<img class="trainersprite' + (userid === ownUserid ? ' yours' : '') + '" src="' + Dex.resolveAvatar(avatar) + '" />';
-			buf += '<strong><a href="//pokemonshowdown.com/users/' + userid + '" target="_blank">' + BattleLog.escapeHTML(name) + '</a></strong><br />';
+			buf += '<strong><a href="//' + Config.routes.users + '/' + userid + '" target="_blank">' + BattleLog.escapeHTML(name) + '</a></strong><br />';
 			var offline = data.rooms === false;
 			if (data.status || offline) {
 				var status = offline ? '(Offline)' : data.status.startsWith('!') ? data.status.slice(1) : data.status;
 				buf += '<span class="userstatus' + (offline ? ' offline' : '') + '">' + BattleLog.escapeHTML(status) + '<br /></span>';
 			}
-			if (group) {
-				buf += '<small class="usergroup roomgroup">' + group + '</small>';
-				if (globalgroup) buf += '<br />';
+			if (groupName) {
+				buf += '<small class="usergroup roomgroup">' + groupName + '</small>';
+				if (globalGroupName) buf += '<br />';
 			}
-			if (globalgroup) {
-				buf += '<small class="usergroup globalgroup">' + globalgroup + '</small>';
+			if (globalGroupName) {
+				buf += '<small class="usergroup globalgroup">' + globalGroupName + '</small>';
 			}
 			if (data.rooms) {
 				var battlebuf = '';
@@ -2727,8 +2748,8 @@ function toId() {
 		initialize: function (data) {
 			var buf = '';
 			buf = '<p>Your replay has been uploaded! It\'s available at:</p>';
-			buf += '<p><a href="https://replay.pokemonshowdown.com/' + data.id + '" target="_blank" class="no-panel-intercept">https://replay.pokemonshowdown.com/' + data.id + '</a></p>';
-			buf += '<p><button class="autofocus" name="close">Close</button></p>';
+			buf += '<p> <a class="replay-link" href="https://' + Config.routes.replays + '/' + data.id + '" target="_blank" class="no-panel-intercept">https://' + Config.routes.replays + '/' + data.id + '</a> <button name="copyReplayLink">Copy</button></p>';
+			buf += '<p><button class="autofocus" name="close">Close</button><p>';
 			this.$el.html(buf).css('max-width', 620);
 		},
 		clickClose: function () {
@@ -2736,6 +2757,18 @@ function toId() {
 		},
 		submit: function (i) {
 			this.close();
+		},
+		copyReplayLink: function () {
+			var copyText = this.$(".replay-link")[0];
+			var dummyReplayLink = document.createElement("input");
+			// This is a hack. You can only "select" an input field. The trick is to create a short lived input element and destroy it after a copy.
+			dummyReplayLink.id = "dummyReplayLink";
+			dummyReplayLink.value = copyText.href;
+			dummyReplayLink.style.position = 'absolute';
+			copyText.appendChild(dummyReplayLink);
+			dummyReplayLink.select();
+			document.execCommand("copy");
+			copyText.removeChild(dummyReplayLink);
 		}
 	});
 
@@ -2748,10 +2781,27 @@ function toId() {
 				buf += '<p><strong style="color:red">' + (BattleLog.escapeHTML(data.warning) || 'You have been warned for breaking the rules.') + '</strong></p>';
 			}
 			buf += '<h2>Pok&eacute;mon Showdown Rules</h2>';
-			buf += '<b>Global</b><br /><br /><b>1.</b> Be nice to people. Respect people. Don\'t be rude or mean to people.<br /><br /><b>2.</b> Follow US laws (PS is based in the US). No porn (minors use PS), don\'t distribute pirated material, and don\'t slander others.<br /><br /><b>3.</b>&nbsp;No sex. Don\'t discuss anything sexually explicit, not even in private messages, not even if you\'re both adults.<br /><b></b><br /><b>4.</b>&nbsp;No cheating. Don\'t exploit bugs to gain an unfair advantage. Don\'t game the system (by intentionally losing against yourself or a friend in a ladder match, by timerstalling, etc). Don\'t impersonate staff if you\'re not.<br /><br /><b>5.</b> Moderators have discretion to punish any behaviour they deem inappropriate, whether or not it\'s on this list. If you disagree with a moderator ruling, appeal to a leader (a user with &amp; next to their name) or <a href="https://pokemonshowdown.com/appeal">Discipline Appeals</a>.<br /><br />(Note: The First Amendment does not apply to PS, since PS is not a government organization.)<br /><br />';
-			buf += '<b>Chat</b><br /><br /><b>1.</b> Do not spam, flame, or troll. This includes advertising, raiding, asking questions with one-word answers in the lobby, and flooding the chat such as by copy/pasting logs in the lobby.<br /><br /><b>2.</b> Don\'t call unnecessary attention to yourself. Don\'t be obnoxious. ALL CAPS and <i>formatting</i> are acceptable to emphasize things, but should be used sparingly, not all the time.<br /><br /><b>3.</b> No minimodding: don\'t mod if it\'s not your job. Don\'t tell people they\'ll be muted, don\'t ask for people to be muted, and don\'t talk about whether or not people should be muted ("inb4 mute", etc). This applies to bans and other punishments, too.<br /><br /><b>4.</b> We reserve the right to tell you to stop discussing moderator decisions if you become unreasonable or belligerent.<br /><br /><b>5.</b> English only, unless specified otherwise.<br /><br />(Note: You can opt out of chat rules in private chat rooms and battle rooms, but only if all ROs or players agree to it.)<br /><br />';
+			buf += '<p><b>Global</b></p>' +
+				'<p><b>1.</b> Be nice to people. Respect people. Don\'t be rude or mean to people.</p>' +
+				'<p><b>2.</b> Follow US laws (PS is based in the US). No porn (minors use PS), don\'t distribute pirated material, and don\'t slander others.</p>' +
+				'<p><b>3.</b>&nbsp;No sex. Don\'t discuss anything sexually explicit, not even in private messages, not even if you\'re both adults.</p>' +
+				'<p><b>4.</b>&nbsp;No cheating. Don\'t exploit bugs to gain an unfair advantage. Don\'t game the system (by intentionally losing against yourself or a friend in a ladder match, by timerstalling, etc). Don\'t impersonate staff if you\'re not.</p>' +
+				'<p><b>5.</b> Moderators have discretion to punish any behaviour they deem inappropriate, whether or not it\'s on this list. If you disagree with a moderator ruling, appeal to an administrator (a user with &amp; next to their name) or <a href=\'https://pokemonshowdown.com/appeal\'>Discipline Appeals</a>.</p>' +
+				'<p>(Note: The First Amendment does not apply to PS, since PS is not a government organization.)</p>' +
+				'<p><b>Chat</b></p>' +
+				'<p><b>1.</b> Do not spam, flame, or troll. This includes advertising, raiding, asking questions with one-word answers in the lobby, and flooding the chat such as by copy/pasting logs in the lobby.</p>' +
+				'<p><b>2.</b> Don\'t call unnecessary attention to yourself. Don\'t be obnoxious. ALL CAPS and <i>formatting</i> are acceptable to emphasize things, but should be used sparingly, not all the time.</p>' +
+				'<p><b>3.</b> No minimodding: don\'t mod if it\'s not your job. Don\'t tell people they\'ll be muted, don\'t ask for people to be muted, and don\'t talk about whether or not people should be muted (\'inb4 mute\', etc). This applies to bans and other punishments, too.</p>' +
+				'<p><b>4.</b> We reserve the right to tell you to stop discussing moderator decisions if you become unreasonable or belligerent</p>' +
+				'<p><b>5.</b> English only, unless specified otherwise.</p>' +
+				'<p>(Note: You can opt out of chat rules in private chat rooms and battle rooms, but only if all ROs or players agree to it.)</p>';
 			if (!warning) {
-				buf += '<b>Usernames</b><br /><br />Your username can be chosen and changed at any time. Keep in mind:<br /><br /><b>1.</b> Usernames may not impersonate a recognized user (a user with %, @, &amp;, or ~ next to their name) or a famous person/organization that uses PS or is associated with Pokémon.<br /><br /><b>2.</b> Usernames may not be derogatory or insulting in nature, to an individual or group (insulting yourself is okay as long as it\'s not too serious).<br /><br /><b>3.</b> Usernames may not directly reference sexual activity, or be excessively disgusting.<br /><br />This policy is less restrictive than that of many places, so you might see some "borderline" nicknames that might not be accepted elsewhere. You might consider it unfair that they are allowed to keep their nickname. The fact remains that their nickname follows the above rules, and if you were asked to choose a new name, yours does not.';
+				buf += '<p><b>Usernames</b></p>' +
+					'<p>Your username can be chosen and changed at any time. Keep in mind:</p>' +
+					'<p><b>1.</b> Usernames may not impersonate a recognized user (a user with %, @, #, or &amp; next to their name) or a famous person/organization that uses PS or is associated with Pokémon.</p>' +
+					'<p><b>2.</b> Usernames may not be derogatory or insulting in nature, to an individual or group (insulting yourself is okay as long as it\'s not too serious).</p>' +
+					'<p><b>3.</b> Usernames may not directly reference sexual activity, or be excessively disgusting.</p>' +
+					'<p>This policy is less restrictive than that of many places, so you might see some "borderline" nicknames that might not be accepted elsewhere. You might consider it unfair that they are allowed to keep their nickname. The fact remains that their nickname follows the above rules, and if you were asked to choose a new name, yours does not.</p>';
 			}
 			if (warning) {
 				buf += '<p class="buttonbar"><button name="close" disabled>Close</button><small class="overlay-warn"> You will be able to close this in 5 seconds</small></p>';

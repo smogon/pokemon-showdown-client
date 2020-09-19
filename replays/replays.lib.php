@@ -250,6 +250,8 @@ class Replays {
 				$password = $this->genPassword();
 			}
 		}
+		if ($reqData['password'] ?? null) $password = $reqData['password'];
+
 		$fullid = $id;
 		if ($password) $fullid .= '-' . $password . 'pw';
 

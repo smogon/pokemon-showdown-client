@@ -8,19 +8,19 @@ const child_process = require("child_process");
 const rootDir = path.resolve(__dirname, '..');
 process.chdir(rootDir);
 
-if (!fs.existsSync('data/Pokemon-Showdown')) {
+if (!fs.existsSync('data/pokemon-showdown')) {
 	child_process.execSync('git clone https://github.com/smogon/pokemon-showdown.git', {
 		cwd: 'data',
 	});
 }
 
 process.stdout.write("Syncing data from Git repository... ");
-child_process.execSync('git pull', {cwd: 'data/Pokemon-Showdown'});
-child_process.execSync('npm run build', {cwd: 'data/Pokemon-Showdown'});
+child_process.execSync('git pull', {cwd: 'data/pokemon-showdown'});
+child_process.execSync('npm run build', {cwd: 'data/pokemon-showdown'});
 console.log("DONE");
 
-const Dex = require('../data/Pokemon-Showdown/.sim-dist/dex').Dex;
-const toID = Dex.getId;
+const Dex = require('../data/pokemon-showdown/.sim-dist/dex').Dex;
+const toID = Dex.toID;
 process.stdout.write("Loading gen 6 data... ");
 Dex.includeData();
 console.log("DONE");
@@ -47,7 +47,7 @@ function requireNoCache(pathSpec) {
 	let index = [];
 
 	index = index.concat(Object.keys(Dex.data.Pokedex).map(x => x + ' pokemon'));
-	index = index.concat(Object.keys(Dex.data.Movedex).map(x => x + ' move'));
+	index = index.concat(Object.keys(Dex.data.Moves).map(x => x + ' move'));
 	index = index.concat(Object.keys(Dex.data.Items).map(x => x + ' item'));
 	index = index.concat(Object.keys(Dex.data.Abilities).map(x => x + ' ability'));
 	index = index.concat(Object.keys(Dex.data.TypeChart).map(x => toID(x) + ' type'));
@@ -177,8 +177,8 @@ function requireNoCache(pathSpec) {
 		const name = Dex.data.Pokedex[id].name;
 		generateAlias(id, name, 'pokemon');
 	}
-	for (const id in Dex.data.Movedex) {
-		const name = Dex.data.Movedex[id].name;
+	for (const id in Dex.data.Moves) {
+		const name = Dex.data.Moves[id].name;
 		generateAlias(id, name, 'move');
 	}
 	for (const id in Dex.data.Items) {
@@ -249,7 +249,7 @@ function requireNoCache(pathSpec) {
 
 	let BattleSearchCountIndex = {};
 	for (const type in Dex.data.TypeChart) {
-		BattleSearchCountIndex[type + ' move'] = Object.keys(Dex.data.Movedex).filter(id => (Dex.data.Movedex[id].type === type)).length;
+		BattleSearchCountIndex[type + ' move'] = Object.keys(Dex.data.Moves).filter(id => (Dex.data.Moves[id].type === type)).length;
 	}
 
 	for (const type in Dex.data.TypeChart) {
@@ -286,7 +286,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 	let buf = '// DO NOT EDIT - automatically built with build-tools/build-indexes\n\n';
 
 	// process.stdout.write("\n  ");
-	for (const genIdent of [8.3, 8.2, 8.1, 8, -8, 7.1, 7, -7.5, -7, 6, -6, 5, -5, 4, -4, 3, 2, 1]) {
+	for (const genIdent of [8.3, 8.2, 8.1, 8, -8, 7.3, 7.1, 7, -7.5, -7, 6.3, 6, -6, 5.3, 5, -5, 5.3, 4, -4, 3.3, 3, 2.3, 2, 1.3, 1]) {
 		const isLetsGo = (genIdent === 7.1);
 		const isMetBattle = (genIdent === 8.2);
 		const isNFE = (('' + genIdent).endsWith('.3'));
@@ -306,24 +306,31 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			if (species.gen > genNum) continue;
 			const tier = (() => {
 				if (isNatDex) {
-					let tier = species.tier;
-					if (species.tier === 'Unreleased' || species.isNonstandard === 'Past') tier = Dex.mod('gen7').getSpecies(species.name).tier;
-					let banlist = Dex.getFormat('gen8nationaldex').banlist;
-					if (
-						banlist.includes(species.name) ||
-						banlist.includes(species.name + '-Base') ||
-						banlist.includes(species.baseSpecies) ||
-						['Zygarde-Complete', 'Necrozma-Ultra'].includes(species.name)
-					) {
-						tier = 'Uber';
-						if (species.name === 'Eternatus-Eternamax') tier = 'Illegal';
-						return tier;
-					} else if (tier === 'Uber' && !species.isGigantamax) { // This check is for Pokemon tiered as Uber but aren't in the banlist for National Dex
-						tier = 'OU';
-						return tier;
+					const unobtainables = [
+						'Eevee-Starter', 'Floette-Eternal', 'Pichu-Spiky-eared', 'Pikachu-Belle', 'Pikachu-Cosplay', 'Pikachu-Libre', 'Pikachu-PhD', 'Pikachu-Pop-Star', 'Pikachu-Rock-Star', 'Pikachu-Starter', 'Eternatus-Eternamax',
+					].map(toID);
+					if (species.isNonstandard && !['Past', 'Gigantamax'].includes(species.isNonstandard)) return 'Illegal';
+					if (unobtainables.includes(species.id)) return 'Illegal';
+					const uu = Dex.getFormat('gen8nationaldexuu');
+					const ou = Dex.getFormat('gen8nationaldex');
+					const uublIndex = uu.banlist.map(toID).indexOf('nduubl');
+					if (Dex.getRuleTable(ou).isBannedSpecies(species) || species.id === 'zygardecomplete' || species.id === 'necrozmaultra') return 'Uber';
+					if (Dex.getRuleTable(ou).has('dynamaxclause') && species.name.endsWith('Gmax')) return '(Uber)';
+					if (Dex.getRuleTable(uu).isBannedSpecies(species)) {
+						if (uu.banlist.map(toID).indexOf(species.id) >= uublIndex || uu.banlist.map(toID).indexOf(species.id + 'base') >= uublIndex) {
+							return 'UUBL';
+						} else {
+							return 'OU';
+						}
 					}
-					if (species.isGigantamax) tier = '(Uber)';
-					return tier;
+					if (species.nfe) {
+						if (species.prevo) {
+							return 'NFE';
+						} else {
+							return 'LC';
+						}
+					}
+					return 'UU';
 				}
 				if (isMetBattle) {
 					let tier = species.tier;
@@ -334,26 +341,26 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 							tier = 'OU';
 						}
 					}
+					if (species.isNonstandard === 'Gigantamax') tier = '(Uber)';
 					if (species.tier === 'CAP LC') tier = 'LC';
 					if (species.tier === 'CAP NFE') tier = 'NFE';
 					if (species.tier === 'CAP') tier = 'OU';
-					let banlist = Dex.getFormat('gen8metronomebattle').banlist;
+					const format = Dex.getFormat('gen8metronomebattle');
 					let bst = 0;
 					for (const stat of Object.values(species.baseStats)) {
 						bst += stat;
 					}
 					if (bst > 625) tier = 'Illegal';
-					if (banlist.includes(species.name) || banlist.includes(species.name + '-Base')) tier = 'Illegal';
+					if (Dex.getRuleTable(format).isBannedSpecies(species)) tier = 'Illegal';
 					if (species.types.includes('Steel')) tier = 'Illegal';
 					return tier;
 				}
 				if (isNFE) {
 					let tier = species.tier;
-					const feInCurrentGen = species.evos && Dex.getSpecies(species.evos[0]).gen > genNum;
-					if (!species.nfe || feInCurrentGen) tier = 'Illegal';
+					if (!species.nfe) tier = 'Illegal';
 					const format = Dex.getFormat(gen + 'nfe');
-					const banlist = format.exists ? format.banlist : [];
-					if (banlist.includes(species.name) || banlist.includes(species.name + '-Base')) {
+					const banlist = Dex.getRuleTable(format);
+					if (banlist.isBannedSpecies(species)) {
 						tier = 'Uber';
 					}
 					return tier;
@@ -414,14 +421,9 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			}
 
 			if (genNum >= 7) {
-				let banlist = Dex.getFormat(gen + 'zu').banlist;
-				for (const ban of banlist) {
-					let baseSpecies = Dex.mod(gen).getSpecies(ban.endsWith('-Base') ? ban.slice(0, -5) : ban);
-					if (!baseSpecies.exists) continue;
-					const tierRank = {AG:1, Uber:1, OU:1, UUBL:1, UU:1, RUBL:1, RU:1, NUBL:1, NU:1, PUBL:1, PU:1, "(PU)":0, NFE:0, "LC Uber":0, LC:0};
-					let baseTier = baseSpecies.tier;
-					if (baseTier !== "(PU)" && baseTier in tierRank && tierRank[baseTier] > 0) continue;
-					zuBans[baseSpecies.id] = 1;
+				const format = Dex.getFormat(gen + 'zu');
+				if (Dex.getRuleTable(format).isBannedSpecies(species) && ["(PU)", "NFE", "LC Uber", "LC"].includes(species.tier)) {
+					zuBans[species.id] = 1;
 				}
 			}
 		}
@@ -490,19 +492,22 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			if (isDoubles && genNum > 4) {
 				return ["DUber", "(DUber)", "DOU", "DBL", "(DOU)", "DUU", "(DUU)", "New", "NFE", "LC Uber", "LC"];
 			}
-			if (gen === 'gen1' || gen === 'gen2' || gen === 'gen3') {
+			if (gen === 'gen1') {
+				return ["Uber", "OU", "UUBL", "UU", "NFE", "LC Uber", "LC"];
+			}
+			if (gen === 'gen2' || gen === 'gen3') {
 				return ["Uber", "OU", "UUBL", "UU", "NUBL", "NU", "NFE", "LC Uber", "LC"];
 			}
 			if (gen === 'gen4') {
-				return ["CAP", "CAP NFE", "CAP LC", "Uber", "OU", "UUBL", "UU", "NUBL", "NU", "NFE", "LC Uber", "LC"];
+				return ["CAP", "CAP NFE", "CAP LC", "Uber", "OU", "(OU)", "UUBL", "UU", "NUBL", "NU", "NFE", "LC Uber", "LC"];
 			}
 			if (gen === 'gen5') {
-				return ["CAP", "CAP NFE", "CAP LC", "Uber", "OU", "UUBL", "UU", "RUBL", "RU", "NUBL", "NU", "(NU)", "NFE", "LC Uber", "LC"];
+				return ["CAP", "CAP NFE", "CAP LC", "Uber", "OU", "(OU)", "UUBL", "UU", "RUBL", "RU", "NUBL", "NU", "(NU)", "NFE", "LC Uber", "LC"];
 			}
 			if (gen === 'gen7') {
-				return ["CAP", "CAP NFE", "CAP LC", "AG", "Uber", "OU", "UUBL", "(OU)", "UU", "RUBL", "RU", "NUBL", "NU", "PUBL", "PU", "(PU)", "NFE", "LC Uber", "LC", "Unreleased"];
+				return ["CAP", "CAP NFE", "CAP LC", "AG", "Uber", "OU", "(OU)", "UUBL", "UU", "RUBL", "RU", "NUBL", "NU", "PUBL", "PU", "(PU)", "NFE", "LC Uber", "LC", "Unreleased"];
 			}
-			return ["CAP", "CAP NFE", "CAP LC", "AG", "Uber", "(Uber)", "OU", "UUBL", "(OU)", "UU", "RUBL", "RU", "NUBL", "NU", "PUBL", "PU", "(PU)", "New", "NFE", "LC Uber", "LC", "Unreleased"];
+			return ["CAP", "CAP NFE", "CAP LC", "AG", "Uber", "(Uber)", "OU", "(OU)", "UUBL", "UU", "RUBL", "RU", "NUBL", "NU", "PUBL", "PU", "(PU)", "New", "NFE", "LC Uber", "LC", "Unreleased"];
 		})();
 
 		for (const tier of tierOrder) {
@@ -575,16 +580,24 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			case 'assaultvest':
 			case 'focussash':
 			case 'powerherb':
-			case 'mentalherb':
 			case 'rockyhelmet':
 			case 'heavydutyboots':
 			case 'expertbelt':
+			case 'salacberry':
 				greatItems.push(id);
 				break;
+			case 'mentalherb':
+				if (genNum > 4) greatItems.push(id);
+				else poorItems.push(id);
+				break;
 			case 'lumberry':
-			case 'sitrusberry':
-				if (genNum === 2 || genNum >= 7) goodItems.push(id);
+				if (genNum === 2 || genNum > 6) goodItems.push(id);
 				else greatItems.push(id);
+				break;
+			case 'sitrusberry':
+				if (genNum > 6) goodItems.push(id);
+				else if (genNum > 3 && genNum < 7) greatItems.push(id);
+				else poorItems.push(id);
 				break;
 			case 'aguavberry':
 			case 'figyberry':
@@ -873,10 +886,10 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 		BattleTeambuilderTable[gen].overrideMoveDesc = overrideMoveDesc;
 		const overrideMoveType = {};
 		BattleTeambuilderTable[gen].overrideMoveType = overrideMoveType;
-		for (const id in genData.Movedex) {
-			const pastEntry = genData.Movedex[id];
-			const nowEntry = Dex.data.Movedex[id];
-			const nextEntry = nextGenData.Movedex[id];
+		for (const id in genData.Moves) {
+			const pastEntry = genData.Moves[id];
+			const nowEntry = Dex.data.Moves[id];
+			const nextEntry = nextGenData.Moves[id];
 			if (pastEntry.basePower !== nowEntry.basePower) {
 				overrideBP[id] = pastEntry.basePower;
 			}
@@ -947,15 +960,13 @@ console.log("DONE");
 process.stdout.write("Building `data/pokedex.js`... ");
 
 {
-	const Pokedex = requireNoCache('../data/Pokemon-Showdown/.data-dist/pokedex.js').BattlePokedex;
+	const Pokedex = requireNoCache('../data/pokemon-showdown/.data-dist/pokedex.js').Pokedex;
 	for (const id in Pokedex) {
 		const entry = Pokedex[id];
 		if (Dex.data.FormatsData[id]) {
 			// console.log('formatsentry:' + id);
 			const formatsEntry = Dex.data.FormatsData[id];
 			if (formatsEntry.tier) entry.tier = formatsEntry.tier;
-			if (formatsEntry.requiredItem) entry.requiredItem = formatsEntry.requiredItem;
-			if (formatsEntry.battleOnly) entry.battleOnly = formatsEntry.battleOnly;
 			if (formatsEntry.isNonstandard) entry.isNonstandard = formatsEntry.isNonstandard;
 			if (formatsEntry.unreleasedHidden) entry.unreleasedHidden = formatsEntry.unreleasedHidden;
 		}
@@ -973,8 +984,13 @@ console.log("DONE");
 process.stdout.write("Building `data/moves,items,abilities,typechart,learnsets.js`...");
 
 {
-	const Movedex = requireNoCache('../data/Pokemon-Showdown/.data-dist/moves.js').BattleMovedex;
-	const buf = 'exports.BattleMovedex = ' + es3stringify(Movedex) + ';';
+	const Moves = requireNoCache('../data/pokemon-showdown/.data-dist/moves.js').Moves;
+	for (const id in Moves) {
+		const move = Dex.getMove(Moves[id].name);
+		if (move.desc) Moves[id].desc = move.desc;
+		if (move.shortDesc) Moves[id].shortDesc = move.shortDesc;
+	}
+	const buf = 'exports.BattleMovedex = ' + es3stringify(Moves) + ';';
 	fs.writeFileSync('data/moves.js', buf);
 }
 
@@ -983,7 +999,12 @@ process.stdout.write("Building `data/moves,items,abilities,typechart,learnsets.j
  *********************************************************/
 
 {
-	const Items = requireNoCache('../data/Pokemon-Showdown/.data-dist/items.js').BattleItems;
+	const Items = requireNoCache('../data/pokemon-showdown/.data-dist/items.js').Items;
+	for (const id in Items) {
+		const move = Dex.getItem(Items[id].name);
+		if (move.desc) Items[id].desc = move.desc;
+		if (move.shortDesc) Items[id].shortDesc = move.shortDesc;
+	}
 	const buf = 'exports.BattleItems = ' + es3stringify(Items) + ';';
 	fs.writeFileSync('data/items.js', buf);
 }
@@ -993,7 +1014,12 @@ process.stdout.write("Building `data/moves,items,abilities,typechart,learnsets.j
  *********************************************************/
 
 {
-	const Abilities = requireNoCache('../data/Pokemon-Showdown/.data-dist/abilities.js').BattleAbilities;
+	const Abilities = requireNoCache('../data/pokemon-showdown/.data-dist/abilities.js').Abilities;
+	for (const id in Abilities) {
+		const move = Dex.getAbility(Abilities[id].name);
+		if (move.desc) Abilities[id].desc = move.desc;
+		if (move.shortDesc) Abilities[id].shortDesc = move.shortDesc;
+	}
 	const buf = 'exports.BattleAbilities = ' + es3stringify(Abilities) + ';';
 	fs.writeFileSync('data/abilities.js', buf);
 }
@@ -1003,7 +1029,7 @@ process.stdout.write("Building `data/moves,items,abilities,typechart,learnsets.j
  *********************************************************/
 
 {
-	const TypeChart = requireNoCache('../data/Pokemon-Showdown/.data-dist/typechart.js').BattleTypeChart;
+	const TypeChart = requireNoCache('../data/pokemon-showdown/.data-dist/typechart.js').TypeChart;
 	const buf = 'exports.BattleTypeChart = ' + es3stringify(TypeChart) + ';';
 	fs.writeFileSync('data/typechart.js', buf);
 }
@@ -1013,7 +1039,7 @@ process.stdout.write("Building `data/moves,items,abilities,typechart,learnsets.j
  *********************************************************/
 
 {
-	const Aliases = requireNoCache('../data/Pokemon-Showdown/.data-dist/aliases.js').BattleAliases;
+	const Aliases = requireNoCache('../data/pokemon-showdown/.data-dist/aliases.js').Aliases;
 	const buf = 'exports.BattleAliases = ' + es3stringify(Aliases) + ';';
 	fs.writeFileSync('data/aliases.js', buf);
 }
@@ -1023,9 +1049,19 @@ process.stdout.write("Building `data/moves,items,abilities,typechart,learnsets.j
  *********************************************************/
 
 {
-	const FormatsData = requireNoCache('../data/Pokemon-Showdown/.data-dist/formats-data.js').BattleFormatsData;
+	const FormatsData = requireNoCache('../data/pokemon-showdown/.data-dist/formats-data.js').FormatsData;
 	const buf = 'exports.BattleFormatsData = ' + es3stringify(FormatsData) + ';';
 	fs.writeFileSync('data/formats-data.js', buf);
+}
+
+/*********************************************************
+ * Build formats.js
+ *********************************************************/
+
+{
+	const Formats = requireNoCache('../data/pokemon-showdown/.config-dist/formats.js').Formats;
+	const buf = 'exports.Formats = ' + es3stringify(Formats) + ';';
+	fs.writeFileSync('data/formats.js', buf);
 }
 
 /*********************************************************
@@ -1033,7 +1069,7 @@ process.stdout.write("Building `data/moves,items,abilities,typechart,learnsets.j
  *********************************************************/
 
 {
-	const Learnsets = requireNoCache('../data/Pokemon-Showdown/.data-dist/learnsets.js').BattleLearnsets;
+	const Learnsets = requireNoCache('../data/pokemon-showdown/.data-dist/learnsets.js').Learnsets;
 	const buf = 'exports.BattleLearnsets = ' + es3stringify(Learnsets) + ';';
 	fs.writeFileSync('data/learnsets.js', buf);
 }

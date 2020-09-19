@@ -9,9 +9,11 @@ License: GPLv2 or later
 
 error_reporting(E_ALL);
 
+include_once __DIR__ . '/config/config.inc.php';
+
 if (@$_GET['act'] === 'dlteam') {
 	header("Content-Type: text/plain; charset=utf-8");
-	if (substr(@$_SERVER['HTTP_REFERER'], 0, 32) !== 'https://play.pokemonshowdown.com') {
+	if (substr(@$_SERVER['HTTP_REFERER'], 0, 32) !== 'https://' . $psconfig['routes']['client']) {
 		// since this is only to support Chrome on HTTPS, we can get away with a very specific referer check
 		die("access denied");
 	}
@@ -26,9 +28,9 @@ if (preg_match('/^http\\:\\/\\/[a-z0-9]+\\.psim\\.us\\//', $_SERVER['HTTP_REFERE
 }
 // header("X-Debug: " . @$_SERVER['HTTP_REFERER']);
 
-include_once 'lib/ntbb-session.lib.php';
-include_once '../pokemonshowdown.com/config/servers.inc.php';
-include_once 'lib/dispatcher.lib.php';
+require_once __DIR__ . '/lib/ntbb-session.lib.php';
+include_once __DIR__ . '/config/servers.inc.php';
+include_once __DIR__ . '/lib/dispatcher.lib.php';
 
 $dispatcher = new ActionDispatcher(array(
 	new DefaultActionHandler(),

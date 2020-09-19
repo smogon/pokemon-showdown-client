@@ -21,6 +21,16 @@ class BattleLog {
 	atBottom = true;
 	className: string;
 	battleParser: BattleTextParser | null = null;
+	joinLeave: {
+		joins: string[],
+		leaves: string[],
+		element: HTMLDivElement,
+	} | null = null;
+	lastRename: {
+		from: string,
+		to: string,
+		element: HTMLDivElement,
+	} | null = null;
 	/**
 	 * * -1 = spectator: "Red sent out Pikachu!" "Blue's Eevee used Tackle!"
 	 * * 0 = player 1: "Go! Pikachu!" "The opposing Eevee used Tackle!"
@@ -67,6 +77,8 @@ class BattleLog {
 		let divClass = 'chat';
 		let divHTML = '';
 		let noNotify: boolean | undefined;
+		if (!['join', 'j', 'leave', 'l'].includes(args[0])) this.joinLeave = null;
+		if (!['name', 'n'].includes(args[0])) this.lastRename = null;
 		switch (args[0]) {
 		case 'chat': case 'c': case 'c:':
 			let battle = this.scene?.battle;
@@ -93,23 +105,56 @@ class BattleLog {
 			}
 			break;
 
-		case 'join': case 'j': {
+		case 'join': case 'j': case 'leave': case 'l': {
 			const user = BattleTextParser.parseNameParts(args[1]);
-			divHTML = '<small>' + BattleLog.escapeHTML(user.group + user.name) + ' joined.</small>';
-			break;
+			if (battle?.ignoreSpects && ' +'.includes(user.group)) return;
+			const formattedUser = user.group + user.name;
+			const isJoin = (args[0].charAt(0) === 'j');
+			if (!this.joinLeave) {
+				this.joinLeave = {
+					joins: [],
+					leaves: [],
+					element: document.createElement('div'),
+				};
+				this.joinLeave.element.className = 'chat';
+			}
+
+			if (isJoin && this.joinLeave.leaves.includes(formattedUser)) {
+				this.joinLeave.leaves.splice(this.joinLeave.leaves.indexOf(formattedUser), 1);
+			} else {
+				this.joinLeave[isJoin ? "joins" : "leaves"].push(formattedUser);
+			}
+
+			let buf = '';
+			if (this.joinLeave.joins.length) {
+				buf += `${this.textList(this.joinLeave.joins)} joined`;
+			}
+			if (this.joinLeave.leaves.length) {
+				if (this.joinLeave.joins.length) buf += `; `;
+				buf += `${this.textList(this.joinLeave.leaves)} left`;
+			}
+			this.joinLeave.element.innerHTML = `<small>${BattleLog.escapeHTML(buf)}</small>`;
+			(preempt ? this.preemptElem : this.innerElem).appendChild(this.joinLeave.element);
+			return;
 		}
-		case 'leave': case 'l': {
-			const user = BattleTextParser.parseNameParts(args[1]);
-			divHTML = '<small>' + BattleLog.escapeHTML(user.group + user.name) + ' left.</small>';
-			break;
-		}
+
 		case 'name': case 'n': {
 			const user = BattleTextParser.parseNameParts(args[1]);
-			if (toID(args[2]) !== toID(user.name)) {
-				divHTML = '<small>' + BattleLog.escapeHTML(user.group + user.name) + ' renamed from ' + BattleLog.escapeHTML(args[2]) + '.</small>';
+			if (toID(args[2]) === toID(user.name)) return;
+			if (!this.lastRename || toID(this.lastRename.to) !== toID(user.name)) {
+				this.lastRename = {
+					from: args[2],
+					to: '',
+					element: document.createElement('div'),
+				};
+				this.lastRename.element.className = 'chat';
 			}
-			break;
+			this.lastRename.to = user.group + user.name;
+			this.lastRename.element.innerHTML = `<small>${BattleLog.escapeHTML(this.lastRename.to)} renamed from ${BattleLog.escapeHTML(this.lastRename.from)}.</small>`;
+			(preempt ? this.preemptElem : this.innerElem).appendChild(this.lastRename.element);
+			return;
 		}
+
 		case 'chatmsg': case '':
 			divHTML = BattleLog.escapeHTML(args[1]);
 			break;
@@ -140,6 +185,7 @@ class BattleLog {
 			return;
 
 		case 'unlink': {
+			// |unlink| is deprecated in favor of |hidelines|
 			const user = toID(args[2]) || toID(args[1]);
 			this.unlinkChatFrom(user);
 			if (args[2]) {
@@ -148,12 +194,23 @@ class BattleLog {
 			}
 			return;
 		}
+
+		case 'hidelines': {
+			const user = toID(args[2]);
+			this.unlinkChatFrom(user);
+			if (args[1] !== 'unlink') {
+				const lineCount = parseInt(args[3], 10);
+				this.hideChatFrom(user, args[1] === 'hide', lineCount);
+			}
+			return;
+		}
+
 		case 'debug':
 			divClass = 'debug';
 			divHTML = '<div class="chat"><small style="color:#999">[DEBUG] ' + BattleLog.escapeHTML(args[1]) + '.</small></div>';
 			break;
 
-		case 'seed': case 'choice': case ':': case 'timer':
+		case 'seed': case 'choice': case ':': case 'timer': case 't:':
 		case 'J': case 'L': case 'N': case 'spectator': case 'spectatorleave':
 		case 'initdone':
 			return;
@@ -221,6 +278,25 @@ class BattleLog {
 			this.message(...this.parseLogMessage(line));
 			break;
 		}
+	}
+	textList(list: string[]) {
+		let message = '';
+		const listNoDuplicates: string[] = [];
+		for (const user of list) {
+			if (!listNoDuplicates.includes(user)) listNoDuplicates.push(user);
+		}
+		list = listNoDuplicates;
+
+		if (list.length === 1) return list[0];
+		if (list.length === 2) return `${list[0]} and ${list[1]}`;
+		for (let i = 0; i < list.length - 1; i++) {
+			if (i >= 5) {
+				return `${message}and ${list.length - 5} others`;
+			}
+			message += `${list[i]}, `;
+		}
+		return `${message}and ${list[list.length - 1]}`;
+		return message;
 	}
 	/**
 	 * To avoid trolling with nicknames, we can't just run this through
@@ -407,7 +483,7 @@ class BattleLog {
 	static usernameColor(name: ID) {
 		if (this.colorCache[name]) return this.colorCache[name];
 		let hash;
-		if (window.Config?.customcolors?.[name]) {
+		if (Config.customcolors[name]) {
 			hash = MD5(Config.customcolors[name]);
 		} else {
 			hash = MD5(name);
@@ -592,9 +668,9 @@ class BattleLog {
 	}
 
 	static interstice = (() => {
-		const whitelist: string[] = window.Config?.whitelist || [];
+		const whitelist: string[] = Config.whitelist;
 		const patterns = whitelist.map(entry => new RegExp(
-			`^(https?:)?//([A-Za-z0-9-]*\\.)?${entry}(/.*)?`,
+			`^(https?:)?//([A-Za-z0-9-]*\\.)?${entry.replace(/\./g, '\\.')}(/.*)?`,
 		'i'));
 		return {
 			isWhitelisted(uri: string) {
@@ -608,7 +684,7 @@ class BattleLog {
 				return false;
 			},
 			getURI(uri: string) {
-				return 'http://pokemonshowdown.com/interstice?uri=' + encodeURIComponent(uri);
+				return `http://${Config.routes.root}/interstice?uri=${encodeURIComponent(uri)}`;
 			},
 		};
 	})();
@@ -640,6 +716,8 @@ class BattleLog {
 			'marquee::width': 0,
 			'psicon::pokemon': 0,
 			'psicon::item': 0,
+			'psicon::type': 0,
+			'psicon::category': 0,
 			'*::aria-label': 0,
 			'*::aria-hidden': 0,
 		});
@@ -681,7 +759,7 @@ class BattleLog {
 				let styleValueIndex = -1;
 				let iconAttrib = null;
 				for (let i = 0; i < attribs.length - 1; i += 2) {
-					if (attribs[i] === 'pokemon' || attribs[i] === 'item') {
+					if (attribs[i] === 'pokemon' || attribs[i] === 'item' || attribs[i] === 'type' || attribs[i] === 'category') {
 						// If declared more than once, use the later.
 						iconAttrib = attribs.slice(i, i + 2);
 					} else if (attribs[i] === 'class') {
@@ -713,6 +791,10 @@ class BattleLog {
 						attribs[styleValueIndex] = attribs[styleValueIndex] ?
 							Dex.getItemIcon(iconAttrib[1]) + '; ' + attribs[styleValueIndex] :
 							Dex.getItemIcon(iconAttrib[1]);
+					} else if (iconAttrib[0] === 'type') {
+						tagName = Dex.getTypeIcon(iconAttrib[1]).slice(1, -3);
+					} else if (iconAttrib[0] === 'category') {
+						tagName = Dex.getCategoryIcon(iconAttrib[1]).slice(1, -3);
 					}
 				}
 			}
@@ -839,20 +921,20 @@ class BattleLog {
 		let buf = '<!DOCTYPE html>\n';
 		buf += '<meta charset="utf-8" />\n';
 		buf += '<!-- version 1 -->\n';
-		buf += '<title>' + BattleLog.escapeHTML(battle.tier) + ' replay: ' + BattleLog.escapeHTML(battle.p1.name) + ' vs. ' + BattleLog.escapeHTML(battle.p2.name) + '</title>\n';
+		buf += `<title>${BattleLog.escapeHTML(battle.tier)} replay: ${BattleLog.escapeHTML(battle.p1.name)} vs. ${BattleLog.escapeHTML(battle.p2.name)}</title>\n`;
 		buf += '<style>\n';
 		buf += 'html,body {font-family:Verdana, sans-serif;font-size:10pt;margin:0;padding:0;}body{padding:12px 0;} .battle-log {font-family:Verdana, sans-serif;font-size:10pt;} .battle-log-inline {border:1px solid #AAAAAA;background:#EEF2F5;color:black;max-width:640px;margin:0 auto 80px;padding-bottom:5px;} .battle-log .inner {padding:4px 8px 0px 8px;} .battle-log .inner-preempt {padding:0 8px 4px 8px;} .battle-log .inner-after {margin-top:0.5em;} .battle-log h2 {margin:0.5em -8px;padding:4px 8px;border:1px solid #AAAAAA;background:#E0E7EA;border-left:0;border-right:0;font-family:Verdana, sans-serif;font-size:13pt;} .battle-log .chat {vertical-align:middle;padding:3px 0 3px 0;font-size:8pt;} .battle-log .chat strong {color:#40576A;} .battle-log .chat em {padding:1px 4px 1px 3px;color:#000000;font-style:normal;} .chat.mine {background:rgba(0,0,0,0.05);margin-left:-8px;margin-right:-8px;padding-left:8px;padding-right:8px;} .spoiler {color:#BBBBBB;background:#BBBBBB;padding:0px 3px;} .spoiler:hover, .spoiler:active, .spoiler-shown {color:#000000;background:#E2E2E2;padding:0px 3px;} .spoiler a {color:#BBBBBB;} .spoiler:hover a, .spoiler:active a, .spoiler-shown a {color:#2288CC;} .chat code, .chat .spoiler:hover code, .chat .spoiler:active code, .chat .spoiler-shown code {border:1px solid #C0C0C0;background:#EEEEEE;color:black;padding:0 2px;} .chat .spoiler code {border:1px solid #CCCCCC;background:#CCCCCC;color:#CCCCCC;} .battle-log .rated {padding:3px 4px;} .battle-log .rated strong {color:white;background:#89A;padding:1px 4px;border-radius:4px;} .spacer {margin-top:0.5em;} .message-announce {background:#6688AA;color:white;padding:1px 4px 2px;} .message-announce a, .broadcast-green a, .broadcast-blue a, .broadcast-red a {color:#DDEEFF;} .broadcast-green {background-color:#559955;color:white;padding:2px 4px;} .broadcast-blue {background-color:#6688AA;color:white;padding:2px 4px;} .infobox {border:1px solid #6688AA;padding:2px 4px;} .infobox-limited {max-height:200px;overflow:auto;overflow-x:hidden;} .broadcast-red {background-color:#AA5544;color:white;padding:2px 4px;} .message-learn-canlearn {font-weight:bold;color:#228822;text-decoration:underline;} .message-learn-cannotlearn {font-weight:bold;color:#CC2222;text-decoration:underline;} .message-effect-weak {font-weight:bold;color:#CC2222;} .message-effect-resist {font-weight:bold;color:#6688AA;} .message-effect-immune {font-weight:bold;color:#666666;} .message-learn-list {margin-top:0;margin-bottom:0;} .message-throttle-notice, .message-error {color:#992222;} .message-overflow, .chat small.message-overflow {font-size:0pt;} .message-overflow::before {font-size:9pt;content:\'...\';} .subtle {color:#3A4A66;}\n';
 		buf += '</style>\n';
 		buf += '<div class="wrapper replay-wrapper" style="max-width:1180px;margin:0 auto">\n';
 		buf += '<input type="hidden" name="replayid" value="' + replayid + '" />\n';
 		buf += '<div class="battle"></div><div class="battle-log"></div><div class="replay-controls"></div><div class="replay-controls-2"></div>\n';
-		buf += '<h1 style="font-weight:normal;text-align:center"><strong>' + BattleLog.escapeHTML(battle.tier) + '</strong><br /><a href="http://pokemonshowdown.com/users/' + toID(battle.p1.name) + '" class="subtle" target="_blank">' + BattleLog.escapeHTML(battle.p1.name) + '</a> vs. <a href="http://pokemonshowdown.com/users/' + toID(battle.p2.name) + '" class="subtle" target="_blank">' + BattleLog.escapeHTML(battle.p2.name) + '</a></h1>\n';
+		buf += `<h1 style="font-weight:normal;text-align:center"><strong>${BattleLog.escapeHTML(battle.tier)}</strong><br /><a href="http://${Config.routes.users}/${toID(battle.p1.name)}" class="subtle" target="_blank">${BattleLog.escapeHTML(battle.p1.name)}</a> vs. <a href="http://${Config.routes.users}/${toID(battle.p2.name)}" class="subtle" target="_blank">${BattleLog.escapeHTML(battle.p2.name)}</a></h1>\n`;
 		buf += '<script type="text/plain" class="battle-log-data">' + battle.activityQueue.join('\n').replace(/\//g, '\\/') + '</script>\n'; // lgtm [js/incomplete-sanitization]
 		buf += '</div>\n';
 		buf += '<div class="battle-log battle-log-inline"><div class="inner">' + battle.scene.log.elem.innerHTML + '</div></div>\n';
 		buf += '</div>\n';
 		buf += '<script>\n';
-		buf += 'let daily = Math.floor(Date.now()/1000/60/60/24);document.write(\'<script src="https://play.pokemonshowdown.com/js/replay-embed.js?version\'+daily+\'"></\'+\'script>\');\n';
+		buf += `let daily = Math.floor(Date.now()/1000/60/60/24);document.write('<script src="https://${Config.routes.client}/js/replay-embed.js?version'+daily+'"></'+'script>');\n`;
 		buf += '</script>\n';
 		return buf;
 	}

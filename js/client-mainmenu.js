@@ -43,6 +43,7 @@
 				buf += '<div class="menugroup"><form class="battleform" data-search="1">';
 				buf += '<p><label class="label">Format:</label>' + this.renderFormats() + '</p>';
 				buf += '<p><label class="label">Team:</label>' + this.renderTeams() + '</p>';
+				buf += '<p><label class="checkbox"><input type="checkbox" name="private" ' + (Storage.prefs('disallowspectators') ? 'checked' : '') + ' /> <abbr title="You can still invite spectators by giving them the URL or using the /invite command">Don\'t allow spectators</abbr></label></p>';
 				buf += '<p><button class="button mainmenu1 big" name="search"><strong>Battle!</strong><br /><small>Find a random opponent</small></button></p></form></div>';
 			}
 
@@ -55,7 +56,7 @@
 			this.$('.mainmenu').html(buf);
 
 			// right menu
-			if (document.location.hostname === 'play.pokemonshowdown.com') {
+			if (document.location.hostname === Config.routes.client) {
 				this.$('.rightmenu').html('<div class="menugroup"><p><button class="button mainmenu1 onlineonly disabled" name="joinRoom" value="rooms">Join chat</button></p></div>');
 			} else {
 				this.$('.rightmenu').html('<div class="menugroup"><p><button class="button mainmenu1 onlineonly disabled" name="joinRoom" value="lobby">Join lobby chat</button></p></div>');
@@ -124,14 +125,34 @@
 		// news
 
 		addNews: function () {
-			var newsId = '1990';
-			if (newsId === '' + Dex.prefs('readnews')) return;
-			this.addPseudoPM({
-				title: 'Latest News',
-				html: '<iframe src="/news-embed.php?news' + (window.nodewebkit || document.location.protocol === 'https:' ? '&amp;https' : '') + '" width="270" height="400" border="0" style="border:0;width:100%;height:100%;display:block"></iframe>',
-				attributes: 'data-newsid="' + newsId + '"',
-				cssClass: 'news-embed',
-				height: 400
+			var self = this;
+			$.ajax({
+				url: "https://" + Config.routes.root + "/news.json",
+				dataType: "json",
+				success: function (data) {
+					var html = '';
+					for (var i = 0; i < 2; i++) {
+						var post = data[i];
+						var hasRead = data[i].id && Dex.prefs('readnews') === '' + data[i].id;
+
+						html += '<div class="newsentry' + (hasRead ? '' : ' unread') + '">';
+						if (post.title) html += '<h4>' + post.title + '</h4>';
+						if (post.summaryHTML) html += '<p>' + post.summaryHTML + '</p>';
+						html += '<p>';
+						if (post.author) html += '—<strong>' + post.author + '</strong>';
+						if (post.date) {
+							html += '<small class="date"> on ' + new Date(post.date * 1000).toDateString() + '</small>';
+						}
+						html += '</p></div>';
+					}
+					self.addPseudoPM({
+						title: 'Latest News',
+						html: html,
+						attributes: 'data-newsid="' + (data[0].id ? data[0].id : '1990') + '"',
+						cssClass: 'news-embed',
+						maxHeight: 'none'
+					});
+				}
 			});
 		},
 
@@ -355,7 +376,7 @@
 			var spaceIndex = text.indexOf(' ');
 			if (text.substr(0, 2) !== '//' && text.charAt(0) === '/' || text.charAt(0) === '!') {
 				if (spaceIndex > 0) {
-					data = text.substr(spaceIndex);
+					data = text.substr(spaceIndex + 1);
 					cmd = text.substr(1, spaceIndex - 1);
 				} else {
 					data = '';
@@ -379,6 +400,13 @@
 					$chat.append('<div class="chat">User ' + userid + ' no longer ignored.</div>');
 				}
 				break;
+			case 'nick':
+				if ($.trim(data)) {
+					app.user.rename(data);
+				} else {
+					app.addPopup(LoginPopup);
+				}
+				return false;
 			case 'challenge':
 				this.challenge(userid, data);
 				break;
@@ -393,7 +421,9 @@
 				break;
 			default:
 				if (!userid) userid = '~';
-				text = ('\n' + text).replace(/\n\n/g, '\n').replace(/\n/g, '\n/pm ' + userid + ', ').substr(1);
+				if (text.startsWith('\n')) text = text.slice(1);
+				if (text.endsWith('\n')) text = text.slice(0, -1);
+				text = ('\n' + text).replace(/\n/g, '\n/pm ' + userid + ', ').slice(1);
 				if (text.length > 80000) {
 					app.addPopupMessage("Your message is too long.");
 					return;
@@ -660,6 +690,7 @@
 						var buf = '<form class="battleform"><p>' + BattleLog.escapeHTML(name) + ' wants to battle!</p>';
 						buf += '<p><label class="label">Format:</label>' + self.renderFormats(format, true) + '</p>';
 						buf += '<p><label class="label">Team:</label>' + self.renderTeams(format) + '</p>';
+						buf += '<p><label class="checkbox"><input type="checkbox" name="private" ' + (Storage.prefs('disallowspectators') ? 'checked' : '') + ' /> <abbr title="You can still invite spectators by giving them the URL or using the /invite command">Don\'t allow spectators</abbr></label></p>';
 						buf += '<p class="buttonbar"><button name="acceptChallenge"><strong>Accept</strong></button> <button name="rejectChallenge">Reject</button></p></form>';
 						$challenge.html(buf);
 						if (format.substr(0, 4) === 'gen5') atLeastOneGen5 = true;
@@ -749,27 +780,17 @@
 			}
 
 			if (format) {
-				var formatParts = format.split('@@@');
+				var formatParts = format.split('@@@', 2);
 				formatParts[0] = toID(formatParts[0]);
 				if (!formatParts[0].startsWith('gen')) formatParts[0] = 'gen8' + formatParts[0];
-				format = formatParts[1] ? formatParts[0] + '@@@' + formatParts[1] : formatParts[0];
-			}
-
-			var teamIndex;
-			if (Storage.teams && team) {
-				team = toID(team);
-				for (var i = 0; i < Storage.teams.length; i++) {
-					if (team === toID(Storage.teams[i].name || '')) {
-						teamIndex = i;
-						break;
-					}
-				}
+				format = formatParts.length > 1 ? formatParts[0] + '@@@' + formatParts[1] : formatParts[0];
 			}
 
 			$challenge = this.openChallenge(name);
 			var buf = '<form class="battleform"><p>Challenge ' + BattleLog.escapeHTML(name) + '?</p>';
 			buf += '<p><label class="label">Format:</label>' + this.renderFormats(format) + '</p>';
-			buf += '<p><label class="label">Team:</label>' + this.renderTeams(format, teamIndex) + '</p>';
+			buf += '<p><label class="label">Team:</label>' + this.renderTeams(format) + '</p>';
+			buf += '<p><label class="checkbox"><input type="checkbox" name="private" ' + (Storage.prefs('disallowspectators') ? 'checked' : '') + ' /> <abbr title="You can still invite spectators by giving them the URL or using the /invite command">Don\'t allow spectators</abbr></label></p>';
 			buf += '<p class="buttonbar"><button name="makeChallenge"><strong>Challenge</strong></button> <button name="dismissChallenge">Cancel</button></p></form>';
 			$challenge.html(buf);
 		},
@@ -780,6 +801,7 @@
 
 			var format = $pmWindow.find('button[name=format]').val();
 			var teamIndex = $pmWindow.find('button[name=team]').val();
+			var privacy = this.adjustPrivacy($pmWindow.find('input[name=private]').is(':checked'));
 			var team = null;
 			if (Storage.teams[teamIndex]) team = Storage.teams[teamIndex];
 			if (format.indexOf('@@@') === -1 && !window.BattleFormats[format].team && !team) {
@@ -789,7 +811,7 @@
 
 			target.disabled = true;
 			app.sendTeam(team);
-			app.send('/accept ' + userid);
+			app.send(privacy + '/accept ' + userid);
 		},
 		rejectChallenge: function (i, target) {
 			var userid = $(target).closest('.pm-window').data('userid');
@@ -804,6 +826,7 @@
 
 			var format = $pmWindow.find('button[name=format]').val();
 			var teamIndex = $pmWindow.find('button[name=team]').val();
+			var privacy = this.adjustPrivacy($pmWindow.find('input[name=private]').is(':checked'));
 			var team = null;
 			if (Storage.teams[teamIndex]) team = Storage.teams[teamIndex];
 
@@ -819,7 +842,7 @@
 
 			$(target).closest('.challenge').html(buf);
 			app.sendTeam(team);
-			app.send('/challenge ' + userid + ', ' + format);
+			app.send(privacy + '/challenge ' + userid + ', ' + format);
 		},
 		cancelChallenge: function (i, target) {
 			var userid = $(target).closest('.pm-window').data('userid');
@@ -831,6 +854,12 @@
 		},
 		format: function (format, button) {
 			if (window.BattleFormats) app.addPopup(FormatPopup, {format: format, sourceEl: button});
+		},
+		adjustPrivacy: function (disallowSpectators) {
+			Storage.prefs('disallowspectators', disallowSpectators);
+			if (disallowSpectators) return '/noreply /ionext\n'; // TODO: switch to /hidenext once it adds a password
+			var settings = app.user.get('settings');
+			return (settings.hiddenNextBattle ? '/noreply /hidenext off\n' : '') + (settings.inviteOnlyNextBattle ? '/noreply /ionext off\n' : '');
 		},
 		team: function (team, button) {
 			var format = $(button).closest('form').find('button[name=format]').val();
@@ -923,6 +952,7 @@
 
 			var $formatButton = $searchForm.find('button[name=format]');
 			var $teamButton = $searchForm.find('button[name=team]');
+			var $privacyCheckbox = $searchForm.find('input[name=private]');
 
 			var format = $formatButton.val();
 			var teamIndex = $teamButton.val();
@@ -943,8 +973,9 @@
 			$searchForm.append('<p class="cancel buttonbar"><button name="cancelSearch">Cancel</button></p>');
 
 			app.sendTeam(team);
+			var self = this;
 			this.searchDelay = setTimeout(function () {
-				app.send('/search ' + format);
+				app.send(self.adjustPrivacy($privacyCheckbox.is(':checked')) + '/search ' + format);
 			}, 3000);
 		},
 		cancelSearch: function () {

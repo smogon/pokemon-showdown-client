@@ -1,12 +1,12 @@
 <?php
 
-require_once dirname(__FILE__) . '/ntbb-database.lib.php';
+require_once __DIR__ . '/../config/config.inc.php';
+require_once __DIR__ . '/ntbb-database.lib.php';
 // require_once dirname(__FILE__) . '/password_compat/lib/password.php';
 
 $curuser = false;
 
 class NTBBSession {
-	var $cookiedomain = 'pokemonshowdown.com';
 	var $trustedproxies = array(
 		'103.21.244.0/22',
 		'103.22.200.0/22',
@@ -101,10 +101,10 @@ class NTBBSession {
 	}
 
 	function getIp() {
-		$ip = $_SERVER['REMOTE_ADDR'];
+		$ip = $_SERVER['REMOTE_ADDR'] ?? '';
 		foreach ($this->trustedproxies as &$proxyip) {
 			if ($this->cidr_match($ip, $proxyip)) {
-				$parts = explode(',', $_SERVER['HTTP_X_FORWARDED_FOR']);
+				$parts = explode(',', $_SERVER['HTTP_X_FORWARDED_FOR'] ?? '');
 				$ip = array_pop($parts);
 				break;
 			}
@@ -253,7 +253,7 @@ class NTBBSession {
 	}
 
 	function login($name, $pass, $timeout = false, $debug = false) {
-		global $psdb, $curuser;
+		global $psdb, $curuser, $psconfig;
 		$ctime = time();
 
 		$this->logout();
@@ -296,31 +296,33 @@ class NTBBSession {
 		unset($curuser['nonce']);
 		unset($curuser['passwordhash']);
 
-		// setcookie('sid', $this->scookie, ['expires' => time() + (363)*24*60*60, 'path' => '/', 'domain' => $this->cookiedomain, 'secure' => true, 'httponly' => true, 'samesite' => 'None']);
+		// setcookie('sid', $this->scookie, ['expires' => time() + (363)*24*60*60, 'path' => '/', 'domain' => $psconfig['routes']['root'], 'secure' => true, 'httponly' => true, 'samesite' => 'None']);
 		$encodedcookie = rawurlencode($this->scookie);
-		header("Set-Cookie: sid=$encodedcookie; Max-Age=31363200; Domain={$this->cookiedomain}; Path=/; Secure; SameSite=None");
+		header("Set-Cookie: sid=$encodedcookie; Max-Age=31363200; Domain={$psconfig['routes']['root']}; Path=/; Secure; SameSite=None");
 
 		return $curuser;
 	}
 
 	function updateCookie() {
+		global $psconfig;
 		if (!$this->sid) {
 			$this->sid = $this->mksid($this->sid);
 			$this->scookie = ',,' . $this->sid;
-			// setcookie('sid', $this->scookie, ['expires' => time() + (363)*24*60*60, 'path' => '/', 'domain' => $this->cookiedomain, 'secure' => true, 'httponly' => true, 'samesite' => 'None']);
+			// setcookie('sid', $this->scookie, ['expires' => time() + (363)*24*60*60, 'path' => '/', 'domain' => $psconfig['routes']['root'], 'secure' => true, 'httponly' => true, 'samesite' => 'None']);
 			$encodedcookie = rawurlencode($this->scookie);
-			header("Set-Cookie: sid=$encodedcookie; Max-Age=31363200; Domain={$this->cookiedomain}; Path=/; Secure; SameSite=None");
+			header("Set-Cookie: sid=$encodedcookie; Max-Age=31363200; Domain={$psconfig['routes']['root']}; Path=/; Secure; SameSite=None");
 		}
 	}
 	function killCookie() {
+		global $psconfig;
 		if ($this->sid) {
 			$this->scookie = ',,' . $this->sid;
-			// setcookie('sid', $this->scookie, ['expires' => time() + (363)*24*60*60, 'path' => '/', 'domain' => $this->cookiedomain, 'secure' => true, 'httponly' => true, 'samesite' => 'None']);
+			// setcookie('sid', $this->scookie, ['expires' => time() + (363)*24*60*60, 'path' => '/', 'domain' => $psconfig['routes']['root'], 'secure' => true, 'httponly' => true, 'samesite' => 'None']);
 			$encodedcookie = rawurlencode($this->scookie);
-			header("Set-Cookie: sid=$encodedcookie; Max-Age=31363200; Domain={$this->cookiedomain}; Path=/; Secure; SameSite=None");
+			header("Set-Cookie: sid=$encodedcookie; Max-Age=31363200; Domain={$psconfig['routes']['root']}; Path=/; Secure; SameSite=None");
 		} else {
-			// setcookie('sid', '', ['expires' => time() - 60*60*24*2, 'path' => '/', 'domain' => $this->cookiedomain, 'secure' => true, 'httponly' => true, 'samesite' => 'None']);
-			header("Set-Cookie: sid=; Max-Age=0; Domain={$this->cookiedomain}; Path=/; Secure; SameSite=None");
+			// setcookie('sid', '', ['expires' => time() - 60*60*24*2, 'path' => '/', 'domain' => $psconfig['routes']['root'], 'secure' => true, 'httponly' => true, 'samesite' => 'None']);
+			header("Set-Cookie: sid=; Max-Age=0; Domain={$psconfig['routes']['root']}; Path=/; Secure; SameSite=None");
 		}
 	}
 
@@ -494,7 +496,7 @@ class NTBBSession {
 					$usertype = '5';
 				} else if (@$user['banstate'] == 0) {
 					if (@$user['registertime'] && time() - $user['registertime'] > 7*24*60*60) {
-						$res = $psdb->query("SELECT formatid FROM ntbb_ladder WHERE userid = ? LIMIT 1", [$userid]);
+						$res = $psdb->query("SELECT formatid FROM ntbb_ladder WHERE userid = ? AND w != 0 LIMIT 1", [$userid]);
 						if ($psdb->fetch_assoc($res)) {
 							$usertype = '4';
 							$psdb->query("UPDATE ntbb_users SET banstate = -10 WHERE userid = ? LIMIT 1", [$userid]);

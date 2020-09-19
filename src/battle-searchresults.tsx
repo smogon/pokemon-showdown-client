@@ -8,7 +8,7 @@
  */
 
 class PSSearchResults extends preact.Component<{search: DexSearch}> {
-	readonly URL_ROOT = '//dex.pokemonshowdown.com/';
+	readonly URL_ROOT = `//${Config.routes.dex}/`;
 
 	renderPokemonSortRow() {
 		const search = this.props.search;

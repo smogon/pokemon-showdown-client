@@ -13,6 +13,8 @@
 			buf += '<p><button name="joinRoomPopup" class="button">Join other room</button></p></div>';
 			this.$el.html(buf);
 			app.on('response:rooms', this.update, this);
+			var settings = Dex.prefs('serversettings');
+			if (settings) app.send('/updatesettings ' + JSON.stringify(settings));
 			app.send('/cmd rooms');
 			app.user.on('change:named', this.updateUser, this);
 			this.update();
@@ -31,9 +33,10 @@
 		},
 		joinRoomPopup: function () {
 			app.addPopupPrompt("Room name:", "Join room", function (room) {
+				var routeLength = (Config.routes.client + '/').length;
 				if (room.substr(0, 7) === 'http://') room = room.slice(7);
 				if (room.substr(0, 8) === 'https://') room = room.slice(8);
-				if (room.substr(0, 25) === 'play.pokemonshowdown.com/') room = room.slice(25);
+				if (room.substr(0, routeLength) === Config.routes.client + '/') room = room.slice(routeLength);
 				if (room.substr(0, 8) === 'psim.us/') room = room.slice(8);
 				if (room.substr(0, document.location.hostname.length + 1) === document.location.hostname + '/') room = room.slice(document.location.hostname.length + 1);
 				room = toRoomid(room);

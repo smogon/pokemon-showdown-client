@@ -82,16 +82,12 @@ class ActionDispatcher {
 		$ip = $this->getIp();
 		if (!isset($PokemonServers[$serverid])) {
 			// Try to find the server by source IP, rather than by serverid.
-			foreach ($PokemonServers as &$i) {
-				if (!isset($i['ipcache'])) {
-					$i['ipcache'] = gethostbyname($i['server']);
-				}
-				if ($i['ipcache'] === $ip) {
-					$server =& $i;
-					break;
+			if ($serverid === 'testtimeout') {
+				foreach ($PokemonServers as &$i) {
+					gethostbyname($i['server']);
 				}
 			}
-			if (!$server) return null;
+			return null;
 		} else {
 			$server =& $PokemonServers[$serverid];
 			if (empty($server['skipipcheck']) && empty($server['token']) && $serverid !== 'showdown') {
@@ -102,7 +98,7 @@ class ActionDispatcher {
 			}
 		}
 		if (!empty($server['token'])) {
-			if ($server['token'] !== md5($this->reqData['servertoken'])) return null;
+			if ($server['token'] !== md5($this->reqData['servertoken'] ?? '')) return null;
 		}
 		return $server;
 	}
@@ -247,7 +243,7 @@ class DefaultActionHandler {
 	}
 
 	public function logout($dispatcher, &$reqData, &$out) {
-		global $users, $curuser;
+		global $users, $curuser, $psconfig;
 
 		if (!$_POST ||
 				!isset($reqData['userid']) ||
@@ -256,7 +252,7 @@ class DefaultActionHandler {
 			die;
 		}
 		$users->logout(); // this kills the `sid` cookie
-		setcookie('showdown_username', '', time()-60*60*24*2, '/', 'play.pokemonshowdown.com');
+		setcookie('showdown_username', '', time()-60*60*24*2, '/', $psconfig['routes']['client']);
 		$out['actionsuccess'] = true;
 	}
 
@@ -395,7 +391,7 @@ class DefaultActionHandler {
 			return;
 		}
 		// No need to sanitise $server['id'] because it should be safe already.
-		$cssfile = dirname(__FILE__) . '/../../pokemonshowdown.com/config/customcss/' . $server['id'] . '.css';
+		$cssfile = __DIR__ . '/../config/customcss/' . $server['id'] . '.css';
 		@unlink($cssfile);
 	}
 
@@ -407,8 +403,8 @@ class DefaultActionHandler {
 	 *       if a request has been sent by the player and is still pending,
 	 *       or a comma if it is a received friend request.
 	 *     [username] is the username (yes, NAME, not id) of the player.
-	 * Example: Zarel|,haunter|#chaos
-	 *   Zarel is already on the friend list, a friend request from haunter is
+	 * Example: Zarel|,bmelts|#chaos
+	 *   Zarel is already on the friend list, a friend request from bmelts is
 	 *   still waiting for approval, and a friend request has been sent to
 	 *   chaos.
 	 */
@@ -496,7 +492,7 @@ class DefaultActionHandler {
 		// The ] denotes that it was successful
 		die(']A friend request has been sent to ' . $player['username'] . '!');
 	}
-	
+
 	/**
 	 * This function simply removes the friend given in the query string.
 	 */
