@@ -21,7 +21,7 @@ exports.BattleText = {
 		swap: "[POKEMON] and [TARGET] switched places!",
 		swapCenter: "[POKEMON] moved to the center!",
 
-		zEffect: "  [POKEMON] unleases its full-force Z-Move!",
+		zEffect: "  [POKEMON] unleashes its full-force Z-Move!",
 		move: "[POKEMON] used **[MOVE]**!",
 		abilityActivation: "[[POKEMON]'s [ABILITY]]",
 
