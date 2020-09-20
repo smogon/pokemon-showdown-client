@@ -44,7 +44,7 @@ class PSHeader extends preact.Component<{style: {}}> {
 			if (idChunks.length <= 1) {
 				if (idChunks[0] === 'uploadedreplay') formatid = 'Uploaded Replay';
 			} else {
-				formatid = idChunks[idChunks.length - 2];
+				formatid = idChunks[0];
 			}
 			if (!title) {
 				let battle = (room as any).battle as Battle | undefined;
