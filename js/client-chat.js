@@ -443,9 +443,7 @@
 				for (var i = 0; i < targets.length; i++) {
 					targets[i] = $.trim(targets[i]);
 				}
-				if (targets[2]) {
-					console.log(Object.keys(BattleFormats['gen8randombattle']));
-				}
+
 				var self = this;
 				var challenge = function (targets) {
 					target = toID(targets[0]);

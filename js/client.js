@@ -1198,7 +1198,6 @@ function toId() {
 							name = name.substr(0, name.length - 1);
 						}
 					}
-					if ()
 					var id = toID(name);
 					var isTeambuilderFormat = !team && name.slice(-11) !== 'Custom Game';
 					var teambuilderFormat = '';
@@ -1235,8 +1234,6 @@ function toId() {
 					if (BattleFormats[id] && BattleFormats[id].isTeambuilderFormat) {
 						isTeambuilderFormat = true;
 					}
-					// mult battle
-					BattleFormats[id].isMultiBattle = isMultiBattle;
 					// make sure formats aren't out-of-order
 					if (BattleFormats[id]) delete BattleFormats[id];
 					BattleFormats[id] = {
