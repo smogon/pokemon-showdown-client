@@ -1224,6 +1224,7 @@ function toId() {
 									section: section,
 									column: column,
 									rated: false,
+									isMultiBattle: isMultiBattle,
 									isTeambuilderFormat: true,
 									effectType: 'Format'
 								};
@@ -1249,6 +1250,7 @@ function toId() {
 						teambuilderLevel: teambuilderLevel,
 						teambuilderFormat: teambuilderFormat,
 						isTeambuilderFormat: isTeambuilderFormat,
+						isMultiBattle: isMultiBattle,
 						effectType: 'Format'
 					};
 				}
