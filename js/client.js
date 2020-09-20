@@ -1172,7 +1172,6 @@ function toId() {
 					var searchShow = true;
 					var challengeShow = true;
 					var tournamentShow = true;
-					var isMultiBattle = name.includes(',m');
 					var team = null;
 					var teambuilderLevel = null;
 					var lastCommaIndex = name.lastIndexOf(',');
@@ -1224,7 +1223,6 @@ function toId() {
 									section: section,
 									column: column,
 									rated: false,
-									isMultiBattle: isMultiBattle,
 									isTeambuilderFormat: true,
 									effectType: 'Format'
 								};
@@ -1250,7 +1248,6 @@ function toId() {
 						teambuilderLevel: teambuilderLevel,
 						teambuilderFormat: teambuilderFormat,
 						isTeambuilderFormat: isTeambuilderFormat,
-						isMultiBattle: isMultiBattle,
 						effectType: 'Format'
 					};
 				}
