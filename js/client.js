@@ -194,7 +194,9 @@ function toId() {
 			if (settings[setting] !== value) {
 				switch (setting) {
 				case 'blockPMs':
-					app.send(value ? '/blockpms' : '/unblockpms');
+					app.send(value ? '/blockpms ' + value : '/unblockpms');
+					// transform legacy boolean values to an object
+					value = {all: value, specific: []};
 					break;
 				case 'blockChallenges':
 					app.send(value ? '/blockchallenges' : '/unblockchallenges');
