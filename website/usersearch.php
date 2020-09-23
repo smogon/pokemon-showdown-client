@@ -58,7 +58,12 @@ if (!$ip && !$entry) {
 	if ($users->csrfCheck()) {
 		$csrfOk = true;
 	}
-	$userlist = $psdb->query("SELECT `username`, `userid`, `banstate` FROM `ntbb_users` WHERE `ip` = ?", [$ip]);
+	if (substr($ip, -1) === "*") { // ip range
+		$ip = substr($ip, 0, -1) . '%';
+		$userlist = $psdb->query("SELECT `username`, `userid`, `banstate` FROM `ntbb_users` WHERE `ip` LIKE ?", [$ip]);
+	} else {
+		$userlist = $psdb->query("SELECT `username`, `userid`, `banstate` FROM `ntbb_users` WHERE `ip` = ?", [$ip]);
+	}
 	if ($csrfOk && isset($_POST['standing'])) {
 		$newStanding = intval($_POST['standing']);
 		$psdb->query("UPDATE ntbb_users SET banstate = ? WHERE ip = ? AND banstate != 100", [$newStanding, $ip]);
