@@ -259,6 +259,24 @@ if (!$user) {
 			<p>Ladder record swapped</p>
 		</div>
 <?php
+		} else if ($csrfOk && isset($_POST['googlelogin'])) {
+			$email = $_POST['googlelogin'];
+			$remove = ($email === 'remove');
+			$psdb->query(
+				"UPDATE {$psdb->prefix}users SET email = ? WHERE userid = ?",
+				[$remove ? '' : $email . '@', $user['userid']]
+			);
+
+			$modlogentry = $remove ? "Login method set to password" : "Login method set to Google " . $email;
+			$psdb->query(
+				"INSERT INTO `{$psdb->prefix}usermodlog` (`userid`,`actorid`,`date`,`ip`,`entry`) VALUES (?, ?, ?, ?, ?)",
+				[$user['userid'], $curuser['userid'], time(), $users->getIp(), $modlogentry]
+			);
+?>
+		<div style="border: 1px solid #DDAA88; padding: 0 1em; margin-bottom: 1em">
+			<p>Login method updated</p>
+		</div>
+<?php
 		} else if ($csrfOk && $authLevel >= 5 && @$_POST['passreset']) {
 			$token = $users->createPasswordResetToken($user['userid']);
 ?>
@@ -316,11 +334,19 @@ if (!$user) {
 		}
 ?></select><?php if ($authLevel >= 4) { ?> <input name="reason" type="text" class="textbox" size="46" placeholder="Reason" style="display:none" /> <button type="submit"><strong>Change</strong></button><?php } ?>
 			</p></form>
+<?php
+		if ($authLevel >= 4) {
+?>
 			<form action="" method="post" data-target="replace"><p>
 				<?php $users->csrfData(); ?>
 				<strong>Swap ladder rating:</strong><br /> <input type="text" name="moveladder" placeholder="New username" value="" /> <button type="submit">Swap rating</button>
 			</p></form>
+			<form action="" method="post" data-target="replace"><p>
+				<?php $users->csrfData(); ?>
+				<strong>Login with Google account:</strong><br /> <input type="text" name="googlelogin" placeholder="Email" value="<?= substr($user['email'] ?? '', -1) === '@' ? substr($user['email'], 0, -1) : '' ?>" /> <button type="submit">Update login method</button> (<code>remove</code> to remove)
+			</p></form>
 <?php
+		}
 		if ($authLevel >= 5) {
 ?>
 			<form action="" method="post" data-target="replace"><p>
