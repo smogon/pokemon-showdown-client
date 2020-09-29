@@ -129,7 +129,7 @@
 		update: function () {
 			teams = Storage.teams;
 			if (this.curTeam) {
-				this.ignoreEVLimits = (this.curTeam.gen < 3 || this.curTeam.format === 'gen7balancedhackmons' || this.curTeam.format === 'gen8metronomebattle' || this.curTeam.format.endsWith('norestrictions'));
+				this.ignoreEVLimits = (this.curTeam.gen < 3 || this.curTeam.format.includes('hackmons') || this.curTeam.format === 'gen8metronomebattle');
 				if (this.curSet) {
 					return this.updateSetView();
 				}
