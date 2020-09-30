@@ -1753,6 +1753,11 @@ class Battle {
 		case '-clearboost': {
 			let poke = this.getPokemon(args[1])!;
 			poke.boosts = {};
+			if (!kwArgs.silent && kwArgs.from) {
+				let effect = Dex.getEffect(kwArgs.from);
+				let ofpoke = this.getPokemon(kwArgs.of);
+				this.activateAbility(ofpoke || poke, effect);
+			}
 			this.scene.resultAnim(poke, 'Stats reset', 'neutral');
 
 			this.log(args, kwArgs);
