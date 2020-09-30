@@ -249,6 +249,7 @@
 		 *********************************************************/
 
 		updateControls: function (force) {
+			if (this.battle.scene.customControls) return;
 			var controlsShown = this.controlsShown;
 			this.controlsShown = false;
 
