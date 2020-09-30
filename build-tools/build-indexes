@@ -418,6 +418,15 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			} else if (gen === 'gen4' && id in {clamperl:1, diglett:1, gligar:1, hippopotas:1, snover:1, wynaut:1} && tier !== 'LC') {
 				if (!tierTable['LC']) tierTable['LC'] = [];
 				tierTable['LC'].push(id);
+			} else if (gen === 'gen2' && ['hitmonchan', 'seadra', 'furret', 'venomoth', 'elekid', 'seaking', 'noctowl', 'poliwhirl', 'murkrow',
+				'gastly', 'aipom', 'tangela', 'grimer', 'mantine', 'ariados', 'machoke', 'flaaffy', 'voltorb', 'clefairy', 'delibird',
+				'sunflora', 'rhyhorn', 'staryu', 'abra', 'wobbuffet', 'golbat', 'hitmontop', 'ivysaur', 'slowpoke', 'cubone', 'beedrill',
+				'geodude', 'weepinbell', 'ponyta', 'corsola', 'parasect', 'drowzee', 'doduo', 'eevee', 'krabby', 'onix', 'quilava', 'omanyte',
+				'magcargo', 'nidorino', 'nidorina', 'diglett', 'ledyba', 'bayleef', 'wartortle', 'croconaw', 'togetic', 'butterfree', 'magby',
+				'charmeleon', 'growlithe', 'pidgeotto', 'skiploom', 'tentacool', 'poliwag', 'teddiursa', 'phanpy', 'snubbull', 'ditto',
+				'mankey', 'larvitar', 'sandshrew', 'smoochum', 'koffing', 'natu', 'swinub', 'wooper', 'unown', 'yanma'].includes(id)) {
+				if (!tierTable['PU']) tierTable['PU'] = [];
+				tierTable['PU'].push(id);
 			}
 
 			if (genNum >= 7) {
@@ -496,7 +505,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 				return ["Uber", "OU", "UUBL", "UU", "NFE", "LC Uber", "LC"];
 			}
 			if (gen === 'gen2' || gen === 'gen3') {
-				return ["Uber", "OU", "UUBL", "UU", "NUBL", "NU", "NFE", "LC Uber", "LC"];
+				return ["Uber", "OU", "UUBL", "UU", "NUBL", "NU", "PUBL", "PU", "NFE", "LC Uber", "LC"];
 			}
 			if (gen === 'gen4') {
 				return ["CAP", "CAP NFE", "CAP LC", "Uber", "OU", "(OU)", "UUBL", "UU", "NUBL", "NU", "NFE", "LC Uber", "LC"];
