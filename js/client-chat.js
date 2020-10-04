@@ -1732,9 +1732,9 @@
 		construct: function () {
 			var plural = this.room.userCount.users === 1 ? ' user' : ' users';
 			var buf = '';
-			buf += '<li class="userlist-count" id="' + this.room.id + '-userlist-users" style="text-align:center;padding:2px 0"><small>';
-			buf += '<span id="' + this.room.id + '-usercount-users">' + (this.room.userCount.users || '0') + '</span>';
-			buf += '<span id="' + this.room.id + '-usercount-plural">' + plural + '</span></small></li>';
+			var usersString = "" + (this.room.userCount.users || '0') + plural;
+			buf += '<li class="userlist-count" id="' + this.room.id + '-userlist-users" style="text-align:center;padding:2px 0">';
+			buf += '<small id="' + this.room.id + '-usercount-users">' + usersString + '</small></li>';
 
 			var users = [];
 			if (this.room.users) {
