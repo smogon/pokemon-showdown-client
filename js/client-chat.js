@@ -1777,8 +1777,7 @@
 		},
 		updateUserCount: function () {
 			var users = Math.max(this.room.userCount.users || 0, this.room.userCount.globalUsers || 0);
-			$('#' + this.room.id + '-usercount-users').html('' + users);
-			$('#' + this.room.id + '-usercount-plural').html(users === 1 ? ' user' : ' users');
+			$('#' + this.room.id + '-usercount-users').html('' + users + (users === 1 ? ' user' : ' users'));
 		},
 		add: function (userid) {
 			$('#' + this.room.id + '-userlist-user-' + userid).remove();
