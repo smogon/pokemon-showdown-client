@@ -1730,8 +1730,12 @@
 			'click .userlist-count': 'toggleUserlist'
 		},
 		construct: function () {
+			var plural = this.room.userCount.users === 1 ? ' user' : ' users';
 			var buf = '';
-			buf += '<li class="userlist-count" id="' + this.room.id + '-userlist-users" style="text-align:center;padding:2px 0"><small><span id="' + this.room.id + '-usercount-users">' + (this.room.userCount.users || '0') + '</span> users</small></li>';
+			buf += '<li class="userlist-count" id="' + this.room.id + '-userlist-users" style="text-align:center;padding:2px 0"><small>';
+			buf += '<span id="' + this.room.id + '-usercount-users">' + (this.room.userCount.users || '0') + '</span>';
+			buf += '<span id="' + this.room.id + '-usercount-plural">' + plural + '</span></small></li>';
+
 			var users = [];
 			if (this.room.users) {
 				var self = this;
@@ -1774,6 +1778,7 @@
 		updateUserCount: function () {
 			var users = Math.max(this.room.userCount.users || 0, this.room.userCount.globalUsers || 0);
 			$('#' + this.room.id + '-usercount-users').html('' + users);
+			$('#' + this.room.id + '-usercount-plural').html(users === 1 ? ' user' : ' users');
 		},
 		add: function (userid) {
 			$('#' + this.room.id + '-userlist-user-' + userid).remove();
