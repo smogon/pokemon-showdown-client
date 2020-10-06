@@ -407,16 +407,29 @@
 					app.addPopup(LoginPopup);
 				}
 				return false;
+			case 'chal':
+			case 'chall':
 			case 'challenge':
 				this.challenge(userid, data);
 				break;
 			case 'clear':
 				$chat.empty();
 				break;
-			case 'rank':
-			case 'ranking':
-			case 'rating':
-			case 'ladder':
+			case 'rank': case 'ranking': case 'rating': case 'ladder':
+			case 'user': case 'open':
+			case 'debug':
+			case 'news':
+			case 'ignorelist':
+			case 'clearpms':
+			case 'showdebug': case 'hidedebug':
+			case 'showjoins': case 'hidejoins':
+			case 'showbattles': case 'hidebattles':
+			case 'packhidden': case 'unpackhidden':
+			case 'timestamps':
+			case 'hl': case 'highlight':
+			case 'buttonban': case 'buttonmute': case 'buttonunmute': case 'buttonkick': case 'buttonwarn':
+			case 'part': case 'leave':
+			case 'afd':
 				$chat.append('<div class="chat">Use this command in a proper chat room.</div>');
 				break;
 			default:
