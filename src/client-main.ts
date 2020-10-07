@@ -460,6 +460,7 @@ class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 		if (options.noAutoDismiss && !options.id) {
 			throw new Error(`Must specify id for manual dismissing`);
 		}
+		if (Dex.prefs('nonotifs')) return;
 		this.notifications.push({
 			title: options.title,
 			body: options.body,
