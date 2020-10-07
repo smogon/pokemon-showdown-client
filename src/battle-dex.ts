@@ -244,9 +244,9 @@ const Dex = new class implements ModdedDex {
 			.slice(0, 50);
 	}
 
-	prefs(prop: string, value?: any, save?: boolean) {
+	prefs(prop: string) {
 		// @ts-ignore
-		return window.Storage?.prefs?.(prop, value, save);
+		return window.Storage?.prefs?.(prop);
 	}
 
 	getShortName(name: string) {

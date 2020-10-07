@@ -175,7 +175,7 @@ function toId() {
 				}
 			});
 			this.on('change:settings', function () {
-				Dex.prefs('serversettings', self.get('settings'));
+				Storage.prefs('serversettings', self.get('settings'));
 			});
 
 			var replaceList = {'A': 'ＡⱯȺ', 'B': 'ＢƂƁɃ', 'C': 'ＣꜾȻ', 'D': 'ＤĐƋƊƉꝹ', 'E': 'ＥƐƎ', 'F': 'ＦƑꝻ', 'G': 'ＧꞠꝽꝾ', 'H': 'ＨĦⱧⱵꞍ', 'I': 'ＩƗ', 'J': 'ＪɈ', 'K': 'ＫꞢ', 'L': 'ＬꝆꞀ', 'M': 'ＭⱮƜ', 'N': 'ＮȠƝꞐꞤ', 'O': 'ＯǪǬØǾƆƟꝊꝌ', 'P': 'ＰƤⱣꝐꝒꝔ', 'Q': 'ＱꝖꝘɊ', 'R': 'ＲɌⱤꝚꞦꞂ', 'S': 'ＳẞꞨꞄ', 'T': 'ＴŦƬƮȾꞆ', 'U': 'ＵɄ', 'V': 'ＶƲꝞɅ', 'W': 'ＷⱲ', 'X': 'Ｘ', 'Y': 'ＹɎỾ', 'Z': 'ＺƵȤⱿⱫꝢ', 'a': 'ａąⱥɐ', 'b': 'ｂƀƃɓ', 'c': 'ｃȼꜿↄ', 'd': 'ｄđƌɖɗꝺ', 'e': 'ｅɇɛǝ', 'f': 'ｆḟƒꝼ', 'g': 'ｇɠꞡᵹꝿ', 'h': 'ｈħⱨⱶɥ', 'i': 'ｉɨı', 'j': 'ｊɉ', 'k': 'ｋƙⱪꝁꝃꝅꞣ', 'l': 'ｌſłƚɫⱡꝉꞁꝇ', 'm': 'ｍɱɯ', 'n': 'ｎƞɲŉꞑꞥ', 'o': 'ｏǫǭøǿɔꝋꝍɵ', 'p': 'ｐƥᵽꝑꝓꝕ', 'q': 'ｑɋꝗꝙ', 'r': 'ｒɍɽꝛꞧꞃ', 's': 'ｓꞩꞅẛ', 't': 'ｔŧƭʈⱦꞇ', 'u': 'ｕưừứữửựųṷṵʉ', 'v': 'ｖʋꝟʌ', 'w': 'ｗⱳ', 'x': 'ｘ', 'y': 'ｙɏỿ', 'z': 'ｚƶȥɀⱬꝣ', 'AA': 'Ꜳ', 'AE': 'ÆǼǢ', 'AO': 'Ꜵ', 'AU': 'Ꜷ', 'AV': 'ꜸꜺ', 'AY': 'Ꜽ', 'DZ': 'ǱǄ', 'Dz': 'ǲǅ', 'LJ': 'Ǉ', 'Lj': 'ǈ', 'NJ': 'Ǌ', 'Nj': 'ǋ', 'OI': 'Ƣ', 'OO': 'Ꝏ', 'OU': 'Ȣ', 'TZ': 'Ꜩ', 'VY': 'Ꝡ', 'aa': 'ꜳ', 'ae': 'æǽǣ', 'ao': 'ꜵ', 'au': 'ꜷ', 'av': 'ꜹꜻ', 'ay': 'ꜽ', 'dz': 'ǳǆ', 'hv': 'ƕ', 'lj': 'ǉ', 'nj': 'ǌ', 'oi': 'ƣ', 'ou': 'ȣ', 'oo': 'ꝏ', 'ss': 'ß', 'tz': 'ꜩ', 'vy': 'ꝡ'};
@@ -425,8 +425,8 @@ function toId() {
 					}
 					// Support legacy tournament setting and migrate to new pref
 					if (Dex.prefs('notournaments') !== undefined) {
-						Dex.prefs('tournaments', Dex.prefs('notournaments') ? 'hide' : 'notify');
-						Dex.prefs('notournaments', null, true);
+						Storage.prefs('tournaments', Dex.prefs('notournaments') ? 'hide' : 'notify');
+						Storage.prefs('notournaments', null, true);
 					}
 					var autojoin = (Dex.prefs('autojoin') || '');
 					var autojoinIds = [];
@@ -1885,7 +1885,7 @@ function toId() {
 					curAutojoin = autojoins.join(',');
 				}
 			}
-			Dex.prefs('autojoin', curAutojoin);
+			Storage.prefs('autojoin', curAutojoin);
 		},
 
 		playNotificationSound: function () {
@@ -2210,7 +2210,7 @@ function toId() {
 
 			if (this.lastMessageDate) {
 				// Mark chat messages as read to avoid double-notifying on reload
-				var lastMessageDates = Dex.prefs('logtimes') || (Dex.prefs('logtimes', {}), Dex.prefs('logtimes'));
+				var lastMessageDates = Dex.prefs('logtimes') || (Storage.prefs('logtimes', {}), Dex.prefs('logtimes'));
 				if (!lastMessageDates[Config.server.id]) lastMessageDates[Config.server.id] = {};
 				lastMessageDates[Config.server.id][this.id] = this.lastMessageDate;
 				Storage.prefs.save();
@@ -2242,7 +2242,7 @@ function toId() {
 
 			if (this.lastMessageDate) {
 				// Mark chat messages as read to avoid double-notifying on reload
-				var lastMessageDates = Dex.prefs('logtimes') || (Dex.prefs('logtimes', {}), Dex.prefs('logtimes'));
+				var lastMessageDates = Dex.prefs('logtimes') || (Storage.prefs('logtimes', {}), Dex.prefs('logtimes'));
 				if (!lastMessageDates[Config.server.id]) lastMessageDates[Config.server.id] = {};
 				lastMessageDates[Config.server.id][this.id] = this.lastMessageDate;
 				Storage.prefs.save();

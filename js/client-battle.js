@@ -1445,12 +1445,12 @@
 		},
 		toggleAllIgnoreSpects: function (e) {
 			var ignoreSpects = !!e.currentTarget.checked;
-			Dex.prefs('ignorespects', ignoreSpects);
+			Storage.prefs('ignorespects', ignoreSpects);
 			if (ignoreSpects && !this.battle.ignoreSpects) this.$el.find('input[name=ignorespects]').click();
 		},
 		toggleIgnoreNicks: function (e) {
 			this.battle.ignoreNicks = !!e.currentTarget.checked;
-			Dex.prefs('ignorenicks', this.battle.ignoreNicks);
+			Storage.prefs('ignorenicks', this.battle.ignoreNicks);
 			this.battle.add('Nicknames ' + (this.battle.ignoreNicks ? '' : 'no longer ') + 'ignored.');
 			this.battle.resetToCurrentTurn();
 		},
@@ -1461,16 +1461,16 @@
 		},
 		toggleAllIgnoreOpponent: function (e) {
 			var ignoreOpponent = !!e.currentTarget.checked;
-			Dex.prefs('ignoreopp', ignoreOpponent);
+			Storage.prefs('ignoreopp', ignoreOpponent);
 			if (ignoreOpponent && !this.battle.ignoreOpponent) this.$el.find('input[name=ignoreopp]').click();
 		},
 		toggleAutoTimer: function (e) {
 			var autoTimer = !!e.currentTarget.checked;
-			Dex.prefs('autotimer', autoTimer);
+			Storage.prefs('autotimer', autoTimer);
 			if (autoTimer) this.room.setTimer('on');
 		},
 		toggleRightPanelBattles: function (e) {
-			Dex.prefs('rightpanelbattles', !!e.currentTarget.checked);
+			Storage.prefs('rightpanelbattles', !!e.currentTarget.checked);
 		}
 	});
 
