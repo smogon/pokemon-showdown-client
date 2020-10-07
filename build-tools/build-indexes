@@ -696,6 +696,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			case 'whippeddream':
 			case 'bottlecap':
 			case 'goldbottlecap':
+			case 'galaricacuff':
 				badItems.push(id);
 				break;
 			// outclassed items
@@ -720,8 +721,9 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			case 'rawstberry':
 			case 'ringtarget':
 			case 'rowapberry':
+			case 'bigroot':
+			case 'focusband':
 			// gen 2
-			// fallsthrough
 			case 'psncureberry':
 			case 'przcureberry':
 			case 'burntberry':
@@ -731,9 +733,10 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 				poorItems.push(id);
 				break;
 			default:
-				if (item.name.endsWith(" Ball")) {
-					badItems.push(id);
-				} else if (item.name.endsWith(" Fossil")) {
+				if (
+					item.name.endsWith(" Ball") || item.name.endsWith(" Fossil") || item.name.startsWith("Fossilized ") ||
+					item.name.endsWith(" Sweet") || item.name.endsWith(" Apple")
+				) {
 					badItems.push(id);
 				} else if (item.name.startsWith("TR")) {
 					badItems.push(id);
