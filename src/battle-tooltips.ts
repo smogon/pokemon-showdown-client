@@ -814,7 +814,7 @@ class BattleTooltips {
 				if (pokemon.status === 'tox') {
 					if (pokemon.ability === 'Poison Heal' || pokemon.ability === 'Magic Guard') {
 						text += ' <small>Would take if ability removed: ' + Math.floor(100 / 16 * Math.min(clientPokemon.statusData.toxicTurns + 1, 15)) + '%</small>';
-				    } if (pokemon.dynamax) {text += ' Next damage: ' + Math.floor(100 / 8 * Math.min(clientpokemon.statusData.toxicTurns + 1, 15))
+				  } else if (pokemon.dynamax) {text += ' Next damage: ' + Math.floor(100 / 8 * Math.min(clientpokemon.statusData.toxicTurns + 1, 15))
                    else {
 						text += ' Next damage: ' + Math.floor(100 / 16 * Math.min(clientPokemon.statusData.toxicTurns + 1, 15)) + '%';
 					}
