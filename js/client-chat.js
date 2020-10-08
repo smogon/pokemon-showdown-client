@@ -575,18 +575,18 @@
 			case 'disablenotifications':
 				var command = cmd.toLowerCase();
 				if (command.includes('disable')) {
-					if (Dex.prefs('nonotifs')) {
+					if (Storage.prefs('nonotifs')) {
 						this.add("|error|You already have notifications disabled.");
 						return false;
 					}
-					Dex.prefs('nonotifs', true);
+					Storage.prefs('nonotifs', true);
 					this.add("You will now not receive notifications.");
 				} else if (command.includes('enable')) {
-					if (!Dex.prefs('nonotifs')) {
+					if (!Storage.prefs('nonotifs')) {
 						this.add("|error|You are already receiving notifications.");
 						return false;
 					}
-					Dex.prefs('nonotifs', false);
+					Storage.prefs('nonotifs', false);
 					this.add("You will now receive notifications.");
 				}
 				return false;
