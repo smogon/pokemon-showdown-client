@@ -569,25 +569,25 @@
 			case 'query':
 				this.add('This is a PS system command; do not use it.');
 				return false;
-			case 'disablenotifs':
-			case 'enablenotifs':
-			case 'enablenotifications':
-			case 'disablenotifications':
-				var command = cmd.toLowerCase();
-				if (command.includes('disable')) {
+			case 'notifications':
+			case 'notifs':
+				target = toID(target);
+				if (target === 'off') {
 					if (Storage.prefs('nonotifs')) {
 						this.add("|error|You already have notifications disabled.");
 						return false;
 					}
 					Storage.prefs('nonotifs', true);
 					this.add("You will now not receive notifications.");
-				} else if (command.includes('enable')) {
+				} else if (target === 'on') {
 					if (!Storage.prefs('nonotifs')) {
 						this.add("|error|You are already receiving notifications.");
 						return false;
 					}
 					Storage.prefs('nonotifs', false);
 					this.add("You will now receive notifications.");
+				} else {
+					this.parseCommand("/help notifs");
 				}
 				return false;
 			case 'ignore':
@@ -1048,13 +1048,8 @@
 				case 'news':
 					this.add('/news - Opens a popup containing the news.');
 					return false;
-				case 'enablenotifs':
-				case 'disablenotifs':
-				case 'enablenotifications':
-				case 'disablenotifications':
 				case 'notifs': case 'notifications':
-					this.add("/enablenotifications OR /enablenotifs: Enable receiving notifications");
-					this.add("/disablenotifications OR /disblenotifs: Disable receiving notifications");
+					this.add("/notifications OR /notifs [on/off]: Toggle receiving notifications.");
 					return false;
 				case 'ignore':
 				case 'unignore':
