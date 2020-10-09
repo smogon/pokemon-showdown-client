@@ -194,7 +194,7 @@ function toId() {
 			if (settings[setting] !== value) {
 				switch (setting) {
 				case 'blockPMs':
-					app.send(value ? '/blockpms' : '/unblockpms');
+					app.send(value ? '/blockpms ' + value : '/unblockpms');
 					break;
 				case 'blockChallenges':
 					app.send(value ? '/blockchallenges' : '/unblockchallenges');
