@@ -679,7 +679,9 @@ abstract class BattleTypedSearch<T extends SearchType> {
 	protected firstLearnsetid(speciesid: ID) {
 		if (speciesid in BattleTeambuilderTable.learnsets) return speciesid;
 		const species = this.dex.getSpecies(speciesid);
-		let baseLearnsetid = species.exists && toID(species.baseSpecies);
+		if (!species.exists) return '' as ID;
+
+		let baseLearnsetid = toID(species.baseSpecies);
 		if (typeof species.battleOnly === 'string' && species.battleOnly !== species.baseSpecies) {
 			baseLearnsetid = toID(species.battleOnly);
 		}
