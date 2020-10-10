@@ -3126,7 +3126,6 @@ class Battle {
 				this.pokemonControlled = 1;
 				// falls through
 			case 'doubles':
-			case 'multi':
 				this.mySide.active = [null, null];
 				this.yourSide.active = [null, null];
 				break;
