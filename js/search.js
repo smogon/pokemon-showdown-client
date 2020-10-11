@@ -352,9 +352,9 @@
 				if (unreleasedHidden === 'Past' && (this.mod === 'natdex' || gen < 8)) unreleasedHidden = false;
 				if (abilities['S']) {
 					if (abilities['H']) {
-						buf += '<span class="col twoabilitycol' + (unreleasedHidden ? ' unreleasedhacol' : '') + '">' + (abilities['H'] || '') + '<br />' + abilities['S'] + '</span>';
+						buf += '<span class="col twoabilitycol' + (unreleasedHidden ? ' unreleasedhacol' : '') + '">' + (abilities['H'] || '') + '<br />(' + abilities['S'] + ')</span>';
 					} else {
-						buf += '<span class="col abilitycol">' + abilities['S'] + '</span>';
+						buf += '<span class="col abilitycol">(' + abilities['S'] + ')</span>';
 					}
 				} else if (abilities['H']) {
 					buf += '<span class="col abilitycol' + (unreleasedHidden ? ' unreleasedhacol' : '') + '">' + abilities['H'] + '</span>';
