@@ -35,13 +35,7 @@
 		addRow: function (line) {
 			if (!line || typeof line !== 'string') return;
 			if (line.charAt(0) !== '|') line = '||' + line;
-			var pipeIndex = line.indexOf('|', 1);
-			var row;
-			if (pipeIndex >= 0) {
-				row = [line.slice(1, pipeIndex), line.slice(pipeIndex + 1)];
-			} else {
-				row = [line.slice(1), ''];
-			}
+			var row = line.substr(1).split('|');
 			switch (row[0]) {
 			case 'init':
 				// ignore (handled elsewhere)
@@ -54,20 +48,19 @@
 				break;
 
 			case 'pagehtml':
-				this.$el.html(BattleLog.sanitizeHTML(row[1]));
+				this.$el.html(BattleLog.sanitizeHTML(row.slice(1).join('|')));
 				this.subtleNotifyOnce();
 				break;
 
 			case 'selectorhtml':
-				var pipeIndex2 = row[1].indexOf('|');
-				if (pipeIndex2 < 0) return;
-				this.$(row[1].slice(0, pipeIndex2)).html(BattleLog.sanitizeHTML(row[1].slice(pipeIndex2 + 1)));
+				if (!row[2]) return;
+				this.$(row[1]).html(BattleLog.sanitizeHTML(row.slice(2).join('|')));
 				this.subtleNotifyOnce();
 				break;
 
 			case 'notify':
 				app.playNotificationSound();
-				this.notifyOnce(row[1], row.slice(2).join('|'), 'highlight');
+				this.notifyOnce(row[1], row[2], 'highlight');
 				break;
 
 			case 'tempnotify':
