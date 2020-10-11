@@ -572,14 +572,14 @@
 			case 'notifications':
 			case 'notifs':
 				target = toID(target);
-				if (target === 'off') {
+				if (target === 'off' || target === 'false') {
 					if (Storage.prefs('nonotifs')) {
 						this.add("|error|You already have notifications disabled.");
 						return false;
 					}
 					Storage.prefs('nonotifs', true);
 					this.add("You will now not receive notifications.");
-				} else if (target === 'on') {
+				} else if (target === 'on' || target === 'true') {
 					if (!Storage.prefs('nonotifs')) {
 						this.add("|error|You are already receiving notifications.");
 						return false;
