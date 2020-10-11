@@ -2601,7 +2601,7 @@ function toId() {
 					buf += '<button name="login"><i class="fa fa-pencil"></i> Change name</button> <button name="logout"><i class="fa fa-power-off"></i> Log out</button>';
 				} else {
 					// Guests can't PM themselves
-					buf += ' <button disabled>Chat</button>';
+					buf += ' <button disabled>Chat self</button>';
 				}
 			} else {
 				buf += '<button name="challenge">Challenge</button> <button name="pm">Chat</button> <button name="userOptions">\u2026</button>';
