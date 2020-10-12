@@ -1166,7 +1166,7 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 		}
 
 		if (itemid === 'pidgeotite') abilityid = 'noguard' as ID;
-		if (itemid === 'blastoiseinite') abilityid = 'megalauncher' as ID;
+		if (itemid === 'blastoisinite') abilityid = 'megalauncher' as ID;
 		if (itemid === 'aerodactylite') abilityid = 'toughclaws' as ID;
 		if (itemid === 'glalitite') abilityid = 'refrigerate' as ID;
 
