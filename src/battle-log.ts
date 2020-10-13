@@ -695,11 +695,12 @@ class BattleLog {
 		if (!('html4' in window)) {
 			throw new Error('sanitizeHTML requires caja');
 		}
-		// Add <marquee> <blink> <psicon> to the whitelist.
+		// Add <marquee> <blink> custom icons to the whitelist.
 		Object.assign(html4.ELEMENTS, {
 			marquee: 0,
 			blink: 0,
 			psicon: html4.eflags['OPTIONAL_ENDTAG'] | html4.eflags['EMPTY'],
+			username: 0,
 		});
 		Object.assign(html4.ATTRIBS, {
 			// See https://developer.mozilla.org/en-US/docs/Web/HTML/Element/marquee
@@ -718,6 +719,7 @@ class BattleLog {
 			'psicon::item': 0,
 			'psicon::type': 0,
 			'psicon::category': 0,
+			'username::src': 0,
 			'*::aria-label': 0,
 			'*::aria-hidden': 0,
 		});
@@ -752,6 +754,17 @@ class BattleLog {
 						}
 					}
 				}
+			} else if (tagName === 'username') {
+				// <username> is a custom element that handles namecolors
+				let name = '';
+				tagName = 'strong';
+				for (let i = 0; i < attribs.length - 1; i += 2) {
+					if (attribs[i] === 'src') {
+						name = toID(attribs[i + 1]);
+					}
+				}
+				const color = this.usernameColor(toID(name));
+				attribs.push('style', 'color:' + color);
 			} else if (tagName === 'psicon') {
 				// <psicon> is a custom element which supports a set of mutually incompatible attributes:
 				// <psicon pokemon> and <psicon item>
