@@ -867,6 +867,11 @@ class BattleLog {
 	static sanitizeHTML(input: string) {
 		if (typeof input !== 'string') return '';
 		this.initSanitizeHTML();
+		input = input.replace(/<username([^>]*)>([^<]*)<\/username>/gi, (match, attrs, username) => {
+			if (/\bname\s*=\s*"/.test(attrs)) return match;
+			const escapedUsername = username.replace(/"/g, '&quot;').replace(/>/g, '&gt;');
+			return `<username${attrs} name="${escapedUsername}">${username}</username>`;
+		});
 		const sanitized = html.sanitizeWithPolicy(input, this.tagPolicy) as string;
 		// <time> parsing requires ISO 8601 time. While more time formats are
 		// supported by most JavaScript implementations, it isn't required, and
