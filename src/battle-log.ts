@@ -719,7 +719,7 @@ class BattleLog {
 			'psicon::item': 0,
 			'psicon::type': 0,
 			'psicon::category': 0,
-			'username::src': 0,
+			'username::name': 0,
 			'*::aria-label': 0,
 			'*::aria-hidden': 0,
 		});
@@ -759,7 +759,7 @@ class BattleLog {
 				let name = '';
 				tagName = 'strong';
 				for (let i = 0; i < attribs.length - 1; i += 2) {
-					if (attribs[i] === 'src') {
+					if (attribs[i] === 'name') {
 						name = toID(attribs[i + 1]);
 					}
 				}
