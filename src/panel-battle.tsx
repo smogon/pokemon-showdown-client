@@ -46,10 +46,12 @@ class BattlesPanel extends PSRoomPanel<BattlesRoom> {
 	renderBattleLink(battle: BattleDesc) {
 		const format = battle.id.split('-')[1];
 		const minEloMessage = typeof battle.minElo === 'number' ? `rated ${battle.minElo}` : battle.minElo;
+		const p1 = battle.p1 + (battle.p3 ? " & " + battle.p3 : "");
+		const p2 = battle.p2 + (battle.p4 ? " & " + battle.p4 : "");
 		return <div><a href={`/${battle.id}`} class="blocklink">
 			{minEloMessage && <small style="float:right">({minEloMessage})</small>}
 			<small>[{format}]</small><br />
-			<em class="p1">{battle.p1}</em> <small class="vs">vs.</small> <em class="p2">{battle.p2}</em>
+			<em class="p1">{p1}</em> <small class="vs">vs.</small> <em class="p2">{p2}</em>
 		</a></div>;
 	}
 	render() {
