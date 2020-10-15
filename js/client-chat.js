@@ -1445,7 +1445,7 @@
 						var lineCount = parseInt(row[3], 10) || 0;
 						if (lineCount) $messages = $messages.slice(-lineCount);
 						$messages.hide().addClass('revealed').find('button').parent().remove();
-						this.$chat.children().last().append(' <button name="toggleMessages" value="' + user + '" class="subtle"><small>(' + $messages.length + ' line' + ($messages.length > 1 ? 's' : '') + ' from ' + user + ' hidden)</small></button>');
+						if (row[1] !== "perma" || this.rankOrder[app.user.get('name').charAt(0)] > 3) this.$chat.children().last().append(' <button name="toggleMessages" value="' + user + '" class="subtle"><small>(' + $messages.length + ' line' + ($messages.length > 1 ? 's' : '') + ' from ' + user + ' hidden)</small></button>');
 					}
 					break;
 				case 'hidelines':
