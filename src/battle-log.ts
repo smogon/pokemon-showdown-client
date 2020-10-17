@@ -703,6 +703,7 @@ class BattleLog {
 			blink: 0,
 			psicon: html4.eflags['OPTIONAL_ENDTAG'] | html4.eflags['EMPTY'],
 			username: 0,
+			youtube: html4.eflags['OPTIONAL_ENDTAG'] | html4.eflags['EMPTY'],
 		});
 
 		// By default, Caja will ban any attributes it doesn't recognize.
@@ -725,6 +726,7 @@ class BattleLog {
 			'psicon::type': 0,
 			'psicon::category': 0,
 			'username::name': 0,
+			'youtube::video': 0,
 			'*::aria-label': 0,
 			'*::aria-hidden': 0,
 		});
