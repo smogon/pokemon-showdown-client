@@ -472,6 +472,7 @@ const BattlePokemonIconIndexes: {[id: string]: number} = {
 	snaelstrom: 1296 + 27,
 	equilibra: 1296 + 28,
 	astrolotl: 1296 + 29,
+	miasmaw: 1296 + 30,
 
 	syclar: 1332 + 0,
 	embirch: 1332 + 1,
