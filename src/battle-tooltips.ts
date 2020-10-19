@@ -684,7 +684,7 @@ class BattleTooltips {
 
 			text += '' + (move.desc || move.shortDesc) + '</p>';
 
-			if (this.battle.gameType === 'doubles') {
+			if (this.battle.gameType === 'doubles' || this.battle.gameType === 'multi') {
 				if (move.target === 'allAdjacent') {
 					text += '<p>&#x25ce; Hits both foes and ally.</p>';
 				} else if (move.target === 'allAdjacentFoes') {
