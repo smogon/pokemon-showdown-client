@@ -234,8 +234,8 @@ class BattleTextParser {
 		if (!pokemon) return '';
 		let side;
 		switch (pokemon.slice(0, 2)) {
-		case 'p1': side = 0; break;
-		case 'p2': side = 1; break;
+		case 'p1': case 'p3': side = 0; break;
+		case 'p2': case 'p4': side = 1; break;
 		default: return `???pokemon:${pokemon}???`;
 		}
 		const name = this.pokemonName(pokemon);
