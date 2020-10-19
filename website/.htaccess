@@ -89,7 +89,7 @@ RewriteRule ^help\/?$ https://play.pokemonshowdown.com/help [R=302,L]
 RewriteRule ^rooms?suggestions?\/?$ http://www.smogon.com/forums/threads/room-suggestions-are-no-longer-being-taken.3522130/ [R=302,L]
 RewriteRule ^suggestions?\/?$ http://www.smogon.com/forums/threads/suggestions.3534365/ [R=302,L]
 RewriteRule ^adminrequests?\/?$ http://www.smogon.com/forums/threads/names-rooms-and-servers-contacting-senior-staff.3538721/ [R=302,L]
-RewriteRule ^bugs?(reports?)?\/?$ http://www.smogon.com/forums/threads/3663703/  [R=302,L]
+RewriteRule ^bugs?(reports?)?\/?$ http://www.smogon.com/forums/threads/3663703/ [R=302,L]
 RewriteRule ^faq\/?$ http://www.smogon.com/forums/posts/6774128/ [R=302,L]
 
 RewriteRule ^whatismyip$ whatismyip.php [L,QSA]
