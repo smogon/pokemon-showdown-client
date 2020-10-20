@@ -579,7 +579,7 @@ class Side {
 	id = '';
 	n: number;
 	foe: Side = null!;
-	ally: Side = null!;
+	ally: Side | null = null;
 	avatar: string = 'unknown';
 	rating: string = '';
 	totalPokemon = 6;
@@ -1052,8 +1052,8 @@ class Battle {
 	yourSide: Side = null!;
 	p1: Side = null!;
 	p2: Side = null!;
-	p3?: Side = null!;
-	p4?: Side = null!;
+	p3: Side | null = null;
+	p4: Side | null = null;
 	myPokemon: ServerPokemon[] | null = null;
 	pokemonControlled = 0;
 	sides: [Side, Side] = [null!, null!];
@@ -1145,7 +1145,7 @@ class Battle {
 			this.p4 = new Side(this, 3);
 			this.p4.ally = this.p2;
 			this.p4.foe = this.p1;
-			this.sides.concat([this.p3, this.p4]);
+			this.sides.push(this.p3, this.p4);
 		}
 		this.gen = 7;
 		this.reset();
