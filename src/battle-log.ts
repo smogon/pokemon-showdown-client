@@ -754,6 +754,17 @@ class BattleLog {
 						}
 					}
 				}
+			/**
+			 * Custom html parsing.
+			 * `tagName` is the input tag, e.g <psicon>.
+			 * To do what you want, you set tagName to the new tag you want it to be replaced with,
+			 * for example changing tagName to <span> for <psicon>.
+			 * You then push the attributes you want (i.e height, width for an <img> tag)
+			 * to the `attribs` array. Caja will remove the old, invalid, attributes.
+			 * Note that you also need to add each attrib to the two Object.assign patterns above.
+			 * Both will require the format `'tagName::attributeName': 0 (or opts, but 0 by default)`.
+			 * Opts include making it an autoclose tag, etc.
+			 */
 			} else if (tagName === 'username') {
 				// <username> is a custom element that handles namecolors
 				let name = '';
