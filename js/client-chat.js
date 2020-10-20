@@ -443,14 +443,15 @@
 				for (var i = 0; i < targets.length; i++) {
 					targets[i] = $.trim(targets[i]);
 				}
+
 				var self = this;
 				var challenge = function (targets) {
 					target = toID(targets[0]);
 					self.challengeData = {userid: target, format: targets.length > 1 ? targets.slice(1).join(',') : '', team: ''};
 					app.on('response:userdetails', self.challengeUserdetails, self);
-					app.send('/cmd userdetails ' + targets[0]);
-					if (self.challengeData.teammate) app.send('/cmd userdetails ' + targets[3]);
+					app.send('/cmd userdetails ' + target);
 				};
+
 				if (!targets[0]) {
 					app.addPopupPrompt("Who would you like to challenge?", "Challenge user", function (target) {
 						if (!target) return;
@@ -462,7 +463,7 @@
 				return false;
 
 			case 'accept':
-				var userid = toID(targets[0]);
+				var userid = toID(target);
 				if (userid) {
 					var $challenge = $('.pm-window').filter('div[data-userid="' + userid + '"]').find('button[name="acceptChallenge"]');
 					if (!$challenge.length) {
@@ -1110,10 +1111,6 @@
 			// if foe has changed name, challengeData.userid will be wrong, so defer to data
 			var name = data.name || data.userid;
 			if (/^[a-z0-9]/i.test(name)) name = ' ' + name;
-			if (this.challengeData.teammate) {
-				app.rooms[''].challenge(name, this.challengeData.format, this.challengeData.team, this.challengeData.teammate);
-				return;
-			}
 			app.rooms[''].challenge(name, this.challengeData.format, this.challengeData.team);
 		},
 
