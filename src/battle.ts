@@ -2996,7 +2996,7 @@ class Battle {
 			let pokemon = side.pokemon[i];
 			if (pokemon.fainted) continue;
 			// already active, can't be switching in
-			if (side.active.includes(pokemon) && side.ally) continue;
+			if (side.active.includes(pokemon) && !side.ally) continue;
 			// just switched out, can't be switching in
 			if (pokemon === side.lastPokemon && !side.active[slot]) continue;
 
