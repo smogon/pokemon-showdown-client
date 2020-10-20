@@ -695,13 +695,18 @@ class BattleLog {
 		if (!('html4' in window)) {
 			throw new Error('sanitizeHTML requires caja');
 		}
-		// Add <marquee> <blink> custom icons to the whitelist.
+
+		// By default, Caja will ban any HTML tags it doesn't recognize.
+		// Additional HTML tags to allow:
 		Object.assign(html4.ELEMENTS, {
 			marquee: 0,
 			blink: 0,
 			psicon: html4.eflags['OPTIONAL_ENDTAG'] | html4.eflags['EMPTY'],
 			username: 0,
 		});
+
+		// By default, Caja will ban any attributes it doesn't recognize.
+		// Additional attributes to allow:
 		Object.assign(html4.ATTRIBS, {
 			// See https://developer.mozilla.org/en-US/docs/Web/HTML/Element/marquee
 			'marquee::behavior': 0,
@@ -724,121 +729,127 @@ class BattleLog {
 			'*::aria-hidden': 0,
 		});
 
+		// Caja unfortunately doesn't document how `tagPolicy` works, so
+		// here's how it goes:
+
+		// Every opening tag and attributes is filtered through
+		// `tagPolicy`, being replaced by the {tagName, attribs} returned.
+		// Returning `undefined` means that the tag will be removed entirely.
+
+		// We run Caja's built-in tag sanitization in the first line of our
+		// custom tagPolicy, and its attribs sanitization midway through, with
+		// `sanitizeAttribs`.
+
+		// (n.b. tag contents etc can't be modified in this step.)
+
+		/**
+		 * @param tagName Lowercase tag name
+		 * @param attribs attribs in the form of [key, value, key, value]
+		 * @return undefined to remove the tag
+		 */
 		this.tagPolicy = (tagName: string, attribs: string[]) => {
 			if (html4.ELEMENTS[tagName] & html4.eflags['UNSAFE']) {
 				return;
 			}
-			let targetIdx = 0;
-			let srcIdx = 0;
-			if (tagName === 'a') {
-				// Special handling of <a> tags.
 
+			function getAttrib(key: string) {
 				for (let i = 0; i < attribs.length - 1; i += 2) {
-					switch (attribs[i]) {
-					case 'target':
-						targetIdx = i + 1;
-						break;
+					if (attribs[i] === key) {
+						return attribs[i + 1];
+					}
+				}
+				return undefined;
+			}
+			function setAttrib(key: string, value: string) {
+				for (let i = 0; i < attribs.length - 1; i += 2) {
+					if (attribs[i] === key) {
+						attribs[i + 1] = value;
+						return;
+					}
+				}
+				attribs.push(key, value);
+			}
+			function deleteAttrib(key: string) {
+				for (let i = 0; i < attribs.length - 1; i += 2) {
+					if (attribs[i] === key) {
+						attribs.splice(i, 2);
+						return;
 					}
 				}
 			}
+
 			let dataUri = '';
-			if (tagName === 'img') {
-				for (let i = 0; i < attribs.length - 1; i += 2) {
-					if (attribs[i] === 'src' && attribs[i + 1].substr(0, 11) === 'data:image/') {
-						srcIdx = i;
-						dataUri = attribs[i + 1];
-					}
-					if (attribs[i] === 'src' && attribs[i + 1].substr(0, 2) === '//') {
-						if (location.protocol !== 'http:' && location.protocol !== 'https:') {
-							attribs[i + 1] = 'http:' + attribs[i + 1];
-						}
+			let targetReplace = false;
+
+			if (tagName === 'a') {
+				if (getAttrib('target') === 'replace') {
+					targetReplace = true;
+				}
+			} else if (tagName === 'img') {
+				const src = getAttrib('src') || '';
+				if (src.startsWith('data:image/')) {
+					dataUri = src;
+				}
+				if (src.startsWith('//')) {
+					if (location.protocol !== 'http:' && location.protocol !== 'https:') {
+						// in testclient with `file://`, fix src so it still works
+						setAttrib('src', 'https:' + src);
 					}
 				}
 			} else if (tagName === 'username') {
 				// <username> is a custom element that handles namecolors
-				let name = '';
 				tagName = 'strong';
-				for (let i = 0; i < attribs.length - 1; i += 2) {
-					if (attribs[i] === 'name') {
-						name = toID(attribs[i + 1]);
-					}
-				}
-				const color = this.usernameColor(toID(name));
-				attribs.push('style', 'color:' + color);
+				const color = this.usernameColor(toID(getAttrib('name')));
+				const style = getAttrib('style');
+				setAttrib('style', `${style};color:${color}`);
 			} else if (tagName === 'psicon') {
 				// <psicon> is a custom element which supports a set of mutually incompatible attributes:
 				// <psicon pokemon> and <psicon item>
-				let classValueIndex = -1;
-				let styleValueIndex = -1;
-				let iconAttrib = null;
+				let iconType = null;
+				let iconValue = null;
 				for (let i = 0; i < attribs.length - 1; i += 2) {
 					if (attribs[i] === 'pokemon' || attribs[i] === 'item' || attribs[i] === 'type' || attribs[i] === 'category') {
-						// If declared more than once, use the later.
-						iconAttrib = attribs.slice(i, i + 2);
-					} else if (attribs[i] === 'class') {
-						classValueIndex = i + 1;
-					} else if (attribs[i] === 'style') {
-						styleValueIndex = i + 1;
+						[iconType, iconValue] = attribs.slice(i, i + 2);
+						break;
 					}
 				}
 				tagName = 'span';
 
-				if (iconAttrib) {
-					if (classValueIndex < 0) {
-						attribs.push('class', '');
-						classValueIndex = attribs.length - 1;
-					}
-					if (styleValueIndex < 0) {
-						attribs.push('style', '');
-						styleValueIndex = attribs.length - 1;
-					}
+				if (iconType) {
+					const className = getAttrib('class');
+					const style = getAttrib('style');
 
-					// Prepend all the classes and styles associated to the custom element.
-					if (iconAttrib[0] === 'pokemon') {
-						attribs[classValueIndex] = attribs[classValueIndex] ? 'picon ' + attribs[classValueIndex] : 'picon';
-						attribs[styleValueIndex] = attribs[styleValueIndex] ?
-							Dex.getPokemonIcon(iconAttrib[1]) + '; ' + attribs[styleValueIndex] :
-							Dex.getPokemonIcon(iconAttrib[1]);
-					} else if (iconAttrib[0] === 'item') {
-						attribs[classValueIndex] = attribs[classValueIndex] ? 'itemicon ' + attribs[classValueIndex] : 'itemicon';
-						attribs[styleValueIndex] = attribs[styleValueIndex] ?
-							Dex.getItemIcon(iconAttrib[1]) + '; ' + attribs[styleValueIndex] :
-							Dex.getItemIcon(iconAttrib[1]);
-					} else if (iconAttrib[0] === 'type') {
-						tagName = Dex.getTypeIcon(iconAttrib[1]).slice(1, -3);
-					} else if (iconAttrib[0] === 'category') {
-						tagName = Dex.getCategoryIcon(iconAttrib[1]).slice(1, -3);
+					if (iconType === 'pokemon') {
+						setAttrib('class', 'picon' + (className ? ' ' + className : ''));
+						setAttrib('style', Dex.getPokemonIcon(iconValue) + (style ? '; ' + style : ''));
+					} else if (iconType === 'item') {
+						setAttrib('class', 'itemicon' + (className ? ' ' + className : ''));
+						setAttrib('style', Dex.getItemIcon(iconValue) + (style ? '; ' + style : ''));
+					} else if (iconType === 'type') {
+						tagName = Dex.getTypeIcon(iconValue).slice(1, -3);
+					} else if (iconType === 'category') {
+						tagName = Dex.getCategoryIcon(iconValue).slice(1, -3);
 					}
 				}
 			}
 
-			if (attribs[targetIdx] === 'replace') {
-				targetIdx = -targetIdx;
-			}
 			attribs = html.sanitizeAttribs(tagName, attribs, (urlData: any) => {
 				if (urlData.scheme_ === 'geo' || urlData.scheme_ === 'sms' || urlData.scheme_ === 'tel') return null;
 				return urlData;
 			});
-			if (targetIdx < 0) {
-				targetIdx = -targetIdx;
-				attribs[targetIdx - 1] = 'data-target';
-				attribs[targetIdx] = 'replace';
-				targetIdx = 0;
-			}
 
 			if (dataUri && tagName === 'img') {
-				attribs[srcIdx + 1] = dataUri;
+				setAttrib('src', dataUri);
 			}
 			if (tagName === 'a' || tagName === 'form') {
-				if (targetIdx) {
-					attribs[targetIdx] = '_blank';
+				if (targetReplace) {
+					setAttrib('data-target', 'replace');
+					deleteAttrib('target');
 				} else {
-					attribs.push('target');
-					attribs.push('_blank');
+					setAttrib('target', '_blank');
 				}
 				if (tagName === 'a') {
-					attribs.push('rel');
-					attribs.push('noopener');
+					setAttrib('rel', 'noopener');
 				}
 			}
 			return {tagName, attribs};
@@ -866,13 +877,19 @@ class BattleLog {
 	}
 	static sanitizeHTML(input: string) {
 		if (typeof input !== 'string') return '';
+
 		this.initSanitizeHTML();
+
 		input = input.replace(/<username([^>]*)>([^<]*)<\/username>/gi, (match, attrs, username) => {
 			if (/\bname\s*=\s*"/.test(attrs)) return match;
 			const escapedUsername = username.replace(/"/g, '&quot;').replace(/>/g, '&gt;');
 			return `<username${attrs} name="${escapedUsername}">${username}</username>`;
 		});
+
+		// Our custom element support happens in `tagPolicy`, which is set
+		// up in `initSanitizeHTML` above.
 		const sanitized = html.sanitizeWithPolicy(input, this.tagPolicy) as string;
+
 		// <time> parsing requires ISO 8601 time. While more time formats are
 		// supported by most JavaScript implementations, it isn't required, and
 		// how to exactly enforce ignoring user agent timezone setting is not obvious.
