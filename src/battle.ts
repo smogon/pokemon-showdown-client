@@ -579,6 +579,7 @@ class Side {
 	id = '';
 	n: number;
 	foe: Side = null!;
+	ally: Side = null!;
 	avatar: string = 'unknown';
 	rating: string = '';
 	totalPokemon = 6;
@@ -1051,6 +1052,8 @@ class Battle {
 	yourSide: Side = null!;
 	p1: Side = null!;
 	p2: Side = null!;
+	p3?: Side = null!;
+	p4?: Side = null!;
 	myPokemon: ServerPokemon[] | null = null;
 	pokemonControlled = 0;
 	sides: [Side, Side] = [null!, null!];
@@ -1135,6 +1138,15 @@ class Battle {
 		this.sides = [this.mySide, this.yourSide];
 		this.p1 = this.mySide;
 		this.p2 = this.yourSide;
+		if (this.gameType === 'multi') {
+			this.p3 = new Side(this, 2);
+			this.p3.foe = this.p2;
+			this.p3.ally = this.p1;
+			this.p4 = new Side(this, 3);
+			this.p4.ally = this.p2;
+			this.p4.foe = this.p1;
+			this.sides.concat([this.p3, this.p4]);
+		}
 		this.gen = 7;
 		this.reset();
 	}
@@ -1755,6 +1767,11 @@ class Battle {
 		case '-clearboost': {
 			let poke = this.getPokemon(args[1])!;
 			poke.boosts = {};
+			if (!kwArgs.silent && kwArgs.from) {
+				let effect = Dex.getEffect(kwArgs.from);
+				let ofpoke = this.getPokemon(kwArgs.of);
+				this.activateAbility(ofpoke || poke, effect);
+			}
 			this.scene.resultAnim(poke, 'Stats reset', 'neutral');
 
 			this.log(args, kwArgs);
@@ -2979,7 +2996,7 @@ class Battle {
 			let pokemon = side.pokemon[i];
 			if (pokemon.fainted) continue;
 			// already active, can't be switching in
-			if (side.active.includes(pokemon)) continue;
+			if (side.active.includes(pokemon) && side.ally) continue;
 			// just switched out, can't be switching in
 			if (pokemon === side.lastPokemon && !side.active[slot]) continue;
 

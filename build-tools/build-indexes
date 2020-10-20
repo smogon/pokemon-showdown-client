@@ -314,23 +314,31 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 					const uu = Dex.getFormat('gen8nationaldexuu');
 					const ou = Dex.getFormat('gen8nationaldex');
 					const uublIndex = uu.banlist.map(toID).indexOf('nduubl');
-					if (Dex.getRuleTable(ou).isBannedSpecies(species) || species.id === 'zygardecomplete' || species.id === 'necrozmaultra') return 'Uber';
+					if (Dex.getRuleTable(ou).isBannedSpecies(species)) return 'Uber';
 					if (Dex.getRuleTable(ou).has('dynamaxclause') && species.name.endsWith('Gmax')) return '(Uber)';
 					if (Dex.getRuleTable(uu).isBannedSpecies(species)) {
-						if (uu.banlist.map(toID).indexOf(species.id) >= uublIndex || uu.banlist.map(toID).indexOf(species.id + 'base') >= uublIndex) {
+						if (
+							uu.banlist.map(toID).indexOf(species.id) >= uublIndex ||
+							uu.banlist.map(toID).indexOf(species.id + 'base') >= uublIndex ||
+							uu.banlist.map(toID).indexOf(toID(species.baseSpecies)) >= uublIndex
+						) {
 							return 'UUBL';
 						} else {
 							return 'OU';
 						}
 					}
-					if (species.nfe) {
-						if (species.prevo) {
-							return 'NFE';
-						} else {
-							return 'LC';
+					if (Dex.getRuleTable(uu).isRestrictedSpecies(species)) {
+						return 'UU';
+					} else {
+						if (species.nfe) {
+							if (species.prevo) {
+								return 'NFE';
+							} else {
+								return 'LC';
+							}
 						}
+						return '(UU)';
 					}
-					return 'UU';
 				}
 				if (isMetBattle) {
 					let tier = species.tier;
@@ -418,6 +426,15 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			} else if (gen === 'gen4' && id in {clamperl:1, diglett:1, gligar:1, hippopotas:1, snover:1, wynaut:1} && tier !== 'LC') {
 				if (!tierTable['LC']) tierTable['LC'] = [];
 				tierTable['LC'].push(id);
+			} else if (gen === 'gen2' && ['hitmonchan', 'seadra', 'furret', 'venomoth', 'elekid', 'seaking', 'noctowl', 'poliwhirl', 'murkrow',
+				'gastly', 'aipom', 'tangela', 'grimer', 'mantine', 'ariados', 'machoke', 'flaaffy', 'voltorb', 'clefairy', 'delibird',
+				'sunflora', 'rhyhorn', 'staryu', 'abra', 'wobbuffet', 'golbat', 'hitmontop', 'ivysaur', 'slowpoke', 'cubone', 'beedrill',
+				'geodude', 'weepinbell', 'ponyta', 'corsola', 'parasect', 'drowzee', 'doduo', 'eevee', 'krabby', 'onix', 'quilava', 'omanyte',
+				'magcargo', 'nidorino', 'nidorina', 'diglett', 'ledyba', 'bayleef', 'wartortle', 'croconaw', 'togetic', 'butterfree', 'magby',
+				'charmeleon', 'growlithe', 'pidgeotto', 'skiploom', 'tentacool', 'poliwag', 'teddiursa', 'phanpy', 'snubbull', 'ditto',
+				'mankey', 'larvitar', 'sandshrew', 'smoochum', 'koffing', 'natu', 'swinub', 'wooper', 'unown', 'yanma'].includes(id)) {
+				if (!tierTable['PU']) tierTable['PU'] = [];
+				tierTable['PU'].push(id);
 			}
 
 			if (genNum >= 7) {
@@ -481,7 +498,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 
 		const tierOrder = (() => {
 			if (isNatDex) {
-				return ["CAP", "CAP NFE", "CAP LC", "AG", "Uber", "(Uber)", "OU", "UUBL", "(OU)", "UU", "RUBL", "RU", "NUBL", "NU", "PUBL", "PU", "(PU)", "NFE", "LC Uber", "LC"];
+				return ["CAP", "CAP NFE", "CAP LC", "AG", "Uber", "(Uber)", "OU", "UUBL", "(OU)", "UU", "(UU)", "NFE", "LC Uber", "LC"];
 			}
 			if (isLetsGo) {
 				return ["Uber", "OU", "UU", "NFE", "LC"];
@@ -496,10 +513,10 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 				return ["Uber", "OU", "UUBL", "UU", "NFE", "LC Uber", "LC"];
 			}
 			if (gen === 'gen2' || gen === 'gen3') {
-				return ["Uber", "OU", "UUBL", "UU", "NUBL", "NU", "NFE", "LC Uber", "LC"];
+				return ["Uber", "OU", "UUBL", "UU", "NUBL", "NU", "PUBL", "PU", "NFE", "LC Uber", "LC"];
 			}
 			if (gen === 'gen4') {
-				return ["CAP", "CAP NFE", "CAP LC", "Uber", "OU", "(OU)", "UUBL", "UU", "NUBL", "NU", "NFE", "LC Uber", "LC"];
+				return ["CAP", "CAP NFE", "CAP LC", "AG", "Uber", "OU", "(OU)", "UUBL", "UU", "NUBL", "NU", "NFE", "LC Uber", "LC"];
 			}
 			if (gen === 'gen5') {
 				return ["CAP", "CAP NFE", "CAP LC", "Uber", "OU", "(OU)", "UUBL", "UU", "RUBL", "RU", "NUBL", "NU", "(NU)", "NFE", "LC Uber", "LC"];
@@ -511,15 +528,18 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 		})();
 
 		for (const tier of tierOrder) {
-			if (tier in {OU:1, AG:1, Uber:1, UU:1, RU:1, NU:1, "(NU)":1, PU:1, "(PU)":1, NFE:1, LC:1, DOU:1, DUU:1, "(DUU)":1, New:1, Legal:1, Regular:1, "Restricted Legendary":1, "CAP LC":1}) {
+			if (tier in {OU:1, AG:1, Uber:1, UU:1, "(UU)":1, RU:1, NU:1, "(NU)":1, PU:1, "(PU)":1, NFE:1, LC:1, DOU:1, DUU:1, "(DUU)":1, New:1, Legal:1, Regular:1, "Restricted Legendary":1, "CAP LC":1}) {
 				let usedTier = tier;
+				if (usedTier === "(UU)") usedTier = "RU";
 				if (usedTier === "(NU)") usedTier = "PU";
 				if (usedTier === "(PU)") usedTier = "ZU";
 				if (usedTier === "(DUU)") usedTier = "DNU";
 				formatSlices[usedTier] = tiers.length;
 			}
 			if (!tierTable[tier]) continue;
-			if (tier === "(NU)") {
+			if (tier === "(UU)") {
+				tiers.push(['header', "Below UU"]);
+			} else if (tier === "(NU)") {
 				tiers.push(['header', "Below NU"]);
 			} else if (tier === "(PU)") {
 				tiers.push(['header', "Below PU"]);
@@ -683,6 +703,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			case 'whippeddream':
 			case 'bottlecap':
 			case 'goldbottlecap':
+			case 'galaricacuff':
 				badItems.push(id);
 				break;
 			// outclassed items
@@ -707,8 +728,9 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			case 'rawstberry':
 			case 'ringtarget':
 			case 'rowapberry':
+			case 'bigroot':
+			case 'focusband':
 			// gen 2
-			// fallsthrough
 			case 'psncureberry':
 			case 'przcureberry':
 			case 'burntberry':
@@ -718,9 +740,10 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 				poorItems.push(id);
 				break;
 			default:
-				if (item.name.endsWith(" Ball")) {
-					badItems.push(id);
-				} else if (item.name.endsWith(" Fossil")) {
+				if (
+					item.name.endsWith(" Ball") || item.name.endsWith(" Fossil") || item.name.startsWith("Fossilized ") ||
+					item.name.endsWith(" Sweet") || item.name.endsWith(" Apple")
+				) {
 					badItems.push(id);
 				} else if (item.name.startsWith("TR")) {
 					badItems.push(id);

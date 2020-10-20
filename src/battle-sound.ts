@@ -17,13 +17,17 @@ class BattleBGM {
 	 */
 	isPlaying = false;
 	isActuallyPlaying = false;
+	/**
+	 * The sound should be rewound when it next plays.
+	 */
+	willRewind = true;
 	constructor(url: string, loopstart: number, loopend: number) {
 		this.url = url;
 		this.loopstart = loopstart;
 		this.loopend = loopend;
 	}
 	play() {
-		if (this.sound) this.sound.currentTime = 0;
+		this.willRewind = true;
 		this.resume();
 	}
 	resume() {
@@ -37,7 +41,7 @@ class BattleBGM {
 	}
 	stop() {
 		this.pause();
-		if (this.sound) this.sound.currentTime = 0;
+		this.willRewind = true;
 	}
 	destroy() {
 		BattleSound.deleteBgm(this);
@@ -50,6 +54,8 @@ class BattleBGM {
 
 		if (!this.sound) this.sound = BattleSound.getSound(this.url);
 		if (!this.sound) return;
+		if (this.willRewind) this.sound.currentTime = 0;
+		this.willRewind = false;
 		this.isActuallyPlaying = true;
 		this.sound.volume = BattleSound.bgmVolume / 100;
 		this.sound.play();

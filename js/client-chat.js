@@ -242,7 +242,7 @@
 			if (Array.isArray(highlights)) {
 				highlights = {global: highlights};
 				// Migrate from the old highlight system
-				Dex.prefs('highlights', highlights);
+				Storage.prefs('highlights', highlights);
 			}
 			if (!Dex.prefs('noselfhighlight') && app.user.nameRegExp) {
 				if (app.user.nameRegExp.test(message)) return true;
@@ -649,7 +649,7 @@
 				return false;
 			case 'showdebug':
 				this.add('Debug battle messages: ON');
-				Dex.prefs('showdebug', true);
+				Storage.prefs('showdebug', true);
 				var debugStyle = $('#debugstyle').get(0);
 				var onCSS = '.debug {display: block;}';
 				if (!debugStyle) {
@@ -660,7 +660,7 @@
 				return false;
 			case 'hidedebug':
 				this.add('Debug battle messages: HIDDEN');
-				Dex.prefs('showdebug', false);
+				Storage.prefs('showdebug', false);
 				var debugStyle = $('#debugstyle').get(0);
 				var offCSS = '.debug {display: none;}';
 				if (!debugStyle) {
@@ -686,7 +686,7 @@
 					this.add('Join/leave messages: ALWAYS ON');
 				}
 				showjoins[Config.server.id] = serverShowjoins;
-				Dex.prefs('showjoins', showjoins);
+				Storage.prefs('showjoins', showjoins);
 				return false;
 			case 'hidejoins':
 				var showjoins = Dex.prefs('showjoins') || {};
@@ -704,25 +704,25 @@
 					this.add('Join/leave messages: AUTOMATIC');
 				}
 				showjoins[Config.server.id] = serverShowjoins;
-				Dex.prefs('showjoins', showjoins);
+				Storage.prefs('showjoins', showjoins);
 				return false;
 
 			case 'showbattles':
 				this.add('Battle messages: ON');
-				Dex.prefs('showbattles', true);
+				Storage.prefs('showbattles', true);
 				return false;
 			case 'hidebattles':
 				this.add('Battle messages: HIDDEN');
-				Dex.prefs('showbattles', false);
+				Storage.prefs('showbattles', false);
 				return false;
 
 			case 'unpackhidden':
 				this.add('Locked/banned users\' chat messages: ON');
-				Dex.prefs('nounlink', true);
+				Storage.prefs('nounlink', true);
 				return false;
 			case 'packhidden':
 				this.add('Locked/banned users\' chat messages: HIDDEN');
-				Dex.prefs('nounlink', false);
+				Storage.prefs('nounlink', false);
 				return false;
 
 			case 'timestamps':
@@ -753,7 +753,7 @@
 					break;
 				}
 				this.add("Timestamps preference set to: '" + targets[1] + "' for '" + targets[0] + "'.");
-				Dex.prefs('timestamps', timestamps);
+				Storage.prefs('timestamps', timestamps);
 				return false;
 
 			case 'hl':
@@ -808,10 +808,10 @@
 						this.parseCommand('/help highlight'); // show help
 						return false;
 					}
-					Dex.prefs('highlights', highlights);
+					Storage.prefs('highlights', highlights);
 				} else {
 					if (target === 'delete') {
-						Dex.prefs('highlights', false);
+						Storage.prefs('highlights', false);
 						this.updateHighlightRegExp({});
 						this.add("All highlights cleared");
 					} else if (['show', 'list', 'roomshow', 'roomlist'].includes(target)) {
@@ -971,7 +971,7 @@
 				if (window.BattleAvatarNumbers && Object.prototype.hasOwnProperty.call(window.BattleAvatarNumbers, avatar)) {
 					avatar = window.BattleAvatarNumbers[avatar];
 				}
-				Dex.prefs('avatar', avatar);
+				Storage.prefs('avatar', avatar);
 				return '/avatar ' + avatar; // Send the command through to the server.
 
 			case 'afd':
@@ -1646,7 +1646,7 @@
 				return; // PMs independently notify in the main menu; no need to make them notify again with `inchatpm`.
 			}
 
-			var lastMessageDates = Dex.prefs('logtimes') || (Dex.prefs('logtimes', {}), Dex.prefs('logtimes'));
+			var lastMessageDates = Dex.prefs('logtimes') || (Storage.prefs('logtimes', {}), Dex.prefs('logtimes'));
 			if (!lastMessageDates[Config.server.id]) lastMessageDates[Config.server.id] = {};
 			var lastMessageDate = lastMessageDates[Config.server.id][this.id] || 0;
 			// because the time offset to the server can vary slightly, subtract it to not have it affect comparisons between dates
@@ -1733,8 +1733,12 @@
 			'click .userlist-count': 'toggleUserlist'
 		},
 		construct: function () {
+			var plural = this.room.userCount.users === 1 ? ' user' : ' users';
 			var buf = '';
-			buf += '<li class="userlist-count" id="' + this.room.id + '-userlist-users" style="text-align:center;padding:2px 0"><small><span id="' + this.room.id + '-usercount-users">' + (this.room.userCount.users || '0') + '</span> users</small></li>';
+			var usersString = "" + (this.room.userCount.users || '0') + plural;
+			buf += '<li class="userlist-count" id="' + this.room.id + '-userlist-users" style="text-align:center;padding:2px 0">';
+			buf += '<small id="' + this.room.id + '-usercount-users">' + usersString + '</small></li>';
+
 			var users = [];
 			if (this.room.users) {
 				var self = this;
@@ -1776,7 +1780,7 @@
 		},
 		updateUserCount: function () {
 			var users = Math.max(this.room.userCount.users || 0, this.room.userCount.globalUsers || 0);
-			$('#' + this.room.id + '-usercount-users').html('' + users);
+			$('#' + this.room.id + '-usercount-users').html('' + users + (users === 1 ? ' user' : ' users'));
 		},
 		add: function (userid) {
 			$('#' + this.room.id + '-userlist-user-' + userid).remove();
