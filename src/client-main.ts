@@ -636,6 +636,17 @@ const PS = new class extends PSModel {
 	leftRoomWidth = 0;
 	mainmenu: MainMenuRoom = null!;
 
+	/**
+	 * The drag-and-drop API is incredibly dumb and doesn't let us know
+	 * what's being dragged until the `drop` event, so we track it here.
+	 *
+	 * Note that `PS.dragging` will be null if the drag was initiated
+	 * outside PS (e.g. dragging a team from File Explorer to PS), and
+	 * for security reasons it's impossible to know what they are until
+	 * they're dropped.
+	 */
+	dragging: {type: 'room', roomid: RoomID} | null = null;
+
 	/** Tracks whether or not to display the "Use arrow keys" hint */
 	arrowKeysUsed = false;
 

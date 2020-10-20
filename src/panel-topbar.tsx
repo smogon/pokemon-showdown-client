@@ -3,13 +3,122 @@
  *
  * Topbar view - handles the topbar and some generic popups.
  *
- * Also sets up global event listeners.
+ * Also handles global drag-and-drop support.
  *
  * @author Guangcong Luo <guangcongluo@gmail.com>
  * @license AGPLv3
  */
 
+window.addEventListener('drop', e => {
+	console.log('drop ' + e.dataTransfer!.dropEffect);
+	const target = e.target as HTMLElement;
+	if (/^text/.test((target as HTMLInputElement).type)) {
+		PS.dragging = null;
+		return; // Ignore text fields
+	}
+
+	// The default team drop action for Firefox is to open the team as a
+	// URL, which needs to be prevented.
+	// The default file drop action for most browsers is to open the file
+	// in the tab, which is generally undesirable anyway.
+	e.preventDefault();
+	PS.dragging = null;
+});
+window.addEventListener('dragend', e => {
+	e.preventDefault();
+	PS.dragging = null;
+});
+window.addEventListener('dragover', e => {
+	// this prevents the bounce-back animation
+	e.preventDefault();
+});
+
 class PSHeader extends preact.Component<{style: {}}> {
+	handleDragEnter = (e: DragEvent) => {
+		console.log('dragenter ' + e.dataTransfer!.dropEffect);
+		e.preventDefault();
+		if (!PS.dragging) return; // TODO: handle dragging other things onto roomtabs
+		/** the element being passed over */
+		const target = e.currentTarget as HTMLAnchorElement;
+
+		const draggingRoom = PS.dragging.roomid;
+		if (draggingRoom === null) return;
+
+		const draggedOverRoom = PS.router.extractRoomID(target.href);
+		if (draggedOverRoom === null) return; // should never happen
+		if (draggingRoom === draggedOverRoom) return;
+
+		const leftIndex = PS.leftRoomList.indexOf(draggedOverRoom);
+		if (leftIndex >= 0) {
+			this.dragOnto(draggingRoom, 'leftRoomList', leftIndex);
+		} else {
+			const rightIndex = PS.rightRoomList.indexOf(draggedOverRoom);
+			if (rightIndex >= 0) {
+				this.dragOnto(draggingRoom, 'rightRoomList', rightIndex);
+			} else {
+				return;
+			}
+		}
+
+		// dropEffect !== 'none' prevents bounce-back animation in
+		// Chrome/Safari/Opera
+		// if (e.dataTransfer) e.dataTransfer.dropEffect = 'move';
+	};
+	handleDragStart = (e: DragEvent) => {
+		const roomid = PS.router.extractRoomID((e.currentTarget as HTMLAnchorElement).href);
+		if (!roomid) return; // should never happen
+
+		PS.dragging = {type: 'room', roomid};
+	};
+	dragOnto(fromRoom: RoomID, toRoomList: 'leftRoomList' | 'rightRoomList' | 'miniRoomList', toIndex: number) {
+		// one day you will be able to rearrange mainmenu and rooms, but not today
+		if (fromRoom === '' || fromRoom === 'rooms') return;
+
+		if (fromRoom === PS[toRoomList][toIndex]) return;
+		if (fromRoom === '' && toRoomList === 'miniRoomList') return;
+
+		const roomLists = ['leftRoomList', 'rightRoomList', 'miniRoomList'] as const;
+		let fromRoomList;
+		let fromIndex = -1;
+		for (const roomList of roomLists) {
+			fromIndex = PS[roomList].indexOf(fromRoom);
+			if (fromIndex >= 0) {
+				fromRoomList = roomList;
+				break;
+			}
+		}
+		if (!fromRoomList) return; // shouldn't happen
+
+		if (toRoomList === 'leftRoomList' && toIndex === 0) toIndex = 1; // Home is always leftmost
+		if (toRoomList === 'rightRoomList' && toIndex === PS.rightRoomList.length - 1) toIndex--; // Rooms is always rightmost
+
+		PS[fromRoomList].splice(fromIndex, 1);
+		// if dragging within the same roomlist and toIndex > fromIndex,
+		// toIndex is offset by 1 now. Fortunately for us, we want to
+		// drag to the right of this tab in that case, so the -1 +1
+		// cancel out
+		PS[toRoomList].splice(toIndex, 0, fromRoom);
+
+		const room = PS.rooms[fromRoom]!;
+		switch (toRoomList) {
+		case 'leftRoomList': room.location = 'left'; break;
+		case 'rightRoomList': room.location = 'right'; break;
+		case 'miniRoomList': room.location = 'mini-window'; break;
+		}
+		if (fromRoomList !== toRoomList) {
+			if (fromRoom === PS.leftRoom.id) {
+				PS.leftRoom = PS.mainmenu;
+			} else if (PS.rightRoom && fromRoom === PS.rightRoom.id) {
+				PS.rightRoom = PS.rooms['rooms']!;
+			}
+			if (toRoomList === 'rightRoomList') {
+				PS.rightRoom = room;
+			} else if (toRoomList === 'leftRoomList') {
+				PS.leftRoom = room;
+			}
+		}
+		PS.update();
+	}
 	renderRoomTab(id: RoomID) {
 		const room = PS.rooms[id]!;
 		const closable = (id === '' || id === 'rooms' ? '' : ' closable');
@@ -82,7 +191,15 @@ class PSHeader extends preact.Component<{style: {}}> {
 				<i class="fa fa-times-circle"></i>
 			</button>;
 		}
-		return <li><a class={className} href={`/${id}`} draggable={true}>{icon} <span>{title}</span></a>{closeButton}</li>;
+		return <li>
+			<a
+				class={className} href={`/${id}`} draggable={true}
+				onDragEnter={this.handleDragEnter} onDragStart={this.handleDragStart}
+			>
+				{icon} <span>{title}</span>
+			</a>
+			{closeButton}
+		</li>;
 	}
 	render() {
 		const userColor = window.BattleLog && {color: BattleLog.usernameColor(PS.user.userid)};
@@ -97,7 +214,7 @@ class PSHeader extends preact.Component<{style: {}}> {
 			<div class="maintabbarbottom"></div>
 			<div class="tabbar maintabbar"><div class="inner">
 				<ul>
-					{this.renderRoomTab('' as RoomID)}
+					{this.renderRoomTab(PS.leftRoomList[0])}
 				</ul>
 				<ul>
 					{PS.leftRoomList.slice(1).map(roomid => this.renderRoomTab(roomid))}
