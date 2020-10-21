@@ -695,13 +695,16 @@ class BattleScene {
 	}
 	updateSidebar(side: Side) {
 		const $sidebar = (side.n % 2 !== 0 ? this.$rightbar : this.$leftbar);
-		const sidebarhtml = this.getSidebarHTML(side) + (side.ally ? this.getSidebarHTML(side.ally) : '');
+		const sidebarhtml = this.getSidebarHTML(side);
 		if (side.name) {
 			const ratinghtml = side.rating ? ` title="Rating: ${BattleLog.escapeHTML(side.rating)}"` : ``;
-			$sidebar.wrapAll(sidebarhtml);
+			$sidebar.html(sidebarhtml);
 			$sidebar.find('.trainer').css('opacity', 1);
 		} else {
 			$sidebar.find('.trainer').css('opacity', 0.4);
+		}
+		if (side.ally) {
+			$sidebar[0].innerHTML += (this.getSidebarHTML(side.ally));
 		}
 	}
 	updateSidebars() {
