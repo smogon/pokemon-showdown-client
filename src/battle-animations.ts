@@ -610,9 +610,7 @@ class BattleScene {
 		}
 		return BattleLog.escapeHTML(name);
 	}
-
-	updateSidebar(side: Side) {
-		if (!this.animating) return;
+	getSidebarHTML(side: Side): string {
 		let noShow = this.battle.hardcoreMode && this.battle.gen < 7;
 
 		let speciesOverage = this.battle.speciesClause ? Infinity : Math.max(side.pokemon.length - side.totalPokemon, 0);
@@ -692,10 +690,15 @@ class BattleScene {
 			if (i % 3 === 2) pokemonhtml += `</div><div class="teamicons">`;
 		}
 		pokemonhtml = '<div class="teamicons">' + pokemonhtml + '</div>';
-		const $sidebar = (side.n ? this.$rightbar : this.$leftbar);
+		const ratinghtml = side.rating ? ` title="Rating: ${BattleLog.escapeHTML(side.rating)}"` : ``;
+		return (`<div class="trainer${side.n > 2 ? `id="p${side.n + 1}"`: ""}"><strong>${BattleLog.escapeHTML(side.name)}</strong><div class="trainersprite"${ratinghtml} style="background-image:url(${Dex.resolveAvatar(side.avatar)})"></div>${pokemonhtml}</div>`);
+	}
+	updateSidebar(side: Side) {
+		const $sidebar = (side.n % 2 !== 0 ? this.$rightbar : this.$leftbar);
+		const sidebarhtml = this.getSidebarHTML(side) + (side.ally ? this.getSidebarHTML(side.ally) : '');
 		if (side.name) {
 			const ratinghtml = side.rating ? ` title="Rating: ${BattleLog.escapeHTML(side.rating)}"` : ``;
-			$sidebar.html(`<div class="trainer"><strong>${BattleLog.escapeHTML(side.name)}</strong><div class="trainersprite"${ratinghtml} style="background-image:url(${Dex.resolveAvatar(side.avatar)})"></div>${pokemonhtml}</div>`);
+			$sidebar.wrapAll(sidebarhtml);
 			$sidebar.find('.trainer').css('opacity', 1);
 		} else {
 			$sidebar.find('.trainer').css('opacity', 0.4);
@@ -713,14 +716,14 @@ class BattleScene {
 	}
 
 	teamPreviewEnd() {
-		for (let siden = 0; siden < 2; siden++) {
+		for (let siden = 0; siden < 2 || (this.battle.gameType === 'multi' && siden < 4); siden++) {
 			this.$sprites[siden].empty();
 			this.battle.sides[siden].updateSprites();
 		}
 	}
 	teamPreview() {
 		let newBGNum = 0;
-		for (let siden = 0; siden < 2; siden++) {
+		for (let siden = 0; siden < 2 || (this.battle.gameType === 'multi' && siden < 4); siden++) {
 			let side = this.battle.sides[siden];
 			let textBuf = '';
 			let buf = '';

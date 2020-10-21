@@ -1056,7 +1056,7 @@ class Battle {
 	p4?: Side = null!;
 	myPokemon: ServerPokemon[] | null = null;
 	pokemonControlled = 0;
-	sides: [Side, Side] = [null!, null!];
+	sides: Side[] = null!;
 	lastMove = '';
 
 	gen = 7;
@@ -1138,14 +1138,16 @@ class Battle {
 		this.sides = [this.mySide, this.yourSide];
 		this.p1 = this.mySide;
 		this.p2 = this.yourSide;
-		if (this.gameType === 'multi') {
+		if (this.id.includes('multi')) {
 			this.p3 = new Side(this, 2);
 			this.p3.foe = this.p2;
 			this.p3.ally = this.p1;
+			this.p1.ally = this.p3;
 			this.p4 = new Side(this, 3);
 			this.p4.ally = this.p2;
+			this.p2.ally = this.p4;
 			this.p4.foe = this.p1;
-			this.sides.concat([this.p3, this.p4]);
+			this.sides.push(this.p3, this.p4);
 		}
 		this.gen = 7;
 		this.reset();
@@ -3061,6 +3063,8 @@ class Battle {
 	getSide(sidename: string): Side {
 		if (sidename === 'p1' || sidename.substr(0, 3) === 'p1:') return this.p1;
 		if (sidename === 'p2' || sidename.substr(0, 3) === 'p2:') return this.p2;
+		if (sidename === 'p3' || sidename.substr(0, 3) === 'p3:') return this.p3;
+		if (sidename === 'p4' || sidename.substr(0, 3) === 'p4:') return this.p4;
 		if (this.mySide.id === sidename) return this.mySide;
 		if (this.yourSide.id === sidename) return this.yourSide;
 		if (this.mySide.name === sidename) return this.mySide;
