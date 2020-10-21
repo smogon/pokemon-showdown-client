@@ -691,19 +691,16 @@ class BattleScene {
 		}
 		pokemonhtml = '<div class="teamicons">' + pokemonhtml + '</div>';
 		const ratinghtml = side.rating ? ` title="Rating: ${BattleLog.escapeHTML(side.rating)}"` : ``;
-		return (`<div class="trainer" ${side.n > 1 ? `id="p${side.n + 1}"`: ""}><strong>${BattleLog.escapeHTML(side.name)}</strong><div class="trainersprite"${ratinghtml} style="background-image:url(${Dex.resolveAvatar(side.avatar)})"></div>${pokemonhtml}</div>`);
+		return `<div class="trainer" ${side.n > 1 ? `id="p${side.n + 1}"`: ""}><strong>${BattleLog.escapeHTML(side.name)}</strong><div class="trainersprite"${ratinghtml} style="background-image:url(${Dex.resolveAvatar(side.avatar)})"></div>${pokemonhtml}</div>`;
 	}
 	updateSidebar(side: Side) {
 		const $sidebar = (side.n % 2 !== 0 ? this.$rightbar : this.$leftbar);
-		const sidebarhtml = this.getSidebarHTML(side);
+		const sidebarhtml = this.getSidebarHTML(side) + side.ally ? this.getSidebarHTML(side.ally) : '';
 		if (side.name) {
 			$sidebar.html(sidebarhtml);
 			$sidebar.find('.trainer').css('opacity', 1);
 		} else {
 			$sidebar.find('.trainer').css('opacity', 0.4);
-		}
-		if (side.ally) {
-			$sidebar[0].innerHTML += (this.getSidebarHTML(side.ally));
 		}
 	}
 	updateSidebars() {
