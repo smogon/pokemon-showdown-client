@@ -1133,14 +1133,12 @@ class Battle {
 		return false;
 	}
 	init() {
-		this.mySide = new Side(this, 0, 'p1');
-		this.yourSide = new Side(this, 1, 'p2');
-		this.mySide.foe = this.yourSide;
-		this.yourSide.foe = this.mySide;
-		this.sides = [this.mySide, this.yourSide];
-		this.p1 = this.mySide;
-		this.p1.id = 'p1';
-		this.p2 = this.yourSide;
+		this.p1 = new Side(this, 0, 'p1');
+		this.p2 = new Side(this, 1, 'p2');
+		this.sides = [this.p1, this.p2];
+		this.p2.foe = this.p1;
+		this.p1.foe = this.p2;
+		this.yourSide = this.sides[1];
 		if (this.id.includes('multi')) {
 			this.p3 = new Side(this, 0, 'p3');
 			this.p3.foe = this.p2;
@@ -1152,6 +1150,10 @@ class Battle {
 			this.p4.foe = this.p1;
 			this.sides.push(this.p3, this.p4);
 		}
+		for (const side of this.sides) {
+			if (side.id === app.user.userid) this.mySide = side;
+		}
+		if (!this.mySide) this.mySide = this.p1;
 		this.gen = 7;
 		this.reset();
 	}

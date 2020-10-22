@@ -703,7 +703,7 @@ class BattleScene {
 	}
 	updateSidebar(side: Side) {
 		const $sidebar = side.n === 0 ? this.$leftbar : this.$rightbar;
-		const sidebarhtml = this.getSidebarHTML(side) + (side.ally ? this.getSidebarHTML(side.ally, true) : '');
+		const sidebarhtml = this.getSidebarHTML(side) + (side.ally ? this.getSidebarHTML(side.ally, side.sideid === 'p3' || side.sideid === 'p4') : '');
 		if (side.name) {
 			$sidebar.html(sidebarhtml);
 			$sidebar.find('.trainer').css('opacity', 1);
