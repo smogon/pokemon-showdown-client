@@ -1099,7 +1099,6 @@ class Battle {
 
 	constructor($frame: JQuery<HTMLElement>, $logFrame: JQuery<HTMLElement>, id = '') {
 		this.id = id;
-
 		if (!$frame && !$logFrame) {
 			this.scene = new BattleSceneStub();
 		} else {
@@ -3063,8 +3062,8 @@ class Battle {
 	getSide(sidename: string): Side {
 		if (sidename === 'p1' || sidename.substr(0, 3) === 'p1:') return this.p1;
 		if (sidename === 'p2' || sidename.substr(0, 3) === 'p2:') return this.p2;
-		if (sidename === 'p3' || sidename.substr(0, 3) === 'p3:') return this.p3;
-		if (sidename === 'p4' || sidename.substr(0, 3) === 'p4:') return this.p4;
+		if ((sidename === 'p3' || sidename.substr(0, 3) === 'p3:') && this.p3) return this.p3;
+		if ((sidename === 'p4' || sidename.substr(0, 3) === 'p4:') && this.p4) return this.p4;
 		if (this.mySide.id === sidename) return this.mySide;
 		if (this.yourSide.id === sidename) return this.yourSide;
 		if (this.mySide.name === sidename) return this.mySide;
