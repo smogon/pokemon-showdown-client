@@ -610,7 +610,7 @@ class BattleScene {
 		}
 		return BattleLog.escapeHTML(name);
 	}
-	getSidebarHTML(side: Side, recur?: boolean): string {
+	getSidebarHTML(side: Side, isAlly?: boolean): string {
 		let noShow = this.battle.hardcoreMode && this.battle.gen < 7;
 
 		let speciesOverage = this.battle.speciesClause ? Infinity : Math.max(side.pokemon.length - side.totalPokemon, 0);
@@ -692,16 +692,18 @@ class BattleScene {
 		pokemonhtml = '<div class="teamicons">' + pokemonhtml + '</div>';
 		const ratinghtml = side.rating ? ` title="Rating: ${BattleLog.escapeHTML(side.rating)}"` : ``;
 		let posStr = " ";
-		if (side.n === 2) {
-			posStr += `id="p3"`
-		} else if (side.n === 3) {
-			posStr += `id="p4"`
+		if (isAlly) {
+			if (side.n === 0) {
+				posStr += `id="p3"`
+			} else if (side.n === 1) {
+				posStr += `id="p4"`
+			}
 		}
 		return `<div class="trainer"${posStr}><strong>${BattleLog.escapeHTML(side.name)}</strong><div class="trainersprite"${ratinghtml} style="background-image:url(${Dex.resolveAvatar(side.avatar)})"></div>${pokemonhtml}</div>`;
 	}
 	updateSidebar(side: Side) {
 		const $sidebar = side.n === 0 ? this.$leftbar : this.$rightbar;
-		const sidebarhtml = this.getSidebarHTML(side) + (side.ally ? this.getSidebarHTML(side.ally) : '');
+		const sidebarhtml = this.getSidebarHTML(side) + (side.ally ? this.getSidebarHTML(side.ally, true) : '');
 		if (side.name) {
 			$sidebar.html(sidebarhtml);
 			$sidebar.find('.trainer').css('opacity', 1);
