@@ -2988,10 +2988,9 @@ class Battle {
 		if (pokemonid === '??') throw new Error(`pokemonid not passed`);
 		const {name, siden, slot, pokemonid: parsedPokemonid} = this.parsePokemonId(pokemonid);
 		pokemonid = parsedPokemonid;
-		const teamn = siden % 2;
 
 		const searchid = `${pokemonid}|${details}`;
-		const side = this.sides[teamn];
+		const side = this.sides[siden];
 
 		// search inactive revealed pokemon
 		for (let i = 0; i < side.pokemon.length; i++) {
@@ -3042,10 +3041,9 @@ class Battle {
 		const {siden, slot, pokemonid: parsedPokemonid} = this.parsePokemonId(pokemonid);
 		pokemonid = parsedPokemonid;
 
-		const teamn = siden % 2;
 		/** if true, don't match an active pokemon */
 		const isInactive = (slot < 0);
-		const side = this.sides[teamn];
+		const side = this.sides[siden];
 
 		// search player's pokemon
 		if (!isInactive && side.active[slot]) return side.active[slot];

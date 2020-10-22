@@ -692,16 +692,16 @@ class BattleScene {
 		pokemonhtml = '<div class="teamicons">' + pokemonhtml + '</div>';
 		const ratinghtml = side.rating ? ` title="Rating: ${BattleLog.escapeHTML(side.rating)}"` : ``;
 		let posStr = " ";
-		if (side.n === 1) {
+		if (side.n === 2) {
 			posStr += `id="p3"`
 		} else if (side.n === 3) {
 			posStr += `id="p4"`
 		}
-		return `<div class="trainer"${posStr}><strong>${BattleLog.escapeHTML(side.name)}</strong><div class="trainersprite"${ratinghtml} style="background-image:url(${Dex.resolveAvatar(side.avatar)})"></div>${pokemonhtml}</div>` + (side.ally && !recur ? this.getSidebarHTML(side.ally, true) : '');
+		return `<div class="trainer"${posStr}><strong>${BattleLog.escapeHTML(side.name)}</strong><div class="trainersprite"${ratinghtml} style="background-image:url(${Dex.resolveAvatar(side.avatar)})"></div>${pokemonhtml}</div>`;
 	}
 	updateSidebar(side: Side) {
 		const $sidebar = side.n % 2 === 0 ? this.$leftbar : this.$rightbar;
-		const sidebarhtml = this.getSidebarHTML(side);
+		const sidebarhtml = this.getSidebarHTML(side) + (side.ally ? this.getSidebarHTML(side.ally) : '');
 		if (side.name) {
 			$sidebar.html(sidebarhtml);
 			$sidebar.find('.trainer').css('opacity', 1);
