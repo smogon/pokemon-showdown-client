@@ -16,6 +16,8 @@ type KWArgs = {[kw: string]: string};
 class BattleTextParser {
 	p1 = "Player 1";
 	p2 = "Player 2";
+	p3 = "Player 3";
+	p4 = "Player 4";
 	perspective: 0 | 1;
 	gen = 7;
 	curLineSection: 'break' | 'preMajor' | 'major' | 'postMajor' = 'break';
@@ -224,7 +226,7 @@ class BattleTextParser {
 
 	pokemonName = (pokemon: string) => {
 		if (!pokemon) return '';
-		if (!pokemon.startsWith('p1') && !pokemon.startsWith('p2')) return `???pokemon:${pokemon}???`;
+		if (!pokemon.startsWith('p1') && !pokemon.startsWith('p2') && !pokemon.startsWith('p3') && !pokemon.startsWith('p4')) return `???pokemon:${pokemon}???`;
 		if (pokemon.charAt(3) === ':') return pokemon.slice(4).trim();
 		else if (pokemon.charAt(2) === ':') return pokemon.slice(3).trim();
 		return `???pokemon:${pokemon}???`;
@@ -255,6 +257,8 @@ class BattleTextParser {
 		side = side.slice(0, 2);
 		if (side === 'p1') return this.p1;
 		if (side === 'p2') return this.p2;
+		if (side === 'p3') return this.p3;
+		if (side === 'p4') return this.p4;
 		return `???side:${side}???`;
 	}
 
@@ -405,8 +409,10 @@ class BattleTextParser {
 			const [, side, name] = args;
 			if (side === 'p1' && name) {
 				this.p1 = name;
-			} else if (side === 'p2' && name) {
-				this.p2 = name;
+			} else if (side === 'p3' && name) {
+				this.p3 = name;
+			} else if (side === 'p4' && name) {
+				this.p4 = name;
 			}
 			return '';
 		}
