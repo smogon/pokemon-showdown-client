@@ -409,6 +409,8 @@ class BattleTextParser {
 			const [, side, name] = args;
 			if (side === 'p1' && name) {
 				this.p1 = name;
+			} else if (side === 'p2' && name) {
+				this.p2 = name;
 			} else if (side === 'p3' && name) {
 				this.p3 = name;
 			} else if (side === 'p4' && name) {
