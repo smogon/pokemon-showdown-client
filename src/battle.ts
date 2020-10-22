@@ -3258,10 +3258,6 @@ class Battle {
 		}
 		case 'player': {
 			let side = this.getSide(args[1]);
-			if (this.roomid) {
-				const room = app!.rooms[this.roomid];
-				if (side === this[room.side]) this.me = side;
-			}
 			side.setName(args[2]);
 			if (args[3]) side.setAvatar(args[3]);
 			if (args[4]) side.rating = args[4];

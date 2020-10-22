@@ -692,17 +692,15 @@ class BattleScene {
 		pokemonhtml = '<div class="teamicons">' + pokemonhtml + '</div>';
 		const ratinghtml = side.rating ? ` title="Rating: ${BattleLog.escapeHTML(side.rating)}"` : ``;
 		let posStr = " ";
-		if (this.battle.me) {
-			if (side === this.battle.me.ally) {
-				posStr += `id="p3"`
-			} else if (side === this.battle.me.foe.ally) {
-				posStr += `id="p4"`
-			}
+		if (side.n === 1) {
+			posStr += `id="p3"`
+		} else if (side.n === 3) {
+			posStr += `id="p4"`
 		}
 		return `<div class="trainer"${posStr}><strong>${BattleLog.escapeHTML(side.name)}</strong><div class="trainersprite"${ratinghtml} style="background-image:url(${Dex.resolveAvatar(side.avatar)})"></div>${pokemonhtml}</div>` + (side.ally && !recur ? this.getSidebarHTML(side.ally, true) : '');
 	}
 	updateSidebar(side: Side) {
-		const $sidebar = side.n % 2 === 0 ? this.$rightbar : this.$leftbar;
+		const $sidebar = side.n % 2 === 0 ? this.$leftbar : this.$rightbar;
 		const sidebarhtml = this.getSidebarHTML(side);
 		if (side.name) {
 			$sidebar.html(sidebarhtml);
