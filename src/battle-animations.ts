@@ -703,7 +703,7 @@ class BattleScene {
 	}
 	updateSidebar(side: Side) {
 		const $sidebar = side.n === 0 ? this.$leftbar : this.$rightbar;
-		const sidebarhtml = this.getSidebarHTML(side) + (side.ally ? this.getSidebarHTML(side.ally, side.sideid === 'p3' || side.sideid === 'p4') : '');
+		const sidebarhtml = this.getSidebarHTML(side) + (side.ally ? this.getSidebarHTML(side.ally, side.ally.sideid === 'p3' || side.ally.sideid === 'p4') : '');
 		if (side.name) {
 			$sidebar.html(sidebarhtml);
 			$sidebar.find('.trainer').css('opacity', 1);
@@ -712,7 +712,8 @@ class BattleScene {
 		}
 	}
 	updateSidebars() {
-		for (const side of this.battle.sides) this.updateSidebar(side);
+			this.$leftbar.html(this.getSidebarHTML(this.battle.mySide) + this.getSidebarHTML(this.battle.mySide.ally, true));
+			this.$rightbar.html(this.getSidebarHTML(this.battle.mySide.foe) + this.getSidebarHTML(this.battle.mySide.foe.ally, true));
 	}
 	updateStatbars() {
 		for (const side of this.battle.sides) {
