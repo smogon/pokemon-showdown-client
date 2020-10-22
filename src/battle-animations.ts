@@ -721,7 +721,7 @@ class BattleScene {
 	}
 
 	teamPreviewEnd() {
-		for (let siden = 0; siden < 2 || (this.battle.gameType === 'multi' && siden < 4); siden++) {
+		for (let siden = 0; siden < 2; siden++) {
 			this.$sprites[siden].empty();
 			this.battle.sides[siden].updateSprites();
 		}
@@ -733,7 +733,7 @@ class BattleScene {
 			let textBuf = '';
 			let buf = '';
 			let buf2 = '';
-			this.$sprites[siden].empty();
+			this.$sprites[siden % 2].empty();
 
 			let ludicoloCount = 0;
 			let lombreCount = 0;
@@ -749,7 +749,7 @@ class BattleScene {
 				});
 				let y = 0;
 				let x = 0;
-				if (siden) {
+				if (siden % 2) {
 					y = 48 + 50 + 3 * (i + 6 - side.pokemon.length);
 					x = 48 + 180 + 50 * (i + 6 - side.pokemon.length);
 				} else {
@@ -780,7 +780,7 @@ class BattleScene {
 					'<strong>' + BattleLog.escapeHTML(side.name) + '\'s team:</strong> <em style="color:#445566;display:block;">' + BattleLog.escapeHTML(textBuf) + '</em>'
 				);
 			}
-			this.$sprites[siden].html(buf + buf2);
+			this.$sprites[siden % 2].html(buf + buf2);
 
 			if (!newBGNum) {
 				if (ludicoloCount >= 2) {
@@ -829,7 +829,7 @@ class BattleScene {
 	}
 	sideConditionLeft(cond: [string, number, number, number], siden: number, all?: boolean) {
 		if (!cond[2] && !cond[3] && !all) return '';
-		let buf = `<br />${siden && !all ? "Foe's " : ""}${Dex.getMove(cond[0]).name}`;
+		let buf = `<br />${siden % 2 && !all ? "Foe's " : ""}${Dex.getMove(cond[0]).name}`;
 		if (this.battle.gen < 7 && this.battle.hardcoreMode) return buf;
 
 		if (!cond[2] && !cond[3]) return buf;
@@ -994,7 +994,7 @@ class BattleScene {
 	}
 
 	addPokemonSprite(pokemon: Pokemon) {
-		const siden = pokemon.side.n;
+		const siden = pokemon.side.n % 2;
 		const sprite = new PokemonSprite(Dex.getSpriteData(pokemon, siden, {
 			gen: this.gen,
 			mod: this.mod,
@@ -1010,7 +1010,7 @@ class BattleScene {
 
 	addSideCondition(siden: number, id: ID, instant?: boolean) {
 		if (!this.animating) return;
-		const side = this.battle.sides[siden];
+		const side = this.battle.sides[siden % 2];
 		switch (id) {
 		case 'auroraveil':
 			const auroraveil = new Sprite(BattleEffects.auroraveil, {
@@ -1273,7 +1273,7 @@ class BattleScene {
 	}
 	removeSideCondition(siden: number, id: ID) {
 		if (!this.animating) return;
-		if (this.sideConditions[siden][id]) {
+		if (this.sideConditions[siden % 2][id]) {
 			for (const sprite of this.sideConditions[siden][id]) sprite.destroy();
 			delete this.sideConditions[siden][id];
 		}
@@ -1704,7 +1704,7 @@ class PokemonSprite extends Sprite {
 
 	constructor(spriteData: SpriteData | null, pos: InitScenePos, scene: BattleScene, siden: number) {
 		super(spriteData, pos, scene);
-		this.siden = siden;
+		this.siden = siden % 2;
 		this.cryurl = this.sp.cryurl;
 		this.isBackSprite = !this.siden;
 	}
