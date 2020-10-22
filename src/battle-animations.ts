@@ -691,14 +691,17 @@ class BattleScene {
 		}
 		pokemonhtml = '<div class="teamicons">' + pokemonhtml + '</div>';
 		const ratinghtml = side.rating ? ` title="Rating: ${BattleLog.escapeHTML(side.rating)}"` : ``;
-		return `<div class="trainer" ${side.n > 1 ? ("id=\"p" + (side.n + 1) + "\""): ""}><strong>${BattleLog.escapeHTML(side.name)}</strong><div class="trainersprite"${ratinghtml} style="background-image:url(${Dex.resolveAvatar(side.avatar)})"></div>${pokemonhtml}</div>`;
+		let posStr = " ";
+		if (side === this.battle.me.ally) {
+			posStr += `id="p3"`
+		} else if (side === this.battle.me.foe || side === this.battle.me.foe.ally) {
+			posStr += `id="p4"`
+		}
+		return `<div class="trainer"${posStr}><strong>${BattleLog.escapeHTML(side.name)}</strong><div class="trainersprite"${ratinghtml} style="background-image:url(${Dex.resolveAvatar(side.avatar)})"></div>${pokemonhtml}</div>`;
 	}
 	updateSidebar(side: Side) {
-		console.log(`Update sidebar side ${side.n}`);
-		const $sidebar = (side.n % 2 !== 0 ? this.$rightbar : this.$leftbar);
-		console.log(`Update sidebar side.ally ${side.ally}`);
-		const sidebarhtml = this.getSidebarHTML(side) + (side.ally ? this.getSidebarHTML(side.ally) : '');
-		console.log(`Update sidebar side html ${sidebarhtml}`);
+		const $sidebar = this.battle.me !== side || this.battle.me !== side.ally ? this.$rightbar : this.$leftbar;
+		const sidebarhtml = this.getSidebarHTML(side);
 		if (side.name) {
 			$sidebar.html(sidebarhtml);
 			$sidebar.find('.trainer').css('opacity', 1);

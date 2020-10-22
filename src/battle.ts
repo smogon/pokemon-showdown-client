@@ -1054,6 +1054,7 @@ class Battle {
 	p2: Side = null!;
 	p3?: Side = null!;
 	p4?: Side = null!;
+	me: Side = null!;
 	myPokemon: ServerPokemon[] | null = null;
 	pokemonControlled = 0;
 	sides: Side[] = null!;
@@ -1148,6 +1149,7 @@ class Battle {
 			this.p4.foe = this.p1;
 			this.sides.push(this.p3, this.p4);
 		}
+		this.me = this[app!.rooms[this.roomid].side];
 		this.gen = 7;
 		this.reset();
 	}
