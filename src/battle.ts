@@ -577,6 +577,7 @@ class Side {
 	battle: Battle;
 	name = '';
 	id = '';
+	sideid: string;
 	n: number;
 	foe: Side = null!;
 	ally: Side = null!;
@@ -598,9 +599,10 @@ class Side {
 	/** [effectName, levels, minDuration, maxDuration] */
 	sideConditions: {[id: string]: [string, number, number, number]} = {};
 
-	constructor(battle: Battle, n: number) {
+	constructor(battle: Battle, n: number, sideid: string) {
 		this.battle = battle;
 		this.n = n;
+		this.sideid = sideid;
 		this.updateSprites();
 	}
 
@@ -1131,19 +1133,20 @@ class Battle {
 		return false;
 	}
 	init() {
-		this.mySide = new Side(this, 0);
-		this.yourSide = new Side(this, 1);
+		this.mySide = new Side(this, 0, 'p1');
+		this.yourSide = new Side(this, 1, 'p2');
 		this.mySide.foe = this.yourSide;
 		this.yourSide.foe = this.mySide;
 		this.sides = [this.mySide, this.yourSide];
 		this.p1 = this.mySide;
+		this.p1.id = 'p1';
 		this.p2 = this.yourSide;
 		if (this.id.includes('multi')) {
-			this.p3 = new Side(this, 2);
+			this.p3 = new Side(this, 0, 'p3');
 			this.p3.foe = this.p2;
 			this.p3.ally = this.p1;
 			this.p1.ally = this.p3;
-			this.p4 = new Side(this, 3);
+			this.p4 = new Side(this, 1, 'p4');
 			this.p4.ally = this.p2;
 			this.p2.ally = this.p4;
 			this.p4.foe = this.p1;
@@ -1195,6 +1198,8 @@ class Battle {
 		this.yourSide = null!;
 		this.p1 = null!;
 		this.p2 = null!;
+		this.p3 = null!;
+		this.p4 = null!;
 	}
 
 	log(args: Args, kwArgs?: KWArgs, preempt?: boolean) {
