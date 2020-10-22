@@ -3148,10 +3148,6 @@ class Battle {
 				this.yourSide.active = [null];
 				break;
 			case 'multi':
-				this.mySide.active = this.mySide.ally.active;
-				this.yourSide.active = this.yourSide.ally.active;
-				this.mySide.sideConditions = this.mySide.ally.sideConditions;
-				this.yourSide.sideConditions = this.yourSide.ally.sideConditions;
 			case 'free-for-all':
 				this.pokemonControlled = 1;
 				// falls through
