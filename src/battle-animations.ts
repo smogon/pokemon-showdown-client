@@ -2640,6 +2640,8 @@ class PokemonSprite extends Sprite {
 			infestation: '<span class="bad">Infestation</span>',
 			magmastorm: '<span class="bad">Magma Storm</span>',
 			sandtomb: '<span class="bad">Sand Tomb</span>',
+			snaptrap: '<span class="bad">Snap Trap</span>',
+			thundercage: '<span class="bad">Thunder Cage</span>',
 			whirlpool: '<span class="bad">Whirlpool</span>',
 			wrap: '<span class="bad">Wrap</span>',
 			// Gen 1
