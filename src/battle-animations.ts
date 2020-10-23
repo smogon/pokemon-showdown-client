@@ -693,16 +693,16 @@ class BattleScene {
 		const ratinghtml = side.rating ? ` title="Rating: ${BattleLog.escapeHTML(side.rating)}"` : ``;
 		let posStr = " ";
 		if (isAlly) {
-			if (side.n === 0) {
+			if (side.ally === this.battle.mySide || side === this.battle.mySide) {
 				posStr += `id="p3"`
-			} else if (side.n === 1) {
+			} else {
 				posStr += `id="p4"`
 			}
 		}
 		return `<div class="trainer"${posStr}><strong>${BattleLog.escapeHTML(side.name)}</strong><div class="trainersprite"${ratinghtml} style="background-image:url(${Dex.resolveAvatar(side.avatar)})"></div>${pokemonhtml}</div>`;
 	}
 	updateSidebar(side: Side) {
-		const $sidebar = side.n === 0 ? this.$leftbar : this.$rightbar;
+		const $sidebar = side === this.battle.mySide || side.ally === this.battle.mySide ? this.$leftbar : this.$rightbar;
 		let sidebarhtml = this.getSidebarHTML(side) + this.getSidebarHTML(side.ally, true);
 		if (side.name) {
 			$sidebar.html(sidebarhtml);
@@ -712,8 +712,8 @@ class BattleScene {
 		}
 	}
 	updateSidebars() {
-			this.$leftbar.html(this.getSidebarHTML(this.battle.mySide) + this.getSidebarHTML(this.battle.mySide.ally, true));
-			this.$rightbar.html(this.getSidebarHTML(this.battle.mySide.foe) + this.getSidebarHTML(this.battle.mySide.foe.ally, true));
+		this.$leftbar.html(this.getSidebarHTML(this.battle.mySide) + this.getSidebarHTML(this.battle.mySide.ally, true));
+		this.$rightbar.html(this.getSidebarHTML(this.battle.mySide.foe) + this.getSidebarHTML(this.battle.mySide.foe.ally, true));
 	}
 	updateStatbars() {
 		for (const side of this.battle.sides) {

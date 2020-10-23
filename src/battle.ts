@@ -1138,7 +1138,8 @@ class Battle {
 		this.sides = [this.p1, this.p2];
 		this.p2.foe = this.p1;
 		this.p1.foe = this.p2;
-		this.yourSide = this.sides[1];
+		this.mySide = this.p1;
+		this.yourSide = this.p2;
 		if (this.id.includes('multi')) {
 			this.p3 = new Side(this, 0, 'p3');
 			this.p3.foe = this.p2;
@@ -1150,10 +1151,6 @@ class Battle {
 			this.p4.foe = this.p1;
 			this.sides.push(this.p3, this.p4);
 		}
-		for (const side of this.sides) {
-			if (side.id === app.user.userid) this.mySide = side;
-		}
-		if (!this.mySide) this.mySide = this.p1;
 		this.gen = 7;
 		this.reset();
 	}
@@ -3269,6 +3266,7 @@ class Battle {
 			this.scene.updateSidebar(side);
 			if (this.joinButtons) this.scene.hideJoinButtons();
 			this.log(args);
+			if (side.id === app.user.attributes.userid) this.mySide = side;
 			break;
 		}
 		case 'teamsize': {
