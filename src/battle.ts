@@ -1142,13 +1142,7 @@ class Battle {
 		this.yourSide = this.p2;
 		if (this.id.includes('multi')) {
 			this.p3 = new Side(this, 0, 'p3');
-			this.p3.foe = this.p2;
-			this.p3.ally = this.p1;
-			this.p1.ally = this.p3;
 			this.p4 = new Side(this, 1, 'p4');
-			this.p4.ally = this.p2;
-			this.p2.ally = this.p4;
-			this.p4.foe = this.p1;
 			this.sides.push(this.p3, this.p4);
 		}
 		this.gen = 7;
@@ -1169,6 +1163,7 @@ class Battle {
 			if (side) side.reset();
 		}
 		this.myPokemon = null;
+		this.setAttrs();
 
 		// DOM state
 		this.scene.reset();
@@ -1203,6 +1198,24 @@ class Battle {
 
 	log(args: Args, kwArgs?: KWArgs, preempt?: boolean) {
 		this.scene.log.add(args, kwArgs, preempt);
+	}
+
+	
+	setAttrs() {
+		this.sides = [this.p1, this.p2];
+		this.p2.foe = this.p1;
+		this.p1.foe = this.p2;
+		this.mySide = this.p1;
+		this.yourSide = this.p2;
+		if (this.id.includes('multi')) {
+			this.p3.foe = this.p2;
+			this.p3.ally = this.p1;
+			this.p1.ally = this.p3;
+			this.p4.ally = this.p2;
+			this.p2.ally = this.p4;
+			this.p4.foe = this.p1;
+			this.sides.push(this.p3, this.p4);
+		}
 	}
 
 	resetToCurrentTurn() {
