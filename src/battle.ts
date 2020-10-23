@@ -1216,6 +1216,8 @@ class Battle {
 			this.p4.foe = this.p1;
 			this.sides.push(this.p3, this.p4);
 		}
+		this.mySide.n = this.mySide.ally.n = 0;
+		this.mySide.foe.n = this.mySide.ally.foe.n = 1;
 	}
 
 	resetToCurrentTurn() {
