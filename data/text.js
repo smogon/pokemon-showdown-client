@@ -977,6 +977,9 @@ exports.BattleText = {
 	aromaveil: {
 		block: "  [POKEMON] is protected by an aromatic veil!",
 	},
+	asone: {
+		start: "  [POKEMON] has two Abilities!",
+	},
 	aurabreak: {
 		start: "  [POKEMON] reversed all other Pok\u00E9mon's auras!",
 	},
