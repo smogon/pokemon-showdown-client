@@ -681,6 +681,9 @@ exports.BattleText = {
 	memento: {
 		heal: "  [POKEMON]'s HP was restored by the Z-Power!",
 	},
+	meteorbeam: {
+		prepare: "[POKEMON] is overflowing with space power!",
+	},
 	metronome: {
 		move: "Waggling a finger let it use [MOVE]!",
 	},
@@ -822,6 +825,9 @@ exports.BattleText = {
 	smackdown: {
 		start: "  [POKEMON] fell straight down!",
 	},
+	snaptrap: {
+		start: "  [POKEMON] got trapped by a snap trap!",
+	},
 	snatch: {
 		start: "  [POKEMON] is waiting for a target to make a move!",
 		activate: "  [POKEMON] snatched [TARGET]'s move!",
@@ -898,6 +904,9 @@ exports.BattleText = {
 	},
 	throatchop: {
 		cant: "The effects of Throat Chop prevent [POKEMON] from using certain moves!",
+	},
+	thundercage: {
+		start: "  [SOURCE] trapped [POKEMON]!",
 	},
 	torment: {
 		start: "  [POKEMON] was subjected to torment!",
