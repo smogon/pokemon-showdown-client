@@ -52,6 +52,17 @@
 				this.subtleNotifyOnce();
 				break;
 
+			case 'pagescroll':
+				var page = this.$el.get()[0];
+				if (!page) break;
+
+				if (row[1] === 'top') {
+					page.scrollBy(0, -1 * page.scrollHeight);
+				} else if (row[1] === 'bottom') {
+					page.scrollBy(0, page.scrollHeight);
+				}
+				break;
+
 			case 'selectorhtml':
 				if (!row[2]) return;
 				this.$(row[1]).html(BattleLog.sanitizeHTML(row.slice(2).join('|')));
