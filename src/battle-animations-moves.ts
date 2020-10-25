@@ -19083,7 +19083,7 @@ const BattleMoveAnims: AnimTable = {
 				let xstep = (defender.x - attacker.x) / 5;
 				let ystep = (defender.y - attacker.y) / 5;
 				let zstep = (defender.z - attacker.z) / 5;
-	
+
 				for (let i = 0; i < 5; i++) {
 					scene.showEffect('wisp', {
 						x: attacker.x + xstep * (i + 1),
@@ -19121,7 +19121,7 @@ const BattleMoveAnims: AnimTable = {
 					opacity: 0.2,
 					time: 400,
 				}, 'linear', 'fade');
-	
+
 				scene.showEffect('shadowball', {
 					x: attacker.x,
 					y: attacker.y,
