@@ -1451,7 +1451,7 @@ class BattleTooltips {
 		if (move.id === 'brine' && target && target.hp * 2 <= target.maxhp) {
 			value.modify(2, 'Brine + target below half HP');
 		}
-		if (move.id === 'eruption' || move.id === 'waterspout'|| move.id === 'dragonenergy') {
+		if (move.id === 'eruption' || move.id === 'waterspout' || move.id === 'dragonenergy') {
 			value.set(Math.floor(150 * pokemon.hp / pokemon.maxhp) || 1);
 		}
 		if (move.id === 'facade' && !['', 'slp', 'frz'].includes(pokemon.status)) {
@@ -1775,7 +1775,7 @@ class BattleTooltips {
 		'Poison Barb': 'Poison',
 		'Sharp Beak': 'Flying',
 		'Silk Scarf': 'Normal',
-		'SilverPowder': 'Bug',
+		'Silver Powder': 'Bug',
 		'Soft Sand': 'Ground',
 		'Spell Tag': 'Ghost',
 		'Twisted Spoon': 'Psychic',
