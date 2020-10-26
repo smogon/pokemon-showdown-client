@@ -813,8 +813,8 @@
                 for (var i = 0; i < switchables.length; i++) {
                     var pokemon = switchables[i];
                     var tooltipArgs = 'switchpokemon|' + i;
-                    if (pokemon.fainted || pokemon.side !== this.battle.mySide || i < (this.battle.pokemonControlled || this.battle.mySide.active.length) || pokemon.notMine || this.choice.switchFlags[i]) {
-                        var disabledReason = pokemon.side !== this.battle.mySide ? ',notMine' : pokemon.fainted ? ',fainted' : i < (this.battle.pokemonControlled || this.battle.mySide.active.length) ? ',active' : '';
+                    if (pokemon.fainted || i < (this.battle.pokemonControlled || this.battle.mySide.active.length) || pokemon.notMine || this.choice.switchFlags[i]) {
+                        var disabledReason = pokemon.fainted ? ',fainted' : i < (this.battle.pokemonControlled || this.battle.mySide.active.length) ? ',active' : '';
                         switchMenu += '<button class="disabled has-tooltip" name="chooseDisabled" value="' + BattleLog.escapeHTML(pokemon.name) + disabledReason + '" data-tooltip="' + BattleLog.escapeHTML(tooltipArgs) + '">';
                     } else {
                         switchMenu += '<button name="chooseSwitch" value="' + i + '" class="has-tooltip" data-tooltip="' + BattleLog.escapeHTML(tooltipArgs) + '">';
