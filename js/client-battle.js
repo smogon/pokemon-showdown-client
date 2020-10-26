@@ -13,10 +13,11 @@
 
             this.isSideRoom = Dex.prefs('rightpanelbattles');
 
-            this.$el.addClass('ps-room-opaque').html('<div class="battle">Battle is here</div><div class="foehint"></div><div class="battle-log" aria-label="Battle Log" role="complementary"></div><div class="battle-log-add">Connecting...</div><ul class="battle-userlist userlist userlist-minimized"></ul><div class="battle-controls" role="complementary" aria-label="Battle Controls"></div><button class="battle-chat-toggle button" name="showChat"><i class="fa fa-caret-left"></i> Chat</button>');
+            this.$el.addClass('ps-room-opaque').html(`<div class="battle">Battle is here</div><div class="foehint"></div><div class="battle-log" aria-label="Battle Log" role="complementary"></div><div class="battle-log-add">Connecting...</div><ul class="battle-userlist userlist userlist-minimized"></ul><div class="battle-controls" role="complementary" aria-label="Battle Controls"></div><div class="ally-pokemon" aria-label="Ally Pokemon"></div><button class="battle-chat-toggle button" name="showChat"><i class="fa fa-caret-left"></i> Chat</button>`);
 
             this.$battle = this.$el.find('.battle');
             this.$controls = this.$el.find('.battle-controls');
+            this.$allyPokemon = this.$el.find('.ally-pokemon');
             this.$chatFrame = this.$el.find('.battle-log');
             this.$chatAdd = this.$el.find('.battle-log-add');
             this.$foeHint = this.$el.find('.foehint');
@@ -334,6 +335,9 @@
             if (this.request) {
                 // TODO: investigate when to do this
                 this.updateSide(this.request.side);
+                if (this.request.ally) {
+                    this.addAlly(this.request.ally);
+                }
 
                 act = this.request.requestType;
                 if (this.request.side) {
@@ -717,7 +721,14 @@
                     '<div class="switchmenu">' + switchMenu + '</div>' +
                     '</div>'
                 );
-
+                if (this.battle.mySide.ally) {
+                    this.$allyPokemon.html(
+                        '<div class="ally-pokemon">' +
+                        '<div class="allyTeam"><button name="allyteam">Ally Party</button></div>' +
+                        '<div class="allyparty">' + this.displayAllyParty() + '</div>' +
+                        '</div>'
+                    );
+                }
                 this.$controls.html(
                     '<div class="controls">' +
                     '<div class="whatdo">' + requestTitle + this.getTimerHTML() + '</div>' +
@@ -740,6 +751,18 @@
             }
             return party;
         },
+        displayAllyParty: function() {
+            var party = '';
+            if (!this.battle.mySide.ally) return;
+            const allyParty = this.battle.mySide.ally.myPokemon;
+            for (var i = 0; i < allyParty.length; i++) {
+                var pokemon = allyParty[i];
+                pokemon.name = pokemon.ident.substr(4);
+                var tooltipArgs = 'allypokemon|' + i;
+                party += '<button class="disabled has-tooltip" name="chooseDisabled" value="' + BattleLog.escapeHTML(pokemon.name) + ',notMine' + '" data-tooltip="' + BattleLog.escapeHTML(tooltipArgs) + '"><span class="picon" style="' + Dex.getPokemonIcon(pokemon) + '"></span>' + BattleLog.escapeHTML(pokemon.name) + (pokemon.hp ? '<span class="' + pokemon.getHPColorClass() + '"><span style="width:' + (Math.round(pokemon.hp * 92 / pokemon.maxhp) || 1) + 'px"></span></span>' + (pokemon.status ? '<span class="status ' + pokemon.status + '"></span>' : '') : '') + '</button> ';
+            }
+            return party;
+        },
         updateSwitchControls: function(type) {
             var pos = this.choice.choices.length;
 
@@ -751,7 +774,6 @@
 
             var switchables = this.request && this.request.side ? this.battle.myPokemon : [];
             var myActive = this.battle.mySide.active;
-
             var requestTitle = '';
             if (type === 'switch2' || type === 'switchposition') {
                 requestTitle += '<button name="clearChoice">Back</button> ';
@@ -791,8 +813,8 @@
                 for (var i = 0; i < switchables.length; i++) {
                     var pokemon = switchables[i];
                     var tooltipArgs = 'switchpokemon|' + i;
-                    if (pokemon.fainted || i < (this.battle.pokemonControlled || this.battle.mySide.active.length) || pokemon.notMine || this.choice.switchFlags[i]) {
-                        var disabledReason = pokemon.notMine ? ',notMine' : pokemon.fainted ? ',fainted' : i < (this.battle.pokemonControlled || this.battle.mySide.active.length) ? ',active' : '';
+                    if (pokemon.fainted || pokemon.side !== this.battle.mySide || i < (this.battle.pokemonControlled || this.battle.mySide.active.length) || pokemon.notMine || this.choice.switchFlags[i]) {
+                        var disabledReason = pokemon.side !== this.battle.mySide ? ',notMine' : pokemon.fainted ? ',fainted' : i < (this.battle.pokemonControlled || this.battle.mySide.active.length) ? ',active' : '';
                         switchMenu += '<button class="disabled has-tooltip" name="chooseDisabled" value="' + BattleLog.escapeHTML(pokemon.name) + disabledReason + '" data-tooltip="' + BattleLog.escapeHTML(tooltipArgs) + '">';
                     } else {
                         switchMenu += '<button name="chooseSwitch" value="' + i + '" class="has-tooltip" data-tooltip="' + BattleLog.escapeHTML(tooltipArgs) + '">';
@@ -1023,6 +1045,20 @@
                 pokemonData.getFormattedRange = Pokemon.prototype.getFormattedRange;
                 pokemonData.getHPColorClass = Pokemon.prototype.getHPColorClass;
                 pokemonData.getHPColor = Pokemon.prototype.getHPColor;
+            }
+        },
+        addAlly: function(allyData) {
+            this.battle.mySide.ally.myPokemon = allyData.pokemon;
+            for (var i = 0; i < allyData.pokemon.length; i++) {
+                var pokemonData = allyData.pokemon[i];
+                this.battle.parseDetails(pokemonData.ident.substr(4), pokemonData.ident, pokemonData.details, pokemonData);
+                this.battle.parseHealth(pokemonData.condition, pokemonData);
+                pokemonData.hpDisplay = Pokemon.prototype.hpDisplay;
+                pokemonData.getPixelRange = Pokemon.prototype.getPixelRange;
+                pokemonData.getFormattedRange = Pokemon.prototype.getFormattedRange;
+                pokemonData.getHPColorClass = Pokemon.prototype.getHPColorClass;
+                pokemonData.getHPColor = Pokemon.prototype.getHPColor;
+                pokemonData.side = this.battle.mySide.ally;
             }
         },
 

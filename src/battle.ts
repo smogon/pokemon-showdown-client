@@ -595,6 +595,7 @@ class Side {
 	lastPokemon = null as Pokemon | null;
 	pokemon = [] as Pokemon[];
 	teamSliceIndicies = [] as number[];
+	myPokemon? = [] as ServerPokemon[];
 
 	/** [effectName, levels, minDuration, maxDuration] */
 	sideConditions: {[id: string]: [string, number, number, number]} = {};

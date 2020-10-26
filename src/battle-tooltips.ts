@@ -304,9 +304,23 @@ class BattleTooltips {
 		case 'activepokemon': { // activepokemon|SIDE|ACTIVE
 			// mouse over active pokemon
 			// pokemon definitely exists, serverPokemon maybe
-			let sideIndex = parseInt(args[1], 10);
-			let side = this.battle.sides[sideIndex];
+ 			let sideIndex = parseInt(args[1], 10);
 			let activeIndex = parseInt(args[2], 10);
+			if (this.battle.gameType === 'multi') {
+				let side = sideIndex === 0 ? this.battle.mySide : this.battle.yourSide;
+				side = activeIndex === 1 ? side.ally : side;
+				let pokemon = side.pokemon[0];
+				let serverPokemon = null;
+				if (side === this.battle.mySide) {
+					serverPokemon = this.battle.myPokemon[0];
+				} else if (side === this.battle.mySide.ally) {
+					serverPokemon = this.battle.mySide.ally.myPokemon[0];
+				}
+				if (!pokemon) return false;
+				buf = this.showPokemonTooltip(pokemon, serverPokemon, true);
+				break;
+			}
+			let side = this.battle.sides[sideIndex];
 			let pokemon = side.active[activeIndex];
 			let serverPokemon = null;
 			if (sideIndex === 0 && this.battle.myPokemon) {
@@ -319,13 +333,26 @@ class BattleTooltips {
 		case 'switchpokemon': { // switchpokemon|POKEMON
 			// mouse over switchable pokemon
 			// serverPokemon definitely exists, sidePokemon maybe
-			let side = this.battle.sides[0];
+			let side = this.battle.mySide;
 			let activeIndex = parseInt(args[1], 10);
 			let pokemon = null;
-			if (activeIndex < side.active.length) {
-				pokemon = side.active[activeIndex];
+			if (activeIndex < side.pokemon.length) {
+				pokemon = side.pokemon[activeIndex];
 			}
 			let serverPokemon = this.battle.myPokemon![activeIndex];
+			buf = this.showPokemonTooltip(pokemon, serverPokemon);
+			break;
+		}
+		case 'allypokemon': { // allypokemon|POKEMON
+			// mouse over ally's pokemon
+			// serverPokemon definitely exists, sidePokemon maybe
+			let side = this.battle.mySide.ally;
+			let activeIndex = parseInt(args[1], 10);
+			let pokemon = null;
+			if (activeIndex < side.pokemon.length) {
+				pokemon = side.pokemon[activeIndex] || side.ally ? side.ally.pokemon[activeIndex] : null;
+			}
+			let serverPokemon = this.battle.mySide.ally.myPokemon[activeIndex];
 			buf = this.showPokemonTooltip(pokemon, serverPokemon);
 			break;
 		}

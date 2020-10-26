@@ -1840,6 +1840,13 @@ a.ilink.yours {
 	width: 640px;
 	background: #EEF2F5;
 }
+.ps-room .ally-pokemon {
+	position: absolute;
+	top: 280px;
+	left: 0;
+	width: 640px;
+	background: #EEF2F5;
+}
 .battle-chat-toggle {
 	display: none;
 }
@@ -1935,6 +1942,7 @@ a.ilink.yours {
 	left: 0;
 	display: block;
 }
+.allyTeam button,
 .shiftselect button,
 .moveselect button,
 .switchselect button {
@@ -1959,6 +1967,7 @@ a.ilink.yours {
 	color: #445588;
 	cursor: default;
 }
+.allyparty button,
 .switchmenu button {
 	position: relative;
 	display: block;
@@ -1971,11 +1980,14 @@ a.ilink.yours {
 	white-space: pre;
 	overflow: hidden;
 }
+.allyparty button .picon, 
 .switchmenu button .picon {
 	float: left;
 	margin: -6px -3px -6px -4px;
 	opacity: 0.8;
 }
+
+.allyparty button .hpbar,
 .switchmenu button .hpbar {
 	position: absolute;
 	display: block;
@@ -1989,6 +2001,7 @@ a.ilink.yours {
 
 /* The declaration order of these three hpbar* classes is significant. */
 
+.allyparty button .hpbar span,
 .switchmenu button .hpbar span {
 	display: block;
 	height: 1px;
@@ -1996,10 +2009,14 @@ a.ilink.yours {
 	border-top: 1px solid #3C0;
 	border-radius: 1px;
 }
+
+.allyparty button .hpbar-yellow span,
 .switchmenu button .hpbar-yellow span {
 	border-top-color: #a5aa53;
 	background-color: #a2a822;
 }
+
+.allyparty button .hpbar-red span,
 .switchmenu button .hpbar-red span {
 	border-top-color: #faa;
 	background-color: #f55;
@@ -2007,6 +2024,7 @@ a.ilink.yours {
 
 /****************/
 
+.allyparty button .status,
 .switchmenu button .status {
 	position: absolute;
 	display: block;
@@ -2087,13 +2105,14 @@ a.ilink.yours {
 		background: #E5E5E5;
 		color: black;
 }
-
+.allypatry,
 .switchmenu,
 .movemenu {
 	display: block;
 	margin-right: -10px;
 	padding-left: 4px;
 }
+.allyparty button,
 .switchmenu button,
 .movemenu button {
 	position: relative;
@@ -2111,12 +2130,14 @@ a.ilink.yours {
 	background: #e3e3e3;
 	background: linear-gradient(to bottom,  #f6f6f6,  #e3e3e3);
 }
+.allyparty button:hover,
 .switchmenu button:hover,
 .movemenu button:hover {
 	background: #cfcfcf;
 	background: linear-gradient(to bottom,  #f2f2f2,  #cfcfcf);
 	border-color: #606060;
 }
+.allyparty button:active,
 .switchmenu button:active,
 .movemenu button:active,
 .switchmenu button.pressed,
@@ -2124,6 +2145,8 @@ a.ilink.yours {
 	background: linear-gradient(to bottom,  #cfcfcf,  #f2f2f2);
 }
 
+.allyparty button.disabled,
+.allyparty button:disabled,
 .switchmenu button.disabled,
 .switchmenu button:disabled,
 .movemenu button:disabled {
@@ -2170,6 +2193,7 @@ a.ilink.yours {
 		display: none;
 		padding: 0 75px 0 85px;
 	}
+	.allyparty,
 	.switchmenu {
 		display: none;
 		max-width: 325px;
@@ -2181,6 +2205,7 @@ a.ilink.yours {
 		left: 20px;
 		bottom: 20px;
 	}
+	.allyTeam,
 	.switchselect {
 		position: absolute;
 		right: 20px;
