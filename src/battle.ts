@@ -1201,7 +1201,6 @@ class Battle {
 		this.scene.log.add(args, kwArgs, preempt);
 	}
 
-	
 	setAttrs() {
 		this.sides = [this.p1, this.p2];
 		this.p2.foe = this.p1;
@@ -3339,6 +3338,10 @@ class Battle {
 				poke.side.replace(poke);
 			} else {
 				poke.side.dragIn(poke);
+			}
+			if (this.gameType === 'multi') {
+				this.mySide.active[this.mySide.active.indexOf(null)] = this.mySide.ally.active[this.mySide.active.indexOf(null)];
+				this.yourSide.active[this.yourSide.active.indexOf(null)] = this.yourSide.ally.active[this.yourSide.active.indexOf(null)];
 			}
 			this.log(args, kwArgs);
 			break;
