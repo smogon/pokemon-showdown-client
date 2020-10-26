@@ -949,7 +949,7 @@ const BattleMoveAnims: AnimTable = {
 	junglehealing: {
 		anim(scene, [attacker, ...defenders]) {
 			scene.backgroundEffect('#9AB440', 1000, 0.3);
-			for (const defender of [attacker, ...defenders]) {
+			for (const defender of defenders) {
 				BattleOtherAnims.dance.anim(scene, [defender]);
 				scene.showEffect('leaf1', {
 					x: defender.x,
@@ -12720,7 +12720,7 @@ const BattleMoveAnims: AnimTable = {
 					x: defender.x + 50,
 					y: defender.y - 35,
 					z: defender.z,
-					scale: 0.5,
+					scale: 0.3,
 					opacity: 1,
 					time: 200 * i,
 				}, {
@@ -12735,7 +12735,7 @@ const BattleMoveAnims: AnimTable = {
 					x: defender.x - 50,
 					y: defender.y + 35,
 					z: defender.z,
-					scale: 0.5,
+					scale: 0.3,
 					opacity: 1,
 					time: 200 * i,
 				}, {
@@ -12750,7 +12750,7 @@ const BattleMoveAnims: AnimTable = {
 					x: defender.x + 50,
 					y: defender.y,
 					z: defender.z,
-					scale: 0.5,
+					scale: 0.3,
 					opacity: 1,
 					time: 200 * i,
 				}, {
@@ -12765,7 +12765,7 @@ const BattleMoveAnims: AnimTable = {
 					x: defender.x - 50,
 					y: defender.y,
 					z: defender.z,
-					scale: 0.5,
+					scale: 0.3,
 					opacity: 1,
 					time: 200 * i,
 				}, {
@@ -13604,9 +13604,7 @@ const BattleMoveAnims: AnimTable = {
 			let zstep = (defender.z - attacker.z) / 5;
 
 			for (let i = 0; i < 4; i++) {
-				scene.backgroundEffect('#AA44BB', 250, 0.6);
-				scene.backgroundEffect('#AA44FF', 250, 0.6, 400);
-				scene.showEffect('icicle', {
+				scene.showEffect('pinkicicle', {
 					x: attacker.x + xstep * (i + 1),
 					y: attacker.y + ystep * (i + 1),
 					z: attacker.z + zstep * (i + 1),
@@ -13618,7 +13616,7 @@ const BattleMoveAnims: AnimTable = {
 					time: 40 * i + 600,
 				}, 'linear');
 			}
-			scene.showEffect('iceball', {
+			scene.showEffect('mistball', {
 				x: defender.x,
 				y: defender.y,
 				z: defender.z,
@@ -13633,7 +13631,7 @@ const BattleMoveAnims: AnimTable = {
 				opacity: 0,
 				time: 400,
 			}, 'linear');
-			scene.showEffect('iceball', {
+			scene.showEffect('mistball', {
 				x: defender.x,
 				y: defender.y,
 				z: defender.z,
@@ -13649,7 +13647,7 @@ const BattleMoveAnims: AnimTable = {
 				time: 600,
 			}, 'linear');
 
-			scene.showEffect('wisp', {
+			scene.showEffect('poisonwisp', {
 				x: defender.x - 30,
 				y: defender.y,
 				z: defender.z,
@@ -13661,7 +13659,7 @@ const BattleMoveAnims: AnimTable = {
 				opacity: 0,
 				time: 600,
 			}, 'linear', 'fade');
-			scene.showEffect('wisp', {
+			scene.showEffect('poisonwisp', {
 				x: defender.x,
 				y: defender.y - 30,
 				z: defender.z,
@@ -13673,7 +13671,7 @@ const BattleMoveAnims: AnimTable = {
 				opacity: 0,
 				time: 650,
 			}, 'linear', 'fade');
-			scene.showEffect('wisp', {
+			scene.showEffect('poisonwisp', {
 				x: defender.x + 15,
 				y: defender.y,
 				z: defender.z,
