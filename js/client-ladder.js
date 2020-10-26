@@ -56,10 +56,29 @@
 				var page = this.$el[0];
 				if (!page) break;
 
-				if (row[1] === 'top') {
+				switch (row[1]) {
+				case 'top':
 					page.scrollTop = 0;
-				} else if (row[1] === 'bottom') {
+					break;
+				case 'bottom':
 					page.scrollTop = page.scrollHeight;
+					break;
+				case 'selector':
+					var selector = this.$(row[2])[0];
+					if (!selector) break;
+					page.scrollTop = selector.offsetHeight;
+					break;
+				}
+				break;
+
+			case 'selectorscroll':
+				var selector = this.$(row[1])[0];
+				if (!selector) break;
+
+				if (row[2] === 'top') {
+					selector.scrollTop = 0;
+				} else if (row[2] === 'bottom') {
+					selector.scrollTop = selector.scrollHeight;
 				}
 				break;
 
