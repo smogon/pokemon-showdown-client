@@ -57,7 +57,7 @@
 				if (!page) break;
 
 				if (row[1] === 'top') {
-					page.scrollBy(0, -1 * page.scrollHeight);
+					page.scrollTop = 0;
 				} else if (row[1] === 'bottom') {
 					page.scrollBy(0, page.scrollHeight);
 				}
