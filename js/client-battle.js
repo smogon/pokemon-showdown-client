@@ -565,12 +565,7 @@
                 var targetMenus = ['', ''];
                 var myActive = this.battle.mySide.active;
                 var yourActive = this.battle.yourSide.active;
-                if (this.battle.gameType === 'multi') {
-                    myActive[myActive.indexOf(null)] = this.battle.mySide.ally.active[myActive.indexOf(null)];
-                    yourActive[yourActive.indexOf(null)] = this.battle.yourSide.ally.active[yourActive.indexOf(null)];
-                }
                 var yourSlot = yourActive.length - 1 - pos;
-
                 for (var i = yourActive.length - 1; i >= 0; i--) {
                     var pokemon = yourActive[i];
                     var tooltipArgs = 'activepokemon|1|' + i;
