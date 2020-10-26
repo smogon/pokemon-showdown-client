@@ -468,6 +468,9 @@ exports.BattleText = {
 	dragonascent: {
 		megaNoItem: "  [TRAINER]'s fervent wish has reached [POKEMON]!",
 	},
+	eeriespell: {
+		activate: "#spite",
+	},
 	electrify: {
 		start: "  [POKEMON]'s moves have been electrified!",
 	},
@@ -543,6 +546,9 @@ exports.BattleText = {
 	},
 	gmaxchistrike: {
 		start: "#focusenergy",
+	},
+	gmaxdepletion: {
+		activate: "  [TARGET]'s PP was reduced!",
 	},
 	gmaxsteelsurge: {
 		start: "  Sharp-pointed pieces of steel started floating around [PARTY]!",
