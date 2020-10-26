@@ -2669,6 +2669,8 @@ class Battle {
 					this.scene.updateStatbar(curTarget);
 				}
 				break;
+			case 'eeriespell':
+			case 'gmaxdepletion':
 			case 'spite':
 				let move = Dex.getMove(kwArgs.move).name;
 				let pp = Number(kwArgs.number);

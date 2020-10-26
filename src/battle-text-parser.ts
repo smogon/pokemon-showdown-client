@@ -143,7 +143,9 @@ class BattleTextParser {
 			} else if (id === 'skillswap' || id === 'mummy' || id === 'wanderingspirit') {
 				kwArgs.ability = arg3;
 				kwArgs.ability2 = arg4;
-			} else if (['spite', 'grudge', 'forewarn', 'sketch', 'leppaberry', 'mysteryberry'].includes(id)) {
+			} else if ([
+				'eeriespell', 'gmaxdepletion', 'spite', 'grudge', 'forewarn', 'sketch', 'leppaberry', 'mysteryberry',
+			].includes(id)) {
 				kwArgs.move = arg3;
 				kwArgs.number = arg4;
 			}
