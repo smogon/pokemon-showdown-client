@@ -469,7 +469,7 @@ exports.BattleText = {
 		megaNoItem: "  [TRAINER]'s fervent wish has reached [POKEMON]!",
 	},
 	eeriespell: {
-		activate: "  It reduced the PP of [TARGET]'s [MOVE] by [NUMBER]!",
+		activate: "#spite",
 	},
 	electrify: {
 		start: "  [POKEMON]'s moves have been electrified!",
