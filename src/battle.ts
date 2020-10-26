@@ -2988,10 +2988,18 @@ class Battle {
 		let slotChart: {[k: string]: number} = {a: 0, b: 1, c: 2, d: 3, e: 4, f: 5};
 		if (name.match(/^p[0-9]$|p[0-9]: |p[0-9][a-f]: /)) {
 			const serverSideN = parseInt(name.charAt(1), 10) - 1;
-			if (this.sidesSwitched) {
-				siden = serverSideN + ((serverSideN % 2) ? -1 : 1);
+			if (this.gameType === 'multi') {
+				/*if (this.sidesSwitched) {
+					siden = serverSideN + (serverSideN % 2 === 0 ? 1 : -1);
+				} else {*/
+					siden = serverSideN;
+				//}
 			} else {
-				siden = serverSideN;
+				if (this.sidesSwitched) {
+					siden = serverSideN + ((serverSideN % 2) ? -1 : 1);
+				} else {
+					siden = serverSideN;
+				}
 			}
 			if (name.match(/^p[0-9]$|p[0-9]: /)) {
 				name = name.substr(4);
@@ -3009,7 +3017,7 @@ class Battle {
 		pokemonid = parsedPokemonid;
 
 		const searchid = `${pokemonid}|${details}`;
-		const side = this.sides[siden];
+		const side = this.gameType === 'multi' ? this[`p${siden + 1}`] : this.sides[siden];
 
 		// search inactive revealed pokemon
 		for (let i = 0; i < side.pokemon.length; i++) {
