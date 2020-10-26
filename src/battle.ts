@@ -1205,8 +1205,6 @@ class Battle {
 		this.sides = [this.p1, this.p2];
 		this.p2.foe = this.p1;
 		this.p1.foe = this.p2;
-		this.mySide = this.p1;
-		this.yourSide = this.p2;
 		if (this.id.includes('multi')) {
 			this.p3.foe = this.p2;
 			this.p3.ally = this.p1;
@@ -1216,8 +1214,9 @@ class Battle {
 			this.p4.foe = this.p1;
 			this.sides.push(this.p3, this.p4);
 		}
+		this.yourSide = this.mySide.foe;
 		this.mySide.n = this.mySide.ally.n = 0;
-		this.mySide.foe.n = this.mySide.ally.foe.n = 1;
+		this.yourSide.n = this.yourSide.ally.n = 1;
 	}
 
 	resetToCurrentTurn() {

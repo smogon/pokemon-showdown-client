@@ -381,7 +381,7 @@
 
                         if (this.request.forceSwitch !== true) {
                             var faintedLength = _.filter(this.request.forceSwitch, function(fainted) { return fainted; }).length;
-                            var freedomDegrees = faintedLength - _.filter(switchables.slice(this.battle.mySide.active.length - (this.battle.gameType === 'multi' ? 1 : 0)), function(mon) { return !mon.fainted || mon.side !== this.battle.mySide.ally; }).length;
+                            var freedomDegrees = faintedLength - _.filter(switchables.slice(this.battle.mySide.pokemon.length - (this.battle.gameType === 'multi' ? 1 : 0)), function(mon) { return !mon.fainted || mon.side !== this.battle.mySide.ally; }).length;
                             this.choice.freedomDegrees = Math.max(freedomDegrees, 0);
                             this.choice.canSwitch = faintedLength - this.choice.freedomDegrees;
                         }
@@ -509,7 +509,6 @@
         },
         updateMoveControls: function(type) {
             var switchables = this.request && this.request.side ? this.battle.myPokemon : [];
-
             if (type !== 'movetarget') {
                 while (switchables[this.choice.choices.length] && switchables[this.choice.choices.length].fainted && this.choice.choices.length + 1 < this.battle.mySide.active.length) {
                     this.choice.choices.push('pass');
@@ -733,7 +732,7 @@
                 var pokemon = switchables[i];
                 pokemon.name = pokemon.ident.substr(4);
                 var tooltipArgs = 'switchpokemon|' + i;
-                if (pokemon.fainted || i < this.battle.mySide.active.length || this.choice.switchFlags[i] || trapped) {
+                if (pokemon.fainted || (i < this.battle.mySide.active.length && i < this.battle.pokemonControlled) || this.choice.switchFlags[i] || trapped) {
                     party += '<button class="disabled has-tooltip" name="chooseDisabled" value="' + BattleLog.escapeHTML(pokemon.name) + (pokemon.fainted ? ',fainted' : trapped ? ',trapped' : i < this.battle.mySide.active.length ? ',active' : '') + '" data-tooltip="' + BattleLog.escapeHTML(tooltipArgs) + '"><span class="picon" style="' + Dex.getPokemonIcon(pokemon) + '"></span>' + BattleLog.escapeHTML(pokemon.name) + (pokemon.hp ? '<span class="' + pokemon.getHPColorClass() + '"><span style="width:' + (Math.round(pokemon.hp * 92 / pokemon.maxhp) || 1) + 'px"></span></span>' + (pokemon.status ? '<span class="status ' + pokemon.status + '"></span>' : '') : '') + '</button> ';
                 } else {
                     party += '<button name="chooseSwitch" value="' + i + '" class="has-tooltip" data-tooltip="' + BattleLog.escapeHTML(tooltipArgs) + '"><span class="picon" style="' + Dex.getPokemonIcon(pokemon) + '"></span>' + BattleLog.escapeHTML(pokemon.name) + '<span class="' + pokemon.getHPColorClass() + '"><span style="width:' + (Math.round(pokemon.hp * 92 / pokemon.maxhp) || 1) + 'px"></span></span>' + (pokemon.status ? '<span class="status ' + pokemon.status + '"></span>' : '') + '</button> ';

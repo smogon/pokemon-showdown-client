@@ -659,7 +659,7 @@ class BattleScene {
 		for (let i = 0; i < sidebarIcons.length; i++) {
 			const [iconType, pokeIndex] = sidebarIcons[i];
 			const poke = pokeIndex !== null ? side.pokemon[pokeIndex] : null;
-			const tooltipCode = ` class="picon has-tooltip" data-tooltip="pokemon|${side.n}|${pokeIndex}${iconType === 'pokemon-illusion' ? '|illusion' : ''}"`;
+			const tooltipCode = ` class="picon has-tooltip" data-tooltip="pokemon|${this.battle.sides.indexOf(side)}|${pokeIndex}${iconType === 'pokemon-illusion' ? '|illusion' : ''}"`;
 			if (iconType === 'empty') {
 				pokemonhtml += `<span class="picon" style="` + Dex.getPokemonIcon('pokeball-none') + `"></span>`;
 			} else if (noShow) {
@@ -691,15 +691,17 @@ class BattleScene {
 		}
 		pokemonhtml = '<div class="teamicons">' + pokemonhtml + '</div>';
 		const ratinghtml = side.rating ? ` title="Rating: ${BattleLog.escapeHTML(side.rating)}"` : ``;
-		let posStr = " ";
+		let posStr = "";
 		if (isAlly) {
-			if (side.ally === this.battle.mySide || side === this.battle.mySide) {
-				posStr += `id="p3"`
+			if (side.ally === this.battle.mySide || side === this.battle.mySide.ally) {
+				posStr += "p3";
 			} else {
-				posStr += `id="p4"`
+				posStr += "p4";
 			}
+		} else {
+			posStr = side === this.battle.mySide ? "p1" : "p2";
 		}
-		return `<div class="trainer"${posStr}><strong>${BattleLog.escapeHTML(side.name)}</strong><div class="trainersprite"${ratinghtml} style="background-image:url(${Dex.resolveAvatar(side.avatar)})"></div>${pokemonhtml}</div>`;
+		return `<div class="trainer" id="${posStr}"><strong>${BattleLog.escapeHTML(side.name)}</strong><div class="trainersprite"${ratinghtml} style="background-image:url(${Dex.resolveAvatar(side.avatar)})"></div>${pokemonhtml}</div>`;
 	}
 	updateSidebar(side: Side) {
 		const $sidebar = side === this.battle.mySide || side.ally === this.battle.mySide ? this.$leftbar : this.$rightbar;
@@ -713,7 +715,7 @@ class BattleScene {
 	}
 	updateSidebars() {
 		this.$leftbar.html(this.getSidebarHTML(this.battle.mySide) + this.getSidebarHTML(this.battle.mySide.ally, true));
-		this.$rightbar.html(this.getSidebarHTML(this.battle.mySide.foe) + this.getSidebarHTML(this.battle.mySide.foe.ally, true));
+		this.$rightbar.html(this.getSidebarHTML(this.battle.yourSide) + this.getSidebarHTML(this.battle.yourSide.ally, true));
 	}
 	updateStatbars() {
 		for (const side of this.battle.sides) {
@@ -752,7 +754,7 @@ class BattleScene {
 				});
 				let y = 0;
 				let x = 0;
-				if (siden) {
+				if (siden % 2) {
 					y = 48 + 50 + 3 * (i + 6 - side.pokemon.length);
 					x = 48 + 180 + 50 * (i + 6 - side.pokemon.length);
 				} else {
@@ -783,7 +785,7 @@ class BattleScene {
 					'<strong>' + BattleLog.escapeHTML(side.name) + '\'s team:</strong> <em style="color:#445566;display:block;">' + BattleLog.escapeHTML(textBuf) + '</em>'
 				);
 			}
-			this.$sprites[siden].html(buf + buf2);
+			this.$sprites[siden % 2].html(buf + buf2);
 
 			if (!newBGNum) {
 				if (ludicoloCount >= 2) {
