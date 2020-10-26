@@ -53,7 +53,7 @@
 				break;
 
 			case 'pagescroll':
-				var page = this.$el.get()[0];
+				var page = this.$el[0];
 				if (!page) break;
 
 				if (row[1] === 'top') {
