@@ -705,7 +705,7 @@ class BattleScene {
 	}
 	updateSidebar(side: Side) {
 		const $sidebar = side === this.battle.mySide || side.ally === this.battle.mySide ? this.$leftbar : this.$rightbar;
-		let sidebarhtml = this.getSidebarHTML(side) + (side.ally ? this.getSidebarHTML(side.ally, true) + '');
+		let sidebarhtml = this.getSidebarHTML(side) + (side.ally ? this.getSidebarHTML(side.ally, true) : '');
 		if (side.name) {
 			$sidebar.html(sidebarhtml);
 			$sidebar.find('.trainer').css('opacity', 1);
