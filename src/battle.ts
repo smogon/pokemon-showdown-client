@@ -1214,10 +1214,10 @@ class Battle {
 			this.p2.ally = this.p4;
 			this.p4.foe = this.p1;
 			this.sides.push(this.p3, this.p4);
+			this.mySide.n = this.mySide.ally.n = 0;
+			this.yourSide.n = this.yourSide.ally.n = 1;
 		}
 		this.yourSide = this.mySide.foe;
-		this.mySide.n = this.mySide.ally.n = 0;
-		this.yourSide.n = this.yourSide.ally.n = 1;
 	}
 
 	resetToCurrentTurn() {
