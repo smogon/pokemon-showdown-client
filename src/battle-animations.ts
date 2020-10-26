@@ -705,7 +705,7 @@ class BattleScene {
 	}
 	updateSidebar(side: Side) {
 		const $sidebar = side === this.battle.mySide || side.ally === this.battle.mySide ? this.$leftbar : this.$rightbar;
-		let sidebarhtml = this.getSidebarHTML(side) + this.getSidebarHTML(side.ally, true);
+		let sidebarhtml = this.getSidebarHTML(side) + (side.ally ? this.getSidebarHTML(side.ally, true) + '');
 		if (side.name) {
 			$sidebar.html(sidebarhtml);
 			$sidebar.find('.trainer').css('opacity', 1);
@@ -714,8 +714,8 @@ class BattleScene {
 		}
 	}
 	updateSidebars() {
-		this.$leftbar.html(this.getSidebarHTML(this.battle.mySide) + this.getSidebarHTML(this.battle.mySide.ally, true));
-		this.$rightbar.html(this.getSidebarHTML(this.battle.yourSide) + this.getSidebarHTML(this.battle.yourSide.ally, true));
+		this.$leftbar.html(this.getSidebarHTML(this.battle.mySide) + (this.battle.mySide.ally ? this.getSidebarHTML(this.battle.mySide.ally, true) : ''));
+		this.$rightbar.html(this.getSidebarHTML(this.battle.yourSide) + (this.battle.yourSide.ally ? this.getSidebarHTML(this.battle.yourSide.ally, true) : ''));
 	}
 	updateStatbars() {
 		for (const side of this.battle.sides) {
