@@ -73,6 +73,8 @@ includeHeader();
 				<li><p><a href="https://panpawn.github.io/" target="_blank" class="subtle"><strong>Jeremy Piemonte</strong> [panpawn]</a> <small>&ndash; Development</small></p></li>
 				<li><p><a href="http://leparagon.deviantart.com/" target="_blank" class="subtle">[<strong>leparagon</strong>]</a> <small>&ndash; Art (sprites, minisprite resizing)</small></p></li>
 				<li><p><strong>Luke Harmon-Vellotti</strong> [moo, CheeseMuffin] <small>&ndash; Development</small></p></li>
+				<li><p><strong>Parth Mane</strong> [PartMan] <small>&ndash; Development</small></p></li>
+				<li><p>[<strong>Plague von Karma</strong>] <small>&ndash; Development, Research</small></p></li>
 				<li><p><strong>Russell Jones</strong> [SadisticMystic] <small>&ndash; Research (game mechanics)</small></p></li>
 				<li><p><strong>Spandan Punwatkar</strong> [Spandan] <small>&ndash; Development</small></p></li>
 				<li><p><strong>Waleed Hassan</strong> [jetou] <small>&ndash; Development</small></p></li>
