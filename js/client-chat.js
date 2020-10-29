@@ -420,8 +420,8 @@
 		// command parsing
 		checkBroadcast: function (cmd, text) {
 			if (text.charAt(0) === '!') {
-				this.add('The command "/' + cmd + '" cannot be broadcast.');
-				this.add('Use /' + cmd + ' to use it normally.');
+				this.add('|error|The command "/' + cmd + '" cannot be broadcast.');
+				this.add('|error|Use /' + cmd + ' to use it normally.');
 				return true;
 			}
 			return false;
