@@ -3331,12 +3331,6 @@ class Battle {
 			} else {
 				poke.side.dragIn(poke);
 			}
-			if (this.gameType === 'multi') {
-				this.mySide.active[this.mySide.pokemon[0].slot ^ 1] = this.mySide.ally.active[this.mySide.ally.pokemon[0].slot];
-				this.mySide.ally.active = Object.assign([], this.mySide.active);
-				this.yourSide.active[this.yourSide.pokemon[0].slot ^ 1] = this.yourSide.ally.active[this.yourSide.ally.pokemon[0].slot];
-				this.yourSide.ally.active = Object.assign([], this.yourSide.active);
-			}
 			this.log(args, kwArgs);
 			break;
 		}
