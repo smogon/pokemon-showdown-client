@@ -418,7 +418,14 @@
 		},
 
 		// command parsing
-
+		checkBroadcast: function (cmd, text) {
+			if (text.charAt(0) === '!') {
+				this.add('|error|The command "!' + cmd + '" cannot be broadcast.');
+				this.add('|error|Use /' + cmd + ' to use it normally.');
+				return true;
+			}
+			return false;
+		},
 		parseCommand: function (text) {
 			var cmd = '';
 			var target = '';
@@ -439,6 +446,7 @@
 			case 'chal':
 			case 'chall':
 			case 'challenge':
+				if (this.checkBroadcast(cmd, text)) return false;
 				var targets = target.split(',');
 				for (var i = 0; i < targets.length; i++) {
 					targets[i] = $.trim(targets[i]);
@@ -463,6 +471,7 @@
 				return false;
 
 			case 'accept':
+				if (this.checkBroadcast(cmd, text)) return false;
 				var userid = toID(target);
 				if (userid) {
 					var $challenge = $('.pm-window').filter('div[data-userid="' + userid + '"]').find('button[name="acceptChallenge"]');
@@ -488,6 +497,7 @@
 				$challenges[0].click();
 				return false;
 			case 'reject':
+				if (this.checkBroadcast(cmd, text)) return false;
 				var userid = toID(target);
 				if (userid) {
 					var $challenge = $('.pm-window').filter('div[data-userid="' + userid + '"]').find('button[name="rejectChallenge"]');
@@ -516,6 +526,7 @@
 
 			case 'user':
 			case 'open':
+				if (this.checkBroadcast(cmd, text)) return false;
 				var openUser = function (target) {
 					app.addPopup(UserPopup, {name: target});
 				};
@@ -534,6 +545,7 @@
 			case 'whisper':
 			case 'w':
 			case 'msg':
+				if (this.checkBroadcast(cmd, text)) return false;
 				var commaIndex = target.indexOf(',');
 				if (commaIndex < 0) break;
 				if (!$.trim(target.slice(commaIndex + 1))) {
@@ -543,6 +555,7 @@
 				break;
 
 			case 'debug':
+				if (this.checkBroadcast(cmd, text)) return false;
 				if (target === 'extractteams') {
 					app.addPopup(Popup, {
 						type: 'modal',
@@ -561,16 +574,19 @@
 				return false;
 
 			case 'news':
+				if (this.checkBroadcast(cmd, text)) return false;
 				app.rooms[''].addNews();
 				return false;
 			case 'autojoin':
 			case 'cmd':
 			case 'crq':
 			case 'query':
+				if (this.checkBroadcast(cmd, text)) return false;
 				this.add('This is a PS system command; do not use it.');
 				return false;
 
 			case 'ignore':
+				if (this.checkBroadcast(cmd, text)) return false;
 				if (!target) {
 					this.parseCommand('/help ignore');
 					return false;
@@ -586,6 +602,7 @@
 				return false;
 
 			case 'unignore':
+				if (this.checkBroadcast(cmd, text)) return false;
 				if (!target) {
 					this.parseCommand('/help unignore');
 					return false;
@@ -599,6 +616,7 @@
 				return false;
 
 			case 'ignorelist':
+				if (this.checkBroadcast(cmd, text)) return false;
 				var ignoreList = Object.keys(app.ignore);
 				if (ignoreList.length === 0) {
 					this.add('You are currently not ignoring anyone.');
@@ -608,6 +626,7 @@
 				return false;
 
 			case 'clear':
+				if (this.checkBroadcast(cmd, text)) return false;
 				if (this.clear) {
 					this.clear();
 				} else {
@@ -616,6 +635,7 @@
 				return false;
 
 			case 'clearpms':
+				if (this.checkBroadcast(cmd, text)) return false;
 				var $pms = $('.pm-window');
 				if (!$pms.length) {
 					this.add('You do not have any PM windows open.');
@@ -638,6 +658,7 @@
 				return false;
 
 			case 'nick':
+				if (this.checkBroadcast(cmd, text)) return false;
 				if ($.trim(target)) {
 					app.user.rename(target);
 				} else {
@@ -646,9 +667,11 @@
 				return false;
 
 			case 'logout':
+				if (this.checkBroadcast(cmd, text)) return false;
 				app.user.logout();
 				return false;
 			case 'showdebug':
+				if (this.checkBroadcast(cmd, text)) return false;
 				this.add('Debug battle messages: ON');
 				Storage.prefs('showdebug', true);
 				var debugStyle = $('#debugstyle').get(0);
@@ -660,6 +683,7 @@
 				}
 				return false;
 			case 'hidedebug':
+				if (this.checkBroadcast(cmd, text)) return false;
 				this.add('Debug battle messages: HIDDEN');
 				Storage.prefs('showdebug', false);
 				var debugStyle = $('#debugstyle').get(0);
@@ -672,6 +696,7 @@
 				return false;
 
 			case 'showjoins':
+				if (this.checkBroadcast(cmd, text)) return false;
 				var showjoins = Dex.prefs('showjoins') || {};
 				var serverShowjoins = showjoins[Config.server.id] || {};
 				if (target) {
@@ -690,6 +715,7 @@
 				Storage.prefs('showjoins', showjoins);
 				return false;
 			case 'hidejoins':
+				if (this.checkBroadcast(cmd, text)) return false;
 				var showjoins = Dex.prefs('showjoins') || {};
 				var serverShowjoins = showjoins[Config.server.id] || {};
 				if (target) {
@@ -709,24 +735,29 @@
 				return false;
 
 			case 'showbattles':
+				if (this.checkBroadcast(cmd, text)) return false;
 				this.add('Battle messages: ON');
 				Storage.prefs('showbattles', true);
 				return false;
 			case 'hidebattles':
+				if (this.checkBroadcast(cmd, text)) return false;
 				this.add('Battle messages: HIDDEN');
 				Storage.prefs('showbattles', false);
 				return false;
 
 			case 'unpackhidden':
+				if (this.checkBroadcast(cmd, text)) return false;
 				this.add('Locked/banned users\' chat messages: ON');
 				Storage.prefs('nounlink', true);
 				return false;
 			case 'packhidden':
+				if (this.checkBroadcast(cmd, text)) return false;
 				this.add('Locked/banned users\' chat messages: HIDDEN');
 				Storage.prefs('nounlink', false);
 				return false;
 
 			case 'timestamps':
+				if (this.checkBroadcast(cmd, text)) return false;
 				var targets = target.split(',');
 				if ((['all', 'lobby', 'pms'].indexOf(targets[0]) === -1) || targets.length < 2 ||
 					(['off', 'minutes', 'seconds'].indexOf(targets[1] = targets[1].trim()) === -1)) {
@@ -759,6 +790,7 @@
 
 			case 'hl':
 			case 'highlight':
+				if (this.checkBroadcast(cmd, text)) return false;
 				var highlights = Dex.prefs('highlights') || {};
 				if (target.indexOf(',') > -1) {
 					var targets = target.match(/([^,]+?({\d*,\d*})?)+/g);
@@ -804,6 +836,7 @@
 						this.updateHighlightRegExp(highlights);
 						break;
 					default:
+						if (this.checkBroadcast(cmd, text)) return false;
 						// Wrong command
 						this.add('Error: Invalid /highlight command.');
 						this.parseCommand('/help highlight'); // show help
@@ -811,6 +844,7 @@
 					}
 					Storage.prefs('highlights', highlights);
 				} else {
+					if (this.checkBroadcast(cmd, text)) return false;
 					if (target === 'delete') {
 						Storage.prefs('highlights', false);
 						this.updateHighlightRegExp({});
@@ -836,6 +870,7 @@
 			case 'ranking':
 			case 'rating':
 			case 'ladder':
+				if (this.checkBroadcast(cmd, text)) return false;
 				if (app.localLadder) return text;
 				if (!target) {
 					target = app.user.get('userid');
@@ -920,6 +955,7 @@
 				return false;
 
 			case 'buttonban':
+				if (this.checkBroadcast(cmd, text)) return false;
 				var self = this;
 				app.addPopupPrompt("Why do you wish to ban this user?", "Ban user", function (reason) {
 					self.send('/ban ' + toName(target) + ', ' + (reason || ''));
@@ -927,6 +963,7 @@
 				return false;
 
 			case 'buttonmute':
+				if (this.checkBroadcast(cmd, text)) return false;
 				var self = this;
 				app.addPopupPrompt("Why do you wish to mute this user?", "Mute user", function (reason) {
 					self.send('/mute ' + toName(target) + ', ' + (reason || ''));
@@ -934,11 +971,13 @@
 				return false;
 
 			case 'buttonunmute':
+				if (this.checkBroadcast(cmd, text)) return false;
 				this.send('/unmute ' + target);
 				return false;
 
 			case 'buttonkick':
 			case 'buttonwarn':
+				if (this.checkBroadcast(cmd, text)) return false;
 				var self = this;
 				app.addPopupPrompt("Why do you wish to warn this user?", "Warn user", function (reason) {
 					self.send('/warn ' + toName(target) + ', ' + (reason || ''));
@@ -948,6 +987,7 @@
 			case 'joim':
 			case 'join':
 			case 'j':
+				if (this.checkBroadcast(cmd, text)) return false;
 				if (noSpace) return text;
 				if (app.rooms[target]) {
 					app.focusRoom(target);
@@ -962,10 +1002,12 @@
 
 			case 'part':
 			case 'leave':
+				if (this.checkBroadcast(cmd, text)) return false;
 				if (this.requestLeave && !this.requestLeave()) return false;
 				return text;
 
 			case 'avatar':
+				if (this.checkBroadcast(cmd, text)) return false;
 				var parts = target.split(',');
 				var avatar = parts[0].toLowerCase().replace(/[^a-z0-9-]+/g, '');
 				// Replace avatar number with name before sending it to the server, only the client knows what to do with the numbers
@@ -976,6 +1018,7 @@
 				return '/avatar ' + avatar; // Send the command through to the server.
 
 			case 'afd':
+				if (this.checkBroadcast(cmd, text)) return false;
 				var cleanedTarget = toID(target);
 				if (cleanedTarget === 'off' || cleanedTarget === 'disable') {
 					Config.server.afd = false;
@@ -1004,6 +1047,7 @@
 
 			// documentation of client commands
 			case 'help':
+				if (this.checkBroadcast(cmd, text)) return false;
 				switch (toID(target)) {
 				case 'chal':
 				case 'chall':
