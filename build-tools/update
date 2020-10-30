@@ -84,14 +84,18 @@ if (process.argv[2] === 'full') {
 
 child_process.execSync(`node build-tools/babel-cli/bin/babel.js src --out-dir js --extensions ".ts,.tsx" --incremental${ignoreGraphics}`);
 
+let textData = '';
+try {
+	textData = fs.readFileSync('data/text.js');
+} catch (e) {}
+
 fs.writeFileSync(
 	'js/battledata.js',
 	fs.readFileSync('js/battle-dex.js') + '\n\n' +
 		fs.readFileSync('js/battle-dex-data.js') + '\n\n' +
 		fs.readFileSync('js/battle-log.js') + '\n\n' +
 		fs.readFileSync('src/battle-log-misc.js') +
-		fs.readFileSync('data/text.js') + '\n\n' +
-		fs.readFileSync('data/text-afd.js') + '\n\n' +
+		textData + '\n\n' +
 		fs.readFileSync('js/battle-text-parser.js')
 );
 

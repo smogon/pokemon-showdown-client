@@ -246,7 +246,7 @@ class BattleScene {
 		this.updateBgm();
 		if (this.battle.resumeButton) {
 			this.$frame.append('<div class="playbutton"><button data-action="resume"><i class="fa fa-play icon-play"></i> Resume</button></div>');
-			this.$frame.find<HTMLElement>('div.playbutton button').click(this.battle.resumeButton);
+			this.$frame.find('div.playbutton button').click(this.battle.resumeButton);
 		}
 	}
 	resume() {
@@ -654,7 +654,6 @@ class BattleScene {
 			sidebarIcons.push(['empty', null]);
 		}
 
-		let sliceCount = 0;
 		let pokemonhtml = '';
 		for (let i = 0; i < sidebarIcons.length; i++) {
 			const [iconType, pokeIndex] = sidebarIcons[i];
@@ -682,10 +681,6 @@ class BattleScene {
 			} else {
 				const details = this.getDetailsText(poke);
 				pokemonhtml += `<span${tooltipCode} style="` + Dex.getPokemonIcon(poke, !side.n) + `" aria-label="${details}"></span>`;
-			}
-			if (i === side.teamSliceIndicies[sliceCount]) {
-				sliceCount++;
-				pokemonhtml += `</div><div class="teamicons">`;
 			}
 			if (i % 3 === 2) pokemonhtml += `</div><div class="teamicons">`;
 		}
@@ -2658,6 +2653,8 @@ class PokemonSprite extends Sprite {
 			infestation: '<span class="bad">Infestation</span>',
 			magmastorm: '<span class="bad">Magma Storm</span>',
 			sandtomb: '<span class="bad">Sand Tomb</span>',
+			snaptrap: '<span class="bad">Snap Trap</span>',
+			thundercage: '<span class="bad">Thunder Cage</span>',
 			whirlpool: '<span class="bad">Whirlpool</span>',
 			wrap: '<span class="bad">Wrap</span>',
 			// Gen 1
@@ -2763,6 +2760,10 @@ const BattleEffects: {[k: string]: SpriteData} = {
 	},
 	icicle: {
 		url: 'icicle.png', // http://opengameart.org/content/icicle-spell
+		w: 80, h: 60,
+	},
+	pinkicicle: {
+		url: 'icicle-pink.png', // http://opengameart.org/content/icicle-spell, recolored by Kalalokki
 		w: 80, h: 60,
 	},
 	lightning: {

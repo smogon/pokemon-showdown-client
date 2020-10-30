@@ -129,7 +129,7 @@ class BattleTextParser {
 				return {args: ['-singlemove', pokemon, effect], kwArgs: {of: target}};
 			}
 			if ([
-				'bind', 'wrap', 'clamp', 'whirlpool', 'firespin', 'magmastorm', 'sandtomb', 'infestation', 'trapped',
+				'bind', 'wrap', 'clamp', 'whirlpool', 'firespin', 'magmastorm', 'sandtomb', 'infestation', 'snaptrap', 'thundercage', 'trapped',
 			].includes(id)) {
 				return {args: ['-start', pokemon, effect], kwArgs: {of: target}};
 			}
@@ -145,7 +145,9 @@ class BattleTextParser {
 			} else if (id === 'skillswap' || id === 'mummy' || id === 'wanderingspirit') {
 				kwArgs.ability = arg3;
 				kwArgs.ability2 = arg4;
-			} else if (['spite', 'grudge', 'forewarn', 'sketch', 'leppaberry', 'mysteryberry'].includes(id)) {
+			} else if ([
+				'eeriespell', 'gmaxdepletion', 'spite', 'grudge', 'forewarn', 'sketch', 'leppaberry', 'mysteryberry',
+			].includes(id)) {
 				kwArgs.move = arg3;
 				kwArgs.number = arg4;
 			}
@@ -236,8 +238,8 @@ class BattleTextParser {
 		if (!pokemon) return '';
 		let side;
 		switch (pokemon.slice(0, 2)) {
-		case 'p1': case 'p3': side = 0; break;
-		case 'p2': case 'p4': side = 1; break;
+		case 'p1': side = 0; break;
+		case 'p2': side = 1; break;
 		default: return `???pokemon:${pokemon}???`;
 		}
 		const name = this.pokemonName(pokemon);

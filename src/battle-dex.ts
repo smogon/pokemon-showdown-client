@@ -776,14 +776,14 @@ const Dex = new class implements ModdedDex {
 		return 'background:transparent url(' + Dex.resourcePrefix + 'sprites/itemicons-sheet.png?g8) no-repeat scroll -' + left + 'px -' + top + 'px';
 	}
 
-	getTypeIcon(type: string, b?: boolean) { // b is just for utilichart.js
+	getTypeIcon(type: string | null, b?: boolean) { // b is just for utilichart.js
 		type = this.getType(type).name;
 		if (!type) type = '???';
 		let sanitizedType = type.replace(/\?/g, '%3f');
 		return `<img src="${Dex.resourcePrefix}sprites/types/${sanitizedType}.png" alt="${type}" height="14" width="32" class="pixelated${b ? ' b' : ''}" />`;
 	}
 
-	getCategoryIcon(category: string) {
+	getCategoryIcon(category: string | null) {
 		const categoryID = toID(category);
 		let sanitizedCategory = '';
 		switch (categoryID) {

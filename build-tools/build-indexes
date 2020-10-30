@@ -1097,4 +1097,30 @@ process.stdout.write("Building `data/moves,items,abilities,typechart,learnsets.j
 	fs.writeFileSync('data/learnsets.js', buf);
 }
 
+/*********************************************************
+ * Build text.js
+ *********************************************************/
+
+{
+	const textData = Dex.loadTextData();
+	const Text = textData.Default;
+
+	function assignData(id, entry) {
+		for (const key in entry) {
+			if (key === 'name' || key.startsWith('desc') || key.startsWith('shortDesc')) {
+				continue;
+			}
+			const textEntry = Text[id] || (Text[id] = {});
+			textEntry[key] = entry[key];
+		}
+	}
+
+	for (const id in textData.Moves) assignData(id, textData.Moves[id]);
+	for (const id in textData.Abilities) assignData(id, textData.Abilities[id]);
+	for (const id in textData.Items) assignData(id, textData.Items[id]);
+
+	const buf = 'exports.BattleText = ' + es3stringify(Text) + ';';
+	fs.writeFileSync('data/text.js', buf);
+}
+
 console.log("DONE");

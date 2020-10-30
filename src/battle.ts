@@ -594,7 +594,6 @@ class Side {
 	active = [null] as (Pokemon | null)[];
 	lastPokemon = null as Pokemon | null;
 	pokemon = [] as Pokemon[];
-	teamSliceIndicies = [] as number[];
 	myPokemon? = [] as ServerPokemon[];
 
 	/** [effectName, levels, minDuration, maxDuration] */
@@ -1068,7 +1067,7 @@ class Battle {
 	teamPreviewCount = 0;
 	speciesClause = false;
 	tier = '';
-	gameType: 'singles' | 'doubles' | 'multi' | 'triples' = 'singles';
+	gameType: 'singles' | 'doubles' | 'triples' | 'multi' = 'singles';
 	rated: string | boolean = false;
 	isBlitz = false;
 	endLastTurnPending = false;
@@ -2703,6 +2702,8 @@ class Battle {
 					this.scene.updateStatbar(curTarget);
 				}
 				break;
+			case 'eeriespell':
+			case 'gmaxdepletion':
 			case 'spite':
 				let move = Dex.getMove(kwArgs.move).name;
 				let pp = Number(kwArgs.number);
@@ -2987,19 +2988,6 @@ class Battle {
 		let slotChart: {[k: string]: number} = {a: 0, b: 1, c: 2, d: 3, e: 4, f: 5};
 		if (name.match(/^p[0-9]$|p[0-9]: |p[0-9][a-f]: /)) {
 			const serverSideN = parseInt(name.charAt(1), 10) - 1;
-			/*if (this.gameType === 'multi') {
-				/*if (this.sidesSwitched) {
-					siden = serverSideN + (serverSideN % 2 === 0 ? 1 : -1);
-				} else {
-					siden = serverSideN;
-				//}
-			} else {
-				if (this.sidesSwitched) {
-					siden = serverSideN + ((serverSideN % 2) ? -1 : 1);
-				} else {
-					siden = serverSideN;
-				}
-			}*/
 			siden = serverSideN;
 			if (name.match(/^p[0-9]$|p[0-9]: /)) {
 				name = name.substr(4);
@@ -3145,7 +3133,13 @@ class Battle {
 		}
 		case 'turn': {
 			this.setTurn(args[1]);
-			this.log(args);
+			this.log(args);				
+			if (this.gameType === 'multi') {
+				this.mySide.active[this.mySide.pokemon[0].slot ^ 1] = this.mySide.ally.active[this.mySide.ally.pokemon[0].slot];
+				this.mySide.ally.active = Object.assign([], this.mySide.active);
+				this.yourSide.active[this.yourSide.pokemon[0].slot ^ 1] = this.yourSide.ally.active[this.yourSide.ally.pokemon[0].slot];
+				this.yourSide.ally.active = Object.assign([], this.yourSide.active);
+			}
 			break;
 		}
 		case 'tier': {
@@ -3168,9 +3162,7 @@ class Battle {
 				this.yourSide.active = [null];
 				break;
 			case 'multi':
-			case 'free-for-all':
 				this.pokemonControlled = 1;
-				// falls through
 			case 'doubles':
 				this.mySide.active = [null, null];
 				this.yourSide.active = [null, null];
