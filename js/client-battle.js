@@ -907,6 +907,7 @@
                     switch (parts[0]) {
                         case 'move':
                             var move;
+                            myActive = this.battle.mySide.active;
                             if (this.request.active[i].maxMoves && !this.request.active[i].canDynamax) { // it's a max move
                                 move = this.request.active[i].maxMoves.maxMoves[parseInt(parts[1], 10) - 1].move;
                             } else { // it's a normal move
