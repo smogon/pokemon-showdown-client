@@ -13,10 +13,10 @@
 
 			this.isSideRoom = Dex.prefs('rightpanelbattles');
 
-			this.$el.addClass('ps-room-opaque').html('<div class="battle">Battle is here</div><div class="foehint"></div><div class="battle-log" aria-label="Battle Log" role="complementary"></div><div class="battle-log-add">Connecting...</div><ul class="battle-userlist userlist userlist-minimized"></ul><div class="battle-controls" role="complementary" aria-label="Battle Controls"></div><button class="battle-chat-toggle button" name="showChat"><i class="fa fa-caret-left"></i> Chat</button>');
+			this.$el.addClass('ps-room-opaque').html('<div class="battle">Battle is here</div><div class="foehint"></div><div class="battle-log" aria-label="Battle Log" role="complementary"></div><div class="battle-log-add">Connecting...</div><ul class="battle-userlist userlist userlist-minimized"></ul><div class="battle-controls" role="complementary" aria-label="Battle Controls"></div><div class="ally-pokemon" aria-label="Ally Pokemon"></div><button class="battle-chat-toggle button" name="showChat"><i class="fa fa-caret-left"></i> Chat</button>');
 
 			this.$battle = this.$el.find('.battle');
-			this.$controls = this.$el.find('.battle-controls');
+			this.$controls = this.$el.find('.battle-controls');	
             this.$allyPokemon = this.$el.find('.ally-pokemon');
 			this.$chatFrame = this.$el.find('.battle-log');
 			this.$chatAdd = this.$el.find('.battle-log-add');
@@ -385,7 +385,7 @@
 
 					if (this.request.forceSwitch !== true) {
 						var faintedLength = _.filter(this.request.forceSwitch, function (fainted) {return fainted;}).length;
-						var freedomDegrees = faintedLength - _.filter(switchables.slice(this.battle.mySide.pokemon.length), function (mon) {return !mon.fainted;}).length;
+						var freedomDegrees = faintedLength - _.filter(switchables.slice(this.battle.mySide.active.length), function (mon) {return !mon.fainted;}).length;
 						this.choice.freedomDegrees = Math.max(freedomDegrees, 0);
 						this.choice.canSwitch = faintedLength - this.choice.freedomDegrees;
 					}
@@ -557,9 +557,7 @@
 			// Target selector
 			if (type === 'movetarget') {
 				requestTitle += 'At who? ';
-                if (this.request && this.request.side) {
-                    pos += Math.floor((parseInt(this.side.charAt(1), 10) - 1) / 2);
-                }
+
 				var targetMenus = ['', ''];
 				var myActive = this.battle.mySide.active;
 				var yourActive = this.battle.yourSide.active;
@@ -812,10 +810,9 @@
 				for (var i = 0; i < switchables.length; i++) {
 					var pokemon = switchables[i];
 					var tooltipArgs = 'switchpokemon|' + i;
-					if (pokemon.fainted || i < (this.battle.pokemonControlled || this.battle.mySide.active.length) || pokemon.notMine || this.choice.switchFlags[i]) {
-                        var disabledReason = pokemon.fainted ? ',fainted' : i < (this.battle.pokemonControlled || this.battle.mySide.active.length) ? ',active' : '';
-                        switchMenu += '<button class="disabled has-tooltip" name="chooseDisabled" value="' + BattleLog.escapeHTML(pokemon.name) + disabledReason + '" data-tooltip="' + BattleLog.escapeHTML(tooltipArgs) + '">';
-                    } else {
+					if (pokemon.fainted || i < this.battle.mySide.active.length || this.choice.switchFlags[i]) {
+						switchMenu += '<button class="disabled has-tooltip" name="chooseDisabled" value="' + BattleLog.escapeHTML(pokemon.name) + (pokemon.fainted ? ',fainted' : i < this.battle.mySide.active.length ? ',active' : '') + '" data-tooltip="' + BattleLog.escapeHTML(tooltipArgs) + '">';
+					} else {
 						switchMenu += '<button name="chooseSwitch" value="' + i + '" class="has-tooltip" data-tooltip="' + BattleLog.escapeHTML(tooltipArgs) + '">';
 					}
 					switchMenu += '<span class="picon" style="' + Dex.getPokemonIcon(pokemon) + '"></span>' + BattleLog.escapeHTML(pokemon.name) + (!pokemon.fainted ? '<span class="' + pokemon.getHPColorClass() + '"><span style="width:' + (Math.round(pokemon.hp * 92 / pokemon.maxhp) || 1) + 'px"></span></span>' + (pokemon.status ? '<span class="status ' + pokemon.status + '"></span>' : '') : '') + '</button> ';
@@ -901,12 +898,13 @@
 				}
 				buf += leads.join(', ') + ' will be sent out first.<br />';
 			} else if (this.choice.choices && this.request) {
-				var myActive = this.battle.mySide.active;
+                var myActive = this.battle.myPokemon;
 				for (var i = 0; i < this.choice.choices.length; i++) {
 					var parts = this.choice.choices[i].split(' ');
 					switch (parts[0]) {
 					case 'move':
-						var move;
+                        var move;
+                        myActive = this.battle.mySide.active;
 						if (this.request.active[i].maxMoves && !this.request.active[i].canDynamax) { // it's a max move
 							move = this.request.active[i].maxMoves.maxMoves[parseInt(parts[1], 10) - 1].move;
 						} else { // it's a normal move
@@ -1249,10 +1247,10 @@
 		chooseDisabled: function (data) {
 			this.tooltips.hideTooltip();
 			data = data.split(',');
-			if (data[1] === 'notMine') {
-				app.addPopupMessage("You cannot decide for your partner!");
-			} else if (data[1] === 'fainted') {
+			if (data[1] === 'fainted') {
 				app.addPopupMessage("" + data[0] + " has no energy left to battle!");
+			} else if (data[1] === 'notMine') {
+				app.addPopupMessage("You cannot decide for your partner!");
 			} else if (data[1] === 'trapped') {
 				app.addPopupMessage("You are trapped and cannot select " + data[0] + "!");
 			} else if (data[1] === 'active') {
@@ -1315,7 +1313,7 @@
 					}
 				}
 
-				if (this.choice.choices.length >= (this.choice.count || this.battle.pokemonControlled || this.battle.mySide.active.length)) {
+				if (this.choice.choices.length >= (this.choice.count || this.battle.pokemonControlled || (this.request.active || this.battle.mySide.active).length)) {
 					this.sendDecision(this.choice.choices);
 				}
 
