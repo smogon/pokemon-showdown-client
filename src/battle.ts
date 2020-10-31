@@ -3133,12 +3133,20 @@ class Battle {
 		}
 		case 'turn': {
 			this.setTurn(args[1]);
-			this.log(args);				
+			this.log(args);
 			if (this.gameType === 'multi') {
-				this.mySide.active[this.mySide.pokemon[0].slot ^ 1] = this.mySide.ally.active[this.mySide.ally.pokemon[0].slot];
-				this.mySide.ally.active = Object.assign([], this.mySide.active);
-				this.yourSide.active[this.yourSide.pokemon[0].slot ^ 1] = this.yourSide.ally.active[this.yourSide.ally.pokemon[0].slot];
-				this.yourSide.ally.active = Object.assign([], this.yourSide.active);
+				const mySideSlot = this.mySide.sideid === 'p1' || this.mySide.sideid === 'p2' ? 0 : 1;
+				let myActives = [];
+				myActives[mySideSlot] = this.mySide.active[mySideSlot];
+				myActives[mySideSlot ^ 1] = this.mySide.ally.active[mySideSlot ^ 1];
+				this.mySide.active = myActives;
+				this.mySide.ally.active = this.mySide.active;
+				const yourSideSlot = this.yourSide.sideid === 'p1' || this.yourSide.sideid === 'p2' ? 0 : 1;
+				let yourActives = [];
+				yourActives[yourSideSlot] = this.yourSide.active[yourSideSlot];
+				yourActives[yourSideSlot ^ 1] = this.yourSide.ally.active[yourSideSlot ^ 1];
+				this.yourSide.active = yourActives;
+				this.yourSide.ally.active = this.yourSide.active;
 			}
 			break;
 		}

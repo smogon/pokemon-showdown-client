@@ -304,13 +304,12 @@ class BattleTooltips {
 		case 'activepokemon': { // activepokemon|SIDE|ACTIVE
 			// mouse over active pokemon
 			// pokemon definitely exists, serverPokemon maybe
- 			let sideIndex = parseInt(args[1], 10);
+			let sideIndex = parseInt(args[1], 10);
 			let activeIndex = parseInt(args[2], 10);
 			if (this.battle.gameType === 'multi') {
 				let side = sideIndex === 0 ? this.battle.mySide : this.battle.yourSide;
-				if (activeIndex > side.active.length) break;
-				side = activeIndex === this.battle.mySide.pokemon[0].slot ? side : side.ally;
-				let pokemon = side.pokemon[0];
+				side = side.active[activeIndex].side;
+				let pokemon = side.active[activeIndex];
 				let serverPokemon = null;
 				if (side === this.battle.mySide) {
 					serverPokemon = this.battle.myPokemon[0];
@@ -337,8 +336,8 @@ class BattleTooltips {
 			let side = this.battle.mySide;
 			let activeIndex = parseInt(args[1], 10);
 			let pokemon = null;
-			if (activeIndex < side.pokemon.length) {
-				pokemon = side.pokemon[activeIndex];
+			if (activeIndex < side.active.length) {
+				pokemon = side.active[activeIndex];
 			}
 			let serverPokemon = this.battle.myPokemon![activeIndex];
 			buf = this.showPokemonTooltip(pokemon, serverPokemon);
