@@ -664,7 +664,7 @@ const Dex = new class implements ModdedDex {
 			num = BattlePokedex[id].num;
 		}
 		if (num < 0) num = 0;
-		if (num > 893) num = 0;
+		if (num > 898) num = 0;
 
 		if (window.BattlePokemonIconIndexes?.[id]) {
 			num = BattlePokemonIconIndexes[id];
@@ -710,7 +710,7 @@ const Dex = new class implements ModdedDex {
 		let top = Math.floor(num / 12) * 30;
 		let left = (num % 12) * 40;
 		let fainted = ((pokemon as Pokemon | ServerPokemon)?.fainted ? `;opacity:.3;filter:grayscale(100%) brightness(.5)` : ``);
-		return `background:transparent url(${Dex.resourcePrefix}sprites/pokemonicons-sheet.png?v3) no-repeat scroll -${left}px -${top}px${fainted}`;
+		return `background:transparent url(${Dex.resourcePrefix}sprites/pokemonicons-sheet.png?v4) no-repeat scroll -${left}px -${top}px${fainted}`;
 	}
 
 	getTeambuilderSpriteData(pokemon: any, gen: number = 0): TeambuilderSpriteData {
