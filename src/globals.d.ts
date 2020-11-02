@@ -29,7 +29,7 @@ declare var BattlePokemonSpritesBW: any;
 
 // defined in battle-log-misc
 declare function MD5(input: string): string;
-declare function formatText(input: string): string;
+declare function formatText(input: string, isTrusted?: boolean): string;
 
 // PS globals
 /////////////

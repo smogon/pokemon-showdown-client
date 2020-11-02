@@ -1448,7 +1448,7 @@
 					break;
 
 				case 'error':
-					this.$chat.append('<div class="notice message-error">' + BattleLog.escapeHTML(row.slice(1).join('|')) + '</div>');
+					this.$chat.append('<div class="notice message-error">' + BattleLog.parseMessage(row.slice(1).join('|'), true) + '</div>');
 					break;
 
 				case 'uhtml':
