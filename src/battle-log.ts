@@ -614,7 +614,7 @@ class BattleLog {
 		case 'text':
 			return ['chat', BattleLog.parseMessage(target)];
 		case 'error':
-			return ['chat message-error', BattleLog.escapeHTML(target)];
+			return ['chat message-error', formatText(target, true)];
 		case 'html':
 			return [
 				'chat chatmessage-' + toID(name) + hlClass + mineClass,
@@ -645,12 +645,12 @@ class BattleLog {
 		}
 	}
 
-	static parseMessage(str: string) {
+	static parseMessage(str: string, isTrusted = false) {
 		// Don't format console commands (>>).
 		if (str.substr(0, 3) === '>> ' || str.substr(0, 4) === '>>> ') return this.escapeHTML(str);
 		// Don't format console results (<<).
 		if (str.substr(0, 3) === '<< ') return this.escapeHTML(str);
-		str = formatText(str);
+		str = formatText(str, isTrusted);
 
 		let options = BattleLog.prefs('chatformatting') || {};
 
