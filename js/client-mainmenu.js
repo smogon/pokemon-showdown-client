@@ -107,7 +107,7 @@
 			if ('nw' in window && !nw.process.version.startsWith('v13.')) {
 				app.addPopupMessage(
 					"Your version of the app is out of date.\n" +
-					"Go to pokemonshowdown.com to update it."
+					"Please go to pokemonshowdown.com to update it."
 				);
 			}
 		},
