@@ -583,7 +583,7 @@ abstract class BattleTypedSearch<T extends SearchType> {
 			format = format.slice(4) as ID;
 		}
 		if (format === 'vgc2020') this.formatType = 'dlc1doubles';
-		if (format.includes('doubles') && !this.formatType) this.formatType = 'doubles';
+		if (format.includes('doubles') && this.dex.gen > 4 && !this.formatType) this.formatType = 'doubles';
 		if (format.includes('letsgo')) this.formatType = 'letsgo';
 		if (format.includes('nationaldex')) {
 			format = format.slice(11) as ID;
