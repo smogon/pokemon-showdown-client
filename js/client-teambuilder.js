@@ -1375,10 +1375,6 @@
 				app.addPopupMessage("Names can't contain the character |, since they're used for storing teams.");
 				name = name.replace(/\|/g, '');
 			}
-			if (name.startsWith('!box!')) {
-				this.curTeam.capacity = 24;
-				name = name.slice(5);
-			}
 			this.curTeam.name = name;
 			e.currentTarget.value = name;
 			this.save();
