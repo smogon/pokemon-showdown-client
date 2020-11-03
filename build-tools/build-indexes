@@ -287,7 +287,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 	const GENS = [8, 7, 6, 5, 4, 3, 2, 1];
 	const DOUBLES = GENS.filter(x => x > 2).map(num => -num);
 	const NFE = GENS.map(num => num + 0.3);
-	const OTHER = [8.4, 8.2, -8.4, 7.1, -7.5];
+	const OTHER = [8.4, 8.2, 8.1, -8.4, 7.1, -7.5];
 
 	// process.stdout.write("\n  ");
 	for (const genIdent of [...GENS, ...DOUBLES, ...NFE, ...OTHER]) {
