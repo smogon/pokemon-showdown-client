@@ -261,14 +261,6 @@
 				}
 				folders.push(format);
 			}
-			if (!folderTable['Boxes/']) {
-				folders.push('ZBoxes');
-				folderTable['Boxes/'] = 1;
-				if (!('/' in folderTable)) {
-					folders.push('Z~');
-					folderTable['/'] = 1;
-				}
-			}
 			folders.sort();
 			var gen = '';
 			var formatFolderBuf = '<div class="foldersep"></div>';
@@ -353,11 +345,7 @@
 				if (this.curFolder.slice(-1) === '/') {
 					filterFolder = this.curFolder.slice(0, -1);
 					if (filterFolder) {
-						if (filterFolder === 'Boxes') {
-							buf += '<h2><i class="fa fa-folder-open"></i> ' + filterFolder + ' <button class="button small disabled" style="margin-left:5px" name="renameFolder" disabled="disabled" title="(Do not rename or delete this folder.)"><i class="fa fa-pencil"></i> Rename</button> <button class="button small disabled" style="margin-left:5px" name="promptDeleteFolder" disabled="disabled" title="(Do not rename or delete this folder.)"><i class="fa fa-times"></i> Remove</button></h2>';
-						} else {
-							buf += '<h2><i class="fa fa-folder-open"></i> ' + filterFolder + ' <button class="button small" style="margin-left:5px" name="renameFolder"><i class="fa fa-pencil"></i> Rename</button> <button class="button small" style="margin-left:5px" name="promptDeleteFolder"><i class="fa fa-times"></i> Remove</button></h2>';
-						}
+						buf += '<h2><i class="fa fa-folder-open"></i> ' + filterFolder + ' <button class="button small" style="margin-left:5px" name="renameFolder"><i class="fa fa-pencil"></i> Rename</button> <button class="button small" style="margin-left:5px" name="promptDeleteFolder"><i class="fa fa-times"></i> Remove</button></h2>';
 					} else {
 						buf += '<h2><i class="fa fa-folder-open-o"></i> Teams not in any folders</h2>';
 					}
@@ -368,12 +356,18 @@
 			}
 
 			var newTeamButtonText = "New Team";
-			if (filterFolder) newTeamButtonText = filterFolder === 'Boxes' ? "New Box" : "New Team in folder";
+			var newBoxButtonText = "New Box";
+			if (filterFolder) {
+				newTeamButtonText = "New Team in folder";
+				newBoxButtonText = "New Box in folder";
+			}
 			if (filterFormat && filterFormat !== 'gen8') {
 				newTeamButtonText = "New " + BattleLog.escapeFormat(filterFormat) + " Team";
+				newBoxButtonText = "New " + BattleLog.escapeFormat(filterFormat) + " Box";
 			}
-			buf += '<p><button name="newTop" class="button big"><i class="fa fa-plus-circle"></i> ' + newTeamButtonText + '</button> ' +
-					 '<input type="text" id="teamSearchBar" name="search" class="textbox searchinput" value="' + this.curSearchVal + '" placeholder="search teams"/></p>';
+			buf += '<p><button name="newTop" value="team" class="button big"><i class="fa fa-plus-circle"></i> ' + newTeamButtonText + '</button> ' +
+				'<button name="newTop" value="box" class="button big"><i class="fa fa-plus-circle"></i> ' + newBoxButtonText + '</button> ' +
+				'<input type="text" id="teamSearchBar" name="search" class="textbox searchinput" value="' + this.curSearchVal + '" placeholder="search teams"/></p>';
 
 			buf += '<ul class="teamlist">';
 			var atLeastOne = false;
@@ -444,19 +438,15 @@
 					// teams and boxes are <div>s rather than <button>s because Firefox doesn't
 					// support dragging and dropping buttons.
 					buf += '<li><div name="edit" data-value="' + i + '" class="team';
-					if (team.folder === 'Boxes') buf += ' pc-box';
+					if (team.capacity === 24) buf += ' pc-box';
 					buf += '" draggable="true">' + formatText + '<strong>' + BattleLog.escapeHTML(team.name) + '</strong><br /><small>';
 					buf += Storage.getTeamIcons(team);
-					buf += '</small></div><button name="edit" value="' + i + '"><i class="fa fa-pencil" aria-label="Edit" title="Edit (you can also just click on the team)"></i></button><button name="newTop" value="' + i + '" title="Duplicate" aria-label="Duplicate"><i class="fa fa-clone"></i></button><button name="delete" value="' + i + '"><i class="fa fa-trash"></i> Delete</button></li>';
+					buf += '</small></div><button name="edit" value="' + i + '"><i class="fa fa-pencil" aria-label="Edit" title="Edit (you can also just click on the team)"></i></button><button name="duplicate" value="' + i + '" title="Duplicate" aria-label="Duplicate"><i class="fa fa-clone"></i></button><button name="delete" value="' + i + '"><i class="fa fa-trash"></i> Delete</button></li>';
 
 				}
 				if (!atLeastOne) {
 					if (filterFolder) {
-						if (filterFolder === 'Boxes') {
-							buf += '<li><p><em>you don\'t have any boxes lol</em></p></li>';
-						} else {
-							buf += '<li><p><em>you don\'t have any teams in this folder lol</em></p></li>';
-						}
+						buf += '<li><p><em>you don\'t have any teams in this folder lol</em></p></li>';
 					} else {
 						buf += '<li><p><em>you don\'t have any ' + this.curFolder + ' teams lol</em></p></li>';
 					}
@@ -465,7 +455,7 @@
 
 			buf += '</ul>';
 			if (atLeastOne) {
-				buf += '<p><button name="new" class="button"><i class="fa fa-plus-circle"></i> ' + newTeamButtonText + '</button></p>';
+				buf += '<p><button name="new" value="team" class="button"><i class="fa fa-plus-circle"></i> ' + newTeamButtonText + '</button><button name="new" value="box" class="button"><i class="fa fa-plus-circle"></i> ' + newBoxButtonText + '</button></p>';
 			}
 
 			if (window.nodewebkit) {
@@ -748,13 +738,24 @@
 			}
 			this.back();
 		},
-		"new": function (atTop) {
-			var newTeam = this.createTeam();
+		"new": function (type) {
+			var newTeam = this.createTeam(null, type === "box");
 
 			teams.push(newTeam);
 			this.edit(teams.length - 1);
 		},
-		newTop: function (i) {
+		newTop: function (type) {
+			var newTeam = this.createTeam(null, type === "box");
+			teams.unshift(newTeam);
+			for (var room in app.rooms) {
+				var selection = app.rooms[room].$('button.teamselect').val();
+				if (!selection || selection === 'random') continue;
+				var obj = app.rooms[room].id === "" ? app.rooms[room] : app.rooms[room].tournamentBox;
+				obj.curTeamIndex++;
+			}
+			this.edit(0);
+		},
+		duplicate: function (i) {
 			var newTeam = this.createTeam(i ? teams[i] : null);
 			teams.unshift(newTeam);
 			for (var room in app.rooms) {
@@ -765,13 +766,14 @@
 			}
 			this.edit(0);
 		},
-		createTeam: function (orig) {
+		createTeam: function (orig, isBox) {
 			var newTeam;
 			if (orig) {
 				newTeam = {
 					name: 'Copy of ' + orig.name,
 					format: orig.format,
 					team: orig.team,
+					capacity: orig.capacity,
 					folder: orig.folder,
 					iconCache: ''
 				};
@@ -783,9 +785,10 @@
 					format = 'gen8';
 				}
 				newTeam = {
-					name: (folder === 'Boxes' ? 'Box ' : 'Untitled ') + (teams.length + 1),
+					name: (isBox ? 'Box ' : 'Untitled ') + (teams.length + 1),
 					format: format,
 					team: '',
+					capacity: isBox ? 24 : 6,
 					folder: folder,
 					iconCache: ''
 				};
@@ -1115,7 +1118,7 @@
 					buf += '<li><em>you have no pokemon lol</em></li>';
 				}
 				for (i = 0; i < this.curSetList.length; i++) {
-					if (this.curSetList.length < 6 && this.deletedSet && i === this.deletedSetLoc) {
+					if (this.curSetList.length < this.curTeam.capacity && this.deletedSet && i === this.deletedSetLoc) {
 						buf += '<li><button name="undeleteSet"><i class="fa fa-undo"></i> Undo Delete</button></li>';
 					}
 					buf += this.renderSet(this.curSetList[i], i);
@@ -1126,7 +1129,7 @@
 				if (i === 0) {
 					buf += '<li><button name="import" class="button big"><i class="fa fa-upload"></i> Import from text or URL</button></li>';
 				}
-				if (i < (this.curTeam.folder === 'Boxes' ? 24 : 6)) {
+				if (i < this.curTeam.capacity) {
 					buf += '<li><button name="addPokemon" class="button big"><i class="fa fa-plus"></i> Add Pok&eacute;mon</button></li>';
 				}
 				buf += '</ol>';
@@ -1330,7 +1333,7 @@
 		pastePokemon: function (i, btn) {
 			if (!this.curTeam) return;
 			var team = this.curSetList;
-			if (team.length >= 6) return;
+			if (team.length >= this.curTeam.capacity) return;
 			if (!this.clipboardCount()) return;
 
 			if (team.push($.extend(true, {}, this.clipboard[0])) >= 6) {
@@ -1371,6 +1374,10 @@
 			if (name.indexOf('|') >= 0) {
 				app.addPopupMessage("Names can't contain the character |, since they're used for storing teams.");
 				name = name.replace(/\|/g, '');
+			}
+			if (name.startsWith('!box!')) {
+				this.curTeam.capacity = 24;
+				name = name.slice(5);
 			}
 			this.curTeam.name = name;
 			e.currentTarget.value = name;
@@ -1414,7 +1421,7 @@
 			buf += '<div class="teambuilder-clipboard-title">Clipboard:</div>';
 			buf += '<div class="teambuilder-clipboard-data" tabindex="-1">' + this.clipboardInnerHTML() + '</div>';
 			buf += '<div class="teambuilder-clipboard-buttons">';
-			if (this.curTeam && this.curSetList.length < 6) {
+			if (this.curTeam && this.curSetList.length < this.curTeam.capacity) {
 				buf += '<button name="pastePokemon" class="teambuilder-clipboard-button-left"><i class="fa fa-clipboard"></i> Paste!</button>';
 			}
 			buf += '<button name="clipboardRemoveAll" class="teambuilder-clipboard-button-right"><i class="fa fa-trash"></i> Clear clipboard</button>';
@@ -1725,7 +1732,7 @@
 					buf += '<button name="selectPokemon" value="' + i + '" class="pokemon">' + pokemonicon + BattleLog.escapeHTML(set.name || Dex.getSpecies(set.species).baseSpecies) + '</button> ';
 				}
 			}
-			if (this.curSetList.length < 6 && !isAdd) {
+			if (this.curSetList.length < this.curTeam.capacity && !isAdd) {
 				buf += '<button name="addPokemon"><i class="fa fa-plus"></i></button> ';
 			}
 			return buf;
