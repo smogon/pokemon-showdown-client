@@ -704,8 +704,8 @@ abstract class BattleTypedSearch<T extends SearchType> {
 		const lsetSpecies = this.dex.getSpecies(learnsetid);
 		if (!lsetSpecies.exists) return '' as ID;
 
-		if (lsetSpecies.id === 'pumpkaboosuper') return 'pumpkaboo' as ID;
 		if (lsetSpecies.id === 'gastrodoneast') return 'gastrodon' as ID;
+		if (lsetSpecies.id === 'pumpkaboosuper') return 'pumpkaboo' as ID;
 
 		const next = lsetSpecies.battleOnly || lsetSpecies.changesFrom || lsetSpecies.prevo;
 		if (next) return toID(next);
