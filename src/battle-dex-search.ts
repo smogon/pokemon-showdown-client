@@ -705,6 +705,7 @@ abstract class BattleTypedSearch<T extends SearchType> {
 		if (!lsetSpecies.exists) return '' as ID;
 
 		if (lsetSpecies.id === 'pumpkaboosuper') return 'pumpkaboo' as ID;
+		if (lsetSpecies.id === 'gastrodoneast') return 'gastrodon' as ID;
 
 		const next = lsetSpecies.battleOnly || lsetSpecies.changesFrom || lsetSpecies.prevo;
 		if (next) return toID(next);
