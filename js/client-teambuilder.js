@@ -356,17 +356,12 @@
 			}
 
 			var newTeamButtonText = "New Team";
-			var newBoxButtonText = "New Box";
-			if (filterFolder) {
-				newTeamButtonText = "New Team in folder";
-				newBoxButtonText = "New Box in folder";
-			}
+			if (filterFolder) newTeamButtonText = "New Team in folder";
 			if (filterFormat && filterFormat !== 'gen8') {
 				newTeamButtonText = "New " + BattleLog.escapeFormat(filterFormat) + " Team";
-				newBoxButtonText = "New " + BattleLog.escapeFormat(filterFormat) + " Box";
 			}
 			buf += '<p><button name="newTop" value="team" class="button big"><i class="fa fa-plus-circle"></i> ' + newTeamButtonText + '</button> ' +
-				'<button name="newTop" value="box" class="button big"><i class="fa fa-plus-circle"></i> ' + newBoxButtonText + '</button> ' +
+				'<button name="newTop" value="box" class="button big"><i class="fa fa-archive"></i> New Box</button> ' +
 				'<input type="text" id="teamSearchBar" name="search" class="textbox searchinput" value="' + this.curSearchVal + '" placeholder="search teams"/></p>';
 
 			buf += '<ul class="teamlist">';
@@ -455,7 +450,7 @@
 
 			buf += '</ul>';
 			if (atLeastOne) {
-				buf += '<p><button name="new" value="team" class="button"><i class="fa fa-plus-circle"></i> ' + newTeamButtonText + '</button><button name="new" value="box" class="button"><i class="fa fa-plus-circle"></i> ' + newBoxButtonText + '</button></p>';
+				buf += '<p><button name="new" value="team" class="button"><i class="fa fa-plus-circle"></i> ' + newTeamButtonText + '</button> <button name="new" value="box" class="button"><i class="fa fa-archive"></i> New Box</button></p>';
 			}
 
 			if (window.nodewebkit) {
