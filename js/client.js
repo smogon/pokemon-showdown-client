@@ -2002,7 +2002,7 @@ function toId() {
 				app.dispatchingButton = target;
 				e.preventDefault();
 				e.stopImmediatePropagation();
-				this[target.name](target.value, target);
+				this[target.name](target.value, target, e);
 				delete app.dismissingSource;
 				delete app.dispatchingButton;
 			}
@@ -2028,6 +2028,46 @@ function toId() {
 		 */
 		receive: function (data) {
 			//
+		},
+		sendToBot: function (data, target, e) {
+			var sentPage = e.currentTarget.offsetParent;
+			var pageTitle = sentPage.attributes.getNamedItem('id');
+			if (!pageTitle) return;
+			else pageTitle = pageTitle.nodeValue;
+			if (pageTitle.substr(0, 14) !== 'room-view-bot-') return; // Not a sent HTML page
+			var author = pageTitle.substr(14).split('-')[0];
+			var toSend = [];
+			var radioIndex = null;
+			for (var i = 0; i < sentPage.children.length; i++) {
+				var tag = sentPage.children[i];
+				if (tag.localName !== 'input') continue;
+				var tagName = tag.attributes.getNamedItem('name');
+				if (!tagName || tagName.nodeValue !== 'botInput') continue;
+				var tagType = tag.attributes.getNamedItem('type');
+				if (!tagType) tagType = 'text';
+				else tagType = tagType.nodeValue;
+				switch (tagType) {
+				case 'text': {
+					toSend.push(tag.value);
+					break;
+				}
+				case 'radio': {
+					/**
+					 * Since radio buttons use names for grouping,
+					 * pages can only support one radio group per page.
+					 * Because of this, we only store the one checked value.
+					 */
+					if (typeof radioIndex !== 'number') {
+						radioIndex = toSend.length;
+						toSend.push(null);
+					}
+					if (tag.checked) toSend[radioIndex] = tag.value;
+					break;
+				}
+				}
+			}
+			var stringToSend = "/pm " + author + "," + data + " " + JSON.stringify(toSend);
+			this.send(stringToSend);
 		},
 
 		// layout
