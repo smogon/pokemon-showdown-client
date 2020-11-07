@@ -904,7 +904,7 @@
 				buf += leads.join(', ') + ' will be sent out first.<br />';
 			} else if (this.choice.choices && this.request) {
                 var myActive = this.battle.myPokemon;
-				for (var i = 0; i < this.choice.choices.length; i++) {
+				for (var i = 0; i < (this.battle.myPokemon || this.choice.choices.length); i++) {
 					var parts = this.choice.choices[i].split(' ');
 					switch (parts[0]) {
 					case 'move':
