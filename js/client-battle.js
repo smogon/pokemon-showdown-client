@@ -786,7 +786,7 @@
 				// TODO? hpbar
 				requestTitle += "Which Pokémon will it switch in for?";
 				var controls = '<div class="switchmenu" style="display:block">';
-				for (var i = 0; i < myActive.length; i++) {
+				for (var i = 0; i < myActive.length && i < this.battle.pokemonControlled; i++) {
 					var pokemon = this.battle.myPokemon[i];
 					var tooltipArgs = 'switchpokemon|' + i;
 					if (pokemon && !pokemon.fainted || this.choice.switchOutFlags[i]) {

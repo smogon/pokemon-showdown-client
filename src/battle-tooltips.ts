@@ -339,6 +339,7 @@ class BattleTooltips {
 			let pokemon = null;
 			if (activeIndex < side.active.length && activeIndex < this.battle.pokemonControlled) {
 				pokemon = side.active[activeIndex];
+				if (pokemon.side === side.ally) pokemon = null;
 			}
 			let serverPokemon = this.battle.myPokemon![activeIndex];
 			buf = this.showPokemonTooltip(pokemon, serverPokemon);
