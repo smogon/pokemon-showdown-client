@@ -337,13 +337,10 @@ class BattleTooltips {
 			let side = this.battle.mySide;
 			let activeIndex = parseInt(args[1], 10);
 			let pokemon = null;
-			if (activeIndex < side.active.length) {
+			if (activeIndex < side.active.length && activeIndex < this.battle.pokemonControlled) {
 				pokemon = side.active[activeIndex];
 			}
 			let serverPokemon = this.battle.myPokemon![activeIndex];
-			if (pokemon && pokemon.side === side.ally) {
-				pokemon = null;
-			}
 			buf = this.showPokemonTooltip(pokemon, serverPokemon);
 			break;
 		}
