@@ -521,7 +521,8 @@
 			}
 
 			var moveTarget = this.choice ? this.choice.moveTarget : '';
-			var pos = this.choice.choices.length - (type === 'movetarget' ? 1 : 0);
+            var pos = this.choice.choices.length;
+            if (type === 'movetarget') pos--;
 
 			var hpRatio = switchables[pos].hp / switchables[pos].maxhp;
 
@@ -557,6 +558,10 @@
 			// Target selector
 			if (type === 'movetarget') {
 				requestTitle += 'At who? ';
+			
+                if (this.request && this.request.side) {
+                    pos += Math.floor((parseInt(this.side.charAt(1), 10) - 1) / 2);
+                }
 
 				var targetMenus = ['', ''];
 				var myActive = this.battle.mySide.active;

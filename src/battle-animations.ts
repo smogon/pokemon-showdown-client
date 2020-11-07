@@ -1704,7 +1704,7 @@ class PokemonSprite extends Sprite {
 
 	constructor(spriteData: SpriteData | null, pos: InitScenePos, scene: BattleScene, siden: number) {
 		super(spriteData, pos, scene);
-		this.siden = siden;
+		this.siden = siden % 2;
 		this.cryurl = this.sp.cryurl;
 		this.isBackSprite = !this.siden;
 	}

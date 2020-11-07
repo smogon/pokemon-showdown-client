@@ -1215,7 +1215,6 @@ class Battle {
 			this.mySide.n = this.mySide.ally.n = 0;
 			this.yourSide.n = this.yourSide.ally.n = 1;
 		}
-		this.yourSide = this.mySide.foe;
 	}
 
 	resetToCurrentTurn() {
@@ -1244,6 +1243,9 @@ class Battle {
 		if (this.sidesSwitched) {
 			this.mySide = this.p2;
 			this.yourSide = this.p1;
+		} else if (this.gameType === 'multi') {
+			this.setAttrs();
+			return;
 		} else {
 			this.mySide = this.p1;
 			this.yourSide = this.p2;
@@ -1252,7 +1254,7 @@ class Battle {
 		this.sides[1] = this.yourSide;
 		this.sides[0].n = 0;
 		this.sides[1].n = 1;
-
+		
 		// nothing else should need updating - don't call this function after sending out pokemon
 	}
 
@@ -3289,7 +3291,14 @@ class Battle {
 			this.scene.updateSidebar(side);
 			if (this.joinButtons) this.scene.hideJoinButtons();
 			this.log(args);
-			if (side.id === app.user.attributes.userid) this.mySide = side;
+			if (side.id === app.user.attributes.userid) {
+				this.mySide = side;
+				this.yourSide  = side.foe;
+				this.mySide.n = 0;
+				this.yourSide.n = 1;
+				if (this.mySide.ally) this.mySide.ally.n = 0;
+				if (this.yourSide.ally) this.yourSide.ally.n = 1;
+			}
 			break;
 		}
 		case 'teamsize': {
