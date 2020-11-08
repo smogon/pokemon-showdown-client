@@ -307,10 +307,10 @@ class BattleTooltips {
 			let sideIndex = parseInt(args[1], 10);
 			let activeIndex = parseInt(args[2], 10);
 			if (this.battle.gameType === 'multi') {
-				let side = sideIndex === 0 ? this.battle.mySide : this.battle.yourSide;
+				let side = this.battle.p1;
+				if (this.battle.p1.n !== sideIndex) side = side.foe;
 				if (activeIndex >= side.active.length) return;
-				// @ts-ignore
-				if (side.active[activeIndex]) side = side.active[activeIndex].side;
+				if (activeIndex) side = side.ally;
 				let pokemon = side.active[activeIndex];
 				if (!pokemon) return;
 				let serverPokemon = null;
