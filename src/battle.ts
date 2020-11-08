@@ -594,7 +594,7 @@ class Side {
 	active = [null] as (Pokemon | null)[];
 	lastPokemon = null as Pokemon | null;
 	pokemon = [] as Pokemon[];
-	myPokemon? = [] as ServerPokemon[];
+	myPokemon = [] as ServerPokemon[] | null;
 
 	/** [effectName, levels, minDuration, maxDuration] */
 	sideConditions: {[id: string]: [string, number, number, number]} = {};
@@ -3292,7 +3292,8 @@ class Battle {
 			this.scene.updateSidebar(side);
 			if (this.joinButtons) this.scene.hideJoinButtons();
 			this.log(args);
-			if (side.id === app.user.attributes.userid) {
+			let userid = app!.user.get('userid');
+			if (side.id === userid) {
 				this.mySide = side;
 				this.yourSide  = side.foe;
 				this.mySide.n = 0;
