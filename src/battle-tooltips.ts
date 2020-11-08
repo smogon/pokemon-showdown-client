@@ -336,13 +336,13 @@ class BattleTooltips {
 		case 'switchpokemon': { // switchpokemon|POKEMON
 			// mouse over switchable pokemon
 			// serverPokemon definitely exists, sidePokemon maybe
-			let side = this.battle.mySide;
+			// let side = this.battle.mySide;
 			let activeIndex = parseInt(args[1], 10);
 			let pokemon = null;
-			if (activeIndex < side.active.length && activeIndex < this.battle.pokemonControlled) {
-				pokemon = side.active[activeIndex];
-				if (pokemon && pokemon.side === side.ally) pokemon = null;
-			}
+			// if (activeIndex < side.active.length && activeIndex < this.battle.pokemonControlled) {
+			// 	pokemon = side.active[activeIndex];
+			// 	if (pokemon && pokemon.side === side.ally) pokemon = null;
+			// }
 			let serverPokemon = this.battle.myPokemon![activeIndex];
 			buf = this.showPokemonTooltip(pokemon, serverPokemon);
 			break;
@@ -350,13 +350,13 @@ class BattleTooltips {
 		case 'allypokemon': { // allypokemon|POKEMON
 			// mouse over ally's pokemon
 			// serverPokemon definitely exists, sidePokemon maybe
-			let side = this.battle.mySide.ally;
+			// let side = this.battle.mySide.ally;
 			let activeIndex = parseInt(args[1], 10);
 			let pokemon = null;
-			if (activeIndex < side.pokemon.length) {
-				pokemon = side.pokemon[activeIndex] || side.ally ? side.ally.pokemon[activeIndex] : null;
-			}
-			let serverPokemon = this.battle.mySide.ally.myPokemon ? this.battle.mySide.ally.myPokemon[activeIndex] : null;
+			// if (activeIndex < side.pokemon.length) {
+			// 	pokemon = side.pokemon[activeIndex] || side.ally ? side.ally.pokemon[activeIndex] : null;
+			// }
+			let serverPokemon = this.battle.mySide.ally.myPokemon![activeIndex];
 			buf = this.showPokemonTooltip(pokemon, serverPokemon);
 			break;
 		}
