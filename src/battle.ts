@@ -1243,17 +1243,14 @@ class Battle {
 		if (this.sidesSwitched) {
 			this.mySide = this.p2;
 			this.yourSide = this.p1;
-		} else if (this.gameType === 'multi') {
-			this.setAttrs();
-			return;
 		} else {
 			this.mySide = this.p1;
 			this.yourSide = this.p2;
 		}
-		this.sides[0] = this.mySide;
-		this.sides[1] = this.yourSide;
-		this.sides[0].n = 0;
-		this.sides[1].n = 1;
+		this.mySide.n = 0;
+		if (this.mySide.ally) this.mySide.ally.n = 0;
+		this.yourSide.n = 1;
+		if (this.yourSide.ally) this.yourSide.ally.n = 1;
 
 		// nothing else should need updating - don't call this function after sending out pokemon
 	}
