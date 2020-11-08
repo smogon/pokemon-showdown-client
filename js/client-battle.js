@@ -755,7 +755,7 @@
         displayAllyParty: function() {
             var party = '';
             if (!this.battle.mySide.ally) return;
-            const allyParty = this.battle.mySide.ally.myPokemon;
+            var allyParty = this.battle.mySide.ally.myPokemon;
             for (var i = 0; i < allyParty.length; i++) {
                 var pokemon = allyParty[i];
                 pokemon.name = pokemon.ident.substr(4);
