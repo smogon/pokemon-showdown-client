@@ -943,7 +943,7 @@
 				}
 				if (this.curTeamFormat !== teamFormat) {
 					for (var i = 0; i < teams.length; i++) {
-						if (teams[i].format === teamFormat) {
+						if (teams[i].format === teamFormat && teams[i].capacity === 6) {
 							teamIndex = i;
 							break;
 						}
