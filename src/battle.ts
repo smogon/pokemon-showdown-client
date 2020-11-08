@@ -260,7 +260,7 @@ class Pokemon implements PokemonDetails, PokemonHealth {
 			if (this.checkDetails(details.replace(', shiny', ''))) return true;
 		}
 		// the actual forme was hidden on Team Preview
-		details = details.replace(/(-[A-Za-z0-9]+)?(, |$)/, '-*$2');
+		details = details.replace(/(-[A-Za-z0-9-]+)?(, |$)/, '-*$2');
 		return (details === this.details);
 	}
 	getIdent() {
