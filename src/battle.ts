@@ -1204,7 +1204,7 @@ class Battle {
 		this.sides = [this.p1, this.p2];
 		this.p2.foe = this.p1;
 		this.p1.foe = this.p2;
-		if (this.id.includes('multi')) {
+		if (this.id.includes('multi') && this.p3 && this.p4) {
 			this.p3.foe = this.p2;
 			this.p3.ally = this.p1;
 			this.p1.ally = this.p3;
@@ -3007,7 +3007,7 @@ class Battle {
 		pokemonid = parsedPokemonid;
 
 		const searchid = `${pokemonid}|${details}`;
-		const side = this.gameType === 'multi' ? this[`p${siden + 1}`] : this.sides[siden];
+		const side = this.gameType === 'multi' ? this.getSide(`p${siden + 1}`) : this.sides[siden];
 
 		// search inactive revealed pokemon
 		for (let i = 0; i < side.pokemon.length; i++) {
