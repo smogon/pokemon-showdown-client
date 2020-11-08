@@ -273,9 +273,9 @@ class BattleTooltips {
 			let move = this.battle.dex.getMove(args[1]);
 			let index = parseInt(args[2], 10);
 			let pokemon = this.battle.mySide.active[index];
-			let serverPokemon = this.battle.myPokemon![index];
 			let gmaxMove = args[3] ? this.battle.dex.getMove(args[3]) : undefined;
 			if (!pokemon) return false;
+			let serverPokemon = pokemon.side === this.battle.mySide.ally ? this.battle.mySide.ally.myPokemon![index] : this.battle.myPokemon![index];
 			buf = this.showMoveTooltip(move, type, pokemon, serverPokemon, gmaxMove);
 			break;
 		}
@@ -309,8 +309,9 @@ class BattleTooltips {
 			if (this.battle.gameType === 'multi') {
 				let side = sideIndex === 0 ? this.battle.mySide : this.battle.yourSide;
 				if (activeIndex >= side.active.length) return;
-				side = this.battle.getSide('p'+ (sideIndex ? this.battle.yourSide.n : this.battle.mySide.n) + 2 * activeIndex);
+				side = this.battle.getSide(`p${(sideIndex ? this.battle.yourSide.n : this.battle.mySide.n) + 2 * activeIndex}`);
 				let pokemon = side.active[activeIndex];
+				if (!pokemon) return;
 				let serverPokemon = null;
 				if (side === this.battle.mySide) {
 					serverPokemon = this.battle.myPokemon[0];
