@@ -15,7 +15,7 @@
 
 			this.$el.addClass('ps-room-opaque').html('<div class="battle">Battle is here</div><div class="foehint"></div><div class="battle-log" aria-label="Battle Log" role="complementary"></div><div class="battle-log-add">Connecting...</div><ul class="battle-userlist userlist userlist-minimized"></ul><div class="battle-controls" role="complementary" aria-label="Battle Controls"></div><div class="ally-pokemon" aria-label="Ally Pokemon"></div><button class="battle-chat-toggle button" name="showChat"><i class="fa fa-caret-left"></i> Chat</button>');
 
-			this.$battle = this.$el.find('.battle');a
+			this.$battle = this.$el.find('.battle');
 			this.$controls = this.$el.find('.battle-controls');
             this.$allyPokemon = this.$el.find('.ally-pokemon');
 			this.$chatFrame = this.$el.find('.battle-log');
