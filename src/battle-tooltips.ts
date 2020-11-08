@@ -310,6 +310,7 @@ class BattleTooltips {
 			if (this.battle.gameType === 'multi') {
 				if (activeIndex >= side.active.length) return;
 				if (activeIndex && side.sideid !== 'p3' && side.sideid !== 'p4') side = side.ally;
+				if (!activeIndex && (side.sideid === 'p3' || side.sideid === 'p4')) side = side.ally;
 				let pokemon = side.active[activeIndex];
 				if (!pokemon) return;
 				let serverPokemon = null;

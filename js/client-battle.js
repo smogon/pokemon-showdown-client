@@ -13,11 +13,10 @@
 
 			this.isSideRoom = Dex.prefs('rightpanelbattles');
 
-			this.$el.addClass('ps-room-opaque').html('<div class="battle">Battle is here</div><div class="foehint"></div><div class="battle-log" aria-label="Battle Log" role="complementary"></div><div class="battle-log-add">Connecting...</div><ul class="battle-userlist userlist userlist-minimized"></ul><div class="battle-controls" role="complementary" aria-label="Battle Controls"></div><div class="ally-pokemon" aria-label="Ally Pokemon"></div><button class="battle-chat-toggle button" name="showChat"><i class="fa fa-caret-left"></i> Chat</button>');
+			this.$el.addClass('ps-room-opaque').html('<div class="battle">Battle is here</div><div class="foehint"></div><div class="battle-log" aria-label="Battle Log" role="complementary"></div><div class="battle-log-add">Connecting...</div><ul class="battle-userlist userlist userlist-minimized"></ul><div class="battle-controls" role="complementary" aria-label="Battle Controls"></div><button class="battle-chat-toggle button" name="showChat"><i class="fa fa-caret-left"></i> Chat</button>');
 
 			this.$battle = this.$el.find('.battle');
 			this.$controls = this.$el.find('.battle-controls');
-			this.$allyPokemon = this.$el.find('.ally-pokemon');
 			this.$chatFrame = this.$el.find('.battle-log');
 			this.$chatAdd = this.$el.find('.battle-log-add');
 			this.$foeHint = this.$el.find('.foehint');
@@ -1049,6 +1048,12 @@
 				pokemonData.getHPColorClass = Pokemon.prototype.getHPColorClass;
 				pokemonData.getHPColor = Pokemon.prototype.getHPColor;
 			}
+			this.battle.mySide = this.battle[sideData.id];
+			this.battle.yourSide = this.battle.mySide.foe;
+			this.battle.mySide.n = 0;
+			this.battle.yourSide.n = 1;
+			if (this.battle.mySide.ally) this.battle.mySide.ally.n = 0;
+			if (this.battle.yourSide.ally) this.battle.yourSide.ally.n = 1;
 		},
 		addAlly: function (allyData) {
 			this.battle.mySide.ally.myPokemon = allyData.pokemon;

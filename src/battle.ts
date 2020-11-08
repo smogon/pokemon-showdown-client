@@ -1241,6 +1241,7 @@ class Battle {
 	}
 	setSidesSwitched(sidesSwitched: boolean) {
 		this.sidesSwitched = sidesSwitched;
+		if (this.mySide === this.p3 || this.mySide === this.p4) return;
 		if (this.sidesSwitched) {
 			this.mySide = this.p2;
 			this.yourSide = this.p1;
@@ -3289,15 +3290,6 @@ class Battle {
 			if (args[4]) side.rating = args[4];
 			if (this.joinButtons) this.scene.hideJoinButtons();
 			this.log(args);
-			let userid = app!.user.get('userid');
-			if (side.id === userid) {
-				this.mySide = side;
-				this.yourSide  = side.foe;
-				this.mySide.n = 0;
-				this.yourSide.n = 1;
-				if (this.mySide.ally) this.mySide.ally.n = 0;
-				if (this.yourSide.ally) this.yourSide.ally.n = 1;
-			}
 			this.scene.updateSidebar(side);
 			break;
 		}
