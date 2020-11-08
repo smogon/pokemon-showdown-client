@@ -1236,6 +1236,7 @@ class Battle {
 	}
 	switchSides() {
 		this.setSidesSwitched(!this.sidesSwitched);
+		this.scene.updateSidebars();
 		this.resetToCurrentTurn();
 	}
 	setSidesSwitched(sidesSwitched: boolean) {
@@ -3286,7 +3287,6 @@ class Battle {
 			side.setName(args[2]);
 			if (args[3]) side.setAvatar(args[3]);
 			if (args[4]) side.rating = args[4];
-			this.scene.updateSidebar(side);
 			if (this.joinButtons) this.scene.hideJoinButtons();
 			this.log(args);
 			let userid = app!.user.get('userid');
@@ -3298,6 +3298,7 @@ class Battle {
 				if (this.mySide.ally) this.mySide.ally.n = 0;
 				if (this.yourSide.ally) this.yourSide.ally.n = 1;
 			}
+			this.scene.updateSidebar(side);
 			break;
 		}
 		case 'teamsize': {
