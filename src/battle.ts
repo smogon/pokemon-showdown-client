@@ -578,6 +578,7 @@ class Side {
 	name = '';
 	id = '';
 	n: number;
+	isOpp: boolean;
 	foe: Side = null!;
 	avatar: string = 'unknown';
 	rating: string = '';
@@ -596,9 +597,10 @@ class Side {
 	/** [effectName, levels, minDuration, maxDuration] */
 	sideConditions: {[id: string]: [string, number, number, number]} = {};
 
-	constructor(battle: Battle, n: number) {
+	constructor(battle: Battle, n: number, isOpp?: boolean) {
 		this.battle = battle;
 		this.n = n;
+		this.isOpp = isOpp || !!n;
 		this.updateSprites();
 	}
 
@@ -608,16 +610,16 @@ class Side {
 	}
 
 	behindx(offset: number) {
-		return this.x + (!this.n ? -1 : 1) * offset;
+		return this.x + (!this.isOpp ? -1 : 1) * offset;
 	}
 	behindy(offset: number) {
-		return this.y + (!this.n ? 1 : -1) * offset;
+		return this.y + (!this.isOpp ? 1 : -1) * offset;
 	}
 	leftof(offset: number) {
-		return (!this.n ? -1 : 1) * offset;
+		return (!this.isOpp ? -1 : 1) * offset;
 	}
 	behind(offset: number) {
-		return this.z + (!this.n ? -1 : 1) * offset;
+		return this.z + (!this.isOpp ? -1 : 1) * offset;
 	}
 
 	clearPokemon() {
@@ -632,7 +634,7 @@ class Side {
 		this.sideConditions = {};
 	}
 	updateSprites() {
-		this.z = (this.n ? 200 : 0);
+		this.z = (this.isOpp ? 200 : 0);
 		this.battle.scene.updateSpritesForSide(this);
 	}
 	setAvatar(avatar: string) {
@@ -1126,13 +1128,13 @@ class Battle {
 		return false;
 	}
 	init() {
-		this.mySide = new Side(this, 0);
-		this.yourSide = new Side(this, 1);
-		this.mySide.foe = this.yourSide;
-		this.yourSide.foe = this.mySide;
-		this.sides = [this.mySide, this.yourSide];
-		this.p1 = this.mySide;
-		this.p2 = this.yourSide;
+		this.p1 = new Side(this, 0);
+		this.p2 = new Side(this, 1);
+		this.sides = [this.p1, this.p2];
+		this.p2.foe = this.p1;
+		this.p1.foe = this.p2;
+		this.mySide = this.p1;
+		this.yourSide = this.p2;
 		this.gen = 7;
 		this.reset();
 	}
@@ -1215,10 +1217,8 @@ class Battle {
 			this.mySide = this.p1;
 			this.yourSide = this.p2;
 		}
-		this.sides[0] = this.mySide;
-		this.sides[1] = this.yourSide;
-		this.sides[0].n = 0;
-		this.sides[1].n = 1;
+		this.mySide.isOpp = false;
+		this.yourSide.isOpp = true;
 
 		// nothing else should need updating - don't call this function after sending out pokemon
 	}

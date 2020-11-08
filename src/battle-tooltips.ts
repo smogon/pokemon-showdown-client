@@ -305,7 +305,7 @@ class BattleTooltips {
 			// mouse over active pokemon
 			// pokemon definitely exists, serverPokemon maybe
 			let sideIndex = parseInt(args[1], 10);
-			let side = this.battle.sides[sideIndex];
+			let side = this.battle.sides[+this.battle.sidesSwitched ^ sideIndex];
 			let activeIndex = parseInt(args[2], 10);
 			let pokemon = side.active[activeIndex];
 			let serverPokemon = null;

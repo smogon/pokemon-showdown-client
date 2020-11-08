@@ -218,7 +218,7 @@ function switchCallback(battle, side)
 {
 	var switched = ['sw', side.lastPokemon];
 	if (!side.lastPokemon) return;
-	if (side.n === 0)
+	if (!side.isOpp)
 	{
 		if (Aswitch && Aswitch[0] === 'fnt') return;
 		Aswitch = switched;
@@ -233,13 +233,13 @@ function dragCallback(battle, side)
 {
 	var switched = ['dr', side.lastPokemon];
 	if (!side.lastPokemon) return;
-	if (side.n === 0) Aswitch = switched;
+	if (!side.isOpp) Aswitch = switched;
 	else Bswitch = switched;
 }
 function faintCallback(battle, side)
 {
 	var switched = ['fnt', side.lastPokemon];
-	if (side.n === 0) Aswitch = switched;
+	if (!side.isOpp) Aswitch = switched;
 	else Bswitch = switched;
 }
 function endCallback(battle)
