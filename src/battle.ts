@@ -1243,9 +1243,6 @@ class Battle {
 		if (this.sidesSwitched) {
 			this.mySide = this.p2;
 			this.yourSide = this.p1;
-		} else if (this.gameType === 'multi') {
-			this.setAttrs();
-			return;
 		} else {
 			this.mySide = this.p1;
 			this.yourSide = this.p2;
