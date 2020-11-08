@@ -1032,7 +1032,7 @@
 		updateSideLocation: function (sideData) {
 			if (!sideData.id) return;
 			this.side = sideData.id;
-			if (this.battle.sidesSwitched !== !!(this.side === 'p2')) {
+			if (this.battle.sidesSwitched !== !!(this.side.n)) {
 				this.battle.switchSides();
 				this.$chat = this.$chatFrame.find('.inner');
 			}
