@@ -1254,7 +1254,7 @@ class Battle {
 		this.sides[1] = this.yourSide;
 		this.sides[0].n = 0;
 		this.sides[1].n = 1;
-		
+
 		// nothing else should need updating - don't call this function after sending out pokemon
 	}
 
@@ -3173,6 +3173,7 @@ class Battle {
 				break;
 			case 'multi':
 				this.pokemonControlled = 1;
+				/* falls through */
 			case 'doubles':
 				this.mySide.active = [null, null];
 				this.yourSide.active = [null, null];

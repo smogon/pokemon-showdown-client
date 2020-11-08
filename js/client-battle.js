@@ -17,7 +17,7 @@
 
 			this.$battle = this.$el.find('.battle');
 			this.$controls = this.$el.find('.battle-controls');
-            this.$allyPokemon = this.$el.find('.ally-pokemon');
+			this.$allyPokemon = this.$el.find('.ally-pokemon');
 			this.$chatFrame = this.$el.find('.battle-log');
 			this.$chatAdd = this.$el.find('.battle-log-add');
 			this.$foeHint = this.$el.find('.foehint');
@@ -335,9 +335,9 @@
 			if (this.request) {
 				// TODO: investigate when to do this
 				this.updateSide(this.request.side);
-                if (this.request.ally) {
-                    this.addAlly(this.request.ally);
-                }
+				if (this.request.ally) {
+					this.addAlly(this.request.ally);
+				}
 
 				act = this.request.requestType;
 				if (this.request.side) {
@@ -406,9 +406,9 @@
 						done: 0,
 						count: 1
 					};
-                    if (this.battle.gameType === 'multi') {
-                        this.choice.count = 1;
-                    }
+					if (this.battle.gameType === 'multi') {
+						this.choice.count = 1;
+					}
 					if (this.battle.gameType === 'doubles') {
 						this.choice.count = 2;
 					}
@@ -521,8 +521,8 @@
 			}
 
 			var moveTarget = this.choice ? this.choice.moveTarget : '';
-            var pos = this.choice.choices.length;
-            if (type === 'movetarget') pos--;
+			var pos = this.choice.choices.length;
+			if (type === 'movetarget') pos--;
 
 			var hpRatio = switchables[pos].hp / switchables[pos].maxhp;
 
@@ -558,10 +558,10 @@
 			// Target selector
 			if (type === 'movetarget') {
 				requestTitle += 'At who? ';
-			
-                if (this.request && this.request.side) {
-                    pos += Math.floor((parseInt(this.side.charAt(1), 10) - 1) / 2);
-                }
+
+				if (this.request && this.request.side) {
+					pos += Math.floor((parseInt(this.side.charAt(1), 10) - 1) / 2);
+				}
 
 				var targetMenus = ['', ''];
 				var myActive = this.battle.mySide.active;
@@ -722,14 +722,14 @@
 					'<div class="switchmenu">' + switchMenu + '</div>' +
 					'</div>'
 				);
-                if (this.battle.mySide.ally) {
-                    this.$allyPokemon.html(
-                        '<div class="ally-pokemon">' +
-                        '<div class="allyTeam"><button name="allyteam">Ally Party</button></div>' +
-                        '<div class="allyparty">' + this.displayAllyParty() + '</div>' +
-                        '</div>'
-                    );
-                }
+				if (this.battle.mySide.ally) {
+					this.$allyPokemon.html(
+						'<div class="ally-pokemon">' +
+						'<div class="allyTeam"><button name="allyteam">Ally Party</button></div>' +
+						'<div class="allyparty">' + this.displayAllyParty() + '</div>' +
+						'</div>'
+					);
+				}
 				this.$controls.html(
 					'<div class="controls">' +
 					'<div class="whatdo">' + requestTitle + this.getTimerHTML() + '</div>' +
@@ -752,18 +752,18 @@
 			}
 			return party;
 		},
-        displayAllyParty: function() {
-            var party = '';
-            if (!this.battle.mySide.ally) return;
-            var allyParty = this.battle.mySide.ally.myPokemon;
-            for (var i = 0; i < allyParty.length; i++) {
-                var pokemon = allyParty[i];
-                pokemon.name = pokemon.ident.substr(4);
-                var tooltipArgs = 'allypokemon|' + i;
-                party += '<button class="disabled has-tooltip" name="chooseDisabled" value="' + BattleLog.escapeHTML(pokemon.name) + ',notMine' + '" data-tooltip="' + BattleLog.escapeHTML(tooltipArgs) + '"><span class="picon" style="' + Dex.getPokemonIcon(pokemon) + '"></span>' + BattleLog.escapeHTML(pokemon.name) + (pokemon.hp ? '<span class="' + pokemon.getHPColorClass() + '"><span style="width:' + (Math.round(pokemon.hp * 92 / pokemon.maxhp) || 1) + 'px"></span></span>' + (pokemon.status ? '<span class="status ' + pokemon.status + '"></span>' : '') : '') + '</button> ';
-            }
-            return party;
-        },
+		displayAllyParty: function () {
+			var party = '';
+			if (!this.battle.mySide.ally) return;
+			var allyParty = this.battle.mySide.ally.myPokemon;
+			for (var i = 0; i < allyParty.length; i++) {
+				var pokemon = allyParty[i];
+				pokemon.name = pokemon.ident.substr(4);
+				var tooltipArgs = 'allypokemon|' + i;
+				party += '<button class="disabled has-tooltip" name="chooseDisabled" value="' + BattleLog.escapeHTML(pokemon.name) + ',notMine' + '" data-tooltip="' + BattleLog.escapeHTML(tooltipArgs) + '"><span class="picon" style="' + Dex.getPokemonIcon(pokemon) + '"></span>' + BattleLog.escapeHTML(pokemon.name) + (pokemon.hp ? '<span class="' + pokemon.getHPColorClass() + '"><span style="width:' + (Math.round(pokemon.hp * 92 / pokemon.maxhp) || 1) + 'px"></span></span>' + (pokemon.status ? '<span class="status ' + pokemon.status + '"></span>' : '') : '') + '</button> ';
+			}
+			return party;
+		},
 		updateSwitchControls: function (type) {
 			var pos = this.choice.choices.length;
 
@@ -903,13 +903,13 @@
 				}
 				buf += leads.join(', ') + ' will be sent out first.<br />';
 			} else if (this.choice.choices && this.request) {
-                var myActive = this.battle.myPokemon;
+				var myActive = this.battle.myPokemon;
 				for (var i = 0; i < (this.battle.myPokemon || this.choice.choices.length); i++) {
 					var parts = this.choice.choices[i].split(' ');
 					switch (parts[0]) {
 					case 'move':
-                        var move;
-                        myActive = this.battle.mySide.active;
+						var move;
+						myActive = this.battle.mySide.active;
 						if (this.request.active[i].maxMoves && !this.request.active[i].canDynamax) { // it's a max move
 							move = this.request.active[i].maxMoves.maxMoves[parseInt(parts[1], 10) - 1].move;
 						} else { // it's a normal move
@@ -1049,20 +1049,20 @@
 				pokemonData.getHPColor = Pokemon.prototype.getHPColor;
 			}
 		},
-        addAlly: function(allyData) {
-            this.battle.mySide.ally.myPokemon = allyData.pokemon;
-            for (var i = 0; i < allyData.pokemon.length; i++) {
-                var pokemonData = allyData.pokemon[i];
-                this.battle.parseDetails(pokemonData.ident.substr(4), pokemonData.ident, pokemonData.details, pokemonData);
-                this.battle.parseHealth(pokemonData.condition, pokemonData);
-                pokemonData.hpDisplay = Pokemon.prototype.hpDisplay;
-                pokemonData.getPixelRange = Pokemon.prototype.getPixelRange;
-                pokemonData.getFormattedRange = Pokemon.prototype.getFormattedRange;
-                pokemonData.getHPColorClass = Pokemon.prototype.getHPColorClass;
-                pokemonData.getHPColor = Pokemon.prototype.getHPColor;
-                pokemonData.side = this.battle.mySide.ally;
-            }
-        },
+		addAlly: function (allyData) {
+			this.battle.mySide.ally.myPokemon = allyData.pokemon;
+			for (var i = 0; i < allyData.pokemon.length; i++) {
+				var pokemonData = allyData.pokemon[i];
+				this.battle.parseDetails(pokemonData.ident.substr(4), pokemonData.ident, pokemonData.details, pokemonData);
+				this.battle.parseHealth(pokemonData.condition, pokemonData);
+				pokemonData.hpDisplay = Pokemon.prototype.hpDisplay;
+				pokemonData.getPixelRange = Pokemon.prototype.getPixelRange;
+				pokemonData.getFormattedRange = Pokemon.prototype.getFormattedRange;
+				pokemonData.getHPColorClass = Pokemon.prototype.getHPColorClass;
+				pokemonData.getHPColor = Pokemon.prototype.getHPColor;
+				pokemonData.side = this.battle.mySide.ally;
+			}
+		},
 
 		// buttons
 		joinBattle: function () {
