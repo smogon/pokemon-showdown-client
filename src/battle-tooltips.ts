@@ -313,9 +313,9 @@ class BattleTooltips {
 				let pokemon = side.active[activeIndex];
 				if (!pokemon) return;
 				let serverPokemon = null;
-				if (side === this.battle.mySide) {
+				if (side === this.battle.mySide && this.battle.myPokemon) {
 					serverPokemon = this.battle.myPokemon[0];
-				} else if (side === this.battle.mySide.ally) {
+				} else if (side === this.battle.mySide.ally && this.battle.mySide.ally.myPokemon) {
 					serverPokemon = this.battle.mySide.ally.myPokemon[0];
 				}
 				if (!pokemon) return false;
@@ -340,7 +340,7 @@ class BattleTooltips {
 			let pokemon = null;
 			if (activeIndex < side.active.length && activeIndex < this.battle.pokemonControlled) {
 				pokemon = side.active[activeIndex];
-				if (pokemon.side === side.ally) pokemon = null;
+				if (pokemon && pokemon.side === side.ally) pokemon = null;
 			}
 			let serverPokemon = this.battle.myPokemon![activeIndex];
 			buf = this.showPokemonTooltip(pokemon, serverPokemon);
@@ -355,7 +355,7 @@ class BattleTooltips {
 			if (activeIndex < side.pokemon.length) {
 				pokemon = side.pokemon[activeIndex] || side.ally ? side.ally.pokemon[activeIndex] : null;
 			}
-			let serverPokemon = this.battle.mySide.ally.myPokemon[activeIndex];
+			let serverPokemon = this.battle.mySide.ally.myPokemon ? this.battle.mySide.ally.myPokemon[activeIndex] : null;
 			buf = this.showPokemonTooltip(pokemon, serverPokemon);
 			break;
 		}
