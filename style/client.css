@@ -2433,6 +2433,9 @@ a.ilink.yours {
 	top: 22px;
 	color: transparent;
 }
+.teamlist .team.pc-box {
+	height: 139px;
+}
 
 .teamedit {
 	position: absolute;
