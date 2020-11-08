@@ -1,5 +1,3 @@
-
-
 # Domande più frequenti (FAQ)
 
 ## Staff e regole disciplinari
@@ -176,4 +174,3 @@ Allo stesso modo, Clefable non può utilizzare Soft-Boiled e la sua abilità nas
 Scrivi il comando `/rank` e nel box accanto ci sarà un link con scritto 'Reset W/L che ti permetterà di resettare il rapporto. Ricorda che tutti gli altri punteggi non verranno modificati, solamente il rapporto win/loss cambierà. Per cambiare i punteggi, dovrai usare un account nuovo.
 
 <small>(originariamente di [Relados](https://www.smogon.com/forums/members/relados.148715/) e [Zarel](https://www.smogon.com/forums/members/zarel.102803/); aggiornato da by [Blitzamirin](https://www.smogon.com/forums/members/blitzamirin.101585/), [Kalalokki](https://www.smogon.com/forums/members/kalalokki.199661/), Kasumi, [shnen](https://www.smogon.com/forums/members/shnen.107178/), Sobi, [Finland](https://www.smogon.com/forums/members/finland.517429/), [Vacate](https://www.smogon.com/forums/members/vacate.189371/), [verbatim](https://www.smogon.com/forums/members/verbatim.93103/), [Zodiax](https://www.smogon.com/forums/members/zodiax.202547/) e [Iyarito](https://www.smogon.com/forums/members/iyarito.219578/); convertito in Markdown per PS! da [Annika](https://www.smogon.com/forums/members/annika.434112/))</small>
-
