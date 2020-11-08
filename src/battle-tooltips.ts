@@ -306,11 +306,10 @@ class BattleTooltips {
 			// pokemon definitely exists, serverPokemon maybe
 			let sideIndex = parseInt(args[1], 10);
 			let activeIndex = parseInt(args[2], 10);
-			let side = this.battle.p1;
-			if (this.battle.p1.n !== sideIndex) side = side.foe;
+			let side = sideIndex ? this.battle.yourSide : this.battle.mySide;
 			if (this.battle.gameType === 'multi') {
 				if (activeIndex >= side.active.length) return;
-				if (activeIndex) side = side.ally;
+				if (activeIndex && side.sideid !== 'p3' && side.sideid !== 'p4') side = side.ally;
 				let pokemon = side.active[activeIndex];
 				if (!pokemon) return;
 				let serverPokemon = null;
