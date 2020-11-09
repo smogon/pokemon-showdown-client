@@ -161,8 +161,8 @@ var Bswitch = null;
 
 function turnCallback(battle)
 {
-	var A = battle.mySide.activePokemon;
-	var B = battle.yourSide.activePokemon;
+	var A = battle.nearSide.activePokemon;
+	var B = battle.farSide.activePokemon;
 	if (!A)
 	{
 		A = Aswitch?Aswitch[1]:{};
@@ -268,10 +268,10 @@ function endCallback(battle)
 		teamcode += '[img]http://<?= $psconfig['routes']['client'] ?>/sprites/gen5/'+battle.mySide.pokemon[i].spriteid+'.png[/img]';
 	}
 	teamcode += '[/hide]'+"\n";
-	teamcode += '[hide="'+battle.yourSide.name+'\'s team"]';
-	for (var i=0; i<battle.yourSide.pokemon.length && i<6; i++)
+	teamcode += '[hide="'+battle.farSide.name+'\'s team"]';
+	for (var i=0; i<battle.farSide.pokemon.length && i<6; i++)
 	{
-		teamcode += '[img]http://<?= $psconfig['routes']['client'] ?>/sprites/gen5/'+battle.yourSide.pokemon[i].spriteid+'.png[/img]';
+		teamcode += '[img]http://<?= $psconfig['routes']['client'] ?>/sprites/gen5/'+battle.farSide.pokemon[i].spriteid+'.png[/img]';
 	}
 	teamcode += '[/hide]'+"\n\n";
 

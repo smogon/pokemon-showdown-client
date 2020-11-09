@@ -578,7 +578,7 @@ class Side {
 	name = '';
 	id = '';
 	n: number;
-	isOpp: boolean;
+	isFar: boolean;
 	foe: Side = null!;
 	avatar: string = 'unknown';
 	rating: string = '';
@@ -600,7 +600,7 @@ class Side {
 	constructor(battle: Battle, n: number, isOpp?: boolean) {
 		this.battle = battle;
 		this.n = n;
-		this.isOpp = isOpp || !!n;
+		this.isFar = isOpp || !!n;
 		this.updateSprites();
 	}
 
@@ -610,16 +610,16 @@ class Side {
 	}
 
 	behindx(offset: number) {
-		return this.x + (!this.isOpp ? -1 : 1) * offset;
+		return this.x + (!this.isFar ? -1 : 1) * offset;
 	}
 	behindy(offset: number) {
-		return this.y + (!this.isOpp ? 1 : -1) * offset;
+		return this.y + (!this.isFar ? 1 : -1) * offset;
 	}
 	leftof(offset: number) {
-		return (!this.isOpp ? -1 : 1) * offset;
+		return (!this.isFar ? -1 : 1) * offset;
 	}
 	behind(offset: number) {
-		return this.z + (!this.isOpp ? -1 : 1) * offset;
+		return this.z + (!this.isFar ? -1 : 1) * offset;
 	}
 
 	clearPokemon() {
@@ -634,7 +634,7 @@ class Side {
 		this.sideConditions = {};
 	}
 	updateSprites() {
-		this.z = (this.isOpp ? 200 : 0);
+		this.z = (this.isFar ? 200 : 0);
 		this.battle.scene.updateSpritesForSide(this);
 	}
 	setAvatar(avatar: string) {
@@ -1049,7 +1049,8 @@ class Battle {
 	weatherTimeLeft = 0;
 	weatherMinTimeLeft = 0;
 	mySide: Side = null!;
-	yourSide: Side = null!;
+	nearSide: Side = null!;
+	farSide: Side = null!;
 	p1: Side = null!;
 	p2: Side = null!;
 	myPokemon: ServerPokemon[] | null = null;
@@ -1133,8 +1134,8 @@ class Battle {
 		this.sides = [this.p1, this.p2];
 		this.p2.foe = this.p1;
 		this.p1.foe = this.p2;
-		this.mySide = this.p1;
-		this.yourSide = this.p2;
+		this.nearSide = this.mySide = this.p1;
+		this.farSide = this.p2;
 		this.gen = 7;
 		this.reset();
 	}
@@ -1178,7 +1179,8 @@ class Battle {
 			this.sides[i] = null!;
 		}
 		this.mySide = null!;
-		this.yourSide = null!;
+		this.nearSide = null!;
+		this.farSide = null!;
 		this.p1 = null!;
 		this.p2 = null!;
 	}
@@ -1211,14 +1213,14 @@ class Battle {
 	setSidesSwitched(sidesSwitched: boolean) {
 		this.sidesSwitched = sidesSwitched;
 		if (this.sidesSwitched) {
-			this.mySide = this.p2;
-			this.yourSide = this.p1;
+			this.nearSide = this.mySide = this.p2;
+			this.farSide = this.p1;
 		} else {
-			this.mySide = this.p1;
-			this.yourSide = this.p2;
+			this.nearSide = this.mySide = this.p1;
+			this.farSide = this.p2;
 		}
-		this.mySide.isOpp = false;
-		this.yourSide.isOpp = true;
+		this.nearSide.isFar = false;
+		this.farSide.isFar = true;
 
 		// nothing else should need updating - don't call this function after sending out pokemon
 	}
@@ -3049,10 +3051,10 @@ class Battle {
 	getSide(sidename: string): Side {
 		if (sidename === 'p1' || sidename.substr(0, 3) === 'p1:') return this.p1;
 		if (sidename === 'p2' || sidename.substr(0, 3) === 'p2:') return this.p2;
-		if (this.mySide.id === sidename) return this.mySide;
-		if (this.yourSide.id === sidename) return this.yourSide;
-		if (this.mySide.name === sidename) return this.mySide;
-		if (this.yourSide.name === sidename) return this.yourSide;
+		if (this.nearSide.id === sidename) return this.nearSide;
+		if (this.farSide.id === sidename) return this.farSide;
+		if (this.nearSide.name === sidename) return this.nearSide;
+		if (this.farSide.name === sidename) return this.farSide;
 		return {
 			name: sidename,
 			id: sidename.replace(/ /g, ''),
@@ -3092,8 +3094,8 @@ class Battle {
 		switch (args[0]) {
 		case 'start': {
 			this.scene.teamPreviewEnd();
-			this.mySide.active[0] = null;
-			this.yourSide.active[0] = null;
+			this.nearSide.active[0] = null;
+			this.farSide.active[0] = null;
 			this.start();
 			break;
 		}
@@ -3123,17 +3125,17 @@ class Battle {
 			this.gameType = args[1] as any;
 			switch (args[1]) {
 			default:
-				this.mySide.active = [null];
-				this.yourSide.active = [null];
+				this.nearSide.active = [null];
+				this.farSide.active = [null];
 				break;
 			case 'doubles':
-				this.mySide.active = [null, null];
-				this.yourSide.active = [null, null];
+				this.nearSide.active = [null, null];
+				this.farSide.active = [null, null];
 				break;
 			case 'triples':
 			case 'rotation':
-				this.mySide.active = [null, null, null];
-				this.yourSide.active = [null, null, null];
+				this.nearSide.active = [null, null, null];
+				this.farSide.active = [null, null, null];
 				break;
 			}
 			this.scene.updateGen();

@@ -188,7 +188,7 @@
 					// immediately disabled. However, in doubles/triples it might not be obvious why
 					// the player is being asked to make a new decision without the following messages.
 					var args = logLine.substr(10).split('|');
-					var pokemon = isNaN(Number(args[1])) ? this.battle.getPokemon(args[1]) : this.battle.mySide.active[args[1]];
+					var pokemon = isNaN(Number(args[1])) ? this.battle.getPokemon(args[1]) : this.battle.nearSide.active[args[1]];
 					var requestData = this.request.active[pokemon ? pokemon.slot : 0];
 					delete this.choice;
 					switch (args[0]) {
@@ -303,7 +303,7 @@
 					this.updateTimer();
 				}
 
-			} else if (!this.battle.mySide.name || !this.battle.yourSide.name) {
+			} else if (!this.battle.nearSide.name || !this.battle.farSide.name) {
 
 				// empty battle
 				this.$controls.html('<p><em>Waiting for players...</em></p>');
@@ -381,7 +381,7 @@
 
 					if (this.request.forceSwitch !== true) {
 						var faintedLength = _.filter(this.request.forceSwitch, function (fainted) {return fainted;}).length;
-						var freedomDegrees = faintedLength - _.filter(switchables.slice(this.battle.mySide.active.length), function (mon) {return !mon.fainted;}).length;
+						var freedomDegrees = faintedLength - _.filter(switchables.slice(this.battle.nearSide.active.length), function (mon) {return !mon.fainted;}).length;
 						this.choice.freedomDegrees = Math.max(freedomDegrees, 0);
 						this.choice.canSwitch = faintedLength - this.choice.freedomDegrees;
 					}
@@ -508,7 +508,7 @@
 			var switchables = this.request && this.request.side ? this.battle.myPokemon : [];
 
 			if (type !== 'movetarget') {
-				while (switchables[this.choice.choices.length] && switchables[this.choice.choices.length].fainted && this.choice.choices.length + 1 < this.battle.mySide.active.length) {
+				while (switchables[this.choice.choices.length] && switchables[this.choice.choices.length].fainted && this.choice.choices.length + 1 < this.battle.nearSide.active.length) {
 					this.choice.choices.push('pass');
 				}
 			}
@@ -534,8 +534,8 @@
 
 			this.finalDecisionMove = curActive.maybeDisabled || false;
 			this.finalDecisionSwitch = curActive.maybeTrapped || false;
-			for (var i = pos + 1; i < this.battle.mySide.active.length; ++i) {
-				var p = this.battle.mySide.active[i];
+			for (var i = pos + 1; i < this.battle.nearSide.active.length; ++i) {
+				var p = this.battle.nearSide.active[i];
 				if (p && !p.fainted) {
 					this.finalDecisionMove = this.finalDecisionSwitch = false;
 					break;
@@ -552,19 +552,19 @@
 				requestTitle += 'At who? ';
 
 				var targetMenus = ['', ''];
-				var myActive = this.battle.mySide.active;
-				var yourActive = this.battle.yourSide.active;
-				var yourSlot = yourActive.length - 1 - pos;
+				var nearActive = this.battle.nearSide.active;
+				var farActive = this.battle.farSide.active;
+				var farSlot = farActive.length - 1 - pos;
 
-				for (var i = yourActive.length - 1; i >= 0; i--) {
-					var pokemon = yourActive[i];
+				for (var i = farActive.length - 1; i >= 0; i--) {
+					var pokemon = farActive[i];
 					var tooltipArgs = 'activepokemon|1|' + i;
 
 					var disabled = false;
 					if (moveTarget === 'adjacentAlly' || moveTarget === 'adjacentAllyOrSelf') {
 						disabled = true;
 					} else if (moveTarget === 'normal' || moveTarget === 'adjacentFoe') {
-						if (Math.abs(yourSlot - i) > 1) disabled = true;
+						if (Math.abs(farSlot - i) > 1) disabled = true;
 					}
 
 					if (disabled) {
@@ -575,8 +575,8 @@
 						targetMenus[0] += '<button name="chooseMoveTarget" value="' + (i + 1) + '" class="has-tooltip" data-tooltip="' + BattleLog.escapeHTML(tooltipArgs) + '"><span class="picon" style="' + Dex.getPokemonIcon(pokemon) + '"></span>' + (this.battle.ignoreOpponent || this.battle.ignoreNicks ? pokemon.speciesForme : BattleLog.escapeHTML(pokemon.name)) + '<span class="' + pokemon.getHPColorClass() + '"><span style="width:' + (Math.round(pokemon.hp * 92 / pokemon.maxhp) || 1) + 'px"></span></span>' + (pokemon.status ? '<span class="status ' + pokemon.status + '"></span>' : '') + '</button> ';
 					}
 				}
-				for (var i = 0; i < myActive.length; i++) {
-					var pokemon = myActive[i];
+				for (var i = 0; i < nearActive.length; i++) {
+					var pokemon = nearActive[i];
 					var tooltipArgs = 'activepokemon|0|' + i;
 
 					var disabled = false;
@@ -611,7 +611,7 @@
 				var hasMoves = false;
 				var moveMenu = '';
 				var movebuttons = '';
-				var typeValueTracker = new ModifiableValue(this.battle, this.battle.mySide.active[pos], this.battle.myPokemon[pos]);
+				var typeValueTracker = new ModifiableValue(this.battle, this.battle.nearSide.active[pos], this.battle.myPokemon[pos]);
 				var currentlyDynamaxed = (!canDynamax && maxMoves);
 				for (var i = 0; i < curActive.moves.length; i++) {
 					var moveData = curActive.moves[i];
@@ -725,8 +725,8 @@
 				var pokemon = switchables[i];
 				pokemon.name = pokemon.ident.substr(4);
 				var tooltipArgs = 'switchpokemon|' + i;
-				if (pokemon.fainted || i < this.battle.mySide.active.length || this.choice.switchFlags[i] || trapped) {
-					party += '<button class="disabled has-tooltip" name="chooseDisabled" value="' + BattleLog.escapeHTML(pokemon.name) + (pokemon.fainted ? ',fainted' : trapped ? ',trapped' : i < this.battle.mySide.active.length ? ',active' : '') + '" data-tooltip="' + BattleLog.escapeHTML(tooltipArgs) + '"><span class="picon" style="' + Dex.getPokemonIcon(pokemon) + '"></span>' + BattleLog.escapeHTML(pokemon.name) + (pokemon.hp ? '<span class="' + pokemon.getHPColorClass() + '"><span style="width:' + (Math.round(pokemon.hp * 92 / pokemon.maxhp) || 1) + 'px"></span></span>' + (pokemon.status ? '<span class="status ' + pokemon.status + '"></span>' : '') : '') + '</button> ';
+				if (pokemon.fainted || i < this.battle.nearSide.active.length || this.choice.switchFlags[i] || trapped) {
+					party += '<button class="disabled has-tooltip" name="chooseDisabled" value="' + BattleLog.escapeHTML(pokemon.name) + (pokemon.fainted ? ',fainted' : trapped ? ',trapped' : i < this.battle.nearSide.active.length ? ',active' : '') + '" data-tooltip="' + BattleLog.escapeHTML(tooltipArgs) + '"><span class="picon" style="' + Dex.getPokemonIcon(pokemon) + '"></span>' + BattleLog.escapeHTML(pokemon.name) + (pokemon.hp ? '<span class="' + pokemon.getHPColorClass() + '"><span style="width:' + (Math.round(pokemon.hp * 92 / pokemon.maxhp) || 1) + 'px"></span></span>' + (pokemon.status ? '<span class="status ' + pokemon.status + '"></span>' : '') : '') + '</button> ';
 				} else {
 					party += '<button name="chooseSwitch" value="' + i + '" class="has-tooltip" data-tooltip="' + BattleLog.escapeHTML(tooltipArgs) + '"><span class="picon" style="' + Dex.getPokemonIcon(pokemon) + '"></span>' + BattleLog.escapeHTML(pokemon.name) + '<span class="' + pokemon.getHPColorClass() + '"><span style="width:' + (Math.round(pokemon.hp * 92 / pokemon.maxhp) || 1) + 'px"></span></span>' + (pokemon.status ? '<span class="status ' + pokemon.status + '"></span>' : '') + '</button> ';
 				}
@@ -743,7 +743,7 @@
 			}
 
 			var switchables = this.request && this.request.side ? this.battle.myPokemon : [];
-			var myActive = this.battle.mySide.active;
+			var nearActive = this.battle.nearSide.active;
 
 			var requestTitle = '';
 			if (type === 'switch2' || type === 'switchposition') {
@@ -755,7 +755,7 @@
 				// TODO? hpbar
 				requestTitle += "Which Pokémon will it switch in for?";
 				var controls = '<div class="switchmenu" style="display:block">';
-				for (var i = 0; i < myActive.length; i++) {
+				for (var i = 0; i < nearActive.length; i++) {
 					var pokemon = this.battle.myPokemon[i];
 					var tooltipArgs = 'switchpokemon|' + i;
 					if (pokemon && !pokemon.fainted || this.choice.switchOutFlags[i]) {
@@ -784,8 +784,8 @@
 				for (var i = 0; i < switchables.length; i++) {
 					var pokemon = switchables[i];
 					var tooltipArgs = 'switchpokemon|' + i;
-					if (pokemon.fainted || i < this.battle.mySide.active.length || this.choice.switchFlags[i]) {
-						switchMenu += '<button class="disabled has-tooltip" name="chooseDisabled" value="' + BattleLog.escapeHTML(pokemon.name) + (pokemon.fainted ? ',fainted' : i < this.battle.mySide.active.length ? ',active' : '') + '" data-tooltip="' + BattleLog.escapeHTML(tooltipArgs) + '">';
+					if (pokemon.fainted || i < this.battle.nearSide.active.length || this.choice.switchFlags[i]) {
+						switchMenu += '<button class="disabled has-tooltip" name="chooseDisabled" value="' + BattleLog.escapeHTML(pokemon.name) + (pokemon.fainted ? ',fainted' : i < this.battle.nearSide.active.length ? ',active' : '') + '" data-tooltip="' + BattleLog.escapeHTML(tooltipArgs) + '">';
 					} else {
 						switchMenu += '<button name="chooseSwitch" value="' + i + '" class="has-tooltip" data-tooltip="' + BattleLog.escapeHTML(tooltipArgs) + '">';
 					}
@@ -847,7 +847,7 @@
 		updateWaitControls: function () {
 			var buf = '<div class="controls">';
 			buf += this.getPlayerChoicesHTML();
-			if (!this.battle.mySide.name || !this.battle.yourSide.name || !this.request) {
+			if (!this.battle.nearSide.name || !this.battle.farSide.name || !this.request) {
 				if (this.battle.kickingInactive) {
 					buf += '<p><button class="button" name="setTimer" value="off">Stop timer</button> <small>&larr; Your opponent has disconnected. This will give them more time to reconnect.</small></p>';
 				} else {
@@ -872,7 +872,7 @@
 				}
 				buf += leads.join(', ') + ' will be sent out first.<br />';
 			} else if (this.choice.choices && this.request) {
-				var myActive = this.battle.mySide.active;
+				var nearActive = this.battle.nearSide.active;
 				for (var i = 0; i < this.choice.choices.length; i++) {
 					var parts = this.choice.choices[i].split(' ');
 					switch (parts[0]) {
@@ -884,7 +884,7 @@
 							move = this.request.active[i].moves[parseInt(parts[1], 10) - 1].move;
 						}
 						var target = '';
-						buf += myActive[i].speciesForme + ' will ';
+						buf += nearActive[i].speciesForme + ' will ';
 						if (parts.length > 2) {
 							var targetPos = parts[2];
 							if (targetPos === 'mega') {
@@ -901,10 +901,10 @@
 								targetPos = parts[3];
 							}
 							if (targetPos) {
-								var targetActive = this.battle.yourSide.active;
+								var targetActive = this.battle.farSide.active;
 								// Targeting your own side in doubles / triples
 								if (targetPos < 0) {
-									targetActive = myActive;
+									targetActive = nearActive;
 									targetPos = -targetPos;
 									target += 'your ';
 								}
@@ -919,13 +919,13 @@
 						break;
 					case 'switch':
 						buf += '' + this.battle.myPokemon[parts[1] - 1].speciesForme + ' will switch in';
-						if (myActive[i]) {
-							buf += ', replacing ' + myActive[i].speciesForme;
+						if (nearActive[i]) {
+							buf += ', replacing ' + nearActive[i].speciesForme;
 						}
 						buf += '.<br />';
 						break;
 					case 'shift':
-						buf += myActive[i].speciesForme + ' will shift position.<br />';
+						buf += nearActive[i].speciesForme + ' will shift position.<br />';
 						break;
 					}
 				}
@@ -982,7 +982,7 @@
 			this.updateControls(true);
 		},
 		notifyRequest: function () {
-			var oName = this.battle.yourSide.name;
+			var oName = this.battle.farSide.name;
 			if (oName) oName = " against " + oName;
 			switch (this.request.requestType) {
 			case 'move':
@@ -1097,7 +1097,7 @@
 		},
 		closeAndRematch: function () {
 			app.rooms[''].requestNotifications();
-			app.rooms[''].challenge(this.battle.yourSide.name, this.battle.tier);
+			app.rooms[''].challenge(this.battle.farSide.name, this.battle.tier);
 			this.close();
 			app.focusRoom('');
 		},
@@ -1108,7 +1108,7 @@
 			this.tooltips.hideTooltip();
 
 			if (pos !== undefined) { // pos === undefined if called by chooseMoveTarget()
-				var myActive = this.battle.mySide.active;
+				var nearActive = this.battle.nearSide.active;
 				var isMega = !!(this.$('input[name=megaevo]')[0] || '').checked;
 				var isZMove = !!(this.$('input[name=zmove]')[0] || '').checked;
 				var isUltraBurst = !!(this.$('input[name=ultraburst]')[0] || '').checked;
@@ -1118,7 +1118,7 @@
 				var choosableTargets = {normal: 1, any: 1, adjacentAlly: 1, adjacentAllyOrSelf: 1, adjacentFoe: 1};
 
 				this.choice.choices.push('move ' + pos + (isMega ? ' mega' : '') + (isZMove ? ' zmove' : '') + (isUltraBurst ? ' ultra' : '') + (isDynamax ? ' dynamax' : ''));
-				if (myActive.length > 1 && target in choosableTargets) {
+				if (nearActive.length > 1 && target in choosableTargets) {
 					this.choice.type = 'movetarget';
 					this.choice.moveTarget = target;
 					this.updateControlsForPlayer();
@@ -1228,23 +1228,23 @@
 		},
 		nextChoice: function () {
 			var choices = this.choice.choices;
-			var myActive = this.battle.mySide.active;
+			var nearActive = this.battle.nearSide.active;
 
 			if (this.request.requestType === 'switch' && this.request.forceSwitch !== true) {
-				while (choices.length < myActive.length && !this.request.forceSwitch[choices.length]) {
+				while (choices.length < nearActive.length && !this.request.forceSwitch[choices.length]) {
 					choices.push('pass');
 				}
-				if (choices.length < myActive.length) {
+				if (choices.length < nearActive.length) {
 					this.choice.type = 'switch2';
 					this.updateControlsForPlayer();
 					return true;
 				}
 			} else if (this.request.requestType === 'move') {
-				while (choices.length < myActive.length && !myActive[choices.length]) {
+				while (choices.length < nearActive.length && !nearActive[choices.length]) {
 					choices.push('pass');
 				}
 
-				if (choices.length < myActive.length) {
+				if (choices.length < nearActive.length) {
 					this.choice.type = 'move2';
 					this.updateControlsForPlayer();
 					return true;
@@ -1265,12 +1265,12 @@
 				if (act === 'switch') {
 					// Assert that the remaining Pokémon won't switch, even though
 					// the player could have decided otherwise.
-					for (var i = 0; i < this.battle.mySide.active.length; i++) {
+					for (var i = 0; i < this.battle.nearSide.active.length; i++) {
 						if (!this.choice.choices[i]) this.choice.choices[i] = 'pass';
 					}
 				}
 
-				if (this.choice.choices.length >= (this.choice.count || this.battle.mySide.active.length)) {
+				if (this.choice.choices.length >= (this.choice.count || this.battle.nearSide.active.length)) {
 					this.sendDecision(this.choice.choices);
 				}
 

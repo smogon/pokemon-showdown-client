@@ -559,7 +559,7 @@ class BattleScene {
 		if (Dex.prefs('nopastgens')) gen = 6;
 		if (Dex.prefs('bwgfx') && gen > 5) gen = 5;
 		this.gen = gen;
-		this.activeCount = this.battle.mySide?.active.length || 1;
+		this.activeCount = this.battle.nearSide?.active.length || 1;
 
 		const isSPL = (typeof this.battle.rated === 'string' && this.battle.rated.startsWith("Smogon Premier League"));
 		let bg: string;
@@ -586,7 +586,7 @@ class BattleScene {
 	}
 
 	getDetailsText(pokemon: Pokemon) {
-		let name = pokemon.side?.isOpp &&
+		let name = pokemon.side?.isFar &&
 			(this.battle.ignoreOpponent || this.battle.ignoreNicks) ? pokemon.speciesForme : pokemon.name;
 		if (name !== pokemon.speciesForme) {
 				name += ' (' + pokemon.speciesForme + ')';
@@ -679,15 +679,15 @@ class BattleScene {
 				// in VGC (bring 6 pick 4) and other pick-less-than-you-bring formats, this is
 				// a pokemon that's been brought but not necessarily picked
 				const details = this.getDetailsText(poke);
-				pokemonhtml += `<span${tooltipCode} style="` + Dex.getPokemonIcon(poke, !side.isOpp) + `;opacity:0.6" aria-label="${details}"></span>`;
+				pokemonhtml += `<span${tooltipCode} style="` + Dex.getPokemonIcon(poke, !side.isFar) + `;opacity:0.6" aria-label="${details}"></span>`;
 			} else {
 				const details = this.getDetailsText(poke);
-				pokemonhtml += `<span${tooltipCode} style="` + Dex.getPokemonIcon(poke, !side.isOpp) + `" aria-label="${details}"></span>`;
+				pokemonhtml += `<span${tooltipCode} style="` + Dex.getPokemonIcon(poke, !side.isFar) + `" aria-label="${details}"></span>`;
 			}
 			if (i % 3 === 2) pokemonhtml += `</div><div class="teamicons">`;
 		}
 		pokemonhtml = '<div class="teamicons">' + pokemonhtml + '</div>';
-		const $sidebar = (side.isOpp ? this.$rightbar : this.$leftbar);
+		const $sidebar = (side.isFar ? this.$rightbar : this.$leftbar);
 		if (side.name) {
 			const ratinghtml = side.rating ? ` title="Rating: ${BattleLog.escapeHTML(side.rating)}"` : ``;
 			$sidebar.html(`<div class="trainer"><strong>${BattleLog.escapeHTML(side.name)}</strong><div class="trainersprite"${ratinghtml} style="background-image:url(${Dex.resolveAvatar(side.avatar)})"></div>${pokemonhtml}</div>`);
@@ -862,7 +862,7 @@ class BattleScene {
 	sideConditionsLeft(side: Side, all?: boolean) {
 		let buf = ``;
 		for (const id in side.sideConditions) {
-			buf += this.sideConditionLeft(side.sideConditions[id], side.isOpp, all);
+			buf += this.sideConditionLeft(side.sideConditions[id], side.isFar, all);
 		}
 		return buf;
 	}
@@ -982,7 +982,7 @@ class BattleScene {
 	}
 
 	addPokemonSprite(pokemon: Pokemon) {
-		const sprite = new PokemonSprite(Dex.getSpriteData(pokemon, pokemon.side.isOpp, {
+		const sprite = new PokemonSprite(Dex.getSpriteData(pokemon, pokemon.side.isFar, {
 			gen: this.gen,
 			mod: this.mod,
 		}), {
@@ -990,15 +990,15 @@ class BattleScene {
 			y: pokemon.side.y,
 			z: pokemon.side.z,
 			opacity: 0,
-		}, this, pokemon.side.isOpp);
-		if (sprite.$el) this.$sprites[+pokemon.side.isOpp].append(sprite.$el);
+		}, this, pokemon.side.isFar);
+		if (sprite.$el) this.$sprites[+pokemon.side.isFar].append(sprite.$el);
 		return sprite;
 	}
 
 	addSideCondition(siden: number, id: ID, instant?: boolean) {
 		if (!this.animating) return;
 		const side = this.battle.sides[siden];
-		const spriteIndex = +side.isOpp;
+		const spriteIndex = +side.isFar;
 		switch (id) {
 		case 'auroraveil':
 			const auroraveil = new Sprite(BattleEffects.auroraveil, {
@@ -1429,7 +1429,7 @@ class BattleScene {
 				y: side.y,
 				z: side.z,
 				opacity: 0,
-			}, this, side.isOpp),
+			}, this, side.isFar),
 		} as any;
 
 		side.missedPokemon.sprite.isMissedPokemon = true;
@@ -2435,7 +2435,7 @@ class PokemonSprite extends Sprite {
 	}
 
 	dogarsCheck(pokemon: Pokemon) {
-		if (pokemon.side.isOpp) return;
+		if (pokemon.side.isFar) return;
 
 		if (pokemon.speciesForme === 'Koffing' && pokemon.name.match(/dogars/i)) {
 			this.scene.setBgm(-1);
