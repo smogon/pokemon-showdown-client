@@ -2029,44 +2029,90 @@ function toId() {
 		receive: function (data) {
 			//
 		},
-		sendToBot: function (data, target, e) {
+		submit: function (data, target, e) {
 			var sentPage = e.currentTarget.offsetParent;
 			var pageTitle = sentPage.attributes.getNamedItem('id');
 			if (!pageTitle) return;
 			else pageTitle = pageTitle.nodeValue;
 			if (pageTitle.substr(0, 14) !== 'room-view-bot-') return; // Not a sent HTML page
 			var author = pageTitle.substr(14).split('-')[0];
-			var toSend = [];
-			var radioIndex = null;
-			for (var i = 0; i < sentPage.children.length; i++) {
-				var tag = sentPage.children[i];
-				if (tag.localName !== 'input') continue;
-				var tagName = tag.attributes.getNamedItem('name');
-				if (!tagName || tagName.nodeValue !== 'botInput') continue;
-				var tagType = tag.attributes.getNamedItem('type');
-				if (!tagType) tagType = 'text';
-				else tagType = tagType.nodeValue;
-				switch (tagType) {
-				case 'text': {
-					toSend.push(tag.value);
-					break;
-				}
-				case 'radio': {
-					/**
-					 * Since radio buttons use names for grouping,
-					 * pages can only support one radio group per page.
-					 * Because of this, we only store the one checked value.
-					 */
-					if (typeof radioIndex !== 'number') {
-						radioIndex = toSend.length;
-						toSend.push(null);
+			var toSend = data;
+			if (!toSend) return;
+			var botForm, formChild = target;
+			while (formChild.parentElement) {
+				/**
+				 * We climb through parents until we either find a form or we hit the parent page
+				 */
+				botForm = formChild.parentElement;
+				var elementId = botForm.getAttribute('id');
+				if (elementId && elementId.substr(0, 14) === 'room-view-bot-') return;
+				if (botForm.tagName === "FORM") break;
+			}
+			var inputTerms = {
+				//
+			};
+			function getChildrenOf(formElement) {
+				/**
+				 * Get all the input elements contained
+				 */
+				if (!formElement) return;
+				if (formElement.children && formElement.children.length) {
+					for (var i = 0; i < formElement.children.length; i++) {
+						getChildrenOf(formElement.children[i]);
 					}
-					if (tag.checked) toSend[radioIndex] = tag.value;
-					break;
 				}
+				if (formElement.tagName === "INPUT") {
+					var elementName = formElement.getAttribute('name');
+					switch (formElement.getAttribute('type')) {
+					case 'text': {
+						if (!elementName || elementName === 'constructor') return;
+						if (!(inputTerms in elementName)) {
+							inputTerms[elementName] = formElement.value;
+						}
+						break;
+					}
+					case 'radio': {
+						if (!(inputTerms in elementName)) {
+							inputTerms[elementName] = null;
+						}
+						if (formElement.checked) {
+							inputTerms[elementName] = formElement.value;
+						}
+						break;
+					}
+					case 'checkbox': {
+						if (!(inputTerms in elementName)) {
+							inputTerms[elementName] = [];
+						}
+						if (formElement.checked && Array.isArray(inputTerms[elementName])) {
+							inputTerms[elementName].push(formElement.value);
+						}
+						break;
+					}
+					}
 				}
 			}
-			var stringToSend = "/pm " + author + "," + data + " " + JSON.stringify(toSend);
+			getChildrenOf(botForm);
+			var finalSend = toSend.replace(/{(toID-)?[a-zA-Z0-9]+}/g, function (matched) {
+				var varSub = matched.substr(1, matched.length - 2);
+				var useID = false;
+				if (varSub.substr(0, 5) === 'toID-') {
+					varSub = varSub.substr(5);
+					useID = true;
+				}
+				if (varSub === 'constructor') return matched;
+				if (!(inputTerms in varSub)) return matched;
+				if (inputTerms[varSub] === null) return 'null';
+				var finalStr = [];
+				if (Array.isArray(inputTerms[varSub])) {
+					finalStr = inputTerms[varSub].join('|');
+				} else {
+					if (useID) finalStr = toID(inputTerms[varSub]);
+					else finalStr = inputTerms[varSub];
+				}
+				return finalStr;
+			});
+			var stringToSend = "/pm " + author + "," + finalSend;
 			this.send(stringToSend);
 		},
 
