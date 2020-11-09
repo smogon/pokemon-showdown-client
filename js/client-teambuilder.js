@@ -1711,7 +1711,13 @@
 			if (this.curSetList.length && !this.curSetList[this.curSetList.length - 1].species && this.curSetLoc !== this.curSetList.length - 1) {
 				this.curSetList.splice(this.curSetList.length - 1, 1);
 			}
-			for (var i = 0; i < this.curSetList.length; i++) {
+			// if in a box, try to show at least 2 and up to 4 other pokemon in each direction
+			// but don't step outside the array bounds (obviously)
+			var endRoom = Math.max(this.curSetLoc + 3, 5);
+			var end = this.curTeam.capacity > 6 ? Math.min(this.curSetList.length, endRoom) : this.curSetList.length;
+			var startRoom = Math.min(this.curSetLoc - 2, end - 5);
+			var start = this.curTeam.capacity > 6 ? Math.max(0, startRoom) : 0;
+			for (var i = start; i < end; i++) {
 				var set = this.curSetList[i];
 				var pokemonicon = '<span class="picon pokemonicon-' + i + '" style="' + Dex.getPokemonIcon(set) + '"></span>';
 				if (!set.species) {
