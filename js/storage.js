@@ -1094,10 +1094,15 @@ Storage.importTeam = function (buffer, teams) {
 			team = [];
 			line = $.trim(line.substr(3, line.length - 6));
 			var format = 'gen8';
+			var capacity = 6;
 			var bracketIndex = line.indexOf(']');
 			if (bracketIndex >= 0) {
 				format = line.substr(1, bracketIndex - 1);
 				if (format && format.slice(0, 3) !== 'gen') format = 'gen6' + format;
+				if (format && format.endsWith('-box')) {
+					format = format.slice(0, -4);
+					capacity = 24;
+				}
 				line = $.trim(line.substr(bracketIndex + 1));
 			}
 			if (teams.length && typeof teams[teams.length - 1].team !== 'string') {
@@ -1113,6 +1118,7 @@ Storage.importTeam = function (buffer, teams) {
 				name: line,
 				format: format,
 				team: team,
+				capacity: capacity,
 				folder: folder,
 				iconCache: ''
 			});
