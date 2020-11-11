@@ -1156,11 +1156,16 @@ process.stdout.write("Building `data/moves,items,abilities,typechart,learnsets.j
 
 	function assignData(id, entry) {
 		for (const key in entry) {
-			if (key === 'name' || key.startsWith('desc') || key.startsWith('shortDesc')) {
-				continue;
-			}
+			if (['name', 'desc', 'shortDesc'].includes(key)) continue;
 			const textEntry = Text[id] || (Text[id] = {});
-			textEntry[key] = entry[key];
+			if (key.startsWith('gen')) {
+				for (const modKey in entry[key]) {
+					if (['desc', 'shortDesc'].includes(key)) continue;
+					textEntry[modKey + 'Gen' + key.charAt(3)] = entry[key][modKey];
+				}
+			} else {
+				textEntry[key] = entry[key];
+			}
 		}
 	}
 
