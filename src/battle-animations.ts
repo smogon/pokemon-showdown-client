@@ -1665,6 +1665,102 @@ class Sprite {
 }
 
 class PokemonSprite extends Sprite {
+	// HTML strings are constructed from this table and stored back in it to cache them
+	protected static statusTable: {[id: string]: [string, 'good' | 'bad' | 'neutral'] | null | string} = {
+		formechange: null,
+		typechange: null,
+		typeadd: null,
+		dynamax: ['Dynamaxed', 'good'],
+		trapped: null, // linked volatiles are not implemented yet
+		throatchop: ['Throat Chop', 'bad'],
+		confusion: ['Confused', 'bad'],
+		healblock: ['Heal Block', 'bad'],
+		yawn: ['Drowsy', 'bad'],
+		flashfire: ['Flash Fire', 'good'],
+		imprison: ['Imprisoning foe', 'good'],
+		autotomize: ['Lightened', 'neutral'],
+		miracleeye: ['Miracle Eye', 'bad'],
+		foresight: ['Foresight', 'bad'],
+		telekinesis: ['Telekinesis', 'neutral'],
+		transform: ['Transformed', 'neutral'],
+		powertrick: ['Power Trick', 'neutral'],
+		curse: ['Curse', 'bad'],
+		nightmare: ['Nightmare', 'bad'],
+		attract: ['Attract', 'bad'],
+		torment: ['Torment', 'bad'],
+		taunt: ['Taunt', 'bad'],
+		disable: ['Disable', 'bad'],
+		embargo: ['Embargo', 'bad'],
+		ingrain: ['Ingrain', 'good'],
+		aquaring: ['Aqua Ring', 'good'],
+		stockpile1: ['Stockpile', 'good'],
+		stockpile2: ['Stockpile&times;2', 'good'],
+		stockpile3: ['Stockpile&times;3', 'good'],
+		perish0: ['Perish now', 'bad'],
+		perish1: ['Perish next turn', 'bad'],
+		perish2: ['Perish in 2', 'bad'],
+		perish3: ['Perish in 3', 'bad'],
+		airballoon: ['Balloon', 'good'],
+		leechseed: ['Leech Seed', 'bad'],
+		encore: ['Encore', 'bad'],
+		mustrecharge: ['Must recharge', 'bad'],
+		bide: ['Bide', 'good'],
+		magnetrise: ['Magnet Rise', 'good'],
+		smackdown: ['Smack Down', 'bad'],
+		focusenergy: ['Focus Energy', 'good'],
+		slowstart: ['Slow Start', 'bad'],
+		noretreat: ['No Retreat', 'bad'],
+		octolock: ['Octolock', 'bad'],
+		tarshot: ['Tar Shot', 'bad'],
+		doomdesire: null,
+		futuresight: null,
+		mimic: ['Mimic', 'good'],
+		watersport: ['Water Sport', 'good'],
+		mudsport: ['Mud Sport', 'good'],
+		substitute: null,
+		// sub graphics are handled elsewhere, see Battle.Sprite.animSub()
+		uproar: ['Uproar', 'neutral'],
+		rage: ['Rage', 'neutral'],
+		roost: ['Landed', 'neutral'],
+		protect: ['Protect', 'good'],
+		quickguard: ['Quick Guard', 'good'],
+		wideguard: ['Wide Guard', 'good'],
+		craftyshield: ['Crafty Shield', 'good'],
+		matblock: ['Mat Block', 'good'],
+		maxguard: ['Max Guard', 'good'],
+		helpinghand: ['Helping Hand', 'good'],
+		magiccoat: ['Magic Coat', 'good'],
+		destinybond: ['Destiny Bond', 'good'],
+		snatch: ['Snatch', 'good'],
+		grudge: ['Grudge', 'good'],
+		charge: ['Charge', 'good'],
+		endure: ['Endure', 'good'],
+		focuspunch: ['Focusing', 'neutral'],
+		shelltrap: ['Trap set', 'neutral'],
+		powder: ['Powder', 'bad'],
+		electrify: ['Electrify', 'bad'],
+		ragepowder: ['Rage Powder', 'good'],
+		followme: ['Follow Me', 'good'],
+		instruct: ['Instruct', 'neutral'],
+		beakblast: ['Beak Blast', 'neutral'],
+		laserfocus: ['Laser Focus', 'good'],
+		spotlight: ['Spotlight', 'neutral'],
+		itemremoved: null,
+		// partial trapping
+		bind: ['Bind', 'bad'],
+		clamp: ['Clamp', 'bad'],
+		firespin: ['Fire Spin', 'bad'],
+		infestation: ['Infestation', 'bad'],
+		magmastorm: ['Magma Storm', 'bad'],
+		sandtomb: ['Sand Tomb', 'bad'],
+		snaptrap: ['Snap Trap', 'bad'],
+		thundercage: ['Thunder Cage', 'bad'],
+		whirlpool: ['Whirlpool', 'bad'],
+		wrap: ['Wrap', 'bad'],
+		// Gen 1
+		lightscreen: ['Light Screen', 'good'],
+		reflect: ['Reflect', 'good'],
+	};
 	siden: number;
 	forme = '';
 	cryurl: string | undefined = undefined;
@@ -2554,118 +2650,27 @@ class PokemonSprite extends Sprite {
 				status += '<span class="' + pokemon.getBoostType(stat as BoostStatName) + '">' + pokemon.getBoost(stat as BoostStatName) + '</span> ';
 			}
 		}
-		let statusTable: {[id: string]: [string, 'good' | 'bad' | 'neutral'] | null} = {
-			formechange: null,
-			typechange: null,
-			typeadd: null,
-			dynamax: ['Dynamaxed', 'good'],
-			trapped: null, // linked volatiles are not implemented yet
-			throatchop: ['Throat Chop', 'bad'],
-			confusion: ['Confused', 'bad'],
-			healblock: ['Heal Block', 'bad'],
-			yawn: ['Drowsy', 'bad'],
-			flashfire: ['Flash Fire', 'good'],
-			imprison: ['Imprisoning foe', 'good'],
-			autotomize: ['Lightened', 'neutral'],
-			miracleeye: ['Miracle Eye', 'bad'],
-			foresight: ['Foresight', 'bad'],
-			telekinesis: ['Telekinesis', 'neutral'],
-			transform: ['Transformed', 'neutral'],
-			powertrick: ['Power Trick', 'neutral'],
-			curse: ['Curse', 'bad'],
-			nightmare: ['Nightmare', 'bad'],
-			attract: ['Attract', 'bad'],
-			torment: ['Torment', 'bad'],
-			taunt: ['Taunt', 'bad'],
-			disable: ['Disable', 'bad'],
-			embargo: ['Embargo', 'bad'],
-			ingrain: ['Ingrain', 'good'],
-			aquaring: ['Aqua Ring', 'good'],
-			stockpile1: ['Stockpile', 'good'],
-			stockpile2: ['Stockpile&times;2', 'good'],
-			stockpile3: ['Stockpile&times;3', 'good'],
-			perish0: ['Perish now', 'bad'],
-			perish1: ['Perish next turn', 'bad'],
-			perish2: ['Perish in 2', 'bad'],
-			perish3: ['Perish in 3', 'bad'],
-			airballoon: ['Balloon', 'good'],
-			leechseed: ['Leech Seed', 'bad'],
-			encore: ['Encore', 'bad'],
-			mustrecharge: ['Must recharge', 'bad'],
-			bide: ['Bide', 'good'],
-			magnetrise: ['Magnet Rise', 'good'],
-			smackdown: ['Smack Down', 'bad'],
-			focusenergy: ['Focus Energy', 'good'],
-			slowstart: ['Slow Start', 'bad'],
-			noretreat: ['No Retreat', 'bad'],
-			octolock: ['Octolock', 'bad'],
-			tarshot: ['Tar Shot', 'bad'],
-			doomdesire: null,
-			futuresight: null,
-			mimic: ['Mimic', 'good'],
-			watersport: ['Water Sport', 'good'],
-			mudsport: ['Mud Sport', 'good'],
-			substitute: null,
-			// sub graphics are handled elsewhere, see Battle.Sprite.animSub()
-			uproar: ['Uproar', 'neutral'],
-			rage: ['Rage', 'neutral'],
-			roost: ['Landed', 'neutral'],
-			protect: ['Protect', 'good'],
-			quickguard: ['Quick Guard', 'good'],
-			wideguard: ['Wide Guard', 'good'],
-			craftyshield: ['Crafty Shield', 'good'],
-			matblock: ['Mat Block', 'good'],
-			maxguard: ['Max Guard', 'good'],
-			helpinghand: ['Helping Hand', 'good'],
-			magiccoat: ['Magic Coat', 'good'],
-			destinybond: ['Destiny Bond', 'good'],
-			snatch: ['Snatch', 'good'],
-			grudge: ['Grudge', 'good'],
-			charge: ['Charge', 'good'],
-			endure: ['Endure', 'good'],
-			focuspunch: ['Focusing', 'neutral'],
-			shelltrap: ['Trap set', 'neutral'],
-			powder: ['Powder', 'bad'],
-			electrify: ['Electrify', 'bad'],
-			ragepowder: ['Rage Powder', 'good'],
-			followme: ['Follow Me', 'good'],
-			instruct: ['Instruct', 'neutral'],
-			beakblast: ['Beak Blast', 'neutral'],
-			laserfocus: ['Laser Focus', 'good'],
-			spotlight: ['Spotlight', 'neutral'],
-			itemremoved: null,
-			// partial trapping
-			bind: ['Bind', 'bad'],
-			clamp: ['Clamp', 'bad'],
-			firespin: ['Fire Spin', 'bad'],
-			infestation: ['Infestation', 'bad'],
-			magmastorm: ['Magma Storm', 'bad'],
-			sandtomb: ['Sand Tomb', 'bad'],
-			snaptrap: ['Snap Trap', 'bad'],
-			thundercage: ['Thunder Cage', 'bad'],
-			whirlpool: ['Whirlpool', 'bad'],
-			wrap: ['Wrap', 'bad'],
-			// Gen 1
-			lightscreen: ['Light Screen', 'good'],
-			reflect: ['Reflect', 'good'],
-		};
+
 		for (let i in pokemon.volatiles) {
-			status += statusTable[i] !== null ? PokemonSprite.buildEffectTag(statusTable[i] || i) : '';
+			status += PokemonSprite.getEffectTag(i);
 		}
 		for (let i in pokemon.turnstatuses) {
 			if (i === 'roost' && !pokemon.getTypeList().includes('Flying')) continue;
-			status += statusTable[i] !== null ? PokemonSprite.buildEffectTag(statusTable[i] || i) : '';
+			status += PokemonSprite.getEffectTag(i);
 		}
 		for (let i in pokemon.movestatuses) {
-			status += statusTable[i] !== null ? PokemonSprite.buildEffectTag(statusTable[i] || i) : '';
+			status += PokemonSprite.getEffectTag(i);
 		}
 		let statusbar = this.$statbar.find('.status');
 		statusbar.html(status);
 	}
 
-	private static buildEffectTag(effect: [string, 'good' | 'bad' | 'neutral'] | string) {
-		if (typeof effect === 'string') effect = [`[[${effect}]]`, 'neutral'];
-		return `<span class="${effect[1]}">${effect[0].replace(' ', '&nbsp;')}</span> `;
+	private static getEffectTag(id: string) {
+		let effect = PokemonSprite.statusTable[id];
+		if (typeof effect === 'string') return effect;
+		if (effect === null) return PokemonSprite.statusTable[id] = '';
+		if (effect === undefined) effect = [`[[${effect}]]`, 'neutral'];
+		return PokemonSprite.statusTable[id] = `<span class="${effect[1]}">${effect[0].replace(/ /g, '&nbsp;')}</span> `;
 	}
 
 	updateHPText(pokemon: Pokemon) {
