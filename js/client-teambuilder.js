@@ -1713,11 +1713,14 @@
 			}
 			// if in a box, try to show at least 2 and up to 4 other pokemon in each direction
 			// but don't step outside the array bounds (obviously)
-			var scrolling = this.curTeam.capacity > 6 || this.curSetList.length > 6;
-			var endRoom = Math.max(this.curSetLoc + 3, 5);
-			var end = scrolling ? Math.min(this.curSetList.length, endRoom) : this.curSetList.length;
-			var startRoom = Math.min(this.curSetLoc - 2, end - 5);
-			var start = scrolling ? Math.max(0, startRoom) : 0;
+			var start = 0;
+			var end = this.curSetList.length;
+			if (end > 6 || (end === 6 && this.curTeam.capacity > 6)) {
+				start = this.curSetLoc - 2;
+				if (start < 0) start = 0;
+				if (start + 5 > end) start = end - 5;
+				end = start + 5;
+			}
 			for (var i = start; i < end; i++) {
 				var set = this.curSetList[i];
 				var pokemonicon = '<span class="picon pokemonicon-' + i + '" style="' + Dex.getPokemonIcon(set) + '"></span>';
