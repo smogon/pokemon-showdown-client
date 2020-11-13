@@ -8,7 +8,7 @@ Please refer to our [staff FAQ](https://pokemonshowdown.com/pages/staff).
 
 ### When will I be unlocked / unbanned?
 
-Regular room bans last approximately two days. Room blacklists last for one year. Regular locks last around two days, and weeklocks last for around one week. If you are using a proxy, you will be unlocked when you disable the proxy and logout/re-login.
+Regular room bans last approximately two days. Room blacklists last for one year. Regular locks last around two days, and weeklocks last for around one week. If you are using a proxy, you will be unlocked when you disable the proxy and reload the page.
 
 ### What does being locked mean?
 
@@ -83,7 +83,7 @@ Currently PS! does not have a friends system; however, one is planned.
 
 ### Why did the server restart?
 
-Servers restart to implement updates. They are quick (taking under a second) and occur periodically. 
+Servers restart to implement updates. They are quick (taking under a second) and occur periodically.
 
 ### How do I join a tournament?
 
@@ -117,7 +117,7 @@ GXE stands for Glicko X-Act Estimate. The number shown is the estimated percent 
 
 ### What is a suspect test?
 
-A suspect test is a ladder where the tier is testing a specific move, Pokémon, or ability to see if it is overcentralizing or outright broken in a given mode. Reaching a specific COIL would allow a user to vote on the suspect test and have their opinion be calculated in the tiering results.
+A suspect test is a ladder where the tier is testing a specific move, Pokémon, or ability to see if it is overcentralizing or outright broken in a given mode. Reaching a specific GXE and number of battles would allow a user to vote on the suspect test and have their opinion be calculated in the tiering results.
 
 ### What is a good moveset for x?
 
@@ -142,7 +142,7 @@ Make sure you check your Pokemon's items - items such as Assault Vest, Choice Ba
 ### What is an endless battle?
 
 An endless battle is, as the name implies, a battle that cannot end. The common components of an endless battle are Pokemon that trap the target (via Block, Shadow Tag, or Arena Trap), moves that heal the opponent (usually Heal Pulse), ways to keep your own Pokemon healthy (Slack Off, Recover, or Roost), Leppa Berries to restore the user's lost PP, and continual generation of Leppa Berries (via Recycle).
- 
+
 The opponent is forced to Struggle, and because Struggle can never run out of PP, the battle would go on forever since a player can continuously heal both Pokemon (and prevent them from fainting). Battles are capped at 1000 turns; if that number of turns is reached, the battle ends and results in a tie. You can also offer a tie to your opponent by using the `/offertie` command after at least 100 turns have passed.
 
 ### If the battle ends with both Pokemon fainting, who wins?
