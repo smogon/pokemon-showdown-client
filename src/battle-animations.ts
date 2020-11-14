@@ -1010,7 +1010,7 @@ class BattleScene {
 
 	addSideCondition(siden: number, id: ID, instant?: boolean) {
 		if (!this.animating) return;
-		const side = this.battle.sides[siden];
+		const side = siden ? this.battle.yourSide : this.battle.mySide;
 		switch (id) {
 		case 'auroraveil':
 			const auroraveil = new Sprite(BattleEffects.auroraveil, {
