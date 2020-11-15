@@ -703,6 +703,7 @@ class BattleLog {
 			blink: 0,
 			psicon: html4.eflags['OPTIONAL_ENDTAG'] | html4.eflags['EMPTY'],
 			username: 0,
+			youtube: html4.eflags['OPTIONAL_ENDTAG'] | html4.eflags['EMPTY'],
 		});
 
 		// By default, Caja will ban any attributes it doesn't recognize.
@@ -725,6 +726,7 @@ class BattleLog {
 			'psicon::type': 0,
 			'psicon::category': 0,
 			'username::name': 0,
+			'youtube::video': 0,
 			'*::aria-label': 0,
 			'*::aria-hidden': 0,
 		});
@@ -802,8 +804,12 @@ class BattleLog {
 				const color = this.usernameColor(toID(getAttrib('name')));
 				const style = getAttrib('style');
 				setAttrib('style', `${style};color:${color}`);
+			} else if (tagName === 'youtube') {
+				tagName = 'iframe';
+				const id = getAttrib('video') || "";
+				setAttrib('src', id);
 			} else if (tagName === 'psicon') {
-				// <psicon> is a custom element which supports a set of mutually incompatible attributes:
+				// <psicon> is a csustom element which supports a set of mutually incompatible attributes:
 				// <psicon pokemon> and <psicon item>
 				let iconType = null;
 				let iconValue = null;
