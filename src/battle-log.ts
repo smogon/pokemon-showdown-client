@@ -804,8 +804,12 @@ class BattleLog {
 				const color = this.usernameColor(toID(getAttrib('name')));
 				const style = getAttrib('style');
 				setAttrib('style', `${style};color:${color}`);
+			} else if (tagName === 'youtube') {
+				tagName = 'iframe';
+				const id = getAttrib('video') || "";
+				setAttrib('src', id);
 			} else if (tagName === 'psicon') {
-				// <psicon> is a custom element which supports a set of mutually incompatible attributes:
+				// <psicon> is a csustom element which supports a set of mutually incompatible attributes:
 				// <psicon pokemon> and <psicon item>
 				let iconType = null;
 				let iconValue = null;
