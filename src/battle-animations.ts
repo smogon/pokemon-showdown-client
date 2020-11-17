@@ -2669,7 +2669,7 @@ class PokemonSprite extends Sprite {
 		let effect = PokemonSprite.statusTable[id];
 		if (typeof effect === 'string') return effect;
 		if (effect === null) return PokemonSprite.statusTable[id] = '';
-		if (effect === undefined) effect = [`[[${effect}]]`, 'neutral'];
+		if (effect === undefined) effect = [`[[${id}]]`, 'neutral'];
 		return PokemonSprite.statusTable[id] = `<span class="${effect[1]}">${effect[0].replace(/ /g, '&nbsp;')}</span> `;
 	}
 
