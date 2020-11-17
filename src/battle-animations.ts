@@ -1707,7 +1707,7 @@ class PokemonSprite extends Sprite {
 		bide: ['Bide', 'good'],
 		magnetrise: ['Magnet Rise', 'good'],
 		smackdown: ['Smack Down', 'bad'],
-		focusenergy: ['Critical Hit boost', 'good'],
+		focusenergy: ['Critical Hit Boost', 'good'],
 		slowstart: ['Slow Start', 'bad'],
 		noretreat: ['No Retreat', 'bad'],
 		octolock: ['Octolock', 'bad'],
