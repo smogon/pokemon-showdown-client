@@ -682,16 +682,25 @@ class Side {
 			this.sideConditions[condition] = [effect.name, 1, 5, 0];
 			break;
 		case 'stealthrock':
-			this.sideConditions[condition] = [effect.name, 1, 0, 0];
-			break;
 		case 'spikes':
-			this.sideConditions[condition] = [effect.name, 1, 0, 0];
-			break;
 		case 'toxicspikes':
-			this.sideConditions[condition] = [effect.name, 1, 0, 0];
-			break;
 		case 'stickyweb':
 			this.sideConditions[condition] = [effect.name, 1, 0, 0];
+			break;
+		case 'gmaxwildfire':
+		case 'gmaxvolcalith':
+		case 'gmaxvinelash':
+		case 'gmaxcannonade':
+			this.sideConditions[condition] = [effect.name, 1, 4, 0];
+			break;
+		case 'grasspledge':
+			this.sideConditions[condition] = ['Swamp', 1, 4, 0];
+			break;
+		case 'waterpledge':
+			this.sideConditions[condition] = ['Rainbow', 1, 4, 0];
+			break;
+		case 'firepledge':
+			this.sideConditions[condition] = ['Sea of Fire', 1, 4, 0];
 			break;
 		default:
 			this.sideConditions[condition] = [effect.name, 1, 0, 0];
@@ -2751,6 +2760,13 @@ class Battle {
 			case 'lightscreen':
 			case 'safeguard':
 			case 'mist':
+			case 'gmaxwildfire':
+			case 'gmaxvolcalith':
+			case 'gmaxvinelash':
+			case 'gmaxcannonade':
+			case 'grasspledge':
+			case 'firepledge':
+			case 'waterpledge':
 				this.scene.updateWeather();
 				break;
 			}
