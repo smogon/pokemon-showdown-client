@@ -404,6 +404,7 @@ class NTBBSession {
 	function getUser($userid=false) {
 		global $psdb, $curuser;
 
+		if ($userid === '0') return false;
 		if (is_array($userid)) $userid = $userid['userid'];
 		$userid = $this->userid($userid);
 		if (!$userid ||
