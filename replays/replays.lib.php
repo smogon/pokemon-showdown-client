@@ -267,6 +267,11 @@ class Replays {
 			}
 		}
 
+		if ($password && strlen($password) > 31) {
+			header("HTTP/1.1 403 Forbidden");
+			die('password must be 31 or fewer chars long');
+		}
+
 		$p1id = $this->toID($pReplay['p1']);
 		$p2id = $this->toID($pReplay['p2']);
 		$formatid = $this->toID($pReplay['format']);
