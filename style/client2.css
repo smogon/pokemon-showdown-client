@@ -38,6 +38,12 @@ body {
 	border-color: #2C9CC1;
 }
 
+.dark .button.notifying.subtle {
+	border-color: #000000;
+	background: #b2d7f7;
+	color: black;
+}
+
 .dark .button.notifying:hover {
 	background: #6BACC5;
 	border-color: #FFFFFF;
@@ -241,6 +247,13 @@ body {
 	border-color: #AA8866;
 	background: #e3c3a3;
 }
+
+.button.notifying.subtle {
+	border-color: #000000;
+	background: #b2d7f7;
+	color: black;
+}
+
 .button.notifying:hover {
 	border-color: #604020;
 	background: #cfaf8f;
