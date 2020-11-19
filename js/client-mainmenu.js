@@ -727,9 +727,6 @@
 								$challenge.html('<form class="battleform"><p>The challenge was cancelled.</p><p class="buttonbar"><button name="dismissChallenge">OK</button></p></form>');
 							}
 						} else if ($challenge.find('button[name=cancelChallenge]').length && challengeToUserid !== userid) {
-							//console.log($challenge.find('button[name=cancelChallenge]').length);
-							//console.log(challengeToUserid);
-							//console.log(userid);
 							// You were challenging someone else, and they either accepted
 							// or rejected it
 							$challenge.remove();
