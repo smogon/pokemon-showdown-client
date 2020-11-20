@@ -1387,13 +1387,13 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 				const move = dex.getMove(id);
 				if (move.gen > dex.gen) continue;
 				if (sketch) {
-					if (move.isZ || move.isMax) continue;
-					if (move.gen > 7 && this.formatType !== 'natdex') continue;
-				}
-				if (isHackmons) {
-					moves.push(id);
+					if (move.isMax || move.isZ || move.isNonstandard) continue;
+					sketchMoves.push(move.id);
 				} else {
-					sketchMoves.push(id);
+					if (!(dex.gen < 8 || this.formatType === 'natdex') && move.isZ) continue;
+					if (typeof move.isMax === 'string') continue;
+					if (move.isNonstandard === 'Past' && this.formatType !== 'natdex' && dex.gen === 8) continue;
+					moves.push(move.id);
 				}
 			}
 		}
