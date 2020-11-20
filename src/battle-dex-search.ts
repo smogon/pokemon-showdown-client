@@ -1017,26 +1017,25 @@ class BattleAbilitySearch extends BattleTypedSearch<'ability'> {
 		}
 		if (format === 'almostanyability' || format === 'metronomebattle' || isHackmons) {
 			let abilities: ID[] = [];
-			for (let i in BattleAbilities) {
-				if (BattleAbilities[i].isNonstandard) continue;
-				if (BattleAbilities[i].gen > dex.gen) continue;
-				abilities.push(i as ID);
+			for (let i in this.getTable()) {
+				const ability = dex.getAbility(i);
+				if (ability.isNonstandard) continue;
+				if (ability.gen > dex.gen) continue;
+				abilities.push(ability.id);
 			}
-
-			abilities.sort();
 
 			let goodAbilities: SearchRow[] = [['header', "Abilities"]];
 			let poorAbilities: SearchRow[] = [['header', "Situational Abilities"]];
 			let badAbilities: SearchRow[] = [['header', "Unviable Abilities"]];
-			for (const id of abilities) {
-				let rating = BattleAbilities[id]?.rating;
-				if (id === 'normalize') rating = 3;
+			for (const ability of abilities.sort().map(abil => dex.getAbility(abil))) {
+				let rating = ability.rating;
+				if (ability.id === 'normalize') rating = 3;
 				if (rating >= 3) {
-					goodAbilities.push(['ability', id]);
+					goodAbilities.push(['ability', ability.id]);
 				} else if (rating >= 2) {
-					poorAbilities.push(['ability', id]);
+					poorAbilities.push(['ability', ability.id]);
 				} else {
-					badAbilities.push(['ability', id]);
+					badAbilities.push(['ability', ability.id]);
 				}
 			}
 			abilitySet = [...goodAbilities, ...poorAbilities, ...badAbilities];
@@ -1385,99 +1384,45 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 			if (isHackmons) moves = [];
 			for (let id in BattleMovedex) {
 				if (!format.startsWith('cap') && (id === 'paleowave' || id === 'shadowstrike')) continue;
-				if (!BattleMovedex[id].gen) {
-					if (BattleMovedex[id].num >= 743) {
-						BattleMovedex[id].gen = 8;
-					} else if (BattleMovedex[id].num >= 622) {
-						BattleMovedex[id].gen = 7;
-					} else if (BattleMovedex[id].num >= 560) {
-						BattleMovedex[id].gen = 6;
-					} else if (BattleMovedex[id].num >= 468) {
-						BattleMovedex[id].gen = 5;
-					} else if (BattleMovedex[id].num >= 355) {
-						BattleMovedex[id].gen = 4;
-					} else if (BattleMovedex[id].num >= 252) {
-						BattleMovedex[id].gen = 3;
-					} else if (BattleMovedex[id].num >= 166) {
-						BattleMovedex[id].gen = 2;
-					} else if (BattleMovedex[id].num >= 1) {
-						BattleMovedex[id].gen = 1;
-					} else {
-						BattleMovedex[id].gen = 0;
-					}
-				}
-				if (BattleMovedex[id].gen > dex.gen) continue;
-				if (BattleMovedex[id].isZ) continue;
-				if (isHackmons) {
-					moves.push(id);
+				const move = dex.getMove(id);
+				if (move.gen > dex.gen) continue;
+				if (sketch) {
+					if (move.isMax || move.isZ || move.isNonstandard) continue;
+					sketchMoves.push(move.id);
 				} else {
-					sketchMoves.push(id);
+					if (!(dex.gen < 8 || this.formatType === 'natdex') && move.isZ) continue;
+					if (typeof move.isMax === 'string') continue;
+					if (move.isNonstandard === 'Past' && this.formatType !== 'natdex' && dex.gen === 8) continue;
+					moves.push(move.id);
 				}
 			}
 		}
 		if (this.formatType === 'metronome') moves = ['metronome'];
 		if (format === 'stabmons') {
 			for (let id in BattleMovedex) {
-				let types = [];
-				let baseSpecies = Dex.getSpecies(species.baseSpecies);
-				for (const type of species.types) {
-					if (species.battleOnly) continue;
-					types.push(type);
-				}
-				if (species.prevo) {
-					const prevoSpecies = Dex.getSpecies(species.prevo);
-					for (const type of prevoSpecies.types) {
-						types.push(type);
-					}
-					if (prevoSpecies.prevo) {
-						for (const type of Dex.getSpecies(prevoSpecies.prevo).types) {
-							types.push(type);
-						}
-					}
+				let types: string[] = [];
+				let baseSpecies = dex.getSpecies(species.changesFrom || species.name);
+				if (!species.battleOnly) types.push(...species.types);
+				let prevo = species.prevo;
+				while (prevo) {
+					const prevoSpecies = dex.getSpecies(prevo);
+					types.push(...prevoSpecies.types);
+					prevo = prevoSpecies.prevo;
 				}
 				if (species.battleOnly) species = baseSpecies;
+				const excludedForme = (s: Species) => ['Alola', 'Alola-Totem', 'Galar', 'Galar-Zen'].includes(s.forme);
 				if (baseSpecies.otherFormes && !['Wormadam', 'Urshifu'].includes(baseSpecies.baseSpecies)) {
-					for (const type of baseSpecies.types) {
-						if (['Alola', 'Alola-Totem', 'Galar', 'Galar-Zen'].includes(species.forme)) {
-							continue;
-						}
-						types.push(type);
-					}
+					if (!excludedForme(species)) types.push(...baseSpecies.types);
 					for (const formeName of baseSpecies.otherFormes) {
-						const forme = Dex.getSpecies(formeName);
-						for (const type of forme.types) {
-							if (forme.battleOnly || ['Alola', 'Alola-Totem', 'Galar', 'Galar-Zen'].includes(species.forme)) {
-								continue;
-							}
-							types.push(type);
-						}
+						const forme = dex.getSpecies(formeName);
+						if (!forme.battleOnly && !excludedForme(forme)) types.push(...forme.types);
 					}
 				}
-				if (!types.includes(BattleMovedex[id].type)) continue;
-				if (moves.includes(id as ID)) continue;
-				if (!BattleMovedex[id].gen) {
-					if (BattleMovedex[id].num >= 743) {
-						BattleMovedex[id].gen = 8;
-					} else if (BattleMovedex[id].num >= 622) {
-						BattleMovedex[id].gen = 7;
-					} else if (BattleMovedex[id].num >= 560) {
-						BattleMovedex[id].gen = 6;
-					} else if (BattleMovedex[id].num >= 468) {
-						BattleMovedex[id].gen = 5;
-					} else if (BattleMovedex[id].num >= 355) {
-						BattleMovedex[id].gen = 4;
-					} else if (BattleMovedex[id].num >= 252) {
-						BattleMovedex[id].gen = 3;
-					} else if (BattleMovedex[id].num >= 166) {
-						BattleMovedex[id].gen = 2;
-					} else if (BattleMovedex[id].num >= 1) {
-						BattleMovedex[id].gen = 1;
-					} else {
-						BattleMovedex[id].gen = 0;
-					}
-				}
-				if (BattleMovedex[id].gen > this.dex.gen) continue;
-				if (BattleMovedex[id].isZ || BattleMovedex[id].isMax || BattleMovedex[id].isNonstandard) continue;
+				const move = Dex.getMove(id);
+				if (!types.includes(move.type)) continue;
+				if (moves.includes(move.id)) continue;
+				if (move.gen > dex.gen) continue;
+				if (move.isZ || move.isMax || move.isNonstandard) continue;
 				moves.push(id);
 			}
 		}

@@ -1261,6 +1261,9 @@ class Ability implements Effect {
 	readonly shortDesc: string;
 	readonly desc: string;
 
+	readonly rating: number;
+	readonly isNonstandard: boolean;
+
 	constructor(id: ID, name: string, data: any) {
 		if (!data || typeof data !== 'object') data = {};
 		if (data.name) name = data.name;
@@ -1271,6 +1274,8 @@ class Ability implements Effect {
 		this.num = data.num || 0;
 		this.shortDesc = data.shortDesc || data.desc || '';
 		this.desc = data.desc || data.shortDesc || '';
+		this.rating = data.rating || 1;
+		this.isNonstandard = !!data.isNonstandard;
 		if (!this.gen) {
 			if (this.num >= 234) {
 				this.gen = 8;
