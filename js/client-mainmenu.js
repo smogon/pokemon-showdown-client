@@ -697,7 +697,7 @@
 			var self = this;
 			this.$('.pm-window').each(function (i, el) {
 				var $pmWindow = $(el);
-				var userid = $pmWindow.data('userid');
+				var userid = el.getAttribute('data-userid');
 				var name = $pmWindow.data('name');
 				if (data.challengesFrom[userid]) {
 					var format = data.challengesFrom[userid];
