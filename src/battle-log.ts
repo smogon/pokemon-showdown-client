@@ -703,6 +703,7 @@ class BattleLog {
 			blink: 0,
 			psicon: html4.eflags['OPTIONAL_ENDTAG'] | html4.eflags['EMPTY'],
 			username: 0,
+			youtube: 0,
 		});
 
 		// By default, Caja will ban any attributes it doesn't recognize.
@@ -802,6 +803,16 @@ class BattleLog {
 				const color = this.usernameColor(toID(getAttrib('name')));
 				const style = getAttrib('style');
 				setAttrib('style', `${style};color:${color}`);
+			} else if (tagName === 'youtube') {
+				// <iframe width="320" height="180" src="https://www.youtube.com/embed/dQw4w9WgXcQ" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+
+				const src = getAttrib('src') || '';
+				const videoId = /(?:\?v=|\/embed\/)([A-Za-z0-9]+)/.exec(src)?.[1];
+
+				return {
+					tagName: 'iframe',
+					attribs: ['width', '320', 'height', '180', 'src', `https://www.youtube.com/embed/${videoId}`, 'frameborder', '0', 'allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture', 'allowfullscreen', 'allowfullscreen'],
+				};
 			} else if (tagName === 'psicon') {
 				// <psicon> is a custom element which supports a set of mutually incompatible attributes:
 				// <psicon pokemon> and <psicon item>
