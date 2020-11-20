@@ -726,6 +726,8 @@ class BattleLog {
 			'psicon::type': 0,
 			'psicon::category': 0,
 			'username::name': 0,
+			'form::data-send': 0,
+			'button::data-send': 0,
 			'*::aria-label': 0,
 			'*::aria-hidden': 0,
 		});
