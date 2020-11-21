@@ -1519,6 +1519,7 @@ class Battle {
 		if (kwArgs.then) this.waitForAnimations = false;
 		if (kwArgs.simult) this.waitForAnimations = 'simult';
 
+		const CONSUMED = ['eaten', 'popped', 'consumed', 'held up'];
 		switch (args[0]) {
 		case '-damage': {
 			let poke = this.getPokemon(args[1])!;
@@ -1532,7 +1533,7 @@ class Battle {
 				this.activateAbility(ofpoke, effect);
 				if (effect.effectType === 'Item') {
 					const itemPoke = ofpoke || poke;
-					if (itemPoke.prevItem !== effect.name) {
+					if (itemPoke.prevItem !== effect.name && !CONSUMED.includes(itemPoke.prevItemEffect)) {
 						itemPoke.item = effect.name;
 					}
 				}
@@ -1586,8 +1587,10 @@ class Battle {
 			if (kwArgs.from) {
 				let effect = Dex.getEffect(kwArgs.from);
 				this.activateAbility(poke, effect);
-				if (effect.effectType === 'Item') {
-					poke.item = effect.name;
+				if (effect.effectType === 'Item' && !CONSUMED.includes(poke.prevItemEffect)) {
+					if (poke.prevItem !== effect.name) {
+						poke.item = effect.name;
+					}
 				}
 				switch (effect.id) {
 				case 'lunardance':
