@@ -159,7 +159,7 @@ if ($upperstaff) {
 
 		if (!$upperstaff) {
 			// Hide email addresses from lowerstaff
-			$entry = preg_replace($EMAIL_REGEX, "", $entry);
+			$entry = preg_replace($EMAIL_REGEX, "[email address hidden]", $entry);
 		}
 
 		if ($row['actorid'] !== $userid) {
