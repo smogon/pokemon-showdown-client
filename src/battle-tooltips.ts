@@ -834,8 +834,8 @@ class BattleTooltips {
 		}
 
 		let itemText = '';
-		if (serverPokemon?.item) {
-			itemText = '<small>Item:</small> ' + Dex.getItem(serverPokemon.item).name;
+		if (serverPokemon) {
+			if (serverPokemon.item) itemText = '<small>Item:</small> ' + Dex.getItem(serverPokemon.item).name;
 		} else if (clientPokemon) {
 			let item = '';
 			let itemEffect = clientPokemon.itemEffect || '';
