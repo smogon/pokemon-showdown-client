@@ -499,11 +499,11 @@ class BattleTooltips {
 		// TODO: move this somewhere it makes more sense
 		if (pokemon.ability === '(suppressed)') serverPokemon.ability = '(suppressed)';
 		let ability = toID(serverPokemon.ability || pokemon.ability || serverPokemon.baseAbility);
+		let item = this.battle.dex.getItem(serverPokemon.item);
 
 		let value = new ModifiableValue(this.battle, pokemon, serverPokemon);
 
 		if (isZOrMax === 'zmove') {
-			let item = this.battle.dex.getItem(serverPokemon.item);
 			if (item.zMoveFrom === move.name) {
 				move = this.battle.dex.getMove(item.zMove as string);
 			} else if (move.category === 'Status') {
@@ -556,7 +556,6 @@ class BattleTooltips {
 					maxMove = this.battle.dex.getMove(BattleTooltips.maxMoveTable['Dark']);
 				}
 				if (move.id === 'weatherball') {
-					const item = this.battle.dex.getItem(pokemon.item);
 					switch (this.battle.weather) {
 					case 'sunnyday':
 					case 'desolateland':
@@ -586,6 +585,12 @@ class BattleTooltips {
 					} else if (this.battle.hasPseudoWeather('Psychic Terrain')) {
 						maxMove = this.battle.dex.getMove(BattleTooltips.maxMoveTable['Psychic']);
 					}
+				}
+				if (move.id === 'multiattack' && item.onMemory) {
+					maxMove = this.battle.dex.getMove(BattleTooltips.maxMoveTable[item.onMemory]);
+				}
+				if (move.id === 'technoblast' && item.onDrive) {
+					maxMove = this.battle.dex.getMove(BattleTooltips.maxMoveTable[item.onDrive]);
 				}
 				const basePower = ['gmaxdrumsolo', 'gmaxfireball', 'gmaxhydrosnipe'].includes(maxMove.id) ?
 					maxMove.basePower : move.maxMove.basePower;
@@ -1278,7 +1283,7 @@ class BattleTooltips {
 		// can happen in obscure situations
 		if (!value.pokemon) return [moveType, category];
 
-		let pokemonTypes = value.pokemon!.getTypeList(value.serverPokemon);
+		let pokemonTypes = value.pokemon.getTypeList(value.serverPokemon);
 		value.reset();
 		if (move.id === 'revelationdance') {
 			moveType = pokemonTypes[0];
