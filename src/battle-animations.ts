@@ -1824,7 +1824,7 @@ class PokemonSprite extends Sprite {
 		return this.x + (this.isFrontSprite ? 1 : -1) * offset;
 	}
 	behindy(offset: number) {
-		return this.y + (this.isFrontSprite ? 1 : -1) * offset;
+		return this.y + (this.isFrontSprite ? -1 : 1) * offset;
 	}
 	leftof(offset: number) {
 		return this.x + (this.isFrontSprite ? 1 : -1) * offset;
