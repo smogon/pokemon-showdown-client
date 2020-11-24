@@ -262,7 +262,7 @@ class BattleScene {
 	/////////////////////////////////////////////////////////////////////
 
 	addSprite(sprite: PokemonSprite) {
-		if (sprite.$el) this.$sprites[sprite.siden].append(sprite.$el);
+		if (sprite.$el) this.$sprites[+sprite.isFrontSprite].append(sprite.$el);
 	}
 	showEffect(effect: string | SpriteData, start: ScenePos, end: ScenePos, transition: string, after?: string) {
 		if (typeof effect === 'string') effect = BattleEffects[effect] as SpriteData;
@@ -559,7 +559,7 @@ class BattleScene {
 		if (Dex.prefs('nopastgens')) gen = 6;
 		if (Dex.prefs('bwgfx') && gen > 5) gen = 5;
 		this.gen = gen;
-		this.activeCount = this.battle.mySide?.active.length || 1;
+		this.activeCount = this.battle.nearSide?.active.length || 1;
 
 		const isSPL = (typeof this.battle.rated === 'string' && this.battle.rated.startsWith("Smogon Premier League"));
 		let bg: string;
@@ -586,7 +586,7 @@ class BattleScene {
 	}
 
 	getDetailsText(pokemon: Pokemon) {
-		let name = pokemon.side?.n &&
+		let name = pokemon.side?.isFar &&
 			(this.battle.ignoreOpponent || this.battle.ignoreNicks) ? pokemon.speciesForme : pokemon.name;
 		if (name !== pokemon.speciesForme) {
 				name += ' (' + pokemon.speciesForme + ')';
@@ -679,15 +679,15 @@ class BattleScene {
 				// in VGC (bring 6 pick 4) and other pick-less-than-you-bring formats, this is
 				// a pokemon that's been brought but not necessarily picked
 				const details = this.getDetailsText(poke);
-				pokemonhtml += `<span${tooltipCode} style="` + Dex.getPokemonIcon(poke, !side.n) + `;opacity:0.6" aria-label="${details}"></span>`;
+				pokemonhtml += `<span${tooltipCode} style="` + Dex.getPokemonIcon(poke, !side.isFar) + `;opacity:0.6" aria-label="${details}"></span>`;
 			} else {
 				const details = this.getDetailsText(poke);
-				pokemonhtml += `<span${tooltipCode} style="` + Dex.getPokemonIcon(poke, !side.n) + `" aria-label="${details}"></span>`;
+				pokemonhtml += `<span${tooltipCode} style="` + Dex.getPokemonIcon(poke, !side.isFar) + `" aria-label="${details}"></span>`;
 			}
 			if (i % 3 === 2) pokemonhtml += `</div><div class="teamicons">`;
 		}
 		pokemonhtml = '<div class="teamicons">' + pokemonhtml + '</div>';
-		const $sidebar = (side.n ? this.$rightbar : this.$leftbar);
+		const $sidebar = (side.isFar ? this.$rightbar : this.$leftbar);
 		if (side.name) {
 			const ratinghtml = side.rating ? ` title="Rating: ${BattleLog.escapeHTML(side.rating)}"` : ``;
 			$sidebar.html(`<div class="trainer"><strong>${BattleLog.escapeHTML(side.name)}</strong><div class="trainersprite"${ratinghtml} style="background-image:url(${Dex.resolveAvatar(side.avatar)})"></div>${pokemonhtml}</div>`);
@@ -716,11 +716,12 @@ class BattleScene {
 	teamPreview() {
 		let newBGNum = 0;
 		for (let siden = 0; siden < 2; siden++) {
-			let side = this.battle.sides[siden];
+			const side = this.battle.sides[siden];
+			const spriteIndex = +this.battle.sidesSwitched ^ siden;
 			let textBuf = '';
 			let buf = '';
 			let buf2 = '';
-			this.$sprites[siden].empty();
+			this.$sprites[spriteIndex].empty();
 
 			let ludicoloCount = 0;
 			let lombreCount = 0;
@@ -729,14 +730,14 @@ class BattleScene {
 				if (pokemon.speciesForme === 'Ludicolo') ludicoloCount++;
 				if (pokemon.speciesForme === 'Lombre') lombreCount++;
 
-				let spriteData = Dex.getSpriteData(pokemon, siden, {
+				let spriteData = Dex.getSpriteData(pokemon, !!spriteIndex, {
 					gen: this.gen,
 					noScale: true,
 					mod: this.mod,
 				});
 				let y = 0;
 				let x = 0;
-				if (siden) {
+				if (spriteIndex) {
 					y = 48 + 50 + 3 * (i + 6 - side.pokemon.length);
 					x = 48 + 180 + 50 * (i + 6 - side.pokemon.length);
 				} else {
@@ -767,7 +768,7 @@ class BattleScene {
 					'<strong>' + BattleLog.escapeHTML(side.name) + '\'s team:</strong> <em style="color:#445566;display:block;">' + BattleLog.escapeHTML(textBuf) + '</em>'
 				);
 			}
-			this.$sprites[siden].html(buf + buf2);
+			this.$sprites[spriteIndex].html(buf + buf2);
 
 			if (!newBGNum) {
 				if (ludicoloCount >= 2) {
@@ -814,9 +815,9 @@ class BattleScene {
 		}
 		return buf; // weather not found
 	}
-	sideConditionLeft(cond: [string, number, number, number], siden: number, all?: boolean) {
+	sideConditionLeft(cond: [string, number, number, number], isFoe: boolean, all?: boolean) {
 		if (!cond[2] && !cond[3] && !all) return '';
-		let buf = `<br />${siden && !all ? "Foe's " : ""}${Dex.getMove(cond[0]).name}`;
+		let buf = `<br />${isFoe && !all ? "Foe's " : ""}${Dex.getMove(cond[0]).name}`;
 		if (this.battle.gen < 7 && this.battle.hardcoreMode) return buf;
 
 		if (!cond[2] && !cond[3]) return buf;
@@ -861,7 +862,7 @@ class BattleScene {
 	sideConditionsLeft(side: Side, all?: boolean) {
 		let buf = ``;
 		for (const id in side.sideConditions) {
-			buf += this.sideConditionLeft(side.sideConditions[id], side.n, all);
+			buf += this.sideConditionLeft(side.sideConditions[id], side.isFar, all);
 		}
 		return buf;
 	}
@@ -981,8 +982,7 @@ class BattleScene {
 	}
 
 	addPokemonSprite(pokemon: Pokemon) {
-		const siden = pokemon.side.n;
-		const sprite = new PokemonSprite(Dex.getSpriteData(pokemon, siden, {
+		const sprite = new PokemonSprite(Dex.getSpriteData(pokemon, pokemon.side.isFar, {
 			gen: this.gen,
 			mod: this.mod,
 		}), {
@@ -990,14 +990,15 @@ class BattleScene {
 			y: pokemon.side.y,
 			z: pokemon.side.z,
 			opacity: 0,
-		}, this, siden);
-		if (sprite.$el) this.$sprites[siden].append(sprite.$el);
+		}, this, pokemon.side.isFar);
+		if (sprite.$el) this.$sprites[+pokemon.side.isFar].append(sprite.$el);
 		return sprite;
 	}
 
 	addSideCondition(siden: number, id: ID, instant?: boolean) {
 		if (!this.animating) return;
 		const side = this.battle.sides[siden];
+		const spriteIndex = +side.isFar;
 		switch (id) {
 		case 'auroraveil':
 			const auroraveil = new Sprite(BattleEffects.auroraveil, {
@@ -1009,7 +1010,7 @@ class BattleScene {
 				yscale: 0,
 				opacity: 0.1,
 			}, this);
-			this.$spritesFront[siden].append(auroraveil.$el!);
+			this.$spritesFront[spriteIndex].append(auroraveil.$el!);
 			this.sideConditions[siden][id] = [auroraveil];
 			auroraveil.anim({
 				opacity: 0.7,
@@ -1029,7 +1030,7 @@ class BattleScene {
 				yscale: 0,
 				opacity: 0.1,
 			}, this);
-			this.$spritesFront[siden].append(reflect.$el!);
+			this.$spritesFront[spriteIndex].append(reflect.$el!);
 			this.sideConditions[siden][id] = [reflect];
 			reflect.anim({
 				opacity: 0.7,
@@ -1049,7 +1050,7 @@ class BattleScene {
 				yscale: 0,
 				opacity: 0.1,
 			}, this);
-			this.$spritesFront[siden].append(safeguard.$el!);
+			this.$spritesFront[spriteIndex].append(safeguard.$el!);
 			this.sideConditions[siden][id] = [safeguard];
 			safeguard.anim({
 				opacity: 0.7,
@@ -1069,7 +1070,7 @@ class BattleScene {
 				yscale: 0,
 				opacity: 0.1,
 			}, this);
-			this.$spritesFront[siden].append(lightscreen.$el!);
+			this.$spritesFront[spriteIndex].append(lightscreen.$el!);
 			this.sideConditions[siden][id] = [lightscreen];
 			lightscreen.anim({
 				opacity: 0.7,
@@ -1089,7 +1090,7 @@ class BattleScene {
 				yscale: 0,
 				opacity: 0.1,
 			}, this);
-			this.$spritesFront[siden].append(mist.$el!);
+			this.$spritesFront[spriteIndex].append(mist.$el!);
 			this.sideConditions[siden][id] = [mist];
 			mist.anim({
 				opacity: 0.7,
@@ -1136,10 +1137,10 @@ class BattleScene {
 				scale: 0.2,
 			}, this);
 
-			this.$spritesFront[siden].append(rock1.$el!);
-			this.$spritesFront[siden].append(rock2.$el!);
-			this.$spritesFront[siden].append(rock3.$el!);
-			this.$spritesFront[siden].append(rock4.$el!);
+			this.$spritesFront[spriteIndex].append(rock1.$el!);
+			this.$spritesFront[spriteIndex].append(rock2.$el!);
+			this.$spritesFront[spriteIndex].append(rock3.$el!);
+			this.$spritesFront[spriteIndex].append(rock4.$el!);
 			this.sideConditions[siden][id] = [rock1, rock2, rock3, rock4];
 			break;
 		case 'gmaxsteelsurge':
@@ -1168,9 +1169,9 @@ class BattleScene {
 				scale: 0.8,
 			}, this);
 
-			this.$spritesFront[siden].append(surge1.$el!);
-			this.$spritesFront[siden].append(surge2.$el!);
-			this.$spritesFront[siden].append(surge3.$el!);
+			this.$spritesFront[spriteIndex].append(surge1.$el!);
+			this.$spritesFront[spriteIndex].append(surge2.$el!);
+			this.$spritesFront[spriteIndex].append(surge3.$el!);
 			this.sideConditions[siden][id] = [surge1, surge2, surge3];
 			break;
 		case 'spikes':
@@ -1188,7 +1189,7 @@ class BattleScene {
 					z: side.z,
 					scale: 0.3,
 				}, this);
-				this.$spritesFront[siden].append(spike1.$el!);
+				this.$spritesFront[spriteIndex].append(spike1.$el!);
 				spikeArray.push(spike1);
 			}
 			if (spikeArray.length < 2 && levels >= 2) {
@@ -1199,7 +1200,7 @@ class BattleScene {
 					z: side.z,
 					scale: .3,
 				}, this);
-				this.$spritesFront[siden].append(spike2.$el!);
+				this.$spritesFront[spriteIndex].append(spike2.$el!);
 				spikeArray.push(spike2);
 			}
 			if (spikeArray.length < 3 && levels >= 3) {
@@ -1210,7 +1211,7 @@ class BattleScene {
 					z: side.z,
 					scale: .3,
 				}, this);
-				this.$spritesFront[siden].append(spike3.$el!);
+				this.$spritesFront[spriteIndex].append(spike3.$el!);
 				spikeArray.push(spike3);
 			}
 			break;
@@ -1229,7 +1230,7 @@ class BattleScene {
 					z: side.z,
 					scale: 0.3,
 				}, this);
-				this.$spritesFront[siden].append(tspike1.$el!);
+				this.$spritesFront[spriteIndex].append(tspike1.$el!);
 				tspikeArray.push(tspike1);
 			}
 			if (tspikeArray.length < 2 && tspikeLevels >= 2) {
@@ -1240,7 +1241,7 @@ class BattleScene {
 					z: side.z,
 					scale: .3,
 				}, this);
-				this.$spritesFront[siden].append(tspike2.$el!);
+				this.$spritesFront[spriteIndex].append(tspike2.$el!);
 				tspikeArray.push(tspike2);
 			}
 			break;
@@ -1253,7 +1254,7 @@ class BattleScene {
 				opacity: 0.4,
 				scale: 0.7,
 			}, this);
-			this.$spritesFront[siden].append(web.$el!);
+			this.$spritesFront[spriteIndex].append(web.$el!);
 			this.sideConditions[siden][id] = [web];
 			break;
 		}
@@ -1428,7 +1429,7 @@ class BattleScene {
 				y: side.y,
 				z: side.z,
 				opacity: 0,
-			}, this, side.n),
+			}, this, side.isFar),
 		} as any;
 
 		side.missedPokemon.sprite.isMissedPokemon = true;
@@ -1761,7 +1762,6 @@ class PokemonSprite extends Sprite {
 		lightscreen: ['Light Screen', 'good'],
 		reflect: ['Reflect', 'good'],
 	};
-	siden: number;
 	forme = '';
 	cryurl: string | undefined = undefined;
 
@@ -1770,7 +1770,7 @@ class PokemonSprite extends Sprite {
 	isSubActive = false;
 
 	$statbar: JQuery | null = null;
-	isBackSprite: boolean;
+	isFrontSprite: boolean;
 	isMissedPokemon = false;
 	/**
 	 * If the pokemon is transformed, sprite.sp will be the transformed
@@ -1785,11 +1785,10 @@ class PokemonSprite extends Sprite {
 
 	effects: {[id: string]: Sprite[]} = {};
 
-	constructor(spriteData: SpriteData | null, pos: InitScenePos, scene: BattleScene, siden: number) {
+	constructor(spriteData: SpriteData | null, pos: InitScenePos, scene: BattleScene, isFrontSprite: boolean) {
 		super(spriteData, pos, scene);
-		this.siden = siden;
 		this.cryurl = this.sp.cryurl;
-		this.isBackSprite = !this.siden;
+		this.isFrontSprite = isFrontSprite;
 	}
 	destroy() {
 		if (this.$el) this.$el.remove();
@@ -1822,16 +1821,16 @@ class PokemonSprite extends Sprite {
 	}
 
 	behindx(offset: number) {
-		return this.x + (this.isBackSprite ? -1 : 1) * offset;
+		return this.x + (this.isFrontSprite ? 1 : -1) * offset;
 	}
 	behindy(offset: number) {
-		return this.y + (this.isBackSprite ? 1 : -1) * offset;
+		return this.y + (this.isFrontSprite ? 1 : -1) * offset;
 	}
 	leftof(offset: number) {
-		return this.x + (this.isBackSprite ? -1 : 1) * offset;
+		return this.x + (this.isFrontSprite ? 1 : -1) * offset;
 	}
 	behind(offset: number) {
-		return this.z + (this.isBackSprite ? -1 : 1) * offset;
+		return this.z + (this.isFrontSprite ? 1 : -1) * offset;
 	}
 
 	removeTransform() {
@@ -1854,13 +1853,13 @@ class PokemonSprite extends Sprite {
 	animSub(instant?: boolean, noAnim?: boolean) {
 		if (!this.scene.animating) return;
 		if (this.$sub) return;
-		const subsp = Dex.getSpriteData('substitute', this.siden, {
+		const subsp = Dex.getSpriteData('substitute', this.isFrontSprite, {
 			gen: this.scene.gen,
 			mod: this.scene.mod,
 		});
 		this.subsp = subsp;
 		this.$sub = $('<img src="' + subsp.url + '" style="display:block;opacity:0;position:absolute"' + (subsp.pixelated ? ' class="pixelated"' : '') + ' />');
-		this.scene.$spritesFront[this.siden].append(this.$sub);
+		this.scene.$spritesFront[+this.isFrontSprite].append(this.$sub);
 		this.isSubActive = true;
 		if (instant) {
 			if (!noAnim) this.animReset();
@@ -1969,7 +1968,7 @@ class PokemonSprite extends Sprite {
 
 		if (pokemon.volatiles.formechange || pokemon.volatiles.dynamax) {
 			if (!this.oldsp) this.oldsp = this.sp;
-			this.sp = Dex.getSpriteData(pokemon, this.isBackSprite ? 0 : 1, {
+			this.sp = Dex.getSpriteData(pokemon, this.isFrontSprite, {
 				gen: this.scene.gen,
 				mod: this.scene.mod,
 			});
@@ -2003,7 +2002,7 @@ class PokemonSprite extends Sprite {
 			return;
 		}
 
-		if (this.$el) this.scene.$sprites[this.siden].append(this.$el);
+		if (this.$el) this.scene.$sprites[+this.isFrontSprite].append(this.$el);
 		this.recalculatePos(pokemon.slot);
 		this.resetStatbar(pokemon);
 		this.$el.css(this.scene.pos({
@@ -2047,10 +2046,10 @@ class PokemonSprite extends Sprite {
 		let moreActive = this.scene.activeCount - 1;
 		let statbarOffset = 0;
 		if (this.scene.gen <= 4 && moreActive) {
-			this.x = (slot - 0.52) * (this.isBackSprite ? -1 : 1) * -55;
-			this.y = (this.isBackSprite ? -1 : 1) + 1;
-			if (!this.isBackSprite) statbarOffset = 30 * slot;
-			if (this.isBackSprite) statbarOffset = -28 * slot;
+			this.x = (slot - 0.52) * (this.isFrontSprite ? 1 : -1) * -55;
+			this.y = (this.isFrontSprite ? 1 : -1) + 1;
+			if (this.isFrontSprite) statbarOffset = 30 * slot;
+			if (!this.isFrontSprite) statbarOffset = -28 * slot;
 		} else {
 			switch (moreActive) {
 			case 0:
@@ -2058,27 +2057,27 @@ class PokemonSprite extends Sprite {
 				break;
 			case 1:
 				if (this.sp.pixelated) {
-					this.x = (slot * -100 + 18) * (this.isBackSprite ? -1 : 1);
+					this.x = (slot * -100 + 18) * (this.isFrontSprite ? 1 : -1);
 				} else {
-					this.x = (slot * -75 + 18) * (this.isBackSprite ? -1 : 1);
+					this.x = (slot * -75 + 18) * (this.isFrontSprite ? 1 : -1);
 				}
 				break;
 			case 2:
-				this.x = (slot * -70 + 20) * (this.isBackSprite ? -1 : 1);
+				this.x = (slot * -70 + 20) * (this.isFrontSprite ? 1 : -1);
 				break;
 			}
-			this.y = (slot * 10) * (this.isBackSprite ? -1 : 1);
-			if (!this.isBackSprite) statbarOffset = 17 * slot;
-			if (!this.isBackSprite && !moreActive && this.sp.pixelated) statbarOffset = 15;
-			if (this.isBackSprite) statbarOffset = -7 * slot;
-			if (!this.isBackSprite && moreActive === 2) statbarOffset = 14 * slot - 10;
+			this.y = (slot * 10) * (this.isFrontSprite ? 1 : -1);
+			if (this.isFrontSprite) statbarOffset = 17 * slot;
+			if (this.isFrontSprite && !moreActive && this.sp.pixelated) statbarOffset = 15;
+			if (!this.isFrontSprite) statbarOffset = -7 * slot;
+			if (this.isFrontSprite && moreActive === 2) statbarOffset = 14 * slot - 10;
 		}
 		if (this.scene.gen <= 2) {
-			statbarOffset += this.isBackSprite ? 1 : 20;
+			statbarOffset += this.isFrontSprite ? 20 : 1;
 		} else if (this.scene.gen <= 3) {
-			statbarOffset += this.isBackSprite ? 5 : 30;
+			statbarOffset += this.isFrontSprite ? 30 : 5;
 		} else if (this.scene.gen !== 5) {
-			statbarOffset += this.isBackSprite ? 20 : 30;
+			statbarOffset += this.isFrontSprite ? 30 : 20;
 		}
 
 		let pos = this.scene.pos({
@@ -2098,7 +2097,7 @@ class PokemonSprite extends Sprite {
 
 		if (moreActive) {
 			// make sure element is in the right z-order
-			if (!slot && this.isBackSprite || slot && !this.isBackSprite) {
+			if (!!slot === this.isFrontSprite) {
 				this.$el.prependTo(this.$el.parent());
 			} else {
 				this.$el.appendTo(this.$el.parent());
@@ -2107,10 +2106,10 @@ class PokemonSprite extends Sprite {
 	}
 	animSummon(pokemon: Pokemon, slot: number, instant?: boolean) {
 		if (!this.scene.animating) return;
-		this.scene.$sprites[this.siden].append(this.$el);
+		this.scene.$sprites[+this.isFrontSprite].append(this.$el);
 		this.recalculatePos(slot);
 
-		// 'z-index': (this.isBackSprite ? 1+slot : 4-slot),
+		// 'z-index': (this.isFrontSprite ? 4-slot : 1+slot),
 		if (instant) {
 			this.$el.css('display', 'block');
 			this.animReset();
@@ -2197,10 +2196,10 @@ class PokemonSprite extends Sprite {
 	}
 	animDragIn(pokemon: Pokemon, slot: number) {
 		if (!this.scene.animating) return;
-		this.scene.$sprites[this.siden].append(this.$el);
+		this.scene.$sprites[+this.isFrontSprite].append(this.$el);
 		this.recalculatePos(slot);
 
-		// 'z-index': (this.isBackSprite ? 1+slot : 4-slot),
+		// 'z-index': (this.isFrontSprite ? 4-slot : 1+slot),
 		this.$el.css(this.scene.pos({
 			display: 'block',
 			x: this.leftof(-100),
@@ -2222,7 +2221,7 @@ class PokemonSprite extends Sprite {
 		this.scene.updateSidebar(pokemon.side);
 		this.$statbar!.css({
 			display: 'block',
-			left: this.statbarLeft + (this.siden ? -100 : 100),
+			left: this.statbarLeft + (this.isFrontSprite ? -100 : 100),
 			top: this.statbarTop,
 			opacity: 0,
 		});
@@ -2262,7 +2261,7 @@ class PokemonSprite extends Sprite {
 		if ($statbar) {
 			this.$statbar = null;
 			$statbar.animate({
-				left: this.statbarLeft - (this.siden ? -100 : 100),
+				left: this.statbarLeft - (this.isFrontSprite ? -100 : 100),
 				opacity: 0,
 			}, 300 / this.scene.acceleration, () => {
 				$statbar!.remove();
@@ -2319,7 +2318,7 @@ class PokemonSprite extends Sprite {
 		if ($statbar) {
 			this.$statbar = null;
 			$statbar.animate({
-				left: this.statbarLeft + (this.siden ? 50 : -50),
+				left: this.statbarLeft + (this.isFrontSprite ? 50 : -50),
 				opacity: 0,
 			}, 300 / this.scene.acceleration, () => {
 				$statbar!.remove();
@@ -2362,7 +2361,7 @@ class PokemonSprite extends Sprite {
 	}
 	animTransform(pokemon: Pokemon, isCustomAnim?: boolean, isPermanent?: boolean) {
 		if (!this.scene.animating && !isPermanent) return;
-		let sp = Dex.getSpriteData(pokemon, this.isBackSprite ? 0 : 1, {
+		let sp = Dex.getSpriteData(pokemon, this.isFrontSprite, {
 			gen: this.scene.gen,
 			mod: this.scene.mod,
 		});
@@ -2459,6 +2458,7 @@ class PokemonSprite extends Sprite {
 			this.pokeEffect(id);
 			return;
 		}
+		const spriten = +this.isFrontSprite;
 		if (id === 'substitute') {
 			this.animSub(instant);
 		} else if (id === 'leechseed') {
@@ -2490,9 +2490,9 @@ class PokemonSprite extends Sprite {
 			const leechseed1 = new Sprite(BattleEffects.energyball, pos1, this.scene);
 			const leechseed2 = new Sprite(BattleEffects.energyball, pos2, this.scene);
 			const leechseed3 = new Sprite(BattleEffects.energyball, pos3, this.scene);
-			this.scene.$spritesFront[this.siden].append(leechseed1.$el!);
-			this.scene.$spritesFront[this.siden].append(leechseed2.$el!);
-			this.scene.$spritesFront[this.siden].append(leechseed3.$el!);
+			this.scene.$spritesFront[spriten].append(leechseed1.$el!);
+			this.scene.$spritesFront[spriten].append(leechseed2.$el!);
+			this.scene.$spritesFront[spriten].append(leechseed3.$el!);
 			this.effects['leechseed'] = [leechseed1, leechseed2, leechseed3];
 		} else if (id === 'protect' || id === 'magiccoat') {
 			const protect = new Sprite(BattleEffects.protect, {
@@ -2504,7 +2504,7 @@ class PokemonSprite extends Sprite {
 				yscale: 0,
 				opacity: .1,
 			}, this.scene);
-			this.scene.$spritesFront[this.siden].append(protect.$el!);
+			this.scene.$spritesFront[spriten].append(protect.$el!);
 			this.effects[id] = [protect];
 			protect.anim({
 				opacity: .9,
@@ -2531,7 +2531,7 @@ class PokemonSprite extends Sprite {
 	}
 
 	dogarsCheck(pokemon: Pokemon) {
-		if (pokemon.side.n === 1) return;
+		if (pokemon.side.isFar) return;
 
 		if (pokemon.speciesForme === 'Koffing' && pokemon.name.match(/dogars/i)) {
 			this.scene.setBgm(-1);
@@ -2544,8 +2544,8 @@ class PokemonSprite extends Sprite {
 	/////////////////////////////////////////////////////////////////////
 
 	getStatbarHTML(pokemon: Pokemon) {
-		let buf = '<div class="statbar' + (this.siden ? ' lstatbar' : ' rstatbar') + '" style="display: none">';
-		const ignoreNick = this.siden && (this.scene.battle.ignoreOpponent || this.scene.battle.ignoreNicks);
+		let buf = '<div class="statbar' + (this.isFrontSprite ? ' lstatbar' : ' rstatbar') + '" style="display: none">';
+		const ignoreNick = this.isFrontSprite && (this.scene.battle.ignoreOpponent || this.scene.battle.ignoreNicks);
 		buf += `<strong>${BattleLog.escapeHTML(ignoreNick ? pokemon.speciesForme : pokemon.name)}`;
 		const gender = pokemon.gender;
 		if (gender === 'M' || gender === 'F') {

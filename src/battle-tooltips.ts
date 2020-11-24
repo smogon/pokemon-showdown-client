@@ -272,7 +272,7 @@ class BattleTooltips {
 		case 'maxmove': { // move|MOVE|ACTIVEPOKEMON|[GMAXMOVE]
 			let move = this.battle.dex.getMove(args[1]);
 			let index = parseInt(args[2], 10);
-			let pokemon = this.battle.mySide.active[index];
+			let pokemon = this.battle.nearSide.active[index];
 			let serverPokemon = this.battle.myPokemon![index];
 			let gmaxMove = args[3] ? this.battle.dex.getMove(args[3]) : undefined;
 			if (!pokemon) return false;
@@ -305,7 +305,7 @@ class BattleTooltips {
 			// mouse over active pokemon
 			// pokemon definitely exists, serverPokemon maybe
 			let sideIndex = parseInt(args[1], 10);
-			let side = this.battle.sides[sideIndex];
+			let side = this.battle.sides[+this.battle.sidesSwitched ^ sideIndex];
 			let activeIndex = parseInt(args[2], 10);
 			let pokemon = side.active[activeIndex];
 			let serverPokemon = null;

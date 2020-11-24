@@ -156,7 +156,7 @@ interface SpriteData {
 	url?: string;
 	rawHTML?: string;
 	pixelated?: boolean;
-	isBackSprite?: boolean;
+	isFrontSprite?: boolean;
 	cryurl?: string;
 	shiny?: boolean;
 }
@@ -475,7 +475,7 @@ const Dex = new class implements ModdedDex {
 		el.src = path + 'data/pokedex-mini-bw.js' + qs;
 		document.getElementsByTagName('body')[0].appendChild(el);
 	}
-	getSpriteData(pokemon: Pokemon | Species | string, siden: number, options: {
+	getSpriteData(pokemon: Pokemon | Species | string, isFront: boolean, options: {
 		gen?: number,
 		shiny?: boolean,
 		gender?: GenderName,
@@ -507,18 +507,18 @@ const Dex = new class implements ModdedDex {
 			y: 0,
 			url: Dex.resourcePrefix + 'sprites/',
 			pixelated: true,
-			isBackSprite: false,
+			isFrontSprite: false,
 			cryurl: '',
 			shiny: options.shiny,
 		};
 		let name = species.spriteid;
 		let dir;
 		let facing;
-		if (siden) {
+		if (isFront) {
+			spriteData.isFrontSprite = true;
 			dir = '';
 			facing = 'front';
 		} else {
-			spriteData.isBackSprite = true;
 			dir = '-back';
 			facing = 'back';
 		}
@@ -631,7 +631,7 @@ const Dex = new class implements ModdedDex {
 		if (!options.noScale) {
 			if (graphicsGen > 4) {
 				// no scaling
-			} else if (!spriteData.isBackSprite) {
+			} else if (spriteData.isFrontSprite) {
 				spriteData.w *= 2;
 				spriteData.h *= 2;
 				spriteData.y += -16;
