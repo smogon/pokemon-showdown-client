@@ -161,8 +161,8 @@ var Bswitch = null;
 
 function turnCallback(battle)
 {
-	var A = battle.mySide.activePokemon;
-	var B = battle.yourSide.activePokemon;
+	var A = battle.nearSide.activePokemon;
+	var B = battle.farSide.activePokemon;
 	if (!A)
 	{
 		A = Aswitch?Aswitch[1]:{};
@@ -218,7 +218,7 @@ function switchCallback(battle, side)
 {
 	var switched = ['sw', side.lastPokemon];
 	if (!side.lastPokemon) return;
-	if (side.n === 0)
+	if (!side.isOpp)
 	{
 		if (Aswitch && Aswitch[0] === 'fnt') return;
 		Aswitch = switched;
@@ -233,13 +233,13 @@ function dragCallback(battle, side)
 {
 	var switched = ['dr', side.lastPokemon];
 	if (!side.lastPokemon) return;
-	if (side.n === 0) Aswitch = switched;
+	if (!side.isOpp) Aswitch = switched;
 	else Bswitch = switched;
 }
 function faintCallback(battle, side)
 {
 	var switched = ['fnt', side.lastPokemon];
-	if (side.n === 0) Aswitch = switched;
+	if (!side.isOpp) Aswitch = switched;
 	else Bswitch = switched;
 }
 function endCallback(battle)
@@ -268,10 +268,10 @@ function endCallback(battle)
 		teamcode += '[img]http://<?= $psconfig['routes']['client'] ?>/sprites/gen5/'+battle.mySide.pokemon[i].spriteid+'.png[/img]';
 	}
 	teamcode += '[/hide]'+"\n";
-	teamcode += '[hide="'+battle.yourSide.name+'\'s team"]';
-	for (var i=0; i<battle.yourSide.pokemon.length && i<6; i++)
+	teamcode += '[hide="'+battle.farSide.name+'\'s team"]';
+	for (var i=0; i<battle.farSide.pokemon.length && i<6; i++)
 	{
-		teamcode += '[img]http://<?= $psconfig['routes']['client'] ?>/sprites/gen5/'+battle.yourSide.pokemon[i].spriteid+'.png[/img]';
+		teamcode += '[img]http://<?= $psconfig['routes']['client'] ?>/sprites/gen5/'+battle.farSide.pokemon[i].spriteid+'.png[/img]';
 	}
 	teamcode += '[/hide]'+"\n\n";
 
