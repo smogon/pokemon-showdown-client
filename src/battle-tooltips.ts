@@ -835,7 +835,16 @@ class BattleTooltips {
 
 		let itemText = '';
 		if (serverPokemon) {
-			if (serverPokemon.item) itemText = '<small>Item:</small> ' + Dex.getItem(serverPokemon.item).name;
+			let item = '';
+			let itemEffect = '';
+			if (clientPokemon?.prevItem) {
+				item = 'None';
+				let prevItem = Dex.getItem(clientPokemon.prevItem).name;
+				itemEffect += clientPokemon.prevItemEffect ? prevItem + ' was ' + clientPokemon.prevItemEffect : 'was ' + prevItem;
+			}
+			if (serverPokemon.item) item = Dex.getItem(serverPokemon.item).name;
+			if (itemEffect) itemEffect = ' (' + itemEffect + ')';
+			if (item) itemText = '<small>Item:</small> ' + item + itemEffect;
 		} else if (clientPokemon) {
 			let item = '';
 			let itemEffect = clientPokemon.itemEffect || '';
