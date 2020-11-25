@@ -1269,6 +1269,8 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 			return abilityid === 'owntempo';
 		case 'phantomforce':
 			return (!moves.includes('poltergeist') && !moves.includes('shadowclaw')) || this.formatType === 'doubles';
+		case 'poisonfang':
+			return species.types.includes('Poison') && !moves.includes('gunkshot') && !moves.includes('poisonjab');
 		case 'relicsong':
 			return species.id === 'meloetta';
 		case 'refresh':
@@ -1285,6 +1287,8 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 			return species.types.includes('Ground');
 		case 'smartstrike':
 			return species.types.includes('Steel') && !moves.includes('ironhead');
+		case 'soak':
+			return abilityid === 'unaware';
 		case 'steelwing':
 			return !moves.includes('ironhead');
 		case 'stompingtantrum':
