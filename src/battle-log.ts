@@ -805,7 +805,16 @@ class BattleLog {
 				const color = this.usernameColor(toID(getAttrib('name')));
 				const style = getAttrib('style');
 				setAttrib('style', `${style};color:${color}`);
-			} else if (tagName === 'youtube') {
+			} else if (tagName === 'spotify') {
+				// <iframe src="https://open.spotify.com/embed/track/6aSYnCIwcLpnDXngGKAEzZ" width="300" height="380" frameborder="0" allowtransparency="true" allow="encrypted-media"></iframe>
+				const src = getAttrib('src');
+				const songId = /(?:\?v=|\/track\/)([A-Za-z0-9]+)/.exec(src)[1];
+						
+            return {
+				   tagName: 'iframe',
+					attribs: ['src', `https://open.spotify.com/embed/track/${songId}`,'width', '300', 'height', '380', 'frameborder', '0', 'allowtransparency', 'true', 'allow', 'encrypted-media'],
+				};
+		   } else if (tagName === 'youtube') {
 				// <iframe width="320" height="180" src="https://www.youtube.com/embed/dQw4w9WgXcQ" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
 				const src = getAttrib('src') || '';
