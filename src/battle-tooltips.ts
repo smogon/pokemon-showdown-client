@@ -319,7 +319,7 @@ class BattleTooltips {
 		case 'switchpokemon': { // switchpokemon|POKEMON
 			// mouse over switchable pokemon
 			// serverPokemon definitely exists, sidePokemon maybe
-			let side = this.battle.sides[0];
+			let side = this.battle.mySide;
 			let activeIndex = parseInt(args[1], 10);
 			let pokemon = null;
 			if (activeIndex < side.active.length) {
