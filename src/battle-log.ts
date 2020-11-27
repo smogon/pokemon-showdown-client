@@ -814,7 +814,7 @@ class BattleLog {
 					tagName: 'iframe',
 					attribs: ['src', `https://open.spotify.com/embed/track/${songId}`,'width', '300', 'height', '380', 'frameborder', '0', 'allowtransparency', 'true', 'allow', 'encrypted-media'],
 				};
-		   } else if (tagName === 'youtube') {
+			} else if (tagName === 'youtube') {
 				// <iframe width="320" height="180" src="https://www.youtube.com/embed/dQw4w9WgXcQ" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
 				const src = getAttrib('src') || '';
