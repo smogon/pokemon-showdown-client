@@ -699,6 +699,7 @@ class BattleScene {
 		return `<div class="trainer" id="${posStr}"><strong>${BattleLog.escapeHTML(side.name)}</strong><div class="trainersprite"${ratinghtml} style="background-image:url(${Dex.resolveAvatar(side.avatar)})"></div>${pokemonhtml}</div>`;
 	}
 	updateSidebar(side: Side) {
+		if (side.n > 1) side = side.ally;
 		const $sidebar = (side.isFar ? this.$rightbar : this.$leftbar);
 		let sidebarhtml = this.getSidebarHTML(side) + (side.ally ? this.getSidebarHTML(side.ally, true) : '');
 		if (side.name) {
