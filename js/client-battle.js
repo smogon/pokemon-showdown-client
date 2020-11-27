@@ -916,7 +916,7 @@
 							move = this.request.active[i].moves[parseInt(parts[1], 10) - 1].move;
 						}
 						var target = '';
-						buf += nearActive[i].speciesForme + ' will ';
+						buf += myActive[i].speciesForme + ' will ';
 						if (parts.length > 2) {
 							var targetPos = parts[2];
 							if (targetPos === 'mega') {
@@ -936,7 +936,7 @@
 								var targetActive = this.battle.farSide.active;
 								// Targeting your own side in doubles / triples
 								if (targetPos < 0) {
-									targetActive = nearActive;
+									targetActive = myActive;
 									targetPos = -targetPos;
 									target += 'your ';
 								}
@@ -951,13 +951,13 @@
 						break;
 					case 'switch':
 						buf += '' + this.battle.myPokemon[parts[1] - 1].speciesForme + ' will switch in';
-						if (nearActive[i]) {
-							buf += ', replacing ' + nearActive[i].speciesForme;
+						if (myActive[i]) {
+							buf += ', replacing ' + myActive[i].speciesForme;
 						}
 						buf += '.<br />';
 						break;
 					case 'shift':
-						buf += nearActive[i].speciesForme + ' will shift position.<br />';
+						buf += myActive[i].speciesForme + ' will shift position.<br />';
 						break;
 					}
 				}
