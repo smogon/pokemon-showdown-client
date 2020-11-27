@@ -1122,7 +1122,7 @@ class Move implements Effect {
 	readonly recoil: number[] | null;
 	readonly heal: number[] | null;
 	readonly multihit: number[] | number | null;
-	readonly hasCustomRecoil: boolean;
+	readonly hasCrashDamage: boolean;
 	readonly noPPBoosts: boolean;
 	readonly secondaries: ReadonlyArray<any> | null;
 	readonly num: number;
@@ -1155,7 +1155,7 @@ class Move implements Effect {
 		this.recoil = data.recoil || null;
 		this.heal = data.heal || null;
 		this.multihit = data.multihit || null;
-		this.hasCustomRecoil = data.hasCustomRecoil || false;
+		this.hasCrashDamage = data.hasCrashDamage || false;
 		this.noPPBoosts = data.noPPBoosts || false;
 		this.secondaries = data.secondaries || (data.secondary ? [data.secondary] : null);
 

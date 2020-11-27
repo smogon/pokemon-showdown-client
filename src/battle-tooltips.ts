@@ -736,7 +736,7 @@ class BattleTooltips {
 			if (move.flags.bite && ability === 'strongjaw') {
 				text += `<p class="movetag">&#x2713; Bite <small>(boosted by Strong Jaw)</small></p>`;
 			}
-			if ((move.recoil || move.hasCustomRecoil) && ability === 'reckless') {
+			if ((move.recoil || move.hasCrashDamage) && ability === 'reckless') {
 				text += `<p class="movetag">&#x2713; Recoil <small>(boosted by Reckless)</small></p>`;
 			}
 			if (move.flags.bullet) {
@@ -1682,7 +1682,7 @@ class BattleTooltips {
 		if (move.flags['punch']) {
 			value.abilityModify(1.2, 'Iron Fist');
 		}
-		if (move.recoil || move.hasCustomRecoil) {
+		if (move.recoil || move.hasCrashDamage) {
 			value.abilityModify(1.2, 'Reckless');
 		}
 
