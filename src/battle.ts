@@ -600,10 +600,10 @@ class Side {
 	/** [effectName, levels, minDuration, maxDuration] */
 	sideConditions: {[id: string]: [string, number, number, number]} = {};
 
-	constructor(battle: Battle, n: number, sideid: string, isOpp?: boolean) {
+	constructor(battle: Battle, n: number, isOpp?: boolean) {
 		this.battle = battle;
 		this.n = n;
-		this.sideid = sideid;
+		this.sideid = ['p1', 'p2', 'p3', 'p4'][n];
 		this.isFar = isOpp || !!(n % 2);
 		this.updateSprites();
 	}
@@ -1069,7 +1069,6 @@ class Battle {
 	p3?: Side = null!;
 	p4?: Side = null!;
 	me: Side = null!;
-	myPokemon: ServerPokemon[] | null = null;
 	pokemonControlled = 0;
 	sides: Side[] = null!;
 	lastMove = '';
@@ -1145,16 +1144,16 @@ class Battle {
 		return false;
 	}
 	init() {
-		this.p1 = new Side(this, 0, 'p1');
-		this.p2 = new Side(this, 1, 'p2');
+		this.p1 = new Side(this, 0);
+		this.p2 = new Side(this, 1);
 		this.sides = [this.p1, this.p2];
 		this.p2.foe = this.p1;
 		this.p1.foe = this.p2;
 		this.nearSide = this.mySide = this.p1;
 		this.farSide = this.p2;
 		if (this.id.includes('multi')) {
-			this.p3 = new Side(this, 0, 'p3');
-			this.p4 = new Side(this, 1, 'p4');
+			this.p3 = new Side(this, 2);
+			this.p4 = new Side(this, 3);
 			this.sides.push(this.p3, this.p4);
 		}
 		this.gen = 7;
@@ -1174,7 +1173,8 @@ class Battle {
 		for (const side of this.sides) {
 			if (side) side.reset();
 		}
-		this.myPokemon = null;
+		this.mySide.myPokemon = null;
+		if (this.mySide.ally) this.mySide.ally.myPokemon = null;
 		this.setAttrs();
 
 		// DOM state
@@ -1225,8 +1225,8 @@ class Battle {
 			this.p2.ally = this.p4;
 			this.p4.foe = this.p1;
 			this.sides.push(this.p3, this.p4);
-			this.mySide.n = this.mySide.ally.n = 0;
-			this.yourSide.n = this.yourSide.ally.n = 1;
+			this.mySide.isFar = this.mySide.ally.isFar = false;
+			this.farSide.isFar = this.farSide.ally.isFar = true;
 		}
 	}
 
@@ -1263,9 +1263,9 @@ class Battle {
 			this.farSide = this.p2;
 		}
 		this.nearSide.isFar = false;
-    if (this.nearSide.ally) this.nearSide.ally.isFar = false;
+		if (this.nearSide.ally) this.nearSide.ally.isFar = false;
 		this.farSide.isFar = true;
-    if (this.farSide.ally) this.farSide.ally.isFar = true;
+		if (this.farSide.ally) this.farSide.ally.isFar = true;
 
 		// nothing else should need updating - don't call this function after sending out pokemon
 	}
@@ -3158,20 +3158,6 @@ class Battle {
 		case 'turn': {
 			this.setTurn(args[1]);
 			this.log(args);
-			if (this.gameType === 'multi') {
-				const mySideSlot = this.mySide.sideid === 'p1' || this.mySide.sideid === 'p2' ? 0 : 1;
-				let myActives = [];
-				myActives[mySideSlot] = this.mySide.active[mySideSlot];
-				myActives[mySideSlot ^ 1] = this.mySide.ally.active[mySideSlot ^ 1];
-				this.mySide.active = myActives;
-				this.mySide.ally.active = this.mySide.active;
-				const yourSideSlot = this.yourSide.sideid === 'p1' || this.yourSide.sideid === 'p2' ? 0 : 1;
-				let yourActives = [];
-				yourActives[yourSideSlot] = this.yourSide.active[yourSideSlot];
-				yourActives[yourSideSlot ^ 1] = this.yourSide.ally.active[yourSideSlot ^ 1];
-				this.yourSide.active = yourActives;
-				this.yourSide.ally.active = this.yourSide.active;
-			}
 			break;
 		}
 		case 'tier': {
@@ -3195,7 +3181,11 @@ class Battle {
 				break;
 			case 'multi':
 				this.pokemonControlled = 1;
-				/* falls through */
+				this.nearSide.active = [null, null];
+				this.farSide.active = [null, null];
+				this.nearSide.ally.active = this.nearSide.active;
+				this.farSide.ally.active = this.farSide.active;
+				break;
 			case 'doubles':
 				this.nearSide.active = [null, null];
 				this.farSide.active = [null, null];

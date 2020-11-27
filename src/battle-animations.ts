@@ -709,8 +709,8 @@ class BattleScene {
 		}
 	}
 	updateSidebars() {
-		this.$leftbar.html(this.getSidebarHTML(this.battle.mySide) + (this.battle.mySide.ally ? this.getSidebarHTML(this.battle.mySide.ally, true) : ''));
-		this.$rightbar.html(this.getSidebarHTML(this.battle.yourSide) + (this.battle.yourSide.ally ? this.getSidebarHTML(this.battle.yourSide.ally, true) : ''));
+		this.$leftbar.html(this.getSidebarHTML(this.battle.nearSide) + (this.battle.nearSide.ally ? this.getSidebarHTML(this.battle.nearSide.ally, true) : ''));
+		this.$rightbar.html(this.getSidebarHTML(this.battle.farSide) + (this.battle.farSide.ally ? this.getSidebarHTML(this.battle.farSide.ally, true) : ''));
 	}
 	updateStatbars() {
 		for (const side of this.battle.sides) {
@@ -729,6 +729,7 @@ class BattleScene {
 	teamPreview() {
 		let newBGNum = 0;
 		for (let siden = 0; siden < 2 || (this.battle.gameType === 'multi' && siden < 4); siden++) {
+			let side = this.battle.sides[siden];
 			const spriteIndex = +this.battle.sidesSwitched ^ (siden % 2);
 			let textBuf = '';
 			let buf = '';
