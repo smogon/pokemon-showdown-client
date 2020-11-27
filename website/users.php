@@ -84,10 +84,14 @@ $formats = array(
 	'gen1ou' => '[Gen 1] OU',
 );
 
-if (@$_REQUEST['user']) {
-	$userid = $users->userid(@$_REQUEST['user']);
+if (isset($_REQUEST['user']) && strlen($_REQUEST['user'])) {
+	$userid = $users->userid($_REQUEST['user']);
+	// 0 is falsy
+	// I'm hardcoding here to fix a crash, but the rest of the system
+	// should continue to reject 0 as a valid userid
+	if ($_REQUEST['user'] === '0') $userid = '0';
 
-	if (!$userid) {
+	if (!strlen($userid)) {
 		header('HTTP/1.1 404 Not Found');
 		die("Invalid userid");
 	}
@@ -113,7 +117,7 @@ if (@$_REQUEST['user']) {
 }
 
 if ($authLevel >= 3) {
-	file_put_contents(__DIR__ . '/../config/altaccesslog.txt', "{$curuser['username']} - $userid\n", FILE_APPEND);
+	//file_put_contents(__DIR__ . '/../config/altaccesslog.txt', "{$curuser['username']} - $userid\n", FILE_APPEND);
 }
 
 if (isset($_REQUEST['json'])) {

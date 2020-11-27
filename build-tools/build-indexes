@@ -284,23 +284,29 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 	const BattleTeambuilderTable = {};
 
 	let buf = '// DO NOT EDIT - automatically built with build-tools/build-indexes\n\n';
+	const GENS = [8, 7, 6, 5, 4, 3, 2, 1];
+	const DOUBLES = GENS.filter(x => x > 2).map(num => -num);
+	const NFE = GENS.map(num => num + 0.3);
+	const OTHER = [8.4, 8.2, 8.1, -8.4, 7.1, -7.5];
 
 	// process.stdout.write("\n  ");
-	for (const genIdent of [8.3, 8.2, 8.1, 8, -8, 7.3, 7.1, 7, -7.5, -7, 6.3, 6, -6, 5.3, 5, -5, 5.3, 4, -4, 3.3, 3, 2.3, 2, 1.3, 1]) {
+	for (const genIdent of [...GENS, ...DOUBLES, ...NFE, ...OTHER]) {
 		const isLetsGo = (genIdent === 7.1);
 		const isMetBattle = (genIdent === 8.2);
 		const isNFE = (('' + genIdent).endsWith('.3'));
+		const isDLC1 = (genIdent === 8.4 || genIdent === -8.4);
 		const isNatDex = (genIdent === 8.1);
 		const isDoubles = (genIdent < 0);
 		const isVGC = (genIdent === -7.5);
 		const genNum = Math.floor(isDoubles ? -genIdent : genIdent);
-		const gen = isLetsGo ? 'letsgo' : 'gen' + genNum;
+		const gen = isLetsGo ? 'letsgo' : 'gen' + genNum + (isDLC1 ? 'dlc1' : '');
 		// process.stdout.write("" + gen + (isDoubles ? " doubles" : "") + "... ");
 		const pokemon = Object.keys(Dex.data.Pokedex);
 		pokemon.sort();
 		const tierTable = {};
 		const overrideTier = {};
 		const zuBans = {};
+		const nonstandardMoves = [];
 		for (const id of pokemon) {
 			const species = Dex.mod(gen).getSpecies(id);
 			if (species.gen > genNum) continue;
@@ -426,15 +432,6 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			} else if (gen === 'gen4' && id in {clamperl:1, diglett:1, gligar:1, hippopotas:1, snover:1, wynaut:1} && tier !== 'LC') {
 				if (!tierTable['LC']) tierTable['LC'] = [];
 				tierTable['LC'].push(id);
-			} else if (gen === 'gen2' && ['hitmonchan', 'seadra', 'furret', 'venomoth', 'elekid', 'seaking', 'noctowl', 'poliwhirl', 'murkrow',
-				'gastly', 'aipom', 'tangela', 'grimer', 'mantine', 'ariados', 'machoke', 'flaaffy', 'voltorb', 'clefairy', 'delibird',
-				'sunflora', 'rhyhorn', 'staryu', 'abra', 'wobbuffet', 'golbat', 'hitmontop', 'ivysaur', 'slowpoke', 'cubone', 'beedrill',
-				'geodude', 'weepinbell', 'ponyta', 'corsola', 'parasect', 'drowzee', 'doduo', 'eevee', 'krabby', 'onix', 'quilava', 'omanyte',
-				'magcargo', 'nidorino', 'nidorina', 'diglett', 'ledyba', 'bayleef', 'wartortle', 'croconaw', 'togetic', 'butterfree', 'magby',
-				'charmeleon', 'growlithe', 'pidgeotto', 'skiploom', 'tentacool', 'poliwag', 'teddiursa', 'phanpy', 'snubbull', 'ditto',
-				'mankey', 'larvitar', 'sandshrew', 'smoochum', 'koffing', 'natu', 'swinub', 'wooper', 'unown', 'yanma'].includes(id)) {
-				if (!tierTable['PU']) tierTable['PU'] = [];
-				tierTable['PU'].push(id);
 			}
 
 			if (genNum >= 7) {
@@ -444,6 +441,12 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 				}
 			}
 		}
+
+		nonstandardMoves.push(...Object.keys(Dex.data.Moves).filter(id => {
+			const move = Dex.mod('gen8dlc1').getMove(id);
+			const bMove = Dex.mod('gen8').getMove(id);
+			return bMove.isNonstandard !== move.isNonstandard;
+		}));
 
 		const tiers = [];
 		const items = [];
@@ -491,8 +494,12 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			BattleTeambuilderTable[gen].tiers = tiers;
 			BattleTeambuilderTable[gen].items = items;
 			BattleTeambuilderTable[gen].formatSlices = formatSlices;
-			if (gen === 'gen7') {
+			if (genNum >= 7) {
 				BattleTeambuilderTable[gen].zuBans = zuBans;
+			}
+			if (isDLC1) {
+				BattleTeambuilderTable[gen].nonstandardMoves = nonstandardMoves;
+				BattleTeambuilderTable[gen].learnsets = {};
 			}
 		}
 
@@ -587,8 +594,8 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 				}
 			}
 			if (isMetBattle) {
-				const banlist = Dex.getFormat('gen8metronomebattle').banlist;
-				if (banlist.includes(item.name)) continue;
+				const banlist = Dex.getRuleTable(Dex.getFormat('gen8metronomebattle'));
+				if (banlist.isBanned('item:' + item.id)) continue;
 			}
 			switch (id) {
 			case 'leftovers':
@@ -794,7 +801,8 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 		for (const moveid in learnset) {
 			const gens = learnset[moveid].map(x => Number(x[0]));
 			const minGen = Math.min(...gens);
-			const vcOnly = minGen === 7 && learnset[moveid].every(x => x[0] !== '7' || x === '7V');
+			const vcOnly = (minGen === 7 && learnset[moveid].every(x => x[0] !== '7' || x === '7V') ||
+				minGen === 8 && learnset[moveid].every(x => x[0] !== '8' || x === '8V'));
 
 			if (minGen <= 4 && (gen3HMs.has(moveid) || gen4HMs.has(moveid))) {
 				let legalGens = '';
@@ -823,7 +831,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 
 			if (gens.indexOf(6) >= 0) learnsets[id][moveid] += 'p';
 			if (gens.indexOf(7) >= 0 && !vcOnly) learnsets[id][moveid] += 'q';
-			if (gens.indexOf(8) >= 0) learnsets[id][moveid] += 'g';
+			if (gens.indexOf(8) >= 0 && !vcOnly) learnsets[id][moveid] += 'g';
 		}
 	}
 	const G2Learnsets = Dex.mod('gen2').data.Learnsets;
@@ -851,6 +859,47 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 		BattleTeambuilderTable['letsgo'].learnsets[id] = {};
 		for (const moveid in learnset) {
 			BattleTeambuilderTable['letsgo'].learnsets[id][moveid] = '7';
+		}
+	}
+	const DLC1Learnsets = Dex.mod('gen8dlc1').data.Learnsets;
+	for (const id in DLC1Learnsets) {
+		const learnset = DLC1Learnsets[id].learnset;
+		if (!learnset) continue;
+		BattleTeambuilderTable['gen8dlc1'].learnsets[id] = {};
+		for (const moveid in learnset) {
+			const gens = learnset[moveid].map(x => Number(x[0]));
+			const minGen = Math.min(...gens);
+			const vcOnly = (minGen === 7 && learnset[moveid].every(x => x[0] !== '7' || x === '7V') ||
+				minGen === 8 && learnset[moveid].every(x => x[0] !== '8' || x === '8V'));
+
+			if (minGen <= 4 && (gen3HMs.has(moveid) || gen4HMs.has(moveid))) {
+				let legalGens = '';
+				let available = false;
+
+				if (minGen === 3) {
+					legalGens += '3';
+					available = true;
+				}
+				if (available) available = !gen3HMs.has(moveid);
+
+				if (available || gens.includes(4)) {
+					legalGens += '4';
+					available = true;
+				}
+				if (available) available = !gen4HMs.has(moveid);
+
+				let minUpperGen = available ? 5 : Math.min(
+					...gens.filter(gen => gen > 4)
+				);
+				legalGens += '012345678'.slice(minUpperGen);
+				BattleTeambuilderTable['gen8dlc1'].learnsets[id][moveid] = legalGens;
+			} else {
+				BattleTeambuilderTable['gen8dlc1'].learnsets[id][moveid] = '012345678'.slice(minGen);
+			}
+
+			if (gens.indexOf(6) >= 0) BattleTeambuilderTable['gen8dlc1'].learnsets[id][moveid] += 'p';
+			if (gens.indexOf(7) >= 0 && !vcOnly) BattleTeambuilderTable['gen8dlc1'].learnsets[id][moveid] += 'q';
+			if (gens.indexOf(8) >= 0 && !vcOnly) BattleTeambuilderTable['gen8dlc1'].learnsets[id][moveid] += 'g';
 		}
 	}
 
@@ -1107,11 +1156,16 @@ process.stdout.write("Building `data/moves,items,abilities,typechart,learnsets.j
 
 	function assignData(id, entry) {
 		for (const key in entry) {
-			if (key === 'name' || key.startsWith('desc') || key.startsWith('shortDesc')) {
-				continue;
-			}
+			if (['name', 'desc', 'shortDesc'].includes(key)) continue;
 			const textEntry = Text[id] || (Text[id] = {});
-			textEntry[key] = entry[key];
+			if (key.startsWith('gen')) {
+				for (const modKey in entry[key]) {
+					if (['desc', 'shortDesc'].includes(key)) continue;
+					textEntry[modKey + 'Gen' + key.charAt(3)] = entry[key][modKey];
+				}
+			} else {
+				textEntry[key] = entry[key];
+			}
 		}
 	}
 

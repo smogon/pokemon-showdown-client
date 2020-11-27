@@ -636,11 +636,17 @@ Storage.unpackAllTeams = function (buffer) {
 		// old format
 		return JSON.parse(buffer).map(function (oldTeam) {
 			var format = oldTeam.format || 'gen8';
+			var capacity = 6;
 			if (format && format.slice(0, 3) !== 'gen') format = 'gen6' + format;
+			if (format && format.endsWith('-box')) {
+				format = format.slice(0, -4);
+				capacity = 24;
+			}
 			return {
 				name: oldTeam.name || '',
 				format: format,
 				team: Storage.packTeam(oldTeam.team),
+				capacity: capacity,
 				folder: '',
 				iconCache: ''
 			};
@@ -655,14 +661,16 @@ Storage.unpackLine = function (line) {
 	if (pipeIndex < 0) return null;
 	var bracketIndex = line.indexOf(']');
 	if (bracketIndex > pipeIndex) bracketIndex = -1;
+	var isBox = line.slice(0, bracketIndex).endsWith('-box');
 	var slashIndex = line.lastIndexOf('/', pipeIndex);
 	if (slashIndex < 0) slashIndex = bracketIndex; // line.slice(slashIndex + 1, pipeIndex) will be ''
-	var format = bracketIndex > 0 ? line.slice(0, bracketIndex) : 'gen8';
+	var format = bracketIndex > 0 ? line.slice(0, isBox ? bracketIndex - 4 : bracketIndex) : 'gen8';
 	if (format && format.slice(0, 3) !== 'gen') format = 'gen6' + format;
 	return {
 		name: line.slice(slashIndex + 1, pipeIndex),
 		format: format,
 		team: line.slice(pipeIndex + 1),
+		capacity: isBox ? 24 : 6,
 		folder: line.slice(bracketIndex + 1, slashIndex > 0 ? slashIndex : bracketIndex + 1),
 		iconCache: ''
 	};
@@ -670,7 +678,7 @@ Storage.unpackLine = function (line) {
 
 Storage.packAllTeams = function (teams) {
 	return teams.map(function (team) {
-		return (team.format ? '' + team.format + ']' : '') + (team.folder ? '' + team.folder + '/' : '') + team.name + '|' + Storage.getPackedTeam(team);
+		return (team.format ? '' + team.format + (team.capacity === 24 ? '-box]' : ']') : '') + (team.folder ? '' + team.folder + '/' : '') + team.name + '|' + Storage.getPackedTeam(team);
 	}).join('\n');
 };
 
@@ -1092,10 +1100,15 @@ Storage.importTeam = function (buffer, teams) {
 			team = [];
 			line = $.trim(line.substr(3, line.length - 6));
 			var format = 'gen8';
+			var capacity = 6;
 			var bracketIndex = line.indexOf(']');
 			if (bracketIndex >= 0) {
 				format = line.substr(1, bracketIndex - 1);
 				if (format && format.slice(0, 3) !== 'gen') format = 'gen6' + format;
+				if (format && format.endsWith('-box')) {
+					format = format.slice(0, -4);
+					capacity = 24;
+				}
 				line = $.trim(line.substr(bracketIndex + 1));
 			}
 			if (teams.length && typeof teams[teams.length - 1].team !== 'string') {
@@ -1111,6 +1124,7 @@ Storage.importTeam = function (buffer, teams) {
 				name: line,
 				format: format,
 				team: team,
+				capacity: capacity,
 				folder: folder,
 				iconCache: ''
 			});
@@ -1229,7 +1243,7 @@ Storage.exportAllTeams = function () {
 	var buf = '';
 	for (var i = 0, len = Storage.teams.length; i < len; i++) {
 		var team = Storage.teams[i];
-		buf += '=== ' + (team.format ? '[' + team.format + '] ' : '') + (team.folder ? '' + team.folder + '/' : '') + team.name + ' ===\n\n';
+		buf += '=== ' + (team.format ? '[' + team.format + (team.capacity === 24 ? '-box] ' : '] ') : '') + (team.folder ? '' + team.folder + '/' : '') + team.name + ' ===\n\n';
 		buf += Storage.exportTeam(team.team);
 		buf += '\n';
 	}
@@ -1240,7 +1254,7 @@ Storage.exportFolder = function (folder) {
 	for (var i = 0, len = Storage.teams.length; i < len; i++) {
 		var team = Storage.teams[i];
 		if (team.folder + "/" === folder || team.format === folder) {
-			buf += '=== ' + (team.format ? '[' + team.format + '] ' : '') + (team.folder ? '' + team.folder + '/' : '') + team.name + ' ===\n\n';
+			buf += '=== ' + (team.format ? '[' + team.format + (team.capacity === 24 ? '-box] ' : '] ') : '') + (team.folder ? '' + team.folder + '/' : '') + team.name + ' ===\n\n';
 			buf += Storage.exportTeam(team.team);
 			buf += '\n';
 		}

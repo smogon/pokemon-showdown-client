@@ -53,7 +53,7 @@ includeHeader();
 				<li><p>[<strong>Ridaz</strong>] <small>&ndash; Art (battle animations)</small></p></li>
 				<li><p><strong>Robin Vandenbrande</strong> [Quinella] <small>&ndash; Development</small></p></li>
 				<li><p><strong>Tobias Mann</strong> [asgdf] <small>&ndash; Development</small></p></li>
-				<li><p><strong>William</strong> [MacChaeger] <small>&ndash; Development</small></p></li>
+				<li><p>[<strong>MacChaeger</strong>] <small>&ndash; Development</small></p></li>
 			</ul>
 
 			<h2><span>Contributors</span></h2>
@@ -76,7 +76,7 @@ includeHeader();
 				<li><p><strong>Parth Mane</strong> [PartMan] <small>&ndash; Development</small></p></li>
 				<li><p>[<strong>Plague von Karma</strong>] <small>&ndash; Development, Research</small></p></li>
 				<li><p><strong>Russell Jones</strong> [SadisticMystic] <small>&ndash; Research (game mechanics)</small></p></li>
-				<li><p><strong>Spandan Punwatkar</strong> [Spandan] <small>&ndash; Development</small></p></li>
+				<li><p><a href="https://spandamn.github.io/" target="_blank" class="subtle"><strong>Spandan Punwatkar</strong> [Spandan]</a> <small>&ndash; Development</small></p></li>
 				<li><p><strong>Waleed Hassan</strong> [jetou] <small>&ndash; Development</small></p></li>
 			</ul>
 

@@ -104,6 +104,12 @@
 				}
 				app.roomsFirstOpen = 2;
 			}
+			if ('nw' in window && !nw.process.version.startsWith('v13.')) {
+				app.addPopupMessage(
+					"Your version of the app is out of date.\n" +
+					"Please go to pokemonshowdown.com to update it."
+				);
+			}
 		},
 
 		addPseudoPM: function (options) {
@@ -691,7 +697,7 @@
 			var self = this;
 			this.$('.pm-window').each(function (i, el) {
 				var $pmWindow = $(el);
-				var userid = $pmWindow.data('userid');
+				var userid = el.getAttribute('data-userid');
 				var name = $pmWindow.data('name');
 				if (data.challengesFrom[userid]) {
 					var format = data.challengesFrom[userid];
@@ -937,7 +943,7 @@
 				}
 				if (this.curTeamFormat !== teamFormat) {
 					for (var i = 0; i < teams.length; i++) {
-						if (teams[i].format === teamFormat) {
+						if (teams[i].format === teamFormat && teams[i].capacity === 6) {
 							teamIndex = i;
 							break;
 						}
@@ -1135,6 +1141,7 @@
 				}
 				var formatName = BattleLog.escapeFormat(format.id);
 				if (formatName.charAt(0) !== '[') formatName = '[Gen 6] ' + formatName;
+				formatName = formatName.replace('[Gen 8 ', '[');
 				formatName = formatName.replace('[Gen 8] ', '');
 				formatName = formatName.replace('[Gen 7 ', '[');
 				bufs[curBuf] += '<li><button name="selectFormat" value="' + i + '"' + (curFormat === i ? ' class="sel"' : '') + '>' + formatName + '</button></li>';

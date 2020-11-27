@@ -355,13 +355,14 @@
 				}
 			}
 
-			var newButtonText = "New Team";
-			if (filterFolder) newButtonText = "New Team in folder";
+			var newTeamButtonText = "New Team";
+			if (filterFolder) newTeamButtonText = "New Team in folder";
 			if (filterFormat && filterFormat !== 'gen8') {
-				newButtonText = "New " + BattleLog.escapeFormat(filterFormat) + " Team";
+				newTeamButtonText = "New " + BattleLog.escapeFormat(filterFormat) + " Team";
 			}
-			buf += '<p><button name="newTop" class="button big"><i class="fa fa-plus-circle"></i> ' + newButtonText + '</button> ' +
-					 '<input type="text" id="teamSearchBar" name="search" class="textbox searchinput" value="' + this.curSearchVal + '" placeholder="search teams"/></p>';
+			buf += '<p><button name="newTop" value="team" class="button big"><i class="fa fa-plus-circle"></i> ' + newTeamButtonText + '</button> ' +
+				'<button name="newTop" value="box" class="button big"><i class="fa fa-archive"></i> New Box</button> ' +
+				'<input type="text" id="teamSearchBar" name="search" class="textbox searchinput" value="' + this.curSearchVal + '" placeholder="search teams"/></p>';
 
 			buf += '<ul class="teamlist">';
 			var atLeastOne = false;
@@ -429,11 +430,13 @@
 					}
 					if (team.folder) formatText += team.folder + '/';
 
-					// teams are <div>s rather than <button>s because Firefox doesn't
+					// teams and boxes are <div>s rather than <button>s because Firefox doesn't
 					// support dragging and dropping buttons.
-					buf += '<li><div name="edit" data-value="' + i + '" class="team" draggable="true">' + formatText + '<strong>' + BattleLog.escapeHTML(team.name) + '</strong><br /><small>';
+					buf += '<li><div name="edit" data-value="' + i + '" class="team';
+					if (team.capacity === 24) buf += ' pc-box';
+					buf += '" draggable="true">' + formatText + '<strong>' + BattleLog.escapeHTML(team.name) + '</strong><br /><small>';
 					buf += Storage.getTeamIcons(team);
-					buf += '</small></div><button name="edit" value="' + i + '"><i class="fa fa-pencil" aria-label="Edit" title="Edit (you can also just click on the team)"></i></button><button name="newTop" value="' + i + '" title="Duplicate" aria-label="Duplicate"><i class="fa fa-clone"></i></button><button name="delete" value="' + i + '"><i class="fa fa-trash"></i> Delete</button></li>';
+					buf += '</small></div><button name="edit" value="' + i + '"><i class="fa fa-pencil" aria-label="Edit" title="Edit (you can also just click on the team)"></i></button><button name="duplicate" value="' + i + '" title="Duplicate" aria-label="Duplicate"><i class="fa fa-clone"></i></button><button name="delete" value="' + i + '"><i class="fa fa-trash"></i> Delete</button></li>';
 
 				}
 				if (!atLeastOne) {
@@ -447,7 +450,7 @@
 
 			buf += '</ul>';
 			if (atLeastOne) {
-				buf += '<p><button name="new" class="button"><i class="fa fa-plus-circle"></i> ' + newButtonText + '</button></p>';
+				buf += '<p><button name="new" value="team" class="button"><i class="fa fa-plus-circle"></i> ' + newTeamButtonText + '</button> <button name="new" value="box" class="button"><i class="fa fa-archive"></i> New Box</button></p>';
 			}
 
 			if (window.nodewebkit) {
@@ -730,13 +733,24 @@
 			}
 			this.back();
 		},
-		"new": function (atTop) {
-			var newTeam = this.createTeam();
+		"new": function (type) {
+			var newTeam = this.createTeam(null, type === "box");
 
 			teams.push(newTeam);
 			this.edit(teams.length - 1);
 		},
-		newTop: function (i) {
+		newTop: function (type) {
+			var newTeam = this.createTeam(null, type === "box");
+			teams.unshift(newTeam);
+			for (var room in app.rooms) {
+				var selection = app.rooms[room].$('button.teamselect').val();
+				if (!selection || selection === 'random') continue;
+				var obj = app.rooms[room].id === "" ? app.rooms[room] : app.rooms[room].tournamentBox;
+				obj.curTeamIndex++;
+			}
+			this.edit(0);
+		},
+		duplicate: function (i) {
 			var newTeam = this.createTeam(i ? teams[i] : null);
 			teams.unshift(newTeam);
 			for (var room in app.rooms) {
@@ -747,13 +761,14 @@
 			}
 			this.edit(0);
 		},
-		createTeam: function (orig) {
+		createTeam: function (orig, isBox) {
 			var newTeam;
 			if (orig) {
 				newTeam = {
 					name: 'Copy of ' + orig.name,
 					format: orig.format,
 					team: orig.team,
+					capacity: orig.capacity,
 					folder: orig.folder,
 					iconCache: ''
 				};
@@ -765,9 +780,10 @@
 					format = 'gen8';
 				}
 				newTeam = {
-					name: 'Untitled ' + (teams.length + 1),
+					name: (isBox ? 'Box ' : 'Untitled ') + (teams.length + 1),
 					format: format,
 					team: '',
+					capacity: isBox ? 24 : 6,
 					folder: folder,
 					iconCache: ''
 				};
@@ -812,10 +828,10 @@
 		//   https://code.google.com/p/chromium/issues/detail?id=410328
 		// we can't use CSS :hover
 		mouseOverTeam: function (e) {
-			e.currentTarget.className = 'team team-hover';
+			if (!e.currentTarget.className.endsWith('team-hover')) e.currentTarget.className += ' team-hover';
 		},
 		mouseOutTeam: function (e) {
-			e.currentTarget.className = 'team';
+			if (e.currentTarget.className.endsWith('team-hover')) e.currentTarget.className = e.currentTarget.className.slice(0, -11);
 		},
 		dragStartTeam: function (e) {
 			var dataTransfer = e.originalEvent.dataTransfer;
@@ -1039,15 +1055,21 @@
 					}
 					var format = '';
 					var bracketIndex = name.indexOf(']');
+					var capacity = 6;
 					if (bracketIndex >= 0) {
 						format = name.substr(1, bracketIndex - 1);
 						if (format && format.slice(0, 3) !== 'gen') format = 'gen6' + format;
+						if (format && format.endsWith('-box')) {
+							format = format.slice(0, -4);
+							capacity = 24;
+						}
 						name = $.trim(name.substr(bracketIndex + 1));
 					}
 					Storage.teams.push({
 						name: name,
 						format: format,
 						team: team,
+						capacity: capacity,
 						folder: '',
 						iconCache: ''
 					});
@@ -1097,7 +1119,7 @@
 					buf += '<li><em>you have no pokemon lol</em></li>';
 				}
 				for (i = 0; i < this.curSetList.length; i++) {
-					if (this.curSetList.length < 6 && this.deletedSet && i === this.deletedSetLoc) {
+					if (this.curSetList.length < this.curTeam.capacity && this.deletedSet && i === this.deletedSetLoc) {
 						buf += '<li><button name="undeleteSet"><i class="fa fa-undo"></i> Undo Delete</button></li>';
 					}
 					buf += this.renderSet(this.curSetList[i], i);
@@ -1108,7 +1130,7 @@
 				if (i === 0) {
 					buf += '<li><button name="import" class="button big"><i class="fa fa-upload"></i> Import from text or URL</button></li>';
 				}
-				if (i < 6) {
+				if (i < this.curTeam.capacity) {
 					buf += '<li><button name="addPokemon" class="button big"><i class="fa fa-plus"></i> Add Pok&eacute;mon</button></li>';
 				}
 				buf += '</ol>';
@@ -1312,7 +1334,7 @@
 		pastePokemon: function (i, btn) {
 			if (!this.curTeam) return;
 			var team = this.curSetList;
-			if (team.length >= 6) return;
+			if (team.length >= this.curTeam.capacity) return;
 			if (!this.clipboardCount()) return;
 
 			if (team.push($.extend(true, {}, this.clipboard[0])) >= 6) {
@@ -1396,7 +1418,7 @@
 			buf += '<div class="teambuilder-clipboard-title">Clipboard:</div>';
 			buf += '<div class="teambuilder-clipboard-data" tabindex="-1">' + this.clipboardInnerHTML() + '</div>';
 			buf += '<div class="teambuilder-clipboard-buttons">';
-			if (this.curTeam && this.curSetList.length < 6) {
+			if (this.curTeam && this.curSetList.length < this.curTeam.capacity) {
 				buf += '<button name="pastePokemon" class="teambuilder-clipboard-button-left"><i class="fa fa-clipboard"></i> Paste!</button>';
 			}
 			buf += '<button name="clipboardRemoveAll" class="teambuilder-clipboard-button-right"><i class="fa fa-trash"></i> Clear clipboard</button>';
@@ -1695,7 +1717,17 @@
 			if (this.curSetList.length && !this.curSetList[this.curSetList.length - 1].species && this.curSetLoc !== this.curSetList.length - 1) {
 				this.curSetList.splice(this.curSetList.length - 1, 1);
 			}
-			for (var i = 0; i < this.curSetList.length; i++) {
+			// if in a box, try to show at least 2 and up to 4 other pokemon in each direction
+			// but don't step outside the array bounds (obviously)
+			var start = 0;
+			var end = this.curSetList.length;
+			if (end > 6 || (end === 6 && this.curTeam.capacity > 6)) {
+				start = this.curSetLoc - 2;
+				if (start < 0) start = 0;
+				if (start + 5 > end) start = end - 5;
+				end = start + 5;
+			}
+			for (var i = start; i < end; i++) {
 				var set = this.curSetList[i];
 				var pokemonicon = '<span class="picon pokemonicon-' + i + '" style="' + Dex.getPokemonIcon(set) + '"></span>';
 				if (!set.species) {
@@ -1707,7 +1739,7 @@
 					buf += '<button name="selectPokemon" value="' + i + '" class="pokemon">' + pokemonicon + BattleLog.escapeHTML(set.name || Dex.getSpecies(set.species).baseSpecies) + '</button> ';
 				}
 			}
-			if (this.curSetList.length < 6 && !isAdd) {
+			if (this.curSetList.length < this.curTeam.capacity && !isAdd) {
 				buf += '<button name="addPokemon"><i class="fa fa-plus"></i></button> ';
 			}
 			return buf;

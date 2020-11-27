@@ -111,6 +111,12 @@ select {
 	border-color: #2C9CC1;
 }
 
+.dark .button.notifying.subtle {
+	border-color: #000000;
+	background: #b2d7f7;
+	color: black;
+}
+
 .dark .button.notifying:hover {
 	background: #6BACC5;
 	border-color: #FFFFFF;
@@ -452,6 +458,11 @@ select {
 .button.notifying:hover {
 	border-color: #604020;
 	background: #cfaf8f;
+}
+.button.notifying.subtle {
+	border-color: #000000;
+	background: #b2d7f7;
+	color: black;
 }
 .button.cur,
 .folderButton.cur,
@@ -2457,6 +2468,9 @@ a.ilink.yours {
 	width: 32px;
 	top: 22px;
 	color: transparent;
+}
+.teamlist .team.pc-box {
+	height: 139px;
 }
 
 .teamedit {

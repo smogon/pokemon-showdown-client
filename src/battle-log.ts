@@ -614,7 +614,7 @@ class BattleLog {
 		case 'text':
 			return ['chat', BattleLog.parseMessage(target)];
 		case 'error':
-			return ['chat message-error', BattleLog.escapeHTML(target)];
+			return ['chat message-error', formatText(target, true)];
 		case 'html':
 			return [
 				'chat chatmessage-' + toID(name) + hlClass + mineClass,
@@ -645,12 +645,12 @@ class BattleLog {
 		}
 	}
 
-	static parseMessage(str: string) {
+	static parseMessage(str: string, isTrusted = false) {
 		// Don't format console commands (>>).
 		if (str.substr(0, 3) === '>> ' || str.substr(0, 4) === '>>> ') return this.escapeHTML(str);
 		// Don't format console results (<<).
 		if (str.substr(0, 3) === '<< ') return this.escapeHTML(str);
-		str = formatText(str);
+		str = formatText(str, isTrusted);
 
 		let options = BattleLog.prefs('chatformatting') || {};
 
@@ -703,6 +703,7 @@ class BattleLog {
 			blink: 0,
 			psicon: html4.eflags['OPTIONAL_ENDTAG'] | html4.eflags['EMPTY'],
 			username: 0,
+			youtube: 0,
 		});
 
 		// By default, Caja will ban any attributes it doesn't recognize.
@@ -725,6 +726,8 @@ class BattleLog {
 			'psicon::type': 0,
 			'psicon::category': 0,
 			'username::name': 0,
+			'form::data-send': 0,
+			'button::data-send': 0,
 			'*::aria-label': 0,
 			'*::aria-hidden': 0,
 		});
@@ -802,6 +805,16 @@ class BattleLog {
 				const color = this.usernameColor(toID(getAttrib('name')));
 				const style = getAttrib('style');
 				setAttrib('style', `${style};color:${color}`);
+			} else if (tagName === 'youtube') {
+				// <iframe width="320" height="180" src="https://www.youtube.com/embed/dQw4w9WgXcQ" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+
+				const src = getAttrib('src') || '';
+				const videoId = /(?:\?v=|\/embed\/)([A-Za-z0-9]+)/.exec(src)?.[1];
+
+				return {
+					tagName: 'iframe',
+					attribs: ['width', '320', 'height', '180', 'src', `https://www.youtube.com/embed/${videoId}`, 'frameborder', '0', 'allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture', 'allowfullscreen', 'allowfullscreen'],
+				};
 			} else if (tagName === 'psicon') {
 				// <psicon> is a custom element which supports a set of mutually incompatible attributes:
 				// <psicon pokemon> and <psicon item>

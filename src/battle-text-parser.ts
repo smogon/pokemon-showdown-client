@@ -266,9 +266,9 @@ class BattleTextParser {
 		return `???side:${side}???`;
 	}
 
-	team(side: string) {
+	team(side: string, isFar: 0 | 1 = 0) {
 		side = side.slice(0, 2);
-		if (side === (this.perspective === 0 ? 'p1' : 'p2')) {
+		if (side === (this.perspective === isFar ? 'p1' : 'p2')) {
 			return BattleText.default.team;
 		}
 		return BattleText.default.opposingTeam;
@@ -619,7 +619,7 @@ class BattleTextParser {
 			const id = BattleTextParser.effectId(ability);
 			if (id === 'unnerve') {
 				const template = this.template('start', ability);
-				return line1 + template.replace('[TEAM]', this.team(arg4));
+				return line1 + template.replace('[TEAM]', this.team(pokemon.slice(0, 2), 1));
 			}
 			let templateId = 'start';
 			if (id === 'anticipation' || id === 'sturdy') templateId = 'activate';
