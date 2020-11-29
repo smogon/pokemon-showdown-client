@@ -271,11 +271,12 @@ class BattleTooltips {
 		case 'zmove':
 		case 'maxmove': { // move|MOVE|ACTIVEPOKEMON|[GMAXMOVE]
 			let move = this.battle.dex.getMove(args[1]);
-			let index = parseInt(args[2], 10);
-			let pokemon = this.battle.nearSide.active[index];
+			let activeIndex = parseInt(args[2], 10);
+			let pokemon = this.battle.nearSide.active[activeIndex];
 			let gmaxMove = args[3] ? this.battle.dex.getMove(args[3]) : undefined;
 			if (!pokemon) return false;
-			let serverPokemon = pokemon.side.myPokemon![index];
+			let teamIndex = activeIndex - this.battle.pokemonControlled * Math.floor(this.battle.mySide.n / 2);
+			let serverPokemon = pokemon.side.myPokemon![teamIndex];
 			buf = this.showMoveTooltip(move, type, pokemon, serverPokemon, gmaxMove);
 			break;
 		}
