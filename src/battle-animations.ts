@@ -244,10 +244,16 @@ class BattleScene {
 	pause() {
 		this.stopAnimation();
 		this.updateBgm();
-		if (this.battle.resumeButton) {
-			this.$frame.append('<div class="playbutton"><button data-action="resume"><i class="fa fa-play icon-play"></i> Resume</button></div>');
-			this.$frame.find('div.playbutton button').click(this.battle.resumeButton);
+		if (this.battle.turn > 0) {
+			this.$frame.append('<div class="playbutton"><button name="play"><i class="fa fa-play icon-play"></i> Resume</button></div>');
+		} else {
+			this.$frame.append('<div class="playbutton"><button name="play"><i class="fa fa-play"></i> Play</button><br /><br /><button name="play-muted" class="startsoundchooser" style="font-size:10pt;display:none">Play (music off)</button></div>');
+			this.$frame.find('div.playbutton button[name=play-muted]').click(() => {
+				this.battle.setMute(true);
+				this.battle.play();
+			});
 		}
+		this.$frame.find('div.playbutton button[name=play]').click(() => this.battle.play());
 	}
 	resume() {
 		this.$frame.find('div.playbutton').remove();
@@ -939,7 +945,7 @@ class BattleScene {
 		}
 	}
 	resetTurn() {
-		if (!this.battle.turn) {
+		if (this.battle.turn <= 0) {
 			this.$turn.html('');
 			return;
 		}
@@ -949,7 +955,7 @@ class BattleScene {
 		if (!this.animating) return;
 
 		const turn = this.battle.turn;
-		if (!turn) return;
+		if (turn <= 0) return;
 		const $prevTurn = this.$turn.children();
 		const $newTurn = $('<div class="turn has-tooltip" data-tooltip="field" data-ownheight="1">Turn ' + turn + '</div>');
 		$newTurn.css({
@@ -1439,6 +1445,7 @@ class BattleScene {
 	/////////////////////////////////////////////////////////////////////
 
 	setFrameHTML(html: any) {
+		this.customControls = true;
 		this.$frame.html(html);
 	}
 	setControlsHTML(html: any) {
@@ -1538,16 +1545,16 @@ class BattleScene {
 	}
 	updateBgm() {
 		/**
-		 * - not playing in non-battle RoomGames (Playback.Uninitialized)
-		 * - not playing at team preview in replays (Playback.Ready)
-		 * - playing at team preview in games (Playback.Playing)
-		 * - playing during the game (Playback.Playing)
+		 * - not playing in non-battle RoomGames before `|start` (turn -1)
+		 * - not playing at team preview in replays (paused)
+		 * - playing at team preview in games (turn 0)
+		 * - playing during the game (turn 1+)
 		 * - not playing while paused
-		 * - playing while waiting for players to choose moves (Playback.Finished)
+		 * - playing while waiting for players to choose moves (atQueueEnd && !ended)
 		 * - not playing after the game has ended
 		 */
-		const nowPlaying = this.battle.playbackState > Playback.Ready && (
-			this.battle.started && !this.battle.ended && !this.battle.paused
+		const nowPlaying = (
+			this.battle.turn >= 0 && !this.battle.ended && !this.battle.paused
 		);
 		if (nowPlaying) {
 			if (!this.bgm) this.rollBgm();
