@@ -12,18 +12,20 @@ declare const BattleText: {[id: string]: {[templateName: string]: string}};
 
 type Args = [string, ...string[]];
 type KWArgs = {[kw: string]: string};
+type SideID = 'p1' | 'p2' | 'p3' | 'p4';
 
 class BattleTextParser {
 	p1 = "Player 1";
 	p2 = "Player 2";
 	p3 = "Player 3";
 	p4 = "Player 4";
-	perspective: 0 | 1;
+	perspective: SideID;
 	gen = 7;
+	turn = 0;
 	curLineSection: 'break' | 'preMajor' | 'major' | 'postMajor' = 'break';
 	lowercaseRegExp: RegExp | null | undefined = undefined;
 
-	constructor(perspective: 0 | 1 = 0) {
+	constructor(perspective: SideID = 'p1') {
 		this.perspective = perspective;
 	}
 
@@ -236,14 +238,8 @@ class BattleTextParser {
 
 	pokemon(pokemon: string) {
 		if (!pokemon) return '';
-		let side;
-		switch (pokemon.slice(0, 2)) {
-		case 'p1':
-		case 'p3': side = 0; break;
-		case 'p2':
-		case 'p4': side = 1; break;
-		default: return `???pokemon:${pokemon}???`;
-		}
+		let side = pokemon.slice(0, 2);
+		if (!['p1', 'p2', 'p3', 'p4'].includes(side)) return `???pokemon:${pokemon}???`;
 		const name = this.pokemonName(pokemon);
 		const template = BattleText.default[side === this.perspective ? 'pokemon' : 'opposingPokemon'];
 		return template.replace('[NICKNAME]', name);
@@ -266,17 +262,26 @@ class BattleTextParser {
 		return `???side:${side}???`;
 	}
 
-	team(side: string, isFar: 0 | 1 = 0) {
+	static allyID(sideid: SideID): SideID | '' {
+		if (sideid === 'p1') return 'p3';
+		if (sideid === 'p2') return 'p4';
+		if (sideid === 'p3') return 'p1';
+		if (sideid === 'p4') return 'p2';
+		return '';
+	}
+
+	team(side: string, isFar: boolean = false) {
 		side = side.slice(0, 2);
-		if (side === (this.perspective === isFar ? 'p1' : 'p2')) {
-			return BattleText.default.team;
+		let team = [BattleText.default.team, BattleText.default.opposingTeam];
+		if (side === this.perspective || side === BattleTextParser.allyID(side as SideID)) {
+			return team[+isFar];
 		}
-		return BattleText.default.opposingTeam;
+		return team[+isFar ^ 1];
 	}
 
 	own(side: string) {
 		side = side.slice(0, 2);
-		if (side === (this.perspective === 0 ? 'p1' : 'p2')) {
+		if (side === this.perspective) {
 			return 'OWN';
 		}
 		return '';
@@ -284,7 +289,7 @@ class BattleTextParser {
 
 	party(side: string) {
 		side = side.slice(0, 2);
-		if (side === (this.perspective === 0 ? 'p1' : 'p2')) {
+		if (side === this.perspective || side === BattleTextParser.allyID(side as SideID)) {
 			return BattleText.default.party;
 		}
 		return BattleText.default.opposingParty;
@@ -353,7 +358,7 @@ class BattleTextParser {
 		switch (cmd) {
 		case 'done' : case 'turn':
 			return 'break';
-		case 'move' : case 'cant': case 'switch': case 'drag': case 'upkeep': case 'start': case '-mega':
+		case 'move' : case 'cant': case 'switch': case 'drag': case 'upkeep': case 'start': case '-mega': case 'canDynamax':
 			return 'major';
 		case 'switchout': case 'faint':
 			return 'preMajor';
@@ -431,6 +436,7 @@ class BattleTextParser {
 
 		case 'turn': {
 			const [, num] = args;
+			this.turn = Number.parseInt(num, 10);
 			return this.template('turn').replace('[NUMBER]', num) + '\n';
 		}
 
@@ -539,6 +545,18 @@ class BattleTextParser {
 			return line1 + template.replace('[POKEMON]', this.pokemon(pokemon)).replace('[MOVE]', move);
 		}
 
+		case 'canDynamax': {
+			let [, side] = args;
+			const own = this.own(side);
+			let template = '';
+			if (this.turn === 1) {
+				if (own) template = this.template('canDynamax', own);
+			} else {
+				template = this.template('canDynamax', own);
+			}
+			return template.replace('[TRAINER]', this.trainer(side));
+		}
+
 		case 'message': {
 			let [, message] = args;
 			return '' + message + '\n';
@@ -619,7 +637,7 @@ class BattleTextParser {
 			const id = BattleTextParser.effectId(ability);
 			if (id === 'unnerve') {
 				const template = this.template('start', ability);
-				return line1 + template.replace('[TEAM]', this.team(pokemon.slice(0, 2), 1));
+				return line1 + template.replace('[TEAM]', this.team(pokemon.slice(0, 2), true));
 			}
 			let templateId = 'start';
 			if (id === 'anticipation' || id === 'sturdy') templateId = 'activate';

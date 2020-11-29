@@ -577,7 +577,7 @@ class Side {
 	battle: Battle;
 	name = '';
 	id = '';
-	sideid: string;
+	sideid: SideID;
 	n: number;
 	isFar: boolean;
 	foe: Side = null!;
@@ -603,7 +603,7 @@ class Side {
 	constructor(battle: Battle, n: number, isOpp?: boolean) {
 		this.battle = battle;
 		this.n = n;
-		this.sideid = ['p1', 'p2', 'p3', 'p4'][n];
+		this.sideid = ['p1', 'p2', 'p3', 'p4'][n] as SideID;
 		this.isFar = isOpp || !!(n % 2);
 		this.updateSprites();
 	}

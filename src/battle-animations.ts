@@ -208,7 +208,7 @@ class BattleScene {
 		this.curTerrain = '';
 		this.curWeather = '';
 
-		this.log.battleParser!.perspective = this.battle.sidesSwitched ? 1 : 0;
+		this.log.battleParser!.perspective = this.battle.mySide.sideid;
 	}
 
 	animationOff() {
