@@ -38,6 +38,11 @@ requireScript('https://play.pokemonshowdown.com/js/battle.js?a7');
 var Replays = {
 	init: function (log) {
 		this.$el = $('.wrapper');
+		if (!this.$el.length) {
+			$('body').append('<div class="wrapper replay-wrapper" style="max-width:1180px;margin:0 auto"><div class="battle"></div><div class="battle-log"></div><div class="replay-controls"></div><div class="replay-controls-2"></div>');
+			this.$el = $('.wrapper');
+		}
+		var id = $('input[name=replayid]').val() || '';
 
 		var self = this;
 		this.$el.on('click', '.chooser button', function (e) {
@@ -48,7 +53,7 @@ var Replays = {
 			if (action) self[action]();
 		});
 
-		this.battle = new Battle(this.$('.battle'), this.$('.battle-log'));
+		this.battle = new Battle(this.$('.battle'), this.$('.battle-log'), id);
 		//this.battle.preloadCallback = updateProgress;
 		this.battle.errorCallback = this.errorCallback.bind(this);
 		this.battle.resumeButton = this.resume.bind(this);
