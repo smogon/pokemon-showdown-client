@@ -703,6 +703,7 @@ class BattleLog {
 			blink: 0,
 			psicon: html4.eflags['OPTIONAL_ENDTAG'] | html4.eflags['EMPTY'],
 			username: 0,
+			spotify: 0,
 			youtube: 0,
 		});
 
