@@ -3196,6 +3196,7 @@ class Battle {
 				this.farSide.active = [null, null, null];
 				break;
 			}
+			if (!this.pokemonControlled) this.pokemonControlled = this.nearSide.active.length;
 			this.scene.updateGen();
 			break;
 		}
