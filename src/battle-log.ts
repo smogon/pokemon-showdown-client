@@ -807,7 +807,7 @@ class BattleLog {
 				setAttrib('style', `${style};color:${color}`);
 			} else if (tagName === 'spotify') {
 				// <iframe src="https://open.spotify.com/embed/track/6aSYnCIwcLpnDXngGKAEzZ" width="300" height="380" frameborder="0" allowtransparency="true" allow="encrypted-media"></iframe>
-				const src = getAttrib('src');
+				const src = getAttrib('src') || '';
 				const songId = /(?:\?v=|\/track\/)([A-Za-z0-9]+)/.exec(src)?.[1];
 						
 				return {
