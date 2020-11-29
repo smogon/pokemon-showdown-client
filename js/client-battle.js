@@ -1325,7 +1325,7 @@
 					}
 				}
 
-				if (this.choice.choices.length >= (this.choice.count || this.battle.pokemonControlled || this.request.active).length) {
+				if (this.choice.choices.length >= (this.choice.count || this.battle.pokemonControlled || this.request.active.length)) {
 					this.sendDecision(this.choice.choices);
 				}
 
