@@ -1006,6 +1006,8 @@ interface ServerPokemon extends PokemonDetails, PokemonHealth {
 	item: string;
 	/** currently an ID, will revise to name */
 	pokeball: string;
+	/** false if the pokemon cannot gigantamax, otherwise a string containing the full name of its G-max move */
+	gigantamax: string | false;
 }
 
 class Battle {
