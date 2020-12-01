@@ -1320,6 +1320,7 @@
 		readReplayFile: function (file) {
 			var reader = new FileReader();
 			reader.onload = function (e) {
+				app.removeRoom('battle-uploadedreplay');
 				var html = e.target.result;
 				var titleStart = html.indexOf('<title>');
 				var titleEnd = html.indexOf('</title>');
