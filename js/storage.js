@@ -1538,7 +1538,7 @@ Storage.nwLoadTeamFile = function (filename, localApp) {
 	if (bracketIndex >= 0) {
 		format = line.slice(1, bracketIndex);
 		if (format && !format.startsWith('gen')) format = 'gen6' + format;
-		if (format && format.startsWith('gen6gen')) format = format.slice(4);
+		if (format && /^gen6gen[0-9]/.test(format)) format = format.slice(4);
 		if (format && format.endsWith('-box')) {
 			format = format.slice(0, -4);
 			capacity = 24;
