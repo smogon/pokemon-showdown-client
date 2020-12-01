@@ -1544,7 +1544,6 @@ Storage.nwLoadTeamFile = function (filename, localApp) {
 		}
 		line = $.trim(line.slice(bracketIndex + 1));
 	}
-	if (format && format.slice(0, 3) !== 'gen') format = 'gen6' + format;
 	fs.readFile(this.dir + 'Teams/' + filename, function (err, data) {
 		if (!err) {
 			self.teams.push({
