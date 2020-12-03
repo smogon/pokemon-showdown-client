@@ -47,7 +47,11 @@
 			this.battle.startCallback = function () { self.updateControls(); };
 			this.battle.stagnateCallback = function () { self.updateControls(); };
 
-			if (Dex.prefs('autotimer')) this.setTimer('on');
+			if (Dex.prefs('autotimer')) {
+				var user = this.users[app.user.get('userid')];
+				if (user && user.group === '☆') this.setTimer('on');
+			}
+
 			this.battle.play();
 		},
 		events: {
