@@ -1038,12 +1038,12 @@
 			}
 		},
 		updateSide: function (sideData) {
-			this.battle.mySide = this.battle[sideData.id];
-			this.battle.yourSide = this.battle.mySide.foe;
+			this.battle.mySide = this.battle.nearSide = this.battle[sideData.id];
+			this.battle.farSide = this.battle.mySide.foe;
 			this.battle.mySide.isFar = false;
-			this.battle.yourSide.isFar = true;
+			this.battle.nearSide.isFar = true;
 			if (this.battle.mySide.ally) this.battle.mySide.ally.isFar = false;
-			if (this.battle.yourSide.ally) this.battle.yourSide.ally.isFar = true;
+			if (this.battle.nearSide.ally) this.battle.nearSide.ally.isFar = true;
 			this.battle.mySide.myPokemon = sideData.pokemon;
 			for (var i = 0; i < sideData.pokemon.length; i++) {
 				var pokemonData = sideData.pokemon[i];

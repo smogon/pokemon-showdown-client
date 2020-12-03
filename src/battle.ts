@@ -1151,11 +1151,6 @@ class Battle {
 		this.p1.foe = this.p2;
 		this.nearSide = this.mySide = this.p1;
 		this.farSide = this.p2;
-		if (this.id.includes('multi')) {
-			this.p3 = new Side(this, 2);
-			this.p4 = new Side(this, 3);
-			this.sides.push(this.p3, this.p4);
-		}
 		this.gen = 7;
 		this.reset();
 	}
@@ -1174,8 +1169,6 @@ class Battle {
 			if (side) side.reset();
 		}
 		this.mySide.myPokemon = null;
-		if (this.mySide.ally) this.mySide.ally.myPokemon = null;
-		this.setAttrs();
 
 		// DOM state
 		this.scene.reset();
@@ -1211,23 +1204,6 @@ class Battle {
 
 	log(args: Args, kwArgs?: KWArgs, preempt?: boolean) {
 		this.scene.log.add(args, kwArgs, preempt);
-	}
-
-	setAttrs() {
-		this.sides = [this.p1, this.p2];
-		this.p2.foe = this.p1;
-		this.p1.foe = this.p2;
-		if (this.id.includes('multi') && this.p3 && this.p4) {
-			this.p3.foe = this.p2;
-			this.p3.ally = this.p1;
-			this.p1.ally = this.p3;
-			this.p4.ally = this.p2;
-			this.p2.ally = this.p4;
-			this.p4.foe = this.p1;
-			this.sides.push(this.p3, this.p4);
-			this.mySide.isFar = this.mySide.ally.isFar = false;
-			this.farSide.isFar = this.farSide.ally.isFar = true;
-		}
 	}
 
 	resetToCurrentTurn() {
@@ -3181,10 +3157,17 @@ class Battle {
 				break;
 			case 'multi':
 				this.pokemonControlled = 1;
-				this.nearSide.active = [null, null];
-				this.farSide.active = [null, null];
-				this.nearSide.ally.active = this.nearSide.active;
-				this.farSide.ally.active = this.farSide.active;
+				this.p3 = new Side(this, 2);
+				this.p4 = new Side(this, 3);
+				this.p3.foe = this.p4.ally = this.p2;
+				this.p3.ally = this.p4.foe = this.p1;
+				this.p1.ally = this.p3;
+				this.p2.ally = this.p4;
+				this.sides.push(this.p3, this.p4);
+				this.mySide.isFar = this.mySide.ally.isFar = false;
+				this.farSide.isFar = this.farSide.ally.isFar = true;
+				this.nearSide.ally.active = this.nearSide.active = [null, null];
+				this.farSide.ally.active = this.farSide.active = [null, null];
 				break;
 			case 'doubles':
 				this.nearSide.active = [null, null];
