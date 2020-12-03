@@ -49,11 +49,11 @@ includeHeader();
 				<li><p><strong>Mia A.</strong> [Mia] <small>&ndash; Development</small></p></li>
 				<li><p><strong>Neil Rashbrook</strong> [urkerab] <small>&ndash; Development</small></p></li>
 				<li><p>[<strong>peach</strong>] <small>&ndash; Development</small></p></li>
+				<li><p>[<strong>pyuk</strong>] <small>&ndash; Development</small></p></li>
 				<li><p><strong>Quinton Lee</strong> [sirDonovan] <small>&ndash; Development</small></p></li>
 				<li><p>[<strong>Ridaz</strong>] <small>&ndash; Art (battle animations)</small></p></li>
 				<li><p><strong>Robin Vandenbrande</strong> [Quinella] <small>&ndash; Development</small></p></li>
 				<li><p><strong>Tobias Mann</strong> [asgdf] <small>&ndash; Development</small></p></li>
-				<li><p>[<strong>MacChaeger</strong>] <small>&ndash; Development</small></p></li>
 			</ul>
 
 			<h2><span>Contributors</span></h2>
