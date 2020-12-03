@@ -522,6 +522,14 @@ class BattleTooltips {
 		"???": "",
 	};
 
+	getMaxMoveFromType(type: TypeName, gmaxMove?: string | Move) {
+		if (gmaxMove) {
+			gmaxMove = Dex.getMove(gmaxMove);
+			if (type === gmaxMove.type) return gmaxMove;
+		}
+		return Dex.getMove(BattleTooltips.maxMoveTable[type]);
+	}
+
 	showMoveTooltip(move: Move, isZOrMax: string, pokemon: Pokemon, serverPokemon: ServerPokemon, gmaxMove?: Move) {
 		let text = '';
 
@@ -533,6 +541,7 @@ class BattleTooltips {
 		let item = this.battle.dex.getItem(serverPokemon.item);
 
 		let value = new ModifiableValue(this.battle, pokemon, serverPokemon);
+		let [moveType, category] = this.getMoveType(move, value, gmaxMove || isZOrMax === 'maxmove');
 
 		if (isZOrMax === 'zmove') {
 			if (item.zMoveFrom === move.name) {
@@ -579,50 +588,7 @@ class BattleTooltips {
 			if (move.category === 'Status') {
 				move = this.battle.dex.getMove('Max Guard');
 			} else {
-				// TODO look into if client knows if a pokemon (on its side) can gmax rather than dynamax.
-				// If not, tell client so we can use it for tooltips.
-				let maxMove = gmaxMove ? gmaxMove :
-					this.battle.dex.getMove(BattleTooltips.maxMoveTable[move.type]);
-				if (move.id === 'aurawheel' && pokemon.getSpeciesForme() === 'Morpeko-Hangry') {
-					maxMove = this.battle.dex.getMove(BattleTooltips.maxMoveTable['Dark']);
-				}
-				if (move.id === 'weatherball') {
-					switch (this.battle.weather) {
-					case 'sunnyday':
-					case 'desolateland':
-						if (item.id === 'utilityumbrella') break;
-						maxMove = this.battle.dex.getMove(BattleTooltips.maxMoveTable['Fire']);
-						break;
-					case 'raindance':
-					case 'primordialsea':
-						if (item.id === 'utilityumbrella') break;
-						maxMove = this.battle.dex.getMove(BattleTooltips.maxMoveTable['Water']);
-						break;
-					case 'sandstorm':
-						maxMove = this.battle.dex.getMove(BattleTooltips.maxMoveTable['Rock']);
-						break;
-					case 'hail':
-						maxMove = this.battle.dex.getMove(BattleTooltips.maxMoveTable['Ice']);
-						break;
-					}
-				}
-				if (move.id === 'terrainpulse') {
-					if (this.battle.hasPseudoWeather('Electric Terrain')) {
-						maxMove = this.battle.dex.getMove(BattleTooltips.maxMoveTable['Electric']);
-					} else if (this.battle.hasPseudoWeather('Grassy Terrain')) {
-						maxMove = this.battle.dex.getMove(BattleTooltips.maxMoveTable['Grass']);
-					} else if (this.battle.hasPseudoWeather('Misty Terrain')) {
-						maxMove = this.battle.dex.getMove(BattleTooltips.maxMoveTable['Fairy']);
-					} else if (this.battle.hasPseudoWeather('Psychic Terrain')) {
-						maxMove = this.battle.dex.getMove(BattleTooltips.maxMoveTable['Psychic']);
-					}
-				}
-				if (move.id === 'multiattack' && item.onMemory) {
-					maxMove = this.battle.dex.getMove(BattleTooltips.maxMoveTable[item.onMemory]);
-				}
-				if (move.id === 'technoblast' && item.onDrive) {
-					maxMove = this.battle.dex.getMove(BattleTooltips.maxMoveTable[item.onDrive]);
-				}
+				let maxMove = this.getMaxMoveFromType(moveType, gmaxMove);
 				const basePower = ['gmaxdrumsolo', 'gmaxfireball', 'gmaxhydrosnipe'].includes(maxMove.id) ?
 					maxMove.basePower : move.maxMove.basePower;
 				move = new Move(maxMove.id, maxMove.name, {
@@ -634,9 +600,6 @@ class BattleTooltips {
 		}
 
 		text += '<h2>' + move.name + '<br />';
-
-		// Handle move type for moves that vary their type.
-		let [moveType, category] = this.getMoveType(move, value);
 
 		text += Dex.getTypeIcon(moveType);
 		text += ` ${Dex.getCategoryIcon(category)}</h2>`;
@@ -767,7 +730,7 @@ class BattleTooltips {
 			if (move.flags.bite && ability === 'strongjaw') {
 				text += `<p class="movetag">&#x2713; Bite <small>(boosted by Strong Jaw)</small></p>`;
 			}
-			if ((move.recoil || move.hasCustomRecoil) && ability === 'reckless') {
+			if ((move.recoil || move.hasCrashDamage) && ability === 'reckless') {
 				text += `<p class="movetag">&#x2713; Recoil <small>(boosted by Reckless)</small></p>`;
 			}
 			if (move.flags.bullet) {
@@ -1317,7 +1280,7 @@ class BattleTooltips {
 	/**
 	 * Gets the proper current type for moves with a variable type.
 	 */
-	getMoveType(move: Move, value: ModifiableValue): [TypeName, 'Physical' | 'Special' | 'Status'] {
+	getMoveType(move: Move, value: ModifiableValue, forMaxMove?: boolean | Move): [TypeName, 'Physical' | 'Special' | 'Status'] {
 		let moveType = move.type;
 		let category = move.category;
 		// can happen in obscure situations
@@ -1384,11 +1347,8 @@ class BattleTooltips {
 		const noTypeOverride = [
 			'judgment', 'multiattack', 'naturalgift', 'revelationdance', 'struggle', 'technoblast', 'terrainpulse', 'weatherball',
 		];
-		const allowTypeOverride = !noTypeOverride.includes(move.id);
+		const allowTypeOverride = !forMaxMove && !noTypeOverride.includes(move.id);
 
-		if (allowTypeOverride && move.flags['sound'] && value.abilityModify(0, 'Liquid Voice')) {
-			moveType = 'Water';
-		}
 		if (allowTypeOverride && category !== 'Status' && !move.isZ) {
 			if (moveType === 'Normal') {
 				if (value.abilityModify(0, 'Aerilate')) moveType = 'Flying';
@@ -1397,6 +1357,11 @@ class BattleTooltips {
 				if (value.abilityModify(0, 'Refrigerate')) moveType = 'Ice';
 			}
 			if (value.abilityModify(0, 'Normalize')) moveType = 'Normal';
+		}
+		// There aren't any max moves with the sound flag, but if there were, Liquid Voice would make them water type
+		const isSound = !!(forMaxMove ? this.getMaxMoveFromType(moveType, forMaxMove !== true && forMaxMove || undefined) : move).flags['sound'];
+		if (allowTypeOverride && isSound && value.abilityModify(0, 'Liquid Voice')) {
+			moveType = 'Water';
 		}
 		if (this.battle.gen <= 3 && category !== 'Status') {
 			category = Dex.getGen3Category(moveType);
@@ -1713,7 +1678,7 @@ class BattleTooltips {
 		if (move.flags['punch']) {
 			value.abilityModify(1.2, 'Iron Fist');
 		}
-		if (move.recoil || move.hasCustomRecoil) {
+		if (move.recoil || move.hasCrashDamage) {
 			value.abilityModify(1.2, 'Reckless');
 		}
 

@@ -47,7 +47,11 @@
 			this.battle.startCallback = function () { self.updateControls(); };
 			this.battle.stagnateCallback = function () { self.updateControls(); };
 
-			if (Dex.prefs('autotimer')) this.setTimer('on');
+			if (Dex.prefs('autotimer')) {
+				var user = this.users[app.user.get('userid')];
+				if (user && user.group === '\u2606') this.setTimer('on');
+			}
+
 			this.battle.play();
 		},
 		events: {
@@ -333,7 +337,7 @@
 			var switchables = [];
 			if (this.request) {
 				// TODO: investigate when to do this
-				this.updateSide(this.request.side);
+				this.updateSide();
 				if (this.request.ally) {
 					this.addAlly(this.request.ally);
 				}
@@ -533,11 +537,13 @@
 			var canUltraBurst = curActive.canUltraBurst || switchables[pos].canUltraBurst;
 			var canDynamax = curActive.canDynamax || switchables[pos].canDynamax;
 			var maxMoves = curActive.maxMoves || switchables[pos].maxMoves;
+			var gigantamax = curActive.gigantamax;
 			if (canZMove && typeof canZMove[0] === 'string') {
 				canZMove = _.map(canZMove, function (move) {
 					return {move: move, target: Dex.getMove(move).target};
 				});
 			}
+			if (gigantamax) gigantamax = Dex.getMove(gigantamax);
 
 			this.finalDecisionMove = curActive.maybeDisabled || false;
 			this.finalDecisionSwitch = curActive.maybeTrapped || false;
@@ -660,8 +666,8 @@
 								// when possible, use Z move to decide type, for cases like Z-Hidden Power
 								var baseMove = this.battle.dex.getMove(curActive.moves[i].move);
 								// might not exist, such as for Z status moves - fall back on base move to determine type then
-								var specialMove = this.battle.dex.getMove(specialMoves[i].move);
-								var moveType = this.tooltips.getMoveType(specialMove.exists ? specialMove : baseMove, typeValueTracker)[0];
+								var specialMove = gigantamax || this.battle.dex.getMove(specialMoves[i].move);
+								var moveType = this.tooltips.getMoveType(specialMove.exists && !specialMove.isMax ? specialMove : baseMove, typeValueTracker, specialMove.isMax ? gigantamax || switchables[pos].gigantamax || true : undefined)[0];
 								var tooltipArgs = classType + 'move|' + baseMove.id + '|' + pos;
 								if (specialMove.id.startsWith('gmax')) tooltipArgs += '|' + specialMove.id;
 								movebuttons += '<button class="type-' + moveType + ' has-tooltip" name="chooseMove" value="' + (i + 1) + '" data-move="' + BattleLog.escapeHTML(specialMoves[i].move) + '" data-target="' + BattleLog.escapeHTML(specialMoves[i].target) + '" data-tooltip="' + BattleLog.escapeHTML(tooltipArgs) + '">';
@@ -1037,16 +1043,19 @@
 				this.$chat = this.$chatFrame.find('.inner');
 			}
 		},
-		updateSide: function (sideData) {
+		updateSide: function () {
+			var sideData = this.request.side;
+			this.battle.myPokemon = sideData.pokemon;
 			this.battle.mySide = this.battle.nearSide = this.battle[sideData.id];
 			this.battle.farSide = this.battle.mySide.foe;
 			this.battle.mySide.isFar = false;
 			this.battle.nearSide.isFar = true;
 			if (this.battle.mySide.ally) this.battle.mySide.ally.isFar = false;
-			if (this.battle.nearSide.ally) this.battle.nearSide.ally.isFar = true;
+			if (this.battle.farSide.ally) this.battle.farSide.ally.isFar = true;
 			this.battle.mySide.myPokemon = sideData.pokemon;
 			for (var i = 0; i < sideData.pokemon.length; i++) {
 				var pokemonData = sideData.pokemon[i];
+				if (this.request.active && this.request.active[i]) pokemonData.canGmax = this.request.active[i].gigantamax || false;
 				this.battle.parseDetails(pokemonData.ident.substr(4), pokemonData.ident, pokemonData.details, pokemonData);
 				this.battle.parseHealth(pokemonData.condition, pokemonData);
 				pokemonData.hpDisplay = Pokemon.prototype.hpDisplay;
@@ -1371,6 +1380,7 @@
 		readReplayFile: function (file) {
 			var reader = new FileReader();
 			reader.onload = function (e) {
+				app.removeRoom('battle-uploadedreplay');
 				var html = e.target.result;
 				var titleStart = html.indexOf('<title>');
 				var titleEnd = html.indexOf('</title>');

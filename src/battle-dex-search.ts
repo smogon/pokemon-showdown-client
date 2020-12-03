@@ -995,6 +995,7 @@ class BattleAbilitySearch extends BattleTypedSearch<'ability'> {
 		if (!this.species) return this.getDefaultResults();
 		const format = this.format;
 		const isHackmons = (format.includes('hackmons') || format.endsWith('bh'));
+		const isAAA = (format === 'almostanyability' || format.includes('aaa'));
 		const dex = this.dex;
 		let species = dex.getSpecies(this.species);
 		let abilitySet: SearchRow[] = [['header', "Abilities"]];
@@ -1015,7 +1016,7 @@ class BattleAbilitySearch extends BattleTypedSearch<'ability'> {
 			abilitySet.push(['header', "Special Event Ability"]);
 			abilitySet.push(['ability', toID(species.abilities['S'])]);
 		}
-		if (format === 'almostanyability' || format === 'metronomebattle' || isHackmons) {
+		if (isAAA || format === 'metronomebattle' || isHackmons) {
 			let abilities: ID[] = [];
 			for (let i in this.getTable()) {
 				const ability = dex.getAbility(i);
@@ -1040,7 +1041,7 @@ class BattleAbilitySearch extends BattleTypedSearch<'ability'> {
 			}
 			abilitySet = [...goodAbilities, ...poorAbilities, ...badAbilities];
 			if (species.isMega) {
-				if (format === 'almostanyability') {
+				if (isAAA) {
 					abilitySet.unshift(['html', `Will be <strong>${species.abilities['0']}</strong> after Mega Evolving.`]);
 				}
 				// species is unused after this, so no need to replace
@@ -1345,6 +1346,7 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 		let species = dex.getSpecies(this.species);
 		const format = this.format;
 		const isHackmons = (format.includes('hackmons') || format.endsWith('bh'));
+		const isSTABmons = (format.includes('stabmons') || format === 'staaabmons');
 		const galarBornLegality = (format.includes('battlestadium') || format.startsWith('vgc') && this.dex.gen === 8);
 
 		const abilityid = this.set ? toID(this.set.ability) : '' as ID;
@@ -1402,7 +1404,7 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 			}
 		}
 		if (this.formatType === 'metronome') moves = ['metronome'];
-		if (format === 'stabmons') {
+		if (isSTABmons) {
 			for (let id in BattleMovedex) {
 				let types: string[] = [];
 				let baseSpecies = dex.getSpecies(species.changesFrom || species.name);
