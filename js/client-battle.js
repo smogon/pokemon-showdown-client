@@ -49,7 +49,7 @@
 
 			if (Dex.prefs('autotimer')) {
 				var user = this.users[app.user.get('userid')];
-				if (user && user.group === '☆') this.setTimer('on');
+				if (user && user.group === '\u2606') this.setTimer('on');
 			}
 
 			this.battle.play();
