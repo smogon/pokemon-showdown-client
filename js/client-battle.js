@@ -1049,7 +1049,7 @@
 			this.battle.mySide = this.battle.nearSide = this.battle[sideData.id];
 			this.battle.farSide = this.battle.mySide.foe;
 			this.battle.mySide.isFar = false;
-			this.battle.nearSide.isFar = true;
+			this.battle.farSide.isFar = true;
 			if (this.battle.mySide.ally) this.battle.mySide.ally.isFar = false;
 			if (this.battle.farSide.ally) this.battle.farSide.ally.isFar = true;
 			this.battle.mySide.myPokemon = sideData.pokemon;
