@@ -3165,7 +3165,7 @@ class Battle {
 				this.p3.ally = this.p4.foe = this.p1;
 				this.p1.ally = this.p3;
 				this.p2.ally = this.p4;
-				this.sides.push(this.p3, this.p4);
+				this.sides = [this.p1, this.p2, this.p3, this.p4];
 				this.mySide.isFar = this.mySide.ally.isFar = false;
 				this.farSide.isFar = this.farSide.ally.isFar = true;
 				this.nearSide.ally.active = this.nearSide.active = [null, null];
