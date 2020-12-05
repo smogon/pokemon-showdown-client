@@ -1625,7 +1625,7 @@ Storage.nwDeleteTeamFile = function (filename, callback) {
 Storage.nwSaveTeam = function (team) {
 	if (!team) return;
 	var filename = team.name + '.txt';
-	if (team.format) filename = '[' + team.format + '] ' + filename;
+	if (team.format) filename = '[' + team.format + (team.capacity === 24 ? '-box] ' : '] ') + filename;
 	filename = filename.trim().replace(/[\\\/]+/g, '');
 	if (team.folder) filename = '' + team.folder.replace(/[\\\/]+/g, '') + '/' + filename;
 
@@ -1673,7 +1673,7 @@ Storage.nwDoSaveAllTeams = function () {
 	for (var i = 0; i < this.teams.length; i++) {
 		var team = this.teams[i];
 		var filename = team.name + '.txt';
-		if (team.format) filename = '[' + team.format + '] ' + filename;
+		if (team.format) filename = '[' + team.format + (team.capacity === 24 ? '-box] ' : '] ') + filename;
 		filename = $.trim(filename).replace(/[\\\/]+/g, '');
 
 		team.filename = filename;
