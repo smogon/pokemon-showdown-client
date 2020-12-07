@@ -52,6 +52,36 @@
 				this.subtleNotifyOnce();
 				break;
 
+			case 'pagescroll':
+				var page = this.$el[0];
+				if (!page) break;
+
+				switch (row[1]) {
+				case 'top':
+					page.scrollTop = 0;
+					break;
+				case 'bottom':
+					page.scrollTop = page.scrollHeight;
+					break;
+				case 'selector':
+					var selector = this.$(row[2])[0];
+					if (!selector) break;
+					page.scrollTop = selector.offsetHeight;
+					break;
+				}
+				break;
+
+			case 'selectorscroll':
+				var selector = this.$(row[1])[0];
+				if (!selector) break;
+
+				if (row[2] === 'top') {
+					selector.scrollTop = 0;
+				} else if (row[2] === 'bottom') {
+					selector.scrollTop = selector.scrollHeight;
+				}
+				break;
+
 			case 'selectorhtml':
 				if (!row[2]) return;
 				this.$(row[1]).html(BattleLog.sanitizeHTML(row.slice(2).join('|')));
