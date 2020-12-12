@@ -10,6 +10,7 @@
 			this.me = {};
 
 			this.battlePaused = false;
+			this.autoTimerActivated = false;
 
 			this.isSideRoom = Dex.prefs('rightpanelbattles');
 
@@ -213,12 +214,6 @@
 				} else if (logLine.substr(0, 6) === '|chat|' || logLine.substr(0, 3) === '|c|' || logLine.substr(0, 4) === '|c:|' || logLine.substr(0, 9) === '|chatmsg|' || logLine.substr(0, 10) === '|inactive|') {
 					this.battle.instantAdd(logLine);
 				} else {
-					if (Dex.prefs('autotimer') && logLine.startsWith('|player|p1')) {
-						// Autostart the timer when we get the first |player| message,
-						// so that we can check if we're a player or not — the users will have joined by now
-						var user = this.users[app.user.get('userid')];
-						if (user && user.group === '\u2606') this.setTimer('on');
-					}
 					this.battle.activityQueue.push(logLine);
 				}
 			}
@@ -966,6 +961,12 @@
 				this.side = '';
 				return;
 			}
+
+			if (!this.autoTimerActivated && Storage.prefs('autotimer')) {
+				this.setTimer('on');
+				this.autoTimerActivated = true;
+			}
+
 			request.requestType = 'move';
 			if (request.forceSwitch) {
 				request.requestType = 'switch';
@@ -1477,7 +1478,10 @@
 		toggleAutoTimer: function (e) {
 			var autoTimer = !!e.currentTarget.checked;
 			Storage.prefs('autotimer', autoTimer);
-			if (autoTimer) this.room.setTimer('on');
+			if (autoTimer) {
+				this.room.setTimer('on');
+				this.room.autoTimerActivated = true;
+			}
 		},
 		toggleRightPanelBattles: function (e) {
 			Storage.prefs('rightpanelbattles', !!e.currentTarget.checked);
