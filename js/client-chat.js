@@ -1047,6 +1047,7 @@
 
 			// documentation of client commands
 			case 'help':
+			case 'h':
 				if (this.checkBroadcast(cmd, text)) return false;
 				switch (toID(target)) {
 				case 'chal':
@@ -1056,6 +1057,7 @@
 					this.add('/challenge [user] - Challenge the user [user] to a battle.');
 					this.add('/challenge [user], [format] - Challenge the user [user] to a battle in the specified [format].');
 					this.add('/challenge [user], [format] @@@ [Added Rule], [!Removed Rule], [-Banned thing], [*Restricted thing], [+Unbanned/unrestricted thing] - Challenge the user [user] to a battle in the specified [format] with the custom rules added on.');
+					this.add('/battlerules - Provides information on the rules that can be added to tournament and challenge battles.');
 					return false;
 				case 'accept':
 					this.add('/accept - Accept a challenge if only one is pending.');
