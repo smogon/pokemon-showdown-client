@@ -108,8 +108,8 @@
 		var buf = '<p>Filters: ';
 		for (var i = 0; i < this.filters.length; i++) {
 			var text = this.filters[i][1];
-			if (this.filters[i][0] === 'move') text = Dex.getMove(text).name;
-			if (this.filters[i][0] === 'pokemon') text = Dex.getSpecies(text).name;
+			if (this.filters[i][0] === 'move') text = this.engine.dex.getMove(text).name;
+			if (this.filters[i][0] === 'pokemon') text = this.engine.dex.getSpecies(text).name;
 			buf += '<button class="filter" value="' + BattleLog.escapeHTML(this.filters[i].join(':')) + '">' + text + ' <i class="fa fa-times-circle"></i></button> ';
 		}
 		if (!q) buf += '<small style="color: #888">(backspace = delete filter)</small>';
@@ -327,7 +327,6 @@
 			buf += errorMessage + '</a></li>';
 			return buf;
 		}
-
 		var gen = this.gen;
 
 		// type
@@ -340,7 +339,7 @@
 
 		// abilities
 		if (gen >= 3) {
-			var abilities = Dex.forGen(gen).getSpecies(id).abilities;
+			var abilities = this.engine.dex.getSpecies(id).abilities;
 			if (abilities['1']) {
 				buf += '<span class="col twoabilitycol">' + abilities['0'] + '<br />' +
 					abilities['1'] + '</span>';

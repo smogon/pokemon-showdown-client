@@ -677,6 +677,11 @@
 			this.curTeam = teams[i];
 			this.curTeam.iconCache = '!';
 			this.curTeam.gen = this.getGen(this.curTeam.format);
+			const ClientMods = BattleTeambuilderTable.ClientMods;
+			for(const modid of Object.keys(ClientMods)){
+				for (const formatName of ClientMods[modid].formats){
+					if (toID(formatName) === this.curTeam.format) this.curTeam.mod = modid;
+			}}
 			Storage.activeSetList = this.curSetList = Storage.unpackTeam(this.curTeam.team);
 			this.curTeamIndex = i;
 			this.update();
@@ -1146,7 +1151,9 @@
 			if ($(window).width() < 640) this.show();
 		},
 		renderSet: function (set, i) {
-			var species = Dex.getSpecies(set.species);
+			var species = 0;
+			if (this.curTeam.mod) species = Dex.mod(this.curTeam.mod).getSpecies(set.species);
+			else species = Dex.getSpecies(set.species);
 			var isLetsGo = this.curTeam.format.includes('letsgo');
 			var isNatDex = this.curTeam.format.includes('nationaldex');
 			var buf = '<li value="' + i + '">';
@@ -1206,7 +1213,6 @@
 				}
 			}
 			buf += '</button></div></div>';
-
 			// item/type icons
 			buf += '<div class="setrow setrow-icons">';
 			buf += '<div class="setcell">';
@@ -1231,7 +1237,6 @@
 			if (this.curTeam.gen > 1) buf += '<div class="setcell setcell-item"><label>Item</label><input type="text" name="item" class="textbox chartinput" value="' + BattleLog.escapeHTML(set.item) + '" autocomplete="off" /></div>';
 			if (this.curTeam.gen > 2 && !isLetsGo) buf += '<div class="setcell setcell-ability"><label>Ability</label><input type="text" name="ability" class="textbox chartinput" value="' + BattleLog.escapeHTML(set.ability) + '" autocomplete="off" /></div>';
 			buf += '</div></div>';
-
 			// moves
 			if (!set.moves) set.moves = [];
 			buf += '<div class="setcol setcol-moves"><div class="setcell"><label>Moves</label>';
@@ -1240,7 +1245,6 @@
 			buf += '<div class="setcell"><input type="text" name="move3" class="textbox chartinput" value="' + BattleLog.escapeHTML(set.moves[2]) + '" autocomplete="off" /></div>';
 			buf += '<div class="setcell"><input type="text" name="move4" class="textbox chartinput" value="' + BattleLog.escapeHTML(set.moves[3]) + '" autocomplete="off" /></div>';
 			buf += '</div>';
-
 			// stats
 			buf += '<div class="setcol setcol-stats"><div class="setrow"><label>Stats</label><button class="textbox setstats" name="stats">';
 			buf += '<span class="statrow statrow-head"><label></label> <span class="statgraph"></span> <em>' + (!isLetsGo ? 'EV' : 'AV') + '</em></span>';
@@ -1392,6 +1396,12 @@
 		changeFormat: function (format) {
 			this.curTeam.format = format;
 			this.curTeam.gen = this.getGen(this.curTeam.format);
+			this.curTeam.mod = 0;
+			const ClientMods = BattleTeambuilderTable.ClientMods;
+			for(const modid of Object.keys(ClientMods)){
+				for (const formatName of ClientMods[modid].formats){
+					if (toID(formatName) === this.curTeam.format) this.curTeam.mod = modid;
+			}}
 			this.save();
 			if (this.curTeam.gen === 5 && !Dex.loadedSpriteData['bw']) Dex.loadSpriteData('bw');
 			this.update();
@@ -1693,7 +1703,6 @@
 			buf += '<textarea class="pokemonedit textbox" rows="14"></textarea>';
 			buf += '<div class="teambuilder-import-smogon-sets"></div>';
 			buf += '</div>';
-
 			this.$el.html('<div class="teamwrapper">' + buf + '</div>');
 			if ($(window).width() < 640) this.show();
 			this.$chart = this.$('.teambuilder-results');
@@ -1983,7 +1992,7 @@
 			var buf = '';
 			var set = this.curSet;
 			var species = Dex.forGen(this.curTeam.gen).getSpecies(this.curSet.species);
-
+			if (this.curTeam.mod) species = Dex.mod(this.curTeam.mod).getSpecies(this.curSet.species);
 			var baseStats = species.baseStats;
 
 			buf += '<div class="resultheader"><h3>EVs</h3></div>';
@@ -3053,7 +3062,9 @@
 			for (var i = 0; i < moves.length; ++i) {
 				if (!moves[i]) continue;
 				if (moves[i].substr(0, 13) === 'Hidden Power ') hasHiddenPower = true;
-				var move = Dex.forGen(this.curTeam.gen).getMove(moves[i]);
+				var move = 0;
+				if (this.curTeam.mod) move = Dex.mod(this.curTeam.mod).getMove(moves[i]);
+				else move = Dex.forGen(this.curTeam.gen).getMove(moves[i]);
 				if (move.id === 'transform') {
 					hasHiddenPower = true; // A Pokemon with Transform can copy another Pokemon that knows Hidden Power
 
@@ -3100,12 +3111,13 @@
 		},
 		setPokemon: function (val, selectNext) {
 			var set = this.curSet;
-			var species = Dex.forGen(this.curTeam.gen).getSpecies(val);
+			var species = 0;
+			if (this.curTeam.mod) species = Dex.mod(this.curTeam.mod).getSpecies(val);
+			else species = Dex.forGen(this.curTeam.gen).getSpecies(val);
 			if (!species.exists || set.species === species.name) {
 				if (selectNext) this.$('input[name=item]').select();
 				return;
 			}
-
 			set.name = "";
 			set.species = val;
 			if (set.level) delete set.level;
@@ -3167,7 +3179,10 @@
 
 			// do this after setting set.evs because it's assumed to exist
 			// after getStat is run
-			var species = Dex.forGen(this.curTeam.gen).getSpecies(set.species);
+			var species = 0;
+			if (this.curTeam.mod) species = Dex.mod(this.curTeam.mod).getSpecies(set.species);
+			else species = Dex.forGen(this.curTeam.gen).getSpecies(set.species);
+			if (this.curTeam.mod) species = Dex.mod(this.curTeam.mod).getSpecies(set.species);
 			if (!species.exists) return 0;
 
 			if (!set.level) set.level = 100;

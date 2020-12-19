@@ -824,35 +824,46 @@ class ModdedDex {
 	pokeballs: string[] | null = null;
 	constructor(modid: ID) {
 		this.modid = modid;
-		let gen = parseInt(modid.slice(3), 10);
-		if (!modid.startsWith('gen') || !gen) throw new Error("Unsupported modid");
-		this.gen = gen;
+		if (!modid.startsWith('gen') || typeof gen === 'undefined' || !gen) { 
+			this.gen = 8
+		} else {
+			let gen = parseInt(modid.slice(3), 10);
+			this.gen = gen;
+		}
 	}
 	getMove(name: string): Move {
 		let id = toID(name);
 		if (window.BattleAliases && id in BattleAliases) {
 			name = BattleAliases[id];
 			id = toID(name);
+			console.log('name found in BattleAliases');
 		}
 		if (this.cache.Moves.hasOwnProperty(id)) return this.cache.Moves[id];
 
 		let data = {...Dex.getMove(name)};
 
 		const table = window.BattleTeambuilderTable[this.modid];
+		if (id in table.fullMoveName){
+			data.name = table.fullMoveName[id];
+			data.exists = true;
+			name = table.fullMoveName[id];
+		}
 		if (id in table.overrideAcc) data.accuracy = table.overrideAcc[id];
 		if (id in table.overrideBP) data.basePower = table.overrideBP[id];
 		if (id in table.overridePP) data.pp = table.overridePP[id];
 		if (id in table.overrideMoveType) data.type = table.overrideMoveType[id];
-		for (let i = this.gen; i < 8; i++) {
-			if (id in window.BattleTeambuilderTable['gen' + i].overrideMoveDesc) {
-				data.shortDesc = window.BattleTeambuilderTable['gen' + i].overrideMoveDesc[id];
-				break;
+		if (id in table.overrideMoveDesc) data.shortDesc = table.overrideMoveDesc[id];
+		else {
+			for (let i = this.gen; i < 8; i++) {
+				if (id in window.BattleTeambuilderTable['gen' + i].overrideMoveDesc) {
+					data.shortDesc = window.BattleTeambuilderTable['gen' + i].overrideMoveDesc[id];
+					break;
+				}
 			}
 		}
 		if (this.gen <= 3 && data.category !== 'Status') {
 			data.category = Dex.getGen3Category(data.type);
 		}
-
 		const move = new Move(id, name, data);
 		this.cache.Moves[id] = move;
 		return move;
@@ -864,9 +875,10 @@ class ModdedDex {
 			id = toID(name);
 		}
 		if (this.cache.Items.hasOwnProperty(id)) return this.cache.Items[id];
-
+		const table = window.BattleTeambuilderTable[this.modid];
 		let data = {...Dex.getItem(name)};
-
+		if (id in table.fullItemName) data.name = table.fullItemName[id];
+		if (id in table.overrideItemDesc) data.shortDesc = table.overrideItemDesc[id];
 		for (let i = this.gen; i < 8; i++) {
 			if (id in window.BattleTeambuilderTable['gen' + i].overrideItemDesc) {
 				data.shortDesc = window.BattleTeambuilderTable['gen' + i].overrideItemDesc[id];
@@ -885,13 +897,16 @@ class ModdedDex {
 			id = toID(name);
 		}
 		if (this.cache.Abilities.hasOwnProperty(id)) return this.cache.Abilities[id];
-
+		let table = BattleTeambuilderTable[this.modid]
 		let data = {...Dex.getAbility(name)};
-
-		for (let i = this.gen; i < 8; i++) {
-			if (id in window.BattleTeambuilderTable['gen' + i].overrideAbilityDesc) {
-				data.shortDesc = window.BattleTeambuilderTable['gen' + i].overrideAbilityDesc[id];
-				break;
+		if (id in table.fullAbilityName) data.name = table.fullAbilityName[id];
+		if (id in table.overrideAbilityDesc) data.shortDesc = table.overrideAbilityDesc[id];
+		else {
+			for (let i = this.gen; i < 8; i++) {
+				if (id in window.BattleTeambuilderTable['gen' + i].overrideAbilityDesc) {
+					data.shortDesc = window.BattleTeambuilderTable['gen' + i].overrideAbilityDesc[id];
+					break;
+				}
 			}
 		}
 
@@ -906,16 +921,19 @@ class ModdedDex {
 			id = toID(name);
 		}
 		if (this.cache.Species.hasOwnProperty(id)) return this.cache.Species[id];
-
-		let data = {...Dex.getSpecies(name)};
-
 		const table = window.BattleTeambuilderTable[this.modid];
-		if (this.gen < 3) {
-			data.abilities = {0: "None"};
-		} else {
+		let data = {...Dex.getSpecies(name)};
+		if (table.fullFakemonData && id in table.fullFakemonData) data = (table.fullFakemonData[id]);
+		else {
 			let abilities = {...data.abilities};
 			if (id in table.overrideAbility) {
 				abilities['0'] = table.overrideAbility[id];
+			}
+			if (typeof table.overrideSecondAbility !== 'undefined' && id in table.overrideSecondAbility) {
+				abilities['1'] = table.overrideSecondAbility[id];
+			}
+			if (typeof table.requiredItem !== 'undefined' && id in table.requiredItem) {
+				data.requiredItem = table.requiredItem[id];
 			}
 			if (id in table.removeSecondAbility) {
 				delete abilities['1'];
@@ -928,11 +946,13 @@ class ModdedDex {
 
 			data.abilities = abilities;
 		}
+		if (this.gen < 3) {
+			data.abilities = {0: "None"};
+		} 
 		if (id in table.overrideStats) {
 			data.baseStats = {...data.baseStats, ...table.overrideStats[id]};
 		}
 		if (id in table.overrideType) data.types = table.overrideType[id].split('/');
-
 		if (id in table.overrideTier) data.tier = table.overrideTier[id];
 		if (!data.tier && id.slice(-5) === 'totem') {
 			data.tier = this.getSpecies(id.slice(0, -5)).tier;

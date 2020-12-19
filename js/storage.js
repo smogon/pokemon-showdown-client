@@ -895,10 +895,16 @@ Storage.fastUnpackTeam = function (buf) {
 
 Storage.unpackTeam = function (buf) {
 	if (!buf) return [];
-
+	let thisDex = Dex;
+	for (let teamData of this.teams){
+		if (teamData.team === buf && teamData.mod){
+			mod = teamData.mod
+			thisDex = Dex.mod(teamData.mod)
+		}
+	}
+	
 	var team = [];
 	var i = 0, j = 0;
-
 	while (true) {
 		var set = {};
 		team.push(set);
@@ -910,25 +916,25 @@ Storage.unpackTeam = function (buf) {
 
 		// species
 		j = buf.indexOf('|', i);
-		set.species = Dex.getSpecies(buf.substring(i, j)).name || set.name;
+		set.species = thisDex.getSpecies(buf.substring(i, j)).name || set.name;
 		i = j + 1;
 
 		// item
 		j = buf.indexOf('|', i);
-		set.item = Dex.getItem(buf.substring(i, j)).name;
+		set.item = thisDex.getItem(buf.substring(i, j)).name;
 		i = j + 1;
 
 		// ability
 		j = buf.indexOf('|', i);
-		var ability = Dex.getAbility(buf.substring(i, j)).name;
-		var species = Dex.getSpecies(set.species);
+		var ability = thisDex.getAbility(buf.substring(i, j)).name;
+		var species = thisDex.getSpecies(set.species);
 		set.ability = (species.abilities && ability in {'':1, 0:1, 1:1, H:1} ? species.abilities[ability || '0'] : ability);
 		i = j + 1;
 
 		// moves
 		j = buf.indexOf('|', i);
 		set.moves = buf.substring(i, j).split(',').map(function (moveid) {
-			return Dex.getMove(moveid).name;
+			return thisDex.getMove(moveid).name;
 		});
 		i = j + 1;
 
