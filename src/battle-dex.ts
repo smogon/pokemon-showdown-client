@@ -582,7 +582,7 @@ const Dex = new class implements ModdedDex {
 				baseSpeciesid === 'necrozma' ||
 				baseSpeciesid === 'oricorio' ||
 				baseSpeciesid === 'slowpoke' ||
-				baseSpeciesid === 'zygarde'		
+				baseSpeciesid === 'zygarde'
 			)) {
 				spriteData.cryurl += formeid;
 			}
