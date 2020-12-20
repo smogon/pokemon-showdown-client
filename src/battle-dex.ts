@@ -824,7 +824,7 @@ class ModdedDex {
 	pokeballs: string[] | null = null;
 	constructor(modid: ID) {
 		this.modid = modid;
-		if (!modid.startsWith('gen') || typeof gen === 'undefined' || !gen) {
+		if (!modid.startsWith('gen') || typeof gen === 'undefined' || !this.gen) {
 			this.gen = 8;
 		} else {
 			this.gen = parseInt(modid.slice(3), 10);
