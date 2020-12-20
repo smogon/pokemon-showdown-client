@@ -1071,7 +1071,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			const modTiers = BattleTeambuilderTable.ClientMods[modid].customTiers;
 			const tierOrder = [];
 			if (typeof modTiers !== "undefined") {
-				if (ClientMods[modid].excludeStandardTiers) tierOrder.push( ...modTiers);
+				if (ClientMods[modid].excludeStandardTiers) tierOrder.push(...modTiers);
 				else tierOrder.push(modTiers.concat(["OU", "AG", "Uber", "(Uber)", "OU", "(OU)", "UUBL", "UU", "RUBL", "RU", "NUBL", "NU", "PUBL", "PU", "(PU)", "New", "NFE", "LC Uber", "LC", "Unreleased"]));
 			}
 			for (const tier of tierOrder) {
