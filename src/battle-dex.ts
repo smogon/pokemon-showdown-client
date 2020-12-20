@@ -842,7 +842,7 @@ class ModdedDex {
 		let data = {...Dex.getMove(name)};
 
 		const table = window.BattleTeambuilderTable[this.modid];
-		if (id in table.fullMoveName){
+		if (id in table.fullMoveName) {
 			data.name = table.fullMoveName[id];
 			data.exists = true;
 			name = table.fullMoveName[id];
