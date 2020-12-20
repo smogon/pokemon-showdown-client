@@ -899,8 +899,9 @@ class ModdedDex {
 		let table = BattleTeambuilderTable[this.modid]
 		let data = {...Dex.getAbility(name)};
 		if (id in table.fullAbilityName) data.name = table.fullAbilityName[id];
-		if (id in table.overrideAbilityDesc) data.shortDesc = table.overrideAbilityDesc[id];
-		else {
+		if (id in table.overrideAbilityDesc) {
+			data.shortDesc = table.overrideAbilityDesc[id];
+		} else {
 			for (let i = this.gen; i < 8; i++) {
 				if (id in window.BattleTeambuilderTable['gen' + i].overrideAbilityDesc) {
 					data.shortDesc = window.BattleTeambuilderTable['gen' + i].overrideAbilityDesc[id];
