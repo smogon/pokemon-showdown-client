@@ -836,7 +836,7 @@ class ModdedDex {
 		if (window.BattleAliases && id in BattleAliases) {
 			name = BattleAliases[id];
 			id = toID(name);
-		}
+		};
 		if (this.cache.Moves.hasOwnProperty(id)) return this.cache.Moves[id];
 
 		let data = {...Dex.getMove(name)};
@@ -853,7 +853,7 @@ class ModdedDex {
 		if (id in table.overrideMoveType) data.type = table.overrideMoveType[id];
 		if (id in table.overrideMoveDesc) data.shortDesc = table.overrideMoveDesc[id];
 		else {
-			for (let i = this.gen; i < 8; i++) {
+			for (let i = this.gen; i < 8 ; i++) {
 				if (id in window.BattleTeambuilderTable['gen' + i].overrideMoveDesc) {
 					data.shortDesc = window.BattleTeambuilderTable['gen' + i].overrideMoveDesc[id];
 					break;
@@ -907,7 +907,7 @@ class ModdedDex {
 					break;
 				}
 			}
-		}
+		};
 		const ability = new Ability(id, name, data);
 		this.cache.Abilities[id] = ability;
 		return ability;
