@@ -1166,7 +1166,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			}
 			let itemTable = BattleTeambuilderTable.items;
 			if (modGen) itemTable = BattleTeambuilderTable[modGen].items;
-			for (let i = 1; i < itemTable.length; i++) items.push(itemTable[i]);
+			items.push(...itemTable.slice(1));
 			//moves
 			const fullMoveName = {};
 			BattleTeambuilderTable[modid].fullMoveName = fullMoveName;
