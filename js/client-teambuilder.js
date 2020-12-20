@@ -678,8 +678,9 @@
 			this.curTeam.iconCache = '!';
 			this.curTeam.gen = this.getGen(this.curTeam.format);
 			var ClientMods = BattleTeambuilderTable.ClientMods;
-			for(var modid of Object.keys(ClientMods)){
-				for (var formatName of ClientMods[modid].formats){
+			for(var modid in (ClientMods)){
+				for (var i in ClientMods[modid].formats){
+					var formatName = ClientMods[modid].formats[i];
 					if (toID(formatName) === this.curTeam.format) this.curTeam.mod = modid;
 			}}
 			Storage.activeSetList = this.curSetList = Storage.unpackTeam(this.curTeam.team);
@@ -1398,8 +1399,9 @@
 			this.curTeam.gen = this.getGen(this.curTeam.format);
 			this.curTeam.mod = 0;
 			var ClientMods = BattleTeambuilderTable.ClientMods;
-			for(var modid of Object.keys(ClientMods)){
-				for (var formatName of ClientMods[modid].formats){
+			for(var modid in (ClientMods)){
+				for (var i in ClientMods[modid].formats){
+					var formatName = ClientMods[modid].formats[i];
 					if (toID(formatName) === this.curTeam.format) this.curTeam.mod = modid;
 			}}
 			this.save();
