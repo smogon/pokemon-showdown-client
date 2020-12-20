@@ -896,14 +896,12 @@ Storage.fastUnpackTeam = function (buf) {
 Storage.unpackTeam = function (buf) {
 	if (!buf) return [];
 	var thisDex = Dex;
-	for (var teamid in this.teams){
+	for (var teamid in this.teams) {
 		var teamData = this.teams[teamid];
-		if (teamData.team === buf && teamData.mod){
-			mod = teamData.mod
-			thisDex = Dex.mod(teamData.mod)
+		if (teamData.team === buf && teamData.mod) {
+			thisDex = Dex.mod(teamData.mod);
 		}
 	}
-	
 	var team = [];
 	var i = 0, j = 0;
 	while (true) {
