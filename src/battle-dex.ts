@@ -560,28 +560,17 @@ const Dex = new class implements ModdedDex {
 			spriteData.cryurl = 'audio/cries/' + baseSpeciesid;
 			let formeid = species.formeid;
 			if (species.isMega || formeid && (
-				formeid === '-crowned' ||
-				formeid === '-eternal' ||
-				formeid === '-eternamax' ||
-				formeid === '-hangry' ||
-				formeid === '-lowkey' ||
-				formeid === '-noice' ||
-				formeid === '-primal' ||
-				formeid === '-rapidstrike' ||
-				formeid === '-school' ||
 				formeid === '-sky' ||
-				formeid === '-starter' ||
-				formeid === '-super' ||
 				formeid === '-therian' ||
-				formeid === '-unbound' ||
-				baseSpeciesid === 'calyrex' ||
+				formeid === '-primal' ||
+				formeid === '-eternal' ||
 				baseSpeciesid === 'kyurem' ||
-				baseSpeciesid === 'cramorant' ||
-				baseSpeciesid === 'indeedee' ||
-				baseSpeciesid === 'lycanroc' ||
 				baseSpeciesid === 'necrozma' ||
+				formeid === '-super' ||
+				formeid === '-unbound' ||
+				formeid === '-midnight' ||
+				formeid === '-school' ||
 				baseSpeciesid === 'oricorio' ||
-				baseSpeciesid === 'slowpoke' ||
 				baseSpeciesid === 'zygarde'
 			)) {
 				spriteData.cryurl += formeid;
