@@ -1072,7 +1072,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			const tierOrder = [];
 			if (typeof modTiers !== "undefined") {
 				if (ClientMods[modid].excludeStandardTiers) tierOrder.push(...modTiers);
-				else tierOrder.push(modTiers.concat(["OU", "AG", "Uber", "(Uber)", "OU", "(OU)", "UUBL", "UU", "RUBL", "RU", "NUBL", "NU", "PUBL", "PU", "(PU)", "New", "NFE", "LC Uber", "LC", "Unreleased"]));
+				else tierOrder.push(...modTiers.concat(["OU", "AG", "Uber", "(Uber)", "OU", "(OU)", "UUBL", "UU", "RUBL", "RU", "NUBL", "NU", "PUBL", "PU", "(PU)", "New", "NFE", "LC Uber", "LC", "Unreleased"]));
 			}
 			for (const tier of tierOrder) {
 				if (tier in {OU:1, AG:1, Uber:1, UU:1, "(UU)":1, RU:1, NU:1, "(NU)":1, PU:1, "(PU)":1, NFE:1, LC:1, DOU:1, DUU:1, "(DUU)":1, New:1, Legal:1, Regular:1, "Restricted Legendary":1, "CAP LC":1}) {
