@@ -543,7 +543,7 @@ abstract class BattleTypedSearch<T extends SearchType> {
 	 * (Abilities/items can affect what moves are sorted as usable.)
 	 */
 	set: PokemonSet | null = null;
-	mod = 0;
+	mod = '';
 
 	protected formatType: 'doubles' | 'letsgo' | 'metronome' | 'natdex' | 'nfe' | 'dlc1' | 'dlc1doubles' | null = null;
 
@@ -570,7 +570,7 @@ abstract class BattleTypedSearch<T extends SearchType> {
 		const ClientMods = BattleTeambuilderTable.ClientMods;
 		if (format.slice(0, 3) === 'gen') {
 			gen = (Number(format.charAt(3)) || 6);
-			let mod = 0;
+			let mod = '';
 			for (const modid in (ClientMods)) {
 				for (const formatName of ClientMods[modid].formats) {
 					if (toID(formatName) === format) mod = modid;
@@ -583,7 +583,6 @@ abstract class BattleTypedSearch<T extends SearchType> {
 				this.dex = Dex.forGen(gen);
 			}
 			format = (format.slice(4) || 'customgame') as ID;
-			this.dex.gen = gen;
 		} else if (!format) {
 			this.dex = Dex;
 		}
