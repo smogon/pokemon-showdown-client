@@ -1016,32 +1016,35 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			}
 		}
 	}
-	//Scoopapa code
-	console.log('');
 	BattleTeambuilderTable.ClientMods = {};
 	for (const modid of Object.keys(ClientMods)) {
-		try { //catch loading errors so the whole thing doesn't break if one mod does
-			//Gather data about formats
+		try { // catch loading errors so the whole thing doesn't break if one mod does
+			// Gather data about formats
 			BattleTeambuilderTable.ClientMods[modid] = {};
 			const modDex = Dex.mod(modid);
 			const modData = modDex.data;
 			let modGen = 0;
 			BattleTeambuilderTable.ClientMods[modid].formats = [];
-			for (let formatid in Dex.data.Formats) { //Find formats using this mod
-				let format = Dex.getFormat(formatid);
+			// Find formats using this mod
+			for (const formatid in Dex.data.Formats) {
+				const format = Dex.getFormat(formatid);
 				if (format.mod === modid) {
-					if (formatid.slice(0, 3) === 'gen' && formatid.charAt(3) !== '8') modGen = (formatid.slice(0, 4));
+					if (formatid.startsWith('gen') && formatid.charAt(3) !== '8') modGen = formatid.slice(0, 4);
 					BattleTeambuilderTable.ClientMods[modid].formats.push(format.fullname);
 				}
 			}
 			const standardTiers = ['uber', 'ou', 'uubl', 'uu', 'rubl', 'ru', 'nubl', 'nu', 'publ',
 				'pu', 'zu', 'nfe', 'lcuber', 'lc', 'cap', 'caplc', 'capnfe', 'ag', 'duber', 'dou',
 				'dbl', 'duu', 'dnu', 'illegal', 'unreleased'];
-			if (ClientMods[modid].customTiers) BattleTeambuilderTable.ClientMods[modid].customTiers = ClientMods[modid].customTiers;
-			else BattleTeambuilderTable.ClientMods[modid].customTiers = [];
-			for (const speciesid in modData.FormatsData) { //Find any nonstandard tiers used by this mod
+			if (ClientMods[modid].customTiers) {
+				BattleTeambuilderTable.ClientMods[modid].customTiers = ClientMods[modid].customTiers;
+			} else {
+				BattleTeambuilderTable.ClientMods[modid].customTiers = [];
+			}
+			// Find any nonstandard tiers used by this mod
+			for (const speciesid in modData.FormatsData) {
 				const tier = modData.FormatsData[speciesid].tier;
-				if (typeof tier === 'undefined') continue;
+				if (tier === undefined) continue;
 				if (!standardTiers.includes(toID(tier)) &&
 					!BattleTeambuilderTable.ClientMods[modid].customTiers.includes(tier)) {
 					BattleTeambuilderTable.ClientMods[modid].customTiers.push(tier);
@@ -1120,14 +1123,10 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 					if (modEntry.types.join('/') !== baseType) {
 						overrideType[id] = modEntry.types.join('/');
 					}
-					if (modEntry.abilities['0'] !== baseEntry.abilities['0']) {
-						overrideAbility[id] = modEntry.abilities['0'];
-					}
-					if (modEntry.abilities['1'] !== baseEntry.abilities['1']) {
-						overrideSecondAbility[id] = modEntry.abilities['1'];
-					}
-					if (modEntry.abilities['H'] !== baseEntry.abilities['H']) {
-						overrideHiddenAbility[id] = modEntry.abilities['H'];
+					for (const ability of ['0', '1', 'H']) {
+						if (modEntry.abilities[ability] !== baseEntry.abilities[ability]) {
+							overrideAbility[id] = modEntry.abilities[ability];
+						}
 					}
 					if (modEntry.requiredItem && !baseEntry.requiredItem) {
 						requiredItem[id] = modEntry.requiredItem;
@@ -1167,7 +1166,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			}
 			let itemTable = BattleTeambuilderTable.items;
 			if (modGen) itemTable = BattleTeambuilderTable[modGen].items;
-			for (let i = 1; i < itemTable.length; i++) items.push(itemTable[i]);
+			items.push(...itemTable.slice(1));
 			//moves
 			const fullMoveName = {};
 			BattleTeambuilderTable[modid].fullMoveName = fullMoveName;
