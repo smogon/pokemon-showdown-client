@@ -1016,12 +1016,10 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			}
 		}
 	}
-	//Scoopapa code
-	console.log('');
 	BattleTeambuilderTable.ClientMods = {};
 	for (const modid of Object.keys(ClientMods)) {
-		try { //catch loading errors so the whole thing doesn't break if one mod does
-			//Gather data about formats
+		try { // catch loading errors so the whole thing doesn't break if one mod does
+			// Gather data about formats
 			BattleTeambuilderTable.ClientMods[modid] = {};
 			const modDex = Dex.mod(modid);
 			const modData = modDex.data;
