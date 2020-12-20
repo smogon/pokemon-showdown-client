@@ -29,7 +29,7 @@ declare const BattleTeambuilderTable: any;
 /**
  * Backend for search UIs.
  */
- 
+
 class DexSearch {
 	query = '';
 
@@ -571,16 +571,17 @@ abstract class BattleTypedSearch<T extends SearchType> {
 		if (format.slice(0, 3) === 'gen') {
 			gen = (Number(format.charAt(3)) || 6);
 			let mod = 0;
-			for(const modid of Object.keys(ClientMods)){
-				for (const formatName of ClientMods[modid].formats){
+			for (const modid in (ClientMods)) {
+				for (const formatName of ClientMods[modid].formats) {
 					if (toID(formatName) === format) mod = modid;
-			}}
+				}
+			}
 			if (mod) {
 				this.dex = Dex.mod(mod);
 				this.mod = mod;
 			} else {
 				this.dex = Dex.forGen(gen);
-			}	
+			}
 			format = (format.slice(4) || 'customgame') as ID;
 			this.dex.gen = gen;
 		} else if (!format) {
@@ -621,7 +622,7 @@ abstract class BattleTypedSearch<T extends SearchType> {
 			this.set = speciesOrSet as PokemonSet;
 			this.species = toID(this.set.species);
 		}
-		
+
 		if (!searchType || !this.set) return;
 	}
 	getResults(filters?: SearchFilter[] | null, sortCol?: string | null): SearchRow[] {
@@ -844,7 +845,7 @@ class BattlePokemonSearch extends BattleTypedSearch<'pokemon'> {
 		const dex = this.dex;
 
 		let table = BattleTeambuilderTable;
-		if (this.mod){
+		if (this.mod) {
 			table = BattleTeambuilderTable[this.mod];
 		} else if (format.endsWith('cap') || format.endsWith('caplc')) {
 			// CAP formats always use the singles table
@@ -1087,7 +1088,7 @@ class BattleItemSearch extends BattleTypedSearch<'item'> {
 		let table = BattleTeambuilderTable;
 		if (this.mod) {
 			table = table[this.mod];
-		}else if (this.dex.gen < 8) {
+		} else if (this.dex.gen < 8) {
 			table = table['gen' + this.dex.gen];
 		} else if (this.formatType === 'natdex') {
 			table = table['natdex'];
@@ -1178,7 +1179,7 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 				'disable', 'firepunch', 'icepunch', 'leechseed', 'quickattack', 'roar', 'thunderpunch', 'toxic', 'triattack', 'whirlwind',
 			].includes(id)) {
 				return false;
-			}	
+			}
 			// Not useless only when certain moves aren't present
 			switch (id) {
 			case 'bubblebeam': return (!moves.includes('surf') && !moves.includes('blizzard'));

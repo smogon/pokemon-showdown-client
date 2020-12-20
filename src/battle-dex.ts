@@ -836,7 +836,6 @@ class ModdedDex {
 		if (window.BattleAliases && id in BattleAliases) {
 			name = BattleAliases[id];
 			id = toID(name);
-			console.log('name found in BattleAliases');
 		}
 		if (this.cache.Moves.hasOwnProperty(id)) return this.cache.Moves[id];
 
@@ -909,7 +908,6 @@ class ModdedDex {
 				}
 			}
 		}
-
 		const ability = new Ability(id, name, data);
 		this.cache.Abilities[id] = ability;
 		return ability;
@@ -961,7 +959,6 @@ class ModdedDex {
 			data.tier = this.getSpecies(data.baseSpecies).tier;
 		}
 		if (data.gen > this.gen) data.tier = 'Illegal';
-
 		const species = new Species(id, name, data);
 		this.cache.Species[id] = species;
 		return species;
