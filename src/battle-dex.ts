@@ -824,8 +824,8 @@ class ModdedDex {
 	pokeballs: string[] | null = null;
 	constructor(modid: ID) {
 		this.modid = modid;
-		if (!modid.startsWith('gen') || typeof gen === 'undefined' || !gen) { 
-			this.gen = 8
+		if (!modid.startsWith('gen') || typeof gen === 'undefined' || !gen) {
+			this.gen = 8;
 		} else {
 			let gen = parseInt(modid.slice(3), 10);
 			this.gen = gen;
@@ -851,8 +851,9 @@ class ModdedDex {
 		if (id in table.overrideBP) data.basePower = table.overrideBP[id];
 		if (id in table.overridePP) data.pp = table.overridePP[id];
 		if (id in table.overrideMoveType) data.type = table.overrideMoveType[id];
-		if (id in table.overrideMoveDesc) data.shortDesc = table.overrideMoveDesc[id];
-		else {
+		if (id in table.overrideMoveDesc) {
+			data.shortDesc = table.overrideMoveDesc[id];
+		} else {
 			for (let i = this.gen; i < 8 ; i++) {
 				if (id in window.BattleTeambuilderTable['gen' + i].overrideMoveDesc) {
 					data.shortDesc = window.BattleTeambuilderTable['gen' + i].overrideMoveDesc[id];
@@ -896,7 +897,7 @@ class ModdedDex {
 			id = toID(name);
 		}
 		if (this.cache.Abilities.hasOwnProperty(id)) return this.cache.Abilities[id];
-		let table = BattleTeambuilderTable[this.modid]
+		let table = BattleTeambuilderTable[this.modid];
 		let data = {...Dex.getAbility(name)};
 		if (id in table.fullAbilityName) data.name = table.fullAbilityName[id];
 		if (id in table.overrideAbilityDesc) {
@@ -947,7 +948,7 @@ class ModdedDex {
 		}
 		if (this.gen < 3) {
 			data.abilities = {0: "None"};
-		} 
+		}
 		if (id in table.overrideStats) {
 			data.baseStats = {...data.baseStats, ...table.overrideStats[id]};
 		}
