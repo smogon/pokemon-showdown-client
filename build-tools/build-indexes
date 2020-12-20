@@ -1038,9 +1038,10 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 				'dbl', 'duu', 'dnu', 'illegal', 'unreleased'];
 			if (ClientMods[modid].customTiers) BattleTeambuilderTable.ClientMods[modid].customTiers = ClientMods[modid].customTiers;
 			else BattleTeambuilderTable.ClientMods[modid].customTiers = [];
-			for (const speciesid in modData.FormatsData) { //Find any nonstandard tiers used by this mod
+			// Find any nonstandard tiers used by this mod
+			for (const speciesid in modData.FormatsData) {
 				const tier = modData.FormatsData[speciesid].tier;
-				if (typeof tier === 'undefined') continue;
+				if (tier === undefined) continue;
 				if (!standardTiers.includes(toID(tier)) &&
 					!BattleTeambuilderTable.ClientMods[modid].customTiers.includes(tier)) {
 					BattleTeambuilderTable.ClientMods[modid].customTiers.push(tier);
