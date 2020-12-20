@@ -1043,8 +1043,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 				const tier = modData.FormatsData[speciesid].tier;
 				if (typeof tier === 'undefined') continue;
 				if (!standardTiers.includes(toID(tier)) &&
-					!BattleTeambuilderTable.ClientMods[modid].customTiers.includes(tier)) 
-				{
+					!BattleTeambuilderTable.ClientMods[modid].customTiers.includes(tier)) {
 					BattleTeambuilderTable.ClientMods[modid].customTiers.push(tier);
 				}
 			}
@@ -1109,7 +1108,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 					if (typeof baseEntry !== 'undefined') return baseEntry.types.join('/');
 				};
 				const fakeMon = (typeof baseEntry === 'undefined');
-				if (fakeMon){
+				if (fakeMon) {
 					fullFakemonData[id] = modEntry;
 				} else {
 					for (const stat in modEntry.baseStats) {
@@ -1133,7 +1132,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 					if (modEntry.requiredItem && !baseEntry.requiredItem) {
 						requiredItem[id] = modEntry.requiredItem;
 					}
-				}	
+				}
 			}
 			//learnsets
 			const learnsets = {};
