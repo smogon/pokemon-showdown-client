@@ -836,7 +836,7 @@ class ModdedDex {
 		if (window.BattleAliases && id in BattleAliases) {
 			name = BattleAliases[id];
 			id = toID(name);
-		};
+		}
 		if (this.cache.Moves.hasOwnProperty(id)) return this.cache.Moves[id];
 
 		let data = {...Dex.getMove(name)};
@@ -907,7 +907,7 @@ class ModdedDex {
 					break;
 				}
 			}
-		};
+		}
 		const ability = new Ability(id, name, data);
 		this.cache.Abilities[id] = ability;
 		return ability;
