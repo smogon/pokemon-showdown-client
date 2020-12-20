@@ -827,8 +827,7 @@ class ModdedDex {
 		if (!modid.startsWith('gen') || typeof gen === 'undefined' || !gen) {
 			this.gen = 8;
 		} else {
-			let gen = parseInt(modid.slice(3), 10);
-			this.gen = gen;
+			this.gen = parseInt(modid.slice(3), 10);
 		}
 	}
 	getMove(name: string): Move {

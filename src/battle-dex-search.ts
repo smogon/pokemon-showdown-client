@@ -577,7 +577,7 @@ abstract class BattleTypedSearch<T extends SearchType> {
 				}
 			}
 			if (mod) {
-				this.dex = Dex.mod(mod);
+				this.dex = Dex.mod(mod as ID);
 				this.mod = mod;
 			} else {
 				this.dex = Dex.forGen(gen);
