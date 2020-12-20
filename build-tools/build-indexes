@@ -1025,10 +1025,11 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			const modData = modDex.data;
 			let modGen = 0;
 			BattleTeambuilderTable.ClientMods[modid].formats = [];
-			for (let formatid in Dex.data.Formats) { //Find formats using this mod
-				let format = Dex.getFormat(formatid);
+			// Find formats using this mod
+			for (const formatid in Dex.data.Formats) {
+				const format = Dex.getFormat(formatid);
 				if (format.mod === modid) {
-					if (formatid.slice(0, 3) === 'gen' && formatid.charAt(3) !== '8') modGen = (formatid.slice(0, 4));
+					if (formatid.startsWith('gen') && formatid.charAt(3) !== '8') modGen = formatid.slice(0, 4);
 					BattleTeambuilderTable.ClientMods[modid].formats.push(format.fullname);
 				}
 			}
