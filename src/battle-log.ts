@@ -824,7 +824,7 @@ class BattleLog {
 
 				return {
 					tagName: 'iframe',
-					attribs: ['width', '320', 'height', '180', 'src', `https://www.youtube.com/embed/${videoId}`, 'frameborder', '0', 'allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture', 'allowfullscreen', 'allowfullscreen'],
+					attribs: ['width', '400', 'height', '225', 'src', `https://www.youtube.com/embed/${videoId}`, 'frameborder', '0', 'allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture', 'allowfullscreen', 'allowfullscreen'],
 				};
 			} else if (tagName === 'psicon') {
 				// <psicon> is a custom element which supports a set of mutually incompatible attributes:
