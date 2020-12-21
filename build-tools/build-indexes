@@ -1123,9 +1123,11 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 					if (modEntry.types.join('/') !== baseType) {
 						overrideType[id] = modEntry.types.join('/');
 					}
-					for (const ability of ['0', '1', 'H']) {
-						if (modEntry.abilities[ability] !== baseEntry.abilities[ability]) {
-							overrideAbility[id] = modEntry.abilities[ability];
+					const abilityOverrideTables = [overrideAbility, overrideSecondAbility, overrideHiddenAbility];
+					const abilityKeys = ['0', '1', 'H'];
+					for (const i in abilityKeys) {
+						if (modEntry.abilities[abilityKeys[i]] !== baseEntry.abilities[abilityKeys[i]]) {
+							abilityOverrideTables[i][id] = modEntry.abilities[abilityKeys[i]];
 						}
 					}
 					if (modEntry.requiredItem && !baseEntry.requiredItem) {
