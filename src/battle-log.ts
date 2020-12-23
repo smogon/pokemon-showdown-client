@@ -819,6 +819,7 @@ class BattleLog {
 				// <iframe width="320" height="180" src="https://www.youtube.com/embed/dQw4w9WgXcQ" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
 				const src = getAttrib('src') || '';
+				// Google's ToS requires a minimum of 200x200
 				let width = '320';
 				let height = '200';
 				if (window.innerWidth >= 400) {
