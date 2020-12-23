@@ -555,7 +555,6 @@ details.readmore[open] summary:hover:before {
 .infobox-limited {
 	max-height: 200px;
 	overflow: auto;
-	overflow-x: hidden;
 }
 .broadcast-red {
 	background-color: #AA5544;
