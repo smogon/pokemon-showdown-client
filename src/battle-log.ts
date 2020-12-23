@@ -821,8 +821,10 @@ class BattleLog {
 				const src = getAttrib('src') || '';
 				let width = '320';
 				let height = '200';
-				if (window.innerWidth >= 400) width = '400';
-				if (window.innerHeight >= 225) width = '225';
+				if (window.innerWidth >= 400) {
+					width = '400';
+					width = '225';
+				}
 				const videoId = /(?:\?v=|\/embed\/)([A-Za-z0-9_\-]+)/.exec(src)?.[1] || src;
 
 				return {
