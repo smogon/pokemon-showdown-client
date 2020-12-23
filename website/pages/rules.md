@@ -46,5 +46,6 @@ Your username can be chosen and changed at any time (change it by logging out an
 
 This policy is less restrictive than that of many places, so you might see some "borderline" nicknames that might not be accepted elsewhere. You might consider it unfair that they are allowed to keep their nickname. The fact remains that their nickname follows the above rules, and if you were asked to choose a new name, yours does not.
 
-## Supporting services
-Certain chat features of Pokemon Showdown use Google services, such as embedded YouTube videos. Pokemon Showdown encourages users to familiarize themselves with [their terms of service](https://www.youtube.com/t/terms).
+## YouTube
+
+When using the `/show` or `/youtube` commands for YouTube videos, you must follow the [YouTube Terms of Service](https://www.youtube.com/t/terms).
