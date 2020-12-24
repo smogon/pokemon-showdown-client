@@ -1057,7 +1057,7 @@
 					this.add('/challenge [user] - Challenge the user [user] to a battle.');
 					this.add('/challenge [user], [format] - Challenge the user [user] to a battle in the specified [format].');
 					this.add('/challenge [user], [format] @@@ [rules] - Challenge the user [user] to a battle with custom rules.');
-					this.add('[rules] can be a comma-separated list of: [added rule], ![removed rule], -[banned thing], *[restricted thing], +[unbanned/unrestricted thing]')
+					this.add('[rules] can be a comma-separated list of: [added rule], ![removed rule], -[banned thing], *[restricted thing], +[unbanned/unrestricted thing]');
 					this.add('/battlerules - Detailed information on what can go in [rules].');
 					return false;
 				case 'accept':
