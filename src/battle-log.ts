@@ -826,7 +826,8 @@ class BattleLog {
 					width = '400';
 					height = '225';
 				}
-				const videoId = /(?:\?v=|\/embed\/)([A-Za-z0-9_\-]+)/.exec(src)?.[1] || src;
+				const videoId = /(?:\?v=|\/embed\/)([A-Za-z0-9_\-]+)/.exec(src)?.[1];
+				if (!videoId) return {tagName: 'img', attribs: ['alt', `invalid src for <youtube>`]};
 
 				return {
 					tagName: 'iframe',
