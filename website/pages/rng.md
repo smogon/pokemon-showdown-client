@@ -32,7 +32,7 @@ If you think we're using different source code than the code above, you can alwa
 
 After a battle has ended, saving its replay will also save its input log containing its random seed. For random battles, you can get the log directly from the HTML source of the replay page. For battles with non-random teams, seeds are not visible for privacy reasons – you will need to get permission from your opponent and then use the `/exportinputlog` command.
 
-Once you have the log, you can replay it using the publicly available source from GitHub, and notice that it will probably generate the exact same numbers as the Switch and 3DS themselves do.
+Once you have the log, you can replay it using the publicly available source code from GitHub, which proves that it's the same RNG as in the source code, which you can read to see that it's the same RNG as the Switch and 3DS.
 
 
 Side note
