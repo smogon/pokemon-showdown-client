@@ -16,7 +16,7 @@ With every game with randomness, people will complain that the Random Number Gen
 How PS's RNG works
 ------------------
 
-Pokémon Showdown uses the exact same RNG as the actual Pokémon games on the Switch and 3DS use. You can see the source code right here:
+Pokémon Showdown uses the exact same type of RNG as the actual Pokémon games on the Switch and 3DS use. You can see the source code right here:
 
 https://github.com/smogon/Pokemon-Showdown/blob/master/sim/prng.ts
 
