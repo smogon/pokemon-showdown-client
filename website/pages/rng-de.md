@@ -16,7 +16,7 @@ Wie bei jedem Spiel, welches Zufallselemente enthält, beschweren sich Leute üb
 Wie der Zufallszahlengenerator auf PS funktioniert
 ------------------
 
-Pokémon Showdown benutzt den gleichen Zufallszahlengenerator wie in den Pokémon-Spielen auf der Switch und dem 3Ds. Hier kannst du den Quellcode sehen:
+Pokémon Showdown benutzt die gleiche Art von Zufallszahlengenerator wie in den Pokémon-Spielen auf der Switch und dem 3Ds. Hier kannst du den Quellcode sehen:
 
 https://github.com/smogon/Pokemon-Showdown/blob/master/sim/prng.ts
 
@@ -32,12 +32,12 @@ Falls du glaubst, dass wir einen anderen Quellcode als den obrigen benutzen, kan
 
 Nachdem ein Kampf beenden wurde, wird mit dem Speichern des Replays auch das Input-Protokoll gespeichert, welches die Zufallszahl zur Berechnung des Zufallszahlengenerators (random seed) enthält. Für Random-Kämpfe kannst du das Protokoll direkt aus dem HTML-Quelltext der Replay-Seite entnehmen. Für Kämpfe ohne zufällige Teams sind die Zufallszahlen aus Gründen der Privatsphäre nicht sichtbar. In diesem Fall musst du dir die Erlaubnis deines Gegners einholen und anschließend den Befehl `/exportinputlog` ausführen.
 
-Nachdem du das Protokoll erhalten hast, kannst du es nochmal abspielen, indem du den öffentlich zugänglichen Quellcode aus Github benutzt. Du wirst merken, dass es genau die gleichen Zahlen wie auf der Switch oder dem 3DS generiert.
+Nachdem du das Protokoll erhalten hast, kannst du es nochmal abspielen, indem du den öffentlich zugänglichen Code aus Github benutzt. Dies beweist, dass es sich um den gleichen Zufallszahlengenerator wie aus dem Quellcode handelt. Diesen kannst du auslesen, um zu sehen, dass es der gleiche Zufallszahlengenerator wie auf der Switch und dem 3Ds ist.
 
 
 Anmerkung
 ---------
 
-Es ist möglich, Spiele mit einem Zufallselement aber ohne einen Zufallszahlengenerator zu entwickeln! Nehmen wir als Beispiel Stein-Schere-Papier: Es ist immer noch "zufällig", aber es existiert kein Zufallszahlengenerator, den du für den Ausgang eines Ereignisses verantwortlich machen kannst, das Zufallselement wird von den Spielern selbst bestimmt!
+Es ist möglich, Spiele mit einem Zufallselement aber ohne einen Zufallszahlengenerator zu entwickeln! Nehmen wir als Beispiel Stein-Schere-Papier: Es ist immer noch "zufällig", aber es existiert kein Zufallszahlengenerator, den du für den Ausgang eines Ereignisses verantwortlich machen kannst. Das Zufallselement wird von den Spielern selbst bestimmt!
 
-Leider wurde Pokémon nicht auf diese Art und Weise konzipiert, da musst du dich wohl bei Game Freak beschweren und nicht mich. :p
+Leider wurde Pokémon nicht auf diese Art und Weise konzipiert. Da musst du dich wohl bei Game Freak beschweren und nicht bei mir. :p
