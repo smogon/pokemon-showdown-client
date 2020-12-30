@@ -663,7 +663,6 @@
 									pp = '&ndash;';
 								}
 								movebuttons += specialMove.name + '<br /><small class="type">' + (moveType ? Dex.getType(moveType).name : "Unknown") + '</small> <small class="pp">' + pp + '</small>&nbsp;</button> ';
-							
 							} else {
 								movebuttons += '<button disabled="disabled">&nbsp;</button>';
 							}
