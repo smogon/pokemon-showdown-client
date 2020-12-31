@@ -571,18 +571,27 @@ abstract class BattleTypedSearch<T extends SearchType> {
 		if (format.slice(0, 3) === 'gen') {
 			gen = (Number(format.charAt(3)) || 6);
 			let mod = '';
+			let overrideFormat = '';
 			for (const modid in (ClientMods)) {
-				for (const formatName of ClientMods[modid].formats) {
-					if (toID(formatName) === format) mod = modid;
+				for (const i in ClientMods[modid].formats) {
+					let formatName = ClientMods[modid].formats[i];
+					if (toID(formatName) === format) {
+						mod = modid;
+						if (mod && ClientMods[modid].teambuilderFormats[i]){
+							overrideFormat = toID(ClientMods[modid].teambuilderFormats[i]);
+						}
+					}
 				}
 			}
 			if (mod) {
 				this.dex = Dex.mod(mod as ID);
+				this.dex.setGen(gen);
 				this.mod = mod;
 			} else {
 				this.dex = Dex.forGen(gen);
 			}
-			format = (format.slice(4) || 'customgame') as ID;
+			if (overrideFormat) format = overrideFormat;
+			else format = (format.slice(4) || 'customgame') as ID;
 		} else if (!format) {
 			this.dex = Dex;
 		}
@@ -925,7 +934,7 @@ class BattlePokemonSearch extends BattleTypedSearch<'pokemon'> {
 				...tierSet.slice(slices.DUU),
 			];
 		}
-
+		
 		if (format === 'zu' && dex.gen >= 7) {
 			tierSet = tierSet.filter(function (r) {
 				if (r[1] in table.zuBans) return false;
@@ -939,6 +948,17 @@ class BattlePokemonSearch extends BattleTypedSearch<'pokemon'> {
 				];
 				return !(banned.includes(id) || id.startsWith('arceus'));
 			});
+		}
+		if (this.mod && !table.customTierSet) {
+			table.customTierSet = table.customTiers.map((r: any) => {
+				if (typeof r === 'string') return ['pokemon', r];
+				return [r[0], r[1]];
+			});
+			table.customTiers = null;
+		}
+		let customTierSet: SearchRow[] = table.customTierSet;
+		if (customTierSet) {
+			tierSet = customTierSet.concat(tierSet);
 		}
 		return tierSet;
 	}

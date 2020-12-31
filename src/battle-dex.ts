@@ -830,6 +830,9 @@ class ModdedDex {
 			this.gen = parseInt(modid.slice(3), 10);
 		}
 	}
+	setGen(gen: number){
+		this.gen = gen;
+	}
 	getMove(name: string): Move {
 		let id = toID(name);
 		if (window.BattleAliases && id in BattleAliases) {
@@ -841,7 +844,7 @@ class ModdedDex {
 		let data = {...Dex.getMove(name)};
 
 		const table = window.BattleTeambuilderTable[this.modid];
-		if (id in table.fullMoveName) {
+		if (table.fullMoveName && id in table.fullMoveName) {
 			data.name = table.fullMoveName[id];
 			data.exists = true;
 			name = table.fullMoveName[id];
@@ -850,6 +853,7 @@ class ModdedDex {
 		if (id in table.overrideBP) data.basePower = table.overrideBP[id];
 		if (id in table.overridePP) data.pp = table.overridePP[id];
 		if (id in table.overrideMoveType) data.type = table.overrideMoveType[id];
+		if (id in table.overrideMoveCategory) data.category = table.overrideMoveCategory[id];
 		if (id in table.overrideMoveDesc) {
 			data.shortDesc = table.overrideMoveDesc[id];
 		} else {
@@ -876,7 +880,7 @@ class ModdedDex {
 		if (this.cache.Items.hasOwnProperty(id)) return this.cache.Items[id];
 		const table = window.BattleTeambuilderTable[this.modid];
 		let data = {...Dex.getItem(name)};
-		if (id in table.fullItemName) data.name = table.fullItemName[id];
+		if (table.fullItemName && id in table.fullItemName) data.name = table.fullItemName[id];
 		if (id in table.overrideItemDesc) data.shortDesc = table.overrideItemDesc[id];
 		for (let i = this.gen; i < 8; i++) {
 			if (id in window.BattleTeambuilderTable['gen' + i].overrideItemDesc) {
@@ -898,7 +902,7 @@ class ModdedDex {
 		if (this.cache.Abilities.hasOwnProperty(id)) return this.cache.Abilities[id];
 		let table = BattleTeambuilderTable[this.modid];
 		let data = {...Dex.getAbility(name)};
-		if (id in table.fullAbilityName) data.name = table.fullAbilityName[id];
+		if (table.fullAbilityName && id in table.fullAbilityName) data.name = table.fullAbilityName[id];
 		if (id in table.overrideAbilityDesc) {
 			data.shortDesc = table.overrideAbilityDesc[id];
 		} else {
@@ -922,17 +926,14 @@ class ModdedDex {
 		if (this.cache.Species.hasOwnProperty(id)) return this.cache.Species[id];
 		const table = window.BattleTeambuilderTable[this.modid];
 		let data = {...Dex.getSpecies(name)};
-		if (table.fullFakemonData && id in table.fullFakemonData) data = (table.fullFakemonData[id]);
-		else {
+		if (table.overrideDexInfo) {
+			for (const key in table.overrideDexInfo[id]){
+				data[key] = (table.overrideDexInfo[id][key]);
+			}
+		} else {
 			let abilities = {...data.abilities};
 			if (id in table.overrideAbility) {
 				abilities['0'] = table.overrideAbility[id];
-			}
-			if (typeof table.overrideSecondAbility !== 'undefined' && id in table.overrideSecondAbility) {
-				abilities['1'] = table.overrideSecondAbility[id];
-			}
-			if (typeof table.requiredItem !== 'undefined' && id in table.requiredItem) {
-				data.requiredItem = table.requiredItem[id];
 			}
 			if (id in table.removeSecondAbility) {
 				delete abilities['1'];
@@ -942,16 +943,16 @@ class ModdedDex {
 			}
 			if (this.gen < 5) delete abilities['H'];
 			if (this.gen < 7) delete abilities['S'];
-
+			if (id in table.overrideStats) {
+			data.baseStats = {...data.baseStats, ...table.overrideStats[id]};
+			}
+			if (id in table.overrideType) data.types = table.overrideType[id].split('/');
 			data.abilities = abilities;
 		}
 		if (this.gen < 3) {
 			data.abilities = {0: "None"};
 		}
-		if (id in table.overrideStats) {
-			data.baseStats = {...data.baseStats, ...table.overrideStats[id]};
-		}
-		if (id in table.overrideType) data.types = table.overrideType[id].split('/');
+		
 		if (id in table.overrideTier) data.tier = table.overrideTier[id];
 		if (!data.tier && id.slice(-5) === 'totem') {
 			data.tier = this.getSpecies(id.slice(0, -5)).tier;

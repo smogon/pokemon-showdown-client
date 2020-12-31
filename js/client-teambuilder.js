@@ -3186,7 +3186,6 @@
 			var species = 0;
 			if (this.curTeam.mod) species = Dex.mod(this.curTeam.mod).getSpecies(set.species);
 			else species = Dex.forGen(this.curTeam.gen).getSpecies(set.species);
-			if (this.curTeam.mod) species = Dex.mod(this.curTeam.mod).getSpecies(set.species);
 			if (!species.exists) return 0;
 
 			if (!set.level) set.level = 100;
