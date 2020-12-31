@@ -851,7 +851,7 @@
 						var key = (target === 'roomclear' ? (Config.server.id + '#' + this.id) : (target === 'clearall' ? '' : 'global'));
 						if (key) {
 							highlights[key] = [];
-							this.add("All highlights (" + (key === 'global'  ? "everywhere" : "in " + key) + ") cleared.");
+							this.add("All highlights (" + (key === 'global' ? "everywhere" : "in " + key) + ") cleared.");
 							this.updateHighlightRegExp(highlightList);
 						} else {
 							Storage.prefs('highlights', false);
