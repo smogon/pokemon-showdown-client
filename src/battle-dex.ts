@@ -830,9 +830,9 @@ class ModdedDex {
 			this.gen = parseInt(modid.slice(3), 10);
 		}
 	}
-	setGen(gen: number) {
-		this.gen = gen;
-	}
+	// setGen(gen: number) {
+		// this.gen = gen;
+	// }
 	getMove(name: string): Move {
 		let id = toID(name);
 		if (window.BattleAliases && id in BattleAliases) {
