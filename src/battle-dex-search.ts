@@ -590,7 +590,7 @@ abstract class BattleTypedSearch<T extends SearchType> {
 			} else {
 				this.dex = Dex.forGen(gen);
 			}
-			if (overrideFormat) format = overrideFormat;
+			if (overrideFormat) format = overrideFormat as ID;
 			else format = (format.slice(4) || 'customgame') as ID;
 		} else if (!format) {
 			this.dex = Dex;

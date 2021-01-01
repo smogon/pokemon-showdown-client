@@ -927,9 +927,7 @@ class ModdedDex {
 		const table = window.BattleTeambuilderTable[this.modid];
 		let data = {...Dex.getSpecies(name)};
 		if (table.overrideDexInfo) {
-			for (const key in table.overrideDexInfo[id]) {
-				data[key] = (table.overrideDexInfo[id][key]);
-			}
+			data = {...Dex.getSpecies(name), ...table.overrideDexInfo[id]};
 		} else {
 			let abilities = {...data.abilities};
 			if (id in table.overrideAbility) {
