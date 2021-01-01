@@ -176,7 +176,7 @@ function requireNoCache(pathSpec) {
 			index.push('' + toID(name.slice(i2)) + ' ' + type + ' ' + id + ' ' + toID(name.slice(0, i2)).length);
 		}
 	}
-	
+
 	for (const id in Dex.data.Pokedex) {
 		const name = Dex.data.Pokedex[id].name;
 		generateAlias(id, name, 'pokemon');
@@ -193,28 +193,28 @@ function requireNoCache(pathSpec) {
 		const name = Dex.data.Abilities[id].name;
 		generateAlias(id, name, 'ability');
 	}
-	for (const modid in ClientMods){
+	for (const modid in ClientMods) {
 		const modDex = Dex.mod(modid);
 		for (const id in modDex.data.Pokedex) {
-			if (!usedIDs.includes(id)){
-			index.push(id + ' pokemon');
+			if (!usedIDs.includes(id)) {
+				index.push(id + ' pokemon');
 				usedIDs.push(id);
 			}
 		}
 		for (const id in modDex.data.Moves) {
-			if (!usedIDs.includes(id)){
+			if (!usedIDs.includes(id)) {
 				index.push(id + ' move');
 				usedIDs.push(id);
 			}
 		}
 		for (const id in modDex.data.Items) {
-			if (!usedIDs.includes(id)){
-			index.push(id + ' item');
+			if (!usedIDs.includes(id)) {
+				index.push(id + ' item');
 				usedIDs.push(id);
 			}
 		}
 		for (const id in modDex.data.Abilities) {
-			if (!usedIDs.includes(id)){
+			if (!usedIDs.includes(id)) {
 				index.push(id + ' ability');
 				usedIDs.push(id);
 			}
@@ -1135,10 +1135,10 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 					overrideDexInfo[id].exists = true;
 					continue;
 				}
-				for (const key in modEntry){
-					const modString = JSON.stringify(modEntry[key])
-					const baseString = JSON.stringify(baseEntry[key])
-					if (modString !== baseString){
+				for (const key in modEntry) {
+					const modString = JSON.stringify(modEntry[key]);
+					const baseString = JSON.stringify(baseEntry[key]);
+					if (modString !== baseString) {
 						overrideDexInfo[id][key] = JSON.parse(modString);
 					}
 				}

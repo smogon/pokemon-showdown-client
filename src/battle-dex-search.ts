@@ -577,7 +577,7 @@ abstract class BattleTypedSearch<T extends SearchType> {
 					let formatName = ClientMods[modid].formats[i];
 					if (toID(formatName) === format) {
 						mod = modid;
-						if (mod && ClientMods[modid].teambuilderFormats[i]){
+						if (mod && ClientMods[modid].teambuilderFormats[i]) {
 							overrideFormat = toID(ClientMods[modid].teambuilderFormats[i]);
 						}
 					}
@@ -934,7 +934,7 @@ class BattlePokemonSearch extends BattleTypedSearch<'pokemon'> {
 				...tierSet.slice(slices.DUU),
 			];
 		}
-		
+
 		if (format === 'zu' && dex.gen >= 7) {
 			tierSet = tierSet.filter(function (r) {
 				if (r[1] in table.zuBans) return false;
