@@ -2140,11 +2140,13 @@ function toId() {
 			}
 		},
 		subtleNotifyOnce: function () {
-			if (app.focused && (this === app.curRoom || this == app.curSideRoom)) return;
-			if (this.notifications || this.subtleNotification) return;
-			this.subtleNotification = true;
-			this.notificationClass = ' subtle-notifying';
-			app.topbar.updateTabbar();
+			if (!Dex.prefs('subtleNotifyOnce')) {
+				if (app.focused && (this === app.curRoom || this == app.curSideRoom)) return;
+				if (this.notifications || this.subtleNotification) return;
+				this.subtleNotification = true;
+				this.notificationClass = ' subtle-notifying';
+				app.topbar.updateTabbar();
+			}
 		},
 		notifyOnce: function (title, body, tag) {
 			return this.notify(title, body, tag, true);
