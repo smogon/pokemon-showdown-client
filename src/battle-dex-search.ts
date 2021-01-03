@@ -708,7 +708,6 @@ abstract class BattleTypedSearch<T extends SearchType> {
 	}
 	protected firstLearnsetid(speciesid: ID) {
 		let learnsets = BattleTeambuilderTable.learnsets;
-		if (this.mod && BattleTeambuilderTable.ClientMods[this.mod]) learnsets = BattleTeambuilderTable[this.mod].learnsets;
 		if (speciesid in learnsets) return speciesid;
 		const species = this.dex.getSpecies(speciesid);
 		if (!species.exists) return '' as ID;
@@ -739,7 +738,9 @@ abstract class BattleTypedSearch<T extends SearchType> {
 			return false;
 		}
 		let genChar = `${this.dex.gen}`;
-		if (
+		if (this.mod) {
+			genChar = BattleTeambuilderTable[this.mod].lsetStr;
+		} else if (
 			this.format.startsWith('vgc') ||
 			this.format.startsWith('battlespot') ||
 			this.format.startsWith('battlestadium')
@@ -755,7 +756,6 @@ abstract class BattleTypedSearch<T extends SearchType> {
 		let learnsetid = this.firstLearnsetid(speciesid);
 		while (learnsetid) {
 			let learnset = BattleTeambuilderTable.learnsets[learnsetid];
-			if (this.mod) learnset = BattleTeambuilderTable[this.mod].learnsets[learnsetid];
 			if (learnset && (moveid in learnset) && learnset[moveid].includes(genChar)) {
 				return true;
 			}
@@ -1394,7 +1394,6 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 			let learnset = BattleTeambuilderTable.learnsets[learnsetid];
 			if (this.formatType === 'letsgo') learnset = BattleTeambuilderTable['letsgo'].learnsets[learnsetid];
 			if (this.formatType?.startsWith('dlc1')) learnset = BattleTeambuilderTable['gen8dlc1'].learnsets[learnsetid];
-			if (this.mod && BattleTeambuilderTable.ClientMods[this.mod]) learnset = BattleTeambuilderTable[this.mod].learnsets[learnsetid];
 			if (learnset) {
 				for (let moveid in learnset) {
 					let learnsetEntry = learnset[moveid];
@@ -1403,7 +1402,9 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 					} */
 					if (galarBornLegality && !learnsetEntry.includes('g')) {
 						continue;
-					} else if (!learnsetEntry.includes(gen)) {
+					} else if (!this.mod && !learnsetEntry.includes(gen)) {
+						continue;
+					} else if (this.mod && !learnsetEntry.includes(BattleTeambuilderTable[this.mod].lsetStr)) {
 						continue;
 					}
 					if (!this.mod && this.dex.gen >= 8 && BattleMovedex[moveid].isNonstandard === "Past" && this.formatType !== 'natdex') continue;
