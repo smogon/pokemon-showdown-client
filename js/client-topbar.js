@@ -447,6 +447,7 @@
 			'change input[name=blockpms]': 'setBlockpms',
 			'change input[name=inchatpm]': 'setInchatpm',
 			'change input[name=dark]': 'setDark',
+			'change input[name=subtleNotifyOnce]': 'setsubtleNotifyOnce',
 			'change input[name=temporarynotifications]': 'setTemporaryNotifications',
 			'change input[name=refreshprompt]': 'setRefreshprompt',
 			'change select[name=bg]': 'setBg',
@@ -482,6 +483,7 @@
 			}
 			buf += '<p><label class="optlabel">Background: <button name="background">Change background</button></label></p>';
 			buf += '<p><label class="optlabel"><input type="checkbox" name="dark"' + (Dex.prefs('dark') ? ' checked' : '') + ' /> Dark mode</label></p>';
+			buf += '<p><label class="optlabel"><input type="checkbox" name="subtleNotifyOnce"' + (Dex.prefs('subtleNotifyOnce') ? ' checked' : '') + ' /> Indicate new messages</label></p>';
 			buf += '<p><label class="optlabel"><input type="checkbox" name="noanim"' + (Dex.prefs('noanim') ? ' checked' : '') + ' /> Disable animations</label></p>';
 			if (navigator.userAgent.includes(' Chrome/64.')) {
 				buf += '<p><label class="optlabel"><input type="checkbox" name="nogif"' + (Dex.prefs('nogif') ? ' checked' : '') + ' /> Disable GIFs for Chrome 64 bug</label></p>';
@@ -602,6 +604,10 @@
 		setInchatpm: function (e) {
 			var inchatpm = !!e.currentTarget.checked;
 			Storage.prefs('inchatpm', inchatpm);
+		},
+		setsubtleNotifyOnce: function (e) {
+			var subtleNotifyOnce = !!e.currentTarget.checked;
+			Storage.prefs('subtleNotifyOnce', subtleNotifyOnce);
 		},
 		setTemporaryNotifications: function (e) {
 			var temporarynotifications = !!e.currentTarget.checked;
