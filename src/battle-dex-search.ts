@@ -567,18 +567,18 @@ abstract class BattleTypedSearch<T extends SearchType> {
 		this.baseResults = null;
 		this.baseIllegalResults = null;
 		let gen = 8;
-		const ClientMods = BattleTeambuilderTable.ClientMods;
+		const Mods = BattleTeambuilderTable.Mods;
 		if (format.slice(0, 3) === 'gen') {
 			gen = (Number(format.charAt(3)) || 6);
 			let mod = '';
 			let overrideFormat = '';
-			for (const modid in (ClientMods)) {
-				for (const i in ClientMods[modid].formats) {
-					let formatName = ClientMods[modid].formats[i];
+			for (const modid in (Mods)) {
+				for (const i in Mods[modid].formats) {
+					let formatName = Mods[modid].formats[i];
 					if (toID(formatName) === format) {
 						mod = modid;
-						if (mod && ClientMods[modid].teambuilderFormats[i]) {
-							overrideFormat = toID(ClientMods[modid].teambuilderFormats[i]);
+						if (mod && Mods[modid].teambuilderFormats[i]) {
+							overrideFormat = toID(Mods[modid].teambuilderFormats[i]);
 						}
 					}
 				}

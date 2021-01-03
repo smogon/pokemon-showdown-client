@@ -21,8 +21,7 @@ console.log("DONE");
 
 const Dex = require('../data/pokemon-showdown/.sim-dist/dex').Dex;
 const toID = Dex.toID;
-const ModConfig = require('../config/mod-config').ModConfig;
-const ClientMods = ModConfig.ClientMods;
+const Mods = {ssb: true, ccapm2: true, viabilities: true};
 process.stdout.write("Loading gen 6 data... ");
 Dex.includeData();
 console.log("DONE");
@@ -194,9 +193,10 @@ function requireNoCache(pathSpec) {
 		generateAlias(id, name, 'ability');
 	}
 	const infoTable = {Pokedex: 'pokemon', Moves: 'move', Items: 'item', Abilities: 'ability'};
-	for (const modid in ClientMods) {
+	for (const modid in Mods) {
+		const modDex = Dex.mod(modid);
+		if (!modDex) continue;
 		for (const key in infoTable) {
-			const modDex = Dex.mod(modid);
 			for (const id in modDex.data[key]) {
 				if (!modDex.data[key][id]) continue;
 				if (!usedIDs.includes(id)) {
@@ -1033,42 +1033,42 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			}
 		}
 	}
-	BattleTeambuilderTable.ClientMods = {};
+	BattleTeambuilderTable.Mods = {};
 	let modIndex = 0;
-	for (const modid of Object.keys(ClientMods)) {
+	for (const modid of Object.keys(Mods)) {
 		try { // catch loading errors so the whole thing doesn't break if one mod does
 			// Gather data about formats
-			BattleTeambuilderTable.ClientMods[modid] = {};
+			BattleTeambuilderTable.Mods[modid] = {};
 			const modDex = Dex.mod(modid);
 			const modData = modDex.data;
 			let modGen = 0;
-			BattleTeambuilderTable.ClientMods[modid].formats = [];
-			BattleTeambuilderTable.ClientMods[modid].teambuilderFormats = [];
+			BattleTeambuilderTable.Mods[modid].formats = [];
+			BattleTeambuilderTable.Mods[modid].teambuilderFormats = [];
 			// Find formats using this mod
 			for (const formatid in Dex.data.Formats) {
 				const format = Dex.getFormat(formatid);
 				if (format.mod === modid) {
 					if (formatid.startsWith('gen') && formatid.charAt(3) !== '8') modGen = formatid.slice(0, 4);
-					BattleTeambuilderTable.ClientMods[modid].formats.push(format.fullname);
-					if (format.teambuilderFormat) BattleTeambuilderTable.ClientMods[modid].teambuilderFormats.push(format.teambuilderFormat);
-					else BattleTeambuilderTable.ClientMods[modid].teambuilderFormats.push('');
+					BattleTeambuilderTable.Mods[modid].formats.push(format.fullname);
+					if (format.teambuilderFormat) BattleTeambuilderTable.Mods[modid].teambuilderFormats.push(format.teambuilderFormat);
+					else BattleTeambuilderTable.Mods[modid].teambuilderFormats.push('');
 				}
 			}
 			const standardTiers = ['uber', 'ou', 'uubl', 'uu', 'rubl', 'ru', 'nubl', 'nu', 'publ',
 				'pu', 'zu', 'nfe', 'lcuber', 'lc', 'cap', 'caplc', 'capnfe', 'ag', 'duber', 'dou',
 				'dbl', 'duu', 'dnu', 'illegal', 'unreleased'];
-			if (ClientMods[modid].customTiers) {
-				BattleTeambuilderTable.ClientMods[modid].customTiers = ClientMods[modid].customTiers;
+			if (Mods[modid].customTiers) {
+				BattleTeambuilderTable.Mods[modid].customTiers = Mods[modid].customTiers;
 			} else {
-				BattleTeambuilderTable.ClientMods[modid].customTiers = [];
+				BattleTeambuilderTable.Mods[modid].customTiers = [];
 			}
 			// Find any nonstandard tiers used by this mod
 			for (const speciesid in modData.FormatsData) {
 				const tier = modData.FormatsData[speciesid].tier;
 				if (tier === undefined) continue;
 				if (!standardTiers.includes(toID(tier)) &&
-					!BattleTeambuilderTable.ClientMods[modid].customTiers.includes(tier)) {
-					BattleTeambuilderTable.ClientMods[modid].customTiers.push(tier);
+					!BattleTeambuilderTable.Mods[modid].customTiers.includes(tier)) {
+					BattleTeambuilderTable.Mods[modid].customTiers.push(tier);
 				}
 			}
 			BattleTeambuilderTable[modid] = {};
@@ -1094,7 +1094,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			const tierOrder = ["OU", "AG", "Uber", "(Uber)", "OU", "(OU)", "UUBL", "UU", "RUBL", "RU", "NUBL", "NU", "PUBL", "PU", "(PU)", "New", "NFE", "LC Uber", "LC", "Unreleased"];
 			const sliceTiers = ["OU", "AG", "Uber", "UU", "(UU)", "RU", "NU", "(NU)", "PU", "(PU)", "NFE", "LC", "DOU", "DUU", "(DUU)", "New", "Legal", "Regular", "Restricted Legendary", "CAP LC"];
 			for (const tier of tierOrder) {
-				if (ClientMods[modid].excludeStandardTiers) break;
+				if (Mods[modid].excludeStandardTiers) break;
 				if (sliceTiers.includes(tier)) {
 					let usedTier = tier;
 					if (usedTier === "(UU)") usedTier = "RU";
@@ -1107,7 +1107,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 				tiers.push(['header', tier]);
 				tiers.push(...tierTable[tier]);
 			}
-			for (const tier of BattleTeambuilderTable.ClientMods[modid].customTiers) {
+			for (const tier of BattleTeambuilderTable.Mods[modid].customTiers) {
 				if (!tierTable[tier]) continue;
 				customTiers.push(['header', tier]);
 				customTiers.push(...tierTable[tier]);
@@ -1230,14 +1230,14 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 				}
 			}
 		} catch (err) {
-			delete BattleTeambuilderTable.ClientMods[modid];
+			delete BattleTeambuilderTable.Mods[modid];
 			delete BattleTeambuilderTable[modid];
 			console.log("WARNING: Failed to load " + modid);
 			console.log("This was the error:");
 			console.log(err);
 		}
 	}
-	// console.log( BattleTeambuilderTable.ClientMods );
+	// console.log( BattleTeambuilderTable.Mods );
 	//Scoopapa code end
 	buf += 'exports.BattleTeambuilderTable = ' + JSON.stringify(BattleTeambuilderTable) + ';\n\n';
 

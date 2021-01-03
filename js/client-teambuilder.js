@@ -677,10 +677,10 @@
 			this.curTeam = teams[i];
 			this.curTeam.iconCache = '!';
 			this.curTeam.gen = this.getGen(this.curTeam.format);
-			var ClientMods = BattleTeambuilderTable.ClientMods;
-			for (var modid in (ClientMods)) {
-				for (var i in ClientMods[modid].formats) {
-					var formatName = ClientMods[modid].formats[i];
+			var Mods = BattleTeambuilderTable.Mods;
+			for (var modid in (Mods)) {
+				for (var i in Mods[modid].formats) {
+					var formatName = Mods[modid].formats[i];
 					if (toID(formatName) === this.curTeam.format) this.curTeam.mod = modid;
 				}
 			}
@@ -1399,10 +1399,10 @@
 			this.curTeam.format = format;
 			this.curTeam.gen = this.getGen(this.curTeam.format);
 			this.curTeam.mod = 0;
-			var ClientMods = BattleTeambuilderTable.ClientMods;
-			for (var modid in (ClientMods)) {
-				for (var i in ClientMods[modid].formats) {
-					var formatName = ClientMods[modid].formats[i];
+			var Mods = BattleTeambuilderTable.Mods;
+			for (var modid in (Mods)) {
+				for (var i in Mods[modid].formats) {
+					var formatName = Mods[modid].formats[i];
 					if (toID(formatName) === this.curTeam.format) this.curTeam.mod = modid;
 				}
 			}
