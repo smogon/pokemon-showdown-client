@@ -792,7 +792,7 @@
 			case 'highlight':
 				if (this.checkBroadcast(cmd, text)) return false;
 				var highlights = Dex.prefs('highlights') || {};
-				if (target.indexOf(' ') > -1) {
+				if (target.includes(' ')) {
 					var targets = target.split(' ');
 					var subCmd = targets[0];
 					targets = targets.slice(1).join(' ').match(/([^,]+?({\d*,\d*})?)+/g);
@@ -814,7 +814,7 @@
 									return this.add('|error|' + (e.message.substr(0, 28) === 'Invalid regular expression: ' ? e.message : 'Invalid regular expression: /' + targets[i] + '/: ' + e.message));
 								}
 							}
-							if (highlightList.indexOf(targets[i]) > -1) {
+							if (highlightList.includes(targets[i])) {
 								return this.add('|error|' + targets[i] + ' is already on your highlights list.');
 							}
 						}
@@ -1124,12 +1124,12 @@
 				case 'highlight':
 				case 'hl':
 					this.add('Set up highlights:');
-					this.add('/highlight add [word 1, word 2, ...] - Add the provided list of words to your highlight list.');
-					this.add('/highlight roomadd [word 1, word 2, ...] - Add the provided list of words to the highlight list of whichever room you used the command in.');
+					this.add('/highlight add [word 1], [word 2], [...] - Add the provided list of words to your highlight list.');
+					this.add('/highlight roomadd [word 1], [word 2], [...] - Add the provided list of words to the highlight list of whichever room you used the command in.');
 					this.add('/highlight list - List all words that currently highlight you.');
 					this.add('/highlight roomlist - List all words that currently highlight you in whichever room you used the command in.');
-					this.add('/highlight delete [word 1, word 2, ...] - Delete the provided list of words from your entire highlight list.');
-					this.add('/highlight roomdelete [word 1, word 2, ...] - Delete the provided list of words from the highlight list of whichever room you used the command in.');
+					this.add('/highlight delete [word 1], [word 2], [...] - Delete the provided list of words from your entire highlight list.');
+					this.add('/highlight roomdelete [word 1], [word 2], [...] - Delete the provided list of words from the highlight list of whichever room you used the command in.');
 					this.add('/highlight clear - Clear your global highlight list.');
 					this.add('/highlight roomclear - Clear the highlight list of whichever room you used the command in.');
 					this.add('/highlight clearall - Clear your entire highlight list (all rooms and globally).');
