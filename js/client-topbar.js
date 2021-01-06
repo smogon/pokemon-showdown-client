@@ -1010,8 +1010,19 @@
 				buf += '<div id="gapi-custom-signin" style="width:240px;margin:0 auto">[loading Google log-in button]</div>';
 				buf += '<p class="buttonbar"><button name="close">Cancel</button></p>';
 			} else {
-				buf += '<p><label class="label">Password: <input class="textbox autofocus" type="password" name="password" autocomplete="current-password"></label></p>';
+				buf += '<p><label class="label">Password: <input class="textbox autofocus" type="password" name="password" id="pwd" autocomplete="current-password"></label><i class="fa fa-eye-slash showpassword" onclick="showPassword(this)"></i></p>';
 				buf += '<p class="buttonbar"><button type="submit"><strong>Log in</strong></button> <button name="close">Cancel</button></p>';
+			}
+
+			function showPassword(fa) {
+				let x = document.getElementById("pwd");
+				if (x.type === "password") {
+					x.type = text;
+					fa.className = "fa fa-eye showpassword";
+				} else {
+					x.type = "password";
+					fa.className = "fa fa-eye-slass showpassword";
+				}
 			}
 
 			buf += '<p class="or">or</p>';
