@@ -1017,7 +1017,7 @@
 			function showPassword(fa) {
 				var x = document.getElementById("pwd");
 				if (x.type === "password") {
-					x.type = text;
+					x.type = "text";
 					fa.className = "fa fa-eye showpassword";
 				} else {
 					x.type = "password";
