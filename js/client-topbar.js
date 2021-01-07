@@ -245,7 +245,7 @@
 			app.addPopup(TabListPopup);
 		},
 		showRoomMuteButton: function (e) {
-			if($(e.currentTarget).data('chat')) {
+			if ($(e.currentTarget).data('chat')) {
 				app.addPopup(MutePopup, {
 					name: e.currentTarget.innerText,
 					sourceEl: e.currentTarget
@@ -1073,12 +1073,12 @@
 	var MutePopup = this.MutePopup = Popup.extend({
 		type: 'normal',
 		initialize: function (data) {
-			roomId = data.name;
+			var roomId = data.name;
 			var buf = '';
 			var chatMuted = !!Dex.prefs('chatmute' + roomId);
 			this.roomId = roomId;
 			buf += '<p><strong>' + roomId + ' chat options</strong></p>';
-			buf += '<p><label class="optlabel"><input type="checkbox" name="chatmuted"' + (chatMuted ? ' checked' : '') +'/>Hide new message indicator</label></p>';
+			buf += '<p><label class="optlabel"><input type="checkbox" name="chatmuted"' + (chatMuted ? ' checked' : '') + '/>Hide new message indicator</label></p>';
 			this.$el.html(buf).css('max-width', 200);
 		},
 		events: {
