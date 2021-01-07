@@ -1738,7 +1738,7 @@
 			} else if (mayNotify && this.id.substr(0, 5) === 'help-') {
 				this.notifyOnce("Help message from " + name, "\"" + message + "\"", 'pm');
 			} else if (mayNotify && name !== '~') { // |c:|~| prefixes a system message
-				if(!Dex.prefs('chatmute' + this.title)) {
+				if (!Dex.prefs('chatmute' + this.title)) {
 					this.subtleNotifyOnce();
 				}
 			}
