@@ -10,7 +10,9 @@
 			'dragstart .roomtab': 'dragStartRoom',
 			'dragend .roomtab': 'dragEndRoom',
 			'dragenter .roomtab': 'dragEnterRoom',
-			'dragover .roomtab': 'dragEnterRoom'
+			'dragover .roomtab': 'dragEnterRoom',
+
+			'contextmenu .roomtab': 'showRoomMuteButton'
 		},
 		initialize: function () {
 			// April Fool's 2016 - Digimon Showdown
@@ -112,7 +114,7 @@
 				}
 				return buf + ' draggable="true"><i class="text">' + BattleLog.escapeFormat(formatid) + '</i><span>' + name + '</span></a><button class="closebutton" name="closeRoom" value="' + id + '" aria-label="Close"><i class="fa fa-times-circle"></i></a></li>';
 			case 'chat':
-				return buf + ' draggable="true"><i class="fa fa-comment-o"></i> <span>' + (BattleLog.escapeHTML(room.title) || (id === 'lobby' ? 'Lobby' : id)) + '</span></a><button class="closebutton" name="closeRoom" value="' + id + '" aria-label="Close"><i class="fa fa-times-circle"></i></a></li>';
+				return buf + 'oncontextmenu="return false;" draggable="true" data-chat="true"><i class="fa fa-comment-o"></i> <span>' + (BattleLog.escapeHTML(room.title) || (id === 'lobby' ? 'Lobby' : id)) + '</span></a><button class="closebutton" name="closeRoom" value="' + id + '" aria-label="Close"><i class="fa fa-times-circle"></i></a></li>';
 			case 'html':
 			default:
 				if (room.title && room.title.charAt(0) === '[') {
@@ -241,6 +243,14 @@
 		},
 		tablist: function () {
 			app.addPopup(TabListPopup);
+		},
+		showRoomMuteButton: function (e) {
+			if ($(e.currentTarget).data('chat')) {
+				app.addPopup(MutePopup, {
+					name: e.currentTarget.innerText,
+					sourceEl: e.currentTarget
+				});
+			}
 		},
 
 		// drag and drop
@@ -1059,5 +1069,26 @@
 			app.user.passwordRename(data.username, data.password);
 		}
 	});
+
+	var MutePopup = this.MutePopup = Popup.extend({
+		type: 'normal',
+		initialize: function (data) {
+			var roomId = data.name;
+			var buf = '';
+			var chatMuted = !!Dex.prefs('chatmute' + roomId);
+			this.roomId = roomId;
+			buf += '<p><strong>' + roomId + ' chat options</strong></p>';
+			buf += '<p><label class="optlabel"><input type="checkbox" name="chatmuted"' + (chatMuted ? ' checked' : '') + '/>Hide new message indicator</label></p>';
+			this.$el.html(buf).css('max-width', 200);
+		},
+		events: {
+			'change input[name=chatmuted]': 'setChatMute'
+		},
+		setChatMute: function (e) {
+			var chatMuted = !!e.currentTarget.checked;
+			Storage.prefs('chatmute' + this.roomId, chatMuted);
+		}
+	});
+
 
 }).call(this, jQuery);
