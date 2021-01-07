@@ -1079,6 +1079,7 @@
 			this.roomId = roomId;
 			buf += '<p><strong>' + roomId + ' chat options</strong></p>';
 			buf += '<p><label class="optlabel"><input type="checkbox" name="chatmuted"' + (chatMuted ? ' checked' : '') + '/>Hide new message indicator</label></p>';
+			buf += '<p><button name="close">Close</button></p>';
 			this.$el.html(buf).css('max-width', 200);
 		},
 		events: {
