@@ -247,7 +247,6 @@
 		showRoomMuteButton: function (e) {
 			if ($(e.currentTarget).data('chat')) {
 				app.addPopup(MutePopup, {
-					name: e.currentTarget.innerText,
 					sourceEl: e.currentTarget
 				});
 			}
@@ -1073,11 +1072,13 @@
 	var MutePopup = this.MutePopup = Popup.extend({
 		type: 'normal',
 		initialize: function (data) {
-			var roomId = data.name;
-			var buf = '';
-			var chatMuted = !!Dex.prefs('chatmute' + roomId);
+			var sourceTab = data.sourceEl;
+			var roomId = $(sourceTab).attr('href').slice(1);
 			this.roomId = roomId;
-			buf += '<p><strong>' + roomId + ' chat options</strong></p>';
+			var mutedChats = Dex.prefs('mutedchats') || {};
+			var chatMuted = mutedChats[roomId];
+			var buf = '';
+			buf += '<p><strong>' + (sourceTab.context.innerText) + ' chat options</strong></p>';
 			buf += '<p><label class="optlabel"><input type="checkbox" name="chatmuted"' + (chatMuted ? ' checked' : '') + '/>Hide new message indicator</label></p>';
 			buf += '<p><button name="close">Close</button></p>';
 			this.$el.html(buf).css('max-width', 200);
@@ -1087,7 +1088,9 @@
 		},
 		setChatMute: function (e) {
 			var chatMuted = !!e.currentTarget.checked;
-			Storage.prefs('chatmute' + this.roomId, chatMuted);
+			var mutedChats = Dex.prefs('mutedchats') || {};
+			mutedChats[this.roomId] = chatMuted;
+			Storage.prefs('mutedchats', mutedChats);
 		}
 	});
 
