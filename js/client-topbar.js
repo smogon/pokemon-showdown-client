@@ -1080,7 +1080,7 @@
 			var buf = '';
 			buf += '<p><strong>' + (sourceTab.context.innerText) + ' chat options</strong></p>';
 			buf += '<p><label class="optlabel"><input type="checkbox" name="chatmuted"' + (chatMuted ? ' checked' : '') + '/>Hide new message indicator</label></p>';
-			buf += '<p><button name="close">Close</button></p>';
+			buf += '<p><button name="closeRoom" value="' + roomId + '" aria-label="Leave Room">Leave Room</button></p>';
 			this.$el.html(buf).css('max-width', 200);
 		},
 		events: {
@@ -1091,6 +1091,10 @@
 			var mutedChats = Dex.prefs('mutedchats') || {};
 			mutedChats[this.roomId] = chatMuted;
 			Storage.prefs('mutedchats', mutedChats);
+		},
+		closeRoom: function (roomid, button, e) {
+			app.leaveRoom(roomid);
+			this.remove();
 		}
 	});
 
