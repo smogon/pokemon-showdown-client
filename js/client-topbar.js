@@ -246,7 +246,7 @@
 		},
 		showRoomMuteButton: function (e) {
 			if ($(e.currentTarget).data('chat')) {
-				app.addPopup(MutePopup, {
+				app.addPopup(TabRightClickPopup, {
 					sourceEl: e.currentTarget
 				});
 			}
@@ -1069,32 +1069,32 @@
 		}
 	});
 
-	var MutePopup = this.MutePopup = Popup.extend({
+	var TabRightClickPopup = this.TabRightClickPopup = Popup.extend({
 		type: 'normal',
 		initialize: function (data) {
 			var sourceTab = data.sourceEl;
 			var roomId = $(sourceTab).attr('href').slice(1);
 			this.roomId = roomId;
-			var mutedChats = Dex.prefs('mutedchats') || {};
-			var chatMuted = mutedChats[roomId];
+			var mutedRooms = Dex.prefs('mutedrooms') || {};
+			var roomMuted = mutedRooms[roomId];
 			var buf = '';
 			buf += '<p><strong>' + (sourceTab.context.innerText) + ' chat options</strong></p>';
-			buf += '<p><label class="optlabel"><input type="checkbox" name="chatmuted"' + (chatMuted ? ' checked' : '') + '/>Hide new message indicator</label></p>';
+			buf += '<p><label class="optlabel"><input type="checkbox" name="roommuted"' + (roomMuted ? ' checked' : '') + '/>Hide new message indicator</label></p>';
 			buf += '<p><button name="closeRoom" value="' + roomId + '" aria-label="Leave Room">Leave Room</button></p>';
 			this.$el.html(buf).css('max-width', 200);
 		},
 		events: {
-			'change input[name=chatmuted]': 'setChatMute'
+			'change input[name=roommuted]': 'setRoomMute'
 		},
-		setChatMute: function (e) {
-			var chatMuted = !!e.currentTarget.checked;
-			var mutedChats = Dex.prefs('mutedchats') || {};
-			if (chatMuted) {
-				mutedChats[this.roomId] = 1;
+		setRoomMute: function (e) {
+			var roomMuted = !!e.currentTarget.checked;
+			var mutedRooms = Dex.prefs('mutedrooms') || {};
+			if (roomMuted) {
+				mutedRooms[this.roomId] = 1;
 			} else {
-				delete mutedChats[this.roomId];
+				delete mutedRooms[this.roomId];
 			}
-			Storage.prefs('mutedchats', mutedChats);
+			Storage.prefs('mutedrooms', mutedRooms);
 		},
 		closeRoom: function (roomid, button, e) {
 			app.leaveRoom(roomid);
