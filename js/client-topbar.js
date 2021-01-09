@@ -1089,7 +1089,11 @@
 		setChatMute: function (e) {
 			var chatMuted = !!e.currentTarget.checked;
 			var mutedChats = Dex.prefs('mutedchats') || {};
-			mutedChats[this.roomId] = chatMuted;
+			if (chatMuted) {
+				mutedChats[this.roomId] = 1;
+			} else {
+				delete mutedChats[this.roomId];
+			}
 			Storage.prefs('mutedchats', mutedChats);
 		},
 		closeRoom: function (roomid, button, e) {
