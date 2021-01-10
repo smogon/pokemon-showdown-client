@@ -13,7 +13,7 @@ Thumbs.db
 npm-debug.log
 package-lock.json
 /vendor/
-.vscode
+.vscode/settings.json
 
 /js/battle.js
 /js/battledata.js

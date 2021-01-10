@@ -1,0 +1,14 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Chrome: Preact",
+            "port": 9222,
+            "request": "launch",
+            "url": "http://localhost:8080/testclient-beta.html",
+            "type": "pwa-chrome",
+            "webRoot": "${workspaceFolder}",
+            "preLaunchTask": "npm: build"
+        } 
+    ]
+} 
