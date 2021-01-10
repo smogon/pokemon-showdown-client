@@ -1,0 +1,5 @@
+{
+  "editor.formatOnSave": false,
+  "showdown.server": "", // e.g., "?~~localhost:8000"
+  "showdown.url": "http://localhost:8080"
+}
