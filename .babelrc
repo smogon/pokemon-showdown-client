@@ -31,5 +31,6 @@
 	],
 	"compact": true,
 	"comments": false,
-	"retainLines": true
+	"retainLines": true,
+	"sourceMaps": true
 }
