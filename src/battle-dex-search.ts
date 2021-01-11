@@ -543,7 +543,7 @@ abstract class BattleTypedSearch<T extends SearchType> {
 	 */
 	set: PokemonSet | null = null;
 
-	protected formatType: 'doubles' | 'letsgo' | 'metronome' | 'natdex' | 'nfe' | 'dlc1' | 'dlc1doubles' | null = null;
+	protected formatType: 'doubles' | 'letsgo' | 'metronome' | 'natdex' | 'nfe' | 'dlc1' | 'dlc1doubles' | 'clovermons' | null = null;
 
 	/**
 	 * Cached copy of what the results list would be with only base filters
@@ -598,6 +598,9 @@ abstract class BattleTypedSearch<T extends SearchType> {
 			format = format.slice(3) as ID;
 			this.formatType = 'nfe';
 			if (!format) format = 'ou' as ID;
+		}
+		if (format.includes('cloveronly')) {
+			this.formatType = 'clovermons';
 		}
 		this.format = format;
 
@@ -745,7 +748,8 @@ abstract class BattleTypedSearch<T extends SearchType> {
 			return pokemon.num >= 0 ? String(pokemon.num) : pokemon.tier;
 		}
 		let table = window.BattleTeambuilderTable;
-		const tableKey = this.formatType === 'doubles' ? `gen${this.dex.gen}doubles` :
+		const tableKey = this.formatType === 'clovermons' ? 'clovermons' :
+			this.formatType === 'doubles' ? `gen${this.dex.gen}doubles` :
 			this.formatType === 'letsgo' ? 'letsgo' :
 			this.formatType === 'nfe' ? `gen${this.dex.gen}nfe` :
 			this.formatType === 'dlc1' ? 'gen8dlc1' :
@@ -862,6 +866,8 @@ class BattlePokemonSearch extends BattleTypedSearch<'pokemon'> {
 			} else {
 				table = table['gen8dlc1'];
 			}
+		} else if (this.formatType === 'clovermons') {
+			table = table['clovermons'];
 		}
 
 		if (!table.tierSet) {
@@ -1079,6 +1085,8 @@ class BattleItemSearch extends BattleTypedSearch<'item'> {
 			table = table['natdex'];
 		} else if (this.formatType === 'metronome') {
 			table = table['metronome'];
+		} else if (this.formatType === 'clovermons') {
+			table = table['clovermons'];
 		}
 		if (!table.itemSet) {
 			table.itemSet = table.items.map((r: any) => {

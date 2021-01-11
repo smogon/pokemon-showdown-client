@@ -8,18 +8,18 @@ const child_process = require("child_process");
 const rootDir = path.resolve(__dirname, '..');
 process.chdir(rootDir);
 
-if (!fs.existsSync('data/pokemon-showdown')) {
+if (!fs.existsSync('data/clovermon-showdown')) {
 	child_process.execSync('git clone https://github.com/smogon/pokemon-showdown.git', {
 		cwd: 'data',
 	});
 }
 
 process.stdout.write("Syncing data from Git repository... ");
-child_process.execSync('git pull', {cwd: 'data/pokemon-showdown'});
-child_process.execSync('npm run build', {cwd: 'data/pokemon-showdown'});
+child_process.execSync('git pull', {cwd: 'data/clovermon-showdown'});
+child_process.execSync('npm run build', {cwd: 'data/clovermon-showdown'});
 console.log("DONE");
 
-const Dex = require('../data/pokemon-showdown/.sim-dist/dex').Dex;
+const Dex = require('../data/clovermon-showdown/.sim-dist/dex').Dex;
 const toID = Dex.toID;
 process.stdout.write("Loading gen 6 data... ");
 Dex.includeData();
@@ -287,7 +287,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 	const GENS = [8, 7, 6, 5, 4, 3, 2, 1];
 	const DOUBLES = GENS.filter(x => x > 2).map(num => -num);
 	const NFE = GENS.map(num => num + 0.3);
-	const OTHER = [8.4, 8.2, 8.1, -8.4, 7.1, -7.5];
+	const OTHER = [8.69, 8.4, 8.2, 8.1, -8.4, 7.1, -7.5];
 
 	// process.stdout.write("\n  ");
 	for (const genIdent of [...GENS, ...DOUBLES, ...NFE, ...OTHER]) {
@@ -298,6 +298,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 		const isNatDex = (genIdent === 8.1);
 		const isDoubles = (genIdent < 0);
 		const isVGC = (genIdent === -7.5);
+		const isClovermons = (genIdent === 8.69);
 		const genNum = Math.floor(isDoubles ? -genIdent : genIdent);
 		const gen = isLetsGo ? 'letsgo' : 'gen' + genNum + (isDLC1 ? 'dlc1' : '');
 		// process.stdout.write("" + gen + (isDoubles ? " doubles" : "") + "... ");
@@ -309,13 +310,17 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 		const nonstandardMoves = [];
 		for (const id of pokemon) {
 			const species = Dex.mod(gen).getSpecies(id);
+			if (isClovermons && species.num <= 69000) continue;
 			if (species.gen > genNum) continue;
 			const tier = (() => {
+				if (isClovermons) {
+					return species.tier;
+				}
 				if (isNatDex) {
 					const unobtainables = [
 						'Eevee-Starter', 'Floette-Eternal', 'Pichu-Spiky-eared', 'Pikachu-Belle', 'Pikachu-Cosplay', 'Pikachu-Libre', 'Pikachu-PhD', 'Pikachu-Pop-Star', 'Pikachu-Rock-Star', 'Pikachu-Starter', 'Eternatus-Eternamax',
 					].map(toID);
-					if (species.isNonstandard && !['Past', 'Gigantamax'].includes(species.isNonstandard)) return 'Illegal';
+					if (species.isNonstandard && !['Past', 'Gigantamax', 'Future'].includes(species.isNonstandard)) return 'Illegal';
 					if (unobtainables.includes(species.id)) return 'Illegal';
 					const uu = Dex.getFormat('gen8nationaldexuu');
 					const ou = Dex.getFormat('gen8nationaldex');
@@ -343,6 +348,11 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 								return 'LC';
 							}
 						}
+
+						if (species.num > 69000 || species.num <= 69368) {
+							return species.tier;
+						}
+
 						return '(UU)';
 					}
 				}
@@ -452,7 +462,13 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 		const items = [];
 		const formatSlices = {};
 
-		if (isNatDex) {
+		if (isClovermons) {
+			BattleTeambuilderTable['clovermons'] = {};
+			BattleTeambuilderTable['clovermons'].overrideTier = overrideTier;
+			BattleTeambuilderTable['clovermons'].tiers = tiers;
+			BattleTeambuilderTable['clovermons'].items = items;
+			BattleTeambuilderTable['clovermons'].formatSlices = formatSlices;
+		} else if (isNatDex) {
 			BattleTeambuilderTable['natdex'] = {};
 			BattleTeambuilderTable['natdex'].tiers = tiers;
 			BattleTeambuilderTable['natdex'].items = items;
@@ -504,7 +520,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 		}
 
 		const tierOrder = (() => {
-			if (isNatDex) {
+			if (isNatDex || isClovermons) {
 				return ["CAP", "CAP NFE", "CAP LC", "AG", "Uber", "(Uber)", "OU", "UUBL", "(OU)", "UU", "(UU)", "NFE", "LC Uber", "LC"];
 			}
 			if (isLetsGo) {
@@ -1032,7 +1048,7 @@ console.log("DONE");
 process.stdout.write("Building `data/pokedex.js`... ");
 
 {
-	const Pokedex = requireNoCache('../data/pokemon-showdown/.data-dist/pokedex.js').Pokedex;
+	const Pokedex = requireNoCache('../data/clovermon-showdown/.data-dist/pokedex.js').Pokedex;
 	for (const id in Pokedex) {
 		const entry = Pokedex[id];
 		if (Dex.data.FormatsData[id]) {
@@ -1056,7 +1072,7 @@ console.log("DONE");
 process.stdout.write("Building `data/moves,items,abilities,typechart,learnsets.js`...");
 
 {
-	const Moves = requireNoCache('../data/pokemon-showdown/.data-dist/moves.js').Moves;
+	const Moves = requireNoCache('../data/clovermon-showdown/.data-dist/moves.js').Moves;
 	for (const id in Moves) {
 		const move = Dex.getMove(Moves[id].name);
 		if (move.desc) Moves[id].desc = move.desc;
@@ -1071,7 +1087,7 @@ process.stdout.write("Building `data/moves,items,abilities,typechart,learnsets.j
  *********************************************************/
 
 {
-	const Items = requireNoCache('../data/pokemon-showdown/.data-dist/items.js').Items;
+	const Items = requireNoCache('../data/clovermon-showdown/.data-dist/items.js').Items;
 	for (const id in Items) {
 		const move = Dex.getItem(Items[id].name);
 		if (move.desc) Items[id].desc = move.desc;
@@ -1086,7 +1102,7 @@ process.stdout.write("Building `data/moves,items,abilities,typechart,learnsets.j
  *********************************************************/
 
 {
-	const Abilities = requireNoCache('../data/pokemon-showdown/.data-dist/abilities.js').Abilities;
+	const Abilities = requireNoCache('../data/clovermon-showdown/.data-dist/abilities.js').Abilities;
 	for (const id in Abilities) {
 		const move = Dex.getAbility(Abilities[id].name);
 		if (move.desc) Abilities[id].desc = move.desc;
@@ -1101,7 +1117,7 @@ process.stdout.write("Building `data/moves,items,abilities,typechart,learnsets.j
  *********************************************************/
 
 {
-	const TypeChart = requireNoCache('../data/pokemon-showdown/.data-dist/typechart.js').TypeChart;
+	const TypeChart = requireNoCache('../data/clovermon-showdown/.data-dist/typechart.js').TypeChart;
 	const buf = 'exports.BattleTypeChart = ' + es3stringify(TypeChart) + ';';
 	fs.writeFileSync('data/typechart.js', buf);
 }
@@ -1111,7 +1127,7 @@ process.stdout.write("Building `data/moves,items,abilities,typechart,learnsets.j
  *********************************************************/
 
 {
-	const Aliases = requireNoCache('../data/pokemon-showdown/.data-dist/aliases.js').Aliases;
+	const Aliases = requireNoCache('../data/clovermon-showdown/.data-dist/aliases.js').Aliases;
 	const buf = 'exports.BattleAliases = ' + es3stringify(Aliases) + ';';
 	fs.writeFileSync('data/aliases.js', buf);
 }
@@ -1121,7 +1137,7 @@ process.stdout.write("Building `data/moves,items,abilities,typechart,learnsets.j
  *********************************************************/
 
 {
-	const FormatsData = requireNoCache('../data/pokemon-showdown/.data-dist/formats-data.js').FormatsData;
+	const FormatsData = requireNoCache('../data/clovermon-showdown/.data-dist/formats-data.js').FormatsData;
 	const buf = 'exports.BattleFormatsData = ' + es3stringify(FormatsData) + ';';
 	fs.writeFileSync('data/formats-data.js', buf);
 }
@@ -1131,7 +1147,7 @@ process.stdout.write("Building `data/moves,items,abilities,typechart,learnsets.j
  *********************************************************/
 
 {
-	const Formats = requireNoCache('../data/pokemon-showdown/.config-dist/formats.js').Formats;
+	const Formats = requireNoCache('../data/clovermon-showdown/.config-dist/formats.js').Formats;
 	const buf = 'exports.Formats = ' + es3stringify(Formats) + ';';
 	fs.writeFileSync('data/formats.js', buf);
 }
@@ -1141,7 +1157,7 @@ process.stdout.write("Building `data/moves,items,abilities,typechart,learnsets.j
  *********************************************************/
 
 {
-	const Learnsets = requireNoCache('../data/pokemon-showdown/.data-dist/learnsets.js').Learnsets;
+	const Learnsets = requireNoCache('../data/clovermon-showdown/.data-dist/learnsets.js').Learnsets;
 	const buf = 'exports.BattleLearnsets = ' + es3stringify(Learnsets) + ';';
 	fs.writeFileSync('data/learnsets.js', buf);
 }

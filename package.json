@@ -13,7 +13,8 @@
     "test": "npm run lint && tsc && node build && mocha test/*.js",
     "fix": "eslint --config=.eslintrc.js --fix js/ && eslint --config=build-tools/.eslintrc.js --fix build-tools/update build-tools/build-indexes",
     "build": "node build",
-    "build-full": "node build full"
+    "build-full": "node build full",
+    "build-server": "node build full && gulp"
   },
   "dependencies": {
     "@babel/cli": "^7.2.3",
@@ -25,6 +26,9 @@
     "@babel/plugin-transform-react-jsx": "^7.3.0",
     "@babel/preset-env": "^7.3.1",
     "@babel/preset-typescript": "^7.3.3",
+    "axios": "^0.21.1",
+    "body-parser": "^1.19.0",
+    "express": "^4.17.1",
     "google-auth-library": "^3.1.0",
     "image-size": "^0.7.2",
     "output-file-sync": "^2.0.1"
@@ -33,6 +37,7 @@
     "@types/jquery": "^3.5.3",
     "@types/mocha": "^5.2.6",
     "eslint": "^5.15.1",
+    "gulp": "^4.0.2",
     "mocha": "^6.0.2",
     "preact": "^8.3.1",
     "tslint": "^5.13.0",
