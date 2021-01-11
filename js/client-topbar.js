@@ -985,14 +985,15 @@
 
 	this.LoginPasswordPopup = Popup.extend({
 		type: 'semimodal',
-		showPassword: function (fa) {
+		showPassword: function () {
+			var buttonElement = document.getElementById("showPassIcon");
 			var passwordElement = document.getElementById("pwd");
 			if (passwordElement.type === "password") {
 				passwordElement.type = "text";
-				fa.className = "fa fa-eye showpassword";
+				buttonElement.className = "fa fa-eye showpassword";
 			} else {
 				passwordElement.type = "password";
-				fa.className = "fa fa-eye-slash showpassword";
+				buttonElement.className = "fa fa-eye-slash showpassword";
 			}
 		},
 		initialize: function (data) {
@@ -1020,7 +1021,7 @@
 				buf += '<div id="gapi-custom-signin" style="width:240px;margin:0 auto">[loading Google log-in button]</div>';
 				buf += '<p class="buttonbar"><button name="close">Cancel</button></p>';
 			} else {
-				buf += '<p><label class="label">Password: <input class="textbox autofocus" type="password" name="password" id="pwd" autocomplete="current-password"><button class="fa fa-eye-slash showpassword" name="showPassword"></button></label></p>';
+				buf += '<p><label class="label">Password: <input class="textbox autofocus" type="password" name="password" id="pwd" autocomplete="current-password"><button name="showPassword" class="fa fa-eye-slash showpassword" id="showPassIcon"></button></label></p>';
 				buf += '<p class="buttonbar"><button type="submit"><strong>Log in</strong></button> <button name="close">Cancel</button></p>';
 			}
 
