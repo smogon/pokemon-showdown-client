@@ -82,7 +82,7 @@ if (process.argv[2] === 'full') {
 	} catch (e) {}
 }
 
-child_process.execSync(`node build-tools/babel-cli/bin/babel.js src --out-dir js --extensions ".ts,.tsx" --incremental${ignoreGraphics}`);
+child_process.execSync(`node build-tools/babel-cli/bin/babel.js src --out-dir js --extensions ".ts,.tsx" --incremental${ignoreGraphics} --source-maps`);
 
 let textData = '';
 try {
