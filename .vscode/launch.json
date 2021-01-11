@@ -5,7 +5,7 @@
             "name": "Chrome: Test Client Beta (Preact)",
             "port": 9222,
             "request": "launch",
-            "url": "${config:showdown.url}/testclient-beta.html${config:showdown.server}",
+            "url": "${config:showdown.clientUrl}/testclient-beta.html${config:showdown.server}",
             "type": "pwa-chrome",
             "webRoot": "${workspaceFolder}",
             "preLaunchTask": "npm: build"
@@ -14,7 +14,7 @@
             "name": "Chrome: Test Client",
             "port": 9222,
             "request": "launch",
-            "url": "${config:showdown.url}/testclient.html${config:showdown.server}",
+            "url": "${config:showdown.clientUrl}/testclient.html${config:showdown.server}",
             "type": "pwa-chrome",
             "webRoot": "${workspaceFolder}",
             "preLaunchTask": "npm: build"
