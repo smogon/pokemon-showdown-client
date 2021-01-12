@@ -17,7 +17,6 @@ app.post(`/~~${defaultserver.id}/action.php`, (request, response) => {
   axios({
     method: 'POST',
     url: 'https://play.pokemonshowdown.com/action.php',
-    headers: request.headers,
     data: request.body,
   }).then((res) => response.send(res.data));
 });
