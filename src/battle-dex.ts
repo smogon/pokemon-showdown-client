@@ -691,6 +691,11 @@ const Dex = new class implements ModdedDex {
 				num = BattlePokemonIconIndexesLeft[id];
 			}
 		}
+
+		if (num > 69000 && num <= 69368) {
+			num = 1381 + num % 69000;
+		}
+
 		return num;
 	}
 
