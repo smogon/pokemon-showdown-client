@@ -295,7 +295,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 		const isMetBattle = (genIdent === 8.2);
 		const isNFE = (('' + genIdent).endsWith('.3'));
 		const isDLC1 = (genIdent === 8.4 || genIdent === -8.4);
-		const isNatDex = (genIdent === 8.1);
+		const isNatDex = (genIdent === 8.1) || (genIdent === 8.69);
 		const isDoubles = (genIdent < 0);
 		const isVGC = (genIdent === -7.5);
 		const isClovermons = (genIdent === 8.69);
