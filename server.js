@@ -13,6 +13,12 @@ const privateKey  = fs.readFileSync(ssl.privateKeyPath, 'utf8');
 const certificate = fs.readFileSync(ssl.certificatePath, 'utf8');
 
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use('*', (request, response, next) => {
+  if (request.secure) {
+    next();
+  }
+  response.redirect("https://" + request.headers.host + request.url);
+});
 app.post(`/~~${defaultserver.id}/action.php`, (request, response) => {
   axios({
     method: 'POST',
