@@ -675,7 +675,7 @@ const Dex = new class implements ModdedDex {
 			num = BattlePokedex[id].num;
 		}
 		if (num < 0) num = 0;
-		if (num > 69000 && num <= 69368) {
+		if (num > 69000 && num <= 69386) {
 			num = 1379 + num % 69000;
 		} else if (num > 898) {
 			num = 0;
