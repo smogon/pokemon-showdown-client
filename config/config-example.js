@@ -37,3 +37,5 @@ Config.roomsFirstOpenScript = function () {
 Config.customcolors = {
 	'zarel': 'aeo'
 };
+
+if (module) { module.exports = Config; }
