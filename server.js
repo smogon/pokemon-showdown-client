@@ -14,11 +14,22 @@ const certificate = fs.readFileSync(ssl.certificatePath, 'utf8');
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.post(`/~~${defaultserver.id}/action.php`, (request, response) => {
+  let headers = {};
+  if (request.headers.cookie) {
+    headers.cookie = request.headers.cookie;
+  }
+
   axios({
     method: 'POST',
     url: 'https://play.pokemonshowdown.com/action.php',
     data: request.body,
-  }).then((res) => response.send(res.data));
+    headers,
+  }).then((res) => {
+    if (res.headers['set-cookie']) {
+      response.setHeader('set-cookie', res.headers['set-cookie']);
+    };
+    response.send(res.data)
+  });
 });
 app.use('*.php', (request, response) => response.sendStatus(404));
 app.use(express.static('./public', { index: 'index.html', fallthrough: true }));
