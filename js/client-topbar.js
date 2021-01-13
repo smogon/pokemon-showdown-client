@@ -12,7 +12,7 @@
 			'dragenter .roomtab': 'dragEnterRoom',
 			'dragover .roomtab': 'dragEnterRoom',
 
-			'contextmenu .roomtab': 'showRoomMuteButton'
+			'contextmenu .roomtab': 'showRoomTabRightClickMenu'
 		},
 		initialize: function () {
 			// April Fool's 2016 - Digimon Showdown
@@ -114,7 +114,7 @@
 				}
 				return buf + ' draggable="true"><i class="text">' + BattleLog.escapeFormat(formatid) + '</i><span>' + name + '</span></a><button class="closebutton" name="closeRoom" value="' + id + '" aria-label="Close"><i class="fa fa-times-circle"></i></a></li>';
 			case 'chat':
-				return buf + 'oncontextmenu="return false;" draggable="true" data-chat="true"><i class="fa fa-comment-o"></i> <span>' + (BattleLog.escapeHTML(room.title) || (id === 'lobby' ? 'Lobby' : id)) + '</span></a><button class="closebutton" name="closeRoom" value="' + id + '" aria-label="Close"><i class="fa fa-times-circle"></i></a></li>';
+				return buf + ' draggable="true" data-chat="true"><i class="fa fa-comment-o"></i> <span>' + (BattleLog.escapeHTML(room.title) || (id === 'lobby' ? 'Lobby' : id)) + '</span></a><button class="closebutton" name="closeRoom" value="' + id + '" aria-label="Close"><i class="fa fa-times-circle"></i></a></li>';
 			case 'html':
 			default:
 				if (room.title && room.title.charAt(0) === '[') {
@@ -244,7 +244,8 @@
 		tablist: function () {
 			app.addPopup(TabListPopup);
 		},
-		showRoomMuteButton: function (e) {
+		showRoomTabRightClickMenu: function (e) {
+			e.preventDefault();
 			if ($(e.currentTarget).data('chat')) {
 				app.addPopup(TabRightClickPopup, {
 					sourceEl: e.currentTarget
