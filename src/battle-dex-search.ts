@@ -716,7 +716,7 @@ abstract class BattleTypedSearch<T extends SearchType> {
 		return '' as ID;
 	}
 	protected canLearn(speciesid: ID, moveid: ID) {
-		if (this.dex.gen >= 8 && this.dex.getMove(moveid).isNonstandard === 'Past' && this.formatType !== 'natdex') {
+		if (this.dex.gen >= 8 && this.dex.getMove(moveid).isNonstandard === 'Past' && (this.formatType !== 'natdex' && this.formatType !== 'clovermons')) {
 			return false;
 		}
 		let genChar = `${this.dex.gen}`;
@@ -1380,7 +1380,7 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 					} else if (!learnsetEntry.includes(gen)) {
 						continue;
 					}
-					if (this.dex.gen >= 8 && BattleMovedex[moveid].isNonstandard === "Past" && this.formatType !== 'natdex') continue;
+					if (this.dex.gen >= 8 && BattleMovedex[moveid].isNonstandard === "Past" && (this.formatType !== 'natdex' && this.formatType !== 'clovermons')) continue;
 					if (this.formatType?.startsWith('dlc1') && BattleTeambuilderTable['gen8dlc1']?.nonstandardMoves.includes(moveid)) continue;
 					if (moves.includes(moveid)) continue;
 					moves.push(moveid);
@@ -1406,7 +1406,7 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 				} else {
 					if (!(dex.gen < 8 || this.formatType === 'natdex') && move.isZ) continue;
 					if (typeof move.isMax === 'string') continue;
-					if (move.isNonstandard === 'Past' && this.formatType !== 'natdex' && dex.gen === 8) continue;
+					if (move.isNonstandard === 'Past' && (this.formatType !== 'natdex' && this.formatType !== 'clovermons') && dex.gen === 8) continue;
 					moves.push(move.id);
 				}
 			}
