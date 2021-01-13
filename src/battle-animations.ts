@@ -732,10 +732,9 @@ class BattleScene {
 				if (pokemon.speciesForme === 'Lombre') lombreCount++;
 
 				let spriteData = Dex.getSpriteData(pokemon, !!spriteIndex, {
-					gen: this.gen,
+					gen: this.battle.id.includes('cloveronly') ? 3 : this.gen,
 					noScale: true,
 					mod: this.mod,
-					isClovermonsOnly: this.battle.id.includes('cloveronly'),
 				});
 				let y = 0;
 				let x = 0;
@@ -985,9 +984,8 @@ class BattleScene {
 
 	addPokemonSprite(pokemon: Pokemon) {
 		const sprite = new PokemonSprite(Dex.getSpriteData(pokemon, pokemon.side.isFar, {
-			gen: this.gen,
+			gen: this.battle.id.includes('cloveronly') ? 3 : this.gen,
 			mod: this.mod,
-			isClovermonsOnly: this.battle.id.includes('cloveronly'),
 		}), {
 			x: pokemon.side.x,
 			y: pokemon.side.y,
@@ -1857,9 +1855,8 @@ class PokemonSprite extends Sprite {
 		if (!this.scene.animating) return;
 		if (this.$sub) return;
 		const subsp = Dex.getSpriteData('substitute', this.isFrontSprite, {
-			gen: this.scene.gen,
+			gen: this.scene.battle.id.includes('cloveronly') ? 3 : this.scene.gen,
 			mod: this.scene.mod,
-			isClovermonsOnly: this.scene.battle.id.includes('cloveronly'),
 		});
 		this.subsp = subsp;
 		this.$sub = $('<img src="' + subsp.url + '" style="display:block;opacity:0;position:absolute"' + (subsp.pixelated ? ' class="pixelated"' : '') + ' />');
@@ -1973,9 +1970,8 @@ class PokemonSprite extends Sprite {
 		if (pokemon.volatiles.formechange || pokemon.volatiles.dynamax) {
 			if (!this.oldsp) this.oldsp = this.sp;
 			this.sp = Dex.getSpriteData(pokemon, this.isFrontSprite, {
-				gen: this.scene.gen,
+				gen: this.scene.battle.id.includes('cloveronly') ? 3 : this.scene.gen,
 				mod: this.scene.mod,
-				isClovermonsOnly: this.scene.battle.id.includes('cloveronly'),
 			});
 		} else if (this.oldsp) {
 			this.sp = this.oldsp;
@@ -2367,9 +2363,8 @@ class PokemonSprite extends Sprite {
 	animTransform(pokemon: Pokemon, isCustomAnim?: boolean, isPermanent?: boolean) {
 		if (!this.scene.animating && !isPermanent) return;
 		let sp = Dex.getSpriteData(pokemon, this.isFrontSprite, {
-			gen: this.scene.gen,
+			gen: this.scene.battle.id.includes('cloveronly') ? 3 : this.scene.gen,
 			mod: this.scene.mod,
-			isClovermonsOnly: this.scene.battle.id.includes('cloveronly'),
 		});
 		let oldsp = this.sp;
 		if (isPermanent) {

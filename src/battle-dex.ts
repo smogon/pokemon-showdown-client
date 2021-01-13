@@ -483,7 +483,6 @@ const Dex = new class implements ModdedDex {
 		noScale?: boolean,
 		mod?: string,
 		dynamax?: boolean,
-		isClovermonsOnly?: boolean,
 	} = {gen: 6}) {
 		const mechanicsGen = options.gen || 6;
 		let isDynamax = !!options.dynamax;
@@ -538,7 +537,6 @@ const Dex = new class implements ModdedDex {
 		let graphicsGen = mechanicsGen;
 		if (Dex.prefs('nopastgens')) graphicsGen = 6;
 		if (Dex.prefs('bwgfx') && graphicsGen >= 6) graphicsGen = 5;
-		if (options.isClovermonsOnly) graphicsGen = 3;
 		spriteData.gen = Math.max(graphicsGen, Math.min(species.gen, 5));
 		const baseDir = ['', 'gen1', 'gen2', 'gen3', 'gen4', 'gen5', '', '', ''][spriteData.gen];
 
