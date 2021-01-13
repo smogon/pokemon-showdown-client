@@ -732,7 +732,7 @@ class BattleScene {
 				if (pokemon.speciesForme === 'Lombre') lombreCount++;
 
 				let spriteData = Dex.getSpriteData(pokemon, !!spriteIndex, {
-					gen: this.battle.id.includes('cloveronly') ? 3 : this.gen,
+					gen: this.gen,
 					noScale: true,
 					mod: this.mod,
 				});
@@ -984,7 +984,7 @@ class BattleScene {
 
 	addPokemonSprite(pokemon: Pokemon) {
 		const sprite = new PokemonSprite(Dex.getSpriteData(pokemon, pokemon.side.isFar, {
-			gen: this.battle.id.includes('cloveronly') ? 3 : this.gen,
+			gen: this.gen,
 			mod: this.mod,
 		}), {
 			x: pokemon.side.x,
@@ -1855,7 +1855,7 @@ class PokemonSprite extends Sprite {
 		if (!this.scene.animating) return;
 		if (this.$sub) return;
 		const subsp = Dex.getSpriteData('substitute', this.isFrontSprite, {
-			gen: this.scene.battle.id.includes('cloveronly') ? 3 : this.scene.gen,
+			gen: this.gen,
 			mod: this.scene.mod,
 		});
 		this.subsp = subsp;
@@ -1970,7 +1970,7 @@ class PokemonSprite extends Sprite {
 		if (pokemon.volatiles.formechange || pokemon.volatiles.dynamax) {
 			if (!this.oldsp) this.oldsp = this.sp;
 			this.sp = Dex.getSpriteData(pokemon, this.isFrontSprite, {
-				gen: this.scene.battle.id.includes('cloveronly') ? 3 : this.scene.gen,
+				gen: this.gen,
 				mod: this.scene.mod,
 			});
 		} else if (this.oldsp) {
@@ -2363,7 +2363,7 @@ class PokemonSprite extends Sprite {
 	animTransform(pokemon: Pokemon, isCustomAnim?: boolean, isPermanent?: boolean) {
 		if (!this.scene.animating && !isPermanent) return;
 		let sp = Dex.getSpriteData(pokemon, this.isFrontSprite, {
-			gen: this.scene.battle.id.includes('cloveronly') ? 3 : this.scene.gen,
+			gen: this.gen,
 			mod: this.scene.mod,
 		});
 		let oldsp = this.sp;
