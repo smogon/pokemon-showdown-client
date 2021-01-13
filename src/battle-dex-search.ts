@@ -835,7 +835,9 @@ class BattlePokemonSearch extends BattleTypedSearch<'pokemon'> {
 		const dex = this.dex;
 
 		let table = BattleTeambuilderTable;
-		if (format.endsWith('cap') || format.endsWith('caplc')) {
+		if (this.formatType === 'clovermons') {
+			table = table['clovermons'];
+		} else if (format.endsWith('cap') || format.endsWith('caplc')) {
 			// CAP formats always use the singles table
 			if (dex.gen < 8) {
 				table = table['gen' + dex.gen];
@@ -866,8 +868,6 @@ class BattlePokemonSearch extends BattleTypedSearch<'pokemon'> {
 			} else {
 				table = table['gen8dlc1'];
 			}
-		} else if (this.formatType === 'clovermons') {
-			table = table['clovermons'];
 		}
 
 		if (!table.tierSet) {
