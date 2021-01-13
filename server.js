@@ -28,7 +28,13 @@ app.post(`/~~${defaultserver.id}/action.php`, (request, response) => {
   }).then((res) => {
     const setCookieHeader = res.headers['Set-Cookie'] || res.headers['set-cookie'];
     if (setCookieHeader) {
-      response.setHeader('set-cookie', setCookieHeader);
+      if (Array.isArray(setCookieHeader)) {
+        setCookieHeader.forEach((header) => {
+          response.setHeader('set-cookie', header.replace('pokemonshowdown.com', 'clover.weedl.es'));
+        });
+      } else {
+        response.setHeader('set-cookie', setCookieHeader.replace('pokemonshowdown.com', 'clover.weedl.es'));
+      }
     };
     response.send(res.data)
   });
