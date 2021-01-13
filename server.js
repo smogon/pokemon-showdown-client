@@ -16,7 +16,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.post(`/~~${defaultserver.id}/action.php`, (request, response) => {
   let headers = {};
   if (request.headers.cookie) {
-    headers.cookie = request.headers.cookie;
+    headers.cookie = request.headers.cookie.replace;
   }
 
   axios({
@@ -26,7 +26,7 @@ app.post(`/~~${defaultserver.id}/action.php`, (request, response) => {
     headers,
   }).then((res) => {
     if (res.headers['set-cookie']) {
-      response.setHeader('set-cookie', res.headers['set-cookie']);
+      response.setHeader('set-cookie', res.headers['set-cookie'].replace('pokemonshowdown.com', 'clover.weedl.es'));
     };
     response.send(res.data)
   });
