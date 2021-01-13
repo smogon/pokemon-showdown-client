@@ -599,7 +599,8 @@ abstract class BattleTypedSearch<T extends SearchType> {
 			this.formatType = 'nfe';
 			if (!format) format = 'ou' as ID;
 		}
-		if (format.includes('cloveronly')) {
+		if (format.startsWith('cloveronly')) {
+			format = format.slice(10) as ID;
 			this.formatType = 'clovermons';
 		}
 		this.format = format;
