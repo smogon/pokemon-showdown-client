@@ -13,12 +13,6 @@ const privateKey  = fs.readFileSync(ssl.privateKeyPath, 'utf8');
 const certificate = fs.readFileSync(ssl.certificatePath, 'utf8');
 
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use('*', (request, response, next) => {
-  if (request.secure) {
-    next();
-  }
-  response.redirect("https://" + request.headers.host + request.url);
-});
 app.post(`/~~${defaultserver.id}/action.php`, (request, response) => {
   axios({
     method: 'POST',
@@ -32,8 +26,13 @@ app.get('*', (request, response) => {
   response.sendFile(path.join(__dirname, './public/index.html'));
 });
 
-const httpServer = http.createServer(app);
+const httpApp = express();
+httpApp.use('*', (request, response) => {
+  response.redirect("https://" + request.headers.host + request.url);
+});
+
+const httpServer = http.createServer(httpApp);
 const httpsServer = https.createServer({ key: privateKey, cert: certificate }, app);
 
-httpServer.listen(80, () => console.log('Listening on 80'));
+httpServer.listen(80, () => console.log('Http redirect listening on 80'));
 httpsServer.listen(443, () => console.log('Listening on 443'));
