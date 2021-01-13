@@ -1975,6 +1975,7 @@ class PokemonSprite extends Sprite {
 			this.sp = Dex.getSpriteData(pokemon, this.isFrontSprite, {
 				gen: this.scene.gen,
 				mod: this.scene.mod,
+				isClovermonsOnly: this.scene.battle.id.includes('cloveronly'),
 			});
 		} else if (this.oldsp) {
 			this.sp = this.oldsp;
