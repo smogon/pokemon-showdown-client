@@ -15,8 +15,9 @@ const certificate = fs.readFileSync(ssl.certificatePath, 'utf8');
 app.use(bodyParser.urlencoded({ extended: true }));
 app.post(`/~~${defaultserver.id}/action.php`, (request, response) => {
   let headers = {};
-  if (request.headers.cookie) {
-    headers.cookie = request.headers.cookie.replace;
+  const cookieHeader = request.headers['Cookie'] || request.headers['cookie'];
+  if (cookieHeader) {
+    headers.cookie = cookieHeader;
   }
 
   axios({
@@ -25,8 +26,9 @@ app.post(`/~~${defaultserver.id}/action.php`, (request, response) => {
     data: request.body,
     headers,
   }).then((res) => {
-    if (res.headers['set-cookie']) {
-      response.setHeader('set-cookie', res.headers['set-cookie'].replace('pokemonshowdown.com', 'clover.weedl.es'));
+    const setCookieHeader = res.headers['Set-Cookie'] || res.headers['set-cookie'];
+    if (setCookieHeader) {
+      response.setHeader('set-cookie', setCookieHeader);
     };
     response.send(res.data)
   });
