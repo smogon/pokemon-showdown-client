@@ -1255,11 +1255,11 @@ p.or:after {
 }
 .roomcounters .usercount {
 	display: block;
-	width: 49px;
-	height: 63px;
+	width: 96px;
+	height: 96px;
 	position: absolute;
 	left: -30px;
-	bottom: -5px;
+	bottom: -18px;
 	background: url(/sprites/gen5/geigh.png) center no-repeat;
 }
 .roomcounters button:hover .usercount {
@@ -1267,11 +1267,11 @@ p.or:after {
 }
 .roomcounters .battlecount {
 	display: block;
-	width: 46px;
-	height: 76px;
+	width: 96px;
+	height: 96px;
 	position: absolute;
-	right: -30px;
-	bottom: -10px;
+	right: -60px;
+	bottom: -18px;
 	background: url(/sprites/gen5/dragking.png) center no-repeat;
 }
 .roomcounters button:hover .battlecount {
