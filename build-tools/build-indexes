@@ -349,7 +349,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 							}
 						}
 
-						if (species.num > 69000 || species.num <= 69368) {
+						if (species.num > 69000) {
 							return species.tier;
 						}
 
