@@ -890,5 +890,4 @@ declare global {
 			use: SVGAttributes;
 		}
 	}
-
 }
