@@ -47,7 +47,7 @@ class LadderPanel extends PSRoomPanel<LadderRoom> {
 			if (!format.rated || !format.searchShow) continue;
 			if (format.section !== currentSection) {
 				if (formats.length > 0) {
-					sections.push(<><h3>{currentSection}</h3><ul style="list-style:none;margin:0;padding:0">{formats}</ul></>); // The key needs to be added to this Fragment (key=currentSection)
+					sections.push(<preact.Fragment key={currentSection}><h3>{currentSection}</h3><ul style="list-style:none;margin:0;padding:0">{formats}</ul></preact.Fragment>);
 					formats = [];
 				}
 				currentSection = format.section;
