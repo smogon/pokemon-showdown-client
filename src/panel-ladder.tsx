@@ -54,13 +54,13 @@ class LadderPanel extends PSRoomPanel<LadderRoom, LadderPanelState> {
 			output: 'html',
 			prefix: toID(searchValue)
 		},
-		this.setData);
+		this.setLadderData);
 	}
 	submitSearch = (e: Event) => {
 		e.preventDefault();
 		this.requestLadderData();
 	}
-	setData = (ladderData: string | null) => ladderData !== null && this.setState({ ladderData });
+	setLadderData = (ladderData: string | null) => ladderData !== null && this.setState({ ladderData });
 	setShowHelp = (showHelp: boolean) => () => this.setState({ showHelp });
 	setFormat = (selectedFormat: string | null) => () => this.setState({ selectedFormat });
 	setSearchValue = (e: Event) => this.setState( { searchValue: (e.currentTarget as HTMLInputElement).value });
