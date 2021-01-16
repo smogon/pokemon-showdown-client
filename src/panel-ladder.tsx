@@ -15,10 +15,12 @@ class LadderRoom extends PSRoom {
 	}
 }
 
-class LadderPanel extends PSRoomPanel<LadderRoom, { showHelp: boolean, selectedFormat: string | null }> {
+interface LadderPanelState { showHelp: boolean, selectedFormat: string | null, searchValue: string };
+
+class LadderPanel extends PSRoomPanel<LadderRoom, LadderPanelState> {
 	constructor() {
 		super();
-		this.state = { showHelp: false, selectedFormat: null }
+		this.state = { showHelp: false, selectedFormat: null, searchValue: '' }
 	}
 	subscription: PSSubscription | null = null;
 	componentDidMount() {
@@ -34,6 +36,7 @@ class LadderPanel extends PSRoomPanel<LadderRoom, { showHelp: boolean, selectedF
 	}
 	setShowHelp = (showHelp: boolean) => () => this.setState({ showHelp });
 	setFormat = (selectedFormat: string | null) => () => this.setState({ selectedFormat });
+	setSearchValue = (e: Event) => this.setState( { searchValue: (e.currentTarget as HTMLInputElement).value });
 	Notice = () => {
 		const { notice } = this.props.room;
 		if (notice) {
@@ -86,19 +89,39 @@ class LadderPanel extends PSRoomPanel<LadderRoom, { showHelp: boolean, selectedF
 			<BattleFormatList/>
 		</>
 	}
-	ShowFormat = () => {
+	Back = () => {
 		const { setFormat } = this;
-		return <div class="ladder pad"><p><button name="selectFormat" onClick={setFormat(null)}><i class="fa fa-chevron-left"></i> Format List</button></p><p><em>Loading...</em></p></div>
+		return <button name="selectFormat" onClick={setFormat(null)}><i class="fa fa-chevron-left"></i> Format List</button>
+	}
+	ShowFormat = (props: { searchValue: string }) => {
+		const { send, teams } = PS;
+		const { Back, setSearchValue } = this;
+		const selectedFormat = this.state.selectedFormat as string;
+		const { searchValue } = props;
+		const prefix = searchValue && toID(searchValue);
+		if (teams.usesLocalLadder) {
+			send('/cmd laddertop ' + selectedFormat + (prefix ? ' ,' + prefix : '')); // What dose this do??
+		} else {
+			const data = `<table><tr><th></th><th>Name</th><th><abbr title="Elo rating">Elo</abbr></th><th><abbr title="user's percentage chance of winning a random battle (aka GLIXARE)">GXE</abbr></th><th><abbr title="Glicko-1 rating system: rating&#177;deviation (provisional if deviation>100)">Glicko-1</abbr></th></tr><tr><td>1</td><td>Coach Jones 6fifth</td><td><strong>2079</strong></td><td>86.4<small>%</small></td><td><em>1848<small> &#177; 25</small></em></td></tr><tr><td>2</td><td>ezwz</td><td><strong>2064</strong></td><td>84.5<small>%</small></td><td><em>1819<small> &#177; 26</small></em></td></tr><tr><td>3</td><td>bdhb</td><td><strong>2056</strong></td><td>87.1<small>%</small></td><td><em>1861<small> &#177; 25</small></em></td></tr><tr><td>4</td><td>CBCBCBCBCBCBCBCBCB</td><td><strong>2053</strong></td><td>87.2<small>%</small></td><td><em>1863<small> &#177; 34</small></em></td></tr></table>`;
+			return <div class="ladder pad">
+				{searchValue}
+				<p><Back/></p><p><button class="button" name="refresh"><i class="fa fa-refresh"></i> Refresh</button>
+				<form class="search"><input type="text" name="searchValue" class="textbox searchinput" value={BattleLog.escapeHTML(searchValue)} placeholder="username prefix" onChange={setSearchValue}/><button type="submit"> Search</button></form></p>
+				<h3>{BattleLog.escapeFormat(selectedFormat)} Top {BattleLog.escapeHTML(self.searchValue ? "- '" + self.searchValue + "'" : '500')}</h3>
+			 	<div dangerouslySetInnerHTML={{__html: data}}></div> 
+			</div> // That's right, danger!
+		}
+		return <div class="ladder pad"><p><Back/></p><p><em>Loading...</em></p></div>
 	}
 	render() {
 		const room = this.props.room;
-		const { showHelp, selectedFormat } = this.state;
+		const { showHelp, selectedFormat, searchValue } = this.state;
 		const { Help, ShowFormatList, ShowFormat } = this;
 		return <PSPanelWrapper room={room} scrollable>
 			<div class="ladder pad">
 				{showHelp && <Help/>}
 				{!showHelp && selectedFormat === null && <ShowFormatList/>}
-				{!showHelp && selectedFormat !== null && <ShowFormat/>}
+				{!showHelp && selectedFormat !== null && <ShowFormat searchValue={searchValue}/>}
 			</div>
 		</PSPanelWrapper>;
 	}
