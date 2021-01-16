@@ -90,7 +90,7 @@ class PSRouter {
 }
 PS.router = new PSRouter();
 
-class PSRoomPanel<T extends PSRoom = PSRoom> extends preact.Component<{room: T}> {
+class PSRoomPanel<T extends PSRoom = PSRoom, S = {}> extends preact.Component<{room: T}, S> {
 	subscriptions: PSSubscription[] = [];
 	componentDidMount() {
 		if (PS.room === this.props.room) this.focus();

@@ -15,7 +15,11 @@ class LadderRoom extends PSRoom {
 	}
 }
 
-class LadderPanel extends PSRoomPanel<LadderRoom> {
+class LadderPanel extends PSRoomPanel<LadderRoom, { showHelp: boolean, selectedFormat: string | null }> {
+	constructor() {
+		super();
+		this.state = { showHelp: false, selectedFormat: null }
+	}
 	subscription: PSSubscription | null = null;
 	componentDidMount() {
 		this.subscription = PS.teams.subscribe(() => {
@@ -28,7 +32,8 @@ class LadderPanel extends PSRoomPanel<LadderRoom> {
 			this.subscription = null;
 		}
 	}
-	// Function Components
+	setShowHelp = (showHelp: boolean) => () => this.setState({ showHelp });
+	setFormat = (selectedFormat: string | null) => () => this.setState({ selectedFormat });
 	Notice = () => {
 		const { notice } = this.props.room;
 		if (notice) {
@@ -36,7 +41,20 @@ class LadderPanel extends PSRoomPanel<LadderRoom> {
 		}
 		return null;
 	}
+	Help = () => {
+		const { setShowHelp } = this;
+		return <>
+			<p><button name="selectFormat" onClick={setShowHelp(false)}><i class="fa fa-chevron-left"></i> Format List</button></p>
+			<h3>How the ladder works</h3>
+			<p>Our ladder displays three ratings: Elo, GXE, and Glicko-1.</p>
+			<p><strong>Elo</strong> is the main ladder rating. It's a pretty normal ladder rating: goes up when you win and down when you lose.</p>
+			<p><strong>GXE</strong> (Glicko X-Act Estimate) is an estimate of your win chance against an average ladder player.</p>
+			<p><strong>Glicko-1</strong> is a different rating system. It has rating and deviation values.</p>
+			<p>Note that win/loss should not be used to estimate skill, since who you play against is much more important than how many times you win or lose. Our other stats like Elo and GXE are much better for estimating skill.</p>
+		</>
+	}
 	BattleFormatList = () => {
+		const { setFormat } = this;
 		if (!BattleFormats) {
 			return <p>Loading...</p>;
 		}
@@ -52,22 +70,35 @@ class LadderPanel extends PSRoomPanel<LadderRoom> {
 				}
 				currentSection = format.section;
 			}
-			formats.push(<li key={key} style="margin:5px"><button name="selectFormat" value={key} class="button" style="width:320px;height:30px;text-align:left;font:12pt Verdana">{BattleLog.escapeFormat(format.id)}</button></li>)
+			formats.push(<li key={key} style="margin:5px"><button name="selectFormat" value={key} class="button" style="width:320px;height:30px;text-align:left;font:12pt Verdana" onClick={setFormat(key)}>{BattleLog.escapeFormat(format.id)}</button></li>)
 		}
 		return <>
 			{sections}
 		</>;
 	}
+	ShowFormatList = () => {
+		const { Notice, BattleFormatList, setShowHelp } = this;
+		return <>
+			<p>See a user's ranking with <a class="button" href={`/${Config.routes.users}/`} target="_blank">User lookup</a></p>
+			<Notice/>
+			<p>(btw if you couldn't tell the ladder screens aren't done yet; they'll look nicer than this once I'm done.)</p>
+			<p><button name="selectFormat" value="help" class="button" onClick={setShowHelp(true)}><i class="fa fa-info-circle"></i> How the ladder works</button></p>
+			<BattleFormatList/>
+		</>
+	}
+	ShowFormat = () => {
+		const { setFormat } = this;
+		return <div class="ladder pad"><p><button name="selectFormat" onClick={setFormat(null)}><i class="fa fa-chevron-left"></i> Format List</button></p><p><em>Loading...</em></p></div>
+	}
 	render() {
 		const room = this.props.room;
-		const { Notice, BattleFormatList } = this;
-		return <PSPanelWrapper room={room}>
+		const { showHelp, selectedFormat } = this.state;
+		const { Help, ShowFormatList, ShowFormat } = this;
+		return <PSPanelWrapper room={room} scrollable>
 			<div class="ladder pad">
-				<p>See a user's ranking with <a class="button" href={`/${Config.routes.users}/`} target="_blank">User lookup</a></p>
-				<Notice/>
-				<p>(btw if you couldn't tell the ladder screens aren't done yet; they'll look nicer than this once I'm done.)</p>
-				<p><button name="selectFormat" value="help" class="button"><i class="fa fa-info-circle"></i> How the ladder works</button></p>
-				<BattleFormatList/>
+				{showHelp && <Help/>}
+				{!showHelp && selectedFormat === null && <ShowFormatList/>}
+				{!showHelp && selectedFormat !== null && <ShowFormat/>}
 			</div>
 		</PSPanelWrapper>;
 	}
