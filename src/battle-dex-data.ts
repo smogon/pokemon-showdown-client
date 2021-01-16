@@ -1022,6 +1022,12 @@ const BattleAvatarNumbers: {[k: string]: string} = {
 	69084: "clover-guitarist",
 	69085: "clover-randy",
 	69086: "clover-youngsters",
+	69087: "clover-van",
+	69088: "clover-snoop",
+	69089: "clover-moot",
+	69090: "clover-imakuni",
+	69091: "clover-evilleader",
+	69092: "clover-chris",
 };
 
 type StatName = 'hp' | 'atk' | 'def' | 'spa' | 'spd' | 'spe';
