@@ -685,7 +685,7 @@
 			buf += '<p>Choose an avatar or <button name="close">Cancel</button></p>';
 
 			buf += '<div class="avatarlist">';
-			for (var i = 69000; i <= 69082; i++) {
+			for (var i = 69000; i <= 69086; i++) {
 				var offset = '-' + (((i - 69000) % 16) * 80 + 1) + 'px -' + (Math.floor((i - 69000) / 16) * 80 + 1) + 'px';
 				buf += '<button name="setAvatar" value="' + i + '" style="background-position:' + offset + '"' + (i === cur ? ' class="cur"' : '') + ' title="/avatar ' + i + '"></button>';
 			}
