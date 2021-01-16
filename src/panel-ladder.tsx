@@ -1,7 +1,7 @@
 /**
  * Ladder Panel
  *
- * Panel for Ladder Formats and associated ladder tables.
+ * Panel for ladder formats and associated ladder tables.
  *
  * @author Guangcong Luo <guangcongluo@gmail.com>
  * @license AGPLv3
@@ -15,7 +15,12 @@ class LadderRoom extends PSRoom {
 	}
 }
 
-interface LadderPanelState { showHelp: boolean, selectedFormat: string | null, searchValue: string };
+interface LadderPanelState {
+	showHelp: boolean,
+	selectedFormat: string | null,
+	searchValue: string,
+	ladderData?: string
+};
 
 class LadderPanel extends PSRoomPanel<LadderRoom, LadderPanelState> {
 	constructor() {
@@ -34,6 +39,28 @@ class LadderPanel extends PSRoomPanel<LadderRoom, LadderPanelState> {
 			this.subscription = null;
 		}
 	}
+	componentDidUpdate(prevProps?: LadderRoom, prevState?: LadderPanelState) {
+		const { selectedFormat } = this.state;
+		if (selectedFormat !== null && selectedFormat !== prevState?.selectedFormat) {
+			this.requestLadderData();
+		}		
+	}
+	requestLadderData = () => {
+		const { selectedFormat, searchValue } = this.state;
+		this.setState( { ladderData: undefined }); // Back to "Loading..."
+		$.get('/ladder.php', { // TO REVIEW: I imagine this may need to be changed to use PSLoginServer, but that does not have support for prepping GETs with query parameters
+			format: selectedFormat,
+			server: Config.server.id.split(':')[0],
+			output: 'html',
+			prefix: toID(searchValue)
+		},
+		this.setData);
+	}
+	submitSearch = (e: Event) => {
+		e.preventDefault();
+		this.requestLadderData();
+	}
+	setData = (ladderData: string | null) => ladderData !== null && this.setState({ ladderData });
 	setShowHelp = (showHelp: boolean) => () => this.setState({ showHelp });
 	setFormat = (selectedFormat: string | null) => () => this.setState({ selectedFormat });
 	setSearchValue = (e: Event) => this.setState( { searchValue: (e.currentTarget as HTMLInputElement).value });
@@ -93,34 +120,33 @@ class LadderPanel extends PSRoomPanel<LadderRoom, LadderPanelState> {
 		const { setFormat } = this;
 		return <button name="selectFormat" onClick={setFormat(null)}><i class="fa fa-chevron-left"></i> Format List</button>
 	}
-	ShowFormat = (props: { searchValue: string }) => {
+	ShowFormat = (props: { searchValue: string, ladderData: string | undefined }) => {
 		const { send, teams } = PS;
-		const { FormatListButton, setSearchValue } = this;
+		const { FormatListButton, submitSearch, setSearchValue, requestLadderData } = this;
 		const selectedFormat = this.state.selectedFormat as string;
-		const { searchValue } = props;
-		const prefix = searchValue && toID(searchValue);
+		const { searchValue, ladderData } = props;
+		const prefix = toID(searchValue);
 		if (teams.usesLocalLadder) {
-			send('/cmd laddertop ' + selectedFormat + (prefix ? ' ,' + prefix : '')); // What does this do??
-		} else {
-			const data = `<table><tr><th></th><th>Name</th><th><abbr title="Elo rating">Elo</abbr></th><th><abbr title="user's percentage chance of winning a random battle (aka GLIXARE)">GXE</abbr></th><th><abbr title="Glicko-1 rating system: rating&#177;deviation (provisional if deviation>100)">Glicko-1</abbr></th></tr><tr><td>1</td><td>Coach Jones 6fifth</td><td><strong>2079</strong></td><td>86.4<small>%</small></td><td><em>1848<small> &#177; 25</small></em></td></tr><tr><td>2</td><td>ezwz</td><td><strong>2064</strong></td><td>84.5<small>%</small></td><td><em>1819<small> &#177; 26</small></em></td></tr><tr><td>3</td><td>bdhb</td><td><strong>2056</strong></td><td>87.1<small>%</small></td><td><em>1861<small> &#177; 25</small></em></td></tr><tr><td>4</td><td>CBCBCBCBCBCBCBCBCB</td><td><strong>2053</strong></td><td>87.2<small>%</small></td><td><em>1863<small> &#177; 34</small></em></td></tr></table>`;
+			send('/cmd laddertop ' + selectedFormat + (prefix ? ' ,' + prefix : '')); // TO REVIEW: What does this do??
+		} else if (ladderData !== undefined) {
 			return <div class="ladder pad">
-				<p><FormatListButton/></p><p><button class="button" name="refresh"><i class="fa fa-refresh"></i> Refresh</button>
-				<form class="search"><input type="text" name="searchValue" class="textbox searchinput" value={BattleLog.escapeHTML(searchValue)} placeholder="username prefix" onChange={setSearchValue}/><button type="submit"> Search</button></form></p>
+				<p><FormatListButton/></p><p><button class="button" name="refresh" onClick={requestLadderData}><i class="fa fa-refresh"></i> Refresh</button>
+				<form class="search" onSubmit={submitSearch}><input type="text" name="searchValue" class="textbox searchinput" value={BattleLog.escapeHTML(searchValue)} placeholder="username prefix" onChange={setSearchValue} /><button type="submit"> Search</button></form></p>
 				<h3>{BattleLog.escapeFormat(selectedFormat)} Top {BattleLog.escapeHTML(searchValue ? `- '${searchValue}'` : '500')}</h3>
-			 	<div dangerouslySetInnerHTML={{__html: data}}></div> 
+			 	<div dangerouslySetInnerHTML={{__html: ladderData}}></div> 
 			</div> // That's right, danger!
 		}
 		return <div class="ladder pad"><p><FormatListButton/></p><p><em>Loading...</em></p></div>
 	}
 	render() {
 		const room = this.props.room;
-		const { showHelp, selectedFormat, searchValue } = this.state;
+		const { showHelp, selectedFormat, searchValue, ladderData } = this.state;
 		const { Help, ShowFormatList, ShowFormat } = this;
 		return <PSPanelWrapper room={room} scrollable>
 			<div class="ladder pad">
 				{showHelp && <Help/>}
 				{!showHelp && selectedFormat === null && <ShowFormatList/>}
-				{!showHelp && selectedFormat !== null && <ShowFormat searchValue={searchValue}/>}
+				{!showHelp && selectedFormat !== null && <ShowFormat searchValue={searchValue} ladderData={ladderData}/>}
 			</div>
 		</PSPanelWrapper>;
 	}
