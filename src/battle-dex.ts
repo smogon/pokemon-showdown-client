@@ -537,9 +537,15 @@ const Dex = new class implements ModdedDex {
 		let graphicsGen = mechanicsGen;
 		if (Dex.prefs('nopastgens')) graphicsGen = 6;
 		if (Dex.prefs('bwgfx') && graphicsGen >= 6) graphicsGen = 5;
-		if (species.num > 69000) graphicsGen = 3;
-		spriteData.gen = Math.max(graphicsGen, Math.min(species.gen, 5));
-		const baseDir = ['', 'gen1', 'gen2', 'gen3', 'gen4', 'gen5', '', '', ''][spriteData.gen];
+		let baseDir;
+		if (species.num > 69000) {
+			graphicsGen = 3;
+			spriteData.gen = 3;
+			baseDir = 'gen5';
+		} else {
+			spriteData.gen = Math.max(graphicsGen, Math.min(species.gen, 5));
+			baseDir = ['', 'gen1', 'gen2', 'gen3', 'gen4', 'gen5', '', '', ''][spriteData.gen];
+		}
 
 		let animationData = null;
 		let miscData = null;
