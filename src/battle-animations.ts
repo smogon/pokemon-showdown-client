@@ -2991,7 +2991,7 @@ const BattleEffects: {[k: string]: SpriteData} = {
 		w: 100, h: 50,
 	},
 	sleazyspores: {
-		url: 'sleazyspore.png',
+		url: 'sleazyspores.png',
 		w: 120, h: 122,
 	},
 };
