@@ -1258,6 +1258,18 @@ class BattleScene {
 			this.$spritesFront[spriteIndex].append(web.$el!);
 			this.sideConditions[siden][id] = [web];
 			break;
+		case 'sleazyspores':
+				const sleazySpores = new Sprite(BattleEffects.sleazyspores, {
+					display: 'block',
+					x: side.x + 15,
+					y: side.y - 35,
+					z: side.z,
+					opacity: 0.4,
+					scale: 0.7,
+				}, this);
+				this.$spritesFront[spriteIndex].append(sleazySpores.$el!);
+				this.sideConditions[siden][id] = [sleazySpores];
+				break;
 		}
 	}
 	removeSideCondition(siden: number, id: ID) {
@@ -2977,6 +2989,10 @@ const BattleEffects: {[k: string]: SpriteData} = {
 	mist: {
 		rawHTML: '<div class="sidecondition-mist" style="display:none;position:absolute" />',
 		w: 100, h: 50,
+	},
+	sleazyspores: {
+		url: 'sleazyspore.png',
+		w: 120, h: 122,
 	},
 };
 (() => {
