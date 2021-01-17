@@ -245,8 +245,8 @@
 			app.addPopup(TabListPopup);
 		},
 		showRoomTabRightClickMenu: function (e) {
-			e.preventDefault();
 			if ($(e.currentTarget).data('chat')) {
+				e.preventDefault();
 				app.addPopup(TabRightClickPopup, {
 					sourceEl: e.currentTarget
 				});
