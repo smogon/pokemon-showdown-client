@@ -2816,6 +2816,9 @@ class Battle {
 				}
 				if (this.gen > 6) maxTimeLeft = 8;
 			}
+			if (effect.id.endsWith('room')) {
+				if (this.gen >= 8) maxTimeLeft = 7;
+			}
 			this.addPseudoWeather(effect.name, 5, maxTimeLeft);
 
 			switch (effect.id) {
