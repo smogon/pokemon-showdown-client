@@ -931,8 +931,8 @@ class BattlePokemonSearch extends BattleTypedSearch<'pokemon'> {
 		// Filter out Gmax Pokemon from standard tier selection
 		if (!/^(battlestadium|vgc|doublesubers)/g.test(format)) {
 			tierSet = tierSet.filter(([type, id]) => {
-				if (type === 'header' && toID(id) === 'uberbytechnicality') return false;
-				return !id.endsWith('gmax');
+				if (type === 'pokemon') return !id.endsWith('gmax');
+				return true;
 			});
 		}
 
