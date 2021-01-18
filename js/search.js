@@ -236,7 +236,6 @@
 				pu: "PU",
 				zu: "(PU)",
 				nfe: "NFE",
-				lcuber: "LC Uber",
 				lc: "LC",
 				cap: "CAP",
 				caplc: "CAP LC",
