@@ -260,12 +260,7 @@ class MainMenuRoom extends PSRoom {
 			break;
 		case 'laddertop':
 			const ladderRoom = PS.rooms[`ladder`] as LadderRoom;
-			const [ format, ladderData ] = response;
-			// TODO: Implement error
-			if (ladderRoom.selectedFormat === format) {
-				ladderRoom.ladderData = ladderData;
-				ladderRoom.update(null);
-			}
+			ladderRoom.update(response);
 			break;
 		}
 	}

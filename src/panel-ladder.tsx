@@ -60,7 +60,13 @@ class LadderPanel extends PSRoomPanel<LadderRoom, LadderPanelState> {
 	subscriptions: PSSubscription[] = [];
 	componentDidMount = () => {
 		const { room } = this.props;
-		this.subscriptions.push(room.subscribe(() => {
+		this.subscriptions.push(room.subscribe((response: any) => {
+			if (response) {
+				const [ format, ladderData ] = response;
+				if (room.selectedFormat === format) {
+					room.ladderData = ladderData || '<p>Error getting ladder data from server</p>';
+				}
+			}
 			this.forceUpdate();
 		}));
 		this.subscriptions.push(PS.teams.subscribe(() => {
@@ -72,6 +78,9 @@ class LadderPanel extends PSRoomPanel<LadderRoom, LadderPanelState> {
 			subscription.unsubscribe();
 		}
 		this.subscriptions = [];
+	}
+	update() {
+		this.forceUpdate();
 	}
 	setShowHelp = (showHelp: boolean) => () => this.setState({ showHelp });
 	setSearchValue = (e: Event) => this.setState({ searchValue: (e.currentTarget as HTMLInputElement).value });
