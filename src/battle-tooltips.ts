@@ -981,15 +981,37 @@ class BattleTooltips {
 
 		// check for light ball, thick club, metal/quick powder
 		// the only stat modifying items in gen 2 were light ball, thick club, metal powder
-		if (item === 'lightball' && species === 'Pikachu') {
-			if (this.battle.gen >= 4) stats.atk *= 2;
-			stats.spa *= 2;
+		if (item === 'lightball') {
+			if (species === 'Pikachu') {
+				if (this.battle.gen >= 4) stats.atk *= 2;
+				stats.spa *= 2;
+			} else if (species === 'Pikotton') {
+				stats.spa *= 2;
+			}
 		}
 
 		if (item === 'thickclub') {
 			if (species === 'Marowak' || species === 'Cubone') {
 				stats.atk *= 2;
 			}
+		}
+
+		if (item === 'thiccbone') {
+			if (species === 'Masdawg' || species === 'Pasdawg') {
+				stats.atk *= 2;
+			}
+		}
+
+		if (item === 'bigfaggot' && species === 'Flameboyan') {
+			stats.spa *= 2;
+		}
+
+		if (item === 'baconstrip' && species === 'Urswine') {
+			stats.spd *= 2;
+		}
+
+		if (item === 'suedeshoes' && species === 'Pretzely') {
+			stats.spe *= 2;
 		}
 
 		if (species === 'Ditto' && !(clientPokemon && 'transform' in clientPokemon.volatiles)) {
@@ -1759,6 +1781,8 @@ class BattleTooltips {
 		'Soft Sand': 'Ground',
 		'Spell Tag': 'Ghost',
 		'Twisted Spoon': 'Psychic',
+		'Katana': 'Steel',
+		'Cute Bow': 'Fairy',
 	};
 	static orbUsers: {[speciesForme: string]: string} = {
 		'Latias': 'Soul Dew',
@@ -1811,10 +1835,20 @@ class BattleTooltips {
 			return value;
 		}
 
+		if (item.name === 'Manifesto' && Dex.getSpecies(value.serverPokemon.speciesForme).baseSpecies === 'Walruskie' && ['Steel', 'Ice'].includes(moveType)) {
+			value.itemModify(1.5);
+			return value;
+		}
+
+		if (item.name === "Pirate's Jug" && Dex.getSpecies(value.serverPokemon.speciesForme).baseSpecies === 'Octai' && moveName === 'Lactose Shot') {
+			value.itemModify(2);
+			return value;
+		}
+
 		// Gems
 		if (BattleTooltips.noGemMoves.includes(moveName)) return value;
 		if (itemName === moveType + ' Gem') {
-			value.itemModify(this.battle.gen < 6 ? 1.5 : 1.3);
+			value.itemModify(this.battle.gen < 6 ? 1.5 : this.battle.gen === 8 ? 1.5 : 1.3);
 			return value;
 		}
 
