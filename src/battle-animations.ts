@@ -562,23 +562,13 @@ class BattleScene {
 		this.gen = gen;
 		this.activeCount = this.battle.nearSide?.active.length || 1;
 
-		const isSPL = (typeof this.battle.rated === 'string' && this.battle.rated.startsWith("Smogon Premier League"));
 		let bg: string;
-		if (isSPL) {
-			if (gen <= 1) bg = 'fx/bg-gen1-spl.png';
-			else if (gen <= 2) bg = 'fx/bg-gen2-spl.png';
-			else if (gen <= 3) bg = 'fx/bg-gen3-spl.png';
-			else if (gen <= 4) bg = 'fx/bg-gen4-spl.png';
-			else bg = 'fx/bg-spl.png';
-			this.setBgm(-101);
-		} else {
-			if (gen <= 1) bg = 'fx/bg-gen1.png?';
-			else if (gen <= 2) bg = 'fx/bg-gen2.png?';
-			else if (gen <= 3) bg = 'fx/' + BattleBackdropsThree[this.numericId % BattleBackdropsThree.length] + '?';
-			else if (gen <= 4) bg = 'fx/' + BattleBackdropsFour[this.numericId % BattleBackdropsFour.length];
-			else if (gen <= 5) bg = 'fx/' + BattleBackdropsFive[this.numericId % BattleBackdropsFive.length];
-			else bg = 'sprites/gen6bgs/' + BattleBackdrops[this.numericId % BattleBackdrops.length];
-		}
+		if (gen <= 1) bg = 'fx/bg-gen1.png?';
+		else if (gen <= 2) bg = 'fx/bg-gen2.png?';
+		else if (gen <= 3) bg = 'fx/' + BattleBackdropsThree[this.numericId % BattleBackdropsThree.length] + '?';
+		else if (gen <= 4) bg = 'fx/' + BattleBackdropsFour[this.numericId % BattleBackdropsFour.length];
+		else if (gen <= 5) bg = 'fx/' + BattleBackdropsFive[this.numericId % BattleBackdropsFive.length];
+		else bg = 'sprites/gen6bgs/' + BattleBackdrops[this.numericId % BattleBackdrops.length];
 
 		this.backdropImage = bg;
 		if (this.$bg) {
@@ -1482,70 +1472,34 @@ class BattleScene {
 		this.preloadImage(Dex.resourcePrefix + 'sprites/ani-back/substitute.gif');
 	}
 	rollBgm() {
-		this.setBgm(1 + this.numericId % 15);
+		this.setBgm(1 + this.numericId % 7);
 	}
 	setBgm(bgmNum: number) {
 		if (this.bgmNum === bgmNum) return;
 		this.bgmNum = bgmNum;
 
 		switch (bgmNum) {
-		case -1:
-			this.bgm = BattleSound.loadBgm('audio/bw2-homika-dogars.mp3', 1661, 68131, this.bgm);
-			break;
-		case -2:
-			this.bgm = BattleSound.loadBgm('audio/xd-miror-b.mp3', 9000, 57815, this.bgm);
-			break;
-		case -3:
-			this.bgm = BattleSound.loadBgm('audio/colosseum-miror-b.mp3', 896, 47462, this.bgm);
-			break;
 		case 1:
-			this.bgm = BattleSound.loadBgm('audio/dpp-trainer.mp3', 13440, 96959, this.bgm);
+			this.bgm = BattleSound.loadBgm('audio/edgie.mp3', 88923, 189889, this.bgm);
 			break;
 		case 2:
-			this.bgm = BattleSound.loadBgm('audio/dpp-rival.mp3', 13888, 66352, this.bgm);
+			this.bgm = BattleSound.loadBgm('audio/gym-ebin.mp3', 52874, 169975, this.bgm);
 			break;
 		case 3:
-			this.bgm = BattleSound.loadBgm('audio/hgss-johto-trainer.mp3', 23731, 125086, this.bgm);
+			this.bgm = BattleSound.loadBgm('audio/gym-fochun.mp3', 128109, 260707, this.bgm);
 			break;
 		case 4:
-			this.bgm = BattleSound.loadBgm('audio/hgss-kanto-trainer.mp3', 13003, 94656, this.bgm);
+			this.bgm = BattleSound.loadBgm('audio/keksandra.mp3', 25341, 119665, this.bgm);
 			break;
 		case 5:
-			this.bgm = BattleSound.loadBgm('audio/bw-trainer.mp3', 14629, 110109, this.bgm);
+			this.bgm = BattleSound.loadBgm('audio/trainer-ebin.mp3', 55535, 107208, this.bgm);
 			break;
 		case 6:
-			this.bgm = BattleSound.loadBgm('audio/bw-rival.mp3', 19180, 57373, this.bgm);
-			break;
+			this.bgm = BattleSound.loadBgm('audio/trainer-fochun.mp3', 50441, 117134, this.bgm);
+			break;	
 		case 7:
-			this.bgm = BattleSound.loadBgm('audio/bw-subway-trainer.mp3', 15503, 110984, this.bgm);
-			break;
-		case 8:
-			this.bgm = BattleSound.loadBgm('audio/bw2-kanto-gym-leader.mp3', 14626, 58986, this.bgm);
-			break;
-		case 9:
-			this.bgm = BattleSound.loadBgm('audio/bw2-rival.mp3', 7152, 68708, this.bgm);
-			break;
-		case 10:
-			this.bgm = BattleSound.loadBgm('audio/xy-trainer.mp3', 7802, 82469, this.bgm);
-			break;
-		case 11:
-			this.bgm = BattleSound.loadBgm('audio/xy-rival.mp3', 7802, 58634, this.bgm);
-			break;
-		case 12:
-			this.bgm = BattleSound.loadBgm('audio/oras-trainer.mp3', 13579, 91548, this.bgm);
-			break;
-		case 13:
-			this.bgm = BattleSound.loadBgm('audio/oras-rival.mp3', 14303, 69149, this.bgm);
-			break;
-		case 14:
-			this.bgm = BattleSound.loadBgm('audio/sm-trainer.mp3', 8323, 89230, this.bgm);
-			break;
-		case -101:
-			this.bgm = BattleSound.loadBgm('audio/spl-elite4.mp3', 3962, 152509, this.bgm);
-			break;
-		case 15:
 		default:
-			this.bgm = BattleSound.loadBgm('audio/sm-rival.mp3', 11389, 62158, this.bgm);
+			this.bgm = BattleSound.loadBgm('audio/viol.mp3', 61783, 95529, this.bgm);
 			break;
 		}
 	}
@@ -2204,8 +2158,6 @@ class PokemonSprite extends Sprite {
 			top: this.statbarTop,
 			opacity: 1,
 		}, 400 / this.scene.acceleration);
-
-		this.dogarsCheck(pokemon);
 	}
 	animDragIn(pokemon: Pokemon, slot: number) {
 		if (!this.scene.animating) return;
@@ -2242,8 +2194,6 @@ class PokemonSprite extends Sprite {
 			left: this.statbarLeft,
 			opacity: 1,
 		}, 400);
-
-		this.dogarsCheck(pokemon);
 	}
 	animDragOut(pokemon: Pokemon) {
 		if (!this.scene.animating) return this.animUnsummon(pokemon, true);
@@ -2541,16 +2491,6 @@ class PokemonSprite extends Sprite {
 		for (const id in this.effects) this.removeEffect(id as ID, true);
 		this.animSubFade(true);
 		this.removeTransform();
-	}
-
-	dogarsCheck(pokemon: Pokemon) {
-		if (pokemon.side.isFar) return;
-
-		if (pokemon.speciesForme === 'Koffing' && pokemon.name.match(/dogars/i)) {
-			this.scene.setBgm(-1);
-		} else if (this.scene.bgmNum === -1) {
-			this.scene.rollBgm();
-		}
 	}
 
 	// Statbar
