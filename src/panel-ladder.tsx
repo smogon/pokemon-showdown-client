@@ -25,7 +25,7 @@ class LadderRoom extends PSRoom {
 		this.selectedFormat = selectedFormat;
 		if (selectedFormat !== undefined) {
 			if (teams.usesLocalLadder) {
-				this.setLadderData(undefined);
+				this.setLadderData(undefined); // Loading...
 				this.send(`/cmd laddertop ${selectedFormat} ${toID(this.searchValue)}`);
 			} else {
 				this.requestLadderData();
@@ -35,7 +35,7 @@ class LadderRoom extends PSRoom {
 		}
 	};
 	requestLadderData = (searchValue?: string) => {
-		this.setLadderData(undefined); // Back to "Loading..."
+		this.setLadderData(undefined); // "Loading..."
 		$.get('/ladder.php', { // TO REVIEW: I imagine this may need to be changed to use PSLoginServer, but that does not have support for prepping GETs with query parameters
 			format: this.selectedFormat,
 			server: Config.server.id.split(':')[0],
@@ -78,9 +78,6 @@ class LadderPanel extends PSRoomPanel<LadderRoom, LadderPanelState> {
 			subscription.unsubscribe();
 		}
 		this.subscriptions = [];
-	}
-	update() {
-		this.forceUpdate();
 	}
 	setShowHelp = (showHelp: boolean) => () => this.setState({ showHelp });
 	setSearchValue = (e: Event) => this.setState({ searchValue: (e.currentTarget as HTMLInputElement).value });
@@ -146,10 +143,10 @@ class LadderPanel extends PSRoomPanel<LadderRoom, LadderPanelState> {
 		return <button name="selectFormat" onClick={this.handleSetFormat(undefined)}><i class="fa fa-chevron-left"></i> Format List</button>;
 	};
 	ShowFormat = () => {
+		const { teams } = PS;
 		const { room } = this.props;
 		const { searchValue, lastSearch } = this.state;
 		const selectedFormat = room.selectedFormat as string;
-		const { teams } = PS;
 		if (room.ladderData === undefined) {
 			return <div class="ladder pad"><p><this.FormatListButton/></p><p><em>Loading...</em></p></div>;
 		} else if (teams.usesLocalLadder) {
