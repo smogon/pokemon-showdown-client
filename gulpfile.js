@@ -2,6 +2,7 @@ const { src, dest } = require('gulp');
 
 function streamTask() {
   return src([
+    'audio/**/*.mp3',
     'config/config.js',
     'data/*.js',
     'fx/**/*',
