@@ -257,6 +257,16 @@ class MainMenuRoom extends PSRoom {
 				battlesRoom.battles = battles;
 				battlesRoom.update(null);
 			}
+			break;
+		case 'laddertop':
+			const ladderRoom = PS.rooms[`ladder`] as LadderRoom;
+			const [ format, ladderData ] = response;
+			// TODO: Implement error
+			if (ladderRoom.selectedFormat === format) {
+				ladderRoom.ladderData = ladderData;
+				ladderRoom.update(null);
+			}
+			break;
 		}
 	}
 }
