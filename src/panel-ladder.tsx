@@ -17,9 +17,7 @@ class LadderRoom extends PSRoom {
 		super(options);
 	}
 	setLadderData = (ladderData: string | undefined) => {
-		if (ladderData !== undefined) {
-			this.ladderData = ladderData;
-		}
+		this.ladderData = ladderData;
 		this.update(null);
 	};
 	setFormat = (selectedFormat: string | undefined) => {
@@ -51,12 +49,13 @@ class LadderRoom extends PSRoom {
 interface LadderPanelState {
 	showHelp: boolean;
 	searchValue: string;
+	lastSearch: string;
 }
 
 class LadderPanel extends PSRoomPanel<LadderRoom, LadderPanelState> {
 	constructor() {
 		super();
-		this.state = { showHelp: false, searchValue: '' };
+		this.state = { showHelp: false, searchValue: '', lastSearch: '' };
 	}
 	subscriptions: PSSubscription[] = [];
 	componentDidMount = () => {
@@ -76,14 +75,13 @@ class LadderPanel extends PSRoomPanel<LadderRoom, LadderPanelState> {
 	}
 	setShowHelp = (showHelp: boolean) => () => this.setState({ showHelp });
 	setSearchValue = (e: Event) => this.setState({ searchValue: (e.currentTarget as HTMLInputElement).value });
-	handleSetFormat = (selectedFormat?: string) => () => {
-		this.props.room.setFormat(selectedFormat);
-	};
-	handleRequestLadderData = () => this.props.room.requestLadderData;
+	handleSetFormat = (selectedFormat?: string) => () => this.props.room.setFormat(selectedFormat);
+	handleRequestLadderData = () => this.props.room.requestLadderData(this.state.lastSearch);
 	submitSearch = (e: Event) => {
 		const { room } = this.props;
 		const { searchValue } = this.state;
 		e.preventDefault();
+		this.setState({ lastSearch: searchValue });
 		room.requestLadderData(searchValue);
 	};
 	Notice = () => {
@@ -138,9 +136,9 @@ class LadderPanel extends PSRoomPanel<LadderRoom, LadderPanelState> {
 	FormatListButton = () => {
 		return <button name="selectFormat" onClick={this.handleSetFormat(undefined)}><i class="fa fa-chevron-left"></i> Format List</button>;
 	};
-	ShowFormat = (props: { searchValue: string}) => {
+	ShowFormat = () => {
 		const { room } = this.props;
-		const { searchValue } = props;
+		const { searchValue, lastSearch } = this.state;
 		const selectedFormat = room.selectedFormat as string;
 		const { teams } = PS;
 		if (room.ladderData === undefined) {
@@ -154,18 +152,18 @@ class LadderPanel extends PSRoomPanel<LadderRoom, LadderPanelState> {
 		return <div class="ladder pad">
 			<p><this.FormatListButton/></p><p><button class="button" name="refresh" onClick={this.handleRequestLadderData}><i class="fa fa-refresh"></i> Refresh</button>
 			<form class="search" onSubmit={this.submitSearch}><input type="text" name="searchValue" class="textbox searchinput" value={BattleLog.escapeHTML(searchValue)} placeholder="username prefix" onChange={this.setSearchValue} /><button type="submit"> Search</button></form></p>
-			<h3>{BattleLog.escapeFormat(selectedFormat)} Top {BattleLog.escapeHTML(searchValue ? `- '${searchValue}'` : '500')}</h3>
+			<h3>{BattleLog.escapeFormat(selectedFormat)} Top {BattleLog.escapeHTML(lastSearch ? `- '${lastSearch}'` : '500')}</h3>
 			<div dangerouslySetInnerHTML={{__html: room.ladderData}}></div>
 		</div>; // That's right, danger!
 	};
 	render() {
 		const room = this.props.room;
-		const { showHelp, searchValue } = this.state;
+		const { showHelp } = this.state;
 		return <PSPanelWrapper room={room} scrollable>
 			<div class="ladder pad">
 				{showHelp && <this.Help/>}
 				{!showHelp && room.selectedFormat === undefined && <this.ShowFormatList/>}
-				{!showHelp && room.selectedFormat !== undefined && <this.ShowFormat searchValue={searchValue}/>}
+				{!showHelp && room.selectedFormat !== undefined && <this.ShowFormat/>}
 			</div>
 		</PSPanelWrapper>;
 	}
