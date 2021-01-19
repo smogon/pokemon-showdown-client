@@ -3,7 +3,7 @@
  *
  * Panel for ladder formats and associated ladder tables.
  *
- * @author Guangcong Luo <guangcongluo@gmail.com>
+ * @author Adam Tran <aviettran@gmail.com>
  * @license AGPLv3
  */
 
