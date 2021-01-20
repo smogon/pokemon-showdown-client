@@ -48,13 +48,12 @@ class LadderRoom extends PSRoom {
 	};
 	requestLadderData = (searchValue?: string) => {
 		this.setLadderData(undefined); // "Loading..."
-		$.get('/ladder.php', { // TO REVIEW: I imagine this may need to be changed to use PSLoginServer, but that does not have support for prepping GETs with query parameters
+		Net('/ladder.php').get({query: {
 			format: this.selectedFormat,
 			server: Config.server.id.split(':')[0],
 			output: 'html',
 			prefix: toID(searchValue),
-		},
-		this.setLadderData);
+		}}).then(this.setLadderData);
 	};
 }
 
