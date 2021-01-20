@@ -4,7 +4,7 @@
  * Panel for ladder formats and associated ladder tables.
  *
  * @author Adam Tran <aviettran@gmail.com>
- * @license AGPLv3
+ * @license MIT
  */
 
 class LadderRoom extends PSRoom {
@@ -13,9 +13,6 @@ class LadderRoom extends PSRoom {
 	ladderData?: string;
 	selectedFormat?: string;
 
-	constructor(options: RoomOptions) {
-		super(options);
-	}
 	setLadderData = (ladderData: string | undefined) => {
 		this.ladderData = ladderData;
 		this.update(null);
@@ -57,8 +54,7 @@ class LadderPanel extends PSRoomPanel<LadderRoom, LadderPanelState> {
 		super();
 		this.state = { showHelp: false, searchValue: '', lastSearch: '' };
 	}
-	subscriptions: PSSubscription[] = [];
-	componentDidMount = () => {
+	componentDidMount() {
 		const { room } = this.props;
 		this.subscriptions.push(room.subscribe((response: any) => {
 			if (response) {
@@ -72,17 +68,9 @@ class LadderPanel extends PSRoomPanel<LadderRoom, LadderPanelState> {
 		this.subscriptions.push(PS.teams.subscribe(() => {
 			this.forceUpdate();
 		}));
-	};
-	componentWillUnmount() {
-		for (const subscription of this.subscriptions) {
-			subscription.unsubscribe();
-		}
-		this.subscriptions = [];
 	}
 	setShowHelp = (showHelp: boolean) => () => this.setState({ showHelp });
 	setSearchValue = (e: Event) => this.setState({ searchValue: (e.currentTarget as HTMLInputElement).value });
-	handleSetFormat = (selectedFormat?: string) => () => this.props.room.setFormat(selectedFormat);
-	handleRequestLadderData = () => this.props.room.requestLadderData(this.state.lastSearch);
 	submitSearch = (e: Event) => {
 		const { room } = this.props;
 		const { searchValue } = this.state;
@@ -90,16 +78,17 @@ class LadderPanel extends PSRoomPanel<LadderRoom, LadderPanelState> {
 		this.setState({ lastSearch: searchValue });
 		room.requestLadderData(searchValue);
 	};
-	Notice = () => {
-		const { room } = this.props;
-		if (room.notice) {
-			return <p><strong style="color:red">{room.notice}</strong></p>;
+	static Notice =  (props: { notice: string | undefined }) => {
+		const { notice } = props;
+		if (notice) {
+			return <p><strong style="color:red">{notice}</strong></p>;
 		}
 		return null;
 	};
-	Help = () => {
+	static Help = (props: { onClick: JSX.MouseEventHandler }) => {
+		const { onClick } = props;
 		return <>
-			<p><button name="selectFormat" onClick={this.setShowHelp(false)}><i class="fa fa-chevron-left"></i> Format List</button></p>
+			<p><button name="selectFormat" onClick={onClick}><i class="fa fa-chevron-left"></i> Format List</button></p>
 			<h3>How the ladder works</h3>
 			<p>Our ladder displays three ratings: Elo, GXE, and Glicko-1.</p>
 			<p><strong>Elo</strong> is the main ladder rating. It's a pretty normal ladder rating: goes up when you win and down when you lose.</p>
@@ -108,7 +97,9 @@ class LadderPanel extends PSRoomPanel<LadderRoom, LadderPanelState> {
 			<p>Note that win/loss should not be used to estimate skill, since who you play against is much more important than how many times you win or lose. Our other stats like Elo and GXE are much better for estimating skill.</p>
 		</>;
 	};
-	BattleFormatList = () => {
+	static BattleFormatList = (props: { room: LadderRoom }) => {
+		const { room } = props;
+		const onClick = (key: string) => () => room.setFormat(key);
 		if (!BattleFormats) {
 			return <p>Loading...</p>;
 		}
@@ -124,52 +115,60 @@ class LadderPanel extends PSRoomPanel<LadderRoom, LadderPanelState> {
 				}
 				currentSection = format.section;
 			}
-			formats.push(<li key={key} style="margin:5px"><button name="selectFormat" value={key} class="button" style="width:320px;height:30px;text-align:left;font:12pt Verdana" onClick={this.handleSetFormat(key)}>{BattleLog.escapeFormat(format.id)}</button></li>);
+			formats.push(<li key={key} style="margin:5px"><button name="selectFormat" value={key} class="button" style="width:320px;height:30px;text-align:left;font:12pt Verdana" onClick={onClick(key)}>{BattleLog.escapeFormat(format.id)}</button></li>);
 		}
 		return <>
 			{sections}
 		</>;
 	};
-	ShowFormatList = () => {
+	static ShowFormatList = (props: { room: LadderRoom, onSelectFormat: JSX.MouseEventHandler }) => {
+		const { room, onSelectFormat } = props;
 		return <>
 			<p>See a user's ranking with <a class="button" href={`/${Config.routes.users}/`} target="_blank">User lookup</a></p>
-			<this.Notice/>
+			<LadderPanel.Notice notice={room.notice}/>
 			<p>(btw if you couldn't tell the ladder screens aren't done yet; they'll look nicer than this once I'm done.)</p>
-			<p><button name="selectFormat" value="help" class="button" onClick={this.setShowHelp(true)}><i class="fa fa-info-circle"></i> How the ladder works</button></p>
-			<this.BattleFormatList/>
+			<p><button name="selectFormat" value="help" class="button" onClick={onSelectFormat}><i class="fa fa-info-circle"></i> How the ladder works</button></p>
+			<LadderPanel.BattleFormatList room={room}/>
 		</>;
 	};
-	FormatListButton = () => {
-		return <button name="selectFormat" onClick={this.handleSetFormat(undefined)}><i class="fa fa-chevron-left"></i> Format List</button>;
+	static FormatListButton = (props: { room: LadderRoom }) => {
+		const { room } = props;
+		return <button name="selectFormat" onClick={() => room.setFormat(undefined)}><i class="fa fa-chevron-left"></i> Format List</button>;
 	};
-	ShowFormat = () => {
+	static ShowFormat = (props: {
+			room: LadderRoom,
+			searchValue: string,
+			lastSearch: string,
+			onSubmitSearch: JSX.GenericEventHandler,
+			onChangeSearch: JSX.GenericEventHandler,
+		}) => {
 		const { teams } = PS;
-		const { room } = this.props;
-		const { searchValue, lastSearch } = this.state;
+		const { room, searchValue, lastSearch, onSubmitSearch, onChangeSearch } = props;
 		const selectedFormat = room.selectedFormat as string;
 		if (room.ladderData === undefined) {
-			return <div class="ladder pad"><p><this.FormatListButton/></p><p><em>Loading...</em></p></div>;
+			return <div class="ladder pad"><p><LadderPanel.FormatListButton room={room}/></p><p><em>Loading...</em></p></div>;
 		} else if (teams.usesLocalLadder) {
 			return <div class="ladder pad">
-				<p><this.FormatListButton/></p>
-				<div dangerouslySetInnerHTML={{__html: room.ladderData}}></div>
+				<p><LadderPanel.FormatListButton room={room}/></p>
+				<SanitizedHTML innerHTML={room.ladderData}/>
 			</div>;
 		}
 		return <div class="ladder pad">
-			<p><this.FormatListButton/></p><p><button class="button" name="refresh" onClick={this.handleRequestLadderData}><i class="fa fa-refresh"></i> Refresh</button>
-			<form class="search" onSubmit={this.submitSearch}><input type="text" name="searchValue" class="textbox searchinput" value={BattleLog.escapeHTML(searchValue)} placeholder="username prefix" onChange={this.setSearchValue} /><button type="submit"> Search</button></form></p>
+			<p><LadderPanel.FormatListButton room={room}/></p><p><button class="button" name="refresh" onClick={() => room.requestLadderData(lastSearch)}><i class="fa fa-refresh"></i> Refresh</button>
+			<form class="search" onSubmit={onSubmitSearch}><input type="text" name="searchValue" class="textbox searchinput" value={BattleLog.escapeHTML(searchValue)} placeholder="username prefix" onChange={onChangeSearch} /><button type="submit"> Search</button></form></p>
 			<h3>{BattleLog.escapeFormat(selectedFormat)} Top {BattleLog.escapeHTML(lastSearch ? `- '${lastSearch}'` : '500')}</h3>
-			<div dangerouslySetInnerHTML={{__html: room.ladderData}}></div>
-		</div>; // That's right, danger!
+			<SanitizedHTML innerHTML={room.ladderData}/>
+		</div>;
 	};
 	render() {
-		const room = this.props.room;
-		const { showHelp } = this.state;
+		const { room } = this.props;
+		const { showHelp, searchValue, lastSearch } = this.state;
 		return <PSPanelWrapper room={room} scrollable>
 			<div class="ladder pad">
-				{showHelp && <this.Help/>}
-				{!showHelp && room.selectedFormat === undefined && <this.ShowFormatList/>}
-				{!showHelp && room.selectedFormat !== undefined && <this.ShowFormat/>}
+				{showHelp && <LadderPanel.Help onClick={this.setShowHelp(false)}/>}
+				{!showHelp && room.selectedFormat === undefined && <LadderPanel.ShowFormatList room={room} onSelectFormat={this.setShowHelp(true)}/>}
+				{!showHelp && room.selectedFormat !== undefined &&
+					<LadderPanel.ShowFormat room={room} searchValue={searchValue} lastSearch={lastSearch} onSubmitSearch={this.submitSearch} onChangeSearch={this.setSearchValue}/>}
 			</div>
 		</PSPanelWrapper>;
 	}
