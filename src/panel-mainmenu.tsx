@@ -31,7 +31,7 @@ class MainMenuRoom extends PSRoom {
 			PSLoginServer.query({
 				act: 'upkeep',
 				challstr,
-			}, res => {
+			}).then(res => {
 				if (!res) return;
 				if (!res.loggedin) return;
 				this.send(`/trn ${res.username},0,${res.assertion}`);
