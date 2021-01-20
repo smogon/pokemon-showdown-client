@@ -10,9 +10,24 @@
 class LadderRoom extends PSRoom {
 	readonly classType: string = 'ladder';
 	readonly notice?: string;
+	showHelp: boolean = false;
+	searchValue: string = '';
+	lastSearch: string = '';
 	ladderData?: string;
 	selectedFormat?: string;
 
+	setShowHelp = (showHelp: boolean) => {
+		this.showHelp = showHelp;
+		this.update(null);
+	};
+	setSearchValue = (searchValue: string) => {
+		this.searchValue = searchValue;
+		this.update(null);
+	};
+	setLastSearch = (lastSearch: string) => {
+		this.lastSearch = lastSearch;
+		this.update(null);
+	};
 	setLadderData = (ladderData: string | undefined) => {
 		this.ladderData = ladderData;
 		this.update(null);
@@ -43,17 +58,7 @@ class LadderRoom extends PSRoom {
 	};
 }
 
-interface LadderPanelState {
-	showHelp: boolean;
-	searchValue: string;
-	lastSearch: string;
-}
-
-class LadderPanel extends PSRoomPanel<LadderRoom, LadderPanelState> {
-	constructor() {
-		super();
-		this.state = { showHelp: false, searchValue: '', lastSearch: '' };
-	}
+class LadderPanel extends PSRoomPanel<LadderRoom> {
 	componentDidMount() {
 		const { room } = this.props;
 		this.subscriptions.push(room.subscribe((response: any) => {
@@ -69,14 +74,15 @@ class LadderPanel extends PSRoomPanel<LadderRoom, LadderPanelState> {
 			this.forceUpdate();
 		}));
 	}
-	setShowHelp = (showHelp: boolean) => () => this.setState({ showHelp });
-	setSearchValue = (e: Event) => this.setState({ searchValue: (e.currentTarget as HTMLInputElement).value });
+	changeSearch = (e: Event) => {
+		const { room } = this.props;
+		room.setSearchValue((e.currentTarget as HTMLInputElement).value);
+	};
 	submitSearch = (e: Event) => {
 		const { room } = this.props;
-		const { searchValue } = this.state;
 		e.preventDefault();
-		this.setState({ lastSearch: searchValue });
-		room.requestLadderData(searchValue);
+		room.setLastSearch(room.searchValue);
+		room.requestLadderData(room.searchValue);
 	};
 	static Notice =  (props: { notice: string | undefined }) => {
 		const { notice } = props;
@@ -162,13 +168,12 @@ class LadderPanel extends PSRoomPanel<LadderRoom, LadderPanelState> {
 	};
 	render() {
 		const { room } = this.props;
-		const { showHelp, searchValue, lastSearch } = this.state;
 		return <PSPanelWrapper room={room} scrollable>
 			<div class="ladder pad">
-				{showHelp && <LadderPanel.Help onClick={this.setShowHelp(false)}/>}
-				{!showHelp && room.selectedFormat === undefined && <LadderPanel.ShowFormatList room={room} onSelectFormat={this.setShowHelp(true)}/>}
-				{!showHelp && room.selectedFormat !== undefined &&
-					<LadderPanel.ShowFormat room={room} searchValue={searchValue} lastSearch={lastSearch} onSubmitSearch={this.submitSearch} onChangeSearch={this.setSearchValue}/>}
+				{room.showHelp && <LadderPanel.Help onClick={() => room.setShowHelp(false)}/>}
+				{!room.showHelp && room.selectedFormat === undefined && <LadderPanel.ShowFormatList room={room} onSelectFormat={() => room.setShowHelp(true)}/>}
+				{!room.showHelp && room.selectedFormat !== undefined &&
+					<LadderPanel.ShowFormat room={room} searchValue={room.searchValue} lastSearch={room.lastSearch} onSubmitSearch={this.submitSearch} onChangeSearch={this.changeSearch}/>}
 			</div>
 		</PSPanelWrapper>;
 	}
