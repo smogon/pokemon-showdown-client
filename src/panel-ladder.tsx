@@ -47,6 +47,7 @@ class LadderRoom extends PSRoom {
 		}
 	};
 	requestLadderData = (searchValue?: string) => {
+		if (this.selectedFormat === undefined) return;
 		this.setLadderData(undefined); // "Loading..."
 		Net('/ladder.php').get({query: {
 			format: this.selectedFormat,
