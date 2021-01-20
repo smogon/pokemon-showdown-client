@@ -156,14 +156,14 @@ class LadderPanel extends PSRoomPanel<LadderRoom> {
 		} else if (teams.usesLocalLadder) {
 			return <div class="ladder pad">
 				<p><LadderPanel.FormatListButton room={room}/></p>
-				<SanitizedHTML innerHTML={room.ladderData}/>
+				<SanitizedHTML>{room.ladderData}</SanitizedHTML>
 			</div>;
 		}
 		return <div class="ladder pad">
 			<p><LadderPanel.FormatListButton room={room}/></p><p><button class="button" name="refresh" onClick={() => room.requestLadderData(lastSearch)}><i class="fa fa-refresh"></i> Refresh</button>
 			<form class="search" onSubmit={onSubmitSearch}><input type="text" name="searchValue" class="textbox searchinput" value={BattleLog.escapeHTML(searchValue)} placeholder="username prefix" onChange={onChangeSearch} /><button type="submit"> Search</button></form></p>
 			<h3>{BattleLog.escapeFormat(selectedFormat)} Top {BattleLog.escapeHTML(lastSearch ? `- '${lastSearch}'` : '500')}</h3>
-			<SanitizedHTML innerHTML={room.ladderData}/>
+			<SanitizedHTML>{room.ladderData}</SanitizedHTML>
 		</div>;
 	};
 	render() {
