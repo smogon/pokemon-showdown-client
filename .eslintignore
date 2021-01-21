@@ -30,3 +30,4 @@ node_modules/
 /js/panel-teamdropdown.js
 /js/panel-battle.js
 /js/panel-ladder.js
+/js/panel-ladder-format.js
