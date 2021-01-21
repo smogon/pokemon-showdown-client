@@ -1347,8 +1347,12 @@ class BattleTooltips {
 				if (value.abilityModify(0, 'Galvanize')) moveType = 'Electric';
 				if (value.abilityModify(0, 'Pixilate')) moveType = 'Fairy';
 				if (value.abilityModify(0, 'Refrigerate')) moveType = 'Ice';
+				if (value.abilityModify(0, 'Degenerate')) moveType = 'Dark';
 			}
 			if (value.abilityModify(0, 'Normalize')) moveType = 'Normal';
+			if (move.flags.sound) {
+				if (value.abilityModify(0, 'Ghost Note')) moveType = 'Ghost';
+			}
 		}
 		// There aren't any max moves with the sound flag, but if there were, Liquid Voice would make them water type
 		const isSound = !!(forMaxMove ? this.getMaxMoveFromType(moveType, forMaxMove !== true && forMaxMove || undefined) : move).flags['sound'];
