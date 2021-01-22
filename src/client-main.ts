@@ -855,7 +855,7 @@ const PS = new class extends PSModel {
 			case 'news':
 				options.type = options.id;
 				break;
-			case 'battle-': case 'user-': case 'team-': case 'ladderformat-':
+			case 'battle-': case 'user-': case 'team-': case 'ladder-':
 				options.type = options.id.slice(0, hyphenIndex);
 				break;
 			case 'view-':
