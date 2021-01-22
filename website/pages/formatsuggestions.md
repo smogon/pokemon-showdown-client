@@ -22,9 +22,15 @@ Smogon's official formats are based primarily on [their tier system][1], where l
 
   [2]: https://www.smogon.com/forums/forums/policy-review.63/
 
-Smogon's Other Metagames formats, on the other hand, is the home for creative user-suggested formats. Rules changes for them can be freely discussed in Smogon's [Other Metagames forum][2].
+Smogon's Other Metagames formats, on the other hand, is the home for creative user-suggested formats. Rules changes for them can be freely discussed in Smogon's [Other Metagames forum][3].
 
   [3]: https://www.smogon.com/forums/forums/other-metagames.531/
+
+For Random Battles, the [Gen 8 Random Battles sets thread][4] and [past gen Random Battles sets thread][5] are good places to suggest changes.
+
+  [4]: https://www.smogon.com/forums/threads/pokemon-sword-shield-random-battle-sets.3656537/
+
+  [5]: https://www.smogon.com/forums/threads/past-gens-random-battle-sets.3674281/
 
 If you have an idea for a new Other Metagames format, the guide to submit is here:
 
