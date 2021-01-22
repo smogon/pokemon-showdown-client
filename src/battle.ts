@@ -3139,6 +3139,9 @@ class Battle {
 				this.messageFadeTime = 40;
 				this.isBlitz = true;
 			}
+			if (this.tier in Formats) {
+				if (window.Formats[this.tier].mod) this.dex = Dex.mod(window.Formats[this.tier].mod);
+			}
 			this.log(args);
 			break;
 		}
