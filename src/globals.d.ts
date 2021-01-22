@@ -35,6 +35,7 @@ declare function formatText(input: string, isTrusted?: boolean): string;
 /////////////
 
 declare var Config: any;
+declare var Formats: any;
 declare var Replays: any;
 declare var exports: any;
 type AnyObject = {[k: string]: any};
