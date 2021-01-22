@@ -1417,6 +1417,7 @@ class BattleTooltips {
 			value.abilityModify(0.8, "Hustle");
 		}
 		value.abilityModify(1.3, "Compound Eyes");
+		value.abilityModify(1.3, "Illuminate");
 		for (const active of pokemon.side.active) {
 			if (!active || active.fainted) continue;
 			let ability = this.getAllyAbility(active);
