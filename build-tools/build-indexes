@@ -1025,7 +1025,10 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 
 	for (const mod of MODS) {
 		if (mod in BattleTeambuilderTable) continue;
-		BattleTeambuilderTable[mod] = {modObj: Dex.mod(mod).data};
+		BattleTeambuilderTable[mod] = {
+			modObj: Dex.mod(mod).data,
+			overrideTier: {},
+		};
 	}
 	buf += 'exports.BattleTeambuilderTable = ' + JSON.stringify(BattleTeambuilderTable) + ';\n\n';
 

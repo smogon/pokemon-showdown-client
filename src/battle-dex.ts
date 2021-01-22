@@ -428,7 +428,7 @@ const Dex = new class implements ModdedDex {
 				this.modData.Pokedex[formid][key] = this.modData.Pokedex[id][key];
 			}
 		}
-		id = toID(data.name);
+		id = data ? toID(data.name) : id;
 		let species: Species;
 		if (data && typeof data.exists === 'boolean') {
 			species = data;
