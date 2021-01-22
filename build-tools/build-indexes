@@ -1030,7 +1030,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			overrideTier: {},
 		};
 		['Items', 'Moves', 'Abilities'].forEach(table => {
-			for( const key in BattleTeambuilderTable[mod].modObj[table]) {
+			for (const key in BattleTeambuilderTable[mod].modObj[table]) {
 				const descs = Dex.getDescs(table, key, BattleTeambuilderTable[mod].modObj[table][key]);
 				Object.assign(BattleTeambuilderTable[mod].modObj[table][key], descs);
 			}
