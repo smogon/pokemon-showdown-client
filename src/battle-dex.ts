@@ -212,9 +212,6 @@ const Dex = new class implements ModdedDex {
 			this.modData = window.BattleTeambuilderTable[modid].modObj;
 			return this;
 		}
-		if (modid in this.moddedDexes) {
-			return this.moddedDexes[modid];
-		}
 		this.moddedDexes[modid] = new ModdedDex(modid);
 		return this.moddedDexes[modid];
 	}
