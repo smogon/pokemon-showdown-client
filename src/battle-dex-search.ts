@@ -566,12 +566,12 @@ abstract class BattleTypedSearch<T extends SearchType> {
 		this.baseResults = null;
 		this.baseIllegalResults = null;
 
-		if (window.BattleFormats[format] && window.BattleFormats[format].name in window.Formats) {
+		/*if (window.BattleFormats[format] && window.BattleFormats[format].name in window.Formats) {
 			const mod = window.Formats[window.BattleFormats[format].name].mod;
 			if (mod in window.BattleTeambuilderTable && window.BattleTeambuilderTable[mod].modObj) {
 				this.dex = Dex.mod(mod);
 			}
-		} else if (format.slice(0, 3) === 'gen') {
+		} else */if (format.slice(0, 3) === 'gen') {
 			const gen = (Number(format.charAt(3)) || 6);
 			format = (format.slice(4) || 'customgame') as ID;
 			this.dex = Dex.forGen(gen);
