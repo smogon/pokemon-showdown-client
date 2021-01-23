@@ -517,12 +517,12 @@ const Dex = new class implements ModdedDex {
 		let fakeSprite = false;
 		let name = species.spriteid;
 		let id = toID(name);
-		options.mod = this.getSpriteMod(options.mod, id, isFront ? 'front' : 'back', species.exists !== false);
+		options.mod = this.getSpriteMod(options.mod, id, isFront ? 'front' : 'back', species.exists !== false) | undefined;
 		if (options.mod) {
 			resourcePrefix = Dex.modResourcePrefix;
 			spriteDir = `${options.mod}/sprites/`;
 			fakeSprite = true;
-			if (!this.getSpriteMod(options.mod, id, (isFront ? 'front' : 'back') + '-shiny', species.exists !== false)) options.shiny = '';
+			if (this.getSpriteMod(options.mod, id, (isFront ? 'front' : 'back') + '-shiny', species.exists !== false) === '') options.shiny = '';
 		}
 
 		// Gmax sprites are already extremely large, so we don't need to double.
@@ -981,7 +981,7 @@ class ModdedDex {
 		let data = {...Dex.getSpecies(name)};
 		if (table.overrideDexInfo) {
 			for (const key in table.overrideDexInfo[id]) {
-				data[key] = (table.overrideDexInfo[id][key]);
+				data[key] = {...table.overrideDexInfo[id][key]};
 			}
 		} else {
 			let abilities = {...data.abilities};

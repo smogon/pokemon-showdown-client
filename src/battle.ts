@@ -1069,7 +1069,7 @@ class Battle {
 	lastMove = '';
 
 	gen = 7;
-	mod = '';
+	mod: string = '';
 	dex: ModdedDex = Dex;
 	teamPreviewCount = 0;
 	speciesClause = false;
@@ -1115,9 +1115,9 @@ class Battle {
 		} else {
 			this.scene = new BattleScene(this, $frame, $logFrame);
 		}
-		format = this.id.slice(this.id.indexOf('-') + 1, this.id.lastIndexOf('-'));
-		for (const mod in window.ModConfig) {
-			for (const formatid in window.ModConfig[mod].formats) {
+		const format = this.id.slice(this.id.indexOf('-') + 1, this.id.lastIndexOf('-'));
+		for (const mod in ModConfig) {
+			for (const formatid in ModConfig[mod].formats) {
 				if (format === formatid) {
 					this.mod = mod;
 					this.dex = Dex.mod(mod);
