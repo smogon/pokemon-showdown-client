@@ -54,7 +54,7 @@ class PSConnection {
 PS.connection = new PSConnection();
 
 const PSLoginServer = new class {
-	query(data: {}, callback: (res: {[k: string]: any} | null) => void) {
+	query(data: PostData): Promise<{[k: string]: any} | null> {
 		let url = '/~~' + PS.server.id + '/action.php';
 		if (location.pathname.endsWith('.html')) {
 			url = 'https://' + Config.routes.client + url;
@@ -64,33 +64,108 @@ const PSLoginServer = new class {
 				data.sid = POKEMON_SHOWDOWN_TESTCLIENT_KEY.replace(/\%2C/g, ',');
 			}
 		}
-		this.request(url, data, res => {
-			if (!res) callback(null);
-			else callback(JSON.parse(res.slice(1)));
+		return Net(url).get({method: data ? 'POST' : 'GET', body: data}).then(
+			res => res ? JSON.parse(res.slice(1)) : null
+		).catch(
+			() => null
+		);
+	}
+};
+
+interface PostData {
+	[key: string]: string | number;
+}
+interface NetRequestOptions {
+	method?: 'GET' | 'POST';
+	body?: string | PostData;
+	query?: PostData;
+}
+class HttpError extends Error {
+	statusCode?: number;
+	body: string;
+	constructor(message: string, statusCode: number | undefined, body: string) {
+		super(message);
+		this.name = 'HttpError';
+		this.statusCode = statusCode;
+		this.body = body;
+		try {
+			(Error as any).captureStackTrace(this, HttpError);
+		} catch (err) {}
+	}
+}
+class NetRequest {
+	uri: string;
+	constructor(uri: string) {
+		this.uri = uri;
+	}
+
+	/**
+	 * Makes a basic http/https request to the URI.
+	 * Returns the response data.
+	 *
+	 * Will throw if the response code isn't 200 OK.
+	 *
+	 * @param opts request opts
+	 */
+	get(opts: NetRequestOptions = {}): Promise<string> {
+		return new Promise((resolve, reject) => {
+			const xhr = new XMLHttpRequest();
+			let uri = this.uri;
+			if (opts.query) {
+				uri += (uri.includes('?') ? '&' : '?') + Net.encodeQuery(opts.query);
+			}
+			xhr.open(opts.method || 'GET', uri);
+			xhr.onreadystatechange = function () {
+				const DONE = 4;
+				if (xhr.readyState === DONE) {
+					if (xhr.status === 200) {
+						resolve(xhr.responseText || '');
+						return;
+					}
+					const err = new HttpError(xhr.statusText || "Connection error", xhr.status, xhr.responseText);
+					reject(err);
+				}
+			};
+			if (opts.body) {
+				xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+				xhr.send(Net.encodeQuery(opts.body));
+			} else {
+				xhr.send();
+			}
 		});
 	}
-	request(url: string, data: {} | null, callback: (res: string | null) => void) {
-		const xhr = new XMLHttpRequest();
-		xhr.open(data ? 'POST' : 'GET', url);
-		xhr.onreadystatechange = function () {
-			if (xhr.readyState === 4) {
-				try {
-					callback(xhr.responseText || null);
-				} catch {
-					callback(null);
-				}
-			}
-		};
-		if (data) {
-			let urlencodedData = '';
-			for (const key in data) {
-				if (urlencodedData) urlencodedData += '&';
-				urlencodedData += encodeURIComponent(key) + '=' + encodeURIComponent((data as any)[key]);
-			}
-			xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-			xhr.send(urlencodedData);
-		} else {
-			xhr.send();
-		}
+
+	/**
+	 * Makes a http/https POST request to the given link.
+	 * @param opts request opts
+	 * @param body POST body
+	 */
+	post(opts: Omit<NetRequestOptions, 'body'>, body: PostData | string): Promise<string>;
+	/**
+	 * Makes a http/https POST request to the given link.
+	 * @param opts request opts
+	 */
+	post(opts?: NetRequestOptions): Promise<string>;
+	post(opts: NetRequestOptions = {}, body?: PostData | string) {
+		if (!body) body = opts.body;
+		return this.get({
+			...opts,
+			method: 'POST',
+			body,
+		});
 	}
+}
+
+function Net(uri: string) {
+	return new NetRequest(uri);
+}
+
+Net.encodeQuery = function (data: string | PostData) {
+	if (typeof data === 'string') return data;
+	let urlencodedData = '';
+	for (const key in data) {
+		if (urlencodedData) urlencodedData += '&';
+		urlencodedData += encodeURIComponent(key) + '=' + encodeURIComponent((data as any)[key]);
+	}
+	return urlencodedData;
 };
