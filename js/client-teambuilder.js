@@ -130,7 +130,7 @@
 			teams = Storage.teams;
 			if (this.curTeam) {
 				this.ignoreEVLimits = (
-					this.curTeam.gen < 3 || this.curTeam.format.includes('hackmons') || this.curTeam.format === 'gen8metronomebattle' || 
+					this.curTeam.gen < 3 || this.curTeam.format.includes('hackmons') || this.curTeam.format === 'gen8metronomebattle' ||
 					(this.curTeam.mod && ModConfig[this.curTeam.mod].ignoreEVLimits)
 				);
 				if (this.curSet) {
