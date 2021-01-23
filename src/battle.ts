@@ -1069,6 +1069,7 @@ class Battle {
 	lastMove = '';
 
 	gen = 7;
+	mod = '';
 	dex: ModdedDex = Dex;
 	teamPreviewCount = 0;
 	speciesClause = false;
@@ -1114,7 +1115,18 @@ class Battle {
 		} else {
 			this.scene = new BattleScene(this, $frame, $logFrame);
 		}
-
+		format = this.id.slice(this.id.indexOf('-') + 1, this.id.lastIndexOf('-'));
+		for (const mod in ModConfig) {
+			for (const formatid in ModConfig[mod].formats) {
+				if (format === formatid) {
+					this.mod = mod;
+					this.dex = Dex.mod(mod);
+					break;
+				}
+			}
+			if (this.mod) break;
+		}
+		if (this.id.includes('digimon')) this.mod = 'digimon';
 		this.init();
 	}
 
@@ -3367,7 +3379,7 @@ class Battle {
 		}
 		case 'gen': {
 			this.gen = parseInt(args[1], 10);
-			this.dex = Dex.forGen(this.gen);
+			this.dex = this.mod ? Dex.mod(this.mod) : Dex.forGen(this.gen);
 			this.scene.updateGen();
 			this.log(args);
 			break;

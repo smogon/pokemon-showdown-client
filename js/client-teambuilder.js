@@ -677,11 +677,10 @@
 			this.curTeam = teams[i];
 			this.curTeam.iconCache = '!';
 			this.curTeam.gen = this.getGen(this.curTeam.format);
-			var Mods = BattleTeambuilderTable.Mods;
-			for (var modid in (Mods)) {
-				for (var i in Mods[modid].formats) {
-					var formatName = Mods[modid].formats[i];
-					if (toID(formatName) === this.curTeam.format) this.curTeam.mod = modid;
+			var ClientMods = ModConfig;
+			for (var modid in (ClientMods)) {
+				for (var formatid in ClientMods[modid].formats) {
+					if (formatid === this.curTeam.format) this.curTeam.mod = modid;
 				}
 			}
 			Storage.activeSetList = this.curSetList = Storage.unpackTeam(this.curTeam.team);
@@ -1172,7 +1171,7 @@
 			buf += '<div class="setchart-nickname">';
 			buf += '<label>Nickname</label><input type="text" name="nickname" class="textbox" value="' + BattleLog.escapeHTML(set.name || '') + '" placeholder="' + BattleLog.escapeHTML(species.baseSpecies) + '" />';
 			buf += '</div>';
-			buf += '<div class="setchart" style="' + Dex.getTeambuilderSprite(set, this.curTeam.gen) + ';">';
+			buf += '<div class="setchart" style="' + Dex.getTeambuilderSprite(set, this.curTeam.gen, this.curTeam.mod) + ';">';
 
 			// icon
 			buf += '<div class="setcol setcol-icon">';
@@ -1221,7 +1220,7 @@
 			var itemicon = '<span class="itemicon"></span>';
 			if (set.item) {
 				var item = Dex.getItem(set.item);
-				itemicon = '<span class="itemicon" style="' + Dex.getItemIcon(item) + '"></span>';
+				itemicon = '<span class="itemicon" style="' + Dex.getItemIcon(item, this.curTeam.mod) + '"></span>';
 			}
 			buf += itemicon;
 			buf += '</div>';
@@ -1230,7 +1229,7 @@
 			var table = (this.curTeam.gen < 7 ? BattleTeambuilderTable['gen' + this.curTeam.gen] : null);
 			if (table && species.id in table.overrideType) types = table.overrideType[species.id].split('/');
 			if (types) {
-				for (var i = 0; i < types.length; i++) buf += Dex.getTypeIcon(types[i]);
+				for (var i = 0; i < types.length; i++) buf += Dex.getTypeIcon(types[i], null, this.curTeam.mod);
 			}
 			buf += '</div></div>';
 
@@ -1399,11 +1398,10 @@
 			this.curTeam.format = format;
 			this.curTeam.gen = this.getGen(this.curTeam.format);
 			this.curTeam.mod = 0;
-			var Mods = BattleTeambuilderTable.Mods;
-			for (var modid in (Mods)) {
-				for (var i in Mods[modid].formats) {
-					var formatName = Mods[modid].formats[i];
-					if (toID(formatName) === this.curTeam.format) this.curTeam.mod = modid;
+			var ClientMods = ModConfig;
+			for (var modid in (ClientMods)) {
+				for (var formatid in ClientMods[modid].formats) {
+					if (formatid === this.curTeam.format) this.curTeam.mod = modid;
 				}
 			}
 			this.save();
@@ -1453,7 +1451,7 @@
 				var species = Dex.getSpecies(res.species);
 
 				buf += '<div class="result" data-id="' + i + '">';
-				buf += '<div class="section"><span class="icon" style="' + Dex.getPokemonIcon(species.name) + '"></span>';
+				buf += '<div class="section"><span class="icon" style="' + Dex.getPokemonIcon(species.name, false, this.curTeam.mod) + '"></span>';
 				buf += '<span class="species">' + (species.name === species.baseSpecies ? BattleLog.escapeHTML(species.name) : (BattleLog.escapeHTML(species.baseSpecies) + '-<small>' + BattleLog.escapeHTML(species.name.substr(species.baseSpecies.length + 1)) + '</small>')) + '</span></div>';
 				buf += '<div class="section"><span class="ability-item">' + (BattleLog.escapeHTML(res.ability) || '<i>No ability</i>') + '<br />' + (BattleLog.escapeHTML(res.item) || '<i>No item</i>') + '</span></div>';
 				buf += '<div class="section no-border">';
@@ -1742,7 +1740,7 @@
 			}
 			for (var i = start; i < end; i++) {
 				var set = this.curSetList[i];
-				var pokemonicon = '<span class="picon pokemonicon-' + i + '" style="' + Dex.getPokemonIcon(set) + '"></span>';
+				var pokemonicon = '<span class="picon pokemonicon-' + i + '" style="' + Dex.getPokemonIcon(set, false, this.curTeam.mod) + '"></span>';
 				if (!set.species) {
 					buf += '<button disabled="disabled" class="addpokemon" aria-label="Add Pok&eacute;mon"><i class="fa fa-plus"></i></button> ';
 					isAdd = true;
@@ -1760,14 +1758,13 @@
 		updatePokemonSprite: function () {
 			var set = this.curSet;
 			if (!set) return;
+			this.$('.setchart').attr('style', Dex.getTeambuilderSprite(set, this.curTeam.gen, this.curTeam.mod));
 
-			this.$('.setchart').attr('style', Dex.getTeambuilderSprite(set, this.curTeam.gen));
-
-			this.$('.pokemonicon-' + this.curSetLoc).css('background', Dex.getPokemonIcon(set).substr(11));
+			this.$('.pokemonicon-' + this.curSetLoc).css('background', Dex.getPokemonIcon(set, false, this.curTeam.mod).substr(11));
 
 			var item = Dex.getItem(set.item);
 			if (item.id) {
-				this.$('.setcol-details .itemicon').css('background', Dex.getItemIcon(item).substr(11));
+				this.$('.setcol-details .itemicon').css('background', Dex.getItemIcon(item, this.curTeam.mod).substr(11));
 			} else {
 				this.$('.setcol-details .itemicon').css('background', 'none');
 			}
@@ -2001,7 +1998,7 @@
 
 			buf += '<div class="resultheader"><h3>EVs</h3></div>';
 			buf += '<div class="statform">';
-			var guess = new BattleStatGuesser(this.curTeam.format).guess(set);
+			var guess = new BattleStatGuesser(this.curTeam.format, this.curTeam.mod).guess(set);
 			var role = guess.role;
 
 			var guessedEVs = guess.evs;
@@ -2840,6 +2837,7 @@
 			this.updateChart(false, wasIncomplete);
 		},
 		chartChange: function (e, selectNext) {
+			var thisDex = this.curTeam.mod ? Dex.mod(this.curTeam.mod) : Dex;
 			var name = e.currentTarget.name;
 			if (this.curChartName !== name) return;
 			var id = toID(e.currentTarget.value);
@@ -2847,26 +2845,26 @@
 			var val = '';
 			switch (name) {
 			case 'pokemon':
-				val = (id in BattlePokedex ? Dex.getSpecies(e.currentTarget.value).name : '');
+				val = (thisDex.getSpecies(id).exists ? thisDex.getSpecies(e.currentTarget.value).name : '');
 				break;
 			case 'ability':
-				if (id in BattleItems && this.curTeam.format == "gen8dualwielding") {
-					val = BattleItems[id].name;
-				} else if (id in BattleMovedex && this.curTeam.format == "gen8trademarked") {
-					val = BattleMovedex[id].name;
+				if (thisDex.getItem(id).exists && this.curTeam.format == "gen8dualwielding") {
+					val = thisDex.getItem(id).name;
+				} else if (thisDex.getMove(id).exists && this.curTeam.format == "gen8trademarked") {
+					val = thisDex.getMove(id).name;
 				} else {
-					val = (id in BattleAbilities ? BattleAbilities[id].name : '');
+					val = (thisDex.getAbility(id).exists ? thisDex.getAbility(id).name : '');
 				}
 				break;
 			case 'item':
-				if (id in BattleMovedex && this.curTeam.format == "gen8fortemons") {
-					val = BattleMovedex[id].name;
+				if (thisDex.getMove(id).exists && this.curTeam.format == "gen8fortemons") {
+					val = thisDex.getMove(id).name;
 				} else {
-					val = (id in BattleItems ? BattleItems[id].name : '');
+					val = (thisDex.getItem(id).exists ? thisDex.getItem(id).name : '');
 				}
 				break;
 			case 'move1': case 'move2': case 'move3': case 'move4':
-				val = (id in BattleMovedex ? BattleMovedex[id].name : '');
+				val = (thisDex.getMove(id).exists ? thisDex.getMove(id).name : '');
 				break;
 			}
 			if (!val) {

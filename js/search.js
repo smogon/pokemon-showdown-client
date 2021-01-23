@@ -299,7 +299,7 @@
 
 		// icon
 		buf += '<span class="col iconcol">';
-		buf += '<span style="' + Dex.getPokemonIcon(pokemon.name) + '"></span>';
+		buf += '<span style="' + Dex.getPokemonIcon(pokemon.name, false, this.mod) + '"></span>';
 		buf += '</span> ';
 
 		// name
@@ -333,7 +333,7 @@
 		buf += '<span class="col typecol">';
 		var types = pokemon.types;
 		for (var i = 0; i < types.length; i++) {
-			buf += Dex.getTypeIcon(types[i]);
+			buf += Dex.getTypeIcon(types[i], null, this.mod);
 		}
 		buf += '</span> ';
 
@@ -393,7 +393,7 @@
 
 		// icon
 		buf += '<span class="col iconcol">';
-		buf += '<span style="' + Dex.getPokemonIcon(pokemon.name) + '"></span>';
+		buf += '<span style="' + Dex.getPokemonIcon(pokemon.name, false, this.mod) + '"></span>';
 		buf += '</span> ';
 
 		// name
@@ -411,7 +411,7 @@
 		// type
 		buf += '<span class="col typecol">';
 		for (var i = 0; i < pokemon.types.length; i++) {
-			buf += Dex.getTypeIcon(pokemon.types[i]);
+			buf += Dex.getTypeIcon(pokemon.types[i], null, this.mod);
 		}
 		buf += '</span> ';
 
@@ -461,7 +461,7 @@
 
 		// icon
 		buf += '<span class="col itemiconcol">';
-		buf += '<span style="' + Dex.getItemIcon(item) + '"></span>';
+		buf += '<span style="' + Dex.getItemIcon(item, this.mod) + '"></span>';
 		buf += '</span> ';
 
 		// name
@@ -545,7 +545,7 @@
 
 		// type
 		buf += '<span class="col typecol">';
-		buf += Dex.getTypeIcon(move.type);
+		buf += Dex.getTypeIcon(move.type, null, this.mod);
 		buf += Dex.getCategoryIcon(move.category);
 		buf += '</span> ';
 
@@ -583,7 +583,7 @@
 
 		// type
 		buf += '<span class="col typecol">';
-		buf += Dex.getTypeIcon(move.type);
+		buf += Dex.getTypeIcon(move.type, null, this.mod);
 		buf += Dex.getCategoryIcon(move.category);
 		buf += '</span> ';
 
@@ -620,7 +620,7 @@
 
 		// type
 		buf += '<span class="col typecol">';
-		buf += Dex.getTypeIcon(move.type);
+		buf += Dex.getTypeIcon(move.type, null, this.mod);
 		buf += Dex.getCategoryIcon(move.category);
 		buf += '</span> ';
 
@@ -651,7 +651,7 @@
 
 		// type
 		buf += '<span class="col typecol">';
-		buf += Dex.getTypeIcon(type.name);
+		buf += Dex.getTypeIcon(type.name, null, this.mod);
 		buf += '</span> ';
 
 		// error
