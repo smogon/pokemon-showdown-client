@@ -808,7 +808,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 	const gen3HMs = new Set(['cut', 'fly', 'surf', 'strength', 'flash', 'rocksmash', 'waterfall', 'dive']);
 	const gen4HMs = new Set(['cut', 'fly', 'surf', 'strength', 'rocksmash', 'waterfall', 'rockclimb']);
 
-	function getLearnsetStr (moveid, learnMoveArr){
+	function getLearnsetStr(moveid, learnMoveArr) {
 		let learnsetStr = '';
 		const gens = learnMoveArr.map(x => Number(x[0]));
 		const minGen = Math.min(...gens);
@@ -1007,9 +1007,8 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			}
 		}
 	}
-	let modIndex = 0;
 	const sliceTiers = ["OU", "AG", "Uber", "UU", "(UU)", "RU", "NU", "(NU)", "PU", "(PU)", "NFE", "LC", "DOU", "DUU", "(DUU)", "New", "Legal", "Regular", "Restricted Legendary", "CAP LC"];
-	function buildTiers(tiers, customTiers, formatSlices, tierOrder) {
+	function buildTiers(modid, tierTable, tiers, customTiers, formatSlices, tierOrder) {
 		for (const tier of tierOrder) {
 			if (Mods[modid].excludeStandardTiers) break;
 			if (sliceTiers.includes(tier)) {
@@ -1146,8 +1145,8 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			if (hasDoublesFormats) BattleTeambuilderTable[modid].doubles.formatSlices = doublesFormatSlices;
 			const tierOrder = ["OU", "AG", "Uber", "(Uber)", "OU", "(OU)", "UUBL", "UU", "RUBL", "RU", "NUBL", "NU", "PUBL", "PU", "(PU)", "New", "NFE", "LC Uber", "LC", "Unreleased"];
 			const tierOrderDoubles = ["DUber", "(DUber)", "DOU", "DBL", "(DOU)", "DUU", "(DUU)", "New", "NFE", "LC Uber", "LC"];
-			if (hasSinglesFormats) buildTiers(tiers, customTiers, formatSlices, tierOrder);
-			if (hasDoublesFormats) buildTiers(doublesTiers, customDoublesTiers, doublesFormatSlices, tierOrderDoubles);
+			if (hasSinglesFormats) buildTiers(modid, tierTable, tiers, customTiers, formatSlices, tierOrder);
+			if (hasDoublesFormats) buildTiers(modid, tierTable, doublesTiers, customDoublesTiers, doublesFormatSlices, tierOrderDoubles);
 			//pokemon stats
 			const overrideDexInfo = {};
 			BattleTeambuilderTable[modid].overrideDexInfo = overrideDexInfo;
@@ -1421,11 +1420,11 @@ process.stdout.write("Building `data/moves,items,abilities,typechart,learnsets.j
  * Build mod-sprites.js
  *********************************************************/
 
- {
+{
 	const modDir = fs.readdirSync('data/pokemon-showdown/data/mods/');
 	const modSprites = {};
 	for (const i in modDir) {
-	const modName = modDir[i];
+		const modName = modDir[i];
 		const subFolders = ['front', 'front-shiny', 'back', 'back-shiny', 'icons', 'types', 'items'];
 		for (const j in subFolders) {
 			const subF = subFolders[j];
