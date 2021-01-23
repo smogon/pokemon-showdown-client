@@ -82,7 +82,7 @@ function LadderFormat(props: { room: LadderRoom }) {
 		requestLadderData(room.searchValue);
 	};
 	const RenderFormat = () => {
-		if (loading) {
+		if (loading || !BattleFormats) {
 			return <p>Loading...</p>;
 		} else if (error !== undefined) {
 			return <p>Error: {error}</p>;
