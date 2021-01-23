@@ -1174,7 +1174,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			BattleTeambuilderTable[modid].overrideLearnsets = overrideLearnsets;
 			for (const id in modDex.data.Learnsets) {
 				const learnset = modDex.data.Learnsets[id].learnset;
-				const baseLearnset = Dex.data.Learnsets[id]?.learnset;
+				const baseLearnset = Dex.data.Learnsets[id].learnset;
 				if (!learnset) continue;
 				if (!learnsets[id]) learnsets[id] = {};
 				for (const moveid in learnset) {
