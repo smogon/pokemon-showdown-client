@@ -439,7 +439,7 @@ class DexSearch {
 				typeIndex === 2 && id.replace(id.charAt(0), id.charAt(0).toUpperCase()) in BattleTypeChart === false &&
 				(!table || id.replace(id.charAt(0), id.charAt(0).toUpperCase()) in table.overrideTypeChart === false)
 			) continue;
-			
+
 			bufs[typeIndex].push([type, id, matchStart, matchEnd]);
 			count++;
 		}

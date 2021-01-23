@@ -178,7 +178,7 @@ const Dex = new class implements ModdedDex {
 	readonly statNamesExceptHP: ReadonlyArray<StatNameExceptHP> = ['atk', 'def', 'spa', 'spd', 'spe'];
 
 	pokeballs: string[] | null = null;
-	
+
 	readonly modResourcePrefix = 'https://raw.githubusercontent.com/scoopapa/dh/master/data/mods/'; // I don't know where you'd like to store these, yet - Scoopapa
 	resourcePrefix = (() => {
 		let prefix = '';
