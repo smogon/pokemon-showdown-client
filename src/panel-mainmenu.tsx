@@ -259,8 +259,10 @@ class MainMenuRoom extends PSRoom {
 			}
 			break;
 		case 'laddertop':
-			const ladderRoom = PS.rooms[`ladder`] as LadderRoom;
-			ladderRoom.update(response);
+			const ladderRoomEntries = Object.entries(PS.rooms).filter(entry => entry[0].startsWith('ladder'));
+			for (const [, ladderRoom] of ladderRoomEntries) {
+				(ladderRoom as LadderRoom).update(response);
+			}
 			break;
 		}
 	}
