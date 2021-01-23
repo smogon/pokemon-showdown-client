@@ -99,11 +99,10 @@ var ReplayPanel = Panels.StaticPanel.extend({
 			break;
 
 		case 'sound':
-			var muteTable = {
-				on: false, // this is kind of backwards: sound[on] === muted[false]
-				off: true
-			};
-			this.battle.setMute(muteTable[value]);
+			// remember this is reversed: sound[off] === muted[true]
+			this.muted = (value === 'off');
+			this.battle.setMute(this.muted);
+			this.$('.startsoundchooser').remove();
 			break;
 
 		case 'speed':
@@ -128,26 +127,24 @@ var ReplayPanel = Panels.StaticPanel.extend({
 		}
 	},
 	battle: null,
-	errorCallback: function() {
-		var replayid = this.$('input[name=replayid]').val();
-		var m = /^([a-z0-9]+)-[a-z0-9]+-[0-9]+$/.exec(replayid);
-		if (m && m[1] !== 'smogtours') {
-			this.battle.log('<hr /><div class="chat">This replay was uploaded from a third-party server (<code>' + BattleLog.escapeHTML(m[1]) + '</code>). It contains errors and cannot be viewed.</div><div class="chat">Replays uploaded from third-party servers can contain errors if the server is running custom code, or the server operator has otherwise incorrectly configured their server.</div>', true);
-			this.battle.pause();
-		}
-	},
+	muted: null,
 	updateContent: function() {
 		this.$el.css('overflow-x', 'hidden');
 		var $battle = this.$('.battle');
 		if (!$battle.length) return;
-		this.battle = new Battle($battle, this.$('.battle-log'));
-		//this.battle.preloadCallback = updateProgress;
-		// this.battle.errorCallback = this.errorCallback.bind(this);
-		this.battle.resumeButton = this.resume.bind(this);
-		this.battle.setQueue((this.$('script.log').text()||'').replace(/\\\//g,'/').split('\n'));
 
-		this.battle.reset();
-		$battle.append('<div class="playbutton"><button data-action="start"><i class="fa fa-play"></i> Play</button><br /><br /><button data-action="startMuted" class="startsoundchooser" style="font-size:10pt;display:none">Play (music off)</button></div>');
+		var replayid = this.$('input[name=replayid]').val() || '';
+		var log = (this.$('script.log').text() || '').replace(/\\\//g,'/');
+
+		var self = this;
+		this.battle = new Battle({
+			id: replayid,
+			$frame: $battle,
+			$logFrame: this.$('.battle-log'),
+			log: log.split('\n'),
+			isReplay: true,
+			paused: true
+		})
 
 		this.$('.urlbox').css('margin-right', 120).before('<a class="button replayDownloadButton" style="float:right;margin-top:7px;margin-right:7px" href="#"><i class="fa fa-download"></i> Download</a>');
 
@@ -156,6 +153,27 @@ var ReplayPanel = Panels.StaticPanel.extend({
 		if (rc2) rc2.innerHTML = rc2.innerHTML;
 
 		if (window.HTMLAudioElement) this.$('.soundchooser, .startsoundchooser').show();
+
+		this.battle.subscribe(function (state) { self.update(state); });
+		this.update();
+	},
+	update: function (state) {
+		if (state === 'error') {
+			var m = /^([a-z0-9]+)-[a-z0-9]+-[0-9]+$/.exec(this.battle.id);
+			if (m) {
+				this.battle.log('<hr /><div class="chat">This replay was uploaded from a third-party server (<code>' + BattleLog.escapeHTML(m[1]) + '</code>). It contains errors.</div><div class="chat">Replays uploaded from third-party servers can contain errors if the server is running custom code, or the server operator has otherwise incorrectly configured their server.</div>', true);
+			}
+			return;
+		}
+
+		if (BattleSound.muted && !this.muted) this.changeSetting('sound', 'off');
+
+		if (this.battle.paused) {
+			var resetDisabled = !this.battle.started ? ' disabled' : '';
+			this.$('.replay-controls').html('<button data-action="play"><i class="fa fa-play"></i> Play</button><button data-action="reset"' + resetDisabled + '><i class="fa fa-undo"></i> Reset</button> <button data-action="rewind"><i class="fa fa-step-backward"></i> Last turn</button><button data-action="ff"><i class="fa fa-step-forward"></i> Next turn</button> <button data-action="ffto"><i class="fa fa-fast-forward"></i> Go to turn...</button> <button data-action="switchSides"><i class="fa fa-random"></i> Switch sides</button>');
+		} else {
+			this.$('.replay-controls').html('<button data-action="pause"><i class="fa fa-pause"></i> Pause</button><button data-action="reset"><i class="fa fa-undo"></i> Reset</button> <button data-action="rewind"><i class="fa fa-step-backward"></i> Last turn</button><button data-action="ff"><i class="fa fa-step-forward"></i> Next turn</button> <button data-action="ffto"><i class="fa fa-fast-forward"></i> Go to turn...</button> <button data-action="switchSides"><i class="fa fa-random"></i> Switch sides</button>');
+		}
 	},
 	clickReplayDownloadButton: function (e) {
 		var filename = (this.battle.tier || 'Battle').replace(/[^A-Za-z0-9]/g, '');
@@ -176,52 +194,35 @@ var ReplayPanel = Panels.StaticPanel.extend({
 		e.stopPropagation();
 	},
 	pause: function() {
-		this.$('.replay-controls').html('<button data-action="play"><i class="fa fa-play"></i> Play</button><button data-action="reset"><i class="fa fa-undo"></i> Reset</button> <button data-action="rewind"><i class="fa fa-step-backward"></i> Last turn</button><button data-action="ff"><i class="fa fa-step-forward"></i> Next turn</button> <button data-action="ffto"><i class="fa fa-fast-forward"></i> Go to turn...</button> <button data-action="switchSides"><i class="fa fa-random"></i> Switch sides</button>');
 		this.battle.pause();
 	},
 	play: function() {
-		this.$('.battle .playbutton').remove();
-		this.$('.replay-controls').html('<button data-action="pause"><i class="fa fa-pause"></i> Pause</button><button data-action="reset"><i class="fa fa-undo"></i> Reset</button> <button data-action="rewind"><i class="fa fa-step-backward"></i> Last turn</button><button data-action="ff"><i class="fa fa-step-forward"></i> Next turn</button> <button data-action="ffto"><i class="fa fa-fast-forward"></i> Go to turn...</button> <button data-action="switchSides"><i class="fa fa-random"></i> Switch sides</button>');
 		this.battle.play();
-	},
-	resume: function() {
-		this.play();
 	},
 	reset: function() {
 		this.battle.reset();
-		this.$('.battle').append('<div class="playbutton"><button data-action="start"><i class="fa fa-play"></i> Play</button></div>');
-		// this.$('.battle-log').html('');
-		this.$('.replay-controls').html('<button data-action="start"><i class="fa fa-play"></i> Play</button><button data-action="reset" disabled="disabled"><i class="fa fa-undo"></i> Reset</button>');
 	},
 	ff: function() {
 		this.battle.skipTurn();
 	},
 	rewind: function() {
-		if (this.battle.turn) {
-			this.battle.fastForwardTo(this.battle.turn - 1);
-		}
+		this.battle.seekTurn(this.battle.turn - 1);
 	},
 	ffto: function() {
 		var turn = prompt('Turn?');
-		if (!turn) return;
-		turn = parseInt(turn);
-		this.battle.fastForwardTo(turn);
+		if (!turn.trim()) return;
+		if (turn === 'e' || turn === 'end' || turn === 'f' || turn === 'finish') turn = Infinity;
+		turn = Number(turn);
+		if (isNaN(turn) || turn < 0) alert("Invalid turn");
+		this.battle.seekTurn(turn);
 	},
 	switchSides: function() {
 		this.battle.switchSides();
-	},
-	start: function() {
-		this.battle.play();
-		this.$('.replay-controls').html('<button data-action="pause"><i class="fa fa-pause"></i> Pause</button><button data-action="reset"><i class="fa fa-undo"></i> Reset</button> <button data-action="rewind"><i class="fa fa-step-backward"></i> Last turn</button><button data-action="ff"><i class="fa fa-step-forward"></i> Next turn</button> <button data-action="ffto"><i class="fa fa-fast-forward"></i> Go to turn...</button> <button data-action="switchSides"><i class="fa fa-random"></i> Switch sides</button>');
 	},
 	remove: function() {
 		this.battle.destroy();
 		Panels.StaticPanel.prototype.remove.call(this);
 	},
-	startMuted: function() {
-		this.changeSetting('sound', 'off');
-		this.start();
-	}
 });
 
 var App = Panels.App.extend({

@@ -649,7 +649,6 @@ class Side {
 			this.rollTrainerSprites();
 			if (this.foe && this.avatar === this.foe.avatar) this.rollTrainerSprites();
 		}
-		if (this.battle.stagnateCallback) this.battle.stagnateCallback(this.battle);
 	}
 	addSideCondition(effect: Effect) {
 		let condition = effect.id;
@@ -810,8 +809,6 @@ class Side {
 		}
 
 		this.battle.scene.animSummon(pokemon, slot);
-
-		if (this.battle.switchCallback) this.battle.switchCallback(this.battle, this);
 	}
 	dragIn(pokemon: Pokemon, slot = pokemon.slot) {
 		let oldpokemon = this.active[slot];
@@ -828,8 +825,6 @@ class Side {
 		pokemon.slot = slot;
 
 		this.battle.scene.animDragIn(pokemon, slot);
-
-		if (this.battle.dragCallback) this.battle.dragCallback(this.battle, this);
 	}
 	replace(pokemon: Pokemon, slot = pokemon.slot) {
 		let oldpokemon = this.active[slot];
@@ -857,8 +852,6 @@ class Side {
 			this.battle.scene.animUnsummon(oldpokemon, true);
 		}
 		this.battle.scene.animSummon(pokemon, slot, true);
-		// not sure if we want a different callback
-		if (this.battle.dragCallback) this.battle.dragCallback(this.battle, this);
 	}
 	switchOut(pokemon: Pokemon, slot = pokemon.slot) {
 		if (pokemon.lastMove !== 'batonpass' && pokemon.lastMove !== 'zbatonpass') {
@@ -924,46 +917,12 @@ class Side {
 		pokemon.hp = 0;
 
 		this.battle.scene.animFaint(pokemon);
-		if (this.battle.faintCallback) this.battle.faintCallback(this.battle, this);
 	}
 	destroy() {
 		this.clearPokemon();
 		this.battle = null!;
 		this.foe = null!;
 	}
-}
-
-enum Playback {
-	/**
-	 * Battle is at the end of the queue. `|start` is not in the queue.
-	 * Battle is waiting for `.add()` or `.setQueue()` to add `|start` to
-	 * the queue. Adding other queue entries will happen immediately,
-	 * bringing the state back to Uninitialized.
-	 */
-	Uninitialized = 0,
-	/**
-	 * Battle is at `|start` and hasn't been started yet.
-	 * Battle is paused, waiting for `.play()`.
-	 */
-	Ready = 1,
-	/**
-	 * `.play()` has been called. Battle should be animating
-	 * normally.
-	 */
-	Playing = 2,
-	/**
-	 * `.pause()` has been called. Battle is waiting for `.play()`.
-	 */
-	Paused = 3,
-	/**
-	 * Battle is at the end of the queue. Battle is waiting for
-	 * `.add()` for further battle progress.
-	 */
-	Finished = 4,
-	/**
-	 * Battle is fast forwarding through the queue, with animations off.
-	 */
-	Seeking = 5,
 }
 
 interface PokemonDetails {
@@ -1015,38 +974,45 @@ class Battle {
 
 	sidesSwitched = false;
 
-	// activity queue
-	activityQueue = [] as string[];
+	stepQueue: string[];
 	/** See battle.instantAdd */
-	preemptActivityQueue = [] as string[];
+	preemptStepQueue: string[] = [];
 	waitForAnimations: true | false | 'simult' = true;
-	activityStep = 0;
-	fastForward = 0;
-	fastForwardWillScroll = false;
+	/** the index of `stepQueue` currently being animated */
+	currentStep = 0;
+	/** null = not seeking, 0 = seek start, Infinity = seek end, otherwise: seek turn number */
+	seeking: number | null = null;
 
-	resultWaiting = false;
 	activeMoveIsSpread: string | null = null;
 
-	// callback
-	faintCallback: ((battle: Battle, side: Side) => void) | null = null;
-	switchCallback: ((battle: Battle, side: Side) => void) | null = null;
-	dragCallback: ((battle: Battle, side: Side) => void) | null = null;
-	turnCallback: ((battle: Battle) => void) | null = null;
-	startCallback: ((battle: Battle) => void) | null = null;
-	stagnateCallback: ((battle: Battle) => void) | null = null;
-	endCallback: ((battle: Battle) => void) | null = null;
-	customCallback: ((battle: Battle, cmd: string, args: string[], kwArgs: KWArgs) => void) | null = null;
-	errorCallback: ((battle: Battle) => void) | null = null;
+	subscription: ((state:
+		'playing' | 'paused' | 'turn' | 'atqueueend' | 'callback' | 'ended' | 'error'
+	) => void) | null;
 
 	mute = false;
 	messageFadeTime = 300;
 	messageShownTime = 1;
+	/** for tracking when to accelerate animations in long battles full of double switches */
 	turnsSinceMoved = 0;
 
-	turn = 0;
 	/**
-	 * Has playback gotten to Team Preview or `|start` yet?
-	 * (Affects whether BGM is playing)
+	 * * `-1` = non-battle RoomGames, or hasn't hit Team Preview or `|start`
+	 * * `0` = after Team Preview or `|start` but before `|turn|1`
+	 */
+	turn = -1;
+	/**
+	 * Are we at the end of the queue and waiting for more input?
+	 *
+	 * In addition to at the end of a battle, this is also true if you're
+	 * playing/watching a battle live, and waiting for a player to make a move.
+	 */
+	atQueueEnd = false;
+	/**
+	 * Has the battle ever been played or fast-forwarded?
+	 *
+	 * This is not exactly `turn > 0` because if you start playing a replay,
+	 * then pause before turn 1, `turn` will still be 0, but playback should
+	 * be considered started (for the purposes of displaying "Play" vs "Resume")
 	 */
 	started = false;
 	/**
@@ -1054,6 +1020,7 @@ class Battle {
 	 * (Affects whether BGM is playing)
 	 */
 	ended = false;
+	isReplay = false;
 	usesUpkeep = false;
 	weather = '' as ID;
 	pseudoWeather = [] as WeatherState[];
@@ -1068,7 +1035,7 @@ class Battle {
 	sides: [Side, Side] = [null!, null!];
 	lastMove = '';
 
-	gen = 7;
+	gen = 8;
 	dex: ModdedDex = Dex;
 	teamPreviewCount = 0;
 	speciesClause = false;
@@ -1088,34 +1055,60 @@ class Battle {
 
 	// options
 	id = '';
+	/** used to forward some information to the room in the old client */
 	roomid = '';
 	hardcoreMode = false;
 	ignoreNicks = !!Dex.prefs('ignorenicks');
 	ignoreOpponent = !!Dex.prefs('ignoreopp');
 	ignoreSpects = !!Dex.prefs('ignorespects');
-	debug = false;
+	debug: boolean;
 	joinButtons = false;
 
 	/**
 	 * The actual pause state. Will only be true if playback is actually
 	 * paused, not just waiting for the opponent to make a move.
 	 */
-	paused = true;
-	playbackState = Playback.Uninitialized;
+	paused: boolean;
 
-	// external
-	resumeButton: JQuery.EventHandler<HTMLElement, null> | null = null;
+	constructor(options: {
+		$frame?: JQuery<HTMLElement>,
+		$logFrame?: JQuery<HTMLElement>,
+		id?: ID,
+		log?: string[],
+		paused?: boolean,
+		isReplay?: boolean,
+		debug?: boolean,
+		subscription?: Battle['subscription'],
+	} = {}) {
+		this.id = options.id || '';
 
-	constructor($frame: JQuery<HTMLElement>, $logFrame: JQuery<HTMLElement>, id = '') {
-		this.id = id;
-
-		if (!$frame && !$logFrame) {
+		if (options.$frame && options.$logFrame) {
+			this.scene = new BattleScene(this, options.$frame, options.$logFrame);
+		} else if (!options.$frame && !options.$logFrame) {
 			this.scene = new BattleSceneStub();
 		} else {
-			this.scene = new BattleScene(this, $frame, $logFrame);
+			throw new Error(`You must specify $frame and $logFrame simultaneously`);
 		}
 
-		this.init();
+		this.paused = !!options.paused;
+		this.started = !this.paused;
+		this.debug = !!options.debug;
+		this.stepQueue = options.log || [];
+		this.subscription = options.subscription || null;
+
+		this.p1 = new Side(this, 0);
+		this.p2 = new Side(this, 1);
+		this.sides = [this.p1, this.p2];
+		this.p2.foe = this.p1;
+		this.p1.foe = this.p2;
+		this.nearSide = this.mySide = this.p1;
+		this.farSide = this.p2;
+
+		this.resetStep();
+	}
+
+	subscribe(listener: Battle['subscription']) {
+		this.subscription = listener;
 	}
 
 	removePseudoWeather(weather: string) {
@@ -1139,22 +1132,18 @@ class Battle {
 		}
 		return false;
 	}
-	init() {
-		this.p1 = new Side(this, 0);
-		this.p2 = new Side(this, 1);
-		this.sides = [this.p1, this.p2];
-		this.p2.foe = this.p1;
-		this.p1.foe = this.p2;
-		this.nearSide = this.mySide = this.p1;
-		this.farSide = this.p2;
-		this.gen = 7;
-		this.reset();
+	reset() {
+		this.paused = true;
+		this.scene.pause();
+		this.resetStep();
+		this.subscription?.('paused');
 	}
-	reset(dontResetSound?: boolean) {
+	resetStep() {
 		// battle state
-		this.turn = 0;
-		this.started = false;
+		this.turn = -1;
+		this.started = !this.paused;
 		this.ended = false;
+		this.atQueueEnd = false;
 		this.weather = '' as ID;
 		this.weatherTimeLeft = 0;
 		this.weatherMinTimeLeft = 0;
@@ -1171,16 +1160,9 @@ class Battle {
 
 		// activity queue state
 		this.activeMoveIsSpread = null;
-		this.activityStep = 0;
-		this.fastForwardOff();
-		this.resultWaiting = false;
-		this.paused = true;
-		if (this.playbackState !== Playback.Seeking) {
-			this.playbackState = Playback.Uninitialized;
-			if (!dontResetSound) this.scene.resetBgm();
-		}
+		this.currentStep = 0;
 		this.resetTurnsSinceMoved();
-		this.nextActivity();
+		this.nextStep();
 	}
 	destroy() {
 		this.scene.destroy();
@@ -1201,21 +1183,7 @@ class Battle {
 	}
 
 	resetToCurrentTurn() {
-		if (this.ended) {
-			this.reset(true);
-			this.fastForwardTo(-1);
-		} else {
-			let turn = this.turn;
-			let paused = this.paused;
-			this.reset(true);
-			this.paused = paused;
-			if (turn) this.fastForwardTo(turn);
-			if (!paused) {
-				this.play();
-			} else {
-				this.pause();
-			}
-		}
+		this.seekTurn(this.ended ? Infinity : this.turn, true);
 	}
 	switchSides() {
 		this.setSidesSwitched(!this.sidesSwitched);
@@ -1242,15 +1210,16 @@ class Battle {
 	start() {
 		this.log(['start']);
 		this.resetTurnsSinceMoved();
-		if (this.startCallback) this.startCallback(this);
 	}
 	winner(winner?: string) {
 		this.log(['win', winner || '']);
 		this.ended = true;
+		this.subscription?.('ended');
 	}
 	prematureEnd() {
 		this.log(['message', 'This replay ends here.']);
 		this.ended = true;
+		this.subscription?.('ended');
 	}
 	endLastTurn() {
 		if (this.endLastTurnPending) {
@@ -1263,28 +1232,25 @@ class Battle {
 		this.scene.updateSidebars();
 		this.scene.updateWeather(true);
 	}
-	setTurn(turnNum: string | number) {
-		turnNum = parseInt(turnNum as string, 10);
+	setTurn(turnNum: number) {
 		if (turnNum === this.turn + 1) {
 			this.endLastTurnPending = true;
 		}
 		if (this.turn && !this.usesUpkeep) this.updateTurnCounters(); // for compatibility with old replays
 		this.turn = turnNum;
+		this.started = true;
 
-		if (!this.fastForward) this.turnsSinceMoved++;
+		if (this.seeking === null) this.turnsSinceMoved++;
 
 		this.scene.incrementTurn();
 
-		if (this.fastForward) {
-			if (this.turnCallback) this.turnCallback(this);
-			if (this.fastForward > -1 && turnNum >= this.fastForward) {
-				this.fastForwardOff();
-				if (this.endCallback) this.endCallback(this);
+		if (this.seeking !== null) {
+			if (turnNum >= this.seeking) {
+				this.stopSeeking();
 			}
-			return;
+		} else {
+			this.subscription?.('turn');
 		}
-
-		if (this.turnCallback) this.turnCallback(this);
 	}
 	resetTurnsSinceMoved() {
 		this.turnsSinceMoved = 0;
@@ -1300,7 +1266,7 @@ class Battle {
 				this.weatherTimeLeft--;
 				if (this.weatherMinTimeLeft !== 0) this.weatherMinTimeLeft--;
 			}
-			if (!this.fastForward) {
+			if (this.seeking === null) {
 				this.scene.upkeepWeather();
 			}
 			return;
@@ -1389,7 +1355,7 @@ class Battle {
 	}
 	animateMove(pokemon: Pokemon, move: Move, target: Pokemon | null, kwArgs: KWArgs) {
 		this.activeMoveIsSpread = kwArgs.spread;
-		if (this.fastForward || kwArgs.still) return;
+		if (this.seeking !== null || kwArgs.still) return;
 
 		if (!target) target = pokemon.side.foe.active[0];
 		if (!target) target = pokemon.side.foe.missedPokemon;
@@ -1514,7 +1480,7 @@ class Battle {
 			}
 			if (args[0] === 'detailschange' && nextArgs[0] === '-mega') {
 				if (this.scene.closeMessagebar()) {
-					this.activityStep--;
+					this.currentStep--;
 					return;
 				}
 				kwArgs.simult = '.';
@@ -2820,11 +2786,10 @@ class Battle {
 
 			switch (effect.id) {
 			case 'gravity':
-				if (!this.fastForward) {
-					for (const side of this.sides) {
-						for (const active of side.active) {
-							if (active) this.scene.runOtherAnim('gravity' as ID, [active]);
-						}
+				if (this.seeking !== null) break;
+				for (const side of this.sides) {
+					for (const active of side.active) {
+						if (active) this.scene.runOtherAnim('gravity' as ID, [active]);
 					}
 				}
 				break;
@@ -3082,20 +3047,12 @@ class Battle {
 		} as any;
 	}
 
-	add(command: string, fastForward?: boolean) {
-		if (command) this.activityQueue.push(command);
+	add(command?: string) {
+		if (command) this.stepQueue.push(command);
 
-		if (this.playbackState === Playback.Uninitialized) {
-			this.nextActivity();
-		} else if (this.playbackState === Playback.Finished) {
-			this.playbackState = this.paused ? Playback.Paused : Playback.Playing;
-			if (this.paused) return;
-			this.scene.updateBgm();
-			if (fastForward) {
-				this.fastForwardTo(-1);
-			} else {
-				this.nextActivity();
-			}
+		if (this.atQueueEnd && this.currentStep < this.stepQueue.length) {
+			this.atQueueEnd = false;
+			this.nextStep();
 		}
 	}
 	/**
@@ -3108,7 +3065,7 @@ class Battle {
 	 */
 	instantAdd(command: string) {
 		this.run(command, true);
-		this.preemptActivityQueue.push(command);
+		this.preemptStepQueue.push(command);
 		this.add(command);
 	}
 	runMajor(args: Args, kwArgs: KWArgs, preempt?: boolean) {
@@ -3126,7 +3083,7 @@ class Battle {
 			break;
 		}
 		case 'turn': {
-			this.setTurn(args[1]);
+			this.setTurn(parseInt(args[1], 10));
 			this.log(args);
 			break;
 		}
@@ -3373,11 +3330,10 @@ class Battle {
 			break;
 		}
 		case 'callback': {
-			if (this.customCallback) this.customCallback(this, args[1], args.slice(1), kwArgs);
+			this.subscription?.('callback');
 			break;
 		}
 		case 'fieldhtml': {
-			this.playbackState = Playback.Seeking; // force seeking to prevent controls etc
 			this.scene.setFrameHTML(BattleLog.sanitizeHTML(args[1]));
 			break;
 		}
@@ -3392,8 +3348,8 @@ class Battle {
 	}
 
 	run(str: string, preempt?: boolean) {
-		if (!preempt && this.preemptActivityQueue.length && str === this.preemptActivityQueue[0]) {
-			this.preemptActivityQueue.shift();
+		if (!preempt && this.preemptStepQueue.length && str === this.preemptStepQueue[0]) {
+			this.preemptStepQueue.shift();
 			this.scene.preemptCatchup();
 			return;
 		}
@@ -3401,7 +3357,7 @@ class Battle {
 		const {args, kwArgs} = BattleTextParser.parseBattleLine(str);
 
 		if (this.scene.maybeCloseMessagebar(args, kwArgs)) {
-			this.activityStep--;
+			this.currentStep--;
 			this.activeMoveIsSpread = null;
 			return;
 		}
@@ -3409,7 +3365,7 @@ class Battle {
 		// parse the next line if it's a minor: runMinor needs it parsed to determine when to merge minors
 		let nextArgs: Args = [''];
 		let nextKwargs: KWArgs = {};
-		const nextLine = this.activityQueue[this.activityStep + 1] || '';
+		const nextLine = this.stepQueue[this.currentStep + 1] || '';
 		if (nextLine.slice(0, 2) === '|-') {
 			({args: nextArgs, kwArgs: nextKwargs} = BattleTextParser.parseBattleLine(nextLine));
 		}
@@ -3438,16 +3394,15 @@ class Battle {
 						this.log(['error', line]);
 					}
 				}
-				if (this.errorCallback) this.errorCallback(this);
+				this.subscription?.('error');
 			}
 		}
 
 		if (nextLine.startsWith('|start') || args[0] === 'teampreview') {
-			this.started = true;
-			if (this.playbackState === Playback.Uninitialized) {
-				this.playbackState = Playback.Ready;
+			if (this.turn === -1) {
+				this.turn = 0;
+				this.scene.updateBgm();
 			}
-			this.scene.updateBgm();
 		}
 	}
 	checkActive(poke: Pokemon) {
@@ -3460,93 +3415,114 @@ class Battle {
 
 	pause() {
 		this.paused = true;
-		this.playbackState = Playback.Paused;
 		this.scene.pause();
+		this.subscription?.('paused');
 	}
+	/**
+	 * Properties relevant to battle playback, for replay UI implementers:
+	 * - `ended`: has the game ended in a win/loss?
+	 * - `atQueueEnd`: is animation caught up to the end of the battle queue, waiting for more input?
+	 * - `seeking`: are we trying to skip to a specific turn
+	 * - `turn`: what turn are we currently on? `-1` if we haven't started yet, `0` at team preview
+	 * - `paused`: are we playing at all?
+	 */
 	play() {
 		this.paused = false;
-		this.playbackState = Playback.Playing;
+		this.started = true;
 		this.scene.resume();
-		this.nextActivity();
+		this.nextStep();
+		this.subscription?.('playing');
 	}
 	skipTurn() {
-		this.fastForwardTo(this.turn + 1);
+		this.seekTurn(this.turn + 1);
 	}
-	fastForwardTo(time: string | number) {
-		if (this.fastForward) return;
-		time = Math.floor(Number(time));
-		if (isNaN(time)) return;
-		if (this.ended && time >= this.turn + 1) return;
+	seekTurn(turn: number, forceReset?: boolean) {
+		if (isNaN(turn)) return;
+		turn = Math.max(Math.floor(turn), 0);
 
-		if (time <= this.turn && time !== -1) {
-			let paused = this.paused;
-			this.reset(true);
-			if (paused) this.pause();
-			else this.paused = false;
-			this.fastForwardWillScroll = true;
-		}
-		if (!time) {
-			this.fastForwardOff();
-			this.nextActivity();
+		if (this.seeking !== null && this.seeking > turn && !forceReset) {
+			this.seeking = turn;
 			return;
 		}
-		this.scene.animationOff();
-		this.playbackState = Playback.Seeking;
-		this.fastForward = time;
-		this.nextActivity();
+
+		if (turn === 0) {
+			this.seeking = null;
+			this.resetStep();
+			this.scene.animationOn();
+			if (this.paused) this.subscription?.('paused');
+			return;
+		}
+
+		this.seeking = turn;
+
+		if (turn <= this.turn || forceReset) {
+			this.scene.animationOff();
+			this.resetStep();
+		} else if (this.atQueueEnd) {
+			this.scene.animationOn();
+			this.seeking = null;
+		} else {
+			this.scene.animationOff();
+			this.nextStep();
+		}
 	}
-	fastForwardOff() {
-		this.fastForward = 0;
+	stopSeeking() {
+		this.seeking = null;
 		this.scene.animationOn();
-		this.playbackState = this.paused ? Playback.Paused : Playback.Playing;
+		this.subscription?.(this.paused ? 'paused' : 'playing');
 	}
-	nextActivity() {
-		if (this.playbackState === Playback.Ready || this.playbackState === Playback.Paused) {
-			return;
-		}
+	shouldStep() {
+		if (this.atQueueEnd) return false;
+		if (this.seeking !== null) return true;
+		return !(this.paused && this.turn >= 0);
+	}
+	nextStep() {
+		if (!this.shouldStep()) return;
 
 		this.scene.startAnimations();
 		let animations = undefined;
-		while (!animations) {
+
+		do {
 			this.waitForAnimations = true;
-			if (this.activityStep >= this.activityQueue.length) {
-				this.fastForwardOff();
-				this.playbackState = Playback.Finished;
+			if (this.currentStep >= this.stepQueue.length) {
+				this.atQueueEnd = true;
+				if (!this.ended && this.isReplay) this.prematureEnd();
+				this.stopSeeking();
 				if (this.ended) {
 					this.scene.updateBgm();
 				}
-				if (this.endCallback) this.endCallback(this);
+				this.subscription?.('atqueueend');
 				return;
 			}
-			// @ts-ignore property modified in method
-			if (this.playbackState === Playback.Ready || this.playbackState === Playback.Paused) {
-				return;
-			}
-			this.run(this.activityQueue[this.activityStep]);
-			this.activityStep++;
+
+			this.run(this.stepQueue[this.currentStep]);
+			this.currentStep++;
 			if (this.waitForAnimations === true) {
 				animations = this.scene.finishAnimations();
 			} else if (this.waitForAnimations === 'simult') {
 				this.scene.timeOffset = 0;
 			}
-		}
+		} while (!animations && this.shouldStep());
 
-		// @ts-ignore property modified in method
-		if (this.playbackState === Playback.Ready || this.playbackState === Playback.Paused) {
+		if (this.paused && this.turn >= 0 && this.seeking === null) {
+			// initial Play button, team preview
+			this.scene.pause();
 			return;
 		}
+
+		if (!animations) return;
 
 		const interruptionCount = this.scene.interruptionCount;
 		animations.done(() => {
 			if (interruptionCount === this.scene.interruptionCount) {
-				this.nextActivity();
+				this.nextStep();
 			}
 		});
 	}
 
 	setQueue(queue: string[]) {
-		this.activityQueue = queue;
-		this.reset();
+		this.stepQueue = queue;
+		this.resetStep();
 	}
 
 	setMute(mute: boolean) {
