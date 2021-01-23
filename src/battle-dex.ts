@@ -465,13 +465,13 @@ const Dex = new class implements ModdedDex {
 	}
 
 	getSpriteMod(mod: string, id: string, folder: string, overrideStandard: boolean = false) {
-		if (!ModSprites[id]) return null;
-		if ((!mod || !ModSprites[id][mod]) && !overrideStandard) {
-			for (const modName in ModSprites[id]) {
-				if (ModSprites[id][modName].includes(folder)) return modName;
+		if (!window.ModSprites[id]) return null;
+		if ((!mod || !window.ModSprites[id][mod]) && !overrideStandard) {
+			for (const modName in window.ModSprites[id]) {
+				if (window.ModSprites[id][modName].includes(folder)) return modName;
 			}
 		}
-		if (mod && ModSprites[id][mod] && ModSprites[id][mod].includes(folder)) return mod;
+		if (mod && window.ModSprites[id][mod] && window.ModSprites[id][mod].includes(folder)) return mod;
 		return null;
 	}
 
@@ -498,7 +498,7 @@ const Dex = new class implements ModdedDex {
 		dynamax?: boolean,
 	} = {gen: 6}) {
 		let mechanicsGen = options.gen || 6;
-		if (options.mod && ModConfig[options.mod].spriteGen) mechanicsGen = modConfig[options.mod].spriteGen;
+		if (options.mod && window.ModConfig[options.mod].spriteGen) mechanicsGen = window.ModConfig[options.mod].spriteGen;
 		let isDynamax = !!options.dynamax;
 		if (pokemon instanceof Pokemon) {
 			if (pokemon.volatiles.transform) {
@@ -749,7 +749,7 @@ const Dex = new class implements ModdedDex {
 		if (pokemon.species && !spriteid) {
 			spriteid = species.spriteid || toID(pokemon.species);
 		}
-		if (mod && ModConfig[mod].spriteGen) gen = ModConfig[mod].spriteGen;
+		if (mod && window.ModConfig[mod].spriteGen) gen = window.ModConfig[mod].spriteGen;
 		mod = this.getSpriteMod(mod, id, 'front', species.exists !== false);
 		if (mod) {
 			return {

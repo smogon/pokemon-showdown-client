@@ -610,7 +610,7 @@ abstract class BattleTypedSearch<T extends SearchType> {
 		this.baseIllegalResults = null;
 		this.modFormat = format;
 		let gen = 8;
-		const ClientMods = ModConfig;
+		const ClientMods = window.ModConfig;
 		if (format.slice(0, 3) === 'gen') {
 			gen = (Number(format.charAt(3)) || 6);
 			let mod = '';
@@ -813,7 +813,7 @@ abstract class BattleTypedSearch<T extends SearchType> {
 		if (this.formatType === 'metronome' || this.formatType === 'natdex') {
 			return pokemon.num >= 0 ? String(pokemon.num) : pokemon.tier;
 		}
-		const modFormatTable = this.mod ? ModConfig[this.mod].formats[this.modFormat] : {};
+		const modFormatTable = this.mod ? window.ModConfig[this.mod].formats[this.modFormat] : {};
 		let table = window.BattleTeambuilderTable;
 		if (this.mod) table = modFormatTable.gameType !== 'doubles' ? BattleTeambuilderTable[this.mod] : BattleTeambuilderTable[this.mod].doubles;
 		const tableKey = this.formatType === 'doubles' ? `gen${this.dex.gen}doubles` :
@@ -898,7 +898,7 @@ class BattlePokemonSearch extends BattleTypedSearch<'pokemon'> {
 		const requirePentagon = format === 'battlespotsingles' || format === 'battledoubles' || format.startsWith('vgc');
 		let isDoublesOrBS = this.formatType === 'doubles';
 		const dex = this.dex;
-		const modFormatTable = this.mod ? ModConfig[this.mod].formats[this.modFormat] : {};
+		const modFormatTable = this.mod ? window.ModConfig[this.mod].formats[this.modFormat] : {};
 		let table = BattleTeambuilderTable;
 		if (this.mod) {
 			table = modFormatTable.gameType !== 'doubles' ? BattleTeambuilderTable[this.mod] : BattleTeambuilderTable[this.mod].doubles;
