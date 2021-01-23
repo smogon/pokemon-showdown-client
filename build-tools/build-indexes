@@ -21,7 +21,7 @@ console.log("DONE");
 
 const Dex = require('../data/pokemon-showdown/.sim-dist/dex').Dex;
 const toID = Dex.toID;
-const Mods = {ssb: true, megasforall: true, doubletrouble: true, gennext: true};
+const Mods = {ssb: {}, megasforall: {}, doubletrouble: {}, gennext: {}};
 process.stdout.write("Loading gen 6 data... ");
 Dex.includeData();
 console.log("DONE");
@@ -1172,7 +1172,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			BattleTeambuilderTable[modid].overrideLearnsets = overrideLearnsets;
 			for (const id in modDex.data.Learnsets) {
 				const learnset = modDex.data.Learnsets[id].learnset;
-				const baseLearnset = Dex.data.Learnsets[id].learnset;
+				const baseLearnset = Dex.data.Learnsets[id] ? Dex.data.Learnsets[id].learnset : {};
 				if (!learnset) continue;
 				if (!learnsets[id]) learnsets[id] = {};
 				for (const moveid in learnset) {
@@ -1185,7 +1185,6 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 						overrideLearnsets[id][moveid] = newLearnsetEntry;
 					}
 				}
-				if (!baseLearnset) continue;
 				for (const moveid in baseLearnset) {
 					if (baseLearnset[moveid] && !learnset[moveid]) {
 						if (!overrideLearnsets[id]) overrideLearnsets[id] = {};
