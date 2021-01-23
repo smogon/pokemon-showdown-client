@@ -981,7 +981,7 @@ class ModdedDex {
 		let data = {...Dex.getSpecies(name)};
 		if (table.overrideDexInfo) {
 			for (const key in table.overrideDexInfo[id]) {
-				data[key]:any{} = table.overrideDexInfo[id][key];
+				data[key]:any = table.overrideDexInfo[id][key];
 			}
 		} else {
 			let abilities = {...data.abilities};
