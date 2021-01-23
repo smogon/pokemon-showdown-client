@@ -44,12 +44,17 @@ class LadderRoom extends PSRoom {
 		if (teams.usesLocalLadder) {
 			this.send(`/cmd laddertop ${this.format} ${toID(this.searchValue)}`);
 		} else if (this.format !== undefined) {
-			Net('/ladder.php').get({query: {
-				format: this.format,
-				server: Config.server.id.split(':')[0],
-				output: 'html',
-				prefix: toID(searchValue),
-			}}).then(this.setLadderData).catch(this.setError);
+			Net('/ladder.php')
+				.get({
+					query: {
+						format: this.format,
+						server: Config.server.id.split(':')[0],
+						output: 'html',
+						prefix: toID(searchValue),
+					},
+				})
+				.then(this.setLadderData)
+				.catch(this.setError);
 		}
 		this.setLoading(true);
 	};
@@ -62,7 +67,7 @@ function LadderBackToFormatList(room: PSRoom) {
 	};
 }
 
-function LadderFormat(props: {room: LadderRoom}) {
+function LadderFormat(props: { room: LadderRoom }) {
 	const { room } = props;
 	const { format, searchValue, lastSearch, loading, error, setSearchValue, setLastSearch, requestLadderData } = room;
 	const ladderData = room.ladderData;
@@ -109,23 +114,21 @@ function LadderFormat(props: {room: LadderRoom}) {
 				</p>
 				<h3>
 					{BattleLog.escapeFormat(format)} Top{" "}
-					{BattleLog.escapeHTML(
-						lastSearch ? `- '${lastSearch}'` : "500"
-					)}
+					{BattleLog.escapeHTML(lastSearch ? `- '${lastSearch}'` : "500")}
 				</h3>
 				<SanitizedHTML>{ladderData}</SanitizedHTML>
 			</>
 		);
 	};
 	return (
-			<div class="ladder pad">
-				<p>
-					<button onClick={LadderBackToFormatList(room)}>
-						<i class="fa fa-chevron-left"></i> Format List
-					</button>
-				</p>
-				<RenderFormat/>
-			</div>
+		<div class="ladder pad">
+			<p>
+				<button onClick={LadderBackToFormatList(room)}>
+					<i class="fa fa-chevron-left"></i> Format List
+				</button>
+			</p>
+			<RenderFormat />
+		</div>
 	);
 }
 
@@ -203,9 +206,7 @@ class LadderPanel extends PSRoomPanel<LadderRoom> {
 		}
 		return <>{sections}</>;
 	};
-	static ShowFormatList = (props: {
-		room: LadderRoom;
-	}) => {
+	static ShowFormatList = (props: { room: LadderRoom }) => {
 		const { room } = props;
 		return (
 			<>
@@ -225,15 +226,11 @@ class LadderPanel extends PSRoomPanel<LadderRoom> {
 					they'll look nicer than this once I'm done.)
 				</p>
 				<p>
-					<button
-						name="joinRoom"
-						value="view-ladderhelp"
-						class="button"
-					>
+					<button name="joinRoom" value="view-ladderhelp" class="button">
 						<i class="fa fa-info-circle"></i> How the ladder works
 					</button>
 				</p>
-				<LadderPanel.BattleFormatList/>
+				<LadderPanel.BattleFormatList />
 			</>
 		);
 	};
