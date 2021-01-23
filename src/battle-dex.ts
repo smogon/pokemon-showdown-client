@@ -465,14 +465,14 @@ const Dex = new class implements ModdedDex {
 	}
 
 	getSpriteMod(mod: string, id: string, folder: string, overrideStandard: boolean = false) {
-		if (!window.ModSprites[id]) return null;
+		if (!window.ModSprites[id]) return '';
 		if ((!mod || !window.ModSprites[id][mod]) && !overrideStandard) {
 			for (const modName in window.ModSprites[id]) {
 				if (window.ModSprites[id][modName].includes(folder)) return modName;
 			}
 		}
 		if (mod && window.ModSprites[id][mod] && window.ModSprites[id][mod].includes(folder)) return mod;
-		return null;
+		return '';
 	}
 
 	loadSpriteData(gen: 'xy' | 'bw') {
