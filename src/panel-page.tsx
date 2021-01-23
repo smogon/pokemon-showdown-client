@@ -62,7 +62,7 @@ class PagePanel extends PSRoomPanel<PageRoom> {
 				default:
 					return <PageNotFound/>;
 			}
-		}
+		};
 		return (
 			<PSPanelWrapper room={room} scrollable>
 				<RenderPage />
