@@ -1119,14 +1119,14 @@ class Battle {
 		for (const mod in window.ModConfig) {
 			for (const formatid in window.ModConfig[mod].formats) {
 				if (format === formatid) {
-					this.mod = mod;
-					this.dex = Dex.mod(mod);
+					this.mod = mod as ID;
+					this.dex = Dex.mod(mod as ID);
 					break;
 				}
 			}
 			if (this.mod) break;
 		}
-		if (this.id.includes('digimon')) this.mod = 'digimon';
+		if (this.id.includes('digimon')) this.mod = 'digimon' as ID;
 		this.init();
 	}
 
