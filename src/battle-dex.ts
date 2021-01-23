@@ -496,7 +496,7 @@ const Dex = new class implements ModdedDex {
 		noScale?: boolean,
 		mod: string,
 		dynamax?: boolean,
-	} = {gen: 6}) {
+	} = {gen: 6, mod: ''}) {
 		let mechanicsGen = options.gen || 6;
 		if (options.mod && window.ModConfig[options.mod].spriteGen) mechanicsGen = window.ModConfig[options.mod].spriteGen;
 		let isDynamax = !!options.dynamax;
@@ -522,7 +522,7 @@ const Dex = new class implements ModdedDex {
 			resourcePrefix = Dex.modResourcePrefix;
 			spriteDir = `${options.mod}/sprites/`;
 			fakeSprite = true;
-			if (this.getSpriteMod(options.mod, id, (isFront ? 'front' : 'back') + '-shiny', species.exists !== false) === '') options.shiny = '';
+			if (this.getSpriteMod(options.mod, id, (isFront ? 'front' : 'back') + '-shiny', species.exists !== false) === '') options.shiny = false;
 		}
 
 		// Gmax sprites are already extremely large, so we don't need to double.

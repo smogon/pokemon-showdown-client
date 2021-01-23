@@ -1069,7 +1069,7 @@ class Battle {
 	lastMove = '';
 
 	gen = 7;
-	mod = '';
+	mod = '' as ID;
 	dex: ModdedDex = Dex;
 	teamPreviewCount = 0;
 	speciesClause = false;
@@ -1119,7 +1119,7 @@ class Battle {
 		for (const mod in window.ModConfig) {
 			for (const formatid in window.ModConfig[mod].formats) {
 				if (format === formatid) {
-					this.mod = mod as ID;
+					this.mod = mod;
 					this.dex = Dex.mod(mod);
 					break;
 				}
