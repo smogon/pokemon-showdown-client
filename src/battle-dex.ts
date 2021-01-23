@@ -497,7 +497,7 @@ const Dex = new class implements ModdedDex {
 		mod?: string,
 		dynamax?: boolean,
 	} = {gen: 6}) {
-		const mechanicsGen = options.gen || 6;
+		let mechanicsGen = options.gen || 6;
 		if (options.mod && ModConfig[options.mod].spriteGen) mechanicsGen = modConfig[options.mod].spriteGen;
 		let isDynamax = !!options.dynamax;
 		if (pokemon instanceof Pokemon) {
@@ -879,9 +879,6 @@ class ModdedDex {
 		} else {
 			this.gen = parseInt(modid.slice(3), 10);
 		}
-	}
-	setGen(gen: number) {
-		this.gen = gen;
 	}
 	getMove(name: string): Move {
 		let id = toID(name);

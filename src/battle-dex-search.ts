@@ -436,7 +436,7 @@ class DexSearch {
 				(!table || !table.overrideAbilityDesc || id in table.overrideAbilityDesc === false)
 			) continue;
 			else if (
-				typeIndex === 2 && id.replace(id.charAt(0), id.charAt(0).toUpperCase()) in BattleTypeChart === false &&
+				typeIndex === 2 && id.replace(id.charAt(0), id.charAt(0).toUpperCase()) in window.BattleTypeChart === false &&
 				(!table || id.replace(id.charAt(0), id.charAt(0).toUpperCase()) in table.overrideTypeChart === false)
 			) continue;
 
@@ -476,16 +476,16 @@ class DexSearch {
 		let moveDex = BattleMovedex;
 		if (window.room.curTeam.mod) {
 			pokedex = {};
-			movedex = {};
+			moveDex = {};
 			const table = BattleTeambuilderTable[window.room.curTeam.mod];
 			for (const id in table.overrideDexInfo) {
 				pokedex[id] = { types: table.overrideDexInfo[id].types, abilities: table.overrideDexInfo[id].abilities};
 			}
-			for (const id in {...table.fullMoveName, ...table.overrideMoveType, ...table.overrideMoveCategory}) movedex[id] = {};
-			for (const id in table.overrideMoveType) movedex[id].type = table.overrideMoveType[id];
-			for (const id in table.overrideMoveCategory) movedex[id].category = table.overrideMoveCategory[id];
+			for (const id in {...table.fullMoveName, ...table.overrideMoveType, ...table.overrideMoveCategory}) moveDex[id] = {};
+			for (const id in table.overrideMoveType) moveDex[id].type = table.overrideMoveType[id];
+			for (const id in table.overrideMoveCategory) moveDex[id].category = table.overrideMoveCategory[id];
 			pokedex = {...pokedex, ...BattlePokedex};
-			movedex = {...movedex, ...BattleMovedex};
+			moveDex = {...moveDex, ...BattleMovedex};
 		}
 		if (searchType === 'pokemon') {
 			switch (fType) {
@@ -515,8 +515,8 @@ class DexSearch {
 			case 'type':
 				let type = fId.charAt(0).toUpperCase() + fId.slice(1);
 				buf.push(['header', `${type}-type moves`]);
-				for (let id in movedex) {
-					if (movedex[id].type === type) {
+				for (let id in moveDex) {
+					if (moveDex[id].type === type) {
 						(illegal && id in illegal ? illegalBuf : buf).push(['move', id as ID]);
 					}
 				}
@@ -524,8 +524,8 @@ class DexSearch {
 			case 'category':
 				let category = fId.charAt(0).toUpperCase() + fId.slice(1);
 				buf.push(['header', `${category} moves`]);
-				for (let id in movedex) {
-					if (movedex[id].category === category) {
+				for (let id in moveDex) {
+					if (moveDex[id].category === category) {
 						(illegal && id in illegal ? illegalBuf : buf).push(['move', id as ID]);
 					}
 				}
@@ -629,14 +629,14 @@ abstract class BattleTypedSearch<T extends SearchType> {
 			}
 			if (mod) {
 				this.dex = Dex.mod(mod as ID);
-				this.dex.setGen(gen);
+				this.dex.gen = gen;
 				this.mod = mod;
 			} else {
 				this.dex = Dex.forGen(gen);
 			}
-			if (overrideFormat) format = overrideFormat;
+			if (overrideFormat) format = overrideFormat as ID;
 			else format = (format.slice(4) || 'customgame') as ID;
-			if (modFormatType) this.formatType = modFormatType;
+			if (modFormatType) this.formatType = modFormatType as 'doubles' | 'letsgo' | 'metronome' | 'natdex' | 'nfe' | 'dlc1' | 'dlc1doubles' | null;
 		} else if (!format) {
 			this.dex = Dex;
 		}
@@ -1019,7 +1019,7 @@ class BattlePokemonSearch extends BattleTypedSearch<'pokemon'> {
 			}
 			let headerCount = 0;
 			let lastHeader = '';
-			const emptyHeaders = [];
+			const emptyHeaders: string[] = [];
 			for (const i in tierSet) {
 				headerCount = tierSet[i][0] === 'header' ? headerCount + 1 : 0;
 				if (headerCount > 1) emptyHeaders.push(lastHeader);
