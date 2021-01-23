@@ -494,7 +494,7 @@ const Dex = new class implements ModdedDex {
 		gender?: GenderName,
 		afd?: boolean,
 		noScale?: boolean,
-		mod?: string,
+		mod: string,
 		dynamax?: boolean,
 	} = {gen: 6}) {
 		let mechanicsGen = options.gen || 6;
@@ -517,7 +517,7 @@ const Dex = new class implements ModdedDex {
 		let fakeSprite = false;
 		let name = species.spriteid;
 		let id = toID(name);
-		options.mod = this.getSpriteMod(options.mod, id, isFront ? 'front' : 'back', species.exists !== false) | undefined;
+		options.mod = this.getSpriteMod(options.mod, id, isFront ? 'front' : 'back', species.exists !== false);
 		if (options.mod) {
 			resourcePrefix = Dex.modResourcePrefix;
 			spriteDir = `${options.mod}/sprites/`;
@@ -981,7 +981,7 @@ class ModdedDex {
 		let data = {...Dex.getSpecies(name)};
 		if (table.overrideDexInfo) {
 			for (const key in table.overrideDexInfo[id]) {
-				data[key] = {...table.overrideDexInfo[id][key]};
+				data[key]:any{} = table.overrideDexInfo[id][key];
 			}
 		} else {
 			let abilities = {...data.abilities};
