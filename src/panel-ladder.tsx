@@ -96,7 +96,7 @@ function LadderFormat(props: { room: LadderRoom }) {
 			</h3>;
 		}
 		return null;
-	}
+	};
 	const RenderSearch = () => {
 		if (!teams.usesLocalLadder) {
 			return <form class="search" onSubmit={submitSearch}>
@@ -112,7 +112,7 @@ function LadderFormat(props: { room: LadderRoom }) {
 			</form>;
 		}
 		return null;
-	}
+	};
 	const RenderFormat = () => {
 		if (loading || !BattleFormats) {
 			return <p>Loading...</p>;
