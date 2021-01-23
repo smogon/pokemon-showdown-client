@@ -13,6 +13,8 @@ class LadderRoom extends PSRoom {
 	readonly format?: string = this.id.split('-')[1];
 	searchValue: string = '';
 	lastSearch: string = '';
+	loading: boolean = false;
+	error?: string;
 	ladderData?: string;
 
 	setSearchValue = (searchValue: string) => {
@@ -23,24 +25,33 @@ class LadderRoom extends PSRoom {
 		this.lastSearch = lastSearch;
 		this.update(null);
 	};
+	setLoading = (loading: boolean) => {
+		this.loading = loading;
+		this.update(null);
+	};
+	setError = (error: Error) => {
+		this.loading = false;
+		this.error = error.message;
+		this.update(null);
+	};
 	setLadderData = (ladderData: string | undefined) => {
+		this.loading = false;
 		this.ladderData = ladderData;
 		this.update(null);
 	};
 	requestLadderData = (searchValue?: string) => {
 		const { teams } = PS;
 		if (teams.usesLocalLadder) {
-			this.setLadderData(undefined); // Loading...
 			this.send(`/cmd laddertop ${this.format} ${toID(this.searchValue)}`);
 		} else if (this.format !== undefined) {
-			this.setLadderData(undefined); // "Loading..."
 			Net('/ladder.php').get({query: {
 				format: this.format,
 				server: Config.server.id.split(':')[0],
 				output: 'html',
 				prefix: toID(searchValue),
-			}}).then(this.setLadderData);
+			}}).then(this.setLadderData).catch(this.setError);
 		}
+		this.setLoading(true);
 	};
 }
 
@@ -53,31 +64,34 @@ function LadderBackToFormatList(room: PSRoom) {
 
 function LadderFormat(props: {room: LadderRoom}) {
 	const { room } = props;
-	const { format, searchValue, lastSearch } = room;
-	const ladderData = room.ladderData || "";
+	const { format, searchValue, lastSearch, loading, error, setSearchValue, setLastSearch, requestLadderData } = room;
+	const ladderData = room.ladderData;
+	if (format === undefined) return null;
+
 	const changeSearch = (e: Event) => {
-		room.setSearchValue((e.currentTarget as HTMLInputElement).value);
+		setSearchValue((e.currentTarget as HTMLInputElement).value);
 	};
 	const submitSearch = (e: Event) => {
 		e.preventDefault();
-		room.setLastSearch(room.searchValue);
-		room.requestLadderData(room.searchValue);
+		setLastSearch(room.searchValue);
+		requestLadderData(room.searchValue);
 	};
-	if (format === undefined) {
-		// placeholder
-		return <p>bad format</p>;
-	}
-	return (
-			<div class="ladder pad">
-				<p>
-					<button onClick={LadderBackToFormatList(room)}>
-						<i class="fa fa-chevron-left"></i> Format List
-					</button>
-				</p>
+	const RenderFormat = () => {
+		if (loading) {
+			return <p>Loading...</p>;
+		} else if (error !== undefined) {
+			return <p>Error: {error}</p>;
+		} else if (BattleFormats && BattleFormats[format] === undefined) {
+			return <p>Format {format} not found.</p>;
+		} else if (ladderData === undefined) {
+			return null;
+		}
+		return (
+			<>
 				<p>
 					<button
 						class="button"
-						onClick={() => room.requestLadderData(lastSearch)}
+						onClick={() => requestLadderData(lastSearch)}
 					>
 						<i class="fa fa-refresh"></i> Refresh
 					</button>
@@ -100,6 +114,17 @@ function LadderFormat(props: {room: LadderRoom}) {
 					)}
 				</h3>
 				<SanitizedHTML>{ladderData}</SanitizedHTML>
+			</>
+		);
+	};
+	return (
+			<div class="ladder pad">
+				<p>
+					<button onClick={LadderBackToFormatList(room)}>
+						<i class="fa fa-chevron-left"></i> Format List
+					</button>
+				</p>
+				<RenderFormat/>
 			</div>
 	);
 }
@@ -113,9 +138,11 @@ class LadderPanel extends PSRoomPanel<LadderRoom> {
 				if (response) {
 					const [format, ladderData] = response;
 					if (room.selectedFormat === format) {
-						room.ladderData =
-							ladderData ||
-							'<p>Error getting ladder data from server</p>';
+						if (!ladderData) {
+							room.setError(new Error('No data returned from server.'));
+						} else {
+							room.ladderData = ladderData;
+						}
 					}
 				}
 				this.forceUpdate();
