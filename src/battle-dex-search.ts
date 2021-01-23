@@ -397,26 +397,6 @@ class DexSearch {
 				topbufIndex = 2;
 			}
 
-			if (illegal && typeIndex === searchTypeIndex) {
-				// Always show illegal results under legal results.
-				// This is done by putting legal results (and the type header)
-				// in bucket 0, and illegal results in the searchType's bucket.
-				// searchType buckets are always on top (but under bucket 0), so
-				// illegal results will be seamlessly right under legal results.
-				if (!bufs[typeIndex].length && !bufs[0].length) {
-					bufs[0] = [['header', DexSearch.typeName[type]]];
-				}
-				if (!(id in illegal)) typeIndex = 0;
-			} else {
-				if (!bufs[typeIndex].length) {
-					bufs[typeIndex] = [['header', DexSearch.typeName[type]]];
-				}
-			}
-
-			// don't match duplicate aliases
-			let curBufLength = (passType === 'alias' && bufs[typeIndex].length);
-			if (curBufLength && bufs[typeIndex][curBufLength - 1][1] === id) continue;
-
 			// determine if the element comes from the current mod
 			const table = BattleTeambuilderTable[window.room.curTeam.mod];
 			if (
@@ -439,6 +419,26 @@ class DexSearch {
 				typeIndex === 2 && id.replace(id.charAt(0), id.charAt(0).toUpperCase()) in window.BattleTypeChart === false &&
 				(!table || id.replace(id.charAt(0), id.charAt(0).toUpperCase()) in table.overrideTypeChart === false)
 			) continue;
+
+			if (illegal && typeIndex === searchTypeIndex) {
+				// Always show illegal results under legal results.
+				// This is done by putting legal results (and the type header)
+				// in bucket 0, and illegal results in the searchType's bucket.
+				// searchType buckets are always on top (but under bucket 0), so
+				// illegal results will be seamlessly right under legal results.
+				if (!bufs[typeIndex].length && !bufs[0].length) {
+					bufs[0] = [['header', DexSearch.typeName[type]]];
+				}
+				if (!(id in illegal)) typeIndex = 0;
+			} else {
+				if (!bufs[typeIndex].length) {
+					bufs[typeIndex] = [['header', DexSearch.typeName[type]]];
+				}
+			}
+
+			// don't match duplicate aliases
+			let curBufLength = (passType === 'alias' && bufs[typeIndex].length);
+			if (curBufLength && bufs[typeIndex][curBufLength - 1][1] === id) continue;
 
 			bufs[typeIndex].push([type, id, matchStart, matchEnd]);
 			count++;
@@ -849,7 +849,8 @@ abstract class BattleTypedSearch<T extends SearchType> {
 class BattlePokemonSearch extends BattleTypedSearch<'pokemon'> {
 	sortRow: SearchRow = ['sortpokemon', ''];
 	getTable() {
-		return BattlePokedex;
+		if (!this.mod) return BattlePokedex;
+		else return {...BattleTeambuilderTable[this.mod].overrideDexInfo, ...BattlePokedex};
 	}
 	getDefaultResults(): SearchRow[] {
 		let results: SearchRow[] = [];
@@ -1105,7 +1106,8 @@ class BattlePokemonSearch extends BattleTypedSearch<'pokemon'> {
 
 class BattleAbilitySearch extends BattleTypedSearch<'ability'> {
 	getTable() {
-		return BattleAbilities;
+		if (!this.mod) return BattleAbilities;
+		else return {...BattleTeambuilderTable[this.mod].fullAbilityName, ...BattleAbilities};
 	}
 	getDefaultResults(): SearchRow[] {
 		const results: SearchRow[] = [];
@@ -1192,7 +1194,8 @@ class BattleAbilitySearch extends BattleTypedSearch<'ability'> {
 
 class BattleItemSearch extends BattleTypedSearch<'item'> {
 	getTable() {
-		return BattleItems;
+		if (!this.mod) return BattleItems;
+		else return {...BattleTeambuilderTable[this.mod].fullItemName, ...BattleItems};
 	}
 	getDefaultResults(): SearchRow[] {
 		let table = BattleTeambuilderTable;
@@ -1257,7 +1260,8 @@ class BattleItemSearch extends BattleTypedSearch<'item'> {
 class BattleMoveSearch extends BattleTypedSearch<'move'> {
 	sortRow: SearchRow = ['sortmove', ''];
 	getTable() {
-		return BattleMovedex;
+		if (!this.mod) return BattleMovedex;
+		else return {...BattleTeambuilderTable[this.mod].fullMoveName, ...BattleMovedex};
 	}
 	getDefaultResults(): SearchRow[] {
 		let results: SearchRow[] = [];
@@ -1685,7 +1689,8 @@ class BattleCategorySearch extends BattleTypedSearch<'category'> {
 
 class BattleTypeSearch extends BattleTypedSearch<'type'> {
 	getTable() {
-		return window.BattleTypeChart;
+		if (!this.mod) return window.BattleTypeChart;
+		else return {...BattleTeambuilderTable[this.mod].overrideTypeChart, ...window.BattleTypeChart};
 	}
 	getDefaultResults(): SearchRow[] {
 		const results: SearchRow[] = [];

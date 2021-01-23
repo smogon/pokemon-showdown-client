@@ -1289,6 +1289,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 	}
 
 	buf += `exports.BattleTeambuilderTable = JSON.parse('${JSON.stringify(BattleTeambuilderTable).replace(/['\\]/g, "\\$&")}');\n\n`;
+
 	fs.writeFileSync('data/teambuilder-tables.js', buf);
 	fs.writeFileSync('data/mod-config.js', 'exports.ModConfig = ' + JSON.stringify(Mods) + ';\n\n');
 }
