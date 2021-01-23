@@ -416,8 +416,8 @@ class DexSearch {
 			// don't match duplicate aliases
 			let curBufLength = (passType === 'alias' && bufs[typeIndex].length);
 			if (curBufLength && bufs[typeIndex][curBufLength - 1][1] === id) continue;
-			
-						// determine if the element comes from the current mod
+
+			// determine if the element comes from the current mod
 			const table = BattleTeambuilderTable[window.room.curTeam.mod];
 			if (
 				typeIndex === 1 && (!BattlePokedex[id] || BattlePokedex[id].exists === false) &&
@@ -430,7 +430,7 @@ class DexSearch {
 			else if (
 				typeIndex === 4 && (!BattleMovedex[id] || BattleMovedex[id].exists === false) &&
 				(!table || !table.overrideMoveDesc || id in table.overrideMoveDesc === false)
-			) continue;	
+			) continue;
 			else if (
 				typeIndex === 6 && (!BattleAbilities[id] || BattleAbilities[id].exists === false) &&
 				(!table || !table.overrideAbilityDesc || id in table.overrideAbilityDesc === false)
@@ -471,19 +471,19 @@ class DexSearch {
 		let buf: SearchRow[] = [];
 		let illegalBuf: SearchRow[] = [];
 		let illegal = this.typedSearch?.illegalReasons;
-		//change object to look in if using a mod
+		// Change object to look in if using a mod
 		let pokedex = BattlePokedex;
 		let moveDex = BattleMovedex;
-		if (window.room.curTeam.mod){
+		if (window.room.curTeam.mod) {
 			pokedex = {};
 			movedex = {};
 			const table = BattleTeambuilderTable[window.room.curTeam.mod];
-			for(const id in table.overrideDexInfo) {
+			for (const id in table.overrideDexInfo) {
 				pokedex[id] = { types: table.overrideDexInfo[id].types, abilities: table.overrideDexInfo[id].abilities};
 			}
-			for(const id in {...table.fullMoveName, ...table.overrideMoveType, ...table.overrideMoveCategory}) movedex[id] = {};
-			for(const id in table.overrideMoveType) movedex[id].type = table.overrideMoveType[id];
-			for(const id in table.overrideMoveCategory) movedex[id].category = table.overrideMoveCategory[id];
+			for (const id in {...table.fullMoveName, ...table.overrideMoveType, ...table.overrideMoveCategory}) movedex[id] = {};
+			for (const id in table.overrideMoveType) movedex[id].type = table.overrideMoveType[id];
+			for (const id in table.overrideMoveCategory) movedex[id].category = table.overrideMoveCategory[id];
 			pokedex = {...pokedex, ...BattlePokedex};
 			movedex = {...movedex, ...BattleMovedex};
 		}
@@ -620,7 +620,7 @@ abstract class BattleTypedSearch<T extends SearchType> {
 				for (const formatid in ClientMods[modid].formats) {
 					if (formatid === format) {
 						mod = modid;
-						const formatTable = ClientMods[modid].formats[formatid]
+						const formatTable = ClientMods[modid].formats[formatid];
 						if (mod && formatTable.teambuilderFormat) overrideFormat = toID(formatTable.teambuilderFormat);
 						if (mod && formatTable.formatType) modFormatType = toID(formatTable.formatType);
 						break;
@@ -798,7 +798,7 @@ abstract class BattleTypedSearch<T extends SearchType> {
 		let learnsetid = this.firstLearnsetid(speciesid);
 		while (learnsetid) {
 			let learnset = BattleTeambuilderTable.learnsets[learnsetid];
-			if (this.mod){
+			if (this.mod) {
 				const overrideLearnsets = BattleTeambuilderTable[this.mod].overrideLearnsets;
 				if (overrideLearnsets[learnsetid] && overrideLearnsets[learnsetid][moveid]) learnset = overrideLearnsets[learnsetid];
 			}
@@ -1006,7 +1006,6 @@ class BattlePokemonSearch extends BattleTypedSearch<'pokemon'> {
 		let customTierSet: SearchRow[] = table.customTierSet;
 		if (customTierSet) {
 			tierSet = customTierSet.concat(tierSet);
-			const modFormatTable = ModConfig[this.mod].formats[this.modFormat];
 			if (modFormatTable.bans.length > 0 && !modFormatTable.bans.includes("All Pokemon")) {
 				tierSet = tierSet.filter(([type, id]) => {
 					let banned = modFormatTable.bans;

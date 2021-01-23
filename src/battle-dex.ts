@@ -179,7 +179,7 @@ const Dex = new class implements ModdedDex {
 
 	pokeballs: string[] | null = null;
 	
-	readonly modResourcePrefix = 'https://raw.githubusercontent.com/scoopapa/dh/master/data/mods/';//I don't know where you'd like to store these, yet - Scoopapa
+	readonly modResourcePrefix = 'https://raw.githubusercontent.com/scoopapa/dh/master/data/mods/'; // I don't know where you'd like to store these, yet - Scoopapa
 	resourcePrefix = (() => {
 		let prefix = '';
 		if (window.document?.location?.protocol !== 'http:') prefix = 'https:';
@@ -463,7 +463,7 @@ const Dex = new class implements ModdedDex {
 		}
 		return false;
 	}
-	
+
 	getSpriteMod(mod: string, id: string, folder: string, overrideStandard: boolean = false) {
 		if (!ModSprites[id]) return null;
 		if ((!mod || !ModSprites[id][mod]) && !overrideStandard) {
@@ -474,7 +474,7 @@ const Dex = new class implements ModdedDex {
 		if (mod && ModSprites[id][mod] && ModSprites[id][mod].includes(folder)) return mod;
 		return null;
 	}
-	
+
 	loadSpriteData(gen: 'xy' | 'bw') {
 		if (this.loadedSpriteData[gen]) return;
 		this.loadedSpriteData[gen] = 1;
@@ -487,7 +487,7 @@ const Dex = new class implements ModdedDex {
 		el.src = path + 'data/pokedex-mini-bw.js' + qs;
 		document.getElementsByTagName('body')[0].appendChild(el);
 	}
-	
+
 	getSpriteData(pokemon: Pokemon | Species | string, isFront: boolean, options: {
 		gen?: number,
 		shiny?: boolean,
@@ -513,19 +513,18 @@ const Dex = new class implements ModdedDex {
 		}
 		const species = Dex.getSpecies(pokemon);
 		let resourcePrefix = Dex.resourcePrefix;
-		let spriteDir = 'sprites/'
+		let spriteDir = 'sprites/';
 		let fakeSprite = false;
 		let name = species.spriteid;
 		let id = toID(name);
-		//check for sprites in ModSprites if a mod is given or the species is not recognized
-		options.mod = this.getSpriteMod(options.mod, id, isFront ? 'front' : 'back', species.exists !== false)
+		options.mod = this.getSpriteMod(options.mod, id, isFront ? 'front' : 'back', species.exists !== false);
 		if (options.mod) {
 			resourcePrefix = Dex.modResourcePrefix;
 			spriteDir = `${options.mod}/sprites/`;
 			fakeSprite = true;
 			if (!this.getSpriteMod(options.mod, id, (isFront ? 'front' : 'back') + '-shiny', species.exists !== false)) options.shiny = '';
 		}
-		
+
 		// Gmax sprites are already extremely large, so we don't need to double.
 		if (species.name.endsWith('-Gmax')) isDynamax = false;
 		let spriteData = {
@@ -540,7 +539,7 @@ const Dex = new class implements ModdedDex {
 			shiny: options.shiny,
 		};
 		// console.log(spriteData.url);
-		
+
 		let dir;
 		let facing;
 		if (isFront) {
@@ -711,7 +710,7 @@ const Dex = new class implements ModdedDex {
 		return num;
 	}
 
-	getPokemonIcon(pokemon: string | Pokemon | ServerPokemon | PokemonSet | null, facingLeft?: boolean, mod : string = '') {
+	getPokemonIcon(pokemon: string | Pokemon | ServerPokemon | PokemonSet | null, facingLeft?: boolean, mod: string = '') {
 		if (pokemon === 'pokeball') {
 			return `background:transparent url(${Dex.resourcePrefix}sprites/pokemonicons-pokeball-sheet.png) no-repeat scroll -0px 4px`;
 		} else if (pokemon === 'pokeball-statused') {
@@ -750,15 +749,17 @@ const Dex = new class implements ModdedDex {
 		if (pokemon.species && !spriteid) {
 			spriteid = species.spriteid || toID(pokemon.species);
 		}
-		if (mod && ModConfig[mod].spriteGen) gen = ModConfig[mod].spriteGen;		
+		if (mod && ModConfig[mod].spriteGen) gen = ModConfig[mod].spriteGen;
 		mod = this.getSpriteMod(mod, id, 'front', species.exists !== false);
-		if (mod) return {
-			spriteDir: `${mod}/sprites/front`,
-			spriteid: spriteid,
-			shiny: (this.getSpriteMod(mod, id, 'front-shiny', species.exists !== false) !== null && pokemon.shiny),
-			x: 10, 
-			y: 5 
-		};
+		if (mod) {
+			return {
+				spriteDir: `${mod}/sprites/front`,
+				spriteid,
+				shiny: (this.getSpriteMod(mod, id, 'front-shiny', species.exists !== false) !== null && pokemon.shiny),
+				x: 10,
+				y: 5,
+			};
+		}
 		if (species.exists === false) return {spriteDir: 'sprites/gen5', spriteid: '0', x: 10, y: 5};
 		const spriteData: TeambuilderSpriteData = {
 			spriteid,
@@ -811,7 +812,7 @@ const Dex = new class implements ModdedDex {
 		let num = 0;
 		if (typeof item === 'string' && exports.BattleItems) item = exports.BattleItems[toID(item)];
 		mod = this.getSpriteMod(mod, item.id, 'items');
-		if (mod) return `background:transparent url(${this.modResourcePrefix}${mod}/sprites/items/${item.id}.png) no-repeat`
+		if (mod) return `background:transparent url(${this.modResourcePrefix}${mod}/sprites/items/${item.id}.png) no-repeat`;
 		if (item?.spritenum) num = item.spritenum;
 
 		let top = Math.floor(num / 16) * 24;
@@ -825,10 +826,11 @@ const Dex = new class implements ModdedDex {
 		let sanitizedType = type.replace(/\?/g, '%3f');
 		// console.log(sanitizedType);
 		mod = this.getSpriteMod(mod, toID(type), 'types');
-		if (mod)
+		if (mod) {
 			return `<img src="${this.modResourcePrefix}${mod}/sprites/types/${toID(type)}.png" alt="${type}" class="pixelated${b ? ' b' : ''}" />`;
-		else 
+		} else {
 			return `<img src="${Dex.resourcePrefix}sprites/types/${sanitizedType}.png" alt="${type}" height="14" width="32" class="pixelated${b ? ' b' : ''}" />`;
+		}
 	}
 
 	getCategoryIcon(category: string | null) {
