@@ -179,7 +179,7 @@ const Dex = new class implements ModdedDex {
 
 	pokeballs: string[] | null = null;
 
-	readonly modResourcePrefix = 'https://raw.githubusercontent.com/scoopapa/dh/master/data/mods/'; // I don't know where you'd like to store these, yet - Scoopapa
+	readonly modResourcePrefix = 'https://raw.githubusercontent.com/smogon/pokemon-showdown/master/data/mods/'; // I don't know where you'd like to store these, yet - Scoopapa
 	resourcePrefix = (() => {
 		let prefix = '';
 		if (window.document?.location?.protocol !== 'http:') prefix = 'https:';
