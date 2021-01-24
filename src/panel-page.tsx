@@ -11,6 +11,22 @@ class PageRoom extends PSRoom {
 	readonly classType: string = 'page';
 	readonly page?: string = this.id.split("-")[1];
 	readonly canConnect = true;
+	readonly connectWhenLoggedIn = true;
+
+	loading: boolean = true;
+	htmlData?: string;
+
+	setHtmlData = (htmlData?: string) => {
+		this.loading = false;
+		this.htmlData = htmlData;
+		this.update(null);
+	};
+	connect() {
+		if (!this.connected) {
+			PS.send(`|/join ${this.id}`);
+			this.connected = true;
+		}
+	}
 }
 
 function PageNotFound() {
@@ -18,7 +34,7 @@ function PageNotFound() {
 	return <p>Page not found</p>;
 }
 
-function PagerLadderHelp(props: { room: PageRoom }) {
+function PageLadderHelp(props: { room: PageRoom }) {
 	const { room } = props;
 	return (
 		<div class="ladder pad">
@@ -52,15 +68,36 @@ function PagerLadderHelp(props: { room: PageRoom }) {
 	);
 }
 
+function PageServerHtml(props: { room: PageRoom }) {
+	const { room } = props;
+	if (room.loading) {
+		return <p>Loading...</p>;
+	} else {
+		return <SanitizedHTML>{room.htmlData || ''}</SanitizedHTML>;
+	}
+}
+
 class PagePanel extends PSRoomPanel<PageRoom> {
+	clientRooms: { [key: string]: JSX.Element } = { 'ladderhelp': <PageLadderHelp room={this.props.room}/> };
+
+	/**
+	 * @return true to prevent line from being sent to server
+	 */
+	receiveLine(args: Args) {
+		const { room } = this.props;
+		switch (args[0]) {
+		case 'pagehtml':
+			room.setHtmlData(args[1]);
+			return true;
+		}
+	}
 	render() {
 		const { room } = this.props;
 		const RenderPage = () => {
-			switch (room.page) {
-				case 'ladderhelp':
-					return <PagerLadderHelp room={room}/>;
-				default:
-					return <PageNotFound/>;
+			if (room.page !== undefined && this.clientRooms[room.page]) {
+				return this.clientRooms[room.page];
+			} else {
+				return <PageServerHtml room={room}/>;
 			}
 		};
 		return (
