@@ -11,7 +11,6 @@ class PageRoom extends PSRoom {
 	readonly classType: string = 'html';
 	readonly page?: string = this.id.split("-")[1];
 	readonly canConnect = true;
-	readonly connectWhenLoggedIn = true;
 
 	loading: boolean = true;
 	htmlData?: string;
@@ -21,10 +20,16 @@ class PageRoom extends PSRoom {
 		this.htmlData = htmlData;
 		this.update(null);
 	};
+
+	constructor(options: RoomOptions) {
+		super(options);
+		this.connect();
+	}
 	connect() {
 		if (!this.connected) {
 			PS.send(`|/join ${this.id}`);
 			this.connected = true;
+			this.connectWhenLoggedIn = false;
 		}
 	}
 }
@@ -86,6 +91,11 @@ class PagePanel extends PSRoomPanel<PageRoom> {
 	receiveLine(args: Args) {
 		const { room } = this.props;
 		switch (args[0]) {
+		case 'noinit':
+			if (args[1] === 'namerequired') {
+				room.setHtmlData(args[2]);
+			}
+			return true;
 		case 'pagehtml':
 			room.setHtmlData(args[1]);
 			return true;
