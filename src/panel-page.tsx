@@ -8,7 +8,7 @@
  */
 
 class PageRoom extends PSRoom {
-	readonly classType: string = 'page';
+	readonly classType: string = 'html';
 	readonly page?: string = this.id.split("-")[1];
 	readonly canConnect = true;
 	readonly connectWhenLoggedIn = true;
