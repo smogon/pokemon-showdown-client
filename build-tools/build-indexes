@@ -22,10 +22,9 @@ console.log("DONE");
 const Dex = require('../data/pokemon-showdown/.sim-dist/dex').Dex;
 const toID = Dex.toID;
 const Mods = {};
-const modDir = fs.readdirSync('data/pokemon-showdown/data/mods/');
-for (let i = 0; i < modDir.length; i++) {
-	const modName = modDir[i];
-	Mods[modName] = {};
+for (const modid in Dex.dexes) {
+	if (/gen\d/.test(modid) || modid === 'base') continue;
+	Mods[modid] = {};
 }
 
 process.stdout.write("Loading gen 6 data... ");
@@ -1430,6 +1429,7 @@ process.stdout.write("Building `data/moves,items,abilities,typechart,learnsets.j
 
 {
 	const modSprites = {};
+	const modDir = fs.readdirSync('data/pokemon-showdown/data/mods/');
 	for (const i in modDir) {
 		const modName = modDir[i];
 		const subFolders = ['front', 'front-shiny', 'back', 'back-shiny', 'icons', 'types', 'items'];
