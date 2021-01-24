@@ -1041,6 +1041,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			// Gather data about formats
 			const modDex = Dex.mod(modid);
 			const modData = modDex.data;
+			if (modData.Scripts.teambuilderConfig) Mods[modid] = modData.Scripts.teambuilderConfig;
 			let modGen = 0;
 			const formats = {};
 			Mods[modid].formats = formats;
