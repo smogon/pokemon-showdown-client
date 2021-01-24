@@ -1676,6 +1676,9 @@ class BattleTooltips {
 		if (move.flags['punch']) {
 			value.abilityModify(1.2, 'Iron Fist');
 		}
+		if (['hammerarm', 'dragonhammer', 'woodhammer', 'icehammer', 'crabhammer', 'banhammer'].includes(move.id)) {
+			value.abilityModify(1.2, 'Admin Abuse');
+		}
 		if (move.recoil || move.hasCrashDamage) {
 			value.abilityModify(1.2, 'Reckless');
 		}
