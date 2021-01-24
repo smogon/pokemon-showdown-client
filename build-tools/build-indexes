@@ -21,7 +21,13 @@ console.log("DONE");
 
 const Dex = require('../data/pokemon-showdown/.sim-dist/dex').Dex;
 const toID = Dex.toID;
-const Mods = {ssb: {}, megasforall: {}, doubletrouble: {}, gennext: {}};
+const Mods = {};
+const modDir = fs.readdirSync('data/pokemon-showdown/data/mods/');
+for (let i = 0; i < modDir.length; i++) {
+	const modName = modDir[i];
+	Mods[modName] = {};
+}
+
 process.stdout.write("Loading gen 6 data... ");
 Dex.includeData();
 console.log("DONE");
@@ -1030,6 +1036,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 		}
 	}
 	for (const modid of Object.keys(Mods)) {
+		if (BattleTeambuilderTable[modid]) continue;
 		try { // catch loading errors so the whole thing doesn't break if one mod does
 			// Gather data about formats
 			const modDex = Dex.mod(modid);
@@ -1421,7 +1428,6 @@ process.stdout.write("Building `data/moves,items,abilities,typechart,learnsets.j
  *********************************************************/
 
 {
-	const modDir = fs.readdirSync('data/pokemon-showdown/data/mods/');
 	const modSprites = {};
 	for (const i in modDir) {
 		const modName = modDir[i];
