@@ -213,7 +213,7 @@ const PSBackground = new class extends PSStreamModel {
 			if (location.host === 'smogtours.psim.us') {
 				bgid = 'shaymin';
 			} else if (location.host === Config.routes.client) {
-				const bgs = ['blobbos-beach', 'team-forest'];
+				const bgs = ['blobbos-beach', 'team-forest', 'brock-space', 'kymmi-beach'];
 				bgid = bgs[Math.floor(Math.random() * bgs.length)];
 				if (bgid === this.curId) bgid = bgs[Math.floor(Math.random() * bgs.length)];
 			}
