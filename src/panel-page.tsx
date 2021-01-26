@@ -34,11 +34,6 @@ class PageRoom extends PSRoom {
 	}
 }
 
-function PageNotFound() {
-	// Future development: server-rendered HTML panels
-	return <p>Page not found</p>;
-}
-
 function PageLadderHelp(props: { room: PageRoom }) {
 	const { room } = props;
 	return (
@@ -98,7 +93,7 @@ class PagePanel extends PSRoomPanel<PageRoom> {
 			PS.update();
 			return true;
 		case 'tempnotify': {
-			const [, id, title, body, toHighlight] = args;
+			const [, id, title, body] = args;
 			room.notify({title, body, id});
 			return true;
 		}
