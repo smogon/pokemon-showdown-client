@@ -15,7 +15,7 @@ class PageRoom extends PSRoom {
 	loading: boolean = true;
 	htmlData?: string;
 
-	setHtmlData = (htmlData?: string) => {
+	setHTMLData = (htmlData?: string) => {
 		this.loading = false;
 		this.htmlData = htmlData;
 		this.update(null);
@@ -73,12 +73,14 @@ function PageLadderHelp(props: { room: PageRoom }) {
 	);
 }
 
-function PageServerHtml(props: { room: PageRoom }) {
+function PageServerHTML(props: { room: PageRoom }) {
 	const { room } = props;
 	if (room.loading) {
 		return <p>Loading...</p>;
 	} else {
-		return <SanitizedHTML>{room.htmlData || ''}</SanitizedHTML>;
+		return <div class="page-html-container">
+			<SanitizedHTML>{room.htmlData || ''}</SanitizedHTML>
+		</div>;
 	}
 }
 
@@ -91,13 +93,34 @@ class PagePanel extends PSRoomPanel<PageRoom> {
 	receiveLine(args: Args) {
 		const { room } = this.props;
 		switch (args[0]) {
+		case 'title':
+			room.title = args[1];
+			PS.update();
+			return true;
+		case 'tempnotify': {
+			const [, id, title, body, toHighlight] = args;
+			room.notify({title, body, id});
+			return true;
+		}
+		case 'tempnotifyoff': {
+			const [, id] = args;
+			room.dismissNotification(id);
+			return true;
+		}
+		case 'selectorhtml':
+			const pageHTMLContainer = this.base!.querySelector('.page-html-container');
+			const selectedElement = pageHTMLContainer?.querySelector(args[1]);
+			if (!selectedElement) return;
+			selectedElement.innerHTML = BattleLog.sanitizeHTML(args.slice(2).join('|'));
+			room.isSubtleNotifying = true;
+			return true;
 		case 'noinit':
 			if (args[1] === 'namerequired') {
-				room.setHtmlData(args[2]);
+				room.setHTMLData(args[2]);
 			}
 			return true;
 		case 'pagehtml':
-			room.setHtmlData(args[1]);
+			room.setHTMLData(args[1]);
 			return true;
 		}
 	}
@@ -107,7 +130,7 @@ class PagePanel extends PSRoomPanel<PageRoom> {
 			if (room.page !== undefined && this.clientRooms[room.page]) {
 				return this.clientRooms[room.page];
 			} else {
-				return <PageServerHtml room={room}/>;
+				return <PageServerHTML room={room}/>;
 			}
 		};
 		return (
