@@ -906,71 +906,46 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 		const gen = 'gen' + genNum;
 		const genData = Dex.mod(gen).data;
 		const nextGenData = Dex.mod('gen' + (genNum + 1)).data;
-		const overrideStats = {};
-		BattleTeambuilderTable[gen].overrideStats = overrideStats;
-		const overrideType = {};
-		BattleTeambuilderTable[gen].overrideType = overrideType;
-		const overrideAbility = {};
-		BattleTeambuilderTable[gen].overrideAbility = overrideAbility;
-		const overrideHiddenAbility = {};
-		BattleTeambuilderTable[gen].overrideHiddenAbility = overrideHiddenAbility;
-		const removeSecondAbility = {};
-		BattleTeambuilderTable[gen].removeSecondAbility = removeSecondAbility;
+		const overrideDexInfo = {};
+		BattleTeambuilderTable[gen].overrideDexInfo = overrideDexInfo;
 		for (const id in genData.Pokedex) {
-			const pastEntry = genData.Pokedex[id];
-			const nowEntry = Dex.data.Pokedex[id];
-			const nowType = nowEntry.types.join('/');
-			for (const stat in pastEntry.baseStats) {
-				if (stat === 'spd' && genNum === 1) continue;
-				if (pastEntry.baseStats[stat] !== nowEntry.baseStats[stat]) {
-					if (!overrideStats[id]) overrideStats[id] = {};
-					overrideStats[id][stat] = pastEntry.baseStats[stat];
+			const modEntry = genData.Pokedex[id];
+			const baseEntry = Dex.data.Pokedex[id];
+			if (typeof baseEntry === 'undefined') {
+				overrideDexInfo[id] = {};
+				overrideDexInfo[id] = modEntry;
+				overrideDexInfo[id].exists = true;
+				continue;
+			}
+			for (const key in modEntry) {
+				const modString = JSON.stringify(modEntry[key]);
+				const baseString = JSON.stringify(baseEntry[key]);
+				if (modString !== baseString) {
+					if (!overrideDexInfo[id]) overrideDexInfo[id] = {};
+					overrideDexInfo[id][key] = JSON.parse(modString);
 				}
 			}
-			if (pastEntry.types.join('/') !== nowType) {
-				overrideType[id] = pastEntry.types.join('/');
-			}
-			if (pastEntry.abilities['0'] !== nowEntry.abilities['0']) {
-				overrideAbility[id] = pastEntry.abilities['0'];
-			}
-			if (pastEntry.abilities['H'] !== nowEntry.abilities['H']) {
-				overrideHiddenAbility[id] = pastEntry.abilities['H'];
-			}
-			// in the gen 3 dex, Pokemon already have the abilities that were added in gen 4
-			const hasAbilityFromNewerGen = Dex.getSpecies(id).gen <= genNum && Dex.getAbility(pastEntry.abilities['1']).gen > genNum;
-			if ((!pastEntry.abilities['1'] && nowEntry.abilities['1']) || hasAbilityFromNewerGen) {
-				removeSecondAbility[id] = true;
-			}
 		}
-
-		const overrideBP = {};
-		BattleTeambuilderTable[gen].overrideBP = overrideBP;
-		const overrideAcc = {};
-		BattleTeambuilderTable[gen].overrideAcc = overrideAcc;
-		const overridePP = {};
-		BattleTeambuilderTable[gen].overridePP = overridePP;
-		const overrideMoveDesc = {};
-		BattleTeambuilderTable[gen].overrideMoveDesc = overrideMoveDesc;
-		const overrideMoveType = {};
-		BattleTeambuilderTable[gen].overrideMoveType = overrideMoveType;
+		const overrideMoveKeys = ['basePower', 'accuracy', 'category', 'pp', 'isNonstandard', 'shortDesc'];
+		const overrideMoveInfo = {};
+		BattleTeambuilderTable[gen].overrideMoveInfo = overrideMoveInfo;
 		for (const id in genData.Moves) {
-			const pastEntry = genData.Moves[id];
-			const nowEntry = Dex.data.Moves[id];
-			const nextEntry = nextGenData.Moves[id];
-			if (pastEntry.basePower !== nowEntry.basePower) {
-				overrideBP[id] = pastEntry.basePower;
+			const modEntry = genData.Moves[id];
+			const baseEntry = Dex.data.Moves[id];
+			if (typeof baseEntry === 'undefined') {
+				overrideMoveInfo[id] = {};
+				overrideMoveInfo[id] = modEntry;
+				overrideMoveInfo[id].exists = true;
+				continue;
 			}
-			if (pastEntry.accuracy !== nowEntry.accuracy) {
-				overrideAcc[id] = pastEntry.accuracy;
-			}
-			if (pastEntry.pp !== nowEntry.pp) {
-				overridePP[id] = pastEntry.pp;
-			}
-			if (pastEntry.type !== nowEntry.type) {
-				overrideMoveType[id] = pastEntry.type;
-			}
-			if (pastEntry.shortDesc !== nextEntry.shortDesc) {
-				overrideMoveDesc[id] = pastEntry.shortDesc;
+			for (const key in modEntry) {
+				if (!overrideMoveKeys.includes(key)) continue;
+				const modString = JSON.stringify(modEntry[key]);
+				const baseString = JSON.stringify(baseEntry[key]);
+				if (modString !== baseString) {
+					if (!overrideMoveInfo[id]) overrideMoveInfo[id] = {};
+					overrideMoveInfo[id][key] = JSON.parse(modString);
+				}
 			}
 		}
 
@@ -1160,8 +1135,8 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			for (const id in modData.Pokedex) {
 				const modEntry = modData.Pokedex[id];
 				const baseEntry = Dex.data.Pokedex[id];
-				overrideDexInfo[id] = {};
 				if (typeof baseEntry === 'undefined') {
+					overrideDexInfo[id] = {};
 					overrideDexInfo[id] = modEntry;
 					overrideDexInfo[id].exists = true;
 					continue;
@@ -1170,6 +1145,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 					const modString = JSON.stringify(modEntry[key]);
 					const baseString = JSON.stringify(baseEntry[key]);
 					if (modString !== baseString) {
+						if (!overrideDexInfo[id]) overrideDexInfo[id] = {};
 						overrideDexInfo[id][key] = JSON.parse(modString);
 					}
 				}
@@ -1223,42 +1199,26 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			if (modGen) itemTable = BattleTeambuilderTable[modGen].items;
 			items.push(...itemTable.slice(1));
 			//moves
-			const fullMoveName = {};
-			BattleTeambuilderTable[modid].fullMoveName = fullMoveName;
-			const overrideBP = {};
-			BattleTeambuilderTable[modid].overrideBP = overrideBP;
-			const overrideAcc = {};
-			BattleTeambuilderTable[modid].overrideAcc = overrideAcc;
-			const overridePP = {};
-			BattleTeambuilderTable[modid].overridePP = overridePP;
-			const overrideMoveDesc = {};
-			BattleTeambuilderTable[modid].overrideMoveDesc = overrideMoveDesc;
-			const overrideMoveType = {};
-			BattleTeambuilderTable[modid].overrideMoveType = overrideMoveType;
-			const overrideMoveCategory = {};
-			BattleTeambuilderTable[modid].overrideMoveCategory = overrideMoveCategory;
+			const overrideMoveInfo = {};
+			const overrideMoveKeys = ['basePower', 'accuracy', 'category', 'pp', 'isNonstandard', 'shortDesc'];
+			BattleTeambuilderTable[modid].overrideMoveInfo = overrideMoveInfo;
 			for (const id in modData.Moves) {
 				const modEntry = modData.Moves[id];
 				const baseEntry = Dex.data.Moves[id];
-				const fakeMove = (typeof baseEntry === 'undefined');
-				if (fakeMove) fullMoveName[id] = modData.Moves[id].name;
-				if (fakeMove || modEntry.basePower !== baseEntry.basePower) {
-					overrideBP[id] = modEntry.basePower;
+				if (typeof baseEntry === 'undefined') {
+					overrideMoveInfo[id] = {};
+					overrideMoveInfo[id] = modEntry;
+					overrideMoveInfo[id].exists = true;
+					continue;
 				}
-				if (fakeMove || modEntry.accuracy !== baseEntry.accuracy) {
-					overrideAcc[id] = modEntry.accuracy;
-				}
-				if (fakeMove || modEntry.pp !== baseEntry.pp) {
-					overridePP[id] = modEntry.pp;
-				}
-				if (fakeMove || modEntry.type !== baseEntry.type) {
-					overrideMoveType[id] = modEntry.type;
-				}
-				if (fakeMove || modEntry.shortDesc !== baseEntry.shortDesc) {
-					overrideMoveDesc[id] = modEntry.shortDesc;
-				}
-				if (fakeMove || modEntry.category !== baseEntry.category) {
-					overrideMoveCategory[id] = modEntry.category;
+				for (const key in modEntry) {
+					if (!overrideMoveKeys.includes(key)) continue;
+					const modString = JSON.stringify(modEntry[key]);
+					const baseString = JSON.stringify(baseEntry[key]);
+					if (modString !== baseString) {
+						if (!overrideMoveInfo[id]) overrideMoveInfo[id] = {};
+						overrideMoveInfo[id][key] = JSON.parse(modString);
+					}
 				}
 			}
 			//abilities

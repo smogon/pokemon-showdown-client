@@ -409,7 +409,7 @@ class DexSearch {
 			) continue;
 			else if (
 				typeIndex === 4 && (!BattleMovedex[id] || BattleMovedex[id].exists === false) &&
-				(!table || !table.overrideMoveDesc || id in table.overrideMoveDesc === false)
+				(!table || !table.overrideMoveInfo || id in table.overrideMoveInfo === false)
 			) continue;
 			else if (
 				typeIndex === 6 && (!BattleAbilities[id] || BattleAbilities[id].exists === false) &&
@@ -479,11 +479,17 @@ class DexSearch {
 			moveDex = {};
 			const table = BattleTeambuilderTable[window.room.curTeam.mod];
 			for (const id in table.overrideDexInfo) {
-				pokedex[id] = { types: table.overrideDexInfo[id].types, abilities: table.overrideDexInfo[id].abilities};
+				pokedex[id] = {
+					types: table.overrideDexInfo[id].types,
+					abilities: table.overrideDexInfo[id].abilities,
+				};
 			}
-			for (const id in {...table.fullMoveName, ...table.overrideMoveType, ...table.overrideMoveCategory}) moveDex[id] = {};
-			for (const id in table.overrideMoveType) moveDex[id].type = table.overrideMoveType[id];
-			for (const id in table.overrideMoveCategory) moveDex[id].category = table.overrideMoveCategory[id];
+			for (const id in table.overrideMoveInfo) {
+				moveDex[id] = {
+					type: table.overrideMoveInfo.type,
+					category: table.overrideMoveInfo.category,
+				};
+			}
 			pokedex = {...pokedex, ...BattlePokedex};
 			moveDex = {...moveDex, ...BattleMovedex};
 		}
@@ -1261,7 +1267,7 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 	sortRow: SearchRow = ['sortmove', ''];
 	getTable() {
 		if (!this.mod) return BattleMovedex;
-		else return {...BattleTeambuilderTable[this.mod].fullMoveName, ...BattleMovedex};
+		else return {...BattleTeambuilderTable[this.mod].overrideMoveInfo, ...BattleMovedex};
 	}
 	getDefaultResults(): SearchRow[] {
 		let results: SearchRow[] = [];
@@ -1437,7 +1443,7 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 			return true;
 		}
 		// Custom move added by a mod
-		if (this.mod && id in BattleTeambuilderTable[this.mod].fullMoveName) return true;
+		if (this.mod && id in BattleTeambuilderTable[this.mod].overrideMoveInfo) return true;
 		const moveData = BattleMovedex[id];
 		if (!moveData) return true;
 		if (moveData.category === 'Status') {

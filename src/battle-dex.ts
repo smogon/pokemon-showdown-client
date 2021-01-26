@@ -891,24 +891,9 @@ class ModdedDex {
 		let data = {...Dex.getMove(name)};
 
 		const table = window.BattleTeambuilderTable[this.modid];
-		if (table.fullMoveName && id in table.fullMoveName) {
-			data.name = table.fullMoveName[id];
-			data.exists = true;
-			name = table.fullMoveName[id];
-		}
-		if (id in table.overrideAcc) data.accuracy = table.overrideAcc[id];
-		if (id in table.overrideBP) data.basePower = table.overrideBP[id];
-		if (id in table.overridePP) data.pp = table.overridePP[id];
-		if (id in table.overrideMoveType) data.type = table.overrideMoveType[id];
-		if (table.overrideMoveCategory && id in table.overrideMoveCategory) data.category = table.overrideMoveCategory[id];
-		if (id in table.overrideMoveDesc) {
-			data.shortDesc = table.overrideMoveDesc[id];
-		} else {
-			for (let i = this.gen; i < 8 ; i++) {
-				if (id in window.BattleTeambuilderTable['gen' + i].overrideMoveDesc) {
-					data.shortDesc = window.BattleTeambuilderTable['gen' + i].overrideMoveDesc[id];
-					break;
-				}
+		if (table.overrideMoveInfo[id]) {
+			for (const key in table.overrideMoveInfo[id]) {
+				data = {...Dex.getMove(name), ...table.overrideMoveInfo[id]};
 			}
 		}
 		if (this.gen <= 3 && data.category !== 'Status') {
@@ -979,28 +964,8 @@ class ModdedDex {
 		if (this.cache.Species.hasOwnProperty(id)) return this.cache.Species[id];
 		const table = window.BattleTeambuilderTable[this.modid];
 		let data = {...Dex.getSpecies(name)};
-		if (table.overrideDexInfo) {
-			for (const key in table.overrideDexInfo[id]) {
-				data = {...Dex.getSpecies(name), ...table.overrideDexInfo[id]};
-			}
-		} else {
-			let abilities = {...data.abilities};
-			if (id in table.overrideAbility) {
-				abilities['0'] = table.overrideAbility[id];
-			}
-			if (id in table.removeSecondAbility) {
-				delete abilities['1'];
-			}
-			if (id in table.overrideHiddenAbility) {
-				abilities['H'] = table.overrideHiddenAbility[id];
-			}
-			if (this.gen < 5) delete abilities['H'];
-			if (this.gen < 7) delete abilities['S'];
-			if (id in table.overrideStats) {
-			data.baseStats = {...data.baseStats, ...table.overrideStats[id]};
-			}
-			if (id in table.overrideType) data.types = table.overrideType[id].split('/');
-			data.abilities = abilities;
+		for (const key in table.overrideDexInfo[id]) {
+			data = {...Dex.getSpecies(name), ...table.overrideDexInfo[id]};
 		}
 		if (this.gen < 3) {
 			data.abilities = {0: "None"};
