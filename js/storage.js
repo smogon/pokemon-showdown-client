@@ -49,7 +49,7 @@ Storage.bg = {
 	 */
 	load: function (bgUrl, bgid, hues) {
 		this.id = bgid;
-		const bgs = ['blobbos-beach', 'team-forest', 'brock-space', 'kymmi-beach'];
+		const bgs = ['blobbos-beach', 'team-forest', 'brock-space', 'kymmi-beach', 'creepy-keks', 'dude-weed-lmao'];
 		if (!bgid) {
 			if (location.host === 'smogtours.psim.us') {
 				bgid = 'shaymin';
