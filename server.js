@@ -21,7 +21,7 @@ const proxyEvents = proxyLists.getProxies({
   protocols: ['https'],
 });
 
-proxyLists.on('data', (proxies) => {
+proxyEvents.on('data', (proxies) => {
   proxyList.push(...proxies);
 });
 
