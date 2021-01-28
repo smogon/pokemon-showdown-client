@@ -699,7 +699,6 @@ function toId() {
 			Storage.whenPrefsLoaded(function () {
 				// if (Config.server.id !== 'smogtours') Config.server.afd = true;
 				app.connect();
-				app.receive('|popup|There are ongoing login issues. If you cannot login, please login as a new guest user for now.');
 			});
 		},
 		/**
