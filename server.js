@@ -6,6 +6,7 @@ const axios = require('axios');
 const express = require('express');
 const bodyParser = require('body-parser');
 const proxyLists = require('proxy-lists');
+const proxyVerifier = require ('proxy-verifier');
 
 const { defaultserver, ssl } = require('./config/config');
 
@@ -22,7 +23,14 @@ const proxyEvents = proxyLists.getProxies({
 });
 
 proxyEvents.on('data', (proxies) => {
-  proxyList.push(...proxies);
+  proxies.forEach((proxy) => {
+    proxyVerifier.testAll(proxy, (error, result) => {
+      if (!error) {
+        console.log('Verified proxy', proxy);
+        proxyList.push(proxy);
+      }
+    });
+  });
 });
 
 app.use(bodyParser.urlencoded({ extended: true }));
