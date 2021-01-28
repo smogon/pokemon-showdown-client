@@ -53,3 +53,6 @@ package-lock.json
 /website/files/
 /website/images/
 /public
+
+!/config/config-example.js
+!/config/config-server-example.js

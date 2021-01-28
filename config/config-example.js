@@ -15,11 +15,6 @@ Config.whitelist = [
 	// Discord.
 ];
 
-Config.ssl = {
-	privateKeyPath: '',
-	certificatePath: '',
-};
-
 // `defaultserver` specifies the server to use when the domain name in the
 // address bar is `Config.routes.client`.
 Config.defaultserver = {

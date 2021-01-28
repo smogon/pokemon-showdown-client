@@ -27,6 +27,12 @@ try {
 		'config/config.js',
 		fs.readFileSync('config/config-example.js')
 	);
+
+	console.log('config-server.js does not exist. Creating one with default settings...');
+	fs.writeFileSync(
+		'config/config-server.js',
+		fs.readFileSync('config/config-server-example.js')
+	);
 }
 
 var options = {cwd: __dirname, stdio: 'inherit'};

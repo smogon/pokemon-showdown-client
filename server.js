@@ -5,34 +5,12 @@ const https = require('https');
 const axios = require('axios');
 const express = require('express');
 const bodyParser = require('body-parser');
-const proxyLists = require('proxy-lists');
-const proxyVerifier = require ('proxy-verifier');
 
-const { defaultserver, ssl } = require('./config/config');
+const { defaultserver, ssl, proxies } = require('./config/config-server');
 
 const app = express()
 const privateKey  = fs.readFileSync(ssl.privateKeyPath, 'utf8');
 const certificate = fs.readFileSync(ssl.certificatePath, 'utf8');
-
-let proxyList = [];
-
-const proxyEvents = proxyLists.getProxies({
-  protocols: ['http'],
-  sourcesWhiteList: ['proxyscrape-com']
-});
-
-proxyEvents.on('data', (proxies) => {
-  proxies.forEach((proxy) => {
-    proxyVerifier.testAll(proxy, (error, result) => {
-      if (!error) {
-        if (result?.protocols?.http?.ok && result?.tunnel?.ok) {
-          console.log(`Verified proxy: ${proxy.protocols[0]}://${proxy.ipAddress}:${proxy.port}`);
-          proxyList.push(proxy);
-        }
-      }
-    });
-  });
-});
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.post(`/~~${defaultserver.id}/action.php`, (request, response) => {
@@ -42,18 +20,30 @@ app.post(`/~~${defaultserver.id}/action.php`, (request, response) => {
     headers.cookie = cookieHeader;
   }
 
-  const proxy = proxyList[Math.floor(Math.random() * proxyList.length)];
-
-  axios({
+  const requestOptions = {
     method: 'POST',
     url: 'http://play.pokemonshowdown.com/action.php',
     data: request.body,
     headers,
-    proxy: {
-      host: proxy.ipAddress,
+  };
+
+  if (proxies && proxies.length) {
+    const proxy = proxies[Math.floor(Math.random() * proxies.length)];
+    requestOptions.proxy = {
+      protocol: proxy.protocol | 'http',
+      host: proxy.ip,
       port: proxy.port,
-    },
-  }).then((res) => {
+    };
+
+    if (proxy.username) {
+      requestOptions.proxy.auth = {
+        username: proxy.username,
+        password: proxy.password || '',
+      };
+    }
+  }
+
+  axios(requestOptions).then((res) => {
     const setCookieHeader = res.headers['Set-Cookie'] || res.headers['set-cookie'];
     if (setCookieHeader) {
       if (Array.isArray(setCookieHeader)) {
