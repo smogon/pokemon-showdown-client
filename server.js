@@ -26,14 +26,14 @@ proxyEvents.on('data', (proxies) => {
   proxies.forEach((proxy) => {
     proxyVerifier.testAll(proxy, (error, result) => {
       if (!error) {
-        if (result?.anonymityLevel !== 'elite') {
+        if (!result?.anonymityLevel !== 'elite') {
 
         } else if (!result?.protocols?.http?.ok) {
 
         } else if (!result?.tunnel?.ok) {
 
         } else {
-          console.log('Verified proxy', proxy);
+          console.log(`Verified proxy: ${proxy.protocols[0]}://${proxy.ipAddress}:${proxy.port}`);
           proxyList.push(proxy);
         }
       }
@@ -88,8 +88,5 @@ httpApp.use('*', (request, response) => {
 const httpServer = http.createServer(httpApp);
 const httpsServer = https.createServer({ key: privateKey, cert: certificate }, app);
 
-proxyEvents.on('end', () => {
-  console.log(`Loaded ${proxyList.length} proxies`);
-  httpServer.listen(80, () => console.log('Http redirect listening on 80'));
-  httpsServer.listen(443, () => console.log('Listening on 443'));
-});
+httpServer.listen(80, () => console.log('Http redirect listening on 80'));
+httpsServer.listen(443, () => console.log('Listening on 443'));
