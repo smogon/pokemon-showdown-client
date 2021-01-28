@@ -17,22 +17,15 @@ const certificate = fs.readFileSync(ssl.certificatePath, 'utf8');
 let proxyList = [];
 
 const proxyEvents = proxyLists.getProxies({
-  countries: ['us', 'ca'],
-  anonymityLevels: ['elite'],
   protocols: ['http'],
+  sourcesWhiteList: ['proxyscrape-com']
 });
 
 proxyEvents.on('data', (proxies) => {
   proxies.forEach((proxy) => {
     proxyVerifier.testAll(proxy, (error, result) => {
       if (!error) {
-        if (!result?.anonymityLevel !== 'elite') {
-
-        } else if (!result?.protocols?.http?.ok) {
-
-        } else if (!result?.tunnel?.ok) {
-
-        } else {
+        if (result?.protocols?.http?.ok && result?.tunnel?.ok) {
           console.log(`Verified proxy: ${proxy.protocols[0]}://${proxy.ipAddress}:${proxy.port}`);
           proxyList.push(proxy);
         }
