@@ -5,7 +5,6 @@ const https = require('https');
 const axios = require('axios');
 const express = require('express');
 const bodyParser = require('body-parser');
-const fetch = require('node-fetch-h2');
 
 const { defaultserver, ssl } = require('./config/config');
 
@@ -21,25 +20,23 @@ app.post(`/~~${defaultserver.id}/action.php`, (request, response) => {
     headers.cookie = cookieHeader;
   }
 
-  fetch(
-    'https://play.pokemonshowdown.com/action.php',
-    {
-      method: 'POST',
-      body: request.body,
-      headers,
-    },
-  ).then((proxyResponse) => {
-    const setCookieHeader = proxyResponse.headers['Set-Cookie'] || proxyResponse.headers['set-cookie'];
-      if (setCookieHeader) {
-        if (Array.isArray(setCookieHeader)) {
-          setCookieHeader.forEach((header) => {
-            response.setHeader('set-cookie', header.replace('pokemonshowdown.com', 'clover.weedl.es'));
-          });
-        } else {
-          response.setHeader('set-cookie', setCookieHeader.replace('pokemonshowdown.com', 'clover.weedl.es'));
-        }
-      };
-      response.send(proxyResponse.text());
+  axios({
+    method: 'POST',
+    url: 'https://play.pokemonshowdown.com/action.php',
+    data: request.body,
+    headers,
+  }).then((res) => {
+    const setCookieHeader = res.headers['Set-Cookie'] || res.headers['set-cookie'];
+    if (setCookieHeader) {
+      if (Array.isArray(setCookieHeader)) {
+        setCookieHeader.forEach((header) => {
+          response.setHeader('set-cookie', header.replace('pokemonshowdown.com', 'clover.weedl.es'));
+        });
+      } else {
+        response.setHeader('set-cookie', setCookieHeader.replace('pokemonshowdown.com', 'clover.weedl.es'));
+      }
+    };
+    response.send(res.data)
   });
 });
 app.use('*.php', (request, response) => response.sendStatus(404));
