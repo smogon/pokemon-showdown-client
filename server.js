@@ -19,15 +19,23 @@ let proxyList = [];
 const proxyEvents = proxyLists.getProxies({
   countries: ['us', 'ca'],
   anonymityLevels: ['elite'],
-  protocols: ['https'],
+  protocols: ['http'],
 });
 
 proxyEvents.on('data', (proxies) => {
   proxies.forEach((proxy) => {
     proxyVerifier.testAll(proxy, (error, result) => {
       if (!error) {
-        console.log('Verified proxy', proxy);
-        proxyList.push(proxy);
+        if (result?.anonymityLevel !== 'elite') {
+
+        } else if (!result?.protocols?.http?.ok) {
+
+        } else if (!result?.tunnel?.ok) {
+
+        } else {
+          console.log('Verified proxy', proxy);
+          proxyList.push(proxy);
+        }
       }
     });
   });
@@ -45,7 +53,7 @@ app.post(`/~~${defaultserver.id}/action.php`, (request, response) => {
 
   axios({
     method: 'POST',
-    url: 'https://play.pokemonshowdown.com/action.php',
+    url: 'http://play.pokemonshowdown.com/action.php',
     data: request.body,
     headers,
     proxy: {
