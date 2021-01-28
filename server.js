@@ -28,8 +28,8 @@ app.post(`/~~${defaultserver.id}/action.php`, (request, response) => {
       body: request.body,
       headers,
     },
-    (res) => {
-      const setCookieHeader = res.headers['Set-Cookie'] || res.headers['set-cookie'];
+  ).then((proxyResponse) => {
+    const setCookieHeader = proxyResponse.headers['Set-Cookie'] || proxyResponse.headers['set-cookie'];
       if (setCookieHeader) {
         if (Array.isArray(setCookieHeader)) {
           setCookieHeader.forEach((header) => {
@@ -39,9 +39,8 @@ app.post(`/~~${defaultserver.id}/action.php`, (request, response) => {
           response.setHeader('set-cookie', setCookieHeader.replace('pokemonshowdown.com', 'clover.weedl.es'));
         }
       };
-      response.send(res.text());
-    },
-  );
+      response.send(proxyResponse.text());
+  });
 });
 app.use('*.php', (request, response) => response.sendStatus(404));
 app.use(express.static('./public', { index: 'index.html', fallthrough: true }));
