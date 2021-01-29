@@ -42,6 +42,8 @@ package-lock.json
 /js/panel-teamdropdown.js
 /js/panel-battle.js
 /js/replay-embed.js
+/js/panel-ladder.js
+/js/panel-page.js
 /js/*.js.map
 
 /replays/caches/

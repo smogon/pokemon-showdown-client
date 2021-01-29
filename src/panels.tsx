@@ -478,3 +478,7 @@ class PSMain extends preact.Component {
 }
 
 type PanelPosition = {top?: number, bottom?: number, left?: number, right?: number} | null;
+
+function SanitizedHTML(props: {children: string}) {
+	return <div dangerouslySetInnerHTML={{__html: BattleLog.sanitizeHTML(props.children)}}/>;
+}

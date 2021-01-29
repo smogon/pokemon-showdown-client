@@ -29,3 +29,5 @@ node_modules/
 /js/panel-teambuilder-team.js
 /js/panel-teamdropdown.js
 /js/panel-battle.js
+/js/panel-ladder.js
+/js/panel-page.js
