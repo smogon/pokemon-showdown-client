@@ -986,14 +986,16 @@
 	this.LoginPasswordPopup = Popup.extend({
 		type: 'semimodal',
 		showPassword: function () {
-			var buttonElement = document.getElementById("showPassIcon");
-			var passwordElement = document.getElementById("pwd");
-			if (passwordElement.type === "password") {
-				passwordElement.type = "text";
-				buttonElement.className = "fa fa-eye showpassword";
+			var $button = this.$('button[name=showPassword]');
+			var $password = this.$('input[name=password]');
+			if ($password.attr('type') === "password") {
+				$password.attr('type', 'text');
+				$button.attr('aria-label', "Hide password");
+				$button.html('<i class="fa fa-eye-slash"></i>');
 			} else {
-				passwordElement.type = "password";
-				buttonElement.className = "fa fa-eye-slash showpassword";
+				$password.attr('type', 'password');
+				$button.attr('aria-label', "Show password");
+				$button.html('<i class="fa fa-eye"></i>');
 			}
 		},
 		initialize: function (data) {
