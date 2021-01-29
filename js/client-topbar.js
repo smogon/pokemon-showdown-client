@@ -1021,7 +1021,7 @@
 				buf += '<div id="gapi-custom-signin" style="width:240px;margin:0 auto">[loading Google log-in button]</div>';
 				buf += '<p class="buttonbar"><button name="close">Cancel</button></p>';
 			} else {
-				buf += '<p><label class="label">Password: <input class="textbox autofocus" type="password" name="password" id="pwd" autocomplete="current-password"><button name="showPassword" class="fa fa-eye-slash showpassword" id="showPassIcon"></button></label></p>';
+				buf += '<p><label class="label">Password: <input class="textbox autofocus" type="password" name="password" autocomplete="current-password"><button name="showPassword" aria-label="Show password"><i class="fa fa-eye-slash showpassword"></i></button></label></p>';
 				buf += '<p class="buttonbar"><button type="submit"><strong>Log in</strong></button> <button name="close">Cancel</button></p>';
 			}
 
