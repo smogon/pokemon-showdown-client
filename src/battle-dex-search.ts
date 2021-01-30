@@ -570,7 +570,8 @@ abstract class BattleTypedSearch<T extends SearchType> {
 			if (mod in window.BattleTeambuilderTable && window.BattleTeambuilderTable[mod].data) {
 				this.dex = Dex.serverMod(mod);
 			}
-		} else */if (format.slice(0, 3) === 'gen') {
+		} else */
+		if (format.slice(0, 3) === 'gen') {
 			const gen = (Number(format.charAt(3)) || 6);
 			format = (format.slice(4) || 'customgame') as ID;
 			this.dex = Dex.forGen(gen);
