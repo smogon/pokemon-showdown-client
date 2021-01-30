@@ -3140,7 +3140,7 @@ class Battle {
 				this.isBlitz = true;
 			}
 			if (this.tier in window.Formats) {
-				if (window.Formats[this.tier].mod) this.dex = Dex.mod(window.Formats[this.tier].mod);
+				if (window.Formats[this.tier].mod) this.dex = Dex.serverMod(window.Formats[this.tier].mod);
 			}
 			this.log(args);
 			break;
