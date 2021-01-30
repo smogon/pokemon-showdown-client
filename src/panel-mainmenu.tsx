@@ -31,7 +31,7 @@ class MainMenuRoom extends PSRoom {
 			PSLoginServer.query({
 				act: 'upkeep',
 				challstr,
-			}, res => {
+			}).then(res => {
 				if (!res) return;
 				if (!res.loggedin) return;
 				this.send(`/trn ${res.username},0,${res.assertion}`);
@@ -257,6 +257,13 @@ class MainMenuRoom extends PSRoom {
 				battlesRoom.battles = battles;
 				battlesRoom.update(null);
 			}
+			break;
+		case 'laddertop':
+			const ladderRoomEntries = Object.entries(PS.rooms).filter(entry => entry[0].startsWith('ladder'));
+			for (const [, ladderRoom] of ladderRoomEntries) {
+				(ladderRoom as LadderRoom).update(response);
+			}
+			break;
 		}
 	}
 }
