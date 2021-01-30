@@ -786,6 +786,7 @@ const PS = new class extends PSModel {
 					}
 				}
 				this.update();
+				continue;
 			}}
 			if (room) room.receiveLine(args);
 		}
