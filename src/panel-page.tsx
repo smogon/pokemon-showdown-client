@@ -34,8 +34,8 @@ class PageRoom extends PSRoom {
 	}
 }
 
-function PageLadderHelp(props: { room: PageRoom }) {
-	const { room } = props;
+function PageLadderHelp(props: {room: PageRoom}) {
+	const {room} = props;
 	return (
 		<div class="ladder pad">
 			<p>
@@ -68,17 +68,6 @@ function PageLadderHelp(props: { room: PageRoom }) {
 	);
 }
 
-function PageServerHTML(props: { room: PageRoom }) {
-	const { room } = props;
-	if (room.loading) {
-		return <p>Loading...</p>;
-	} else {
-		return <div class="page-html-container">
-			<SanitizedHTML>{room.htmlData || ''}</SanitizedHTML>
-		</div>;
-	}
-}
-
 class PagePanel extends PSRoomPanel<PageRoom> {
 	clientRooms: { [key: string]: JSX.Element } = { 'ladderhelp': <PageLadderHelp room={this.props.room}/> };
 
@@ -86,7 +75,7 @@ class PagePanel extends PSRoomPanel<PageRoom> {
 	 * @return true to prevent line from being sent to server
 	 */
 	receiveLine(args: Args) {
-		const { room } = this.props;
+		const {room} = this.props;
 		switch (args[0]) {
 		case 'title':
 			room.title = args[1];
@@ -120,17 +109,22 @@ class PagePanel extends PSRoomPanel<PageRoom> {
 		}
 	}
 	render() {
-		const { room } = this.props;
-		const RenderPage = () => {
-			if (room.page !== undefined && this.clientRooms[room.page]) {
-				return this.clientRooms[room.page];
+		const {room} = this.props;
+		let renderPage;
+		if (room.page !== undefined && this.clientRooms[room.page]) {
+			renderPage = this.clientRooms[room.page];
+		} else {
+			if (room.loading) {
+				renderPage = <p>Loading...</p>;
 			} else {
-				return <PageServerHTML room={room}/>;
+				renderPage = <div class="page-html-container">
+					<SanitizedHTML>{room.htmlData || ''}</SanitizedHTML>
+				</div>;
 			}
-		};
+		}
 		return (
 			<PSPanelWrapper room={room} scrollable>
-				<RenderPage />
+				{renderPage}
 			</PSPanelWrapper>
 		);
 	}
