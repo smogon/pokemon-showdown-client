@@ -28,6 +28,7 @@ class PSHeader extends preact.Component<{style: {}}> {
 			icon = <i class="fa fa-pencil-square-o"></i>;
 			break;
 		case 'ladder':
+		case 'ladderformat':
 			icon = <i class="fa fa-list-ol"></i>;
 			break;
 		case 'battles':

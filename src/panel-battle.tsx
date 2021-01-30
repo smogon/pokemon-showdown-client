@@ -123,7 +123,7 @@ class BattleRoom extends ChatRoom {
 				this.receiveLine([`error`, `/ffto - Invalid turn number: ${target}`]);
 				return true;
 			}
-			this.battle.fastForwardTo(turnNum);
+			this.battle.seekTurn(turnNum);
 			this.update(null);
 			return true;
 		} case 'switchsides': {
@@ -257,18 +257,20 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 	};
 	componentDidMount() {
 		const $elem = $(this.base!);
-		const battle = new Battle($elem.find('.battle'), $elem.find('.battle-log'));
+		const battle = new Battle({
+			$frame: $elem.find('.battle'),
+			$logFrame: $elem.find('.battle-log'),
+		});
 		this.props.room.battle = battle;
-		battle.endCallback = () => this.forceUpdate();
-		battle.play();
 		(battle.scene as BattleScene).tooltips.listen($elem.find('.battle-controls'));
 		super.componentDidMount();
+		battle.subscribe(() => this.forceUpdate());
 	}
 	receiveLine(args: Args) {
 		const room = this.props.room;
 		switch (args[0]) {
 		case 'initdone':
-			room.battle.fastForwardTo(-1);
+			room.battle.seekTurn(Infinity);
 			return;
 		case 'request':
 			this.receiveRequest(args[1] ? JSON.parse(args[1]) : null);
@@ -316,7 +318,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 		if (room.side) {
 			return this.renderPlayerControls();
 		}
-		const atEnd = room.battle.playbackState === Playback.Finished;
+		const atEnd = room.battle.atQueueEnd;
 		return <div class="controls">
 			<p>
 				{atEnd ?
