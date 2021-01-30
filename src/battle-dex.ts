@@ -208,8 +208,8 @@ const Dex = new class implements ModdedDex {
 		if (modid in this.moddedDexes) {
 			return this.moddedDexes[modid];
 		}
-		if (modid in window.BattleTeambuilderTable && window.BattleTeambuilderTable[modid].modObj) {
-			this.modData = window.BattleTeambuilderTable[modid].modObj;
+		if (modid in window.BattleTeambuilderTable && window.BattleTeambuilderTable[modid].data) {
+			this.modData = window.BattleTeambuilderTable[modid].data;
 			return this;
 		}
 		this.moddedDexes[modid] = new ModdedDex(modid);

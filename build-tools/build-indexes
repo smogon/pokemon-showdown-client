@@ -1026,13 +1026,13 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 	for (const mod of MODS) {
 		if (mod in BattleTeambuilderTable) continue;
 		BattleTeambuilderTable[mod] = {
-			modObj: Dex.mod(mod).data,
+			data: Dex.mod(mod).data,
 			overrideTier: {},
 		};
 		['Items', 'Moves', 'Abilities'].forEach(table => {
-			for (const key in BattleTeambuilderTable[mod].modObj[table]) {
-				const descs = Dex.getDescs(table, key, BattleTeambuilderTable[mod].modObj[table][key]);
-				Object.assign(BattleTeambuilderTable[mod].modObj[table][key], descs);
+			for (const key in BattleTeambuilderTable[mod].data[table]) {
+				const descs = Dex.getDescs(table, key, BattleTeambuilderTable[mod].data[table][key]);
+				Object.assign(BattleTeambuilderTable[mod].data[table][key], descs);
 			}
 		});
 	}

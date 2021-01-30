@@ -568,7 +568,7 @@ abstract class BattleTypedSearch<T extends SearchType> {
 
 		/*if (window.BattleFormats[format] && window.BattleFormats[format].name in window.Formats) {
 			const mod = window.Formats[window.BattleFormats[format].name].mod;
-			if (mod in window.BattleTeambuilderTable && window.BattleTeambuilderTable[mod].modObj) {
+			if (mod in window.BattleTeambuilderTable && window.BattleTeambuilderTable[mod].data) {
 				this.dex = Dex.mod(mod);
 			}
 		} else */
