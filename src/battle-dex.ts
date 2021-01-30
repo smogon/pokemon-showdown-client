@@ -363,7 +363,7 @@ const Dex = new class Dexes implements ModdedDex {
 		}
 		let name = nameOrAbility || '';
 		let id = toID(nameOrAbility);
-		if (this.modData && this.modData.Aliases && id in this.modData.Aliases) {
+		if (this.modData?.Aliases?.[id]) {
 			name = this.modData.Aliases[id];
 			id = toID(name);
 		} else if (window.BattleAliases && id in BattleAliases) {
@@ -392,7 +392,7 @@ const Dex = new class Dexes implements ModdedDex {
 		let formid = id;
 		if (!window.BattlePokedexAltForms) window.BattlePokedexAltForms = {};
 		if (formid in window.BattlePokedexAltForms) return window.BattlePokedexAltForms[formid];
-		if (this.modData && this.modData.Aliases && id in this.modData.Aliases) {
+		if (this.modData?.Aliases?.[id]) {
 			name = this.modData.Aliases[id];
 			id = toID(name);
 		} else if (window.BattleAliases && id in BattleAliases) {
