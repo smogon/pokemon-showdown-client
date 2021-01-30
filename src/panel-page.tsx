@@ -8,18 +8,34 @@
  */
 
 class PageRoom extends PSRoom {
-	readonly classType: string = 'page';
+	readonly classType: string = 'html';
 	readonly page?: string = this.id.split("-")[1];
 	readonly canConnect = true;
+
+	loading: boolean = true;
+	htmlData?: string;
+
+	setHTMLData = (htmlData?: string) => {
+		this.loading = false;
+		this.htmlData = htmlData;
+		this.update(null);
+	};
+
+	constructor(options: RoomOptions) {
+		super(options);
+		this.connect();
+	}
+	connect() {
+		if (!this.connected) {
+			PS.send(`|/join ${this.id}`);
+			this.connected = true;
+			this.connectWhenLoggedIn = false;
+		}
+	}
 }
 
-function PageNotFound() {
-	// Future development: server-rendered HTML panels
-	return <p>Page not found</p>;
-}
-
-function PagerLadderHelp(props: { room: PageRoom }) {
-	const { room } = props;
+function PageLadderHelp(props: {room: PageRoom}) {
+	const {room} = props;
 	return (
 		<div class="ladder pad">
 			<p>
@@ -53,19 +69,62 @@ function PagerLadderHelp(props: { room: PageRoom }) {
 }
 
 class PagePanel extends PSRoomPanel<PageRoom> {
-	render() {
-		const { room } = this.props;
-		const RenderPage = () => {
-			switch (room.page) {
-				case 'ladderhelp':
-					return <PagerLadderHelp room={room}/>;
-				default:
-					return <PageNotFound/>;
+	clientRooms: { [key: string]: JSX.Element } = { 'ladderhelp': <PageLadderHelp room={this.props.room}/> };
+
+	/**
+	 * @return true to prevent line from being sent to server
+	 */
+	receiveLine(args: Args) {
+		const {room} = this.props;
+		switch (args[0]) {
+		case 'title':
+			room.title = args[1];
+			PS.update();
+			return true;
+		case 'tempnotify': {
+			const [, id, title, body] = args;
+			room.notify({title, body, id});
+			return true;
+		}
+		case 'tempnotifyoff': {
+			const [, id] = args;
+			room.dismissNotification(id);
+			return true;
+		}
+		case 'selectorhtml':
+			const pageHTMLContainer = this.base!.querySelector('.page-html-container');
+			const selectedElement = pageHTMLContainer?.querySelector(args[1]);
+			if (!selectedElement) return;
+			selectedElement.innerHTML = BattleLog.sanitizeHTML(args.slice(2).join('|'));
+			room.isSubtleNotifying = true;
+			return true;
+		case 'noinit':
+			if (args[1] === 'namerequired') {
+				room.setHTMLData(args[2]);
 			}
-		};
+			return true;
+		case 'pagehtml':
+			room.setHTMLData(args[1]);
+			return true;
+		}
+	}
+	render() {
+		const {room} = this.props;
+		let renderPage;
+		if (room.page !== undefined && this.clientRooms[room.page]) {
+			renderPage = this.clientRooms[room.page];
+		} else {
+			if (room.loading) {
+				renderPage = <p>Loading...</p>;
+			} else {
+				renderPage = <div class="page-html-container">
+					<SanitizedHTML>{room.htmlData || ''}</SanitizedHTML>
+				</div>;
+			}
+		}
 		return (
 			<PSPanelWrapper room={room} scrollable>
-				<RenderPage />
+				{renderPage}
 			</PSPanelWrapper>
 		);
 	}
