@@ -287,7 +287,7 @@ const Dex = new class Dexes implements ModdedDex {
 		}
 		let name = nameOrMove || '';
 		let id = toID(nameOrMove);
-		if (this.modData && this.modData.Aliases && id in this.modData.Aliases) {
+		if (this.modData?.Aliases?.[id]) {
 			name = this.modData.Aliases[id];
 			id = toID(name);
 		} else if (window.BattleAliases && id in BattleAliases) {
@@ -337,7 +337,7 @@ const Dex = new class Dexes implements ModdedDex {
 		}
 		let name = nameOrItem || '';
 		let id = toID(nameOrItem);
-		if (this.modData && this.modData.Aliases && id in this.modData.Aliases) {
+		if (this.modData?.Aliases?.[id]) {
 			name = this.modData.Aliases[id];
 			id = toID(name);
 		} else if (window.BattleAliases && id in BattleAliases) {
@@ -408,7 +408,7 @@ const Dex = new class Dexes implements ModdedDex {
 		}
 		if (!window.BattlePokedex) window.BattlePokedex = {};
 		let data = this.modData ? this.modData.Pokedex[id] : window.BattlePokedex[id];
-		if (this.modData && this.modData.Pokedex[formid] && this.modData.Pokedex[formid].inherit && !window.BattlePokedex[formid]) {
+		if (this.modData?.Pokedex[formid]?.inherit && !window.BattlePokedex[formid]) {
 			delete this.modData.Pokedex[formid].inherit;
 			for (const key in this.modData.Pokedex[id]) {
 				if (key in this.modData.Pokedex[formid]) continue;
@@ -481,7 +481,7 @@ const Dex = new class Dexes implements ModdedDex {
 		if (!type || typeof type === 'string') {
 			let id = toID(type) as string;
 			id = id.substr(0, 1).toUpperCase() + id.substr(1);
-			type = (this.modData && this.modData.TypeChart[id]) || (window.BattleTypeChart && window.BattleTypeChart[id]) || {};
+			type = this.modData?.TypeChart[id] || window.BattleTypeChart?.[id] || {};
 			if (type.damageTaken) type.exists = true;
 			if (!type.id) type.id = id;
 			if (!type.name) type.name = id;
