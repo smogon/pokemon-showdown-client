@@ -1152,7 +1152,7 @@ process.stdout.write("Building `data/moves,items,abilities,typechart,learnsets.j
 
 {
 	const Formats = {};
-	for (const format of requireNoCache('../data/pokemon-showdown/.config-dist/formats.js')) {
+	for (const format of requireNoCache('../data/pokemon-showdown/.config-dist/formats.js').Formats) {
 		if (format.name) Formats[format.name] = format;
 	}
 	const buf = 'exports.Formats = ' + es3stringify(Formats) + ';';
