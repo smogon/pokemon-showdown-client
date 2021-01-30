@@ -985,6 +985,19 @@
 
 	this.LoginPasswordPopup = Popup.extend({
 		type: 'semimodal',
+		showPassword: function () {
+			var $button = this.$('button[name=showPassword]');
+			var $password = this.$('input[name=password]');
+			if ($password.attr('type') === "password") {
+				$password.attr('type', 'text');
+				$button.attr('aria-label', "Hide password");
+				$button.html('<i class="fa fa-eye-slash"></i>');
+			} else {
+				$password.attr('type', 'password');
+				$button.attr('aria-label', "Show password");
+				$button.html('<i class="fa fa-eye"></i>');
+			}
+		},
 		initialize: function (data) {
 			var buf = '<form>';
 
@@ -1010,7 +1023,7 @@
 				buf += '<div id="gapi-custom-signin" style="width:240px;margin:0 auto">[loading Google log-in button]</div>';
 				buf += '<p class="buttonbar"><button name="close">Cancel</button></p>';
 			} else {
-				buf += '<p><label class="label">Password: <input class="textbox autofocus" type="password" name="password" autocomplete="current-password"></label></p>';
+				buf += '<p><label class="label">Password: <input class="textbox autofocus" type="password" name="password" autocomplete="current-password"><button name="showPassword" aria-label="Show password"><i class="fa fa-eye"></i></button></label></p>';
 				buf += '<p class="buttonbar"><button type="submit"><strong>Log in</strong></button> <button name="close">Cancel</button></p>';
 			}
 
