@@ -214,7 +214,7 @@ const Dex = new class Dexes implements ModdedDex {
 			const moddedDex = new Dexes();
 			moddedDex.modid = modid;
 			moddedDex.modData = window.BattleTeambuilderTable[modid].data;
-			for(const id in moddedDex.modData.Pokedex) {
+			for (const id in moddedDex.modData.Pokedex) {
 				const entry = moddedDex.modData.Pokedex[id];
 				if (moddedDex.modData.FormatsData[id]) {
 					const formatsEntry = moddedDex.modData.FormatsData[id];
