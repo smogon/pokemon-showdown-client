@@ -194,6 +194,7 @@ const Dex = new class Dexes implements ModdedDex {
 
 	loadedSpriteData = {xy: 1, bw: 0};
 	moddedDexes: {[mod: string]: ModdedDex} = {};
+	serverDexes: {[mod: string]: Dexes} = {};
 
 	mod(modid: ID): ModdedDex {
 		if (modid === 'gen8') return this;
@@ -210,6 +211,7 @@ const Dex = new class Dexes implements ModdedDex {
 	}
 	serverMod(modid: ID): Dexes {
 		if (!window.BattleTeambuilderTable) return this;
+		if (modid in Dex.serverDexes) return Dex.serverDexes[modid];
 		if (modid in window.BattleTeambuilderTable && window.BattleTeambuilderTable[modid].data) {
 			const moddedDex = new Dexes();
 			moddedDex.modid = modid;
@@ -224,6 +226,7 @@ const Dex = new class Dexes implements ModdedDex {
 				}
 			}
 			moddedDex.gen = moddedDex.modData.gen || 8;
+			Dex.serverDexes[modid] = moddedDex;
 			return moddedDex;
 		}
 		return Dex;
