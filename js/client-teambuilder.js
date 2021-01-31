@@ -678,9 +678,9 @@
 			this.curTeam.iconCache = '!';
 			this.curTeam.gen = this.getGen(this.curTeam.format);
 			this.curTeam.dex = Dex;
-			const format = this.curTeam.format;
+			var format = this.curTeam.format;
 			if (window.BattleFormats[format] && window.BattleFormats[format].name in window.Formats) {
-				const mod = window.Formats[window.BattleFormats[format].name].mod;
+				var mod = window.Formats[window.BattleFormats[format].name].mod;
 				if (mod in window.BattleTeambuilderTable && window.BattleTeambuilderTable[mod].data) {
 					this.curTeam.dex = Dex.serverMod(mod);
 				}
@@ -1402,7 +1402,7 @@
 			this.curTeam.gen = this.getGen(this.curTeam.format);
 			this.curTeam.dex = Dex;
 			if (window.BattleFormats[format] && window.BattleFormats[format].name in window.Formats) {
-				const mod = window.Formats[window.BattleFormats[format].name].mod;
+				var mod = window.Formats[window.BattleFormats[format].name].mod;
 				if (mod in window.BattleTeambuilderTable && window.BattleTeambuilderTable[mod].data) {
 					this.curTeam.dex = Dex.serverMod(mod);
 				}
