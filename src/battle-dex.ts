@@ -613,7 +613,9 @@ const Dex = new class implements ModdedDex {
 				spriteData.h *= 0.5;
 				spriteData.y += -11;
 			}
-			return spriteData;
+			if (species.num <= 69000) {
+				return spriteData;
+			}
 		}
 
 		// Mod Cries
@@ -631,7 +633,10 @@ const Dex = new class implements ModdedDex {
 
 			spriteData.w = animationData[facing].w;
 			spriteData.h = animationData[facing].h;
-			spriteData.url += dir + '/' + name + '.gif';
+
+			if (!(window.Config && Config.server && Config.server.afd || options.afd)) {
+				spriteData.url += dir + '/' + name + '.gif';
+			}
 		} else {
 			// There is no entry or enough data in pokedex-mini.js
 			// Handle these in case-by-case basis; either using BW sprites or matching the played gen.
@@ -643,7 +648,9 @@ const Dex = new class implements ModdedDex {
 				name += '-f';
 			}
 
-			spriteData.url += dir + '/' + name + '.png';
+			if (!(window.Config && Config.server && Config.server.afd || options.afd)) {
+				spriteData.url += dir + '/' + name + '.png';
+			}
 		}
 
 		if (!options.noScale) {
