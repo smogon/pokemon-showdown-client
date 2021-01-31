@@ -1048,7 +1048,6 @@
 			// documentation of client commands
 			case 'help':
 			case 'h':
-				if (this.checkBroadcast(cmd, text)) return false;
 				switch (toID(target)) {
 				case 'chal':
 				case 'chall':
