@@ -129,7 +129,7 @@
 		update: function () {
 			teams = Storage.teams;
 			if (this.curTeam) {
-				this.ignoreEVLimits = (this.curTeam.gen < 3 || this.curTeam.format.includes('hackmons') || this.curTeam.format === 'gen8metronomebattle');
+				this.ignoreEVLimits = (this.curTeam.gen < 3 || this.curTeam.format.includes('hackmons') || this.curTeam.dex=== 'gen8metronomebattle');
 				if (this.curSet) {
 					return this.updateSetView();
 				}
@@ -677,6 +677,14 @@
 			this.curTeam = teams[i];
 			this.curTeam.iconCache = '!';
 			this.curTeam.gen = this.getGen(this.curTeam.format);
+			this.curTeam.dex = Dex;
+			const format = this.curTeam.format;
+			if (window.BattleFormats[format] && window.BattleFormats[format].name in window.Formats) {
+				const mod = window.Formats[window.BattleFormats[format].name].mod;
+				if (mod in window.BattleTeambuilderTable && window.BattleTeambuilderTable[mod].data) {
+					this.curTeam.dex = Dex.serverMod(mod);
+				}
+			}
 			Storage.activeSetList = this.curSetList = Storage.unpackTeam(this.curTeam.team);
 			this.curTeamIndex = i;
 			this.update();
@@ -1111,7 +1119,7 @@
 				};
 				if (exports.BattleFormats) {
 					buf += '<li class="format-select">';
-					buf += '<label class="label">Format:</label><button class="select formatselect teambuilderformatselect" name="format" value="' + this.curTeam.format + '">' + (isGenericFormat(this.curTeam.format) ? '<em>Select a format</em>' : BattleLog.escapeFormat(this.curTeam.format)) + '</button>';
+					buf += '<label class="label">Format:</label><button class="select formatselect teambuilderformatselect" name="format" value="' + this.curTeam.dex+ '">' + (isGenericFormat(this.curTeam.format) ? '<em>Select a format</em>' : BattleLog.escapeFormat(this.curTeam.format)) + '</button>';
 					var btnClass = 'button' + (!this.curSetList.length ? ' disabled' : '');
 					buf += ' <button name="validate" class="' + btnClass + '"><i class="fa fa-check"></i> Validate</button></li>';
 				}
@@ -1146,7 +1154,7 @@
 			if ($(window).width() < 640) this.show();
 		},
 		renderSet: function (set, i) {
-			var species = Dex.getSpecies(set.species);
+			var species = this.curTeam.dex.getSpecies(set.species);
 			var isLetsGo = this.curTeam.format.includes('letsgo');
 			var isNatDex = this.curTeam.format.includes('nationaldex');
 			var buf = '<li value="' + i + '">';
@@ -1155,7 +1163,7 @@
 					buf += '<div class="setmenu setmenu-left"><button name="undeleteSet"><i class="fa fa-undo"></i> Undo Delete</button></div>';
 				}
 				buf += '<div class="setmenu"><button name="importSet"><i class="fa fa-upload"></i>Import</button></div>';
-				buf += '<div class="setchart" style="background-image:url(' + Dex.resourcePrefix + 'sprites/gen5/0.png);"><div class="setcol setcol-icon"><div class="setcell-sprite"></div><div class="setcell setcell-pokemon"><label>Pok&eacute;mon</label><input type="text" name="pokemon" class="textbox chartinput" value="" autocomplete="off" /></div></div></div>';
+				buf += '<div class="setchart" style="background-image:url(' + this.curTeam.dex.resourcePrefix + 'sprites/gen5/0.png);"><div class="setcol setcol-icon"><div class="setcell-sprite"></div><div class="setcell setcell-pokemon"><label>Pok&eacute;mon</label><input type="text" name="pokemon" class="textbox chartinput" value="" autocomplete="off" /></div></div></div>';
 				buf += '</li>';
 				return buf;
 			}
@@ -1163,7 +1171,7 @@
 			buf += '<div class="setchart-nickname">';
 			buf += '<label>Nickname</label><input type="text" name="nickname" class="textbox" value="' + BattleLog.escapeHTML(set.name || '') + '" placeholder="' + BattleLog.escapeHTML(species.baseSpecies) + '" />';
 			buf += '</div>';
-			buf += '<div class="setchart" style="' + Dex.getTeambuilderSprite(set, this.curTeam.gen) + ';">';
+			buf += '<div class="setchart" style="' + this.curTeam.dex.getTeambuilderSprite(set, this.curTeam.gen) + ';">';
 
 			// icon
 			buf += '<div class="setcol setcol-icon">';
@@ -1212,8 +1220,8 @@
 			buf += '<div class="setcell">';
 			var itemicon = '<span class="itemicon"></span>';
 			if (set.item) {
-				var item = Dex.getItem(set.item);
-				itemicon = '<span class="itemicon" style="' + Dex.getItemIcon(item) + '"></span>';
+				var item = this.curTeam.dex.getItem(set.item);
+				itemicon = '<span class="itemicon" style="' + this.curTeam.dex.getItemIcon(item) + '"></span>';
 			}
 			buf += itemicon;
 			buf += '</div>';
@@ -1222,7 +1230,7 @@
 			var table = (this.curTeam.gen < 7 ? BattleTeambuilderTable['gen' + this.curTeam.gen] : null);
 			if (table && species.id in table.overrideType) types = table.overrideType[species.id].split('/');
 			if (types) {
-				for (var i = 0; i < types.length; i++) buf += Dex.getTypeIcon(types[i]);
+				for (var i = 0; i < types.length; i++) buf += this.curTeam.dex.getTypeIcon(types[i]);
 			}
 			buf += '</div></div>';
 
@@ -1392,8 +1400,15 @@
 		changeFormat: function (format) {
 			this.curTeam.format = format;
 			this.curTeam.gen = this.getGen(this.curTeam.format);
+			this.curTeam.dex = Dex;
+			if (window.BattleFormats[format] && window.BattleFormats[format].name in window.Formats) {
+				const mod = window.Formats[window.BattleFormats[format].name].mod;
+				if (mod in window.BattleTeambuilderTable && window.BattleTeambuilderTable[mod].data) {
+					this.curTeam.dex = Dex.serverMod(mod);
+				}
+			}
 			this.save();
-			if (this.curTeam.gen === 5 && !Dex.loadedSpriteData['bw']) Dex.loadSpriteData('bw');
+			if (this.curTeam.gen === 5 && !this.curTeam.dex.loadedSpriteData['bw']) this.curTeam.dex.loadSpriteData('bw');
 			this.update();
 		},
 		nicknameChange: function (e) {
@@ -1436,10 +1451,10 @@
 			var buf = '';
 			for (var i = 0; i < this.clipboardCount(); i++) {
 				var res = this.clipboard[i];
-				var species = Dex.getSpecies(res.species);
+				var species = this.curTeam.dex.getSpecies(res.species);
 
 				buf += '<div class="result" data-id="' + i + '">';
-				buf += '<div class="section"><span class="icon" style="' + Dex.getPokemonIcon(species.name) + '"></span>';
+				buf += '<div class="section"><span class="icon" style="' + this.curTeam.dex.getPokemonIcon(species.name) + '"></span>';
 				buf += '<span class="species">' + (species.name === species.baseSpecies ? BattleLog.escapeHTML(species.name) : (BattleLog.escapeHTML(species.baseSpecies) + '-<small>' + BattleLog.escapeHTML(species.name.substr(species.baseSpecies.length + 1)) + '</small>')) + '</span></div>';
 				buf += '<div class="section"><span class="ability-item">' + (BattleLog.escapeHTML(res.ability) || '<i>No ability</i>') + '<br />' + (BattleLog.escapeHTML(res.item) || '<i>No item</i>') + '</span></div>';
 				buf += '<div class="section no-border">';
@@ -1729,14 +1744,14 @@
 			}
 			for (var i = start; i < end; i++) {
 				var set = this.curSetList[i];
-				var pokemonicon = '<span class="picon pokemonicon-' + i + '" style="' + Dex.getPokemonIcon(set) + '"></span>';
+				var pokemonicon = '<span class="picon pokemonicon-' + i + '" style="' + this.curTeam.dex.getPokemonIcon(set) + '"></span>';
 				if (!set.species) {
 					buf += '<button disabled="disabled" class="addpokemon" aria-label="Add Pok&eacute;mon"><i class="fa fa-plus"></i></button> ';
 					isAdd = true;
 				} else if (i == this.curSetLoc) {
-					buf += '<button disabled="disabled" class="pokemon">' + pokemonicon + BattleLog.escapeHTML(set.name || Dex.getSpecies(set.species).baseSpecies || '<i class="fa fa-plus"></i>') + '</button> ';
+					buf += '<button disabled="disabled" class="pokemon">' + pokemonicon + BattleLog.escapeHTML(set.name || this.curTeam.dex.getSpecies(set.species).baseSpecies || '<i class="fa fa-plus"></i>') + '</button> ';
 				} else {
-					buf += '<button name="selectPokemon" value="' + i + '" class="pokemon">' + pokemonicon + BattleLog.escapeHTML(set.name || Dex.getSpecies(set.species).baseSpecies) + '</button> ';
+					buf += '<button name="selectPokemon" value="' + i + '" class="pokemon">' + pokemonicon + BattleLog.escapeHTML(set.name || this.curTeam.dex.getSpecies(set.species).baseSpecies) + '</button> ';
 				}
 			}
 			if (this.curSetList.length < this.curTeam.capacity && !isAdd) {
@@ -1748,13 +1763,13 @@
 			var set = this.curSet;
 			if (!set) return;
 
-			this.$('.setchart').attr('style', Dex.getTeambuilderSprite(set, this.curTeam.gen));
+			this.$('.setchart').attr('style', this.curTeam.dex.getTeambuilderSprite(set, this.curTeam.gen));
 
-			this.$('.pokemonicon-' + this.curSetLoc).css('background', Dex.getPokemonIcon(set).substr(11));
+			this.$('.pokemonicon-' + this.curSetLoc).css('background', this.curTeam.dex.getPokemonIcon(set).substr(11));
 
-			var item = Dex.getItem(set.item);
+			var item = this.curTeam.dex.getItem(set.item);
 			if (item.id) {
-				this.$('.setcol-details .itemicon').css('background', Dex.getItemIcon(item).substr(11));
+				this.$('.setcol-details .itemicon').css('background', this.curTeam.dex.getItemIcon(item).substr(11));
 			} else {
 				this.$('.setcol-details .itemicon').css('background', 'none');
 			}
@@ -1921,7 +1936,7 @@
 		plus: '',
 		minus: '',
 		smogdexLink: function (s) {
-			var species = Dex.getSpecies(s);
+			var species = this.curTeam.dex.getSpecies(s);
 			var format = this.curTeam && this.curTeam.format;
 			var smogdexid = toID(species.baseSpecies);
 
@@ -1982,7 +1997,7 @@
 		updateStatForm: function (setGuessed) {
 			var buf = '';
 			var set = this.curSet;
-			var species = Dex.forGen(this.curTeam.gen).getSpecies(this.curSet.species);
+			var species = this.curTeam.dex.forGen(this.curTeam.gen).getSpecies(this.curSet.species);
 
 			var baseStats = species.baseStats;
 
@@ -2505,7 +2520,7 @@
 			var set = this.curSet;
 			var isLetsGo = this.curTeam.format.includes('letsgo');
 			var isNatDex = this.curTeam.gen === 8 && this.curTeam.format.includes('nationaldex');
-			var species = Dex.getSpecies(set.species);
+			var species = this.curTeam.dex.getSpecies(set.species);
 			if (!set) return;
 			buf += '<div class="resultheader"><h3>Details</h3></div>';
 			buf += '<form class="detailsform">';
@@ -2556,7 +2571,7 @@
 			if (this.curTeam.gen > 2) {
 				buf += '<div class="formrow" style="display:none"><label class="formlabel">Pokeball:</label><div><select name="pokeball">';
 				buf += '<option value=""' + (!set.pokeball ? ' selected="selected"' : '') + '></option>'; // unset
-				var balls = Dex.forGen(this.curTeam.gen).getPokeballs();
+				var balls = this.curTeam.dex.forGen(this.curTeam.gen).getPokeballs();
 				for (var i = 0; i < balls.length; i++) {
 					buf += '<option value="' + balls[i] + '"' + (set.pokeball === balls[i] ? ' selected="selected"' : '') + '>' + balls[i] + '</option>';
 				}
@@ -2586,7 +2601,7 @@
 			e.stopPropagation();
 			var set = this.curSet;
 			if (!set) return;
-			var species = Dex.getSpecies(set.species);
+			var species = this.curTeam.dex.getSpecies(set.species);
 			var isLetsGo = this.curTeam.format.includes('letsgo');
 			var isNatDex = this.curTeam.format.includes('nationaldex');
 
@@ -2629,7 +2644,7 @@
 
 			// pokeball
 			var pokeball = this.$chart.find('select[name=pokeball]').val();
-			if (pokeball && Dex.forGen(this.curTeam.gen).getItem(pokeball).isPokeball) {
+			if (pokeball && this.curTeam.dex.forGen(this.curTeam.gen).getItem(pokeball).isPokeball) {
 				set.pokeball = pokeball;
 			} else {
 				delete set.pokeball;
@@ -2834,7 +2849,7 @@
 			var val = '';
 			switch (name) {
 			case 'pokemon':
-				val = (id in BattlePokedex ? Dex.getSpecies(e.currentTarget.value).name : '');
+				val = (id in BattlePokedex ? this.curTeam.dex.getSpecies(e.currentTarget.value).name : '');
 				break;
 			case 'ability':
 				if (id in BattleItems && this.curTeam.format == "gen8dualwielding") {
@@ -3053,7 +3068,7 @@
 			for (var i = 0; i < moves.length; ++i) {
 				if (!moves[i]) continue;
 				if (moves[i].substr(0, 13) === 'Hidden Power ') hasHiddenPower = true;
-				var move = Dex.forGen(this.curTeam.gen).getMove(moves[i]);
+				var move = this.curTeam.dex.forGen(this.curTeam.gen).getMove(moves[i]);
 				if (move.id === 'transform') {
 					hasHiddenPower = true; // A Pokemon with Transform can copy another Pokemon that knows Hidden Power
 
@@ -3100,7 +3115,7 @@
 		},
 		setPokemon: function (val, selectNext) {
 			var set = this.curSet;
-			var species = Dex.forGen(this.curTeam.gen).getSpecies(val);
+			var species = this.curTeam.dex.forGen(this.curTeam.gen).getSpecies(val);
 			if (!species.exists || set.species === species.name) {
 				if (selectNext) this.$('input[name=item]').select();
 				return;
@@ -3167,7 +3182,7 @@
 
 			// do this after setting set.evs because it's assumed to exist
 			// after getStat is run
-			var species = Dex.forGen(this.curTeam.gen).getSpecies(set.species);
+			var species = this.curTeam.dex.forGen(this.curTeam.gen).getSpecies(set.species);
 			if (!species.exists) return 0;
 
 			if (!set.level) set.level = 100;
@@ -3223,7 +3238,7 @@
 				if (i !== data.i && i !== data.i + 1) {
 					buf += '<li><button name="moveHere" value="' + i + '"><i class="fa fa-arrow-right"></i> Move here</button></li>';
 				}
-				buf += '<li' + (i === data.i ? ' style="opacity:.3"' : ' style="opacity:.6"') + '><span class="picon" style="display:inline-block;vertical-align:middle;' + Dex.getPokemonIcon(set) + '"></span> ' + BattleLog.escapeHTML(set.name || set.species) + '</li>';
+				buf += '<li' + (i === data.i ? ' style="opacity:.3"' : ' style="opacity:.6"') + '><span class="picon" style="display:inline-block;vertical-align:middle;' + this.curTeam.dex.getPokemonIcon(set) + '"></span> ' + BattleLog.escapeHTML(set.name || set.species) + '</li>';
 			}
 			if (i !== data.i && i !== data.i + 1) {
 				buf += '<li><button name="moveHere" value="' + i + '"><i class="fa fa-arrow-right"></i> Move here</button></li>';
@@ -3271,7 +3286,7 @@
 			this.room = data.room;
 			this.curSet = data.curSet;
 			this.chartIndex = data.index;
-			var species = Dex.getSpecies(this.curSet.species);
+			var species = this.curTeam.dex.getSpecies(this.curSet.species);
 			var baseid = toID(species.baseSpecies);
 			var forms = [baseid].concat(species.cosmeticFormes.map(toID));
 			var spriteDir = Dex.resourcePrefix + 'sprites/';
@@ -3279,8 +3294,8 @@
 			var spriteDim = 'width: 96px; height: 96px;';
 
 			var gen = {1:'gen1', 2:'gen2', 3:'gen3', 4:'gen4', 5:'gen5', 6:'dex', 7:'dex', 8:'dex'}[Math.max(this.room.curTeam.gen, species.gen)];
-			if (Dex.prefs('nopastgens')) gen = 'dex';
-			if (Dex.prefs('bwgfx') && gen === 'dex') gen = 'gen5';
+			if (this.curTeam.dex.prefs('nopastgens')) gen = 'dex';
+			if (this.curTeam.dex.prefs('bwgfx') && gen === 'dex') gen = 'gen5';
 			spriteDir += gen;
 			if (gen === 'dex') {
 				spriteSize = 120;
@@ -3307,9 +3322,9 @@
 			this.$el.html(buf).css({'max-width': (4 + spriteSize) * width, 'height': 42 + (4 + spriteSize) * height});
 		},
 		setForm: function (form) {
-			var species = Dex.getSpecies(this.curSet.species);
+			var species = this.curTeam.dex.getSpecies(this.curSet.species);
 			if (form && form !== species.form) {
-				this.curSet.species = Dex.getSpecies(species.baseSpecies + form).name;
+				this.curSet.species = this.curTeam.dex.getSpecies(species.baseSpecies + form).name;
 			} else if (!form) {
 				this.curSet.species = species.baseSpecies;
 			}

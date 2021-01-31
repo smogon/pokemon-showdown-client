@@ -214,6 +214,15 @@ const Dex = new class Dexes implements ModdedDex {
 			const moddedDex = new Dexes();
 			moddedDex.modid = modid;
 			moddedDex.modData = window.BattleTeambuilderTable[modid].data;
+			for(const id in moddedDex.modData.Pokedex) {
+				const entry = moddedDex.modData.Pokedex[id];
+				if (moddedDex.modData.FormatsData[id]) {
+					const formatsEntry = moddedDex.modData.FormatsData[id];
+					if (formatsEntry.tier) entry.tier = formatsEntry.tier;
+					if (formatsEntry.isNonstandard) entry.isNonstandard = formatsEntry.isNonstandard;
+					if (formatsEntry.unreleasedHidden) entry.unreleasedHidden = formatsEntry.unreleasedHidden;
+				}
+			}
 			moddedDex.gen = moddedDex.modData.gen || 8;
 			return moddedDex;
 		}
@@ -363,7 +372,7 @@ const Dex = new class Dexes implements ModdedDex {
 		}
 		let name = nameOrAbility || '';
 		let id = toID(nameOrAbility);
-		if (this.modData && this.modData.Aliases && id in this.modData.Aliases) {
+		if (this.modData?.Aliases?.[id]) {
 			name = this.modData.Aliases[id];
 			id = toID(name);
 		} else if (window.BattleAliases && id in BattleAliases) {
@@ -392,7 +401,7 @@ const Dex = new class Dexes implements ModdedDex {
 		let formid = id;
 		if (!window.BattlePokedexAltForms) window.BattlePokedexAltForms = {};
 		if (formid in window.BattlePokedexAltForms) return window.BattlePokedexAltForms[formid];
-		if (this.modData && this.modData.Aliases && id in this.modData.Aliases) {
+		if (this.modData?.Aliases?.[id]) {
 			name = this.modData.Aliases[id];
 			id = toID(name);
 		} else if (window.BattleAliases && id in BattleAliases) {
