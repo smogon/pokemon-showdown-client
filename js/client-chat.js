@@ -1892,20 +1892,20 @@
 		comparator: function (a, b) {
 			if (a === b) return 0;
 
-			var aUser = this.room.users[a];
-			var bUser = this.room.users[b];
+			var aUser = this.room.users[a] || {group: Config.defaultGroup, away: false};
+			var bUser = this.room.users[b] || {group: Config.defaultGroup, away: false};
 
 			var aRank = (
-				Config.groups[aUser ? aUser.group : Config.defaultGroup || ' '] ||
+				Config.groups[aUser.group || ' '] ||
 				{order: (Config.defaultOrder || 10006.5)}
 			).order;
 			var bRank = (
-				Config.groups[bUser ? bUser.group : Config.defaultGroup || ' '] ||
+				Config.groups[bUser.group || ' '] ||
 				{order: (Config.defaultOrder || 10006.5)}
 			).order;
 
 			if (aRank !== bRank) return aRank - bRank;
-			if (aUser.away !== bUser.away) return aUser.away - bUser.away;
+			if ((aUser.away ? 1 : 0) !== (bUser.away ? 1 : 0)) return (aUser.away ? 1 : 0) - (bUser.away ? 1 : 0);
 			return (a > b ? 1 : -1);
 		},
 		getNoNamedUsersOnline: function () {
