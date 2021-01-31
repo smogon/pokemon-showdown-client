@@ -279,11 +279,11 @@ const Dex = new class Dexes implements ModdedDex {
 	getEffect(name: string | null | undefined): PureEffect | Item | Ability | Move {
 		name = (name || '').trim();
 		if (name.substr(0, 5) === 'item:') {
-			return Dex.getItem(name.substr(5).trim());
+			return this.getItem(name.substr(5).trim());
 		} else if (name.substr(0, 8) === 'ability:') {
-			return Dex.getAbility(name.substr(8).trim());
+			return this.getAbility(name.substr(8).trim());
 		} else if (name.substr(0, 5) === 'move:') {
-			return Dex.getMove(name.substr(5).trim());
+			return this.getMove(name.substr(5).trim());
 		}
 		let id = toID(name);
 		return new PureEffect(id, name);
