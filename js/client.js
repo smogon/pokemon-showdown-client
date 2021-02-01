@@ -709,17 +709,17 @@ function toId() {
 		connect: function () {
 			if (this.down) return;
 
-			var serverIsBanned = false;
 			if (Config.bannedHosts) {
 				for (var i = 0; i < Config.bannedHosts.length; i++) {
 					var host = Config.bannedHosts[i];
 					if (Config.server.host.includes(host)) {
-						serverIsBanned = true;
+						Config.server.banned = true;
+						break;
 					}
 				}
 			}
 
-			if (Config.server.banned || serverIsBanned) {
+			if (Config.server.banned) {
 				this.addPopupMessage("This server has been deleted for breaking US laws, impersonating PS global staff, or other major rulebreaking.");
 				return;
 			}
