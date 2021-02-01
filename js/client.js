@@ -712,7 +712,7 @@ function toId() {
 			if (Config.bannedHosts) {
 				for (var i = 0; i < Config.bannedHosts.length; i++) {
 					var host = Config.bannedHosts[i];
-					if (Config.server.host.includes(host)) {
+					if (typeof host === 'string' ? Config.server.host === host : host.test(Config.server.host)) {
 						Config.server.banned = true;
 						break;
 					}
