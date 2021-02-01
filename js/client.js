@@ -709,7 +709,7 @@ function toId() {
 		connect: function () {
 			if (this.down) return;
 
-			var serverIsBanned = Config.bannedHosts && Config.bannedHosts.includes(Config.server.host);
+			var serverIsBanned = false;
 			if (Config.bannedHosts) {
 				for (var i = 0; i < Config.bannedHosts.length; i++) {
 					var host = Config.bannedHosts[i];
