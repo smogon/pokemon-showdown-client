@@ -711,7 +711,7 @@ function toId() {
 
 			var serverIsBanned = Config.bannedHosts && Config.bannedHosts.indexOf(Config.server.host) >= 0;
 			if (Config.bannedHosts) {
-				for (let i = 0; i < Config.bannedHosts.length; i++) {
+				for (var i = 0; i < Config.bannedHosts.length; i++) {
 					var host = Config.bannedHosts[i];
 					if (Config.server.host.includes(host)) {
 						serverIsBanned = true;
