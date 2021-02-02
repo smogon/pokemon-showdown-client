@@ -26,10 +26,10 @@ Dex.includeData();
 console.log("DONE");
 
 function es3stringify(obj) {
-	let buf = JSON.stringify(obj);
-	buf = buf.replace(/\"([A-Za-z][A-Za-z0-9]*)\"\:/g, '$1:');
-	buf = buf.replace(/return\:/g, '"return":').replace(/new\:/g, '"new":').replace(/delete\:/g, '"delete":');
-	return buf;
+	const buf = JSON.stringify(obj);
+	return buf.replace(/\"([A-Za-z][A-Za-z0-9]*)\"\:/g, (fullMatch, key) => (
+		['return', 'new', 'delete'].includes(key) ? fullMatch : `${key}:`
+	));
 }
 
 function requireNoCache(pathSpec) {

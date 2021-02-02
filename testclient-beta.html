@@ -53,6 +53,30 @@
 	</script>
 	<script src="https://play.pokemonshowdown.com/config/config.js"></script>
 	<script>
+		if (!window.Config) {
+			// offline
+			window.Config = {
+				version: '0',
+				bannedHosts: [],
+				whitelist: [],
+				routes: {
+					root: "pokemonshowdown.com",
+					client: "play.pokemonshowdown.com",
+					dex: "dex.pokemonshowdown.com",
+					replays: "replay.pokemonshowdown.com",
+					users: "pokemonshowdown.com/users"
+				},
+				defaultserver: {
+					id: 'showdown',
+					host: 'sim3.psim.us',
+					port: 443,
+					httpport: 8000,
+					altport: 80,
+					registered: true
+				},
+				customcolors: {}
+			};
+		}
 		Config.testclient = true;
 		(function() {
 			if (location.search !== '') {
