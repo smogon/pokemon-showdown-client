@@ -727,14 +727,6 @@
 					'<div class="switchmenu">' + switchMenu + '</div>' +
 					'</div>'
 				);
-				/*if (this.battle.mySide.ally) {
-					this.$allyPokemon.html(
-						'<div class="ally-pokemon">' +
-						'<div class="allyTeam"><button name="allyteam">Ally Party</button></div>' +
-						'<div class="allyparty">' + this.displayAllyParty() + '</div>' +
-						'</div>'
-					);
-				}*/
 				this.$controls.html(
 					'<div class="controls">' +
 					'<div class="whatdo">' + requestTitle + this.getTimerHTML() + '</div>' +

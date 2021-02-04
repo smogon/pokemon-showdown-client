@@ -321,16 +321,16 @@ License: GPLv2
 	bottom: 232px;
 }
 
-#p1 {
+.trainer-p1 {
 	bottom: 75px;
 }
-#p2 {
+.trainer-p2 {
 	bottom: 232px;
 }
-#p3 {
+.trainer-p3 {
 	bottom: 232px;
 }
-#p4 {
+.trainer-p4 {
 	bottom: 75px;
 }
 

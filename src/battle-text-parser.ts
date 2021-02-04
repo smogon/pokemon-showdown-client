@@ -230,7 +230,7 @@ class BattleTextParser {
 
 	pokemonName = (pokemon: string) => {
 		if (!pokemon) return '';
-		if (!pokemon.startsWith('p1') && !pokemon.startsWith('p2') && !pokemon.startsWith('p3') && !pokemon.startsWith('p4')) return `???pokemon:${pokemon}???`;
+		if (!pokemon.startsWith('p')) return `???pokemon:${pokemon}???`;
 		if (pokemon.charAt(3) === ':') return pokemon.slice(4).trim();
 		else if (pokemon.charAt(2) === ':') return pokemon.slice(3).trim();
 		return `???pokemon:${pokemon}???`;
@@ -272,11 +272,10 @@ class BattleTextParser {
 
 	team(side: string, isFar: boolean = false) {
 		side = side.slice(0, 2);
-		let team = [BattleText.default.team, BattleText.default.opposingTeam];
 		if (side === this.perspective || side === BattleTextParser.allyID(side as SideID)) {
-			return team[+isFar];
+			return isFar ? BattleText.default.team : BattleText.default.opposingTeam;
 		}
-		return team[+isFar ^ 1];
+		return !isFar ? BattleText.default.team : BattleText.default.opposingTeam;
 	}
 
 	own(side: string) {

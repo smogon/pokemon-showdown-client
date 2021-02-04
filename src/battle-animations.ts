@@ -664,7 +664,7 @@ class BattleScene {
 		for (let i = 0; i < sidebarIcons.length; i++) {
 			const [iconType, pokeIndex] = sidebarIcons[i];
 			const poke = pokeIndex !== null ? side.pokemon[pokeIndex] : null;
-			const tooltipCode = ` class="picon has-tooltip" data-tooltip="pokemon|${this.battle.sides.indexOf(side)}|${pokeIndex}${iconType === 'pokemon-illusion' ? '|illusion' : ''}"`;
+			const tooltipCode = ` class="picon has-tooltip" data-tooltip="pokemon|${side.n}|${pokeIndex}${iconType === 'pokemon-illusion' ? '|illusion' : ''}"`;
 			if (iconType === 'empty') {
 				pokemonhtml += `<span class="picon" style="` + Dex.getPokemonIcon('pokeball-none') + `"></span>`;
 			} else if (noShow) {
@@ -702,7 +702,7 @@ class BattleScene {
 		} else {
 			posStr = !side.isFar ? "p1" : "p2";
 		}
-		return `<div class="trainer" id="${posStr}"><strong>${BattleLog.escapeHTML(side.name)}</strong><div class="trainersprite"${ratinghtml} style="background-image:url(${Dex.resolveAvatar(side.avatar)})"></div>${pokemonhtml}</div>`;
+		return `<div class="trainer trainer-${posStr}"><strong>${BattleLog.escapeHTML(side.name)}</strong><div class="trainersprite"${ratinghtml} style="background-image:url(${Dex.resolveAvatar(side.avatar)})"></div>${pokemonhtml}</div>`;
 	}
 	updateSidebar(side: Side) {
 		if (side.n > 1) side = side.ally;
@@ -716,8 +716,8 @@ class BattleScene {
 		}
 	}
 	updateSidebars() {
-		this.$leftbar.html(this.getSidebarHTML(this.battle.nearSide) + (this.battle.nearSide.ally ? this.getSidebarHTML(this.battle.nearSide.ally, true) : ''));
-		this.$rightbar.html(this.getSidebarHTML(this.battle.farSide) + (this.battle.farSide.ally ? this.getSidebarHTML(this.battle.farSide.ally, true) : ''));
+		this.updateSidebar(this.battle.nearSide);
+		this.updateSidebar(this.battle.farSide);
 	}
 	updateStatbars() {
 		for (const side of this.battle.sides) {

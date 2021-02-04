@@ -1196,7 +1196,6 @@ class Battle {
 	}
 	switchSides() {
 		this.setSidesSwitched(!this.sidesSwitched);
-		this.scene.updateSidebars();
 		this.resetToCurrentTurn();
 	}
 	setSidesSwitched(sidesSwitched: boolean) {
@@ -2954,16 +2953,14 @@ class Battle {
 		let siden = -1;
 		let slot = -1; // if there is an explicit slot for this pokemon
 		let slotChart: {[k: string]: number} = {a: 0, b: 1, c: 2, d: 3, e: 4, f: 5};
-		if (name.match(/^p[0-9]$|p[0-9]: |p[0-9][a-f]: /)) {
-			const serverSideN = parseInt(name.charAt(1), 10) - 1;
-			siden = serverSideN;
-			if (name.match(/^p[0-9]$|p[0-9]: /)) {
-				name = name.substr(4);
-			} else {
-				slot = slotChart[name.charAt(2)];
-				name = name.substr(5);
-				pokemonid = 'p' + (serverSideN + 1) + ': ' + name;
-			}
+		if (/^p[1-9]($|: )/.test(name)) {
+			siden = parseInt(name.charAt(1)) - 1;
+			name = name.slice(4);
+		} else if (/^p[1-9][a-f]: /.test(name))
+			siden = parseInt(name.charAt(1)) - 1;
+			slot = slotChart[name.charAt(2));
+			name = name.slice(5);
+			pokemonid = `p${siden + 1}: ${name}`;
 		}
 		return {name, siden, slot, pokemonid};
 	}
@@ -3042,10 +3039,10 @@ class Battle {
 		return null;
 	}
 	getSide(sidename: string): Side {
-		if (sidename === 'p1' || sidename.substr(0, 3) === 'p1:') return this.p1;
-		if (sidename === 'p2' || sidename.substr(0, 3) === 'p2:') return this.p2;
-		if ((sidename === 'p3' || sidename.substr(0, 3) === 'p3:') && this.p3) return this.p3;
-		if ((sidename === 'p4' || sidename.substr(0, 3) === 'p4:') && this.p4) return this.p4;
+		if (sidename === 'p1' || sidename.startsWith('p1:')) return this.p1;
+		if (sidename === 'p2' || sidename.startsWith('p2:')) return this.p2;
+		if ((sidename === 'p3' || sidename.startsWith('p3:')) && this.p3) return this.p3;
+		if ((sidename === 'p4' || sidename.startsWith('p4:')) && this.p4) return this.p4;
 		if (this.nearSide.id === sidename) return this.nearSide;
 		if (this.farSide.id === sidename) return this.farSide;
 		if (this.nearSide.name === sidename) return this.nearSide;
@@ -3112,8 +3109,7 @@ class Battle {
 			this.gameType = args[1] as any;
 			switch (args[1]) {
 			default:
-				this.nearSide.active = [null];
-				this.farSide.active = [null];
+				for (const side of this.sides) side.active = [null];
 				break;
 			case 'multi':
 				this.pokemonControlled = 1;
@@ -3123,11 +3119,12 @@ class Battle {
 				this.p3.ally = this.p4.foe = this.p1;
 				this.p1.ally = this.p3;
 				this.p2.ally = this.p4;
+				this.p3.isFar = this.p1.isFar;
+				this.p4.isFar = this.p2.isFar;
 				this.sides = [this.p1, this.p2, this.p3, this.p4];
-				this.mySide.isFar = this.mySide.ally.isFar = false;
-				this.farSide.isFar = this.farSide.ally.isFar = true;
-				this.nearSide.ally.active = this.nearSide.active = [null, null];
-				this.farSide.ally.active = this.farSide.active = [null, null];
+				// intentionally sync p1/p3 and p2/p4's active arrays
+				this.p1.active = this.p3.active = [null, null];
+				this.p2.active = this.p4.active = [null, null];
 				break;
 			case 'doubles':
 				this.nearSide.active = [null, null];
