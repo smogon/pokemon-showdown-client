@@ -2836,7 +2836,7 @@ class Battle {
 			this.scene.afterMove(poke);
 			break;
 		}
-		case '-hint': case '-message': {
+		case '-hint': case '-message': case '-candynamax': {
 			this.log(args, kwArgs);
 			break;
 		}
