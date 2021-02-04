@@ -357,7 +357,7 @@ class BattleTextParser {
 		switch (cmd) {
 		case 'done' : case 'turn':
 			return 'break';
-		case 'move' : case 'cant': case 'switch': case 'drag': case 'upkeep': case 'start': case '-mega': case 'canDynamax':
+		case 'move' : case 'cant': case 'switch': case 'drag': case 'upkeep': case 'start': case '-mega': case '-candynamax':
 			return 'major';
 		case 'switchout': case 'faint':
 			return 'preMajor';
@@ -544,7 +544,7 @@ class BattleTextParser {
 			return line1 + template.replace('[POKEMON]', this.pokemon(pokemon)).replace('[MOVE]', move);
 		}
 
-		case 'canDynamax': {
+		case '-candynamax': {
 			let [, side] = args;
 			const own = this.own(side);
 			let template = '';
