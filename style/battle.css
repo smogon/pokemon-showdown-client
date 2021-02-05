@@ -317,20 +317,17 @@ License: GPLv2
 	right: 0;
 	bottom: 75px;
 }
-.rightbar .trainer {
-	bottom: 232px;
-}
 
-.trainer-p1 {
+.trainer-near {
 	bottom: 75px;
 }
-.trainer-p2 {
+.trainer-far {
 	bottom: 232px;
 }
-.trainer-p3 {
+.trainer-near2 {
 	bottom: 232px;
 }
-.trainer-p4 {
+.trainer-far2 {
 	bottom: 75px;
 }
 

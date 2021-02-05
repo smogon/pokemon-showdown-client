@@ -692,16 +692,8 @@ class BattleScene {
 		}
 		pokemonhtml = '<div class="teamicons">' + pokemonhtml + '</div>';
 		const ratinghtml = side.rating ? ` title="Rating: ${BattleLog.escapeHTML(side.rating)}"` : ``;
-		let posStr = "";
-		if (isAlly) {
-			if (!side.isFar) {
-				posStr += "p3";
-			} else {
-				posStr += "p4";
-			}
-		} else {
-			posStr = !side.isFar ? "p1" : "p2";
-		}
+		let posStr = side.isFar ? 'far' : 'near';
+		if (isAlly) posStr += '2';
 		return `<div class="trainer trainer-${posStr}"><strong>${BattleLog.escapeHTML(side.name)}</strong><div class="trainersprite"${ratinghtml} style="background-image:url(${Dex.resolveAvatar(side.avatar)})"></div>${pokemonhtml}</div>`;
 	}
 	updateSidebar(side: Side) {
