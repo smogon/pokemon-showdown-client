@@ -950,7 +950,7 @@ class BattleLog {
 		// allows T, however it's more practical to also allow spaces.
 		return sanitized.replace(
 			/<time>\s*([+-]?\d{4,}-\d{2}-\d{2})[T ](\d{2}:\d{2}(?::\d{2}(?:\.\d{3})?)?)(Z|[+-]\d{2}:\d{2})?\s*<\/time>/ig,
-		this.localizeTime).replace(/<(.*)&amp;(.*)>/ig, '<$1&$2>');
+		this.localizeTime);
 	}
 
 	/*********************************************************
