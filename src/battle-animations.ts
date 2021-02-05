@@ -100,7 +100,7 @@ class BattleScene {
 				const pokemon = battle.getPokemon(pokemonId);
 				if (pokemon) return pokemon.speciesForme;
 			}
-			if (!pokemonId.startsWith('p1') && !pokemonId.startsWith('p2') && !pokemonId.startsWith('p3') && !pokemonId.startsWith('p4')) return '???pokemon:' + pokemonId + '???';
+			if (!pokemonId.startsWith('p')) return '???pokemon:' + pokemonId + '???';
 			if (pokemonId.charAt(3) === ':') return pokemonId.slice(4).trim();
 			else if (pokemonId.charAt(2) === ':') return pokemonId.slice(3).trim();
 			return '???pokemon:' + pokemonId + '???';

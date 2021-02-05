@@ -2952,13 +2952,13 @@ class Battle {
 
 		let siden = -1;
 		let slot = -1; // if there is an explicit slot for this pokemon
-		let slotChart: {[k: string]: number} = {a: 0, b: 1, c: 2, d: 3, e: 4, f: 5};
 		if (/^p[1-9]($|: )/.test(name)) {
-			siden = parseInt(name.charAt(1)) - 1;
+			siden = parseInt(name.charAt(1), 10) - 1;
 			name = name.slice(4);
-		} else if (/^p[1-9][a-f]: /.test(name))
-			siden = parseInt(name.charAt(1)) - 1;
-			slot = slotChart[name.charAt(2));
+		} else if (/^p[1-9][a-f]: /.test(name)) {
+			const slotChart: {[k: string]: number} = {a: 0, b: 1, c: 2, d: 3, e: 4, f: 5};
+			siden = parseInt(name.charAt(1), 10) - 1;
+			slot = slotChart[name.charAt(2)];
 			name = name.slice(5);
 			pokemonid = `p${siden + 1}: ${name}`;
 		}
