@@ -303,7 +303,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 		BattleChoiceBuilder.fixRequest(request, room.battle);
 
 		if (request.side) {
-			room.battle.mySide.myPokemon = request.side.pokemon;
+			room.battle.myPokemon = request.side.pokemon;
 			if (room.battle.sidesSwitched !== !!(request.side.id === 'p2')) {
 				room.battle.switchSides();
 			}
@@ -448,7 +448,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 		});
 	}
 	renderTeamList() {
-		const team = this.props.room.battle.mySide.myPokemon;
+		const team = this.props.room.battle.myPokemon;
 		if (!team) return;
 		return <div class="switchcontrols">
 			<h3 class="switchselect">Team</h3>
@@ -542,7 +542,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 				{this.renderTeamList()}
 			</div>;
 		}
-		if (request.side) room.battle.mySide.myPokemon = request.side.pokemon;
+		if (request.side) room.battle.myPokemon = request.side.pokemon;
 		switch (request.requestType) {
 		case 'move': {
 			const index = choices.index();

@@ -595,7 +595,6 @@ class Side {
 	active = [null] as (Pokemon | null)[];
 	lastPokemon = null as Pokemon | null;
 	pokemon = [] as Pokemon[];
-	myPokemon = [] as ServerPokemon[] | null;
 
 	/** [effectName, levels, minDuration, maxDuration] */
 	sideConditions: {[id: string]: [string, number, number, number]} = {};
@@ -1030,16 +1029,17 @@ class Battle {
 	pseudoWeather = [] as WeatherState[];
 	weatherTimeLeft = 0;
 	weatherMinTimeLeft = 0;
-	mySide: Side = null!;
+	mySide: Side | null = null;
 	nearSide: Side = null!;
 	farSide: Side = null!;
 	p1: Side = null!;
 	p2: Side = null!;
 	p3?: Side = null!;
 	p4?: Side = null!;
-	me: Side = null!;
 	pokemonControlled = 0;
 	sides: Side[] = null!;
+	myPokemon: ServerPokemon[] | null = null;
+	myAllyPokemon: ServerPokemon[] | null = null;
 	lastMove = '';
 
 	gen = 8;
@@ -1160,7 +1160,8 @@ class Battle {
 		for (const side of this.sides) {
 			if (side) side.reset();
 		}
-		this.mySide.myPokemon = null;
+		this.myPokemon = null;
+		this.myAllyPokemon = null;
 
 		// DOM state
 		this.scene.reset();
@@ -1200,12 +1201,11 @@ class Battle {
 	}
 	setSidesSwitched(sidesSwitched: boolean) {
 		this.sidesSwitched = sidesSwitched;
-		if (this.mySide === this.p3 || this.mySide === this.p4) return;
 		if (this.sidesSwitched) {
-			this.nearSide = this.mySide = this.p2;
+			this.nearSide = this.p2;
 			this.farSide = this.p1;
 		} else {
-			this.nearSide = this.mySide = this.p1;
+			this.nearSide = this.p1;
 			this.farSide = this.p2;
 		}
 		this.nearSide.isFar = false;
@@ -2970,14 +2970,14 @@ class Battle {
 		pokemonid = parsedPokemonid;
 
 		const searchid = `${pokemonid}|${details}`;
-		const side = this.gameType === 'multi' ? this.getSide(`p${siden + 1}`) : this.sides[siden];
+		const side = this.sides[siden];
 
 		// search inactive revealed pokemon
 		for (let i = 0; i < side.pokemon.length; i++) {
 			let pokemon = side.pokemon[i];
 			if (pokemon.fainted) continue;
 			// already active, can't be switching in
-			if (side.active.includes(pokemon) && side.ally) continue;
+			if (side.active.includes(pokemon)) continue;
 			// just switched out, can't be switching in
 			if (pokemon === side.lastPokemon && !side.active[slot]) continue;
 

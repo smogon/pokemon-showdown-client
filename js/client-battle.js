@@ -7,7 +7,6 @@
 		minMainWidth: 956,
 		maxWidth: 1180,
 		initialize: function (data) {
-			this.me = {};
 			this.choice = undefined;
 			/** are move/switch/team-preview controls currently being shown? */
 			this.controlsShown = false;
@@ -341,7 +340,7 @@
 
 				act = this.request.requestType;
 				if (this.request.side) {
-					switchables = this.battle.mySide.myPokemon;
+					switchables = this.battle.myPokemon;
 				}
 				if (!this.finalDecision) this.finalDecision = !!this.request.noCancel;
 			}
@@ -419,7 +418,7 @@
 					// Request full team order if one of our Pokémon has Illusion
 					for (var i = 0; i < switchables.length && i < 6; i++) {
 						if (toID(switchables[i].baseAbility) === 'illusion') {
-							this.choice.count = this.battle.mySide.myPokemon.length;
+							this.choice.count = this.battle.myPokemon.length;
 						}
 					}
 					if (this.battle.teamPreviewCount) {
@@ -513,7 +512,7 @@
 			app.addPopup(TimerPopup, {room: this});
 		},
 		updateMoveControls: function (type) {
-			var switchables = this.request && this.request.side ? this.battle.mySide.myPokemon : [];
+			var switchables = this.request && this.request.side ? this.battle.myPokemon : [];
 
 			if (type !== 'movetarget') {
 				while (switchables[this.choice.choices.length] && switchables[this.choice.choices.length].fainted && this.choice.choices.length + 1 < this.battle.nearSide.active.length) {
@@ -562,14 +561,12 @@
 			if (type === 'movetarget') {
 				requestTitle += 'At who? ';
 
-				if (this.request && this.request.side) {
-					pos += Math.floor((parseInt(this.side.charAt(1), 10) - 1) / 2);
-				}
+				var activePos = this.battle.mySide.n > 1 ? pos + this.battle.pokemonControlled : pos;
 
 				var targetMenus = ['', ''];
 				var nearActive = this.battle.nearSide.active;
 				var farActive = this.battle.farSide.active;
-				var farSlot = farActive.length - 1 - pos;
+				var farSlot = farActive.length - 1 - activePos;
 
 				for (var i = farActive.length - 1; i >= 0; i--) {
 					var pokemon = farActive[i];
@@ -598,9 +595,9 @@
 					if (moveTarget === 'adjacentFoe') {
 						disabled = true;
 					} else if (moveTarget === 'normal' || moveTarget === 'adjacentAlly' || moveTarget === 'adjacentAllyOrSelf') {
-						if (Math.abs(pos - i) > 1) disabled = true;
+						if (Math.abs(activePos - i) > 1) disabled = true;
 					}
-					if (moveTarget !== 'adjacentAllyOrSelf' && pos == i) disabled = true;
+					if (moveTarget !== 'adjacentAllyOrSelf' && activePos == i) disabled = true;
 
 					if (disabled) {
 						targetMenus[1] += '<button disabled="disabled" style="visibility:hidden"></button> ';
@@ -627,7 +624,7 @@
 				var moveMenu = '';
 				var movebuttons = '';
 				var activePos = this.battle.mySide.n > 1 ? pos + this.battle.pokemonControlled : pos;
-				var typeValueTracker = new ModifiableValue(this.battle, this.battle.nearSide.active[activePos], this.battle.mySide.myPokemon[pos]);
+				var typeValueTracker = new ModifiableValue(this.battle, this.battle.nearSide.active[activePos], this.battle.myPokemon[pos]);
 				var currentlyDynamaxed = (!canDynamax && maxMoves);
 				for (var i = 0; i < curActive.moves.length; i++) {
 					var moveData = curActive.moves[i];
@@ -753,7 +750,7 @@
 		displayAllyParty: function () {
 			var party = '';
 			if (!this.battle.mySide.ally) return;
-			var allyParty = this.battle.mySide.ally.myPokemon;
+			var allyParty = this.battle.myAllyPokemon;
 			for (var i = 0; i < allyParty.length; i++) {
 				var pokemon = allyParty[i];
 				pokemon.name = pokemon.ident.substr(4);
@@ -771,7 +768,7 @@
 				}
 			}
 
-			var switchables = this.request && this.request.side ? this.battle.mySide.myPokemon : [];
+			var switchables = this.request && this.request.side ? this.battle.myPokemon : [];
 			var nearActive = this.battle.nearSide.active;
 
 			var requestTitle = '';
@@ -785,7 +782,7 @@
 				requestTitle += "Which Pokémon will it switch in for?";
 				var controls = '<div class="switchmenu" style="display:block">';
 				for (var i = 0; i < this.battle.pokemonControlled; i++) {
-					var pokemon = this.battle.mySide.myPokemon[i];
+					var pokemon = this.battle.myPokemon[i];
 					var tooltipArgs = 'switchpokemon|' + i;
 					if (pokemon && !pokemon.fainted || this.choice.switchOutFlags[i]) {
 						controls += '<button disabled class="has-tooltip" data-tooltip="' + BattleLog.escapeHTML(tooltipArgs) + '"><span class="picon" style="' + Dex.getPokemonIcon(pokemon) + '"></span>' + BattleLog.escapeHTML(pokemon.name) + (!pokemon.fainted ? '<span class="' + pokemon.getHPColorClass() + '"><span style="width:' + (Math.round(pokemon.hp * 92 / pokemon.maxhp) || 1) + 'px"></span></span>' + (pokemon.status ? '<span class="status ' + pokemon.status + '"></span>' : '') : '') + '</button> ';
@@ -837,7 +834,7 @@
 			}
 		},
 		updateTeamControls: function (type) {
-			var switchables = this.request && this.request.side ? this.battle.mySide.myPokemon : [];
+			var switchables = this.request && this.request.side ? this.battle.myPokemon : [];
 			var maxIndex = Math.min(switchables.length, 24);
 
 			var requestTitle = "";
@@ -901,8 +898,8 @@
 				}
 				buf += leads.join(', ') + ' will be sent out first.<br />';
 			} else if (this.choice.choices && this.request) {
-				var myActive = this.battle.mySide.myPokemon;
-				for (var i = 0; i < (this.battle.mySide.myPokemon || this.choice.choices.length); i++) {
+				var myActive = this.battle.myPokemon;
+				for (var i = 0; i < (this.battle.myPokemon || this.choice.choices.length); i++) {
 					var parts = this.choice.choices[i].split(' ');
 					switch (parts[0]) {
 					case 'move':
@@ -948,7 +945,7 @@
 						buf += 'use ' + Dex.getMove(move).name + (target ? ' against ' + target : '') + '.<br />';
 						break;
 					case 'switch':
-						buf += '' + this.battle.mySide.myPokemon[parts[1] - 1].speciesForme + ' will switch in';
+						buf += '' + this.battle.myPokemon[parts[1] - 1].speciesForme + ' will switch in';
 						if (myActive[i]) {
 							buf += ', replacing ' + myActive[i].speciesForme;
 						}
@@ -1040,13 +1037,14 @@
 		updateSide: function () {
 			var sideData = this.request.side;
 			this.battle.myPokemon = sideData.pokemon;
-			this.battle.mySide = this.battle.nearSide = this.battle[sideData.id];
+			this.battle.mySide = this.battle[sideData.id];
+			this.battle.nearSide = this.battle.sides[this.battle.mySide.n % 2];
 			this.battle.farSide = this.battle.mySide.foe;
 			this.battle.mySide.isFar = false;
 			this.battle.farSide.isFar = true;
 			if (this.battle.mySide.ally) this.battle.mySide.ally.isFar = false;
 			if (this.battle.farSide.ally) this.battle.farSide.ally.isFar = true;
-			this.battle.mySide.myPokemon = sideData.pokemon;
+			this.battle.myPokemon = sideData.pokemon;
 			for (var i = 0; i < sideData.pokemon.length; i++) {
 				var pokemonData = sideData.pokemon[i];
 				if (this.request.active && this.request.active[i]) pokemonData.canGmax = this.request.active[i].gigantamax || false;
@@ -1060,7 +1058,7 @@
 			}
 		},
 		addAlly: function (allyData) {
-			this.battle.mySide.ally.myPokemon = allyData.pokemon;
+			this.battle.myAllyPokemon = allyData.pokemon;
 			for (var i = 0; i < allyData.pokemon.length; i++) {
 				var pokemonData = allyData.pokemon[i];
 				this.battle.parseDetails(pokemonData.ident.substr(4), pokemonData.ident, pokemonData.details, pokemonData);

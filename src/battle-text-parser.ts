@@ -241,7 +241,8 @@ class BattleTextParser {
 		let side = pokemon.slice(0, 2);
 		if (!['p1', 'p2', 'p3', 'p4'].includes(side)) return `???pokemon:${pokemon}???`;
 		const name = this.pokemonName(pokemon);
-		const template = BattleText.default[side === this.perspective ? 'pokemon' : 'opposingPokemon'];
+		const isNear = side === this.perspective || side === BattleTextParser.allyID(side as SideID);
+		const template = BattleText.default[isNear ? 'pokemon' : 'opposingPokemon'];
 		return template.replace('[NICKNAME]', name);
 	}
 

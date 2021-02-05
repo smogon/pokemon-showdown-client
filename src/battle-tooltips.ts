@@ -271,12 +271,11 @@ class BattleTooltips {
 		case 'zmove':
 		case 'maxmove': { // move|MOVE|ACTIVEPOKEMON|[GMAXMOVE]
 			let move = this.battle.dex.getMove(args[1]);
-			let activeIndex = parseInt(args[2], 10);
-			let pokemon = this.battle.nearSide.active[activeIndex];
+			let teamIndex = parseInt(args[2], 10);
+			let pokemon = this.battle.nearSide.active[teamIndex + this.battle.pokemonControlled * Math.floor(this.battle.mySide!.n / 2)];
 			let gmaxMove = args[3] ? this.battle.dex.getMove(args[3]) : undefined;
 			if (!pokemon) return false;
-			let teamIndex = activeIndex - this.battle.pokemonControlled * Math.floor(this.battle.mySide.n / 2);
-			let serverPokemon = pokemon.side.myPokemon![teamIndex];
+			let serverPokemon = this.battle.myPokemon![teamIndex];
 			buf = this.showMoveTooltip(move, type, pokemon, serverPokemon, gmaxMove);
 			break;
 		}
@@ -315,10 +314,10 @@ class BattleTooltips {
 				let pokemon = side.active[activeIndex];
 				if (!pokemon) return;
 				let serverPokemon = null;
-				if (side === this.battle.mySide && this.battle.mySide.myPokemon) {
-					serverPokemon = this.battle.mySide.myPokemon[0];
-				} else if (side === this.battle.mySide.ally && this.battle.mySide.ally.myPokemon) {
-					serverPokemon = this.battle.mySide.ally.myPokemon[0];
+				if (side === this.battle.mySide && this.battle.myPokemon) {
+					serverPokemon = this.battle.myPokemon[0];
+				} else if (side === this.battle.mySide!.ally && this.battle.myAllyPokemon) {
+					serverPokemon = this.battle.myAllyPokemon[0];
 				}
 				if (!pokemon) return false;
 				buf = this.showPokemonTooltip(pokemon, serverPokemon, true);
@@ -326,8 +325,8 @@ class BattleTooltips {
 			}
 			let pokemon = side.active[activeIndex];
 			let serverPokemon = null;
-			if (sideIndex === 0 && this.battle.mySide.myPokemon) {
-				serverPokemon = this.battle.mySide.myPokemon[activeIndex];
+			if (sideIndex === 0 && this.battle.myPokemon) {
+				serverPokemon = this.battle.myPokemon[activeIndex];
 			}
 			if (!pokemon) return false;
 			buf = this.showPokemonTooltip(pokemon, serverPokemon, true);
@@ -343,7 +342,7 @@ class BattleTooltips {
 				pokemon = side.active[activeIndex];
 				if (pokemon && pokemon.side === side.ally) pokemon = null;
 			} */
-			let serverPokemon = this.battle.mySide.myPokemon![activeIndex];
+			let serverPokemon = this.battle.myPokemon![activeIndex];
 			buf = this.showPokemonTooltip(pokemon, serverPokemon);
 			break;
 		}
@@ -356,7 +355,7 @@ class BattleTooltips {
 			/*if (activeIndex < side.pokemon.length) {
 				pokemon = side.pokemon[activeIndex] || side.ally ? side.ally.pokemon[activeIndex] : null;
 			}*/
-			let serverPokemon = this.battle.mySide.ally.myPokemon ? this.battle.mySide.ally.myPokemon[activeIndex] : null;
+			let serverPokemon = this.battle.myAllyPokemon ? this.battle.myAllyPokemon[activeIndex] : null;
 			buf = this.showPokemonTooltip(pokemon, serverPokemon);
 			break;
 		}
@@ -1869,8 +1868,8 @@ class BattleTooltips {
 		// this will only be available if the ability announced itself in some way
 		let allyAbility = Dex.getAbility(ally.ability).name;
 		// otherwise fall back on the original set data sent from the server
-		if (!allyAbility && this.battle.mySide.ally.myPokemon) {
-			allyAbility = Dex.getAbility(this.battle.mySide.ally.myPokemon[ally.slot].ability).name;
+		if (!allyAbility && this.battle.myAllyPokemon) {
+			allyAbility = Dex.getAbility(this.battle.myAllyPokemon[ally.slot].ability).name;
 		}
 		return allyAbility;
 	}
