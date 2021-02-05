@@ -809,7 +809,7 @@ class BattleLog {
 					tagName: 'iframe',
 					attribs: [
 						'src', `https://player.twitch.tv/?channel=${channelId}&parent=${location.hostname}`,
-						'allowfullscreen', 'true', 'height', "189", 'width', "310"
+						'allowfullscreen', 'true', 'height', "400", 'width', "340"
 					],
 				};
 			} else if (tagName === 'username') {
