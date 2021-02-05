@@ -705,6 +705,7 @@ class BattleLog {
 			username: 0,
 			spotify: 0,
 			youtube: 0,
+			twitch: 0,
 		});
 
 		// By default, Caja will ban any attributes it doesn't recognize.
@@ -800,6 +801,17 @@ class BattleLog {
 						setAttrib('src', 'https:' + src);
 					}
 				}
+			} else if (tagName === 'twitch') {
+				// <iframe src="https://player.twitch.tv/?channel=ninja&parent=www.example.com" allowfullscreen="true" height="378" width="620"></iframe>
+				const src = getAttrib('src') || "";
+				const channelId = /(https?:\/\/)?twitch.tv\/([A-Za-z0-9]+)/i.exec(src)?.[2];
+				return {
+					tagName: 'iframe',
+					attribs: [
+						'src', `https://player.twitch.tv/?channel=${channelId}&parent=${location.hostname}`,
+						'allowfullscreen', 'true', 'height', "189", 'width', "310"
+					],
+				};
 			} else if (tagName === 'username') {
 				// <username> is a custom element that handles namecolors
 				tagName = 'strong';
@@ -938,7 +950,7 @@ class BattleLog {
 		// allows T, however it's more practical to also allow spaces.
 		return sanitized.replace(
 			/<time>\s*([+-]?\d{4,}-\d{2}-\d{2})[T ](\d{2}:\d{2}(?::\d{2}(?:\.\d{3})?)?)(Z|[+-]\d{2}:\d{2})?\s*<\/time>/ig,
-		this.localizeTime);
+		this.localizeTime).replace(/<(.*)&amp;(.*)>/ig, '<$1&$2>');
 	}
 
 	/*********************************************************
