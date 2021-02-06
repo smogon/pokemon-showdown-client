@@ -876,7 +876,7 @@
 		},
 		adjustPrivacy: function (disallowSpectators) {
 			Storage.prefs('disallowspectators', disallowSpectators);
-			if (disallowSpectators) return '/noreply /ionext\n'; // TODO: switch to /hidenext once it adds a password
+			if (disallowSpectators) return '/noreply /hidenext\n';
 			var settings = app.user.get('settings');
 			return (settings.hiddenNextBattle ? '/noreply /hidenext off\n' : '') + (settings.inviteOnlyNextBattle ? '/noreply /ionext off\n' : '');
 		},
