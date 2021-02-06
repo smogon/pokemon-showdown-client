@@ -42,6 +42,10 @@ class PSConnection {
 			PS.update();
 		};
 	}
+	disconnect() {
+		this.socket.close();
+		PS.connection = null;
+	}
 	send(msg: string) {
 		if (!this.connected) {
 			this.queue.push(msg);

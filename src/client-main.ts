@@ -285,6 +285,22 @@ class PSUser extends PSModel {
 			}
 		}
 	}
+	logOut() {
+		PSLoginServer.query({
+			act: 'logout',
+			userid: this.userid,
+		});
+		PS.send('|/logout');
+		PS.connection?.disconnect();
+
+		alert("You have been logged out and disconnected.\n\nIf you wanted to change your name while staying connected, use the 'Change Name' button or the '/nick' command.");
+		this.name = "Guest";
+		this.group = '';
+		this.userid = "guest" as ID;
+		this.named = false;
+		this.registered = false;
+		this.update();
+	}
 }
 
 /**********************************************************************
@@ -507,7 +523,16 @@ class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 			}
 		}}
 	}
-	handleMessage(msg: string) {
+	handleMessage(line: string) {
+		if (!line.startsWith('/') || line.startsWith('//')) return false;
+		const spaceIndex = line.indexOf(' ');
+		const cmd = spaceIndex >= 0 ? line.slice(1, spaceIndex) : line.slice(1);
+		// const target = spaceIndex >= 0 ? line.slice(spaceIndex + 1) : '';
+		switch (cmd) {
+		case 'logout': {
+			PS.user.logOut();
+			return true;
+		}}
 		return false;
 	}
 	send(msg: string, direct?: boolean) {
@@ -808,7 +833,11 @@ const PS = new class extends PSModel {
 		const roomid = fullMsg.slice(0, pipeIndex) as RoomID;
 		const msg = fullMsg.slice(pipeIndex + 1);
 		console.log('\u25b6\ufe0f ' + (roomid ? '[' + roomid + '] ' : '') + '%c' + msg, "color: #776677");
-		this.connection!.send(fullMsg);
+		if (!this.connection) {
+			alert(`You are not connected and cannot send ${msg}.`);
+			return;
+		}
+		this.connection.send(fullMsg);
 	}
 	isVisible(room: PSRoom) {
 		if (this.leftRoomWidth === 0) {

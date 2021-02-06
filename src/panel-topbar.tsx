@@ -366,7 +366,7 @@ class UserPanel extends PSRoomPanel<UserRoom> {
 			{isSelf && <hr />}
 			{isSelf && <p class="buttonbar" style="text-align: right">
 				<button class="button disabled" name="login"><i class="fa fa-pencil"></i> Change name</button> {}
-				<button class="button disabled" name="logout"><i class="fa fa-power-off"></i> Log out</button>
+				<button class="button" name="cmd" value="/logout"><i class="fa fa-power-off"></i> Log out</button>
 			</p>}
 		</PSPanelWrapper>;
 	}
