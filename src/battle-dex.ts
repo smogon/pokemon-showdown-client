@@ -854,8 +854,8 @@ class ModdedDex {
 	};
 	pokeballs: string[] | null = null;
 	constructor(gen: number, modid: ID) {
-		this.modid = modid;
 		this.gen = gen;
+		this.modid = modid;
 	}
 	getMove(name: string): Move {
 		let id = toID(name);

@@ -1994,7 +1994,11 @@ class BattleStatGuesser {
 
 	constructor(formatid: ID) {
 		this.formatid = formatid;
-		this.dex = formatid ? Dex.mod(formatid.slice(0, 4) as ID) : Dex;
+		let gen = +formatid.slice(3,4)
+		if (Number.isNaN(gen)) {
+			gen = 8;
+		}
+		this.dex = formatid ? Dex.mod(8) : Dex;
 		this.ignoreEVLimits = (
 			this.dex.gen < 3 ||
 			this.formatid.endsWith('hackmons') ||
