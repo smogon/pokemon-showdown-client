@@ -52,7 +52,7 @@ class LadderRoom extends PSRoom {
 				.get({
 					query: {
 						format: this.format,
-						server: Config.server.id.split(':')[0],
+						server: PS.server.id,
 						output: 'html',
 						prefix: toID(searchValue),
 					},
