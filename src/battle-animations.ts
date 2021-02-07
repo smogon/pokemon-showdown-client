@@ -1255,7 +1255,7 @@ class BattleScene {
 				y: side.y - 40,
 				z: side.z,
 				opacity: 0.5,
-				scale: 0.4,
+				scale: 2,
 			}, this);
 
 			const sleazyspore2 = new Sprite(BattleEffects.sleazyspores, {
@@ -1264,7 +1264,7 @@ class BattleScene {
 				y: side.y - 10,
 				z: side.z,
 				opacity: 0.5,
-				scale: 0.4,
+				scale: 2,
 			}, this);
 
 			const sleazyspore3 = new Sprite(BattleEffects.sleazyspores, {
@@ -1273,7 +1273,7 @@ class BattleScene {
 				y: side.y - 30,
 				z: side.z,
 				opacity: 0.5,
-				scale: 0.4,
+				scale: 2,
 			}, this);
 
 			const sleazyspore4 = new Sprite(BattleEffects.sleazyspores, {
@@ -1282,7 +1282,7 @@ class BattleScene {
 				y: side.y - 20,
 				z: side.z,
 				opacity: 0.5,
-				scale: 0.4,
+				scale: 2,
 			}, this);
 
 			this.$spritesFront[spriteIndex].append(sleazyspore1.$el!);
