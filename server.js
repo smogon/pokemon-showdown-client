@@ -58,6 +58,12 @@ app.post(`/~~${defaultserver.id}/action.php`, (request, response) => {
   });
 });
 app.use('*.php', (request, response) => response.sendStatus(404));
+app.get('/lobby-banner', (request, response) => {
+  const banners = fs.readdirSync('./banners');
+  const banner = banners[Math.floor(Math.random() * banners.length)];
+
+  response.sendFile(path.join('./banners', banner));
+});
 app.use(express.static('./public', { index: 'index.html', fallthrough: true }));
 app.get('*', (request, response) => {
   response.sendFile(path.join(__dirname, './public/index.html'));
