@@ -1251,8 +1251,8 @@ class BattleScene {
 		case 'sleazyspores':
 			const sleazyspore1 = new Sprite(BattleEffects.energyball, {
 				display: 'block',
-				x: side.leftof(-40),
-				y: side.y - 10,
+				x: side.leftof(40),
+				y: side.y - 40,
 				z: side.z,
 				opacity: 0.5,
 				scale: 0.2,
@@ -1260,8 +1260,8 @@ class BattleScene {
 
 			const sleazyspore2 = new Sprite(BattleEffects.energyball, {
 				display: 'block',
-				x: side.leftof(-20),
-				y: side.y - 40,
+				x: side.leftof(20),
+				y: side.y - 10,
 				z: side.z,
 				opacity: 0.5,
 				scale: 0.2,
@@ -1269,8 +1269,8 @@ class BattleScene {
 
 			const sleazyspore3 = new Sprite(BattleEffects.energyball, {
 				display: 'block',
-				x: side.leftof(30),
-				y: side.y - 20,
+				x: side.leftof(-30),
+				y: side.y - 30,
 				z: side.z,
 				opacity: 0.5,
 				scale: 0.2,
@@ -1278,8 +1278,8 @@ class BattleScene {
 
 			const sleazyspore4 = new Sprite(BattleEffects.energyball, {
 				display: 'block',
-				x: side.leftof(10),
-				y: side.y - 30,
+				x: side.leftof(-10),
+				y: side.y - 20,
 				z: side.z,
 				opacity: 0.5,
 				scale: 0.2,
@@ -1716,6 +1716,7 @@ class PokemonSprite extends Sprite {
 		mimic: ['Mimic', 'good'],
 		watersport: ['Water Sport', 'good'],
 		mudsport: ['Mud Sport', 'good'],
+		waitforit: ['Wait For It', 'neutral'],
 		substitute: null,
 		// sub graphics are handled elsewhere, see Battle.Sprite.animSub()
 		uproar: ['Uproar', 'neutral'],
