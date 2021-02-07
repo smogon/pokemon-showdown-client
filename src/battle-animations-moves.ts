@@ -31932,186 +31932,187 @@ const BattleMoveAnims: AnimTable = {
 		},
 	},
 	boltbeam: {
-		scene.showEffect('iceball', {
-			x: attacker.x - 45,
-			y: attacker.y - 20,
-			z: attacker.z,
-			scale: 0,
-			opacity: 0.2,
-			time: 100,
-		}, {
-			scale: 0.5,
-			opacity: 0.6,
-			time: 500,
-		}, 'decel', 'fade');
-		scene.showEffect('electroball', {
-			x: attacker.x + 45,
-			y: attacker.y - 20,
-			z: attacker.z,
-			scale: 0,
-			opacity: 0.2,
-			time: 200,
-		}, {
-			scale: 0.5,
-			opacity: 0.6,
-			time: 600,
-		}, 'decel', 'fade');
-
-		scene.showEffect('electroball', {
-			x: attacker.x - 45,
-			y: attacker.y - 20,
-			z: attacker.z,
-			scale: 0.5,
-			opacity: 0.6,
-			time: 500,
-		}, {
-			x: defender.x - 10,
-			y: defender.y + 5,
-			z: defender.behind(5),
-			opacity: 0.8,
-			time: 800,
-		}, 'accel', 'explode');
-		scene.showEffect('iceball', {
-			x: attacker.x + 45,
-			y: attacker.y - 20,
-			z: attacker.z,
-			scale: 0.5,
-			opacity: 0.6,
-			time: 600,
-		}, {
-			x: defender.x - 10,
-			y: defender.y + 5,
-			z: defender.behind(5),
-			opacity: 0.8,
-			time: 900,
-		}, 'accel', 'explode');
-
-		scene.showEffect('lightning', {
-			x: defender.x + 15,
-			y: defender.y,
-			z: defender.z,
-			scale: 0.5,
-			opacity: 0.8,
-			time: 700,
-		}, {
-			scale: 5,
-			opacity: 0,
-			time: 1000,
-		}, 'linear');
-		scene.showEffect('icicle', {
-			x: defender.x,
-			y: defender.y,
-			z: defender.z,
-			scale: 0.5,
-			opacity: 0.8,
-			time: 800,
-		}, {
-			scale: 3,
-			opacity: 0,
-			time: 1100,
-		}, 'linear');
-
-		defender.delay(675);
-		defender.anim({
-			z: defender.behind(5),
-			time: 75,
-		}, 'swing');
-		defender.anim({
-			time: 75,
-		}, 'swing');
-		defender.anim({
-			z: defender.behind(5),
-			time: 75,
-		}, 'swing');
-		defender.anim({
-			time: 75,
-		}, 'swing');
-		defender.anim({
-			z: defender.behind(5),
-			time: 75,
-		}, 'swing');
-		defender.anim({
-			time: 150,
-		}, 'swing');
-	},
-},
-searingsunrazesmash: {
-	anim(scene, [attacker, defender]) {
-		let xstep = (defender.x - attacker.x) / 5;
-		let ystep = (defender.x - 200 - attacker.x) / 5;
-		let zstep = (defender.z - attacker.z) / 5;
-
-		scene.backgroundEffect(`url('https://${Config.routes.client}/fx/weather-trickroom.png')`, 700, 1);
-		scene.backgroundEffect(`url('https://${Config.routes.client}/fx/bg-space.jpg')`, 2500, 1, 700);
-		scene.backgroundEffect('#FFFFFF', 1500, 1, 2500);
-
-		scene.showEffect('flareball', {
-			x: attacker.x,
-			y: attacker.y + 200,
-			z: attacker.z,
-			scale: 2.5,
-			opacity: 1,
-			time: 1700,
-		}, {
-			scale: 3,
-			opacity: 0,
-			time: 2400,
-		}, 'decel');
-		for (let i = 0; i < 5; i++) {
-			scene.showEffect('flareball', {
-				x: attacker.x + xstep * (i + 1),
-				y: (attacker.y + 200) + ystep * (i + 1),
-				z: attacker.z + zstep * (i + 1),
-				scale: 2,
-				opacity: 0.8,
-				time: 40 * i + 1900,
+		anim(scene, [attacker, defender]) {
+			scene.showEffect('iceball', {
+				x: attacker.x - 45,
+				y: attacker.y - 20,
+				z: attacker.z,
+				scale: 0,
+				opacity: 0.2,
+				time: 100,
 			}, {
-				opacity: 0,
-				time: 60 * i + 2700,
-			}, 'linear');
-		}
-		scene.showEffect('iceball', {
-			x: attacker.leftof(-25),
-			y: attacker.y + 250,
-			z: attacker.z,
-			scale: 1,
-			opacity: 0.1,
-			time: 2000,
-		}, {
-			x: defender.x,
-			y: defender.y,
-			z: defender.behind(5),
-			scale: 1.5,
-			time: 2400,
-		}, 'accel', 'explode');
-		scene.showEffect('iceball', {
-			x: attacker.leftof(-25),
-			y: attacker.y + 250,
-			z: attacker.z,
-			scale: 1,
-			opacity: 0.8,
-			time: 2050,
-		}, {
-			x: defender.x,
-			y: defender.y,
-			z: defender.behind(5),
-			scale: 1.5,
-			time: 2450,
-		}, 'accel', 'explode');
+				scale: 0.5,
+				opacity: 0.6,
+				time: 500,
+			}, 'decel', 'fade');
+			scene.showEffect('electroball', {
+				x: attacker.x + 45,
+				y: attacker.y - 20,
+				z: attacker.z,
+				scale: 0,
+				opacity: 0.2,
+				time: 200,
+			}, {
+				scale: 0.5,
+				opacity: 0.6,
+				time: 600,
+			}, 'decel', 'fade');
 
-		scene.showEffect('flareball', {
-			x: defender.x,
-			y: defender.y - 50,
-			z: defender.z,
-				scale: 1,
-				xscale: 3,
-				opacity: 0.5,
-				time: 2275,
+			scene.showEffect('electroball', {
+				x: attacker.x - 45,
+				y: attacker.y - 20,
+				z: attacker.z,
+				scale: 0.5,
+				opacity: 0.6,
+				time: 500,
+			}, {
+				x: defender.x - 10,
+				y: defender.y + 5,
+				z: defender.behind(5),
+				opacity: 0.8,
+				time: 800,
+			}, 'accel', 'explode');
+			scene.showEffect('iceball', {
+				x: attacker.x + 45,
+				y: attacker.y - 20,
+				z: attacker.z,
+				scale: 0.5,
+				opacity: 0.6,
+				time: 600,
+			}, {
+				x: defender.x - 10,
+				y: defender.y + 5,
+				z: defender.behind(5),
+				opacity: 0.8,
+				time: 900,
+			}, 'accel', 'explode');
+
+			scene.showEffect('lightning', {
+				x: defender.x + 15,
+				y: defender.y,
+				z: defender.z,
+				scale: 0.5,
+				opacity: 0.8,
+				time: 700,
+			}, {
+				scale: 5,
+				opacity: 0,
+				time: 1000,
+			}, 'linear');
+			scene.showEffect('icicle', {
+				x: defender.x,
+				y: defender.y,
+				z: defender.z,
+				scale: 0.5,
+				opacity: 0.8,
+				time: 800,
 			}, {
 				scale: 3,
-				xscale: 8,
+				opacity: 0,
+				time: 1100,
+			}, 'linear');
+
+			defender.delay(675);
+			defender.anim({
+				z: defender.behind(5),
+				time: 75,
+			}, 'swing');
+			defender.anim({
+				time: 75,
+			}, 'swing');
+			defender.anim({
+				z: defender.behind(5),
+				time: 75,
+			}, 'swing');
+			defender.anim({
+				time: 75,
+			}, 'swing');
+			defender.anim({
+				z: defender.behind(5),
+				time: 75,
+			}, 'swing');
+			defender.anim({
+				time: 150,
+			}, 'swing');
+		},
+	},
+	searingsunrazesmash: {
+		anim(scene, [attacker, defender]) {
+			let xstep = (defender.x - attacker.x) / 5;
+			let ystep = (defender.x - 200 - attacker.x) / 5;
+			let zstep = (defender.z - attacker.z) / 5;
+
+			scene.backgroundEffect(`url('https://${Config.routes.client}/fx/weather-trickroom.png')`, 700, 1);
+			scene.backgroundEffect(`url('https://${Config.routes.client}/fx/bg-space.jpg')`, 2500, 1, 700);
+			scene.backgroundEffect('#FFFFFF', 1500, 1, 2500);
+
+			scene.showEffect('flareball', {
+				x: attacker.x,
+				y: attacker.y + 200,
+				z: attacker.z,
+				scale: 2.5,
+				opacity: 1,
+				time: 1700,
+			}, {
+				scale: 3,
+				opacity: 0,
+				time: 2400,
+			}, 'decel');
+			for (let i = 0; i < 5; i++) {
+				scene.showEffect('flareball', {
+					x: attacker.x + xstep * (i + 1),
+					y: (attacker.y + 200) + ystep * (i + 1),
+					z: attacker.z + zstep * (i + 1),
+					scale: 2,
+					opacity: 0.8,
+					time: 40 * i + 1900,
+				}, {
+					opacity: 0,
+					time: 60 * i + 2700,
+				}, 'linear');
+			}
+			scene.showEffect('iceball', {
+				x: attacker.leftof(-25),
+				y: attacker.y + 250,
+				z: attacker.z,
+				scale: 1,
 				opacity: 0.1,
-				time: 2875,
+				time: 2000,
+			}, {
+				x: defender.x,
+				y: defender.y,
+				z: defender.behind(5),
+				scale: 1.5,
+				time: 2400,
+			}, 'accel', 'explode');
+			scene.showEffect('iceball', {
+				x: attacker.leftof(-25),
+				y: attacker.y + 250,
+				z: attacker.z,
+				scale: 1,
+				opacity: 0.8,
+				time: 2050,
+			}, {
+				x: defender.x,
+				y: defender.y,
+				z: defender.behind(5),
+				scale: 1.5,
+				time: 2450,
+			}, 'accel', 'explode');
+
+			scene.showEffect('flareball', {
+				x: defender.x,
+				y: defender.y - 50,
+				z: defender.z,
+					scale: 1,
+					xscale: 3,
+					opacity: 0.5,
+					time: 2275,
+				}, {
+					scale: 3,
+					xscale: 8,
+					opacity: 0.1,
+					time: 2875,
 			}, 'linear', 'fade');
 			scene.showEffect('fireball', {
 				x: defender.x + 40,
