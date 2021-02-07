@@ -32706,7 +32706,6 @@ BattleMoveAnims['scorchedearth'] = {anim: BattleMoveAnims['earthpower'].anim};
 BattleMoveAnims['1000folds'] = {anim: BattleMoveAnims['sacredsword'].anim};
 BattleMoveAnims['banhammer'] = {anim: BattleMoveAnims['hammerarm'].anim};
 BattleMoveAnims['hulkup'] = {anim: BattleMoveAnims['bulkup'].anim};
-BattleMoveAnims['checkem'] = {anim: BattleMoveAnims['photongeyser'].anim};
 BattleMoveAnims['greatrage'] = {anim: BattleMoveAnims['boomburst'].anim};
 BattleMoveAnims['plunder'] = {anim: BattleMoveAnims['liquidation'].anim};
 BattleMoveAnims['spooperpower'] = {anim: BattleMoveAnims['neverendingnightmare'].anim};
