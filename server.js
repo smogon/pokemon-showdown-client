@@ -62,7 +62,7 @@ app.get('/lobby-banner', (request, response) => {
   const banners = fs.readdirSync('./banners');
   const banner = banners[Math.floor(Math.random() * banners.length)];
 
-  response.sendFile(path.join('./banners', banner));
+  response.sendFile(path.join(__dirname, 'banners', banner));
 });
 app.use(express.static('./public', { index: 'index.html', fallthrough: true }));
 app.get('*', (request, response) => {
