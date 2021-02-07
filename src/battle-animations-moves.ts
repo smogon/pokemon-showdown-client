@@ -32036,6 +32036,101 @@ const BattleMoveAnims: AnimTable = {
 			}, 'swing');
 		},
 	},
+	checkem: {
+		anim(scene, [attacker, defender]) {
+			scene.showEffect('checked', {
+				x: attacker.x,
+				y: attacker.y,
+				z: attacker.z,
+				scale: 0.6,
+				opacity: 0.4,
+			}, {
+				x: defender.x,
+				y: defender.y,
+				z: defender.z,
+				scale: 0.6,
+				opacity: 1,
+				time: 400,
+			}, 'linear', 'explode');
+		},
+	},
+	wowwiener: {
+		anim(scene, [attacker, defender]) {
+			scene.showEffect('hotdog', {
+				x: attacker.x,
+				y: attacker.y,
+				z: attacker.z,
+				scale: 0.6,
+				opacity: 0.4,
+			}, {
+				x: defender.x,
+				y: defender.y,
+				z: defender.z,
+				scale: 0.6,
+				opacity: 1,
+				time: 400,
+			}, 'linear', 'explode');
+		},
+	},
+	sleazyspores: {
+		anim(scene, [attacker, defender]) {
+			scene.showEffect('energyball', {
+				x: attacker.x,
+				y: attacker.y,
+				z: attacker.z,
+				scale: 0.1,
+				opacity: 0.5,
+			}, {
+				x: defender.leftof(-40),
+				y: defender.y - 10,
+				z: defender.z,
+				scale: 0.2,
+				opacity: 1,
+			}, 'ballistic');
+			scene.showEffect('energyball', {
+				x: attacker.x,
+				y: attacker.y,
+				z: attacker.z,
+				scale: 0.1,
+				opacity: 0.5,
+				time: 75,
+			}, {
+				x: defender.leftof(-20),
+				y: defender.y - 40,
+				z: defender.z,
+				scale: 0.2,
+				opacity: 1,
+			}, 'ballistic');
+			scene.showEffect('energyball', {
+				x: attacker.x,
+				y: attacker.y,
+				z: attacker.z,
+				scale: 0.1,
+				opacity: 0.5,
+				time: 150,
+			}, {
+				x: defender.leftof(30),
+				y: defender.y - 20,
+				z: defender.z,
+				scale: 0.2,
+				opacity: 1,
+			}, 'ballistic');
+			scene.showEffect('energyball', {
+				x: attacker.x,
+				y: attacker.y,
+				z: attacker.z,
+				scale: 0.1,
+				opacity: 0.5,
+				time: 225,
+			}, {
+				x: defender.leftof(10),
+				y: defender.y - 30,
+				z: defender.z,
+				scale: 0.2,
+				opacity: 1,
+			}, 'ballistic');
+		},
+	},
 	searingsunrazesmash: {
 		anim(scene, [attacker, defender]) {
 			let xstep = (defender.x - attacker.x) / 5;
@@ -32613,9 +32708,7 @@ BattleMoveAnims['banhammer'] = {anim: BattleMoveAnims['hammerarm'].anim};
 BattleMoveAnims['hulkup'] = {anim: BattleMoveAnims['bulkup'].anim};
 BattleMoveAnims['checkem'] = {anim: BattleMoveAnims['photongeyser'].anim};
 BattleMoveAnims['greatrage'] = {anim: BattleMoveAnims['boomburst'].anim};
-BattleMoveAnims['wowwiener'] = {anim: BattleMoveAnims['overheat'].anim};
 BattleMoveAnims['plunder'] = {anim: BattleMoveAnims['liquidation'].anim};
-BattleMoveAnims['sleazyspores'] = {anim: BattleMoveAnims['leechseed'].anim};
 BattleMoveAnims['spooperpower'] = {anim: BattleMoveAnims['neverendingnightmare'].anim};
 BattleMoveAnims['elbowdrop'] = {anim: BattleMoveAnims['spectralthief'].anim};
 BattleMoveAnims['gayagenda'] = {anim: BattleMoveAnims['attract'].anim};
