@@ -872,7 +872,7 @@ class ModdedDex {
 		if (id in table.overrideBP) data.basePower = table.overrideBP[id];
 		if (id in table.overridePP) data.pp = table.overridePP[id];
 		if (id in table.overrideMoveType) data.type = table.overrideMoveType[id];
-		if (id in table.overrideIsNonstandard) data.isNonstandard = table.overrideIsNonstandard[id];
+		if (id in table.overrideMoveIsNonstandard) data.isNonstandard = table.overrideMoveIsNonstandard[id];
 		for (let i = this.gen; i < 8; i++) {
 			if (id in window.BattleTeambuilderTable['gen' + i].overrideMoveDesc) {
 				data.shortDesc = window.BattleTeambuilderTable['gen' + i].overrideMoveDesc[id];
