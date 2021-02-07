@@ -1394,7 +1394,7 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 					} else if (!learnsetEntry.includes(gen)) {
 						continue;
 					}
-					if (this.dex.gen >= 8 && BattleMovedex[moveid].isNonstandard === "Past" && (this.formatType !== 'natdex' || (isModdedFormatType(this.formatType) && !this.formatType.isNatDex))) continue;
+					if (this.dex.gen >= 8 && this.dex.getMove(moveid).isNonstandard === "Past" && (this.formatType !== 'natdex' || (isModdedFormatType(this.formatType) && !this.formatType.isNatDex))) continue;
 					if (typeof this.formatType === 'string' && this.formatType?.startsWith('dlc1') && BattleTeambuilderTable['gen8dlc1']?.nonstandardMoves.includes(moveid)) continue;
 					if (moves.includes(moveid)) continue;
 					moves.push(moveid);
