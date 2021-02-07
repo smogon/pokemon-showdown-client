@@ -473,7 +473,7 @@ class BattleChoiceBuilder {
 						active.maxMoves = active.maxMoves.maxMoves;
 					}
 					for (const move of active.maxMoves) {
-						if (move.move) move.name = Dex.getMove(move.move).name;
+						if (move.move) move.name = battle.dex.getMove(move.move).name;
 						move.id = toID(move.name);
 					}
 				}

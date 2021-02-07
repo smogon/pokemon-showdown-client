@@ -216,7 +216,7 @@ const Dex = new class implements ModdedDex {
 			avatar = BattleAvatarNumbers[avatar];
 		}
 		if (avatar.charAt(0) === '#') {
-			return Dex.resourcePrefix + 'sprites/trainers-custom/' + toID(avatar.substr(1)) + '.png';
+			return this.resourcePrefix + 'sprites/trainers-custom/' + toID(avatar.substr(1)) + '.png';
 		}
 		if (avatar.includes('.') && window.Config?.server?.registered) {
 			// custom avatar served by the server
@@ -224,7 +224,7 @@ const Dex = new class implements ModdedDex {
 			return protocol + '://' + Config.server.host + ':' + Config.server.port +
 				'/avatars/' + encodeURIComponent(avatar).replace(/\%3F/g, '?');
 		}
-		return Dex.resourcePrefix + 'sprites/trainers/' + Dex.sanitizeName(avatar || 'unknown') + '.png';
+		return this.resourcePrefix + 'sprites/trainers/' + this.sanitizeName(avatar || 'unknown') + '.png';
 	}
 
 	/**
@@ -261,11 +261,11 @@ const Dex = new class implements ModdedDex {
 	getEffect(name: string | null | undefined): PureEffect | Item | Ability | Move {
 		name = (name || '').trim();
 		if (name.substr(0, 5) === 'item:') {
-			return Dex.getItem(name.substr(5).trim());
+			return this.getItem(name.substr(5).trim());
 		} else if (name.substr(0, 8) === 'ability:') {
-			return Dex.getAbility(name.substr(8).trim());
+			return this.getAbility(name.substr(8).trim());
 		} else if (name.substr(0, 5) === 'move:') {
-			return Dex.getMove(name.substr(5).trim());
+			return this.getMove(name.substr(5).trim());
 		}
 		let id = toID(name);
 		return new PureEffect(id, name);
@@ -498,7 +498,7 @@ const Dex = new class implements ModdedDex {
 			if (pokemon.volatiles.dynamax) isDynamax = true;
 			pokemon = pokemon.getSpeciesForme();
 		}
-		const species = Dex.getSpecies(pokemon);
+		const species = this.getSpecies(pokemon);
 		// Gmax sprites are already extremely large, so we don't need to double.
 		if (species.name.endsWith('-Gmax')) isDynamax = false;
 		let spriteData = {
@@ -506,7 +506,7 @@ const Dex = new class implements ModdedDex {
 			w: 96,
 			h: 96,
 			y: 0,
-			url: Dex.resourcePrefix + 'sprites/',
+			url: this.resourcePrefix + 'sprites/',
 			pixelated: true,
 			isFrontSprite: false,
 			cryurl: '',
@@ -536,8 +536,8 @@ const Dex = new class implements ModdedDex {
 		//     (eg. Darmanitan in graphicsGen 2) then we go up gens until it exists.
 		//
 		let graphicsGen = mechanicsGen;
-		if (Dex.prefs('nopastgens')) graphicsGen = 6;
-		if (Dex.prefs('bwgfx') && graphicsGen >= 6) graphicsGen = 5;
+		if (this.prefs('nopastgens')) graphicsGen = 6;
+		if (this.prefs('bwgfx') && graphicsGen >= 6) graphicsGen = 5;
 		let baseDir;
 		if (species.num > 69000) {
 			graphicsGen = 3;
@@ -626,7 +626,7 @@ const Dex = new class implements ModdedDex {
 		}
 
 		if (animationData[facing + 'f'] && options.gender === 'F') facing += 'f';
-		let allowAnim = !Dex.prefs('noanim') && !Dex.prefs('nogif');
+		let allowAnim = !this.prefs('noanim') && !this.prefs('nogif');
 		if (allowAnim && spriteData.gen >= 6) spriteData.pixelated = false;
 		if (allowAnim && animationData[facing] && spriteData.gen >= 5) {
 			if (facing.slice(-1) === 'f') name += '-f';
@@ -716,13 +716,13 @@ const Dex = new class implements ModdedDex {
 
 	getPokemonIcon(pokemon: string | Pokemon | ServerPokemon | PokemonSet | null, facingLeft?: boolean) {
 		if (pokemon === 'pokeball') {
-			return `background:transparent url(${Dex.resourcePrefix}sprites/pokemonicons-pokeball-sheet.png) no-repeat scroll -0px 4px`;
+			return `background:transparent url(${this.resourcePrefix}sprites/pokemonicons-pokeball-sheet.png) no-repeat scroll -0px 4px`;
 		} else if (pokemon === 'pokeball-statused') {
-			return `background:transparent url(${Dex.resourcePrefix}sprites/pokemonicons-pokeball-sheet.png) no-repeat scroll -40px 4px`;
+			return `background:transparent url(${this.resourcePrefix}sprites/pokemonicons-pokeball-sheet.png) no-repeat scroll -40px 4px`;
 		} else if (pokemon === 'pokeball-fainted') {
-			return `background:transparent url(${Dex.resourcePrefix}sprites/pokemonicons-pokeball-sheet.png) no-repeat scroll -80px 4px;opacity:.4;filter:contrast(0)`;
+			return `background:transparent url(${this.resourcePrefix}sprites/pokemonicons-pokeball-sheet.png) no-repeat scroll -80px 4px;opacity:.4;filter:contrast(0)`;
 		} else if (pokemon === 'pokeball-none') {
-			return `background:transparent url(${Dex.resourcePrefix}sprites/pokemonicons-pokeball-sheet.png) no-repeat scroll -80px 4px`;
+			return `background:transparent url(${this.resourcePrefix}sprites/pokemonicons-pokeball-sheet.png) no-repeat scroll -80px 4px`;
 		}
 
 		let id = toID(pokemon);
@@ -741,13 +741,13 @@ const Dex = new class implements ModdedDex {
 		let top = Math.floor(num / 12) * 30;
 		let left = (num % 12) * 40;
 		let fainted = ((pokemon as Pokemon | ServerPokemon)?.fainted ? `;opacity:.3;filter:grayscale(100%) brightness(.5)` : ``);
-		return `background:transparent url(${Dex.resourcePrefix}sprites/pokemonicons-sheet.png?v4) no-repeat scroll -${left}px -${top}px${fainted}`;
+		return `background:transparent url(${this.resourcePrefix}sprites/pokemonicons-sheet.png?v4) no-repeat scroll -${left}px -${top}px${fainted}`;
 	}
 
 	getTeambuilderSpriteData(pokemon: any, gen: number = 0): TeambuilderSpriteData {
 		let id = toID(pokemon.species);
 		let spriteid = pokemon.spriteid;
-		let species = Dex.getSpecies(pokemon.species);
+		let species = this.getSpecies(pokemon.species);
 		if (pokemon.species && !spriteid) {
 			spriteid = species.spriteid || toID(pokemon.species);
 		}
@@ -759,7 +759,7 @@ const Dex = new class implements ModdedDex {
 			y: -3,
 		};
 		if (pokemon.shiny) spriteData.shiny = true;
-		if (Dex.prefs('nopastgens')) gen = 6;
+		if (this.prefs('nopastgens')) gen = 6;
 		let xydexExists = (!species.isNonstandard || species.isNonstandard === 'Past') || [
 			"pikachustarter", "eeveestarter", "meltan", "melmetal", "fidgit", "stratagem", "tomohawk", "mollux", "crucibelle", "crucibellemega", "kerfluffle", "pajantom", "jumbao", "caribolt", "smokomodo", "snaelstrom", "equilibra", "astrolotl", "scratchet", "pluffle", "smogecko", "pokestarufo", "pokestarufo2", "pokestarbrycenman", "pokestarmt", "pokestarmt2", "pokestargiant", "pokestarhumanoid", "pokestarmonster", "pokestarf00", "pokestarf002", "pokestarspirit",
 		].includes(species.id);
@@ -794,7 +794,7 @@ const Dex = new class implements ModdedDex {
 		if (!pokemon) return '';
 		const data = this.getTeambuilderSpriteData(pokemon, gen);
 		const shiny = (data.shiny ? '-shiny' : '');
-		return 'background-image:url(' + Dex.resourcePrefix + data.spriteDir + shiny + '/' + data.spriteid + '.png);background-position:' + data.x + 'px ' + data.y + 'px;background-repeat:no-repeat';
+		return 'background-image:url(' + this.resourcePrefix + data.spriteDir + shiny + '/' + data.spriteid + '.png);background-position:' + data.x + 'px ' + data.y + 'px;background-repeat:no-repeat';
 	}
 
 	getItemIcon(item: any) {
@@ -804,14 +804,14 @@ const Dex = new class implements ModdedDex {
 
 		let top = Math.floor(num / 16) * 24;
 		let left = (num % 16) * 24;
-		return 'background:transparent url(' + Dex.resourcePrefix + 'sprites/itemicons-sheet.png?g8) no-repeat scroll -' + left + 'px -' + top + 'px';
+		return 'background:transparent url(' + this.resourcePrefix + 'sprites/itemicons-sheet.png?g8) no-repeat scroll -' + left + 'px -' + top + 'px';
 	}
 
 	getTypeIcon(type: string | null, b?: boolean) { // b is just for utilichart.js
 		type = this.getType(type).name;
 		if (!type) type = '???';
 		let sanitizedType = type.replace(/\?/g, '%3f');
-		return `<img src="${Dex.resourcePrefix}sprites/types/${sanitizedType}.png" alt="${type}" height="14" width="32" class="pixelated${b ? ' b' : ''}" />`;
+		return `<img src="${this.resourcePrefix}sprites/types/${sanitizedType}.png" alt="${type}" height="14" width="32" class="pixelated${b ? ' b' : ''}" />`;
 	}
 
 	getCategoryIcon(category: string | null) {
@@ -827,7 +827,7 @@ const Dex = new class implements ModdedDex {
 			sanitizedCategory = 'undefined';
 			break;
 		}
-		return `<img src="${Dex.resourcePrefix}sprites/categories/${sanitizedCategory}.png" alt="${sanitizedCategory}" height="14" width="32" class="pixelated" />`;
+		return `<img src="${this.resourcePrefix}sprites/categories/${sanitizedCategory}.png" alt="${sanitizedCategory}" height="14" width="32" class="pixelated" />`;
 	}
 
 	getPokeballs() {

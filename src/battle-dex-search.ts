@@ -467,7 +467,7 @@ class DexSearch {
 				}
 				break;
 			case 'ability':
-				let ability = Dex.getAbility(fId).name;
+				let ability = this.dex.getAbility(fId).name;
 				buf.push(['header', `${ability} Pok&eacute;mon`]);
 				for (let id in BattlePokedex) {
 					if (!BattlePokedex[id].abilities) continue;
@@ -1446,7 +1446,7 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 						if (!forme.battleOnly && !excludedForme(forme)) types.push(...forme.types);
 					}
 				}
-				const move = Dex.getMove(id);
+				const move = this.dex.getMove(id);
 				if (!types.includes(move.type)) continue;
 				if (moves.includes(move.id)) continue;
 				if (move.gen > dex.gen) continue;

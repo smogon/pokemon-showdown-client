@@ -1069,6 +1069,7 @@ class Battle {
 	lastMove = '';
 
 	gen = 7;
+	modName: String | undefined;
 	dex: ModdedDex = Dex;
 	teamPreviewCount = 0;
 	speciesClause = false;
@@ -1108,6 +1109,15 @@ class Battle {
 
 	constructor($frame: JQuery<HTMLElement>, $logFrame: JQuery<HTMLElement>, id = '') {
 		this.id = id;
+		const modMatch = id.match(/^battle-gen(\d+)([a-z]+)(only|nationaldex)/);
+		if (modMatch) {
+			const [, genNumber, modName, modified] = modMatch;
+			if (!Number.isNaN(parseInt(genNumber, 10))) {
+				this.gen = parseInt(genNumber, 10);
+			}
+			this.modName = `${modName}${modified === 'only' ? 'only' : 'natdex'}`;
+			this.dex = Dex.mod(this.gen, this.modName as ID);
+		}
 
 		if (!$frame && !$logFrame) {
 			this.scene = new BattleSceneStub();
@@ -1358,11 +1368,11 @@ class Battle {
 			let moveName = move.name;
 			if (move.isZ) {
 				pokemon.item = move.isZ;
-				let item = Dex.getItem(move.isZ);
+				let item = this.dex.getItem(move.isZ);
 				if (item.zMoveFrom) moveName = item.zMoveFrom;
 			} else if (move.name.slice(0, 2) === 'Z-') {
 				moveName = moveName.slice(2);
-				move = Dex.getMove(moveName);
+				move = this.dex.getMove(moveName);
 				if (window.BattleItems) {
 					for (let item in BattleItems) {
 						if (BattleItems[item].zMoveType === move.type) pokemon.item = item;
@@ -1405,7 +1415,7 @@ class Battle {
 			return;
 		}
 
-		let usedMove = kwArgs.anim ? Dex.getMove(kwArgs.anim) : move;
+		let usedMove = kwArgs.anim ? this.dex.getMove(kwArgs.anim) : move;
 		if (!kwArgs.spread) {
 			this.scene.runMoveAnim(usedMove.id, [pokemon, target]);
 			return;
@@ -2049,7 +2059,7 @@ class Battle {
 		}
 		case '-item': {
 			let poke = this.getPokemon(args[1])!;
-			let item = Dex.getItem(args[2]);
+			let item = this.dex.getItem(args[2]);
 			let effect = Dex.getEffect(kwArgs.from);
 			let ofpoke = this.getPokemon(kwArgs.of);
 			poke.item = item.name;
@@ -2117,7 +2127,7 @@ class Battle {
 		}
 		case '-enditem': {
 			let poke = this.getPokemon(args[1])!;
-			let item = Dex.getItem(args[2]);
+			let item = this.dex.getItem(args[2]);
 			let effect = Dex.getEffect(kwArgs.from);
 			poke.item = '';
 			poke.itemEffect = '';
@@ -2179,7 +2189,7 @@ class Battle {
 		}
 		case '-ability': {
 			let poke = this.getPokemon(args[1])!;
-			let ability = Dex.getAbility(args[2]);
+			let ability = this.dex.getAbility(args[2]);
 			let effect = Dex.getEffect(kwArgs.from);
 			let ofpoke = this.getPokemon(kwArgs.of);
 			poke.rememberAbility(ability.name, effect.id && !kwArgs.fail);
@@ -2226,7 +2236,7 @@ class Battle {
 			// deprecated; use |-start| for Gastro Acid
 			// and the third arg of |-ability| for Entrainment et al
 			let poke = this.getPokemon(args[1])!;
-			let ability = Dex.getAbility(args[2]);
+			let ability = this.dex.getAbility(args[2]);
 			poke.ability = '(suppressed)';
 
 			if (ability.id) {
@@ -2291,7 +2301,7 @@ class Battle {
 		}
 		case '-formechange': {
 			let poke = this.getPokemon(args[1])!;
-			let species = Dex.getSpecies(args[2]);
+			let species = this.dex.getSpecies(args[2]);
 			let fromeffect = Dex.getEffect(kwArgs.from);
 			let isCustomAnim = false;
 			poke.removeVolatile('typeadd' as ID);
@@ -2308,7 +2318,7 @@ class Battle {
 		}
 		case '-mega': {
 			let poke = this.getPokemon(args[1])!;
-			let item = Dex.getItem(args[3]);
+			let item = this.dex.getItem(args[3]);
 			if (args[3]) {
 				poke.item = item.name;
 			}
@@ -2688,7 +2698,7 @@ class Battle {
 			case 'eeriespell':
 			case 'gmaxdepletion':
 			case 'spite':
-				let move = Dex.getMove(kwArgs.move).name;
+				let move = this.dex.getMove(kwArgs.move).name;
 				let pp = Number(kwArgs.number);
 				if (isNaN(pp)) pp = 4;
 				poke.rememberMove(move, pp);
@@ -2732,7 +2742,7 @@ class Battle {
 				break;
 			case 'mummy':
 				if (!kwArgs.ability) break; // if Mummy activated but failed, no ability will have been sent
-				let ability = Dex.getAbility(kwArgs.ability);
+				let ability = this.dex.getAbility(kwArgs.ability);
 				this.activateAbility(target, ability.name);
 				this.activateAbility(poke, "Mummy");
 				this.scene.wait(700);
@@ -2854,7 +2864,7 @@ class Battle {
 		}
 		case '-anim': {
 			let poke = this.getPokemon(args[1])!;
-			let move = Dex.getMove(args[2]);
+			let move = this.dex.getMove(args[2]);
 			if (this.checkActive(poke)) return;
 			let poke2 = this.getPokemon(args[3]);
 			this.scene.beforeMove(poke);
@@ -3348,7 +3358,7 @@ class Battle {
 			this.endLastTurn();
 			this.resetTurnsSinceMoved();
 			let poke = this.getPokemon(args[1])!;
-			let move = Dex.getMove(args[2]);
+			let move = this.dex.getMove(args[2]);
 			if (this.checkActive(poke)) return;
 			let poke2 = this.getPokemon(args[3]);
 			this.scene.beforeMove(poke);
@@ -3363,14 +3373,14 @@ class Battle {
 			this.resetTurnsSinceMoved();
 			let poke = this.getPokemon(args[1])!;
 			let effect = Dex.getEffect(args[2]);
-			let move = Dex.getMove(args[3]);
+			let move = this.dex.getMove(args[3]);
 			this.cantUseMove(poke, effect, move, kwArgs);
 			this.log(args, kwArgs);
 			break;
 		}
 		case 'gen': {
 			this.gen = parseInt(args[1], 10);
-			this.dex = Dex.forGen(this.gen);
+			this.dex = Dex.mod(this.gen, this.modName as ID);
 			this.scene.updateGen();
 			this.log(args);
 			break;
