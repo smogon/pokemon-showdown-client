@@ -1249,40 +1249,40 @@ class BattleScene {
 			this.sideConditions[siden][id] = [web];
 			break;
 		case 'sleazyspores':
-			const sleazyspore1 = new Sprite(BattleEffects.energyball, {
+			const sleazyspore1 = new Sprite(BattleEffects.sleazyspores, {
 				display: 'block',
 				x: side.leftof(40),
 				y: side.y - 40,
 				z: side.z,
 				opacity: 0.5,
-				scale: 0.2,
+				scale: 0.4,
 			}, this);
 
-			const sleazyspore2 = new Sprite(BattleEffects.energyball, {
+			const sleazyspore2 = new Sprite(BattleEffects.sleazyspores, {
 				display: 'block',
 				x: side.leftof(20),
 				y: side.y - 10,
 				z: side.z,
 				opacity: 0.5,
-				scale: 0.2,
+				scale: 0.4,
 			}, this);
 
-			const sleazyspore3 = new Sprite(BattleEffects.energyball, {
+			const sleazyspore3 = new Sprite(BattleEffects.sleazyspores, {
 				display: 'block',
 				x: side.leftof(-30),
 				y: side.y - 30,
 				z: side.z,
 				opacity: 0.5,
-				scale: 0.2,
+				scale: 0.4,
 			}, this);
 
-			const sleazyspore4 = new Sprite(BattleEffects.energyball, {
+			const sleazyspore4 = new Sprite(BattleEffects.sleazyspores, {
 				display: 'block',
 				x: side.leftof(-10),
 				y: side.y - 20,
 				z: side.z,
 				opacity: 0.5,
-				scale: 0.2,
+				scale: 0.4,
 			}, this);
 
 			this.$spritesFront[spriteIndex].append(sleazyspore1.$el!);
@@ -2965,7 +2965,7 @@ const BattleEffects: {[k: string]: SpriteData} = {
 	},
 	sleazyspores: {
 		url: 'sleazyspores.png',
-		w: 120, h: 122,
+		w: 22, h: 27,
 	},
 	hotdog: {
 		url: 'hotdog.png',

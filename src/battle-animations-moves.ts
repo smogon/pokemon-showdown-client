@@ -32074,11 +32074,11 @@ const BattleMoveAnims: AnimTable = {
 	},
 	sleazyspores: {
 		anim(scene, [attacker, defender]) {
-			scene.showEffect('energyball', {
+			scene.showEffect('sleazyspores', {
 				x: attacker.x,
 				y: attacker.y,
 				z: attacker.z,
-				scale: 0.1,
+				scale: 0.2,
 				opacity: 0.5,
 			}, {
 				x: defender.leftof(40),
@@ -32087,46 +32087,46 @@ const BattleMoveAnims: AnimTable = {
 				scale: 0.2,
 				opacity: 1,
 			}, 'ballistic');
-			scene.showEffect('energyball', {
+			scene.showEffect('sleazyspores', {
 				x: attacker.x,
 				y: attacker.y,
 				z: attacker.z,
-				scale: 0.1,
+				scale: 0.2,
 				opacity: 0.5,
 				time: 75,
 			}, {
 				x: defender.leftof(20),
 				y: defender.y - 10,
 				z: defender.z,
-				scale: 0.2,
+				scale: 0.4,
 				opacity: 1,
 			}, 'ballistic');
-			scene.showEffect('energyball', {
+			scene.showEffect('sleazyspores', {
 				x: attacker.x,
 				y: attacker.y,
 				z: attacker.z,
-				scale: 0.1,
+				scale: 0.2,
 				opacity: 0.5,
 				time: 150,
 			}, {
 				x: defender.leftof(-30),
 				y: defender.y - 30,
 				z: defender.z,
-				scale: 0.2,
+				scale: 0.4,
 				opacity: 1,
 			}, 'ballistic');
-			scene.showEffect('energyball', {
+			scene.showEffect('sleazyspores', {
 				x: attacker.x,
 				y: attacker.y,
 				z: attacker.z,
-				scale: 0.1,
+				scale: 0.2,
 				opacity: 0.5,
 				time: 225,
 			}, {
 				x: defender.leftof(-10),
 				y: defender.y - 20,
 				z: defender.z,
-				scale: 0.2,
+				scale: 0.4,
 				opacity: 1,
 			}, 'ballistic');
 		},
