@@ -960,6 +960,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 		BattleTeambuilderTable[gen].overrideMoveDesc = overrideMoveDesc;
 		const overrideMoveType = {};
 		BattleTeambuilderTable[gen].overrideMoveType = overrideMoveType;
+		BattleTeambuilderTable[gen].overrideMoveIsNonstandard = {};
 		for (const id in genData.Moves) {
 			const pastEntry = genData.Moves[id];
 			const nowEntry = Dex.data.Moves[id];
@@ -1206,6 +1207,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 		const overridePP = {};
 		const overrideMoveDesc = {};
 		const overrideMoveType = {};
+		const overrideMoveIsNonstandard = {};
 		const overrideItemDesc = {};
 		const overrideAbilityDesc = {};
 
@@ -1227,6 +1229,9 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			}
 			if (baseEntry.shortDesc !== modEntry.shortDesc) {
 				overrideMoveDesc[moveId] = modEntry.shortDesc;
+			}
+			if (baseEntry.isNonstandard !== modEntry.isNonstandard) {
+				overrideMoveIsNonstandard[moveId] = modEntry.isNonstandard;
 			}
 		}
 
@@ -1258,6 +1263,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 		BattleTeambuilderTable[modOnlyTablename].overridePP = overridePP;
 		BattleTeambuilderTable[modOnlyTablename].overrideMoveDesc = overrideMoveDesc;
 		BattleTeambuilderTable[modOnlyTablename].overrideMoveType = overrideMoveType;
+		BattleTeambuilderTable[modOnlyTablename].overrideMoveIsNonstandard = overrideMoveIsNonstandard;
 		BattleTeambuilderTable[modOnlyTablename].overrideItemDesc = overrideItemDesc;
 		BattleTeambuilderTable[modOnlyTablename].overrideAbilityDesc = overrideAbilityDesc;
 		BattleTeambuilderTable[modOnlyTablename].overrideStats = {};
@@ -1276,6 +1282,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 		BattleTeambuilderTable[natDexTablename].overridePP = overridePP;
 		BattleTeambuilderTable[natDexTablename].overrideMoveDesc = overrideMoveDesc;
 		BattleTeambuilderTable[natDexTablename].overrideMoveType = overrideMoveType;
+		BattleTeambuilderTable[natDexTablename].overrideMoveIsNonstandard = overrideMoveIsNonstandard;
 		BattleTeambuilderTable[natDexTablename].overrideItemDesc = overrideItemDesc;
 		BattleTeambuilderTable[natDexTablename].overrideAbilityDesc = overrideAbilityDesc;
 		BattleTeambuilderTable[natDexTablename].overrideStats = {};

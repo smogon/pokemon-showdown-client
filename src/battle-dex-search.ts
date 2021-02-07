@@ -1420,7 +1420,7 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 				} else {
 					if (!(dex.gen < 8 || this.formatType === 'natdex') && move.isZ) continue;
 					if (typeof move.isMax === 'string') continue;
-					if (c) continue;
+					if (move.isNonstandard === 'Past' && (this.formatType !== 'natdex' && (isModdedFormatType(this.formatType) && !this.formatType.isNatDex)) && dex.gen === 8) continue;
 					moves.push(move.id);
 				}
 			}
