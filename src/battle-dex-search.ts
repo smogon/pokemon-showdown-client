@@ -728,7 +728,7 @@ abstract class BattleTypedSearch<T extends SearchType> {
 		return '' as ID;
 	}
 	protected canLearn(speciesid: ID, moveid: ID) {
-		if (this.dex.gen >= 8 && this.dex.getMove(moveid).isNonstandard === 'Past' && (this.formatType !== 'natdex' && (isModdedFormatType(this.formatType) && !this.formatType.isNatDex))) {
+		if (this.dex.gen >= 8 && this.dex.getMove(moveid).isNonstandard === 'Past' && (this.formatType !== 'natdex' || (isModdedFormatType(this.formatType) && !this.formatType.isNatDex))) {
 			return false;
 		}
 		let genChar = `${this.dex.gen}`;
@@ -1394,7 +1394,7 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 					} else if (!learnsetEntry.includes(gen)) {
 						continue;
 					}
-					if (this.dex.gen >= 8 && BattleMovedex[moveid].isNonstandard === "Past" && (this.formatType !== 'natdex' && (isModdedFormatType(this.formatType) && !this.formatType.isNatDex))) continue;
+					if (this.dex.gen >= 8 && BattleMovedex[moveid].isNonstandard === "Past" && (this.formatType !== 'natdex' || (isModdedFormatType(this.formatType) && !this.formatType.isNatDex))) continue;
 					if (typeof this.formatType === 'string' && this.formatType?.startsWith('dlc1') && BattleTeambuilderTable['gen8dlc1']?.nonstandardMoves.includes(moveid)) continue;
 					if (moves.includes(moveid)) continue;
 					moves.push(moveid);
@@ -1415,12 +1415,12 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 				const move = dex.getMove(id);
 				if (move.gen > dex.gen) continue;
 				if (sketch) {
-					if (move.isMax || move.isZ || move.isNonstandard) continue;
+					if (move.isMax || move.isZ || (move.isNonstandard && (move.isNonstandard !== 'Past' || (this.formatType !== 'natdex' || (isModdedFormatType(this.formatType) && !this.formatType.isNatDex)) && dex.gen === 8))) continue;
 					sketchMoves.push(move.id);
 				} else {
 					if (!(dex.gen < 8 || this.formatType === 'natdex') && move.isZ) continue;
 					if (typeof move.isMax === 'string') continue;
-					if (move.isNonstandard === 'Past' && (this.formatType !== 'natdex' && (isModdedFormatType(this.formatType) && !this.formatType.isNatDex)) && dex.gen === 8) continue;
+					if (c) continue;
 					moves.push(move.id);
 				}
 			}
@@ -1450,7 +1450,7 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 				if (!types.includes(move.type)) continue;
 				if (moves.includes(move.id)) continue;
 				if (move.gen > dex.gen) continue;
-				if (move.isZ || move.isMax || move.isNonstandard) continue;
+				if (move.isZ || move.isMax || (move.isNonstandard && (move.isNonstandard !== 'Past' || (this.formatType !== 'natdex' || (isModdedFormatType(this.formatType) && !this.formatType.isNatDex)) && dex.gen === 8))) continue;
 				moves.push(id);
 			}
 		}
