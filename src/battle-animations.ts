@@ -1249,17 +1249,48 @@ class BattleScene {
 			this.sideConditions[siden][id] = [web];
 			break;
 		case 'sleazyspores':
-				const sleazySpores = new Sprite(BattleEffects.sleazyspores, {
-					display: 'block',
-					x: side.x + 15,
-					y: side.y - 35,
-					z: side.z,
-					opacity: 0.4,
-					scale: 0.7,
-				}, this);
-				this.$spritesFront[spriteIndex].append(sleazySpores.$el!);
-				this.sideConditions[siden][id] = [sleazySpores];
-				break;
+			const sleazyspore1 = new Sprite(BattleEffects.energyball, {
+				display: 'block',
+				x: side.leftof(-40),
+				y: side.y - 10,
+				z: side.z,
+				opacity: 0.5,
+				scale: 0.2,
+			}, this);
+
+			const sleazyspore2 = new Sprite(BattleEffects.energyball, {
+				display: 'block',
+				x: side.leftof(-20),
+				y: side.y - 40,
+				z: side.z,
+				opacity: 0.5,
+				scale: 0.2,
+			}, this);
+
+			const sleazyspore3 = new Sprite(BattleEffects.energyball, {
+				display: 'block',
+				x: side.leftof(30),
+				y: side.y - 20,
+				z: side.z,
+				opacity: 0.5,
+				scale: 0.2,
+			}, this);
+
+			const sleazyspore4 = new Sprite(BattleEffects.energyball, {
+				display: 'block',
+				x: side.leftof(10),
+				y: side.y - 30,
+				z: side.z,
+				opacity: 0.5,
+				scale: 0.2,
+			}, this);
+
+			this.$spritesFront[spriteIndex].append(sleazyspore1.$el!);
+			this.$spritesFront[spriteIndex].append(sleazyspore2.$el!);
+			this.$spritesFront[spriteIndex].append(sleazyspore3.$el!);
+			this.$spritesFront[spriteIndex].append(sleazyspore4.$el!);
+			this.sideConditions[siden][id] = [sleazyspore1, sleazyspore2, sleazyspore3, sleazyspore4];
+			break;
 		}
 	}
 	removeSideCondition(siden: number, id: ID) {
@@ -1713,6 +1744,7 @@ class PokemonSprite extends Sprite {
 		beakblast: ['Beak Blast', 'neutral'],
 		laserfocus: ['Laser Focus', 'good'],
 		spotlight: ['Spotlight', 'neutral'],
+		focusmunch: ['Focusing', 'neutral'],
 		itemremoved: null,
 		// partial trapping
 		bind: ['Bind', 'bad'],
@@ -2933,6 +2965,14 @@ const BattleEffects: {[k: string]: SpriteData} = {
 	sleazyspores: {
 		url: 'sleazyspores.png',
 		w: 120, h: 122,
+	},
+	hotdog: {
+		url: 'hotdog.png',
+		w: 60, h: 60,
+	},
+	checked: {
+		url: 'checked.png',
+		w: 60, h: 60,
 	},
 };
 (() => {
