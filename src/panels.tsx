@@ -228,6 +228,10 @@ class PSMain extends preact.Component {
 					const roomid = PS.router.extractRoomID(href);
 
 					if (roomid !== null) {
+						if (elem.getAttribute('data-target') === 'replace') {
+							const room = this.getRoom(elem);
+							if (room) PS.leave(room.id);
+						}
 						PS.addRoom({
 							id: roomid,
 							parentElem: elem,
@@ -242,8 +246,19 @@ class PSMain extends preact.Component {
 					if (this.handleButtonClick(elem as HTMLButtonElement)) {
 						e.preventDefault();
 						e.stopImmediatePropagation();
+						return;
+					} else if (!elem.getAttribute('type')) {
+						// the spec says that buttons with no `type` attribute should be
+						// submit buttons, but this is a bad default so we're going
+						// to just assume they're not
+
+						// don't return, to allow <a><button> to make links that look
+						// like buttons
+						e.preventDefault();
+					} else {
+						// presumably a different part of the app is handling this button
+						return;
 					}
-					return;
 				}
 				if (elem.id.startsWith('room-')) {
 					clickedRoom = PS.rooms[elem.id.slice(5)];
