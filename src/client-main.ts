@@ -263,9 +263,9 @@ class PSTeams extends PSStreamModel<'team' | 'format'> {
  *********************************************************************/
 
 class PSUser extends PSModel {
-	name = "Guest";
+	name = "";
 	group = '';
-	userid = "guest" as ID;
+	userid = "" as ID;
 	named = false;
 	registered = false;
 	avatar = "1";
@@ -294,9 +294,9 @@ class PSUser extends PSModel {
 		PS.connection?.disconnect();
 
 		alert("You have been logged out and disconnected.\n\nIf you wanted to change your name while staying connected, use the 'Change Name' button or the '/nick' command.");
-		this.name = "Guest";
+		this.name = "";
 		this.group = '';
-		this.userid = "guest" as ID;
+		this.userid = "" as ID;
 		this.named = false;
 		this.registered = false;
 		this.update();

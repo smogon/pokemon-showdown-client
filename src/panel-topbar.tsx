@@ -201,8 +201,22 @@ class PSHeader extends preact.Component<{style: {}}> {
 			{closeButton}
 		</li>;
 	}
-	render() {
+	renderUser() {
+		if (!PS.connected) {
+			return <button class="button disabled" disabled><em>Offline</em></button>;
+		}
+		if (!PS.user.userid) {
+			return <button class="button disabled" disabled><em>Connecting...</em></button>;
+		}
+		if (!PS.user.named) {
+			return <a class="button" href="login">Choose name</a>;
+		}
 		const userColor = window.BattleLog && {color: BattleLog.usernameColor(PS.user.userid)};
+		return <span class="username" data-name={PS.user.name} style={userColor}>
+			<i class="fa fa-user" style="color:#779EC5"></i> {PS.user.name}
+		</span>;
+	}
+	render() {
 		return <div id="header" class="header" style={this.props.style}>
 			<img
 				class="logo"
@@ -224,9 +238,7 @@ class PSHeader extends preact.Component<{style: {}}> {
 				</ul>
 			</div></div>
 			<div class="userbar">
-				<span class="username" data-name={PS.user.name} style={userColor}>
-					<i class="fa fa-user" style="color:#779EC5"></i> {PS.user.name}
-				</span> {}
+				{this.renderUser()} {}
 				<button class="icon button" name="joinRoom" value="volume" title="Sound" aria-label="Sound">
 					<i class={PS.prefs.mute ? 'fa fa-volume-off' : 'fa fa-volume-up'}></i>
 				</button> {}
