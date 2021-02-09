@@ -307,27 +307,41 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
 			</div>;
 		});
 	}
-	render() {
-		const onlineButton = ' button' + (PS.isOffline ? ' disabled' : '');
-		const searchButton = (PS.down ? <div class="menugroup" style="background: rgba(10,10,10,.6)">
-			{PS.down === 'ddos' ?
-				<p class="error"><strong>Pok&eacute;mon Showdown is offline due to a DDoS attack!</strong></p>
-			:
-				<p class="error"><strong>Pok&eacute;mon Showdown is offline due to technical difficulties!</strong></p>
-			}
-			<p>
-				<div style={{textAlign: 'center'}}>
-					<img width="96" height="96" src={`//${Config.routes.client}/sprites/gen5/teddiursa.png`} alt="" />
-				</div>
-				Bear with us as we freak out.
-			</p>
-			<p>(We'll be back up in a few hours.)</p>
-		</div> : <TeamForm class="menugroup" onSubmit={this.submit}>
-			<button class={"mainmenu1 big" + onlineButton} name="search">
+	renderSearchButton() {
+		if (PS.down) {
+			return <div class="menugroup" style="background: rgba(10,10,10,.6)">
+				{PS.down === 'ddos' ?
+					<p class="error"><strong>Pok&eacute;mon Showdown is offline due to a DDoS attack!</strong></p>
+				:
+					<p class="error"><strong>Pok&eacute;mon Showdown is offline due to technical difficulties!</strong></p>
+				}
+				<p>
+					<div style={{textAlign: 'center'}}>
+						<img width="96" height="96" src={`//${Config.routes.client}/sprites/gen5/teddiursa.png`} alt="" />
+					</div>
+					Bear with us as we freak out.
+				</p>
+				<p>(We'll be back up in a few hours.)</p>
+			</div>;
+		}
+
+		if (!PS.user.userid || PS.isOffline) {
+			return <TeamForm class="menugroup" onSubmit={this.submit}>
+				<button class="mainmenu1 big button disabled" name="search">
+					<em>{PS.isOffline ? "Disconnected" : "Connecting..."}</em>
+				</button>
+			</TeamForm>;
+		}
+
+		return <TeamForm class="menugroup" onSubmit={this.submit}>
+			<button class="mainmenu1 big button" name="search">
 				<strong>Battle!</strong><br />
 				<small>Find a random opponent</small>
 			</button>
-		</TeamForm>);
+		</TeamForm>;
+	}
+	render() {
+		const onlineButton = ' button' + (PS.isOffline ? ' disabled' : '');
 		return <PSPanelWrapper room={this.props.room} scrollable>
 			<div class="mainmenuwrapper">
 				<div class="leftmenu">
@@ -335,7 +349,7 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
 						{this.renderMiniRooms()}
 					</div>
 					<div class="mainmenu">
-						{searchButton}
+						{this.renderSearchButton()}
 
 						<div class="menugroup">
 							<p><button class="mainmenu2 button" name="joinRoom" value="teambuilder">Teambuilder</button></p>
