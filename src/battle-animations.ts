@@ -886,18 +886,7 @@ class BattleScene {
 		let weather = this.battle.weather;
 		let terrain = '' as ID;
 		for (const pseudoWeatherData of this.battle.pseudoWeather) {
-			let pwid = toID(pseudoWeatherData[0]);
-			switch (pwid) {
-			case 'electricterrain':
-			case 'grassyterrain':
-			case 'mistyterrain':
-			case 'psychicterrain':
-				terrain = pwid;
-				break;
-			default:
-				if (!terrain) terrain = 'pseudo' as ID;
-				break;
-			}
+			terrain = toID(pseudoWeatherData[0]);
 		}
 		if (weather === 'desolateland' || weather === 'primordialsea' || weather === 'deltastream') {
 			isIntense = true;
