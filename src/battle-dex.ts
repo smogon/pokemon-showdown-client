@@ -539,7 +539,8 @@ const Dex = new class implements ModdedDex {
 		if (this.prefs('nopastgens')) graphicsGen = 6;
 		if (this.prefs('bwgfx') && graphicsGen >= 6) graphicsGen = 5;
 		let baseDir;
-		if (species.num > 69000) {
+		// TODO: Remove Clover-specific logic
+		if ((species.num <= 69368 && species.num >= 69001) || (species.num <= 42999 && species.num >= 42001)) {
 			graphicsGen = 3;
 			spriteData.gen = 3;
 			baseDir = 'gen5';
@@ -614,7 +615,8 @@ const Dex = new class implements ModdedDex {
 				spriteData.h *= 0.5;
 				spriteData.y += -11;
 			}
-			if (species.num <= 69000) {
+			// TODO: Remove Clover-specific logic
+			if (!((species.num <= 69368 && species.num >= 69001) || (species.num <= 42999 && species.num >= 42001))) {
 				return spriteData;
 			}
 		}
@@ -690,7 +692,7 @@ const Dex = new class implements ModdedDex {
 			num = BattlePokedex[id].num;
 		}
 		if (num < 0) num = 0;
-		if (num > 69000 && num <= 69386) {
+		if (num > 69000 && num <= 69386) { // TODO: Remove Clover-specific logic
 			num = 1379 + num % 69000;
 		} else if (num > 898) {
 			num = 0;
