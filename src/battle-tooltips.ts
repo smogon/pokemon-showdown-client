@@ -1282,7 +1282,7 @@ class BattleTooltips {
 
 		let pokemonTypes = value.pokemon.getTypeList(value.serverPokemon);
 		value.reset();
-		if (move.id === 'revelationdance') {
+		if (move.id === 'revelationdance' || move.id === 'jacsmack') {
 			moveType = pokemonTypes[0];
 		}
 		// Moves that require an item to change their type.
