@@ -32754,7 +32754,39 @@ const BattleMoveAnims: AnimTable = {
 	},
 	greatrage: {
 		anim(scene, [attacker, ...defenders]) {
-			scene.backgroundEffect('#000000', 900, 0.5);
+			for (const defender of defenders) {
+				defender.delay(125);
+				defender.anim({
+					z: defender.behind(5),
+					time: 75,
+				}, 'swing');
+				defender.anim({
+					time: 75,
+				}, 'swing');
+				defender.anim({
+					z: defender.behind(5),
+					time: 75,
+				}, 'swing');
+				defender.anim({
+					time: 75,
+				}, 'swing');
+				defender.anim({
+					z: defender.behind(5),
+					time: 75,
+				}, 'swing');
+				defender.anim({
+					time: 75,
+				}, 'swing');
+				defender.anim({
+					z: defender.behind(5),
+					time: 75,
+				}, 'swing');
+				defender.anim({
+					time: 150,
+				}, 'swing');
+			}
+
+			scene.backgroundEffect('#003300', 900, 0.5);
 			scene.showEffect('energyball', {
 				x: attacker.x,
 				y: attacker.y,
@@ -32794,126 +32826,6 @@ const BattleMoveAnims: AnimTable = {
 				opacity: 0,
 				time: 800,
 			}, 'linear');
-			scene.backgroundEffect('#9AB440', 700, 0.7);
-			scene.showEffect('leaf1', {
-				x: attacker.x,
-				y: attacker.y,
-				z: attacker.z,
-				scale: 1.1,
-				opacity: 1,
-			}, {
-				x: defender.x + 30,
-				y: defender.y + 30,
-				z: defender.z,
-				scale: 2,
-				opacity: 0.6,
-				time: 200,
-			}, 'linear', 'explode');
-			scene.showEffect('leaf2', {
-				x: attacker.x,
-				y: attacker.y,
-				z: attacker.z,
-				scale: 1.1,
-				opacity: 1,
-				time: 75,
-			}, {
-				x: defender.x + 20,
-				y: defender.y - 30,
-				z: defender.z,
-				scale: 2,
-				opacity: 0.6,
-				time: 275,
-			}, 'linear', 'explode');
-			scene.showEffect('energyball', {
-				x: attacker.x,
-				y: attacker.y,
-				z: attacker.z,
-				scale: 0.6,
-				opacity: 0.6,
-				time: 150,
-			}, {
-				x: defender.x - 30,
-				y: defender.y,
-				z: defender.z,
-				scale: 1,
-				opacity: 0.3,
-				time: 350,
-			}, 'linear', 'explode');
-			scene.showEffect('leaf2', {
-				x: attacker.x,
-				y: attacker.y,
-				z: attacker.z,
-				scale: 1.1,
-				opacity: 1,
-				time: 225,
-			}, {
-				x: defender.x - 10,
-				y: defender.y + 10,
-				z: defender.z,
-				scale: 2,
-				opacity: 0.6,
-				time: 425,
-			}, 'linear', 'explode');
-			scene.showEffect('leaf1', {
-				x: attacker.x,
-				y: attacker.y,
-				z: attacker.z,
-				scale: 1.1,
-				opacity: 1,
-				time: 300,
-			}, {
-				x: defender.x + 10,
-				y: defender.y - 10,
-				z: defender.z,
-				scale: 2,
-				opacity: 0.6,
-				time: 500,
-			}, 'linear', 'explode');
-			scene.showEffect('energyball', {
-				x: attacker.x,
-				y: attacker.y,
-				z: attacker.z,
-				scale: 0.6,
-				opacity: 0.6,
-				time: 375,
-			}, {
-				x: defender.x - 20,
-				y: defender.y,
-				z: defender.z,
-				scale: 1,
-				opacity: 0.3,
-				time: 575,
-			}, 'linear', 'explode');
-
-			defender.delay(125);
-			defender.anim({
-				z: defender.behind(5),
-				time: 75,
-			}, 'swing');
-			defender.anim({
-				time: 75,
-			}, 'swing');
-			defender.anim({
-				z: defender.behind(5),
-				time: 75,
-			}, 'swing');
-			defender.anim({
-				time: 75,
-			}, 'swing');
-			defender.anim({
-				z: defender.behind(5),
-				time: 75,
-			}, 'swing');
-			defender.anim({
-				time: 75,
-			}, 'swing');
-			defender.anim({
-				z: defender.behind(5),
-				time: 75,
-			}, 'swing');
-			defender.anim({
-				time: 150,
-			}, 'swing');
 		},
 	},
 	toxiravage: {
