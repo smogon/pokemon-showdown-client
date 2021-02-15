@@ -773,6 +773,8 @@
 			buf += '<button name="setBg" value="brock-space"' + (cur === 'brock-space' ? ' class="cur"' : '') + '><span class="bg" style="background-position:0 -' + (90 * 3) + 'px"></span>Brock in Space</button>';
 			buf += '<button name="setBg" value="creepy-keks"' + (cur === 'creepy-keks' ? ' class="cur"' : '') + '><span class="bg" style="background-position:0 -' + (90 * 4) + 'px"></span>Creepy Keksandra</button>';
 			buf += '<button name="setBg" value="dude-weed-lmao"' + (cur === 'dude-weed-lmao' ? ' class="cur"' : '') + '><span class="bg" style="background-position:0 -' + (90 * 5) + 'px"></span>Dude. Weed. Lmao.</button>';
+			buf += '<button name="setBg" value="demiwaifu"' + (cur === 'demiwaifu' ? ' class="cur"' : '') + '><span class="bg" style="background-position:0 -' + (90 * 6) + 'px"></span>Demiwaifu</button>';
+			buf += '<button name="setBg" value="aesthetic-marleyzard"' + (cur === 'aesthetic-marleyzard' ? ' class="cur"' : '') + '><span class="bg" style="background-position:0 -' + (90 * 7) + 'px"></span>Aesthetic Marleyzard</button>';
 
 			buf += '</div><div style="clear:left"></div>';
 			buf += '<p><strong>Custom</strong></p>';
