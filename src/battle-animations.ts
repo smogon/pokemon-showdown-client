@@ -1503,7 +1503,7 @@ class BattleScene {
 		this.preloadImage(Dex.resourcePrefix + 'sprites/ani-back/substitute.gif');
 	}
 	rollBgm() {
-		this.setBgm(1 + this.numericId % 7);
+		this.setBgm(1 + this.numericId % 19);
 	}
 	setBgm(bgmNum: number) {
 		if (this.bgmNum === bgmNum) return;
@@ -1529,6 +1529,42 @@ class BattleScene {
 			this.bgm = BattleSound.loadBgm('audio/trainer-fochun.mp3', 50441, 117134, this.bgm);
 			break;	
 		case 7:
+			this.bgm = BattleSound.loadBgm('audio/battle-adesign.mp3', 5547, 284963, this.bgm);
+			break;
+		case 8:
+			this.bgm = BattleSound.loadBgm('audio/battle-baddon.mp3', 10235, 104590, this.bgm);
+			break;
+		case 9:
+			this.bgm = BattleSound.loadBgm('audio/gym-evil-leader.mp3', 3175, 93576, this.bgm);
+			break;
+		case 10:
+			this.bgm = BattleSound.loadBgm('audio/grindhaus.mp3', 19501, 108502, this.bgm);
+			break;
+		case 11:
+			this.bgm = BattleSound.loadBgm('audio/battle-heliofug.mp3', 123775, 256367, this.bgm);
+			break;
+		case 12:
+			this.bgm = BattleSound.loadBgm('audio/battle-nomel-bro.mp3', 6902, 269898, this.bgm);
+			break;
+		case 13:
+			this.bgm = BattleSound.loadBgm('audio/plastic-love.mp3', 29913, 234151, this.bgm);
+			break;
+		case 14:
+			this.bgm = BattleSound.loadBgm('audio/battle-route-master.mp3', 225874, 449220, this.bgm);
+			break;
+		case 15:
+			this.bgm = BattleSound.loadBgm('audio/battle-terry.mp3', 41332, 299997, this.bgm);
+			break;
+		case 16:
+			this.bgm = BattleSound.loadBgm('audio/battle-vivaiger.mp3', 145231, 254827, this.bgm);
+			break;
+		case 17:
+			this.bgm = BattleSound.loadBgm('audio/battle-vyglass.mp3', 4800, 156980, this.bgm);
+			break;
+		case 18:
+			this.bgm = BattleSound.loadBgm('audio/battle-biteki.mp3', 6363, 18414, this.bgm);
+			break;
+		case 19:
 		default:
 			this.bgm = BattleSound.loadBgm('audio/viol.mp3', 61783, 95529, this.bgm);
 			break;
