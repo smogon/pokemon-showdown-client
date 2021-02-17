@@ -8,6 +8,9 @@
 		maxWidth: 1180,
 		initialize: function (data) {
 			this.me = {};
+			this.choice = undefined;
+			/** are move/switch/team-preview controls currently being shown? */
+			this.controlsShown = false;
 
 			this.battlePaused = false;
 			this.autoTimerActivated = false;
@@ -23,12 +26,19 @@
 			this.$foeHint = this.$el.find('.foehint');
 
 			BattleSound.setMute(Dex.prefs('mute'));
-			this.battle = new Battle(this.$battle, this.$chatFrame, this.id);
+			this.battle = new Battle({
+				id: this.id,
+				$frame: this.$battle,
+				$logFrame: this.$chatFrame
+			});
+			this.battle.roomid = this.id;
+			this.battle.joinButtons = true;
 			this.tooltips = this.battle.scene.tooltips;
 			this.tooltips.listen(this.$controls);
 
-			this.battle.roomid = this.id;
-			this.battle.joinButtons = true;
+			var self = this;
+			this.battle.subscribe(function () { self.updateControls(); });
+
 			this.users = {};
 			this.userCount = {users: 0};
 			this.$userList = this.$('.userlist');
@@ -41,14 +51,6 @@
 			this.$chat = this.$chatFrame.find('.inner');
 
 			this.$options = this.battle.scene.$options.html('<div style="padding-top: 3px; padding-right: 3px; text-align: right"><button class="icon button" name="openBattleOptions" title="Options">Battle Options</button></div>');
-
-			var self = this;
-			this.battle.customCallback = function () { self.updateControls(); };
-			this.battle.endCallback = function () { self.updateControls(); };
-			this.battle.startCallback = function () { self.updateControls(); };
-			this.battle.stagnateCallback = function () { self.updateControls(); };
-
-			this.battle.play();
 		},
 		events: {
 			'click .replayDownloadButton': 'clickReplayDownloadButton',
@@ -108,9 +110,9 @@
 		},
 		focus: function (e) {
 			this.tooltips.hideTooltip();
-			if (this.battle.playbackState === 3 && !this.battlePaused) {
+			if (this.battle.paused && !this.battlePaused) {
+				if (Dex.prefs('noanim')) this.battle.seekTurn(Infinity);
 				this.battle.play();
-				if (Dex.prefs('noanim')) this.battle.fastForwardTo(-1);
 			}
 			ConsoleRoom.prototype.focus.call(this, e);
 		},
@@ -125,10 +127,9 @@
 				log.shift();
 				app.roomTitleChanged(this);
 			}
-			if (this.battle.activityQueue.length) return;
-			this.battle.activityQueue = log;
-			this.battle.fastForwardTo(-1);
-			this.battle.play();
+			if (this.battle.stepQueue.length) return;
+			this.battle.stepQueue = log;
+			this.battle.seekTurn(Infinity, true);
 			if (this.battle.ended) this.battleEnded = true;
 			this.updateLayout();
 			this.updateControls();
@@ -190,12 +191,12 @@
 					var args = logLine.substr(10).split('|');
 					var pokemon = isNaN(Number(args[1])) ? this.battle.getPokemon(args[1]) : this.battle.nearSide.active[args[1]];
 					var requestData = this.request.active[pokemon ? pokemon.slot : 0];
-					delete this.choice;
+					this.choice = undefined;
 					switch (args[0]) {
 					case 'trapped':
 						requestData.trapped = true;
 						var pokeName = pokemon.side.n === 0 ? BattleLog.escapeHTML(pokemon.name) : "The opposing " + (this.battle.ignoreOpponent || this.battle.ignoreNicks ? pokemon.speciesForme : BattleLog.escapeHTML(pokemon.name));
-						this.battle.activityQueue.push('|message|' + pokeName + ' is trapped and cannot switch!');
+						this.battle.stepQueue.push('|message|' + pokeName + ' is trapped and cannot switch!');
 						break;
 					case 'cant':
 						for (var i = 0; i < requestData.moves.length; i++) {
@@ -204,20 +205,21 @@
 							}
 						}
 						args.splice(1, 1, pokemon.getIdent());
-						this.battle.activityQueue.push('|' + args.join('|'));
+						this.battle.stepQueue.push('|' + args.join('|'));
 						break;
 					}
 				} else if (logLine.substr(0, 7) === '|title|') { // eslint-disable-line no-empty
 				} else if (logLine.substr(0, 5) === '|win|' || logLine === '|tie') {
 					this.battleEnded = true;
-					this.battle.activityQueue.push(logLine);
+					this.battle.stepQueue.push(logLine);
 				} else if (logLine.substr(0, 6) === '|chat|' || logLine.substr(0, 3) === '|c|' || logLine.substr(0, 4) === '|c:|' || logLine.substr(0, 9) === '|chatmsg|' || logLine.substr(0, 10) === '|inactive|') {
 					this.battle.instantAdd(logLine);
 				} else {
-					this.battle.activityQueue.push(logLine);
+					this.battle.stepQueue.push(logLine);
 				}
 			}
-			this.battle.add('', Dex.prefs('noanim'));
+			this.battle.add();
+			if (Dex.prefs('noanim')) this.battle.seekTurn(Infinity);
 			this.updateControls();
 		},
 		toggleMessages: function (user) {
@@ -248,18 +250,18 @@
 		 * Battle stuff
 		 *********************************************************/
 
-		updateControls: function (force) {
+		updateControls: function () {
 			if (this.battle.scene.customControls) return;
 			var controlsShown = this.controlsShown;
 			this.controlsShown = false;
 
-			if (this.battle.playbackState === 5) {
+			if (this.battle.seeking !== null) {
 
 				// battle is seeking
 				this.$controls.html('');
 				return;
 
-			} else if (this.battle.playbackState === 2 || this.battle.playbackState === 3) {
+			} else if (!this.battle.atQueueEnd) {
 
 				// battle is playing or paused
 				if (!this.side || this.battleEnded) {
@@ -296,7 +298,7 @@
 
 				// player
 				this.controlsShown = true;
-				if (force || !controlsShown || this.choice === undefined || this.choice && this.choice.waiting) {
+				if (!controlsShown || this.choice === undefined || this.choice && this.choice.waiting) {
 					// don't update controls (and, therefore, side) if `this.choice === null`: causes damage miscalculations
 					this.updateControlsForPlayer();
 				} else {
@@ -325,7 +327,6 @@
 			// since those early-return.
 			app.topbar.updateTabbar();
 		},
-		controlsShown: false,
 		updateControlsForPlayer: function () {
 			this.callbackWaiting = true;
 
@@ -393,6 +394,7 @@
 				if (this.battle.mySide.pokemon && !this.battle.mySide.pokemon.length) {
 					// too early, we can't determine `this.choice.count` yet
 					// TODO: send teamPreviewCount in the request object
+					this.controlsShown = false;
 					return;
 				}
 				if (!this.choice) {
@@ -977,18 +979,15 @@
 				request.requestType = 'wait';
 			}
 
-			var choice = null;
-			if (choiceText) {
-				choice = {waiting: true};
-			}
-			this.choice = choice;
+			this.choice = choiceText ? {waiting: true} : null;
 			this.finalDecision = this.finalDecisionMove = this.finalDecisionSwitch = false;
 			this.request = request;
 			if (request.side) {
 				this.updateSideLocation(request.side);
 			}
 			this.notifyRequest();
-			this.updateControls(true);
+			this.controlsShown = false;
+			this.updateControls();
 		},
 		notifyRequest: function () {
 			var oName = this.battle.farSide.name;
@@ -1089,11 +1088,11 @@
 		},
 		rewindTurn: function () {
 			if (this.battle.turn) {
-				this.battle.fastForwardTo(this.battle.turn - 1);
+				this.battle.seekTurn(this.battle.turn - 1);
 			}
 		},
 		goToEnd: function () {
-			this.battle.fastForwardTo(-1);
+			this.battle.seekTurn(Infinity);
 		},
 		register: function (userid) {
 			var registered = app.user.get('registered');
@@ -1382,9 +1381,9 @@
 				buf += '<p><button type="submit"><strong>Forfeit</strong></button> ';
 			}
 			if (this.gameType === 'battle' && this.room.battle && !this.room.battle.rated) {
-				buf += '<button name="replacePlayer">Replace player</button> ';
+				buf += '<button type="button" name="replacePlayer">Replace player</button> ';
 			}
-			buf += '<button name="close" class="autofocus">Cancel</button></p></form>';
+			buf += '<button type="button" name="close" class="autofocus">Cancel</button></p></form>';
 			this.$el.html(buf);
 		},
 		replacePlayer: function (data) {

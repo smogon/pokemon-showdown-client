@@ -705,6 +705,7 @@ class BattleLog {
 			username: 0,
 			spotify: 0,
 			youtube: 0,
+			twitch: 0,
 		});
 
 		// By default, Caja will ban any attributes it doesn't recognize.
@@ -800,6 +801,17 @@ class BattleLog {
 						setAttrib('src', 'https:' + src);
 					}
 				}
+			} else if (tagName === 'twitch') {
+				// <iframe src="https://player.twitch.tv/?channel=ninja&parent=www.example.com" allowfullscreen="true" height="378" width="620"></iframe>
+				const src = getAttrib('src') || "";
+				const channelId = /(https?:\/\/)?twitch.tv\/([A-Za-z0-9]+)/i.exec(src)?.[2];
+				return {
+					tagName: 'iframe',
+					attribs: [
+						'src', `https://player.twitch.tv/?channel=${channelId}&parent=${location.hostname}`,
+						'allowfullscreen', 'true', 'height', "400", 'width', "340",
+					],
+				};
 			} else if (tagName === 'username') {
 				// <username> is a custom element that handles namecolors
 				tagName = 'strong';
@@ -983,7 +995,7 @@ class BattleLog {
 			// replay panel
 			replayid = room.fragment;
 		}
-		battle.fastForwardTo(-1);
+		battle.seekTurn(Infinity);
 		let buf = '<!DOCTYPE html>\n';
 		buf += '<meta charset="utf-8" />\n';
 		buf += '<!-- version 1 -->\n';
@@ -995,7 +1007,7 @@ class BattleLog {
 		buf += '<input type="hidden" name="replayid" value="' + replayid + '" />\n';
 		buf += '<div class="battle"></div><div class="battle-log"></div><div class="replay-controls"></div><div class="replay-controls-2"></div>\n';
 		buf += `<h1 style="font-weight:normal;text-align:center"><strong>${BattleLog.escapeHTML(battle.tier)}</strong><br /><a href="http://${Config.routes.users}/${toID(battle.p1.name)}" class="subtle" target="_blank">${BattleLog.escapeHTML(battle.p1.name)}</a> vs. <a href="http://${Config.routes.users}/${toID(battle.p2.name)}" class="subtle" target="_blank">${BattleLog.escapeHTML(battle.p2.name)}</a></h1>\n`;
-		buf += '<script type="text/plain" class="battle-log-data">' + battle.activityQueue.join('\n').replace(/\//g, '\\/') + '</script>\n'; // lgtm [js/incomplete-sanitization]
+		buf += '<script type="text/plain" class="battle-log-data">' + battle.stepQueue.join('\n').replace(/\//g, '\\/') + '</script>\n'; // lgtm [js/incomplete-sanitization]
 		buf += '</div>\n';
 		buf += '<div class="battle-log battle-log-inline"><div class="inner">' + battle.scene.log.elem.innerHTML + '</div></div>\n';
 		buf += '</div>\n';

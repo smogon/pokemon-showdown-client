@@ -2011,7 +2011,7 @@ class BattleStatGuesser {
 
 		this.ignoreEVLimits = (
 			this.dex.gen < 3 ||
-			this.formatid.endsWith('hackmons') ||
+			(this.formatid.endsWith('hackmons') && this.dex.gen !== 6) ||
 			this.formatid.includes('metronomebattle') ||
 			this.formatid.endsWith('norestrictions')
 		);

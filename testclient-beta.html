@@ -52,6 +52,47 @@
 		linkStyle("style/font-awesome.css");
 	</script>
 	<script src="https://play.pokemonshowdown.com/config/config.js"></script>
+	<script>
+		if (!window.Config) {
+			// offline
+			window.Config = {
+				version: '0',
+				bannedHosts: [],
+				whitelist: [],
+				routes: {
+					root: "pokemonshowdown.com",
+					client: "play.pokemonshowdown.com",
+					dex: "dex.pokemonshowdown.com",
+					replays: "replay.pokemonshowdown.com",
+					users: "pokemonshowdown.com/users"
+				},
+				defaultserver: {
+					id: 'showdown',
+					host: 'sim3.psim.us',
+					port: 443,
+					httpport: 8000,
+					altport: 80,
+					registered: true
+				},
+				customcolors: {}
+			};
+		}
+		Config.testclient = true;
+		(function() {
+			if (location.search !== '') {
+				var m = /\?~~(([^:\/]*)(:[0-9]*)?)/.exec(location.search);
+				if (m) {
+					Config.defaultserver = {
+						id: m[1],
+						host: m[2],
+						port: (m[3] && parseInt(m[3].substr(1))) || 8000
+					};
+				} else {
+					alert('Unrecognised query string syntax: ' + location.search);
+				}
+			}
+		})();
+	</script>
 	<script src="config/testclient-key.js"></script>
 	<script src="js/client-core.js"></script>
 	<script nomodule src="/js/lib/ps-polyfill.js"></script>
@@ -93,6 +134,8 @@
 	<script src="js/battle-dex-search.js?"></script>
 	<script src="js/battle-searchresults.js?"></script>
 	<script src="js/panel-teambuilder-team.js?"></script>
+	<script src="js/panel-ladder.js?"></script>
+	<script src="js/panel-page.js?"></script>
 
 	<script src="https://play.pokemonshowdown.com/data/pokedex-mini.js"></script>
 	<script src="https://play.pokemonshowdown.com/data/pokedex-mini-bw.js"></script>

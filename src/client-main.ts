@@ -263,9 +263,9 @@ class PSTeams extends PSStreamModel<'team' | 'format'> {
  *********************************************************************/
 
 class PSUser extends PSModel {
-	name = "Guest";
+	name = "";
 	group = '';
-	userid = "guest" as ID;
+	userid = "" as ID;
 	named = false;
 	registered = false;
 	avatar = "1";
@@ -284,6 +284,22 @@ class PSUser extends PSModel {
 				if (room.connectWhenLoggedIn) room.connect();
 			}
 		}
+	}
+	logOut() {
+		PSLoginServer.query({
+			act: 'logout',
+			userid: this.userid,
+		});
+		PS.send('|/logout');
+		PS.connection?.disconnect();
+
+		alert("You have been logged out and disconnected.\n\nIf you wanted to change your name while staying connected, use the 'Change Name' button or the '/nick' command.");
+		this.name = "";
+		this.group = '';
+		this.userid = "" as ID;
+		this.named = false;
+		this.registered = false;
+		this.update();
 	}
 }
 
@@ -507,7 +523,16 @@ class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 			}
 		}}
 	}
-	handleMessage(msg: string) {
+	handleMessage(line: string) {
+		if (!line.startsWith('/') || line.startsWith('//')) return false;
+		const spaceIndex = line.indexOf(' ');
+		const cmd = spaceIndex >= 0 ? line.slice(1, spaceIndex) : line.slice(1);
+		// const target = spaceIndex >= 0 ? line.slice(spaceIndex + 1) : '';
+		switch (cmd) {
+		case 'logout': {
+			PS.user.logOut();
+			return true;
+		}}
 		return false;
 	}
 	send(msg: string, direct?: boolean) {
@@ -635,6 +660,17 @@ const PS = new class extends PSModel {
 	 */
 	leftRoomWidth = 0;
 	mainmenu: MainMenuRoom = null!;
+
+	/**
+	 * The drag-and-drop API is incredibly dumb and doesn't let us know
+	 * what's being dragged until the `drop` event, so we track it here.
+	 *
+	 * Note that `PS.dragging` will be null if the drag was initiated
+	 * outside PS (e.g. dragging a team from File Explorer to PS), and
+	 * for security reasons it's impossible to know what they are until
+	 * they're dropped.
+	 */
+	dragging: {type: 'room', roomid: RoomID} | null = null;
 
 	/** Tracks whether or not to display the "Use arrow keys" hint */
 	arrowKeysUsed = false;
@@ -797,7 +833,11 @@ const PS = new class extends PSModel {
 		const roomid = fullMsg.slice(0, pipeIndex) as RoomID;
 		const msg = fullMsg.slice(pipeIndex + 1);
 		console.log('\u25b6\ufe0f ' + (roomid ? '[' + roomid + '] ' : '') + '%c' + msg, "color: #776677");
-		this.connection!.send(fullMsg);
+		if (!this.connection) {
+			alert(`You are not connected and cannot send ${msg}.`);
+			return;
+		}
+		this.connection.send(fullMsg);
 	}
 	isVisible(room: PSRoom) {
 		if (this.leftRoomWidth === 0) {
@@ -855,7 +895,7 @@ const PS = new class extends PSModel {
 			case 'news':
 				options.type = options.id;
 				break;
-			case 'battle-': case 'user-': case 'team-':
+			case 'battle-': case 'user-': case 'team-': case 'ladder-':
 				options.type = options.id.slice(0, hyphenIndex);
 				break;
 			case 'view-':

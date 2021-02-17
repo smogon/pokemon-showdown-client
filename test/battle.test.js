@@ -12,33 +12,32 @@ require('../js/battle.js');
 describe('Battle', () => {
 
 	it('should process a bunch of messages properly', () => {
-		let battle = new Battle();
-		battle.debug = true;
-
-		battle.setQueue([
-			"|init|battle",
-			"|title|FOO vs. BAR",
-			"|j|FOO",
-			"|j|BAR",
-			"|request|",
-			"|player|p1|FOO|169",
-			"|player|p2|BAR|265",
-			"|teamsize|p1|6",
-			"|teamsize|p2|6",
-			"|gametype|singles",
-			"|gen|7",
-			"|tier|[Gen 7] Random Battle",
-			"|rated|",
-			"|seed|",
-			"|rule|Sleep Clause Mod: Limit one foe put to sleep",
-			"|rule|HP Percentage Mod: HP is shown in percentages",
-			"|",
-			"|start",
-			"|switch|p1a: Leafeon|Leafeon, L83, F|100/100",
-			"|switch|p2a: Gliscor|Gliscor, L77, F|242/242",
-			"|turn|1",
-		]);
-		battle.fastForwardTo(-1);
+		let battle = new Battle({
+			debug: true,
+			log: [
+				"|init|battle",
+				"|title|FOO vs. BAR",
+				"|j|FOO",
+				"|j|BAR",
+				"|request|",
+				"|player|p1|FOO|169",
+				"|player|p2|BAR|265",
+				"|teamsize|p1|6",
+				"|teamsize|p2|6",
+				"|gametype|singles",
+				"|gen|7",
+				"|tier|[Gen 7] Random Battle",
+				"|rated|",
+				"|seed|",
+				"|rule|Sleep Clause Mod: Limit one foe put to sleep",
+				"|rule|HP Percentage Mod: HP is shown in percentages",
+				"|",
+				"|start",
+				"|switch|p1a: Leafeon|Leafeon, L83, F|100/100",
+				"|switch|p2a: Gliscor|Gliscor, L77, F|242/242",
+				"|turn|1",
+			],
+		});
 
 		let p1 = battle.sides[0];
 		let p2 = battle.sides[1];
@@ -75,7 +74,6 @@ describe('Battle', () => {
 		]) {
 			battle.add(line);
 		}
-		battle.fastForwardTo(-1);
 
 		assert(!p2gliscor.isActive());
 		let p2kyurem = p2.pokemon[1];

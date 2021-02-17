@@ -710,7 +710,7 @@
 						buf += '<p><label class="label">Format:</label>' + self.renderFormats(format, true) + '</p>';
 						buf += '<p><label class="label">Team:</label>' + self.renderTeams(format) + '</p>';
 						buf += '<p><label class="checkbox"><input type="checkbox" name="private" ' + (Storage.prefs('disallowspectators') ? 'checked' : '') + ' /> <abbr title="You can still invite spectators by giving them the URL or using the /invite command">Don\'t allow spectators</abbr></label></p>';
-						buf += '<p class="buttonbar"><button name="acceptChallenge"><strong>Accept</strong></button> <button name="rejectChallenge">Reject</button></p></form>';
+						buf += '<p class="buttonbar"><button name="acceptChallenge"><strong>Accept</strong></button> <button type="button" name="rejectChallenge">Reject</button></p></form>';
 						$challenge.html(buf);
 						if (format.substr(0, 4) === 'gen5') atLeastOneGen5 = true;
 					}
@@ -810,7 +810,7 @@
 			buf += '<p><label class="label">Format:</label>' + this.renderFormats(format) + '</p>';
 			buf += '<p><label class="label">Team:</label>' + this.renderTeams(format) + '</p>';
 			buf += '<p><label class="checkbox"><input type="checkbox" name="private" ' + (Storage.prefs('disallowspectators') ? 'checked' : '') + ' /> <abbr title="You can still invite spectators by giving them the URL or using the /invite command">Don\'t allow spectators</abbr></label></p>';
-			buf += '<p class="buttonbar"><button name="makeChallenge"><strong>Challenge</strong></button> <button name="dismissChallenge">Cancel</button></p></form>';
+			buf += '<p class="buttonbar"><button name="makeChallenge"><strong>Challenge</strong></button> <button type="button" name="dismissChallenge">Cancel</button></p></form>';
 			$challenge.html(buf);
 		},
 		acceptChallenge: function (i, target) {
@@ -876,7 +876,7 @@
 		},
 		adjustPrivacy: function (disallowSpectators) {
 			Storage.prefs('disallowspectators', disallowSpectators);
-			if (disallowSpectators) return '/noreply /ionext\n'; // TODO: switch to /hidenext once it adds a password
+			if (disallowSpectators) return '/noreply /hidenext\n';
 			var settings = app.user.get('settings');
 			return (settings.hiddenNextBattle ? '/noreply /hidenext off\n' : '') + (settings.inviteOnlyNextBattle ? '/noreply /ionext off\n' : '');
 		},

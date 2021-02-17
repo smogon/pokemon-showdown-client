@@ -3,7 +3,7 @@
  *
  * Main view - sets up the frame, and the generic panels.
  *
- * Also sets up global event listeners.
+ * Also sets up most global event listeners.
  *
  * @author Guangcong Luo <guangcongluo@gmail.com>
  * @license AGPLv3
@@ -19,6 +19,34 @@ class PSRouter {
 		} else if (location.pathname.endsWith('.html')) {
 			this.subscribeHash();
 		}
+	}
+	extractRoomID(url: string) {
+		if (url.startsWith(document.location.origin)) {
+			url = url.slice(document.location.origin.length);
+		} else {
+			if (url.startsWith('http://')) {
+				url = url.slice(7);
+			} else if (url.startsWith('https://')) {
+				url = url.slice(8);
+			}
+			if (url.startsWith(document.location.host)) {
+				url = url.slice(document.location.host.length);
+			} else if (PS.server.id === 'showdown' && url.startsWith('play.pokemonshowdown.com')) {
+				url = url.slice(24);
+			} else if (PS.server.id === 'showdown' && url.startsWith('psim.us')) {
+				url = url.slice(7);
+			} else if (url.startsWith('replay.pokemonshowdown.com')) {
+				url = url.slice(26).replace('/', '/battle-');
+			}
+		}
+		if (url.startsWith('/')) url = url.slice(1);
+
+		if (!/^[a-z0-9-]*$/.test(url)) return null;
+
+		const redirects = /^(appeals?|rooms?suggestions?|suggestions?|adminrequests?|bugs?|bugreports?|rules?|faq|credits?|privacy|contact|dex|insecure)$/;
+		if (redirects.test(url)) return null;
+
+		return url as RoomID;
 	}
 	subscribeHash() {
 		if (location.hash) {
@@ -196,8 +224,14 @@ class PSMain extends preact.Component {
 					return;
 				}
 				if (elem.tagName === 'A' || elem.getAttribute('data-href')) {
-					const roomid = this.roomidFromLink(elem as HTMLAnchorElement);
+					const href = elem.getAttribute('data-href') || (elem as HTMLAnchorElement).href;
+					const roomid = PS.router.extractRoomID(href);
+
 					if (roomid !== null) {
+						if (elem.getAttribute('data-target') === 'replace') {
+							const room = this.getRoom(elem);
+							if (room) PS.leave(room.id);
+						}
 						PS.addRoom({
 							id: roomid,
 							parentElem: elem,
@@ -212,8 +246,19 @@ class PSMain extends preact.Component {
 					if (this.handleButtonClick(elem as HTMLButtonElement)) {
 						e.preventDefault();
 						e.stopImmediatePropagation();
+						return;
+					} else if (!elem.getAttribute('type')) {
+						// the spec says that buttons with no `type` attribute should be
+						// submit buttons, but this is a bad default so we're going
+						// to just assume they're not
+
+						// don't return, to allow <a><button> to make links that look
+						// like buttons
+						e.preventDefault();
+					} else {
+						// presumably a different part of the app is handling this button
+						return;
 					}
-					return;
 				}
 				if (elem.id.startsWith('room-')) {
 					clickedRoom = PS.rooms[elem.id.slice(5)];
@@ -293,29 +338,6 @@ class PSMain extends preact.Component {
 			return true;
 		}
 		return false;
-	}
-	roomidFromLink(elem: HTMLAnchorElement) {
-		let href = elem.getAttribute('data-href');
-		if (href) {
-			// yes that's what we needed
-		} else if (PS.server.id === 'showdown') {
-			if (elem.host && elem.host !== Config.routes.client && elem.host !== 'psim.us') {
-				return null;
-			}
-			href = elem.pathname;
-		} else {
-			if (elem.host !== location.host) {
-				return null;
-			}
-			href = elem.pathname;
-		}
-		const roomid = href.slice(1);
-		if (!/^[a-z0-9-]*$/.test(roomid)) {
-			return null; // not a roomid
-		}
-		const redirects = /^(appeals?|rooms?suggestions?|suggestions?|adminrequests?|bugs?|bugreports?|rules?|faq|credits?|news|privacy|contact|dex|insecure)$/;
-		if (redirects.test(roomid)) return null;
-		return roomid as RoomID;
 	}
 	static containingRoomid(elem: HTMLElement) {
 		let curElem: HTMLElement | null = elem;
@@ -478,3 +500,7 @@ class PSMain extends preact.Component {
 }
 
 type PanelPosition = {top?: number, bottom?: number, left?: number, right?: number} | null;
+
+function SanitizedHTML(props: {children: string}) {
+	return <div dangerouslySetInnerHTML={{__html: BattleLog.sanitizeHTML(props.children)}}/>;
+}
