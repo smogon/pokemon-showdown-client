@@ -488,7 +488,7 @@ class BattleTooltips {
 		Flying: "Max Airstream",
 		Ground: "Max Quake",
 		Fairy: "Max Starfall",
-		"???": "",
+		"???": "Max Memeitude",
 	};
 
 	getMaxMoveFromType(type: TypeName, gmaxMove?: string | Move) {
