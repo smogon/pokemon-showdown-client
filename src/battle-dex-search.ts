@@ -593,11 +593,6 @@ abstract class BattleTypedSearch<T extends SearchType> {
 		if (format === 'vgc2020') this.formatType = 'dlc1doubles';
 		if (format.includes('doubles') && this.dex.gen > 4 && !this.formatType) this.formatType = 'doubles';
 		if (format.includes('letsgo')) this.formatType = 'letsgo';
-		if (format.includes('nationaldex')) {
-			format = format.slice(11) as ID;
-			this.formatType = 'natdex';
-			if (!format) format = 'ou' as ID;
-		}
 		if (this.formatType === 'letsgo') format = format.slice(6) as ID;
 		if (format.includes('metronome')) {
 			this.formatType = 'metronome';
@@ -613,6 +608,10 @@ abstract class BattleTypedSearch<T extends SearchType> {
 			format = format.slice(fullMod.length) as ID;
 			this.formatType = { mod: modName, isNatDex: modified === 'nationaldex' };
 			this.dex = Dex.mod(gen, getModdedFormatTableName(this.formatType) as ID);
+		} else if (format.includes('nationaldex')) {
+			format = format.slice(11) as ID;
+			this.formatType = 'natdex';
+			if (!format) format = 'ou' as ID;
 		}
 		this.format = format;
 
