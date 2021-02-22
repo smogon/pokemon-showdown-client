@@ -32133,50 +32133,61 @@ const BattleMoveAnims: AnimTable = {
 	},
 	pukeblood: {
 		anim(scene, [attacker, defender]) {
-			scene.showEffect('flareball', {
+			scene.backgroundEffect('#FF0000', 700, 0.5);
+			scene.showEffect('bloodwisp', {
 				x: attacker.x,
 				y: attacker.y,
 				z: attacker.z,
-				scale: 0.1,
+				scale: 1,
+				opacity: 1,
+			}, {
+				x: attacker.x,
+				y: attacker.y,
+				z: attacker.z,
+				scale: 6,
 				opacity: 0,
+			}, 'linear', 'fade');
+			scene.showEffect('bloodwisp', {
+				x: attacker.x,
+				y: attacker.y,
+				z: attacker.z,
+				scale: 0.4,
+				opacity: 0.3,
+			}, {
+				x: defender.x + 10,
+				y: defender.y + 5,
+				z: defender.behind(30),
+				scale: 1,
+				opacity: 0.6,
+			}, 'decel', 'explode');
+			scene.showEffect('bloodwisp', {
+				x: attacker.x,
+				y: attacker.y,
+				z: attacker.z,
+				scale: 0.4,
+				opacity: 0.3,
+				time: 75,
+			}, {
+				x: defender.x - 10,
+				y: defender.y - 5,
+				z: defender.behind(30),
+				scale: 1,
+				opacity: 0.6,
+			}, 'decel', 'explode');
+			scene.showEffect('bloodwisp', {
+				x: attacker.x,
+				y: attacker.y,
+				z: attacker.z,
+				scale: 0.4,
+				opacity: 0.3,
+				time: 150,
 			}, {
 				x: defender.x,
-				y: defender.y,
-				z: defender.z,
-				scale: 0.7,
-				opacity: 1,
-				time: 400,
-			}, 'ballistic', 'explode');
-			scene.showEffect('flareball', {
-				x: attacker.x,
-				y: attacker.y,
-				z: attacker.z,
-				scale: 0.1,
-				opacity: 0,
-				time: 100,
-			}, {
-				x: defender.x + 40,
-				y: defender.y - 20,
-				z: defender.z,
-				scale: 0.7,
-				opacity: 1,
-				time: 500,
-			}, 'ballistic', 'explode');
-			scene.showEffect('flareball', {
-				x: attacker.x,
-				y: attacker.y,
-				z: attacker.z,
-				scale: 0.1,
-				opacity: 0,
-				time: 200,
-			}, {
-				x: defender.x - 30,
-				y: defender.y - 10,
-				z: defender.z,
-				scale: 0.7,
-				opacity: 1,
-				time: 600,
-			}, 'ballistic', 'explode');
+				y: defender.y + 5,
+				z: defender.behind(30),
+				scale: 1,
+				opacity: 0.6,
+			}, 'decel', 'explode');
 		},
 	},
 	enema: {
@@ -33498,6 +33509,126 @@ const BattleMoveAnims: AnimTable = {
 			}, 'swing');
 		},
 	},
+	sudoku: {
+		anim(scene, [attacker, defender]) {
+			attacker.delay(300);
+			attacker.anim({
+				x: defender.x,
+				y: defender.y,
+				z: defender.behind(70),
+				time: 300,
+				opacity: 0.5,
+			}, 'accel');
+			attacker.anim({
+				x: defender.x,
+				y: defender.x,
+				z: defender.behind(100),
+				opacity: 0,
+				time: 100,
+			}, 'linear');
+			attacker.anim({
+				x: attacker.x,
+				y: attacker.y,
+				z: attacker.behind(70),
+				opacity: 0,
+				time: 1,
+			}, 'linear');
+			attacker.anim({
+				opacity: 1,
+				time: 500,
+			}, 'decel');
+
+			scene.showEffect('sword', {
+				x: attacker.leftof(-10),
+				y: attacker.y - 10,
+				z: attacker.z,
+				scale: 0.5,
+				opacity: 1,
+			}, {
+				y: attacker.y + 10,
+				scale: 1,
+				opacity: 0.4,
+				time: 300,
+			}, 'decel', 'fade');
+
+			scene.showEffect('bloodwisp', {
+				x: defender.x + 30,
+				y: defender.y + 25,
+				z: defender.z,
+				scale: 0.2,
+				opacity: 1,
+				time: 410,
+			}, {
+				x: defender.x + 50,
+				y: defender.y + 10,
+				opacity: 0.5,
+				time: 710,
+			}, 'accel', 'explode');
+			scene.showEffect('bloodwisp', {
+				x: defender.x - 30,
+				y: defender.y - 20,
+				z: defender.z,
+				scale: 0.2,
+				opacity: 1,
+				time: 510,
+			}, {
+				x: defender.x - 50,
+				y: defender.y - 20,
+				opacity: 0.5,
+				time: 710,
+			}, 'accel', 'explode');
+			scene.showEffect('bloodwisp', {
+				x: defender.x + 15,
+				y: defender.y + 10,
+				z: defender.z,
+				scale: 0.2,
+				opacity: 1,
+				time: 610,
+			}, {
+				x: defender.x + 35,
+				y: defender.y + 30,
+				opacity: 0.5,
+				time: 810,
+			}, 'accel', 'explode');
+			scene.showEffect('bloodwisp', {
+				x: defender.x - 15,
+				y: defender.y - 30,
+				z: defender.z,
+				scale: 0.2,
+				opacity: 1,
+				time: 610,
+			}, {
+				x: defender.x - 35,
+				y: defender.y - 40,
+				opacity: 0.5,
+				time: 910,
+			}, 'accel', 'explode');
+			scene.showEffect('bloodwisp', {
+				x: defender.x + 10,
+				y: defender.y - 10,
+				z: defender.z,
+				scale: 1.5,
+				opacity: 0.6,
+				time: 610,
+			}, {
+				scale: 2,
+				opacity: 0,
+				time: 910,
+			}, 'accel', 'fade');
+			scene.showEffect('leftslash', {
+				x: defender.x - 10,
+				y: defender.y - 10,
+				z: defender.z,
+				scale: 1.5,
+				opacity: 0.6,
+				time: 610,
+			}, {
+				scale: 2,
+				opacity: 0,
+				time: 910,
+			}, 'accel', 'fade');
+		},
+	},
 	searingsunrazesmash: {
 		anim(scene, [attacker, defender]) {
 			let xstep = (defender.x - attacker.x) / 5;
@@ -34052,7 +34183,6 @@ BattleMoveAnims['swindle'] = {anim: BattleMoveAnims['switcheroo'].anim};
 BattleMoveAnims['falconpunch'] = {anim: BattleMoveAnims['supersonicskystrike'].anim};
 BattleMoveAnims['inverseroom'] = {anim: BattleMoveAnims['trickroom'].anim};
 BattleMoveAnims['mop'] = {anim: BattleMoveAnims['faketears'].anim};
-BattleMoveAnims['sudoku'] = {anim: BattleMoveAnims['sacredsword'].anim};
 BattleMoveAnims['focusmunch'] = {anim: BattleMoveAnims['milkdrink'].anim};
 BattleMoveAnims['quicksand'] = {anim: BattleMoveAnims['mudshot'].anim};
 BattleMoveAnims['thinkfast'] = {anim: BattleMoveAnims['psybeam'].anim};
