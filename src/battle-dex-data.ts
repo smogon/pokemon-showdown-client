@@ -1233,7 +1233,11 @@ class Move implements Effect {
 
 		this.num = data.num || 0;
 		if (!this.gen) {
-			if (this.num >= 560) {
+			if (this.num >= 743) {
+				this.gen = 8;
+			} else if (this.num >= 622) {
+				this.gen = 7;
+			} else if (this.num >= 560) {
 				this.gen = 6;
 			} else if (this.num >= 468) {
 				this.gen = 5;
