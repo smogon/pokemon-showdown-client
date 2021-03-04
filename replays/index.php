@@ -35,11 +35,6 @@ $panels->start();
 		<h1>Featured replays</h1>
 		<ul class="linklist" style="max-width:480px;margin:0 auto;text-align:center">
 			<h3>Fun</h3>
-			<li><a href="/smogtours-ou-39893" data-target="push">
-				<small>[ou]<br /></small>
-				<strong>Get Backer</strong> vs. <strong>CrashinBoomBang</strong>
-				<small><br />Shadow Tag + Shadow Tag</small>
-			</a></li>
 			<li><a href="/oumonotype-82345404" data-target="push">
 				<small>[oumonotype]<br /></small>
 				<strong>kdarewolf</strong> vs. <strong>Onox</strong>
@@ -55,11 +50,6 @@ $panels->start();
 				<strong>Metal Brellow</strong> vs. <strong>zig100</strong>
 				<small><br />Topsy-Turvy</small>
 			</a></li>
-			<li><a href="/smogondoublesuu-223559888" data-target="push">
-				<small>[smogondoublesuu]<br /></small>
-				<strong>KBthealmighty</strong> vs. <strong>big hit on campus</strong>
-				<small><br />Skill Swap</small>
-			</a></li>
 			<li><button class="button" onclick="$('.older2').show();$(this).parent().hide()">Older</button></li>
 			<li class="older2" style="display:none"><a href="/smogondoubles-75588440" data-target="push">
 				<small>[smogondoubles]<br /></small>
@@ -70,16 +60,6 @@ $panels->start();
 				<small>[ou]<br /></small>
 				<strong>RainSeven07</strong> vs. <strong>my body is regi</strong>
 				<small><br />An entire team based on Assist V-create</small>
-			</a></li>
-			<li class="older2" style="display:none"><a href="/exeggutorboldalakazam" data-target="push">
-				<small>[ou]<br /></small>
-				<strong>Exeggutor</strong> vs. <strong>Minato4thHokage</strong>
-				<small><br />An unlikely victory with an unusual Alakazam set</small>
-			</a></li>
-			<li class="older2" style="display:none"><a href="/ou2258347" data-target="push">
-				<small>[ou]<br /></small>
-				<strong>V4</strong> vs. <strong>TryHardPony</strong>
-				<small><br />A successful sweep with Entrainment Truant + Arena Trap</small>
 			</a></li>
 			<li class="older2" style="display:none"><a href="/balancedhackmons7322360" data-target="push">
 				<small>[balancedhackmons]<br /></small>
@@ -133,20 +113,10 @@ $panels->start();
 				<strong>Heist</strong> vs. <strong>liberty32</strong>
 				<small><br />Starting out as an entry hazard-filled stallfest, this close match is eventually decided by liberty32's efficient use of Aerodactyl.</small>
 			</a></li>
-			<li class="older1" style="display:none"><a href="/tiershift-210206137" data-target="push" style="white-space:normal">
-				<small>[tiershift]<br /></small>
-				<strong>Kingslayer2779</strong> vs. <strong>Adrian Marin</strong>
-				<small><br />Mega Heracross thrives with a power boost from UU, and this stall team fares decently in the face of Trick Room offense.</small>
-			</a></li>
 			<li class="older1" style="display:none"><a href="/randombattle-213274483" data-target="push" style="white-space:normal">
 				<small>[randombattle]<br /></small>
 				<strong>The Immortal</strong> vs. <strong>Amphinobite</strong>
 				<small><br />Substitute Lugia and Rotom-Fan take advantage of Slowking's utility and large HP stat, respectively, in this high ladder match.</small>
-			</a></li>
-			<li class="older1" style="display:none"><a href="/capaurumothplaytest4630310" data-target="push">
-				<small>[cap]<br /></small>
-				<strong>jas61292</strong> vs. <strong>bugmaniacbob</strong>
-				<small><br />The CAP Aurumoth playtest's inaugural battle</small>
 			</a></li>
 		</ul>
 		<h1>Recent replays</h1>
