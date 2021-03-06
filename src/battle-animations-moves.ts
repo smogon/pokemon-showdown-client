@@ -32134,7 +32134,7 @@ const BattleMoveAnims: AnimTable = {
 	pukeblood: {
 		anim(scene, [attacker, defender]) {
 			scene.backgroundEffect('#FF0000', 700, 0.5);
-			scene.showEffect('bloodwisp', {
+			scene.showEffect('energyball', {
 				x: attacker.x,
 				y: attacker.y,
 				z: attacker.z,
@@ -34170,7 +34170,7 @@ BattleMoveAnims['decaydrain'] = {anim: BattleMoveAnims['aciddownpour'].anim};
 BattleMoveAnims['owtheedge'] = {anim: BattleMoveAnims['gigaimpact'].anim};
 BattleMoveAnims['chaosdunk'] = {anim: BattleMoveAnims['corkscrewcrash'].anim};
 BattleMoveAnims['dailydose'] = {anim: BattleMoveAnims['sludgebomb'].anim};
-BattleMoveAnims['fizzbitch'] = {anim: BattleMoveAnims['waterspout'].anim};
+BattleMoveAnims['fizzbitch'] = {anim: BattleMoveAnims['pukeblood'].anim};
 BattleMoveAnims['firebomb'] = {anim: BattleMoveAnims['infernooverdrive'].anim};
 BattleMoveAnims['overenergize'] = {anim: BattleMoveAnims['gigavolthavoc'].anim};
 BattleMoveAnims['lactoseshot'] = {anim: BattleMoveAnims['fleurcannon'].anim};
