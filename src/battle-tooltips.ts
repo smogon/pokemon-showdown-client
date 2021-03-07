@@ -1574,10 +1574,10 @@ class BattleTooltips {
 					else if (targetWeight >= 10) basePower = 40;
 				} else {
 					basePower = 40;
-					if (pokemonWeight > targetWeight * 5) basePower = 120;
-					else if (pokemonWeight > targetWeight * 4) basePower = 100;
-					else if (pokemonWeight > targetWeight * 3) basePower = 80;
-					else if (pokemonWeight > targetWeight * 2) basePower = 60;
+					if (pokemonWeight >= targetWeight * 5) basePower = 120;
+					else if (pokemonWeight >= targetWeight * 4) basePower = 100;
+					else if (pokemonWeight >= targetWeight * 3) basePower = 80;
+					else if (pokemonWeight >= targetWeight * 2) basePower = 60;
 				}
 				if (target.volatiles['dynamax']) {
 					value.set(0, 'blocked by target\'s Dynamax');
