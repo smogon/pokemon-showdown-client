@@ -1132,7 +1132,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 		const modOnlyFormatSlices = {};
 		const natDexTiers = [];
 		const natDexFormatSlices = {};
-		const tierOrder = ["CAP", "CAP NFE", "CAP LC", "AG", "Uber", "(Uber)", "OU", "UUBL", "(OU)", "UU", "(UU)", "RU", "NFE", "LC Uber", "LC"];
+		const tierOrder = ["CAP", "CAP NFE", "CAP LC", "AG", "Uber", "(Uber)", "OU", "UUBL", "(OU)", "UU", "(UU)", "RUBL", "RU", "NFE", "LC Uber", "LC"];
 		for (const tier of tierOrder) {
 			if (tier in { OU: 1, AG: 1, Uber: 1, UU: 1, "(UU)": 1, RU: 1, NFE: 1, LC: 1 }) {
 				let usedTier = tier;
