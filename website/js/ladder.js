@@ -31,16 +31,18 @@ var LadderPanel = Panels.StaticPanel.extend({
 	},
 	copyUrl: function (e) {
 		var token = e.currentTarget.value;
-		var url = 'https://' + Config.routes.root + '/resetpassword/' + token;
-		var dummy = document.createElement('input');
-		dummy.value = url;
-		dummy.style.display = 'none';
+		// this works since this is in the root as well
+		var url = 'https://' + document.location.hostname + '/resetpassword/' + token;
+		var dummy = document.createElement("input");
 		var placeholder = $('.pfx-topbar')[0];
+		dummy.id = "dummy";
+		dummy.value = url;
+		dummy.style.position = 'absolute';
 		placeholder.appendChild(dummy);
 		dummy.select();
-		document.execCommand('copy');
-		e.currentTarget.text('Copied!');
+		document.execCommand("copy");
 		placeholder.removeChild(dummy);
+		e.currentTarget.textContent = 'Copied!';
 	},
 	openReset: function (e) {
 		e.preventDefault();
