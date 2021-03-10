@@ -290,8 +290,6 @@ if (!$user) {
 			</p>
 			<p style="margin: 1em -13px">
 				<small><code>https://<?= $psconfig['routes']['root'] ?>/resetpassword/<?php echo $token; ?></code></small>
-			<p style="margin: 1em -13px" id="reset-container">
-				<small><code>https://<?= $psconfig['routes']['root'] ?>/resetpassword/<?php echo $token; ?></code></small>
 				<button name="copyUrl" value="<?= $$token ?>">Copy</button>
 			</p>
 		</div>
