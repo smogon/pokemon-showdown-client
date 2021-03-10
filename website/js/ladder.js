@@ -26,7 +26,21 @@ var LadderPanel = Panels.StaticPanel.extend({
 	events: {
 		'change select[name=standing]': 'changeStanding',
 		'click button[name=openReset]': 'openReset',
-		'click button[name=cancelReset]': 'cancelReset'
+		'click button[name=cancelReset]': 'cancelReset',
+		'click button[name=copyUrl]': 'copyUrl',
+	},
+	copyUrl: function (e) {
+		var token = e.currentTarget.value;
+		var url = 'https://' + Config.routes.root + '/resetpassword/' + token;
+		var dummy = document.createElement('input');
+		dummy.value = url;
+		dummy.style.display = 'none';
+		var placeholder = $('.pfx-topbar')[0];
+		placeholder.appendChild(dummy);
+		dummy.select();
+		document.execCommand('copy');
+		e.currentTarget.text('Copied!');
+		placeholder.removeChild(dummy);
 	},
 	openReset: function (e) {
 		e.preventDefault();
@@ -68,17 +82,6 @@ var App = Panels.App.extend({
 		'usersearch/:q': LadderPanel,
 		'users/:user/modlog': LadderPanel
 	},
-	copyFromElem: function (targetElem, elemToAppend) {
-		var dummyLink = document.createElement("input");
-		dummyLink.id = "dummyLink";
-		dummyLink.value = typeof targetElem.text === 'function' ? targetElem.text() : targetElem.value;
-		dummyLink.style.position = 'absolute';
-		elemToAppend.appendChild(dummyLink);
-		dummyLink.select();
-		document.execCommand("copy");
-		elemToAppend.removeChild(dummyLink);
-		return true;
-	}
 });
 
 var app = new App();
