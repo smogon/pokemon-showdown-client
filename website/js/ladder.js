@@ -67,6 +67,17 @@ var App = Panels.App.extend({
 		'usersearch/': LadderPanel,
 		'usersearch/:q': LadderPanel,
 		'users/:user/modlog': LadderPanel
+	},
+	copyFromElem: function (targetElem, elemToAppend) {
+		var dummyLink = document.createElement("input");
+		dummyLink.id = "dummyLink";
+		dummyLink.value = typeof targetElem.text === 'function' ? targetElem.text() : targetElem.value;
+		dummyLink.style.position = 'absolute';
+		elemToAppend.appendChild(dummyLink);
+		dummyLink.select();
+		document.execCommand("copy");
+		elemToAppend.removeChild(dummyLink);
+		return true;
 	}
 });
 

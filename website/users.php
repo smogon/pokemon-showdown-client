@@ -285,22 +285,6 @@ if (!$user) {
 			$token = $users->createPasswordResetToken($user['userid']);
 ?>
 		<div style="border: 1px solid #DDAA88; padding: 0 1em; margin-bottom: 1em">
-		<script type="text/javascript">
-		// partially stolen from js/client.js
-		function copyResetUrl() {
-			var appended = $('.pfx-topbar')[0];
-			var dummyLink = document.createElement("input");
-			// You can only "select" an input field, so we have to do this dumb hack of faking one.
-			dummyLink.id = "dummyLink";
-			dummyLink.value = $("#token").text();
-			dummyLink.style.position = 'absolute';
-			appended.appendChild(dummyLink);
-			dummyLink.select();
-			document.execCommand("copy");
-			appended.removeChild(dummyLink);
-			$('#copy').text('Copied!');
-		}
-		</script>
 			<p>
 				Use this link:
 			</p>
@@ -308,7 +292,7 @@ if (!$user) {
 				<small><code>https://<?= $psconfig['routes']['root'] ?>/resetpassword/<?php echo $token; ?></code></small>
 			<p style="margin: 1em -13px" id="reset-container">
 				<small><code id="token">https://<?= $psconfig['routes']['root'] ?>/resetpassword/<?php echo $token; ?></code></small>
-				<button id="copy" onclick="copyResetUrl();return false">Copy</button>
+				<button id="copy" onclick="app.copyFromElem($('#token'), $('.pfx-topbar')[0]);$('copy').text('Copied!');">Copy</button>
 			</p>
 		</div>
 <?php
