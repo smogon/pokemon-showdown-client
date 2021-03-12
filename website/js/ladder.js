@@ -81,7 +81,7 @@ var App = Panels.App.extend({
 		'usersearch/': LadderPanel,
 		'usersearch/:q': LadderPanel,
 		'users/:user/modlog': LadderPanel
-	},
+	}
 });
 
 var app = new App();
