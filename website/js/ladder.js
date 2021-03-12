@@ -35,7 +35,6 @@ var LadderPanel = Panels.StaticPanel.extend({
 		var url = 'https://' + document.location.hostname + '/resetpassword/' + token;
 		var dummy = document.createElement("input");
 		var placeholder = $('.pfx-topbar')[0];
-		dummy.id = "dummy";
 		dummy.value = url;
 		dummy.style.position = 'absolute';
 		placeholder.appendChild(dummy);
