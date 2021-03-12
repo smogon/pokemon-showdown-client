@@ -27,7 +27,7 @@ var LadderPanel = Panels.StaticPanel.extend({
 		'change select[name=standing]': 'changeStanding',
 		'click button[name=openReset]': 'openReset',
 		'click button[name=cancelReset]': 'cancelReset',
-		'click button[name=copyUrl]': 'copyUrl',
+		'click button[name=copyUrl]': 'copyUrl'
 	},
 	copyUrl: function (e) {
 		var token = e.currentTarget.value;
