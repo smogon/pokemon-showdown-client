@@ -34,13 +34,12 @@ var LadderPanel = Panels.StaticPanel.extend({
 		// this works since this is in the root as well
 		var url = 'https://' + document.location.hostname + '/resetpassword/' + token;
 		var dummy = document.createElement("input");
-		var placeholder = $('.pfx-topbar')[0];
 		dummy.value = url;
-		dummy.style.position = 'absolute';
-		placeholder.appendChild(dummy);
+		dummy.style.display = 'none';
+		document.body.appendChild(dummy);
 		dummy.select();
 		document.execCommand("copy");
-		placeholder.removeChild(dummy);
+		document.body.removeChild(dummy);
 		e.currentTarget.textContent = 'Copied!';
 	},
 	openReset: function (e) {
