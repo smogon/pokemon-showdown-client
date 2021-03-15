@@ -827,6 +827,26 @@ function toId() {
 			}
 			this.socket.send(data);
 		},
+		events: {
+			'submit form': 'submitSend'
+		},
+		submitSend: function (e) {
+			var target = e.currentTarget;
+			if (target.attributes['data-send']) {
+				var targetStr = '';
+				var delimiter = target.attributes['data-delimiter'] ? target.attributes['data-delimiter'].value : ',';
+				for (var i = 0; i < target.children.length; i++) {
+					var child = target.children[i];
+					if (child) {
+						targetStr += child.value;
+						targetStr += delimiter;
+						child.value = '';
+					}
+				}
+				this.send(target.attributes['data-send'].value + ' ' + targetStr);
+				return;
+			}
+		},
 		/**
 		 * Send team to sim server
 		 */
