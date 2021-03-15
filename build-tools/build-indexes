@@ -550,10 +550,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			if (isDoubles && genNum > 4) {
 				return ["DUber", "(DUber)", "DOU", "DBL", "(DOU)", "DUU", "(DUU)", "New", "NFE", "LC"];
 			}
-			if (gen === 'gen1') {
-				return ["Uber", "OU", "UUBL", "UU", "NFE", "LC"];
-			}
-			if (gen === 'gen2' || gen === 'gen3') {
+			if (gen === 'gen1' || gen === 'gen2' || gen === 'gen3') {
 				return ["Uber", "OU", "UUBL", "UU", "NUBL", "NU", "PUBL", "PU", "NFE", "LC"];
 			}
 			if (gen === 'gen4') {
