@@ -889,7 +889,7 @@ class BattlePokemonSearch extends BattleTypedSearch<'pokemon'> {
 		else if (format === 'cap') tierSet = tierSet.slice(0, slices.Uber).concat(tierSet.slice(slices.OU));
 		else if (format === 'caplc') tierSet = tierSet.slice(slices['CAP LC'], slices.Uber).concat(tierSet.slice(slices.LC));
 		else if (format === 'anythinggoes' || format.endsWith('ag')) tierSet = tierSet.slice(slices.AG);
-		else if (format === 'balancedhackmons' || format.endsWith('bh')) tierSet = tierSet.slice(slices.AG);
+		else if (format.includes('hackmons') || format.endsWith('bh')) tierSet = tierSet.slice(slices.AG);
 		else if (format === 'doublesubers') tierSet = tierSet.slice(slices.DUber);
 		else if (format === 'doublesou' && dex.gen > 4) tierSet = tierSet.slice(slices.DOU);
 		else if (format === 'doublesuu') tierSet = tierSet.slice(slices.DUU);
@@ -1405,6 +1405,7 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 				} else {
 					if (!(dex.gen < 8 || this.formatType === 'natdex') && move.isZ) continue;
 					if (typeof move.isMax === 'string') continue;
+					if (move.isNonstandard === 'LGPE' && this.formatType !== 'letsgo') continue;
 					if (move.isNonstandard === 'Past' && this.formatType !== 'natdex' && dex.gen === 8) continue;
 					moves.push(move.id);
 				}
@@ -1412,7 +1413,7 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 		}
 		if (this.formatType === 'metronome') moves = ['metronome'];
 		if (isSTABmons) {
-			for (let id in BattleMovedex) {
+			for (let id in this.getTable()) {
 				let types: string[] = [];
 				let baseSpecies = dex.getSpecies(species.changesFrom || species.name);
 				if (!species.battleOnly) types.push(...species.types);
