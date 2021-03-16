@@ -66,3 +66,11 @@ News
 https://pokemonshowdown.com/news.json
 
 https://pokemonshowdown.com/news/270.json
+
+
+Dex resources
+-------------
+
+https://play.pokemonshowdown.com/data/pokedex.json
+
+https://play.pokemonshowdown.com/data/moves.json
