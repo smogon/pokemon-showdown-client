@@ -145,19 +145,22 @@ if (!$formatid) {
 		<a href="/ladder/" class="pfx-backbutton" data-target="back"><i class="fa fa-chevron-left"></i> Ladders</a>
 		<h1><?php echo $format; ?> top 500</h1>
 <?php
-	if ($curuser['userid'] === 'zarel' || $curuser['userid'] === 'theimmortal' || substr($formatid, -11) === 'suspecttest' || substr($formatid, -7) === 'current') {
+
+	// we previously allowed all TLs to reset suspect ladders:
+	//   substr($formatid, -11) === 'suspecttest' || substr($formatid, -7) === 'current'
+	// but that functionality got lost somewhere along the way
+	if (in_array($curuser['userid'], $psconfig['sysops'], true)) {
 		$success = false;
-		if ($curuser['userid'] === 'zarel' || $curuser['userid'] === 'chaos' || $curuser['userid'] === 'theimmortal' || $curuser['userid'] === 'marty') {
-			if (@$_POST['act'] === 'resetladder' && $users->csrfCheck()) {
-				if ($_POST['confirm'] === "Permanently reset this ladder.") {
-					$ladder->clearAllRatings();
-					$success = true;
-					echo '<p>Ladder reset.</p>';
-				} else {
-					echo '<p>Your confirmation was not spelled/punctuated/capitalized correctly.</p>';
-				}
+		if (@$_POST['act'] === 'resetladder' && $users->csrfCheck()) {
+			if ($_POST['confirm'] === "Permanently reset this ladder.") {
+				$ladder->clearAllRatings();
+				$success = true;
+				echo '<p>Ladder reset.</p>';
+			} else {
+				echo '<p>Your confirmation was not spelled/punctuated/capitalized correctly.</p>';
 			}
-			if (!$success) {
+		}
+		if (!$success) {
 ?>
 		<form method="post">
 			<input type="hidden" name="act" value="resetladder"> <?php $users->csrfData() ?>
@@ -176,7 +179,6 @@ if (!$formatid) {
 			</div>
 		</form>
 <?php
-			}
 		}
 	}
 ?>
