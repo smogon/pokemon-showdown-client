@@ -289,8 +289,8 @@ if (!$user) {
 				Use this link:
 			</p>
 			<p style="margin: 1em -13px">
-				<small><code>https://<?= $psconfig['routes']['root'] ?>/resetpassword/<?php echo $token; ?></code></small>
-				<button name="copyUrl" value="<?= $$token ?>">Copy</button>
+				<small><code>https://<?= $psconfig['routes']['root'] ?>/resetpassword/<?= $token ?></code></small><br />
+				<button name="copyUrl" value="<?= $token ?>">Copy URL</button>
 			</p>
 		</div>
 <?php
