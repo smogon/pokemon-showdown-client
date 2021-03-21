@@ -597,11 +597,7 @@ abstract class BattleTypedSearch<T extends SearchType> {
 		if (format.includes('metronome')) {
 			this.formatType = 'metronome';
 		}
-		if (format.endsWith('nfe')) {
-			format = format.slice(3) as ID;
-			this.formatType = 'nfe';
-			if (!format) format = 'ou' as ID;
-		}
+		
 		const modMatch = format.match(/^([a-z]+)(only|nationaldex)/);
 		if (modMatch) {
 			const [fullMod, modName, modified] = modMatch;
@@ -611,6 +607,10 @@ abstract class BattleTypedSearch<T extends SearchType> {
 		} else if (format.includes('nationaldex')) {
 			format = format.slice(11) as ID;
 			this.formatType = 'natdex';
+			if (!format) format = 'ou' as ID;
+		} else if (format.endsWith('nfe')) {
+			format = format.slice(3) as ID;
+			this.formatType = 'nfe';
 			if (!format) format = 'ou' as ID;
 		}
 		this.format = format;
