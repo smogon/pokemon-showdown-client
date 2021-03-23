@@ -115,7 +115,7 @@
 		submit: function (e) {
 			e.preventDefault();
 			e.stopPropagation();
-			if (e.currentTarget.attributes['data-send']) {
+			if (e.currentTarget.getAttribute('data-submitsend')) {
 				return app.submitSend(e);
 			}
 			var text = this.$chatbox.val();
