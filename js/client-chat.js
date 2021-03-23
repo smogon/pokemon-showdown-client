@@ -51,7 +51,7 @@
 
 		focus: function (e, focusTextbox) {
 			var target = e && e.target;
-			if (target && target.tagName === 'TEXTAREA') {
+			if (target && ['TEXTAREA', 'INPUT'].includes(target.tagName)) {
 				// this workaround works for iOS 12 but not iOS 13
 				/* if (window.isiOS) {
 					// iOS will not bring up a keyboard unless you manually blur and refocus
@@ -115,6 +115,9 @@
 		submit: function (e) {
 			e.preventDefault();
 			e.stopPropagation();
+			if (e.currentTarget.getAttribute('data-submitsend')) {
+				return app.submitSend(e);
+			}
 			var text = this.$chatbox.val();
 			if (!text) return;
 			if (!$.trim(text)) {

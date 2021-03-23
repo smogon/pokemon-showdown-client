@@ -388,6 +388,9 @@ function toId() {
 		routes: {
 			'*path': 'dispatchFragment'
 		},
+		events: {
+			'submit form': 'submitSend'
+		},
 		focused: true,
 		initialize: function () {
 			window.app = this;
@@ -826,6 +829,37 @@ function toId() {
 				console.log('>> ' + data);
 			}
 			this.socket.send(data);
+		},
+		serializeForm: function (form) {
+			// querySelector dates back to IE8 so we can use it
+			// fortunate, because form serialization is a HUGE MESS in older browsers
+			var elements = form.querySelectorAll('input[name], select[name], textarea[name], keygen[name]');
+			var out = [];
+			for (var i = 0; i < elements.length; i++) {
+				var element = elements[i];
+				// TODO: values are a mess in the DOM; checkboxes/select probably need special handling
+				out.push([element.name, element.value]);
+			}
+			return out;
+		},
+		submitSend: function (e) {
+			// Most of the code relating to this is nightmarish because of some dumb choices
+			// made when writing the original Backbone code. At least in the Preact client, event
+			// handling is a lot more straightforward because it doesn't rely on Backbone's event
+			// dispatch system.
+			var target = e.currentTarget;
+			var dataSend = target.getAttribute('data-submitsend');
+			if (dataSend) {
+				var toSend = dataSend;
+				var entries = this.serializeForm(target);
+				for (var i = 0; i < entries.length; i++) {
+					toSend = toSend.replace('{' + entries[i][0] + '}', entries[i][1]);
+				}
+				this.send(toSend);
+				e.currentTarget.innerText = 'Submitted!';
+				e.preventDefault();
+				e.stopPropagation();
+			}
 		},
 		/**
 		 * Send team to sim server
