@@ -886,14 +886,12 @@ class BattleLog {
 			if (dataUri && tagName === 'img') {
 				setAttrib('src', dataUri);
 			}
-			if (tagName === 'a' || tagName === 'form') {
-				if (tagName === 'form' && !getAttrib('data-submitsend')) {
-					if (targetReplace) {
-						setAttrib('data-target', 'replace');
-						deleteAttrib('target');
-					} else {
-						setAttrib('target', '_blank');
-					}
+			if (tagName === 'a' || (tagName === 'form' && !getAttrib('data-submitsend'))) {
+				if (targetReplace) {
+					setAttrib('data-target', 'replace');
+					deleteAttrib('target');
+				} else {
+					setAttrib('target', '_blank');
 				}
 				if (tagName === 'a') {
 					setAttrib('rel', 'noopener');
