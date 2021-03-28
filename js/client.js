@@ -388,6 +388,9 @@ function toId() {
 		routes: {
 			'*path': 'dispatchFragment'
 		},
+		events: {
+			'submit form': 'submitSend'
+		},
 		focused: true,
 		initialize: function () {
 			window.app = this;
@@ -709,7 +712,17 @@ function toId() {
 		connect: function () {
 			if (this.down) return;
 
-			if (Config.server.banned || (Config.bannedHosts && Config.bannedHosts.indexOf(Config.server.host) >= 0)) {
+			if (Config.bannedHosts) {
+				for (var i = 0; i < Config.bannedHosts.length; i++) {
+					var host = Config.bannedHosts[i];
+					if (typeof host === 'string' ? Config.server.host === host : host.test(Config.server.host)) {
+						Config.server.banned = true;
+						break;
+					}
+				}
+			}
+
+			if (Config.server.banned) {
 				this.addPopupMessage("This server has been deleted for breaking US laws, impersonating PS global staff, or other major rulebreaking.");
 				return;
 			}
@@ -816,6 +829,37 @@ function toId() {
 				console.log('>> ' + data);
 			}
 			this.socket.send(data);
+		},
+		serializeForm: function (form) {
+			// querySelector dates back to IE8 so we can use it
+			// fortunate, because form serialization is a HUGE MESS in older browsers
+			var elements = form.querySelectorAll('input[name], select[name], textarea[name], keygen[name]');
+			var out = [];
+			for (var i = 0; i < elements.length; i++) {
+				var element = elements[i];
+				// TODO: values are a mess in the DOM; checkboxes/select probably need special handling
+				out.push([element.name, element.value]);
+			}
+			return out;
+		},
+		submitSend: function (e) {
+			// Most of the code relating to this is nightmarish because of some dumb choices
+			// made when writing the original Backbone code. At least in the Preact client, event
+			// handling is a lot more straightforward because it doesn't rely on Backbone's event
+			// dispatch system.
+			var target = e.currentTarget;
+			var dataSend = target.getAttribute('data-submitsend');
+			if (dataSend) {
+				var toSend = dataSend;
+				var entries = this.serializeForm(target);
+				for (var i = 0; i < entries.length; i++) {
+					toSend = toSend.replace('{' + entries[i][0] + '}', entries[i][1]);
+				}
+				this.send(toSend);
+				e.currentTarget.innerText = 'Submitted!';
+				e.preventDefault();
+				e.stopPropagation();
+			}
 		},
 		/**
 		 * Send team to sim server
@@ -2353,7 +2397,7 @@ function toId() {
 		},
 		initialize: function (data) {
 			if (!this.type) this.type = 'semimodal';
-			this.$el.html('<form><p style="white-space:pre-wrap;word-wrap:break-word">' + (data.htmlMessage || BattleLog.parseMessage(data.message)) + '</p><p class="buttonbar">' + (data.buttons || '<button name="close" class="autofocus"><strong>OK</strong></button>') + '</p></form>').css('max-width', data.maxWidth || 480);
+			this.$el.html('<form><p style="white-space:pre-wrap;word-wrap:break-word">' + (data.htmlMessage || BattleLog.parseMessage(data.message)) + '</p><p class="buttonbar">' + (data.buttons || '<button type="button" name="close" class="autofocus"><strong>OK</strong></button>') + '</p></form>').css('max-width', data.maxWidth || 480);
 		},
 
 		dispatchClickButton: function (e) {
@@ -2417,7 +2461,7 @@ function toId() {
 			var buf = '<form>';
 			buf += '<p><label class="label">' + data.message;
 			buf += '<input class="textbox autofocus" type="text" name="data" value="' + BattleLog.escapeHTML(data.value || '') + '" /></label></p>';
-			buf += '<p class="buttonbar"><button type="submit"><strong>' + data.button + '</strong></button> <button name="close">Cancel</button></p>';
+			buf += '<p class="buttonbar"><button type="submit"><strong>' + data.button + '</strong></button> <button type="button" name="close">Cancel</button></p>';
 			buf += '</form>';
 
 			this.$el.html(buf);
@@ -2701,10 +2745,10 @@ function toId() {
 				}
 			} else if (data.message && data.message !== true) {
 				buf += '<p>' + data.message + '</p>';
-				buf += '<p class="buttonbar"><button type="submit" class="autofocus"><strong>Reconnect</strong></button> <button name="close">Work offline</button></p>';
+				buf += '<p class="buttonbar"><button type="submit" class="autofocus"><strong>Reconnect</strong></button> <button type="button" name="close">Work offline</button></p>';
 			} else {
 				buf += '<p>You have been disconnected &ndash; possibly because the server was restarted.</p>';
-				buf += '<p class="buttonbar"><button type="submit" class="autofocus"><strong>Reconnect</strong></button> <button name="close">Work offline</button></p>';
+				buf += '<p class="buttonbar"><button type="submit" class="autofocus"><strong>Reconnect</strong></button> <button type="button" name="close">Work offline</button></p>';
 			}
 
 			buf += '</form>';
@@ -2730,7 +2774,7 @@ function toId() {
 			buf += '<p>Please copy <strong>all the text</strong> from the box above and paste it in the box below.</p>';
 			buf += '<p>(You should probably <a href="https://github.com/smogon/pokemon-showdown-client#test-keys" target="_blank">set up</a> <code>config/testclient-key.js</code> so you don\'t have to do this every time.)</p>';
 			buf += '<p><label class="label" style="float: left;">Data from the box above:</label> <input style="width: 100%;" class="textbox autofocus" type="text" name="result" /></p>';
-			buf += '<p class="buttonbar"><button type="submit"><strong>Submit</strong></button> <button name="close">Cancel</button></p>';
+			buf += '<p class="buttonbar"><button type="submit"><strong>Submit</strong></button> <button type="button" name="close">Cancel</button></p>';
 			buf += '</form>';
 			this.$el.html(buf).css('min-width', 500);
 		},

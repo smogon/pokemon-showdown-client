@@ -1427,9 +1427,9 @@
 				buf += '<p><button type="submit"><strong>Forfeit</strong></button> ';
 			}
 			if (this.gameType === 'battle' && this.room.battle && !this.room.battle.rated) {
-				buf += '<button name="replacePlayer">Replace player</button> ';
+				buf += '<button type="button" name="replacePlayer">Replace player</button> ';
 			}
-			buf += '<button name="close" class="autofocus">Cancel</button></p></form>';
+			buf += '<button type="button" name="close" class="autofocus">Cancel</button></p></form>';
 			this.$el.html(buf);
 		},
 		replacePlayer: function (data) {

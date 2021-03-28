@@ -129,7 +129,7 @@
 		update: function () {
 			teams = Storage.teams;
 			if (this.curTeam) {
-				this.ignoreEVLimits = (this.curTeam.gen < 3 || this.curTeam.format.includes('hackmons') || this.curTeam.format === 'gen8metronomebattle');
+				this.ignoreEVLimits = (this.curTeam.gen < 3 || (this.curTeam.format.includes('hackmons') && this.curTeam.gen !== 6) || this.curTeam.format === 'gen8metronomebattle');
 				if (this.curSet) {
 					return this.updateSetView();
 				}
@@ -3257,7 +3257,7 @@
 			this.room = data.room;
 			this.folder = data.folder;
 			var buf = '<form><p>Remove "' + data.folder.slice(0, -1) + '"?</p><p><label><input type="checkbox" name="addname" /> Add "' + BattleLog.escapeHTML(this.folder.slice(0, -1)) + '" before team names</label></p>';
-			buf += '<p><button type="submit"><strong>Remove (keep teams)</strong></button> <!--button name="removeDelete"><strong>Remove (delete teams)</strong></button--> <button name="close" class="autofocus">Cancel</button></p></form>';
+			buf += '<p><button type="submit"><strong>Remove (keep teams)</strong></button> <!--button name="removeDelete"><strong>Remove (delete teams)</strong></button--> <button type="button" name="close" class="autofocus">Cancel</button></p></form>';
 			this.$el.html(buf);
 		},
 		submit: function (data) {

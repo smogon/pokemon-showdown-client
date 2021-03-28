@@ -51,7 +51,7 @@
 
 		focus: function (e, focusTextbox) {
 			var target = e && e.target;
-			if (target && target.tagName === 'TEXTAREA') {
+			if (target && ['TEXTAREA', 'INPUT'].includes(target.tagName)) {
 				// this workaround works for iOS 12 but not iOS 13
 				/* if (window.isiOS) {
 					// iOS will not bring up a keyboard unless you manually blur and refocus
@@ -115,6 +115,9 @@
 		submit: function (e) {
 			e.preventDefault();
 			e.stopPropagation();
+			if (e.currentTarget.getAttribute('data-submitsend')) {
+				return app.submitSend(e);
+			}
 			var text = this.$chatbox.val();
 			if (!text) return;
 			if (!$.trim(text)) {
@@ -1048,7 +1051,6 @@
 			// documentation of client commands
 			case 'help':
 			case 'h':
-				if (this.checkBroadcast(cmd, text)) return false;
 				switch (toID(target)) {
 				case 'chal':
 				case 'chall':
@@ -1892,20 +1894,20 @@
 		comparator: function (a, b) {
 			if (a === b) return 0;
 
-			var aUser = this.room.users[a];
-			var bUser = this.room.users[b];
+			var aUser = this.room.users[a] || {group: Config.defaultGroup, away: false};
+			var bUser = this.room.users[b] || {group: Config.defaultGroup, away: false};
 
 			var aRank = (
-				Config.groups[aUser ? aUser.group : Config.defaultGroup || ' '] ||
+				Config.groups[aUser.group || ' '] ||
 				{order: (Config.defaultOrder || 10006.5)}
 			).order;
 			var bRank = (
-				Config.groups[bUser ? bUser.group : Config.defaultGroup || ' '] ||
+				Config.groups[bUser.group || ' '] ||
 				{order: (Config.defaultOrder || 10006.5)}
 			).order;
 
 			if (aRank !== bRank) return aRank - bRank;
-			if (aUser.away !== bUser.away) return aUser.away - bUser.away;
+			if ((aUser.away ? 1 : 0) !== (bUser.away ? 1 : 0)) return (aUser.away ? 1 : 0) - (bUser.away ? 1 : 0);
 			return (a > b ? 1 : -1);
 		},
 		getNoNamedUsersOnline: function () {

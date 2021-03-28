@@ -26,7 +26,21 @@ var LadderPanel = Panels.StaticPanel.extend({
 	events: {
 		'change select[name=standing]': 'changeStanding',
 		'click button[name=openReset]': 'openReset',
-		'click button[name=cancelReset]': 'cancelReset'
+		'click button[name=cancelReset]': 'cancelReset',
+		'click button[name=copyUrl]': 'copyUrl'
+	},
+	copyUrl: function (e) {
+		var token = e.currentTarget.value;
+		// this works since this is in the root as well
+		var url = 'https://' + document.location.hostname + '/resetpassword/' + token;
+		var dummy = document.createElement("input");
+		dummy.value = url;
+		dummy.style.display = 'none';
+		document.body.appendChild(dummy);
+		dummy.select();
+		document.execCommand("copy");
+		document.body.removeChild(dummy);
+		e.currentTarget.textContent = 'Copied!';
 	},
 	openReset: function (e) {
 		e.preventDefault();
