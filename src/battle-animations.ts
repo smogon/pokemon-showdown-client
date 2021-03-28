@@ -209,6 +209,8 @@ class BattleScene {
 		this.curWeather = '';
 
 		this.log.battleParser!.perspective = this.battle.mySide!.sideid;
+
+		this.resetSides(true);
 	}
 
 	animationOff() {
@@ -719,10 +721,26 @@ class BattleScene {
 		}
 	}
 
-	teamPreviewEnd() {
-		for (let siden = 0; siden < this.battle.sides.length; siden++) {
-			this.$sprites[siden % 2].empty();
-			this.battle.sides[siden].updateSprites();
+	resetSides(skipEmpty?: boolean) {
+		if (!skipEmpty) {
+			for (const $spritesContainer of this.$sprites) {
+				$spritesContainer.empty();
+			}
+		}
+		for (const side of this.battle.sides) {
+			side.z = (side.isFar ? 200 : 0);
+			side.missedPokemon?.sprite?.destroy();
+
+			side.missedPokemon = {
+				sprite: new PokemonSprite(null, {
+					x: side.leftof(-100),
+					y: side.y,
+					z: side.z,
+					opacity: 0,
+				}, this, side.isFar),
+			} as any;
+
+			side.missedPokemon.sprite.isMissedPokemon = true;
 		}
 	}
 	teamPreview() {
@@ -1431,20 +1449,6 @@ class BattleScene {
 	}
 	afterMove(pokemon: Pokemon) {
 		return pokemon.sprite.afterMove();
-	}
-	updateSpritesForSide(side: Side) {
-		side.missedPokemon?.sprite?.destroy();
-
-		side.missedPokemon = {
-			sprite: new PokemonSprite(null, {
-				x: side.leftof(-100),
-				y: side.y,
-				z: side.z,
-				opacity: 0,
-			}, this, side.isFar),
-		} as any;
-
-		side.missedPokemon.sprite.isMissedPokemon = true;
 	}
 
 	// Misc

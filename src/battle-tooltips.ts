@@ -347,7 +347,7 @@ class BattleTooltips {
 			break;
 		}
 		case 'allypokemon': { // allypokemon|POKEMON
-			// mouse over ally's pokemon
+			// mouse over ally's pokemon in multi battles
 			// serverPokemon definitely exists, sidePokemon maybe
 			// let side = this.battle.mySide.ally;
 			let activeIndex = parseInt(args[1], 10);

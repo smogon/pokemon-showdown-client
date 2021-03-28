@@ -599,12 +599,11 @@ class Side {
 	/** [effectName, levels, minDuration, maxDuration] */
 	sideConditions: {[id: string]: [string, number, number, number]} = {};
 
-	constructor(battle: Battle, n: number, isOpp?: boolean) {
+	constructor(battle: Battle, n: number) {
 		this.battle = battle;
 		this.n = n;
 		this.sideid = ['p1', 'p2', 'p3', 'p4'][n] as SideID;
-		this.isFar = isOpp || !!(n % 2);
-		this.updateSprites();
+		this.isFar = !!(n % 2);
 	}
 
 	rollTrainerSprites() {
@@ -633,12 +632,7 @@ class Side {
 	}
 	reset() {
 		this.clearPokemon();
-		this.updateSprites();
 		this.sideConditions = {};
-	}
-	updateSprites() {
-		this.z = (this.isFar ? 200 : 0);
-		this.battle.scene.updateSpritesForSide(this);
 	}
 	setAvatar(avatar: string) {
 		this.avatar = avatar;
@@ -3077,9 +3071,9 @@ class Battle {
 	runMajor(args: Args, kwArgs: KWArgs, preempt?: boolean) {
 		switch (args[0]) {
 		case 'start': {
-			this.scene.teamPreviewEnd();
 			this.nearSide.active[0] = null;
 			this.farSide.active[0] = null;
+			this.scene.resetSides();
 			this.start();
 			break;
 		}
@@ -3138,6 +3132,7 @@ class Battle {
 			}
 			if (!this.pokemonControlled) this.pokemonControlled = this.nearSide.active.length;
 			this.scene.updateGen();
+			this.scene.resetSides();
 			break;
 		}
 		case 'rule': {
