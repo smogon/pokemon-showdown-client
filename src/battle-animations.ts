@@ -100,7 +100,7 @@ class BattleScene {
 				const pokemon = battle.getPokemon(pokemonId);
 				if (pokemon) return pokemon.speciesForme;
 			}
-			if (!pokemonId.startsWith('p1') && !pokemonId.startsWith('p2')) return '???pokemon:' + pokemonId + '???';
+			if (!pokemonId.startsWith('p')) return '???pokemon:' + pokemonId + '???';
 			if (pokemonId.charAt(3) === ':') return pokemonId.slice(4).trim();
 			else if (pokemonId.charAt(2) === ':') return pokemonId.slice(3).trim();
 			return '???pokemon:' + pokemonId + '???';
@@ -208,7 +208,9 @@ class BattleScene {
 		this.curTerrain = '';
 		this.curWeather = '';
 
-		this.log.battleParser!.perspective = this.battle.sidesSwitched ? 1 : 0;
+		this.log.battleParser!.perspective = this.battle.mySide!.sideid;
+
+		this.resetSides(true);
 	}
 
 	animationOff() {
@@ -616,9 +618,7 @@ class BattleScene {
 		}
 		return BattleLog.escapeHTML(name);
 	}
-
-	updateSidebar(side: Side) {
-		if (!this.animating) return;
+	getSidebarHTML(side: Side, isAlly?: boolean): string {
 		let noShow = this.battle.hardcoreMode && this.battle.gen < 7;
 
 		let speciesOverage = this.battle.speciesClause ? Infinity : Math.max(side.pokemon.length - side.totalPokemon, 0);
@@ -693,17 +693,25 @@ class BattleScene {
 			if (i % 3 === 2) pokemonhtml += `</div><div class="teamicons">`;
 		}
 		pokemonhtml = '<div class="teamicons">' + pokemonhtml + '</div>';
+		const ratinghtml = side.rating ? ` title="Rating: ${BattleLog.escapeHTML(side.rating)}"` : ``;
+		let posStr = side.isFar ? 'far' : 'near';
+		if (isAlly) posStr += '2';
+		return `<div class="trainer trainer-${posStr}"><strong>${BattleLog.escapeHTML(side.name)}</strong><div class="trainersprite"${ratinghtml} style="background-image:url(${Dex.resolveAvatar(side.avatar)})"></div>${pokemonhtml}</div>`;
+	}
+	updateSidebar(side: Side) {
+		if (side.n > 1) side = side.ally;
 		const $sidebar = (side.isFar ? this.$rightbar : this.$leftbar);
+		let sidebarhtml = this.getSidebarHTML(side) + (side.ally ? this.getSidebarHTML(side.ally, true) : '');
 		if (side.name) {
-			const ratinghtml = side.rating ? ` title="Rating: ${BattleLog.escapeHTML(side.rating)}"` : ``;
-			$sidebar.html(`<div class="trainer"><strong>${BattleLog.escapeHTML(side.name)}</strong><div class="trainersprite"${ratinghtml} style="background-image:url(${Dex.resolveAvatar(side.avatar)})"></div>${pokemonhtml}</div>`);
+			$sidebar.html(sidebarhtml);
 			$sidebar.find('.trainer').css('opacity', 1);
 		} else {
 			$sidebar.find('.trainer').css('opacity', 0.4);
 		}
 	}
 	updateSidebars() {
-		for (const side of this.battle.sides) this.updateSidebar(side);
+		this.updateSidebar(this.battle.nearSide);
+		this.updateSidebar(this.battle.farSide);
 	}
 	updateStatbars() {
 		for (const side of this.battle.sides) {
@@ -713,17 +721,33 @@ class BattleScene {
 		}
 	}
 
-	teamPreviewEnd() {
-		for (let siden = 0; siden < 2; siden++) {
-			this.$sprites[siden].empty();
-			this.battle.sides[siden].updateSprites();
+	resetSides(skipEmpty?: boolean) {
+		if (!skipEmpty) {
+			for (const $spritesContainer of this.$sprites) {
+				$spritesContainer.empty();
+			}
+		}
+		for (const side of this.battle.sides) {
+			side.z = (side.isFar ? 200 : 0);
+			side.missedPokemon?.sprite?.destroy();
+
+			side.missedPokemon = {
+				sprite: new PokemonSprite(null, {
+					x: side.leftof(-100),
+					y: side.y,
+					z: side.z,
+					opacity: 0,
+				}, this, side.isFar),
+			} as any;
+
+			side.missedPokemon.sprite.isMissedPokemon = true;
 		}
 	}
 	teamPreview() {
 		let newBGNum = 0;
-		for (let siden = 0; siden < 2; siden++) {
-			const side = this.battle.sides[siden];
-			const spriteIndex = +this.battle.sidesSwitched ^ siden;
+		for (let siden = 0; siden < 2 || (this.battle.gameType === 'multi' && siden < 4); siden++) {
+			let side = this.battle.sides[siden];
+			const spriteIndex = +this.battle.sidesSwitched ^ (siden % 2);
 			let textBuf = '';
 			let buf = '';
 			let buf2 = '';
@@ -1425,20 +1449,6 @@ class BattleScene {
 	}
 	afterMove(pokemon: Pokemon) {
 		return pokemon.sprite.afterMove();
-	}
-	updateSpritesForSide(side: Side) {
-		side.missedPokemon?.sprite?.destroy();
-
-		side.missedPokemon = {
-			sprite: new PokemonSprite(null, {
-				x: side.leftof(-100),
-				y: side.y,
-				z: side.z,
-				opacity: 0,
-			}, this, side.isFar),
-		} as any;
-
-		side.missedPokemon.sprite.isMissedPokemon = true;
 	}
 
 	// Misc

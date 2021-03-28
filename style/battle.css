@@ -315,11 +315,22 @@ License: GPLv2
 	position: absolute;
 	left: 0;
 	right: 0;
-	bottom: 102px;
+	bottom: 75px;
 }
-.rightbar .trainer {
+
+.trainer-near {
+	bottom: 75px;
+}
+.trainer-far {
 	bottom: 232px;
 }
+.trainer-near2 {
+	bottom: 232px;
+}
+.trainer-far2 {
+	bottom: 75px;
+}
+
 .trainer strong {
 	display: block;
 	font-size: 8pt;
