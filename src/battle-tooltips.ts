@@ -271,11 +271,11 @@ class BattleTooltips {
 		case 'zmove':
 		case 'maxmove': { // move|MOVE|ACTIVEPOKEMON|[GMAXMOVE]
 			let move = this.battle.dex.getMove(args[1]);
-			let index = parseInt(args[2], 10);
-			let pokemon = this.battle.nearSide.active[index];
-			let serverPokemon = this.battle.myPokemon![index];
+			let teamIndex = parseInt(args[2], 10);
+			let pokemon = this.battle.nearSide.active[teamIndex + this.battle.pokemonControlled * Math.floor(this.battle.mySide!.n / 2)];
 			let gmaxMove = args[3] ? this.battle.dex.getMove(args[3]) : undefined;
 			if (!pokemon) return false;
+			let serverPokemon = this.battle.myPokemon![teamIndex];
 			buf = this.showMoveTooltip(move, type, pokemon, serverPokemon, gmaxMove);
 			break;
 		}
@@ -307,6 +307,22 @@ class BattleTooltips {
 			let sideIndex = parseInt(args[1], 10);
 			let side = this.battle.sides[+this.battle.sidesSwitched ^ sideIndex];
 			let activeIndex = parseInt(args[2], 10);
+			if (this.battle.gameType === 'multi') {
+				if (activeIndex >= side.active.length) return;
+				if (activeIndex && side.sideid !== 'p3' && side.sideid !== 'p4') side = side.ally;
+				if (!activeIndex && (side.sideid === 'p3' || side.sideid === 'p4')) side = side.ally;
+				let pokemon = side.active[activeIndex];
+				if (!pokemon) return;
+				let serverPokemon = null;
+				if (side === this.battle.mySide && this.battle.myPokemon) {
+					serverPokemon = this.battle.myPokemon[0];
+				} else if (side === this.battle.mySide!.ally && this.battle.myAllyPokemon) {
+					serverPokemon = this.battle.myAllyPokemon[0];
+				}
+				if (!pokemon) return false;
+				buf = this.showPokemonTooltip(pokemon, serverPokemon, true);
+				break;
+			}
 			let pokemon = side.active[activeIndex];
 			let serverPokemon = null;
 			if (sideIndex === 0 && this.battle.myPokemon) {
@@ -319,13 +335,27 @@ class BattleTooltips {
 		case 'switchpokemon': { // switchpokemon|POKEMON
 			// mouse over switchable pokemon
 			// serverPokemon definitely exists, sidePokemon maybe
-			let side = this.battle.mySide;
+			// let side = this.battle.mySide;
 			let activeIndex = parseInt(args[1], 10);
 			let pokemon = null;
-			if (activeIndex < side.active.length) {
+			/* if (activeIndex < side.active.length && activeIndex < this.battle.pokemonControlled) {
 				pokemon = side.active[activeIndex];
-			}
+				if (pokemon && pokemon.side === side.ally) pokemon = null;
+			} */
 			let serverPokemon = this.battle.myPokemon![activeIndex];
+			buf = this.showPokemonTooltip(pokemon, serverPokemon);
+			break;
+		}
+		case 'allypokemon': { // allypokemon|POKEMON
+			// mouse over ally's pokemon in multi battles
+			// serverPokemon definitely exists, sidePokemon maybe
+			// let side = this.battle.mySide.ally;
+			let activeIndex = parseInt(args[1], 10);
+			let pokemon = null;
+			/*if (activeIndex < side.pokemon.length) {
+				pokemon = side.pokemon[activeIndex] || side.ally ? side.ally.pokemon[activeIndex] : null;
+			}*/
+			let serverPokemon = this.battle.myAllyPokemon ? this.battle.myAllyPokemon[activeIndex] : null;
 			buf = this.showPokemonTooltip(pokemon, serverPokemon);
 			break;
 		}
@@ -1838,8 +1868,8 @@ class BattleTooltips {
 		// this will only be available if the ability announced itself in some way
 		let allyAbility = Dex.getAbility(ally.ability).name;
 		// otherwise fall back on the original set data sent from the server
-		if (!allyAbility && this.battle.myPokemon) {
-			allyAbility = Dex.getAbility(this.battle.myPokemon[ally.slot].ability).name;
+		if (!allyAbility && this.battle.myAllyPokemon) {
+			allyAbility = Dex.getAbility(this.battle.myAllyPokemon[ally.slot].ability).name;
 		}
 		return allyAbility;
 	}
