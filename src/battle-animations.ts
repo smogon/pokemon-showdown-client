@@ -208,7 +208,7 @@ class BattleScene {
 		this.curTerrain = '';
 		this.curWeather = '';
 
-		this.log.battleParser!.perspective = this.battle.mySide!.sideid;
+		this.log.battleParser!.perspective = this.battle.mySide.sideid;
 
 		this.resetSides(true);
 	}

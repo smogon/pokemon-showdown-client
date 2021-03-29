@@ -304,9 +304,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 
 		if (request.side) {
 			room.battle.myPokemon = request.side.pokemon;
-			if (room.battle.sidesSwitched !== !!(request.side.id === 'p2')) {
-				room.battle.switchSides();
-			}
+			room.battle.setPerspective(request.side.id);
 			room.side = request.side;
 		}
 
