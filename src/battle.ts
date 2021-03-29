@@ -1023,7 +1023,12 @@ class Battle {
 	pseudoWeather = [] as WeatherState[];
 	weatherTimeLeft = 0;
 	weatherMinTimeLeft = 0;
-	mySide: Side | null = null;
+	/**
+	 * The side from which perspective we're viewing. Should be identical to
+	 * `nearSide` except in multi battles, where `nearSide` is always the first
+	 * near side, and `mySide` is the active player.
+	 */
+	mySide: Side = null!;
 	nearSide: Side = null!;
 	farSide: Side = null!;
 	p1: Side = null!;
@@ -1190,24 +1195,30 @@ class Battle {
 		this.seekTurn(this.ended ? Infinity : this.turn, true);
 	}
 	switchSides() {
-		this.setSidesSwitched(!this.sidesSwitched);
-		this.resetToCurrentTurn();
+		this.setPerspective(this.sidesSwitched ? 'p1' : 'p2');
 	}
-	setSidesSwitched(sidesSwitched: boolean) {
-		this.sidesSwitched = sidesSwitched;
-		if (this.sidesSwitched) {
-			this.nearSide = this.p2;
-			this.farSide = this.p1;
-		} else {
+	setPerspective(sideid: SideID) {
+		if (this.mySide.id === sideid) return;
+		const side = this[sideid];
+		if (!side) return;
+		this.mySide = side;
+
+		if (side === this.p1 || side.ally === this.p1) {
+			this.sidesSwitched = false;
 			this.nearSide = this.p1;
 			this.farSide = this.p2;
+		} else {
+			this.sidesSwitched = true;
+			this.nearSide = this.p2;
+			this.farSide = this.p1;
 		}
+
 		this.nearSide.isFar = false;
 		if (this.nearSide.ally) this.nearSide.ally.isFar = false;
 		this.farSide.isFar = true;
 		if (this.farSide.ally) this.farSide.ally.isFar = true;
 
-		// nothing else should need updating - don't call this function after sending out pokemon
+		this.resetToCurrentTurn();
 	}
 
 	//

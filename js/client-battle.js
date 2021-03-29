@@ -1029,8 +1029,8 @@
 		updateSideLocation: function (sideData) {
 			if (!sideData.id) return;
 			this.side = sideData.id;
-			if (this.battle.sidesSwitched !== !!(this.side === 'p2' || this.side === 'p4')) {
-				this.battle.switchSides();
+			if (this.battle.mySide.id !== this.side) {
+				this.battle.setPerspective(this.side);
 				this.$chat = this.$chatFrame.find('.inner');
 			}
 		},
