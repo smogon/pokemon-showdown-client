@@ -1198,7 +1198,8 @@ class Battle {
 		this.setPerspective(this.sidesSwitched ? 'p1' : 'p2');
 	}
 	setPerspective(sideid: SideID) {
-		if (this.mySide.id === sideid) return;
+		if (this.mySide.sideid === sideid) return;
+		if (sideid.length !== 2 || !sideid.startsWith('p')) return;
 		const side = this[sideid];
 		if (!side) return;
 		this.mySide = side;
@@ -1212,7 +1213,6 @@ class Battle {
 			this.nearSide = this.p2;
 			this.farSide = this.p1;
 		}
-
 		this.nearSide.isFar = false;
 		if (this.nearSide.ally) this.nearSide.ally.isFar = false;
 		this.farSide.isFar = true;
