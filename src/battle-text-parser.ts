@@ -274,9 +274,9 @@ class BattleTextParser {
 	team(side: string, isFar: boolean = false) {
 		side = side.slice(0, 2);
 		if (side === this.perspective || side === BattleTextParser.allyID(side as SideID)) {
-			return isFar ? BattleText.default.team : BattleText.default.opposingTeam;
+			return !isFar ? BattleText.default.team : BattleText.default.opposingTeam;
 		}
-		return !isFar ? BattleText.default.team : BattleText.default.opposingTeam;
+		return isFar ? BattleText.default.team : BattleText.default.opposingTeam;
 	}
 
 	own(side: string) {
