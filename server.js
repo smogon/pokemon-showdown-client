@@ -64,6 +64,16 @@ app.get('/lobby-banner', (request, response) => {
 
   response.sendFile(path.join(__dirname, 'banners', banner));
 });
+app.get('*', (request, response, next) => {
+  if (request.path.startsWith('/sprites/afd')) {
+    const afdPath = path.join(__dirname, 'public', request.path);
+    if (!fs.existsSync(afdPath)) {
+      return response.redirect(request.path.replace('/sprites/afd', '/sprites/gen5'));
+    }
+  }
+
+  next();
+});
 app.use(express.static('./public', { index: 'index.html', fallthrough: true }));
 app.get('*', (request, response) => {
   response.sendFile(path.join(__dirname, './public/index.html'));
