@@ -1770,11 +1770,11 @@ function toId() {
 		},
 		leaveRoom: function (id, e) {
 			var room = this.rooms[id];
+			if (!room) return false;
+			if (room.requestLeave && !room.requestLeave(e)) return false;
 			if (Dex.prefs('leavePopupRoom')) {
 				app.addPopup(ForfeitPopup, {room: this, sourceEl: e && e.currentTarget, gameType: 'room'});
 			}
-			if (!room) return false;
-			if (room.requestLeave && !room.requestLeave(e)) return false;
 			if (!Dex.prefs('leavePopupRoom')) {
 				return this.removeRoom(id);
 			}
