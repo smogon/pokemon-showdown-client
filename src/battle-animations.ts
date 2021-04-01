@@ -696,17 +696,21 @@ class BattleScene {
 		const ratinghtml = side.rating ? ` title="Rating: ${BattleLog.escapeHTML(side.rating)}"` : ``;
 		let posStr = side.isFar ? 'far' : 'near';
 		if (isAlly) posStr += '2';
-		return `<div class="trainer trainer-${posStr}"><strong>${BattleLog.escapeHTML(side.name)}</strong><div class="trainersprite"${ratinghtml} style="background-image:url(${Dex.resolveAvatar(side.avatar)})"></div>${pokemonhtml}</div>`;
+		const faded = side.name ? `` : ` style="opacity: 0.4"`;
+		return `<div class="trainer trainer-${posStr}"${faded}><strong>${BattleLog.escapeHTML(side.name)}</strong><div class="trainersprite"${ratinghtml} style="background-image:url(${Dex.resolveAvatar(side.avatar)})"></div>${pokemonhtml}</div>`;
 	}
 	updateSidebar(side: Side) {
-		if (side.n > 1) side = side.ally;
+		let side2 = null;
+		if (this.battle.sides.length > 2) {
+			side = this.battle.sides[side.n % 2];
+			side2 = this.battle.sides[side.n + 2];
+		}
 		const $sidebar = (side.isFar ? this.$rightbar : this.$leftbar);
-		let sidebarhtml = this.getSidebarHTML(side) + (side.ally ? this.getSidebarHTML(side.ally, true) : '');
-		if (side.name) {
-			$sidebar.html(sidebarhtml);
-			$sidebar.find('.trainer').css('opacity', 1);
+
+		if (side2) {
+			$sidebar.html(this.getSidebarHTML(side, true) + this.getSidebarHTML(side2));
 		} else {
-			$sidebar.find('.trainer').css('opacity', 0.4);
+			$sidebar.html(this.getSidebarHTML(side));
 		}
 	}
 	updateSidebars() {
@@ -741,6 +745,9 @@ class BattleScene {
 			} as any;
 
 			side.missedPokemon.sprite.isMissedPokemon = true;
+		}
+		if (this.battle.sides.length > 2 && this.sideConditions.length === 2) {
+			this.sideConditions.push({}, {});
 		}
 	}
 	teamPreview() {
