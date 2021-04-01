@@ -170,6 +170,29 @@
 			var userid = toUserid(name);
 			if (app.ignore[userid] && name.substr(0, 1) in {' ': 1, '+': 1, '!': 1, '✖': 1, '‽': 1}) return;
 
+			if (Config.server.id === 'showdown' && Config.server.afd) {
+				// AFD 2021 - invert some ranks
+				var groupMap = {
+					'&': ' ',
+					'#': ' ',
+					'@': '+',
+					'%': '*',
+					'*': '%',
+					'+': '@',
+					' ': '&',
+				};
+
+				var group = name.charAt(0);
+				if (group in groupMap) {
+					name = groupMap[group] + name.substring(1);
+				}
+
+				group = target.charAt(0);
+				if (group in groupMap) {
+					target = groupMap[group] + target.substring(1);
+				}
+			}
+
 			var isSelf = (toID(name) === app.user.get('userid'));
 			var oName = isSelf ? target : name;
 			Storage.logChat('pm-' + toID(oName), '' + name + ': ' + message);
