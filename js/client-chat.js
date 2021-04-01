@@ -1672,6 +1672,24 @@
 			var readerHasAuth = !" +\u2606\u203D!".includes(user.group || ' ');
 			if (app.ignore[userid] && !speakerHasAuth && !readerHasAuth) return;
 
+			if (Config.server.id === 'showdown' && Config.server.afd) {
+				// AFD 2021 - invert some ranks
+				var groupMap = {
+					'&': ' ',
+					'#': ' ',
+					'@': '+',
+					'%': '*',
+					'*': '%',
+					'+': '@',
+					' ': '&',
+				};
+
+				var group = name.charAt(0);
+				if (group in groupMap) {
+					name = groupMap[group] + name.substring(1);
+				}
+			}
+
 			// Add this user to the list of people who have spoken recently.
 			this.markUserActive(userid);
 
