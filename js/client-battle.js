@@ -568,6 +568,10 @@
 				var farActive = this.battle.farSide.active;
 				var farSlot = farActive.length - 1 - activePos;
 
+				if ((moveTarget === 'adjacentAlly' || moveTarget === 'adjacentFoe') && this.battle.gameType === 'freeforall') {
+					moveTarget = 'normal';
+				}
+
 				for (var i = farActive.length - 1; i >= 0; i--) {
 					var pokemon = farActive[i];
 					var tooltipArgs = 'activepokemon|1|' + i;
@@ -1037,14 +1041,7 @@
 		updateSide: function () {
 			var sideData = this.request.side;
 			this.battle.myPokemon = sideData.pokemon;
-			this.battle.mySide = this.battle[sideData.id];
-			this.battle.nearSide = this.battle.sides[this.battle.mySide.n % 2];
-			this.battle.farSide = this.battle.mySide.foe;
-			this.battle.mySide.isFar = false;
-			this.battle.farSide.isFar = true;
-			if (this.battle.mySide.ally) this.battle.mySide.ally.isFar = false;
-			if (this.battle.farSide.ally) this.battle.farSide.ally.isFar = true;
-			this.battle.myPokemon = sideData.pokemon;
+			this.battle.setPerspective(sideData.id);
 			for (var i = 0; i < sideData.pokemon.length; i++) {
 				var pokemonData = sideData.pokemon[i];
 				if (this.request.active && this.request.active[i]) pokemonData.canGmax = this.request.active[i].gigantamax || false;

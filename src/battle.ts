@@ -1046,7 +1046,7 @@ class Battle {
 	teamPreviewCount = 0;
 	speciesClause = false;
 	tier = '';
-	gameType: 'singles' | 'doubles' | 'triples' | 'multi' = 'singles';
+	gameType: 'singles' | 'doubles' | 'triples' | 'multi' | 'freeforall' = 'singles';
 	rated: string | boolean = false;
 	isBlitz = false;
 	endLastTurnPending = false;
@@ -1204,7 +1204,7 @@ class Battle {
 		if (!side) return;
 		this.mySide = side;
 
-		if (side === this.p1 || side.ally === this.p1) {
+		if ((side.n % 2) === this.p1.n) {
 			this.sidesSwitched = false;
 			this.nearSide = this.p1;
 			this.farSide = this.p2;
@@ -1214,9 +1214,11 @@ class Battle {
 			this.farSide = this.p1;
 		}
 		this.nearSide.isFar = false;
-		if (this.nearSide.ally) this.nearSide.ally.isFar = false;
 		this.farSide.isFar = true;
-		if (this.farSide.ally) this.farSide.ally.isFar = true;
+		if (this.sides.length > 2) {
+			this.sides[this.nearSide.n + 2].isFar = false;
+			this.sides[this.farSide.n + 2].isFar = true;
+		}
 
 		this.resetToCurrentTurn();
 	}
@@ -3113,17 +3115,21 @@ class Battle {
 		case 'gametype': {
 			this.gameType = args[1] as any;
 			switch (args[1]) {
-			default:
-				for (const side of this.sides) side.active = [null];
-				break;
 			case 'multi':
+			case 'freeforall':
 				this.pokemonControlled = 1;
 				this.p3 = new Side(this, 2);
 				this.p4 = new Side(this, 3);
-				this.p3.foe = this.p4.ally = this.p2;
-				this.p3.ally = this.p4.foe = this.p1;
-				this.p1.ally = this.p3;
-				this.p2.ally = this.p4;
+				this.p3.foe = this.p2;
+				this.p4.foe = this.p1;
+
+				if (args[1] === 'multi') {
+					this.p4.ally = this.p2;
+					this.p3.ally = this.p1;
+					this.p1.ally = this.p3;
+					this.p2.ally = this.p4;
+				}
+
 				this.p3.isFar = this.p1.isFar;
 				this.p4.isFar = this.p2.isFar;
 				this.sides = [this.p1, this.p2, this.p3, this.p4];
@@ -3139,6 +3145,9 @@ class Battle {
 			case 'rotation':
 				this.nearSide.active = [null, null, null];
 				this.farSide.active = [null, null, null];
+				break;
+			default:
+				for (const side of this.sides) side.active = [null];
 				break;
 			}
 			if (!this.pokemonControlled) this.pokemonControlled = this.nearSide.active.length;

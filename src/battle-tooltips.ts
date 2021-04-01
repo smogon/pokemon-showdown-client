@@ -307,26 +307,18 @@ class BattleTooltips {
 			let sideIndex = parseInt(args[1], 10);
 			let side = this.battle.sides[+this.battle.sidesSwitched ^ sideIndex];
 			let activeIndex = parseInt(args[2], 10);
-			if (this.battle.gameType === 'multi') {
-				if (activeIndex >= side.active.length) return;
-				if (activeIndex && side.sideid !== 'p3' && side.sideid !== 'p4') side = side.ally;
-				if (!activeIndex && (side.sideid === 'p3' || side.sideid === 'p4')) side = side.ally;
-				let pokemon = side.active[activeIndex];
-				if (!pokemon) return;
-				let serverPokemon = null;
-				if (side === this.battle.mySide && this.battle.myPokemon) {
-					serverPokemon = this.battle.myPokemon[0];
-				} else if (side === this.battle.mySide!.ally && this.battle.myAllyPokemon) {
-					serverPokemon = this.battle.myAllyPokemon[0];
-				}
-				if (!pokemon) return false;
-				buf = this.showPokemonTooltip(pokemon, serverPokemon, true);
-				break;
+			let pokemonIndex = activeIndex;
+			if (activeIndex >= 1 && this.battle.sides.length > 2) {
+				pokemonIndex -= 1;
+				side = this.battle.sides[side.n + 2];
 			}
 			let pokemon = side.active[activeIndex];
 			let serverPokemon = null;
-			if (sideIndex === 0 && this.battle.myPokemon) {
-				serverPokemon = this.battle.myPokemon[activeIndex];
+			if (side === this.battle.mySide && this.battle.myPokemon) {
+				serverPokemon = this.battle.myPokemon[pokemonIndex];
+			}
+			if (side === this.battle.mySide.ally && this.battle.myAllyPokemon) {
+				serverPokemon = this.battle.myAllyPokemon[pokemonIndex];
 			}
 			if (!pokemon) return false;
 			buf = this.showPokemonTooltip(pokemon, serverPokemon, true);
