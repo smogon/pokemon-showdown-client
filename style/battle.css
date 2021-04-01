@@ -345,8 +345,9 @@ License: GPLv2
 	background: transparent none no-repeat scroll center top;
 }
 .trainer div.teamicons {
-	width: 96px;
+	width: 100px;
 	height: 30px;
+	margin: 0 0 0 2px;
 }
 .teamicons span {
 	float: left;
