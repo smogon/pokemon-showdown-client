@@ -1257,6 +1257,8 @@ function toId() {
 						}
 						if (teambuilderFormatName !== name) {
 							teambuilderFormat = toID(teambuilderFormatName);
+							if (teambuilderFormat.startsWith('gen8nd')) teambuilderFormat = 'gen8nationaldex' + teambuilderFormat.slice(6);
+							if (teambuilderFormat.startsWith('gen8natdex')) teambuilderFormat = 'gen8nationaldex' + teambuilderFormat.slice(10);
 							if (BattleFormats[teambuilderFormat]) {
 								BattleFormats[teambuilderFormat].isTeambuilderFormat = true;
 							} else {
