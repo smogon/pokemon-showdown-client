@@ -98,24 +98,6 @@ class BattleTextParser {
 				status = status.slice(1);
 			}
 		}
-
-		if (Config.server.id === 'showdown' && Config.server.afd) {
-			// AFD 2021 - invert some ranks
-			const groupMap: {[group: string]: string} = {
-				'&': ' ',
-				'#': ' ',
-				'@': '+',
-				'%': '*',
-				'*': '%',
-				'+': '@',
-				' ': '&',
-			};
-
-			if (group in groupMap) {
-				group = groupMap[group];
-			}
-		}
-
 		return {group, name, away, status};
 	}
 
