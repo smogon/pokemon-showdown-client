@@ -2080,7 +2080,8 @@ class PokemonSprite extends Sprite {
 	recalculatePos(slot: number) {
 		let moreActive = this.scene.activeCount - 1;
 		let statbarOffset = 0;
-		if (this.scene.battle.gameType === 'freeforall') {
+		const isFFA = this.scene.battle.gameType === 'freeforall';
+		if (isFFA) {
 			// create a gap between Pokemon on the same "side" as a distinction between FFA and Multi battles
 			moreActive++;
 			if (slot) slot++;
@@ -2106,7 +2107,7 @@ class PokemonSprite extends Sprite {
 				this.x = (slot * -70 + 20) * (this.isFrontSprite ? 1 : -1);
 				break;
 			}
-			this.y = (slot * 10) * (this.isFrontSprite ? 1 : -1);
+			this.y = this.isFrontSprite ? slot * 7 : slot * -10;
 			if (this.isFrontSprite) statbarOffset = 17 * slot;
 			if (this.isFrontSprite && !moreActive && this.sp.pixelated) statbarOffset = 15;
 			if (!this.isFrontSprite) statbarOffset = -7 * slot;
@@ -2134,6 +2135,7 @@ class PokemonSprite extends Sprite {
 		this.top = pos.top;
 		this.statbarLeft = pos.left - 80;
 		this.statbarTop = pos.top - 73 - statbarOffset;
+		if (this.statbarTop < -4) this.statbarTop = -4;
 
 		if (moreActive) {
 			// make sure element is in the right z-order
