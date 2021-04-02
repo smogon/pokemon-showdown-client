@@ -166,22 +166,7 @@ class BattleScene {
 		this.$hiddenMessage = $('<div class="message" style="position:absolute;display:block;visibility:hidden"></div>');
 		this.$tooltips = $('<div class="tooltips"></div>');
 
-		let tooltipBuf = '';
-		const tooltips = {
-			p2c: {top: 70, left: 250, width: 80, height: 100, tooltip: 'activepokemon|1|2'},
-			p2b: {top: 85, left: 320, width: 90, height: 100, tooltip: 'activepokemon|1|1'},
-			p2a: {top: 90, left: 390, width: 100, height: 100, tooltip: 'activepokemon|1|0'},
-			p1a: {top: 200, left: 130, width: 120, height: 160, tooltip: 'activepokemon|0|0'},
-			p1b: {top: 200, left: 250, width: 150, height: 160, tooltip: 'activepokemon|0|1'},
-			p1c: {top: 200, left: 350, width: 150, height: 160, tooltip: 'activepokemon|0|2'},
-		};
-		for (const id in tooltips) {
-			let layout = tooltips[id as 'p1a'];
-			tooltipBuf += `<div class="has-tooltip" style="position:absolute;`;
-			tooltipBuf += `top:${layout.top}px;left:${layout.left}px;width:${layout.width}px;height:${layout.height}px;`;
-			tooltipBuf += `" data-id="${id}" data-tooltip="${layout.tooltip}" data-ownheight="1"></div>`;
-		}
-		this.$tooltips.html(tooltipBuf);
+		this.rebuildTooltips();
 
 		this.$battle.append(this.$bg);
 		this.$battle.append(this.$terrain);
@@ -211,6 +196,32 @@ class BattleScene {
 		this.log.battleParser!.perspective = this.battle.mySide.sideid;
 
 		this.resetSides(true);
+	}
+
+	rebuildTooltips() {
+		let tooltipBuf = '';
+		const tooltips = this.battle.gameType === 'freeforall' ? {
+			// FFA battles are visually rendered as triple battle with the center slots empty
+			// so we swap the 2nd and 3rd tooltips on each side
+			p2b: {top: 70, left: 250, width: 80, height: 100, tooltip: 'activepokemon|1|1'},
+			p2a: {top: 90, left: 390, width: 100, height: 100, tooltip: 'activepokemon|1|0'},
+			p1a: {top: 200, left: 130, width: 120, height: 160, tooltip: 'activepokemon|0|0'},
+			p1b: {top: 200, left: 350, width: 150, height: 160, tooltip: 'activepokemon|0|1'},
+		} : {
+			p2c: {top: 70, left: 250, width: 80, height: 100, tooltip: 'activepokemon|1|2'},
+			p2b: {top: 70, left: 250, width: 80, height: 100, tooltip: 'activepokemon|1|1'},
+			p2a: {top: 90, left: 390, width: 100, height: 100, tooltip: 'activepokemon|1|0'},
+			p1a: {top: 200, left: 130, width: 120, height: 160, tooltip: 'activepokemon|0|0'},
+			p1b: {top: 200, left: 250, width: 150, height: 160, tooltip: 'activepokemon|0|1'},
+			p1c: {top: 200, left: 350, width: 150, height: 160, tooltip: 'activepokemon|0|2'},
+		};
+		for (const id in tooltips) {
+			let layout = tooltips[id as 'p1a'];
+			tooltipBuf += `<div class="has-tooltip" style="position:absolute;`;
+			tooltipBuf += `top:${layout.top}px;left:${layout.left}px;width:${layout.width}px;height:${layout.height}px;`;
+			tooltipBuf += `" data-id="${id}" data-tooltip="${layout.tooltip}" data-ownheight="1"></div>`;
+		}
+		this.$tooltips.html(tooltipBuf);
 	}
 
 	animationOff() {
@@ -2069,6 +2080,11 @@ class PokemonSprite extends Sprite {
 	recalculatePos(slot: number) {
 		let moreActive = this.scene.activeCount - 1;
 		let statbarOffset = 0;
+		if (this.scene.battle.gameType === 'freeforall') {
+			// create a gap between Pokemon on the same "side" as a distinction between FFA and Multi battles
+			moreActive++;
+			if (slot) slot++;
+		}
 		if (this.scene.gen <= 4 && moreActive) {
 			this.x = (slot - 0.52) * (this.isFrontSprite ? 1 : -1) * -55;
 			this.y = (this.isFrontSprite ? 1 : -1) + 1;
