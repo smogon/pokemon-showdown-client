@@ -581,7 +581,7 @@ class Side {
 	n: number;
 	isFar: boolean;
 	foe: Side = null!;
-	ally: Side = null!;
+	ally: Side | null = null;
 	avatar: string = 'unknown';
 	rating: string = '';
 	totalPokemon = 6;

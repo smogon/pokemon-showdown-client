@@ -601,7 +601,7 @@ class BattleScene {
 		}
 		return BattleLog.escapeHTML(name);
 	}
-	getSidebarHTML(side: Side, isAlly?: boolean): string {
+	getSidebarHTML(side: Side, posStr: string): string {
 		let noShow = this.battle.hardcoreMode && this.battle.gen < 7;
 
 		let speciesOverage = this.battle.speciesClause ? Infinity : Math.max(side.pokemon.length - side.totalPokemon, 0);
@@ -677,28 +677,48 @@ class BattleScene {
 		}
 		pokemonhtml = '<div class="teamicons">' + pokemonhtml + '</div>';
 		const ratinghtml = side.rating ? ` title="Rating: ${BattleLog.escapeHTML(side.rating)}"` : ``;
-		let posStr = side.isFar ? 'far' : 'near';
-		if (isAlly) posStr += '2';
 		const faded = side.name ? `` : ` style="opacity: 0.4"`;
 		return `<div class="trainer trainer-${posStr}"${faded}><strong>${BattleLog.escapeHTML(side.name)}</strong><div class="trainersprite"${ratinghtml} style="background-image:url(${Dex.resolveAvatar(side.avatar)})"></div>${pokemonhtml}</div>`;
 	}
 	updateSidebar(side: Side) {
-		let side2 = null;
-		if (this.battle.sides.length > 2) {
-			side = this.battle.sides[side.n % 2];
-			side2 = this.battle.sides[side.n + 2];
-		}
-		const $sidebar = (side.isFar ? this.$rightbar : this.$leftbar);
-
-		if (side2) {
-			$sidebar.html(this.getSidebarHTML(side, true) + this.getSidebarHTML(side2));
+		if (this.battle.gameType === 'freeforall') {
+			this.updateLeftSidebar();
+			this.updateRightSidebar();
+		} else if (side === this.battle.nearSide || side === this.battle.nearSide.ally) {
+			this.updateLeftSidebar();
 		} else {
-			$sidebar.html(this.getSidebarHTML(side));
+			this.updateRightSidebar();
+		}
+	}
+	updateLeftSidebar() {
+		const side = this.battle.nearSide;
+
+		if (side.ally) {
+			const side2 = side.ally!;
+			this.$leftbar.html(this.getSidebarHTML(side, 'near2') + this.getSidebarHTML(side2, 'near'));
+		} else if (this.battle.sides.length > 2) { // FFA
+			const side2 = this.battle.sides[side.n === 0 ? 3 : 2];
+			this.$leftbar.html(this.getSidebarHTML(side2, 'near2') + this.getSidebarHTML(side, 'near'));
+		} else {
+			this.$leftbar.html(this.getSidebarHTML(side, 'near'));
+		}
+	}
+	updateRightSidebar() {
+		const side = this.battle.farSide;
+
+		if (side.ally) {
+			const side2 = side.ally!;
+			this.$rightbar.html(this.getSidebarHTML(side, 'far2') + this.getSidebarHTML(side2, 'far'));
+		} else if (this.battle.sides.length > 2) { // FFA
+			const side2 = this.battle.sides[side.n === 0 ? 3 : 2];
+			this.$rightbar.html(this.getSidebarHTML(side2, 'far2') + this.getSidebarHTML(side, 'far'));
+		} else {
+			this.$rightbar.html(this.getSidebarHTML(side, 'far'));
 		}
 	}
 	updateSidebars() {
-		this.updateSidebar(this.battle.nearSide);
-		this.updateSidebar(this.battle.farSide);
+		this.updateLeftSidebar();
+		this.updateRightSidebar();
 	}
 	updateStatbars() {
 		for (const side of this.battle.sides) {
