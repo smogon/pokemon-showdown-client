@@ -26,7 +26,6 @@ class BattleSceneStub {
 	message(message: string, hiddenMessage?: string | undefined): void { }
 	pause(): void { }
 	preemptCatchup(): void { }
-	rebuildTooltips(): void { }
 	removeSideCondition(siden: number, id: ID): void { }
 	reset(): void { }
 	resetBgm(): void { }

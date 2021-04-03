@@ -3153,7 +3153,6 @@ class Battle {
 			if (!this.pokemonControlled) this.pokemonControlled = this.nearSide.active.length;
 			this.scene.updateGen();
 			this.scene.resetSides();
-			this.scene.rebuildTooltips();
 			break;
 		}
 		case 'rule': {
