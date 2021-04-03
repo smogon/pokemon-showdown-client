@@ -640,7 +640,7 @@
 					if (move.id === 'Recharge') move.type = '&ndash;';
 					if (name.substr(0, 12) === 'Hidden Power') name = 'Hidden Power';
 					var moveType = this.tooltips.getMoveType(move, typeValueTracker)[0];
-					var tooltipArgs = 'move|' + moveData.move + '|' + activePos;
+					var tooltipArgs = 'move|' + moveData.move + '|' + pos;
 					if (moveData.disabled) {
 						movebuttons += '<button disabled="disabled" class="has-tooltip" data-tooltip="' + BattleLog.escapeHTML(tooltipArgs) + '">';
 					} else {
