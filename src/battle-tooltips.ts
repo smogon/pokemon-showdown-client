@@ -199,10 +199,12 @@ class BattleTooltips {
 		$elem.on('touchstart', '.has-tooltip', e => {
 			e.preventDefault();
 			this.holdLockTooltipEvent(e);
-			if (e.currentTarget === BattleTooltips.parentElem && BattleTooltips.parentElem!.tagName === 'BUTTON') {
-				$(BattleTooltips.parentElem!).addClass('pressed');
-				BattleTooltips.isPressed = true;
+			if (!BattleTooltips.parentElem) {
+				// should never happen, but in case there's a bug in the tooltip handler
+				BattleTooltips.parentElem = e.currentTarget;
 			}
+			$(BattleTooltips.parentElem!).addClass('pressed');
+			BattleTooltips.isPressed = true;
 		});
 		$elem.on('touchend', '.has-tooltip', e => {
 			e.preventDefault();
@@ -272,7 +274,9 @@ class BattleTooltips {
 		case 'maxmove': { // move|MOVE|ACTIVEPOKEMON|[GMAXMOVE]
 			let move = this.battle.dex.getMove(args[1]);
 			let teamIndex = parseInt(args[2], 10);
-			let pokemon = this.battle.nearSide.active[teamIndex + this.battle.pokemonControlled * Math.floor(this.battle.mySide!.n / 2)];
+			let pokemon = this.battle.nearSide.active[
+				teamIndex + this.battle.pokemonControlled * Math.floor(this.battle.mySide.n / 2)
+			];
 			let gmaxMove = args[3] ? this.battle.dex.getMove(args[3]) : undefined;
 			if (!pokemon) return false;
 			let serverPokemon = this.battle.myPokemon![teamIndex];
