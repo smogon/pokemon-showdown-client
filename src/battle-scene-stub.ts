@@ -44,7 +44,6 @@ class BattleSceneStub {
 	teamPreview(): void { }
 	resetSides(): void { }
 	updateGen(): void { }
-	getSidebarHTML(side: Side) { }
 	updateSidebar(side: Side): void { }
 	updateSidebars(): void { }
 	updateStatbars(): void { }
