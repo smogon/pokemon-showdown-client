@@ -1,12 +1,11 @@
 # Staff FAQ
-
 ### ¿Quién es el staff?
 
-El Staff está representado por los símbolos al lado de su nombre y aparecen al comienzo de la lista de usuarios. Son los usuarios más importantes de Pokémon Showdown y se responsabilizan del correcto funcionamiento del simulador. Más abajo se puede encontrar una lista de todo el Staff.
+El Staff está representado por los símbolos al lado de su nombre y aparecen al comienzo de la lista de usuarios. Son los usuarios más importantes de Pokémon Showdown y se responsabilizan del correcto funcionamiento del simulador. Más abajo se puede encontrar una lista con todo el Staff.
 
 ### ¿Cuál es la diferencia entre room staff y global staff?
 
-El room staff tiene poderes limitados a la sala en la que fueron ascendidos, mientras que el global staff tiene poderes en todo el servidor. El room staff solo puede cumplir los deberes de moderación en su sala, mientras que el global staff tiene la capacidad para dar lock o ban a usuarios globalmente, por lo que se debe acudir a ellos y no al room staff en caso de acoso/abusos en mensajes privados o batallas. El global staff también puede ocupar cargos superiores como room staff. El global staff puede ser identificado por el "Global" que aparece al hacer click en su nombre.
+El room staff tiene poderes limitados a la sala en la que fueron ascendidos, mientras que el global staff tiene más poderes en todo el servidor. El room staff solo puede cumplir los deberes de moderación en su sala, mientras que el global staff tiene la capacidad para dar lock o ban a usuarios globalmente, por lo que se debe acudir a ellos y no al room staff en caso de acoso/abusos en mensajes privados o batallas. El global staff también puede ocupar cargos superiores como room staff. El global staff puede ser identificado por el "Global" que aparece al hacer click en su nombre.
 
 ### ¿Qué diferencias hay entre cada rango?
 
@@ -18,7 +17,9 @@ El room staff tiene poderes limitados a la sala en la que fueron ascendidos, mie
 
 **Global Drivers (`%`)** pueden dar avisos a usuarios tanto en salas como globalmente, mutear por 7 o 60 minutes, dar lock por 2 días o una semana, forzar cambios de nombre, restablecer los estados de los usuarios, revisar cuentas alternativas de los usuarios y revisar los registros de chat y moderación en todas las salas.
 
-**Global Moderators (`@`)** pueden hacer todo lo anterior, además de expulsar usuarios del servidor, hacer todo lo que un Room Moderator puede hacer y comprobar la dirección IP de los usuarios.
+**Global Moderators (`@`)** pueden hacer todo lo anterior, además de banear a usuarios del servidor, hacer todo lo que un Room Moderator puede hacer y comprobar la dirección IP de los usuarios.
+
+**Global Administrators (`&`)** pueden: hacer todo lo anterior, además de ascender a usuarios a cualquier rango, forzar empates y victorias en batallas, hacer anuncios globales puntuales, crear salas, banear un rango de direcciones IPs, restablecer contraseñas y dar lock o ban permanentemente.
 
 ###  ¿Cómo me hago un miembro del Staff?
 

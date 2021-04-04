@@ -18,7 +18,7 @@ Los usuarios en este estado no pueden hablar en ningún lugar excepto en los men
 
 Escribe `/roomauth (la sala)` para ver a los miembros del staff de dicha sala; si un nombre está en **negrita** significa que está conectado.
 
-### Se me dio lock / ban global injustamente. ¿Cómo puedo apelar?
+### Se me dio lock /ban global injustamente. ¿Cómo puedo apelar?
 
 Puedes publicar una apelación utilizando [las guías del foro](http://www.smogon.com/forums/threads/discipline-appeal-rules.3583479) o abriendo un ticket al escribir `/appeal` conectado en PS!
 
@@ -164,12 +164,12 @@ Ciertos Pokémon raros están "shiny-locked", lo que significa que su forma shin
 
 A menudo, un Pokémon puede cumplir legalmente varias condiciones individualmente, como un movimiento y su forma shiny, pero ciertas combinaciones son incompatibles (imposibles de tener al mismo tiempo).
 
-Por ejemplo, Pikachu con Surf es legal y también lo es Pikachu con Extreme Speed, pero no puede tener legalmente ambos movimientos. Pikachu solo obtiene cada movimiento diferentes eventos, por lo que ningún Pikachu de evento conoce ambos movimientos. Puedes usar `/learn Pokémon, movimiento` para ver cómo un Pokémon aprende un movimiento, y `/learn Pokemon, movimiento 1, movimiento 2` para ver si son compatibles con él.
+Por ejemplo, Pikachu con Surf es legal y también lo es Pikachu con Extreme Speed, pero no puede tener legalmente ambos movimientos. Pikachu solo obtiene cada movimiento diferentes eventos, por lo que ningún Pikachu de evento conoce ambos movimientos. Puedes usar `/ learn Pokémon, movimiento` para ver cómo un Pokémon aprende un movimiento, y ` /learn Pokemon, movimiento 1, movimiento 2` para ver si son compatibles con él.
 
 Del mismo modo, Clefable no puede conocer Soft-Boiled y usar su habilidad oculta Unaware a la vez, ya que Clefable solo aprende Soft-Boiled en la Generación III y anteriores, mientras que las habilidades ocultas solo se pueden usar en la Generación V y posteriores.
 
 ### ¿Cómo restablezco mi ratio de victorias / derrotas
 
-Escribe `rank` y en el cuadro habrá un enlace a 'Reset W / L'. Hacer click en dicho enlace te permitirá reiniciar tu ratio. Ten en cuenta que tus otras clasificaciones no se verán afectadas; solo cambiará tu ratio de victorias / derrotas. Para cambiar estas otras clasificaciones, puedes comenzar de cero con una nueva cuenta.
+Escribe `/rank` y en el cuadro habrá un enlace a 'Reset W / L'. Hacer click en dicho enlace te permitirá reiniciar tu ratio. Ten en cuenta que tus otras clasificaciones no se verán afectadas; solo cambiará tu ratio de victorias / derrotas. Para cambiar estas otras clasificaciones, puedes comenzar de cero con una nueva cuenta.
 
-<small>(Originalmente por [Relados](https://www.smogon.com/forums/members/relados.148715/) y [Zarel](https://www.smogon.com/forums/members/zarel.102803/); actualizado por [Blitzamirin](https://www.smogon.com/forums/members/blitzamirin.101585/), [Kalalokki](https://www.smogon.com/forums/members/kalalokki.199661/), Kasumi, [shnen](https://www.smogon.com/forums/members/shnen.107178/), Sobi, [Finland](https://www.smogon.com/forums/members/finland.517429/), [Vacate](https://www.smogon.com/forums/members/vacate.189371/), [verbatim](https://www.smogon.com/forums/members/verbatim.93103/), [Zodiax](https://www.smogon.com/forums/members/zodiax.202547/) e [Iyarito](https://www.smogon.com/forums/members/iyarito.219578/); convertido a Markdown para el sitio de PS! por [Annika](https://www.smogon.com/forums/members/annika.434112/) y traducido al español por [Naziel](https://www.smogon.com/forums/members/naziel.407858/) y [Dorron](https://www.smogon.com/forums/members/dorron.475771/))</small>
+<small>(Originalmente por [Relados](https://www.smogon.com/forums/members/relados.148715/) y [Zarel](https://www.smogon.com/forums/members/zarel.102803/); actualizado por [Blitzamirin](https://www.smogon.com/forums/members/blitzamirin.101585/), [Kalalokki](https://www.smogon.com/forums/members/kalalokki.199661/), Kasumi, [shnen](https://www.smogon.com/forums/members/shnen.107178/), Sobi, [Finland](https://www.smogon.com/forums/members/finland.517429/), [Vacate](https://www.smogon.com/forums/members/vacate.189371/), [verbatim](https://www.smogon.com/forums/members/verbatim.93103/), [Zodiax](https://www.smogon.com/forums/members/zodiax.202547/) e [Iyarito](https://www.smogon.com/forums/members/iyarito.219578/); convertido a Markdown para el sitio de PS! por [Annika](https://www.smogon.com/forums/members/annika.434112/))</small>
