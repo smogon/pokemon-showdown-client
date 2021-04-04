@@ -1147,8 +1147,8 @@ class Move implements Effect {
 		this.critRatio = data.critRatio === 0 ? 0 : (data.critRatio || 1);
 
 		// TODO: move to text.js
-		this.desc = data.desc;
-		this.shortDesc = data.shortDesc;
+		this.desc = data.realMove ? Dex.getMove(data.realMove).desc : data.desc;
+		this.shortDesc = data.realMove ? Dex.getMove(data.realMove).shortDesc : data.shortDesc;
 		this.isNonstandard = data.isNonstandard || null;
 		this.isZ = data.isZ || '';
 		this.zMove = data.zMove || {};

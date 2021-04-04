@@ -25,11 +25,11 @@ class ModifiableValue {
 		this.pokemon = pokemon;
 		this.serverPokemon = serverPokemon;
 
-		this.itemName = Dex.getItem(serverPokemon.item).name;
+		this.itemName = this.battle.dex.getItem(serverPokemon.item).name;
 		const ability = serverPokemon.ability || pokemon?.ability || serverPokemon.baseAbility;
-		this.abilityName = Dex.getAbility(ability).name;
-		this.weatherName = Dex.getMove(battle.weather).exists ?
-			Dex.getMove(battle.weather).name : Dex.getAbility(battle.weather).name;
+		this.abilityName = this.battle.dex.getAbility(ability).name;
+		this.weatherName = this.battle.dex.getMove(battle.weather).exists ?
+			this.battle.dex.getMove(battle.weather).name : this.battle.dex.getAbility(battle.weather).name;
 	}
 	reset(value = 0, isAccuracy?: boolean) {
 		this.value = value;
@@ -833,10 +833,10 @@ class BattleTooltips {
 			let itemEffect = '';
 			if (clientPokemon?.prevItem) {
 				item = 'None';
-				let prevItem = Dex.getItem(clientPokemon.prevItem).name;
+				let prevItem = this.battle.dex.getItem(clientPokemon.prevItem).name;
 				itemEffect += clientPokemon.prevItemEffect ? prevItem + ' was ' + clientPokemon.prevItemEffect : 'was ' + prevItem;
 			}
-			if (serverPokemon.item) item = Dex.getItem(serverPokemon.item).name;
+			if (serverPokemon.item) item = this.battle.dex.getItem(serverPokemon.item).name;
 			if (itemEffect) itemEffect = ' (' + itemEffect + ')';
 			if (item) itemText = '<small>Item:</small> ' + item + itemEffect;
 		} else if (clientPokemon) {
@@ -845,10 +845,10 @@ class BattleTooltips {
 			if (clientPokemon.prevItem) {
 				item = 'None';
 				if (itemEffect) itemEffect += '; ';
-				let prevItem = Dex.getItem(clientPokemon.prevItem).name;
+				let prevItem = this.battle.dex.getItem(clientPokemon.prevItem).name;
 				itemEffect += clientPokemon.prevItemEffect ? prevItem + ' was ' + clientPokemon.prevItemEffect : 'was ' + prevItem;
 			}
-			if (pokemon.item) item = Dex.getItem(pokemon.item).name;
+			if (pokemon.item) item = this.battle.dex.getItem(pokemon.item).name;
 			if (itemEffect) itemEffect = ' (' + itemEffect + ')';
 			if (item) itemText = '<small>Item:</small> ' + item + itemEffect;
 		}
@@ -869,7 +869,7 @@ class BattleTooltips {
 			text += `<p class="section">`;
 			const battlePokemon = clientPokemon || this.battle.findCorrespondingPokemon(pokemon);
 			for (const moveid of serverPokemon.moves) {
-				const move = Dex.getMove(moveid);
+				const move = this.battle.dex.getMove(moveid);
 				let moveName = `&#8226; ${move.name}`;
 				if (battlePokemon?.moveTrack) {
 					for (const row of battlePokemon.moveTrack) {
@@ -1003,7 +1003,7 @@ class BattleTooltips {
 		let item = toID(serverPokemon.item);
 		if (ability === 'klutz' && item !== 'machobrace') item = '' as ID;
 		const speciesForme = clientPokemon ? clientPokemon.getSpeciesForme() : serverPokemon.speciesForme;
-		let species = Dex.getSpecies(speciesForme).baseSpecies;
+		let species = this.battle.dex.getSpecies(speciesForme).baseSpecies;
 
 		// check for light ball, thick club, metal/quick powder
 		// the only stat modifying items in gen 2 were light ball, thick club, metal powder
@@ -1111,7 +1111,7 @@ class BattleTooltips {
 		if (ability === 'marvelscale' && pokemon.status) {
 			stats.def = Math.floor(stats.def * 1.5);
 		}
-		if (item === 'eviolite' && Dex.getSpecies(pokemon.speciesForme).evos) {
+		if (item === 'eviolite' && this.battle.dex.getSpecies(pokemon.speciesForme).evos) {
 			stats.def = Math.floor(stats.def * 1.5);
 			stats.spd = Math.floor(stats.spd * 1.5);
 		}
@@ -1288,7 +1288,7 @@ class BattleTooltips {
 			moveType = pokemonTypes[0];
 		}
 		// Moves that require an item to change their type.
-		let item = Dex.getItem(value.itemName);
+		let item = this.battle.dex.getItem(value.itemName);
 		if (move.id === 'multiattack' && item.onMemory) {
 			if (value.itemModify(0)) moveType = item.onMemory;
 		}
@@ -1576,7 +1576,7 @@ class BattleTooltips {
 		}
 		// Moves which have base power changed due to items
 		if (serverPokemon.item) {
-			let item = Dex.getItem(serverPokemon.item);
+			let item = this.battle.dex.getItem(serverPokemon.item);
 			if (move.id === 'fling' && item.fling) {
 				value.itemModify(item.fling.basePower);
 			}
@@ -1831,7 +1831,7 @@ class BattleTooltips {
 
 		// Pokemon-specific items
 		if (item.name === 'Soul Dew' && this.battle.gen < 7) return value;
-		if (BattleTooltips.orbUsers[Dex.getSpecies(value.serverPokemon.speciesForme).baseSpecies] === item.name &&
+		if (BattleTooltips.orbUsers[this.battle.dex.getSpecies(value.serverPokemon.speciesForme).baseSpecies] === item.name &&
 			[BattleTooltips.orbTypes[item.name], 'Dragon'].includes(moveType)) {
 			value.itemModify(1.2);
 			return value;
@@ -1862,7 +1862,7 @@ class BattleTooltips {
 	}
 	getAllyAbility(ally: Pokemon) {
 		// this will only be available if the ability announced itself in some way
-		let allyAbility = Dex.getAbility(ally.ability).name;
+		let allyAbility = this.battle.dex.getAbility(ally.ability).name;
 		// otherwise fall back on the original set data sent from the server
 		if (!allyAbility && this.battle.myAllyPokemon) {
 			allyAbility = Dex.getAbility(this.battle.myAllyPokemon[ally.slot].ability).name;
@@ -1909,12 +1909,12 @@ class BattleTooltips {
 		if (!isActive) {
 			// for switch tooltips, only show the original ability
 			const ability = abilityData.baseAbility || abilityData.ability;
-			if (ability) text = '<small>Ability:</small> ' + Dex.getAbility(ability).name;
+			if (ability) text = '<small>Ability:</small> ' + this.battle.dex.getAbility(ability).name;
 		} else {
 			if (abilityData.ability) {
-				const abilityName = Dex.getAbility(abilityData.ability).name;
+				const abilityName = this.battle.dex.getAbility(abilityData.ability).name;
 				text = '<small>Ability:</small> ' + abilityName;
-				const baseAbilityName = Dex.getAbility(abilityData.baseAbility).name;
+				const baseAbilityName = this.battle.dex.getAbility(abilityData.baseAbility).name;
 				if (baseAbilityName && baseAbilityName !== abilityName) text += ' (base: ' + baseAbilityName + ')';
 			}
 		}

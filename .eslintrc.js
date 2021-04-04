@@ -29,7 +29,7 @@ module.exports = {
 		// Generic global variables
 		"Config": false, "BattleSearch": false, "Storage": false, "Dex": false, "DexSearch": false,
 		"app": false, "toID": false, "toRoomid": false, "toUserid": false, "toName": false, "PSUtils": false, "MD5": false,
-		"ChatHistory": false, "Topbar": false, "UserList": false,
+		"ChatHistory": false, "Topbar": false, "UserList": false, "Formats": false,
 
 		// Rooms
 		"Room": false, "BattleRoom": false, "ChatRoom": false, "ConsoleRoom": false, "HTMLRoom": false, "LadderRoom": false, "MainMenuRoom": false, "RoomsRoom": false, "BattlesRoom": false, "TeambuilderRoom": false,

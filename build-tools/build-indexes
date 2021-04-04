@@ -322,6 +322,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 	const DOUBLES = GENS.filter(x => x > 2).map(num => -num);
 	const NFE = GENS.map(num => num + 0.3);
 	const OTHER = [8.4, 8.2, 8.1, -8.4, 7.1, -7.5];
+	const MODS = Object.keys(Dex.dexes);
 
 	// process.stdout.write("\n  ");
 	for (const genIdent of [...GENS, ...DOUBLES, ...NFE, ...OTHER]) {
@@ -1049,6 +1050,25 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 		}
 	}
 
+	//
+	// Mod table
+	//
+
+	for (const mod of MODS) {
+		if (mod in BattleTeambuilderTable) continue;
+		let modData = Dex.mod(mod);
+		BattleTeambuilderTable[mod] = {
+			data: modData.data,
+			gen: modData.gen,
+			overrideTier: {},
+		};
+		for (const table of ['Items', 'Moves', 'Abilities']) {
+			for (const key in BattleTeambuilderTable[mod].data[table]) {
+				const descs = Dex.getDescs(table, key, BattleTeambuilderTable[mod].data[table][key]);
+				Object.assign(BattleTeambuilderTable[mod].data[table][key], descs);
+			}
+		}
+	}
 	buf += `exports.BattleTeambuilderTable = JSON.parse('${JSON.stringify(BattleTeambuilderTable).replace(/['\\]/g, "\\$&")}');\n\n`;
 
 	fs.writeFileSync('data/teambuilder-tables.js', buf);
@@ -1164,7 +1184,10 @@ process.stdout.write("Building `data/moves,items,abilities,typechart,learnsets.j
  *********************************************************/
 
 {
-	const Formats = requireNoCache('../data/pokemon-showdown/.config-dist/formats.js').Formats;
+	const Formats = {};
+	for (const format of requireNoCache('../data/pokemon-showdown/.config-dist/formats.js').Formats) {
+		if (format.name) Formats[format.name] = format;
+	}
 	const buf = 'exports.Formats = ' + es3stringify(Formats) + ';';
 	fs.writeFileSync('data/formats.js', buf);
 }
