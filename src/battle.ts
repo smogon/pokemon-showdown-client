@@ -3118,8 +3118,8 @@ class Battle {
 			case 'multi':
 			case 'freeforall':
 				this.pokemonControlled = 1;
-				this.p3 = new Side(this, 2);
-				this.p4 = new Side(this, 3);
+				if (!this.p3) this.p3 = new Side(this, 2);
+				if (!this.p4) this.p4 = new Side(this, 3);
 				this.p3.foe = this.p2;
 				this.p4.foe = this.p1;
 

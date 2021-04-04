@@ -753,7 +753,7 @@
 		},
 		displayAllyParty: function () {
 			var party = '';
-			if (!this.battle.mySide.ally) return;
+			if (!this.battle.myAllyPokemon) return '';
 			var allyParty = this.battle.myAllyPokemon;
 			for (var i = 0; i < allyParty.length; i++) {
 				var pokemon = allyParty[i];
