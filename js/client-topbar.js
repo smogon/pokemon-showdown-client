@@ -1078,4 +1078,5 @@
 			app.user.passwordRename(data.username, data.password);
 		}
 	});
+
 }).call(this, jQuery);
