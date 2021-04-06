@@ -901,21 +901,20 @@
 					leads.push(myPokemon[this.choice.teamPreview[i] - 1].speciesForme);
 				}
 				buf += leads.join(', ') + ' will be sent out first.<br />';
-			} else if (this.choice.choices && this.request) {
-				var myActive = this.battle.myPokemon;
-				for (var i = 0; i < (this.battle.myPokemon || this.choice.choices.length); i++) {
+			} else if (this.choice.choices && this.request && this.battle.myPokemon) {
+				var myPokemon = this.battle.myPokemon;
+				for (var i = 0; i < this.choice.choices.length; i++) {
 					var parts = this.choice.choices[i].split(' ');
 					switch (parts[0]) {
 					case 'move':
 						var move;
-						myActive = this.battle.nearSide.active;
 						if (this.request.active[i].maxMoves && !this.request.active[i].canDynamax) { // it's a max move
 							move = this.request.active[i].maxMoves.maxMoves[parseInt(parts[1], 10) - 1].move;
 						} else { // it's a normal move
 							move = this.request.active[i].moves[parseInt(parts[1], 10) - 1].move;
 						}
 						var target = '';
-						buf += myActive[i].speciesForme + ' will ';
+						buf += myPokemon[i].speciesForme + ' will ';
 						if (parts.length > 2) {
 							var targetPos = parts[2];
 							if (targetPos === 'mega') {
@@ -933,30 +932,30 @@
 							}
 							if (targetPos) {
 								var targetActive = this.battle.farSide.active;
-								// Targeting your own side in doubles / triples
 								if (targetPos < 0) {
-									targetActive = myActive;
+									// Targeting your own side in doubles / triples
+									targetActive = this.battle.nearSide.active;
 									targetPos = -targetPos;
 									target += 'your ';
 								}
 								if (targetActive[targetPos - 1]) {
 									target += targetActive[targetPos - 1].speciesForme;
 								} else {
-									target = ''; // targeting an empty slot
+									target += 'slot ' + targetPos; // targeting an empty slot
 								}
 							}
 						}
-						buf += 'use ' + Dex.getMove(move).name + (target ? ' against ' + target : '') + '.<br />';
+						buf += 'use ' + Dex.getMove(move).name + (target ? ' at ' + target : '') + '.<br />';
 						break;
 					case 'switch':
-						buf += '' + this.battle.myPokemon[parts[1] - 1].speciesForme + ' will switch in';
-						if (myActive[i]) {
-							buf += ', replacing ' + myActive[i].speciesForme;
+						buf += '' + myPokemon[parts[1] - 1].speciesForme + ' will switch in';
+						if (myPokemon[i]) {
+							buf += ', replacing ' + myPokemon[i].speciesForme;
 						}
 						buf += '.<br />';
 						break;
 					case 'shift':
-						buf += myActive[i].speciesForme + ' will shift position.<br />';
+						buf += myPokemon[i].speciesForme + ' will shift position.<br />';
 						break;
 					}
 				}
