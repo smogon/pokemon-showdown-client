@@ -34401,6 +34401,51 @@ const BattleMoveAnims: AnimTable = {
 		},
 		prepareAnim: BattleOtherAnims.chargestatus.anim,
 	},
+	livewire: {
+		anim(scene, [attacker, defender]) {
+			scene.showEffect('electroball', {
+				x: attacker.x,
+				y: attacker.y,
+				z: attacker.z,
+				scale: 0.1,
+				opacity: 0.5,
+			}, {
+				x: defender.x - 30,
+				y: defender.y - 40,
+				z: defender.z,
+				scale: 0.2,
+				opacity: 0.6,
+			}, 'ballistic');
+			scene.showEffect('electroball', {
+				x: attacker.x,
+				y: attacker.y,
+				z: attacker.z,
+				scale: 0.1,
+				opacity: 0.5,
+				time: 125,
+			}, {
+				x: defender.x + 40,
+				y: defender.y - 35,
+				z: defender.z,
+				scale: 0.2,
+				opacity: 0.6,
+			}, 'ballistic');
+			scene.showEffect('electroball', {
+				x: attacker.x,
+				y: attacker.y,
+				z: attacker.z,
+				scale: 0.1,
+				opacity: 0.5,
+				time: 250,
+			}, {
+				x: defender.x + 20,
+				y: defender.y - 25,
+				z: defender.z,
+				scale: 0.2,
+				opacity: 0.6,
+			}, 'ballistic');
+		},
+	},
 	searingsunrazesmash: {
 		anim(scene, [attacker, defender]) {
 			let xstep = (defender.x - attacker.x) / 5;
@@ -34992,6 +35037,7 @@ BattleMoveAnims['raizehell'] = {anim: BattleMoveAnims['blackholeeclipse'].anim};
 BattleMoveAnims['thornshot'] = {anim: BattleMoveAnims['pinmissile'].anim};
 BattleMoveAnims['sloth'] = {anim: BattleMoveAnims['slackoff'].anim};
 BattleMoveAnims['overthewall'] = {anim: BattleMoveAnims['maliciousmoonsault'].anim};
+
 BattleMoveAnims['awaken'] = {anim: BattleMoveAnims['geomancy'].anim};
 BattleMoveAnims['voltaiccyclone'] = {anim: BattleMoveAnims['discharge'].anim};
 BattleMoveAnims['boilover'] = {anim: BattleMoveAnims['steameruption'].anim};
@@ -34999,3 +35045,7 @@ BattleMoveAnims['soulcrusher'] = {anim: BattleMoveAnims['letssnuggleforever'].an
 BattleMoveAnims['cheeseclaw'] = {anim: BattleMoveAnims['dragonclaw'].anim};
 BattleMoveAnims['avianrush'] = {anim: BattleMoveAnims['doubleedge'].anim};
 BattleMoveAnims['trickstab'] = {anim: BattleMoveAnims['nightslash'].anim};
+BattleMoveAnims['dragonburst'] = {anim: BattleMoveAnims['lusterpurge'].anim};
+BattleMoveAnims['moredakka'] = {anim: BattleMoveAnims['moregun'].anim};
+BattleMoveAnims['tombstoner'] = {anim: BattleMoveAnims['continentalcrush'].anim};
+BattleMoveAnims['fruitjuice'] = {anim: BattleMoveAnims['mistball'].anim};
