@@ -843,7 +843,7 @@ class BattleLog {
 				const videoId = /(?:\?v=|\/embed\/)([A-Za-z0-9_\-]+)/.exec(src)?.[1];
 				if (!videoId) return {tagName: 'img', attribs: ['alt', `invalid src for <youtube>`]};
 
-				const time = getAttrib('start') || /(?:\?|&)t=([0-9a-z]+)/.exec(src)?.[1] || false;
+				const time = getAttrib('start') || /(?:\?|&)t=([0-9]+)/.exec(src)?.[1] || false;
 
 				return {
 					tagName: 'iframe',
