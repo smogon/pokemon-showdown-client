@@ -262,10 +262,10 @@ function requireNoCache(pathSpec) {
 		const id = entry[0];
 		let name = '';
 		switch (entry[1]) {
-		case 'pokemon': name = Dex.getSpecies(id).name; break;
-		case 'move': name = Dex.getMove(id).name; break;
-		case 'item': name = Dex.getItem(id).name; break;
-		case 'ability': name = Dex.getAbility(id).name; break;
+		case 'pokemon': name = Dex.species.get(id).name; break;
+		case 'move': name = Dex.moves.get(id).name; break;
+		case 'item': name = Dex.items.get(id).name; break;
+		case 'ability': name = Dex.abilities.get(id).name; break;
 		case 'article': name = BattleArticleTitles[id] || ''; break;
 		}
 		let res = '';
@@ -342,7 +342,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 		const zuBans = {};
 		const nonstandardMoves = [];
 		for (const id of pokemon) {
-			const species = Dex.mod(gen).getSpecies(id);
+			const species = Dex.mod(gen).species.get(id);
 			if (species.gen > genNum) continue;
 			const tier = (() => {
 				if (isNatDex) {
@@ -351,12 +351,12 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 					].map(toID);
 					if (species.isNonstandard && !['Past', 'Gigantamax'].includes(species.isNonstandard)) return 'Illegal';
 					if (unobtainables.includes(species.id)) return 'Illegal';
-					const uu = Dex.getFormat('gen8nationaldexuu');
-					const ou = Dex.getFormat('gen8nationaldex');
+					const uu = Dex.formats.get('gen8nationaldexuu');
+					const ou = Dex.formats.get('gen8nationaldex');
 					const uublIndex = uu.banlist.map(toID).indexOf('nduubl');
-					if (Dex.getRuleTable(ou).isBannedSpecies(species)) return 'Uber';
-					if (Dex.getRuleTable(ou).has('dynamaxclause') && species.name.endsWith('Gmax')) return '(Uber)';
-					if (Dex.getRuleTable(uu).isBannedSpecies(species)) {
+					if (Dex.formats.getRuleTable(ou).isBannedSpecies(species)) return 'Uber';
+					if (Dex.formats.getRuleTable(ou).has('dynamaxclause') && species.name.endsWith('Gmax')) return '(Uber)';
+					if (Dex.formats.getRuleTable(uu).isBannedSpecies(species)) {
 						if (
 							uu.banlist.map(toID).indexOf(species.id) >= uublIndex ||
 							uu.banlist.map(toID).indexOf(species.id + 'base') >= uublIndex ||
@@ -367,7 +367,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 							return 'OU';
 						}
 					}
-					if (Dex.getRuleTable(uu).isRestrictedSpecies(species)) {
+					if (Dex.formats.getRuleTable(uu).isRestrictedSpecies(species)) {
 						return 'UU';
 					} else {
 						if (species.nfe) {
@@ -384,7 +384,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 					let tier = species.tier;
 					if (species.isNonstandard) {
 						if (species.isNonstandard === 'Past') {
-							tier = Dex.mod('gen7').getSpecies(species.name).tier;
+							tier = Dex.mod('gen7').species.get(species.name).tier;
 						} else {
 							tier = 'OU';
 						}
@@ -393,28 +393,28 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 					if (species.tier === 'CAP LC') tier = 'LC';
 					if (species.tier === 'CAP NFE') tier = 'NFE';
 					if (species.tier === 'CAP') tier = 'OU';
-					const format = Dex.getFormat('gen8metronomebattle');
+					const format = Dex.formats.get('gen8metronomebattle');
 					let bst = 0;
 					for (const stat of Object.values(species.baseStats)) {
 						bst += stat;
 					}
 					if (bst > 625) tier = 'Illegal';
-					if (Dex.getRuleTable(format).isBannedSpecies(species)) tier = 'Illegal';
+					if (Dex.formats.getRuleTable(format).isBannedSpecies(species)) tier = 'Illegal';
 					if (species.types.includes('Steel')) tier = 'Illegal';
 					return tier;
 				}
 				if (isNFE) {
 					let tier = species.tier;
 					if (!species.nfe) tier = 'Illegal';
-					const format = Dex.getFormat(gen + 'nfe');
-					const banlist = Dex.getRuleTable(format);
+					const format = Dex.formats.get(gen + 'nfe');
+					const banlist = Dex.formats.getRuleTable(format);
 					if (banlist.isBannedSpecies(species)) {
 						tier = 'Uber';
 					}
 					return tier;
 				}
 				if (isLetsGo) {
-					let baseSpecies = Dex.mod(gen).getSpecies(species.baseSpecies);
+					let baseSpecies = Dex.mod(gen).species.get(species.baseSpecies);
 					let validNum = (baseSpecies.num <= 151 && species.num >= 1) || [808, 809].includes(baseSpecies.num);
 					if (!validNum) return 'Illegal';
 					if (species.forme && !['Alola', 'Mega', 'Mega-X', 'Mega-Y', 'Starter'].includes(species.forme)) return 'Illegal';
@@ -469,16 +469,16 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			}
 
 			if (genNum >= 7) {
-				const format = Dex.getFormat(gen + 'zu');
-				if (Dex.getRuleTable(format).isBannedSpecies(species) && ["(PU)", "NFE", "LC"].includes(species.tier)) {
+				const format = Dex.formats.get(gen + 'zu');
+				if (Dex.formats.getRuleTable(format).isBannedSpecies(species) && ["(PU)", "NFE", "LC"].includes(species.tier)) {
 					zuBans[species.id] = 1;
 				}
 			}
 		}
 
 		nonstandardMoves.push(...Object.keys(Dex.data.Moves).filter(id => {
-			const move = Dex.mod('gen8dlc1').getMove(id);
-			const bMove = Dex.mod('gen8').getMove(id);
+			const move = Dex.mod('gen8dlc1').moves.get(id);
+			const bMove = Dex.mod('gen8').moves.get(id);
 			return bMove.isNonstandard !== move.isNonstandard;
 		}));
 
@@ -612,7 +612,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 		const unreleasedItems = [];
 		if (genNum === 6) unreleasedItems.push(['header', "Unreleased"]);
 		for (const id of itemList) {
-			const item = Dex.mod(gen).getItem(id);
+			const item = Dex.mod(gen).items.get(id);
 			if (item.gen > genNum) {
 				continue;
 			}
@@ -625,7 +625,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 				}
 			}
 			if (isMetBattle) {
-				const banlist = Dex.getRuleTable(Dex.getFormat('gen8metronomebattle'));
+				const banlist = Dex.formats.getRuleTable(Dex.formats.get('gen8metronomebattle'));
 				if (banlist.isBanned('item:' + item.id)) continue;
 			}
 			switch (id) {
@@ -881,8 +881,8 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 	}
 	const LGLearnsets = Dex.mod('letsgo').data.Learnsets;
 	for (const id in LGLearnsets) {
-		const species = Dex.mod('letsgo').getSpecies(id);
-		const baseSpecies = Dex.mod('letsgo').getSpecies(species.baseSpecies);
+		const species = Dex.mod('letsgo').species.get(id);
+		const baseSpecies = Dex.mod('letsgo').species.get(species.baseSpecies);
 		const validNum = (baseSpecies.num <= 151 && baseSpecies.num >= 1) || [808, 809].includes(baseSpecies.num);
 		if (!validNum) continue;
 		if (species.forme && !['Alola', 'Mega', 'Mega-X', 'Mega-Y', 'Starter'].includes(species.forme)) continue;
@@ -973,7 +973,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 				overrideHiddenAbility[id] = pastEntry.abilities['H'];
 			}
 			// in the gen 3 dex, Pokemon already have the abilities that were added in gen 4
-			const hasAbilityFromNewerGen = Dex.getSpecies(id).gen <= genNum && Dex.getAbility(pastEntry.abilities['1']).gen > genNum;
+			const hasAbilityFromNewerGen = Dex.species.get(id).gen <= genNum && Dex.abilities.get(pastEntry.abilities['1']).gen > genNum;
 			if ((!pastEntry.abilities['1'] && nowEntry.abilities['1']) || hasAbilityFromNewerGen) {
 				removeSecondAbility[id] = true;
 			}
@@ -1090,7 +1090,7 @@ process.stdout.write("Building `data/moves,items,abilities,typechart,learnsets.j
 {
 	const Moves = requireNoCache('../data/pokemon-showdown/.data-dist/moves.js').Moves;
 	for (const id in Moves) {
-		const move = Dex.getMove(Moves[id].name);
+		const move = Dex.moves.get(Moves[id].name);
 		if (move.desc) Moves[id].desc = move.desc;
 		if (move.shortDesc) Moves[id].shortDesc = move.shortDesc;
 	}
@@ -1106,9 +1106,9 @@ process.stdout.write("Building `data/moves,items,abilities,typechart,learnsets.j
 {
 	const Items = requireNoCache('../data/pokemon-showdown/.data-dist/items.js').Items;
 	for (const id in Items) {
-		const move = Dex.getItem(Items[id].name);
-		if (move.desc) Items[id].desc = move.desc;
-		if (move.shortDesc) Items[id].shortDesc = move.shortDesc;
+		const item = Dex.items.get(Items[id].name);
+		if (item.desc) Items[id].desc = item.desc;
+		if (item.shortDesc) Items[id].shortDesc = item.shortDesc;
 	}
 	const buf = 'exports.BattleItems = ' + es3stringify(Items) + ';';
 	fs.writeFileSync('data/items.js', buf);
@@ -1121,9 +1121,9 @@ process.stdout.write("Building `data/moves,items,abilities,typechart,learnsets.j
 {
 	const Abilities = requireNoCache('../data/pokemon-showdown/.data-dist/abilities.js').Abilities;
 	for (const id in Abilities) {
-		const move = Dex.getAbility(Abilities[id].name);
-		if (move.desc) Abilities[id].desc = move.desc;
-		if (move.shortDesc) Abilities[id].shortDesc = move.shortDesc;
+		const ability = Dex.abilities.get(Abilities[id].name);
+		if (ability.desc) Abilities[id].desc = ability.desc;
+		if (ability.shortDesc) Abilities[id].shortDesc = ability.shortDesc;
 	}
 	const buf = 'exports.BattleAbilities = ' + es3stringify(Abilities) + ';';
 	fs.writeFileSync('data/abilities.js', buf);
