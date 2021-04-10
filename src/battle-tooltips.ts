@@ -971,7 +971,16 @@ class BattleTooltips {
 		}
 
 		let ability = toID(serverPokemon.ability || pokemon.ability || serverPokemon.baseAbility);
-		if (clientPokemon && 'gastroacid' in clientPokemon.volatiles) ability = '' as ID;
+		let ngasActive = false;
+		for (const side of this.battle.sides) {
+			for (const activePokemon of side.active) {
+				if (activePokemon && toID(activePokemon.ability) === 'neutralizinggas') {
+					ngasActive = true;
+					break;
+				}
+			}
+		}
+		if (clientPokemon && ('gastroacid' in clientPokemon.volatiles || ngasActive)) ability = '' as ID;
 
 		// check for burn, paralysis, guts, quick feet
 		if (pokemon.status) {
@@ -983,12 +992,6 @@ class BattleTooltips {
 
 			if (this.battle.gen > 2 && ability === 'quickfeet') {
 				stats.spe = Math.floor(stats.spe * 1.5);
-			} else if (pokemon.status === 'par') {
-				if (this.battle.gen > 6) {
-					stats.spe = Math.floor(stats.spe * 0.5);
-				} else {
-					stats.spe = Math.floor(stats.spe * 0.25);
-				}
 			}
 		}
 
@@ -1001,9 +1004,12 @@ class BattleTooltips {
 		}
 
 		let item = toID(serverPokemon.item);
-		if (ability === 'klutz' && item !== 'machobrace') item = '' as ID;
+		let speedHalvingEVItems = ['machobrace', 'poweranklet', 'powerband', 'powerbelt', 'powerbracer', 'powerlens', 'powerweight'];
+		if (ability === 'klutz' && !speedHalvingEVItems.includes(item)) item = '' as ID;
 		const speciesForme = clientPokemon ? clientPokemon.getSpeciesForme() : serverPokemon.speciesForme;
 		let species = Dex.getSpecies(speciesForme).baseSpecies;
+
+		let speedModifiers = [];
 
 		// check for light ball, thick club, metal/quick powder
 		// the only stat modifying items in gen 2 were light ball, thick club, metal powder
@@ -1020,7 +1026,7 @@ class BattleTooltips {
 
 		if (species === 'Ditto' && !(clientPokemon && 'transform' in clientPokemon.volatiles)) {
 			if (item === 'quickpowder') {
-				stats.spe *= 2;
+				speedModifiers.push(2);
 			}
 			if (item === 'metalpowder') {
 				if (this.battle.gen === 2) {
@@ -1065,10 +1071,10 @@ class BattleTooltips {
 				stats.spd = Math.floor(stats.spd * 1.5);
 			}
 			if (ability === 'sandrush' && weather === 'sandstorm') {
-				stats.spe *= 2;
+				speedModifiers.push(2);
 			}
 			if (ability === 'slushrush' && weather === 'hail') {
-				stats.spe *= 2;
+				speedModifiers.push(2);
 			}
 			if (item !== 'utilityumbrella') {
 				if (weather === 'sunnyday' || weather === 'desolateland') {
@@ -1088,10 +1094,10 @@ class BattleTooltips {
 					}
 				}
 				if (ability === 'chlorophyll' && (weather === 'sunnyday' || weather === 'desolateland')) {
-					stats.spe *= 2;
+					speedModifiers.push(2);
 				}
 				if (ability === 'swiftswim' && (weather === 'raindance' || weather === 'primordialsea')) {
-					stats.spe *= 2;
+					speedModifiers.push(2);
 				}
 			}
 		}
@@ -1102,10 +1108,10 @@ class BattleTooltips {
 		if (clientPokemon) {
 			if ('slowstart' in clientPokemon.volatiles) {
 				stats.atk = Math.floor(stats.atk * 0.5);
-				stats.spe = Math.floor(stats.spe * 0.5);
+				speedModifiers.push(0.5);
 			}
 			if (ability === 'unburden' && 'itemremoved' in clientPokemon.volatiles && !item) {
-				stats.spe *= 2;
+				speedModifiers.push(2);
 			}
 		}
 		if (ability === 'marvelscale' && pokemon.status) {
@@ -1119,7 +1125,7 @@ class BattleTooltips {
 			stats.def = Math.floor(stats.def * 1.5);
 		}
 		if (ability === 'surgesurfer' && this.battle.hasPseudoWeather('Electric Terrain')) {
-			stats.spe *= 2;
+			speedModifiers.push(2);
 		}
 		if (item === 'choicespecs' && !clientPokemon?.volatiles['dynamax']) {
 			stats.spa = Math.floor(stats.spa * 1.5);
@@ -1152,13 +1158,36 @@ class BattleTooltips {
 			stats.spd *= 2;
 		}
 		if (item === 'choicescarf' && !clientPokemon?.volatiles['dynamax']) {
-			stats.spe = Math.floor(stats.spe * 1.5);
+			speedModifiers.push(1.5);
 		}
-		if (item === 'ironball' || item === 'machobrace' || /power(?!herb)/.test(item)) {
-			stats.spe = Math.floor(stats.spe * 0.5);
+		if (item === 'ironball' || speedHalvingEVItems.includes(item)) {
+			speedModifiers.push(0.5);
 		}
 		if (ability === 'furcoat') {
 			stats.def *= 2;
+		}
+		const sideConditions = this.battle.mySide.sideConditions;
+		if (sideConditions['tailwind']) {
+			speedModifiers.push(2);
+		}
+		if (sideConditions['grasspledge']) {
+			speedModifiers.push(0.25);
+		}
+
+		let chainedSpeedModifier = 1;
+		for (const modifier of speedModifiers) {
+			chainedSpeedModifier *= modifier;
+		}
+		// Chained modifiers round down on 0.5
+		stats.spe = stats.spe * chainedSpeedModifier;
+		stats.spe = stats.spe % 1 > 0.5 ? Math.ceil(stats.spe) : Math.floor(stats.spe);
+
+		if (pokemon.status === 'par' && ability !== 'quickfeet') {
+			if (this.battle.gen > 6) {
+				stats.spe = Math.floor(stats.spe * 0.5);
+			} else {
+				stats.spe = Math.floor(stats.spe * 0.25);
+			}
 		}
 
 		return stats;
