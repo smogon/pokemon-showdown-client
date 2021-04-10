@@ -1182,7 +1182,7 @@ class BattleTooltips {
 		stats.spe = stats.spe * chainedSpeedModifier;
 		stats.spe = stats.spe % 1 > 0.5 ? Math.ceil(stats.spe) : Math.floor(stats.spe);
 
-		if (pokemon.status && pokemon.status === 'par' && ability !== 'quickfeet') {
+		if (pokemon.status === 'par' && ability !== 'quickfeet') {
 			if (this.battle.gen > 6) {
 				stats.spe = Math.floor(stats.spe * 0.5);
 			} else {
