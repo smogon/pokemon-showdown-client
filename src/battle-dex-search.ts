@@ -1381,14 +1381,16 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 					} else if (!learnsetEntry.includes(gen)) {
 						continue;
 					}
-					if (this.dex.gen >= 8 &&
-						BattleMovedex[moveid].isNonstandard === "Past" &&
-						this.formatType !== 'natdex'
+					if (
+						this.dex.gen >= 8 && this.formatType !== 'natdex' &&
+						BattleMovedex[moveid].isNonstandard === "Past"
 					) {
 						continue;
 					}
-					if (this.formatType?.startsWith('dlc1') &&
-						BattleTeambuilderTable['gen8dlc1']?.nonstandardMoves.includes(moveid)) {
+					if (
+						this.formatType?.startsWith('dlc1') &&
+						BattleTeambuilderTable['gen8dlc1']?.nonstandardMoves.includes(moveid)
+					) {
 						continue;
 					}
 					if (moves.includes(moveid)) continue;
