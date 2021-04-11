@@ -12,17 +12,7 @@ exports.transform = transform;
 exports.compile = compile;
 exports.deleteDir = deleteDir;
 exports.requireChokidar = requireChokidar;
-exports.adjustRelative = adjustRelative;
-
-function _fsReaddirRecursive() {
-  const data = _interopRequireDefault(require("fs-readdir-recursive"));
-
-  _fsReaddirRecursive = function () {
-    return data;
-  };
-
-  return data;
-}
+exports.withExtension = withExtension;
 
 function babel() {
   const data = _interopRequireWildcard(require("@babel/core"));
@@ -34,67 +24,56 @@ function babel() {
   return data;
 }
 
-function _includes() {
-  const data = _interopRequireDefault(require("lodash/includes"));
+function _module() {
+  const data = require("module");
 
-  _includes = function () {
+  _module = function () {
     return data;
   };
 
   return data;
 }
 
-function _path() {
-  const data = _interopRequireDefault(require("path"));
+function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function () { return cache; }; return cache; }
 
-  _path = function () {
-    return data;
-  };
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
 
-  return data;
-}
+const readdirRecursive = require("fs-readdir-recursive");
 
-function _fs() {
-  const data = _interopRequireDefault(require("fs"));
+const path = require("path");
 
-  _fs = function () {
-    return data;
-  };
-
-  return data;
-}
-
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = Object.defineProperty && Object.getOwnPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : {}; if (desc.get || desc.set) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } } newObj.default = obj; return newObj; } }
-
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+const fs = require("fs");
 
 function chmod(src, dest) {
-  _fs().default.chmodSync(dest, _fs().default.statSync(src).mode);
+  try {
+    fs.chmodSync(dest, fs.statSync(src).mode);
+  } catch (err) {
+    console.warn(`Cannot change permissions of ${dest}`);
+  }
 }
 
 function readdir(dirname, includeDotfiles, filter) {
-  return (0, _fsReaddirRecursive().default)(dirname, (filename, _index, currentDirectory) => {
-    const stat = _fs().default.statSync(_path().default.join(currentDirectory, filename));
-
+  return readdirRecursive(dirname, (filename, _index, currentDirectory) => {
+    const stat = fs.statSync(path.join(currentDirectory, filename));
     if (stat.isDirectory()) return true;
     return (includeDotfiles || filename[0] !== ".") && (!filter || filter(filename));
   });
 }
 
-function readdirForCompilable(dirname, includeDotfiles) {
-  return readdir(dirname, includeDotfiles, isCompilableExtension);
+function readdirForCompilable(dirname, includeDotfiles, altExts) {
+  return readdir(dirname, includeDotfiles, function (filename) {
+    return isCompilableExtension(filename, altExts);
+  });
 }
 
 function isCompilableExtension(filename, altExts) {
   const exts = altExts || babel().DEFAULT_EXTENSIONS;
-
-  const ext = _path().default.extname(filename);
-
-  return (0, _includes().default)(exts, ext);
+  const ext = path.extname(filename);
+  return exts.includes(ext);
 }
 
 function addSourceMappingUrl(code, loc) {
-  return code + "\n//# sourceMappingURL=" + _path().default.basename(loc);
+  return code + "\n//# sourceMappingURL=" + path.basename(loc);
 }
 
 const CALLER = {
@@ -125,39 +104,35 @@ function compile(filename, opts) {
 }
 
 function deleteDir(path) {
-  if (_fs().default.existsSync(path)) {
-    _fs().default.readdirSync(path).forEach(function (file) {
+  if (fs.existsSync(path)) {
+    fs.readdirSync(path).forEach(function (file) {
       const curPath = path + "/" + file;
 
-      if (_fs().default.lstatSync(curPath).isDirectory()) {
+      if (fs.lstatSync(curPath).isDirectory()) {
         deleteDir(curPath);
       } else {
-        _fs().default.unlinkSync(curPath);
+        fs.unlinkSync(curPath);
       }
     });
-
-    _fs().default.rmdirSync(path);
+    fs.rmdirSync(path);
   }
 }
 
 process.on("uncaughtException", function (err) {
   console.error(err);
-  process.exit(1);
+  process.exitCode = 1;
 });
 
 function requireChokidar() {
   try {
-    return require("chokidar");
+    return parseInt(process.versions.node) >= 8 ? require("chokidar") : require("@nicolo-ribaudo/chokidar-2");
   } catch (err) {
     console.error("The optional dependency chokidar failed to install and is required for " + "--watch. Chokidar is likely not supported on your platform.");
     throw err;
   }
 }
 
-function adjustRelative(relative, keepFileExtension) {
-  if (keepFileExtension) {
-    return relative;
-  }
-
-  return relative.replace(/\.(\w*?)$/, "") + ".js";
+function withExtension(filename, ext = ".js") {
+  const newBasename = path.basename(filename, path.extname(filename)) + ext;
+  return path.join(path.dirname(filename), newBasename);
 }

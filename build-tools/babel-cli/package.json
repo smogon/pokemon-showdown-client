@@ -1,14 +1,19 @@
 {
   "name": "@babel/cli",
-  "version": "7.1.2",
+  "version": "7.13.14",
   "description": "Babel command line.",
   "author": "Sebastian McKenzie <sebmck@gmail.com>",
-  "homepage": "https://babeljs.io/",
+  "homepage": "https://babel.dev/docs/en/next/babel-cli",
+  "bugs": "https://github.com/babel/babel/issues?utf8=%E2%9C%93&q=is%3Aissue+label%3A%22pkg%3A%20cli%22+is%3Aopen",
   "license": "MIT",
   "publishConfig": {
     "access": "public"
   },
-  "repository": "https://github.com/babel/babel/tree/master/packages/babel-cli",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/babel/babel.git",
+    "directory": "packages/babel-cli"
+  },
   "keywords": [
     "6to5",
     "babel",
@@ -19,25 +24,26 @@
     "compiler"
   ],
   "dependencies": {
-    "commander": "^2.8.1",
+    "commander": "^4.0.1",
     "convert-source-map": "^1.1.0",
     "fs-readdir-recursive": "^1.1.0",
     "glob": "^7.0.0",
-    "lodash": "^4.17.10",
-    "mkdirp": "^0.5.1",
-    "output-file-sync": "^2.0.0",
-    "slash": "^2.0.0",
+    "lodash": "^4.17.19",
+    "make-dir": "^2.1.0",
+    "slash": "condition:BABEL_8_BREAKING ? ^3.0.0 : ^2.0.0",
     "source-map": "^0.5.0"
   },
   "optionalDependencies": {
-    "chokidar": "^2.0.3"
+    "@nicolo-ribaudo/chokidar-2": "condition:BABEL_8_BREAKING ? : 2.1.8-no-fsevents",
+    "chokidar": "^3.4.0"
   },
   "peerDependencies": {
     "@babel/core": "^7.0.0-0"
   },
   "devDependencies": {
-    "@babel/core": "^7.0.0",
-    "@babel/helper-fixtures": "^7.0.0"
+    "@babel/core": "workspace:*",
+    "@babel/helper-fixtures": "workspace:*",
+    "rimraf": "^3.0.0"
   },
   "bin": {
     "babel": "./bin/babel.js",

@@ -5,73 +5,34 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.default = _default;
 
-function _defaults() {
-  const data = _interopRequireDefault(require("lodash/defaults"));
-
-  _defaults = function () {
-    return data;
-  };
-
-  return data;
-}
-
-function _outputFileSync() {
-  const data = _interopRequireDefault(require("output-file-sync"));
-
-  _outputFileSync = function () {
-    return data;
-  };
-
-  return data;
-}
-
-function _mkdirp() {
-  const data = require("mkdirp");
-
-  _mkdirp = function () {
-    return data;
-  };
-
-  return data;
-}
-
-function _slash() {
-  const data = _interopRequireDefault(require("slash"));
-
-  _slash = function () {
-    return data;
-  };
-
-  return data;
-}
-
-function _path() {
-  const data = _interopRequireDefault(require("path"));
-
-  _path = function () {
-    return data;
-  };
-
-  return data;
-}
-
-function _fs() {
-  const data = _interopRequireDefault(require("fs"));
-
-  _fs = function () {
-    return data;
-  };
-
-  return data;
-}
-
 var util = _interopRequireWildcard(require("./util"));
 
-function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = Object.defineProperty && Object.getOwnPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : {}; if (desc.get || desc.set) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } } newObj.default = obj; return newObj; } }
+function _getRequireWildcardCache() { if (typeof WeakMap !== "function") return null; var cache = new WeakMap(); _getRequireWildcardCache = function () { return cache; }; return cache; }
 
-function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } if (obj === null || typeof obj !== "object" && typeof obj !== "function") { return { default: obj }; } var cache = _getRequireWildcardCache(); if (cache && cache.has(obj)) { return cache.get(obj); } var newObj = {}; var hasPropertyDescriptor = Object.defineProperty && Object.getOwnPropertyDescriptor; for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) { var desc = hasPropertyDescriptor ? Object.getOwnPropertyDescriptor(obj, key) : null; if (desc && (desc.get || desc.set)) { Object.defineProperty(newObj, key, desc); } else { newObj[key] = obj[key]; } } } newObj.default = obj; if (cache) { cache.set(obj, newObj); } return newObj; }
 
-const NOT_COMPILABLE = null;
+const debounce = require("lodash/debounce");
+
+const slash = require("slash");
+
+const path = require("path");
+
+const fs = require("fs");
+
+const FILE_TYPE = Object.freeze({
+  NON_COMPILABLE: "NON_COMPILABLE",
+  COMPILED: "COMPILED",
+  IGNORED: "IGNORED",
+  ERR_COMPILATION: "ERR_COMPILATION",
+  NO_REBUILD_NEEDED: "NO_REBUILD_NEEDED"
+});
+
+function outputFileSync(filePath, data) {
+  fs.mkdirSync(path.dirname(filePath), {
+    recursive: true
+  });
+  fs.writeFileSync(filePath, data);
+}
 
 async function _default({
   cliOptions,
@@ -80,50 +41,41 @@ async function _default({
   const filenames = cliOptions.filenames;
 
   async function write(src, base) {
-    let relative = _path().default.relative(base, src);
+    let relative = path.relative(base, src);
 
     if (!util.isCompilableExtension(relative, cliOptions.extensions)) {
-      return NOT_COMPILABLE;
+      return FILE_TYPE.NON_COMPILABLE;
     }
 
-    relative = util.adjustRelative(relative, cliOptions.keepFileExtension);
+    relative = util.withExtension(relative, cliOptions.keepFileExtension ? path.extname(relative) : cliOptions.outFileExtension);
     const dest = getDest(relative, base);
-
-    if (cliOptions.incremental) {
-      try {
-        const srcStat = _fs().default.statSync(src);
-
-        const destStat = _fs().default.statSync(dest);
-
-        if (srcStat.ctimeMs < destStat.ctimeMs) return false;
-      } catch (e) {}
-    }
+    if (noRebuildNeeded(src, dest)) return FILE_TYPE.NO_REBUILD_NEEDED;
 
     try {
-      const res = await util.compile(src, (0, _defaults().default)({
-        sourceFileName: (0, _slash().default)(_path().default.relative(dest + "/..", src))
-      }, babelOptions));
-      if (!res) return NOT_COMPILABLE;
+      const res = await util.compile(src, Object.assign({}, babelOptions, {
+        sourceFileName: slash(path.relative(dest + "/..", src))
+      }));
+      if (!res) return FILE_TYPE.IGNORED;
 
       if (res.map && babelOptions.sourceMaps && babelOptions.sourceMaps !== "inline") {
         const mapLoc = dest + ".map";
         res.code = util.addSourceMappingUrl(res.code, mapLoc);
-        res.map.file = _path().default.basename(relative);
-        (0, _outputFileSync().default)(mapLoc, JSON.stringify(res.map));
+        res.map.file = path.basename(relative);
+        outputFileSync(mapLoc, JSON.stringify(res.map));
       }
 
-      (0, _outputFileSync().default)(dest, res.code);
+      outputFileSync(dest, res.code);
       util.chmod(src, dest);
 
       if (cliOptions.verbose) {
         console.log(src + " -> " + dest);
       }
 
-      return true;
+      return FILE_TYPE.COMPILED;
     } catch (err) {
       if (cliOptions.watch) {
         console.error(err);
-        return false;
+        return FILE_TYPE.ERR_COMPILATION;
       }
 
       throw err;
@@ -132,44 +84,42 @@ async function _default({
 
   function getDest(filename, base) {
     if (cliOptions.relative) {
-      return _path().default.join(base, cliOptions.outDir, filename);
+      return path.join(base, cliOptions.outDir, filename);
     }
 
-    return _path().default.join(cliOptions.outDir, filename);
+    return path.join(cliOptions.outDir, filename);
+  }
+
+  function noRebuildNeeded(src, dest) {
+    if (!cliOptions.incremental) return false;
+
+    try {
+      const srcStat = fs.statSync(src);
+      const destStat = fs.statSync(dest);
+      if (srcStat.ctimeMs < destStat.ctimeMs) return true;
+    } catch (e) {}
+
+    return false;
   }
 
   async function handleFile(src, base) {
     const written = await write(src, base);
 
-    if (written === NOT_COMPILABLE) {
-      if (!cliOptions.copyFiles) return false;
-
-      const filename = _path().default.relative(base, src);
-
+    if (cliOptions.copyFiles && written === FILE_TYPE.NON_COMPILABLE || cliOptions.copyIgnored && written === FILE_TYPE.IGNORED) {
+      const filename = path.relative(base, src);
       const dest = getDest(filename, base);
-
-      if (cliOptions.incremental) {
-        try {
-          const srcStat = _fs().default.statSync(src);
-
-          const destStat = _fs().default.statSync(dest);
-
-          if (srcStat.ctimeMs < destStat.ctimeMs) return false;
-        } catch (e) {}
-      }
-
-      (0, _outputFileSync().default)(dest, _fs().default.readFileSync(src));
+      if (noRebuildNeeded(src, dest)) return false;
+      outputFileSync(dest, fs.readFileSync(src));
       util.chmod(src, dest);
       return false;
     }
 
-    return written;
+    return written === FILE_TYPE.COMPILED;
   }
 
   async function handle(filenameOrDir) {
-    if (!_fs().default.existsSync(filenameOrDir)) return 0;
-
-    const stat = _fs().default.statSync(filenameOrDir);
+    if (!fs.existsSync(filenameOrDir)) return 0;
+    const stat = fs.statSync(filenameOrDir);
 
     if (stat.isDirectory()) {
       const dirname = filenameOrDir;
@@ -177,8 +127,7 @@ async function _default({
       const files = util.readdir(dirname, cliOptions.includeDotfiles);
 
       for (const filename of files) {
-        const src = _path().default.join(dirname, filename);
-
+        const src = path.join(dirname, filename);
         const written = await handleFile(src, dirname);
         if (written) count += 1;
       }
@@ -186,24 +135,44 @@ async function _default({
       return count;
     } else {
       const filename = filenameOrDir;
-      const written = await handleFile(filename, _path().default.dirname(filename));
+      const written = await handleFile(filename, path.dirname(filename));
       return written ? 1 : 0;
     }
   }
+
+  let compiledFiles = 0;
+  let startTime = null;
+  const logSuccess = debounce(function () {
+    if (startTime === null) {
+      return;
+    }
+
+    const diff = process.hrtime(startTime);
+    console.log(`Successfully compiled ${compiledFiles} ${compiledFiles !== 1 ? "files" : "file"} with Babel (${diff[0] * 1e3 + Math.round(diff[1] / 1e6)}ms).`);
+    compiledFiles = 0;
+    startTime = null;
+  }, 100, {
+    trailing: true
+  });
 
   if (!cliOptions.skipInitialBuild) {
     if (cliOptions.deleteDirOnStart) {
       util.deleteDir(cliOptions.outDir);
     }
 
-    (0, _mkdirp().sync)(cliOptions.outDir);
-    let compiledFiles = 0;
+    fs.mkdirSync(cliOptions.outDir, {
+      recursive: true
+    });
+    startTime = process.hrtime();
 
     for (const filename of cliOptions.filenames) {
       compiledFiles += await handle(filename);
     }
 
-    console.log(`Successfully compiled ${compiledFiles} ${compiledFiles !== 1 ? "files" : "file"} with Babel.`);
+    if (!cliOptions.quiet) {
+      logSuccess();
+      logSuccess.flush();
+    }
   }
 
   if (cliOptions.watch) {
@@ -217,11 +186,21 @@ async function _default({
           pollInterval: 10
         }
       });
+      let processing = 0;
       ["add", "change"].forEach(function (type) {
-        watcher.on(type, function (filename) {
-          handleFile(filename, filename === filenameOrDir ? _path().default.dirname(filenameOrDir) : filenameOrDir).catch(err => {
+        watcher.on(type, async function (filename) {
+          processing++;
+          if (startTime === null) startTime = process.hrtime();
+
+          try {
+            await handleFile(filename, filename === filenameOrDir ? path.dirname(filenameOrDir) : filenameOrDir);
+            compiledFiles++;
+          } catch (err) {
             console.error(err);
-          });
+          }
+
+          processing--;
+          if (processing === 0 && !cliOptions.quiet) logSuccess();
         });
       });
     });
