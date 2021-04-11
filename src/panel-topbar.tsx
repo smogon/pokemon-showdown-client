@@ -92,7 +92,7 @@ class PSHeader extends preact.Component<{style: {}}> {
 		if (toRoomList === 'leftRoomList' && toIndex === 0) toIndex = 1; // Home is always leftmost
 		if (toRoomList === 'rightRoomList' && toIndex === PS.rightRoomList.length - 1) toIndex--; // Rooms is always rightmost
 
-		PS[fromRoomList as 'leftRoomList' | 'rightRoomList' | 'miniRoomList'].splice(fromIndex, 1);
+		PS[fromRoomList].splice(fromIndex, 1);
 		// if dragging within the same roomlist and toIndex > fromIndex,
 		// toIndex is offset by 1 now. Fortunately for us, we want to
 		// drag to the right of this tab in that case, so the -1 +1
