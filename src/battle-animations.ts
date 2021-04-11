@@ -515,7 +515,7 @@ class BattleScene {
 		let animEntry = BattleMoveAnims[moveid];
 		if (this.acceleration >= 3) {
 			const targetsSelf = !participants[1] || participants[0] === participants[1];
-			const isSpecial = !targetsSelf && this.battle.dex.getMove(moveid).category === 'Special';
+			const isSpecial = !targetsSelf && this.battle.dex.moves.get(moveid).category === 'Special';
 			animEntry = BattleOtherAnims[targetsSelf ? 'fastanimself' : isSpecial ? 'fastanimspecial' : 'fastanimattack'];
 		} else if (!animEntry) {
 			animEntry = BattleMoveAnims['tackle'];
@@ -868,7 +868,7 @@ class BattleScene {
 	}
 
 	pseudoWeatherLeft(pWeather: WeatherState) {
-		let buf = '<br />' + Dex.getMove(pWeather[0]).name;
+		let buf = '<br />' + Dex.moves.get(pWeather[0]).name;
 		if (!pWeather[1] && pWeather[2]) {
 			pWeather[1] = pWeather[2];
 			pWeather[2] = 0;
@@ -884,7 +884,7 @@ class BattleScene {
 	}
 	sideConditionLeft(cond: [string, number, number, number], isFoe: boolean, all?: boolean) {
 		if (!cond[2] && !cond[3] && !all) return '';
-		let buf = `<br />${isFoe && !all ? "Foe's " : ""}${Dex.getMove(cond[0]).name}`;
+		let buf = `<br />${isFoe && !all ? "Foe's " : ""}${Dex.moves.get(cond[0]).name}`;
 		if (this.battle.gen < 7 && this.battle.hardcoreMode) return buf;
 
 		if (!cond[2] && !cond[3]) return buf;

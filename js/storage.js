@@ -806,7 +806,7 @@ Storage.fastUnpackTeam = function (buf) {
 		// ability
 		j = buf.indexOf('|', i);
 		var ability = buf.substring(i, j);
-		var species = Dex.getSpecies(set.species);
+		var species = Dex.species.get(set.species);
 		if (species.baseSpecies === 'Zygarde' && ability === 'H') ability = 'Power Construct';
 		set.ability = (species.abilities && ['', '0', '1', 'H', 'S'].includes(ability) ? species.abilities[ability] || '!!!ERROR!!!' : ability);
 		i = j + 1;
@@ -910,25 +910,25 @@ Storage.unpackTeam = function (buf) {
 
 		// species
 		j = buf.indexOf('|', i);
-		set.species = Dex.getSpecies(buf.substring(i, j)).name || set.name;
+		set.species = Dex.species.get(buf.substring(i, j)).name || set.name;
 		i = j + 1;
 
 		// item
 		j = buf.indexOf('|', i);
-		set.item = Dex.getItem(buf.substring(i, j)).name;
+		set.item = Dex.items.get(buf.substring(i, j)).name;
 		i = j + 1;
 
 		// ability
 		j = buf.indexOf('|', i);
-		var ability = Dex.getAbility(buf.substring(i, j)).name;
-		var species = Dex.getSpecies(set.species);
+		var ability = Dex.abilities.get(buf.substring(i, j)).name;
+		var species = Dex.species.get(set.species);
 		set.ability = (species.abilities && ability in {'':1, 0:1, 1:1, H:1} ? species.abilities[ability || '0'] : ability);
 		i = j + 1;
 
 		// moves
 		j = buf.indexOf('|', i);
 		set.moves = buf.substring(i, j).split(',').map(function (moveid) {
-			return Dex.getMove(moveid).name;
+			return Dex.moves.get(moveid).name;
 		});
 		i = j + 1;
 
@@ -1152,11 +1152,11 @@ Storage.importTeam = function (buffer, teams) {
 			var parenIndex = line.lastIndexOf(' (');
 			if (line.substr(line.length - 1) === ')' && parenIndex !== -1) {
 				line = line.substr(0, line.length - 1);
-				curSet.species = Dex.getSpecies(line.substr(parenIndex + 2)).name;
+				curSet.species = Dex.species.get(line.substr(parenIndex + 2)).name;
 				line = line.substr(0, parenIndex);
 				curSet.name = line;
 			} else {
-				curSet.species = Dex.getSpecies(line).name;
+				curSet.species = Dex.species.get(line).name;
 				curSet.name = '';
 			}
 		} else if (line.substr(0, 7) === 'Trait: ') {

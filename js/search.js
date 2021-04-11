@@ -108,8 +108,8 @@
 		var buf = '<p>Filters: ';
 		for (var i = 0; i < this.filters.length; i++) {
 			var text = this.filters[i][1];
-			if (this.filters[i][0] === 'move') text = Dex.getMove(text).name;
-			if (this.filters[i][0] === 'pokemon') text = Dex.getSpecies(text).name;
+			if (this.filters[i][0] === 'move') text = Dex.moves.get(text).name;
+			if (this.filters[i][0] === 'pokemon') text = Dex.species.get(text).name;
 			buf += '<button class="filter" value="' + BattleLog.escapeHTML(this.filters[i].join(':')) + '">' + text + ' <i class="fa fa-times-circle"></i></button> ';
 		}
 		if (!q) buf += '<small style="color: #888">(backspace = delete filter)</small>';
@@ -197,16 +197,16 @@
 		case 'sortmove':
 			return this.renderMoveSortRow();
 		case 'pokemon':
-			var pokemon = this.engine.dex.getSpecies(id);
+			var pokemon = this.engine.dex.species.get(id);
 			return this.renderPokemonRow(pokemon, matchStart, matchLength, errorMessage, attrs);
 		case 'move':
-			var move = this.engine.dex.getMove(id);
+			var move = this.engine.dex.moves.get(id);
 			return this.renderMoveRow(move, matchStart, matchLength, errorMessage, attrs);
 		case 'item':
-			var item = this.engine.dex.getItem(id);
+			var item = this.engine.Dex.items.get(id);
 			return this.renderItemRow(item, matchStart, matchLength, errorMessage, attrs);
 		case 'ability':
-			var ability = this.engine.dex.getAbility(id);
+			var ability = this.engine.dex.abilities.get(id);
 			return this.renderAbilityRow(ability, matchStart, matchLength, errorMessage, attrs);
 		case 'type':
 			var type = {name: id[0].toUpperCase() + id.substr(1)};
@@ -339,7 +339,7 @@
 
 		// abilities
 		if (gen >= 3) {
-			var abilities = Dex.forGen(gen).getSpecies(id).abilities;
+			var abilities = Dex.forGen(gen).species.get(id).abilities;
 			if (abilities['1']) {
 				buf += '<span class="col twoabilitycol">' + abilities['0'] + '<br />' +
 					abilities['1'] + '</span>';
