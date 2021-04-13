@@ -84,6 +84,8 @@
 			window.exports = window;
 		</script>
 
+		<!-- fallback for if you've never done a full build -->
+		<script src="js/server/chat-formatter.js" onerror="loadRemoteData(this.src)"></script>
 		<script src="js/battledata.js" onerror="alert('You must build the client with `node build` before using testclient.html')"></script>
 		<script src="data/text.js" onerror="loadRemoteData(this.src)"></script>
 		<script src="data/pokedex-mini.js" onerror="loadRemoteData(this.src)"></script>
