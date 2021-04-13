@@ -77,12 +77,19 @@ process.stdout.write("Compiling TS files... ");
 let compileStartTime = process.hrtime();
 let compiledFiles = 0;
 
-let compileOpts = {
+// Babel can't find babelrc if we try to compile stuff in data/pokemon-showdown/ fsr
+let compileOpts = Object.assign(eval('(' + fs.readFileSync('.babelrc') + ')'), {
+	babelrc: false,
 	incremental: true,
 	ignore: ['src/battle-animations.js', 'src/battle-animations-moves.js'],
-};
+});
 if (process.argv[2] === 'full') {
 	delete compileOpts.ignore;
+	compiler.compileToDir(
+		['data/pokemon-showdown/server/chat-formatter.ts'],
+		'js/server/',
+		compileOpts
+	);
 } else {
 	try {
 		fs.statSync('data/graphics.js');
@@ -96,7 +103,7 @@ compiledFiles += compiler.compileToDir(`src`, `js`, compileOpts);
 compiledFiles += compiler.compileToDir(`src`, `js`, compileOpts);
 
 compiledFiles += compiler.compileToFile(
-	['src/battle-dex.ts', 'src/battle-dex-data.ts', 'src/battle-log.ts', 'src/battle-log-misc.js', 'data/text.js', 'src/battle-text-parser.ts'],
+	['src/battle-dex.ts', 'src/battle-dex-data.ts', 'src/battle-log.ts', 'src/battle-log-misc.js', 'data/pokemon-showdown/server/chat-formatter.ts', 'data/text.js', 'src/battle-text-parser.ts'],
 	'js/battledata.js',
 	compileOpts
 );
