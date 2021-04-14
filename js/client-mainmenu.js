@@ -170,7 +170,7 @@
 			var userid = toUserid(name);
 			if (app.ignore[userid] && name.substr(0, 1) in {' ': 1, '+': 1, '!': 1, '✖': 1, '‽': 1}) {
 				if (!app.ignore[userid].notified) {
-					message = '/nonotify 1 message from ' + name + ' ignored.';
+					message = '/nonotify A message from ' + BattleLog.escapeHTML(name) + ' was ignored.';
 					name = '&';
 					app.ignore[userid].notified = true;
 				} else return;
@@ -399,7 +399,7 @@
 				if (app.ignore[userid]) {
 					$chat.append('<div class="chat">User ' + userid + ' is already on your ignore list. (Moderator messages will not be ignored.)</div>');
 				} else {
-					app.ignore[userid] = {notified: false};
+					app.ignore[userid] = {notified: true};
 					$chat.append('<div class="chat">User ' + userid + ' ignored. (Moderator messages will not be ignored.)</div>');
 					app.saveIgnore();
 				}

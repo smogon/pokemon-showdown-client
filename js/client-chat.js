@@ -599,7 +599,7 @@
 				} else if (app.ignore[toUserid(target)]) {
 					this.add("User '" + toName(target) + "' is already on your ignore list. (Moderator messages will not be ignored.)");
 				} else {
-					app.ignore[toUserid(target)] = {notified: false};
+					app.ignore[toUserid(target)] = {notified: true};
 					this.add("User '" + toName(target) + "' ignored. (Moderator messages will not be ignored.)");
 					app.saveIgnore();
 				}
@@ -1694,7 +1694,9 @@
 			var readerHasAuth = !" +\u2606\u203D!".includes(user.group || ' ');
 			if (app.ignore[userid] && !speakerHasAuth && !readerHasAuth) {
 				if (!app.ignore[userid].notified) {
-					this.$chat.append('<div class="chat">1 message from user ' + name + ' ignored. (to unignore use /unignore)</div>');
+					this.$chat.append(
+						'<div class="chat">A message from ' + BattleLog.escapeHTML(name) + ' was ignored. (to unignore use /unignore)</div>'
+					);
 					app.ignore[userid].notified = true;
 				}
 				return;

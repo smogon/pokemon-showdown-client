@@ -455,6 +455,7 @@ function toId() {
 					if (Object.keys(settings).length) app.user.set('settings', settings);
 					// HTML5 history throws exceptions when running on file://
 					Backbone.history.start({pushState: !Config.testclient});
+					this.ignore = Storage.prefs('ignorelist') || {};
 				});
 			}
 
@@ -968,7 +969,7 @@ function toId() {
 				var names = data.substr(1).split('|');
 				if (app.ignore[toUserid(names[2])]) {
 					app.ignore[toUserid(names[1])] = {
-						notified: false,
+						notified: app.ignore[toUserid(names[2])].notified,
 					};
 				}
 			}
@@ -2723,7 +2724,7 @@ function toId() {
 				delete app.ignore[this.userid];
 				buf += " no longer ignored.";
 			} else {
-				app.ignore[this.userid] = {notified: false};
+				app.ignore[this.userid] = {notified: true};
 				buf += " ignored. (Moderator messages will not be ignored.)";
 			}
 			app.saveIgnore();
