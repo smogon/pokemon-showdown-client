@@ -537,10 +537,10 @@
 			var gigantamax = curActive.gigantamax;
 			if (canZMove && typeof canZMove[0] === 'string') {
 				canZMove = _.map(canZMove, function (move) {
-					return {move: move, target: Dex.getMove(move).target};
+					return {move: move, target: Dex.moves.get(move).target};
 				});
 			}
-			if (gigantamax) gigantamax = Dex.getMove(gigantamax);
+			if (gigantamax) gigantamax = Dex.moves.get(gigantamax);
 
 			this.finalDecisionMove = curActive.maybeDisabled || false;
 			this.finalDecisionSwitch = curActive.maybeTrapped || false;
@@ -632,7 +632,7 @@
 				var currentlyDynamaxed = (!canDynamax && maxMoves);
 				for (var i = 0; i < curActive.moves.length; i++) {
 					var moveData = curActive.moves[i];
-					var move = this.battle.dex.getMove(moveData.move);
+					var move = this.battle.dex.moves.get(moveData.move);
 					var name = move.name;
 					var pp = moveData.pp + '/' + moveData.maxpp;
 					if (!moveData.maxpp) pp = '&ndash;';
@@ -647,7 +647,7 @@
 						movebuttons += '<button class="type-' + moveType + ' has-tooltip" name="chooseMove" value="' + (i + 1) + '" data-move="' + BattleLog.escapeHTML(moveData.move) + '" data-target="' + BattleLog.escapeHTML(moveData.target) + '" data-tooltip="' + BattleLog.escapeHTML(tooltipArgs) + '">';
 						hasMoves = true;
 					}
-					movebuttons += name + '<br /><small class="type">' + (moveType ? Dex.getType(moveType).name : "Unknown") + '</small> <small class="pp">' + pp + '</small>&nbsp;</button> ';
+					movebuttons += name + '<br /><small class="type">' + (moveType ? Dex.types.get(moveType).name : "Unknown") + '</small> <small class="pp">' + pp + '</small>&nbsp;</button> ';
 				}
 				if (!hasMoves) {
 					moveMenu += '<button class="movebutton" name="chooseMove" value="0" data-move="Struggle" data-target="randomNormal">Struggle<br /><small class="type">Normal</small> <small class="pp">&ndash;</small>&nbsp;</button> ';
@@ -663,9 +663,9 @@
 						for (var i = 0; i < curActive.moves.length; i++) {
 							if (specialMoves[i]) {
 								// when possible, use Z move to decide type, for cases like Z-Hidden Power
-								var baseMove = this.battle.dex.getMove(curActive.moves[i].move);
+								var baseMove = this.battle.dex.moves.get(curActive.moves[i].move);
 								// might not exist, such as for Z status moves - fall back on base move to determine type then
-								var specialMove = gigantamax || this.battle.dex.getMove(specialMoves[i].move);
+								var specialMove = gigantamax || this.battle.dex.moves.get(specialMoves[i].move);
 								var moveType = this.tooltips.getMoveType(specialMove.exists && !specialMove.isMax ? specialMove : baseMove, typeValueTracker, specialMove.isMax ? gigantamax || switchables[pos].gigantamax || true : undefined)[0];
 								var tooltipArgs = classType + 'move|' + baseMove.id + '|' + pos;
 								if (specialMove.id.startsWith('gmax')) tooltipArgs += '|' + specialMove.id;
@@ -677,7 +677,7 @@
 								} else if (!curActive.moves[i].maxpp) {
 									pp = '&ndash;';
 								}
-								movebuttons += specialMove.name + '<br /><small class="type">' + (moveType ? Dex.getType(moveType).name : "Unknown") + '</small> <small class="pp">' + pp + '</small>&nbsp;</button> ';
+								movebuttons += specialMove.name + '<br /><small class="type">' + (moveType ? Dex.types.get(moveType).name : "Unknown") + '</small> <small class="pp">' + pp + '</small>&nbsp;</button> ';
 							} else {
 								movebuttons += '<button disabled="disabled">&nbsp;</button>';
 							}
@@ -945,7 +945,7 @@
 								}
 							}
 						}
-						buf += 'use ' + Dex.getMove(move).name + (target ? ' at ' + target : '') + '.<br />';
+						buf += 'use ' + Dex.moves.get(move).name + (target ? ' at ' + target : '') + '.<br />';
 						break;
 					case 'switch':
 						buf += '' + myPokemon[parts[1] - 1].speciesForme + ' will switch in';
