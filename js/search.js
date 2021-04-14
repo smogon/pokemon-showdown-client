@@ -203,7 +203,7 @@
 			var move = this.engine.dex.moves.get(id);
 			return this.renderMoveRow(move, matchStart, matchLength, errorMessage, attrs);
 		case 'item':
-			var item = this.engine.Dex.items.get(id);
+			var item = this.engine.dex.items.get(id);
 			return this.renderItemRow(item, matchStart, matchLength, errorMessage, attrs);
 		case 'ability':
 			var ability = this.engine.dex.abilities.get(id);
