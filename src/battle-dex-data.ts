@@ -1434,6 +1434,12 @@ class Species implements Effect {
 	}
 }
 
+interface Type extends Effect {
+	damageTaken?: AnyObject;
+	HPivs?: Partial<StatsTable>;
+	HPdvs?: Partial<StatsTable>;
+}
+
 if (typeof require === 'function') {
 	// in Node
 	(global as any).BattleBaseSpeciesChart = BattleBaseSpeciesChart;

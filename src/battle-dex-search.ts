@@ -209,7 +209,7 @@ class DexSearch {
 		/** searching for "Psychic type" will make the type come up over the move */
 		let qFilterType: 'type' | '' = '';
 		if (query.slice(-4) === 'type') {
-			if ((query.charAt(0).toUpperCase() + query.slice(1, -4)) in window.BattleTypeChart) {
+			if (query.slice(0, -4) in window.BattleTypeChart) {
 				query = query.slice(0, -4);
 				qFilterType = 'type';
 			}

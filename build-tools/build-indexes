@@ -1039,7 +1039,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 		for (const id in nextGenData.TypeChart) {
 			const nextEntry = nextGenData.TypeChart[id];
 			const pastEntry = genData.TypeChart[id];
-			if (!pastEntry) {
+			if (pastEntry.isNonstandard) {
 				removeType[id] = true;
 				continue;
 			}

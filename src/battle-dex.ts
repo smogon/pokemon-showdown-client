@@ -425,19 +425,34 @@ const Dex = new class implements ModdedDex {
 	};
 
 	types = {
-		get: (type: any): Effect & {damageTaken?: AnyObject, HPivs?: Partial<StatsTable>, HPdvs: Partial<StatsTable>} => {
+		allCache: null as Type[] | null,
+		get: (type: any): Type => {
 			if (!type || typeof type === 'string') {
-				let id = toID(type) as string;
-				id = id.substr(0, 1).toUpperCase() + id.substr(1);
+				const id = toID(type) as string;
+				const name = id.substr(0, 1).toUpperCase() + id.substr(1);
 				type = (window.BattleTypeChart && window.BattleTypeChart[id]) || {};
 				if (type.damageTaken) type.exists = true;
 				if (!type.id) type.id = id;
-				if (!type.name) type.name = id;
+				if (!type.name) type.name = name;
 				if (!type.effectType) {
 					type.effectType = 'Type';
 				}
 			}
 			return type;
+		},
+		all: (): readonly Type[] => {
+			if (this.types.allCache) return this.types.allCache;
+			const types = [];
+			for (const id in (window.BattleTypeChart || {})) {
+				types.push(Dex.types.get(id));
+			}
+			if (types.length) this.types.allCache = types;
+			return types;
+		},
+		isName: (name: string | null): boolean => {
+			const id = toID(name);
+			if (name !== id.substr(0, 1).toUpperCase() + id.substr(1)) return false;
+			return (window.BattleTypeChart || {}).hasOwnProperty(id);
 		},
 	};
 
@@ -957,8 +972,8 @@ class ModdedDex {
 
 	types = {
 		get: (name: string): Effect => {
-			let id = toID(name) as string;
-			id = id.substr(0, 1).toUpperCase() + id.substr(1);
+			const id = toID(name) as ID;
+			name = id.substr(0, 1).toUpperCase() + id.substr(1);
 
 			if (this.cache.Types.hasOwnProperty(id)) return this.cache.Types[id];
 
