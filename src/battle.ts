@@ -329,7 +329,7 @@ class Pokemon implements PokemonDetails, PokemonHealth {
 	}
 	rememberMove(moveName: string, pp = 1, recursionSource?: string) {
 		if (recursionSource === this.ident) return;
-		moveName = Dex.getMove(moveName).name;
+		moveName = Dex.moves.get(moveName).name;
 		if (moveName.charAt(0) === '*') return;
 		if (moveName === 'Struggle') return;
 		if (this.volatiles.transform) {
@@ -348,7 +348,7 @@ class Pokemon implements PokemonDetails, PokemonHealth {
 		this.moveTrack.push([moveName, pp]);
 	}
 	rememberAbility(ability: string, isNotBase?: boolean) {
-		ability = Dex.getAbility(ability).name;
+		ability = Dex.abilities.get(ability).name;
 		this.ability = ability;
 		if (!this.baseAbility && !isNotBase) {
 			this.baseAbility = ability;
@@ -521,10 +521,10 @@ class Pokemon implements PokemonDetails, PokemonHealth {
 			(serverPokemon ? serverPokemon.speciesForme : this.speciesForme);
 	}
 	getSpecies(serverPokemon?: ServerPokemon) {
-		return this.side.battle.dex.getSpecies(this.getSpeciesForme(serverPokemon));
+		return this.side.battle.dex.species.get(this.getSpeciesForme(serverPokemon));
 	}
 	getBaseSpecies() {
-		return this.side.battle.dex.getSpecies(this.speciesForme);
+		return this.side.battle.dex.species.get(this.speciesForme);
 	}
 	reset() {
 		this.clearVolatile();
@@ -1343,11 +1343,11 @@ class Battle {
 			let moveName = move.name;
 			if (move.isZ) {
 				pokemon.item = move.isZ;
-				let item = Dex.getItem(move.isZ);
+				let item = Dex.items.get(move.isZ);
 				if (item.zMoveFrom) moveName = item.zMoveFrom;
 			} else if (move.name.slice(0, 2) === 'Z-') {
 				moveName = moveName.slice(2);
-				move = Dex.getMove(moveName);
+				move = Dex.moves.get(moveName);
 				if (window.BattleItems) {
 					for (let item in BattleItems) {
 						if (BattleItems[item].zMoveType === move.type) pokemon.item = item;
@@ -1390,7 +1390,7 @@ class Battle {
 			return;
 		}
 
-		let usedMove = kwArgs.anim ? Dex.getMove(kwArgs.anim) : move;
+		let usedMove = kwArgs.anim ? Dex.moves.get(kwArgs.anim) : move;
 		if (!kwArgs.spread) {
 			this.scene.runMoveAnim(usedMove.id, [pokemon, target]);
 			return;
@@ -2034,7 +2034,7 @@ class Battle {
 		}
 		case '-item': {
 			let poke = this.getPokemon(args[1])!;
-			let item = Dex.getItem(args[2]);
+			let item = Dex.items.get(args[2]);
 			let effect = Dex.getEffect(kwArgs.from);
 			let ofpoke = this.getPokemon(kwArgs.of);
 			poke.item = item.name;
@@ -2102,7 +2102,7 @@ class Battle {
 		}
 		case '-enditem': {
 			let poke = this.getPokemon(args[1])!;
-			let item = Dex.getItem(args[2]);
+			let item = Dex.items.get(args[2]);
 			let effect = Dex.getEffect(kwArgs.from);
 			poke.item = '';
 			poke.itemEffect = '';
@@ -2164,7 +2164,7 @@ class Battle {
 		}
 		case '-ability': {
 			let poke = this.getPokemon(args[1])!;
-			let ability = Dex.getAbility(args[2]);
+			let ability = Dex.abilities.get(args[2]);
 			let effect = Dex.getEffect(kwArgs.from);
 			let ofpoke = this.getPokemon(kwArgs.of);
 			poke.rememberAbility(ability.name, effect.id && !kwArgs.fail);
@@ -2211,7 +2211,7 @@ class Battle {
 			// deprecated; use |-start| for Gastro Acid
 			// and the third arg of |-ability| for Entrainment et al
 			let poke = this.getPokemon(args[1])!;
-			let ability = Dex.getAbility(args[2]);
+			let ability = Dex.abilities.get(args[2]);
 			poke.ability = '(suppressed)';
 
 			if (ability.id) {
@@ -2235,7 +2235,7 @@ class Battle {
 				}
 				newSpeciesForme = args[2].substr(0, commaIndex);
 			}
-			let species = this.dex.getSpecies(newSpeciesForme);
+			let species = this.dex.species.get(newSpeciesForme);
 
 			poke.speciesForme = newSpeciesForme;
 			poke.ability = poke.baseAbility = (species.abilities ? species.abilities['0'] : '');
@@ -2276,7 +2276,7 @@ class Battle {
 		}
 		case '-formechange': {
 			let poke = this.getPokemon(args[1])!;
-			let species = Dex.getSpecies(args[2]);
+			let species = Dex.species.get(args[2]);
 			let fromeffect = Dex.getEffect(kwArgs.from);
 			let isCustomAnim = false;
 			poke.removeVolatile('typeadd' as ID);
@@ -2293,7 +2293,7 @@ class Battle {
 		}
 		case '-mega': {
 			let poke = this.getPokemon(args[1])!;
-			let item = Dex.getItem(args[3]);
+			let item = Dex.items.get(args[3]);
 			if (args[3]) {
 				poke.item = item.name;
 			}
@@ -2673,7 +2673,7 @@ class Battle {
 			case 'eeriespell':
 			case 'gmaxdepletion':
 			case 'spite':
-				let move = Dex.getMove(kwArgs.move).name;
+				let move = Dex.moves.get(kwArgs.move).name;
 				let pp = Number(kwArgs.number);
 				if (isNaN(pp)) pp = 4;
 				poke.rememberMove(move, pp);
@@ -2717,7 +2717,7 @@ class Battle {
 				break;
 			case 'mummy':
 				if (!kwArgs.ability) break; // if Mummy activated but failed, no ability will have been sent
-				let ability = Dex.getAbility(kwArgs.ability);
+				let ability = Dex.abilities.get(kwArgs.ability);
 				this.activateAbility(target, ability.name);
 				this.activateAbility(poke, "Mummy");
 				this.scene.wait(700);
@@ -2835,7 +2835,7 @@ class Battle {
 		}
 		case '-anim': {
 			let poke = this.getPokemon(args[1])!;
-			let move = Dex.getMove(args[2]);
+			let move = Dex.moves.get(args[2]);
 			if (this.checkActive(poke)) return;
 			let poke2 = this.getPokemon(args[3]);
 			this.scene.beforeMove(poke);
@@ -2879,7 +2879,7 @@ class Battle {
 		}
 		if (foe) siden = (siden ? 0 : 1);
 
-		let data = Dex.getSpecies(name);
+		let data = Dex.species.get(name);
 		return data.spriteData[siden];
 	}
 	*/
@@ -3338,7 +3338,7 @@ class Battle {
 			this.endLastTurn();
 			this.resetTurnsSinceMoved();
 			let poke = this.getPokemon(args[1])!;
-			let move = Dex.getMove(args[2]);
+			let move = Dex.moves.get(args[2]);
 			if (this.checkActive(poke)) return;
 			let poke2 = this.getPokemon(args[3]);
 			this.scene.beforeMove(poke);
@@ -3353,7 +3353,7 @@ class Battle {
 			this.resetTurnsSinceMoved();
 			let poke = this.getPokemon(args[1])!;
 			let effect = Dex.getEffect(args[2]);
-			let move = Dex.getMove(args[3]);
+			let move = Dex.moves.get(args[3]);
 			this.cantUseMove(poke, effect, move, kwArgs);
 			this.log(args, kwArgs);
 			break;
