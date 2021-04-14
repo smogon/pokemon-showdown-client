@@ -14,8 +14,14 @@ npm-debug.log
 package-lock.json
 /vendor/
 
-/js/battle.js
-/js/
+/js/server/
+/js/*.js.map
+/js/battle*.js
+/js/panel*.js
+/js/replay-embed.js
+/js/client-main.js
+/js/client-core.js
+/js/client-connection.js
 
 /replays/caches/
 /replays/replay-config.inc.php
