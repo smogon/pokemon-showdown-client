@@ -1221,10 +1221,11 @@ Storage.importTeam = function (buffer, teams) {
 			if (line.substr(0, 14) === 'Hidden Power [') {
 				var hptype = line.substr(14, line.length - 15);
 				line = 'Hidden Power ' + hptype;
-				if (!curSet.ivs && window.BattleTypeChart && window.BattleTypeChart[hptype]) {
+				var type = Dex.types.get(hptype);
+				if (!curSet.ivs && type) {
 					curSet.ivs = {};
-					for (var stat in window.BattleTypeChart[hptype].HPivs) {
-						curSet.ivs[stat] = window.BattleTypeChart[hptype].HPivs[stat];
+					for (var stat in type.HPivs) {
+						curSet.ivs[stat] = type.HPivs[stat];
 					}
 				}
 			}
@@ -1328,13 +1329,13 @@ Storage.exportTeam = function (team) {
 			for (var j = 0; j < curSet.moves.length; j++) {
 				var move = curSet.moves[j];
 				if (move.substr(0, 13) === 'Hidden Power ' && move.substr(0, 14) !== 'Hidden Power [') {
-					hpType = toID(move.substr(13));
-					if (!exports.BattleTypeChart[hpType].HPivs) {
-						alert("That is not a valid Hidden Power type.");
+					hpType = move.substr(13);
+					if (!Dex.types.isName(hpType)) {
+						alert(move + " is not a valid Hidden Power type.");
 						continue;
 					}
 					for (var stat in BattleStatNames) {
-						if ((curSet.ivs[stat] === undefined ? 31 : curSet.ivs[stat]) !== (exports.BattleTypeChart[hpType].HPivs[stat] || 31)) {
+						if ((curSet.ivs[stat] === undefined ? 31 : curSet.ivs[stat]) !== (Dex.types.get(hpType).HPivs[stat] || 31)) {
 							defaultIvs = false;
 							break;
 						}

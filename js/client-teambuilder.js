@@ -2566,9 +2566,10 @@
 			if (!isLetsGo && (this.curTeam.gen === 7 || isNatDex)) {
 				buf += '<div class="formrow"><label class="formlabel" title="Hidden Power Type">Hidden Power:</label><div><select name="hptype">';
 				buf += '<option value=""' + (!set.hpType ? ' selected="selected"' : '') + '>(automatic type)</option>'; // unset
-				for (var type in exports.BattleTypeChart) {
-					if (exports.BattleTypeChart[type].HPivs) {
-						buf += '<option value="' + type + '"' + (set.hpType === type ? ' selected="selected"' : '') + '>' + type + '</option>';
+				var types = Dex.types.all();
+				for (var i = 0; i < types.length; i++) {
+					if (types[i].HPivs) {
+						buf += '<option value="' + types[i].name + '"' + (set.hpType === types[i].name ? ' selected="selected"' : '') + '>' + types[i].name + '</option>';
 					}
 				}
 				buf += '</select></div></div>';
@@ -2637,7 +2638,7 @@
 
 			// HP type
 			var hpType = this.$chart.find('select[name=hptype]').val();
-			if (hpType && exports.BattleTypeChart[hpType]) {
+			if (Dex.types.hasName(hpType)) {
 				set.hpType = hpType;
 			} else {
 				delete set.hpType;
@@ -3019,12 +3020,14 @@
 
 					set.ivs = {hp: 31, atk: 31, def: 31, spa: 31, spd: 31, spe: 31};
 					if (this.curTeam.gen > 2) {
-						for (var i in exports.BattleTypeChart[hpType].HPivs) {
-							set.ivs[i] = exports.BattleTypeChart[hpType].HPivs[i];
+						var HPivs = Dex.types.get(hpType).HPivs;
+						for (var i in HPivs) {
+							set.ivs[i] = HPivs[i];
 						}
 					} else {
-						for (var i in exports.BattleTypeChart[hpType].HPdvs) {
-							set.ivs[i] = exports.BattleTypeChart[hpType].HPdvs[i] * 2;
+						var HPdvs = Dex.types.get(hpType).HPdvs;
+						for (var i in HPdvs) {
+							set.ivs[i] = HPdvs[i] * 2;
 						}
 						var atkDV = Math.floor(set.ivs.atk / 2);
 						var defDV = Math.floor(set.ivs.def / 2);
