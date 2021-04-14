@@ -2638,7 +2638,7 @@
 
 			// HP type
 			var hpType = this.$chart.find('select[name=hptype]').val();
-			if (Dex.types.hasName(hpType)) {
+			if (Dex.types.get(hpType)) {
 				set.hpType = hpType;
 			} else {
 				delete set.hpType;
