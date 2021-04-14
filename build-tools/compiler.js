@@ -127,6 +127,7 @@ function compileToDir(srcDir, destDir, opts = {}) {
     if (!relative.endsWith('.ts') && !relative.endsWith('.tsx')) {
       return 0;
     }
+    if (relative.endsWith('.d.ts')) return 0;
 
     relative = relative.slice(0, relative.endsWith('.tsx') ? -4 : -3) + '.js';
 
