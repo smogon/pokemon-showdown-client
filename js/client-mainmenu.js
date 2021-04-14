@@ -168,8 +168,13 @@
 
 		addPM: function (name, message, target) {
 			var userid = toUserid(name);
-			if (app.ignore[userid] && name.substr(0, 1) in {' ': 1, '+': 1, '!': 1, '✖': 1, '‽': 1}) return;
-
+			if (app.ignore[userid] && name.substr(0, 1) in {' ': 1, '+': 1, '!': 1, '✖': 1, '‽': 1}) {
+				if (!app.ignore[userid].notified) {
+					message = '/nonotify 1 message from ' + name + ' ignored.';
+					name = '&';
+					app.ignore[userid].notified = true;
+				} else return;
+			}
 			var isSelf = (toID(name) === app.user.get('userid'));
 			var oName = isSelf ? target : name;
 			Storage.logChat('pm-' + toID(oName), '' + name + ': ' + message);
@@ -394,8 +399,9 @@
 				if (app.ignore[userid]) {
 					$chat.append('<div class="chat">User ' + userid + ' is already on your ignore list. (Moderator messages will not be ignored.)</div>');
 				} else {
-					app.ignore[userid] = 1;
+					app.ignore[userid] = {notified: false};
 					$chat.append('<div class="chat">User ' + userid + ' ignored. (Moderator messages will not be ignored.)</div>');
+					app.saveIgnore();
 				}
 				break;
 			case 'unignore':
@@ -404,6 +410,7 @@
 				} else {
 					delete app.ignore[userid];
 					$chat.append('<div class="chat">User ' + userid + ' no longer ignored.</div>');
+					app.saveIgnore();
 				}
 				break;
 			case 'nick':

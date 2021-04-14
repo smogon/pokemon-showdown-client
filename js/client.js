@@ -967,7 +967,9 @@ function toId() {
 			} else if (data.substr(0, 3) === '|N|') {
 				var names = data.substr(1).split('|');
 				if (app.ignore[toUserid(names[2])]) {
-					app.ignore[toUserid(names[1])] = 1;
+					app.ignore[toUserid(names[1])] = {
+						notified: false,
+					};
 				}
 			}
 			if (roomid) {
@@ -1058,6 +1060,7 @@ function toId() {
 				}
 				if (app.ignore[userid]) {
 					delete app.ignore[userid];
+					app.saveIgnore();
 				}
 				break;
 
@@ -1157,6 +1160,15 @@ function toId() {
 				}
 				break;
 			}
+		},
+		saveIgnore: function () {
+			var buf = {};
+			if (!this.ignore) return; // ??
+			for (var k in this.ignore) {
+				// we set this to false so they're notified once per session of it
+				buf[k] = {notified: false};
+			}
+			app.saveIgnore();
 		},
 		parseGroups: function (groupsList) {
 			var data = null;
@@ -2711,9 +2723,10 @@ function toId() {
 				delete app.ignore[this.userid];
 				buf += " no longer ignored.";
 			} else {
-				app.ignore[this.userid] = 1;
+				app.ignore[this.userid] = {notified: false};
 				buf += " ignored. (Moderator messages will not be ignored.)";
 			}
+			app.saveIgnore();
 			var $pm = $('.pm-window-' + this.userid);
 			if ($pm.length && $pm.css('display') !== 'none') {
 				$pm.find('.inner').append('<div class="chat">' + BattleLog.escapeHTML(buf) + '</div>');
