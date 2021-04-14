@@ -1328,7 +1328,7 @@ Storage.exportTeam = function (team) {
 			for (var j = 0; j < curSet.moves.length; j++) {
 				var move = curSet.moves[j];
 				if (move.substr(0, 13) === 'Hidden Power ' && move.substr(0, 14) !== 'Hidden Power [') {
-					hpType = move.substr(13);
+					hpType = toID(move.substr(13));
 					if (!exports.BattleTypeChart[hpType].HPivs) {
 						alert("That is not a valid Hidden Power type.");
 						continue;
