@@ -660,7 +660,7 @@ class BattleTooltips {
 		text += '<p>Accuracy: ' + accuracy + '</p>';
 		if (zEffect) text += '<p>Z-Effect: ' + zEffect + '</p>';
 
-		if (move.id.startsWith('hiddenpower')) {move = this.battle.dex.moves.get('hiddenpower');}
+		if (move.id.startsWith('hiddenpower')) move = this.battle.dex.moves.get('hiddenpower');
 		if (this.battle.gen < 7 || this.battle.hardcoreMode) {
 			text += '<p class="section">' + move.shortDesc + '</p>';
 		} else {
