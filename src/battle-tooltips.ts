@@ -1900,9 +1900,9 @@ class BattleTooltips {
 		if (!allyAbility) {
 			if (this.battle.myAllyPokemon) { // multi battle ally
 				allyAbility = Dex.abilities.get(this.battle.myAllyPokemon[ally.slot].ability).name;
-			} else if (this.battle.myPokemon){
+			} else if (this.battle.myPokemon) {
 				allyAbility = Dex.abilities.get(this.battle.myPokemon[ally.slot].ability).name;
-			}		
+			}
 		}
 		return allyAbility;
 	}
