@@ -1897,8 +1897,12 @@ class BattleTooltips {
 		// this will only be available if the ability announced itself in some way
 		let allyAbility = Dex.abilities.get(ally.ability).name;
 		// otherwise fall back on the original set data sent from the server
-		if (!allyAbility && this.battle.myAllyPokemon) {
-			allyAbility = Dex.abilities.get(this.battle.myAllyPokemon[ally.slot].ability).name;
+		if (!allyAbility) {
+			if (this.battle.myAllyPokemon) { // multi battle ally
+				allyAbility = Dex.abilities.get(this.battle.myAllyPokemon[ally.slot].ability).name;
+			} else if (this.battle.myPokemon){
+				allyAbility = Dex.abilities.get(this.battle.myPokemon[ally.slot].ability).name;
+			}		
 		}
 		return allyAbility;
 	}
