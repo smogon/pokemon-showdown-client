@@ -765,7 +765,7 @@ class BattleScene {
 			p1b: {top: 200, left: 350, width: 150, height: 160, tooltip: 'activepokemon|0|1'},
 		} : {
 			p2c: {top: 70, left: 250, width: 80, height: 100, tooltip: 'activepokemon|1|2'},
-			p2b: {top: 70, left: 250, width: 80, height: 100, tooltip: 'activepokemon|1|1'},
+			p2b: {top: 85, left: 320, width: 90, height: 100, tooltip: 'activepokemon|1|1'},
 			p2a: {top: 90, left: 390, width: 100, height: 100, tooltip: 'activepokemon|1|0'},
 			p1a: {top: 200, left: 130, width: 120, height: 160, tooltip: 'activepokemon|0|0'},
 			p1b: {top: 200, left: 250, width: 150, height: 160, tooltip: 'activepokemon|0|1'},
