@@ -667,6 +667,9 @@
 								// might not exist, such as for Z status moves - fall back on base move to determine type then
 								var specialMove = gigantamax || this.battle.dex.moves.get(specialMoves[i].move);
 								var moveType = this.tooltips.getMoveType(specialMove.exists && !specialMove.isMax ? specialMove : baseMove, typeValueTracker, specialMove.isMax ? gigantamax || switchables[pos].gigantamax || true : undefined)[0];
+								if (specialMove.isMax && specialMove.name !== 'Max Guard') {
+									specialMove = this.tooltips.getMaxMoveFromType(moveType);
+								}
 								var tooltipArgs = classType + 'move|' + baseMove.id + '|' + pos;
 								if (specialMove.id.startsWith('gmax')) tooltipArgs += '|' + specialMove.id;
 								var isDisabled = specialMoves[i].disabled ? 'disabled="disabled"' : '';
