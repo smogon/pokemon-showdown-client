@@ -2598,7 +2598,7 @@ function toId() {
 				buf += '<small class="usergroup globalgroup">' + globalGroupName + '</small>';
 			}
 			if (isSectionLeader) {
-				if (groupName || globalGroupName) buf += `<br />`;
+				if (groupName || globalGroupName) buf += '<br />';
 				buf += '<small class="usergroup globalgroup">Section Leader</small>';
 			}
 			if (data.rooms) {

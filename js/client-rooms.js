@@ -87,7 +87,7 @@
 				var rightSide = '<button class="button" name="roomlist" title="Watch an active battle"><span class="pixelated battlecount" title="Meloetta is PS\'s mascot! The Pirouette forme is Fighting-type, and represents our battles." ></span><strong>' + battleCount + '</strong> active ' + (battleCount == 1 ? 'battle' : 'battles') + '</button>';
 				this.$('.roomlisttop').html('<div class="roomcounters">' + leftSide + '</td><td>' + rightSide + '</div>');
 			}
-			const sections = rooms.sections;
+			var sections = rooms.sections;
 			this.$('.roomlist').first().html(
 				(sections.officialrooms && sections.officialrooms.length ? '<h2 class="rooms-officialchatrooms">Official chat rooms</h2>' + _.map(rooms.sections.officialrooms, this.renderRoomBtn).join("") : '') +
 				(rooms.pspl && rooms.pspl.length ? '<h2 class="rooms-psplchatrooms">PSPL Winner</h2>' + _.map(rooms.pspl.sort(this.compareRooms), this.renderRoomBtn).join("") : '')
@@ -112,9 +112,9 @@
 				buf += '<h2 class="rooms-chatrooms">' + ((rooms.sectionTitles || {})[i] || i) + '</h2>' + _.map(section.sort(this.compareRooms), this.renderRoomBtn).join("");
 			}
 			if (sections.none && sections.none.length) {
-				var none = sections.none; /*.filter(function (x) {
+				var none = sections.none.filter(function (x) {
 					return (rooms.pspl || []).indexOf(x) < 0;
-				});*/
+				});
 				if (none.length) {
 					buf += '<h2 class="rooms-chatrooms">Chat rooms</h2>' + _.map(none.sort(this.compareRooms), this.renderRoomBtn).join("");
 				}
