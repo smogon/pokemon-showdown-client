@@ -87,9 +87,39 @@
 				var rightSide = '<button class="button" name="roomlist" title="Watch an active battle"><span class="pixelated battlecount" title="Meloetta is PS\'s mascot! The Pirouette forme is Fighting-type, and represents our battles." ></span><strong>' + battleCount + '</strong> active ' + (battleCount == 1 ? 'battle' : 'battles') + '</button>';
 				this.$('.roomlisttop').html('<div class="roomcounters">' + leftSide + '</td><td>' + rightSide + '</div>');
 			}
-			this.$('.roomlist').first().html('<h2 class="rooms-officialchatrooms">Official chat rooms</h2>' + _.map(rooms.official, this.renderRoomBtn).join("") +
-				(rooms.pspl && rooms.pspl.length ? '<a href="https://www.smogon.com/forums/threads/3649563/" target="_blank"><h2 class="rooms-psplchatrooms">PSPL Winner</h2></a>' + _.map(rooms.pspl, this.renderRoomBtn).join("") : ''));
-			this.$('.roomlist').last().html('<h2 class="rooms-chatrooms">Chat rooms</h2>' + _.map(rooms.chat.sort(this.compareRooms), this.renderRoomBtn).join(""));
+			const sections = rooms.sections;
+			this.$('.roomlist').first().html(
+				(sections.officialrooms && sections.officialrooms.length ? '<h2 class="rooms-officialchatrooms">Official chat rooms</h2>' + _.map(rooms.sections.officialrooms, this.renderRoomBtn).join("") : '') +
+				(rooms.pspl && rooms.pspl.length ? '<h2 class="rooms-psplchatrooms">PSPL Winner</h2>' + _.map(rooms.pspl.sort(this.compareRooms), this.renderRoomBtn).join("") : '')
+			);
+			var buf = '';
+			var hardcodedSections = ['officialtiers', 'communityprojects', 'languages'];
+			for (var i = 0; i < hardcodedSections.length; i++) {
+				var section = sections[hardcodedSections[i]];
+				if (!section) continue;
+				/*section = section.filter(function (x) {
+					return (rooms.pspl || []).indexOf(x) < 0;
+				});*/
+				if (!section.length) continue;
+				buf += '<h2 class="rooms-chatrooms">' + ((rooms.sectionTitles || {})[hardcodedSections[i]] || hardcodedSections[i]) + '</h2>' + _.map(section.sort(this.compareRooms), this.renderRoomBtn).join("");
+			}
+			for (var j = 0; j < Object.keys(sections).sort().length; j++) {
+				var i = Object.keys(sections).sort()[j];
+				if (i === 'officialrooms' || hardcodedSections.indexOf(i) >= 0) continue;
+				if (i === 'nonpublic' || i === 'none') continue;
+				var section = sections[i];
+				if (!section.length) continue;
+				buf += '<h2 class="rooms-chatrooms">' + ((rooms.sectionTitles || {})[i] || i) + '</h2>' + _.map(section.sort(this.compareRooms), this.renderRoomBtn).join("");
+			}
+			if (sections.none && sections.none.length) {
+				var none = sections.none; /*.filter(function (x) {
+					return (rooms.pspl || []).indexOf(x) < 0;
+				});*/
+				if (none.length) {
+					buf += '<h2 class="rooms-chatrooms">Chat rooms</h2>' + _.map(none.sort(this.compareRooms), this.renderRoomBtn).join("");
+				}
+			}
+			this.$('.roomlist').last().html(buf);
 		},
 		roomlist: function () {
 			app.joinRoom('battles');

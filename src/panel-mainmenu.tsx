@@ -14,13 +14,14 @@ class MainMenuRoom extends PSRoom {
 		avatar?: string | number,
 		status?: string,
 		group?: string,
+		sectionleader?: boolean,
 		rooms?: {[roomid: string]: {isPrivate?: true, p1?: string, p2?: string}},
 	}} = {};
 	roomsCache: {
 		battleCount?: number,
 		userCount?: number,
-		chat?: RoomInfo[],
-		official?: RoomInfo[],
+		sections?: {[k: string]: RoomInfo[]},
+		sectionTitles?: {[k: string]: string},
 		pspl?: RoomInfo[],
 	} = {};
 	receiveLine(args: Args) {

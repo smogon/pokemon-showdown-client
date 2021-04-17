@@ -57,7 +57,17 @@ class RoomsPanel extends PSRoomPanel {
 		let exactMatch = false;
 
 		const rooms = PS.mainmenu.roomsCache;
-		let roomList = [...(rooms.official || []), ...(rooms.pspl || []), ...(rooms.chat || [])];
+		let roomList = [...(rooms.sections?.official || []), ...(rooms.pspl || [])];
+		if (rooms.sections) {
+			for (const sectionid in rooms.sections) {
+				if (rooms.sections[sectionid].length) {
+					for (const room of rooms.sections[sectionid]) {
+						// Order doesn't matter yet
+						roomList.push(room);
+					}
+				}
+			}
+		}
 		for (const room of roomList) {
 			if (!room.subRooms) continue;
 			for (const title of room.subRooms) {
@@ -124,11 +134,30 @@ class RoomsPanel extends PSRoomPanel {
 				this.renderRoomList("Possible hidden room", search.hidden),
 			];
 		} else {
-			roomList = [
-				this.renderRoomList("Official chat rooms", rooms.official),
-				this.renderRoomList("PSPL winner", rooms.pspl),
-				this.renderRoomList("Chat rooms", rooms.chat),
-			];
+			roomList = [];
+			if (rooms.sections?.official?.length) roomList.push(this.renderRoomList("Official chat rooms", rooms.sections.official));
+			if (rooms.pspl?.length) roomList.push(this.renderRoomList("PSPL Winner", rooms.pspl));
+			const hardcodedSectionPositions = ['officialtiers', 'communityprojects', 'languages'];
+			for (const sectionid of hardcodedSectionPositions) {
+				if (!rooms.sections?.[sectionid]?.length) continue;
+				const section = rooms.sections[sectionid].filter(x => !rooms.pspl?.includes(x));
+				if (!section.length) continue;
+				roomList.push(this.renderRoomList(rooms.sectionTitles?.[sectionid] || sectionid, section));
+			}
+			if (rooms.sections) {
+				for (const sectionName of Object.keys(rooms.sections).sort()) {
+					if (['officialrooms', 'nonpublic', 'none', ...hardcodedSectionPositions].includes(sectionName)) continue;
+					const section = rooms.sections[sectionName].filter(x => !rooms.pspl?.includes(x));
+					if (!section.length) continue;
+					roomList.push(this.renderRoomList(rooms.sectionTitles?.[sectionName] || sectionName, section));
+				}
+				if (rooms.sections.none?.length) {
+					const none = rooms.sections.none.filter(x => !rooms.pspl?.includes(x));
+					if (none.length) {
+						roomList.push(this.renderRoomList("Chat rooms", none));
+					}
+				}
+			}
 		}
 
 		return <PSPanelWrapper room={this.props.room} scrollable><div class="pad">
