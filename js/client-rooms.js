@@ -97,13 +97,13 @@
 			for (var i = 0; i < hardcodedSections.length; i++) {
 				var section = sections[hardcodedSections[i]];
 				if (!section) continue;
-				/*section = section.filter(function (x) {
+				section = section.filter(function (x) {
 					return (rooms.pspl || []).indexOf(x) < 0;
-				});*/
+				});
 				if (!section.length) continue;
 				buf += '<h2 class="rooms-chatrooms">' + ((rooms.sectionTitles || {})[hardcodedSections[i]] || hardcodedSections[i]) + '</h2>' + _.map(section.sort(this.compareRooms), this.renderRoomBtn).join("");
 			}
-			for (var j = 0; j < Object.keys(sections).sort().length; j++) {
+			for (var j = 0; j < Object.keys(sections).length; j++) {
 				var i = Object.keys(sections).sort()[j];
 				if (i === 'officialrooms' || hardcodedSections.indexOf(i) >= 0) continue;
 				if (i === 'nonpublic' || i === 'none') continue;
