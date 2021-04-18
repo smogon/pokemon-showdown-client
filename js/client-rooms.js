@@ -88,32 +88,35 @@
 				this.$('.roomlisttop').html('<div class="roomcounters">' + leftSide + '</td><td>' + rightSide + '</div>');
 			}
 			var sections = rooms.sections;
+			var psplRooms = [];
+			if (rooms.pspl && rooms.pspl.length) {
+				psplRooms = rooms.pspl.filter(function (x) {
+					return (sections.officialrooms || []).map(function (z) {
+						return z.title;
+					}).indexOf(x.title) < 0;
+				});
+			}
 			this.$('.roomlist').first().html(
-				(sections.officialrooms && sections.officialrooms.length ? '<h2 class="rooms-officialchatrooms">Official chat rooms</h2>' + _.map(rooms.sections.officialrooms, this.renderRoomBtn).join("") : '') +
-				(rooms.pspl && rooms.pspl.length ? '<h2 class="rooms-psplchatrooms">PSPL Winner</h2>' + _.map(rooms.pspl.sort(this.compareRooms), this.renderRoomBtn).join("") : '')
+				(sections.officialrooms && sections.officialrooms.length ? '<h2 class="rooms-officialchatrooms">Official chat rooms</h2>' + _.map(sections.officialrooms, this.renderRoomBtn).join("") : '') +
+				(psplRooms.length ? '<h2 class="rooms-psplchatrooms">PSPL Winner</h2>' + _.map(psplRooms.sort(this.compareRooms), this.renderRoomBtn).join("") : '')
 			);
 			var buf = '';
-			var hardcodedSections = ['officialtiers', 'communityprojects', 'languages'];
-			for (var i = 0; i < hardcodedSections.length; i++) {
-				var section = sections[hardcodedSections[i]];
-				if (!section) continue;
-				section = section.filter(function (x) {
-					return (rooms.pspl || []).indexOf(x) < 0;
-				});
-				if (!section.length) continue;
-				buf += '<h2 class="rooms-chatrooms">' + ((rooms.sectionTitles || {})[hardcodedSections[i]] || hardcodedSections[i]) + '</h2>' + _.map(section.sort(this.compareRooms), this.renderRoomBtn).join("");
-			}
 			for (var j = 0; j < Object.keys(sections).length; j++) {
-				var i = Object.keys(sections).sort()[j];
-				if (i === 'officialrooms' || hardcodedSections.indexOf(i) >= 0) continue;
-				if (i === 'nonpublic' || i === 'none') continue;
-				var section = sections[i];
+				var i = Object.keys(sections)[j];
+				if (i === 'officialrooms' || i === 'nonpublic' || i === 'none') continue;
+				var section = sections[i].filter(function (x) {
+					return (rooms.pspl || []).map(function (z) {
+						return z.title;
+					}).indexOf(x.title) < 0;
+				});
 				if (!section.length) continue;
 				buf += '<h2 class="rooms-chatrooms">' + ((rooms.sectionTitles || {})[i] || i) + '</h2>' + _.map(section.sort(this.compareRooms), this.renderRoomBtn).join("");
 			}
 			if (sections.none && sections.none.length) {
 				var none = sections.none.filter(function (x) {
-					return (rooms.pspl || []).indexOf(x) < 0;
+					return (rooms.pspl || []).map(function (z) {
+						return z.title;
+					}).indexOf(x.title) < 0;
 				});
 				if (none.length) {
 					buf += '<h2 class="rooms-chatrooms">Chat rooms</h2>' + _.map(none.sort(this.compareRooms), this.renderRoomBtn).join("");

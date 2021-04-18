@@ -135,24 +135,18 @@ class RoomsPanel extends PSRoomPanel {
 			];
 		} else {
 			roomList = [];
-			if (rooms.sections?.official?.length) roomList.push(this.renderRoomList("Official chat rooms", rooms.sections.official));
-			if (rooms.pspl?.length) roomList.push(this.renderRoomList("PSPL Winner", rooms.pspl));
-			const hardcodedSectionPositions = ['officialtiers', 'communityprojects', 'languages'];
-			for (const sectionid of hardcodedSectionPositions) {
-				if (!rooms.sections?.[sectionid]?.length) continue;
-				const section = rooms.sections[sectionid].filter(x => !rooms.pspl?.includes(x));
-				if (!section.length) continue;
-				roomList.push(this.renderRoomList(rooms.sectionTitles?.[sectionid] || sectionid, section));
-			}
+			if (rooms.sections?.officialrooms?.length) roomList.push(this.renderRoomList("Official chat rooms", rooms.sections.official));
+			const psplRooms = rooms.pspl?.filter(x => !rooms.sections?.officialrooms?.map(z => z.title).includes(x.title));
+			if (psplRooms?.length) roomList.push(this.renderRoomList("PSPL Winner", psplRooms));
 			if (rooms.sections) {
 				for (const sectionName of Object.keys(rooms.sections).sort()) {
-					if (['officialrooms', 'nonpublic', 'none', ...hardcodedSectionPositions].includes(sectionName)) continue;
-					const section = rooms.sections[sectionName].filter(x => !rooms.pspl?.includes(x));
+					if (['officialrooms', 'nonpublic', 'none'].includes(sectionName)) continue;
+					const section = rooms.sections[sectionName].filter(x => !rooms.pspl?.map(z => z.title).includes(x.title));
 					if (!section.length) continue;
 					roomList.push(this.renderRoomList(rooms.sectionTitles?.[sectionName] || sectionName, section));
 				}
 				if (rooms.sections.none?.length) {
-					const none = rooms.sections.none.filter(x => !rooms.pspl?.includes(x));
+					const none = rooms.sections.none.filter(x => !rooms.pspl?.map(z => z.title).includes(x.title));
 					if (none.length) {
 						roomList.push(this.renderRoomList("Chat rooms", none));
 					}
