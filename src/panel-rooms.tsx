@@ -139,7 +139,7 @@ class RoomsPanel extends PSRoomPanel {
 			const psplRooms = rooms.pspl?.filter(x => !rooms.sections?.officialrooms?.map(z => z.title).includes(x.title));
 			if (psplRooms?.length) roomList.push(this.renderRoomList("PSPL Winner", psplRooms));
 			if (rooms.sections) {
-				for (const sectionName of Object.keys(rooms.sections).sort()) {
+				for (const sectionName in rooms.sections) {
 					if (['officialrooms', 'nonpublic', 'none'].includes(sectionName)) continue;
 					const section = rooms.sections[sectionName].filter(x => !rooms.pspl?.map(z => z.title).includes(x.title));
 					if (!section.length) continue;

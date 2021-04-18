@@ -101,8 +101,7 @@
 				(psplRooms.length ? '<h2 class="rooms-psplchatrooms">PSPL Winner</h2>' + _.map(psplRooms.sort(this.compareRooms), this.renderRoomBtn).join("") : '')
 			);
 			var buf = '';
-			for (var j = 0; j < Object.keys(sections).length; j++) {
-				var i = Object.keys(sections)[j];
+			for (var i in sections) {
 				if (i === 'officialrooms' || i === 'nonpublic' || i === 'none') continue;
 				var section = sections[i].filter(function (x) {
 					return (rooms.pspl || []).map(function (z) {
