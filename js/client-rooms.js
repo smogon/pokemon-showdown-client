@@ -5,11 +5,15 @@
 		maxWidth: 1024,
 		type: 'rooms',
 		title: 'Rooms',
+		events: {
+			'change select[name=sections]': 'refresh'
+		},
 		isSideRoom: true,
 		initialize: function () {
 			this.$el.addClass('ps-room-light').addClass('scrollable');
 			var buf = '<div class="pad"><button class="button" style="float:right;font-size:10pt;margin-top:3px" name="closeHide"><i class="fa fa-caret-right"></i> Hide</button>';
-			buf += '<div class="roomlisttop"></div><div class="roomlist"><p><em style="font-size:20pt">Loading...</em></p></div><div class="roomlist"></div>';
+			buf += '<div class="roomlisttop"></div><p>Rooms filter: <select name="sections"><option value="all">All rooms</option></select></p>';
+			buf += '<div class="roomlist"><p><em style="font-size:20pt">Loading...</em></p></div><div class="roomlist"></div>';
 			buf += '<p><button name="joinRoomPopup" class="button">Join other room</button></p></div>';
 			this.$el.html(buf);
 			app.on('response:rooms', this.update, this);
@@ -18,6 +22,14 @@
 			app.send('/cmd rooms');
 			app.user.on('change:named', this.updateUser, this);
 			this.update();
+		},
+		initSectionSelection: function () {
+			var buf = ['<option value="all">All rooms</option>'];
+			for (var i in app.roomsData.sectionTitles) {
+				if (i === 'nonpublic' || i === 'none') continue;
+				buf.push('<option value="' + i + '">' + app.roomsData.sectionTitles[i] + '</option>');
+			}
+			this.$('select[name=sections]').html(buf.join(''));
 		},
 		updateUser: function () {
 			this.update();
@@ -28,7 +40,7 @@
 				this.lastUpdate = new Date().getTime();
 			}
 			var prevPos = this.$el.scrollTop();
-			this.$('button[name=joinRoomPopup]').focus();
+			// this.$('button[name=joinRoomPopup]').focus();
 			this.$el.scrollTop(prevPos);
 		},
 		joinRoomPopup: function () {
@@ -52,7 +64,8 @@
 				rooms = app.roomsData;
 			}
 			if (!rooms) return;
-			this.updateRoomList();
+			this.initSectionSelection();
+			this.updateRoomList(this.focusedSection || 'all');
 			if (!app.roomsFirstOpen && window.location.host !== 'demo.psim.us') {
 				if (Config.roomsFirstOpenScript) {
 					Config.roomsFirstOpenScript();
@@ -77,7 +90,8 @@
 		compareRooms: function (roomA, roomB) {
 			return roomB.userCount - roomA.userCount;
 		},
-		updateRoomList: function () {
+		updateRoomList: function (sectionFilter) {
+			if (!sectionFilter) sectionFilter = 'all';
 			var rooms = app.roomsData;
 
 			if (rooms.userCount) {
@@ -87,41 +101,42 @@
 				var rightSide = '<button class="button" name="roomlist" title="Watch an active battle"><span class="pixelated battlecount" title="Meloetta is PS\'s mascot! The Pirouette forme is Fighting-type, and represents our battles." ></span><strong>' + battleCount + '</strong> active ' + (battleCount == 1 ? 'battle' : 'battles') + '</button>';
 				this.$('.roomlisttop').html('<div class="roomcounters">' + leftSide + '</td><td>' + rightSide + '</div>');
 			}
-			var sections = rooms.sections;
+			var allRooms = rooms.rooms.filter(function (roomData) {
+				return roomData.section !== 'nonpublic';
+			});
+			if (sectionFilter !== 'all') {
+				allRooms = allRooms.filter(function (roomData) {
+					return roomData.section === sectionFilter;
+				});
+			}
+			var officialRooms = allRooms.filter(function (roomData) {
+				return roomData.section === 'officialrooms';
+			});
+			if (officialRooms.length) {
+				allRooms = allRooms.filter(function (roomData) {
+					return roomData.section !== 'officialrooms';
+				});
+			}
 			var psplRooms = [];
 			if (rooms.pspl && rooms.pspl.length) {
-				psplRooms = rooms.pspl.filter(function (x) {
-					return (sections.officialrooms || []).map(function (z) {
-						return z.title;
-					}).indexOf(x.title) < 0;
+				psplRooms = allRooms.filter(function (roomData) {
+					return rooms.pspl.map(function (psplRoomData) {
+						return psplRoomData.title;
+					}).indexOf(roomData.title) >= 0;
+				});
+				allRooms = allRooms.filter(function (roomData) {
+					return rooms.pspl.map(function (psplRoomData) {
+						return psplRoomData.title;
+					}).indexOf(roomData.title) < 0;
 				});
 			}
 			this.$('.roomlist').first().html(
-				(sections.officialrooms && sections.officialrooms.length ? '<h2 class="rooms-officialchatrooms">Official chat rooms</h2>' + _.map(sections.officialrooms, this.renderRoomBtn).join("") : '') +
+				(officialRooms.length ? '<h2 class="rooms-officialchatrooms">Official chat rooms</h2>' + _.map(officialRooms.sort(this.compareRooms), this.renderRoomBtn).join("") : '') +
 				(psplRooms.length ? '<h2 class="rooms-psplchatrooms">PSPL Winner</h2>' + _.map(psplRooms.sort(this.compareRooms), this.renderRoomBtn).join("") : '')
 			);
-			var buf = '';
-			for (var i in sections) {
-				if (i === 'officialrooms' || i === 'nonpublic' || i === 'none') continue;
-				var section = sections[i].filter(function (x) {
-					return (rooms.pspl || []).map(function (z) {
-						return z.title;
-					}).indexOf(x.title) < 0;
-				});
-				if (!section.length) continue;
-				buf += '<h2 class="rooms-chatrooms">' + ((rooms.sectionTitles || {})[i] || i) + '</h2>' + _.map(section.sort(this.compareRooms), this.renderRoomBtn).join("");
-			}
-			if (sections.none && sections.none.length) {
-				var none = sections.none.filter(function (x) {
-					return (rooms.pspl || []).map(function (z) {
-						return z.title;
-					}).indexOf(x.title) < 0;
-				});
-				if (none.length) {
-					buf += '<h2 class="rooms-chatrooms">Chat rooms</h2>' + _.map(none.sort(this.compareRooms), this.renderRoomBtn).join("");
-				}
-			}
-			this.$('.roomlist').last().html(buf);
+			this.$('.roomlist').last().html(
+				allRooms.length ? '<h2 class="rooms-chatrooms">Chat rooms</h2>' + _.map(allRooms.sort(this.compareRooms), this.renderRoomBtn).join(""): ''
+			);
 		},
 		roomlist: function () {
 			app.joinRoom('battles');
@@ -143,6 +158,11 @@
 				}
 				app.addPopup(UserPopup, {name: target});
 			});
+		},
+		refresh: function () {
+			var sectionid = this.$('select[name=sections]').val();
+			this.focusedSection = sectionid;
+			this.updateRoomList(sectionid);
 		}
 	});
 

@@ -57,17 +57,7 @@ class RoomsPanel extends PSRoomPanel {
 		let exactMatch = false;
 
 		const rooms = PS.mainmenu.roomsCache;
-		let roomList = [...(rooms.sections?.official || []), ...(rooms.pspl || [])];
-		if (rooms.sections) {
-			for (const sectionid in rooms.sections) {
-				if (rooms.sections[sectionid].length) {
-					for (const room of rooms.sections[sectionid]) {
-						// Order doesn't matter yet
-						roomList.push(room);
-					}
-				}
-			}
-		}
+		let roomList = [...(rooms.rooms || []), ...(rooms.pspl || [])];
 		for (const room of roomList) {
 			if (!room.subRooms) continue;
 			for (const title of room.subRooms) {
@@ -135,23 +125,12 @@ class RoomsPanel extends PSRoomPanel {
 			];
 		} else {
 			roomList = [];
-			if (rooms.sections?.officialrooms?.length) roomList.push(this.renderRoomList("Official chat rooms", rooms.sections.official));
-			const psplRooms = rooms.pspl?.filter(x => !rooms.sections?.officialrooms?.map(z => z.title).includes(x.title));
+			const officialRooms = rooms.rooms?.filter(room => room.section === 'officialrooms');
+			if (officialRooms?.length) roomList.push(this.renderRoomList("Official chat rooms", officialRooms));
+			const psplRooms = rooms.pspl?.filter(psplRoom => !officialRooms?.map(officialRoom => officialRoom.title).includes(psplRoom.title));
 			if (psplRooms?.length) roomList.push(this.renderRoomList("PSPL Winner", psplRooms));
-			if (rooms.sections) {
-				for (const sectionName in rooms.sections) {
-					if (['officialrooms', 'nonpublic', 'none'].includes(sectionName)) continue;
-					const section = rooms.sections[sectionName].filter(x => !rooms.pspl?.map(z => z.title).includes(x.title));
-					if (!section.length) continue;
-					roomList.push(this.renderRoomList(rooms.sectionTitles?.[sectionName] || sectionName, section));
-				}
-				if (rooms.sections.none?.length) {
-					const none = rooms.sections.none.filter(x => !rooms.pspl?.map(z => z.title).includes(x.title));
-					if (none.length) {
-						roomList.push(this.renderRoomList("Chat rooms", none));
-					}
-				}
-			}
+			const otherRooms = rooms.rooms?.filter(room => room.section !== 'officialrooms' && room.section !== 'nonpublic');
+			if (otherRooms?.length) roomList.push(this.renderRoomList("Chat rooms", otherRooms));
 		}
 
 		return <PSPanelWrapper room={this.props.room} scrollable><div class="pad">

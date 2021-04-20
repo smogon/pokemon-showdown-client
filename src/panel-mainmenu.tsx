@@ -5,7 +5,7 @@
  * @license AGPLv3
  */
 
-type RoomInfo = {title: string, desc?: string, userCount?: number, subRooms?: string[]};
+type RoomInfo = {title: string, desc?: string, userCount?: number, section?: string, subRooms?: string[]};
 
 class MainMenuRoom extends PSRoom {
 	readonly classType: string = 'mainmenu';
@@ -20,7 +20,7 @@ class MainMenuRoom extends PSRoom {
 	roomsCache: {
 		battleCount?: number,
 		userCount?: number,
-		sections?: {[k: string]: RoomInfo[]},
+		rooms?: RoomInfo[],
 		sectionTitles?: {[k: string]: string},
 		pspl?: RoomInfo[],
 	} = {};
