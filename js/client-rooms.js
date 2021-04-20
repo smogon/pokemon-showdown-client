@@ -135,7 +135,7 @@
 				(psplRooms.length ? '<h2 class="rooms-psplchatrooms">PSPL Winner</h2>' + _.map(psplRooms.sort(this.compareRooms), this.renderRoomBtn).join("") : '')
 			);
 			this.$('.roomlist').last().html(
-				allRooms.length ? '<h2 class="rooms-chatrooms">Chat rooms</h2>' + _.map(allRooms.sort(this.compareRooms), this.renderRoomBtn).join(""): ''
+				allRooms.length ? '<h2 class="rooms-chatrooms">Chat rooms</h2>' + _.map(allRooms.sort(this.compareRooms), this.renderRoomBtn).join("") : ''
 			);
 		},
 		roomlist: function () {
