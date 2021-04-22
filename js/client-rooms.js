@@ -101,9 +101,7 @@
 				var rightSide = '<button class="button" name="roomlist" title="Watch an active battle"><span class="pixelated battlecount" title="Meloetta is PS\'s mascot! The Pirouette forme is Fighting-type, and represents our battles." ></span><strong>' + battleCount + '</strong> active ' + (battleCount == 1 ? 'battle' : 'battles') + '</button>';
 				this.$('.roomlisttop').html('<div class="roomcounters">' + leftSide + '</td><td>' + rightSide + '</div>');
 			}
-			var allRooms = rooms.chat.filter(function (roomData) {
-				return roomData.section !== 'nonpublic';
-			});
+			var allRooms = rooms.chat;
 			var psplRooms = allRooms.filter(function (roomData) {
 				return roomData.prizewinner && roomData.section !== 'officialrooms';
 			});
