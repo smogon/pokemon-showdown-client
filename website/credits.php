@@ -66,6 +66,7 @@ includeHeader();
 				<li><p><strong>Ben Frengley</strong> [TalkTakesTime] <small>&ndash; Development</small></p></li>
 				<li><p><a href="http://sailorwanda.deviantart.com/" target="_blank" class="subtle"><strong>Catherine D.</strong> [SailorCosmos, Matryoshkat]</a> <small>&ndash; Art (battle animations)</small></p></li>
 				<li><p><strong>Cody Thompson</strong> [Rising_Dusk] <small>&ndash; Development</small></p></li>
+				<li><p>[<strong>Enigami</strong>] <small>&ndash; Development</small></p></li>
 				<li><p>[<strong>Honko</strong>] <small>&ndash; Development (damage calculator)</small></p></li>
 				<li><p><strong>Ian Clail</strong> [Layell] <small>&ndash; Art (battle graphics, sprites)</small></p></li>
 				<li><p><strong>Jacob McLemore</strong> <small>&ndash; Development</small></p></li>
@@ -76,6 +77,7 @@ includeHeader();
 				<li><p><strong>Parth Mane</strong> [PartMan] <small>&ndash; Development</small></p></li>
 				<li><p>[<strong>Plague von Karma</strong>] <small>&ndash; Development, Research</small></p></li>
 				<li><p><strong>Russell Jones</strong> [SadisticMystic] <small>&ndash; Research (game mechanics)</small></p></li>
+				<li><p>[<strong>Shellnuts</strong>] <small>&ndash; Development</small></p></li>
 				<li><p><a href="https://spandamn.github.io/" target="_blank" class="subtle"><strong>Spandan Punwatkar</strong> [Spandan]</a> <small>&ndash; Development</small></p></li>
 				<li><p><strong>Waleed Hassan</strong> [jetou] <small>&ndash; Development</small></p></li>
 			</ul>
