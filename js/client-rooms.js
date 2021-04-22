@@ -104,10 +104,13 @@
 			var allRooms = rooms.chat.filter(function (roomData) {
 				return roomData.section !== 'nonpublic';
 			});
-			var psplRooms = [];
-			if (rooms.pspl && rooms.pspl.length) {
-				psplRooms = rooms.pspl.filter(function (roomData) {
-					return roomData.section !== 'nonpublic';
+			var psplRooms = allRooms.filter(function (roomData) {
+				return roomData.prizewinner && roomData.section !== 'officialrooms';
+			});
+			if (psplRooms.length) {
+				allRooms = allRooms.filter(function (roomData) {
+					if (roomData.section === 'officialrooms') return true;
+					return !roomData.prizewinner;
 				});
 			}
 			if (sectionFilter !== 'all') {
