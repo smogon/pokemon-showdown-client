@@ -116,7 +116,7 @@
 				});
 				psplRooms = psplRooms.filter(function (roomData) {
 					return roomData.section === sectionFilter;
-				})
+				});
 			}
 			var officialRooms = allRooms.filter(function (roomData) {
 				return roomData.section === 'officialrooms';
