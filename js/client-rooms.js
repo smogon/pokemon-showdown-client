@@ -47,7 +47,9 @@
 				this.lastUpdate = new Date().getTime();
 			}
 			var prevPos = this.$el.scrollTop();
-			// this.$('button[name=joinRoomPopup]').focus();
+			if (!this.$('select:focus').length) {
+				this.$('button[name=joinRoomPopup]').focus();
+			}
 			this.$el.scrollTop(prevPos);
 		},
 		joinRoomPopup: function () {
