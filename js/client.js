@@ -455,6 +455,7 @@ function toId() {
 					if (Object.keys(settings).length) app.user.set('settings', settings);
 					// HTML5 history throws exceptions when running on file://
 					Backbone.history.start({pushState: !Config.testclient});
+					app.ignore = app.loadIgnore();
 				});
 			}
 
@@ -1058,6 +1059,7 @@ function toId() {
 				}
 				if (app.ignore[userid]) {
 					delete app.ignore[userid];
+					app.saveIgnore();
 				}
 				break;
 
@@ -1157,6 +1159,18 @@ function toId() {
 				}
 				break;
 			}
+		},
+		saveIgnore: function () {
+			Storage.prefs('ignorelist', Object.keys(this.ignore));
+		},
+		loadIgnore: function () {
+			var ignoreList = Storage.prefs('ignorelist');
+			if (!ignoreList) return {};
+			var ignore = {};
+			for (var i = 0; i < ignoreList.length; i++) {
+				ignore[ignoreList[i]] = 1;
+			}
+			return ignore;
 		},
 		parseGroups: function (groupsList) {
 			var data = null;
@@ -2714,6 +2728,7 @@ function toId() {
 				app.ignore[this.userid] = 1;
 				buf += " ignored. (Moderator messages will not be ignored.)";
 			}
+			app.saveIgnore();
 			var $pm = $('.pm-window-' + this.userid);
 			if ($pm.length && $pm.css('display') !== 'none') {
 				$pm.find('.inner').append('<div class="chat">' + BattleLog.escapeHTML(buf) + '</div>');
