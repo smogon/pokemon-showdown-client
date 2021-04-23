@@ -5,11 +5,17 @@
 		maxWidth: 1024,
 		type: 'rooms',
 		title: 'Rooms',
+		events: {
+			'change select[name=sections]': 'refresh'
+		},
 		isSideRoom: true,
 		initialize: function () {
+			this.focusedSection = '';
+
 			this.$el.addClass('ps-room-light').addClass('scrollable');
 			var buf = '<div class="pad"><button class="button" style="float:right;font-size:10pt;margin-top:3px" name="closeHide"><i class="fa fa-caret-right"></i> Hide</button>';
-			buf += '<div class="roomlisttop"></div><div class="roomlist"><p><em style="font-size:20pt">Loading...</em></p></div><div class="roomlist"></div>';
+			buf += '<div class="roomlisttop"></div><p>Rooms filter: <select name="sections"><option value="all">(All rooms)</option></select></p>';
+			buf += '<div class="roomlist"><p><em style="font-size:20pt">Loading...</em></p></div><div class="roomlist"></div>';
 			buf += '<p><button name="joinRoomPopup" class="button">Join other room</button></p></div>';
 			this.$el.html(buf);
 			app.on('response:rooms', this.update, this);
@@ -18,6 +24,19 @@
 			app.send('/cmd rooms');
 			app.user.on('change:named', this.updateUser, this);
 			this.update();
+		},
+		initSectionSelection: function () {
+			var buf = ['<option value="">(All rooms)</option>'];
+			var sectionTitles = app.roomsData.sectionTitles;
+			if (!sectionTitles) {
+				this.$('select[name=sections]').parent().hide();
+				return;
+			}
+			for (var i = 0; i < sectionTitles.length; i++) {
+				var sectionName = BattleLog.escapeHTML(sectionTitles[i]);
+				buf.push('<option value="' + sectionName + '">' + sectionName + '</option>');
+			}
+			this.$('select[name=sections]').html(buf.join(''));
 		},
 		updateUser: function () {
 			this.update();
@@ -28,7 +47,9 @@
 				this.lastUpdate = new Date().getTime();
 			}
 			var prevPos = this.$el.scrollTop();
-			this.$('button[name=joinRoomPopup]').focus();
+			if (!this.$('select:focus').length) {
+				this.$('button[name=joinRoomPopup]').focus();
+			}
 			this.$el.scrollTop(prevPos);
 		},
 		joinRoomPopup: function () {
@@ -48,10 +69,9 @@
 			if (rooms) {
 				this.lastUpdate = new Date().getTime();
 				app.roomsData = rooms;
-			} else {
-				rooms = app.roomsData;
 			}
-			if (!rooms) return;
+			if (!app.roomsData) return;
+			this.initSectionSelection();
 			this.updateRoomList();
 			if (!app.roomsFirstOpen && window.location.host !== 'demo.psim.us') {
 				if (Config.roomsFirstOpenScript) {
@@ -87,9 +107,58 @@
 				var rightSide = '<button class="button" name="roomlist" title="Watch an active battle"><span class="pixelated battlecount" title="Meloetta is PS\'s mascot! The Pirouette forme is Fighting-type, and represents our battles." ></span><strong>' + battleCount + '</strong> active ' + (battleCount == 1 ? 'battle' : 'battles') + '</button>';
 				this.$('.roomlisttop').html('<div class="roomcounters">' + leftSide + '</td><td>' + rightSide + '</div>');
 			}
-			this.$('.roomlist').first().html('<h2 class="rooms-officialchatrooms">Official chat rooms</h2>' + _.map(rooms.official, this.renderRoomBtn).join("") +
-				(rooms.pspl && rooms.pspl.length ? '<a href="https://www.smogon.com/forums/threads/3649563/" target="_blank"><h2 class="rooms-psplchatrooms">PSPL Winner</h2></a>' + _.map(rooms.pspl, this.renderRoomBtn).join("") : ''));
-			this.$('.roomlist').last().html('<h2 class="rooms-chatrooms">Chat rooms</h2>' + _.map(rooms.chat.sort(this.compareRooms), this.renderRoomBtn).join(""));
+
+			if (rooms.pspl) {
+				for (var i = 0; i < rooms.pspl.length; i++) {
+					rooms.pspl[i].spotlight = "Spotlight rooms";
+				}
+				rooms.chat = rooms.pspl.concat(rooms.chat);
+				rooms.pspl = null;
+			}
+			if (rooms.official) {
+				for (var i = 0; i < rooms.official.length; i++) {
+					rooms.official[i].section = "Official";
+				}
+				rooms.chat = rooms.official.concat(rooms.chat);
+				rooms.official = null;
+			}
+
+			var allRooms = rooms.chat;
+			if (this.focusedSection) {
+				var sectionFilter = this.focusedSection;
+				allRooms = allRooms.filter(function (roomData) {
+					return (roomData.section || 'Other') === sectionFilter;
+				});
+			}
+
+			var spotlightLabel = '';
+			var spotlightRooms = [];
+			var officialRooms = [];
+			var otherRooms = [];
+			for (var i = 0; i < allRooms.length; i++) {
+				var roomData = allRooms[i];
+				if (roomData.spotlight) {
+					spotlightRooms.push(roomData);
+					spotlightLabel = roomData.spotlight;
+				} else if (roomData.section === 'Official') {
+					officialRooms.push(roomData);
+				} else {
+					otherRooms.push(roomData);
+				}
+			}
+
+			this.$('.roomlist').first().html(
+				(officialRooms.length ?
+					'<h2 class="rooms-officialchatrooms">Official chat rooms</h2>' + officialRooms.sort(this.compareRooms).map(this.renderRoomBtn).join("") : ''
+				) +
+				(spotlightRooms.length ?
+					'<h2 class="rooms-psplchatrooms">' + BattleLog.escapeHTML(spotlightLabel) + '</h2>' + spotlightRooms.sort(this.compareRooms).map(this.renderRoomBtn).join("") : ''
+				)
+			);
+			this.$('.roomlist').last().html(
+				otherRooms.length ?
+					'<h2 class="rooms-chatrooms">Chat rooms</h2>' + otherRooms.sort(this.compareRooms).map(this.renderRoomBtn).join("") : ''
+			);
 		},
 		roomlist: function () {
 			app.joinRoom('battles');
@@ -111,6 +180,11 @@
 				}
 				app.addPopup(UserPopup, {name: target});
 			});
+		},
+		refresh: function () {
+			var section = this.$('select[name=sections]').val();
+			this.focusedSection = section;
+			this.updateRoomList();
 		}
 	});
 

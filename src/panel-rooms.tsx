@@ -57,7 +57,7 @@ class RoomsPanel extends PSRoomPanel {
 		let exactMatch = false;
 
 		const rooms = PS.mainmenu.roomsCache;
-		let roomList = [...(rooms.official || []), ...(rooms.pspl || []), ...(rooms.chat || [])];
+		let roomList = [...(rooms.chat || [])];
 		for (const room of roomList) {
 			if (!room.subRooms) continue;
 			for (const title of room.subRooms) {
@@ -124,11 +124,13 @@ class RoomsPanel extends PSRoomPanel {
 				this.renderRoomList("Possible hidden room", search.hidden),
 			];
 		} else {
-			roomList = [
-				this.renderRoomList("Official chat rooms", rooms.official),
-				this.renderRoomList("PSPL winner", rooms.pspl),
-				this.renderRoomList("Chat rooms", rooms.chat),
-			];
+			roomList = [];
+			const officialRooms = rooms.chat?.filter(room => room.section === 'Official');
+			if (officialRooms?.length) roomList.push(this.renderRoomList("Official chat rooms", officialRooms));
+			const psplRooms = rooms.chat?.filter(room => room.spotlight === "PSPL Winner" && room.section !== 'Official');
+			if (psplRooms?.length) roomList.push(this.renderRoomList("PSPL Winner", psplRooms));
+			const otherRooms = rooms.chat?.filter(room => room.section !== 'Official' && room.spotlight !== "PSPL Winner");
+			if (otherRooms?.length) roomList.push(this.renderRoomList("Chat rooms", otherRooms));
 		}
 
 		return <PSPanelWrapper room={this.props.room} scrollable><div class="pad">

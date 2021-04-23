@@ -29,6 +29,24 @@ if (!Array.prototype.indexOf) {
 		return -1;
 	};
 }
+if (!Array.prototype.map) {
+	Array.prototype.map = function map(callback, thisArg) {
+		var newArray = [];
+		for (var i = 0; i < this.length; i++) {
+			newArray.push(callback.call(thisArg, this[i], i, this));
+		}
+		return newArray;
+	};
+}
+if (!Array.prototype.filter) {
+	Array.prototype.filter = function filter(callback, thisArg) {
+		var newArray = [];
+		for (var i = 0; i < this.length; i++) {
+			if (callback.call(thisArg, this[i], i, this)) newArray.push(this[i]);
+		}
+		return newArray;
+	};
+}
 // ES2016, predates nomodule
 if (!Array.prototype.includes) {
 	Array.prototype.includes = function includes(thing) {
