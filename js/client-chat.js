@@ -613,7 +613,7 @@
 				}
 				if (toID(target) !== 'confirm') {
 					this.add("Are you sure you want to clear your ignore list?");
-					this.add("Type /clearignore confirm if you're sure.");
+					this.add('|html|If you\'re sure, use <code>/clearignore confirm</code>');
 					return false;
 				}
 				if (!Object.keys(app.ignore).length) {
