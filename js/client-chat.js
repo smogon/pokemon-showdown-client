@@ -601,9 +601,29 @@
 				} else {
 					app.ignore[toUserid(target)] = 1;
 					this.add("User '" + toName(target) + "' ignored. (Moderator messages will not be ignored.)");
+					app.saveIgnore();
 				}
 				return false;
 
+			case 'clearignore':
+				if (this.checkBroadcast(cmd, text)) return false;
+				if (!target) {
+					this.parseCommand('/help ignore');
+					return false;
+				}
+				if (toID(target) !== 'confirm') {
+					this.add("Are you sure you want to clear your ignore list?");
+					this.add('|html|If you\'re sure, use <code>/clearignore confirm</code>');
+					return false;
+				}
+				if (!Object.keys(app.ignore).length) {
+					this.add("You have no ignored users.");
+					return false;
+				}
+				app.ignore = {};
+				app.saveIgnore();
+				this.add("Your ignore list was cleared.");
+				return false;
 			case 'unignore':
 				if (this.checkBroadcast(cmd, text)) return false;
 				if (!target) {
@@ -615,6 +635,7 @@
 				} else {
 					delete app.ignore[toUserid(target)];
 					this.add("User '" + toName(target) + "' no longer ignored.");
+					app.saveIgnore();
 				}
 				return false;
 
@@ -1082,6 +1103,7 @@
 					this.add('/ignore [user] - Ignore all messages from the user [user].');
 					this.add('/unignore [user] - Remove the user [user] from your ignore list.');
 					this.add('/ignorelist - List all the users that you currently ignore.');
+					this.add('/clearignore - Remove all users on your ignore list.');
 					this.add('Note that staff messages cannot be ignored.');
 					return false;
 				case 'nick':
@@ -1670,7 +1692,15 @@
 			var speakerHasAuth = " +\u2606".indexOf(name.charAt(0)) < 0;
 			var user = (this.users && this.users[app.user.get('userid')]) || {};
 			var readerHasAuth = !" +\u2606\u203D!".includes(user.group || ' ');
-			if (app.ignore[userid] && !speakerHasAuth && !readerHasAuth) return;
+			if (app.ignore[userid] && !speakerHasAuth && !readerHasAuth) {
+				if (!app.ignoreNotified) {
+					this.$chat.append(
+						'<div class="chat">A message from ' + BattleLog.escapeHTML(name) + ' was ignored. (to unignore use /unignore)</div>'
+					);
+					app.ignoreNotified = true;
+				}
+				return;
+			}
 
 			// Add this user to the list of people who have spoken recently.
 			this.markUserActive(userid);
