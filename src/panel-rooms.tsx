@@ -57,7 +57,7 @@ class RoomsPanel extends PSRoomPanel {
 		let exactMatch = false;
 
 		const rooms = PS.mainmenu.roomsCache;
-		let roomList = [...(rooms.rooms || []), ...(rooms.pspl || [])];
+		let roomList = [...(rooms.chat || [])];
 		for (const room of roomList) {
 			if (!room.subRooms) continue;
 			for (const title of room.subRooms) {
@@ -125,11 +125,11 @@ class RoomsPanel extends PSRoomPanel {
 			];
 		} else {
 			roomList = [];
-			const officialRooms = rooms.rooms?.filter(room => room.section === 'officialrooms');
+			const officialRooms = rooms.chat?.filter(room => room.section === 'Official');
 			if (officialRooms?.length) roomList.push(this.renderRoomList("Official chat rooms", officialRooms));
-			const psplRooms = rooms.pspl?.filter(psplRoom => !officialRooms?.map(officialRoom => officialRoom.title).includes(psplRoom.title));
+			const psplRooms = rooms.chat?.filter(room => room.spotlight === "PSPL Winner" && room.section !== 'Official');
 			if (psplRooms?.length) roomList.push(this.renderRoomList("PSPL Winner", psplRooms));
-			const otherRooms = rooms.rooms?.filter(room => room.section !== 'officialrooms' && room.section !== 'nonpublic');
+			const otherRooms = rooms.chat?.filter(room => room.section !== 'Official' && room.spotlight !== "PSPL Winner");
 			if (otherRooms?.length) roomList.push(this.renderRoomList("Chat rooms", otherRooms));
 		}
 

@@ -25,9 +25,9 @@
 		},
 		initSectionSelection: function () {
 			var buf = ['<option value="all">All rooms</option>'];
-			for (var i in app.roomsData.sectionTitles) {
-				if (i === 'nonpublic' || i === 'none') continue;
-				buf.push('<option value="' + i + '">' + app.roomsData.sectionTitles[i] + '</option>');
+			for (var i = 0; i < app.roomsData.sectionTitles.length; i++) {
+				var sectionName = app.roomsData.sectionTitles[i];
+				buf.push('<option value="' + toID(sectionName) + '">' + sectionName + '</option>');
 			}
 			this.$('select[name=sections]').html(buf.join(''));
 		},
@@ -103,28 +103,28 @@
 			}
 			var allRooms = rooms.chat;
 			var psplRooms = allRooms.filter(function (roomData) {
-				return roomData.prizewinner && roomData.section !== 'officialrooms';
+				return roomData.spotlight === "PSPL Winner" && roomData.section !== 'Official';
 			});
 			if (psplRooms.length) {
 				allRooms = allRooms.filter(function (roomData) {
-					if (roomData.section === 'officialrooms') return true;
-					return !roomData.prizewinner;
+					if (roomData.section === 'Official') return true;
+					return roomData.spotlight !== "PSPL Winner";
 				});
 			}
 			if (sectionFilter !== 'all') {
 				allRooms = allRooms.filter(function (roomData) {
-					return roomData.section === sectionFilter;
+					return toID(roomData.section) === sectionFilter;
 				});
 				psplRooms = psplRooms.filter(function (roomData) {
-					return roomData.section === sectionFilter;
+					return toID(roomData.section) === sectionFilter;
 				});
 			}
 			var officialRooms = allRooms.filter(function (roomData) {
-				return roomData.section === 'officialrooms';
+				return roomData.section === 'Official';
 			});
 			if (officialRooms.length) {
 				allRooms = allRooms.filter(function (roomData) {
-					return roomData.section !== 'officialrooms';
+					return roomData.section !== 'Official';
 				});
 			}
 			this.$('.roomlist').first().html(
