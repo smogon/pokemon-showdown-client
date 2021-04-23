@@ -1166,13 +1166,13 @@ function toId() {
 			Storage.prefs('ignorelist', Object.keys(this.ignore));
 		},
 		loadIgnore: function () {
-			var data = Storage.prefs('ignorelist');
-			if (!data) return {};
-			var buf = {};
-			for (var i = 0; i < data.length; i++) {
-				buf[data[i]] = {notified: false};
+			var ignoreList = Storage.prefs('ignorelist');
+			if (!ignoreList) return {};
+			var ignore = {};
+			for (var i = 0; i < ignoreList.length; i++) {
+				ignore[ignoreList[i]] = {notified: false};
 			}
-			return buf;
+			return ignore;
 		},
 		parseGroups: function (groupsList) {
 			var data = null;
