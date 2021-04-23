@@ -1163,20 +1163,14 @@ function toId() {
 			}
 		},
 		saveIgnore: function () {
-			var buf = {};
-			if (!this.ignore) return; // ??
-			for (var k in this.ignore) {
-				// we set this to false so they're notified once per session of it
-				buf[k] = 1;
-			}
-			Storage.prefs('ignorelist', buf);
+			Storage.prefs('ignorelist', Object.keys(this.ignore));
 		},
 		loadIgnore: function () {
 			var data = Storage.prefs('ignorelist');
 			if (!data) return {};
 			var buf = {};
-			for (var k in data) {
-				buf[k] = {notified: false};
+			for (var i = 0; i < data.length; i++) {
+				buf[data[i]] = {notified: false};
 			}
 			return buf;
 		},
