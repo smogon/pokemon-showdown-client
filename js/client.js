@@ -1169,7 +1169,7 @@ function toId() {
 				// we set this to false so they're notified once per session of it
 				buf[k] = {notified: false};
 			}
-			app.saveIgnore();
+			Storage.prefs('ignorelist', buf);
 		},
 		parseGroups: function (groupsList) {
 			var data = null;
