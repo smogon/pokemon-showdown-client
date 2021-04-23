@@ -455,7 +455,7 @@ function toId() {
 					if (Object.keys(settings).length) app.user.set('settings', settings);
 					// HTML5 history throws exceptions when running on file://
 					Backbone.history.start({pushState: !Config.testclient});
-					this.ignore = Storage.prefs('ignorelist') || {};
+					app.ignore = app.loadIgnore();
 				});
 			}
 
@@ -1167,9 +1167,18 @@ function toId() {
 			if (!this.ignore) return; // ??
 			for (var k in this.ignore) {
 				// we set this to false so they're notified once per session of it
-				buf[k] = {notified: false};
+				buf[k] = 1;
 			}
 			Storage.prefs('ignorelist', buf);
+		},
+		loadIgnore: function () {
+			var data = Storage.prefs('ignorelist');
+			if (!data) return {};
+			var buf = {};
+			for (var k in data) {
+				buf[k] = {notified: false};
+			}
+			return buf;
 		},
 		parseGroups: function (groupsList) {
 			var data = null;
