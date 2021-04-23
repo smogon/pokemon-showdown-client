@@ -5,7 +5,7 @@
  * @license AGPLv3
  */
 
-type RoomInfo = {title: string, desc?: string, userCount?: number, subRooms?: string[]};
+type RoomInfo = {title: string, desc?: string, userCount?: number, section?: string, spotlight?: string, subRooms?: string[]};
 
 class MainMenuRoom extends PSRoom {
 	readonly classType: string = 'mainmenu';
@@ -14,14 +14,14 @@ class MainMenuRoom extends PSRoom {
 		avatar?: string | number,
 		status?: string,
 		group?: string,
+		sectionleader?: boolean,
 		rooms?: {[roomid: string]: {isPrivate?: true, p1?: string, p2?: string}},
 	}} = {};
 	roomsCache: {
 		battleCount?: number,
 		userCount?: number,
 		chat?: RoomInfo[],
-		official?: RoomInfo[],
-		pspl?: RoomInfo[],
+		sectionTitles?: string[],
 	} = {};
 	receiveLine(args: Args) {
 		const [cmd] = args;
