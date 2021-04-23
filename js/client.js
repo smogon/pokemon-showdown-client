@@ -968,9 +968,7 @@ function toId() {
 			} else if (data.substr(0, 3) === '|N|') {
 				var names = data.substr(1).split('|');
 				if (app.ignore[toUserid(names[2])]) {
-					app.ignore[toUserid(names[1])] = {
-						notified: app.ignore[toUserid(names[2])].notified,
-					};
+					app.ignore[toUserid(names[1])] = 1;
 				}
 			}
 			if (roomid) {
@@ -1170,7 +1168,7 @@ function toId() {
 			if (!ignoreList) return {};
 			var ignore = {};
 			for (var i = 0; i < ignoreList.length; i++) {
-				ignore[ignoreList[i]] = {notified: false};
+				ignore[ignoreList[i]] = 1;
 			}
 			return ignore;
 		},
@@ -2727,7 +2725,7 @@ function toId() {
 				delete app.ignore[this.userid];
 				buf += " no longer ignored.";
 			} else {
-				app.ignore[this.userid] = {notified: true};
+				app.ignore[this.userid] = 1;
 				buf += " ignored. (Moderator messages will not be ignored.)";
 			}
 			app.saveIgnore();
