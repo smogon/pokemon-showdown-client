@@ -2,7 +2,7 @@
 
 # How the ladder works
 
-Our ladder displays four ratings: Elo, GXE, and Glicko-1.
+Our ladder displays three ratings: Elo, GXE, and Glicko-1.
 
 **Elo** is the main ladder rating. It's a pretty normal ladder rating: goes up when you win and down when you lose.
 

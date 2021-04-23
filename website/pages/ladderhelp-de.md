@@ -2,7 +2,7 @@
 
 # Wie die Ladder funktioniert
 
-Unsere Ladder benutzt vier Wertungssysteme: Elo, GXE und Glicko-1.
+Unsere Ladder benutzt drei Wertungssysteme: Elo, GXE und Glicko-1.
 
 **Elo** ist das hauptsächlich Wertungssystem der Ladder. Dieses ist recht simpel aufgebaut: wenn man gewinnt, erhöht sich die Platzierung auf der Ladder, wenn man verliert, sinkt diese.
 
