@@ -2613,7 +2613,7 @@ function toId() {
 			}
 			if (customGroup) {
 				if (groupName || globalGroupName) buf += '<br />';
-				buf += '<small class="usergroup globalgroup">' + isCustomGroup + '</small>';
+				buf += '<small class="usergroup globalgroup">' + customGroup + '</small>';
 			}
 			if (data.rooms) {
 				var battlebuf = '';
