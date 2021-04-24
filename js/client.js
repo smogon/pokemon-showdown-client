@@ -2583,7 +2583,7 @@ function toId() {
 			var avatar = data.avatar || '';
 			var groupName = ((Config.groups[data.roomGroup] || {}).name || '');
 			var globalGroup = (Config.groups[data.group || Config.defaultGroup || ' '] || null);
-			var isSectionLeader = data.sectionleader;
+			var customGroup = data.customgroup;
 			var globalGroupName = '';
 			if (globalGroup && globalGroup.name) {
 				if (globalGroup.type === 'punishment') {
@@ -2611,9 +2611,9 @@ function toId() {
 			if (globalGroupName) {
 				buf += '<small class="usergroup globalgroup">' + globalGroupName + '</small>';
 			}
-			if (isSectionLeader) {
+			if (customGroup) {
 				if (groupName || globalGroupName) buf += '<br />';
-				buf += '<small class="usergroup globalgroup">Section Leader</small>';
+				buf += '<small class="usergroup globalgroup">' + isCustomGroup + '</small>';
 			}
 			if (data.rooms) {
 				var battlebuf = '';

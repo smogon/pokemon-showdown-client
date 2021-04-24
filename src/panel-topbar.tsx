@@ -289,9 +289,9 @@ class UserPanel extends PSRoomPanel<UserRoom> {
 			globalGroupName = <span style='color:#777777'>{globalGroupName}</span>;
 		}
 		if (globalGroup.name === group.name) groupName = null;
-		let isSectionLeader = null;
-		if (user.sectionleader) {
-			isSectionLeader = <span style='color:#777777'>Section Leader</span>;
+		let customGroup = undefined;
+		if (user.customgroup) {
+			customGroup = <span style='color:#777777'>{user.customgroup}</span>;
 		}
 
 		let roomsList: preact.ComponentChild = null;
@@ -365,6 +365,7 @@ class UserPanel extends PSRoomPanel<UserRoom> {
 				{status && <div class="userstatus">{status}</div>}
 				{groupName && <div class="usergroup roomgroup">{groupName}</div>}
 				{globalGroupName && <div class="usergroup globalgroup">{globalGroupName}</div>}
+				{customGroup && <div class="usergroup globalgroup">{customGroup}</div>}
 				{roomsList}
 			</div>
 			{isSelf || !PS.user.named ?
