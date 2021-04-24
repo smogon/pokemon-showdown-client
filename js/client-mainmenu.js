@@ -168,11 +168,12 @@
 
 		addPM: function (name, message, target) {
 			var userid = toUserid(name);
-			if (app.ignore[userid] && name.substr(0, 1) in {' ': 1, '+': 1, '!': 1, '✖': 1, '‽': 1}) {
+			if (app.ignore[userid] && " +\u2606\u203D\u2716!".includes(name.charAt(0))) {
 				if (!app.ignoreNotified) {
 					message = '/nonotify A message from ' + BattleLog.escapeHTML(name) + ' was ignored.';
 					app.ignoreNotified = true;
-				} else return;
+				}
+				return;
 			}
 			var isSelf = (toID(name) === app.user.get('userid'));
 			var oName = isSelf ? target : name;
