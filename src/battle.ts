@@ -1320,11 +1320,11 @@ class Battle {
 				if (cond[2]) cond[2]--;
 				if (cond[3]) cond[3]--;
 			}
-			for (const poke of side.active) {
-				if (poke) {
-					if (poke.status === 'tox') poke.statusData.toxicTurns++;
-					poke.clearTurnstatuses();
-				}
+		}
+		for (const poke of [...this.nearSide.active, ...this.farSide.active]) {
+			if (poke) {
+				if (poke.status === 'tox') poke.statusData.toxicTurns++;
+				poke.clearTurnstatuses();
 			}
 		}
 		this.scene.updateWeather();
