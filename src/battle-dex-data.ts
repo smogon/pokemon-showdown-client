@@ -1230,6 +1230,7 @@ class Move implements Effect {
 			} else {
 				this.zMove.basePower = 100;
 			}
+			if (data.zMove) this.zMove.basePower = data.zMove.basePower;
 		}
 
 		this.num = data.num || 0;
