@@ -129,8 +129,7 @@
 			text = this.parseCommand(text);
 			if (
 				this.battle && this.battle.ignoreSpects &&
-				app.user.get('userid') !== this.battle.p1.id &&
-				app.user.get('userid') !== this.battle.p2.id &&
+				app.user.get('userid') !== this.battle.p1.id && app.user.get('userid') !== this.battle.p2.id &&
 				!(text.startsWith('/') && !text.startsWith('/me'))
 			) {
 				this.add("You can't chat in this battle as you're currently ignoring spectators");
