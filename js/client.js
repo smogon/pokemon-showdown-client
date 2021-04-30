@@ -838,8 +838,9 @@ function toId() {
 			var out = [];
 			for (var i = 0; i < elements.length; i++) {
 				var element = elements[i];
-				// TODO: values are a mess in the DOM; checkboxes/select probably need special handling
-				out.push([element.name, element.value]);
+				if (!['checkbox', 'radio'].includes(element.type) || element.checked) {
+					out.push([element.name, element.value]);
+				}
 			}
 			return out;
 		},
