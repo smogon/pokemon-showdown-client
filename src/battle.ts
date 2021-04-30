@@ -2733,6 +2733,9 @@ class Battle {
 			case 'focusband':
 				poke.item = 'Focus Band';
 				break;
+			case 'quickclaw':
+				poke.item = 'Quick Claw';
+				break;
 			default:
 				if (kwArgs.broken) { // for custom moves that break protection
 					this.scene.resultAnim(poke, 'Protection broken', 'bad');
