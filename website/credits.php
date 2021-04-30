@@ -49,7 +49,7 @@ includeHeader();
 				<li><p><strong>Mia A.</strong> [Mia] <small>&ndash; Development</small></p></li>
 				<li><p><strong>Neil Rashbrook</strong> [urkerab] <small>&ndash; Development</small></p></li>
 				<li><p>[<strong>peach</strong>] <small>&ndash; Development</small></p></li>
-				<li><p>[<strong>pyuk</strong>] <small>&ndash; Development</small></p></li>
+				<li><p>[<strong>pyuk</strong>] <small>&ndash; Development (game mechanics)</small></p></li>
 				<li><p><strong>Quinton Lee</strong> [sirDonovan] <small>&ndash; Development</small></p></li>
 				<li><p>[<strong>Ridaz</strong>] <small>&ndash; Art (battle animations)</small></p></li>
 				<li><p><strong>Robin Vandenbrande</strong> [Quinella] <small>&ndash; Development</small></p></li>
@@ -69,16 +69,18 @@ includeHeader();
 				<li><p>[<strong>Enigami</strong>] <small>&ndash; Development</small></p></li>
 				<li><p>[<strong>Honko</strong>] <small>&ndash; Development (damage calculator)</small></p></li>
 				<li><p><strong>Ian Clail</strong> [Layell] <small>&ndash; Art (battle graphics, sprites)</small></p></li>
+				<li><p>[<strong>Instruct</strong>] <small>&ndash; Development (Staff Bros format)</small></p></li>
 				<li><p><strong>Jacob McLemore</strong> <small>&ndash; Development</small></p></li>
 				<li><p><strong>Erik Bruce</strong> [Kalalokki] <small>&ndash; Art (minisprite resizing)</small></p></li>
 				<li><p><a href="https://panpawn.github.io/" target="_blank" class="subtle"><strong>Jeremy Piemonte</strong> [panpawn]</a> <small>&ndash; Development</small></p></li>
 				<li><p><a href="http://leparagon.deviantart.com/" target="_blank" class="subtle">[<strong>leparagon</strong>]</a> <small>&ndash; Art (sprites, minisprite resizing)</small></p></li>
 				<li><p><strong>Luke Harmon-Vellotti</strong> [moo, CheeseMuffin] <small>&ndash; Development</small></p></li>
 				<li><p><strong>Parth Mane</strong> [PartMan] <small>&ndash; Development</small></p></li>
-				<li><p>[<strong>Plague von Karma</strong>] <small>&ndash; Development, Research</small></p></li>
+				<li><p>[<strong>Plague von Karma</strong>] <small>&ndash; Development (Gen 1), Research</small></p></li>
 				<li><p><strong>Russell Jones</strong> [SadisticMystic] <small>&ndash; Research (game mechanics)</small></p></li>
 				<li><p>[<strong>Shellnuts</strong>] <small>&ndash; Development</small></p></li>
 				<li><p><a href="https://spandamn.github.io/" target="_blank" class="subtle"><strong>Spandan Punwatkar</strong> [Spandan]</a> <small>&ndash; Development</small></p></li>
+				<li><p><strong>Theo Delhay</strong> [Distrib] <small>&ndash; Development</small></p></li>
 				<li><p><strong>Waleed Hassan</strong> [jetou] <small>&ndash; Development</small></p></li>
 			</ul>
 
