@@ -2605,11 +2605,11 @@ function toId() {
 				buf += '<span class="userstatus' + (offline ? ' offline' : '') + '">' + BattleLog.escapeHTML(status) + '<br /></span>';
 			}
 			if (groupName) {
-				buf += '<small class="usergroup roomgroup">' + BattleLog.escapeHTML(groupName) + '</small>';
+				buf += '<small class="usergroup roomgroup">' + groupName + '</small>';
 				if (globalGroupName) buf += '<br />';
 			}
 			if (globalGroupName) {
-				buf += '<small class="usergroup globalgroup">' + BattleLog.escapeHTML(globalGroupName) + '</small>';
+				buf += '<small class="usergroup globalgroup">' + globalGroupName + '</small>';
 			}
 			if (data.customgroup) {
 				if (groupName || globalGroupName) buf += '<br />';
