@@ -1548,6 +1548,9 @@ class BattleTooltips {
 			else if (ppLeft === 4) basePower = 50;
 			value.set(basePower);
 		}
+		if (move.id === 'magnitude') {
+			value.setRange(10, 150);
+		}
 		if (move.id === 'venoshock' && target) {
 			if (['psn', 'tox'].includes(target.status)) {
 				value.modify(2, 'Venoshock + Poison');
@@ -1764,7 +1767,7 @@ class BattleTooltips {
 			if (target ? target.isGrounded() : true) {
 				value.modify(0.5, 'Misty Terrain + grounded target');
 			}
-		} else if (this.battle.hasPseudoWeather('Grassy Terrain') && (move.id === 'earthquake' || move.id === 'bulldoze')) {
+		} else if (this.battle.hasPseudoWeather('Grassy Terrain') && ['earthquake', 'bulldoze', 'magnitude'].includes(move.id)) {
 			if (target ? target.isGrounded() : true) {
 				value.modify(0.5, 'Grassy Terrain + grounded target');
 			}
