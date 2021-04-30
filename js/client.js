@@ -835,25 +835,21 @@ function toId() {
 			// querySelector dates back to IE8 so we can use it
 			// fortunate, because form serialization is a HUGE MESS in older browsers
 			var elements = form.querySelectorAll('input[name], select[name], textarea[name], keygen[name]');
-			var out = [], checkboxes = {}, radios = {};
+			var out = [], radios = {};
 			for (var i = 0; i < elements.length; i++) {
 				var element = elements[i];
 				if (element.type === 'radio') {
 					var name = ' ' + element.name;
 					if (element.checked) radios[name] = element.value;
 					else if (!radios[name]) radios[name] = false;
-				} else if (element.type === 'checkbox') {
-					if (!checkboxes[' ' + element.name]) checkboxes[' ' + element.name] = [];
-					if (element.checked) checkboxes[' ' + element.name].push(element.value);
-				} else out.push([element.name, element.value]);
-				// For now, checkboxes are handled as a comma-delimited string with all the checked values,
-				// while radios are handled by only returning the checked value / empty string if unchecked
-				// Dunno what others should be added
+				} else if (element.type === 'checkbox') out.push([element.name, element.checked ? element.value : '']);
+				else out.push([element.name, element.value]);
+				// Radios are handled by returning the checked value, or an empty string if unchecked
+				// Checkboxes return the value if checked, and an empty string otherwise
+				// Missing select handling
 				// The spaces in the element names are added because the evil scary constructor exists
 			}
-			for (var name in checkboxes) out.push([name.substr(1), checkboxes[name].join(',')]);
 			for (var name in radios) out.push([name.substr(1), radios[name] === false ? '' : radios[name]]);
-			// An implementation where blank radios/checkboxes are represented by 'undefined' might be preferable
 			return out;
 		},
 		submitSend: function (e) {
