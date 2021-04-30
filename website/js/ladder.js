@@ -30,17 +30,13 @@ var LadderPanel = Panels.StaticPanel.extend({
 		'click button[name=copyUrl]': 'copyUrl'
 	},
 	copyUrl: function (e) {
-		var token = e.currentTarget.value;
-		// this works since this is in the root as well
-		var url = 'https://' + document.location.hostname + '/resetpassword/' + token;
-		var dummy = document.createElement("input");
-		dummy.value = url;
-		dummy.style.display = 'none';
-		document.body.appendChild(dummy);
-		dummy.select();
+		var button = e.currentTarget;
+		var textbox = button.parentElement.querySelector('textarea');
+		textbox.select();
 		document.execCommand("copy");
-		document.body.removeChild(dummy);
-		e.currentTarget.textContent = 'Copied!';
+		button.textContent = 'Copied!';
+		e.preventDefault();
+		e.stopImmediatePropagation();
 	},
 	openReset: function (e) {
 		e.preventDefault();
