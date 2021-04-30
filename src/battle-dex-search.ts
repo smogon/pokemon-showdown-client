@@ -584,6 +584,7 @@ abstract class BattleTypedSearch<T extends SearchType> {
 		}
 		if (format === 'vgc2020') this.formatType = 'dlc1doubles';
 		if (format.includes('doubles') && this.dex.gen > 4 && !this.formatType) this.formatType = 'doubles';
+		if (format.startsWith('ffa') || format === 'freeforall') this.formatType = 'doubles';
 		if (format.includes('letsgo')) this.formatType = 'letsgo';
 		if (format.includes('nationaldex') || format.startsWith('nd') || format.includes('natdex')) {
 			format = (format.startsWith('nd') ? format.slice(2) :
@@ -843,7 +844,7 @@ class BattlePokemonSearch extends BattleTypedSearch<'pokemon'> {
 		} else if (table['gen' + dex.gen + 'doubles'] && dex.gen > 4 && this.formatType !== 'letsgo' && this.formatType !== 'dlc1doubles' &&
 			(
 			format.includes('doubles') || format.includes('vgc') || format.includes('triples') ||
-			format.endsWith('lc') || format.endsWith('lcuu')
+			format.endsWith('lc') || format.endsWith('lcuu') || format === 'freeforall' || format.startsWith('ffa')
 		)) {
 			table = table['gen' + dex.gen + 'doubles'];
 			isDoublesOrBS = true;
@@ -932,6 +933,7 @@ class BattlePokemonSearch extends BattleTypedSearch<'pokemon'> {
 		// Filter out Gmax Pokemon from standard tier selection
 		if (!/^(battlestadium|vgc|doublesubers)/g.test(format)) {
 			tierSet = tierSet.filter(([type, id]) => {
+				if (type === 'header' && id === 'DUber by technicality') return false;
 				if (type === 'pokemon') return !id.endsWith('gmax');
 				return true;
 			});
