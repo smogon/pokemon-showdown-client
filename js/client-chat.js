@@ -51,7 +51,7 @@
 
 		focus: function (e, focusTextbox) {
 			var target = e && e.target;
-			if (target && ['TEXTAREA', 'INPUT'].includes(target.tagName)) {
+			if (target && ['TEXTAREA', 'INPUT', 'SELECT'].includes(target.tagName)) {
 				// this workaround works for iOS 12 but not iOS 13
 				/* if (window.isiOS) {
 					// iOS will not bring up a keyboard unless you manually blur and refocus
