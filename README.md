@@ -56,7 +56,7 @@ they can't screw with your account, but it does make it harder to log in on
 the test client.
 
 The default hack makes you copy/paste the data instead, but if you're
-refreshing a lot, just add a `config/testclient-key.js file`, with the
+refreshing a lot, just add a `config/testclient-key.js` file, with the
 contents:
 
     const POKEMON_SHOWDOWN_TESTCLIENT_KEY = 'sid';
