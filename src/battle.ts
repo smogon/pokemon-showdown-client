@@ -3292,6 +3292,18 @@ class Battle {
 			}
 			break;
 		}
+		case 'updatepokemon': {
+			const {siden} = this.parsePokemonId(args[1]);
+			const side = this.sides[siden]
+			for (var i = 0; i < side.pokemon.length; i++) {
+				const pokemon = side.pokemon[i];
+				if (pokemon.details === args[2]) {
+					side.addPokemon('', '', args[3], i)
+					break;
+				}
+			}
+			break;
+		}
 		case 'teampreview': {
 			this.teamPreviewCount = parseInt(args[1], 10);
 			this.scene.teamPreview();
