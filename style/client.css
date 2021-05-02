@@ -2881,7 +2881,7 @@ a.ilink.yours {
 
 	border: 1px solid #999999;
 	border-radius: 5px;
-	background-image: linear-gradient(top, rgb(218,229,240) 10%, rgb(203,214,225) 55%);
+	background-image: linear-gradient(to bottom, rgb(218,229,240) 10%, rgb(203,214,225) 55%);
 	background-image: -o-linear-gradient(top, rgb(218,229,240) 10%, rgb(203,214,225) 55%);
 	background-image: -moz-linear-gradient(top, rgb(218,229,240) 10%, rgb(203,214,225) 55%);
 	background-image: -webkit-linear-gradient(top, rgb(218,229,240) 10%, rgb(203,214,225) 55%);
