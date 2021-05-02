@@ -20,6 +20,7 @@ child_process.execSync('npm run build', {cwd: 'data/pokemon-showdown'});
 console.log("DONE");
 
 const Dex = require('../data/pokemon-showdown/.sim-dist/dex').Dex;
+const Tags = require('../data/pokemon-showdown/.data-dist/tags').Tags;
 const toID = Dex.toID;
 process.stdout.write("Loading gen 6 data... ");
 Dex.includeData();
@@ -353,19 +354,13 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 					if (unobtainables.includes(species.id)) return 'Illegal';
 					const uu = Dex.formats.get('gen8nationaldexuu');
 					const ou = Dex.formats.get('gen8nationaldex');
-					const uublIndex = uu.banlist.map(toID).indexOf('nduubl');
 					if (Dex.formats.getRuleTable(ou).isBannedSpecies(species)) return 'Uber';
 					if (Dex.formats.getRuleTable(ou).has('dynamaxclause') && species.name.endsWith('Gmax')) return '(Uber)';
 					if (Dex.formats.getRuleTable(uu).isBannedSpecies(species)) {
-						if (
-							uu.banlist.map(toID).indexOf(species.id) >= uublIndex ||
-							uu.banlist.map(toID).indexOf(species.id + 'base') >= uublIndex ||
-							uu.banlist.map(toID).indexOf(toID(species.baseSpecies)) >= uublIndex
-						) {
-							return 'UUBL';
-						} else {
-							return 'OU';
-						}
+						return 'OU';
+					}
+					if (Tags.nduubl.speciesFilter(species)) {
+						return 'UUBL';
 					}
 					if (Dex.formats.getRuleTable(uu).isRestrictedSpecies(species)) {
 						return 'UU';
