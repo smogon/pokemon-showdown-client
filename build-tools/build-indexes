@@ -356,12 +356,8 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 					const ou = Dex.formats.get('gen8nationaldex');
 					if (Dex.formats.getRuleTable(ou).isBannedSpecies(species)) return 'Uber';
 					if (Dex.formats.getRuleTable(ou).has('dynamaxclause') && species.name.endsWith('Gmax')) return '(Uber)';
-					if (Dex.formats.getRuleTable(uu).isBannedSpecies(species)) {
-						return 'OU';
-					}
-					if (Tags.nduubl.speciesFilter(species)) {
-						return 'UUBL';
-					}
+					if (Dex.formats.getRuleTable(uu).isBannedSpecies(species)) return 'OU';
+					if (Tags.nduubl.speciesFilter(species)) return 'UUBL';
 					if (Dex.formats.getRuleTable(uu).isRestrictedSpecies(species)) {
 						return 'UU';
 					} else {
