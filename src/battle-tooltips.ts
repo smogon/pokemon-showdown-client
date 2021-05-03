@@ -530,6 +530,7 @@ class BattleTooltips {
 
 		let zEffect = '';
 		let foeActive = pokemon.side.foe.active;
+		let allyActive = pokemon.side.active;
 		// TODO: move this somewhere it makes more sense
 		if (pokemon.ability === '(suppressed)') serverPokemon.ability = '(suppressed)';
 		let ability = toID(serverPokemon.ability || pokemon.ability || serverPokemon.baseAbility);
@@ -609,7 +610,8 @@ class BattleTooltips {
 			let basePower: string = '';
 			let difference = false;
 			let basePowers = [];
-			for (const active of foeActive) {
+			let targetsActive = this.battle.gameType === 'freeforall' ? foeActive.concat(allyActive) : foeActive;
+			for (const active of targetsActive) {
 				if (!active) continue;
 				value = this.getMoveBasePower(move, moveType, value, active);
 				basePower = '' + value;
