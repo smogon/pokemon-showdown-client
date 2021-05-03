@@ -612,8 +612,7 @@ class BattleTooltips {
 			let basePower: string = '';
 			let difference = false;
 			let basePowers = [];
-			let targetsActive = this.battle.gameType === 'freeforall' ? foeActive.concat(allyActive) : foeActive;
-			for (const active of targetsActive) {
+			for (const active of foeActive) {
 				if (!active) continue;
 				value = this.getMoveBasePower(move, moveType, value, active);
 				basePower = '' + value;
