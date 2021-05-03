@@ -3297,8 +3297,8 @@ class Battle {
 			const side = this.sides[siden];
 			for (let i = 0; i < side.pokemon.length; i++) {
 				const pokemon = side.pokemon[i];
-				if (pokemon.details === args[2]) {
-					side.addPokemon('', '', args[3], i);
+				if (pokemon.checkDetails(args[2])) {
+					side.addPokemon('', '', args[2], i);
 					break;
 				}
 			}
