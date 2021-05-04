@@ -530,6 +530,9 @@ class BattleTooltips {
 
 		let zEffect = '';
 		let foeActive = pokemon.side.foe.active;
+		if (this.battle.gameType === 'freeforall') {
+			foeActive = [...foeActive, ...pokemon.side.active].filter(active => active !== pokemon);
+		}
 		// TODO: move this somewhere it makes more sense
 		if (pokemon.ability === '(suppressed)') serverPokemon.ability = '(suppressed)';
 		let ability = toID(serverPokemon.ability || pokemon.ability || serverPokemon.baseAbility);
