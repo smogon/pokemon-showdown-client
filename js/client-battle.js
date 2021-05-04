@@ -939,7 +939,9 @@
 									// Targeting your own side in doubles / triples
 									targetActive = this.battle.nearSide.active;
 									targetPos = -targetPos;
-									target += 'your ';
+									if (this.battle.gameType !== 'freeforall') {
+										target += 'your ';
+									}
 								}
 								if (targetActive[targetPos - 1]) {
 									target += targetActive[targetPos - 1].speciesForme;
