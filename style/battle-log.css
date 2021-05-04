@@ -282,7 +282,7 @@ select {
 
 input[type=range] {
 	-webkit-appearance: none;
-	-moz-appearance: range;
+	-moz-appearance: revert;
 	cursor: pointer;
 	height: 18px;
 	background: transparent;
