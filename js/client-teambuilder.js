@@ -2884,7 +2884,7 @@
 				if (baseFormat.substr(0, 8) === 'pokebank') baseFormat = baseFormat.substr(8);
 				if (this.curTeam && this.curTeam.format) {
 					if (baseFormat === 'battlespotsingles' || baseFormat === 'battlespotdoubles' || baseFormat.substr(0, 3) === 'vgc') set.level = 50;
-					if (baseFormat.substr(0, 2) === 'lc') set.level = 5;
+					if (baseFormat.substr(0, 2) === 'lc' || baseFormat.substr(-2) === 'lc') set.level = 5;
 				}
 				set.gender = 'F';
 				if (set.happiness) delete set.happiness;
