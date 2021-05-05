@@ -682,7 +682,7 @@ class BattleTooltips {
 
 			text += '' + (move.desc || move.shortDesc) + '</p>';
 
-			if (this.battle.gameType === 'doubles') {
+			if (this.battle.gameType === 'doubles' || this.battle.gameType === 'multi') {
 				if (move.target === 'allAdjacent') {
 					text += '<p>&#x25ce; Hits both foes and ally.</p>';
 				} else if (move.target === 'allAdjacentFoes') {
@@ -695,6 +695,12 @@ class BattleTooltips {
 					text += '<p>&#x25ce; Hits adjacent foes.</p>';
 				} else if (move.target === 'any') {
 					text += '<p>&#x25ce; Can target distant Pok&eacute;mon in Triples.</p>';
+				}
+			} else if (this.battle.gameType === 'freeforall') {
+				if (move.target === 'allAdjacent' || move.target === 'allAdjacentFoes') {
+					text += '<p>&#x25ce; Hits all foes.</p>';
+				} else if (move.target === 'adjacentAlly') {
+					text += '<p>&#x25ce; Can target any foe in Free-For-All.</p>';
 				}
 			}
 
