@@ -1526,6 +1526,13 @@ class BattleTooltips {
 			else basePower = 20;
 			value.set(basePower);
 		}
+		if (move.id === 'furycutter'){
+			// what will actually retrieve the multiplier?
+      	let furyCutterMod = pokemon.volatiles['furycutter'].multiplier;
+        	if (furyCutterMod > 1) {
+       		value.modify(furyCutterMod, `Fury Cutter used in succession`);
+     		}
+		}
 		if (move.id === 'hex' && target?.status) {
 			value.modify(2, 'Hex + status');
 		}
