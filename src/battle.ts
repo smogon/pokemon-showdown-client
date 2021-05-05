@@ -3292,7 +3292,7 @@ class Battle {
 			}
 			break;
 		}
-		case 'updatepokemon': {
+		case 'updatepoke': {
 			const {siden} = this.parsePokemonId(args[1]);
 			const side = this.sides[siden];
 			for (let i = 0; i < side.pokemon.length; i++) {
