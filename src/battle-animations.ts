@@ -794,6 +794,9 @@ class BattleScene {
 			let lombreCount = 0;
 			for (let i = 0; i < side.pokemon.length; i++) {
 				let pokemon = side.pokemon[i];
+				if (pokemon.speciesForme === 'Xerneas-*') {
+					pokemon.speciesForme = 'Xerneas-Neutral';
+				}
 				if (pokemon.speciesForme === 'Ludicolo') ludicoloCount++;
 				if (pokemon.speciesForme === 'Lombre') lombreCount++;
 
