@@ -1765,7 +1765,10 @@
 			} else if (mayNotify && this.id.substr(0, 5) === 'help-') {
 				this.notifyOnce("Help message from " + name, "\"" + message + "\"", 'pm');
 			} else if (mayNotify && name !== '~') { // |c:|~| prefixes a system message
-				this.subtleNotifyOnce();
+				var mutedRooms = Dex.prefs('mutedrooms') || {};
+				if (!mutedRooms[this.id]) {
+					this.subtleNotifyOnce();
+				}
 			}
 
 			if (message.slice(0, 4) === '/me ' || message.slice(0, 5) === '/mee') {
