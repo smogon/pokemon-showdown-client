@@ -1804,6 +1804,8 @@ class PokemonSprite extends Sprite {
 		laserfocus: ['Laser Focus', 'good'],
 		spotlight: ['Spotlight', 'neutral'],
 		itemremoved: null,
+		furycutter1: null,
+		furycutter2: null,
 		// partial trapping
 		bind: ['Bind', 'bad'],
 		clamp: ['Clamp', 'bad'],
