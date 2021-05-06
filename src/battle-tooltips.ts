@@ -1540,7 +1540,7 @@ class BattleTooltips {
 			}
 		}
 		if (move.id === 'hex' && target?.status) {
-			 value.modify(2, 'Hex + status');
+			value.modify(2, 'Hex + status');
 		}
 		if (move.id === 'punishment' && target) {
 			let boostCount = 0;
