@@ -1334,6 +1334,9 @@
 				var typeTable = [];
 				for (var i = 0; i < this.curSetList.length; i++) {
 					var species = Dex.forGen(this.curTeam.gen).species.get(this.curSetList[i].species);
+					if (species.isMega) {
+						species = Dex.forGen(this.curTeam.gen).species.get(species.baseSpecies);
+					}
 					if (!species.exists) continue;
 					if (i === 0) {
 						typeTable = species.types;
