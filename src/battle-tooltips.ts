@@ -1526,8 +1526,17 @@ class BattleTooltips {
 			else basePower = 20;
 			value.set(basePower);
 		}
+		if (move.id === 'furycutter') {
+			let furyCutterMod = 1;
+			if (pokemon.hasVolatile('furycutter1' as ID)) furyCutterMod = 2;
+			if (pokemon.hasVolatile('furycutter2' as ID)) furyCutterMod = 4;
+
+			if (furyCutterMod > 1) {
+				value.modify(furyCutterMod, `Fury Cutter used in succession`);
+			}
+		}
 		if (move.id === 'hex' && target?.status) {
-			value.modify(2, 'Hex + status');
+			 value.modify(2, 'Hex + status');
 		}
 		if (move.id === 'punishment' && target) {
 			let boostCount = 0;
