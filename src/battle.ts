@@ -3363,7 +3363,7 @@ class Battle {
 			if (move.id === 'furycutter') {
 				if (!poke.hasVolatile('furycutter' as ID)) {
 					poke.addVolatile('furycutter' as ID, 2);
-				} else {
+				} else if (poke.volatiles['furycutter'][1] < 16) {
 					poke.volatiles['furycutter'][1] *= 2;
 				}
 			} else {
