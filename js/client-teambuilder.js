@@ -1332,8 +1332,8 @@
 			this.$('input[name=pokemon]').select();
 			if (this.curTeam.format.includes('monotype')) {
 				var typeTable = [];
-				for (const [i, pokemon] of this.curSetList.entries()) {
-					const species = Dex.forGen(this.curTeam.gen).species.get(pokemon.species);
+				for (var i = 0; i < this.curSetList.length; i++) {
+					const species = Dex.forGen(this.curTeam.gen).species.get(this.curSetList[i].species);
 					if (!species.exists) continue;
 					if (i === 0) {
 						typeTable = species.types;
