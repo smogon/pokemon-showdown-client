@@ -1341,12 +1341,14 @@
 						typeTable = typeTable.filter(function (type) {
 							return species.types.includes(type);
 						});
+						if (!typeTable.length) break;
 					}
 				}
-				if (typeTable.length !== 1) return;
-				this.search.engine.addFilter(['type', typeTable[0]]);
-				this.search.filters = this.search.engine.filters;
-				this.search.find('');
+				if (typeTable.length === 1) {
+					this.search.engine.addFilter(['type', typeTable[0]]);
+					this.search.filters = this.search.engine.filters;
+					this.search.find('');
+				}
 			}
 		},
 		pastePokemon: function (i, btn) {
