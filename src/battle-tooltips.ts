@@ -1528,8 +1528,12 @@ class BattleTooltips {
 		}
 		if (move.id === 'furycutter') {
 			let furyCutterMod = 1;
-			if (pokemon.hasVolatile('furycutter1' as ID)) furyCutterMod = 2;
-			if (pokemon.hasVolatile('furycutter2' as ID)) furyCutterMod = 4;
+
+			// TODO: modify this check for earlier gens
+			if (pokemon.hasVolatile('furycutter' as ID)) {
+				furyCutterMod = pokemon.volatiles['furycutter'][1] <= 4
+				? pokemon.volatiles['furycutter'][1] : 4;
+			}
 
 			if (furyCutterMod > 1) {
 				value.modify(furyCutterMod, `Fury Cutter used in succession`);
