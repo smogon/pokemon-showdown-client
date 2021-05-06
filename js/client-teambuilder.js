@@ -1332,10 +1332,12 @@
 			this.$('input[name=pokemon]').select();
 			if (this.curTeam.format.includes('monotype')) {
 				var typeTable = [];
+				var dex = Dex.forGen(this.curTeam.gen);
 				for (var i = 0; i < this.curSetList.length; i++) {
-					var species = Dex.forGen(this.curTeam.gen).species.get(this.curSetList[i].species);
+					var set = this.curSetList[i];
+					var species = dex.species.get(set.species);
 					if (species.isMega) {
-						species = Dex.forGen(this.curTeam.gen).species.get(species.baseSpecies);
+						species = dex.species.get(species.baseSpecies);
 					}
 					if (!species.exists) continue;
 					if (i === 0) {
@@ -1345,6 +1347,16 @@
 							return species.types.includes(type);
 						});
 						if (!typeTable.length) break;
+					}
+					if (this.curTeam.gen >= 6) {
+						var item = dex.items.get(set.item);
+						if (item.megaStone && species.baseSpecies === item.megaEvolves) {
+							species = dex.species.get(item.megaStone);
+							typeTable = typeTable.filter(function (type) {
+								return species.types.includes(type);
+							});
+							if (!typeTable.length) break;
+						}
 					}
 				}
 				if (typeTable.length === 1) {
