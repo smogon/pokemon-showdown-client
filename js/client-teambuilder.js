@@ -1330,6 +1330,24 @@
 			this.curChartName = '';
 			this.update();
 			this.$('input[name=pokemon]').select();
+			if (this.curTeam.format.includes('monotype')) {
+				let typeTable = [];
+				for (const [i, pokemon] of this.curSetList.entries()) {
+					const species = Dex.forGen(this.curTeam.gen).species.get(pokemon.species);
+					if (!species.exists) continue;
+					if (i === 0) {
+						typeTable = species.types;
+					} else {
+						typeTable = typeTable.filter(function(type) {
+							return species.types.includes(type);
+						});
+					}
+				}
+				if (typeTable.length !== 1) return;
+				this.search.engine.addFilter(['type', typeTable[0]]);
+				this.search.filters = this.search.engine.filters;
+				this.search.find('');
+			}
 		},
 		pastePokemon: function (i, btn) {
 			if (!this.curTeam) return;
