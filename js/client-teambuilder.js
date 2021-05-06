@@ -1333,12 +1333,12 @@
 			if (this.curTeam.format.includes('monotype')) {
 				var typeTable = [];
 				for (var i = 0; i < this.curSetList.length; i++) {
-					const species = Dex.forGen(this.curTeam.gen).species.get(this.curSetList[i].species);
+					var species = Dex.forGen(this.curTeam.gen).species.get(this.curSetList[i].species);
 					if (!species.exists) continue;
 					if (i === 0) {
 						typeTable = species.types;
 					} else {
-						typeTable = typeTable.filter(function(type) {
+						typeTable = typeTable.filter(function (type) {
 							return species.types.includes(type);
 						});
 					}
