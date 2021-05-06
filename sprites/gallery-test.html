@@ -126,7 +126,7 @@
 		let i = 0;
 		for (let baseid in BattlePokedex) {
 			if (baseid.endsWith('totem')) continue;
-			const species = Dex.getSpecies(baseid);
+			const species = Dex.species.get(baseid);
 			for (let formid of [''].concat(species.cosmeticFormes || [])) {
 				let spriteid = species.spriteid;
 				if (formid) spriteid += '-' + formid.slice(species.id.length);
