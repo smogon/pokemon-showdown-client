@@ -1826,8 +1826,7 @@ class Battle {
 		}
 		case '-miss': {
 			let poke = this.getPokemon(args[1])!;
-			poke.removeVolatile('furycutter1' as ID);
-			poke.removeVolatile('furycutter2' as ID);
+			poke.removeVolatile('furycutter' as ID);
 
 			let target = this.getPokemon(args[2]);
 			if (target) {
@@ -3319,8 +3318,7 @@ class Battle {
 			let slot = poke.slot;
 			poke.healthParse(args[3]);
 			poke.removeVolatile('itemremoved' as ID);
-			poke.removeVolatile('furycutter1' as ID);
-			poke.removeVolatile('furycutter2' as ID);
+			poke.removeVolatile('furycutter' as ID);
 			if (args[0] === 'switch') {
 				if (poke.side.active[slot]) {
 					poke.side.switchOut(poke.side.active[slot]!);
@@ -3363,15 +3361,13 @@ class Battle {
 			let move = Dex.moves.get(args[2]);
 
 			if (move.id === 'furycutter') {
-				if (!poke.hasVolatile('furycutter1' as ID) && !poke.hasVolatile('furycutter2' as ID)) {
-					poke.addVolatile('furycutter1' as ID);
+				if (!poke.hasVolatile('furycutter' as ID)) {
+					poke.addVolatile('furycutter' as ID, 2);
 				} else {
-					poke.removeVolatile('furycutter1' as ID);
-					poke.addVolatile('furycutter2' as ID);
+					poke.volatiles['furycutter'][1] *= 2;
 				}
 			} else {
-				poke.removeVolatile('furycutter1' as ID);
-				poke.removeVolatile('furycutter2' as ID);
+				poke.removeVolatile('furycutter' as ID);
 			}
 
 			if (this.checkActive(poke)) return;
