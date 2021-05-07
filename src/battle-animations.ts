@@ -1804,7 +1804,7 @@ class PokemonSprite extends Sprite {
 		laserfocus: ['Laser Focus', 'good'],
 		spotlight: ['Spotlight', 'neutral'],
 		itemremoved: null,
-		furycutter: null,
+		furycutter: ['Fury Cutter', 'good'],
 		// partial trapping
 		bind: ['Bind', 'bad'],
 		clamp: ['Clamp', 'bad'],
@@ -2717,24 +2717,31 @@ class PokemonSprite extends Sprite {
 		}
 
 		for (let i in pokemon.volatiles) {
-			status += PokemonSprite.getEffectTag(i);
+			status += PokemonSprite.getEffectTag(i, pokemon);
 		}
 		for (let i in pokemon.turnstatuses) {
 			if (i === 'roost' && !pokemon.getTypeList().includes('Flying')) continue;
-			status += PokemonSprite.getEffectTag(i);
+			status += PokemonSprite.getEffectTag(i, pokemon);
 		}
 		for (let i in pokemon.movestatuses) {
-			status += PokemonSprite.getEffectTag(i);
+			status += PokemonSprite.getEffectTag(i, pokemon);
 		}
 		let statusbar = this.$statbar.find('.status');
 		statusbar.html(status);
 	}
 
-	private static getEffectTag(id: string) {
+	private static getEffectTag(id: string, pokemon: Pokemon) {
 		let effect = PokemonSprite.statusTable[id];
 		if (typeof effect === 'string') return effect;
 		if (effect === null) return PokemonSprite.statusTable[id] = '';
 		if (effect === undefined) effect = [`[[${id}]]`, 'neutral'];
+		if (id === 'furycutter') {
+			let gen = pokemon.volatiles['furycutter'][2];
+			let bp = 40;
+			if (gen <= 4) bp = 10;
+			else if (gen === 5) bp = 20;
+			effect[0] = `Fury Cutter BP: ${bp * pokemon.volatiles['furycutter'][1]}`;
+		}
 		return PokemonSprite.statusTable[id] = `<span class="${effect[1]}">${effect[0].replace(/ /g, '&nbsp;')}</span> `;
 	}
 
