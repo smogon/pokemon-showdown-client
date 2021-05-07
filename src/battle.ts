@@ -3365,8 +3365,7 @@ class Battle {
 			if (this.gen <= 4) {
 				furyCutterCap = 16;
 				furyCutterBP = 10;
-			}
-			else if (this.gen === 5) {
+			} else if (this.gen === 5) {
 				furyCutterCap = 8;
 				furyCutterBP = 20;
 			}
