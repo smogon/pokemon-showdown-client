@@ -3360,10 +3360,14 @@ class Battle {
 			let poke = this.getPokemon(args[1])!;
 			let move = Dex.moves.get(args[2]);
 
+			let furyCutterCap = 4;
+			if (this.gen <= 4) furyCutterCap = 16;
+			else if (this.gen === 5) furyCutterCap = 8;
+
 			if (move.id === 'furycutter') {
 				if (!poke.hasVolatile('furycutter' as ID)) {
-					poke.addVolatile('furycutter' as ID, 2);
-				} else if (poke.volatiles['furycutter'][1] < 16) {
+					poke.addVolatile('furycutter' as ID, 2, this.gen);
+				} else if (poke.volatiles['furycutter'][1] < furyCutterCap) {
 					poke.volatiles['furycutter'][1] *= 2;
 				}
 			} else {
