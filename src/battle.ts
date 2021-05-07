@@ -1837,6 +1837,8 @@ class Battle {
 		}
 		case '-fail': {
 			let poke = this.getPokemon(args[1])!;
+			poke.removeVolatile('furycutter' as ID);
+
 			let effect = Dex.getEffect(args[2]);
 			let fromeffect = Dex.getEffect(kwArgs.from);
 			let ofpoke = this.getPokemon(kwArgs.of);
@@ -1878,6 +1880,8 @@ class Battle {
 		case '-block': {
 			let poke = this.getPokemon(args[1])!;
 			let ofpoke = this.getPokemon(kwArgs.of);
+			ofpoke?.removeVolatile('furycutter' as ID);
+
 			let effect = Dex.getEffect(args[2]);
 			this.activateAbility(ofpoke || poke, effect);
 			switch (effect.id) {
@@ -3375,6 +3379,7 @@ class Battle {
 					poke.addVolatile('furycutter' as ID, 2, furyCutterBP);
 				} else if (poke.volatiles['furycutter'][1] < furyCutterCap) {
 					poke.volatiles['furycutter'][1] *= 2;
+					poke.sprite.updateStatbar(poke);
 				}
 			} else {
 				poke.removeVolatile('furycutter' as ID);
@@ -3393,6 +3398,8 @@ class Battle {
 			this.endLastTurn();
 			this.resetTurnsSinceMoved();
 			let poke = this.getPokemon(args[1])!;
+			poke.removeVolatile('furycutter' as ID);
+
 			let effect = Dex.getEffect(args[2]);
 			let move = Dex.moves.get(args[3]);
 			this.cantUseMove(poke, effect, move, kwArgs);
