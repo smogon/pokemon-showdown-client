@@ -2736,8 +2736,9 @@ class PokemonSprite extends Sprite {
 		if (effect === null) return PokemonSprite.statusTable[id] = '';
 		if (effect === undefined) effect = [`[[${id}]]`, 'neutral'];
 		if (id === 'furycutter') {
+			let mod = pokemon.volatiles['furycutter'][1];
 			let bp = pokemon.volatiles['furycutter'][2];
-			effect[0] = `Fury Cutter BP: ${bp * pokemon.volatiles['furycutter'][1]}`;
+			effect[0] = `Fury Cutter BP: ${bp * mod}`;
 		}
 		return PokemonSprite.statusTable[id] = `<span class="${effect[1]}">${effect[0].replace(/ /g, '&nbsp;')}</span> `;
 	}
