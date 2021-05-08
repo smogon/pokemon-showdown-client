@@ -1337,6 +1337,28 @@ class Battle {
 		if (move.id === 'focuspunch') {
 			pokemon.removeTurnstatus('focuspunch' as ID);
 		}
+		if (move.id === 'furycutter') {
+			let furyCutterCap = 4;
+			let furyCutterBP = 40;
+			if (this.gen <= 4) {
+				furyCutterCap = 16;
+				furyCutterBP = 10;
+			} else if (this.gen === 5) {
+				furyCutterCap = 8;
+				furyCutterBP = 20;
+			}
+
+			if (!pokemon.hasVolatile('furycutter' as ID)) {
+				pokemon.addVolatile('furycutter' as ID, 2, furyCutterBP);
+			} else if (pokemon.volatiles['furycutter'][1] < furyCutterCap) {
+				pokemon.volatiles['furycutter'][1] *= 2;
+			}
+
+			// TODO: detect immunity instead of detecting Wonder Guard
+			if (target?.hasTurnstatus('protect' as ID) || target?.ability === 'Wonder Guard') {
+				pokemon.removeVolatile('furycutter' as ID);
+			}
+		} else pokemon.removeVolatile('furycutter' as ID);
 		this.scene.updateStatbar(pokemon);
 		if (fromeffect.id === 'sleeptalk') {
 			pokemon.rememberMove(move.name, 0);
@@ -1416,6 +1438,7 @@ class Battle {
 	}
 	cantUseMove(pokemon: Pokemon, effect: Effect, move: Move, kwArgs: KWArgs) {
 		pokemon.clearMovestatuses();
+		pokemon.removeVolatile('furycutter' as ID);
 		this.scene.updateStatbar(pokemon);
 		if (effect.id in BattleStatusAnims) {
 			this.scene.runStatusAnim(effect.id, [pokemon]);
@@ -1826,19 +1849,16 @@ class Battle {
 		}
 		case '-miss': {
 			let poke = this.getPokemon(args[1])!;
-			poke.removeVolatile('furycutter' as ID);
-
 			let target = this.getPokemon(args[2]);
 			if (target) {
 				this.scene.resultAnim(target, 'Missed', 'neutral');
 			}
+			poke.removeVolatile('furycutter' as ID);
 			this.log(args, kwArgs);
 			break;
 		}
 		case '-fail': {
 			let poke = this.getPokemon(args[1])!;
-			poke.removeVolatile('furycutter' as ID);
-
 			let effect = Dex.getEffect(args[2]);
 			let fromeffect = Dex.getEffect(kwArgs.from);
 			let ofpoke = this.getPokemon(kwArgs.of);
@@ -1873,6 +1893,7 @@ class Battle {
 				}
 				break;
 			}
+			poke.removeVolatile('furycutter' as ID);
 			this.scene.animReset(poke);
 			this.log(args, kwArgs);
 			break;
@@ -3363,28 +3384,6 @@ class Battle {
 			this.resetTurnsSinceMoved();
 			let poke = this.getPokemon(args[1])!;
 			let move = Dex.moves.get(args[2]);
-
-			let furyCutterCap = 4;
-			let furyCutterBP = 40;
-			if (this.gen <= 4) {
-				furyCutterCap = 16;
-				furyCutterBP = 10;
-			} else if (this.gen === 5) {
-				furyCutterCap = 8;
-				furyCutterBP = 20;
-			}
-
-			if (move.id === 'furycutter') {
-				if (!poke.hasVolatile('furycutter' as ID)) {
-					poke.addVolatile('furycutter' as ID, 2, furyCutterBP);
-				} else if (poke.volatiles['furycutter'][1] < furyCutterCap) {
-					poke.volatiles['furycutter'][1] *= 2;
-					poke.sprite.updateStatbar(poke);
-				}
-			} else {
-				poke.removeVolatile('furycutter' as ID);
-			}
-
 			if (this.checkActive(poke)) return;
 			let poke2 = this.getPokemon(args[3]);
 			this.scene.beforeMove(poke);
@@ -3398,8 +3397,6 @@ class Battle {
 			this.endLastTurn();
 			this.resetTurnsSinceMoved();
 			let poke = this.getPokemon(args[1])!;
-			poke.removeVolatile('furycutter' as ID);
-
 			let effect = Dex.getEffect(args[2]);
 			let move = Dex.moves.get(args[3]);
 			this.cantUseMove(poke, effect, move, kwArgs);
