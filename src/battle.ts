@@ -2783,6 +2783,32 @@ class Battle {
 			this.log(args, kwArgs);
 			break;
 		}
+		case '-sideswitch': {
+			let side1 = this.getSide(args[1]);
+			let side2 = this.getSide(args[2]);
+			let effect = Dex.getEffect(args[3]);
+			side2.addSideCondition(effect, side1.sideConditions[effect.id]);
+			side1.removeSideCondition(effect.name);
+			switch (effect.id) {
+			case 'tailwind':
+			case 'auroraveil':
+			case 'reflect':
+			case 'lightscreen':
+			case 'safeguard':
+			case 'mist':
+			case 'gmaxwildfire':
+			case 'gmaxvolcalith':
+			case 'gmaxvinelash':
+			case 'gmaxcannonade':
+			case 'grasspledge':
+			case 'firepledge':
+			case 'waterpledge':
+				this.scene.updateWeather();
+				break;
+			}
+			this.log(args, kwArgs);
+			break;
+		}
 		case '-weather': {
 			let effect = Dex.getEffect(args[1]);
 			let poke = this.getPokemon(kwArgs.of) || undefined;
