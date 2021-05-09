@@ -2784,11 +2784,26 @@ class Battle {
 			break;
 		}
 		case '-sideswitch': {
-			let side1 = this.getSide(args[1]);
-			let side2 = this.getSide(args[2]);
-			let effect = Dex.getEffect(args[3]);
-			side2.addSideCondition(effect, side1.sideConditions[effect.id]);
-			side1.removeSideCondition(effect.name);
+			let effect = Dex.getEffect(args[1]);
+			if (this.sides.length > 2) {
+				return; //placeholder for ffa
+			} else {
+				let side1 = this.sides[0];
+				let side2 = this.sides[1];
+				if (side1.sideConditions[effect.id] && side2.sideConditions[effect.id]) {
+					[side1.sideConditions[effect.id], side2.sideConditions[effect.id]] = [
+						side2.sideConditions[effect.id], side1.sideConditions[effect.id],
+					];
+					this.scene.addSideCondition(side1.n, effect.id);
+					this.scene.addSideCondition(side2.n, effect.id);
+				} else if (side1.sideConditions[effect.id] && !side2.sideConditions[effect.id]) {
+					side2.addSideCondition(effect, side1.sideConditions[effect.id]);
+					side1.removeSideCondition(effect.name);
+				} else if (side2.sideConditions[effect.id] && !side1.sideConditions[effect.id]) {
+					side1.addSideCondition(effect, side2.sideConditions[effect.id]);
+					side2.removeSideCondition(effect.name);
+				}
+			}
 
 			switch (effect.id) {
 			case 'tailwind':
