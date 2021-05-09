@@ -2785,7 +2785,7 @@ class Battle {
 		}
 		case '-sideswitch': {
 			let effect = Dex.getEffect(args[1]);
-			if (this.sides.length > 2) {
+			if (this.gameType === 'freeforall') {
 				// placeholder for ffa
 				return;
 			} else {
