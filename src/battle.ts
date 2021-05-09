@@ -648,8 +648,13 @@ class Side {
 			if (this.foe && this.avatar === this.foe.avatar) this.rollTrainerSprites();
 		}
 	}
-	addSideCondition(effect: Effect) {
+	addSideCondition(effect: Effect, info?: [string, number, number, number]) {
 		let condition = effect.id;
+		if (info) {
+			this.sideConditions[condition] = info;
+			this.battle.scene.addSideCondition(this.n, condition);
+			return;
+		}
 		if (this.sideConditions[condition]) {
 			if (condition === 'spikes' || condition === 'toxicspikes') {
 				this.sideConditions[condition][1]++;
