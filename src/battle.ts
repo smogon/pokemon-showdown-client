@@ -2786,7 +2786,8 @@ class Battle {
 		case '-sideswitch': {
 			let effect = Dex.getEffect(args[1]);
 			if (this.sides.length > 2) {
-				return; //placeholder for ffa
+				// placeholder for ffa
+				return;
 			} else {
 				let side1 = this.sides[0];
 				let side2 = this.sides[1];
