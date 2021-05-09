@@ -2789,6 +2789,7 @@ class Battle {
 			let effect = Dex.getEffect(args[3]);
 			side2.addSideCondition(effect, side1.sideConditions[effect.id]);
 			side1.removeSideCondition(effect.name);
+			
 			switch (effect.id) {
 			case 'tailwind':
 			case 'auroraveil':
