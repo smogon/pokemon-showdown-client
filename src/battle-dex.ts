@@ -856,11 +856,9 @@ class ModdedDex {
 			if (id in table.overrideBP) data.basePower = table.overrideBP[id];
 			if (id in table.overridePP) data.pp = table.overridePP[id];
 			if (id in table.overrideMoveType) data.type = table.overrideMoveType[id];
+			if (id in table.overrideMoveCategory) data.category = table.overrideMoveCategory[id];
 			if (id in table.overrideMoveDesc) data.desc = table.overrideMoveDesc[id];
 			if (id in table.overrideMoveShortDesc) data.shortDesc = table.overrideMoveShortDesc[id];
-			if (this.gen <= 3 && data.category !== 'Status') {
-				data.category = Dex.getGen3Category(data.type);
-			}
 
 			const move = new Move(id, name, data);
 			this.cache.Moves[id] = move;
