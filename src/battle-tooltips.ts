@@ -927,7 +927,7 @@ class BattleTooltips {
 		}
 		buf += `</tr><table>`;
 		if (!atLeastOne) buf = ``;
-					 
+
 		if (this.battle.echoedVoiceMultiplier > 1) {
 			buf = `<p>Echoed Voice: ${40 * this.battle.echoedVoiceMultiplier} BP</p>` + buf;
 		}
