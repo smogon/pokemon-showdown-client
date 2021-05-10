@@ -344,13 +344,13 @@
 		// abilities
 		if (gen >= 3) {
 			var abilities = Dex.forGen(gen).species.get(id).abilities;
-			if (abilities['1']) {
-				buf += '<span class="col twoabilitycol">' + abilities['0'] + '<br />' +
-					abilities['1'] + '</span>';
-			} else {
-				buf += '<span class="col abilitycol">' + abilities['0'] + '</span>';
-			}
 			if (gen >= 5) {
+				if (abilities['1']) {
+					buf += '<span class="col twoabilitycol">' + abilities['0'] + '<br />' +
+						abilities['1'] + '</span>';
+				} else {
+					buf += '<span class="col abilitycol">' + abilities['0'] + '</span>';
+				}
 				var unreleasedHidden = pokemon.unreleasedHidden;
 				if (unreleasedHidden === 'Past' && (this.mod === 'natdex' || gen < 8)) unreleasedHidden = false;
 				if (abilities['S']) {
@@ -365,7 +365,8 @@
 					buf += '<span class="col abilitycol"></span>';
 				}
 			} else {
-				buf += '<span class="col abilitycol"></span>';
+				buf += '<span class="col abilitycol">' + abilities['0'] + '</span>';
+				buf += '<span class="col abilitycol">' + (abilities['1'] ? abilities['1'] : '') + '</span>';
 			}
 		} else {
 			buf += '<span class="col abilitycol"></span>';
