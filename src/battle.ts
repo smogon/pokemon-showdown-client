@@ -1021,6 +1021,8 @@ class Battle {
 	usesUpkeep = false;
 	weather = '' as ID;
 	pseudoWeather = [] as WeatherState[];
+	echoedVoiceMultiplier = 1;
+	echoedVoiceState = false;
 	weatherTimeLeft = 0;
 	weatherMinTimeLeft = 0;
 	/**
@@ -1262,6 +1264,8 @@ class Battle {
 		if (this.seeking === null) this.turnsSinceMoved++;
 
 		this.scene.incrementTurn();
+		if (!this.echoedVoiceState) this.echoedVoiceMultiplier = 1;
+		this.echoedVoiceState = false;
 
 		if (this.seeking !== null) {
 			if (turnNum >= this.seeking) {
@@ -1333,6 +1337,14 @@ class Battle {
 		let fromeffect = Dex.getEffect(kwArgs.from);
 		this.activateAbility(pokemon, fromeffect);
 		pokemon.clearMovestatuses();
+		if (move.id === 'echoedvoice') {
+			if (!this.echoedVoiceState) {
+				this.echoedVoiceState = true;
+				if (this.echoedVoiceMultiplier < 5) {
+					this.echoedVoiceMultiplier++;
+				}
+			}
+		}
 		if (move.id === 'focuspunch') {
 			pokemon.removeTurnstatus('focuspunch' as ID);
 		}
