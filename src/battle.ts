@@ -648,13 +648,8 @@ class Side {
 			if (this.foe && this.avatar === this.foe.avatar) this.rollTrainerSprites();
 		}
 	}
-	addSideCondition(effect: Effect, info?: [string, number, number, number]) {
+	addSideCondition(effect: Effect) {
 		let condition = effect.id;
-		if (info) {
-			this.sideConditions[condition] = info;
-			this.battle.scene.addSideCondition(this.n, condition);
-			return;
-		}
 		if (this.sideConditions[condition]) {
 			if (condition === 'spikes' || condition === 'toxicspikes') {
 				this.sideConditions[condition][1]++;
@@ -1314,6 +1309,30 @@ class Battle {
 		}
 		this.weather = weather;
 		this.scene.updateWeather();
+	}
+	switchConditionSide(effect: Effect) {
+		if (this.gameType === 'freeforall') {
+			// placeholder for ffa
+			return;
+		} else {
+			let side1 = this.sides[0];
+			let side2 = this.sides[1];
+			if (side1.sideConditions[effect.id] && side2.sideConditions[effect.id]) {
+				[side1.sideConditions[effect.id], side2.sideConditions[effect.id]] = [
+					side2.sideConditions[effect.id], side1.sideConditions[effect.id],
+				];
+				this.scene.addSideCondition(side1.n, effect.id);
+				this.scene.addSideCondition(side2.n, effect.id);
+			} else if (side1.sideConditions[effect.id] && !side2.sideConditions[effect.id]) {
+				side2.sideConditions[effect.id] = side1.sideConditions[effect.id];
+				this.scene.addSideCondition(side2.n, effect.id);
+				side1.removeSideCondition(effect.name);
+			} else if (side2.sideConditions[effect.id] && !side1.sideConditions[effect.id]) {
+				side1.sideConditions[effect.id] = side2.sideConditions[effect.id];
+				this.scene.addSideCondition(side1.n, effect.id);
+				side2.removeSideCondition(effect.name);
+			}
+		}
 	}
 	updateTurnCounters() {
 		for (const pWeather of this.pseudoWeather) {
@@ -2785,26 +2804,7 @@ class Battle {
 		}
 		case '-sideswitch': {
 			let effect = Dex.getEffect(args[1]);
-			if (this.gameType === 'freeforall') {
-				// placeholder for ffa
-				return;
-			} else {
-				let side1 = this.sides[0];
-				let side2 = this.sides[1];
-				if (side1.sideConditions[effect.id] && side2.sideConditions[effect.id]) {
-					[side1.sideConditions[effect.id], side2.sideConditions[effect.id]] = [
-						side2.sideConditions[effect.id], side1.sideConditions[effect.id],
-					];
-					this.scene.addSideCondition(side1.n, effect.id);
-					this.scene.addSideCondition(side2.n, effect.id);
-				} else if (side1.sideConditions[effect.id] && !side2.sideConditions[effect.id]) {
-					side2.addSideCondition(effect, side1.sideConditions[effect.id]);
-					side1.removeSideCondition(effect.name);
-				} else if (side2.sideConditions[effect.id] && !side1.sideConditions[effect.id]) {
-					side1.addSideCondition(effect, side2.sideConditions[effect.id]);
-					side2.removeSideCondition(effect.name);
-				}
-			}
+			this.switchConditionSide(effect);
 
 			switch (effect.id) {
 			case 'tailwind':
