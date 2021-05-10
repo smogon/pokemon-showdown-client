@@ -664,7 +664,7 @@ class BattleTooltips {
 		if (zEffect) text += '<p>Z-Effect: ' + zEffect + '</p>';
 
 		if (move.id.startsWith('hiddenpower')) move = this.battle.dex.moves.get('hiddenpower');
-		if (this.battle.gen < 7 || this.battle.hardcoreMode) {
+		if (this.battle.hardcoreMode) {
 			text += '<p class="section">' + move.shortDesc + '</p>';
 		} else {
 			text += '<p class="section">';
