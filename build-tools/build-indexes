@@ -982,8 +982,9 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 		BattleTeambuilderTable[gen].overrideMoveType = overrideMoveType;
 		for (const id in genData.Moves) {
 			const pastEntry = genData.Moves[id];
-			const pastDescs = Dex.mod(gen).getDescs('Moves', id, pastEntry);
 			const nowEntry = Dex.data.Moves[id];
+			const pastDescs = Dex.mod(gen).getDescs('Moves', id, pastEntry);
+			const nowDescs = Dex.getDescs('Moves', id, nowEntry);
 			if (pastEntry.basePower !== nowEntry.basePower) {
 				overrideBP[id] = pastEntry.basePower;
 			}
@@ -996,7 +997,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			if (pastEntry.type !== nowEntry.type) {
 				overrideMoveType[id] = pastEntry.type;
 			}
-			if (pastDescs.shortDesc !== nowEntry.shortDesc) {
+			if (pastDescs.shortDesc !== nowDescs.shortDesc) {
 				overrideMoveDesc[id] = pastDescs.shortDesc;
 			}
 		}
@@ -1005,9 +1006,10 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 		BattleTeambuilderTable[gen].overrideItemDesc = overrideItemDesc;
 		for (const id in genData.Items) {
 			const pastEntry = genData.Items[id];
-			const pastDescs = Dex.mod(gen).getDescs('Items', id, pastEntry);
 			const nowEntry = Dex.data.Items[id];
-			if ((pastDescs.shortDesc || pastDescs.desc) !== (nowEntry.shortDesc || nowEntry.desc)) {
+			const pastDescs = Dex.mod(gen).getDescs('Items', id, pastEntry);
+			const nowDescs = Dex.getDescs('Items', id, nowEntry);
+			if ((pastDescs.shortDesc || pastDescs.desc) !== (nowDescs.shortDesc || nowDescs.desc)) {
 				overrideItemDesc[id] = (pastDescs.shortDesc || pastDescs.desc);
 			}
 		}
@@ -1016,9 +1018,10 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 		BattleTeambuilderTable[gen].overrideAbilityDesc = overrideAbilityDesc;
 		for (const id in genData.Abilities) {
 			const pastEntry = genData.Abilities[id];
-			const pastDescs = Dex.mod(gen).getDescs('Abilities', id, pastEntry);
 			const nowEntry = Dex.data.Abilities[id];
-			if ((pastDescs.shortDesc || pastDescs.desc) !== (nowEntry.shortDesc || nowEntry.desc)) {
+			const pastDescs = Dex.mod(gen).getDescs('Abilities', id, pastEntry);
+			const nowDescs = Dex.getDescs('Abilities', id, nowEntry);
+			if ((pastDescs.shortDesc || pastDescs.desc) !== (nowDescs.shortDesc || nowDescs.desc)) {
 				overrideAbilityDesc[id] = (pastDescs.shortDesc || pastDescs.desc);
 			}
 		}
