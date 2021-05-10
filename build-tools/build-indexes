@@ -978,6 +978,8 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 		BattleTeambuilderTable[gen].overridePP = overridePP;
 		const overrideMoveDesc = {};
 		BattleTeambuilderTable[gen].overrideMoveDesc = overrideMoveDesc;
+		const overrideMoveShortDesc = {};
+		BattleTeambuilderTable[gen].overrideMoveShortDesc = overrideMoveShortDesc;
 		const overrideMoveType = {};
 		BattleTeambuilderTable[gen].overrideMoveType = overrideMoveType;
 		for (const id in genData.Moves) {
@@ -997,8 +999,11 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			if (pastEntry.type !== nowEntry.type) {
 				overrideMoveType[id] = pastEntry.type;
 			}
+			if (pastDescs.desc !== nowDescs.desc) {
+				overrideMoveDesc[id] = pastDescs.desc;
+			}
 			if (pastDescs.shortDesc !== nowDescs.shortDesc) {
-				overrideMoveDesc[id] = pastDescs.shortDesc;
+				overrideMoveShortDesc[id] = pastDescs.shortDesc;
 			}
 		}
 

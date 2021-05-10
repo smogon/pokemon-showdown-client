@@ -856,12 +856,8 @@ class ModdedDex {
 			if (id in table.overrideBP) data.basePower = table.overrideBP[id];
 			if (id in table.overridePP) data.pp = table.overridePP[id];
 			if (id in table.overrideMoveType) data.type = table.overrideMoveType[id];
-			for (let i = this.gen; i < 8; i++) {
-				if (id in window.BattleTeambuilderTable['gen' + i].overrideMoveDesc) {
-					data.shortDesc = window.BattleTeambuilderTable['gen' + i].overrideMoveDesc[id];
-					break;
-				}
-			}
+			if (id in table.overrideMoveDesc) data.desc = table.overrideMoveDesc[id];
+			if (id in table.overrideMoveShortDesc) data.shortDesc = table.overrideMoveShortDesc[id];
 			if (this.gen <= 3 && data.category !== 'Status') {
 				data.category = Dex.getGen3Category(data.type);
 			}
@@ -883,12 +879,8 @@ class ModdedDex {
 
 			let data = {...Dex.items.get(name)};
 
-			for (let i = this.gen; i < 8; i++) {
-				if (id in window.BattleTeambuilderTable['gen' + i].overrideItemDesc) {
-					data.shortDesc = window.BattleTeambuilderTable['gen' + i].overrideItemDesc[id];
-					break;
-				}
-			}
+			const table = window.BattleTeambuilderTable[this.modid];
+			if (id in table.overrideItemDesc) data.shortDesc = table.overrideItemDesc[id];
 
 			const item = new Item(id, name, data);
 			this.cache.Items[id] = item;
@@ -907,12 +899,8 @@ class ModdedDex {
 
 			let data = {...Dex.abilities.get(name)};
 
-			for (let i = this.gen; i < 8; i++) {
-				if (id in window.BattleTeambuilderTable['gen' + i].overrideAbilityDesc) {
-					data.shortDesc = window.BattleTeambuilderTable['gen' + i].overrideAbilityDesc[id];
-					break;
-				}
-			}
+			const table = window.BattleTeambuilderTable[this.modid];
+			if (id in table.overrideAbilityDesc) data.shortDesc = table.overrideAbilityDesc[id];
 
 			const ability = new Ability(id, name, data);
 			this.cache.Abilities[id] = ability;
