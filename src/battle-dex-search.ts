@@ -1414,7 +1414,9 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 				const move = dex.moves.get(id);
 				if (move.gen > dex.gen) continue;
 				if (sketch) {
-					if (move.isMax || move.isZ || move.isNonstandard) continue;
+					if (move.isMax || move.isZ) continue;
+					if (move.isNonstandard && move.isNonstandard !== 'Past') continue;
+					if (move.isNonstandard === 'Past' && this.formatType !== 'natdex' && dex.gen === 8) continue;
 					sketchMoves.push(move.id);
 				} else {
 					if (!(dex.gen < 8 || this.formatType === 'natdex') && move.isZ) continue;
