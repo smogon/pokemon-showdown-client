@@ -663,7 +663,6 @@ class BattleTooltips {
 		text += '<p>Accuracy: ' + accuracy + '</p>';
 		if (zEffect) text += '<p>Z-Effect: ' + zEffect + '</p>';
 
-		if (move.id.startsWith('hiddenpower')) move = this.battle.dex.moves.get('hiddenpower');
 		if (this.battle.hardcoreMode) {
 			text += '<p class="section">' + move.shortDesc + '</p>';
 		} else {
@@ -680,7 +679,7 @@ class BattleTooltips {
 				}
 			}
 
-			text += '' + (move.desc || move.shortDesc) + '</p>';
+			text += '' + (move.desc || move.shortDesc || '') + '</p>';
 
 			if (this.battle.gameType === 'doubles' || this.battle.gameType === 'multi') {
 				if (move.target === 'allAdjacent') {
