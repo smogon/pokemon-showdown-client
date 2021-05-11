@@ -810,7 +810,7 @@ class BattleLog {
 				return {
 					tagName: 'iframe',
 					attribs: [
-						'src', `https://player.twitch.tv/?channel=${channelId}&parent=${location.hostname}`,
+						'src', `https://player.twitch.tv/?channel=${channelId}&parent=${location.hostname}&autoplay=false`,
 						'allowfullscreen', 'true', 'height', "400", 'width', "340",
 					],
 				};
