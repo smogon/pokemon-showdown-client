@@ -137,7 +137,10 @@ const BattleSound = new class {
 
 	/** loopstart and loopend are in milliseconds */
 	loadBgm(url: string, loopstart: number, loopend: number, replaceBGM?: BattleBGM | null) {
-		if (replaceBGM) this.deleteBgm(replaceBGM);
+		if (replaceBGM) {
+			replaceBGM.stop();
+			this.deleteBgm(replaceBGM);
+		}
 
 		const bgm = new BattleBGM(url, loopstart, loopend);
 		this.bgm.push(bgm);
