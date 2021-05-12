@@ -1592,6 +1592,8 @@ class BattleScene {
 			this.bgm = BattleSound.loadBgm('audio/sm-rival.mp3', 11389, 62158, this.bgm);
 			break;
 		}
+
+		this.updateBgm();
 	}
 	updateBgm() {
 		/**
