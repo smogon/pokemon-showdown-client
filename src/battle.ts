@@ -315,16 +315,16 @@ class Pokemon implements PokemonDetails, PokemonHealth {
 	hasMovestatus(volatile: ID) {
 		return !!this.movestatuses[volatile];
 	}
-	clearMovestatusesExcept(exceptions: ID[] = []) {
+	clearMovestatuses(except: ID[] = []) {
 		for (let id in this.movestatuses) {
-			if (!exceptions.includes(id as ID)) this.removeMovestatus(id as ID);
+			if (!except.includes(id as ID)) this.removeMovestatus(id as ID);
 		}
 		// this.movestatuses = {};
 	}
 	clearVolatiles() {
 		this.volatiles = {};
 		this.clearTurnstatuses();
-		this.clearMovestatusesExcept();
+		this.clearMovestatuses();
 		this.side.battle.scene.clearEffects(this);
 	}
 	rememberMove(moveName: string, pp = 1, recursionSource?: string) {
@@ -1333,8 +1333,7 @@ class Battle {
 	useMove(pokemon: Pokemon, move: Move, target: Pokemon | null, kwArgs: KWArgs) {
 		let fromeffect = Dex.getEffect(kwArgs.from);
 		this.activateAbility(pokemon, fromeffect);
-		let exceptions = ['furycutter' as ID];
-		pokemon.clearMovestatusesExcept(exceptions);
+		pokemon.clearMovestatuses(['furycutter' as ID]);
 		if (move.id === 'focuspunch') {
 			pokemon.removeTurnstatus('focuspunch' as ID);
 		}
@@ -1438,7 +1437,7 @@ class Battle {
 		this.scene.runMoveAnim(usedMove.id, targets);
 	}
 	cantUseMove(pokemon: Pokemon, effect: Effect, move: Move, kwArgs: KWArgs) {
-		pokemon.clearMovestatusesExcept();
+		pokemon.clearMovestatuses();
 		this.scene.updateStatbar(pokemon);
 		if (effect.id in BattleStatusAnims) {
 			this.scene.runStatusAnim(effect.id, [pokemon]);
@@ -1853,7 +1852,7 @@ class Battle {
 			if (target) {
 				this.scene.resultAnim(target, 'Missed', 'neutral');
 			}
-			poke.clearMovestatusesExcept(['furycutter' as ID]);
+			poke.clearMovestatuses(['furycutter' as ID]);
 			this.log(args, kwArgs);
 			break;
 		}
@@ -1862,7 +1861,7 @@ class Battle {
 			let effect = Dex.getEffect(args[2]);
 			let fromeffect = Dex.getEffect(kwArgs.from);
 			let ofpoke = this.getPokemon(kwArgs.of);
-			poke.clearMovestatusesExcept(['furycutter' as ID]);
+			poke.clearMovestatuses(['furycutter' as ID]);
 			this.activateAbility(ofpoke || poke, fromeffect);
 			switch (effect.id) {
 			case 'brn':
