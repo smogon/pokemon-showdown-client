@@ -631,7 +631,7 @@ class BattleTooltips {
 				damageMod = this.getMoveDamageMod(move, moveType, damageMod, active);
 				dMod = '' + damageMod;
 				if (prevDamageMod === null) prevDamageMod = dMod;
-				if (prevBasePower !== dMod) differenceDM = true;
+				if (prevDamageMod !== dMod) differenceDM = true;
 				if (damageMod.value !== 100) damageMods.push('Damage mod vs ' + active.name + ': ' + dMod);
 			}
 			if (differenceBP) {
@@ -650,8 +650,8 @@ class BattleTooltips {
 			text += '<p>Base power: ' + value + '</p>';
 		}
 		if (!showingMultipleDamageMods && category !== 'Status') {
-			damageMod = this.getMoveBasePower(move, moveType, damageMod, activeTarget);
-			if (damageMod.value !== 100) text += '<p>Damage mod: ' + value + '</p>';
+			damageMod = this.getMoveDamageMod(move, moveType, damageMod, activeTarget);
+			if (damageMod.value !== 100) text += '<p>Damage mod: ' + damageMod + '</p>';
 		}
 
 		let accuracy = this.getMoveAccuracy(move, value);
