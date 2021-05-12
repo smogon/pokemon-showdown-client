@@ -1526,8 +1526,8 @@ class BattleTooltips {
 			else basePower = 20;
 			value.set(basePower);
 		}
-		if (move.id === 'furycutter' && pokemon.hasVolatile('furycutter' as ID)) {
-			value.modify(pokemon.volatiles['furycutter'][1], 'Fury Cutter used in succession');
+		if (move.id === 'furycutter' && pokemon.hasMovestatus('furycutter' as ID)) {
+			value.modify(pokemon.movestatuses['furycutter'][1], 'Fury Cutter used in succession');
 		}
 		if (move.id === 'hex' && target?.status) {
 			value.modify(2, 'Hex + status');

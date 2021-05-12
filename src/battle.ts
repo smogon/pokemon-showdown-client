@@ -306,25 +306,25 @@ class Pokemon implements PokemonDetails, PokemonHealth {
 		if (!this.hasMovestatus(volatile)) return;
 		delete this.movestatuses[volatile];
 	}
-	addMovestatus(volatile: ID) {
+	addMovestatus(volatile: ID, ...args: any[]) {
 		volatile = toID(volatile);
 		if (this.hasMovestatus(volatile)) return;
-		this.movestatuses[volatile] = [volatile];
+		this.movestatuses[volatile] = [volatile, ...args] as EffectState;
 		this.side.battle.scene.addEffect(this, volatile);
 	}
 	hasMovestatus(volatile: ID) {
 		return !!this.movestatuses[volatile];
 	}
-	clearMovestatuses() {
+	clearMovestatusesExcept(exceptions: ID[] = []) {
 		for (let id in this.movestatuses) {
-			this.removeMovestatus(id as ID);
+			if (!exceptions.includes(id as ID)) this.removeMovestatus(id as ID);
 		}
-		this.movestatuses = {};
+		// this.movestatuses = {};
 	}
 	clearVolatiles() {
 		this.volatiles = {};
 		this.clearTurnstatuses();
-		this.clearMovestatuses();
+		this.clearMovestatusesExcept();
 		this.side.battle.scene.clearEffects(this);
 	}
 	rememberMove(moveName: string, pp = 1, recursionSource?: string) {
@@ -1333,7 +1333,8 @@ class Battle {
 	useMove(pokemon: Pokemon, move: Move, target: Pokemon | null, kwArgs: KWArgs) {
 		let fromeffect = Dex.getEffect(kwArgs.from);
 		this.activateAbility(pokemon, fromeffect);
-		pokemon.clearMovestatuses();
+		let exceptions = ['furycutter' as ID];
+		pokemon.clearMovestatusesExcept(exceptions);
 		if (move.id === 'focuspunch') {
 			pokemon.removeTurnstatus('focuspunch' as ID);
 		}
@@ -1348,17 +1349,17 @@ class Battle {
 				furyCutterBP = 20;
 			}
 
-			if (!pokemon.hasVolatile('furycutter' as ID)) {
-				pokemon.addVolatile('furycutter' as ID, 2, furyCutterBP);
-			} else if (pokemon.volatiles['furycutter'][1] < furyCutterCap) {
-				pokemon.volatiles['furycutter'][1] *= 2;
+			if (!pokemon.hasMovestatus('furycutter' as ID)) {
+				pokemon.addMovestatus('furycutter' as ID, 2, furyCutterBP);
+			} else if (pokemon.movestatuses['furycutter'][1] < furyCutterCap) {
+				pokemon.movestatuses['furycutter'][1] *= 2;
 			}
 
 			// TODO: detect immunity instead of detecting Wonder Guard
 			if (target?.hasTurnstatus('protect' as ID) || target?.ability === 'Wonder Guard') {
-				pokemon.removeVolatile('furycutter' as ID);
+				pokemon.removeMovestatus('furycutter' as ID);
 			}
-		} else pokemon.removeVolatile('furycutter' as ID);
+		} else pokemon.removeMovestatus('furycutter' as ID);
 		this.scene.updateStatbar(pokemon);
 		if (fromeffect.id === 'sleeptalk') {
 			pokemon.rememberMove(move.name, 0);
@@ -1437,8 +1438,7 @@ class Battle {
 		this.scene.runMoveAnim(usedMove.id, targets);
 	}
 	cantUseMove(pokemon: Pokemon, effect: Effect, move: Move, kwArgs: KWArgs) {
-		pokemon.clearMovestatuses();
-		pokemon.removeVolatile('furycutter' as ID);
+		pokemon.clearMovestatusesExcept();
 		this.scene.updateStatbar(pokemon);
 		if (effect.id in BattleStatusAnims) {
 			this.scene.runStatusAnim(effect.id, [pokemon]);
@@ -1853,7 +1853,7 @@ class Battle {
 			if (target) {
 				this.scene.resultAnim(target, 'Missed', 'neutral');
 			}
-			poke.removeVolatile('furycutter' as ID);
+			poke.clearMovestatusesExcept(['furycutter' as ID]);
 			this.log(args, kwArgs);
 			break;
 		}
@@ -1862,6 +1862,7 @@ class Battle {
 			let effect = Dex.getEffect(args[2]);
 			let fromeffect = Dex.getEffect(kwArgs.from);
 			let ofpoke = this.getPokemon(kwArgs.of);
+			poke.clearMovestatusesExcept(['furycutter' as ID]);
 			this.activateAbility(ofpoke || poke, fromeffect);
 			switch (effect.id) {
 			case 'brn':
@@ -1893,7 +1894,6 @@ class Battle {
 				}
 				break;
 			}
-			poke.removeVolatile('furycutter' as ID);
 			this.scene.animReset(poke);
 			this.log(args, kwArgs);
 			break;
@@ -3341,7 +3341,6 @@ class Battle {
 			let slot = poke.slot;
 			poke.healthParse(args[3]);
 			poke.removeVolatile('itemremoved' as ID);
-			poke.removeVolatile('furycutter' as ID);
 			if (args[0] === 'switch') {
 				if (poke.side.active[slot]) {
 					poke.side.switchOut(poke.side.active[slot]!);
