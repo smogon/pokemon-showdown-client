@@ -1334,6 +1334,24 @@ class Battle {
 		let fromeffect = Dex.getEffect(kwArgs.from);
 		this.activateAbility(pokemon, fromeffect);
 		pokemon.clearMovestatuses();
+
+		if (pokemon.item === 'Metronome') {
+			if (!pokemon.hasVolatile('metronomeitem' as ID)) {
+				if (move.category !== 'Status') {
+					let baseIncrease = this.gen === 4 ? 1.1 : 1.2;
+					pokemon.addVolatile('metronomeitem' as ID, baseIncrease, move.id);
+				}
+			} else if (move.id === pokemon.volatiles['metronomeitem'][2]) {
+				if (pokemon.volatiles['metronomeitem'][1] < 2) {
+					pokemon.volatiles['metronome'][1] += this.gen === 4 ? 0.1 : 0.2;
+				}
+			} else {
+				pokemon.removeVolatile('metronomeitem' as ID);
+			}
+			if (target?.hasTurnstatus('protect' as ID)) {
+				pokemon.removeVolatile('metronomeitem' as ID);
+			}
+		}
 		if (move.id === 'focuspunch') {
 			pokemon.removeTurnstatus('focuspunch' as ID);
 		}
@@ -1416,6 +1434,7 @@ class Battle {
 	}
 	cantUseMove(pokemon: Pokemon, effect: Effect, move: Move, kwArgs: KWArgs) {
 		pokemon.clearMovestatuses();
+		pokemon.removeVolatile('metronomeitem' as ID);
 		this.scene.updateStatbar(pokemon);
 		if (effect.id in BattleStatusAnims) {
 			this.scene.runStatusAnim(effect.id, [pokemon]);
@@ -1825,10 +1844,12 @@ class Battle {
 			break;
 		}
 		case '-miss': {
+			let poke = this.getPokemon(args[1])!;
 			let target = this.getPokemon(args[2]);
 			if (target) {
 				this.scene.resultAnim(target, 'Missed', 'neutral');
 			}
+			poke.removeVolatile('metronomeitem' as ID);
 			this.log(args, kwArgs);
 			break;
 		}
@@ -1868,6 +1889,7 @@ class Battle {
 				}
 				break;
 			}
+			poke.removeVolatile('metronomeitem' as ID);
 			this.scene.animReset(poke);
 			this.log(args, kwArgs);
 			break;
@@ -3315,6 +3337,7 @@ class Battle {
 			let slot = poke.slot;
 			poke.healthParse(args[3]);
 			poke.removeVolatile('itemremoved' as ID);
+			poke.removeVolatile('metronomeitem' as ID);
 			if (args[0] === 'switch') {
 				if (poke.side.active[slot]) {
 					poke.side.switchOut(poke.side.active[slot]!);
