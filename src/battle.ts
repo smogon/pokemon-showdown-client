@@ -31,7 +31,6 @@
 type EffectState = any[] & {0: ID};
 /** [name, minTimeLeft, maxTimeLeft] */
 type WeatherState = [string, number, number];
-type EffectTable = {[effectid: string]: EffectState};
 type HPColor = 'r' | 'y' | 'g';
 
 class Pokemon implements PokemonDetails, PokemonHealth {
@@ -91,9 +90,9 @@ class Pokemon implements PokemonDetails, PokemonHealth {
 	boosts: {[stat: string]: number} = {};
 	status: StatusName | 'tox' | '' | '???' = '';
 	statusStage = 0;
-	volatiles: EffectTable = {};
-	turnstatuses: EffectTable = {};
-	movestatuses: EffectTable = {};
+	volatiles: {[effectid: string]: EffectState} = {};
+	turnstatuses: {[effectid: string]: EffectState} = {};
+	movestatuses: {[effectid: string]: EffectState} = {};
 	lastMove = '';
 
 	/** [[moveName, ppUsed]] */
