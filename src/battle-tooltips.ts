@@ -1828,6 +1828,9 @@ class BattleTooltips {
 		return value;
 	}
 
+	// Gets the proper damage mod based on general and final damage modifiers.
+	// Takes into account the target for some moves.
+	// Damage modifiers regarding type matchups are not supported.
 	getMoveDamageMod(move: Move, moveType: TypeName, value: ModifiableValue, target: Pokemon | null = null) {
 		const pokemon = value.pokemon!;
 		const serverPokemon = value.serverPokemon;
@@ -1849,22 +1852,23 @@ class BattleTooltips {
 		if (pokemon.item === 'Life Orb') {
 			value.itemModify(1.3, 'Life Orb');
 		}
-		if (pokemon.item === 'Metronome' && pokemon.hasVolatile('metronomeitem' as ID)) {
-			value.itemModify(pokemon.volatiles['metronomeitem'][1], 'Metronome (item)');
+		if (pokemon.item === 'Metronome' && pokemon.hasMovestatus('metronomeitem' as ID)) {
+			value.itemModify(pokemon.movestatuses['metronomeitem'][1], 'Metronome (item)');
 		}
 
 		// abilities
-		if (target && !['singles', 'freeforall'].includes(this.battle.gameType)
-			&& foeActive.map(poke => poke?.ability).includes('Friend Guard')) {
-			let friendGuarded = [];
-			for (const active of foeActive) {
-				if (active && toID(active.ability) === 'Friend Guard') {
-					for (const otherActive of foeActive) {
-						if (otherActive && otherActive !== active) friendGuarded.push(otherActive);
+		if (target && !['singles', 'freeforall'].includes(this.battle.gameType)) {
+			if (foeActive.map(poke => poke?.ability).includes('Friend Guard')) {
+				let friendGuarded = [];
+				for (const active of foeActive) {
+					if (active && toID(active.ability) === 'Friend Guard') {
+						for (const otherActive of foeActive) {
+							if (otherActive && otherActive !== active) friendGuarded.push(otherActive);
+						}
 					}
 				}
+				if (friendGuarded.includes(target as Pokemon)) value.abilityModify(0.75, 'Friend Guard');
 			}
-			if (friendGuarded.includes(target as Pokemon)) value.abilityModify(0.75, 'Friend Guard');
 		}
 		if (target && targetAbility === 'Fluffy') {
 			let mod = 1.0;
