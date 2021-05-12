@@ -1397,9 +1397,9 @@ class Species implements Effect {
 		this.tier = data.tier || '';
 
 		this.isTotem = false;
-		this.isMega = false;
+		this.isMega = !!(this.forme && ['-mega', '-megax', '-megay'].includes(this.formeid));
 		this.canGigantamax = !!data.canGigantamax;
-		this.isPrimal = false;
+		this.isPrimal = !!(this.forme && this.formeid === '-primal');
 		this.battleOnly = data.battleOnly || undefined;
 		this.isNonstandard = data.isNonstandard || null;
 		this.unreleasedHidden = data.unreleasedHidden || false;
@@ -1409,13 +1409,8 @@ class Species implements Effect {
 				this.gen = 8;
 			} else if (this.num >= 722 || this.formeid === '-alola' || this.formeid === '-starter') {
 				this.gen = 7;
-			} else if (this.forme && ['-mega', '-megax', '-megay'].includes(this.formeid)) {
+			} else if (this.isMega || this.isPrimal) {
 				this.gen = 6;
-				this.isMega = true;
-				this.battleOnly = this.baseSpecies;
-			} else if (this.formeid === '-primal') {
-				this.gen = 6;
-				this.isPrimal = true;
 				this.battleOnly = this.baseSpecies;
 			} else if (this.formeid === '-totem' || this.formeid === '-alolatotem') {
 				this.gen = 7;
