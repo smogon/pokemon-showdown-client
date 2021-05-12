@@ -976,14 +976,17 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 		BattleTeambuilderTable[gen].overrideAcc = overrideAcc;
 		const overridePP = {};
 		BattleTeambuilderTable[gen].overridePP = overridePP;
-		const overrideMoveDesc = {};
-		BattleTeambuilderTable[gen].overrideMoveDesc = overrideMoveDesc;
 		const overrideMoveType = {};
 		BattleTeambuilderTable[gen].overrideMoveType = overrideMoveType;
+		const overrideMoveCategory = {};
+		BattleTeambuilderTable[gen].overrideMoveCategory = overrideMoveCategory;
+		const overrideMoveDesc = {};
+		BattleTeambuilderTable[gen].overrideMoveDesc = overrideMoveDesc;
+		const overrideMoveShortDesc = {};
+		BattleTeambuilderTable[gen].overrideMoveShortDesc = overrideMoveShortDesc;
 		for (const id in genData.Moves) {
-			const pastEntry = genData.Moves[id];
-			const nowEntry = Dex.data.Moves[id];
-			const nextEntry = nextGenData.Moves[id];
+			const pastEntry = Dex.mod(gen).moves.get(id);
+			const nowEntry = Dex.moves.get(id);
 			if (pastEntry.basePower !== nowEntry.basePower) {
 				overrideBP[id] = pastEntry.basePower;
 			}
@@ -996,18 +999,23 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			if (pastEntry.type !== nowEntry.type) {
 				overrideMoveType[id] = pastEntry.type;
 			}
-			if (pastEntry.shortDesc !== nextEntry.shortDesc) {
-				overrideMoveDesc[id] = pastEntry.shortDesc;
+			if (pastEntry.category !== nowEntry.category) {
+				overrideMoveCategory[id] = pastEntry.category;
+			}
+			if (pastEntry.desc !== nowEntry.desc) {
+				overrideMoveDesc[id] = pastEntry.desc;
+			}
+			if (pastEntry.shortDesc !== nowEntry.shortDesc) {
+				overrideMoveShortDesc[id] = pastEntry.shortDesc;
 			}
 		}
 
 		const overrideItemDesc = {};
 		BattleTeambuilderTable[gen].overrideItemDesc = overrideItemDesc;
 		for (const id in genData.Items) {
-			const pastEntry = genData.Items[id];
-			const nextEntry = nextGenData.Items[id];
-			if (!nextEntry) continue; // amulet coin
-			if ((pastEntry.shortDesc || pastEntry.desc) !== (nextEntry.shortDesc || nextEntry.desc)) {
+			const pastEntry = Dex.mod(gen).items.get(id);
+			const nowEntry = Dex.items.get(id);
+			if ((pastEntry.shortDesc || pastEntry.desc) !== (nowEntry.shortDesc || nowEntry.desc)) {
 				overrideItemDesc[id] = (pastEntry.shortDesc || pastEntry.desc);
 			}
 		}
@@ -1015,10 +1023,9 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 		const overrideAbilityDesc = {};
 		BattleTeambuilderTable[gen].overrideAbilityDesc = overrideAbilityDesc;
 		for (const id in genData.Abilities) {
-			const pastEntry = genData.Abilities[id];
-			const nextEntry = nextGenData.Abilities[id];
-			if (!nextEntry) continue; // amulet coin
-			if ((pastEntry.shortDesc || pastEntry.desc) !== (nextEntry.shortDesc || nextEntry.desc)) {
+			const pastEntry = Dex.mod(gen).abilities.get(id);
+			const nowEntry = Dex.abilities.get(id);
+			if ((pastEntry.shortDesc || pastEntry.desc) !== (nowEntry.shortDesc || nowEntry.desc)) {
 				overrideAbilityDesc[id] = (pastEntry.shortDesc || pastEntry.desc);
 			}
 		}

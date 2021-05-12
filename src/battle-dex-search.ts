@@ -968,14 +968,14 @@ class BattlePokemonSearch extends BattleTypedSearch<'pokemon'> {
 	sort(results: SearchRow[], sortCol: string) {
 		if (['hp', 'atk', 'def', 'spa', 'spd', 'spe'].includes(sortCol)) {
 			return results.sort(([rowType1, id1], [rowType2, id2]) => {
-				const stat1 = BattlePokedex[id1].baseStats[sortCol as StatName];
-				const stat2 = BattlePokedex[id2].baseStats[sortCol as StatName];
+				const stat1 = this.dex.species.get(id1).baseStats[sortCol as StatName];
+				const stat2 = this.dex.species.get(id2).baseStats[sortCol as StatName];
 				return stat2 - stat1;
 			});
 		} else if (sortCol === 'bst') {
 			return results.sort(([rowType1, id1], [rowType2, id2]) => {
-				const base1 = BattlePokedex[id1].baseStats;
-				const base2 = BattlePokedex[id2].baseStats;
+				const base1 = this.dex.species.get(id1).baseStats;
+				const base2 = this.dex.species.get(id2).baseStats;
 				const bst1 = base1.hp + base1.atk + base1.def + base1.spa + base1.spd + base1.spe;
 				const bst2 = base2.hp + base2.atk + base2.def + base2.spa + base2.spd + base2.spe;
 				return bst2 - bst1;
@@ -1414,7 +1414,9 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 				const move = dex.moves.get(id);
 				if (move.gen > dex.gen) continue;
 				if (sketch) {
-					if (move.isMax || move.isZ || move.isNonstandard) continue;
+					if (move.isMax || move.isZ) continue;
+					if (move.isNonstandard && move.isNonstandard !== 'Past') continue;
+					if (move.isNonstandard === 'Past' && this.formatType !== 'natdex' && dex.gen === 8) continue;
 					sketchMoves.push(move.id);
 				} else {
 					if (!(dex.gen < 8 || this.formatType === 'natdex') && move.isZ) continue;
@@ -1515,24 +1517,24 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 				fissure: 1500, horndrill: 1500, guillotine: 1500,
 			};
 			return results.sort(([rowType1, id1], [rowType2, id2]) => {
-				let move1 = BattleMovedex[id1];
-				let move2 = BattleMovedex[id2];
+				let move1 = this.dex.moves.get(id1);
+				let move2 = this.dex.moves.get(id2);
 				let pow1 = move1.basePower || powerTable[id1] || (move1.category === 'Status' ? -1 : 1400);
 				let pow2 = move2.basePower || powerTable[id2] || (move2.category === 'Status' ? -1 : 1400);
 				return pow2 - pow1;
 			});
 		case 'accuracy':
 			return results.sort(([rowType1, id1], [rowType2, id2]) => {
-				let accuracy1 = BattleMovedex[id1].accuracy || 0;
-				let accuracy2 = BattleMovedex[id2].accuracy || 0;
+				let accuracy1 = this.dex.moves.get(id1).accuracy || 0;
+				let accuracy2 = this.dex.moves.get(id2).accuracy || 0;
 				if (accuracy1 === true) accuracy1 = 101;
 				if (accuracy2 === true) accuracy2 = 101;
 				return accuracy2 - accuracy1;
 			});
 		case 'pp':
 			return results.sort(([rowType1, id1], [rowType2, id2]) => {
-				let pp1 = BattleMovedex[id1].pp || 0;
-				let pp2 = BattleMovedex[id2].pp || 0;
+				let pp1 = this.dex.moves.get(id1).pp || 0;
+				let pp2 = this.dex.moves.get(id2).pp || 0;
 				return pp2 - pp1;
 			});
 		}
