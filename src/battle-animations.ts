@@ -1592,8 +1592,6 @@ class BattleScene {
 			this.bgm = BattleSound.loadBgm('audio/sm-rival.mp3', 11389, 62158, this.bgm);
 			break;
 		}
-
-		this.updateBgm();
 	}
 	updateBgm() {
 		/**
@@ -1806,6 +1804,7 @@ class PokemonSprite extends Sprite {
 		laserfocus: ['Laser Focus', 'good'],
 		spotlight: ['Spotlight', 'neutral'],
 		itemremoved: null,
+		metronomeitem: null,
 		// partial trapping
 		bind: ['Bind', 'bad'],
 		clamp: ['Clamp', 'bad'],
