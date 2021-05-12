@@ -1934,7 +1934,6 @@ class Battle {
 			let effect = Dex.getEffect(kwArgs.from);
 			let ofpoke = this.getPokemon(kwArgs.of) || poke;
 			poke.status = args[2] as StatusName;
-			poke.removeVolatile('yawn' as ID);
 			this.activateAbility(ofpoke || poke, effect);
 			if (effect.effectType === 'Item') {
 				ofpoke.item = effect.name;
