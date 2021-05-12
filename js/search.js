@@ -266,8 +266,12 @@
 		buf += '<button class="sortcol statsortcol' + (this.sortCol === 'hp' ? ' cur' : '') + '" data-sort="hp">HP</button>';
 		buf += '<button class="sortcol statsortcol' + (this.sortCol === 'atk' ? ' cur' : '') + '" data-sort="atk">Atk</button>';
 		buf += '<button class="sortcol statsortcol' + (this.sortCol === 'def' ? ' cur' : '') + '" data-sort="def">Def</button>';
-		buf += '<button class="sortcol statsortcol' + (this.sortCol === 'spa' ? ' cur' : '') + '" data-sort="spa">SpA</button>';
-		buf += '<button class="sortcol statsortcol' + (this.sortCol === 'spd' ? ' cur' : '') + '" data-sort="spd">SpD</button>';
+		if (this.engine.dex.gen >= 2) {
+			buf += '<button class="sortcol statsortcol' + (this.sortCol === 'spa' ? ' cur' : '') + '" data-sort="spa">SpA</button>';
+			buf += '<button class="sortcol statsortcol' + (this.sortCol === 'spd' ? ' cur' : '') + '" data-sort="spd">SpD</button>';
+		} else {
+			buf += '<button class="sortcol statsortcol' + (this.sortCol === 'spa' ? ' cur' : '') + '" data-sort="spa">Spc</button>';
+		}
 		buf += '<button class="sortcol statsortcol' + (this.sortCol === 'spe' ? ' cur' : '') + '" data-sort="spe">Spe</button>';
 		buf += '<button class="sortcol statsortcol' + (this.sortCol === 'bst' ? ' cur' : '') + '" data-sort="bst">BST</button>';
 		buf += '</div></li>';
@@ -327,7 +331,7 @@
 			return buf;
 		}
 
-		var gen = this.gen;
+		var gen = this.engine.dex.gen;
 
 		// type
 		buf += '<span class="col typecol">';
@@ -340,13 +344,13 @@
 		// abilities
 		if (gen >= 3) {
 			var abilities = Dex.forGen(gen).species.get(id).abilities;
-			if (abilities['1']) {
-				buf += '<span class="col twoabilitycol">' + abilities['0'] + '<br />' +
-					abilities['1'] + '</span>';
-			} else {
-				buf += '<span class="col abilitycol">' + abilities['0'] + '</span>';
-			}
 			if (gen >= 5) {
+				if (abilities['1']) {
+					buf += '<span class="col twoabilitycol">' + abilities['0'] + '<br />' +
+						abilities['1'] + '</span>';
+				} else {
+					buf += '<span class="col abilitycol">' + abilities['0'] + '</span>';
+				}
 				var unreleasedHidden = pokemon.unreleasedHidden;
 				if (unreleasedHidden === 'Past' && (this.mod === 'natdex' || gen < 8)) unreleasedHidden = false;
 				if (abilities['S']) {
@@ -360,7 +364,13 @@
 				} else {
 					buf += '<span class="col abilitycol"></span>';
 				}
+			} else {
+				buf += '<span class="col abilitycol">' + abilities['0'] + '</span>';
+				buf += '<span class="col abilitycol">' + (abilities['1'] ? abilities['1'] : '') + '</span>';
 			}
+		} else {
+			buf += '<span class="col abilitycol"></span>';
+			buf += '<span class="col abilitycol"></span>';
 		}
 
 		// base stats

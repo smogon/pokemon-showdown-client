@@ -663,8 +663,7 @@ class BattleTooltips {
 		text += '<p>Accuracy: ' + accuracy + '</p>';
 		if (zEffect) text += '<p>Z-Effect: ' + zEffect + '</p>';
 
-		if (move.id.startsWith('hiddenpower')) move = this.battle.dex.moves.get('hiddenpower');
-		if (this.battle.gen < 7 || this.battle.hardcoreMode) {
+		if (this.battle.hardcoreMode) {
 			text += '<p class="section">' + move.shortDesc + '</p>';
 		} else {
 			text += '<p class="section">';
@@ -680,7 +679,7 @@ class BattleTooltips {
 				}
 			}
 
-			text += '' + (move.desc || move.shortDesc) + '</p>';
+			text += '' + (move.desc || move.shortDesc || '') + '</p>';
 
 			if (this.battle.gameType === 'doubles' || this.battle.gameType === 'multi') {
 				if (move.target === 'allAdjacent') {
@@ -2093,7 +2092,7 @@ class BattleStatGuesser {
 		}
 
 		for (let i = 0, len = set.moves.length; i < len; i++) {
-			let move = Dex.moves.get(set.moves[i]);
+			let move = this.dex.moves.get(set.moves[i]);
 			hasMove[move.id] = 1;
 			if (move.category === 'Status') {
 				if (['batonpass', 'healingwish', 'lunardance'].includes(move.id)) {
