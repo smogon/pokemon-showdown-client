@@ -1330,6 +1330,41 @@
 			this.curChartName = '';
 			this.update();
 			this.$('input[name=pokemon]').select();
+			if (this.curTeam.format.includes('monotype')) {
+				var typeTable = [];
+				var dex = Dex.forGen(this.curTeam.gen);
+				for (var i = 0; i < this.curSetList.length; i++) {
+					var set = this.curSetList[i];
+					var species = dex.species.get(set.species);
+					if (species.isMega) {
+						species = dex.species.get(species.baseSpecies);
+					}
+					if (!species.exists) continue;
+					if (i === 0) {
+						typeTable = species.types;
+					} else {
+						typeTable = typeTable.filter(function (type) {
+							return species.types.includes(type);
+						});
+						if (!typeTable.length) break;
+					}
+					if (this.curTeam.gen >= 6) {
+						var item = dex.items.get(set.item);
+						if (item.megaStone && species.baseSpecies === item.megaEvolves) {
+							species = dex.species.get(item.megaStone);
+							typeTable = typeTable.filter(function (type) {
+								return species.types.includes(type);
+							});
+							if (!typeTable.length) break;
+						}
+					}
+				}
+				if (typeTable.length === 1) {
+					this.search.engine.addFilter(['type', typeTable[0]]);
+					this.search.filters = this.search.engine.filters;
+					this.search.find('');
+				}
+			}
 		},
 		pastePokemon: function (i, btn) {
 			if (!this.curTeam) return;
