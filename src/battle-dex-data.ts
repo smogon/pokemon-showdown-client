@@ -1109,6 +1109,7 @@ class Move implements Effect {
 	readonly target: MoveTarget;
 	readonly flags: Readonly<MoveFlags>;
 	readonly critRatio: number;
+	readonly willCrit: boolean;
 
 	readonly desc: string;
 	readonly shortDesc: string;
@@ -1147,6 +1148,7 @@ class Move implements Effect {
 		this.target = data.target || 'normal';
 		this.flags = data.flags || {};
 		this.critRatio = data.critRatio === 0 ? 0 : (data.critRatio || 1);
+		this.willCrit = data.willCrit || false;
 
 		// TODO: move to text.js
 		this.desc = data.desc;
@@ -1397,9 +1399,9 @@ class Species implements Effect {
 		this.tier = data.tier || '';
 
 		this.isTotem = false;
-		this.isMega = !!(this.forme && ['-mega', '-megax', '-megay'].includes(this.formeid));
+		this.isMega = false;
 		this.canGigantamax = !!data.canGigantamax;
-		this.isPrimal = !!(this.forme && this.formeid === '-primal');
+		this.isPrimal = false;
 		this.battleOnly = data.battleOnly || undefined;
 		this.isNonstandard = data.isNonstandard || null;
 		this.unreleasedHidden = data.unreleasedHidden || false;
@@ -1409,8 +1411,13 @@ class Species implements Effect {
 				this.gen = 8;
 			} else if (this.num >= 722 || this.formeid === '-alola' || this.formeid === '-starter') {
 				this.gen = 7;
-			} else if (this.isMega || this.isPrimal) {
+			} else if (this.forme && ['-mega', '-megax', '-megay'].includes(this.formeid)) {
 				this.gen = 6;
+				this.isMega = true;
+				this.battleOnly = this.baseSpecies;
+			} else if (this.formeid === '-primal') {
+				this.gen = 6;
+				this.isPrimal = true;
 				this.battleOnly = this.baseSpecies;
 			} else if (this.formeid === '-totem' || this.formeid === '-alolatotem') {
 				this.gen = 7;
