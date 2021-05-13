@@ -564,7 +564,7 @@ class BattleScene {
 		let gen = this.battle.gen;
 		if (Dex.prefs('nopastgens')) gen = 6;
 		if (Dex.prefs('bwgfx') && gen > 5) gen = 5;
-		if (this.battle.id.includes('cloveronly')) gen = 3;
+		if (this.battle.id.includes('cloveronly') || this.battle.id.includes('atlasonly')) gen = 3;
 		this.gen = gen;
 		this.activeCount = this.battle.nearSide?.active.length || 1;
 
