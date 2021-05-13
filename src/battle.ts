@@ -1337,13 +1337,9 @@ class Battle {
 		let fromeffect = Dex.getEffect(kwArgs.from);
 		this.activateAbility(pokemon, fromeffect);
 		pokemon.clearMovestatuses();
-		if (move.id === 'echoedvoice') {
-			if (!this.echoedVoiceState) {
-				this.echoedVoiceState = true;
-				if (this.echoedVoiceMultiplier < 5) {
-					this.echoedVoiceMultiplier++;
-				}
-			}
+		if (move.id === 'echoedvoice' && !this.echoedVoiceState) {
+			this.echoedVoiceState = true;
+			if (this.echoedVoiceMultiplier < 5) this.echoedVoiceMultiplier++;
 		}
 		if (move.id === 'focuspunch') {
 			pokemon.removeTurnstatus('focuspunch' as ID);
