@@ -34401,6 +34401,51 @@ const BattleMoveAnims: AnimTable = {
 		},
 		prepareAnim: BattleOtherAnims.chargestatus.anim,
 	},
+	livewire: {
+		anim(scene, [attacker, defender]) {
+			scene.showEffect('electroball', {
+				x: attacker.x,
+				y: attacker.y,
+				z: attacker.z,
+				scale: 0.1,
+				opacity: 0.5,
+			}, {
+				x: defender.x - 30,
+				y: defender.y - 40,
+				z: defender.z,
+				scale: 0.2,
+				opacity: 0.6,
+			}, 'ballistic');
+			scene.showEffect('electroball', {
+				x: attacker.x,
+				y: attacker.y,
+				z: attacker.z,
+				scale: 0.1,
+				opacity: 0.5,
+				time: 125,
+			}, {
+				x: defender.x + 40,
+				y: defender.y - 35,
+				z: defender.z,
+				scale: 0.2,
+				opacity: 0.6,
+			}, 'ballistic');
+			scene.showEffect('electroball', {
+				x: attacker.x,
+				y: attacker.y,
+				z: attacker.z,
+				scale: 0.1,
+				opacity: 0.5,
+				time: 250,
+			}, {
+				x: defender.x + 20,
+				y: defender.y - 25,
+				z: defender.z,
+				scale: 0.2,
+				opacity: 0.6,
+			}, 'ballistic');
+		},
+	},
 	searingsunrazesmash: {
 		anim(scene, [attacker, defender]) {
 			let xstep = (defender.x - attacker.x) / 5;
@@ -35687,6 +35732,7 @@ BattleMoveAnims['leechsneed'] = {anim: BattleMoveAnims['seedbomb'].anim};
 BattleMoveAnims['fragbomb'] = {anim: BattleMoveAnims['holyduty'].anim};
 BattleMoveAnims['warcry'] = {anim: BattleMoveAnims['hypervoice'].anim};
 BattleMoveAnims['jumpscare'] = {anim: BattleMoveAnims['nastyplot'].anim};
+BattleMoveAnims['overthewall'] = {anim: BattleMoveAnims['maliciousmoonsault'].anim};
 
 BattleMoveAnims['awaken'] = {anim: BattleMoveAnims['geomancy'].anim};
 BattleMoveAnims['voltaiccyclone'] = {anim: BattleMoveAnims['discharge'].anim};
@@ -35695,3 +35741,13 @@ BattleMoveAnims['soulcrusher'] = {anim: BattleMoveAnims['letssnuggleforever'].an
 BattleMoveAnims['cheeseclaw'] = {anim: BattleMoveAnims['dragonclaw'].anim};
 BattleMoveAnims['avianrush'] = {anim: BattleMoveAnims['doubleedge'].anim};
 BattleMoveAnims['trickstab'] = {anim: BattleMoveAnims['nightslash'].anim};
+BattleMoveAnims['dragonburst'] = {anim: BattleMoveAnims['lusterpurge'].anim};
+BattleMoveAnims['moredakka'] = {anim: BattleMoveAnims['moregun'].anim};
+BattleMoveAnims['tombstoner'] = {anim: BattleMoveAnims['continentalcrush'].anim};
+BattleMoveAnims['fruitjuice'] = {anim: BattleMoveAnims['mistball'].anim};
+BattleMoveAnims['phantomfang'] = {anim: BattleMoveAnims['overbite'].anim};
+BattleMoveAnims['phasethrough'] = {anim: BattleMoveAnims['shadowsneak'].anim};
+BattleMoveAnims['coldcutter'] = {anim: BattleMoveAnims['sacredsword'].anim};
+BattleMoveAnims['shadowscales'] = {anim: BattleMoveAnims['clangingscales'].anim};
+BattleMoveAnims['wingsofcorrection'] = {anim: BattleMoveAnims['hurricane'].anim};
+BattleMoveAnims['brutalpunishment'] = {anim: BattleMoveAnims['brutalswing'].anim};
