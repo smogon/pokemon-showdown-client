@@ -33985,7 +33985,7 @@ const BattleMoveAnims: AnimTable = {
 				opacity: 0.4,
 			}, 'accel', 'explode');
 
-			scene.showEffect('shadowball', {
+			scene.showEffect('iceball', {
 				x: defender.x + 30,
 				y: defender.y - 50,
 				z: defender.z,
@@ -33999,7 +33999,7 @@ const BattleMoveAnims: AnimTable = {
 				opacity: 0.1,
 				time: 700,
 			}, 'linear', 'fade');
-			scene.showEffect('shadowball', {
+			scene.showEffect('iceball', {
 				x: defender.x,
 				y: defender.y,
 				z: defender.z,
@@ -34011,7 +34011,7 @@ const BattleMoveAnims: AnimTable = {
 				opacity: 0,
 				time: 700,
 			}, 'linear');
-			scene.showEffect('shadowball', {
+			scene.showEffect('iceball', {
 				x: defender.x - 20,
 				y: defender.y - 50,
 				z: defender.z,
@@ -34025,7 +34025,7 @@ const BattleMoveAnims: AnimTable = {
 				opacity: 0.1,
 				time: 850,
 			}, 'linear', 'fade');
-			scene.showEffect('shadowball', {
+			scene.showEffect('iceball', {
 				x: defender.x,
 				y: defender.y,
 				z: defender.z,
@@ -34037,7 +34037,7 @@ const BattleMoveAnims: AnimTable = {
 				opacity: 0,
 				time: 850,
 			}, 'linear');
-			scene.showEffect('shadowball', {
+			scene.showEffect('iceball', {
 				x: defender.x + 20,
 				y: defender.y - 50,
 				z: defender.z,
@@ -34051,7 +34051,7 @@ const BattleMoveAnims: AnimTable = {
 				opacity: 0.1,
 				time: 900,
 			}, 'linear', 'fade');
-			scene.showEffect('shadowball', {
+			scene.showEffect('iceball', {
 				x: defender.x,
 				y: defender.y,
 				z: defender.z,
@@ -34643,7 +34643,7 @@ const BattleMoveAnims: AnimTable = {
 				x: defender.x,
 				y: defender.y,
 				z: defender.z,
-				scale: 2,
+				scale: 1,
 				opacity: 1,
 				time: 500,
 			}, 'linear', 'fade');
@@ -34658,7 +34658,7 @@ const BattleMoveAnims: AnimTable = {
 				x: defender.x,
 				y: defender.y,
 				z: defender.z,
-				scale: 2,
+				scale: 1,
 				opacity: 1,
 				time: 550,
 			}, 'linear', 'fade');
@@ -34666,13 +34666,13 @@ const BattleMoveAnims: AnimTable = {
 				x: defender.x,
 				y: defender.y,
 				z: defender.z,
-				scale: 2,
+				scale: 1,
 				opacity: 1,
 				time: 500,
 			}, {
 				x: defender.x,
 				y: defender.y + 100,
-				scale: 3,
+				scale: 2,
 				opacity: 0,
 				time: 1100,
 			}, 'linear', 'fade');
@@ -34680,13 +34680,13 @@ const BattleMoveAnims: AnimTable = {
 				x: defender.x,
 				y: defender.y,
 				z: defender.z,
-				scale: 2,
+				scale: 1,
 				opacity: 1,
 				time: 500,
 			}, {
 				x: defender.x - 60,
 				y: defender.y - 80,
-				scale: 3,
+				scale: 2,
 				opacity: 0,
 				time: 1100,
 			}, 'linear', 'fade');
@@ -34694,13 +34694,13 @@ const BattleMoveAnims: AnimTable = {
 				x: defender.x,
 				y: defender.y,
 				z: defender.z,
-				scale: 2,
+				scale: 1,
 				opacity: 1,
 				time: 500,
 			}, {
 				x: defender.x + 60,
 				y: defender.y - 80,
-				scale: 3,
+				scale: 2,
 				opacity: 0,
 				time: 1100,
 			}, 'linear', 'fade');
@@ -34708,13 +34708,13 @@ const BattleMoveAnims: AnimTable = {
 				x: defender.x,
 				y: defender.y,
 				z: defender.z,
-				scale: 2,
+				scale: 1,
 				opacity: 1,
 				time: 500,
 			}, {
 				x: defender.x - 90,
 				y: defender.y + 40,
-				scale: 3,
+				scale: 2,
 				opacity: 0,
 				time: 1100,
 			}, 'linear', 'fade');
@@ -34722,13 +34722,13 @@ const BattleMoveAnims: AnimTable = {
 				x: defender.x,
 				y: defender.y,
 				z: defender.z,
-				scale: 2,
+				scale: 1,
 				opacity: 1,
 				time: 500,
 			}, {
 				x: defender.x + 90,
 				y: defender.y + 40,
-				scale: 3,
+				scale: 2,
 				opacity: 0,
 				time: 1100,
 			}, 'linear', 'fade');
