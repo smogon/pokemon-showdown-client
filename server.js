@@ -6,7 +6,7 @@ const axios = require('axios');
 const express = require('express');
 const bodyParser = require('body-parser');
 
-const { defaultserver, ssl, proxies } = require('./config/config-server');
+const { ports, defaultserver, ssl, proxies } = require('./config/config-server');
 
 const app = express()
 const privateKey  = fs.readFileSync(ssl.privateKeyPath, 'utf8');
@@ -64,6 +64,16 @@ app.get('/lobby-banner', (request, response) => {
 
   response.sendFile(path.join(__dirname, 'banners', banner));
 });
+app.get('*', (request, response, next) => {
+  if (request.path.startsWith('/sprites/afd')) {
+    const afdPath = path.join(__dirname, 'public', request.path);
+    if (!fs.existsSync(afdPath)) {
+      return response.redirect(request.path.replace('/sprites/afd', '/sprites/gen5'));
+    }
+  }
+
+  next();
+});
 app.use(express.static('./public', { index: 'index.html', fallthrough: true }));
 app.get('*', (request, response) => {
   response.sendFile(path.join(__dirname, './public/index.html'));
@@ -77,5 +87,5 @@ httpApp.use('*', (request, response) => {
 const httpServer = http.createServer(httpApp);
 const httpsServer = https.createServer({ key: privateKey, cert: certificate }, app);
 
-httpServer.listen(80, () => console.log('Http redirect listening on 80'));
-httpsServer.listen(443, () => console.log('Listening on 443'));
+httpServer.listen(ports.http, () => console.log(`Http redirect listening on ${ports.http}`));
+httpsServer.listen(ports.https, () => console.log(`Listening on ${ports.https}`));
