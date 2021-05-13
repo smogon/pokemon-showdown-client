@@ -1346,7 +1346,7 @@ class Battle {
 					pokemon.movestatuses['metronome'][1] += this.gen === 4 ? 0.1 : 0.2;
 				}
 			} else {
-				pokemon.addMovestatus('metronomeitem' as ID);
+				pokemon.removeMovestatus('metronomeitem' as ID);
 			}
 			if (target?.hasTurnstatus('protect' as ID)) {
 				pokemon.removeMovestatus('metronomeitem' as ID);
