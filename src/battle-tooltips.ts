@@ -900,7 +900,7 @@ class BattleTooltips {
 			if (clientPokemon.moveTrack.filter(([moveName]) => {
 				if (moveName.charAt(0) === '*') return false;
 				const move = this.battle.dex.moves.get(moveName);
-				return !move.isZ && !move.isMax;
+				return !move.isZ && !move.isMax && move.name !== 'Mimic';
 			}).length > 4) {
 				text += `(More than 4 moves is usually a sign of Illusion Zoroark/Zorua.) `;
 			}
