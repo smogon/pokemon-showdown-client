@@ -2273,8 +2273,8 @@ class BattleStatGuesser {
 			} else if (['counter', 'endeavor', 'metalburst', 'mirrorcoat', 'rapidspin'].includes(move.id)) {
 				moveCount['Support']++;
 			} else if ([
-				'nightshade', 'seismictoss', 'psywave', 'superfang', 'naturesmadness', 'foulplay', 'endeavor', 'finalgambit',
-			].includes(move.id)) {
+				'nightshade', 'seismictoss', 'psywave', 'superfang', 'naturesmadness', 'foulplay', 'endeavor', 'finalgambit']
+			.includes(move.id)) {
 				moveCount['Offense']++;
 			} else if (move.id === 'fellstinger') {
 				moveCount['PhysicalSetup']++;
