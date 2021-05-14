@@ -1938,7 +1938,7 @@ class BattleTooltips {
 		if (target && ['gust', 'twister'].includes(move.id) && ['Fly', 'Bounce', 'Sky Drop'].includes(targetLastMove)) {
 			value.modify(2, targetLastMove);
 		}
-		if (target && ['behemothbash', 'behemothblade', 'dynamaxcannon'].includes(move.id) && target?.volatiles['dynamax']) {
+		if (['behemothbash', 'behemothblade', 'dynamaxcannon'].includes(move.id) && target?.volatiles['dynamax']) {
 			value.modify(2, 'Dynamax');
 		}
 		if (foe.sideConditions['reflect'] && move.category === 'Physical') {
