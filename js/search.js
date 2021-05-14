@@ -32,7 +32,6 @@
 		this.gen = 8;
 
 		this.engine = new DexSearch();
-		this.format = this.engine.format;
 		window.search = this;
 
 		var self = this;
@@ -170,7 +169,6 @@
 		this.engine.setType(qType, format, set);
 		this.filters = this.engine.filters;
 		this.sortCol = this.engine.sortCol;
-		this.format = this.engine.format;
 		this.cur = cur || {};
 		var firstElem;
 		for (var id in cur) {
@@ -343,7 +341,7 @@
 		buf += '</span> ';
 
 		// abilities
-		if (gen >= 3 && this.format.includes('letsgo')) {
+		if (gen >= 3 && this.engine.formatType !== 'letsgo') {
 			var abilities = Dex.forGen(gen).species.get(id).abilities;
 			if (gen >= 5) {
 				if (abilities['1']) {
@@ -353,7 +351,7 @@
 					buf += '<span class="col abilitycol">' + abilities['0'] + '</span>';
 				}
 				var unreleasedHidden = pokemon.unreleasedHidden;
-				if (unreleasedHidden === 'Past' && (this.format.includes('natdex') || gen < 8)) unreleasedHidden = false;
+				if (unreleasedHidden === 'Past' && (this.engine.formatType === 'natdex' || gen < 8)) unreleasedHidden = false;
 				if (abilities['S']) {
 					if (abilities['H']) {
 						buf += '<span class="col twoabilitycol' + (unreleasedHidden ? ' unreleasedhacol' : '') + '">' + (abilities['H'] || '') + '<br />(' + abilities['S'] + ')</span>';

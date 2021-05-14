@@ -15,6 +15,8 @@ type SearchType = (
 	'pokemon' | 'type' | 'tier' | 'move' | 'item' | 'ability' | 'egggroup' | 'category' | 'article'
 );
 
+type FormatType = 'doubles' | 'letsgo' | 'metronome' | 'natdex' | 'nfe' | 'dlc1' | 'dlc1doubles';
+
 type SearchRow = (
 	[SearchType, ID, number?, number?] | ['sortpokemon' | 'sortmove', ''] | ['header' | 'html', string]
 );
@@ -79,11 +81,10 @@ class DexSearch {
 	 */
 	filters: SearchFilter[] | null = null;
 
-	format: string;
+	formatType: FormatType | null = null;
 
 	constructor(searchType: SearchType | '' = '', formatid = '' as ID, species = '' as ID) {
 		this.setType(searchType, formatid, species);
-		this.format = this.typedSearch?.format || 'gen8anythinggoes';
 	}
 
 	getTypedSearch(searchType: SearchType | '', format = '' as ID, speciesOrSet: ID | PokemonSet = '' as ID) {
@@ -122,7 +123,10 @@ class DexSearch {
 			this.sortCol = null;
 		}
 		this.typedSearch = this.getTypedSearch(searchType, format, speciesOrSet);
-		if (this.typedSearch) this.dex = this.typedSearch.dex;
+		if (this.typedSearch) {
+			this.dex = this.typedSearch.dex;
+			this.formatType = this.typedSearch.formatType || null;
+		}
 	}
 
 	addFilter(entry: SearchFilter): boolean {
@@ -546,7 +550,7 @@ abstract class BattleTypedSearch<T extends SearchType> {
 	 */
 	set: PokemonSet | null = null;
 
-	protected formatType: 'doubles' | 'letsgo' | 'metronome' | 'natdex' | 'nfe' | 'dlc1' | 'dlc1doubles' | null = null;
+	formatType: FormatType | null = null;
 
 	/**
 	 * Cached copy of what the results list would be with only base filters
