@@ -1746,7 +1746,7 @@
 
 			var isHighlighted = userid !== app.user.get('userid') && this.getHighlight(message);
 			var parsedMessage = MainMenuRoom.parseChatMessage(message, name, ChatRoom.getTimestamp('chat', msgTime), isHighlighted, this.$chat, true);
-			if (parsedMessage.challenge) {
+			if (typeof parsedMessage.challenge === 'string') {
 				this.$chat.append('<div class="chat message-error">The server sent a challenge but this isn\'t a PM window!</div>');
 				return;
 			}

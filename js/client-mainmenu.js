@@ -186,7 +186,7 @@
 			var autoscroll = ($chatFrame.scrollTop() + 60 >= $chat.height() - $chatFrame.height());
 
 			var parsedMessage = MainMenuRoom.parseChatMessage(message, name, ChatRoom.getTimestamp('pms'), false, $chat, false);
-			if (parsedMessage.challenge) {
+			if (typeof parsedMessage.challenge === 'string') {
 				this.updateChallenge($pmWindow, parsedMessage.challenge, name, oName);
 				return;
 			}
