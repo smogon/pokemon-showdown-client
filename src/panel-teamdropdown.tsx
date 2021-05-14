@@ -732,6 +732,8 @@ interface FormatData {
 }
 
 declare var BattleFormats: {[id: string]: FormatData};
+/** id:name */
+declare var NonBattleGames: {[id: string]: string};
 
 class FormatDropdownPanel extends PSRoomPanel {
 	gen = '';
