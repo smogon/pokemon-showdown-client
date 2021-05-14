@@ -402,7 +402,7 @@ function toId() {
 			this.supports = {};
 
 			// down
-			// if (document.location.hostname === 'play.pokemonshowdown.com') this.down = 'dos';
+			// if (document.location.hostname === 'play.pokemonshowdown.com') this.down = true;
 
 			this.addRoom('');
 			this.topbar = new Topbar({el: $('#header')});
@@ -831,14 +831,16 @@ function toId() {
 			}
 			this.socket.send(data);
 		},
-		serializeForm: function (form) {
+		serializeForm: function (form, checkboxOnOff) {
 			// querySelector dates back to IE8 so we can use it
 			// fortunate, because form serialization is a HUGE MESS in older browsers
 			var elements = form.querySelectorAll('input[name], select[name], textarea[name], keygen[name]');
 			var out = [];
 			for (var i = 0; i < elements.length; i++) {
 				var element = elements[i];
-				if (!['checkbox', 'radio'].includes(element.type) || element.checked) {
+				if (element.type === 'checkbox' && !element.value && checkboxOnOff) {
+					out.push([element.name, element.checked ? 'on' : 'off']);
+				} else if (!['checkbox', 'radio'].includes(element.type) || element.checked) {
 					out.push([element.name, element.value]);
 				}
 			}
@@ -853,10 +855,11 @@ function toId() {
 			var dataSend = target.getAttribute('data-submitsend');
 			if (dataSend) {
 				var toSend = dataSend;
-				var entries = this.serializeForm(target);
+				var entries = this.serializeForm(target, true);
 				for (var i = 0; i < entries.length; i++) {
 					toSend = toSend.replace('{' + entries[i][0] + '}', entries[i][1]);
 				}
+				toSend = toSend.replace(/\{[a-z]+\}/g, '');
 				this.send(toSend);
 				e.currentTarget.innerText = 'Submitted!';
 				e.preventDefault();
@@ -1537,9 +1540,9 @@ function toId() {
 
 			// otherwise, infer the room type
 			if (!type) {
-				if (id.slice(0, 7) === 'battle-') {
+				if (id.startsWith('battle-') || id.startsWith('game-')) {
 					type = BattleRoom;
-				} else if (id.slice(0, 5) === 'view-') {
+				} else if (id.startsWith('view-')) {
 					type = HTMLRoom;
 				} else {
 					type = ChatRoom;
