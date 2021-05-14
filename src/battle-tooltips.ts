@@ -1835,7 +1835,7 @@ class BattleTooltips {
 		const pokemon = value.pokemon!;
 		const serverPokemon = value.serverPokemon;
 		const pokemonTypes = this.getPokemonTypes(pokemon);
-		
+
 		const targetAbility = target?.ability as string;
 		const targetStatus = target?.status as string;
 		const targetLastMove = target?.lastMove as string;
