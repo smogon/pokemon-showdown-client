@@ -3104,7 +3104,7 @@
 					}
 					if (!hasMoveBesidesTransform) minAtk = false;
 				} else if (move.category === 'Physical' && !move.damage && !move.ohko &&
-					!['foulplay', 'endeavor', 'counter', 'bodypress'].includes(move.id) && !(this.curTeam.gen < 8 && move.id === 'rapidspin')) {
+					!['foulplay', 'endeavor', 'counter', 'bodypress', 'seismictoss', 'bide', 'metalburst', 'superfang'].includes(move.id) && !(this.curTeam.gen < 8 && move.id === 'rapidspin')) {
 					minAtk = false;
 				} else if (['metronome', 'assist', 'copycat', 'mefirst', 'photongeyser', 'shellsidearm'].includes(move.id)) {
 					minAtk = false;
