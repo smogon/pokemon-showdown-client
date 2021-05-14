@@ -539,8 +539,7 @@ class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 		if (!direct && !msg) return;
 		if (!direct && this.handleMessage(msg)) return;
 
-		const id = this.id === 'lobby' ? '' : this.id;
-		PS.send(id + '|' + msg);
+		PS.send(this.id + '|' + msg);
 	}
 	destroy() {
 		if (this.connected) {
