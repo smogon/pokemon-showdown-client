@@ -224,14 +224,14 @@
 
 			var formatName = splitChallenge[0];
 			var teamFormat = splitChallenge[1];
-			var message = splitChallenge[2] || name + ' wants to battle!';
+			var message = splitChallenge[2];
 			var acceptButtonLabel = splitChallenge[3] || 'Accept';
 
 			var oUserid = toID(oName);
 			var userid = toID(name);
 
 			var $challenge = $pmWindow.find('.challenge');
-			if (!formatName) {
+			if (!formatName && !message) {
 				$challenge.remove();
 				this.closeNotification('challenge:' + oUserid);
 				return;
@@ -248,14 +248,18 @@
 			if (userid !== oUserid) {
 				// we are sending the challenge
 				var buf = '<form class="battleform"><p>Waiting for ' + BattleLog.escapeHTML(oName) + '...</p>';
-				buf += '<p><label class="label">' + (teamFormat ? 'Format' : 'Game') + ':</label>' + this.renderFormats(formatName, true) + '</p>';
+				if (formatName) {
+					buf += '<p><label class="label">' + (teamFormat ? 'Format' : 'Game') + ':</label>' + this.renderFormats(formatName, true) + '</p>';
+				}
 				buf += '<p class="buttonbar"><button name="cancelChallenge">Cancel</button></p></form>';
 				$challenge.html(buf);
 				return;
 			}
 
-			var buf = '<form class="battleform"><p>' + BattleLog.escapeHTML(message) + '</p>';
-			buf += '<p><label class="label">' + (teamFormat ? 'Format' : 'Game') + ':</label>' + this.renderFormats(formatName, true) + '</p>';
+			var buf = '<form class="battleform"><p>' + BattleLog.escapeHTML(message || (name + ' wants to battle!')) + '</p>';
+			if (formatName) {
+				buf += '<p><label class="label">' + (teamFormat ? 'Format' : 'Game') + ':</label>' + this.renderFormats(formatName, true) + '</p>';
+			}
 			if (teamFormat) {
 				buf += '<p><label class="label">Team:</label>' + this.renderTeams(teamFormat) + '</p>';
 				buf += '<p><label class="checkbox"><input type="checkbox" name="private" ' + (Storage.prefs('disallowspectators') ? 'checked' : '') + ' /> <abbr title="You can still invite spectators by giving them the URL or using the /invite command">Don\'t allow spectators</abbr></label></p>';
