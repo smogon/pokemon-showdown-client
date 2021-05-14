@@ -1834,10 +1834,11 @@ class BattleTooltips {
 	getMoveDamageMod(move: Move, moveType: TypeName, value: ModifiableValue, target: Pokemon | null = null) {
 		const pokemon = value.pokemon!;
 		const serverPokemon = value.serverPokemon;
+		const pokemonTypes = this.getPokemonTypes(pokemon);
+
 		const targetAbility = target?.ability as string;
 		const targetStatus = target?.status as string;
-		const typeArray = pokemon.getTypes();
-		const pokemonTypes = [...typeArray[0], typeArray[1]];
+		const targetLastMove = target?.lastMove as string;
 
 		let foe = pokemon.side.foe;
 		let foeActive = foe.active;
@@ -1928,11 +1929,14 @@ class BattleTooltips {
 		}
 
 		// other final damage modifiers
-		if (target && ['Whirlpool', 'Surf'].includes(move.id) && target?.lastMove === 'Dive') {
+		if (target && ['whirlpool', 'surf'].includes(move.id) && targetLastMove === 'Dive') {
 			value.modify(2, 'Dive');
 		}
-		if (target && ['earthquake', 'magnitude'].includes(move.id) && target?.lastMove === 'Dig') {
+		if (target && ['earthquake', 'magnitude'].includes(move.id) && targetLastMove === 'Dig') {
 			value.modify(2, 'Dig');
+		}
+		if (target && ['gust', 'twister'].includes(move.id) && ['Fly', 'Bounce', 'Sky Drop'].includes(targetLastMove)) {
+			value.modify(2, targetLastMove);
 		}
 		if (target && ['behemothbash', 'behemothblade', 'dynamaxcannon'].includes(move.id) && target?.volatiles['dynamax']) {
 			value.modify(2, 'Dynamax');
@@ -1943,6 +1947,7 @@ class BattleTooltips {
 		if (foe.sideConditions['lightscreen'] && move.category === 'Special') {
 			value.modify(0.5, 'Light Screen');
 		}
+		console.log(pokemon);
 
 		return value;
 	}
