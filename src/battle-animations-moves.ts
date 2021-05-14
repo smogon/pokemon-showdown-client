@@ -32458,5 +32458,7 @@ BattleMoveAnims['poltergeist'] = {anim: BattleMoveAnims['neverendingnightmare'].
 BattleMoveAnims['scaleshot'] = {anim: BattleMoveAnims['clangingscales'].anim};
 BattleMoveAnims['lashout'] = {anim: BattleMoveAnims['nightslash'].anim};
 BattleMoveAnims['steelroller'] = {anim: BattleMoveAnims['steamroller'].anim};
+BattleMoveAnims['shellsidearmphysical'] = {anim: BattleMoveAnims['poisonjab'].anim};
+BattleMoveAnims['shellsidearmspecial'] = {anim: BattleMoveAnims['sludgebomb'].anim};
 BattleMoveAnims['surgingstrikes'] = {anim: BattleMoveAnims['aquajet'].anim};
 BattleMoveAnims['eeriespell'] = {anim: BattleMoveAnims['psyshock'].anim};
