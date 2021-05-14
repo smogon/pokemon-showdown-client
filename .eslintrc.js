@@ -8,7 +8,8 @@ module.exports = {
 	},
 	"env": {
 		"node": true,
-		"browser": true
+		"browser": true,
+		"sneed": true,
 	},
 	"globals": {
 		// Libraries
