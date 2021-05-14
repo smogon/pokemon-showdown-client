@@ -3103,10 +3103,10 @@
 						}
 					}
 					if (!hasMoveBesidesTransform) minAtk = false;
-				} else if (move.category === 'Physical' &&
-						!move.damage && !move.ohko && move.id !== 'rapidspin' && move.id !== 'foulplay' && move.id !== 'endeavor' && move.id !== 'counter' && move.id !== 'bodypress') {
+				} else if (move.category === 'Physical' && !move.damage && !move.ohko &&
+					!['foulplay', 'endeavor', 'counter', 'bodypress'].includes(move.id) && (this.gen < 8 && move.id !== 'rapidspin')) {
 					minAtk = false;
-				} else if (move.id === 'metronome' || move.id === 'assist' || move.id === 'copycat' || move.id === 'mefirst') {
+				} else if (['metronome', 'assist', 'copycat', 'mefirst', 'photongeyser', 'shellsidearm'].includes(move.id)) {
 					minAtk = false;
 				}
 				if (minSpe === false && moveName === 'Gyro Ball') {
