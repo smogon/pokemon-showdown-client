@@ -1994,7 +1994,7 @@
 
 			var generationNumber = 8;
 			if (format.substr(0, 3) === 'gen') {
-				var number = parseInt(format.charAt(3));
+				var number = parseInt(format.charAt(3), 10);
 				if (1 <= number && number <= 7) {
 					generationNumber = number;
 					format = format.substr(4);
