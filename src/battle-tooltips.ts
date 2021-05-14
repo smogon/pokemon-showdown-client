@@ -1835,6 +1835,7 @@ class BattleTooltips {
 		const pokemon = value.pokemon!;
 		const serverPokemon = value.serverPokemon;
 		const pokemonTypes = this.getPokemonTypes(pokemon);
+		
 		const targetAbility = target?.ability as string;
 		const targetStatus = target?.status as string;
 		const targetLastMove = target?.lastMove as string;
@@ -1928,7 +1929,6 @@ class BattleTooltips {
 		}
 
 		// other final damage modifiers
-		/*
 		if (['whirlpool', 'surf'].includes(move.id) && targetLastMove === 'Dive') {
 			value.modify(2, 'Dive');
 		}
@@ -1938,7 +1938,6 @@ class BattleTooltips {
 		if (['gust', 'twister'].includes(move.id) && ['Fly', 'Bounce', 'Sky Drop'].includes(targetLastMove)) {
 			value.modify(2, targetLastMove);
 		}
-		*/
 		if (['behemothbash', 'behemothblade', 'dynamaxcannon'].includes(move.id) && target?.volatiles['dynamax']) {
 			value.modify(2, 'Dynamax');
 		}
