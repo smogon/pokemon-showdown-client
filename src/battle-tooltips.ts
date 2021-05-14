@@ -922,7 +922,7 @@ class BattleTooltips {
 			if (clientPokemon.moveTrack.filter(([moveName]) => {
 				if (moveName.charAt(0) === '*') return false;
 				const move = this.battle.dex.moves.get(moveName);
-				return !move.isZ && !move.isMax;
+				return !move.isZ && !move.isMax && move.name !== 'Mimic';
 			}).length > 4) {
 				text += `(More than 4 moves is usually a sign of Illusion Zoroark/Zorua.) `;
 			}
@@ -1835,7 +1835,6 @@ class BattleTooltips {
 		const pokemon = value.pokemon!;
 		const serverPokemon = value.serverPokemon;
 		const pokemonTypes = this.getPokemonTypes(pokemon);
-
 		const targetAbility = target?.ability as string;
 		const targetStatus = target?.status as string;
 		const targetLastMove = target?.lastMove as string;
@@ -1929,6 +1928,7 @@ class BattleTooltips {
 		}
 
 		// other final damage modifiers
+		/*
 		if (['whirlpool', 'surf'].includes(move.id) && targetLastMove === 'Dive') {
 			value.modify(2, 'Dive');
 		}
@@ -1938,6 +1938,7 @@ class BattleTooltips {
 		if (['gust', 'twister'].includes(move.id) && ['Fly', 'Bounce', 'Sky Drop'].includes(targetLastMove)) {
 			value.modify(2, targetLastMove);
 		}
+		*/
 		if (['behemothbash', 'behemothblade', 'dynamaxcannon'].includes(move.id) && target?.volatiles['dynamax']) {
 			value.modify(2, 'Dynamax');
 		}
@@ -2239,7 +2240,7 @@ class BattleStatGuesser {
 			if (move.category === 'Status') {
 				if (['batonpass', 'healingwish', 'lunardance'].includes(move.id)) {
 					moveCount['Support']++;
-				} else if (['metronome', 'assist', 'copycat', 'mefirst'].includes(move.id)) {
+				} else if (['metronome', 'assist', 'copycat', 'mefirst', 'photongeyser', 'shellsidearm'].includes(move.id)) {
 					moveCount['Physical'] += 0.5;
 					moveCount['Special'] += 0.5;
 				} else if (move.id === 'naturepower') {
@@ -2273,7 +2274,7 @@ class BattleStatGuesser {
 			} else if (['counter', 'endeavor', 'metalburst', 'mirrorcoat', 'rapidspin'].includes(move.id)) {
 				moveCount['Support']++;
 			} else if ([
-				'nightshade', 'seismictoss', 'psywave', 'superfang', 'naturesmadness', 'foulplay', 'endeavor', 'finalgambit',
+				'nightshade', 'seismictoss', 'psywave', 'superfang', 'naturesmadness', 'foulplay', 'endeavor', 'finalgambit', 'bodypress',
 			].includes(move.id)) {
 				moveCount['Offense']++;
 			} else if (move.id === 'fellstinger') {
@@ -2285,7 +2286,7 @@ class BattleStatGuesser {
 				if (move.id === 'knockoff') {
 					moveCount['Support']++;
 				}
-				if (['scald', 'voltswitch', 'uturn'].includes(move.id)) {
+				if (['scald', 'voltswitch', 'uturn', 'flipturn'].includes(move.id)) {
 					moveCount[move.category] -= 0.2;
 				}
 			}
