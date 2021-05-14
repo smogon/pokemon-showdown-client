@@ -816,7 +816,7 @@ function toId() {
 		 * Send to sim server
 		 */
 		send: function (data, room) {
-			if (room && room !== 'lobby' && room !== true) {
+			if (room && room !== true) {
 				data = room + '|' + data;
 			} else if (room !== true) {
 				data = '|' + data;
