@@ -1858,7 +1858,7 @@ class BattleTooltips {
 		}
 
 		// abilities
-		if (target && !['singles', 'freeforall'].includes(this.battle.gameType)) {
+		if (!['singles', 'freeforall'].includes(this.battle.gameType)) {
 			if (foeActive.map(poke => poke?.ability).includes('Friend Guard')) {
 				let friendGuarded = [];
 				for (const active of foeActive) {
@@ -1871,16 +1871,16 @@ class BattleTooltips {
 				if (friendGuarded.includes(target as Pokemon)) value.abilityModify(0.75, 'Friend Guard');
 			}
 		}
-		if (target && targetAbility === 'Fluffy') {
+		if (targetAbility === 'Fluffy') {
 			let mod = 1.0;
 			if (move.flags['contact']) mod *= 0.5;
 			if (moveType === 'Fire') mod *= 2;
 			if (mod !== 1.0) value.abilityModify(mod, targetAbility);
 		}
-		if (target && targetAbility === 'Ice Scales' && move.category === 'Special') {
+		if (targetAbility === 'Ice Scales' && move.category === 'Special') {
 			value.abilityModify(0.5, targetAbility);
 		}
-		if (target && ['Multiscale', 'Shadow Shield'].includes(targetAbility) && target?.hp === target?.maxhp) {
+		if (['Multiscale', 'Shadow Shield'].includes(targetAbility) && target?.hp === target?.maxhp) {
 			value.abilityModify(0.5, targetAbility);
 		}
 		if (pokemon.ability === 'Parental Bond') {
@@ -1895,7 +1895,7 @@ class BattleTooltips {
 				value.modify(0.75, 'Spread move');
 			}
 		}
-		if (target && ['Battle Armor', 'Shell Armor'].includes(targetAbility) || !foe.sideConditions['luckychant']) {
+		if (['Battle Armor', 'Shell Armor'].includes(targetAbility) || !foe.sideConditions['luckychant']) {
 			if (move.willCrit || (pokemon.ability === 'Merciless' && ['psn', 'tox'].includes(targetStatus))) {
 				let mod = this.battle.gen <= 5 ? 2.0 : 1.5;
 				if (pokemon.ability === 'Sniper') mod *= 1.5;
@@ -1909,7 +1909,7 @@ class BattleTooltips {
 				value.modify(1.5, 'STAB');
 			}
 		}
-		if (target && target?.volatiles['tarshot'] && moveType === 'Fire') {
+		if (target?.volatiles['tarshot'] && moveType === 'Fire') {
 			value.modify(2, 'Tar Shot');
 		}
 		if (this.battle.gen > 2 && pokemon.status === 'brn' && move.id !== 'facade' && move.category === 'Physical') {
@@ -1929,13 +1929,13 @@ class BattleTooltips {
 		}
 
 		// other final damage modifiers
-		if (target && ['whirlpool', 'surf'].includes(move.id) && targetLastMove === 'Dive') {
+		if (['whirlpool', 'surf'].includes(move.id) && targetLastMove === 'Dive') {
 			value.modify(2, 'Dive');
 		}
-		if (target && ['earthquake', 'magnitude'].includes(move.id) && targetLastMove === 'Dig') {
+		if (['earthquake', 'magnitude'].includes(move.id) && targetLastMove === 'Dig') {
 			value.modify(2, 'Dig');
 		}
-		if (target && ['gust', 'twister'].includes(move.id) && ['Fly', 'Bounce', 'Sky Drop'].includes(targetLastMove)) {
+		if (['gust', 'twister'].includes(move.id) && ['Fly', 'Bounce', 'Sky Drop'].includes(targetLastMove)) {
 			value.modify(2, targetLastMove);
 		}
 		if (['behemothbash', 'behemothblade', 'dynamaxcannon'].includes(move.id) && target?.volatiles['dynamax']) {
@@ -1947,7 +1947,6 @@ class BattleTooltips {
 		if (foe.sideConditions['lightscreen'] && move.category === 'Special') {
 			value.modify(0.5, 'Light Screen');
 		}
-		console.log(pokemon);
 
 		return value;
 	}
