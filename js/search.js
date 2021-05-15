@@ -342,7 +342,7 @@
 
 		// abilities
 		if (gen >= 3 && this.engine.formatType !== 'letsgo') {
-			var abilities = Dex.forGen(gen).species.get(id).abilities;
+			var abilities = this.engine.dex.species.get(id).abilities;
 			if (gen >= 5) {
 				if (abilities['1']) {
 					buf += '<span class="col twoabilitycol">' + abilities['0'] + '<br />' +
@@ -365,7 +365,7 @@
 				}
 			} else {
 				buf += '<span class="col abilitycol">' + abilities['0'] + '</span>';
-				buf += '<span class="col abilitycol">' + (abilities['1'] ? abilities['1'] : '') + '</span>';
+				buf += '<span class="col abilitycol">' + (abilities['1'] || '') + '</span>';
 			}
 		} else {
 			buf += '<span class="col abilitycol"></span>';
