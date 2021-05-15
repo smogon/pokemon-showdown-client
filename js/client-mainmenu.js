@@ -232,14 +232,18 @@
 
 			var $challenge = $pmWindow.find('.challenge');
 			if (!formatName && !message) {
-				$challenge.remove();
-				this.closeNotification('challenge:' + oUserid);
+				if ($challenge.length) {
+					$challenge.remove();
+					this.closeNotification('challenge:' + oUserid);
+				}
 				return;
 			}
 
-			if ($challenge.length) {
+			if ($challenge.find('button[name=makeChallenge]').length) {
 				// we're currently trying to challenge that user; suppress the challenge and wait until later
 				// TODO: don't lose this challenge, but I'd rather wait for Preact client to fix that issue
+				// if we issue the challenge the window is open, the server will error out and re-send the
+				// challenge, but if we cancel, this challenge will be lost forever
 				return;
 			}
 
@@ -256,6 +260,7 @@
 				return;
 			}
 
+			app.playNotificationSound();
 			var buf = '<form class="battleform"><p>' + BattleLog.escapeHTML(message || (name + ' wants to battle!')) + '</p>';
 			if (formatName) {
 				buf += '<p><label class="label">' + (teamFormat ? 'Format' : 'Game') + ':</label>' + this.renderFormats(formatName, true) + '</p>';
