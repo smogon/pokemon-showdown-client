@@ -717,6 +717,7 @@
 					}
 					var $challenge = self.openChallenge(name, $pmWindow);
 					if (!$challenge.find('button[name=makeChallenge]').length) {
+						app.playNotificationSound();
 						var buf = '<form class="battleform"><p>' + BattleLog.escapeHTML(name) + ' wants to battle!</p>';
 						buf += '<p><label class="label">Format:</label>' + self.renderFormats(format, true) + '</p>';
 						buf += '<p><label class="label">Team:</label>' + self.renderTeams(format) + '</p>';
