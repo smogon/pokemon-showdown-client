@@ -2676,7 +2676,7 @@
 			}
 
 			// dynamax level
-			var dynamaxLevel = parseInt(this.$chart.find('input[name=dynamaxlevel]').val(), 10)
+			var dynamaxLevel = parseInt(this.$chart.find('input[name=dynamaxlevel]').val(), 10);
 			if (isNaN(dynamaxLevel)) dynamaxLevel = 10;
 			if (dynamaxLevel > 10) dynamaxLevel = 10;
 			if (dynamaxLevel < 0) dynamaxLevel = 10;
