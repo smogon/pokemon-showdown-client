@@ -226,6 +226,7 @@
 			var teamFormat = splitChallenge[1];
 			var message = splitChallenge[2];
 			var acceptButtonLabel = splitChallenge[3] || 'Accept';
+			var rejectButtonLabel = splitChallenge[4] || 'Reject';
 
 			var oUserid = toID(oName);
 			var userid = toID(name);
@@ -269,7 +270,7 @@
 				buf += '<p><label class="label">Team:</label>' + this.renderTeams(teamFormat) + '</p>';
 				buf += '<p><label class="checkbox"><input type="checkbox" name="private" ' + (Storage.prefs('disallowspectators') ? 'checked' : '') + ' /> <abbr title="You can still invite spectators by giving them the URL or using the /invite command">Don\'t allow spectators</abbr></label></p>';
 			}
-			buf += '<p class="buttonbar"><button name="acceptChallenge"><strong>' + BattleLog.escapeHTML(acceptButtonLabel) + '</strong></button> <button type="button" name="rejectChallenge">Reject</button></p></form>';
+			buf += '<p class="buttonbar"><button name="acceptChallenge"><strong>' + BattleLog.escapeHTML(acceptButtonLabel) + '</strong></button> <button type="button" name="rejectChallenge">' + BattleLog.escapeHTML(rejectButtonLabel) + '</button></p></form>';
 			$challenge.html(buf);
 		},
 		openPM: function (name, dontFocus) {
