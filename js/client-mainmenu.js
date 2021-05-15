@@ -19,7 +19,8 @@
 			'blur textarea': 'onBlurPM',
 			'click .spoiler': 'clickSpoiler',
 			'click button.formatselect': 'selectFormat',
-			'click button.teamselect': 'selectTeam'
+			'click button.teamselect': 'selectTeam',
+			'keyup input': 'selectTeammate'
 		},
 		initialize: function () {
 			this.$el.addClass('scrollable');
@@ -41,8 +42,10 @@
 				buf += '</div>';
 			} else {
 				buf += '<div class="menugroup"><form class="battleform" data-search="1">';
-				buf += '<p><label class="label">Format:</label>' + this.renderFormats() + '</p>';
+				buf += '<p><label class="label" name="formats">Format:</label>' + this.renderFormats() + '</p>';
 				buf += '<p><label class="label">Team:</label>' + this.renderTeams() + '</p>';
+				buf += '<p><label class="label" name="partner" style="display:none">';
+				buf += 'Partner: <input name="teammate" /></label></p>';
 				buf += '<p><label class="checkbox"><input type="checkbox" name="private" ' + (Storage.prefs('disallowspectators') ? 'checked' : '') + ' /> <abbr title="You can still invite spectators by giving them the URL or using the /invite command">Don\'t allow spectators</abbr></label></p>';
 				buf += '<p><button class="button mainmenu1 big" name="search"><strong>Battle!</strong><br /><small>Find a random opponent</small></button></p></form></div>';
 			}
@@ -110,6 +113,14 @@
 					"Please go to pokemonshowdown.com to update it."
 				);
 			}
+		},
+
+		selectTeammate: function (e) {
+			if (e.currentTarget.name !== 'teammate' || e.keyCode !== 13) return;
+			var partner = toID(e.currentTarget.value);
+			if (!partner.length) return;
+			app.send('/requestpartner ' + partner + ',' + this.format);
+			e.currentTarget.value = '';
 		},
 
 		addPseudoPM: function (options) {
@@ -214,6 +225,15 @@
 			if (!$pmWindow.hasClass('focused') && name.substr(1) !== app.user.get('name')) {
 				$pmWindow.find('h3').addClass('pm-notifying');
 			}
+		},
+		resetBattleForm: function () {
+			var buf = '<p><label class="label">Format:</label>' + this.renderFormats() + '</p>';
+			buf += '<p><label class="label"  name="formats">Team:</label>' + this.renderTeams() + '</p>';
+			buf += '<p><label class="label" name="partner" style="display:none">';
+			buf += 'Partner: <input name="teammate" /></label></p>';
+			buf += '<p><label class="checkbox"><input type="checkbox" name="private" ' + (Storage.prefs('disallowspectators') ? 'checked' : '') + ' /> <abbr title="You can still invite spectators by giving them the URL or using the /invite command">Don\'t allow spectators</abbr></label></p>';
+			buf += '<p><button class="button mainmenu1 big" name="search"><strong>Battle!</strong><br /><small>Find a random opponent</small></button></p></form>';
+			this.$el.find('form.battleform').first().html(buf);
 		},
 		openPM: function (name, dontFocus) {
 			var userid = toID(name);
@@ -1015,6 +1035,60 @@
 			this.searching = false;
 			this.updateSearch();
 		},
+		battleFormRequest: function (user, formatid, message, cmd, denyCmd) {
+			var $el = this.$el.find('form.battleform').first();
+			$el.find('p.cancel.buttonbar').remove();
+			$el.append(
+				'<p class="cancel buttonbar">' +
+				'<button name="cancelBattleRequest" value="' + toID(user) + "|" + denyCmd + '">Cancel</button></p>'
+			);
+			$el.find('button[name=format]').replaceWith(this.renderFormats(formatid));
+			$el.find('label').first().hide();
+			$el.find('button.formatselect').attr({"disabled": ""});
+			var $teamButton = $el.find('button[name=team]');
+			var teamIndex = 0;
+			for (var i = 0; i < Storage.teams.length; i++) {
+				if (Storage.teams[i].format === toID(formatid)) {
+					teamIndex = i;
+					break;
+				}
+			}
+			$teamButton.replaceWith(this.renderTeams(formatid, teamIndex));
+			var $button = $el.find('button.mainmenu1.big');
+			$button.val(user);
+			$el.find('label.checkbox').hide();
+			$button.attr({
+				"name": "acceptBattleRequest",
+				"value": toID(user) + '|' + cmd + '|' + message,
+			});
+			$button.html('<strong>Battle!</strong><br /><small>' + user + ' invited you to battle!</small>');
+		},
+		acceptBattleRequest: function (args) {
+			var parts = args.split('|');
+			var user = parts[0];
+			var cmd = parts[1] || '/acceptpartner';
+			var message = parts[2] || "Your partner is searching now";
+			var $el = this.$el.find('form.battleform').first();
+			var teamIndex = $el.find('button[name=team]').val();
+			var team = null;
+			if (Storage.teams[teamIndex]) team = Storage.teams[teamIndex];
+			app.sendTeam(team);
+			var $button = $el.find('button.mainmenu1.big');
+			$button.html('<strong>' + message + '</strong>');
+			$button.addClass('disabled');
+			this.throttleDelay = setTimeout(function () {
+				app.send(cmd + " " + user);
+				app.rooms[''].resetBattleForm();
+			}, 3000);
+		},
+		cancelBattleRequest: function (args) {
+			var parts = args.split('|');
+			var requester = parts[0];
+			var denyCmd = parts[1] || '/denypartner';
+			this.resetBattleForm();
+			if (this.throttleDelay) clearTimeout(this.throttleDelay);
+			app.send(denyCmd + ' ' + requester);
+		},
 		finduser: function () {
 			if (app.isDisconnected) {
 				app.addPopupMessage("You are offline.");
@@ -1182,6 +1256,10 @@
 				app.rooms[''].curTeamIndex = -1;
 				var $teamButton = this.sourceEl.closest('form').find('button[name=team]');
 				if ($teamButton.length) $teamButton.replaceWith(app.rooms[''].renderTeams(format));
+				var $partnerLabels = $('label[name=partner]');
+				$partnerLabels.each(function (i, label) {
+					label.style.display = BattleFormats[format].partner ? '' : 'none';
+				});
 			}
 			this.sourceEl.val(format).html(BattleLog.escapeFormat(format) || '(Select a format)');
 
