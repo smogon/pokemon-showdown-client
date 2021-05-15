@@ -202,7 +202,7 @@
 			}
 
 			var $lastMessage = $chat.children().last();
-			var textContent = $lastMessage.html().indexOf('<span class="spoiler">') >= 0 ? '(spoiler)' : $lastMessage.children().last().text();
+			var textContent = $lastMessage.html().includes('<span class="spoiler">') ? '(spoiler)' : $lastMessage.children().last().text();
 			if (textContent && app.curSideRoom && app.curSideRoom.addPM && Dex.prefs('inchatpm')) {
 				app.curSideRoom.addPM(name, message, target);
 			}
