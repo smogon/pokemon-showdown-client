@@ -210,6 +210,14 @@ class BattleLog {
 			divHTML = '<div class="chat"><small style="color:#999">[DEBUG] ' + BattleLog.escapeHTML(args[1]) + '.</small></div>';
 			break;
 
+		case 'notify':
+			const title = args[1];
+			const body = args[2];
+			const roomid = this.scene?.battle.roomid;
+			if (!roomid) break;
+			app.rooms[roomid].notifyOnce(title, body, 'highlight');
+			break;
+
 		case 'seed': case 'choice': case ':': case 'timer': case 't:':
 		case 'J': case 'L': case 'N': case 'spectator': case 'spectatorleave':
 		case 'initdone':
