@@ -96,11 +96,17 @@ class PSTeambuilder {
 				buf += '|';
 			}
 
-			if (set.pokeball || (set.hpType && toID(set.hpType) !== hasHP) || (set.dynamaxLevel !== undefined && set.dynamaxLevel !== 10) || set.gigantamax) {
+			if (set.pokeball || (set.hpType && toID(set.hpType) !== hasHP) || set.gigantamax) {
 				buf += ',' + (set.hpType || '');
 				buf += ',' + toID(set.pokeball);
-				buf += ',' + (set.dynamaxLevel !== 10 ? set.dynamaxLevel : '');
 				buf += ',' + (set.gigantamax ? 'G' : '');
+			}
+
+			// dynamax level
+			if (set.dynamaxLevel !== undefined && set.dynamaxLevel !== 10) {
+				buf += ',' + set.dynamaxLevel
+			} else {
+				buf += ','
 			}
 		}
 
@@ -191,8 +197,8 @@ class PSTeambuilder {
 				set.happiness = (misc[0] ? Number(misc[0]) : undefined);
 				set.hpType = misc[1];
 				set.pokeball = misc[2];
-				set.dynamaxLevel = (misc[3] ? Number(misc[3]) : 10);
-				set.gigantamax = !!misc[4];
+				set.gigantamax = !!misc[3];
+				set.dynamaxLevel = (misc[4] ? Number(misc[4]) : undefined);
 			}
 		}
 
@@ -280,7 +286,7 @@ class PSTeambuilder {
 		if (typeof set.happiness === 'number' && set.happiness !== 255 && !isNaN(set.happiness)) {
 			text += `Happiness: ${set.happiness}  \n`;
 		}
-		if (typeof set.dynamaxLevel === 'number' && set.dynamaxLevel !== 255 && !isNaN(set.dynamaxLevel)) {
+		if (typeof set.dynamaxLevel === 'number' && set.dynamaxLevel !== 10 && !isNaN(set.dynamaxLevel)) {
 			text += `Dynamax Level: ${set.dynamaxLevel}  \n`;
 		}
 		if (set.gigantamax) {
