@@ -466,6 +466,9 @@ class BattleLog {
 		if (window.BattleFormats && BattleFormats[formatid]) {
 			return this.escapeHTML(BattleFormats[formatid].name);
 		}
+		if (window.NonBattleGames && NonBattleGames[formatid]) {
+			return this.escapeHTML(NonBattleGames[formatid]);
+		}
 		return this.escapeHTML(formatid);
 	}
 

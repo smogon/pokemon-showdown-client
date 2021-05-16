@@ -92,7 +92,8 @@
 				return buf + ' aria-label="Join chatroom"><i class="fa fa-plus" style="margin:7px auto -6px auto"></i> <span>&nbsp;</span></a></li>';
 			case 'battle':
 				var name = BattleLog.escapeHTML(room.title);
-				var idChunks = id.substr(7).split('-');
+				var offset = id.startsWith('game-') ? 5 : 7;
+				var idChunks = id.substr(offset).split('-');
 				var formatid;
 				if (idChunks.length <= 1) {
 					if (idChunks[0] === 'uploadedreplay') formatid = 'Uploaded Replay';
