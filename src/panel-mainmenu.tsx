@@ -94,6 +94,7 @@ class MainMenuRoom extends PSRoom {
 
 		let column = 0;
 
+		window.NonBattleGames = {rps: 'Rock Paper Scissors'};
 		window.BattleFormats = {};
 		for (let j = 1; j < formatsList.length; j++) {
 			const entry = formatsList[j];

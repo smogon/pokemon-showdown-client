@@ -1212,6 +1212,7 @@ function toId() {
 			var column = 0;
 			var columnChanged = false;
 
+			window.NonBattleGames = {rps: 'Rock Paper Scissors'};
 			window.BattleFormats = {};
 			for (var j = 1; j < formatsList.length; j++) {
 				if (isSection) {
