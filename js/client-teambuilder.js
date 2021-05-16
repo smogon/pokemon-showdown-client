@@ -1208,7 +1208,7 @@
 					}
 				}
 				if (this.curTeam.gen === 8) {
-					if (!species.cannotDynamax) {
+					if (!species.cannotDynamax && set.dynamaxLevel !== 10) {
 						buf += '<span class="detailcell"><label>Dmax Level</label>' + (typeof set.dynamaxLevel === 'number' ? set.dynamaxLevel : 10) + '</span>';
 					}
 					if (species.canGigantamax || species.forme === 'Gmax') {
@@ -2661,10 +2661,7 @@
 
 			// happiness
 			var happiness = parseInt(this.$chart.find('input[name=happiness]').val(), 10);
-			if (isNaN(happiness)) happiness = 255;
-			if (happiness > 255) happiness = 255;
-			if (happiness < 0) happiness = 255;
-			set.happiness = happiness;
+			if (isNaN(happiness) || happiness > 255 || happiness < 0) happiness = 255;
 			if (set.happiness === 255) delete set.happiness;
 
 			// shiny
@@ -2677,9 +2674,7 @@
 
 			// dynamax level
 			var dynamaxLevel = parseInt(this.$chart.find('input[name=dynamaxlevel]').val(), 10);
-			if (isNaN(dynamaxLevel)) dynamaxLevel = 10;
-			if (dynamaxLevel > 10) dynamaxLevel = 10;
-			if (dynamaxLevel < 0) dynamaxLevel = 10;
+			if (isNaN(dynamaxLevel) || dynamaxLevel > 10 || dynamaxLevel < 0) dynamaxLevel = 10;
 			set.dynamaxLevel = dynamaxLevel;
 			if (set.dynamaxLevel === 10) delete set.dynamaxLevel;
 
