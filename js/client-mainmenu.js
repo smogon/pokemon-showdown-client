@@ -232,19 +232,19 @@
 			var userid = toID(name);
 
 			var $challenge = $pmWindow.find('.challenge');
+			if ($challenge.find('button[name=makeChallenge]').length) {
+				// we're currently trying to challenge that user; suppress the challenge and wait until later
+				$challenge.find('button[name=dismissChallenge]').attr(
+					'data-pendingchallenge', challenge ? (name + '|' + oName + '|' + challenge) : ''
+				);
+				return;
+			}
+
 			if (!formatName && !message) {
 				if ($challenge.length) {
 					$challenge.remove();
 					this.closeNotification('challenge:' + oUserid);
 				}
-				return;
-			}
-
-			if ($challenge.find('button[name=makeChallenge]').length) {
-				// we're currently trying to challenge that user; suppress the challenge and wait until later
-				// TODO: don't lose this challenge, but I'd rather wait for Preact client to fix that issue
-				// if we issue the challenge the window is open, the server will error out and re-send the
-				// challenge, but if we cancel, this challenge will be lost forever
 				return;
 			}
 
@@ -942,7 +942,17 @@
 			app.send('/cancelchallenge ' + userid);
 		},
 		dismissChallenge: function (i, target) {
-			$(target).closest('.challenge').remove();
+			$challenge = $(target).closest('.challenge');
+			var pChallenge = $challenge.find('button[name=dismissChallenge]').attr('data-pendingchallenge');
+			var $pmWindow = $challenge.closest('.pm-window');
+			$challenge.remove();
+			if (pChallenge) {
+				var pChallengeParts = pChallenge.split('|');
+				var name = pChallengeParts[0];
+				var oName = pChallengeParts[1];
+				var challenge = pChallengeParts.slice(2).join('|');
+				this.updateChallenge($pmWindow, challenge, name, oName);
+			}
 		},
 		format: function (format, button) {
 			if (window.BattleFormats) app.addPopup(FormatPopup, {format: format, sourceEl: button});
