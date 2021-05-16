@@ -768,11 +768,16 @@ Storage.packTeam = function (team) {
 			buf += '|';
 		}
 
-		if (set.pokeball || (set.hpType && !hasHP) || (set.dynamaxLevel !== undefined && set.dynamaxLevel !== 10) || set.gigantamax) {
+		if (set.pokeball || (set.hpType && !hasHP) || set.gigantamax) {
 			buf += ',' + (set.hpType || '');
 			buf += ',' + toID(set.pokeball);
-			buf += ',' + (set.dynamaxLevel !== 10 ? set.dynamaxLevel : '');
 			buf += ',' + (set.gigantamax ? 'G' : '');
+		}
+
+		if (set.dynamaxLevel !== undefined && set.dynamaxLevel !== 10) {
+			buf += ',' + set.dynamaxLevel
+		} else {
+			buf += ','
 		}
 	}
 
@@ -885,8 +890,8 @@ Storage.fastUnpackTeam = function (buf) {
 			set.happiness = (misc[0] ? Number(misc[0]) : 255);
 			set.hpType = misc[1];
 			set.pokeball = misc[2];
-			set.dynamaxLevel = (misc[3] ? Number(misc[3]) : 10);
-			set.gigantamax = !!misc[4];
+			set.gigantamax = !!misc[3];
+			set.dynamaxLevel = (misc[4] ? Number(misc[4]) : 10);
 		}
 		if (j < 0) break;
 		i = j + 1;
@@ -1002,8 +1007,8 @@ Storage.unpackTeam = function (buf) {
 			set.happiness = (misc[0] ? Number(misc[0]) : 255);
 			set.hpType = misc[1];
 			set.pokeball = misc[2];
-			set.dynamaxLevel = (misc[3] ? Number(misc[3]) : 10);
-			set.gigantamax = !!misc[4];
+			set.gigantamax = !!misc[3];
+			set.dynamaxLevel = (misc[4] ? Number(misc[4]) : 10);
 		}
 		if (j < 0) break;
 		i = j + 1;
