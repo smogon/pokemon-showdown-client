@@ -186,6 +186,10 @@
 			var autoscroll = ($chatFrame.scrollTop() + 60 >= $chat.height() - $chatFrame.height());
 
 			var parsedMessage = MainMenuRoom.parseChatMessage(message, name, ChatRoom.getTimestamp('pms'), false, $chat, false);
+			if (typeof parsedMessage.challenge === 'string') {
+				this.updateChallenge($pmWindow, parsedMessage.challenge, name, oName);
+				return;
+			}
 			var mayNotify = true;
 			if (typeof parsedMessage === 'object' && 'noNotify' in parsedMessage) {
 				mayNotify = !parsedMessage.noNotify;
@@ -198,7 +202,7 @@
 			}
 
 			var $lastMessage = $chat.children().last();
-			var textContent = $lastMessage.html().indexOf('<span class="spoiler">') >= 0 ? '(spoiler)' : $lastMessage.children().last().text();
+			var textContent = $lastMessage.html().includes('<span class="spoiler">') ? '(spoiler)' : $lastMessage.children().last().text();
 			if (textContent && app.curSideRoom && app.curSideRoom.addPM && Dex.prefs('inchatpm')) {
 				app.curSideRoom.addPM(name, message, target);
 			}
@@ -214,6 +218,60 @@
 			if (!$pmWindow.hasClass('focused') && name.substr(1) !== app.user.get('name')) {
 				$pmWindow.find('h3').addClass('pm-notifying');
 			}
+		},
+		updateChallenge: function ($pmWindow, challenge, name, oName) {
+			var splitChallenge = challenge.split('|');
+
+			var formatName = splitChallenge[0];
+			var teamFormat = splitChallenge[1];
+			var message = splitChallenge[2];
+			var acceptButtonLabel = splitChallenge[3] || 'Accept';
+			var rejectButtonLabel = splitChallenge[4] || 'Reject';
+
+			var oUserid = toID(oName);
+			var userid = toID(name);
+
+			var $challenge = $pmWindow.find('.challenge');
+			if ($challenge.find('button[name=makeChallenge]').length) {
+				// we're currently trying to challenge that user; suppress the challenge and wait until later
+				$challenge.find('button[name=dismissChallenge]').attr(
+					'data-pendingchallenge', challenge ? (name + '|' + oName + '|' + challenge) : ''
+				);
+				return;
+			}
+
+			if (!formatName && !message) {
+				if ($challenge.length) {
+					$challenge.remove();
+					this.closeNotification('challenge:' + oUserid);
+				}
+				return;
+			}
+
+			$challenge = this.openChallenge(oName, $pmWindow);
+
+			if (userid !== oUserid) {
+				// we are sending the challenge
+				var buf = '<form class="battleform"><p>Waiting for ' + BattleLog.escapeHTML(oName) + '...</p>';
+				if (formatName) {
+					buf += '<p><label class="label">' + (teamFormat ? 'Format' : 'Game') + ':</label>' + this.renderFormats(formatName, true) + '</p>';
+				}
+				buf += '<p class="buttonbar"><button name="cancelChallenge">Cancel</button></p></form>';
+				$challenge.html(buf);
+				return;
+			}
+
+			app.playNotificationSound();
+			var buf = '<form class="battleform"><p>' + BattleLog.escapeHTML(message || (name + ' wants to battle!')) + '</p>';
+			if (formatName) {
+				buf += '<p><label class="label">' + (teamFormat ? 'Format' : 'Game') + ':</label>' + this.renderFormats(formatName, true) + '</p>';
+			}
+			if (teamFormat) {
+				buf += '<p><label class="label">Team:</label>' + this.renderTeams(teamFormat) + '</p>';
+				buf += '<p><label class="checkbox"><input type="checkbox" name="private" ' + (Storage.prefs('disallowspectators') ? 'checked' : '') + ' /> <abbr title="You can still invite spectators by giving them the URL or using the /invite command">Don\'t allow spectators</abbr></label></p>';
+			}
+			buf += '<p class="buttonbar"><button name="acceptChallenge"><strong>' + BattleLog.escapeHTML(acceptButtonLabel) + '</strong></button> <button type="button" name="rejectChallenge">' + BattleLog.escapeHTML(rejectButtonLabel) + '</button></p></form>';
+			$challenge.html(buf);
 		},
 		openPM: function (name, dontFocus) {
 			var userid = toID(name);
@@ -831,17 +889,20 @@
 			var userid = $pmWindow.data('userid');
 
 			var format = $pmWindow.find('button[name=format]').val();
-			var teamIndex = $pmWindow.find('button[name=team]').val();
+			var $teamButton = $pmWindow.find('button[name=team]');
 			var privacy = this.adjustPrivacy($pmWindow.find('input[name=private]').is(':checked'));
-			var team = null;
-			if (Storage.teams[teamIndex]) team = Storage.teams[teamIndex];
-			if (format.indexOf('@@@') === -1 && !window.BattleFormats[format].team && !team) {
-				app.addPopupMessage("You need to go into the Teambuilder and build a team for this format.");
-				return;
-			}
 
 			target.disabled = true;
-			app.sendTeam(team);
+			if ($teamButton.length) {
+				var teamIndex = $teamButton.val();
+				var team = null;
+				if (Storage.teams[teamIndex]) team = Storage.teams[teamIndex];
+				if (format.indexOf('@@@') === -1 && !window.BattleFormats[format].team && !team) {
+					app.addPopupMessage("You need to go into the Teambuilder and build a team for this format.");
+					return;
+				}
+				app.sendTeam(team);
+			}
 			app.send(privacy + '/accept ' + userid);
 		},
 		rejectChallenge: function (i, target) {
@@ -881,7 +942,17 @@
 			app.send('/cancelchallenge ' + userid);
 		},
 		dismissChallenge: function (i, target) {
-			$(target).closest('.challenge').remove();
+			$challenge = $(target).closest('.challenge');
+			var pChallenge = $challenge.find('button[name=dismissChallenge]').attr('data-pendingchallenge');
+			var $pmWindow = $challenge.closest('.pm-window');
+			$challenge.remove();
+			if (pChallenge) {
+				var pChallengeParts = pChallenge.split('|');
+				var name = pChallengeParts[0];
+				var oName = pChallengeParts[1];
+				var challenge = pChallengeParts.slice(2).join('|');
+				this.updateChallenge($pmWindow, challenge, name, oName);
+			}
 		},
 		format: function (format, button) {
 			if (window.BattleFormats) app.addPopup(FormatPopup, {format: format, sourceEl: button});
@@ -1108,6 +1179,8 @@
 				return {message: '<div class="chat chatmessage-' + toID(name) + '">' + BattleLog.sanitizeHTML(target) + '</div>', noNotify: isChat};
 			case 'nonotify':
 				return {message: '<div class="chat">' + timestamp + BattleLog.sanitizeHTML(target) + '</div>', noNotify: true};
+			case 'challenge':
+				return {challenge: target};
 			default:
 				// Not a command or unsupported. Parsed as a normal chat message.
 				if (!name) {
