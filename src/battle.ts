@@ -1264,9 +1264,9 @@ class Battle {
 		if (this.seeking === null) this.turnsSinceMoved++;
 
 		this.scene.incrementTurn();
-		// (1) echoedVoiceState is only true if Echoed Voice is used by at least one Pokemon per turn
-		// (2) If echoedVoiceState is never made to be true in a turn, the BP is reset to normal
-		// (3) echoedVoicestate is reset to false regardless of each turn to check activation next turn
+		// echoedVoiceState is only true if Echoed Voice is used by at least one Pokemon per turn
+		// If echoedVoiceState is never made to be true in a turn, the BP is reset to normal
+		// echoedVoicestate is reset to false regardless of each turn to check activation next turn
 		if (!this.echoedVoiceState) this.echoedVoiceMultiplier = 1;
 		this.echoedVoiceState = false;
 
