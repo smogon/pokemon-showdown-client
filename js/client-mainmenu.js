@@ -942,7 +942,7 @@
 			app.send('/cancelchallenge ' + userid);
 		},
 		dismissChallenge: function (i, target) {
-			$challenge = $(target).closest('.challenge');
+			var $challenge = $(target).closest('.challenge');
 			var pChallenge = $challenge.find('button[name=dismissChallenge]').attr('data-pendingchallenge');
 			var $pmWindow = $challenge.closest('.pm-window');
 			$challenge.remove();
