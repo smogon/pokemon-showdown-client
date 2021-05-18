@@ -1208,7 +1208,6 @@
 					}
 				}
 				if (this.curTeam.gen === 8) {
-					console.log(typeof set.dynamaxLevel, set.dynamaxLevel)
 					if (!species.cannotDynamax && set.dynamaxLevel !== 10 && set.dynamaxLevel !== undefined) {
 						buf += '<span class="detailcell"><label>Dmax Level</label>' + (typeof set.dynamaxLevel === 'number' ? set.dynamaxLevel : 10) + '</span>';
 					}
