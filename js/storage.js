@@ -771,7 +771,7 @@ Storage.packTeam = function (team) {
 		if (set.pokeball || (set.hpType && !hasHP) || (set.dynamaxLevel !== undefined && set.dynamaxLevel !== 10) || set.gigantamax) {
 			buf += ',' + (set.hpType || '');
 			buf += ',' + toID(set.pokeball);
-			buf += ',' + (set.dynamaxLevel !== 10 ? set.dynamaxLevel : '');
+			buf += ',' + (set.dynamaxLevel !== undefined && set.dynamaxLevel !== 10 ? set.dynamaxLevel : '');
 			buf += ',' + (set.gigantamax ? 'G' : '');
 		}
 	}
