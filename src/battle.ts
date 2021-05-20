@@ -2809,6 +2809,7 @@ class Battle {
 		}
 		case '-sideswitch': {
 			this.swapSideConditions();
+			this.scene.updateWeather();
 			this.log(args, kwArgs);
 			break;
 		}
