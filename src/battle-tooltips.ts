@@ -1076,7 +1076,7 @@ class BattleTooltips {
 			stats.atk = Math.floor(stats.atk * 1.5);
 		}
 		if (weather) {
-			if (this.battle.gen >= 4 && this.pokemonHasType(serverPokemon, 'Rock') && weather === 'sandstorm') {
+			if (this.battle.gen >= 4 && this.pokemonHasType(serverPokemon, 'Rock', clientPokemon?.getTypeList(serverPokemon)) && weather === 'sandstorm') {
 				stats.spd = Math.floor(stats.spd * 1.5);
 			}
 			if (ability === 'sandrush' && weather === 'sandstorm') {
@@ -1412,7 +1412,7 @@ class BattleTooltips {
 		value.reset(move.accuracy === true ? 0 : move.accuracy, true);
 
 		let pokemon = value.pokemon!;
-		if (move.id === 'toxic' && this.battle.gen >= 6 && this.pokemonHasType(pokemon, 'Poison')) {
+		if (move.id === 'toxic' && this.battle.gen >= 6 && this.pokemonHasType(pokemon, 'Poison', pokemon.getTypeList())) {
 			value.set(0, "Poison type");
 			return value;
 		}
@@ -1433,7 +1433,7 @@ class BattleTooltips {
 				return value;
 			}
 			if (move.id === 'sheercold' && this.battle.gen >= 7) {
-				if (!this.pokemonHasType(pokemon, 'Ice')) value.set(20, 'not Ice-type');
+				if (!this.pokemonHasType(pokemon, 'Ice', pokemon.getTypeList())) value.set(20, 'not Ice-type');
 			}
 			if (target) {
 				if (pokemon.level < target.level) {
