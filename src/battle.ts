@@ -1310,27 +1310,32 @@ class Battle {
 		this.weather = weather;
 		this.scene.updateWeather();
 	}
-	switchConditionSide(effect: Effect) {
+	swapSideConditions() {
+		const sideConditions = [
+			'mist', 'lightscreen', 'reflect', 'spikes', 'safeguard', 'tailwind', 'toxicspikes', 'stealthrock', 'waterpledge', 'firepledge', 'grasspledge', 'stickyweb', 'auroraveil', 'gmaxsteelsurge', 'gmaxcannonade', 'gmaxvinelash', 'gmaxwildfire',
+		];
 		if (this.gameType === 'freeforall') {
 			// placeholder for ffa
 			return;
 		} else {
 			let side1 = this.sides[0];
 			let side2 = this.sides[1];
-			if (side1.sideConditions[effect.id] && side2.sideConditions[effect.id]) {
-				[side1.sideConditions[effect.id], side2.sideConditions[effect.id]] = [
-					side2.sideConditions[effect.id], side1.sideConditions[effect.id],
-				];
-				this.scene.addSideCondition(side1.n, effect.id);
-				this.scene.addSideCondition(side2.n, effect.id);
-			} else if (side1.sideConditions[effect.id] && !side2.sideConditions[effect.id]) {
-				side2.sideConditions[effect.id] = side1.sideConditions[effect.id];
-				this.scene.addSideCondition(side2.n, effect.id);
-				side1.removeSideCondition(effect.name);
-			} else if (side2.sideConditions[effect.id] && !side1.sideConditions[effect.id]) {
-				side1.sideConditions[effect.id] = side2.sideConditions[effect.id];
-				this.scene.addSideCondition(side1.n, effect.id);
-				side2.removeSideCondition(effect.name);
+			for (const id of sideConditions) {
+				if (side1.sideConditions[id] && side2.sideConditions[id]) {
+					[side1.sideConditions[id], side2.sideConditions[id]] = [
+						side2.sideConditions[id], side1.sideConditions[id],
+					];
+					this.scene.addSideCondition(side1.n, id as ID);
+					this.scene.addSideCondition(side2.n, id as ID);
+				} else if (side1.sideConditions[id] && !side2.sideConditions[id]) {
+					side2.sideConditions[id] = side1.sideConditions[id];
+					this.scene.addSideCondition(side2.n, id as ID);
+					side1.removeSideCondition(id);
+				} else if (side2.sideConditions[id] && !side1.sideConditions[id]) {
+					side1.sideConditions[id] = side2.sideConditions[id];
+					this.scene.addSideCondition(side1.n, id as ID);
+					side2.removeSideCondition(id);
+				}
 			}
 		}
 	}
@@ -2803,26 +2808,7 @@ class Battle {
 			break;
 		}
 		case '-sideswitch': {
-			let effect = Dex.getEffect(args[1]);
-			this.switchConditionSide(effect);
-
-			switch (effect.id) {
-			case 'tailwind':
-			case 'auroraveil':
-			case 'reflect':
-			case 'lightscreen':
-			case 'safeguard':
-			case 'mist':
-			case 'gmaxwildfire':
-			case 'gmaxvolcalith':
-			case 'gmaxvinelash':
-			case 'gmaxcannonade':
-			case 'grasspledge':
-			case 'firepledge':
-			case 'waterpledge':
-				this.scene.updateWeather();
-				break;
-			}
+			this.swapSideConditions();
 			this.log(args, kwArgs);
 			break;
 		}
