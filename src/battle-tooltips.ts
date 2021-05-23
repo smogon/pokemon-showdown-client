@@ -1021,7 +1021,7 @@ class BattleTooltips {
 		) {
 			item = '' as ID;
 		}
-		
+
 		const speciesForme = clientPokemon ? clientPokemon.getSpeciesForme() : serverPokemon.speciesForme;
 		let species = Dex.species.get(speciesForme).baseSpecies;
 
