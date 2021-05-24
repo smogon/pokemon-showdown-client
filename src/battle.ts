@@ -1364,8 +1364,17 @@ class Battle {
 					}
 				}
 			}
-			if (!ngasActive) {
-				if (['foeSide', 'all', 'allAdjacent', 'allAdjacentFoes'].includes(move.target)) {
+			// Sticky Web is never affected by pressure
+			if ((!target?.volatiles['gastroacid'] || !ngasActive) && move.id !== 'stickyweb') {
+				// Hardcode for moves without a target in singles
+				const activeFoe = pokemon.side.foe.active[0];
+				if (
+					!target && this.gameType === 'singles' &&
+					!['self', 'allies', 'allySide', 'adjacentAlly', 'adjacentAllyOrSelf'].includes(move.target) &&
+					!activeFoe?.fainted && toID(activeFoe?.ability) === 'pressure'
+				) {
+					pp += 1;
+				} else if (['all', 'allAdjacent', 'allAdjacentFoes', 'foeSide'].includes(move.target)) {
 					// Looping through all sides for FFA
 					for (const side of this.sides) {
 						if (side === pokemon.side || side === pokemon.side.ally) continue;
