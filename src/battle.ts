@@ -1365,10 +1365,10 @@ class Battle {
 				}
 			}
 			if (!ngasActive) {
-				if (move.target === 'all') {
+				if (['foeSide', 'all', 'allAdjacent', 'allAdjacentFoes'].includes(move.target)) {
 					// Looping through all sides for FFA
 					for (const side of this.sides) {
-						if (side === pokemon.side) continue;
+						if (side === pokemon.side || side === pokemon.side.ally) continue;
 						for (const active of side.active) {
 							if (active && !active.fainted && toID(active.ability) === 'pressure') {
 								pp += 1;
