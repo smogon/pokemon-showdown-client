@@ -1365,27 +1365,31 @@ class Battle {
 				}
 			}
 			// Sticky Web is never affected by pressure
-			if ((!target?.volatiles['gastroacid'] || !ngasActive) && move.id !== 'stickyweb') {
-				// Hardcode for moves without a target in singles
-				const activeFoe = pokemon.side.foe.active[0];
+			if (!ngasActive && move.id !== 'stickyweb') {
+				const foeTargets = [];
+
 				if (
 					!target && this.gameType === 'singles' &&
-					!['self', 'allies', 'allySide', 'adjacentAlly', 'adjacentAllyOrSelf'].includes(move.target) &&
-					!activeFoe?.fainted && toID(activeFoe?.ability) === 'pressure'
+					!['self', 'allies', 'allySide', 'adjacentAlly', 'adjacentAllyOrSelf'].includes(move.target)
 				) {
-					pp += 1;
+					// Hardcode for moves without a target in singles
+					foeTargets.push(pokemon.side.foe.active[0]);
 				} else if (['all', 'allAdjacent', 'allAdjacentFoes', 'foeSide'].includes(move.target)) {
 					// Looping through all sides for FFA
 					for (const side of this.sides) {
 						if (side === pokemon.side || side === pokemon.side.ally) continue;
 						for (const active of side.active) {
-							if (active && !active.fainted && toID(active.ability) === 'pressure') {
-								pp += 1;
-							}
+							foeTargets.push(active);
 						}
 					}
-				} else if (target && target.side !== pokemon.side && !target.fainted && toID(target.ability) === 'pressure') {
-					pp += 1;
+				} else if (target && target.side !== pokemon.side) {
+					foeTargets.push(target);
+				}
+
+				for (const foe of foeTargets) {
+					if (foe && !foe.fainted && toID(foe.ability) === 'pressure' && !foe.volatiles['gastroacid']) {
+						pp += 1;
+					}
 				}
 			}
 			pokemon.rememberMove(moveName, pp);
