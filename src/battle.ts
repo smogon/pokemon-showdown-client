@@ -1355,14 +1355,29 @@ class Battle {
 				}
 			}
 			let pp = 1;
-			if (move.target === "all") {
-				for (const active of pokemon.side.foe.active) {
-					if (active && toID(active.ability) === 'pressure') {
-						pp += 1;
+			let ngasActive = false;
+			for (const side of this.sides) {
+				for (const active of side.active) {
+					if (active && toID(active.ability) === 'neutralizinggas') {
+						ngasActive = true;
+						break;
 					}
 				}
-			} else if (target && target.side !== pokemon.side && toID(target.ability) === 'pressure') {
-				pp += 1;
+			}
+			if (!ngasActive) {
+				if (move.target === 'all') {
+					// Looping through all sides for FFA
+					for (const side of this.sides) {
+						if (side === pokemon.side) continue;
+						for (const active of side.active) {
+							if (active && !active.fainted && toID(active.ability) === 'pressure') {
+								pp += 1;
+							}
+						}
+					}
+				} else if (target && target.side !== pokemon.side && !target.fainted && toID(target.ability) === 'pressure') {
+					pp += 1;
+				}
 			}
 			pokemon.rememberMove(moveName, pp);
 		}
