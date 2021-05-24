@@ -1358,7 +1358,7 @@ class Battle {
 			let ngasActive = false;
 			for (const side of this.sides) {
 				for (const active of side.active) {
-					if (active && toID(active.ability) === 'neutralizinggas') {
+					if (active && !active.fainted && toID(active.ability) === 'neutralizinggas' && !active.volatiles['gastroacid']) {
 						ngasActive = true;
 						break;
 					}
