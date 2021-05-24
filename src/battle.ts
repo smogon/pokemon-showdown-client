@@ -1375,7 +1375,7 @@ class Battle {
 					// Hardcode for moves without a target in singles
 					foeTargets.push(pokemon.side.foe.active[0]);
 				} else if (['all', 'allAdjacent', 'allAdjacentFoes', 'foeSide'].includes(move.target)) {
-					// Looping through all sides for FFA
+					// We loop through all sides here for FFA
 					for (const side of this.sides) {
 						if (side === pokemon.side || side === pokemon.side.ally) continue;
 						for (const active of side.active) {
