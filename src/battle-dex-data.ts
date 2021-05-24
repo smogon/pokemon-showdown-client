@@ -629,11 +629,11 @@ const BattlePokemonIconIndexesLeft: {[id: string]: number} = {
 const BattleAvatarNumbers: {[k: string]: string} = {
 	1: 'lucas',
 	2: 'dawn',
-	3: 'youngster-gen4',
+	3: 'youngster-gen4dp',
 	4: 'lass-gen4dp',
 	5: 'camper',
 	6: 'picnicker',
-	7: 'bugcatcher',
+	7: 'bugcatcher-gen4dp',
 	8: 'aromalady',
 	9: 'twins-gen4dp',
 	10: 'hiker-gen4',
