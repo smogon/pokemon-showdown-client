@@ -1076,7 +1076,7 @@ class BattleTooltips {
 			stats.atk = Math.floor(stats.atk * 1.5);
 		}
 		if (weather) {
-			if (this.battle.gen >= 4 && this.pokemonHasType(serverPokemon, 'Rock', clientPokemon?.getTypeList(serverPokemon)) && weather === 'sandstorm') {
+			if (this.battle.gen >= 4 && this.pokemonHasType(pokemon, 'Rock') && weather === 'sandstorm') {
 				stats.spd = Math.floor(stats.spd * 1.5);
 			}
 			if (ability === 'sandrush' && weather === 'sandstorm') {
