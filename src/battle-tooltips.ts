@@ -982,8 +982,8 @@ class BattleTooltips {
 		let ability = toID(serverPokemon.ability || pokemon.ability || serverPokemon.baseAbility);
 		let ngasActive = false;
 		for (const side of this.battle.sides) {
-			for (const activePokemon of side.active) {
-				if (activePokemon && toID(activePokemon.ability) === 'neutralizinggas') {
+			for (const active of side.active) {
+				if (active && !active.fainted && toID(active.ability) === 'neutralizinggas' && !active.volatiles['gastroacid']) {
 					ngasActive = true;
 					break;
 				}
