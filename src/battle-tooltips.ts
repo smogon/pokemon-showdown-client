@@ -1014,7 +1014,14 @@ class BattleTooltips {
 
 		let item = toID(serverPokemon.item);
 		let speedHalvingEVItems = ['machobrace', 'poweranklet', 'powerband', 'powerbelt', 'powerbracer', 'powerlens', 'powerweight'];
-		if (ability === 'klutz' && !speedHalvingEVItems.includes(item)) item = '' as ID;
+		if (
+			(ability === 'klutz' && !speedHalvingEVItems.includes(item)) ||
+			this.battle.hasPseudoWeather('Magic Room') ||
+			clientPokemon?.volatiles['embargo']
+		) {
+			item = '' as ID;
+		}
+
 		const speciesForme = clientPokemon ? clientPokemon.getSpeciesForme() : serverPokemon.speciesForme;
 		let species = Dex.species.get(speciesForme).baseSpecies;
 
