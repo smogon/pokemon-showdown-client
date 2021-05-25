@@ -933,80 +933,38 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 		const gen = 'gen' + genNum;
 		const genData = Dex.mod(gen).data;
 		const nextGenData = Dex.mod('gen' + (genNum + 1)).data;
-		const overrideStats = {};
-		BattleTeambuilderTable[gen].overrideStats = overrideStats;
-		const overrideType = {};
-		BattleTeambuilderTable[gen].overrideType = overrideType;
-		const overrideAbility = {};
-		BattleTeambuilderTable[gen].overrideAbility = overrideAbility;
-		const overrideHiddenAbility = {};
-		BattleTeambuilderTable[gen].overrideHiddenAbility = overrideHiddenAbility;
-		const removeSecondAbility = {};
-		BattleTeambuilderTable[gen].removeSecondAbility = removeSecondAbility;
+		const overrideDexData = {};
+		BattleTeambuilderTable[gen].overrideDexData = overrideDexData;
 		for (const id in genData.Pokedex) {
 			const pastEntry = genData.Pokedex[id];
 			const nowEntry = Dex.data.Pokedex[id];
-			const nowType = nowEntry.types.join('/');
-			for (const stat in pastEntry.baseStats) {
-				if (stat === 'spd' && genNum === 1) continue;
-				if (pastEntry.baseStats[stat] !== nowEntry.baseStats[stat]) {
-					if (!overrideStats[id]) overrideStats[id] = {};
-					overrideStats[id][stat] = pastEntry.baseStats[stat];
+			for (const key in pastEntry) {
+				const pastString = JSON.stringify(pastEntry[key]);
+				const nowString = JSON.stringify(nowEntry[key]);
+				if (pastString !== nowString) {
+					if (!overrideDexData[id]) overrideDexData[id] = {};
+					overrideDexData[id][key] = pastEntry[key];
 				}
-			}
-			if (pastEntry.types.join('/') !== nowType) {
-				overrideType[id] = pastEntry.types.join('/');
-			}
-			if (pastEntry.abilities['0'] !== nowEntry.abilities['0']) {
-				overrideAbility[id] = pastEntry.abilities['0'];
-			}
-			if (pastEntry.abilities['H'] !== nowEntry.abilities['H']) {
-				overrideHiddenAbility[id] = pastEntry.abilities['H'];
-			}
-			// in the gen 3 dex, Pokemon already have the abilities that were added in gen 4
-			const hasAbilityFromNewerGen = Dex.species.get(id).gen <= genNum && Dex.abilities.get(pastEntry.abilities['1']).gen > genNum;
-			if ((!pastEntry.abilities['1'] && nowEntry.abilities['1']) || hasAbilityFromNewerGen) {
-				removeSecondAbility[id] = true;
 			}
 		}
 
-		const overrideBP = {};
-		BattleTeambuilderTable[gen].overrideBP = overrideBP;
-		const overrideAcc = {};
-		BattleTeambuilderTable[gen].overrideAcc = overrideAcc;
-		const overridePP = {};
-		BattleTeambuilderTable[gen].overridePP = overridePP;
-		const overrideMoveType = {};
-		BattleTeambuilderTable[gen].overrideMoveType = overrideMoveType;
-		const overrideMoveCategory = {};
-		BattleTeambuilderTable[gen].overrideMoveCategory = overrideMoveCategory;
-		const overrideMoveDesc = {};
-		BattleTeambuilderTable[gen].overrideMoveDesc = overrideMoveDesc;
-		const overrideMoveShortDesc = {};
-		BattleTeambuilderTable[gen].overrideMoveShortDesc = overrideMoveShortDesc;
+		const overrideMoveData = {};
+		BattleTeambuilderTable[gen].overrideMoveData = overrideMoveData;
 		for (const id in genData.Moves) {
-			const pastEntry = Dex.mod(gen).moves.get(id);
-			const nowEntry = Dex.moves.get(id);
-			if (pastEntry.basePower !== nowEntry.basePower) {
-				overrideBP[id] = pastEntry.basePower;
-			}
-			if (pastEntry.accuracy !== nowEntry.accuracy) {
-				overrideAcc[id] = pastEntry.accuracy;
-			}
-			if (pastEntry.pp !== nowEntry.pp) {
-				overridePP[id] = pastEntry.pp;
-			}
-			if (pastEntry.type !== nowEntry.type) {
-				overrideMoveType[id] = pastEntry.type;
-			}
-			if (pastEntry.category !== nowEntry.category) {
-				overrideMoveCategory[id] = pastEntry.category;
-			}
-			if (pastEntry.desc !== nowEntry.desc) {
-				overrideMoveDesc[id] = pastEntry.desc;
-			}
-			if (pastEntry.shortDesc !== nowEntry.shortDesc) {
-				overrideMoveShortDesc[id] = pastEntry.shortDesc;
+			const pastEntry = genData.Moves[id];
+			const nowEntry = Dex.data.Moves[id];
+			const pastDescs = Dex.mod(gen).getDescs('Moves', id, pastEntry);
+			const nowDescs = Dex.getDescs('Moves', id, nowEntry);
+			[pastEntry.desc, pastEntry.shortDesc] = [pastDescs.desc, pastDescs.shortDesc];
+			[nowEntry.desc, nowEntry.shortDesc] = [nowDescs.desc, nowDescs.shortDesc];
+
+			for (const key in pastEntry) {
+				const pastString = JSON.stringify(pastEntry[key]);
+				const nowString = JSON.stringify(nowEntry[key]);
+				if (pastString !== nowString) {
+					if (!overrideMoveData[id]) overrideMoveData[id] = {};
+					overrideMoveData[id][key] = pastEntry[key];
+				}
 			}
 		}
 

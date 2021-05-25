@@ -852,14 +852,9 @@ class ModdedDex {
 			let data = {...Dex.moves.get(name)};
 
 			const table = window.BattleTeambuilderTable[this.modid];
-			if (id in table.overrideAcc) data.accuracy = table.overrideAcc[id];
-			if (id in table.overrideBP) data.basePower = table.overrideBP[id];
-			if (id in table.overridePP) data.pp = table.overridePP[id];
-			if (id in table.overrideMoveType) data.type = table.overrideMoveType[id];
-			if (id in table.overrideMoveCategory) data.category = table.overrideMoveCategory[id];
-			if (id in table.overrideMoveDesc) data.desc = table.overrideMoveDesc[id];
-			if (id in table.overrideMoveShortDesc) data.shortDesc = table.overrideMoveShortDesc[id];
-
+			if (id in table.overrideMoveData) {
+				data = {...data, ...table.overrideMoveData[id]};
+			}
 			const move = new Move(id, name, data);
 			this.cache.Moves[id] = move;
 			return move;
@@ -918,28 +913,12 @@ class ModdedDex {
 			let data = {...Dex.species.get(name)};
 
 			const table = window.BattleTeambuilderTable[this.modid];
+			if (id in table.overrideDexData) {
+				data = {...data, ...table.overrideDexData[id]};
+			}
 			if (this.gen < 3) {
 				data.abilities = {0: "None"};
-			} else {
-				let abilities = {...data.abilities};
-				if (id in table.overrideAbility) {
-					abilities['0'] = table.overrideAbility[id];
-				}
-				if (id in table.removeSecondAbility) {
-					delete abilities['1'];
-				}
-				if (id in table.overrideHiddenAbility) {
-					abilities['H'] = table.overrideHiddenAbility[id];
-				}
-				if (this.gen < 5) delete abilities['H'];
-				if (this.gen < 7) delete abilities['S'];
-
-				data.abilities = abilities;
 			}
-			if (id in table.overrideStats) {
-				data.baseStats = {...data.baseStats, ...table.overrideStats[id]};
-			}
-			if (id in table.overrideType) data.types = table.overrideType[id].split('/');
 
 			if (id in table.overrideTier) data.tier = table.overrideTier[id];
 			if (!data.tier && id.slice(-5) === 'totem') {
