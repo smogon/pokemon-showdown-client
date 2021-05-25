@@ -955,8 +955,10 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			const nowEntry = Dex.data.Moves[id];
 			const pastDescs = Dex.mod(gen).getDescs('Moves', id, pastEntry);
 			const nowDescs = Dex.getDescs('Moves', id, nowEntry);
-			[pastEntry.desc, pastEntry.shortDesc] = [pastDescs.desc, pastDescs.shortDesc];
-			[nowEntry.desc, nowEntry.shortDesc] = [nowDescs.desc, nowDescs.shortDesc];
+			pastEntry.desc = pastDescs.desc;
+			pastEntry.shortDesc = pastDescs.shortDesc;
+			nowEntry.desc = nowDescs.desc;
+			nowEntry.shortDesc = nowDescs.shortDesc;
 
 			for (const key in pastEntry) {
 				const pastString = JSON.stringify(pastEntry[key]);
