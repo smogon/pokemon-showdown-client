@@ -1408,6 +1408,7 @@ class BattleScene {
 			callback = () => { $hp.addClass('hp-yellow hp-red'); };
 		}
 
+		if (damage === '100%' && pokemon.hp > 0) damage = '99%';
 		this.resultAnim(pokemon, this.battle.hardcoreMode ? 'Damage' : '&minus;' + damage, 'bad');
 
 		$hp.animate({
