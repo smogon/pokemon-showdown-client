@@ -1470,6 +1470,10 @@ class BattleTooltips {
 		if (this.battle.hasPseudoWeather('Gravity')) {
 			value.modify(5 / 3, "Gravity");
 		}
+		// 1/256 glitch
+		if (this.battle.gen === 1 && !toID(this.battle.tier).includes('stadium')) {
+			value.set((Math.floor(value.value * 255 / 100) / 256) * 100);
+		}
 		return value;
 	}
 
