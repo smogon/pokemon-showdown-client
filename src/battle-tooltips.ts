@@ -709,7 +709,7 @@ class BattleTooltips {
 			if (!move.flags.protect && !['self', 'allySide'].includes(move.target)) {
 				text += `<p class="movetag">Not blocked by Protect <small>(and Detect, King's Shield, Spiky Shield)</small></p>`;
 			}
-			if (move.flags.authentic) {
+			if (move.flags.authentic && !(move.flags.sound && this.battle.gen < 6)) {
 				text += `<p class="movetag">Bypasses Substitute <small>(but does not break it)</small></p>`;
 			}
 			if (!move.flags.reflectable && !['self', 'allySide'].includes(move.target) && move.category === 'Status') {
@@ -722,7 +722,7 @@ class BattleTooltips {
 			if (move.flags.sound) {
 				text += `<p class="movetag">&#x2713; Sound <small>(doesn't affect Soundproof pokemon)</small></p>`;
 			}
-			if (move.flags.powder) {
+			if (move.flags.powder && this.battle.gen > 5) {
 				text += `<p class="movetag">&#x2713; Powder <small>(doesn't affect Grass, Overcoat, Safety Goggles)</small></p>`;
 			}
 			if (move.flags.punch && ability === 'ironfist') {
