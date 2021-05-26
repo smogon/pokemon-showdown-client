@@ -924,14 +924,10 @@ class ModdedDex {
 
 			let data = {...Dex.species.get(name)};
 
-			const overrideSpeciesKeys = ['abilities', 'baseStats', 'requiredItem', 'types'];
-			for (const key of overrideSpeciesKeys) {
-				for (var i = this.gen; i < 8; i++) {
-					const table = window.BattleTeambuilderTable['gen' + i];
-					if (id in table.overrideSpeciesData && key in table.overrideSpeciesData[id]) {
-						data[key] = table.overrideSpeciesData[key];
-						break;
-					}
+			for (let i = Dex.gen - 1; i >= this.gen; i--) {
+				const table = window.BattleTeambuilderTable[`gen${i}`];
+				if (id in table.overrideSpeciesData) {
+					Object.assign(data, table.overrideSpeciesData[id]);
 				}
 			}
 			if (this.gen < 3) {
