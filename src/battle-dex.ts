@@ -851,14 +851,10 @@ class ModdedDex {
 
 			let data = {...Dex.moves.get(name)};
 
-			const overrideMoveKeys = ['accuracy', 'basePower', 'category', 'desc', 'flags', 'pp', 'shortDesc', 'target', 'type'];
-			for (const key of overrideMoveKeys) {
-				for (var i = this.gen; i < 8; i++) {
-					const table = window.BattleTeambuilderTable['gen' + i];
-					if (id in table.overrideMoveData && key in table.overrideMoveData[id]) {
-						data[key] = table.overrideMoveData[key];
-						break;
-					}
+			for (let i = Dex.gen - 1; i >= this.gen; i--) {
+				const table = window.BattleTeambuilderTable[`gen${i}`];
+				if (id in table.overrideMoveData) {
+					Object.assign(data, table.overrideMoveData[id]);
 				}
 			}
 			const move = new Move(id, name, data);
