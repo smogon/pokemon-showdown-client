@@ -2199,6 +2199,7 @@ class Battle {
 			if (kwArgs.silent) {
 				// do nothing
 			} else if (effect.id) {
+				console.log(effect.id)
 				switch (effect.id) {
 				case 'trace':
 					this.activateAbility(poke, "Trace");
@@ -2229,6 +2230,9 @@ class Battle {
 					break;
 				}
 			} else {
+				if (ability.id === 'airlock' || ability.id === 'cloudnine') {
+					this.scene.updateWeather();
+				}
 				this.activateAbility(poke, ability.name);
 			}
 			this.log(args, kwArgs);

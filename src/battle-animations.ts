@@ -921,6 +921,15 @@ class BattleScene {
 			} else if (this.battle.weatherTimeLeft !== 0) {
 				weatherhtml += ` <small>(${this.battle.weatherTimeLeft} turn${this.battle.weatherTimeLeft === 1 ? '' : 's'})</small>`;
 			}
+			let nullWeather = false;
+			for (const side of this.battle.sides) {
+				for (const active of side.active) {
+					if (active && !active.fainted && ['Air Lock', 'Cloud Nine'].includes(active.ability)) {
+						nullWeather = true;
+					}
+				}
+			}
+			weatherhtml = `${nullWeather ? '<s>' : ''}${weatherhtml}${nullWeather ? '</s>' : ''}`;
 		}
 
 		for (const pseudoWeather of this.battle.pseudoWeather) {
@@ -948,6 +957,13 @@ class BattleScene {
 		if (!this.animating) return;
 		let isIntense = false;
 		let weather = this.battle.weather;
+		for (const side of this.battle.sides) {
+			for (const active of side.active) {
+				if (active && !active.fainted && ['Air Lock', 'Cloud Nine'].includes(active.ability)) {
+					weather = '' as ID;
+				}
+			}
+		}
 		let terrain = '' as ID;
 		for (const pseudoWeatherData of this.battle.pseudoWeather) {
 			let pwid = toID(pseudoWeatherData[0]);
