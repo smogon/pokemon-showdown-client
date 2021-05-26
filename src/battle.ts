@@ -2199,7 +2199,6 @@ class Battle {
 			if (kwArgs.silent) {
 				// do nothing
 			} else if (effect.id) {
-				console.log(effect.id)
 				switch (effect.id) {
 				case 'trace':
 					this.activateAbility(poke, "Trace");
