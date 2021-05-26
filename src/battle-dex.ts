@@ -857,6 +857,7 @@ class ModdedDex {
 					Object.assign(data, table.overrideMoveData[id]);
 				}
 			}
+
 			const move = new Move(id, name, data);
 			this.cache.Moves[id] = move;
 			return move;
