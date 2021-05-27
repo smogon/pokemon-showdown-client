@@ -1290,6 +1290,9 @@ class BattleTooltips {
 	 * Calculates possible Speed stat range of an opponent
 	 */
 	getSpeedRange(pokemon: Pokemon): [number, number] {
+		if (pokemon.volatiles.transform) {
+			pokemon = pokemon.volatiles.transform[1];
+		}
 		let level = pokemon.level;
 		let baseSpe = pokemon.getSpecies().baseStats['spe'];
 		let tier = this.battle.tier;
