@@ -1315,7 +1315,7 @@ class Battle {
 			'mist', 'lightscreen', 'reflect', 'spikes', 'safeguard', 'tailwind', 'toxicspikes', 'stealthrock', 'waterpledge', 'firepledge', 'grasspledge', 'stickyweb', 'auroraveil', 'gmaxsteelsurge', 'gmaxcannonade', 'gmaxvinelash', 'gmaxwildfire',
 		];
 		if (this.gameType === 'freeforall') {
-			// placeholder for ffa
+			// TODO: Add FFA support
 			return;
 		} else {
 			let side1 = this.sides[0];
