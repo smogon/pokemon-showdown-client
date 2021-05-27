@@ -2636,11 +2636,11 @@ class PokemonSprite extends Sprite {
 	resetStatbar(pokemon: Pokemon, startHidden?: boolean) {
 		if (this.$statbar) {
 			this.$statbar.remove();
-			this.$statbar = null;
+			this.$statbar = null as any; // workaround for TS thinking $statbar is still null after `updateStatbar`
 		}
 		this.updateStatbar(pokemon, true);
 		if (!startHidden && this.$statbar) {
-			this.$statbar!.css({
+			this.$statbar.css({
 				display: 'block',
 				left: this.statbarLeft,
 				top: this.statbarTop,

@@ -1,7 +1,7 @@
 {
 	"plugins": [
 		// TypeScript + JSX
-		["@babel/plugin-transform-typescript", {"isTSX": true}],
+		["@babel/plugin-transform-typescript", {"isTSX": true, "allowDeclareFields": true}],
 		["@babel/plugin-transform-react-jsx", {"pragma": "preact.h", "pragmaFrag": "preact.Fragment", "useBuiltIns": true}],
 		["@babel/plugin-proposal-class-properties", {"loose": true}],
 

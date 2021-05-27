@@ -5,7 +5,9 @@
  * @license AGPLv3
  */
 
-type RoomInfo = {title: string, desc?: string, userCount?: number, section?: string, spotlight?: string, subRooms?: string[]};
+type RoomInfo = {
+	title: string, desc?: string, userCount?: number, section?: string, spotlight?: string, subRooms?: string[],
+};
 
 class MainMenuRoom extends PSRoom {
 	readonly classType: string = 'mainmenu';
@@ -398,7 +400,7 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
 }
 
 class FormatDropdown extends preact.Component<{format?: string, onChange?: JSX.EventHandler<Event>}> {
-	base?: HTMLButtonElement;
+	declare base?: HTMLButtonElement;
 	format = '[Gen 7] Random Battle';
 	change = (e: Event) => {
 		if (!this.base) return;
