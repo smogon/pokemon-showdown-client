@@ -955,6 +955,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			const curEntry = Dex.mod(gen).moves.get(id);
 			const nextEntry = Dex.mod(nextGen).moves.get(id);
 			for (const key of overrideMoveKeys) {
+				if (key === 'category' && genNum <= 3) continue;
 				if (JSON.stringify(curEntry[key]) !== JSON.stringify(nextEntry[key])) {
 					if (!overrideMoveData[id]) overrideMoveData[id] = {};
 					overrideMoveData[id][key] = curEntry[key];
