@@ -1422,6 +1422,7 @@ class BattleTooltips {
 		value.reset(move.accuracy === true ? 0 : move.accuracy, true);
 
 		let pokemon = value.pokemon!;
+		// Sure-hit accuracy
 		if (move.id === 'toxic' && this.battle.gen >= 6 && this.pokemonHasType(pokemon, 'Poison')) {
 			value.set(0, "Poison type");
 			return value;
@@ -1432,18 +1433,18 @@ class BattleTooltips {
 		if (move.id === 'hurricane' || move.id === 'thunder') {
 			value.weatherModify(0, 'Rain Dance');
 			value.weatherModify(0, 'Primordial Sea');
-			if (value.tryWeather('Sunny Day')) value.set(50, 'Sunny Day');
-			if (value.tryWeather('Desolate Land')) value.set(50, 'Desolate Land');
 		}
 		value.abilityModify(0, 'No Guard');
 		if (!value.value) return value;
+
+		// OHKO moves don't use standard accuracy / evasion modifiers
 		if (move.ohko) {
 			if (this.battle.gen === 1) {
 				value.set(value.value, `fails if target's Speed is higher`);
 				return value;
 			}
-			if (move.id === 'sheercold' && this.battle.gen >= 7) {
-				if (!this.pokemonHasType(pokemon, 'Ice')) value.set(20, 'not Ice-type');
+			if (move.id === 'sheercold' && this.battle.gen >= 7 && !this.pokemonHasType(pokemon, 'Ice')) {
+				value.set(20, 'not Ice-type');
 			}
 			if (target) {
 				if (pokemon.level < target.level) {
@@ -1458,28 +1459,67 @@ class BattleTooltips {
 			}
 			return value;
 		}
-		if (pokemon?.boosts.accuracy) {
-			if (pokemon.boosts.accuracy > 0) {
-				value.modify((pokemon.boosts.accuracy + 3) / 3);
-			} else {
-				value.modify(3 / (3 - pokemon.boosts.accuracy));
-			}
+
+		// Accuracy modifiers start
+
+		let accuracyModifiers = [];
+		if (this.battle.hasPseudoWeather('Gravity')) {
+			accuracyModifiers.push(6840);
+			value.modify(5 / 3, "Gravity");
 		}
-		if (move.category === 'Physical') {
-			value.abilityModify(0.8, "Hustle");
-		}
-		value.abilityModify(1.3, "Compound Eyes");
+
 		for (const active of pokemon.side.active) {
 			if (!active || active.fainted) continue;
-			let ability = this.getAllyAbility(active);
+			const ability = this.getAllyAbility(active);
 			if (ability === 'Victory Star') {
+				accuracyModifiers.push(4506);
 				value.modify(1.1, "Victory Star");
 			}
 		}
-		value.itemModify(1.1, "Wide Lens");
-		if (this.battle.hasPseudoWeather('Gravity')) {
-			value.modify(5 / 3, "Gravity");
+
+		if (value.tryAbility('Hustle') && move.category === 'Physical') {
+			accuracyModifiers.push(3277);
+			value.abilityModify(0.8, "Hustle");
+		} else if (value.tryAbility('Compound Eyes')) {
+			accuracyModifiers.push(5325);
+			value.abilityModify(1.3, "Compound Eyes");
 		}
+
+		if (value.tryItem('Wide Lens')) {
+			accuracyModifiers.push(4505);
+			value.itemModify(1.1, "Wide Lens");
+		}
+
+		// Chaining modifiers
+		let chain = 4096;
+		for (const mod of accuracyModifiers) {
+			if (mod !== 4096) {
+				chain = (chain * mod + 2048) >> 12;
+			}
+		}
+
+		// Applying modifiers
+		value.set(move.accuracy as number);
+
+		if (move.id === 'hurricane' || move.id === 'thunder') {
+			if (value.tryWeather('Sunny Day')) value.set(50, 'Sunny Day');
+			if (value.tryWeather('Desolate Land')) value.set(50, 'Desolate Land');
+		}
+
+		// Chained modifiers round down on 0.5
+		let accuracyAfterChain = (value.value * chain) / 4096;
+		accuracyAfterChain = accuracyAfterChain % 1 > 0.5 ? Math.ceil(accuracyAfterChain) : Math.floor(accuracyAfterChain);
+		value.set(accuracyAfterChain);
+
+		// Unlike for Atk, Def, etc. accuracy and evasion boosts are applied after modifiers
+		if (pokemon?.boosts.accuracy) {
+			if (pokemon.boosts.accuracy > 0) {
+				value.set(Math.floor(value.value * (pokemon.boosts.accuracy + 3) / 3));
+			} else {
+				value.set(Math.floor(value.value * 3 / (3 - pokemon.boosts.accuracy)));
+			}
+		}
+
 		// 1/256 glitch
 		if (this.battle.gen === 1 && !toID(this.battle.tier).includes('stadium')) {
 			value.set((Math.floor(value.value * 255 / 100) / 256) * 100);
