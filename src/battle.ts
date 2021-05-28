@@ -1309,6 +1309,35 @@ class Battle {
 		this.weather = weather;
 		this.scene.updateWeather();
 	}
+	swapSideConditions() {
+		const sideConditions = [
+			'mist', 'lightscreen', 'reflect', 'spikes', 'safeguard', 'tailwind', 'toxicspikes', 'stealthrock', 'waterpledge', 'firepledge', 'grasspledge', 'stickyweb', 'auroraveil', 'gmaxsteelsurge', 'gmaxcannonade', 'gmaxvinelash', 'gmaxwildfire',
+		];
+		if (this.gameType === 'freeforall') {
+			// TODO: Add FFA support
+			return;
+		} else {
+			let side1 = this.sides[0];
+			let side2 = this.sides[1];
+			for (const id of sideConditions) {
+				if (side1.sideConditions[id] && side2.sideConditions[id]) {
+					[side1.sideConditions[id], side2.sideConditions[id]] = [
+						side2.sideConditions[id], side1.sideConditions[id],
+					];
+					this.scene.addSideCondition(side1.n, id as ID);
+					this.scene.addSideCondition(side2.n, id as ID);
+				} else if (side1.sideConditions[id] && !side2.sideConditions[id]) {
+					side2.sideConditions[id] = side1.sideConditions[id];
+					this.scene.addSideCondition(side2.n, id as ID);
+					side1.removeSideCondition(id);
+				} else if (side2.sideConditions[id] && !side1.sideConditions[id]) {
+					side1.sideConditions[id] = side2.sideConditions[id];
+					this.scene.addSideCondition(side1.n, id as ID);
+					side2.removeSideCondition(id);
+				}
+			}
+		}
+	}
 	updateTurnCounters() {
 		for (const pWeather of this.pseudoWeather) {
 			if (pWeather[1]) pWeather[1]--;
@@ -2802,6 +2831,12 @@ class Battle {
 			// let from = Dex.getEffect(kwArgs.from);
 			// let ofpoke = this.getPokemon(kwArgs.of);
 			side.removeSideCondition(effect.name);
+			this.log(args, kwArgs);
+			break;
+		}
+		case '-swapsideconditions': {
+			this.swapSideConditions();
+			this.scene.updateWeather();
 			this.log(args, kwArgs);
 			break;
 		}
