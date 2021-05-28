@@ -1519,7 +1519,6 @@ class BattleTooltips {
 				value.set(Math.floor(value.value * 3 / (3 - pokemon.boosts.accuracy)));
 			}
 		}
-		value.set(Math.min(100, value.value));
 		
 		// 1/256 glitch
 		if (this.battle.gen === 1 && !toID(this.battle.tier).includes('stadium')) {
