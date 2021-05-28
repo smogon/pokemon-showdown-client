@@ -1509,17 +1509,17 @@ class BattleTooltips {
 		// Chained modifiers round down on 0.5
 		let accuracyAfterChain = (value.value * chain) / 4096;
 		accuracyAfterChain = accuracyAfterChain % 1 > 0.5 ? Math.ceil(accuracyAfterChain) : Math.floor(accuracyAfterChain);
-		if (accuracyAfterChain > 100) accuracyAfterChain = 100;
 		value.set(accuracyAfterChain);
 
 		// Unlike for Atk, Def, etc. accuracy and evasion boosts are applied after modifiers
 		if (pokemon?.boosts.accuracy) {
 			if (pokemon.boosts.accuracy > 0) {
-				value.set(Math.min(100, Math.floor(value.value * (pokemon.boosts.accuracy + 3) / 3)));
+				value.set(Math.floor(value.value * (pokemon.boosts.accuracy + 3) / 3));
 			} else {
 				value.set(Math.floor(value.value * 3 / (3 - pokemon.boosts.accuracy)));
 			}
 		}
+		value.set(Math.min(100, value.value));
 		
 		// 1/256 glitch
 		if (this.battle.gen === 1 && !toID(this.battle.tier).includes('stadium')) {
