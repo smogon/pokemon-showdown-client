@@ -1484,12 +1484,12 @@ class BattleTooltips {
 			accuracyModifiers.push(5325);
 			value.abilityModify(1.3, "Compound Eyes");
 		}
-		
+
 		if (value.tryItem('Wide Lens')) {
 			accuracyModifiers.push(4505);
 			value.itemModify(1.1, "Wide Lens");
 		}
-		
+
 		// Chaining modifiers
 		let chain = 4096;
 		for (const mod of accuracyModifiers) {
@@ -1519,7 +1519,7 @@ class BattleTooltips {
 				value.set(Math.floor(value.value * 3 / (3 - pokemon.boosts.accuracy)));
 			}
 		}
-		
+
 		// 1/256 glitch
 		if (this.battle.gen === 1 && !toID(this.battle.tier).includes('stadium')) {
 			value.set((Math.floor(value.value * 255 / 100) / 256) * 100);
