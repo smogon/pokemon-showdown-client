@@ -3310,7 +3310,7 @@
 			this.room = data.room;
 			this.curSet = data.curSet;
 			this.chartIndex = data.index;
-			var species = this.curTeam.dex.species.get(this.curSet.species);
+			var species = this.room.curTeam.dex.species.get(this.curSet.species);
 			var baseid = toID(species.baseSpecies);
 			var forms = [baseid].concat(species.cosmeticFormes.map(toID));
 			var spriteDir = Dex.resourcePrefix + 'sprites/';
@@ -3346,9 +3346,9 @@
 			this.$el.html(buf).css({'max-width': (4 + spriteSize) * width, 'height': 42 + (4 + spriteSize) * height});
 		},
 		setForm: function (form) {
-			var species = this.curTeam.dex.species.get(this.curSet.species);
+			var species = this.room.curTeam.dex.species.get(this.curSet.species);
 			if (form && form !== species.form) {
-				this.curSet.species = this.curTeam.dex.species.get(species.baseSpecies + form).name;
+				this.curSet.species = this.room.curTeam.dex.species.get(species.baseSpecies + form).name;
 			} else if (!form) {
 				this.curSet.species = species.baseSpecies;
 			}
