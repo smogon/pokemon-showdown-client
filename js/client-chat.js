@@ -702,25 +702,13 @@
 				if (this.checkBroadcast(cmd, text)) return false;
 				this.add('Debug battle messages: ON');
 				Storage.prefs('showdebug', true);
-				var debugStyle = $('#debugstyle').get(0);
-				var onCSS = '.debug {display: block;}';
-				if (!debugStyle) {
-					$('head').append('<style id="debugstyle">' + onCSS + '</style>');
-				} else {
-					debugStyle.innerHTML = onCSS;
-				}
+				BattleLog.applyPrefs({showDebug: true});
 				return false;
 			case 'hidedebug':
 				if (this.checkBroadcast(cmd, text)) return false;
 				this.add('Debug battle messages: HIDDEN');
 				Storage.prefs('showdebug', false);
-				var debugStyle = $('#debugstyle').get(0);
-				var offCSS = '.debug {display: none;}';
-				if (!debugStyle) {
-					$('head').append('<style id="debugstyle">' + offCSS + '</style>');
-				} else {
-					debugStyle.innerHTML = offCSS;
-				}
+				BattleLog.applyPrefs({showDebug: false});
 				return false;
 
 			case 'showjoins':

@@ -476,15 +476,7 @@ function toId() {
 				if (musicVolume !== undefined) BattleSound.setBgmVolume(musicVolume);
 
 				if (Dex.prefs('logchat')) Storage.startLoggingChat();
-				if (Dex.prefs('showdebug')) {
-					var debugStyle = $('#debugstyle').get(0);
-					var onCSS = '.debug {display: block;}';
-					if (!debugStyle) {
-						$('head').append('<style id="debugstyle">' + onCSS + '</style>');
-					} else {
-						debugStyle.innerHTML = onCSS;
-					}
-				}
+				if (Dex.prefs('showdebug')) BattleLog.applyPrefs({showDebug: true});
 
 				if (Dex.prefs('onepanel')) {
 					self.singlePanelMode = true;

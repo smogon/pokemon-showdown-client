@@ -557,6 +557,18 @@ class BattleLog {
 		return undefined;
 	}
 
+	static applyPrefs(options: any) {
+		if (options.showDebug !== undefined) {
+			const debugStyle = $('#debugstyle').get(0);
+			const rule = `.debug {display: ${options.showDebug ? 'block' : 'none'};}`;
+			if (!debugStyle) {
+				$('head').append(`<style id="debugstyle">${rule}</style>`);
+			} else {
+				debugStyle.innerHTML = rule;
+			}
+		}
+	}
+
 	parseChatMessage(
 		message: string, name: string, timestamp: string, isHighlighted?: boolean
 	): [string, string, boolean?] {
