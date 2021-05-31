@@ -448,6 +448,9 @@
 					noSpace = true;
 				}
 			}
+			if (text.substr(0, 3) === '>> ' || text.substr(0, 4) === '>>> ') {
+				cmd = 'eval';
+			}
 
 			switch (cmd.toLowerCase()) {
 			case 'chal':
@@ -558,6 +561,13 @@
 				if (!$.trim(target.slice(commaIndex + 1))) {
 					app.rooms[''].focusPM(target.slice(0, commaIndex));
 					return false;
+				}
+				break;
+
+			case 'eval':
+				if (!Storage.prefs('showdebug')) {
+					Storage.prefs('showdebug', true);
+					BattleLog.applyPrefs({showDebug: true});
 				}
 				break;
 
