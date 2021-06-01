@@ -922,9 +922,22 @@ class BattleScene {
 				weatherhtml += ` <small>(${this.battle.weatherTimeLeft} turn${this.battle.weatherTimeLeft === 1 ? '' : 's'})</small>`;
 			}
 			let nullWeather = false;
+			let ngasActive = false;
 			for (const side of this.battle.sides) {
 				for (const active of side.active) {
-					if (active && !active.fainted && ['Air Lock', 'Cloud Nine'].includes(active.ability)) {
+					if (active && !active.fainted && toID(active.ability) === 'neutralizinggas' && !active.volatiles['gastroacid']) {
+						ngasActive = true;
+						break;
+					}
+				}
+			}
+			for (const side of this.battle.sides) {
+				for (const active of side.active) {
+					if (
+						active && !active.fainted &&
+						!ngasActive && !active.volatiles['gastroacid'] &&
+						['Air Lock', 'Cloud Nine'].includes(active.ability)
+					) {
 						nullWeather = true;
 					}
 				}
