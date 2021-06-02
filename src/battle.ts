@@ -3355,6 +3355,7 @@ class Battle {
 			} else {
 				poke.side.dragIn(poke);
 			}
+			this.scene.updateWeather();
 			this.log(args, kwArgs);
 			break;
 		}
