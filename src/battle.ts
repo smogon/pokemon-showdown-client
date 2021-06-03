@@ -512,6 +512,24 @@ class Pokemon implements PokemonDetails, PokemonHealth {
 		}
 		return !this.getTypeList(serverPokemon).includes('Flying');
 	}
+	effectiveAbility(abilities: string | string[], serverPokemon?: ServerPokemon) {
+		if (typeof abilities === 'string') abilities = [abilities];
+		for (const ability of abilities) {
+			if (toID(ability) === toID(serverPokemon?.ability || this.ability)) {
+				const abilityData = this.side.battle.dex.abilities.get(ability);
+				if (
+					this.fainted ||
+					this.volatiles['gastroacid'] ||
+					this.side.battle.ngasActive() && toID(ability) !== 'neutralizinggas' && !abilityData.isPermanent
+				) {
+					return false;
+				} else {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
 	getTypeList(serverPokemon?: ServerPokemon) {
 		const [types, addedType] = this.getTypes(serverPokemon);
 		return addedType ? types.concat(addedType) : types;
@@ -1138,6 +1156,26 @@ class Battle {
 		}
 		return false;
 	}
+	ngasActive() {
+		for (const side of this.sides) {
+			for (const active of side.active) {
+				if (active && !active.fainted && toID(active.ability) === 'neutralizinggas' && !active.volatiles['gastroacid']) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+	anyHasAbility(...abilities: string[]) {
+		for (const side of this.sides) {
+			for (const active of side.active) {
+				if (active?.effectiveAbility(abilities)) {
+					return true;
+				}
+			}
+		}
+		return false;
+	}
 	reset() {
 		this.paused = true;
 		this.scene.pause();
@@ -1355,17 +1393,8 @@ class Battle {
 				}
 			}
 			let pp = 1;
-			let ngasActive = false;
-			for (const side of this.sides) {
-				for (const active of side.active) {
-					if (active && !active.fainted && toID(active.ability) === 'neutralizinggas' && !active.volatiles['gastroacid']) {
-						ngasActive = true;
-						break;
-					}
-				}
-			}
 			// Sticky Web is never affected by pressure
-			if (!ngasActive && move.id !== 'stickyweb') {
+			if (this.anyHasAbility('Pressure') && move.id !== 'stickyweb') {
 				const foeTargets = [];
 
 				if (
@@ -2229,11 +2258,9 @@ class Battle {
 					break;
 				}
 			} else {
-				if (ability.id === 'airlock' || ability.id === 'cloudnine') {
-					this.scene.updateWeather();
-				}
 				this.activateAbility(poke, ability.name);
 			}
+			this.scene.updateWeather();
 			this.log(args, kwArgs);
 			break;
 		}

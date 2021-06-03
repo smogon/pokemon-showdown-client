@@ -980,16 +980,7 @@ class BattleTooltips {
 		}
 
 		let ability = toID(serverPokemon.ability || pokemon.ability || serverPokemon.baseAbility);
-		let ngasActive = false;
-		for (const side of this.battle.sides) {
-			for (const active of side.active) {
-				if (active && !active.fainted && toID(active.ability) === 'neutralizinggas' && !active.volatiles['gastroacid']) {
-					ngasActive = true;
-					break;
-				}
-			}
-		}
-		if (clientPokemon && ('gastroacid' in clientPokemon.volatiles || ngasActive)) ability = '' as ID;
+		if (clientPokemon && !clientPokemon.effectiveAbility(ability, serverPokemon)) ability = '' as ID;
 
 		// check for burn, paralysis, guts, quick feet
 		if (pokemon.status) {

@@ -921,28 +921,8 @@ class BattleScene {
 			} else if (this.battle.weatherTimeLeft !== 0) {
 				weatherhtml += ` <small>(${this.battle.weatherTimeLeft} turn${this.battle.weatherTimeLeft === 1 ? '' : 's'})</small>`;
 			}
-			let nullWeather = false;
-			let ngasActive = false;
-			for (const side of this.battle.sides) {
-				for (const active of side.active) {
-					if (active && !active.fainted && toID(active.ability) === 'neutralizinggas' && !active.volatiles['gastroacid']) {
-						ngasActive = true;
-						break;
-					}
-				}
-			}
-			for (const side of this.battle.sides) {
-				for (const active of side.active) {
-					if (
-						active && !active.fainted &&
-						!ngasActive && !active.volatiles['gastroacid'] &&
-						['Air Lock', 'Cloud Nine'].includes(active.ability)
-					) {
-						nullWeather = true;
-					}
-				}
-			}
-			weatherhtml = `${nullWeather ? '<s>' : ''}${weatherhtml}${nullWeather ? '</s>' : ''}`;
+			const nullifyWeather = this.battle.anyHasAbility('Air Lock', 'Cloud Nine');
+			weatherhtml = `${nullifyWeather ? '<s>' : ''}${weatherhtml}${nullifyWeather ? '</s>' : ''}`;
 		}
 
 		for (const pseudoWeather of this.battle.pseudoWeather) {
@@ -970,12 +950,8 @@ class BattleScene {
 		if (!this.animating) return;
 		let isIntense = false;
 		let weather = this.battle.weather;
-		for (const side of this.battle.sides) {
-			for (const active of side.active) {
-				if (active && !active.fainted && ['Air Lock', 'Cloud Nine'].includes(active.ability)) {
-					weather = '' as ID;
-				}
-			}
+		if (this.battle.anyHasAbility('Air Lock', 'Cloud Nine')) {
+			weather = '' as ID;
 		}
 		let terrain = '' as ID;
 		for (const pseudoWeatherData of this.battle.pseudoWeather) {
