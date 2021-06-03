@@ -1270,6 +1270,7 @@ class Ability implements Effect {
 	readonly desc: string;
 
 	readonly rating: number;
+	readonly isPermanent: boolean;
 	readonly isNonstandard: boolean;
 
 	constructor(id: ID, name: string, data: any) {
@@ -1283,6 +1284,7 @@ class Ability implements Effect {
 		this.shortDesc = data.shortDesc || data.desc || '';
 		this.desc = data.desc || data.shortDesc || '';
 		this.rating = data.rating || 1;
+		this.isPermanent = !!data.isPermanent;
 		this.isNonstandard = !!data.isNonstandard;
 		if (!this.gen) {
 			if (this.num >= 234) {
