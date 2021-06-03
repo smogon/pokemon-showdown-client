@@ -921,7 +921,7 @@ class BattleScene {
 			} else if (this.battle.weatherTimeLeft !== 0) {
 				weatherhtml += ` <small>(${this.battle.weatherTimeLeft} turn${this.battle.weatherTimeLeft === 1 ? '' : 's'})</small>`;
 			}
-			const nullifyWeather = this.battle.anyHasAbility('Air Lock', 'Cloud Nine');
+			const nullifyWeather = this.battle.abilityActive(['Air Lock', 'Cloud Nine']);
 			weatherhtml = `${nullifyWeather ? '<s>' : ''}${weatherhtml}${nullifyWeather ? '</s>' : ''}`;
 		}
 
@@ -950,7 +950,7 @@ class BattleScene {
 		if (!this.animating) return;
 		let isIntense = false;
 		let weather = this.battle.weather;
-		if (this.battle.anyHasAbility('Air Lock', 'Cloud Nine')) {
+		if (this.battle.abilityActive(['Air Lock', 'Cloud Nine'])) {
 			weather = '' as ID;
 		}
 		let terrain = '' as ID;

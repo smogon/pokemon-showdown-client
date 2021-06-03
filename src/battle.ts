@@ -1159,17 +1159,18 @@ class Battle {
 	ngasActive() {
 		for (const side of this.sides) {
 			for (const active of side.active) {
-				if (active && !active.fainted && toID(active.ability) === 'neutralizinggas' && !active.volatiles['gastroacid']) {
+				if (active && !active.fainted && active.ability === 'Neutralizing Gas' && !active.volatiles['gastroacid']) {
 					return true;
 				}
 			}
 		}
 		return false;
 	}
-	anyHasAbility(...abilities: string[]) {
+	abilityActive(abilities: string[]) {
+		if (this.ngasActive()) return false;
 		for (const side of this.sides) {
 			for (const active of side.active) {
-				if (active?.effectiveAbility(abilities)) {
+				if (active && !active.fainted && abilities.includes(active.ability) && !active.volatiles['gastroacid']) {
 					return true;
 				}
 			}
@@ -1394,7 +1395,7 @@ class Battle {
 			}
 			let pp = 1;
 			// Sticky Web is never affected by pressure
-			if (this.anyHasAbility('Pressure') && move.id !== 'stickyweb') {
+			if (this.abilityActive(['Pressure']) && move.id !== 'stickyweb') {
 				const foeTargets = [];
 
 				if (
