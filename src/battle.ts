@@ -493,7 +493,7 @@ class Pokemon implements PokemonDetails, PokemonHealth {
 		}
 
 		let item = toID(serverPokemon ? serverPokemon.item : this.item);
-		let ability = toID(this.ability || serverPokemon?.ability);
+		let ability = toID(this.effectiveAbility(serverPokemon));
 		if (battle.hasPseudoWeather('Magic Room') || this.volatiles['embargo'] || ability === 'klutz') {
 			item = '' as ID;
 		}
@@ -512,23 +512,15 @@ class Pokemon implements PokemonDetails, PokemonHealth {
 		}
 		return !this.getTypeList(serverPokemon).includes('Flying');
 	}
-	effectiveAbility(abilities: string | string[], serverPokemon?: ServerPokemon) {
-		if (typeof abilities === 'string') abilities = [abilities];
-		for (const ability of abilities) {
-			if (toID(ability) === toID(serverPokemon?.ability || this.ability)) {
-				const abilityData = this.side.battle.dex.abilities.get(ability);
-				if (
-					this.fainted ||
-					this.volatiles['gastroacid'] ||
-					this.side.battle.ngasActive() && !abilityData.isPermanent
-				) {
-					return false;
-				} else {
-					return true;
-				}
-			}
+	effectiveAbility(serverPokemon?: ServerPokemon) {
+		if (this.fainted || this.volatiles['gastroacid']) return '';
+		const ability = this.side.battle.dex.abilities.get(
+			serverPokemon?.ability || this.ability || serverPokemon?.baseAbility || ''
+		);
+		if (this.side.battle.ngasActive() && !ability.isPermanent) {
+			return '';
 		}
-		return false;
+		return ability.name;
 	}
 	getTypeList(serverPokemon?: ServerPokemon) {
 		const [types, addedType] = this.getTypes(serverPokemon);
@@ -1167,7 +1159,10 @@ class Battle {
 		return false;
 	}
 	abilityActive(abilities: string[]) {
-		if (this.ngasActive()) return false;
+		if (this.ngasActive()) {
+			abilities = abilities.filter(a => this.dex.abilities.get(a).isPermanent);
+			if (!abilities.length) return false;
+		}
 		for (const side of this.sides) {
 			for (const active of side.active) {
 				if (active && !active.fainted && abilities.includes(active.ability) && !active.volatiles['gastroacid']) {
@@ -1417,7 +1412,7 @@ class Battle {
 				}
 
 				for (const foe of foeTargets) {
-					if (foe && !foe.fainted && toID(foe.ability) === 'pressure' && !foe.volatiles['gastroacid']) {
+					if (foe && !foe.fainted && foe.effectiveAbility() === 'Pressure') {
 						pp += 1;
 					}
 				}
