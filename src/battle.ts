@@ -520,7 +520,7 @@ class Pokemon implements PokemonDetails, PokemonHealth {
 				if (
 					this.fainted ||
 					this.volatiles['gastroacid'] ||
-					this.side.battle.ngasActive() && toID(ability) !== 'neutralizinggas' && !abilityData.isPermanent
+					this.side.battle.ngasActive() && !abilityData.isPermanent
 				) {
 					return false;
 				} else {
