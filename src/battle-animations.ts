@@ -2505,8 +2505,8 @@ class PokemonSprite extends Sprite {
 		});
 		this.scene.wait(500);
 
+		this.scene.updateSidebar(pokemon.side);
 		if (isPermanent) {
-			this.scene.updateSidebar(pokemon.side);
 			this.resetStatbar(pokemon);
 		} else {
 			this.updateStatbar(pokemon);
