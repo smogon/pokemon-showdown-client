@@ -2707,7 +2707,7 @@ class PokemonSprite extends Sprite {
 			status += '<span class="frz">FRZ</span> ';
 		}
 		if (pokemon.volatiles.typechange && pokemon.volatiles.typechange[1]) {
-			let types = pokemon.volatiles.typechange[1].split('/');
+			const types = pokemon.volatiles.typechange[1].split('/');
 			for (const type of types) {
 				status += '<img src="' + Dex.resourcePrefix + 'sprites/types/' + encodeURIComponent(type) + '.png" alt="' + type + '" class="pixelated" /> ';
 			}
