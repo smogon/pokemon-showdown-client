@@ -2708,9 +2708,9 @@ class PokemonSprite extends Sprite {
 		}
 		if (pokemon.volatiles.typechange && pokemon.volatiles.typechange[1]) {
 			let types = pokemon.volatiles.typechange[1].split('/');
-			status += '<img src="' + Dex.resourcePrefix + 'sprites/types/' + encodeURIComponent(types[0]) + '.png" alt="' + types[0] + '" class="pixelated" /> ';
-			if (types[1]) {
-				status += '<img src="' + Dex.resourcePrefix + 'sprites/types/' + encodeURIComponent(types[1]) + '.png" alt="' + types[1] + '" class="pixelated" /> ';
+			for (let i in types) {
+				const type = types[i];
+				status += '<img src="' + Dex.resourcePrefix + 'sprites/types/' + encodeURIComponent(type) + '.png" alt="' + type + '" class="pixelated" /> ';
 			}
 		}
 		if (pokemon.volatiles.typeadd) {
