@@ -3022,6 +3022,10 @@ const BattleEffects: {[k: string]: SpriteData} = {
 		url: 'bloodwisp.png',
 		w: 100, h: 100,
 	},
+	arrow: {
+		url: 'arrow.png',
+		w: 32, h: 32,
+	},
 };
 (() => {
 	if (!window.Dex || !Dex.resourcePrefix) return;
