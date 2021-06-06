@@ -35592,7 +35592,7 @@ const BattleMoveAnims: AnimTable = {
 				opacity: 0.5,
 				time: 800,
 			}, 'accel', 'explode');
-			scene.showEffect('efireball', {
+			scene.showEffect('fireball', {
 				x: defender.x + 15,
 				y: defender.y + 10,
 				z: defender.z,
