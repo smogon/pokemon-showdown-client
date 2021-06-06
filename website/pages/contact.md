@@ -25,7 +25,7 @@ Mini-FAQ:
 > Maybe one day, but just use the website; its mobile version is actually pretty good on phones.
 > 
 > **Forgot your password?**  
-> Fill out a [Password Reset Form](https://www.smogon.com/forums/threads/names-passwords-rooms-and-servers-contacting-upper-staff.3538721/).
+> Learn about [requesting a password reset](https://www.smogon.com/forums/threads/names-passwords-rooms-and-servers-contacting-upper-staff.3538721/).
 > 
 > **Found a bug?**  
 > You probably didn't, but if you're sure you did, [Bug Reports](/bugreports).
