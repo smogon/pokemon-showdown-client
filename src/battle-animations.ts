@@ -1761,6 +1761,7 @@ class PokemonSprite extends Sprite {
 		mudsport: ['Mud Sport', 'good'],
 		waitforit: ['Wait For It', 'neutral'],
 		substitute: null,
+		livewire: ['Livewire', 'bad'],
 		// sub graphics are handled elsewhere, see Battle.Sprite.animSub()
 		uproar: ['Uproar', 'neutral'],
 		rage: ['Rage', 'neutral'],
@@ -3021,6 +3022,10 @@ const BattleEffects: {[k: string]: SpriteData} = {
 	bloodwisp: {
 		url: 'bloodwisp.png',
 		w: 100, h: 100,
+	},
+	arrow: {
+		url: 'arrow.png',
+		w: 32, h: 32,
 	},
 };
 (() => {
