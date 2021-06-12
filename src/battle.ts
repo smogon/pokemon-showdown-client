@@ -3376,7 +3376,7 @@ class Battle {
 		case 'poke': {
 			let pokemon = this.rememberTeamPreviewPokemon(args[1], args[2])!;
 			if (args[3] === 'mail') {
-				pokemon.item = 'Mail';
+				pokemon.item = '(mail)';
 			} else if (args[3] === 'item') {
 				pokemon.item = '(exists)';
 			}
