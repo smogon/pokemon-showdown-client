@@ -2537,6 +2537,9 @@ class Battle {
 						if (effect.name === 'Future Sight') {
 							this.scene.runOtherAnim('futuresighthit' as ID, [poke]);
 						}
+						if (effect.name === 'Final Hour') {
+							this.scene.runOtherAnim('finalhourhit' as ID, [poke]);
+						}
 					}
 				}
 			}
