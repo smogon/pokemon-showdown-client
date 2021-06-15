@@ -1814,6 +1814,8 @@ class PokemonSprite extends Sprite {
 		laserfocus: ['Laser Focus', 'good'],
 		spotlight: ['Spotlight', 'neutral'],
 		itemremoved: null,
+		// TODO: give furycutter robust effect: 'Fury Cutter BP: <modified bp>'
+		furycutter: null,
 		// partial trapping
 		bind: ['Bind', 'bad'],
 		clamp: ['Clamp', 'bad'],
