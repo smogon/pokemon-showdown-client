@@ -1417,6 +1417,8 @@
 				buf += 'Forfeiting makes you lose the battle.';
 			} else if (this.gameType === 'help') {
 				buf += 'Leaving the room will close the ticket.';
+			} else if (this.gameType === 'room') {
+				buf += 'Are you sure you want to exit this room ?';
 			} else {
 				// game
 				buf += 'Forfeiting makes you lose the game.';
@@ -1424,6 +1426,8 @@
 			if (this.gameType === 'help') {
 				buf += ' Are you sure?</p><p><label><input type="checkbox" name="closeroom" checked /> Close room</label></p>';
 				buf += '<p><button type="submit"><strong>Close ticket</strong></button> ';
+			} else if (this.gameType === 'room') {
+				buf += ' </p><p><button type="leaveRoom" name="leaveRoom"><strong>Close room</strong></button>';
 			} else {
 				buf += ' Are you sure?</p><p><label><input type="checkbox" name="closeroom" checked /> Close after forfeiting</label></p>';
 				buf += '<p><button type="submit"><strong>Forfeit</strong></button> ';
@@ -1451,6 +1455,10 @@
 			if (this.$('input[name=closeroom]')[0].checked) {
 				app.removeRoom(this.room.id);
 			}
+			this.close();
+		},
+		leaveRoom: function (id, data) {
+			this.room.send('/noreply /leave', this.room.id);
 			this.close();
 		}
 	});
