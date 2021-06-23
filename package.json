@@ -11,6 +11,7 @@
   "scripts": {
     "lint": "eslint --config=.eslintrc.js --cache --cache-file=eslint-cache/base js/ && eslint --config=build-tools/.eslintrc.js --cache --cache-file=eslint-cache/build build-tools/update build-tools/build-indexes && tslint --project .",
     "test": "npm run lint && tsc && node build && mocha test/*.js",
+    "fulltest": "npm test && node api/build && mocha .api-dist/test/*.js",
     "fix": "eslint --config=.eslintrc.js --fix js/ && eslint --config=build-tools/.eslintrc.js --fix build-tools/update build-tools/build-indexes",
     "build": "node build",
     "build-full": "node build full"
@@ -22,14 +23,19 @@
     "@babel/preset-env": "^7.13.15",
     "@babel/preset-typescript": "^7.13.0",
     "babel-plugin-remove-import-export": "^1.1.1",
-    "google-auth-library": "^3.1.0",
-    "image-size": "^0.7.2",
+    "bcrypt": "^5.0.1",
+    "dockerode": "^3.3.0",
+    "google-auth-library": "^3.1.2",
+    "mysql": "^2.18.1",
     "output-file-sync": "^2.0.1"
   },
   "devDependencies": {
+    "@types/bcrypt": "^5.0.0",
     "@types/jquery": "^3.5.3",
     "@types/mocha": "^5.2.6",
+    "@types/mysql": "^2.15.18",
     "eslint": "^5.15.1",
+    "image-size": "^0.7.2",
     "mocha": "^6.0.2",
     "preact": "^8.3.1",
     "tslint": "^5.13.0",

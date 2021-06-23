@@ -1,11 +1,13 @@
 #!/usr/bin/env node
+// mostly deprecated as api/session.ts handles this internally
+// but i'm keeping it here just in case
 
 const gal = require('google-auth-library');
 
 const CLIENT_ID = '912270888098-jjnre816lsuhc5clj3vbcn4o2q7p4qvk.apps.googleusercontent.com';
 
 const token = process.argv[2];
-
+// make static on session
 var client = new gal.OAuth2Client(CLIENT_ID, '', '');
 client.verifyIdToken({
   idToken: token,

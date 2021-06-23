@@ -1,6 +1,7 @@
 /sprites/
 /audio/
 /config/
+!/config/ls-config-example.js
 /index.php
 /index.html
 /preactalpha.html
@@ -31,3 +32,4 @@ package-lock.json
 /website/.pages-cached/
 /website/files/
 /website/images/
+/.api-dist/
