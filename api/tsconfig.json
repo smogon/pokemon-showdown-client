@@ -9,7 +9,8 @@
     "allowJs": true,
     "checkJs": true,
     "incremental": true,
-    "allowUnreachableCode": false
+    "allowUnreachableCode": false,
+    "skipLibCheck": true
   },
   "include": [
     "./*",

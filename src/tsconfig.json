@@ -5,10 +5,11 @@
       "target": "esnext",
       "module": "None",
       "jsx": "preserve",
-      "strict": true
+      "strict": true,
+      "skipLibCheck": true
   },
   "include": [
     "../js/lib/preact.d.ts",
     "./*",
-  ]
+  ],
 }

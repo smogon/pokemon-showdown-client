@@ -107,7 +107,7 @@ export class Dispatcher {
 		}
 
 		let prefix = null;
-		for (const [regex, host] of Config.cors) {
+		for (const [regex, host] of Config.cors as [RegExp, string][]) {
 			if (!regex.test(origin)) continue;
 			prefix = host;
 		}

@@ -33,3 +33,4 @@ package-lock.json
 /website/files/
 /website/images/
 /.api-dist/
+/**/*.tsbuildinfo
