@@ -1620,7 +1620,7 @@ class BattleTooltips {
 				value.weatherModify(2);
 			}
 		}
-		if (move.id === 'terrainpulse') {
+		if (move.id === 'terrainpulse' && pokemon.isGrounded(serverPokemon)) {
 			if (
 				this.battle.hasPseudoWeather('Electric Terrain') ||
 				this.battle.hasPseudoWeather('Grassy Terrain') ||
