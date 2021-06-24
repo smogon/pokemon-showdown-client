@@ -1362,7 +1362,7 @@ class BattleTooltips {
 				break;
 			}
 		}
-		if (move.id === 'terrainpulse') {
+		if (move.id === 'terrainpulse' && value.pokemon.isGrounded(value.serverPokemon)) {
 			if (this.battle.hasPseudoWeather('Electric Terrain')) {
 				moveType = 'Electric';
 			} else if (this.battle.hasPseudoWeather('Grassy Terrain')) {
