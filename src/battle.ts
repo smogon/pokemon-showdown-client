@@ -3201,6 +3201,9 @@ class Battle {
 				this.messageFadeTime = 40;
 				this.isBlitz = true;
 			}
+			if (this.tier.includes(`Let's Go`)) {
+				this.dex = Dex.mod('letsgo' as ID, 7);
+			}
 			this.log(args);
 			break;
 		}
