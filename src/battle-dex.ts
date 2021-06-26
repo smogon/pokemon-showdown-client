@@ -196,13 +196,13 @@ const Dex = new class implements ModdedDex {
 	loadedSpriteData = {xy: 1, bw: 0};
 	moddedDexes: {[mod: string]: ModdedDex} = {};
 
-	mod(modid: ID): ModdedDex {
+	mod(modid: ID, gen?: number): ModdedDex {
 		if (modid === 'gen8') return this;
 		if (!window.BattleTeambuilderTable) return this;
 		if (modid in this.moddedDexes) {
 			return this.moddedDexes[modid];
 		}
-		this.moddedDexes[modid] = new ModdedDex(modid);
+		this.moddedDexes[modid] = new ModdedDex(modid, gen);
 		return this.moddedDexes[modid];
 	}
 	forGen(gen: number) {
@@ -834,10 +834,10 @@ class ModdedDex {
 		Types: {} as any as {[k: string]: Effect},
 	};
 	pokeballs: string[] | null = null;
-	constructor(modid: ID) {
+	constructor(modid: ID, genNum?: number) {
 		this.modid = modid;
-		let gen = parseInt(modid.slice(3), 10);
-		if (!modid.startsWith('gen') || !gen) throw new Error("Unsupported modid");
+		const gen = genNum || parseInt(modid.slice(3), 10);
+		if ((!modid.startsWith('gen') && modid !== 'letsgo') || !gen) throw new Error("Unsupported modid");
 		this.gen = gen;
 	}
 	moves = {
@@ -859,6 +859,10 @@ class ModdedDex {
 			}
 			if (this.gen <= 3 && data.category !== 'Status') {
 				data.category = Dex.getGen3Category(data.type);
+			}
+			const table = window.BattleTeambuilderTable[this.modid];
+			if (this.modid === 'letsgo' && id in table.overrideMoveData) {
+				Object.assign(data, table.overrideMoveData[id]);
 			}
 
 			const move = new Move(id, name, data);
@@ -934,7 +938,7 @@ class ModdedDex {
 					Object.assign(data, table.overrideSpeciesData[id]);
 				}
 			}
-			if (this.gen < 3) {
+			if (this.gen < 3 || this.modid === 'letsgo') {
 				data.abilities = {0: "None"};
 			}
 
