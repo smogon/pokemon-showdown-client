@@ -970,7 +970,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 
 		const overrideMoveData = {};
 		BattleTeambuilderTable[gen].overrideMoveData = overrideMoveData;
-		const overrideMoveKeys = ['accuracy', 'basePower', 'category', 'desc', 'flags', 'isNonstandard', 'pp', 'shortDesc', 'target', 'type'];
+		const overrideMoveKeys = ['accuracy', 'basePower', 'category', 'desc', 'flags', 'isNonstandard', 'pp', 'priority', 'shortDesc', 'target', 'type'];
 		for (const id in genData.Moves) {
 			const curEntry = Dex.mod(gen).moves.get(id);
 			const nextEntry = Dex.mod(nextGen).moves.get(id);
@@ -1016,6 +1016,29 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			}
 			if (JSON.stringify(nextEntry) !== JSON.stringify(curEntry)) {
 				overrideTypeChart[id] = curEntry;
+			}
+		}
+	}
+
+	//
+	// Let's Go
+	//
+
+	{
+		const LGDex = Dex.mod('letsgo');
+		const LGData = LGDex.data;
+
+		const overrideMoveData = {};
+		BattleTeambuilderTable['letsgo'].overrideMoveData = overrideMoveData;
+		const overrideMoveKeys = ['basePower', 'desc', 'pp', 'priority', 'shortDesc'];
+		for (const id in LGData.Moves) {
+			const modEntry = LGDex.moves.get(id);
+			const parentEntry = Dex.mod('gen7').moves.get(id);
+			for (const key of overrideMoveKeys) {
+				if (JSON.stringify(modEntry[key]) !== JSON.stringify(parentEntry[key])) {
+					if (!overrideMoveData[id]) overrideMoveData[id] = {};
+					overrideMoveData[id][key] = modEntry[key];
+				}
 			}
 		}
 	}
