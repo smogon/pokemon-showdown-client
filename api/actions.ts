@@ -223,34 +223,50 @@ export const actions: {[k: string]: QueryHandler} = {
 	},
 	async changepassword(params) {
 
-		if (this.request.method !== 'POST' ||
-				!params.oldpassword ||
-				!params.password ||
-				!params.cpassword) {
-			throw new ActionError('Invalid request.');
-		} else if (!this.user.loggedin) {
+		if (this.request.method !== 'POST') {
+			throw new ActionError(`'changepassword' requests can only be made with POST data.`);
+		}
+		if (!params.oldpassword) {
+			throw new ActionError(`Specify your current password.`);
+		}
+		if (!params.password) {
+			throw new ActionError(`Specify your new password.`);
+		}
+		if (!params.cpassword) {
+			throw new ActionError(`Repeat your new password.`);
+		}
+
+		if (!this.user.loggedin) {
 			throw new ActionError('Your session has expired. Please log in again.');
-		} else if (params.password !== params.cpassword) {
+		}
+		if (params.password !== params.cpassword) {
 			throw new ActionError('Your new passwords do not match.');
-		} else if (!(await this.session.passwordVerify(this.user.id, params.oldpassword))) {
+		}
+		if (!(await this.session.passwordVerify(this.user.id, params.oldpassword))) {
 			throw new ActionError('Your old password was incorrect.');
-		} else if (params.password.length < 5) {
+		}
+		if (params.password.length < 5) {
 			throw new ActionError('Your new password must be at least 5 characters long.');
 		}
 		const actionsuccess = await this.session.changePassword(this.user.id, params.password);
 		return {actionsuccess};
 	},
 	async changeusername(params) {
-		if (this.request.method !== 'POST' || !params.username) {
+		if (this.request.method !== 'POST') {
 			throw new ActionError('Invalid request (username changing must be done through POST requests).');
-		} else if (!this.user.loggedin) {
+		}
+		if (!params.username) {
+			throw new ActionError(`Specify a username.`);
+		}
+		if (!this.user.loggedin) {
 			throw new ActionError('Your session has expired. Please log in again.');
 		}
 		// safe to use userid directly because we've confirmed they've logged in.
-		await tables.users.update(this.user.id, {
+		const actionsuccess = await tables.users.update(this.user.id, {
 			username: params.username,
-		});
-		return {actionsuccess: true};
+		}).catch(() => false);
+		this.session.updateCookie();
+		return {actionsuccess};
 	},
 	async ladderupdate(params) {
 		const server = this.getServer(true);

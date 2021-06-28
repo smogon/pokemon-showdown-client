@@ -107,7 +107,8 @@ export const Replays = new class {
 	}
 
 	async search(args: {
-		page?: number, isPrivate?: boolean, byRating?: boolean, format?: string, username?: string, username2?: string,
+		page?: number, isPrivate?: boolean, byRating?: boolean,
+		format?: string, username?: string, username2?: string,
 	}): Promise<ReplayData[]> {
 		const page = args.page || 0;
 		if (page > 100) return [];

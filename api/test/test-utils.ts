@@ -8,26 +8,30 @@
 import * as net from 'net';
 import {IncomingMessage, ServerResponse} from 'http';
 import {Dispatcher, RegisteredServer} from '../dispatcher';
-import {execSync} from 'child_process';
+import {Config} from '../config-loader';
 import {databases} from '../database';
 import * as mysql from 'mysql';
 import * as fs from 'fs';
 
 export let setup = false;
-export async function setupContainers() {
+export async function setupDB() {
 	if (setup) return;
 	setup = true;
-
+	/** Removing this as it does not work, but could be useful for future reference.
+	const commands = [
+		'docker run --name api-test -p 3308:3306 -e MYSQL_ROOT_PASSWORD=testpw -d mysql:latest',
+	];
+	for (const command of commands) execSync(command);
 	const config = {
 		password: 'testpw',
 		user: 'root',
-		host: 'localhost',
+		host: '127.0.0.1',
 		port: 3308,
 	};
-	const commands = [
-		'docker run --name api-test -p 3308 -e MYSQL_ROOT_PASSWORD=testpw -d mysql:latest',
-	];
-	for (const command of commands) execSync(command);
+
+	await wait(5000); // for docker to catch up */
+
+	if (!Config.testdb) throw new Error(`Configure \`Config.testdb\` before using mocha.`);
 
 	const sqlFiles = fs.readdirSync(`${__dirname}/../../lib/`)
 		.filter(f => f.endsWith('.sql'))
@@ -36,9 +40,9 @@ export async function setupContainers() {
 
 
 	for (const db of databases) {
-		db.pool = mysql.createPool(config);
+		db.pool = mysql.createPool(Config.testdb);
 		for (const file of sqlFiles) {
-			await db.query(fs.readFileSync(`${__dirname}/../../${file}`, 'utf-8'), []);
+			await db.query(fs.readFileSync(`${__dirname}/../../${file}`, 'utf-8'), []).catch(() => {});
 		}
 	}
 }
@@ -62,6 +66,6 @@ export function addServer(server: RegisteredServer) {
 	return server;
 }
 
-beforeEach(async () => {
-	await setupContainers();
+before(async () => {
+	await setupDB();
 });

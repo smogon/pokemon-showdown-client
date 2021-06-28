@@ -36,5 +36,5 @@ export function load(invalidate = false): Configuration {
 export const Config = load();
 
 if (Config.watchconfig) {
-	fs.watchFile(require.resolve('../config/ls-config'), () => load(true));
+	fs.watchFile(require.resolve('../config/ls-config'), () => ({...Config, ...load(true)}));
 }
