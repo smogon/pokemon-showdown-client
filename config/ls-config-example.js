@@ -26,7 +26,8 @@ exports.cors = [
  [/^http:\/\/[a-z0-9]+\.psim\.us$/, ""],
  [/^http:\/\/play\.pokemonshowdown\.com$/, ""],
 ];
-exports.sysops = ["mia"];
+// array of user IDs who will be given sysop powers on all servers they log into via this loginserver
+exports.sysops = [];
 
 // Private keys to use for validating assertions.
 exports.privatekeys = [
