@@ -929,6 +929,10 @@ const BattleAvatarNumbers: {[k: string]: string} = {
 	'#wally': 'wally',
 	breeder: 'pokemonbreeder',
 	breederf: 'pokemonbreederf',
+	'hilbert-wonderlauncher': 'hilbert-dueldisk',
+	'hilda-wonderlauncher': 'hilda-dueldisk',
+	'nate-wonderlauncher': 'nate-dueldisk',
+	'rosa-wonderlauncher': 'rosa-dueldisk',
 
 	1001: '#1001',
 	1002: '#1002',
