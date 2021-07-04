@@ -52,7 +52,8 @@ if (isset($_REQUEST['json'])) {
 	header('Access-Control-Allow-Origin: *');
 	if (!$formatid) die('null');
 	$ladder = new NTBBLadder($formatid);
-	$toplist = $ladder->getTop();
+	$prefix = $_REQUEST['prefix'] ?? null;
+	$toplist = $ladder->getTop($prefix);
 	foreach ($toplist as &$row) {
 		unset($row['formatid']);
 		unset($row['entryid']);
