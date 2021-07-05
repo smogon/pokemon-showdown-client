@@ -281,7 +281,7 @@ if (!$user) {
 			<p>Login method updated</p>
 		</div>
 <?php
-		} else if ($csrfOk && $authLevel >= 5 && @$_POST['passreset']) {
+		} else if ($csrfOk && $authLevel >= 6 && @$_POST['passreset']) {
 			$token = $users->createPasswordResetToken($user['userid']);
 ?>
 		<div style="border: 1px solid #DDAA88; padding: 0 1em; margin-bottom: 1em">
@@ -352,7 +352,7 @@ if (!$user) {
 			</p></form>
 <?php
 		}
-		if ($authLevel >= 5) {
+		if ($authLevel >= 6) {
 ?>
 			<form action="" method="post" data-target="replace"><p>
 				<?php $users->csrfData(); ?>
