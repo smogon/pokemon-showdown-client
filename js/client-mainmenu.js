@@ -190,9 +190,9 @@
 				this.updateChallenge($pmWindow, parsedMessage.challenge, name, oName);
 				return;
 			}
-			var mayNotify = true;
+			var canNotify = true;
 			if (typeof parsedMessage === 'object' && 'noNotify' in parsedMessage) {
-				mayNotify = !parsedMessage.noNotify;
+				canNotify = !parsedMessage.noNotify;
 				parsedMessage = parsedMessage.message;
 			}
 			if (!$.isArray(parsedMessage)) parsedMessage = [parsedMessage];
@@ -207,7 +207,7 @@
 				app.curSideRoom.addPM(name, message, target);
 			}
 
-			if (mayNotify && !isSelf && textContent) {
+			if (canNotify && !isSelf && textContent) {
 				this.notifyOnce("PM from " + name, "\"" + textContent + "\"", 'pm');
 			}
 
@@ -262,6 +262,7 @@
 			}
 
 			app.playNotificationSound();
+			this.notifyOnce("Challenge from " + name, "Format: " + BattleLog.escapeFormat(formatName), 'challenge:' + userid);
 			var buf = '<form class="battleform"><p>' + BattleLog.escapeHTML(message || (name + ' wants to battle!')) + '</p>';
 			if (formatName) {
 				buf += '<p><label class="label">' + (teamFormat ? 'Format' : 'Game') + ':</label>' + this.renderFormats(formatName, true) + '</p>';
@@ -1106,7 +1107,7 @@
 			});
 		}
 	}, {
-		parseChatMessage: function (message, name, timestamp, isHighlighted, $chatElem, isChat) {
+		parseChatMessage: function (message, name, timestamp, isHighlighted, $chatElem, isNotPM) {
 			var showMe = !((Dex.prefs('chatformatting') || {}).hideme);
 			var group = ' ';
 			if (!/[A-Za-z0-9]/.test(name.charAt(0))) {
@@ -1154,11 +1155,11 @@
 			case 'data-move':
 				return '[outdated message type not supported]';
 			case 'text':
-				return '<div class="chat">' + BattleLog.parseMessage(target) + '</div>';
+				return {message: '<div class="chat">' + BattleLog.parseMessage(target) + '</div>', noNotify: true};
 			case 'error':
 				return '<div class="chat message-error">' + BattleLog.escapeHTML(target) + '</div>';
 			case 'html':
-				return {message: '<div class="chat chatmessage-' + toID(name) + hlClass + mineClass + '">' + timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <em>' + BattleLog.sanitizeHTML(target) + '</em></div>', noNotify: isChat};
+				return {message: '<div class="chat chatmessage-' + toID(name) + hlClass + mineClass + '">' + timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <em>' + BattleLog.sanitizeHTML(target) + '</em></div>', noNotify: isNotPM};
 			case 'uhtml':
 			case 'uhtmlchange':
 				var parts = target.split(',');
@@ -1174,9 +1175,9 @@
 					$elements.remove();
 					$chatElem.append('<div class="chat uhtml-' + toID(parts[0]) + ' chatmessage-' + toID(name) + '">' + BattleLog.sanitizeHTML(html) + '</div>');
 				}
-				return {message: '', noNotify: isChat};
+				return {message: '', noNotify: isNotPM};
 			case 'raw':
-				return {message: '<div class="chat chatmessage-' + toID(name) + '">' + BattleLog.sanitizeHTML(target) + '</div>', noNotify: isChat};
+				return {message: '<div class="chat chatmessage-' + toID(name) + '">' + BattleLog.sanitizeHTML(target) + '</div>', noNotify: isNotPM};
 			case 'nonotify':
 				return {message: '<div class="chat">' + timestamp + BattleLog.sanitizeHTML(target) + '</div>', noNotify: true};
 			case 'challenge':
