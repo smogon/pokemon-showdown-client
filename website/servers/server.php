@@ -20,8 +20,6 @@ $pageTitle = "Servers";
 
 $success = false;
 
-$is_manager = (@$curuser['group'] == 2 || @$curuser['group'] == 6);
-
 // Single server view
 //=================================================================================
 
@@ -48,8 +46,10 @@ if (!$entry) {
 	die("server not found");
 }
 
-$is_owner = $is_manager;
-if (!@$entry['banned'] && strpos(','.@$entry['owner'].',', ','.$curuser['userid'].',') !== false) $is_owner = true;
+$is_owner = $users->isLeader();
+if (!@$entry['banned'] && strpos(','.@$entry['owner'].',', ','.$curuser['userid'].',') !== false) {
+	$is_owner = true;
+}
 
 if (@$_POST['act'] === 'editserver') {
 	if (!$is_owner) die('access denied');
@@ -203,7 +203,7 @@ if (@$entry['token']) {
 					<button type="submit" name="act" value="editserver"><strong>Edit server</strong></button>
 				</div>
 			</form>
-			<?php if ($is_manager) { ?><form method="post">
+			<?php if ($users->isLeader()) { ?><form method="post">
 				<input type="hidden" name="act" value="deleteserver" /><?php $users->csrfData(); ?>
 				<p>
 					<button onclick="document.getElementById('deleteserver').style.display = 'block';return false"><small>Delete server</small></button> <button type="submit" id="deleteserver" style="display:none"><small><strong>I'm sure I want to delete this server</strong></small></button>

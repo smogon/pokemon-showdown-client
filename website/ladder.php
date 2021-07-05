@@ -150,7 +150,7 @@ if (!$formatid) {
 	// we previously allowed all TLs to reset suspect ladders:
 	//   substr($formatid, -11) === 'suspecttest' || substr($formatid, -7) === 'current'
 	// but that functionality got lost somewhere along the way
-	if (in_array($curuser['userid'], $psconfig['sysops'], true)) {
+	if ($users->isSysop()) {
 		$success = false;
 		if (@$_POST['act'] === 'resetladder' && $users->csrfCheck()) {
 			if ($_POST['confirm'] === "Permanently reset this ladder.") {

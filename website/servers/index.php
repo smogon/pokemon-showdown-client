@@ -10,13 +10,11 @@ $pageTitle = "Servers";
 
 $success = false;
 
-$is_manager = (@$curuser['group'] == 2 || @$curuser['group'] == 6);
-
 // Add server
 //=================================================================================
 
 if (@$_POST['act'] === 'addserver') {
-	if (!$is_manager) die('access denied');
+	if (!$users->isLeader()) die('access denied');
 	if (!$users->csrfCheck()) die('invalid data, please retry');
 	$name = trim(@$_POST['name']);
 	$owners = explode(',', @$_POST['owner']);
@@ -97,7 +95,7 @@ uasort($inactiveservers, 'cmpByDate');
 ?>
 		<div class="main">
 <?php
-if ($is_manager) {
+if ($users->isLeader()) {
 ?>
 			<h1>Add server</h1>
 			<p id="addserverbutton">
@@ -182,7 +180,7 @@ foreach ($inactiveservers as $server) {
 ?>
 			</table>
 <?php
-if ($is_manager) {
+if ($users->isLeader()) {
 ?>
 			<h1>Untracked servers</h1>
 			<p>

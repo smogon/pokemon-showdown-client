@@ -372,7 +372,7 @@ if (!$user) {
 ?>
 		</div>
 <?php
-	} else if (!$user['group'] && ($curuser['group'] == 2 || $curuser['group'] == 6)) {
+	} else if (!$user['group'] && $users->isLeader()) {
 		$csrfOk = false;
 		if ($users->csrfCheck()) {
 			$csrfOk = true;

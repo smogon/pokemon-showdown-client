@@ -6,7 +6,7 @@ include_once '../../lib/ntbb-session.lib.php';
 include_once __DIR__ . '/../../config/news.inc.php';
 include_once 'include.php';
 
-if (@$curuser['group'] != 2 && @$curuser['group'] != 6) die('access denied');
+if (!$users->isLeader()) die('access denied');
 
 function saveNews() {
 	global $newsCache, $latestNewsCache;
