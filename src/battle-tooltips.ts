@@ -1316,7 +1316,7 @@ class BattleTooltips {
 	 * Gets the proper current type for moves with a variable type.
 	 */
 	getMoveType(move: Move, value: ModifiableValue, forMaxMove?: boolean | Move): [TypeName, 'Physical' | 'Special' | 'Status'] {
-		const pokemon = value.pokemon!;
+		const pokemon = value.pokemon;
 		const serverPokemon = value.serverPokemon;
 
 		let moveType = move.type;
