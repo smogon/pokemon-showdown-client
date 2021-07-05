@@ -70,8 +70,9 @@ RewriteRule ^pages/([a-z0-9-]+)/?$ /.pages-cached/$1.html [L,QSA]
 
 RewriteRule ^autodownload\/?([A-Za-z0-9-]+)?$ autodownload.php?os=$1 [L,QSA]
 
-RewriteRule ^servers\/?([A-Za-z0-9-]+)?$ servers.php?id=$1 [L,QSA]
-RewriteRule ^servers\/([A-Za-z0-9-]+)\.json$ servers.php?id=$1&json [L,QSA]
+RewriteRule ^servers\/?$ servers/index.php [L,QSA]
+RewriteRule ^servers\/?([A-Za-z0-9-]+)?$ servers/server.php?id=$1 [L,QSA]
+RewriteRule ^servers\/([A-Za-z0-9-]+)\.json$ servers/server.php?id=$1&json [L,QSA]
 
 # RewriteRule ^replay\/?search/?$ replay/search.php [L,QSA]
 # RewriteRule ^replay\/?([A-Za-z0-9-]+)$ replay/battle.php?name=$1 [L,QSA]
