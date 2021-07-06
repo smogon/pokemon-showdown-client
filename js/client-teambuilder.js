@@ -1998,8 +1998,8 @@
 				var number = parseInt(format.charAt(3), 10);
 				if (1 <= number && number <= 7) {
 					generationNumber = number;
-					format = format.substr(4);
 				}
+				format = format.substr(4);
 			}
 			var generation = ['rb', 'gs', 'rs', 'dp', 'bw', 'xy', 'sm', 'ss'][generationNumber - 1];
 			if (format === 'battlespotdoubles') {
@@ -2009,9 +2009,11 @@
 			} else if (format === 'ou' || format === 'uu' || format === 'ru' || format === 'nu' || format === 'pu' || format === 'lc' || format === 'monotype' || format === 'mixandmega' || format === 'nfe' || format === 'nationaldex' || format === 'stabmons' || format === '1v1' || format === 'almostanyability') {
 				smogdexid += '/' + format;
 			} else if (format === 'balancedhackmons') {
-				smogdexid += 'bh';
-			} else if (format === 'nationaldexag' || format === 'anythinggoes') {
-				smogdexid += 'ag';
+				smogdexid += '/bh';
+			} else if (format === 'anythinggoes') {
+				smogdexid += '/ag';
+			} else if (format === 'nationaldexag') {
+				smogdexid += '/national-dex-ag';
 			}
 			return 'http://smogon.com/dex/' + generation + '/pokemon/' + smogdexid + '/';
 		},
