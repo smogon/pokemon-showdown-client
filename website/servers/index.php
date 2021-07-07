@@ -1,6 +1,7 @@
 <?php
 
 include_once 'servers.lib.php';
+include_once __DIR__ . '/../../lib/ntbb-database.lib.php';
 include '../style/wrapper.inc.php';
 
 $timenow = time();
@@ -45,13 +46,25 @@ if (@$_POST['act'] === 'addserver') {
 	if (strpos($server, '.') === false) {
 		die("invalid server location");
 	}
+	$email = isset($_POST['email']) ? trim($_POST['email']) : false;
+	if (!$email || !strpos($email, '@')) {
+		die('Invalid email.');
+	}
 	$PokemonServers[$id] = [
 		'name' => $name,
 		'id' => $id,
 		'server' => $server,
-		'port' => $port
+		'port' => $port,
+		'email' => $email
 	];
 	if ($owner) $PokemonServers[$id]['owner'] = $owner;
+	$logMessage = "{$name} @ host '{$server}' (contact email: {$email}";
+	if ($owner) $logMessage .= ", owner: {$owner}";
+	$logMessage .= ")";
+	$psdb->query(
+		"INSERT INTO {$psdb->prefix}servermodlog (`serverid`, `actorid`, `date`, `ip`, `type`, `note`) VALUES (?, ?, ?, ?, ?, ?)",
+		[$id, $curuser['id'], time(), $users->getIp(), 'CREATESERVER', $logMessage]
+	);
 	saveservers();
 }
 
@@ -117,9 +130,11 @@ if ($users->isLeader()) {
 				<div class="formrow">
 					<label class="label">Owner's username: <input class="textbox" type="text" name="owner" placeholder="(Optional)" /><em>(separate multiple owners by commas)</em></label>
 				</div>
+				<div class="formrow">
+					<label class="label">Owner's email: <input class="textbox" type="text" name="email" /></label>
 				<div class="buttonrow">
 					<button type="submit"><strong>Add server</strong></button>
-				</div>
+				</div></div>
 			</form>
 <?php
 }

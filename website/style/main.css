@@ -370,7 +370,6 @@ table.table, .table td, .table th {
 
 	border: 1px solid #AAAAAA;
 	border-radius: 3px;
-	
 	box-shadow: inset 0px 1px 2px #CCCCCC, 1px 1px 0 rgba(255,255,255,.6);
 	background: #F8FBFD;
 }
@@ -458,4 +457,14 @@ code {
 	font-size: 10pt;
 	display: block;
 	color: #444444;
+}
+
+.infobox {
+	border: 1px solid #6688AA;
+	padding: 2px 4px;
+}
+
+.pad {
+	margin: 0;
+	padding: 5px 15px;
 }
