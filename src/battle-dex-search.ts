@@ -751,7 +751,7 @@ abstract class BattleTypedSearch<T extends SearchType> {
 		}
 		let table = window.BattleTeambuilderTable;
 		const tableKey = this.formatType === 'doubles' ? `gen${this.dex.gen}doubles` :
-			this.formatType === 'letsgo' ? 'letsgo' :
+			this.formatType === 'letsgo' ? 'gen7letsgo' :
 			this.formatType === 'nfe' ? `gen${this.dex.gen}nfe` :
 			this.formatType === 'dlc1' ? 'gen8dlc1' :
 			this.formatType === 'dlc1doubles' ? 'gen8dlc1doubles' :
@@ -854,7 +854,7 @@ class BattlePokemonSearch extends BattleTypedSearch<'pokemon'> {
 		} else if (dex.gen < 8 && !this.formatType) {
 			table = table['gen' + dex.gen];
 		} else if (this.formatType === 'letsgo') {
-			table = table['letsgo'];
+			table = table['gen7letsgo'];
 		} else if (this.formatType === 'natdex') {
 			table = table['natdex'];
 		} else if (this.formatType === 'metronome') {
@@ -1373,7 +1373,7 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 		let gen = '' + dex.gen;
 		while (learnsetid) {
 			let learnset = BattleTeambuilderTable.learnsets[learnsetid];
-			if (this.formatType === 'letsgo') learnset = BattleTeambuilderTable['letsgo'].learnsets[learnsetid];
+			if (this.formatType === 'letsgo') learnset = BattleTeambuilderTable['gen7letsgo'].learnsets[learnsetid];
 			if (this.formatType?.startsWith('dlc1')) learnset = BattleTeambuilderTable['gen8dlc1'].learnsets[learnsetid];
 			if (learnset) {
 				for (let moveid in learnset) {
