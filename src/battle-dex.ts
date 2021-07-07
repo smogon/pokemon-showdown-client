@@ -861,7 +861,7 @@ class ModdedDex {
 				data.category = Dex.getGen3Category(data.type);
 			}
 			const table = window.BattleTeambuilderTable[this.modid];
-			if (this.modid === 'letsgo' && id in table.overrideMoveData) {
+			if (this.modid === 'gen7letsgo' && id in table.overrideMoveData) {
 				Object.assign(data, table.overrideMoveData[id]);
 			}
 
@@ -938,7 +938,7 @@ class ModdedDex {
 					Object.assign(data, table.overrideSpeciesData[id]);
 				}
 			}
-			if (this.gen < 3 || this.modid === 'letsgo') {
+			if (this.gen < 3 || this.modid === 'gen7letsgo') {
 				data.abilities = {0: "None"};
 			}
 
