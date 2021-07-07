@@ -509,11 +509,11 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			BattleTeambuilderTable[gen + 'nfe'].overrideTier = overrideTier;
 			BattleTeambuilderTable[gen + 'nfe'].formatSlices = formatSlices;
 		} else if (isLetsGo) {
-			BattleTeambuilderTable['letsgo'] = {};
-			BattleTeambuilderTable['letsgo'].learnsets = {};
-			BattleTeambuilderTable['letsgo'].tiers = tiers;
-			BattleTeambuilderTable['letsgo'].overrideTier = overrideTier;
-			BattleTeambuilderTable['letsgo'].formatSlices = formatSlices;
+			BattleTeambuilderTable['gen7letsgo'] = {};
+			BattleTeambuilderTable['gen7letsgo'].learnsets = {};
+			BattleTeambuilderTable['gen7letsgo'].tiers = tiers;
+			BattleTeambuilderTable['gen7letsgo'].overrideTier = overrideTier;
+			BattleTeambuilderTable['gen7letsgo'].formatSlices = formatSlices;
 		} else if (isVGC) {
 			BattleTeambuilderTable[gen + 'vgc'] = {};
 			BattleTeambuilderTable[gen + 'vgc'].tiers = tiers;
@@ -898,9 +898,9 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 		if (!validNum) continue;
 		if (species.forme && !['Alola', 'Mega', 'Mega-X', 'Mega-Y', 'Starter'].includes(species.forme)) continue;
 		const learnset = LGLearnsets[id].learnset;
-		BattleTeambuilderTable['letsgo'].learnsets[id] = {};
+		BattleTeambuilderTable['gen7letsgo'].learnsets[id] = {};
 		for (const moveid in learnset) {
-			BattleTeambuilderTable['letsgo'].learnsets[id][moveid] = '7';
+			BattleTeambuilderTable['gen7letsgo'].learnsets[id][moveid] = '7';
 		}
 	}
 	const DLC1Learnsets = Dex.mod('gen8dlc1').data.Learnsets;
@@ -1025,11 +1025,11 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 	//
 
 	{
-		const LGDex = Dex.mod('letsgo');
+		const LGDex = Dex.mod('gen7letsgo');
 		const LGData = LGDex.data;
 
 		const overrideMoveData = {};
-		BattleTeambuilderTable['letsgo'].overrideMoveData = overrideMoveData;
+		BattleTeambuilderTable['gen7letsgo'].overrideMoveData = overrideMoveData;
 		const overrideMoveKeys = ['basePower', 'desc', 'pp', 'priority', 'shortDesc'];
 		for (const id in LGData.Moves) {
 			const modEntry = LGDex.moves.get(id);

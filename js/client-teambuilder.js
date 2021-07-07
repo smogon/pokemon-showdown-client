@@ -22,7 +22,7 @@
 				this.curTeam.gen = this.getGen(this.curTeam.format);
 				this.curTeam.dex = Dex.forGen(this.curTeam.gen);
 				if (this.curTeam.format.includes('letsgo')) {
-					this.curTeam.dex = Dex.mod('letsgo', 7);
+					this.curTeam.dex = Dex.mod('gen7letsgo');
 				}
 				Storage.activeSetList = this.curSetList;
 			}
@@ -683,7 +683,7 @@
 			this.curTeam.gen = this.getGen(this.curTeam.format);
 			this.curTeam.dex = Dex.forGen(this.curTeam.gen);
 			if (this.curTeam.format.includes('letsgo')) {
-				this.curTeam.dex = Dex.mod('letsgo', 7);
+				this.curTeam.dex = Dex.mod('gen7letsgo');
 			}
 			Storage.activeSetList = this.curSetList = Storage.unpackTeam(this.curTeam.team);
 			this.curTeamIndex = i;
@@ -1445,7 +1445,7 @@
 			this.curTeam.gen = this.getGen(this.curTeam.format);
 			this.curTeam.dex = Dex.forGen(this.curTeam.gen);
 			if (this.curTeam.format.includes('letsgo')) {
-				this.curTeam.dex = Dex.mod('letsgo', 7);
+				this.curTeam.dex = Dex.mod('gen7letsgo');
 			}
 			this.save();
 			if (this.curTeam.gen === 5 && !Dex.loadedSpriteData['bw']) Dex.loadSpriteData('bw');

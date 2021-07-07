@@ -196,13 +196,13 @@ const Dex = new class implements ModdedDex {
 	loadedSpriteData = {xy: 1, bw: 0};
 	moddedDexes: {[mod: string]: ModdedDex} = {};
 
-	mod(modid: ID, gen?: number): ModdedDex {
+	mod(modid: ID): ModdedDex {
 		if (modid === 'gen8') return this;
 		if (!window.BattleTeambuilderTable) return this;
 		if (modid in this.moddedDexes) {
 			return this.moddedDexes[modid];
 		}
-		this.moddedDexes[modid] = new ModdedDex(modid, gen);
+		this.moddedDexes[modid] = new ModdedDex(modid);
 		return this.moddedDexes[modid];
 	}
 	forGen(gen: number) {
@@ -834,10 +834,10 @@ class ModdedDex {
 		Types: {} as any as {[k: string]: Effect},
 	};
 	pokeballs: string[] | null = null;
-	constructor(modid: ID, genNum?: number) {
+	constructor(modid: ID) {
 		this.modid = modid;
-		const gen = genNum || parseInt(modid.slice(3), 10);
-		if ((!modid.startsWith('gen') && modid !== 'letsgo') || !gen) throw new Error("Unsupported modid");
+		const gen = parseInt(modid.substr(3, 1), 10);
+		if (!modid.startsWith('gen') || !gen) throw new Error("Unsupported modid");
 		this.gen = gen;
 	}
 	moves = {

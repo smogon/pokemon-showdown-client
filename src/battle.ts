@@ -3213,7 +3213,7 @@ export class Battle {
 				this.isBlitz = true;
 			}
 			if (this.tier.includes(`Let's Go`)) {
-				this.dex = Dex.mod('letsgo' as ID, 7);
+				this.dex = Dex.mod('gen7letsgo' as ID);
 			}
 			this.log(args);
 			break;
