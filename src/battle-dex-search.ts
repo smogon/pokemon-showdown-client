@@ -760,14 +760,13 @@ abstract class BattleTypedSearch<T extends SearchType> {
 			return pokemon.num >= 0 ? String(pokemon.num) : pokemon.tier;
 		}
 		let table = window.BattleTeambuilderTable;
-		const gen = this.dex.gen;
-		const tableKey = this.formatType === 'doubles' ? `gen${gen}doubles` :
-			this.formatType === 'letsgo' ? 'letsgo' :
-			this.formatType === 'nfe' ? `gen${gen}nfe` :
+		const tableKey = this.formatType === 'doubles' ? `gen${this.dex.gen}doubles` :
+			this.formatType === 'letsgo' ? 'gen7letsgo' :
+			this.formatType === 'nfe' ? `gen${this.dex.gen}nfe` :
 			this.formatType === 'dlc1' ? 'gen8dlc1' :
 			this.formatType === 'dlc1doubles' ? 'gen8dlc1doubles' :
-			this.formatType === 'stadium' ? `gen${gen}stadium${gen > 1 ? gen : ''}` :
-			`gen${gen}`;
+			this.formatType === 'stadium' ? `gen${this.dex.gen}stadium${this.dex.gen > 1 ? this.dex.gen : ''}` :
+			`gen${this.dex.gen}`;
 		if (table && table[tableKey]) {
 			table = table[tableKey];
 		}
@@ -866,7 +865,7 @@ class BattlePokemonSearch extends BattleTypedSearch<'pokemon'> {
 		} else if (dex.gen < 8 && !this.formatType) {
 			table = table['gen' + dex.gen];
 		} else if (this.formatType === 'letsgo') {
-			table = table['letsgo'];
+			table = table['gen7letsgo'];
 		} else if (this.formatType === 'natdex') {
 			table = table['natdex'];
 		} else if (this.formatType === 'metronome') {
@@ -1397,7 +1396,9 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 		if (this.formatType === 'letsgo') lsetTable = lsetTable['letsgo'];
 		if (this.formatType?.startsWith('dlc1')) lsetTable = lsetTable['gen8dlc1'];
 		while (learnsetid) {
-			let learnset = lsetTable.learnsets[learnsetid];
+			let learnset = BattleTeambuilderTable.learnsets[learnsetid];
+			if (this.formatType === 'letsgo') learnset = BattleTeambuilderTable['gen7letsgo'].learnsets[learnsetid];
+			if (this.formatType?.startsWith('dlc1')) learnset = BattleTeambuilderTable['gen8dlc1'].learnsets[learnsetid];
 			if (learnset) {
 				for (let moveid in learnset) {
 					let learnsetEntry = learnset[moveid];
