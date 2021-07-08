@@ -334,7 +334,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 		const isDoubles = (genIdent < 0);
 		const isVGC = (genIdent === -7.5);
 		const genNum = Math.floor(isDoubles ? -genIdent : genIdent);
-		const gen = isLetsGo ? 'letsgo' : 'gen' + genNum + (isDLC1 ? 'dlc1' : '');
+		const gen = 'gen' + genNum + (isDLC1 ? 'dlc1' : isLetsGo ? 'letsgo' : '');
 		// process.stdout.write("" + gen + (isDoubles ? " doubles" : "") + "... ");
 		const pokemon = Object.keys(Dex.data.Pokedex);
 		pokemon.sort();
@@ -870,10 +870,10 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			if (minGen === 1) learnsets[id][moveid] = '12' + learnsets[id][moveid];
 		}
 	}
-	const LGLearnsets = Dex.mod('letsgo').data.Learnsets;
+	const LGLearnsets = Dex.mod('gen7letsgo').data.Learnsets;
 	for (const id in LGLearnsets) {
-		const species = Dex.mod('letsgo').species.get(id);
-		const baseSpecies = Dex.mod('letsgo').species.get(species.baseSpecies);
+		const species = Dex.mod('gen7letsgo').species.get(id);
+		const baseSpecies = Dex.mod('gen7letsgo').species.get(species.baseSpecies);
 		const validNum = (baseSpecies.num <= 151 && baseSpecies.num >= 1) || [808, 809].includes(baseSpecies.num);
 		if (!validNum) continue;
 		if (species.forme && !['Alola', 'Mega', 'Mega-X', 'Mega-Y', 'Starter'].includes(species.forme)) continue;
