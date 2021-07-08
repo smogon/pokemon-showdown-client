@@ -355,7 +355,7 @@ class PSServer {
 		'\u00a7': {
 			name: "Section Leader (\u00a7)",
 			type: 'staff',
-			order: 107
+			order: 107,
 		},
 		// by default, unrecognized ranks go here, between section leader and bot
 		'*': {
