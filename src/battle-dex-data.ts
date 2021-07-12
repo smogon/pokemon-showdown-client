@@ -1113,6 +1113,7 @@ class Move implements Effect {
 	readonly target: MoveTarget;
 	readonly flags: Readonly<MoveFlags>;
 	readonly critRatio: number;
+	readonly willCrit: boolean;
 
 	readonly desc: string;
 	readonly shortDesc: string;
@@ -1151,6 +1152,7 @@ class Move implements Effect {
 		this.target = data.target || 'normal';
 		this.flags = data.flags || {};
 		this.critRatio = data.critRatio === 0 ? 0 : (data.critRatio || 1);
+		this.willCrit = data.willCrit || false;
 
 		// TODO: move to text.js
 		this.desc = data.desc;
