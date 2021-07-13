@@ -1,7 +1,6 @@
 <?php
 
 include_once 'servers.lib.php';
-include_once __DIR__ . '/../../lib/ntbb-database.lib.php';
 include '../style/wrapper.inc.php';
 
 $timenow = time();
