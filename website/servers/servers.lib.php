@@ -18,9 +18,7 @@ $PokemonServers = '.var_export($GLOBALS['PokemonServers'], true).';
 
 
 $serverinfo = json_decode(
-	file_exists(__DIR__ . '/../../config/serverinfo.json') ?
-		file_get_contents(__DIR__ . '/../../config/serverinfo.json') :
-		"{}",
+	file_get_contents(__DIR__ . '/../../config/serverinfo.json') ?: "{}",
 	true
 );
 
