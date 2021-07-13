@@ -260,7 +260,13 @@ exports.servertoken = '<?= $token ?>';</textarea></p>
 				<h1>Edit server</h1>
 				<div class="formrow">
 					<p><label class="label">Location: <input class="textbox" type="text" name="loc" placeholder="http://<?php echo $entry['server']; if ($entry['port'] != 8000) echo '-',$entry['port']; ?>.psim.us/" size="60" /><em>(you can leave off http:// etc if you want)</em></label></p>
-					<p><label class="label">Owner: <strong><?php echo $entry['owner'] ?? '(none)'; ?></strong></label></p>
+						<p><label class="label">Owner: <?php
+							if ($users->isLeader()) {
+								echo ('<input class="textbox" type="text" name="owner" value="'.$entry['owner'] ?? '(none)' .'" size="60">');
+							} else {
+								echo '<em>' . $entry['owner'] ?? '(none)' . "</em>";
+							}
+					?></label></p>
 					<label class="label">Configuration:</label>
 					<p><label class="label">Email: <input class="textbox" type="text" name="email" placeholder="<?php echo $entry['email'] ?? "(none)"?>" /></label></p>
 					<?php
