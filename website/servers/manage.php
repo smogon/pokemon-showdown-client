@@ -1,11 +1,6 @@
 <?php
 
-include_once __DIR__ . '/../../config/config.inc.php';
-include_once __DIR__ . '/../../config/servers.inc.php';
-include_once '../../lib/ntbb-session.lib.php';
-include '../style/wrapper.inc.php';
-include_once __DIR__ . '/../../lib/ntbb-database.lib.php';
-include_once __DIR__ . '/servers.lib.php';
+include_once './servers.lib.php';
 // todo open servers list in panel?
 
 if (!$users->isLeader()) {
