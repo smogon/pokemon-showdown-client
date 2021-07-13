@@ -45,7 +45,7 @@ if (@$_POST['act'] === 'addserver') {
 	if (strpos($server, '.') === false) {
 		die("invalid server location");
 	}
-	$email = isset($_POST['email']) ? trim($_POST['email']) : false;
+	$email = trim($_POST['email'] ?? '');
 	if (!$email || !strpos($email, '@')) {
 		die('Invalid email.');
 	}
