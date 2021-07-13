@@ -92,7 +92,7 @@ if (@$_POST['act'] === 'editserver') {
 				if ($bannedhost && strpos($server, $bannedhost) > -1) {
 					$cannotUpdate = true;
 					echo(
-						"<br /><strong style=\"color:red\">You cannot use the host " . $server .
+						"<br /><strong style=\"color:red\">You cannot use the host " . htmlspecialchars ($server) .
 						" as it is from a blacklisted host.</strong><br />"
 					);
 					break;
