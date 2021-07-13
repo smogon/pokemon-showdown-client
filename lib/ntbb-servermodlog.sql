@@ -16,7 +16,6 @@ CREATE TABLE `ntbb_servermodlog` (
   KEY `ip` (`ip`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
-CREATE INDEX type_idx ON `ntbb_servermodlog` (`serverid`);
 CREATE INDEX server_idx ON `ntbb_servermodlog` (`serverid`, `type`);
 CREATE INDEX user_idx ON `ntbb_servermodlog` (`serverid`, `actorid`);
 CREATE INDEX mixed_search ON `ntbb_servermodlog` (`serverid`, `actorid`, `type`);
