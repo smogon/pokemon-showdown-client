@@ -131,6 +131,7 @@ if ($users->isLeader()) {
 				</div>
 				<div class="formrow">
 					<label class="label">Owner's email: <input class="textbox" type="text" name="email" /></label>
+				</div>
 				<div class="buttonrow">
 					<button type="submit"><strong>Add server</strong></button>
 				</div></div>
