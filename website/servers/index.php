@@ -46,7 +46,7 @@ if (@$_POST['act'] === 'addserver') {
 		die("invalid server location");
 	}
 	$email = trim($_POST['email'] ?? '');
-	if (!$email || !strpos($email, '@')) {
+	if (!$email || strpos($email, '@') === false) {
 		die('Invalid email.');
 	}
 	$PokemonServers[$id] = [
