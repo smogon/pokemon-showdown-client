@@ -2534,39 +2534,44 @@ function toId() {
 			type: 'staff',
 			order: 10006
 		},
+		'\u00a7': {
+			name: "Section Leader (\u00a7)",
+			type: 'staff',
+			order: 10007
+		},
 		'*': {
 			name: "Bot (*)",
 			type: 'normal',
-			order: 10007
+			order: 10008
 		},
 		'\u2606': {
 			name: "Player (\u2606)",
 			type: 'normal',
-			order: 10008
+			order: 10009
 		},
 		'+': {
 			name: "Voice (+)",
 			type: 'normal',
-			order: 10009
+			order: 10010
 		},
 		' ': {
 			type: 'normal',
-			order: 10010
+			order: 10011
 		},
 		'!': {
 			name: "<span style='color:#777777'>Muted (!)</span>",
 			type: 'punishment',
-			order: 10011
+			order: 10012
 		},
 		'✖': {
 			name: "<span style='color:#777777'>Namelocked (✖)</span>",
 			type: 'punishment',
-			order: 10012
+			order: 10013
 		},
 		'\u203d': {
 			name: "<span style='color:#777777'>Locked (\u203d)</span>",
 			type: 'punishment',
-			order: 10013
+			order: 10014
 		}
 	};
 
