@@ -134,7 +134,7 @@ if ($users->isLeader()) {
 				</div>
 				<div class="buttonrow">
 					<button type="submit"><strong>Add server</strong></button>
-				</div></div>
+				</div>
 			</form>
 <?php
 }
