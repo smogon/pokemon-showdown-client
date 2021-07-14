@@ -91,10 +91,7 @@ if (@$_POST['act'] === 'editserver') {
 				$bannedhost = trim($bannedhost);
 				if ($bannedhost && strpos($server, $bannedhost) !== false) {
 					$cannotUpdate = true;
-					echo(
-						"<br /><strong style=\"color:red\">You cannot use the host " . htmlspecialchars ($server) .
-						" as it is from a blacklisted host.</strong><br />"
-					);
+					echo "<br /><strong style=\"color:red\">You can't use the host " . htmlspecialchars($server) . " because it is from a blacklisted host.</strong><br />"
 					break;
 				}
 			}
@@ -103,10 +100,7 @@ if (@$_POST['act'] === 'editserver') {
 		foreach ($PokemonServers as $curserver) {
 			if ($curserver['server'] === $server) {
 				$cannotUpdate = true;
-				echo(
-					"<br /><strong style=\"color:red\">You cannot use the host " . $server .
-					" as it is already in use by another server.</strong><br />"
-				);
+				echo "<br /><strong style=\"color:red\">You can't use the host " . htmlspecialchars($server) . " because it is already in use by another server.</strong><br />";
 				break;
 			}
 		}
@@ -135,10 +129,7 @@ if (@$_POST['act'] === 'editserver') {
 			$userid = $users->userid($_POST['owner']);
 			if (strlen($userid) && $PokemonServers[$id]['owner'] !== $userid) {
 				if (isset($serverinfo['blacklist']) && in_array($userid, $serverinfo['blacklist'])) {
-					echo(
-						'<strong style="color:red">' . $userid .
-						" is blacklisted from owning a server.</strong><br />"
-					);
+					echo '<strong style="color:red">' . $userid . ' is blacklisted from owning a server.</strong><br />';
 				} else {
 					$logMessage = mb_strlen($PokemonServers[$id]['owner']) ?
 						("from " . $PokemonServers[$id]['owner'] . " to " . $userid) :
@@ -262,7 +253,7 @@ exports.servertoken = '<?= $token ?>';</textarea></p>
 					<p><label class="label">Location: <input class="textbox" type="text" name="loc" placeholder="http://<?php echo $entry['server']; if ($entry['port'] != 8000) echo '-',$entry['port']; ?>.psim.us/" size="60" /><em>(you can leave off http:// etc if you want)</em></label></p>
 					<p><label class="label">Owner: <?php
 						if ($users->isLeader()) {
-							echo ('<input class="textbox" type="text" name="owner" value="'.$entry['owner'] ?? '(none)' .'" size="60">');
+							echo ('<input class="textbox" type="text" name="owner" value="'.$entry['owner'] ?? '' .'" placeholder="(none)" size="60">');
 						} else {
 							echo '<em>' . $entry['owner'] ?? '(none)' . "</em>";
 						}

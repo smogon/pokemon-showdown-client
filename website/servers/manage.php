@@ -57,7 +57,7 @@ if (isset($_REQUEST['banowners'])) {
 			$serverinfo['blacklist'] = [];
 		}
 		$failures = [];
-		if (!in_array($userid, $serverinfo['blacklist'])) {
+		if (!in_array($userid, $serverinfo['blacklist'], true)) {
 			$serverinfo['blacklist'][] = $userid;
 			$successes += 1;
 			$psdb->query(
@@ -81,11 +81,11 @@ if (isset($_REQUEST['banowners'])) {
 	}
 	echo "<strong>{$successes} user (s) added to blacklist.</strong><br />";
 	if (count($failures) > 0) {
-		echo ("(" . count($failures) . "user (s) could not be added: " . implode(", ", $failures) . ")<br />");
+		echo "(" . count($failures) . "user (s) could not be added: " . implode(", ", $failures) . ")<br />";
 	}
 }
 
-echo('<br />');
+echo '<br />';
 if (isset($serverinfo['blacklist']) && count($serverinfo['blacklist'])) {
 ?>
 	<hr />
@@ -173,13 +173,10 @@ if (isset($_REQUEST['unbanhosts']) && mb_strlen($_REQUEST['unbanhosts'])) {
 		<input type="text" name="unbanhosts" class="textbox" /><br /><br />
 		<button type="submit">Remove hosts from list</button>
 	</form>
+</td></tr>
+</table></div></div>
+<center>
 <?php
-
-echo('</td></tr>');
-
-echo('</table></div></div>');
-
-echo '<center>';
 
 if (isset($_REQUEST['ownedby']) || isset($_REQUEST['hostedby']) || isset($_REQUEST['lastactive'])) {
 	$owner = isset($_REQUEST['ownedby']) && mb_strlen($_REQUEST['ownedby']) ? $users->userid($_REQUEST['ownedby']) : NULL;
