@@ -159,11 +159,11 @@ if (isset($_REQUEST['unbanhosts']) && mb_strlen($_REQUEST['unbanhosts'])) {
 	writeserverinfo();
 	$scount = count($successes);
 	$fcount = count($failures);
-	echo('Removed ' . $scount . " host (s) from the blacklist. (" . implode(', ', $successes) . ")");
+	echo 'Removed ' . $scount . ' host(s) from the blacklist. (' . implode(', ', $successes) . ')<br />';
 	if ($fcount > 0) {
-		echo("Failed to remove " . $fcount . " host (s) from the blacklist. (" . implode(', ', $failures) . ")");
+		echo 'Failed to remove ' . $fcount . ' host(s) from the blacklist. (' . implode(', ', $failures) . ')<br />';
 	}
-	echo('</div>');
+	echo '</div>';
 }
 
 ?>
