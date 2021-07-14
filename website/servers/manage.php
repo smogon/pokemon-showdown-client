@@ -52,7 +52,7 @@ if (isset($_REQUEST['banowners'])) {
 	$successes = 0;
 	foreach ($banned as $user) {
 		$userid = $users->userid($user);
-		if (!mb_strlen($userid)) continue;
+		if (!strlen($userid)) continue;
 		if (!isset($serverinfo['blacklist'])) {
 			$serverinfo['blacklist'] = [];
 		}
@@ -139,13 +139,13 @@ if (isset($_REQUEST['unbanowners']) && isset($serverinfo['blacklist'])) {
 	</div>
 <?php
 
-if (isset($_REQUEST['unbanhosts']) && mb_strlen($_REQUEST['unbanhosts'])) {
+if (isset($_REQUEST['unbanhosts']) && strlen($_REQUEST['unbanhosts'])) {
 	$hosts = explode(',', $_REQUEST['unbanhosts']);
 	$successes = [];
 	$failures = [];
 	foreach ($hosts as $i=>$host) {
 		$host = trim($host);
-		if (!mb_strlen($host)) continue;
+		if (!strlen($host)) continue;
 		if (!isset($serverinfo['bannedhosts'])) {
 			$serverinfo['bannedhosts'] = [];
 		}
@@ -179,9 +179,9 @@ if (isset($_REQUEST['unbanhosts']) && mb_strlen($_REQUEST['unbanhosts'])) {
 <?php
 
 if (isset($_REQUEST['ownedby']) || isset($_REQUEST['hostedby']) || isset($_REQUEST['lastactive'])) {
-	$owner = isset($_REQUEST['ownedby']) && mb_strlen($_REQUEST['ownedby']) ? $users->userid($_REQUEST['ownedby']) : NULL;
-	$host = isset($_REQUEST['hostedby']) && mb_strlen($_REQUEST['hostedby']) ? $_REQUEST['hostedby'] : NULL;
-	$lastactive = isset($_REQUEST['lastactive']) && mb_strlen($_REQUEST['lastactive']) ? strtotime($_REQUEST['lastactive']) : NULL;
+	$owner = isset($_REQUEST['ownedby']) && strlen($_REQUEST['ownedby']) ? $users->userid($_REQUEST['ownedby']) : NULL;
+	$host = isset($_REQUEST['hostedby']) && strlen($_REQUEST['hostedby']) ? $_REQUEST['hostedby'] : NULL;
+	$lastactive = isset($_REQUEST['lastactive']) && strlen($_REQUEST['lastactive']) ? strtotime($_REQUEST['lastactive']) : NULL;
 	$results = [];
 	echo("<br /><div class=\"infobox\" style=\"width:300px\">");
 	if ($lastactive === false) {
@@ -191,7 +191,7 @@ if (isset($_REQUEST['ownedby']) || isset($_REQUEST['hostedby']) || isset($_REQUE
 	$searchMessage = $host ? " the host '" . $host . "'" : "";
 	$searchMessage .= $owner ? ' and ' : '';
 	$searchMessage .= $owner ? " the owner '" . $owner . "'" : "";
-	$searchMessage .= mb_strlen($searchMessage) ? " and" : "";
+	$searchMessage .= strlen($searchMessage) ? " and" : "";
 	$searchMessage .= $lastactive ? " inactivity since before " . date("Y-m-d", $lastactive) : "";
 
 	echo("<details><summary>Servers with " . $searchMessage . ": </summary>");
@@ -234,7 +234,7 @@ if (
 	$params = [];
 	if (isset($_REQUEST['serverid'])) {
 		$serverid = $users->userid($_REQUEST['serverid']);
-		if (mb_strlen($serverid)) {
+		if (strlen($serverid)) {
 			$queryString .= " WHERE serverid = ? ";
 			$hasWhere = true;
 			$params[] = $serverid;
@@ -243,7 +243,7 @@ if (
 
 	if (isset($_REQUEST['action'])) {
 		$action = strtoupper($users->userid($_REQUEST['action']));
-		if (mb_strlen($action)) {
+		if (strlen($action)) {
 			if (!$hasWhere) {
 				$queryString .= " WHERE ";
 				$hasWhere = true;
@@ -257,7 +257,7 @@ if (
 
 	if (isset($_REQUEST['userid'])) {
 		$userid = $users->userid($_REQUEST['userid']);
-		if (mb_strlen($userid)) {
+		if (strlen($userid)) {
 			if (!$hasWhere) {
 				$queryString .= " WHERE ";
 				$hasWhere = true;

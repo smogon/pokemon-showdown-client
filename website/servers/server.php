@@ -91,7 +91,7 @@ if (@$_POST['act'] === 'editserver') {
 				$bannedhost = trim($bannedhost);
 				if ($bannedhost && strpos($server, $bannedhost) !== false) {
 					$cannotUpdate = true;
-					echo "<br /><strong style=\"color:red\">You can't use the host " . htmlspecialchars($server) . " because it is from a blacklisted host.</strong><br />"
+					echo "<br /><strong style=\"color:red\">You can't use the host " . htmlspecialchars($server) . " because it is from a blacklisted host.</strong><br />";
 					break;
 				}
 			}
@@ -114,7 +114,7 @@ if (@$_POST['act'] === 'editserver') {
 			);
 		}
 		if (isset($_POST['email']) && $is_manager) {
-			if (!mb_strlen($_POST['email']) || !strpos($_POST['email'], '@')) {
+			if (!strlen($_POST['email']) || !strpos($_POST['email'], '@')) {
 				die("invalid email");
 			}
 			$oldEmail = $PokemonServers[$id]['email'] ?? "none";
@@ -131,7 +131,7 @@ if (@$_POST['act'] === 'editserver') {
 				if (isset($serverinfo['blacklist']) && in_array($userid, $serverinfo['blacklist'])) {
 					echo '<strong style="color:red">' . $userid . ' is blacklisted from owning a server.</strong><br />';
 				} else {
-					$logMessage = mb_strlen($PokemonServers[$id]['owner']) ?
+					$logMessage = strlen($PokemonServers[$id]['owner']) ?
 						("from " . $PokemonServers[$id]['owner'] . " to " . $userid) :
 						("to " . $userid);
 
