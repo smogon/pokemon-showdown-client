@@ -30,7 +30,6 @@
 		this.cur = {};
 		this.$inputEl = null;
 		this.gen = 8;
-		this.mod = null;
 
 		this.engine = new DexSearch();
 		window.search = this;
@@ -342,8 +341,8 @@
 		buf += '</span> ';
 
 		// abilities
-		if (gen >= 3) {
-			var abilities = Dex.forGen(gen).species.get(id).abilities;
+		if (gen >= 3 && this.engine.formatType !== 'letsgo') {
+			var abilities = this.engine.dex.species.get(id).abilities;
 			if (gen >= 5) {
 				if (abilities['1']) {
 					buf += '<span class="col twoabilitycol">' + abilities['0'] + '<br />' +
@@ -352,7 +351,7 @@
 					buf += '<span class="col abilitycol">' + abilities['0'] + '</span>';
 				}
 				var unreleasedHidden = pokemon.unreleasedHidden;
-				if (unreleasedHidden === 'Past' && (this.mod === 'natdex' || gen < 8)) unreleasedHidden = false;
+				if (unreleasedHidden === 'Past' && (this.engine.formatType === 'natdex' || gen < 8)) unreleasedHidden = false;
 				if (abilities['S']) {
 					if (abilities['H']) {
 						buf += '<span class="col twoabilitycol' + (unreleasedHidden ? ' unreleasedhacol' : '') + '">' + (abilities['H'] || '') + '<br />(' + abilities['S'] + ')</span>';
@@ -366,7 +365,7 @@
 				}
 			} else {
 				buf += '<span class="col abilitycol">' + abilities['0'] + '</span>';
-				buf += '<span class="col abilitycol">' + (abilities['1'] ? abilities['1'] : '') + '</span>';
+				buf += '<span class="col abilitycol">' + (abilities['1'] || '') + '</span>';
 			}
 		} else {
 			buf += '<span class="col abilitycol"></span>';

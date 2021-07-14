@@ -15,6 +15,8 @@ type SearchType = (
 	'pokemon' | 'type' | 'tier' | 'move' | 'item' | 'ability' | 'egggroup' | 'category' | 'article'
 );
 
+type FormatType = 'doubles' | 'letsgo' | 'metronome' | 'natdex' | 'nfe' | 'dlc1' | 'dlc1doubles';
+
 type SearchRow = (
 	[SearchType, ID, number?, number?] | ['sortpokemon' | 'sortmove', ''] | ['header' | 'html', string]
 );
@@ -79,6 +81,8 @@ class DexSearch {
 	 */
 	filters: SearchFilter[] | null = null;
 
+	formatType: FormatType | null = null;
+
 	constructor(searchType: SearchType | '' = '', formatid = '' as ID, species = '' as ID) {
 		this.setType(searchType, formatid, species);
 	}
@@ -119,7 +123,10 @@ class DexSearch {
 			this.sortCol = null;
 		}
 		this.typedSearch = this.getTypedSearch(searchType, format, speciesOrSet);
-		if (this.typedSearch) this.dex = this.typedSearch.dex;
+		if (this.typedSearch) {
+			this.dex = this.typedSearch.dex;
+			this.formatType = this.typedSearch.formatType || null;
+		}
 	}
 
 	addFilter(entry: SearchFilter): boolean {
@@ -543,7 +550,7 @@ abstract class BattleTypedSearch<T extends SearchType> {
 	 */
 	set: PokemonSet | null = null;
 
-	protected formatType: 'doubles' | 'letsgo' | 'metronome' | 'natdex' | 'nfe' | 'dlc1' | 'dlc1doubles' | null = null;
+	formatType: FormatType | null = null;
 
 	/**
 	 * Cached copy of what the results list would be with only base filters
@@ -733,8 +740,10 @@ abstract class BattleTypedSearch<T extends SearchType> {
 			}
 		}
 		let learnsetid = this.firstLearnsetid(speciesid);
+		let table = BattleTeambuilderTable;
+		if (this.formatType && table[this.formatType].learnsets) table = table[this.formatType];
 		while (learnsetid) {
-			let learnset = BattleTeambuilderTable.learnsets[learnsetid];
+			let learnset = table.learnsets[learnsetid];
 			if (learnset && (moveid in learnset) && learnset[moveid].includes(genChar)) {
 				return true;
 			}
@@ -747,13 +756,12 @@ abstract class BattleTypedSearch<T extends SearchType> {
 			return pokemon.num >= 0 ? String(pokemon.num) : pokemon.tier;
 		}
 		let table = window.BattleTeambuilderTable;
-		const tableKey = this.formatType === 'doubles' ? `gen${this.dex.gen}doubles` :
+		const tableKey =
+			['doubles', 'nfe'].includes(this.formatType || '') ? `gen${this.dex.gen}${this.formatType}` :
 			this.formatType === 'letsgo' ? 'letsgo' :
-			this.formatType === 'nfe' ? `gen${this.dex.gen}nfe` :
-			this.formatType === 'dlc1' ? 'gen8dlc1' :
-			this.formatType === 'dlc1doubles' ? 'gen8dlc1doubles' :
+			this.formatType?.startsWith('dlc1') ? `gen8${this.formatType}` :
 			`gen${this.dex.gen}`;
-		if (table && table[tableKey]) {
+		if (table?.[tableKey]) {
 			table = table[tableKey];
 		}
 		if (!table) return pokemon.tier;
