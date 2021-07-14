@@ -89,7 +89,7 @@ if (@$_POST['act'] === 'editserver') {
 		if (isset($serverinfo['bannedhosts']) && trim($server) !== trim($oldServer)) {
 			foreach ($serverinfo['bannedhosts'] as $bannedhost) {
 				$bannedhost = trim($bannedhost);
-				if ($bannedhost && strpos($server, $bannedhost) > -1) {
+				if ($bannedhost && strpos($server, $bannedhost) !== false) {
 					$cannotUpdate = true;
 					echo(
 						"<br /><strong style=\"color:red\">You cannot use the host " . htmlspecialchars ($server) .
