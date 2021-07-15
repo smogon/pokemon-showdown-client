@@ -1281,7 +1281,14 @@
 					type: 'GET',
 					url: url,
 					success: function (data) {
-						Storage.activeSetList = self.curSetList = Storage.importTeam(data);
+						if (/^https?:\/\/pokepast\.es\/.*\/json\s*$/.test(url)) {
+							var teamData = JSON.parse(data);
+							Storage.activeSetList = self.curSetList = Storage.importTeam(teamData.paste);
+							teamData.title.replace(/[\|\\\/]/g, '');
+							self.$('.teamnameedit').val(teamData.title).change();
+						} else {
+							Storage.activeSetList = self.curSetList = Storage.importTeam(data);
+						}
 						self.$('.teamedit textarea, .teamedit .savebutton').attr('disabled', null);
 						self.back();
 					},
@@ -1304,7 +1311,7 @@
 
 			switch (host) {
 			case 'pokepast.es':
-				return 'https://pokepast.es/' + path.replace(/\/.*/, '') + '/raw';
+				return 'https://pokepast.es/' + path.replace(/\/.*/, '') + '/json';
 			default: // gist
 				var split = path.split('/');
 				return split.length < 2 ? undefined : 'https://gist.githubusercontent.com/' + split[0] + '/' + split[1] + '/raw';
