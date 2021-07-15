@@ -1284,8 +1284,11 @@
 						if (/^https?:\/\/pokepast\.es\/.*\/json\s*$/.test(url)) {
 							var teamData = JSON.parse(data);
 							Storage.activeSetList = self.curSetList = Storage.importTeam(teamData.paste);
-							teamData.title.replace(/[\|\\\/]/g, '');
-							self.$('.teamnameedit').val(teamData.title).change();
+							var title = teamData.title;
+							if (title && !title.startsWith('Untitled')) {
+								teamData.title.replace(/[\|\\\/]/g, '');
+								self.$('.teamnameedit').val(teamData.title).change();
+							}
 						} else {
 							Storage.activeSetList = self.curSetList = Storage.importTeam(data);
 						}
