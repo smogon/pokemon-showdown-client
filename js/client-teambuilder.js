@@ -1286,8 +1286,8 @@
 							Storage.activeSetList = self.curSetList = Storage.importTeam(teamData.paste);
 							var title = teamData.title;
 							if (title && !title.startsWith('Untitled')) {
-								teamData.title.replace(/[\|\\\/]/g, '');
-								self.$('.teamnameedit').val(teamData.title).change();
+								title.replace(/[\|\\\/]/g, '');
+								self.$('.teamnameedit').val(title).change();
 							}
 						} else {
 							Storage.activeSetList = self.curSetList = Storage.importTeam(data);
