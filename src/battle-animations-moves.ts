@@ -36592,7 +36592,7 @@ const BattleMoveAnims: AnimTable = {
 				});
 
 				scene.showEffect('fireball', {
-					x: defender.x + 15,
+					x: defender.x + 20,
 					y: defender.y + 100,
 					z: defender.z,
 					opacity: 0,
@@ -36603,26 +36603,26 @@ const BattleMoveAnims: AnimTable = {
 					time: 300,
 				}, 'accel', 'explode');
 				scene.showEffect('fireball', {
-					x: defender.x + 30,
+					x: defender.x + 40,
 					y: defender.y + 100,
 					z: defender.z,
 					opacity: 0,
 					scale: 2,
 					time: 100,
 				}, {
-					y: defender.y - 30,
+					y: defender.y - 40,
 					opacity: 1,
 					time: 400,
 				}, 'accel', 'explode');
 				scene.showEffect('fireball', {
-					x: defender.x - 30,
+					x: defender.x - 40,
 					y: defender.y + 100,
 					z: defender.z,
 					opacity: 0,
 					scale: 2,
 					time: 200,
 				}, {
-					y: defender.y - 30,
+					y: defender.y - 40,
 					opacity: 1,
 					time: 500,
 				}, 'accel', 'explode');
@@ -36639,7 +36639,7 @@ const BattleMoveAnims: AnimTable = {
 					time: 600,
 				}, 'accel', 'explode');
 				scene.showEffect('fireball', {
-					x: defender.x - 15,
+					x: defender.x - 20,
 					y: defender.y + 100,
 					z: defender.z,
 					opacity: 0,
@@ -37435,17 +37435,33 @@ const BattleMoveAnims: AnimTable = {
 			attacker.anim({opacity: 0, time: 50}, 'linear');
 			attacker.anim({opacity: 1, time: 50}, 'linear');
 			attacker.anim({opacity: 0, time: 50}, 'linear');
-			scene.showEffect('iceball', {
-				x: attacker.x,
-				y: attacker.y,
+			scene.showEffect('shine', {
+				x: attacker.x + 80,
+				y: attacker.y + 30,
 				z: attacker.z,
-				scale: 0.1,
-				opacity: 0.2,
-				time: 600,
+				scale: 0.75,
+				yscale: 0,
+				opacity: 0.5,
+				time: 500,
 			}, {
-				scale: 0.5,
+				scale: 0.75,
+				yscale: 1,
 				opacity: 1,
-				time: 800,
+				time: 700,
+			}, 'linear', 'fade');
+			scene.showEffect('shine', {
+				x: attacker.x + 80,
+				y: attacker.y + 30,
+				z: attacker.z,
+				scale: 0.75,
+				yscale: 0,
+				opacity: 0.5,
+				time: 500,
+			}, {
+				scale: 0.75,
+				yscale: 1,
+				opacity: 1,
+				time: 700,
 			}, 'linear', 'fade');
 			scene.showEffect('darkglove', {
 				x: defender.x + 100,
@@ -37471,12 +37487,13 @@ const BattleMoveAnims: AnimTable = {
 				time: 1400,
 			}, {
 				x: defender.x,
-				y: defender.y + 15,
+				y: defender.y,
 				z: defender.z,
 				scale: 2,
 				opacity: 0.5,
 				time: 2000,
 			}, 'accel', 'fade');
+			attacker.anim({opacity: 1, time: 2000}, 'linear');
 		},
 	},
 };
