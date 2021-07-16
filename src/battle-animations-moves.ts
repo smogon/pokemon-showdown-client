@@ -37436,7 +37436,7 @@ const BattleMoveAnims: AnimTable = {
 			attacker.anim({opacity: 1, time: 50}, 'linear');
 			attacker.anim({opacity: 0, time: 50}, 'linear');
 			scene.showEffect('shine', {
-				x: attacker.x + 80,
+				x: attacker.x + 50,
 				y: attacker.y + 30,
 				z: attacker.z,
 				scale: 0.75,
@@ -37450,7 +37450,7 @@ const BattleMoveAnims: AnimTable = {
 				time: 700,
 			}, 'linear', 'fade');
 			scene.showEffect('shine', {
-				x: attacker.x + 80,
+				x: attacker.x - 50,
 				y: attacker.y + 30,
 				z: attacker.z,
 				scale: 0.75,
@@ -37490,10 +37490,13 @@ const BattleMoveAnims: AnimTable = {
 				y: defender.y,
 				z: defender.z,
 				scale: 2,
-				opacity: 0.5,
+				opacity: 1,
 				time: 2000,
 			}, 'accel', 'fade');
-			attacker.anim({opacity: 1, time: 2000}, 'linear');
+			attacker.anim({
+				time: 2000,
+				opacity: 1,
+			}, 'linear');
 		},
 	},
 };
