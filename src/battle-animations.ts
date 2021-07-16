@@ -3012,9 +3012,9 @@ const BattleEffects: {[k: string]: SpriteData} = {
 		url: 'sleazyspores.png',
 		w: 22, h: 27,
 	},
-	hotdog: {
-		url: 'hotdog.png',
-		w: 60, h: 60,
+	dose: {
+		url: 'dose.png',
+		w: 128, h: 108,
 	},
 	checked: {
 		url: 'checked.png',
@@ -3027,6 +3027,10 @@ const BattleEffects: {[k: string]: SpriteData} = {
 	arrow: {
 		url: 'arrow.png',
 		w: 32, h: 32,
+	},
+	darkglove: {
+		url: 'rightchopblack.png',
+		w: 100, h: 130,
 	},
 };
 (() => {
