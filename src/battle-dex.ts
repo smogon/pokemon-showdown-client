@@ -18,9 +18,6 @@
  * @license MIT
  */
 
-declare var require: any;
-declare var global: any;
-
 if (typeof window === 'undefined') {
 	// Node
 	(global as any).window = global;

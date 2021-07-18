@@ -1,0 +1,8 @@
+#!/usr/bin/env node
+
+const fs = require('fs');
+const compiler = require('../build-tools/compiler');
+
+const babelOpts = JSON.parse(fs.readFileSync(`${__dirname}/.babelrc`));
+
+compiler.compileToDir('./api', './.api-dist', babelOpts);

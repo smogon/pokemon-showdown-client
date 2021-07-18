@@ -83,7 +83,7 @@ class BattleBGM {
 
 		this.timer = setTimeout(() => {
 			this.updateTime();
-		}, Math.max(this.loopend - progress, 1));
+		}, Math.max(this.loopend - progress, 1)) as any as number;
 	}
 
 	static update() {

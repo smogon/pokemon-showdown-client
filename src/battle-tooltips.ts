@@ -237,7 +237,9 @@ class BattleTooltips {
 		BattleTooltips.longTapTimeout = setTimeout(() => {
 			BattleTooltips.longTapTimeout = 0;
 			this.lockTooltip();
-		}, BattleTooltips.LONG_TAP_DELAY * factor);
+			// we cast here because this is browser code, which returns a number.
+			// ts thinks it's a timeout, because we have @types/node. It refuses to handle it properly.
+		}, BattleTooltips.LONG_TAP_DELAY * factor) as any as number;
 	};
 
 	showTooltipEvent = (e: Event) => {
