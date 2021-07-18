@@ -836,7 +836,7 @@ class ModdedDex {
 	pokeballs: string[] | null = null;
 	constructor(modid: ID) {
 		this.modid = modid;
-		let gen = parseInt(modid.slice(3), 10);
+		const gen = parseInt(modid.substr(3, 1), 10);
 		if (!modid.startsWith('gen') || !gen) throw new Error("Unsupported modid");
 		this.gen = gen;
 	}
@@ -859,6 +859,10 @@ class ModdedDex {
 			}
 			if (this.gen <= 3 && data.category !== 'Status') {
 				data.category = Dex.getGen3Category(data.type);
+			}
+			const table = window.BattleTeambuilderTable[this.modid];
+			if (this.modid === 'gen7letsgo' && id in table.overrideMoveData) {
+				Object.assign(data, table.overrideMoveData[id]);
 			}
 
 			const move = new Move(id, name, data);
@@ -934,7 +938,7 @@ class ModdedDex {
 					Object.assign(data, table.overrideSpeciesData[id]);
 				}
 			}
-			if (this.gen < 3) {
+			if (this.gen < 3 || this.modid === 'gen7letsgo') {
 				data.abilities = {0: "None"};
 			}
 
