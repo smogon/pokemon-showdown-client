@@ -56,7 +56,7 @@ if (@$_POST['act'] === 'editserver') {
 	if (!$users->csrfCheck()) die('invalid data, please retry');
 
 	$id = $entry['id'];
-	$loc = trim($_POST['loc'] ?? '');
+	$loc = trim(@$_POST['loc']) ?? ($entry ? $entry['server'] : "");
 	if ($loc) {
 
 		if (substr($loc, 0, 7) === 'http://') $loc = substr($loc, 7);
@@ -82,13 +82,68 @@ if (@$_POST['act'] === 'editserver') {
 			die("invalid server location");
 		}
 
-		$PokemonServers[$id]['server'] = $server;
-		$PokemonServers[$id]['port'] = $port;
-	}
+		$oldServer = $PokemonServers[$id]['server'];
+		$oldPort = $PokemonServers[$id]['port'];
 
-	$owners = explode(',', $_POST['owner']);
-	foreach ($owners as $i=>$owner) $owners[$i] = $users->userid($owner);
-	$PokemonServers[$id]['owner'] = implode(',',$owners);
+		$cannotUpdate = false;
+		if (isset($serverinfo['bannedhosts']) && trim($server) !== trim($oldServer)) {
+			foreach ($serverinfo['bannedhosts'] as $bannedhost) {
+				$bannedhost = trim($bannedhost);
+				if ($bannedhost && strpos($server, $bannedhost) !== false) {
+					$cannotUpdate = true;
+					echo "<br /><strong style=\"color:red\">You can't use the host " . htmlspecialchars($server) . " because it is from a blacklisted host.</strong><br />";
+					break;
+				}
+			}
+		}
+
+		foreach ($PokemonServers as $curserver) {
+			if ($curserver['server'] === $server) {
+				$cannotUpdate = true;
+				echo "<br /><strong style=\"color:red\">You can't use the host " . htmlspecialchars($server) . " because it is already in use by another server.</strong><br />";
+				break;
+			}
+		}
+
+		if (!$cannotUpdate) {
+			$PokemonServers[$id]['server'] = $server;
+			$PokemonServers[$id]['port'] = $port;
+			$psdb->query(
+				"INSERT INTO {$psdb->prefix}servermodlog (`serverid`, `actorid`, `date`, `ip`, `type`, `note`) VALUES (?, ?, ?, ?, ?, ?)",
+				[$id, $curuser['userid'], time(), $users->getIp(), 'EDITSERVER', $server . ':' . $port . " (from " . $oldServer . ":" . $oldPort . ")"]
+			);
+		}
+		if (isset($_POST['email']) && $is_manager) {
+			if (!strlen($_POST['email']) || !strpos($_POST['email'], '@')) {
+				die("invalid email");
+			}
+			$oldEmail = $PokemonServers[$id]['email'] ?? "none";
+			$PokemonServers[$id]['email'] = $_POST['email'];
+			$psdb->query(
+				"INSERT INTO {$psdb->prefix}servermodlog (`serverid`, `actorid`, `date`, `ip`, `type`, `note`) VALUES (?, ?, ?, ?, ?, ?)",
+				[$id, $curuser['userid'], time(), $users->getIp(), 'EDITEMAIL', $oldEmail . " to " . $PokemonServers[$id]['email']]
+			);
+		}
+
+		if (isset($_POST['owner']) && $is_manager) {
+			$userid = $users->userid($_POST['owner']);
+			if (strlen($userid) && $PokemonServers[$id]['owner'] !== $userid) {
+				if (isset($serverinfo['blacklist']) && in_array($userid, $serverinfo['blacklist'])) {
+					echo '<strong style="color:red">' . $userid . ' is blacklisted from owning a server.</strong><br />';
+				} else {
+					$logMessage = strlen($PokemonServers[$id]['owner']) ?
+						("from " . $PokemonServers[$id]['owner'] . " to " . $userid) :
+						("to " . $userid);
+
+					$PokemonServers[$id]['owner'] = $userid;
+					$psdb->query(
+						"INSERT INTO {$psdb->prefix}servermodlog (`serverid`, `actorid`, `date`, `ip`, `type`, `note`) VALUES (?, ?, ?, ?, ?, ?)",
+						[$id, $curuser['userid'], time(), $users->getIp(), 'EDITOWNER', $logMessage]
+					);
+				}
+			}
+		}
+	}
 
 	saveservers();
 	$success = 'editserver';
@@ -100,6 +155,10 @@ if (@$_POST['act'] === 'deleteserver') {
 	$id = $entry['id'];
 
 	unset($PokemonServers[$id]);
+	$psdb->query(
+		"INSERT INTO {$psdb->prefix}servermodlog (`serverid`, `actorid`, `date`, `ip`, `type`, `note`) VALUES (?, ?, ?, ?, ?, ?)",
+		[$id, $curuser['userid'], time(), $users->getIp(), 'DELETESERVER', ""]
+	);
 	saveservers();
 	$success = 'deleteserver';
 	$entry = false;
@@ -112,6 +171,12 @@ if (@$_POST['act'] === 'banserver') {
 	$message = @$_POST['message'];
 	if (!$message) $message = 'banned';
 	$PokemonServers[$id]['banned'] = $_POST['message'];
+
+	$psdb->query(
+		"INSERT INTO {$psdb->prefix}servermodlog (`serverid`, `actorid`, `date`, `ip`, `type`, `note`) VALUES (?, ?, ?, ?, ?, ?)",
+		[$id, $curuser['userid'], time(), $users->getIp(), 'BANSERVER', $_POST['message']]
+	);
+
 	saveservers();
 	$success = 'banserver';
 	$entry = $PokemonServers[$id];
@@ -177,6 +242,7 @@ exports.servertoken = '<?= $token ?>';</textarea></p>
 <?php } ?>
 			</p>
 <?php if (@$entry['owner']) { ?><p>Owner: <?= htmlspecialchars($entry['owner']); ?></p><?php } ?>
+<?php if ($is_manager && isset($entry['email'])) echo("<label>Email: {$entry['email']}</label>") ?><br />
 <?php if ($entry['id'] !== 'showdown' && $is_owner) { ?>
 			<p id="editserverbutton">
 				<button onclick="document.getElementById('editserver').style.display = 'block';document.getElementById('editserverbutton').style.display = 'none';return false">Edit server</button> <button onclick="document.location.href = ('http://<?= $psconfig['routes']['client'] ?>/customcss.php?server=<?= $entry['id'] ?>&amp;invalidate')">Reload custom CSS</button>
@@ -185,8 +251,16 @@ exports.servertoken = '<?= $token ?>';</textarea></p>
 				<h1>Edit server</h1>
 				<div class="formrow">
 					<p><label class="label">Location: <input class="textbox" type="text" name="loc" placeholder="http://<?php echo $entry['server']; if ($entry['port'] != 8000) echo '-',$entry['port']; ?>.psim.us/" size="60" /><em>(you can leave off http:// etc if you want)</em></label></p>
-					<p><label class="label">Owner: <input class="textbox" type="text" name="owner" value="<?php echo $entry['owner'] ?? '(none)'; ?>" size="60" /><em>(separate multiple owners by commas)</em></label></p>
-					<label class="label">Configuration:</label><?php
+					<p><label class="label">Owner: <?php
+						if ($users->isLeader()) {
+							echo ('<input class="textbox" type="text" name="owner" value="'.$entry['owner'] ?? '' .'" placeholder="(none)" size="60">');
+						} else {
+							echo '<em>' . $entry['owner'] ?? '(none)' . "</em>";
+						}
+					?></label></p>
+					<label class="label">Configuration:</label>
+					<p><label class="label">Email: <input class="textbox" type="text" name="email" placeholder="<?php echo $entry['email'] ?? "(none)"?>" /></label></p>
+					<?php
 
 if (@$entry['token']) {
 	echo '<em>(Token exists)</em> <button type="submit" name="act" value="maketoken">Regenerate token</button> <button type="submit" name="act" value="deltoken">Remove</button>';

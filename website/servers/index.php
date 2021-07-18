@@ -45,13 +45,25 @@ if (@$_POST['act'] === 'addserver') {
 	if (strpos($server, '.') === false) {
 		die("invalid server location");
 	}
+	$email = trim($_POST['email'] ?? '');
+	if (!$email || strpos($email, '@') === false) {
+		die('Invalid email.');
+	}
 	$PokemonServers[$id] = [
 		'name' => $name,
 		'id' => $id,
 		'server' => $server,
-		'port' => $port
+		'port' => $port,
+		'email' => $email
 	];
 	if ($owner) $PokemonServers[$id]['owner'] = $owner;
+	$logMessage = "{$name} @ host '{$server}' (contact email: {$email}";
+	if ($owner) $logMessage .= ", owner: {$owner}";
+	$logMessage .= ")";
+	$psdb->query(
+		"INSERT INTO {$psdb->prefix}servermodlog (`serverid`, `actorid`, `date`, `ip`, `type`, `note`) VALUES (?, ?, ?, ?, ?, ?)",
+		[$id, $curuser['id'], time(), $users->getIp(), 'CREATESERVER', $logMessage]
+	);
 	saveservers();
 }
 
@@ -116,6 +128,9 @@ if ($users->isLeader()) {
 				</div>
 				<div class="formrow">
 					<label class="label">Owner's username: <input class="textbox" type="text" name="owner" placeholder="(Optional)" /><em>(separate multiple owners by commas)</em></label>
+				</div>
+				<div class="formrow">
+					<label class="label">Owner's email: <input class="textbox" type="text" name="email" /></label>
 				</div>
 				<div class="buttonrow">
 					<button type="submit"><strong>Add server</strong></button>
