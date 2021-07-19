@@ -96,9 +96,10 @@ class PSTeambuilder {
 				buf += '|';
 			}
 
-			if (set.pokeball || (set.hpType && toID(set.hpType) !== hasHP) || set.gigantamax) {
+			if (set.pokeball || (set.hpType && toID(set.hpType) !== hasHP) || (set.dynamaxLevel !== undefined && set.dynamaxLevel !== 10) || set.gigantamax) {
 				buf += ',' + (set.hpType || '');
 				buf += ',' + toID(set.pokeball);
+				buf += ',' + (set.dynamaxLevel !== 10 ? set.dynamaxLevel : '');
 				buf += ',' + (set.gigantamax ? 'G' : '');
 			}
 		}
@@ -190,7 +191,8 @@ class PSTeambuilder {
 				set.happiness = (misc[0] ? Number(misc[0]) : undefined);
 				set.hpType = misc[1];
 				set.pokeball = misc[2];
-				set.gigantamax = !!misc[3];
+				set.dynamaxLevel = (misc[3] ? Number(misc[3]) : 10);
+				set.gigantamax = !!misc[4];
 			}
 		}
 
@@ -278,6 +280,9 @@ class PSTeambuilder {
 		if (typeof set.happiness === 'number' && set.happiness !== 255 && !isNaN(set.happiness)) {
 			text += `Happiness: ${set.happiness}  \n`;
 		}
+		if (typeof set.dynamaxLevel === 'number' && set.dynamaxLevel !== 255 && !isNaN(set.dynamaxLevel)) {
+			text += `Dynamax Level: ${set.dynamaxLevel}  \n`;
+		}
 		if (set.gigantamax) {
 			text += `Gigantamax: Yes  \n`;
 		}
@@ -347,6 +352,9 @@ class PSTeambuilder {
 		} else if (line.startsWith('Hidden Power: ')) {
 			line = line.slice(14);
 			set.hpType = line;
+		} else if (line.startsWith('Dynamax Level: ')) {
+			line = line.substr(15);
+			set.dynamaxLevel = +line;
 		} else if (line === 'Gigantamax: Yes') {
 			set.gigantamax = true;
 		} else if (line.startsWith('EVs: ')) {
