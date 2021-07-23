@@ -62,6 +62,8 @@ class ModifiableValue {
 			this.comment.push(` (${abilityName} suppressed by Gastro Acid)`);
 			return false;
 		}
+		// Check for Neutralizing Gas
+		if (!this.pokemon?.effectiveAbility(this.serverPokemon)) return false;
 		return true;
 	}
 	tryWeather(weatherName?: string) {
