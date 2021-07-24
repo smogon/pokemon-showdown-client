@@ -258,6 +258,7 @@ const BattlePokemonIconIndexes: {[id: string]: number} = {
 	furfroustar: 900 + 114,
 	meowsticf: 900 + 115,
 	aegislashblade: 900 + 116,
+	xerneasneutral: 900 + 117,
 	hoopaunbound: 900 + 118,
 	rattataalola: 900 + 119,
 	raticatealola: 900 + 120,
@@ -479,6 +480,7 @@ const BattlePokemonIconIndexes: {[id: string]: number} = {
 	equilibra: 1308 + 28,
 	astrolotl: 1308 + 29,
 	miasmaw: 1308 + 30,
+	chromera: 1308 + 31,
 
 	syclar: 1344 + 0,
 	embirch: 1344 + 1,
@@ -627,11 +629,11 @@ const BattlePokemonIconIndexesLeft: {[id: string]: number} = {
 const BattleAvatarNumbers: {[k: string]: string} = {
 	1: 'lucas',
 	2: 'dawn',
-	3: 'youngster-gen4',
+	3: 'youngster-gen4dp',
 	4: 'lass-gen4dp',
 	5: 'camper',
 	6: 'picnicker',
-	7: 'bugcatcher',
+	7: 'bugcatcher-gen4dp',
 	8: 'aromalady',
 	9: 'twins-gen4dp',
 	10: 'hiker-gen4',
@@ -886,8 +888,8 @@ const BattleAvatarNumbers: {[k: string]: string} = {
 	259: 'cyclistf',
 	260: 'cynthia',
 	261: 'emmet',
-	262: 'hilbert-dueldisk',
-	263: 'hilda-dueldisk',
+	262: 'hilbert-wonderlauncher',
+	263: 'hilda-wonderlauncher',
 	264: 'hugh',
 	265: 'rosa',
 	266: 'nate',
@@ -927,6 +929,10 @@ const BattleAvatarNumbers: {[k: string]: string} = {
 	'#wally': 'wally',
 	breeder: 'pokemonbreeder',
 	breederf: 'pokemonbreederf',
+	'hilbert-dueldisk': 'hilbert-wonderlauncher',
+	'hilda-dueldisk': 'hilda-wonderlauncher',
+	'nate-dueldisk': 'nate-wonderlauncher',
+	'rosa-dueldisk': 'rosa-wonderlauncher',
 
 	1001: '#1001',
 	1002: '#1002',
@@ -1324,11 +1330,16 @@ class Move implements Effect {
 			} else {
 				this.zMove.basePower = 100;
 			}
+			if (data.zMove) this.zMove.basePower = data.zMove.basePower;
 		}
 
 		this.num = data.num || 0;
 		if (!this.gen) {
-			if (this.num >= 560) {
+			if (this.num >= 743) {
+				this.gen = 8;
+			} else if (this.num >= 622) {
+				this.gen = 7;
+			} else if (this.num >= 560) {
 				this.gen = 6;
 			} else if (this.num >= 468) {
 				this.gen = 5;
@@ -1358,6 +1369,7 @@ class Ability implements Effect {
 	readonly desc: string;
 
 	readonly rating: number;
+	readonly isPermanent: boolean;
 	readonly isNonstandard: boolean;
 
 	constructor(id: ID, name: string, data: any) {
@@ -1371,6 +1383,7 @@ class Ability implements Effect {
 		this.shortDesc = data.shortDesc || data.desc || '';
 		this.desc = data.desc || data.shortDesc || '';
 		this.rating = data.rating || 1;
+		this.isPermanent = !!data.isPermanent;
 		this.isNonstandard = !!data.isNonstandard;
 		if (!this.gen) {
 			if (this.num >= 234) {
@@ -1485,9 +1498,9 @@ class Species implements Effect {
 		this.tier = data.tier || '';
 
 		this.isTotem = false;
-		this.isMega = false;
+		this.isMega = !!(this.forme && ['-mega', '-megax', '-megay'].includes(this.formeid));
 		this.canGigantamax = !!data.canGigantamax;
-		this.isPrimal = false;
+		this.isPrimal = !!(this.forme && this.formeid === '-primal');
 		this.battleOnly = data.battleOnly || undefined;
 		this.isNonstandard = data.isNonstandard || null;
 		this.unreleasedHidden = data.unreleasedHidden || false;
@@ -1497,13 +1510,8 @@ class Species implements Effect {
 				this.gen = 8;
 			} else if (this.num >= 722 || this.formeid === '-alola' || this.formeid === '-starter') {
 				this.gen = 7;
-			} else if (this.forme && ['-mega', '-megax', '-megay'].includes(this.formeid)) {
+			} else if (this.isMega || this.isPrimal) {
 				this.gen = 6;
-				this.isMega = true;
-				this.battleOnly = this.baseSpecies;
-			} else if (this.formeid === '-primal') {
-				this.gen = 6;
-				this.isPrimal = true;
 				this.battleOnly = this.baseSpecies;
 			} else if (this.formeid === '-totem' || this.formeid === '-alolatotem') {
 				this.gen = 7;
@@ -1523,6 +1531,12 @@ class Species implements Effect {
 			}
 		}
 	}
+}
+
+interface Type extends Effect {
+	damageTaken?: AnyObject;
+	HPivs?: Partial<StatsTable>;
+	HPdvs?: Partial<StatsTable>;
 }
 
 if (typeof require === 'function') {

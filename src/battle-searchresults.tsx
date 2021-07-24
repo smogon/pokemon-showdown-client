@@ -42,7 +42,7 @@ class PSSearchResults extends preact.Component<{search: DexSearch}> {
 
 	renderPokemonRow(id: ID, matchStart: number, matchEnd: number, errorMessage?: preact.ComponentChildren) {
 		const search = this.props.search;
-		const pokemon = search.dex.getSpecies(id);
+		const pokemon = search.dex.species.get(id);
 		if (!pokemon) return <li class="result">Unrecognized pokemon</li>;
 
 		let tagStart = (pokemon.forme ? pokemon.name.length - pokemon.forme.length - 1 : 0);
@@ -141,7 +141,7 @@ class PSSearchResults extends preact.Component<{search: DexSearch}> {
 
 	renderItemRow(id: ID, matchStart: number, matchEnd: number, errorMessage?: preact.ComponentChildren) {
 		const search = this.props.search;
-		const item = search.dex.getItem(id);
+		const item = search.dex.items.get(id);
 		if (!item) return <li class="result">Unrecognized item</li>;
 
 		return <li class="result"><a href={`${this.URL_ROOT}items/${id}`} data-target="push" data-entry={`item|${item.name}`}>
@@ -159,7 +159,7 @@ class PSSearchResults extends preact.Component<{search: DexSearch}> {
 
 	renderAbilityRow(id: ID, matchStart: number, matchEnd: number, errorMessage?: preact.ComponentChildren) {
 		const search = this.props.search;
-		const ability = search.dex.getAbility(id);
+		const ability = search.dex.abilities.get(id);
 		if (!ability) return <li class="result">Unrecognized ability</li>;
 
 		return <li class="result"><a href={`${this.URL_ROOT}abilitys/${id}`} data-target="push" data-entry={`ability|${ability.name}`}>
@@ -173,7 +173,7 @@ class PSSearchResults extends preact.Component<{search: DexSearch}> {
 
 	renderMoveRow(id: ID, matchStart: number, matchEnd: number, errorMessage?: preact.ComponentChildren) {
 		const search = this.props.search;
-		const move = search.dex.getMove(id);
+		const move = search.dex.moves.get(id);
 		if (!move) return <li class="result">Unrecognized move</li>;
 
 		const tagStart = (move.name.startsWith('Hidden Power') ? 12 : 0);

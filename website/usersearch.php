@@ -16,7 +16,7 @@ $ip = @$_REQUEST['ip'];
 $entry = @$_REQUEST['entry'];
 $userlist = null;
 
-if (!($curuser['group'] == 2 || $curuser['group'] == 6)) {
+if (!$users->isLeader()) {
 	die("access denied");
 }
 

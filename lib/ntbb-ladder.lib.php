@@ -400,8 +400,6 @@ class NTBBLadder {
 				}
 			} else if ($elo > 1300) {
 				$K = 40;
-			} else if ($elo > 1600) {
-				$K = 32;
 			}
 
 			$E = 1 / (1 + pow(10, ($newMelo - $elo) / 400));

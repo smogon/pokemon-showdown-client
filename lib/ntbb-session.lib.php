@@ -4,7 +4,7 @@ require_once __DIR__ . '/../config/config.inc.php';
 require_once __DIR__ . '/ntbb-database.lib.php';
 // require_once dirname(__FILE__) . '/password_compat/lib/password.php';
 
-$curuser = false;
+$curuser = null;
 
 class NTBBSession {
 	var $trustedproxies = array(
@@ -82,9 +82,9 @@ class NTBBSession {
 		$curuser['loggedin'] = true;
 		// unset these values to avoid them being leaked accidentally
 		$curuser['outdatedpassword'] = !!$curuser['password'];
-		unset($curuser['password']);
-		unset($curuser['nonce']);
-		unset($curuser['passwordhash']);
+		$curuser['password'] = null;
+		$curuser['nonce'] = null;
+		$curuser['passwordhash'] = null;
 
 		$this->scookie = $scookie;
 		$this->session = $session;
@@ -112,7 +112,7 @@ class NTBBSession {
 		return $ip;
 	}
 
-	function userid($username) {
+	function userid($username): string {
 		if (!$username) $username = '';
 		$username = strtr($username, "ABCDEFGHIJKLMNOPQRSTUVWXYZ", "abcdefghijklmnopqrstuvwxyz");
 		return preg_replace('/[^A-Za-z0-9]+/','',$username);
@@ -141,30 +141,26 @@ class NTBBSession {
 	/**
 	 * New SID and password hashing functions.
 	 */
-	function mksid($osid) {
+	function mksid(string $osid) {
 		if (function_exists('psconfig_mksid')) {
 			return psconfig_mksid($osid);
 		}
 		return substr(base64_encode(random_bytes(18)), 0, 24);
 	}
-	function sidHash($sid) {
+	function sidHash(string $sid) {
 		global $psconfig;
-		return password_hash($sid, PASSWORD_DEFAULT, array('cost' => $psconfig['sid_cost']));
+		return password_hash($sid, PASSWORD_DEFAULT, ['cost' => $psconfig['sid_cost']]);
 	}
-	function passwordNeedsRehash($hash) {
+	function passwordNeedsRehash(string $hash) {
 		global $psconfig;
-		return password_needs_rehash($hash, PASSWORD_DEFAULT,
-			array('cost' => $psconfig['password_cost'])
-		);
+		return password_needs_rehash($hash, PASSWORD_DEFAULT, ['cost' => $psconfig['password_cost']]);
 	}
-	function passwordHash($pass) {
+	function passwordHash(string $pass) {
 		global $psconfig;
-		return password_hash($pass, PASSWORD_DEFAULT,
-			array('cost' => $psconfig['password_cost'])
-		);
+		return password_hash($pass, PASSWORD_DEFAULT, ['cost' => $psconfig['password_cost']]);
 	}
 
-	public function passwordVerify($name, $pass) {
+	public function passwordVerify(string $name, string $pass) {
 		global $psdb;
 
 		$userid = $this->userid($name);
@@ -182,7 +178,7 @@ class NTBBSession {
 		return $this->passwordVerifyInner($userid, $pass, $user);
 	}
 
-	private function passwordVerifyInner($userid, $pass, $user) {
+	private function passwordVerifyInner(string $userid, string $pass, $user) {
 		global $psdb, $psconfig;
 
 		// throttle
@@ -252,7 +248,7 @@ class NTBBSession {
 		return true;
 	}
 
-	function login($name, $pass, $timeout = false, $debug = false) {
+	function login(string $name, string $pass, $timeout = false, $debug = false) {
 		global $psdb, $curuser, $psconfig;
 		$ctime = time();
 
@@ -354,7 +350,7 @@ class NTBBSession {
 		return $curuser;
 	}
 
-	function createPasswordResetToken($name, $timeout=false) {
+	function createPasswordResetToken(string $name, $timeout=false) {
 		global $psdb, $curuser;
 		$ctime = time();
 
@@ -386,7 +382,7 @@ class NTBBSession {
 		return $token;
 	}
 
-	function validatePasswordResetToken($token) {
+	function validatePasswordResetToken(string $token) {
 		global $psdb, $psconfig;
 		if (strlen($token) !== ($psconfig['sid_length'] * 2)) return false;
 		$res = $psdb->query("SELECT * FROM `{$psdb->prefix}sessions` WHERE `sid` = ? LIMIT 1", [$token]);
@@ -401,7 +397,7 @@ class NTBBSession {
 		return $session['userid'];
 	}
 
-	function getUser($userid=false) {
+	function getUser($userid = null) {
 		global $psdb, $curuser;
 
 		if ($userid === '0') return false;
@@ -431,19 +427,19 @@ class NTBBSession {
 		return $user;
 	}
 
-	function getGroupName($user=false) {
+	function getGroupName($user = null) {
 		global $ntbb_cache;
 		$user = $this->getUser($user);
 		return @$ntbb_cache['groups'][$user['group']]['name'];
 	}
 
-	function getGroupSymbol($user=false) {
+	function getGroupSymbol($user = null) {
 		global $ntbb_cache;
 		$user = $this->getUser($user);
 		return @$ntbb_cache['groups'][$user['group']]['symbol'];
 	}
 
-	function getUserData($username) {
+	function getUserData(string $username) {
 		$userdata = $this->getUser($username);
 
 		if ($userdata) return $userdata;
@@ -453,7 +449,7 @@ class NTBBSession {
 		return $userdata;
 	}
 
-	function getAssertion($userid, $serverhostname, $user = null, $challengekeyid = -1, $challenge = '', $challengeprefix = '') {
+	function getAssertion(string $userid, string $serverhostname, array $user = null, $challengekeyid = -1, $challenge = '', $challengeprefix = '') {
 		global $psdb, $curuser, $psconfig;
 
 		if (substr($userid, 0, 5) === 'guest') {
@@ -583,7 +579,7 @@ class NTBBSession {
 		return $data.';'.bin2hex($sig);
 	}
 
-	function modifyUser($user, $changes) {
+	function modifyUser($user, array $changes) {
 		global $psdb, $curuser;
 		$userid = $user;
 		if (is_array($user)) $userid = $user['userid'];
@@ -666,7 +662,7 @@ class NTBBSession {
 		return $user['registrationcount'];
 	}
 
-	function addUser($user, $password) {
+	function addUser(array $user, string $password) {
 		global $psdb, $curuser;
 		$ctime = time();
 
@@ -696,13 +692,13 @@ class NTBBSession {
 		return $curuser;
 	}
 
-	function wordfilter($text) {
+	function wordfilter(string $text) {
 		$text = str_ireplace('lolicon', '*', $text);
 		$text = str_ireplace('roricon', '*', $text);
 		return $text;
 	}
 
-	function isUseridAllowed($userid) {
+	function isUseridAllowed(string $userid) {
 		if (strpos($userid, 'nigger') !== false) return false;
 		if (strpos($userid, 'nigga') !== false) return false;
 		if (strpos($userid, 'faggot') !== false) return false;
@@ -710,6 +706,28 @@ class NTBBSession {
 		if (strpos($userid, 'roricon') !== false) return false;
 		if (strpos($userid, 'lazyafrican') !== false) return false;
 		return true;
+	}
+
+	function isSysop(array $user = null) {
+		global $curuser, $psconfig;
+		if (!$user) $user = $curuser;
+
+		return in_array($user['userid'], $psconfig['sysops'], true);
+	}
+
+	function isAdmin(array $user = null) {
+		global $curuser;
+		if (!$user) $user = $curuser;
+
+		return ($user['group'] ?? 0) == 2;
+	}
+
+	/** unlike isAdmin, includes Smogon senior staff */
+	function isLeader(array $user = null) {
+		global $curuser;
+		if (!$user) $user = $curuser;
+
+		return ($user['group'] ?? 0) == 2 || ($user['group'] ?? 0) == 6;
 	}
 }
 

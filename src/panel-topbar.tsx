@@ -361,6 +361,7 @@ class UserPanel extends PSRoomPanel<UserRoom> {
 				{status && <div class="userstatus">{status}</div>}
 				{groupName && <div class="usergroup roomgroup">{groupName}</div>}
 				{globalGroupName && <div class="usergroup globalgroup">{globalGroupName}</div>}
+				{user.customgroup && <div class="usergroup globalgroup">{user.customgroup}</div>}
 				{roomsList}
 			</div>
 			{isSelf || !PS.user.named ?
