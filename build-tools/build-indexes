@@ -19,8 +19,8 @@ child_process.execSync('git pull', {cwd: 'data/clovermon-showdown'});
 child_process.execSync('npm run build', {cwd: 'data/clovermon-showdown'});
 console.log("DONE");
 
-const Dex = require('../data/pokemon-showdown/.sim-dist/dex').Dex;
-const Tags = require('../data/pokemon-showdown/.data-dist/tags').Tags;
+const Dex = require('../data/clovermon-showdown/.sim-dist/dex').Dex;
+const Tags = require('../data/clovermon-showdown/.data-dist/tags').Tags;
 const toID = Dex.toID;
 process.stdout.write("Loading gen 6 data... ");
 Dex.includeData();
@@ -1026,12 +1026,12 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 		].map(toID);
 		if (species.isNonstandard && !['Past', 'Gigantamax'].includes(species.isNonstandard)) return 'Illegal';
 		if (unobtainables.includes(species.id)) return 'Illegal';
-		const uu = Dex.getFormat('gen8nationaldexuu');
-		const ou = Dex.getFormat('gen8nationaldex');
+		const uu = Dex.formats.get('gen8nationaldexuu');
+		const ou = Dex.formats.get('gen8nationaldex');
 		const uublIndex = uu.banlist.map(toID).indexOf('nduubl');
-		if (Dex.getRuleTable(ou).isBannedSpecies(species)) return 'Uber';
-		if (Dex.getRuleTable(ou).has('dynamaxclause') && species.name.endsWith('Gmax')) return '(Uber)';
-		if (Dex.getRuleTable(uu).isBannedSpecies(species)) {
+		if (Dex.formats.getRuleTable(ou).isBannedSpecies(species)) return 'Uber';
+		if (Dex.formats.getRuleTable(ou).has('dynamaxclause') && species.name.endsWith('Gmax')) return '(Uber)';
+		if (Dex.formats.getRuleTable(uu).isBannedSpecies(species)) {
 			if (
 				uu.banlist.map(toID).indexOf(species.id) >= uublIndex ||
 				uu.banlist.map(toID).indexOf(species.id + 'base') >= uublIndex ||
@@ -1042,7 +1042,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 				return 'OU';
 			}
 		}
-		if (Dex.getRuleTable(uu).isRestrictedSpecies(species)) {
+		if (Dex.formats.getRuleTable(uu).isRestrictedSpecies(species)) {
 			return 'UU';
 		} else {
 			if (species.nfe) {
@@ -1073,7 +1073,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 		const natDexTierTable = {};
 		const natDexOverrideTier = {};
 		for (const pokemonId of pokemon) {
-			const species = moddedDex.getSpecies(pokemonId);
+			const species = moddedDex.species.get(pokemonId);
 			let modOnlyTier = 'Illegal';
 			let natDexTier = 'Illegal';
 
@@ -1138,7 +1138,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 		const modOnlyItems = [];
 		const natDexItems = [];
 		for (const itemId of itemList) {
-			const item = moddedDex.getItem(itemId);
+			const item = moddedDex.items.get(itemId);
 
 			if (item.availability?.[mod]) {
 				modOnlyItems.push(itemId);
