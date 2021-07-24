@@ -86,7 +86,7 @@ let compileOpts = Object.assign(eval('(' + fs.readFileSync('.babelrc') + ')'), {
 if (process.argv[2] === 'full') {
 	delete compileOpts.ignore;
 	compiler.compileToDir(
-		['data/pokemon-showdown/server/chat-formatter.ts'],
+		['data/clovermon-showdown/server/chat-formatter.ts'],
 		'js/server/',
 		compileOpts
 	);
@@ -103,7 +103,7 @@ compiledFiles += compiler.compileToDir(`src`, `js`, compileOpts);
 compiledFiles += compiler.compileToDir(`src`, `js`, compileOpts);
 
 compiledFiles += compiler.compileToFile(
-	['src/battle-dex.ts', 'src/battle-dex-data.ts', 'src/battle-log.ts', 'src/battle-log-misc.js', 'data/pokemon-showdown/server/chat-formatter.ts', 'data/text.js', 'src/battle-text-parser.ts'],
+	['src/battle-dex.ts', 'src/battle-dex-data.ts', 'src/battle-log.ts', 'src/battle-log-misc.js', 'data/clovermon-showdown/server/chat-formatter.ts', 'data/text.js', 'src/battle-text-parser.ts'],
 	'js/battledata.js',
 	compileOpts
 );
