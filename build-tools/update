@@ -12,6 +12,7 @@ const path = require('path');
 const fs = require('fs');
 const crypto = require('crypto');
 const child_process = require('child_process');
+const compiler = require('./compiler');
 
 const thisDir = __dirname;
 const rootDir = path.resolve(thisDir, '..');
@@ -71,45 +72,60 @@ console.log("DONE");
  * Compile TS files
  *********************************************************/
 
-let ignoreGraphics = ' --ignore "src/battle-animations.js","src/battle-animations-moves.js"';
+process.stdout.write("Compiling TS files... ");
+
+let compileStartTime = process.hrtime();
+let compiledFiles = 0;
+
+// Babel can't find babelrc if we try to compile stuff in data/pokemon-showdown/ fsr
+let compileOpts = Object.assign(eval('(' + fs.readFileSync('.babelrc') + ')'), {
+	babelrc: false,
+	incremental: true,
+	ignore: ['src/battle-animations.js', 'src/battle-animations-moves.js'],
+});
 if (process.argv[2] === 'full') {
-	ignoreGraphics = '';
+	delete compileOpts.ignore;
+	compiler.compileToDir(
+		['data/pokemon-showdown/server/chat-formatter.ts'],
+		'js/server/',
+		compileOpts
+	);
 } else {
 	try {
 		fs.statSync('data/graphics.js');
 		// graphics.js exists, recompile it
-		ignoreGraphics = '';
+		delete compileOpts.ignore;
 	} catch (e) {}
 }
 
-child_process.execSync(`node build-tools/babel-cli/bin/babel.js src --out-dir js --extensions ".ts,.tsx" --incremental${ignoreGraphics} --source-maps`);
+compiledFiles += compiler.compileToDir(`src`, `js`, compileOpts);
 
-let textData = '';
-try {
-	textData = fs.readFileSync('data/text.js');
-} catch (e) {}
+compiledFiles += compiler.compileToDir(`src`, `js`, compileOpts);
 
-fs.writeFileSync(
+compiledFiles += compiler.compileToFile(
+	['src/battle-dex.ts', 'src/battle-dex-data.ts', 'src/battle-log.ts', 'src/battle-log-misc.js', 'data/pokemon-showdown/server/chat-formatter.ts', 'data/text.js', 'src/battle-text-parser.ts'],
 	'js/battledata.js',
-	fs.readFileSync('js/battle-dex.js') + '\n\n' +
-		fs.readFileSync('js/battle-dex-data.js') + '\n\n' +
-		fs.readFileSync('js/battle-log.js') + '\n\n' +
-		fs.readFileSync('src/battle-log-misc.js') +
-		textData + '\n\n' +
-		fs.readFileSync('js/battle-text-parser.js')
+	compileOpts
 );
 
-if (!ignoreGraphics) {
-	fs.writeFileSync(
+if (!compileOpts.ignore) {
+	compiledFiles += compiler.compileToFile(
+		['src/battle-animations.ts', 'src/battle-animations-moves.ts'],
 		'data/graphics.js',
-		fs.readFileSync('js/battle-animations.js') + '\n\n' +
-			fs.readFileSync('js/battle-animations-moves.js')
+		compileOpts
 	);
 }
+
+const diff = process.hrtime(compileStartTime);
+console.log(
+	`(${compiledFiles} ${compiledFiles !== 1 ? "files" : "file"} in ${diff[0] + Math.round(diff[1] / 1e6) / 1e3}s) DONE`
+);
 
 /*********************************************************
  * Update cachebuster and News
  *********************************************************/
+
+process.stdout.write("Updating cachebuster and URLs... ");
 
 const URL_REGEX = /(src|href)="\/(.*?)(\?[a-z0-9]*?)?"/g;
 
@@ -134,19 +150,15 @@ function updateURL(a, b, c, d) {
 }
 
 function writeFiles(indexContents, preactIndexContents, crossprotocolContents, replayEmbedContents) {
-	process.stdout.write("Writing new HTML files... ");
 	fs.writeFileSync('index.html', indexContents);
 	fs.writeFileSync('preactalpha.html', preactIndexContents);
 	fs.writeFileSync('crossprotocol.html', crossprotocolContents);
-	console.log("DONE");
-	process.stdout.write("Writing replay-embed.js... ");
 	fs.writeFileSync('js/replay-embed.js', replayEmbedContents);
 	console.log("DONE");
 }
 
 function updateFiles() {
 	// add hashes to js and css files and rewrite URLs
-	process.stdout.write("Updating hashes and URLs... ");
 	let indexContents = fs.readFileSync('index.template.html', {encoding: 'utf8'});
 	indexContents = indexContents.replace(URL_REGEX, updateURL);
 	let preactIndexContents = fs.readFileSync('preactalpha.template.html', {encoding: 'utf8'});
@@ -155,11 +167,10 @@ function updateFiles() {
 	crossprotocolContents = crossprotocolContents.replace(URL_REGEX, updateURL);
 	let replayEmbedContents = fs.readFileSync('js/replay-embed.template.js', {encoding: 'utf8'});
 	replayEmbedContents = replayEmbedContents.replace(/play\.pokemonshowdown\.com/g, routes.client);
-	console.log("DONE");
 
 	// add news, only if it's actually likely to exist
 	if (__dirname.endsWith('play.pokemonshowdown.com/build-tools')) {
-		process.stdout.write("Updating news... ");
+		process.stdout.write("and news... ");
 		child_process.exec('php ' + path.resolve(thisDir, 'news-data.php'), function (error, stdout, stderr) {
 			let newsData = [0, '[failed to retrieve news]'];
 			if (!error && !stderr) {
@@ -174,7 +185,6 @@ function updateFiles() {
 
 			indexContents = indexContents.replace(/<!-- newsid -->/g, newsData[0]);
 			indexContents = indexContents.replace(/<!-- news -->/g, newsData[1]);
-			console.log("DONE");
 
 			writeFiles(indexContents, preactIndexContents, crossprotocolContents, replayEmbedContents);
 		});

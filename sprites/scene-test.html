@@ -120,7 +120,7 @@
 
 		const SPECIES = [];
 		for (let baseid in BattlePokedex) {
-			const species = Dex.getSpecies(baseid);
+			const species = Dex.species.get(baseid);
 			for (let formid of [''].concat(species.cosmeticFormes || [])) {
 				let spriteid = species.spriteid;
 				if (formid) spriteid += '-' + formid.slice(species.id.length);
@@ -340,7 +340,7 @@
 			SETTINGS.active.inputs[1].disabled = gen < 3;
 			SETTINGS.active.inputs[2].disabled = gen > 6 || gen < 5;
 			for (const side in SIDES) {
-				const species = Dex.getSpecies(SIDES[side].pokemon.select.value);
+				const species = Dex.species.get(SIDES[side].pokemon.select.value);
 				if (gen === 1) {
 					SIDES[side].female.input.disabled = true;
 				} else if (species.gender) {
@@ -599,7 +599,7 @@
 
 		function getGender(gen, pokemon, female) {
 			if (gen === 1) return undefined;
-			const species = Dex.getSpecies(pokemon);
+			const species = Dex.species.get(pokemon);
 			if (species.gender) return species.gender;
 			return female ? 'F' : 'M';
 		}

@@ -83,7 +83,7 @@ function ThemeFooterTemplate() {
 <?php $panels->scripts(); ?>
 
 <?php if ($panels->tab === 'ladder') { ?>
-	<script src="/js/ladder.js?b22"></script>
+	<script src="/js/ladder.js?b23"></script>
 <?php } ?>
 
 </body></html>

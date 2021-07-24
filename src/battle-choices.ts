@@ -377,7 +377,7 @@ class BattleChoiceBuilder {
 						curMatchLevel = 8;
 					} else if (choiceid === toID(serverPokemon.speciesForme)) {
 						curMatchLevel = 7;
-					} else if (choiceid === toID(Dex.getSpecies(serverPokemon.speciesForme).baseSpecies)) {
+					} else if (choiceid === toID(Dex.species.get(serverPokemon.speciesForme).baseSpecies)) {
 						curMatchLevel = 6;
 					}
 					if (curMatchLevel > matchLevel) {
@@ -473,7 +473,7 @@ class BattleChoiceBuilder {
 						active.maxMoves = active.maxMoves.maxMoves;
 					}
 					for (const move of active.maxMoves) {
-						if (move.move) move.name = battle.dex.getMove(move.move).name;
+						if (move.move) move.name = battle.dex.moves.get(move.move).name;
 						move.id = toID(move.name);
 					}
 				}
