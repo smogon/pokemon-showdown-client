@@ -3623,6 +3623,7 @@ blink {
  *********************************************************/
 .badge-marquee-wrapper {
   overflow: hidden;
+	display: inline-block;
 }
 
 .badge-marquee {
