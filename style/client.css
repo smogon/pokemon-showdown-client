@@ -3617,3 +3617,26 @@ blink {
 	animation-duration: 1s;
 	text-decoration: none;
 }
+
+/*********************************************************
+ * Badge Marquee
+ *********************************************************/
+.badge-marquee {
+  white-space: nowrap;
+  overflow: hidden;
+  display: inline-block;
+  animation: marquee 10s linear infinite;
+}
+
+.badge-marquee .userbadges {
+  display: inline-block;
+}
+
+@keyframes marquee {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+  100% {
+    transform: translate3d(-50%, 0, 0);
+  }
+}

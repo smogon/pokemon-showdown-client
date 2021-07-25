@@ -2615,11 +2615,19 @@ function toId() {
 			if (avatar) buf += '<img class="trainersprite' + (userid === ownUserid ? ' yours' : '') + '" src="' + Dex.resolveAvatar(avatar) + '" />';
 			buf += '<strong><a href="//' + Config.routes.users + '/' + userid + '" target="_blank">' + BattleLog.escapeHTML(name) + '</a></strong><br />';
 			if (badges && badges.length) {
-				buf += '<span class="userbadges">';
+				let badgeBuffer = '<span class="userbadges">';
 				badges.forEach((badge) => {
-					buf += '<img class="userbadge" height="16" width="16" alt="' + badge.badge_name + '" title="' + badge.badge_name + '" src="' + badge.image_path + '" />';
+					badgeBuffer += '<img class="userbadge" height="16" width="16" alt="' + badge.badge_name + '" title="' + badge.badge_name + '" src="' + badge.image_path + '" />';
 				});
-				buf += '</span><br />';
+				badgeBuffer += '</span>';
+
+				if (badges.length >= 8) {
+					buf += '<span class="badge-marquee" style="width: 128px">';
+					buf += badgeBuffer + badgeBuffer;
+					buf += '</span><br />';
+				} else {
+					buf += badgeBuffer + '<br />';
+				}
 			}
 			var offline = data.rooms === false;
 			if (data.status || offline) {
