@@ -3204,6 +3204,10 @@ a.ilink.yours {
 .userdetails .offline {
 	color: red;
 }
+.userdetails .userbadge {
+	float: none !important;
+	margin-left: 0 !important;
+}
 .trainersprite.yours {
 	cursor: pointer;
 }

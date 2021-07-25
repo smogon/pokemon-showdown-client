@@ -2631,9 +2631,10 @@ function toId() {
 				buf += '<small class="usergroup globalgroup">' + BattleLog.escapeHTML(data.customgroup) + '</small>';
 			}
 			if (badges && badges.length) {
-				buf += '<br /><span class="userBadges">';
+				if (groupName || globalGroupName || data.customgroup) buf += '<br />';
+				buf += '<span class="userbadges">';
 				badges.forEach((badge) => {
-					buf += '<img class="userBadge" height="16" width="16" src="' + badge.image_path + '" />';
+					buf += '<img class="userbadge" height="16" width="16" alt="' + badge.badge_name + '" title="' + badge,badge_name + '" src="' + badge.image_path + '" />';
 				});
 				buf += '</span>';
 			}
