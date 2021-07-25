@@ -594,6 +594,7 @@ class Side {
 	ally: Side | null = null;
 	avatar: string = 'unknown';
 	rating: string = '';
+	badges: any[] = [];
 	totalPokemon = 6;
 	x = 0;
 	y = 0;
@@ -3366,6 +3367,10 @@ class Battle {
 			side.setName(args[2]);
 			if (args[3]) side.setAvatar(args[3]);
 			if (args[4]) side.rating = args[4];
+			if (args[5]) {
+				const misc = JSON.parse(args[5]);
+				if (misc.badges) side.badges = misc.badges;
+			}
 			if (this.joinButtons) this.scene.hideJoinButtons();
 			this.log(args);
 			this.scene.updateSidebar(side);
