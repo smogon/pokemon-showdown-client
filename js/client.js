@@ -2609,6 +2609,7 @@ function toId() {
 				}
 			}
 			var ownUserid = app.user.get('userid');
+			var badges = data.badges;
 
 			var buf = '<div class="userdetails">';
 			if (avatar) buf += '<img class="trainersprite' + (userid === ownUserid ? ' yours' : '') + '" src="' + Dex.resolveAvatar(avatar) + '" />';
@@ -2628,6 +2629,13 @@ function toId() {
 			if (data.customgroup) {
 				if (groupName || globalGroupName) buf += '<br />';
 				buf += '<small class="usergroup globalgroup">' + BattleLog.escapeHTML(data.customgroup) + '</small>';
+			}
+			if (badges && badges.length) {
+				buf += '<br /><span class="userBadges">';
+				badges.forEach((badge) => {
+					buf += '<img class="userBadge" height="16" width="16" src="' + badge.image_path + '" />';
+				});
+				buf += '</span>';
 			}
 			if (data.rooms) {
 				var battlebuf = '';
