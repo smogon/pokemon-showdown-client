@@ -3626,11 +3626,15 @@ blink {
 	display: inline-block;
 }
 
-.badge-marquee {
+.badge-marquee-wrapper .badge-marquee {
   white-space: nowrap;
   overflow: hidden;
   display: inline-block;
   animation: marquee 10s linear infinite;
+}
+
+.badge-marquee-wrapper:hover .badge-marquee {
+  animation-play-state: paused;
 }
 
 .badge-marquee .userbadges {
