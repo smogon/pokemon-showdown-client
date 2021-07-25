@@ -671,11 +671,20 @@ class BattleScene {
 		const faded = side.name ? `` : ` style="opacity: 0.4"`;
 		let badgehtml = '';
 		if (side.badges.length) {
-			badgehtml += '<span class="userbadges">';
+			let badgeBuffer = '<span class="userbadges">';
 			side.badges.forEach((badge) => {
-				badgehtml += '<img class="userbadge" height="16" width="16" alt="' + badge.badge_name + '" title="' + badge.badge_name + '" src="' + badge.image_path + '" />';
+				badgeBuffer += '<img class="userbadge" height="16" width="16" alt="' + badge.badge_name + '" title="' + badge.badge_name + '" src="' + badge.image_path + '" />';
 			});
-			badgehtml += '</span><br />';
+			badgeBuffer += '</span>';
+
+			if (side.badges.length >= 5) {
+				badgehtml += '<span class="badge-marquee-wrapper" style="width: 80px">'
+				badgehtml += '<span class="badge-marquee">';
+				badgehtml += badgeBuffer + badgeBuffer;
+				badgehtml += '</span></span><br />';
+			} else {
+				badgehtml += badgeBuffer + '<br />';
+			}
 		}
 		return `<div class="trainer trainer-${posStr}"${faded}><strong>${BattleLog.escapeHTML(side.name)}</strong>${badgehtml}<div class="trainersprite"${ratinghtml} style="background-image:url(${Dex.resolveAvatar(side.avatar)})"></div>${pokemonhtml}</div>`;
 	}
