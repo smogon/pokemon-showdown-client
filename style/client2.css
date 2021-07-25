@@ -2292,7 +2292,6 @@ a.ilink.yours {
  * Badge Marquee
  *********************************************************/
 .badge-marquee-wrapper {
-	max-width: 100%;
   overflow: hidden;
 }
 
