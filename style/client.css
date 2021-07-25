@@ -3621,6 +3621,11 @@ blink {
 /*********************************************************
  * Badge Marquee
  *********************************************************/
+.badge-marquee-wrapper {
+	max-width: 100%;
+  overflow: hidden;
+}
+
 .badge-marquee {
   white-space: nowrap;
   overflow: hidden;

@@ -2622,9 +2622,10 @@ function toId() {
 				badgeBuffer += '</span>';
 
 				if (badges.length >= 8) {
+					buf += '<span class="badge-marquee-wrapper">'
 					buf += '<span class="badge-marquee" style="width: 128px">';
 					buf += badgeBuffer + badgeBuffer;
-					buf += '</span><br />';
+					buf += '</span></span><br />';
 				} else {
 					buf += badgeBuffer + '<br />';
 				}
