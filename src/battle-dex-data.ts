@@ -515,6 +515,11 @@ const BattlePokemonIconIndexes: {[id: string]: number} = {
 	justyke: 1344 + 30,
 	solotl: 1344 + 31,
 	miasmite: 1344 + 32,
+
+	// CAP
+	skubaanti: 1379 + (34 * 26) + 1,
+	disbearyebil: 1379 + (34 * 26) + 2,
+	gargarramerawoken: 1379 + (34 * 26) + 3,
 };
 
 const BattlePokemonIconIndexesLeft: {[id: string]: number} = {

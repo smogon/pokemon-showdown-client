@@ -695,8 +695,8 @@ const Dex = new class implements ModdedDex {
 		if (num < 0) num = 0;
 		if (num > 69000 && num <= 69386) { // Clovermons
 			num = 1379 + num % 69000;
-		} else if (num > -42000 && num <= -42012) { // Clover CAP memes
-			num = 1379 + (33 * 12) + -(num % 42000);
+		} else if (num < -42000 && num >= -42012) { // Clover CAP memes
+			num = 1379 + (33 * 12) + Math.abs(num % 42000);
 		} else if (num > 42000 && num <= 42999) { // Clover CAPmons
 			num = 1379 + (34 * 12) + num % 42000;
 		} else if (num > 898) {
