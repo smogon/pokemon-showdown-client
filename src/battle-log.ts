@@ -717,6 +717,7 @@ class BattleLog {
 			spotify: 0,
 			youtube: 0,
 			twitch: 0,
+			badge: 0,
 		});
 
 		// By default, Caja will ban any attributes it doesn't recognize.
@@ -745,6 +746,8 @@ class BattleLog {
 			'button::data-delimiter': 0,
 			'*::aria-label': 0,
 			'*::aria-hidden': 0,
+			'badge::badgefilename': 0,
+			'badge::badgename': 0,
 		});
 
 		// Caja unfortunately doesn't document how `tagPolicy` works, so
@@ -895,6 +898,23 @@ class BattleLog {
 						tagName = Dex.getCategoryIcon(iconValue).slice(1, -3);
 					}
 				}
+			} else if (tagName === 'badge') {
+				const badgeFileName = getAttrib('badgefilename') || '';
+				const badgeName = getAttrib('badgename') || '';
+				const protocol = Config.server.https ? 'https' : 'http';
+				const port = Config.server.https ? Config.server.port : Config.server.httpport;
+				const badgeSrc = protocol + '://' + Config.server.host + ':' + port +
+					'/badges/' + encodeURIComponent(badgeFileName).replace(/\%3F/g, '?');
+				return {
+					tagName: 'img',
+					attribs: [
+						'class', 'userbadge',
+						'width', 16, 'height', 16,
+						'src', badgeSrc,
+						'title', badgeName,
+						'alt', badgeName,
+					],
+				};
 			}
 
 			attribs = html.sanitizeAttribs(tagName, attribs, (urlData: any) => {
