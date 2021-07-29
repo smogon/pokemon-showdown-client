@@ -694,6 +694,7 @@ class Side {
 		case 'spikes':
 		case 'toxicspikes':
 		case 'stickyweb':
+		case 'sleayspores':
 			this.sideConditions[condition] = [effect.name, 1, 0, 0];
 			break;
 		case 'gmaxwildfire':
