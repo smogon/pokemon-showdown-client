@@ -1,4 +1,8 @@
-class BattleSceneStub {
+import type {Pokemon, Side} from './battle';
+import type {ScenePos, PokemonSprite} from './battle-animations';
+import type {BattleLog} from './battle-log';
+
+export class BattleSceneStub {
 	animating: boolean = false;
 	acceleration: number = NaN;
 	gen: number = NaN;
@@ -10,12 +14,12 @@ class BattleSceneStub {
 	log: BattleLog = {add: (args: Args, kwargs?: KWArgs) => {}} as any;
 
 	abilityActivateAnim(pokemon: Pokemon, result: string): void { }
-	addPokemonSprite(pokemon: Pokemon) { return null!; }
+	addPokemonSprite(pokemon: Pokemon): PokemonSprite { return null!; }
 	addSideCondition(siden: number, id: ID, instant?: boolean | undefined): void { }
 	animationOff(): void { }
 	animationOn(): void { }
 	maybeCloseMessagebar(args: Args, kwArgs: KWArgs): boolean { return false; }
-	closeMessagebar(): void { }
+	closeMessagebar(): boolean { return false; }
 	damageAnim(pokemon: Pokemon, damage: string | number): void { }
 	destroy(): void { }
 	finishAnimations(): JQuery.Promise<JQuery<HTMLElement>, any, any> | undefined { return void(0); }
@@ -25,6 +29,7 @@ class BattleSceneStub {
 	updateAcceleration(): void { }
 	message(message: string, hiddenMessage?: string | undefined): void { }
 	pause(): void { }
+	setMute(muted: boolean): void { }
 	preemptCatchup(): void { }
 	removeSideCondition(siden: number, id: ID): void { }
 	reset(): void { }
@@ -68,7 +73,6 @@ class BattleSceneStub {
 	anim(pokemon: Pokemon, end: ScenePos, transition?: string) { }
 	beforeMove(pokemon: Pokemon) { }
 	afterMove(pokemon: Pokemon) { }
-	unlink(userid: string, showRevealButton = false) { }
 }
 
 if (typeof require === 'function') {

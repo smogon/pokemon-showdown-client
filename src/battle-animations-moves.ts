@@ -9,7 +9,9 @@
  * @license CC0-1.0
  */
 
-const BattleMoveAnims: AnimTable = {
+import {AnimTable, BattleOtherAnims} from './battle-animations';
+
+export const BattleMoveAnims: AnimTable = {
 	taunt: {
 		anim(scene, [attacker, defender]) {
 			BattleOtherAnims.dance.anim(scene, [attacker, defender]);
