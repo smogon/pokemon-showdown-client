@@ -11,6 +11,12 @@
  * @license MIT
  */
 
+import type {Battle, Pokemon, Side, WeatherState} from './battle';
+import type {BattleSceneStub} from './battle-scene-stub';
+import {BattleMoveAnims} from './battle-animations-moves';
+import {BattleLog} from './battle-log';
+import {BattleBGM, BattleSound} from './battle-sound';
+
 /*
 
 Most of this file is: CC0 (public domain)
@@ -30,7 +36,7 @@ This license DOES NOT extend to any other files in this repository.
 
 */
 
-class BattleScene {
+export class BattleScene implements BattleSceneStub {
 	battle: Battle;
 	animating = true;
 	acceleration = 1;
@@ -234,7 +240,7 @@ class BattleScene {
 		} else {
 			this.$frame.append('<div class="playbutton"><button name="play"><i class="fa fa-play"></i> Play</button><br /><br /><button name="play-muted" class="startsoundchooser" style="font-size:10pt;display:none">Play (music off)</button></div>');
 			this.$frame.find('div.playbutton button[name=play-muted]').click(() => {
-				this.battle.setMute(true);
+				this.setMute(true);
 				this.battle.play();
 			});
 		}
@@ -243,6 +249,9 @@ class BattleScene {
 	resume() {
 		this.$frame.find('div.playbutton').remove();
 		this.updateBgm();
+	}
+	setMute(muted: boolean) {
+		BattleSound.setMute(muted);
 	}
 	wait(time: number) {
 		if (!this.animating) return;
@@ -589,7 +598,7 @@ class BattleScene {
 		} else {
 			let statustext = '';
 			if (pokemon.hp !== pokemon.maxhp) {
-				statustext += Pokemon.getHPText(pokemon);
+				statustext += pokemon.getHPText();
 			}
 			if (pokemon.status) {
 				if (statustext) statustext += '|';
@@ -1643,7 +1652,7 @@ class BattleScene {
 	}
 }
 
-interface ScenePos {
+export interface ScenePos {
 	/** - left, + right */
 	x?: number;
 	/** - down, + up */
@@ -1669,7 +1678,7 @@ interface InitScenePos {
 	display?: string;
 }
 
-class Sprite {
+export class Sprite {
 	scene: BattleScene;
 	$el: JQuery = null!;
 	sp: SpriteData;
@@ -1732,7 +1741,7 @@ class Sprite {
 	}
 }
 
-class PokemonSprite extends Sprite {
+export class PokemonSprite extends Sprite {
 	// HTML strings are constructed from this table and stored back in it to cache them
 	protected static statusTable: {[id: string]: [string, 'good' | 'bad' | 'neutral'] | null | string} = {
 		formechange: null,
@@ -2795,7 +2804,7 @@ interface AnimData {
 	prepareAnim?(scene: BattleScene, args: PokemonSprite[]): void;
 	residualAnim?(scene: BattleScene, args: PokemonSprite[]): void;
 }
-type AnimTable = {[k: string]: AnimData};
+export type AnimTable = {[k: string]: AnimData};
 
 const BattleEffects: {[k: string]: SpriteData} = {
 	wisp: {
@@ -3112,7 +3121,7 @@ const BattleBackdrops = [
 	'bg-skypillar.jpg',
 ];
 
-const BattleOtherAnims: AnimTable = {
+export const BattleOtherAnims: AnimTable = {
 	hitmark: {
 		anim(scene, [attacker]) {
 			scene.showEffect('hitmark', {
@@ -5698,7 +5707,7 @@ const BattleOtherAnims: AnimTable = {
 		},
 	},
 };
-const BattleStatusAnims: AnimTable = {
+export const BattleStatusAnims: AnimTable = {
 	brn: {
 		anim(scene, [attacker]) {
 			scene.showEffect('fireball', {

@@ -13,7 +13,17 @@
  * @license MIT
  */
 
-class BattleLog {
+import type {BattleScene} from './battle-animations';
+
+// Caja
+declare const html4: any;
+declare const html: any;
+
+// defined in battle-log-misc
+declare function MD5(input: string): string;
+declare function formatText(input: string, isTrusted?: boolean): string;
+
+export class BattleLog {
 	elem: HTMLDivElement;
 	innerElem: HTMLDivElement;
 	scene: BattleScene | null = null;
@@ -358,7 +368,7 @@ class BattleLog {
 	addSpacer() {
 		this.addDiv('spacer battle-history', '<br />');
 	}
-	changeUhtml(id: string, html: string, forceAdd?: boolean) {
+	changeUhtml(id: string, htmlSrc: string, forceAdd?: boolean) {
 		id = toID(id);
 		const classContains = ' uhtml-' + id + ' ';
 		let elements = [] as HTMLDivElement[];
@@ -374,9 +384,9 @@ class BattleLog {
 				}
 			}
 		}
-		if (html && elements.length && !forceAdd) {
+		if (htmlSrc && elements.length && !forceAdd) {
 			for (const element of elements) {
-				element.innerHTML = BattleLog.sanitizeHTML(html);
+				element.innerHTML = BattleLog.sanitizeHTML(htmlSrc);
 			}
 			this.updateScroll();
 			return;
@@ -384,11 +394,11 @@ class BattleLog {
 		for (const element of elements) {
 			element.parentElement!.removeChild(element);
 		}
-		if (!html) return;
+		if (!htmlSrc) return;
 		if (forceAdd) {
-			this.addDiv('notice uhtml-' + id, BattleLog.sanitizeHTML(html));
+			this.addDiv('notice uhtml-' + id, BattleLog.sanitizeHTML(htmlSrc));
 		} else {
-			this.prependDiv('notice uhtml-' + id, BattleLog.sanitizeHTML(html));
+			this.prependDiv('notice uhtml-' + id, BattleLog.sanitizeHTML(htmlSrc));
 		}
 	}
 	hideChatFrom(userid: ID, showRevealButton = true, lineCount = 0) {
@@ -634,8 +644,8 @@ class BattleLog {
 		case 'uhtml':
 		case 'uhtmlchange':
 			let parts = target.split(',');
-			let html = parts.slice(1).join(',').trim();
-			this.changeUhtml(parts[0], html, cmd === 'uhtml');
+			let htmlSrc = parts.slice(1).join(',').trim();
+			this.changeUhtml(parts[0], htmlSrc, cmd === 'uhtml');
 			return ['', ''];
 		case 'raw':
 			return ['chat', BattleLog.sanitizeHTML(target)];

@@ -27,13 +27,17 @@
  * @license MIT
  */
 
-/** [id, element?, ...misc] */
-type EffectState = any[] & {0: ID};
-/** [name, minTimeLeft, maxTimeLeft] */
-type WeatherState = [string, number, number];
-type HPColor = 'r' | 'y' | 'g';
+import {BattleSceneStub} from './battle-scene-stub';
+import {BattleLog} from './battle-log';
+import {BattleScene, PokemonSprite, BattleStatusAnims} from './battle-animations';
 
-class Pokemon implements PokemonDetails, PokemonHealth {
+/** [id, element?, ...misc] */
+export type EffectState = any[] & {0: ID};
+/** [name, minTimeLeft, maxTimeLeft] */
+export type WeatherState = [string, number, number];
+export type HPColor = 'r' | 'y' | 'g';
+
+export class Pokemon implements PokemonDetails, PokemonHealth {
 	name = '';
 	speciesForme = '';
 
@@ -570,6 +574,9 @@ class Pokemon implements PokemonDetails, PokemonHealth {
 		}
 		return percentage * maxWidth / 100;
 	}
+	getHPText(precision = 1) {
+		return Pokemon.getHPText(this, precision);
+	}
 	static getHPText(pokemon: PokemonHealth, precision = 1) {
 		if (pokemon.maxhp === 100) return pokemon.hp + '%';
 		if (pokemon.maxhp !== 48) return (100 * pokemon.hp / pokemon.maxhp).toFixed(precision) + '%';
@@ -583,7 +590,7 @@ class Pokemon implements PokemonDetails, PokemonHealth {
 	}
 }
 
-class Side {
+export class Side {
 	battle: Battle;
 	name = '';
 	id = '';
@@ -932,7 +939,7 @@ class Side {
 	}
 }
 
-interface PokemonDetails {
+export interface PokemonDetails {
 	details: string;
 	name: string;
 	speciesForme: string;
@@ -942,14 +949,14 @@ interface PokemonDetails {
 	ident: string;
 	searchid: string;
 }
-interface PokemonHealth {
+export interface PokemonHealth {
 	hp: number;
 	maxhp: number;
 	hpcolor: HPColor | '';
 	status: StatusName | 'tox' | '' | '???';
 	fainted?: boolean;
 }
-interface ServerPokemon extends PokemonDetails, PokemonHealth {
+export interface ServerPokemon extends PokemonDetails, PokemonHealth {
 	ident: string;
 	details: string;
 	condition: string;
@@ -976,8 +983,8 @@ interface ServerPokemon extends PokemonDetails, PokemonHealth {
 	gigantamax: string | false;
 }
 
-class Battle {
-	scene: BattleScene | BattleSceneStub;
+export class Battle {
+	scene: BattleSceneStub;
 
 	sidesSwitched = false;
 
@@ -3669,7 +3676,7 @@ class Battle {
 	}
 
 	setMute(mute: boolean) {
-		BattleSound.setMute(mute);
+		this.scene.setMute(mute);
 	}
 }
 
