@@ -783,14 +783,14 @@ class BattleTooltips {
 			} else {
 				text += `<h2>${name}${genderBuf}${illusionIndex ? '' : levelBuf}<br />`;
 
-			if (clientPokemon?.volatiles.formechange) {
-				if (clientPokemon.volatiles.transform) {
-					text += `<small>(Transformed into ${clientPokemon.volatiles.formechange[1]})</small><br />`;
-				} else {
-					text += `<small>(Changed forme: ${clientPokemon.volatiles.formechange[1]})</small><br />`;
+				if (clientPokemon?.volatiles.formechange) {
+					if (clientPokemon.volatiles.transform) {
+						text += `<small>(Transformed into ${clientPokemon.volatiles.formechange[1]})</small><br />`;
+					} else {
+						text += `<small>(Changed forme: ${clientPokemon.volatiles.formechange[1]})</small><br />`;
+					}
 				}
 			}
-		}
 
 			let types = this.getPokemonTypes(pokemon);
 
@@ -887,7 +887,7 @@ class BattleTooltips {
 			text += 'Def: ' + clientPokemon?.getSpecies().baseStats['def'] + ' ';
 			text += 'SpA: ' + clientPokemon?.getSpecies().baseStats['spa'] + ' ';
 			text += 'SpD: ' + clientPokemon?.getSpecies().baseStats['spd'] + ' ';
-			text += 'Spe: ' + clientPokemon?.getSpecies().baseStats['spe'] + '</small>' + '</p>'
+			text += 'Spe: ' + clientPokemon?.getSpecies().baseStats['spe'] + '</small>' + '</p>';
 		}
 		if (serverPokemon && !isActive) {
 			// move list
