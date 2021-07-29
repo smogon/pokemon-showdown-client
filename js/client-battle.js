@@ -1465,7 +1465,7 @@
 			buf += '<p><label class="optlabel"><input type="checkbox" name="ignorespects"' + (this.battle.ignoreSpects ? ' checked' : '') + '/> Ignore spectators</label></p>';
 			buf += '<p><label class="optlabel"><input type="checkbox" name="ignoreopp"' + (this.battle.ignoreOpponent ? ' checked' : '') + '/> Ignore opponent</label></p>';
 			buf += '<p><strong>All battles</strong></p>';
-			buf += '<p><labal class="optlabel"><input type="checkbox" name="showbasestats"' + (Dex.prefs('showbasestats') ? ' checked' : '') + ' /> Show base stats</label></p>'
+			buf += '<p><labal class="optlabel"><input type="checkbox" name="showbasestats"' + (Dex.prefs('showbasestats') ? ' checked' : '') + ' /> Show base stats</label></p>';
 			buf += '<p><label class="optlabel"><input type="checkbox" name="ignorenicks"' + (Dex.prefs('ignorenicks') ? ' checked' : '') + ' /> Ignore nicknames</label></p>';
 			buf += '<p><label class="optlabel"><input type="checkbox" name="allignorespects"' + (Dex.prefs('ignorespects') ? ' checked' : '') + '/> Ignore spectators</label></p>';
 			buf += '<p><label class="optlabel"><input type="checkbox" name="allignoreopp"' + (Dex.prefs('ignoreopp') ? ' checked' : '') + '/> Ignore opponent</label></p>';
