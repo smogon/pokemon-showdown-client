@@ -715,7 +715,7 @@ abstract class BattleTypedSearch<T extends SearchType> {
 		return '' as ID;
 	}
 	protected canLearn(speciesid: ID, moveid: ID) {
-		if (this.dex.gen >= 8 && this.dex.moves.get(moveid).isNonstandard === 'Past' && this.formatType !== 'natdex') {
+		if (this.dex.moves.get(moveid).isNonstandard === 'Past' && this.formatType !== 'natdex') {
 			return false;
 		}
 		let genChar = `${this.dex.gen}`;
@@ -1439,12 +1439,8 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 					types.push(...prevoSpecies.types);
 					prevo = prevoSpecies.prevo;
 				}
-				if (species.battleOnly) {
-					if (typeof species.battleOnly === 'string' && species.battleOnly !== species.baseSpecies) {
-						species = dex.species.get(species.battleOnly);
-					} else {
-						species = dex.species.get(species.baseSpecies);
-					}
+				if (species.battleOnly && typeof species.battleOnly === 'string') {
+					species = dex.species.get(species.battleOnly);
 				}
 				const excludedForme = (s: Species) => ['Alola', 'Alola-Totem', 'Galar', 'Galar-Zen'].includes(s.forme);
 				if (baseSpecies.otherFormes && !['Wormadam', 'Urshifu'].includes(baseSpecies.baseSpecies)) {
