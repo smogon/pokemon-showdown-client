@@ -950,7 +950,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 
 		const overrideMoveData = {};
 		BattleTeambuilderTable[gen].overrideMoveData = overrideMoveData;
-		const overrideMoveKeys = ['accuracy', 'basePower', 'category', 'desc', 'flags', 'pp', 'shortDesc', 'target', 'type'];
+		const overrideMoveKeys = ['accuracy', 'basePower', 'category', 'desc', 'flags', 'isNonstandard', 'pp', 'shortDesc', 'target', 'type'];
 		for (const id in genData.Moves) {
 			const curEntry = Dex.mod(gen).moves.get(id);
 			const nextEntry = Dex.mod(nextGen).moves.get(id);

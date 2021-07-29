@@ -1416,13 +1416,13 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 				if (sketch) {
 					if (move.isMax || move.isZ) continue;
 					if (move.isNonstandard && move.isNonstandard !== 'Past') continue;
-					if (move.isNonstandard === 'Past' && this.formatType !== 'natdex' && dex.gen === 8) continue;
+					if (move.isNonstandard === 'Past' && this.formatType !== 'natdex') continue;
 					sketchMoves.push(move.id);
 				} else {
 					if (!(dex.gen < 8 || this.formatType === 'natdex') && move.isZ) continue;
 					if (typeof move.isMax === 'string') continue;
 					if (move.isNonstandard === 'LGPE' && this.formatType !== 'letsgo') continue;
-					if (move.isNonstandard === 'Past' && this.formatType !== 'natdex' && dex.gen === 8) continue;
+					if (move.isNonstandard === 'Past' && this.formatType !== 'natdex') continue;
 					moves.push(move.id);
 				}
 			}
@@ -1439,7 +1439,13 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 					types.push(...prevoSpecies.types);
 					prevo = prevoSpecies.prevo;
 				}
-				if (species.battleOnly) species = baseSpecies;
+				if (species.battleOnly) {
+					if (typeof species.battleOnly === 'string' && species.battleOnly !== species.baseSpecies) {
+						species = dex.species.get(species.battleOnly);
+					} else {
+						species = dex.species.get(species.baseSpecies);
+					}
+				}
 				const excludedForme = (s: Species) => ['Alola', 'Alola-Totem', 'Galar', 'Galar-Zen'].includes(s.forme);
 				if (baseSpecies.otherFormes && !['Wormadam', 'Urshifu'].includes(baseSpecies.baseSpecies)) {
 					if (!excludedForme(species)) types.push(...baseSpecies.types);
@@ -1448,7 +1454,7 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 						if (!forme.battleOnly && !excludedForme(forme)) types.push(...forme.types);
 					}
 				}
-				const move = Dex.moves.get(id);
+				const move = dex.moves.get(id);
 				if (!types.includes(move.type)) continue;
 				if (moves.includes(move.id)) continue;
 				if (move.gen > dex.gen) continue;
