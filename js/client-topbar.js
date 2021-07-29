@@ -441,7 +441,6 @@
 			'change input[name=noanim]': 'setNoanim',
 			'change input[name=nogif]': 'setNogif',
 			'change input[name=bwgfx]': 'setBwgfx',
-			'change input[name=showbasestats]': 'setShowBaseStats',
 			'change input[name=nopastgens]': 'setNopastgens',
 			'change select[name=tournaments]': 'setTournaments',
 			'change select[name=language]': 'setLanguage',
@@ -490,8 +489,6 @@
 			}
 			buf += '<p><label class="optlabel"><input type="checkbox" name="bwgfx"' + (Dex.prefs('bwgfx') ? ' checked' : '') + ' /> Use BW sprites instead of XY models</label></p>';
 			buf += '<p><label class="optlabel"><input type="checkbox" name="nopastgens"' + (Dex.prefs('nopastgens') ? ' checked' : '') + ' /> Use modern sprites for past generations</label></p>';
-			buf += '<p><label class="optlabel"><input type="checkbox" name="showbasestats"' + (Dex.prefs('showbasestats') ? ' checked' : '') + ' /> Show base stats</label></p>';
-
 			buf += '<hr />';
 			buf += '<p><strong>Chat</strong></p>';
 			if (Object.keys(settings).length) {
@@ -584,10 +581,6 @@
 		setNopastgens: function (e) {
 			var nopastgens = !!e.currentTarget.checked;
 			Storage.prefs('nopastgens', nopastgens);
-		},
-		setShowBaseStats: function (e) {
-			var showbasestats = !!e.currentTarget.checked;
-			Storage.prefs('showbasestats', showbasestats);
 		},
 		setTournaments: function (e) {
 			var tournaments = e.currentTarget.value;
