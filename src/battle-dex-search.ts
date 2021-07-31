@@ -1435,34 +1435,33 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 				if (move.gen > dex.gen) continue;
 				if (move.isZ || move.isMax || move.isNonstandard) continue;
 
-				let speciesTypes: string[] = [];
-				let moveTypes: string[] = [move.type];
-				let baseSpecies = dex.species.get(species.changesFrom || species.name);
-				if (!species.battleOnly) speciesTypes.push(...species.types);
-				let prevo = species.prevo;
-				while (prevo) {
-					const prevoSpecies = dex.species.get(prevo);
-					speciesTypes.push(...prevoSpecies.types);
-					prevo = prevoSpecies.prevo;
-				}
-				if (species.battleOnly && typeof species.battleOnly === 'string') {
-					species = dex.species.get(species.battleOnly);
-				}
-				const excludedForme = (s: Species) => ['Alola', 'Alola-Totem', 'Galar', 'Galar-Zen'].includes(s.forme);
-				if (baseSpecies.otherFormes && !['Wormadam', 'Urshifu'].includes(baseSpecies.baseSpecies)) {
-					if (!excludedForme(species)) speciesTypes.push(...baseSpecies.types);
-					for (const formeName of baseSpecies.otherFormes) {
-						const forme = dex.species.get(formeName);
-						if (!forme.battleOnly && !excludedForme(forme)) speciesTypes.push(...forme.types);
+				const speciesTypes: string[] = [];
+				const moveTypes: string[] = [];
+				for (let i = dex.gen; i >= species.gen && i >= move.gen; i--) {
+					const genDex = Dex.forGen(i);
+					moveTypes.push(genDex.moves.get(move.name).type);
+
+					const pokemon = genDex.species.get(species.name);
+					let baseSpecies = genDex.species.get(pokemon.changesFrom || pokemon.name);
+					if (!pokemon.battleOnly) speciesTypes.push(...pokemon.types);
+					let prevo = pokemon.prevo;
+					while (prevo) {
+						const prevoSpecies = genDex.species.get(prevo);
+						speciesTypes.push(...prevoSpecies.types);
+						prevo = prevoSpecies.prevo;
+					}
+					if (pokemon.battleOnly && typeof pokemon.battleOnly === 'string') {
+						species = dex.species.get(pokemon.battleOnly);
+					}
+					const excludedForme = (s: Species) => ['Alola', 'Alola-Totem', 'Galar', 'Galar-Zen'].includes(s.forme);
+					if (baseSpecies.otherFormes && !['Wormadam', 'Urshifu'].includes(baseSpecies.baseSpecies)) {
+						if (!excludedForme(species)) speciesTypes.push(...baseSpecies.types);
+						for (const formeName of baseSpecies.otherFormes) {
+							const forme = dex.species.get(formeName);
+							if (!forme.battleOnly && !excludedForme(forme)) speciesTypes.push(...forme.types);
+						}
 					}
 				}
-				// Check for type changes from past generations
-				for (let i = dex.gen - 1; i >= species.gen && i >= move.gen; i--) {
-					let genDex = Dex.forGen(i);
-					speciesTypes.push(...genDex.species.get(species.name).types);
-					moveTypes.push(genDex.moves.get(move.name).type);
-				}
-
 				let valid = false;
 				for (let type of moveTypes) {
 					if (speciesTypes.includes(type)) {
