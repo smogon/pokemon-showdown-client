@@ -1430,13 +1430,19 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 		if (this.formatType === 'metronome') moves = ['metronome'];
 		if (isSTABmons) {
 			for (let id in this.getTable()) {
-				let types: string[] = [];
+				const move = dex.moves.get(id);
+				if (moves.includes(move.id)) continue;
+				if (move.gen > dex.gen) continue;
+				if (move.isZ || move.isMax || move.isNonstandard) continue;
+
+				let speciesTypes: string[] = [];
+				let moveTypes: string[] = [move.type];
 				let baseSpecies = dex.species.get(species.changesFrom || species.name);
-				if (!species.battleOnly) types.push(...species.types);
+				if (!species.battleOnly) speciesTypes.push(...species.types);
 				let prevo = species.prevo;
 				while (prevo) {
 					const prevoSpecies = dex.species.get(prevo);
-					types.push(...prevoSpecies.types);
+					speciesTypes.push(...prevoSpecies.types);
 					prevo = prevoSpecies.prevo;
 				}
 				if (species.battleOnly && typeof species.battleOnly === 'string') {
@@ -1444,18 +1450,27 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 				}
 				const excludedForme = (s: Species) => ['Alola', 'Alola-Totem', 'Galar', 'Galar-Zen'].includes(s.forme);
 				if (baseSpecies.otherFormes && !['Wormadam', 'Urshifu'].includes(baseSpecies.baseSpecies)) {
-					if (!excludedForme(species)) types.push(...baseSpecies.types);
+					if (!excludedForme(species)) speciesTypes.push(...baseSpecies.types);
 					for (const formeName of baseSpecies.otherFormes) {
 						const forme = dex.species.get(formeName);
-						if (!forme.battleOnly && !excludedForme(forme)) types.push(...forme.types);
+						if (!forme.battleOnly && !excludedForme(forme)) speciesTypes.push(...forme.types);
 					}
 				}
-				const move = dex.moves.get(id);
-				if (!types.includes(move.type)) continue;
-				if (moves.includes(move.id)) continue;
-				if (move.gen > dex.gen) continue;
-				if (move.isZ || move.isMax || move.isNonstandard) continue;
-				moves.push(id);
+				// Check for type changes from past generations
+				for (let i = dex.gen - 1; i >= species.gen && i >= move.gen; i--) {
+					let genDex = Dex.forGen(i);
+					speciesTypes.push(...genDex.species.get(species.name).types);
+					moveTypes.push(genDex.moves.get(move.name).type);
+				}
+
+				let valid = false;
+				for (let type of moveTypes) {
+					if (speciesTypes.includes(type)) {
+						valid = true;
+						break;
+					}
+				}
+				if (valid) moves.push(id);
 			}
 		}
 
