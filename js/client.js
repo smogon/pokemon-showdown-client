@@ -724,7 +724,7 @@ function toId() {
 			}
 
 			if (Config.server.banned) {
-				this.addPopupMessage("This server has been deleted for breaking US laws, impersonating PS global staff, or other major rulebreaking.");
+				this.addPopupMessage("This server has either been deleted for breaking US law or PS global rules, or it is hosted on a platform that's often used to host rulebreaking servers.");
 				return;
 			}
 
