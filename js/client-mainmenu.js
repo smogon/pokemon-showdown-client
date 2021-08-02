@@ -19,7 +19,8 @@
 			'blur textarea': 'onBlurPM',
 			'click .spoiler': 'clickSpoiler',
 			'click button.formatselect': 'selectFormat',
-			'click button.teamselect': 'selectTeam'
+			'click button.teamselect': 'selectTeam',
+			'keyup input': 'selectTeammate'
 		},
 		initialize: function () {
 			this.$el.addClass('scrollable');
@@ -43,6 +44,8 @@
 				buf += '<div class="menugroup"><form class="battleform" data-search="1">';
 				buf += '<p><label class="label">Format:</label>' + this.renderFormats() + '</p>';
 				buf += '<p><label class="label">Team:</label>' + this.renderTeams() + '</p>';
+				buf += '<p><label class="label" name="partner" style="display:none">';
+				buf += 'Partner: <input name="teammate" /></label></p>';
 				buf += '<p><label class="checkbox"><input type="checkbox" name="private" ' + (Storage.prefs('disallowspectators') ? 'checked' : '') + ' /> <abbr title="You can still invite spectators by giving them the URL or using the /invite command">Don\'t allow spectators</abbr></label></p>';
 				buf += '<p><button class="button mainmenu1 big" name="search"><strong>Battle!</strong><br /><small>Find a random opponent</small></button></p></form></div>';
 			}
@@ -274,6 +277,15 @@
 			buf += '<p class="buttonbar"><button name="acceptChallenge"><strong>' + BattleLog.escapeHTML(acceptButtonLabel) + '</strong></button> <button type="button" name="rejectChallenge">' + BattleLog.escapeHTML(rejectButtonLabel) + '</button></p></form>';
 			$challenge.html(buf);
 		},
+
+		selectTeammate: function (e) {
+			if (e.currentTarget.name !== 'teammate' || e.keyCode !== 13) return;
+			var partner = toID(e.currentTarget.value);
+			if (!partner.length) return;
+			app.send('/requestpartner ' + partner + ',' + this.format);
+			e.currentTarget.value = '';
+		},
+
 		openPM: function (name, dontFocus) {
 			var userid = toID(name);
 			var $pmWindow = this.$pmBox.find('.pm-window-' + userid);
@@ -1256,6 +1268,10 @@
 				app.rooms[''].curTeamIndex = -1;
 				var $teamButton = this.sourceEl.closest('form').find('button[name=team]');
 				if ($teamButton.length) $teamButton.replaceWith(app.rooms[''].renderTeams(format));
+				var $partnerLabels = $('label[name=partner]');
+				$partnerLabels.each(function (i, label) {
+					label.style.display = BattleFormats[format].partner ? '' : 'none';
+				});
 			}
 			this.sourceEl.val(format).html(BattleLog.escapeFormat(format) || '(Select a format)');
 
