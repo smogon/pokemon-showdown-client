@@ -846,7 +846,7 @@ class BattleTextParser {
 
 			if (id === 'dispenser') {
 				const template = this.template('activate', effect);
-				return line1 + template.replace('[SOURCE]', this.pokemon(kwArgs.of)).replace('[TARGET]', this.pokemon(pokemon)).replace('[MOVE]', kwArgs.move);
+				return template.replace('[SOURCE]', this.pokemon(kwArgs.of)).replace('[TARGET]', this.pokemon(pokemon)).replace('[MOVE]', kwArgs.move);
 			}
 
 			let templateId = 'activate';
