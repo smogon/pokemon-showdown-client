@@ -844,6 +844,11 @@ class BattleTextParser {
 				return line1 + template.replace('[TARGET]', this.pokemon(target));
 			}
 
+			if (id === 'dispenser') {
+				const template = this.template('activate', effect);
+				return line1 + template.replace('[SOURCE]', this.pokemon(kwArgs.of)).replace('[TARGET]', this.pokemon(pokemon)).replace('[MOVE]', kwArgs.move);
+			}
+
 			let templateId = 'activate';
 			if (id === 'forewarn' && pokemon === target) {
 				templateId = 'activateNoTarget';
