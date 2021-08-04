@@ -9,7 +9,7 @@ class Panels {
 	var $root;
 	var $name;
 
-	function Panels() {
+	function __construct() {
 		global $psconfig;
 
 		if (@$psconfig['root']) $this->root = $psconfig['root'];
