@@ -148,7 +148,7 @@ class BattleTextParser {
 				kwArgs.ability = arg3;
 				kwArgs.ability2 = arg4;
 			} else if ([
-				'eeriespell', 'gmaxdepletion', 'spite', 'grudge', 'forewarn', 'sketch', 'leppaberry', 'mysteryberry',
+				'eeriespell', 'gmaxdepletion', 'spite', 'grudge', 'forewarn', 'sketch', 'leppaberry', 'mysteryberry', 'dispenser',
 			].includes(id)) {
 				kwArgs.move = arg3;
 				kwArgs.number = arg4;

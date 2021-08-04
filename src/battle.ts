@@ -2826,7 +2826,9 @@ class Battle {
 			// item activations
 			case 'leppaberry':
 			case 'mysteryberry':
-				poke.rememberMove(kwArgs.move, effect.id === 'leppaberry' ? -10 : -5);
+			case 'dispenser':
+				const amount = effect.id === 'leppaberry' ? -10 : (effect.id === 'dispenser' ? -1 : -5);
+				poke.rememberMove(kwArgs.move, amount);
 				break;
 			case 'focusband':
 				poke.item = 'Focus Band';
