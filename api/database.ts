@@ -1,5 +1,5 @@
 /**
- * Promise implementation (with stricter typing) database implementation.
+ * Promise database implementation, with stricter typing.
  * By Mia
  * @author mia-pi-git
  */
@@ -14,10 +14,9 @@ export const databases: PSDatabase[] = [];
 export class PSDatabase {
 	pool: mysql.Pool;
 	prefix: string;
-	constructor(config: {[k: string]: any} = Config.mysql, prefix?: string) {
-		if (!prefix) prefix = Config.dbprefix;
+	constructor(config: {[k: string]: any} = Config.mysql) {
 		this.pool = mysql.createPool(config);
-		this.prefix = prefix || "ntbb_";
+		this.prefix = config.prefix || 'ntbb_';
 		if (!databases.includes(this)) databases.push(this);
 	}
 	query<T = ResultRow>(queryString: string, args: SQLInput[]) {
@@ -45,16 +44,19 @@ export class PSDatabase {
 		// limit it yourself, consumers
 		const rows = await this.query(queryString, args);
 		if (Array.isArray(rows)) return rows[0] as unknown as T;
-		return rows || null;
+		return rows ?? null;
 	}
 	async execute(queryString: string, args: SQLInput[]): Promise<mysql.OkPacket> {
-		if (!['UPDATE', 'INSERT', 'DELETE'].some(i => queryString.includes(i))) {
+		if (!['UPDATE', 'INSERT', 'DELETE', 'REPLACE'].some(i => queryString.includes(i))) {
 			throw new Error('Use `query` or `get` for non-insertion / update statements.');
 		}
 		return this.get(queryString, args) as Promise<mysql.OkPacket>;
 	}
 	close() {
 		this.pool.end();
+	}
+	connect(config: {[k: string]: any}) {
+		this.pool = mysql.createPool(config);
 	}
 }
 
@@ -65,8 +67,16 @@ export class DatabaseTable<T> {
 	database: PSDatabase;
 	name: string;
 	primaryKeyName: string;
-	constructor(name: string, primaryKeyName: string, config = Config.mysql) {
+	constructor(
+		name: string,
+		primaryKeyName: string,
+		prefix = 'ntbb_',
+		config = Config.mysql
+	) {
 		this.name = name;
+		if (prefix) {
+			config.prefix = prefix;
+		}
 		this.database = config ? new PSDatabase(config) : psdb;
 		this.primaryKeyName = primaryKeyName;
 	}
@@ -83,7 +93,8 @@ export class DatabaseTable<T> {
 	): Promise<T[]> {
 		const colStr = typeof entries === 'string' ? entries : entries.map(k => this.format(k)).join(', ');
 		return this.database.query<T>(
-			`SELECT ${colStr} FROM ${this.format(this.name)} ${where ? ` WHERE ${where}` : ''}`, params || []
+			`SELECT ${colStr} FROM ${this.getName()} ` +
+			`${where ? ` WHERE ${where}` : ''}`, params || []
 		);
 	}
 	get(entries: string | string[], keyId: SQLInput) {
@@ -92,7 +103,7 @@ export class DatabaseTable<T> {
 	updateAll(toParams: Partial<T>, where?: string, whereArgs?: SQLInput[], limit?: number) {
 		const to = Object.entries(toParams);
 		const updateStr = to.map(k => `${this.format(k[0])} = ?`);
-		let queryStr = `UPDATE ${this.format(this.name)} SET ${updateStr}`;
+		let queryStr = `UPDATE ${this.getName()} SET ${updateStr}`;
 		if (where) queryStr += ` WHERE ${where}`;
 		if (limit) queryStr += ` LIMIT ${limit}`;
 		return this.database.execute(
@@ -103,9 +114,12 @@ export class DatabaseTable<T> {
 	updateOne(to: Partial<T>, where?: string, whereArgs?: SQLInput[]) {
 		return this.updateAll(to, where, whereArgs, 1);
 	}
+	private getName() {
+		return this.format((this.database.prefix || "") + this.name);
+	}
 	deleteAll(where?: string, args?: SQLInput[], limit?: number) {
 		return this.database.execute(
-			`DELETE FROM ${this.format(this.name)}${where ? ` WHERE ${where}` : ''}` +
+			`DELETE FROM ${this.getName()}${where ? ` WHERE ${where}` : ''}` +
 				`${limit ? ` LIMIT ${limit}` : ''}`,
 			args || []
 		);
@@ -117,7 +131,7 @@ export class DatabaseTable<T> {
 		return this.deleteAll(where, args, 1);
 	}
 	insert(colMap: Partial<T>, rest?: string, restArgs?: SQLInput[], isReplace = false) {
-		let queryString = `${isReplace ? 'REPLACE' : 'INSERT'} INTO ${this.format(this.name)} (`;
+		let queryString = `${isReplace ? 'REPLACE' : 'INSERT'} INTO ${this.getName()} (`;
 		const query = Object.entries(colMap);
 		queryString += query.map(([name]) => this.format(name)).join(', ');
 		queryString += ') VALUES (';

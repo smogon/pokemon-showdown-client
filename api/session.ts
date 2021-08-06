@@ -45,11 +45,18 @@ export class Session {
 	getName() {
 		return this.dispatcher.cookies.get('showdown_username') || this.dispatcher.user.name;
 	}
+	makeSid() {
+		if (Config.makeSid) return Config.makeSid.call(this);
+		return new Promise((resolve, reject) => {
+			crypto.randomBytes(24, (err, buf) => {
+				if (err) return reject(err);
+				resolve(buf.toString('hex'));
+			});
+		});
+	}
 	async setSid() {
 		if (!this.sidhash) {
-			this.sidhash = Config.makeSid ?
-				await Config.makeSid.call(this) :
-				crypto.pseudoRandomBytes(24).toString('hex').slice(0, 24);
+			this.sidhash = await this.makeSid();
 		}
 		this.updateCookie();
 		return this.sidhash;
@@ -81,7 +88,7 @@ export class Session {
 		});
 
 		if (!result.affectedRows) {
-			throw new Error(`User could not be created. (${userid}, ${ip}`);
+			throw new Error(`User could not be created. (${userid}, ${ip})`);
 		}
 		return this.login(username, password);
 	}
@@ -148,7 +155,7 @@ export class Session {
 		const ip = this.dispatcher.getIp();
 		let forceUsertype: string | false = false;
 		if (!user) user = this.dispatcher.user;
-		if (ip.includes(Config.autolockip) || Config.autolockip?.includes(ip)) {
+		if (Config.autolockip?.includes(ip)) {
 			forceUsertype = '5';
 		}
 		let userType = '';
@@ -173,16 +180,13 @@ export class Session {
 				} else if (banstate >= 100) {
 					return ';;Your username is no longer available.';
 				} else if (banstate >= 40) {
-					if (server?.server === 'sim3.psim.us') {
-						userType = '40';
-					} else {
-						userType = '2';
-					}
+					userType = '2';
 				} else if (banstate >= 30) {
 					userType = '6';
 				} else if (banstate >= 20) {
 					userType = '5';
 				} else if (banstate === 0) {
+					// should we update autoconfirmed status? check to see if it's been long enough
 					if (regtime && time() - regtime > (7 * 24 * 60 * 60)) {
 						const ladders = await ladder.selectOne('formatid', 'userid = ? AND w != 0', [userid]);
 						if (ladders) {
@@ -249,7 +253,7 @@ export class Session {
 		this.updateCookie();
 
 		if (Config.validateassertion) {
-			data = Config.validateassertion.call(this, data, user, ip, server);
+			data = Config.validateassertion.call(this, challenge, user, data);
 		}
 
 		const sign = crypto.createSign('RSA-SHA1');
@@ -262,17 +266,26 @@ export class Session {
 		const disallowed = [
 			...(Config.bannedTerms || []),
 			'nigger', 'nigga', 'faggot',
-			'lolicon', 'roricon', 'lazyafrican',
+			/(lol|ror)icon/, 'lazyafrican',
 			'tranny',
 		];
 		for (const term of disallowed) {
-			if (userid.includes(term)) return false;
+			if (
+				(typeof term === 'object' ? term.test(userid) : userid.includes(term))
+			) {
+				return false;
+			}
 		}
 		return true;
 	}
 	static wordfilter(user: string) {
-		if (!Config.filteredterms) Config.filteredterms = [/(lol|ror)icon/];
-		for (const term of Config.filteredterms) {
+		const disallowed = [
+			...(Config.bannedTerms || []),
+			'nigger', 'nigga', 'faggot',
+			/(lol|ror)icon/, 'lazyafrican',
+			'tranny',
+		];
+		for (const term of disallowed) {
 			user = user.replace(term, '*');
 		}
 		return user;
@@ -291,7 +304,7 @@ export class Session {
 		await users.update(userid, {
 			passwordhash, nonce: null,
 		});
-		await sessions.delete(userid);
+		await sessions.deleteOne('userid = ?', [userid]);
 		if (this.dispatcher.user.id === userid) {
 			await this.login(name, pass);
 		}
@@ -300,9 +313,9 @@ export class Session {
 	async passwordVerify(name: string, pass: string) {
 		const ip = this.dispatcher.getIp();
 		const userid = toID(name);
-		const throttled = await loginthrottle.get(['count', 'time'], ip);
-		let throttleTable = null;
-		if (throttled) throttleTable = throttled;
+		let throttleTable = await (loginthrottle.get(
+			['count', 'time'], ip
+		) as Promise<{count: number, time: number}> || null);
 		if (throttleTable) {
 			if (throttleTable.count > 500) {
 				throttleTable.count++;
