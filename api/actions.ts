@@ -25,7 +25,7 @@ export const actions: {[k: string]: QueryHandler} = {
 		if (userid.startsWith('guest')) {
 			throw new ActionError(`Your username cannot start with 'guest'.`);
 		}
-		if (password.replace(/ /ig, '').length < 5) {
+		if (password.replace(/\s/ig, '').length < 5) {
 			throw new ActionError(`Your password must have at least 5 characters.`);
 		}
 		if (password !== cpassword) {
@@ -60,7 +60,7 @@ export const actions: {[k: string]: QueryHandler} = {
 			return {actionsuccess: false};
 		}
 		await this.session.logout();
-		return {success: true};
+		return {actionsuccess: true};
 	},
 	async login(params) {
 		const challengeprefix = this.verifyCrossDomainRequest();
@@ -87,7 +87,7 @@ export const actions: {[k: string]: QueryHandler} = {
 	async updateuserstats(params) {
 		const server = this.getServer(true);
 		if (!server) {
-			return {success: false};
+			return {actionsuccess: false};
 		}
 
 		const date = parseInt(params.date, 10);
@@ -213,7 +213,7 @@ export const actions: {[k: string]: QueryHandler} = {
 		if (!server) {
 			return {errorip: this.getIp()};
 		}
-		// No need to sanitise $server['id'] because it should be safe already.
+		// No need to sanitise server['id'] because it should be safe already.
 		const cssfile = `${__dirname}/../config/customcss/${server['id']}.css`;
 		return new Promise<{actionsuccess: boolean}>(resolve => {
 			fs.unlink(cssfile, err => {
@@ -222,7 +222,6 @@ export const actions: {[k: string]: QueryHandler} = {
 		});
 	},
 	async changepassword(params) {
-
 		if (this.request.method !== 'POST') {
 			throw new ActionError(`'changepassword' requests can only be made with POST data.`);
 		}
@@ -307,11 +306,9 @@ export const actions: {[k: string]: QueryHandler} = {
 		return user.ratings;
 	},
 	async mmr(params) {
-		const out: {[k: string]: any} = {};
 		const server = this.getServer(true);
 		if (!server || server.id !== 'showdown') {
-			out.errorip = 'Your version of PS is too old for this ladder system. Please update.';
-			return out;
+			return {errorip: 'Your version of PS is too old for this ladder system. Please update.'};
 		}
 		if (!params.format) throw new ActionError("Specify a format.");
 		const ladder = new NTBBLadder(params.format);

@@ -76,14 +76,15 @@ export class Dispatcher {
 	parseRequest() {
 		const [pathname, queryString] = this.request.url?.split('?') || [];
 		let body: {[k: string]: any} = this.opts.body || {};
-		let act = body.act;
+		let act = body.act; // checking for an act in the preset body
 		if (!this.opts.body && queryString) {
 			const parts = queryString.split('&');
 			for (const [k, v] of parts.map(p => p.split('='))) body[k] = v;
 		}
+		// check for an act in the url body (parsing url body above)
 		if (body.act) act = body.act;
 		if (act && pathname === '/action.php') { // legacy handling
-			return {act: body.act, body};
+			return {act, body};
 		}
 		if (pathname.includes('/api/')) {
 			// support requesting {server}/api/actionnname as well as
@@ -107,7 +108,7 @@ export class Dispatcher {
 		}
 
 		let prefix = null;
-		for (const [regex, host] of Config.cors as [RegExp, string][]) {
+		for (const [regex, host] of Config.cors) {
 			if (!regex.test(origin)) continue;
 			prefix = host;
 		}

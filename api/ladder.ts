@@ -184,9 +184,14 @@ export class NTBBLadder {
 
 	async saveRating(user: User | FakeUser) {
 		if (!user.rating) return false;
-		const {w, l, t, r, rd, sigma, rptime, rpr, rprd, rpsigma, rpdata, gxe, col1, entryid} = user.rating;
+		const {
+			w, l, t, r, rd, sigma,
+			rptime, rpr, elo, rprd,
+			rpsigma, rpdata, gxe,
+			col1, entryid,
+		} = user.rating;
 		return !!(await ladder.update(entryid, {
-			w, l, t, r, rd, sigma, rptime, rpr, rprd, rpsigma, rpdata, gxe, col1,
+			elo, w, l, t, r, rd, sigma, rptime, rpr, rprd, rpsigma, rpdata, gxe, col1,
 		}));
 	}
 
@@ -360,8 +365,9 @@ export class NTBBLadder {
 		await this.update(p1 as (User | FakeUser) & {rating: LadderEntry}, p1M, p1Melo);
 		await this.update(p2 as (User | FakeUser) & {rating: LadderEntry}, p2M, p2Melo);
 
-		await this.saveRating(p1);
-		await this.saveRating(p2);
+		return Promise.all(
+			[p1, p2].map(p => this.saveRating(p))
+		) as Promise<[boolean, boolean]>;
 	}
 	static getUserData(username?: string): FakeUser | null {
 		if (!username) username = '';

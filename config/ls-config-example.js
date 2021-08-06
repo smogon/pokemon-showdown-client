@@ -3,21 +3,26 @@ exports.mysql = {
  charset: "utf8",
  database: "ps",
  password: "uwu",
+ prefix: "",
  user: "root",
 };
-
-// Database table prefix.
-exports.dbprefix = "ntbb_";
 
 // To use for password hashing.
 exports.passwordSalt = 10;
 
 // routes
 exports.routes = {
- root:	"6a058bbe924f.ngrok.io",
+ client:	"play.pokemonshowdown.com",
+ dex:	"dex.pokemonshowdown.com",
+ replays:	"replay.pokemonshowdown.com",
+ root:	"pokemonshowdown.com",
+ users:	"pokemonshowdown.com/users",
 };
 
-// [Places to allow cors requests from, prefix to use][]
+/**
+ * [Places to allow cors requests from, prefix to use][]
+ * @type {[RegExp, string][]}
+ */
 exports.cors = [
  [/^http:\/\/smogon\.com$/, "smogon.com_"],
  [/^http:\/\/www\.smogon\.com$/, "www.smogon.com_"],
@@ -26,8 +31,9 @@ exports.cors = [
  [/^http:\/\/[a-z0-9]+\.psim\.us$/, ""],
  [/^http:\/\/play\.pokemonshowdown\.com$/, ""],
 ];
+
 // array of user IDs who will be given sysop powers on all servers they log into via this loginserver
-exports.sysops = [];
+exports.sysops = ["mia"];
 
 // Private keys to use for validating assertions.
 exports.privatekeys = [

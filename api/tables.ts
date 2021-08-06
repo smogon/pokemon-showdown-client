@@ -10,18 +10,18 @@ import type {LadderEntry} from './ladder';
 import type {PreparedReplay, ReplayData} from './replays';
 import type {UserInfo} from './user';
 
-export const users = new DatabaseTable<UserInfo>('ntbb_users', 'userid');
+export const users = new DatabaseTable<UserInfo>('users', 'userid');
 
 export const ladder = new DatabaseTable<LadderEntry>(
-	'ntbb_ladder', 'entryid', Config.ladderdb
+	'ladder', 'entryid', '', Config.ladderdb
 );
 
 export const prepreplays = new DatabaseTable<PreparedReplay>(
-	'ps_prepreplays', 'id', Config.replaysdb
+	'prepreplays', 'id', 'ps_', Config.replaysdb
 );
 
 export const replays = new DatabaseTable<ReplayData>(
-	'ps_replays', 'id', Config.replaysdb
+	'replays', 'id', 'ps_', Config.replaysdb
 );
 
 export const sessions = new DatabaseTable<{
@@ -31,21 +31,21 @@ export const sessions = new DatabaseTable<{
 	time: number;
 	timeout: number;
 	ip: string;
-}>('ntbb_sessions', 'session');
+}>('sessions', 'session');
 
 export const userstats = new DatabaseTable<{
 	id: number;
 	serverid: string;
 	usercount: number;
 	date: number;
-}>('ntbb_userstats', 'id');
+}>('userstats', 'id');
 
 export const loginthrottle = new DatabaseTable<{
 	ip: string;
 	count: number;
 	time: number;
 	lastuserid: string;
-}>('ntbb_loginthrottle', 'ip');
+}>('loginthrottle', 'ip');
 
 export const usermodlog = new DatabaseTable<{
 	entryid: number;
@@ -54,11 +54,11 @@ export const usermodlog = new DatabaseTable<{
 	date: number;
 	ip: string;
 	entry: string;
-}>('ntbb_usermodlog', 'entryid');
+}>('usermodlog', 'entryid');
 
 export const userstatshistory = new DatabaseTable<{
 	id: number;
 	date: number;
 	usercount: number;
 	programid: 'showdown' | 'po';
-}>('ntbb_userstatshistory', 'id');
+}>('userstatshistory', 'id');

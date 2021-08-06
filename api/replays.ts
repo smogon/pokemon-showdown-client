@@ -40,10 +40,10 @@ export interface PreparedReplay {
 }
 
 function stripNonAscii(str: string) {
-	return str.replace(/[^(\x20-\x7F)]+/, '');
+	return str.replace(/[^(\x20-\x7F)]+/g, '');
 }
 
-function md5(str: string) {
+export function md5(str: string) {
 	return crypto.createHash('md5').update(str).digest('hex');
 }
 
@@ -64,9 +64,11 @@ export const Replays = new class {
 		if (params.serverid !== 'showdown') rating = 0;
 		const inputlog = params.inputlog || null;
 		const out = await prepreplays.replace({
-			id, loghash, p1, p2, format, uploadtime: time(), rating, inputlog,
+			id, loghash, p1, p2, format,
+			uploadtime: time(), rating,
+			inputlog, private: isPrivate,
 		});
-		return !!out;
+		return !!out.affectedRows;
 	}
 
 	generatePassword(length = 31) {
@@ -93,14 +95,14 @@ export const Replays = new class {
 	async edit(replay: ReplayData) {
 		if (replay.private === 3) {
 			replay.private = 3;
-			await replays.updateOne({private:  3, password: null}, 'id = ?', [replay.id]);
+			await replays.updateOne({private: 3, password: null}, 'id = ?', [replay.id]);
 		} else if (replay.private === 2) {
 			replay.private = 1;
 			replay.password = null;
-			await replays.updateOne({private:  1, password: null}, 'id = ?', [replay.id]);
+			await replays.updateOne({private: 1, password: null}, 'id = ?', [replay.id]);
 		} else if (replay.private) {
 			if (!replay.password) replay.password = this.generatePassword();
-			await replays.updateOne({private:  1, password: replay.password}, 'id = ?', [replay.id]);
+			await replays.updateOne({private: 1, password: replay.password}, 'id = ?', [replay.id]);
 		} else {
 			await replays.updateOne({private: 1, password: null}, 'id = ?', [replay.id]);
 		}
