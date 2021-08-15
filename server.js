@@ -14,6 +14,10 @@ const certificate = fs.readFileSync(ssl.certificatePath, 'utf8');
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.post(`/~~${defaultserver.id}/action.php`, (request, response) => {
+  if (request.params.act && request.params.act === 'register') {
+    return response.send(']{"actionerror":"Please register on https:\/\/play.pokemonshowdown.com\/."}')
+  }
+
   let headers = {};
   const cookieHeader = request.headers['Cookie'] || request.headers['cookie'];
   if (cookieHeader) {
