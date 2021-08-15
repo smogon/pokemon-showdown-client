@@ -390,6 +390,55 @@ PS.roomTypes['user'] = {
 	Component: UserPanel,
 };
 
+class PromptPanel extends PSRoomPanel {
+	declare props: PSRoomPanel['props'] & {
+		onSubmit: (response: string) => void,
+		message: string,
+		buttonName: string,
+		value?: string,
+	};
+	render() {
+		return <PSPanelWrapper room={this.props.room}>
+			<form>
+				<p>
+					<label class="label">{this.props.message}
+						<input class="textbox autofocus" type="text" name="data" value={BattleLog.escapeHTML(this.props.value || '')} />
+					</label>
+				</p><p class="buttonbar">
+					<button type="submit" onClick={() => this.submit()}>
+						<strong>{this.props.buttonName}</strong>
+					</button>
+					<button type="button" name="close">Cancel</button>
+				</p>
+			</form>
+		</PSPanelWrapper>;
+	}
+	submit() {
+		const $elem = $(this.base!);
+		const $input = $elem.find('[input name=data]');
+		const value = $input.val();
+		if (typeof value !== 'string') { // typeguard
+			return;
+		}
+		if (toID(value) === 'zarel') {
+			// todo?
+			alert(
+				"Zarel is very busy; please don't contact him this way. " +
+				"If you're looking for help, try joining the Help room?"
+			);
+			PS.removeRoom(this.props.room);
+			return;
+		}
+		PS.removeRoom(this.props.room);
+		this.props.onSubmit(value);
+	}
+}
+
+PS.roomTypes['prompt'] = {
+	Model: PSRoom,
+	Component: PromptPanel,
+}
+
 class VolumePanel extends PSRoomPanel {
 	setVolume = (e: Event) => {
 		const slider = e.currentTarget as HTMLInputElement;

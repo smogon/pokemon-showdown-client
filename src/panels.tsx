@@ -321,6 +321,16 @@ class PSMain extends preact.Component {
 	}
 	handleButtonClick(elem: HTMLButtonElement) {
 		switch (elem.name) {
+		case 'finduser':
+			PS.addRoom({
+				id: 'finduser' as RoomID,
+				type: 'prompt',
+				message: 'Find a user',
+				parentElem: elem,
+				buttonName: "Open",
+			});
+			PS.update();
+			return true;
 		case 'closeRoom':
 			PS.leave(elem.value as RoomID);
 			return true;
