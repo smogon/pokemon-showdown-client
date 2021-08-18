@@ -3119,6 +3119,10 @@ const BattleEffects: {[k: string]: SpriteData} = {
 		url: 'rightchopblack.png',
 		w: 100, h: 130,
 	},
+	greenicicle: {
+		url: 'icicle-green.png', 
+		w: 80, h: 60,
+	},
 };
 (() => {
 	if (!window.Dex || !Dex.resourcePrefix) return;

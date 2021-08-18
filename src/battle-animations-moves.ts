@@ -37944,6 +37944,66 @@ const BattleMoveAnims: AnimTable = {
 			}, 'linear');
 		},
 	},
+	nuclearwinter: { 
+		anim(scene, [attacker, defender]) {
+			scene.backgroundEffect(`url('https://${Config.routes.client}/sprites/gen6bgs/bg-icecave.jpg')`, 700, 0.6);
+			scene.showEffect('greenicicle', {
+				x: attacker.x,
+				y: attacker.y,
+				z: attacker.z,
+				scale: 0.6,
+				opacity: 0.6,
+			}, {
+				x: defender.x + 60,
+				y: defender.y + 40,
+				z: defender.z,
+				scale: 2,
+				opacity: 0.3,
+			}, 'accel', 'explode');
+			scene.showEffect('greenicicle', {
+				x: attacker.x,
+				y: attacker.y,
+				z: attacker.z,
+				scale: 0.6,
+				opacity: 0.6,
+				time: 75,
+			}, {
+				x: defender.x + 40,
+				y: defender.y - 40,
+				z: defender.z,
+				scale: 2,
+				opacity: 0.3,
+			}, 'accel', 'explode');
+			scene.showEffect('greenicicle', {
+				x: attacker.x,
+				y: attacker.y,
+				z: attacker.z,
+				scale: 0.6,
+				opacity: 0.6,
+				time: 150,
+			}, {
+				x: defender.x - 60,
+				y: defender.y,
+				z: defender.z,
+				scale: 2,
+				opacity: 0.3,
+			}, 'accel', 'explode');
+			scene.showEffect('greenicicle', {
+				x: attacker.x,
+				y: attacker.y,
+				z: attacker.z,
+				scale: 0.6,
+				opacity: 0.6,
+				time: 225,
+			}, {
+				x: defender.x - 20,
+				y: defender.y + 10,
+				z: defender.z,
+				scale: 2,
+				opacity: 0.3,
+			}, 'accel', 'explode');
+		},
+	},
 
 	/* 
 	attacker.anim({
