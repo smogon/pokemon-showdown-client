@@ -1955,6 +1955,10 @@ a.ilink.yours {
 .userdetails .offline {
 	color: red;
 }
+.userdetails .userbadge {
+	float: none !important;
+	margin-left: 0 !important;
+}
 .trainersprite.yours {
 	cursor: pointer;
 }
@@ -2282,4 +2286,36 @@ a.ilink.yours {
 }
 .dark .utilichart a:hover .col {
 	color: #FFF;
+}
+
+/*********************************************************
+ * Badge Marquee
+ *********************************************************/
+.badge-marquee-wrapper {
+  overflow: hidden;
+	display: inline-block;
+}
+
+.badge-marquee-wrapper .badge-marquee {
+  white-space: nowrap;
+  overflow: hidden;
+  display: inline-block;
+  animation: marquee 10s linear infinite;
+}
+
+.badge-marquee-wrapper:hover .badge-marquee {
+  animation-play-state: paused;
+}
+
+.badge-marquee .userbadges {
+  display: inline-block;
+}
+
+@keyframes marquee {
+  0% {
+    transform: translate3d(0, 0, 0);
+  }
+  100% {
+    transform: translate3d(-50%, 0, 0);
+  }
 }

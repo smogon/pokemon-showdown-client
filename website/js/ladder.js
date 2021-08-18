@@ -26,7 +26,17 @@ var LadderPanel = Panels.StaticPanel.extend({
 	events: {
 		'change select[name=standing]': 'changeStanding',
 		'click button[name=openReset]': 'openReset',
-		'click button[name=cancelReset]': 'cancelReset'
+		'click button[name=cancelReset]': 'cancelReset',
+		'click button[name=copyUrl]': 'copyUrl'
+	},
+	copyUrl: function (e) {
+		var button = e.currentTarget;
+		var textbox = button.parentElement.querySelector('textarea');
+		textbox.select();
+		document.execCommand("copy");
+		button.textContent = 'Copied!';
+		e.preventDefault();
+		e.stopImmediatePropagation();
 	},
 	openReset: function (e) {
 		e.preventDefault();

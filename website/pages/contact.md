@@ -24,10 +24,10 @@ Mini-FAQ:
 > **Will there ever be a phone app?**  
 > Maybe one day, but just use the website; its mobile version is actually pretty good on phones.
 > 
-> **I forgot my password?**  
-> Fill out a [Password Reset Form](https://www.smogon.com/forums/password-reset-form/).
+> **Forgot your password?**  
+> Learn about [requesting a password reset](https://www.smogon.com/forums/threads/names-passwords-rooms-and-servers-contacting-upper-staff.3538721/).
 > 
-> **I found a bug?**  
+> **Found a bug?**  
 > You probably didn't, but if you're sure you did, [Bug Reports](/bugreports).
 > 
 > **2v2 multi battles? Friends list? Translations?**  

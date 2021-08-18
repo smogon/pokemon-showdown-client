@@ -261,56 +261,58 @@ const Dex = new class implements ModdedDex {
 	getEffect(name: string | null | undefined): PureEffect | Item | Ability | Move {
 		name = (name || '').trim();
 		if (name.substr(0, 5) === 'item:') {
-			return this.getItem(name.substr(5).trim());
+			return this.items.get(name.substr(5).trim());
 		} else if (name.substr(0, 8) === 'ability:') {
-			return this.getAbility(name.substr(8).trim());
+			return this.abilities.get(name.substr(8).trim());
 		} else if (name.substr(0, 5) === 'move:') {
-			return this.getMove(name.substr(5).trim());
+			return this.moves.get(name.substr(5).trim());
 		}
 		let id = toID(name);
 		return new PureEffect(id, name);
 	}
 
-	getMove(nameOrMove: string | Move | null | undefined): Move {
-		if (nameOrMove && typeof nameOrMove !== 'string') {
-			// TODO: don't accept Moves here
-			return nameOrMove;
-		}
-		let name = nameOrMove || '';
-		let id = toID(nameOrMove);
-		if (window.BattleAliases && id in BattleAliases) {
-			name = BattleAliases[id];
-			id = toID(name);
-		}
-		if (!window.BattleMovedex) window.BattleMovedex = {};
-		let data = window.BattleMovedex[id];
-		if (data && typeof data.exists === 'boolean') return data;
+	moves = {
+		get: (nameOrMove: string | Move | null | undefined): Move => {
+			if (nameOrMove && typeof nameOrMove !== 'string') {
+				// TODO: don't accept Moves here
+				return nameOrMove;
+			}
+			let name = nameOrMove || '';
+			let id = toID(nameOrMove);
+			if (window.BattleAliases && id in BattleAliases) {
+				name = BattleAliases[id];
+				id = toID(name);
+			}
+			if (!window.BattleMovedex) window.BattleMovedex = {};
+			let data = window.BattleMovedex[id];
+			if (data && typeof data.exists === 'boolean') return data;
 
-		if (!data && id.substr(0, 11) === 'hiddenpower' && id.length > 11) {
-			let [, hpWithType, hpPower] = /([a-z]*)([0-9]*)/.exec(id)!;
-			data = {
-				...(window.BattleMovedex[hpWithType] || {}),
-				basePower: Number(hpPower) || 60,
-			};
-		}
-		if (!data && id.substr(0, 6) === 'return' && id.length > 6) {
-			data = {
-				...(window.BattleMovedex['return'] || {}),
-				basePower: Number(id.slice(6)),
-			};
-		}
-		if (!data && id.substr(0, 11) === 'frustration' && id.length > 11) {
-			data = {
-				...(window.BattleMovedex['frustration'] || {}),
-				basePower: Number(id.slice(11)),
-			};
-		}
+			if (!data && id.substr(0, 11) === 'hiddenpower' && id.length > 11) {
+				let [, hpWithType, hpPower] = /([a-z]*)([0-9]*)/.exec(id)!;
+				data = {
+					...(window.BattleMovedex[hpWithType] || {}),
+					basePower: Number(hpPower) || 60,
+				};
+			}
+			if (!data && id.substr(0, 6) === 'return' && id.length > 6) {
+				data = {
+					...(window.BattleMovedex['return'] || {}),
+					basePower: Number(id.slice(6)),
+				};
+			}
+			if (!data && id.substr(0, 11) === 'frustration' && id.length > 11) {
+				data = {
+					...(window.BattleMovedex['frustration'] || {}),
+					basePower: Number(id.slice(11)),
+				};
+			}
 
-		if (!data) data = {exists: false};
-		let move = new Move(id, name, data);
-		window.BattleMovedex[id] = move;
-		return move;
-	}
+			if (!data) data = {exists: false};
+			let move = new Move(id, name, data);
+			window.BattleMovedex[id] = move;
+			return move;
+		},
+	};
 
 	getGen3Category(type: string) {
 		return [
@@ -318,143 +320,142 @@ const Dex = new class implements ModdedDex {
 		].includes(type) ? 'Special' : 'Physical';
 	}
 
-	getItem(nameOrItem: string | Item | null | undefined): Item {
-		if (nameOrItem && typeof nameOrItem !== 'string') {
-			// TODO: don't accept Items here
-			return nameOrItem;
-		}
-		let name = nameOrItem || '';
-		let id = toID(nameOrItem);
-		if (window.BattleAliases && id in BattleAliases) {
-			name = BattleAliases[id];
-			id = toID(name);
-		}
-		if (!window.BattleItems) window.BattleItems = {};
-		let data = window.BattleItems[id];
-		if (data && typeof data.exists === 'boolean') return data;
-		if (!data) data = {exists: false};
-		let item = new Item(id, name, data);
-		window.BattleItems[id] = item;
-		return item;
-	}
-
-	getAbility(nameOrAbility: string | Ability | null | undefined): Ability {
-		if (nameOrAbility && typeof nameOrAbility !== 'string') {
-			// TODO: don't accept Abilities here
-			return nameOrAbility;
-		}
-		let name = nameOrAbility || '';
-		let id = toID(nameOrAbility);
-		if (window.BattleAliases && id in BattleAliases) {
-			name = BattleAliases[id];
-			id = toID(name);
-		}
-		if (!window.BattleAbilities) window.BattleAbilities = {};
-		let data = window.BattleAbilities[id];
-		if (data && typeof data.exists === 'boolean') return data;
-		if (!data) data = {exists: false};
-		let ability = new Ability(id, name, data);
-		window.BattleAbilities[id] = ability;
-		return ability;
-	}
-
-	getSpecies(nameOrSpecies: string | Species | null | undefined): Species {
-		if (nameOrSpecies && typeof nameOrSpecies !== 'string') {
-			// TODO: don't accept Species' here
-			return nameOrSpecies;
-		}
-		let name = nameOrSpecies || '';
-		let id = toID(nameOrSpecies);
-		let formid = id;
-		if (!window.BattlePokedexAltForms) window.BattlePokedexAltForms = {};
-		if (formid in window.BattlePokedexAltForms) return window.BattlePokedexAltForms[formid];
-		if (window.BattleAliases && id in BattleAliases) {
-			name = BattleAliases[id];
-			id = toID(name);
-		} else if (window.BattlePokedex && !(id in BattlePokedex) && window.BattleBaseSpeciesChart) {
-			for (const baseSpeciesId of BattleBaseSpeciesChart) {
-				if (formid.startsWith(baseSpeciesId)) {
-					id = baseSpeciesId;
-					break;
-				}
+	items = {
+		get: (nameOrItem: string | Item | null | undefined): Item => {
+			if (nameOrItem && typeof nameOrItem !== 'string') {
+				// TODO: don't accept Items here
+				return nameOrItem;
 			}
-		}
-		if (!window.BattlePokedex) window.BattlePokedex = {};
-		let data = window.BattlePokedex[id];
-
-		let species: Species;
-		if (data && typeof data.exists === 'boolean') {
-			species = data;
-		} else {
+			let name = nameOrItem || '';
+			let id = toID(nameOrItem);
+			if (window.BattleAliases && id in BattleAliases) {
+				name = BattleAliases[id];
+				id = toID(name);
+			}
+			if (!window.BattleItems) window.BattleItems = {};
+			let data = window.BattleItems[id];
+			if (data && typeof data.exists === 'boolean') return data;
 			if (!data) data = {exists: false};
-			if (!data.tier && id.slice(-5) === 'totem') {
-				data.tier = this.getSpecies(id.slice(0, -5)).tier;
-			}
-			if (!data.tier && data.baseSpecies && toID(data.baseSpecies) !== id) {
-				data.tier = this.getSpecies(data.baseSpecies).tier;
-			}
-			species = new Species(id, name, data);
-			window.BattlePokedex[id] = species;
-		}
+			let item = new Item(id, name, data);
+			window.BattleItems[id] = item;
+			return item;
+		},
+	};
 
-		if (species.cosmeticFormes) {
-			for (const forme of species.cosmeticFormes) {
-				if (toID(forme) === formid) {
-					species = new Species(formid, name, {
-						...species,
-						name: forme,
-						forme: forme.slice(species.name.length + 1),
-						baseForme: "",
-						baseSpecies: species.name,
-						otherFormes: null,
-					});
-					window.BattlePokedexAltForms[formid] = species;
-					break;
+	abilities = {
+		get: (nameOrAbility: string | Ability | null | undefined): Ability => {
+			if (nameOrAbility && typeof nameOrAbility !== 'string') {
+				// TODO: don't accept Abilities here
+				return nameOrAbility;
+			}
+			let name = nameOrAbility || '';
+			let id = toID(nameOrAbility);
+			if (window.BattleAliases && id in BattleAliases) {
+				name = BattleAliases[id];
+				id = toID(name);
+			}
+			if (!window.BattleAbilities) window.BattleAbilities = {};
+			let data = window.BattleAbilities[id];
+			if (data && typeof data.exists === 'boolean') return data;
+			if (!data) data = {exists: false};
+			let ability = new Ability(id, name, data);
+			window.BattleAbilities[id] = ability;
+			return ability;
+		},
+	};
+
+	species = {
+		get: (nameOrSpecies: string | Species | null | undefined): Species => {
+			if (nameOrSpecies && typeof nameOrSpecies !== 'string') {
+				// TODO: don't accept Species' here
+				return nameOrSpecies;
+			}
+			let name = nameOrSpecies || '';
+			let id = toID(nameOrSpecies);
+			let formid = id;
+			if (!window.BattlePokedexAltForms) window.BattlePokedexAltForms = {};
+			if (formid in window.BattlePokedexAltForms) return window.BattlePokedexAltForms[formid];
+			if (window.BattleAliases && id in BattleAliases) {
+				name = BattleAliases[id];
+				id = toID(name);
+			} else if (window.BattlePokedex && !(id in BattlePokedex) && window.BattleBaseSpeciesChart) {
+				for (const baseSpeciesId of BattleBaseSpeciesChart) {
+					if (formid.startsWith(baseSpeciesId)) {
+						id = baseSpeciesId;
+						break;
+					}
 				}
 			}
-		}
+			if (!window.BattlePokedex) window.BattlePokedex = {};
+			let data = window.BattlePokedex[id];
 
-		return species;
-	}
-
-	/** @deprecated */
-	getTier(pokemon: string, genNum = 8, mod?: string): string {
-		let species = this.getSpecies(pokemon);
-		if (genNum < 8) species = this.forGen(genNum).getSpecies(pokemon);
-		let table = window.BattleTeambuilderTable;
-		if (!table) return species.tier;
-		if (mod === 'doubles') {
-			table = table[`gen${genNum}doubles`];
-		} else if (genNum < 8) {
-			table = table[`gen${genNum}`];
-		} else if (mod && table[toID(mod)]) {
-			table = table[toID(mod)];
-		}
-
-		if (!table.overrideTier) return species.tier;
-
-		let id = species.id;
-		if (id in table.overrideTier) {
-			return table.overrideTier[id];
-		}
-
-		return species.tier;
-	}
-
-	getType(type: any): Effect & {damageTaken?: AnyObject, HPivs?: Partial<StatsTable>, HPdvs: Partial<StatsTable>} {
-		if (!type || typeof type === 'string') {
-			let id = toID(type) as string;
-			id = id.substr(0, 1).toUpperCase() + id.substr(1);
-			type = (window.BattleTypeChart && window.BattleTypeChart[id]) || {};
-			if (type.damageTaken) type.exists = true;
-			if (!type.id) type.id = id;
-			if (!type.name) type.name = id;
-			if (!type.effectType) {
-				type.effectType = 'Type';
+			let species: Species;
+			if (data && typeof data.exists === 'boolean') {
+				species = data;
+			} else {
+				if (!data) data = {exists: false};
+				if (!data.tier && id.slice(-5) === 'totem') {
+					data.tier = this.species.get(id.slice(0, -5)).tier;
+				}
+				if (!data.tier && data.baseSpecies && toID(data.baseSpecies) !== id) {
+					data.tier = this.species.get(data.baseSpecies).tier;
+				}
+				species = new Species(id, name, data);
+				window.BattlePokedex[id] = species;
 			}
-		}
-		return type;
-	}
+
+			if (species.cosmeticFormes) {
+				for (const forme of species.cosmeticFormes) {
+					if (toID(forme) === formid) {
+						species = new Species(formid, name, {
+							...species,
+							name: forme,
+							forme: forme.slice(species.name.length + 1),
+							baseForme: "",
+							baseSpecies: species.name,
+							otherFormes: null,
+						});
+						window.BattlePokedexAltForms[formid] = species;
+						break;
+					}
+				}
+			}
+
+			return species;
+		},
+	};
+
+	types = {
+		allCache: null as Type[] | null,
+		get: (type: any): Type => {
+			if (!type || typeof type === 'string') {
+				const id = toID(type) as string;
+				const name = id.substr(0, 1).toUpperCase() + id.substr(1);
+				type = (window.BattleTypeChart && window.BattleTypeChart[id]) || {};
+				if (type.damageTaken) type.exists = true;
+				if (!type.id) type.id = id;
+				if (!type.name) type.name = name;
+				if (!type.effectType) {
+					type.effectType = 'Type';
+				}
+			}
+			return type;
+		},
+		all: (): readonly Type[] => {
+			if (this.types.allCache) return this.types.allCache;
+			const types = [];
+			for (const id in (window.BattleTypeChart || {})) {
+				types.push(Dex.types.get(id));
+			}
+			if (types.length) this.types.allCache = types;
+			return types;
+		},
+		isName: (name: string | null): boolean => {
+			const id = toID(name);
+			if (name !== id.substr(0, 1).toUpperCase() + id.substr(1)) return false;
+			return (window.BattleTypeChart || {}).hasOwnProperty(id);
+		},
+	};
 
 	hasAbility(species: Species, ability: string) {
 		for (const i in species.abilities) {
@@ -498,7 +499,7 @@ const Dex = new class implements ModdedDex {
 			if (pokemon.volatiles.dynamax) isDynamax = true;
 			pokemon = pokemon.getSpeciesForme();
 		}
-		const species = this.getSpecies(pokemon);
+		const species = this.species.get(pokemon);
 		// Gmax sprites are already extremely large, so we don't need to double.
 		if (species.name.endsWith('-Gmax')) isDynamax = false;
 		let spriteData = {
@@ -691,12 +692,17 @@ const Dex = new class implements ModdedDex {
 		} else if (window.BattlePokedex?.[id]?.num) {
 			num = BattlePokedex[id].num;
 		}
-		if (num < 0) num = 0;
-		if (num > 69000 && num <= 69386) { // TODO: Remove Clover-specific logic
+		
+		if (num > 69000 && num <= 69386) { // Clovermons
 			num = 1379 + num % 69000;
+		} else if (num < -42000 && num >= -42012) { // Clover CAP memes
+			num = 1379 + (33 * 12) + Math.abs(num % 42000);
+		} else if (num > 42000 && num <= 42999) { // Clover CAPmons
+			num = 1379 + (34 * 12) + num % 42000;
 		} else if (num > 898) {
 			num = 0;
 		}
+		if (num < 0) num = 0;
 
 		if (window.BattlePokemonIconIndexes?.[id]) {
 			num = BattlePokemonIconIndexes[id];
@@ -749,7 +755,7 @@ const Dex = new class implements ModdedDex {
 	getTeambuilderSpriteData(pokemon: any, gen: number = 0): TeambuilderSpriteData {
 		let id = toID(pokemon.species);
 		let spriteid = pokemon.spriteid;
-		let species = this.getSpecies(pokemon.species);
+		let species = this.species.get(pokemon.species);
 		if (pokemon.species && !spriteid) {
 			spriteid = species.spriteid || toID(pokemon.species);
 		}
@@ -810,7 +816,7 @@ const Dex = new class implements ModdedDex {
 	}
 
 	getTypeIcon(type: string | null, b?: boolean) { // b is just for utilichart.js
-		type = this.getType(type).name;
+		type = this.types.get(type).name;
 		if (!type) type = '???';
 		let sanitizedType = type.replace(/\?/g, '%3f');
 		return `<img src="${this.resourcePrefix}sprites/types/${sanitizedType}.png" alt="${type}" height="14" width="32" class="pixelated${b ? ' b' : ''}" />`;
@@ -859,147 +865,149 @@ class ModdedDex {
 		this.gen = gen;
 		this.modid = modid;
 	}
-	getMove(name: string): Move {
-		let id = toID(name);
-		if (window.BattleAliases && id in BattleAliases) {
-			name = BattleAliases[id];
-			id = toID(name);
-		}
-		if (this.cache.Moves.hasOwnProperty(id)) return this.cache.Moves[id];
-
-		let data = {...Dex.getMove(name)};
-
-		const table = window.BattleTeambuilderTable[this.modid];
-		if (id in table.overrideAcc) data.accuracy = table.overrideAcc[id];
-		if (id in table.overrideBP) data.basePower = table.overrideBP[id];
-		if (id in table.overridePP) data.pp = table.overridePP[id];
-		if (id in table.overrideMoveType) data.type = table.overrideMoveType[id];
-		if (id in table.overrideMoveIsNonstandard) data.isNonstandard = table.overrideMoveIsNonstandard[id];
-		for (let i = this.gen; i < 8; i++) {
-			if (id in window.BattleTeambuilderTable['gen' + i].overrideMoveDesc) {
-				data.shortDesc = window.BattleTeambuilderTable['gen' + i].overrideMoveDesc[id];
-				break;
+	moves = {
+		get: (name: string): Move => {
+			let id = toID(name);
+			if (window.BattleAliases && id in BattleAliases) {
+				name = BattleAliases[id];
+				id = toID(name);
 			}
-		}
-		if (this.gen <= 3 && data.category !== 'Status') {
-			data.category = Dex.getGen3Category(data.type);
-		}
+			if (this.cache.Moves.hasOwnProperty(id)) return this.cache.Moves[id];
 
-		const move = new Move(id, name, data);
-		this.cache.Moves[id] = move;
-		return move;
-	}
-	getItem(name: string): Item {
-		let id = toID(name);
-		if (window.BattleAliases && id in BattleAliases) {
-			name = BattleAliases[id];
-			id = toID(name);
-		}
-		if (this.cache.Items.hasOwnProperty(id)) return this.cache.Items[id];
+			let data = {...Dex.moves.get(name)};
 
-		let data = {...Dex.getItem(name)};
-
-		for (let i = this.gen; i < 8; i++) {
-			if (id in window.BattleTeambuilderTable['gen' + i].overrideItemDesc) {
-				data.shortDesc = window.BattleTeambuilderTable['gen' + i].overrideItemDesc[id];
-				break;
+			const table = window.BattleTeambuilderTable[this.modid];
+			if (id in table.overrideAcc) data.accuracy = table.overrideAcc[id];
+			if (id in table.overrideBP) data.basePower = table.overrideBP[id];
+			if (id in table.overridePP) data.pp = table.overridePP[id];
+			if (id in table.overrideMoveType) data.type = table.overrideMoveType[id];
+			if (id in table.overrideMoveIsNonstandard) data.isNonstandard = table.overrideMoveIsNonstandard[id];
+			for (let i = this.gen; i < 8; i++) {
+				if (id in window.BattleTeambuilderTable['gen' + i].overrideMoveDesc) {
+					data.shortDesc = window.BattleTeambuilderTable['gen' + i].overrideMoveDesc[id];
+					break;
+				}
 			}
-		}
 
-		const item = new Item(id, name, data);
-		this.cache.Items[id] = item;
-		return item;
-	}
-	getAbility(name: string): Ability {
-		let id = toID(name);
-		if (window.BattleAliases && id in BattleAliases) {
-			name = BattleAliases[id];
-			id = toID(name);
-		}
-		if (this.cache.Abilities.hasOwnProperty(id)) return this.cache.Abilities[id];
+			const move = new Move(id, name, data);
+			this.cache.Moves[id] = move;
+			return move;
+		},
+	};
 
-		let data = {...Dex.getAbility(name)};
-
-		for (let i = this.gen; i < 8; i++) {
-			if (id in window.BattleTeambuilderTable['gen' + i].overrideAbilityDesc) {
-				data.shortDesc = window.BattleTeambuilderTable['gen' + i].overrideAbilityDesc[id];
-				break;
+	items = {
+		get: (name: string): Item => {
+			let id = toID(name);
+			if (window.BattleAliases && id in BattleAliases) {
+				name = BattleAliases[id];
+				id = toID(name);
 			}
-		}
+			if (this.cache.Items.hasOwnProperty(id)) return this.cache.Items[id];
 
-		const ability = new Ability(id, name, data);
-		this.cache.Abilities[id] = ability;
-		return ability;
-	}
-	getSpecies(name: string): Species {
-		let id = toID(name);
-		if (window.BattleAliases && id in BattleAliases) {
-			name = BattleAliases[id];
-			id = toID(name);
-		}
-		if (this.cache.Species.hasOwnProperty(id)) return this.cache.Species[id];
+			let data = {...Dex.items.get(name)};
 
-		let data = {...Dex.getSpecies(name)};
-
-		const table = window.BattleTeambuilderTable[this.modid];
-		if (this.gen < 3) {
-			data.abilities = {0: "None"};
-		} else {
-			let abilities = {...data.abilities};
-			if (id in table.overrideAbility) {
-				abilities['0'] = table.overrideAbility[id];
+			for (let i = this.gen; i < 8; i++) {
+				const table = window.BattleTeambuilderTable['gen' + i];
+				if (id in table.overrideItemDesc) {
+					data.shortDesc = table.overrideItemDesc[id];
+					break;
+				}
 			}
-			if (id in table.removeSecondAbility) {
-				delete abilities['1'];
+
+			const item = new Item(id, name, data);
+			this.cache.Items[id] = item;
+			return item;
+		},
+	};
+
+	abilities = {
+		get: (name: string): Ability => {
+			let id = toID(name);
+			if (window.BattleAliases && id in BattleAliases) {
+				name = BattleAliases[id];
+				id = toID(name);
 			}
-			if (id in table.overrideHiddenAbility) {
-				abilities['H'] = table.overrideHiddenAbility[id];
+			if (this.cache.Abilities.hasOwnProperty(id)) return this.cache.Abilities[id];
+
+			let data = {...Dex.abilities.get(name)};
+
+			for (let i = this.gen; i < 8; i++) {
+				const table = window.BattleTeambuilderTable['gen' + i];
+				if (id in table.overrideAbilityDesc) {
+					data.shortDesc = table.overrideAbilityDesc[id];
+					break;
+				}
 			}
-			if (this.gen < 5) delete abilities['H'];
-			if (this.gen < 7) delete abilities['S'];
 
-			data.abilities = abilities;
-		}
-		if (id in table.overrideStats) {
-			data.baseStats = {...data.baseStats, ...table.overrideStats[id]};
-		}
-		if (id in table.overrideType) data.types = table.overrideType[id].split('/');
+			const ability = new Ability(id, name, data);
+			this.cache.Abilities[id] = ability;
+			return ability;
+		},
+	};
 
-		if (id in table.overrideTier) data.tier = table.overrideTier[id];
-		if (!data.tier && id.slice(-5) === 'totem') {
-			data.tier = this.getSpecies(id.slice(0, -5)).tier;
-		}
-		if (!data.tier && data.baseSpecies && toID(data.baseSpecies) !== id) {
-			data.tier = this.getSpecies(data.baseSpecies).tier;
-		}
-		if (data.gen > this.gen) data.tier = 'Illegal';
-
-		const species = new Species(id, name, data);
-		this.cache.Species[id] = species;
-		return species;
-	}
-	getType(name: string): Effect {
-		let id = toID(name) as string;
-		id = id.substr(0, 1).toUpperCase() + id.substr(1);
-
-		if (this.cache.Types.hasOwnProperty(id)) return this.cache.Types[id];
-
-		let data = {...Dex.getType(name)};
-
-		for (let i = 7; i >= this.gen; i--) {
-			if (id in window.BattleTeambuilderTable['gen' + i].removeType) {
-				data.exists = false;
-				// don't bother correcting its attributes given it doesn't exist
-				break;
+	species = {
+		get: (name: string): Species => {
+			let id = toID(name);
+			if (window.BattleAliases && id in BattleAliases) {
+				name = BattleAliases[id];
+				id = toID(name);
 			}
-			if (id in window.BattleTeambuilderTable['gen' + i].overrideTypeChart) {
-				data = {...data, ...window.BattleTeambuilderTable['gen' + i].overrideTypeChart[id]};
-			}
-		}
+			if (this.cache.Species.hasOwnProperty(id)) return this.cache.Species[id];
 
-		this.cache.Types[id] = data;
-		return data;
-	}
+			let data = {...Dex.species.get(name)};
+
+			for (let i = Dex.gen - 1; i >= this.gen; i--) {
+				const table = window.BattleTeambuilderTable[`gen${i}`];
+				if (id in table.overrideSpeciesData) {
+					Object.assign(data, table.overrideSpeciesData[id]);
+				}
+			}
+			if (this.gen < 3) {
+				data.abilities = {0: "None"};
+			}
+
+			const table = window.BattleTeambuilderTable[this.modid];
+			if (id in table.overrideTier) data.tier = table.overrideTier[id];
+			if (!data.tier && id.slice(-5) === 'totem') {
+				data.tier = this.species.get(id.slice(0, -5)).tier;
+			}
+			if (!data.tier && data.baseSpecies && toID(data.baseSpecies) !== id) {
+				data.tier = this.species.get(data.baseSpecies).tier;
+			}
+			if (data.gen > this.gen) data.tier = 'Illegal';
+
+			const species = new Species(id, name, data);
+			this.cache.Species[id] = species;
+			return species;
+		},
+	};
+
+	types = {
+		get: (name: string): Effect => {
+			const id = toID(name) as ID;
+			name = id.substr(0, 1).toUpperCase() + id.substr(1);
+
+			if (this.cache.Types.hasOwnProperty(id)) return this.cache.Types[id];
+
+			let data = {...Dex.types.get(name)};
+
+			for (let i = 7; i >= this.gen; i--) {
+				const table = window.BattleTeambuilderTable['gen' + i];
+				if (id in table.removeType) {
+					data.exists = false;
+					// don't bother correcting its attributes given it doesn't exist
+					break;
+				}
+				if (id in table.overrideTypeChart) {
+					data = {...data, ...table.overrideTypeChart[id]};
+				}
+			}
+
+			this.cache.Types[id] = data;
+			return data;
+		},
+	};
+
 	getPokeballs() {
 		if (this.pokeballs) return this.pokeballs;
 		this.pokeballs = [];

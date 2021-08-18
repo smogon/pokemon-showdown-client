@@ -14,6 +14,7 @@ License: GPLv2
 	left: -1px;
 	border: 1px solid #AAAAAA;
 	background: #CFD5DA;
+	color: black;
 	width: 640px;
 	height: 360px;
 	overflow: hidden;
@@ -315,11 +316,22 @@ License: GPLv2
 	position: absolute;
 	left: 0;
 	right: 0;
-	bottom: 102px;
+	bottom: 75px;
 }
-.rightbar .trainer {
+
+.trainer-near {
+	bottom: 75px;
+}
+.trainer-far {
 	bottom: 232px;
 }
+.trainer-near2 {
+	bottom: 232px;
+}
+.trainer-far2 {
+	bottom: 75px;
+}
+
 .trainer strong {
 	display: block;
 	font-size: 8pt;
@@ -334,8 +346,9 @@ License: GPLv2
 	background: transparent none no-repeat scroll center top;
 }
 .trainer div.teamicons {
-	width: 96px;
+	width: 100px;
 	height: 30px;
+	margin: 0 0 0 2px;
 }
 .teamicons span {
 	float: left;

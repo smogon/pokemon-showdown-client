@@ -210,6 +210,14 @@ class BattleLog {
 			divHTML = '<div class="chat"><small style="color:#999">[DEBUG] ' + BattleLog.escapeHTML(args[1]) + '.</small></div>';
 			break;
 
+		case 'notify':
+			const title = args[1];
+			const body = args[2];
+			const roomid = this.scene?.battle.roomid;
+			if (!roomid) break;
+			app.rooms[roomid].notifyOnce(title, body, 'highlight');
+			break;
+
 		case 'seed': case 'choice': case ':': case 'timer': case 't:':
 		case 'J': case 'L': case 'N': case 'spectator': case 'spectatorleave':
 		case 'initdone':
@@ -457,6 +465,9 @@ class BattleLog {
 		}
 		if (window.BattleFormats && BattleFormats[formatid]) {
 			return this.escapeHTML(BattleFormats[formatid].name);
+		}
+		if (window.NonBattleGames && NonBattleGames[formatid]) {
+			return this.escapeHTML(NonBattleGames[formatid]);
 		}
 		return this.escapeHTML(formatid);
 	}
@@ -706,6 +717,7 @@ class BattleLog {
 			spotify: 0,
 			youtube: 0,
 			twitch: 0,
+			badge: 0,
 		});
 
 		// By default, Caja will ban any attributes it doesn't recognize.
@@ -728,10 +740,14 @@ class BattleLog {
 			'psicon::type': 0,
 			'psicon::category': 0,
 			'username::name': 0,
-			'form::data-send': 0,
+			'form::data-submitsend': 0,
 			'button::data-send': 0,
+			'form::data-delimiter': 0,
+			'button::data-delimiter': 0,
 			'*::aria-label': 0,
 			'*::aria-hidden': 0,
+			'badge::badgefilename': 0,
+			'badge::badgename': 0,
 		});
 
 		// Caja unfortunately doesn't document how `tagPolicy` works, so
@@ -805,11 +821,13 @@ class BattleLog {
 				// <iframe src="https://player.twitch.tv/?channel=ninja&parent=www.example.com" allowfullscreen="true" height="378" width="620"></iframe>
 				const src = getAttrib('src') || "";
 				const channelId = /(https?:\/\/)?twitch.tv\/([A-Za-z0-9]+)/i.exec(src)?.[2];
+				const height = parseInt(getAttrib('height') || "", 10) || 400;
+				const width = parseInt(getAttrib('width') || "", 10) || 340;
 				return {
 					tagName: 'iframe',
 					attribs: [
-						'src', `https://player.twitch.tv/?channel=${channelId}&parent=${location.hostname}`,
-						'allowfullscreen', 'true', 'height', "400", 'width', "340",
+						'src', `https://player.twitch.tv/?channel=${channelId}&parent=${location.hostname}&autoplay=false`,
+						'allowfullscreen', 'true', 'height', `${height}`, 'width', `${width}`,
 					],
 				};
 			} else if (tagName === 'username') {
@@ -841,9 +859,15 @@ class BattleLog {
 				const videoId = /(?:\?v=|\/embed\/)([A-Za-z0-9_\-]+)/.exec(src)?.[1];
 				if (!videoId) return {tagName: 'img', attribs: ['alt', `invalid src for <youtube>`]};
 
+				const time = /(?:\?|&)(?:t|start)=([0-9]+)/.exec(src)?.[1];
+
 				return {
 					tagName: 'iframe',
-					attribs: ['width', width, 'height', height, 'src', `https://www.youtube.com/embed/${videoId}`, 'frameborder', '0', 'allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture', 'allowfullscreen', 'allowfullscreen'],
+					attribs: [
+						'width', width, 'height', height,
+						'src', `https://www.youtube.com/embed/${videoId}${time ? `?start=${time}` : ''}`,
+						'frameborder', '0', 'allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture', 'allowfullscreen', 'allowfullscreen',
+					],
 				};
 			} else if (tagName === 'psicon') {
 				// <psicon> is a custom element which supports a set of mutually incompatible attributes:
@@ -874,6 +898,23 @@ class BattleLog {
 						tagName = Dex.getCategoryIcon(iconValue).slice(1, -3);
 					}
 				}
+			} else if (tagName === 'badge') {
+				const badgeFileName = getAttrib('badgefilename') || '';
+				const badgeName = getAttrib('badgename') || '';
+				const protocol = Config.server.https ? 'https' : 'http';
+				const port = Config.server.https ? Config.server.port : Config.server.httpport;
+				const badgeSrc = protocol + '://' + Config.server.host + ':' + port +
+					'/badges/' + encodeURIComponent(badgeFileName).replace(/\%3F/g, '?');
+				return {
+					tagName: 'img',
+					attribs: [
+						'class', 'userbadge',
+						'width', 16, 'height', 16,
+						'src', badgeSrc,
+						'title', badgeName,
+						'alt', badgeName,
+					],
+				};
 			}
 
 			attribs = html.sanitizeAttribs(tagName, attribs, (urlData: any) => {
@@ -884,7 +925,7 @@ class BattleLog {
 			if (dataUri && tagName === 'img') {
 				setAttrib('src', dataUri);
 			}
-			if (tagName === 'a' || tagName === 'form') {
+			if (tagName === 'a' || (tagName === 'form' && !getAttrib('data-submitsend'))) {
 				if (targetReplace) {
 					setAttrib('data-target', 'replace');
 					deleteAttrib('target');

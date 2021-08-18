@@ -5,7 +5,9 @@
  * @license AGPLv3
  */
 
-type RoomInfo = {title: string, desc?: string, userCount?: number, subRooms?: string[]};
+type RoomInfo = {
+	title: string, desc?: string, userCount?: number, section?: string, spotlight?: string, subRooms?: string[],
+};
 
 class MainMenuRoom extends PSRoom {
 	readonly classType: string = 'mainmenu';
@@ -14,14 +16,14 @@ class MainMenuRoom extends PSRoom {
 		avatar?: string | number,
 		status?: string,
 		group?: string,
+		customgroup?: string,
 		rooms?: {[roomid: string]: {isPrivate?: true, p1?: string, p2?: string}},
 	}} = {};
 	roomsCache: {
 		battleCount?: number,
 		userCount?: number,
 		chat?: RoomInfo[],
-		official?: RoomInfo[],
-		pspl?: RoomInfo[],
+		sectionTitles?: string[],
 	} = {};
 	receiveLine(args: Args) {
 		const [cmd] = args;
@@ -94,6 +96,7 @@ class MainMenuRoom extends PSRoom {
 
 		let column = 0;
 
+		window.NonBattleGames = {rps: 'Rock Paper Scissors'};
 		window.BattleFormats = {};
 		for (let j = 1; j < formatsList.length; j++) {
 			const entry = formatsList[j];
@@ -241,6 +244,16 @@ class MainMenuRoom extends PSRoom {
 			if (userRoom) userRoom.update(null);
 			break;
 		case 'rooms':
+			if (response.pspl) {
+				for (const roomInfo of response.pspl) roomInfo.spotlight = "Spotlight";
+				response.chat = [...response.pspl, ...response.chat];
+				response.pspl = null;
+			}
+			if (response.official) {
+				for (const roomInfo of response.official) roomInfo.section = "Official";
+				response.chat = [...response.official, ...response.chat];
+				response.official = null;
+			}
 			this.roomsCache = response;
 			const roomsRoom = PS.rooms[`rooms`] as RoomsRoom;
 			if (roomsRoom) roomsRoom.update(null);
@@ -387,75 +400,71 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
 }
 
 class FormatDropdown extends preact.Component<{format?: string, onChange?: JSX.EventHandler<Event>}> {
-	base?: HTMLButtonElement;
-	getFormat() {
-		return this.base?.value || '[Gen 7] Random Battle';
-	}
-	componentDidMount() {
-		this.base!.value = this.getFormat();
-	}
+	declare base?: HTMLButtonElement;
+	format = '[Gen 7] Random Battle';
 	change = (e: Event) => {
+		if (!this.base) return;
+		this.format = this.base.value;
 		this.forceUpdate();
 		if (this.props.onChange) this.props.onChange(e);
 	};
 	render() {
 		if (this.props.format) {
 			return <button
-				class="select formatselect preselected" name="format" value={this.props.format} disabled
+			name="format" value={this.props.format} class="select formatselect preselected" disabled
 			>{this.props.format}</button>;
 		}
-		const format = this.getFormat();
-		return <button class="select formatselect" name="format" data-href="/formatdropdown" onChange={this.change}>
-			{format}
+		return <button
+			name="format" value={this.format}
+			class="select formatselect" data-href="/formatdropdown" onChange={this.change}
+		>
+			{this.format}
 		</button>;
 	}
 }
 
 class TeamDropdown extends preact.Component<{format: string}> {
-	base?: HTMLButtonElement;
-	getTeam() {
-		if (this.base) {
-			const key = this.base.value;
-			return PS.teams.byKey[key] || null;
-		}
-		const formatid = PS.teams.teambuilderFormat(this.props.format);
+	teamFormat = '';
+	teamKey = '';
+	change = () => {
+		if (!this.base) return;
+		this.teamKey = (this.base as HTMLButtonElement).value;
+		this.forceUpdate();
+	};
+	getDefaultTeam(teambuilderFormat: string) {
 		for (const team of PS.teams.list) {
-			if (team.format === formatid) return team;
+			if (team.format === teambuilderFormat) return team.key;
 		}
-		return null;
+		return '';
 	}
-	componentDidMount() {
-		const team = this.getTeam();
-		if (team) {
-			this.base!.value = team.key;
-		}
-	}
-	change = () => this.forceUpdate();
 	render() {
-		const formatid = PS.teams.teambuilderFormat(this.props.format);
-		const formatData = window.BattleFormats?.[formatid];
+		const teamFormat = PS.teams.teambuilderFormat(this.props.format);
+		const formatData = window.BattleFormats?.[teamFormat];
 		if (formatData && formatData.team) {
 			return <button class="select teamselect preselected" name="team" value="random" disabled>
 				<div class="team">
 					<strong>Random team</strong>
 					<small>
-						<span class="picon" style={`float:left;background:transparent url(https://${Config.routes.client}/sprites/pokemonicons-sheet.png?a6) no-repeat scroll -0px -0px`}></span>
-						<span class="picon" style={`float:left;background:transparent url(https://${Config.routes.client}/sprites/pokemonicons-sheet.png?a6) no-repeat scroll -0px -0px`}></span>
-						<span class="picon" style={`float:left;background:transparent url(https://${Config.routes.client}/sprites/pokemonicons-sheet.png?a6) no-repeat scroll -0px -0px`}></span>
-						<span class="picon" style={`float:left;background:transparent url(https://${Config.routes.client}/sprites/pokemonicons-sheet.png?a6) no-repeat scroll -0px -0px`}></span>
-						<span class="picon" style={`float:left;background:transparent url(https://${Config.routes.client}/sprites/pokemonicons-sheet.png?a6) no-repeat scroll -0px -0px`}></span>
-						<span class="picon" style={`float:left;background:transparent url(https://${Config.routes.client}/sprites/pokemonicons-sheet.png?a6) no-repeat scroll -0px -0px`}></span>
+						<span class="picon" style={Dex.getPokemonIcon(null)}></span>
+						<span class="picon" style={Dex.getPokemonIcon(null)}></span>
+						<span class="picon" style={Dex.getPokemonIcon(null)}></span>
+						<span class="picon" style={Dex.getPokemonIcon(null)}></span>
+						<span class="picon" style={Dex.getPokemonIcon(null)}></span>
+						<span class="picon" style={Dex.getPokemonIcon(null)}></span>
 					</small>
 				</div>
 			</button>;
 		}
-		const team = this.getTeam();
-		let teambox = null;
-		if (PS.roomTypes['teamdropdown']) {
-			teambox = <TeamBox team={team} noLink />;
+		if (teamFormat !== this.teamFormat) {
+			this.teamFormat = teamFormat;
+			this.teamKey = this.getDefaultTeam(teamFormat);
 		}
-		return <button class="select teamselect" name="team" data-href="/teamdropdown" data-format={formatid} onChange={this.change}>
-			{teambox}
+		const team = PS.teams.byKey[this.teamKey] || null;
+		return <button
+			name="team" value={this.teamKey}
+			class="select teamselect" data-href="/teamdropdown" data-format={teamFormat} onChange={this.change}
+		>
+			{PS.roomTypes['teamdropdown'] && <TeamBox team={team} noLink />}
 		</button>;
 	}
 }

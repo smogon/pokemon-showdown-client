@@ -42,7 +42,7 @@ class BattleSceneStub {
 	runStatusAnim(moveid: ID, participants: Pokemon[]): void { }
 	startAnimations(): void { }
 	teamPreview(): void { }
-	teamPreviewEnd(): void { }
+	resetSides(): void { }
 	updateGen(): void { }
 	updateSidebar(side: Side): void { }
 	updateSidebars(): void { }
@@ -68,7 +68,6 @@ class BattleSceneStub {
 	anim(pokemon: Pokemon, end: ScenePos, transition?: string) { }
 	beforeMove(pokemon: Pokemon) { }
 	afterMove(pokemon: Pokemon) { }
-	updateSpritesForSide(side: Side) { }
 	unlink(userid: string, showRevealButton = false) { }
 }
 

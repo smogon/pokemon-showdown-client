@@ -19,7 +19,7 @@ $csrfOk = false;
 
 if (isset($_REQUEST['manage'])) {
 	require_once '../lib/ntbb-session.lib.php';
-	if ($curuser['group'] != 2 && $curuser['group'] != 6) die("access denied");
+	if (!$users->isLeader()) die("access denied");
 	$csrfOk = !!$users->csrfCheck();
 	$manage = true;
 	header('Cache-Control: max-age=0, no-cache, no-store, must-revalidate');
@@ -196,17 +196,15 @@ if (substr($replay['formatid'], -12) === 'randombattle' || substr($replay['forma
 <?php
 if ($panels->output === 'normal') {
 ?>
-<div><script type="text/javascript"><!--
+<div><script>
 google_ad_client = "ca-pub-6535472412829264";
 /* PS replay */
 google_ad_slot = "6865298132";
 google_ad_width = 728;
 google_ad_height = 90;
-//-->
 </script>
-<script type="text/javascript"
-src="//pagead2.googlesyndication.com/pagead/show_ads.js">
-</script></div>
+<script src="//pagead2.googlesyndication.com/pagead/show_ads.js"></script>
+</div>
 <?php
 }
 ?>

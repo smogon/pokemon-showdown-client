@@ -496,6 +496,11 @@ class ChatLog extends preact.Component<{
 			this.updateScroll();
 			return;
 		}
+		if (!controlsElem) {
+			controlsElem = document.createElement('div');
+			controlsElem.className = 'controls';
+			this.base!.appendChild(controlsElem);
+		}
 		preact.render(<div class="controls">{jsx}</div>, this.base!, controlsElem);
 		this.updateScroll();
 	}
