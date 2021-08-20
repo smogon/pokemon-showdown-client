@@ -736,6 +736,15 @@ class BattleTooltips {
 			if (move.flags.bite && ability === 'strongjaw') {
 				text += `<p class="movetag">&#x2713; Bite <small>(boosted by Strong Jaw)</small></p>`;
 			}
+			if (move.flags.blade && ability === 'blademaster') {
+				text += `<p class="movetag">&#x2713; Blade <small>(affected by Blademaster)</small></p>`;
+			}
+			if (move.flags.kick && ability === 'striker') {
+				text += `<p class="movetag">&#x2713; Kick <small>(affected by Striker)</small></p>`;
+			}
+			if (move.flags.bone && ['bonezone', 'bonerzoner'].includes(ability)) {
+				text += `<p class="movetag">&#x2713; Bone <small>(affected by Bone Zone)</small></p>`;
+			}
 			if ((move.recoil || move.hasCrashDamage) && ability === 'reckless') {
 				text += `<p class="movetag">&#x2713; Recoil <small>(boosted by Reckless)</small></p>`;
 			}
@@ -1026,7 +1035,7 @@ class BattleTooltips {
 		// check for light ball, thick club, metal/quick powder
 		// the only stat modifying items in gen 2 were light ball, thick club, metal powder
 		if (item === 'lightball') {
-			if (species === 'Pikachu') {
+			if (species === 'Pikachu' || species === 'Ampstar') {
 				if (this.battle.gen >= 4) stats.atk *= 2;
 				stats.spa *= 2;
 			} else if (species === 'Pikotton') {
@@ -1096,6 +1105,9 @@ class BattleTooltips {
 		}
 		if (ability === 'purepower' || ability === 'hugepower') {
 			stats.atk *= 2;
+		}
+		if (ability === 'bigbrain') {
+			stats.spa *= 2;
 		}
 		if (ability === 'hustle' || (ability === 'gorillatactics' && !clientPokemon?.volatiles['dynamax'])) {
 			stats.atk = Math.floor(stats.atk * 1.5);
@@ -1460,6 +1472,9 @@ class BattleTooltips {
 			value.weatherModify(0, 'Primordial Sea');
 		}
 		value.abilityModify(0, 'No Guard');
+		if (move.flags.kick) {
+			value.abilityModify(0, 'Striker');
+		}
 		if (!value.value) return value;
 
 		// OHKO moves don't use standard accuracy / evasion modifiers
@@ -1802,6 +1817,12 @@ class BattleTooltips {
 		}
 		if (move.flags['punch']) {
 			value.abilityModify(1.2, 'Iron Fist');
+		}
+		if (move.flags['kick']) {
+			value.abilityModify(1.2, 'Striker');
+		}
+		if (move.flags['blade']) {
+			value.abilityModify(1.2, 'Blademaster');
 		}
 		if (['hammerarm', 'dragonhammer', 'woodhammer', 'icehammer', 'crabhammer', 'banhammer'].includes(move.id)) {
 			value.abilityModify(1.2, 'Admin Abuse');
