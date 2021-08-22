@@ -1428,7 +1428,7 @@
 					if (playerElements.length === 2) {
 						playerList = playerElements[0] + ' and ' + playerElements[1];
 					} else {
-						var allButLast = playerElments.slice(0, -1);
+						var allButLast = playerElements.slice(0, -1);
 						var last = slice(-1);
 						playerList = allButLast.join(', ');
 						playerList += ' and ' + last;
