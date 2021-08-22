@@ -688,7 +688,7 @@ class Side {
 			this.sideConditions[condition] = [effect.name, 1, this.battle.gen >= 5 ? 4 : 3, 0];
 			break;
 		case 'backdraft':
-			this.sideConditions[condition] = [effect.name, 1, 2, 2];
+			this.sideConditions[condition] = [effect.name, 1, 2, 0];
 			break;
 		case 'luckychant':
 			this.sideConditions[condition] = [effect.name, 1, 5, 0];
