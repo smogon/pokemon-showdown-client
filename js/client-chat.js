@@ -1429,7 +1429,7 @@
 						playerList = playerElements[0] + ' and ' + playerElements[1];
 					} else {
 						var allButLast = playerElements.slice(0, -1);
-						var last = slice(-1);
+						var last = playerElements.slice(-1);
 						playerList = allButLast.join(', ');
 						playerList += ' and ' + last;
 					}
