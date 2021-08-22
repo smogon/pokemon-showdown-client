@@ -1216,6 +1216,9 @@ class BattleTooltips {
 		if (sideConditions['tailwind']) {
 			speedModifiers.push(2);
 		}
+		if (sideConditions['backdraft']) {
+			speedModifiers.push(2);
+		}
 		if (sideConditions['grasspledge']) {
 			speedModifiers.push(0.25);
 		}

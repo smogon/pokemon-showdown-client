@@ -687,6 +687,9 @@ class Side {
 		case 'tailwind':
 			this.sideConditions[condition] = [effect.name, 1, this.battle.gen >= 5 ? 4 : 3, 0];
 			break;
+		case 'backdraft':
+			this.sideConditions[condition] = [effect.name, 1, 2, 2];
+			break;
 		case 'luckychant':
 			this.sideConditions[condition] = [effect.name, 1, 5, 0];
 			break;
@@ -2851,6 +2854,7 @@ class Battle {
 
 			switch (effect.id) {
 			case 'tailwind':
+			case 'backdraft':
 			case 'auroraveil':
 			case 'reflect':
 			case 'lightscreen':
