@@ -901,9 +901,10 @@ class BattleLog {
 			} else if (tagName === 'badge') {
 				const badgeFileName = getAttrib('badgefilename') || '';
 				const badgeName = getAttrib('badgename') || '';
-				const protocol = Config.server.https ? 'https' : 'http';
-				const port = Config.server.https ? Config.server.port : Config.server.httpport;
-				const badgeSrc = protocol + '://' + Config.server.host + ':' + port +
+				const server = Config.server || Config.defaultserver;
+				const protocol = server.https ? 'https' : 'http';
+				const port = server.https ? server.port : server.httpport;
+				const badgeSrc = protocol + '://' + server.host + ':' + port +
 					'/badges/' + encodeURIComponent(badgeFileName).replace(/\%3F/g, '?');
 				return {
 					tagName: 'img',

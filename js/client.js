@@ -2617,9 +2617,10 @@ function toId() {
 			if (badges && badges.length) {
 				let badgeBuffer = '<span class="userbadges">';
 				badges.forEach((badge) => {
-					const protocol = Config.server.https ? 'https' : 'http';
-					const port = Config.server.https ? Config.server.port : Config.server.httpport;
-					const badgeSrc = protocol + '://' + Config.server.host + ':' + port +
+					const server = Config.server || Config.defaultserver;
+					const protocol = server.https ? 'https' : 'http';
+					const port = server.https ? server.port : server.httpport;
+					const badgeSrc = protocol + '://' + server.host + ':' + port +
 						'/badges/' + encodeURIComponent(badge.file_name).replace(/\%3F/g, '?');
 					badgeBuffer += '<img class="userbadge" height="16" width="16" alt="' + badge.badge_name + '" title="' + badge.badge_name + '" src="' + badgeSrc + '" />';
 				});
