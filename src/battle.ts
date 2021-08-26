@@ -3215,19 +3215,16 @@ export class Battle {
 			this.gameType = args[1] as any;
 			switch (args[1]) {
 			case 'multi':
-			case 'freeforall':
 				this.pokemonControlled = 1;
 				if (!this.p3) this.p3 = new Side(this, 2);
 				if (!this.p4) this.p4 = new Side(this, 3);
 				this.p3.foe = this.p2;
 				this.p4.foe = this.p1;
 
-				if (args[1] === 'multi') {
-					this.p4.ally = this.p2;
-					this.p3.ally = this.p1;
-					this.p1.ally = this.p3;
-					this.p2.ally = this.p4;
-				}
+				this.p4.ally = this.p2;
+				this.p3.ally = this.p1;
+				this.p1.ally = this.p3;
+				this.p2.ally = this.p4;
 
 				this.p3.isFar = this.p1.isFar;
 				this.p4.isFar = this.p2.isFar;
@@ -3235,6 +3232,21 @@ export class Battle {
 				// intentionally sync p1/p3 and p2/p4's active arrays
 				this.p1.active = this.p3.active = [null, null];
 				this.p2.active = this.p4.active = [null, null];
+				break;
+			case 'freeforall':
+				this.pokemonControlled = 1;
+				if (!this.p3) this.p3 = new Side(this, 2);
+				if (!this.p4) this.p4 = new Side(this, 3);
+				this.p3.foe = this.p2;
+				this.p4.foe = this.p1;
+				this.p3.isFar = this.p1.isFar;
+				this.p4.isFar = this.p2.isFar;
+				this.sides = [this.p1, this.p2, this.p3, this.p4];
+				// intentionally sync p1/p3 and p2/p4's active arrays
+				this.p1.active = [null, null];
+				this.p2.active = [null, null];
+				this.p3.active = [null, null];
+				this.p4.active = [null, null];
 				break;
 			case 'doubles':
 				this.nearSide.active = [null, null];

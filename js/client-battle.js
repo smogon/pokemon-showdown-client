@@ -335,7 +335,7 @@
 			if (this.request) {
 				// TODO: investigate when to do this
 				this.updateSide();
-				if (this.request.ally && this.room.gameType !== 'freeforall') {
+				if (this.request.ally) {
 					this.addAlly(this.request.ally);
 				}
 
