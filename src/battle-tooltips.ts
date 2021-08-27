@@ -1780,10 +1780,8 @@ class BattleTooltips {
 		if (move.category !== 'Status') {
 			let auraBoosted = '';
 			let auraBroken = false;
-			for (const ally of pokemon.side.active.filter(active => {
-					return this.battle.gameType === 'freeforall' && active.side !== pokemon.side;
-			})) {
-				if (!ally || ally.fainted) continue;
+			for (const ally of pokemon.side.active) {
+				if (!ally || ally.fainted || (this.battle.gameType === 'freeforall' && ally.side !== pokemon.side)) continue;
 				let allyAbility = this.getAllyAbility(ally);
 				if (moveType === 'Fairy' && allyAbility === 'Fairy Aura') {
 					auraBoosted = 'Fairy Aura';
