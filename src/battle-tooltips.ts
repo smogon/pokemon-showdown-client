@@ -1091,7 +1091,7 @@ class BattleTooltips {
 					if (ability === 'solarpower') {
 						stats.spa = Math.floor(stats.spa * 1.5);
 					}
-					let allyActive = clientPokemon?.side.active;
+					let allyActive = this.battle.gameType !== 'freeforall' ? clientPokemon?.side.active : clientPokemon?.side.pokemon;
 					if (allyActive) {
 						for (const ally of allyActive) {
 							if (!ally || ally.fainted) continue;
@@ -1149,7 +1149,7 @@ class BattleTooltips {
 		}
 		if (clientPokemon && (ability === 'plus' || ability === 'minus')) {
 			let allyActive = clientPokemon.side.active;
-			if (allyActive.length > 1) {
+			if (allyActive.length > 1 && this.battle.gameType !== 'freeforall') {
 				let abilityName = (ability === 'plus' ? 'Plus' : 'Minus');
 				for (const ally of allyActive) {
 					if (!ally || ally === clientPokemon || ally.fainted) continue;
@@ -1466,7 +1466,7 @@ class BattleTooltips {
 		}
 
 		for (const active of pokemon.side.active) {
-			if (!active || active.fainted) continue;
+			if (!active || active.fainted || (this.battle.gameType === 'freeforall' && active.side !== pokemon.side)) continue;
 			const ability = this.getAllyAbility(active);
 			if (ability === 'Victory Star') {
 				accuracyModifiers.push(4506);
@@ -1780,7 +1780,9 @@ class BattleTooltips {
 		if (move.category !== 'Status') {
 			let auraBoosted = '';
 			let auraBroken = false;
-			for (const ally of pokemon.side.active) {
+			for (const ally of pokemon.side.active.filter(active => {
+                return this.battle.gameType === 'freeforall' && active.side !== pokemon.side;
+            })) {
 				if (!ally || ally.fainted) continue;
 				let allyAbility = this.getAllyAbility(ally);
 				if (moveType === 'Fairy' && allyAbility === 'Fairy Aura') {
@@ -1970,7 +1972,7 @@ class BattleTooltips {
 		let allyAbility = Dex.abilities.get(ally.ability).name;
 		// otherwise fall back on the original set data sent from the server
 		if (!allyAbility) {
-			if (this.battle.myAllyPokemon) { // multi battle ally
+			if (this.battle.myAllyPokemon && this.battle.gameType !== 'freeforall') { // multi battle ally
 				allyAbility = Dex.abilities.get(this.battle.myAllyPokemon[ally.slot].ability).name;
 			} else if (this.battle.myPokemon) {
 				allyAbility = Dex.abilities.get(this.battle.myPokemon[ally.slot].ability).name;
