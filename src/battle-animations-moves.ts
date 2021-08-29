@@ -38439,3 +38439,5 @@ BattleMoveAnims['brutalpunishment'] = {anim: BattleMoveAnims['brutalswing'].anim
 BattleMoveAnims['shinestrike'] = {anim: BattleMoveAnims['featherdance'].anim};
 BattleMoveAnims['finalhour'] = {anim: BattleMoveAnims['doomdesire'].anim};
 BattleMoveAnims['medsnow'] = {anim: BattleMoveAnims['dailydose'].anim};
+
+BattleMoveAnims['matingpress'] = {anim: BattleMoveAnims['letssnuggleforever'].anim};
