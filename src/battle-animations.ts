@@ -605,10 +605,7 @@ class BattleScene {
 		if (speciesOverage) {
 			for (let i = 0; i < side.pokemon.length; i++) {
 				const species = side.pokemon[i].getBaseSpecies().baseSpecies;
-				if (side.pokemon[i].spawned) {
-					sidebarIcons.push(['pokemon', i]);
-					speciesTable.push(species);
-				} else if (speciesOverage && speciesTable.includes(species)) {
+				if (speciesOverage && speciesTable.includes(species)) {
 					for (const sidebarIcon of sidebarIcons) {
 						if (side.pokemon[sidebarIcon[1]!].getBaseSpecies().baseSpecies === species) {
 							sidebarIcon[0] = 'pokemon-illusion';

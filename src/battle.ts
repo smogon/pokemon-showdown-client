@@ -77,7 +77,6 @@ class Pokemon implements PokemonDetails, PokemonHealth {
 	level = 100;
 	gender: GenderName = 'N';
 	shiny = false;
-	spawned = false;
 
 	hpcolor: HPColor = 'g';
 	moves: string[] = [];
@@ -113,7 +112,6 @@ class Pokemon implements PokemonDetails, PokemonHealth {
 		this.gender = data.gender || 'N';
 		this.ident = data.ident;
 		this.searchid = data.searchid;
-		this.spawned = data.spawned;
 
 		this.sprite = side.battle.scene.addPokemonSprite(this);
 	}
@@ -948,7 +946,6 @@ interface PokemonDetails {
 	gender: GenderName | '';
 	ident: string;
 	searchid: string;
-	spawned: boolean;
 }
 interface PokemonHealth {
 	hp: number;
@@ -3020,10 +3017,6 @@ class Battle {
 		output.ident = (!isTeamPreview ? pokemonid : '');
 		output.searchid = (!isTeamPreview ? `${pokemonid}|${details}` : '');
 		let splitDetails = details.split(', ');
-		if (splitDetails[splitDetails.length - 1] === 'spawned') {
-			output.spawned = true;
-			splitDetails.pop();
-		}
 		if (splitDetails[splitDetails.length - 1] === 'shiny') {
 			output.shiny = true;
 			splitDetails.pop();
