@@ -609,15 +609,12 @@ class BattleScene {
 					sidebarIcons.push(['pokemon', i]);
 					speciesTable.push(species);
 				} else if (speciesOverage && speciesTable.includes(species)) {
-					let anyIllusions = false;
 					for (const sidebarIcon of sidebarIcons) {
-						const sidebarPokemon = side.pokemon[sidebarIcon[1]!];
-						if (!sidebarPokemon.spawned && sidebarPokemon.getBaseSpecies().baseSpecies === species) {
+						if (side.pokemon[sidebarIcon[1]!].getBaseSpecies().baseSpecies === species) {
 							sidebarIcon[0] = 'pokemon-illusion';
-							anyIllusions = true;
 						}
 					}
-					hasIllusion = anyIllusions;
+					hasIllusion = true;
 					speciesOverage--;
 				} else {
 					sidebarIcons.push(['pokemon', i]);
