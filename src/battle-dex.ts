@@ -541,7 +541,7 @@ const Dex = new class implements ModdedDex {
 		if (this.prefs('bwgfx') && graphicsGen >= 6) graphicsGen = 5;
 		let baseDir;
 		// TODO: Remove Clover-specific logic
-		if ((species.num <= 69386 && species.num >= 69001) || (species.num <= 42999 && species.num >= 42001) || (species.num <= 34999 && species.num >= 34000) || (species.num >= -42001 && species.num <= -42999)) {
+		if ((species.num <= 69386 && species.num >= 69001) || (species.num <= 42999 && species.num >= 42001) || (species.num <= 34999 && species.num >= 34000) || (species.num <= -42001 && species.num >= -42999)) {
 			graphicsGen = 3;
 			spriteData.gen = 3;
 			baseDir = 'gen5';
