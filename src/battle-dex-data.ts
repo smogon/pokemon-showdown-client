@@ -1195,6 +1195,8 @@ interface MoveFlags {
 	kick?: 1 | 0;
 	/** Boosted by Bone Zone */
 	bone?: 1 | 0;
+	/** Boosted by Admin Abuse */
+	hammer?: 1 | 0;
 }
 
 type MoveTarget = 'normal' | 'any' | 'adjacentAlly' | 'adjacentFoe' | 'adjacentAllyOrSelf' | // single-target

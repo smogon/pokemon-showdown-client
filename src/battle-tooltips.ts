@@ -1829,7 +1829,7 @@ class BattleTooltips {
 		if (move.flags['blade']) {
 			value.abilityModify(1.2, 'Blademaster');
 		}
-		if (['hammerarm', 'dragonhammer', 'woodhammer', 'icehammer', 'crabhammer', 'banhammer'].includes(move.id)) {
+		if (move.flags['hammer']) {
 			value.abilityModify(1.2, 'Admin Abuse');
 		}
 		if (move.recoil || move.hasCrashDamage) {
