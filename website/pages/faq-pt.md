@@ -79,7 +79,7 @@ Times são salvos usando os cookies. Se você limpar seus cookies, seus times s�
 
 ### Como adiciono meu amigo?
 
-Por enquanto o PS! não tem um sistema de amizades; no entanto, ter um é planejado.
+Voce pode usar `/friends` num chat para ver mais info de como usar a feature.
 
 ### Por que o servidor reiniciou?
 

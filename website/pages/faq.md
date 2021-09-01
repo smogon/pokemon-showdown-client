@@ -79,7 +79,7 @@ Teams are saved using your cookies. If you clear your cookies, you clear your te
 
 ### How do I add my friend?
 
-Currently PS! does not have a friends system; however, one is planned.
+You can use `/friends` in chat for directions on how to use our friends feature.
 
 ### Why did the server restart?
 

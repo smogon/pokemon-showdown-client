@@ -83,7 +83,7 @@ Al momento, PS! non dispone di una funzione per aggiungere gli amici; tuttavia, 
 
 ### Come mai il server è stato riavviato?
 
-Il server viene riavviato per implementare gli aggiornamenti. I riavii sono veloci (richiedono meno di un secondo) e avvengono periodicamente.
+Puoi usare `/friends` in chat per avere indicazioni su come usare la nostra funzione amici.
 
 ### Come posso partecipare in un torneo?
 
