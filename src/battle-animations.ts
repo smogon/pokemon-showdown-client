@@ -1390,6 +1390,18 @@ class BattleScene {
 			this.$spritesFront[spriteIndex].append(sleazyspore4.$el!);
 			this.sideConditions[siden][id] = [sleazyspore1, sleazyspore2, sleazyspore3, sleazyspore4];
 			break;
+		case 'pleasedontdothat':
+			const pleasedontdothat = new Sprite(BattleEffects.stop, {
+				display: 'block',
+				x: side.x + 15,
+				y: side.y - 35,
+				z: side.z,
+				opacity: 0.4,
+				scale: 0.7,
+			}, this);
+			this.$spritesFront[spriteIndex].append(pleasedontdothat.$el!);
+			this.sideConditions[siden][id] = [pleasedontdothat];
+			break;
 		}
 	}
 	removeSideCondition(siden: number, id: ID) {
@@ -3123,6 +3135,10 @@ const BattleEffects: {[k: string]: SpriteData} = {
 	greenicicle: {
 		url: 'icicle-green.png', 
 		w: 80, h: 60,
+	},
+	stop: {
+		url: 'stop.png',
+		w: 120, h: 120,
 	},
 };
 (() => {
