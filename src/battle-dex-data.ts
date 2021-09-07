@@ -1047,6 +1047,8 @@ class Item implements Effect {
 }
 
 interface MoveFlags {
+	/** The move has an animation when used on an ally. */
+	allyanim?: 1 | 0;
 	/** Power is multiplied by 1.5 when used by a Pokemon with the Strong Jaw Ability. */
 	bite?: 1 | 0;
 	/** Has no effect on Pokemon with the Bulletproof Ability. */
@@ -1069,8 +1071,6 @@ interface MoveFlags {
 	heal?: 1 | 0;
 	/** Can be copied by Mirror Move. */
 	mirror?: 1 | 0;
-	/** Unknown effect. */
-	mystery?: 1 | 0;
 	/** Prevented from being executed or selected in a Sky Battle. */
 	nonsky?: 1 | 0;
 	/** Has no effect on Grass-type Pokemon, Pokemon with the Overcoat Ability, and Pokemon holding Safety Goggles. */
