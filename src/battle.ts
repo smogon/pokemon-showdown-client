@@ -3533,7 +3533,7 @@ export class Battle {
 				} else {
 					this.runMajor(args, kwArgs, preempt);
 				}
-			} catch (err) {
+			} catch (err: any) {
 				this.log(['majorerror', 'Error parsing: ' + str + ' (' + err + ')']);
 				if (err.stack) {
 					let stack = ('' + err.stack).split('\n');
