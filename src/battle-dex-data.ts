@@ -1047,12 +1047,12 @@ class Item implements Effect {
 }
 
 interface MoveFlags {
-	/** Ignores a target's substitute. */
-	authentic?: 1 | 0;
 	/** Power is multiplied by 1.5 when used by a Pokemon with the Strong Jaw Ability. */
 	bite?: 1 | 0;
 	/** Has no effect on Pokemon with the Bulletproof Ability. */
 	bullet?: 1 | 0;
+	/** Ignores a target's substitute. */
+	bypasssub?: 1 | 0;
 	/** The user is unable to make a move between turns. */
 	charge?: 1 | 0;
 	/** Makes contact. */
