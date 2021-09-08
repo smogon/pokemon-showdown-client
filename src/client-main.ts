@@ -352,14 +352,19 @@ class PSServer {
 			type: 'staff',
 			order: 106,
 		},
-		// by default, unrecognized ranks go here, between driver and bot
+		'\u00a7': {
+			name: "Section Leader (\u00a7)",
+			type: 'staff',
+			order: 107,
+		},
+		// by default, unrecognized ranks go here, between section leader and bot
 		'*': {
 			name: "Bot (*)",
-			order: 108,
+			order: 109,
 		},
 		'\u2606': {
 			name: "Player (\u2606)",
-			order: 109,
+			order: 110,
 		},
 		'+': {
 			name: "Voice (+)",
@@ -385,7 +390,7 @@ class PSServer {
 		},
 	};
 	defaultGroup: PSGroup = {
-		order: 107,
+		order: 108,
 	};
 	getGroup(symbol: string | undefined) {
 		return this.groups[(symbol || ' ').charAt(0)] || this.defaultGroup;
