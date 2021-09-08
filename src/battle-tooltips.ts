@@ -13,13 +13,13 @@ class ModifiableValue {
 	maxValue = 0;
 	comment: string[];
 	battle: Battle;
-	pokemon: Pokemon | null;
+	pokemon: Pokemon;
 	serverPokemon: ServerPokemon;
 	itemName: string;
 	abilityName: string;
 	weatherName: string;
 	isAccuracy = false;
-	constructor(battle: Battle, pokemon: Pokemon | null, serverPokemon: ServerPokemon) {
+	constructor(battle: Battle, pokemon: Pokemon, serverPokemon: ServerPokemon) {
 		this.comment = [];
 		this.battle = battle;
 		this.pokemon = pokemon;
@@ -1016,25 +1016,27 @@ class BattleTooltips {
 			item = '' as ID;
 		}
 
-		const speciesForme = clientPokemon ? clientPokemon.getSpeciesForme() : serverPokemon.speciesForme;
-		let species = Dex.species.get(speciesForme).baseSpecies;
+		const species = Dex.species.get(serverPokemon.speciesForme).baseSpecies;
+		const isTransform = clientPokemon?.volatiles.transform;
+		const speciesName = isTransform && clientPokemon?.volatiles.formechange?.[1] && this.battle.gen <= 4 ?
+			this.battle.dex.species.get(clientPokemon.volatiles.formechange[1]).baseSpecies : species;
 
 		let speedModifiers = [];
 
 		// check for light ball, thick club, metal/quick powder
 		// the only stat modifying items in gen 2 were light ball, thick club, metal powder
-		if (item === 'lightball' && species === 'Pikachu') {
-			if (this.battle.gen >= 4) stats.atk *= 2;
+		if (item === 'lightball' && speciesName === 'Pikachu' && this.battle.gen !== 4) {
+			if (this.battle.gen > 4) stats.atk *= 2;
 			stats.spa *= 2;
 		}
 
 		if (item === 'thickclub') {
-			if (species === 'Marowak' || species === 'Cubone') {
+			if (speciesName === 'Marowak' || speciesName === 'Cubone') {
 				stats.atk *= 2;
 			}
 		}
 
-		if (species === 'Ditto' && !(clientPokemon && 'transform' in clientPokemon.volatiles)) {
+		if (speciesName === 'Ditto' && !(clientPokemon && 'transform' in clientPokemon.volatiles)) {
 			if (item === 'quickpowder') {
 				speedModifiers.push(2);
 			}
@@ -1915,6 +1917,10 @@ class BattleTooltips {
 		let item = this.battle.dex.items.get(value.serverPokemon.item);
 		let itemName = item.name;
 		let moveName = move.name;
+		let species = this.battle.dex.species.get(value.serverPokemon.speciesForme);
+		let isTransform = value.pokemon.volatiles.transform;
+		let speciesName = isTransform && value.pokemon.volatiles.formechange?.[1] && this.battle.gen <= 4 ?
+			this.battle.dex.species.get(value.pokemon.volatiles.formechange[1]).baseSpecies : species.baseSpecies;
 
 		// Plates
 		if (item.onPlate === moveType && !item.zMove) {
@@ -1934,9 +1940,15 @@ class BattleTooltips {
 			return value;
 		}
 
+		// Light ball is a base power modifier in gen 4 only
+		if (item.name === 'Light Ball' && this.battle.gen === 4 && speciesName === 'Pikachu') {
+			value.itemModify(2);
+			return value;
+		}
+
 		// Pokemon-specific items
 		if (item.name === 'Soul Dew' && this.battle.gen < 7) return value;
-		if (BattleTooltips.orbUsers[Dex.species.get(value.serverPokemon.speciesForme).baseSpecies] === item.name &&
+		if (BattleTooltips.orbUsers[speciesName] === item.name &&
 			[BattleTooltips.orbTypes[item.name], 'Dragon'].includes(moveType)) {
 			value.itemModify(1.2);
 			return value;
