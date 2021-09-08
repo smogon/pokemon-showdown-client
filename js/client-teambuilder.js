@@ -3358,9 +3358,9 @@
 			this.$el.html(buf).css({'max-width': (4 + spriteSize) * width, 'height': 42 + (4 + spriteSize) * height});
 		},
 		setForm: function (form) {
-			var species = this.room.curTeam.dex.species.get(this.curSet.species);
+			var species = Dex.species.get(this.curSet.species);
 			if (form && form !== species.form) {
-				this.curSet.species = this.room.curTeam.dex.species.get(species.baseSpecies + form).name;
+				this.curSet.species = Dex.species.get(species.baseSpecies + form).name;
 			} else if (!form) {
 				this.curSet.species = species.baseSpecies;
 			}
