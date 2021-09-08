@@ -936,7 +936,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 		const nextGenData = Dex.mod(nextGen).data;
 		const overrideSpeciesData = {};
 		BattleTeambuilderTable[gen].overrideSpeciesData = overrideSpeciesData;
-		const overrideSpeciesKeys = ['abilities', 'baseStats', 'requiredItem', 'types'];
+		const overrideSpeciesKeys = ['abilities', 'baseStats', 'cosmeticFormes', 'requiredItem', 'types', 'unreleasedHidden'];
 		for (const id in genData.Pokedex) {
 			const curEntry = genData.Pokedex[id];
 			const nextEntry = nextGenData.Pokedex[id];
