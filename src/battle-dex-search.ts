@@ -715,7 +715,7 @@ abstract class BattleTypedSearch<T extends SearchType> {
 		return '' as ID;
 	}
 	protected canLearn(speciesid: ID, moveid: ID) {
-		if (this.dex.gen >= 8 && this.dex.moves.get(moveid).isNonstandard === 'Past' && this.formatType !== 'natdex') {
+		if (this.dex.moves.get(moveid).isNonstandard === 'Past' && this.formatType !== 'natdex') {
 			return false;
 		}
 		let genChar = `${this.dex.gen}`;
@@ -1416,13 +1416,13 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 				if (sketch) {
 					if (move.isMax || move.isZ) continue;
 					if (move.isNonstandard && move.isNonstandard !== 'Past') continue;
-					if (move.isNonstandard === 'Past' && this.formatType !== 'natdex' && dex.gen === 8) continue;
+					if (move.isNonstandard === 'Past' && this.formatType !== 'natdex') continue;
 					sketchMoves.push(move.id);
 				} else {
 					if (!(dex.gen < 8 || this.formatType === 'natdex') && move.isZ) continue;
 					if (typeof move.isMax === 'string') continue;
 					if (move.isNonstandard === 'LGPE' && this.formatType !== 'letsgo') continue;
-					if (move.isNonstandard === 'Past' && this.formatType !== 'natdex' && dex.gen === 8) continue;
+					if (move.isNonstandard === 'Past' && this.formatType !== 'natdex') continue;
 					moves.push(move.id);
 				}
 			}
@@ -1430,30 +1430,46 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 		if (this.formatType === 'metronome') moves = ['metronome'];
 		if (isSTABmons) {
 			for (let id in this.getTable()) {
-				let types: string[] = [];
-				let baseSpecies = dex.species.get(species.changesFrom || species.name);
-				if (!species.battleOnly) types.push(...species.types);
-				let prevo = species.prevo;
-				while (prevo) {
-					const prevoSpecies = dex.species.get(prevo);
-					types.push(...prevoSpecies.types);
-					prevo = prevoSpecies.prevo;
-				}
-				if (species.battleOnly) species = baseSpecies;
-				const excludedForme = (s: Species) => ['Alola', 'Alola-Totem', 'Galar', 'Galar-Zen'].includes(s.forme);
-				if (baseSpecies.otherFormes && !['Wormadam', 'Urshifu'].includes(baseSpecies.baseSpecies)) {
-					if (!excludedForme(species)) types.push(...baseSpecies.types);
-					for (const formeName of baseSpecies.otherFormes) {
-						const forme = dex.species.get(formeName);
-						if (!forme.battleOnly && !excludedForme(forme)) types.push(...forme.types);
-					}
-				}
-				const move = Dex.moves.get(id);
-				if (!types.includes(move.type)) continue;
+				const move = dex.moves.get(id);
 				if (moves.includes(move.id)) continue;
 				if (move.gen > dex.gen) continue;
 				if (move.isZ || move.isMax || move.isNonstandard) continue;
-				moves.push(id);
+
+				const speciesTypes: string[] = [];
+				const moveTypes: string[] = [];
+				for (let i = dex.gen; i >= species.gen && i >= move.gen; i--) {
+					const genDex = Dex.forGen(i);
+					moveTypes.push(genDex.moves.get(move.name).type);
+
+					const pokemon = genDex.species.get(species.name);
+					let baseSpecies = genDex.species.get(pokemon.changesFrom || pokemon.name);
+					if (!pokemon.battleOnly) speciesTypes.push(...pokemon.types);
+					let prevo = pokemon.prevo;
+					while (prevo) {
+						const prevoSpecies = genDex.species.get(prevo);
+						speciesTypes.push(...prevoSpecies.types);
+						prevo = prevoSpecies.prevo;
+					}
+					if (pokemon.battleOnly && typeof pokemon.battleOnly === 'string') {
+						species = dex.species.get(pokemon.battleOnly);
+					}
+					const excludedForme = (s: Species) => ['Alola', 'Alola-Totem', 'Galar', 'Galar-Zen'].includes(s.forme);
+					if (baseSpecies.otherFormes && !['Wormadam', 'Urshifu'].includes(baseSpecies.baseSpecies)) {
+						if (!excludedForme(species)) speciesTypes.push(...baseSpecies.types);
+						for (const formeName of baseSpecies.otherFormes) {
+							const forme = dex.species.get(formeName);
+							if (!forme.battleOnly && !excludedForme(forme)) speciesTypes.push(...forme.types);
+						}
+					}
+				}
+				let valid = false;
+				for (let type of moveTypes) {
+					if (speciesTypes.includes(type)) {
+						valid = true;
+						break;
+					}
+				}
+				if (valid) moves.push(id);
 			}
 		}
 
