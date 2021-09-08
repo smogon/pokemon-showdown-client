@@ -893,6 +893,7 @@ class BattlePokemonSearch extends BattleTypedSearch<'pokemon'> {
 		else if (format === 'anythinggoes' || format.endsWith('ag') || format.startsWith('ag')) {
 			tierSet = tierSet.slice(slices.AG);
 		} else if (format.includes('hackmons') || format.endsWith('bh')) tierSet = tierSet.slice(slices.AG);
+		else if (format === 'monotype') tierSet = tierSet.slice(slices.Uber);
 		else if (format === 'doublesubers') tierSet = tierSet.slice(slices.DUber);
 		else if (format === 'doublesou' && dex.gen > 4) tierSet = tierSet.slice(slices.DOU);
 		else if (format === 'doublesuu') tierSet = tierSet.slice(slices.DUU);
@@ -917,6 +918,13 @@ class BattlePokemonSearch extends BattleTypedSearch<'pokemon'> {
 		if (format === 'zu' && dex.gen >= 7) {
 			tierSet = tierSet.filter(([type, id]) => {
 				if (id in table.zuBans) return false;
+				return true;
+			});
+		}
+
+		if (format === 'monotype' && dex.gen >= 5) {
+			tierSet = tierSet.filter(([type, id]) => {
+				if (id in table.monotypeBans) return false;
 				return true;
 			});
 		}
