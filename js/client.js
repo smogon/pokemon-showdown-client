@@ -2604,7 +2604,7 @@ function toId() {
 			var groupName = ((Config.groups[data.roomGroup] || {}).name || '');
 			var globalGroup = (Config.groups[data.group || Config.defaultGroup || ' '] || null);
 			var globalGroupName = '';
-			if (globalGroup && globalGroup.name && toID(globalGroup.name) !== 'sectionleader') {
+			if (globalGroup && globalGroup.name && toID(globalGroup.name) !== toID(data.customgroup)) {
 				if (globalGroup.type === 'punishment') {
 					groupName = globalGroup.name;
 				} else if (!groupName || groupName === globalGroup.name) {
