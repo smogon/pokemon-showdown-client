@@ -823,6 +823,14 @@
 			document.getElementById("pasteAuthor").value = app.user.get('name');
 			document.getElementById("pokepasteForm").submit();
 		},
+		cloverPokepasteExport: function () {
+			var team = Storage.exportTeam(this.curSetList);
+			if (!team) return app.addPopupMessage("Add a Pokémon to your team before uploading it!");
+			document.getElementById("cloverPasteData").value = team;
+			document.getElementById("cloverPasteTitle").value = this.curTeam.name;
+			document.getElementById("cloverPasteAuthor").value = app.user.get('name');
+			document.getElementById("cloverPokepasteForm").submit();
+		},
 
 		// drag and drop
 
@@ -1136,6 +1144,11 @@
 					buf += '<li><button name="addPokemon" class="button big"><i class="fa fa-plus"></i> Add Pok&eacute;mon</button></li>';
 				}
 				buf += '</ol>';
+				buf += '<form id="cloverPokepasteForm" style="display:inline" method="post" action="https://paste.weedl.es/create" target="_blank">';
+				buf += '<input type="hidden" name="title" id="cloverPasteTitle">';
+				buf += '<input type="hidden" name="paste" id="cloverPasteData">';
+				buf += '<input type="hidden" name="author" id="cloverPasteAuthor">';
+				buf += '<button name="cloverPokepasteExport" type="submit" class="button exportbutton"><i class="fa fa-upload"></i> Upload to paste.weedl.es</button></form>';
 				buf += '<form id="pokepasteForm" style="display:inline" method="post" action="https://pokepast.es/create" target="_blank">';
 				buf += '<input type="hidden" name="title" id="pasteTitle">';
 				buf += '<input type="hidden" name="paste" id="pasteData">';
@@ -1281,7 +1294,7 @@
 					type: 'GET',
 					url: url,
 					success: function (data) {
-						if (/^https?:\/\/pokepast\.es\/.*\/json\s*$/.test(url)) {
+						if (/^https?:\/\/(pokepast\.es|paste\.weedl\.es)\/.*\/json\s*$/.test(url)) {
 							var teamData = JSON.parse(data);
 							Storage.activeSetList = self.curSetList = Storage.importTeam(teamData.paste);
 							var title = teamData.title;
@@ -1306,7 +1319,7 @@
 			}
 		},
 		importableUrl: function (value) {
-			var match = value.match(/^https?:\/\/(pokepast\.es|gist\.github(?:usercontent)?\.com)\/(.*)\s*$/);
+			var match = value.match(/^https?:\/\/(pokepast\.es|clover\.weedl\.es|gist\.github(?:usercontent)?\.com)\/(.*)\s*$/);
 			if (!match) return;
 
 			var host = match[1];
@@ -1315,6 +1328,8 @@
 			switch (host) {
 			case 'pokepast.es':
 				return 'https://pokepast.es/' + path.replace(/\/.*/, '') + '/json';
+			case 'clover.weedl.es':
+				return 'https://clover.weedl.es/' + path.replace(/\/.*/, '') + '/json';
 			default: // gist
 				var split = path.split('/');
 				return split.length < 2 ? undefined : 'https://gist.githubusercontent.com/' + split[0] + '/' + split[1] + '/raw';
