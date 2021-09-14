@@ -2604,7 +2604,7 @@ function toId() {
 			var groupName = ((Config.groups[data.roomGroup] || {}).name || '');
 			var globalGroup = (Config.groups[data.group || Config.defaultGroup || ' '] || null);
 			var globalGroupName = '';
-			if (globalGroup && globalGroup.name) {
+			if (globalGroup && globalGroup.name && toID(globalGroup.name) !== 'sectionleader') {
 				if (globalGroup.type === 'punishment') {
 					groupName = globalGroup.name;
 				} else if (!groupName || groupName === globalGroup.name) {
@@ -2630,7 +2630,7 @@ function toId() {
 			if (globalGroupName) {
 				buf += '<small class="usergroup globalgroup">' + globalGroupName + '</small>';
 			}
-			if (data.customgroup) {
+			if (data.customgroup && toID(data.customgroup) !== toID(globalGroupName || groupName)) {
 				if (groupName || globalGroupName) buf += '<br />';
 				buf += '<small class="usergroup globalgroup">' + BattleLog.escapeHTML(data.customgroup) + '</small>';
 			}
