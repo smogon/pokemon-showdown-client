@@ -591,6 +591,7 @@ class BattleTextParser {
 			if (kwArgs.damage) templateId = 'activate';
 			if (kwArgs.block) templateId = 'block';
 			if (kwArgs.upkeep) templateId = 'upkeep';
+			if (id === 'mist') templateId = 'startGen2';
 			if (id === 'reflect' || id === 'lightscreen') templateId = 'startGen1';
 			if (templateId === 'start' && kwArgs.from?.startsWith('item:')) {
 				templateId += 'FromItem';

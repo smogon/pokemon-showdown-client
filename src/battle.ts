@@ -2540,6 +2540,10 @@ export class Battle {
 				}
 				break;
 
+			// Gen 1-2
+			case 'mist':
+				this.scene.resultAnim(poke, 'Mist', 'good');
+				break;
 			// Gen 1
 			case 'lightscreen':
 				this.scene.resultAnim(poke, 'Light Screen', 'good');
