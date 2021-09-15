@@ -15,7 +15,7 @@ type BattleDesc = {
 };
 
 class BattlesRoom extends PSRoom {
-	override readonly classType = 'battles';
+	readonly classType = 'battles';
 	/** null means still loading */
 	format = '';
 	battles: BattleDesc[] | null = null;
@@ -84,7 +84,7 @@ class BattlesPanel extends PSRoomPanel<BattlesRoom> {
 }
 
 class BattleRoom extends ChatRoom {
-	override readonly classType = 'battle';
+	readonly classType = 'battle';
 	declare pmTarget: null;
 	declare challengeMenuOpen: false;
 	declare challengingFormat: null;
