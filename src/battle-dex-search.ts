@@ -929,7 +929,7 @@ class BattlePokemonSearch extends BattleTypedSearch<'pokemon'> {
 			});
 		}
 
-		if (/^(battlestadium|vgc)/g.test(format)) {
+		if (/^(battlespot|battlestadium|vgc)/g.test(format)) {
 			tierSet = tierSet.filter(([type, id]) => {
 				const species = dex.species.get(id);
 				return !species.tags.includes('Mythical');
