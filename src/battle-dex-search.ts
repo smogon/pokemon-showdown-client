@@ -715,27 +715,31 @@ abstract class BattleTypedSearch<T extends SearchType> {
 		return '' as ID;
 	}
 	protected canLearn(speciesid: ID, moveid: ID) {
-		if (this.dex.moves.get(moveid).isNonstandard === 'Past' && this.formatType !== 'natdex') {
+		const move = this.dex.moves.get(moveid);
+		if (move.isNonstandard === 'Past' && this.formatType !== 'natdex') {
 			return false;
 		}
-		let genChar = `${this.dex.gen}`;
+		const gen = this.dex.gen;
+		let genChar = `${gen}`;
 		if (
 			this.format.startsWith('vgc') ||
 			this.format.startsWith('battlespot') ||
 			this.format.startsWith('battlestadium')
 		) {
-			if (this.dex.gen === 8) {
+			if (gen === 8) {
 				genChar = 'g';
-			} else if (this.dex.gen === 7) {
+			} else if (gen === 7) {
 				genChar = 'q';
-			} else if (this.dex.gen === 6) {
+			} else if (gen === 6) {
 				genChar = 'p';
 			}
 		}
 		let learnsetid = this.firstLearnsetid(speciesid);
 		while (learnsetid) {
 			let learnset = BattleTeambuilderTable.learnsets[learnsetid];
-			if (learnset && (moveid in learnset) && learnset[moveid].includes(genChar)) {
+			if (learnset && (moveid in learnset) && (!this.format.startsWith('tradebacks') ? learnset[moveid].includes(genChar) :
+				learnset[moveid].includes(genChar) ||
+					(learnset[moveid].includes(`${gen + 1}`) && move.gen === gen))) {
 				return true;
 			}
 			learnsetid = this.nextLearnsetid(learnsetid, speciesid);
@@ -1366,6 +1370,7 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 		const format = this.format;
 		const isHackmons = (format.includes('hackmons') || format.endsWith('bh'));
 		const isSTABmons = (format.includes('stabmons') || format === 'staaabmons');
+		const isTradebacks = format.includes('tradebacks');
 		const galarBornLegality = (format.includes('battlestadium') || format.startsWith('vgc') && this.dex.gen === 8);
 
 		const abilityid = this.set ? toID(this.set.ability) : '' as ID;
@@ -1376,10 +1381,11 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 		let sketchMoves: string[] = [];
 		let sketch = false;
 		let gen = '' + dex.gen;
+		let lsetTable = BattleTeambuilderTable;
+		if (this.formatType === 'letsgo') lsetTable = lsetTable['letsgo'];
+		if (this.formatType?.startsWith('dlc1')) lsetTable = lsetTable['gen8dlc1'];
 		while (learnsetid) {
-			let learnset = BattleTeambuilderTable.learnsets[learnsetid];
-			if (this.formatType === 'letsgo') learnset = BattleTeambuilderTable['letsgo'].learnsets[learnsetid];
-			if (this.formatType?.startsWith('dlc1')) learnset = BattleTeambuilderTable['gen8dlc1'].learnsets[learnsetid];
+			let learnset = lsetTable.learnsets[learnsetid];
 			if (learnset) {
 				for (let moveid in learnset) {
 					let learnsetEntry = learnset[moveid];
@@ -1388,7 +1394,8 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 					} */
 					if (galarBornLegality && !learnsetEntry.includes('g')) {
 						continue;
-					} else if (!learnsetEntry.includes(gen)) {
+					} else if (!learnsetEntry.includes(gen) &&
+						(!isTradebacks ? true : !(dex.moves.get(moveid).gen <= dex.gen && learnsetEntry.includes('' + (dex.gen + 1))))) {
 						continue;
 					}
 					if (
