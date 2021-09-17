@@ -341,6 +341,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 		const tierTable = {};
 		const overrideTier = {};
 		const zuBans = {};
+		const monotypeBans = {};
 		const nonstandardMoves = [];
 		for (const id of pokemon) {
 			const species = Dex.mod(gen).species.get(id);
@@ -465,6 +466,12 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 					zuBans[species.id] = 1;
 				}
 			}
+			if (genNum >= 5) {
+				const format = Dex.formats.get(gen + (isNatDex ? 'nationaldex' : '') + 'monotype');
+				if (Dex.formats.getRuleTable(format).isBannedSpecies(species)) {
+					monotypeBans[species.id] = 1;
+				}
+			}
 		}
 
 		nonstandardMoves.push(...Object.keys(Dex.data.Moves).filter(id => {
@@ -481,6 +488,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			BattleTeambuilderTable['natdex'] = {};
 			BattleTeambuilderTable['natdex'].tiers = tiers;
 			BattleTeambuilderTable['natdex'].items = items;
+			BattleTeambuilderTable['natdex'].monotypeBans = monotypeBans;
 			BattleTeambuilderTable['natdex'].formatSlices = formatSlices;
 		} else if (isMetBattle) {
 			BattleTeambuilderTable['metronome'] = {};
@@ -512,6 +520,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			BattleTeambuilderTable.items = items;
 			BattleTeambuilderTable.overrideTier = overrideTier;
 			BattleTeambuilderTable.zuBans = zuBans;
+			BattleTeambuilderTable.monotypeBans = monotypeBans;
 			BattleTeambuilderTable.formatSlices = formatSlices;
 		} else {
 			BattleTeambuilderTable[gen] = {};
@@ -521,6 +530,9 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			BattleTeambuilderTable[gen].formatSlices = formatSlices;
 			if (genNum >= 7) {
 				BattleTeambuilderTable[gen].zuBans = zuBans;
+			}
+			if (genNum >= 5) {
+				BattleTeambuilderTable[gen].monotypeBans = monotypeBans;
 			}
 			if (isDLC1) {
 				BattleTeambuilderTable[gen].nonstandardMoves = nonstandardMoves;
@@ -936,7 +948,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 		const nextGenData = Dex.mod(nextGen).data;
 		const overrideSpeciesData = {};
 		BattleTeambuilderTable[gen].overrideSpeciesData = overrideSpeciesData;
-		const overrideSpeciesKeys = ['abilities', 'baseStats', 'requiredItem', 'types'];
+		const overrideSpeciesKeys = ['abilities', 'baseStats', 'cosmeticFormes', 'requiredItem', 'types', 'unreleasedHidden'];
 		for (const id in genData.Pokedex) {
 			const curEntry = genData.Pokedex[id];
 			const nextEntry = nextGenData.Pokedex[id];
@@ -950,7 +962,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 
 		const overrideMoveData = {};
 		BattleTeambuilderTable[gen].overrideMoveData = overrideMoveData;
-		const overrideMoveKeys = ['accuracy', 'basePower', 'category', 'desc', 'flags', 'pp', 'shortDesc', 'target', 'type'];
+		const overrideMoveKeys = ['accuracy', 'basePower', 'category', 'desc', 'flags', 'isNonstandard', 'pp', 'shortDesc', 'target', 'type'];
 		for (const id in genData.Moves) {
 			const curEntry = Dex.mod(gen).moves.get(id);
 			const nextEntry = Dex.mod(nextGen).moves.get(id);

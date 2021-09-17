@@ -16,6 +16,8 @@ Room staff have permissions tied specifically to the room they were promoted in,
 
 **Room Owners (`#`)** can do all of the above, as well as promote users to Room Moderator, make unsigned declarations, and set the room introduction.
 
+**Section Leaders (`§`)** oversee public chatrooms within their section. You can refer to the [list of rooms](https://www.smogon.com/forums/threads/pok%C3%A9mon-showdown-forum-rules-resources-read-here-first.3570628/#post-6804772) to see who oversees each section.
+
 **Global Drivers (`%`)** can warn users both in rooms and globally, mute users for 7 or 60 minutes, lock users from talking for 2 days or a week, forcibly rename users, clear users' statuses, check users' alternate accounts, check logs of past chat and moderation actions in all rooms.
 
 **Global Moderators (`@`)** can do all of the above, as well as ban users from the server, do anything a Room Moderator can do, and check users' IP addresses.
