@@ -929,12 +929,10 @@ class BattlePokemonSearch extends BattleTypedSearch<'pokemon'> {
 			});
 		}
 
-		if (format === 'vgc2016') {
+		if (/^(battlespot|battlestadium|vgc)/g.test(format)) {
 			tierSet = tierSet.filter(([type, id]) => {
-				let banned = [
-					'deoxys', 'deoxysattack', 'deoxysdefense', 'deoxysspeed', 'mew', 'celebi', 'shaymin', 'shayminsky', 'darkrai', 'victini', 'keldeo', 'keldeoresolute', 'meloetta', 'arceus', 'genesect', 'jirachi', 'manaphy', 'phione', 'hoopa', 'hoopaunbound', 'diancie', 'dianciemega',
-				];
-				return !(banned.includes(id) || id.startsWith('arceus'));
+				const species = dex.species.get(id);
+				return !species.tags.includes('Mythical');
 			});
 		}
 
