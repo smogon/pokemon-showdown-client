@@ -543,7 +543,8 @@ abstract class BattleTypedSearch<T extends SearchType> {
 	 */
 	set: PokemonSet | null = null;
 
-	protected formatType: 'doubles' | 'letsgo' | 'metronome' | 'natdex' | 'nfe' | 'dlc1' | 'dlc1doubles' | null = null;
+	protected formatType: 'doubles' | 'letsgo' | 'metronome' | 'natdex' | 'nfe' |
+	'dlc1' | 'dlc1doubles' | 'stadium' | null = null;
 
 	/**
 	 * Cached copy of what the results list would be with only base filters
@@ -581,6 +582,11 @@ abstract class BattleTypedSearch<T extends SearchType> {
 				this.formatType = 'dlc1';
 			}
 			format = format.slice(4) as ID;
+		}
+		if (format.includes('stadium')) {
+			this.formatType = 'stadium';
+			format = format.slice(7) as ID;
+			if (!format) format = 'ou' as ID;
 		}
 		if (format === 'vgc2020') this.formatType = 'dlc1doubles';
 		if (format.includes('doubles') && this.dex.gen > 4 && !this.formatType) this.formatType = 'doubles';
@@ -747,12 +753,14 @@ abstract class BattleTypedSearch<T extends SearchType> {
 			return pokemon.num >= 0 ? String(pokemon.num) : pokemon.tier;
 		}
 		let table = window.BattleTeambuilderTable;
-		const tableKey = this.formatType === 'doubles' ? `gen${this.dex.gen}doubles` :
+		const gen = this.dex.gen;
+		const tableKey = this.formatType === 'doubles' ? `gen${gen}doubles` :
 			this.formatType === 'letsgo' ? 'letsgo' :
-			this.formatType === 'nfe' ? `gen${this.dex.gen}nfe` :
+			this.formatType === 'nfe' ? `gen${gen}nfe` :
 			this.formatType === 'dlc1' ? 'gen8dlc1' :
 			this.formatType === 'dlc1doubles' ? 'gen8dlc1doubles' :
-			`gen${this.dex.gen}`;
+			this.formatType === 'stadium' ? `gen${gen}stadium${gen > 1 ? gen : ''}` :
+			`gen${gen}`;
 		if (table && table[tableKey]) {
 			table = table[tableKey];
 		}
@@ -864,6 +872,8 @@ class BattlePokemonSearch extends BattleTypedSearch<'pokemon'> {
 			} else {
 				table = table['gen8dlc1'];
 			}
+		} else if (this.formatType === 'stadium') {
+			table = table['gen' + dex.gen + 'stadium' + (dex.gen > 1 ? dex.gen : '')];
 		}
 
 		if (!table.tierSet) {
@@ -898,7 +908,7 @@ class BattlePokemonSearch extends BattleTypedSearch<'pokemon'> {
 		else if (format === 'doublesou' && dex.gen > 4) tierSet = tierSet.slice(slices.DOU);
 		else if (format === 'doublesuu') tierSet = tierSet.slice(slices.DUU);
 		else if (format === 'doublesnu') tierSet = tierSet.slice(slices.DNU || slices.DUU);
-		else if (this.formatType === 'letsgo') tierSet = tierSet.slice(slices.Uber);
+		else if (this.formatType === 'letsgo' || this.formatType === 'stadium') tierSet = tierSet.slice(slices.Uber);
 		// else if (isDoublesOrBS) tierSet = tierSet;
 		else if (!isDoublesOrBS) {
 			tierSet = [
