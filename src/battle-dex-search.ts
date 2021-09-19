@@ -583,7 +583,7 @@ abstract class BattleTypedSearch<T extends SearchType> {
 			}
 			format = format.slice(4) as ID;
 		}
-		if (format.includes('stadium')) {
+		if (format.startsWith('stadium')) {
 			this.formatType = 'stadium';
 			format = format.slice(7) as ID;
 			if (!format) format = 'ou' as ID;
