@@ -266,7 +266,7 @@ if (!$user) {
 		} else if ($csrfOk && isset($_POST['googlelogin'])) {
 			$email = $_POST['googlelogin'];
 			$remove = ($email === 'remove');
-			if (!$remove && strpos($email, '@') === false || strpos($email, '.') === false) {
+			if (!$remove && (strpos($email, '@') === false || strpos($email, '.') === false)) {
 ?>
 				<div style="border: 1px solid #AADD88; padding: 0 1em; margin-bottom: 1em">
 					<p>Invalid e-mail address "<?= htmlspecialchars($email) ?>"</p>
