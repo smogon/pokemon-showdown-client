@@ -946,7 +946,8 @@ class BattlePokemonSearch extends BattleTypedSearch<'pokemon'> {
 		if (/^(battlespot|battlestadium|vgc)/g.test(format)) {
 			tierSet = tierSet.filter(([type, id]) => {
 				const species = dex.species.get(id);
-				return !species.tags.includes('Mythical');
+				const baseSpecies = dex.species.get(species.baseSpecies);
+				return !baseSpecies.tags.includes('Mythical');
 			});
 		}
 
