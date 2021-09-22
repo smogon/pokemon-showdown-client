@@ -449,7 +449,7 @@
 				}
 			}
 
-			switch (cmd.toLowerCase()) {
+			switch (toID(cmd)) {
 			case 'chal':
 			case 'chall':
 			case 'challenge':
