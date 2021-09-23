@@ -503,7 +503,7 @@ const BattlePokemonIconIndexes: {[id: string]: number} = {
 	nohface: 1344 + 18,
 	monohm: 1344 + 19,
 	duohm: 1344 + 20,
-	// protowatt: 1344 + 21,
+	protowatt: 1344 + 21,
 	voodoll: 1344 + 22,
 	mumbao: 1344 + 23,
 	fawnifer: 1344 + 24,
@@ -515,6 +515,7 @@ const BattlePokemonIconIndexes: {[id: string]: number} = {
 	justyke: 1344 + 30,
 	solotl: 1344 + 31,
 	miasmite: 1344 + 32,
+	dorsoil: 1344 + 33,
 };
 
 const BattlePokemonIconIndexesLeft: {[id: string]: number} = {
