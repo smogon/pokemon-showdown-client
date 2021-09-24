@@ -79,7 +79,7 @@ includeHeader();
 				<li><p>[<strong>Plague von Karma</strong>] <small>&ndash; Development (Gen 1), Research</small></p></li>
 				<li><p><strong>Russell Jones</strong> [SadisticMystic] <small>&ndash; Research (game mechanics)</small></p></li>
 				<li><p>[<strong>Shellnuts</strong>] <small>&ndash; Development</small></p></li>
-				<li><p><a href="https://spandamn.github.io/" target="_blank" class="subtle"><strong>Spandan Punwatkar</strong> [Spandan]</a> <small>&ndash; Development</small></p></li>
+				<li><p><a href="https://spandamn.github.io/spandamnreact" target="_blank" class="subtle"><strong>Spandan Punwatkar</strong> [Spandan]</a> <small>&ndash; Development</small></p></li>
 				<li><p><strong>Theo Delhay</strong> [Distrib] <small>&ndash; Development</small></p></li>
 				<li><p><strong>Waleed Hassan</strong> [jetou] <small>&ndash; Development</small></p></li>
 			</ul>
