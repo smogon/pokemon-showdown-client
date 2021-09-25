@@ -891,7 +891,7 @@ class BattlePokemonSearch extends BattleTypedSearch<'pokemon'> {
 		if (format === 'ubers' || format === 'uber') tierSet = tierSet.slice(slices.Uber);
 		else if (isVGCOrBS) {
 			if (
-				format === 'vgc2016' || format.startsWith('vgc2019') ||
+				format === 'vgc2010' || format === 'vgc2016' || format.startsWith('vgc2019') ||
 				format.endsWith('series8') || format.endsWith('series10')
 			) {
 				tierSet = tierSet.slice(slices["Restricted Legendary"]);
