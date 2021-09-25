@@ -413,7 +413,6 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 					return tier;
 				}
 				if (isLetsGo) {
-					let baseSpecies = Dex.mod(gen).species.get(species.baseSpecies);
 					let validNum = (baseSpecies.num <= 151 && species.num >= 1) || [808, 809].includes(baseSpecies.num);
 					if (!validNum) return 'Illegal';
 					if (species.forme && !['Alola', 'Mega', 'Mega-X', 'Mega-Y', 'Starter'].includes(species.forme)) return 'Illegal';
