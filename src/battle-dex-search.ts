@@ -840,8 +840,8 @@ class BattlePokemonSearch extends BattleTypedSearch<'pokemon'> {
 	getBaseResults(): SearchRow[] {
 		const format = this.format;
 		if (!format) return this.getDefaultResults();
-		const requirePentagon = format === 'battlespotsingles' || format === 'battledoubles' || format.startsWith('vgc');
-		let isDoublesOrBS = this.formatType === 'doubles';
+		const isVGCOrBS = format.startsWith('battlespot') || format.startsWith('battlestadium') || format.startsWith('vgc');
+		let isDoublesOrBS = isVGCOrBS || this.formatType === 'doubles';
 		const dex = this.dex;
 
 		let table = BattleTeambuilderTable;
@@ -850,13 +850,12 @@ class BattlePokemonSearch extends BattleTypedSearch<'pokemon'> {
 			if (dex.gen < 8) {
 				table = table['gen' + dex.gen];
 			}
-		} else if (dex.gen === 7 && requirePentagon) {
+		} else if (isVGCOrBS) {
 			table = table['gen' + dex.gen + 'vgc'];
-			isDoublesOrBS = true;
 		} else if (table['gen' + dex.gen + 'doubles'] && dex.gen > 4 && this.formatType !== 'letsgo' && this.formatType !== 'dlc1doubles' &&
 			(
-			format.includes('doubles') || format.includes('vgc') || format.includes('triples') ||
-			format.endsWith('lc') || format.endsWith('lcuu') || format === 'freeforall' || format.startsWith('ffa')
+			format.includes('doubles') || format.includes('triples') || format.endsWith('lc') ||
+			format.endsWith('lcuu') || format === 'freeforall' || format.startsWith('ffa')
 		)) {
 			table = table['gen' + dex.gen + 'doubles'];
 			isDoublesOrBS = true;
@@ -890,11 +889,16 @@ class BattlePokemonSearch extends BattleTypedSearch<'pokemon'> {
 		let tierSet: SearchRow[] = table.tierSet;
 		let slices: {[k: string]: number} = table.formatSlices;
 		if (format === 'ubers' || format === 'uber') tierSet = tierSet.slice(slices.Uber);
-		else if (format === 'vgc2017') tierSet = tierSet.slice(slices.Regular);
-		else if (format === 'vgc2018') tierSet = tierSet.slice(slices.Regular);
-		else if (format.startsWith('vgc2019')) tierSet = tierSet.slice(slices["Restricted Legendary"]);
-		else if (format === 'battlespotsingles') tierSet = tierSet.slice(slices.Regular);
-		else if (format === 'battlespotdoubles') tierSet = tierSet.slice(slices.Regular);
+		else if (isVGCOrBS) {
+			if (
+				format === 'vgc2016' || format.startsWith('vgc2019') ||
+				format.endsWith('series8') || format.endsWith('series10')
+			) {
+				tierSet = tierSet.slice(slices["Restricted Legendary"]);
+			} else {
+				tierSet = tierSet.slice(slices.Regular);
+			}
+		}
 		else if (format === 'ou') tierSet = tierSet.slice(slices.OU);
 		else if (format === 'uu') tierSet = tierSet.slice(slices.UU);
 		else if (format === 'ru') tierSet = tierSet.slice(slices.RU || slices.UU);
@@ -940,14 +944,6 @@ class BattlePokemonSearch extends BattleTypedSearch<'pokemon'> {
 			tierSet = tierSet.filter(([type, id]) => {
 				if (id in table.monotypeBans) return false;
 				return true;
-			});
-		}
-
-		if (/^(battlespot|battlestadium|vgc)/g.test(format)) {
-			tierSet = tierSet.filter(([type, id]) => {
-				const species = dex.species.get(id);
-				const baseSpecies = dex.species.get(species.baseSpecies);
-				return !baseSpecies.tags.includes('Mythical');
 			});
 		}
 
