@@ -420,18 +420,14 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 					return species.tier;
 				}
 				if (isVGC) {
-					if (species.tier === 'NFE') return 'NFE';
-					if (species.tier === 'LC') return 'NFE';
 					if (
 						species.tier === 'Illegal' || species.tier === 'Unreleased' ||
 						species.tier === 'CAP' || species.tier === 'CAP NFE' || species.tier === 'CAP LC'
 					) return 'Illegal';
-					if (baseSpecies.tags.includes('Restricted Legendary')) {
-						return 'Restricted Legendary';
-					}
-					if (baseSpecies.tags.includes('Mythical')) {
-						return 'Mythical';
-					}
+					if (baseSpecies.tags.includes('Mythical')) return 'Mythical';
+					if (baseSpecies.tags.includes('Restricted Legendary')) return 'Restricted Legendary';
+					if (species.tier === 'NFE') return 'NFE';
+					if (species.tier === 'LC') return 'LC';
 					return 'Regular';
 				}
 				if (species.tier === 'CAP' || species.tier === 'CAP NFE' || species.tier === 'CAP LC') {
