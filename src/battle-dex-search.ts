@@ -760,13 +760,14 @@ abstract class BattleTypedSearch<T extends SearchType> {
 			return pokemon.num >= 0 ? String(pokemon.num) : pokemon.tier;
 		}
 		let table = window.BattleTeambuilderTable;
-		const tableKey = this.formatType === 'doubles' ? `gen${this.dex.gen}doubles` :
+		const gen = this.dex.gen;
+		const tableKey = this.formatType === 'doubles' ? `gen${gen}doubles` :
 			this.formatType === 'letsgo' ? 'gen7letsgo' :
-			this.formatType === 'nfe' ? `gen${this.dex.gen}nfe` :
+			this.formatType === 'nfe' ? `gen${gen}nfe` :
 			this.formatType === 'dlc1' ? 'gen8dlc1' :
 			this.formatType === 'dlc1doubles' ? 'gen8dlc1doubles' :
-			this.formatType === 'stadium' ? `gen${this.dex.gen}stadium${this.dex.gen > 1 ? this.dex.gen : ''}` :
-			`gen${this.dex.gen}`;
+			this.formatType === 'stadium' ? `gen${gen}stadium${gen > 1 ? gen : ''}` :
+			`gen${gen}`;
 		if (table && table[tableKey]) {
 			table = table[tableKey];
 		}
@@ -1393,12 +1394,10 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 		let sketch = false;
 		let gen = '' + dex.gen;
 		let lsetTable = BattleTeambuilderTable;
-		if (this.formatType === 'letsgo') lsetTable = lsetTable['letsgo'];
+		if (this.formatType === 'letsgo') lsetTable = lsetTable['gen7letsgo'];
 		if (this.formatType?.startsWith('dlc1')) lsetTable = lsetTable['gen8dlc1'];
 		while (learnsetid) {
-			let learnset = BattleTeambuilderTable.learnsets[learnsetid];
-			if (this.formatType === 'letsgo') learnset = BattleTeambuilderTable['gen7letsgo'].learnsets[learnsetid];
-			if (this.formatType?.startsWith('dlc1')) learnset = BattleTeambuilderTable['gen8dlc1'].learnsets[learnsetid];
+			let learnset = lsetTable.learnsets[learnsetid];
 			if (learnset) {
 				for (let moveid in learnset) {
 					let learnsetEntry = learnset[moveid];
