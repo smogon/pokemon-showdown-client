@@ -939,7 +939,7 @@ class ModdedDex {
 				}
 			}
 			if (this.gen < 3 || this.modid === 'gen7letsgo') {
-				data.abilities = {0: "None"};
+				data.abilities = {0: "No Ability"};
 			}
 
 			const table = window.BattleTeambuilderTable[this.modid];
