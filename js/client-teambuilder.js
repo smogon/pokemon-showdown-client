@@ -2906,6 +2906,8 @@
 			case 'item':
 				if (id in BattleMovedex && this.curTeam.format == "gen8fortemons") {
 					val = BattleMovedex[id].name;
+				} else if (id in BattleAbilities && this.curTeam.format == "gen8multibility") {
+					val = BattleAbilities[id].name;
 				} else {
 					val = (id in BattleItems ? BattleItems[id].name : '');
 				}
