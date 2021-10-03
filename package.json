@@ -25,7 +25,6 @@
     "@types/node": "^15.12.4",
     "babel-plugin-remove-import-export": "^1.1.1",
     "bcrypt": "^5.0.1",
-    "dockerode": "^3.3.0",
     "google-auth-library": "^3.1.2",
     "mysql": "^2.18.1",
     "output-file-sync": "^2.0.1"

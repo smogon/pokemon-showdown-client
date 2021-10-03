@@ -48,9 +48,9 @@ export class Router {
 			if (!this.activeRequests && this.awaitingEnd) this.awaitingEnd();
 			if (result === null) {
 				// didn't make a request to action.php or /api/ - custom response here
-				// supports delegation to apache
+				// supports delegation to apache?
 				if (Config.customhttpend) return Config.customhttpend.call(this, req, res, dispatcher);
-				return res.end('Not found.');
+				return res.writeHead(404).end();
 			}
 			res.end(Router.stringify(result));
 		} catch (e: any) {
@@ -59,7 +59,7 @@ export class Router {
 			if (e.name?.endsWith('ActionError')) {
 				return res.end(Router.stringify({actionerror: e.message}));
 			}
-			res.end("Not found.");
+			res.writeHead(503).end();
 			throw e;
 		}
 	}
