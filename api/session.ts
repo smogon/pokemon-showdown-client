@@ -227,6 +227,7 @@ export class Session {
 			splitChallenge = challenge.split(delim);
 			if (splitChallenge.length > 1) break;
 		}
+		console.log(splitChallenge);
 		let challengetoken;
 		if (splitChallenge.length > 1) {
 			challengekeyid = parseInt(splitChallenge[0], 10);
@@ -253,7 +254,9 @@ export class Session {
 		this.updateCookie();
 
 		if (Config.validateassertion) {
-			data = Config.validateassertion.call(this, challenge, user, data);
+			data = Config.validateassertion.call(
+				this, challengetoken, user, data, serverHost
+			);
 		}
 
 		const sign = crypto.createSign('RSA-SHA1');
@@ -346,12 +349,13 @@ export class Session {
 						resolve(login?.getPayload() || null);
 					});
 				});
-				if (!payload?.aud.includes(Config['gapi_clientid'])) return false;
-				if (payload?.email === userData['email'].slice(0, -1)) {
+				if (!payload) return false; // dunno why this would happen.
+				if (!payload.aud.includes(Config['gapi_clientid'])) return false;
+				if (payload.email === userData['email'].slice(0, -1)) {
 					return true;
 				}
 				return false;
-			} catch (e) {
+			} catch {
 				return false;
 			}
 		}

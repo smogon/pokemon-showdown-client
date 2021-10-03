@@ -53,7 +53,7 @@ export class Router {
 				return res.end('Not found.');
 			}
 			res.end(Router.stringify(result));
-		} catch (e) {
+		} catch (e: any) {
 			this.activeRequests--;
 			if (!this.activeRequests && this.awaitingEnd) this.awaitingEnd();
 			if (e.name?.endsWith('ActionError')) {

@@ -83,7 +83,9 @@ export class Dispatcher {
 		}
 		// check for an act in the url body (parsing url body above)
 		if (body.act) act = body.act;
-		if (act && pathname === '/action.php') { // legacy handling
+		// legacy handling of action.php - todo remove
+		// (this is endsWith because we call /~~showdown/action.php a lot in the client)
+		if (act && pathname.endsWith('/action.php')) {
 			return {act, body};
 		}
 		if (pathname.includes('/api/')) {
@@ -177,7 +179,7 @@ export class Dispatcher {
 			} else {
 				return {};
 			}
-		} catch (e) {
+		} catch (e: any) {
 			if (e.code !== 'ENOENT') throw e;
 		}
 		return servers;

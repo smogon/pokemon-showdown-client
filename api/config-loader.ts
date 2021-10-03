@@ -16,7 +16,7 @@ export function load(invalidate = false): Configuration {
 	const config = defaults;
 	try {
 		Object.assign(config, require('../config/ls-config'));
-	} catch (err) {
+	} catch (err: any) {
 		if (err.code !== 'MODULE_NOT_FOUND' && err.code !== 'ENOENT') throw err; // Should never happen
 
 		console.log("config.js doesn't exist - creating one with default settings...");

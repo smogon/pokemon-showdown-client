@@ -136,7 +136,7 @@ export const actions: {[k: string]: QueryHandler} = {
 		let json: any[];
 		try {
 			json = JSON.parse(params.json);
-		} catch (e) {
+		} catch {
 			throw new ActionError(`Invalid JSON sent.`);
 		}
 		if (!Array.isArray(json)) {
@@ -152,7 +152,7 @@ export const actions: {[k: string]: QueryHandler} = {
 				if (!request.act) throw new ActionError(`Must send a request type.`);
 				const data = await dispatcher.executeActions();
 				results.push(data);
-			} catch (e) {
+			} catch (e: any) {
 				if (e.name?.endsWith('ActionError')) {
 					results.push({actionerror: e.message});
 					continue;

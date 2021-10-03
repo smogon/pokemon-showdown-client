@@ -78,7 +78,7 @@ export async function testDispatcher(
 	let result: any;
 	try {
 		result = await dispatcher.executeActions();
-	} catch (e) {
+	} catch (e: any) {
 		assert(false, e.message);
 	}
 	// we return dispatcher in case we need to do more
