@@ -450,6 +450,7 @@
 			'change input[name=dark]': 'setDark',
 			'change input[name=temporarynotifications]': 'setTemporaryNotifications',
 			'change input[name=refreshprompt]': 'setRefreshprompt',
+			'change input[name=login]': 'setLoginserver',
 			'change select[name=bg]': 'setBg',
 			'change select[name=timestamps-lobby]': 'setTimestampsLobby',
 			'change select[name=timestamps-pms]': 'setTimestampsPMs',
@@ -503,6 +504,7 @@
 				buf += '<p><label class="optlabel"><input type="checkbox" name="temporarynotifications"' + (Dex.prefs('temporarynotifications') ? ' checked' : '') + ' /> Notifications disappear automatically</label></p>';
 			}
 			buf += '<p><label class="optlabel"><input type="checkbox" name="refreshprompt"' + (Dex.prefs('refreshprompt') ? ' checked' : '') + '> Prompt on refresh</label></p>';
+			buf += '<p><label class="optlabel"><input type="checkbox" name="login"' + (Dex.prefs('newlogin') ? ' checked' : '') + '> Use new loginserver (BETA)</label></p>';
 			var curLang = toID(Dex.prefs('serversettings').language) || 'english';
 			var possibleLanguages = {
 				"Deutsch": 'german',
@@ -611,6 +613,9 @@
 		setRefreshprompt: function (e) {
 			var refreshprompt = !!e.currentTarget.checked;
 			Storage.prefs('refreshprompt', refreshprompt);
+		},
+		setLoginserver: function (e) {
+			Storage.prefs('newlogin', !!e.currentTarget.checked);
 		},
 		background: function (e) {
 			app.addPopup(CustomBackgroundPopup);

@@ -450,19 +450,6 @@
 			}
 
 			switch (cmd.toLowerCase()) {
-			case 'newlogin':
-				if (!this.checkBroadcast(cmd, text)) return false;
-				target = toID(target);
-				var setting = target === 'on' ? true : target === 'off' ? false : undefined;
-				if (setting === undefined) {
-					this.add("Usage: /newlogin [on|off] - Toggles if you're using the new loginserver or not.");
-					return false;
-				}
-				Storage.prefs('newlogin', setting);
-				this.add(
-					"You are now using the " + (setting ? "new" : "current") + " loginserver."
-				);
-				return false;
 			case 'chal':
 			case 'chall':
 			case 'challenge':
@@ -946,7 +933,7 @@
 				var self = this;
 				$.get(app.user.getActionPHP(), {
 					act: 'ladderget',
-					user: targets[0],
+					user: targets[0]
 				}, Storage.safeJSON(function (data) {
 					if (!data || !$.isArray(data)) return self.add('|raw|Error: corrupted ranking data');
 					var buffer = '<div class="ladder"><table><tr><td colspan="8">User: <strong>' + toName(targets[0]) + '</strong></td></tr>';
