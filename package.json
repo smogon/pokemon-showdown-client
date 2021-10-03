@@ -36,7 +36,6 @@
     "@types/mocha": "^5.2.6",
     "@types/mysql": "^2.15.18",
     "eslint": "^5.15.1",
-    "image-size": "^0.7.2",
     "mocha": "^6.0.2",
     "preact": "^8.3.1",
     "tslint": "^5.13.0",

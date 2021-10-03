@@ -216,6 +216,9 @@ function toId() {
 		 * domain in order to have access to the correct cookies.
 		 */
 		getActionPHP: function () {
+			if (Storage.prefs('newlogin')) {
+				return '//play.pokemonshowdown.com/api';
+			}
 			var ret = '/~~' + Config.server.id + '/action.php';
 			if (Config.testclient) {
 				ret = 'https://' + Config.routes.client + ret;
