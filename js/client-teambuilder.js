@@ -2662,6 +2662,7 @@
 			// happiness
 			var happiness = parseInt(this.$chart.find('input[name=happiness]').val(), 10);
 			if (isNaN(happiness) || happiness > 255 || happiness < 0) happiness = 255;
+			set.happiness = happiness;
 			if (set.happiness === 255) delete set.happiness;
 
 			// shiny
