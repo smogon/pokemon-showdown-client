@@ -20,13 +20,17 @@ export class PSDatabase {
 		this.prefix = config.prefix || 'ntbb_';
 		if (!databases.includes(this)) databases.push(this);
 	}
-	query<T = ResultRow>(queryString: string | SQLStatement, args: SQLInput[]) {
+	query<T = ResultRow>(queryString: string | SQLStatement, args?: SQLInput[]) {
+		if (typeof queryString === 'object') {
+			args = queryString.values;
+			queryString = queryString.sql;
+		}
 		return new Promise<T[]>((resolve, reject) => {
 			this.pool.query(queryString, args, (e, results) => {
 				// conn.active = false;
 				if (e) {
 					return reject(
-						e.sqlMessage ? new Error(`${e.sqlMessage} ('${e.sql}')`) : new Error(e.message)
+						e.sqlMessage ? new Error(`${e.sqlMessage} ('${e.sql}') [${e.code}]`) : new Error(e.message)
 					);
 				}
 				if (Array.isArray(results)) {
@@ -49,7 +53,7 @@ export class PSDatabase {
 		if (Array.isArray(rows)) return rows[0] as unknown as T;
 		return rows ?? null;
 	}
-	async execute(queryString: string | SQLStatement, args: SQLInput[]): Promise<mysql.OkPacket> {
+	async execute(queryString: string | SQLStatement, args?: SQLInput[]): Promise<mysql.OkPacket> {
 		const str = typeof queryString === 'string' ? queryString : queryString.text;
 		if (!['UPDATE', 'INSERT', 'DELETE', 'REPLACE'].some(i => str.includes(i))) {
 			throw new Error('Use `query` or `get` for non-insertion / update statements.');
@@ -89,69 +93,104 @@ export class DatabaseTable<T> {
 	}
 	async selectOne(
 		entries: string | string[],
-		where?: string, params?: SQLInput[]
+		where?: SQLStatement,
 	): Promise<T | null> {
-		const rows = await this.selectAll(entries, where + ' LIMIT 1', params);
+		const query = where || SQL``;
+		query.append(` LIMIT 1`);
+		const rows = await this.selectAll(entries, query);
 		return rows?.[0] as T || null;
  	}
 	selectAll(
 		entries: string | string[],
-		where?: string, params?: SQLInput[]
+		where?: SQLStatement
 	): Promise<T[]> {
-		const colStr = typeof entries === 'string' ? entries : entries.map(k => this.format(k)).join(', ');
-		return this.database.query<T>(
-			`SELECT ${colStr} FROM ${this.getName()} ` +
-			`${where ? ` WHERE ${where}` : ''}`, params || []
-		);
+		const query = SQL`SELECT`;
+		if (typeof entries === 'string') {
+			query.append(` * `);
+		} else {
+			for (const [i, key] of entries.entries()) {
+				query.append(this.format(key));
+				if (entries[i + 1]) query.append(`, `);
+			}
+			query.append(` `);
+		}
+		query.append(`FROM ${this.getName()} `);
+		if (where) {
+			query.append(' WHERE ');
+			query.append(where);
+		}
+		return this.database.query<T>(query);
 	}
 	get(entries: string | string[], keyId: SQLInput) {
-		return this.selectOne(entries, `${this.format(this.primaryKeyName)} = ?`, [keyId]);
+		const query = SQL``;
+		query.append(`${this.format(this.primaryKeyName)}`);
+		query.append(SQL` = ${keyId}`);
+		return this.selectOne(entries, query);
 	}
-	updateAll(toParams: Partial<T>, where?: string, whereArgs?: SQLInput[], limit?: number) {
+	updateAll(toParams: Partial<T>, where?: SQLStatement, limit?: number) {
 		const to = Object.entries(toParams);
-		const updateStr = to.map(k => `${this.format(k[0])} = ?`);
-		let queryStr = `UPDATE ${this.getName()} SET ${updateStr}`;
-		if (where) queryStr += ` WHERE ${where}`;
-		if (limit) queryStr += ` LIMIT ${limit}`;
-		return this.database.execute(
-			queryStr,
-			to.map(([, data]) => data as SQLInput).concat(whereArgs || [])
-		);
+		const query = SQL`UPDATE `;
+		query.append(this.getName() + " SET ");
+		for (const [k, v] of to) {
+			query.append(`${this.format(k)} = `);
+			query.append(SQL`${v}`);
+		}
+
+		if (where) {
+			query.append(SQL` WHERE `);
+			query.append(where);
+		}
+		if (limit) query.append(SQL` LIMIT ${limit}`);
+		return this.database.execute(query);
 	}
-	updateOne(to: Partial<T>, where?: string, whereArgs?: SQLInput[]) {
-		return this.updateAll(to, where, whereArgs, 1);
+	updateOne(to: Partial<T>, where?: SQLStatement) {
+		return this.updateAll(to, where, 1);
 	}
 	private getName() {
 		return this.format((this.database.prefix || "") + this.name);
 	}
-	deleteAll(where?: string, args?: SQLInput[], limit?: number) {
-		return this.database.execute(
-			`DELETE FROM ${this.getName()}${where ? ` WHERE ${where}` : ''}` +
-				`${limit ? ` LIMIT ${limit}` : ''}`,
-			args || []
-		);
+	deleteAll(where?: SQLStatement, limit?: number) {
+		const query = SQL`DELETE FROM `;
+		query.append(this.getName());
+		if (where) {
+			query.append(' WHERE ');
+			query.append(where);
+		}
+		if (limit) {
+			query.append(SQL` LIMIT ${limit}`);
+		}
+		return this.database.execute(query);
 	}
 	delete(keyEntry: SQLInput) {
-		return this.deleteOne(`${this.format(this.primaryKeyName)} = ?`, [keyEntry]);
+		const query = SQL``;
+		query.append(this.format(this.primaryKeyName));
+		query.append(SQL` = ${keyEntry}`);
+		return this.deleteOne(query);
 	}
-	deleteOne(where: string, args?: SQLInput[]) {
-		return this.deleteAll(where, args, 1);
+	deleteOne(where: SQLStatement) {
+		return this.deleteAll(where, 1);
 	}
-	insert(colMap: Partial<T>, rest?: string, restArgs?: SQLInput[], isReplace = false) {
-		let queryString = `${isReplace ? 'REPLACE' : 'INSERT'} INTO ${this.getName()} (`;
-		const query = Object.entries(colMap);
-		queryString += query.map(([name]) => this.format(name)).join(', ');
-		queryString += ') VALUES (';
-		queryString += query.map(() => '?').join(', ');
-		queryString += ')';
-		if (rest) queryString += ` ${rest}`;
-		return this.database.execute(
-			queryString,
-			query.map(k => k[1] as SQLInput).concat(restArgs || [])
-		);
+	insert(colMap: Partial<T>, rest?: SQLStatement, isReplace = false) {
+		const query = SQL``;
+		query.append(`${isReplace ? 'REPLACE' : 'INSERT'} INTO ${this.getName()} (`);
+		const keys = Object.keys(colMap);
+		for (let i = 0; i < keys.length; i++) {
+			const key = keys[i];
+			query.append(this.format(key));
+			if (typeof keys[i + 1] !== 'undefined') query.append(`, `);
+		}
+		query.append(`) VALUES(`);
+		for (let i = 0; i < keys.length; i++) {
+			const key = keys[i];
+			query.append(SQL`${colMap[key as keyof T]}`);
+			if (typeof keys[i + 1] !== 'undefined') query.append(`, `);
+		}
+		query.append(`) `);
+		if (rest) query.append(rest);
+		return this.database.execute(query);
 	}
-	replace(cols: Partial<T>, rest?: string, restArgs?: SQLInput[]) {
-		return this.insert(cols, rest, restArgs, true);
+	replace(cols: Partial<T>, rest?: SQLStatement) {
+		return this.insert(cols, rest, true);
 	}
 	format(param: string) {
 		// todo: figure out a better way to do this. backticks are only needed
@@ -161,14 +200,17 @@ export class DatabaseTable<T> {
 		return `\`${param}\``;
 	}
 	update(primaryKey: SQLInput, data: Partial<T>) {
-		return this.updateOne(data, `${this.primaryKeyName} = ?`, [primaryKey]);
+		const query = SQL``;
+		query.append(this.primaryKeyName + ' = ');
+		query.append(SQL`${primaryKey}`);
+		return this.updateOne(data, query);
 	}
 
 	// catch-alls for "we can't fit this query into any of the wrapper functions"
-	query(sqlString: string, params: SQLInput[]) {
+	query(sqlString: SQLStatement | string, params?: SQLInput[]) {
 		return this.database.query<T>(sqlString, params);
 	}
-	execute(sqlString: string, params: SQLInput[]) {
+	execute(sqlString: string | SQLStatement, params?: SQLInput[]) {
 		return this.database.execute(sqlString, params);
 	}
 }

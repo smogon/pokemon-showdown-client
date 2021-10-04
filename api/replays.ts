@@ -5,6 +5,7 @@
  */
 import * as crypto from 'crypto';
 import {ActionError, Dispatcher} from './dispatcher';
+import SQL from 'sql-template-strings';
 import {Session, time} from './session';
 import {toID} from './server';
 import {prepreplays, replays} from "./tables";
@@ -81,13 +82,13 @@ export const Replays = new class {
 	}
 
 	async get(id: string): Promise<ReplayData | null> {
-		const replay = await replays.selectOne('*', 'id = ?', [id]);
+		const replay = await replays.selectOne('*', SQL`id = ${id}`);
 		if (!replay) return null;
 
 		for (const player of ['p1', 'p2'] as const) {
 			if (replay[player].startsWith('!')) replay[player] = replay[player].slice(1);
 		}
-		await replays.query(`UPDATE ps_replays SET views = views + 1 WHERE id = ?`, [replay.id]);
+		await replays.query(SQL`UPDATE ps_replays SET views = views + 1 WHERE id = ${replay.id}`);
 
 		return replay;
 	}
@@ -95,16 +96,16 @@ export const Replays = new class {
 	async edit(replay: ReplayData) {
 		if (replay.private === 3) {
 			replay.private = 3;
-			await replays.updateOne({private: 3, password: null}, 'id = ?', [replay.id]);
+			await replays.updateOne({private: 3, password: null}, SQL`id = ${replay.id}`);
 		} else if (replay.private === 2) {
 			replay.private = 1;
 			replay.password = null;
-			await replays.updateOne({private: 1, password: null}, 'id = ?', [replay.id]);
+			await replays.updateOne({private: 1, password: null}, SQL`id = ${replay.id}`);
 		} else if (replay.private) {
 			if (!replay.password) replay.password = this.generatePassword();
-			await replays.updateOne({private: 1, password: replay.password}, 'id = ?', [replay.id]);
+			await replays.updateOne({private: 1, password: replay.password}, SQL`id = ${replay.id}`);
 		} else {
-			await replays.updateOne({private: 1, password: null}, 'id = ?', [replay.id]);
+			await replays.updateOne({private: 1, password: null}, SQL`id = ${replay.id}`);
 		}
 	}
 
@@ -128,11 +129,12 @@ export const Replays = new class {
 			if (args.username2) {
 				const userid2 = toID(args.username2);
 				if (format) {
+					const query = SQL`(SELECT uploadtime, id, format, p1, p2, password FROM ps_replays FORCE INDEX (p1) WHERE private = ${isPrivate} AND p1id = ${userid} AND p2id = ${userid2} AND format = ${format} ORDER BY ${order} DESC)`;
+					query.append(` UNION `);
+					query.append(SQL`(SELECT uploadtime, id, format, p1, p2, password FROM ps_replays FORCE INDEX (p1) WHERE private = ? AND p1id = ? AND p2id = ? AND format = ? ORDER BY ? DESC)`);
+					query.append(SQL` ORDER BY ? DESC LIMIT ?, 51;`)
 					return replays.query(
-						`(SELECT uploadtime, id, format, p1, p2, password FROM ps_replays FORCE INDEX (p1) WHERE private = ? AND p1id = ? AND p2id = ? AND format = ? ORDER BY ? DESC)` +
-						` UNION ` +
-						`(SELECT uploadtime, id, format, p1, p2, password FROM ps_replays FORCE INDEX (p1) WHERE private = ? AND p1id = ? AND p2id = ? AND format = ? ORDER BY ? DESC)` +
-						` ORDER BY ? DESC LIMIT ?, 51;`,
+						query,
 						[isPrivate, userid, userid2, format, order, isPrivate, userid, userid2, format, order, order, limit1]
 					);
 				} else {
@@ -212,7 +214,7 @@ export const Replays = new class {
 	async upload(params: {[k: string]: any}, dispatcher: Dispatcher) {
 		let id = params.id;
 		if (!toID(id)) throw new ActionError(`Battle ID needed.`);
-		const preppedReplay = await prepreplays.selectOne('*', 'id = ?', [id]);
+		const preppedReplay = await prepreplays.selectOne('*', SQL`id = ${id}`);
 		const replay = await replays.get(['id', 'private', 'password'], id);
 		if (!preppedReplay) {
 			if (replay) {
@@ -274,7 +276,7 @@ export const Replays = new class {
 			]
 		);
 
-		await prepreplays.deleteOne(`id = ? AND loghash = ?`, [id, preppedReplay.loghash]);
+		await prepreplays.deleteOne(SQL`id = ${id} AND loghash = ${preppedReplay}`);
 
 		return 'success:' + fullid;
 	}

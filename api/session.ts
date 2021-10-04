@@ -10,6 +10,7 @@ import {Config} from './config-loader';
 import * as crypto from 'crypto';
 import {ActionError, Dispatcher} from './dispatcher';
 import * as gal from 'google-auth-library';
+import SQL from 'sql-template-strings';
 import {toID} from './server';
 import {ladder, loginthrottle, sessions, users, usermodlog} from './tables';
 import type {User} from './user';
@@ -188,7 +189,7 @@ export class Session {
 				} else if (banstate === 0) {
 					// should we update autoconfirmed status? check to see if it's been long enough
 					if (regtime && time() - regtime > (7 * 24 * 60 * 60)) {
-						const ladders = await ladder.selectOne('formatid', 'userid = ? AND w != 0', [userid]);
+						const ladders = await ladder.selectOne('formatid', SQL`userid = ${userid} AND w != 0`);
 						if (ladders) {
 							userType = '4';
 							void users.update(userid, {banstate: -10});
@@ -307,7 +308,7 @@ export class Session {
 		await users.update(userid, {
 			passwordhash, nonce: null,
 		});
-		await sessions.deleteOne('userid = ?', [userid]);
+		await sessions.deleteOne(SQL`userid = ${userid}`);
 		if (this.dispatcher.user.id === userid) {
 			await this.login(name, pass);
 		}
@@ -428,7 +429,7 @@ export class Session {
 		}
 		if (res.timeout < ctime) {
 			// session expired
-			await sessions.deleteAll('timeout = ?', [ctime]);
+			await sessions.deleteAll(SQL`timeout = ${ctime}`);
 			this.deleteCookie();
 			return;
 		}

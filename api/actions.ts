@@ -7,6 +7,7 @@
 import {Config} from './config-loader';
 import {ActionError, Dispatcher, QueryHandler} from './dispatcher';
 import * as fs from 'fs';
+import SQL from 'sql-template-strings';
 import {NTBBLadder} from './ladder';
 import {Replays} from './replays';
 import {toID} from './server';
@@ -98,7 +99,7 @@ export const actions: {[k: string]: QueryHandler} = {
 
 		await tables.userstats.insert({
 			serverid: server.id, date, usercount,
-		}, "ON DUPLICATE KEY UPDATE `date`= ?, `usercount`= ?", [date, usercount]);
+		}, SQL`ON DUPLICATE KEY UPDATE \`date\`= ${date}, \`usercount\`= ${usercount}`);
 
 		if (server.id === 'showdown') {
 			await tables.userstatshistory.insert({date, usercount});
