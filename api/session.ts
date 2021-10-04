@@ -362,7 +362,7 @@ export class Session {
 
 		let rehash = false;
 		if (userData?.passwordhash) {
-			if (!await bcrypt.compare(pass, userData.passwordhash)) {
+			if (!(await bcrypt.compare(pass, userData.passwordhash))) {
 				if (throttleTable) {
 					throttleTable.count++;
 					await loginthrottle.update(ip, {

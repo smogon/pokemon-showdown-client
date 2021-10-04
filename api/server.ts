@@ -39,6 +39,16 @@ export class Router {
 
 		this.server.listen(port);
 	}
+	static crashlog(error: any, source = '', details = {}) {
+		try {
+			const {crashlogger} = require('../data/pokemon-showdown');
+			crashlogger(error, source, details, Config.crashguardemail);
+		} catch (e) {
+			// don't have data/pokemon-showdown built? something else went wrong? oh well
+			console.log('CRASH', error);
+			console.log('SUBCRASH', e);
+		}
+	}
 	async handle(req: http.IncomingMessage, res: http.ServerResponse) {
 		const dispatcher = new Dispatcher(req, res);
 		this.activeRequests++;
@@ -59,6 +69,11 @@ export class Router {
 			if (e.name?.endsWith('ActionError')) {
 				return res.end(Router.stringify({actionerror: e.message}));
 			}
+
+			const {body} = dispatcher.parseRequest()!;
+			for (const k of ['pass', 'password']) delete body[k];
+			Router.crashlog(e, 'an API request', body);
+
 			res.writeHead(503).end();
 			throw e;
 		}
