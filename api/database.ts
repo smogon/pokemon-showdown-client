@@ -4,6 +4,7 @@
  * @author mia-pi-git
  */
 import * as mysql from 'mysql';
+import SQL, {SQLStatement} from 'sql-template-strings';
 import {Config} from './config-loader';
 
 export type SQLInput = string | number | null;
@@ -19,7 +20,7 @@ export class PSDatabase {
 		this.prefix = config.prefix || 'ntbb_';
 		if (!databases.includes(this)) databases.push(this);
 	}
-	query<T = ResultRow>(queryString: string, args: SQLInput[]) {
+	query<T = ResultRow>(queryString: string | SQLStatement, args: SQLInput[]) {
 		return new Promise<T[]>((resolve, reject) => {
 			this.pool.query(queryString, args, (e, results) => {
 				// conn.active = false;
@@ -39,18 +40,24 @@ export class PSDatabase {
 			});
 		});
 	}
-	async get<T = ResultRow>(queryString: string, args: SQLInput[]): Promise<T | null> {
+	async get<T = ResultRow>(
+		queryString: string | SQLStatement, args?: SQLInput[]
+	): Promise<T | null> {
 		// if (!queryString.includes('LIMIT')) queryString += ` LIMIT 1`;
 		// limit it yourself, consumers
-		const rows = await this.query(queryString, args);
+		const rows = await this.query(queryString, args || []);
 		if (Array.isArray(rows)) return rows[0] as unknown as T;
 		return rows ?? null;
 	}
-	async execute(queryString: string, args: SQLInput[]): Promise<mysql.OkPacket> {
-		if (!['UPDATE', 'INSERT', 'DELETE', 'REPLACE'].some(i => queryString.includes(i))) {
+	async execute(queryString: string | SQLStatement, args: SQLInput[]): Promise<mysql.OkPacket> {
+		const str = typeof queryString === 'string' ? queryString : queryString.text;
+		if (!['UPDATE', 'INSERT', 'DELETE', 'REPLACE'].some(i => str.includes(i))) {
 			throw new Error('Use `query` or `get` for non-insertion / update statements.');
 		}
-		return this.get(queryString, args) as Promise<mysql.OkPacket>;
+		if (typeof queryString === 'object') {
+			return this.get(queryString, args) as Promise<mysql.OkPacket>;
+		}
+		return this.get(SQL(queryString, args)) as Promise<mysql.OkPacket>;
 	}
 	close() {
 		this.pool.end();
