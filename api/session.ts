@@ -80,7 +80,7 @@ export class Session {
 	async addUser(username: string, password: string) {
 		const hash = await bcrypt.hash(password, Config.passwordSalt);
 		const userid = toID(username);
-		const exists = await users.get(['userid'], toID(username));
+		const exists = await users.get(['userid'], userid);
 		if (exists) return null;
 		const ip = this.dispatcher.getIp();
 
