@@ -6,6 +6,7 @@ import {Config} from '../config-loader';
 import {Replays, md5} from '../replays';
 import {prepreplays, replays} from '../tables';
 import {strict as assert} from 'assert';
+import SQL from 'sql-template-strings';
 import * as utils from './test-utils';
 
 (Config.testdb ? describe : describe.skip)("Replay database manipulation", () => {
@@ -24,7 +25,7 @@ import * as utils from './test-utils';
 				});
 
 				const currentUnixTime = Math.floor(Date.now() / 1000);
-				const dbResult = await prepreplays.selectOne('*', 'p1 = ? AND p2 = ?', ['annika', 'heartofetheria']);
+				const dbResult = await prepreplays.selectOne('*', SQL`p1 = ${'annika'} AND p2 = ${'heartofetheria'}`);
 				assert(dbResult, `database entry should exist`);
 
 				assert.equal(dbResult.id, 'gen8randombattle-42');

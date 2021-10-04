@@ -93,7 +93,7 @@ export class DatabaseTable<T> {
 	}
 	async selectOne(
 		entries: string | string[],
-		where?: SQLStatement,
+		where?: SQLStatement
 	): Promise<T | null> {
 		const query = where || SQL``;
 		query.append(` LIMIT 1`);

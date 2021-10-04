@@ -129,10 +129,11 @@ export const Replays = new class {
 			if (args.username2) {
 				const userid2 = toID(args.username2);
 				if (format) {
-					const query = SQL`(SELECT uploadtime, id, format, p1, p2, password FROM ps_replays FORCE INDEX (p1) WHERE private = ${isPrivate} AND p1id = ${userid} AND p2id = ${userid2} AND format = ${format} ORDER BY ${order} DESC)`;
+					const query = SQL`(SELECT uploadtime, id, format, p1, p2, password FROM ps_replays FORCE INDEX (p1) WHERE private = ${isPrivate} AND p1id = ${userid} AND p2id = ${userid2} AND format = ${format} ORDER BY `;
+					query.append(`${order} DESC)`);
 					query.append(` UNION `);
 					query.append(SQL`(SELECT uploadtime, id, format, p1, p2, password FROM ps_replays FORCE INDEX (p1) WHERE private = ? AND p1id = ? AND p2id = ? AND format = ? ORDER BY ? DESC)`);
-					query.append(SQL` ORDER BY ? DESC LIMIT ?, 51;`)
+					query.append(SQL` ORDER BY ? DESC LIMIT ?, 51;`);
 					return replays.query(
 						query,
 						[isPrivate, userid, userid2, format, order, isPrivate, userid, userid2, format, order, order, limit1]
