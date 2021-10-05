@@ -41,7 +41,7 @@ export class Session {
 			this.session = parseInt(sessionId, 10);
 			return this.sidhash;
 		}
-		return this.setSid();
+		return '';
 	}
 	getName() {
 		return this.dispatcher.cookies.get('showdown_username') || this.dispatcher.user.name;
@@ -104,7 +104,7 @@ export class Session {
 		}
 		const timeout = (curTime + SID_DURATION);
 		const ip = this.dispatcher.getIp();
-		const sidhash = await this.getSid();
+		const sidhash = await this.makeSid();
 		const res = await sessions.insert({userid, sid: sidhash, time: time(), timeout, ip});
 		this.sidhash = sidhash;
 		this.session = res.insertId || 0;
@@ -249,7 +249,7 @@ export class Session {
 		this.updateCookie();
 
 		if (Config.validateassertion) {
-			data = Config.validateassertion.call(
+			data = await Config.validateassertion.call(
 				this, challengetoken, user, data, serverHost
 			);
 		}
