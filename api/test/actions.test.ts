@@ -7,6 +7,7 @@ import {Config} from '../config-loader';
 import {strict as assert} from 'assert';
 import {NTBBLadder} from '../ladder';
 import * as utils from './test-utils';
+import SQL from 'sql-template-strings';
 import * as tables from '../tables';
 
 (Config.testdb ? describe : describe.skip)("Loginserver actions", async () => {
@@ -78,7 +79,7 @@ import * as tables from '../tables';
 	});
 	it("Should prepare replays", async () => {
 		// clear old
-		await tables.prepreplays.deleteOne('id = ?', ['gen8randombattle-3096']);
+		await tables.prepreplays.deleteOne(SQL`id = ${'gen8randombattle-3096'}`);
 
 		// as long as it doesn't throw, we're fine
 		const {result} = await utils.testDispatcher({
@@ -103,8 +104,7 @@ import * as tables from '../tables';
 		});
 
 		const cached = await tables.prepreplays.selectOne(
-			'*', 'id = ?',
-			['gen8randombattle-3096']
+			'*', SQL`id = ${'gen8randombattle-3096'}`
 		);
 		assert(cached, "Could not locate entry for prepped replay");
 	});
@@ -113,8 +113,7 @@ import * as tables from '../tables';
 		it("Should update the ladder", async () => {
 			for (const id of ['catra', 'adora']) {
 				await tables.ladder.deleteOne(
-					'userid = ? AND formatid = ?',
-					[id, 'gen1randombattle'],
+					SQL`userid = ${id} AND formatid = ${'gen1randombattle'}`,
 				); // clear their ratings entirely
 			}
 			const {result} = await utils.testDispatcher({
@@ -135,8 +134,7 @@ import * as tables from '../tables';
 			const p2 = NTBBLadder.getUserData('catra');
 			for (const player of [p1, p2]) {
 				await tables.ladder.deleteAll(
-					'userid = ? AND formatid = ?',
-					[player.id, ladder.formatid]
+					SQL`userid = ${player.id} AND formatid = ${ladder.formatid}`,
 				);
 			}
 			await ladder.updateRating(p1, p2, 1);

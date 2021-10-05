@@ -48,12 +48,7 @@ export class Session {
 	}
 	makeSid() {
 		if (Config.makeSid) return Config.makeSid.call(this);
-		return new Promise((resolve, reject) => {
-			crypto.randomBytes(24, (err, buf) => {
-				if (err) return reject(err);
-				resolve(buf.toString('hex'));
-			});
-		});
+		return crypto.randomBytes(24).toString('hex');
 	}
 	async setSid() {
 		if (!this.sidhash) {
@@ -227,7 +222,7 @@ export class Session {
 			splitChallenge = challenge.split(delim);
 			if (splitChallenge.length > 1) break;
 		}
-		console.log(splitChallenge);
+
 		let challengetoken;
 		if (splitChallenge.length > 1) {
 			challengekeyid = parseInt(splitChallenge[0], 10);

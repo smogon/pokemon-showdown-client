@@ -98,7 +98,8 @@ export class DatabaseTable<T> {
 		if (typeof entries === 'string') {
 			query.append(` * `);
 		} else {
-			for (const [i, key] of entries.entries()) {
+			for (let i = 0; i < entries.length; i++) {
+				const key = entries[i];
 				query.append(this.format(key));
 				if (entries[i + 1]) query.append(`, `);
 			}
@@ -121,9 +122,13 @@ export class DatabaseTable<T> {
 		const to = Object.entries(toParams);
 		const query = SQL`UPDATE `;
 		query.append(this.getName() + " SET ");
-		for (const [k, v] of to) {
+		for (let i = 0; i < to.length; i++) {
+			const [k, v] = to[i];
 			query.append(`${this.format(k)} = `);
 			query.append(SQL`${v}`);
+			if (typeof to[i + 1] !== 'undefined') {
+				query.append(', ');
+			}
 		}
 
 		if (where) {
