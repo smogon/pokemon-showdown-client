@@ -20,13 +20,9 @@ export class PSDatabase {
 		this.prefix = config.prefix || 'ntbb_';
 		if (!databases.includes(this)) databases.push(this);
 	}
-	query<T = ResultRow>(queryString: string | SQLStatement, args?: SQLInput[]) {
-		if (typeof queryString === 'object') {
-			args = queryString.values;
-			queryString = queryString.sql;
-		}
+	query<T = ResultRow>(query: SQLStatement) {
 		return new Promise<T[]>((resolve, reject) => {
-			this.pool.query(queryString, args, (e, results) => {
+			this.pool.query(query.sql, query.values, (e, results) => {
 				// conn.active = false;
 				if (e) {
 					return reject(
@@ -44,24 +40,18 @@ export class PSDatabase {
 			});
 		});
 	}
-	async get<T = ResultRow>(
-		queryString: string | SQLStatement, args?: SQLInput[]
-	): Promise<T | null> {
+	async get<T = ResultRow>(query: SQLStatement): Promise<T | null> {
 		// if (!queryString.includes('LIMIT')) queryString += ` LIMIT 1`;
 		// limit it yourself, consumers
-		const rows = await this.query(queryString, args || []);
+		const rows = await this.query(query);
 		if (Array.isArray(rows)) return rows[0] as unknown as T;
 		return rows ?? null;
 	}
-	async execute(queryString: string | SQLStatement, args?: SQLInput[]): Promise<mysql.OkPacket> {
-		const str = typeof queryString === 'string' ? queryString : queryString.text;
-		if (!['UPDATE', 'INSERT', 'DELETE', 'REPLACE'].some(i => str.includes(i))) {
+	async execute(query: SQLStatement): Promise<mysql.OkPacket> {
+		if (!['UPDATE', 'INSERT', 'DELETE', 'REPLACE'].some(i => query.sql.includes(i))) {
 			throw new Error('Use `query` or `get` for non-insertion / update statements.');
 		}
-		if (typeof queryString === 'object') {
-			return this.get(queryString, args) as Promise<mysql.OkPacket>;
-		}
-		return this.get(SQL(queryString, args)) as Promise<mysql.OkPacket>;
+		return this.get(query) as Promise<mysql.OkPacket>;
 	}
 	close() {
 		this.pool.end();
@@ -207,10 +197,10 @@ export class DatabaseTable<T> {
 	}
 
 	// catch-alls for "we can't fit this query into any of the wrapper functions"
-	query(sqlString: SQLStatement | string, params?: SQLInput[]) {
-		return this.database.query<T>(sqlString, params);
+	query(sql: SQLStatement) {
+		return this.database.query<T>(sql);
 	}
-	execute(sqlString: string | SQLStatement, params?: SQLInput[]) {
-		return this.database.execute(sqlString, params);
+	execute(sql: SQLStatement) {
+		return this.database.execute(sql);
 	}
 }

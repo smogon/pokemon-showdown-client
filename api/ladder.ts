@@ -149,10 +149,10 @@ export class NTBBLadder {
 				// an indexed query for additional rows and filter them down further. This is obviously *not* guaranteed
 				// to return exactly $limit results, but should be 'good enough' in practice.
 				const overfetch = limit * 2;
-				res = await ladder.query(
-					"SELECT * FROM (SELECT * FROM `ntbb_ladder` WHERE `formatid` = ? ORDER BY `elo` DESC LIMIT ?) AS `unusedalias` WHERE `userid` LIKE ? LIMIT ?",
-					[this.formatid, prefix, limit, overfetch]
-				);
+				const query = SQL`SELECT * FROM `;
+				query.append(SQL`(SELECT * FROM \`ntbb_ladder\` WHERE \`formatid\` = ${this.formatid} ORDER BY \`elo\` DESC LIMIT ${limit})`);
+				query.append(SQL`AS \`unusedalias\` WHERE \`userid\` LIKE ${prefix} LIMIT ${overfetch}`);
+				res = await ladder.query(query);
 			} else {
 				res = await ladder.selectAll('*', SQL`formatid = ${this.formatid} ORDER BY elo DESC`);
 			}

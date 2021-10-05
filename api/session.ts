@@ -70,10 +70,9 @@ export class Session {
 	async getRecentRegistrationCount(period: number) {
 		const ip = this.dispatcher.getIp();
 		const timestamp = time() - period;
-		const rows = await users.database.get(
-			"SELECT COUNT(*) AS `registrationcount` FROM `ntbb_users` WHERE `ip` = ? AND `registertime` > ?",
-			[ip, timestamp]
-		);
+		const query = SQL`SELECT COUNT(*) AS \`registrationcount\` FROM \`ntbb_users\``;
+		query.append(SQL`WHERE \`ip\` = ${ip} AND \`registertime\` > ${timestamp}`);
+		const rows = await users.database.get(query);
 		if (!rows) return 0;
 		return rows['registrationcount'];
 	}
@@ -415,13 +414,12 @@ export class Session {
 		if (!session) {
 			return;
 		}
-		const res = await users.database.get<{sid: string, timeout: number}>(
-			"SELECT sid, timeout, `ntbb_users`.* " +
-			"FROM `ntbb_sessions`, `ntbb_users` " +
-			"WHERE `session` = ? " +
-			"AND `ntbb_sessions`.`userid` = `ntbb_users`.`userid` " +
-			"LIMIT 1", [session]
-		);
+		const query = SQL`SELECT sid, timeout, \`ntbb_users\`.* `;
+		query.append(SQL`FROM \`ntbb_sessions\`, \`ntbb_users\` `);
+		query.append(SQL`WHERE \`session\` = ${session} `);
+		query.append(SQL`AND \`ntbb_sessions\`.\`userid\` = \`ntbb_users\`.\`userid\` `);
+		query.append(` LIMIT 1`);
+		const res = await users.database.get<{sid: string, timeout: number}>(query);
 		if (!res || !(await this.validateSid(sid, res.sid))) {
 			// invalid session ID
 			this.deleteCookie();
