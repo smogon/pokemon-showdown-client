@@ -40,7 +40,7 @@ export interface PreparedReplay {
 	uploadtime: number;
 }
 
-function stripNonAscii(str: string) {
+export function stripNonAscii(str: string) {
 	return str.replace(/[^(\x20-\x7F)]+/g, '');
 }
 
@@ -82,7 +82,7 @@ export const Replays = new class {
 	}
 
 	async get(id: string): Promise<ReplayData | null> {
-		const replay = await replays.selectOne('*', SQL`id = ${id}`);
+		const replay = await replays.get('*', id);
 		if (!replay) return null;
 
 		for (const player of ['p1', 'p2'] as const) {
@@ -220,7 +220,7 @@ export const Replays = new class {
 	async upload(params: {[k: string]: any}, dispatcher: Dispatcher) {
 		let id = params.id;
 		if (!toID(id)) throw new ActionError(`Battle ID needed.`);
-		const preppedReplay = await prepreplays.selectOne('*', SQL`id = ${id}`);
+		const preppedReplay = await prepreplays.get('*', id);
 		const replay = await replays.get(['id', 'private', 'password'], id);
 		if (!preppedReplay) {
 			if (replay) {
@@ -270,15 +270,14 @@ export const Replays = new class {
 
 		const privacy = preppedReplay.private ? 1 : 0;
 		const {p1, p2, format, uploadtime, rating, inputlog} = preppedReplay;
-		const query = SQL`INSERT INTO ps_replays (id, p1, p2, format, p1id, p2id, formatid, uploadtime, private, rating, log, inputlog, \`password\`) `;
-		query.append(`VALUES (`);
-		query.append(SQL`${id}, ${p1}, ${p2}, ${format}, ${p1id}, ${p2id}, ${formatid}, `);
-		query.append(SQL`${uploadtime}, ${privacy}, ${rating}, ${params.log}, ${inputlog}, ${password}`);
-		query.append(`	) ON DUPLICATE KEY UPDATE `);
-		query.append(SQL`log = ${params.log}, inputlog = ${inputlog}, rating = ${rating}, private = ${privacy}, \`password\` = ${password}`);
-		await replays.execute(query);
+		await replays.insert({
+			id, p1, p2, format, p1id, p2id,
+			formatid, uploadtime,
+			private: privacy, rating, log: params.log,
+			inputlog, password,
+		}, SQL`ON DUPLICATE KEY UPDATE log = ${params.log}, inputlog = ${inputlog}, rating = ${rating}, private = ${privacy}, \`password\` = ${password}`);
 
-		await prepreplays.deleteOne(SQL`id = ${id} AND loghash = ${preppedReplay}`);
+		await prepreplays.deleteOne(SQL`id = ${id} AND loghash = ${preppedReplay.loghash}`);
 
 		return 'success:' + fullid;
 	}

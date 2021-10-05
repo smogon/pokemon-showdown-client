@@ -3,7 +3,7 @@
 * @author Annika
 */
 import {Config} from '../config-loader';
-import {Replays, md5} from '../replays';
+import {Replays, md5, stripNonAscii} from '../replays';
 import {prepreplays, replays} from '../tables';
 import {strict as assert} from 'assert';
 import SQL from 'sql-template-strings';
@@ -58,39 +58,62 @@ import * as utils from './test-utils';
 		it('should properly upload replays', async () => {
 				const dispatcher = utils.makeDispatcher({});
 				const inputlog = [
-						`>version 3eeccb002ecc608fb66c25b6abb3ef87f667f8b6`,
-						`>version-origin a5d3aaee353a60c91076162238b2a6d09c284165`,
-						`>start {"formatid":"gen8randombattle","seed":[1,1,1,1],"rated":"Rated battle"}`,
-						`>player p1 {"name":"Annika","avatar":"1","rating":1000,"seed":[2,3,4,5]}`,
-						`>player p2 {"name":"Heart of Etheria","avatar":"1","rating":1069,"seed":[4,5,6,7]}`,
+					`>version 3643e94ff7b9b025f98fb947cfe103546db62c03`,
+					">version-origin 222745920a04435f2585483b5f119227c147005a",
+					`>start {"formatid":"gen8randombattle","seed":[10795,22527,59340,715],"rated":"Rated battle"}", ">player p1 {"name":"mia is testing 2","avatar":"2","rating":1000,"seed":[61291,35585,26582,55949]}`,
+					`>player p2 {"name":"Mia","avatar":"miapi.png","rating":1000,"seed":[31770,27174,44195,58706]}`,
 				].join('\n');
-				const loghash = md5(inputlog);
+				const log = `|j|☆mia is testing 2
+				|j|☆Mia
+				|t:|1633454094
+				|gametype|singles
+				|player|p1|mia is testing 2|2|1000
+				|player|p2|Mia|miapi.png|1000
+				|teamsize|p1|6
+				|teamsize|p2|6
+				|gen|8
+				|tier|[Gen 8] Random Battle
+				|rated|
+				|rule|Species Clause: Limit one of each Pokémon
+				|rule|HP Percentage Mod: HP is shown in percentages
+				|rule|Sleep Clause Mod: Limit one foe put to sleep
+				|
+				|t:|1633454094
+				|start
+				|switch|p1a: Tyrantrum|Tyrantrum, L82, M|269/269
+				|switch|p2a: Polteageist|Polteageist, L78|222/222
+				|turn|1
+				`;
+				const loghash = md5(stripNonAscii(log));
 				const toPrep = {
-						p1: 'Annika', p2: 'Heart of Etheria', id: 'uploadtest', rating: '1000',
-						format: 'gen8randombattle', hidden: true, loghash, serverid: 'showdown', inputlog,
+					p1: 'Annika', p2: 'Heart of Etheria',
+					id: 'uploadtest', rating: '1000',
+					format: '[Gen 8] Random Battle', hidden: true,
+					loghash, serverid: 'showdown', inputlog,
 				};
+				await Replays.prep(toPrep);
 				const replay = {
-						id: 'uploadtest',
-						password: 'hunter2',
-						p1: 'Annika', p2: 'Heart of Etheria',
-						format: '[Gen 8] Random Battle',
+					id: 'uploadtest',
+					password: 'hunter2',
+					p1: 'Annika', p2: 'Heart of Etheria',
+					format: toPrep.format,
+					log,
 				};
 
 				const result = await Replays.upload(replay, dispatcher);
 				assert(result.startsWith('success:'));
 
-				const fetchedReplay = Replays.get('uploadtest');
-				for (const [key, value] of Object.entries(replay)) {
-						assert.equal(fetchedReplay[key], value);
+				const fetchedReplay = await Replays.get('uploadtest');
+				for (const k in replay) {
+					assert.equal(fetchedReplay[k], replay[k]);
 				}
 
 				assert.equal(fetchedReplay['p1id'], 'annika');
 				assert.equal(fetchedReplay['p2id'], 'heartofetheria');
-				assert.equal(fetchedReplay['fullid'], 'uploadtest-hunter2');
 				assert.equal(fetchedReplay['formatid'], 'gen8randombattle');
-				assert.equal(fetchedReplay['privacy'], 1);
+				assert.equal(fetchedReplay['private'], 1);
 				assert.equal(fetchedReplay['rating'], 1000);
-				assert.equal(fetchedReplay['log'], inputlog);
+				assert.equal(fetchedReplay['log'], replay.log);
 				assert.equal(fetchedReplay['inputlog'], inputlog);
 		});
 

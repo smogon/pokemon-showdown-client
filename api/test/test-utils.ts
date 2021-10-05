@@ -13,6 +13,7 @@ import * as crypto from 'crypto';
 import {databases} from '../database';
 import {strict as assert} from 'assert';
 import * as fs from 'fs';
+import SQL from 'sql-template-strings';
 
 export let setup = false;
 export async function setupDB() {
@@ -43,7 +44,7 @@ export async function setupDB() {
 		db.connect(Config.testdb);
 		for (const file of sqlFiles) {
 			const schema = fs.readFileSync(`${__dirname}/../../${file}`, 'utf-8');
-			await db.query(schema, []).catch(() => {});
+			await db.query(SQL(schema)).catch(() => {});
 		}
 	}
 }
