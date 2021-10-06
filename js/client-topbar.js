@@ -504,7 +504,6 @@
 				buf += '<p><label class="optlabel"><input type="checkbox" name="temporarynotifications"' + (Dex.prefs('temporarynotifications') ? ' checked' : '') + ' /> Notifications disappear automatically</label></p>';
 			}
 			buf += '<p><label class="optlabel"><input type="checkbox" name="refreshprompt"' + (Dex.prefs('refreshprompt') ? ' checked' : '') + '> Prompt on refresh</label></p>';
-			buf += '<p><label class="optlabel"><input type="checkbox" name="login"' + (Dex.prefs('newlogin') ? ' checked' : '') + '> Use new loginserver (BETA)</label></p>';
 			var curLang = toID(Dex.prefs('serversettings').language) || 'english';
 			var possibleLanguages = {
 				"Deutsch": 'german',

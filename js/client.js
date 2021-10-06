@@ -221,10 +221,6 @@ function toId() {
 				ret = 'https://' + Config.routes.client + ret;
 			}
 			return (this.getActionPHP = function () {
-				// todo remove in about a week/2, fully transition to new loginserver
-				if (Storage.prefs('newlogin')) {
-					return '/api';
-				}
 				return ret;
 			})();
 		},
