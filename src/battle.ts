@@ -2368,7 +2368,7 @@ export class Battle {
 			let poke = this.getPokemon(args[1])!;
 			let species = Dex.species.get(args[2]);
 			let fromeffect = Dex.getEffect(kwArgs.from);
-			let isCustomAnim = false;
+			let isCustomAnim = species.name.startsWith('Wishiwashi');
 			poke.removeVolatile('typeadd' as ID);
 			poke.removeVolatile('typechange' as ID);
 			if (this.gen >= 7) poke.removeVolatile('autotomize' as ID);
