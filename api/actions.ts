@@ -194,8 +194,7 @@ export const actions: {[k: string]: QueryHandler} = {
 			// the format from the battle ID must match the format ID
 			(formatId[1] !== extractedFormatId[1])
 		) {
-			out = 0;
-			return out;
+			return 0;
 		}
 
 		if (server.id !== Config.mainserver) {
