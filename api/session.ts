@@ -17,7 +17,6 @@ import type {User} from './user';
 
 const SID_DURATION = 2 * 7 * 24 * 60 * 60;
 const LOGINTIME_INTERVAL = 24 * 60 * 60;
-const GAL_CLIENT_ID = '912270888098-jjnre816lsuhc5clj3vbcn4o2q7p4qvk.apps.googleusercontent.com';
 
 export function time() {
 	// php has this with unix seconds. so we have to as well.
@@ -331,12 +330,12 @@ export class Session {
 
 		const userData = await users.get('*', userid);
 		if (userData?.email?.endsWith('@')) {
-			const client = new gal.OAuth2Client(GAL_CLIENT_ID, '', '');
+			const client = new gal.OAuth2Client(Config.galclient, '', '');
 			try {
 				const payload = await new Promise<{[k: string]: any} | null>((resolve, reject) => {
 					client.verifyIdToken({
 						idToken: pass,
-						audience: GAL_CLIENT_ID,
+						audience: Config.galclient,
 					}, (e, login) => {
 						if (e) return reject(e);
 						resolve(login?.getPayload() || null);
