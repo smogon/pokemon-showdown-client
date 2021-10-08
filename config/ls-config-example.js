@@ -12,11 +12,11 @@ exports.passwordSalt = 10;
 
 // routes
 exports.routes = {
- client:	"play.pokemonshowdown.com",
- dex:	"dex.pokemonshowdown.com",
- replays:	"replay.pokemonshowdown.com",
- root:	"pokemonshowdown.com",
- users:	"pokemonshowdown.com/users",
+ client: "play.pokemonshowdown.com",
+ dex: "dex.pokemonshowdown.com",
+ replays: "replay.pokemonshowdown.com",
+ root: "pokemonshowdown.com",
+ users: "pokemonshowdown.com/users",
 };
 
 /**

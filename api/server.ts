@@ -15,8 +15,6 @@ export function toID(text: any): string {
 		text = text.id;
 	} else if (text?.userid) {
 		text = text.userid;
-	} else if (text?.roomid) {
-		text = text.roomid;
 	}
 	if (typeof text !== 'string' && typeof text !== 'number') return '';
 	return ('' + text).toLowerCase().replace(/[^a-z0-9]+/g, '');

@@ -23,6 +23,9 @@ export const actions: {[k: string]: QueryHandler} = {
 		if (!/[a-z]/.test(userid)) {
 			throw new ActionError(`Your username must include at least one letter.`);
 		}
+		if (!password) {
+			throw new ActionError('You must specify a password.');
+		}
 		if (userid.startsWith('guest')) {
 			throw new ActionError(`Your username cannot start with 'guest'.`);
 		}
@@ -101,7 +104,7 @@ export const actions: {[k: string]: QueryHandler} = {
 			serverid: server.id, date, usercount,
 		}, SQL`ON DUPLICATE KEY UPDATE \`date\`= ${date}, \`usercount\`= ${usercount}`);
 
-		if (server.id === 'showdown') {
+		if (server.id === Config.mainserver) {
 			await tables.userstatshistory.insert({date, usercount});
 		}
 		return {actionsuccess: true};
@@ -144,7 +147,7 @@ export const actions: {[k: string]: QueryHandler} = {
 			throw new ActionError(`JSON sent must be an array of requests.`);
 		}
 		if (server.server !== Config.mainserver && json.length > 20) {
-			throw new ActionError(`Too many requests were sent. Send them in more batches.`);
+			throw new ActionError(`Too many requests were sent. Send them in batches of 20.`);
 		}
 		const results = [];
 		for (const request of json) {
@@ -195,7 +198,7 @@ export const actions: {[k: string]: QueryHandler} = {
 			return out;
 		}
 
-		if (server.id !== 'showdown') {
+		if (server.id !== Config.mainserver) {
 			params.id = server.id + '-' + params.id;
 		}
 		params.serverid = server.id;
@@ -245,6 +248,7 @@ export const actions: {[k: string]: QueryHandler} = {
 		if (!(await this.session.passwordVerify(this.user.id, params.oldpassword))) {
 			throw new ActionError('Your old password was incorrect.');
 		}
+		params.password = params.password.replace(/\s/ig, '');
 		if (params.password.length < 5) {
 			throw new ActionError('Your new password must be at least 5 characters long.');
 		}
@@ -270,7 +274,7 @@ export const actions: {[k: string]: QueryHandler} = {
 	},
 	async ladderupdate(params) {
 		const server = this.getServer(true);
-		if (!server || server.id !== 'showdown') {
+		if (server?.id !== Config.mainserver) {
 			return {errorip: "Your version of PS is too old for this ladder system. Please update."};
 		}
 
@@ -280,6 +284,7 @@ export const actions: {[k: string]: QueryHandler} = {
 		const p2 = NTBBLadder.getUserData(params.p2);
 		if (!p1 || !p2) {
 			// The server should not send usernames > 18 characters long.
+			// (getUserData returns falsy when the usernames are too long)
 			return 0;
 		}
 
@@ -295,7 +300,7 @@ export const actions: {[k: string]: QueryHandler} = {
 	},
 	async ladderget(params) {
 		const server = this.getServer(true);
-		if (!server || server.id !== 'showdown') {
+		if (server?.id !== Config.mainserver) {
 			return {errorip: true};
 		}
 
@@ -308,7 +313,7 @@ export const actions: {[k: string]: QueryHandler} = {
 	},
 	async mmr(params) {
 		const server = this.getServer(true);
-		if (!server || server.id !== 'showdown') {
+		if (server?.id !== Config.mainserver) {
 			return {errorip: 'Your version of PS is too old for this ladder system. Please update.'};
 		}
 		if (!params.format) throw new ActionError("Specify a format.");

@@ -216,7 +216,6 @@ export class NTBBLadder {
 			let rpdata = user.rating.rpdata.split('##');
 			if (rpdata.length > 1) offset = parseFloat(rpdata[1]);
 			rating.m = JSON.parse(rpdata[0]);
-			// var_export($rating->M);
 		}
 
 		if (rp > user.rating.rptime) {
@@ -324,7 +323,6 @@ export class NTBBLadder {
 				K = 40;
 			}
 			const E = 1 / (1 + Math.pow(10, (newMelo - elo) / 400));
-			// console.log({K, score: newM.score, E, res: K * (newM.score - E), elo});
 			elo += K * (newM.score! - E);
 
 			if (elo < 1000) elo = 1000;

@@ -15,7 +15,7 @@
     "fix": "eslint --config=.eslintrc.js --fix js/ && eslint --config=build-tools/.eslintrc.js --fix build-tools/update build-tools/build-indexes",
     "build": "node build",
     "build-full": "node build full",
-    "ls": "node api/build && npx pm2 start .api-dist"
+    "loginserver": "node api/build && npx pm2 start .api-dist"
   },
   "dependencies": {
     "@babel/core": "^7.13.15",

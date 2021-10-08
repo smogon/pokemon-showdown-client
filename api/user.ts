@@ -8,7 +8,7 @@
 import type {Dispatcher} from './dispatcher';
 import type {LadderEntry} from './ladder';
 import {toID} from './server';
-import type {Session} from './session';
+import {time, Session} from './session';
 import {users} from './tables';
 
 export interface UserInfo {
@@ -35,8 +35,7 @@ export class User {
 	loggedin = false;
 	rating: LadderEntry | null = null;
 	ratings: LadderEntry[] = [];
-	constructor(name: string, session: Session) {
-		this.name = name;
+	constructor(session: Session) {
 		this.dispatcher = session.dispatcher;
 		this.session = session;
 	}
@@ -70,7 +69,7 @@ export class User {
 			registertime: 0,
 			banstate: 0,
 			ip: '',
-			logintime: Date.now(),
+			logintime: time(),
 			loginip: '',
 			avatar: 0,
 		};

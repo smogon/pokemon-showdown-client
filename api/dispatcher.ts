@@ -55,7 +55,7 @@ export class Dispatcher {
 		this.request = req;
 		this.response = res;
 		this.session = new Session(this);
-		this.user = new User('guest', this.session);
+		this.user = new User(this.session);
 		this.opts = opts;
 		this.cookies = Dispatcher.parseCookie(this.request.headers.cookie);
 	}
@@ -132,10 +132,8 @@ export class Dispatcher {
 		const ip = this.request.socket.remoteAddress;
 		let forwarded = this.request.headers['x-forwarded-for'] || "";
 		if (!Array.isArray(forwarded)) forwarded = forwarded.split(',');
-		if (Config.trustedproxies && forwarded.length) {
-			if (Config.trustedproxies.includes(ip)) {
-				return forwarded.pop() as string;
-			}
+		if (forwarded.length && Config.trustedproxies?.includes(ip)) {
+			return forwarded.pop() as string;
 		}
 		return ip || "";
 	}

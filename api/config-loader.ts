@@ -13,7 +13,7 @@ export type Configuration = typeof defaults & {[k: string]: any};
 
 export function load(invalidate = false): Configuration {
 	if (invalidate) delete require.cache[path.resolve(__dirname, '../config/ls-config')];
-	const config = defaults;
+	const config: typeof defaults & {[k: string]: any} = defaults;
 	try {
 		Object.assign(config, require('../config/ls-config'));
 	} catch (err: any) {
@@ -29,6 +29,9 @@ export function load(invalidate = false): Configuration {
 	// the configuration in the new ls-config will be the same as defaults.
 	if (!config.routes) {
 		config.routes = require('../config/routes');
+	}
+	if (!config.mainserver) {
+		config.mainserver = 'showdown';
 	}
 	return config;
 }

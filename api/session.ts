@@ -268,9 +268,7 @@ export class Session {
 			'tranny',
 		];
 		for (const term of disallowed) {
-			if (
-				(typeof term === 'object' ? term.test(userid) : userid.includes(term))
-			) {
+			if (typeof term === 'object' ? term.test(userid) : userid.includes(term)) {
 				return false;
 			}
 		}

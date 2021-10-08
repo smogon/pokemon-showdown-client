@@ -70,7 +70,7 @@ export function addServer(server: RegisteredServer) {
 
 export async function testDispatcher(
 	opts: {[k: string]: any},
-	setup?: (dispatcher: Dispatcher) => void | Promise<void>,
+	setup?: (dispatcher: Dispatcher) => any | Promise<any>,
 	method = 'POST',
 ) {
 	const dispatcher = makeDispatcher(opts);

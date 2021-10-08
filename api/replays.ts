@@ -9,6 +9,7 @@ import SQL from 'sql-template-strings';
 import {Session, time} from './session';
 import {toID} from './server';
 import {prepreplays, replays} from "./tables";
+import {Config} from './config-loader';
 
 export interface ReplayData {
 	id: string;
@@ -62,7 +63,7 @@ export const Replays = new class {
 		}
 		const {loghash, format} = params;
 		let rating = Number(params.rating);
-		if (params.serverid !== 'showdown') rating = 0;
+		if (params.serverid !== Config.mainserver) rating = 0;
 		const inputlog = params.inputlog || null;
 		const out = await prepreplays.replace({
 			id, loghash, p1, p2, format,
@@ -95,11 +96,8 @@ export const Replays = new class {
 
 	async edit(replay: ReplayData) {
 		if (replay.private === 3) {
-			replay.private = 3;
 			await replays.updateOne({private: 3, password: null}, SQL`id = ${replay.id}`);
 		} else if (replay.private === 2) {
-			replay.private = 1;
-			replay.password = null;
 			await replays.updateOne({private: 1, password: null}, SQL`id = ${replay.id}`);
 		} else if (replay.private) {
 			if (!replay.password) replay.password = this.generatePassword();

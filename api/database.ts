@@ -23,7 +23,6 @@ export class PSDatabase {
 	query<T = ResultRow>(query: SQLStatement) {
 		return new Promise<T[]>((resolve, reject) => {
 			this.pool.query(query.sql, query.values, (e, results) => {
-				// conn.active = false;
 				if (e) {
 					return reject(
 						e.sqlMessage ? new Error(`${e.sqlMessage} ('${e.sql}') [${e.code}]`) : new Error(e.message)
@@ -44,7 +43,10 @@ export class PSDatabase {
 		// if (!queryString.includes('LIMIT')) queryString += ` LIMIT 1`;
 		// limit it yourself, consumers
 		const rows = await this.query(query);
-		if (Array.isArray(rows)) return rows[0] as unknown as T;
+		if (Array.isArray(rows)) {
+			if (!rows.length) return null;
+			return rows[0] as unknown as T;
+		}
 		return rows ?? null;
 	}
 	async execute(query: SQLStatement): Promise<mysql.OkPacket> {
@@ -94,14 +96,14 @@ export class DatabaseTable<T> {
 		entries: string | string[],
 		where?: SQLStatement
 	): Promise<T[]> {
-		const query = SQL`SELECT`;
+		const query = SQL`SELECT `;
 		if (typeof entries === 'string') {
 			query.append(` * `);
 		} else {
 			for (let i = 0; i < entries.length; i++) {
 				const key = entries[i];
 				query.append(this.format(key));
-				if (entries[i + 1]) query.append(`, `);
+				if (typeof entries[i + 1] !== 'undefined') query.append(`, `);
 			}
 			query.append(` `);
 		}
@@ -114,7 +116,7 @@ export class DatabaseTable<T> {
 	}
 	get(entries: string | string[], keyId: SQLInput) {
 		const query = SQL``;
-		query.append(`${this.format(this.primaryKeyName)}`);
+		query.append(this.format(this.primaryKeyName));
 		query.append(SQL` = ${keyId}`);
 		return this.selectOne(entries, query);
 	}

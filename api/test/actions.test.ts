@@ -18,6 +18,7 @@ import * as tables from '../tables';
 		server: 'despondos.psim.us',
 		token: '42354y6dhgfdsretr',
 	});
+
 	it("Should properly log userstats and userstats history", async () => {
 		const {result} = await utils.testDispatcher({
 			act: 'updateuserstats',
@@ -56,10 +57,7 @@ import * as tables from '../tables';
 				pass: 'applesauce',
 				challengekeyid: 1,
 				challstr: await utils.randomBytes(),
-			}, async dispatcher => {
-				// make sure the user exists, ignore if they do
-				await dispatcher.session.addUser('Catra', 'applesauce').catch(() => {});
-			});
+			}, dispatcher => dispatcher.session.addUser('Catra', 'applesauce').catch(() => {}));
 			assert(result.actionsuccess, "User was not logged in");
 			assert(result.assertion.split(';').length > 1);
 		});
@@ -71,12 +69,11 @@ import * as tables from '../tables';
 				oldpassword: 'applesauce',
 				cpassword: 'greyskull',
 				password: 'greyskull',
-			}, dispatcher => {
-				dispatcher.user.login('catra'); // we can't set cookies in tests so
-			});
+			}, dispatcher => dispatcher.user.login('catra'));
 			assert(result, "Received falsy success");
 		});
 	});
+
 	it("Should prepare replays", async () => {
 		// clear old
 		await tables.prepreplays.deleteOne(SQL`id = ${'gen8randombattle-3096'}`);
@@ -128,6 +125,7 @@ import * as tables from '../tables';
 			assert(result.p1rating.elo === 1040, "Received winner elo of " + result.p1rating.elo);
 			assert(result.p2rating.elo === 1000, "Received loser elo of " + result.p2rating.elo);
 		});
+
 		it("Should fetch the MMR for a given user", async () => {
 			const ladder = new NTBBLadder('gen5randombattle');
 			const p1 = NTBBLadder.getUserData('shera');
