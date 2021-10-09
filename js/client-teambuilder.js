@@ -2599,7 +2599,7 @@
 				if (species.canGigantamax || species.forme === 'Gmax') {
 					buf += '<div class="formrow"><label class="formlabel">Gigantamax:</label><div>';
 					if (species.forme === 'Gmax') {
-						buf += 'Yes'
+						buf += 'Yes';
 					} else {
 						buf += '<label><input type="radio" name="gigantamax" value="yes"' + (set.gigantamax ? ' checked' : '') + ' /> Yes</label> ';
 						buf += '<label><input type="radio" name="gigantamax" value="no"' + (!set.gigantamax ? ' checked' : '') + ' /> No</label>';
