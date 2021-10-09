@@ -1207,10 +1207,8 @@
 						buf += '<span class="detailcell"><label>HP Type</label>' + (set.hpType || 'Dark') + '</span>';
 					}
 				}
-				if (this.curTeam.gen === 8) {
-					if (species.canGigantamax || species.forme === 'Gmax') {
-						buf += '<span class="detailcell"><label>Gmax</label>' + (set.gigantamax || species.forme === 'Gmax' ? 'Yes' : 'No') + '</span>';
-					}
+				if (this.curTeam.gen === 8 && (species.canGigantamax || species.forme === 'Gmax')) {
+					buf += '<span class="detailcell"><label>Gmax</label>' + (set.gigantamax || species.forme === 'Gmax' ? 'Yes' : 'No') + '</span>';
 				}
 			}
 			buf += '</button></div></div>';
@@ -2716,10 +2714,8 @@
 				}
 				buf += '<span class="detailcell"><label>Shiny</label>' + (set.shiny ? 'Yes' : 'No') + '</span>';
 				if (!isLetsGo && (this.curTeam.gen < 8 || isNatDex)) buf += '<span class="detailcell"><label>HP Type</label>' + (set.hpType || 'Dark') + '</span>';
-				if (this.curTeam.gen === 8) {
-					if (species.canGigantamax || species.forme === 'Gmax') {
-						buf += '<span class="detailcell"><label>Gmax</label>' + (set.gigantamax || species.forme === 'Gmax' ? 'Yes' : 'No') + '</span>';
-					}
+				if (this.curTeam.gen === 8 && (species.canGigantamax || species.forme === 'Gmax')) {
+					buf += '<span class="detailcell"><label>Gmax</label>' + (set.gigantamax || species.forme === 'Gmax' ? 'Yes' : 'No') + '</span>';
 				}
 			}
 			this.$('button[name=details]').html(buf);
