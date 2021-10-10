@@ -1207,10 +1207,8 @@
 						buf += '<span class="detailcell"><label>HP Type</label>' + (set.hpType || 'Dark') + '</span>';
 					}
 				}
-				if (this.curTeam.gen === 8) {
-					if (species.canGigantamax || species.name.indexOf('-Gmax') >= 0) {
-						buf += '<span class="detailcell"><label>Gmax</label>' + (set.gigantamax ? 'Yes' : 'No') + '</span>';
-					}
+				if (this.curTeam.gen === 8 && (species.canGigantamax || species.forme === 'Gmax')) {
+					buf += '<span class="detailcell"><label>Gmax</label>' + (set.gigantamax || species.forme === 'Gmax' ? 'Yes' : 'No') + '</span>';
 				}
 			}
 			buf += '</button></div></div>';
@@ -2596,16 +2594,14 @@
 				buf += '<label><input type="radio" name="shiny" value="no"' + (!set.shiny ? ' checked' : '') + ' /> No</label>';
 				buf += '</div></div>';
 
-				if (species.canGigantamax) {
-					buf += '<div class="formrow"><label class="formlabel">Gigantamax:</label></div>';
-					buf += '<label><input type="radio" name="gigantamax" value="yes"' + (set.gigantamax ? ' checked' : '') + ' /> Yes</label> ';
-					buf += '<label><input type="radio" name="gigantamax" value="no"' + (!set.gigantamax ? ' checked' : '') + ' /> No</label>';
-					buf += '</div></div>';
-				}
-				if (species.name.indexOf('-Gmax') >= 0) {
-					buf += '<div class="formrow"><label class="formlabel">Gigantamax:</label></div>';
-					buf += '<label><input type="radio" name="gigantamax" value="yes" checked /> Yes</label> ';
-					buf += '<label><input type="radio" name="gigantamax" value="no" /> No</label>';
+				if (species.canGigantamax || species.forme === 'Gmax') {
+					buf += '<div class="formrow"><label class="formlabel">Gigantamax:</label><div>';
+					if (species.forme === 'Gmax') {
+						buf += 'Yes';
+					} else {
+						buf += '<label><input type="radio" name="gigantamax" value="yes"' + (set.gigantamax ? ' checked' : '') + ' /> Yes</label> ';
+						buf += '<label><input type="radio" name="gigantamax" value="no"' + (!set.gigantamax ? ' checked' : '') + ' /> No</label>';
+					}
 					buf += '</div></div>';
 				}
 			}
@@ -2718,12 +2714,8 @@
 				}
 				buf += '<span class="detailcell"><label>Shiny</label>' + (set.shiny ? 'Yes' : 'No') + '</span>';
 				if (!isLetsGo && (this.curTeam.gen < 8 || isNatDex)) buf += '<span class="detailcell"><label>HP Type</label>' + (set.hpType || 'Dark') + '</span>';
-				if (this.curTeam.gen === 8) {
-					if (species.canGigantamax) {
-						buf += '<span class="detailcell"><label>Gmax</label>' + (set.gigantamax ? 'Yes' : 'No') + '</span>';
-					} else if (species.name.indexOf('-Gmax') >= 0) {
-						buf += '<span class="detailcell"><label>Gmax</label>Yes</span>';
-					}
+				if (this.curTeam.gen === 8 && (species.canGigantamax || species.forme === 'Gmax')) {
+					buf += '<span class="detailcell"><label>Gmax</label>' + (set.gigantamax || species.forme === 'Gmax' ? 'Yes' : 'No') + '</span>';
 				}
 			}
 			this.$('button[name=details]').html(buf);
