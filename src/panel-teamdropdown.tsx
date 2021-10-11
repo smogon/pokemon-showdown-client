@@ -96,7 +96,10 @@ class PSTeambuilder {
 				buf += '|';
 			}
 
-			if (set.pokeball || (set.hpType && toID(set.hpType) !== hasHP) || (set.dynamaxLevel !== undefined && set.dynamaxLevel !== 10) || set.gigantamax) {
+			if (
+				set.pokeball || (set.hpType && toID(set.hpType) !== hasHP) ||
+				(set.dynamaxLevel !== undefined && set.dynamaxLevel !== 10) || set.gigantamax
+			) {
 				buf += ',' + (set.hpType || '');
 				buf += ',' + toID(set.pokeball);
 				buf += ',' + (set.dynamaxLevel !== undefined && set.dynamaxLevel !== 10 ? set.dynamaxLevel : '');
