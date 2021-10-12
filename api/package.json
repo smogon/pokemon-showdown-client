@@ -6,7 +6,8 @@
   "scripts": {
     "lint": "eslint . --cache --ext .js,.ts",
     "build": "npx tsc",
-    "start": "npm run build && npx pm2 start .dist"
+    "start": "npm run build && npx pm2 start .dist",
+    "test": "npm run lint && npx tsc"
   },
   "dependencies": {
     "@types/node": "^15.12.4",
