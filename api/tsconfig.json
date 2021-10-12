@@ -1,18 +1,17 @@
 {
   "compilerOptions": {
-    "lib": ["es6"],
-    "module": "commonjs",
+    "lib": ["es2020"],
     "target": "es6",
+    "module": "CommonJS",
     "moduleResolution": "node",
-    "outDir": ".dist",
     "strict": true,
-    "allowJs": true,
-    "checkJs": true,
+    "outDir": "./.dist",
     "incremental": true,
     "allowUnreachableCode": false,
-    "skipLibCheck": true
+    "esModuleInterop": true
   },
+  "types": ["node"],
   "include": [
-    "./src"
+    "./src/*",
   ],
 }

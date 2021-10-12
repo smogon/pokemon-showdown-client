@@ -12,23 +12,19 @@ import * as defaults from '../config/config-example';
 export type Configuration = typeof defaults & {[k: string]: any};
 
 export function load(invalidate = false): Configuration {
-	if (invalidate) delete require.cache[path.resolve(__dirname, '../config/config')];
-	const config: typeof defaults & {[k: string]: any} = defaults;
+	const configPath = path.resolve(__dirname, '../config/config.js');
+	if (invalidate) delete require.cache[configPath];
+	let config: typeof defaults & {[k: string]: any} = defaults;
 	try {
-		Object.assign(config, require('../config/config'));
+		config = {...config, ...require(configPath)};
 	} catch (err: any) {
-		if (err.code !== 'MODULE_NOT_FOUND' && err.code !== 'ENOENT') throw err; // Should never happen
+		if (err.code !== 'ENOENT') throw err; // Should never happen
 
 		console.log("config.js doesn't exist - creating one with default settings...");
 		fs.writeFileSync(
-			path.resolve(__dirname, '../config/config.js'),
+			configPath,
 			fs.readFileSync(path.resolve(__dirname, '../config/config-example.js'))
 		);
-	}
-	// we really don't need to load from here afterwards since
-	// the configuration in the new config will be the same as defaults.
-	if (!config.routes) {
-		config.routes = require('../config/routes');
 	}
 	if (!config.mainserver) {
 		config.mainserver = 'showdown';
