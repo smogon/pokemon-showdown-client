@@ -7,26 +7,26 @@
 import * as fs from 'fs';
 import * as path from 'path';
 // @ts-ignore no typedef file
-import * as defaults from '../config/ls-config-example';
+import * as defaults from '../config/config-example';
 
 export type Configuration = typeof defaults & {[k: string]: any};
 
 export function load(invalidate = false): Configuration {
-	if (invalidate) delete require.cache[path.resolve(__dirname, '../config/ls-config')];
+	if (invalidate) delete require.cache[path.resolve(__dirname, '../config/config')];
 	const config: typeof defaults & {[k: string]: any} = defaults;
 	try {
-		Object.assign(config, require('../config/ls-config'));
+		Object.assign(config, require('../config/config'));
 	} catch (err: any) {
 		if (err.code !== 'MODULE_NOT_FOUND' && err.code !== 'ENOENT') throw err; // Should never happen
 
 		console.log("config.js doesn't exist - creating one with default settings...");
 		fs.writeFileSync(
-			path.resolve(__dirname, '../config/ls-config.js'),
-			fs.readFileSync(path.resolve(__dirname, '../config/ls-config-example.js'))
+			path.resolve(__dirname, '../config/config.js'),
+			fs.readFileSync(path.resolve(__dirname, '../config/config-example.js'))
 		);
 	}
 	// we really don't need to load from here afterwards since
-	// the configuration in the new ls-config will be the same as defaults.
+	// the configuration in the new config will be the same as defaults.
 	if (!config.routes) {
 		config.routes = require('../config/routes');
 	}
@@ -39,5 +39,7 @@ export function load(invalidate = false): Configuration {
 export const Config = load();
 
 if (Config.watchconfig) {
-	fs.watchFile(require.resolve('../config/ls-config'), () => ({...Config, ...load(true)}));
+	fs.watchFile(require.resolve('../config/config'), () => {
+		Object.assign(Config, {...load(true)});
+	});
 }
