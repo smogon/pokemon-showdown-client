@@ -72,6 +72,7 @@ class DexSearch {
 	 * Pokemon) and name (for everything else).
 	 */
 	sortCol: string | null = null;
+	reverseSort = false;
 
 	/**
 	 * Filters for the search result. Does not include the two base filters
@@ -103,7 +104,7 @@ class DexSearch {
 		}
 		this.query = query;
 		if (!query) {
-			this.results = this.typedSearch?.getResults(this.filters, this.sortCol) || [];
+			this.results = this.typedSearch?.getResults(this.filters, this.sortCol, this.reverseSort) || [];
 		} else {
 			this.results = this.textSearch(query);
 		}
@@ -174,9 +175,15 @@ class DexSearch {
 
 	toggleSort(sortCol: string) {
 		if (this.sortCol === sortCol) {
-			this.sortCol = null;
+			if (!this.reverseSort) {
+				this.reverseSort = true;
+			} else {
+				this.sortCol = null;
+				this.reverseSort = false;
+			}
 		} else {
 			this.sortCol = sortCol;
+			this.reverseSort = false;
 		}
 		this.results = null;
 	}
@@ -623,7 +630,7 @@ abstract class BattleTypedSearch<T extends SearchType> {
 		}
 		if (!searchType || !this.set) return;
 	}
-	getResults(filters?: SearchFilter[] | null, sortCol?: string | null): SearchRow[] {
+	getResults(filters?: SearchFilter[] | null, sortCol?: string | null, reverseSort?: boolean): SearchRow[] {
 		if (sortCol === 'type') {
 			return [this.sortRow!, ...BattleTypeSearch.prototype.getDefaultResults.call(this)];
 		} else if (sortCol === 'category') {
@@ -682,10 +689,10 @@ abstract class BattleTypedSearch<T extends SearchType> {
 
 		if (sortCol) {
 			results = results.filter(([rowType]) => rowType === this.searchType);
-			results = this.sort(results, sortCol);
+			results = this.sort(results, sortCol, reverseSort);
 			if (illegalResults) {
 				illegalResults = illegalResults.filter(([rowType]) => rowType === this.searchType);
-				illegalResults = this.sort(illegalResults, sortCol);
+				illegalResults = this.sort(illegalResults, sortCol, reverseSort);
 			}
 		}
 
@@ -792,7 +799,7 @@ abstract class BattleTypedSearch<T extends SearchType> {
 	abstract getDefaultResults(): SearchRow[];
 	abstract getBaseResults(): SearchRow[];
 	abstract filter(input: SearchRow, filters: string[][]): boolean;
-	abstract sort(input: SearchRow[], sortCol: string): SearchRow[];
+	abstract sort(input: SearchRow[], sortCol: string, reverseSort?: boolean): SearchRow[];
 }
 
 class BattlePokemonSearch extends BattleTypedSearch<'pokemon'> {
@@ -985,12 +992,12 @@ class BattlePokemonSearch extends BattleTypedSearch<'pokemon'> {
 		}
 		return true;
 	}
-	sort(results: SearchRow[], sortCol: string) {
+	sort(results: SearchRow[], sortCol: string, reverseSort?: boolean) {
 		if (['hp', 'atk', 'def', 'spa', 'spd', 'spe'].includes(sortCol)) {
 			return results.sort(([rowType1, id1], [rowType2, id2]) => {
 				const stat1 = this.dex.species.get(id1).baseStats[sortCol as StatName];
 				const stat2 = this.dex.species.get(id2).baseStats[sortCol as StatName];
-				return stat2 - stat1;
+				return reverseSort ? stat1 - stat2 : stat2 - stat1;
 			});
 		} else if (sortCol === 'bst') {
 			return results.sort(([rowType1, id1], [rowType2, id2]) => {
@@ -998,13 +1005,14 @@ class BattlePokemonSearch extends BattleTypedSearch<'pokemon'> {
 				const base2 = this.dex.species.get(id2).baseStats;
 				const bst1 = base1.hp + base1.atk + base1.def + base1.spa + base1.spd + base1.spe;
 				const bst2 = base2.hp + base2.atk + base2.def + base2.spa + base2.spd + base2.spe;
-				return bst2 - bst1;
+				return reverseSort ? bst1 - bst2 : bst2 - bst1;
 			});
 		} else if (sortCol === 'name') {
 			return results.sort(([rowType1, id1], [rowType2, id2]) => {
 				const name1 = id1;
 				const name2 = id2;
-				return name1 < name2 ? -1 : name1 > name2 ? 1 : 0;
+				// Parantheses are added for readability
+				return reverseSort ? (name1 > name2 ? -1 : name1 < name2 ? 1 : 0) : (name1 < name2 ? -1 : name1 > name2 ? 1 : 0);
 			});
 		}
 		throw new Error("invalid sortcol");
@@ -1093,7 +1101,7 @@ class BattleAbilitySearch extends BattleTypedSearch<'ability'> {
 		}
 		return true;
 	}
-	sort(results: SearchRow[], sortCol: string | null): SearchRow[] {
+	sort(results: SearchRow[], sortCol: string | null, reverseSort?: boolean): SearchRow[] {
 		throw new Error("invalid sortcol");
 	}
 }
@@ -1155,7 +1163,7 @@ class BattleItemSearch extends BattleTypedSearch<'item'> {
 		}
 		return true;
 	}
-	sort(results: SearchRow[], sortCol: string | null): SearchRow[] {
+	sort(results: SearchRow[], sortCol: string | null, reverseSort?: boolean): SearchRow[] {
 		throw new Error("invalid sortcol");
 	}
 }
@@ -1544,7 +1552,7 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 		}
 		return true;
 	}
-	sort(results: SearchRow[], sortCol: string): SearchRow[] {
+	sort(results: SearchRow[], sortCol: string, reverseSort?: boolean): SearchRow[] {
 		switch (sortCol) {
 		case 'power':
 			let powerTable: {[id: string]: number | undefined} = {
@@ -1560,7 +1568,7 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 				let move2 = this.dex.moves.get(id2);
 				let pow1 = move1.basePower || powerTable[id1] || (move1.category === 'Status' ? -1 : 1400);
 				let pow2 = move2.basePower || powerTable[id2] || (move2.category === 'Status' ? -1 : 1400);
-				return pow2 - pow1;
+				return reverseSort ? pow1 - pow2 : pow2 - pow1;
 			});
 		case 'accuracy':
 			return results.sort(([rowType1, id1], [rowType2, id2]) => {
@@ -1568,13 +1576,20 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 				let accuracy2 = this.dex.moves.get(id2).accuracy || 0;
 				if (accuracy1 === true) accuracy1 = 101;
 				if (accuracy2 === true) accuracy2 = 101;
-				return accuracy2 - accuracy1;
+				return reverseSort ? accuracy1 - accuracy2 : accuracy2 - accuracy1;
 			});
 		case 'pp':
 			return results.sort(([rowType1, id1], [rowType2, id2]) => {
 				let pp1 = this.dex.moves.get(id1).pp || 0;
 				let pp2 = this.dex.moves.get(id2).pp || 0;
-				return pp2 - pp1;
+				return reverseSort ? pp1 - pp2 : pp2 - pp1;
+			});
+		case 'name':
+			return results.sort(([rowType1, id1], [rowType2, id2]) => {
+				const name1 = id1;
+				const name2 = id2;
+				// Parantheses are added for readability
+				return reverseSort ? (name1 > name2 ? -1 : name1 < name2 ? 1 : 0) : (name1 < name2 ? -1 : name1 > name2 ? 1 : 0);
 			});
 		}
 		throw new Error("invalid sortcol");
@@ -1598,7 +1613,7 @@ class BattleCategorySearch extends BattleTypedSearch<'category'> {
 	filter(row: SearchRow, filters: string[][]): boolean {
 		throw new Error("invalid filter");
 	}
-	sort(results: SearchRow[], sortCol: string | null): SearchRow[] {
+	sort(results: SearchRow[], sortCol: string | null, reverseSort?: boolean): SearchRow[] {
 		throw new Error("invalid sortcol");
 	}
 }
@@ -1620,7 +1635,7 @@ class BattleTypeSearch extends BattleTypedSearch<'type'> {
 	filter(row: SearchRow, filters: string[][]): boolean {
 		throw new Error("invalid filter");
 	}
-	sort(results: SearchRow[], sortCol: string | null): SearchRow[] {
+	sort(results: SearchRow[], sortCol: string | null, reverseSort?: boolean): SearchRow[] {
 		throw new Error("invalid sortcol");
 	}
 }
