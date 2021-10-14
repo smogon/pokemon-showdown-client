@@ -38,8 +38,11 @@ export class Router {
 		this.server.listen(port);
 	}
 	static crashlog(error: any, source = '', details = {}) {
+		if (!Config.pspath) {
+			return console.log(`${source} crashed`, error, details);
+		}
 		try {
-			const {crashlogger} = require('../data/pokemon-showdown');
+			const {crashlogger} = require(Config.pspath);
 			crashlogger(error, source, details, Config.crashguardemail);
 		} catch (e) {
 			// don't have data/pokemon-showdown built? something else went wrong? oh well
