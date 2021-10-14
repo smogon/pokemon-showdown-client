@@ -331,7 +331,7 @@
 			return buf;
 		}
 
-		var gen = this.engine.dex.gen;
+		var gen = this.engine ? this.engine.dex.gen : 8;
 
 		// type
 		buf += '<span class="col typecol">';
