@@ -6,7 +6,6 @@
 import {actions} from './actions';
 import * as child from 'child_process';
 import {Config} from './config-loader';
-import * as fs from 'fs';
 import * as http from 'http';
 import {Session} from './session';
 import {User} from './user';
@@ -164,23 +163,13 @@ export class Dispatcher {
 		return list;
 	}
 	static servers: {[k: string]: RegisteredServer} = (() => {
-		const exists = (path: string) => fs.existsSync(`${__dirname}/../config/${path}`);
-		const servers = {};
 		try {
-			if (exists('servers.json')) {
-				return JSON.parse(fs.readFileSync(`${__dirname}/../config/servers.json`, 'utf-8'));
-			} else if (exists('servers.inc.php')) {
-				const stdout = child.execSync('php -f api/lib/load-servers.php').toString();
-				const json = JSON.parse(stdout);
-				fs.writeFileSync(`${__dirname}/../config/servers.json`, stdout);
-				return json;
-			} else {
-				return {};
-			}
+			const stdout = child.execSync(`php -f src/lib/load-servers.php`).toString();
+			return JSON.parse(stdout);
 		} catch (e: any) {
 			if (e.code !== 'ENOENT') throw e;
 		}
-		return servers;
+		return {};
 	})();
 	static ActionError = ActionError;
 }
