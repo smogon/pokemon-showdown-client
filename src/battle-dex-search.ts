@@ -1011,7 +1011,6 @@ class BattlePokemonSearch extends BattleTypedSearch<'pokemon'> {
 			return results.sort(([rowType1, id1], [rowType2, id2]) => {
 				const name1 = id1;
 				const name2 = id2;
-				// Parantheses are added for readability
 				return reverseSort ? (name1 > name2 ? -1 : name1 < name2 ? 1 : 0) : (name1 < name2 ? -1 : name1 > name2 ? 1 : 0);
 			});
 		}
@@ -1588,7 +1587,6 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 			return results.sort(([rowType1, id1], [rowType2, id2]) => {
 				const name1 = id1;
 				const name2 = id2;
-				// Parantheses are added for readability
 				return reverseSort ? (name1 > name2 ? -1 : name1 < name2 ? 1 : 0) : (name1 < name2 ? -1 : name1 > name2 ? 1 : 0);
 			});
 		}
