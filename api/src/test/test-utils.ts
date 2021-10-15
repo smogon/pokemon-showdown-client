@@ -33,15 +33,16 @@ export async function setupDB(): Promise<void> {
 
 	await wait(5000); // for docker to catch up */
 
-	if (!Config.testdb) throw new Error('Configure `Config.testdb` before using mocha.');
-
+	if (!(Config as any).testdb) {
+		throw new Error('Configure `Config.testdb` before using mocha.');
+	}
 	const sqlFiles = fs.readdirSync(`${__dirname}/../../lib/`)
 		.filter(f => f.endsWith('.sql'))
 		.map(k => `lib/${k}`)
 		.concat(['replays/ps_prepreplays.sql', 'replays/ps_replays.sql']);
 
 	for (const db of databases) {
-		db.connect(Config.testdb);
+		db.connect((Config as any).testdb);
 		for (const file of sqlFiles) {
 			const schema = fs.readFileSync(`${__dirname}/../../${file}`, 'utf-8');
 			await db.query(SQL(schema)).catch(() => null);

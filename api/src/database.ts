@@ -134,7 +134,7 @@ export class DatabaseTable<T> {
 		}
 
 		if (where) {
-			query.append(SQL` WHERE `);
+			query.append(` WHERE `);
 			query.append(where);
 		}
 		if (limit) query.append(SQL` LIMIT ${limit}`);

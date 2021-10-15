@@ -149,7 +149,7 @@ export class Session {
 		const ip = this.dispatcher.getIp();
 		let forceUsertype: string | false = false;
 		if (!user) user = this.dispatcher.user;
-		if (Config.autolockip?.includes(ip)) {
+		if (Config.autolockip.includes(ip)) {
 			forceUsertype = '5';
 		}
 		let userType = '';
@@ -161,10 +161,12 @@ export class Session {
 		if (user.id === userid && user.loggedin) {
 			// already logged in
 			userType = '2';
-			if (Config.sysops?.includes(user.id)) {
+			if (Config.sysops.includes(user.id)) {
 				userType = '3';
 			} else {
-				const customType = Config.getUserType?.call(this, user, banstate, server);
+				const customType = (Config as any).getUserType?.call(
+					this, user, banstate, server
+				);
 				if (forceUsertype) {
 					userType = forceUsertype;
 				} else if (customType) {
@@ -239,13 +241,13 @@ export class Session {
 				'This probably means that either you are not connected to a server, ' +
 				'or the server is set up incorrectly.'
 			);
-		} else if (Config.compromisedkeys?.includes(challengekeyid)) {
+		} else if (Config.compromisedkeys.includes(challengekeyid)) {
 			// Compromised keys - no longer supported.
 			return (
 				`;;This server is using login key ${challengekeyid}, which is no longer supported. ` +
 				`Please tell the server operator to update their config.js file.`
 			);
-		} else if (!Config.privatekeys?.[challengekeyid]) {
+		} else if (!Config.privatekeys[challengekeyid]) {
 			// Bogus key id.
 			return ';;Unknown key ID';
 		} else {
@@ -266,14 +268,16 @@ export class Session {
 		const sig = sign.sign(Config.privatekeys[challengekeyid], 'hex');
 		return data + ';' + sig;
 	}
-	static isUseridAllowed(userid: string) {
-		const disallowed = [
+	static getBannedNameTerms() {
+		return [
 			...(Config.bannedTerms || []),
 			'nigger', 'nigga', 'faggot',
 			/(lol|ror)icon/, 'lazyafrican',
 			'tranny',
 		];
-		for (const term of disallowed) {
+	}
+	static isUseridAllowed(userid: string) {
+		for (const term of Session.getBannedNameTerms()) {
 			if (typeof term === 'object' ? term.test(userid) : userid.includes(term)) {
 				return false;
 			}
@@ -281,13 +285,7 @@ export class Session {
 		return true;
 	}
 	static wordfilter(user: string) {
-		const disallowed = [
-			...(Config.bannedTerms || []),
-			'nigger', 'nigga', 'faggot',
-			/(lol|ror)icon/, 'lazyafrican',
-			'tranny',
-		];
-		for (const term of disallowed) {
+		for (const term of Session.getBannedNameTerms()) {
 			user = user.replace(term, '*');
 		}
 		return user;
@@ -375,7 +373,11 @@ export class Session {
 				return false;
 			}
 			// i don't know how often this is actually necessary. so let's make this configurable.
-			rehash = await Config.passwordNeedsRehash?.call(this, userid, userData['passwordhash']);
+			if ((Config as any).passwordNeedsRehash) {
+				rehash = await (Config as any).passwordNeedsRehash.call(
+					this, userid, userData['passwordhash']
+				);
+			}
 		} else {
 			return false;
 		}
@@ -414,9 +416,9 @@ export class Session {
 			return;
 		}
 		const query = SQL`SELECT sid, timeout, \`ntbb_users\`.* `;
-		query.append(SQL`FROM \`ntbb_sessions\`, \`ntbb_users\` `);
+		query.append('FROM `ntbb_sessions\`, `ntbb_users` ');
 		query.append(SQL`WHERE \`session\` = ${session} `);
-		query.append(SQL`AND \`ntbb_sessions\`.\`userid\` = \`ntbb_users\`.\`userid\` `);
+		query.append('AND `ntbb_sessions`.`userid\` = `ntbb_users`.`userid` ');
 		query.append(' LIMIT 1');
 		const res = await users.database.get<{sid: string; timeout: number}>(query);
 		if (!res || !(await this.validateSid(sid, res.sid))) {
@@ -437,8 +439,10 @@ export class Session {
 		this.sidhash = sid;
 		this.session = session;
 	}
-	validateSid(cachedSid: string, databaseSid: string): boolean | Promise<boolean> {
-		if (Config.validateSid) return Config.validateSid.call(this, cachedSid, databaseSid);
+	async validateSid(cachedSid: string, databaseSid: string): Promise<boolean> {
+		if (Config.validateSid) {
+			return Config.validateSid.call(this, cachedSid, databaseSid);
+		}
 		return cachedSid === databaseSid;
 	}
 }

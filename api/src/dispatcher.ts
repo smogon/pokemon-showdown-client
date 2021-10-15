@@ -131,7 +131,7 @@ export class Dispatcher {
 		const ip = this.request.socket.remoteAddress;
 		let forwarded = this.request.headers['x-forwarded-for'] || '';
 		if (!Array.isArray(forwarded)) forwarded = forwarded.split(',');
-		if (forwarded.length && Config.trustedproxies?.includes(ip)) {
+		if (forwarded.length && Config.trustedproxies.includes(ip)) {
 			return forwarded.pop() as string;
 		}
 		return ip || '';

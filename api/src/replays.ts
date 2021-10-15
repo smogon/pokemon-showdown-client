@@ -180,12 +180,12 @@ export const Replays = new class {
 
 		if (args.byRating) {
 			const query = SQL`SELECT uploadtime, id, format, p1, p2, rating, password `;
-			query.append(SQL`FROM ps_replays FORCE INDEX (top) `);
+			query.append(`FROM ps_replays FORCE INDEX (top) `);
 			query.append(SQL`WHERE private = ${isPrivate} AND formatid = ${format} ORDER BY rating DESC LIMIT 51`);
 			return replays.query(query);
 		} else {
 			const query = SQL`SELECT uploadtime, id, format, p1, p2, rating, password `;
-			query.append(SQL`FROM ps_replays FORCE INDEX (format) `);
+			query.append(`FROM ps_replays FORCE INDEX (format) `);
 			query.append(SQL`WHERE private = ${isPrivate} AND formatid = ${format} ORDER BY rating DESC LIMIT 51`);
 			return replays.query(query);
 		}
@@ -206,14 +206,14 @@ export const Replays = new class {
 		if (patterns.length === 2) {
 			query.append(SQL`AND log LIKE ${patterns[1]} `);
 		}
-		query.append(SQL`ORDER BY uploadtime DESC LIMIT 10;`);
+		query.append(`ORDER BY uploadtime DESC LIMIT 10;`);
 
 		return replays.query(query);
 	}
 
 	async recent() {
 		const query = SQL`SELECT uploadtime, id, format, p1, p2 FROM ps_replays `;
-		query.append(SQL`FORCE INDEX (recent) WHERE private = 0 ORDER BY uploadtime `);
+		query.append(`FORCE INDEX (recent) WHERE private = 0 ORDER BY uploadtime `);
 		query.append('DESC LIMIT 50');
 		return replays.query(query);
 	}

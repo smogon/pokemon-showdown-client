@@ -9,12 +9,12 @@ import * as path from 'path';
 // @ts-ignore no typedef file
 import * as defaults from '../config/config-example';
 
-export type Configuration = typeof defaults & {[k: string]: any};
+export type Configuration = typeof defaults;
 
 export function load(invalidate = false): Configuration {
 	const configPath = path.resolve(__dirname, '../config/config.js');
 	if (invalidate) delete require.cache[configPath];
-	let config: typeof defaults & {[k: string]: any} = defaults;
+	let config = defaults;
 	try {
 		config = {...config, ...require(configPath)};
 	} catch (err: any) {
@@ -29,10 +29,14 @@ export function load(invalidate = false): Configuration {
 	if (!config.mainserver) {
 		config.mainserver = 'showdown';
 	}
+	const needsSet = ['autolockip', 'sysops', 'trustedproxies', 'compromisedkeys'] as const;
+	for (const key of needsSet) {
+		if (!config[key]) config[key] = [];
+	}
 	return config;
 }
 
-export const Config = load();
+export const Config: Configuration = load();
 
 if (Config.watchconfig) {
 	fs.watchFile(require.resolve('../config/config'), () => {
