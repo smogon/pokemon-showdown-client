@@ -993,11 +993,12 @@ class BattlePokemonSearch extends BattleTypedSearch<'pokemon'> {
 		return true;
 	}
 	sort(results: SearchRow[], sortCol: string, reverseSort?: boolean) {
+		const sortOrder = reverseSort ? -1 : 1;
 		if (['hp', 'atk', 'def', 'spa', 'spd', 'spe'].includes(sortCol)) {
 			return results.sort(([rowType1, id1], [rowType2, id2]) => {
 				const stat1 = this.dex.species.get(id1).baseStats[sortCol as StatName];
 				const stat2 = this.dex.species.get(id2).baseStats[sortCol as StatName];
-				return reverseSort ? stat1 - stat2 : stat2 - stat1;
+				return (stat2 - stat1)* sortOrder;
 			});
 		} else if (sortCol === 'bst') {
 			return results.sort(([rowType1, id1], [rowType2, id2]) => {
@@ -1005,13 +1006,12 @@ class BattlePokemonSearch extends BattleTypedSearch<'pokemon'> {
 				const base2 = this.dex.species.get(id2).baseStats;
 				const bst1 = base1.hp + base1.atk + base1.def + base1.spa + base1.spd + base1.spe;
 				const bst2 = base2.hp + base2.atk + base2.def + base2.spa + base2.spd + base2.spe;
-				return reverseSort ? bst1 - bst2 : bst2 - bst1;
+				return (bst2 - bst1) * sortOrder;
 			});
 		} else if (sortCol === 'name') {
 			return results.sort(([rowType1, id1], [rowType2, id2]) => {
 				const name1 = id1;
 				const name2 = id2;
-				const sortOrder = reverseSort ? -1 : 1;
 				return (name1 < name2 ? -1 : name1 > name2 ? 1 : 0) * sortOrder;
 			});
 		}
@@ -1553,6 +1553,7 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 		return true;
 	}
 	sort(results: SearchRow[], sortCol: string, reverseSort?: boolean): SearchRow[] {
+		const sortOrder = reverseSort ? -1 : 1;
 		switch (sortCol) {
 		case 'power':
 			let powerTable: {[id: string]: number | undefined} = {
@@ -1568,7 +1569,7 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 				let move2 = this.dex.moves.get(id2);
 				let pow1 = move1.basePower || powerTable[id1] || (move1.category === 'Status' ? -1 : 1400);
 				let pow2 = move2.basePower || powerTable[id2] || (move2.category === 'Status' ? -1 : 1400);
-				return reverseSort ? pow1 - pow2 : pow2 - pow1;
+				return (pow2 - pow1) * sortOrder;
 			});
 		case 'accuracy':
 			return results.sort(([rowType1, id1], [rowType2, id2]) => {
@@ -1576,19 +1577,18 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 				let accuracy2 = this.dex.moves.get(id2).accuracy || 0;
 				if (accuracy1 === true) accuracy1 = 101;
 				if (accuracy2 === true) accuracy2 = 101;
-				return reverseSort ? accuracy1 - accuracy2 : accuracy2 - accuracy1;
+				return (accuracy2 - accuracy1) * sortOrder;
 			});
 		case 'pp':
 			return results.sort(([rowType1, id1], [rowType2, id2]) => {
 				let pp1 = this.dex.moves.get(id1).pp || 0;
 				let pp2 = this.dex.moves.get(id2).pp || 0;
-				return reverseSort ? pp1 - pp2 : pp2 - pp1;
+				return (pp2 - pp1) * sortOrder;
 			});
 		case 'name':
 			return results.sort(([rowType1, id1], [rowType2, id2]) => {
 				const name1 = id1;
 				const name2 = id2;
-				const sortOrder = reverseSort ? -1 : 1;
 				return (name1 < name2 ? -1 : name1 > name2 ? 1 : 0) * sortOrder;
 			});
 		}
