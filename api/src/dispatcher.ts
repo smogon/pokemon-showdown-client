@@ -164,7 +164,9 @@ export class Dispatcher {
 	}
 	static servers: {[k: string]: RegisteredServer} = (() => {
 		try {
-			const stdout = child.execSync(`php -f src/lib/load-servers.php`).toString();
+			const stdout = child.execSync(
+				`php -f src/lib/load-servers.php ${Config.serverlist}`
+			).toString();
 			return JSON.parse(stdout);
 		} catch (e: any) {
 			if (e.code !== 'ENOENT') throw e;

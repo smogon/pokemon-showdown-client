@@ -416,9 +416,9 @@ export class Session {
 			return;
 		}
 		const query = SQL`SELECT sid, timeout, \`ntbb_users\`.* `;
-		query.append('FROM `ntbb_sessions\`, `ntbb_users` ');
+		query.append('FROM `ntbb_sessions`, `ntbb_users` ');
 		query.append(SQL`WHERE \`session\` = ${session} `);
-		query.append('AND `ntbb_sessions`.`userid\` = `ntbb_users`.`userid` ');
+		query.append('AND `ntbb_sessions`.`userid` = `ntbb_users`.`userid` ');
 		query.append(' LIMIT 1');
 		const res = await users.database.get<{sid: string; timeout: number}>(query);
 		if (!res || !(await this.validateSid(sid, res.sid))) {
@@ -439,10 +439,11 @@ export class Session {
 		this.sidhash = sid;
 		this.session = session;
 	}
-	async validateSid(cachedSid: string, databaseSid: string): Promise<boolean> {
+	validateSid(cachedSid: string, databaseSid: string): Promise<boolean> {
 		if (Config.validateSid) {
-			return Config.validateSid.call(this, cachedSid, databaseSid);
+			// covers async functions
+			return Promise.resolve(Config.validateSid.call(this, cachedSid, databaseSid));
 		}
-		return cachedSid === databaseSid;
+		return Promise.resolve(cachedSid === databaseSid);
 	}
 }
