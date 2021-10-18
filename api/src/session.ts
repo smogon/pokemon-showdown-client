@@ -21,7 +21,7 @@ const LOGINTIME_INTERVAL = 24 * 60 * 60;
 export function time() {
 	// php has this with unix seconds. so we have to as well.
 	// for legacy reasons. Yes, I hate it too.
-	return Math.round(Date.now() / 1000);
+	return Math.floor(Date.now() / 1000);
 }
 
 export class Session {
