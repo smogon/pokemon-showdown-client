@@ -165,7 +165,7 @@ export class Dispatcher {
 	static loadServers(): {[k: string]: RegisteredServer} {
 		try {
 			const stdout = child.execFileSync(
-				`php`, ['-f', 'src/lib/load-servers.php', Config.serverlist]
+				`php`, ['-f', __dirname + '/../src/lib/load-servers.php', Config.serverlist]
 			).toString();
 			return JSON.parse(stdout);
 		} catch (e: any) {
