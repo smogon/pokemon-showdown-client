@@ -15,6 +15,13 @@ exports.routes = {
 	root: "pokemonshowdown.com",
 };
 
+exports.mainserver = 'showdown';
+exports.serverlist = '/var/www/html/play.pokemonshowdown.com/config/servers.inc.php';
+
+exports.autolockip = [];
+exports.compromisedkeys = [];
+exports.trustedproxies = [];
+
 /**
     * [Places to allow cors requests from, prefix to use][]
     * @type {[RegExp, string][]}

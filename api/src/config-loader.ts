@@ -26,16 +26,6 @@ export function load(invalidate = false): Configuration {
 			fs.readFileSync(path.resolve(__dirname, '../config/config-example.js'))
 		);
 	}
-	if (!config.mainserver) {
-		config.mainserver = 'showdown';
-	}
-	if (!config.serverlist) {
-		config.serverlist = '/var/www/html/play.pokemonshowdown.com/config/servers.inc.php';
-	}
-	const needsSet = ['autolockip', 'sysops', 'trustedproxies', 'compromisedkeys'] as const;
-	for (const key of needsSet) {
-		if (!config[key]) config[key] = [];
-	}
 	return config;
 }
 
