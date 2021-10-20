@@ -162,7 +162,7 @@ export class Dispatcher {
 		}
 		return list;
 	}
-	static servers: {[k: string]: RegisteredServer} = (() => {
+	static loadServers(): {[k: string]: RegisteredServer} {
 		try {
 			const stdout = child.execFileSync(
 				`php`, ['-f', 'src/lib/load-servers.php', Config.serverlist]
@@ -172,6 +172,7 @@ export class Dispatcher {
 			if (e.code !== 'ENOENT') throw e;
 		}
 		return {};
-	})();
+	}
+	static servers: {[k: string]: RegisteredServer} = Dispatcher.loadServers();
 	static ActionError = ActionError;
 }

@@ -5,6 +5,8 @@
  */
 import {strict as assert} from 'assert';
 import {Config} from '../config-loader';
+import {Dispatcher} from '../dispatcher';
+import * as path from 'path';
 
 import * as utils from './test-utils';
 
@@ -64,5 +66,19 @@ describe('Dispatcher features', () => {
 		const {act, body} = dispatcher.parseRequest() || {};
 		assert(act === 'mmr');
 		assert(body?.userid === 'mia');
+	});
+	it("Should load servers properly", () => {
+		Config.serverlist = path.join(__dirname, '/../../', 'src/test/fixtures/servers.php');
+		const servers = Dispatcher.loadServers();
+		const expected = {
+			showdown: {
+				name: 'Smogon University',
+				id: 'showdown',
+				server: 'sim.psim.us',
+				port: 8000,
+				owner: 'mia'
+			},
+		};
+		assert.deepStrictEqual(expected, servers);
 	});
 });
