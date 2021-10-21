@@ -152,17 +152,9 @@ export const actions: {[k: string]: QueryHandler} = {
 		const results = [];
 		for (const request of json) {
 			const dispatcher = new Dispatcher(this.request, this.response, {body: request});
-			try {
-				if (!request.act) throw new ActionError(`Must send a request type.`);
-				const data = await dispatcher.executeActions();
-				results.push(data);
-			} catch (e: any) {
-				if (e instanceof ActionError) {
-					results.push({actionerror: e.message});
-					continue;
-				}
-				throw e;
-			}
+			if (!request.act) throw new ActionError(`Must send a request type.`);
+			const data = await dispatcher.executeActions();
+			results.push(data);
 		}
 		return results;
 	},
