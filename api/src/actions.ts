@@ -160,10 +160,8 @@ export const actions: {[k: string]: QueryHandler} = {
 	},
 	async prepreplay(params) {
 		const server = this.getServer(true);
-		let out: any = {};
 		if (!server) {
-			out.errorip = this.getIp();
-			return;
+			return {errorip: this.getIp()};
 		}
 		const extractedFormatId = /^([a-z0-9]+)-[0-9]+$/.exec((`${params.id}`));
 		const formatId = /^([a-z0-9]+)$/.exec((`${params.format}`));
@@ -194,10 +192,10 @@ export const actions: {[k: string]: QueryHandler} = {
 		}
 		params.serverid = server.id;
 
-		out = await Replays.prep(params);
+		const result = await Replays.prep(params);
 
 		this.setPrefix(''); // No need for prefix since only usable by server.
-		return out;
+		return result;
 	},
 	uploadreplay(params) {
 		this.setHeader('Content-Type', 'text/plain; charset=utf-8');
