@@ -68,9 +68,10 @@ describe('Dispatcher features', () => {
 		assert(body?.userid === 'mia');
 	});
 	it("Should load servers properly", () => {
-		Config.serverlist = path.join(__dirname, '/../../', 'src/test/fixtures/servers.php');
-		const servers = Dispatcher.loadServers();
-		const expected = {
+		const servers = Dispatcher.loadServers(
+			path.join(__dirname, '/../../', 'src/test/fixtures/servers.php')
+		);
+		assert.deepStrictEqual({
 			showdown: {
 				name: 'Smogon University',
 				id: 'showdown',
@@ -78,7 +79,6 @@ describe('Dispatcher features', () => {
 				port: 8000,
 				owner: 'mia'
 			},
-		};
-		assert.deepStrictEqual(expected, servers);
+		}, servers);
 	});
 });

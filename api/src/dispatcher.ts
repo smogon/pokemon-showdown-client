@@ -162,10 +162,10 @@ export class Dispatcher {
 		}
 		return list;
 	}
-	static loadServers(): {[k: string]: RegisteredServer} {
+	static loadServers(path = Config.serverlist): {[k: string]: RegisteredServer} {
 		try {
 			const stdout = child.execFileSync(
-				`php`, ['-f', __dirname + '/../src/lib/load-servers.php', Config.serverlist]
+				`php`, ['-f', __dirname + '/../src/lib/load-servers.php', path]
 			).toString();
 			return JSON.parse(stdout);
 		} catch (e: any) {
