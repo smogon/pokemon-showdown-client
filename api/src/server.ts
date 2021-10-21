@@ -4,7 +4,7 @@
  * @author mia-pi-git
  */
 import {Config} from './config-loader';
-import {Dispatcher} from './dispatcher';
+import {Dispatcher, ActionError} from './dispatcher';
 import * as http from 'http';
 import * as https from 'https';
 
@@ -67,7 +67,7 @@ export class Router {
 		} catch (e: any) {
 			this.activeRequests--;
 			if (!this.activeRequests && this.awaitingEnd) this.awaitingEnd();
-			if (e.name?.endsWith('ActionError')) {
+			if (e instanceof ActionError) {
 				return res.end(Router.stringify({actionerror: e.message}));
 			}
 

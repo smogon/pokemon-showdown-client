@@ -157,7 +157,7 @@ export const actions: {[k: string]: QueryHandler} = {
 				const data = await dispatcher.executeActions();
 				results.push(data);
 			} catch (e: any) {
-				if (e.name?.endsWith('ActionError')) {
+				if (e instanceof ActionError) {
 					results.push({actionerror: e.message});
 					continue;
 				}
