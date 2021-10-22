@@ -265,7 +265,7 @@ export const actions: {[k: string]: QueryHandler} = {
 			return {errorip: "Your version of PS is too old for this ladder system. Please update."};
 		}
 
-		if (!params.format) throw new ActionError("Invalid format.");
+		if (!toID(params.format)) throw new ActionError("Invalid format.");
 		const ladder = new NTBBLadder(params.format);
 		const p1 = NTBBLadder.getUserData(params.p1);
 		const p2 = NTBBLadder.getUserData(params.p2);
@@ -291,7 +291,7 @@ export const actions: {[k: string]: QueryHandler} = {
 			return {errorip: true};
 		}
 
-		if (!params.format) throw new ActionError(`Specify a format.`);
+		if (!toID(params.format)) throw new ActionError(`Specify a format.`);
 		const ladder = new NTBBLadder(params.format);
 		const user = NTBBLadder.getUserData(params.user);
 		if (!user) return {errorip: true};
@@ -303,7 +303,7 @@ export const actions: {[k: string]: QueryHandler} = {
 		if (server?.id !== Config.mainserver) {
 			return {errorip: 'Your version of PS is too old for this ladder system. Please update.'};
 		}
-		if (!params.format) throw new ActionError("Specify a format.");
+		if (!toID(params.format)) throw new ActionError("Specify a format.");
 		const ladder = new NTBBLadder(params.format);
 		const user = NTBBLadder.getUserData(params.user);
 		let result = 1000;
