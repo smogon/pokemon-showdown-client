@@ -56,6 +56,7 @@ export class Router {
 		try {
 			const result = await dispatcher.executeActions();
 			this.activeRequests--;
+			if (this.awaitingEnd) res.setHeader('connection', 'close');
 			if (!this.activeRequests && this.awaitingEnd) this.awaitingEnd();
 			if (result === null) {
 				// didn't make a request to action.php or /api/ - custom response here
@@ -66,6 +67,7 @@ export class Router {
 			res.end(Router.stringify(result));
 		} catch (e: any) {
 			this.activeRequests--;
+			if (this.awaitingEnd) res.setHeader('connection', 'close');
 			if (!this.activeRequests && this.awaitingEnd) this.awaitingEnd();
 			if (e instanceof ActionError) {
 				return res.end(Router.stringify({actionerror: e.message}));
