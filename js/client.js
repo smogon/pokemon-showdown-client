@@ -733,6 +733,19 @@ function toId() {
 				var protocol = (Config.server.port === 443 || Config.server.https) ? 'https' : 'http';
 				Config.server.host = $.trim(Config.server.host);
 				try {
+					if (Config.server.host === 'localhost') {
+						// connecting to localhost from psim.us is now banned as of Chrome 94
+						// thanks Docker for having vulns
+						// https://wicg.github.io/cors-rfc1918
+						// anyway, this affects SockJS because it makes HTTP requests to localhost
+						// but it turns out that making direct WebSocket connections to localhost is
+						// still supported, so we'll just bypass SockJS and use WebSocket directly.
+						console.log("Bypassing SockJS for localhost");
+						console.log('ws' + protocol.slice('4') + '://' + Config.server.host + ':' + Config.server.port + Config.sockjsprefix + '/websocket');
+						return new WebSocket(
+							'ws' + protocol.slice('4') + '://' + Config.server.host + ':' + Config.server.port + Config.sockjsprefix + '/websocket'
+						);
+					}
 					return new SockJS(
 						protocol + '://' + Config.server.host + ':' + Config.server.port + Config.sockjsprefix,
 						[], {timeout: 5 * 60 * 1000}
