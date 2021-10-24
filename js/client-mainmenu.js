@@ -282,7 +282,7 @@
 			if (e.currentTarget.name !== 'teammate' || e.keyCode !== 13) return;
 			var partner = toID(e.currentTarget.value);
 			if (!partner.length) return;
-			app.send('/requestpartner ' + partner + ',' + this.format);
+			app.send('/requestpartner ' + partner + ',' + this.curFormat);
 			e.currentTarget.value = '';
 		},
 
