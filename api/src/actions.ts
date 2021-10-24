@@ -162,14 +162,22 @@ export const actions: {[k: string]: QueryHandler} = {
 		const results = [];
 		for (const request of json) {
 			if (request.actionerror) continue;
-			const dispatcher = new Dispatcher(this.request, this.response, {body: request});
+			for (const k of ['serverid', 'servertoken']) {
+				if (data[k] && !request[k]) {
+					request[k] = data[k];
+				}
+			}
 			if (!request.act) {
 				results.push({actionerror: 'Must send a request type.'});
 				continue;
 			}
+			const dispatcher = new Dispatcher(this.request, this.response, {
+				body: request,
+				act: request.act,
+			});
 			try {
-				const data = await dispatcher.executeActions();
-				results.push(data);
+				const result = await dispatcher.executeActions();
+				results.push(result);
 			} catch (e) {
 				if (e instanceof ActionError) {
 					results.push({actionerror: e.message});
