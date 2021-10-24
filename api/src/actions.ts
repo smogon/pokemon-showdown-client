@@ -131,7 +131,7 @@ export const actions: {[k: string]: QueryHandler} = {
 		}
 		return res;
 	},
-	async json(params) {
+	async json() {
 		if (!Dispatcher.isJSON(this.request)) {
 			throw new ActionError("/api/json must use application/json requests");
 		}
@@ -151,6 +151,13 @@ export const actions: {[k: string]: QueryHandler} = {
 		const {json} = data;
 		if (!json || !Array.isArray(json)) {
 			throw new ActionError(`Malformed JSON (send a JSON array in the 'json' property).`);
+		}
+		const server = Dispatcher.servers[data.serverid];
+		if (!server || (server.token && server.token !== data.servertoken)) {
+			throw new ActionError(`Only registered servers can send multiple requests.`);
+		}
+		if (server.id !== Config.mainserver && json.length > 20) {
+			throw new ActionError(`Only the main server can send >20 requests.`);
 		}
 		const results = [];
 		for (const request of json) {
