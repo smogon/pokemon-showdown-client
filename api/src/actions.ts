@@ -136,12 +136,15 @@ export const actions: {[k: string]: QueryHandler} = {
 		if (!server) {
 			throw new ActionError(`Only registered servers can make more than one request.`);
 		}
-		if (!params.json) throw new ActionError(`No JSON sent.`);
-		let json: any[];
+		let json: any[] = [];
 		try {
-			json = JSON.parse(params.json);
+			if (Dispatcher.isJSON(this.request)) {
+				json = await Dispatcher.parseJSONRequest(this.request);
+			} else {
+				json = JSON.parse(params.json);
+			}
 		} catch {
-			throw new ActionError(`Invalid JSON sent.`);
+			return [{actionerror: 'Malformed JSON sent.'}];
 		}
 		if (!Array.isArray(json)) {
 			throw new ActionError(`JSON sent must be an array of requests.`);
@@ -151,10 +154,22 @@ export const actions: {[k: string]: QueryHandler} = {
 		}
 		const results = [];
 		for (const request of json) {
+			if (request.actionerror) continue;
 			const dispatcher = new Dispatcher(this.request, this.response, {body: request});
-			if (!request.act) throw new ActionError(`Must send a request type.`);
-			const data = await dispatcher.executeActions();
-			results.push(data);
+			if (!request.act) {
+				results.push({actionerror: 'Must send a request type.'});
+				continue;
+			}
+			try {
+				const data = await dispatcher.executeActions();
+				results.push(data);
+			} catch (e) {
+				if (e instanceof ActionError) {
+					results.push({actionerror: e.message});
+					continue;
+				}
+				throw e;
+			}
 		}
 		return results;
 	},

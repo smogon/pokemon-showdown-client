@@ -9,6 +9,7 @@ import {Config} from './config-loader';
 import * as http from 'http';
 import {Session} from './session';
 import {User} from './user';
+import {URLSearchParams} from 'url';
 
 /**
  * Throw this to end a request with an `actionerror` message.
@@ -72,13 +73,37 @@ export class Dispatcher {
 		}
 		return handler.call(this, body);
 	}
+	static async parseJSONRequest(req: http.IncomingMessage) {
+		const json: any[] = [];
+		if (this.isJSON(req)) {
+			await new Promise<void>(resolve => {
+				req.on('data', data => {
+					try {
+						json.push(JSON.parse(data + ""));
+					} catch (e) {
+						json.push({actionerror: "Malformed JSON sent."});
+					}
+				});
+				req.once('end', () => {
+					resolve();
+				});
+			});
+		}
+		return json;
+	}
+	static parseURLRequest(req: http.IncomingMessage) {
+		const [, params] = req.url?.split('?')[1] || "";
+		return Object.fromEntries(new URLSearchParams(params));
+	}
+	static isJSON(req: http.IncomingMessage) {
+		return req.headers['content-type'] === 'application/json';
+	}
 	parseRequest() {
-		const [pathname, queryString] = this.request.url?.split('?') || [];
+		const [pathname] = this.request.url?.split('?') || [];
 		const body: {[k: string]: any} = this.opts.body || {};
 		let act = body.act; // checking for an act in the preset body
-		if (!this.opts.body && queryString) {
-			const parts = queryString.split('&');
-			for (const [k, v] of parts.map(p => p.split('='))) body[k] = v;
+		if (!this.opts.body) {
+			Object.assign(body, Dispatcher.parseURLRequest(this.request));
 		}
 		// check for an act in the url body (parsing url body above)
 		if (body.act) act = body.act;
