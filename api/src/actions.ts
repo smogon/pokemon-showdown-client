@@ -132,25 +132,25 @@ export const actions: {[k: string]: QueryHandler} = {
 		return res;
 	},
 	async json(params) {
-		const server = this.getServer(true);
-		if (!server) {
-			throw new ActionError(`Only registered servers can make more than one request.`);
+		if (!Dispatcher.isJSON(this.request)) {
+			throw new ActionError("/api/json must use application/json requests");
 		}
-		let json: any[] = [];
+		let raw;
 		try {
-			if (Dispatcher.isJSON(this.request)) {
-				json = await Dispatcher.parseJSONRequest(this.request);
-			} else {
-				json = JSON.parse(params.json);
-			}
+			raw = await Dispatcher.parseJSONRequest(this.request);
 		} catch {
 			return [{actionerror: 'Malformed JSON sent.'}];
 		}
-		if (!Array.isArray(json)) {
-			throw new ActionError(`JSON sent must be an array of requests.`);
+		if (raw.length !== 1) {
+			throw new ActionError(`Sent too much JSON.`);
 		}
-		if (server.server !== Config.mainserver && json.length > 20) {
-			throw new ActionError(`Too many requests were sent. Send them in batches of 20.`);
+		const data = raw.shift();
+		if (!data) {
+			throw new ActionError("No JSON sent.");
+		}
+		const {json} = data;
+		if (!json || !Array.isArray(json)) {
+			throw new ActionError(`Malformed JSON (send a JSON array in the 'json' property).`);
 		}
 		const results = [];
 		for (const request of json) {
