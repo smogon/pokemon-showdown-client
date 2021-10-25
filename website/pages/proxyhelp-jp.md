@@ -5,7 +5,7 @@
 上記のメッセージが表示され、チャットができない場合は、[プロキシ](https://ja.wikipedia.org/wiki/%E3%83%97%E3%83%AD%E3%82%AD%E3%82%B7)または[VPN](https://ja.wikipedia.org/wiki/Virtual_Private_Network)接続を使用しています。以下は、この問題を解決するためのトラブルシューティングの手順です。各手順の後に、ロビーなどのチャットルームで`/logout`と入力し、再度ログインしてください。
 - プロキシまたはVPNをオフにします。
 - 他のすべてのデバイスでログアウトしていることを確認します。
-- デスクトップクライアントを使用している場合は、代わりに[ウェブクライアント](https://play.pokemonshowdown.com)を使用してください。
+- デスクトップクライアントを使用している場合は、代わりに[Webクライアント](https://play.pokemonshowdown.com)を使用してください。
 - TORを使用している場合は、TORを閉じて、一般的なブラウザでShowdownを開いてください。
 - Operaブラウザを使用している場合、デフォルトでVPNが有効になっている可能性があります。[Chrome](https://ja.wikipedia.org/wiki/Google_Chrome)、[Firefox](https://ja.wikipedia.org/wiki/Mozilla_Firefox)、[Safari](https://ja.wikipedia.org/wiki/Safari)などの別のブラウザを使用してみてください。
 - 共有ネットワークや商用ネットワークを使用している場合、プロキシやVPNが有効になっている可能性があります。通常のネットワークで接続できるようになるまで待つか、システム管理者に連絡してください。
