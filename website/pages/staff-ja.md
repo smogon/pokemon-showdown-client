@@ -60,4 +60,4 @@ Showdownの [GitHub](https://github.com/smogon/pokemon-showdown) [repositories](
 
 また、PS!のルームへの卓越した貢献が、グローバルな昇進につながる可能性もあります。
 
-<small>(Originally by [Birkal](https://www.smogon.com/forums/members/birkal.66676/) and [michael](https://www.smogon.com/forums/members/michael.94718/); updated by [Vacate](https://www.smogon.com/forums/members/vacate.189371/) and converted to Markdown for the PS! website by [Annika](https://www.smogon.com/forums/members/annika.434112/); translated into Japanese by [ililililililili](https://www.smogon.com/forums/members/ililililililili.502015/&sa=D&source=editors&ust=1635129021401000&usg=AOvVaw2OE72YWTnfZrwHY4qG2NUc))</small>
+<small>(Originally by [Birkal](https://www.smogon.com/forums/members/birkal.66676/) and [michael](https://www.smogon.com/forums/members/michael.94718/); updated by [Vacate](https://www.smogon.com/forums/members/vacate.189371/) and converted to Markdown for the PS! website by [Annika](https://www.smogon.com/forums/members/annika.434112/); translated into Japanese by [ililililililili](https://www.smogon.com/forums/members/ililililililili.502015/))</small>
