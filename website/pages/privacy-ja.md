@@ -20,7 +20,7 @@ Pokémon ShowdownおよびSmogon Universityが運営していないサーバー�
 
 Pokémon Showdownでは、Google AnalyticsとGoogle AdSenseを使用しており、リファラー(そのブラウザで閲覧したことがあるページ)情報、ブラウザ情報、コンピュータ情報を収集しています。これらの情報を第三者と共有することはありません。
 
-Googleでは、AdSense関連の[トラッキングを無効にするためのページ](https://www.google.com/settings/ads/onweb/)を用意しています。
+Googleは、AdSense関連の[トラッキングを無効にするためのページ](https://www.google.com/settings/ads/onweb/)を用意しています。
 
 ## Logging
 
