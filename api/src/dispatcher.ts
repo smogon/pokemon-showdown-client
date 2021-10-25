@@ -175,17 +175,20 @@ export class Dispatcher {
 	static async getHost(server: string) {
 		let result = this.hostCache.get(server);
 		if (result) return result;
-		const addresses = await new Promise<string>(resolve => {
+		const address = await new Promise<string>(resolve => {
 			dns.resolve(server, (err, addresses) => {
 				if (err) {
-					resolve('');
-				} else {
-					resolve(addresses[0] || "");
+					// i don't like this. BUT we have to match behavior with
+					// php's gethostbyname, which returns the host given if no results
+					resolve(server);
+				} else { // see above
+					resolve(addresses[0] || server);
 				}
 			});
 		});
-		this.hostCache.set(server, addresses[0]);
-		return addresses[0];
+		result = address;
+		this.hostCache.set(server, result);
+		return result;
 	}
 	async getServer(requireToken = false): Promise<RegisteredServer | null> {
 		const body = this.parseRequest()?.body || {};
