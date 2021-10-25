@@ -18,11 +18,11 @@ Helpチャットルームでは、ほとんどの問題を解決できます。�
 
 Mini-FAQ:
 
-> **PSのスクリーンショットや動画をYouTubeなどの他のサイトに投稿してもいいですか？** 
+> **PSのスクリーンショットや動画をYouTubeなどの他のサイトに投稿してもいいですか？**  
 > はい。問題ありません。ご自由にどうぞ。
 > 
 > **スマートフォン向けのアプリはリリースされますか？**  
-> いつかは出るかもしれませんが、Webサイトをご利用ください。
+> いつかは出るかもしれませんが、Webクライアントをご利用ください。
 > 
 > **パスワードを忘れてしまった**  
 > [requesting a password reset](https://www.smogon.com/forums/threads/names-passwords-rooms-and-servers-contacting-upper-staff.3538721/)をご覧ください。
@@ -31,4 +31,4 @@ Mini-FAQ:
 > それは既知でないバグであると確信している場合は、[Bug Reports](/bugreports)をご覧ください。
 > 
 > **2v2 multi battlesは？ Friends listは？ 翻訳は？**  
-> 実装されました。翻訳プロジェクトは少しづつ進行中です。 
+> 実装されました。翻訳プロジェクトは少しづずつ進行中です。 
