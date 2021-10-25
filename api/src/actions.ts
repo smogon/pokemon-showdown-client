@@ -135,38 +135,31 @@ export const actions: {[k: string]: QueryHandler} = {
 		if (!Dispatcher.isJSON(this.request)) {
 			throw new ActionError("/api/json must use application/json requests");
 		}
-		let raw;
+		let json;
 		try {
-			raw = await Dispatcher.parseJSONRequest(this.request);
+			json = await Dispatcher.parseJSONRequest(this.request);
 		} catch {
 			return [{actionerror: 'Malformed JSON sent.'}];
 		}
-		if (raw.length !== 1) {
-			throw new ActionError(`Sent too much JSON.`);
-		}
-		const data = raw.shift();
-		if (!data) {
-			throw new ActionError("No JSON sent.");
-		}
-		const {json} = data;
 		if (!json || !Array.isArray(json)) {
 			throw new ActionError(`Malformed JSON (send a JSON array in the 'json' property).`);
 		}
-		const server = Dispatcher.servers[data.serverid];
-		if (!server || (server.token && server.token !== data.servertoken)) {
-			throw new ActionError(`Only registered servers can send multiple requests.`);
+
+		let serverid, servertoken;
+		for (const req of json) {
+			if (!serverid) serverid = req.serverid;
+			if (!servertoken) servertoken = req.servertoken;
 		}
-		if (server.id !== Config.mainserver && json.length > 20) {
-			throw new ActionError(`Only the main server can send >20 requests.`);
+		const server = Dispatcher.servers[toID(serverid)];
+		if (json.length > 20) {
+			if (!server || server.token && server.token !== servertoken) {
+				throw new ActionError(`Only registered servers can send >20 requests at once.`);
+			}
 		}
+
 		const results = [];
 		for (const request of json) {
 			if (request.actionerror) continue;
-			for (const k of ['serverid', 'servertoken']) {
-				if (data[k] && !request[k]) {
-					request[k] = data[k];
-				}
-			}
 			if (!request.act) {
 				results.push({actionerror: 'Must send a request type.'});
 				continue;
