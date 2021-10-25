@@ -11,7 +11,7 @@ Pokémon Showdownのプレイ可能な4種類のフォーマット群の一覧�
 - Smogonの公式フォーマット
     - 例: OU, Ubers, Doubles UU
 
-- Smogonのメタゲーム フォーマット
+- Smogonのメタゲームのフォーマット
     - 例: Balanced Hackmons, STABmons
 
 ニンテンドーのフォーマットは我々Smogonにはコントロールできません。変更をリクエストされても、変更はできないのでご了承ください。
