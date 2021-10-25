@@ -10,6 +10,6 @@
 - Operaブラウザを使用している場合、デフォルトでVPNが有効になっている可能性があります。[Chrome](https://ja.wikipedia.org/wiki/Google_Chrome)、[Firefox](https://ja.wikipedia.org/wiki/Mozilla_Firefox)、[Safari](https://ja.wikipedia.org/wiki/Safari)などの別のブラウザを使用してみてください。
 - 共有ネットワークや商用ネットワークを使用している場合、プロキシやVPNが有効になっている可能性があります。通常のネットワークで接続できるようになるまで待つか、システム管理者に連絡してください。
 - 学校や職場で支給されたデバイスを使用している場合、プロキシやVPNソフトウェアが有効になっている可能性があります。別の機器を使用するか、システム管理者に連絡してください。
-- チャットで`/ip`と入力してください。あなたのIPが表示されます（123.456.78.910のようなピリオドで区切られた数列です）。[WhatIsMyIPAddress](https://whatismyipaddress.com/)や[IPLocationTools](https://www.iplocationtools.com/)などのWebサイトで、自分のIPを確認します。表示された場所やインターネットサービスプロバイダに見覚えがない場合は、プロキシやVPN接続を利用しています。自宅での接続の場合、知識のある方はネットワーク構成を編集することができます。そうでない場合は、インターネットサービスプロバイダーにお問い合わせください。
+- チャットで`/ip`と入力してください。あなたのIPが表示されます(123.456.78.910のようなピリオドで区切られた数列です)。[WhatIsMyIPAddress](https://whatismyipaddress.com/)や[IPLocationTools](https://www.iplocationtools.com/)などのWebサイトで、自分のIPを確認します。表示された場所やインターネットサービスプロバイダに見覚えがない場合は、プロキシやVPN接続を利用しています。自宅での接続の場合、知識のある方はネットワーク構成を編集することができます。そうでない場合は、インターネットサービスプロバイダーにお問い合わせください。
 
 まだロックされていて、プロキシやVPN接続を使用していないことを断言できますか？チャットルームで`/ht`と入力してShowdownのヘルプチケットを作成するか、[リンクに直接アクセスしてチケットを作成する](https://play.pokemonshowdown.com/view-help-request)とグローバルスタッフが対応します。
