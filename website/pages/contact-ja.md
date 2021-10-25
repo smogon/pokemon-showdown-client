@@ -12,7 +12,7 @@ Helpチャットルームでは、ほとんどの問題を解決できます。�
 	<li><a class="button nav-first nav-last" href="//play.pokemonshowdown.com/help">Pokémon Showdown Help chatroom</a></li>
 </ul></blockquote><div style="clear:both"></div>
 
-スタッフへの連絡は、以下のメールアドレスを利用してください。<strong>悪質なユーザーの報告は`/report`を利用してください。なお、英語のみに対応しています。ENGLISH ONLY!</strong>.
+スタッフへの連絡は、以下のメールアドレスを利用してください。<strong>悪質なユーザーの通報は`/report`を利用してください。なお、英語のみに対応しています。ENGLISH ONLY!</strong>.
 
 > <kbd>st</kbd><kbd>aff@pok</kbd><kbd>emonshowdown.com</kbd>
 
