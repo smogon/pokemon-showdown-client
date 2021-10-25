@@ -450,11 +450,13 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 
 			if (
 				tier !== 'LC' &&
-				(gen === 'gen8' && id === 'ferroseed') ||
-				(gen === 'gen7' && id === 'ferroseed') ||
-				(gen === 'gen6' && ['ferroseed', 'pawniard', 'vullaby'].includes(id)) ||
-				(gen === 'gen5' && id === 'ferroseed') ||
-				(gen === 'gen4' && ['clamperl', 'diglett', 'gligar', 'hippopotas', 'snover', 'wynaut'].includes(id))
+				(
+					(gen === 'gen8' && id === 'ferroseed') ||
+					(gen === 'gen7' && id === 'ferroseed') ||
+					(gen === 'gen6' && ['ferroseed', 'pawniard', 'vullaby'].includes(id)) ||
+					(gen === 'gen5' && id === 'ferroseed') ||
+					(gen === 'gen4' && ['clamperl', 'diglett', 'gligar', 'hippopotas', 'snover', 'wynaut'].includes(id))
+				)
 			) {
 				if (!tierTable['LC']) tierTable['LC'] = [];
 				tierTable['LC'].push(id);
