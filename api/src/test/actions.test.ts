@@ -10,13 +10,14 @@ import * as utils from './test-utils';
 import SQL from 'sql-template-strings';
 import * as tables from '../tables';
 
+const token = '42354y6dhgfdsretr';
 (Config.testdb ? describe : describe.skip)('Loginserver actions', () => {
 	const server = utils.addServer({
 		id: 'showdown',
 		name: 'Etheria',
 		port: 8000,
 		server: 'despondos.psim.us',
-		token: '42354y6dhgfdsretr',
+		token,
 	});
 
 	it('Should properly log userstats and userstats history', async () => {
@@ -24,7 +25,7 @@ import * as tables from '../tables';
 			act: 'updateuserstats',
 			users: '20',
 			date: `${Date.now()}`,
-			servertoken: server.token,
+			servertoken: token,
 			serverid: 'showdown',
 		});
 		assert(result.actionsuccess);
@@ -90,7 +91,7 @@ import * as tables from '../tables';
 			hidden: '',
 			private: 0,
 			serverid: 'showdown',
-			servertoken: server.token,
+			servertoken: token,
 			inputlog: [
 				'>version 3eeccb002ecc608fb66c25b6abb3ef87f667f8b6',
 				'>version-origin a5d3aaee353a60c91076162238b2a6d09c284165',
@@ -116,7 +117,7 @@ import * as tables from '../tables';
 			const {result} = await utils.testDispatcher({
 				act: 'ladderupdate',
 				serverid: 'showdown',
-				servertoken: server.token,
+				servertoken: token,
 				p1: 'Catra',
 				p2: 'Adora',
 				format: 'gen1randombattle',
@@ -141,7 +142,7 @@ import * as tables from '../tables';
 				format: 'gen5randombattle',
 				user: 'shera',
 				serverid: 'showdown',
-				servertoken: server.token,
+				servertoken: token,
 			});
 
 			assert.strictEqual(p1.rating!.elo, result, `Expected elo ${p1.rating!.elo}, got ${result}`);

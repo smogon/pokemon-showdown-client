@@ -155,7 +155,7 @@ export class Session {
 		let userType = '';
 		const userData = await user.getData();
 		const {banstate, registertime: regtime} = userData;
-		const server = this.dispatcher.getServer();
+		const server = await this.dispatcher.getServer();
 		const serverHost = server?.server || 'sim3.psim.us';
 
 		if (user.id === userid && user.loggedin) {

@@ -8,8 +8,11 @@ import * as child from 'child_process';
 import {Config} from './config-loader';
 import * as http from 'http';
 import {Session} from './session';
+import {md5} from './replays';
 import {User} from './user';
 import {URLSearchParams} from 'url';
+import {toID} from './server';
+import * as dns from 'dns';
 
 /**
  * Throw this to end a request with an `actionerror` message.
@@ -28,6 +31,8 @@ export interface RegisteredServer {
 	server: string;
 	port: number;
 	token?: string;
+	skipipcheck?: boolean;
+	ipcache?: string;
 }
 
 export type QueryHandler = (
@@ -92,7 +97,9 @@ export class Dispatcher {
 		return json;
 	}
 	static parseURLRequest(req: http.IncomingMessage) {
-		const [, params] = req.url?.split('?')[1] || "";
+		if (!req.url) return {};
+		const [, params] = req.url.split('?');
+		if (!params) return {};
 		return Object.fromEntries(new URLSearchParams(params));
 	}
 	static isJSON(req: http.IncomingMessage) {
@@ -164,18 +171,47 @@ export class Dispatcher {
 	setHeader(name: string, value: string | string[]) {
 		this.response.setHeader(name, value);
 	}
-	getServer(requireToken = false): RegisteredServer | null {
+	static hostCache = new Map<string, string>();
+	static async getHost(server: string) {
+		let result = this.hostCache.get(server);
+		if (result) return result;
+		const addresses = await new Promise<string>(resolve => {
+			dns.resolve(server, (err, addresses) => {
+				if (err) {
+					resolve('');
+				} else {
+					resolve(addresses[0] || "");
+				}
+			});
+		});
+		this.hostCache.set(server, addresses[0]);
+		return addresses[0];
+	}
+	async getServer(requireToken = false): Promise<RegisteredServer | null> {
 		const body = this.parseRequest()?.body || {};
-		const server = Dispatcher.servers[body.serverid];
-		if (server) {
-			if (requireToken && server.token && (
-				!body.servertoken || body.servertoken !== server.token
-			)) {
-				throw new ActionError('You sent an invalid server token.');
-			}
+		const serverid = toID(body.serverid);
+		let server = null;
+		const ip = this.getIp();
+		if (!Dispatcher.servers[serverid]) {
 			return server;
+		} else {
+			server = Dispatcher.servers[serverid];
+			if (!server.skipipcheck && !server.token && serverid !== 'showdown') {
+				if (!server.ipcache) {
+					server.ipcache = await Dispatcher.getHost(server.server);
+				}
+				if (ip !== server.ipcache) return null;
+			}
 		}
-		return null;
+		if (server.token) {
+			if (server.token !== md5(body.servertoken)) {
+				if (requireToken) {
+					throw new ActionError(`Invalid servertoken sent for requested serverid.`);
+				}
+				return null;
+			}
+		}
+		return server;
 	}
 	static parseCookie(cookieString?: string) {
 		const list = new Map<string, string>();

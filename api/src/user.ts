@@ -42,7 +42,7 @@ export class User {
 	async getData() {
 		if (this.id === 'guest') return User.getUserDefaults();
 		const data = await users.get('*', this.id);
-		return data || User.getUserDefaults();
+		return data ? {...data} : User.getUserDefaults();
 	}
 	setName(name: string) {
 		this.name = name;

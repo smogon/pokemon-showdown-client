@@ -5,15 +5,16 @@
  */
 import {strict as assert} from 'assert';
 import {Config} from '../config-loader';
-import {Dispatcher} from '../dispatcher';
+import {Dispatcher, ActionError} from '../dispatcher';
 import * as path from 'path';
 
 import * as utils from './test-utils';
 
+const servertoken = 'jiuhygjhf';
 describe('Dispatcher features', () => {
 	const dispatcher = utils.makeDispatcher({
 		serverid: 'etheria',
-		servertoken: '42354y6dhgfdsretr',
+		servertoken,
 		act: 'mmr',
 	});
 	const server = utils.addServer({
@@ -21,19 +22,20 @@ describe('Dispatcher features', () => {
 		name: 'Etheria',
 		port: 8000,
 		server: 'despondos.psim.us',
-		token: '42354y6dhgfdsretr',
+		token: servertoken,
 	});
-	it('Should properly detect servers', () => {
-		const cur = dispatcher.getServer();
+	it('Should properly detect servers', async () => {
+		const cur = await dispatcher.getServer();
 		assert(server.id === cur?.id);
 	});
-	it('Should validate servertokens', () => {
-		const cur = dispatcher.getServer(true);
+	it('Should validate servertokens', async () => {
+		const cur = await dispatcher.getServer(true);
 		assert(cur);
 		assert(server.id === cur.id);
 		// invalidate the servertoken, we shouldn't find the server now
 		(dispatcher.opts.body as {[k: string]: string}).servertoken = '';
-		assert.throws(() => dispatcher.getServer(true));
+		const result = await dispatcher.getServer(true).catch(e => e);
+		assert(result instanceof ActionError);
 	});
 
 	it('Should validate CORS requests', () => {

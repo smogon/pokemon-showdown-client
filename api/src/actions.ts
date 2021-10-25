@@ -9,7 +9,7 @@ import {ActionError, Dispatcher, QueryHandler} from './dispatcher';
 import * as fs from 'fs';
 import SQL from 'sql-template-strings';
 import {NTBBLadder} from './ladder';
-import {Replays} from './replays';
+import {Replays, md5} from './replays';
 import {toID} from './server';
 import * as tables from './tables';
 
@@ -89,7 +89,7 @@ export const actions: {[k: string]: QueryHandler} = {
 		};
 	},
 	async updateuserstats(params) {
-		const server = this.getServer(true);
+		const server = await this.getServer(true);
 		if (!server) {
 			return {actionsuccess: false};
 		}
@@ -152,7 +152,7 @@ export const actions: {[k: string]: QueryHandler} = {
 		}
 		const server = Dispatcher.servers[toID(serverid)];
 		if (json.length > 20) {
-			if (!server || server.token && server.token !== servertoken) {
+			if (!server || server.token && server.token !== md5(servertoken)) {
 				throw new ActionError(`Only registered servers can send >20 requests at once.`);
 			}
 		}
@@ -182,7 +182,7 @@ export const actions: {[k: string]: QueryHandler} = {
 		return results;
 	},
 	async prepreplay(params) {
-		const server = this.getServer(true);
+		const server = await this.getServer(true);
 		if (!server) {
 			return {errorip: this.getIp()};
 		}
@@ -224,8 +224,8 @@ export const actions: {[k: string]: QueryHandler} = {
 		this.setHeader('Content-Type', 'text/plain; charset=utf-8');
 		return Replays.upload(params, this);
 	},
-	invalidatecss() {
-		const server = this.getServer(true);
+	async invalidatecss() {
+		const server = await this.getServer(true);
 		if (!server) {
 			return {errorip: this.getIp()};
 		}
@@ -283,7 +283,7 @@ export const actions: {[k: string]: QueryHandler} = {
 		return {actionsuccess};
 	},
 	async ladderupdate(params) {
-		const server = this.getServer(true);
+		const server = await this.getServer(true);
 		if (server?.id !== Config.mainserver) {
 			return {errorip: "Your version of PS is too old for this ladder system. Please update."};
 		}
@@ -309,7 +309,7 @@ export const actions: {[k: string]: QueryHandler} = {
 		return out;
 	},
 	async ladderget(params) {
-		const server = this.getServer(true);
+		const server = await this.getServer(true);
 		if (server?.id !== Config.mainserver) {
 			return {errorip: true};
 		}
@@ -322,7 +322,7 @@ export const actions: {[k: string]: QueryHandler} = {
 		return user.ratings;
 	},
 	async mmr(params) {
-		const server = this.getServer(true);
+		const server = await this.getServer(true);
 		if (server?.id !== Config.mainserver) {
 			return {errorip: 'Your version of PS is too old for this ladder system. Please update.'};
 		}

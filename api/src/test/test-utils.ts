@@ -10,45 +10,20 @@ import {IncomingMessage, ServerResponse} from 'http';
 import {Dispatcher, RegisteredServer} from '../dispatcher';
 import {Config} from '../config-loader';
 import * as crypto from 'crypto';
-import {databases} from '../database';
 import {strict as assert} from 'assert';
-import * as fs from 'fs';
-import SQL from 'sql-template-strings';
+import {md5} from '../replays';
 
-export let setup = false;
-export async function setupDB(): Promise<void> {
-	if (setup) return;
-	setup = true;
-	/** Removing this as it does not work, but could be useful for future reference.
-	const commands = [
-		'docker run --name api-test -p 3308:3306 -e MYSQL_ROOT_PASSWORD=testpw -d mysql:latest',
-	];
-	for (const command of commands) execSync(command);
-	const config = {
-		password: 'testpw',
-		user: 'root',
-		host: '127.0.0.1',
-		port: 3308,
-	};
-
-	await wait(5000); // for docker to catch up */
-
-	if (!(Config as any).testdb) {
-		throw new Error('Configure `Config.testdb` before using mocha.');
-	}
-	const sqlFiles = fs.readdirSync(`${__dirname}/../../lib/`)
-		.filter(f => f.endsWith('.sql'))
-		.map(k => `lib/${k}`)
-		.concat(['replays/ps_prepreplays.sql', 'replays/ps_replays.sql']);
-
-	for (const db of databases) {
-		db.connect((Config as any).testdb);
-		for (const file of sqlFiles) {
-			const schema = fs.readFileSync(`${__dirname}/../../${file}`, 'utf-8');
-			await db.query(SQL(schema)).catch(() => null);
-		}
-	}
-}
+/** Removing this as it does not work, but could be useful for future reference.
+const commands = [
+	'docker run --name api-test -p 3308:3306 -e MYSQL_ROOT_PASSWORD=testpw -d mysql:latest',
+];
+for (const command of commands) execSync(command);
+const config = {
+	password: 'testpw',
+	user: 'root',
+	host: '127.0.0.1',
+	port: 3308,
+};*/
 
 export function makeDispatcher(body?: {[k: string]: any}, url?: string) {
 	const socket = new net.Socket();
@@ -65,6 +40,8 @@ export function makeDispatcher(body?: {[k: string]: any}, url?: string) {
 }
 
 export function addServer(server: RegisteredServer) {
+	if (server.token) server.token = md5(server.token);
+	if (!('skipipcheck' in server)) server.skipipcheck = false;
 	Dispatcher.servers[server.id] = server;
 	return server;
 }
@@ -92,7 +69,3 @@ export async function randomBytes(size = 128) {
 		crypto.randomBytes(size, (err, buffer) => err ? reject(err) : resolve(buffer.toString('hex')));
 	});
 }
-
-before(async () => {
-	await setupDB();
-});

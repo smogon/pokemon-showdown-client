@@ -2,14 +2,13 @@
 * Tests for replays.ts.
 * @author Annika
 */
-import {Config} from '../config-loader';
 import {Replays, md5, stripNonAscii, ReplayData} from '../replays';
 import {prepreplays, replays} from '../tables';
 import {strict as assert} from 'assert';
 import SQL from 'sql-template-strings';
 import * as utils from './test-utils';
 
-(Config.testdb ? describe : describe.skip)('Replay database manipulation', () => {
+(describe.skip)('Replay database manipulation', () => {
 	it('should properly prepare replays', async () => {
 		const inputlog = [
 			'>version 3eeccb002ecc608fb66c25b6abb3ef87f667f8b6',
