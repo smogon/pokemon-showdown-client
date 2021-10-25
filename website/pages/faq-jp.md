@@ -54,7 +54,7 @@ Smogonの[フォーラムガイドライン](http://www.smogon.com/forums/thread
 
 ### カスタムアバターを使用したい。
 
-カスタムアバターはグローバルドライバー(`%`、`@`、 `&`)以上やPS!に貢献した人(プログラマーなど)やSmogonバッジを持っている人に与えられます。 カスタムアバターは手動で実装しなければならないため、要求されたユーザー全員に追加するのは現実的ではありません。例外もありますが、あなたは例外ではないでしょう。
+カスタムアバターはグローバルドライバー(`%`、`@`、`&`)以上やPS!に貢献した人(プログラマーなど)やSmogonバッジを持っている人に与えられます。 カスタムアバターは手動で実装しなければならないため、要求されたユーザー全員に追加するのは現実的ではありません。例外もありますが、あなたは例外ではないでしょう。
 
 ### 部屋を作るには？
 
@@ -71,7 +71,7 @@ Smogonの[フォーラムガイドライン](http://www.smogon.com/forums/thread
 
 ### autoconfirmedとはなんですか？
 
-レートが有効なバトルで1回以上勝利し、アカウントを登録してから1週間が経過するアカウントが自動承認されます(autoconfirmed)。承認されていないユーザーはグローバルスタッフ(いかなる場所でも名前の前に %、 @、 & がついています)以外にPMを送信することができません。また、チャットルームでは荒らしを防止するためにmodchatで承認済みのユーザーのみが発言できるようにすることができます。もしあなたが承認されていない場合はルームスタッフ(名前の前に %、@、# がついているユーザーです)にPMを送信し、modchatを無効にするように依頼することができます。
+レートが有効なバトルで1回以上勝利し、アカウントを登録してから1週間が経過するアカウントが自動承認されます(autoconfirmed)。承認されていないユーザーはグローバルスタッフ(いかなる場所でも名前の前に`%`、`@`、`&`がついています)以外にPMを送信することができません。また、チャットルームでは荒らしを防止するためにmodchatで承認済みのユーザーのみが発言できるようにすることができます。もしあなたが承認されていない場合はルームスタッフ(名前の前に`%`、`@`、`#`がついているユーザーです)にPMを送信し、modchatを無効にするように依頼することができます。
 
 ### なぜチームが削除されたのですか？
 
@@ -98,80 +98,79 @@ PS!のグループチャットは、グローバルルールで認められて�
 ### PS!の背景や外観を変えるには？
 背景を変更するには、右上の歯車ボタンをクリックして、"change background"をクリックしてください。好きな画像を選んだり、自分でアップロードすることができます。また、拡張機能「Stylish」をダウンロードすると、Pokemon Showdownの全体的な外観を変更することができます。
 
-## Tiering
+## ティアリング
 
-### What is Smogon?
+### Smogonとは？
 
-Smogon is the most comprehensive and accurate online resource for competitive Pokemon battling, comprising strategy articles, guides, forums and its own simulator, Pokémon Showdown. Smogon's tiering is the basis for Pokémon Showdown.
+Smogonは、ポケモン構築、ガイド、フォーラム、そして独自のシミュレーターであるPokémon Showdownで構成される、ポケモン対戦に関する最も包括的で正確なリソースです。Pokémon Showdownでは、Smogonのティアリングがベースとなっています。
 
-### What does AG, Ubers, OU, UU, RU, NU or LC stand for?
+### AG、Ubers、OU、UU、RU、NU、LCとはなんですか？
 
-If you want to know more about a specific tier you can use the command `/tier [tier name]`; it will show you information about that format. For more information on other tiers available please visit [the Smogon dex](https://www.smogon.com/dex/ss/formats/).
+特定のTierの情報を知りたい場合は`/tier [tier name]`を送信することによって情報を得ることができます。詳細は[Smogon dex](https://www.smogon.com/dex/ss/formats/)をご覧ください。
 
-### What is the difference between Random Battle and Battle Factory?
+### Random BattleとBattle Factoryの違いはなんですか？
 
-Pokémon in Random Battles are randomly generated from PU and above, whereas in Battle Factory, all Pokemon from both teams will belong from the same tier, and movesets are competitive.
+Random Battleでは、PU以上のポケモンがランダムに出現しますが、Battle Factoryでは、両チームのポケモンが同じ階層に属しており、技の組み合わせが事前に決定されています。
 
-### What does GXE mean?
+### GXEとはなんですか？
 
-GXE stands for Glicko X-Act Estimate. The number shown is the estimated percent chance that a player has of winning against any other random player.
+GXEとは、Glicko X-Act Estimateの略です。プレイヤーがランダムなプレイヤーに勝つ確率の推定値です。
 
-### What is a suspect test?
+### suspect testとはなんですか？
 
-A suspect test is a ladder where the tier is testing a specific move, Pokémon, or ability to see if it is overcentralizing or outright broken in a given mode. Reaching a specific GXE and number of battles would allow a user to vote on the suspect test and have their opinion be calculated in the tiering results.
+suspect testとは、特定の技やポケモン、特性が特定のTierで過剰になっていないか、明らかに壊れていないかどうかを、そのTierがテストするテストのことです。特定のGXEとバトル数に到達すると、ユーザーはsuspect testに投票することができ、その意見がティアリングの結果に反映されます。
 
-### What is a good moveset for x?
+### 特定のTierで強いポケモンの技構成はなんですか？
 
-By using the `/smogdex [pokemon]` command you can find the updates analysis for any Pokémon of your choice, with an explanation on why the build is effective.
+`/smogdex [pokemon]`を使うと任意のポケモンの適切な分析結果やその理由を表示します。
 
 ## Battles
 
-### How do I find a battle?
+### バトルをするには？
 
-Click the "Battle!" button located on the homepage, which will instantly search for a ladder match.
+ホームページにある"**Battle!**"をクリックするとすぐにレートが有効なバトル([Gen 8] Unrated Random Battleを除く)を検索し、開始できます。
 
-The default format is Random Battle. You can choose a different format and team before clicking "Battle!".
+デフォルトではRandom Battleが選ばれており、"**Battle!**"をクリックする前に他のフォーマットを選択するとそのフォーマットでバトルを検索します。チームも選択できます。
 
-### How can I battle my friend or a specific person?
+### 特定のユーザーとバトルをしたい。
 
-If you want to challenge a specific user, click their username or click "Find a user" in the Main Menu and type in their username. After that, click "Challenge", select the format you want to play, and choose the team you'd like to use.
+特定のユーザーにchallengeしたい場合は、そのユーザー名をクリックするか、メインメニューの"Find a user"をクリックして、ユーザー名を入力します。その後、"Challenge"をクリックし、対戦形式を選択し、使用するチームを選びます。
 
-### Why can I only use this move?
+### なぜ特定の技しか使えないのですか？
 
-Make sure you check your Pokemon's items - items such as Assault Vest, Choice Band, Choice Scarf and Choice Specs will limit your move choices.
+ポケモンのアイテムを確認してください。とつげきチョッキ、こだわりハチマキ、こだわりスカーフ、こだわりメガネなどのアイテムがあると、技の選択が制限されます。
 
-### What is an endless battle?
+### Endless Battleとはなんですか？
 
-An endless battle is, as the name implies, a battle that cannot end. The common components of an endless battle are Pokemon that trap the target (via Block, Shadow Tag, or Arena Trap), moves that heal the opponent (usually Heal Pulse), ways to keep your own Pokemon healthy (Slack Off, Recover, or Roost), Leppa Berries to restore the user's lost PP, and continual generation of Leppa Berries (via Recycle).
+Endless Battleとは、その名の通り、終わりのない戦いのことです。エンドレスバトルの構成要素は、ブロッキング、かげふみ、ありじごくなどの罠を仕掛けるポケモン、いやしのはどうなどの相手を回復する技、なまける、じこさいせい、はねやすめなどの自分のポケモンを元気にする手段、PPを回復するヒメリのみ、リサイクルによるヒメリのみの継続的な生成などです。
 
-The opponent is forced to Struggle, and because Struggle can never run out of PP, the battle would go on forever since a player can continuously heal both Pokemon (and prevent them from fainting). Battles are capped at 1000 turns; if that number of turns is reached, the battle ends and results in a tie. You can also offer a tie to your opponent by using the `/offertie` command after at least 100 turns have passed.
+相手は苦戦を強いられますが、苦戦してもPPがなくなることはないうえプレイヤーは双方のポケモンを継続的に回復させる(気絶させない)ことができるため、バトルは永遠に続くことになります。バトルの上限は1000ターンで、そのターン数に達するとバトルは終了し、引き分けになります。また、100ターン以上経過した後に`/offertie`を使うことで、相手に引き分けを申し出ることができます。
 
-### If the battle ends with both Pokemon fainting, who wins?
+### 両方のポケモンが倒れてバトルが終了した場合、どちらが勝ちますか？
 
-Whoever's Pokémon fainted last wins. For Self-Destruct, Explosion, Final Gambit, and Destiny Bond, the user faints before dealing damage, so the users of those moves lose. For recoil damage from moves like Brave Bird, the user takes damage after damaging the opponent, so the users of those moves win.
+最後に気絶したポケモンの方が勝ちます。だいばくはつ、じばく、いのちがけ、みちづれは、相手にダメージを与える前に気絶してしまうため、これらの技を使った方が負けとなります。ブレイブバード、いのちのたまなどの反動ダメージは、相手にダメージを与えた後にダメージを受けるので、技の使用者の勝ちとなります。
 
-### Why was my team rejected?
+### なぜ私のチームは使用できないのですか？
 
-Teams are rejected for illegal moves / abilities or by breaking Smogon clauses.
+チームのポケモンが不正な技や特性などを持っているとそのチームは使用できません。
 
-### Why does this Pokemon show as "illegal" in the Teambuilder?
+また、フォーマットのルールに適合していないチームも使用できません。
 
-It may be a Pokemon's alternate forme impossible to start a battle with. An example is Meloetta-Pirouette; you must use its standard forme (Meloetta-Aria) and execute the move Relic Song in battle. The Pokemon could also be a CAP Pokemon, one made by Smogon's Create-A-Pokemon Project. You can type `/cap` or join the [CAP](https://psim.us/cap) room on PS! to learn more about those.
+### Teambuilderでポケモンが"Illegal"と表示されているのはなぜですか？
 
-### Why can't I use my Shiny Legendary Pokemon?
+特定のフォルムになるための技を覚えていない可能性があります。例えば、メロエッタ(ステップフォルム)を使用するにはバトル中に"いにしえのうた"を使う必要があります。CAP Projectとは、SmogonのCreate-A-Pokemon Projectのことです。PS!で`/cap`と送信するか[CAP](https://psim.us/cap)のチャットルームに入ると詳しく説明されている文を読むことができます。
 
-Certain rare Pokemon are "shiny-locked", meaning that their shiny forms have never been made legally obtainable.
+### なぜ色違いの伝説のポケモンを使うことができないのですか？
+一部のポケモンはブロックルーチンによって色違いのポケモンとの遭遇がないようにされています。それらのポケモンは使用できないことがあります。
 
-### My Pokemon has no illegal moves, a legal ability, and it isn't improperly shiny. Why is it illegal?
+### このポケモンは適切なステータスを持ち、色違いでもありません。なぜ不適切なのですか？
 
-Often a Pokemon can legally fulfill multiple conditions individually, such as a learned move and shininess, but certain combinations are incompatible (impossible to have at the same time).
+例えば、「なみのりを覚えたピカチュウ」も「しんそくを覚えたピカチュウ」も適切ですが、1匹のピカチュウが両方の技を持つことはできません。また、それぞれの技は特別な配布イベントでしか手に入らず、しかも異なるイベントでしか手に入らないので、両方の技を手に入れたピカチュウは存在できません。ポケモンがどのように技を覚えるかは、`/learn Pokemon, move`で確認できます。`/learn Pokemon, move1, move2`では複数の技が使えるかどうかも確認できます。
 
-For example, Surf Pikachu is legal, and so is Extreme Speed Pikachu, but one Pikachu can't legally have both moves. Pikachu only gets each move by event, and by different events, so no event Pikachu knows both moves. You can use `/learn Pokemon, move` to see how a Pokemon learns a move, and `/learn Pokemon, move1, move2` to see if multiple moves are compatible on it.
+同様に、たまごうみは第三世代(ルビー、サファイア、エメラルド)まで、隠れ特性は第五世代(ブラック、ホワイト)以降にしか使用できないため、たまごうみと隠れ特性のてんねんを同時に使用することはできません。
 
-Similarly, Clefable cannot both know Soft-Boiled and use its hidden ability Unaware at once, since Clefable only learns Soft-Boiled in Generation III and earlier while Hidden Abilities are only usable in Generation V and later.
+### 自分の勝敗をリセットしたい場合はどうすればいいですか？
 
-### How do I reset my win / loss ratio?
+`/rank`を入力すると、"Reset W/L"というボタンが表示されます。このボタンをクリックすると、勝敗をリセットすることができます。なお、他のランキングには影響がなく、勝敗の比率だけが変わります。他のランキングを変更するには、新しいアカウントでやり直してください。
 
-Type `/rank` and in the box there will be a link to 'Reset W/L'. Following this link allows you to reset your ratio. Note that your other rankings will be unaffected; only your win/loss ratio will change. To change these other rankings, you can start off fresh with a new account.
-
-<small>(originally by [Relados](https://www.smogon.com/forums/members/relados.148715/) and [Zarel](https://www.smogon.com/forums/members/zarel.102803/); updated by [Blitzamirin](https://www.smogon.com/forums/members/blitzamirin.101585/), [Kalalokki](https://www.smogon.com/forums/members/kalalokki.199661/), Kasumi, [shnen](https://www.smogon.com/forums/members/shnen.107178/), Sobi, [Finland](https://www.smogon.com/forums/members/finland.517429/), [Vacate](https://www.smogon.com/forums/members/vacate.189371/), [verbatim](https://www.smogon.com/forums/members/verbatim.93103/), [Zodiax](https://www.smogon.com/forums/members/zodiax.202547/), and [Iyarito](https://www.smogon.com/forums/members/iyarito.219578/); converted to Markdown for the PS! website by [Annika](https://www.smogon.com/forums/members/annika.434112/))</small>
+<small>(originally by [Relados](https://www.smogon.com/forums/members/relados.148715/) and [Zarel](https://www.smogon.com/forums/members/zarel.102803/); updated by [Blitzamirin](https://www.smogon.com/forums/members/blitzamirin.101585/), [Kalalokki](https://www.smogon.com/forums/members/kalalokki.199661/), Kasumi, [shnen](https://www.smogon.com/forums/members/shnen.107178/), Sobi, [Finland](https://www.smogon.com/forums/members/finland.517429/), [Vacate](https://www.smogon.com/forums/members/vacate.189371/), [verbatim](https://www.smogon.com/forums/members/verbatim.93103/), [Zodiax](https://www.smogon.com/forums/members/zodiax.202547/), and [Iyarito](https://www.smogon.com/forums/members/iyarito.219578/); converted to Markdown for the PS! website by [Annika](https://www.smogon.com/forums/members/annika.434112/); translated into Japanese by [Dirain1200](https://www.smogon.com/forums/members/dirain1200.558165/about))</small>
