@@ -1,6 +1,6 @@
 # Contact
 
-このサイトは、関連する[Smogon University](http://smogon.com/)によって運営されています。
+このサイトは、関連する[Smogon University](https://smogon.com/)によって運営されています。
 
 <blockquote><ul class="nav">
 	<li><a class="button nav-first nav-last" href="//smogon.com/forums/">Smogon forums</a></li>
