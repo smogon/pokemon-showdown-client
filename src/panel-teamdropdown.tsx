@@ -97,13 +97,13 @@ class PSTeambuilder {
 			}
 
 			if (
-				set.pokeball || (set.hpType && toID(set.hpType) !== hasHP) ||
-				(set.dynamaxLevel !== undefined && set.dynamaxLevel !== 10) || set.gigantamax
+				set.pokeball || (set.hpType && toID(set.hpType) !== hasHP) || set.gigantamax ||
+				(set.dynamaxLevel !== undefined && set.dynamaxLevel !== 10)
 			) {
 				buf += ',' + (set.hpType || '');
 				buf += ',' + toID(set.pokeball);
-				buf += ',' + (set.dynamaxLevel !== undefined && set.dynamaxLevel !== 10 ? set.dynamaxLevel : '');
 				buf += ',' + (set.gigantamax ? 'G' : '');
+				buf += ',' + (set.dynamaxLevel !== undefined && set.dynamaxLevel !== 10 ? set.dynamaxLevel : '');
 			}
 		}
 
@@ -194,8 +194,8 @@ class PSTeambuilder {
 				set.happiness = (misc[0] ? Number(misc[0]) : undefined);
 				set.hpType = misc[1];
 				set.pokeball = misc[2];
-				set.dynamaxLevel = (misc[3] ? Number(misc[3]) : 10);
-				set.gigantamax = !!misc[4];
+				set.gigantamax = !!misc[3];
+				set.dynamaxLevel = (misc[4] ? Number(misc[4]) : 10);
 			}
 		}
 
