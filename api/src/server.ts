@@ -51,7 +51,32 @@ export class Router {
 		}
 	}
 	async handle(req: http.IncomingMessage, res: http.ServerResponse) {
-		const dispatcher = new Dispatcher(req, res);
+		const body = await Dispatcher.getBody(req);
+		if (Array.isArray(body.json)) {
+			const results = [];
+			for (const curBody of body.json) {
+				if (curBody.act === 'json') {
+					results.push({actionerror: "Cannot request /api/json in a JSON request."});
+					continue;
+				}
+				results.push(await this.handleOne(curBody, req, res));
+			}
+			return res.writeHead(200).end(Router.stringify(results));
+		} else {
+			const result = await this.handleOne(body, req, res);
+			return res.writeHead(200).end(Router.stringify(result));
+		}
+	}
+	async handleOne(
+		body: {[k: string]: any},
+		req: http.IncomingMessage,
+		res: http.ServerResponse
+	) {
+		const act = Dispatcher.parseAction(req, body);
+		if (!act) {
+			return {actionerror: "Invalid request action sent."};
+		}
+		const dispatcher = new Dispatcher(req, res, {body, act});
 		this.activeRequests++;
 		try {
 			const result = await dispatcher.executeActions();
@@ -59,24 +84,20 @@ export class Router {
 			if (this.awaitingEnd) res.setHeader('connection', 'close');
 			if (!this.activeRequests && this.awaitingEnd) this.awaitingEnd();
 			if (result === null) {
-				// didn't make a request to action.php or /api/ - custom response here
-				// supports delegation to apache?
-				if (Config.customhttpend) return Config.customhttpend.call(this, req, res, dispatcher);
-				return res.writeHead(404).end();
+				// didn't make a request to action.php or /api/
+				return {code: 404};
 			}
-			res.end(Router.stringify(result));
+			return result;
 		} catch (e: any) {
 			this.activeRequests--;
 			if (this.awaitingEnd) res.setHeader('connection', 'close');
 			if (!this.activeRequests && this.awaitingEnd) this.awaitingEnd();
 			if (e instanceof ActionError) {
-				return res.end(Router.stringify({actionerror: e.message}));
+				return {actionerror: e.message};
 			}
 
-			const {body} = dispatcher.parseRequest()!;
 			for (const k of ['pass', 'password']) delete body[k];
 			Router.crashlog(e, 'an API request', body);
-
 			res.writeHead(503).end();
 			throw e;
 		}

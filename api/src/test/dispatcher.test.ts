@@ -57,15 +57,16 @@ describe('Dispatcher features', () => {
 		assert(!header, 'has CORS header where it should not: ' + header);
 	});
 	it('Should support requesting /api/[action]', () => {
-		dispatcher.request.url = '/api/mmr?userid=mia';
-		delete dispatcher.opts.body;
-		const {act} = dispatcher.parseRequest() || {};
+		const req = dispatcher.request;
+		req.url = '/api/mmr?userid=mia';
+		const act = Dispatcher.parseAction(req, Dispatcher.parseURLRequest(req));
 		assert(act === 'mmr');
 	});
 	it('Should support requesting action.php with an `act` param', () => {
-		dispatcher.request.url = '/action.php?act=mmr&userid=mia';
-		delete dispatcher.opts.body;
-		const {act, body} = dispatcher.parseRequest() || {};
+		const req = dispatcher.request;
+		req.url = '/action.php?act=mmr&userid=mia';
+		const body = Dispatcher.parseURLRequest(req);
+		const act = Dispatcher.parseAction(req, body);
 		assert(act === 'mmr');
 		assert(body?.userid === 'mia');
 	});

@@ -25,7 +25,7 @@ const config = {
 	port: 3308,
 };*/
 
-export function makeDispatcher(body?: {[k: string]: any}, url?: string) {
+export function makeDispatcher(body: {[k: string]: any}, url?: string) {
 	const socket = new net.Socket();
 	const req = new IncomingMessage(socket);
 	if (body && !url) {
@@ -33,10 +33,9 @@ export function makeDispatcher(body?: {[k: string]: any}, url?: string) {
 			.filter(k => k[0] !== 'act')
 			.map(([k, v]) => `${k}=${v}`)
 			.join('&');
-		url = `/api/${body.act}?${params}`;
 	}
 	if (url) req.url = url;
-	return new Dispatcher(req, new ServerResponse(req), body ? {body} : undefined);
+	return new Dispatcher(req, new ServerResponse(req), {body, act: body.act});
 }
 
 export function addServer(server: RegisteredServer) {

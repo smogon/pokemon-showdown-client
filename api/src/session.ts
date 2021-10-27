@@ -394,7 +394,7 @@ export class Session {
 	}
 	async checkLoggedIn() {
 		const ctime = time();
-		const {body} = this.dispatcher.parseRequest()!;
+		const {body} = this.dispatcher.opts;
 
 		// see if we're logged in
 		const scookie = body.sid || this.dispatcher.cookies.get('sid');
@@ -434,7 +434,7 @@ export class Session {
 		}
 
 		// okay, legit session ID - you're logged in now.
-		this.dispatcher.user.login(cookieName);
+		this.dispatcher.user.login(cookieName as string);
 
 		this.sidhash = sid;
 		this.session = session;

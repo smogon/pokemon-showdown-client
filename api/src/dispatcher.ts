@@ -40,7 +40,7 @@ export type QueryHandler = (
 ) => {[k: string]: any} | Promise<{[k: string]: any}>;
 
 export interface DispatcherOpts {
-	body: {[k: string]: string | number};
+	body: {[k: string]: string};
 	act: string;
 }
 
@@ -49,13 +49,13 @@ export class Dispatcher {
 	readonly response: http.ServerResponse;
 	readonly session: Session;
 	readonly user: User;
-	readonly opts: Partial<DispatcherOpts>;
+	readonly opts: DispatcherOpts;
 	readonly cookies: Map<string, string>;
 	private prefix: string | null = null;
 	constructor(
 		req: http.IncomingMessage,
 		res: http.ServerResponse,
-		opts: Partial<DispatcherOpts> = {}
+		opts: DispatcherOpts,
 	) {
 		this.request = req;
 		this.response = res;
@@ -65,11 +65,7 @@ export class Dispatcher {
 		this.cookies = Dispatcher.parseCookie(this.request.headers.cookie);
 	}
 	async executeActions() {
-		const data = this.parseRequest();
-		if (data === null) {
-			return data;
-		}
-		const {act, body} = data;
+		const {act, body} = this.opts;
 		if (!act) throw new ActionError('You must specify a request type.');
 		await this.session.checkLoggedIn();
 		const handler = actions[act];
@@ -79,22 +75,28 @@ export class Dispatcher {
 		return handler.call(this, body);
 	}
 	static async parseJSONRequest(req: http.IncomingMessage) {
-		const json: any[] = [];
+		let body = '';
 		if (this.isJSON(req)) {
 			await new Promise<void>(resolve => {
 				req.on('data', data => {
-					try {
-						json.push(JSON.parse(data + ""));
-					} catch (e) {
-						json.push({actionerror: "Malformed JSON sent."});
-					}
+					body += data;
 				});
 				req.once('end', () => {
 					resolve();
 				});
 			});
 		}
-		return json;
+		try {
+			return JSON.parse(body);
+		} catch {
+			return null;
+		}
+	}
+	static getBody(req: http.IncomingMessage) {
+		if (this.isJSON(req)) {
+			return this.parseJSONRequest(req);
+		}
+		return this.parseURLRequest(req);
 	}
 	static parseURLRequest(req: http.IncomingMessage) {
 		if (!req.url) return {};
@@ -104,32 +106,6 @@ export class Dispatcher {
 	}
 	static isJSON(req: http.IncomingMessage) {
 		return req.headers['content-type'] === 'application/json';
-	}
-	parseRequest() {
-		const [pathname] = this.request.url?.split('?') || [];
-		const body: {[k: string]: any} = this.opts.body || {};
-		let act = body.act; // checking for an act in the preset body
-		if (!this.opts.body) {
-			Object.assign(body, Dispatcher.parseURLRequest(this.request));
-		}
-		// check for an act in the url body (parsing url body above)
-		if (body.act) act = body.act;
-		// legacy handling of action.php - todo remove
-		// (this is endsWith because we call /~~showdown/action.php a lot in the client)
-		if (act && pathname.endsWith('/action.php')) {
-			return {act, body};
-		}
-		if (pathname.includes('/api/')) {
-			// support requesting {server}/api/actionnname as well as
-			// action.php?act=actionname (TODO: deprecate action.php)
-			for (const action in actions) {
-				if (pathname.endsWith(`/api/${action}`)) {
-					return {act: action, body};
-				}
-			}
-			throw new ActionError('Invalid request passed to /api/. Request /api/{action} instead.');
-		}
-		return null;
 	}
 	verifyCrossDomainRequest(): string {
 		if (typeof this.prefix === 'string') return this.prefix;
@@ -190,8 +166,22 @@ export class Dispatcher {
 		this.hostCache.set(server, result);
 		return result;
 	}
+	static parseAction(req: http.IncomingMessage, body: {[k: string]: string}) {
+		if (body.act) {
+			return body.act;
+		}
+		if (!req.url) return null;
+		let [pathname] = req.url.split('?');
+		if (pathname.endsWith('/')) pathname = pathname.slice(0, -1);
+		for (const k in actions) {
+			if (pathname.endsWith(`/api/${k}`)) {
+				return k;
+			}
+		}
+		return null;
+	}
 	async getServer(requireToken = false): Promise<RegisteredServer | null> {
-		const body = this.parseRequest()?.body || {};
+		const body = this.opts.body || {};
 		const serverid = toID(body.serverid);
 		let server = null;
 		const ip = this.getIp();
