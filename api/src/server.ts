@@ -52,12 +52,30 @@ export class Router {
 	}
 	async handle(req: http.IncomingMessage, res: http.ServerResponse) {
 		const body = await Dispatcher.getBody(req);
-		if (Array.isArray(body.json)) {
+		if (body.json) {
+			if (typeof body.json === 'string') {
+				body.json = Dispatcher.safeJSON(body.json);
+			}
+			if (!Array.isArray(body.json)) {
+				body.json = [{actionerror: "Invalid JSON sent - must be an array."}];
+			}
 			const results = [];
+			const restData: {[k: string]: any} = {...body, json: null};
 			for (const curBody of body.json) {
+				if (curBody.actionerror) {
+					results.push(curBody);
+					continue;
+				}
 				if (curBody.act === 'json') {
 					results.push({actionerror: "Cannot request /api/json in a JSON request."});
 					continue;
+				}
+				// for when extra stuff is sent inside the main body - ie
+				// {serverid: string, json: [...]}
+				for (const k in restData) {
+					if (restData[k] && !curBody[k]) {
+						curBody[k] = restData[k];
+					}
 				}
 				results.push(await this.handleOne(curBody, req, res));
 			}

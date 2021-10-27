@@ -74,29 +74,36 @@ export class Dispatcher {
 		}
 		return handler.call(this, body);
 	}
-	static async parseJSONRequest(req: http.IncomingMessage) {
+	static async parseSentRequest(req: http.IncomingMessage) {
 		let body = '';
-		if (this.isJSON(req)) {
-			await new Promise<void>(resolve => {
-				req.on('data', data => {
-					body += data;
-				});
-				req.once('end', () => {
-					resolve();
-				});
+		await new Promise<void>(resolve => {
+			req.on('data', data => {
+				body += data;
 			});
-		}
+			req.once('end', () => {
+				resolve();
+			});
+		});
+		return body;
+	}
+	static safeJSON(data: string) {
 		try {
-			return JSON.parse(body);
+			return JSON.parse(data);
 		} catch {
 			return null;
 		}
 	}
-	static getBody(req: http.IncomingMessage) {
-		if (this.isJSON(req)) {
-			return this.parseJSONRequest(req);
+	static async getBody(req: http.IncomingMessage): Promise<{[k: string]: any}> {
+		const data = await this.parseSentRequest(req);
+		let result: {[k: string]: any} | null = null;
+		if (data) {
+			if (this.isJSON(req)) {
+				result = this.safeJSON(data);
+			} else {
+				result = Object.fromEntries(new URLSearchParams(data));
+			}
 		}
-		return this.parseURLRequest(req);
+		return result || this.parseURLRequest(req);
 	}
 	static parseURLRequest(req: http.IncomingMessage) {
 		if (!req.url) return {};

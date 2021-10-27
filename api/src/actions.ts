@@ -137,7 +137,7 @@ export const actions: {[k: string]: QueryHandler} = {
 		}
 		let json;
 		try {
-			json = await Dispatcher.parseJSONRequest(this.request);
+			json = await Dispatcher.parseSentRequest(this.request);
 		} catch {
 			return [{actionerror: 'Malformed JSON sent.'}];
 		}
