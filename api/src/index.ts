@@ -9,11 +9,11 @@ import {databases} from './database';
 console.log(`Server listening on ${server.port}`);
 
 process.on('uncaughtException', (err: Error) => {
-	console.log(`${err.message}\n${err.stack}`);
+	Router.crashlog(err, 'The main process');
 });
 
 process.on('unhandledRejection', (err: Error) => {
-	console.log(`A promise crashed: ${err.message}\n${err.stack}`);
+	Router.crashlog(err, 'A main process promise');
 });
 
 // graceful shutdown.
