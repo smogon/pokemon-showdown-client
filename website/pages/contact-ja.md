@@ -16,7 +16,7 @@ Helpチャットルームでは、ほとんどの問題を解決できます。�
 
 > <kbd>st</kbd><kbd>aff@pok</kbd><kbd>emonshowdown.com</kbd>
 
-Mini-FAQ:
+### ちょっとした質問集
 
 > **PSのスクリーンショットや動画をYouTubeなどの他のサイトに投稿してもいいですか?**  
 > はい。問題ありません。ご自由にどうぞ。
@@ -25,10 +25,10 @@ Mini-FAQ:
 > いつかは出るかもしれませんが、Webクライアントをご利用ください。
 > 
 > **パスワードを忘れてしまった**  
-> [requesting a password reset](https://www.smogon.com/forums/threads/names-passwords-rooms-and-servers-contacting-upper-staff.3538721/)をご覧ください。
+> [Name / Password Resets](https://www.smogon.com/forums/threads/names-passwords-rooms-and-servers-contacting-upper-staff.3538721/#post-6227626)をご覧ください。
 > 
 > **バグを見つけました。**  
-> それは既知でないバグであると確信している場合は、[Bug Reports](/bugreports)をご覧ください。
+> それが既知でないバグである場合は、[Bug Reports](/bugreports)をご覧ください。
 > 
 > **2v2 multi battlesは? Friends listは? 翻訳プロジェクトは?**  
 > 実装されました。翻訳プロジェクトは少しずつ進行中です。 
