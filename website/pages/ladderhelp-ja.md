@@ -1,6 +1,6 @@
 # Ladder help
 # Ladderの仕組み
-Ladderには次の3種類のレーティングがあります: Elo, GXE, and Glicko-1
+LadderにはElo、GXE、Glicko-1の3種類のレーティングがあります。
 
 **Elo:** メインのレーティングです。勝つと上がり、負けると下がるというごく普通のレーティングです。
 
