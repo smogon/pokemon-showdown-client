@@ -14,7 +14,7 @@ Pokémon Showdownのプレイ可能な4種類のフォーマット群の由来�
 - Smogonのメタゲームのフォーマット
     - 例: Balanced Hackmons, STABmons
 
-ニンテンドーのフォーマットは我々Smogonにはコントロールできません。変更をリクエストされても、変更はできないのでご了承ください。
+ニンテンドーのフォーマットはSmogonにはコントロールできません。変更をリクエストされても、変更はできないのでご了承ください。
 
 Smogonの公式フォーマットは、主に[Tierシステム][1]に基づいており、UU、RU、NUなどのフォーマットの合法性は、Showdownの上位ティアで使われないポケモンのみを許可することに基づいています。ルール変更については、Smogonの[Policy Reviewフォーラム][2]で議論することができますが、投稿するにはSmogonバッジが必要です。
 
@@ -32,6 +32,6 @@ Random Battleについては、[Gen8 Random Battles sets スレッド][4]や[Pas
 
   [5]: https://www.smogon.com/forums/threads/past-gens-random-battle-sets.3674281/
 
-もしOther Metagamesについての提案がある場合は、下のURLをよく読んだ上で具体的に提案をしてください。
+もしOther Metagamesについての提案がある場合は、下の投稿をよく読んだ上で具体的に提案をしてください。
 
-https://www.smogon.com/forums/threads/other-metagames-rules-general-information.3656519/#post-8296313
+[How to submit a Metagame](https://www.smogon.com/forums/threads/other-metagames-rules-general-information.3656519/#post-8296313)
