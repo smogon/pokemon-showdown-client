@@ -16,11 +16,11 @@ Pokémon Showdownでは、Switchや3DSで発売されている実際のポケモ
 
 ソースコードはここから確認できます:[pokemon-showdown/prng.ts at master - smogon/pokemon-showdown - GitHub](https://github.com/smogon/Pokemon-Showdown/blob/master/sim/prng.ts)
 
-また、これがSwitchや3DSで使われているのと同じ乱数生成器であることを記録したページもたくさんあります:
+また、これがSwitchや3DSで使われているのと同じ乱数生成器であることを記録したページもたくさんあります。
 
 [Pesudorandom number generation in Pokémon - Bulbapedia](https://bulbapedia.bulbagarden.net/wiki/Pseudorandom_number_generation_in_Pokémon)
 
-そして、これが完全に正常なRNGの使用であることを示す多くのページがあります:
+そして、これが完全に正常なRNGの使用であることを示す多くのページがあります。
 
 [線形合同法 - Wikipedia](https://ja.wikipedia.org/wiki/%E7%B7%9A%E5%BD%A2%E5%90%88%E5%90%8C%E6%B3%95)
 
