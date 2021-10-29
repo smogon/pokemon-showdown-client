@@ -22,10 +22,10 @@ Pokémon Showdownでは、Google AnalyticsとGoogle AdSenseを使用しており
 
 Googleは、AdSense関連の[トラッキングを無効にするためのページ](https://www.google.com/settings/ads/onweb/)を用意しています。
 
-## Logging
+## ログの保存
 
 Pokémon Showdownはチャットルーム、バトル、プライベートメッセージ(プライベートルームを含む)におけるすべてのチャットのテキストログを保存する権利を有します(義務ではありません)。プライベートメッセージのログは可能な限り非公開とし、参加者が許可した場合(**Report**ボタンなど)や、処分を執行するためにのみ閲覧します。
 
-## Other services
+## その他
 
 Pokémon Showdownでは、チャットの利便性を高めるために、いくつかのGoogle APIを使用しています。[Googleのプライバシーポリシー](https://policies.google.com/privacy)をご確認ください。
