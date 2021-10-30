@@ -1,3 +1,19 @@
+/**
+ * Replay embed
+ *
+ * This file is used to play back downloaded replay files, and can also be
+ * used by third parties to embed PS replays. The protocol data to replay
+ * should be in
+ * `<script type="text/plain" class="battle-log-data">`
+ *
+ * The replay animation will be put into an existing replay HTML structure if
+ * it exists, but if it doesn't, the animation would be put at the bottom of
+ * the page.
+ *
+ * @author Guangcong Luo <guangcongluo@gmail.com>
+ * @license MIT
+ */
+
 window.exports = window;
 
 function linkStyle(url) {
@@ -20,7 +36,6 @@ linkStyle('https://play.pokemonshowdown.com/style/utilichart.css?a7');
 requireScript('https://play.pokemonshowdown.com/js/lib/ps-polyfill.js');
 requireScript('https://play.pokemonshowdown.com/config/config.js?a7');
 requireScript('https://play.pokemonshowdown.com/js/lib/jquery-1.11.0.min.js');
-requireScript('https://play.pokemonshowdown.com/js/lib/lodash.compat.js');
 requireScript('https://play.pokemonshowdown.com/js/lib/html-sanitizer-minified.js');
 requireScript('https://play.pokemonshowdown.com/js/battle-sound.js');
 requireScript('https://play.pokemonshowdown.com/js/battledata.js?a7');
