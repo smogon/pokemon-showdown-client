@@ -256,8 +256,8 @@ export class Session {
 		}
 		this.updateCookie();
 
-		if (Config.validateassertion) {
-			data = await Config.validateassertion.call(
+		if ((Config as any).validateassertion) {
+			data = await (Config as any).validateassertion.call(
 				this, challengetoken, user, data, serverHost
 			);
 		}

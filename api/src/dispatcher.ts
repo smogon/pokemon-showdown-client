@@ -143,7 +143,7 @@ export class Dispatcher {
 		this.prefix = prefix;
 	}
 	getIp() {
-		const ip = this.request.socket.remoteAddress;
+		const ip = this.request.socket.remoteAddress || "";
 		let forwarded = this.request.headers['x-forwarded-for'] || '';
 		if (!Array.isArray(forwarded)) forwarded = forwarded.split(',');
 		if (forwarded.length && Config.trustedproxies.includes(ip)) {

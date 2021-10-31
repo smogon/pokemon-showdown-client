@@ -7,6 +7,15 @@ exports.mysql = {
 	user: "root",
 };
 
+/** For 2FA verification. */
+exports.gapi_clientid = '';
+exports.galclient = '';
+
+/** Terms banned in names
+ * @type {string[]}
+ */
+exports.bannedTerms = [];
+
 // To use for password hashing.
 exports.passwordSalt = 10;
 
@@ -21,11 +30,19 @@ exports.serverlist = '/var/www/html/play.pokemonshowdown.com/config/servers.inc.
 // absolute path to your PS instance. can use the checked-out client that the client clones in.
 exports.pspath = '/var/www/html/play.pokemonshowdown.com/data/pokemon-showdown';
 
+/**
+ * Custom SID maker.
+ * @type {(() => string | Promise<string>) | null}
+ */
+exports.makeSid = null;
+/** @type {((sid: string, cached: string) => boolean | Promise<boolean>) | null} */
+exports.validateSid = null;
+
 /** ips to automatically lock 
  * @type {string[]} */
 exports.autolockip = [];
-/** compromised private keys  
- * @type {string[]} */
+/** compromised private key indexes 
+ * @type {number[]} */
 exports.compromisedkeys = [];
 /** proxies to trust x-forwarded-for from 
  * @type {string[]} */
@@ -54,3 +71,37 @@ exports.sysops = [];
 exports.privatekeys = [
 	"key here",
 ];
+
+/**
+ * DBs.
+ */
+/** @type {typeof exports.mysql | undefined}*/
+exports.replaysdb = undefined;
+/** @type {typeof exports.mysql | undefined}*/
+exports.testdb = undefined;
+/** @type {typeof exports.mysql | undefined}*/
+exports.ladderdb = undefined;
+
+/**
+ * For emailing crashes.
+ * @type {{[k: string]: any} | null}
+ */
+exports.crashguardemail = null;
+
+/** 
+ * SSL settings.
+ * @type {{key: string, cert: string} | null}
+ */
+exports.ssl = null;
+
+/**
+ * Port to listen on.
+ * @type {number}
+ */
+exports.port = 8080;
+
+/**
+ * Whether or not to reload the config on edit.
+ * @type {boolean}
+ */
+exports.watchconfig = true;
