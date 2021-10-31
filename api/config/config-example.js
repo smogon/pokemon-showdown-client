@@ -18,6 +18,9 @@ exports.routes = {
 exports.mainserver = 'showdown';
 exports.serverlist = '/var/www/html/play.pokemonshowdown.com/config/servers.inc.php';
 
+// absolute path to your PS instance. can use the checked-out client that the client clones in.
+exports.pspath = '/var/www/html/play.pokemonshowdown.com/data/pokemon-showdown';
+
 exports.autolockip = [];
 exports.compromisedkeys = [];
 exports.trustedproxies = [];
