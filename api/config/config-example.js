@@ -84,7 +84,17 @@ exports.ladderdb = undefined;
 
 /**
  * For emailing crashes.
- * @type {{[k: string]: any} | null}
+ * @type {{
+ * options: {
+ * 		host: string, 
+ * 		port: number, 
+ * 		secure?: boolean, 
+ * 		auth?: {user: string, pass: string}
+ * 	},
+ * 	from: string,
+ * 	to: string,
+ * 	subject: string,
+ * } | null}
  */
 exports.crashguardemail = null;
 
