@@ -19,7 +19,7 @@ export function load(invalidate = false): Configuration {
 	try {
 		config = {...config, ...require(configPath)};
 	} catch (err: any) {
-		if (err.code !== 'ENOENT') throw err; // Should never happen
+		if (err.code !== 'MODULE_NOT_FOUND') throw err; // Should never happen
 
 		console.log("config.js doesn't exist - creating one with default settings...");
 		fs.writeFileSync(
