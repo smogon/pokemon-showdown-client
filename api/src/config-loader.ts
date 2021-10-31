@@ -11,8 +11,9 @@ import * as defaults from '../config/config-example';
 
 export type Configuration = typeof defaults;
 
+
 export function load(invalidate = false): Configuration {
-	const configPath = path.resolve(__dirname, '../config/config.js');
+	const configPath = path.resolve(__dirname, '../../config/config.js');
 	if (invalidate) delete require.cache[configPath];
 	let config = defaults;
 	try {
@@ -32,7 +33,7 @@ export function load(invalidate = false): Configuration {
 export const Config: Configuration = load();
 
 if (Config.watchconfig) {
-	fs.watchFile(require.resolve('../config/config'), () => {
+	fs.watchFile(require.resolve('../../config/config'), () => {
 		Object.assign(Config, {...load(true)});
 	});
 }

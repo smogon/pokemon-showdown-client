@@ -5,6 +5,7 @@
     "module": "CommonJS",
     "moduleResolution": "node",
     "strict": true,
+    "checkJs": true,
     "outDir": "./.dist",
     "incremental": true,
     "allowUnreachableCode": false,
