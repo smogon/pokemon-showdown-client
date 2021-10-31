@@ -21,8 +21,14 @@ exports.serverlist = '/var/www/html/play.pokemonshowdown.com/config/servers.inc.
 // absolute path to your PS instance. can use the checked-out client that the client clones in.
 exports.pspath = '/var/www/html/play.pokemonshowdown.com/data/pokemon-showdown';
 
+/** ips to automatically lock 
+ * @type {string[]} */
 exports.autolockip = [];
+/** compromised private keys  
+ * @type {string[]} */
 exports.compromisedkeys = [];
+/** proxies to trust x-forwarded-for from 
+ * @type {string[]} */
 exports.trustedproxies = [];
 
 /**
