@@ -196,7 +196,7 @@ export class Dispatcher {
 			return server;
 		} else {
 			server = Dispatcher.servers[serverid];
-			if (!server.skipipcheck && !server.token && serverid !== 'showdown') {
+			if (!server.skipipcheck && !server.token && serverid !== Config.mainserver) {
 				if (!server.ipcache) {
 					server.ipcache = await Dispatcher.getHost(server.server);
 				}

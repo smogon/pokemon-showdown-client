@@ -24,6 +24,7 @@ export class Router {
 	server: http.Server;
 	port: number;
 	awaitingEnd?: () => void;
+	closing?: Promise<void>;
 	activeRequests = 0;
 	constructor(port = (Config.port || 8000)) {
 		this.port = port;
@@ -79,11 +80,14 @@ export class Router {
 				}
 				results.push(await this.handleOne(curBody, req, res));
 			}
-			return res.writeHead(200).end(Router.stringify(results));
+			res.writeHead(200).end(Router.stringify(results));
 		} else {
 			const result = await this.handleOne(body, req, res);
-			return res.writeHead(200).end(Router.stringify(result));
+			if (!result.error) {
+				res.writeHead(200).end(Router.stringify(result));
+			}
 		}
+		if (!this.activeRequests && this.awaitingEnd) this.awaitingEnd();
 	}
 	async handleOne(
 		body: {[k: string]: any},
@@ -100,7 +104,6 @@ export class Router {
 			const result = await dispatcher.executeActions();
 			this.activeRequests--;
 			if (this.awaitingEnd) res.setHeader('connection', 'close');
-			if (!this.activeRequests && this.awaitingEnd) this.awaitingEnd();
 			if (result === null) {
 				// didn't make a request to action.php or /api/
 				return {code: 404};
@@ -109,7 +112,6 @@ export class Router {
 		} catch (e: any) {
 			this.activeRequests--;
 			if (this.awaitingEnd) res.setHeader('connection', 'close');
-			if (!this.activeRequests && this.awaitingEnd) this.awaitingEnd();
 			if (e instanceof ActionError) {
 				return {actionerror: e.message};
 			}
@@ -117,14 +119,16 @@ export class Router {
 			for (const k of ['pass', 'password']) delete body[k];
 			Router.crashlog(e, 'an API request', body);
 			res.writeHead(503).end();
-			throw e;
+			return {error: true};
 		}
 	}
 	close() {
+		if (this.closing) return this.closing;
 		this.server.close();
-		return new Promise<void>(resolve => {
+		this.closing = new Promise<void>(resolve => {
 			this.awaitingEnd = resolve;
 		});
+		return this.closing;
 	}
 	static stringify(response: {[k: string]: any}) {
 		return DISPATCH_PREFIX + JSON.stringify(response);

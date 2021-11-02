@@ -17,7 +17,7 @@ process.on('unhandledRejection', (err: Error) => {
 });
 
 // graceful shutdown.
-process.once('SIGINT', () => {
+process.on('SIGINT', () => {
 	void server.close().then(() => {
 		// we are no longer accepting requests and all requests have been handled.
 		// now it's safe to close DBs

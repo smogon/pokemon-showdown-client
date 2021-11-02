@@ -115,3 +115,9 @@ exports.port = 8080;
  * @type {boolean}
  */
 exports.watchconfig = true;
+
+/**
+ * An IP to allow restart requests from.
+ * @type {null | string}
+ */
+exports.restartip = null;

@@ -7,11 +7,72 @@
 import {Config} from './config-loader';
 import {ActionError, Dispatcher, QueryHandler} from './dispatcher';
 import * as fs from 'fs';
+import * as child_process from 'child_process';
 import SQL from 'sql-template-strings';
 import {NTBBLadder} from './ladder';
 import {Replays, md5} from './replays';
 import {toID} from './server';
 import * as tables from './tables';
+
+// shamelessly stolen from PS main
+function bash(command: string, cwd?: string): Promise<[number, string, string]> {
+	return new Promise(resolve => {
+		child_process.exec(command, {
+			cwd: cwd || `${__dirname}/../..`,
+		}, (error, stdout, stderr) => {
+			resolve([error?.code || 0, stdout, stderr]);
+		});
+	});
+}
+
+// shamelessly stolen from PS main
+async function updateserver() {
+	let [code, stdout, stderr] = await bash(`git fetch`);
+	if (code) throw new Error(`updateserver: Crash while fetching - make sure this is a Git repository`);
+	if (!stdout && !stderr) {
+		return null;
+	}
+
+	[code, stdout, stderr] = await bash(`git rev-parse HEAD`);
+	if (code || stderr) throw new Error(`updateserver: Crash while grabbing hash`);
+	const oldHash = String(stdout).trim();
+
+	[code, stdout, stderr] = await bash(`git stash save "PS /updateserver autostash"`);
+	let stashedChanges = true;
+	if (code) throw new Error(`updateserver: Crash while stashing`);
+	if ((stdout + stderr).includes("No local changes")) {
+		stashedChanges = false;
+	} else if (stderr) {
+		throw new Error(`updateserver: Crash while stashing`);
+	}
+
+	// errors can occur while rebasing or popping the stash; make sure to recover
+	try {
+		[code] = await bash(`git rebase --no-autostash FETCH_HEAD`);
+		if (code) {
+			// conflict while rebasing
+			await bash(`git rebase --abort`);
+			throw new Error(`restore`);
+		}
+
+		if (stashedChanges) {
+			[code] = await bash(`git stash pop`);
+			if (code) {
+				// conflict while popping stash
+				await bash(`git reset HEAD .`);
+				await bash(`git checkout .`);
+				throw new Error(`restore`);
+			}
+		}
+
+		return true;
+	} catch {
+		// failed while rebasing or popping the stash
+		await bash(`git reset --hard ${oldHash}`);
+		if (stashedChanges) await bash(`git stash pop`);
+		return false;
+	}
+}
 
 export const actions: {[k: string]: QueryHandler} = {
 	async register(params) {
@@ -338,5 +399,21 @@ export const actions: {[k: string]: QueryHandler} = {
 			result = user.rating.elo;
 		}
 		return result;
+	},
+	async restart() {
+		const server = await this.getServer(true);
+		if (server?.id !== Config.mainserver) {
+			throw new ActionError(`Access denied.`);
+		}
+		if (!Config.restartip) {
+			throw new ActionError(`This feature is disabled.`);
+		}
+		if (this.getIp() !== Config.restartip) {
+			throw new ActionError(`Access denied for ${this.getIp()}.`);
+		}
+		const update = await updateserver();
+		const [, , stderr] = await bash('npx pm2 reload app');
+		if (stderr) throw new ActionError(stderr);
+		return {updated: update, success: true};
 	},
 };
