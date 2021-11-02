@@ -718,6 +718,7 @@ class BattleLog {
 			youtube: 0,
 			twitch: 0,
 			badge: 0,
+			avatar: 0,
 		});
 
 		// By default, Caja will ban any attributes it doesn't recognize.
