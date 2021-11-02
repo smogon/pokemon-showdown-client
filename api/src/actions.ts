@@ -30,7 +30,7 @@ async function updateserver() {
 	let [code, stdout, stderr] = await bash(`git fetch`);
 	if (code) throw new Error(`updateserver: Crash while fetching - make sure this is a Git repository`);
 	if (!stdout && !stderr) {
-		return null;
+		return true; // no changes. we're fine.
 	}
 
 	[code, stdout, stderr] = await bash(`git rev-parse HEAD`);
