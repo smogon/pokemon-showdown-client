@@ -219,10 +219,12 @@ const Dex = new class implements ModdedDex {
 			return this.resourcePrefix + 'sprites/trainers-custom/' + toID(avatar.substr(1)) + '.png';
 		}
 		if (avatar.includes('.') && window.Config?.server?.registered) {
-			// custom avatar served by the server
-			let protocol = (Config.server.port === 443) ? 'https' : 'http';
-			return protocol + '://' + Config.server.host + ':' + Config.server.port +
+			const server = Config.server || Config.defaultserver;
+			const protocol = server.https ? 'https' : 'http';
+			const port = server.https ? server.port : server.httpport;
+			const avatarSrc = protocol + '://' + server.host + ':' + port +
 				'/avatars/' + encodeURIComponent(avatar).replace(/\%3F/g, '?');
+			return avatarSrc;
 		}
 		return this.resourcePrefix + 'sprites/trainers/' + this.sanitizeName(avatar || 'unknown') + '.png';
 	}

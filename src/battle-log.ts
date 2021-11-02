@@ -923,14 +923,14 @@ class BattleLog {
 				const server = Config.server || Config.defaultserver;
 				const protocol = server.https ? 'https' : 'http';
 				const port = server.https ? server.port : server.httpport;
-				const badgeSrc = protocol + '://' + server.host + ':' + port +
+				const avatarSrc = protocol + '://' + server.host + ':' + port +
 					'/avatars/' + encodeURIComponent(avatarFileName).replace(/\%3F/g, '?');
 				return {
 					tagName: 'img',
 					attribs: [
 						'class', 'userAvatar',
 						'width', 80, 'height', 80,
-						'src', badgeSrc,
+						'src', avatarSrc,
 					],
 				};
 			}
