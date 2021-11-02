@@ -920,11 +920,13 @@ class BattleLog {
 				};
 			} else if (tagName === 'avatar') {
 				const avatarFileName = getAttrib('avatarfilename') || '';
+				const isRequest = getAttrib('request') !== undefined;
 				const server = Config.server || Config.defaultserver;
 				const protocol = server.https ? 'https' : 'http';
 				const port = server.https ? server.port : server.httpport;
 				const avatarSrc = protocol + '://' + server.host + ':' + port +
-					'/avatars/' + encodeURIComponent(avatarFileName).replace(/\%3F/g, '?');
+					'/avatars/' + isRequest ? 'requests/' : '' +
+					encodeURIComponent(avatarFileName).replace(/\%3F/g, '?');
 				return {
 					tagName: 'img',
 					attribs: [
