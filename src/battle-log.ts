@@ -925,7 +925,7 @@ class BattleLog {
 				const protocol = server.https ? 'https' : 'http';
 				const port = server.https ? server.port : server.httpport;
 				const avatarSrc = protocol + '://' + server.host + ':' + port +
-					'/avatars/' + isRequest ? 'requests/' : '' +
+					'/avatars/' + (isRequest ? 'requests/' : '') +
 					encodeURIComponent(avatarFileName).replace(/\%3F/g, '?');
 				return {
 					tagName: 'img',
