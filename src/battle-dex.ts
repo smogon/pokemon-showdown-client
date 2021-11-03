@@ -659,7 +659,7 @@ const Dex = new class implements ModdedDex {
 			spriteData.w *= 2;
 			spriteData.h *= 2;
 			spriteData.y += -22;
-		} else if ((species.isTotem || isDynamax) && !options.noScale) {
+		} else if (species.isTotem && !options.noScale) {
 			spriteData.w *= 1.5;
 			spriteData.h *= 1.5;
 			spriteData.y += -11;
