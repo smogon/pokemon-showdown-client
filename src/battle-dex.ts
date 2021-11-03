@@ -495,7 +495,7 @@ const Dex = new class implements ModdedDex {
 				options.shiny = pokemon.shiny;
 				options.gender = pokemon.gender;
 			}
-			if (pokemon.volatiles.dynamax) isDynamax = true;
+			if (pokemon.volatiles.dynamax && options.dynamax !== false) isDynamax = true;
 			pokemon = pokemon.getSpeciesForme();
 		}
 		const species = Dex.species.get(pokemon);
