@@ -838,7 +838,7 @@ class BattlePokemonSearch extends BattleTypedSearch<'pokemon'> {
 			case 'missingno':
 				results.push(['header', "Glitch"]);
 				break;
-			case 'tomohawk':
+			case 'syclar':
 				results.push(['header', "CAP"]);
 				break;
 			case 'pikachucosplay':
