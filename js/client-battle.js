@@ -901,10 +901,17 @@
 			if (this.choice.teamPreview) {
 				var myPokemon = this.battle.mySide.pokemon;
 				var leads = [];
-				for (var i = 0; i < this.choice.count; i++) {
+				var back = [];
+				var leadCount = this.battle.gameType === 'doubles' ? 2 : (this.battle.gameType === 'triples' ? 3 : 1);
+				for (var i = 0; i < leadCount; i++) {
 					leads.push(myPokemon[this.choice.teamPreview[i] - 1].speciesForme);
 				}
-				buf += leads.join(', ') + ' will be sent out first.<br />';
+				buf += this.createOxfordCommaList(leads) + ' will be sent out first';
+				for (var i = leadCount; i < this.choice.count; i++) {
+					back.push(myPokemon[this.choice.teamPreview[i] - 1].speciesForme);
+				}
+				if (back) buf += ', with ' + this.createOxfordCommaList(back) + ' in the back';
+				buf += '. <br />';
 			} else if (this.choice.choices && this.request && this.battle.myPokemon) {
 				var myPokemon = this.battle.myPokemon;
 				for (var i = 0; i < this.choice.choices.length; i++) {
@@ -971,6 +978,10 @@
 				buf += '<p><small><em>Waiting for opponent...</em></small> <button class="button" name="undoChoice">Cancel</button></p>';
 			}
 			return buf;
+		},
+
+		createOxfordCommaList: function (list) {
+			return list.slice(0, -2).join(', ') + (list.slice(0, -2).length ? ', ' : '') + list.slice(-2).join(', and ');
 		},
 
 		/**
