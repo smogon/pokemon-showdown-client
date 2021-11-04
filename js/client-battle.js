@@ -906,11 +906,11 @@
 				for (var i = 0; i < leadCount; i++) {
 					leads.push(myPokemon[this.choice.teamPreview[i] - 1].speciesForme);
 				}
-				buf += this.createOxfordCommaList(leads) + ' will be sent out first';
+				buf += this.createCommaSeparatedList(leads) + ' will be sent out first';
 				for (var i = leadCount; i < this.choice.count; i++) {
 					back.push(myPokemon[this.choice.teamPreview[i] - 1].speciesForme);
 				}
-				if (back) buf += ', with ' + this.createOxfordCommaList(back) + ' in the back';
+				if (back.length) buf += ', with ' + this.createCommaSeparatedList(back) + ' in the back';
 				buf += '. <br />';
 			} else if (this.choice.choices && this.request && this.battle.myPokemon) {
 				var myPokemon = this.battle.myPokemon;
@@ -980,8 +980,8 @@
 			return buf;
 		},
 
-		createOxfordCommaList: function (list) {
-			return list.slice(0, -2).join(', ') + (list.slice(0, -2).length ? ', ' : '') + list.slice(-2).join(', and ');
+		createCommaSeparatedList: function (list) {
+			return list.slice(0, -2).join(', ') + (list.slice(0, -2).length ? ', ' : '') + list.slice(-2).join(' and ');
 		},
 
 		/**
