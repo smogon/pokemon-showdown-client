@@ -901,10 +901,16 @@
 			if (this.choice.teamPreview) {
 				var myPokemon = this.battle.mySide.pokemon;
 				var leads = [];
-				for (var i = 0; i < this.choice.count; i++) {
+				var back = [];
+				var leadCount = this.battle.gameType === 'doubles' ? 2 : (this.battle.gameType === 'triples' ? 3 : 1);
+				for (var i = 0; i < leadCount; i++) {
 					leads.push(myPokemon[this.choice.teamPreview[i] - 1].speciesForme);
 				}
 				buf += leads.join(', ') + ' will be sent out first.<br />';
+				for (var i = leadCount; i < this.choice.count; i++) {
+					back.push(myPokemon[this.choice.teamPreview[i] - 1].speciesForme);
+				}
+				if (back.length) buf += back.join(', ') + ' are in the back.<br />';
 			} else if (this.choice.choices && this.request && this.battle.myPokemon) {
 				var myPokemon = this.battle.myPokemon;
 				for (var i = 0; i < this.choice.choices.length; i++) {
