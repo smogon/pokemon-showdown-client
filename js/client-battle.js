@@ -906,12 +906,11 @@
 				for (var i = 0; i < leadCount; i++) {
 					leads.push(myPokemon[this.choice.teamPreview[i] - 1].speciesForme);
 				}
-				buf += this.createCommaSeparatedList(leads) + ' will be sent out first';
+				buf += leads.join(', ') + ' will be sent out first.<br />';
 				for (var i = leadCount; i < this.choice.count; i++) {
 					back.push(myPokemon[this.choice.teamPreview[i] - 1].speciesForme);
 				}
-				if (back.length) buf += ', with ' + this.createCommaSeparatedList(back) + ' in the back';
-				buf += '. <br />';
+				if (back.length) buf += back.join(', ') + ' are in the back.<br />';
 			} else if (this.choice.choices && this.request && this.battle.myPokemon) {
 				var myPokemon = this.battle.myPokemon;
 				for (var i = 0; i < this.choice.choices.length; i++) {
@@ -978,10 +977,6 @@
 				buf += '<p><small><em>Waiting for opponent...</em></small> <button class="button" name="undoChoice">Cancel</button></p>';
 			}
 			return buf;
-		},
-
-		createCommaSeparatedList: function (list) {
-			return list.slice(0, -2).join(', ') + (list.slice(0, -2).length ? ', ' : '') + list.slice(-2).join(' and ');
 		},
 
 		/**
