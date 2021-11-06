@@ -495,7 +495,7 @@ const Dex = new class implements ModdedDex {
 				options.shiny = pokemon.shiny;
 				options.gender = pokemon.gender;
 			}
-			if (pokemon.volatiles.dynamax) isDynamax = true;
+			if (pokemon.volatiles.dynamax && options.dynamax !== false) isDynamax = true;
 			pokemon = pokemon.getSpeciesForme();
 		}
 		const species = Dex.species.get(pokemon);
@@ -659,7 +659,7 @@ const Dex = new class implements ModdedDex {
 			spriteData.w *= 2;
 			spriteData.h *= 2;
 			spriteData.y += -22;
-		} else if ((species.isTotem || isDynamax) && !options.noScale) {
+		} else if (species.isTotem && !options.noScale) {
 			spriteData.w *= 1.5;
 			spriteData.h *= 1.5;
 			spriteData.y += -11;

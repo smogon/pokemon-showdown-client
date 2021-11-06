@@ -2452,7 +2452,16 @@ export class PokemonSprite extends Sprite {
 		});
 		let oldsp = this.sp;
 		if (isPermanent) {
-			this.oldsp = null;
+			if (pokemon.volatiles.dynamax) {
+				// if a permanent forme change happens while dynamaxed, we need an undynamaxed sprite to go back to
+				this.oldsp = Dex.getSpriteData(pokemon, this.isFrontSprite, {
+					gen: this.scene.gen,
+					mod: this.scene.mod,
+					dynamax: false,
+				});
+			} else {
+				this.oldsp = null;
+			}
 		} else if (!this.oldsp) {
 			this.oldsp = oldsp;
 		}
