@@ -125,6 +125,7 @@ export class Router {
 	close() {
 		if (this.closing) return this.closing;
 		this.server.close();
+		if (!this.activeRequests) return Promise.resolve();
 		this.closing = new Promise<void>(resolve => {
 			this.awaitingEnd = resolve;
 		});
