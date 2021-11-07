@@ -827,6 +827,7 @@
 			document.getElementById("pasteData").value = team;
 			document.getElementById("pasteTitle").value = this.curTeam.name;
 			document.getElementById("pasteAuthor").value = app.user.get('name');
+			if (this.curTeam.format !== 'gen8') document.getElementById("pasteNotes").value = "Format: " + this.curTeam.format;
 			document.getElementById("pokepasteForm").submit();
 		},
 
