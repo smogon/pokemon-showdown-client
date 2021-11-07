@@ -36,8 +36,6 @@ exports.pspath = '/var/www/html/play.pokemonshowdown.com/data/pokemon-showdown';
  * @type {(() => string | Promise<string>) | null}
  */
 exports.makeSid = null;
-/** @type {((sid: string, cached: string) => boolean | Promise<boolean>) | null} */
-exports.validateSid = null;
 
 /** ips to automatically lock 
  * @type {string[]} */

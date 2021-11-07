@@ -421,7 +421,7 @@ export class Session {
 		query.append('AND `ntbb_sessions`.`userid` = `ntbb_users`.`userid` ');
 		query.append(' LIMIT 1');
 		const res = await users.database.get<{sid: string; timeout: number}>(query);
-		if (!res || !(await this.validateSid(sid, res.sid))) {
+		if (!res || res.sid !== sid) {
 			// invalid session ID
 			this.deleteCookie();
 			return;
@@ -438,12 +438,5 @@ export class Session {
 
 		this.sidhash = sid;
 		this.session = session;
-	}
-	validateSid(cachedSid: string, databaseSid: string): Promise<boolean> {
-		if (Config.validateSid) {
-			// covers async functions
-			return Promise.resolve(Config.validateSid.call(this, cachedSid, databaseSid));
-		}
-		return Promise.resolve(cachedSid === databaseSid);
 	}
 }
