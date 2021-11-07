@@ -247,7 +247,7 @@ export class Session {
 				`;;This server is using login key ${challengekeyid}, which is no longer supported. ` +
 				`Please tell the server operator to update their config.js file.`
 			);
-		} else if (!Config.privatekeys[challengekeyid]) {
+		} else if (Config.challengekeyid !== challengekeyid) {
 			// Bogus key id.
 			return ';;Unknown key ID';
 		} else {
@@ -265,7 +265,7 @@ export class Session {
 		const sign = crypto.createSign('RSA-SHA1');
 		sign.update(data);
 		sign.end();
-		const sig = sign.sign(Config.privatekeys[challengekeyid], 'hex');
+		const sig = sign.sign(Config.privatekey, 'hex');
 		return data + ';' + sig;
 	}
 	static getBannedNameTerms() {

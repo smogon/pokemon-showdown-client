@@ -68,10 +68,10 @@ exports.cors = [
     */
 exports.sysops = [];
 
-// Private keys to use for validating assertions.
-exports.privatekeys = [
-	"key here",
-];
+// Private key to use for validating assertions.
+exports.privatekey = '';
+// current active challengekeyid (backwards compatibility)
+exports.challengekeyid = 4;
 
 /**
  * DBs.
