@@ -3,6 +3,7 @@ exports.mysql = {
 	charset: "utf8",
 	database: "ps",
 	password: "",
+	host: 'localhost',
 	prefix: "",
 	user: "root",
 };
