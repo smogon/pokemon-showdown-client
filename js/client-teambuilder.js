@@ -1291,7 +1291,7 @@
 							var teamData = JSON.parse(data);
 							Storage.activeSetList = self.curSetList = Storage.importTeam(teamData.paste);
 							var title = teamData.title;
-							var format = window.BattleFormats && window.BattleFormats[teamData.notes.slice(8)];
+							var format = window.BattleFormats && window.BattleFormats[toID(teamData.notes.slice(8))];
 							if (format) self.changeFormat(format.id);
 							if (title && !title.startsWith('Untitled')) {
 								title = title.replace(/[\|\\\/]/g, '');
