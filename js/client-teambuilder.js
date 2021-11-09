@@ -1291,7 +1291,8 @@
 							var teamData = JSON.parse(data);
 							var notes = teamData.notes;
 							if (notes.startsWith('Format: ')) {
-								var formatid = toID(notes.slice(8, notes.indexOf('\n')));
+								var index = notes.indexOf('\n') > 0 ? notes.indexOf('\n') : notes.length;
+								var formatid = toID(notes.slice(8, index));
 								var format = window.BattleFormats && window.BattleFormats[formatid];
 								if (format) self.changeFormat(format.id);
 							}
