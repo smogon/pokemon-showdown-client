@@ -1289,8 +1289,12 @@
 					success: function (data) {
 						if (/^https?:\/\/pokepast\.es\/.*\/json\s*$/.test(url)) {
 							var teamData = JSON.parse(data);
-							var format = window.BattleFormats && window.BattleFormats[toID(teamData.notes.slice(8))];
-							if (format) self.changeFormat(format.id);
+							var notes = teamData.notes;
+							if (notes.startsWith('Format: ')) {
+								var formatid = toID(notes.slice(8, notes.indexOf('\n')));
+								var format = window.BattleFormats && window.BattleFormats[formatid];
+								if (format) self.changeFormat(format.id);
+							}
 							var title = teamData.title;
 							if (title && !title.startsWith('Untitled')) {
 								title = title.replace(/[\|\\\/]/g, '');
