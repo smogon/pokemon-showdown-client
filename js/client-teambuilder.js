@@ -1289,12 +1289,18 @@
 					success: function (data) {
 						if (/^https?:\/\/pokepast\.es\/.*\/json\s*$/.test(url)) {
 							var teamData = JSON.parse(data);
-							var notes = teamData.notes;
-							if (notes.startsWith('Format: ')) {
-								var index = notes.indexOf('\n') > 0 ? notes.indexOf('\n') : notes.length;
-								var formatid = toID(notes.slice(8, index));
+							// Split the notes on the first newline
+							var notes = teamData.notes.split(/\n(.+)/s);
+							// Splitting the array like we did above creates an empty array element at the end if there was a newline
+							if (notes.length > 1) notes.pop();
+							var teamNotes = ''; // Not implemented yet
+							if (notes[0].startsWith('Format: ')) {
+								var formatid = toID(notes[0].slice(8));
 								var format = window.BattleFormats && window.BattleFormats[formatid];
 								if (format) self.changeFormat(format.id);
+								if (notes[1]) teamNotes = notes[1];
+							} else {
+								teamNotes = notes.join('\n');
 							}
 							var title = teamData.title;
 							if (title && !title.startsWith('Untitled')) {
