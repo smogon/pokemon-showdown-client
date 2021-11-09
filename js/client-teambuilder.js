@@ -1289,7 +1289,7 @@
 					success: function (data) {
 						if (/^https?:\/\/pokepast\.es\/.*\/json\s*$/.test(url)) {
 							var teamData = JSON.parse(data);
-							// Split the notes on the first newline
+							// Split on the first newline
 							var notes = teamData.notes.split(/\n([^]+)/);
 							if (notes[0].startsWith('Format: ')) {
 								var formatid = toID(notes[0].slice(8));
