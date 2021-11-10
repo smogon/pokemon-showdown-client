@@ -1289,12 +1289,23 @@
 					success: function (data) {
 						if (/^https?:\/\/pokepast\.es\/.*\/json\s*$/.test(url)) {
 							var teamData = JSON.parse(data);
-							Storage.activeSetList = self.curSetList = Storage.importTeam(teamData.paste);
+
+							var notes = teamData.notes.split('\n');
+							if (notes[0].startsWith('Format: ')) {
+								var formatid = toID(notes[0].slice(8));
+								var format = window.BattleFormats && window.BattleFormats[formatid];
+								if (format) self.changeFormat(format.id);
+								notes.shift();
+							}
+							var teamNotes = notes.join('\n'); // Not implemented yet
+
 							var title = teamData.title;
 							if (title && !title.startsWith('Untitled')) {
-								title.replace(/[\|\\\/]/g, '');
+								title = title.replace(/[\|\\\/]/g, '');
 								self.$('.teamnameedit').val(title).change();
 							}
+
+							Storage.activeSetList = self.curSetList = Storage.importTeam(teamData.paste);
 						} else {
 							Storage.activeSetList = self.curSetList = Storage.importTeam(data);
 						}
