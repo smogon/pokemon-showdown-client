@@ -455,7 +455,7 @@ if (!$user) {
 		</p>
 <?php
 	}
-	if ($user['userid'] === 'slarty' || $user['userid'] === 'peterthegreeat' || $user['userid'] === 'chrisloud' || $user['userid'] === 'skitty') {
+	if ($user['userid'] === 'slarty' || $user['userid'] === 'peterthegreeat' || $user['userid'] === 'chrisloud' || $user['userid'] === 'skitty' || $user['userid'] === 'aulu') {
 		echo '<p>;_;7</p>';
 	}
 
