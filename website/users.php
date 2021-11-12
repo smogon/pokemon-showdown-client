@@ -179,7 +179,9 @@ if (!$user) {
 
 	if ($authLevel >= 4 && substr($user['email'] ?? '', -1) === '@') echo '[2FA]';
 
-	if ($user['group'] && $user['group'] != 2 && $authLevel >= 3) {
+	$canChangeGroup = $user['group'] === 2 ? in_array($curuser['userid'], ['chaos', 'zarel']) : $authLevel >= 3;
+
+	if ($user['group'] && $canChangeGroup) {
 		$csrfOk = (!!$users->csrfCheck() && $authLevel >= 4);
 		if ($csrfOk && isset($_POST['group'])) {
 			$group = intval($_POST['group']);
