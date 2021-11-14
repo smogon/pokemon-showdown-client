@@ -7,7 +7,8 @@
     "lint": "eslint . --cache --ext .js,.ts",
     "build": "npx tsc",
     "start": "npm run build && npx pm2 start app",
-    "test": "npm run lint && npx tsc"
+    "test": "npm run lint && npx tsc",
+    "reload": "npx pm2 reload app"
   },
   "dependencies": {
     "@types/node": "^15.12.4",
