@@ -414,7 +414,7 @@ export const actions: {[k: string]: QueryHandler} = {
 			throw new ActionError(`Access denied for ${this.getIp()}.`);
 		}
 		const update = await updateserver();
-		const [, , stderr] = await bash('npx pm2 reload app');
+		const [, , stderr] = await bash('npx pm2 reload src/run.js');
 		if (stderr) throw new ActionError(stderr);
 		return {updated: update, success: true};
 	},
