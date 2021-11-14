@@ -6,7 +6,7 @@
   "scripts": {
     "lint": "eslint . --cache --ext .js,.ts",
     "build": "npx tsc",
-    "start": "npm run build && npx pm2 start app",
+    "start": "npx pm2 start app",
     "test": "npm run lint && npx tsc",
     "reload": "npx pm2 reload app"
   },
