@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "homepage": "https://pokemonshowdown.com",
   "license": "AGPL-3.0",
+  "main": "./.dist/index.js",
   "scripts": {
     "lint": "eslint . --cache --ext .js,.ts",
     "build": "npx tsc",
