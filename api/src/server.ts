@@ -125,7 +125,11 @@ export class Router {
 
 			for (const k of ['pass', 'password']) delete body[k];
 			Router.crashlog(e, 'an API request', body);
-			res.writeHead(503).end();
+			if (Config.devmode && Config.devmode === body.devmode) {
+				res.writeHead(200).end(e.message + '\n' + e.stack);
+			} else {
+				res.writeHead(503).end();
+			}
 			return {error: true};
 		}
 	}

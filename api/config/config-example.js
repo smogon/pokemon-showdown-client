@@ -28,6 +28,9 @@ exports.routes = {
 exports.mainserver = 'showdown';
 exports.serverlist = '/var/www/html/play.pokemonshowdown.com/config/servers.inc.php';
 
+/** @type {string | null} Password, whether to debug error stacks in request or not*/
+exports.devmode = null;
+
 // absolute path to your PS instance. can use the checked-out client that the client clones in.
 exports.pspath = '/var/www/html/play.pokemonshowdown.com/data/pokemon-showdown';
 
