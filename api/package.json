@@ -3,11 +3,11 @@
   "version": "0.1.0",
   "homepage": "https://pokemonshowdown.com",
   "license": "AGPL-3.0",
-  "main": "./.dist/index.js",
+  "main": "./.dist/src/index.js",
   "scripts": {
     "lint": "eslint . --cache --ext .js,.ts",
     "build": "npx tsc",
-    "start": "npx pm2 start src/run.js --name loginserver",
+    "start": "npx pm2 start scripts/run.js --name loginserver",
     "test": "npm run lint && npx tsc",
     "reload": "npx pm2 reload loginserver"
   },

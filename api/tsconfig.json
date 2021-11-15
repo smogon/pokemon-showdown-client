@@ -15,7 +15,7 @@
   },
   "types": ["node"],
   "include": [
-    "./src/*", "./src/test/*",
+    "./src/*", "./src/test/*", "scripts/run.js",
   ],
-  "exclude": ["./.dist/**/*"],
+  "exclude": ["./.dist/**/*", "./scripts/**/*"],
 }
