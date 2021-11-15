@@ -126,7 +126,11 @@ export class Router {
 			for (const k of ['pass', 'password']) delete body[k];
 			Router.crashlog(e, 'an API request', body);
 			if (Config.devmode && Config.devmode === body.devmode) {
-				res.writeHead(200).end(e.message + '\n' + e.stack);
+				res.writeHead(200).end(
+					e.message + '\n' +
+					e.stack + '\n' +
+					JSON.stringify(body)
+				);
 			} else {
 				res.writeHead(503).end();
 			}
