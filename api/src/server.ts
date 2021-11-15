@@ -80,14 +80,21 @@ export class Router {
 				}
 				results.push(await this.handleOne(curBody, req, res));
 			}
+			this.ensureHeaders(res);
 			res.writeHead(200).end(Router.stringify(results));
 		} else {
 			const result = await this.handleOne(body, req, res);
 			if (!result.error) {
+				this.ensureHeaders(res);
 				res.writeHead(200).end(Router.stringify(result));
 			}
 		}
 		if (!this.activeRequests && this.awaitingEnd) this.awaitingEnd();
+	}
+	ensureHeaders(res: http.ServerResponse) {
+		if (!res.getHeader('Content-Type')) {
+			res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+		}
 	}
 	async handleOne(
 		body: {[k: string]: any},
