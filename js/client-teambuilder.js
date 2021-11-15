@@ -24,6 +24,9 @@
 				if (this.curTeam.format.includes('letsgo')) {
 					this.curTeam.dex = Dex.mod('gen7letsgo');
 				}
+				if (this.curTeam.format.includes('bdsp')) {
+					this.curTeam.dex = Dex.mod('gen8bdsp');
+				}
 				Storage.activeSetList = this.curSetList;
 			}
 		},
@@ -685,6 +688,9 @@
 			if (this.curTeam.format.includes('letsgo')) {
 				this.curTeam.dex = Dex.mod('gen7letsgo');
 			}
+			if (this.curTeam.format.includes('bdsp')) {
+				this.curTeam.dex = Dex.mod('gen8bdsp');
+			}
 			Storage.activeSetList = this.curSetList = Storage.unpackTeam(this.curTeam.team);
 			this.curTeamIndex = i;
 			this.update();
@@ -1158,6 +1164,7 @@
 		renderSet: function (set, i) {
 			var species = this.curTeam.dex.species.get(set.species);
 			var isLetsGo = this.curTeam.format.includes('letsgo');
+			var isBDSP = this.curTeam.format.includes('bdsp');
 			var isNatDex = this.curTeam.format.includes('nationaldex');
 			var buf = '<li value="' + i + '">';
 			if (!set.species) {
@@ -1204,12 +1211,15 @@
 				buf += '<span class="detailcell"><label>Shiny</label>' + (set.shiny ? 'Yes' : 'No') + '</span>';
 				if (!isLetsGo) {
 					if (this.curTeam.gen === 8 && !isNatDex) {
+						if (isBDSP && species.baseSpecies === "Unown") {
+							buf += '<span class="detailcell"><label>HP Type</label>' + (set.hpType || 'Dark') + '</span>';
+						}
 						// Hidden Power isn't in normal Gen 8
 					} else {
 						buf += '<span class="detailcell"><label>HP Type</label>' + (set.hpType || 'Dark') + '</span>';
 					}
 				}
-				if (this.curTeam.gen === 8 && (species.canGigantamax || species.forme === 'Gmax')) {
+				if (this.curTeam.gen === 8 && !isBDSP && (species.canGigantamax || species.forme === 'Gmax')) {
 					buf += '<span class="detailcell"><label>Gmax</label>' + (set.gigantamax || species.forme === 'Gmax' ? 'Yes' : 'No') + '</span>';
 				}
 			}
@@ -1457,6 +1467,9 @@
 			this.curTeam.dex = Dex.forGen(this.curTeam.gen);
 			if (this.curTeam.format.includes('letsgo')) {
 				this.curTeam.dex = Dex.mod('gen7letsgo');
+			}
+			if (this.curTeam.format.includes('bdsp')) {
+				this.curTeam.dex = Dex.mod('gen8bdsp');
 			}
 			this.save();
 			if (this.curTeam.gen === 5 && !Dex.loadedSpriteData['bw']) Dex.loadSpriteData('bw');
@@ -2572,6 +2585,7 @@
 			var buf = '';
 			var set = this.curSet;
 			var isLetsGo = this.curTeam.format.includes('letsgo');
+			var isBDSP = this.curTeam.format.includes('bdsp');
 			var isNatDex = this.curTeam.gen === 8 && this.curTeam.format.includes('nationaldex');
 			var species = this.curTeam.dex.species.get(set.species);
 			if (!set) return;
@@ -2607,7 +2621,7 @@
 				buf += '<label><input type="radio" name="shiny" value="no"' + (!set.shiny ? ' checked' : '') + ' /> No</label>';
 				buf += '</div></div>';
 
-				if (species.canGigantamax || species.forme === 'Gmax') {
+				if (!isBDSP && (species.canGigantamax || species.forme === 'Gmax')) {
 					buf += '<div class="formrow"><label class="formlabel">Gigantamax:</label><div>';
 					if (species.forme === 'Gmax') {
 						buf += 'Yes';
@@ -2629,7 +2643,7 @@
 				buf += '</select></div></div>';
 			}
 
-			if (!isLetsGo && (this.curTeam.gen === 7 || isNatDex)) {
+			if (!isLetsGo && (this.curTeam.gen === 7 || isNatDex || (isBDSP && species.baseSpecies === 'Unown'))) {
 				buf += '<div class="formrow"><label class="formlabel" title="Hidden Power Type">Hidden Power:</label><div><select name="hptype">';
 				buf += '<option value=""' + (!set.hpType ? ' selected="selected"' : '') + '>(automatic type)</option>'; // unset
 				var types = Dex.types.all();
@@ -2655,6 +2669,7 @@
 			if (!set) return;
 			var species = this.curTeam.dex.species.get(set.species);
 			var isLetsGo = this.curTeam.format.includes('letsgo');
+			var isBDSP = this.curTeam.format.includes('bdsp');
 			var isNatDex = this.curTeam.format.includes('nationaldex');
 
 			// level
@@ -2727,7 +2742,7 @@
 				}
 				buf += '<span class="detailcell"><label>Shiny</label>' + (set.shiny ? 'Yes' : 'No') + '</span>';
 				if (!isLetsGo && (this.curTeam.gen < 8 || isNatDex)) buf += '<span class="detailcell"><label>HP Type</label>' + (set.hpType || 'Dark') + '</span>';
-				if (this.curTeam.gen === 8 && (species.canGigantamax || species.forme === 'Gmax')) {
+				if (this.curTeam.gen === 8 && !isBDSP && (species.canGigantamax || species.forme === 'Gmax')) {
 					buf += '<span class="detailcell"><label>Gmax</label>' + (set.gigantamax || species.forme === 'Gmax' ? 'Yes' : 'No') + '</span>';
 				}
 			}
