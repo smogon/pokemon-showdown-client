@@ -6,9 +6,9 @@
   "scripts": {
     "lint": "eslint . --cache --ext .js,.ts",
     "build": "npx tsc",
-    "start": "npx pm2 start src/run.js",
+    "start": "npx pm2 start src/run.js --name app",
     "test": "npm run lint && npx tsc",
-    "reload": "npx pm2 reload src/run.js"
+    "reload": "npx pm2 reload app"
   },
   "dependencies": {
     "@types/node": "^15.12.4",
