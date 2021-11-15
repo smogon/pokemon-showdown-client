@@ -4,7 +4,30 @@ class ActionDispatcher {
 	private $reqs;
 	private $multiReqs = false;
 	private $reqData;
-	private $outPrefix = ']'; // JSON output should not be valid JavaScript
+	/**
+	 * API request output should not be valid JavaScript.
+	 *
+	 * This is to protect against a CSRF-like attack. Imagine you have an API:
+	 *
+	 *     https://example.com/getmysecrets.json
+	 *
+	 * Which returns:
+	 *
+	 *     {"yoursecrets": [1, 2, 3]}
+	 *
+	 * An attacker could trick a user into visiting a site overriding the
+	 * Array or Object constructor, and then containing:
+	 *
+	 *     <script src="https://example.com/getmysecrets.json"></script>
+	 *
+	 * This could let them steal the secrets. In modern times, browsers
+	 * are protected against this kind of attack, but our `]` adds some
+	 * safety for older browsers.
+	 *
+	 * Adding `]` to the beginning makes sure that the output is a syntax
+	 * error in JS, so treating it as a JS file will simply crash and fail.
+	 */
+	private $outPrefix = ']';
 	private $outArray = array();
 
 	public function __construct($handlers) {
