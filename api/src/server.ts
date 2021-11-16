@@ -8,6 +8,7 @@ import {Dispatcher, ActionError} from './dispatcher';
 import * as http from 'http';
 import * as https from 'https';
 
+// See Router#stringify
 const DISPATCH_PREFIX = ']';
 
 export function toID(text: any): string {
@@ -147,6 +148,11 @@ export class Router {
 		return this.closing;
 	}
 	static stringify(response: {[k: string]: any}) {
+		/**
+		 * we intentionally want this to be invalid JSON to prevent CSRF attacks.
+		 * Mostly, attacks using <script> JSON parsing and object overwriting to steal properties
+		 * and other things of that sort.
+		 */
 		return DISPATCH_PREFIX + JSON.stringify(response);
 	}
 }
