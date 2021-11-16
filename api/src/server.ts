@@ -8,7 +8,24 @@ import {Dispatcher, ActionError} from './dispatcher';
 import * as http from 'http';
 import * as https from 'https';
 
-// See Router#stringify
+/**
+ * API request output should not be valid JavaScript.
+ * This is to protect against a CSRF-like attack. Imagine you have an API:
+ *     https://example.com/getmysecrets.json
+ * Which returns:
+ *     {"yoursecrets": [1, 2, 3]}
+ *
+ * An attacker could trick a user into visiting a site overriding the
+ * Array or Object constructor, and then containing:
+ *     <script src="https://example.com/getmysecrets.json"></script>
+ *
+ * This could let them steal the secrets. In modern times, browsers
+ * are protected against this kind of attack, but our `]` adds some
+ * safety for older browsers.
+ *
+ * Adding `]` to the beginning makes sure that the output is a syntax
+ * error in JS, so treating it as a JS file will simply crash and fail.
+ */
 const DISPATCH_PREFIX = ']';
 
 export function toID(text: any): string {
@@ -148,11 +165,7 @@ export class Router {
 		return this.closing;
 	}
 	static stringify(response: {[k: string]: any}) {
-		/**
-		 * we intentionally want this to be invalid JSON to prevent CSRF attacks.
-		 * Mostly, attacks using <script> JSON parsing and object overwriting to steal properties
-		 * and other things of that sort.
-		 */
+		// see DISPATCH_PREFIX
 		return DISPATCH_PREFIX + JSON.stringify(response);
 	}
 }
