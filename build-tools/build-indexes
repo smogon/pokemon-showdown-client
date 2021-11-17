@@ -321,12 +321,12 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 	const VGC = GENS.filter(x => x > 3).map(num => -num - 0.5);
 	const NFE = GENS.map(num => num + 0.3);
 	const STADIUM = [2.04, 1.04];
-	const OTHER = [8.6, 8.4, 8.2, 8.1, -8.4, 7.1];
+	const OTHER = [8.6, 8.4, 8.2, 8.1, -8.4, -8.6, 7.1];
 
 	// process.stdout.write("\n  ");
 	for (const genIdent of [...GENS, ...DOUBLES, ...VGC, ...NFE, ...STADIUM, ...OTHER]) {
 		const isLetsGo = (genIdent === 7.1);
-		const isBDSP = (genIdent === 8.6);
+		const isBDSP = (genIdent === 8.6 || genIdent === -8.6);
 		const isMetBattle = (genIdent === 8.2);
 		const isNFE = ('' + genIdent).endsWith('.3');
 		const isDLC1 = (genIdent === 8.4 || genIdent === -8.4);
@@ -510,7 +510,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			BattleTeambuilderTable['gen7letsgo'].tiers = tiers;
 			BattleTeambuilderTable['gen7letsgo'].overrideTier = overrideTier;
 			BattleTeambuilderTable['gen7letsgo'].formatSlices = formatSlices;
-		} else if (isBDSP) {
+		} else if (isBDSP && !isDoubles) {
 			BattleTeambuilderTable['gen8bdsp'] = {};
 			BattleTeambuilderTable['gen8bdsp'].learnsets = {};
 			BattleTeambuilderTable['gen8bdsp'].tiers = tiers;
@@ -557,7 +557,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			if (isNatDex) {
 				return ["CAP", "CAP NFE", "CAP LC", "AG", "Uber", "OU", "UUBL", "(OU)", "UU", "(UU)", "NFE", "LC"];
 			}
-			if (isLetsGo || isBDSP) {
+			if (isLetsGo || isBDSP && !isDoubles) {
 				return ["Uber", "OU", "UU", "NFE", "LC", "Unreleased"];
 			}
 			if (isVGC) {
@@ -915,7 +915,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 		const learnset = BDSPLearnsets[id].learnset;
 		BattleTeambuilderTable['gen8bdsp'].learnsets[id] = {};
 		for (const moveid in learnset) {
-			BattleTeambuilderTable['gen8bdsp'].learnsets[id][moveid] = '8';
+			BattleTeambuilderTable['gen8bdsp'].learnsets[id][moveid] = '8g';
 		}
 	}
 	const DLC1Learnsets = Dex.mod('gen8dlc1').data.Learnsets;
