@@ -948,9 +948,7 @@ class BattlePokemonSearch extends BattleTypedSearch<'pokemon'> {
 		else if (format === 'doublesnu') tierSet = tierSet.slice(slices.DNU || slices.DUU);
 		else if (this.formatType?.startsWith('bdsp') || this.formatType === 'letsgo' || this.formatType === 'stadium') {
 			tierSet = tierSet.slice(slices.Uber);
-		}
-		// else if (isDoublesOrBS) tierSet = tierSet;
-		else if (!isDoublesOrBS) {
+		} else if (!isDoublesOrBS) {
 			tierSet = [
 				...tierSet.slice(slices.OU, slices.UU),
 				...tierSet.slice(slices.AG, slices.Uber),
@@ -1413,7 +1411,8 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 		const isHackmons = (format.includes('hackmons') || format.endsWith('bh'));
 		const isSTABmons = (format.includes('stabmons') || format === 'staaabmons');
 		const isTradebacks = format.includes('tradebacks');
-		const galarBornLegality = (/^battle(stadium|festival)/.test(format) || format.startsWith('vgc') && this.dex.gen === 8);
+		const galarBornLegality = ((/^battle(stadium|festival)/.test(format) || format.startsWith('vgc')) &&
+			this.dex.gen === 8);
 
 		const abilityid = this.set ? toID(this.set.ability) : '' as ID;
 		const itemid = this.set ? toID(this.set.item) : '' as ID;
@@ -1473,7 +1472,8 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 					if (move.isMax || move.isZ) continue;
 					if (BattleMovedex[move.id].noSketch) continue;
 					if (!this.formatType && move.isNonstandard === 'Past') continue;
-					if (this.formatType?.startsWith('bdsp') && BattleTeambuilderTable['gen8bdsp'].nonstandardMoves.includes(move.id)) continue;
+					if (this.formatType?.startsWith('bdsp') &&
+						BattleTeambuilderTable['gen8bdsp'].nonstandardMoves.includes(move.id)) continue;
 					if (this.formatType === 'natdex' && move.isNonstandard && move.isNonstandard !== 'Past') continue;
 					sketchMoves.push(move.id);
 				} else {
@@ -1481,7 +1481,8 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 					if (typeof move.isMax === 'string') continue;
 					if (!this.formatType && move.isNonstandard === 'Past') continue;
 					if (move.isNonstandard === 'LGPE' && this.formatType !== 'letsgo') continue;
-					if (this.formatType?.startsWith('bdsp') && BattleTeambuilderTable['gen8bdsp'].nonstandardMoves.includes(move.id)) continue;
+					if (this.formatType?.startsWith('bdsp') &&
+						BattleTeambuilderTable['gen8bdsp'].nonstandardMoves.includes(move.id)) continue;
 					if (this.formatType === 'natdex' && move.isNonstandard && move.isNonstandard !== 'Past') continue;
 					moves.push(move.id);
 				}
