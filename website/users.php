@@ -180,7 +180,7 @@ if (!$user) {
 
 	if ($authLevel >= 4 && substr($user['email'] ?? '', -1) === '@') echo '[2FA]';
 
-	$canChangeGroup = $user['group'] === 2 ? $authLevel >= 10 : $authLevel >= 3;
+	$canChangeGroup = $user['group'] == 2 ? $authLevel >= 10 : $authLevel >= 3;
 
 	if ($user['group'] && $canChangeGroup) {
 		$csrfOk = (!!$users->csrfCheck() && $authLevel >= 4);
