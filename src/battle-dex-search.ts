@@ -604,6 +604,7 @@ abstract class BattleTypedSearch<T extends SearchType> {
 				this.formatType = 'bdsp';
 			}
 			format = format.slice(4) as ID;
+			this.dex = Dex.mod('gen8bdsp' as ID);
 		}
 		if (format.includes('doubles') && this.dex.gen > 4 && !this.formatType) this.formatType = 'doubles';
 		if (format.startsWith('ffa') || format === 'freeforall') this.formatType = 'doubles';
@@ -1132,14 +1133,14 @@ class BattleItemSearch extends BattleTypedSearch<'item'> {
 	}
 	getDefaultResults(): SearchRow[] {
 		let table = BattleTeambuilderTable;
-		if (this.dex.gen < 8) {
-			table = table['gen' + this.dex.gen];
-		} else if (this.formatType === 'bdsp') {
+		if (this.formatType?.startsWith('bdsp')) {
 			table = table['gen8bdsp'];
 		} else if (this.formatType === 'natdex') {
 			table = table['natdex'];
 		} else if (this.formatType === 'metronome') {
 			table = table['metronome'];
+		} else if (this.dex.gen < 8) {
+			table = table['gen' + this.dex.gen];
 		}
 		if (!table.itemSet) {
 			table.itemSet = table.items.map((r: any) => {
@@ -1431,17 +1432,20 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 			if (learnset) {
 				for (let moveid in learnset) {
 					let learnsetEntry = learnset[moveid];
+					const move = dex.moves.get(moveid);
 					/* if (requirePentagon && learnsetEntry.indexOf('p') < 0) {
 						continue;
 					} */
 					if (galarBornLegality && !learnsetEntry.includes('g')) {
 						continue;
 					} else if (!learnsetEntry.includes(gen) &&
-						(!isTradebacks ? true : !(dex.moves.get(moveid).gen <= dex.gen && learnsetEntry.includes('' + (dex.gen + 1))))) {
+						(!isTradebacks ? true : !(move.gen <= dex.gen && learnsetEntry.includes('' + (dex.gen + 1))))) {
 						continue;
 					}
-					if (!this.formatType && BattleMovedex[moveid].isNonstandard === 'Past') continue;
-					if (this.formatType === 'natdex' && BattleMovedex[moveid].isNonstandard && BattleMovedex[moveid].isNonstandard !== 'Past') {
+					if (
+						(this.formatType === 'natdex' && move.isNonstandard && move.isNonstandard !== 'Past') ||
+						move.isNonstandard === 'Past'
+					) {
 						continue;
 					}
 					if (
@@ -1469,21 +1473,15 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 				const move = dex.moves.get(id);
 				if (move.gen > dex.gen) continue;
 				if (sketch) {
-					if (move.isMax || move.isZ) continue;
-					if (BattleMovedex[move.id].noSketch) continue;
-					if (!this.formatType && move.isNonstandard === 'Past') continue;
-					if (this.formatType?.startsWith('bdsp') &&
-						BattleTeambuilderTable['gen8bdsp'].nonstandardMoves.includes(move.id)) continue;
-					if (this.formatType === 'natdex' && move.isNonstandard && move.isNonstandard !== 'Past') continue;
+					if (move.noSketch || move.isMax || move.isZ) continue;
+					if (move.isNonstandard && move.isNonstandard !== 'Past') continue;
+					if (move.isNonstandard === 'Past' && this.formatType !== 'natdex') continue;
 					sketchMoves.push(move.id);
 				} else {
 					if (!(dex.gen < 8 || this.formatType === 'natdex') && move.isZ) continue;
 					if (typeof move.isMax === 'string') continue;
-					if (!this.formatType && move.isNonstandard === 'Past') continue;
+					if (move.isNonstandard === 'Past' && this.formatType !== 'natdex') continue;
 					if (move.isNonstandard === 'LGPE' && this.formatType !== 'letsgo') continue;
-					if (this.formatType?.startsWith('bdsp') &&
-						BattleTeambuilderTable['gen8bdsp'].nonstandardMoves.includes(move.id)) continue;
-					if (this.formatType === 'natdex' && move.isNonstandard && move.isNonstandard !== 'Past') continue;
 					moves.push(move.id);
 				}
 			}
