@@ -1072,7 +1072,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			if (modEntry.isNonstandard !== parentEntry.isNonstandard) {
 				overrideMoveData[id] = {
 					isNonstandard: modEntry.isNonstandard,
-				};
+				}
 			}
 		}
 	}
