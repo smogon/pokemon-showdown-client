@@ -1133,6 +1133,7 @@ class Move implements Effect {
 	readonly hasCrashDamage: boolean;
 	readonly noPPBoosts: boolean;
 	readonly secondaries: ReadonlyArray<any> | null;
+	readonly noSketch: boolean;
 	readonly num: number;
 
 	constructor(id: ID, name: string, data: any) {
@@ -1166,6 +1167,7 @@ class Move implements Effect {
 		this.hasCrashDamage = data.hasCrashDamage || false;
 		this.noPPBoosts = data.noPPBoosts || false;
 		this.secondaries = data.secondaries || (data.secondary ? [data.secondary] : null);
+		this.noSketch = !!data.noSketch;
 
 		this.isMax = data.isMax || false;
 		this.maxMove = data.maxMove || {basePower: 0};
