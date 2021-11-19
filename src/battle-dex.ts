@@ -860,8 +860,10 @@ class ModdedDex {
 			if (this.gen <= 3 && data.category !== 'Status') {
 				data.category = Dex.getGen3Category(data.type);
 			}
+
+			// For LGPE/BDSP
 			const table = window.BattleTeambuilderTable[this.modid];
-			if (this.modid === 'gen7letsgo' && id in table.overrideMoveData) {
+			if (id in table.overrideMoveData) {
 				Object.assign(data, table.overrideMoveData[id]);
 			}
 

@@ -517,8 +517,6 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			BattleTeambuilderTable['gen8bdsp'].items = items;
 			BattleTeambuilderTable['gen8bdsp'].overrideTier = overrideTier;
 			BattleTeambuilderTable['gen8bdsp'].formatSlices = formatSlices;
-			BattleTeambuilderTable['gen8bdsp'].nonstandardMoves = Dex.mod('gen8bdsp').moves.all()
-				.filter(x => x.isNonstandard).map(x => x.id);
 		} else if (isVGC) {
 			BattleTeambuilderTable[gen + 'vgc'] = {};
 			BattleTeambuilderTable[gen + 'vgc'].tiers = tiers;
@@ -1054,6 +1052,27 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 					if (!overrideMoveData[id]) overrideMoveData[id] = {};
 					overrideMoveData[id][key] = modEntry[key];
 				}
+			}
+		}
+	}
+
+	//
+	// BDSP
+	//
+
+	{
+		const BDSPDex = Dex.mod('gen8bdsp');
+		const BDSPData = BDSPDex.data;
+
+		const overrideMoveData = {};
+		BattleTeambuilderTable['gen8bdsp'].overrideMoveData = overrideMoveData;
+		for (const id in BDSPData.Moves) {
+			const modEntry = BDSPDex.moves.get(id);
+			const parentEntry = Dex.mod('gen8').moves.get(id);
+			if (modEntry.isNonstandard !== parentEntry.isNonstandard) {
+				overrideMoveData[id] = {
+					isNonstandard: modEntry.isNonstandard,
+				};
 			}
 		}
 	}
