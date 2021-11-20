@@ -37,7 +37,7 @@ export interface RegisteredServer {
 
 export type QueryHandler = (
 	this: Dispatcher, params: {[k: string]: string}
-) => {[k: string]: any} | Promise<{[k: string]: any}>;
+) => {[k: string]: any} | string | Promise<{[k: string]: any} | string>;
 
 export interface DispatcherOpts {
 	body: {[k: string]: string};

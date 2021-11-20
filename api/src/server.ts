@@ -103,7 +103,7 @@ export class Router {
 		} else {
 			const result = await this.handleOne(body, req, res);
 			this.ensureHeaders(res);
-			if (!result.error) {
+			if (!(result as any).error) {
 				res.writeHead(200).end(Router.stringify(result));
 			}
 		}
@@ -164,7 +164,10 @@ export class Router {
 		});
 		return this.closing;
 	}
-	static stringify(response: {[k: string]: any}) {
+	static stringify(response: any) {
+		if (typeof response === 'string') {
+			return response; // allow ending with just strings;
+		}
 		// see DISPATCH_PREFIX
 		return DISPATCH_PREFIX + JSON.stringify(response);
 	}

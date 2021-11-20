@@ -345,6 +345,34 @@ export const actions: {[k: string]: QueryHandler} = {
 		this.session.updateCookie();
 		return {actionsuccess};
 	},
+	async getassertion(params) {
+		if (!params.challenge) {
+			throw new ActionError(`Specify a challenge.`);
+		}
+		if (!this.user.loggedin) {
+			throw new ActionError('Your session has expired. Please log in again.');
+		}
+		params.userid = toID(params.userid);
+		if (!params.userid) {
+			params.userid = this.user.id;
+		}
+		if (params.userid === 'guest') {
+			return ';'; // Special error message for this case.
+		}
+		// NaN is falsy so this validates
+		const challengekeyid = Number(params.challengekeyid) || -1;
+		const challenge = params.challenge || params.challstr || "";
+		if (!challengekeyid) {
+			throw new ActionError(`Specify a challenge key ID.`);
+		}
+		return this.session.getAssertion(
+			params.userid,
+			challengekeyid,
+			this.user,
+			challenge,
+			this.verifyCrossDomainRequest()
+		);
+	},
 	async ladderupdate(params) {
 		const server = await this.getServer(true);
 		if (server?.id !== Config.mainserver) {
