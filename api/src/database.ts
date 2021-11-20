@@ -3,7 +3,7 @@
  * By Mia
  * @author mia-pi-git
  */
-import * as mysql from 'mysql';
+import * as mysql from 'mysql2';
 import SQL, {SQLStatement} from 'sql-template-strings';
 import {Config} from './config-loader';
 
@@ -22,10 +22,10 @@ export class PSDatabase {
 	}
 	query<T = ResultRow>(query: SQLStatement) {
 		return new Promise<T[]>((resolve, reject) => {
-			this.pool.query(query.sql, query.values, (e, results) => {
+			this.pool.query(query.sql, query.values, (e, results: mysql.RowDataPacket[]) => {
 				if (e) {
 					return reject(
-						e.sqlMessage ? new Error(`${e.sqlMessage} ('${e.sql}') [${e.code}]`) : new Error(e.message)
+						new Error(`${e.message} ('${query.sql}') [${e.code}]`)
 					);
 				}
 				if (Array.isArray(results)) {
@@ -35,7 +35,7 @@ export class PSDatabase {
 						}
 					}
 				}
-				return resolve(results);
+				return resolve(results as T[]);
 			});
 		});
 	}
