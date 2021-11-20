@@ -76,7 +76,7 @@ export class DatabaseTable<T> {
 	constructor(
 		name: string,
 		primaryKeyName: string,
-		prefix = 'ntbb_',
+		prefix = Config.dbprefix,
 		config = Config.mysql
 	) {
 		this.name = name;
