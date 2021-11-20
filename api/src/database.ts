@@ -22,6 +22,9 @@ export class PSDatabase {
 	}
 	query<T = ResultRow>(query: SQLStatement) {
 		return new Promise<T[]>((resolve, reject) => {
+			// this cast is safe since it's only an array of
+			// arrays if we specify it in the config.
+			// we do not do that and it is not really useful for any of our cases.
 			this.pool.query(query.sql, query.values, (e, results: mysql.RowDataPacket[]) => {
 				if (e) {
 					return reject(
