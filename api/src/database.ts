@@ -16,8 +16,12 @@ export class PSDatabase {
 	pool: mysql.Pool;
 	prefix: string;
 	constructor(config: {[k: string]: any} = Config.mysql, prefix?: string) {
+		if (config.prefix) {
+			prefix = config.prefix;
+			delete config.prefix;
+		}
 		this.pool = mysql.createPool(config);
-		this.prefix = typeof prefix !== 'undefined' ? prefix : 'ntbb_';
+		this.prefix = prefix || "";
 		if (!databases.includes(this)) databases.push(this);
 	}
 	query<T = ResultRow>(query: SQLStatement) {
@@ -76,11 +80,10 @@ export class DatabaseTable<T> {
 	constructor(
 		name: string,
 		primaryKeyName: string,
-		prefix = Config.dbprefix,
 		config = Config.mysql
 	) {
 		this.name = name;
-		this.database = config ? new PSDatabase(config, prefix) : psdb;
+		this.database = config ? new PSDatabase(config) : psdb;
 		this.primaryKeyName = primaryKeyName;
 	}
 	async selectOne(

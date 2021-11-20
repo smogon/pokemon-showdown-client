@@ -6,10 +6,8 @@ exports.mysql = {
 	host: 'localhost',
 	user: "root",
 	socketPath: '',
+	prefix: "ntbb_",
 };
-
-// db table prefix
-exports.dbprefix = "ntbb_";
 
 /** For 2FA verification. */
 exports.gapi_clientid = '';
