@@ -346,12 +346,6 @@ export const actions: {[k: string]: QueryHandler} = {
 		return {actionsuccess};
 	},
 	async getassertion(params) {
-		if (!params.challenge) {
-			throw new ActionError(`Specify a challenge.`);
-		}
-		if (!this.user.loggedin) {
-			throw new ActionError('Your session has expired. Please log in again.');
-		}
 		params.userid = toID(params.userid);
 		if (!params.userid) {
 			params.userid = this.user.id;
@@ -362,9 +356,6 @@ export const actions: {[k: string]: QueryHandler} = {
 		// NaN is falsy so this validates
 		const challengekeyid = Number(params.challengekeyid) || -1;
 		const challenge = params.challenge || params.challstr || "";
-		if (!challengekeyid) {
-			throw new ActionError(`Specify a challenge key ID.`);
-		}
 		return this.session.getAssertion(
 			params.userid,
 			challengekeyid,
