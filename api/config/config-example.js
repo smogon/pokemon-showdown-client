@@ -4,7 +4,6 @@ exports.mysql = {
 	database: "ps",
 	password: "",
 	host: 'localhost',
-	prefix: "",
 	user: "root",
 };
 
@@ -24,6 +23,9 @@ exports.passwordSalt = 10;
 exports.routes = {
 	root: "pokemonshowdown.com",
 };
+
+// db sockets
+exports.socketPath = '';
 
 exports.mainserver = 'showdown';
 exports.serverlist = '/var/www/html/play.pokemonshowdown.com/config/servers.inc.php';

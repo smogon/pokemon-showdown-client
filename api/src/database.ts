@@ -15,9 +15,9 @@ export const databases: PSDatabase[] = [];
 export class PSDatabase {
 	pool: mysql.Pool;
 	prefix: string;
-	constructor(config: {[k: string]: any} = Config.mysql) {
+	constructor(config: {[k: string]: any} = Config.mysql, prefix?: string) {
 		this.pool = mysql.createPool(config);
-		this.prefix = config.prefix || 'ntbb_';
+		this.prefix = typeof prefix !== 'undefined' ? prefix : 'ntbb_';
 		if (!databases.includes(this)) databases.push(this);
 	}
 	query<T = ResultRow>(query: SQLStatement) {
@@ -80,10 +80,7 @@ export class DatabaseTable<T> {
 		config = Config.mysql
 	) {
 		this.name = name;
-		if (prefix) {
-			config.prefix = prefix;
-		}
-		this.database = config ? new PSDatabase(config) : psdb;
+		this.database = config ? new PSDatabase(config, prefix) : psdb;
 		this.primaryKeyName = primaryKeyName;
 	}
 	async selectOne(
