@@ -196,7 +196,7 @@ export class Session {
 			if (!logintime || time() - logintime > LOGINTIME_INTERVAL) {
 				await users.update(userid, {logintime: time(), loginip: ip});
 			}
-			data = user.id + ',' + userType + ',' + time() + ',' + serverHost;
+			data = userid + ',' + userType + ',' + time() + ',' + serverHost;
 		} else {
 			if (userid.length < 1 || !/[a-z]/.test(userid)) {
 				return ';;Your username must contain at least one letter.';
