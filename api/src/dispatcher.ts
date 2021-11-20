@@ -114,6 +114,9 @@ export class Dispatcher {
 	static isJSON(req: http.IncomingMessage) {
 		return req.headers['content-type'] === 'application/json';
 	}
+	parseRequest() {
+		return {act: this.opts.body.act, body: this.opts.body};
+	}
 	verifyCrossDomainRequest(): string {
 		if (typeof this.prefix === 'string') return this.prefix;
 		// No cross-domain multi-requests for security reasons.

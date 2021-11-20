@@ -71,6 +71,7 @@ export class Router {
 	}
 	async handle(req: http.IncomingMessage, res: http.ServerResponse) {
 		const body = await Dispatcher.getBody(req);
+		this.ensureHeaders(res);
 		if (body.json) {
 			if (typeof body.json === 'string') {
 				body.json = Dispatcher.safeJSON(body.json);
@@ -98,11 +99,9 @@ export class Router {
 				}
 				results.push(await this.handleOne(curBody, req, res));
 			}
-			this.ensureHeaders(res);
 			res.writeHead(200).end(Router.stringify(results));
 		} else {
 			const result = await this.handleOne(body, req, res);
-			this.ensureHeaders(res);
 			if (!(result as any).error) {
 				res.writeHead(200).end(Router.stringify(result));
 			}
