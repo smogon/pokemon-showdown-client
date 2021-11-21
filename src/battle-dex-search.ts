@@ -1438,14 +1438,14 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 					} */
 					if (galarBornLegality && !learnsetEntry.includes('g')) {
 						continue;
-					} else if (!learnsetEntry.includes(gen) &&
-						(!isTradebacks ? true : !(move.gen <= dex.gen && learnsetEntry.includes('' + (dex.gen + 1))))) {
-						continue;
 					}
 					if (
-						(this.formatType === 'natdex' && move.isNonstandard && move.isNonstandard !== 'Past') ||
-						move.isNonstandard === 'Past'
+						!learnsetEntry.includes(gen) &&
+						(!isTradebacks ? true : !(move.gen <= dex.gen && learnsetEntry.includes('' + (dex.gen + 1))))
 					) {
+						continue;
+					}
+					if (this.formatType !== 'natdex' && move.isNonstandard === "Past") {
 						continue;
 					}
 					if (
