@@ -831,7 +831,7 @@ export class BattleScene implements BattleSceneStub {
 				buf2 += '<div style="position:absolute;top:' + (y + 45) + 'px;left:' + (x - 40) + 'px;width:80px;font-size:10px;text-align:center;color:#FFF;">';
 				const gender = pokemon.gender;
 				if (gender === 'M' || gender === 'F') {
-					buf2 += `<img src="${Dex.resourcePrefix}fx/gender-${gender.toLowerCase()}.png" alt="${gender}" width="7" height="10" class="pixelated" style="margin-bottom:-1px" /> `;
+					buf2 += `<img src="${Dex.fxPrefix}gender-${gender.toLowerCase()}.png" alt="${gender}" width="7" height="10" class="pixelated" style="margin-bottom:-1px" /> `;
 				}
 				if (pokemon.level !== 100) {
 					buf2 += '<span style="text-shadow:#000 1px 1px 0,#000 1px -1px 0,#000 -1px 1px 0,#000 -1px -1px 0"><small>L</small>' + pokemon.level + '</span>';
@@ -2643,7 +2643,7 @@ export class PokemonSprite extends Sprite {
 		buf += `<strong>${BattleLog.escapeHTML(ignoreNick ? pokemon.speciesForme : pokemon.name)}`;
 		const gender = pokemon.gender;
 		if (gender === 'M' || gender === 'F') {
-			buf += ` <img src="${Dex.resourcePrefix}fx/gender-${gender.toLowerCase()}.png" alt="${gender}" width="7" height="10" class="pixelated" />`;
+			buf += ` <img src="${Dex.fxPrefix}gender-${gender.toLowerCase()}.png" alt="${gender}" width="7" height="10" class="pixelated" />`;
 		}
 		buf += (pokemon.level === 100 ? `` : ` <small>L${pokemon.level}</small>`);
 
