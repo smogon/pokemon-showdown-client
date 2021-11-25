@@ -2,8 +2,6 @@
 
 # Regolamento di Pokémon Showdown
 
-Ti piace sto regolamento cap e cazz?
-
 ## Regole principali
 
 1. **Comportati bene e in modo rispettoso nei confronti degli altri utenti**. Non comportarti in maniera volgare o inappropriata.
