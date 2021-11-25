@@ -7,10 +7,10 @@
   "scripts": {
     "lint": "eslint . --cache --ext .js,.ts",
     "build": "npx tsc",
-    "start": "npx tsc && npx pm2 start ./.dist/src --name loginserver --time",
+    "start": "npx tsc && npx pm2 start config/pm2.js",
     "test": "npm run lint && npx tsc",
-    "reload": "npx tsc && npx pm2 reload loginserver",
-    "stop": "npx pm2 stop loginserver"
+    "reload": "npx tsc && npx pm2 reload config/pm2.js",
+    "stop": "npx pm2 stop config/pm2.js"
   },
   "dependencies": {
     "@types/node": "^15.12.4",

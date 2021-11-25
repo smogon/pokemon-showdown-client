@@ -15,13 +15,12 @@ export const databases: PSDatabase[] = [];
 export class PSDatabase {
 	pool: mysql.Pool;
 	prefix: string;
-	constructor(config: {[k: string]: any} = Config.mysql, prefix?: string) {
+	constructor(config: {[k: string]: any} = {...Config.mysql}) {
+		this.prefix = config.prefix || "";
 		if (config.prefix) {
-			prefix = config.prefix;
 			delete config.prefix;
 		}
 		this.pool = mysql.createPool(config);
-		this.prefix = prefix || "";
 		if (!databases.includes(this)) databases.push(this);
 	}
 	query<T = ResultRow>(query: SQLStatement) {
