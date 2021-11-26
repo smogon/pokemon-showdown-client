@@ -152,7 +152,7 @@ export const actions: {[k: string]: QueryHandler} = {
 		return {
 			actionsuccess: true,
 			assertion,
-			curuser: {loggedin: true, ...userdata},
+			curuser: {loggedin: true, username: params.name, userid},
 		};
 	},
 	async updateuserstats(params) {
