@@ -346,9 +346,9 @@ export class Session {
 					});
 				});
 				if (!payload) return false; // dunno why this would happen.
-				if (!payload.aud.includes(Config['gapi_clientid'])) return false;
+				if (!payload.aud.includes(Config.gapi_clientid)) return false;
 				const [email] = payload.email.split('@');
-				if (email === userData['email'].slice(0, -1)) {
+				if (email === userData.email.slice(0, -1)) {
 					return true;
 				}
 				return false;
