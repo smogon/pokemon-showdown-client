@@ -347,11 +347,7 @@ export class Session {
 				});
 				if (!payload) return false; // dunno why this would happen.
 				if (!payload.aud.includes(Config.gapi_clientid)) return false;
-				const [email] = payload.email.split('@');
-				if (email === userData.email.slice(0, -1)) {
-					return true;
-				}
-				return false;
+				return payload.email.split('@')[0] === userData.email.slice(0, -1)
 			} catch {
 				return false;
 			}
