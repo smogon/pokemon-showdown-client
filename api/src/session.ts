@@ -289,6 +289,7 @@ export class Session {
 		}
 		return user;
 	}
+	static oauth = new gal.OAuth2Client(Config.galclient, '', '');
 	async changePassword(name: string, pass: string) {
 		const userid = toID(name);
 
@@ -334,10 +335,9 @@ export class Session {
 
 		const userData = await users.get('*', userid);
 		if (userData?.email?.endsWith('@')) {
-			const client = new gal.OAuth2Client(Config.galclient, '', '');
 			try {
 				const payload = await new Promise<{[k: string]: any} | null>((resolve, reject) => {
-					client.verifyIdToken({
+					Session.oauth.verifyIdToken({
 						idToken: pass,
 						audience: Config.galclient,
 					}, (e, login) => {
@@ -347,7 +347,8 @@ export class Session {
 				});
 				if (!payload) return false; // dunno why this would happen.
 				if (!payload.aud.includes(Config['gapi_clientid'])) return false;
-				if (payload.email === userData['email'].slice(0, -1)) {
+				const [email] = payload.email.split('@');
+				if (email === userData['email'].slice(0, -1)) {
 					return true;
 				}
 				return false;
