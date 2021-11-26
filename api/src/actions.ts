@@ -76,6 +76,7 @@ async function updateserver() {
 
 export const actions: {[k: string]: QueryHandler} = {
 	async register(params) {
+		this.verifyCrossDomainRequest();
 		const {username, password, cpassword, captcha} = params;
 		if (!username) {
 			throw new ActionError(`You must specify a username.`);
@@ -146,9 +147,12 @@ export const actions: {[k: string]: QueryHandler} = {
 			userid, challengekeyid, null, challenge, challengeprefix
 		);
 		this.session.updateCookie();
+		const userdata = await this.user.getData() as Partial<UserInfo>;
+		delete userdata.passwordhash;
 		return {
 			actionsuccess: true,
 			assertion,
+			curuser: {loggedin: true, ...userdata},
 		};
 	},
 	async updateuserstats(params) {

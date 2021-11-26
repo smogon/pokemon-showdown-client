@@ -82,7 +82,7 @@ export class DatabaseTable<T> {
 		config = Config.mysql
 	) {
 		this.name = name;
-		this.database = config ? new PSDatabase(config) : psdb;
+		this.database = config && config !== Config.mysql ? new PSDatabase(config) : psdb;
 		this.primaryKeyName = primaryKeyName;
 	}
 	async selectOne(
