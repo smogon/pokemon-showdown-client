@@ -97,15 +97,23 @@ export class Router {
 						curBody[k] = restData[k];
 					}
 				}
-				results.push(await this.handleOne(curBody, req, res));
+				const result = await this.handleOne(curBody, req, res);
+				if ((result as any).error) {
+					this.tryEnd();
+					return;
+				}
+				results.push(result);
 			}
-			res.writeHead(200).end(Router.stringify(results));
+			if (results.length) res.writeHead(200).end(Router.stringify(results));
 		} else {
 			const result = await this.handleOne(body, req, res);
 			if (!(result as any).error) {
 				res.writeHead(200).end(Router.stringify(result));
 			}
+			this.tryEnd();
 		}
+	}
+	tryEnd() {
 		if (!this.activeRequests && this.awaitingEnd) this.awaitingEnd();
 	}
 	ensureHeaders(res: http.ServerResponse) {

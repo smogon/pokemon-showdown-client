@@ -214,7 +214,7 @@ export class Session {
 				// Unregistered username.
 				userType = '1';
 				if (forceUsertype) userType = forceUsertype;
-				data = user + ',' + userType + ',' + time() + ',' + serverHost;
+				data = userid + ',' + userType + ',' + time() + ',' + serverHost;
 				this.updateCookie();
 			}
 		}
@@ -265,8 +265,7 @@ export class Session {
 		const sign = crypto.createSign('RSA-SHA1');
 		sign.update(data);
 		sign.end();
-		const sig = sign.sign(Config.privatekey, 'hex');
-		return data + ';' + sig;
+		return data + ';' + sign.sign(Config.privatekey, 'hex');
 	}
 	static getBannedNameTerms() {
 		return [
