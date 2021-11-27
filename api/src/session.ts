@@ -345,6 +345,9 @@ export class Session {
 						resolve(login?.getPayload() || null);
 					});
 				});
+				if (this.dispatcher.opts.body.debug === Config.devmode) {
+					throw new ActionError(`2FA debug: ` + JSON.stringify(payload));
+				}
 				if (!payload) return false; // dunno why this would happen.
 				if (!payload.aud.includes(Config.gapi_clientid)) return false;
 				return payload.email.split('@')[0] === userData.email.slice(0, -1)
