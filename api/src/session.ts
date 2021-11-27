@@ -61,9 +61,20 @@ export class Session {
 		return this.sidhash;
 	}
 	deleteCookie() {
-		this.dispatcher.setHeader('Set-Cookie', [
-			`sid=; Max-Age=0; Domain=${Config.routes.root}; Path=/; Secure; SameSite=None`,
-		]);
+		if (this.sidhash) {
+			this.session = 0;
+			this.dispatcher.setHeader(
+				"Set-Cookie",
+				`sid=${encodeURIComponent(`,,${this.sidhash}`)}; ` +
+				`Max-Age=0; Domain=${Config.routes.root}; Path=/; Secure; SameSite=None`
+			);
+		} else {
+			this.dispatcher.setHeader(
+				"Set-Cookie",
+				`sid=; Max-Age=0; Domain=${Config.routes.root}; ` +
+				`Path=/; Secure; SameSite=None`
+			);
+		}
 	}
 	async getRecentRegistrationCount(period: number) {
 		const ip = this.dispatcher.getIp();
@@ -108,7 +119,13 @@ export class Session {
 		const timeout = (curTime + SID_DURATION);
 		const ip = this.dispatcher.getIp();
 		const sidhash = this.sidhash = await this.makeSid();
-		const res = await sessions.insert({userid, sid: sidhash, time: time(), timeout, ip});
+		const res = await sessions.insert({
+			userid,
+			sid: await bcrypt.hash(sidhash, Config.passwordSalt),
+			time: time(),
+			timeout,
+			ip,
+		});
 		this.session = res.insertId || 0;
 		return this.dispatcher.user.login(name);
 	}
@@ -417,7 +434,7 @@ export class Session {
 		query.append('AND `ntbb_sessions`.`userid` = `ntbb_users`.`userid` ');
 		query.append(' LIMIT 1');
 		const res = await users.database.get<{sid: string; timeout: number}>(query);
-		if (!res || res.sid !== sid) {
+		if (!res || !(await bcrypt.compare(sid, res.sid))) {
 			// invalid session ID
 			this.deleteCookie();
 			return;
