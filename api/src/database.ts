@@ -15,7 +15,8 @@ export const databases: PSDatabase[] = [];
 export class PSDatabase {
 	pool: mysql.Pool;
 	prefix: string;
-	constructor(config: {[k: string]: any} = {...Config.mysql}) {
+	constructor(config: {[k: string]: any} = Config.mysql) {
+		config = {...config};
 		this.prefix = config.prefix || "";
 		if (config.prefix) {
 			delete config.prefix;
