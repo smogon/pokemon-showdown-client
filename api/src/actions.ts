@@ -112,12 +112,10 @@ export const actions: {[k: string]: QueryHandler} = {
 		const challenge = params.challstr || "";
 		if (!challenge) throw new ActionError(`Invalid challenge string argument.`);
 		const assertion = await this.session.getAssertion(userid, challengekeyid, user, challenge);
-		const curuser = await user.getData();
-		delete (curuser as any).passwordhash;
 		return {
 			assertion,
 			actionsuccess: !assertion.startsWith(';'),
-			curuser,
+			curuser: {loggedin: true, username, userid},
 		};
 	},
 	async logout(params) {
