@@ -393,7 +393,7 @@ export const actions: {[k: string]: QueryHandler} = {
 		return out;
 	},
 	async ladderget(params) {
-		const server = await this.getServer(true);
+		const server = await this.getServer();
 		if (server?.id !== Config.mainserver) {
 			return {errorip: true};
 		}
