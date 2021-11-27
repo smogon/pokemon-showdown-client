@@ -43,7 +43,11 @@ export class Session {
 		return '';
 	}
 	getName() {
-		return this.dispatcher.cookies.get('showdown_username') || this.dispatcher.user.name;
+		const user = this.dispatcher.user;
+		if (user.id !== 'guest') return user.name;
+		const cookie = this.dispatcher.cookies.get('showdown_username');
+		if (cookie && toID(cookie) !== 'guest') return cookie;
+		return 'guest';
 	}
 	makeSid() {
 		if (Config.makeSid) return Config.makeSid.call(this);
@@ -93,7 +97,7 @@ export class Session {
 		const info = await users.get('*', userid);
 		if (!info) {
 			// unregistered. just do the thing
-			return this.dispatcher.user;
+			return this.dispatcher.user.login(name);
 		}
 		// previously, there was a case for banstate here in the php.
 		// this is not necessary, as getAssertion handles that. Proceed to verification.
@@ -103,13 +107,10 @@ export class Session {
 		}
 		const timeout = (curTime + SID_DURATION);
 		const ip = this.dispatcher.getIp();
-		const sidhash = await this.makeSid();
+		const sidhash = this.sidhash = await this.makeSid();
 		const res = await sessions.insert({userid, sid: sidhash, time: time(), timeout, ip});
-		this.sidhash = sidhash;
 		this.session = res.insertId || 0;
-		this.dispatcher.user.login(name);
-		this.updateCookie();
-		return this.dispatcher.user;
+		return this.dispatcher.user.login(name);
 	}
 	async logout() {
 		if (!this.session) return false;
@@ -121,6 +122,7 @@ export class Session {
 	}
 	updateCookie() {
 		const name = this.getName();
+		console.log(name, this.sidhash);
 		if (toID(name) === 'guest') return;
 		if (!this.sidhash) {
 			return this.deleteCookie();
@@ -215,7 +217,6 @@ export class Session {
 				userType = '1';
 				if (forceUsertype) userType = forceUsertype;
 				data = userid + ',' + userType + ',' + time() + ',' + serverHost;
-				this.updateCookie();
 			}
 		}
 		let splitChallenge: string[] = [];
@@ -254,7 +255,6 @@ export class Session {
 			// Include the challenge in the assertion.
 			data = (challengeprefix || '') + challenge + ',' + data;
 		}
-		this.updateCookie();
 
 		if ((Config as any).validateassertion) {
 			data = await (Config as any).validateassertion.call(
@@ -400,7 +400,7 @@ export class Session {
 		}
 		let sid = '';
 		let session = 0;
-		const scsplit = scookie.split(',');
+		const scsplit = scookie.split(',').filter(Boolean);
 		let cookieName;
 		if (scsplit.length === 3) {
 			cookieName = scsplit[0];

@@ -144,9 +144,7 @@ export const actions: {[k: string]: QueryHandler} = {
 		const assertion = await this.session.getAssertion(
 			userid, challengekeyid, null, challenge, challengeprefix
 		);
-		this.session.updateCookie();
-		const userdata = await this.user.getData() as Partial<UserInfo>;
-		delete userdata.passwordhash;
+		await this.session.setSid();
 		return {
 			actionsuccess: true,
 			assertion,
@@ -344,7 +342,7 @@ export const actions: {[k: string]: QueryHandler} = {
 		const actionsuccess = await tables.users.update(this.user.id, {
 			username: params.username,
 		}).catch(() => false);
-		this.session.updateCookie();
+		await this.session.setSid();
 		return {actionsuccess};
 	},
 	async getassertion(params) {
