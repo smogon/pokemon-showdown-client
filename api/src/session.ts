@@ -289,7 +289,7 @@ export class Session {
 		}
 		return user;
 	}
-	static oauth = new gal.OAuth2Client(Config.galclient, '', '');
+	static oauth = new gal.OAuth2Client(Config.gapi_clientid, '', '');
 	async changePassword(name: string, pass: string) {
 		const userid = toID(name);
 
@@ -339,7 +339,7 @@ export class Session {
 				const payload = await new Promise<{[k: string]: any} | null>((resolve, reject) => {
 					Session.oauth.verifyIdToken({
 						idToken: pass,
-						audience: Config.galclient,
+						audience: Config.gapi_clientid,
 					}, (e, login) => {
 						if (e) return reject(e);
 						resolve(login?.getPayload() || null);

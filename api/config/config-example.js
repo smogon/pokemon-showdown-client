@@ -11,7 +11,6 @@ exports.mysql = {
 
 /** For 2FA verification. */
 exports.gapi_clientid = '';
-exports.galclient = '';
 
 /** Terms banned in names
  * @type {string[]}
