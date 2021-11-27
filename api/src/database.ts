@@ -25,15 +25,16 @@ export class PSDatabase {
 		if (!databases.includes(this)) databases.push(this);
 	}
 	query<T = ResultRow>(query: SQLStatement) {
+		const err = new Error();
 		return new Promise<T[]>((resolve, reject) => {
 			// this cast is safe since it's only an array of
 			// arrays if we specify it in the config.
 			// we do not do that and it is not really useful for any of our cases.
 			this.pool.query(query.sql, query.values, (e, results: mysql.RowDataPacket[]) => {
 				if (e) {
-					return reject(
-						new Error(`${e.message} ('${query.sql}') [${e.code}]`)
-					);
+					// bit of a hack? yeah. but we want good stacks :(
+					err.message = `${e.message} ('${query.sql}') [${e.code}]`;
+					return reject(err);
 				}
 				if (Array.isArray(results)) {
 					for (const chunk of results) {
@@ -179,7 +180,7 @@ export class DatabaseTable<T> {
 			query.append(this.format(key));
 			if (typeof keys[i + 1] !== 'undefined') query.append(', ');
 		}
-		query.append(') VALUES(');
+		query.append(') VALUES (');
 		for (let i = 0; i < keys.length; i++) {
 			const key = keys[i];
 			query.append(SQL`${colMap[key as keyof T]}`);

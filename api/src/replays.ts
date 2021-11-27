@@ -66,9 +66,13 @@ export const Replays = new class {
 		if (params.serverid !== Config.mainserver) rating = 0;
 		const inputlog = params.inputlog || null;
 		const out = await prepreplays.replace({
-			id, loghash, p1, p2, format,
-			uploadtime: time(), rating,
-			inputlog, private: isPrivate,
+			id, loghash,
+			p1, p2,
+			format,
+			uploadtime: time(),
+			rating,
+			inputlog: Array.isArray(inputlog) ? inputlog.join('\n') : inputlog,
+			private: isPrivate,
 		});
 		return !!out.affectedRows;
 	}
