@@ -103,7 +103,17 @@ export class Dispatcher {
 				result = Object.fromEntries(new URLSearchParams(data));
 			}
 		}
-		return result || this.parseURLRequest(req);
+		const urlData = this.parseURLRequest(req);
+		if (result) {
+			if (Array.isArray(result)) {
+				for (const part of result) Object.assign(part, urlData);
+			} else {
+				Object.assign(result, urlData);
+			}
+		} else {
+			result = urlData;
+		}
+		return result;
 	}
 	static parseURLRequest(req: http.IncomingMessage) {
 		if (!req.url) return {};
