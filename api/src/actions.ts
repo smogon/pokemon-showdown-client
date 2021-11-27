@@ -398,8 +398,7 @@ export const actions: {[k: string]: QueryHandler} = {
 			return {errorip: true};
 		}
 
-		if (!toID(params.format)) throw new ActionError(`Specify a format.`);
-		const ladder = new NTBBLadder(params.format);
+		const ladder = new NTBBLadder(toID(params.format));
 		const user = NTBBLadder.getUserData(params.user);
 		if (!user) return {errorip: true};
 		await ladder.getAllRatings(user);
