@@ -399,7 +399,7 @@ export const actions: {[k: string]: QueryHandler} = {
 		}
 
 		// yes, this params.format is useless, basically.
-		// it's just to satisfy the typechecker. and it might be useful in the future?
+		// it's just for parity with old code for now.
 		const ladder = new NTBBLadder(toID(params.format));
 		const user = NTBBLadder.getUserData(params.user);
 		if (!user) return {errorip: true};
