@@ -216,12 +216,9 @@ export class Dispatcher {
 				if (ip !== server.ipcache) return null;
 			}
 		}
-		if (server.token) {
-			if (!body.servertoken || server.token !== md5(body.servertoken)) {
-				if (requireToken) {
-					throw new ActionError(`Invalid servertoken sent for requested serverid.`);
-				}
-				return null;
+		if (server.token && requireToken) {
+			if (server.token !== md5(body.servertoken)) {
+				throw new ActionError(`Invalid servertoken sent for requested serverid.`);
 			}
 		}
 		return server;
