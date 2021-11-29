@@ -217,7 +217,7 @@ export class Dispatcher {
 			}
 		}
 		if (server.token) {
-			if (server.token !== md5(body.servertoken)) {
+			if (!body.servertoken || server.token !== md5(body.servertoken)) {
 				if (requireToken) {
 					throw new ActionError(`Invalid servertoken sent for requested serverid.`);
 				}
