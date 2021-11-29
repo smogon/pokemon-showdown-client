@@ -59,7 +59,7 @@ PS.connection = new PSConnection();
 
 const PSLoginServer = new class {
 	query(data: PostData): Promise<{[k: string]: any} | null> {
-		let url = '/~~' + PS.server.id + '/action.php';
+		let url = '/action.php';
 		if (location.pathname.endsWith('.html')) {
 			url = 'https://' + Config.routes.client + url;
 			// @ts-ignore
@@ -68,6 +68,7 @@ const PSLoginServer = new class {
 				data.sid = POKEMON_SHOWDOWN_TESTCLIENT_KEY.replace(/\%2C/g, ',');
 			}
 		}
+		if (!data.serverid) data.serverid = PS.server.id;
 		return Net(url).get({method: data ? 'POST' : 'GET', body: data}).then(
 			res => res ? JSON.parse(res.slice(1)) : null
 		).catch(
