@@ -1369,7 +1369,6 @@ function toId() {
 			var silent = data.silent;
 			if (serverid && serverid !== 'showdown') id = serverid + '-' + id;
 			$.post(app.user.getActionPHP(), {
-				serverid: 'showdown',
 				log: data.log,
 				serverid: serverid,
 				password: data.password || '',
