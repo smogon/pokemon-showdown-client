@@ -434,7 +434,10 @@ export const actions: {[k: string]: QueryHandler} = {
 			throw new ActionError(`Access denied for ${this.getIp()}.`);
 		}
 		const update = await updateserver();
-		const [, , stderr] = await bash('npx pm2 reload loginserver');
+		let stderr;
+		[, , stderr] = await bash('npx tsc');
+		if (stderr) throw new ActionError(`Compilation failed:\n${stderr}`);
+		[, , stderr] = await bash('npx pm2 reload loginserver');
 		if (stderr) throw new ActionError(stderr);
 		return {updated: update, success: true};
 	},
