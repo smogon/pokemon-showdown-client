@@ -139,7 +139,6 @@ export class Session {
 	}
 	updateCookie() {
 		const name = this.getName();
-		console.log(name, this.sidhash);
 		if (toID(name) === 'guest') return;
 		if (!this.sidhash) {
 			return this.deleteCookie();

@@ -129,6 +129,7 @@ export const actions: {[k: string]: QueryHandler} = {
 		return {actionsuccess: true};
 	},
 	async login(params) {
+		this.setPrefix('');
 		const challengeprefix = this.verifyCrossDomainRequest();
 		if (this.request.method !== 'POST') {
 			throw new ActionError(`For security reasons, logins must happen with POST data.`);
@@ -176,7 +177,6 @@ export const actions: {[k: string]: QueryHandler} = {
 		const challengeprefix = this.verifyCrossDomainRequest();
 		const res: {[k: string]: any} = {};
 		const curuser = this.user;
-		res.loggedin = curuser.loggedin;
 		let userid = '';
 		if (curuser.loggedin) {
 			res.username = curuser.name;
@@ -192,6 +192,7 @@ export const actions: {[k: string]: QueryHandler} = {
 				userid, challengekeyid, curuser, challenge, challengeprefix
 			);
 		}
+		res.loggedin = curuser.loggedin;
 		return res;
 	},
 	async json() {
@@ -346,6 +347,7 @@ export const actions: {[k: string]: QueryHandler} = {
 		return {actionsuccess};
 	},
 	async getassertion(params) {
+		this.setPrefix('');
 		params.userid = toID(params.userid);
 		if (!params.userid) {
 			params.userid = this.user.id;
