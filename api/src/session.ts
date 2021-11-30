@@ -371,6 +371,7 @@ export class Session {
 
 		let rehash = false;
 		if (userData?.passwordhash) {
+			userData.passwordhash = Session.sanitizeHash(userData.passwordhash);
 			if (!(await bcrypt.compare(pass, userData.passwordhash))) {
 				if (throttleTable) {
 					throttleTable.count++;
@@ -450,5 +451,13 @@ export class Session {
 
 		this.sidhash = sid;
 		this.session = session;
+	}
+	static sanitizeHash(pass: string) {
+		// https://youtu.be/rnzMkJocw6Q?t=9
+		// (php uses $2y, js uses $2b)
+		if (!pass.startsWith('$2b')) {
+			pass = `$2b${pass.slice(3)}`;
+		}
+		return pass;
 	}
 }
