@@ -339,6 +339,9 @@ export const actions: {[k: string]: QueryHandler} = {
 		if (!this.user.loggedin) {
 			throw new ActionError('Your session has expired. Please log in again.');
 		}
+		if (toID(params.username) !== this.user.id) {
+			throw new ActionError('You cannot change your username to the one you are already using.');
+		}
 		// safe to use userid directly because we've confirmed they've logged in.
 		const actionsuccess = await tables.users.update(this.user.id, {
 			username: params.username,
