@@ -183,7 +183,7 @@ export class Session {
 				userType = '3';
 			} else {
 				const customType = (Config as any).getUserType?.call(
-					this, user, banstate, server
+					this, user, banstate, serverHost
 				);
 				if (forceUsertype) {
 					userType = forceUsertype;
