@@ -157,7 +157,7 @@ export class Router {
 					JSON.stringify(body)
 				);
 			} else {
-				res.writeHead(503).end(e.stack);
+				res.writeHead(503).end();
 			}
 			return {error: true};
 		}
