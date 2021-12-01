@@ -234,6 +234,7 @@ export class Dispatcher {
 		return list;
 	}
 	static loadServers(path = Config.serverlist): {[k: string]: RegisteredServer} {
+		if (!path) return {};
 		try {
 			const stdout = child.execFileSync(
 				`php`, ['-f', __dirname + '/../../src/lib/load-servers.php', path]
