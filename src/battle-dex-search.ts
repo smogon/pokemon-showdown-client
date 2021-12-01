@@ -971,7 +971,7 @@ class BattlePokemonSearch extends BattleTypedSearch<'pokemon'> {
 			});
 		}
 
-		if (format === 'monotype' && dex.gen >= 5) {
+		if (format === 'monotype' && dex.gen >= 5 && table.monotypeBans) {
 			tierSet = tierSet.filter(([type, id]) => {
 				if (id in table.monotypeBans) return false;
 				return true;
