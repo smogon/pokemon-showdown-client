@@ -556,8 +556,11 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			if (isNatDex) {
 				return ["CAP", "CAP NFE", "CAP LC", "AG", "Uber", "OU", "UUBL", "(OU)", "UU", "(UU)", "NFE", "LC"];
 			}
-			if (isLetsGo || isBDSP && !isDoubles) {
-				return ["Uber", "OU", "UU", "NFE", "LC", "Unreleased"];
+			if (isLetsGo) {
+				return ["Uber", "OU", "UU", "NFE", "LC"];
+			}
+			if (isBDSP && !isDoubles) {
+				return ["CAP", "CAP NFE", "CAP LC", "Uber", "OU", "UUBL", "UU", "(UU)", "NFE", "LC", "Unreleased"];
 			}
 			if (isVGC) {
 				return ["Mythical", "Restricted Legendary", "Regular", "NFE", "LC"];
@@ -910,7 +913,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 	const BDSPLearnsets = Dex.mod('gen8bdsp').data.Learnsets;
 	for (const id in BDSPLearnsets) {
 		const species = Dex.mod('gen8bdsp').species.get(id);
-		if (species.isNonstandard && species.isNonstandard !== 'Unobtainable') continue;
+		if (species.isNonstandard && !['Unobtainable', 'CAP'].includes(species.isNonstandard)) continue;
 		const learnset = BDSPLearnsets[id].learnset;
 		BattleTeambuilderTable['gen8bdsp'].learnsets[id] = {};
 		for (const moveid in learnset) {
