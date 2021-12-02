@@ -1299,10 +1299,40 @@ p.or:after {
 	overflow: hidden;
 	white-space: nowrap;
 }
+
+.roomlist div.ilink {
+	display: block;
+	margin: 2px 7px 4px 7px;
+	padding: 1px 4px 2px 4px;
+	border: 1px solid #BBCCDD;
+	background: rgba(248, 251, 253, 0.5);
+
+	border-radius: 4px;
+	text-decoration: none;
+	color: #336699;
+	text-shadow: #ffffff 0px -1px 0;
+	cursor: pointer;
+	font-size: 10pt;
+
+	overflow: hidden;
+	white-space: nowrap;
+}
 .roomlist a.ilink small {
 	font-size: 8pt;
 }
+
+.roomlist div.ilink small {
+	font-size: 8pt;
+}
+
 .roomlist a.ilink:hover {
+	border-color: #778899;
+	background: #E5EAED;
+	color: #224466;
+	text-decoration: none;
+}
+
+.roomlist div.ilink:hover {
 	border-color: #778899;
 	background: #E5EAED;
 	color: #224466;
