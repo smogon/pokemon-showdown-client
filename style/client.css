@@ -1288,7 +1288,6 @@ p.or:after {
 	padding: 1px 4px 2px 4px;
 	border: 1px solid #BBCCDD;
 	background: rgba(248, 251, 253, 0.5);
-
 	border-radius: 4px;
 	text-decoration: none;
 	color: #336699;
@@ -1298,6 +1297,12 @@ p.or:after {
 
 	overflow: hidden;
 	white-space: nowrap;
+}
+
+.roomlist a{
+	text-decoration:none;
+	color:inherit;
+	display:block;
 }
 
 .roomlist div.ilink {
@@ -1324,6 +1329,21 @@ p.or:after {
 .roomlist div.ilink small {
 	font-size: 8pt;
 }
+
+.roomlist div.ilink small {
+	font-size: 8pt;
+}
+
+mainrooms {
+	text-decoration:none;
+	color:inherit;
+	display:block;
+}
+
+subrooms {
+	font-size: 8pt;
+}
+
 
 .roomlist a.ilink:hover {
 	border-color: #778899;
