@@ -4,7 +4,7 @@
 
 ### スタッフになるには?
 
-[staff FAQ](https://pokemonshowdown.com/pages/staff-jp)をお読みください。
+[Staff FAQ](https://pokemonshowdown.com/pages/staff-ja)をお読みください。
 
 ### BANやLockはいつ解除されますか?
 
