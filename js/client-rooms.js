@@ -82,12 +82,12 @@
 		},
 		renderRoomBtn: function (roomData) {
 			var id = toID(roomData.title);
-			var buf = '<div class="ilink"><a style="text-decoration:none;color:inherit;display:block" href="' + app.root + id + '"><small style="float:right">(' + Number(roomData.userCount) + ' users)</small><strong><i class="fa fa-comment-o"></i> ' + BattleLog.escapeHTML(roomData.title) + '<br /></strong><small>' + BattleLog.escapeHTML(roomData.desc||'') + '</a>';
+			var buf = '<div class="ilink"><a href="' + app.root + id + '"><small style="float:right">(' + Number(roomData.userCount) + ' users)</small><strong><i class="fa fa-comment-o"></i> ' + BattleLog.escapeHTML(roomData.title) + '<br /></strong><small>' + BattleLog.escapeHTML(roomData.desc||'') + '</a>';
 			if (roomData.subRooms && roomData.subRooms.length) {
 				buf += '<i class="fa fa-level-up fa-rotate-90"></i> Subrooms: <strong>';
 				for (var i = 0; i < roomData.subRooms.length; i++) {
 					if (i) buf += ', ';
-					buf += '<i class="fa fa-comment-o" ></i>' + ' <a style="text-decoration:none;color:inherit" href="/' + roomData.subRooms[i].split(" ").join("").toLowerCase() + '">'  + BattleLog.escapeHTML(roomData.subRooms[i]) + '</a>';
+					buf += '<i class="fa fa-comment-o" ></i>' + ' <a style="display:inline" href="/' + roomData.subRooms[i].split(" ").join("").toLowerCase() + '">'  + BattleLog.escapeHTML(roomData.subRooms[i]) + '</a>';
 				}
 				buf += '</strong>';
 			}
