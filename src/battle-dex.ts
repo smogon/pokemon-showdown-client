@@ -854,16 +854,16 @@ class ModdedDex {
 					Object.assign(data, table.overrideMoveData[id]);
 				}
 			}
+			if (this.modid !== `gen${this.gen}`) {
+				const table = window.BattleTeambuilderTable[this.modid];
+				if (id in table.overrideMoveData) {
+					Object.assign(data, table.overrideMoveData[id]);
+				}
+			}
 			if (this.gen <= 3 && data.category !== 'Status') {
 				data.category = Dex.getGen3Category(data.type);
 			}
-
-			// For LGPE/BDSP
-			const table = window.BattleTeambuilderTable[this.modid];
-			if (id in table.overrideMoveData) {
-				Object.assign(data, table.overrideMoveData[id]);
-			}
-
+			
 			const move = new Move(id, name, data);
 			this.cache.Moves[id] = move;
 			return move;
@@ -933,6 +933,12 @@ class ModdedDex {
 
 			for (let i = Dex.gen - 1; i >= this.gen; i--) {
 				const table = window.BattleTeambuilderTable[`gen${i}`];
+				if (id in table.overrideSpeciesData) {
+					Object.assign(data, table.overrideSpeciesData[id]);
+				}
+			}
+			if (this.modid !== `gen${this.gen}`) {
+				const table = window.BattleTeambuilderTable[this.modid];
 				if (id in table.overrideSpeciesData) {
 					Object.assign(data, table.overrideSpeciesData[id]);
 				}
