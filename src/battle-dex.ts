@@ -863,7 +863,7 @@ class ModdedDex {
 			if (this.gen <= 3 && data.category !== 'Status') {
 				data.category = Dex.getGen3Category(data.type);
 			}
-			
+
 			const move = new Move(id, name, data);
 			this.cache.Moves[id] = move;
 			return move;
