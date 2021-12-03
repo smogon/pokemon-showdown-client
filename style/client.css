@@ -1301,7 +1301,6 @@ p.or:after {
 
 .roomlist a{
 	text-decoration:none;
-	color:inherit;
 	display:block;
 }
 
@@ -1334,18 +1333,14 @@ p.or:after {
 	font-size: 8pt;
 }
 
-mainrooms {
-	text-decoration:none;
-	color:inherit;
-	display:block;
-}
-
-subrooms {
-	font-size: 8pt;
-}
-
-
 .roomlist a.ilink:hover {
+	border-color: #778899;
+	background: #E5EAED;
+	color: #224466;
+	text-decoration: none;
+}
+
+.roomlist a.subroom:hover {
 	border-color: #778899;
 	background: #E5EAED;
 	color: #224466;
