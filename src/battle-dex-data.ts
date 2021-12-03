@@ -1355,7 +1355,7 @@ class Species implements Effect {
 	readonly evoMove: string;
 	readonly evoItem: string;
 	readonly evoCondition: string;
-	readonly requiredItem: string;
+	readonly requiredItems: ReadonlyArray<string>;
 	readonly tier: string;
 	readonly isTotem: boolean;
 	readonly isMega: boolean;
@@ -1404,7 +1404,7 @@ class Species implements Effect {
 		this.evoMove = data.evoMove || '';
 		this.evoItem = data.evoItem || '';
 		this.evoCondition = data.evoCondition || '';
-		this.requiredItem = data.requiredItem || '';
+		this.requiredItems = data.requiredItems || [];
 		this.tier = data.tier || '';
 
 		this.isTotem = false;
