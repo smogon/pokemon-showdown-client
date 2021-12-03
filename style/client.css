@@ -3628,6 +3628,28 @@ a.ilink.yours {
 	color: #AACCEE;
 }
 
+.dark .roomlist div.ilink {
+	border-color: #7799BB;
+	background: rgba(30, 40, 50, .5);
+	color: #7799BB;
+	box-shadow: none;
+	text-shadow: none;
+}
+
+.dark .roomlist a.subroom:hover {
+	border-color: #778899;
+	background: rgba(30, 40, 50, 1);
+	color: #224466;
+	text-decoration: none;
+}
+
+.dark .roomlist div.ilink:hover {
+	border-color: #AACCEE;
+	background: rgba(30, 40, 50, 1);
+	color: #AACCEE;
+	text-decoration: none;
+}
+
 /* misc */
 .dark iframe.textbox,
 .dark iframe.textbox:hover,
