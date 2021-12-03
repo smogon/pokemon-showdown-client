@@ -962,6 +962,10 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 		}
 	}
 
+	// Client relevant data that should be overriden by past gens and mods
+	const overrideSpeciesKeys = ['abilities', 'baseStats', 'cosmeticFormes', 'requiredItems', 'types', 'unreleasedHidden'];
+	const overrideMoveKeys = ['accuracy', 'basePower', 'category', 'desc', 'flags', 'isNonstandard', 'pp', 'priority', 'shortDesc', 'target', 'type'];
+
 	//
 	// Past gen table
 	//
@@ -973,7 +977,6 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 		const nextGenData = Dex.mod(nextGen).data;
 		const overrideSpeciesData = {};
 		BattleTeambuilderTable[gen].overrideSpeciesData = overrideSpeciesData;
-		const overrideSpeciesKeys = ['abilities', 'baseStats', 'cosmeticFormes', 'requiredItem', 'types', 'unreleasedHidden'];
 		for (const id in genData.Pokedex) {
 			const curEntry = genData.Pokedex[id];
 			const nextEntry = nextGenData.Pokedex[id];
@@ -987,7 +990,6 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 
 		const overrideMoveData = {};
 		BattleTeambuilderTable[gen].overrideMoveData = overrideMoveData;
-		const overrideMoveKeys = ['accuracy', 'basePower', 'category', 'desc', 'flags', 'isNonstandard', 'pp', 'priority', 'shortDesc', 'target', 'type'];
 		for (const id in genData.Moves) {
 			const curEntry = Dex.mod(gen).moves.get(id);
 			const nextEntry = Dex.mod(nextGen).moves.get(id);
@@ -1038,45 +1040,39 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 	}
 
 	//
-	// Let's Go
+	// Mods
 	//
 
-	{
-		const LGDex = Dex.mod('gen7letsgo');
-		const LGData = LGDex.data;
+	for (const mod of ['gen7letsgo', 'gen8bdsp']) {
+		const modDex = Dex.mod(mod);
+		const modData = modDex.data;
+		const parentDex = Dex.forGen(modDex.gen);
+		const parentData = parentDex.data;
+
+		const overrideSpeciesData = {};
+		BattleTeambuilderTable[mod].overrideSpeciesData = overrideSpeciesData;
+		for (const id in modData.Pokedex) {
+			const modEntry = modData.Pokedex[id];
+			const parentEntry = parentData.Pokedex[id];
+			for (const key of overrideSpeciesKeys) {
+				if (JSON.stringify(modEntry[key]) !== JSON.stringify(parentEntry[key])) {
+					if (!overrideSpeciesData[id]) overrideSpeciesData[id] = {};
+					overrideSpeciesData[id][key] = modEntry[key];
+				}
+			}
+		}
 
 		const overrideMoveData = {};
-		BattleTeambuilderTable['gen7letsgo'].overrideMoveData = overrideMoveData;
-		const overrideMoveKeys = ['basePower', 'desc', 'pp', 'priority', 'shortDesc'];
-		for (const id in LGData.Moves) {
-			const modEntry = LGDex.moves.get(id);
-			const parentEntry = Dex.mod('gen7').moves.get(id);
+		BattleTeambuilderTable[mod].overrideMoveData = overrideMoveData;
+		for (const id in modData.Moves) {
+			const modEntry = modDex.moves.get(id);
+			const parentEntry = parentDex.moves.get(id);
 			for (const key of overrideMoveKeys) {
+				if (key === 'category' && modDex.gen <= 3) continue;
 				if (JSON.stringify(modEntry[key]) !== JSON.stringify(parentEntry[key])) {
 					if (!overrideMoveData[id]) overrideMoveData[id] = {};
 					overrideMoveData[id][key] = modEntry[key];
 				}
-			}
-		}
-	}
-
-	//
-	// BDSP
-	//
-
-	{
-		const BDSPDex = Dex.mod('gen8bdsp');
-		const BDSPData = BDSPDex.data;
-
-		const overrideMoveData = {};
-		BattleTeambuilderTable['gen8bdsp'].overrideMoveData = overrideMoveData;
-		for (const id in BDSPData.Moves) {
-			const modEntry = BDSPDex.moves.get(id);
-			const parentEntry = Dex.mod('gen8').moves.get(id);
-			if (modEntry.isNonstandard !== parentEntry.isNonstandard) {
-				overrideMoveData[id] = {
-					isNonstandard: modEntry.isNonstandard,
-				};
 			}
 		}
 	}

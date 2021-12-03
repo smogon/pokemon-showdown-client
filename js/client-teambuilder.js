@@ -2596,13 +2596,13 @@
 
 			if (this.curTeam.gen > 1) {
 				buf += '<div class="formrow"><label class="formlabel">Gender:</label><div>';
-				if (species.gender && this.curTeam.format.indexOf('hackmons') < 0) {
+				if (species.gender && !this.curTeam.format.includes('hackmons')) {
 					var genderTable = {'M': "Male", 'F': "Female", 'N': "Genderless"};
 					buf += genderTable[species.gender];
 				} else {
 					buf += '<label><input type="radio" name="gender" value="M"' + (set.gender === 'M' ? ' checked' : '') + ' /> Male</label> ';
 					buf += '<label><input type="radio" name="gender" value="F"' + (set.gender === 'F' ? ' checked' : '') + ' /> Female</label> ';
-					if (this.curTeam.format.indexOf('hackmons') < 0) {
+					if (!this.curTeam.format.includes('hackmons')) {
 						buf += '<label><input type="radio" name="gender" value="N"' + (!set.gender ? ' checked' : '') + ' /> Random</label>';
 					} else {
 						buf += '<label><input type="radio" name="gender" value="N"' + (set.gender === 'N' ? ' checked' : '') + ' /> Genderless</label>';
@@ -3220,8 +3220,8 @@
 			if (set.happiness) delete set.happiness;
 			if (set.shiny) delete set.shiny;
 			if (set.gigantamax) delete set.gigantamax;
-			if (this.curTeam.format.indexOf('hackmons') < 0) {
-				set.item = (species.requiredItem || '');
+			if (!this.curTeam.format.includes('hackmons') && species.requiredItems.length === 1) {
+				set.item = species.requiredItems[0];
 			} else {
 				set.item = '';
 			}
