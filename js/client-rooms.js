@@ -80,18 +80,21 @@
 				app.roomsFirstOpen = 2;
 			}
 		},
+
 		renderRoomBtn: function (roomData) {
 			var id = toID(roomData.title);
-			var buf = '<div class="ilink"><a style="color:inherit" href="' + app.root + id + '"><small style="float:right">(' + Number(roomData.userCount) + ' users)</small><strong><i class="fa fa-comment-o"></i> ' + BattleLog.escapeHTML(roomData.title) + '<br /></strong><small>' + BattleLog.escapeHTML(roomData.desc || '') + '</a>';
+			if (!(roomData.subRooms && roomData.subRooms.length))
+				var buf = '<div class="ilink"><a style="color:inherit" href="' + app.root + id + '"><small style="float:right">(' + Number(roomData.userCount) + ' users)</small><strong><i class="fa fa-comment-o"></i> ' + BattleLog.escapeHTML(roomData.title) + '<br /></strong><small>' + BattleLog.escapeHTML(roomData.desc || '') + '</a></div>';
 			if (roomData.subRooms && roomData.subRooms.length) {
-				buf += '<i class="fa fa-level-up fa-rotate-90"></i> Subrooms: <strong>';
+				buf = '<div class="ilink" style="margin-bottom:-17px"><a style="color:inherit" href="' + app.root + id + '"><small style="float:right">(' + Number(roomData.userCount) + ' users)</small><strong><i class="fa fa-comment-o"></i> ' + BattleLog.escapeHTML(roomData.title) + '<br /></strong><small>' + BattleLog.escapeHTML(roomData.desc || '') + '</a><i class="fa fa-level-up fa-rotate-90"></i> Subrooms: <strong></div>';
+				buf += '<span style="width:50px;padding-right:90px"></span>';
 				for (var i = 0; i < roomData.subRooms.length; i++) {
 					if (i) buf += '';
-					buf += ' <a style="display:inline-block" href="/' + roomData.subRooms[i].split(" ").join("").toLowerCase() + '"><div class="subroom" style="display:inline-block;padding:2px 4px 2px 4px;margin:2px 2px 2px 2px;"><center><i class="fa fa-comment-o" ></i> ' + BattleLog.escapeHTML(roomData.subRooms[i]) + '</center></div></a>';
+					buf += ' <a class="subroom" style="font-size:11px;display:inline-block" href="/' + roomData.subRooms[i].split(" ").join("").toLowerCase() + '"><div class="subroom" style="position:relative;display:inline-block;padding:2px 4px 2px 4px;margin:2px 2px 2px 2px;"><center><i class="fa fa-comment-o" ></i> ' + BattleLog.escapeHTML(roomData.subRooms[i]) + '</center></a></div>';
 				}
 				buf += '</strong>';
 			}
-			buf += '</small></div>';
+			buf += '</small>';
 			return buf;
 		},
 
