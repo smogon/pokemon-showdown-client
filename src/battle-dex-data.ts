@@ -481,6 +481,8 @@ const BattlePokemonIconIndexes: {[id: string]: number} = {
 	astrolotl: 1308 + 29,
 	miasmaw: 1308 + 30,
 	chromera: 1308 + 31,
+	venomicon: 1308 + 32,
+	venomiconepilogue: 1308 + 33,
 
 	syclar: 1344 + 0,
 	embirch: 1344 + 1,
