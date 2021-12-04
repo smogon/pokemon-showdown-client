@@ -87,18 +87,17 @@
 			}
 			if (roomData.subRooms && roomData.subRooms.length) {
 				var buf = '<div class="ilink" style="border-bottom-left-radius:0px;border-bottom-right-radius:0px"><a style="color:inherit" href="' + app.root + id + '"><small style="float:right">(' + Number(roomData.userCount) + ' users)</small><strong><i class="fa fa-comment-o"></i> ' + BattleLog.escapeHTML(roomData.title) + '<br /></strong><small>' + BattleLog.escapeHTML(roomData.desc || '') + '</a>';
+				buf += '</div><div class="ilinksubroom" style=";cursor:auto;padding:4px 4px 4px 4px;margin:-5px 7px 4px 7px;border-top-left-radius:0px;border-top-right-radius:0px"><i class="fa fa-level-up fa-rotate-90"></i> Subrooms: <strong>';
 				for (var i = 0; i < roomData.subRooms.length; i++) {
-					if (i==roomData.subRooms.length-1){
-						buf += '<strong></div><div class="ilink" style="cursor:auto;padding:3px 4px 3px 4px;margin:-5px 7px 4px 7px;border-top-left-radius:0px;border-top-right-radius:0px"> ';
-					}
-					if (i!=roomData.subRooms.length-1)
-					buf += '</div><div class="ilink" style="cursor:auto;padding:3px 4px 3px 4px;margin:-5px 7px 4px 7px;border-top-left-radius:0px;border-top-right-radius:0px;border-bottom-left-radius:0px;border-bottom-right-radius:0px">';
-					buf += ' <strong><a class="subroom"  href="/' + roomData.subRooms[i].split(" ").join("").toLowerCase() + '">' + '<i class="fa fa-comment-o" ></i> ' + BattleLog.escapeHTML(roomData.subRooms[i]) + '</a></strong></strong>';
+					if (i) buf += '';
+					buf += ' <a style="display:inline-block" href="/' + roomData.subRooms[i].split(" ").join("").toLowerCase() + '"><div class="subroom" style="display:inline-block;padding:2px 4px 2px 4px"><center><i class="fa fa-comment-o" ></i> ' + BattleLog.escapeHTML(roomData.subRooms[i]) + '</center></div></a>';
 				}
+				buf += '</strong>';
 			}
-			buf += '</strong></small></div>';
+			buf += '</small></div>';
 			return buf;
 		},
+
 		compareRooms: function (roomA, roomB) {
 			return roomB.userCount - roomA.userCount;
 		},
