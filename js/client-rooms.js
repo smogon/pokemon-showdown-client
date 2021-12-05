@@ -87,7 +87,7 @@
 				var buf = '<div class="ilink" style="margin-bottom:5px"><a style="color:inherit" href="' + app.root + id + '"><small style="float:right">(' + Number(roomData.userCount) + ' users)</small><strong><i class="fa fa-comment-o"></i> ' + BattleLog.escapeHTML(roomData.title) + '<br /></strong><small>' + BattleLog.escapeHTML(roomData.desc || '') + '</a></div>';
 			if (roomData.subRooms && roomData.subRooms.length) {
 				buf = '<div class="ilink" style="margin-bottom:-2px"><a style="color:inherit" href="' + app.root + id + '"><small style="float:right">(' + Number(roomData.userCount) + ' users)</small><strong><i class="fa fa-comment-o"></i> ' + BattleLog.escapeHTML(roomData.title) + '<br /></strong><small>' + BattleLog.escapeHTML(roomData.desc || '') + '<br><i>Subrooms: </i></a><strong></div>';
-				buf += '<span style="padding-right:20px"></span><i class="arrowsubrooms" style="padding-right:5px"><i class="fa fa-level-up fa-rotate-90"></i></i>';
+				buf += '<span style="padding-right:20px"></span><i class="arrowsubrooms" style="padding-right:7px"><i class="fa fa-level-up fa-rotate-90"></i></i>';
 				for (var i = 0; i < roomData.subRooms.length; i++) {
 					if (i) buf += '';
 					buf += ' <a class="subroom" style="font-size:11px;display:inline" href="/' + roomData.subRooms[i].split(" ").join("").toLowerCase() + '"><div class="subroom"><i class="fa fa-comment-o" ></i> ' + BattleLog.escapeHTML(roomData.subRooms[i]) + '</div></a>';
