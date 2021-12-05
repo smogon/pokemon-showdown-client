@@ -84,7 +84,7 @@
 		renderRoomBtn: function (roomData) {
 			var id = toID(roomData.title);
 			if (!(roomData.subRooms && roomData.subRooms.length))
-				var buf = '<div class="ilink" style="margin-bottom:5px"><a style="color:inherit" href="' + app.root + id + '"><small style="float:right">(' + Number(roomData.userCount) + ' users)</small><strong><i class="fa fa-comment-o"></i> ' + BattleLog.escapeHTML(roomData.title) + '<br /></strong><small>' + BattleLog.escapeHTML(roomData.desc || '') + '</a></div>';
+				var buf = '<div class="ilink" style="margin-bottom:7px"><a style="color:inherit" href="' + app.root + id + '"><small style="float:right">(' + Number(roomData.userCount) + ' users)</small><strong><i class="fa fa-comment-o"></i> ' + BattleLog.escapeHTML(roomData.title) + '<br /></strong><small>' + BattleLog.escapeHTML(roomData.desc || '') + '</a></div>';
 			if (roomData.subRooms && roomData.subRooms.length) {
 				buf = '<div class="ilink" style="margin-bottom:-2px"><a style="color:inherit" href="' + app.root + id + '"><small style="float:right">(' + Number(roomData.userCount) + ' users)</small><strong><i class="fa fa-comment-o"></i> ' + BattleLog.escapeHTML(roomData.title) + '<br /></strong><small>' + BattleLog.escapeHTML(roomData.desc || '') + '<br><i>Subrooms: </i></a><strong></div>';
 				buf += '<span style="padding-right:20px"></span><i class="arrowsubrooms" style="padding-right:7px"><i class="fa fa-level-up fa-rotate-90"></i></i>';
