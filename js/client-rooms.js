@@ -90,7 +90,7 @@
 				buf += '<span style="padding-right:20px"></span><i class="arrowsubrooms" style="padding-right:5px"><i class="fa fa-level-up fa-rotate-90"></i></i>';
 				for (var i = 0; i < roomData.subRooms.length; i++) {
 					if (i) buf += '';
-					buf += ' <a class="subroom" style="font-size:11px;display:inline" href="/' + roomData.subRooms[i].split(" ").join("").toLowerCase() + '"><div class="subroom" style="min-width:25%;position:relative;display:inline-block;padding:2px 4px 2px 4px;margin:2px 0px 5px 0px;border-top-left-radius:0px;border-top-right-radius:0px;border-top:none"><i class="fa fa-comment-o" ></i> ' + BattleLog.escapeHTML(roomData.subRooms[i]) + '</div></a>';
+					buf += ' <a class="subroom" style="font-size:11px;display:inline" href="/' + roomData.subRooms[i].split(" ").join("").toLowerCase() + '"><div class="subroom"><i class="fa fa-comment-o" ></i> ' + BattleLog.escapeHTML(roomData.subRooms[i]) + '</div></a>';
 				}
 				buf += '</strong>';
 			}
