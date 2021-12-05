@@ -1372,6 +1372,14 @@ div.subroom{
 	border-radius: 4px;
 	color: #336699;
 	background: rgb(248, 251, 253, 0.5);
+	min-width:25%;
+	position:relative;
+	display:inline-block;
+	padding:2px 4px 2px 4px;
+	margin:2px 0px 5px 0px;
+	border-top-left-radius:0px;
+	border-top-right-radius:0px;
+	border-top:none;
 }
 
 .subroom:hover {
