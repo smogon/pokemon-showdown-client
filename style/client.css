@@ -1371,7 +1371,7 @@ div.subroom{
 	border: 1px solid #BBCCDD;
 	border-radius: 4px;
 	color: #336699;
-	background: rgb(248, 251, 253);
+	background: rgb(248, 251, 253, 0.5);
 }
 
 .subroom:hover {
@@ -1379,6 +1379,10 @@ div.subroom{
 	background: #E5EAED;
 	color: #224466;
 	text-decoration: none;
+}
+
+.arrowsubrooms{
+	color:#336699;
 }
 
 .roomlist div.ilink:hover {
@@ -3678,7 +3682,7 @@ a.ilink.yours {
 
 .dark .subroom:hover {
 	border-color: #AACCEE;
-	background: rgba(30, 40, 50, 1);
+	background: rgba(30, 40, 50, .5);
 	color: #AACCEE;
 	text-decoration: none;
 
@@ -3686,7 +3690,7 @@ a.ilink.yours {
 
 .dark div.subroom {
 	border-color: #7799BB;
-	background: rgba(30, 40, 50);
+	background: rgba(30, 40, 50, .5);
 	color: #7799BB;
 }
 
@@ -3701,6 +3705,10 @@ a.ilink.yours {
 	color: #AACCEE;
 	text-decoration: none;
 	position:relative;
+}
+
+.dark .arrowsubrooms{
+	color:#7799BB;
 }
 
 /* misc */
