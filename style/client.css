@@ -1363,8 +1363,18 @@ p.or:after {
 	text-decoration: none;
 }
 
-.roomlist a.subroom{
-	color: #336699;
+.roomlist div.ilink:hover {
+	border: 1px solid #BBCCDD;
+	border-color: #778899;
+	background: #E5EAED;
+	color: #224466;
+	text-decoration: none;
+	position:relative;
+}
+
+a.subroom{
+	font-size:11px;
+	display:inline;
 }
 
 div.subroom{
@@ -1391,19 +1401,7 @@ div.subroom{
 
 .arrowsubrooms{
 	color:#336699;
-}
-
-.roomlist div.ilink:hover {
-	border: 1px solid #BBCCDD;
-	border-color: #778899;
-	background: #E5EAED;
-	color: #224466;
-	text-decoration: none;
-	position:relative;
-}
-
-a.subroom{
-	color: #336699;
+	padding-right:7px
 }
 
 /*********************************************************
@@ -3688,12 +3686,12 @@ a.ilink.yours {
 	text-shadow: none;
 }
 
-.dark .subroom:hover {
+.dark .roomlist div.ilink:hover {
 	border-color: #AACCEE;
-	background: rgba(30, 40, 50, .5);
+	background: rgba(30, 40, 50, 1);
 	color: #AACCEE;
 	text-decoration: none;
-
+	position:relative;
 }
 
 .dark div.subroom {
@@ -3702,17 +3700,12 @@ a.ilink.yours {
 	color: #7799BB;
 }
 
-.dark a.subroom{
-	color: #7799BB;
-}
-
-
-.dark .roomlist div.ilink:hover {
+.dark .subroom:hover {
 	border-color: #AACCEE;
-	background: rgba(30, 40, 50, 1);
+	background: rgba(30, 40, 50, .5);
 	color: #AACCEE;
 	text-decoration: none;
-	position:relative;
+
 }
 
 .dark .arrowsubrooms{
