@@ -129,12 +129,12 @@ export class Session {
 		this.session = res.insertId || 0;
 		return this.dispatcher.user.login(name);
 	}
-	async logout() {
+	async logout(deleteCookie = false) {
 		if (!this.session) return false;
 		await sessions.delete(this.session);
 		this.sidhash = '';
 		this.session = 0;
-		this.deleteCookie();
+		if (deleteCookie) this.deleteCookie();
 		this.dispatcher.user.logout();
 	}
 	updateCookie() {

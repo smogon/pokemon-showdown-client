@@ -125,7 +125,7 @@ export const actions: {[k: string]: QueryHandler} = {
 		) {
 			return {actionsuccess: false};
 		}
-		await this.session.logout();
+		await this.session.logout(true);
 		return {actionsuccess: true};
 	},
 	async login(params) {
