@@ -83,18 +83,15 @@
 
 		renderRoomBtn: function (roomData) {
 			var id = toID(roomData.title);
-			if (!(roomData.subRooms && roomData.subRooms.length))
-				var buf = '<div class="ilink" style="margin-bottom:7px"><a style="color:inherit" href="' + app.root + id + '"><small style="float:right">(' + Number(roomData.userCount) + ' users)</small><strong><i class="fa fa-comment-o"></i> ' + BattleLog.escapeHTML(roomData.title) + '<br /></strong><small>' + BattleLog.escapeHTML(roomData.desc || '') + '</a></div>';
+			var buf = '<div><a href="' + app.root + id + '" class="ilink"><small style="float:right">(' + Number(roomData.userCount) + ' users)</small><strong><i class="fa fa-comment-o"></i> ' + BattleLog.escapeHTML(roomData.title) + '<br /></strong><small>' + BattleLog.escapeHTML(roomData.desc || '') + '</small></a>';
 			if (roomData.subRooms && roomData.subRooms.length) {
-				buf = '<div class="ilink" style="margin-bottom:-2px"><a style="color:inherit" href="' + app.root + id + '"><small style="float:right">(' + Number(roomData.userCount) + ' users)</small><strong><i class="fa fa-comment-o"></i> ' + BattleLog.escapeHTML(roomData.title) + '<br /></strong><small>' + BattleLog.escapeHTML(roomData.desc || '') + '<br><i>Subrooms: </i></a><strong></div>';
-				buf += '<span style="padding-right:20px"></span><i class="arrowsubrooms"><i class="fa fa-level-up fa-rotate-90"></i></i>';
+				buf += '<div class="subrooms"><i class="fa fa-level-up fa-rotate-90"></i> Subrooms:';
 				for (var i = 0; i < roomData.subRooms.length; i++) {
-					if (i) buf += '';
-					buf += ' <a class="subroom" href="/' + roomData.subRooms[i].split(" ").join("").toLowerCase() + '"><div class="subroom"><i class="fa fa-comment-o" ></i> ' + BattleLog.escapeHTML(roomData.subRooms[i]) + '</div></a>';
+					buf += ' <a class="ilink" href="' + app.root + toID(roomData.subRooms[i]) + '"><i class="fa fa-comment-o"></i> <strong>' + BattleLog.escapeHTML(roomData.subRooms[i]) + '</strong></a>';
 				}
-				buf += '</strong>';
+				buf += '</div>';
 			}
-			buf += '</small>';
+			buf += '</div>';
 			return buf;
 		},
 
