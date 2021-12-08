@@ -1308,6 +1308,20 @@ p.or:after {
 	color: #224466;
 	text-decoration: none;
 }
+.roomlist .subrooms {
+	font-size: 8pt;
+	padding-left: 20px;
+	margin: -5px 0 4px;
+}
+.roomlist .subrooms i.fa-level-up {
+	margin-right: 5px;
+}
+.roomlist .subrooms a.ilink {
+	display: inline-block;
+	margin: 0;
+	vertical-align: middle;
+	font-size: 8pt;
+}
 
 /*********************************************************
  * Chat
