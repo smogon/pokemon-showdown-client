@@ -1355,13 +1355,13 @@ p.or:after {
 	padding: 0 4px 0 3px;
 	font-style: normal;
 }
-.chat span a small {
-    color: #def;
-}
 .chat small {
 	font-weight: normal;
 	font-size: 8pt;
 	color: #888888;
+}
+.chat .message-announce small {
+    color: #def;
 }
 .chat.timer {
 	color: #992222;
