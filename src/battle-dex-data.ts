@@ -517,10 +517,10 @@ const BattlePokemonIconIndexes: {[id: string]: number} = {
 	miasmite: 1344 + 32,
 
 	// CAP
-	skubaanti: 1379 + (14 * 12) + 1,
-	disbearyebil: 1379 + (14 * 12) + 2,
-	gargarramerawoken: 1379 + (14 * 12) + 3,
-	blobboshenesys: 1379 + (14 * 12) + 4,
+	skubaanti: 1379 + (38 * 12) + 1,
+	disbearyebil: 1379 + (38 * 12) + 2,
+	gargarramerawoken: 1379 + (38 * 12) + 3,
+	blobboshenesys: 1379 + (38 * 12) + 4,
 };
 
 const BattlePokemonIconIndexesLeft: {[id: string]: number} = {
