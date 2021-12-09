@@ -520,6 +520,7 @@ const BattlePokemonIconIndexes: {[id: string]: number} = {
 	skubaanti: 1379 + (34 * 26) + 1,
 	disbearyebil: 1379 + (34 * 26) + 2,
 	gargarramerawoken: 1379 + (34 * 26) + 3,
+	blobboshenesys: 1379 + (34 * 26) + 4,
 };
 
 const BattlePokemonIconIndexesLeft: {[id: string]: number} = {
