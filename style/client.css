@@ -1374,6 +1374,9 @@ p.or:after {
 	font-size: 8pt;
 	color: #888888;
 }
+.chat .message-announce small {
+    color: #def;
+}
 .chat.timer {
 	color: #992222;
 }
