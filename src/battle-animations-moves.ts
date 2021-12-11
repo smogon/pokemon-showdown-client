@@ -37944,6 +37944,107 @@ const BattleMoveAnims: AnimTable = {
 			}, 'linear');
 		},
 	},
+	lightthatblobsthesky: {
+		anim(scene, [attacker, defender]) {
+			scene.backgroundEffect(`url('https://${Config.routes.client}/fx/bg-space.jpg')`, 900, 1);
+			scene.backgroundEffect('#BF0040', 900, 0.5);
+			scene.showEffect('flareball', {
+				x: attacker.x,
+				y: attacker.y + 90,
+				z: attacker.z,
+				scale: 0,
+			}, {
+				x: attacker.x,
+				y: attacker.y + 90,
+				z: attacker.z,
+				scale: 2,
+				time: 200,
+			}, 'accel', 'fade');
+			scene.showEffect('iceball', {
+				x: attacker.x,
+				y: attacker.y + 90,
+				z: attacker.z,
+				opacity: 0.4,
+				scale: 0,
+				time: 150,
+			}, {
+				x: attacker.x,
+				y: attacker.y + 90,
+				z: attacker.z,
+				scale: 3,
+				opacity: 0,
+				time: 800,
+			}, 'linear');
+			scene.showEffect('flareball', {
+				x: attacker.x,
+				y: attacker.y + 90,
+				z: attacker.z,
+				opacity: 0.8,
+				scale: 2,
+				time: 200,
+			}, {
+				x: defender.x,
+				y: defender.y,
+				z: defender.z,
+				scale: 2.5,
+				time: 500,
+			}, 'accel', 'fade');
+
+			scene.showEffect('iceball', {
+				x: defender.x,
+				y: defender.y - 50,
+				z: defender.z,
+				scale: 1,
+				xscale: 3,
+				opacity: 0.5,
+				time: 550,
+			}, {
+				scale: 3,
+				xscale: 8,
+				opacity: 0.1,
+				time: 1000,
+			}, 'linear', 'fade');
+			scene.showEffect('flareball', {
+				x: defender.x,
+				y: defender.y,
+				z: defender.z,
+				opacity: 0.3,
+				scale: 0,
+				time: 500,
+			}, {
+				x: defender.x,
+				y: defender.y,
+				z: defender.z,
+				scale: 4,
+				opacity: 0,
+				time: 800,
+			}, 'linear');
+			scene.showEffect('flareball', {
+				x: defender.x,
+				y: defender.y,
+				z: defender.z,
+				opacity: 0.7,
+				scale: 0,
+				time: 700,
+			}, {
+				x: defender.x,
+				y: defender.y,
+				z: defender.z,
+				scale: 4,
+				opacity: 0,
+				time: 1000,
+			}, 'linear');
+
+			defender.delay(500);
+			defender.anim({
+				z: defender.behind(20),
+				time: 100,
+			}, 'swing');
+			defender.anim({
+				time: 300,
+			}, 'swing');
+		},
+	},
 	nuclearwinter: { 
 		anim(scene, [attacker, defender]) {
 			scene.backgroundEffect(`url('https://${Config.routes.client}/sprites/gen6bgs/bg-icecave.jpg')`, 700, 0.6);
@@ -38389,7 +38490,7 @@ BattleMoveAnims['1000folds'] = {anim: BattleMoveAnims['sacredsword'].anim};
 BattleMoveAnims['banhammer'] = {anim: BattleMoveAnims['hammerarm'].anim};
 BattleMoveAnims['hulkup'] = {anim: BattleMoveAnims['bulkup'].anim};
 BattleMoveAnims['gayagenda'] = {anim: BattleMoveAnims['attract'].anim};
-BattleMoveAnims['blobbybop'] = {anim: BattleMoveAnims['searingsunrazesmash'].anim};
+BattleMoveAnims['blobbybop'] = {anim: BattleMoveAnims['splash'].anim};
 BattleMoveAnims['slimegulp'] = {anim: BattleMoveAnims['sludgebomb'].anim};
 
 BattleMoveAnims['mondayz'] = {anim: BattleMoveAnims['rest'].anim};
@@ -38441,3 +38542,5 @@ BattleMoveAnims['finalhour'] = {anim: BattleMoveAnims['doomdesire'].anim};
 BattleMoveAnims['medsnow'] = {anim: BattleMoveAnims['dailydose'].anim};
 
 BattleMoveAnims['matingpress'] = {anim: BattleMoveAnims['letssnuggleforever'].anim};
+BattleMoveAnims['hypersnore'] = {anim: BattleMoveAnims['supersnore'].anim};
+BattleMoveAnims['closeblobmat'] = {anim: BattleMoveAnims['closecombat'].anim};
