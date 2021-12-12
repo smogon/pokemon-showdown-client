@@ -1160,7 +1160,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 		for (const id in moddedDex.data.Learnsets) {
 			const learnset = moddedDex.data.Learnsets[id].learnset;
 			if (!learnset) continue;
-			learnsets[id] = {};
+			moddedLearnsets[id] = {};
 			for (const moveid in learnset) {
 				const gens = learnset[moveid].map(x => Number(x[0]));
 				const minGen = Math.min(...gens);
@@ -1187,14 +1187,14 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 						...gens.filter(gen => gen > 4)
 					);
 					legalGens += '012345678'.slice(minUpperGen);
-					learnsets[id][moveid] = legalGens;
+					moddedLearnsets[id][moveid] = legalGens;
 				} else {
-					learnsets[id][moveid] = '012345678'.slice(minGen);
+					moddedLearnsets[id][moveid] = '012345678'.slice(minGen);
 				}
 
-				if (gens.indexOf(6) >= 0) learnsets[id][moveid] += 'p';
-				if (gens.indexOf(7) >= 0 && !vcOnly) learnsets[id][moveid] += 'q';
-				if (gens.indexOf(8) >= 0 && !vcOnly) learnsets[id][moveid] += 'g';
+				if (gens.indexOf(6) >= 0) moddedLearnsets[id][moveid] += 'p';
+				if (gens.indexOf(7) >= 0 && !vcOnly) moddedLearnsets[id][moveid] += 'q';
+				if (gens.indexOf(8) >= 0 && !vcOnly) moddedLearnsets[id][moveid] += 'g';
 			}
 		}
 
