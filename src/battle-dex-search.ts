@@ -847,8 +847,8 @@ class BattlePokemonSearch extends BattleTypedSearch<'pokemon'> {
 		const dex = this.dex;
 
 		let table = BattleTeambuilderTable;
-		if (this.formatType === null) {
-
+		if (dex.gen < 8 && !this.formatType) {
+			table = table['gen' + dex.gen];
 		} else if (isModdedFormatType(this.formatType)) {
 			table = table[`${this.formatType.mod}${this.formatType.isNatDex ? 'natdex' : 'only'}`];
 		} else if (format.endsWith('cap') || format.endsWith('caplc')) {
@@ -866,8 +866,6 @@ class BattlePokemonSearch extends BattleTypedSearch<'pokemon'> {
 		)) {
 			table = table['gen' + dex.gen + 'doubles'];
 			isDoublesOrBS = true;
-		} else if (dex.gen < 8 && !this.formatType) {
-			table = table['gen' + dex.gen];
 		} else if (this.formatType === 'letsgo') {
 			table = table['letsgo'];
 		} else if (this.formatType === 'natdex') {
