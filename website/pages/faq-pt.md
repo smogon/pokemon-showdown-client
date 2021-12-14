@@ -79,7 +79,7 @@ Times são salvos usando os cookies. Se você limpar seus cookies, seus times s�
 
 ### Como adiciono meu amigo?
 
-Por enquanto o PS! não tem um sistema de amizades; no entanto, ter um é planejado.
+Digite `/friend add (nome)` para adicionar amigos. Você pode ver sua lista de amigos com o comando `/friends`.
 
 ### Por que o servidor reiniciou?
 
