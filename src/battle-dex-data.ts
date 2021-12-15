@@ -521,6 +521,18 @@ const BattlePokemonIconIndexes: {[id: string]: number} = {
 	disbearyebil: 1379 + (47 * 12) + 3,
 	gargarramerawoken: 1379 + (47 * 12) + 4,
 	blobboshenesys: 1379 + (47 * 12) + 5,
+	blobbosnega: 1379 + (47 * 12) + 6,
+	blobbosreverse: 1379 + (47 * 12) + 7,
+	blobbosgalar: 1379 + (47 * 12) + 8,
+	blobbosvalian: 1379 + (47 * 12) + 9,
+	blobbosdouble: 1379 + (47 * 12) + 10,
+	blobbosbootleg: 1379 + (47 * 12) + 11,
+	blobbosunova: 1379 + (47 * 12) + 12,
+	blobbosshining: 1379 + (47 * 12) + 13,
+	blobbosmagic: 1379 + (47 * 12) + 14,
+	blobbosultra: 1379 + (47 * 12) + 15,
+	blobbosking: 1379 + (47 * 12) + 16,
+	blobbosangel: 1379 + (47 * 12) + 17,
 };
 
 const BattlePokemonIconIndexesLeft: {[id: string]: number} = {
