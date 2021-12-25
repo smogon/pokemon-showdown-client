@@ -906,11 +906,16 @@ class ModdedDex {
 
 			let data = {...Dex.abilities.get(name)};
 
-			for (let i = this.gen; i < 8; i++) {
-				const table = window.BattleTeambuilderTable['gen' + i];
-				if (id in table.overrideAbilityDesc) {
-					data.shortDesc = table.overrideAbilityDesc[id];
-					break;
+			for (let i = Dex.gen - 1; i >= this.gen; i--) {
+				const table = window.BattleTeambuilderTable[`gen${i}`];
+				if (id in table.overrideAbilityData) {
+					Object.assign(data, table.overrideAbilityData[id]);
+				}
+			}
+			if (this.modid !== `gen${this.gen}`) {
+				const table = window.BattleTeambuilderTable[this.modid];
+				if (id in table.overrideAbilityData) {
+					Object.assign(data, table.overrideAbilityData[id]);
 				}
 			}
 
