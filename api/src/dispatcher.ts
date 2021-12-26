@@ -155,12 +155,17 @@ export class Dispatcher {
 	setPrefix(prefix: string) {
 		this.prefix = prefix;
 	}
+	isTrustedProxy(ip: string) {
+		// account for shit like ::ffff:127.0.0.1
+		return Config.trustedproxies.some(f => f.endsWith(ip)); 
+	}
 	getIp() {
-		const ip = this.request.socket.remoteAddress || "";
+		let ip = this.request.socket.remoteAddress || "";
 		let forwarded = this.request.headers['x-forwarded-for'] || '';
 		if (!Array.isArray(forwarded)) forwarded = forwarded.split(',');
-		if (forwarded.length && Config.trustedproxies.includes(ip)) {
-			return forwarded.pop() as string;
+		const notProxy = forwarded.filter(f => !this.isTrustedProxy(f));
+		if (notProxy.length !== forwarded.length) {
+			return notProxy.pop() || ip;
 		}
 		return ip || '';
 	}
