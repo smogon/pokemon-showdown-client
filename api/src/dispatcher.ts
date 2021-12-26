@@ -13,6 +13,7 @@ import {User} from './user';
 import {URLSearchParams} from 'url';
 import {toID} from './server';
 import * as dns from 'dns';
+import IPTools from './ip-tools';
 
 /**
  * Throw this to end a request with an `actionerror` message.
@@ -157,7 +158,7 @@ export class Dispatcher {
 	}
 	isTrustedProxy(ip: string) {
 		// account for shit like ::ffff:127.0.0.1
-		return Config.trustedproxies.some(f => f.endsWith(ip)); 
+		return Config.trustedproxies.some(f => IPTools.checkPattern(f, ip)); 
 	}
 	getIp() {
 		let ip = this.request.socket.remoteAddress || "";
