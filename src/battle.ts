@@ -1409,33 +1409,41 @@ export class Battle {
 		this.scene.updateStatbar(pokemon);
 		if (fromeffect.id === 'sleeptalk') {
 			pokemon.rememberMove(move.name, 0);
-		} else if (!fromeffect.id || fromeffect.id === 'pursuit') {
+		}
+		let callerMoveForPressure = null;
+		// will not include effects that are conditions named after moves like Magic Coat and Snatch, which is good
+		if (fromeffect.id && kwArgs.from.startsWith("move:")) {
+			callerMoveForPressure = fromeffect as Move;
+		}
+		if (!fromeffect.id || callerMoveForPressure || fromeffect.id === 'pursuit') {
 			let moveName = move.name;
-			if (move.isZ) {
-				pokemon.item = move.isZ;
-				let item = Dex.items.get(move.isZ);
-				if (item.zMoveFrom) moveName = item.zMoveFrom;
-			} else if (move.name.slice(0, 2) === 'Z-') {
-				moveName = moveName.slice(2);
-				move = Dex.moves.get(moveName);
-				if (window.BattleItems) {
-					for (let item in BattleItems) {
-						if (BattleItems[item].zMoveType === move.type) pokemon.item = item;
+			if (!callerMoveForPressure) {
+				if (move.isZ) {
+					pokemon.item = move.isZ;
+					let item = Dex.items.get(move.isZ);
+					if (item.zMoveFrom) moveName = item.zMoveFrom;
+				} else if (move.name.slice(0, 2) === 'Z-') {
+					moveName = moveName.slice(2);
+					move = Dex.moves.get(moveName);
+					if (window.BattleItems) {
+						for (let item in BattleItems) {
+							if (BattleItems[item].zMoveType === move.type) pokemon.item = item;
+						}
 					}
 				}
 			}
 			let pp = 1;
-			// Sticky Web is never affected by pressure
-			if (this.abilityActive(['Pressure']) && move.id !== 'stickyweb') {
+			if (this.abilityActive(['Pressure'])) {
 				const foeTargets = [];
+				const moveTarget = move.pressureTarget;
 
 				if (
 					!target && this.gameType === 'singles' &&
-					!['self', 'allies', 'allySide', 'adjacentAlly', 'adjacentAllyOrSelf', 'allyTeam'].includes(move.target)
+					!['self', 'allies', 'allySide', 'adjacentAlly', 'adjacentAllyOrSelf', 'allyTeam'].includes(moveTarget)
 				) {
 					// Hardcode for moves without a target in singles
 					foeTargets.push(pokemon.side.foe.active[0]);
-				} else if (['all', 'allAdjacent', 'allAdjacentFoes', 'foeSide'].includes(move.target)) {
+				} else if (['all', 'allAdjacent', 'allAdjacentFoes', 'foeSide'].includes(moveTarget)) {
 					// We loop through all sides here for FFA
 					for (const side of this.sides) {
 						if (side === pokemon.side || side === pokemon.side.ally) continue;
@@ -1453,7 +1461,11 @@ export class Battle {
 					}
 				}
 			}
-			pokemon.rememberMove(moveName, pp);
+			if (!callerMoveForPressure) {
+				pokemon.rememberMove(moveName, pp);
+			} else {
+				pokemon.rememberMove(callerMoveForPressure.name, pp - 1); // 1 pp was already deducted from using the move itself
+			}
 		}
 		pokemon.lastMove = move.id;
 		this.lastMove = move.id;
