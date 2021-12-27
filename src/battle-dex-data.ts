@@ -1114,6 +1114,7 @@ class Move implements Effect {
 	readonly category: 'Physical' | 'Special' | 'Status';
 	readonly priority: number;
 	readonly target: MoveTarget;
+	readonly pressureTarget: MoveTarget;
 	readonly flags: Readonly<MoveFlags>;
 	readonly critRatio: number;
 
@@ -1153,6 +1154,7 @@ class Move implements Effect {
 		this.category = data.category || 'Physical';
 		this.priority = data.priority || 0;
 		this.target = data.target || 'normal';
+		this.pressureTarget = data.pressureTarget || this.target;
 		this.flags = data.flags || {};
 		this.critRatio = data.critRatio === 0 ? 0 : (data.critRatio || 1);
 
