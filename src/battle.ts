@@ -1433,8 +1433,7 @@ export class Battle {
 				}
 			}
 			let pp = 1;
-			// Sticky Web is never affected by pressure
-			if (this.abilityActive(['Pressure']) && move.id !== 'stickyweb') {
+			if (this.abilityActive(['Pressure'])) {
 				const foeTargets = [];
 				const moveTarget = move.pressureTarget;
 
