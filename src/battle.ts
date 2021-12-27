@@ -1465,7 +1465,7 @@ export class Battle {
 			if (!callerMoveForPressure) {
 				pokemon.rememberMove(moveName, pp);
 			} else {
-				pokemon.rememberMove(callerMoveForPressure.name, pp - 1) // 1 pp was already deducted from using the move itself
+				pokemon.rememberMove(callerMoveForPressure.name, pp - 1); // 1 pp was already deducted from using the move itself
 			}
 		}
 		pokemon.lastMove = move.id;
