@@ -560,7 +560,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 				return ["Uber", "OU", "UU", "NFE", "LC"];
 			}
 			if (isBDSP && !isDoubles) {
-				return ["CAP", "CAP NFE", "CAP LC", "Uber", "OU", "UUBL", "UU", "(UU)", "NFE", "LC", "Unreleased"];
+				return ["CAP", "CAP NFE", "CAP LC", "Uber", "OU", "UUBL", "UU", "RUBL", "RU", "NFE", "LC", "Unreleased"];
 			}
 			if (isVGC) {
 				return ["Mythical", "Restricted Legendary", "Regular", "NFE", "LC"];
