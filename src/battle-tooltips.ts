@@ -982,7 +982,7 @@ class BattleTooltips {
 		}
 
 		const ability = toID(
-			clientPokemon?.effectiveAbility(serverPokemon) || serverPokemon.ability || serverPokemon.baseAbility
+			clientPokemon?.effectiveAbility(serverPokemon) ?? (serverPokemon.ability || serverPokemon.baseAbility)
 		);
 
 		// check for burn, paralysis, guts, quick feet
