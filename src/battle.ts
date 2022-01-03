@@ -2075,6 +2075,13 @@ export class Battle {
 			this.log(args, kwArgs);
 			break;
 		}
+		case '-clearstatus': {
+			let poke = this.getPokemon(args[1])!;
+			poke.status = '';
+			this.scene.updateStatbar(poke);
+			this.log(args, kwArgs);
+			break;
+		}
 		case '-curestatus': {
 			let poke = this.getPokemon(args[1])!;
 			let effect = Dex.getEffect(kwArgs.from);
