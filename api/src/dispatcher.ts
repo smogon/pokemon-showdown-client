@@ -158,10 +158,10 @@ export class Dispatcher {
 	}
 	isTrustedProxy(ip: string) {
 		// account for shit like ::ffff:127.0.0.1
-		return Config.trustedproxies.some(f => IPTools.checkPattern(f, ip)); 
+		return Config.trustedproxies.some(f => IPTools.checkPattern(f, ip));
 	}
 	getIp() {
-		let ip = this.request.socket.remoteAddress || "";
+		const ip = this.request.socket.remoteAddress || "";
 		let forwarded = this.request.headers['x-forwarded-for'] || '';
 		if (!Array.isArray(forwarded)) forwarded = forwarded.split(',');
 		const notProxy = forwarded.filter(f => !this.isTrustedProxy(f));

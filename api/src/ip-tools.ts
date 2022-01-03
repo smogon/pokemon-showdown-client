@@ -3,7 +3,7 @@
  */
 
 export const IPTools = new class {
-    getCidrRange(cidr: string): {minIP: number, maxIP: number} | null {
+	getCidrRange(cidr: string): {minIP: number; maxIP: number} | null {
 		if (!cidr) return null;
 		const index = cidr.indexOf('/');
 		if (index <= 0) {
@@ -19,11 +19,11 @@ export const IPTools = new class {
 		const high = low + (1 << (32 - bits)) - 1;
 		return {minIP: low, maxIP: high};
 	}
-    parseExactInt(str: string): number {
-        if (!/^-?(0|[1-9][0-9]*)$/.test(str)) return NaN;
-        return parseInt(str);
-    }
-    ipToNumber(ip: string) {
+	parseExactInt(str: string): number {
+		if (!/^-?(0|[1-9][0-9]*)$/.test(str)) return NaN;
+		return parseInt(str);
+	}
+	ipToNumber(ip: string) {
 		ip = ip.trim();
 		if (ip.includes(':') && !ip.includes('.')) {
 			// IPv6, which PS does not support
@@ -43,12 +43,12 @@ export const IPTools = new class {
 		}
 		return num;
 	}
-    checkPattern(rangeString: string, ip: string | number) {
-        if (typeof ip !== 'number') ip = this.ipToNumber(ip) || 0;
-        const range = this.getCidrRange(rangeString);
-        if (!range) return false;
-        return range.minIP <= ip && ip <= range.maxIP;
-    }
-}
+	checkPattern(rangeString: string, ip: string | number) {
+		if (typeof ip !== 'number') ip = this.ipToNumber(ip) || 0;
+		const range = this.getCidrRange(rangeString);
+		if (!range) return false;
+		return range.minIP <= ip && ip <= range.maxIP;
+	}
+};
 
 export default IPTools;
