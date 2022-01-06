@@ -826,8 +826,8 @@
 		initialize: function(data) {
 			var buf = '';
 			buf += '<p>Are you sure you want to change your background to this image?</p>';
-			buf += `<p><img src=${data.bgUrl} style="display:block;margin:auto;max-width:90%"></p>`;
-			buf += `<p class="buttonbar"><button name="setBg" value=${data.bgUrl}><strong>Confirm</strong></button> `;
+			buf += '<p><img src="' + data.bgUrl + '" style="display:block;margin:auto;max-width:90%"></p>';
+			buf += '<p class="buttonbar"><button name="setBg" value="' + data.bgUrl + '"><strong>Confirm</strong></button> ';
 			buf += '<button name="close">Cancel</button></p>';
 
 			this.$el.css('max-width', 485).html(buf);
