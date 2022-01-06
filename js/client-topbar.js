@@ -823,7 +823,7 @@
 	};
 
 	var ConfirmBackgroundPopup = this.ConfirmBackgroundPopup = Popup.extend({
-		initialize: function(data) {
+		initialize: function (data) {
 			var buf = '';
 			buf += '<p>Are you sure you want to change your background to this image?</p>';
 			buf += '<p><img src="' + data.bgUrl + '" style="display:block;margin:auto;max-width:90%"></p>';
@@ -833,11 +833,11 @@
 			this.$el.css('max-width', 485).html(buf);
 			this.$el.html(buf);
 		},
-		setBg: function(bgUrl) {
+		setBg: function (bgUrl) {
 			this.close();
 			Storage.bg.set(bgUrl, 'custom');
-		},
-	})
+		}
+	});
 
 	var LoginPopup = this.LoginPopup = Popup.extend({
 		type: 'semimodal',
