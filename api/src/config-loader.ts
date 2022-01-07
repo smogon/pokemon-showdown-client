@@ -11,7 +11,6 @@ import * as defaults from '../config/config-example';
 
 export type Configuration = typeof defaults;
 
-
 export function load(invalidate = false): Configuration {
 	const configPath = path.resolve(__dirname, '../../config/config.js');
 	if (invalidate) delete require.cache[configPath];
@@ -24,12 +23,17 @@ export function load(invalidate = false): Configuration {
 		console.log("config.js doesn't exist - creating one with default settings...");
 		fs.writeFileSync(
 			configPath,
-			fs.readFileSync(path.resolve(__dirname, '../config/config-example.js'))
+			fs.readFileSync(path.resolve(__dirname, '../../config/config-example.js'))
 		);
 	}
+	// so it's loaded after actions is originally loaded (preventing a crash)
+	process.nextTick(() => {
+		if (config.actions) {
+			Object.assign(require('./actions').actions, config.actions);
+		}
+	});
 	return config;
 }
-
 export const Config: Configuration = load();
 
 if (Config.watchconfig) {

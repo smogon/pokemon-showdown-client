@@ -123,3 +123,9 @@ exports.watchconfig = true;
  * @type {null | string}
  */
 exports.restartip = null;
+
+/**
+ * Custom actions for your loginserver.
+ * @type {{[k: string]: import('../src/dispatcher').QueryHandler} | null}
+ */
+exports.actions = null;

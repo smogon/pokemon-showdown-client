@@ -106,8 +106,10 @@ export class Router {
 			}
 			if (results.length) res.writeHead(200).end(Router.stringify(results));
 		} else {
-			const result = await this.handleOne(body, req, res);
-			if (!(result as any).error) {
+			// fall back onto null so it can be json stringified
+			const result = await this.handleOne(body, req, res) || null;
+			// returning null should be allowed
+			if (!result || !(result as any).error) {
 				res.writeHead(200).end(Router.stringify(result));
 			}
 			this.tryEnd();
