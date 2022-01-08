@@ -22,7 +22,7 @@
 
 2. **Pas de spam, de troll, ou d'agressivité**. Cela inclut également faire de la publicité, raid et flood le chat. Écrire tout en MAJUSCULES ou __formater__ son texte est accepté pour mettre de l'emphase, mais ne doit pas être utilisé en continu. Cette règle s'applique également aux messages privés.
 
-3. **Pas de minimod**. Ne tentez pas de modérer si ce n'est pas votre rôle. Ne disez pas à des personnes qu'elles vont être mute, ne demandez pas à ce que des personnes soient mute, et ne discutez pas de si une personne devrait ou ne devrait pas être mute ("inb4 mute" etc). Cela s'applique aux bans et autres punitions.
+3. **Pas de minimod**. Ne tentez pas de modérer si ce n'est pas votre rôle. Ne dites pas à des personnes qu'elles vont être mute, ne demandez pas à ce que des personnes soient mute, et ne discutez pas de si une personne devrait ou ne devrait pas être mute ("inb4 mute" etc). Cela s'applique aux bans et autres punitions.
 
 4. **Arrêtez de débattre des règles quand on vous le demande.** Vous pouvez en parler la plupart du temps, mais si les modérateurs vous demandent d'arrêter, faites-le s'il vous plaît.
 
