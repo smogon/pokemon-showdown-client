@@ -932,7 +932,7 @@ class BattlePokemonSearch extends BattleTypedSearch<'pokemon'> {
 		} else if (format === 'ou') tierSet = tierSet.slice(slices.OU);
 		else if (format === 'uu') tierSet = tierSet.slice(slices.UU);
 		else if (format === 'ru') tierSet = tierSet.slice(slices.RU || slices.UU);
-		else if (format === 'nu') tierSet = tierSet.slice(slices.NU || slices.UU);
+		else if (format === 'nu') tierSet = tierSet.slice(slices.NU || slices.RU || slices.UU);
 		else if (format === 'pu') tierSet = tierSet.slice(slices.PU || slices.NU);
 		else if (format === 'zu') tierSet = tierSet.slice(slices.ZU || slices.PU || slices.NU);
 		else if (format === 'lc' || format === 'lcuu' || format.startsWith('lc') || (format !== 'caplc' && format.endsWith('lc'))) tierSet = tierSet.slice(slices.LC);
@@ -964,18 +964,19 @@ class BattlePokemonSearch extends BattleTypedSearch<'pokemon'> {
 			];
 		}
 
-		if (format === 'zu' && dex.gen >= 7) {
-			tierSet = tierSet.filter(([type, id]) => {
-				if (id in table.zuBans) return false;
-				return true;
-			});
-		}
-
-		if (format === 'monotype' && dex.gen >= 5 && table.monotypeBans) {
-			tierSet = tierSet.filter(([type, id]) => {
-				if (id in table.monotypeBans) return false;
-				return true;
-			});
+		if (dex.gen >= 5) {
+			if (format === 'zu' && table.zuBans) {
+				tierSet = tierSet.filter(([type, id]) => {
+					if (id in table.zuBans) return false;
+					return true;
+				});
+			}
+			if (format === 'monotype' && table.monotypeBans) {
+				tierSet = tierSet.filter(([type, id]) => {
+					if (id in table.monotypeBans) return false;
+					return true;
+				});
+			}
 		}
 
 		// Filter out Gmax Pokemon from standard tier selection
