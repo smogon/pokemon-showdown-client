@@ -456,23 +456,21 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 					(gen === 'gen8' && id === 'ferroseed') ||
 					(gen === 'gen7' && id === 'ferroseed') ||
 					(gen === 'gen6' && ['ferroseed', 'pawniard', 'vullaby'].includes(id)) ||
-					(gen === 'gen5' && id === 'ferroseed') ||
+					(gen === 'gen5' && ['bronzor', 'dwebble', 'ferroseed', 'natu', 'riolu', 'tentacool'].includes(id)) ||
 					(gen === 'gen4' && ['clamperl', 'diglett', 'gligar', 'hippopotas', 'snover', 'wynaut'].includes(id))
 				)
 			) {
 				if (!tierTable['LC']) tierTable['LC'] = [];
 				tierTable['LC'].push(id);
 			}
-
-			if (genNum >= 7) {
-				const format = Dex.formats.get(gen + 'zu');
-				if (Dex.formats.getRuleTable(format).isBannedSpecies(species) && ["(PU)", "NFE", "LC"].includes(species.tier)) {
+			if (genNum >= 5) {
+				const zu = Dex.formats.get(gen + 'zu');
+				if (zu.exists && Dex.formats.getRuleTable(zu).isBannedSpecies(species) &&
+					["(PU)", "NFE", "LC"].includes(species.tier)) {
 					zuBans[species.id] = 1;
 				}
-			}
-			if (genNum >= 5) {
-				const format = Dex.formats.get(gen + (isNatDex ? 'nationaldex' : '') + 'monotype');
-				if (Dex.formats.getRuleTable(format).isBannedSpecies(species)) {
+				const mono = Dex.formats.get(gen + (isNatDex ? 'nationaldex' : '') + 'monotype');
+				if (Dex.formats.getRuleTable(mono).isBannedSpecies(species)) {
 					monotypeBans[species.id] = 1;
 				}
 			}
@@ -540,10 +538,8 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			BattleTeambuilderTable[gen].tiers = tiers;
 			BattleTeambuilderTable[gen].items = items;
 			BattleTeambuilderTable[gen].formatSlices = formatSlices;
-			if (genNum >= 7) {
-				BattleTeambuilderTable[gen].zuBans = zuBans;
-			}
 			if (genNum >= 5) {
+				BattleTeambuilderTable[gen].zuBans = zuBans;
 				BattleTeambuilderTable[gen].monotypeBans = monotypeBans;
 			}
 			if (isDLC1) {
@@ -560,7 +556,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 				return ["Uber", "OU", "UU", "NFE", "LC"];
 			}
 			if (isBDSP && !isDoubles) {
-				return ["CAP", "CAP NFE", "CAP LC", "Uber", "OU", "UUBL", "UU", "RUBL", "RU", "NFE", "LC", "Unreleased"];
+				return ["CAP", "CAP NFE", "CAP LC", "Uber", "(Uber)", "OU", "UUBL", "UU", "RUBL", "RU", "NUBL", "NU", "NFE", "LC", "Unreleased"];
 			}
 			if (isVGC) {
 				return ["Mythical", "Restricted Legendary", "Regular", "NFE", "LC"];
@@ -575,7 +571,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 				return ["CAP", "CAP NFE", "CAP LC", "AG", "Uber", "OU", "(OU)", "UUBL", "UU", "NUBL", "NU", "NFE", "LC"];
 			}
 			if (gen === 'gen5') {
-				return ["CAP", "CAP NFE", "CAP LC", "Uber", "OU", "(OU)", "UUBL", "UU", "RUBL", "RU", "NUBL", "NU", "(NU)", "NFE", "LC"];
+				return ["CAP", "CAP NFE", "CAP LC", "Uber", "OU", "(OU)", "UUBL", "UU", "RUBL", "RU", "NUBL", "NU", "PUBL", "PU", "(PU)", "NFE", "LC"];
 			}
 			if (gen === 'gen7') {
 				return ["CAP", "CAP NFE", "CAP LC", "AG", "Uber", "OU", "(OU)", "UUBL", "UU", "RUBL", "RU", "NUBL", "NU", "PUBL", "PU", "(PU)", "NFE", "LC", "Unreleased"];
