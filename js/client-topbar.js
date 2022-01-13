@@ -824,10 +824,9 @@
 
 	var ConfirmBackgroundPopup = this.ConfirmBackgroundPopup = Popup.extend({
 		initialize: function (data) {
-			var buf = '';
-			buf += '<p>Are you sure you want to change your background to this image?</p>';
-			buf += '<p><img src="' + data.bgUrl + '" style="display:block;margin:auto;max-width:90%"></p>';
-			buf += '<p class="buttonbar"><button name="setBg" value="' + data.bgUrl + '"><strong>Confirm</strong></button> ';
+			var buf = '<br>';
+			buf += '<p><img src="' + data.bgUrl + '" style="display:block;margin:auto;max-width:90%;max-height:500px"></p>';
+			buf += '<p class="buttonbar"><button name="setBg" value="' + data.bgUrl + '"><strong>Change background</strong></button> ';
 			buf += '<button name="close">Cancel</button></p>';
 
 			this.$el.css('max-width', 485).html(buf);
