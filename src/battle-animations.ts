@@ -4552,7 +4552,7 @@ const BattleOtherAnims: AnimTable = {
 	},
 	finalhourhit: {
 		anim(scene, [defender]) {
-			scene.backgroundEffect('#000000', 600, 0.6);
+			scene.backgroundEffect('#000000', 600, 1);
 			scene.showEffect('bluefireball', {
 				x: defender.x + 40,
 				y: defender.y,
