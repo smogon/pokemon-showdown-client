@@ -540,6 +540,7 @@ const BattlePokemonIconIndexes: {[id: string]: number} = {
 	blobboschad: 1379 + (47 * 12) + 22,
 	blobbosgnome: 1379 + (47 * 12) + 23,
 	blobbosmini: 1379 + (47 * 12) + 24,
+	blobbosdust: 1379 + (47 * 12) + 25,
 };
 
 const BattlePokemonIconIndexesLeft: {[id: string]: number} = {
