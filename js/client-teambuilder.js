@@ -358,7 +358,10 @@
 					}
 				} else {
 					filterFormat = this.curFolder;
-					buf += '<h2><i class="fa fa-folder-open-o"></i> ' + filterFormat + ' (' + teams.filter(team => team.format === filterFormat).length + ')</h2>';
+					var func = function (team) {
+						return team.format === filterFormat;
+					};
+					buf += '<h2><i class="fa fa-folder-open-o"></i> ' + filterFormat + ' (' + teams.filter(func).length + ')</h2>';
 				}
 			}
 
