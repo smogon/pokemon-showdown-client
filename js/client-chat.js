@@ -531,6 +531,45 @@
 				$challenges[0].click();
 				return false;
 
+			case 'favoriteformat':
+			case 'unfavoriteformat':
+				if (this.checkBroadcast(cmd, text)) return false;
+				if (!(toID(target) in window.BattleFormats)) {
+					this.add('That format does not exist.');
+					return false;
+				}
+				if (!localStorage.getItem('favoriteFormats')) {
+					if (cmd === 'unfavoriteformat') {
+						this.add('You do not have any favorite formats.');
+						return false;
+					} else {
+						localStorage.setItem('favoriteFormats', toID(target));
+						this.add('The format has been added to your favorites.');
+						return false;
+					}
+				} else {
+					var favFormats = localStorage.getItem('favoriteFormats').split('|');
+					if (favFormats.includes(toID(target))) {
+						if (cmd === 'favoriteformat') {
+							this.add('This format is already in your favorites list.');
+						} else {
+							favFormats = favFormats.filter(item => {
+								return item !== toID(target);
+							});
+							this.add('This format has been removed from your favorites list.');
+						}
+					} else {
+						if (cmd === 'favoriteformat') {
+							favFormats.push(toID(target));
+							this.add('This format has been added to your favorites list.');
+						} else {
+							this.add('This format does not exist on your favorites list.');
+						}
+					}
+					localStorage.setItem('favoriteFormats', favFormats.join('|'));
+				}
+				return false;
+
 			case 'user':
 			case 'open':
 				if (this.checkBroadcast(cmd, text)) return false;
