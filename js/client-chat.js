@@ -553,7 +553,7 @@
 						if (cmd === 'favoriteformat') {
 							this.add('This format is already in your favorites list.');
 						} else {
-							favFormats = favFormats.filter(item => {
+							favFormats = favFormats.filter(function (item) {
 								return item !== toID(target);
 							});
 							this.add('This format has been removed from your favorites list.');

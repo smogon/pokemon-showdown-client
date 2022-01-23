@@ -1225,7 +1225,7 @@
 				}
 				bufs[curBuf] += '<li><h3>' + BattleLog.escapeHTML(curSection) + '</li>';
 			}
-			favFormats.forEach(curForm => {
+			favFormats.forEach(function (curForm) {
 				var format = BattleFormats[curForm];
 				var formatName = BattleLog.escapeFormat(format.id);
 				if (formatName.charAt(0) !== '[') formatName = '[Gen 6] ' + formatName;
