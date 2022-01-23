@@ -1216,7 +1216,7 @@
 				bufs[1] = '<li><button name="selectFormat" value=""' + (curFormat === '' ? ' class="sel"' : '') + '>(All formats)</button></li>';
 			}
 			var curSection = '';
-			var favFormats = localStorage.getItem('favoriteFormats') ? localStorage.getItem('favoriteFormats').split('|') : [];
+			var favFormats = Storage.prefs('favoriteFormats') ? Storage.prefs('favoriteFormats').split('|') : [];
 			if (favFormats.length) {
 				curSection = "Favorite Formats";
 				curBuf = 1;

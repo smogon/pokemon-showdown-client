@@ -543,12 +543,12 @@
 						this.add('You do not have any favorite formats.');
 						return false;
 					} else {
-						localStorage.setItem('favoriteFormats', toID(target));
+						Storage.prefs('favoriteFormats', toID(target));
 						this.add('The format has been added to your favorites.');
 						return false;
 					}
 				} else {
-					var favFormats = localStorage.getItem('favoriteFormats').split('|');
+					var favFormats = Storage.prefs('favoriteFormats').split('|');
 					if (favFormats.includes(toID(target))) {
 						if (cmd === 'favoriteformat') {
 							this.add('This format is already in your favorites list.');
@@ -566,7 +566,7 @@
 							this.add('This format does not exist on your favorites list.');
 						}
 					}
-					localStorage.setItem('favoriteFormats', favFormats.join('|'));
+					Storage.prefs('favoriteFormats', favFormats.join('|'));
 				}
 				return false;
 
