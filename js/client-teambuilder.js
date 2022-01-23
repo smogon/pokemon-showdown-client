@@ -347,7 +347,7 @@
 				buf += '<h2>Hi</h2>';
 				buf += '<p>Did you have a good day?</p>';
 				buf += '<p><button class="button" name="greeting" value="Y"><i class="fa fa-smile-o"></i> Yes, my day was pretty good</button> <button class="button" name="greeting" value="N"><i class="fa fa-frown-o"></i> No, it wasn\'t great</button></p>';
-				buf += `<h2>All teams (${teams.length})</h2>`;
+				buf += '<h2>All teams (' + teams.length + ')</h2>';
 			} else {
 				if (this.curFolder.slice(-1) === '/') {
 					filterFolder = this.curFolder.slice(0, -1);
@@ -358,7 +358,7 @@
 					}
 				} else {
 					filterFormat = this.curFolder;
-					buf += '<h2><i class="fa fa-folder-open-o"></i> ' + filterFormat + ` (${teams.filter(team => {return team.format === filterFormat}).length})` + '</h2>';
+					buf += '<h2><i class="fa fa-folder-open-o"></i> ' + filterFormat + ' (' + teams.filter(team => {return team.format === filterFormat}).length + ')</h2>';
 				}
 			}
 
