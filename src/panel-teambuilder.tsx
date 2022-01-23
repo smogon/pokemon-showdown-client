@@ -236,7 +236,7 @@ class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
 				: filterFormat ?
 					<h2><i class="fa fa-folder-open-o"></i> {filterFormat} <small>({teams.length})</small></h2>
 				:
-					<h2>All Teams <small>({teams.length})</small?</h2>
+					<h2>All Teams <small>({teams.length})</small></h2>
 				}
 				<p>
 					<button name="cmd" value="/newteam" class="button big"><i class="fa fa-plus-circle"></i> New Team</button>
