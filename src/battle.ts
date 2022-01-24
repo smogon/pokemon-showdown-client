@@ -1456,7 +1456,7 @@ export class Battle {
 				}
 
 				for (const foe of foeTargets) {
-					if (foe && !foe.fainted && foe.effectiveAbility() === 'Pressure') {
+					if (foe && !foe.fainted && foe.effectiveAbility() === 'Pressure' && moveName !== 'Sticky Web') {
 						pp += 1;
 					}
 				}
