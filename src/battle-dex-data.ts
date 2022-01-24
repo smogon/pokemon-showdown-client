@@ -517,6 +517,7 @@ const BattlePokemonIconIndexes: {[id: string]: number} = {
 	miasmite: 1344 + 32,
 
 	// CAP
+	jerminswarm: 1379 + (47 * 12) + 1,
 	skubaanti: 1379 + (47 * 12) + 2,
 	disbearyebil: 1379 + (47 * 12) + 3,
 	gargarramerawoken: 1379 + (47 * 12) + 4,
