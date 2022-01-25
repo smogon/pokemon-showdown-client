@@ -50,7 +50,7 @@
 					return;
 				}
 				if (this.player.getPlayerState() !== YT.PlayerState.PLAYING) {
-					this.player.startVideo();
+					this.player.playVideo();
 				}
 				var time = this.player.getCurrentTime();
 				// time is kept in ms on server (Date.now() - startTime)
