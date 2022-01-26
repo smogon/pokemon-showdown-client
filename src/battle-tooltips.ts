@@ -866,11 +866,11 @@ class BattleTooltips {
 
 		text += '<p>';
 		text += abilityText;
-		if (itemText) {
+		if (abilityText) {
 			// ability/item on one line for your own switch tooltips, two lines everywhere else
 			text += (!isActive && serverPokemon ? ' / ' : '</p><p>');
-			text += itemText;
 		}
+		text += itemText;
 		text += '</p>';
 
 		text += this.renderStats(clientPokemon, serverPokemon, !isActive);
