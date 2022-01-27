@@ -570,7 +570,7 @@
 				} else if (target.startsWith('section')) {
 					var section = target.substring(8);
 					var formats = Object.keys(window.BattleFormats).filter(function (format) {
-										return toID(window.BattleFormats[format].section) === toID(section);
+						return toID(window.BattleFormats[format].section) === toID(section);
 					});
 					buf += "<strong>Please select a format:</strong><br />";
 					for (var i in formats) {
