@@ -546,7 +546,7 @@
 							buf += window.BattleFormats[format].name + ' <button class="button" name="parseCommand" value="/favoriteformat remove ' + format + '">(Delete)</button><br />';
 						}
 					}
-					buf += '<button class="button" name="parseCommand" value="/favoriteformat addNew">(Add)</button>';
+					buf += '<button class="button" name="parseCommand" value="/favoriteformat addNew">(Add favorite format)</button>';
 					buf += '</div>';
 					buf = (toID(target) === 'list' ? '|uhtmlchange' : '|uhtml') + '|favformat|' + buf;
 					this.add(buf);
@@ -569,7 +569,9 @@
 					return false;
 				} else if (target.startsWith('section')) {
 					var section = target.substring(8);
-					var formats = Object.keys(window.BattleFormats).filter(function (format) {return toID(window.BattleFormats[format].section) === toID(section);});
+					var formats = Object.keys(window.BattleFormats).filter(function (format) {
+										return toID(window.BattleFormats[format].section) === toID(section);
+					});
 					buf += "<strong>Please select a format:</strong><br />";
 					for (var i in formats) {
 						var format = formats[i];

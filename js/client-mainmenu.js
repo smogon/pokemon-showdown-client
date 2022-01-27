@@ -1223,7 +1223,7 @@
 				if (!bufs[curBuf]) {
 					bufs[curBuf] = '';
 				}
-				bufs[curBuf] += '<li><h3>' + BattleLog.escapeHTML(curSection) + '</li>';
+				bufs[curBuf] += '<li><h3>' + BattleLog.escapeHTML(curSection) + '</h3></li>';
 			}
 			favFormats.forEach(function (curForm) {
 				var format = BattleFormats[curForm];
