@@ -532,41 +532,66 @@
 				return false;
 
 			case 'favoriteformat':
-			case 'unfavoriteformat':
 				if (this.checkBroadcast(cmd, text)) return false;
-				if (!(toID(target) in window.BattleFormats)) {
-					this.add('That format does not exist.');
-					return false;
-				}
-				if (!localStorage.getItem('favoriteFormats')) {
-					if (cmd === 'unfavoriteformat') {
-						this.add('You do not have any favorite formats.');
-						return false;
+				var favFormats = (Storage.prefs('favoriteFormats') || '').split('|');
+				favFormats = favFormats.filter(function (format) {return format !== '';});
+				var buf = '<div class="infobox">';
+				if (!toID(target) || toID(target) === 'list') {
+					buf = '<strong>Favorite formats:</strong><br />';
+					if (!favFormats.length) {
+						buf += 'None<br />';
 					} else {
-						Storage.prefs('favoriteFormats', toID(target));
-						this.add('The format has been added to your favorites.');
-						return false;
+						for (var i in favFormats) {
+							var format = favFormats[i];
+							buf += window.BattleFormats[format].name + ' <button class="button" name="parseCommand" value="/favoriteformat remove ' + format + '">(Delete)</button><br />';
+						}
 					}
-				} else {
-					var favFormats = Storage.prefs('favoriteFormats').split('|');
-					if (favFormats.includes(toID(target))) {
-						if (cmd === 'favoriteformat') {
-							this.add('This format is already in your favorites list.');
+					buf += '<button class="button" name="parseCommand" value="/favoriteformat addNew">(Add)</button>';
+					buf += '</div>';
+					buf = (toID(target) === 'list' ? '|uhtmlchange' : '|uhtml') + '|favformat|' + buf;
+					this.add(buf);
+					return false;
+				} else if (target.startsWith('addNew')) {
+					buf += "<strong>Please select a format:</strong><br />";
+					var formats = Object.keys(window.BattleFormats);
+					for (var i in formats) {
+						var format = formats[i];
+						buf += '<button class="button" name="parseCommand" value="/favoriteformat add ' + format + '">' + window.BattleFormats[format].name + '</button>';
+					}
+					buf += '<button class="button" name="parseCommand" value="/favoriteformat list">(Back to List)</button>';
+					buf += '</div>';
+					this.add('|uhtmlchange|favformat|' + buf);
+					return false;
+				} else if (target.startsWith('add ')) {
+					var targetFormat = toID(target.substring(4));
+					if (!(targetFormat && targetFormat in window.BattleFormats)) {
+						this.add('Error: Invalid Format');
+					} else {
+						if (favFormats.includes(targetFormat)) {
+							this.add("Format already favorited.");
+						} else {
+							favFormats.push(targetFormat);
+							Storage.prefs('favoriteFormats', favFormats.join('|'));
+							this.add("Format added to favorites.");
+						}
+					}
+				} else if (target.startsWith('remove ')) {
+					var targetFormat = toID(target.substring(7));
+					if (!(targetFormat && targetFormat in window.BattleFormats)) {
+						this.add('Error: Invalid Format');
+					} else {
+						if (!favFormats.includes(targetFormat)) {
+							this.add("Format not favorited.");
 						} else {
 							favFormats = favFormats.filter(function (item) {
-								return item !== toID(target);
+								return item !== targetFormat;
 							});
-							this.add('This format has been removed from your favorites list.');
+							Storage.prefs('favoriteFormats', favFormats.join('|'));
+							this.add("Format removed from favorites.");
+							this.parseCommand('/favoriteformat list');
 						}
-					} else {
-						if (cmd === 'favoriteformat') {
-							favFormats.push(toID(target));
-							this.add('This format has been added to your favorites list.');
-						} else {
-							this.add('This format does not exist on your favorites list.');
-						}
+						return false;
 					}
-					Storage.prefs('favoriteFormats', favFormats.join('|'));
 				}
 				return false;
 
