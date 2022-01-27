@@ -537,7 +537,7 @@
 				favFormats = favFormats.filter(function (format) {return format !== '';});
 				var buf = '<div class="infobox">';
 				if (!toID(target) || toID(target) === 'list') {
-					buf = '<strong>Favorite formats:</strong><br />';
+					buf += '<strong>Favorite formats:</strong><br />';
 					if (!favFormats.length) {
 						buf += 'None<br />';
 					} else {
