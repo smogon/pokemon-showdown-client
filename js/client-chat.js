@@ -590,6 +590,7 @@
 							favFormats.push(targetFormat);
 							Storage.prefs('favoriteFormats', favFormats.join('|'));
 							this.add("Format added to favorites.");
+							this.parseCommand('/favoriteformat list');
 						}
 					}
 				} else if (target.startsWith('remove ')) {
