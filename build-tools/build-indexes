@@ -453,7 +453,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			if (
 				tier !== 'LC' &&
 				(
-					(gen === 'gen8' && id === 'ferroseed') ||
+					(gen === 'gen8' && ['ferroseed', 'sandshrewalola'].includes(id)) ||
 					(gen === 'gen7' && id === 'ferroseed') ||
 					(gen === 'gen6' && ['ferroseed', 'pawniard', 'vullaby'].includes(id)) ||
 					(gen === 'gen5' && ['bronzor', 'dwebble', 'ferroseed', 'natu', 'riolu', 'tentacool'].includes(id)) ||
