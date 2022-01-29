@@ -805,22 +805,38 @@
 	CustomBackgroundPopup.readFile = function (file, popup) {
 		var reader = new FileReader();
 		reader.onload = function (e) {
-			var noSave = false;
 			if (String(e.target.result).length > 4200000) {
 				if (popup) {
 					$('.bgstatus').html('<strong style="background:red;color:white;padding:1px 4px;border-radius:4px;display:block">Image is too large and can\'t be saved. It should be under 3.5MB or so.</strong>');
 				} else {
 					app.addPopupMessage("Image is too large and can't be saved. It should be under 3.5MB or so.");
 				}
-				noSave = true;
 			} else if (popup) {
 				$('.bgstatus').html('Saved');
 				popup.$('.cur').removeClass('cur');
+				Storage.bg.set(e.target.result, 'custom');
+			} else {
+				app.addPopup(ConfirmBackgroundPopup, {bgUrl: e.target.result});
 			}
-			Storage.bg.set(e.target.result, 'custom', noSave);
 		};
 		reader.readAsDataURL(file);
 	};
+
+	var ConfirmBackgroundPopup = this.ConfirmBackgroundPopup = Popup.extend({
+		initialize: function (data) {
+			var buf = '<br>';
+			buf += '<p><img src="' + data.bgUrl + '" style="display:block;margin:auto;max-width:90%;max-height:500px"></p>';
+			buf += '<p class="buttonbar"><button name="setBg" value="' + data.bgUrl + '"><strong>Change background</strong></button> ';
+			buf += '<button name="close">Cancel</button></p>';
+
+			this.$el.css('max-width', 485).html(buf);
+			this.$el.html(buf);
+		},
+		setBg: function (bgUrl) {
+			this.close();
+			Storage.bg.set(bgUrl, 'custom');
+		}
+	});
 
 	var LoginPopup = this.LoginPopup = Popup.extend({
 		type: 'semimodal',
