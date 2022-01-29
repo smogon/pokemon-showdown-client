@@ -1002,7 +1002,7 @@
 				return;
 			}
 
-			if (!this.autoTimerActivated && Storage.prefs('autotimer')) {
+			if (!this.autoTimerActivated && Storage.prefs('autotimer') && !this.battle.ended) {
 				this.setTimer('on');
 				this.autoTimerActivated = true;
 			}
