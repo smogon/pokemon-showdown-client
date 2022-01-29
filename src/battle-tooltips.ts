@@ -864,14 +864,16 @@ class BattleTooltips {
 			if (item) itemText = '<small>Item:</small> ' + item + itemEffect;
 		}
 
-		text += '<p>';
-		text += abilityText;
-		if (itemText) {
-			// ability/item on one line for your own switch tooltips, two lines everywhere else
-			text += (!isActive && serverPokemon ? ' / ' : '</p><p>');
+		if (abilityText || itemText) {
+			text += '<p>';
+			text += abilityText;
+			if (abilityText && itemText) {
+				// ability/item on one line for your own switch tooltips, two lines everywhere else
+				text += (!isActive && serverPokemon ? ' / ' : '</p><p>');
+			}
 			text += itemText;
+			text += '</p>';
 		}
-		text += '</p>';
 
 		text += this.renderStats(clientPokemon, serverPokemon, !isActive);
 
