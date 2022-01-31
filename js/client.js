@@ -467,7 +467,15 @@ function toId() {
 				var muted = Dex.prefs('mute');
 				BattleSound.setMute(muted);
 
-				$('html').toggleClass('dark', !!Dex.prefs('dark'));
+				var theme = Dex.prefs('theme');
+				var colorSchemeQuery = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)');
+				var dark = theme === 'dark' || (theme === 'system' && colorSchemeQuery && colorSchemeQuery.matches);
+				$('html').toggleClass('dark', dark);
+				if (colorSchemeQuery && colorSchemeQuery.media !== 'not all') {
+					colorSchemeQuery.addEventListener('change', function (cs) {
+						if (Dex.prefs('theme') === 'system') $('html').toggleClass('dark', cs.matches);
+					});
+				}
 
 				var effectVolume = Dex.prefs('effectvolume');
 				if (effectVolume !== undefined) BattleSound.setEffectVolume(effectVolume);
