@@ -447,13 +447,13 @@
 			'change input[name=blockchallenges]': 'setBlockchallenges',
 			'change input[name=blockpms]': 'setBlockpms',
 			'change input[name=inchatpm]': 'setInchatpm',
-			'change input[name=dark]': 'setDark',
 			'change input[name=temporarynotifications]': 'setTemporaryNotifications',
 			'change input[name=refreshprompt]': 'setRefreshprompt',
 			'change select[name=bg]': 'setBg',
 			'change select[name=timestamps-lobby]': 'setTimestampsLobby',
 			'change select[name=timestamps-pms]': 'setTimestampsPMs',
 			'change select[name=onepanel]': 'setOnePanel',
+			'change select[name=theme]': 'setTheme',
 			'change input[name=logchat]': 'setLogChat',
 			'change input[name=selfhighlight]': 'setSelfHighlight',
 			'click img': 'avatars'
@@ -477,12 +477,18 @@
 
 			buf += '<hr />';
 			buf += '<p><strong>Graphics</strong></p>';
+			var theme = Dex.prefs('theme');
+			var colorSchemeQuerySupported = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').media !== 'not all';
+			buf += '<p><label class="optlabel">Theme: <select name="theme"><option value="light"' + (!theme || theme === 'light' ? ' selected="selected"' : '') + '>Light</option><option value="dark"' + (theme === 'dark' ? ' selected="selected"' : '') + '>Dark</option>';
+			if (colorSchemeQuerySupported) {
+				buf += '<option value="system"' + (theme === 'system' ? ' selected="selected"' : '') + '>Match system theme</option>';
+			}
+			buf += '</select></label></p>';
 			var onePanel = !!Dex.prefs('onepanel');
 			if ($(window).width() >= 660) {
 				buf += '<p><label class="optlabel">Layout: <select name="onepanel"><option value=""' + (!onePanel ? ' selected="selected"' : '') + '>&#x25EB; Left and right panels</option><option value="1"' + (onePanel ? ' selected="selected"' : '') + '>&#x25FB; Single panel</option></select></label></p>';
 			}
 			buf += '<p><label class="optlabel">Background: <button name="background">Change background</button></label></p>';
-			buf += '<p><label class="optlabel"><input type="checkbox" name="dark"' + (Dex.prefs('dark') ? ' checked' : '') + ' /> Dark mode</label></p>';
 			buf += '<p><label class="optlabel"><input type="checkbox" name="noanim"' + (Dex.prefs('noanim') ? ' checked' : '') + ' /> Disable animations</label></p>';
 			if (navigator.userAgent.includes(' Chrome/64.')) {
 				buf += '<p><label class="optlabel"><input type="checkbox" name="nogif"' + (Dex.prefs('nogif') ? ' checked' : '') + ' /> Disable GIFs for Chrome 64 bug</label></p>';
@@ -569,10 +575,17 @@
 			Storage.prefs('nogif', nogif);
 			Dex.loadSpriteData(nogif || Dex.prefs('bwgfx') ? 'bw' : 'xy');
 		},
-		setDark: function (e) {
-			var dark = !!e.currentTarget.checked;
-			Storage.prefs('dark', dark);
-			$('html').toggleClass('dark', dark);
+		setTheme: function (e) {
+			var theme = e.currentTarget.value;
+			Storage.prefs('theme', theme);
+			if (theme === 'system') {
+				if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+					theme = 'dark';
+				} else {
+					theme = 'light';
+				}
+			}
+			$('html').toggleClass('dark', theme === 'dark');
 		},
 		setBwgfx: function (e) {
 			var bwgfx = !!e.currentTarget.checked;
