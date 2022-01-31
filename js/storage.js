@@ -319,6 +319,17 @@ var updatePrefs = function () {
 			app.addPopupMessage('Your version of Chrome has a bug that makes animated GIFs freeze games sometimes, so certain animations have been disabled. Only some people have the problem, so you can experiment and enable them in the Options menu setting "Disable GIFs for Chrome 64 bug".');
 		});
 	}
+
+	var colorSchemeQuerySupported = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').media !== 'not all';
+	if (Storage.prefs('theme') === 'system' && !colorSchemeQuerySupported) {
+		Storage.prefs('theme', null);
+	}
+	if (Storage.prefs('dark') !== undefined) {
+		if (Storage.prefs('dark')) {
+			Storage.prefs('theme', 'dark');
+		}
+		Storage.prefs('dark', null);
+	}
 };
 Storage.whenPrefsLoaded(updatePrefs);
 

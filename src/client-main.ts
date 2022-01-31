@@ -29,9 +29,9 @@ const PSPrefsDefaults: {[key: string]: any} = {};
  */
 class PSPrefs extends PSStreamModel<string | null> {
 	/**
-	 * Dark mode!
+	 * The theme to use. "system" matches the theme of the system accessing the client.
 	 */
-	dark = false;
+	theme: 'light' | 'dark' | 'system' = 'light';
 	/**
 	 * Disables animated GIFs, but keeps other animations enabled.
 	 * Workaround for a Chrome 64 bug with GIFs.
@@ -127,6 +127,17 @@ class PSPrefs extends PSStreamModel<string | null> {
 		} else if (isChrome64) {
 			newPrefs['nogif'] = true;
 			alert('Your version of Chrome has a bug that makes animated GIFs freeze games sometimes, so certain animations have been disabled. Only some people have the problem, so you can experiment and enable them in the Options menu setting "Disable GIFs for Chrome 64 bug".');
+		}
+
+		const colorSchemeQuerySupported = window.matchMedia?.('(prefers-color-scheme: dark)').media !== 'not all';
+		if (newPrefs['theme'] === 'system' && !colorSchemeQuerySupported) {
+			newPrefs['theme'] = 'light';
+		}
+		if (newPrefs['dark'] !== undefined) {
+			if (newPrefs['dark']) {
+				newPrefs['theme'] = 'dark';
+			}
+			delete newPrefs['dark'];
 		}
 	}
 }

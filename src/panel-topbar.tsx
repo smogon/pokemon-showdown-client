@@ -450,9 +450,9 @@ PS.roomTypes['volume'] = {
 };
 
 class OptionsPanel extends PSRoomPanel {
-	setCheckbox = (e: Event) => {
-		const checkbox = e.currentTarget as HTMLInputElement;
-		PS.prefs.set(checkbox.name as 'dark', !!checkbox.checked);
+	setTheme = (e: Event) => {
+		const theme = (e.currentTarget as HTMLSelectElement).value as 'light' | 'dark' | 'system';
+		PS.prefs.set('theme', theme);
 		this.forceUpdate();
 	};
 	render() {
@@ -460,7 +460,11 @@ class OptionsPanel extends PSRoomPanel {
 		return <PSPanelWrapper room={room}>
 			<h3>Graphics</h3>
 			<p>
-				<label class="checkbox"><input type="checkbox" name="dark" checked={PS.prefs.dark} onChange={this.setCheckbox} /> Dark mode</label>
+				<label class="optlabel">Theme: <select onChange={this.setTheme}>
+					<option value="light" selected={PS.prefs.theme === 'light'}>Light</option>
+					<option value="dark" selected={PS.prefs.theme === 'dark'}>Dark</option>
+					<option value="system" selected={PS.prefs.theme === 'system'}>Match system theme</option>
+				</select></label>
 			</p>
 		</PSPanelWrapper>;
 	}
