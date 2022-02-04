@@ -835,8 +835,9 @@ class ModdedDex {
 	constructor(modid: ID) {
 		this.modid = modid;
 		const gen = parseInt(modid.substr(3, 1), 10);
-		if (!modid.startsWith('gen') || !gen) throw new Error("Unsupported modid");
+		if (modid !== 'alternatium' && (!modid.startsWith('gen') || !gen)) throw new Error("Unsupported modid");
 		this.gen = gen;
+		if (modid === 'alternatium') this.gen = 8;
 	}
 	moves = {
 		get: (name: string): Move => {
@@ -856,7 +857,10 @@ class ModdedDex {
 				}
 			}
 			if (this.modid !== `gen${this.gen}`) {
-				const table = window.BattleTeambuilderTable[this.modid];
+				var mod = this.modid;
+				if (this.modid === 'gen8alternatium') mod = 'alternatium';
+				if (this.modid === 'gen8randomdex') mod = 'randomdex';
+				const table = window.BattleTeambuilderTable[mod];
 				if (id in table.overrideMoveData) {
 					Object.assign(data, table.overrideMoveData[id]);
 				}
@@ -914,7 +918,10 @@ class ModdedDex {
 				}
 			}
 			if (this.modid !== `gen${this.gen}`) {
-				const table = window.BattleTeambuilderTable[this.modid];
+				var mod = this.modid;
+				if (this.modid === 'gen8alternatium') mod = 'alternatium';
+				if (this.modid === 'gen8randomdex') mod = 'randomdex';
+				const table = window.BattleTeambuilderTable[mod];
 				if (id in table.overrideAbilityData) {
 					Object.assign(data, table.overrideAbilityData[id]);
 				}
@@ -944,7 +951,10 @@ class ModdedDex {
 				}
 			}
 			if (this.modid !== `gen${this.gen}`) {
-				const table = window.BattleTeambuilderTable[this.modid];
+				var mod = this.modid;
+				if (this.modid === 'gen8alternatium') mod = 'alternatium';
+				if (this.modid === 'gen8randomdex') mod = 'randomdex';
+				const table = window.BattleTeambuilderTable[mod];
 				if (id in table.overrideSpeciesData) {
 					Object.assign(data, table.overrideSpeciesData[id]);
 				}
@@ -953,7 +963,10 @@ class ModdedDex {
 				data.abilities = {0: "No Ability"};
 			}
 
-			const table = window.BattleTeambuilderTable[this.modid];
+			var mod = this.modid;
+			if (this.modid === 'gen8alternatium') mod = 'alternatium';
+			if (this.modid === 'gen8randomdex') mod = 'randomdex';
+			const table = window.BattleTeambuilderTable[mod];
 			if (id in table.overrideTier) data.tier = table.overrideTier[id];
 			if (!data.tier && id.slice(-5) === 'totem') {
 				data.tier = this.species.get(id.slice(0, -5)).tier;

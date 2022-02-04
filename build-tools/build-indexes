@@ -600,6 +600,9 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			if (isLetsGo) {
 				return ["Uber", "OU", "UU", "NFE", "LC"];
 			}
+			if (isPMOTS) {
+				return ["OU"];
+			}
 			if (isBDSP && !isDoubles) {
 				return ["CAP", "CAP NFE", "CAP LC", "Uber", "(Uber)", "OU", "UUBL", "UU", "RUBL", "RU", "NUBL", "NU", "NFE", "LC", "Unreleased"];
 			}
