@@ -512,6 +512,12 @@ Storage.initTestClient = function () {
 		sid = POKEMON_SHOWDOWN_TESTCLIENT_KEY.replace(/\%2C/g, ',');
 	}
 
+	if (!!Config.key) {
+		console.log('Using test client key', Config.key);
+		sid = (Config.key).replace(/\%2C/g, ',');
+		console.log('Using test client id', sid);
+	}
+
 	Storage.whenAppLoaded(function (app) {
 		var get = $.get;
 		$.get = function (uri, data, callback, type) {

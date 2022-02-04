@@ -32,3 +32,5 @@ package-lock.json
 /website/files/
 /website/images/
 /website/ads.txt
+
+.vercel
