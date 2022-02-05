@@ -74,7 +74,19 @@ const handler: VercelApiHandler = async (request, response) => {
 
         response.send(res.data);
     } else {
-        response.status(400).json({ error: 'Invalid request' });
+        // redirect all values and method to BASE_URL
+        const { method, url, headers, body } = request;
+
+        const res = await axios(`${BASE_URL}${url}`, {
+            method: method as any,
+            headers: {
+                ...(headers as any),
+            },
+            data: body,
+        });
+
+        response.send(res.data);
+
     }
 
 }
