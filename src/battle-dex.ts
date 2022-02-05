@@ -858,8 +858,8 @@ class ModdedDex {
 			}
 			if (this.modid !== `gen${this.gen}`) {
 				var mod = this.modid;
-				if (this.modid === 'gen8alternatium') mod = 'alternatium';
-				if (this.modid === 'gen8randomdex') mod = 'randomdex';
+				if (this.modid === 'alternatium') mod = 'pmots';
+				if (this.modid === 'randomdex') mod = 'petmodlc';
 				const table = window.BattleTeambuilderTable[mod];
 				if (id in table.overrideMoveData) {
 					Object.assign(data, table.overrideMoveData[id]);
@@ -919,8 +919,8 @@ class ModdedDex {
 			}
 			if (this.modid !== `gen${this.gen}`) {
 				var mod = this.modid;
-				if (this.modid === 'gen8alternatium') mod = 'alternatium';
-				if (this.modid === 'gen8randomdex') mod = 'randomdex';
+				if (this.modid === 'alternatium') mod = 'pmots';
+				if (this.modid === 'randomdex') mod = 'petmodlc';
 				const table = window.BattleTeambuilderTable[mod];
 				if (id in table.overrideAbilityData) {
 					Object.assign(data, table.overrideAbilityData[id]);
@@ -952,8 +952,8 @@ class ModdedDex {
 			}
 			if (this.modid !== `gen${this.gen}`) {
 				var mod = this.modid;
-				if (this.modid === 'gen8alternatium') mod = 'alternatium';
-				if (this.modid === 'gen8randomdex') mod = 'randomdex';
+				if (this.modid === 'alternatium') mod = 'pmots';
+				if (this.modid === 'randomdex') mod = 'petmodlc';
 				const table = window.BattleTeambuilderTable[mod];
 				if (id in table.overrideSpeciesData) {
 					Object.assign(data, table.overrideSpeciesData[id]);
@@ -964,8 +964,8 @@ class ModdedDex {
 			}
 
 			var mod = this.modid;
-			if (this.modid === 'gen8alternatium') mod = 'alternatium';
-			if (this.modid === 'gen8randomdex') mod = 'randomdex';
+			if (this.modid === 'alternatium') mod = 'pmots';
+			if (this.modid === 'randomdex') mod = 'petmodlc';
 			const table = window.BattleTeambuilderTable[mod];
 			if (id in table.overrideTier) data.tier = table.overrideTier[id];
 			if (!data.tier && id.slice(-5) === 'totem') {
