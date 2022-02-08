@@ -36,7 +36,7 @@ Seu nome de usuário pode ser trocado a qualquer momento (mude-o dando log out e
 
 2. **Nomes não podem ofender** um indivíduo ou um grupo (insultar a si mesmo é aceitável, contanto que não seja algo muito sério).
 
-3. **Nomes não podem ter conotação sexual** ou serem excessivamente repugnantes.
+3. **Nomes não podem ter conotação sexual** ou ser excessivamente repugnantes.
 
 4. **Nomes não podem fazer propaganda**.
 
