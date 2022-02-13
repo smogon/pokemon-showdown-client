@@ -3348,6 +3348,7 @@
 			var spriteDim = 'width: 96px; height: 96px;';
 
 			var gen = {1:'gen1', 2:'gen2', 3:'gen3', 4:'gen4', 5:'gen5', 6:'dex', 7:'dex', 8:'dex'}[Math.max(this.room.curTeam.gen, species.gen)];
+			if (this.room.format && this.room.format.includes('cloveronly')) gen = 'gen5';
 			if (Dex.prefs('nopastgens')) gen = 'dex';
 			if (Dex.prefs('bwgfx') && gen === 'dex') gen = 'gen5';
 			spriteDir += gen;
