@@ -2011,6 +2011,7 @@
 				case 'Shellos':
 				case 'Sinistea':
 				case 'Vivillon':
+				case 'Eccosmic':
 					break;
 				default:
 					smogdexid += '-' + toID(species.forme);
