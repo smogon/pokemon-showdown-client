@@ -2012,6 +2012,7 @@
 				case 'Sinistea':
 				case 'Vivillon':
 				case 'Eccosmic':
+				case 'Fontaba':
 					break;
 				default:
 					smogdexid += '-' + toID(species.forme);
