@@ -749,7 +749,7 @@ export class BattleScene implements BattleSceneStub {
 
 			side.missedPokemon = {
 				sprite: new PokemonSprite(null, {
-					x: side.leftof(-100),
+					x: side.leftof(this.battle.gameType === 'freeforall' ? -50 : -100),
 					y: side.y,
 					z: side.z,
 					opacity: 0,
