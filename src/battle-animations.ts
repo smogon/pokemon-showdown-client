@@ -1085,12 +1085,19 @@ export class BattleScene implements BattleSceneStub {
 		if (!this.animating) return;
 		const side = this.battle.sides[siden];
 		const spriteIndex = +side.isFar;
+		let x = side.x;
+		let y = side.y;
+		if (this.battle.gameType === 'freeforall' && side.n > 1) {
+			x += -120 * (side.isFar ? 1 : -1);
+			y += side.isFar ? 14 : -20;
+		}
+
 		switch (id) {
 		case 'auroraveil':
 			const auroraveil = new Sprite(BattleEffects.auroraveil, {
 				display: 'block',
-				x: side.x,
-				y: side.y,
+				x,
+				y,
 				z: side.behind(-14),
 				xscale: 1,
 				yscale: 0,
@@ -1109,8 +1116,8 @@ export class BattleScene implements BattleSceneStub {
 		case 'reflect':
 			const reflect = new Sprite(BattleEffects.reflect, {
 				display: 'block',
-				x: side.x,
-				y: side.y,
+				x,
+				y,
 				z: side.behind(-17),
 				xscale: 1,
 				yscale: 0,
@@ -1129,8 +1136,8 @@ export class BattleScene implements BattleSceneStub {
 		case 'safeguard':
 			const safeguard = new Sprite(BattleEffects.safeguard, {
 				display: 'block',
-				x: side.x,
-				y: side.y,
+				x,
+				y,
 				z: side.behind(-20),
 				xscale: 1,
 				yscale: 0,
@@ -1149,8 +1156,8 @@ export class BattleScene implements BattleSceneStub {
 		case 'lightscreen':
 			const lightscreen = new Sprite(BattleEffects.lightscreen, {
 				display: 'block',
-				x: side.x,
-				y: side.y,
+				x,
+				y,
 				z: side.behind(-23),
 				xscale: 1,
 				yscale: 0,
@@ -1169,8 +1176,8 @@ export class BattleScene implements BattleSceneStub {
 		case 'mist':
 			const mist = new Sprite(BattleEffects.mist, {
 				display: 'block',
-				x: side.x,
-				y: side.y,
+				x,
+				y,
 				z: side.behind(-27),
 				xscale: 1,
 				yscale: 0,
@@ -1189,8 +1196,8 @@ export class BattleScene implements BattleSceneStub {
 		case 'stealthrock':
 			const rock1 = new Sprite(BattleEffects.rock1, {
 				display: 'block',
-				x: side.leftof(-40),
-				y: side.y - 10,
+				x: x + side.leftof(-40),
+				y: y - 10,
 				z: side.z,
 				opacity: 0.5,
 				scale: 0.2,
@@ -1198,8 +1205,8 @@ export class BattleScene implements BattleSceneStub {
 
 			const rock2 = new Sprite(BattleEffects.rock2, {
 				display: 'block',
-				x: side.leftof(-20),
-				y: side.y - 40,
+				x: x + side.leftof(-20),
+				y: y - 40,
 				z: side.z,
 				opacity: 0.5,
 				scale: 0.2,
@@ -1207,8 +1214,8 @@ export class BattleScene implements BattleSceneStub {
 
 			const rock3 = new Sprite(BattleEffects.rock1, {
 				display: 'block',
-				x: side.leftof(30),
-				y: side.y - 20,
+				x: x + side.leftof(30),
+				y: y - 20,
 				z: side.z,
 				opacity: 0.5,
 				scale: 0.2,
@@ -1216,8 +1223,8 @@ export class BattleScene implements BattleSceneStub {
 
 			const rock4 = new Sprite(BattleEffects.rock2, {
 				display: 'block',
-				x: side.leftof(10),
-				y: side.y - 30,
+				x: x + side.leftof(10),
+				y: y - 30,
 				z: side.z,
 				opacity: 0.5,
 				scale: 0.2,
@@ -1232,24 +1239,24 @@ export class BattleScene implements BattleSceneStub {
 		case 'gmaxsteelsurge':
 			const surge1 = new Sprite(BattleEffects.greenmetal1, {
 				display: 'block',
-				x: side.leftof(-30),
-				y: side.y - 20,
+				x: x + side.leftof(-30),
+				y: y - 20,
 				z: side.z,
 				opacity: 0.5,
 				scale: 0.8,
 			}, this);
 			const surge2 = new Sprite(BattleEffects.greenmetal2, {
 				display: 'block',
-				x: side.leftof(35),
-				y: side.y - 15,
+				x: x + side.leftof(35),
+				y: y - 15,
 				z: side.z,
 				opacity: 0.5,
 				scale: 0.8,
 			}, this);
 			const surge3 = new Sprite(BattleEffects.greenmetal1, {
 				display: 'block',
-				x: side.leftof(50),
-				y: side.y - 10,
+				x: x + side.leftof(50),
+				y: y - 10,
 				z: side.z,
 				opacity: 0.5,
 				scale: 0.8,
@@ -1270,8 +1277,8 @@ export class BattleScene implements BattleSceneStub {
 			if (spikeArray.length < 1 && levels >= 1) {
 				const spike1 = new Sprite(BattleEffects.caltrop, {
 					display: 'block',
-					x: side.x - 25,
-					y: side.y - 40,
+					x: x - 25,
+					y: y - 40,
 					z: side.z,
 					scale: 0.3,
 				}, this);
@@ -1281,8 +1288,8 @@ export class BattleScene implements BattleSceneStub {
 			if (spikeArray.length < 2 && levels >= 2) {
 				const spike2 = new Sprite(BattleEffects.caltrop, {
 					display: 'block',
-					x: side.x + 30,
-					y: side.y - 45,
+					x: x + 30,
+					y: y - 45,
 					z: side.z,
 					scale: .3,
 				}, this);
@@ -1292,8 +1299,8 @@ export class BattleScene implements BattleSceneStub {
 			if (spikeArray.length < 3 && levels >= 3) {
 				const spike3 = new Sprite(BattleEffects.caltrop, {
 					display: 'block',
-					x: side.x + 50,
-					y: side.y - 40,
+					x: x + 50,
+					y: y - 40,
 					z: side.z,
 					scale: .3,
 				}, this);
@@ -1311,8 +1318,8 @@ export class BattleScene implements BattleSceneStub {
 			if (tspikeArray.length < 1 && tspikeLevels >= 1) {
 				const tspike1 = new Sprite(BattleEffects.poisoncaltrop, {
 					display: 'block',
-					x: side.x + 5,
-					y: side.y - 40,
+					x: x + 5,
+					y: y - 40,
 					z: side.z,
 					scale: 0.3,
 				}, this);
@@ -1322,8 +1329,8 @@ export class BattleScene implements BattleSceneStub {
 			if (tspikeArray.length < 2 && tspikeLevels >= 2) {
 				const tspike2 = new Sprite(BattleEffects.poisoncaltrop, {
 					display: 'block',
-					x: side.x - 15,
-					y: side.y - 35,
+					x: x - 15,
+					y: y - 35,
 					z: side.z,
 					scale: .3,
 				}, this);
@@ -1334,8 +1341,8 @@ export class BattleScene implements BattleSceneStub {
 		case 'stickyweb':
 			const web = new Sprite(BattleEffects.web, {
 				display: 'block',
-				x: side.x + 15,
-				y: side.y - 35,
+				x: x + 15,
+				y: y - 35,
 				z: side.z,
 				opacity: 0.4,
 				scale: 0.7,
