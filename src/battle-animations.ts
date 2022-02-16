@@ -1087,9 +1087,12 @@ export class BattleScene implements BattleSceneStub {
 		const spriteIndex = +side.isFar;
 		let x = side.x;
 		let y = side.y;
-		if (this.battle.gameType === 'freeforall' && side.n > 1) {
-			x += -120 * (side.isFar ? 1 : -1);
-			y += side.isFar ? 14 : -20;
+		if (this.battle.gameType === 'freeforall') {
+			x += side.isFar ? 20 : -20;
+			if (side.n > 1) {
+				x += (side.isFar ? -140 : 140);
+				y += side.isFar ? 14 : -20;
+			}
 		}
 
 		switch (id) {
