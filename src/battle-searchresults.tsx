@@ -186,6 +186,8 @@ class PSSearchResults extends preact.Component<{search: DexSearch}> {
 			</a></li>;
 		}
 
+		let pp = (move.pp === 1 || move.noPPBoosts ? move.pp : move.pp * 8 / 5);
+		if (search.dex.gen < 3) pp = Math.min(61, pp);
 		return <li class="result"><a href={`${this.URL_ROOT}move/${id}`} data-target="push" data-entry={`move|${move.name}`}>
 			<span class="col movenamecol">{this.renderName(move.name, matchStart, matchEnd, tagStart)}</span>
 
@@ -198,10 +200,10 @@ class PSSearchResults extends preact.Component<{search: DexSearch}> {
 				{move.category !== 'Status' ? [<em>Power</em>, <br />, `${move.basePower}` || '\u2014'] : ''}
 			</span>
 			<span class="col widelabelcol">
-				<em>Accuracy</em><br />${move.accuracy && move.accuracy !== true ? `${move.accuracy}%` : '\u2014'}
+				<em>Accuracy</em><br />{move.accuracy && move.accuracy !== true ? `${move.accuracy}%` : '\u2014'}
 			</span>
 			<span class="col pplabelcol">
-				<em>PP</em><br />{move.pp === 1 || move.noPPBoosts ? move.pp : move.pp * 8 / 5}
+				<em>PP</em><br />{pp}
 			</span>
 
 			<span class="col movedesccol">{move.shortDesc}</span>
