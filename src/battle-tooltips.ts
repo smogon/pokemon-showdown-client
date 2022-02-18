@@ -1554,6 +1554,14 @@ class BattleTooltips {
 			if (value.tryWeather('Desolate Land')) value.set(50, 'Desolate Land');
 		}
 
+		if (value.tryWeather('Dense Fog')) {
+			value.modify(3 / 5, 'Dense Fog');
+
+			if (value.tryAbility('Fog of War')) {
+				value.modify(2, 'Fog of War');
+			}
+		}
+
 		// Chained modifiers round down on 0.5
 		let accuracyAfterChain = (value.value * chain) / 4096;
 		accuracyAfterChain = accuracyAfterChain % 1 > 0.5 ? Math.ceil(accuracyAfterChain) : Math.floor(accuracyAfterChain);

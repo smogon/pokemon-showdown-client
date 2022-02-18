@@ -716,6 +716,8 @@ class Side {
 		case 'firepledge':
 			this.sideConditions[condition] = ['Sea of Fire', 1, 4, 0];
 			break;
+		case 'densefog':
+			this.sideConditions[condition] = [effect.name, 1, 5, 5];
 		default:
 			this.sideConditions[condition] = [effect.name, 1, 0, 0];
 			break;
