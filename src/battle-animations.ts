@@ -929,6 +929,7 @@ class BattleScene {
 				sandstorm: 'Sandstorm',
 				hail: 'Hail',
 				deltastream: 'Strong Winds',
+				densefog: 'Dense Fog',
 			};
 			weatherhtml = `${weatherNameTable[this.battle.weather] || this.battle.weather}`;
 			if (this.battle.weatherMinTimeLeft !== 0) {
@@ -3139,6 +3140,10 @@ const BattleEffects: {[k: string]: SpriteData} = {
 	stop: {
 		url: 'stop.png',
 		w: 120, h: 120,
+	},
+	cube: {
+		url: 'cube.png',
+		w: 100, h: 100,
 	},
 };
 (() => {

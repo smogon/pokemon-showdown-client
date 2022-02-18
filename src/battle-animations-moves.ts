@@ -38159,6 +38159,306 @@ const BattleMoveAnims: AnimTable = {
 			}, 'linear', 'fade');
 		},
 	},
+	frigidend: {
+		anim(scene, [attacker, defender]) {
+			let xstep = 0;
+			let ystep = 20;
+			let zstep = 0;
+
+			scene.backgroundEffect(`url('https://${Config.routes.client}/fx/weather-densefog.png')`, 900, 0.5);
+
+			scene.showEffect('sword', {
+				x: attacker.leftof(10),
+				y: attacker.y - 10,
+				z: attacker.z,
+				scale: 0.5,
+				opacity: 1,
+			}, {
+				y: attacker.y + 10,
+				scale: 1,
+				opacity: 0.4,
+				time: 300,
+			}, 'decel', 'fade');
+
+			for (let i = 0; i < 5; i++) {
+				scene.showEffect('wisp', {
+					x: attacker.leftof(10) + xstep * (i + 1),
+					y: attacker.y - 20 + ystep * (i + 1),
+					z: attacker.z + zstep * (i + 1),
+					scale: 1.5,
+					opacity: 1,
+					time: 40 * i + 0,
+				}, {
+					opacity: 0,
+					time: 45 * i + 500,
+				}, 'linear');
+			}
+
+			scene.showEffect('icicle', {
+				x: defender.x + 30,
+				y: defender.y + 25,
+				z: defender.z,
+				scale: 0.2,
+				opacity: 1,
+				time: 500,
+			}, {
+				x: defender.x + 50,
+				y: defender.y + 10,
+				opacity: 0.5,
+				time: 800,
+			}, 'accel', 'explode');
+			scene.showEffect('icicle', {
+				x: defender.x - 30,
+				y: defender.y - 20,
+				z: defender.z,
+				scale: 0.2,
+				opacity: 1,
+				time: 600,
+			}, {
+				x: defender.x - 50,
+				y: defender.y - 20,
+				opacity: 0.5,
+				time: 800,
+			}, 'accel', 'explode');
+			scene.showEffect('icicle', {
+				x: defender.x + 15,
+				y: defender.y + 10,
+				z: defender.z,
+				scale: 0.2,
+				opacity: 1,
+				time: 700,
+			}, {
+				x: defender.x + 35,
+				y: defender.y + 30,
+				opacity: 0.5,
+				time: 900,
+			}, 'accel', 'explode');
+			scene.showEffect('icicle', {
+				x: defender.x - 15,
+				y: defender.y - 30,
+				z: defender.z,
+				scale: 0.2,
+				opacity: 1,
+				time: 700,
+			}, {
+				x: defender.x - 35,
+				y: defender.y - 40,
+				opacity: 0.5,
+				time: 900,
+			}, 'accel', 'explode');
+			scene.showEffect('wisp', {
+				x: defender.x + 10,
+				y: defender.y - 10,
+				z: defender.z,
+				scale: 1.5,
+				opacity: 0.6,
+				time: 700,
+			}, {
+				scale: 2,
+				opacity: 0,
+				time: 1000,
+			}, 'accel', 'fade');
+			scene.showEffect('leftslash', {
+				x: defender.x - 10,
+				y: defender.y - 10,
+				z: defender.z,
+				scale: 3,
+				opacity: 0.6,
+				time: 600,
+			}, {
+				scale: 3.5,
+				opacity: 0,
+				time: 1000,
+			}, 'accel', 'fade');
+
+			defender.delay(550);
+			defender.anim({
+				z: defender.behind(20),
+				time: 200,
+			}, 'swing');
+			defender.anim({
+				time: 300,
+			}, 'swing');
+		},
+	},
+	twintowertumblingterror: {
+		anim(scene, [attacker, defender]) {
+			scene.backgroundEffect('linear-gradient(#000000 40%, #2630A9)', 2200, 0.6);
+			scene.showEffect(attacker.sp, {
+				x: attacker.x,
+				y: attacker.y,
+				z: attacker.z,
+				opacity: 0.3,
+				time: 25,
+			}, {
+				x: attacker.x,
+				y: attacker.y + 250,
+				z: defender.behind(-50),
+				opacity: 0,
+				time: 325,
+			}, 'accel');
+			scene.showEffect('fireball', {
+				x: attacker.x,
+				y: attacker.y,
+				z: attacker.behind(-40),
+				scale: 0.4,
+				opacity: 0,
+				time: 225,
+			}, {
+				x: attacker.x,
+				y: attacker.y + 250,
+				z: defender.behind(-30),
+				opacity: 1,
+				time: 525,
+			}, 'accel');
+			scene.showEffect('fireball', {
+				x: attacker.x,
+				y: attacker.y,
+				z: attacker.behind(-70),
+				scale: 0.8,
+				opacity: 0,
+				time: 300,
+			}, {
+				x: attacker.x,
+				y: attacker.y + 250,
+				z: defender.behind(-20),
+				scale: 0.4,
+				opacity: 1,
+				time: 650,
+			}, 'accel');
+			scene.showEffect('fireball', {
+				x: attacker.x,
+				y: attacker.y,
+				z: attacker.behind(-90),
+				scale: 0.2,
+				opacity: 0,
+				time: 325,
+			}, {
+				x: attacker.x,
+				y: attacker.y + 250,
+				z: defender.behind(-50),
+				opacity: 1,
+				time: 675,
+			}, 'accel');
+			scene.showEffect('cube', {
+				x: defender.x + 50,
+				y: defender.y + 175,
+				z: defender.z,
+				scale: 0.5,
+				yscale: 2,
+				opacity: 0.5,
+				time: 1000,
+			}, {
+				x: defender.x,
+				y: defender.y + 55,
+				z: defender.z,
+				scale: 1,
+				yscale: 0.25,
+				opacity: 1,
+				time: 1800,
+			}, 'decel', 'fade');
+			scene.showEffect('cube', {
+				x: defender.x - 50,
+				y: defender.y + 175,
+				z: defender.z,
+				scale: 0.5,
+				yscale: 2,
+				opacity: 0.5,
+				time: 1000,
+			}, {
+				x: defender.x,
+				y: defender.y + 55,
+				z: defender.z,
+				scale: 1,
+				yscale: 0.25,
+				opacity: 1,
+				time: 1800,
+			}, 'decel', 'fade');
+
+			scene.showEffect('iceball', {
+				x: defender.x,
+				y: defender.y - 60,
+				z: defender.z,
+				scale: 1,
+				xscale: 3,
+				opacity: 1,
+				time: 1650,
+			}, {
+				scale: 2,
+				xscale: 12,
+				opacity: 0,
+				time: 2050,
+			}, 'linear', 'fade');
+			scene.showEffect('iceball', {
+				x: defender.x,
+				y: defender.y,
+				z: defender.z,
+				opacity: 0.7,
+				scale: 1,
+				time: 1650,
+			}, {
+				scale: 6,
+				opacity: 0,
+				time: 2200,
+			}, 'linear');
+			scene.showEffect('wisp', {
+				x: defender.x,
+				y: defender.y + 350,
+				z: defender.z,
+				opacity: 1,
+				scale: 3,
+				yscale: 8,
+				time: 1650,
+			}, {
+				xscale: 12,
+				opacity: 0.5,
+				time: 2000,
+			}, 'accel', 'fade');
+			scene.showEffect('wisp', {
+				x: defender.x,
+				y: defender.y,
+				z: defender.z,
+				opacity: 1,
+				scale: 6,
+				time: 1650,
+			}, {
+				scale: 12,
+				opacity: 0.7,
+				time: 2200,
+			}, 'linear', 'explode');
+
+			attacker.anim({
+				x: attacker.x,
+				y: attacker.y + 250,
+				z: attacker.behind(-50),
+				time: 300,
+			}, 'decel');
+			attacker.delay(1700);
+			attacker.anim({
+				opacity: 0,
+				time: 1,
+			});
+			attacker.anim({
+				opacity: 1,
+				time: 200,
+			});
+			defender.delay(1450);
+			defender.anim({
+				y: defender.y - 10,
+				yscale: 0.4,
+				time: 50,
+			}, 'swing');
+			defender.anim({
+				y: defender.y - 20,
+				yscale: 0.3,
+				time: 300,
+			}, 'swing');
+			defender.delay(200);
+			defender.anim({
+				time: 400,
+			}, 'swing');
+		},
+	},
 	nuclearwinter: {
 		anim(scene, [attacker, ...defenders]) {
 			scene.backgroundEffect(`url('https://${Config.routes.client}/sprites/gen6bgs/bg-icecave.jpg')`, 1000, 0.6);
