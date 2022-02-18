@@ -138,7 +138,7 @@ const BattleStatNames = {
 } as const;
 
 const BattleBaseSpeciesChart = [
-	"unown", "burmy", "shellos", "gastrodon", "deerling", "sawsbuck", "vivillon", "flabebe", "floette", "florges", "furfrou", "minior", "alcremie", "pokestarufo", "pokestarbrycenman", "pokestarmt", "pokestarmt2", "pokestartransport", "pokestargiant", "pokestarhumanoid", "pokestarmonster", "pokestarf00", "pokestarf002", "pokestarspirit", "pokestarblackdoor", "pokestarwhitedoor", "pokestarblackbelt",
+	"unown", "burmy", "shellos", "gastrodon", "deerling", "sawsbuck", "vivillon", "flabebe", "floette", "florges", "furfrou", "minior", "alcremie", "pokestarufo", "pokestarbrycenman", "pokestarmt", "pokestarmt2", "pokestartransport", "pokestargiant", "pokestarhumanoid", "pokestarmonster", "pokestarf00", "pokestarf002", "pokestarspirit", "pokestarblackdoor", "pokestarwhitedoor", "pokestarblackbelt", "eccosmic", "fontaba",
 ] as ID[];
 
 const BattlePokemonIconIndexes: {[id: string]: number} = {
@@ -516,7 +516,38 @@ const BattlePokemonIconIndexes: {[id: string]: number} = {
 	solotl: 1344 + 31,
 	miasmite: 1344 + 32,
 
+	// Clover
+	fontabaa: 1379 + 201,
+	fontabab: 1379 + 201,
+	fontabac: 1379 + 201,
+	fontabaco: 1379 + 201,
+	fontabad: 1379 + 201,
+	fontabaf: 1379 + 201,
+	fontabafa: 1379 + 201,
+	fontabafit: 1379 + 201,
+	fontabag: 1379 + 201,
+	fontabah: 1379 + 201,
+	fontabaint: 1379 + 201,
+	fontabajp: 1379 + 201,
+	fontabak: 1379 + 201,
+	fontabaout: 1379 + 201,
+	fontabapol: 1379 + 201,
+	fontabar9k: 1379 + 201,
+	fontabas: 1379 + 201,
+	fontabas4s: 1379 + 201,
+	fontabasoc: 1379 + 201,
+	fontabasp: 1379 + 201,
+	fontabatrv: 1379 + 201,
+	fontabatv: 1379 + 201,
+	fontabav: 1379 + 201,
+	fontabavg: 1379 + 201,
+	fontabavp: 1379 + 201,
+	fontabavr: 1379 + 201,
+	fontabax: 1379 + 201,
+	fontabaz: 1379 + 201,
+
 	// CAP
+	jerminswarm: 1379 + (47 * 12) + 1,
 	skubaanti: 1379 + (47 * 12) + 2,
 	disbearyebil: 1379 + (47 * 12) + 3,
 	gargarramerawoken: 1379 + (47 * 12) + 4,
@@ -526,13 +557,21 @@ const BattlePokemonIconIndexes: {[id: string]: number} = {
 	blobbosgalar: 1379 + (47 * 12) + 8,
 	blobbosvalian: 1379 + (47 * 12) + 9,
 	blobbosdouble: 1379 + (47 * 12) + 10,
-	blobbosbootleg: 1379 + (47 * 12) + 11,
+	bootlos: 1379 + (47 * 12) + 11,
 	blobbosunova: 1379 + (47 * 12) + 12,
 	blobbosshining: 1379 + (47 * 12) + 13,
 	blobbosmagic: 1379 + (47 * 12) + 14,
 	blobbosultra: 1379 + (47 * 12) + 15,
 	blobbosking: 1379 + (47 * 12) + 16,
 	blobbosangel: 1379 + (47 * 12) + 17,
+	blobbosnonfungible: 1379 + (47 * 12) + 18,
+	blobbosnice: 1379 + (47 * 12) + 19,
+	blobbosalola: 1379 + (47 * 12) + 20,
+	blobbosarceus: 1379 + (47 * 12) + 21,
+	blobboschad: 1379 + (47 * 12) + 22,
+	blobbosgnome: 1379 + (47 * 12) + 23,
+	blobbosmini: 1379 + (47 * 12) + 24,
+	blobbosdust: 1379 + (47 * 12) + 25,
 };
 
 const BattlePokemonIconIndexesLeft: {[id: string]: number} = {
