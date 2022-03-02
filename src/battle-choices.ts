@@ -156,7 +156,7 @@ class BattleChoiceBuilder {
 		const request = this.request;
 		switch (request.requestType) {
 		case 'move':
-			if (request.rotation) return 1; 
+			if (request.rotation) return 1;
 			return request.active.length;
 		case 'switch':
 			return request.forceSwitch.length;

@@ -427,7 +427,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 		];
 	}
 	renderRotationControls(request: BattleMoveRequest, choices: BattleChoiceBuilder) {
-		let targets: [number, number] = [1, 2]
+		let targets: [number, number] = [1, 2];
 		switch (choices.current.willRotate) {
 			case 'right':
 				targets = [2, 0];
@@ -438,7 +438,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 		}
 		return targets.map((v, i) => {
 			const serverPokemon = request.side.pokemon[v];
-			return <PokemonButton pokemon={serverPokemon} cmd={`/rotate ${i === 0 ? 'right' : 'left'}`} disabled={!!serverPokemon.fainted} tooltip=''/>
+			return <PokemonButton pokemon={serverPokemon} cmd={`/rotate ${i === 0 ? 'right' : 'left'}`} disabled={!!serverPokemon.fainted} tooltip=''/>;
 		});
 	}
 	renderSwitchControls(request: BattleMoveRequest | BattleSwitchRequest, choices: BattleChoiceBuilder) {
