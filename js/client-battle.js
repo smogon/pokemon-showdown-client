@@ -728,7 +728,7 @@
 					var rotatePokemon = this.battle.myPokemon[(currentIndex + 1) % 3];
 					if (rotatePokemon && !rotatePokemon.fainted) {
 						rotateControls += '<button name="chooseRotate" value="right">&larr;&nbsp;<span class="picon" style="' + Dex.getPokemonIcon(rotatePokemon) + '"></span>';
-						rotateControls += BattleLog.escapeHTML(rotatePokemon.name); + '</button>';
+						rotateControls += BattleLog.escapeHTML(rotatePokemon.name) + '</button>';
 					}
 					rotatePokemon = this.battle.myPokemon[(currentIndex + 2) % 3];
 					if (rotatePokemon && !rotatePokemon.fainted) {
