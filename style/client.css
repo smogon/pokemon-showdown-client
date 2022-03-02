@@ -1973,6 +1973,7 @@ a.ilink.yours {
 .allyTeam button,
 .shiftselect button,
 .moveselect button,
+.rotateselect button,
 .switchselect button {
 	background: transparent;
 	border: 0;
@@ -1991,6 +1992,7 @@ a.ilink.yours {
 	color: #884422;
 	cursor: default;
 }
+.rotateselect button,
 .switchselect button {
 	color: #445588;
 	cursor: default;
@@ -2008,7 +2010,20 @@ a.ilink.yours {
 	white-space: pre;
 	overflow: hidden;
 }
-.allyparty button .picon, 
+.rotateselect button {
+	position: relative;
+	display: block;
+	float: left;
+	width: 150px;
+	min-height: 30px;
+	margin-right: 4px;
+	font: 9pt Verdana, sans-serif;
+	padding: 5px 5px 5px 0;
+	white-space: pre;
+	overflow: hidden;
+}
+.allyparty button .picon,
+.rotateselect button .picon, 
 .switchmenu button .picon {
 	float: left;
 	margin: -6px -3px -6px -4px;
@@ -2135,14 +2150,16 @@ a.ilink.yours {
 }
 .allyparty,
 .switchmenu,
-.movemenu {
+.movemenu,
+.rotateselect {
 	display: block;
 	margin-right: -10px;
 	padding-left: 4px;
 }
 .allyparty button,
 .switchmenu button,
-.movemenu button {
+.movemenu button,
+.rotateselect button {
 	position: relative;
 	outline: none;
 	text-align: center;
@@ -2160,7 +2177,8 @@ a.ilink.yours {
 }
 .allyparty button:hover,
 .switchmenu button:hover,
-.movemenu button:hover {
+.movemenu button:hover,
+.rotateselect button:hover {
 	background: #cfcfcf;
 	background: linear-gradient(to bottom,  #f2f2f2,  #cfcfcf);
 	border-color: #606060;
@@ -2168,8 +2186,10 @@ a.ilink.yours {
 .allyparty button:active,
 .switchmenu button:active,
 .movemenu button:active,
+.rotateselect button:active,
 .switchmenu button.pressed,
-.movemenu button.pressed {
+.movemenu button.pressed,
+.rotateselect button.pressed {
 	background: linear-gradient(to bottom,  #cfcfcf,  #f2f2f2);
 }
 
@@ -2177,7 +2197,8 @@ a.ilink.yours {
 .allyparty button:disabled,
 .switchmenu button.disabled,
 .switchmenu button:disabled,
-.movemenu button:disabled {
+.movemenu button:disabled,
+.rotateselect button:disabled {
 	cursor: default;
 	background: #F3F3F3 !important;
 	border-color: #CCCCCC !important;
@@ -2244,7 +2265,7 @@ a.ilink.yours {
 		right: 150px;
 		bottom: 20px;
 	}
-	.moveselect button, .switchselect button, .shiftselect button {
+	.moveselect button, .switchselect button, .shiftselect button, .rotateselect button {
 		padding: 4px 8px;
 		border-radius: 6px;
 		background: #E5E5E5;

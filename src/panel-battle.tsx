@@ -142,7 +142,7 @@ class BattleRoom extends ChatRoom {
 			this.choices = new BattleChoiceBuilder(this.request);
 			this.update(null);
 			return true;
-		} case 'move': case 'switch': case 'team': case 'pass': case 'shift': case 'choose': {
+		} case 'move': case 'switch': case 'rotate': case 'team': case 'pass': case 'shift': case 'choose': {
 			if (!this.choices) {
 				this.receiveLine([`error`, `/choose - You are not a player in this battle`]);
 				return true;
@@ -302,6 +302,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 
 		BattleChoiceBuilder.fixRequest(request, room.battle);
 
+		console.log((request as BattleMoveRequest).rotation);
 		if (request.side) {
 			room.battle.myPokemon = request.side.pokemon;
 			room.battle.setPerspective(request.side.id);
@@ -425,6 +426,21 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 			}),
 		];
 	}
+	renderRotationControls(request: BattleMoveRequest, choices: BattleChoiceBuilder) {
+		let targets: [number, number] = [1, 2]
+		switch (choices.current.willRotate) {
+			case 'right':
+				targets = [2, 0];
+				break;
+			case 'left':
+				targets = [0, 1];
+				break;
+		}
+		return targets.map((v, i) => {
+			const serverPokemon = request.side.pokemon[v];
+			return <PokemonButton pokemon={serverPokemon} cmd={`/rotate ${i === 0 ? 'right' : 'left'}`} disabled={!!serverPokemon.fainted} tooltip=''/>
+		});
+	}
 	renderSwitchControls(request: BattleMoveRequest | BattleSwitchRequest, choices: BattleChoiceBuilder) {
 		const numActive = choices.requestLength();
 
@@ -484,9 +500,14 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 			const choiceString = choices.choices[i];
 			const choice = choices.parseChoice(choiceString);
 			if (!choice) continue;
-			const pokemon = request.side.pokemon[i];
-			const active = request.requestType === 'move' ? request.active[i] : null;
+			let pokemon = request.side.pokemon[i];
+			let active = request.requestType === 'move' ? request.active[i] : null;
 			if (choice.choiceType === 'move') {
+				if (choice.willRotate) {
+					let index = choice.willRotate === 'left' ? 2 : 1;
+					pokemon = request.side.pokemon[index];
+					active = (request as BattleMoveRequest).active[index];
+				}
 				buf.push(`${pokemon.name} will `);
 				if (choice.mega) buf.push(`Mega Evolve and `);
 				if (choice.ultra) buf.push(`Ultra Burst and `);
@@ -550,6 +571,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 			const canDynamax = moveRequest.canDynamax && !choices.alreadyMax;
 			const canMegaEvo = moveRequest.canMegaEvo && !choices.alreadyMega;
 			const canZMove = moveRequest.zMoves && !choices.alreadyZ;
+			const rotation = request.rotation;
 
 			if (choices.current.move) {
 				const moveName = choices.getChosenMove(choices.current, choices.index()).name;
@@ -596,6 +618,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 							<input type="checkbox" name="z" checked={choices.current.z} onChange={this.toggleBoostedMove} /> {}
 							Z-Power
 						</label>}
+						{rotation && this.renderRotationControls(request, choices)}
 					</div>
 				</div>
 				<div class="switchcontrols">

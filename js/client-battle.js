@@ -367,7 +367,8 @@
 					this.choice = {
 						choices: [],
 						switchFlags: {},
-						switchOutFlags: {}
+						switchOutFlags: {},
+						willRotate: ''
 					};
 				}
 				this.updateMoveControls(type);
@@ -524,6 +525,9 @@
 			var moveTarget = this.choice ? this.choice.moveTarget : '';
 			var pos = this.choice.choices.length;
 			if (type === 'movetarget') pos--;
+			if (this.choice.willRotate) {
+				pos = this.choice.willRotate === 'right' ? 1 : 2;
+			}
 
 			var hpRatio = switchables[pos].hp / switchables[pos].maxhp;
 
@@ -716,6 +720,24 @@
 					shiftControls += '<div class="shiftselect"><button name="chooseShift">Shift</button></div>';
 				}
 
+				var rotateControls = '';
+				if (this.battle.gameType === 'rotation') {
+					console.log('rotation battle');
+					rotateControls += '<div class="rotateselect">';
+					var currentIndex = this.choice.willRotate === 'right' ? 1 : this.choice.willRotate === 'left' ? 2 : 0;
+					var rotatePokemon = this.battle.myPokemon[(currentIndex + 1) % 3];
+					if (rotatePokemon && !rotatePokemon.fainted) {
+						rotateControls += '<button name="chooseRotate" value="right">&larr;&nbsp;<span class="picon" style="' + Dex.getPokemonIcon(rotatePokemon) + '"></span>';
+						rotateControls += BattleLog.escapeHTML(rotatePokemon.name); + '</button>';
+					}
+					rotatePokemon = this.battle.myPokemon[(currentIndex + 2) % 3];
+					if (rotatePokemon && !rotatePokemon.fainted) {
+						rotateControls += '<button name="chooseRotate" value="left"><span class="picon" style="' + Dex.getPokemonIcon(rotatePokemon) + '"></span>';
+						rotateControls += BattleLog.escapeHTML(rotatePokemon.name) + '&nbsp;&rarr;</button>';
+					}
+					rotateControls += '</div><div style="clear:left"></div>';
+				}
+
 				var switchMenu = '';
 				if (trapped) {
 					switchMenu += '<em>You are trapped and cannot switch!</em><br />';
@@ -735,7 +757,7 @@
 				this.$controls.html(
 					'<div class="controls">' +
 					'<div class="whatdo">' + requestTitle + this.getTimerHTML() + '</div>' +
-					moveControls + shiftControls + switchControls +
+					moveControls + shiftControls + rotateControls + switchControls +
 					'</div>'
 				);
 			}
@@ -917,6 +939,7 @@
 					var parts = this.choice.choices[i].split(' ');
 					switch (parts[0]) {
 					case 'move':
+						if (this.willRotate) i = this.willRotate === 'right' ? 1 : 2;
 						var move;
 						if (this.request.active[i].maxMoves && !this.request.active[i].canDynamax) { // it's a max move
 							move = this.request.active[i].maxMoves.maxMoves[parseInt(parts[1], 10) - 1].move;
@@ -1175,12 +1198,13 @@
 				var isZMove = !!(this.$('input[name=zmove]')[0] || '').checked;
 				var isUltraBurst = !!(this.$('input[name=ultraburst]')[0] || '').checked;
 				var isDynamax = !!(this.$('input[name=dynamax]')[0] || '').checked;
+				var rotation = this.choice.willRotate ? 'rotate ' + this.choice.willRotate + ' ' : '';
 
 				var target = e.getAttribute('data-target');
 				var choosableTargets = {normal: 1, any: 1, adjacentAlly: 1, adjacentAllyOrSelf: 1, adjacentFoe: 1};
 
-				this.choice.choices.push('move ' + pos + (isMega ? ' mega' : '') + (isZMove ? ' zmove' : '') + (isUltraBurst ? ' ultra' : '') + (isDynamax ? ' dynamax' : ''));
-				if (nearActive.length > 1 && target in choosableTargets) {
+				this.choice.choices.push(rotation + 'move ' + pos + (isMega ? ' mega' : '') + (isZMove ? ' zmove' : '') + (isUltraBurst ? ' ultra' : '') + (isDynamax ? ' dynamax' : ''));
+				if (nearActive.length > 1 && this.battle.gameType !== 'rotation' && target in choosableTargets) {
 					this.choice.type = 'movetarget';
 					this.choice.moveTarget = target;
 					this.updateControlsForPlayer();
@@ -1189,6 +1213,13 @@
 			}
 
 			this.endChoice();
+		},
+		chooseRotate: function (direction) {
+			var currentIndex = this.choice.willRotate === 'right' ? 1 : this.choice.willRotate === 'left' ? 2 : 0;
+			var offsetBy = direction === 'right' ? 1 : 2;
+			var newTarget = ['', 'right', 'left'][(currentIndex + offsetBy) % 3];
+			this.choice.willRotate = newTarget;
+			this.updateControlsForPlayer();
 		},
 		chooseMoveTarget: function (posString) {
 			this.choice.choices[this.choice.choices.length - 1] += ' ' + posString;

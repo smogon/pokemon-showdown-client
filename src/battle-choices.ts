@@ -52,6 +52,7 @@ interface BattleMoveRequest {
 	side: BattleRequestSideInfo;
 	active: (BattleRequestActivePokemon | null)[];
 	noCancel?: boolean;
+	rotation?: boolean;
 }
 interface BattleSwitchRequest {
 	requestType: 'switch';
@@ -80,6 +81,7 @@ interface BattleMoveChoice {
 	/** 1-based move */
 	move: number;
 	targetLoc: number;
+	willRotate: 'right' | 'left' | null;
 	mega: boolean;
 	ultra: boolean;
 	max: boolean;
@@ -111,6 +113,7 @@ class BattleChoiceBuilder {
 		/** if nonzero, show target screen; if zero, show move screen */
 		move: 0,
 		targetLoc: 0, // should always be 0: is not partial if `targetLoc` is known
+		willRotate: null,
 		mega: false,
 		ultra: false,
 		z: false,
@@ -145,6 +148,7 @@ class BattleChoiceBuilder {
 
 	/** Index of the current Pokémon to make choices for */
 	index() {
+		if (this.current.willRotate) return this.current.willRotate === 'right' ? 1 : 2;
 		return this.choices.length;
 	}
 	/** How many choices is the server expecting? */
@@ -152,6 +156,7 @@ class BattleChoiceBuilder {
 		const request = this.request;
 		switch (request.requestType) {
 		case 'move':
+			if (request.rotation) return 1; 
 			return request.active.length;
 		case 'switch':
 			return request.forceSwitch.length;
@@ -168,6 +173,15 @@ class BattleChoiceBuilder {
 	}
 
 	addChoice(choiceString: string) {
+		if (['rotate right', 'rotate left'].includes(choiceString)) {
+			// Rotations are a special case. In the client you can type just /rotate left
+			// or /rotate right to view the moves of another Pokemon, or you can put the
+			// entire choice string. Only the former case is handled here; any invalid
+			// strings will be handled by parseChoice
+			this.current.willRotate = choiceString.substring(7) as 'right' | 'left';
+			return null;
+		}
+
 		let choice: BattleChoice | null;
 		try {
 			choice = this.parseChoice(choiceString);
@@ -267,6 +281,21 @@ class BattleChoiceBuilder {
 
 		if (choice === 'shift') return {choiceType: 'shift'};
 
+		let willRotate: 'left' | 'right' | null = null;
+		if (choice.startsWith('rotate')) {
+			if (!(request.requestType === 'move' && request.rotation)) throw new Error(`This is not a rotation battle`);
+			if (choice.startsWith('rotate right ')) {
+				willRotate = 'right';
+				choice = choice.slice(0, 13);
+			} else if (choice.startsWith('rotate left ')) {
+				willRotate = 'left';
+				choice = choice.slice(0, 12);
+			} else {
+				throw new Error(`"rotate" must be followed by either "right" or "left"`);
+			}
+			if (!choice.startsWith('move ')) throw new Error(`Rotations must be followed by a move choice`);
+		}
+
 		if (choice.startsWith('move ')) {
 			if (request.requestType !== 'move') {
 				throw new Error(`You must switch in a Pokémon, not move.`);
@@ -277,6 +306,7 @@ class BattleChoiceBuilder {
 				choiceType: 'move',
 				move: 0,
 				targetLoc: 0,
+				willRotate,
 				mega: false,
 				ultra: false,
 				z: false,
@@ -417,7 +447,8 @@ class BattleChoiceBuilder {
 		case 'move':
 			const target = choice.targetLoc ? ` ${choice.targetLoc > 0 ? '+' : ''}${choice.targetLoc}` : ``;
 			const boost = `${choice.max ? ' max' : ''}${choice.mega ? ' mega' : ''}${choice.z ? ' zmove' : ''}`;
-			return `move ${choice.move}${boost}${target}`;
+			const rotation = choice.willRotate ? `rotate ${choice.willRotate} ` : ``;
+			return `${rotation}move ${choice.move}${boost}${target}`;
 		case 'switch':
 		case 'team':
 			return `${choice.choiceType} ${choice.targetPokemon}`;
@@ -487,5 +518,7 @@ class BattleChoiceBuilder {
 				}
 			}
 		}
+
+		if (request.requestType === 'move' && battle.gameType === 'rotation') request.rotation = true;
 	}
 }
