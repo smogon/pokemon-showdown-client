@@ -2381,9 +2381,11 @@ export class Battle {
 			let species = Dex.species.get(args[2]);
 			let fromeffect = Dex.getEffect(kwArgs.from);
 			let isCustomAnim = species.name.startsWith('Wishiwashi');
-			poke.removeVolatile('typeadd' as ID);
-			poke.removeVolatile('typechange' as ID);
-			if (this.gen >= 7) poke.removeVolatile('autotomize' as ID);
+			if (!poke.getSpeciesForme().endsWith('-Gmax') && !species.name.endsWith('-Gmax')) {
+				poke.removeVolatile('typeadd' as ID);
+				poke.removeVolatile('typechange' as ID);
+				if (this.gen >= 6) poke.removeVolatile('autotomize' as ID);
+			}
 
 			if (!kwArgs.silent) {
 				this.activateAbility(poke, fromeffect);
