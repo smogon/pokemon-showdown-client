@@ -2384,8 +2384,8 @@ export class Battle {
 			if (!poke.getSpeciesForme().endsWith('-Gmax') && !species.name.endsWith('-Gmax')) {
 				poke.removeVolatile('typeadd' as ID);
 				poke.removeVolatile('typechange' as ID);
+				if (this.gen >= 6) poke.removeVolatile('autotomize' as ID);
 			}
-			if (this.gen >= 7) poke.removeVolatile('autotomize' as ID);
 
 			if (!kwArgs.silent) {
 				this.activateAbility(poke, fromeffect);
