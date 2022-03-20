@@ -492,8 +492,15 @@ const Dex = new class implements ModdedDex {
 				options.shiny = pokemon.shiny;
 				options.gender = pokemon.gender;
 			}
-			if (pokemon.volatiles.dynamax && options.dynamax !== false) isDynamax = true;
-			pokemon = pokemon.getSpeciesForme();
+			let isGigantamax = false;
+			if (pokemon.volatiles.dynamax) {
+				if (pokemon.volatiles.dynamax[1]) {
+					isGigantamax = true;
+				} else if (options.dynamax !== false) {
+					isDynamax = true;
+				}
+			}
+			pokemon = pokemon.getSpeciesForme() + (isGigantamax ? '-Gmax' : '');
 		}
 		const species = Dex.species.get(pokemon);
 		// Gmax sprites are already extremely large, so we don't need to double.
