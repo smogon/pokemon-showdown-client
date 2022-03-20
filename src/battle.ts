@@ -2437,7 +2437,7 @@ export class Battle {
 				this.scene.typeAnim(poke, type);
 				break;
 			case 'dynamax':
-				poke.addVolatile('dynamax' as ID);
+				poke.addVolatile('dynamax' as ID, !!args[3]);
 				this.scene.animTransform(poke, true);
 				break;
 			case 'powertrick':
