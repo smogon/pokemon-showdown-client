@@ -2808,6 +2808,9 @@ export class Battle {
 					this.activateAbility(target, targetability, true);
 				}
 				break;
+			case 'conversion':
+				poke.copyTypesFrom(target!);
+				break;
 
 			// ability activations
 			case 'forewarn':
