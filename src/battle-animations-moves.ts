@@ -38325,7 +38325,6 @@ const BattleMoveAnims: AnimTable = {
 				opacity: 0.1,
 				time: 600,
 			}, 'decel', 'fade');
-			scene.backgroundEffect('#ffffff', 600, 0.6);
 			scene.showEffect('wisp', {
 				x: attacker.leftof(-10),
 				y: attacker.y + 10,
@@ -38343,11 +38342,11 @@ const BattleMoveAnims: AnimTable = {
 					x: defender.x - 25,
 					y: defender.y,
 					z: defender.behind(5),
-					scale: 0.5,
-					opacity: 0.2,
+					scale: 0.7,
+					opacity: 1,
 					time: 675,
 				}, {
-					scale: 0.8,
+					scale: 1,
 					opacity: 0,
 					time: 875,
 				}, 'linear');
@@ -38355,11 +38354,11 @@ const BattleMoveAnims: AnimTable = {
 					x: defender.x + 25,
 					y: defender.y - 5,
 					z: defender.behind(5),
-					scale: 0.5,
-					opacity: 0.2,
+					scale: 0.7,
+					opacity: 1,
 					time: 800,
 				}, {
-					scale: 0.8,
+					scale: 1,
 					opacity: 0,
 					time: 1000,
 				}, 'linear');
@@ -38367,11 +38366,11 @@ const BattleMoveAnims: AnimTable = {
 					x: defender.x - 25,
 					y: defender.y + 10,
 					z: defender.behind(5),
-					scale: 0.5,
-					opacity: 0.2,
+					scale: 0.7,
+					opacity: 1,
 					time: 900,
 				}, {
-					scale: 0.8,
+					scale: 1,
 					opacity: 0,
 					time: 1100,
 				}, 'linear');
@@ -38380,7 +38379,7 @@ const BattleMoveAnims: AnimTable = {
 					y: defender.y + 5,
 					z: defender.behind(5),
 					scale: 0.7,
-					opacity: 0.2,
+					opacity: 1,
 					time: 1000,
 				}, {
 					scale: 1,
@@ -38388,16 +38387,7 @@ const BattleMoveAnims: AnimTable = {
 					time: 1200,
 				}, 'linear');
 
-				attacker.anim({
-					opacity: 0,
-					time: 575,
-				});
-				attacker.delay(500);
-				attacker.anim({
-					opacity: 1,
-					time: 600,
-				});
-				defender.delay(200);
+				defender.delay(700);
 				defender.anim({
 					x: defender.x - 30,
 					time: 575,
@@ -38466,43 +38456,43 @@ const BattleMoveAnims: AnimTable = {
 				opacity: 0,
 			}, 'linear');
 			if (defender.isMissedPokemon) return;
-			scene.showEffect('fireball', {
-				x: attacker.x + 40,
-				y: attacker.y,
-				z: attacker.z,
-				scale: 0,
-				opacity: 0.6,
-			}, {
-				scale: 6,
-				opacity: 0,
-			}, 'decel');
-			scene.showEffect('fireball', {
-				x: attacker.x - 40,
-				y: attacker.y - 20,
-				z: attacker.z,
-				scale: 0,
-				opacity: 0.6,
-				time: 150,
-			}, {
-				scale: 6,
-				opacity: 0,
-			}, 'decel');
-			scene.showEffect('fireball', {
-				x: attacker.x + 10,
-				y: attacker.y + 20,
-				z: attacker.z,
-				scale: 0,
-				opacity: 0.6,
-				time: 300,
-			}, {
-				scale: 6,
-				opacity: 0,
-			}, 'decel');
-			attacker.delay(450).anim({
-				scale: 4,
-				time: 400,
-				opacity: 0,
-			}, 'linear');
+				scene.showEffect('fireball', {
+					x: attacker.x + 40,
+					y: attacker.y,
+					z: attacker.z,
+					scale: 0,
+					opacity: 0.6,
+				}, {
+					scale: 6,
+					opacity: 0,
+				}, 'decel');
+				scene.showEffect('fireball', {
+					x: attacker.x - 40,
+					y: attacker.y - 20,
+					z: attacker.z,
+					scale: 0,
+					opacity: 0.6,
+					time: 150,
+				}, {
+					scale: 6,
+					opacity: 0,
+				}, 'decel');
+				scene.showEffect('fireball', {
+					x: attacker.x + 10,
+					y: attacker.y + 20,
+					z: attacker.z,
+					scale: 0,
+					opacity: 0.6,
+					time: 300,
+				}, {
+					scale: 6,
+					opacity: 0,
+				}, 'decel');
+				attacker.delay(450).anim({
+					scale: 4,
+					time: 400,
+					opacity: 0,
+				}, 'linear');
 		},
 	},
 	nuclearwinter: {
