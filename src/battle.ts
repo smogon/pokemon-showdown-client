@@ -2418,7 +2418,7 @@ export class Battle {
 			this.activateAbility(ofpoke || poke, fromeffect);
 			switch (effect.id) {
 			case 'typechange':
-				if (ofpoke && fromeffect.id === 'reflecttype') {
+				if (ofpoke) {
 					poke.copyTypesFrom(ofpoke);
 				} else {
 					const types = Dex.sanitizeName(args[3] || '???');
@@ -2807,9 +2807,6 @@ export class Battle {
 					this.activateAbility(poke, pokeability, true);
 					this.activateAbility(target, targetability, true);
 				}
-				break;
-			case 'conversion':
-				poke.copyTypesFrom(target!);
 				break;
 
 			// ability activations
