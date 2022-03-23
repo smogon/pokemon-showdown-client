@@ -1292,8 +1292,19 @@ class BattleTooltips {
 		if (pokemon.volatiles.transform) {
 			pokemon = pokemon.volatiles.transform[1];
 		}
+		const tr = Math.trunc || Math.floor;
+
+		const species = pokemon.getSpecies();
+		let baseSpe = species.baseStats['spe'];
+		if (this.battle.rules['Scalemons Mod']) {
+			const bstWithoutHp = species.bst - species.baseStats['hp'];
+			const scale = 600 - species.baseStats['hp'];
+			baseSpe = tr(baseSpe * scale / bstWithoutHp);
+			if (baseSpe < 1) baseSpe = 1;
+			if (baseSpe > 255) baseSpe = 255;
+		}
+
 		let level = pokemon.level;
-		let baseSpe = pokemon.getSpecies().baseStats['spe'];
 		let tier = this.battle.tier;
 		let gen = this.battle.gen;
 		let isRandomBattle = tier.includes('Random Battle') ||
@@ -1305,7 +1316,6 @@ class BattleTooltips {
 
 		let min;
 		let max;
-		const tr = Math.trunc || Math.floor;
 		if (tier.includes("Let's Go")) {
 			min = tr(tr(tr(2 * baseSpe * level / 100 + 5) * minNature) * tr((70 / 255 / 10 + 1) * 100) / 100);
 			max = tr(tr(tr((2 * baseSpe + maxIv) * level / 100 + 5) * maxNature) * tr((70 / 255 / 10 + 1) * 100) / 100);

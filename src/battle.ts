@@ -1065,6 +1065,7 @@ export class Battle {
 	tier = '';
 	gameType: 'singles' | 'doubles' | 'triples' | 'multi' | 'freeforall' = 'singles';
 	rated: string | boolean = false;
+	rules: {[ruleName: string]: 1 | 0} = {};
 	isBlitz = false;
 	endLastTurnPending = false;
 	totalTimeLeft = 0;
@@ -3282,6 +3283,7 @@ export class Battle {
 				this.messageFadeTime = 40;
 				this.isBlitz = true;
 			}
+			this.rules[ruleName] = 1;
 			this.log(args);
 			break;
 		}
