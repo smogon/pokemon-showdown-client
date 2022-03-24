@@ -101,7 +101,14 @@ export class Pokemon implements PokemonDetails, PokemonHealth {
 
 	/** [[moveName, ppUsed]] */
 	moveTrack: [string, number][] = [];
-	statusData = {sleepTurns: 0, toxicTurns: 0};
+	statusData = {
+		sleepTurns: 0,
+		toxicTurns: 0,
+		/** Used to track stat reapplication in Gen 1 */
+		brnAttackDropCount: 1,
+		/** Used to track stat reapplication in Gen 1 */
+		parSpeedDropCount: 1,
+	};
 
 	sprite: PokemonSprite;
 
@@ -424,6 +431,8 @@ export class Pokemon implements PokemonDetails, PokemonHealth {
 		this.statusStage = 0;
 		this.statusData.toxicTurns = 0;
 		if (this.side.battle.gen === 5) this.statusData.sleepTurns = 0;
+		this.statusData.brnAttackDropCount = 1;
+		this.statusData.parSpeedDropCount = 1;
 	}
 	/**
 	 * copyAll = false means Baton Pass,
@@ -881,6 +890,8 @@ export class Side {
 		}
 		pokemon.statusData.toxicTurns = 0;
 		if (this.battle.gen === 5) pokemon.statusData.sleepTurns = 0;
+		pokemon.statusData.brnAttackDropCount = 1;
+		pokemon.statusData.parSpeedDropCount = 1;
 		this.lastPokemon = pokemon;
 		this.active[slot] = null;
 
@@ -1737,6 +1748,23 @@ export class Battle {
 			}
 			poke.boosts[stat] += amount;
 
+			if (this.gen === 1 && !this.tier.includes('Stadium')) {
+				let ofpoke = this.getPokemon(kwArgs.of);
+				const foe = ofpoke?.side.foe.active[0];
+				if (foe?.status === 'brn') {
+					foe.statusData.brnAttackDropCount++;
+				}
+				if (foe?.status === 'par') {
+					foe.statusData.parSpeedDropCount++;
+				}
+				if (stat === 'atk' && poke.status === 'brn') {
+					poke.statusData.brnAttackDropCount = 0;
+				}
+				if (stat === 'spe' && poke.status === 'par') {
+					poke.statusData.parSpeedDropCount = 0;
+				}
+			}
+
 			if (!kwArgs.silent && kwArgs.from) {
 				let effect = Dex.getEffect(kwArgs.from);
 				let ofpoke = this.getPokemon(kwArgs.of);
@@ -1763,6 +1791,17 @@ export class Battle {
 				poke.boosts[stat] = 0;
 			}
 			poke.boosts[stat] -= amount;
+
+			if (this.gen === 1 && !this.tier.includes('Stadium')) {
+				let ofpoke = this.getPokemon(kwArgs.of);
+				const foe = ofpoke?.side.foe.active[0];
+				if (foe?.status === 'brn') {
+					foe.statusData.brnAttackDropCount++;
+				}
+				if (foe?.status === 'par') {
+					foe.statusData.parSpeedDropCount++;
+				}
+			}
 
 			if (!kwArgs.silent && kwArgs.from) {
 				let effect = Dex.getEffect(kwArgs.from);
@@ -2044,6 +2083,7 @@ export class Battle {
 			case 'brn':
 				this.scene.resultAnim(poke, 'Burned', 'brn');
 				this.scene.runStatusAnim('brn' as ID, [poke]);
+				poke.statusData.brnAttackDropCount = 1;
 				break;
 			case 'tox':
 				this.scene.resultAnim(poke, 'Toxic poison', 'psn');
@@ -2063,6 +2103,7 @@ export class Battle {
 			case 'par':
 				this.scene.resultAnim(poke, 'Paralyzed', 'par');
 				this.scene.runStatusAnim('par' as ID, [poke]);
+				poke.statusData.parSpeedDropCount = 1;
 				break;
 			case 'frz':
 				this.scene.resultAnim(poke, 'Frozen', 'frz');
@@ -2096,6 +2137,7 @@ export class Battle {
 				switch (args[2]) {
 				case 'brn':
 					this.scene.resultAnim(poke, 'Burn cured', 'good');
+					poke.statusData.brnAttackDropCount = 1;
 					break;
 				case 'tox':
 				case 'psn':
@@ -2108,6 +2150,7 @@ export class Battle {
 					break;
 				case 'par':
 					this.scene.resultAnim(poke, 'Paralysis cured', 'good');
+					poke.statusData.parSpeedDropCount = 1;
 					break;
 				case 'frz':
 					this.scene.resultAnim(poke, 'Thawed', 'good');

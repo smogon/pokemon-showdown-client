@@ -991,12 +991,22 @@ class BattleTooltips {
 		if (pokemon.status) {
 			if (this.battle.gen > 2 && ability === 'guts') {
 				stats.atk = Math.floor(stats.atk * 1.5);
-			} else if (this.battle.gen < 2 && pokemon.status === 'brn') {
-				stats.atk = Math.floor(stats.atk * 0.5);
+			} else if (this.battle.gen < 3 && pokemon.status === 'brn') {
+				var ratio = this.battle.gen === 1 && !this.battle.tier.includes('Stadium') ?
+					Math.pow(0.5, clientPokemon?.statusData.brnAttackDropCount ?? 1) : 0.5;
+				stats.atk = Math.floor(stats.atk * ratio);
 			}
 
 			if (this.battle.gen > 2 && ability === 'quickfeet') {
 				stats.spe = Math.floor(stats.spe * 1.5);
+			} else if (pokemon.status === 'par') {
+				if (this.battle.gen > 6) {
+					stats.spe = Math.floor(stats.spe * 0.5);
+				} else {
+					var ratio = this.battle.gen === 1 && !this.battle.tier.includes('Stadium') ?
+						Math.pow(0.25, clientPokemon?.statusData.parSpeedDropCount ?? 1) : 0.25;
+					stats.spe = Math.floor(stats.spe * ratio);
+				}
 			}
 		}
 
@@ -1195,14 +1205,6 @@ class BattleTooltips {
 		// Chained modifiers round down on 0.5
 		stats.spe = stats.spe * chainedSpeedModifier;
 		stats.spe = stats.spe % 1 > 0.5 ? Math.ceil(stats.spe) : Math.floor(stats.spe);
-
-		if (pokemon.status === 'par' && ability !== 'quickfeet') {
-			if (this.battle.gen > 6) {
-				stats.spe = Math.floor(stats.spe * 0.5);
-			} else {
-				stats.spe = Math.floor(stats.spe * 0.25);
-			}
-		}
 
 		return stats;
 	}
@@ -1523,7 +1525,7 @@ class BattleTooltips {
 		}
 
 		// 1/256 glitch
-		if (this.battle.gen === 1 && !toID(this.battle.tier).includes('stadium')) {
+		if (this.battle.gen === 1 && !this.battle.tier.includes('Stadium')) {
 			value.set((Math.floor(value.value * 255 / 100) / 256) * 100);
 		}
 		return value;
