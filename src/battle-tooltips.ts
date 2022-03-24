@@ -992,7 +992,7 @@ class BattleTooltips {
 			if (this.battle.gen > 2 && ability === 'guts') {
 				stats.atk = Math.floor(stats.atk * 1.5);
 			} else if (this.battle.gen < 3 && pokemon.status === 'brn') {
-				var ratio = this.battle.gen === 1 && !this.battle.tier.includes('Stadium') ?
+				const ratio = this.battle.gen === 1 && !this.battle.tier.includes('Stadium') ?
 					Math.pow(0.5, clientPokemon?.statusData.brnAttackDropCount ?? 1) : 0.5;
 				stats.atk = Math.floor(stats.atk * ratio);
 			}
@@ -1003,7 +1003,7 @@ class BattleTooltips {
 				if (this.battle.gen > 6) {
 					stats.spe = Math.floor(stats.spe * 0.5);
 				} else {
-					var ratio = this.battle.gen === 1 && !this.battle.tier.includes('Stadium') ?
+					const ratio = this.battle.gen === 1 && !this.battle.tier.includes('Stadium') ?
 						Math.pow(0.25, clientPokemon?.statusData.parSpeedDropCount ?? 1) : 0.25;
 					stats.spe = Math.floor(stats.spe * ratio);
 				}
