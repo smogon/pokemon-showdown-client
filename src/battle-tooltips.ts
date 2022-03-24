@@ -1291,10 +1291,10 @@ class BattleTooltips {
 	getSpeedRange(pokemon: Pokemon): [number, number] {
 		const tr = Math.trunc || Math.floor;
 		const species = pokemon.getSpecies();
-		let baseSpe = species.baseStats['spe'];
+		let baseSpe = species.baseStats.spe;
 		if (this.battle.rules['Scalemons Mod']) {
-			const bstWithoutHp = species.bst - species.baseStats['hp'];
-			const scale = 600 - species.baseStats['hp'];
+			const bstWithoutHp = species.bst - species.baseStats.hp;
+			const scale = 600 - species.baseStats.hp;
 			baseSpe = tr(baseSpe * scale / bstWithoutHp);
 			if (baseSpe < 1) baseSpe = 1;
 			if (baseSpe > 255) baseSpe = 255;
