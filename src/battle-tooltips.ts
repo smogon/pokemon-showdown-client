@@ -1204,6 +1204,10 @@ class BattleTooltips {
 			}
 		}
 
+		if (pokemon.status === 'par' && this.battle.gen < 3) {
+			stats.spe = Math.floor(stats.spe * 0.25)
+		}
+
 		return stats;
 	}
 
