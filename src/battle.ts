@@ -2824,7 +2824,7 @@ export class Battle {
 				}
 				break;
 			case 'mummy':
-				if (!kwArgs.ability) break; // if Mummy activated but failed, no ability will have been sent
+				if (!kwArgs.ability || target?.ability === '(suppressed)') break; // if Mummy activated but failed, no ability will have been sent
 				let ability = Dex.abilities.get(kwArgs.ability);
 				this.activateAbility(target, ability.name);
 				this.activateAbility(poke, "Mummy");
