@@ -352,7 +352,7 @@ export class Pokemon implements PokemonDetails, PokemonHealth {
 	}
 	rememberAbility(ability: string, isNotBase?: boolean) {
 		ability = Dex.abilities.get(ability).name;
-		if (!(this.ability === '(suppressed)')) {
+		if (this.ability !== '(suppressed)') {
 			this.ability = ability;
 		}
 		if (!this.baseAbility && !isNotBase) {
