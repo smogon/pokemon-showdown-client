@@ -59,7 +59,7 @@ includeHeader();
 			<h2><span>Contributors</span></h2>
 
 			<ul>
-				<li><p><strong>Alexander B.</strong> [mathfreak231] <small>&ndash; Development</small></p></li>
+				<li><p><strong>Alexander B.</strong> [Mathy] <small>&ndash; Development</small></p></li>
 				<li><p><strong>Andrew Goodsell</strong> [Zracknel] <small>&ndash; Art (battle weather backdrops)</small></p></li>
 				<li><p><strong>Avery Zimmer</strong> [Lyren, SolarisFox] <small>&ndash; Development</small></p></li>
 				<li><p><strong>Ben Davies</strong> [Morfent, Kaiepi] <small>&ndash; Development</small></p></li>
