@@ -708,10 +708,37 @@
 				}
 				moveMenu += '<div style="clear:left"></div>';
 
+				var rotateControls = '';
+				if (this.battle.gameType === 'rotation') {
+					console.log('rotation battle');
+					rotateControls += '<div class="rotateselect">';
+					switch (this.choice.willRotate) {
+					case 'right':
+						rotateControls += '<button name="chooseRotate" value="left">Back&nbsp;&rarr;</button>';
+						break;
+					case 'left':
+						rotateControls += '<button name="chooseRotate" value="right">&larr;&nbsp;Back</button>';
+						break;
+					default:
+						var rotatePokemon = this.battle.myPokemon[1];
+						if (rotatePokemon && !rotatePokemon.fainted) {
+							rotateControls += '<button name="chooseRotate" value="right">&larr;&nbsp;<span class="picon" style="' + Dex.getPokemonIcon(rotatePokemon) + '"></span>';
+							rotateControls += BattleLog.escapeHTML(rotatePokemon.name) + '</button>';
+						}
+						rotatePokemon = this.battle.myPokemon[2];
+						if (rotatePokemon && !rotatePokemon.fainted) {
+							rotateControls += '<button name="chooseRotate" value="left"><span class="picon" style="' + Dex.getPokemonIcon(rotatePokemon) + '"></span>';
+							rotateControls += BattleLog.escapeHTML(rotatePokemon.name) + '&nbsp;&rarr;</button>';
+						}
+					}
+
+					rotateControls += '</div><div style="clear:left"></div>';
+				}
+
 				var moveControls = (
 					'<div class="movecontrols">' +
 					'<div class="moveselect"><button name="selectMove">Attack</button></div>' +
-					'<div class="movemenu">' + moveMenu + '</div>' +
+					'<div class="movemenu">' + moveMenu + rotateControls + '</div>' +
 					'</div>'
 				);
 
@@ -720,26 +747,10 @@
 					shiftControls += '<div class="shiftselect"><button name="chooseShift">Shift</button></div>';
 				}
 
-				var rotateControls = '';
-				if (this.battle.gameType === 'rotation') {
-					console.log('rotation battle');
-					rotateControls += '<div class="rotateselect">';
-					var currentIndex = this.choice.willRotate === 'right' ? 1 : this.choice.willRotate === 'left' ? 2 : 0;
-					var rotatePokemon = this.battle.myPokemon[(currentIndex + 1) % 3];
-					if (rotatePokemon && !rotatePokemon.fainted) {
-						rotateControls += '<button name="chooseRotate" value="right">&larr;&nbsp;<span class="picon" style="' + Dex.getPokemonIcon(rotatePokemon) + '"></span>';
-						rotateControls += BattleLog.escapeHTML(rotatePokemon.name) + '</button>';
-					}
-					rotatePokemon = this.battle.myPokemon[(currentIndex + 2) % 3];
-					if (rotatePokemon && !rotatePokemon.fainted) {
-						rotateControls += '<button name="chooseRotate" value="left"><span class="picon" style="' + Dex.getPokemonIcon(rotatePokemon) + '"></span>';
-						rotateControls += BattleLog.escapeHTML(rotatePokemon.name) + '&nbsp;&rarr;</button>';
-					}
-					rotateControls += '</div><div style="clear:left"></div>';
-				}
-
 				var switchMenu = '';
-				if (trapped) {
+				if (this.choice.willRotate) {
+					switchMenu += '(Only the Pok&eacute;mon in front can switch)';
+				} else if (trapped) {
 					switchMenu += '<em>You are trapped and cannot switch!</em><br />';
 					switchMenu += this.displayParty(switchables, trapped);
 				} else {
@@ -757,7 +768,7 @@
 				this.$controls.html(
 					'<div class="controls">' +
 					'<div class="whatdo">' + requestTitle + this.getTimerHTML() + '</div>' +
-					moveControls + shiftControls + rotateControls + switchControls +
+					moveControls + shiftControls + switchControls +
 					'</div>'
 				);
 			}
@@ -768,7 +779,7 @@
 				var pokemon = switchables[i];
 				pokemon.name = pokemon.ident.substr(4);
 				var tooltipArgs = 'switchpokemon|' + i;
-				if (pokemon.fainted || i < this.battle.pokemonControlled || this.choice.switchFlags[i] || trapped) {
+				if (pokemon.fainted || i < this.battle.pokemonControlled || (this.battle.gameType === 'rotation' && i < 3) || this.choice.switchFlags[i] || trapped) {
 					party += '<button class="disabled has-tooltip" name="chooseDisabled" value="' + BattleLog.escapeHTML(pokemon.name) + (pokemon.fainted ? ',fainted' : trapped ? ',trapped' : i < this.battle.nearSide.active.length ? ',active' : '') + '" data-tooltip="' + BattleLog.escapeHTML(tooltipArgs) + '"><span class="picon" style="' + Dex.getPokemonIcon(pokemon) + '"></span>' + BattleLog.escapeHTML(pokemon.name) + (pokemon.hp ? '<span class="' + pokemon.getHPColorClass() + '"><span style="width:' + (Math.round(pokemon.hp * 92 / pokemon.maxhp) || 1) + 'px"></span></span>' + (pokemon.status ? '<span class="status ' + pokemon.status + '"></span>' : '') : '') + '</button> ';
 				} else {
 					party += '<button name="chooseSwitch" value="' + i + '" class="has-tooltip" data-tooltip="' + BattleLog.escapeHTML(tooltipArgs) + '"><span class="picon" style="' + Dex.getPokemonIcon(pokemon) + '"></span>' + BattleLog.escapeHTML(pokemon.name) + '<span class="' + pokemon.getHPColorClass() + '"><span style="width:' + (Math.round(pokemon.hp * 92 / pokemon.maxhp) || 1) + 'px"></span></span>' + (pokemon.status ? '<span class="status ' + pokemon.status + '"></span>' : '') + '</button> ';
@@ -937,9 +948,10 @@
 				var myPokemon = this.battle.myPokemon;
 				for (var i = 0; i < this.choice.choices.length; i++) {
 					var parts = this.choice.choices[i].split(' ');
+					if (parts[0] === 'rotate') parts.splice(0, 2);
 					switch (parts[0]) {
 					case 'move':
-						if (this.willRotate) i = this.willRotate === 'right' ? 1 : 2;
+						if (this.choice.willRotate) i = this.choice.willRotate === 'right' ? 1 : 2;
 						var move;
 						if (this.request.active[i].maxMoves && !this.request.active[i].canDynamax) { // it's a max move
 							move = this.request.active[i].maxMoves.maxMoves[parseInt(parts[1], 10) - 1].move;
