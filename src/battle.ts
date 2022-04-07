@@ -1065,6 +1065,7 @@ export class Battle {
 	tier = '';
 	gameType: 'singles' | 'doubles' | 'triples' | 'multi' | 'freeforall' = 'singles';
 	rated: string | boolean = false;
+	rules: {[ruleName: string]: 1 | 0} = {};
 	isBlitz = false;
 	endLastTurnPending = false;
 	totalTimeLeft = 0;
@@ -2366,7 +2367,8 @@ export class Battle {
 			const pokemon = tpoke;
 			const shiny = tpoke.shiny;
 			const gender = tpoke.gender;
-			poke.addVolatile('transform' as ID, pokemon, shiny, gender);
+			const level = tpoke.level;
+			poke.addVolatile('transform' as ID, pokemon, shiny, gender, level);
 			poke.addVolatile('formechange' as ID, speciesForme);
 			for (const trackedMove of tpoke.moveTrack) {
 				poke.rememberMove(trackedMove[0], 0);
@@ -3282,6 +3284,7 @@ export class Battle {
 				this.messageFadeTime = 40;
 				this.isBlitz = true;
 			}
+			this.rules[ruleName] = 1;
 			this.log(args);
 			break;
 		}
