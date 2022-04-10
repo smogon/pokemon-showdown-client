@@ -41,3 +41,7 @@ Il tuo username può essere scelto e cambiato in ogni momento (per farlo fai log
 4. **Gli username non possono pubblicizzare**.
 
 Questo regolamento è più permissivo di altri che potresti trovare in altri siti, quindi potresti vedere nickname borderline che potrebbero non essere accettati altrove. Di conseguenza, potrebbe sembrarti ingiusto che talvolta tu sia costretto a cambiare il tuo nick mentre altri no. Sta di fatto che se a te è stato chiesto di farlo e a loro no, il loro nickname rispetta le regole qui descritte, mentre il tuo no.
+
+## YouTube
+
+Per usare i comandi `/show` o `/youtube` per video di YouTube è necessario attenersi ai [Termini di Servizio di YouTube](https://www.youtube.com/static?gl=IT&template=terms&hl=it).

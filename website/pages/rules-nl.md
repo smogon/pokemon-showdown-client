@@ -19,7 +19,7 @@
 
 ## Chatregels
 
-1. **Volg de regels van de chatroom**, als die er zijn. Chatroomspecifieke regels zullen zichtbaar zijn in een link als je de chat binnenkomt, of je kunt het commando `/rules` gebruiken om de regels van de chatroom te vinden. Chatrooms kunnen regels #2 t/m #5 aanpassen of ongeldig verklaren als ze willen (battles kunnen dit ook, als alle spelers het ermee eens zijn). 
+1. **Volg de regels van de chatroom**, als die er zijn. Chatroomspecifieke regels zullen zichtbaar zijn in een link als je de chat binnenkomt, of je kunt het commando `/rules` gebruiken om de regels van de chatroom te vinden. Chatrooms kunnen regels #2 t/m #5 aanpassen of ongeldig verklaren als ze willen (battles kunnen dit ook, als alle spelers het ermee eens zijn).
 
 2. **Niet spammen, trollen, of beledigende berichten sturen**. Dit houdt ook in: reclame maken, met een groep mensen samen de chat verstoren en de chat flooden. HOOFDLETTERS en <i>tekstopmaak</i> zijn toegestaan om bepaalde gedeeltes van je bericht te benadrukken, maar gebruik ze met mate. Deze regel geldt ook in privéberichten.
 
@@ -43,3 +43,6 @@ Je kunt op ieder moment een gebruikersnaam kiezen of hem wijzigen (wijzig hem do
 4. **Gebruikersnamen mogen niet gebruikt worden om reclame te maken**.
 
 Deze regels zijn minder beperkend dan op veel andere plekken, dus het is mogelijk dat je soms "grensgevallen" ziet die op andere plekken niet toegelaten zouden worden. Misschien vind je het oneerlijk dat zij hun naam mogen behouden. Het feit blijft dat zijn of haar naam voldoet aan bovenstaande regels en, als jij gevraagd bent een nieuwe naam te kiezen, de jouwe niet.
+
+## YouTube
+Wanneer `/show` of `/youtube` gebruikt wordt voor YouTube videos, moet je de [Servicevoorwaarden van YouTube](https://www.youtube.com/t/terms) volgen.

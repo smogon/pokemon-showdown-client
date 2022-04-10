@@ -41,3 +41,7 @@
 4. **用戶名不能帶廣告**或者鏈接。
 
 管理員有權強制用戶變更用戶名，請勿以他人的用戶名未被要求變更為理由來為自己的用戶名做辯解。
+
+## YouTube
+
+使用`/show`或`/youtube`指令廣播YouTube視頻的時候請遵守[YouTube服務條款](https://www.youtube.com/t/terms)。
