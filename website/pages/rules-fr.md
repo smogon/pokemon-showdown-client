@@ -41,3 +41,7 @@ Votre pseudo peut être choisi et modifié à tout moment (vous pouvez le change
 4. **Les pseudos ne doivent pas être ou faire de la publicité.**
 
 Cette politique est moins restrictive que celle de beaucoup d'autres endroits, de sorte que vous pouvez voir quelques pseudos «limites» qui pourraient ne pas être acceptés ailleurs. Vous pourriez également trouver cela injuste que certains utilisateurs soient autorisés à conserver leur pseudo et vous pas. Le fait est que le leur suit les règles plus haut, et si un modérateur vous a demandé de choisir un nouveau pseudo, ce n'est pas le cas du vôtre.
+
+## YouTube
+
+Quand vous utilisez les commandes `/show` ou `/youtube` pour des vidéos YouTube, vous devez respecter les [Conditions d’Utilisation de YouTube](https://www.youtube.com/static?gl=IT&template=terms&hl=fr).

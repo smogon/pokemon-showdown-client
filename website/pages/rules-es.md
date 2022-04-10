@@ -41,3 +41,7 @@ Puedes elegir un nombre de usuario y cambiarlo en cualquier momento (lo puedes c
 4. **Los nombres no pueden publicitar.**
 
 Esta política es mucho menos restrictiva que en otros lugares, por lo que podrán haber ciertos usuarios que estén en "el límite" y no sean aceptados en otros sitios. Si bien puedes considerar injusto que tengan el derecho de conservar su nombre, la diferencia está en que el nombre del otro usuario cumple con nuestras normas, mientras que si tu fuiste forzado a cambiar el nombre, es porque no las cumplías.
+
+## Youtube
+
+Cuando utilices los comandos `/show` o `/youtube` para videos de YouTube, deberán seguir los [Términos del Servicio de Youtube](https://www.youtube.com/static?template=terms).
