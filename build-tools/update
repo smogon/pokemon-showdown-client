@@ -132,7 +132,7 @@ const URL_REGEX = /(src|href)="\/(.*?)(\?[a-z0-9]*?)?"/g;
 function updateURL(a, b, c, d) {
 	c = c.replace('/replay.pokemonshowdown.com/', '/' + routes.replays + '/');
 	c = c.replace('/dex.pokemonshowdown.com/', '/' + routes.dex + '/');
-	c = c.replace('/play.pokemonshowdown.com/', '/' + routes.client + '/');
+	c = c.replace('/play.pokemonshowdown.com', '/' + routes.client);
 	c = c.replace('/pokemonshowdown.com/', '/' + routes.root + '/');
 
 	if (d) {
