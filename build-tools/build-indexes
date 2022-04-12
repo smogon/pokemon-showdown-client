@@ -562,7 +562,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 		})();
 
 		for (const tier of tierOrder) {
-			if (tier in {OU:1, AG:1, Uber:1, UU:1, "(UU)":1, RU:1, NU:1, "(NU)":1, PU:1, "(PU)":1, NFE:1, LC:1, DOU:1, DUU:1, "(DUU)":1, New:1, Legal:1, Regular:1, "Restricted Legendary":1, "CAP LC":1}) {
+			if (tier in {OU:1, AG:1, Uber:1, UU:1, RU:1, NU:1, PU:1, "(PU)":1, NFE:1, LC:1, DOU:1, DUU:1, "(DUU)":1, New:1, Legal:1, Regular:1, "Restricted Legendary":1, "CAP LC":1}) {
 				let usedTier = tier;
 				if (usedTier === "(UU)") usedTier = "RU";
 				if (usedTier === "(NU)") usedTier = "PU";
@@ -571,11 +571,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 				formatSlices[usedTier] = tiers.length;
 			}
 			if (!tierTable[tier]) continue;
-			if (tier === "(UU)") {
-				tiers.push(['header', "Below UU"]);
-			} else if (tier === "(NU)") {
-				tiers.push(['header', "Below NU"]);
-			} else if (tier === "(PU)") {
+			if (tier === "(PU)") {
 				tiers.push(['header', "Below PU"]);
 			} else if (tier === "(DUU)") {
 				tiers.push(['header', "Below DUU"]);
