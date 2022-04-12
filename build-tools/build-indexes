@@ -366,7 +366,6 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 					const ou = Dex.formats.get('gen8nationaldex');
 					if (Dex.formats.getRuleTable(ou).isBannedSpecies(species)) return 'Uber';
 					if (Dex.formats.getRuleTable(ou).has('dynamaxclause') && species.name.endsWith('Gmax')) return '(Uber)';
-					if (Tags.nduubl.speciesFilter(species)) return 'UUBL';
 					if (Dex.formats.getRuleTable(uu).isBannedSpecies(species)) {
 						if (Tags.nduubl.speciesFilter(species)) return 'UUBL';
 						return 'OU';
@@ -568,7 +567,6 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 				if (usedTier === "(DUU)") usedTier = "DNU";
 				formatSlices[usedTier] = tiers.length;
 			}
-			if (!tierTable[tier]) continue;
 			if (tier === "(PU)") {
 				tiers.push(['header', "Below PU"]);
 			} else if (tier === "(DUU)") {
