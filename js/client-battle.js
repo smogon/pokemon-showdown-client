@@ -765,8 +765,14 @@
 					'<div class="switchmenu">' + switchMenu + '</div>' +
 					'</div>'
 				);
+
+				var controlsClass = 'controls';
+				if (this.choice.willRotate) {
+					// start with move controls shown
+					controlsClass = 'controls move-controls';
+				}
 				this.$controls.html(
-					'<div class="controls">' +
+					'<div class="' + controlsClass + '">' +
 					'<div class="whatdo">' + requestTitle + this.getTimerHTML() + '</div>' +
 					moveControls + shiftControls + switchControls +
 					'</div>'
