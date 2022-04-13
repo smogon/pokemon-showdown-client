@@ -2278,6 +2278,9 @@ a.ilink.yours {
 		display: block;
 		margin-right: 0;
 	}
+	.will-rotate .switchcontrols {
+		display: none;
+	}
 	.move-controls .moveselect button,
 	.switch-controls .switchselect button,
 	.shiftselect button {

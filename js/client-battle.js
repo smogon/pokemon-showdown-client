@@ -768,8 +768,7 @@
 
 				var controlsClass = 'controls';
 				if (this.choice.willRotate) {
-					// start with move controls shown
-					controlsClass = 'controls move-controls';
+					controlsClass = 'controls move-controls will-rotate';
 				}
 				this.$controls.html(
 					'<div class="' + controlsClass + '">' +
