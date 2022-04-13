@@ -928,7 +928,7 @@
 						if (parts.length > 2) {
 							var targetPos = parts[2];
 							if (targetPos === 'mega') {
-								buf += 'mega evolve, then ';
+								buf += 'Mega Evolve, then ';
 								targetPos = parts[3];
 							}
 							if (targetPos === 'zmove') {
@@ -936,7 +936,7 @@
 								targetPos = parts[3];
 							}
 							if (targetPos === 'ultra') {
-								buf += 'ultra burst, then ';
+								buf += 'Ultra Burst, then ';
 								targetPos = parts[3];
 							}
 							if (targetPos === 'dynamax') {
