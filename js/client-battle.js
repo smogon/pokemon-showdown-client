@@ -935,6 +935,10 @@
 								move = this.request.active[i].canZMove[parseInt(parts[1], 10) - 1].move;
 								targetPos = parts[3];
 							}
+							if (targetPos === 'ultra') {
+								buf += 'ultra burst, then ';
+								targetPos = parts[3];
+							}
 							if (targetPos === 'dynamax') {
 								move = this.request.active[i].maxMoves.maxMoves[parseInt(parts[1], 10) - 1].move;
 								buf += 'Dynamax, then ';
