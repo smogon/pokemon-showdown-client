@@ -928,11 +928,15 @@
 						if (parts.length > 2) {
 							var targetPos = parts[2];
 							if (targetPos === 'mega') {
-								buf += 'mega evolve, then ';
+								buf += 'Mega Evolve, then ';
 								targetPos = parts[3];
 							}
 							if (targetPos === 'zmove') {
 								move = this.request.active[i].canZMove[parseInt(parts[1], 10) - 1].move;
+								targetPos = parts[3];
+							}
+							if (targetPos === 'ultra') {
+								buf += 'Ultra Burst, then ';
 								targetPos = parts[3];
 							}
 							if (targetPos === 'dynamax') {
