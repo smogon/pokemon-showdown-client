@@ -212,6 +212,23 @@ function PokemonButton(props: {
 		{!props.noHPBar && pokemon.status && <span class={`status ${pokemon.status}`}></span>}
 	</button>;
 }
+function RotateButton(props: {
+	pokemon: Pokemon | ServerPokemon | null, direction: 'right' | 'left', disabled?: boolean,
+}) {
+	if (!props.pokemon) {
+		return <button class="disabled">(empty slot)</button>;
+	}
+	switch (props.direction) {
+		case 'right':
+			return <button name="cmd" value="/rotate right" class={props.disabled ? 'disabled' : ''}>
+				&larr;&nbsp;<span class="picon" style={Dex.getPokemonIcon(props.pokemon)}></span>{props.pokemon.name}
+			</button>;
+		case 'left':
+			return <button name="cmd" value="/rotate left" class={props.disabled ? 'disabled' : ''}>
+				<span class="picon" style={Dex.getPokemonIcon(props.pokemon)}></span>{props.pokemon.name}&nbsp;&rarr;
+			</button>;
+	}
+}
 
 class BattlePanel extends PSRoomPanel<BattleRoom> {
 	send = (text: string) => {
@@ -427,22 +444,20 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 		];
 	}
 	renderRotationControls(request: BattleMoveRequest, choices: BattleChoiceBuilder) {
-		let targets: [number, number] = [1, 2];
 		switch (choices.current.willRotate) {
 			case 'right':
-				targets = [2, 0];
-				break;
+				return <button name="cmd" value="/cancel">Back&nbsp;&rarr;</button>;
 			case 'left':
-				targets = [0, 1];
-				break;
-		}
-		return targets.map((v, i) => {
-			const serverPokemon = request.side.pokemon[v];
-			return <PokemonButton pokemon={serverPokemon} cmd={`/rotate ${i === 0 ? 'right' : 'left'}`} disabled={!!serverPokemon.fainted} tooltip=''/>;
+				return <button name="cmd" value="/cancel">&larr;&nbsp;Back</button>;
+			default:
+				return (['right', 'left'] as ('right' | 'left')[]).map((v, i) => {
+					const serverPokemon = request.side.pokemon[i + 1];
+					return <RotateButton pokemon={serverPokemon} direction={v} disabled={!!serverPokemon.fainted}/>;
 		});
+		}
 	}
 	renderSwitchControls(request: BattleMoveRequest | BattleSwitchRequest, choices: BattleChoiceBuilder) {
-		const numActive = choices.requestLength();
+		const numActive = choices.requestLength(true);
 
 		const trapped = choices.currentMoveRequest()?.trapped;
 
@@ -504,7 +519,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 			let active = request.requestType === 'move' ? request.active[i] : null;
 			if (choice.choiceType === 'move') {
 				if (choice.willRotate) {
-					let index = choice.willRotate === 'left' ? 2 : 1;
+					const index = choice.willRotate === 'left' ? 2 : 1;
 					pokemon = request.side.pokemon[index];
 					active = (request as BattleMoveRequest).active[index];
 				}
@@ -618,7 +633,8 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 							<input type="checkbox" name="z" checked={choices.current.z} onChange={this.toggleBoostedMove} /> {}
 							Z-Power
 						</label>}
-						{rotation && this.renderRotationControls(request, choices)}
+						{rotation && <div class="rotateselect">{this.renderRotationControls(request, choices)}</div>}
+						<div style="clear:left"></div>
 					</div>
 				</div>
 				<div class="switchcontrols">

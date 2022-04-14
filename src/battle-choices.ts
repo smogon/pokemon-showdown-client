@@ -142,7 +142,7 @@ class BattleChoiceBuilder {
 		for (const choice of this.choices) {
 			if (choice !== 'pass') return false;
 		}
-		if (this.current.move) return false;
+		if (this.current.move || this.current.willRotate) return false;
 		return true;
 	}
 
@@ -152,11 +152,11 @@ class BattleChoiceBuilder {
 		return this.choices.length;
 	}
 	/** How many choices is the server expecting? */
-	requestLength() {
+	requestLength(includeSubActive?: boolean) {
 		const request = this.request;
 		switch (request.requestType) {
 		case 'move':
-			if (request.rotation) return 1;
+			if (request.rotation && !includeSubActive) return 1;
 			return request.active.length;
 		case 'switch':
 			return request.forceSwitch.length;
@@ -277,23 +277,32 @@ class BattleChoiceBuilder {
 		const request = this.request;
 		if (request.requestType === 'wait') throw new Error(`It's not your turn to choose anything`);
 
-		const index = this.choices.length;
+		let index = this.choices.length;
 
 		if (choice === 'shift') return {choiceType: 'shift'};
 
-		let willRotate: 'left' | 'right' | null = null;
+		let willRotate = this.current.willRotate;
 		if (choice.startsWith('rotate')) {
 			if (!(request.requestType === 'move' && request.rotation)) throw new Error(`This is not a rotation battle`);
 			if (choice.startsWith('rotate right ')) {
 				willRotate = 'right';
-				choice = choice.slice(0, 13);
+				choice = choice.slice(13);
 			} else if (choice.startsWith('rotate left ')) {
 				willRotate = 'left';
-				choice = choice.slice(0, 12);
+				choice = choice.slice(12);
 			} else {
 				throw new Error(`"rotate" must be followed by either "right" or "left"`);
 			}
 			if (!choice.startsWith('move ')) throw new Error(`Rotations must be followed by a move choice`);
+		}
+
+		switch (willRotate) {
+			case 'right':
+				index = 1;
+				break;
+			case 'left':
+				index = 2;
+				break;
 		}
 
 		if (choice.startsWith('move ')) {
@@ -420,7 +429,7 @@ class BattleChoiceBuilder {
 				}
 				current.targetPokemon = match;
 			}
-			if (!isTeamPreview && current.targetPokemon - 1 < this.requestLength()) {
+			if (!isTeamPreview && current.targetPokemon - 1 < this.requestLength(true)) {
 				throw new Error(`That Pokémon is already in battle!`);
 			}
 			const target = request.side.pokemon[current.targetPokemon - 1];

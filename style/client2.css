@@ -1611,7 +1611,8 @@ a.ilink.yours {
 	white-space: pre;
 	overflow: hidden;
 }
-.switchmenu button .picon {
+.switchmenu button .picon,
+.rotateselect button .picon {
 	float: left;
 	margin: -6px -3px -6px -4px;
 	opacity: 0.8;
@@ -1733,7 +1734,18 @@ a.ilink.yours {
 	vertical-align: -1px;
 	cursor: pointer;
 }
-
+.rotateselect button {
+	position: relative;
+	display: block;
+	float: left;
+	width: 150px;
+	height: 30px;
+	margin-right: 4px;
+	font: 9pt Verdana, sans-serif;
+	padding: 5px 5px 5px 0;
+	white-space: pre;
+	overflow: hidden;
+}
 .switchmenu,
 .movemenu {
 	display: block;
