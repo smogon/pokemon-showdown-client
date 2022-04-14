@@ -965,6 +965,7 @@
 						}
 						var target = '';
 						buf += myPokemon[i].speciesForme + ' will ';
+						if (this.choice.willRotate) buf += 'rotate in and ';
 						if (parts.length > 2) {
 							var targetPos = parts[2];
 							if (targetPos === 'mega') {
