@@ -2798,11 +2798,9 @@ export class Battle {
 				let pokeability = Dex.sanitizeName(kwArgs.ability) || target!.ability;
 				let targetability = Dex.sanitizeName(kwArgs.ability2) || poke.ability;
 				if (pokeability) {
-					poke.ability = pokeability;
 					if (!target!.baseAbility) target!.baseAbility = pokeability;
 				}
 				if (targetability) {
-					target!.ability = targetability;
 					if (!poke.baseAbility) poke.baseAbility = targetability;
 				}
 				if (poke.side !== target!.side) {
