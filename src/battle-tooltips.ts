@@ -1133,7 +1133,8 @@ class BattleTooltips {
 		}
 		const isNFE = Dex.species.get(serverPokemon.speciesForme).evos?.some(evo => {
 			const evoSpecies = Dex.species.get(evo);
-			return !evoSpecies.isNonstandard || evoSpecies.isNonstandard === Dex.species.get(serverPokemon.speciesForme)?.isNonstandard;
+			return !evoSpecies.isNonstandard ||
+					evoSpecies.isNonstandard === Dex.species.get(serverPokemon.speciesForme)?.isNonstandard;
 		});
 		if (item === 'eviolite' && isNFE) {
 			stats.def = Math.floor(stats.def * 1.5);
