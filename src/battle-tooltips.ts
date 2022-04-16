@@ -1131,7 +1131,11 @@ class BattleTooltips {
 		if (ability === 'marvelscale' && pokemon.status) {
 			stats.def = Math.floor(stats.def * 1.5);
 		}
-		if (item === 'eviolite' && Dex.species.get(pokemon.speciesForme).evos) {
+		const isNFE = Dex.species.get(serverPokemon.speciesForme).evos?.some(evo => {
+			const evoSpecies = Dex.species.get(evo);
+			return !evoSpecies.isNonstandard || evoSpecies.isNonstandard === Dex.species.get(serverPokemon.speciesForme)?.isNonstandard;
+		});
+		if (item === 'eviolite' && isNFE) {
 			stats.def = Math.floor(stats.def * 1.5);
 			stats.spd = Math.floor(stats.spd * 1.5);
 		}
