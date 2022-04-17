@@ -40572,6 +40572,7 @@ BattleMoveAnims['finalhour'] = {anim: BattleMoveAnims['doomdesire'].anim};
 BattleMoveAnims['meddymeds'] = {anim: BattleMoveAnims['dailydose'].anim};
 BattleMoveAnims['bearhug'] = {anim: BattleMoveAnims['bind'].anim};
 BattleMoveAnims['faeblade'] = {anim: BattleMoveAnims['spacialrend'].anim};
+BattleMoveAnims['thunderdrop'] = {anim: BattleMoveAnims['skydrop'].anim};
 
 BattleMoveAnims['matingpress'] = {anim: BattleMoveAnims['letssnuggleforever'].anim};
 BattleMoveAnims['closeblobmat'] = {anim: BattleMoveAnims['closecombat'].anim};
