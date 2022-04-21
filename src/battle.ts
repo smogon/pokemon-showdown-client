@@ -2180,6 +2180,13 @@ export class Battle {
 					this.activateAbility(poke, "Harvest");
 					this.scene.resultAnim(poke, item.name, 'neutral');
 					break;
+				case 'knockoff':
+					// this is only for gens 3-4, where Knock Off just made items unusable
+					poke.itemEffect = 'knocked off';
+					poke.addVolatile('itemremoved' as ID);
+					this.scene.runOtherAnim('itemoff' as ID, [poke]);
+					this.scene.resultAnim(poke, 'Item knocked off', 'neutral');
+					break;
 				case 'bestow':
 					poke.itemEffect = 'bestowed';
 					this.scene.resultAnim(poke, item.name, 'neutral');
