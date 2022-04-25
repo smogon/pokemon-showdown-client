@@ -2205,10 +2205,12 @@ export class Battle {
 			let poke = this.getPokemon(args[1])!;
 			let item = Dex.items.get(args[2]);
 			let effect = Dex.getEffect(kwArgs.from);
-			poke.item = '';
-			poke.itemEffect = '';
-			poke.prevItem = item.name;
-			poke.prevItemEffect = '';
+			if (this.gen > 4 || effect.id !== 'knockoff') {
+				poke.item = '';
+				poke.itemEffect = '';
+				poke.prevItem = item.name;
+				poke.prevItemEffect = '';
+			}
 			poke.removeVolatile('airballoon' as ID);
 			poke.addVolatile('itemremoved' as ID);
 			if (kwArgs.eat) {
@@ -2224,7 +2226,11 @@ export class Battle {
 					poke.prevItemEffect = 'flung';
 					break;
 				case 'knockoff':
-					poke.prevItemEffect = 'knocked off';
+					if (this.gen <= 4) {
+						poke.itemEffect = 'knocked off';
+					} else {
+						poke.prevItemEffect = 'knocked off';
+					}
 					this.scene.runOtherAnim('itemoff' as ID, [poke]);
 					this.scene.resultAnim(poke, 'Item knocked off', 'neutral');
 					break;
