@@ -804,6 +804,8 @@ function toId() {
 			};
 			this.socket.onmessage = function (msg) {
 				if (window.console && console.log) {
+					//storing massege for error display on UI when generating link fail
+					window.localStorage.errormassege=msg.data;
 					console.log('<< ' + msg.data);
 				}
 				self.receive(msg.data);

@@ -173,3 +173,4 @@ Net.encodeQuery = function (data: string | PostData) {
 	}
 	return urlencodedData;
 };
+
