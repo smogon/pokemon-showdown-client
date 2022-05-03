@@ -192,11 +192,11 @@
 		},
 		generateLink:function(challengeData){
 			if(!$('.link').length){
-			let link=`http://192.168.1.5:8080/testclient.html?challenge-${challengeData.userId}-${challengeData.format}-${challengeData.teamIndex}`;
+			let link=`https://play.pokemonshowdown.com?challenge-${challengeData.userId}-${challengeData.format}-${challengeData.teamIndex}`;
 			$('.link-generatore').append(`<p class=link>${link}</p>`);
 			}
 			else{
-				let link=`http://192.168.1.5:8080/testclient.html?challenge-${challengeData.userId}-${challengeData.format}-${challengeData.teamIndex}`;
+				let link=`https://play.pokemonshowdown.com?challenge-${challengeData.userId}-${challengeData.format}-${challengeData.teamIndex}`;
 				$('.link').html(`<p class=link>${link}</p>`)
 			}
 		},
@@ -1621,7 +1621,7 @@
 			window.Storage.prefs("page","challenge");
 			setTimeout(function(){
 			//changing url without refreshing page, ther was issue of losing data when refreshing page 
-			window.history.replaceState(null,"",'http://192.168.1.5:8080/testclient.html');
+			window.history.replaceState(null,"",'https://play.pokemonshowdown.com');
 			//log in user before sending challenge
 			new window.UserPopup({name:''}).login();
 			},1000);
