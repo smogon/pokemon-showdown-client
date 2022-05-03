@@ -30,7 +30,7 @@
   "devDependencies": {
     "@types/jquery": "^3.5.3",
     "@types/mocha": "^5.2.6",
-    "eslint": "^5.15.1",
+    "eslint": "^5.16.0",
     "mocha": "^6.0.2",
     "preact": "^8.3.1",
     "tslint": "^5.13.0",

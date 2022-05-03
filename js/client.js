@@ -804,8 +804,6 @@ function toId() {
 			};
 			this.socket.onmessage = function (msg) {
 				if (window.console && console.log) {
-					//storing massege for error display on UI when generating link fail
-					window.localStorage.errormassege=msg.data;
 					console.log('<< ' + msg.data);
 				}
 				self.receive(msg.data);
@@ -1123,6 +1121,8 @@ function toId() {
 				break;
 
 			case 'popup':
+				//storing recieved pop massege for error display on UI when generating link fail
+				window.Storage.prefs("errormassege",data);
 				var maxWidth;
 				var type = 'semimodal';
 				data = data.substr(7);
