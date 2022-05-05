@@ -23,13 +23,14 @@
     "@babel/preset-typescript": "^7.13.0",
     "babel-plugin-remove-import-export": "^1.1.1",
     "google-auth-library": "^3.1.0",
+    "http-server": "^14.1.0",
     "image-size": "^0.7.2",
     "output-file-sync": "^2.0.1"
   },
   "devDependencies": {
     "@types/jquery": "^3.5.3",
     "@types/mocha": "^5.2.6",
-    "eslint": "^5.15.1",
+    "eslint": "^5.16.0",
     "mocha": "^6.0.2",
     "preact": "^8.3.1",
     "tslint": "^5.13.0",

@@ -22,6 +22,7 @@
 			'click button.teamselect': 'selectTeam',
 			'keyup input': 'selectTeammate'
 		},
+		
 		initialize: function () {
 			this.$el.addClass('scrollable');
 
@@ -54,10 +55,12 @@
 			buf += '<p><button class="button mainmenu3" name="joinRoom" value="ladder">Ladder</button></p></div>';
 
 			buf += '<div class="menugroup"><p><button class="button mainmenu4 onlineonly disabled" name="joinRoom" value="battles">Watch a battle</button></p>';
-			buf += '<p><button class="button mainmenu5 onlineonly disabled" name="finduser">Find a user</button></p></div>';
+			buf += '<p><button class="button mainmenu5 onlineonly disabled" name="finduser">Find a user</button></p>';
+			//creating link generatore button with click event to triger link generation event 
+			buf += "<p class=link-generatore><button id='challeng-via-link' class='button mainmenu5 onlineonly'>send challeng via link</button></p></div>";
 
 			this.$('.mainmenu').html(buf);
-
+			
 			// right menu
 			if (document.location.hostname === Config.routes.client) {
 				this.$('.rightmenu').html('<div class="menugroup"><p><button class="button mainmenu1 onlineonly disabled" name="joinRoom" value="rooms">Join chat</button></p></div>');
@@ -81,8 +84,22 @@
 
 			var self = this;
 			Storage.whenPrefsLoaded(function () {
+				//creating observer when user use challenge link to generate challenge form on user log in
+				self.createLoginFormObserver(self);
 				var newsid = Number(Storage.prefs('newsid'));
 				var $news = this.$('.news-embed');
+				//add eventlisener for genrate link button
+				$('#challeng-via-link').click(function(){
+				if($('.username').length){
+						$('#errormasseg').empty();
+						if(!$('.challenge').length){
+							self.generateChallengeForm(self)
+						}
+				}
+				else{
+					self.generateErrorMessage("you need to log in first to generate link",'.link-generatore');
+				}
+				});
 				if (!newsid) {
 					if ($(window).width() < 628) {
 						// News starts minimized in phone layout
@@ -114,7 +131,118 @@
 				);
 			}
 		},
+		createLoginFormObserver:function(self){
+			console.log(window.Storage.prefs("page"))
+			const config = { attributes: true, childList: true, subtree: true };
+			const observer = new MutationObserver(function(){
+			if(window.app.user.get("named") && window.Storage.prefs("page")=="challenge"){
+				window.Storage.prefs("page","testclient");
+				if($('.challenge-container').length==0){
+					//user log in event trigerd when user log in and make user pick a team
+					$('body').on("login_event",function(){
+					self.onUserLogIn(self);
+				})
+				$('body').trigger("login_event");
+				}
+			}
+			});
+			observer.observe(document.activeElement, config);
+			},
+		onUserLogIn:function(self){
+			var buf = '<div class="challenge"><form class="battleform"><p>Challenge from ' + BattleLog.escapeHTML(window.Storage.prefs("challenger")) + '?</p>';
+			buf += '<p><label class="label">Format:</label>' + self.renderFormats(window.Storage.prefs("format")) + '</p>';
+			buf += '<p id="select-team"><label class="label">Team:</label>' + self.renderTeams(window.Storage.prefs("format")) + '</p>';
+			buf +='<button type="button" id=accept-challenge>accept</button>';
+			buf +='<button type="button" id=close-challenge>close</button></form></div>'
+			$('.pmbox').append(`<div class=challenge-container>${buf}</div>`);
+			$('.select.formatselect').prop("disabled",true);
+			$('.select.teamselect').prop("disabled",false);
+			$('#accept-challenge').click(function(){
+				self.onTeamSelect(window.Storage.prefs("challenger")).then(function(data){
+					 $('#accept-challenge').html("accept");
+					if(data.massage.includes("Your team is valid") && data.userId!=window.app.user.get("name") && data.userId){
+						self.sendChallenge({userId:data.userId,format:$('.select.formatselect').val()});
+						$('.challenge-container').empty();
+					 }
+					 else if(data.userId==app.user.get("name")){
+						window.app.addPopupMessage("opponent name and challeger name  are equall you cant challenge your self");
+					 }
+					else{
+						window.app.addPopupMessage(data.massage);
+					}
+				})
+			})
+			$('#close-challenge').click(function(){
+				$('.challenge-container').empty();
+			})
+		},
+		onTeamSelect:function(challengerName){
+			//used promise to wait for reponde for team pick
+			return new Promise(function(resolve){
+				$('#accept-challenge').html("processing request...");
+				if(window.Storage.prefs("team")!="random"){
+					app.sendTeam(window.Storage.teams[$('#select-team .select.teamselect').val()]);
+					app.send('/vtm ' + $('.select.formatselect').val());
+					resolve({userId:challengerName,massage:window.Storage.prefs("errormassege")});
+				}
+				else{
+					resolve({userId:challengerName,massage:"Your team is valid"});
+				}
+			})
+		},
+		generateLink:function(challengeData){
+			if(!$('.link').length){
+			let link=`https://play.pokemonshowdown.com?challenge-${challengeData.userId}-${challengeData.format}-${challengeData.teamIndex}`;
+			$('.link-generatore').append(`<p class=link>${link}</p>`);
+			}
+			else{
+				let link=`https://play.pokemonshowdown.com?challenge-${challengeData.userId}-${challengeData.format}-${challengeData.teamIndex}`;
+				$('.link').html(`<p class=link>${link}</p>`)
+			}
+		},
+		generateErrorMessage:function(msg,selectore){
+			if($('#errormasseg').length && !$('#errormasseg').children().length){
+			$('#errormasseg').remove();
+			}
+			if(!$('#errormasseg').length){
+				$(selectore).append(`<p id=errormasseg>${msg}</p>`);
+			}
+		},
+		generateChallengeForm:function(self){
+			var buf = '<div class="challenge"><form class="battleform"><p>Challenge link generatore</p>';
+			buf += '<p><label class="label">Format:</label>' + self.renderFormats("gen8randombattle") + '</p>';
+			buf += '<p><label class="label">Team:</label>' + self.renderTeams("gen8randombattle") + '</p>';
+			buf += '<p><label class="checkbox"><input type="checkbox" name="private" ' + (Storage.prefs('disallowspectators') ? 'checked' : '') + ' /> <abbr title="You can still invite spectators by giving them the URL or using the /invite command">Don\'t allow spectators</abbr></label></p>';
+			buf +='<button type="button" id=generate-link>generate link</button>';
+			buf +='<button type="button" id=close-challenge>close</button></form></div>'
+			$('.pmbox').append(`<div class=challenge-container>${buf}</div>`);
+			$('#generate-link').click(function(){
+			$('#generate-link').html("generating...");
+			app.sendTeam(Storage.teams[$('.select.teamselect').val()]);
+			app.send('/vtm ' + $('.select.formatselect').val());
+			setTimeout(function(){
+			if($('.select.teamselect').val() && window.Storage.prefs("errormassege").includes("Your team is valid")){
+			$('#errormasseg').empty();
+			self.generateLink({userId:window.app.user.get("name"),
+			format:$('.select.formatselect').val()
+			,teamIndex:$('.select.teamselect').val()});
+			$('#generate-link').html("generate link");
+			}
+			else{
+				$('.link').remove();
+				self.generateErrorMessage(window.Storage.prefs("errormassege"),'.challenge');
+				$('#generate-link').html("generate link");
+			}
+			},2000);
+			});
 
+			$('#close-challenge').click(function(){
+				$('.challenge-container').empty();
+			})
+		},
+		sendChallenge:function(challengeDataObject){
+			app.send('/challenge ' + challengeDataObject.userId + ', ' + challengeDataObject.format);
+		},
 		addPseudoPM: function (options) {
 			if (!options) return;
 			options.title = options.title || '';
@@ -235,6 +363,7 @@
 			var userid = toID(name);
 
 			var $challenge = $pmWindow.find('.challenge');
+
 			if ($challenge.find('button[name=makeChallenge]').length) {
 				// we're currently trying to challenge that user; suppress the challenge and wait until later
 				$challenge.find('button[name=dismissChallenge]').attr(
@@ -1030,7 +1159,7 @@
 
 			var teams = Storage.teams;
 			if (!teams.length) {
-				return '<button class="select teamselect" name="team" disabled>You have no teams</button>';
+				return '<button class="select teamselect" name="team" >You have no teams</button>';
 			}
 			if (teamIndex === undefined) teamIndex = -1;
 			if (teamIndex < 0) {
@@ -1201,7 +1330,7 @@
 				}
 				return '<div class="chat chatmessage-' + toID(name) + hlClass + mineClass + '">' + timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <em>' + BattleLog.parseMessage(message) + '</em></div>';
 			}
-		}
+		},
 	});
 
 	var FormatPopup = this.FormatPopup = this.Popup.extend({
@@ -1487,5 +1616,26 @@
 			return buf;
 		}
 	});
-
+	window.addEventListener("load",function(){
+		if(window.location.search.includes("challenge")){
+			window.Storage.prefs("page","challenge");
+			setTimeout(function(){
+			//changing url without refreshing page, ther was issue of losing data when refreshing page 
+			window.history.replaceState(null,"",'https://play.pokemonshowdown.com');
+			//log in user before sending challenge
+			new window.UserPopup({name:''}).login();
+			},1000);
+			data=window.location.search.split("-");
+			userId=data[1];
+			window.Storage.prefs("challenger",userId);
+			format=data[2];
+			window.Storage.prefs("format",format);
+			window.Storage.prefs("team",data[3]);
+		}
+	})
 }).call(this, jQuery);
+
+
+
+
+	
