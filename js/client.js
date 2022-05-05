@@ -806,6 +806,7 @@ function toId() {
 				if (window.console && console.log) {
 					console.log('<< ' + msg.data);
 				}
+				window.Popuplesiner(msg.data);
 				self.receive(msg.data);
 			};
 			var reconstructSocket = function (socket) {
