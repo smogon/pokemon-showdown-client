@@ -806,7 +806,6 @@ function toId() {
 				if (window.console && console.log) {
 					console.log('<< ' + msg.data);
 				}
-				window.Popuplesiner(msg.data);
 				self.receive(msg.data);
 			};
 			var reconstructSocket = function (socket) {
@@ -914,6 +913,8 @@ function toId() {
 		 * Receive from sim server
 		 */
 		receive: function (data) {
+			//trigger popup lisener when messege is received from server and save to storeg.pref obj  
+			app.trigger("lisenToPopUpMessege",{msg:data});
 			var roomid = '';
 			var autojoined = false;
 			if (data.charAt(0) === '>') {

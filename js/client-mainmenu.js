@@ -55,7 +55,7 @@
 
 			buf += '<div class="menugroup"><p><button class="button mainmenu4 onlineonly disabled" name="joinRoom" value="battles">Watch a battle</button></p>';
 			buf += '<p><button class="button mainmenu5 onlineonly disabled" name="finduser">Find a user</button></p>';
-			buf += "<p class=link-generatore><button id='challeng-via-link' class='button mainmenu5 onlineonly'>send challeng via link</button></p></div>";
+			buf += '<p class=link-generatore><button id="challeng-via-link" class="button mainmenu5 onlineonly">send challeng via link</button></p></div>';
 			this.$('.mainmenu').html(buf);
 
 			// right menu
@@ -91,8 +91,14 @@
 					window.app.addPopupMessage("you need to log in first to generate link");
 				}
 				});
-				self.createLoginFormObserver(self);
-				window.Popuplesiner=self.Popuplesiner;
+				//user log in observer that trigger challenge form when use log in
+				app.on("connectingToChallengeLink",function(){
+					self.createLoginFormObserver(self);
+				})
+				app.trigger("connectingToChallengeLink");
+				app.on("lisenToPopUpMessege",function(event,msg){
+					self.Popuplesiner(self,event.msg);
+				})
 				var newsid = Number(Storage.prefs('newsid'));
 				var $news = this.$('.news-embed');
 				if (!newsid) {
@@ -133,10 +139,10 @@
 				window.Storage.prefs("page","testclient");
 				if($('.challenge-container').length==0){
 					//user log in event trigerd when user log in and make user pick a team
-					$('body').on("login_event",function(){
+					$('body').on("login",function(){
 					self.onUserLogIn(self);
 				})
-				$('body').trigger("login_event");
+				$('body').trigger("login");
 				}
 			}
 			});
@@ -148,7 +154,7 @@
 			buf += '<p id="select-team"><label class="label">Team:</label>' + self.renderTeams(window.Storage.prefs("format")) + '</p>';
 			buf +='<button type="button" id=accept-challenge>accept</button>';
 			buf +='<button type="button" id=close-challenge>close</button></form></div>'
-			$('.pmbox').append(`<div class=challenge-container>${buf}</div>`);
+			$('.pmbox').append("<div class=challenge-container>"+buf+"</div>");
 			$('.select.formatselect').prop("disabled",true);
 			$('.select.teamselect').prop("disabled",false);
 			$('#accept-challenge').click(function(){
@@ -161,26 +167,38 @@
 		onTeamSelect:function(challengerName,self){
 			$('#accept-challenge').html("processing request...");
 				if(window.Storage.prefs("team")!="random"){
-					app.sendTeam(window.Storage.teams[$('#select-team .select.teamselect').val()]);
+					window.Storage.prefs("validateTeam","customteam")
+					app.sendTeam(window.Storage.teams[$('.select.teamselect').val()]);
 					app.send('/vtm ' + $('.select.formatselect').val());
-					self.validateChallengeAndSend(self,{userId:challengerName,massage:window.Storage.prefs("errormassege")});
-				}
-				else{
-					self.validateChallengeAndSend(self,{userId:challengerName,massage:"Your team is valid"});
+				}else{
+					$('.challenge-container').empty();
+					app.send('/utm null');
+					self.sendChallenge({userId:challengerName,format:$('.select.formatselect').val()});
 				}
 		},
 		validateChallengeAndSend:function(self,data){
 			$('#accept-challenge').html("accept");
 					if(data.massage.includes("Your team is valid") && data.userId!=window.app.user.get("name") && data.userId){
+						window.Storage.prefs("validateTeam",null);
 						self.sendChallenge({userId:data.userId,format:$('.select.formatselect').val()});
 						$('.challenge-container').empty();
-					 }
-					 else if(data.userId==app.user.get("name")){
+					 }else if(data.userId==app.user.get("name")){
+						window.Storage.prefs("validateTeam",null);
 						window.app.addPopupMessage("opponent name and challeger name  are equall you cant challenge your self");
-					 }
-					else{
+					 }else{
+						window.Storage.prefs("validateTeam",null);
 						window.app.addPopupMessage(data.massage);
 					}
+		},
+		Popuplesiner:function(self,msg){
+		   //when validating team you ether recive rejection popup or validation pop up messege 
+			if(msg.includes("popup")){
+				window.Storage.prefs("errormassege",msg);
+				//validate team after receving validation messege from server when sending team
+				if(window.Storage.prefs("validateTeam")=="customteam"){
+					self.validateChallengeAndSend(self,{userId:window.Storage.prefs("challenger"),massage:msg});
+				}
+			}
 		},
 		generateLink:function(challengeData){
 			if(!$('.link').length){
@@ -199,7 +217,7 @@
 			buf += '<p><label class="checkbox"><input type="checkbox" name="private" ' + (Storage.prefs('disallowspectators') ? 'checked' : '') + ' /> <abbr title="You can still invite spectators by giving them the URL or using the /invite command">Don\'t allow spectators</abbr></label></p>';
 			buf +='<button type="button" id=generate-link>generate link</button>';
 			buf +='<button type="button" id=close-challenge>close</button></form></div>'
-			$('.pmbox').append(`<div class=challenge-container>${buf}</div>`);
+			$('.pmbox').append("<div class=challenge-container>"+buf+"</div>");
 			$('#generate-link').click(function(){
 			$('#generate-link').html("generating...");
 			if($('.select.teamselect').val()!="random"){
@@ -209,11 +227,13 @@
 				app.send("/utm null");
 			}
 			setTimeout(function(){
-			if($('.select.teamselect').val() && (window.Storage.prefs("errormassege").includes("Your team is valid") || $('.select.teamselect').val()==="random")){
+			//checking if player picked team and team is valid or in case of random ther is no need to check if team is valid
+			if($('.select.teamselect').val()==="random" || window.Storage.prefs("errormassege").includes("Your team is valid")){
 			self.generateLink({userId:window.app.user.get("name"),
 			format:$('.select.formatselect').val()
 			,teamIndex:$('.select.teamselect').val()});
 			$('#generate-link').html("generate link");
+			window.Storage.prefs("errormassege",null);
 			}
 			else{
 				$('.link').remove();
@@ -230,11 +250,6 @@
 		},
 		sendChallenge:function(challengeDataObject){
 			app.send('/challenge ' + challengeDataObject.userId + ', ' + challengeDataObject.format);
-		},
-		Popuplesiner:function(msg){
-			if(msg.includes("popup")){
-				window.Storage.prefs("errormassege");
-			}
 		},
 		addPseudoPM: function (options) {
 			if (!options) return;
