@@ -202,11 +202,11 @@
 		},
 		generateLink:function(challengeData){
 			if(!$('.link').length){
-			let link="https://play.pokemonshowdown.com?challenge-"+challengeData.userId+"-"+challengeData.format+"-"+challengeData.teamIndex;
+			let link="https://"+window.Config.routes.client+"?challenge-"+challengeData.userId+"-"+challengeData.format+"-"+challengeData.teamIndex;
 			$('.link-generatore').append("<p class=link>"+link+"</p>");
 			}
 			else{
-				let link="https://play.pokemonshowdown.com?challenge-"+challengeData.userId+"-"+challengeData.format+"-"+challengeData.teamIndex;
+				let link="https://"+window.Config.routes.client+"?challenge-"+challengeData.userId+"-"+challengeData.format+"-"+challengeData.teamIndex;
 				$('.link').html("<p class=link>"+link+"</p>")
 			}
 		},
@@ -1643,7 +1643,7 @@
 			window.Storage.prefs("page","challenge");
 			setTimeout(function(){
 			//changing url without refreshing page, ther was issue of losing data when refreshing page 
-			window.history.replaceState(null,"",'https://play.pokemonshowdown.com/');
+			window.history.replaceState(null,"","https://"+window.Config.routes.client+"/");
 			//log in user before sending challenge
 			new window.UserPopup({name:''}).login();
 			},1000);
