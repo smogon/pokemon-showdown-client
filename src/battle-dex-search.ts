@@ -1245,7 +1245,7 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 			case "triattack": return !moves.includes ('bodyslam');
 			}
 			// Useful and Useless moves for Stadium OU, which changes many game mechanics.
-			if (this.formatType === 'stadiumou') {
+			if (this.formatType === 'stadium') {
 				if (['doubleedge', 'focusenergy', 'haze'].includes(id)) return true;
 				if (['hyperbeam', 'sing', 'hypnosis'].includes(id)) return false;
 				switch (id) {
