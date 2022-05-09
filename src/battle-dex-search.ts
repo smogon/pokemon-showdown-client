@@ -1242,10 +1242,9 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 			case "stomp": return !moves.includes ('headbutt');
 			case 'submission': return !moves.includes('highjumpkick');
 			case "thunderpunch": return !moves.includes ('thunderbolt');
-			case "triattack": return !moves.includes ('bodyslam'); //This makes it useful on Porygon specifically, it has a few edge cases
+			case "triattack": return !moves.includes ('bodyslam');
 			}
-			
-			//Useful and Useless moves for Stadium OU specifically, which changes many game mechanics.
+			// Useful and Useless moves for Stadium OU, which changes many game mechanics.
 			if (this.formatType === 'stadiumou') {
 				if (['doubleedge', 'focusenergy', 'haze'].includes(id)) return true;
 				if (['hyperbeam', 'sing', 'hypnosis'].includes(id)) return false;
