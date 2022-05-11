@@ -148,11 +148,11 @@
 		},
 		generateLink:function (userId, format) {
 			if (!$('.link').length) {
-				let link = "https://" + window.Config.routes.client + "?challenge-" + userId + "-" + format;
+				let link = window.location.protocol+"//" + window.Config.routes.client + "?challenge-" + userId + "-" + format;
 				$('.link-generatore').append("<p class=link>" + link + "</p>");
 				$('#generate-link').html("generate link");
 			} else {
-				let link = "https://" + window.Config.routes.client + "?challenge-" + userId + "-" + format;
+				let link = window.location.protocol+"//" + window.Config.routes.client + "?challenge-" + userId + "-" + format;
 				$('.link').html("<p class=link>" + link + "</p>");
 				$('#generate-link').html("generate link");
 			}
@@ -1563,7 +1563,7 @@
 			window.Storage.prefs("page", "challenge");
 			setTimeout(function () {
 			//changing url without refreshing page, ther was issue of losing data when refreshing page
-				window.history.replaceState(null, "", "http://192.168.1.5:8080/testclient.html");
+				window.history.replaceState(null, "", window.location.protocol+"//" + window.Config.routes.client+"/");
 				//log in user before sending challenge
 				new window.UserPopup({name:''}).login();
 			}, 1000);
