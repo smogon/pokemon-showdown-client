@@ -913,8 +913,6 @@ function toId() {
 		 * Receive from sim server
 		 */
 		receive: function (data) {
-			//trigger popup lisener when messege is received from server and save to storeg.pref obj  
-			app.trigger("lisenToPopUpMessege",{msg:data});
 			var roomid = '';
 			var autojoined = false;
 			if (data.charAt(0) === '>') {

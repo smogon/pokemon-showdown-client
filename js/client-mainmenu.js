@@ -55,7 +55,7 @@
 
 			buf += '<div class="menugroup"><p><button class="button mainmenu4 onlineonly disabled" name="joinRoom" value="battles">Watch a battle</button></p>';
 			buf += '<p><button class="button mainmenu5 onlineonly disabled" name="finduser">Find a user</button></p>';
-			buf += '<p class=link-generatore><button id="challeng-via-link" class="button mainmenu5 onlineonly">send challeng via link</button></p></div>';
+			buf += '<p class=link-generatore><button id="challeng-via-link" class="button mainmenu5 onlineonly">send challenge via link</button></p></div>';
 			this.$('.mainmenu').html(buf);
 
 			// right menu
@@ -81,24 +81,17 @@
 
 			var self = this;
 			Storage.whenPrefsLoaded(function () {
-				$('#challeng-via-link').click(function(){
-					if($('.username').length){
-						if(!$('.challenge').length){
-							self.generateChallengeForm(self)
+			//user log in observer that trigger challenge form when use log in
+				self.createLoginFormObserver(self);
+				$('#challeng-via-link').click(function () {
+					if ($('.username').length) {
+						if (!$('.challenge').length) {
+							self.generateChallengeForm(self);
 						}
-				}
-				else{
-					window.app.addPopupMessage("you need to log in first to generate link");
-				}
+					} else {
+						window.app.addPopupMessage("you need to log in first to generate link");
+					}
 				});
-				//user log in observer that trigger challenge form when use log in
-				app.on("connectingToChallengeLink",function(){
-					self.createLoginFormObserver(self);
-				})
-				app.trigger("connectingToChallengeLink");
-				app.on("lisenToPopUpMessege",function(event,msg){
-					self.Popuplesiner(self,event.msg);
-				})
 				var newsid = Number(Storage.prefs('newsid'));
 				var $news = this.$('.news-embed');
 				if (!newsid) {
@@ -132,124 +125,51 @@
 				);
 			}
 		},
-		createLoginFormObserver:function(self){
-			const config = { attributes: true, childList: true, subtree: true };
-			const observer = new MutationObserver(function(){
-			if(window.app.user.get("named") && window.Storage.prefs("page")=="challenge"){
-				window.Storage.prefs("page","testclient");
-				if($('.challenge-container').length==0){
-					//user log in event trigerd when user log in and make user pick a team
-					$('body').on("login",function(){
-					self.onUserLogIn(self);
-				})
-				$('body').trigger("login");
+		createLoginFormObserver:function (self) {
+			const config = {attributes: true, childList: true, subtree: true};
+			const observer = new MutationObserver(function () {
+				if (window.app.user.get("named") && window.Storage.prefs("page") == "challenge") {
+					window.Storage.prefs("page", "testclient");
+					if ($('.challenge-container').length == 0) {
+						//user log in event trigerd when user log in and make user pick a team
+						$('body').on("login", function () {
+							self.onUserLogIn(self);
+						});
+						$('body').trigger("login");
+					}
 				}
-			}
 			});
 			observer.observe(document.activeElement, config);
-			},
-		onUserLogIn:function(self){
-			var buf = '<div class="challenge"><form class="battleform"><p>Challenge from ' + BattleLog.escapeHTML(window.Storage.prefs("challenger")) + '?</p>';
-			buf += '<p><label class="label">Format:</label>' + self.renderFormats(window.Storage.prefs("format")) + '</p>';
-			buf += '<p id="select-team"><label class="label">Team:</label>' + self.renderTeams(window.Storage.prefs("format")) + '</p>';
-			buf +='<button type="button" id=accept-challenge>accept</button>';
-			buf +='<button type="button" id=close-challenge>close</button></form></div>'
-			$('.pmbox').append("<div class=challenge-container>"+buf+"</div>");
-			$('.select.formatselect').prop("disabled",true);
-			$('.select.teamselect').prop("disabled",false);
-			$('#accept-challenge').click(function(){
-				self.onTeamSelect(window.Storage.prefs("challenger"),self);
-			})
-			$('#close-challenge').click(function(){
-				$('.challenge-container').empty();
-			})
 		},
-		onTeamSelect:function(challengerName,self){
-			$('#accept-challenge').html("processing request...");
-				if(window.Storage.prefs("team")!="random"){
-					window.Storage.prefs("validateTeam","customteam")
-					app.sendTeam(window.Storage.teams[$('.select.teamselect').val()]);
-					app.send('/vtm ' + $('.select.formatselect').val());
-				}else{
-					$('.challenge-container').empty();
-					app.send('/utm null');
-					self.sendChallenge({userId:challengerName,format:$('.select.formatselect').val()});
-				}
+		onUserLogIn:function (self) {
+			let userId = window.Storage.prefs("challenger");
+			let format = window.Storage.prefs("format");
+			app.rooms[''].challenge(userId, format, (format.includes("random") ? '' : format));
 		},
-		validateChallengeAndSend:function(self,data){
-			$('#accept-challenge').html("accept");
-					if(data.massage.includes("Your team is valid") && data.userId!=window.app.user.get("name") && data.userId){
-						window.Storage.prefs("validateTeam",null);
-						self.sendChallenge({userId:data.userId,format:$('.select.formatselect').val()});
-						$('.challenge-container').empty();
-					 }else if(data.userId==app.user.get("name")){
-						window.Storage.prefs("validateTeam",null);
-						window.app.addPopupMessage("opponent name and challeger name  are equall you cant challenge your self");
-					 }else{
-						window.Storage.prefs("validateTeam",null);
-						window.app.addPopupMessage(data.massage);
-					}
-		},
-		Popuplesiner:function(self,msg){
-		   //when validating team you ether recive rejection popup or validation pop up messege 
-			if(msg.includes("popup")){
-				window.Storage.prefs("errormassege",msg);
-				//validate team after receving validation messege from server when sending team
-				if(window.Storage.prefs("validateTeam")=="customteam"){
-					self.validateChallengeAndSend(self,{userId:window.Storage.prefs("challenger"),massage:msg});
-				}
+		generateLink:function (userId, format) {
+			if (!$('.link').length) {
+				let link = "https://" + window.Config.routes.client + "?challenge-" + userId + "-" + format;
+				$('.link-generatore').append("<p class=link>" + link + "</p>");
+				$('#generate-link').html("generate link");
+			} else {
+				let link = "https://" + window.Config.routes.client + "?challenge-" + userId + "-" + format;
+				$('.link').html("<p class=link>" + link + "</p>");
+				$('#generate-link').html("generate link");
 			}
 		},
-		generateLink:function(challengeData){
-			if(!$('.link').length){
-			let link="https://"+window.Config.routes.client+"?challenge-"+challengeData.userId+"-"+challengeData.format+"-"+challengeData.teamIndex;
-			$('.link-generatore').append("<p class=link>"+link+"</p>");
-			}
-			else{
-				let link="https://"+window.Config.routes.client+"?challenge-"+challengeData.userId+"-"+challengeData.format+"-"+challengeData.teamIndex;
-				$('.link').html("<p class=link>"+link+"</p>")
-			}
-		},
-		generateChallengeForm:function(self){
+		generateChallengeForm:function (self) {
 			var buf = '<div class="challenge"><form class="battleform"><p>Challenge link generatore</p>';
 			buf += '<p><label class="label">Format:</label>' + self.renderFormats("gen8randombattle") + '</p>';
-			buf += '<p><label class="label">Team:</label>' + self.renderTeams("gen8randombattle") + '</p>';
-			buf += '<p><label class="checkbox"><input type="checkbox" name="private" ' + (Storage.prefs('disallowspectators') ? 'checked' : '') + ' /> <abbr title="You can still invite spectators by giving them the URL or using the /invite command">Don\'t allow spectators</abbr></label></p>';
-			buf +='<button type="button" id=generate-link>generate link</button>';
-			buf +='<button type="button" id=close-challenge>close</button></form></div>'
-			$('.pmbox').append("<div class=challenge-container>"+buf+"</div>");
-			$('#generate-link').click(function(){
-			$('#generate-link').html("generating...");
-			if($('.select.teamselect').val()!="random"){
-				app.sendTeam(Storage.teams[$('.select.teamselect').val()]);
-				app.send('/vtm ' + $('.select.formatselect').val());
-			}else if($('.select.teamselect').val()==="random"){
-				app.send("/utm null");
-			}
-			setTimeout(function(){
-			//checking if player picked team and team is valid or in case of random ther is no need to check if team is valid
-			if($('.select.teamselect').val()==="random" || window.Storage.prefs("errormassege").includes("Your team is valid")){
-			self.generateLink({userId:window.app.user.get("name"),
-			format:$('.select.formatselect').val()
-			,teamIndex:$('.select.teamselect').val()});
-			$('#generate-link').html("generate link");
-			window.Storage.prefs("errormassege",null);
-			}
-			else{
-				$('.link').remove();
-				$('#generate-link').html("generate link");
-				window.app.addPopupMessage(window.Storage.prefs("errormassege"));
-				
-			}
-			},2000);
+			buf += '<button type="button" id=generate-link>generate link</button>';
+			buf += '<button type="button" id=close-challenge>close</button></form></div>';
+			$('.pmbox').append("<div class=challenge-container>" + buf + "</div>");
+			$('#generate-link').click(function () {
+				$('#generate-link').html("generating...");
+				self.generateLink(window.app.user.get("name"), $('.select.formatselect').val());
 			});
-
-			$('#close-challenge').click(function(){
+			$('#close-challenge').click(function () {
 				$('.challenge-container').empty();
-			})
-		},
-		sendChallenge:function(challengeDataObject){
-			app.send('/challenge ' + challengeDataObject.userId + ', ' + challengeDataObject.format);
+			});
 		},
 		addPseudoPM: function (options) {
 			if (!options) return;
@@ -1638,21 +1558,20 @@
 			return buf;
 		}
 	});
-	window.addEventListener("load",function(){
-		if(window.location.search.includes("challenge")){
-			window.Storage.prefs("page","challenge");
-			setTimeout(function(){
-			//changing url without refreshing page, ther was issue of losing data when refreshing page 
-			window.history.replaceState(null,"","https://"+window.Config.routes.client+"/");
-			//log in user before sending challenge
-			new window.UserPopup({name:''}).login();
-			},1000);
-			data=window.location.search.split("-");
-			userId=data[1];
-			format=data[2];
-			window.Storage.prefs("challenger",userId);
-			window.Storage.prefs("format",format);
-			window.Storage.prefs("team",data[3]);
+	window.addEventListener("load", function () {
+		if (window.location.search.includes("challenge")) {
+			window.Storage.prefs("page", "challenge");
+			setTimeout(function () {
+			//changing url without refreshing page, ther was issue of losing data when refreshing page
+				window.history.replaceState(null, "", "http://192.168.1.5:8080/testclient.html");
+				//log in user before sending challenge
+				new window.UserPopup({name:''}).login();
+			}, 1000);
+			let data = window.location.search.split("-");
+			let userId = data[1];
+			let format = data[2];
+			window.Storage.prefs("challenger", userId);
+			window.Storage.prefs("format", format);
 		}
-	})
+	});
 }).call(this, jQuery);
