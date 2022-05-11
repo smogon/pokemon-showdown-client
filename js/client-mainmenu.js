@@ -145,6 +145,7 @@
 			let userId = window.Storage.prefs("challenger");
 			let format = window.Storage.prefs("format");
 			app.rooms[''].challenge(userId, format, (format.includes("random") ? '' : format));
+			$('.select.formatselect').prop("disabled",true);
 		},
 		generateLink:function (userId, format) {
 			if (!$('.link').length) {
