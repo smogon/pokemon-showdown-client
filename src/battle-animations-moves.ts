@@ -39978,6 +39978,7 @@ const BattleMoveAnims: AnimTable = {
 				opacity: 0,
 				time: 500,
 			}, 'linear');
+			scene.wait(200);
 			BattleOtherAnims.hydroshot.anim(scene, [attacker, defender]);
 			defender.delay(200);
 			defender.anim({
@@ -40578,7 +40579,7 @@ BattleMoveAnims['matingpress'] = {anim: BattleMoveAnims['letssnuggleforever'].an
 BattleMoveAnims['closeblobmat'] = {anim: BattleMoveAnims['closecombat'].anim};
 BattleMoveAnims['yiikout'] = {anim: BattleMoveAnims['nastyplot'].anim};
 BattleMoveAnims['gunshot'] = {anim: BattleMoveAnims['warhead'].anim};
-BattleMoveAnims['moredakka'] = {anim: BattleMoveAnims['moregun'].anim};
+BattleMoveAnims['flakcannon'] = {anim: BattleMoveAnims['moregun'].anim};
 BattleMoveAnims['bilebite'] = {anim: BattleMoveAnims['poisonfang'].anim};
 BattleMoveAnims['amnesiad'] = {anim: BattleMoveAnims['amnesia'].anim};
 BattleMoveAnims['blizzardd'] = {anim: BattleMoveAnims['blizzard'].anim};
