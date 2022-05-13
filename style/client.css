@@ -3458,6 +3458,9 @@ a.ilink.yours {
 .dark .highlighted {
 	background: rgba(120,220,255,0.28);
 }
+.dark .message-pm {
+	color: #00af00;
+}
 .dark .revealed {
 	background: rgba(0,255,200,0.18);
 }
