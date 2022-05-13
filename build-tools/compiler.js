@@ -46,7 +46,7 @@ function slash(path) {
 	return path.replace(/\\/g, '/');
 }
 
-function combineResults(fileResults, sourceMapOptions, opts) {
+async function combineResults(fileResults, sourceMapOptions, opts) {
   let map = null;
   if (fileResults.some(result => result?.map)) {
     map = new sourceMap.SourceMapGenerator(sourceMapOptions);
@@ -61,7 +61,7 @@ function combineResults(fileResults, sourceMapOptions, opts) {
     code += result.code + "\n";
 
     if (result.map) {
-      const consumer = new sourceMap.SourceMapConsumer(result.map);
+      const consumer = await new sourceMap.SourceMapConsumer(result.map);
       const sources = new Set();
 
       consumer.eachMapping(function (mapping) {
@@ -186,7 +186,7 @@ function compileToDir(srcDir, destDir, opts = {}) {
   return total;
 }
 
-function compileToFile(srcFile, destFile, opts) {
+async function compileToFile(srcFile, destFile, opts) {
   const incremental = opts.incremental;
   delete opts.incremental;
 
@@ -209,7 +209,7 @@ function compileToFile(srcFile, destFile, opts) {
     if (VERBOSE) console.log(src + " ->");
   }
 
-  const combined = combineResults(results, {
+  const combined = await combineResults(results, {
     file: path.basename(destFile),
     sourceRoot: opts.sourceRoot,
   }, opts);
