@@ -148,6 +148,11 @@ body {
 .username {
 	cursor: pointer;
 }
+@media (max-width: 500px) {
+	.usernametext {
+		display: none
+	}
+}
 .userbar button.icon {
 	height: 25px;
 	width: 27px;

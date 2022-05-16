@@ -289,6 +289,11 @@ select {
 .username {
 	cursor: pointer;
 }
+@media (max-width: 500px) {
+	.usernametext {
+		display: none
+	}
+}
 .userbar button.icon {
 	height: 25px;
 	width: 27px;
@@ -2008,7 +2013,7 @@ a.ilink.yours {
 	white-space: pre;
 	overflow: hidden;
 }
-.allyparty button .picon, 
+.allyparty button .picon,
 .switchmenu button .picon {
 	float: left;
 	margin: -6px -3px -6px -4px;
