@@ -1029,6 +1029,7 @@ class BattleTooltips {
 
 		const speciesForme = clientPokemon ? clientPokemon.getSpeciesForme() : serverPokemon.speciesForme;
 		let species = this.battle.dex.species.get(speciesForme).baseSpecies;
+		let speciesName = this.battle.dex.species.get(speciesForme).name;
 
 		let speedModifiers = [];
 
@@ -1039,6 +1040,9 @@ class BattleTooltips {
 				if (this.battle.gen >= 4) stats.atk *= 2;
 				stats.spa *= 2;
 			} else if (species === 'Pikotton') {
+				stats.spa *= 2;
+			} else if (speciesName === 'Blobbos-Pika') {
+				stats.atk *= 2;
 				stats.spa *= 2;
 			}
 		}
