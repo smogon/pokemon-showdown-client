@@ -13,53 +13,57 @@ const privateKey  = fs.readFileSync(ssl.privateKeyPath, 'utf8');
 const certificate = fs.readFileSync(ssl.certificatePath, 'utf8');
 
 app.use(bodyParser.urlencoded({ extended: true }));
-app.post(`/~~${defaultserver.id}/action.php`, (request, response) => {
-  if (request.body.act && request.body.act === 'register') {
-    return response.send(']{"actionerror":"Please register on https:\/\/play.pokemonshowdown.com\/."}')
-  }
-
-  let headers = {};
-  const cookieHeader = request.headers['Cookie'] || request.headers['cookie'];
-  if (cookieHeader) {
-    headers.cookie = cookieHeader;
-  }
-
-  const requestOptions = {
-    method: 'POST',
-    url: 'http://play.pokemonshowdown.com/action.php',
-    data: request.body,
-    headers,
-  };
-
-  if (proxies && proxies.length) {
-    const proxy = proxies[Math.floor(Math.random() * proxies.length)];
-    requestOptions.proxy = {
-      protocol: proxy.protocol | 'http',
-      host: proxy.ip,
-      port: proxy.port,
-    };
-
-    if (proxy.username) {
-      requestOptions.proxy.auth = {
-        username: proxy.username,
-        password: proxy.password || '',
-      };
+app.post(`/~~${defaultserver.id}/action.php`, (request, response, next) => {
+  try {
+    if (request.body.act && request.body.act === 'register') {
+      return response.send(']{"actionerror":"Please register on https:\/\/play.pokemonshowdown.com\/."}')
     }
-  }
-
-  axios(requestOptions).then((res) => {
-    const setCookieHeader = res.headers['Set-Cookie'] || res.headers['set-cookie'];
-    if (setCookieHeader) {
-      if (Array.isArray(setCookieHeader)) {
-        setCookieHeader.forEach((header) => {
-          response.setHeader('set-cookie', header.replace('pokemonshowdown.com', 'clover.weedl.es'));
-        });
-      } else {
-        response.setHeader('set-cookie', setCookieHeader.replace('pokemonshowdown.com', 'clover.weedl.es'));
-      }
+  
+    let headers = {};
+    const cookieHeader = request.headers['Cookie'] || request.headers['cookie'];
+    if (cookieHeader) {
+      headers.cookie = cookieHeader;
+    }
+  
+    const requestOptions = {
+      method: 'POST',
+      url: 'http://play.pokemonshowdown.com/action.php',
+      data: request.body,
+      headers,
     };
-    response.send(res.data)
-  });
+  
+    if (proxies && proxies.length) {
+      const proxy = proxies[Math.floor(Math.random() * proxies.length)];
+      requestOptions.proxy = {
+        protocol: proxy.protocol | 'http',
+        host: proxy.ip,
+        port: proxy.port,
+      };
+  
+      if (proxy.username) {
+        requestOptions.proxy.auth = {
+          username: proxy.username,
+          password: proxy.password || '',
+        };
+      }
+    }
+  
+    axios(requestOptions).then((res) => {
+      const setCookieHeader = res.headers['Set-Cookie'] || res.headers['set-cookie'];
+      if (setCookieHeader) {
+        if (Array.isArray(setCookieHeader)) {
+          setCookieHeader.forEach((header) => {
+            response.setHeader('set-cookie', header.replace('pokemonshowdown.com', 'clover.weedl.es'));
+          });
+        } else {
+          response.setHeader('set-cookie', setCookieHeader.replace('pokemonshowdown.com', 'clover.weedl.es'));
+        }
+      };
+      response.send(res.data)
+    });
+  } catch (error) {
+    next(error);
+  }
 });
 app.use('*.php', (request, response) => response.sendStatus(404));
 app.get('/lobby-banner', (request, response) => {
