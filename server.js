@@ -60,7 +60,8 @@ app.post(`/~~${defaultserver.id}/action.php`, (request, response, next) => {
         }
       };
       response.send(res.data)
-    });
+    })
+    .catch((error) => next(error));
   } catch (error) {
     next(error);
   }
