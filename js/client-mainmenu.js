@@ -905,7 +905,6 @@
 			var $teamButton = $pmWindow.find('button[name=team]');
 			var privacy = this.adjustPrivacy($pmWindow.find('input[name=private]').is(':checked'));
 
-			target.disabled = true;
 			if ($teamButton.length) {
 				var teamIndex = $teamButton.val();
 				var team = null;
@@ -916,6 +915,7 @@
 				}
 				app.sendTeam(team);
 			}
+			target.disabled = true;
 			app.send(privacy + '/accept ' + userid);
 		},
 		rejectChallenge: function (i, target) {
