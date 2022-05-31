@@ -811,8 +811,7 @@ export class Side {
 		return poke;
 	}
 
-	switchIn(pokemon: Pokemon, slot?: number) {
-		if (slot === undefined) slot = pokemon.slot;
+	switchIn(pokemon: Pokemon, slot = pokemon.slot) {
 		this.active[slot] = pokemon;
 		pokemon.slot = slot;
 		pokemon.clearVolatile();
@@ -867,17 +866,16 @@ export class Side {
 		}
 		this.battle.scene.animSummon(pokemon, slot, true);
 	}
-	switchOut(pokemon: Pokemon, slot = pokemon.slot) {
+	switchOut(pokemon: Pokemon, kwArgs: KWArgs, slot = pokemon.slot) {
 		if (pokemon.lastMove !== 'batonpass' && pokemon.lastMove !== 'zbatonpass') {
 			pokemon.clearVolatile();
 		} else {
 			pokemon.removeVolatile('transform' as ID);
 			pokemon.removeVolatile('formechange' as ID);
 		}
-		if (pokemon.lastMove === 'uturn' || pokemon.lastMove === 'voltswitch') {
-			this.battle.log(['switchout', pokemon.ident], {from: pokemon.lastMove});
-		} else if (pokemon.lastMove !== 'batonpass' && pokemon.lastMove !== 'zbatonpass') {
-			this.battle.log(['switchout', pokemon.ident]);
+		const effect = Dex.getEffect(kwArgs.from);
+		if (!['batonpass', 'zbatonpass', 'teleport'].includes(effect.id)) {
+			this.battle.log(['switchout', pokemon.ident], {from: effect.id});
 		}
 		pokemon.statusData.toxicTurns = 0;
 		if (this.battle.gen === 5) pokemon.statusData.sleepTurns = 0;
@@ -3444,7 +3442,7 @@ export class Battle {
 			poke.removeVolatile('itemremoved' as ID);
 			if (args[0] === 'switch') {
 				if (poke.side.active[slot]) {
-					poke.side.switchOut(poke.side.active[slot]!);
+					poke.side.switchOut(poke.side.active[slot]!, kwArgs);
 				}
 				poke.side.switchIn(poke);
 			} else if (args[0] === 'replace') {
