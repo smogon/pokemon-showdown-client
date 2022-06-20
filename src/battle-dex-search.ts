@@ -1235,22 +1235,22 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 			case 'bubblebeam': return (!moves.includes('surf') && !moves.includes('blizzard'));
 			case 'doubleedge': return !moves.includes('bodyslam');
 			case 'doublekick': return !moves.includes('submission');
-			case "firepunch": return !moves.includes ('fireblast');
+			case 'firepunch': return !moves.includes('fireblast');
 			case 'megadrain': return !moves.includes('razorleaf') && !moves.includes('surf');
 			case 'megakick': return !moves.includes('hyperbeam');
 			case 'reflect': return !moves.includes('barrier') && !moves.includes('acidarmor');
-			case "stomp": return !moves.includes ('headbutt');
+			case 'stomp': return !moves.includes('headbutt');
 			case 'submission': return !moves.includes('highjumpkick');
-			case "thunderpunch": return !moves.includes ('thunderbolt');
-			case "triattack": return !moves.includes ('bodyslam');
+			case 'thunderpunch': return !moves.includes('thunderbolt');
+			case 'triattack': return !moves.includes('bodyslam');
 			}
 			// Useful and Useless moves for Stadium OU, which changes many game mechanics.
 			if (this.formatType === 'stadium') {
 				if (['doubleedge', 'focusenergy', 'haze'].includes(id)) return true;
 				if (['hyperbeam', 'sing', 'hypnosis'].includes(id)) return false;
 				switch (id) {
-					case 'fly': return !moves.includes('drillpeck');
-					case 'dig': return !moves.includes('earthquake');
+				case 'fly': return !moves.includes('drillpeck');
+				case 'dig': return !moves.includes('earthquake');
 				}
 			}
 		}
