@@ -142,7 +142,7 @@ class BattleRoom extends ChatRoom {
 			this.choices = new BattleChoiceBuilder(this.request);
 			this.update(null);
 			return true;
-		} case 'move': case 'switch': case 'team': case 'pass': case 'shift': case 'choose': {
+		} case 'move': case 'switch': case 'rotate': case 'team': case 'pass': case 'shift': case 'choose': {
 			if (!this.choices) {
 				this.receiveLine([`error`, `/choose - You are not a player in this battle`]);
 				return true;
@@ -211,6 +211,23 @@ function PokemonButton(props: {
 		}
 		{!props.noHPBar && pokemon.status && <span class={`status ${pokemon.status}`}></span>}
 	</button>;
+}
+function RotateButton(props: {
+	pokemon: Pokemon | ServerPokemon | null, direction: 'right' | 'left', disabled?: boolean,
+}) {
+	if (!props.pokemon) {
+		return <button class="disabled">(empty slot)</button>;
+	}
+	switch (props.direction) {
+		case 'right':
+			return <button name="cmd" value="/rotate right" class={props.disabled ? 'disabled' : ''}>
+				&larr;&nbsp;<span class="picon" style={Dex.getPokemonIcon(props.pokemon)}></span>{props.pokemon.name}
+			</button>;
+		case 'left':
+			return <button name="cmd" value="/rotate left" class={props.disabled ? 'disabled' : ''}>
+				<span class="picon" style={Dex.getPokemonIcon(props.pokemon)}></span>{props.pokemon.name}&nbsp;&rarr;
+			</button>;
+	}
 }
 
 class BattlePanel extends PSRoomPanel<BattleRoom> {
@@ -302,6 +319,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 
 		BattleChoiceBuilder.fixRequest(request, room.battle);
 
+		console.log((request as BattleMoveRequest).rotation);
 		if (request.side) {
 			room.battle.myPokemon = request.side.pokemon;
 			room.battle.setPerspective(request.side.id);
@@ -425,8 +443,21 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 			}),
 		];
 	}
+	renderRotationControls(request: BattleMoveRequest, choices: BattleChoiceBuilder) {
+		switch (choices.current.willRotate) {
+			case 'right':
+				return <button name="cmd" value="/cancel">Back&nbsp;&rarr;</button>;
+			case 'left':
+				return <button name="cmd" value="/cancel">&larr;&nbsp;Back</button>;
+			default:
+				return (['right', 'left'] as ('right' | 'left')[]).map((v, i) => {
+					const serverPokemon = request.side.pokemon[i + 1];
+					return <RotateButton pokemon={serverPokemon} direction={v} disabled={!!serverPokemon.fainted}/>;
+		});
+		}
+	}
 	renderSwitchControls(request: BattleMoveRequest | BattleSwitchRequest, choices: BattleChoiceBuilder) {
-		const numActive = choices.requestLength();
+		const numActive = choices.requestLength(true);
 
 		const trapped = choices.currentMoveRequest()?.trapped;
 
@@ -484,9 +515,14 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 			const choiceString = choices.choices[i];
 			const choice = choices.parseChoice(choiceString);
 			if (!choice) continue;
-			const pokemon = request.side.pokemon[i];
-			const active = request.requestType === 'move' ? request.active[i] : null;
+			let pokemon = request.side.pokemon[i];
+			let active = request.requestType === 'move' ? request.active[i] : null;
 			if (choice.choiceType === 'move') {
+				if (choice.willRotate) {
+					const index = choice.willRotate === 'left' ? 2 : 1;
+					pokemon = request.side.pokemon[index];
+					active = (request as BattleMoveRequest).active[index];
+				}
 				buf.push(`${pokemon.name} will `);
 				if (choice.mega) buf.push(`Mega Evolve and `);
 				if (choice.ultra) buf.push(`Ultra Burst and `);
@@ -550,6 +586,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 			const canDynamax = moveRequest.canDynamax && !choices.alreadyMax;
 			const canMegaEvo = moveRequest.canMegaEvo && !choices.alreadyMega;
 			const canZMove = moveRequest.zMoves && !choices.alreadyZ;
+			const rotation = request.rotation;
 
 			if (choices.current.move) {
 				const moveName = choices.getChosenMove(choices.current, choices.index()).name;
@@ -596,6 +633,8 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 							<input type="checkbox" name="z" checked={choices.current.z} onChange={this.toggleBoostedMove} /> {}
 							Z-Power
 						</label>}
+						{rotation && <div class="rotateselect">{this.renderRotationControls(request, choices)}</div>}
+						<div style="clear:left"></div>
 					</div>
 				</div>
 				<div class="switchcontrols">

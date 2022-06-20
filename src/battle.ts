@@ -920,6 +920,22 @@ export class Side {
 		this.battle.scene.animSummon(pokemon, nslot, true);
 		this.battle.scene.animSummon(target, oslot, true);
 	}
+	rotate(direction: string) {
+		switch (direction) {
+			case 'right':
+				this.active.unshift(...this.active.splice(1, 2));
+				break;
+			case 'left':
+				this.active.unshift(...this.active.splice(2, 1));
+				break;
+		}
+		for (let i = 0; i < this.active.length; i++) {
+			if (this.active[i]) {
+				this.active[i]!.slot = i;
+				this.battle.scene.animRotate(this.active[i]!);
+			}
+		}
+	}
 	faint(pokemon: Pokemon, slot = pokemon.slot) {
 		pokemon.clearVolatile();
 		this.lastPokemon = pokemon;
@@ -1061,7 +1077,7 @@ export class Battle {
 	teamPreviewCount = 0;
 	speciesClause = false;
 	tier = '';
-	gameType: 'singles' | 'doubles' | 'triples' | 'multi' | 'freeforall' = 'singles';
+	gameType: 'singles' | 'doubles' | 'triples' | 'multi' | 'freeforall' | 'rotation' = 'singles';
 	rated: string | boolean = false;
 	rules: {[ruleName: string]: 1 | 0} = {};
 	isBlitz = false;
@@ -3267,8 +3283,10 @@ export class Battle {
 				this.nearSide.active = [null, null];
 				this.farSide.active = [null, null];
 				break;
-			case 'triples':
 			case 'rotation':
+				this.pokemonControlled = 1;
+				// falls through
+			case 'triples':
 				this.nearSide.active = [null, null, null];
 				this.farSide.active = [null, null, null];
 				break;
@@ -3474,6 +3492,11 @@ export class Battle {
 				poke.side.swapTo(poke, targetIndex, kwArgs);
 			}
 			this.log(args, kwArgs);
+			break;
+		}
+		case 'rotate': {
+			const side = this.getSide(args[2]);
+			side.rotate(args[1]);
 			break;
 		}
 		case 'move': {

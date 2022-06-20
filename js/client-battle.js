@@ -367,7 +367,8 @@
 					this.choice = {
 						choices: [],
 						switchFlags: {},
-						switchOutFlags: {}
+						switchOutFlags: {},
+						willRotate: ''
 					};
 				}
 				this.updateMoveControls(type);
@@ -524,6 +525,9 @@
 			var moveTarget = this.choice ? this.choice.moveTarget : '';
 			var pos = this.choice.choices.length;
 			if (type === 'movetarget') pos--;
+			if (this.choice.willRotate) {
+				pos = this.choice.willRotate === 'right' ? 1 : 2;
+			}
 
 			var hpRatio = switchables[pos].hp / switchables[pos].maxhp;
 
@@ -704,10 +708,37 @@
 				}
 				moveMenu += '<div style="clear:left"></div>';
 
+				var rotateControls = '';
+				if (this.battle.gameType === 'rotation') {
+					console.log('rotation battle');
+					rotateControls += '<div class="rotateselect">';
+					switch (this.choice.willRotate) {
+					case 'right':
+						rotateControls += '<button name="chooseRotate" value="left">Back&nbsp;&rarr;</button>';
+						break;
+					case 'left':
+						rotateControls += '<button name="chooseRotate" value="right">&larr;&nbsp;Back</button>';
+						break;
+					default:
+						var rotatePokemon = this.battle.myPokemon[1];
+						if (rotatePokemon && !rotatePokemon.fainted) {
+							rotateControls += '<button name="chooseRotate" value="right">&larr;&nbsp;<span class="picon" style="' + Dex.getPokemonIcon(rotatePokemon) + '"></span>';
+							rotateControls += BattleLog.escapeHTML(rotatePokemon.name) + '</button>';
+						}
+						rotatePokemon = this.battle.myPokemon[2];
+						if (rotatePokemon && !rotatePokemon.fainted) {
+							rotateControls += '<button name="chooseRotate" value="left"><span class="picon" style="' + Dex.getPokemonIcon(rotatePokemon) + '"></span>';
+							rotateControls += BattleLog.escapeHTML(rotatePokemon.name) + '&nbsp;&rarr;</button>';
+						}
+					}
+
+					rotateControls += '</div><div style="clear:left"></div>';
+				}
+
 				var moveControls = (
 					'<div class="movecontrols">' +
 					'<div class="moveselect"><button name="selectMove">Attack</button></div>' +
-					'<div class="movemenu">' + moveMenu + '</div>' +
+					'<div class="movemenu">' + moveMenu + rotateControls + '</div>' +
 					'</div>'
 				);
 
@@ -717,7 +748,9 @@
 				}
 
 				var switchMenu = '';
-				if (trapped) {
+				if (this.choice.willRotate) {
+					switchMenu += '(Only the Pok&eacute;mon in front can switch)';
+				} else if (trapped) {
 					switchMenu += '<em>You are trapped and cannot switch!</em><br />';
 					switchMenu += this.displayParty(switchables, trapped);
 				} else {
@@ -732,8 +765,13 @@
 					'<div class="switchmenu">' + switchMenu + '</div>' +
 					'</div>'
 				);
+
+				var controlsClass = 'controls';
+				if (this.choice.willRotate) {
+					controlsClass = 'controls move-controls will-rotate';
+				}
 				this.$controls.html(
-					'<div class="controls">' +
+					'<div class="' + controlsClass + '">' +
 					'<div class="whatdo">' + requestTitle + this.getTimerHTML() + '</div>' +
 					moveControls + shiftControls + switchControls +
 					'</div>'
@@ -746,7 +784,7 @@
 				var pokemon = switchables[i];
 				pokemon.name = pokemon.ident.substr(4);
 				var tooltipArgs = 'switchpokemon|' + i;
-				if (pokemon.fainted || i < this.battle.pokemonControlled || this.choice.switchFlags[i] || trapped) {
+				if (pokemon.fainted || i < this.battle.pokemonControlled || (this.battle.gameType === 'rotation' && i < 3) || this.choice.switchFlags[i] || trapped) {
 					party += '<button class="disabled has-tooltip" name="chooseDisabled" value="' + BattleLog.escapeHTML(pokemon.name) + (pokemon.fainted ? ',fainted' : trapped ? ',trapped' : i < this.battle.nearSide.active.length ? ',active' : '') + '" data-tooltip="' + BattleLog.escapeHTML(tooltipArgs) + '"><span class="picon" style="' + Dex.getPokemonIcon(pokemon) + '"></span>' + BattleLog.escapeHTML(pokemon.name) + (pokemon.hp ? '<span class="' + pokemon.getHPColorClass() + '"><span style="width:' + (Math.round(pokemon.hp * 92 / pokemon.maxhp) || 1) + 'px"></span></span>' + (pokemon.status ? '<span class="status ' + pokemon.status + '"></span>' : '') : '') + '</button> ';
 				} else {
 					party += '<button name="chooseSwitch" value="' + i + '" class="has-tooltip" data-tooltip="' + BattleLog.escapeHTML(tooltipArgs) + '"><span class="picon" style="' + Dex.getPokemonIcon(pokemon) + '"></span>' + BattleLog.escapeHTML(pokemon.name) + '<span class="' + pokemon.getHPColorClass() + '"><span style="width:' + (Math.round(pokemon.hp * 92 / pokemon.maxhp) || 1) + 'px"></span></span>' + (pokemon.status ? '<span class="status ' + pokemon.status + '"></span>' : '') + '</button> ';
@@ -915,8 +953,10 @@
 				var myPokemon = this.battle.myPokemon;
 				for (var i = 0; i < this.choice.choices.length; i++) {
 					var parts = this.choice.choices[i].split(' ');
+					if (parts[0] === 'rotate') parts.splice(0, 2);
 					switch (parts[0]) {
 					case 'move':
+						if (this.choice.willRotate) i = this.choice.willRotate === 'right' ? 1 : 2;
 						var move;
 						if (this.request.active[i].maxMoves && !this.request.active[i].canDynamax) { // it's a max move
 							move = this.request.active[i].maxMoves.maxMoves[parseInt(parts[1], 10) - 1].move;
@@ -925,6 +965,7 @@
 						}
 						var target = '';
 						buf += myPokemon[i].speciesForme + ' will ';
+						if (this.choice.willRotate) buf += 'rotate in and ';
 						if (parts.length > 2) {
 							var targetPos = parts[2];
 							if (targetPos === 'mega') {
@@ -1179,12 +1220,13 @@
 				var isZMove = !!(this.$('input[name=zmove]')[0] || '').checked;
 				var isUltraBurst = !!(this.$('input[name=ultraburst]')[0] || '').checked;
 				var isDynamax = !!(this.$('input[name=dynamax]')[0] || '').checked;
+				var rotation = this.choice.willRotate ? 'rotate ' + this.choice.willRotate + ' ' : '';
 
 				var target = e.getAttribute('data-target');
 				var choosableTargets = {normal: 1, any: 1, adjacentAlly: 1, adjacentAllyOrSelf: 1, adjacentFoe: 1};
 
-				this.choice.choices.push('move ' + pos + (isMega ? ' mega' : '') + (isZMove ? ' zmove' : '') + (isUltraBurst ? ' ultra' : '') + (isDynamax ? ' dynamax' : ''));
-				if (nearActive.length > 1 && target in choosableTargets) {
+				this.choice.choices.push(rotation + 'move ' + pos + (isMega ? ' mega' : '') + (isZMove ? ' zmove' : '') + (isUltraBurst ? ' ultra' : '') + (isDynamax ? ' dynamax' : ''));
+				if (nearActive.length > 1 && this.battle.gameType !== 'rotation' && target in choosableTargets) {
 					this.choice.type = 'movetarget';
 					this.choice.moveTarget = target;
 					this.updateControlsForPlayer();
@@ -1193,6 +1235,13 @@
 			}
 
 			this.endChoice();
+		},
+		chooseRotate: function (direction) {
+			var currentIndex = this.choice.willRotate === 'right' ? 1 : this.choice.willRotate === 'left' ? 2 : 0;
+			var offsetBy = direction === 'right' ? 1 : 2;
+			var newTarget = ['', 'right', 'left'][(currentIndex + offsetBy) % 3];
+			this.choice.willRotate = newTarget;
+			this.updateControlsForPlayer();
 		},
 		chooseMoveTarget: function (posString) {
 			this.choice.choices[this.choice.choices.length - 1] += ' ' + posString;

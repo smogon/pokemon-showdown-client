@@ -2008,7 +2008,8 @@ a.ilink.yours {
 	white-space: pre;
 	overflow: hidden;
 }
-.allyparty button .picon, 
+.allyparty button .picon,
+.rotateselect button .picon, 
 .switchmenu button .picon {
 	float: left;
 	margin: -6px -3px -6px -4px;
@@ -2132,6 +2133,18 @@ a.ilink.yours {
 		border-color: #888;
 		background: #E5E5E5;
 		color: black;
+}
+.rotateselect button {
+	position: relative;
+	display: block;
+	float: left;
+	width: 150px;
+	height: 30px;
+	margin-right: 4px;
+	font: 9pt Verdana, sans-serif;
+	padding: 5px 5px 5px 0;
+	white-space: pre;
+	overflow: hidden;
 }
 .allyparty,
 .switchmenu,
@@ -2264,6 +2277,9 @@ a.ilink.yours {
 	.switch-controls .switchmenu {
 		display: block;
 		margin-right: 0;
+	}
+	.will-rotate .switchcontrols {
+		display: none;
 	}
 	.move-controls .moveselect button,
 	.switch-controls .switchselect button,

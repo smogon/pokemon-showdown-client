@@ -772,6 +772,14 @@ export class BattleScene implements BattleSceneStub {
 			p2a: {top: 90, left: 390, width: 100, height: 100, tooltip: 'activepokemon|1|0'},
 			p1a: {top: 200, left: 130, width: 120, height: 160, tooltip: 'activepokemon|0|0'},
 			p1b: {top: 200, left: 350, width: 150, height: 160, tooltip: 'activepokemon|0|1'},
+		} : this.battle.gameType === 'rotation' ? {
+			// Rotation battles have the 1st Pokemon in the middle
+			p2c: {top: 70, left: 250, width: 80, height: 100, tooltip: 'activepokemon|1|2'},
+			p2a: {top: 85, left: 320, width: 90, height: 100, tooltip: 'activepokemon|1|0'},
+			p2b: {top: 90, left: 390, width: 100, height: 100, tooltip: 'activepokemon|1|1'},
+			p1b: {top: 200, left: 130, width: 120, height: 160, tooltip: 'activepokemon|0|1'},
+			p1a: {top: 200, left: 250, width: 150, height: 160, tooltip: 'activepokemon|0|0'},
+			p1c: {top: 200, left: 350, width: 150, height: 160, tooltip: 'activepokemon|0|2'},
 		} : {
 			p2c: {top: 70, left: 250, width: 80, height: 100, tooltip: 'activepokemon|1|2'},
 			p2b: {top: 85, left: 320, width: 90, height: 100, tooltip: 'activepokemon|1|1'},
@@ -1487,6 +1495,9 @@ export class BattleScene implements BattleSceneStub {
 	animDragOut(pokemon: Pokemon) {
 		return pokemon.sprite.animDragOut(pokemon);
 	}
+	animRotate(pokemon: Pokemon) {
+		return pokemon.sprite.animRotate(pokemon);
+	}
 	updateStatbar(pokemon: Pokemon, updatePrevhp?: boolean, updateHp?: boolean) {
 		return pokemon.sprite.updateStatbar(pokemon, updatePrevhp, updateHp);
 	}
@@ -1856,6 +1867,7 @@ export class PokemonSprite extends Sprite {
 	subsp: SpriteData | null = null;
 	$sub: JQuery | null = null;
 	isSubActive = false;
+	baseOpacity = 1;
 
 	$statbar: JQuery | null = null;
 	isFrontSprite: boolean;
@@ -1899,7 +1911,7 @@ export class PokemonSprite extends Sprite {
 			y: this.y,
 			z: this.z,
 			scale: 1,
-			opacity: 1,
+			opacity: this.baseOpacity,
 			time: 500,
 			...end,
 		};
@@ -1935,7 +1947,7 @@ export class PokemonSprite extends Sprite {
 			x: this.x,
 			y: this.y,
 			z: (this.isSubActive ? this.behind(30) : this.z),
-			opacity: (this.$sub ? .3 : 1),
+			opacity: (this.$sub ? .3 : this.baseOpacity),
 		}, sp));
 	}
 	animSub(instant?: boolean, noAnim?: boolean) {
@@ -1969,6 +1981,7 @@ export class PokemonSprite extends Sprite {
 			x: this.x,
 			y: this.y,
 			z: this.z,
+			opacity: this.baseOpacity,
 		}, subsp), 500);
 		this.scene.waitFor(this.$sub);
 	}
@@ -2098,6 +2111,7 @@ export class PokemonSprite extends Sprite {
 			x: this.x,
 			y: this.y,
 			z: this.z,
+			opacity: this.baseOpacity,
 		}, this.sp));
 
 		for (const id in pokemon.volatiles) this.addEffect(id as ID, true);
@@ -2127,6 +2141,7 @@ export class PokemonSprite extends Sprite {
 				x: this.x,
 				y: this.y,
 				z: this.z,
+				opacity: this.baseOpacity,
 			}, this.sp));
 		}
 	}
@@ -2138,6 +2153,10 @@ export class PokemonSprite extends Sprite {
 			// create a gap between Pokemon on the same "side" as a distinction between FFA and Multi battles
 			moreActive++;
 			if (slot) slot++;
+		}
+		if (this.scene.battle.gameType === 'rotation') {
+			this.baseOpacity = slot === 0 ? 1 : 0.5;
+			slot = [1, 0, 2][slot];
 		}
 		if (this.scene.gen <= 4 && moreActive) {
 			this.x = (slot - 0.52) * (this.isFrontSprite ? 1 : -1) * -55;
@@ -2265,6 +2284,7 @@ export class PokemonSprite extends Sprite {
 				x: this.x,
 				y: this.y,
 				z: this.z,
+				opacity: this.baseOpacity,
 			}, this.subsp!));
 			this.$el.animate(this.scene.pos({
 				x: this.x,
@@ -2284,7 +2304,7 @@ export class PokemonSprite extends Sprite {
 		});
 		this.$statbar!.delay(300 / this.scene.acceleration).animate({
 			top: this.statbarTop,
-			opacity: 1,
+			opacity: this.baseOpacity,
 		}, 400 / this.scene.acceleration);
 
 		this.dogarsCheck(pokemon);
@@ -2419,6 +2439,24 @@ export class PokemonSprite extends Sprite {
 				$statbar!.remove();
 			});
 		}
+	}
+	animRotate(pokemon: Pokemon) {
+		if (!this.scene.animating) return;
+		this.recalculatePos(pokemon.slot);
+		this.anim({
+			x: this.x,
+			y: this.y,
+			z: this.z,
+			time: 400 / this.scene.acceleration,
+			opacity: this.baseOpacity,
+		}, 'decel');
+		this.$statbar?.animate({
+			left: this.statbarLeft,
+			top: this.statbarTop,
+			opacity: this.baseOpacity,
+		}, 400 / this.scene.acceleration);
+		// TODO subs
+		this.scene.waitFor(this.$el);
 	}
 	animFaint(pokemon: Pokemon) {
 		this.removeSub();
@@ -2681,7 +2719,7 @@ export class PokemonSprite extends Sprite {
 				display: 'block',
 				left: this.statbarLeft,
 				top: this.statbarTop,
-				opacity: 1,
+				opacity: this.baseOpacity,
 			});
 		}
 	}
