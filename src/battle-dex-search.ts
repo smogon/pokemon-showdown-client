@@ -1225,7 +1225,7 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 
 			// Usually useless for Gen 1
 			if ([
-				'disable', 'haze', 'leechseed', 'quickattack', 'roar', 'toxic', 'triattack', 'whirlwind',
+				'disable', 'haze', 'leechseed', 'quickattack', 'roar', 'thunder', 'toxic', 'triattack', 'waterfall', 'whirlwind',
 			].includes(id)) {
 				return false;
 			}
