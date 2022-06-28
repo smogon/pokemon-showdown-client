@@ -49,9 +49,6 @@ case 'minidex':
 case 'sprites':
 	execSync(`node ./build-tools/build-minidex`, options);
 	break;
-case 'sets':
-	execSync(`node ./build-tools/build-sets`, options);
-	break;
 case 'replays':
 	execSync(`node ./replays/build`, options);
 	process.exit();
