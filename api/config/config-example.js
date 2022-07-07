@@ -18,9 +18,11 @@ exports.gapi_clientid = '';
 exports.bannedTerms = [];
 
 // To use for password hashing.
+/** @type {number} */
 exports.passwordSalt = 10;
 
-// routes
+// routes - todo stricter key types?
+/** @type {Record<string, string>} */
 exports.routes = {
 	root: "pokemonshowdown.com",
 };
@@ -73,8 +75,10 @@ exports.cors = [
 exports.sysops = [];
 
 // Private key to use for validating assertions.
+/** @type {string} */
 exports.privatekey = '';
 // current active challengekeyid (backwards compatibility)
+/** @type {number} */
 exports.challengekeyid = 4;
 
 /**
