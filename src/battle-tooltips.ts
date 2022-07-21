@@ -768,7 +768,7 @@ class BattleTooltips {
 		let genderBuf = '';
 		const gender = pokemon.gender;
 		if (gender === 'M' || gender === 'F') {
-			genderBuf = ` <img src="${Dex.resourcePrefix}fx/gender-${gender.toLowerCase()}.png" alt="${gender}" width="7" height="10" class="pixelated" /> `;
+			genderBuf = ` <img src="${Dex.fxPrefix}gender-${gender.toLowerCase()}.png" alt="${gender}" width="7" height="10" class="pixelated" /> `;
 		}
 
 		let name = BattleLog.escapeHTML(pokemon.name);
@@ -864,14 +864,16 @@ class BattleTooltips {
 			if (item) itemText = '<small>Item:</small> ' + item + itemEffect;
 		}
 
-		text += '<p>';
-		text += abilityText;
-		if (itemText) {
-			// ability/item on one line for your own switch tooltips, two lines everywhere else
-			text += (!isActive && serverPokemon ? ' / ' : '</p><p>');
+		if (abilityText || itemText) {
+			text += '<p>';
+			text += abilityText;
+			if (abilityText && itemText) {
+				// ability/item on one line for your own switch tooltips, two lines everywhere else
+				text += (!isActive && serverPokemon ? ' / ' : '</p><p>');
+			}
 			text += itemText;
+			text += '</p>';
 		}
-		text += '</p>';
 
 		text += this.renderStats(clientPokemon, serverPokemon, !isActive);
 
@@ -982,7 +984,7 @@ class BattleTooltips {
 		}
 
 		const ability = toID(
-			clientPokemon?.effectiveAbility(serverPokemon) || serverPokemon.ability || serverPokemon.baseAbility
+			clientPokemon?.effectiveAbility(serverPokemon) ?? (serverPokemon.ability || serverPokemon.baseAbility)
 		);
 
 		// check for burn, paralysis, guts, quick feet
@@ -1129,7 +1131,12 @@ class BattleTooltips {
 		if (ability === 'marvelscale' && pokemon.status) {
 			stats.def = Math.floor(stats.def * 1.5);
 		}
-		if (item === 'eviolite' && Dex.species.get(pokemon.speciesForme).evos) {
+		const isNFE = Dex.species.get(serverPokemon.speciesForme).evos?.some(evo => {
+			const evoSpecies = Dex.species.get(evo);
+			return !evoSpecies.isNonstandard ||
+					evoSpecies.isNonstandard === Dex.species.get(serverPokemon.speciesForme)?.isNonstandard;
+		});
+		if (item === 'eviolite' && isNFE) {
 			stats.def = Math.floor(stats.def * 1.5);
 			stats.spd = Math.floor(stats.spd * 1.5);
 		}
@@ -1262,7 +1269,8 @@ class BattleTooltips {
 			maxpp = 5;
 		} else {
 			move = this.battle.dex.moves.get(moveName);
-			maxpp = move.noPPBoosts ? move.pp : Math.floor(move.pp * 8 / 5);
+			maxpp = (move.pp === 1 || move.noPPBoosts ? move.pp : move.pp * 8 / 5);
+			if (this.battle.gen < 3) maxpp = Math.min(61, maxpp);
 		}
 		const bullet = moveName.charAt(0) === '*' || move.isZ ? '<span style="color:#888">&#8226;</span>' : '&#8226;';
 		if (ppUsed === Infinity) {
@@ -1286,11 +1294,17 @@ class BattleTooltips {
 	 * Calculates possible Speed stat range of an opponent
 	 */
 	getSpeedRange(pokemon: Pokemon): [number, number] {
-		if (pokemon.volatiles.transform) {
-			pokemon = pokemon.volatiles.transform[1];
+		const tr = Math.trunc || Math.floor;
+		const species = pokemon.getSpecies();
+		let baseSpe = species.baseStats.spe;
+		if (this.battle.rules['Scalemons Mod']) {
+			const bstWithoutHp = species.bst - species.baseStats.hp;
+			const scale = 600 - species.baseStats.hp;
+			baseSpe = tr(baseSpe * scale / bstWithoutHp);
+			if (baseSpe < 1) baseSpe = 1;
+			if (baseSpe > 255) baseSpe = 255;
 		}
-		let level = pokemon.level;
-		let baseSpe = pokemon.getSpecies().baseStats['spe'];
+		let level = pokemon.volatiles.transform?.[4] || pokemon.level;
 		let tier = this.battle.tier;
 		let gen = this.battle.gen;
 		let isRandomBattle = tier.includes('Random Battle') ||
@@ -1302,7 +1316,6 @@ class BattleTooltips {
 
 		let min;
 		let max;
-		const tr = Math.trunc || Math.floor;
 		if (tier.includes("Let's Go")) {
 			min = tr(tr(tr(2 * baseSpe * level / 100 + 5) * minNature) * tr((70 / 255 / 10 + 1) * 100) / 100);
 			max = tr(tr(tr((2 * baseSpe + maxIv) * level / 100 + 5) * maxNature) * tr((70 / 255 / 10 + 1) * 100) / 100);

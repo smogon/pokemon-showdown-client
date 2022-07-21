@@ -801,7 +801,7 @@ class FormatDropdownPanel extends PSRoomPanel {
 
 		let curSection = '';
 		let curColumnNum = 0;
-		let curColumn: (FormatData | {id: '', section: string})[] = [];
+		let curColumn: (FormatData | {id: null, section: string})[] = [];
 		const columns = [curColumn];
 		for (const format of formats) {
 			if (format.column !== curColumnNum) {
@@ -814,7 +814,7 @@ class FormatDropdownPanel extends PSRoomPanel {
 			if (format.section !== curSection) {
 				curSection = format.section;
 				if (curSection) {
-					curColumn.push({id: '', section: curSection});
+					curColumn.push({id: null, section: curSection});
 				}
 			}
 			curColumn.push(format);

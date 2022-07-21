@@ -375,9 +375,9 @@
 		initialize: function (data) {
 			var buf = '';
 			var muted = !!Dex.prefs('mute');
-			buf += '<p class="effect-volume"><label class="optlabel">Effect volume:</label>' + (muted ? '<em>(muted)</em>' : '<input type="range" min="0" max="100" step="1" name="effectvolume" value="' + (Dex.prefs('effectvolume') || 50) + '" />') + '</p>';
-			buf += '<p class="music-volume"><label class="optlabel">Music volume:</label>' + (muted ? '<em>(muted)</em>' : '<input type="range" min="0" max="100" step="1" name="musicvolume" value="' + (Dex.prefs('musicvolume') || 50) + '" />') + '</p>';
-			buf += '<p class="notif-volume"><label class="optlabel">Notification volume:</label>' + (muted ? '<em>(muted)</em>' : '<input type="range" min="0" max="100" step="1" name="notifvolume" value="' + (Dex.prefs('notifvolume') || 50) + '" />') + '</p>';
+			buf += '<p class="effect-volume"><label class="optlabel">Effect volume:</label>' + (muted ? '<em>(muted)</em>' : '<input type="range" min="0" max="100" step="1" name="effectvolume" value="' + this.getEffectVolume() + '" />') + '</p>';
+			buf += '<p class="music-volume"><label class="optlabel">Music volume:</label>' + (muted ? '<em>(muted)</em>' : '<input type="range" min="0" max="100" step="1" name="musicvolume" value="' + this.getMusicVolume() + '" />') + '</p>';
+			buf += '<p class="notif-volume"><label class="optlabel">Notification volume:</label>' + (muted ? '<em>(muted)</em>' : '<input type="range" min="0" max="100" step="1" name="notifvolume" value="' + this.getNotifVolume() + '" />') + '</p>';
 			buf += '<p><label class="optlabel"><input type="checkbox" name="muted"' + (muted ? ' checked' : '') + ' /> Mute sounds</label></p>';
 			this.$el.html(buf).css('min-width', 160);
 		},
@@ -407,9 +407,9 @@
 			BattleSound.setMute(muted);
 
 			if (!muted) {
-				this.$('.effect-volume').html('<label class="optlabel">Effect volume:</label><input type="range" min="0" max="100" step="1" name="effectvolume" value="' + (Dex.prefs('effectvolume') || 50) + '" />');
-				this.$('.music-volume').html('<label class="optlabel">Music volume:</label><input type="range" min="0" max="100" step="1" name="musicvolume" value="' + (Dex.prefs('musicvolume') || 50) + '" />');
-				this.$('.notif-volume').html('<label class="optlabel">Notification volume:</label><input type="range" min="0" max="100" step="1" name="notifvolume" value="' + (Dex.prefs('notifvolume') || 50) + '" />');
+				this.$('.effect-volume').html('<label class="optlabel">Effect volume:</label><input type="range" min="0" max="100" step="1" name="effectvolume" value="' + this.getEffectVolume() + '" />');
+				this.$('.music-volume').html('<label class="optlabel">Music volume:</label><input type="range" min="0" max="100" step="1" name="musicvolume" value="' + this.getMusicVolume() + '" />');
+				this.$('.notif-volume').html('<label class="optlabel">Notification volume:</label><input type="range" min="0" max="100" step="1" name="notifvolume" value="' + this.getNotifVolume() + '" />');
 			} else {
 				this.$('.effect-volume').html('<label class="optlabel">Effect volume:</label><em>(muted)</em>');
 				this.$('.music-volume').html('<label class="optlabel">Music volume:</label><em>(muted)</em>');
@@ -422,12 +422,24 @@
 			BattleSound.setEffectVolume(volume);
 			Storage.prefs('effectvolume', volume);
 		},
+		getEffectVolume: function () {
+			var volume = Dex.prefs('effectvolume');
+			return typeof volume === 'number' ? volume : 50;
+		},
 		setMusicVolume: function (volume) {
 			BattleSound.setBgmVolume(volume);
 			Storage.prefs('musicvolume', volume);
 		},
+		getMusicVolume: function () {
+			var volume = Dex.prefs('musicvolume');
+			return typeof volume === 'number' ? volume : 50;
+		},
 		setNotifVolume: function (volume) {
 			Storage.prefs('notifvolume', volume);
+		},
+		getNotifVolume: function () {
+			var volume = Dex.prefs('notifvolume');
+			return typeof volume === 'number' ? volume : 50;
 		}
 	});
 
@@ -447,13 +459,13 @@
 			'change input[name=blockchallenges]': 'setBlockchallenges',
 			'change input[name=blockpms]': 'setBlockpms',
 			'change input[name=inchatpm]': 'setInchatpm',
-			'change input[name=dark]': 'setDark',
 			'change input[name=temporarynotifications]': 'setTemporaryNotifications',
 			'change input[name=refreshprompt]': 'setRefreshprompt',
 			'change select[name=bg]': 'setBg',
 			'change select[name=timestamps-lobby]': 'setTimestampsLobby',
 			'change select[name=timestamps-pms]': 'setTimestampsPMs',
 			'change select[name=onepanel]': 'setOnePanel',
+			'change select[name=theme]': 'setTheme',
 			'change input[name=logchat]': 'setLogChat',
 			'change input[name=selfhighlight]': 'setSelfHighlight',
 			'click img': 'avatars'
@@ -477,12 +489,18 @@
 
 			buf += '<hr />';
 			buf += '<p><strong>Graphics</strong></p>';
+			var theme = Dex.prefs('theme');
+			var colorSchemeQuerySupported = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').media !== 'not all';
+			buf += '<p><label class="optlabel">Theme: <select name="theme"><option value="light"' + (!theme || theme === 'light' ? ' selected="selected"' : '') + '>Light</option><option value="dark"' + (theme === 'dark' ? ' selected="selected"' : '') + '>Dark</option>';
+			if (colorSchemeQuerySupported) {
+				buf += '<option value="system"' + (theme === 'system' ? ' selected="selected"' : '') + '>Match system theme</option>';
+			}
+			buf += '</select></label></p>';
 			var onePanel = !!Dex.prefs('onepanel');
 			if ($(window).width() >= 660) {
 				buf += '<p><label class="optlabel">Layout: <select name="onepanel"><option value=""' + (!onePanel ? ' selected="selected"' : '') + '>&#x25EB; Left and right panels</option><option value="1"' + (onePanel ? ' selected="selected"' : '') + '>&#x25FB; Single panel</option></select></label></p>';
 			}
 			buf += '<p><label class="optlabel">Background: <button name="background">Change background</button></label></p>';
-			buf += '<p><label class="optlabel"><input type="checkbox" name="dark"' + (Dex.prefs('dark') ? ' checked' : '') + ' /> Dark mode</label></p>';
 			buf += '<p><label class="optlabel"><input type="checkbox" name="noanim"' + (Dex.prefs('noanim') ? ' checked' : '') + ' /> Disable animations</label></p>';
 			if (navigator.userAgent.includes(' Chrome/64.')) {
 				buf += '<p><label class="optlabel"><input type="checkbox" name="nogif"' + (Dex.prefs('nogif') ? ' checked' : '') + ' /> Disable GIFs for Chrome 64 bug</label></p>';
@@ -569,10 +587,17 @@
 			Storage.prefs('nogif', nogif);
 			Dex.loadSpriteData(nogif || Dex.prefs('bwgfx') ? 'bw' : 'xy');
 		},
-		setDark: function (e) {
-			var dark = !!e.currentTarget.checked;
-			Storage.prefs('dark', dark);
-			$('html').toggleClass('dark', dark);
+		setTheme: function (e) {
+			var theme = e.currentTarget.value;
+			Storage.prefs('theme', theme);
+			if (theme === 'system') {
+				if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+					theme = 'dark';
+				} else {
+					theme = 'light';
+				}
+			}
+			$('html').toggleClass('dark', theme === 'dark');
 		},
 		setBwgfx: function (e) {
 			var bwgfx = !!e.currentTarget.checked;
@@ -805,22 +830,38 @@
 	CustomBackgroundPopup.readFile = function (file, popup) {
 		var reader = new FileReader();
 		reader.onload = function (e) {
-			var noSave = false;
 			if (String(e.target.result).length > 4200000) {
 				if (popup) {
 					$('.bgstatus').html('<strong style="background:red;color:white;padding:1px 4px;border-radius:4px;display:block">Image is too large and can\'t be saved. It should be under 3.5MB or so.</strong>');
 				} else {
 					app.addPopupMessage("Image is too large and can't be saved. It should be under 3.5MB or so.");
 				}
-				noSave = true;
 			} else if (popup) {
 				$('.bgstatus').html('Saved');
 				popup.$('.cur').removeClass('cur');
+				Storage.bg.set(e.target.result, 'custom');
+			} else {
+				app.addPopup(ConfirmBackgroundPopup, {bgUrl: e.target.result});
 			}
-			Storage.bg.set(e.target.result, 'custom', noSave);
 		};
 		reader.readAsDataURL(file);
 	};
+
+	var ConfirmBackgroundPopup = this.ConfirmBackgroundPopup = Popup.extend({
+		initialize: function (data) {
+			var buf = '<br>';
+			buf += '<p><img src="' + data.bgUrl + '" style="display:block;margin:auto;max-width:90%;max-height:500px"></p>';
+			buf += '<p class="buttonbar"><button name="setBg" value="' + data.bgUrl + '"><strong>Change background</strong></button> ';
+			buf += '<button name="close">Cancel</button></p>';
+
+			this.$el.css('max-width', 485).html(buf);
+			this.$el.html(buf);
+		},
+		setBg: function (bgUrl) {
+			this.close();
+			Storage.bg.set(bgUrl, 'custom');
+		}
+	});
 
 	var LoginPopup = this.LoginPopup = Popup.extend({
 		type: 'semimodal',

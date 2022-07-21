@@ -467,7 +467,15 @@ function toId() {
 				var muted = Dex.prefs('mute');
 				BattleSound.setMute(muted);
 
-				$('html').toggleClass('dark', !!Dex.prefs('dark'));
+				var theme = Dex.prefs('theme');
+				var colorSchemeQuery = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)');
+				var dark = theme === 'dark' || (theme === 'system' && colorSchemeQuery && colorSchemeQuery.matches);
+				$('html').toggleClass('dark', dark);
+				if (colorSchemeQuery && colorSchemeQuery.media !== 'not all') {
+					colorSchemeQuery.addEventListener('change', function (cs) {
+						if (Dex.prefs('theme') === 'system') $('html').toggleClass('dark', cs.matches);
+					});
+				}
 
 				var effectVolume = Dex.prefs('effectvolume');
 				if (effectVolume !== undefined) BattleSound.setEffectVolume(effectVolume);
@@ -733,6 +741,19 @@ function toId() {
 				var protocol = (Config.server.port === 443 || Config.server.https) ? 'https' : 'http';
 				Config.server.host = $.trim(Config.server.host);
 				try {
+					if (Config.server.host === 'localhost') {
+						// connecting to localhost from psim.us is now banned as of Chrome 94
+						// thanks Docker for having vulns
+						// https://wicg.github.io/cors-rfc1918
+						// anyway, this affects SockJS because it makes HTTP requests to localhost
+						// but it turns out that making direct WebSocket connections to localhost is
+						// still supported, so we'll just bypass SockJS and use WebSocket directly.
+						console.log("Bypassing SockJS for localhost");
+						console.log('ws' + protocol.slice('4') + '://' + Config.server.host + ':' + Config.server.port + Config.sockjsprefix + '/websocket');
+						return new WebSocket(
+							'ws' + protocol.slice('4') + '://' + Config.server.host + ':' + Config.server.port + Config.sockjsprefix + '/websocket'
+						);
+					}
 					return new SockJS(
 						protocol + '://' + Config.server.host + ':' + Config.server.port + Config.sockjsprefix,
 						[], {timeout: 5 * 60 * 1000}
@@ -817,6 +838,7 @@ function toId() {
 			if (!Config.testclient && location.search && window.history) {
 				history.replaceState(null, null, location.pathname);
 			}
+			if (fragment && fragment.includes('.')) fragment = '';
 			this.fragment = fragment = toRoomid(fragment || '');
 			if (this.initialFragment === undefined) this.initialFragment = fragment;
 			this.tryJoinRoom(fragment);
@@ -1245,6 +1267,7 @@ function toId() {
 					var searchShow = true;
 					var challengeShow = true;
 					var tournamentShow = true;
+					var partner = false;
 					var team = null;
 					var teambuilderLevel = null;
 					var lastCommaIndex = name.lastIndexOf(',');
@@ -1256,6 +1279,7 @@ function toId() {
 						if (!(code & 4)) challengeShow = false;
 						if (!(code & 8)) tournamentShow = false;
 						if (code & 16) teambuilderLevel = 50;
+						if (code & 32) partner = true;
 					} else {
 						// Backwards compatibility: late 0.9.0 -> 0.10.0
 						if (name.substr(name.length - 2) === ',#') { // preset teams
@@ -1321,6 +1345,7 @@ function toId() {
 						tournamentShow: tournamentShow,
 						rated: searchShow && id.substr(4, 7) !== 'unrated',
 						teambuilderLevel: teambuilderLevel,
+						partner: partner,
 						teambuilderFormat: teambuilderFormat,
 						isTeambuilderFormat: isTeambuilderFormat,
 						effectType: 'Format'
@@ -1351,8 +1376,10 @@ function toId() {
 			var serverid = Config.server.id && toID(Config.server.id.split(':')[0]);
 			var silent = data.silent;
 			if (serverid && serverid !== 'showdown') id = serverid + '-' + id;
-			$.post(app.user.getActionPHP() + '?act=uploadreplay', {
+			$.post(app.user.getActionPHP(), {
+				act: 'uploadreplay',
 				log: data.log,
+				serverid: serverid,
 				password: data.password || '',
 				id: id
 			}, function (data) {
