@@ -1222,8 +1222,13 @@
 						buf += '<span class="detailcell"><label>HP Type</label>' + (set.hpType || 'Dark') + '</span>';
 					}
 				}
-				if (this.curTeam.gen === 8 && !isBDSP && (species.canGigantamax || species.forme === 'Gmax')) {
-					buf += '<span class="detailcell"><label>Gmax</label>' + (set.gigantamax || species.forme === 'Gmax' ? 'Yes' : 'No') + '</span>';
+				if (this.curTeam.gen === 8 && !isBDSP) {
+					if (!species.cannotDynamax && set.dynamaxLevel !== 10 && set.dynamaxLevel !== undefined) {
+						buf += '<span class="detailcell"><label>Dmax Level</label>' + (typeof set.dynamaxLevel === 'number' ? set.dynamaxLevel : 10) + '</span>';
+					}
+					if (species.canGigantamax || species.forme === 'Gmax') {
+						buf += '<span class="detailcell"><label>Gmax</label>' + (set.gigantamax || species.forme === 'Gmax' ? 'Yes' : 'No') + '</span>';
+					}
 				}
 			}
 			buf += '</button></div></div>';
@@ -2624,15 +2629,20 @@
 				buf += '<label><input type="radio" name="shiny" value="no"' + (!set.shiny ? ' checked' : '') + ' /> No</label>';
 				buf += '</div></div>';
 
-				if (!isBDSP && (species.canGigantamax || species.forme === 'Gmax')) {
-					buf += '<div class="formrow"><label class="formlabel">Gigantamax:</label><div>';
-					if (species.forme === 'Gmax') {
-						buf += 'Yes';
-					} else {
-						buf += '<label><input type="radio" name="gigantamax" value="yes"' + (set.gigantamax ? ' checked' : '') + ' /> Yes</label> ';
-						buf += '<label><input type="radio" name="gigantamax" value="no"' + (!set.gigantamax ? ' checked' : '') + ' /> No</label>';
+				if (this.curTeam.gen === 8 && !isBDSP) {
+					if (!species.cannotDynamax) {
+						buf += '<div class="formrow"><label class="formlabel">Dmax Level:</label><div><input type="number" min="0" max="10" step="1" name="dynamaxlevel" value="' + (typeof set.dynamaxLevel === 'number' ? set.dynamaxLevel : 10) + '" class="textbox inputform numform" /></div></div>';
 					}
-					buf += '</div></div>';
+					if (species.canGigantamax || species.forme === 'Gmax') {
+						buf += '<div class="formrow"><label class="formlabel">Gigantamax:</label><div>';
+						if (species.forme === 'Gmax') {
+							buf += 'Yes';
+						} else {
+							buf += '<label><input type="radio" name="gigantamax" value="yes"' + (set.gigantamax ? ' checked' : '') + ' /> Yes</label> ';
+							buf += '<label><input type="radio" name="gigantamax" value="no"' + (!set.gigantamax ? ' checked' : '') + ' /> No</label>';
+						}
+						buf += '</div></div>';
+					}
 				}
 			}
 
@@ -2682,9 +2692,7 @@
 
 			// happiness
 			var happiness = parseInt(this.$chart.find('input[name=happiness]').val(), 10);
-			if (isNaN(happiness)) happiness = 255;
-			if (happiness > 255) happiness = 255;
-			if (happiness < 0) happiness = 255;
+			if (isNaN(happiness) || happiness > 255 || happiness < 0) happiness = 255;
 			set.happiness = happiness;
 			if (set.happiness === 255) delete set.happiness;
 
@@ -2695,6 +2703,12 @@
 			} else {
 				delete set.shiny;
 			}
+
+			// dynamax level
+			var dynamaxLevel = parseInt(this.$chart.find('input[name=dynamaxlevel]').val(), 10);
+			if (isNaN(dynamaxLevel) || dynamaxLevel > 10 || dynamaxLevel < 0) dynamaxLevel = 10;
+			set.dynamaxLevel = dynamaxLevel;
+			if (set.dynamaxLevel === 10) delete set.dynamaxLevel;
 
 			// gigantamax
 			var gmax = (this.$chart.find('input[name=gigantamax]:checked').val() === 'yes');
@@ -2745,8 +2759,13 @@
 				}
 				buf += '<span class="detailcell"><label>Shiny</label>' + (set.shiny ? 'Yes' : 'No') + '</span>';
 				if (!isLetsGo && (this.curTeam.gen < 8 || isNatDex)) buf += '<span class="detailcell"><label>HP Type</label>' + (set.hpType || 'Dark') + '</span>';
-				if (this.curTeam.gen === 8 && !isBDSP && (species.canGigantamax || species.forme === 'Gmax')) {
-					buf += '<span class="detailcell"><label>Gmax</label>' + (set.gigantamax || species.forme === 'Gmax' ? 'Yes' : 'No') + '</span>';
+				if (this.curTeam.gen === 8 && !isBDSP) {
+					if (!species.cannotDynamax) {
+						buf += '<span class="detailcell"><label>Dmax Level</label>' + (typeof set.dynamaxLevel === 'number' ? set.dynamaxLevel : 10) + '</span>';
+					}
+					if (species.canGigantamax || species.forme === 'Gmax') {
+						buf += '<span class="detailcell"><label>Gmax</label>' + (set.gigantamax || species.forme === 'Gmax' ? 'Yes' : 'No') + '</span>';
+					}
 				}
 			}
 			this.$('button[name=details]').html(buf);
@@ -2975,6 +2994,7 @@
 				set.gender = 'F';
 				if (set.happiness) delete set.happiness;
 				if (set.shiny) delete set.shiny;
+				if (set.dynamaxLevel) delete set.dynamaxLevel;
 				if (set.gigantamax) delete set.gigantamax;
 				set.item = 'Starf Berry';
 				set.ability = 'Harvest';
@@ -3004,6 +3024,7 @@
 				}
 				if (set.happiness) delete set.happiness;
 				if (set.shiny) delete set.shiny;
+				if (set.dynamaxLevel) delete set.dynamaxLevel;
 				if (set.gigantamax) delete set.gigantamax;
 				set.item = 'Leftovers';
 				set.ability = 'Battle Armor';
@@ -3222,6 +3243,7 @@
 			if (species.gender && species.gender !== 'N') set.gender = species.gender;
 			if (set.happiness) delete set.happiness;
 			if (set.shiny) delete set.shiny;
+			if (set.dynamaxLevel) delete set.dynamaxLevel;
 			if (set.gigantamax) delete set.gigantamax;
 			if (!this.curTeam.format.includes('hackmons') && species.requiredItems.length === 1) {
 				set.item = species.requiredItems[0];
