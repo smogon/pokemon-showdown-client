@@ -512,7 +512,7 @@ class BattleTextParser {
 			if (BattleLog.prefs('ignorenick') === "true") {
 				pokemonName = fullname;
 			} else {
-				pokemonName = this.pokemonName(pokemon)
+				pokemonName = this.pokemonName(pokemon);
 			}
 			return template.replace('[TRAINER]', this.trainer(side)).replace('[NICKNAME]', pokemonName).replace('[POKEMON]', this.pokemon(pokemon));
 		}
