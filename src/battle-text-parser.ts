@@ -505,10 +505,16 @@ class BattleTextParser {
 		}
 
 		case 'switchout': {
-			const [, pokemon] = args;
-			const side = pokemon.slice(0, 2);
+			const [, pokemon, details] = args;
+			const [side, fullname] = this.pokemonFull(pokemon, details);
 			const template = this.template('switchOut', kwArgs.from, this.own(side));
-			return template.replace('[TRAINER]', this.trainer(side)).replace('[NICKNAME]', this.pokemonName(pokemon)).replace('[POKEMON]', this.pokemon(pokemon));
+			let pokemonName;
+			if (BattleLog.prefs('ignorenick') === "true") {
+				pokemonName = fullname;
+			} else {
+				pokemonName = this.pokemonName(pokemon)
+			}
+			return template.replace('[TRAINER]', this.trainer(side)).replace('[NICKNAME]', pokemonName).replace('[POKEMON]', this.pokemon(pokemon));
 		}
 
 		case 'faint': {
