@@ -665,6 +665,10 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 				if (genNum === 2) badItems.push(id);
 				else goodItems.push(id);
 				break;
+			case 'dragonscale':
+				if (genNum === 2) goodItems.push(id);
+				else badItems.push(id);
+				break;
 			case 'mail':
 				if (genNum >= 6) unreleasedItems.push(id);
 				else goodItems.push(id);
@@ -712,7 +716,6 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			case 'electirizer':
 			case 'oldamber':
 			case 'dawnstone':
-			case 'dragonscale':
 			case 'dubiousdisc':
 			case 'duskstone':
 			case 'firestone':
