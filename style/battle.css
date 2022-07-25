@@ -462,8 +462,20 @@ License: GPLv2
 	background: #CCAAEE url(../fx/weather-psychicterrain.png) no-repeat scroll left top;
 	color: #441155;
 }
-.pseudoweather {
+.gravityweather {
+	background: #DDAAEE url(../fx/weather-gravity.png) no-repeat scroll left top;
+	color: #661155;
+}
+.magicroomweather {
+	background: #DDAAEE url(../fx/weather-magicroom.png) no-repeat scroll left top;
+	color: #661155;
+}
+.trickroomweather {
 	background: #DDAAEE url(../fx/weather-trickroom.png) no-repeat scroll left top;
+	color: #661155;
+}
+.wonderroomweather {
+	background: #DDAAEE url(../fx/weather-wonderroom.png) no-repeat scroll left top;
 	color: #661155;
 }
 
