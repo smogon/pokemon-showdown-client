@@ -1347,6 +1347,10 @@ a.ilink.yours {
 	-webkit-overflow-scrolling: touch;
 	overflow-scrolling: touch;
 }
+.userlist-count {
+	text-align: center;
+	padding: 2px 0;
+}
 .userlist-minimized {
 	height: 21px;
 	bottom: auto;
