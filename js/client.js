@@ -2752,7 +2752,11 @@ function toId() {
 			this.close();
 		},
 		userOptions: function () {
-			app.addPopup(UserOptionsPopup, {name: this.data.name, userid: this.data.userid});
+			app.addPopup(UserOptionsPopup, {
+				name: this.data.name,
+				userid: this.data.userid,
+				friended: this.data.friended,
+			});
 		}
 	}, {
 		dataCache: {}
@@ -2762,10 +2766,31 @@ function toId() {
 		initialize: function (data) {
 			this.name = data.name;
 			this.userid = data.userid;
+			this.data = data;
 			this.update();
 		},
 		update: function () {
-			this.$el.html('<p><button name="toggleIgnoreUser">' + (app.ignore[this.userid] ? 'Unignore' : 'Ignore') + '</button></p><p><button name="report">Report</button></p>');
+			var ignored = app.ignore[this.userid] ? 'Unignore' : 'Ignore';
+			var friended = this.data.friended ? 'Remove friend' : 'Add friend';
+			this.$el.html(
+				'<p><button name="toggleIgnoreUser">' + ignored + '</button></p>' +
+				'<p><button name="report">Report</button></p>' +
+				'<p><button name="toggleFriend">' + friended +
+				'</button></p>'
+			);
+		},
+		toggleFriend: function () {
+			var $button = this.$el.find('[name=toggleFriend]');
+			if (this.data.friended) {
+				app.send('/unfriend ' + this.userid);
+				$button.text('Friend removed.');
+			} else {
+				app.send('/friend add ' + this.userid);
+				$button.text('Friend request sent!');
+			}
+			// we intentionally disable since we don't want them to spam it
+			// you at least have to close and reopen the popup to get it back
+			$button.addClass('button disabled');
 		},
 		report: function () {
 			app.joinRoom('view-help-request-report-user-' + this.userid);
