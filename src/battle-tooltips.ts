@@ -772,10 +772,8 @@ class BattleTooltips {
 		}
 
 		let name = BattleLog.escapeHTML(pokemon.name);
-		if (pokemon.speciesForme !== pokemon.name && BattleLog.prefs('ignorenicks') === "false") {
+		if (pokemon.speciesForme !== pokemon.name) {
 			name += ' <small>(' + BattleLog.escapeHTML(pokemon.speciesForme) + ')</small>';
-		} else {
-			name = BattleLog.escapeHTML(pokemon.speciesForme);
 		}
 
 		let levelBuf = (pokemon.level !== 100 ? ` <small>L${pokemon.level}</small>` : ``);
