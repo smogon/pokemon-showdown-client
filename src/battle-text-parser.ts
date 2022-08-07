@@ -20,7 +20,7 @@ class BattleTextParser {
 	p3 = "Player 3";
 	p4 = "Player 4";
 	perspective: SideID;
-	gen = 7;
+	gen = 9;
 	turn = 0;
 	curLineSection: 'break' | 'preMajor' | 'major' | 'postMajor' = 'break';
 	lowercaseRegExp: RegExp | null | undefined = undefined;
@@ -358,7 +358,7 @@ class BattleTextParser {
 		switch (cmd) {
 		case 'done' : case 'turn':
 			return 'break';
-		case 'move' : case 'cant': case 'switch': case 'drag': case 'upkeep': case 'start': case '-mega': case '-candynamax':
+		case 'move' : case 'cant': case 'switch': case 'drag': case 'upkeep': case 'start': case '-mega': case '-candynamax': case '-terastallize':
 			return 'major';
 		case 'switchout': case 'faint':
 			return 'preMajor';
@@ -1085,6 +1085,15 @@ class BattleTextParser {
 				template += template2.replace('[POKEMON]', pokemonName).replace('[SPECIES]', species);
 			}
 			return template.replace('[POKEMON]', pokemonName).replace('[ITEM]', item).replace('[TRAINER]', this.trainer(side));
+		}
+
+		case '-terastallize': {
+			const [, pokemon, type] = args;
+			let id = '';
+			let templateId = cmd.slice(1);
+			let template = this.template(templateId, id);
+			const pokemonName = this.pokemon(pokemon);
+			return template.replace('[POKEMON]', pokemonName).replace('[TYPE]', type);
 		}
 
 		case '-zpower': {

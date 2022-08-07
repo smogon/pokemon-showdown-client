@@ -90,6 +90,7 @@ export class Pokemon implements PokemonDetails, PokemonHealth {
 	itemEffect = '';
 	prevItem = '';
 	prevItemEffect = '';
+	terastalType = '';
 
 	boosts: {[stat: string]: number} = {};
 	status: StatusName | 'tox' | '' | '???' = '';
@@ -2413,6 +2414,13 @@ export class Battle {
 			break;
 		}
 		case '-primal': case '-burst': {
+			this.log(args, kwArgs);
+			break;
+		}
+		case '-terastallize': {
+			let poke = this.getPokemon(args[1])!;
+			let type = Dex.types.get(args[2]).name;
+			poke.terastalType = type;
 			this.log(args, kwArgs);
 			break;
 		}

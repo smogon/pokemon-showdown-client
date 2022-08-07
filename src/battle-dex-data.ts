@@ -1426,7 +1426,9 @@ class Species implements Effect {
 		this.unreleasedHidden = data.unreleasedHidden || false;
 		this.changesFrom = data.changesFrom || undefined;
 		if (!this.gen) {
-			if (this.num >= 810 || this.formeid.startsWith('-galar')) {
+			if (this.num >= 906 || this.formeid.startsWith('-paldea')) {
+				this.gen = 9;
+			} else if (this.num >= 810 || this.formeid.startsWith('-galar') || this.formeid.startsWith('-hisui')) {
 				this.gen = 8;
 			} else if (this.num >= 722 || this.formeid === '-alola' || this.formeid === '-starter') {
 				this.gen = 7;

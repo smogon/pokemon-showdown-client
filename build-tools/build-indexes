@@ -9,7 +9,7 @@ const rootDir = path.resolve(__dirname, '..');
 process.chdir(rootDir);
 
 if (!fs.existsSync('data/pokemon-showdown')) {
-	child_process.execSync('git clone https://github.com/smogon/pokemon-showdown.git', {
+	child_process.execSync('git clone -b paldea https://github.com/KrisXV/pokemon-showdown.git', {
 		cwd: 'data',
 	});
 }
@@ -315,21 +315,22 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 	const BattleTeambuilderTable = {};
 
 	let buf = '// DO NOT EDIT - automatically built with build-tools/build-indexes\n\n';
-	const GENS = [8, 7, 6, 5, 4, 3, 2, 1];
+	const GENS = [9, 8, 7, 6, 5, 4, 3, 2, 1];
 	const DOUBLES = GENS.filter(x => x > 2).map(num => -num);
 	const VGC = GENS.filter(x => x > 3).map(num => -num - 0.5);
 	const NFE = GENS.map(num => num + 0.3);
 	const STADIUM = [2.04, 1.04];
+	const NATDEX = [9.1, 8.1];
 	const OTHER = [8.6, 8.4, 8.2, 8.1, -8.4, -8.6, 7.1];
 
 	// process.stdout.write("\n  ");
-	for (const genIdent of [...GENS, ...DOUBLES, ...VGC, ...NFE, ...STADIUM, ...OTHER]) {
+	for (const genIdent of [...GENS, ...DOUBLES, ...VGC, ...NFE, ...STADIUM, ...OTHER, ...NATDEX]) {
 		const isLetsGo = (genIdent === 7.1);
 		const isBDSP = (genIdent === 8.6 || genIdent === -8.6);
 		const isMetBattle = (genIdent === 8.2);
 		const isNFE = ('' + genIdent).endsWith('.3');
 		const isDLC1 = (genIdent === 8.4 || genIdent === -8.4);
-		const isNatDex = (genIdent === 8.1);
+		const isNatDex = ('' + genIdent).endsWith('.1') && genIdent > 8;
 		const isStadium = ('' + genIdent).endsWith('.04');
 		const isDoubles = (genIdent < 0);
 		const isVGC = ('' + genIdent).endsWith('.5');
@@ -465,12 +466,12 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 		const formatSlices = {};
 
 		if (isNatDex) {
-			BattleTeambuilderTable['natdex'] = {};
-			BattleTeambuilderTable['natdex'].tiers = tiers;
-			BattleTeambuilderTable['natdex'].overrideTier = overrideTier;
-			BattleTeambuilderTable['natdex'].items = items;
-			BattleTeambuilderTable['natdex'].monotypeBans = monotypeBans;
-			BattleTeambuilderTable['natdex'].formatSlices = formatSlices;
+			BattleTeambuilderTable['gen' + genNum + 'natdex'] = {};
+			BattleTeambuilderTable['gen' + genNum + 'natdex'].tiers = tiers;
+			BattleTeambuilderTable['gen' + genNum + 'natdex'].overrideTier = overrideTier;
+			BattleTeambuilderTable['gen' + genNum + 'natdex'].items = items;
+			BattleTeambuilderTable['gen' + genNum + 'natdex'].monotypeBans = monotypeBans;
+			BattleTeambuilderTable['gen' + genNum + 'natdex'].formatSlices = formatSlices;
 		} else if (isMetBattle) {
 			BattleTeambuilderTable['metronome'] = {};
 			BattleTeambuilderTable['metronome'].tiers = tiers;
@@ -504,7 +505,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			BattleTeambuilderTable[gen + 'doubles'].tiers = tiers;
 			BattleTeambuilderTable[gen + 'doubles'].overrideTier = overrideTier;
 			BattleTeambuilderTable[gen + 'doubles'].formatSlices = formatSlices;
-		} else if (gen === 'gen8') {
+		} else if (gen === 'gen9') {
 			BattleTeambuilderTable.tiers = tiers;
 			BattleTeambuilderTable.items = items;
 			BattleTeambuilderTable.overrideTier = overrideTier;
@@ -827,10 +828,10 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 				let minUpperGen = available ? 5 : Math.min(
 					...gens.filter(gen => gen > 4)
 				);
-				legalGens += '012345678'.slice(minUpperGen);
+				legalGens += '0123456789'.slice(minUpperGen);
 				learnsets[id][moveid] = legalGens;
 			} else {
-				learnsets[id][moveid] = '012345678'.slice(minGen);
+				learnsets[id][moveid] = '0123456789'.slice(minGen);
 			}
 
 			if (gens.indexOf(6) >= 0) learnsets[id][moveid] += 'p';
@@ -932,7 +933,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 	// Past gen table
 	//
 
-	for (const genNum of [7, 6, 5, 4, 3, 2, 1]) {
+	for (const genNum of [8, 7, 6, 5, 4, 3, 2, 1]) {
 		const gen = 'gen' + genNum;
 		const nextGen = 'gen' + (genNum + 1);
 		const genDex = Dex.mod(gen);

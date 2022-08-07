@@ -2669,6 +2669,16 @@
 				buf += '</select></div></div>';
 			}
 
+			if (this.curTeam.gen === 9) {
+				buf += '<div class="formrow"><label class="formlabel" title="Terastal Type">Terastal Type:</label><div><select name="terastaltype">';
+				buf += '<option value=""' + (!set.terastalType ? ' selected="selected"' : '') + '>(automatic type)</option>'; // unset
+				var types = Dex.types.all();
+				for (var i = 0; i < types.length; i++) {
+					buf += '<option value="' + types[i].name + '"' + (set.terastalType === types[i].name ? ' selected="selected"' : '') + '>' + types[i].name + '</option>';
+				}
+				buf += '</select></div></div>';
+			}
+
 			buf += '</form>';
 			if (species.cosmeticFormes) {
 				buf += '<button class="altform">Change sprite</button>';
@@ -2741,6 +2751,14 @@
 				set.hpType = hpType;
 			} else {
 				delete set.hpType;
+			}
+
+			// Terastal type
+			var terastalType = this.$chart.find('select[name=terastaltype]').val();
+			if (Dex.types.isName(terastalType)) {
+				set.terastalType = terastalType;
+			} else {
+				delete set.terastalType;
 			}
 
 			// update details cell
