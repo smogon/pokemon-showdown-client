@@ -18,6 +18,9 @@ function toId() {
 		window.isiOS = true;
 		$('head').append('<meta name="apple-mobile-web-app-capable" content="yes" />');
 	}
+	if (navigator.userAgent.indexOf('Electron') >= 0) {
+		window.isElectron = true;
+	}
 
 	$(document).on('keydown', function (e) {
 		if (e.keyCode == 27) { // Esc
@@ -1445,8 +1448,13 @@ function toId() {
 						}
 					}
 				}
-				if (window.nodewebkit && this.target === '_blank') {
-					gui.Shell.openExternal(this.href);
+				if ((window.nodewebkit || window.isElectron) && this.target === '_blank') {
+					if (window.nodewebkit) {
+						gui.Shell.openExternal(this.href);
+					} else if (window.isElectron) {
+						window.electronAPI.openInBrowser(this.href);
+					}
+
 					e.preventDefault();
 					e.stopPropagation();
 					e.stopImmediatePropagation();
