@@ -148,7 +148,7 @@ class BattleTooltips {
 	// Touch delay, pressing finger more than that time will cause the tooltip to open.
 	// Shorter time will cause the button to click
 	static LONG_TAP_DELAY = 350; // ms
-	static longTapTimeout = 0;
+	static longTapTimeout: NodeJS.Timeout | number = 0;
 	static elem: HTMLDivElement | null = null;
 	static parentElem: HTMLElement | null = null;
 	static isLocked = false;
