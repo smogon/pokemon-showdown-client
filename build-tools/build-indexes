@@ -362,15 +362,17 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 					].map(toID);
 					if (species.isNonstandard && !['Past', 'Gigantamax'].includes(species.isNonstandard)) return 'Illegal';
 					if (unobtainables.includes(species.id)) return 'Illegal';
-					const uu = Dex.formats.get('gen8nationaldexuu');
 					const ou = Dex.formats.get('gen8nationaldex');
+					const uu = Dex.formats.get('gen8nationaldexuu');
+					const ru = Dex.formats.get('gen8nationaldexru');
 					if (Dex.formats.getRuleTable(ou).isBannedSpecies(species)) return 'Uber';
 					if (Dex.formats.getRuleTable(ou).has('dynamaxclause') && species.name.endsWith('Gmax')) return '(Uber)';
 					if (Dex.formats.getRuleTable(uu).isBannedSpecies(species)) {
 						if (Tags.nduubl.speciesFilter(species)) return 'UUBL';
 						return 'OU';
 					}
-					if (Dex.formats.getRuleTable(uu).isRestrictedSpecies(species)) {
+					if (Dex.formats.getRuleTable(ru).isBannedSpecies(species)) {
+						if (Tags.ndrubl.speciesFilter(species)) return 'RUBL';
 						return 'UU';
 					} else {
 						if (species.nfe) {
