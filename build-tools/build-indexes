@@ -356,35 +356,6 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			const baseSpecies = Dex.mod(gen).species.get(species.baseSpecies);
 			if (species.gen > genNum) continue;
 			const tier = (() => {
-				if (isNatDex) {
-					const unobtainables = [
-						'Eevee-Starter', 'Floette-Eternal', 'Pichu-Spiky-eared', 'Pikachu-Belle', 'Pikachu-Cosplay', 'Pikachu-Libre', 'Pikachu-PhD', 'Pikachu-Pop-Star', 'Pikachu-Rock-Star', 'Pikachu-Starter', 'Eternatus-Eternamax',
-					].map(toID);
-					if (species.isNonstandard && !['Past', 'Gigantamax'].includes(species.isNonstandard)) return 'Illegal';
-					if (unobtainables.includes(species.id)) return 'Illegal';
-					const ou = Dex.formats.get('gen8nationaldex');
-					const uu = Dex.formats.get('gen8nationaldexuu');
-					const ru = Dex.formats.get('gen8nationaldexru');
-					if (Dex.formats.getRuleTable(ou).isBannedSpecies(species)) return 'Uber';
-					if (Dex.formats.getRuleTable(ou).has('dynamaxclause') && species.name.endsWith('Gmax')) return '(Uber)';
-					if (Dex.formats.getRuleTable(uu).isBannedSpecies(species)) {
-						if (Tags.nduubl.speciesFilter(species)) return 'UUBL';
-						return 'OU';
-					}
-					if (Dex.formats.getRuleTable(ru).isBannedSpecies(species)) {
-						if (Tags.ndrubl.speciesFilter(species)) return 'RUBL';
-						return 'UU';
-					} else {
-						if (species.nfe) {
-							if (species.prevo) {
-								return 'NFE';
-							} else {
-								return 'LC';
-							}
-						}
-						return 'RU';
-					}
-				}
 				if (isMetBattle) {
 					let tier = species.tier;
 					if (species.isNonstandard) {
@@ -438,6 +409,9 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 				}
 				if (isDoubles && genNum > 4) {
 					return species.doublesTier;
+				}
+				if (isNatDex) {
+					return species.natDexTier;
 				}
 				return species.tier;
 			})();
@@ -494,6 +468,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 		if (isNatDex) {
 			BattleTeambuilderTable['natdex'] = {};
 			BattleTeambuilderTable['natdex'].tiers = tiers;
+			BattleTeambuilderTable['natdex'].overrideTier = overrideTier;
 			BattleTeambuilderTable['natdex'].items = items;
 			BattleTeambuilderTable['natdex'].monotypeBans = monotypeBans;
 			BattleTeambuilderTable['natdex'].formatSlices = formatSlices;
