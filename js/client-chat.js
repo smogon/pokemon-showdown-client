@@ -441,7 +441,7 @@
 				var spaceIndex = text.indexOf(' ');
 				if (spaceIndex > 0) {
 					cmd = text.substr(1, spaceIndex - 1);
-					target = text.substr(spaceIndex + 1);
+					target = text.substr(spaceIndex + 1).trim();
 				} else {
 					cmd = text.substr(1);
 					target = '';
