@@ -260,7 +260,7 @@ const PSBackground = new class extends PSStreamModel {
 			attrib = {
 				url: 'https://quanyails.deviantart.com/art/Sunrise-Ocean-402667154',
 				title: 'Sunrise Ocean',
-				artist: 'Yijing Chen',
+				artist: 'Quanyails',
 			};
 			break;
 		case 'waterfall':
