@@ -549,6 +549,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 
 			const canDynamax = moveRequest.canDynamax && !choices.alreadyMax;
 			const canMegaEvo = moveRequest.canMegaEvo && !choices.alreadyMega;
+			const canMegaEvoY = moveRequest.canMegaEvoY && !choices.alreadyMega;
 			const canZMove = moveRequest.zMoves && !choices.alreadyZ;
 
 			if (choices.current.move) {
@@ -587,6 +588,10 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 						{canMegaEvo && <label class={`megaevo${choices.current.mega ? ' cur' : ''}`}>
 							<input type="checkbox" name="mega" checked={choices.current.mega} onChange={this.toggleBoostedMove} /> {}
 							Mega Evolution
+						</label>}
+						{canMegaEvoY && <label class={`megaevoy${choices.current.mega ? ' cur' : ''}`}>
+							<input type="checkbox" name="megay" checked={choices.current.mega} onChange={this.toggleBoostedMove} /> {}
+							Mega Evolution Y
 						</label>}
 						{moveRequest.canUltraBurst && <label class={`megaevo${choices.current.ultra ? ' cur' : ''}`}>
 							<input type="checkbox" name="ultra" checked={choices.current.ultra} onChange={this.toggleBoostedMove} /> {}

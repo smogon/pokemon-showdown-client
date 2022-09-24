@@ -531,6 +531,7 @@
 			if (!curActive) return;
 			var trapped = curActive.trapped;
 			var canMegaEvo = curActive.canMegaEvo || switchables[pos].canMegaEvo;
+			var canMegaEvoY = curActive.canMegaEvoY || switchables[pos].canMegaEvoY;
 			var canZMove = curActive.canZMove || switchables[pos].canZMove;
 			var canUltraBurst = curActive.canUltraBurst || switchables[pos].canUltraBurst;
 			var canDynamax = curActive.canDynamax || switchables[pos].canDynamax;
@@ -691,7 +692,13 @@
 					moveMenu += movebuttons;
 				}
 				if (canMegaEvo) {
-					moveMenu += '<br /><label class="megaevo"><input type="checkbox" name="megaevo" />&nbsp;Mega&nbsp;Evolution</label>';
+					if (!canMegaEvoY) {
+						moveMenu += '<br /><label class="megaevo"><input type="checkbox" name="megaevo" />&nbsp;Mega&nbsp;Evolution</label>';
+					}
+					else {
+						moveMenu += '<br /><label class="megaevo"><input type="checkbox" name="megaevo" />&nbsp;Mega&nbsp;Evolution X</label>';
+						moveMenu += '<label class="megaevo"><input type="checkbox" name="megaevoy" />&nbsp;Mega&nbsp;Evolution Y</label>';
+					}						
 				} else if (canZMove) {
 					moveMenu += '<br /><label class="megaevo"><input type="checkbox" name="zmove" />&nbsp;Z-Power</label>';
 				} else if (canUltraBurst) {
@@ -929,6 +936,10 @@
 							var targetPos = parts[2];
 							if (targetPos === 'mega') {
 								buf += 'Mega Evolve, then ';
+								targetPos = parts[3];
+							}
+							if (targetPos === 'megay') {
+								buf += 'Mega Evolve Y, then ';
 								targetPos = parts[3];
 							}
 							if (targetPos === 'zmove') {
@@ -1176,6 +1187,7 @@
 			if (pos !== undefined) { // pos === undefined if called by chooseMoveTarget()
 				var nearActive = this.battle.nearSide.active;
 				var isMega = !!(this.$('input[name=megaevo]')[0] || '').checked;
+				var isMegaY = !!(this.$('input[name=megaevoy]')[0] || '').checked;
 				var isZMove = !!(this.$('input[name=zmove]')[0] || '').checked;
 				var isUltraBurst = !!(this.$('input[name=ultraburst]')[0] || '').checked;
 				var isDynamax = !!(this.$('input[name=dynamax]')[0] || '').checked;
@@ -1183,7 +1195,7 @@
 				var target = e.getAttribute('data-target');
 				var choosableTargets = {normal: 1, any: 1, adjacentAlly: 1, adjacentAllyOrSelf: 1, adjacentFoe: 1};
 
-				this.choice.choices.push('move ' + pos + (isMega ? ' mega' : '') + (isZMove ? ' zmove' : '') + (isUltraBurst ? ' ultra' : '') + (isDynamax ? ' dynamax' : ''));
+				this.choice.choices.push('move ' + pos + (isMega ? ' mega' : '') + (isMegaY ? ' megay' : '') +(isZMove ? ' zmove' : '') + (isUltraBurst ? ' ultra' : '') + (isDynamax ? ' dynamax' : ''));
 				if (nearActive.length > 1 && target in choosableTargets) {
 					this.choice.type = 'movetarget';
 					this.choice.moveTarget = target;
