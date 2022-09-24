@@ -694,7 +694,8 @@
 				if (canMegaEvo) {
 					if (!canMegaEvoY) {
 						moveMenu += '<br /><label class="megaevo"><input type="checkbox" name="megaevo" />&nbsp;Mega&nbsp;Evolution</label>';
-					} else {
+					}
+					else {
 						moveMenu += '<br /><label class="megaevo"><input type="checkbox" name="megaevo" />&nbsp;Mega&nbsp;Evolution X</label>';
 						moveMenu += '<label class="megaevo"><input type="checkbox" name="megaevoy" />&nbsp;Mega&nbsp;Evolution Y</label>';
 					}					
