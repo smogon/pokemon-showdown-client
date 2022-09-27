@@ -546,10 +546,11 @@ class BattleScene {
 	}
 
 	updateGen() {
+		let forceGen3 = ['cloveronly', 'clovercaponly', 'cloverblobboscaponly'];
 		let gen = this.battle.gen;
 		if (Dex.prefs('nopastgens')) gen = 6;
 		if (Dex.prefs('bwgfx') && gen > 5) gen = 5;
-		if (this.battle.id.includes('cloveronly') || this.battle.id.includes('atlasonly')) gen = 3;
+		if (forceGen3.some((force) => this.battle.id.includes(force))) gen = 3;
 		this.gen = gen;
 		this.activeCount = this.battle.nearSide?.active.length || 1;
 
