@@ -5,12 +5,18 @@ const https = require('https');
 const axios = require('axios');
 const express = require('express');
 const bodyParser = require('body-parser');
+const yargs = require('yargs');
 
 const { ports, defaultserver, ssl, proxies } = require('./config/config-server');
 
-const app = express()
-const privateKey  = fs.readFileSync(ssl.privateKeyPath, 'utf8');
-const certificate = fs.readFileSync(ssl.certificatePath, 'utf8');
+const argv = yargs.option('httpOnly', {
+  alias: 'http',
+  type: 'boolean',
+  description: 'Run the server without HTTP.',
+  default: false,
+}).parse();
+
+const app = express();
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.post(`/~~${defaultserver.id}/action.php`, (request, response, next) => {
@@ -88,13 +94,21 @@ app.get('*', (request, response) => {
   response.sendFile(path.join(__dirname, './public/index.html'));
 });
 
-const httpApp = express();
-httpApp.use('*', (request, response) => {
-  response.redirect("https://" + request.headers.host + request.url);
-});
+if (argv.httpOnly) {
+  const httpServer = http.createServer(app);
+  httpServer.listen(ports.http, () => console.log(`Listening on ${ports.http}`));
+} else {
+  const privateKey  = fs.readFileSync(ssl.privateKeyPath, 'utf8');
+  const certificate = fs.readFileSync(ssl.certificatePath, 'utf8');
 
-const httpServer = http.createServer(httpApp);
-const httpsServer = https.createServer({ key: privateKey, cert: certificate }, app);
+  const httpRedirectApp = express();
+  httpRedirectApp.use('*', (request, response) => {
+    response.redirect("https://" + request.headers.host + request.url);
+  });
 
-httpServer.listen(ports.http, () => console.log(`Http redirect listening on ${ports.http}`));
-httpsServer.listen(ports.https, () => console.log(`Listening on ${ports.https}`));
+  const httpRedirectServer = http.createServer(httpRedirectApp);
+  const httpsServer = https.createServer({ key: privateKey, cert: certificate }, app);
+
+  httpRedirectServer.listen(ports.http, () => console.log(`Http redirect listening on ${ports.http}`));
+  httpsServer.listen(ports.https, () => console.log(`Listening on ${ports.https}`));
+}
