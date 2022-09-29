@@ -10,10 +10,13 @@ Config.ssl = {
 	certificatePath: '',
 };
 
-Config.proxies = [{
-	protocol: 'http',
-	ip: '',
-	port: '',
-	username: '',
-	password: '',
-}];
+/* Proxy fields:
+	{
+		protocol: 'http',
+		ip: '',
+		port: '',
+		username: '',
+		password: '',
+	}
+*/
+Config.proxies = [];

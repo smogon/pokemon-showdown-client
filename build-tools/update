@@ -90,6 +90,7 @@ Config.defaultserver = {
 	registered: ${server.registered === undefined ? true : server.registered},
 	https: ${server.https === undefined ? true : server.https},
 	afd: ${server.afd === undefined ? false : server.afd},
+	clientHost: '${routes.client}',
 };
 
 module.exports = Config;
