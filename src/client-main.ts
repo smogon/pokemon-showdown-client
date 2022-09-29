@@ -59,7 +59,7 @@ class PSPrefs extends PSStreamModel<string | null> {
 
 	storageEngine: 'localStorage' | 'iframeLocalStorage' | '' = '';
 	storage: {[k: string]: any} = {};
-	readonly origin = `https://${Config.routes.client}`;
+	readonly origin = `${Config.routes.clientProtocol}://${Config.routes.client}`;
 	constructor() {
 		super();
 
@@ -222,7 +222,7 @@ class PSTeams extends PSStreamModel<'team' | 'format'> {
 		this.byKey[team.key] = team;
 	}
 	unpackOldBuffer(buffer: string) {
-		alert(`Your team storage format is too old for PS. You'll need to upgrade it at https://${Config.routes.client}/recoverteams.html`);
+		alert(`Your team storage format is too old for PS. You'll need to upgrade it at ${Config.routes.clientProtocol}://${Config.routes.client}/recoverteams.html`);
 		this.list = [];
 		return;
 	}
@@ -317,8 +317,11 @@ class PSServer {
 	id = Config.defaultserver.id;
 	host = Config.defaultserver.host;
 	port = Config.defaultserver.port;
+	httpport = Config.defaultserver.httpport;
 	altport = Config.defaultserver.altport;
 	registered = Config.defaultserver.registered;
+	https = Config.defaultserver.https;
+	afd = Config.defaultserver.afd;
 	prefix = '/showdown';
 	protocol: 'http' | 'https' = Config.defaultserver.httpport ? 'https' : 'http';
 	groups: {[symbol: string]: PSGroup} = {

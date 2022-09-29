@@ -16,7 +16,7 @@ class PSConnection {
 	}
 	connect() {
 		const server = PS.server;
-		const port = server.protocol === 'https' ? '' : ':' + server.port;
+		const port = ':' + server.protocol === 'https' ? server.port : server.httpport;
 		const url = server.protocol + '://' + server.host + port + server.prefix;
 		const socket = this.socket = new SockJS(url, [], {timeout: 5 * 60 * 1000});
 		socket.onopen = () => {
@@ -61,7 +61,7 @@ const PSLoginServer = new class {
 	query(data: PostData): Promise<{[k: string]: any} | null> {
 		let url = '/~~' + PS.server.id + '/action.php';
 		if (location.pathname.endsWith('.html')) {
-			url = 'https://' + Config.routes.client + url;
+			url = Config.routes.clientProtocol + '://' + Config.routes.client + url;
 			// @ts-ignore
 			if (typeof POKEMON_SHOWDOWN_TESTCLIENT_KEY === 'string') {
 				// @ts-ignore

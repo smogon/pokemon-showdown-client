@@ -1,0 +1,10 @@
+{
+	"id": "showdown",
+	"host": "localhost",
+	"port": 443,
+	"httpport": 8000,
+	"altport": 80,
+	"registered": true,
+	"https": false,
+	"afd": false
+}

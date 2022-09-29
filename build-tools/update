@@ -45,6 +45,7 @@ try {
 } catch (e) {}
 
 const routes = JSON.parse(fs.readFileSync('config/routes.json'));
+const server = JSON.parse(fs.readFileSync('config/server.json'));
 const autoconfigRegex = new RegExp(`${escapeRegex(AUTOCONFIG_START)}[^]+${escapeRegex(AUTOCONFIG_END)}`);
 const autoconfig = `${AUTOCONFIG_START}
 Config.version = ${JSON.stringify(version)};
@@ -52,9 +53,21 @@ Config.version = ${JSON.stringify(version)};
 Config.routes = {
 	root: '${routes.root}',
 	client: '${routes.client}',
+	clientProtocol: '${routes.clientProtocol}',
 	dex: '${routes.dex}',
 	replays: '${routes.replays}',
 	users: '${routes.users}',
+};
+
+Config.defaultserver = {
+	id: '${server.id}',
+	host: '${server.host}',
+	port: '${server.port}',
+	httpport: ${server.httpport},
+	altport: ${server.altport},
+	registered: ${server.registered === undefined ? true : server.registered},
+	https: ${server.https === undefined ? true : server.https},
+	afd: ${server.afd === undefined ? false : server.afd},
 };
 ${AUTOCONFIG_END}`;
 
@@ -66,6 +79,31 @@ if (autoconfigRegex.test(configBuf)) {
 	configBuf += autoconfig;
 }
 fs.writeFileSync('config/config.js', configBuf);
+
+const serverAutoconfig = `${AUTOCONFIG_START}
+Config.defaultserver = {
+	id: '${server.id}',
+	host: '${server.host}',
+	port: '${server.port}',
+	httpport: ${server.httpport},
+	altport: ${server.altport},
+	registered: ${server.registered === undefined ? true : server.registered},
+	https: ${server.https === undefined ? true : server.https},
+	afd: ${server.afd === undefined ? false : server.afd},
+};
+
+module.exports = Config;
+${AUTOCONFIG_END}`;
+
+// remove old automatically generated configuration and add the new one
+let serverConfigBuf = fs.readFileSync('config/config-server.js', {encoding: 'utf8'});
+if (autoconfigRegex.test(serverConfigBuf)) {
+	serverConfigBuf = serverConfigBuf.replace(autoconfigRegex, serverAutoconfig);
+} else {
+	serverConfigBuf += serverAutoconfig;
+}
+fs.writeFileSync('config/config-server.js', serverConfigBuf);
+
 console.log("DONE");
 
 /*********************************************************

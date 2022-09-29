@@ -857,7 +857,7 @@
 			var urlprefix = "data:text/plain;base64,";
 			if (document.location.protocol === 'https:') {
 				// Chrome is dumb and doesn't support data URLs in HTTPS
-				urlprefix = "https://" + Config.routes.client + "/action.php?act=dlteam&team=";
+				urlprefix = Config.routes.clientProtocol + "://" + Config.routes.client + "/action.php?act=dlteam&team=";
 			}
 			var contents = Storage.exportTeam(team.team).replace(/\n/g, '\r\n');
 			var downloadurl = "text/plain:" + filename + ":" + urlprefix + encodeURIComponent(window.btoa(unescape(encodeURIComponent(contents))));
@@ -1628,7 +1628,7 @@
 			// We fetch this as 'text' and JSON.parse it ourserves in order to have consistent behavior
 			// between the localdev CORS helper and the real jQuery.get function, which would already parse
 			// this into an object based on the content-type header.
-			$.get('https://' + Config.routes.client + '/data/sets/' + format + '.json', {}, function (data) {
+			$.get(Config.routes.clientProtocol + '://' + Config.routes.client + '/data/sets/' + format + '.json', {}, function (data) {
 				try {
 					self.smogonSets[format] = JSON.parse(data);
 				} catch (e) {

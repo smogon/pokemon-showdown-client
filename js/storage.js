@@ -215,7 +215,7 @@ if (!Storage.bg.id) {
 // localStorage is banned, and since prefs are cached in other
 // places in certain cases.
 
-Storage.origin = 'https://' + Config.routes.client;
+Storage.origin = Config.routes.clientProtocol + '://' + Config.routes.client;
 
 Storage.prefs = function (prop, value, save) {
 	if (value === undefined) {
@@ -327,7 +327,7 @@ Storage.initPrefs = function () {
 	Storage.loadTeams();
 	if (Config.testclient) {
 		return this.initTestClient();
-	} else if (location.protocol + '//' + location.hostname === Storage.origin) {
+	} else if (location.protocol + '//' + location.hostname + (location.port.length ? ':' + location.port : '') === Storage.origin) {
 		// Same origin, everything can be kept as default
 		Config.server = Config.server || Config.defaultserver;
 		this.whenPrefsLoaded.load();
@@ -348,7 +348,7 @@ Storage.initPrefs = function () {
 
 	if (document.location.hostname !== Config.routes.client) {
 		$(
-			'<iframe src="https://' + Config.routes.client + '/crossdomain.php?host=' +
+			'<iframe src="' + Config.routes.clientProtocol + '://' + Config.routes.client + '/crossdomain.php?host=' +
 			encodeURIComponent(document.location.hostname) +
 			'&path=' + encodeURIComponent(document.location.pathname.substr(1)) +
 			'&protocol=' + encodeURIComponent(document.location.protocol) +
@@ -357,7 +357,7 @@ Storage.initPrefs = function () {
 	} else {
 		Config.server = Config.server || Config.defaultserver;
 		$(
-			'<iframe src="https://' + Config.routes.client + '/crossprotocol.html?v1.2" style="display: none;"></iframe>'
+			'<iframe src="' + Config.routes.clientProtocol + '://' + Config.routes.client + '/crossprotocol.html?v1.2" style="display: none;"></iframe>'
 		).appendTo('body');
 		setTimeout(function () {
 			// HTTPS may be blocked

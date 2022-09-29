@@ -218,7 +218,7 @@ function toId() {
 		getActionPHP: function () {
 			var ret = '/~~' + Config.server.id + '/action.php';
 			if (Config.testclient) {
-				ret = 'https://' + Config.routes.client + ret;
+				ret = Config.routes.clientProtocol + '://' + Config.routes.client + ret;
 			}
 			return (this.getActionPHP = function () {
 				return ret;
@@ -730,11 +730,12 @@ function toId() {
 
 			var self = this;
 			var constructSocket = function () {
-				var protocol = (Config.server.port === 443 || Config.server.https) ? 'https' : 'http';
+				var protocol = Config.server.https ? 'https' : 'http';
+				var port = Config.server.https ? Config.server.port : Config.server.httpport;
 				Config.server.host = $.trim(Config.server.host);
 				try {
 					return new SockJS(
-						protocol + '://' + Config.server.host + ':' + Config.server.port + Config.sockjsprefix,
+						protocol + '://' + Config.server.host + ':' + port + Config.sockjsprefix,
 						[], {timeout: 5 * 60 * 1000}
 					);
 				} catch (err) {

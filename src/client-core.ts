@@ -82,7 +82,7 @@ if (!window.console) {
  *********************************************************************/
 // PS's model classes are defined here
 
-const PSURL = `${document.location!.protocol !== 'http:' ? 'https:' : ''}//${Config.routes.client}/`;
+const PSURL = `${Config.routes.clientProtocol}://${Config.routes.client}/`;
 
 class PSSubscription {
 	observable: PSModel | PSStreamModel<any>;

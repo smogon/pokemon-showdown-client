@@ -35,3 +35,4 @@ package-lock.json
 
 !/config/config-example.js
 !/config/config-server-example.js
+!/config/server.json

@@ -180,14 +180,12 @@ const Dex = new class implements ModdedDex {
 	pokeballs: string[] | null = null;
 
 	resourcePrefix = (() => {
-		let prefix = '';
-		if (window.document?.location?.protocol !== 'http:') prefix = 'https:';
-		return `${prefix}//${window.Config ? Config.routes.client : 'play.pokemonshowdown.com'}/`;
+		return `${Config.routes.clientProtocol}://${window.Config ? Config.routes.client : 'play.pokemonshowdown.com'}/`;
 	})();
 
 	fxPrefix = (() => {
 		if (window.document?.location?.protocol === 'file:') {
-			if (window.Replays) return `https://${window.Config ? Config.routes.client : 'play.pokemonshowdown.com'}/fx/`;
+			if (window.Replays) return `${Config.routes.clientProtocol}://${window.Config ? Config.routes.client : 'play.pokemonshowdown.com'}/fx/`;
 			return `fx/`;
 		}
 		return `//${window.Config ? Config.routes.client : 'play.pokemonshowdown.com'}/fx/`;
