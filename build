@@ -35,6 +35,18 @@ try {
 	);
 }
 
+try {
+	require.resolve('./config/config-server');
+} catch (err) {
+	if (err.code !== 'MODULE_NOT_FOUND') throw err; // should never happen
+
+	console.log('config-server.js does not exist. Creating one with default settings...');
+	fs.writeFileSync(
+		'config/config-server.js',
+		fs.readFileSync('config/config-server-example.js')
+	);
+}
+
 var options = {cwd: __dirname, stdio: 'inherit'};
 var full = '';
 
