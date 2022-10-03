@@ -285,12 +285,12 @@
 	color: #777777;
 }
 
-.utilichart .teambuildercol .movedesccol {
-	width: 284px;
+.utilichart .teambuildercol.movedesccol {
+	width: 284px !important;
 }
 
-.utilichart .teambuildercol .itemdesccol {
-	width: 464px;
+.utilichart .teambuildercol.itemdesccol {
+	width: 464px !important;
 }
 
 .utilichart .sortrow {
