@@ -1859,6 +1859,7 @@ class PokemonSprite extends Sprite {
 		waitforit: ['Wait For It', 'neutral'],
 		substitute: null,
 		livewire: ['Livewire', 'bad'],
+		faradaycage: ['Faraday Cage', 'good'],
 		// sub graphics are handled elsewhere, see Battle.Sprite.animSub()
 		uproar: ['Uproar', 'neutral'],
 		rage: ['Rage', 'neutral'],
