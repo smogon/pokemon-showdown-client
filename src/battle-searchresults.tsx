@@ -153,7 +153,7 @@ class PSSearchResults extends preact.Component<{search: DexSearch}> {
 
 			{errorMessage}
 
-			{!errorMessage && <span class="col itemdesccol">{item.shortDesc}</span>}
+			{!errorMessage && <span class="col teambuildercol itemdesccol">{item.shortDesc}</span>}
 		</a></li>;
 	}
 
@@ -167,7 +167,7 @@ class PSSearchResults extends preact.Component<{search: DexSearch}> {
 
 			{errorMessage}
 
-			{!errorMessage && <span class="col abilitydesccol">{ability.shortDesc}</span>}
+			{!errorMessage && <span class="col teambuildercol abilitydesccol">{ability.shortDesc}</span>}
 		</a></li>;
 	}
 
@@ -204,7 +204,7 @@ class PSSearchResults extends preact.Component<{search: DexSearch}> {
 				<em>PP</em><br />{move.pp === 1 || move.noPPBoosts ? move.pp : move.pp * 8 / 5}
 			</span>
 
-			<span class="col movedesccol">{move.shortDesc}</span>
+			<span class="col teambuildercol movedesccol">{move.shortDesc}</span>
 
 		</a></li>;
 	}
@@ -248,7 +248,7 @@ class PSSearchResults extends preact.Component<{search: DexSearch}> {
 		return <li class="result"><a href={`${this.URL_ROOT}articles/${id}`} data-target="push" data-entry={`article|${name}`}>
 			<span class="col namecol">{this.renderName(name, matchStart, matchEnd)}</span>
 
-			<span class="col movedesccol">{isSearchType ? "(search type)" : "(article)"}</span>
+			<span class="col teambuildercol movedesccol">{isSearchType ? "(search type)" : "(article)"}</span>
 
 			{errorMessage}
 		</a></li>;
@@ -271,7 +271,7 @@ class PSSearchResults extends preact.Component<{search: DexSearch}> {
 		return <li class="result"><a href={`${this.URL_ROOT}egggroups/${id}`} data-target="push" data-entry={`egggroup|${name}`}>
 			<span class="col namecol">{this.renderName(name, matchStart, matchEnd)}</span>
 
-			<span class="col movedesccol">(egg group)</span>
+			<span class="col teambuildercol movedesccol">(egg group)</span>
 
 			{errorMessage}
 		</a></li>;
@@ -290,7 +290,7 @@ class PSSearchResults extends preact.Component<{search: DexSearch}> {
 		return <li class="result"><a href={`${this.URL_ROOT}tiers/${id}`} data-target="push" data-entry={`tier|${name}`}>
 			<span class="col namecol">{this.renderName(name, matchStart, matchEnd)}</span>
 
-			<span class="col movedesccol">(tier)</span>
+			<span class="col teambuildercol movedesccol">(tier)</span>
 
 			{errorMessage}
 		</a></li>;

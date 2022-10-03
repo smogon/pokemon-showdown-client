@@ -285,6 +285,14 @@
 	color: #777777;
 }
 
+.utilichart .teambuildercol .movedesccol {
+	width: 284px;
+}
+
+.utilichart .teambuildercol .itemdesccol {
+	width: 464px;
+}
+
 .utilichart .sortrow {
 	background: #D0D0D0;
 	border-bottom: 1px solid #888;
