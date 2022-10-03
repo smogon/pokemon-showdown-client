@@ -1174,6 +1174,15 @@ class BattleTooltips {
 			stats.def = Math.floor(stats.def * 1.5);
 			stats.spd = Math.floor(stats.spd * 1.5);
 		}
+		if (item === 'skub') {
+			if (speciesName === 'Skub') {
+				stats.def *= 1.5;
+				stats.spd *= 1.5;
+			} else if (speciesName === 'Skub-Anti') {
+				stats.atk *= 1.5;
+				stats.spa *= 1.5;
+			}
+		}
 		if (ability === 'grasspelt' && this.battle.hasPseudoWeather('Grassy Terrain')) {
 			stats.def = Math.floor(stats.def * 1.5);
 		}
