@@ -1054,7 +1054,7 @@ class BattleTooltips {
 		}
 
 		if (item === 'thiccbone') {
-			if (species === 'Masdawg' || species === 'Pasdawg') {
+			if (species === 'Masdawg' || species === 'Pasdawg' || species === 'Naughtycoot') {
 				stats.atk *= 2;
 			}
 		}
