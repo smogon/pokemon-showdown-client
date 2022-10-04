@@ -393,3 +393,25 @@
 	background: linear-gradient(to bottom,  hsl(310,41%,77%),  hsl(310,41%,83%));
 	border-color: hsl(310,41%,41%);
 }
+
+.movemenu button.type-Nuclear {
+	/* bg: 97 to 90, border: 70 */
+	background: hsl(125,70%,93%);
+	background: linear-gradient(to bottom,  hsl(125,70%,97%),  hsl(250,27%,84%));
+	border-color: hsl(125,100%,41%);
+}
+.movemenu button.type-Nuclear small {
+	color: hsl(125,100%,41%);
+}
+.movemenu button.type-Nuclear:hover {
+	/* bg: 95 to 83, border: 41 */
+	background: hsl(125,70%,87%);
+	background: linear-gradient(to bottom,  hsl(125,70%,94%),  hsl(250,27%,77%));
+	border-color: hsl(125,100%,41%);
+}
+.movemenu button.type-Nuclear:active, .movemenu button.type-Nuclear.pressed {
+	/* bg: 83 to 88, border: 41 */
+	background: hsl(125,70%,77%);
+	background: linear-gradient(to bottom,  hsl(125,70%,77%),  hsl(250,27%,83%));
+	border-color: hsl(125,100%,41%);
+}
