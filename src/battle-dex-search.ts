@@ -1430,8 +1430,27 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 		const isHackmons = (format.includes('hackmons') || format.endsWith('bh'));
 		const isSTABmons = (format.includes('stabmons') || format === 'staaabmons');
 		const isTradebacks = format.includes('tradebacks');
-		const galarBornLegality = ((/^battle(stadium|festival)/.test(format) || format.startsWith('vgc')) &&
-			this.dex.gen === 8);
+
+		let minGenLegality = 0;
+		switch (this.dex.gen) {
+		case 6:
+			if (format.startsWith('battlespot') || format.startsWith('vgc')) {
+				minGenLegality = 6;
+			}
+			break;
+		case 7:
+			if (format.startsWith('battlespot')) {
+				minGenLegality = 6;
+			} else if (format.startsWith('vgc')) {
+				minGenLegality = 7;
+			}
+			break;
+		case 8:
+			if (format.startsWith('battlestadium') || format.startsWith('battlefestival') || format.startsWith('vgc')) {
+				minGenLegality = 8;
+			}
+			break;
+		}
 
 		const abilityid = this.set ? toID(this.set.ability) : '' as ID;
 		const itemid = this.set ? toID(this.set.item) : '' as ID;
@@ -1451,10 +1470,8 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 				for (let moveid in learnset) {
 					let learnsetEntry = learnset[moveid];
 					const move = dex.moves.get(moveid);
-					/* if (requirePentagon && learnsetEntry.indexOf('p') < 0) {
-						continue;
-					} */
-					if (galarBornLegality && !learnsetEntry.includes('g')) {
+					const minGenCode: {[gen: number]: string} = {6: 'p', 7: 'q', 8: 'g'};
+					if (minGenLegality && !learnsetEntry.includes(minGenCode[minGenLegality])) {
 						continue;
 					}
 					if (
