@@ -1432,24 +1432,10 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 		const isTradebacks = format.includes('tradebacks');
 
 		let minGenLegality = 0;
-		switch (this.dex.gen) {
-		case 6:
-			if (format.startsWith('battlespot') || format.startsWith('vgc')) {
-				minGenLegality = 6;
-			}
-			break;
-		case 7:
-			if (format.startsWith('battlespot')) {
-				minGenLegality = 6;
-			} else if (format.startsWith('vgc')) {
-				minGenLegality = 7;
-			}
-			break;
-		case 8:
-			if (format.startsWith('battlestadium') || format.startsWith('battlefestival') || format.startsWith('vgc')) {
-				minGenLegality = 8;
-			}
-			break;
+		if (format.startsWith('battlespot')) {
+			minGenLegality = 6;
+		} else if (/^battle(stadium|festival)/.test(format) || format.startsWith('vgc')) {
+			minGenLegality = this.dex.gen;
 		}
 
 		const abilityid = this.set ? toID(this.set.ability) : '' as ID;
