@@ -1874,7 +1874,7 @@
 				if (width > 75) width = 75;
 				var color = Math.floor(stats[stat] * 180 / 714);
 				if (color > 360) color = 360;
-				var statName = this.curTeam.gen === 1 && j === 'spa' ? 'Spc' : BattleStatNames[stat];
+				var statName = this.curTeam.gen === 1 && stat === 'spa' ? 'Spc' : BattleStatNames[stat];
 				buf += '<span class="statrow"><label>' + statName + '</label> <span class="statgraph"><span style="width:' + width + 'px;background:hsl(' + color + ',40%,75%);"></span></span> ' + evBuf + '</span>';
 			}
 			this.$('button[name=stats]').html(buf);
