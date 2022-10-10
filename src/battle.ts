@@ -90,7 +90,7 @@ export class Pokemon implements PokemonDetails, PokemonHealth {
 	itemEffect = '';
 	prevItem = '';
 	prevItemEffect = '';
-	terastalType = '';
+	teraType = '';
 
 	boosts: {[stat: string]: number} = {};
 	status: StatusName | 'tox' | '' | '???' = '';
@@ -2420,7 +2420,7 @@ export class Battle {
 		case '-terastallize': {
 			let poke = this.getPokemon(args[1])!;
 			let type = Dex.types.get(args[2]).name;
-			poke.terastalType = type;
+			poke.teraType = type;
 			this.log(args, kwArgs);
 			break;
 		}

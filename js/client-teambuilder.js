@@ -2670,11 +2670,11 @@
 			}
 
 			if (this.curTeam.gen === 9) {
-				buf += '<div class="formrow"><label class="formlabel" title="Terastal Type">Terastal Type:</label><div><select name="terastaltype">';
-				buf += '<option value=""' + (!set.terastalType ? ' selected="selected"' : '') + '>(automatic type)</option>'; // unset
+				buf += '<div class="formrow"><label class="formlabel" title="Terastal Type">Terastal Type:</label><div><select name="teratype">';
+				buf += '<option value=""' + (!set.teraType ? ' selected="selected"' : '') + '>(automatic type)</option>'; // unset
 				var types = Dex.types.all();
 				for (var i = 0; i < types.length; i++) {
-					buf += '<option value="' + types[i].name + '"' + (set.terastalType === types[i].name ? ' selected="selected"' : '') + '>' + types[i].name + '</option>';
+					buf += '<option value="' + types[i].name + '"' + (set.teraType === types[i].name ? ' selected="selected"' : '') + '>' + types[i].name + '</option>';
 				}
 				buf += '</select></div></div>';
 			}
@@ -2754,11 +2754,11 @@
 			}
 
 			// Terastal type
-			var terastalType = this.$chart.find('select[name=terastaltype]').val();
-			if (Dex.types.isName(terastalType)) {
-				set.terastalType = terastalType;
+			var teraType = this.$chart.find('select[name=teratype]').val();
+			if (Dex.types.isName(teraType)) {
+				set.teraType = teraType;
 			} else {
-				delete set.terastalType;
+				delete set.teraType;
 			}
 
 			// update details cell

@@ -2108,7 +2108,7 @@ interface PokemonSet {
 	/** Defaults to no (can only be yes for certain Pokemon) */
 	gigantamax?: boolean;
 	/** Defaults to the primary type */
-	terastalType?: string;
+	teraType?: string;
 }
 
 class BattleStatGuesser {

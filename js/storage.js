@@ -779,12 +779,12 @@ Storage.packTeam = function (team) {
 			buf += '|';
 		}
 
-		if (set.pokeball || (set.hpType && !hasHP) || set.gigantamax || (set.dynamaxLevel !== undefined && set.dynamaxLevel !== 10) || set.terastalType) {
+		if (set.pokeball || (set.hpType && !hasHP) || set.gigantamax || (set.dynamaxLevel !== undefined && set.dynamaxLevel !== 10) || set.teraType) {
 			buf += ',' + (set.hpType || '');
 			buf += ',' + toID(set.pokeball);
 			buf += ',' + (set.gigantamax ? 'G' : '');
 			buf += ',' + (set.dynamaxLevel !== undefined && set.dynamaxLevel !== 10 ? set.dynamaxLevel : '');
-			buf += ',' + (set.terastalType || '');
+			buf += ',' + (set.teraType || '');
 		}
 	}
 
@@ -899,7 +899,7 @@ Storage.fastUnpackTeam = function (buf) {
 			set.pokeball = misc[2];
 			set.gigantamax = !!misc[3];
 			set.dynamaxLevel = (misc[4] ? Number(misc[4]) : 10);
-			set.terastalType = misc[5];
+			set.teraType = misc[5];
 		}
 		if (j < 0) break;
 		i = j + 1;
@@ -1017,7 +1017,7 @@ Storage.unpackTeam = function (buf) {
 			set.pokeball = misc[2];
 			set.gigantamax = !!misc[3];
 			set.dynamaxLevel = (misc[4] ? Number(misc[4]) : 10);
-			set.terastalType = misc[5];
+			set.teraType = misc[5];
 		}
 		if (j < 0) break;
 		i = j + 1;
@@ -1198,7 +1198,7 @@ Storage.importTeam = function (buffer, teams) {
 			curSet.hpType = line;
 		} else if (line.substr(0, 15) === 'Terastal Type: ') {
 			line = line.substr(15);
-			curSet.terastalType = line;
+			curSet.teraType = line;
 		} else if (line.substr(0, 15) === 'Dynamax Level: ') {
 			line = line.substr(15);
 			curSet.dynamaxLevel = +line;
@@ -1329,8 +1329,8 @@ Storage.exportTeam = function (team) {
 		if (curSet.gigantamax) {
 			text += 'Gigantamax: Yes  \n';
 		}
-		if (curSet.terastalType) {
-			text += 'Terastal Type: ' + curSet.terastalType + "  \n";
+		if (curSet.teraType) {
+			text += 'Terastal Type: ' + curSet.teraType + "  \n";
 		}
 		var first = true;
 		if (curSet.evs) {
