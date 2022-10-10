@@ -2043,7 +2043,7 @@ export class PokemonSprite extends Sprite {
 	reset(pokemon: Pokemon) {
 		this.clearEffects();
 
-		if (pokemon.volatiles.formechange || pokemon.volatiles.dynamax) {
+		if (pokemon.volatiles.formechange || pokemon.volatiles.dynamax || pokemon.volatiles.terastallize) {
 			if (!this.oldsp) this.oldsp = this.sp;
 			this.sp = Dex.getSpriteData(pokemon, this.isFrontSprite, {
 				gen: this.scene.gen,
