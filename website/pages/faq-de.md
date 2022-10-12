@@ -14,7 +14,7 @@ Reguläre Raumverbote dauern etwa zwei Tage. Raum-Blacklists gelten für ein Jah
 
 Gesperrte Benutzer können nirgendwo chatten, außer in privaten Nachrichten an globale Mitarbeiter.
 
-### Ich werde in einem Raum bestraft: An wen appelliere ich?
+### Ich werde in einem Raum bestraft: An wen wende ich mich?
 
 Geben Sie `/roomauth(room)` ein, um den Mitarbeiter eines Raums zu sehen; Wenn ein Name **fettgedruckt** ist, ist dieser Benutzer online.
 
@@ -30,7 +30,7 @@ Wenn Sie auf einen Benutzer stoßen, der PS! verwenden Sie bitte `/report` und �
 
 ### Welche Updates hat PS! unterzogen?
 
-Um zu überprüfen, welche Aktualisierungen stattgefunden haben, geben Sie im Chat „/git“ ein und klicken Sie dann auf „Was ist neu“, was Sie zu [diesem Link] (https://github.com/smogon/pokemon-showdown/commits/ Meister).
+Um zu überprüfen, welche Aktualisierungen stattgefunden haben, geben Sie im Chat „/git“ ein und klicken Sie dann auf „Was ist neu“, was Sie zu [diesem Link] (https://github.com/smogon/pokemon-showdown/commits/Meister).
 
 ### Wie registriere ich mein Konto und wie melde ich mich an?
 
@@ -38,7 +38,7 @@ Um sich zu registrieren, klicken Sie auf das Einstellungszahnrad in der oberen r
 
 ### Kann ich in einer anderen Sprache als Englisch sprechen?
 
-In den meisten Zimmern nein. PS bietet jedoch viele sprachspezifische Räume: Español, Português, Français, Deutsche, Italiano, Nederlands, Chinese und Hindi.
+In den meisten Räumen nein. PS bietet jedoch viele sprachspezifische Räume: Spanisch, Portugiesisch, Französidsch, Deutsch, Italienisch, Niderländisch, Chinesisch und Hindi.
 
 ### Wie ändere ich meinen Avatar?
 
@@ -58,8 +58,8 @@ Nur globale Treiber und höher (`%`, `@` und `&`), Mitwirkende an PS! (z. B. Pro
 
 ### Wie mache ich einen Raum?
 
-Wenn Sie einen privaten Raum anfordern möchten, müssen Sie dies in den Raum-/Serveranfragen [hier] (https://www.smogon.com/forums/threads/names-passwords-rooms-and-servers-contacting-upper -staff.3538721/)! Bitte lesen Sie vor dem Posten die Anforderungen! Sie müssen Global Voice oder Driver oder höher in einem öffentlichen Raum sein.
-**FRAGEN SIE KEIN ZIMMER, WENN SIE DIE ANFORDERUNGEN NICHT ERFÜLLEN!**
+Wenn Sie einen privaten Raum anfordern möchten, müssen Sie dies in den Raum-/Serveranfragen [hier] (https://www.smogon.com/forums/threads/names-passwords-rooms-and-servers-contacting-upper-staff.3538721/)! Bitte lesen Sie vor dem Posten die Anforderungen! Sie müssen Global Voice oder Driver oder höher in einem öffentlichen Raum sein.
+**FRAGEN SIE NICHT NACH EINEM RAUM, WENN SIE DIE ANFORDERUNGEN NICHT ERFÜLLEN!**
 
 ### Wie kann ich 2 Räume gleichzeitig öffnen?
 
@@ -172,10 +172,4 @@ In ähnlicher Weise kann Clefable vor Generation VIII Soft-Boiled nicht gleichze
 
 Geben Sie „/rank“ ein und in dem Feld wird ein Link zu „Reset W/L“ angezeigt. Wenn Sie diesem Link folgen, können Sie Ihr Verhältnis zurücksetzen. Beachten Sie, dass Ihre anderen Rankings davon nicht betroffen sind; nur Ihr Gewinn-/Verlustverhältnis ändert sich. Um diese anderen Rankings zu ändern, können Sie mit einem neuen Konto neu anfangen.
 
-<small>(ursprünglich von [Relados](https://www.smogon.com/forums/members/relados.148715/) und [Zarel](https://www.smogon.com/forums/members/zarel. 102803/); aktualisiert von [Blitzamirin](https://www.smogon.com/forums/members/blitzamirin.101585/), [Kalalokki](https://www.smogon.com/forums/members/kalalokki. 199661/), Kasumi, [shnen](https://www.smogon.com/forums/members/shnen.107178/), Sobi, [Finnland](https://www.smogon.com/forums/members/ finland.517429/), [Vacate](https://www.smogon.com/forums/members/vacate.189371/), [wörtlich](https://www.smogon.com/forums/members/verbatim. 93103/), [Zodiax](https://www.smogon.com/forums/members/zodiax.202547/) und [Iyarito](https://www.smogon.com/forums/members/iyarito.219578 /); umgewandelt in Markdown für die PS!-Website von [Annika](https://www.smogon.com/forums/members/annika.434112/))</small>
-Mehr zu diesem AusgangstextFür weitere Übersetzungsinformationen ist ein Ausgangstext erforderlich
-Feedback geben
-Seitenleisten
-Verlauf
-Gespeichert
-Etwas beitragen
+<small>(ursprünglich von [Relados](https://www.smogon.com/forums/members/relados.148715/) und [Zarel](https://www.smogon.com/forums/members/zarel.102803/); aktualisiert von [Blitzamirin](https://www.smogon.com/forums/members/blitzamirin.101585/), [Kalalokki](https://www.smogon.com/forums/members/kalalokki. 199661/), Kasumi, [shnen](https://www.smogon.com/forums/members/shnen.107178/), Sobi, [Finnland](https://www.smogon.com/forums/members/finland.517429/), [Vacate](https://www.smogon.com/forums/members/vacate.189371/), [wörtlich](https://www.smogon.com/forums/members/verbatim.93103/), [Zodiax](https://www.smogon.com/forums/members/zodiax.202547/) und [Iyarito](https://www.smogon.com/forums/members/iyarito.219578 /); umgewandelt in Markdown für die PS!-Website von [Annika](https://www.smogon.com/forums/members/annika.434112/))</small>
