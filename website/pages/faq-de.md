@@ -20,7 +20,7 @@ Geben Sie `/roomauth(room)` ein, um den Mitarbeiter eines Raums zu sehen; Wenn e
 
 ### Ich wurde zu Unrecht gesperrt / weltweit gesperrt. Wie kann ich Einspruch erheben?
 
-Sie können über [die Forenrichtlinien] (http://www.smogon.com/forums/threads/discipline-appeal-rules.3583479) einen Disziplinarbeschwerde einreichen oder Sie können ein Hilfeticket eröffnen, indem Sie „/appeal“ eingeben, während Sie online sind wir ps!
+Sie können über [die Forenrichtlinien](http://www.smogon.com/forums/threads/discipline-appeal-rules.3583479) einen Disziplinarbeschwerde einreichen oder Sie können ein Hilfeticket eröffnen, indem Sie „/appeal“ eingeben, während Sie online sind wir ps!
 
 ### Wie melde ich einen Benutzer?
 
@@ -30,7 +30,7 @@ Wenn Sie auf einen Benutzer stoßen, der PS! verwenden Sie bitte `/report` und �
 
 ### Welche Updates hat PS! unterzogen?
 
-Um zu überprüfen, welche Aktualisierungen stattgefunden haben, geben Sie im Chat „/git“ ein und klicken Sie dann auf „Was ist neu“, was Sie zu [diesem Link] (https://github.com/smogon/pokemon-showdown/commits/Meister).
+Um zu überprüfen, welche Aktualisierungen stattgefunden haben, geben Sie im Chat „/git“ ein und klicken Sie dann auf „Was ist neu“, was Sie zu [diesem Link](https://github.com/smogon/pokemon-showdown/commits/Meister).
 
 ### Wie registriere ich mein Konto und wie melde ich mich an?
 
@@ -58,7 +58,7 @@ Nur globale Treiber und höher (`%`, `@` und `&`), Mitwirkende an PS! (z. B. Pro
 
 ### Wie mache ich einen Raum?
 
-Wenn Sie einen privaten Raum anfordern möchten, müssen Sie dies in den Raum-/Serveranfragen [hier] (https://www.smogon.com/forums/threads/names-passwords-rooms-and-servers-contacting-upper-staff.3538721/)! Bitte lesen Sie vor dem Posten die Anforderungen! Sie müssen Global Voice oder Driver oder höher in einem öffentlichen Raum sein.
+Wenn Sie einen privaten Raum anfordern möchten, müssen Sie dies in den Raum-/Serveranfragen [hier](https://www.smogon.com/forums/threads/names-passwords-rooms-and-servers-contacting-upper-staff.3538721/)! Bitte lesen Sie vor dem Posten die Anforderungen! Sie müssen Global Voice oder Driver oder höher in einem öffentlichen Raum sein.
 **FRAGEN SIE NICHT NACH EINEM RAUM, WENN SIE DIE ANFORDERUNGEN NICHT ERFÜLLEN!**
 
 ### Wie kann ich 2 Räume gleichzeitig öffnen?
