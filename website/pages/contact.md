@@ -29,6 +29,3 @@ Mini-FAQ:
 > 
 > **Found a bug?**  
 > You probably didn't, but if you're sure you did, [Bug Reports](/bugreports).
-> 
-> **2v2 multi battles? Friends list? Translations?**  
-> These are planned.
