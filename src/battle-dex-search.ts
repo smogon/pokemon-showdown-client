@@ -1430,7 +1430,8 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 		const isHackmons = (format.includes('hackmons') || format.endsWith('bh'));
 		const isSTABmons = (format.includes('stabmons') || format === 'staaabmons');
 		const isTradebacks = format.includes('tradebacks');
-		const regionBornLegality = /^battle(spot|stadium|festival)/.test(format) || format.startsWith('vgc');
+		const regionBornLegality = this.dex.gen >= 6 &&
+		/^battle(spot|stadium|festival)/.test(format) || format.startsWith('vgc');
 
 		const abilityid = this.set ? toID(this.set.ability) : '' as ID;
 		const itemid = this.set ? toID(this.set.item) : '' as ID;
