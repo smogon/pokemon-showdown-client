@@ -41,3 +41,7 @@ Du kannst deinen Nutzernamen jederzeit wählen oder ändern. Melde dich einfach 
 4. **Es ist nicht erlaubt, über Namen Werbung zu machen**.
 
 Diese Grundsätze sind weniger streng als an vielen anderen Stellen, deswegen wirst du möglicherweise grenzwertige Namen sehen, die anderswo nicht gestattet würden. Du magst es als unfair empfinden, dass Nutzer diese Namen behalten dürfen. Sollte dies der Fall sein, so entspricht der Name den obigen Regeln und solltest du aufgefordert werden, dir einen neuen Namen auszuwählen, trifft dies nicht auf den deinen zu.
+
+## YouTube
+
+Sobald ihr die Befehle `/show` oder `/youtube` für YouTube Videos verwendet, müsst ihr euch im Klaren sein, dass ihr die [Nutzungsbedingungen von YouTube](https://www.youtube.com/static?template=terms&gl=DE) stets beachtet.

@@ -80,20 +80,21 @@
 				app.roomsFirstOpen = 2;
 			}
 		},
+
 		renderRoomBtn: function (roomData) {
 			var id = toID(roomData.title);
-			var buf = '<div><a href="' + app.root + id + '" class="ilink"><small style="float:right">(' + Number(roomData.userCount) + ' users)</small><strong><i class="fa fa-comment-o"></i> ' + BattleLog.escapeHTML(roomData.title) + '<br /></strong><small>' + BattleLog.escapeHTML(roomData.desc || '');
+			var buf = '<div><a href="' + app.root + id + '" class="ilink"><small style="float:right">(' + Number(roomData.userCount) + ' users)</small><strong><i class="fa fa-comment-o"></i> ' + BattleLog.escapeHTML(roomData.title) + '<br /></strong><small>' + BattleLog.escapeHTML(roomData.desc || '') + '</small></a>';
 			if (roomData.subRooms && roomData.subRooms.length) {
-				buf += '<br/><i class="fa fa-level-up fa-rotate-90"></i> Subrooms: <strong>';
+				buf += '<div class="subrooms"><i class="fa fa-level-up fa-rotate-90"></i> Subrooms:';
 				for (var i = 0; i < roomData.subRooms.length; i++) {
-					if (i) buf += ', ';
-					buf += '<i class="fa fa-comment-o"></i> ' + BattleLog.escapeHTML(roomData.subRooms[i]);
+					buf += ' <a class="ilink" href="' + app.root + toID(roomData.subRooms[i]) + '"><i class="fa fa-comment-o"></i> <strong>' + BattleLog.escapeHTML(roomData.subRooms[i]) + '</strong></a>';
 				}
-				buf += '</strong>';
+				buf += '</div>';
 			}
-			buf += '</small></a></div>';
+			buf += '</div>';
 			return buf;
 		},
+
 		compareRooms: function (roomA, roomB) {
 			return roomB.userCount - roomA.userCount;
 		},

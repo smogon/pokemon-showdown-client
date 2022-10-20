@@ -49,6 +49,7 @@ if ($curuser['group'] == 5) $authLevel = 3; // mod
 if ($curuser['group'] == 6) $authLevel = 4; // leader
 if ($curuser['group'] == 6 && $auth2FA) $authLevel = 5; // leader with 2FA
 if ($curuser['group'] == 2 && $auth2FA) $authLevel = 6; // admin
+if ($authLevel === 6 && $auth2FA && ($curuser['userid'] === 'chaos' || $curuser['userid'] === 'zarel')) $authLevel = 10;
 
 $userid = false;
 $user = false;
@@ -179,11 +180,15 @@ if (!$user) {
 
 	if ($authLevel >= 4 && substr($user['email'] ?? '', -1) === '@') echo '[2FA]';
 
-	if ($user['group'] && $user['group'] != 2 && $authLevel >= 3) {
+	$canChangeGroup = $user['group'] == 2 ? $authLevel >= 10 : $authLevel >= 3;
+
+	if ($user['group'] && $canChangeGroup) {
 		$csrfOk = (!!$users->csrfCheck() && $authLevel >= 4);
 		if ($csrfOk && isset($_POST['group'])) {
 			$group = intval($_POST['group']);
-			if ($group != 3 && $group != 4 && $group != 5 && $group != 6) $group = 1;
+			if ($group != 3 && $group != 4 && $group != 5 && $group != 6 && $group != 1) {
+				die(" Cannot change to group $group - access denied.</div></div>");
+			}
 			$psdb->query("UPDATE ntbb_users SET `group` = ".intval($group)." WHERE userid = '".$psdb->escape($user['userid'])."' LIMIT 1");
 			$user['group'] = $group;
 
@@ -266,7 +271,7 @@ if (!$user) {
 		} else if ($csrfOk && isset($_POST['googlelogin'])) {
 			$email = $_POST['googlelogin'];
 			$remove = ($email === 'remove');
-			if (!$remove && strpos($email, '@') === false || strpos($email, '.') === false) {
+			if (!$remove && (strpos($email, '@') === false || strpos($email, '.') === false)) {
 ?>
 				<div style="border: 1px solid #AADD88; padding: 0 1em; margin-bottom: 1em">
 					<p>Invalid e-mail address "<?= htmlspecialchars($email) ?>"</p>
@@ -309,7 +314,7 @@ if (!$user) {
 			<form action="" method="post" data-target="replace"><p>
 				<?php $users->csrfData(); ?>
 				<label class="label"><strong>Group:</strong><br />
-				<select name="group" class="textbox"<?php if ($authLevel < 4) echo ' disabled'; ?>>
+				<select name="group" class="textbox"<?php if (!$canChangeGroup) echo ' disabled'; ?>>
 <?php
 		foreach ($ntbb_groups as $i => $group) {
 			if (!$i) continue;
@@ -318,7 +323,7 @@ if (!$user) {
 <?php
 		}
 ?>
-				</select></label><?php if ($authLevel >= 4) { ?> <button type="submit"><strong>Change</strong></button><?php } ?>
+				</select></label><?php if ($canChangeGroup) { ?> <button type="submit"><strong>Change</strong></button><?php } ?>
 			</p></form>
 			<p>
 				<strong class="label"><label>IP: </label></strong><br />
@@ -455,7 +460,7 @@ if (!$user) {
 		</p>
 <?php
 	}
-	if ($user['userid'] === 'slarty' || $user['userid'] === 'peterthegreeat' || $user['userid'] === 'chrisloud' || $user['userid'] === 'skitty') {
+	if ($user['userid'] === 'slarty' || $user['userid'] === 'peterthegreeat' || $user['userid'] === 'chrisloud' || $user['userid'] === 'skitty' || $user['userid'] === 'aulu') {
 		echo '<p>;_;7</p>';
 	}
 

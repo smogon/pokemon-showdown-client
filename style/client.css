@@ -13,7 +13,7 @@ body {
 	font-size: 11pt;
 	font-family: Verdana, Helvetica, Arial, sans-serif;
 
-	/* see http://pokemonshowdown.com/credits */
+	/* see https://pokemonshowdown.com/credits */
 	background: #344b6c url(../fx/client-bg-charizards.jpg) no-repeat left center fixed;
 	-webkit-background-size: cover;
 	-moz-background-size: cover;
@@ -1308,6 +1308,20 @@ p.or:after {
 	color: #224466;
 	text-decoration: none;
 }
+.roomlist .subrooms {
+	font-size: 8pt;
+	padding-left: 20px;
+	margin: -5px 0 4px;
+}
+.roomlist .subrooms i.fa-level-up {
+	margin-right: 5px;
+}
+.roomlist .subrooms a.ilink {
+	display: inline-block;
+	margin: 0;
+	vertical-align: middle;
+	font-size: 8pt;
+}
 
 /*********************************************************
  * Chat
@@ -1359,6 +1373,9 @@ p.or:after {
 	font-weight: normal;
 	font-size: 8pt;
 	color: #888888;
+}
+.chat .message-announce small {
+    color: #def;
 }
 .chat.timer {
 	color: #992222;
@@ -3230,7 +3247,7 @@ a.ilink.yours {
 .avatarlist button {
 	width: 80px;
 	height: 80px;
-	background: transparent url(//play.pokemonshowdown.com/sprites/trainers-sheet.png) no-repeat scroll 0px 0px;
+	background: transparent url(https://play.pokemonshowdown.com/sprites/trainers-sheet.png) no-repeat scroll 0px 0px;
 }
 .bglist button span {
 	display: block;
@@ -3440,6 +3457,9 @@ a.ilink.yours {
 
 .dark .highlighted {
 	background: rgba(120,220,255,0.28);
+}
+.dark .message-pm {
+	color: #00af00;
 }
 .dark .revealed {
 	background: rgba(0,255,200,0.18);

@@ -79,7 +79,7 @@ Los equipos se guardan en tus cookies. Por ende, si las borras tus equipos se va
 
 ### ¿Cómo agrego a un amigo?
 
-Actualmente PS! no cuenta con un sistema de amigos; sin embargo, hay uno planeado.
+Escribe `/friend add (nombre)` para agregar amigos. Puedes ver tu lista de amigos con el comando `/friends`.
 
 ### ¿Por qué se reinició el servidor?
 

@@ -34,3 +34,4 @@ package-lock.json
 /website/images/
 /.api-dist/
 /**/*.tsbuildinfo
+/website/ads.txt

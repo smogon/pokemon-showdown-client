@@ -186,6 +186,8 @@ function updateFiles() {
 			indexContents = indexContents.replace(/<!-- newsid -->/g, newsData[0]);
 			indexContents = indexContents.replace(/<!-- news -->/g, newsData[1]);
 
+			indexContents = indexContents.replace(/<!-- head custom -->/g, '' + fs.readFileSync('config/head-custom.html'));
+
 			writeFiles(indexContents, preactIndexContents, crossprotocolContents, replayEmbedContents);
 		});
 	} else {

@@ -441,7 +441,7 @@
 				var spaceIndex = text.indexOf(' ');
 				if (spaceIndex > 0) {
 					cmd = text.substr(1, spaceIndex - 1);
-					target = text.substr(spaceIndex + 1);
+					target = text.substr(spaceIndex + 1).trim();
 				} else {
 					cmd = text.substr(1);
 					target = '';
@@ -449,7 +449,7 @@
 				}
 			}
 
-			switch (cmd.toLowerCase()) {
+			switch (toID(cmd)) {
 			case 'chal':
 			case 'chall':
 			case 'challenge':
@@ -611,10 +611,6 @@
 
 			case 'clearignore':
 				if (this.checkBroadcast(cmd, text)) return false;
-				if (!target) {
-					this.parseCommand('/help ignore');
-					return false;
-				}
 				if (toID(target) !== 'confirm') {
 					this.add("Are you sure you want to clear your ignore list?");
 					this.add('|html|If you\'re sure, use <code>/clearignore confirm</code>');

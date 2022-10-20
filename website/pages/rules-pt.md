@@ -36,8 +36,12 @@ Seu nome de usuário pode ser trocado a qualquer momento (mude-o dando log out e
 
 2. **Nomes não podem ofender** um indivíduo ou um grupo (insultar a si mesmo é aceitável, contanto que não seja algo muito sério).
 
-3. **Nomes não podem ter conotação sexual** ou serem excessivamente repugnantes.
+3. **Nomes não podem ter conotação sexual** ou ser excessivamente repugnantes.
 
 4. **Nomes não podem fazer propaganda**.
 
 Essas regras são menos restritas aqui do que em outros lugares, logo, é possível que você veja um usuário cujo nome pode estar no limite do aceitável, mas que não seja aceito em outros sites. Você pode até achar injusto que alguém mantenha o nome e você não, mas o fato é que o nome dele segue as regras acima, ao contrário do seu, caso te peçam para mudá-lo.
+
+## YouTube
+
+Ao usar os comandos `/show` ou `/youtube` para vídeos do YouTube, é necessário seguir os [Termos de Serviço do YouTube](https://www.youtube.com/static?gl=BR&template=terms&hl=pt).

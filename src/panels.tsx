@@ -304,9 +304,18 @@ class PSMain extends preact.Component {
 			}
 		});
 
+		const colorSchemeQuery = window.matchMedia?.('(prefers-color-scheme: dark)');
+		if (colorSchemeQuery?.media !== 'not all') {
+			colorSchemeQuery.addEventListener('change', function (cs) {
+				if (PS.prefs.theme === 'system') document.body.className = cs.matches ? 'dark' : '';
+			});
+		}
+
 		PS.prefs.subscribeAndRun(key => {
-			if (!key || key === 'dark') {
-				document.body.className = PS.prefs.dark ? 'dark' : '';
+			if (!key || key === 'theme') {
+				const dark = PS.prefs.theme === 'dark' ||
+					(PS.prefs.theme === 'system' && colorSchemeQuery && colorSchemeQuery.matches);
+				document.body.className = dark ? 'dark' : '';
 			}
 		});
 	}

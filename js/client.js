@@ -467,7 +467,15 @@ function toId() {
 				var muted = Dex.prefs('mute');
 				BattleSound.setMute(muted);
 
-				$('html').toggleClass('dark', !!Dex.prefs('dark'));
+				var theme = Dex.prefs('theme');
+				var colorSchemeQuery = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)');
+				var dark = theme === 'dark' || (theme === 'system' && colorSchemeQuery && colorSchemeQuery.matches);
+				$('html').toggleClass('dark', dark);
+				if (colorSchemeQuery && colorSchemeQuery.media !== 'not all') {
+					colorSchemeQuery.addEventListener('change', function (cs) {
+						if (Dex.prefs('theme') === 'system') $('html').toggleClass('dark', cs.matches);
+					});
+				}
 
 				var effectVolume = Dex.prefs('effectvolume');
 				if (effectVolume !== undefined) BattleSound.setEffectVolume(effectVolume);
@@ -733,6 +741,19 @@ function toId() {
 				var protocol = (Config.server.port === 443 || Config.server.https) ? 'https' : 'http';
 				Config.server.host = $.trim(Config.server.host);
 				try {
+					if (Config.server.host === 'localhost') {
+						// connecting to localhost from psim.us is now banned as of Chrome 94
+						// thanks Docker for having vulns
+						// https://wicg.github.io/cors-rfc1918
+						// anyway, this affects SockJS because it makes HTTP requests to localhost
+						// but it turns out that making direct WebSocket connections to localhost is
+						// still supported, so we'll just bypass SockJS and use WebSocket directly.
+						console.log("Bypassing SockJS for localhost");
+						console.log('ws' + protocol.slice('4') + '://' + Config.server.host + ':' + Config.server.port + Config.sockjsprefix + '/websocket');
+						return new WebSocket(
+							'ws' + protocol.slice('4') + '://' + Config.server.host + ':' + Config.server.port + Config.sockjsprefix + '/websocket'
+						);
+					}
 					return new SockJS(
 						protocol + '://' + Config.server.host + ':' + Config.server.port + Config.sockjsprefix,
 						[], {timeout: 5 * 60 * 1000}
@@ -817,6 +838,7 @@ function toId() {
 			if (!Config.testclient && location.search && window.history) {
 				history.replaceState(null, null, location.pathname);
 			}
+			if (fragment && fragment.includes('.')) fragment = '';
 			this.fragment = fragment = toRoomid(fragment || '');
 			if (this.initialFragment === undefined) this.initialFragment = fragment;
 			this.tryJoinRoom(fragment);
@@ -1245,6 +1267,7 @@ function toId() {
 					var searchShow = true;
 					var challengeShow = true;
 					var tournamentShow = true;
+					var partner = false;
 					var team = null;
 					var teambuilderLevel = null;
 					var lastCommaIndex = name.lastIndexOf(',');
@@ -1256,6 +1279,7 @@ function toId() {
 						if (!(code & 4)) challengeShow = false;
 						if (!(code & 8)) tournamentShow = false;
 						if (code & 16) teambuilderLevel = 50;
+						if (code & 32) partner = true;
 					} else {
 						// Backwards compatibility: late 0.9.0 -> 0.10.0
 						if (name.substr(name.length - 2) === ',#') { // preset teams
@@ -1321,6 +1345,7 @@ function toId() {
 						tournamentShow: tournamentShow,
 						rated: searchShow && id.substr(4, 7) !== 'unrated',
 						teambuilderLevel: teambuilderLevel,
+						partner: partner,
 						teambuilderFormat: teambuilderFormat,
 						isTeambuilderFormat: isTeambuilderFormat,
 						effectType: 'Format'
@@ -1351,8 +1376,10 @@ function toId() {
 			var serverid = Config.server.id && toID(Config.server.id.split(':')[0]);
 			var silent = data.silent;
 			if (serverid && serverid !== 'showdown') id = serverid + '-' + id;
-			$.post(app.user.getActionPHP() + '?act=uploadreplay', {
+			$.post(app.user.getActionPHP(), {
+				act: 'uploadreplay',
 				log: data.log,
+				serverid: serverid,
 				password: data.password || '',
 				id: id
 			}, function (data) {
@@ -2592,9 +2619,10 @@ function toId() {
 		update: function (data) {
 			if (data && data.userid === this.data.userid) {
 				data = _.extend(this.data, data);
-				// Don't cache the roomGroup
+				// Don't cache the roomGroup or status
 				UserPopup.dataCache[data.userid] = _.clone(data);
 				delete UserPopup.dataCache[data.userid].roomGroup;
+				delete UserPopup.dataCache[data.userid].status;
 			} else {
 				data = this.data;
 			}
@@ -2604,7 +2632,7 @@ function toId() {
 			var groupName = ((Config.groups[data.roomGroup] || {}).name || '');
 			var globalGroup = (Config.groups[data.group || Config.defaultGroup || ' '] || null);
 			var globalGroupName = '';
-			if (globalGroup && globalGroup.name) {
+			if (globalGroup && globalGroup.name && toID(globalGroup.name) !== toID(data.customgroup)) {
 				if (globalGroup.type === 'punishment') {
 					groupName = globalGroup.name;
 				} else if (!groupName || groupName === globalGroup.name) {
@@ -2630,7 +2658,7 @@ function toId() {
 			if (globalGroupName) {
 				buf += '<small class="usergroup globalgroup">' + globalGroupName + '</small>';
 			}
-			if (data.customgroup) {
+			if (data.customgroup && toID(data.customgroup) !== toID(globalGroupName || groupName)) {
 				if (groupName || globalGroupName) buf += '<br />';
 				buf += '<small class="usergroup globalgroup">' + BattleLog.escapeHTML(data.customgroup) + '</small>';
 			}
@@ -2725,7 +2753,11 @@ function toId() {
 			this.close();
 		},
 		userOptions: function () {
-			app.addPopup(UserOptionsPopup, {name: this.data.name, userid: this.data.userid});
+			app.addPopup(UserOptionsPopup, {
+				name: this.data.name,
+				userid: this.data.userid,
+				friended: this.data.friended,
+			});
 		}
 	}, {
 		dataCache: {}
@@ -2735,10 +2767,31 @@ function toId() {
 		initialize: function (data) {
 			this.name = data.name;
 			this.userid = data.userid;
+			this.data = data;
 			this.update();
 		},
 		update: function () {
-			this.$el.html('<p><button name="toggleIgnoreUser">' + (app.ignore[this.userid] ? 'Unignore' : 'Ignore') + '</button></p><p><button name="report">Report</button></p>');
+			var ignored = app.ignore[this.userid] ? 'Unignore' : 'Ignore';
+			var friended = this.data.friended ? 'Remove friend' : 'Add friend';
+			this.$el.html(
+				'<p><button name="toggleIgnoreUser">' + ignored + '</button></p>' +
+				'<p><button name="report">Report</button></p>' +
+				'<p><button name="toggleFriend">' + friended +
+				'</button></p>'
+			);
+		},
+		toggleFriend: function () {
+			var $button = this.$el.find('[name=toggleFriend]');
+			if (this.data.friended) {
+				app.send('/unfriend ' + this.userid);
+				$button.text('Friend removed.');
+			} else {
+				app.send('/friend add ' + this.userid);
+				$button.text('Friend request sent!');
+			}
+			// we intentionally disable since we don't want them to spam it
+			// you at least have to close and reopen the popup to get it back
+			$button.addClass('button disabled');
 		},
 		report: function () {
 			app.joinRoom('view-help-request-report-user-' + this.userid);

@@ -481,6 +481,9 @@ const BattlePokemonIconIndexes: {[id: string]: number} = {
 	astrolotl: 1308 + 29,
 	miasmaw: 1308 + 30,
 	chromera: 1308 + 31,
+	venomicon: 1308 + 32,
+	venomiconepilogue: 1308 + 33,
+	saharaja: 1308 + 34,
 
 	syclar: 1344 + 0,
 	embirch: 1344 + 1,
@@ -503,7 +506,7 @@ const BattlePokemonIconIndexes: {[id: string]: number} = {
 	nohface: 1344 + 18,
 	monohm: 1344 + 19,
 	duohm: 1344 + 20,
-	// protowatt: 1344 + 21,
+	protowatt: 1344 + 21,
 	voodoll: 1344 + 22,
 	mumbao: 1344 + 23,
 	fawnifer: 1344 + 24,
@@ -515,6 +518,7 @@ const BattlePokemonIconIndexes: {[id: string]: number} = {
 	justyke: 1344 + 30,
 	solotl: 1344 + 31,
 	miasmite: 1344 + 32,
+	dorsoil: 1344 + 33,
 };
 
 const BattlePokemonIconIndexesLeft: {[id: string]: number} = {
@@ -721,7 +725,7 @@ const BattleAvatarNumbers: {[k: string]: string} = {
 	92: 'palmer',
 	93: 'thorton',
 	94: 'buck',
-	95: 'darach',
+	95: 'darach-caitlin',
 	96: 'marley',
 	97: 'mira',
 	98: 'cheryl',
@@ -1111,6 +1115,7 @@ class Move implements Effect {
 	readonly category: 'Physical' | 'Special' | 'Status';
 	readonly priority: number;
 	readonly target: MoveTarget;
+	readonly pressureTarget: MoveTarget;
 	readonly flags: Readonly<MoveFlags>;
 	readonly critRatio: number;
 
@@ -1132,6 +1137,7 @@ class Move implements Effect {
 	readonly hasCrashDamage: boolean;
 	readonly noPPBoosts: boolean;
 	readonly secondaries: ReadonlyArray<any> | null;
+	readonly noSketch: boolean;
 	readonly num: number;
 
 	constructor(id: ID, name: string, data: any) {
@@ -1149,6 +1155,7 @@ class Move implements Effect {
 		this.category = data.category || 'Physical';
 		this.priority = data.priority || 0;
 		this.target = data.target || 'normal';
+		this.pressureTarget = data.pressureTarget || this.target;
 		this.flags = data.flags || {};
 		this.critRatio = data.critRatio === 0 ? 0 : (data.critRatio || 1);
 
@@ -1165,6 +1172,7 @@ class Move implements Effect {
 		this.hasCrashDamage = data.hasCrashDamage || false;
 		this.noPPBoosts = data.noPPBoosts || false;
 		this.secondaries = data.secondaries || (data.secondary ? [data.secondary] : null);
+		this.noSketch = !!data.noSketch;
 
 		this.isMax = data.isMax || false;
 		this.maxMove = data.maxMove || {basePower: 0};
@@ -1332,6 +1340,7 @@ class Species implements Effect {
 	readonly baseStats: Readonly<{
 		hp: number, atk: number, def: number, spa: number, spd: number, spe: number,
 	}>;
+	readonly bst: number;
 	readonly weightkg: number;
 
 	// flavor data
@@ -1352,10 +1361,11 @@ class Species implements Effect {
 	readonly evoMove: string;
 	readonly evoItem: string;
 	readonly evoCondition: string;
-	readonly requiredItem: string;
+	readonly requiredItems: ReadonlyArray<string>;
 	readonly tier: string;
 	readonly isTotem: boolean;
 	readonly isMega: boolean;
+	readonly cannotDynamax: boolean;
 	readonly canGigantamax: boolean;
 	readonly isPrimal: boolean;
 	readonly battleOnly: string | string[] | undefined;
@@ -1383,6 +1393,8 @@ class Species implements Effect {
 		this.types = data.types || ['???'];
 		this.abilities = data.abilities || {0: "No Ability"};
 		this.baseStats = data.baseStats || {hp: 0, atk: 0, def: 0, spa: 0, spd: 0, spe: 0};
+		this.bst = this.baseStats.hp + this.baseStats.atk + this.baseStats.def +
+			this.baseStats.spa + this.baseStats.spd + this.baseStats.spe;
 		this.weightkg = data.weightkg || 0;
 
 		this.heightm = data.heightm || 0;
@@ -1401,11 +1413,12 @@ class Species implements Effect {
 		this.evoMove = data.evoMove || '';
 		this.evoItem = data.evoItem || '';
 		this.evoCondition = data.evoCondition || '';
-		this.requiredItem = data.requiredItem || '';
+		this.requiredItems = data.requiredItems || (data.requiredItem ? [data.requiredItem] : []);
 		this.tier = data.tier || '';
 
 		this.isTotem = false;
 		this.isMega = !!(this.forme && ['-mega', '-megax', '-megay'].includes(this.formeid));
+		this.cannotDynamax = !!data.cannotDynamax;
 		this.canGigantamax = !!data.canGigantamax;
 		this.isPrimal = !!(this.forme && this.formeid === '-primal');
 		this.battleOnly = data.battleOnly || undefined;

@@ -27,11 +27,6 @@ function servercmp($a, $b) {
 $page = 'home';
 $pageTitle = "Home";
 
-$externProtocol = 'http:';
-if ($_SERVER['REQUEST_URI'] === '/secure') {
-	$externProtocol = '';
-}
-
 $serverbits = '';
 $serverbitscache = __DIR__ . '/../config/userbitscache.html';
 $lastmodified = @filemtime($serverbitscache);
@@ -54,7 +49,7 @@ if ($lastmodified && (time() - $lastmodified < 60 * 10)) {
 	foreach ($PokemonServers as &$server) {
 		$server['sortorder'] = $sortorder++;
 		if ($server['id'] === 'showdown') {
-			$server['uri'] = $externProtocol . '//' . $psconfig['routes']['client'];
+			$server['uri'] = '//' . $psconfig['routes']['client'];
 		} else {
 			$server['uri'] = 'http://' . $server['id'] . '.psim.us';
 		}
@@ -133,7 +128,7 @@ includeHeaderBottom();
 <?php if (isset($_REQUEST['insecure'])) { ?>
 					<a class="button greenbutton" href="http://<?= $psconfig['routes']['client'] ?>/?insecure">Play (insecure mode)</a>
 <?php } else { ?>
-					<a class="button greenbutton" href="<?= $externProtocol ?>//<?= $psconfig['routes']['client'] ?>/">Play online</a>
+					<a class="button greenbutton" href="//<?= $psconfig['routes']['client'] ?>/">Play online</a>
 <?php } ?>
 				</p>
 				<p class="mainbutton" id="win-install" style="display:none;text-align:center;color:#777;margin:-10px 0 -0px 0">

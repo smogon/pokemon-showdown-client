@@ -79,7 +79,7 @@ I team sono salvati utilizzando i cookie. Se rimuovi i cookie, anche i tuoi team
 
 ### Come posso aggiungere un amico?
 
-Al momento, PS! non dispone di una funzione per aggiungere gli amici; tuttavia, è in programma.
+Scrivi `/friend add (nome)` per aggiungere amici. Puoi visualizzare la tua lista di amici con il comando `/friends`.
 
 ### Come mai il server è stato riavviato?
 
