@@ -1430,7 +1430,8 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 		const isHackmons = (format.includes('hackmons') || format.endsWith('bh'));
 		const isSTABmons = (format.includes('stabmons') || format === 'staaabmons');
 		const isTradebacks = format.includes('tradebacks');
-		const regionBornLegality = /^battle(spot|stadium|festival)/.test(format) || format.startsWith('vgc');
+		const regionBornLegality = dex.gen >= 6 &&
+			/^battle(spot|stadium|festival)/.test(format) || format.startsWith('vgc');
 
 		const abilityid = this.set ? toID(this.set.ability) : '' as ID;
 		const itemid = this.set ? toID(this.set.item) : '' as ID;
@@ -1451,7 +1452,7 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 					let learnsetEntry = learnset[moveid];
 					const move = dex.moves.get(moveid);
 					const minGenCode: {[gen: number]: string} = {6: 'p', 7: 'q', 8: 'g'};
-					if (regionBornLegality && !learnsetEntry.includes(minGenCode[this.dex.gen])) {
+					if (regionBornLegality && !learnsetEntry.includes(minGenCode[dex.gen])) {
 						continue;
 					}
 					if (
