@@ -1691,6 +1691,8 @@ export class Battle {
 					this.lastMove = 'healing-wish';
 					this.scene.runResidualAnim('healingwish' as ID, poke);
 					poke.side.wisher = null;
+					poke.statusData.sleepTurns = 0;
+					poke.statusData.toxicTurns = 0;
 					break;
 				case 'wish':
 					this.scene.runResidualAnim('wish' as ID, poke);
