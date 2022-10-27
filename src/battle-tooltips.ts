@@ -1403,26 +1403,36 @@ class BattleTooltips {
 		const noTypeOverride = [
 			'judgment', 'multiattack', 'naturalgift', 'revelationdance', 'struggle', 'technoblast', 'terrainpulse', 'weatherball',
 		];
-		const allowTypeOverride = !noTypeOverride.includes(move.id);
-
-		if (allowTypeOverride && category !== 'Status' && !move.isZ && !move.id.startsWith('hiddenpower')) {
-			if (moveType === 'Normal') {
-				if (value.abilityModify(0, 'Aerilate')) moveType = 'Flying';
-				if (value.abilityModify(0, 'Galvanize')) moveType = 'Electric';
-				if (value.abilityModify(0, 'Pixilate')) moveType = 'Fairy';
-				if (value.abilityModify(0, 'Refrigerate')) moveType = 'Ice';
+		if (!noTypeOverride.includes(move.id)) {
+			if (this.battle.rules['Revelationmons Mod']) {
+				const [types] = pokemon.getTypes(serverPokemon);
+				for (let i = 0; i < types.length; i++) {
+					if (serverPokemon.moves[i] && move.id === toID(serverPokemon.moves[i])) {
+						moveType = types[i];
+					}
+				}
 			}
-			if (value.abilityModify(0, 'Normalize')) moveType = 'Normal';
-		}
-		// There aren't any max moves with the sound flag, but if there were, Liquid Voice would make them water type
-		const isSound = !!(
-			forMaxMove ?
-			this.getMaxMoveFromType(moveType, forMaxMove !== true && forMaxMove || undefined) : move
-		).flags['sound'];
 
-		if (allowTypeOverride && isSound && value.abilityModify(0, 'Liquid Voice')) {
-			moveType = 'Water';
+			if (category !== 'Status' && !move.isZ && !move.id.startsWith('hiddenpower')) {
+				if (moveType === 'Normal') {
+					if (value.abilityModify(0, 'Aerilate')) moveType = 'Flying';
+					if (value.abilityModify(0, 'Galvanize')) moveType = 'Electric';
+					if (value.abilityModify(0, 'Pixilate')) moveType = 'Fairy';
+					if (value.abilityModify(0, 'Refrigerate')) moveType = 'Ice';
+				}
+				if (value.abilityModify(0, 'Normalize')) moveType = 'Normal';
+			}
+
+			// There aren't any max moves with the sound flag, but if there were, Liquid Voice would make them water type
+			const isSound = !!(
+				forMaxMove ?
+				this.getMaxMoveFromType(moveType, forMaxMove !== true && forMaxMove || undefined) : move
+			).flags['sound'];
+			if (isSound && value.abilityModify(0, 'Liquid Voice')) {
+				moveType = 'Water';
+			}
 		}
+
 		if (this.battle.gen <= 3 && category !== 'Status') {
 			category = Dex.getGen3Category(moveType);
 		}
