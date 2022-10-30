@@ -24,10 +24,10 @@
 			app.send('/cmd rooms');
 			app.user.on('change:named', this.updateUser, this);
 			this.update();
-			this.chatroomInterval = setInterval(() => {
-				if (app.curSideRoom?.id === 'rooms') {
+			this.chatroomInterval = setInterval(function () {
+				if (app.curSideRoom && app.curSideRoom.id === 'rooms') {
 					app.send('/cmd rooms');
-					this.update()
+					this.update();
 				}
 			}, 20000);
 		},
