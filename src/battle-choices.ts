@@ -41,6 +41,7 @@ interface BattleRequestActivePokemon {
 	canDynamax?: boolean;
 	canGigantamax?: boolean;
 	canMegaEvo?: boolean;
+	canMegaEvoY?: boolean;
 	canUltraBurst?: boolean;
 	trapped?: boolean;
 	maybeTrapped?: boolean;
@@ -81,6 +82,7 @@ interface BattleMoveChoice {
 	move: number;
 	targetLoc: number;
 	mega: boolean;
+	megay: boolean;
 	ultra: boolean;
 	max: boolean;
 	z: boolean;
@@ -112,6 +114,7 @@ class BattleChoiceBuilder {
 		move: 0,
 		targetLoc: 0, // should always be 0: is not partial if `targetLoc` is known
 		mega: false,
+		megay: false,
 		ultra: false,
 		z: false,
 		max: false,
@@ -183,17 +186,19 @@ class BattleChoiceBuilder {
 				if (choosableTargets.includes(this.getChosenMove(choice, this.index()).target)) {
 					this.current.move = choice.move;
 					this.current.mega = choice.mega;
+					this.current.megay = choice.megay;
 					this.current.ultra = choice.ultra;
 					this.current.z = choice.z;
 					this.current.max = choice.max;
 					return null;
 				}
 			}
-			if (choice.mega) this.alreadyMega = true;
+			if (choice.mega || choice.megay) this.alreadyMega = true;
 			if (choice.z) this.alreadyZ = true;
 			if (choice.max) this.alreadyMax = true;
 			this.current.move = 0;
 			this.current.mega = false;
+			this.current.megay = false;
 			this.current.ultra = false;
 			this.current.z = false;
 			this.current.max = false;
@@ -294,6 +299,9 @@ class BattleChoiceBuilder {
 				} else if (choice.endsWith(' mega')) {
 					current.mega = true;
 					choice = choice.slice(0, -5);
+				} else if (choice.endsWith(' megay')) {
+					current.megay = true;
+					choice = choice.slice(0, -6);
 				} else if (choice.endsWith(' zmove')) {
 					current.z = true;
 					choice = choice.slice(0, -6);
@@ -416,7 +424,7 @@ class BattleChoiceBuilder {
 		switch (choice.choiceType) {
 		case 'move':
 			const target = choice.targetLoc ? ` ${choice.targetLoc > 0 ? '+' : ''}${choice.targetLoc}` : ``;
-			const boost = `${choice.max ? ' max' : ''}${choice.mega ? ' mega' : ''}${choice.z ? ' zmove' : ''}`;
+			const boost = `${choice.max ? ' max' : ''}${choice.mega ? ' mega' : ''}${choice.megay ? ' megay' : ''}${choice.z ? ' zmove' : ''}`;
 			return `move ${choice.move}${boost}${target}`;
 		case 'switch':
 		case 'team':
