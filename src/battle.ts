@@ -1443,11 +1443,15 @@ export class Battle {
 					// Hardcode for moves without a target in singles
 					foeTargets.push(pokemon.side.foe.active[0]);
 				} else if (['all', 'allAdjacent', 'allAdjacentFoes', 'foeSide'].includes(moveTarget)) {
-					// We loop through all sides here for FFA
-					for (const side of this.sides) {
-						if (side === pokemon.side || side === pokemon.side.ally) continue;
+					// Only 2 sides need to be checked, even for FFA/Multi
+					for (let i = 0; i < 2; i++) {
+						const side = this.sides[i];
 						for (const active of side.active) {
-							foeTargets.push(active);
+							if (!active || active === pokemon) continue;
+							// Pressure affects allies in gen 3 and 4
+							if (this.gen <= 4 || (active.side !== pokemon.side && active.side.ally !== pokemon.side)) {
+								foeTargets.push(active);
+							}
 						}
 					}
 				} else if (target && target.side !== pokemon.side) {
