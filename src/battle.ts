@@ -1155,8 +1155,8 @@ export class Battle {
 		return false;
 	}
 	getAllActive() {
-		const pokemonList = []
-		// Sides 3 and 4 are synced with sides 1 and 2, so those don't need to be checked
+		const pokemonList = [];
+		// Sides 3 and 4 are synced with sides 1 and 2, so they don't need to be checked
 		for (let i = 0; i < 2; i++) {
 			const side = this.sides[i];
 			for (const active of side.active) {
