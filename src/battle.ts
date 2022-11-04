@@ -1154,12 +1154,23 @@ export class Battle {
 		}
 		return false;
 	}
-	ngasActive() {
-		for (const side of this.sides) {
+	getAllActive() {
+		const pokemonList = []
+		// Sides 3 and 4 are synced with sides 1 and 2, so those don't need to be checked
+		for (let i = 0; i < 2; i++) {
+			const side = this.sides[i];
 			for (const active of side.active) {
-				if (active && !active.fainted && active.ability === 'Neutralizing Gas' && !active.volatiles['gastroacid']) {
-					return true;
+				if (active && !active.fainted) {
+					pokemonList.push(active);
 				}
+			}
+		}
+		return pokemonList;
+	}
+	ngasActive() {
+		for (const active of this.getAllActive()) {
+			if (active.ability === 'Neutralizing Gas' && !active.volatiles['gastroacid']) {
+				return true;
 			}
 		}
 		return false;
@@ -1169,11 +1180,9 @@ export class Battle {
 			abilities = abilities.filter(a => this.dex.abilities.get(a).isPermanent);
 			if (!abilities.length) return false;
 		}
-		for (const side of this.sides) {
-			for (const active of side.active) {
-				if (active && !active.fainted && abilities.includes(active.ability) && !active.volatiles['gastroacid']) {
-					return true;
-				}
+		for (const active of this.getAllActive()) {
+			if (abilities.includes(active.ability) && !active.volatiles['gastroacid']) {
+				return true;
 			}
 		}
 		return false;
@@ -1443,15 +1452,11 @@ export class Battle {
 					// Hardcode for moves without a target in singles
 					foeTargets.push(pokemon.side.foe.active[0]);
 				} else if (['all', 'allAdjacent', 'allAdjacentFoes', 'foeSide'].includes(moveTarget)) {
-					// Only 2 sides need to be checked, even for FFA/Multi
-					for (let i = 0; i < 2; i++) {
-						const side = this.sides[i];
-						for (const active of side.active) {
-							if (!active || active === pokemon) continue;
-							// Pressure affects allies in gen 3 and 4
-							if (this.gen <= 4 || (active.side !== pokemon.side && active.side.ally !== pokemon.side)) {
-								foeTargets.push(active);
-							}
+					for (const active of this.getAllActive()) {
+						if (active === pokemon) continue;
+						// Pressure affects allies in gen 3 and 4
+						if (this.gen <= 4 || (active.side !== pokemon.side && active.side.ally !== pokemon.side)) {
+							foeTargets.push(active);
 						}
 					}
 				} else if (target && target.side !== pokemon.side) {
@@ -1882,14 +1887,10 @@ export class Battle {
 		}
 		case '-clearallboost': {
 			let timeOffset = this.scene.timeOffset;
-			for (const side of this.sides) {
-				for (const active of side.active) {
-					if (active) {
-						active.boosts = {};
-						this.scene.timeOffset = timeOffset;
-						this.scene.resultAnim(active, 'Stats reset', 'neutral');
-					}
-				}
+			for (const active of this.getAllActive()) {
+				active.boosts = {};
+				this.scene.timeOffset = timeOffset;
+				this.scene.resultAnim(active, 'Stats reset', 'neutral');
 			}
 
 			this.log(args, kwArgs);
@@ -2935,10 +2936,8 @@ export class Battle {
 			switch (effect.id) {
 			case 'gravity':
 				if (this.seeking !== null) break;
-				for (const side of this.sides) {
-					for (const active of side.active) {
-						if (active) this.scene.runOtherAnim('gravity' as ID, [active]);
-					}
+				for (const active of this.getAllActive()) {
+					this.scene.runOtherAnim('gravity' as ID, [active]);
 				}
 				break;
 			}
