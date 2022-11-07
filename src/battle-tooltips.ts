@@ -1449,7 +1449,7 @@ class BattleTooltips {
 			value.set(0, "Poison type");
 			return value;
 		}
-		if (move.id === 'blizzard') {
+		if (move.id === 'blizzard' && this.battle.gen >= 4) {
 			value.weatherModify(0, 'Hail');
 		}
 		if (move.id === 'hurricane' || move.id === 'thunder') {
