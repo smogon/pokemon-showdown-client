@@ -888,9 +888,9 @@ Storage.fastUnpackTeam = function (buf) {
 		j = buf.indexOf(']', i);
 		var misc = undefined;
 		if (j < 0) {
-			if (i < buf.length) misc = buf.substring(i).split(',', 4);
+			if (i < buf.length) misc = buf.substring(i).split(',', 5);
 		} else {
-			if (i !== j) misc = buf.substring(i, j).split(',', 4);
+			if (i !== j) misc = buf.substring(i, j).split(',', 5);
 		}
 		if (misc) {
 			set.happiness = (misc[0] ? Number(misc[0]) : 255);
@@ -1005,9 +1005,9 @@ Storage.unpackTeam = function (buf) {
 		j = buf.indexOf(']', i);
 		var misc = undefined;
 		if (j < 0) {
-			if (i < buf.length) misc = buf.substring(i).split(',', 4);
+			if (i < buf.length) misc = buf.substring(i).split(',', 5);
 		} else {
-			if (i !== j) misc = buf.substring(i, j).split(',', 4);
+			if (i !== j) misc = buf.substring(i, j).split(',', 5);
 		}
 		if (misc) {
 			set.happiness = (misc[0] ? Number(misc[0]) : 255);
