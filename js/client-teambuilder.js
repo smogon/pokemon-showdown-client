@@ -1212,7 +1212,7 @@
 					buf += '<span class="detailcell"><label>Happiness</label>' + (typeof set.happiness === 'number' ? set.happiness : 255) + '</span>';
 				}
 				buf += '<span class="detailcell"><label>Shiny</label>' + (set.shiny ? 'Yes' : 'No') + '</span>';
-				if (!isLetsGo) {
+				if (!isLetsGo && this.curTeam.gen < 9) {
 					if (this.curTeam.gen === 8 && !isNatDex) {
 						if (isBDSP && species.baseSpecies === "Unown") {
 							buf += '<span class="detailcell"><label>HP Type</label>' + (set.hpType || 'Dark') + '</span>';
@@ -1228,6 +1228,11 @@
 					}
 					if (species.canGigantamax || species.forme === 'Gmax') {
 						buf += '<span class="detailcell"><label>Gmax</label>' + (set.gigantamax || species.forme === 'Gmax' ? 'Yes' : 'No') + '</span>';
+					}
+				}
+				if (this.curTeam.gen === 9) {
+					if (set.teraType) {
+						buf += '<span class="detailcell"><label>Tera Type</label>' + (set.teraType || species.types[0]) + '</span>';
 					}
 				}
 			}
@@ -2785,6 +2790,9 @@
 					if (species.canGigantamax || species.forme === 'Gmax') {
 						buf += '<span class="detailcell"><label>Gmax</label>' + (set.gigantamax || species.forme === 'Gmax' ? 'Yes' : 'No') + '</span>';
 					}
+				}
+				if (this.curTeam.gen === 9) {
+					buf += '<span class="detailcell"><label>Tera Type</label>' + (set.teraType || species.types[0]) + '</span>';
 				}
 			}
 			this.$('button[name=details]').html(buf);

@@ -9,7 +9,7 @@ const rootDir = path.resolve(__dirname, '..');
 process.chdir(rootDir);
 
 if (!fs.existsSync('data/pokemon-showdown')) {
-	child_process.execSync('git clone -b paldea https://github.com/KrisXV/pokemon-showdown.git', {
+	child_process.execSync('git clone https://github.com/smogon/pokemon-showdown.git', {
 		cwd: 'data',
 	});
 }
@@ -840,6 +840,9 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			}
 			if (gens.indexOf(8) >= 0 && learnset[moveid].some(x => x[0] === '8' && x !== '8V')) {
 				learnsets[id][moveid] += 'g';
+			}
+			if (gens.indexOf(9) >= 0 && learnset[moveid].some(x => x[0] === '9' && x !== '9V')) {
+				learnsets[id][moveid] += 'a';
 			}
 		}
 	}

@@ -429,12 +429,13 @@ export class Pokemon implements PokemonDetails, PokemonHealth {
 	/**
 	 * copyAll = false means Baton Pass,
 	 * copyAll = true means Illusion breaking
+	 * copyAll = 'shedtail' means Shed Tail
 	 */
-	copyVolatileFrom(pokemon: Pokemon, copyAll?: boolean) {
+	copyVolatileFrom(pokemon: Pokemon, copySource?: | 'shedtail' | boolean) {
 		this.boosts = pokemon.boosts;
 		this.volatiles = pokemon.volatiles;
 		// this.lastMove = pokemon.lastMove; // I think
-		if (!copyAll) {
+		if (!copySource) {
 			delete this.volatiles['airballoon'];
 			delete this.volatiles['attract'];
 			delete this.volatiles['autotomize'];
@@ -455,6 +456,13 @@ export class Pokemon implements PokemonDetails, PokemonHealth {
 			delete this.volatiles['typeadd'];
 			delete this.volatiles['typechange'];
 			delete this.volatiles['yawn'];
+		}
+		if (copySource === 'shedtail') {
+			for (let i in this.volatiles) {
+				if (i === 'substitute') continue;
+				delete this.volatiles[i];
+			}
+			this.boosts = {};
 		}
 		delete this.volatiles['transform'];
 		delete this.volatiles['formechange'];
@@ -819,8 +827,8 @@ export class Side {
 		pokemon.clearVolatile();
 		pokemon.lastMove = '';
 		this.battle.lastMove = 'switch-in';
-		if (['batonpass', 'zbatonpass'].includes(this.lastPokemon?.lastMove!)) {
-			pokemon.copyVolatileFrom(this.lastPokemon!);
+		if (['batonpass', 'zbatonpass', 'shedtail'].includes(this.lastPokemon?.lastMove!)) {
+			pokemon.copyVolatileFrom(this.lastPokemon!, this.lastPokemon!.lastMove! === 'shedtail' ? 'shedtail' : false);
 		}
 
 		this.battle.scene.animSummon(pokemon, slot);
@@ -869,14 +877,14 @@ export class Side {
 		this.battle.scene.animSummon(pokemon, slot, true);
 	}
 	switchOut(pokemon: Pokemon, kwArgs: KWArgs, slot = pokemon.slot) {
-		if (pokemon.lastMove !== 'batonpass' && pokemon.lastMove !== 'zbatonpass') {
+		if (!['batonpass', 'zbatonpass', 'shedtail'].includes(pokemon.lastMove)) {
 			pokemon.clearVolatile();
 		} else {
 			pokemon.removeVolatile('transform' as ID);
 			pokemon.removeVolatile('formechange' as ID);
 		}
 		const effect = Dex.getEffect(kwArgs.from);
-		if (!['batonpass', 'zbatonpass', 'teleport'].includes(effect.id)) {
+		if (!['batonpass', 'zbatonpass', 'shedtail', 'teleport'].includes(effect.id)) {
 			this.battle.log(['switchout', pokemon.ident], {from: effect.id});
 		}
 		pokemon.statusData.toxicTurns = 0;
