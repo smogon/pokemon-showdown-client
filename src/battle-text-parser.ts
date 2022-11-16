@@ -584,6 +584,11 @@ class BattleTextParser {
 				const template = this.template('activate', 'perishsong');
 				return line1 + template.replace('[POKEMON]', this.pokemon(pokemon)).replace('[NUMBER]', num);
 			}
+			if (id.startsWith('protosynthesis') || id.startsWith('quarkdrive')) {
+				const stat = id.slice(-3);
+				const template = this.template('start', id.slice(0, id.length - 3));
+				return line1 + template.replace('[POKEMON]', this.pokemon(pokemon)).replace('[STAT]', BattleTextParser.stat(stat));
+			}
 			let templateId = 'start';
 			if (kwArgs.already) templateId = 'alreadyStarted';
 			if (kwArgs.fatigue) templateId = 'startFromFatigue';
@@ -838,16 +843,19 @@ class BattleTextParser {
 				return line1 + template.replace('[POKEMON]', this.pokemon(kwArgs.of)).replace('[SOURCE]', this.pokemon(pokemon));
 			}
 
-			if (id === 'mummy' && kwArgs.ability) {
+			if ((id === 'mummy' || id === 'lingeringaroma') && kwArgs.ability) {
 				line1 += this.ability(kwArgs.ability, target);
-				line1 += this.ability('Mummy', target);
-				const template = this.template('changeAbility', 'mummy');
+				line1 += this.ability(id === 'mummy' ? 'Mummy' : 'Lingering Aroma', target);
+				const template = this.template('changeAbility', id);
 				return line1 + template.replace('[TARGET]', this.pokemon(target));
 			}
 
 			let templateId = 'activate';
 			if (id === 'forewarn' && pokemon === target) {
 				templateId = 'activateNoTarget';
+			}
+			if ((id === 'protosynthesis' || id === 'quarkdrive') && kwArgs.fromitem) {
+				templateId = 'activateFromItem';
 			}
 			let template = this.template(templateId, effect, 'NODEFAULT');
 			if (!template) {

@@ -2671,6 +2671,20 @@ export class Battle {
 					poke.removeVolatile('stockpile2' as ID);
 					poke.removeVolatile('stockpile3' as ID);
 					break;
+				case 'protosynthesis':
+					poke.removeVolatile('protosynthesisatk' as ID);
+					poke.removeVolatile('protosynthesisdef' as ID);
+					poke.removeVolatile('protosynthesisspa' as ID);
+					poke.removeVolatile('protosynthesisspd' as ID);
+					poke.removeVolatile('protosynthesisspe' as ID);
+					break;
+				case 'quarkdrive':
+					poke.removeVolatile('quarkdriveatk' as ID);
+					poke.removeVolatile('quarkdrivedef' as ID);
+					poke.removeVolatile('quarkdrivespa' as ID);
+					poke.removeVolatile('quarkdrivespd' as ID);
+					poke.removeVolatile('quarkdrivespe' as ID);
+					break;
 				default:
 					if (effect.effectType === 'Move') {
 						if (effect.name === 'Doom Desire') {
@@ -2836,6 +2850,10 @@ export class Battle {
 				break;
 
 			// ability activations
+			case 'electromorphosis':
+			case 'windpower':
+				poke.addMovestatus('charge' as ID);
+				break;
 			case 'forewarn':
 				if (target) {
 					target.rememberMove(kwArgs.move, 0);
@@ -2849,13 +2867,14 @@ export class Battle {
 					}
 				}
 				break;
+			case 'lingeringaroma':
 			case 'mummy':
 				if (!kwArgs.ability) break; // if Mummy activated but failed, no ability will have been sent
 				let ability = Dex.abilities.get(kwArgs.ability);
 				this.activateAbility(target, ability.name);
-				this.activateAbility(poke, "Mummy");
+				this.activateAbility(poke, effect.name);
 				this.scene.wait(700);
-				this.activateAbility(target, "Mummy", true);
+				this.activateAbility(target, effect.name, true);
 				break;
 
 			// item activations
