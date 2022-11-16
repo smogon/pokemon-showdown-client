@@ -632,7 +632,7 @@ export const BattleMoveAnims: AnimTable = {
 	hail: {
 		anim: BattleOtherAnims.dance.anim,
 	},
-	snowstorm: {
+	snow: {
 		anim: BattleOtherAnims.dance.anim,
 	},
 	sandstorm: {
