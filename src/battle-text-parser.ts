@@ -358,7 +358,8 @@ class BattleTextParser {
 		switch (cmd) {
 		case 'done' : case 'turn':
 			return 'break';
-		case 'move' : case 'cant': case 'switch': case 'drag': case 'upkeep': case 'start': case '-mega': case '-candynamax': case '-terastallize':
+		case 'move' : case 'cant': case 'switch': case 'drag': case 'upkeep': case 'start':
+		case '-mega': case '-candynamax': case '-terastallize':
 			return 'major';
 		case 'switchout': case 'faint':
 			return 'preMajor';
