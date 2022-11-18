@@ -42,6 +42,7 @@ interface BattleRequestActivePokemon {
 	canGigantamax?: boolean;
 	canMegaEvo?: boolean;
 	canUltraBurst?: boolean;
+	canTerastallize?: boolean;
 	trapped?: boolean;
 	maybeTrapped?: boolean;
 }
@@ -84,6 +85,7 @@ interface BattleMoveChoice {
 	ultra: boolean;
 	max: boolean;
 	z: boolean;
+	tera: boolean;
 }
 interface BattleShiftChoice {
 	choiceType: 'shift';
@@ -115,11 +117,13 @@ class BattleChoiceBuilder {
 		ultra: false,
 		z: false,
 		max: false,
+		tera: false,
 	};
 	alreadySwitchingIn: number[] = [];
 	alreadyMega = false;
 	alreadyMax = false;
 	alreadyZ = false;
+	alreadyTera = false;
 
 	constructor(request: BattleRequest) {
 		this.request = request;
@@ -186,17 +190,20 @@ class BattleChoiceBuilder {
 					this.current.ultra = choice.ultra;
 					this.current.z = choice.z;
 					this.current.max = choice.max;
+					this.current.tera = choice.tera;
 					return null;
 				}
 			}
 			if (choice.mega) this.alreadyMega = true;
 			if (choice.z) this.alreadyZ = true;
 			if (choice.max) this.alreadyMax = true;
+			if (choice.tera) this.alreadyTera = true;
 			this.current.move = 0;
 			this.current.mega = false;
 			this.current.ultra = false;
 			this.current.z = false;
 			this.current.max = false;
+			this.current.tera = false;
 		} else if (choice.choiceType === 'switch' || choice.choiceType === 'team') {
 			if (this.alreadySwitchingIn.includes(choice.targetPokemon)) {
 				if (choice.choiceType === 'switch') {
@@ -281,6 +288,7 @@ class BattleChoiceBuilder {
 				ultra: false,
 				z: false,
 				max: false,
+				tera: false,
 			};
 			while (true) {
 				// If data ends with a number, treat it as a target location.
@@ -306,6 +314,12 @@ class BattleChoiceBuilder {
 				} else if (choice.endsWith(' max')) {
 					current.max = true;
 					choice = choice.slice(0, -4);
+				} else if (choice.endsWith(' terastallize')) {
+					current.tera = true;
+					choice = choice.slice(0, -13);
+				} else if (choice.endsWith(' terastal')) {
+					current.tera = true;
+					choice = choice.slice(0, -9);
 				} else {
 					break;
 				}
@@ -416,7 +430,7 @@ class BattleChoiceBuilder {
 		switch (choice.choiceType) {
 		case 'move':
 			const target = choice.targetLoc ? ` ${choice.targetLoc > 0 ? '+' : ''}${choice.targetLoc}` : ``;
-			const boost = `${choice.max ? ' max' : ''}${choice.mega ? ' mega' : ''}${choice.z ? ' zmove' : ''}`;
+			const boost = `${choice.max ? ' max' : ''}${choice.mega ? ' mega' : ''}${choice.z ? ' zmove' : ''}${choice.tera ? ' terastallize' : ''}`;
 			return `move ${choice.move}${boost}${target}`;
 		case 'switch':
 		case 'team':

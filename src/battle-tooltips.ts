@@ -574,6 +574,7 @@ class BattleTooltips {
 						zMove = this.battle.dex.moves.get(BattleTooltips.zMoveTable['Rock']);
 						break;
 					case 'hail':
+					case 'snow':
 						zMove = this.battle.dex.moves.get(BattleTooltips.zMoveTable['Ice']);
 						break;
 					}
@@ -1087,7 +1088,7 @@ class BattleTooltips {
 			if (ability === 'sandrush' && weather === 'sandstorm') {
 				speedModifiers.push(2);
 			}
-			if (ability === 'slushrush' && weather === 'hail') {
+			if (ability === 'slushrush' && (weather === 'hail' || weather === 'snow')) {
 				speedModifiers.push(2);
 			}
 			if (item !== 'utilityumbrella') {
@@ -1378,6 +1379,7 @@ class BattleTooltips {
 				moveType = 'Rock';
 				break;
 			case 'hail':
+			case 'snow':
 				moveType = 'Ice';
 				break;
 			}
@@ -1451,6 +1453,7 @@ class BattleTooltips {
 		}
 		if (move.id === 'blizzard') {
 			value.weatherModify(0, 'Hail');
+			value.weatherModify(0, 'Snow');
 		}
 		if (move.id === 'hurricane' || move.id === 'thunder') {
 			value.weatherModify(0, 'Rain Dance');
@@ -2107,6 +2110,8 @@ interface PokemonSet {
 	dynamaxLevel?: number;
 	/** Defaults to no (can only be yes for certain Pokemon) */
 	gigantamax?: boolean;
+	/** Defaults to the primary type */
+	teraType?: string;
 }
 
 class BattleStatGuesser {

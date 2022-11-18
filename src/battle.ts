@@ -90,6 +90,7 @@ export class Pokemon implements PokemonDetails, PokemonHealth {
 	itemEffect = '';
 	prevItem = '';
 	prevItemEffect = '';
+	teraType = '';
 
 	boosts: {[stat: string]: number} = {};
 	status: StatusName | 'tox' | '' | '???' = '';
@@ -428,12 +429,13 @@ export class Pokemon implements PokemonDetails, PokemonHealth {
 	/**
 	 * copyAll = false means Baton Pass,
 	 * copyAll = true means Illusion breaking
+	 * copyAll = 'shedtail' means Shed Tail
 	 */
-	copyVolatileFrom(pokemon: Pokemon, copyAll?: boolean) {
+	copyVolatileFrom(pokemon: Pokemon, copySource?: | 'shedtail' | boolean) {
 		this.boosts = pokemon.boosts;
 		this.volatiles = pokemon.volatiles;
 		// this.lastMove = pokemon.lastMove; // I think
-		if (!copyAll) {
+		if (!copySource) {
 			delete this.volatiles['airballoon'];
 			delete this.volatiles['attract'];
 			delete this.volatiles['autotomize'];
@@ -455,8 +457,16 @@ export class Pokemon implements PokemonDetails, PokemonHealth {
 			delete this.volatiles['typechange'];
 			delete this.volatiles['yawn'];
 		}
+		if (copySource === 'shedtail') {
+			for (let i in this.volatiles) {
+				if (i === 'substitute') continue;
+				delete this.volatiles[i];
+			}
+			this.boosts = {};
+		}
 		delete this.volatiles['transform'];
 		delete this.volatiles['formechange'];
+		delete this.volatiles['terastallize'];
 
 		pokemon.boosts = {};
 		pokemon.volatiles = {};
@@ -817,8 +827,8 @@ export class Side {
 		pokemon.clearVolatile();
 		pokemon.lastMove = '';
 		this.battle.lastMove = 'switch-in';
-		if (['batonpass', 'zbatonpass'].includes(this.lastPokemon?.lastMove!)) {
-			pokemon.copyVolatileFrom(this.lastPokemon!);
+		if (['batonpass', 'zbatonpass', 'shedtail'].includes(this.lastPokemon?.lastMove!)) {
+			pokemon.copyVolatileFrom(this.lastPokemon!, this.lastPokemon!.lastMove! === 'shedtail' ? 'shedtail' : false);
 		}
 
 		this.battle.scene.animSummon(pokemon, slot);
@@ -867,14 +877,14 @@ export class Side {
 		this.battle.scene.animSummon(pokemon, slot, true);
 	}
 	switchOut(pokemon: Pokemon, kwArgs: KWArgs, slot = pokemon.slot) {
-		if (pokemon.lastMove !== 'batonpass' && pokemon.lastMove !== 'zbatonpass') {
+		if (!['batonpass', 'zbatonpass', 'shedtail'].includes(pokemon.lastMove)) {
 			pokemon.clearVolatile();
 		} else {
 			pokemon.removeVolatile('transform' as ID);
 			pokemon.removeVolatile('formechange' as ID);
 		}
 		const effect = Dex.getEffect(kwArgs.from);
-		if (!['batonpass', 'zbatonpass', 'teleport'].includes(effect.id)) {
+		if (!['batonpass', 'zbatonpass', 'shedtail', 'teleport'].includes(effect.id)) {
 			this.battle.log(['switchout', pokemon.ident], {from: effect.id});
 		}
 		pokemon.statusData.toxicTurns = 0;
@@ -2351,7 +2361,9 @@ export class Battle {
 			poke.details = args[2];
 			poke.searchid = args[1].substr(0, 2) + args[1].substr(3) + '|' + args[2];
 
-			this.scene.animTransform(poke, true, true);
+			if (poke.getSpeciesForme() !== 'Palafin-Hero') {
+				this.scene.animTransform(poke, true, true);
+			}
 			this.log(args, kwArgs);
 			break;
 		}
@@ -2413,6 +2425,14 @@ export class Battle {
 			break;
 		}
 		case '-primal': case '-burst': {
+			this.log(args, kwArgs);
+			break;
+		}
+		case '-terastallize': {
+			let poke = this.getPokemon(args[1])!;
+			let type = Dex.types.get(args[2]).name;
+			poke.teraType = type;
+			this.scene.animTransform(poke, true, true);
 			this.log(args, kwArgs);
 			break;
 		}
@@ -2653,6 +2673,20 @@ export class Battle {
 					poke.removeVolatile('stockpile2' as ID);
 					poke.removeVolatile('stockpile3' as ID);
 					break;
+				case 'protosynthesis':
+					poke.removeVolatile('protosynthesisatk' as ID);
+					poke.removeVolatile('protosynthesisdef' as ID);
+					poke.removeVolatile('protosynthesisspa' as ID);
+					poke.removeVolatile('protosynthesisspd' as ID);
+					poke.removeVolatile('protosynthesisspe' as ID);
+					break;
+				case 'quarkdrive':
+					poke.removeVolatile('quarkdriveatk' as ID);
+					poke.removeVolatile('quarkdrivedef' as ID);
+					poke.removeVolatile('quarkdrivespa' as ID);
+					poke.removeVolatile('quarkdrivespd' as ID);
+					poke.removeVolatile('quarkdrivespe' as ID);
+					break;
 				default:
 					if (effect.effectType === 'Move') {
 						if (effect.name === 'Doom Desire') {
@@ -2818,6 +2852,10 @@ export class Battle {
 				break;
 
 			// ability activations
+			case 'electromorphosis':
+			case 'windpower':
+				poke.addMovestatus('charge' as ID);
+				break;
 			case 'forewarn':
 				if (target) {
 					target.rememberMove(kwArgs.move, 0);
@@ -2831,13 +2869,14 @@ export class Battle {
 					}
 				}
 				break;
+			case 'lingeringaroma':
 			case 'mummy':
 				if (!kwArgs.ability) break; // if Mummy activated but failed, no ability will have been sent
 				let ability = Dex.abilities.get(kwArgs.ability);
 				this.activateAbility(target, ability.name);
-				this.activateAbility(poke, "Mummy");
+				this.activateAbility(poke, effect.name);
 				this.scene.wait(700);
-				this.activateAbility(target, "Mummy", true);
+				this.activateAbility(target, effect.name, true);
 				break;
 
 			// item activations

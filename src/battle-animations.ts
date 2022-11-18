@@ -924,6 +924,7 @@ export class BattleScene implements BattleSceneStub {
 				primordialsea: 'Heavy Rain',
 				sandstorm: 'Sandstorm',
 				hail: 'Hail',
+				snow: 'Snow',
 				deltastream: 'Strong Winds',
 			};
 			weatherhtml = `${weatherNameTable[this.battle.weather] || this.battle.weather}`;
@@ -1785,6 +1786,16 @@ export class PokemonSprite extends Sprite {
 		smackdown: ['Smack Down', 'bad'],
 		focusenergy: ['Critical Hit Boost', 'good'],
 		slowstart: ['Slow Start', 'bad'],
+		protosynthesisatk: ['Protosynthesis: Atk', 'good'],
+		protosynthesisdef: ['Protosynthesis: Def', 'good'],
+		protosynthesisspa: ['Protosynthesis: SpA', 'good'],
+		protosynthesisspd: ['Protosynthesis: SpD', 'good'],
+		protosynthesisspe: ['Protosynthesis: Spe', 'good'],
+		quarkdriveatk: ['Quark Drive: Atk', 'good'],
+		quarkdrivedef: ['Quark Drive: Def', 'good'],
+		quarkdrivespa: ['Quark Drive: SpA', 'good'],
+		quarkdrivespd: ['Quark Drive: SpD', 'good'],
+		quarkdrivespe: ['Quark Drive: Spe', 'good'],
 		noretreat: ['No Retreat', 'bad'],
 		octolock: ['Octolock', 'bad'],
 		tarshot: ['Tar Shot', 'bad'],
@@ -2043,7 +2054,7 @@ export class PokemonSprite extends Sprite {
 	reset(pokemon: Pokemon) {
 		this.clearEffects();
 
-		if (pokemon.volatiles.formechange || pokemon.volatiles.dynamax) {
+		if (pokemon.volatiles.formechange || pokemon.volatiles.dynamax || pokemon.volatiles.terastallize) {
 			if (!this.oldsp) this.oldsp = this.sp;
 			this.sp = Dex.getSpriteData(pokemon, this.isFrontSprite, {
 				gen: this.scene.gen,
