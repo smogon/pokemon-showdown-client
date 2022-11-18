@@ -2050,15 +2050,15 @@
 				}
 			}
 
-			var generationNumber = 8;
+			var generationNumber = 9;
 			if (format.substr(0, 3) === 'gen') {
 				var number = parseInt(format.charAt(3), 10);
-				if (1 <= number && number <= 7) {
+				if (1 <= number && number <= 8) {
 					generationNumber = number;
 				}
 				format = format.substr(4);
 			}
-			var generation = ['rb', 'gs', 'rs', 'dp', 'bw', 'xy', 'sm', 'ss'][generationNumber - 1];
+			var generation = ['rb', 'gs', 'rs', 'dp', 'bw', 'xy', 'sm', 'ss', 'sv'][generationNumber - 1];
 			if (format === 'battlespotdoubles') {
 				smogdexid += '/vgc15';
 			} else if (format === 'doublesou' || format === 'doublesuu') {
