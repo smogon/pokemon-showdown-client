@@ -518,7 +518,7 @@
 			if (type !== 'movetarget') {
 				while (
 					switchables[this.choice.choices.length] &&
-					switchables[this.choice.choices.length].fainted &&
+					(switchables[this.choice.choices.length].fainted || switchables[this.choice.choices.length].commanding) &&
 					this.choice.choices.length + 1 < this.battle.nearSide.active.length
 				) {
 					this.choice.choices.push('pass');
