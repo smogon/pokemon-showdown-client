@@ -29,7 +29,7 @@
 		this.externalFilter = false;
 		this.cur = {};
 		this.$inputEl = null;
-		this.gen = 8;
+		this.gen = 9;
 		this.mod = null;
 
 		this.engine = new DexSearch();
@@ -331,7 +331,7 @@
 			return buf;
 		}
 
-		var gen = this.engine ? this.engine.dex.gen : 8;
+		var gen = this.engine ? this.engine.dex.gen : 9;
 
 		// type
 		buf += '<span class="col typecol">';
@@ -776,7 +776,7 @@
 		return buf;
 	};
 
-	Search.gen = 8;
+	Search.gen = 9;
 	Search.renderRow = Search.prototype.renderRow;
 	Search.renderPokemonRow = Search.prototype.renderPokemonRow;
 	Search.renderTaggedPokemonRowInner = Search.prototype.renderTaggedPokemonRowInner;

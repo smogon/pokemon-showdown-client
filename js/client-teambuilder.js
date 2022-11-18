@@ -1212,7 +1212,7 @@
 					buf += '<span class="detailcell"><label>Happiness</label>' + (typeof set.happiness === 'number' ? set.happiness : 255) + '</span>';
 				}
 				buf += '<span class="detailcell"><label>Shiny</label>' + (set.shiny ? 'Yes' : 'No') + '</span>';
-				if (!isLetsGo) {
+				if (!isLetsGo && this.curTeam.gen < 9) {
 					if (this.curTeam.gen === 8 && !isNatDex) {
 						if (isBDSP && species.baseSpecies === "Unown") {
 							buf += '<span class="detailcell"><label>HP Type</label>' + (set.hpType || 'Dark') + '</span>';
@@ -1228,6 +1228,11 @@
 					}
 					if (species.canGigantamax || species.forme === 'Gmax') {
 						buf += '<span class="detailcell"><label>Gmax</label>' + (set.gigantamax || species.forme === 'Gmax' ? 'Yes' : 'No') + '</span>';
+					}
+				}
+				if (this.curTeam.gen === 9) {
+					if (set.teraType) {
+						buf += '<span class="detailcell"><label>Tera Type</label>' + (set.teraType || species.types[0]) + '</span>';
 					}
 				}
 			}
@@ -2669,6 +2674,16 @@
 				buf += '</select></div></div>';
 			}
 
+			if (this.curTeam.gen === 9) {
+				buf += '<div class="formrow"><label class="formlabel" title="Terastal Type">Terastal Type:</label><div><select name="teratype">';
+				buf += '<option value=""' + (!set.teraType ? ' selected="selected"' : '') + '>(automatic type)</option>'; // unset
+				var types = Dex.types.all();
+				for (var i = 0; i < types.length; i++) {
+					buf += '<option value="' + types[i].name + '"' + (set.teraType === types[i].name ? ' selected="selected"' : '') + '>' + types[i].name + '</option>';
+				}
+				buf += '</select></div></div>';
+			}
+
 			buf += '</form>';
 			if (species.cosmeticFormes) {
 				buf += '<button class="altform">Change sprite</button>';
@@ -2743,6 +2758,14 @@
 				delete set.hpType;
 			}
 
+			// Terastal type
+			var teraType = this.$chart.find('select[name=teratype]').val();
+			if (Dex.types.isName(teraType)) {
+				set.teraType = teraType;
+			} else {
+				delete set.teraType;
+			}
+
 			// update details cell
 			var buf = '';
 			var GenderChart = {
@@ -2767,6 +2790,9 @@
 					if (species.canGigantamax || species.forme === 'Gmax') {
 						buf += '<span class="detailcell"><label>Gmax</label>' + (set.gigantamax || species.forme === 'Gmax' ? 'Yes' : 'No') + '</span>';
 					}
+				}
+				if (this.curTeam.gen === 9) {
+					buf += '<span class="detailcell"><label>Tera Type</label>' + (set.teraType || species.types[0]) + '</span>';
 				}
 			}
 			this.$('button[name=details]').html(buf);
