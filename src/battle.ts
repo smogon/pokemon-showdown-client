@@ -2361,7 +2361,13 @@ export class Battle {
 			poke.details = args[2];
 			poke.searchid = args[1].substr(0, 2) + args[1].substr(3) + '|' + args[2];
 
-			if (poke.getSpeciesForme() !== 'Palafin-Hero') {
+			if (poke.getSpeciesForme() === 'Palafin-Hero') {
+				poke.sprite.sp = Dex.getSpriteData(poke, poke.sprite.isFrontSprite, {
+					gen: poke.sprite.scene.gen,
+					mod: poke.sprite.scene.mod,
+				});
+				poke.sprite.oldsp = null;
+			} else {
 				this.scene.animTransform(poke, true, true);
 			}
 			this.log(args, kwArgs);
