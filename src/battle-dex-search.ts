@@ -795,7 +795,7 @@ abstract class BattleTypedSearch<T extends SearchType> {
 			this.formatType === 'nfe' ? `gen${gen}nfe` :
 			this.formatType === 'dlc1' ? 'gen8dlc1' :
 			this.formatType === 'dlc1doubles' ? 'gen8dlc1doubles' :
-			this.formatType === 'natdex' ? 'natdex' :
+			this.formatType === 'natdex' ? `gen${gen}natdex` :
 			this.formatType === 'stadium' ? `gen${gen}stadium${gen > 1 ? gen : ''}` :
 			`gen${gen}`;
 		if (table && table[tableKey]) {
@@ -1436,7 +1436,8 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 		const isSTABmons = (format.includes('stabmons') || format === 'staaabmons');
 		const isTradebacks = format.includes('tradebacks');
 		const regionBornLegality = dex.gen >= 6 &&
-			/^battle(spot|stadium|festival)/.test(format) || format.startsWith('vgc');
+			/^battle(spot|stadium|festival)/.test(format) || format.startsWith('vgc') ||
+			(dex.gen === 9 && this.formatType !== 'natdex');
 
 		const abilityid = this.set ? toID(this.set.ability) : '' as ID;
 		const itemid = this.set ? toID(this.set.item) : '' as ID;
@@ -1456,7 +1457,7 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 				for (let moveid in learnset) {
 					let learnsetEntry = learnset[moveid];
 					const move = dex.moves.get(moveid);
-					const minGenCode: {[gen: number]: string} = {6: 'p', 7: 'q', 8: 'g'};
+					const minGenCode: {[gen: number]: string} = {6: 'p', 7: 'q', 8: 'g', 9: 'a'};
 					if (regionBornLegality && !learnsetEntry.includes(minGenCode[dex.gen])) {
 						continue;
 					}

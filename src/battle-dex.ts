@@ -543,7 +543,7 @@ const Dex = new class implements ModdedDex {
 		if (Dex.prefs('nopastgens')) graphicsGen = 6;
 		if (Dex.prefs('bwgfx') && graphicsGen >= 6) graphicsGen = 5;
 		spriteData.gen = Math.max(graphicsGen, Math.min(species.gen, 5));
-		const baseDir = ['', 'gen1', 'gen2', 'gen3', 'gen4', 'gen5', '', '', ''][spriteData.gen];
+		const baseDir = ['', 'gen1', 'gen2', 'gen3', 'gen4', 'gen5', '', '', '', ''][spriteData.gen];
 
 		let animationData = null;
 		let miscData = null;
@@ -889,7 +889,7 @@ class ModdedDex {
 
 			let data = {...Dex.items.get(name)};
 
-			for (let i = this.gen; i < 8; i++) {
+			for (let i = this.gen; i < 9; i++) {
 				const table = window.BattleTeambuilderTable['gen' + i];
 				if (id in table.overrideItemDesc) {
 					data.shortDesc = table.overrideItemDesc[id];
