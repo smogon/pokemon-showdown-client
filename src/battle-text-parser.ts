@@ -176,7 +176,7 @@ class BattleTextParser {
 
 		case 'cant': {
 			let [, pokemon, effect, move] = args;
-			if (['ability: Queenly Majesty', 'ability: Damp', 'ability: Dazzling'].includes(effect)) {
+			if (['ability: Damp', 'ability: Dazzling', 'ability: Queenly Majesty', 'ability: Armor Tail'].includes(effect)) {
 				args[0] = '-block';
 				return {args: ['-block', pokemon, effect, move, kwArgs.of], kwArgs: {}};
 			}
