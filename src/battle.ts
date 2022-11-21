@@ -821,14 +821,15 @@ export class Side {
 		return poke;
 	}
 
-	switchIn(pokemon: Pokemon, slot = pokemon.slot) {
+	switchIn(pokemon: Pokemon, kwArgs: KWArgs, slot = pokemon.slot) {
 		this.active[slot] = pokemon;
 		pokemon.slot = slot;
 		pokemon.clearVolatile();
 		pokemon.lastMove = '';
 		this.battle.lastMove = 'switch-in';
-		if (['batonpass', 'zbatonpass', 'shedtail'].includes(this.lastPokemon?.lastMove!)) {
-			pokemon.copyVolatileFrom(this.lastPokemon!, this.lastPokemon!.lastMove! === 'shedtail' ? 'shedtail' : false);
+		const effect = Dex.getEffect(kwArgs.from);
+		if (['batonpass', 'zbatonpass', 'shedtail'].includes(effect.id)) {
+			pokemon.copyVolatileFrom(this.lastPokemon!, effect.id === 'shedtail' ? 'shedtail' : false);
 		}
 
 		this.battle.scene.animSummon(pokemon, slot);
@@ -877,13 +878,13 @@ export class Side {
 		this.battle.scene.animSummon(pokemon, slot, true);
 	}
 	switchOut(pokemon: Pokemon, kwArgs: KWArgs, slot = pokemon.slot) {
-		if (!['batonpass', 'zbatonpass', 'shedtail'].includes(pokemon.lastMove)) {
+		const effect = Dex.getEffect(kwArgs.from);
+		if (!['batonpass', 'zbatonpass', 'shedtail'].includes(effect.id)) {
 			pokemon.clearVolatile();
 		} else {
 			pokemon.removeVolatile('transform' as ID);
 			pokemon.removeVolatile('formechange' as ID);
 		}
-		const effect = Dex.getEffect(kwArgs.from);
 		if (!['batonpass', 'zbatonpass', 'shedtail', 'teleport'].includes(effect.id)) {
 			this.battle.log(['switchout', pokemon.ident], {from: effect.id});
 		}
@@ -894,7 +895,7 @@ export class Side {
 
 		this.battle.scene.animUnsummon(pokemon);
 	}
-	swapTo(pokemon: Pokemon, slot: number, kwArgs: KWArgs) {
+	swapTo(pokemon: Pokemon, slot: number) {
 		if (pokemon.slot === slot) return;
 		let target = this.active[slot];
 
@@ -3492,7 +3493,7 @@ export class Battle {
 				if (poke.side.active[slot]) {
 					poke.side.switchOut(poke.side.active[slot]!, kwArgs);
 				}
-				poke.side.switchIn(poke);
+				poke.side.switchIn(poke, kwArgs);
 			} else if (args[0] === 'replace') {
 				poke.side.replace(poke);
 			} else {
@@ -3519,7 +3520,7 @@ export class Battle {
 					const target = poke.side.active[targetIndex];
 					if (target) args[2] = target.ident;
 				}
-				poke.side.swapTo(poke, targetIndex, kwArgs);
+				poke.side.swapTo(poke, targetIndex);
 			}
 			this.log(args, kwArgs);
 			break;
