@@ -822,13 +822,23 @@
 				}
 
 				var switchMenu = '';
+				var invertForRevive = false;
 				for (var i = 0; i < switchables.length; i++) {
 					var pokemon = switchables[i];
 					var tooltipArgs = 'switchpokemon|' + i;
-					if (pokemon.fainted || i < this.battle.pokemonControlled || this.choice.switchFlags[i]) {
-						switchMenu += '<button class="disabled has-tooltip" name="chooseDisabled" value="' + BattleLog.escapeHTML(pokemon.name) + (pokemon.fainted ? ',fainted' : i < this.battle.pokemonControlled ? ',active' : '') + '" data-tooltip="' + BattleLog.escapeHTML(tooltipArgs) + '">';
+					if (pokemon.reviving) invertForRevive = true;
+					if (invertForRevive) {
+						if (!pokemon.fainted || i < this.battle.pokemonControlled || this.choice.switchFlags[i]) {
+							switchMenu += '<button class="disabled has-tooltip" name="chooseDisabled" value="' + BattleLog.escapeHTML(pokemon.name) + (!pokemon.fainted ? ',notfainted' : i < this.battle.pokemonControlled ? ',active' : '') + '" data-tooltip="' + BattleLog.escapeHTML(tooltipArgs) + '">';
+						} else {
+							switchMenu += '<button name="chooseSwitch" value="' + i + '" class="has-tooltip" data-tooltip="' + BattleLog.escapeHTML(tooltipArgs) + '">';
+						}
 					} else {
-						switchMenu += '<button name="chooseSwitch" value="' + i + '" class="has-tooltip" data-tooltip="' + BattleLog.escapeHTML(tooltipArgs) + '">';
+						if (pokemon.fainted || i < this.battle.pokemonControlled || this.choice.switchFlags[i]) {
+							switchMenu += '<button class="disabled has-tooltip" name="chooseDisabled" value="' + BattleLog.escapeHTML(pokemon.name) + (pokemon.fainted ? ',fainted' : i < this.battle.pokemonControlled ? ',active' : '') + '" data-tooltip="' + BattleLog.escapeHTML(tooltipArgs) + '">';
+						} else {
+							switchMenu += '<button name="chooseSwitch" value="' + i + '" class="has-tooltip" data-tooltip="' + BattleLog.escapeHTML(tooltipArgs) + '">';
+						}
 					}
 					switchMenu += '<span class="picon" style="' + Dex.getPokemonIcon(pokemon) + '"></span>' + BattleLog.escapeHTML(pokemon.name) + (!pokemon.fainted ? '<span class="' + pokemon.getHPColorClass() + '"><span style="width:' + (Math.round(pokemon.hp * 92 / pokemon.maxhp) || 1) + 'px"></span></span>' + (pokemon.status ? '<span class="status ' + pokemon.status + '"></span>' : '') : '') + '</button> ';
 				}
@@ -1292,6 +1302,8 @@
 				app.addPopupMessage("You are trapped and cannot select " + data[0] + "!");
 			} else if (data[1] === 'active') {
 				app.addPopupMessage("" + data[0] + " is already in battle!");
+			} else if (data[1] === 'notfainted') {
+				app.addPopupMessage("" + data[0] + " still has energy to battle!");
 			} else {
 				app.addPopupMessage("" + data[0] + " is already selected!");
 			}
