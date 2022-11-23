@@ -776,9 +776,7 @@
 		},
 		updateSwitchControls: function (type) {
 			var pos = this.choice.choices.length;
-			var isReviving = false;
-
-			if (this.battle.myPokemon[pos].reviving) isReviving = true;
+			var isReviving = !!this.battle.myPokemon[pos].reviving;
 
 			if (type !== 'switchposition' && this.request.forceSwitch !== true && !this.choice.freedomDegrees) {
 				while (!this.request.forceSwitch[pos] && pos < 6) {
