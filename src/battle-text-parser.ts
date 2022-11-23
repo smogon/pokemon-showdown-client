@@ -1042,7 +1042,7 @@ class BattleTextParser {
 			}
 
 			templateId = 'fail';
-			if (['brn', 'frz', 'par', 'psn', 'slp', 'substitute'].includes(id)) {
+			if (['brn', 'frz', 'par', 'psn', 'slp', 'substitute', 'shedtail'].includes(id)) {
 				templateId = 'alreadyStarted';
 			}
 			if (kwArgs.heavy) templateId = 'failTooHeavy';
