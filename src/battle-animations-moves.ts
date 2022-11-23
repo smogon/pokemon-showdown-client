@@ -32467,3 +32467,5 @@ BattleMoveAnims['shellsidearmphysical'] = {anim: BattleMoveAnims['poisonjab'].an
 BattleMoveAnims['shellsidearmspecial'] = {anim: BattleMoveAnims['sludgebomb'].anim};
 BattleMoveAnims['surgingstrikes'] = {anim: BattleMoveAnims['aquajet'].anim};
 BattleMoveAnims['eeriespell'] = {anim: BattleMoveAnims['psyshock'].anim};
+
+BattleMoveAnims['shedtail'] = {anim: BattleMoveAnims['substitute'].anim};
