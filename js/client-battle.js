@@ -1235,6 +1235,7 @@
 			if (this.battle.myPokemon[this.choice.choices.length].reviving) {
 				this.choice.choices.push('switch ' + (parseInt(pos, 10) + 1));
 				this.endChoice();
+				return;
 			}
 
 			if (pos !== undefined) { // pos === undefined if called by chooseSwitchTarget()
