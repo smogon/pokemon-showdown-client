@@ -776,6 +776,9 @@
 		},
 		updateSwitchControls: function (type) {
 			var pos = this.choice.choices.length;
+			var isReviving = false;
+
+			if (this.battle.myPokemon[pos].reviving) isReviving = true;
 
 			if (type !== 'switchposition' && this.request.forceSwitch !== true && !this.choice.freedomDegrees) {
 				while (!this.request.forceSwitch[pos] && pos < 6) {
@@ -817,17 +820,17 @@
 			} else {
 				if (this.choice.freedomDegrees >= 1) {
 					requestTitle += "Choose a Pokémon to send to battle!";
+				} else if (isReviving) {
+					requestTitle += "Choose a fainted Pokémon to revive!";
 				} else {
 					requestTitle += "Switch <strong>" + BattleLog.escapeHTML(switchables[pos].name) + "</strong> to:";
 				}
 
 				var switchMenu = '';
-				var invertForRevive = false;
 				for (var i = 0; i < switchables.length; i++) {
 					var pokemon = switchables[i];
 					var tooltipArgs = 'switchpokemon|' + i;
-					if (pokemon.reviving) invertForRevive = true;
-					if (invertForRevive) {
+					if (isReviving) {
 						if (!pokemon.fainted || i < this.battle.pokemonControlled || this.choice.switchFlags[i]) {
 							switchMenu += '<button class="disabled has-tooltip" name="chooseDisabled" value="' + BattleLog.escapeHTML(pokemon.name) + (!pokemon.fainted ? ',notfainted' : i < this.battle.pokemonControlled ? ',active' : '') + '" data-tooltip="' + BattleLog.escapeHTML(tooltipArgs) + '">';
 						} else {
@@ -845,7 +848,7 @@
 
 				var controls = (
 					'<div class="switchcontrols">' +
-					'<div class="switchselect"><button name="selectSwitch">Switch</button></div>' +
+					'<div class="switchselect"><button name="selectSwitch">' + (isReviving ? 'Revive' : 'Switch') + '</button></div>' +
 					'<div class="switchmenu">' + switchMenu + '</div>' +
 					'</div>'
 				);
