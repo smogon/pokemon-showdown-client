@@ -816,10 +816,10 @@
 					'</div>'
 				);
 			} else {
-				if (this.choice.freedomDegrees >= 1) {
-					requestTitle += "Choose a Pokémon to send to battle!";
-				} else if (isReviving) {
+				if (isReviving) {
 					requestTitle += "Choose a fainted Pokémon to revive!";
+				} else if (this.choice.freedomDegrees >= 1) {
+					requestTitle += "Choose a Pokémon to send to battle!";
 				} else {
 					requestTitle += "Switch <strong>" + BattleLog.escapeHTML(switchables[pos].name) + "</strong> to:";
 				}
@@ -1231,6 +1231,11 @@
 		chooseSwitch: function (pos) {
 			if (!this.choice) return;
 			this.tooltips.hideTooltip();
+
+			if (this.battle.myPokemon[this.choice.choices.length].reviving) {
+				this.choice.choices.push('switch ' + (parseInt(pos, 10) + 1));
+				this.endChoice();
+			}
 
 			if (pos !== undefined) { // pos === undefined if called by chooseSwitchTarget()
 				this.choice.switchFlags[pos] = true;
