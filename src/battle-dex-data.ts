@@ -1120,10 +1120,14 @@ interface MoveFlags {
 	recharge?: 1 | 0;
 	/** Bounced back to the original user by Magic Coat or the Magic Bounce Ability. */
 	reflectable?: 1 | 0;
+	/** Power is multiplied by 1.5 when used by a Pokemon with the Sharpness Ability. */
+	slicing?: 1 | 0;
 	/** Can be stolen from the original user and instead used by another Pokemon using Snatch. */
 	snatch?: 1 | 0;
 	/** Has no effect on Pokemon with the Soundproof Ability. */
 	sound?: 1 | 0;
+	/** Activates the effects of the Wind Power and Wind Rider Abilities. */
+	wind?: 1 | 0;
 }
 
 type MoveTarget = 'normal' | 'any' | 'adjacentAlly' | 'adjacentFoe' | 'adjacentAllyOrSelf' | // single-target
