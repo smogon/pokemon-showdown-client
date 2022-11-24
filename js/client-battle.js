@@ -1487,7 +1487,6 @@
 		}
 	});
 
-
 	var BattleOptionsPopup = this.BattleOptionsPopup = Popup.extend({
 		initialize: function (data) {
 			this.battle = data.battle;
