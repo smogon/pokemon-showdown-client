@@ -1317,7 +1317,6 @@
 			} else if (Dex.prefs('leavePopupRoom')) {
 				app.addPopup(ForfeitPopup, {room: this, sourceEl: e && e.currentTarget, gameType: 'room'});
 				return false;
-
 			}
 			return true;
 		},
