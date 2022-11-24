@@ -1482,7 +1482,7 @@
 			this.close();
 		},
 		leaveRoom: function (data) {
-			this.room.send('/leave');
+			this.room.send('/noreply /leave');
 			this.close();
 		}
 	});
