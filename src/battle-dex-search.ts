@@ -905,7 +905,7 @@ class BattlePokemonSearch extends BattleTypedSearch<'pokemon'> {
 		} else if (this.formatType === 'natdex') {
 			table = table['gen' + this.dex.gen + 'natdex'];
 		} else if (this.formatType === 'metronome') {
-			table = table['metronome'];
+			table = table['gen' + dex.gen + 'metronome'];
 		} else if (this.formatType === 'nfe') {
 			table = table['gen' + dex.gen + 'nfe'];
 		} else if (this.formatType?.startsWith('dlc1')) {
@@ -1087,7 +1087,7 @@ class BattleAbilitySearch extends BattleTypedSearch<'ability'> {
 			abilitySet.push(['header', "Special Event Ability"]);
 			abilitySet.push(['ability', toID(species.abilities['S'])]);
 		}
-		if (isAAA || format === 'metronomebattle' || isHackmons) {
+		if (isAAA || format.includes('metronomebattle') || isHackmons) {
 			let abilities: ID[] = [];
 			for (let i in this.getTable()) {
 				const ability = dex.abilities.get(i);
@@ -1149,7 +1149,7 @@ class BattleItemSearch extends BattleTypedSearch<'item'> {
 		} else if (this.formatType === 'natdex') {
 			table = table['gen' + this.dex.gen + 'natdex'];
 		} else if (this.formatType === 'metronome') {
-			table = table['metronome'];
+			table = table['gen' + this.dex.gen + 'metronome'];
 		} else if (this.dex.gen < 9) {
 			table = table['gen' + this.dex.gen];
 		}
