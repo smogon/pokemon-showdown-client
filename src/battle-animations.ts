@@ -1543,15 +1543,18 @@ export class BattleScene implements BattleSceneStub {
 		this.preloadImage(Dex.resourcePrefix + 'sprites/ani-back/substitute.gif');
 	}
 	rollBgm() {
-		this.setBgm(1 + this.numericId % 15);
+		this.setBgm(1 + this.numericId % 18);
 	}
 	setBgm(bgmNum: number) {
 		if (this.bgmNum === bgmNum) return;
 		this.bgmNum = bgmNum;
 
 		switch (bgmNum) {
+		case -101:
+			this.bgm = BattleSound.loadBgm('audio/spl-elite4.mp3', 3962, 152509, this.bgm);
+			break;
 		case -1:
-			this.bgm = BattleSound.loadBgm('audio/bw2-homika-dogars.mp3', 1661, 68131, this.bgm);
+			this.bgm = BattleSound.loadBgm('audio/bw2-homika-dogars.mp3', 2600, 35944, this.bgm);
 			break;
 		case -2:
 			this.bgm = BattleSound.loadBgm('audio/xd-miror-b.mp3', 9000, 57815, this.bgm);
@@ -1578,35 +1581,41 @@ export class BattleScene implements BattleSceneStub {
 			this.bgm = BattleSound.loadBgm('audio/bw-rival.mp3', 19180, 57373, this.bgm);
 			break;
 		case 7:
-			this.bgm = BattleSound.loadBgm('audio/bw-subway-trainer.mp3', 15503, 110984, this.bgm);
+			this.bgm = BattleSound.loadBgm('audio/bw-subway-trainer.mp3', 16579, 112060, this.bgm);
 			break;
 		case 8:
-			this.bgm = BattleSound.loadBgm('audio/bw2-kanto-gym-leader.mp3', 14626, 58986, this.bgm);
-			break;
-		case 9:
 			this.bgm = BattleSound.loadBgm('audio/bw2-rival.mp3', 7152, 68708, this.bgm);
 			break;
+		case 9:
+			this.bgm = BattleSound.loadBgm('audio/xy-trainer.mp3', 7152, 81815, this.bgm);
+			break;
 		case 10:
-			this.bgm = BattleSound.loadBgm('audio/xy-trainer.mp3', 7802, 82469, this.bgm);
+			this.bgm = BattleSound.loadBgm('audio/xy-rival.mp3', 7477, 58300, this.bgm);
 			break;
 		case 11:
-			this.bgm = BattleSound.loadBgm('audio/xy-rival.mp3', 7802, 58634, this.bgm);
-			break;
-		case 12:
 			this.bgm = BattleSound.loadBgm('audio/oras-trainer.mp3', 13579, 91548, this.bgm);
 			break;
-		case 13:
-			this.bgm = BattleSound.loadBgm('audio/oras-rival.mp3', 14303, 69149, this.bgm);
+		case 12:
+			this.bgm = BattleSound.loadBgm('audio/oras-rival.mp3', 14303, 69150, this.bgm);
 			break;
-		case 14:
+		case 13:
 			this.bgm = BattleSound.loadBgm('audio/sm-trainer.mp3', 8323, 89230, this.bgm);
 			break;
-		case -101:
-			this.bgm = BattleSound.loadBgm('audio/spl-elite4.mp3', 3962, 152509, this.bgm);
+		case 14:
+			this.bgm = BattleSound.loadBgm('audio/sm-rival.mp3', 16645, 67415, this.bgm);
 			break;
 		case 15:
+			this.bgm = BattleSound.loadBgm('audio/lgpe-trainer.mp3', 14933, 97985, this.bgm);
+			break;
+		case 16:
+			this.bgm = BattleSound.loadBgm('audio/lgpe-gym-leader.mp3', 14635, 59055, this.bgm);
+			break;
+		case 17:
+			this.bgm = BattleSound.loadBgm('audio/swsh-trainer.mp3', 31208, 114929, this.bgm);
+			break;
+		case 18:
 		default:
-			this.bgm = BattleSound.loadBgm('audio/sm-rival.mp3', 11389, 62158, this.bgm);
+			this.bgm = BattleSound.loadBgm('audio/swsh-rival.mp3', 3883, 181131, this.bgm);
 			break;
 		}
 
