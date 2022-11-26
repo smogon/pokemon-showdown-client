@@ -1150,7 +1150,9 @@ class BattleTooltips {
 		const isNFE = Dex.species.get(serverPokemon.speciesForme).evos?.some(evo => {
 			const evoSpecies = Dex.species.get(evo);
 			return !evoSpecies.isNonstandard ||
-					evoSpecies.isNonstandard === Dex.species.get(serverPokemon.speciesForme)?.isNonstandard;
+					evoSpecies.isNonstandard === Dex.species.get(serverPokemon.speciesForme)?.isNonstandard ||
+					// Pokemon with Hisui evolutions
+					evoSpecies.isNonstandard === "Unobtainable";
 		});
 		if (item === 'eviolite' && isNFE) {
 			stats.def = Math.floor(stats.def * 1.5);
