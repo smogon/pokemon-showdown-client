@@ -776,9 +776,18 @@
 		},
 		updateSwitchControls: function (type) {
 			var pos = this.choice.choices.length;
-			var isReviving = !!this.battle.myPokemon[pos].reviving;
 
-			if (type !== 'switchposition' && this.request.forceSwitch !== true && !this.choice.freedomDegrees) {
+			// Needed so it client does not freak out when only 1 mon left wants to switch out
+			var atLeast1Reviving = false;
+			for (var i = 0; i < this.battle.pokemonControlled; i++) {
+				var pokemon = this.battle.myPokemon[i];
+				if (pokemon.reviving) {
+					atLeast1Reviving = true;
+					break;
+				}
+			}
+
+			if (type !== 'switchposition' && this.request.forceSwitch !== true && (!this.choice.freedomDegrees || atLeast1Reviving)) {
 				while (!this.request.forceSwitch[pos] && pos < 6) {
 					pos = this.choice.choices.push('pass');
 				}
@@ -786,6 +795,7 @@
 
 			var switchables = this.request && this.request.side ? this.battle.myPokemon : [];
 			var nearActive = this.battle.nearSide.active;
+			var isReviving = !!switchables[pos].reviving;
 
 			var requestTitle = '';
 			if (type === 'switch2' || type === 'switchposition') {
