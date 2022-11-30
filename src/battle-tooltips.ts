@@ -1792,6 +1792,13 @@ class BattleTooltips {
 				value.setRange(isGKLK ? 20 : 40, 120);
 			}
 		}
+		// Base power based on times hit
+		if (move.id === 'ragefist') {
+			value.set(Math.min(350, 50 + 50 * pokemon.timesAttacked),
+				pokemon.timesAttacked > 0
+					? `Hit ${pokemon.timesAttacked} time${pokemon.timesAttacked > 1 ? 's' : ''}`
+					: undefined);
+		}
 		if (!value.value) return value;
 
 		// Other ability boosts

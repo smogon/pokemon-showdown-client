@@ -103,6 +103,7 @@ export class Pokemon implements PokemonDetails, PokemonHealth {
 	/** [[moveName, ppUsed]] */
 	moveTrack: [string, number][] = [];
 	statusData = {sleepTurns: 0, toxicTurns: 0};
+	timesAttacked = 0;
 
 	sprite: PokemonSprite;
 
@@ -1662,6 +1663,7 @@ export class Battle {
 					this.scene.runStatusAnim('cursed' as ID, [poke]);
 					break;
 				case 'confusion':
+					poke.timesAttacked += 1;
 					this.scene.runStatusAnim('confusedselfhit' as ID, [poke]);
 					break;
 				case 'leechseed':
@@ -1673,6 +1675,7 @@ export class Battle {
 					break;
 				}
 			} else {
+				poke.timesAttacked += 1;
 				let damageinfo = '' + Pokemon.getFormattedRange(range, damage[1] === 100 ? 0 : 1, '\u2013');
 				if (damage[1] !== 100) {
 					let hover = '' + ((damage[0] < 0) ? '\u2212' : '') +
