@@ -112,7 +112,7 @@ class ActionDispatcher {
 			}
 			return null;
 		} else {
-			$server = &$PokemonServers[$serverid];
+			$server = & $PokemonServers[$serverid];
 			if (empty($server['skipipcheck']) && empty($server['token']) && $serverid !== 'showdown') {
 				if (!isset($server['ipcache'])) {
 					$server['ipcache'] = gethostbyname($server['server']);
