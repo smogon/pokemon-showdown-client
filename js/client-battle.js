@@ -777,7 +777,17 @@
 		updateSwitchControls: function (type) {
 			var pos = this.choice.choices.length;
 
-			if (type !== 'switchposition' && this.request.forceSwitch !== true && !this.choice.freedomDegrees) {
+			// Needed so it client does not freak out when only 1 mon left wants to switch out
+			var atLeast1Reviving = false;
+			for (var i = 0; i < this.battle.pokemonControlled; i++) {
+				var pokemon = this.battle.myPokemon[i];
+				if (pokemon.reviving) {
+					atLeast1Reviving = true;
+					break;
+				}
+			}
+
+			if (type !== 'switchposition' && this.request.forceSwitch !== true && (!this.choice.freedomDegrees || atLeast1Reviving)) {
 				while (!this.request.forceSwitch[pos] && pos < 6) {
 					pos = this.choice.choices.push('pass');
 				}
@@ -785,6 +795,7 @@
 
 			var switchables = this.request && this.request.side ? this.battle.myPokemon : [];
 			var nearActive = this.battle.nearSide.active;
+			var isReviving = !!switchables[pos].reviving;
 
 			var requestTitle = '';
 			if (type === 'switch2' || type === 'switchposition') {
@@ -815,7 +826,9 @@
 					'</div>'
 				);
 			} else {
-				if (this.choice.freedomDegrees >= 1) {
+				if (isReviving) {
+					requestTitle += "Choose a fainted Pokémon to revive!";
+				} else if (this.choice.freedomDegrees >= 1) {
 					requestTitle += "Choose a Pokémon to send to battle!";
 				} else {
 					requestTitle += "Switch <strong>" + BattleLog.escapeHTML(switchables[pos].name) + "</strong> to:";
@@ -825,17 +838,25 @@
 				for (var i = 0; i < switchables.length; i++) {
 					var pokemon = switchables[i];
 					var tooltipArgs = 'switchpokemon|' + i;
-					if (pokemon.fainted || i < this.battle.pokemonControlled || this.choice.switchFlags[i]) {
-						switchMenu += '<button class="disabled has-tooltip" name="chooseDisabled" value="' + BattleLog.escapeHTML(pokemon.name) + (pokemon.fainted ? ',fainted' : i < this.battle.pokemonControlled ? ',active' : '') + '" data-tooltip="' + BattleLog.escapeHTML(tooltipArgs) + '">';
+					if (isReviving) {
+						if (!pokemon.fainted || this.choice.switchFlags[i]) {
+							switchMenu += '<button class="disabled has-tooltip" name="chooseDisabled" value="' + BattleLog.escapeHTML(pokemon.name) + (pokemon.reviving ? ',active' : !pokemon.fainted ? ',notfainted' : '') + '" data-tooltip="' + BattleLog.escapeHTML(tooltipArgs) + '">';
+						} else {
+							switchMenu += '<button name="chooseSwitch" value="' + i + '" class="has-tooltip" data-tooltip="' + BattleLog.escapeHTML(tooltipArgs) + '">';
+						}
 					} else {
-						switchMenu += '<button name="chooseSwitch" value="' + i + '" class="has-tooltip" data-tooltip="' + BattleLog.escapeHTML(tooltipArgs) + '">';
+						if (pokemon.fainted || i < this.battle.pokemonControlled || this.choice.switchFlags[i]) {
+							switchMenu += '<button class="disabled has-tooltip" name="chooseDisabled" value="' + BattleLog.escapeHTML(pokemon.name) + (pokemon.fainted ? ',fainted' : i < this.battle.pokemonControlled ? ',active' : '') + '" data-tooltip="' + BattleLog.escapeHTML(tooltipArgs) + '">';
+						} else {
+							switchMenu += '<button name="chooseSwitch" value="' + i + '" class="has-tooltip" data-tooltip="' + BattleLog.escapeHTML(tooltipArgs) + '">';
+						}
 					}
 					switchMenu += '<span class="picon" style="' + Dex.getPokemonIcon(pokemon) + '"></span>' + BattleLog.escapeHTML(pokemon.name) + (!pokemon.fainted ? '<span class="' + pokemon.getHPColorClass() + '"><span style="width:' + (Math.round(pokemon.hp * 92 / pokemon.maxhp) || 1) + 'px"></span></span>' + (pokemon.status ? '<span class="status ' + pokemon.status + '"></span>' : '') : '') + '</button> ';
 				}
 
 				var controls = (
 					'<div class="switchcontrols">' +
-					'<div class="switchselect"><button name="selectSwitch">Switch</button></div>' +
+					'<div class="switchselect"><button name="selectSwitch">' + (isReviving ? 'Revive' : 'Switch') + '</button></div>' +
 					'<div class="switchmenu">' + switchMenu + '</div>' +
 					'</div>'
 				);
@@ -1221,6 +1242,12 @@
 			if (!this.choice) return;
 			this.tooltips.hideTooltip();
 
+			if (this.battle.myPokemon[this.choice.choices.length].reviving) {
+				this.choice.choices.push('switch ' + (parseInt(pos, 10) + 1));
+				this.endChoice();
+				return;
+			}
+
 			if (pos !== undefined) { // pos === undefined if called by chooseSwitchTarget()
 				this.choice.switchFlags[pos] = true;
 				if (this.choice.freedomDegrees >= 1) {
@@ -1292,6 +1319,8 @@
 				app.addPopupMessage("You are trapped and cannot select " + data[0] + "!");
 			} else if (data[1] === 'active') {
 				app.addPopupMessage("" + data[0] + " is already in battle!");
+			} else if (data[1] === 'notfainted') {
+				app.addPopupMessage("" + data[0] + " still has energy to battle!");
 			} else {
 				app.addPopupMessage("" + data[0] + " is already selected!");
 			}
