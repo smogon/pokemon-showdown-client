@@ -1719,6 +1719,18 @@ export class Battle {
 				case 'wish':
 					this.scene.runResidualAnim('wish' as ID, poke);
 					break;
+				case 'revivalblessing':
+					this.scene.runResidualAnim('wish' as ID, poke);
+					const {siden} = this.parsePokemonId(args[1]);
+					const side = this.sides[siden];
+					poke.fainted = false;
+					poke.status = '';
+					this.scene.updateSidebar(side);
+					// Revived while still on the field
+					if (!side.active[poke.slot]) {
+						poke.side.replace(poke);
+					}
+					break;
 				}
 			}
 			this.scene.runOtherAnim('heal' as ID, [poke]);
