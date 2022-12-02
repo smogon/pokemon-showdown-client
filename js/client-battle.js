@@ -1442,7 +1442,7 @@
 			} else if (this.gameType === 'help') {
 				buf += 'Leaving the room will close the ticket.';
 			} else if (this.gameType === 'room') {
-				buf += 'Are you sure you want to exit this room ?';
+				buf += 'Are you sure you want to exit this room?';
 			} else {
 				// game
 				buf += 'Forfeiting makes you lose the game.';
