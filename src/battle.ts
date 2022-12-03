@@ -1663,7 +1663,6 @@ export class Battle {
 					this.scene.runStatusAnim('cursed' as ID, [poke]);
 					break;
 				case 'confusion':
-					poke.timesAttacked += 1;
 					this.scene.runStatusAnim('confusedselfhit' as ID, [poke]);
 					break;
 				case 'leechseed':
@@ -2398,6 +2397,7 @@ export class Battle {
 			poke.boosts = {...tpoke.boosts};
 			poke.copyTypesFrom(tpoke);
 			poke.ability = tpoke.ability;
+			poke.timesAttacked = tpoke.timesAttacked;
 			const targetForme = tpoke.volatiles.formechange;
 			const speciesForme = (targetForme && !targetForme[1].endsWith('-Gmax')) ? targetForme[1] : tpoke.speciesForme;
 			const pokemon = tpoke;
