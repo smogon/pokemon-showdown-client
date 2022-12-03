@@ -607,6 +607,7 @@ abstract class BattleTypedSearch<T extends SearchType> {
 			this.dex = Dex.mod('gen8bdsp' as ID);
 		}
 		if (format.includes('doubles') && this.dex.gen > 4 && !this.formatType) this.formatType = 'doubles';
+		if (format === 'partnersincrime') this.formatType = 'doubles';
 		if (format.startsWith('ffa') || format === 'freeforall') this.formatType = 'doubles';
 		if (format.includes('letsgo')) {
 			this.formatType = 'letsgo';
@@ -891,7 +892,8 @@ class BattlePokemonSearch extends BattleTypedSearch<'pokemon'> {
 			this.formatType !== 'letsgo' && this.formatType !== 'bdspdoubles' && this.formatType !== 'dlc1doubles' &&
 			(
 				format.includes('doubles') || format.includes('triples') ||
-				format === 'freeforall' || format.startsWith('ffa')
+				format === 'freeforall' || format.startsWith('ffa') ||
+				format === 'partnersincrime'
 			)
 		) {
 			table = table['gen' + dex.gen + 'doubles'];
