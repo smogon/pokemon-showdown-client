@@ -1878,13 +1878,12 @@ export class Battle {
 		case '-copyboost': {
 			let poke = this.getPokemon(args[1])!;
 			let frompoke = this.getPokemon(args[2])!;
-			let effect = Dex.getEffect(kwArgs.from);
 			let stats = args[3] ? args[3].split(', ') : ['atk', 'def', 'spa', 'spd', 'spe', 'accuracy', 'evasion'];
 			for (const stat of stats) {
 				poke.boosts[stat] = frompoke.boosts[stat];
 				if (!poke.boosts[stat]) delete poke.boosts[stat];
 			}
-			if (this.gen >= 6 && effect.id === 'psychup') {
+			if (this.gen >= 6) {
 				const volatilesToCopy = ['focusenergy', 'gmaxchistrike', 'laserfocus'];
 				for (const volatile of volatilesToCopy) {
 					if (frompoke.volatiles[volatile]) {
