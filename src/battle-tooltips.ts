@@ -1147,10 +1147,10 @@ class BattleTooltips {
 		if (ability === 'marvelscale' && pokemon.status) {
 			stats.def = Math.floor(stats.def * 1.5);
 		}
-		const isNFE = Dex.species.get(serverPokemon.speciesForme).evos?.some(evo => {
-			const evoSpecies = Dex.species.get(evo);
+		const isNFE = this.battle.dex.species.get(serverPokemon.speciesForme).evos?.some(evo => {
+			const evoSpecies = this.battle.dex.species.get(evo);
 			return !evoSpecies.isNonstandard ||
-					evoSpecies.isNonstandard === Dex.species.get(serverPokemon.speciesForme)?.isNonstandard ||
+					evoSpecies.isNonstandard === this.battle.dex.species.get(serverPokemon.speciesForme)?.isNonstandard ||
 					// Pokemon with Hisui evolutions
 					evoSpecies.isNonstandard === "Unobtainable";
 		});
