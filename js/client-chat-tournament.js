@@ -415,6 +415,7 @@
 								this.$challengeUserMenu.html(this.renderChallengeUsers());
 								this.toggleBoxVisibility(true);
 								if (!this.$challenge.hasClass('active')) {
+									app.playNotificationSound();
 									if (notify) this.room.notifyOnce("Tournament challenges available", "Room: " + this.room.title, 'tournament-challenges');
 								}
 							}
