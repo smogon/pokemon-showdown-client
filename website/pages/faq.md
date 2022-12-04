@@ -91,7 +91,7 @@ If you want to join a tournament, click the "join" button or type `/tour join` i
 
 ### What are groupchats and how can I make one?
 
-Groupchats on PS! are user-created chatrooms that can be used to talk with friends on any topic allowed by global rules. Tournaments can also be conducted within groupchats. To create your own groupchat, use the command `/makegroupchat [name]`. Unlike typical rooms, the creator of a groupchat attains the rank of Host (★) which grants less privileges than Room Owner (#).
+Groupchats on PS! are user-created chatrooms that can be used to talk with friends on any topic allowed by global rules. Tournaments can also be conducted within groupchats. To create your own groupchat, use the command `/makegroupchat [name]`. Unlike typical rooms, the creator of a groupchat attains the rank of Host (★) which grants less privileges than Room Owner (#). Groupchats are only available to trusted users (public room staff / global voice or up).
 
 ### How do I change the look / background of PS?
 
