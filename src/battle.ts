@@ -1186,19 +1186,28 @@ export class Battle {
 		}
 		return false;
 	}
+	/**
+	 * Returns 1 if the abilities are active and 0 if none are active. If `excludePokemon` was provided, instead
+	 * returns the number of active sources of the abilities.
+	 * @param abilities A string or array of strings containing the name or names of abilities to look for.
+	 * @param excludePokemon A Pokemon to be ignored if the ability/abilities do not affect their source,
+	 * i.e. Sword of Ruin.
+	 */
 	abilityActive(abilities: string | string[], excludePokemon?: Pokemon | null) {
+		let activeAbilityCount = 0;
 		if (typeof abilities === 'string') abilities = [abilities];
 		if (this.ngasActive()) {
 			abilities = abilities.filter(a => this.dex.abilities.get(a).isPermanent);
-			if (!abilities.length) return false;
+			if (!abilities.length) return 0;
 		}
 		for (const active of this.getAllActive()) {
 			if (active === excludePokemon) continue;
 			if (abilities.includes(active.ability) && !active.volatiles['gastroacid']) {
-				return true;
+				if (!excludePokemon) return 1;
+				activeAbilityCount++;
 			}
 		}
-		return false;
+		return activeAbilityCount;
 	}
 	reset() {
 		this.paused = true;
