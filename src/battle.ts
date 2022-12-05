@@ -662,6 +662,7 @@ export class Side {
 	reset() {
 		this.clearPokemon();
 		this.sideConditions = {};
+		this.faintCounter = 0;
 	}
 	setAvatar(avatar: string) {
 		this.avatar = avatar;

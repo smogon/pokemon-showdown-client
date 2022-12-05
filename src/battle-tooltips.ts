@@ -1833,8 +1833,10 @@ class BattleTooltips {
 		if (move.flags['slicing']) {
 			value.abilityModify(1.5, "Sharpness");
 		}
-		if (pokemon.side.faintCounter) {
-			value.abilityModify(1 + Math.min(0.1 * pokemon.side.faintCounter, 0.5), "Supreme Overlord");
+		for (let i = 1; i <= 5 && i <= pokemon.side.faintCounter; i++) {
+			if (pokemon.volatiles[`fallen${i}`]) {
+				value.abilityModify(1 + 0.1 * i, "Supreme Overlord");
+			}
 		}
 		if (target) {
 			if (["MF", "FM"].includes(pokemon.gender + target.gender)) {
