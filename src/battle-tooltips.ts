@@ -1651,7 +1651,7 @@ class BattleTooltips {
 			value.modify(2, move.name + ' + status');
 		}
 		if (move.id === 'lastrespects') {
-			value.set(Math.min(50 + 50 * pokemon.side.pokemon.filter(p => p.fainted).length));
+			value.set(Math.min(50 + 50 * pokemon.side.faintCounter));
 		}
 		if (move.id === 'punishment' && target) {
 			let boostCount = 0;
@@ -1832,6 +1832,9 @@ class BattleTooltips {
 		}
 		if (move.flags['slicing']) {
 			value.abilityModify(1.5, "Sharpness");
+		}
+		if (pokemon.side.faintCounter) {
+			value.abilityModify(1 + Math.min(0.1 * pokemon.side.faintCounter, 0.5), "Supreme Overlord");
 		}
 		if (target) {
 			if (["MF", "FM"].includes(pokemon.gender + target.gender)) {

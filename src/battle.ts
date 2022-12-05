@@ -626,6 +626,7 @@ export class Side {
 
 	/** [effectName, levels, minDuration, maxDuration] */
 	sideConditions: {[id: string]: [string, number, number, number]} = {};
+	faintCounter = 0;
 
 	constructor(battle: Battle, n: number) {
 		this.battle = battle;
@@ -939,6 +940,7 @@ export class Side {
 
 		pokemon.fainted = true;
 		pokemon.hp = 0;
+		if (pokemon.side.faintCounter < 100) pokemon.side.faintCounter++;
 
 		this.battle.scene.animFaint(pokemon);
 	}
