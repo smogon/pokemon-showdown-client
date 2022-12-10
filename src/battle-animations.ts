@@ -2563,7 +2563,7 @@ export class PokemonSprite extends Sprite {
 			return;
 		}
 		const spriten = +this.isFrontSprite;
-		if (id === 'substitute') {
+		if (id === 'substitute' || id === 'shedtail') {
 			this.animSub(instant);
 		} else if (id === 'leechseed') {
 			const pos1 = {

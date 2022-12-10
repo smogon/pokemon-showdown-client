@@ -2920,9 +2920,6 @@ export const BattleMoveAnims: AnimTable = {
 	irondefense: {
 		anim: BattleOtherAnims.selfstatus.anim,
 	},
-	shelter: {
-		anim: BattleOtherAnims.selfstatus.anim,
-	},
 	rest: {
 		anim(scene, [attacker]) {
 			scene.showEffect('wisp', {
@@ -35147,6 +35144,7 @@ BattleMoveAnims['powershift'] = {anim: BattleMoveAnims['skillswap'].anim};
 BattleMoveAnims['ragefist'] = {anim: BattleMoveAnims['shadowpunch'].anim};
 BattleMoveAnims['ragingbull'] = {anim: BattleMoveAnims['gigaimpact'].anim};
 BattleMoveAnims['shedtail'] = {anim: BattleMoveAnims['substitute'].anim};
+BattleMoveAnims['shelter'] = {anim: BattleMoveAnims['withdraw'].anim};
 BattleMoveAnims['stoneaxe'] = {
 	anim(scene, [attacker, defender]) {
 		BattleMoveAnims['stoneedge'].anim(scene, [attacker, defender]);
