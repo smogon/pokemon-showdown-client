@@ -2664,6 +2664,9 @@ export class PokemonSprite extends Sprite {
 		if (symbol) {
 			buf += ` <img src="${Dex.resourcePrefix}sprites/misc/${symbol}.png" alt="${symbol}" style="vertical-align:text-bottom;" />`;
 		}
+		if (pokemon.teraType) {
+			buf += ` <img src="${Dex.resourcePrefix}sprites/types/Tera${pokemon.teraType}.png" alt="Tera-${pokemon.teraType}" style="vertical-align:text-bottom;" height="16" width="16" />`;
+		}
 
 		buf += `</strong><div class="hpbar"><div class="hptext"></div><div class="hptextborder"></div><div class="prevhp"><div class="hp"></div></div><div class="status"></div>`;
 		buf += `</div>`;
