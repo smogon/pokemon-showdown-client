@@ -2846,6 +2846,7 @@ export class Battle {
 				target!.side.removeSideCondition('Reflect');
 				target!.side.removeSideCondition('LightScreen');
 				break;
+			case 'hyperdrill':
 			case 'hyperspacefury':
 			case 'hyperspacehole':
 			case 'phantomforce':
