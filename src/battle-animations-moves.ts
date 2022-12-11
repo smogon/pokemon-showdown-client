@@ -15912,7 +15912,7 @@ export const BattleMoveAnims: AnimTable = {
 	},
 	spicyextract: {
 		anim(scene, [attacker, defender]) {
-			scene.showEffect('flarewisp', {
+			scene.showEffect('flareball', {
 				x: attacker.x,
 				y: attacker.y,
 				z: attacker.z,
@@ -15926,7 +15926,7 @@ export const BattleMoveAnims: AnimTable = {
 				opacity: 1,
 				time: 400,
 			}, 'ballistic', 'fade');
-			scene.showEffect('flarewisp', {
+			scene.showEffect('flareball', {
 				x: attacker.x,
 				y: attacker.y,
 				z: attacker.z,
@@ -15941,7 +15941,7 @@ export const BattleMoveAnims: AnimTable = {
 				opacity: 1,
 				time: 500,
 			}, 'ballistic', 'fade');
-			scene.showEffect('flarewisp', {
+			scene.showEffect('flareball', {
 				x: attacker.x,
 				y: attacker.y,
 				z: attacker.z,
