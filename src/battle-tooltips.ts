@@ -1208,10 +1208,18 @@ class BattleTooltips {
 		if (ability === 'furcoat') {
 			stats.def *= 2;
 		}
-		stats.spa = Math.floor(stats.spa * Math.pow(0.75, this.battle.abilityActive('Vessel of Ruin', clientPokemon)));
-		stats.def = Math.floor(stats.def * Math.pow(0.75, this.battle.abilityActive('Sword of Ruin', clientPokemon)));
-		stats.atk = Math.floor(stats.atk * Math.pow(0.75, this.battle.abilityActive('Tablets of Ruin', clientPokemon)));
-		stats.spd = Math.floor(stats.spd * Math.pow(0.75, this.battle.abilityActive('Beads of Ruin', clientPokemon)));
+		if (this.battle.abilityActive('Vessel of Ruin', clientPokemon)) {
+			stats.spa = Math.floor(stats.spa * 0.75);
+		}
+		if (this.battle.abilityActive('Sword of Ruin', clientPokemon)) {
+			stats.def = Math.floor(stats.def * 0.75);
+		}
+		if (this.battle.abilityActive('Tablets of Ruin', clientPokemon)) {
+			stats.atk = Math.floor(stats.atk * 0.75);
+		}
+		if (this.battle.abilityActive('Beads of Ruin', clientPokemon)) {
+			stats.spd = Math.floor(stats.spd * 0.75);
+		}
 		const sideConditions = this.battle.mySide.sideConditions;
 		if (sideConditions['tailwind']) {
 			speedModifiers.push(2);
