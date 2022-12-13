@@ -90,7 +90,7 @@ export class Pokemon implements PokemonDetails, PokemonHealth {
 	itemEffect = '';
 	prevItem = '';
 	prevItemEffect = '';
-	terastallized = '';
+	terastallized: TypeName | '' = '';
 
 	boosts: {[stat: string]: number} = {};
 	status: StatusName | 'tox' | '' | '???' = '';
@@ -486,7 +486,7 @@ export class Pokemon implements PokemonDetails, PokemonHealth {
 	getTypes(serverPokemon?: ServerPokemon, preterastallized?: boolean): [ReadonlyArray<TypeName>, TypeName | ''] {
 		let types: ReadonlyArray<TypeName>;
 		if (this.terastallized && !preterastallized) {
-			types = [this.terastallized as TypeName];
+			types = [this.terastallized];
 		} else if (this.volatiles.typechange) {
 			types = this.volatiles.typechange[1].split('/');
 		} else {
@@ -2476,7 +2476,7 @@ export class Battle {
 		case '-terastallize': {
 			let poke = this.getPokemon(args[1])!;
 			let type = Dex.types.get(args[2]).name;
-			poke.terastallized = type;
+			poke.terastallized = type as TypeName;
 			this.scene.animTransform(poke, true, true);
 			this.log(args, kwArgs);
 			break;

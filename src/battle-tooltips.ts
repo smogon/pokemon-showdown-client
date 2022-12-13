@@ -1429,7 +1429,7 @@ class BattleTooltips {
 			}
 		}
 		if (move.id === 'terablast' && pokemon.terastallized) {
-			moveType = pokemon.terastallized as TypeName;
+			moveType = pokemon.terastallized;
 		}
 
 		// Aura Wheel as Morpeko-Hangry changes the type to Dark
