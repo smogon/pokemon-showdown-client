@@ -1686,7 +1686,9 @@ export class Battle {
 					break;
 				}
 			} else {
-				poke.timesAttacked += 1;
+				if (this.dex.moves.get(this.lastMove).category !== 'Status') {
+					poke.timesAttacked++;
+				}
 				let damageinfo = '' + Pokemon.getFormattedRange(range, damage[1] === 100 ? 0 : 1, '\u2013');
 				if (damage[1] !== 100) {
 					let hover = '' + ((damage[0] < 0) ? '\u2212' : '') +
