@@ -15912,7 +15912,7 @@ export const BattleMoveAnims: AnimTable = {
 	},
 	spicyextract: {
 		anim(scene, [attacker, defender]) {
-			scene.showEffect('flarewisp', {
+			scene.showEffect('flareball', {
 				x: attacker.x,
 				y: attacker.y,
 				z: attacker.z,
@@ -15926,7 +15926,7 @@ export const BattleMoveAnims: AnimTable = {
 				opacity: 1,
 				time: 400,
 			}, 'ballistic', 'fade');
-			scene.showEffect('flarewisp', {
+			scene.showEffect('flareball', {
 				x: attacker.x,
 				y: attacker.y,
 				z: attacker.z,
@@ -15941,7 +15941,7 @@ export const BattleMoveAnims: AnimTable = {
 				opacity: 1,
 				time: 500,
 			}, 'ballistic', 'fade');
-			scene.showEffect('flarewisp', {
+			scene.showEffect('flareball', {
 				x: attacker.x,
 				y: attacker.y,
 				z: attacker.z,
@@ -20732,61 +20732,63 @@ export const BattleMoveAnims: AnimTable = {
 		},
 	},
 	makeitrain: {
-		anim(scene, [attacker, defender]) {
-			scene.showEffect('electroball', {
-				x: attacker.x,
-				y: attacker.y,
-				z: attacker.z,
-				scale: 2,
-				opacity: 0,
-			}, {
-				scale: 0,
-				opacity: 1,
-			}, 'accel', 'explode');
-
-			for (let i = 1; i <= 3; i++) {
-				scene.showEffect('electroball', {
-					x: attacker.x - 10,
-					y: attacker.y + 25,
-					z: attacker.z,
-					scale: 0.1,
-					opacity: 1,
-					time: 500 * i,
-				}, {
-					x: defender.x,
-					y: defender.y,
-					z: defender.z,
-					opacity: 0,
-					time: 500 * i + 100,
-				}, 'decel');
+		anim(scene, [attacker, ...defenders]) {
+			for (const defender of defenders) {
 				scene.showEffect('electroball', {
 					x: attacker.x,
 					y: attacker.y,
 					z: attacker.z,
-					scale: 0.1,
-					opacity: 1,
-					time: 600 * i,
-				}, {
-					x: defender.x,
-					y: defender.y,
-					z: defender.z,
+					scale: 2,
 					opacity: 0,
-					time: 600 * i + 100,
-				}, 'accel');
-				scene.showEffect('electroball', {
-					x: attacker.x + 10,
-					y: attacker.y - 25,
-					z: attacker.z,
-					scale: 0.1,
-					opacity: 1,
-					time: 700 * i,
 				}, {
-					x: defender.x,
-					y: defender.y,
-					z: defender.z,
-					opacity: 0,
-					time: 700 * i + 100,
-				}, 'accel');
+					scale: 0,
+					opacity: 1,
+				}, 'accel', 'explode');
+
+				for (let i = 1; i <= 3; i++) {
+					scene.showEffect('electroball', {
+						x: attacker.x - 10,
+						y: attacker.y + 25,
+						z: attacker.z,
+						scale: 0.1,
+						opacity: 1,
+						time: 500 * i,
+					}, {
+						x: defender.x,
+						y: defender.y,
+						z: defender.z,
+						opacity: 0,
+						time: 500 * i + 100,
+					}, 'decel');
+					scene.showEffect('electroball', {
+						x: attacker.x,
+						y: attacker.y,
+						z: attacker.z,
+						scale: 0.1,
+						opacity: 1,
+						time: 600 * i,
+					}, {
+						x: defender.x,
+						y: defender.y,
+						z: defender.z,
+						opacity: 0,
+						time: 600 * i + 100,
+					}, 'accel');
+					scene.showEffect('electroball', {
+						x: attacker.x + 10,
+						y: attacker.y - 25,
+						z: attacker.z,
+						scale: 0.1,
+						opacity: 1,
+						time: 700 * i,
+					}, {
+						x: defender.x,
+						y: defender.y,
+						z: defender.z,
+						opacity: 0,
+						time: 700 * i + 100,
+					}, 'accel');
+				}
 			}
 		},
 	},
