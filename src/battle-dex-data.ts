@@ -380,6 +380,9 @@ const BattlePokemonIconIndexes: {[id: string]: number} = {
 	squawkabillyyellow: 1020 + 234,
 	squawkabillywhite: 1020 + 235,
 	gimmighoulroaming: 1020 + 236,
+	dialgaorigin: 1020 + 237,
+	palkiaorigin: 1020 + 238,
+	basculinwhitestriped: 1020 + 239,
 
 	gumshoostotem: 735,
 	raticatealolatotem: 1020 + 120,
@@ -550,6 +553,7 @@ const BattlePokemonIconIndexes: {[id: string]: number} = {
 	solotl: 1488 + 31,
 	miasmite: 1488 + 32,
 	dorsoil: 1488 + 33,
+	saharascal: 1488 + 34,
 };
 
 const BattlePokemonIconIndexesLeft: {[id: string]: number} = {
