@@ -830,8 +830,8 @@
 			this.exportMode = true;
 			this.update();
 		},
-		pokepasteExport: function () {
-			var team = Storage.exportTeam(this.curSetList);
+		pokepasteExport: function (type) {
+			var team = Storage.exportTeam(this.curSetList, this.curTeam.gen, type === 'openteamsheet');
 			if (!team) return app.addPopupMessage("Add a Pokémon to your team before uploading it!");
 			document.getElementById("pasteData").value = team;
 			document.getElementById("pasteTitle").value = this.curTeam.name;
@@ -867,7 +867,7 @@
 				// Chrome is dumb and doesn't support data URLs in HTTPS
 				urlprefix = "https://" + Config.routes.client + "/action.php?act=dlteam&team=";
 			}
-			var contents = Storage.exportTeam(team.team).replace(/\n/g, '\r\n');
+			var contents = Storage.exportTeam(team.team, team.gen).replace(/\n/g, '\r\n');
 			var downloadurl = "text/plain:" + filename + ":" + urlprefix + encodeURIComponent(window.btoa(unescape(encodeURIComponent(contents))));
 			console.log(downloadurl);
 			dataTransfer.setData("DownloadURL", downloadurl);
@@ -1109,7 +1109,7 @@
 			var buf = '';
 			if (this.exportMode) {
 				buf = '<div class="pad"><button name="back"><i class="fa fa-chevron-left"></i> List</button> <input class="textbox teamnameedit" type="text" class="teamnameedit" size="30" value="' + BattleLog.escapeHTML(this.curTeam.name) + '" /> <button name="saveImport"><i class="fa fa-upload"></i> Import/Export</button> <button name="saveImport" class="savebutton"><i class="fa fa-floppy-o"></i> Save</button></div>';
-				buf += '<div class="teamedit"><textarea class="textbox" rows="17">' + BattleLog.escapeHTML(Storage.exportTeam(this.curSetList)) + '</textarea></div>';
+				buf += '<div class="teamedit"><textarea class="textbox" rows="17">' + BattleLog.escapeHTML(Storage.exportTeam(this.curSetList, this.curTeam.gen)) + '</textarea></div>';
 			} else {
 				buf = '<div class="pad"><button name="back"><i class="fa fa-chevron-left"></i> List</button> ';
 				buf += '<input class="textbox teamnameedit" type="text" class="teamnameedit" size="30" value="' + BattleLog.escapeHTML(this.curTeam.name) + '" /> ';
@@ -1158,6 +1158,9 @@
 				buf += '<input type="hidden" name="author" id="pasteAuthor">';
 				buf += '<input type="hidden" name="notes" id="pasteNotes">';
 				buf += '<button name="pokepasteExport" type="submit" class="button exportbutton"><i class="fa fa-upload"></i> Upload to PokePaste</button></form>';
+				if (this.curTeam.format.includes('vgc')) {
+					buf += '<button name="pokepasteExport" value="openteamsheet" type="submit" class="button exportbutton"><i class="fa fa-upload"></i> Upload to PokePaste (Open Team Sheet)</button></form>';
+				}
 				buf += '</div>';
 			}
 			this.$el.html('<div class="teamwrapper">' + buf + '</div>');
@@ -1634,7 +1637,7 @@
 			this.$('.teambuilder-pokemon-import')
 				.show()
 				.find('textarea')
-				.val(Storage.exportTeam([this.curSet]).trim())
+				.val(Storage.exportTeam([this.curSet], this.curTeam.gen).trim())
 				.focus()
 				.select();
 
@@ -1692,7 +1695,7 @@
 			var smogonSet = formatSets['dex'][species][setName] || formatSets['stats'][species][setName];
 			var curSet = $.extend({}, this.curSet, smogonSet);
 
-			var text = Storage.exportTeam([curSet]);
+			var text = Storage.exportTeam([curSet], this.curTeam.gen);
 			this.$('.teambuilder-pokemon-import .pokemonedit').val(text);
 		},
 		closePokemonImport: function (force) {
