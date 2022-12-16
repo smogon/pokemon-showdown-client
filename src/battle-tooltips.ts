@@ -1343,7 +1343,8 @@ class BattleTooltips {
 		let tier = this.battle.tier;
 		let gen = this.battle.gen;
 		let isRandomBattle = tier.includes('Random Battle') ||
-			(tier.includes('Random') && tier.includes('Battle') && gen >= 6);
+			(tier.includes('Random') && tier.includes('Battle') && gen >= 6) || 
+			tier.includes('Computer-Generated Teams');
 
 		let minNature = (isRandomBattle || gen < 3) ? 1 : 0.9;
 		let maxNature = (isRandomBattle || gen < 3) ? 1 : 1.1;
