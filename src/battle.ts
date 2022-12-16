@@ -1190,7 +1190,7 @@ export class Battle {
 		}
 		return false;
 	}
-	abilityActive(abilities: string | string[], excludePokemon?: Pokemon | null) {
+	abilityActive(abilities: string | string[], excludePokemon?: Pokemon | ServerPokemon | null) {
 		if (typeof abilities === 'string') abilities = [abilities];
 		if (this.ngasActive()) {
 			abilities = abilities.filter(a => this.dex.abilities.get(a).isPermanent);
@@ -1198,6 +1198,10 @@ export class Battle {
 		}
 		for (const active of this.getAllActive()) {
 			if (active === excludePokemon) continue;
+			if (excludePokemon && this.pokemonControlled === 1 &&
+				active.ident.slice(0, 2) === excludePokemon.ident.slice(0, 2)) {
+				continue;
+			}
 			if (abilities.includes(active.ability) && !active.volatiles['gastroacid']) {
 				return true;
 			}
