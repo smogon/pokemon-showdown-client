@@ -62,6 +62,16 @@
 				this.subtleNotifyOnce();
 				break;
 
+			case 'scroll':
+				if (!row[1]) return;
+				var target = this.$(row[1]).get(0);
+				if (target) {
+					// normally i'd use jquery but jquery's scroll is more finicky
+					// and less consistent.
+					// This brings it into view centered every time
+					target.scrollIntoView();
+				}
+				break;
 			case 'notify':
 				app.playNotificationSound();
 				this.notifyOnce(row[1], row[2], 'highlight');
