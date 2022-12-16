@@ -835,8 +835,13 @@
 			if (!team) return app.addPopupMessage("Add a Pokémon to your team before uploading it!");
 			document.getElementById("pasteData").value = team;
 			document.getElementById("pasteTitle").value = this.curTeam.name;
+			if (type === 'openteamsheet') {
+				document.getElementById("pasteTitle").value += " (OTS)";
+			}
 			document.getElementById("pasteAuthor").value = app.user.get('name');
-			if (this.curTeam.format !== 'gen9') document.getElementById("pasteNotes").value = "Format: " + this.curTeam.format;
+			if (this.curTeam.format !== 'gen9') {
+				document.getElementById("pasteNotes").value = "Format: " + this.curTeam.format;
+			}
 			document.getElementById("pokepasteForm").submit();
 		},
 
