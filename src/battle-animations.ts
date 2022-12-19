@@ -2653,8 +2653,19 @@ export class PokemonSprite extends Sprite {
 	// Statbar
 	/////////////////////////////////////////////////////////////////////
 
+	getClassForPosition(slot: number) {
+		// DOUBLES: Slot0 -> left / Slot1 -> Right
+		// TRIPLES: slot0 -> left / Slot1 -> Center / Slot2 -> Right
+		const position = [
+			' leftstatbar',
+			this.scene.activeCount === 3 ? ' centerstatbar' : ' rightstatbar',
+			' rightstatbar',
+		];
+		return position[slot];
+	}
+
 	getStatbarHTML(pokemon: Pokemon) {
-		let buf = '<div class="statbar' + (this.isFrontSprite ? ' lstatbar' : ' rstatbar') + '" style="display: none">';
+		let buf = '<div class="statbar' + (this.isFrontSprite ? ' lstatbar' : ' rstatbar') + this.getClassForPosition(pokemon.slot) + '" style="display: none">';
 		const ignoreNick = this.isFrontSprite && (this.scene.battle.ignoreOpponent || this.scene.battle.ignoreNicks);
 		buf += `<strong>${BattleLog.escapeHTML(ignoreNick ? pokemon.speciesForme : pokemon.name)}`;
 		const gender = pokemon.gender;
