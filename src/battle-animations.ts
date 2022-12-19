@@ -2651,9 +2651,9 @@ export class PokemonSprite extends Sprite {
 		// DOUBLES: Slot0 -> left / Slot1 -> Right
 		// TRIPLES: slot0 -> left / Slot1 -> Center / Slot2 -> Right
 		const position = [
-			' left',
-			this.scene.activeCount === 3 ? ' center' : ' right',
-			' right',
+			' leftstatbar',
+			this.scene.activeCount === 3 ? ' centerstatbar' : ' rightstatbar',
+			' rightstatbar',
 		];
 		return position[slot];
 	}
