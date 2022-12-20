@@ -90,7 +90,7 @@ export class Pokemon implements PokemonDetails, PokemonHealth {
 	itemEffect = '';
 	prevItem = '';
 	prevItemEffect = '';
-	terastallized: TypeName | '' = '';
+	terastallized: string | '' = '';
 
 	boosts: {[stat: string]: number} = {};
 	status: StatusName | 'tox' | '' | '???' = '';
@@ -486,7 +486,7 @@ export class Pokemon implements PokemonDetails, PokemonHealth {
 	getTypes(serverPokemon?: ServerPokemon, preterastallized?: boolean): [ReadonlyArray<TypeName>, TypeName | ''] {
 		let types: ReadonlyArray<TypeName>;
 		if (this.terastallized && !preterastallized) {
-			types = [this.terastallized];
+			types = [this.terastallized as TypeName];
 		} else if (this.volatiles.typechange) {
 			types = this.volatiles.typechange[1].split('/');
 		} else {
@@ -996,8 +996,10 @@ export interface ServerPokemon extends PokemonDetails, PokemonHealth {
 	pokeball: string;
 	/** false if the pokemon cannot gigantamax, otherwise a string containing the full name of its G-max move */
 	gigantamax: string | false;
+	/** always the Tera Type of the Pokemon, regardless of whether it is terastallized or not */
 	teraType: string;
-	terastallized: boolean;
+	/** falsy if the pokemon is not terastallized, otherwise it is the Tera Type of the Pokemon */
+	terastallized: string;
 }
 
 export class Battle {
