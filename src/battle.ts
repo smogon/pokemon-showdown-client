@@ -467,7 +467,6 @@ export class Pokemon implements PokemonDetails, PokemonHealth {
 		}
 		delete this.volatiles['transform'];
 		delete this.volatiles['formechange'];
-		delete this.volatiles['terastallize'];
 
 		pokemon.boosts = {};
 		pokemon.volatiles = {};
@@ -943,6 +942,7 @@ export class Side {
 
 		pokemon.fainted = true;
 		pokemon.hp = 0;
+		pokemon.terastallized = '';
 		if (pokemon.side.faintCounter < 100) pokemon.side.faintCounter++;
 
 		this.battle.scene.animFaint(pokemon);
@@ -2478,7 +2478,7 @@ export class Battle {
 		case '-terastallize': {
 			let poke = this.getPokemon(args[1])!;
 			let type = Dex.types.get(args[2]).name;
-			poke.terastallized = type as TypeName;
+			poke.terastallized = type;
 			this.scene.animTransform(poke, true, true);
 			this.log(args, kwArgs);
 			break;
