@@ -795,12 +795,19 @@ class BattleTooltips {
 				}
 			}
 
-			let types = this.getPokemonTypes(pokemon);
+			let types = serverPokemon?.terastallized ? [serverPokemon.teraType] : this.getPokemonTypes(pokemon);
 
-			if (clientPokemon && (clientPokemon.volatiles.typechange || clientPokemon.volatiles.typeadd)) {
+			if (pokemon.terastallized) {
+				text += `<small>(Terastallized)</small><br />`;
+			} else if (clientPokemon?.volatiles.typechange || clientPokemon?.volatiles.typeadd) {
 				text += `<small>(Type changed)</small><br />`;
 			}
 			text += types.map(type => Dex.getTypeIcon(type)).join(' ');
+			if (pokemon.terastallized) {
+				text += ` <small>(base: ${this.getPokemonTypes(pokemon, true).map(type => Dex.getTypeIcon(type)).join(' ')})</small>`;
+			} else if (serverPokemon?.teraType) {
+				text += ` <small>(Tera Type: ${Dex.getTypeIcon(serverPokemon.teraType)})</small>`;
+			}
 			text += `</h2>`;
 		}
 
@@ -1429,8 +1436,8 @@ class BattleTooltips {
 				moveType = 'Psychic';
 			}
 		}
-		if (move.id === 'terablast' && pokemon.teraType) {
-			moveType = pokemon.teraType as TypeName;
+		if (move.id === 'terablast' && pokemon.terastallized) {
+			moveType = pokemon.terastallized as TypeName;
 		}
 
 		// Aura Wheel as Morpeko-Hangry changes the type to Dark
@@ -2062,12 +2069,12 @@ class BattleTooltips {
 
 		return value;
 	}
-	getPokemonTypes(pokemon: Pokemon | ServerPokemon): ReadonlyArray<TypeName> {
+	getPokemonTypes(pokemon: Pokemon | ServerPokemon, preterastallized?: boolean): ReadonlyArray<TypeName> {
 		if (!(pokemon as Pokemon).getTypes) {
 			return this.battle.dex.species.get(pokemon.speciesForme).types;
 		}
 
-		return (pokemon as Pokemon).getTypeList();
+		return (pokemon as Pokemon).getTypeList(undefined, preterastallized);
 	}
 	pokemonHasType(pokemon: Pokemon | ServerPokemon, type: TypeName, types?: ReadonlyArray<TypeName>) {
 		if (!types) types = this.getPokemonTypes(pokemon);
