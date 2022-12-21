@@ -677,9 +677,8 @@ export class Side {
 			if (this.foe && this.avatar === this.foe.avatar) this.rollTrainerSprites();
 		}
 	}
-	addSideCondition(effect: Effect, fromeffect: Effect | null) {
+	addSideCondition(effect: Effect, persist: boolean) {
 		let condition = effect.id;
-		let persist = fromeffect?.id.endsWith('persistent');
 		if (this.sideConditions[condition]) {
 			if (condition === 'spikes' || condition === 'toxicspikes') {
 				this.sideConditions[condition][1]++;
@@ -2941,8 +2940,7 @@ export class Battle {
 		case '-sidestart': {
 			let side = this.getSide(args[1]);
 			let effect = Dex.getEffect(args[2]);
-			let fromeffect = Dex.getEffect(kwArgs.from) || null;
-			side.addSideCondition(effect, fromeffect);
+			side.addSideCondition(effect, !!kwArgs.persistent);
 
 			switch (effect.id) {
 			case 'tailwind':
@@ -3007,7 +3005,7 @@ export class Battle {
 				}
 				if (this.gen > 6) maxTimeLeft = 8;
 			}
-			if (fromeffect.id.endsWith('persistent')) minTimeLeft += 2;
+			if (kwArgs.persistent) minTimeLeft += 2;
 			this.addPseudoWeather(effect.name, minTimeLeft, maxTimeLeft);
 
 			switch (effect.id) {
