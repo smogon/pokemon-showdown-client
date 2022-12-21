@@ -109,9 +109,9 @@ Se você quer saber mais sobre uma tier específica, pode usar o comando `/tier 
 
 ### Qual é a diferença entre Random Battle e Battle Factory?
 
-Pokémon em Random Battles são gerados aleatoriamente de PU p,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,ra cima, enquanto em Battle Factory todos os Pokémon de ambos os times pertencem a mesma tier e possuem movesets competitivos.
+Pokémon em Random Battles são gerados aleatoriamente de PU para cima, enquanto em Battle Factory todos os Pokémon de ambos os times pertencem a mesma tier e possuem movesets competitivos.
 
-O que significa GXE?
+### O que significa GXE?
 
 GXE significa Glick X-Act Estimate. O número mostrado é a estimativa percentual que um jogador tem de vencer contra um adversário qualquer.
 

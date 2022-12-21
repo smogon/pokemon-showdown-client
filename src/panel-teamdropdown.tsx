@@ -96,10 +96,14 @@ class PSTeambuilder {
 				buf += '|';
 			}
 
-			if (set.pokeball || (set.hpType && toID(set.hpType) !== hasHP) || set.gigantamax) {
+			if (
+				set.pokeball || (set.hpType && toID(set.hpType) !== hasHP) || set.gigantamax ||
+				(set.dynamaxLevel !== undefined && set.dynamaxLevel !== 10)
+			) {
 				buf += ',' + (set.hpType || '');
 				buf += ',' + toID(set.pokeball);
 				buf += ',' + (set.gigantamax ? 'G' : '');
+				buf += ',' + (set.dynamaxLevel !== undefined && set.dynamaxLevel !== 10 ? set.dynamaxLevel : '');
 			}
 		}
 
@@ -191,6 +195,7 @@ class PSTeambuilder {
 				set.hpType = misc[1];
 				set.pokeball = misc[2];
 				set.gigantamax = !!misc[3];
+				set.dynamaxLevel = (misc[4] ? Number(misc[4]) : 10);
 			}
 		}
 
@@ -278,6 +283,9 @@ class PSTeambuilder {
 		if (typeof set.happiness === 'number' && set.happiness !== 255 && !isNaN(set.happiness)) {
 			text += `Happiness: ${set.happiness}  \n`;
 		}
+		if (typeof set.dynamaxLevel === 'number' && set.dynamaxLevel !== 255 && !isNaN(set.dynamaxLevel)) {
+			text += `Dynamax Level: ${set.dynamaxLevel}  \n`;
+		}
 		if (set.gigantamax) {
 			text += `Gigantamax: Yes  \n`;
 		}
@@ -347,6 +355,9 @@ class PSTeambuilder {
 		} else if (line.startsWith('Hidden Power: ')) {
 			line = line.slice(14);
 			set.hpType = line;
+		} else if (line.startsWith('Dynamax Level: ')) {
+			line = line.substr(15);
+			set.dynamaxLevel = +line;
 		} else if (line === 'Gigantamax: Yes') {
 			set.gigantamax = true;
 		} else if (line.startsWith('EVs: ')) {
@@ -815,7 +826,7 @@ class FormatDropdownPanel extends PSRoomPanel {
 			{columns.map(column => <ul class="options" onClick={this.click}>
 				{column.map(format => format.id ? (
 					<li><button value={format.name} class="option">
-						{format.name.replace('[Gen 8 ', '[').replace('[Gen 8] ', '').replace('[Gen 7 ', '[')}
+						{format.name.replace('[Gen 8 ', '[').replace('[Gen 9] ', '').replace('[Gen 7 ', '[')}
 					</button></li>
 				) : (
 					<li><h3>

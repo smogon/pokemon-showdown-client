@@ -441,7 +441,7 @@
 				var spaceIndex = text.indexOf(' ');
 				if (spaceIndex > 0) {
 					cmd = text.substr(1, spaceIndex - 1);
-					target = text.substr(spaceIndex + 1);
+					target = text.substr(spaceIndex + 1).trim();
 				} else {
 					cmd = text.substr(1);
 					target = '';
@@ -1313,6 +1313,9 @@
 		requestLeave: function (e) {
 			if (app.rooms[''].games && app.rooms[''].games[this.id]) {
 				app.addPopup(ForfeitPopup, {room: this, sourceEl: e && e.currentTarget, gameType: (this.id.substring(0, 5) === 'help-' ? 'help' : 'game')});
+				return false;
+			} else if (Dex.prefs('leavePopupRoom')) {
+				app.addPopup(ForfeitPopup, {room: this, sourceEl: e && e.currentTarget, gameType: 'room'});
 				return false;
 			}
 			return true;

@@ -112,7 +112,7 @@ class ActionDispatcher {
 			}
 			return null;
 		} else {
-			$server =& $PokemonServers[$serverid];
+			$server = & $PokemonServers[$serverid];
 			if (empty($server['skipipcheck']) && empty($server['token']) && $serverid !== 'showdown') {
 				if (!isset($server['ipcache'])) {
 					$server['ipcache'] = gethostbyname($server['server']);
@@ -354,6 +354,65 @@ class DefaultActionHandler {
 				"VALUES ('" . $psdb->escape($date) . "', '" . $psdb->escape($usercount) . "')");
 		}
 		$dispatcher->setPrefix(''); // No need for prefix since only usable by server.
+	}
+
+	public function updatenamecolor($dispatcher, &$reqData, &$out) {
+		global $psdb, $psconfig, $users;
+		$server = $dispatcher->findServer();
+		if (!isset($psconfig['mainserver']) || !$server || $server['id'] !== $psconfig['mainserver']) {
+			$out['actionerror'] = 'Access denied';
+			return;
+		}
+		if (!isset($reqData['userid']) || !mb_strlen($users->userid($reqData['userid']))) {
+			$out['actionerror'] = 'No userid was specified.';
+			return;
+		}
+		$userid = $users->userid($reqData['userid']);
+		if (!isset($reqData['source'])) {
+			$out['actionerror'] = 'No color adjustment was specified.';
+			return;
+		}
+		if (strlen($userid) > 18) {
+			$out['actionerror'] = 'Usernames can only be 18 characters long';
+			return;
+		}
+		if (!isset($reqData['by']) || !mb_strlen($users->userid($reqData['by']))) {
+			$out['actionerror'] = 'Specify the action\'s actor.';
+			return;
+		}
+		$colors = array();
+		$path = realpath(__DIR__ . '/../config/colors.json');
+		try {
+			$data = file_get_contents($path, true);
+			$colors = json_decode($data, true);
+		} catch (Exception $e) {}
+		$modlog_entry = '';
+		if (!$reqData['source']) {
+			if (!isset($colors[$userid])) {
+				$out['actionerror'] = (
+					'That user does not have a custom color set by the loginserver. ' . 
+					'Ask an admin to remove it manually if they have one.'
+				);
+				return;
+			} else {
+				unset($colors[$userid]);
+				$modlog_entry = 'Username color was removed';
+			}
+		} else {
+			$colors[$userid] = $reqData['source'];
+			$modlog_entry = "Username color was set to \"{$reqData['source']}\"";
+		}
+		file_put_contents($path, json_encode($colors));
+		
+		$psdb->query(
+			"INSERT INTO `{$psdb->prefix}usermodlog`". 
+			"(`userid`, `actorid`, `date`, `ip`, `entry`) " .
+			"VALUES(?, ?, ?, ?, ?)", 
+			[$userid, $users->userid($reqData['by']), time(), $dispatcher->getIp(), $modlog_entry]
+		);
+		
+		$out['success'] = true;
+		return $out;
 	}
 
 	public function prepreplay($dispatcher, &$reqData, &$out) {

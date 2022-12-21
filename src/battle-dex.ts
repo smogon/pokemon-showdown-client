@@ -170,8 +170,8 @@ interface TeambuilderSpriteData {
 }
 
 const Dex = new class implements ModdedDex {
-	readonly gen = 8;
-	readonly modid = 'gen8' as ID;
+	readonly gen = 9;
+	readonly modid = 'gen9' as ID;
 	readonly cache = null!;
 
 	readonly statNames: ReadonlyArray<StatName> = ['hp', 'atk', 'def', 'spa', 'spd', 'spe'];
@@ -194,7 +194,7 @@ const Dex = new class implements ModdedDex {
 	moddedDexes: {[mod: string]: ModdedDex} = {};
 
 	mod(modid: ID): ModdedDex {
-		if (modid === 'gen8') return this;
+		if (modid === 'gen9') return this;
 		if (!window.BattleTeambuilderTable) return this;
 		if (modid in this.moddedDexes) {
 			return this.moddedDexes[modid];
@@ -543,7 +543,7 @@ const Dex = new class implements ModdedDex {
 		if (Dex.prefs('nopastgens')) graphicsGen = 6;
 		if (Dex.prefs('bwgfx') && graphicsGen >= 6) graphicsGen = 5;
 		spriteData.gen = Math.max(graphicsGen, Math.min(species.gen, 5));
-		const baseDir = ['', 'gen1', 'gen2', 'gen3', 'gen4', 'gen5', '', '', ''][spriteData.gen];
+		const baseDir = ['', 'gen1', 'gen2', 'gen3', 'gen4', 'gen5', '', '', '', ''][spriteData.gen];
 
 		let animationData = null;
 		let miscData = null;
@@ -680,7 +680,7 @@ const Dex = new class implements ModdedDex {
 			num = BattlePokedex[id].num;
 		}
 		if (num < 0) num = 0;
-		if (num > 898) num = 0;
+		if (num > 1010) num = 0;
 
 		if (window.BattlePokemonIconIndexes?.[id]) {
 			num = BattlePokemonIconIndexes[id];
@@ -726,7 +726,7 @@ const Dex = new class implements ModdedDex {
 		let top = Math.floor(num / 12) * 30;
 		let left = (num % 12) * 40;
 		let fainted = ((pokemon as Pokemon | ServerPokemon)?.fainted ? `;opacity:.3;filter:grayscale(100%) brightness(.5)` : ``);
-		return `background:transparent url(${Dex.resourcePrefix}sprites/pokemonicons-sheet.png?v8) no-repeat scroll -${left}px -${top}px${fainted}`;
+		return `background:transparent url(${Dex.resourcePrefix}sprites/pokemonicons-sheet.png?v10) no-repeat scroll -${left}px -${top}px${fainted}`;
 	}
 
 	getTeambuilderSpriteData(pokemon: any, gen: number = 0): TeambuilderSpriteData {
@@ -790,7 +790,7 @@ const Dex = new class implements ModdedDex {
 
 		let top = Math.floor(num / 16) * 24;
 		let left = (num % 16) * 24;
-		return 'background:transparent url(' + Dex.resourcePrefix + 'sprites/itemicons-sheet.png?g8) no-repeat scroll -' + left + 'px -' + top + 'px';
+		return 'background:transparent url(' + Dex.resourcePrefix + 'sprites/itemicons-sheet.png?g9) no-repeat scroll -' + left + 'px -' + top + 'px';
 	}
 
 	getTypeIcon(type: string | null, b?: boolean) { // b is just for utilichart.js
@@ -889,7 +889,7 @@ class ModdedDex {
 
 			let data = {...Dex.items.get(name)};
 
-			for (let i = this.gen; i < 8; i++) {
+			for (let i = this.gen; i < 9; i++) {
 				const table = window.BattleTeambuilderTable['gen' + i];
 				if (id in table.overrideItemDesc) {
 					data.shortDesc = table.overrideItemDesc[id];
