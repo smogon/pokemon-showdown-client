@@ -90,7 +90,7 @@ export class Pokemon implements PokemonDetails, PokemonHealth {
 	itemEffect = '';
 	prevItem = '';
 	prevItemEffect = '';
-	teraType = '';
+	terastallized: string | '' = '';
 
 	boosts: {[stat: string]: number} = {};
 	status: StatusName | 'tox' | '' | '???' = '';
@@ -467,7 +467,6 @@ export class Pokemon implements PokemonDetails, PokemonHealth {
 		}
 		delete this.volatiles['transform'];
 		delete this.volatiles['formechange'];
-		delete this.volatiles['terastallize'];
 
 		pokemon.boosts = {};
 		pokemon.volatiles = {};
@@ -483,9 +482,11 @@ export class Pokemon implements PokemonDetails, PokemonHealth {
 			this.removeVolatile('typeadd' as ID);
 		}
 	}
-	getTypes(serverPokemon?: ServerPokemon): [ReadonlyArray<TypeName>, TypeName | ''] {
+	getTypes(serverPokemon?: ServerPokemon, preterastallized?: boolean): [ReadonlyArray<TypeName>, TypeName | ''] {
 		let types: ReadonlyArray<TypeName>;
-		if (this.volatiles.typechange) {
+		if (this.terastallized && !preterastallized) {
+			types = [this.terastallized as TypeName];
+		} else if (this.volatiles.typechange) {
 			types = this.volatiles.typechange[1].split('/');
 		} else {
 			types = this.getSpecies(serverPokemon).types;
@@ -537,8 +538,8 @@ export class Pokemon implements PokemonDetails, PokemonHealth {
 		}
 		return ability.name;
 	}
-	getTypeList(serverPokemon?: ServerPokemon) {
-		const [types, addedType] = this.getTypes(serverPokemon);
+	getTypeList(serverPokemon?: ServerPokemon, preterastallized?: boolean) {
+		const [types, addedType] = this.getTypes(serverPokemon, preterastallized);
 		return addedType ? types.concat(addedType) : types;
 	}
 	getSpeciesForme(serverPokemon?: ServerPokemon): string {
@@ -941,6 +942,7 @@ export class Side {
 
 		pokemon.fainted = true;
 		pokemon.hp = 0;
+		pokemon.terastallized = '';
 		if (pokemon.side.faintCounter < 100) pokemon.side.faintCounter++;
 
 		this.battle.scene.animFaint(pokemon);
@@ -994,6 +996,10 @@ export interface ServerPokemon extends PokemonDetails, PokemonHealth {
 	pokeball: string;
 	/** false if the pokemon cannot gigantamax, otherwise a string containing the full name of its G-max move */
 	gigantamax: string | false;
+	/** always the Tera Type of the Pokemon, regardless of whether it is terastallized or not */
+	teraType: string;
+	/** falsy if the pokemon is not terastallized, otherwise it is the Tera Type of the Pokemon */
+	terastallized: string;
 }
 
 export class Battle {
@@ -2469,7 +2475,7 @@ export class Battle {
 		case '-terastallize': {
 			let poke = this.getPokemon(args[1])!;
 			let type = Dex.types.get(args[2]).name;
-			poke.teraType = type;
+			poke.terastallized = type;
 			this.scene.animTransform(poke, true, true);
 			this.log(args, kwArgs);
 			break;
@@ -2484,6 +2490,7 @@ export class Battle {
 			this.activateAbility(ofpoke || poke, fromeffect);
 			switch (effect.id) {
 			case 'typechange':
+				if (poke.terastallized) break;
 				if (ofpoke && fromeffect.id === 'reflecttype') {
 					poke.copyTypesFrom(ofpoke);
 				} else {
@@ -2632,7 +2639,9 @@ export class Battle {
 				this.scene.resultAnim(poke, 'Reflect', 'good');
 				break;
 			}
-			poke.addVolatile(effect.id);
+			if (!(effect.id === 'typechange' && poke.terastallized)) {
+				poke.addVolatile(effect.id);
+			}
 			this.scene.updateStatbar(poke);
 			this.log(args, kwArgs);
 			break;
