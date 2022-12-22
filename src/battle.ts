@@ -473,8 +473,8 @@ export class Pokemon implements PokemonDetails, PokemonHealth {
 		pokemon.side.battle.scene.removeTransform(pokemon);
 		pokemon.statusStage = 0;
 	}
-	copyTypesFrom(pokemon: Pokemon) {
-		const [types, addedType] = pokemon.getTypes();
+	copyTypesFrom(pokemon: Pokemon, preterastallized = false) {
+		const [types, addedType] = pokemon.getTypes(undefined, preterastallized);
 		this.addVolatile('typechange' as ID, types.join('/'));
 		if (addedType) {
 			this.addVolatile('typeadd' as ID, addedType);
@@ -482,7 +482,7 @@ export class Pokemon implements PokemonDetails, PokemonHealth {
 			this.removeVolatile('typeadd' as ID);
 		}
 	}
-	getTypes(serverPokemon?: ServerPokemon, preterastallized?: boolean): [ReadonlyArray<TypeName>, TypeName | ''] {
+	getTypes(serverPokemon?: ServerPokemon, preterastallized = false): [ReadonlyArray<TypeName>, TypeName | ''] {
 		let types: ReadonlyArray<TypeName>;
 		if (this.terastallized && !preterastallized) {
 			types = [this.terastallized as TypeName];
@@ -538,7 +538,7 @@ export class Pokemon implements PokemonDetails, PokemonHealth {
 		}
 		return ability.name;
 	}
-	getTypeList(serverPokemon?: ServerPokemon, preterastallized?: boolean) {
+	getTypeList(serverPokemon?: ServerPokemon, preterastallized = false) {
 		const [types, addedType] = this.getTypes(serverPokemon, preterastallized);
 		return addedType ? types.concat(addedType) : types;
 	}
@@ -2421,7 +2421,7 @@ export class Battle {
 			}
 
 			poke.boosts = {...tpoke.boosts};
-			poke.copyTypesFrom(tpoke);
+			poke.copyTypesFrom(tpoke, true);
 			poke.ability = tpoke.ability;
 			poke.timesAttacked = tpoke.timesAttacked;
 			const targetForme = tpoke.volatiles.formechange;
