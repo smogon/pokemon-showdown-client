@@ -1743,10 +1743,6 @@ export class Battle {
 					poke.fainted = false;
 					poke.status = '';
 					this.scene.updateSidebar(side);
-					// Revived while still on the field
-					if (!side.active[poke.slot]) {
-						poke.side.replace(poke);
-					}
 					break;
 				}
 			}
