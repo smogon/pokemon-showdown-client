@@ -1349,8 +1349,9 @@ class BattleTooltips {
 		let level = pokemon.volatiles.transform?.[4] || pokemon.level;
 		let tier = this.battle.tier;
 		let gen = this.battle.gen;
+		let isCGT = tier.includes('Computer-Generated Teams');
 		let isRandomBattle = tier.includes('Random Battle') ||
-			(tier.includes('Random') && tier.includes('Battle') && gen >= 6);
+			(tier.includes('Random') && tier.includes('Battle') && gen >= 6) || isCGT;
 
 		let minNature = (isRandomBattle || gen < 3) ? 1 : 0.9;
 		let maxNature = (isRandomBattle || gen < 3) ? 1 : 1.1;
@@ -1365,8 +1366,8 @@ class BattleTooltips {
 			else if (tier.includes('Random')) max += 20;
 		} else {
 			let maxIvEvOffset = maxIv + ((isRandomBattle && gen >= 3) ? 21 : 63);
-			min = tr(tr(2 * baseSpe * level / 100 + 5) * minNature);
 			max = tr(tr((2 * baseSpe + maxIvEvOffset) * level / 100 + 5) * maxNature);
+			min = isCGT ? max : tr(tr(2 * baseSpe * level / 100 + 5) * minNature);
 		}
 		return [min, max];
 	}
