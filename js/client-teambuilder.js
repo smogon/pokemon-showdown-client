@@ -3192,7 +3192,8 @@
 			if (this.curTeam.format === 'gen7hiddentype') return;
 
 			var minAtk = true;
-			if (set.ability === 'Battle Bond') minAtk = false; // only available through an event with 31 Atk IVs
+			// only available through an event with 31 Atk IVs
+			if (set.ability === 'Battle Bond' || ['Koraidon', 'Miraidon'].includes(set.species)) minAtk = false;
 			var hpModulo = (this.curTeam.gen >= 6 ? 2 : 4);
 			var hasHiddenPower = false;
 			var moves = set.moves;
