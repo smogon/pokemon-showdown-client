@@ -2934,6 +2934,9 @@ export class Battle {
 			case 'quickclaw':
 				poke.item = 'Quick Claw';
 				break;
+			case 'abilityshield':
+				poke.item = 'Ability Shield';
+				break;
 			default:
 				if (kwArgs.broken) { // for custom moves that break protection
 					this.scene.resultAnim(poke, 'Protection broken', 'bad');
