@@ -2472,8 +2472,8 @@ export class Battle {
 			let poke = this.getPokemon(args[1])!;
 			let type = Dex.types.get(args[2]).name;
 			poke.terastallized = type;
-			poke.details += `, tera:${type}`;
-			poke.searchid += `, tera:${type}`;
+			poke.details += `, tera`;
+			poke.searchid += `, tera`;
 			this.scene.animTransform(poke, true, true);
 			this.log(args, kwArgs);
 			break;
