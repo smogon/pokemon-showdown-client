@@ -1464,7 +1464,7 @@ class BattleTooltips {
 		const noTypeOverride = [
 			'judgment', 'multiattack', 'naturalgift', 'revelationdance', 'struggle', 'technoblast', 'terablast', 'terrainpulse', 'weatherball',
 		];
-		const allowTypeOverride = !noTypeOverride.includes(move.id) && move.id !== 'terablast' || !pokemon.terastallized;
+		const allowTypeOverride = !noTypeOverride.includes(move.id) && (move.id !== 'terablast' || !pokemon.terastallized);
 		if (allowTypeOverride) {
 			if (this.battle.rules['Revelationmons Mod']) {
 				const [types] = pokemon.getTypes(serverPokemon);
@@ -1865,7 +1865,7 @@ class BattleTooltips {
 		const noTypeOverride = [
 			'judgment', 'multiattack', 'naturalgift', 'revelationdance', 'struggle', 'technoblast', 'terrainpulse', 'weatherball',
 		];
-		const allowTypeOverride = !noTypeOverride.includes(move.id) && move.id !== 'terablast' || !pokemon.terastallized;
+		const allowTypeOverride = !noTypeOverride.includes(move.id) && (move.id !== 'terablast' || !pokemon.terastallized);
 		if (
 			move.category !== 'Status' && allowTypeOverride && !move.isZ && !move.isMax &&
 			!move.id.startsWith('hiddenpower')
