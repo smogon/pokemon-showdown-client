@@ -2,3 +2,4 @@ node_modules
 .dist
 .eslintcache
 config/*
+.DS_Store
