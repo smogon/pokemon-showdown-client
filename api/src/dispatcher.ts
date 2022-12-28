@@ -14,6 +14,7 @@ import {URLSearchParams} from 'url';
 import {toID} from './server';
 import * as dns from 'dns';
 import IPTools from './ip-tools';
+import * as fs from 'fs';
 
 /**
  * Throw this to end a request with an `actionerror` message.
@@ -46,6 +47,9 @@ export interface DispatcherOpts {
 }
 
 export class Dispatcher {
+	static servers: {[k: string]: RegisteredServer} = Dispatcher.loadServers();
+	static ActionError = ActionError;
+
 	readonly request: http.IncomingMessage;
 	readonly response: http.ServerResponse;
 	readonly session: Session;
@@ -64,6 +68,12 @@ export class Dispatcher {
 		this.user = new User(this.session);
 		this.opts = opts;
 		this.cookies = Dispatcher.parseCookie(this.request.headers.cookie);
+
+		fs.watchFile(Config.serverlist, (curr, prev) => {
+			if (curr.mtime > prev.mtime) {
+				Dispatcher.loadServers();
+			}
+		});
 	}
 	async executeActions() {
 		const {act, body} = this.opts;
@@ -251,6 +261,4 @@ export class Dispatcher {
 		}
 		return {};
 	}
-	static servers: {[k: string]: RegisteredServer} = Dispatcher.loadServers();
-	static ActionError = ActionError;
 }
