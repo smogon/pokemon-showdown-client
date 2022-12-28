@@ -68,12 +68,6 @@ export class Dispatcher {
 		this.user = new User(this.session);
 		this.opts = opts;
 		this.cookies = Dispatcher.parseCookie(this.request.headers.cookie);
-
-		fs.watchFile(Config.serverlist, (curr, prev) => {
-			if (curr.mtime > prev.mtime) {
-				Dispatcher.loadServers();
-			}
-		});
 	}
 	async executeActions() {
 		const {act, body} = this.opts;
@@ -260,5 +254,13 @@ export class Dispatcher {
 			if (e.code !== 'ENOENT') throw e;
 		}
 		return {};
+	}
+
+	static {
+		fs.watchFile(Config.serverlist, (curr, prev) => {
+			if (curr.mtime > prev.mtime) {
+				Dispatcher.loadServers();
+			}
+		});
 	}
 }
