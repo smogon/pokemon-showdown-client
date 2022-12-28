@@ -1832,6 +1832,7 @@ export class PokemonSprite extends Sprite {
 		shelltrap: ['Trap set', 'neutral'],
 		powder: ['Powder', 'bad'],
 		electrify: ['Electrify', 'bad'],
+		glaiverush: ['Glaive Rush', 'bad'],
 		ragepowder: ['Rage Powder', 'good'],
 		followme: ['Follow Me', 'good'],
 		instruct: ['Instruct', 'neutral'],
