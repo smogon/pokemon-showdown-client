@@ -102,18 +102,18 @@ compiledFiles += compiler.compileToDir(`src`, `js`, compileOpts);
 
 compiledFiles += compiler.compileToDir(`src`, `js`, compileOpts);
 
-compiledFiles += compiler.compileToFile(
+compiler.compileToFile(
 	['src/battle-dex.ts', 'src/battle-dex-data.ts', 'src/battle-log.ts', 'src/battle-log-misc.js', 'data/pokemon-showdown/server/chat-formatter.ts', 'data/text.js', 'src/battle-text-parser.ts'],
 	'js/battledata.js',
 	compileOpts
-);
+).then(v => compiledFiles += v);
 
 if (!compileOpts.ignore) {
-	compiledFiles += compiler.compileToFile(
+	compiler.compileToFile(
 		['src/battle-animations.ts', 'src/battle-animations-moves.ts'],
 		'data/graphics.js',
 		compileOpts
-	);
+	).then(v => compiledFiles += v);
 }
 
 const diff = process.hrtime(compileStartTime);
