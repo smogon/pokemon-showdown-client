@@ -943,6 +943,8 @@ export class Side {
 		pokemon.fainted = true;
 		pokemon.hp = 0;
 		pokemon.terastallized = '';
+		pokemon.details = pokemon.details.replace(/, tera:[a-z]+/i, '');
+		pokemon.searchid = pokemon.searchid.replace(/, tera:[a-z]+/i, '');
 		if (pokemon.side.faintCounter < 100) pokemon.side.faintCounter++;
 
 		this.battle.scene.animFaint(pokemon);
@@ -3551,8 +3553,6 @@ export class Battle {
 		case 'faint': {
 			let poke = this.getPokemon(args[1])!;
 			poke.side.faint(poke);
-			poke.details = poke.details.replace(/, tera:[a-z]+/i, '');
-			poke.searchid = poke.searchid.replace(/, tera:[a-z]+/i, '');
 			this.log(args, kwArgs);
 			break;
 		}
