@@ -3551,6 +3551,8 @@ export class Battle {
 		case 'faint': {
 			let poke = this.getPokemon(args[1])!;
 			poke.side.faint(poke);
+			poke.details = poke.details.replace(/, tera:[a-z]+/i, '');
+			poke.searchid = poke.searchid.replace(/, tera:[a-z]+/i, '');
 			this.log(args, kwArgs);
 			break;
 		}
