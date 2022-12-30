@@ -1,0 +1,6 @@
+{
+  "spec": [".dist/src/test/main.js", ".dist/src/test/**.test.js"],
+  "reporter": "dot",
+  "ui": "bdd",
+  "exit": true
+}
