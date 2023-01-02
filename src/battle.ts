@@ -2049,6 +2049,9 @@ export class Battle {
 			case 'protectivepads':
 				poke.item = 'Protective Pads';
 				break;
+			case 'abilityshield':
+				poke.item = 'Ability Shield';
+				break;
 			}
 			this.log(args, kwArgs);
 			break;
