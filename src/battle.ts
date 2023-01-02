@@ -2804,7 +2804,6 @@ export class Battle {
 			let poke = this.getPokemon(args[1])!;
 			let effect = Dex.getEffect(args[2]);
 			poke.addMovestatus(effect.id);
-
 			switch (effect.id) {
 			case 'grudge':
 				this.scene.resultAnim(poke, 'Grudge', 'neutral');
@@ -2813,6 +2812,7 @@ export class Battle {
 				this.scene.resultAnim(poke, 'Destiny Bond', 'neutral');
 				break;
 			}
+			this.scene.updateStatbar(poke);
 			this.log(args, kwArgs);
 			break;
 		}
