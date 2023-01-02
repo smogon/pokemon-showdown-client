@@ -1996,18 +1996,23 @@ class BattleTooltips {
 		'Spell Tag': 'Ghost',
 		'Twisted Spoon': 'Psychic',
 	};
-	static orbUsers: {[speciesForme: string]: string} = {
-		'Latias': 'Soul Dew',
-		'Latios': 'Soul Dew',
-		'Dialga': 'Adamant Orb',
-		'Palkia': 'Lustrous Orb',
-		'Giratina': 'Griseous Orb',
+	static orbUsers: {[speciesForme: string]: string[]} = {
+		'Latias': ['Soul Dew'],
+		'Latios': ['Soul Dew'],
+		'Dialga': ['Adamant Crystal', 'Adamant Orb'],
+		'Palkia': ['Lustrous Globe', 'Lustrous Orb'],
+		'Giratina': ['Griseous Core', 'Griseous Orb'],
+		'Venomicon': ['Vile Vial'],
 	};
-	static orbTypes: {[itemName: string]: TypeName} = {
-		'Soul Dew': 'Psychic',
-		'Adamant Orb': 'Steel',
-		'Lustrous Orb': 'Water',
-		'Griseous Orb': 'Ghost',
+	static orbTypes: {[itemName: string]: TypeName[]} = {
+		'Soul Dew': ['Psychic', 'Dragon'],
+		'Adamant Crystal': ['Steel', 'Dragon'],
+		'Adamant Orb': ['Steel', 'Dragon'],
+		'Lustrous Globe': ['Water', 'Dragon'],
+		'Lustrous Orb': ['Water', 'Dragon'],
+		'Griseous Core': ['Ghost', 'Dragon'],
+		'Griseous Orb': ['Ghost', 'Dragon'],
+		'Vile Vial': ['Poison', 'Flying'],
 	};
 	static noGemMoves = [
 		'Fire Pledge',
@@ -2051,8 +2056,8 @@ class BattleTooltips {
 
 		// Pokemon-specific items
 		if (item.name === 'Soul Dew' && this.battle.gen < 7) return value;
-		if (BattleTooltips.orbUsers[speciesName] === item.name &&
-			[BattleTooltips.orbTypes[item.name], 'Dragon'].includes(moveType)) {
+		if (BattleTooltips.orbUsers[speciesName]?.includes(item.name) &&
+			BattleTooltips.orbTypes[item.name]?.includes(moveType)) {
 			value.itemModify(1.2);
 			return value;
 		}
