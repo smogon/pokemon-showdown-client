@@ -45,13 +45,13 @@ exports.pspath = '/var/www/html/play.pokemonshowdown.com/data/pokemon-showdown';
  */
 exports.makeSid = null;
 
-/** ips to automatically lock 
+/** ips to automatically lock
  * @type {string[]} */
 exports.autolockip = [];
-/** compromised private key indexes 
+/** compromised private key indexes
  * @type {number[]} */
 exports.compromisedkeys = [];
-/** proxies to trust x-forwarded-for from 
+/** proxies to trust x-forwarded-for from
  * @type {string[]} */
 exports.trustedproxies = [];
 
@@ -87,17 +87,15 @@ exports.challengekeyid = 4;
 /** @type {typeof exports.mysql | undefined}*/
 exports.replaysdb = undefined;
 /** @type {typeof exports.mysql | undefined}*/
-exports.testdb = undefined;
-/** @type {typeof exports.mysql | undefined}*/
 exports.ladderdb = undefined;
 
 /**
  * For emailing crashes.
  * @type {{
  * options: {
- * 		host: string, 
- * 		port: number, 
- * 		secure?: boolean, 
+ * 		host: string,
+ * 		port: number,
+ * 		secure?: boolean,
  * 		auth?: {user: string, pass: string}
  * 	},
  * 	from: string,
@@ -107,7 +105,7 @@ exports.ladderdb = undefined;
  */
 exports.crashguardemail = null;
 
-/** 
+/**
  * SSL settings.
  * @type {{key: string, cert: string} | null}
  */
