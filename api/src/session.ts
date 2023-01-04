@@ -81,9 +81,9 @@ export class Session {
 		const timestamp = time() - period;
 		const query = SQL`SELECT COUNT(*) AS \`registrationcount\` FROM \`ntbb_users\``;
 		query.append(SQL`WHERE \`ip\` = ${ip} AND \`registertime\` > ${timestamp}`);
-		const rows = await users.database.get(query);
+		const rows = await users.query(query);
 		if (!rows) return 0;
-		return rows['registrationcount'];
+		return rows[0]['registrationcount'];
 	}
 	async addUser(username: string, password: string) {
 		const hash = await bcrypt.hash(password, Config.passwordSalt);
@@ -433,7 +433,8 @@ export class Session {
 		query.append(SQL`WHERE \`session\` = ${session} `);
 		query.append('AND `ntbb_sessions`.`userid` = `ntbb_users`.`userid` ');
 		query.append(' LIMIT 1');
-		const res = await users.database.get<{sid: string; timeout: number}>(query);
+		const rows = await users.query<{sid: string; timeout: number}>(query);
+		const res = rows?.[0];
 		if (!res || !(await bcrypt.compare(sid, res.sid))) {
 			// invalid session ID
 			this.deleteCookie();
