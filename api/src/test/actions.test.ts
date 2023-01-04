@@ -11,7 +11,7 @@ import SQL from 'sql-template-strings';
 import * as tables from '../tables';
 
 const token = '42354y6dhgfdsretr';
-(process.env.USE_LOCAL_DB ? describe : describe.skip)('Loginserver actions', () => {
+describe('Loginserver actions', () => {
 	const server = utils.addServer({
 		id: 'showdown',
 		name: 'Etheria',
