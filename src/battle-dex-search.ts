@@ -1382,8 +1382,6 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 			return (!moves.includes('poltergeist') && !moves.includes('shadowclaw')) || this.formatType === 'doubles';
 		case 'poisonfang':
 			return species.types.includes('Poison') && !moves.includes('gunkshot') && !moves.includes('poisonjab');
-		case 'ragingbull':
-			return species.baseSpecies === 'Tauros';
 		case 'relicsong':
 			return species.id === 'meloetta';
 		case 'refresh':
