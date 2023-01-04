@@ -3,7 +3,6 @@
  * By Mia.
  * @author mia-pi-git
  */
-import {Config} from '../config-loader';
 import {strict as assert} from 'assert';
 import {NTBBLadder} from '../ladder';
 import * as utils from './test-utils';

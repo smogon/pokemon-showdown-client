@@ -256,7 +256,7 @@ export class Dispatcher {
 		return {};
 	}
 
-	static {
+	static init() {
 		fs.watchFile(Config.serverlist, (curr, prev) => {
 			if (curr.mtime > prev.mtime) {
 				Dispatcher.loadServers();
@@ -264,3 +264,5 @@ export class Dispatcher {
 		});
 	}
 }
+
+Dispatcher.init();
