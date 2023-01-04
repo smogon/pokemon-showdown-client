@@ -24,6 +24,5 @@ process.on('SIGINT', () => {
 		for (const database of databases) {
 			database.close();
 		}
-		process.exit(0);
 	});
 });
