@@ -1333,7 +1333,8 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 		case 'hiddenpowerfighting':
 			return (dex.gen < 4 && !moves.includes('brickbreak')) && !moves.includes('aurasphere') && !moves.includes('focusblast');
 		case 'hiddenpowerfire':
-			return (dex.gen < 4 && !moves.includes('firepunch')) && !moves.includes('flamethrower') && !moves.includes('burningjealousy');
+			return (dex.gen < 4 && !moves.includes('firepunch')) && !moves.includes('flamethrower') &&
+				!moves.includes('mysticalfire') && !moves.includes('burningjealousy');
 		case 'hiddenpowergrass':
 			return !moves.includes('energyball') && !moves.includes('grassknot') && !moves.includes('gigadrain');
 		case 'hiddenpowerice':
