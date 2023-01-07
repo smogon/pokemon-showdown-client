@@ -393,6 +393,8 @@ function toId() {
 		},
 		focused: true,
 		initialize: function () {
+			// Gotta cache this since backbone removes it
+			this.query = window.location.search;
 			window.app = this;
 			this.initializeRooms();
 			this.initializePopups();
@@ -753,11 +755,15 @@ function toId() {
 						// anyway, this affects SockJS because it makes HTTP requests to localhost
 						// but it turns out that making direct WebSocket connections to localhost is
 						// still supported, so we'll just bypass SockJS and use WebSocket directly.
+						var possiblePort = new URL(document.location + self.query).searchParams.get('port');
+						// We need to bypass the port as well because on most modern browsers, http gets forced
+						// to https, which means a ws connection is made to port 443 instead of wherever it's actually running,
+						// thus ensuring a failed connection.
+						var port = possiblePort || Config.server.port;
 						console.log("Bypassing SockJS for localhost");
-						console.log('ws' + protocol.slice('4') + '://' + Config.server.host + ':' + Config.server.port + Config.sockjsprefix + '/websocket');
-						return new WebSocket(
-							'ws' + protocol.slice('4') + '://' + Config.server.host + ':' + Config.server.port + Config.sockjsprefix + '/websocket'
-						);
+						var url = 'ws://' + Config.server.host + ':' + port + Config.sockjsprefix + '/websocket';
+						console.log(url);
+						return new WebSocket(url);
 					}
 					return new SockJS(
 						protocol + '://' + Config.server.host + ':' + Config.server.port + Config.sockjsprefix,
