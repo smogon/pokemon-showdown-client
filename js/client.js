@@ -758,7 +758,7 @@ function toId() {
 						// We need to bypass the port as well because on most modern browsers, http gets forced
 						// to https, which means a ws connection is made to port 443 instead of wherever it's actually running,
 						// thus ensuring a failed connection.
-						var port = possiblePort ? possiblePort[1] : Config.server.port;
+						var port = possiblePort || Config.server.port;
 						console.log("Bypassing SockJS for localhost");
 						var url = 'ws://' + Config.server.host + ':' + port + Config.sockjsprefix + '/websocket';
 						console.log(url);
