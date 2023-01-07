@@ -393,6 +393,7 @@ function toId() {
 		},
 		focused: true,
 		initialize: function () {
+			// Gotta cache this since backbone removes it
 			this.query = window.location.search;
 			window.app = this;
 			this.initializeRooms();
