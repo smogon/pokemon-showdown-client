@@ -754,7 +754,7 @@ function toId() {
 						// anyway, this affects SockJS because it makes HTTP requests to localhost
 						// but it turns out that making direct WebSocket connections to localhost is
 						// still supported, so we'll just bypass SockJS and use WebSocket directly.
-						var possiblePort = /port=([0-9]+)/.exec(self.query || "");
+						var possiblePort = new URL(document.location + self.query).searchParams.get('port');
 						// We need to bypass the port as well because on most modern browsers, http gets forced
 						// to https, which means a ws connection is made to port 443 instead of wherever it's actually running,
 						// thus ensuring a failed connection.
