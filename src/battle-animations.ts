@@ -1840,6 +1840,7 @@ export class PokemonSprite extends Sprite {
 		laserfocus: ['Laser Focus', 'good'],
 		spotlight: ['Spotlight', 'neutral'],
 		itemremoved: null,
+		metronomeitem: null,
 		// partial trapping
 		bind: ['Bind', 'bad'],
 		clamp: ['Clamp', 'bad'],

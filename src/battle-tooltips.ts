@@ -541,6 +541,7 @@ class BattleTooltips {
 		let item = this.battle.dex.items.get(serverPokemon.item);
 
 		let value = new ModifiableValue(this.battle, pokemon, serverPokemon);
+		let damageMod = new ModifiableValue(this.battle, pokemon, serverPokemon);
 		let [moveType, category] = this.getMoveType(move, value, gmaxMove || isZOrMax === 'maxmove');
 
 		if (isZOrMax === 'zmove') {
@@ -605,34 +606,55 @@ class BattleTooltips {
 		text += Dex.getTypeIcon(moveType);
 		text += ` ${Dex.getCategoryIcon(category)}</h2>`;
 
-		// Check if there are more than one active Pokémon to check for multiple possible BPs.
+		// Check if there are more than one active Pokémon to check for multiple possible BPs or damage mods.
 		let showingMultipleBasePowers = false;
+		let showingMultipleDamageMods = false;
 		if (category !== 'Status' && foeActive.length > 1) {
-			// We check if there is a difference in base powers to note it.
+			// We check if there is a difference in values to note it.
 			// Otherwise, it is just shown as in singles.
 			// The trick is that we need to calculate it first for each Pokémon to see if it changes.
 			let prevBasePower: string | null = null;
 			let basePower: string = '';
-			let difference = false;
+			let differenceBP = false;
 			let basePowers = [];
+
+			let prevDamageMod: string | null = null;
+			let dMod: string = '';
+			let differenceDM = false;
+			let damageMods = [];
 			for (const active of foeActive) {
 				if (!active) continue;
+
 				value = this.getMoveBasePower(move, moveType, value, active);
 				basePower = '' + value;
 				if (prevBasePower === null) prevBasePower = basePower;
-				if (prevBasePower !== basePower) difference = true;
+				if (prevBasePower !== basePower) differenceBP = true;
 				basePowers.push('Base power vs ' + active.name + ': ' + basePower);
+
+				damageMod = this.getMoveDamageMod(move, moveType, damageMod, active);
+				dMod = '' + damageMod;
+				if (prevDamageMod === null) prevDamageMod = dMod;
+				if (prevDamageMod !== dMod) differenceDM = true;
+				if (damageMod.value !== 100) damageMods.push('Damage mod vs ' + active.name + ': ' + dMod);
 			}
-			if (difference) {
+			if (differenceBP) {
 				text += '<p>' + basePowers.join('<br />') + '</p>';
 				showingMultipleBasePowers = true;
 			}
-			// Falls through to not to repeat code on showing the base power.
+			if (differenceDM) {
+				text += '<p>' + damageMods.join('<br />') + '</p>';
+				showingMultipleDamageMods = true;
+			}
+			// Falls through to not to repeat code on showing the base power/damage mod.
 		}
+		let activeTarget = foeActive[0] || foeActive[1] || foeActive[2];
 		if (!showingMultipleBasePowers && category !== 'Status') {
-			let activeTarget = foeActive[0] || foeActive[1] || foeActive[2];
 			value = this.getMoveBasePower(move, moveType, value, activeTarget);
 			text += '<p>Base power: ' + value + '</p>';
+		}
+		if (!showingMultipleDamageMods && category !== 'Status') {
+			damageMod = this.getMoveDamageMod(move, moveType, damageMod, activeTarget);
+			if (damageMod.value !== 100) text += '<p>Damage mod: ' + damageMod + '</p>';
 		}
 
 		let accuracy = this.getMoveAccuracy(move, value);
@@ -1829,9 +1851,6 @@ class BattleTooltips {
 		if (['psn', 'tox'].includes(pokemon.status) && move.category === 'Physical') {
 			value.abilityModify(1.5, "Toxic Boost");
 		}
-		if (this.battle.gen > 2 && serverPokemon.status === 'brn' && move.id !== 'facade' && move.category === 'Physical') {
-			if (!value.tryAbility("Guts")) value.modify(0.5, 'Burn');
-		}
 		if (['Rock', 'Ground', 'Steel'].includes(moveType) && this.battle.weather === 'sandstorm') {
 			if (value.tryAbility("Sand Force")) value.weatherModify(1.3, "Sandstorm", "Sand Force");
 		}
@@ -1968,6 +1987,129 @@ class BattleTooltips {
 
 		// Item
 		value = this.getItemBoost(move, value, moveType);
+
+		return value;
+	}
+
+	// Gets the proper damage mod based on general and final damage modifiers.
+	// Takes into account the target for some moves.
+	// Damage modifiers regarding type matchups are not supported.
+	getMoveDamageMod(move: Move, moveType: TypeName, value: ModifiableValue, target: Pokemon | null = null) {
+		const pokemon = value.pokemon!;
+		const serverPokemon = value.serverPokemon;
+		const pokemonTypes = this.getPokemonTypes(pokemon);
+
+		const targetAbility = target?.ability as string;
+		const targetStatus = target?.status as string;
+		const targetLastMove = target?.lastMove as string;
+
+		let foe = pokemon.side.foe;
+		let foeActive = foe.active;
+		if (this.battle.gameType === 'freeforall') {
+			foeActive = [...foeActive, ...pokemon.side.active].filter(active => active !== pokemon);
+		}
+
+		value.reset(100);
+		value.comment.push('%');
+
+		// items
+		if (pokemon.item === 'Life Orb') {
+			value.itemModify(1.3, 'Life Orb');
+		}
+		if (pokemon.item === 'Metronome' && pokemon.hasMovestatus('metronomeitem' as ID)) {
+			value.itemModify(pokemon.movestatuses['metronomeitem'][1], 'Metronome (item)');
+		}
+
+		// abilities
+		if (!['singles', 'freeforall'].includes(this.battle.gameType)) {
+			if (foeActive.map(poke => poke?.ability).includes('Friend Guard')) {
+				let friendGuarded = [];
+				for (const active of foeActive) {
+					if (active && toID(active.ability) === 'Friend Guard') {
+						for (const otherActive of foeActive) {
+							if (otherActive && otherActive !== active) friendGuarded.push(otherActive);
+						}
+					}
+				}
+				if (friendGuarded.includes(target as Pokemon)) value.abilityModify(0.75, 'Friend Guard');
+			}
+		}
+		if (targetAbility === 'Fluffy') {
+			let mod = 1.0;
+			if (move.flags['contact']) mod *= 0.5;
+			if (moveType === 'Fire') mod *= 2;
+			if (mod !== 1.0) value.abilityModify(mod, targetAbility);
+		}
+		if (targetAbility === 'Ice Scales' && move.category === 'Special') {
+			value.abilityModify(0.5, targetAbility);
+		}
+		if (['Multiscale', 'Shadow Shield'].includes(targetAbility) && target?.hp === target?.maxhp) {
+			value.abilityModify(0.5, targetAbility);
+		}
+		if (pokemon.ability === 'Parental Bond') {
+			value.abilityModify(1.25, pokemon.ability);
+		}
+
+		// other general damage modifiers
+		if (foeActive.length > 1 && ['allAdjacent', 'allAdjacentFoes'].includes(move.target)) {
+			if (this.battle.gen === 3 && move.target === 'allAdjacentFoes') {
+				value.modify(0.5, 'Spread move');
+			} else {
+				value.modify(0.75, 'Spread move');
+			}
+		}
+		if (['Battle Armor', 'Shell Armor'].includes(targetAbility) || !foe.sideConditions['luckychant']) {
+			if (move.willCrit || (pokemon.ability === 'Merciless' && ['psn', 'tox'].includes(targetStatus))) {
+				let mod = this.battle.gen <= 5 ? 2.0 : 1.5;
+				if (pokemon.ability === 'Sniper') mod *= 1.5;
+				value.modify(this.battle.gen <= 5 ? 2.0 : 1.5, 'Critical hit');
+			}
+		}
+		if (pokemonTypes.includes(moveType)) {
+			if (pokemon.ability === 'Adaptability') {
+				value.abilityModify(2.0, 'Adaptability');
+			} else {
+				value.modify(1.5, 'STAB');
+			}
+		}
+		if (target?.volatiles['tarshot'] && moveType === 'Fire') {
+			value.modify(2, 'Tar Shot');
+		}
+		if (this.battle.gen > 2 && pokemon.status === 'brn' && move.id !== 'facade' && move.category === 'Physical') {
+			if (pokemon.ability !== 'Guts') value.modify(0.5, 'Burn');
+		}
+		switch (this.battle.weather) {
+			case 'sunnyday':
+			case 'desolateland':
+				if (moveType === 'Fire') value.modify(1.5, 'Sun');
+				if (moveType === 'Water') value.modify(0.5, 'Sun');
+				break;
+			case 'raindance':
+			case 'primordialsea':
+				if (moveType === 'Water') value.modify(1.5, 'Rain');
+				if (moveType === 'Fire') value.modify(0.5, 'Rain');
+				break;
+		}
+
+		// other final damage modifiers
+		if (['whirlpool', 'surf'].includes(move.id) && targetLastMove === 'Dive') {
+			value.modify(2, 'Dive');
+		}
+		if (['earthquake', 'magnitude'].includes(move.id) && targetLastMove === 'Dig') {
+			value.modify(2, 'Dig');
+		}
+		if (['gust', 'twister'].includes(move.id) && ['Fly', 'Bounce', 'Sky Drop'].includes(targetLastMove)) {
+			value.modify(2, targetLastMove);
+		}
+		if (['behemothbash', 'behemothblade', 'dynamaxcannon'].includes(move.id) && target?.volatiles['dynamax']) {
+			value.modify(2, 'Dynamax');
+		}
+		if (foe.sideConditions['reflect'] && move.category === 'Physical') {
+			value.modify(0.5, 'Reflect');
+		}
+		if (foe.sideConditions['lightscreen'] && move.category === 'Special') {
+			value.modify(0.5, 'Light Screen');
+		}
 
 		return value;
 	}

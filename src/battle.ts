@@ -311,20 +311,20 @@ export class Pokemon implements PokemonDetails, PokemonHealth {
 		if (!this.hasMovestatus(volatile)) return;
 		delete this.movestatuses[volatile];
 	}
-	addMovestatus(volatile: ID) {
+	addMovestatus(volatile: ID, ...args: any[]) {
 		volatile = toID(volatile);
 		if (this.hasMovestatus(volatile)) return;
-		this.movestatuses[volatile] = [volatile];
+		this.movestatuses[volatile] = [volatile, ...args] as EffectState;
 		this.side.battle.scene.addEffect(this, volatile);
 	}
 	hasMovestatus(volatile: ID) {
 		return !!this.movestatuses[volatile];
 	}
-	clearMovestatuses() {
+	clearMovestatuses(except: ID[] = []) {
 		for (let id in this.movestatuses) {
-			this.removeMovestatus(id as ID);
+			if (!except.includes(id as ID)) this.removeMovestatus(id as ID);
 		}
-		this.movestatuses = {};
+		// this.movestatuses = {};
 	}
 	clearVolatiles() {
 		this.volatiles = {};
@@ -1437,7 +1437,25 @@ export class Battle {
 	useMove(pokemon: Pokemon, move: Move, target: Pokemon | null, kwArgs: KWArgs) {
 		let fromeffect = Dex.getEffect(kwArgs.from);
 		this.activateAbility(pokemon, fromeffect);
-		pokemon.clearMovestatuses();
+		pokemon.clearMovestatuses(['metronomeitem' as ID]);
+
+		if (pokemon.item === 'Metronome') {
+			if (!pokemon.hasMovestatus('metronomeitem' as ID)) {
+				if (move.category !== 'Status') {
+					let baseIncrease = this.gen === 4 ? 1.1 : 1.2;
+					pokemon.addMovestatus('metronomeitem' as ID, baseIncrease, move.id);
+				}
+			} else if (move.id === pokemon.movestatuses['metronomeitem'][2]) {
+				if (pokemon.movestatuses['metronomeitem'][1] < 2) {
+					pokemon.movestatuses['metronome'][1] += this.gen === 4 ? 0.1 : 0.2;
+				}
+			} else {
+				pokemon.removeMovestatus('metronomeitem' as ID);
+			}
+			if (target?.hasTurnstatus('protect' as ID)) {
+				pokemon.removeMovestatus('metronomeitem' as ID);
+			}
+		}
 		if (move.id === 'focuspunch') {
 			pokemon.removeTurnstatus('focuspunch' as ID);
 		}
@@ -1973,10 +1991,12 @@ export class Battle {
 			break;
 		}
 		case '-miss': {
+			let poke = this.getPokemon(args[1])!;
 			let target = this.getPokemon(args[2]);
 			if (target) {
 				this.scene.resultAnim(target, 'Missed', 'neutral');
 			}
+			poke.clearMovestatuses(['metronomeitem' as ID]);
 			this.log(args, kwArgs);
 			break;
 		}
@@ -1985,6 +2005,7 @@ export class Battle {
 			let effect = Dex.getEffect(args[2]);
 			let fromeffect = Dex.getEffect(kwArgs.from);
 			let ofpoke = this.getPokemon(kwArgs.of);
+			poke.clearMovestatuses(['metronomeitem' as ID]);
 			this.activateAbility(ofpoke || poke, fromeffect);
 			switch (effect.id) {
 			case 'brn':
