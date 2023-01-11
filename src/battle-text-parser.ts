@@ -144,7 +144,7 @@ class BattleTextParser {
 				kwArgs.item = arg3;
 			} else if (id === 'magnitude') {
 				kwArgs.number = arg3;
-			} else if (id === 'skillswap' || id === 'mummy' || id === 'wanderingspirit') {
+			} else if (id === 'skillswap' || id === 'mummy' || id === 'lingeringaroma' || id === 'wanderingspirit') {
 				kwArgs.ability = arg3;
 				kwArgs.ability2 = arg4;
 			} else if ([

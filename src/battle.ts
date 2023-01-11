@@ -1991,7 +1991,11 @@ export class Battle {
 			let effect = Dex.getEffect(args[2]);
 			let fromeffect = Dex.getEffect(kwArgs.from);
 			let ofpoke = this.getPokemon(kwArgs.of);
-			this.activateAbility(ofpoke || poke, fromeffect);
+			if (fromeffect.id === 'clearamulet') {
+				ofpoke!.item = 'Clear Amulet';
+			} else {
+				this.activateAbility(ofpoke || poke, fromeffect);
+			}
 			switch (effect.id) {
 			case 'brn':
 				this.scene.resultAnim(poke, 'Already burned', 'neutral');
