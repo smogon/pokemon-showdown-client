@@ -804,9 +804,9 @@ class BattleTooltips {
 			}
 			text += types.map(type => Dex.getTypeIcon(type)).join(' ');
 			if (pokemon.terastallized) {
-				text += ` <small>(base: ${this.getPokemonTypes(pokemon, true).map(type => Dex.getTypeIcon(type)).join(' ')})</small>`;
+				text += `&nbsp; &nbsp; <small class="type-aligned">(base: </small>${this.getPokemonTypes(pokemon, true).map(type => Dex.getTypeIcon(type)).join(' ')}<small class="type-aligned">)</small>`;
 			} else if (serverPokemon?.teraType) {
-				text += ` <small>(Tera Type: ${Dex.getTypeIcon(serverPokemon.teraType)})</small>`;
+				text += `&nbsp; &nbsp; <small class="type-aligned">(Tera Type: </small>${Dex.getTypeIcon(serverPokemon.teraType)}<small class="type-aligned">)</small>`;
 			}
 			text += `</h2>`;
 		}
