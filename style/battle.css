@@ -789,6 +789,9 @@ License: GPLv2
 #tooltipwrapper .tooltip p.section {
 	border-top: 1px solid #888888;
 }
+#tooltipwrapper .tooltip .textaligned-typeicons img {
+	vertical-align: text-bottom;
+}
 #tooltipwrapper.tooltip-locked {
 	pointer-events: auto;
 }
