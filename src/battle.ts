@@ -438,26 +438,16 @@ export class Pokemon implements PokemonDetails, PokemonHealth {
 		this.volatiles = pokemon.volatiles;
 		// this.lastMove = pokemon.lastMove; // I think
 		if (!copySource) {
-			delete this.volatiles['airballoon'];
-			delete this.volatiles['attract'];
-			delete this.volatiles['autotomize'];
-			delete this.volatiles['disable'];
-			delete this.volatiles['encore'];
-			delete this.volatiles['foresight'];
-			delete this.volatiles['gmaxchistrike'];
-			delete this.volatiles['imprison'];
-			delete this.volatiles['laserfocus'];
-			delete this.volatiles['mimic'];
-			delete this.volatiles['miracleeye'];
-			delete this.volatiles['nightmare'];
-			delete this.volatiles['smackdown'];
-			delete this.volatiles['stockpile1'];
-			delete this.volatiles['stockpile2'];
-			delete this.volatiles['stockpile3'];
-			delete this.volatiles['torment'];
-			delete this.volatiles['typeadd'];
-			delete this.volatiles['typechange'];
-			delete this.volatiles['yawn'];
+			const volatilesToRemove = [
+				'airballoon', 'attract', 'autotomize', 'disable', 'encore', 'foresight', 'gmaxchistrike', 'imprison', 'laserfocus', 'mimic', 'miracleeye', 'nightmare', 'saltcure', 'smackdown', 'stockpile1', 'stockpile2', 'stockpile3', 'torment', 'typeadd', 'typechange', 'yawn',
+			];
+			for (const statName of Dex.statNamesExceptHP) {
+				volatilesToRemove.push('protosynthesis' + statName);
+				volatilesToRemove.push('quarkdrive' + statName);
+			}
+			for (const volatile of volatilesToRemove) {
+				delete this.volatiles[volatile];
+			}
 		}
 		if (copySource === 'shedtail') {
 			for (let i in this.volatiles) {
@@ -1991,7 +1981,11 @@ export class Battle {
 			let effect = Dex.getEffect(args[2]);
 			let fromeffect = Dex.getEffect(kwArgs.from);
 			let ofpoke = this.getPokemon(kwArgs.of);
-			this.activateAbility(ofpoke || poke, fromeffect);
+			if (fromeffect.id === 'clearamulet') {
+				ofpoke!.item = 'Clear Amulet';
+			} else {
+				this.activateAbility(ofpoke || poke, fromeffect);
+			}
 			switch (effect.id) {
 			case 'brn':
 				this.scene.resultAnim(poke, 'Already burned', 'neutral');
