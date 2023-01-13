@@ -805,7 +805,7 @@ class BattleTooltips {
 			text += types.map(type => Dex.getTypeIcon(type)).join(' ');
 			if (pokemon.terastallized) {
 				text += ` <small>(base: ${this.getPokemonTypes(pokemon, true).map(type => Dex.getTypeIcon(type)).join(' ')})</small>`;
-			} else if (serverPokemon?.teraType && !this.battle.rules["Terastal Clause"]) {
+			} else if (serverPokemon?.teraType && !this.battle.rules['Terastal Clause']) {
 				text += ` <small>(Tera Type: ${Dex.getTypeIcon(serverPokemon.teraType)})</small>`;
 			}
 			text += `</h2>`;
