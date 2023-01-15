@@ -1215,22 +1215,22 @@ class BattleTooltips {
 		if (ability === 'furcoat') {
 			stats.def *= 2;
 		}
-		if (this.battle.abilityActive('Vessel of Ruin', pokemon)) {
+		if (this.battle.abilityActive('Vessel of Ruin')) {
 			if (ability !== 'vessalofruin') {
 				stats.spa = Math.floor(stats.spa * 0.75);
 			}
 		}
-		if (this.battle.abilityActive('Sword of Ruin', pokemon)) {
+		if (this.battle.abilityActive('Sword of Ruin')) {
 			if (ability !== 'swordofruin') {
 				stats.def = Math.floor(stats.def * 0.75);
 			}
 		}
-		if (this.battle.abilityActive('Tablets of Ruin', pokemon)) {
+		if (this.battle.abilityActive('Tablets of Ruin')) {
 			if (ability !== 'tabletsofruin') {
 				stats.atk = Math.floor(stats.atk * 0.75);
 			}
 		}
-		if (this.battle.abilityActive('Beads of Ruin', pokemon)) {
+		if (this.battle.abilityActive('Beads of Ruin')) {
 			if (ability !== 'beadsofruin') {
 				stats.spd = Math.floor(stats.spd * 0.75);
 			}
