@@ -1216,7 +1216,7 @@ class BattleTooltips {
 			stats.def *= 2;
 		}
 		if (this.battle.abilityActive('Vessel of Ruin')) {
-			if (ability !== 'vessalofruin') {
+			if (ability !== 'vesselofruin') {
 				stats.spa = Math.floor(stats.spa * 0.75);
 			}
 		}
