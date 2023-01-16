@@ -1465,7 +1465,16 @@ class Species implements Effect {
 		this.unreleasedHidden = data.unreleasedHidden || false;
 		this.changesFrom = data.changesFrom || undefined;
 		if (!this.gen) {
-			if (this.num >= 906 || this.formeid.startsWith('-paldea')) {
+			if ([406, 407, 424, 429, 430, 433, 438, 439, 440, 446, 458, 461, 462, 463, 464, 465, 466, 467,
+				468, 469, 470, 471, 472, 473, 474, 475, 476, 477, 478, 700, 862, 863, 864, 865, 866, 894,
+				895, 899, 900, 901, 903, 904, 948, 949, 960, 961, 979, 980, 981, 982, 984, 985, 987, 989,
+				990, 991, 992, 995, 1005, 1006].includes(this.num) || this.formeid === '-alola' ||
+				(this.formeid.startsWith('-galar') || this.formeid.startsWith('-paldea') ||
+					this.formeid.startsWith('-hisui')) && [52, 77, 78, 83, 110, 122, 222, 263, 264, 79, 80,
+					144, 145, 146, 199, 58, 59, 100, 101, 157, 211, 215, 128, 194].includes(this.num)) {
+				this.gen=3
+			}
+			else if (this.num >= 906 || this.formeid.startsWith('-paldea')) {
 				this.gen = 9;
 			} else if (this.num >= 810 || this.formeid.startsWith('-galar') || this.formeid.startsWith('-hisui')) {
 				this.gen = 8;
