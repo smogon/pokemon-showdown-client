@@ -144,7 +144,7 @@ class BattleTextParser {
 				kwArgs.item = arg3;
 			} else if (id === 'magnitude') {
 				kwArgs.number = arg3;
-			} else if (id === 'skillswap' || id === 'mummy' || id === 'wanderingspirit') {
+			} else if (id === 'skillswap' || id === 'mummy' || id === 'lingeringaroma' || id === 'wanderingspirit') {
 				kwArgs.ability = arg3;
 				kwArgs.ability2 = arg4;
 			} else if ([
@@ -1027,7 +1027,7 @@ class BattleTextParser {
 			const line1 = this.maybeAbility(kwArgs.from, kwArgs.of || pokemon);
 			let templateId = 'block';
 			if (['desolateland', 'primordialsea'].includes(blocker) &&
-				!['sunnyday', 'raindance', 'sandstorm', 'hail', 'snow'].includes(id)) {
+				!['sunnyday', 'raindance', 'sandstorm', 'hail', 'snowscape', 'chillyreception'].includes(id)) {
 				templateId = 'blockMove';
 			} else if (blocker === 'uproar' && kwArgs.msg) {
 				templateId = 'blockSelf';

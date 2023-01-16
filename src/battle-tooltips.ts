@@ -802,11 +802,11 @@ class BattleTooltips {
 			} else if (clientPokemon?.volatiles.typechange || clientPokemon?.volatiles.typeadd) {
 				text += `<small>(Type changed)</small><br />`;
 			}
-			text += types.map(type => Dex.getTypeIcon(type)).join(' ');
+			text += `<span class="textaligned-typeicons">${types.map(type => Dex.getTypeIcon(type)).join(' ')}</span>`;
 			if (pokemon.terastallized) {
-				text += ` <small>(base: ${this.getPokemonTypes(pokemon, true).map(type => Dex.getTypeIcon(type)).join(' ')})</small>`;
-			} else if (serverPokemon?.teraType) {
-				text += ` <small>(Tera Type: ${Dex.getTypeIcon(serverPokemon.teraType)})</small>`;
+				text += `&nbsp; &nbsp; <small>(base: <span class="textaligned-typeicons">${this.getPokemonTypes(pokemon, true).map(type => Dex.getTypeIcon(type)).join(' ')}</span>)</small>`;
+			} else if (serverPokemon?.teraType && !this.battle.rules['Terastal Clause']) {
+				text += `&nbsp; &nbsp; <small>(Tera Type: <span class="textaligned-typeicons">${Dex.getTypeIcon(serverPokemon.teraType)}</span>)</small>`;
 			}
 			text += `</h2>`;
 		}
@@ -1215,17 +1215,25 @@ class BattleTooltips {
 		if (ability === 'furcoat') {
 			stats.def *= 2;
 		}
-		if (this.battle.abilityActive('Vessel of Ruin', pokemon)) {
-			stats.spa = Math.floor(stats.spa * 0.75);
+		if (this.battle.abilityActive('Vessel of Ruin')) {
+			if (ability !== 'vesselofruin') {
+				stats.spa = Math.floor(stats.spa * 0.75);
+			}
 		}
-		if (this.battle.abilityActive('Sword of Ruin', pokemon)) {
-			stats.def = Math.floor(stats.def * 0.75);
+		if (this.battle.abilityActive('Sword of Ruin')) {
+			if (ability !== 'swordofruin') {
+				stats.def = Math.floor(stats.def * 0.75);
+			}
 		}
-		if (this.battle.abilityActive('Tablets of Ruin', pokemon)) {
-			stats.atk = Math.floor(stats.atk * 0.75);
+		if (this.battle.abilityActive('Tablets of Ruin')) {
+			if (ability !== 'tabletsofruin') {
+				stats.atk = Math.floor(stats.atk * 0.75);
+			}
 		}
-		if (this.battle.abilityActive('Beads of Ruin', pokemon)) {
-			stats.spd = Math.floor(stats.spd * 0.75);
+		if (this.battle.abilityActive('Beads of Ruin')) {
+			if (ability !== 'beadsofruin') {
+				stats.spd = Math.floor(stats.spd * 0.75);
+			}
 		}
 		const sideConditions = this.battle.mySide.sideConditions;
 		if (sideConditions['tailwind']) {
