@@ -2469,7 +2469,8 @@ export class Battle {
 			poke.terastallized = type;
 			poke.details += `, tera:${type}`;
 			poke.searchid += `, tera:${type}`;
-			this.scene.animTransform(poke, true, true);
+			this.scene.animTransform(poke, true);
+			this.scene.resetStatbar(poke);
 			this.log(args, kwArgs);
 			break;
 		}
