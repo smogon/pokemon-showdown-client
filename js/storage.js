@@ -1246,13 +1246,6 @@ Storage.importTeam = function (buffer, teams) {
 			if (line.substr(0, 14) === 'Hidden Power [') {
 				var hptype = line.substr(14, line.length - 15);
 				line = 'Hidden Power ' + hptype;
-				var type = Dex.types.get(hptype);
-				if (!curSet.ivs && type) {
-					curSet.ivs = {};
-					for (var stat in type.HPivs) {
-						curSet.ivs[stat] = type.HPivs[stat];
-					}
-				}
 			}
 			if (line === 'Frustration' && curSet.happiness === undefined) {
 				curSet.happiness = 0;
