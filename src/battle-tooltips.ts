@@ -1456,13 +1456,13 @@ class BattleTooltips {
 		// Raging Bull's type depends on the Tauros forme
 		if (move.id === 'ragingbull') {
 			switch (pokemon.getSpeciesForme()) {
-			case 'Tauros-Paldea':
+			case 'Tauros-Paldea-Combat':
 				moveType = 'Fighting';
 				break;
-			case 'Tauros-Paldea-Fire':
+			case 'Tauros-Paldea-Blaze':
 				moveType = 'Fire';
 				break;
-			case 'Tauros-Paldea-Water':
+			case 'Tauros-Paldea-Aqua':
 				moveType = 'Water';
 				break;
 			}
