@@ -779,7 +779,7 @@ class BattleTooltips {
 		if (this.battle.rules['Tera Type Preview']) {
 			const substring = pokemon.details.match(/(?<=teratype\:).*/g);
 			if (substring != null) {
-		    revealedTeraType = substring[0];
+				revealedTeraType = substring[0];
 			}
 		}
 		if (gender === 'M' || gender === 'F') {
@@ -819,7 +819,7 @@ class BattleTooltips {
 			text += `</h2>`;
 
 			if (!pokemon.terastallized && this.battle.rules['Tera Type Preview']) {
-				if (revealedTeraType != '' || serverPokemon?.teraType) {
+				if (revealedTeraType !== '' || serverPokemon?.teraType) {
 					let displayedTeraType = revealedTeraType;
 					if (serverPokemon?.teraType) {
 						displayedTeraType = serverPokemon.teraType;
