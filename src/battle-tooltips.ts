@@ -773,7 +773,15 @@ class BattleTooltips {
 		const pokemon = clientPokemon || serverPokemon!;
 		let text = '';
 		let genderBuf = '';
+		let revealedTeraType = '';
 		const gender = pokemon.gender;
+
+		if (this.battle.rules['Tera Type Preview']) {
+			const substring = pokemon.details.match(/(?<=teratype\:).*/g);
+			if (substring != null) {
+		    revealedTeraType = substring[0];
+			}
+		}
 		if (gender === 'M' || gender === 'F') {
 			genderBuf = ` <img src="${Dex.fxPrefix}gender-${gender.toLowerCase()}.png" alt="${gender}" width="7" height="10" class="pixelated" /> `;
 		}
@@ -809,6 +817,16 @@ class BattleTooltips {
 				text += `&nbsp; &nbsp; <small>(Tera Type: <span class="textaligned-typeicons">${Dex.getTypeIcon(serverPokemon.teraType)}</span>)</small>`;
 			}
 			text += `</h2>`;
+
+			if (!pokemon.terastallized && this.battle.rules['Tera Type Preview']) {
+				if (revealedTeraType != '' || serverPokemon?.teraType) {
+					let displayedTeraType = revealedTeraType;
+					if (serverPokemon?.teraType) {
+						displayedTeraType = serverPokemon.teraType;
+					}
+					text += `&nbsp; &nbsp; <small>(Tera Type: <span class="textaligned-typeicons">${Dex.getTypeIcon(displayedTeraType)}</span>)</small>`;
+				}
+			}
 		}
 
 		if (illusionIndex) {
