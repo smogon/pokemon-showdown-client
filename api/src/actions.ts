@@ -13,6 +13,7 @@ import {NTBBLadder} from './ladder';
 import {Replays, md5} from './replays';
 import {toID} from './server';
 import * as tables from './tables';
+import * as pathModule from 'path';
 
 // shamelessly stolen from PS main
 function bash(command: string, cwd?: string): Promise<[number, string, string]> {
@@ -294,7 +295,7 @@ export const actions: {[k: string]: QueryHandler} = {
 			return {errorip: this.getIp()};
 		}
 		// No need to sanitise server['id'] because it should be safe already.
-		const cssfile = `${__dirname}/../config/customcss/${server['id']}.css`;
+		const cssfile = pathModule.join(process.env.CSS_DIR || Config.cssdir, `/${server['id']}.css`);
 		return new Promise<{actionsuccess: boolean}>(resolve => {
 			fs.unlink(cssfile, err => resolve({actionsuccess: !err}));
 		});

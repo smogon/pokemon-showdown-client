@@ -134,3 +134,5 @@ exports.restartip = null;
  * @type {{[k: string]: import('../src/dispatcher').QueryHandler} | null}
  */
 exports.actions = null;
+
+exports.cssdir = __dirname + "/customcss/";
