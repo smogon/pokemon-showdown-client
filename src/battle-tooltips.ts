@@ -821,7 +821,8 @@ class BattleTooltips {
 
 			if (pokemon.terastallized) {
 				text += `&nbsp; &nbsp; <small>(base: <span class="textaligned-typeicons">${this.getPokemonTypes(pokemon, true).map(type => Dex.getTypeIcon(type)).join(' ')}</span>)</small>`;
-			} else if (serverPokemon?.teraType && !this.battle.rules['Terastal Clause']) {
+			} else if (serverPokemon?.teraType && !this.battle.rules['Terastal Clause']
+			&& !this.battle.rules['Tera Type Preview']) {
 				text += `&nbsp; &nbsp; <small>(Tera Type: <span class="textaligned-typeicons">${Dex.getTypeIcon(serverPokemon.teraType)}</span>)</small>`;
 			}
 			text += `</h2>`;
