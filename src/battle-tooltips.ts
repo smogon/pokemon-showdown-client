@@ -777,7 +777,7 @@ class BattleTooltips {
 		const gender = pokemon.gender;
 
 		if (this.battle.rules['Tera Type Preview']) {
-			const substring = pokemon.details.match(/(?<=teratype\:).*/g);
+			const substring = pokemon.details.match(/.*teratype:(?:*)/);
 			if (substring != null) {
 				revealedTeraType = substring[0];
 			}
@@ -811,12 +811,6 @@ class BattleTooltips {
 				text += `<small>(Type changed)</small><br />`;
 			}
 			text += `<span class="textaligned-typeicons">${types.map(type => Dex.getTypeIcon(type)).join(' ')}</span>`;
-			if (pokemon.terastallized) {
-				text += `&nbsp; &nbsp; <small>(base: <span class="textaligned-typeicons">${this.getPokemonTypes(pokemon, true).map(type => Dex.getTypeIcon(type)).join(' ')}</span>)</small>`;
-			} else if (serverPokemon?.teraType && !this.battle.rules['Terastal Clause']) {
-				text += `&nbsp; &nbsp; <small>(Tera Type: <span class="textaligned-typeicons">${Dex.getTypeIcon(serverPokemon.teraType)}</span>)</small>`;
-			}
-			text += `</h2>`;
 
 			if (!pokemon.terastallized && this.battle.rules['Tera Type Preview']) {
 				let displayedTeraType = serverPokemon?.teraType || revealedTeraType;
@@ -824,6 +818,13 @@ class BattleTooltips {
 					text += `&nbsp; &nbsp; <small>(Tera Type: <span class="textaligned-typeicons">${Dex.getTypeIcon(displayedTeraType)}</span>)</small>`;
 				}
 			}
+
+			if (pokemon.terastallized) {
+				text += `&nbsp; &nbsp; <small>(base: <span class="textaligned-typeicons">${this.getPokemonTypes(pokemon, true).map(type => Dex.getTypeIcon(type)).join(' ')}</span>)</small>`;
+			} else if (serverPokemon?.teraType && !this.battle.rules['Terastal Clause']) {
+				text += `&nbsp; &nbsp; <small>(Tera Type: <span class="textaligned-typeicons">${Dex.getTypeIcon(serverPokemon.teraType)}</span>)</small>`;
+			}
+			text += `</h2>`;
 		}
 
 		if (illusionIndex) {
