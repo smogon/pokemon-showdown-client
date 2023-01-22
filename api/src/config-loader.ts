@@ -26,12 +26,6 @@ export function load(invalidate = false): Configuration {
 			fs.readFileSync(path.resolve(__dirname, '../../config/config-example.js'))
 		);
 	}
-	// so it's loaded after actions is originally loaded (preventing a crash)
-	process.nextTick(() => {
-		if (config.actions) {
-			Object.assign(require('./actions').actions, config.actions);
-		}
-	});
 	return config;
 }
 export const Config: Configuration = load();

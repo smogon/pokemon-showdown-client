@@ -448,3 +448,7 @@ export const actions: {[k: string]: QueryHandler} = {
 		return {updated: update, success: true};
 	},
 };
+
+if (Config.actions) {
+	Object.assign(actions, Config.actions);
+}
