@@ -777,9 +777,9 @@ class BattleTooltips {
 		const gender = pokemon.gender;
 
 		if (this.battle.rules['Tera Type Preview']) {
-			const substring = pokemon.details.match(/.*teratype:(?:*)/);
-			if (substring != null) {
-				revealedTeraType = substring[0];
+			const splitDetails = pokemon.details.split(':');
+			if (splitDetails != null) {
+				revealedTeraType = splitDetails[splitDetails.length - 1];
 			}
 		}
 		if (gender === 'M' || gender === 'F') {
