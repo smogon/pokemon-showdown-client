@@ -9,13 +9,14 @@ import {Config} from './config-loader';
 
 export type SQLInput = string | number | null;
 export interface ResultRow {[k: string]: SQLInput}
+export type DBConfig = mysql.PoolOptions & {prefix?: string};
 
 export const databases: PSDatabase[] = [];
 
 export class PSDatabase {
 	pool: mysql.Pool;
 	prefix: string;
-	constructor(config: {[k: string]: any}) {
+	constructor(config: DBConfig) {
 		config = {...config};
 		this.prefix = config.prefix || "";
 		if (config.prefix) {
@@ -66,7 +67,11 @@ export class PSDatabase {
 	close() {
 		this.pool.end();
 	}
-	connect(config: {[k: string]: any}) {
+	connect(config: DBConfig) {
+		if (config.prefix) {
+			this.prefix = config.prefix;
+			delete config.prefix;
+		}
 		this.pool = mysql.createPool(config);
 	}
 }
