@@ -56,7 +56,7 @@ export class Router {
 
 		this.server.listen(port);
 	}
-	static crashlog(error: any, source = '', details = {}) {
+	static crashlog(error: unknown, source = '', details = {}) {
 		if (!Config.pspath) {
 			return console.log(`${source} crashed`, error, details);
 		}
@@ -98,7 +98,7 @@ export class Router {
 					}
 				}
 				const result = await this.handleOne(curBody, req, res);
-				if ((result as any).error) {
+				if ('error' in result) {
 					this.tryEnd();
 					return;
 				}

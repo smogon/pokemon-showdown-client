@@ -176,7 +176,7 @@ export const actions: {[k: string]: QueryHandler} = {
 	},
 	async upkeep(params) {
 		const challengeprefix = this.verifyCrossDomainRequest();
-		const res: {[k: string]: any} = {};
+		const res = {assertion: '', username: '', loggedin: false};
 		const curuser = this.user;
 		let userid = '';
 		if (curuser.loggedin) {
