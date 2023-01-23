@@ -118,6 +118,9 @@ export class Dispatcher {
 		} else {
 			result = urlData;
 		}
+		for (const k in result) {
+			result[k] = result[k].toString();
+		}
 		return result;
 	}
 	static parseURLRequest(req: http.IncomingMessage) {

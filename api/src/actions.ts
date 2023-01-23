@@ -251,8 +251,8 @@ export const actions: {[k: string]: QueryHandler} = {
 		if (!server) {
 			return {errorip: this.getIp()};
 		}
-		const extractedFormatId = /^([a-z0-9]+)-[0-9]+$/.exec((`${params.id}`));
-		const formatId = /^([a-z0-9]+)$/.exec((`${params.format}`));
+		const extractedFormatId = /^([a-z0-9]+)-[0-9]+$/.exec(`${params.id}`);
+		const formatId = /^([a-z0-9]+)$/.exec(`${params.format}`);
 		if (
 			// the server must be registered
 			!server ||

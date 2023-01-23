@@ -94,7 +94,7 @@ export class Router {
 				// {serverid: string, json: [...]}
 				for (const k in restData) {
 					if (restData[k] && !curBody[k]) {
-						curBody[k] = restData[k];
+						curBody[k] = restData[k].toString();
 					}
 				}
 				const result = await this.handleOne(curBody, req, res);
