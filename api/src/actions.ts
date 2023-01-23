@@ -346,7 +346,7 @@ export const actions: {[k: string]: QueryHandler} = {
 		// safe to use userid directly because we've confirmed they've logged in.
 		const actionsuccess = await tables.users.update(this.user.id, {
 			username: params.username,
-		}).catch(() => false);
+		});
 		await this.session.setSid();
 		return {actionsuccess};
 	},

@@ -251,7 +251,7 @@ export class Dispatcher {
 			).toString();
 			return JSON.parse(stdout);
 		} catch (e: any) {
-			if (e.code !== 'ENOENT') throw e;
+			if (!['ENOENT', 'ENOTDIR', 'ENAMETOOLONG'].includes(e.code)) throw e;
 		}
 		return {};
 	}
