@@ -196,8 +196,8 @@ export class Dispatcher {
 		this.hostCache.set(server, result);
 		return result;
 	}
-	static parseAction(req: http.IncomingMessage, body: {[k: string]: string}) {
-		if (body.act) {
+	static parseAction(req: http.IncomingMessage, body: {[k: string]: unknown}) {
+		if (typeof body.act === 'string') {
 			return body.act;
 		}
 		if (!req.url) return null;

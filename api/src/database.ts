@@ -122,7 +122,7 @@ export class DatabaseTable<T> {
 			query.append(' WHERE ');
 			query.append(where);
 		}
-		return this.query<T>(query, db);
+		return this.query(query, db);
 	}
 	get(entries: string | string[], keyId: SQLInput, db?: PSDatabase) {
 		const query = SQL``;
@@ -215,9 +215,9 @@ export class DatabaseTable<T> {
 	}
 
 	// catch-alls for "we can't fit this query into any of the wrapper functions"
-	query<T = any>(sql: SQLStatement, db?: PSDatabase) {
+	query<Z = T>(sql: SQLStatement, db?: PSDatabase) {
 		if (!db) db = psdb;
-		return db.query<T>(sql);
+		return db.query<Z>(sql);
 	}
 	execute(sql: SQLStatement, db?: PSDatabase) {
 		if (!db) db = psdb;

@@ -81,7 +81,7 @@ export class Session {
 		const timestamp = time() - period;
 		const query = SQL`SELECT COUNT(*) AS \`registrationcount\` FROM \`ntbb_users\``;
 		query.append(SQL`WHERE \`ip\` = ${ip} AND \`registertime\` > ${timestamp}`);
-		const rows = await users.query(query);
+		const rows = await users.query<{registrationcount: number}>(query);
 		if (!rows) return 0;
 		return rows[0]['registrationcount'];
 	}

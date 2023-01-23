@@ -98,7 +98,7 @@ export class Router {
 					}
 				}
 				const result = await this.handleOne(curBody, req, res);
-				if ('error' in result) {
+				if (typeof result === 'object' && result.error) {
 					this.tryEnd();
 					return;
 				}
@@ -124,7 +124,7 @@ export class Router {
 		}
 	}
 	async handleOne(
-		body: {[k: string]: any},
+		body: {[k: string]: string},
 		req: http.IncomingMessage,
 		res: http.ServerResponse
 	) {

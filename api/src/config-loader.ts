@@ -20,6 +20,7 @@ export function load(invalidate = false): Configuration {
 	} catch (err: any) {
 		if (err.code !== 'MODULE_NOT_FOUND') throw err; // Should never happen
 
+		if (process.env.IS_TEST) return config; // should not need this for tests
 		console.log("config.js doesn't exist - creating one with default settings...");
 		fs.writeFileSync(
 			configPath,
