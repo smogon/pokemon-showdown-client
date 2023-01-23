@@ -3215,7 +3215,11 @@ export class Battle {
 			}
 
 			if (this.rules['Tera Type Preview']) {
-				let trimmedDetails = pokemon.details.replace(/`.*$/, "");
+				const splitDetails = pokemon.details.split(':');
+				let trimmedDetails = '';
+				if (splitDetails != null) {
+					trimmedDetails = splitDetails[splitDetails.length - 1];
+				}
 				if (details === trimmedDetails) {
 					pokemon = side.addPokemon(name, pokemonid, pokemon.details, i);
 					if (slot >= 0) pokemon.slot = slot;
