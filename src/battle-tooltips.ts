@@ -1905,7 +1905,7 @@ class BattleTooltips {
 					value.modify(1.3, 'Battery');
 				} else if (allyAbility === 'Power Spot' && ally !== pokemon) {
 					value.modify(1.3, 'Power Spot');
-				} else if (allyAbility === 'Steely Spirit' && move.type === 'Steel') {
+				} else if (allyAbility === 'Steely Spirit' && moveType === 'Steel') {
 					value.modify(1.5, 'Steely Spirit');
 				}
 			}
