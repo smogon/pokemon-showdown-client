@@ -1849,9 +1849,6 @@ class BattleTooltips {
 		if (move.flags['contact']) {
 			value.abilityModify(1.3, "Tough Claws");
 		}
-		if (moveType === 'Steel') {
-			value.abilityModify(1.5, "Steely Spirit");
-		}
 		if (move.flags['sound']) {
 			value.abilityModify(1.3, "Punk Rock");
 		}
@@ -1911,6 +1908,10 @@ class BattleTooltips {
 				} else if (allyAbility === 'Power Spot') {
 					if (ally !== pokemon) {
 						value.modify(1.3, 'Power Spot');
+					}
+				} else if (allyAbility === 'Steely Spirit') {
+					if (move.type === 'Steel') {
+						value.modify(1.5, 'Steely Spirit');
 					}
 				}
 			}
