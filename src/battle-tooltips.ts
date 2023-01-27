@@ -1901,26 +1901,20 @@ class BattleTooltips {
 					auraBoosted = 'Dark Aura';
 				} else if (allyAbility === 'Aura Break') {
 					auraBroken = true;
-				} else if (allyAbility === 'Battery') {
-					if (ally !== pokemon && move.category === 'Special') {
-						value.modify(1.3, 'Battery');
-					}
-				} else if (allyAbility === 'Power Spot') {
-					if (ally !== pokemon) {
-						value.modify(1.3, 'Power Spot');
-					}
-				} else if (allyAbility === 'Steely Spirit') {
-					if (move.type === 'Steel') {
-						value.modify(1.5, 'Steely Spirit');
-					}
+				} else if (allyAbility === 'Battery' && ally !== pokemon && move.category === 'Special') {
+					value.modify(1.3, 'Battery');
+				} else if (allyAbility === 'Power Spot' && ally !== pokemon) {
+					value.modify(1.3, 'Power Spot');
+				} else if (allyAbility === 'Steely Spirit' && move.type === 'Steel') {
+					value.modify(1.5, 'Steely Spirit');
 				}
 			}
 			for (const foe of pokemon.side.foe.active) {
 				if (!foe || foe.fainted) continue;
-				if (foe.ability === 'Fairy Aura') {
-					if (moveType === 'Fairy') auraBoosted = 'Fairy Aura';
-				} else if (foe.ability === 'Dark Aura') {
-					if (moveType === 'Dark') auraBoosted = 'Dark Aura';
+				if (foe.ability === 'Fairy Aura' && moveType === 'Fairy') {
+					auraBoosted = 'Fairy Aura';
+				} else if (foe.ability === 'Dark Aura' && moveType === 'Dark') {
+					auraBoosted = 'Dark Aura';
 				} else if (foe.ability === 'Aura Break') {
 					auraBroken = true;
 				}
