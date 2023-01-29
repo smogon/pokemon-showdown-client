@@ -3430,11 +3430,12 @@
 			var spriteSize = 96;
 			var spriteDim = 'width: 96px; height: 96px;';
 
-			var gen = {1:'gen1', 2:'gen2', 3:'gen3', 4:'gen4', 5:'gen5', 6:'dex', 7:'dex', 8:'dex'}[Math.max(this.room.curTeam.gen, species.gen)];
+			var gen = Math.max(this.room.curTeam.gen, species.gen);
+			var dir = gen > 5 ? 'dex' : 'gen' + gen;
 			if (Dex.prefs('nopastgens')) gen = 'dex';
-			if (Dex.prefs('bwgfx') && gen === 'dex') gen = 'gen5';
-			spriteDir += gen;
-			if (gen === 'dex') {
+			if (Dex.prefs('bwgfx') && dir === 'dex') gen = 'gen5';
+			spriteDir += dir;
+			if (dir === 'dex') {
 				spriteSize = 120;
 				spriteDim = 'width: 120px; height: 120px;';
 			}
