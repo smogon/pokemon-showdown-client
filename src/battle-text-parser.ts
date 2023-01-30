@@ -788,9 +788,6 @@ class BattleTextParser {
 				return this.template('upkeep', weather, 'NODEFAULT');
 			}
 			const line1 = this.maybeAbility(kwArgs.from, kwArgs.of);
-			if (BattleTextParser.effectId(kwArgs.from) === 'orichalcumpulse') {
-				return line1 + this.template('start', 'orichalcumpulse').replace('[POKEMON]', this.pokemon(kwArgs.of));
-			}
 			let template = this.template('start', weather, 'NODEFAULT');
 			if (!template) template = this.template('startFieldEffect').replace('[EFFECT]', this.effect(weather));
 			return line1 + template;
@@ -864,6 +861,9 @@ class BattleTextParser {
 			}
 			if ((id === 'protosynthesis' || id === 'quarkdrive') && kwArgs.fromitem) {
 				templateId = 'activateFromItem';
+			}
+			if (id === 'orichalcumpulse' && kwArgs.source) {
+				templateId = 'start';
 			}
 			let template = this.template(templateId, effect, 'NODEFAULT');
 			if (!template) {
