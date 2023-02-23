@@ -579,6 +579,7 @@ const Dex = new class implements ModdedDex {
 				formeid === '-super' ||
 				formeid === '-therian' ||
 				formeid === '-unbound' ||
+				formeid === '-hero' ||
 				baseSpeciesid === 'calyrex' ||
 				baseSpeciesid === 'kyurem' ||
 				baseSpeciesid === 'cramorant' ||
