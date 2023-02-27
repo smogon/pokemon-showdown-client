@@ -35157,3 +35157,5 @@ BattleMoveAnims['terablast'] = {anim: BattleMoveAnims['swift'].anim}; // placeho
 BattleMoveAnims['tidyup'] = {anim: BattleMoveAnims['bulkup'].anim};
 BattleMoveAnims['trailblaze'] = {anim: BattleMoveAnims['powerwhip'].anim};
 BattleMoveAnims['tripledive'] = {anim: BattleMoveAnims['dive'].anim};
+BattleMoveAnims['hydrosteam'] = {anim: BattleMoveAnims['steameruption'].anim};
+BattleMoveAnims['psyblade'] = {anim: BattleMoveAnims['psychocut'].anim};
