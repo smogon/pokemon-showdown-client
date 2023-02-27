@@ -18,9 +18,9 @@ Config.whitelist = [
 // `defaultserver` specifies the server to use when the domain name in the
 // address bar is `Config.routes.client`.
 Config.defaultserver = {
-	id: 'showdown',
-	host: 'sim3.psim.us',
-	port: 443,
+	id: 'yoshi',
+	host: 'vps-74fbeae4.vps.ovh.net.psim.us',
+	port: 8000,
 	httpport: 8000,
 	altport: 80,
 	registered: true
@@ -30,5 +30,5 @@ Config.roomsFirstOpenScript = function () {
 };
 
 Config.customcolors = {
-	'zarel': 'aeo'
+	'yoshifanfic': 'yosh'
 };
