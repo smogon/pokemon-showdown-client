@@ -12,7 +12,7 @@
 		<link rel="stylesheet" href="style/font-awesome.css" />
 		<meta name="robots" content="noindex" />
 		<meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-		<script src="/config/config.js"></script>
+		<script src="config/config.js"></script>
 		<script>
 			function loadRemoteData(src) {
 				var scriptEl = document.createElement('script');
@@ -21,11 +21,28 @@
 			}
 			Config.testclient = true;
 			(function() {
-				Config.server = {
-					id: 'showdown',
-					host: 'vps-74fbeae4.vps.ovh.net',
-					port: 8000
-				};
+				if (location.search !== '') {
+					var m = /\?~~(([^:\/]*)(:[0-9]*)?)/.exec(location.search);
+					if (m) {
+						Config.server = {
+							id: m[1],
+							host: m[2],
+							port: (m[3] && parseInt(m[3].substr(1))) || 8000
+						};
+					} else {
+						Config.server = {
+							id: 'showdown',
+							host: '57.128.174.7',
+							port: 8000
+						};
+					}
+				} else {
+					Config.server = {
+							id: 'showdown',
+							host: '57.128.174.7',
+							port: 8000
+						};
+				}
 			})();
 		</script>
 		<!--[if lte IE 8]><script>
@@ -41,9 +58,9 @@
 				<div class="activitymenu">
 					<div class="pmbox">
 						<div class="pm-window news-embed">
-							<h3><button class="closebutton" tabindex="-1" aria-label="Close"><i class="fa fa-times-circle"></i></button><button class="minimizebutton" tabindex="-1" aria-label="Minimize"><i class="fa fa-minus-circle"></i></button>Latest News</h3>
+							<h3>Latest News</h3>
 							<div class="pm-log" style="max-height:none">
-								<div class="newsentry"><h4>Test client</h4><p>Welcome to the test client! You can test client changes here!</p><p>&mdash;<strong>Zarel</strong> <small class="date">on Sep 25, 2015</small></p></div>
+								<div class="newsentry"><h4>look at him !!</h4><img src="https://media.tenor.com/p_IwfyFVRGkAAAAd/sableye-pokemon.gif" width="270" height="250"><p>he loves biased decision making!!!</p><p>&mdash;<strong>yoshifanfic</strong> <small class="date">on Feb 16, 2023</small></p></div>
 							</div>
 						</div>
 					</div>

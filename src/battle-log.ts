@@ -503,8 +503,19 @@ export class BattleLog {
 
 	static usernameColor(name: ID) {
 		if (this.colorCache[name]) return this.colorCache[name];
+
+		const toHex = (x: number) => {
+			const hex = Math.round(x * 255).toString(16);
+			return hex.length === 1 ? '0' + hex : hex;
+		};
+
 		let hash;
 		if (Config.customcolors[name]) {
+			if (Config.customcolors[name] === 'grace') return `#24cc14; text-shadow: -1px -1px black, 1px -1px black, -1px 1px black, 1px 1px black; font-family: 'Comic Sans MS', 'Chalkboard SE', 'Comic Neue', sans-serif`;
+			if (Config.customcolors[name] === 'dscy') return `#000000; text-shadow: 0 0 3px #0C85AD, 0 0 5px #11C0FA`;
+			if (Config.customcolors[name] === 'yosh') return `#000000; text-shadow: -1px -1px white, 1px -1px white, -1px 1px white, 1px 1px white`;
+			if (Config.customcolors[name] === 'rua') return `#E8020A; text-shadow: 1px 1px black`;
+			if (Config.customcolors[name] === 'fuckthisguy') return `#7D7A00; text-shadow: 0 0 3px yellow, 0 0 5px brown, 0 0 17px yellow`;
 			hash = MD5(Config.customcolors[name]);
 		} else {
 			hash = MD5(name);
@@ -529,10 +540,7 @@ export class BattleLog {
 		L += HLmod;
 
 		let {R: r, G: g, B: b} = this.HSLToRGB(H, S, L);
-		const toHex = (x: number) => {
-			const hex = Math.round(x * 255).toString(16);
-			return hex.length === 1 ? '0' + hex : hex;
-		};
+
 		this.colorCache[name] = `#${toHex(r)}${toHex(g)}${toHex(b)}`;
 		return this.colorCache[name];
 	}

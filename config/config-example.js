@@ -30,5 +30,11 @@ Config.roomsFirstOpenScript = function () {
 };
 
 Config.customcolors = {
-	'yoshifanfic': 'yosh'
+	'yoshifanfic': 'yosh',
+	'ruadh21': 'rua',
+	'dunscy': 'dscy',
+	'justgrace': 'grace',
+	'shadowakumo': 'fuckthisguy',
+	'brawler456': 'fuckthisguy'
+
 };
