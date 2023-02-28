@@ -12,7 +12,7 @@
 		<link rel="stylesheet" href="style/font-awesome.css" />
 		<meta name="robots" content="noindex" />
 		<meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-		<script src="https://play.pokemonshowdown.com/config/config.js"></script>
+		<script src="/config/config.js"></script>
 		<script>
 			function loadRemoteData(src) {
 				var scriptEl = document.createElement('script');
@@ -21,18 +21,11 @@
 			}
 			Config.testclient = true;
 			(function() {
-				if (location.search !== '') {
-					var m = /\?~~(([^:\/]*)(:[0-9]*)?)/.exec(location.search);
-					if (m) {
-						Config.server = {
-							id: m[1],
-							host: m[2],
-							port: (m[3] && parseInt(m[3].substr(1))) || 8000
-						};
-					} else {
-						alert('Unrecognised query string syntax: ' + location.search);
-					}
-				}
+				Config.server = {
+					id: 'showdown',
+					host: 'vps-74fbeae4.vps.ovh.net',
+					port: 8000
+				};
 			})();
 		</script>
 		<!--[if lte IE 8]><script>
