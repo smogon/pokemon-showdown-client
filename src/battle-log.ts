@@ -513,7 +513,7 @@ export class BattleLog {
 		if (Config.customcolors[name]) {
 			if (Config.customcolors[name] === 'grace') return `#24cc14; text-shadow: -1px -1px black, 1px -1px black, -1px 1px black, 1px 1px black; font-family: 'Comic Sans MS', 'Chalkboard SE', 'Comic Neue', sans-serif`;
 			if (Config.customcolors[name] === 'dscy') return `#000000; text-shadow: 0 0 3px #0C85AD, 0 0 5px #11C0FA`;
-			if (Config.customcolors[name] === 'yosh') return `#000000; text-shadow: -1px -1px white, 1px -1px white, -1px 1px white, 1px 1px white`;
+			if (Config.customcolors[name] === 'yosh') return `#000000; text-shadow: -1px -1px white, 1px -1px white, -1px 1px white, 1px 1px white; text-transform: uppercase`;
 			if (Config.customcolors[name] === 'rua') return `#E8020A; text-shadow: 1px 1px black`;
 			if (Config.customcolors[name] === 'fuckthisguy') return `#7D7A00; text-shadow: 0 0 3px yellow, 0 0 5px brown, 0 0 17px yellow`;
 			hash = MD5(Config.customcolors[name]);
