@@ -622,6 +622,7 @@ abstract class BattleTypedSearch<T extends SearchType> {
 			}
 		}
 		if (format.includes('insurgencenationaldex')) {
+			format = format.slice(21) as ID;
 			this.formatType = 'insurgencenatdex';
 		}
 		if (this.formatType === 'letsgo') format = format.slice(6) as ID;
