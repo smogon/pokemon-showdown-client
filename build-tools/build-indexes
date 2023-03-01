@@ -321,7 +321,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 	const NFE = GENS.map(num => num + 0.3);
 	const STADIUM = [2.04, 1.04];
 	const NATDEX = [9.1, 8.1];
-	const OTHER = [9.2, 8.6, 8.4, 8.2, 8.1, -8.4, -8.6, 7.1];
+	const OTHER = [9.7, 9.2, 8.6, 8.4, 8.2, 8.1, -8.4, -8.6, 7.1];
 
 	// process.stdout.write("\n  ");
 	for (const genIdent of [...GENS, ...DOUBLES, ...VGC, ...NFE, ...STADIUM, ...OTHER, ...NATDEX]) {
@@ -334,6 +334,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 		const isStadium = ('' + genIdent).endsWith('.04');
 		const isDoubles = (genIdent < 0);
 		const isVGC = ('' + genIdent).endsWith('.5');
+		const isInsurgence = (genIdent === 9.7);
 		const genNum = Math.floor(isDoubles ? -genIdent : genIdent);
 		const gen = (() => {
 			let genStr = 'gen' + genNum;
@@ -410,6 +411,14 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 				if (isDoubles && genNum > 4) {
 					return species.doublesTier;
 				}
+				if (isInsurgence) {
+					let tier = species.natDexTier;
+					if (species.tags.includes('Insurgence')) {
+						return Dex.mod('insurgence').species.get(species.name).natDexTier;
+					} else {
+						return tier;
+					}
+				}
 				if (isNatDex) {
 					return species.natDexTier;
 				}
@@ -472,6 +481,10 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			BattleTeambuilderTable['gen' + genNum + 'natdex'].items = items;
 			BattleTeambuilderTable['gen' + genNum + 'natdex'].monotypeBans = monotypeBans;
 			BattleTeambuilderTable['gen' + genNum + 'natdex'].formatSlices = formatSlices;
+		} else if (isInsurgence) {
+			BattleTeambuilderTable['gen' + genNum + 'insurgencenationaldex'] = {};
+			BattleTeambuilderTable['gen' + genNum + 'insurgencenationaldex'].tiers = tiers;
+			BattleTeambuilderTable['gen' + genNum + 'insurgencenationaldex'].formatSlices = formatSlices;
 		} else if (isMetBattle) {
 			BattleTeambuilderTable[gen + 'metronome'] = {};
 			BattleTeambuilderTable[gen + 'metronome'].tiers = tiers;
