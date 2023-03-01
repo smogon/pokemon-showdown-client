@@ -821,7 +821,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 		if (!learnset) continue;
 		learnsets[id] = {};
 		for (const moveid in learnset) {
-			console.log(moveid);
+			console.log(learnset[moveid].map(x => Number(x[0])));
 			const gens = learnset[moveid].map(x => Number(x[0]));
 			const minGen = Math.min(...gens);
 
