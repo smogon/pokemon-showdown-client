@@ -482,9 +482,9 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			BattleTeambuilderTable['gen' + genNum + 'natdex'].monotypeBans = monotypeBans;
 			BattleTeambuilderTable['gen' + genNum + 'natdex'].formatSlices = formatSlices;
 		} else if (isInsurgence) {
-			BattleTeambuilderTable['gen' + genNum + 'insurgencenationaldexag'] = {};
-			BattleTeambuilderTable['gen' + genNum + 'insurgencenationaldexag'].tiers = tiers;
-			BattleTeambuilderTable['gen' + genNum + 'insurgencenationaldexag'].formatSlices = formatSlices;
+			BattleTeambuilderTable['gen9insurgencenationaldex'] = {};
+			BattleTeambuilderTable['gen9insurgencenationaldex'].tiers = tiers;
+			BattleTeambuilderTable['gen9insurgencenationaldex'].formatSlices = formatSlices;
 		} else if (isMetBattle) {
 			BattleTeambuilderTable[gen + 'metronome'] = {};
 			BattleTeambuilderTable[gen + 'metronome'].tiers = tiers;

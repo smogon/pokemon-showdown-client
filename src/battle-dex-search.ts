@@ -550,7 +550,7 @@ abstract class BattleTypedSearch<T extends SearchType> {
 	 */
 	set: PokemonSet | null = null;
 
-	protected formatType: 'doubles' | 'bdsp' | 'bdspdoubles' | 'letsgo' | 'metronome' | 'natdex' | 'nfe' |
+	protected formatType: 'doubles' | 'bdsp' | 'bdspdoubles' | 'letsgo' | 'metronome' | 'natdex' | 'insurgencenatdex' | 'nfe' |
 	'dlc1' | 'dlc1doubles' | 'stadium' | null = null;
 
 	/**
@@ -613,11 +613,16 @@ abstract class BattleTypedSearch<T extends SearchType> {
 			this.formatType = 'letsgo';
 			this.dex = Dex.mod('gen7letsgo' as ID);
 		}
-		if (format.includes('nationaldex') || format.startsWith('nd') || format.includes('natdex')) {
-			format = (format.startsWith('nd') ? format.slice(2) :
-				format.includes('natdex') ? format.slice(6) : format.slice(11)) as ID;
-			this.formatType = 'natdex';
-			if (!format) format = 'ou' as ID;
+		if (!format.includes('insurgence')) {
+			if (format.includes('nationaldex') || format.startsWith('nd') || format.includes('natdex')) {
+				format = (format.startsWith('nd') ? format.slice(2) :
+					format.includes('natdex') ? format.slice(6) : format.slice(11)) as ID;
+				this.formatType = 'natdex';
+				if (!format) format = 'ou' as ID;
+			}
+		}
+		if (format.includes('insurgencenationaldex')) {
+			this.formatType = 'insurgencenatdex';
 		}
 		if (this.formatType === 'letsgo') format = format.slice(6) as ID;
 		if (format.includes('metronome')) {
@@ -750,6 +755,9 @@ abstract class BattleTypedSearch<T extends SearchType> {
 		if (this.formatType === 'natdex' && move.isNonstandard && move.isNonstandard !== 'Past') {
 			return false;
 		}
+		if (this.formatType === 'insurgencenatdex' && move.isNonstandard && move.isNonstandard !== 'Past') {
+			return false;
+		}
 		const gen = this.dex.gen;
 		let genChar = `${gen}`;
 		if (
@@ -757,7 +765,7 @@ abstract class BattleTypedSearch<T extends SearchType> {
 			this.format.startsWith('battlespot') ||
 			this.format.startsWith('battlestadium') ||
 			this.format.startsWith('battlefestival') ||
-			(this.dex.gen === 9 && this.formatType !== 'natdex')
+			(this.dex.gen === 9 && this.formatType !== 'natdex' && this.formatType !== 'insurgencenatdex')
 		) {
 			if (gen === 9) {
 				genChar = 'a';
@@ -798,6 +806,7 @@ abstract class BattleTypedSearch<T extends SearchType> {
 			this.formatType === 'dlc1' ? 'gen8dlc1' :
 			this.formatType === 'dlc1doubles' ? 'gen8dlc1doubles' :
 			this.formatType === 'natdex' ? `gen${gen}natdex` :
+			this.formatType === 'insurgencenatdex' ? `gen9insurgencenationaldex` :
 			this.formatType === 'stadium' ? `gen${gen}stadium${gen > 1 ? gen : ''}` :
 			`gen${gen}`;
 		if (table && table[tableKey]) {
@@ -906,6 +915,8 @@ class BattlePokemonSearch extends BattleTypedSearch<'pokemon'> {
 			table = table['gen7letsgo'];
 		} else if (this.formatType === 'natdex') {
 			table = table['gen' + this.dex.gen + 'natdex'];
+		} else if (this.formatType === 'insurgencenatdex') {
+			table = table['gen9insurgencenationaldex'];
 		} else if (this.formatType === 'metronome') {
 			table = table['gen' + dex.gen + 'metronome'];
 		} else if (this.formatType === 'nfe') {
@@ -1150,6 +1161,8 @@ class BattleItemSearch extends BattleTypedSearch<'item'> {
 			table = table['gen8bdsp'];
 		} else if (this.formatType === 'natdex') {
 			table = table['gen' + this.dex.gen + 'natdex'];
+		} else if (this.formatType === 'insurgencenatdex') {
+			table = table['gen9insurgencenationaldex'];
 		} else if (this.formatType === 'metronome') {
 			table = table['gen' + this.dex.gen + 'metronome'];
 		} else if (this.dex.gen < 9) {
@@ -1466,7 +1479,7 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 		const isTradebacks = format.includes('tradebacks');
 		const regionBornLegality = dex.gen >= 6 &&
 			/^battle(spot|stadium|festival)/.test(format) || format.startsWith('vgc') ||
-			(dex.gen === 9 && this.formatType !== 'natdex');
+			(dex.gen === 9 && this.formatType !== 'natdex' && this.formatType !== 'insurgencenatdex');
 
 		let learnsetid = this.firstLearnsetid(species.id);
 		let moves: string[] = [];
@@ -1494,6 +1507,9 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 						continue;
 					}
 					if (this.formatType !== 'natdex' && move.isNonstandard === "Past") {
+						continue;
+					}
+					if (this.formatType !== 'insurgencenatdex' && move.isNonstandard === "Past") {
 						continue;
 					}
 					if (
@@ -1524,12 +1540,14 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 					if (move.noSketch || move.isMax || move.isZ) continue;
 					if (move.isNonstandard && move.isNonstandard !== 'Past') continue;
 					if (move.isNonstandard === 'Past' && this.formatType !== 'natdex') continue;
+					if (move.isNonstandard === 'Past' && this.formatType !== 'insurgencenatdex') continue;
 					sketchMoves.push(move.id);
 				} else {
 					if (!(dex.gen < 8 || this.formatType === 'natdex') && move.isZ) continue;
 					if (typeof move.isMax === 'string') continue;
 					if (move.isMax && dex.gen > 8) continue;
 					if (move.isNonstandard === 'Past' && this.formatType !== 'natdex') continue;
+					if (move.isNonstandard === 'Past' && this.formatType !== 'insurgencenatdex') continue;
 					if (move.isNonstandard === 'LGPE' && this.formatType !== 'letsgo') continue;
 					moves.push(move.id);
 				}
