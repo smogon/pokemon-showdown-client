@@ -821,9 +821,19 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 		if (!learnset) continue;
 		learnsets[id] = {};
 		for (const moveid in learnset) {
-			console.log(learnset[moveid].map(x => Number(x[0])));
-			const gens = learnset[moveid].map(x => Number(x[0]));
-			const minGen = Math.min(...gens);
+
+			if (isInsurgence) {
+				if (learnset[moveid] === ["INS"]) {
+					const gens = [genNum];
+				}
+				else {
+					const gens = learnset[moveid].map(x => Number(x[0]));
+					const minGen = Math.min(...gens);
+				}
+			} else {
+				const gens = learnset[moveid].map(x => Number(x[0]));
+				const minGen = Math.min(...gens);
+			}
 
 			if (minGen <= 4 && (gen3HMs.has(moveid) || gen4HMs.has(moveid))) {
 				let legalGens = '';
