@@ -67,7 +67,7 @@
 	margin: 5px 0 0 -1px;
 	padding: 3px 8px;
 	font-family: Verdana, sans-serif;
-	font-size: 10pt;
+	font-size: 9pt;
 
 	background: #DAE5F0;
 	color: black;
@@ -79,7 +79,7 @@
 .utilichart li > em {
 	display: block;
 	padding: 0 8px;
-	font-size: 10pt;
+	font-size: 9pt;
 }
 .utilichart .col {
 	float: left;
@@ -168,14 +168,14 @@
 	height: 23px;
 	width: 120px;
 	color: #000000;
-	font-size: 10pt;
+	font-size: 9pt;
 }
 .utilichart .pokemonnamecol {
 	padding-top: 6px;
 	height: 23px;
 	width: 127px;
 	color: #000000;
-	font-size: 10pt;
+	font-size: 9pt;
 	white-space: nowrap;
 }
 .utilichart .shortpokemonnamecol {
@@ -183,7 +183,7 @@
 	height: 23px;
 	width: 118px;
 	color: #000000;
-	font-size: 10pt;
+	font-size: 9pt;
 	white-space: nowrap;
 }
 .utilichart .movenamecol {
@@ -191,14 +191,14 @@
 	height: 23px;
 	width: 152px;
 	color: #000000;
-	font-size: 10pt;
+	font-size: 9pt;
 }
 .utilichart .shortmovenamecol {
 	padding-top: 6px;
 	height: 23px;
 	width: 112px;
 	color: #000000;
-	font-size: 10pt;
+	font-size: 9pt;
 }
 .utilichart .tagcol {
 	padding-top: 6px;
@@ -208,7 +208,7 @@
 	margin-right: 5px;
 	text-align: center;
 	color: #000000;
-	font-size: 10pt;
+	font-size: 9pt;
 }
 .utilichart .tagcol.shorttagcol {
 	margin-right: 1px;
