@@ -1177,6 +1177,8 @@
 			var isLetsGo = this.curTeam.format.includes('letsgo');
 			var isBDSP = this.curTeam.format.includes('bdsp');
 			var isNatDex = this.curTeam.format.includes('nationaldex');
+			var isInsurgence = this.curTeam.format.includes('insurgence');
+			if (isInsurgence) set.level = 120;
 			var buf = '<li value="' + i + '">';
 			if (!set.species) {
 				if (this.deletedSet) {
@@ -2705,11 +2707,13 @@
 			var isLetsGo = this.curTeam.format.includes('letsgo');
 			var isBDSP = this.curTeam.format.includes('bdsp');
 			var isNatDex = this.curTeam.format.includes('nationaldex');
+			var isInsurgence = this.curTeam.format.includes('insurgence');
 
 			// level
 			var level = parseInt(this.$chart.find('input[name=level]').val(), 10);
 			if (!level || level > 100 || level < 1) level = 100;
 			if (level !== 100 || set.level) set.level = level;
+			if (isInsurgence) set.level = 120; level = 120;
 
 			// happiness
 			var happiness = parseInt(this.$chart.find('input[name=happiness]').val(), 10);
