@@ -902,8 +902,6 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 	}
 	const InsurgenceLearnsets = Dex.mod('insurgence').data.Learnsets;
 	for (const id in InsurgenceLearnsets) {
-		const species = Dex.mod('gen9insurgencenationaldex').species.get(id);
-		if (species.isNonstandard && !['Unobtainable', 'CAP'].includes(species.isNonstandard)) continue;
 		const learnset = InsurgenceLearnsets[id].learnset;
 		BattleTeambuilderTable['gen9insurgencenationaldex'].learnsets[id] = {};
 		for (const moveid in learnset) {
