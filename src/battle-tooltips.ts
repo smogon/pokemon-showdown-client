@@ -1083,6 +1083,9 @@ class BattleTooltips {
 		if (ability === 'purepower' || ability === 'hugepower') {
 			stats.atk *= 2;
 		}
+		if (ability === 'athenian') {
+			stats.spa *= 2;
+		}
 		if (ability === 'hustle' || (ability === 'gorillatactics' && !clientPokemon?.volatiles['dynamax'])) {
 			stats.atk = Math.floor(stats.atk * 1.5);
 		}
@@ -1093,11 +1096,17 @@ class BattleTooltips {
 			if (this.pokemonHasType(pokemon, 'Ice') && weather === 'snow') {
 				stats.def = Math.floor(stats.def * 1.5);
 			}
+			if (ability === 'shadowdance' && weather === 'newmoon') {
+				speedModifiers.push(2);
+			}
 			if (ability === 'sandrush' && weather === 'sandstorm') {
 				speedModifiers.push(2);
 			}
 			if (ability === 'slushrush' && (weather === 'hail' || weather === 'snow')) {
 				speedModifiers.push(2);
+			}
+			if (ability === 'absolution' && weather === 'newmoon') {
+				stats.spa = Math.floor(stats.spa * 1.5);
 			}
 			if (item !== 'utilityumbrella') {
 				if (weather === 'sunnyday' || weather === 'desolateland') {
@@ -1125,6 +1134,9 @@ class BattleTooltips {
 				if (weather === 'raindance' || weather === 'primordialsea') {
 					if (ability === 'swiftswim') {
 						speedModifiers.push(2);
+					}
+					if (ability === 'supercell') {
+						stats.spa = Math.floor(stats.spa * 1.5);
 					}
 				}
 			}
@@ -1489,6 +1501,10 @@ class BattleTooltips {
 					if (value.abilityModify(0, 'Galvanize')) moveType = 'Electric';
 					if (value.abilityModify(0, 'Pixilate')) moveType = 'Fairy';
 					if (value.abilityModify(0, 'Refrigerate')) moveType = 'Ice';
+					if (value.abilityModify(0, 'Intoxicate')) moveType = 'Poison';
+				}
+				if (moveType === 'Rock') {
+					if (value.abilityModify(0, 'Foundry')) moveType = 'Fire';
 				}
 				if (value.abilityModify(0, 'Normalize')) moveType = 'Normal';
 			}
@@ -1849,11 +1865,20 @@ class BattleTooltips {
 		if (move.flags['contact']) {
 			value.abilityModify(1.3, "Tough Claws");
 		}
+		if (move.flags['bite']) {
+			value.abilityModify(1.3, "Spectral Jaws");
+		}
 		if (move.flags['sound']) {
 			value.abilityModify(1.3, "Punk Rock");
 		}
+		if (move.flags['sound']) {
+			value.abilityModify(1.3, "Amplifier");
+		}
 		if (move.flags['slicing']) {
 			value.abilityModify(1.5, "Sharpness");
+		}
+		if (move.type === 'Dark') {
+			value.abilityModify(1.5, "Shadow Synergy");
 		}
 		for (let i = 1; i <= 5 && i <= pokemon.side.faintCounter; i++) {
 			if (pokemon.volatiles[`fallen${i}`]) {
@@ -1880,9 +1905,13 @@ class BattleTooltips {
 				value.abilityModify(this.battle.gen > 6 ? 1.2 : 1.3, "Galvanize");
 				value.abilityModify(this.battle.gen > 6 ? 1.2 : 1.3, "Pixilate");
 				value.abilityModify(this.battle.gen > 6 ? 1.2 : 1.3, "Refrigerate");
+				value.abilityModify(this.battle.gen > 6 ? 1.2 : 1.3, "Intoxicate");
 			}
 			if (this.battle.gen > 6) {
 				value.abilityModify(1.2, "Normalize");
+				if (move.type === 'Rock') {
+					value.abilityModify(this.battle.gen > 6 ? 1.2 : 1.3, "Foundry");
+				}
 			}
 		}
 		if (move.recoil || move.hasCrashDamage) {
