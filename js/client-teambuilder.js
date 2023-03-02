@@ -1193,7 +1193,7 @@
 			buf += '<div class="setchart-nickname">';
 			buf += '<label>Nickname</label><input type="text" name="nickname" class="textbox" value="' + BattleLog.escapeHTML(set.name || '') + '" placeholder="' + BattleLog.escapeHTML(species.baseSpecies) + '" />';
 			buf += '</div>';
-			buf += '<div class="setchart" style="' + Dex.getTeambuilderSprite(set, this.curTeam.gen) + ';">';
+			buf += '<div class="setchart" style="' + Dex.getTeambuilderSprite(set, this.curTeam.gen) + '; width: 120; height: 120;">';
 
 			// icon
 			buf += '<div class="setcol setcol-icon">';
