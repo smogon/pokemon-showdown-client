@@ -483,6 +483,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			BattleTeambuilderTable['gen' + genNum + 'natdex'].formatSlices = formatSlices;
 		} else if (isInsurgence) {
 			BattleTeambuilderTable['gen9insurgencenationaldex'] = {};
+			BattleTeambuilderTable['gen9insurgencenationaldex'].learnsets = {};
 			BattleTeambuilderTable['gen9insurgencenationaldex'].tiers = tiers;
 			BattleTeambuilderTable['gen9insurgencenationaldex'].overrideTier = overrideTier;
 			BattleTeambuilderTable['gen9insurgencenationaldex'].items = items;
@@ -897,6 +898,16 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 		BattleTeambuilderTable['gen8bdsp'].learnsets[id] = {};
 		for (const moveid in learnset) {
 			BattleTeambuilderTable['gen8bdsp'].learnsets[id][moveid] = '8g';
+		}
+	}
+	const InsurgenceLearnsets = Dex.mod('insurgence').data.Learnsets;
+	for (const id in InsurgenceLearnsets) {
+		const species = Dex.mod('gen9insurgencenationaldex').species.get(id);
+		if (species.isNonstandard && !['Unobtainable', 'CAP'].includes(species.isNonstandard)) continue;
+		const learnset = InsurgenceLearnsets[id].learnset;
+		BattleTeambuilderTable['gen9insurgencenationaldex'].learnsets[id] = {};
+		for (const moveid in learnset) {
+			BattleTeambuilderTable['gen9insurgencenationaldex'].learnsets[id][moveid] = '9g';
 		}
 	}
 	const DLC1Learnsets = Dex.mod('gen8dlc1').data.Learnsets;
