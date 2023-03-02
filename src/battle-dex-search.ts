@@ -724,6 +724,7 @@ abstract class BattleTypedSearch<T extends SearchType> {
 	protected firstLearnsetid(speciesid: ID) {
 		let table = BattleTeambuilderTable;
 		if (this.formatType?.startsWith('bdsp')) table = table['gen8bdsp'];
+		if (this.formatType?.startsWith('insurgence')) table = table['gen9insurgencenationaldex'];
 		if (this.formatType === 'letsgo') table = table['gen7letsgo'];
 		if (speciesid in table.learnsets) return speciesid;
 		const species = this.dex.species.get(speciesid);
@@ -783,6 +784,7 @@ abstract class BattleTypedSearch<T extends SearchType> {
 		while (learnsetid) {
 			let table = BattleTeambuilderTable;
 			if (this.formatType?.startsWith('bdsp')) table = table['gen8bdsp'];
+			if (this.formatType?.startsWith('insurgence')) table = table['gen9insurgencenationaldex'];
 			if (this.formatType === 'letsgo') table = table['gen7letsgo'];
 			let learnset = table.learnsets[learnsetid];
 			if (learnset && (moveid in learnset) && (!this.format.startsWith('tradebacks') ? learnset[moveid].includes(genChar) :
