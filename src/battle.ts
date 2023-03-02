@@ -2327,11 +2327,9 @@ export class Battle {
 			} else if (effect.id) {
 				switch (effect.id) {
 				case 'trace':
-					if (!['zoroark', 'zoroarkmega'].includes(poke)) {
-						this.activateAbility(poke, "Trace");
-						this.scene.wait(500);
-						this.activateAbility(poke, ability.name, true);
-					}
+					this.activateAbility(poke, "Trace");
+					this.scene.wait(500);
+					this.activateAbility(poke, ability.name, true);
 					ofpoke!.rememberAbility(ability.name);
 					break;
 				case 'powerofalchemy':
