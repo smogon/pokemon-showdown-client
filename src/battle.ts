@@ -2327,6 +2327,7 @@ export class Battle {
 			} else if (effect.id) {
 				switch (effect.id) {
 				case 'trace':
+					console.log(this.getPokemon(args[1])!)
 					if (!['zoroark', 'zoroarkmega'].includes(poke)) {
 						this.activateAbility(poke, "Trace");
 						this.scene.wait(500);
