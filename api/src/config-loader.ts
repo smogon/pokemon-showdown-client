@@ -12,7 +12,7 @@ import * as defaults from '../config/config-example';
 export type Configuration = typeof defaults;
 
 export function load(invalidate = false): Configuration {
-	const configPath = path.resolve(__dirname, '../../config/config.js');
+	const configPath = path.resolve(__dirname, (process.argv[2] || process.env.CONFIG_PATH || ""));
 	if (invalidate) delete require.cache[configPath];
 	let config = defaults;
 	try {
@@ -21,11 +21,8 @@ export function load(invalidate = false): Configuration {
 		if (err.code !== 'MODULE_NOT_FOUND') throw err; // Should never happen
 
 		if (process.env.IS_TEST) return config; // should not need this for tests
-		console.log("config.js doesn't exist - creating one with default settings...");
-		fs.writeFileSync(
-			configPath,
-			fs.readFileSync(path.resolve(__dirname, '../../config/config-example.js'))
-		);
+		console.log("No config specified in process.argv or process.env - loading default settings...");
+		return config;
 	}
 	return config;
 }
