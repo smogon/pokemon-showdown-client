@@ -1740,6 +1740,12 @@ class BattleTooltips {
 				value.weatherModify(2);
 			}
 		}
+		if (move.id === 'hydrosteam') {
+			value.weatherModify(1.5, 'Sunny Day');
+		}
+		if (move.id === 'psyblade' && this.battle.hasPseudoWeather('Electric Terrain')) {
+			value.modify(1.5, 'Electric Terrain');
+		}
 		if (move.id === 'terrainpulse' && pokemon.isGrounded(serverPokemon)) {
 			if (
 				this.battle.hasPseudoWeather('Electric Terrain') ||
