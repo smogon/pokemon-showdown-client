@@ -1244,7 +1244,7 @@
 					buf += '<span class="detailcell"><label>Tera Type</label>' + (set.teraType || species.types[0]) + '</span>';
 				}
 			}
-			buf += '<span class="detailcell"><label>Tera Type</label>' + (set.cmType || "Normal") + '</span>';
+			buf += '<span class="detailcell"><label>Custom Move Type</label>' + (set.cmType || "Normal") + '</span>';
 			buf += '</button></div></div>';
 
 			// item/type icons
@@ -2784,12 +2784,11 @@
 			}
 			// Custom Move type
 			var cmType = this.$chart.find('select[name=cmtype]').val();
-			if (Dex.types.isName(cmType) && cmType !== species.types[0]) {
+			if (Dex.types.isName(cmType) && cmType !== "Normal") {
 				set.cmType = cmType;
 			} else {
 				delete set.cmType;
 			}
-			console.log(cmType)
 
 			// update details cell
 			var buf = '';
