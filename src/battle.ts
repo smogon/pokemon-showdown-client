@@ -997,6 +997,7 @@ export interface ServerPokemon extends PokemonDetails, PokemonHealth {
 	gigantamax: string | false;
 	/** always the Tera Type of the Pokemon, regardless of whether it is terastallized or not */
 	teraType: string;
+	cmType: string;
 	/** falsy if the pokemon is not terastallized, otherwise it is the Tera Type of the Pokemon */
 	terastallized: string;
 }

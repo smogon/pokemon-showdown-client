@@ -2238,6 +2238,7 @@ interface PokemonSet {
 	gigantamax?: boolean;
 	/** Defaults to the primary type */
 	teraType?: string;
+	cmType?: string;
 }
 
 class BattleStatGuesser {

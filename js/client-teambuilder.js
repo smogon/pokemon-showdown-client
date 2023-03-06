@@ -1244,6 +1244,7 @@
 					buf += '<span class="detailcell"><label>Tera Type</label>' + (set.teraType || species.types[0]) + '</span>';
 				}
 			}
+			buf += '<span class="detailcell"><label>Tera Type</label>' + (set.cmType || "Normal") + '</span>';
 			buf += '</button></div></div>';
 
 			// item/type icons
@@ -2690,6 +2691,13 @@
 				}
 				buf += '</select></div></div>';
 			}
+			
+			buf += '<div class="formrow"><label class="formlabel" title="Custom Move Type">Custom Move:</label><div><select name="cmtype">';
+			var types = Dex.types.all();
+			var cmType = set.cmType || "Normal";
+			for (var i = 0; i < types.length; i++) {
+				buf += '<option value="' + types[i].name + '"' + (cmType === types[i].name ? ' selected="selected"' : '') + '>' + types[i].name + '</option>';
+			}
 
 			buf += '</form>';
 			if (species.cosmeticFormes) {
@@ -2774,6 +2782,13 @@
 			} else {
 				delete set.teraType;
 			}
+			// Custom Move type
+			var cmType = this.$chart.find('select[name=cmtype]').val();
+			if (Dex.types.isName(cmType) && cmType !== species.types[0]) {
+				set.cmType = cmType;
+			} else {
+				delete set.cmType;
+			}
 
 			// update details cell
 			var buf = '';
@@ -2803,6 +2818,7 @@
 				if (this.curTeam.gen === 9) {
 					buf += '<span class="detailcell"><label>Tera Type</label>' + (set.teraType || species.types[0]) + '</span>';
 				}
+				buf += '<span class="detailcell"><label>Custom Move Type</label>' + (set.cmType || "Normal") + '</span>';
 			}
 			this.$('button[name=details]').html(buf);
 
@@ -3284,6 +3300,7 @@
 			if (set.dynamaxLevel) delete set.dynamaxLevel;
 			if (set.gigantamax) delete set.gigantamax;
 			if (set.teraType) delete set.teraType;
+			if (set.cmType) delete set.cmType;
 			if (!this.curTeam.format.includes('hackmons') && species.requiredItems.length === 1) {
 				set.item = species.requiredItems[0];
 			} else {
