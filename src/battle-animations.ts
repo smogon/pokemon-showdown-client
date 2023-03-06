@@ -1440,8 +1440,8 @@ export class BattleScene implements BattleSceneStub {
 			case 'permafrost':
 				let frostArray = this.sideConditions[siden]['permafrost'];
 				if (!frostArray) {
-					wireArray = [];
-					this.sideConditions[siden]['permafrost'] = wireArray;
+					frostArray = [];
+					this.sideConditions[siden]['permafrost'] = frostArray;
 				}
 				let frostLevels = this.battle.sides[siden].sideConditions['permafrost'][1];
 				if (frostArray.length < 1 && frostLevels >= 1) {
