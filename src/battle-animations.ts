@@ -1437,6 +1437,69 @@ export class BattleScene implements BattleSceneStub {
 					wireArray.push(wire5);
 				}
 				break;
+			case 'permafrost':
+				let frostArray = this.sideConditions[siden]['permafrost'];
+				if (!frostArray) {
+					wireArray = [];
+					this.sideConditions[siden]['permafrost'] = wireArray;
+				}
+				let frostLevels = this.battle.sides[siden].sideConditions['permafrost'][1];
+				if (frostArray.length < 1 && frostLevels >= 1) {
+					const frost1 = new Sprite(BattleEffects.frost, {
+						display: 'block',
+						x: x - 25,
+						y: y - 40,
+						z: side.z,
+						scale: 0.3,
+					}, this);
+					this.$spritesFront[spriteIndex].append(frost1.$el!);
+					frostArray.push(frost1);
+				}
+				if (frostArray.length < 2 && frostLevels >= 2) {
+					const frost2 = new Sprite(BattleEffects.frost, {
+						display: 'block',
+						x: x + 50,
+						y: y - 40,
+						z: side.z,
+						scale: 0.3,
+					}, this);
+					this.$spritesFront[spriteIndex].append(frost2.$el!);
+					frostArray.push(frost2);
+				}
+				if (frostArray.length < 3 && frostLevels >= 3) {
+					const frost3 = new Sprite(BattleEffects.frost, {
+						display: 'block',
+						x: x + 30,
+						y: y - 45,
+						z: side.z,
+						scale: 0.3,
+					}, this);
+					this.$spritesFront[spriteIndex].append(frost3.$el!);
+					frostArray.push(frost3);
+				}
+				if (frostArray.length < 4 && frostLevels >= 4) {
+					const frost4 = new Sprite(BattleEffects.frost, {
+						display: 'block',
+						x: x - 30,
+						y: y - 45,
+						z: side.z,
+						scale: 0.3,
+					}, this);
+					this.$spritesFront[spriteIndex].append(frost4.$el!);
+					frostArray.push(frost4);
+				}
+				if (frostArray.length < 5 && frostLevels >= 5) {
+					const frost5 = new Sprite(BattleEffects.frost, {
+						display: 'block',
+						x: x - 50,
+						y: y - 50,
+						z: side.z,
+						scale: 0.3,
+					}, this);
+					this.$spritesFront[spriteIndex].append(frost5.$el!);
+					frostArray.push(frost5);
+				}
+				break;
 		case 'stickyweb':
 			const web = new Sprite(BattleEffects.web, {
 				display: 'block',
@@ -3072,6 +3135,10 @@ const BattleEffects: {[k: string]: SpriteData} = {
 	wire: {
 		url: 'wire.png', // by Your God yoshifanfic
 		w: 136, h: 136,
+	},
+	frost: {
+		url: 'frost.png', // by Your God yoshifanfic
+		w: 128, h: 169,
 	},
 	shadowball: {
 		url: 'shadowball.png',
