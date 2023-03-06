@@ -1374,6 +1374,69 @@ export class BattleScene implements BattleSceneStub {
 				tspikeArray.push(tspike2);
 			}
 			break;
+			case 'livewire':
+				let wireArray = this.sideConditions[siden]['livewire'];
+				if (!wireArray) {
+					wireArray = [];
+					this.sideConditions[siden]['livewire'] = wireArray;
+				}
+				let wireLevels = this.battle.sides[siden].sideConditions['livewire'][1];
+				if (wireArray.length < 1 && wireLevels >= 1) {
+					const wire1 = new Sprite(BattleEffects.wire, {
+						display: 'block',
+						x: x - 25,
+						y: y - 40,
+						z: side.z,
+						scale: 0.3,
+					}, this);
+					this.$spritesFront[spriteIndex].append(wire1.$el!);
+					wireArray.push(wire1);
+				}
+				if (wireArray.length < 2 && wireLevels >= 2) {
+					const wire2 = new Sprite(BattleEffects.wire, {
+						display: 'block',
+						x: x + 50,
+						y: y - 40,
+						z: side.z,
+						scale: 0.3,
+					}, this);
+					this.$spritesFront[spriteIndex].append(wire2.$el!);
+					wireArray.push(wire2);
+				}
+				if (wireArray.length < 3 && wireLevels >= 3) {
+					const wire3 = new Sprite(BattleEffects.wire, {
+						display: 'block',
+						x: x + 30,
+						y: y - 45,
+						z: side.z,
+						scale: 0.3,
+					}, this);
+					this.$spritesFront[spriteIndex].append(wire3.$el!);
+					wireArray.push(wire3);
+				}
+				if (wireArray.length < 4 && wireLevels >= 4) {
+					const wire4 = new Sprite(BattleEffects.wire, {
+						display: 'block',
+						x: x - 30,
+						y: y - 45,
+						z: side.z,
+						scale: 0.3,
+					}, this);
+					this.$spritesFront[spriteIndex].append(wire4.$el!);
+					wireArray.push(wire4);
+				}
+				if (wireArray.length < 5 && wireLevels >= 5) {
+					const wire5 = new Sprite(BattleEffects.wire, {
+						display: 'block',
+						x: x - 50,
+						y: y - 50,
+						z: side.z,
+						scale: 0.3,
+					}, this);
+					this.$spritesFront[spriteIndex].append(wire5.$el!);
+					wireArray.push(wire5);
+				}
+				break;
 		case 'stickyweb':
 			const web = new Sprite(BattleEffects.web, {
 				display: 'block',
@@ -3005,6 +3068,10 @@ const BattleEffects: {[k: string]: SpriteData} = {
 	poisoncaltrop: {
 		url: 'poisoncaltrop.png', // by Pokemon Showdown user SailorCosmos
 		w: 80, h: 80,
+	},
+	wire: {
+		url: 'wire.png', // by Your God yoshifanfic
+		w: 136, h: 136,
 	},
 	shadowball: {
 		url: 'shadowball.png',
