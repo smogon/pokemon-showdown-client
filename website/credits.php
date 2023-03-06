@@ -67,13 +67,15 @@ includeHeader();
 				<li><p><a href="http://sailorwanda.deviantart.com/" target="_blank" class="subtle"><strong>Catherine D.</strong> [SailorCosmos, Matryoshkat]</a> <small>&ndash; Art (battle animations)</small></p></li>
 				<li><p><strong>Cody Thompson</strong> [Rising_Dusk] <small>&ndash; Development</small></p></li>
 				<li><p>[<strong>Enigami</strong>] <small>&ndash; Development</small></p></li>
+				<li><p>[<strong>Hisuian Zoroark</strong>] <small>&ndash; Development (Staff Bros format)</small></p></li>
 				<li><p>[<strong>Honko</strong>] <small>&ndash; Development (damage calculator)</small></p></li>
 				<li><p><strong>Ian Clail</strong> [Layell] <small>&ndash; Art (battle graphics, sprites)</small></p></li>
-				<li><p>[<strong>Instruct</strong>] <small>&ndash; Development (Staff Bros format)</small></p></li>
 				<li><p><strong>Jacob McLemore</strong> <small>&ndash; Development</small></p></li>
 				<li><p><strong>Erik Bruce</strong> [Kalalokki] <small>&ndash; Art (minisprite resizing)</small></p></li>
 				<li><p><a href="https://panpawn.github.io/" target="_blank" class="subtle"><strong>Jeremy Piemonte</strong> [panpawn]</a> <small>&ndash; Development</small></p></li>
+				<li><p><strong>Karthik Bandagonda</strong> <small>&ndash; Development</small></p></li>
 				<li><p><a href="http://leparagon.deviantart.com/" target="_blank" class="subtle">[<strong>leparagon</strong>]</a> <small>&ndash; Art (sprites, minisprite resizing)</small></p></li>
+				<li><p>[<strong>livid washed</strong>] <small>&ndash; Development</small></p></li>
 				<li><p><strong>Luke Harmon-Vellotti</strong> [moo, CheeseMuffin] <small>&ndash; Development</small></p></li>
 				<li><p><strong>Parth Mane</strong> [PartMan] <small>&ndash; Development</small></p></li>
 				<li><p>[<strong>Plague von Karma</strong>] <small>&ndash; Development (Gen 1), Research</small></p></li>

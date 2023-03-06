@@ -750,6 +750,7 @@ export class BattleLog {
 			'psicon::category': 0,
 			'username::name': 0,
 			'form::data-submitsend': 0,
+			'div::data-server': 0,
 			'button::data-send': 0,
 			'form::data-delimiter': 0,
 			'button::data-delimiter': 0,

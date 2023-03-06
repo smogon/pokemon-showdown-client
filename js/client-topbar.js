@@ -459,6 +459,7 @@
 			'change input[name=blockchallenges]': 'setBlockchallenges',
 			'change input[name=blockpms]': 'setBlockpms',
 			'change input[name=inchatpm]': 'setInchatpm',
+			'change input[name=leavePopupRoom]': 'setLeavePopupRoom',
 			'change input[name=temporarynotifications]': 'setTemporaryNotifications',
 			'change input[name=refreshprompt]': 'setRefreshprompt',
 			'change input[name=login]': 'setLoginserver',
@@ -521,6 +522,7 @@
 			if (window.Notification) {
 				buf += '<p><label class="optlabel"><input type="checkbox" name="temporarynotifications"' + (Dex.prefs('temporarynotifications') ? ' checked' : '') + ' /> Notifications disappear automatically</label></p>';
 			}
+			buf += '<p><label class="optlabel"><input type="checkbox" name="leavePopupRoom"' + (Dex.prefs('leavePopupRoom') ? ' checked' : '') + ' /> Confirmation before leaving a room</label></p>';
 			buf += '<p><label class="optlabel"><input type="checkbox" name="refreshprompt"' + (Dex.prefs('refreshprompt') ? ' checked' : '') + '> Prompt on refresh</label></p>';
 			var curLang = toID(Dex.prefs('serversettings').language) || 'english';
 			var possibleLanguages = {
@@ -640,6 +642,10 @@
 		},
 		setLoginserver: function (e) {
 			Storage.prefs('newlogin', !!e.currentTarget.checked);
+		},
+		setLeavePopupRoom: function (e) {
+			var leavePopupRoom = !!e.currentTarget.checked;
+			Storage.prefs('leavePopupRoom', leavePopupRoom);
 		},
 		background: function (e) {
 			app.addPopup(CustomBackgroundPopup);

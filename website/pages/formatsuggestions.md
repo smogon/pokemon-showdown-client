@@ -26,9 +26,9 @@ Smogon's Other Metagames formats, on the other hand, is the home for creative us
 
   [3]: https://www.smogon.com/forums/forums/other-metagames.531/
 
-For Random Battles, the [Gen 8 Random Battles sets thread][4] and [past gen Random Battles sets thread][5] are good places to suggest changes.
+For Random Battles, the [Gen 9 Random Battles sets thread][4] and [past gen Random Battles sets thread][5] are good places to suggest changes.
 
-  [4]: https://www.smogon.com/forums/threads/pokemon-sword-shield-random-battle-sets.3656537/
+  [4]: https://www.smogon.com/forums/threads/scarlet-violet-random-battle-sets.3712619/
 
   [5]: https://www.smogon.com/forums/threads/past-gens-random-battle-sets.3674281/
 

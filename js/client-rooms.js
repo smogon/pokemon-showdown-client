@@ -16,6 +16,7 @@
 			var buf = '<div class="pad"><button class="button" style="float:right;font-size:10pt;margin-top:3px" name="closeHide"><i class="fa fa-caret-right"></i> Hide</button>';
 			buf += '<div class="roomlisttop"></div><p>Rooms filter: <select name="sections"><option value="all">(All rooms)</option></select></p>';
 			buf += '<div class="roomlist"><p><em style="font-size:20pt">Loading...</em></p></div><div class="roomlist"></div>';
+			buf += '<p><button name="toggleMoreRooms" class="button">Show more rooms</button><p>';
 			buf += '<p><button name="joinRoomPopup" class="button">Join other room</button></p></div>';
 			this.$el.html(buf);
 			app.on('response:rooms', this.update, this);
@@ -24,6 +25,12 @@
 			app.send('/cmd rooms');
 			app.user.on('change:named', this.updateUser, this);
 			this.update();
+			this.chatroomInterval = setInterval(function () {
+				if (app.curSideRoom && app.curSideRoom.id === 'rooms') {
+					app.send('/cmd rooms');
+					this.update();
+				}
+			}, 20000);
 		},
 		initSectionSelection: function () {
 			var buf = ['<option value="">(All rooms)</option>'];
@@ -64,6 +71,13 @@
 				if (!room) return;
 				app.tryJoinRoom(room);
 			});
+		},
+		toggleMoreRooms: function () {
+			this.showMoreRooms = !this.showMoreRooms;
+			this.updateRoomList();
+			this.$el.find('button[name=toggleMoreRooms]').text(
+				this.showMoreRooms ? 'Hide more rooms' : 'Show more rooms'
+			);
 		},
 		update: function (rooms) {
 			if (rooms) {
@@ -136,6 +150,7 @@
 			var spotlightRooms = [];
 			var officialRooms = [];
 			var otherRooms = [];
+			var hiddenRooms = [];
 			for (var i = 0; i < allRooms.length; i++) {
 				var roomData = allRooms[i];
 				if (roomData.spotlight) {
@@ -143,6 +158,8 @@
 					spotlightLabel = roomData.spotlight;
 				} else if (roomData.section === 'Official') {
 					officialRooms.push(roomData);
+				} else if (roomData.privacy === 'hidden') {
+					hiddenRooms.push(roomData);
 				} else {
 					otherRooms.push(roomData);
 				}
@@ -157,8 +174,10 @@
 				)
 			);
 			this.$('.roomlist').last().html(
-				otherRooms.length ?
-					'<h2 class="rooms-chatrooms">Chat rooms</h2>' + otherRooms.sort(this.compareRooms).map(this.renderRoomBtn).join("") : ''
+				(otherRooms.length ?
+					'<h2 class="rooms-chatrooms">Chat rooms</h2>' + otherRooms.sort(this.compareRooms).map(this.renderRoomBtn).join("") : '') +
+				(hiddenRooms.length && this.showMoreRooms ?
+					'<h2 class="rooms-chatrooms">Hidden rooms</h2>' + hiddenRooms.sort(this.compareRooms).map(this.renderRoomBtn).join("") : '')
 			);
 		},
 		roomlist: function () {
@@ -166,6 +185,8 @@
 		},
 		closeHide: function () {
 			app.sideRoom = app.curSideRoom = null;
+			clearInterval(this.chatroomInterval);
+			this.chatroomInterval = null;
 			this.close();
 		},
 		finduser: function () {
