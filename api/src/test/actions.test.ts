@@ -101,7 +101,7 @@ describe('Loginserver actions', () => {
 		});
 
 		const cached = await tables.prepreplays.get(
-			'*', 'gen8randombattle-3096'
+			'gen8randombattle-3096'
 		);
 		assert(cached, 'Could not locate entry for prepped replay');
 	});

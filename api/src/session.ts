@@ -88,7 +88,7 @@ export class Session {
 	async addUser(username: string, password: string) {
 		const hash = await bcrypt.hash(password, Config.passwordSalt);
 		const userid = toID(username);
-		const exists = await users.get(['userid'], userid);
+		const exists = await users.get(userid, ['userid']);
 		if (exists) return null;
 		const ip = this.dispatcher.getIp();
 
@@ -105,7 +105,7 @@ export class Session {
 		const curTime = time();
 		await this.logout();
 		const userid = toID(name);
-		const info = await users.get('*', userid);
+		const info = await users.get(userid);
 		if (!info) {
 			// unregistered. just do the thing
 			return this.dispatcher.user.login(name);
@@ -202,7 +202,7 @@ export class Session {
 				} else if (banstate === 0) {
 					// should we update autoconfirmed status? check to see if it's been long enough
 					if (regtime && time() - regtime > (7 * 24 * 60 * 60)) {
-						const ladders = await ladder.selectOne('formatid', SQL`userid = ${userid} AND w != 0`);
+						const ladders = await ladder.selectOne(['formatid'], SQL`userid = ${userid} AND w != 0`);
 						if (ladders) {
 							userType = '4';
 							void users.update(userid, {banstate: -10});
@@ -219,7 +219,7 @@ export class Session {
 			if (userid.length < 1 || !/[a-z]/.test(userid)) {
 				return ';;Your username must contain at least one letter.';
 			}
-			const userstate = await users.get('*', userid);
+			const userstate = await users.get(userid);
 			if (userstate) {
 				if (userstate.banstate >= 100 || ((userstate as any).password && userstate.nonce)) {
 					return ';;Your username is no longer available.';
@@ -309,7 +309,7 @@ export class Session {
 	async changePassword(name: string, pass: string) {
 		const userid = toID(name);
 
-		const userData = await users.get('*', userid);
+		const userData = await users.get(userid);
 		if (!userData) return false;
 
 		const entry = 'Password changed from: ' + userData.passwordhash;
@@ -329,9 +329,9 @@ export class Session {
 	async passwordVerify(name: string, pass: string) {
 		const ip = this.dispatcher.getIp();
 		const userid = toID(name);
-		let throttleTable = await (loginthrottle.get(
-			['count', 'time'], ip
-		) as Promise<{count: number; time: number}>) || null;
+		let throttleTable = await loginthrottle.get(
+			ip, ['count', 'time']
+		) as {count: number; time: number} || null;
 		if (throttleTable) {
 			if (throttleTable.count > 500) {
 				throttleTable.count++;
@@ -349,7 +349,7 @@ export class Session {
 			}
 		}
 
-		const userData = await users.get('*', userid);
+		const userData = await users.get(userid);
 		if (userData?.email?.endsWith('@')) {
 			try {
 				const payload = await new Promise<{[k: string]: any} | null>((resolve, reject) => {

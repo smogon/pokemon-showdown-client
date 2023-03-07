@@ -87,7 +87,7 @@ export const Replays = new class {
 	}
 
 	async get(id: string): Promise<ReplayData | null> {
-		const replay = await replays.get('*', id);
+		const replay = await replays.get(id);
 		if (!replay) return null;
 
 		for (const player of ['p1', 'p2'] as const) {
@@ -229,8 +229,8 @@ export const Replays = new class {
 	async upload(params: {[k: string]: unknown}, dispatcher: Dispatcher) {
 		let id = toID(params.id);
 		if (!id) throw new ActionError('Battle ID needed.');
-		const preppedReplay = await prepreplays.get('*', id);
-		const replay = await replays.get(['id', 'private', 'password'], id);
+		const preppedReplay = await prepreplays.get(id);
+		const replay = await replays.get(id, ['id', 'private', 'password']);
 		if (!preppedReplay) {
 			if (replay) {
 				if (replay.password) {

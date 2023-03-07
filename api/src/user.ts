@@ -41,7 +41,7 @@ export class User {
 	}
 	async getData() {
 		if (this.id === 'guest') return User.getUserDefaults();
-		const data = await users.get('*', this.id);
+		const data = await users.get(this.id);
 		return data ? {...data} : User.getUserDefaults();
 	}
 	setName(name: string) {

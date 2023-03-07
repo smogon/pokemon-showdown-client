@@ -9,11 +9,12 @@
 import * as mysql from 'mysql2';
 
 export type BasicSQLValue = string | number | null;
+export type SQLValue = BasicSQLValue | {[k: string]: BasicSQLValue};
 
 export class SQLStatement {
 	sql: string;
-	values: BasicSQLValue[];
-	constructor(strings: TemplateStringsArray, values: BasicSQLValue[]) {
+	values: SQLValue[];
+	constructor(strings: TemplateStringsArray, values: SQLValue[]) {
 		this.sql = strings.join(`?`);
 		this.values = values;
 	}
@@ -27,26 +28,25 @@ export class SQLStatement {
 	}
 }
 
-export function SQL(strings: TemplateStringsArray, ...values: BasicSQLValue[]) {
+export function SQL(strings: TemplateStringsArray, ...values: SQLValue[]) {
 	return new SQLStatement(strings, values);
 }
 
 export interface ResultRow {[k: string]: BasicSQLValue}
-export type DBConfig = mysql.PoolOptions & {prefix?: string};
 
 export const connectedDatabases: Database[] = [];
 
 export class Database {
 	connection: mysql.Pool;
 	prefix: string;
-	constructor(config: DBConfig) {
-		config = {...config};
+	constructor(config: mysql.PoolOptions & {prefix?: string}) {
 		this.prefix = config.prefix || "";
 		if (config.prefix) {
+			config = {...config};
 			delete config.prefix;
 		}
 		this.connection = mysql.createPool(config);
-		if (!connectedDatabases.includes(this)) connectedDatabases.push(this);
+		connectedDatabases.push(this);
 	}
 	query<T = ResultRow>(query: SQLStatement) {
 		const err = new Error();
@@ -90,13 +90,6 @@ export class Database {
 	close() {
 		this.connection.end();
 	}
-	connect(config: DBConfig) {
-		if (config.prefix) {
-			this.prefix = config.prefix;
-			delete config.prefix;
-		}
-		this.connection = mysql.createPool(config);
-	}
 }
 
 export class DatabaseTable<T> {
@@ -112,42 +105,43 @@ export class DatabaseTable<T> {
 		this.name = name;
 		this.primaryKeyName = primaryKeyName;
 	}
-	async selectOne(
-		entries: string | string[],
-		where?: SQLStatement,
-	): Promise<T | null> {
+	escapeId(param: string) {
+		return this.db.connection.escapeId(param);
+	}
+	private getName() {
+		return this.escapeId(this.db.prefix + this.name);
+	}
+
+	// raw
+
+	query<Z = T>(sql: SQLStatement) {
+		return this.db.query<Z>(sql);
+	}
+	queryOk(sql: SQLStatement) {
+		return this.db.queryOk(sql);
+	}
+
+	// low-level
+
+	async selectOne(entries?: string[] | null, where?: SQLStatement): Promise<T | null> {
 		const query = where || SQL``;
 		query.append(' LIMIT 1');
 		const rows = await this.selectAll(entries, query);
 		return rows?.[0] || null;
 	}
-	selectAll(
-		entries: string | string[],
-		where?: SQLStatement
-	): Promise<T[]> {
+	selectAll(entries?: string[] | null, where?: SQLStatement): Promise<T[]> {
 		const query = SQL`SELECT `;
-		if (typeof entries === 'string') {
-			query.append(' * ');
+		if (!entries) {
+			query.append('*');
 		} else {
-			for (let i = 0; i < entries.length; i++) {
-				const key = entries[i];
-				query.append(this.format(key));
-				if (typeof entries[i + 1] !== 'undefined') query.append(', ');
-			}
-			query.append(' ');
+			query.append(entries.map(key => this.escapeId(key)).join(`, `));
 		}
-		query.append(`FROM ${this.getName()} `);
+		query.append(` FROM ${this.getName()} `);
 		if (where) {
 			query.append(' WHERE ');
 			query.append(where);
 		}
 		return this.query(query);
-	}
-	get(entries: string | string[], keyId: BasicSQLValue) {
-		const query = SQL``;
-		query.append(this.format(this.primaryKeyName));
-		query.append(SQL` = ${keyId}`);
-		return this.selectOne(entries, query);
 	}
 	updateAll(toParams: Partial<T>, where?: SQLStatement, limit?: number) {
 		const to = Object.entries(toParams) as [string, BasicSQLValue][];
@@ -155,7 +149,7 @@ export class DatabaseTable<T> {
 		query.append(this.getName() + ' SET ');
 		for (let i = 0; i < to.length; i++) {
 			const [k, v] = to[i];
-			query.append(`${this.format(k)} = `);
+			query.append(`${this.escapeId(k)} = `);
 			query.append(SQL`${v}`);
 			if (typeof to[i + 1] !== 'undefined') {
 				query.append(', ');
@@ -172,9 +166,6 @@ export class DatabaseTable<T> {
 	updateOne(to: Partial<T>, where?: SQLStatement) {
 		return this.updateAll(to, where, 1);
 	}
-	private getName() {
-		return this.format(this.db.prefix + this.name);
-	}
 	deleteAll(where?: SQLStatement, limit?: number) {
 		const query = SQL`DELETE FROM `;
 		query.append(this.getName());
@@ -187,12 +178,6 @@ export class DatabaseTable<T> {
 		}
 		return this.queryOk(query);
 	}
-	delete(keyEntry: BasicSQLValue) {
-		const query = SQL``;
-		query.append(this.format(this.primaryKeyName));
-		query.append(SQL` = ${keyEntry}`);
-		return this.deleteOne(query);
-	}
 	deleteOne(where: SQLStatement) {
 		return this.deleteAll(where, 1);
 	}
@@ -200,11 +185,7 @@ export class DatabaseTable<T> {
 		const query = SQL``;
 		query.append(`${isReplace ? 'REPLACE' : 'INSERT'} INTO ${this.getName()} (`);
 		const keys = Object.keys(colMap);
-		for (let i = 0; i < keys.length; i++) {
-			const key = keys[i];
-			query.append(this.format(key));
-			if (typeof keys[i + 1] !== 'undefined') query.append(', ');
-		}
+		query.append(keys.map(key => this.escapeId(key)).join(`, `));
 		query.append(') VALUES (');
 		for (let i = 0; i < keys.length; i++) {
 			const key = keys[i];
@@ -218,25 +199,25 @@ export class DatabaseTable<T> {
 	replace(cols: Partial<T>, rest?: SQLStatement) {
 		return this.insert(cols, rest, true);
 	}
-	format(param: string) {
-		// todo: figure out a better way to do this. backticks are only needed
-		// for reserved words, but we tend to have a lot of those (like `session` in ntbb_sessions)
-		// so for now + consistency's sake, we're going to keep this. but we might be able to hardcode that out?
-		// not sure.
-		return `\`${param}\``;
+
+	// high-level
+
+	get(primaryKey: BasicSQLValue, entries?: string[]) {
+		const query = SQL``;
+		query.append(this.escapeId(this.primaryKeyName));
+		query.append(SQL` = ${primaryKey}`);
+		return this.selectOne(entries, query);
+	}
+	delete(primaryKey: BasicSQLValue) {
+		const query = SQL``;
+		query.append(this.escapeId(this.primaryKeyName));
+		query.append(SQL` = ${primaryKey}`);
+		return this.deleteOne(query);
 	}
 	update(primaryKey: BasicSQLValue, data: Partial<T>) {
 		const query = SQL``;
 		query.append(this.primaryKeyName + ' = ');
 		query.append(SQL`${primaryKey}`);
 		return this.updateOne(data, query);
-	}
-
-	// catch-alls for "we can't fit this query into any of the wrapper functions"
-	query<Z = T>(sql: SQLStatement) {
-		return this.db.query<Z>(sql);
-	}
-	queryOk(sql: SQLStatement) {
-		return this.db.queryOk(sql);
 	}
 }
