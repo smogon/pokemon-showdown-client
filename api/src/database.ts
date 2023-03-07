@@ -92,7 +92,7 @@ export class Database {
 	}
 }
 
-export class DatabaseTable<T> {
+export class DatabaseTable<Row> {
 	db: Database;
 	name: string;
 	primaryKeyName: string;
@@ -114,7 +114,7 @@ export class DatabaseTable<T> {
 
 	// raw
 
-	query<Z = T>(sql: SQLStatement) {
+	query<Z = Row>(sql: SQLStatement) {
 		return this.db.query<Z>(sql);
 	}
 	queryOk(sql: SQLStatement) {
@@ -123,13 +123,13 @@ export class DatabaseTable<T> {
 
 	// low-level
 
-	async selectOne(entries?: string[] | null, where?: SQLStatement): Promise<T | null> {
+	async selectOne(entries?: string[] | null, where?: SQLStatement): Promise<Row | null> {
 		const query = where || SQL``;
 		query.append(' LIMIT 1');
 		const rows = await this.selectAll(entries, query);
 		return rows?.[0] || null;
 	}
-	selectAll(entries?: string[] | null, where?: SQLStatement): Promise<T[]> {
+	selectAll(entries?: string[] | null, where?: SQLStatement): Promise<Row[]> {
 		const query = SQL`SELECT `;
 		if (!entries) {
 			query.append('*');
@@ -143,7 +143,7 @@ export class DatabaseTable<T> {
 		}
 		return this.query(query);
 	}
-	updateAll(toParams: Partial<T>, where?: SQLStatement, limit?: number) {
+	updateAll(toParams: Partial<Row>, where?: SQLStatement, limit?: number) {
 		const to = Object.entries(toParams) as [string, BasicSQLValue][];
 		const query = SQL`UPDATE `;
 		query.append(this.getName() + ' SET ');
@@ -163,7 +163,7 @@ export class DatabaseTable<T> {
 		if (limit) query.append(SQL` LIMIT ${limit}`);
 		return this.queryOk(query);
 	}
-	updateOne(to: Partial<T>, where?: SQLStatement) {
+	updateOne(to: Partial<Row>, where?: SQLStatement) {
 		return this.updateAll(to, where, 1);
 	}
 	deleteAll(where?: SQLStatement, limit?: number) {
@@ -181,7 +181,7 @@ export class DatabaseTable<T> {
 	deleteOne(where: SQLStatement) {
 		return this.deleteAll(where, 1);
 	}
-	insert(colMap: Partial<T>, rest?: SQLStatement, isReplace = false) {
+	insert(colMap: Partial<Row>, rest?: SQLStatement, isReplace = false) {
 		const query = SQL``;
 		query.append(`${isReplace ? 'REPLACE' : 'INSERT'} INTO ${this.getName()} (`);
 		const keys = Object.keys(colMap);
@@ -189,14 +189,14 @@ export class DatabaseTable<T> {
 		query.append(') VALUES (');
 		for (let i = 0; i < keys.length; i++) {
 			const key = keys[i];
-			query.append(SQL`${colMap[key as keyof T] as BasicSQLValue}`);
+			query.append(SQL`${colMap[key as keyof Row] as BasicSQLValue}`);
 			if (typeof keys[i + 1] !== 'undefined') query.append(', ');
 		}
 		query.append(') ');
 		if (rest) query.append(rest);
 		return this.queryOk(query);
 	}
-	replace(cols: Partial<T>, rest?: SQLStatement) {
+	replace(cols: Partial<Row>, rest?: SQLStatement) {
 		return this.insert(cols, rest, true);
 	}
 
@@ -214,7 +214,7 @@ export class DatabaseTable<T> {
 		query.append(SQL` = ${primaryKey}`);
 		return this.deleteOne(query);
 	}
-	update(primaryKey: BasicSQLValue, data: Partial<T>) {
+	update(primaryKey: BasicSQLValue, data: Partial<Row>) {
 		const query = SQL``;
 		query.append(this.primaryKeyName + ' = ');
 		query.append(SQL`${primaryKey}`);
