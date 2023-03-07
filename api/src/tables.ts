@@ -1,26 +1,30 @@
 /**
- * Classes for interfacing with specific database tables.
- * Original design by Zarel in https://github.com/Zarel/telepic/blob/master/server/db.ts, redone by Mia
- * @author mia-pi-git
+ * Login server database tables
  */
-import {DatabaseTable} from './database';
+import {Database, DatabaseTable} from './database';
+import {Config} from './config-loader';
 
 import type {LadderEntry} from './ladder';
 import type {PreparedReplay, ReplayData} from './replays';
 import type {UserInfo} from './user';
 
-export const users = new DatabaseTable<UserInfo>('users', 'userid');
+// direct access
+export const psdb = new Database(Config.mysql);
+export const replaysDB = Config.replaysdb ? new Database(Config.replaysdb!) : psdb;
+export const ladderDB = Config.ladderdb ? new Database(Config.ladderdb!) : psdb;
+
+export const users = new DatabaseTable<UserInfo>(psdb, 'users', 'userid');
 
 export const ladder = new DatabaseTable<LadderEntry>(
-	'ladder', 'entryid',
+	ladderDB, 'ladder', 'entryid',
 );
 
 export const prepreplays = new DatabaseTable<PreparedReplay>(
-	'prepreplays', 'id',
+	replaysDB, 'prepreplays', 'id',
 );
 
 export const replays = new DatabaseTable<ReplayData>(
-	'replays', 'id',
+	replaysDB, 'replays', 'id',
 );
 
 export const sessions = new DatabaseTable<{
@@ -30,21 +34,21 @@ export const sessions = new DatabaseTable<{
 	time: number;
 	timeout: number;
 	ip: string;
-}>('sessions', 'session');
+}>(psdb, 'sessions', 'session');
 
 export const userstats = new DatabaseTable<{
 	id: number;
 	serverid: string;
 	usercount: number;
 	date: number;
-}>('userstats', 'id');
+}>(psdb, 'userstats', 'id');
 
 export const loginthrottle = new DatabaseTable<{
 	ip: string;
 	count: number;
 	time: number;
 	lastuserid: string;
-}>('loginthrottle', 'ip');
+}>(psdb, 'loginthrottle', 'ip');
 
 export const usermodlog = new DatabaseTable<{
 	entryid: number;
@@ -53,11 +57,11 @@ export const usermodlog = new DatabaseTable<{
 	date: number;
 	ip: string;
 	entry: string;
-}>('usermodlog', 'entryid');
+}>(psdb, 'usermodlog', 'entryid');
 
 export const userstatshistory = new DatabaseTable<{
 	id: number;
 	date: number;
 	usercount: number;
 	programid: 'showdown' | 'po';
-}>('userstatshistory', 'id');
+}>(psdb, 'userstatshistory', 'id');

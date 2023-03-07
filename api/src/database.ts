@@ -1,10 +1,12 @@
 /**
- * Promise database implementation, with stricter typing.
- * By Mia
- * @author mia-pi-git
+ * Database abstraction layer that's vaguely ORM-like.
+ * Modern (Promises, strict types, tagged template literals), but ORMs
+ * are a bit _too_ magical for me, so none of that magic here.
+ *
+ * @author Zarel
  */
+
 import * as mysql from 'mysql2';
-import {Config} from './config-loader';
 
 export type BasicSQLValue = string | number | null;
 
@@ -97,35 +99,31 @@ export class Database {
 	}
 }
 
-// direct access
-export const psdb = new Database(Config.mysql);
-export const replaysDB = Config.replaysdb ? new Database(Config.replaysdb!) : psdb;
-export const ladderDB = Config.ladderdb ? new Database(Config.ladderdb!) : psdb;
-
 export class DatabaseTable<T> {
+	db: Database;
 	name: string;
 	primaryKeyName: string;
 	constructor(
+		db: Database,
 		name: string,
 		primaryKeyName: string
 	) {
+		this.db = db;
 		this.name = name;
 		this.primaryKeyName = primaryKeyName;
 	}
 	async selectOne(
 		entries: string | string[],
 		where?: SQLStatement,
-		db?: Database
 	): Promise<T | null> {
 		const query = where || SQL``;
 		query.append(' LIMIT 1');
-		const rows = await this.selectAll(entries, query, db);
+		const rows = await this.selectAll(entries, query);
 		return rows?.[0] || null;
 	}
 	selectAll(
 		entries: string | string[],
-		where?: SQLStatement,
-		db?: Database
+		where?: SQLStatement
 	): Promise<T[]> {
 		const query = SQL`SELECT `;
 		if (typeof entries === 'string') {
@@ -138,23 +136,23 @@ export class DatabaseTable<T> {
 			}
 			query.append(' ');
 		}
-		query.append(`FROM ${this.getName(db)} `);
+		query.append(`FROM ${this.getName()} `);
 		if (where) {
 			query.append(' WHERE ');
 			query.append(where);
 		}
-		return this.query(query, db);
+		return this.query(query);
 	}
-	get(entries: string | string[], keyId: BasicSQLValue, db?: Database) {
+	get(entries: string | string[], keyId: BasicSQLValue) {
 		const query = SQL``;
 		query.append(this.format(this.primaryKeyName));
 		query.append(SQL` = ${keyId}`);
-		return this.selectOne(entries, query, db);
+		return this.selectOne(entries, query);
 	}
-	updateAll(toParams: Partial<T>, where?: SQLStatement, limit?: number, db?: Database) {
+	updateAll(toParams: Partial<T>, where?: SQLStatement, limit?: number) {
 		const to = Object.entries(toParams) as [string, BasicSQLValue][];
 		const query = SQL`UPDATE `;
-		query.append(this.getName(db) + ' SET ');
+		query.append(this.getName() + ' SET ');
 		for (let i = 0; i < to.length; i++) {
 			const [k, v] = to[i];
 			query.append(`${this.format(k)} = `);
@@ -169,18 +167,17 @@ export class DatabaseTable<T> {
 			query.append(where);
 		}
 		if (limit) query.append(SQL` LIMIT ${limit}`);
-		return this.execute(query, db);
+		return this.queryOk(query);
 	}
-	updateOne(to: Partial<T>, where?: SQLStatement, db?: Database) {
-		return this.updateAll(to, where, 1, db);
+	updateOne(to: Partial<T>, where?: SQLStatement) {
+		return this.updateAll(to, where, 1);
 	}
-	private getName(db?: Database) {
-		if (!db) db = psdb;
-		return this.format((db.prefix || '') + this.name);
+	private getName() {
+		return this.format(this.db.prefix + this.name);
 	}
-	deleteAll(where?: SQLStatement, limit?: number, db?: Database) {
+	deleteAll(where?: SQLStatement, limit?: number) {
 		const query = SQL`DELETE FROM `;
-		query.append(this.getName(db));
+		query.append(this.getName());
 		if (where) {
 			query.append(' WHERE ');
 			query.append(where);
@@ -188,7 +185,7 @@ export class DatabaseTable<T> {
 		if (limit) {
 			query.append(SQL` LIMIT ${limit}`);
 		}
-		return this.execute(query, db);
+		return this.queryOk(query);
 	}
 	delete(keyEntry: BasicSQLValue) {
 		const query = SQL``;
@@ -196,12 +193,12 @@ export class DatabaseTable<T> {
 		query.append(SQL` = ${keyEntry}`);
 		return this.deleteOne(query);
 	}
-	deleteOne(where: SQLStatement, db?: Database) {
-		return this.deleteAll(where, 1, db);
+	deleteOne(where: SQLStatement) {
+		return this.deleteAll(where, 1);
 	}
-	insert(colMap: Partial<T>, rest?: SQLStatement, isReplace = false, db?: Database) {
+	insert(colMap: Partial<T>, rest?: SQLStatement, isReplace = false) {
 		const query = SQL``;
-		query.append(`${isReplace ? 'REPLACE' : 'INSERT'} INTO ${this.getName(db)} (`);
+		query.append(`${isReplace ? 'REPLACE' : 'INSERT'} INTO ${this.getName()} (`);
 		const keys = Object.keys(colMap);
 		for (let i = 0; i < keys.length; i++) {
 			const key = keys[i];
@@ -216,10 +213,10 @@ export class DatabaseTable<T> {
 		}
 		query.append(') ');
 		if (rest) query.append(rest);
-		return this.execute(query, db);
+		return this.queryOk(query);
 	}
-	replace(cols: Partial<T>, rest?: SQLStatement, db?: Database) {
-		return this.insert(cols, rest, true, db);
+	replace(cols: Partial<T>, rest?: SQLStatement) {
+		return this.insert(cols, rest, true);
 	}
 	format(param: string) {
 		// todo: figure out a better way to do this. backticks are only needed
@@ -228,20 +225,18 @@ export class DatabaseTable<T> {
 		// not sure.
 		return `\`${param}\``;
 	}
-	update(primaryKey: BasicSQLValue, data: Partial<T>, db?: Database) {
+	update(primaryKey: BasicSQLValue, data: Partial<T>) {
 		const query = SQL``;
 		query.append(this.primaryKeyName + ' = ');
 		query.append(SQL`${primaryKey}`);
-		return this.updateOne(data, query, db);
+		return this.updateOne(data, query);
 	}
 
 	// catch-alls for "we can't fit this query into any of the wrapper functions"
-	query<Z = T>(sql: SQLStatement, db?: Database) {
-		if (!db) db = psdb;
-		return db.query<Z>(sql);
+	query<Z = T>(sql: SQLStatement) {
+		return this.db.query<Z>(sql);
 	}
-	execute(sql: SQLStatement, db?: Database) {
-		if (!db) db = psdb;
-		return db.queryOk(sql);
+	queryOk(sql: SQLStatement) {
+		return this.db.queryOk(sql);
 	}
 }

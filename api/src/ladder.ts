@@ -7,7 +7,7 @@
 import {time} from './session';
 import {toID} from './server';
 import {ladder} from './tables';
-import {ladderDB as db, SQL} from './database';
+import {SQL} from './database';
 import type {User} from './user';
 
 export interface LadderEntry {
@@ -65,16 +65,16 @@ export class NTBBLadder {
 	clearRating(name: string | User | FakeUser) {
 		return ladder.updateOne({
 			elo: 1000, col1: 0, w: 0, l: 0, t: 0,
-		}, SQL`userid = ${toID(name)} AND formatid = ${this.formatid}`, db);
+		}, SQL`userid = ${toID(name)} AND formatid = ${this.formatid}`);
 	}
 	clearWL(name: User | string) {
 		return ladder.updateOne({
 			w: 0, l: 0, t: 0,
-		}, SQL`userid = ${toID(name)} AND formatid = ${this.formatid}`, db);
+		}, SQL`userid = ${toID(name)} AND formatid = ${this.formatid}`);
 	}
 	async getRating(user: User | FakeUser, create = false) {
 		if (!user.rating) {
-			const data = await ladder.selectOne('*', SQL`userid = ${user.id} AND formatid = ${this.formatid}`, db);
+			const data = await ladder.selectOne('*', SQL`userid = ${user.id} AND formatid = ${this.formatid}`);
 
 			if (!data) {
 				if (!create) {
@@ -84,7 +84,7 @@ export class NTBBLadder {
 				const res = await ladder.insert({
 					formatid: this.formatid, username: user.name, userid: user.id,
 					rptime: rp, rpdata: '', col1: 0,
-				}, SQL``, false, db);
+				}, SQL``, false);
 				user.rating = {
 					entryid: res.insertId,
 					formatid: this.formatid,
@@ -114,7 +114,7 @@ export class NTBBLadder {
 	}
 	async getAllRatings(user: User | FakeUser) {
 		if (!user.ratings) {
-			const res = await ladder.selectAll('*', SQL`userid = ${user.id}`, db);
+			const res = await ladder.selectAll('*', SQL`userid = ${user.id}`);
 			if (!res) {
 				return false;
 			}
@@ -153,9 +153,9 @@ export class NTBBLadder {
 				query.append(SQL`(SELECT * FROM \`ntbb_ladder\` WHERE \`formatid\` = ${this.formatid} `);
 				query.append(SQL`ORDER BY \`elo\` DESC LIMIT ${limit})`);
 				query.append(SQL`AS \`unusedalias\` WHERE \`userid\` LIKE ${prefix} LIMIT ${overfetch}`);
-				res = await ladder.query(query, db);
+				res = await ladder.query(query);
 			} else {
-				res = await ladder.selectAll('*', SQL`formatid = ${this.formatid} ORDER BY elo DESC`, db);
+				res = await ladder.selectAll('*', SQL`formatid = ${this.formatid} ORDER BY elo DESC`);
 			}
 
 			for (const row of res) {
@@ -179,7 +179,7 @@ export class NTBBLadder {
 		return top;
 	}
 	clearAllRatings() {
-		return ladder.deleteAll(SQL`formatid = ${this.formatid}`, undefined, db);
+		return ladder.deleteAll(SQL`formatid = ${this.formatid}`, undefined);
 	}
 
 	async saveRating(user: User | FakeUser) {
@@ -192,7 +192,7 @@ export class NTBBLadder {
 		} = user.rating;
 		return !!(await ladder.update(entryid, {
 			elo, w, l, t, r, rd, sigma, rptime, rpr, rprd, rpsigma, rpdata, gxe, col1,
-		}, db));
+		}));
 	}
 
 	update(
