@@ -12,7 +12,7 @@ import * as defaults from '../config/config-example';
 export type Configuration = typeof defaults;
 
 export function load(invalidate = false): Configuration {
-	const configPath = path.resolve(__dirname, (process.argv[2] || process.env.CONFIG_PATH || ""));
+	const configPath = path.resolve(__dirname + "/../../", (process.argv[2] || process.env.CONFIG_PATH || ""));
 	if (invalidate) delete require.cache[configPath];
 	let config = defaults;
 	try {
