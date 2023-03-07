@@ -8,7 +8,7 @@ import {Config} from './config-loader';
 import {ActionError, Dispatcher, QueryHandler} from './dispatcher';
 import * as fs from 'fs';
 import * as child_process from 'child_process';
-import SQL from 'sql-template-strings';
+import {SQL} from './database';
 import {NTBBLadder} from './ladder';
 import {Replays, md5} from './replays';
 import {toID} from './server';

@@ -5,7 +5,7 @@
 import {Replays, md5, stripNonAscii, ReplayData} from '../replays';
 import {prepreplays, replays} from '../tables';
 import {strict as assert} from 'assert';
-import SQL from 'sql-template-strings';
+import {SQL} from '../database';
 import * as utils from './test-utils';
 
 (describe.skip)('Replay database manipulation', () => {

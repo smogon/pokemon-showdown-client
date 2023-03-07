@@ -5,12 +5,11 @@
  */
 import * as crypto from 'crypto';
 import {ActionError, Dispatcher} from './dispatcher';
-import SQL from 'sql-template-strings';
 import {Session, time} from './session';
 import {toID} from './server';
 import {prepreplays, replays} from './tables';
 import {Config} from './config-loader';
-import {replaysDB as db} from './database';
+import {replaysDB as db, SQL} from './database';
 
 export interface ReplayData {
 	id: string;
@@ -281,7 +280,7 @@ export const Replays = new class {
 
 		const privacy = preppedReplay.private ? 1 : 0;
 		const {p1, p2, format, uploadtime, rating, inputlog} = preppedReplay;
-		const onDupe = SQL`ON DUPLICATE KEY UPDATE log = ${params.log}, `;
+		const onDupe = SQL`ON DUPLICATE KEY UPDATE log = ${params.log as string}, `;
 		onDupe.append(SQL`inputlog = ${inputlog}, rating = ${rating}, `);
 		onDupe.append(SQL` private = ${privacy}, \`password\` = ${password}`);
 		await replays.insert({

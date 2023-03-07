@@ -10,7 +10,7 @@ import {Config} from './config-loader';
 import * as crypto from 'crypto';
 import {ActionError, Dispatcher} from './dispatcher';
 import * as gal from 'google-auth-library';
-import SQL from 'sql-template-strings';
+import {SQL} from './database';
 import {toID} from './server';
 import {ladder, loginthrottle, sessions, users, usermodlog} from './tables';
 import type {User} from './user';

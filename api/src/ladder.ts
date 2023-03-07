@@ -7,8 +7,7 @@
 import {time} from './session';
 import {toID} from './server';
 import {ladder} from './tables';
-import {ladderDB as db} from './database';
-import SQL from 'sql-template-strings';
+import {ladderDB as db, SQL} from './database';
 import type {User} from './user';
 
 export interface LadderEntry {

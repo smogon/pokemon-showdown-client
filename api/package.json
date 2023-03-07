@@ -19,7 +19,6 @@
     "google-auth-library": "^3.1.2",
     "mysql2": "^2.3.3",
     "pm2": "^5.1.2",
-    "sql-template-strings": "^2.2.2",
     "testcontainers": "^9.1.1"
   },
   "devDependencies": {

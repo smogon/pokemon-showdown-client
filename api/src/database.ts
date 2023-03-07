@@ -4,10 +4,31 @@
  * @author mia-pi-git
  */
 import * as mysql from 'mysql2';
-import SQL, {SQLStatement} from 'sql-template-strings';
 import {Config} from './config-loader';
 
 export type SQLInput = string | number | null;
+
+export class SQLStatement {
+	sql: string;
+	values: SQLInput[];
+	constructor(strings: TemplateStringsArray, values: SQLInput[]) {
+		this.sql = strings.join(`?`);
+		this.values = values;
+	}
+	append(statement: SQLStatement | string) {
+		if (typeof statement === 'string') {
+			this.sql += statement;
+		} else {
+			this.sql += statement.sql;
+			this.values = this.values.concat(statement.values);
+		}
+	}
+}
+
+export function SQL(strings: TemplateStringsArray, ...values: SQLInput[]) {
+	return new SQLStatement(strings, values);
+}
+
 export interface ResultRow {[k: string]: SQLInput}
 export type DBConfig = mysql.PoolOptions & {prefix?: string};
 
@@ -131,7 +152,7 @@ export class DatabaseTable<T> {
 		return this.selectOne(entries, query, db);
 	}
 	updateAll(toParams: Partial<T>, where?: SQLStatement, limit?: number, db?: PSDatabase) {
-		const to = Object.entries(toParams);
+		const to = Object.entries(toParams) as [string, SQLInput][];
 		const query = SQL`UPDATE `;
 		query.append(this.getName(db) + ' SET ');
 		for (let i = 0; i < to.length; i++) {
@@ -190,7 +211,7 @@ export class DatabaseTable<T> {
 		query.append(') VALUES (');
 		for (let i = 0; i < keys.length; i++) {
 			const key = keys[i];
-			query.append(SQL`${colMap[key as keyof T]}`);
+			query.append(SQL`${colMap[key as keyof T] as SQLInput}`);
 			if (typeof keys[i + 1] !== 'undefined') query.append(', ');
 		}
 		query.append(') ');
