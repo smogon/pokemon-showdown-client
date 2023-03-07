@@ -6,12 +6,12 @@
 import * as mysql from 'mysql2';
 import {Config} from './config-loader';
 
-export type SQLInput = string | number | null;
+export type BasicSQLValue = string | number | null;
 
 export class SQLStatement {
 	sql: string;
-	values: SQLInput[];
-	constructor(strings: TemplateStringsArray, values: SQLInput[]) {
+	values: BasicSQLValue[];
+	constructor(strings: TemplateStringsArray, values: BasicSQLValue[]) {
 		this.sql = strings.join(`?`);
 		this.values = values;
 	}
@@ -25,17 +25,17 @@ export class SQLStatement {
 	}
 }
 
-export function SQL(strings: TemplateStringsArray, ...values: SQLInput[]) {
+export function SQL(strings: TemplateStringsArray, ...values: BasicSQLValue[]) {
 	return new SQLStatement(strings, values);
 }
 
-export interface ResultRow {[k: string]: SQLInput}
+export interface ResultRow {[k: string]: BasicSQLValue}
 export type DBConfig = mysql.PoolOptions & {prefix?: string};
 
-export const databases: PSDatabase[] = [];
+export const connectedDatabases: Database[] = [];
 
-export class PSDatabase {
-	pool: mysql.Pool;
+export class Database {
+	connection: mysql.Pool;
 	prefix: string;
 	constructor(config: DBConfig) {
 		config = {...config};
@@ -43,8 +43,8 @@ export class PSDatabase {
 		if (config.prefix) {
 			delete config.prefix;
 		}
-		this.pool = mysql.createPool(config);
-		if (!databases.includes(this)) databases.push(this);
+		this.connection = mysql.createPool(config);
+		if (!connectedDatabases.includes(this)) connectedDatabases.push(this);
 	}
 	query<T = ResultRow>(query: SQLStatement) {
 		const err = new Error();
@@ -52,7 +52,7 @@ export class PSDatabase {
 			// this cast is safe since it's only an array of
 			// arrays if we specify it in the config.
 			// we do not do that and it is not really useful for any of our cases.
-			this.pool.query(query.sql, query.values, (e, results: mysql.RowDataPacket[]) => {
+			this.connection.query(query.sql, query.values, (e, results: mysql.RowDataPacket[]) => {
 				if (e) {
 					// bit of a hack? yeah. but we want good stacks :(
 					err.message = `${e.message} ('${query.sql}') [${e.code}]`;
@@ -69,7 +69,7 @@ export class PSDatabase {
 			});
 		});
 	}
-	async get<T = ResultRow>(query: SQLStatement): Promise<T | null> {
+	async queryOne<T = ResultRow>(query: SQLStatement): Promise<T | null> {
 		// if (!queryString.includes('LIMIT')) queryString += ` LIMIT 1`;
 		// limit it yourself, consumers
 		const rows = await this.query(query);
@@ -79,28 +79,28 @@ export class PSDatabase {
 		}
 		return rows ?? null;
 	}
-	async execute(query: SQLStatement): Promise<mysql.OkPacket> {
+	async queryOk(query: SQLStatement): Promise<mysql.OkPacket> {
 		if (!['UPDATE', 'INSERT', 'DELETE', 'REPLACE'].some(i => query.sql.includes(i))) {
 			throw new Error('Use `query` or `get` for non-insertion / update statements.');
 		}
-		return this.get(query) as Promise<mysql.OkPacket>;
+		return this.queryOne(query) as Promise<mysql.OkPacket>;
 	}
 	close() {
-		this.pool.end();
+		this.connection.end();
 	}
 	connect(config: DBConfig) {
 		if (config.prefix) {
 			this.prefix = config.prefix;
 			delete config.prefix;
 		}
-		this.pool = mysql.createPool(config);
+		this.connection = mysql.createPool(config);
 	}
 }
 
 // direct access
-export const psdb = new PSDatabase(Config.mysql);
-export const replaysDB = Config.replaysdb ? new PSDatabase(Config.replaysdb!) : psdb;
-export const ladderDB = Config.ladderdb ? new PSDatabase(Config.ladderdb!) : psdb;
+export const psdb = new Database(Config.mysql);
+export const replaysDB = Config.replaysdb ? new Database(Config.replaysdb!) : psdb;
+export const ladderDB = Config.ladderdb ? new Database(Config.ladderdb!) : psdb;
 
 export class DatabaseTable<T> {
 	name: string;
@@ -115,7 +115,7 @@ export class DatabaseTable<T> {
 	async selectOne(
 		entries: string | string[],
 		where?: SQLStatement,
-		db?: PSDatabase
+		db?: Database
 	): Promise<T | null> {
 		const query = where || SQL``;
 		query.append(' LIMIT 1');
@@ -125,7 +125,7 @@ export class DatabaseTable<T> {
 	selectAll(
 		entries: string | string[],
 		where?: SQLStatement,
-		db?: PSDatabase
+		db?: Database
 	): Promise<T[]> {
 		const query = SQL`SELECT `;
 		if (typeof entries === 'string') {
@@ -145,14 +145,14 @@ export class DatabaseTable<T> {
 		}
 		return this.query(query, db);
 	}
-	get(entries: string | string[], keyId: SQLInput, db?: PSDatabase) {
+	get(entries: string | string[], keyId: BasicSQLValue, db?: Database) {
 		const query = SQL``;
 		query.append(this.format(this.primaryKeyName));
 		query.append(SQL` = ${keyId}`);
 		return this.selectOne(entries, query, db);
 	}
-	updateAll(toParams: Partial<T>, where?: SQLStatement, limit?: number, db?: PSDatabase) {
-		const to = Object.entries(toParams) as [string, SQLInput][];
+	updateAll(toParams: Partial<T>, where?: SQLStatement, limit?: number, db?: Database) {
+		const to = Object.entries(toParams) as [string, BasicSQLValue][];
 		const query = SQL`UPDATE `;
 		query.append(this.getName(db) + ' SET ');
 		for (let i = 0; i < to.length; i++) {
@@ -171,14 +171,14 @@ export class DatabaseTable<T> {
 		if (limit) query.append(SQL` LIMIT ${limit}`);
 		return this.execute(query, db);
 	}
-	updateOne(to: Partial<T>, where?: SQLStatement, db?: PSDatabase) {
+	updateOne(to: Partial<T>, where?: SQLStatement, db?: Database) {
 		return this.updateAll(to, where, 1, db);
 	}
-	private getName(db?: PSDatabase) {
+	private getName(db?: Database) {
 		if (!db) db = psdb;
 		return this.format((db.prefix || '') + this.name);
 	}
-	deleteAll(where?: SQLStatement, limit?: number, db?: PSDatabase) {
+	deleteAll(where?: SQLStatement, limit?: number, db?: Database) {
 		const query = SQL`DELETE FROM `;
 		query.append(this.getName(db));
 		if (where) {
@@ -190,16 +190,16 @@ export class DatabaseTable<T> {
 		}
 		return this.execute(query, db);
 	}
-	delete(keyEntry: SQLInput) {
+	delete(keyEntry: BasicSQLValue) {
 		const query = SQL``;
 		query.append(this.format(this.primaryKeyName));
 		query.append(SQL` = ${keyEntry}`);
 		return this.deleteOne(query);
 	}
-	deleteOne(where: SQLStatement, db?: PSDatabase) {
+	deleteOne(where: SQLStatement, db?: Database) {
 		return this.deleteAll(where, 1, db);
 	}
-	insert(colMap: Partial<T>, rest?: SQLStatement, isReplace = false, db?: PSDatabase) {
+	insert(colMap: Partial<T>, rest?: SQLStatement, isReplace = false, db?: Database) {
 		const query = SQL``;
 		query.append(`${isReplace ? 'REPLACE' : 'INSERT'} INTO ${this.getName(db)} (`);
 		const keys = Object.keys(colMap);
@@ -211,14 +211,14 @@ export class DatabaseTable<T> {
 		query.append(') VALUES (');
 		for (let i = 0; i < keys.length; i++) {
 			const key = keys[i];
-			query.append(SQL`${colMap[key as keyof T] as SQLInput}`);
+			query.append(SQL`${colMap[key as keyof T] as BasicSQLValue}`);
 			if (typeof keys[i + 1] !== 'undefined') query.append(', ');
 		}
 		query.append(') ');
 		if (rest) query.append(rest);
 		return this.execute(query, db);
 	}
-	replace(cols: Partial<T>, rest?: SQLStatement, db?: PSDatabase) {
+	replace(cols: Partial<T>, rest?: SQLStatement, db?: Database) {
 		return this.insert(cols, rest, true, db);
 	}
 	format(param: string) {
@@ -228,7 +228,7 @@ export class DatabaseTable<T> {
 		// not sure.
 		return `\`${param}\``;
 	}
-	update(primaryKey: SQLInput, data: Partial<T>, db?: PSDatabase) {
+	update(primaryKey: BasicSQLValue, data: Partial<T>, db?: Database) {
 		const query = SQL``;
 		query.append(this.primaryKeyName + ' = ');
 		query.append(SQL`${primaryKey}`);
@@ -236,12 +236,12 @@ export class DatabaseTable<T> {
 	}
 
 	// catch-alls for "we can't fit this query into any of the wrapper functions"
-	query<Z = T>(sql: SQLStatement, db?: PSDatabase) {
+	query<Z = T>(sql: SQLStatement, db?: Database) {
 		if (!db) db = psdb;
 		return db.query<Z>(sql);
 	}
-	execute(sql: SQLStatement, db?: PSDatabase) {
+	execute(sql: SQLStatement, db?: Database) {
 		if (!db) db = psdb;
-		return db.execute(sql);
+		return db.queryOk(sql);
 	}
 }
