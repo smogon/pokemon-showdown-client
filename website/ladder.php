@@ -34,7 +34,7 @@ $formats = array(
 	'gen9battlestadiumsingles' => 'Battle Stadium Singles',
 	'gen9randomdoublesbattle' => 'Random Doubles Battle',
 	'gen9doublesou' => 'Doubles OU',
-	'gen9vgc2021' => 'VGC 2023',
+	'gen9vgc2023regulationc' => 'VGC 2023 Regulation C',
 	'gen9balancedhackmons' => 'Balanced Hackmons',
 	'gen9mixandmega' => 'Mix and Mega',
 	'gen9almostanyability' => 'Almost Any Ability',
@@ -122,7 +122,7 @@ if (!$formatid) {
 		<ul class="laddernav">
 			<li><a data-target="push" class="button nav-first" href="/ladder/gen9randomdoublesbattle">Random Doubles Battle</a></li>
 			<li><a data-target="push" class="button" href="/ladder/gen9doublesou">Doubles OU</a></li>
-			<li><a data-target="push" class="button nav-last" href="/ladder/gen9vgc2021">VGC 2021</a></li>
+			<li><a data-target="push" class="button nav-last" href="/ladder/gen9vgc2023regulationc">VGC 2023 Regulation C</a></li>
 		</ul>
 		<ul class="laddernav">
 			<li><a data-target="push" class="button" href="/ladder/gen9almostanyability">Almost Any Ability</a></li>
