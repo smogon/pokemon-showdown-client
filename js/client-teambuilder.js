@@ -2694,7 +2694,7 @@
 			
 			buf += '<div class="formrow"><label class="formlabel" title="Custom Move Type">Custom Move:</label><div><select name="cmtype">';
 			var types = Dex.types.all();
-			var cmType = set.cmType || "Normal";
+			var cmType = set.cmType;
 			for (var i = 0; i < types.length; i++) {
 				buf += '<option value="' + types[i].name + '"' + (cmType === types[i].name ? ' selected="selected"' : '') + '>' + types[i].name + '</option>';
 			}
