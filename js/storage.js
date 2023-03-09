@@ -1342,7 +1342,7 @@ Storage.exportTeam = function (team, gen, hidestats) {
 			text += 'Tera Type: ' + (curSet.teraType || Dex.species.get(curSet.species).types[0]) + "  \n";
 		}
 		if (curSet.cmType) {
-			text += 'Custom Move: ' + (curSet.cmType || "Normal") + "  \n";
+			text += 'Custom Move: ' + (curSet.cmType) + "  \n";
 		}
 		if (!hidestats) {
 			var first = true;
