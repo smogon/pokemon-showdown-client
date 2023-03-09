@@ -1243,8 +1243,8 @@
 				if (this.curTeam.gen === 9) {
 					buf += '<span class="detailcell"><label>Tera Type</label>' + (set.teraType || species.types[0]) + '</span>';
 				}
+				buf += '<span class="detailcell"><label>Custom Move Type</label>' + (set.cmType || "Normal") + '</span>';
 			}
-			buf += '<span class="detailcell"><label>Custom Move Type</label>' + (set.cmType || "Normal") + '</span>';
 			buf += '</button></div></div>';
 
 			// item/type icons
@@ -2784,11 +2784,12 @@
 			}
 			// Custom Move type
 			var cmType = this.$chart.find('select[name=cmtype]').val();
-			if (Dex.types.isName(cmType) && cmType !== "Normal") {
+			if (Dex.types.isName(cmType)) {
 				set.cmType = cmType;
 			} else {
 				delete set.cmType;
 			}
+			console.log(cmType, set.cmType);
 
 			// update details cell
 			var buf = '';
