@@ -563,6 +563,7 @@ class BattleTooltips {
 				if (move.id === 'weatherball') {
 					switch (this.battle.weather) {
 					case 'sunnyday':
+					case 'newmoon':
 					case 'desolateland':
 						zMove = this.battle.dex.moves.get(BattleTooltips.zMoveTable['Fire']);
 						break;
@@ -1427,6 +1428,9 @@ class BattleTooltips {
 		// Weather and pseudo-weather type changes.
 		if (move.id === 'weatherball' && value.weatherModify(0)) {
 			switch (this.battle.weather) {
+			case 'newmoon':
+				moveType = 'Dark';
+				break;
 			case 'sunnyday':
 			case 'desolateland':
 				if (item.id === 'utilityumbrella') break;
@@ -1459,6 +1463,9 @@ class BattleTooltips {
 		}
 		if (move.id === 'terablast' && pokemon.terastallized) {
 			moveType = pokemon.terastallized as TypeName;
+		}
+		if (move.id === 'custommove') {
+			moveType = serverPokemon.cmType as TypeName;
 		}
 
 		// Aura Wheel as Morpeko-Hangry changes the type to Dark

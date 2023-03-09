@@ -479,6 +479,10 @@ License: GPLv2
 	background: #DDAAEE url(../fx/weather-wonderroom.png) no-repeat scroll left top;
 	color: #661155;
 }
+.newmoonweather {
+	background: #DDAAEE url(../fx/weather-newmoon.png) no-repeat scroll left top;
+	color: #661155;
+}
 
 .battle .result {
 	display: none;
