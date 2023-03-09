@@ -12,7 +12,7 @@ import {ActionError, Dispatcher} from './dispatcher';
 import * as gal from 'google-auth-library';
 import {SQL} from './database';
 import {toID} from './server';
-import {ladder, loginthrottle, sessions, users, usermodlog} from './tables';
+import {psdb, ladder, loginthrottle, sessions, users, usermodlog} from './tables';
 import type {User} from './user';
 
 const SID_DURATION = 2 * 7 * 24 * 60 * 60;
@@ -79,11 +79,10 @@ export class Session {
 	async getRecentRegistrationCount(period: number) {
 		const ip = this.dispatcher.getIp();
 		const timestamp = time() - period;
-		const query = SQL`SELECT COUNT(*) AS \`registrationcount\` FROM \`ntbb_users\``;
-		query.append(SQL`WHERE \`ip\` = ${ip} AND \`registertime\` > ${timestamp}`);
-		const rows = await users.query<{registrationcount: number}>(query);
-		if (!rows) return 0;
-		return rows[0]['registrationcount'];
+		const result = await users.selectOne<{regcount: number}>(
+			SQL`COUNT(*) AS regcount`
+		)`WHERE \`ip\` = ${ip} AND \`registertime\` > ${timestamp}`;
+		return result?.['regcount'] || 0;
 	}
 	async addUser(username: string, password: string) {
 		const hash = await bcrypt.hash(password, Config.passwordSalt);
@@ -202,7 +201,7 @@ export class Session {
 				} else if (banstate === 0) {
 					// should we update autoconfirmed status? check to see if it's been long enough
 					if (regtime && time() - regtime > (7 * 24 * 60 * 60)) {
-						const ladders = await ladder.selectOne(['formatid'], SQL`userid = ${userid} AND w != 0`);
+						const ladders = await ladder.selectOne(['formatid'])`WHERE userid = ${userid} AND w != 0`;
 						if (ladders) {
 							userType = '4';
 							void users.update(userid, {banstate: -10});
@@ -320,7 +319,7 @@ export class Session {
 		await users.update(userid, {
 			passwordhash, nonce: null,
 		});
-		await sessions.deleteOne(SQL`userid = ${userid}`);
+		await sessions.deleteAll()`WHERE userid = ${userid}`;
 		if (this.dispatcher.user.id === userid) {
 			await this.login(name, pass);
 		}
@@ -428,13 +427,12 @@ export class Session {
 		if (!session) {
 			return;
 		}
-		const query = SQL`SELECT sid, timeout, \`ntbb_users\`.* `;
-		query.append('FROM `ntbb_sessions`, `ntbb_users` ');
-		query.append(SQL`WHERE \`session\` = ${session} `);
-		query.append('AND `ntbb_sessions`.`userid` = `ntbb_users`.`userid` ');
-		query.append(' LIMIT 1');
-		const rows = await users.query<{sid: string; timeout: number}>(query);
-		const res = rows?.[0];
+		const res = await psdb.queryOne<{sid: string; timeout: number}>(
+		)`SELECT sid, timeout, ntbb_users.* 
+			FROM ntbb_sessions, ntbb_users
+			WHERE \`session\` = ${session}
+			AND ntbb_sessions.userid = ntbb_users.userid
+			 LIMIT 1`;
 		if (!res || !(await bcrypt.compare(sid, res.sid))) {
 			// invalid session ID
 			this.deleteCookie();
@@ -442,7 +440,7 @@ export class Session {
 		}
 		if (res.timeout < ctime) {
 			// session expired
-			await sessions.deleteAll(SQL`timeout = ${ctime}`);
+			await sessions.deleteAll()`WHERE timeout = ${ctime}`;
 			this.deleteCookie();
 			return;
 		}

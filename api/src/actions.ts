@@ -8,7 +8,6 @@ import {Config} from './config-loader';
 import {ActionError, Dispatcher, QueryHandler} from './dispatcher';
 import * as fs from 'fs';
 import * as child_process from 'child_process';
-import {SQL} from './database';
 import {NTBBLadder} from './ladder';
 import {Replays, md5} from './replays';
 import {toID} from './server';
@@ -165,9 +164,9 @@ export const actions: {[k: string]: QueryHandler} = {
 			return {actionsuccess: false};
 		}
 
-		await tables.userstats.insert({
+		await tables.userstats.replace({
 			serverid: server.id, date, usercount,
-		}, SQL`ON DUPLICATE KEY UPDATE \`date\`= ${date}, \`usercount\`= ${usercount}`);
+		});
 
 		if (server.id === Config.mainserver) {
 			await tables.userstatshistory.insert({date, usercount});

@@ -76,7 +76,7 @@ describe('Loginserver actions', () => {
 
 	it('Should prepare replays', async () => {
 		// clear old
-		await tables.prepreplays.deleteOne(SQL`id = ${'gen8randombattle-3096'}`);
+		await tables.prepreplays.delete('gen8randombattle-3096');
 
 		// as long as it doesn't throw, we're fine
 		await utils.testDispatcher({
@@ -109,9 +109,8 @@ describe('Loginserver actions', () => {
 	describe('Ladder', () => {
 		it('Should update the ladder', async () => {
 			for (const id of ['catra', 'adora']) {
-				await tables.ladder.deleteOne(
-					SQL`userid = ${id} AND formatid = ${'gen1randombattle'}`,
-				); // clear their ratings entirely
+				// clear their ratings entirely
+				await tables.ladder.deleteOne()`userid = ${id} AND formatid = ${'gen1randombattle'}`;
 			}
 			const {result} = await utils.testDispatcher({
 				act: 'ladderupdate',
@@ -131,9 +130,7 @@ describe('Loginserver actions', () => {
 			const p1 = NTBBLadder.getUserData('shera')!;
 			const p2 = NTBBLadder.getUserData('catra')!;
 			for (const player of [p1, p2]) {
-				await tables.ladder.deleteAll(
-					SQL`userid = ${player.id} AND formatid = ${ladder.formatid}`,
-				);
+				await tables.ladder.deleteAll()`WHERE userid = ${player.id} AND formatid = ${ladder.formatid}`;
 			}
 			await ladder.updateRating(p1, p2, 1);
 			const {result} = await utils.testDispatcher({

@@ -221,7 +221,7 @@
         "@typescript-eslint/adjacent-overload-signatures": "error",
         // "@typescript-eslint/array-type": "error",
         "@typescript-eslint/consistent-type-assertions": ["error", {"assertionStyle": "as"}],
-        "@typescript-eslint/consistent-type-definitions": ["error", "interface"],
+        "@typescript-eslint/consistent-type-definitions": "off",
         "@typescript-eslint/explicit-member-accessibility": ["error", {"accessibility": "no-public"}],
         "@typescript-eslint/member-delimiter-style": "error",
         "@typescript-eslint/no-parameter-properties": "error",

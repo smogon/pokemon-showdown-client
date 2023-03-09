@@ -24,7 +24,7 @@ import * as utils from './test-utils';
 		});
 
 		const currentUnixTime = Math.floor(Date.now() / 1000);
-		const dbResult = await prepreplays.selectOne(null, SQL`p1 = ${'annika'} AND p2 = ${'heartofetheria'}`);
+		const dbResult = await prepreplays.selectOne()`WHERE p1 = ${'annika'} AND p2 = ${'heartofetheria'}`;
 		assert(dbResult, 'database entry should exist');
 
 		assert.equal(dbResult.id, 'gen8randombattle-42');
