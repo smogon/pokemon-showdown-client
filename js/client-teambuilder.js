@@ -1243,7 +1243,7 @@
 				if (this.curTeam.gen === 9) {
 					buf += '<span class="detailcell"><label>Tera Type</label>' + (set.teraType || species.types[0]) + '</span>';
 				}
-				buf += '<span class="detailcell"><label>Custom Move Type</label>' + (set.cmType || "Normal") + '</span>';
+				buf += '<span class="detailcell"><label>Custom Move Type</label>' + (set.cmType) + '</span>';
 			}
 			buf += '</button></div></div>';
 
@@ -2818,7 +2818,7 @@
 				if (this.curTeam.gen === 9) {
 					buf += '<span class="detailcell"><label>Tera Type</label>' + (set.teraType || species.types[0]) + '</span>';
 				}
-				buf += '<span class="detailcell"><label>Custom Move Type</label>' + (set.cmType || "Normal") + '</span>';
+				buf += '<span class="detailcell"><label>Custom Move Type</label>' + (set.cmType) + '</span>';
 			}
 			this.$('button[name=details]').html(buf);
 
