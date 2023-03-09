@@ -905,6 +905,7 @@ Storage.fastUnpackTeam = function (buf) {
 			set.teraType = misc[5];
 			set.cmType = misc[6];
 		}
+		console.log(misc)
 		if (j < 0) break;
 		i = j + 1;
 	}

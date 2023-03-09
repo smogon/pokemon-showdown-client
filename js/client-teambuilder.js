@@ -2789,7 +2789,6 @@
 			} else {
 				delete set.cmType;
 			}
-			console.log(cmType, set.cmType);
 
 			// update details cell
 			var buf = '';
