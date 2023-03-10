@@ -758,6 +758,9 @@ abstract class BattleTypedSearch<T extends SearchType> {
 		if (this.formatType === 'natdex' && move.isNonstandard && move.isNonstandard !== 'Past') {
 			return false;
 		}
+		if (this.formatType === 'insurgencenatdex' && move.isNonstandard && move.isNonstandard !== 'Past') {
+			return false;
+		}
 		const gen = this.dex.gen;
 		let genChar = `${gen}`;
 		if (
@@ -781,7 +784,7 @@ abstract class BattleTypedSearch<T extends SearchType> {
 		while (learnsetid) {
 			let table = BattleTeambuilderTable;
 			if (this.formatType?.startsWith('bdsp')) table = table['gen8bdsp'];
-			if (this.formatType?.startsWith('insurgence')) table = table['gen9insurgencenationaldex'];
+			//if (this.formatType?.startsWith('insurgence')) table = table['gen9insurgencenationaldex'];
 			if (this.formatType === 'letsgo') table = table['gen7letsgo'];
 			let learnset = table.learnsets[learnsetid];
 			if (learnset && (moveid in learnset) && (!this.format.startsWith('tradebacks') ? learnset[moveid].includes(genChar) :
