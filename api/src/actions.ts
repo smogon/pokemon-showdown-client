@@ -177,12 +177,9 @@ export const actions: {[k: string]: QueryHandler} = {
 		const res = {assertion: '', username: '', loggedin: false};
 		const curuser = this.user;
 		let userid = '';
-		if (curuser.loggedin) {
+		if (curuser.id !== 'guest') {
 			res.username = curuser.name;
 			userid = curuser.id;
-		} else if (this.cookies.get('showdown_username')) {
-			res.username = this.cookies.get('showdown_username')!;
-			userid = toID(res.username);
 		}
 		if (userid !== '') {
 			const challengekeyid = !params.challengekeyid ? -1 : parseInt(params.challengekeyid);

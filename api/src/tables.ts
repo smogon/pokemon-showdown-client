@@ -6,14 +6,27 @@ import {Config} from './config-loader';
 
 import type {LadderEntry} from './ladder';
 import type {PreparedReplay, ReplayData} from './replays';
-import type {UserInfo} from './user';
 
 // direct access
 export const psdb = new Database(Config.mysql);
 export const replaysDB = Config.replaysdb ? new Database(Config.replaysdb!) : psdb;
 export const ladderDB = Config.ladderdb ? new Database(Config.ladderdb!) : psdb;
 
-export const users = new DatabaseTable<UserInfo>(psdb, 'users', 'userid');
+export const users = new DatabaseTable<{
+	userid: string;
+	usernum: number;
+	username: string;
+	nonce: string | null;
+	passwordhash: string | null;
+	email: string | null;
+	registertime: number;
+	group: number;
+	banstate: number;
+	ip: string;
+	avatar: number;
+	logintime: number;
+	loginip: string | null;
+}>(psdb, 'users', 'userid');
 
 export const ladder = new DatabaseTable<LadderEntry>(
 	ladderDB, 'ladder', 'entryid',

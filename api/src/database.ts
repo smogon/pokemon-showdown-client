@@ -288,7 +288,7 @@ export class DatabaseTable<Row> {
 	replace(partialRow: PartialOrSQL<Row>, where?: SQLStatement) {
 		return this.queryExec()`REPLACE INTO \`${this.name}\` (${partialRow as SQLValue}) ${where}`;
 	}
-	get(primaryKey: BasicSQLValue, entries?: string[]) {
+	get(primaryKey: BasicSQLValue, entries?: string[] | SQLStatement) {
 		return this.selectOne(entries)`WHERE \`${this.primaryKeyName}\` = ${primaryKey}`;
 	}
 	delete(primaryKey: BasicSQLValue) {

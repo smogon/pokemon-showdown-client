@@ -84,9 +84,8 @@ export class ActionContext {
 	readonly request: http.IncomingMessage;
 	readonly response: http.ServerResponse;
 	readonly session: Session;
-	readonly user: User;
+	user: User;
 	readonly opts: DispatcherOpts;
-	readonly cookies: Map<string, string>;
 	private prefix: string | null = null;
 	constructor(
 		req: http.IncomingMessage,
@@ -96,18 +95,16 @@ export class ActionContext {
 		this.request = req;
 		this.response = res;
 		this.session = new Session(this);
-		this.user = new User(this.session);
+		this.user = null!;
 		this.opts = opts;
-		this.cookies = ActionContext.parseCookie(this.request.headers.cookie);
 	}
 	async executeActions() {
 		const {act, body} = this.opts;
 		if (!act) throw new ActionError('You must specify a request type.');
-		await this.session.checkLoggedIn();
 		const handler = actions[act];
-		if (!handler) {
-			throw new ActionError('That request type was not found.');
-		}
+		if (!handler) throw new ActionError(`Request type "${act}" was not found.`);
+
+		this.user = await this.session.getUser();
 		return handler.call(this, body);
 	}
 	static async parseSentRequest(req: http.IncomingMessage) {
@@ -266,16 +263,6 @@ export class ActionContext {
 			}
 		}
 		return server;
-	}
-	static parseCookie(cookieString?: string) {
-		const list = new Map<string, string>();
-		if (!cookieString) return list;
-		const parts = cookieString.split(';');
-		for (const part of parts) {
-			const [curName, val] = part.split('=').map(i => i.trim());
-			list.set(curName, decodeURIComponent(val));
-		}
-		return list;
 	}
 	static loadServers(path = Config.serverlist): {[k: string]: RegisteredServer} {
 		if (!path) return {};

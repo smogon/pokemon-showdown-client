@@ -11,8 +11,8 @@ import * as crypto from 'crypto';
 import * as gal from 'google-auth-library';
 import {SQL} from './database';
 import {toID, ActionError, ActionContext} from './server';
-import {psdb, ladder, loginthrottle, sessions, users, usermodlog} from './tables';
-import type {User} from './user';
+import {ladder, loginthrottle, sessions, users, usermodlog} from './tables';
+import {User} from './user';
 
 const SID_DURATION = 2 * 7 * 24 * 60 * 60;
 const LOGINTIME_INTERVAL = 24 * 60 * 60;
@@ -27,12 +27,14 @@ export class Session {
 	sidhash = '';
 	dispatcher: ActionContext;
 	session = 0;
+	readonly cookies: ReadonlyMap<string, string>;
 	constructor(dispatcher: ActionContext) {
 		this.dispatcher = dispatcher;
+		this.cookies = this.parseCookie(dispatcher.request.headers.cookie);
 	}
 	getSid() {
 		if (this.sidhash) return this.sidhash;
-		const cached = this.dispatcher.cookies.get('sid');
+		const cached = this.cookies.get('sid');
 		if (cached) {
 			const [, sessionId, sid] = cached.split(',');
 			this.sidhash = sid;
@@ -40,13 +42,6 @@ export class Session {
 			return this.sidhash;
 		}
 		return '';
-	}
-	getName() {
-		const user = this.dispatcher.user;
-		if (user.id !== 'guest') return user.name;
-		const cookie = this.dispatcher.cookies.get('showdown_username');
-		if (cookie && toID(cookie) !== 'guest') return cookie;
-		return 'guest';
 	}
 	makeSid() {
 		if (Config.makeSid) return Config.makeSid.call(this);
@@ -59,22 +54,46 @@ export class Session {
 		this.updateCookie();
 		return this.sidhash;
 	}
+
+	parseCookie(cookieString?: string) {
+		const list = new Map<string, string>();
+		if (!cookieString) return list;
+		const parts = cookieString.split(';');
+		for (const part of parts) {
+			const [curName, val] = part.split('=').map(i => i.trim());
+			list.set(curName, decodeURIComponent(val));
+		}
+		return list;
+	}
 	deleteCookie() {
 		if (this.sidhash) {
 			this.session = 0;
 			this.dispatcher.setHeader(
 				"Set-Cookie",
 				`sid=${encodeURIComponent(`,,${this.sidhash}`)}; ` +
-				`Max-Age=0; Domain=${Config.routes.root}; Path=/; Secure; SameSite=None`
+					`Max-Age=0; Domain=${Config.routes.root}; Path=/; Secure; SameSite=None`
 			);
 		} else {
 			this.dispatcher.setHeader(
 				"Set-Cookie",
-				`sid=; Max-Age=0; Domain=${Config.routes.root}; ` +
-				`Path=/; Secure; SameSite=None`
+				`sid=;` +
+					`Max-Age=0; Domain=${Config.routes.root}; Path=/; Secure; SameSite=None`
 			);
 		}
 	}
+	updateCookie() {
+		const name = this.dispatcher.user.name;
+		if (toID(name) === 'guest') return;
+		if (!this.sidhash) {
+			return this.deleteCookie();
+		}
+		const rawsid = encodeURIComponent([name, this.session, this.sidhash].join(','));
+		this.dispatcher.setHeader(
+			'Set-Cookie',
+			`sid=${rawsid}; Max-Age=31363200; Domain=${Config.routes.root}; Path=/; Secure; SameSite=None`
+		);
+	}
+
 	async getRecentRegistrationCount(period: number) {
 		const ip = this.dispatcher.getIp();
 		const timestamp = time() - period;
@@ -135,18 +154,6 @@ export class Session {
 		if (deleteCookie) this.deleteCookie();
 		this.dispatcher.user.logout();
 	}
-	updateCookie() {
-		const name = this.getName();
-		if (toID(name) === 'guest') return;
-		if (!this.sidhash) {
-			return this.deleteCookie();
-		}
-		const rawsid = encodeURIComponent([name, this.session, this.sidhash].join(','));
-		this.dispatcher.setHeader(
-			'Set-Cookie',
-			`sid=${rawsid}; Max-Age=31363200; Domain=${Config.routes.root}; Path=/; Secure; SameSite=None`
-		);
-	}
 	async getAssertion(
 		userid: string,
 		challengekeyid = -1,
@@ -169,8 +176,10 @@ export class Session {
 			forceUsertype = '5';
 		}
 		let userType = '';
-		const userData = await user.getData();
-		const {banstate, registertime: regtime} = userData;
+		const userData = user.loggedin ? await users.get(user.id, SQL`banstate, registertime, logintime`) : null;
+		const {banstate, registertime, logintime} = userData || {
+			banstate: 0, registertime: 0, logintime: 0,
+		};
 		const server = await this.dispatcher.getServer();
 		const serverHost = server?.server || 'sim3.psim.us';
 
@@ -199,7 +208,7 @@ export class Session {
 					userType = '5';
 				} else if (banstate === 0) {
 					// should we update autoconfirmed status? check to see if it's been long enough
-					if (regtime && time() - regtime > (7 * 24 * 60 * 60)) {
+					if (registertime && time() - registertime > (7 * 24 * 60 * 60)) {
 						const ladders = await ladder.selectOne(['formatid'])`WHERE userid = ${userid} AND w != 0`;
 						if (ladders) {
 							userType = '4';
@@ -208,7 +217,6 @@ export class Session {
 					}
 				}
 			}
-			const logintime = userData.logintime;
 			if (!logintime || time() - logintime > LOGINTIME_INTERVAL) {
 				await users.update(userid, {logintime: time(), loginip: ip});
 			}
@@ -403,15 +411,19 @@ export class Session {
 		}
 		return true;
 	}
+	async getUser(): Promise<User> {
+		return await this.checkLoggedIn() ??
+			new User(this.cookies.get('showdown_username'));
+	}
 	async checkLoggedIn() {
 		const ctime = time();
 		const {body} = this.dispatcher.opts;
 
 		// see if we're logged in
-		const scookie = body.sid || this.dispatcher.cookies.get('sid');
+		const scookie = body.sid || this.cookies.get('sid');
 		if (!scookie) {
 			// nope, not logged in
-			return;
+			return null;
 		}
 		let sid = '';
 		let session = 0;
@@ -424,31 +436,30 @@ export class Session {
 			this.sidhash = sid;
 		}
 		if (!session) {
-			return;
+			return null;
 		}
-		const res = await psdb.queryOne<{sid: string; timeout: number}>(
-		)`SELECT sid, timeout, ntbb_users.* 
-			FROM ntbb_sessions, ntbb_users
-			WHERE \`session\` = ${session}
-			AND ntbb_sessions.userid = ntbb_users.userid
-			 LIMIT 1`;
+		const res = await sessions.get(session, SQL`sid, timeout, userid`);
 		if (!res || !(await bcrypt.compare(sid, res.sid))) {
 			// invalid session ID
 			this.deleteCookie();
-			return;
+			return null;
 		}
+		// invalid username
+		if (res.userid !== toID(cookieName)) return null;
 		if (res.timeout < ctime) {
 			// session expired
 			await sessions.deleteAll()`WHERE timeout = ${ctime}`;
 			this.deleteCookie();
-			return;
+			return null;
 		}
 
 		// okay, legit session ID - you're logged in now.
-		this.dispatcher.user.login(cookieName as string);
+		const user = new User();
+		user.login(cookieName as string);
 
 		this.sidhash = sid;
 		this.session = session;
+		return user;
 	}
 	static sanitizeHash(pass: string) {
 		// https://youtu.be/rnzMkJocw6Q?t=9
