@@ -1176,7 +1176,7 @@
 			var species = this.curTeam.dex.species.get(set.species);
 			var isLetsGo = this.curTeam.format.includes('letsgo');
 			var isBDSP = this.curTeam.format.includes('bdsp');
-			var isNatDex = this.curTeam.format.includes('nationaldex');
+			var isNatDex = this.curTeam.format.includes('nationaldex') || this.curTeam.format.includes('natdex');
 			var isInsurgence = this.curTeam.format.includes('insurgence');
 			if (isInsurgence) set.level = 120;
 			var buf = '<li value="' + i + '">';
@@ -2610,7 +2610,7 @@
 			var set = this.curSet;
 			var isLetsGo = this.curTeam.format.includes('letsgo');
 			var isBDSP = this.curTeam.format.includes('bdsp');
-			var isNatDex = this.curTeam.format.includes('nationaldex');
+			var isNatDex = this.curTeam.format.includes('nationaldex') || this.curTeam.format.includes('natdex');
 			var isInsurgence = this.curTeam.format.includes('insurgence');
 			var species = this.curTeam.dex.species.get(set.species);
 			if (!set) return;
@@ -2720,7 +2720,7 @@
 			var species = this.curTeam.dex.species.get(set.species);
 			var isLetsGo = this.curTeam.format.includes('letsgo');
 			var isBDSP = this.curTeam.format.includes('bdsp');
-			var isNatDex = this.curTeam.format.includes('nationaldex');
+			var isNatDex = this.curTeam.format.includes('nationaldex') || this.curTeam.format.includes('natdex');
 			var isInsurgence = this.curTeam.format.includes('insurgence');
 
 			// level
