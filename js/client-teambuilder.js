@@ -2791,8 +2791,12 @@
 			// Custom Move type
 			var cmType = this.$chart.find('select[name=cmtype]').val();
 			if (Dex.types.isName(cmType)) {
-				console.log(this.curTeam.team, Storage.unpackTeam(this.curTeam.team));
-				set.cmType = cmType;
+				let curTeamCM = Storage.unpackTeam(this.curTeam.team);
+				for (var mon of curTeamCM) {
+					mon.cmType = cmType;
+				}
+				this.curTeam.team = Storage.packTeam(curTeamCM);
+				//set.cmType = cmType;
 			} else {
 				delete set.cmType;
 			}
