@@ -586,12 +586,7 @@ export class BattleLog {
 			name = name.substr(1);
 		}
 		const colorStyle = ` style="color:${BattleLog.usernameColor(toID(name))}"`;
-
-		if (name === "yoshifanfic") {
-			const clickableName = `<small>${BattleLog.escapeHTML(group)}</small><span class="username" data-name="${BattleLog.escapeHTML(name)}">yoshi</span>`;
-		} else {
-			const clickableName = `<small>${BattleLog.escapeHTML(group)}</small><span class="username" data-name="${BattleLog.escapeHTML(name)}">${BattleLog.escapeHTML(name)}</span>`;
-		}
+		const clickableName = `<small>${BattleLog.escapeHTML(group)}</small><span class="username" data-name="${BattleLog.escapeHTML(name)}">${BattleLog.escapeHTML(name)}</span>`;
 		let hlClass = isHighlighted ? ' highlighted' : '';
 		let isMine = (window.app?.user?.get('name') === name) || (window.PS?.user.name === name);
 		let mineClass = isMine ? ' mine' : '';
