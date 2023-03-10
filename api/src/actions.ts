@@ -9,7 +9,7 @@ import * as fs from 'fs';
 import * as child_process from 'child_process';
 import {NTBBLadder} from './ladder';
 import {Replays, md5} from './replays';
-import {toID, ActionError, Dispatcher, QueryHandler} from './server';
+import {toID, ActionError, ActionContext, QueryHandler} from './server';
 import * as tables from './tables';
 import * as pathModule from 'path';
 
@@ -195,12 +195,12 @@ export const actions: {[k: string]: QueryHandler} = {
 		return res;
 	},
 	async json() {
-		if (!Dispatcher.isJSON(this.request)) {
+		if (!ActionContext.isJSON(this.request)) {
 			throw new ActionError("/api/json must use application/json requests");
 		}
 		let json;
 		try {
-			json = await Dispatcher.parseSentRequest(this.request);
+			json = await ActionContext.parseSentRequest(this.request);
 		} catch {
 			return [{actionerror: 'Malformed JSON sent.'}];
 		}
@@ -213,7 +213,7 @@ export const actions: {[k: string]: QueryHandler} = {
 			if (!serverid) serverid = req.serverid;
 			if (!servertoken) servertoken = req.servertoken;
 		}
-		const server = Dispatcher.servers[toID(serverid)];
+		const server = ActionContext.servers[toID(serverid)];
 		if (json.length > 20) {
 			if (!server || server.token && server.token !== md5(servertoken)) {
 				throw new ActionError(`Only registered servers can send >20 requests at once.`);
@@ -227,7 +227,7 @@ export const actions: {[k: string]: QueryHandler} = {
 				results.push({actionerror: 'Must send a request type.'});
 				continue;
 			}
-			const dispatcher = new Dispatcher(this.request, this.response, {
+			const dispatcher = new ActionContext(this.request, this.response, {
 				body: request,
 				act: request.act,
 			});

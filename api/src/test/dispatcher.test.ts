@@ -5,7 +5,7 @@
  */
 import {strict as assert} from 'assert';
 import {Config} from '../config-loader';
-import {Dispatcher, ActionError} from '../server';
+import {ActionContext, ActionError} from '../server';
 import * as path from 'path';
 
 import * as utils from './test-utils';
@@ -59,19 +59,19 @@ describe('Dispatcher features', () => {
 	it('Should support requesting /api/[action]', () => {
 		const req = dispatcher.request;
 		req.url = '/api/mmr?userid=mia';
-		const act = Dispatcher.parseAction(req, Dispatcher.parseURLRequest(req));
+		const act = ActionContext.parseAction(req, ActionContext.parseURLRequest(req));
 		assert(act === 'mmr');
 	});
 	it('Should support requesting action.php with an `act` param', () => {
 		const req = dispatcher.request;
 		req.url = '/action.php?act=mmr&userid=mia';
-		const body = Dispatcher.parseURLRequest(req);
-		const act = Dispatcher.parseAction(req, body);
+		const body = ActionContext.parseURLRequest(req);
+		const act = ActionContext.parseAction(req, body);
 		assert(act === 'mmr');
 		assert(body?.userid === 'mia');
 	});
 	it("Should load servers properly", () => {
-		const servers = Dispatcher.loadServers(
+		const servers = ActionContext.loadServers(
 			path.join(__dirname, '/../../', 'src/test/fixtures/servers.php')
 		);
 		assert.deepStrictEqual({

@@ -10,7 +10,7 @@ import {Config} from './config-loader';
 import * as crypto from 'crypto';
 import * as gal from 'google-auth-library';
 import {SQL} from './database';
-import {toID, ActionError, Dispatcher} from './server';
+import {toID, ActionError, ActionContext} from './server';
 import {psdb, ladder, loginthrottle, sessions, users, usermodlog} from './tables';
 import type {User} from './user';
 
@@ -25,9 +25,9 @@ export function time() {
 
 export class Session {
 	sidhash = '';
-	dispatcher: Dispatcher;
+	dispatcher: ActionContext;
 	session = 0;
-	constructor(dispatcher: Dispatcher) {
+	constructor(dispatcher: ActionContext) {
 		this.dispatcher = dispatcher;
 	}
 	getSid() {

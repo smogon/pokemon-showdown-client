@@ -6,7 +6,7 @@
  */
 
 import type {LadderEntry} from './ladder';
-import {toID, Dispatcher} from './server';
+import {toID} from './server';
 import {time, Session} from './session';
 import {users} from './tables';
 
@@ -29,13 +29,11 @@ export interface UserInfo {
 export class User {
 	name = 'Guest';
 	id = 'guest';
-	dispatcher: Dispatcher;
 	session: Session;
 	loggedin = false;
 	rating: LadderEntry | null = null;
 	ratings: LadderEntry[] = [];
 	constructor(session: Session) {
-		this.dispatcher = session.dispatcher;
 		this.session = session;
 	}
 	async getData() {

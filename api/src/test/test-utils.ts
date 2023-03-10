@@ -7,7 +7,7 @@
 
 import * as net from 'net';
 import {IncomingMessage, ServerResponse} from 'http';
-import {Dispatcher, RegisteredServer} from '../server';
+import {ActionContext, RegisteredServer} from '../server';
 import {Config} from '../config-loader';
 import * as crypto from 'crypto';
 import {strict as assert} from 'assert';
@@ -35,19 +35,19 @@ export function makeDispatcher(body: {[k: string]: any}, url?: string) {
 			.join('&');
 	}
 	if (url) req.url = url;
-	return new Dispatcher(req, new ServerResponse(req), {body, act: body.act});
+	return new ActionContext(req, new ServerResponse(req), {body, act: body.act});
 }
 
 export function addServer(server: RegisteredServer) {
 	if (server.token) server.token = md5(server.token);
 	if (!('skipipcheck' in server)) server.skipipcheck = false;
-	Dispatcher.servers[server.id] = server;
+	ActionContext.servers[server.id] = server;
 	return server;
 }
 
 export async function testDispatcher(
 	opts: {[k: string]: any},
-	setupFunct?: (dispatcher: Dispatcher) => any | Promise<any>,
+	setupFunct?: (dispatcher: ActionContext) => any | Promise<any>,
 	method = 'POST',
 ) {
 	const dispatcher = makeDispatcher(opts);

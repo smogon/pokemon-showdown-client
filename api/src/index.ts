@@ -1,19 +1,19 @@
 /**
  * Initialization.
  */
-import {Router} from './server';
-export const server = new Router();
+import {Server} from './server';
+export const server = new Server();
 
 import {connectedDatabases} from './database';
 
 console.log(`Server listening on ${server.port}`);
 
 process.on('uncaughtException', (err: Error) => {
-	Router.crashlog(err, 'The main process');
+	Server.crashlog(err, 'The main process');
 });
 
 process.on('unhandledRejection', (err: Error) => {
-	Router.crashlog(err, 'A main process promise');
+	Server.crashlog(err, 'A main process promise');
 });
 
 // graceful shutdown.

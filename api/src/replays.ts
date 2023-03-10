@@ -5,7 +5,7 @@
  */
 import * as crypto from 'crypto';
 import {Session, time} from './session';
-import {toID, ActionError, Dispatcher} from './server';
+import {toID, ActionError, ActionContext} from './server';
 import {prepreplays, replays} from './tables';
 import {Config} from './config-loader';
 import {SQL} from './database';
@@ -215,7 +215,7 @@ export const Replays = new class {
 		return username.toLowerCase().replace(/[^A-Za-z0-9]+/g, '');
 	}
 
-	async upload(params: {[k: string]: unknown}, dispatcher: Dispatcher) {
+	async upload(params: {[k: string]: unknown}, dispatcher: ActionContext) {
 		let id = toID(params.id);
 		if (!id) throw new ActionError('Battle ID needed.');
 		const preppedReplay = await prepreplays.get(id);

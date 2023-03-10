@@ -18,6 +18,36 @@ import {URLSearchParams} from 'url';
 import IPTools from './ip-tools';
 
 /**
+ * API request output should not be valid JavaScript.
+ * This is to protect against a CSRF-like attack. Imagine you have an API:
+ *     https://example.com/getmysecrets.json
+ * Which returns:
+ *     {"yoursecrets": [1, 2, 3]}
+ *
+ * An attacker could trick a user into visiting a site overriding the
+ * Array or Object constructor, and then containing:
+ *     <script src="https://example.com/getmysecrets.json"></script>
+ *
+ * This could let them steal the secrets. In modern times, browsers
+ * are protected against this kind of attack, but our `]` adds some
+ * safety for older browsers.
+ *
+ * Adding `]` to the beginning makes sure that the output is a syntax
+ * error in JS, so treating it as a JS file will simply crash and fail.
+ */
+const DISPATCH_PREFIX = ']';
+
+export function toID(text: any): string {
+	if (text?.id) {
+		text = text.id;
+	} else if (text?.userid) {
+		text = text.userid;
+	}
+	if (typeof text !== 'string' && typeof text !== 'number') return '';
+	return ('' + text).toLowerCase().replace(/[^a-z0-9]+/g, '');
+}
+
+/**
  * Throw this to end a request with an `actionerror` message.
  */
 export class ActionError extends Error {
@@ -39,7 +69,7 @@ export interface RegisteredServer {
 }
 
 export type QueryHandler = (
-	this: Dispatcher, params: {[k: string]: string}
+	this: ActionContext, params: {[k: string]: string}
 ) => {[k: string]: any} | string | Promise<{[k: string]: any} | string>;
 
 export interface DispatcherOpts {
@@ -47,8 +77,8 @@ export interface DispatcherOpts {
 	act: string;
 }
 
-export class Dispatcher {
-	static servers: {[k: string]: RegisteredServer} = Dispatcher.loadServers();
+export class ActionContext {
+	static servers: {[k: string]: RegisteredServer} = ActionContext.loadServers();
 	static ActionError = ActionError;
 
 	readonly request: http.IncomingMessage;
@@ -68,7 +98,7 @@ export class Dispatcher {
 		this.session = new Session(this);
 		this.user = new User(this.session);
 		this.opts = opts;
-		this.cookies = Dispatcher.parseCookie(this.request.headers.cookie);
+		this.cookies = ActionContext.parseCookie(this.request.headers.cookie);
 	}
 	async executeActions() {
 		const {act, body} = this.opts;
@@ -219,13 +249,13 @@ export class Dispatcher {
 		const serverid = toID(body.serverid);
 		let server = null;
 		const ip = this.getIp();
-		if (!Dispatcher.servers[serverid]) {
+		if (!ActionContext.servers[serverid]) {
 			return server;
 		} else {
-			server = Dispatcher.servers[serverid];
+			server = ActionContext.servers[serverid];
 			if (!server.skipipcheck && !server.token && serverid !== Config.mainserver) {
 				if (!server.ipcache) {
-					server.ipcache = await Dispatcher.getHost(server.server);
+					server.ipcache = await ActionContext.getHost(server.server);
 				}
 				if (ip !== server.ipcache) return null;
 			}
@@ -263,46 +293,17 @@ export class Dispatcher {
 	static init() {
 		fs.watchFile(Config.serverlist, (curr, prev) => {
 			if (curr.mtime > prev.mtime) {
-				Dispatcher.loadServers();
+				ActionContext.loadServers();
 			}
 		});
 	}
 }
 
-Dispatcher.init();
+ActionContext.init();
 
-/**
- * API request output should not be valid JavaScript.
- * This is to protect against a CSRF-like attack. Imagine you have an API:
- *     https://example.com/getmysecrets.json
- * Which returns:
- *     {"yoursecrets": [1, 2, 3]}
- *
- * An attacker could trick a user into visiting a site overriding the
- * Array or Object constructor, and then containing:
- *     <script src="https://example.com/getmysecrets.json"></script>
- *
- * This could let them steal the secrets. In modern times, browsers
- * are protected against this kind of attack, but our `]` adds some
- * safety for older browsers.
- *
- * Adding `]` to the beginning makes sure that the output is a syntax
- * error in JS, so treating it as a JS file will simply crash and fail.
- */
-const DISPATCH_PREFIX = ']';
-
-export function toID(text: any): string {
-	if (text?.id) {
-		text = text.id;
-	} else if (text?.userid) {
-		text = text.userid;
-	}
-	if (typeof text !== 'string' && typeof text !== 'number') return '';
-	return ('' + text).toLowerCase().replace(/[^a-z0-9]+/g, '');
-}
-
-export class Router {
+export class Server {
 	server: http.Server;
+	httpsServer: https.Server | null;
 	port: number;
 	awaitingEnd?: () => void;
 	closing?: Promise<void>;
@@ -313,11 +314,13 @@ export class Router {
 			req: http.IncomingMessage, res: http.ServerResponse
 		) => void this.handle(req, res);
 
-		this.server = Config.ssl
-			? https.createServer(Config.ssl, handle)
-			: http.createServer(handle);
-
+		this.server = http.createServer(handle);
 		this.server.listen(port);
+		this.httpsServer = null;
+		if (Config.ssl) {
+			this.httpsServer = https.createServer(Config.ssl, handle);
+			this.httpsServer.listen(port);
+		}
 	}
 	static crashlog(error: unknown, source = '', details = {}) {
 		if (!Config.pspath) {
@@ -333,11 +336,11 @@ export class Router {
 		}
 	}
 	async handle(req: http.IncomingMessage, res: http.ServerResponse) {
-		const body = await Dispatcher.getBody(req);
+		const body = await ActionContext.getBody(req);
 		this.ensureHeaders(res);
 		if (body.json) {
 			if (typeof body.json === 'string') {
-				body.json = Dispatcher.safeJSON(body.json);
+				body.json = ActionContext.safeJSON(body.json);
 			}
 			if (!Array.isArray(body.json)) {
 				body.json = [{actionerror: "Invalid JSON sent - must be an array."}];
@@ -367,13 +370,13 @@ export class Router {
 				}
 				results.push(result);
 			}
-			if (results.length) res.writeHead(200).end(Router.stringify(results));
+			if (results.length) res.writeHead(200).end(Server.stringify(results));
 		} else {
 			// fall back onto null so it can be json stringified
 			const result = await this.handleOne(body, req, res) || null;
 			// returning null should be allowed
 			if (!result || !(result as any).error) {
-				res.writeHead(200).end(Router.stringify(result));
+				res.writeHead(200).end(Server.stringify(result));
 			}
 			this.tryEnd();
 		}
@@ -391,11 +394,11 @@ export class Router {
 		req: http.IncomingMessage,
 		res: http.ServerResponse
 	) {
-		const act = Dispatcher.parseAction(req, body);
+		const act = ActionContext.parseAction(req, body);
 		if (!act) {
 			return {actionerror: "Invalid request action sent."};
 		}
-		const dispatcher = new Dispatcher(req, res, {body, act});
+		const dispatcher = new ActionContext(req, res, {body, act});
 		this.activeRequests++;
 		try {
 			const result = await dispatcher.executeActions();
@@ -414,7 +417,7 @@ export class Router {
 			}
 
 			for (const k of ['pass', 'password']) delete body[k];
-			Router.crashlog(e, 'an API request', body);
+			Server.crashlog(e, 'an API request', body);
 			if (Config.devmode && Config.devmode === body.devmode) {
 				res.writeHead(200).end(
 					e.message + '\n' +
