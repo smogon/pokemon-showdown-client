@@ -1509,9 +1509,9 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 					if (this.formatType !== 'natdex' && move.isNonstandard === "Past") {
 						continue;
 					}
-					if (this.formatType !== 'insurgencenatdex' && move.isNonstandard === "Past") {
-						continue;
-					}
+					// if (this.formatType !== 'insurgencenatdex' && move.isNonstandard === "Past") {
+					// 	continue;
+					// }
 					if (
 						this.formatType?.startsWith('dlc1') &&
 						BattleTeambuilderTable['gen8dlc1']?.nonstandardMoves.includes(moveid)
