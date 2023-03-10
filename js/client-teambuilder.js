@@ -1243,14 +1243,8 @@
 				if (this.curTeam.gen === 9) {
 					buf += '<span class="detailcell"><label>Tera Type</label>' + (set.teraType || species.types[0]) + '</span>';
 				}
-				let teamCM2;
-				if (this.team[0].cmType) {
-					teamCM2 = this.team[0].cmType;
-				} else {
-					teamCM2 = "Normal";
-				}
 				if (isInsurgence) {
-					buf += '<span class="detailcell"><label>Custom Move Type</label>' + (set.cmType || teamCM2) + '</span>';
+					buf += '<span class="detailcell"><label>Custom Move Type</label>' + (set.cmType || "Normal") + '</span>';
 				}
 			}
 			buf += '</button></div></div>';
@@ -2704,13 +2698,7 @@
 			if (isInsurgence) {
 				buf += '<div class="formrow"><label class="formlabel" title="Custom Move Type">Custom Move:</label><div><select name="cmtype">';
 				var types = Dex.types.all();
-				let teamCM3;
-				if (this.team[0].cmType) {
-					teamCM3 = this.team[0].cmType;
-				} else {
-					teamCM3 = "Normal";
-				}
-				var cmType = set.cmType || teamCM3;
+				var cmType = set.cmType || "Normal";
 				for (var i = 0; i < types.length; i++) {
 				buf += '<option value="' + types[i].name + '"' + (cmType === types[i].name ? ' selected="selected"' : '') + '>' + types[i].name + '</option>';
 			}
@@ -2836,14 +2824,8 @@
 				if (this.curTeam.gen === 9) {
 					buf += '<span class="detailcell"><label>Tera Type</label>' + (set.teraType || species.types[0]) + '</span>';
 				}
-				let teamCM;
-				if (this.team[0].cmType) {
-					teamCM = this.team[0].cmType;
-				} else {
-					teamCM = "Normal";
-				}
 				if (isInsurgence) {
-					buf += '<span class="detailcell"><label>Custom Move Type</label>' + (set.cmType || teamCM) + '</span>';
+					buf += '<span class="detailcell"><label>Custom Move Type</label>' + (set.cmType || "Normal") + '</span>';
 				}
 			}
 			this.$('button[name=details]').html(buf);
