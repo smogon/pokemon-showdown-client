@@ -11,9 +11,8 @@ import * as fs from 'fs';
 
 import {Config} from './config-loader';
 import {actions} from './actions';
-import {Session} from './session';
+import {User, Session} from './user';
 import {md5} from './replays';
-import {User} from './user';
 import {URLSearchParams} from 'url';
 import IPTools from './ip-tools';
 
@@ -45,6 +44,12 @@ export function toID(text: any): string {
 	}
 	if (typeof text !== 'string' && typeof text !== 'number') return '';
 	return ('' + text).toLowerCase().replace(/[^a-z0-9]+/g, '');
+}
+
+export function time() {
+	// php has this with unix seconds. so we have to as well.
+	// for legacy reasons. Yes, I hate it too.
+	return Math.floor(Date.now() / 1000);
 }
 
 /**

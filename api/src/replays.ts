@@ -4,8 +4,8 @@
  * Ported to TypeScript by Annika and Mia.
  */
 import * as crypto from 'crypto';
-import {Session, time} from './session';
-import {toID, ActionError, ActionContext} from './server';
+import {Session} from './user';
+import {toID, time, ActionError, ActionContext} from './server';
 import {prepreplays, replays} from './tables';
 import {Config} from './config-loader';
 import {SQL} from './database';
