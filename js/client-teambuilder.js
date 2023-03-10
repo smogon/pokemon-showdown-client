@@ -1243,7 +1243,9 @@
 				if (this.curTeam.gen === 9) {
 					buf += '<span class="detailcell"><label>Tera Type</label>' + (set.teraType || species.types[0]) + '</span>';
 				}
-				buf += '<span class="detailcell"><label>Custom Move Type</label>' + (set.cmType || "Normal") + '</span>';
+				if (isInsurgence) {
+					buf += '<span class="detailcell"><label>Custom Move Type</label>' + (set.cmType || "Normal") + '</span>';
+				}
 			}
 			buf += '</button></div></div>';
 
@@ -2609,6 +2611,7 @@
 			var isLetsGo = this.curTeam.format.includes('letsgo');
 			var isBDSP = this.curTeam.format.includes('bdsp');
 			var isNatDex = this.curTeam.format.includes('nationaldex');
+			var isInsurgence = this.curTeam.format.includes('insurgence');
 			var species = this.curTeam.dex.species.get(set.species);
 			if (!set) return;
 			buf += '<div class="resultheader"><h3>Details</h3></div>';
@@ -2692,12 +2695,15 @@
 				buf += '</select></div></div>';
 			}
 			
-			buf += '<div class="formrow"><label class="formlabel" title="Custom Move Type">Custom Move:</label><div><select name="cmtype">';
-			var types = Dex.types.all();
-			var cmType = set.cmType || "Normal";
-			for (var i = 0; i < types.length; i++) {
+			if (isInsurgence) {
+				buf += '<div class="formrow"><label class="formlabel" title="Custom Move Type">Custom Move:</label><div><select name="cmtype">';
+				var types = Dex.types.all();
+				var cmType = set.cmType || "Normal";
+				for (var i = 0; i < types.length; i++) {
 				buf += '<option value="' + types[i].name + '"' + (cmType === types[i].name ? ' selected="selected"' : '') + '>' + types[i].name + '</option>';
 			}
+			}
+			
 
 			buf += '</form>';
 			if (species.cosmeticFormes) {
@@ -2818,7 +2824,9 @@
 				if (this.curTeam.gen === 9) {
 					buf += '<span class="detailcell"><label>Tera Type</label>' + (set.teraType || species.types[0]) + '</span>';
 				}
-				buf += '<span class="detailcell"><label>Custom Move Type</label>' + (set.cmType || "Normal") + '</span>';
+				if (isInsurgence) {
+					buf += '<span class="detailcell"><label>Custom Move Type</label>' + (set.cmType || "Normal") + '</span>';
+				}
 			}
 			this.$('button[name=details]').html(buf);
 
