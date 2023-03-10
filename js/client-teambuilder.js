@@ -3462,11 +3462,11 @@
 			var spriteDim = 'width: 96px; height: 96px;';
 
 			var gen = Math.max(this.room.curTeam.gen, species.gen);
-			var dir = gen > 5 ? 'dex' : 'gen' + gen;
-			if (Dex.prefs('nopastgens')) gen = 'dex';
-			if (Dex.prefs('bwgfx') && dir === 'dex') gen = 'gen5';
+			var dir = gen > 5 ? 'gen5' : 'gen' + gen;
+			if (Dex.prefs('nopastgens')) gen = 'gen5';
+			if (Dex.prefs('bwgfx') && dir === 'gen5') gen = 'gen5';
 			spriteDir += dir;
-			if (dir === 'dex') {
+			if (dir === 'gen5') {
 				spriteSize = 120;
 				spriteDim = 'width: 120px; height: 120px;';
 			}
