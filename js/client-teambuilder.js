@@ -2800,6 +2800,7 @@
 				console.log(curTeamCM);
 				console.log(Storage.packTeam(curTeamCM));
 				this.curTeam.team = Storage.packTeam(curTeamCM);
+				console.log(this.curTeam.team);
 				//set.cmType = cmType;
 			} else {
 				delete set.cmType;
