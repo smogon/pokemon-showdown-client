@@ -7,7 +7,7 @@
 
 import * as net from 'net';
 import {IncomingMessage, ServerResponse} from 'http';
-import {Dispatcher, RegisteredServer} from '../dispatcher';
+import {Dispatcher, RegisteredServer} from '../server';
 import {Config} from '../config-loader';
 import * as crypto from 'crypto';
 import {strict as assert} from 'assert';

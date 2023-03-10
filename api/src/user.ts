@@ -5,9 +5,8 @@
  * @author mia-pi-git
  */
 
-import type {Dispatcher} from './dispatcher';
 import type {LadderEntry} from './ladder';
-import {toID} from './server';
+import {toID, Dispatcher} from './server';
 import {time, Session} from './session';
 import {users} from './tables';
 

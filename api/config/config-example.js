@@ -131,7 +131,7 @@ exports.restartip = null;
 
 /**
  * Custom actions for your loginserver.
- * @type {{[k: string]: import('../src/dispatcher').QueryHandler} | null}
+ * @type {{[k: string]: import('../src/server').QueryHandler} | null}
  */
 exports.actions = null;
 

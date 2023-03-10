@@ -5,12 +5,11 @@
  * @author mia-pi-git
  */
 import {Config} from './config-loader';
-import {ActionError, Dispatcher, QueryHandler} from './dispatcher';
 import * as fs from 'fs';
 import * as child_process from 'child_process';
 import {NTBBLadder} from './ladder';
 import {Replays, md5} from './replays';
-import {toID} from './server';
+import {toID, ActionError, Dispatcher, QueryHandler} from './server';
 import * as tables from './tables';
 import * as pathModule from 'path';
 

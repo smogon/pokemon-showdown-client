@@ -5,7 +5,7 @@
  */
 import {strict as assert} from 'assert';
 import {Config} from '../config-loader';
-import {Dispatcher, ActionError} from '../dispatcher';
+import {Dispatcher, ActionError} from '../server';
 import * as path from 'path';
 
 import * as utils from './test-utils';
