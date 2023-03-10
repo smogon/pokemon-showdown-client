@@ -2792,18 +2792,12 @@
 			var cmType = this.$chart.find('select[name=cmtype]').val();
 			if (Dex.types.isName(cmType)) {
 				console.log(this);
-				let curTeamCM = Storage.unpackTeam(this.curTeam.team);
 				//console.log(curTeamCM);
-				for (var mon of curTeamCM) {
+				for (var mon of this.curSetList) {
 					mon.cmType = cmType;
 				}
-				//console.log(curTeamCM);
-				//console.log(Storage.packTeam(curTeamCM));
-				this.curTeam.team = Storage.packTeam(curTeamCM);
-				//console.log(this.curTeam.team);
-				set.cmType = cmType;
 			} else {
-				delete set.cmType;
+				//delete set.cmType;
 			}
 
 			// update details cell
