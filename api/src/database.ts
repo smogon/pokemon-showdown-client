@@ -12,13 +12,6 @@ export type BasicSQLValue = string | number | null;
 export type SQLRow = {[k: string]: BasicSQLValue};
 export type SQLValue = BasicSQLValue | SQLStatement | PartialOrSQL<SQLRow> | BasicSQLValue[] | undefined;
 
-export class SQLName {
-	name: string;
-	constructor(name: string) {
-		this.name = name;
-	}
-}
-
 export class SQLStatement {
 	sql: string[];
 	values: BasicSQLValue[];
