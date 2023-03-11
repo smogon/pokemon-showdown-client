@@ -1463,14 +1463,14 @@ function toId() {
 					e.stopImmediatePropagation();
 					return;
 				}
-				if (this.rel === 'noopener') {
-					var formatOptions = Dex.prefs('chatformatting') || {};
-					if (!formatOptions.hideinterstice && !BattleLog.interstice.isWhitelisted(this.href)) {
-						this.href = BattleLog.interstice.getURI(this.href);
-					}
-				} else if (this.target === '_blank') {
-					// for performance reasons, there's no reason to ever have an opener
-					this.rel = 'noopener';
+				// if (this.rel === 'noopener') {
+				// 	var formatOptions = Dex.prefs('chatformatting') || {};
+				// 	if (!formatOptions.hideinterstice && !BattleLog.interstice.isWhitelisted(this.href)) {
+				// 		this.href = BattleLog.interstice.getURI(this.href);
+				// 	}
+				// } else if (this.target === '_blank') {
+				// 	// for performance reasons, there's no reason to ever have an opener
+				// 	this.rel = 'noopener';
 				}
 			});
 		},
