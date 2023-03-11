@@ -19,12 +19,12 @@
 			//buf += '<p><button name="toggleMoreRooms" class="button">Show more rooms</button><p>';
 			//buf += '<p><button name="joinRoomPopup" class="button">Join other room</button></p></div>';
 			buf += '</div><div class="pad"><h2 class="rooms-officialchatrooms">Plan of Attack Rules</h2>';
-			buf += '<p style="font-weight:bold">1: Play nice</p>';
-			buf += '<p style="width: 480px;">Toxicity/bigotry in any form won\'t be tolerated. We strive for a positive community, you\'re a pokemon fan like everyone around you, try to enjoy the game!</p>';
-			buf += '<p style="font-weight:bold">2: Keep it PG-13</p>';
-			buf += '<p style="width: 480px;">We are a diverse community, including many people from different backgrounds, mentalities and ages. Likely there will be underage people around, or people that are uncomfortable with NSFW content.</p>';
-			buf += '<p style="font-weight:bold">3: Trans Rights! 🏳️&zwj;⚧️ </p>';
-			buf += '<p style="width: 480px;">Stay the fuck off this server if you don\'t respect trans people. Pretty simple!</p>';
+			buf += '<p style="font-weight:bold;font-size:10pt">1: Play nice</p>';
+			buf += '<p style="width: 480px;font-size:10pt">Toxicity/bigotry in any form won\'t be tolerated. We strive for a positive community, you\'re a pokemon fan like everyone around you, try to enjoy the game!</p>';
+			buf += '<p style="font-weight:bold;font-size:10pt">2: Keep it PG-13</p>';
+			buf += '<p style="width: 480px;font-size:10pt">We are a diverse community, including many people from different backgrounds, mentalities and ages. Likely there will be underage people around, or people that are uncomfortable with NSFW content.</p>';
+			buf += '<p style="font-weight:bold;font-size:10pt">3: Trans Rights! 🏳️&zwj;⚧️ </p>';
+			buf += '<p style="width: 480px;font-size:10pt">Stay the fuck off this server if you don\'t respect trans people. Pretty simple!</p>';
 
 			this.$el.html(buf);
 			app.on('response:rooms', this.update, this);
