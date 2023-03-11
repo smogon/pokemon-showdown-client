@@ -686,7 +686,7 @@
 		},
 		initialize: function () {
 			var cur = this.chatformatting = Dex.prefs('chatformatting') || {};
-			cur.hideinterstice = True;
+			cur.hideinterstice = true;
 			var buf = '<p>Usable formatting:</p>';
 			var ctrlPlus = '<kbd>' + (navigator.platform === 'MacIntel' ? 'Cmd' : 'Ctrl') + '</kbd> + ';
 			buf += '<p class="optlabel">**<strong>bold</strong>** (' + ctrlPlus + '<kbd>B</kbd>)</p>';
