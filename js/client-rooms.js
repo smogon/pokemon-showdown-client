@@ -18,7 +18,7 @@
 			buf += '<div class="roomlist"><p><em style="font-size:20pt">Loading...</em></p></div><div class="roomlist"></div>';
 			//buf += '<p><button name="toggleMoreRooms" class="button">Show more rooms</button><p>';
 			//buf += '<p><button name="joinRoomPopup" class="button">Join other room</button></p></div>';
-			buf += '</div><div class="pad"><h2 class="rooms-officialchatrooms">Plan of Attack Rules:</h2>';
+			buf += '</div><div class="pad"><h2 class="rooms-officialchatrooms">Plan of Attack Rules</h2>';
 			buf += '<p style="font-weight:bold">1: Play nice</p>';
 			buf += '<p>Toxicity/bigotry in any form won\'t be tolerated. We strive for a<br>positive community, you\'re a pokemon fan like everyone around<br>you, try to enjoy the game!</p>';
 			buf += '<p style="font-weight:bold">2: Keep it PG-13</p>';
