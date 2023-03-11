@@ -5,7 +5,7 @@
  */
 import {strict as assert} from 'assert';
 import {Config} from '../config-loader';
-import {ActionContext, ActionError} from '../server';
+import {ActionContext, ActionError, SimServers} from '../server';
 import * as path from 'path';
 
 import * as utils from './test-utils';
@@ -71,7 +71,7 @@ describe('Dispatcher features', () => {
 		assert(body?.userid === 'mia');
 	});
 	it("Should load servers properly", () => {
-		const servers = ActionContext.loadServers(
+		const servers = SimServers.loadServers(
 			path.join(__dirname, '/../../', 'src/test/fixtures/servers.php')
 		);
 		assert.deepStrictEqual({

@@ -83,7 +83,6 @@ export interface DispatcherOpts {
 }
 
 export class ActionContext {
-	static servers: {[k: string]: RegisteredServer} = ActionContext.loadServers();
 	static ActionError = ActionError;
 
 	readonly request: http.IncomingMessage;
@@ -213,8 +212,37 @@ export class ActionContext {
 	setHeader(name: string, value: string | string[]) {
 		this.response.setHeader(name, value);
 	}
-	static hostCache = new Map<string, string>();
-	static async getHost(server: string) {
+	getServer(requireToken?: boolean) {
+		return SimServers.getServer(this, requireToken);
+	}
+	static parseAction(req: http.IncomingMessage, body: {[k: string]: unknown}) {
+		if (typeof body.act === 'string') {
+			return body.act;
+		}
+		if (!req.url) return null;
+		let [pathname] = req.url.split('?');
+		if (pathname.endsWith('/')) pathname = pathname.slice(0, -1);
+		for (const k in actions) {
+			if (pathname.endsWith(`/api/${k}`)) {
+				return k;
+			}
+		}
+		return null;
+	}
+}
+
+export const SimServers = new class SimServersT {
+	servers: {[k: string]: RegisteredServer} = this.loadServers();
+	hostCache = new Map<string, string>();
+	constructor() {
+		fs.watchFile(Config.serverlist, (curr, prev) => {
+			if (curr.mtime > prev.mtime) {
+				this.loadServers();
+			}
+		});
+	}
+
+	async getHost(server: string) {
 		let result = this.hostCache.get(server);
 		if (result) return result;
 		const address = await new Promise<string>(resolve => {
@@ -232,35 +260,21 @@ export class ActionContext {
 		this.hostCache.set(server, result);
 		return result;
 	}
-	static parseAction(req: http.IncomingMessage, body: {[k: string]: unknown}) {
-		if (typeof body.act === 'string') {
-			return body.act;
-		}
-		if (!req.url) return null;
-		let [pathname] = req.url.split('?');
-		if (pathname.endsWith('/')) pathname = pathname.slice(0, -1);
-		for (const k in actions) {
-			if (pathname.endsWith(`/api/${k}`)) {
-				return k;
-			}
-		}
-		return null;
+	get(serverid: string): RegisteredServer | undefined {
+		return this.servers[toID(serverid)];
 	}
-	async getServer(requireToken = false): Promise<RegisteredServer | null> {
-		const body = this.opts.body || {};
+	async getServer(context: ActionContext, requireToken = false): Promise<RegisteredServer | null> {
+		const body = context.opts.body || {};
 		const serverid = toID(body.serverid);
-		let server = null;
-		const ip = this.getIp();
-		if (!ActionContext.servers[serverid]) {
-			return server;
-		} else {
-			server = ActionContext.servers[serverid];
-			if (!server.skipipcheck && !server.token && serverid !== Config.mainserver) {
-				if (!server.ipcache) {
-					server.ipcache = await ActionContext.getHost(server.server);
-				}
-				if (ip !== server.ipcache) return null;
+		const server = this.servers[serverid];
+		if (!server) return null;
+
+		const ip = context.getIp();
+		if (!server.skipipcheck && !server.token && serverid !== Config.mainserver) {
+			if (!server.ipcache) {
+				server.ipcache = await this.getHost(server.server);
 			}
+			if (ip !== server.ipcache) return null;
 		}
 		if (server.token && requireToken) {
 			if (server.token !== md5(body.servertoken)) {
@@ -269,7 +283,7 @@ export class ActionContext {
 		}
 		return server;
 	}
-	static loadServers(path = Config.serverlist): {[k: string]: RegisteredServer} {
+	loadServers(path = Config.serverlist): {[k: string]: RegisteredServer} {
 		if (!path) return {};
 		try {
 			const stdout = child.execFileSync(
@@ -281,17 +295,7 @@ export class ActionContext {
 		}
 		return {};
 	}
-
-	static init() {
-		fs.watchFile(Config.serverlist, (curr, prev) => {
-			if (curr.mtime > prev.mtime) {
-				ActionContext.loadServers();
-			}
-		});
-	}
-}
-
-ActionContext.init();
+};
 
 export class Server {
 	server: http.Server;

@@ -9,7 +9,7 @@ import * as fs from 'fs';
 import * as child_process from 'child_process';
 import {NTBBLadder} from './ladder';
 import {Replays, md5} from './replays';
-import {toID, ActionError, ActionContext, QueryHandler} from './server';
+import {toID, ActionError, ActionContext, QueryHandler, SimServers} from './server';
 import * as tables from './tables';
 import * as pathModule from 'path';
 
@@ -210,7 +210,7 @@ export const actions: {[k: string]: QueryHandler} = {
 			if (!serverid) serverid = req.serverid;
 			if (!servertoken) servertoken = req.servertoken;
 		}
-		const server = ActionContext.servers[toID(serverid)];
+		const server = SimServers.get(serverid);
 		if (json.length > 20) {
 			if (!server || server.token && server.token !== md5(servertoken)) {
 				throw new ActionError(`Only registered servers can send >20 requests at once.`);
