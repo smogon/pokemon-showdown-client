@@ -52,15 +52,8 @@ Storage.bg = {
 		if (!bgid) {
 			if (location.host === 'smogtours.psim.us') {
 				bgid = 'shaymin';
-			} else if (location.host === Config.routes.client) {
-				bgid = ['horizon', 'ocean', 'waterfall', 'shaymin', 'charizards'][Math.floor(Math.random() * 5)];
 			} else {
-				$(document.body).css({
-					background: '',
-					'background-size': ''
-				});
-				$('#mainmenubuttoncolors').remove();
-				return true;
+				bgid = ['horizon', 'ocean', 'waterfall', 'shaymin', 'charizards'][Math.floor(Math.random() * 5)];
 			}
 			bgUrl = Dex.resourcePrefix + 'fx/client-bg-' + bgid + '.jpg';
 		}
