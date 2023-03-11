@@ -57,6 +57,7 @@ export const actions: {[k: string]: QueryHandler} = {
 			curuser: {loggedin: true, username, userid},
 		};
 	},
+
 	async logout(params) {
 		if (
 			this.request.method !== "POST" || !params.userid ||
@@ -67,6 +68,7 @@ export const actions: {[k: string]: QueryHandler} = {
 		await this.session.logout(true);
 		return {actionsuccess: true};
 	},
+
 	async login(params) {
 		this.setPrefix('');
 		const challengeprefix = this.verifyCrossDomainRequest();
@@ -91,6 +93,7 @@ export const actions: {[k: string]: QueryHandler} = {
 			curuser: {loggedin: true, username: params.name, userid},
 		};
 	},
+
 	async updateuserstats(params) {
 		const server = await this.getServer(true);
 		if (!server) {
@@ -112,6 +115,7 @@ export const actions: {[k: string]: QueryHandler} = {
 		}
 		return {actionsuccess: true};
 	},
+
 	async upkeep(params) {
 		const challengeprefix = this.verifyCrossDomainRequest();
 		const res = {assertion: '', username: '', loggedin: false};
@@ -131,6 +135,7 @@ export const actions: {[k: string]: QueryHandler} = {
 		res.loggedin = curuser.loggedin;
 		return res;
 	},
+
 	async json() {
 		if (!ActionContext.isJSON(this.request)) {
 			throw new ActionError("/api/json must use application/json requests");
@@ -181,6 +186,7 @@ export const actions: {[k: string]: QueryHandler} = {
 		}
 		return results;
 	},
+
 	async prepreplay(params) {
 		const server = await this.getServer(true);
 		if (!server) {
@@ -220,10 +226,12 @@ export const actions: {[k: string]: QueryHandler} = {
 		this.setPrefix(''); // No need for prefix since only usable by server.
 		return result;
 	},
+
 	uploadreplay(params) {
 		this.setHeader('Content-Type', 'text/plain; charset=utf-8');
 		return Replays.upload(params, this);
 	},
+
 	async invalidatecss() {
 		const server = await this.getServer(true);
 		if (!server) {
@@ -238,6 +246,7 @@ export const actions: {[k: string]: QueryHandler} = {
 			return {actionsuccess: false};
 		}
 	},
+
 	async changepassword(params) {
 		if (this.request.method !== 'POST') {
 			throw new ActionError(`'changepassword' requests can only be made with POST data.`);
@@ -288,6 +297,7 @@ export const actions: {[k: string]: QueryHandler} = {
 		await this.session.setSid();
 		return {actionsuccess};
 	},
+
 	async getassertion(params) {
 		this.setPrefix('');
 		params.userid = toID(params.userid);
@@ -308,6 +318,7 @@ export const actions: {[k: string]: QueryHandler} = {
 			this.verifyCrossDomainRequest()
 		);
 	},
+
 	async ladderupdate(params) {
 		const server = await this.getServer(true);
 		if (server?.id !== Config.mainserver) {
@@ -329,6 +340,7 @@ export const actions: {[k: string]: QueryHandler} = {
 		this.setPrefix('');	// No need for prefix since only usable by server.
 		return out;
 	},
+
 	async ladderget(params) {
 		const server = await this.getServer();
 		if (server?.id !== Config.mainserver) {
@@ -339,6 +351,7 @@ export const actions: {[k: string]: QueryHandler} = {
 		if (!user) return {errorip: true};
 		return Ladder.getAllRatings(params.user);
 	},
+
 	async mmr(params) {
 		const server = await this.getServer(true);
 		if (server?.id !== Config.mainserver) {
@@ -351,6 +364,7 @@ export const actions: {[k: string]: QueryHandler} = {
 		const rating = await ladder.getRating(params.user);
 		return rating?.elo || 1000;
 	},
+
 	async restart() {
 		const server = await this.getServer(true);
 		if (server?.id !== Config.mainserver) {
