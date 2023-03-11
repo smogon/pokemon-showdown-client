@@ -4,7 +4,8 @@
  * @author mia-pi-git
  */
 import {strict as assert} from 'assert';
-import {NTBBLadder} from '../ladder';
+import {Ladder} from '../ladder';
+import {toID} from '../utils';
 import * as utils from './test-utils';
 import * as tables from '../tables';
 
@@ -125,13 +126,13 @@ describe('Loginserver actions', () => {
 		});
 
 		it('Should fetch the MMR for a given user', async () => {
-			const ladder = new NTBBLadder('gen5randombattle');
-			const p1 = NTBBLadder.getUserData('shera')!;
-			const p2 = NTBBLadder.getUserData('catra')!;
+			const ladder = new Ladder('gen5randombattle');
+			const p1 = 'shera';
+			const p2 = 'catra';
 			for (const player of [p1, p2]) {
-				await tables.ladder.deleteAll()`WHERE userid = ${player.id} AND formatid = ${ladder.formatid}`;
+				await tables.ladder.deleteAll()`WHERE userid = ${toID(player)} AND formatid = ${ladder.formatid}`;
 			}
-			await ladder.updateRating(p1, p2, 1);
+			const [p1r, _p2r] = await ladder.addMatch(p1, p2, 1);
 			const {result} = await utils.testDispatcher({
 				act: 'mmr',
 				format: 'gen5randombattle',
@@ -140,7 +141,7 @@ describe('Loginserver actions', () => {
 				servertoken: token,
 			});
 
-			assert.strictEqual(p1.rating!.elo, result, `Expected elo ${p1.rating!.elo}, got ${result}`);
+			assert.strictEqual(p1r.elo, result, `Expected elo ${p1r.elo}, got ${result}`);
 		});
 	});
 });

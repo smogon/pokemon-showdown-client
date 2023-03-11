@@ -7,7 +7,6 @@
  * @author mia-pi-git
  */
 
-import type {LadderEntry} from './ladder';
 import * as bcrypt from 'bcrypt';
 import {Config} from './config-loader';
 import * as crypto from 'crypto';
@@ -24,8 +23,6 @@ export class User {
 	name = 'Guest';
 	id = 'guest';
 	loggedin = false;
-	rating: LadderEntry | null = null;
-	ratings: LadderEntry[] = [];
 	constructor(name?: string) {
 		if (name) this.setName(name);
 	}

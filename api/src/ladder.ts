@@ -1,12 +1,12 @@
 /**
  * Ladder handling.
- * Ported by Mia. Originally by Zarel.
- * @author mia-pi-git
+ *
+ * By Zarel. Ported to TypeScript by Mia.
+ * @author Zarel, mia-pi-git
  */
 
 import {toID, time} from './utils';
 import {ladder} from './tables';
-import type {User} from './user';
 
 export interface LadderEntry {
 	entryid: number;
@@ -36,14 +36,7 @@ interface MatchElement {
 	score: number;
 }
 
-export interface FakeUser {
-	name: string;
-	id: string;
-	rating?: LadderEntry;
-	ratings?: LadderEntry[];
-}
-
-export class NTBBLadder {
+export class Ladder {
 	formatid: string;
 	rplen: number;
 	rpoffset: number;
@@ -60,69 +53,51 @@ export class NTBBLadder {
 		const rpnum = (rp / this.rplen);
 		return (rpnum + 1) * this.rplen + this.rpoffset;
 	}
-	clearRating(name: string | User | FakeUser) {
+	clearRating(name: string) {
 		return ladder.updateOne({
 			elo: 1000, col1: 0, w: 0, l: 0, t: 0,
 		})`WHERE userid = ${toID(name)} AND formatid = ${this.formatid}`;
 	}
-	clearWL(name: User | string) {
+	clearWL(name: string) {
 		return ladder.updateOne({
 			w: 0, l: 0, t: 0,
 		})`WHERE userid = ${toID(name)} AND formatid = ${this.formatid}`;
 	}
-	async getRating(user: User | FakeUser, create = false) {
-		if (!user.rating) {
-			const data = await ladder.selectOne()`WHERE userid = ${user.id} AND formatid = ${this.formatid}`;
+	getRating(user: string): Promise<LadderEntry | null>;
+	getRating(user: string, create: true): Promise<LadderEntry>;
+	async getRating(user: string, create = false): Promise<LadderEntry | null> {
+		const userid = toID(user);
+		const data = await ladder.selectOne()`WHERE userid = ${userid} AND formatid = ${this.formatid}`;
+		if (data) return data;
 
-			if (!data) {
-				if (!create) {
-					return false;
-				}
-				const rp = this.getRP();
-				const res = await ladder.insert({
-					formatid: this.formatid, username: user.name, userid: user.id,
-					rptime: rp, rpdata: '', col1: 0,
-				});
-				user.rating = {
-					entryid: res.insertId,
-					formatid: this.formatid,
-					userid: user.id,
-					username: user.name,
-					r: 1500,
-					rd: 130,
-					sigma: 0,
-					rpr: 1500,
-					rprd: 130,
-					rpsigma: 0,
-					rptime: rp,
-					rpdata: '',
-					w: 0,
-					l: 0,
-					t: 0,
-					gxe: 50,
-					elo: 1000,
-					col1: 0,
-					oldelo: 0,
-				};
-				return user.rating;
-			}
-			user.rating = data;
-		}
-		return user.rating;
+		if (!create) return null;
+
+		const rp = this.getRP();
+		const res = await ladder.insert({
+			formatid: this.formatid, username: user, userid,
+			rptime: rp, rpdata: '', col1: 0,
+		});
+		return {
+			entryid: res.insertId,
+			formatid: this.formatid,
+			userid,
+			username: user,
+			r: 1500, rd: 130, sigma: 0,
+			rpr: 1500, rprd: 130, rpsigma: 0,
+			rptime: rp,
+			rpdata: '',
+			w: 0, l: 0, t: 0, gxe: 50,
+			elo: 1000,
+			col1: 0,
+			oldelo: 0,
+		};
 	}
-	async getAllRatings(user: User | FakeUser) {
-		if (!user.ratings) {
-			const res = await ladder.selectAll()`WHERE userid = ${user.id}`;
-			if (!res) {
-				return false;
-			}
-			user.ratings = res;
-			for (const row of user.ratings) {
-				delete (row as any).rpdata;
-			}
-		}
+	static async getAllRatings(user: string) {
+		const res = await ladder.selectAll()`WHERE userid = ${toID(user)}`;
+		if (!res) return [];
 
-		return true;
+		for (const row of res) delete (row as any).rpdata;
+		return res;
 	}
 	async getTop(prefix: string | null = null) {
 		let needUpdate = true;
@@ -155,15 +130,8 @@ export class NTBBLadder {
 			}
 
 			for (const row of res) {
-				// if ($row.col1 < 0 && $j > 50) break;
-				const user: FakeUser = {
-					name: row.username,
-					id: row.userid,
-					rating: row,
-				};
-
-				if (this.update(user as FakeUser & {rating: LadderEntry})) {
-					await this.saveRating(user);
+				if (this.update(row)) {
+					await this.saveRating(row);
 					needUpdate = true;
 				}
 
@@ -178,53 +146,47 @@ export class NTBBLadder {
 		return ladder.deleteAll()`WHERE formatid = ${this.formatid}`;
 	}
 
-	async saveRating(user: User | FakeUser) {
-		if (!user.rating) return false;
+	async saveRating(rating: LadderEntry) {
 		const {
 			w, l, t, r, rd, sigma,
 			rptime, rpr, elo, rprd,
 			rpsigma, rpdata, gxe,
 			col1, entryid,
-		} = user.rating;
+		} = rating;
 		return !!(await ladder.update(entryid, {
 			elo, w, l, t, r, rd, sigma, rptime, rpr, rprd, rpsigma, rpdata, gxe, col1,
 		}));
 	}
 
-	update(
-		user: (FakeUser | User) & {rating: LadderEntry},
-		newM: MatchElement | false = false,
-		newMelo = 1000,
-		force = false
-	) {
+	update(rating: LadderEntry, newM: MatchElement | null = null, newMelo = 1000, force = false) {
 		let offset = 0;
 
 		const rp = this.getRP();
-		if (rp <= user.rating.rptime && !newM && !force) {
+		if (rp <= rating.rptime && !newM && !force) {
 			return false;
 		}
 
-		let elo = user.rating.elo;
+		let elo = rating.elo;
 
-		const rating = new GlickoPlayer(user.rating.r, user.rating.rd);
-		if (user.rating.rpdata) {
-			const rpdata = user.rating.rpdata.split('##');
+		const glicko = new GlickoPlayer(rating.r, rating.rd);
+		if (rating.rpdata) {
+			const rpdata = rating.rpdata.split('##');
 			if (rpdata.length > 1) offset = parseFloat(rpdata[1]);
-			rating.m = JSON.parse(rpdata[0]);
+			glicko.m = JSON.parse(rpdata[0]);
 		}
 
-		if (rp > user.rating.rptime) {
+		if (rp > rating.rptime) {
 			let i = 0;
-			while (rp > user.rating.rptime) {
+			while (rp > rating.rptime) {
 				i++;
 				if (i > 1000) break;
 
 				// decay
 				if (elo >= 1400) {
 					let decay = 0;
-					if (rating.m.length > 5) {
+					if (glicko.m.length > 5) {
 						// user was very active
-					} else if (rating.m) {
+					} else if (glicko.m) {
 						// user was active
 						decay = 0 + (elo - 1400) / 100;
 					} else {
@@ -242,47 +204,47 @@ export class NTBBLadder {
 					if (decay > 0) elo -= decay;
 				}
 
-				rating.update();
+				glicko.update();
 				if (offset) {
-					rating.rating += offset;
+					glicko.rating += offset;
 					offset = 0;
 				}
 
-				user.rating.rptime = this.nextRP(user.rating.rptime);
+				rating.rptime = this.nextRP(rating.rptime);
 			}
-			user.rating.r = rating.rating;
-			user.rating.rd = rating.rd;
-			user.rating.elo = elo;
+			rating.r = glicko.rating;
+			rating.rd = glicko.rd;
+			rating.elo = elo;
 		}
 
-		if (!user.rating.col1) {
-			user.rating.col1 = user.rating.w + user.rating.l + user.rating.t;
+		if (!rating.col1) {
+			rating.col1 = rating.w + rating.l + rating.t;
 		}
 		if (newM) {
-			rating.m.push(newM);
+			glicko.m.push(newM);
 			if (newM.score > 0.99) {
-				user.rating.w++;
+				rating.w++;
 			} else if (newM.score < 0.01) {
-				user.rating.l++;
+				rating.l++;
 			} else {
-				user.rating.t++;
+				rating.t++;
 			}
-			user.rating.col1++;
+			rating.col1++;
 		}
 
-		if (rating.m) {
-			user.rating.rpdata = JSON.stringify(rating.m);
+		if (glicko.m) {
+			rating.rpdata = JSON.stringify(glicko.m);
 		} else {
-			user.rating.rpdata = '';
+			rating.rpdata = '';
 		}
 
-		rating.update();
+		glicko.update();
 
-		user.rating.rpr = rating.rating;
-		user.rating.rprd = rating.rd;
+		rating.rpr = glicko.rating;
+		rating.rprd = glicko.rd;
 
-		const exp = ((1500 - rating.rating) / 400 / Math.sqrt(1 + 0.0000100724 * (rating.rd * rating.rd + 130 * 130)));
-		user.rating.gxe = Math.round(
+		const exp = ((1500 - glicko.rating) / 400 / Math.sqrt(1 + 0.0000100724 * (glicko.rd * glicko.rd + 130 * 130)));
+		rating.gxe = Math.round(
 			100 / (1 + Math.pow(10, exp))
 		);
 
@@ -291,20 +253,20 @@ export class NTBBLadder {
 		// 	if ($newM.score > .9 && $rating->rating < $oldrpr) {
 		// 		$delta = $oldrpr - $rating->rating;
 		// 		$offset += $delta;
-		// 		$user.rating.rpr += $delta;
+		// 		$rating.rpr += $delta;
 		// 	}
 		// 	if ($newM.score < .1 && $rating->rating > $oldrpr) {
 		// 		$delta = $oldrpr - $rating->rating;
 		// 		$offset += $delta;
-		// 		$user.rating.rpr += $delta;
+		// 		$rating.rpr += $delta;
 		// 	}
 		// }
 		if (offset) {
-			user.rating.rpdata += '##' + offset;
+			rating.rpdata += '##' + offset;
 		}
 
 		if (newM) {
-			user.rating.oldelo = elo;
+			rating.oldelo = elo;
 
 			let K = 50;
 			if (elo < 1100) {
@@ -321,54 +283,32 @@ export class NTBBLadder {
 
 			if (elo < 1000) elo = 1000;
 
-			user.rating.elo = elo;
+			rating.elo = elo;
 		}
 
 		return true;
 	}
-	async updateRating(
-		p1: FakeUser | User,
-		p2: FakeUser | User,
-		p1score: number,
-		p1M?: MatchElement,
-		p2M?: MatchElement
-	) {
-		if (!p1.rating) await this.getRating(p1, true);
-		if (!p2.rating) await this.getRating(p2, true);
+	async addMatch(player1: string, player2: string, p1score: number) {
+		const p1 = await this.getRating(player1, true);
+		const p2 = await this.getRating(player2, true);
 
 		let p2score = 1 - p1score;
-		if (p1score < 0) {
-			p1score = 0;
-			p2score = 0;
-		}
+		if (p1score < 0) [p1score, p2score] = [0, 0];
 
-		if (!p1M) {
-			const p2rating = new GlickoPlayer(p2.rating!.r, p2.rating!.rd);
-			p1M = p2rating.matchElement(p1score)[0];
-		}
-		if (!p2M) {
-			const p1rating = new GlickoPlayer(p1.rating!.r, p1.rating!.rd);
-			p2M = p1rating.matchElement(p2score)[0];
-		}
-		p1M.score = p1score;
-		p2M.score = 1 - p1score;
-		const p1Melo = p2.rating!.elo;
-		const p2Melo = p1.rating!.elo;
+		const p1M = new GlickoPlayer(p2.r, p2.rd).matchElement(p1score)[0];
+		const p2M = new GlickoPlayer(p1.r, p1.rd).matchElement(p2score)[0];
+		const p1Melo = p2.elo;
+		const p2Melo = p1.elo;
+		this.update(p1, p1M, p1Melo);
+		this.update(p2, p2M, p2Melo);
 
-		this.update(p1 as (User | FakeUser) & {rating: LadderEntry}, p1M, p1Melo);
-		this.update(p2 as (User | FakeUser) & {rating: LadderEntry}, p2M, p2Melo);
-
-		return Promise.all(
-			[p1, p2].map(p => this.saveRating(p))
-		) as Promise<[boolean, boolean]>;
+		void this.saveRating(p1);
+		void this.saveRating(p2);
+		return [p1, p2];
 	}
-	static getUserData(username?: string): FakeUser | null {
-		if (!username) username = '';
+	static isValidPlayer(username: string): boolean {
 		const userid = toID(username);
-		if (userid.length > 18 || !userid) return null;
-		return {
-			name: username, id: userid,
-		};
+		return !(userid.length > 18 || !userid);
 	}
 }
 

@@ -6,7 +6,7 @@
  */
 import {Config} from './config-loader';
 import * as fs from 'fs/promises';
-import {NTBBLadder} from './ladder';
+import {Ladder} from './ladder';
 import {Replays} from './replays';
 import {ActionError, ActionContext, QueryHandler, SimServers} from './server';
 import {toID, updateserver, bash, md5} from './utils';
@@ -315,20 +315,15 @@ export const actions: {[k: string]: QueryHandler} = {
 		}
 
 		if (!toID(params.format)) throw new ActionError("Invalid format.");
-		const ladder = new NTBBLadder(params.format);
-		const p1 = NTBBLadder.getUserData(params.p1);
-		const p2 = NTBBLadder.getUserData(params.p2);
-		if (!p1 || !p2) {
-			// The server should not send usernames > 18 characters long.
-			// (getUserData returns falsy when the usernames are too long)
-			return 0;
-		}
+		const ladder = new Ladder(params.format);
+		if (!Ladder.isValidPlayer(params.p1)) return 0;
+		if (!Ladder.isValidPlayer(params.p2)) return 0;
 
 		const out: {[k: string]: any} = {};
-		await ladder.updateRating(p1, p2, parseFloat(params.score));
+		const [p1rating, p2rating] = await ladder.addMatch(params.p1, params.p2, parseFloat(params.score));
 		out.actionsuccess = true;
-		out.p1rating = p1.rating;
-		out.p2rating = p2.rating;
+		out.p1rating = p1rating;
+		out.p2rating = p2rating;
 		delete out.p1rating.rpdata;
 		delete out.p2rating.rpdata;
 		this.setPrefix('');	// No need for prefix since only usable by server.
@@ -340,13 +335,9 @@ export const actions: {[k: string]: QueryHandler} = {
 			return {errorip: true};
 		}
 
-		// yes, this params.format is useless, basically.
-		// it's just for parity with old code for now.
-		const ladder = new NTBBLadder(toID(params.format));
-		const user = NTBBLadder.getUserData(params.user);
+		const user = Ladder.isValidPlayer(params.user);
 		if (!user) return {errorip: true};
-		await ladder.getAllRatings(user);
-		return user.ratings;
+		return Ladder.getAllRatings(params.user);
 	},
 	async mmr(params) {
 		const server = await this.getServer(true);
@@ -354,17 +345,11 @@ export const actions: {[k: string]: QueryHandler} = {
 			return {errorip: 'Your version of PS is too old for this ladder system. Please update.'};
 		}
 		if (!toID(params.format)) throw new ActionError("Specify a format.");
-		const ladder = new NTBBLadder(params.format);
-		const user = NTBBLadder.getUserData(params.user);
-		let result = 1000;
-		if (!user) {
-			return result;
-		}
-		await ladder.getRating(user);
-		if (user.rating) {
-			result = user.rating.elo;
-		}
-		return result;
+		const ladder = new Ladder(params.format);
+		if (!Ladder.isValidPlayer(params.user)) return 1000;
+
+		const rating = await ladder.getRating(params.user);
+		return rating?.elo || 1000;
 	},
 	async restart() {
 		const server = await this.getServer(true);
