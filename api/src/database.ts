@@ -224,19 +224,19 @@ export class DatabaseTable<Row> {
 
 	// low-level
 
-	selectAll<T = Row>(entries: string[] | null | SQLStatement = null):
+	selectAll<T = Row>(entries?: string[] | SQLStatement):
 	(strings: TemplateStringsArray, ...rest: SQLValue[]) => Promise<T[]> {
-		if (entries === null) entries = SQL`*`;
+		entries ??= SQL`*`;
 		if (Array.isArray(entries)) entries = SQL`\`${entries}\``;
 		return (strings, ...rest) =>
 			this.query<T>()`SELECT ${entries} FROM \`${this.name}\` ${new SQLStatement(strings, rest)}`;
 	}
-	selectOne<T = Row>(entries?: string[] | null | SQLStatement):
+	selectOne<T = Row>(entries?: string[] | SQLStatement):
 	(strings: TemplateStringsArray, ...rest: SQLValue[]) => Promise<T | undefined> {
-		return async (strings, ...rest) => {
-			const where = new SQLStatement(strings, rest);
-			return (await this.selectAll<T>(entries)`${where} LIMIT 1`)?.[0];
-		};
+		entries ??= SQL`*`;
+		if (Array.isArray(entries)) entries = SQL`\`${entries}\``;
+		return (strings, ...rest) =>
+			this.queryOne<T>()`SELECT ${entries} FROM \`${this.name}\` ${new SQLStatement(strings, rest)} LIMIT 1`;
 	}
 	updateAll(partialRow: PartialOrSQL<Row>):
 	(strings: TemplateStringsArray, ...rest: SQLValue[]) => Promise<mysql.OkPacket> {
