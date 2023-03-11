@@ -429,7 +429,7 @@ class ChatUserList extends preact.Component<{room: ChatRoom, left?: number, mini
 						{groupSymbol}
 					</em>
 					{group.type === 'leadership' ?
-						<strong><em style={{color}}>{name.substr(1)}</em></strong>
+						<strong><marquee style={{color}}>{name.substr(1)}</marquee></strong>
 					: group.type === 'staff' ?
 						<strong style={{color}}>{name.substr(1)}</strong>
 					:

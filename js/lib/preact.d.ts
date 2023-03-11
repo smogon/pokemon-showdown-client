@@ -798,6 +798,7 @@ declare global {
 			menuitem: HTMLAttributes;
 			meta: HTMLAttributes;
 			meter: HTMLAttributes;
+			marquee: HTMLAttributes;
 			nav: HTMLAttributes;
 			noscript: HTMLAttributes;
 			object: HTMLAttributes;
