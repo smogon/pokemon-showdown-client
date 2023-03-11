@@ -4,7 +4,7 @@
  * @author mia-pi-git
  */
 
-import {toID, time} from './server';
+import {toID, time} from './utils';
 import {ladder} from './tables';
 import type {User} from './user';
 

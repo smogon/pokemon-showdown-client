@@ -3,9 +3,9 @@
  *
  * Ported to TypeScript by Annika and Mia.
  */
-import * as crypto from 'crypto';
 import {Session} from './user';
-import {toID, time, ActionError, ActionContext} from './server';
+import {ActionError, ActionContext} from './server';
+import {toID, time, stripNonAscii, md5} from './utils';
 import {prepreplays, replays} from './tables';
 import {Config} from './config-loader';
 import {SQL} from './database';
@@ -26,26 +26,6 @@ export interface ReplayData {
 	/** a boolean stored as a number in MySQL */
 	private: number;
 	password: string | null;
-}
-
-export interface PreparedReplay {
-	id: string;
-	p1: string;
-	p2: string;
-	format: string;
-	private: number;
-	loghash: string;
-	inputlog: string;
-	rating: number;
-	uploadtime: number;
-}
-
-export function stripNonAscii(str: string) {
-	return str.replace(/[^(\x20-\x7F)]+/g, '');
-}
-
-export function md5(str: string) {
-	return crypto.createHash('md5').update(str).digest('hex');
 }
 
 export const Replays = new class {

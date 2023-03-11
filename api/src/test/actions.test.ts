@@ -6,7 +6,6 @@
 import {strict as assert} from 'assert';
 import {NTBBLadder} from '../ladder';
 import * as utils from './test-utils';
-import {SQL} from '../database';
 import * as tables from '../tables';
 
 const token = '42354y6dhgfdsretr';

@@ -13,7 +13,8 @@ import {Config} from './config-loader';
 import * as crypto from 'crypto';
 import * as gal from 'google-auth-library';
 import {SQL} from './database';
-import {toID, time, ActionError, ActionContext} from './server';
+import {ActionError, ActionContext} from './server';
+import {toID, time} from './utils';
 import {ladder, loginthrottle, sessions, users, usermodlog} from './tables';
 
 const SID_DURATION = 2 * 7 * 24 * 60 * 60;

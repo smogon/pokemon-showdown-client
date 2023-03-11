@@ -5,7 +5,7 @@ import {Database, DatabaseTable} from './database';
 import {Config} from './config-loader';
 
 import type {LadderEntry} from './ladder';
-import type {PreparedReplay, ReplayData} from './replays';
+import type {ReplayData} from './replays';
 
 // direct access
 export const psdb = new Database(Config.mysql);
@@ -32,7 +32,17 @@ export const ladder = new DatabaseTable<LadderEntry>(
 	ladderDB, 'ladder', 'entryid',
 );
 
-export const prepreplays = new DatabaseTable<PreparedReplay>(
+export const prepreplays = new DatabaseTable<{
+	id: string;
+	p1: string;
+	p2: string;
+	format: string;
+	private: number;
+	loghash: string;
+	inputlog: string;
+	rating: number;
+	uploadtime: number;
+}>(
 	replaysDB, 'prepreplays', 'id',
 );
 

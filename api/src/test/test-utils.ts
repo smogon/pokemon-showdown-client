@@ -7,11 +7,10 @@
 
 import * as net from 'net';
 import {IncomingMessage, ServerResponse} from 'http';
-import {ActionContext, RegisteredServer} from '../server';
-import {Config} from '../config-loader';
+import {ActionContext, RegisteredServer, SimServers} from '../server';
 import * as crypto from 'crypto';
 import {strict as assert} from 'assert';
-import {md5} from '../replays';
+import {md5} from '../utils';
 
 /** Removing this as it does not work, but could be useful for future reference.
 const commands = [
@@ -41,7 +40,7 @@ export function makeDispatcher(body: {[k: string]: any}, url?: string) {
 export function addServer(server: RegisteredServer) {
 	if (server.token) server.token = md5(server.token);
 	if (!('skipipcheck' in server)) server.skipipcheck = false;
-	ActionContext.servers[server.id] = server;
+	SimServers.servers[server.id] = server;
 	return server;
 }
 

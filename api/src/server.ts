@@ -8,11 +8,10 @@ import * as https from 'https';
 import * as child from 'child_process';
 import * as dns from 'dns';
 import * as fs from 'fs';
-
+import {toID, md5} from './utils';
 import {Config} from './config-loader';
 import {actions} from './actions';
 import {User, Session} from './user';
-import {md5} from './replays';
 import {URLSearchParams} from 'url';
 import IPTools from './ip-tools';
 
@@ -35,22 +34,6 @@ import IPTools from './ip-tools';
  * error in JS, so treating it as a JS file will simply crash and fail.
  */
 const DISPATCH_PREFIX = ']';
-
-export function toID(text: any): string {
-	if (text?.id) {
-		text = text.id;
-	} else if (text?.userid) {
-		text = text.userid;
-	}
-	if (typeof text !== 'string' && typeof text !== 'number') return '';
-	return ('' + text).toLowerCase().replace(/[^a-z0-9]+/g, '');
-}
-
-export function time() {
-	// php has this with unix seconds. so we have to as well.
-	// for legacy reasons. Yes, I hate it too.
-	return Math.floor(Date.now() / 1000);
-}
 
 /**
  * Throw this to end a request with an `actionerror` message.

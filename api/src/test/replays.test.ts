@@ -2,11 +2,11 @@
 * Tests for replays.ts.
 * @author Annika
 */
-import {Replays, md5, stripNonAscii, ReplayData} from '../replays';
+import {Replays, ReplayData} from '../replays';
 import {prepreplays, replays} from '../tables';
 import {strict as assert} from 'assert';
-import {SQL} from '../database';
 import * as utils from './test-utils';
+import {md5, stripNonAscii} from '../utils';
 
 (describe.skip)('Replay database manipulation', () => {
 	it('should properly prepare replays', async () => {
