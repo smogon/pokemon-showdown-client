@@ -1178,7 +1178,7 @@
 			var isBDSP = this.curTeam.format.includes('bdsp');
 			var isNatDex = this.curTeam.format.includes('nationaldex') || this.curTeam.format.includes('natdex');
 			var isInsurgence = this.curTeam.format.includes('insurgence');
-			if (isInsurgence) set.level = 120;
+			if (isInsurgence && !set.level) set.level = 120;
 			var buf = '<li value="' + i + '">';
 			if (!set.species) {
 				if (this.deletedSet) {
