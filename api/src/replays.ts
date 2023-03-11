@@ -215,7 +215,7 @@ export const Replays = new class {
 		return username.toLowerCase().replace(/[^A-Za-z0-9]+/g, '');
 	}
 
-	async upload(params: {[k: string]: unknown}, dispatcher: ActionContext) {
+	async upload(params: {[k: string]: unknown}, context: ActionContext) {
 		let id = toID(params.id);
 		if (!id) throw new ActionError('Battle ID needed.');
 		const preppedReplay = await prepreplays.get(id);
@@ -259,7 +259,7 @@ export const Replays = new class {
 		}
 
 		if (password && password.length > 31) {
-			dispatcher.setHeader('HTTP/1.1', '403 Forbidden');
+			context.setHeader('HTTP/1.1', '403 Forbidden');
 			return 'password must be 31 or fewer chars long';
 		}
 

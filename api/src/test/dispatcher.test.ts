@@ -1,5 +1,5 @@
 /**
- * Tests for dispatcher functions.
+ * Tests for context functions.
  * By Mia.
  * @author mia-pi-git
  */
@@ -12,7 +12,7 @@ import * as utils from './test-utils';
 
 const servertoken = 'jiuhygjhf';
 describe('Dispatcher features', () => {
-	const dispatcher = utils.makeDispatcher({
+	const context = utils.makeDispatcher({
 		serverid: 'etheria',
 		servertoken,
 		act: 'mmr',
@@ -25,16 +25,16 @@ describe('Dispatcher features', () => {
 		token: servertoken,
 	});
 	it('Should properly detect servers', async () => {
-		const cur = await dispatcher.getServer();
+		const cur = await context.getServer();
 		assert(server.id === cur?.id);
 	});
 	it('Should validate servertokens', async () => {
-		const cur = await dispatcher.getServer(true);
+		const cur = await context.getServer(true);
 		assert(cur);
 		assert(server.id === cur.id);
 		// invalidate the servertoken, we shouldn't find the server now
-		(dispatcher.opts.body as {[k: string]: string}).servertoken = '';
-		const result = await dispatcher.getServer(true).catch(e => e);
+		(context.opts.body as {[k: string]: string}).servertoken = '';
+		const result = await context.getServer(true).catch(e => e);
 		assert(result instanceof ActionError);
 	});
 
@@ -42,28 +42,28 @@ describe('Dispatcher features', () => {
 		Config.cors = [
 			[/etheria/, 'server_'],
 		];
-		dispatcher.request.headers['origin'] = 'https://etheria.psim.us/';
-		let prefix = dispatcher.verifyCrossDomainRequest();
+		context.request.headers['origin'] = 'https://etheria.psim.us/';
+		let prefix = context.verifyCrossDomainRequest();
 		assert(prefix === 'server_', 'Wrong challengeprefix: ' + prefix);
-		assert(dispatcher.response.hasHeader('Access-Control-Allow-Origin'), 'missing CORS header');
+		assert(context.response.hasHeader('Access-Control-Allow-Origin'), 'missing CORS header');
 
-		dispatcher.response.removeHeader('Access-Control-Allow-Origin');
-		dispatcher.request.headers['origin'] = 'nevergonnagiveyouup';
+		context.response.removeHeader('Access-Control-Allow-Origin');
+		context.request.headers['origin'] = 'nevergonnagiveyouup';
 
-		dispatcher.setPrefix('');
-		prefix = dispatcher.verifyCrossDomainRequest();
+		context.setPrefix('');
+		prefix = context.verifyCrossDomainRequest();
 		assert(prefix === '', 'has improper challengeprefix: ' + prefix);
-		const header = dispatcher.response.hasHeader('Access-Control-Allow-Origin');
+		const header = context.response.hasHeader('Access-Control-Allow-Origin');
 		assert(!header, 'has CORS header where it should not: ' + header);
 	});
 	it('Should support requesting /api/[action]', () => {
-		const req = dispatcher.request;
+		const req = context.request;
 		req.url = '/api/mmr?userid=mia';
 		const act = ActionContext.parseAction(req, ActionContext.parseURLRequest(req));
 		assert(act === 'mmr');
 	});
 	it('Should support requesting action.php with an `act` param', () => {
-		const req = dispatcher.request;
+		const req = context.request;
 		req.url = '/action.php?act=mmr&userid=mia';
 		const body = ActionContext.parseURLRequest(req);
 		const act = ActionContext.parseAction(req, body);

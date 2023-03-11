@@ -224,12 +224,12 @@ export const actions: {[k: string]: QueryHandler} = {
 				results.push({actionerror: 'Must send a request type.'});
 				continue;
 			}
-			const dispatcher = new ActionContext(this.request, this.response, {
+			const context = new ActionContext(this.request, this.response, {
 				body: request,
 				act: request.act,
 			});
 			try {
-				const result = await dispatcher.executeActions();
+				const result = await context.executeActions();
 				results.push(result);
 			} catch (e) {
 				if (e instanceof ActionError) {

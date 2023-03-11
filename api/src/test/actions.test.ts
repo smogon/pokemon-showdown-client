@@ -57,7 +57,7 @@ describe('Loginserver actions', () => {
 				pass: 'applesauce',
 				challengekeyid: 1,
 				challstr: await utils.randomBytes(),
-			}, dispatcher => dispatcher.session.addUser('Catra', 'applesauce').catch(() => null));
+			}, context => context.session.addUser('Catra', 'applesauce').catch(() => null));
 			assert(result.actionsuccess, 'User was not logged in');
 			assert(result.assertion.split(';').length > 1);
 		});
@@ -69,7 +69,7 @@ describe('Loginserver actions', () => {
 				oldpassword: 'applesauce',
 				cpassword: 'greyskull',
 				password: 'greyskull',
-			}, dispatcher => dispatcher.user.login('catra'));
+			}, context => context.user.login('catra'));
 			assert(result, 'Received falsy success');
 		});
 	});

@@ -47,20 +47,20 @@ export function addServer(server: RegisteredServer) {
 
 export async function testDispatcher(
 	opts: {[k: string]: any},
-	setupFunct?: (dispatcher: ActionContext) => any | Promise<any>,
+	setupFunct?: (context: ActionContext) => any | Promise<any>,
 	method = 'POST',
 ) {
-	const dispatcher = makeDispatcher(opts);
-	dispatcher.request.method = method;
-	if (setupFunct) await setupFunct(dispatcher);
+	const context = makeDispatcher(opts);
+	context.request.method = method;
+	if (setupFunct) await setupFunct(context);
 	let result: any;
 	try {
-		result = await dispatcher.executeActions();
+		result = await context.executeActions();
 	} catch (e: any) {
 		assert(false, e.message);
 	}
-	// we return dispatcher in case we need to do more
-	return {result, dispatcher};
+	// we return context in case we need to do more
+	return {result, context};
 }
 
 export async function randomBytes(size = 128) {

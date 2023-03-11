@@ -390,10 +390,10 @@ export class Server {
 		if (!act) {
 			return {actionerror: "Invalid request action sent."};
 		}
-		const dispatcher = new ActionContext(req, res, {body, act});
+		const context = new ActionContext(req, res, {body, act});
 		this.activeRequests++;
 		try {
-			const result = await dispatcher.executeActions();
+			const result = await context.executeActions();
 			this.activeRequests--;
 			if (this.awaitingEnd) res.setHeader('connection', 'close');
 			if (result === null) {

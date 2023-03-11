@@ -45,12 +45,12 @@ export class User {
 
 export class Session {
 	sidhash = '';
-	dispatcher: ActionContext;
+	context: ActionContext;
 	session = 0;
 	readonly cookies: ReadonlyMap<string, string>;
-	constructor(dispatcher: ActionContext) {
-		this.dispatcher = dispatcher;
-		this.cookies = this.parseCookie(dispatcher.request.headers.cookie);
+	constructor(context: ActionContext) {
+		this.context = context;
+		this.cookies = this.parseCookie(context.request.headers.cookie);
 	}
 	getSid() {
 		if (this.sidhash) return this.sidhash;
@@ -88,13 +88,13 @@ export class Session {
 	deleteCookie() {
 		if (this.sidhash) {
 			this.session = 0;
-			this.dispatcher.setHeader(
+			this.context.setHeader(
 				"Set-Cookie",
 				`sid=${encodeURIComponent(`,,${this.sidhash}`)}; ` +
 					`Max-Age=0; Domain=${Config.routes.root}; Path=/; Secure; SameSite=None`
 			);
 		} else {
-			this.dispatcher.setHeader(
+			this.context.setHeader(
 				"Set-Cookie",
 				`sid=;` +
 					`Max-Age=0; Domain=${Config.routes.root}; Path=/; Secure; SameSite=None`
@@ -102,20 +102,20 @@ export class Session {
 		}
 	}
 	updateCookie() {
-		const name = this.dispatcher.user.name;
+		const name = this.context.user.name;
 		if (toID(name) === 'guest') return;
 		if (!this.sidhash) {
 			return this.deleteCookie();
 		}
 		const rawsid = encodeURIComponent([name, this.session, this.sidhash].join(','));
-		this.dispatcher.setHeader(
+		this.context.setHeader(
 			'Set-Cookie',
 			`sid=${rawsid}; Max-Age=31363200; Domain=${Config.routes.root}; Path=/; Secure; SameSite=None`
 		);
 	}
 
 	async getRecentRegistrationCount(period: number) {
-		const ip = this.dispatcher.getIp();
+		const ip = this.context.getIp();
 		const timestamp = time() - period;
 		const result = await users.selectOne<{regcount: number}>(
 			SQL`COUNT(*) AS regcount`
@@ -127,7 +127,7 @@ export class Session {
 		const userid = toID(username);
 		const exists = await users.get(userid, ['userid']);
 		if (exists) return null;
-		const ip = this.dispatcher.getIp();
+		const ip = this.context.getIp();
 
 		const result = await users.insert({
 			userid, username, passwordhash: hash, email: null, registertime: time(), ip,
@@ -145,7 +145,7 @@ export class Session {
 		const info = await users.get(userid);
 		if (!info) {
 			// unregistered. just do the thing
-			return this.dispatcher.user.login(name);
+			return this.context.user.login(name);
 		}
 		// previously, there was a case for banstate here in the php.
 		// this is not necessary, as getAssertion handles that. Proceed to verification.
@@ -154,7 +154,7 @@ export class Session {
 			throw new ActionError('Wrong password.');
 		}
 		const timeout = (curTime + SID_DURATION);
-		const ip = this.dispatcher.getIp();
+		const ip = this.context.getIp();
 		const sidhash = this.sidhash = await this.makeSid();
 		const res = await sessions.insert({
 			userid,
@@ -164,7 +164,7 @@ export class Session {
 			ip,
 		});
 		this.session = res.insertId || 0;
-		return this.dispatcher.user.login(name);
+		return this.context.user.login(name);
 	}
 	async logout(deleteCookie = false) {
 		if (!this.session) return false;
@@ -172,7 +172,7 @@ export class Session {
 		this.sidhash = '';
 		this.session = 0;
 		if (deleteCookie) this.deleteCookie();
-		this.dispatcher.user.logout();
+		this.context.user.logout();
 	}
 	async getAssertion(
 		userid: string,
@@ -189,9 +189,9 @@ export class Session {
 			return ';;Your username contains disallowed text.';
 		}
 		let data = '';
-		const ip = this.dispatcher.getIp();
+		const ip = this.context.getIp();
 		let forceUsertype: string | false = false;
-		if (!user) user = this.dispatcher.user;
+		if (!user) user = this.context.user;
 		if (Config.autolockip.includes(ip)) {
 			forceUsertype = '5';
 		}
@@ -200,7 +200,7 @@ export class Session {
 		const {banstate, registertime, logintime} = userData || {
 			banstate: 0, registertime: 0, logintime: 0,
 		};
-		const server = await this.dispatcher.getServer();
+		const server = await this.context.getServer();
 		const serverHost = server?.server || 'sim3.psim.us';
 
 		if (user.id === userid && user.loggedin) {
@@ -340,20 +340,20 @@ export class Session {
 
 		const entry = 'Password changed from: ' + userData.passwordhash;
 		await usermodlog.insert({
-			userid, actorid: userid, date: time(), ip: this.dispatcher.getIp(), entry,
+			userid, actorid: userid, date: time(), ip: this.context.getIp(), entry,
 		});
 		const passwordhash = await bcrypt.hash(pass, Config.passwordSalt);
 		await users.update(userid, {
 			passwordhash, nonce: null,
 		});
 		await sessions.deleteAll()`WHERE userid = ${userid}`;
-		if (this.dispatcher.user.id === userid) {
+		if (this.context.user.id === userid) {
 			await this.login(name, pass);
 		}
 		return true;
 	}
 	async passwordVerify(name: string, pass: string) {
-		const ip = this.dispatcher.getIp();
+		const ip = this.context.getIp();
 		const userid = toID(name);
 		let throttleTable = await loginthrottle.get(
 			ip, ['count', 'time']
@@ -437,7 +437,7 @@ export class Session {
 	}
 	async checkLoggedIn() {
 		const ctime = time();
-		const {body} = this.dispatcher.opts;
+		const {body} = this.context.opts;
 
 		// see if we're logged in
 		const scookie = body.sid || this.cookies.get('sid');

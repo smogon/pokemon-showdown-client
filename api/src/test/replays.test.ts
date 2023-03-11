@@ -69,7 +69,7 @@ import * as utils from './test-utils';
 	});
 
 	it('should properly upload replays', async () => {
-		const dispatcher = utils.makeDispatcher({});
+		const context = utils.makeDispatcher({});
 		/* eslint-disable max-len */
 		const inputlog = [
 			'>version 3643e94ff7b9b025f98fb947cfe103546db62c03',
@@ -115,7 +115,7 @@ import * as utils from './test-utils';
 			log,
 		};
 
-		const result = await Replays.upload(replay, dispatcher);
+		const result = await Replays.upload(replay, context);
 		assert(result.startsWith('success:'));
 
 		const fetchedReplay = await Replays.get('uploadtest');
