@@ -1471,7 +1471,7 @@ function toId() {
 				// } else if (this.target === '_blank') {
 				// 	// for performance reasons, there's no reason to ever have an opener
 				// 	this.rel = 'noopener';
-				}
+				// }
 			});
 		},
 
