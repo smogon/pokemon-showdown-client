@@ -18,7 +18,7 @@
 			buf += '<div class="roomlist"><p><em style="font-size:20pt">Loading...</em></p></div><div class="roomlist"></div>';
 			//buf += '<p><button name="toggleMoreRooms" class="button">Show more rooms</button><p>';
 			//buf += '<p><button name="joinRoomPopup" class="button">Join other room</button></p></div>';
-			buf += '<div class="pad"><h2 class="rooms-officialchatrooms">Plan of Attack Rules:</h2>';
+			buf += '</div><div class="pad"><h2 class="rooms-officialchatrooms">Plan of Attack Rules:</h2>';
 			buf += '<p style="font-weight:bold">1: Don\'t be a dick</p>';
 			buf += '<p>Toxicity in any form won\'t be tolerated. We strive for a positive community, <br>you\'re a pokemon fan like everyone around you, try to enjoy the game!</p>';
 			this.$el.html(buf);
