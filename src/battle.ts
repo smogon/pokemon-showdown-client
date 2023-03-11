@@ -2439,7 +2439,7 @@ export class Battle {
 			let poke = this.getPokemon(args[1])!;
 			let species = Dex.species.get(args[2]);
 			let fromeffect = Dex.getEffect(kwArgs.from);
-			let isCustomAnim = species.name.startsWith('Wishiwashi');
+			let isCustomAnim = species.name.startsWith('Wishiwashi') ;
 			if (!poke.getSpeciesForme().endsWith('-Gmax') && !species.name.endsWith('-Gmax')) {
 				poke.removeVolatile('typeadd' as ID);
 				poke.removeVolatile('typechange' as ID);
@@ -2455,6 +2455,7 @@ export class Battle {
 			break;
 		}
 		case '-mega': {
+			console.log(args);
 			let poke = this.getPokemon(args[1])!;
 			let item = Dex.items.get(args[3]);
 			if (args[3]) {
