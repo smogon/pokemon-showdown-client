@@ -3466,10 +3466,6 @@
 			if (Dex.prefs('nopastgens')) gen = 'gen5';
 			if (Dex.prefs('bwgfx') && dir === 'gen5') gen = 'gen5';
 			spriteDir += dir;
-			if (dir === 'gen5') {
-				spriteSize = 120;
-				spriteDim = 'width: 120px; height: 120px;';
-			}
 
 			var buf = '';
 			buf += '<p>Pick a variant or <button name="close">Cancel</button></p>';
