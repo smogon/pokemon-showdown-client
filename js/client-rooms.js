@@ -18,6 +18,7 @@
 			buf += '<div class="roomlist"><p><em style="font-size:20pt">Loading...</em></p></div><div class="roomlist"></div>';
 			buf += '<p><button name="toggleMoreRooms" class="button">Show more rooms</button><p>';
 			buf += '<p><button name="joinRoomPopup" class="button">Join other room</button></p></div>';
+			buf += '<div class="pad"><p>Testing!</p></div>';
 			this.$el.html(buf);
 			app.on('response:rooms', this.update, this);
 			var settings = Dex.prefs('serversettings');
