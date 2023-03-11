@@ -13,8 +13,8 @@
 			this.focusedSection = '';
 
 			this.$el.addClass('ps-room-light').addClass('scrollable');
-			var buf = '<div class="pad"><button class="button" style="float:right;font-size:10pt;margin-top:30px" name="closeHide"><i class="fa fa-caret-right"></i> Hide</button>';
-			//buf += '<div class="roomlisttop"></div><p>Rooms filter: <select name="sections"><option value="all">(All rooms)</option></select></p>';
+			var buf = '<div class="pad"><button class="button" style="float:right;font-size:10pt;margin-top:10px" name="closeHide"><i class="fa fa-caret-right"></i> Hide</button>';
+			buf += '<div class="roomlisttop"></div>';
 			buf += '<div class="roomlist"><p><em style="font-size:20pt">Loading...</em></p></div><div class="roomlist"></div>';
 			//buf += '<p><button name="toggleMoreRooms" class="button">Show more rooms</button><p>';
 			//buf += '<p><button name="joinRoomPopup" class="button">Join other room</button></p></div>';
