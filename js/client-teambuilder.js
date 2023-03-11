@@ -2725,8 +2725,14 @@
 
 			// level
 			var level = parseInt(this.$chart.find('input[name=level]').val(), 10);
-			if (!level || level > 100 || level < 1) level = 100;
-			if (level !== 100 || set.level) set.level = level;
+			if (!isInsurgence) {
+				if (!level || level > 100 || level < 1) level = 100;
+				if (level !== 100 || set.level) set.level = level;
+			} else {
+				if (!level || level > 120 || level < 1) level = 120;
+				if (level !== 120 || set.level) set.level = level;
+			}
+			
 			//if (isInsurgence) set.level = 120; level = 120;
 
 			// happiness
