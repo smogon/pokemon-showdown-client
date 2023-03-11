@@ -16,9 +16,11 @@
 			var buf = '<div class="pad"><button class="button" style="float:right;font-size:10pt;margin-top:3px" name="closeHide"><i class="fa fa-caret-right"></i> Hide</button>';
 			buf += '<div class="roomlisttop"></div><p>Rooms filter: <select name="sections"><option value="all">(All rooms)</option></select></p>';
 			buf += '<div class="roomlist"><p><em style="font-size:20pt">Loading...</em></p></div><div class="roomlist"></div>';
-			buf += '<p><button name="toggleMoreRooms" class="button">Show more rooms</button><p>';
-			buf += '<p><button name="joinRoomPopup" class="button">Join other room</button></p></div>';
-			buf += '<div class="pad"><p>Testing!</p></div>';
+			//buf += '<p><button name="toggleMoreRooms" class="button">Show more rooms</button><p>';
+			//buf += '<p><button name="joinRoomPopup" class="button">Join other room</button></p></div>';
+			buf += '<div class="pad"><h2 class="rooms-officialchatrooms">Plan of Attack Rules:</h2>';
+			buf += '<p style="font-weight:bold">1: Don\'t be a dick</p>';
+			buf += '<p>Toxicity in any form won\'t be tolerated. We strive for a positive community, <br>you\'re a pokemon fan like everyone around you, try to enjoy the game!</p>';
 			this.$el.html(buf);
 			app.on('response:rooms', this.update, this);
 			var settings = Dex.prefs('serversettings');
@@ -168,7 +170,7 @@
 
 			this.$('.roomlist').first().html(
 				(officialRooms.length ?
-					'<h2 class="rooms-officialchatrooms">Official chat rooms</h2>' + officialRooms.sort(this.compareRooms).map(this.renderRoomBtn).join("") : ''
+					'<h2 class="rooms-officialchatrooms">Chat rooms</h2>' + officialRooms.sort(this.compareRooms).map(this.renderRoomBtn).join("") : ''
 				) +
 				(spotlightRooms.length ?
 					'<h2 class="rooms-psplchatrooms">' + BattleLog.escapeHTML(spotlightLabel) + '</h2>' + spotlightRooms.sort(this.compareRooms).map(this.renderRoomBtn).join("") : ''
