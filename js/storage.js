@@ -129,9 +129,9 @@ Storage.bg = {
 		for (var i = 0; i < 5; i++) {
 			var n = i + 1;
 			var hs = hues[i];
-			cssBuf += 'body .button.mainmenu' + n + ' { background: linear-gradient(to bottom,  hsl(' + hs + ',72%),  hsl(' + hs + ',52%)); border-color: hsl(' + hs + ',40%); }\n';
-			cssBuf += 'body .button.mainmenu' + n + ':hover { background: linear-gradient(to bottom,  hsl(' + hs + ',62%),  hsl(' + hs + ',42%)); border-color: hsl(' + hs + ',21%); }\n';
-			cssBuf += 'body .button.mainmenu' + n + ':active { background: linear-gradient(to bottom,  hsl(' + hs + ',42%),  hsl(' + hs + ',58%)); border-color: hsl(' + hs + ',21%); }\n';
+			cssBuf += 'body .button.mainmenu' + n + ' { background: linear-gradient(to bottom,  hsl(' + hs + ',52%),  hsl(' + hs + ',52%)); border-color: hsl(' + hs + ',40%); }\n';
+			cssBuf += 'body .button.mainmenu' + n + ':hover { background: linear-gradient(to bottom,  hsl(' + hs + ',42%),  hsl(' + hs + ',42%)); border-color: hsl(' + hs + ',21%); }\n';
+			cssBuf += 'body .button.mainmenu' + n + ':active { background: linear-gradient(to bottom,  hsl(' + hs + ',58%),  hsl(' + hs + ',58%)); border-color: hsl(' + hs + ',21%); }\n';
 		}
 		$('head').append('<style id="mainmenubuttoncolors">' + cssBuf + '</style>');
 	},
