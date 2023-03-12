@@ -1039,13 +1039,17 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 	// Mods
 	//
 
-	for (const mod of ['gen7letsgo', 'gen8bdsp']) {
+	for (const mod of ['gen7letsgo', 'gen8bdsp', 'insurgence']) {
 		const modDex = Dex.mod(mod);
 		const modData = modDex.data;
 		const parentDex = Dex.forGen(modDex.gen);
 
 		const overrideSpeciesData = {};
-		BattleTeambuilderTable[mod].overrideSpeciesData = overrideSpeciesData;
+		if (mod === 'insurgence') {
+			BattleTeambuilderTable["gen9insurgencenationaldex"].overrideSpeciesData = overrideSpeciesData;
+		} else {
+			BattleTeambuilderTable[mod].overrideSpeciesData = overrideSpeciesData;
+		}
 		for (const id in modData.Pokedex) {
 			const modEntry = modDex.species.get(id);
 			const parentEntry = parentDex.species.get(id);
@@ -1058,7 +1062,11 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 		}
 
 		const overrideMoveData = {};
-		BattleTeambuilderTable[mod].overrideMoveData = overrideMoveData;
+		if (mod === 'insurgence') {
+			BattleTeambuilderTable["gen9insurgencenationaldex"].overrideMoveData = overrideMoveData;
+		} else {
+			BattleTeambuilderTable[mod].overrideMoveData = overrideMoveData;
+		}
 		for (const id in modData.Moves) {
 			const modEntry = modDex.moves.get(id);
 			const parentEntry = parentDex.moves.get(id);
@@ -1072,7 +1080,11 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 		}
 
 		const overrideAbilityData = {};
-		BattleTeambuilderTable[mod].overrideAbilityData = overrideAbilityData;
+		if (mod === 'insurgence') {
+			BattleTeambuilderTable["gen9insurgencenationaldex"].overrideAbilityData = overrideAbilityData;
+		} else {
+			BattleTeambuilderTable[mod].overrideAbilityData = overrideAbilityData;
+		}
 		for (const id in modData.Abilities) {
 			const modEntry = modDex.abilities.get(id);
 			const parentEntry = parentDex.abilities.get(id);
