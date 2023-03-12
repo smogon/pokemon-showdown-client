@@ -343,9 +343,6 @@
 
 		// abilities
 		if (gen >= 3) {
-			console.log(this.engine.dex.modid);
-			console.log(Dex.modid);
-			console.log(Dex);
 			let abilities;
 			if (this.engine.dex.modid === "gen9insurgence")  {
 				abilities = Dex.mod("gen9insurgence").species.get(id).abilities;
