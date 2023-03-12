@@ -625,7 +625,7 @@ abstract class BattleTypedSearch<T extends SearchType> {
 			format = format.slice(21) as ID;
 			if (!format) format = 'ou' as ID;
 			this.formatType = 'insurgencenatdex';
-			this.dex = Dex.mod('insurgence' as ID);
+			this.dex = Dex.mod('gen9insurgence' as ID);
 		}
 		if (this.formatType === 'letsgo') format = format.slice(6) as ID;
 		if (format.includes('metronome')) {
