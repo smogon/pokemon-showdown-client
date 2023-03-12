@@ -171,10 +171,6 @@ export class Database {
 	queryExec(): (strings: TemplateStringsArray, ...rest: SQLValue[]) => Promise<mysql.OkPacket>;
 	queryExec(sql?: SQLStatement) {
 		if (!sql) return (strings: any, ...rest: any) => this.queryExec(new SQLStatement(strings, rest));
-
-		if (!['UPDATE', 'INSERT', 'DELETE', 'REPLACE'].some(i => sql.sql.includes(i))) {
-			throw new Error('Use `query` or `get` for non-insertion / update statements.');
-		}
 		return this.queryOne<mysql.OkPacket>(sql);
 	}
 	close() {
@@ -226,14 +222,14 @@ export class DatabaseTable<Row> {
 
 	selectAll<T = Row>(entries?: string[] | SQLStatement):
 	(strings: TemplateStringsArray, ...rest: SQLValue[]) => Promise<T[]> {
-		entries ??= SQL`*`;
+		if (!entries) entries = SQL`*`;
 		if (Array.isArray(entries)) entries = SQL`\`${entries}\``;
 		return (strings, ...rest) =>
 			this.query<T>()`SELECT ${entries} FROM \`${this.name}\` ${new SQLStatement(strings, rest)}`;
 	}
 	selectOne<T = Row>(entries?: string[] | SQLStatement):
 	(strings: TemplateStringsArray, ...rest: SQLValue[]) => Promise<T | undefined> {
-		entries ??= SQL`*`;
+		if (!entries) entries = SQL`*`;
 		if (Array.isArray(entries)) entries = SQL`\`${entries}\``;
 		return (strings, ...rest) =>
 			this.queryOne<T>()`SELECT ${entries} FROM \`${this.name}\` ${new SQLStatement(strings, rest)} LIMIT 1`;
