@@ -808,7 +808,7 @@ abstract class BattleTypedSearch<T extends SearchType> {
 			this.formatType === 'dlc1' ? 'gen8dlc1' :
 			this.formatType === 'dlc1doubles' ? 'gen8dlc1doubles' :
 			this.formatType === 'natdex' ? `gen${gen}natdex` :
-			this.formatType === 'insurgencenatdex' ? `insurgence` :
+			this.formatType === 'insurgencenatdex' ? `gen9insurgence` :
 			this.formatType === 'stadium' ? `gen${gen}stadium${gen > 1 ? gen : ''}` :
 			`gen${gen}`;
 		if (table && table[tableKey]) {
