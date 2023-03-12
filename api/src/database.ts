@@ -39,9 +39,9 @@ export class SQLStatement {
 			if (this.sql[this.sql.length - 1].endsWith(`\``)) {
 				// "`a`, `b`" syntax
 				for (const col of value) {
-					this.append(col, `\`, `);
+					this.append(col, `\`, \``);
 				}
-				this.sql[this.sql.length - 1] = this.sql[this.sql.length - 1].slice(0, -2) + nextString;
+				this.sql[this.sql.length - 1] = this.sql[this.sql.length - 1].slice(0, -4) + nextString;
 			} else {
 				// "1, 2" syntax
 				for (const val of value) {
