@@ -482,12 +482,12 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			BattleTeambuilderTable['gen' + genNum + 'natdex'].monotypeBans = monotypeBans;
 			BattleTeambuilderTable['gen' + genNum + 'natdex'].formatSlices = formatSlices;
 		} else if (isInsurgence) {
-			BattleTeambuilderTable['insurgence'] = {};
-			BattleTeambuilderTable['insurgence'].learnsets = {};
-			BattleTeambuilderTable['insurgence'].tiers = tiers;
-			BattleTeambuilderTable['insurgence'].overrideTier = overrideTier;
-			BattleTeambuilderTable['insurgence'].items = items;
-			BattleTeambuilderTable['insurgence'].formatSlices = formatSlices;
+			BattleTeambuilderTable['gen9insurgence'] = {};
+			BattleTeambuilderTable['gen9insurgence'].learnsets = {};
+			BattleTeambuilderTable['gen9insurgence'].tiers = tiers;
+			BattleTeambuilderTable['gen9insurgence'].overrideTier = overrideTier;
+			BattleTeambuilderTable['gen9insurgence'].items = items;
+			BattleTeambuilderTable['gen9insurgence'].formatSlices = formatSlices;
 		} else if (isMetBattle) {
 			BattleTeambuilderTable[gen + 'metronome'] = {};
 			BattleTeambuilderTable[gen + 'metronome'].tiers = tiers;
@@ -902,9 +902,9 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 	const InsurgenceLearnsets = Dex.mod('insurgence').data.Learnsets;
 	for (const id in InsurgenceLearnsets) {
 		const learnset = InsurgenceLearnsets[id].learnset;
-		BattleTeambuilderTable['insurgence'].learnsets[id] = {};
+		BattleTeambuilderTable['gen9insurgence'].learnsets[id] = {};
 		for (const moveid in learnset) {
-			BattleTeambuilderTable['insurgence'].learnsets[id][moveid] = '9g';
+			BattleTeambuilderTable['gen9insurgence'].learnsets[id][moveid] = '9g';
 		}
 	}
 	const DLC1Learnsets = Dex.mod('gen8dlc1').data.Learnsets;
@@ -1039,7 +1039,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 	// Mods
 	//
 
-	for (const mod of ['gen7letsgo', 'gen8bdsp', 'insurgence']) {
+	for (const mod of ['gen7letsgo', 'gen8bdsp', 'gen9insurgence']) {
 		const modDex = Dex.mod(mod);
 		const modData = modDex.data;
 		const parentDex = Dex.forGen(modDex.gen);
