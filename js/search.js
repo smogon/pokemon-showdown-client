@@ -348,7 +348,7 @@
 			console.log(Dex);
 			let abilities;
 			if (this.engine.dex.modid === "gen9insurgence")  {
-				abilities = Dex.forGen("gen9insurgence").species.get(id).abilities;
+				abilities = Dex.mod("gen9insurgence").species.get(id).abilities;
 			} else {
 				abilities = Dex.forGen(gen).species.get(id).abilities;
 			}
