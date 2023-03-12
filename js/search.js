@@ -258,7 +258,6 @@
 		return 'Error: not found';
 	};
 	Search.prototype.renderPokemonSortRow = function () {
-		console.log(this);
 		var buf = '<li class="result"><div class="sortrow">';
 		buf += '<button class="sortcol numsortcol' + (!this.sortCol ? ' cur' : '') + '">' + (!this.sortCol ? 'Sort: ' : this.engine.firstPokemonColumn) + '</button>';
 		buf += '<button class="sortcol pnamesortcol' + (this.sortCol === 'name' ? ' cur' : '') + '" data-sort="name">Name</button>';
@@ -344,7 +343,15 @@
 
 		// abilities
 		if (gen >= 3) {
-			var abilities = Dex.forGen(gen).species.get(id).abilities;
+			console.log(this.engine.dex.modid);
+			console.log(Dex.modid);
+			console.log(Dex);
+			let abilities;
+			if (this.engine.dex.modid === "gen9insurgence")  {
+				abilities = Dex.forGen("gen9insurgence").species.get(id).abilities;
+			} else {
+				abilities = Dex.forGen(gen).species.get(id).abilities;
+			}
 			if (gen >= 5) {
 				if (abilities['1']) {
 					buf += '<span class="col twoabilitycol">' + abilities['0'] + '<br />' +
