@@ -922,7 +922,12 @@ class ModdedDex {
 				}
 			}
 			if (this.modid !== `gen${this.gen}`) {
-				const table = window.BattleTeambuilderTable[this.modid];
+				let table;
+				if (this.modid === "insurgence") {
+					table = window.BattleTeambuilderTable["gen9insurgencenationaldex"];
+				} else {
+					table = window.BattleTeambuilderTable[this.modid];
+				}
 				if (id in table.overrideAbilityData) {
 					Object.assign(data, table.overrideAbilityData[id]);
 				}
@@ -966,7 +971,12 @@ class ModdedDex {
 				data.abilities = {0: "No Ability"};
 			}
 
-			const table = window.BattleTeambuilderTable[this.modid];
+			let table;
+			if (this.modid === "insurgence") {
+				table = window.BattleTeambuilderTable["gen9insurgencenationaldex"];
+			} else {
+				table = window.BattleTeambuilderTable[this.modid];
+			}
 			if (id in table.overrideTier) data.tier = table.overrideTier[id];
 			if (!data.tier && id.slice(-5) === 'totem') {
 				data.tier = this.species.get(id.slice(0, -5)).tier;
