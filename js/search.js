@@ -258,6 +258,7 @@
 		return 'Error: not found';
 	};
 	Search.prototype.renderPokemonSortRow = function () {
+		console.log(this);
 		var buf = '<li class="result"><div class="sortrow">';
 		buf += '<button class="sortcol numsortcol' + (!this.sortCol ? ' cur' : '') + '">' + (!this.sortCol ? 'Sort: ' : this.engine.firstPokemonColumn) + '</button>';
 		buf += '<button class="sortcol pnamesortcol' + (this.sortCol === 'name' ? ' cur' : '') + '" data-sort="name">Name</button>';
