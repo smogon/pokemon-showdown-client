@@ -414,7 +414,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 				if (isInsurgence) {
 					let tier = species.natDexTier;
 					if (species.tags.includes('Insurgence')) {
-						return Dex.mod('insurgence').species.get(species.name).natDexTier;
+						return Dex.mod('gen9insurgence').species.get(species.name).natDexTier;
 					} else {
 						return tier;
 					}
