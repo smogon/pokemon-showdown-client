@@ -1875,7 +1875,7 @@ class BattleTooltips {
 		if (move.secondaries) {
 			value.abilityModify(1.3, "Sheer Force");
 		}
-		if (move.flags['contact']) {
+		if (move.flags['contact'] && pokemon.item === "Punching Glove") {
 			value.abilityModify(1.3, "Tough Claws");
 		}
 		if (move.flags['bite']) {
