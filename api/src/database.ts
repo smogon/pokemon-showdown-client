@@ -55,7 +55,7 @@ export class SQLStatement {
 			for (const col in value) {
 				this.append(col, `\`, \``);
 			}
-			this.sql[this.sql.length - 1] = this.sql[this.sql.length - 1].slice(0, -3) + `\`) VALUES (`;
+			this.sql[this.sql.length - 1] = this.sql[this.sql.length - 1].slice(0, -4) + `\`) VALUES (`;
 			for (const col in value) {
 				this.append(col, `, `);
 			}
