@@ -33,7 +33,7 @@ describe('Dispatcher features', () => {
 		assert(cur);
 		assert(server.id === cur.id);
 		// invalidate the servertoken, we shouldn't find the server now
-		(context.opts.body as {[k: string]: string}).servertoken = '';
+		context.body.servertoken = '';
 		const result = await context.getServer(true).catch(e => e);
 		assert(result instanceof ActionError);
 	});
@@ -56,19 +56,20 @@ describe('Dispatcher features', () => {
 		const header = context.response.hasHeader('Access-Control-Allow-Origin');
 		assert(!header, 'has CORS header where it should not: ' + header);
 	});
-	it('Should support requesting /api/[action]', () => {
+	it('Should support requesting /api/[action]', async () => {
 		const req = context.request;
 		req.url = '/api/mmr?userid=mia';
-		const act = ActionContext.parseAction(req, ActionContext.parseURLRequest(req));
-		assert(act === 'mmr');
+		const body = await ActionContext.getBody(req);
+		assert(!Array.isArray(body));
+		assert(body.act === 'mmr');
 	});
-	it('Should support requesting action.php with an `act` param', () => {
+	it('Should support requesting action.php with an `act` param', async () => {
 		const req = context.request;
 		req.url = '/action.php?act=mmr&userid=mia';
-		const body = ActionContext.parseURLRequest(req);
-		const act = ActionContext.parseAction(req, body);
-		assert(act === 'mmr');
-		assert(body?.userid === 'mia');
+		const body = await ActionContext.getBody(req);
+		assert(!Array.isArray(body));
+		assert(body.act === 'mmr');
+		assert(body.userid === 'mia');
 	});
 	it("Should load servers properly", () => {
 		const servers = SimServers.loadServers(

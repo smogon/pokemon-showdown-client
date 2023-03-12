@@ -435,7 +435,7 @@ export class Session {
 	}
 	async checkLoggedIn() {
 		const ctime = time();
-		const {body} = this.context.opts;
+		const body = this.context.body;
 
 		// see if we're logged in
 		const scookie = body.sid || this.cookies.get('sid');

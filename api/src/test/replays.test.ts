@@ -69,7 +69,7 @@ import {md5, stripNonAscii} from '../utils';
 	});
 
 	it('should properly upload replays', async () => {
-		const context = utils.makeDispatcher({});
+		const context = utils.makeDispatcher({act: ''});
 		/* eslint-disable max-len */
 		const inputlog = [
 			'>version 3643e94ff7b9b025f98fb947cfe103546db62c03',

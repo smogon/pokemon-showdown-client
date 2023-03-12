@@ -107,7 +107,7 @@ exports.crashguardemail = null;
 
 /**
  * SSL settings.
- * @type {{key: string, cert: string} | null}
+ * @type {{key: string, cert: string, port: number} | null}
  */
 exports.ssl = null;
 

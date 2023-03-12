@@ -8,8 +8,8 @@ import {Config} from './config-loader';
 import * as fs from 'fs/promises';
 import {Ladder} from './ladder';
 import {Replays} from './replays';
-import {ActionError, ActionContext, QueryHandler, SimServers} from './server';
-import {toID, updateserver, bash, md5} from './utils';
+import {ActionError, QueryHandler} from './server';
+import {toID, updateserver, bash} from './utils';
 import * as tables from './tables';
 import * as pathModule from 'path';
 
@@ -47,7 +47,7 @@ export const actions: {[k: string]: QueryHandler} = {
 		if (user === null) {
 			throw new ActionError(`Your username is already taken.`);
 		}
-		const challengekeyid = parseInt(params.challengekeyid) || -1;
+		const challengekeyid = parseInt(params.challengekeyid!) || -1;
 		const challenge = params.challstr || "";
 		if (!challenge) throw new ActionError(`Invalid challenge string argument.`);
 		const assertion = await this.session.getAssertion(userid, challengekeyid, user, challenge);
@@ -75,11 +75,14 @@ export const actions: {[k: string]: QueryHandler} = {
 		if (this.request.method !== 'POST') {
 			throw new ActionError(`For security reasons, logins must happen with POST data.`);
 		}
-		const userid = toID(params.name);
-		if (!userid || !params.pass) {
+		if (!params.name || !params.pass) {
 			throw new ActionError(`incorrect login data, you need "name" and "pass" fields`);
 		}
-		const challengekeyid = parseInt(params.challengekeyid) || -1;
+		const userid = toID(params.name);
+		if (!userid) {
+			throw new ActionError(`incorrect login data, userid must contain at least one letter or number`);
+		}
+		const challengekeyid = parseInt(params.challengekeyid!) || -1;
 		const actionsuccess = await this.session.login(params.name, params.pass);
 		if (!actionsuccess) return {actionsuccess, assertion: false};
 		const challenge = params.challstr || "";
@@ -100,8 +103,8 @@ export const actions: {[k: string]: QueryHandler} = {
 			return {actionsuccess: false};
 		}
 
-		const date = parseInt(params.date);
-		const usercount = parseInt(params.users || params.usercount);
+		const date = parseInt(params.date!);
+		const usercount = parseInt(params.users! || params.usercount!);
 		if (isNaN(date) || isNaN(usercount)) {
 			return {actionsuccess: false};
 		}
@@ -136,55 +139,8 @@ export const actions: {[k: string]: QueryHandler} = {
 		return res;
 	},
 
-	async json() {
-		if (!ActionContext.isJSON(this.request)) {
-			throw new ActionError("/api/json must use application/json requests");
-		}
-		let json;
-		try {
-			json = await ActionContext.parseSentRequest(this.request);
-		} catch {
-			return [{actionerror: 'Malformed JSON sent.'}];
-		}
-		if (!json || !Array.isArray(json)) {
-			throw new ActionError(`Malformed JSON (send a JSON array in the 'json' property).`);
-		}
-
-		let serverid, servertoken;
-		for (const req of json) {
-			if (!serverid) serverid = req.serverid;
-			if (!servertoken) servertoken = req.servertoken;
-		}
-		const server = SimServers.get(serverid);
-		if (json.length > 20) {
-			if (!server || server.token && server.token !== md5(servertoken)) {
-				throw new ActionError(`Only registered servers can send >20 requests at once.`);
-			}
-		}
-
-		const results = [];
-		for (const request of json) {
-			if (request.actionerror) continue;
-			if (!request.act) {
-				results.push({actionerror: 'Must send a request type.'});
-				continue;
-			}
-			const context = new ActionContext(this.request, this.response, {
-				body: request,
-				act: request.act,
-			});
-			try {
-				const result = await context.executeActions();
-				results.push(result);
-			} catch (e) {
-				if (e instanceof ActionError) {
-					results.push({actionerror: e.message});
-					continue;
-				}
-				throw e;
-			}
-		}
-		return results;
+	json() {
+		throw new ActionError("Malformed request", 400);
 	},
 
 	async prepreplay(params) {
@@ -277,6 +233,7 @@ export const actions: {[k: string]: QueryHandler} = {
 		const actionsuccess = await this.session.changePassword(this.user.id, params.password);
 		return {actionsuccess};
 	},
+
 	async changeusername(params) {
 		if (this.request.method !== 'POST') {
 			throw new ActionError('Invalid request (username changing must be done through POST requests).');
@@ -326,12 +283,13 @@ export const actions: {[k: string]: QueryHandler} = {
 		}
 
 		if (!toID(params.format)) throw new ActionError("Invalid format.");
-		const ladder = new Ladder(params.format);
+		const ladder = new Ladder(params.format!);
 		if (!Ladder.isValidPlayer(params.p1)) return 0;
 		if (!Ladder.isValidPlayer(params.p2)) return 0;
+		if (!params.score) throw new ActionError("Score required.");
 
 		const out: {[k: string]: any} = {};
-		const [p1rating, p2rating] = await ladder.addMatch(params.p1, params.p2, parseFloat(params.score));
+		const [p1rating, p2rating] = await ladder.addMatch(params.p1!, params.p2!, parseFloat(params.score));
 		out.actionsuccess = true;
 		out.p1rating = p1rating;
 		out.p2rating = p2rating;
@@ -349,7 +307,7 @@ export const actions: {[k: string]: QueryHandler} = {
 
 		const user = Ladder.isValidPlayer(params.user);
 		if (!user) return {errorip: true};
-		return Ladder.getAllRatings(params.user);
+		return Ladder.getAllRatings(params.user!);
 	},
 
 	async mmr(params) {
@@ -358,10 +316,10 @@ export const actions: {[k: string]: QueryHandler} = {
 			return {errorip: 'Your version of PS is too old for this ladder system. Please update.'};
 		}
 		if (!toID(params.format)) throw new ActionError("Specify a format.");
-		const ladder = new Ladder(params.format);
+		const ladder = new Ladder(params.format!);
 		if (!Ladder.isValidPlayer(params.user)) return 1000;
 
-		const rating = await ladder.getRating(params.user);
+		const rating = await ladder.getRating(params.user!);
 		return rating?.elo || 1000;
 	},
 

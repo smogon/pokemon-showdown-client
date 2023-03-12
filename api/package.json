@@ -7,6 +7,7 @@
   "scripts": {
     "lint": "eslint . --cache --ext .js,.ts",
     "build": "npx tsc",
+    "run": "npx tsc && node .dist/src/",
     "start": "npx tsc && npx pm2 start config/pm2.js",
     "test": "npm run lint && npx tsc",
     "reload": "npx tsc && npx pm2 reload config/pm2.js",

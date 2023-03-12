@@ -267,8 +267,8 @@ export class DatabaseTable<Row> {
 	async tryInsert(partialRow: PartialOrSQL<Row>, where?: SQLStatement) {
 		try {
 			return await this.insert(partialRow, where);
-		} catch (err) {
-			if ((err as any).code === 'ER_DUP_ENTRY') {
+		} catch (err: any) {
+			if (err.code === 'ER_DUP_ENTRY') {
 				return undefined;
 			}
 			throw err;

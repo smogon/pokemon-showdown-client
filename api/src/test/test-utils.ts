@@ -7,7 +7,7 @@
 
 import * as net from 'net';
 import {IncomingMessage, ServerResponse} from 'http';
-import {ActionContext, RegisteredServer, SimServers} from '../server';
+import {ActionContext, RegisteredServer, SimServers, ActionRequest} from '../server';
 import * as crypto from 'crypto';
 import {strict as assert} from 'assert';
 import {md5} from '../utils';
@@ -24,7 +24,7 @@ const config = {
 	port: 3308,
 };*/
 
-export function makeDispatcher(body: {[k: string]: any}, url?: string) {
+export function makeDispatcher(body: ActionRequest, url?: string) {
 	const socket = new net.Socket();
 	const req = new IncomingMessage(socket);
 	if (body && !url) {
@@ -34,7 +34,7 @@ export function makeDispatcher(body: {[k: string]: any}, url?: string) {
 			.join('&');
 	}
 	if (url) req.url = url;
-	return new ActionContext(req, new ServerResponse(req), {body, act: body.act});
+	return new ActionContext(req, new ServerResponse(req), body);
 }
 
 export function addServer(server: RegisteredServer) {
@@ -45,7 +45,7 @@ export function addServer(server: RegisteredServer) {
 }
 
 export async function testDispatcher(
-	opts: {[k: string]: any},
+	opts: ActionRequest,
 	setupFunct?: (context: ActionContext) => any | Promise<any>,
 	method = 'POST',
 ) {
@@ -63,7 +63,7 @@ export async function testDispatcher(
 }
 
 export async function randomBytes(size = 128) {
-	return new Promise((resolve, reject) => {
+	return new Promise<string>((resolve, reject) => {
 		crypto.randomBytes(size, (err, buffer) => err ? reject(err) : resolve(buffer.toString('hex')));
 	});
 }

@@ -43,7 +43,7 @@ describe('Loginserver actions', () => {
 				cpassword: 'applesauce',
 				captcha: 'pikachu',
 				challstr: await utils.randomBytes(),
-				challengekeyid: 1,
+				challengekeyid: '1',
 			});
 
 			assert(result.curuser.userid === 'catra');
@@ -55,7 +55,7 @@ describe('Loginserver actions', () => {
 				act: 'login',
 				name: 'catra',
 				pass: 'applesauce',
-				challengekeyid: 1,
+				challengekeyid: '1',
 				challstr: await utils.randomBytes(),
 			}, context => context.session.addUser('Catra', 'applesauce').catch(() => null));
 			assert(result.actionsuccess, 'User was not logged in');
@@ -86,9 +86,9 @@ describe('Loginserver actions', () => {
 			p1: 'Adora',
 			p2: 'Catra',
 			format: 'gen8randombattle',
-			rating: 1500,
+			rating: '1500',
 			hidden: '',
-			private: 0,
+			private: '0',
 			serverid: 'showdown',
 			servertoken: token,
 			inputlog: [
@@ -119,7 +119,7 @@ describe('Loginserver actions', () => {
 				p1: 'Catra',
 				p2: 'Adora',
 				format: 'gen1randombattle',
-				score: 1, // score 1 means p1 wins
+				score: '1', // score 1 means p1 wins
 			});
 			assert(result.p1rating.elo === 1040, 'Received winner elo of ' + result.p1rating.elo);
 			assert(result.p2rating.elo === 1000, 'Received loser elo of ' + result.p2rating.elo);

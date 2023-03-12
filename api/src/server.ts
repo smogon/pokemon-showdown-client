@@ -1,7 +1,7 @@
 /**
  * Request handling.
- * By Mia
- * @author mia-pi-git
+ *
+ * @author mia-pi-git, Zarel
  */
 import * as http from 'http';
 import * as https from 'https';
@@ -39,11 +39,25 @@ const DISPATCH_PREFIX = ']';
  * Throw this to end a request with an `actionerror` message.
  */
 export class ActionError extends Error {
-	constructor(message: string) {
+	httpStatus: number;
+	constructor(message: string, httpStatus = 200) {
 		super(message);
+		this.httpStatus = httpStatus;
 		this.name = 'ActionError';
 		Error.captureStackTrace(this, ActionError);
 	}
+}
+
+export interface ActionRequest {
+	/** Name of the action */
+	act: string;
+
+	/** SID to make a request as a logged-in user (usually passed in cookies but can be passed here too) */
+	sid?: string;
+	servertoken?: string;
+	serverid?: string;
+
+	[k: string]: string | undefined;
 }
 
 export interface RegisteredServer {
@@ -57,7 +71,7 @@ export interface RegisteredServer {
 }
 
 export type QueryHandler = (
-	this: ActionContext, params: {[k: string]: string}
+	this: ActionContext, params: ActionRequest
 ) => {[k: string]: any} | string | Promise<{[k: string]: any} | string>;
 
 export interface DispatcherOpts {
@@ -66,89 +80,100 @@ export interface DispatcherOpts {
 }
 
 export class ActionContext {
-	static ActionError = ActionError;
-
 	readonly request: http.IncomingMessage;
 	readonly response: http.ServerResponse;
 	readonly session: Session;
 	user: User;
-	readonly opts: DispatcherOpts;
 	private prefix: string | null = null;
-	constructor(
-		req: http.IncomingMessage,
-		res: http.ServerResponse,
-		opts: DispatcherOpts,
-	) {
+	readonly body: ActionRequest;
+	constructor(req: http.IncomingMessage, res: http.ServerResponse, body: ActionRequest) {
 		this.request = req;
 		this.response = res;
 		this.session = new Session(this);
 		this.user = null!;
-		this.opts = opts;
+		this.body = body;
 	}
 	async executeActions() {
-		const {act, body} = this.opts;
-		if (!act) throw new ActionError('You must specify a request type.');
-		const handler = actions[act];
-		if (!handler) throw new ActionError(`Request type "${act}" was not found.`);
+		const body = this.body;
+		const act = body.act;
 
-		this.user = await this.session.getUser();
-		return handler.call(this, body);
+		if (!act) throw new ActionError('Request needs an act - /api/[act] or JSON {act: [act]}', 404);
+		const handler = actions[act];
+		if (!handler) throw new ActionError(`Request type "${act}" was not recognized.`, 404);
+
+		try {
+			this.user = await this.session.getUser();
+			const result = await handler.call(this, body);
+
+			if (result === null) return {code: 404};
+
+			return result;
+		} catch (e: any) {
+			if (e instanceof ActionError) {
+				return {actionerror: e.message};
+			}
+
+			for (const k of ['pass', 'password']) delete body[k];
+			Server.crashlog(e, 'an API request', body);
+			if (Config.devmode && Config.devmode === body.devmode) {
+				throw new ActionError(e.stack + '\n' + JSON.stringify(body), 200);
+			} else {
+				throw new ActionError("Internal Server Error", 500);
+			}
+		}
 	}
-	static async parseSentRequest(req: http.IncomingMessage) {
+	static async getRequestBody(req: http.IncomingMessage) {
 		let body = '';
-		await new Promise<void>(resolve => {
-			req.on('data', data => {
-				body += data;
-			});
-			req.once('end', () => {
-				resolve();
-			});
-		});
+		for await (const data of req) body += data;
 		return body;
 	}
-	static safeJSON(data: string) {
-		try {
-			return JSON.parse(data);
-		} catch {
-			return null;
+	static sanitizeBody(body: any): ActionRequest {
+		if (typeof body === 'string') return {act: body};
+		if (typeof body !== 'object') throw new ActionError("Body must be an object or string", 400);
+		if (!('act' in body)) body.act = ''; // we'll let the action handler throw the error
+		for (const k in body) {
+			body[k] = '' + body[k];
 		}
+		return body as ActionRequest;
 	}
-	static async getBody(req: http.IncomingMessage): Promise<{[k: string]: any}> {
-		const data = await this.parseSentRequest(req);
-		let result: {[k: string]: any} | null = null;
-		if (data) {
-			if (this.isJSON(req)) {
-				result = this.safeJSON(data);
+	static async getBody(req: http.IncomingMessage): Promise<ActionRequest | ActionRequest[]> {
+		let result: {[k: string]: any} = this.parseURLRequest(req);
+
+		let json;
+		const bodyData = await this.getRequestBody(req);
+		if (bodyData) {
+			try {
+				if (bodyData.startsWith('[') || bodyData.startsWith('{')) {
+					json = bodyData;
+				} else {
+					Object.assign(result, Object.fromEntries(new URLSearchParams(bodyData)));
+				}
+			} catch {}
+		}
+
+		if (result.act === 'json') {
+			json = result.json;
+			delete result.json;
+		}
+		try {
+			const jsonResult = JSON.parse(json);
+			delete result.act;
+			if (Array.isArray(jsonResult)) {
+				return jsonResult.map(body => this.sanitizeBody({...result, ...body}));
 			} else {
-				result = Object.fromEntries(new URLSearchParams(data));
+				result = Object.assign(jsonResult, result);
 			}
-		}
-		const urlData = this.parseURLRequest(req);
-		if (result) {
-			if (Array.isArray(result)) {
-				for (const part of result) Object.assign(part, urlData);
-			} else {
-				Object.assign(result, urlData);
-			}
-		} else {
-			result = urlData;
-		}
-		for (const k in result) {
-			result[k] = result[k].toString();
-		}
-		return result;
+		} catch {}
+		return this.sanitizeBody(result);
 	}
 	static parseURLRequest(req: http.IncomingMessage) {
 		if (!req.url) return {};
-		const [, params] = req.url.split('?');
-		if (!params) return {};
-		return Object.fromEntries(new URLSearchParams(params));
-	}
-	static isJSON(req: http.IncomingMessage) {
-		return req.headers['content-type'] === 'application/json';
-	}
-	parseRequest() {
-		return {act: this.opts.body.act, body: this.opts.body};
+		const [pathname, params] = req.url.split('?');
+		const actPart = pathname.split('/api/')[1];
+		const act = actPart?.split('/')[0];
+		const result = params ? Object.fromEntries(new URLSearchParams(params)) : {};
+		if (act) result.act = act;
+		return result;
 	}
 	verifyCrossDomainRequest(): string {
 		if (typeof this.prefix === 'string') return this.prefix;
@@ -198,20 +223,6 @@ export class ActionContext {
 	getServer(requireToken?: boolean) {
 		return SimServers.getServer(this, requireToken);
 	}
-	static parseAction(req: http.IncomingMessage, body: {[k: string]: unknown}) {
-		if (typeof body.act === 'string') {
-			return body.act;
-		}
-		if (!req.url) return null;
-		let [pathname] = req.url.split('?');
-		if (pathname.endsWith('/')) pathname = pathname.slice(0, -1);
-		for (const k in actions) {
-			if (pathname.endsWith(`/api/${k}`)) {
-				return k;
-			}
-		}
-		return null;
-	}
 }
 
 export const SimServers = new class SimServersT {
@@ -243,12 +254,8 @@ export const SimServers = new class SimServersT {
 		this.hostCache.set(server, result);
 		return result;
 	}
-	get(serverid: string): RegisteredServer | undefined {
-		return this.servers[toID(serverid)];
-	}
 	async getServer(context: ActionContext, requireToken = false): Promise<RegisteredServer | null> {
-		const body = context.opts.body || {};
-		const serverid = toID(body.serverid);
+		const serverid = toID(context.body.serverid);
 		const server = this.servers[serverid];
 		if (!server) return null;
 
@@ -260,7 +267,7 @@ export const SimServers = new class SimServersT {
 			if (ip !== server.ipcache) return null;
 		}
 		if (server.token && requireToken) {
-			if (server.token !== md5(body.servertoken)) {
+			if (server.token !== md5(context.body.servertoken || '')) {
 				throw new ActionError(`Invalid servertoken sent for requested serverid.`);
 			}
 		}
@@ -289,16 +296,13 @@ export class Server {
 	activeRequests = 0;
 	constructor(port = (Config.port || 8000)) {
 		this.port = port;
-		const handle = (
-			req: http.IncomingMessage, res: http.ServerResponse
-		) => void this.handle(req, res);
 
-		this.server = http.createServer(handle);
+		this.server = http.createServer((req, res) => void this.handle(req, res));
 		this.server.listen(port);
 		this.httpsServer = null;
 		if (Config.ssl) {
-			this.httpsServer = https.createServer(Config.ssl, handle);
-			this.httpsServer.listen(port);
+			this.httpsServer = https.createServer(Config.ssl, (req, res) => void this.handle(req, res));
+			this.httpsServer.listen(Config.ssl.port || 8043);
 		}
 	}
 	static crashlog(error: unknown, source = '', details = {}) {
@@ -315,99 +319,52 @@ export class Server {
 		}
 	}
 	async handle(req: http.IncomingMessage, res: http.ServerResponse) {
-		const body = await ActionContext.getBody(req);
-		this.ensureHeaders(res);
-		if (body.json) {
-			if (typeof body.json === 'string') {
-				body.json = ActionContext.safeJSON(body.json);
-			}
-			if (!Array.isArray(body.json)) {
-				body.json = [{actionerror: "Invalid JSON sent - must be an array."}];
-			}
-			const results = [];
-			const restData: {[k: string]: any} = {...body, json: null};
-			for (const curBody of body.json) {
-				if (curBody.actionerror) {
-					results.push(curBody);
-					continue;
-				}
-				if (curBody.act === 'json') {
-					results.push({actionerror: "Cannot request /api/json in a JSON request."});
-					continue;
-				}
-				// for when extra stuff is sent inside the main body - ie
-				// {serverid: string, json: [...]}
-				for (const k in restData) {
-					if (restData[k] && !curBody[k]) {
-						curBody[k] = restData[k].toString();
+		this.activeRequests++;
+		res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+
+		try {
+			const body = await ActionContext.getBody(req);
+			let result;
+			if (Array.isArray(body)) {
+				let context = new ActionContext(req, res, body[0]);
+
+				if (body.length > 20) {
+					if (!await context.getServer(true)) {
+						throw new ActionError(`Only registered servers can send >20 requests at once.`, 403);
 					}
 				}
-				const result = await this.handleOne(curBody, req, res);
-				if (typeof result === 'object' && result.error) {
-					this.tryEnd();
-					return;
+
+				result = [];
+				for (const curBody of body) {
+					if (context.body !== curBody) context = new ActionContext(req, res, curBody);
+					result.push(await context.executeActions());
 				}
-				results.push(result);
+			} else {
+				const context = new ActionContext(req, res, body);
+				// turn undefined into null so it can be JSON stringified
+				result = await context.executeActions() ?? null;
 			}
-			if (results.length) res.writeHead(200).end(Server.stringify(results));
-		} else {
-			// fall back onto null so it can be json stringified
-			const result = await this.handleOne(body, req, res) || null;
-			// returning null should be allowed
-			if (!result || !(result as any).error) {
-				res.writeHead(200).end(Server.stringify(result));
+			this.ensureHeaders(res);
+			res.writeHead(200).end(Server.stringify(result));
+		} catch (e) {
+			this.ensureHeaders(res);
+			if (e instanceof ActionError) {
+				if (e.httpStatus) {
+					res.writeHead(e.httpStatus).end('Error: ' + e.message);
+				} else {
+					res.writeHead(200).end(Server.stringify({actionerror: e.message}));
+				}
+			} else {
+				Server.crashlog(e);
+				res.writeHead(500).end("Internal Server Error");
 			}
-			this.tryEnd();
 		}
-	}
-	tryEnd() {
-		if (!this.activeRequests && this.awaitingEnd) this.awaitingEnd();
+
+		this.activeRequests--;
+		if (!this.activeRequests) this.awaitingEnd?.();
 	}
 	ensureHeaders(res: http.ServerResponse) {
-		if (!res.getHeader('Content-Type')) {
-			res.setHeader('Content-Type', 'text/plain; charset=utf-8');
-		}
-	}
-	async handleOne(
-		body: {[k: string]: string},
-		req: http.IncomingMessage,
-		res: http.ServerResponse
-	) {
-		const act = ActionContext.parseAction(req, body);
-		if (!act) {
-			return {actionerror: "Invalid request action sent."};
-		}
-		const context = new ActionContext(req, res, {body, act});
-		this.activeRequests++;
-		try {
-			const result = await context.executeActions();
-			this.activeRequests--;
-			if (this.awaitingEnd) res.setHeader('connection', 'close');
-			if (result === null) {
-				// didn't make a request to action.php or /api/
-				return {code: 404};
-			}
-			return result;
-		} catch (e: any) {
-			this.activeRequests--;
-			if (this.awaitingEnd) res.setHeader('connection', 'close');
-			if (e instanceof ActionError) {
-				return {actionerror: e.message};
-			}
-
-			for (const k of ['pass', 'password']) delete body[k];
-			Server.crashlog(e, 'an API request', body);
-			if (Config.devmode && Config.devmode === body.devmode) {
-				res.writeHead(200).end(
-					e.message + '\n' +
-					e.stack + '\n' +
-					JSON.stringify(body)
-				);
-			} else {
-				res.writeHead(503).end();
-			}
-			return {error: true};
-		}
+		if (this.awaitingEnd) res.setHeader('Connection', 'close');
 	}
 	close() {
 		if (this.closing) return this.closing;
