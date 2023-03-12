@@ -74,11 +74,6 @@ export type QueryHandler = (
 	this: ActionContext, params: ActionRequest
 ) => {[k: string]: any} | string | Promise<{[k: string]: any} | string>;
 
-export interface DispatcherOpts {
-	body: {[k: string]: string};
-	act: string;
-}
-
 export class ActionContext {
 	readonly request: http.IncomingMessage;
 	readonly response: http.ServerResponse;
