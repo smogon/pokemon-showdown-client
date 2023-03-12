@@ -952,12 +952,7 @@ class ModdedDex {
 				}
 			}
 			if (this.modid !== `gen${this.gen}`) {
-				let table;
-				if (this.modid === "insurgence") {
-					table = window.BattleTeambuilderTable["gen9insurgencenationaldex"];
-				} else {
-					table = window.BattleTeambuilderTable[this.modid];
-				}
+				const table = window.BattleTeambuilderTable[this.modid];
 				if (id in table.overrideSpeciesData) {
 					Object.assign(data, table.overrideSpeciesData[id]);
 				}
