@@ -165,7 +165,7 @@ export class Database {
 	queryOne<T = ResultRow>(sql?: SQLStatement) {
 		if (!sql) return (strings: any, ...rest: any) => this.queryOne<T>(new SQLStatement(strings, rest));
 
-		return this.query<T>(sql).then(res => res?.[0]);
+		return this.query<T>(sql).then(res => Array.isArray(res) ? res[0] : res);
 	}
 	queryExec(sql: SQLStatement): Promise<mysql.OkPacket>;
 	queryExec(): (strings: TemplateStringsArray, ...rest: SQLValue[]) => Promise<mysql.OkPacket>;
