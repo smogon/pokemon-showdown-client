@@ -30,7 +30,7 @@ export class SQLStatement {
 			this.sql[oldLength - 1] += value.sql[0];
 			this.values = this.values.concat(value.values);
 			if (nextString) this.sql[this.sql.length - 1] += nextString;
-		} else if (typeof value === 'string' || typeof value === 'number') {
+		} else if (typeof value === 'string' || typeof value === 'number' || value === null) {
 			this.values.push(value);
 			this.sql.push(nextString);
 		} else if (value === undefined) {
