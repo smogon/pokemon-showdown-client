@@ -1190,10 +1190,11 @@ class BattleItemSearch extends BattleTypedSearch<'item'> {
 			if (row[0] !== 'item') continue;
 			if (this.dex.items.get(row[1]).itemUser?.includes(speciesName)) {
 				speciesSpecific.push(row);
-				console.log(this.dex.items.get(row[1]).itemUser)
+				console.log(row, this.dex.items.get(row[1]).itemUser);
 			}
 		}
 		if (speciesSpecific.length) {
+			console.log(this);
 			return [
 				['header', "Specific to " + speciesName],
 				...speciesSpecific,
