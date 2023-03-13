@@ -57,7 +57,7 @@ export class SQLStatement {
 			}
 			this.sql[this.sql.length - 1] = this.sql[this.sql.length - 1].slice(0, -4) + `\`) VALUES (`;
 			for (const col in value) {
-				this.append(col, `, `);
+				this.append(value[col], `, `);
 			}
 			this.sql[this.sql.length - 1] = this.sql[this.sql.length - 1].slice(0, -2) + nextString;
 		} else if (this.sql[this.sql.length - 1].toUpperCase().endsWith(' SET ')) {
