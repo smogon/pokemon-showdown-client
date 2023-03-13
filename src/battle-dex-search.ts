@@ -1163,7 +1163,7 @@ class BattleItemSearch extends BattleTypedSearch<'item'> {
 			table = table['gen8bdsp'];
 		} else if (this.formatType === 'natdex') {
 			table = table['gen' + this.dex.gen + 'natdex'];
-		} else if (this.formatType === 'insurgencenatdex') {
+		} else if (this.formatType?.startsWith('insurgence')) {
 			table = table['gen9insurgence'];
 		} else if (this.formatType === 'metronome') {
 			table = table['gen' + this.dex.gen + 'metronome'];
@@ -1193,6 +1193,7 @@ class BattleItemSearch extends BattleTypedSearch<'item'> {
 			}
 		}
 		if (speciesSpecific.length) {
+			console.log(this);
 			return [
 				['header', "Specific to " + speciesName],
 				...speciesSpecific,
