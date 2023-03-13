@@ -1046,7 +1046,14 @@ class BattleTooltips {
 			if (this.battle.gen > 4) stats.atk *= 2;
 			stats.spa *= 2;
 		}
-		console.log(Dex.species.get(serverPokemon.speciesForme));
+		if (Dex.species.get(serverPokemon.speciesForme).name === "Clamperl-Delta") {
+			if (item === 'dragonfang') {
+				stats.atk *= 2;
+			}
+			if (item === 'dragonscale') {
+				stats.def *= 2;
+			}
+		}
 		if (item === 'thickclub') {
 			if (speciesName === 'Marowak' || speciesName === 'Cubone') {
 				stats.atk *= 2;
