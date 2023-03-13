@@ -1557,7 +1557,9 @@ class BattleTooltips {
 			value.weatherModify(0, 'Rain Dance');
 			value.weatherModify(0, 'Primordial Sea');
 		}
-		value.abilityModify(0, 'No Guard');
+		if (!move.ohko) {
+			value.abilityModify(0, 'No Guard');
+		}
 		if (!value.value) return value;
 
 		// OHKO moves don't use standard accuracy / evasion modifiers
