@@ -28,7 +28,7 @@ function requireScript(url) {
 	document.head.appendChild(scriptEl);
 }
 
-linkStyle('http://vikrambarr.com/style/font-awesome.css?');
+linkStyle('https://play.pokemonshowdown.com/style/font-awesome.css?');
 linkStyle('http://vikrambarr.com/style/battle.css?a7');
 linkStyle('http://vikrambarr.com/style/replay.css?a7');
 linkStyle('http://vikrambarr.com/style/utilichart.css?a7');
