@@ -376,7 +376,7 @@ function toId() {
 			app.socket.close();
 		},
 		setPersistentName: function (name) {
-			if (location.host !== Config.routes.client) return;
+			//if (location.host !== Config.routes.client) return;
 			$.cookie('showdown_username', (name !== undefined) ? name : this.get('name'), {
 				expires: 14
 			});
