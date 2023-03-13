@@ -17,7 +17,6 @@ package-lock.json
 /js/*.js.map
 /js/battle*.js
 /js/panel*.js
-/js/replay-embed.js
 /js/client-main.js
 /js/client-core.js
 /js/client-connection.js
