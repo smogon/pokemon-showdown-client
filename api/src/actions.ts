@@ -135,7 +135,7 @@ export const actions: {[k: string]: QueryHandler} = {
 				userid, challengekeyid, curuser, challenge, challengeprefix
 			);
 		}
-		res.loggedin = curuser.loggedin;
+		res.loggedin = !!curuser.loggedIn;
 		return res;
 	},
 
@@ -217,7 +217,7 @@ export const actions: {[k: string]: QueryHandler} = {
 			throw new ActionError(`Repeat your new password.`);
 		}
 
-		if (!this.user.loggedin) {
+		if (!this.user.loggedIn) {
 			throw new ActionError('Your session has expired. Please log in again.');
 		}
 		if (params.password !== params.cpassword) {
@@ -241,7 +241,7 @@ export const actions: {[k: string]: QueryHandler} = {
 		if (!params.username) {
 			throw new ActionError(`Specify a username.`);
 		}
-		if (!this.user.loggedin) {
+		if (!this.user.loggedIn) {
 			throw new ActionError('Your session has expired. Please log in again.');
 		}
 		if (toID(params.username) !== this.user.id) {

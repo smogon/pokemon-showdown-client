@@ -45,9 +45,7 @@ export function addServer(server: RegisteredServer) {
 }
 
 export async function testDispatcher(
-	opts: ActionRequest,
-	setupFunct?: (context: ActionContext) => any | Promise<any>,
-	method = 'POST',
+	opts: ActionRequest, setupFunct?: (context: ActionContext) => any | Promise<any>, method = 'POST'
 ) {
 	const context = makeDispatcher(opts);
 	context.request.method = method;

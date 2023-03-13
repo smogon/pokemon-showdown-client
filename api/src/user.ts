@@ -22,7 +22,7 @@ const LOGINTIME_INTERVAL = 24 * 60 * 60;
 export class User {
 	name = 'Guest';
 	id = 'guest';
-	loggedin = false;
+	loggedIn = '';
 	constructor(name?: string) {
 		if (name) this.setName(name);
 	}
@@ -32,12 +32,12 @@ export class User {
 	}
 	login(name: string) {
 		this.setName(name);
-		this.loggedin = true;
+		this.loggedIn = this.id;
 		return this;
 	}
 	logout() {
 		this.setName('Guest');
-		this.loggedin = false;
+		this.loggedIn = '';
 	}
 }
 
@@ -173,11 +173,7 @@ export class Session {
 		this.context.user.logout();
 	}
 	async getAssertion(
-		userid: string,
-		challengekeyid = -1,
-		user: User | null,
-		challenge = '',
-		challengeprefix = ''
+		userid: string, challengekeyid = -1, user: User | null, challenge = '', challengeprefix = ''
 	) {
 		if (userid.startsWith('guest')) {
 			return ';;Your username cannot start with \'guest\'.';
@@ -194,14 +190,14 @@ export class Session {
 			forceUsertype = '5';
 		}
 		let userType = '';
-		const userData = user.loggedin ? await users.get(user.id, SQL`banstate, registertime, logintime`) : null;
+		const userData = user.loggedIn ? await users.get(user.id, SQL`banstate, registertime, logintime`) : null;
 		const {banstate, registertime, logintime} = userData || {
 			banstate: 0, registertime: 0, logintime: 0,
 		};
 		const server = await this.context.getServer();
 		const serverHost = server?.server || 'sim3.psim.us';
 
-		if (user.id === userid && user.loggedin) {
+		if (user.loggedIn === userid) {
 			// already logged in
 			userType = '2';
 			if (Config.sysops.includes(user.id)) {
