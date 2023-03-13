@@ -2226,7 +2226,7 @@ class BattleStatGuesser {
 		this.dex = formatid ? Dex.mod(formatid.slice(0, 4) as ID) : Dex;
 		this.ignoreEVLimits = (
 			this.dex.gen < 3 ||
-			(this.formatid.endsWith('hackmons') && this.dex.gen !== 6) ||
+			((this.formatid.endsWith('hackmons') || this.formatid.endsWith('bh')) && this.dex.gen !== 6) ||
 			this.formatid.includes('metronomebattle') ||
 			this.formatid.endsWith('norestrictions')
 		);

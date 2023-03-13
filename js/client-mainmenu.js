@@ -887,7 +887,7 @@
 			if (format) {
 				var formatParts = format.split('@@@', 2);
 				formatParts[0] = toID(formatParts[0]);
-				if (!formatParts[0].startsWith('gen')) formatParts[0] = 'gen8' + formatParts[0];
+				if (!formatParts[0].startsWith('gen')) formatParts[0] = 'gen9' + formatParts[0];
 				format = formatParts.length > 1 ? formatParts[0] + '@@@' + formatParts[1] : formatParts[0];
 			}
 
