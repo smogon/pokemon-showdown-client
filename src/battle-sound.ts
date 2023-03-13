@@ -7,7 +7,7 @@ export class BattleBGM {
 	 */
 	sound?: HTMLAudioElement;
 	url: string;
-	timer: number | undefined = undefined;
+	timer: NodeJS.Timeout | number | undefined = undefined;
 	loopstart: number;
 	loopend: number;
 	/**

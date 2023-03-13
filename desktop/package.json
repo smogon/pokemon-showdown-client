@@ -1,16 +1,26 @@
 {
-  "name": "Pokemon Showdown",
-  "version": "0.3.0",
-
-  "main": "index.html",
-  "node-remote": "https://play.pokemonshowdown.com/*",
-  "window": {
-	  "icon": "icons/icon_32x32.png",
-    "title": "Loading...",
-    "toolbar": false,
-    "show": false
+  "name": "Pokémon Showdown",
+  "version": "1.0.0",
+  "description": "Desktop client wrapper for Pokémon Showdown",
+  "main": "main.js",
+  "license": "AGPL-3.0",
+  "scripts": {
+    "start": "electron-forge start",
+    "make": "electron-forge make"
   },
-  "webkit": {
-    "plugin": true
+  "config": {
+    "forge": "forge-config.js"
+  },
+  "dependencies": {
+    "electron-squirrel-startup": "^1.0.0"
+  },
+  "devDependencies": {
+    "@electron-forge/cli": "^6.0.0-beta.65",
+    "@electron-forge/maker-deb": "^6.0.0-beta.65",
+    "@electron-forge/maker-dmg": "^6.0.0-beta.65",
+    "@electron-forge/maker-rpm": "^6.0.0-beta.65",
+    "@electron-forge/maker-squirrel": "^6.0.0-beta.65",
+    "@electron-forge/maker-zip": "^6.0.0-beta.65",
+    "electron": "20.0.1"
   }
 }

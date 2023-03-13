@@ -1,0 +1,93 @@
+name: Build Desktop Client
+
+on:
+  push:
+    paths:
+    - desktop/**
+    - .github/workflows/build-desktop.yml
+
+jobs:
+  build-macos:
+    runs-on: macos-latest
+    name: Build macOS client
+    defaults:
+      run:
+        working-directory: desktop
+    steps:
+    - uses: actions/checkout@v2
+    - uses: Zarel/setup-node@patch-1
+      with:
+        node-version: 16
+    - name: Install dependencies
+      run: npm install
+    - name: Build macOS Intel client
+      run: npx electron-forge make --platform darwin --arch x64 --targets @electron-forge/maker-dmg
+    - name: Build macOS ARM client
+      run: npx electron-forge make --platform darwin --arch arm64 --targets @electron-forge/maker-dmg
+    - name: Upload Intel client
+      uses: actions/upload-artifact@v3
+      with:
+        name: pokemonshowdown-mac-intel.dmg
+        path: desktop/out/make/*x64*.dmg
+    - name: Upload ARM client
+      uses: actions/upload-artifact@v3
+      with:
+        name: pokemonshowdown-mac-arm.dmg
+        path: desktop/out/make/*arm*.dmg
+
+
+  build-linux:
+    runs-on: ubuntu-latest
+    name: Build Linux clients
+    defaults:
+      run:
+        working-directory: desktop
+    steps:
+    - uses: actions/checkout@v2
+    - uses: Zarel/setup-node@patch-1
+      with:
+        node-version: 16
+    - name: Install system dependencies
+      run: sudo apt-get update && sudo apt-get -y install fakeroot dpkg rpm librpmbuild8
+    - name: Install Node dependencies
+      run: npm install
+    - name: Build Linux clients
+      run: npx electron-forge make --platform linux
+    - name: Upload .deb
+      uses: actions/upload-artifact@v3
+      with:
+        name: deb-client
+        path: desktop/out/make/*.deb
+    - name: Upload .rpm
+      uses: actions/upload-artifact@v3
+      with:
+        name: rpm-client
+        path: desktop/out/make/*.rpm
+    - name: Upload .zip
+      uses: actions/upload-artifact@v3
+      with:
+        name: linux-client
+        path: desktop/out/make/*.zip
+
+  build-windows:
+    runs-on: windows-latest
+    name: Build Windows client
+    defaults:
+      run:
+        working-directory: desktop
+    steps:
+    - uses: actions/checkout@v2
+    - uses: Zarel/setup-node@patch-1
+      with:
+        node-version: 16
+    - name: Install Node dependencies
+      run: npm install
+    - name: Build Windows
+      run: npx electron-forge make --platform win32 --targets @electron-forge/maker-squirrel
+    - name: Upload clients as artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: windows-client
+        path: desktop/out/make/*
+
+

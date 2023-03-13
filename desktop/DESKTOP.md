@@ -1,89 +1,49 @@
 Desktop apps
 ============
 
-Pokémon Showdown for desktop is made with [NW.js][1].
+Pokémon Showdown for desktop is made with [Electron][1].
 
-  [1]: https://nwjs.io/
+  [1]: https://www.electronjs.org/
 
-There's an `.ico` icon (for Windows) and an `.icns` icon (for Mac) in the `graphics-src` directory of this repository. We use these pretty much whenever we need icons.
+There's an `.ico` icon (for Windows) and an `.icns` icon (for Mac) in the `desktop/icons` directory of this repository. We use these pretty much whenever we need icons.
 
-Note that NW.js doesn't support normal window icons in Windows, so we have to use a PNG icon to get scaling not to look horribly ugly.
+We used to use [NW.js](https://nwjs.io/) to make the desktop client; the client still includes code to handle users of the older NW.js clients.
 
 Packaging
 ---------
 
-NW.js's docs contains [packaging instructions][2], but they're strewn across their wiki and don't really go into best practices, so I have better packaging instructions here.
+Packaging is relatively simple; the Electron app simply connects to the web client at https://play.pokemonshowdown.com/, so very little code is bundled.
 
-  [2]: http://docs.nwjs.io/en/latest/For%20Users/Package%20and%20Distribute/
+You'll need to install the dependencies for the desktop client:
+```
+cd desktop
+npm install
+```
 
-For performance, we don't zip up the package on either platform. In Windows, the `index.html` and `package.json` files are dropped directly into the install directory, and in OS X the files are dropped into `Resources/app.nw`.
+Then, you can run the desktop client locally for testing purposes with `npx electron-forge start`, or package the client for distribution with `npx electron-forge make`. The latter command will default to building all distribution formats for the platform you're running on; you can use the `--platform` option to build for other platforms (like `linux`, `win32`, and `darwin`). You can also use `--targets` to build only certain distribution formats (for example, `--targets @electron-forge/maker-zip` to build only the `.zip` file). More documentation is available at [the Electron Forge website](https://www.electronforge.io/).
 
-Packaging for Windows
----------------------
+If you're just interested in using the desktop client, you can download a stable version from https://pokemonshowdown.com/, or a version automatically built from the latest source code by [GitHub Actions](https://github.com/smogon/pokemon-showdown-client/actions/workflows/build-desktop.yml) (you'll need to click the latest run and scroll down to the artifacts).
 
-1. Put a copy of node-webkit (build or extract the prebuilt binary) into this folder.
-
-2. Rename `nw.exe` to `pokemonshowdown.exe`
-
-3. Edit `pokemonshowdown.exe` with [Resource Hacker][3], and replace the node-webkit icon with`icons/pokemonshowdown.ico`
-
-4. You may need to update `pokemonshowdown.nsi` if the file layout has changed; refer to `make-nsis-script.js`
-
-5. Using [NSIS][4], build `pokemonshowdown.nsi`
-
-  [3]: http://www.angusj.com/resourcehacker/
-  [4]: http://nsis.sourceforge.net/
-
-Packaging for OS X
+macOS code signing
 ------------------
 
-NOTE: By default, Mac apps will refuse to run, displaying a Gatekeeper warning. Removing the Gatekeeper warning requires an Apple Developer account (costs $99/year) and an annoying notarization process (step 8 to 18).
+By default, Mac apps will refuse to run, displaying a Gatekeeper warning. Removing the Gatekeeper warning requires an Apple Developer account (costs $99/year) and an annoying notarization process, described below:
 
-1. Get a copy of node-webkit (build or extract the prebuilt binary)
-
-2. Rename it to `Pokemon Showdown.app`
-
-3. Update `Pokemon Showdown.app/Contents/Info.plist`, changing:
-
-   - `CFBundleIdentifier` to `com.pokemonshowdown.pokemonshowdown`
-   - `CFBundleName` to `Pokemon Showdown`
-   - `CFBundleDisplayName` to `Pokemon Showdown`
-   - `CFBundleShortVersionString` to the current version, e.g. `0.11`
-   - `CFBundleVersion` to the some sort of version code, I just used the git commit hash
-   - empty the arrays of `CFBundleDocumentTypes`, `CFBundleURLTypes`, `NSUserActivityTypes`, and `UTExportedTypeDeclarations` so they look like `<array></array>`
-     - (these register the app as able to open these files/URLs, which we _definitely_ do not want to do)
-
-4. Update `Pokemon Showdown.app/Contents/Resources/en.lproj/InfoPlist.strings`,
-   changing:
-
-   - `CFBundleName` to `"Pokemon Showdown"`
-   - `CFBundleDisplayName` to `"Pokemon Showdown"`
-   - `CFBundleGetInfoString` to something like `"Pokemon Showdown 0.11, Copyright 2011-2020 Guangcong Luo and contributors."`
-   - `NSHumanReadableCopyright` to something like `"Copyright 2011-2020 Guangcong Luo and contributors."`
-
-5. Delete all the other `*.lproj` folders (other than `en.lproj`) in `Pokemon Showdown.app/Contents/Resources`
-
-   - (our app is named "Pokemon Showdown" in all languages, we definitely don't want it to be called "nwjs" in other languages)
-
-6. Replace `Pokemon Showdown.app/Contents/Resources/app.icns` and `Pokemon Showdown.app/Contents/Resources/document.icns` with the icns file in `graphics-src`.
-
-7. Create a folder `Pokemon Showdown.app/Contents/Resources/app.nw` and put `index.html` and `package.json` in it.
-
-8. Grab a developer ID certificate (this requires an Apple Developer account costing $99)
+1. Grab a developer ID certificate (this requires an Apple Developer account costing $99)
 
   - https://developer.apple.com/account/mac/certificate/certificateList.action
   - type should be "Developer ID Application"
 
-9. Install the cert in Keychain and remember its "identity" (the part in parentheses)
+2. Install the cert in Keychain and remember its "identity" (the part in parentheses)
 
   - just drag and drop the cert file into Keychain Access
 
-10. Sign the app, set up entitlements, and set it to use Hardened Runtime
+3. Sign the app, set up entitlements, and set it to use Hardened Runtime
 
-  - Edit `sign-mac-app`, setting `APP` to the location of your app, and `IDENTITY` to the identity from step 9
+  - Edit `sign-mac-app`, setting `APP` to the location of your app (which will probably be in `desktop/out/Pokémon Showdown-darwin-x64` or `-arm64` for M1 Macs), and `IDENTITY` to the identity from step 9
   - Run `sign-mac-app`
 
-11. Verify the signature
+4. Verify the signature
 
   - `codesign --verify -vvvv "Pokemon Showdown.app"`
 
@@ -126,3 +86,5 @@ Apple's own documentation on the command-line notarization process might be usef
 https://developer.apple.com/documentation/xcode/notarizing_macos_software_before_distribution/customizing_the_notarization_workflow
 
 But it doesn't cover how to set up an existing app for Hardened Runtime (I only figured it out from a random GitHub issue after an hour of Googling).
+
+It also appears to be possible to tell Electron Forge to codesign the client as part of its build process, as documented on [its webpage](https://www.electronjs.org/docs/latest/tutorial/code-signing).
