@@ -1046,7 +1046,7 @@ class BattleTooltips {
 			if (this.battle.gen > 4) stats.atk *= 2;
 			stats.spa *= 2;
 		}
-
+		console.log(Dex.species.get(serverPokemon.speciesForme));
 		if (item === 'thickclub') {
 			if (speciesName === 'Marowak' || speciesName === 'Cubone') {
 				stats.atk *= 2;
