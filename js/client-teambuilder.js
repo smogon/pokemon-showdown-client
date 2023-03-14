@@ -2742,6 +2742,10 @@
 				if (level !== 120 || set.level) set.level = level;
 			}
 			
+			if (isInsurgence && !set.cmType) {
+				set.cmType = "Normal";
+			}
+			
 			//if (isInsurgence) set.level = 120; level = 120;
 
 			// happiness
