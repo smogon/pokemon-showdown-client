@@ -2,15 +2,15 @@
 
 Our forums are hosted by our affiliate, [Smogon University](http://smogon.com/):
 
-<blockquote><ul class="nav">
-	<li><a class="button nav-first nav-last" href="//smogon.com/forums/">Smogon forums</a></li>
-</ul></blockquote><div style="clear:both"></div>
+<blockquote>
+	<a class="button bigbutton" href="//smogon.com/forums/">Smogon forums</a>
+</blockquote>
 
 We have a Help chatroom, where our staff can help you with most problems. If you need private communication, you can PM staff members in the chatroom.
 
-<blockquote><ul class="nav">
-	<li><a class="button nav-first nav-last" href="//play.pokemonshowdown.com/help">Pokémon Showdown Help chatroom</a></li>
-</ul></blockquote><div style="clear:both"></div>
+<blockquote>
+	<a class="button bigbutton" href="//play.pokemonshowdown.com/help">Pokémon Showdown Help chatroom</a>
+</blockquote>
 
 For contacting the staff, use the following e-mail address. <strong>ABUSIVE USERS SHOULD BE REPORTED WITH THE `/report` COMMAND, NOT THROUGH E-MAIL</strong>.
 

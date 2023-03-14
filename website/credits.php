@@ -8,6 +8,41 @@ $pageTitle = "Credits";
 includeHeader();
 
 ?>
+<style>
+.credits p {
+	margin: 7px auto;
+}
+.credits a {
+	color: #224455;
+	text-decoration: none;
+	border-bottom: 1px solid #99B2CC;
+}
+.credits a:hover {
+	color: #6699CC;
+	border-bottom: 1px solid #6699CC;
+}
+.credits h2 {
+	font-size: 11pt;
+	font-style: italic;
+	margin: 15px 0 15px;
+	color: #6688AA;
+}
+.credits ul {
+	padding-left: 1.5em;
+	margin-top: 0;
+	margin-bottom: 0;
+	color: #88AACC;
+}
+.credits ul li p {
+	color: black;
+}
+.credits li small {
+	font-size: 10pt;
+	display: block;
+	color: #444444;
+}
+</style>
+
 		<div class="main credits">
 			<h1>Credits</h1>
 
