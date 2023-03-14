@@ -107,7 +107,7 @@ header {
 	}
 }
 
-@media (max-width:550px) {
+@media (max-width:554px) {
 	header {
 		height: 100px;
 	}
