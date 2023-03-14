@@ -1185,6 +1185,8 @@
 			var isNatDex = this.curTeam.format.includes('nationaldex') || this.curTeam.format.includes('natdex');
 			var isInsurgence = this.curTeam.format.includes('insurgence');
 			if (isInsurgence && !set.level) set.level = 120;
+			if (isInsurgence && !set.cmType) set.cmType ="Normal";
+
 			var buf = '<li value="' + i + '">';
 			if (!set.species) {
 				if (this.deletedSet) {
@@ -2803,7 +2805,6 @@
 			}
 			// Custom Move type
 			var cmType = this.$chart.find('select[name=cmtype]').val();
-			console.log(cmType);
 			if (Dex.types.isName(cmType)) {
 				for (var mon of this.curSetList) {
 					mon.cmType = cmType;
