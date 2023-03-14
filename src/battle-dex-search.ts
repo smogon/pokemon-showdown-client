@@ -622,8 +622,15 @@ abstract class BattleTypedSearch<T extends SearchType> {
 			}
 		}
 		if (format.includes('insurgence')) {
-			format = format.slice(21) as ID;
-			if (!format) format = 'ou' as ID;
+			if (format.includes('nationaldex')) {
+				format = format.slice(21) as ID;
+				if (!format) format = 'ou' as ID;
+				
+			} else if (format.includes('freeforall')) {
+				format = format.slice(20) as ID;
+				if (!format) format = 'ou' as ID;
+			}
+
 			this.formatType = 'insurgencenatdex';
 			this.dex = Dex.mod('gen9insurgence' as ID);
 		}
