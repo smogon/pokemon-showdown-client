@@ -28,9 +28,8 @@
 			this.chatroomInterval = setInterval(function () {
 				if (app.curSideRoom && app.curSideRoom.id === 'rooms') {
 					app.send('/cmd rooms');
-					this.update();
 				}
-			}, 20000);
+			}, 20 * 1000);
 		},
 		initSectionSelection: function () {
 			var buf = ['<option value="">(All rooms)</option>'];
@@ -49,7 +48,7 @@
 			this.update();
 		},
 		focus: function () {
-			if (new Date().getTime() - this.lastUpdate > 60 * 1000) {
+			if (new Date().getTime() - this.lastUpdate > 20 * 1000) {
 				app.send('/cmd rooms');
 				this.lastUpdate = new Date().getTime();
 			}
