@@ -1956,7 +1956,7 @@ function toId() {
 			if (room.id === this.fragment) this.updateTitle(room);
 		},
 		updateTitle: function (room) {
-			document.title = room.title ? room.title + " - Showdown!" : "Showdown!";
+			document.title = room.title ? room.title : "Plan of Attack!";
 		},
 		updateAutojoin: function () {
 			if (!Config.server.registered) return;
