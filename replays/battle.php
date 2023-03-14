@@ -151,22 +151,22 @@ if ($manage) {
 			Change privacy: <form action="/<?= $replay['id'] ?>/manage" method="post" style="display: inline" data-target="replace">
 				<?php $users->csrfData(); ?>
 				<input type="hidden" name="private" value="3" />
-				<button type="submit" name="private" value="3"<?= $replay['private'] === 3 ? ' disabled' : '' ?>>Deleted</button>
+				<button type="submit" name="private" value="3"<?= @$replay['private'] === 3 ? ' disabled' : '' ?>>Deleted</button>
 			</form>
 			<form action="/<?= $replay['id'] ?>/manage" method="post" style="display: inline" data-target="replace">
 				<?php $users->csrfData(); ?>
 				<input type="hidden" name="private" value="1" />
-				<button type="submit" name="private" value="1"<?= $replay['private'] === 1 && $replay['password'] ? ' disabled' : '' ?>>Private</button>
+				<button type="submit" name="private" value="1"<?= @$replay['private'] === 1 && $replay['password'] ? ' disabled' : '' ?>>Private</button>
 			</form>
 			<form action="/<?= $replay['id'] ?>/manage" method="post" style="display: inline" data-target="replace">
 				<?php $users->csrfData(); ?>
 				<input type="hidden" name="private" value="2" />
-				<button type="submit" name="private" value="2"<?= $replay['private'] === 1 && !$replay['password'] ? ' disabled' : '' ?>>Private (no password)</button>
+				<button type="submit" name="private" value="2"<?= @$replay['private'] === 1 && !$replay['password'] ? ' disabled' : '' ?>>Private (no password)</button>
 			</form>
 			<form action="/<?= $replay['id'] ?>/manage" method="post" style="display: inline" data-target="replace">
 				<?php $users->csrfData(); ?>
 				<input type="hidden" name="private" value="0" />
-				<button type="submit" name="private" value="0"<?= !$replay['private'] ? ' disabled' : '' ?>>Public</button>
+				<button type="submit" name="private" value="0"<?= !@$replay['private'] ? ' disabled' : '' ?>>Public</button>
 			</form>
 <?php
 }
