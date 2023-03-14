@@ -568,26 +568,30 @@ const Dex = new class implements ModdedDex {
 				formeid === '-crowned' ||
 				formeid === '-eternal' ||
 				formeid === '-eternamax' ||
+				formeid === '-four' ||
 				formeid === '-hangry' ||
+				formeid === '-hero' ||
 				formeid === '-lowkey' ||
 				formeid === '-noice' ||
 				formeid === '-primal' ||
 				formeid === '-rapidstrike' ||
+				formeid === '-roaming' ||
 				formeid === '-school' ||
 				formeid === '-sky' ||
 				formeid === '-starter' ||
 				formeid === '-super' ||
 				formeid === '-therian' ||
 				formeid === '-unbound' ||
-				formeid === '-hero' ||
 				baseSpeciesid === 'calyrex' ||
 				baseSpeciesid === 'kyurem' ||
 				baseSpeciesid === 'cramorant' ||
 				baseSpeciesid === 'indeedee' ||
 				baseSpeciesid === 'lycanroc' ||
 				baseSpeciesid === 'necrozma' ||
+				baseSpeciesid === 'oinkologne' ||
 				baseSpeciesid === 'oricorio' ||
 				baseSpeciesid === 'slowpoke' ||
+				baseSpeciesid === 'tatsugiri' ||
 				baseSpeciesid === 'zygarde'
 			)) {
 				spriteData.cryurl += formeid;
