@@ -2741,12 +2741,6 @@
 				if (!level || level > 120 || level < 1) level = 120;
 				if (level !== 120 || set.level) set.level = level;
 			}
-			
-			if (isInsurgence && !set.cmType) {
-				set.cmType = "Normal";
-			}
-			
-			//if (isInsurgence) set.level = 120; level = 120;
 
 			// happiness
 			var happiness = parseInt(this.$chart.find('input[name=happiness]').val(), 10);
@@ -2809,6 +2803,7 @@
 			}
 			// Custom Move type
 			var cmType = this.$chart.find('select[name=cmtype]').val();
+			console.log(cmType);
 			if (Dex.types.isName(cmType)) {
 				for (var mon of this.curSetList) {
 					mon.cmType = cmType;
