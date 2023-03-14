@@ -196,7 +196,7 @@ export const Replays = new class {
 	}
 
 	async upload(params: {[k: string]: unknown}, context: ActionContext) {
-		let id = toID(params.id);
+		let id = (params.id + "").toLowerCase().replace(/[^a-z-0-9]+/g, '');
 		if (!id) throw new ActionError('Battle ID needed.');
 		const preppedReplay = await prepreplays.get(id);
 		const replay = await replays.get(id, ['id', 'private', 'password']);
