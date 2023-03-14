@@ -158,6 +158,8 @@ footer a:hover {
 }
 footer a.cur, footer a.cur:hover {
 	color: #888888;
+	font-weight: bold;
+	text-decoration: none;
 }
 
 h1 {
@@ -208,6 +210,12 @@ h1 {
 	color: #224466;
 	text-decoration: none;
 }
+code {
+	border: 1px solid #C0C0C0;
+	background: #EEEEEE;
+	color: black;
+	padding: 0 2px;
+}
 
 .button {
 	color: white;
@@ -223,6 +231,9 @@ h1 {
 	font-family: Verdana,Helvetica,sans-serif;
 	font-size: 11pt;
 	cursor: pointer;
+}
+.bigbutton {
+	padding: 8px 15px;
 }
 .button:hover {
 	background: linear-gradient(to bottom, #5a77c7, #2f447f);
