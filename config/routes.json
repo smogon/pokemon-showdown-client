@@ -1,6 +1,6 @@
 {
     "root": "pokemonshowdown.com",
-    "client": "localhost",
+    "client": "localhost/?~~localhost:8000",
     "dex": "dex.pokemonshowdown.com",
     "replays": "replay.pokemonshowdown.com",
     "users": "pokemonshowdown.com/users"
