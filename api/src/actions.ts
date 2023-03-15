@@ -9,7 +9,7 @@ import * as fs from 'fs/promises';
 import {Ladder} from './ladder';
 import {Replays} from './replays';
 import {ActionError, QueryHandler} from './server';
-import {toID, updateserver, bash} from './utils';
+import {toID, updateserver, bash, time} from './utils';
 import * as tables from './tables';
 import * as pathModule from 'path';
 
@@ -341,6 +341,57 @@ export const actions: {[k: string]: QueryHandler} = {
 		[, , stderr] = await bash('npx pm2 reload loginserver');
 		if (stderr) throw new ActionError(stderr);
 		return {updated: update, success: true};
+	},
+	async updatenamecolor(params) {
+		const server = await this.getServer(true);
+		if (!Config.mainserver || !server || server.id !== Config.mainserver) {
+			throw new ActionError('Access denied');
+		}
+		const userid = toID(params.userid);
+		if (!userid) {
+			throw new ActionError('No userid was specified.');
+		}
+		const source = toID(params.source);
+		if ('source' in params && !source) {
+			throw new ActionError('No color adjustment was specified.');
+		}
+		if (userid.length > 18 || source.length > 18) {
+			throw new ActionError('Usernames can only be 18 characters long');
+		}
+		const by = toID(params.by);
+		if (!by) {
+			throw new ActionError('Specify the action\'s actor.');
+		}
+		if (!Config.colorpath) {
+			throw new ActionError("Editing custom colors is disabled");
+		}
+		const colors = {} as Record<string, string>;
+		try {
+			const content = await fs.readFile(Config.colorpath, 'utf-8');
+			Object.assign(colors, JSON.parse(content));
+		} catch (e) {}
+		let entry = '';
+		if (!('source' in params)) {
+			if (!colors[userid]) {
+				throw new ActionError(
+					'That user does not have a custom color set by the loginserver. ' +
+					'Ask an admin to remove it manually if they have one.'
+				);
+			} else {
+				delete colors[userid];
+				entry = 'Username color was removed';
+			}
+		} else {
+			colors[userid] = source;
+			entry = `Username color was set to "${source}"${params.reason ? ` (${params.reason})` : ``}`;
+		}
+		await fs.writeFile(Config.colorpath, JSON.stringify(colors));
+
+		await tables.usermodlog.insert({
+			userid, actorid: by, date: time(), ip: this.getIp(), entry,
+		});
+
+		return {success: true};
 	},
 };
 
