@@ -55,6 +55,7 @@ $userid = false;
 $user = false;
 $formats = array(
 	'gen9randombattle' => 'Random Battle',
+	'gen9ou' => 'OverUsed',
 	'gen9ubers' => 'Ubers',
 	'gen9uu' => 'UnderUsed',
 	'gen9ru' => 'RarelyUsed',
