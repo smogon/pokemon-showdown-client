@@ -1,81 +1,26 @@
 <?php
-
-// error_reporting(0);
-
 include_once __DIR__ . '/../config/config.inc.php';
-include 'style/wrapper.inc.php';
-
-function servercmp($a, $b) {
-	global $usercount;
-	if ($a['id'] === 'showdown') return -1;
-	if ($b['id'] === 'showdown') return 1;
-	if (!empty($usercount[$a['id']])) {
-		if (!empty($usercount[$b['id']])) {
-			return $usercount[$b['id']] - $usercount[$a['id']];
-		}
-		return -1;
-	} else if (!empty($usercount[$b['id']])) {
-		return 1;
-	} else if (isset($usercount[$a['id']]) && !isset($usercount[$b['id']])) {
-		return -1;
-	} else if (isset($usercount[$b['id']]) && !isset($usercount[$a['id']])) {
-		return 1;
-	}
-	return $a['sortorder'] - $b['sortorder'];
-}
-
-$page = 'home';
-$pageTitle = "Home";
-
-$serverbits = '';
-$serverbitscache = __DIR__ . '/../config/userbitscache.html';
-$lastmodified = @filemtime($serverbitscache);
-if ($lastmodified && (time() - $lastmodified < 60 * 10)) {
-	$serverbits = file_get_contents($serverbitscache);
-} else {
-	include_once __DIR__ . '/../config/servers.inc.php';
-	include_once __DIR__ . '/../lib/ntbb-database.lib.php';
-	$query = $psdb->query("SELECT `serverid`, `date`, `usercount` FROM `ntbb_userstats`");
-	$usercount = array();
-	$timenow = time();
-	while ($row = $psdb->fetch_assoc($query)) {
-		if (($timenow - $row['date'] / 1000 > 60 * 30) && ($row['serverid'] !== 'showdown')) {
-			$usercount[$row['serverid']] = false; // inactive server
-		} else {
-			$usercount[$row['serverid']] = $row['usercount'];
-		}
-	}
-	$sortorder = 0;
-	foreach ($PokemonServers as &$server) {
-		$server['sortorder'] = $sortorder++;
-		if ($server['id'] === 'showdown') {
-			$server['uri'] = '//' . $psconfig['routes']['client'];
-		} else {
-			$server['uri'] = 'http://' . $server['id'] . '.psim.us';
-		}
-	}
-	uasort($PokemonServers, 'servercmp');
-	ob_start();
-	$more = false;
-	foreach ($PokemonServers as &$server) {
-		if (!empty($server['hidden'])) continue;
-		if (!isset($usercount[$server['id']])) continue;
-		if (($c = $usercount[$server['id']]) === false) continue;
-		$usersbit = "<br />$c user" . ((intval($c) !== 1) ? 's' : '') . " online";
-		if (!$c && !$more && $server['id'] !== 'showdown') {
-			echo '</ul><button class="button" type="button" onclick="document.getElementById(\'moreservers\').style.display=\'block\';this.style.display=\'none\';return false">More</button><ul class="linklist" id="moreservers" style="display:none">';
-			$more = true;
-		}
 ?>
-		<li><a href="<?php echo $server['uri'] ?>"><?php if ($server['id'] === 'showdown') echo '<strong>',$server['name'],'<br />(official server)</strong>'; else echo $server['name']; ?><small><?php /**echo $server['server']; if ($server['port'] != 8000) echo ':',$server['port'];**/ echo $usersbit; ?></small></a></li>
-<?php
-	}
-	$serverbits = ob_get_clean();
-	file_put_contents($serverbitscache, $serverbits, LOCK_EX);
-}
+<!DOCTYPE html>
 
-includeHeaderTop();
-?>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width" />
+
+<title>Pok&eacute;mon Showdown! battle simulator</title>
+
+<link rel="stylesheet" href="/style/global.css?v12" />
+
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-26211653-1"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'UA-26211653-1');
+</script>
+<!-- End Google Analytics -->
+
 <style>
 @font-face {
   font-family: 'FontAwesome';
@@ -97,11 +42,69 @@ includeHeaderTop();
 .fa-sort-amount-desc:before {content: "\f161";}
 .fa-github:before {content: "\f09b";}
 </style>
-<?php
-includeHeaderBottom();
+<style>
+	.left {
+		float: left;
+		width: 560px;
+	}
+	.right {
+		margin-left: 590px;
+	}
+	@media (max-width:880px) {
+		.left iframe {
+			width: 275px;
+			height: 144px;
+		}
+		.left {
+			width: 275px;
+		}
+		.right {
+			margin-left: 290px;
+		}
+	}
+	@media (max-width:600px) {
+		.left {
+			float: none;
+			text-align: center;
+			width: auto;
+		}
+		.right {
+			margin-left: 0;
+		}
+	}
+	.mainbutton {
+		text-align: center;
+	}
+	.mainbutton .button {
+		background: #3a884f;
+		background: linear-gradient(to bottom, #4ca363, #276136);
+		font-size: 16pt;
+		padding: 12px 20px;
+	}
+	.mainbutton .button:hover {
+		background: linear-gradient(to bottom, #5ac777, #2f7f44);
+	}
+	.mainbutton .button:active {
+		background: linear-gradient(to bottom, #276136, #4ca363);
+	}
 
-?>
-		<div class="main">
+</style>
+
+<div class="body">
+
+	<header>
+		<div class="nav-wrapper"><ul class="nav">
+			<li><a class="button nav-first cur" href="/"><img src="/images/pokemonshowdownbeta.png" srcset="/images/pokemonshowdownbeta.png 1x, /images/pokemonshowdownbeta@2x.png 2x" alt="Pok&eacute;mon Showdown" width="146" height="44" /> Home</a></li>
+			<li><a class="button" href="/dex/">Pok&eacute;dex</a></li>
+			<li><a class="button" href="//replay.pokemonshowdown.com/">Replays</a></li>
+			<li><a class="button" href="/ladder/">Ladder</a></li>
+			<li><a class="button nav-last" href="/forums/">Forum</a></li>
+			<li><a class="button greenbutton nav-first nav-last" href="//play.pokemonshowdown.com/">Play</a></li>
+		</ul></div>
+	</header>
+
+	<div class="main">
+		<section class="section" style="max-width: 850px">
 
 			<div class="main-spacer"><div id="ad-div">
 <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
@@ -150,7 +153,6 @@ includeHeaderBottom();
 					<p>(We'll be back up in a few hours.)</p>
 				</div-->
 				<script>
-				<!--
 var BrowserDetect = {
 	init: function () {
 		this.browser = this.searchString(this.dataBrowser) || "An unknown browser";
@@ -247,23 +249,22 @@ var BrowserDetect = {
 
 };
 BrowserDetect.init();
-				if (BrowserDetect.browser === 'Chrome' || BrowserDetect.browser === 'Chromium') {
-					//document.getElementById('chrome-install').style.display = 'block';
-				}
-				if (navigator && navigator.mozApps && navigator.mozApps.install) {
-					// document.getElementById('firefox-install').style.display = 'block';
-				}
-				if (BrowserDetect.OS === 'Mac') {
-					// document.getElementById('play-online').style.display = 'none';
-					document.getElementById('mac-install').style.display = 'block';
-					// document.getElementById('install-after').innerHTML = '<p style="text-align:center;color:#777;margin:-10px 0 -0px 0"><small><em>or</em></small></p><p class="subtle" style="text-align:center"><a href="//play.pokemonshowdown.com/" class="button" style="padding:9px 24px"><strong>Play online</strong></a></p>';
-				} else if (BrowserDetect.OS === 'Windows') {
-					// document.getElementById('play-online').style.display = 'none';
-					document.getElementById('win-install').style.display = 'block';
-					// document.getElementById('install-after').innerHTML = '<p style="text-align:center;color:#777;margin:-10px 0 -0px 0"><small><em>or</em></small></p><p class="subtle" style="text-align:center"><a href="//play.pokemonshowdown.com/" class="button" style="padding:9px 24px"><strong>Play online</strong></a></p>';
-				}
+if (BrowserDetect.browser === 'Chrome' || BrowserDetect.browser === 'Chromium') {
+	//document.getElementById('chrome-install').style.display = 'block';
+}
+if (navigator && navigator.mozApps && navigator.mozApps.install) {
+	// document.getElementById('firefox-install').style.display = 'block';
+}
+if (BrowserDetect.OS === 'Mac') {
+	// document.getElementById('play-online').style.display = 'none';
+	document.getElementById('mac-install').style.display = 'block';
+	// document.getElementById('install-after').innerHTML = '<p style="text-align:center;color:#777;margin:-10px 0 -0px 0"><small><em>or</em></small></p><p class="subtle" style="text-align:center"><a href="//play.pokemonshowdown.com/" class="button" style="padding:9px 24px"><strong>Play online</strong></a></p>';
+} else if (BrowserDetect.OS === 'Windows') {
+	// document.getElementById('play-online').style.display = 'none';
+	document.getElementById('win-install').style.display = 'block';
+	// document.getElementById('install-after').innerHTML = '<p style="text-align:center;color:#777;margin:-10px 0 -0px 0"><small><em>or</em></small></p><p class="subtle" style="text-align:center"><a href="//play.pokemonshowdown.com/" class="button" style="padding:9px 24px"><strong>Play online</strong></a></p>';
+}
 
-				-->
 				</script>
 			</div>
 
@@ -284,60 +285,94 @@ BrowserDetect.init();
 */ ?>
 				</div></div>
 				<div style="clear:both;padding-top:1px"></div>
+			</div>
+		</section>
+	</div>
+</div>
 
-				<h1>Links</h1>
-				<style>
-				.hlinklist {
-					font-size: 18pt;
-				}
-				.hlinklist li {
-					width: 278px;
-					float: left;
-					margin-right:8px;
-				}
-				.hlinklist li a {
-					padding: 6px 0;
-					text-align: center;
-				}
-				</style>
-				<ul class="linklist hlinklist">
-					<li>
-						<a href="/damagecalc/" target="_blank"><i class="fa fa-tachometer"></i> Damage calculator</a>
-					</li>
-					<li>
-						<a href="http://www.smogon.com/stats/" target="_blank"><i class="fa fa-sort-amount-desc"></i> Usage stats</a>
-					</li>
-					<li>
-						<a href="https://github.com/smogon/Pokemon-Showdown" target="_blank"><i class="fa fa-github"></i> GitHub repository</a>
-					</li>
-				</ul>
-				<p style="text-align: center; clear: both">
-					<a href="https://twitter.com/PokemonShowdown">@PokemonShowdown on Twitter</a>
-				</p>
+<section class="section">
+	<!--h1>Links</h1-->
+	<style>
+	.hlinklist {
+		list-style: none;
+		margin: 1em 0 0 0;
+		padding: 0;
+		font-size: 18pt;
+	}
+	.hlinklist li {
+		width: 255px;
+		float: left;
+		margin: 0;
+		padding: 0 3px 1em;
+	}
+	.hlinklist .blocklink {
+		padding: 6px 0;
+		margin: 0;
+		text-align: center;
+		font-size: 16pt;
+	}
+	</style>
+	<ul class="hlinklist">
+		<li>
+			<a class="blocklink" href="/damagecalc/" target="_blank"><i class="fa fa-tachometer"></i> Damage calculator</a>
+		</li>
+		<li>
+			<a class="blocklink" href="http://www.smogon.com/stats/" target="_blank"><i class="fa fa-sort-amount-desc"></i> Usage stats</a>
+		</li>
+		<li>
+			<a class="blocklink" href="https://github.com/smogon/Pokemon-Showdown" target="_blank"><i class="fa fa-github"></i> GitHub repository</a>
+		</li>
+	</ul>
+	<p style="text-align: center; clear: both">
+		<a href="https://twitter.com/PokemonShowdown">@PokemonShowdown on Twitter</a>
+	</p>
 
-				<div style="clear:both;padding-top:1px"></div>
+	<div style="clear:both;padding-top:1px"></div>
+</section>
 
-				<div class="section-servers">
+<style>
+.sections-container {
+	max-width: 1000px;
+	margin: 0 auto;
+}
+.section-servers {
+	float: left;
+	margin: 0;
+	width: 200px;
+}
+.section-news {
+	margin-left: 260px;
+}
+@media (max-width:600px) {
+	.section-servers {
+		float: none;
+		width: auto;
+		margin: 20px auto;
+	}
+	.section-news {
+		margin-left: 0;
+	}
+}
 
-					<h1>Servers</h1>
-					<ul class="linklist">
-						<?php echo $serverbits ?>
-					</ul>
+.linklist {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+.linklist .blocklink {
+	margin: 3px 0;
+}
 
-				</div><div class="section-news">
+</style>
 
-					<!--h1>Features</h1>
-					<h2>Spam protection</h2>
-					<p>
-						Pok&eacute;mon Showdown comes with built-in spam protection. A spammer named Mushroomist gives this testimonial:
-					</p>
-					<blockquote><p>
-						&#8220;This is a simple little script I had made [to spam], sadly, PS was such a terrible program that it decided to not do the whole thing as planned.&#8221;
-					</p></blockquote>
-					<h2>Open-source</h2>
-					<p>
-						Pok&eacute;mon Showdown is actively developed in the <a href="https://github.com/smogon/Pokemon-Showdown">Pok&eacute;mon Showdown GitHub repository</a>. Come lend a hand!
-					</p-->
+<div class="sections-container">
+
+	<section class="section section-servers">
+		<h1>Servers</h1>
+		<ul class="linklist">
+			<?php include 'lib/serverlist.inc.php'; ?>
+		</ul>
+	</section>
 
 <?php
 include __DIR__ . '/../config/news.inc.php';
@@ -352,16 +387,18 @@ $count = 0;
 foreach ($latestNewsCache as $topic_id) {
 	$topic = $newsCache[$topic_id];
 ?>
-					<h1><?php echo $topic['title_html']; ?></h1>
-					<?php echo @$topic['summary_html'] ?>
-					<p>
-						&mdash;<strong><?php echo $topic['authorname']; ?></strong> <small class="date">on <?php echo readableDate($topic['date']); ?></small> <small><a href="/news/<?= $topic['topic_id'] ?>"><?= isset($topic['details']) ? 'Read more' : 'Permalink' ?></a></small>
-					</p>
+	<section class="section section-news">
+		<h1><?php echo $topic['title_html']; ?></h1>
+		<?php echo @$topic['summary_html'] ?>
+		<p>
+			&mdash;<strong><?php echo $topic['authorname']; ?></strong> <small class="date">on <?php echo readableDate($topic['date']); ?></small> <small><a href="/news/<?= $topic['topic_id'] ?>"><?= isset($topic['details']) ? 'Read more' : 'Permalink' ?></a></small>
+		</p>
+	</section>
 <?php
 	if (++$count >= 2) break;
 	if ($count === 1) {
 ?>
-					<div style="height:280px;margin:10px 0 -10px"><div style="text-align:center" id="ad-div3">
+		<div style="margin:10px 0"><div style="text-align:center" id="ad-div3">
 <script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
 <!-- PS Home 3 LR -->
 <ins class="adsbygoogle"
@@ -371,22 +408,21 @@ foreach ($latestNewsCache as $topic_id) {
 <script>
 (adsbygoogle = window.adsbygoogle || []).push({});
 </script>
-					</div></div>
+		</div></div>
 <?php
-		}
+	}
 }
 
 ?>
-					<p>
-						<a href="/news/" class="button" style="padding: 2px 6px">Older news &raquo;</a>
-					</p>
+	<section class="section section-news">
+		<a href="/news/" class="button">Older news &raquo;</a>
+	</section>
 
-				</div>
-			</div>
+	<div style="clear:both;"></div>
+</div>
 
-		</div>
-<?php
-
-includeFooter();
-
-?>
+<footer>
+	<p>
+		<small><a href="/rules">Rules</a> | <a href="/privacy">Privacy policy</a> | <a href="/credits">Credits</a> | <a href="/contact">Contact</a></small>
+	</p>
+</footer>

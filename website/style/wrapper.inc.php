@@ -15,26 +15,21 @@ function includeHeaderTop() {
 	global $page, $pageTitle, $headerData;
 ?>
 <!DOCTYPE html>
-<html>
-	<head>
-		<meta charset="utf-8" />
-		<meta name="viewport" content="width=device-width" />
-		<title><?php if ($pageTitle !== 'Home') echo $pageTitle,' - Pok&eacute;mon Showdown!'; else echo 'Pok&eacute;mon Showdown! battle simulator' ?></title>
-		<meta http-equiv="X-UA-Compatible" content="IE=Edge" />
-		<link rel="stylesheet" href="/style/main.css?v14" />
-<!-- Google Analytics -->
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width" />
+
+<title><?= $pageTitle ?> - Pok&eacute;mon Showdown!</title>
+
+<link rel="stylesheet" href="/style/global.css?v12" />
+
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=UA-26211653-1"></script>
 <script>
-(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
 
-ga('create', 'UA-26211653-1', 'pokemonshowdown.com', {'allowLinker': true});
-ga('require', 'linker');
-
-ga('linker:autoLink', ['pokemonshowdown.com', 'play.pokemonshowdown.com', 'replay.pokemonshowdown.com']);
-ga('send', 'pageview');
-
+  gtag('config', 'UA-26211653-1');
 </script>
 <!-- End Google Analytics -->
 <?php
@@ -43,21 +38,22 @@ ga('send', 'pageview');
 function includeHeaderBottom() {
 	global $page, $pageTitle, $headerData, $psconfig;
 ?>
-	</head>
-	<body><div id="wrapper">
-		<div class="header"><div class="header-inner">
-			<ul class="nav">
-				<li><a class="button nav-first<?php curPage('home') ?>" href="/"><img src="/images/pokemonshowdownbeta.png" alt="Pok&eacute;mon Showdown! (beta)" /> Home</a></li>
-				<li><a class="button" href="//<?= $psconfig['routes']['dex'] ?>/">Pok&eacute;dex</a></li>
-				<li><a class="button" href="//<?= $psconfig['routes']['replays'] ?>/">Replays</a></li>
-				<li><a class="button<?php curPage('ladder') ?>" href="/ladder/">Ladder</a></li>
-				<li><a class="button nav-last" href="/forums/">Forum</a></li>
-			</ul>
-			<ul class="nav nav-play">
-				<li><a class="button greenbutton nav-first nav-last" href="//<?= $psconfig['routes']['client'] ?>/">Play</a></li>
-			</ul>
-			<div style="clear:both"></div>
-		</div></div>
+<div class="body">
+
+<header>
+	<div class="nav-wrapper"><ul class="nav">
+		<li><a class="button nav-first" href="/"><img src="/images/pokemonshowdownbeta.png" srcset="/images/pokemonshowdownbeta.png 1x, /images/pokemonshowdownbeta@2x.png 2x" alt="Pok&eacute;mon Showdown" width="146" height="44" /> Home</a></li>
+		<li><a class="button" href="/dex/">Pok&eacute;dex</a></li>
+		<li><a class="button" href="//replay.pokemonshowdown.com/">Replays</a></li>
+		<li><a class="button" href="/ladder/">Ladder</a></li>
+		<li><a class="button nav-last" href="/forums/">Forum</a></li>
+		<li><a class="button greenbutton nav-first nav-last" href="//play.pokemonshowdown.com/">Play</a></li>
+	</ul></div>
+</header>
+
+<div class="main">
+	<section class="section">
+
 <?php
 }
 
@@ -69,12 +65,14 @@ function includeHeader() {
 
 function includeFooter() {
 ?>
-		<div class="footer">
-			<p>
-				<small><a href="/rules">Rules</a> | <a href="/privacy">Privacy policy</a> | <a href="/credits"<?php classCurPage('credits') ?>>Credits</a> | <a href="/contact"<?php classCurPage('contact') ?>>Contact</a></small>
-			</p>
-		</div>
-	</div></body>
-</html>
+		</section>
+	</div>
+</div>
+
+<footer>
+	<p>
+		<small><a href="/rules">Rules</a> | <a href="/privacy">Privacy policy</a> | <a href="/credits"<?php classCurPage('credits') ?>>Credits</a> | <a href="/contact">Contact</a></small>
+	</p>
+</footer>
 <?php
 }
