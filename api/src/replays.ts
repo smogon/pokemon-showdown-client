@@ -12,7 +12,9 @@ import {SQL} from './database';
 
 export interface ReplayData {
 	id: string;
+	/** player name; starting with ! denotes that player wants the replay private */
 	p1: string;
+	/** player name; starting with ! denotes that player wants the replay private */
 	p2: string;
 	format: string;
 	log: string;
@@ -23,8 +25,13 @@ export interface ReplayData {
 	p2id: string;
 	formatid: string;
 	rating: number;
-	/** a boolean stored as a number in MySQL */
-	private: number;
+	/**
+	 * 0 = public
+	 * 1 = private (with or without password)
+	 * 2 = NOT USED; ONLY USED IN PREPREPLAY
+	 * 3 = deleted
+	 */
+	private: 0 | 1 | 2 | 3;
 	password: string | null;
 }
 
@@ -32,7 +39,7 @@ export const Replays = new class {
 	readonly passwordCharacters = '0123456789abcdefghijklmnopqrstuvwxyz';
 	async prep(params: {[k: string]: unknown}) {
 		const id = toID(params.id);
-		let isPrivate = params.hidden ? 1 : 0;
+		let isPrivate: 0 | 1 | 2 = params.hidden ? 1 : 0;
 		if (params.hidden === 2) isPrivate = 2;
 		let p1 = Session.wordfilter(`${params.p1}`);
 		let p2 = Session.wordfilter(`${params.p2}`);
@@ -56,13 +63,79 @@ export const Replays = new class {
 		return !!out.affectedRows;
 	}
 
-	generatePassword(length = 31) {
-		let password = '';
-		for (let i = 0; i < length; i++) {
-			password += this.passwordCharacters[Math.floor(Math.random() * this.passwordCharacters.length)];
+	/**
+	 * Not a direct upload; you should call prep first.
+	 *
+	 * The intended use is that the sim server sends `prepreplay` directly
+	 * to here, and then the client sends `upload`. Convoluted mostly in
+	 * case of firewalls between the sim server and the loginserver.
+	 */
+	async upload(params: {[k: string]: string | undefined}, context: ActionContext) {
+		let id = ('' + params.id).toLowerCase().replace(/[^a-z0-9-]+/g, '');
+		if (!id) throw new ActionError('Battle ID needed.');
+		const preppedReplay = await prepreplays.get(id);
+		const replay = await replays.get(id, ['id', 'private', 'password']);
+		if (!preppedReplay) {
+			if (replay) {
+				if (replay.password) {
+					id += '-' + replay.password + 'pw';
+				}
+				return 'success:' + id;
+			}
+			if (!/^[a-z0-9]+-[a-z0-9]+-[0-9]+$/.test(id)) {
+				return 'invalid id';
+			}
+			return 'not found';
+		}
+		let password: string | null = null;
+		if (preppedReplay.private && preppedReplay.private !== 2) {
+			if (replay?.password) {
+				password = replay.password;
+			} else if (!replay?.private) {
+				password = this.generatePassword();
+			}
+		}
+		if (typeof params.password === 'string') password = params.password;
+
+		let fullid = id;
+		if (password) fullid += '-' + password + 'pw';
+
+		let log = params.log as string;
+		if (md5(stripNonAscii(log)) !== preppedReplay.loghash) {
+			log = log.replace('\r', '');
+			if (md5(stripNonAscii(log)) !== preppedReplay.loghash) {
+				// Hashes don't match.
+
+				// Someone else tried to upload a replay of the same battle,
+				// while we were uploading this
+				// ...pretend it was a success
+				return 'success:' + fullid;
+			}
 		}
 
-		return password;
+		if (password && password.length > 31) {
+			context.setHeader('HTTP/1.1', '403 Forbidden');
+			return 'password must be 31 or fewer chars long';
+		}
+
+		const p1id = toID(preppedReplay.p1);
+		const p2id = toID(preppedReplay.p2);
+		const formatid = toID(preppedReplay.format);
+
+		const privacy = preppedReplay.private ? 1 : 0;
+		const {p1, p2, format, uploadtime, rating, inputlog} = preppedReplay;
+		await replays.insert({
+			id, p1, p2, format, p1id, p2id,
+			formatid, uploadtime,
+			private: privacy, rating, log,
+			inputlog, password,
+		}, SQL`ON DUPLICATE KEY UPDATE log = ${params.log as string},
+			inputlog = ${inputlog}, rating = ${rating},
+			private = ${privacy}, \`password\` = ${password}`);
+
+		await prepreplays.deleteOne()`WHERE id = ${id} AND loghash = ${preppedReplay.loghash}`;
+
+		return 'success:' + fullid;
 	}
 
 	async get(id: string): Promise<ReplayData | null> {
@@ -88,6 +161,15 @@ export const Replays = new class {
 		} else {
 			await replays.update(replay.id, {private: 1, password: null});
 		}
+	}
+
+	generatePassword(length = 31) {
+		let password = '';
+		for (let i = 0; i < length; i++) {
+			password += this.passwordCharacters[Math.floor(Math.random() * this.passwordCharacters.length)];
+		}
+
+		return password;
 	}
 
 	async search(args: {
@@ -189,78 +271,6 @@ export const Replays = new class {
 		return replays.selectAll(
 			SQL`uploadtime, id, format, p1, p2`
 		)`FORCE INDEX (recent) WHERE private = 0 ORDER BY uploadtime DESC LIMIT 50`;
-	}
-
-	normalizeUsername(username: string) {
-		return username.toLowerCase().replace(/[^A-Za-z0-9]+/g, '');
-	}
-
-	async upload(params: {[k: string]: unknown}, context: ActionContext) {
-		let id = (params.id + "").toLowerCase().replace(/[^a-z-0-9]+/g, '');
-		if (!id) throw new ActionError('Battle ID needed.');
-		const preppedReplay = await prepreplays.get(id);
-		const replay = await replays.get(id, ['id', 'private', 'password']);
-		if (!preppedReplay) {
-			if (replay) {
-				if (replay.password) {
-					id += '-' + replay.password + 'pw';
-				}
-				return 'success:' + id;
-			}
-			if (!/^[a-z0-9]+-[a-z0-9]+-[0-9]+$/.test(id)) {
-				return 'invalid id';
-			}
-			return 'not found';
-		}
-		let password: string | null = null;
-		if (preppedReplay.private && preppedReplay.private !== 2) {
-			if (replay?.password) {
-				password = replay.password;
-			} else if (!replay?.private) {
-				password = this.generatePassword();
-			}
-		}
-		if (typeof params.password === 'string') password = params.password;
-
-		let fullid = id;
-		if (password) fullid += '-' + password + 'pw';
-
-		let log = params.log as string;
-		if (md5(stripNonAscii(log)) !== preppedReplay.loghash) {
-			log = log.replace('\r', '');
-			if (md5(stripNonAscii(log)) !== preppedReplay.loghash) {
-				// Hashes don't match.
-
-				// Someone else tried to upload a replay of the same battle,
-				// while we were uploading this
-				// ...pretend it was a success
-				return 'success:' + fullid;
-			}
-		}
-
-		if (password && password.length > 31) {
-			context.setHeader('HTTP/1.1', '403 Forbidden');
-			return 'password must be 31 or fewer chars long';
-		}
-
-		const p1id = toID(preppedReplay.p1);
-		const p2id = toID(preppedReplay.p2);
-		const formatid = toID(preppedReplay.format);
-
-		const privacy = preppedReplay.private ? 1 : 0;
-		const {p1, p2, format, uploadtime, rating, inputlog} = preppedReplay;
-		await replays.insert({
-			id, p1, p2, format, p1id, p2id,
-			formatid, uploadtime,
-			private: privacy, rating, log,
-			inputlog, password,
-		}, SQL`ON DUPLICATE KEY UPDATE log = ${params.log as string},
-			inputlog = ${inputlog}, rating = ${rating},
-			private = ${privacy}, \`password\` = ${password}`);
-
-		await prepreplays.deleteOne()`WHERE id = ${id} AND loghash = ${preppedReplay.loghash}`;
-
-		return 'success:' + fullid;
 	}
 };
 

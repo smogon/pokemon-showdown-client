@@ -20,6 +20,12 @@ export const users = new DatabaseTable<{
 	passwordhash: string | null;
 	email: string | null;
 	registertime: number;
+	/**
+	 * 0 = unregistered (should never be in db)
+	 * 1 = regular user
+	 * 2 = admin
+	 * 3...6 = PS-specific ranks (voice, driver, mod, leader)
+	 */
 	group: number;
 	banstate: number;
 	ip: string;
@@ -37,7 +43,13 @@ export const prepreplays = new DatabaseTable<{
 	p1: string;
 	p2: string;
 	format: string;
-	private: number;
+	/**
+	 * 0 = public
+	 * 1 = private (with password)
+	 * 2 = private (no password; used for punishment logging)
+	 * 3 = NOT USED; only used in the full replay table
+	 */
+	private: 0 | 1 | 2;
 	loghash: string;
 	inputlog: string;
 	rating: number;

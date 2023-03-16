@@ -107,7 +107,7 @@ import {md5, stripNonAscii} from '../utils';
 			loghash, serverid: 'showdown', inputlog,
 		};
 		await Replays.prep(toPrep);
-		const replay: Partial<ReplayData> = {
+		const replay: {[k: string]: string} = {
 			id: 'uploadtest',
 			password: 'hunter2',
 			p1: 'Annika', p2: 'Heart of Etheria',
