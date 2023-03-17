@@ -550,8 +550,8 @@ abstract class BattleTypedSearch<T extends SearchType> {
 	 */
 	set: PokemonSet | null = null;
 
-	protected formatType: 'doubles' | 'bdsp' | 'bdspdoubles' | 'letsgo' | 'metronome' | 'natdex' | 'insurgencenatdex' | 'nfe' |
-	'dlc1' | 'dlc1doubles' | 'stadium' | null = null;
+	protected formatType: 'doubles' | 'bdsp' | 'bdspdoubles' | 'letsgo' | 'metronome' | 'natdex' | 'insurgencenatdex' | 'insurgencelegacy' |
+	 'nfe' | 'dlc1' | 'dlc1doubles' | 'stadium' | null = null;
 
 	/**
 	 * Cached copy of what the results list would be with only base filters
@@ -622,6 +622,7 @@ abstract class BattleTypedSearch<T extends SearchType> {
 			}
 		}
 		if (format.includes('insurgence')) {
+			const gen = (Number(format.charAt(3)));
 			if (format.includes('nationaldex')) {
 				format = format.slice(21) as ID;
 				if (!format) format = 'ou' as ID;
@@ -629,10 +630,13 @@ abstract class BattleTypedSearch<T extends SearchType> {
 			} else if (format.includes('freeforall')) {
 				format = format.slice(20) as ID;
 				if (!format) format = 'ou' as ID;
+			} else {
+				format = format.slice(10) as ID;
+				if (!format) format = 'ou' as ID;
 			}
-
-			this.formatType = 'insurgencenatdex';
-			this.dex = Dex.mod('gen9insurgence' as ID);
+			if (gen !== 6) this.formatType = 'insurgencenatdex';
+			if (gen === 6) this.formatType = 'insurgencelegacy'
+			this.dex = Dex.mod('gen'+ gen + 'insurgence' as ID);
 		}
 		if (this.formatType === 'letsgo') format = format.slice(6) as ID;
 		if (format.includes('metronome')) {
@@ -732,7 +736,8 @@ abstract class BattleTypedSearch<T extends SearchType> {
 	protected firstLearnsetid(speciesid: ID) {
 		let table = BattleTeambuilderTable;
 		if (this.formatType?.startsWith('bdsp')) table = table['gen8bdsp'];
-		if (this.formatType?.startsWith('insurgence')) table = table['gen9insurgence'];
+		if (this.formatType === "insurgencenatdex") table = table['gen9insurgence'];
+		if (this.formatType === "insurgencelegacy") table = table['gen6insurgence'];
 		if (this.formatType === 'letsgo') table = table['gen7letsgo'];
 		if (speciesid in table.learnsets) return speciesid;
 		const species = this.dex.species.get(speciesid);
@@ -789,7 +794,8 @@ abstract class BattleTypedSearch<T extends SearchType> {
 		while (learnsetid) {
 			let table = BattleTeambuilderTable;
 			if (this.formatType?.startsWith('bdsp')) table = table['gen8bdsp'];
-			if (this.formatType?.startsWith('insurgence')) table = table['gen9insurgence'];
+			if (this.formatType === 'insurgencenatdex') table = table['gen9insurgence'];
+			if (this.formatType === 'insurgencelegacy') table = table['gen6insurgence'];
 			if (this.formatType === 'letsgo') table = table['gen7letsgo'];
 			let learnset = table.learnsets[learnsetid];
 			if (learnset && (moveid in learnset) && (!this.format.startsWith('tradebacks') ? learnset[moveid].includes(genChar) :
@@ -816,6 +822,7 @@ abstract class BattleTypedSearch<T extends SearchType> {
 			this.formatType === 'dlc1doubles' ? 'gen8dlc1doubles' :
 			this.formatType === 'natdex' ? `gen${gen}natdex` :
 			this.formatType === 'insurgencenatdex' ? `gen9insurgence` :
+			this.formatType === 'insurgencelegacy' ? `gen6insurgence` :
 			this.formatType === 'stadium' ? `gen${gen}stadium${gen > 1 ? gen : ''}` :
 			`gen${gen}`;
 		if (table && table[tableKey]) {
@@ -926,6 +933,8 @@ class BattlePokemonSearch extends BattleTypedSearch<'pokemon'> {
 			table = table['gen' + this.dex.gen + 'natdex'];
 		} else if (this.formatType === 'insurgencenatdex') {
 			table = table['gen9insurgence'];
+		} else if (this.formatType === 'insurgencelegacy') {
+			table = table['gen6insurgence'];
 		} else if (this.formatType === 'metronome') {
 			table = table['gen' + dex.gen + 'metronome'];
 		} else if (this.formatType === 'nfe') {
@@ -1170,8 +1179,10 @@ class BattleItemSearch extends BattleTypedSearch<'item'> {
 			table = table['gen8bdsp'];
 		} else if (this.formatType === 'natdex') {
 			table = table['gen' + this.dex.gen + 'natdex'];
-		} else if (this.formatType?.startsWith('insurgence')) {
+		} else if (this.formatType === "insurgencenatdex") {
 			table = table['gen9insurgence'];
+		} else if (this.formatType === "insurgencelegacy") {
+			table = table['gen6insurgence'];
 		} else if (this.formatType === 'metronome') {
 			table = table['gen' + this.dex.gen + 'metronome'];
 		} else if (this.dex.gen < 9) {
@@ -1497,7 +1508,8 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 		let gen = '' + dex.gen;
 		let lsetTable = BattleTeambuilderTable;
 		if (this.formatType?.startsWith('bdsp')) lsetTable = lsetTable['gen8bdsp'];
-		if (this.formatType?.startsWith('insurgence')) lsetTable = lsetTable['gen9insurgence'];
+		if (this.formatType === "insurgencenatdex") lsetTable = lsetTable['gen9insurgence'];
+		if (this.formatType === "insurgencelegacy") lsetTable = lsetTable['gen6insurgence'];
 		if (this.formatType === 'letsgo') lsetTable = lsetTable['gen7letsgo'];
 		if (this.formatType?.startsWith('dlc1')) lsetTable = lsetTable['gen8dlc1'];
 		while (learnsetid) {

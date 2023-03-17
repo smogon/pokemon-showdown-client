@@ -321,7 +321,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 	const NFE = GENS.map(num => num + 0.3);
 	const STADIUM = [2.04, 1.04];
 	const NATDEX = [9.1, 8.1];
-	const OTHER = [9.7, 9.2, 8.6, 8.4, 8.2, 8.1, -8.4, -8.6, 7.1];
+	const OTHER = [9.7, 9.2, 8.6, 8.4, 8.2, 8.1, -8.4, -8.6, 7.1, 6.7];
 
 	// process.stdout.write("\n  ");
 	for (const genIdent of [...GENS, ...DOUBLES, ...VGC, ...NFE, ...STADIUM, ...OTHER, ...NATDEX]) {
@@ -334,7 +334,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 		const isStadium = ('' + genIdent).endsWith('.04');
 		const isDoubles = (genIdent < 0);
 		const isVGC = ('' + genIdent).endsWith('.5');
-		const isInsurgence = (genIdent === 9.7);
+		const isInsurgence = ('' + genIdent).endsWith('.7');
 		const genNum = Math.floor(isDoubles ? -genIdent : genIdent);
 		const gen = (() => {
 			let genStr = 'gen' + genNum;
@@ -414,10 +414,10 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 				}
 				if (isInsurgence) {
 					let tier = species.natDexTier;
-					if (species.tags.includes('Insurgence')) {
+					if (genNum === 9) {
 						return Dex.mod('gen9insurgence').species.get(species.name).natDexTier;
 					} else {
-						return tier;
+						return Dex.mod('gen6insurgence').species.get(species.name).tier;
 					}
 				}
 				if (isNatDex) {
@@ -483,12 +483,12 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			BattleTeambuilderTable['gen' + genNum + 'natdex'].monotypeBans = monotypeBans;
 			BattleTeambuilderTable['gen' + genNum + 'natdex'].formatSlices = formatSlices;
 		} else if (isInsurgence) {
-			BattleTeambuilderTable['gen9insurgence'] = {};
-			BattleTeambuilderTable['gen9insurgence'].learnsets = {};
-			BattleTeambuilderTable['gen9insurgence'].tiers = tiers;
-			BattleTeambuilderTable['gen9insurgence'].overrideTier = overrideTier;
-			BattleTeambuilderTable['gen9insurgence'].items = items;
-			BattleTeambuilderTable['gen9insurgence'].formatSlices = formatSlices;
+			BattleTeambuilderTable['gen' + genNum + 'insurgence'] = {};
+			BattleTeambuilderTable['gen' + genNum + 'insurgence'].learnsets = {};
+			BattleTeambuilderTable['gen' + genNum + 'insurgence'].tiers = tiers;
+			BattleTeambuilderTable['gen' + genNum + 'insurgence'].overrideTier = overrideTier;
+			BattleTeambuilderTable['gen' + genNum + 'insurgence'].items = items;
+			BattleTeambuilderTable['gen' + genNum + 'insurgence'].formatSlices = formatSlices;
 		} else if (isMetBattle) {
 			BattleTeambuilderTable[gen + 'metronome'] = {};
 			BattleTeambuilderTable[gen + 'metronome'].tiers = tiers;
@@ -900,12 +900,20 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			BattleTeambuilderTable['gen8bdsp'].learnsets[id][moveid] = '8g';
 		}
 	}
-	const InsurgenceLearnsets = Dex.mod('gen9insurgence').data.Learnsets;
-	for (const id in InsurgenceLearnsets) {
-		const learnset = InsurgenceLearnsets[id].learnset;
+	const G9InsurgenceLearnsets = Dex.mod('gen9insurgence').data.Learnsets;
+	for (const id in G9InsurgenceLearnsets) {
+		const learnset = G9InsurgenceLearnsets[id].learnset;
 		BattleTeambuilderTable['gen9insurgence'].learnsets[id] = {};
 		for (const moveid in learnset) {
 			BattleTeambuilderTable['gen9insurgence'].learnsets[id][moveid] = '9g';
+		}
+	}
+	const G6InsurgenceLearnsets = Dex.mod('gen6insurgence').data.Learnsets;
+	for (const id in G6InsurgenceLearnsets) {
+		const learnset = G6InsurgenceLearnsets[id].learnset;
+		BattleTeambuilderTable['gen6insurgence'].learnsets[id] = {};
+		for (const moveid in learnset) {
+			BattleTeambuilderTable['gen6insurgence'].learnsets[id][moveid] = '6g';
 		}
 	}
 	const DLC1Learnsets = Dex.mod('gen8dlc1').data.Learnsets;
@@ -1040,7 +1048,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 	// Mods
 	//
 
-	for (const mod of ['gen7letsgo', 'gen8bdsp', 'gen9insurgence']) {
+	for (const mod of ['gen7letsgo', 'gen8bdsp', 'gen9insurgence', 'gen6insurgence']) {
 		const modDex = Dex.mod(mod);
 		const modData = modDex.data;
 		const parentDex = Dex.forGen(modDex.gen);
