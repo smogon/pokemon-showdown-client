@@ -864,11 +864,11 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 		}
 	}
 
-	const G6InsurgenceLearnsets = Dex.mod('gen9insurgence').data.Learnsets;
+	const G6InsurgenceLearnsets = Dex.mod('gen6insurgence').data.Learnsets;
 	for (const id in G6InsurgenceLearnsets) {
 		const learnset = G6InsurgenceLearnsets[id].learnset;
 		if (!learnset) continue;
-		BattleTeambuilderTable['gen9insurgence'].learnsets[id] = {};
+		BattleTeambuilderTable['gen6insurgence'].learnsets[id] = {};
 		for (const moveid in learnset) {
 			const gens = learnset[moveid].map(x => Number(x[0]));
 			const minGen = Math.min(...gens);
