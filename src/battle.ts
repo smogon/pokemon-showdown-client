@@ -3007,20 +3007,35 @@ export class Battle {
 			this.activateAbility(poke, fromeffect);
 			let minTimeLeft = 5;
 			let maxTimeLeft = 0;
-			console.log(effect);
+			let minTimeLeftTr = 5;
+			let maxTimeLeftTr = 0;
+			console.log(this.pseudoWeather);
 			if (effect.id.endsWith('terrain')) {
 				for (let i = this.pseudoWeather.length - 1; i >= 0; i--) {
 					let pwID = toID(this.pseudoWeather[i][0]);
-					console.log(pwID);
 					if (pwID.endsWith('terrain')) {
 						this.pseudoWeather.splice(i, 1);
 						continue;
 					}
 				}
 				if (this.gen > 6) maxTimeLeft = 8;
+				if (kwArgs.persistent) minTimeLeft += 2;
+				this.addPseudoWeather(effect.name, minTimeLeft, maxTimeLeft);
+			} else if (effect.id.endsWith('rickroom')) {
+				for (let i = this.pseudoWeather.length - 1; i >= 0; i--) {
+					let pwID = toID(this.pseudoWeather[i][0]);
+					if (pwID.endsWith('rickroom')) {
+						this.pseudoWeather.splice(i, 1);
+						continue;
+					}
+				}
+				if (this.gen > 6) maxTimeLeftTr = 8;
+				if (kwArgs.persistent) minTimeLeftTr += 2;
+				this.addPseudoWeather(effect.name, minTimeLeftTr, maxTimeLeftTr);
+			} else {
+				if (kwArgs.persistent) minTimeLeftTr += 2;
+				this.addPseudoWeather(effect.name, minTimeLeftTr, maxTimeLeftTr);
 			}
-			if (kwArgs.persistent) minTimeLeft += 2;
-			this.addPseudoWeather(effect.name, minTimeLeft, maxTimeLeft);
 
 			switch (effect.id) {
 			case 'gravity':
