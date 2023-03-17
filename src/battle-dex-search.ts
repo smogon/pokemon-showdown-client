@@ -623,6 +623,8 @@ abstract class BattleTypedSearch<T extends SearchType> {
 		}
 		if (format.includes('insurgence')) {
 			const gen = (Number(format.charAt(3)));
+			console.log(gen);
+			console.log(format);
 			if (format.includes('nationaldex')) {
 				format = format.slice(21) as ID;
 				if (!format) format = 'ou' as ID;
