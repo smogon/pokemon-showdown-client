@@ -3016,7 +3016,7 @@ export class Battle {
 					}
 				}
 				if (this.gen > 6) maxTimeLeft = 8;
-			} else if (effect.id.endsWith('trickroom')) {
+			} if (effect.id.endsWith('trickroom')) {
 				for (let i = this.pseudoWeather.length - 1; i >= 0; i--) {
 					let pwID = toID(this.pseudoWeather[i][0]);
 					if (effect.id.endsWith('trickroom')) {
