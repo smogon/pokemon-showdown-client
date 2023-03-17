@@ -3021,10 +3021,10 @@ export class Battle {
 				if (this.gen > 6) maxTimeLeft = 8;
 				if (kwArgs.persistent) minTimeLeft += 2;
 				this.addPseudoWeather(effect.name, minTimeLeft, maxTimeLeft);
-			} else if (effect.id.endsWith('rickroom')) {
+			} else if (effect.id.endsWith('trickroom')) {
 				for (let i = this.pseudoWeather.length - 1; i >= 0; i--) {
 					let pwID = toID(this.pseudoWeather[i][0]);
-					if (pwID.endsWith('rickroom')) {
+					if (pwID.endsWith('trickroom')) {
 						this.pseudoWeather.splice(i, 1);
 						continue;
 					}
@@ -3034,7 +3034,7 @@ export class Battle {
 				this.addPseudoWeather(effect.name, minTimeLeftTr, maxTimeLeftTr);
 			} else {
 				if (kwArgs.persistent) minTimeLeftTr += 2;
-				this.addPseudoWeather(effect.name, minTimeLeftTr, maxTimeLeftTr);
+				this.addPseudoWeather(effect.name, minTimeLeft, maxTimeLeft);
 			}
 
 			switch (effect.id) {
