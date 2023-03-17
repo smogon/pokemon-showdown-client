@@ -863,6 +863,53 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			}
 		}
 	}
+
+	const G6InsurgenceLearnsets = Dex.mod('gen9insurgence').data.Learnsets;
+	for (const id in G6InsurgenceLearnsets) {
+		const learnset = G6InsurgenceLearnsets[id].learnset;
+		if (!learnset) continue;
+		BattleTeambuilderTable['gen9insurgence'].learnsets[id] = {};
+		for (const moveid in learnset) {
+			const gens = learnset[moveid].map(x => Number(x[0]));
+			const minGen = Math.min(...gens);
+
+			if (minGen <= 4 && (gen3HMs.has(moveid) || gen4HMs.has(moveid))) {
+				let legalGens = '';
+				let available = false;
+
+				if (minGen === 3) {
+					legalGens += '3';
+					available = true;
+				}
+				if (available) available = !gen3HMs.has(moveid);
+
+				if (available || gens.includes(4)) {
+					legalGens += '4';
+					available = true;
+				}
+				if (available) available = !gen4HMs.has(moveid);
+
+				let minUpperGen = available ? 5 : Math.min(
+					...gens.filter(gen => gen > 4)
+				);
+				legalGens += '0123456789'.slice(minUpperGen);
+				BattleTeambuilderTable['gen6insurgence'].learnsets[id][moveid] = legalGens;
+			} else {
+				BattleTeambuilderTable['gen6insurgence'].learnsets[id][moveid] = '0123456789'.slice(minGen);
+			}
+
+			if (gens.indexOf(6) >= 0) BattleTeambuilderTable['gen6insurgence'].learnsets[id][moveid] += 'p';
+			if (gens.indexOf(7) >= 0 && learnset[moveid].some(x => x[0] === '7' && x !== '7V')) {
+				BattleTeambuilderTable['gen6insurgence'].learnsets[id][moveid] += 'q';
+			}
+			if (gens.indexOf(8) >= 0 && learnset[moveid].some(x => x[0] === '8' && x !== '8V')) {
+				BattleTeambuilderTable['gen6insurgence'].learnsets[id][moveid] += 'g';
+			}
+			if (gens.indexOf(9) >= 0 && learnset[moveid].some(x => x[0] === '9' && x !== '9V')) {
+				BattleTeambuilderTable['gen6insurgence'].learnsets[id][moveid] += 'a';
+			}
+		}
+	}
 	const G2Learnsets = Dex.mod('gen2').data.Learnsets;
 	for (const id in G2Learnsets) {
 		const learnset = G2Learnsets[id].learnset;
@@ -908,14 +955,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			BattleTeambuilderTable['gen9insurgence'].learnsets[id][moveid] = '9g';
 		}
 	}
-	const G6InsurgenceLearnsets = Dex.mod('gen6insurgence').data.Learnsets;
-	for (const id in G6InsurgenceLearnsets) {
-		const learnset = G6InsurgenceLearnsets[id].learnset;
-		BattleTeambuilderTable['gen6insurgence'].learnsets[id] = {};
-		for (const moveid in learnset) {
-			BattleTeambuilderTable['gen6insurgence'].learnsets[id][moveid] = '6g';
-		}
-	}
+
 	const DLC1Learnsets = Dex.mod('gen8dlc1').data.Learnsets;
 	for (const id in DLC1Learnsets) {
 		const learnset = DLC1Learnsets[id].learnset;
