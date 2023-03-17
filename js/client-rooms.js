@@ -18,7 +18,10 @@
 			buf += '<div class="roomlist"><p><em style="font-size:20pt">Loading...</em></p></div><div class="roomlist"></div>';
 			//buf += '<p><button name="toggleMoreRooms" class="button">Show more rooms</button><p>';
 			//buf += '<p><button name="joinRoomPopup" class="button">Join other room</button></p></div>';
-			buf += '</div><div class="pad"><h2 class="rooms-officialchatrooms">Plan of Attack Rules</h2>';
+			buf += '</div><div class="pad"><h2 class="rooms-officialchatrooms">Plan of Attack!</h2>';
+			buf += '<p style="width: 480px;font-size:10pt">Welcome to the Plan of Attack official client! We are small community of Pokemon players who enjoy modded games. Our goal for this server is to include as many different fangames as is possible, as well as custom concepts created by You! Join our discord to submit your own concepts and become a part of our awesome community.</p>';
+			buf += '<div><a href="https://discord.com/invite/zkaRcSSG" class="ilink"><strong><i class="fa fa-comment-o"></i> Discord<br></strong><small>Our Discord.</small></a></div>'
+			buf += '</div><div class="pad"><h2 class="rooms-officialchatrooms">Rules</h2>';
 			buf += '<p style="font-weight:bold;font-size:10pt">1: Play nice</p>';
 			buf += '<p style="width: 480px;font-size:10pt">Toxicity/bigotry in any form won\'t be tolerated. We strive for a positive community, you\'re a pokemon fan like everyone around you, try to enjoy the game!</p>';
 			buf += '<p style="font-weight:bold;font-size:10pt">2: Keep it PG-13</p>';
