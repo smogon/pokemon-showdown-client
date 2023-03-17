@@ -3633,6 +3633,22 @@ a.ilink.yours {
 	color: #AACCEE;
 }
 
+.dark .discordlist a.ilink {
+	box-shadow: none;
+	text-shadow: none;
+}
+
+.dark .discordlist a.ilink {
+	border-color: #BB99BB;
+	background: rgba(30, 40, 50, .5);
+	color: #7799BB;
+}
+.dark .discordlist a.ilink:hover {
+	border-color: #EECCEE;
+	background: rgba(30, 40, 50, 1);
+	color: #AACCEE;
+}
+
 /* misc */
 .dark iframe.textbox,
 .dark iframe.textbox:hover,
