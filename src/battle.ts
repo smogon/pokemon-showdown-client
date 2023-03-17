@@ -3007,9 +3007,11 @@ export class Battle {
 			this.activateAbility(poke, fromeffect);
 			let minTimeLeft = 5;
 			let maxTimeLeft = 0;
+			console.log(effect);
 			if (effect.id.endsWith('terrain')) {
 				for (let i = this.pseudoWeather.length - 1; i >= 0; i--) {
 					let pwID = toID(this.pseudoWeather[i][0]);
+					console.log(pwID);
 					if (pwID.endsWith('terrain')) {
 						this.pseudoWeather.splice(i, 1);
 						continue;
