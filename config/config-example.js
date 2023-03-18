@@ -35,5 +35,6 @@ Config.customcolors = {
 	'dunscy': 'dscy',
 	'justgrace': 'grace',
 	'shadowakumo': 'fuckthisguy',
-	'brawler456': 'fuckthisguy'
+	'brawler456': 'fuckthisguy',
+	'pokebridge': 'rainbow'
 };
