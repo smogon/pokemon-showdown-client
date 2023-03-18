@@ -1895,7 +1895,7 @@
 			var text = '';
 			// Sanitising the `userid` here is probably unnecessary, because
 			// IDs can't contain anything dangerous.
-			text += '<li' + (this.room.userForm === userid ? ' class="cur"' : '') + ' id="' + this.room.id + '-userlist-user-' + BattleLog.escapeHTML(userid) + '">';
+			text += '<li' + (this.room.userForm === userid ? ' class="cur"' : '') + ' id="' + this.room.id + '-userlist-user-' + BattleLog.escapeHTML(userid) + '"' + userid === 'yoshifanfic' ? 'style="background-image:url(https://media.tenor.com/p_IwfyFVRGkAAAAd/sableye-pokemon.gif);' : '' + '>';
 			text += '<button class="userbutton username" data-roomgroup="' + BattleLog.escapeHTML(user.group) + '" data-name="' + BattleLog.escapeHTML(user.name) + '"';
 			text += (user.away ? ' data-away=true' : '') + (user.status ? ' data-status="' + BattleLog.escapeHTML(user.status) + '"' : '') + '>';
 			var group = user.group;
