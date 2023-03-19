@@ -97,6 +97,7 @@ header {
 @media (max-width:700px) {
 	.nav-wrapper {
 		width: auto;
+		display: inline-block;
 	}
 	.nav {
 		padding-left: 135px;
@@ -105,15 +106,14 @@ header {
 		font-weight: normal;
 		padding: 8px 7px;
 	}
+	.nav img {
+		top: 10px;
+	}
 }
 
 @media (max-width:554px) {
 	header {
 		height: 100px;
-	}
-	.nav-wrapper {
-		float: left;
-		padding-left: 10px;
 	}
 	.nav {
 		padding-left: 0;
@@ -121,7 +121,9 @@ header {
 	}
 	.nav img {
 		top: 10px;
-		left: 10px;
+	}
+	.nav a {
+		padding: 8px 12px;
 	}
 	.nav a.nav-first {
 		margin-left: 0;
@@ -132,7 +134,12 @@ header {
 		right: 0;
 	}
 }
-@media (max-width:360px) {
+@media (max-width:419px) {
+	.nav a {
+		padding: 8px 7px;
+	}
+}
+@media (max-width:359px) {
 	.nav-wrapper {
 		padding-left: 5px;
 	}
