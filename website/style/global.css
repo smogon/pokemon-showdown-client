@@ -17,7 +17,7 @@ html {
 	font-size: 11pt;
 }
 .body {
-	background: transparent url(/images/bg-horizon-fade.jpg) no-repeat bottom right;
+	background: transparent url(/images/bg-horizon-fade@2x.jpg) no-repeat bottom right;
 	background-size: 100% auto;
 	padding-bottom: 30vw;
 }
