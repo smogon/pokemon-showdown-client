@@ -1114,7 +1114,7 @@ export class Battle {
 		$frame?: JQuery<HTMLElement>,
 		$logFrame?: JQuery<HTMLElement>,
 		id?: ID,
-		log?: string[],
+		log?: string[] | string,
 		paused?: boolean,
 		isReplay?: boolean,
 		debug?: boolean,
@@ -1135,6 +1135,7 @@ export class Battle {
 		this.paused = !!options.paused;
 		this.started = !this.paused;
 		this.debug = !!options.debug;
+		if (typeof options.log === 'string') options.log = options.log.split('\n');
 		this.stepQueue = options.log || [];
 		this.subscription = options.subscription || null;
 		this.autoresize = !!options.autoresize;
