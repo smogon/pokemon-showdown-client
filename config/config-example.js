@@ -36,4 +36,5 @@ Config.customcolors = {
 	'justgrace': 'grace',
 	'shadowakumo': 'fuckthisguy',
 	'brawler456': 'fuckthisguy',
+	'nani72': 'nani',
 };
