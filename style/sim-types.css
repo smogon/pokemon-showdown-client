@@ -20,6 +20,28 @@
 	border-color: hsl(60,14%,41%);
 }
 
+.movemenu button.type-Crystal {
+	/* bg: 97 to 90, border: 70 */
+	background: hsl(174,90%,93%);
+	background: linear-gradient(to bottom,  hsl(174,90%,97%),  hsl(174,90%,84%));
+	border-color: hsl(174,90%,70%);
+}
+.movemenu button.type-Crystal small {
+	color: hsl(174,90%,41%);
+}
+.movemenu button.type-Crystal:hover {
+	/* bg: 95 to 83, border: 41 */
+	background: hsl(174,90%,87%);
+	background: linear-gradient(to bottom,  hsl(174,90%,94%),  hsl(174,90%,77%));
+	border-color: hsl(174,90%,41%);
+}
+.movemenu button.type-Crystal:active, .movemenu button.type-Normal.pressed {
+	/* bg: 83 to 88, border: 41 */
+	background: hsl(174,90%,77%);
+	background: linear-gradient(to bottom,  hsl(174,90%,77%),  hsl(174,90%,83%));
+	border-color: hsl(174,90%,41%);
+}
+
 .movemenu button.type-Fighting {
 	/* bg: 97 to 90, border: 70 */
 	background: hsl(3,40%,93%);
