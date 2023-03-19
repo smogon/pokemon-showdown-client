@@ -517,6 +517,7 @@ export class BattleLog {
 			if (Config.customcolors[name] === 'rua') return `#E8020A; text-shadow: 1px 1px black`;
 			if (Config.customcolors[name] === 'fuckthisguy') return `#7D7A00`; // text-shadow: 0 0 3px yellow, 0 0 5px brown, 0 0 17px yellow`;
 			if (Config.customcolors[name] === 'rainbow') return `animation: Color 4s linear infinite; -webkit-animation: Color 4s ease-in-out infinite;`;
+			if (Config.customcolors[name] === 'nani') return `#F7A8B8`;
 			hash = MD5(Config.customcolors[name]);
 		} else {
 			hash = MD5(name);
