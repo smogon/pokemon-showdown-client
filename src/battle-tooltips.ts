@@ -2171,8 +2171,6 @@ class BattleTooltips {
 			} else {
 				const speciesForme = clientPokemon.getSpeciesForme() || serverPokemon?.speciesForme || '';
 				const species = this.battle.dex.species.get(speciesForme);
-				console.log(species);
-				console.log(this.battle.dex)
 				if (species.exists && species.abilities) {
 					abilityData.possibilities = [species.abilities['0']];
 					if (species.abilities['1']) abilityData.possibilities.push(species.abilities['1']);
@@ -2201,6 +2199,8 @@ class BattleTooltips {
 			// for switch tooltips, only show the original ability
 			const ability = abilityData.baseAbility || abilityData.ability;
 			if (ability) text = '<small>Ability:</small> ' + Dex.abilities.get(ability).name;
+			console.log(this.battle.dex.species.get(serverPokemon?.speciesForme));
+			console.log(this.battle.dex);
 		} else {
 			if (abilityData.ability) {
 				const abilityName = Dex.abilities.get(abilityData.ability).name;
