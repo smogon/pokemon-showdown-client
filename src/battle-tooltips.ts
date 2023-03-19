@@ -2199,8 +2199,7 @@ class BattleTooltips {
 			// for switch tooltips, only show the original ability
 			const ability = abilityData.baseAbility || abilityData.ability;
 			if (ability) text = '<small>Ability:</small> ' + Dex.abilities.get(ability).name;
-			console.log(this.battle.dex.species.get((serverPokemon?.speciesForme || '')));
-			console.log(this.battle.dex);
+			console.log(this.battle);
 		} else {
 			if (abilityData.ability) {
 				const abilityName = Dex.abilities.get(abilityData.ability).name;
