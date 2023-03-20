@@ -367,13 +367,13 @@ function toId() {
 		 * Log out from the server (but remain connected as a guest).
 		 */
 		logout: function () {
-			$.post(this.getActionPHP(), {
-				act: 'logout',
-				userid: this.get('userid')
-			});
-			app.send('/logout');
-			app.trigger('init:socketclosed', "You have been logged out and disconnected.<br /><br />If you wanted to change your name while staying connected, use the 'Change Name' button or the '/nick' command.", false);
-			app.socket.close();
+			// $.post(this.getActionPHP(), {
+			// 	act: 'logout',
+			// 	userid: this.get('userid')
+			// });
+			// app.send('/logout');
+			// app.trigger('init:socketclosed', "You have been logged out and disconnected.<br /><br />If you wanted to change your name while staying connected, use the 'Change Name' button or the '/nick' command.", false);
+			// app.socket.close();
 		},
 		setPersistentName: function (name) {
 			//if (location.host !== Config.routes.client) return;
