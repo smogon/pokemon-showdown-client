@@ -3,6 +3,8 @@
  */
 
 export const IPTools = new class {
+	// eslint-disable-next-line max-len
+	readonly ipRegex = /^(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\.(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\.(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\.(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])$/;
 	getCidrRange(cidr: string): {minIP: number; maxIP: number} | null {
 		if (!cidr) return null;
 		const index = cidr.indexOf('/');

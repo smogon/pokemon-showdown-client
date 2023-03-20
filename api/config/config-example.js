@@ -138,3 +138,15 @@ exports.restartip = null;
 exports.actions = null;
 
 exports.cssdir = __dirname + "/customcss/";
+
+/**
+ * @type {Record<string, string>}
+ */
+exports.standings = {
+	'-20': "Confirmed",
+	'-10': "Autoconfirmed",
+	'0': "New",
+	"20": "Permalock",
+	"30": "Permaban",
+	"100": "Disabled",
+};

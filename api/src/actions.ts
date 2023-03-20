@@ -12,6 +12,7 @@ import {ActionError, QueryHandler} from './server';
 import {toID, updateserver, bash, time} from './utils';
 import * as tables from './tables';
 import * as pathModule from 'path';
+import IPTools from './ip-tools';
 
 export const actions: {[k: string]: QueryHandler} = {
 	async register(params) {
@@ -392,6 +393,100 @@ export const actions: {[k: string]: QueryHandler} = {
 		});
 
 		return {success: true};
+	},
+
+	async setstanding(params) {
+		const server = await this.getServer(true);
+		if (!Config.mainserver || !server || server.id !== Config.mainserver) {
+			throw new ActionError('Access denied');
+		}
+		const userid = toID(params.user);
+		if (!userid) {
+			throw new ActionError("Target username not specified.");
+		}
+		const actor = toID(params.actor);
+		if (!actor) {
+			throw new ActionError("The staff executing this action must be specified.");
+		}
+		if (!params.reason || !params.reason.length) {
+			throw new ActionError("A reason must be specified.");
+		}
+		const standing = Number(params.standing);
+		if (isNaN(standing) || !params.standing) {
+			throw new ActionError("No standing specified.");
+		}
+		if (!Config.standings[standing]) {
+			throw new ActionError("Invalid standing.");
+		}
+		const res = await tables.users.update(userid, {
+			banstate: standing,
+		});
+		if (!res.affectedRows) {
+			throw new ActionError("User not found.");
+		}
+		await tables.usermodlog.insert({
+			actorid: actor,
+			userid,
+			date: time(),
+			ip: this.getIp(),
+			entry: `Standing changed to ${standing} (${Config.standings[standing]}): ${params.reason}`,
+		});
+		return {success: true};
+	},
+
+	async ipstanding(params) {
+		const server = await this.getServer(true);
+		if (!Config.mainserver || !server || server.id !== Config.mainserver) {
+			throw new ActionError('Access denied');
+		}
+		const ip = params.ip?.trim() || "";
+		if (!IPTools.ipRegex.test(ip)) {
+			throw new ActionError("Invalid IP provided.");
+		}
+		const actor = toID(params.actor);
+		if (!actor) {
+			throw new ActionError("The staff executing this action must be specified.");
+		}
+		if (!params.reason || !params.reason.length) {
+			throw new ActionError("A reason must be specified.");
+		}
+		const standing = Number(params.standing);
+		if (isNaN(standing) || !params.standing) {
+			throw new ActionError("No standing specified.");
+		}
+		if (!Config.standings[standing]) {
+			throw new ActionError("Invalid standing.");
+		}
+		const matches = await tables.users.selectAll(['userid'])`ip = ${ip}`;
+		for (const {userid} of matches) {
+			await tables.users.update(userid, {banstate: standing});
+			await tables.usermodlog.insert({
+				actorid: actor,
+				userid,
+				date: time(),
+				ip: this.getIp(),
+				entry: `Standing changed to ${standing} (${Config.standings[standing]}): ${params.reason}`,
+			});
+		}
+		return {success: matches.length};
+	},
+
+	async ipmatches(params) {
+		const server = await this.getServer(true);
+		if (!Config.mainserver || !server || server.id !== Config.mainserver) {
+			throw new ActionError('Access denied');
+		}
+		const userid = toID(params.id);
+		if (!userid) {
+			throw new ActionError("User not specified.");
+		}
+		const res = await tables.users.get(userid);
+		if (!res) {
+			throw new ActionError(`User ${userid} not found.`);
+		}
+		return {
+			matches: await tables.users.selectAll(['userid', 'banstate'])`ip = ${res.ip}`,
+		};
 	},
 };
 
