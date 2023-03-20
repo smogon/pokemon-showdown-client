@@ -1717,7 +1717,7 @@
 			if (pm) {
 				var pmuserid = toUserid(pm);
 				var oName = pmuserid === app.user.get('userid') ? name : pm;
-				var clickableName = '<span class="username" data-name="' + BattleLog.escapeHTML(name) + '">' + BattleLog.escapeHTML(name.substr(1)) + '</span>';
+				var clickableName = '<span class="username" data-name="' + BattleLog.escapeHTML(name) + '">' + (name.includes("pokebridge") ? "" : BattleLog.escapeHTML(name.substr(1))) + '</span>';
 				this.$chat.append(
 					'<div class="chat chatmessage-' + toID(name) + '">' + ChatRoom.getTimestamp('lobby', msgTime) +
 					'<strong style="' + BattleLog.hashColor(userid) + '">' + clickableName + ':</strong>' +
