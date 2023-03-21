@@ -857,7 +857,7 @@ class BattleTextParser {
 
 			if (id === 'commander') {
 				// Commander didn't have a message prior to v1.2.0 of SV
-				// so this is for old replays
+				// so this is for backwards compatibility
 				if (target === pokemon) return line1;
 				const template = this.template('activate', id);
 				return line1 + template.replace('[POKEMON]', this.pokemon(pokemon)).replace(/\[TARGET\]/g, this.pokemon(target));
