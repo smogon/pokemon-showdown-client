@@ -855,6 +855,11 @@ class BattleTextParser {
 				return line1 + template.replace('[TARGET]', this.pokemon(target));
 			}
 
+			if (id === 'commander') {
+                const template = this.template('activate', id);
+                return line1 + template.replace('[POKEMON]', this.pokemon(pokemon)).replace(/\[TARGET\]/g, this.pokemon(target));
+            }
+
 			let templateId = 'activate';
 			if (id === 'forewarn' && pokemon === target) {
 				templateId = 'activateNoTarget';
