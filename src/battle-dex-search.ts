@@ -1441,7 +1441,7 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 		}
 		const isBadMove = BattleMoveSearch.BAD_STRONG_MOVES.includes(id);
 		if (moveData.flags?.slicing) {
-			return !isBadMove || abilityid === 'sharpness';
+			return abilityid === 'sharpness' || !isBadMove;
 		}
 		return !isBadMove;
 	}
