@@ -1156,14 +1156,14 @@ export class Battle {
 	}
 
 	onResize = () => {
-		var width = $(window).width()!;
+		const width = $(window).width()!;
 		if (width < 950 || this.hardcoreMode) {
 			this.messageShownTime = 500;
 		} else {
 			this.messageShownTime = 1;
 		}
 		if (width && width < 640) {
-			var scale = (width / 640);
+			const scale = (width / 640);
 			this.scene.$frame?.css('transform', 'scale(' + scale + ')');
 			this.scene.$frame?.css('transform-origin', 'top left');
 			// this.$foeHint.css('transform', 'scale(' + scale + ')');
