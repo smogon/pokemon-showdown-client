@@ -1439,8 +1439,8 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 		if (moveData.flags?.recharge) {
 			return false;
 		}
-		if (moveData.flags?.slicing) {
-			return abilityid === 'sharpness';
+		if (moveData.flags?.slicing && abilityid === 'sharpness') {
+			return true;
 		}
 		return !BattleMoveSearch.BAD_STRONG_MOVES.includes(id);
 	}
