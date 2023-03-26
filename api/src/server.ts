@@ -146,7 +146,7 @@ export class ActionContext {
 			} catch {}
 		}
 
-		if (result.act === 'json') {
+		if (result.act === 'json' || typeof result.json === 'string') {
 			json = result.json;
 			delete result.json;
 		}
