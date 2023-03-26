@@ -146,17 +146,17 @@ export class ActionContext {
 			} catch {}
 		}
 
-		if (result.act === 'json' || typeof result.json === 'string') {
+		if (result.act === 'json' || !result.act) {
 			json = result.json;
+			result.act = '';
 			delete result.json;
 		}
 		try {
 			const jsonResult = JSON.parse(json);
-			delete result.act;
 			if (Array.isArray(jsonResult)) {
 				return jsonResult.map(body => this.sanitizeBody({...result, ...body}));
 			} else {
-				result = Object.assign(jsonResult, result);
+				result = Object.assign(result, jsonResult);
 			}
 		} catch {}
 		return this.sanitizeBody(result);
