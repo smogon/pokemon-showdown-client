@@ -99,10 +99,7 @@ export const actions: {[k: string]: QueryHandler} = {
 	},
 
 	async updateuserstats(params) {
-		const server = await this.getServer(true);
-		if (!server) {
-			return {actionsuccess: false};
-		}
+		const server = await this.requireServer();
 
 		const date = parseInt(params.date!);
 		const usercount = parseInt(params.users! || params.usercount!);
@@ -146,9 +143,11 @@ export const actions: {[k: string]: QueryHandler} = {
 
 	async prepreplay(params) {
 		const server = await this.getServer(true);
-		if (!server) {
+		if (server?.id !== Config.mainserver) {
+			// legacy error
 			return {errorip: this.getIp()};
 		}
+
 		const extractedFormatId = /^([a-z0-9]+)-[0-9]+$/.exec(`${params.id}`);
 		const formatId = /^([a-z0-9]+)$/.exec(`${params.format}`);
 		if (
@@ -190,10 +189,8 @@ export const actions: {[k: string]: QueryHandler} = {
 	},
 
 	async invalidatecss() {
-		const server = await this.getServer(true);
-		if (!server) {
-			return {errorip: this.getIp()};
-		}
+		const server = await this.requireServer();
+
 		// No need to sanitise server['id'] because it should be safe already.
 		const cssfile = pathModule.join(process.env.CSS_DIR || Config.cssdir, `/${server['id']}.css`);
 		try {
@@ -258,13 +255,7 @@ export const actions: {[k: string]: QueryHandler} = {
 
 	async getassertion(params) {
 		this.setPrefix('');
-		params.userid = toID(params.userid);
-		if (!params.userid) {
-			params.userid = this.user.id;
-		}
-		if (params.userid === 'guest') {
-			return ';'; // Special error message for this case.
-		}
+		params.userid = toID(params.userid) || this.user.id;
 		// NaN is falsy so this validates
 		const challengekeyid = Number(params.challengekeyid) || -1;
 		const challenge = params.challenge || params.challstr || "";
@@ -280,14 +271,15 @@ export const actions: {[k: string]: QueryHandler} = {
 	async ladderupdate(params) {
 		const server = await this.getServer(true);
 		if (server?.id !== Config.mainserver) {
-			return {errorip: "Your version of PS is too old for this ladder system. Please update."};
+			// legacy error
+			return {errorip: this.getIp()};
 		}
 
 		if (!toID(params.format)) throw new ActionError("Invalid format.");
+		if (!params.score) throw new ActionError("Score required.");
 		const ladder = new Ladder(params.format!);
 		if (!Ladder.isValidPlayer(params.p1)) return 0;
 		if (!Ladder.isValidPlayer(params.p2)) return 0;
-		if (!params.score) throw new ActionError("Score required.");
 
 		const out: {[k: string]: any} = {};
 		const [p1rating, p2rating] = await ladder.addMatch(params.p1!, params.p2!, parseFloat(params.score));
@@ -301,20 +293,19 @@ export const actions: {[k: string]: QueryHandler} = {
 	},
 
 	async ladderget(params) {
-		const server = await this.getServer();
-		if (server?.id !== Config.mainserver) {
-			return {errorip: true};
-		}
+		// used by the client; doesn't need a serverid check; Main can be assumed
 
 		const user = Ladder.isValidPlayer(params.user);
-		if (!user) return {errorip: true};
-		return Ladder.getAllRatings(params.user!);
+		if (!user) throw new ActionError("Invalid username.");
+
+		return Ladder.getAllRatings(user);
 	},
 
 	async mmr(params) {
 		const server = await this.getServer(true);
 		if (server?.id !== Config.mainserver) {
-			return {errorip: 'Your version of PS is too old for this ladder system. Please update.'};
+			// legacy error
+			return {errorip: "This ladder is not for your server. You should turn off Config.remoteladder."};
 		}
 		if (!toID(params.format)) throw new ActionError("Specify a format.");
 		const ladder = new Ladder(params.format!);
@@ -325,10 +316,8 @@ export const actions: {[k: string]: QueryHandler} = {
 	},
 
 	async restart() {
-		const server = await this.getServer(true);
-		if (server?.id !== Config.mainserver) {
-			throw new ActionError(`Access denied.`);
-		}
+		await this.requireMainServer();
+
 		if (!Config.restartip) {
 			throw new ActionError(`This feature is disabled.`);
 		}
@@ -343,11 +332,10 @@ export const actions: {[k: string]: QueryHandler} = {
 		if (stderr) throw new ActionError(stderr);
 		return {updated: update, success: true};
 	},
+
 	async updatenamecolor(params) {
-		const server = await this.getServer(true);
-		if (!Config.mainserver || !server || server.id !== Config.mainserver) {
-			throw new ActionError('Access denied');
-		}
+		await this.requireMainServer();
+
 		const userid = toID(params.userid);
 		if (!userid) {
 			throw new ActionError('No userid was specified.');
@@ -370,7 +358,9 @@ export const actions: {[k: string]: QueryHandler} = {
 		try {
 			const content = await fs.readFile(Config.colorpath, 'utf-8');
 			Object.assign(colors, JSON.parse(content));
-		} catch (e) {}
+		} catch (e) {
+			throw new ActionError(`Could not read color file (${e})`);
+		}
 		let entry = '';
 		if (!('source' in params)) {
 			if (!colors[userid]) {
@@ -396,10 +386,8 @@ export const actions: {[k: string]: QueryHandler} = {
 	},
 
 	async setstanding(params) {
-		const server = await this.getServer(true);
-		if (!Config.mainserver || !server || server.id !== Config.mainserver) {
-			throw new ActionError('Access denied');
-		}
+		await this.requireMainServer();
+
 		const userid = toID(params.user);
 		if (!userid) {
 			throw new ActionError("Target username not specified.");
@@ -435,10 +423,8 @@ export const actions: {[k: string]: QueryHandler} = {
 	},
 
 	async ipstanding(params) {
-		const server = await this.getServer(true);
-		if (!Config.mainserver || !server || server.id !== Config.mainserver) {
-			throw new ActionError('Access denied');
-		}
+		await this.requireMainServer();
+
 		const ip = params.ip?.trim() || "";
 		if (!IPTools.ipRegex.test(ip)) {
 			throw new ActionError("Invalid IP provided.");
@@ -472,10 +458,8 @@ export const actions: {[k: string]: QueryHandler} = {
 	},
 
 	async ipmatches(params) {
-		const server = await this.getServer(true);
-		if (!Config.mainserver || !server || server.id !== Config.mainserver) {
-			throw new ActionError('Access denied');
-		}
+		await this.requireMainServer();
+
 		const userid = toID(params.id);
 		if (!userid) {
 			throw new ActionError("User not specified.");

@@ -175,7 +175,9 @@ export class Session {
 	async getAssertion(
 		userid: string, challengekeyid = -1, user: User | null, challenge = '', challengeprefix = ''
 	) {
-		if (userid.startsWith('guest')) {
+		if (userid === 'guest') {
+			return ';';
+		} else if (userid.startsWith('guest')) {
 			return ';;Your username cannot start with \'guest\'.';
 		} else if (userid.length > 18) {
 			return ';;Your username must be less than 19 characters long.';

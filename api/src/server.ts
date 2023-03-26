@@ -218,6 +218,22 @@ export class ActionContext {
 	getServer(requireToken?: boolean) {
 		return SimServers.getServer(this, requireToken);
 	}
+	async requireServer() {
+		const server = await this.getServer(true);
+		if (!server) {
+			throw new ActionError(
+				`This API can only be used by a registered server. Your IP (${this.getIp()}) is unrecognized. ` +
+				`If your server is registered, you may need to set up token authentication.`
+			);
+		}
+		return server;
+	}
+	async requireMainServer(mainServerId = Config.mainserver) {
+		const server = await this.requireServer();
+		if (!mainServerId) throw new ActionError(`Main server misconfigured`, 500);
+		if (server.id !== mainServerId) throw new ActionError(`This API can only be used by the main server.`);
+		return server;
+	}
 }
 
 export const SimServers = new class SimServersT {

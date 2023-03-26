@@ -306,9 +306,10 @@ export class Ladder {
 		void this.saveRating(p2);
 		return [p1, p2];
 	}
-	static isValidPlayer(username: string | undefined): boolean {
+	static isValidPlayer(username: string | undefined): string | null {
 		const userid = toID(username);
-		return !(userid.length > 18 || !userid);
+		if (userid.length > 18 || !userid) return null;
+		return userid;
 	}
 }
 
