@@ -220,14 +220,14 @@ export class DatabaseTable<Row> {
 
 	// low-level
 
-	selectAll<T = Row>(entries?: string[] | SQLStatement):
+	selectAll<T = Row>(entries?: (keyof Row & string)[] | SQLStatement):
 	(strings: TemplateStringsArray, ...rest: SQLValue[]) => Promise<T[]> {
 		if (!entries) entries = SQL`*`;
 		if (Array.isArray(entries)) entries = SQL`\`${entries}\``;
 		return (strings, ...rest) =>
 			this.query<T>()`SELECT ${entries} FROM \`${this.name}\` ${new SQLStatement(strings, rest)}`;
 	}
-	selectOne<T = Row>(entries?: string[] | SQLStatement):
+	selectOne<T = Row>(entries?: (keyof Row & string)[] | SQLStatement):
 	(strings: TemplateStringsArray, ...rest: SQLValue[]) => Promise<T | undefined> {
 		if (!entries) entries = SQL`*`;
 		if (Array.isArray(entries)) entries = SQL`\`${entries}\``;
@@ -277,7 +277,7 @@ export class DatabaseTable<Row> {
 	replace(partialRow: PartialOrSQL<Row>, where?: SQLStatement) {
 		return this.queryExec()`REPLACE INTO \`${this.name}\` (${partialRow as SQLValue}) ${where}`;
 	}
-	get(primaryKey: BasicSQLValue, entries?: string[] | SQLStatement) {
+	get(primaryKey: BasicSQLValue, entries?: (keyof Row & string)[] | SQLStatement) {
 		return this.selectOne(entries)`WHERE \`${this.primaryKeyName}\` = ${primaryKey}`;
 	}
 	delete(primaryKey: BasicSQLValue) {
