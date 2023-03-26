@@ -143,31 +143,22 @@ export const actions: {[k: string]: QueryHandler} = {
 
 	async prepreplay(params) {
 		const server = await this.getServer(true);
-		if (server?.id !== Config.mainserver) {
+		if (!server) {
 			// legacy error
 			return {errorip: this.getIp()};
 		}
 
-		const extractedFormatId = /^([a-z0-9]+)-[0-9]+$/.exec(`${params.id}`);
-		const formatId = /^([a-z0-9]+)$/.exec(`${params.format}`);
+		const extractedFormatId = /^([a-z0-9]+)-[0-9]+$/.exec(`${params.id}`)?.[1];
+		const formatId = /^([a-z0-9]+)$/.exec(`${params.format}`)?.[1];
 		if (
-			// the server must be registered
-			!server ||
 			// the server must send all the required values
-			!params.id ||
-			!params.format ||
-			!params.loghash ||
-			!params.p1 ||
-			!params.p2 ||
+			!params.id || !params.format || !params.loghash || !params.p1 || !params.p2 ||
 			// player usernames cannot be longer than 18 characters
-			(params.p1.length > 18) ||
-			(params.p2.length > 18) ||
+			params.p1.length > 18 || params.p2.length > 18 ||
 			// the battle ID must be valid
 			!extractedFormatId ||
-			// the format ID must be valid
-			!formatId ||
 			// the format from the battle ID must match the format ID
-			(formatId[1] !== extractedFormatId[1])
+			formatId !== extractedFormatId
 		) {
 			return 0;
 		}
