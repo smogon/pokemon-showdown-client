@@ -53,7 +53,7 @@ export const actions: {[k: string]: QueryHandler} = {
 			throw new ActionError(`Your username is already taken.`);
 		}
 		const challengekeyid = parseInt(params.challengekeyid!) || -1;
-		const challenge = params.challstr || "";
+		const challenge = params.challstr || params.challenge || "";
 		if (!challenge) throw new ActionError(`Invalid challenge string argument.`);
 		const assertion = await this.session.getAssertion(userid, challengekeyid, user, challenge);
 		return {
@@ -90,7 +90,7 @@ export const actions: {[k: string]: QueryHandler} = {
 		const challengekeyid = parseInt(params.challengekeyid!) || -1;
 		const actionsuccess = await this.session.login(params.name, params.pass);
 		if (!actionsuccess) return {actionsuccess, assertion: false};
-		const challenge = params.challstr || "";
+		const challenge = params.challstr || params.challenge || "";
 		const assertion = await this.session.getAssertion(
 			userid, challengekeyid, null, challenge, challengeprefix
 		);
@@ -132,7 +132,7 @@ export const actions: {[k: string]: QueryHandler} = {
 		}
 		if (userid !== '') {
 			const challengekeyid = !params.challengekeyid ? -1 : parseInt(params.challengekeyid);
-			const challenge = params.challstr || "";
+			const challenge = params.challstr || params.challenge || "";
 			res.assertion = await this.session.getAssertion(
 				userid, challengekeyid, curuser, challenge, challengeprefix
 			);
