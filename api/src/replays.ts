@@ -38,7 +38,7 @@ export interface ReplayData {
 export const Replays = new class {
 	readonly passwordCharacters = '0123456789abcdefghijklmnopqrstuvwxyz';
 	async prep(params: {[k: string]: unknown}) {
-		const id = toID(params.id);
+		const id = ('' + params.id).toLowerCase().replace(/[^a-z0-9-]+/g, '');
 		let isPrivate: 0 | 1 | 2 = params.hidden ? 1 : 0;
 		if (params.hidden === 2) isPrivate = 2;
 		let p1 = Session.wordfilter(`${params.p1}`);
