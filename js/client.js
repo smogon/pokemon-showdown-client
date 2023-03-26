@@ -218,7 +218,7 @@ function toId() {
 		getActionPHP: function () {
 			var ret = '/action.php?serverid={}';
 			if (Config.testclient) {
-				ret = 'https://' + Config.routes.client + ret;
+				ret = 'protocol://' + Config.routes.client + ret;
 			}
 			return (this.getActionPHP = function () {
 				return ret;
@@ -376,7 +376,7 @@ function toId() {
 			app.socket.close();
 		},
 		setPersistentName: function (name) {
-			//if (location.host !== Config.routes.client) return;
+			if (location.host !== Config.routes.client) return;
 			$.cookie('showdown_username', (name !== undefined) ? name : this.get('name'), {
 				expires: 14
 			});
