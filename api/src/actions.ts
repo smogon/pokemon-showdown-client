@@ -25,6 +25,10 @@ export const actions: {[k: string]: QueryHandler} = {
 		if (!/[a-z]/.test(userid)) {
 			throw new ActionError(`Your username must include at least one letter.`);
 		}
+		if (await tables.users.get(userid)) {
+			throw new ActionError("Your username is already taken.");
+		}
+
 		if (!password) {
 			throw new ActionError('You must specify a password.');
 		}
