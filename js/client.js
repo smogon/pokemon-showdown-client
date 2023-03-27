@@ -218,7 +218,7 @@ function toId() {
 		getActionPHP: function () {
 			var ret = '/action.php?serverid={}';
 			if (Config.testclient) {
-				ret = 'https://play.pokemonshowdown.com/action.php?act=x';
+				ret = 'https://play.pokemonshowdown.com/action.php';
 			}
 			return (this.getActionPHP = function () {
 				return ret;
