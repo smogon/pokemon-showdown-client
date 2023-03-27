@@ -244,9 +244,9 @@ export class Ladder {
 		rating.rprd = glicko.rd;
 
 		const exp = ((1500 - glicko.rating) / 400 / Math.sqrt(1 + 0.0000100724 * (glicko.rd * glicko.rd + 130 * 130)));
-		rating.gxe = Math.round(
+		rating.gxe = Number((
 			100 / (1 + Math.pow(10, exp))
-		);
+		).toFixed(1));
 
 		// if ($newM) {
 		// 	// compensate for Glicko2 bug: don't lose rating on win, don't gain rating on lose
