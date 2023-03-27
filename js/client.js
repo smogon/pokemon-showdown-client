@@ -2872,7 +2872,7 @@ function toId() {
 		type: 'modal',
 		initialize: function (data) {
 			this.callback = data.callback;
-
+			console.log(data);
 			var buf = '<form>';
 			buf += '<p>Because of <a href="https://en.wikipedia.org/wiki/Same-origin_policy" target="_blank">your browser\'s security restrictions</a> for <code>testclient.html</code>, we need to do this manually:</p>';
 			buf += '<iframe id="overlay_iframe" src="' + data.uri + '" style="width: 100%; height: 50px;" class="textbox"></iframe>';
