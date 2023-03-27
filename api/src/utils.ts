@@ -1,5 +1,6 @@
 import * as child_process from 'child_process';
 import * as crypto from 'crypto';
+import {TextEncoder} from 'util';
 
 export function toID(text: any): string {
 	if (text?.id) {
@@ -81,4 +82,17 @@ export function stripNonAscii(str: string) {
 
 export function md5(str: string) {
 	return crypto.createHash('md5').update(str).digest('hex');
+}
+
+export function encode(text: string) {
+	return new TextEncoder().encode(text);
+}
+
+export function signAsync(algo: string, data: string, key: string) {
+	return new Promise<string>((resolve, reject) => {
+		crypto.sign(algo, encode(data), key, (err, out) => {
+			if (err) return reject(err);
+			return resolve(out.toString('hex'));
+		});
+	});
 }
