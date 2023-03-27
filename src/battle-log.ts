@@ -29,6 +29,7 @@ export class BattleLog {
 	scene: BattleScene | null = null;
 	preemptElem: HTMLDivElement = null!;
 	atBottom = true;
+	skippedLines = false;
 	className: string;
 	battleParser: BattleTextParser | null = null;
 	joinLeave: {
@@ -78,12 +79,42 @@ export class BattleLog {
 	reset() {
 		this.innerElem.innerHTML = '';
 		this.atBottom = true;
+		this.skippedLines = false;
 	}
 	destroy() {
 		this.elem.onscroll = null;
 	}
+	addSeekEarlierButton() {
+		if (this.skippedLines) return;
+		this.skippedLines = true;
+		const el = document.createElement('div');
+		el.className = 'chat';
+		el.innerHTML = '<button class="button earlier-button"><i class="fa fa-caret-up"></i><br />Earlier messages</button>';
+		const button = el.getElementsByTagName('button')[0];
+		button?.addEventListener?.('click', e => {
+			e.preventDefault();
+			this.scene?.battle.seekTurn(this.scene.battle.turn - 100);
+		});
+		this.addNode(el);
+	}
 	add(args: Args, kwArgs?: KWArgs, preempt?: boolean) {
 		if (kwArgs?.silent) return;
+		if (this.scene?.battle.seeking) {
+			const battle = this.scene.battle;
+			if (battle.stepQueue.length > 2000) {
+				// adding elements gets slower and slower the more there are
+				// (so showing 100 turns takes around 2 seconds, and 1000 turns takes around a minute)
+				// capping at 100 turns makes everything _reasonably_ snappy
+				if (
+					battle.seeking === Infinity ?
+						battle.currentStep < battle.stepQueue.length - 2000 :
+						battle.turn < battle.seeking! - 100
+				) {
+					this.addSeekEarlierButton();
+					return;
+				}
+			}
+		}
 		let divClass = 'chat';
 		let divHTML = '';
 		let noNotify: boolean | undefined;
