@@ -904,7 +904,7 @@ export class BattleLog {
 					tagName: 'iframe',
 					attribs: [
 						'width', width, 'height', height,
-						'src', `https://www.youtube.com/embed/${videoId}${time ? `?start=${time}` : ''}`,
+						'src', `https://www.youtube.com/embed/${videoId}?enablejsapi=1${time ? `&time=${time}` : ""}`,
 						'frameborder', '0', 'allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture', 'allowfullscreen', 'allowfullscreen',
 					],
 				};
