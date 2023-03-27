@@ -1,6 +1,5 @@
 import * as child_process from 'child_process';
 import * as crypto from 'crypto';
-import {TextEncoder} from 'util';
 
 export function toID(text: any): string {
 	if (text?.id) {
@@ -85,7 +84,7 @@ export function md5(str: string) {
 }
 
 export function encode(text: string) {
-	return new TextEncoder().encode(text);
+	return Uint8Array.from(Buffer.from(text));
 }
 
 export function signAsync(algo: string, data: string, key: string) {
