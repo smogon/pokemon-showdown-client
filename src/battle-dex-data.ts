@@ -335,6 +335,7 @@ const BattlePokemonIconIndexes: {[id: string]: number} = {
 	alcremiecaramelswirl: 1020 + 189,
 	alcremierainbowswirl: 1020 + 190,
 	eiscuenoice: 1020 + 191,
+	eiscuedeltanorock: 1020 + 191,
 	indeedeef: 1020 + 192,
 	morpekohangry: 1020 + 193,
 	zaciancrowned: 1020 + 194,
