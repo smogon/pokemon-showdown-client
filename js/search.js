@@ -348,6 +348,8 @@
 				abilities = Dex.mod("gen9insurgence").species.get(id).abilities;
 			} else if (this.engine.dex.modid === "gen6insurgence")  {
 				abilities = Dex.mod("gen6insurgence").species.get(id).abilities;
+			} else if (this.engine.dex.modid === "gen9poa")  {
+				abilities = Dex.mod("gen9poa").species.get(id).abilities;
 			} else {
 				abilities = Dex.forGen(gen).species.get(id).abilities;
 			}

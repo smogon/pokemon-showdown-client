@@ -30,6 +30,9 @@
 				if (this.curTeam.format.includes('insurgence')) {
 					this.curTeam.dex = Dex.mod('gen' + this.curTeam.gen + 'insurgence');
 				}
+				if (this.curTeam.format.includes('poa')) {
+					this.curTeam.dex = Dex.mod('gen' + this.curTeam.gen + 'poa');
+				}
 				Storage.activeSetList = this.curSetList;
 			}
 		},
@@ -702,6 +705,9 @@
 			if (this.curTeam.format.includes('insurgence')) {
 				this.curTeam.dex = Dex.mod('gen'+ this.curTeam.gen + 'insurgence');
 			}
+			if (this.curTeam.format.includes('poa')) {
+				this.curTeam.dex = Dex.mod('gen' + this.curTeam.gen + 'poa');
+			}
 			Storage.activeSetList = this.curSetList = Storage.unpackTeam(this.curTeam.team);
 			this.curTeamIndex = i;
 			this.update();
@@ -1186,8 +1192,10 @@
 			var isBDSP = this.curTeam.format.includes('bdsp');
 			var isNatDex = this.curTeam.format.includes('nationaldex') || this.curTeam.format.includes('natdex');
 			var isInsurgence = this.curTeam.format.includes('insurgence');
+			var isPOA = this.curTeam.format.includes('poa');
 			if (isInsurgence && !set.level) set.level = 120;
-			if (isInsurgence && !set.cmType) set.cmType ="Normal";
+			if (isInsurgence && !set.cmType) set.cmType = "Normal";
+			if (isPOA && !set.cmType) set.cmType = "Normal";
 
 			var buf = '<li value="' + i + '">';
 			if (!set.species) {
@@ -1253,9 +1261,10 @@
 				if (this.curTeam.gen === 9) {
 					buf += '<span class="detailcell"><label>Tera Type</label>' + (set.teraType || species.types[0]) + '</span>';
 				}
-				if (isInsurgence) {
+				if (isInsurgence || isPOA) {
 					buf += '<span class="detailcell"><label>Custom Move Type</label>' + (set.cmType || "Normal") + '</span>';
 				}
+				
 			}
 			buf += '</button></div></div>';
 
@@ -1506,6 +1515,9 @@
 			}
 			if (this.curTeam.format.includes('insurgence')) {
 				this.curTeam.dex = Dex.mod('gen' + this.curTeam.gen + 'insurgence');
+			}
+			if (this.curTeam.format.includes('poa')) {
+				this.curTeam.dex = Dex.mod('gen' + this.curTeam.gen + 'poa');
 			}
 			this.save();
 			if (this.curTeam.gen === 5 && !Dex.loadedSpriteData['bw']) Dex.loadSpriteData('bw');
@@ -2625,6 +2637,7 @@
 			var isBDSP = this.curTeam.format.includes('bdsp');
 			var isNatDex = this.curTeam.format.includes('nationaldex') || this.curTeam.format.includes('natdex');
 			var isInsurgence = this.curTeam.format.includes('insurgence');
+			var isPOA = this.curTeam.format.includes('poa');
 			var isHackmons = this.curTeam.format.includes('hackmons') || this.curTeam.format.endsWith('bh');
 			var species = this.curTeam.dex.species.get(set.species);
 			if (!set) return;
@@ -2709,7 +2722,7 @@
 				buf += '</select></div></div>';
 			}
 			
-			if (isInsurgence) {
+			if (isInsurgence || isPOA) {
 				buf += '<div class="formrow"><label class="formlabel" title="Custom Move Type">Custom Move:</label><div><select name="cmtype">';
 				var types = Dex.types.all();
 				var cmType = set.cmType || "Normal";
@@ -2736,6 +2749,7 @@
 			var isBDSP = this.curTeam.format.includes('bdsp');
 			var isNatDex = this.curTeam.format.includes('nationaldex') || this.curTeam.format.includes('natdex');
 			var isInsurgence = this.curTeam.format.includes('insurgence');
+			var isPOA = this.curTeam.format.includes('poa');
 
 			// level
 			var level = parseInt(this.$chart.find('input[name=level]').val(), 10);
@@ -2844,7 +2858,7 @@
 				if (this.curTeam.gen === 9) {
 					buf += '<span class="detailcell"><label>Tera Type</label>' + (set.teraType || species.types[0]) + '</span>';
 				}
-				if (isInsurgence) {
+				if (isInsurgence || isPOA) {
 					buf += '<span class="detailcell"><label>Custom Move Type</label>' + (set.cmType || "Normal") + '</span>';
 				}
 			}
