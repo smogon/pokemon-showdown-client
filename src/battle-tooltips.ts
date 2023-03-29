@@ -1735,9 +1735,6 @@ class BattleTooltips {
 			}
 			value.set(20 + 20 * boostCount);
 		}
-		if (move.id === 'deserttempest' && serverPokemon.item === "Smooth Rock") {
-			value.set(75);
-		}
 		if (move.id === 'trumpcard') {
 			const ppLeft = 5 - this.ppUsed(move, pokemon);
 			let basePower = 40;
@@ -2136,6 +2133,9 @@ class BattleTooltips {
 
 		if (itemName === 'Punching Glove' && move.flags['punch']) {
 			value.itemModify(1.1);
+		}
+		if (itemName === 'Smooth Rock' && moveName === 'Desert Tempest') {
+			value.itemModify(1.2);
 		}
 
 		return value;
