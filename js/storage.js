@@ -538,9 +538,7 @@ Storage.initTestClient = function () {
 			}
 			if (sid) {
 				data.sid = sid;
-				post(uri, data, Storage.safeJSON(function (data) {
-					console.log(data);
-				}), type);
+				post(uri, data, callback, type);
 			} else {
 				var src = '<!DOCTYPE html><html><body><form action="' + BattleLog.escapeHTML(uri) + '" method="POST">';
 				src += '<input type="hidden" name="testclient">';
