@@ -499,9 +499,7 @@ Storage.initTestClient = function () {
 	if (typeof POKEMON_SHOWDOWN_TESTCLIENT_KEY === 'string') {
 		sid = POKEMON_SHOWDOWN_TESTCLIENT_KEY.replace(/\%2C/g, ',');
 	}
-	if (Storage.prefs("userid")) {
-		console.log(Storage.prefs("userid"));
-	}
+
 	Storage.whenAppLoaded(function (app) {
 		var get = $.get;
 		$.get = function (uri, data, callback, type) {
@@ -527,15 +525,14 @@ Storage.initTestClient = function () {
 		};
 		var post = $.post;
 		$.post = function (uri, data, callback, type) {
+			console.log(data);
 			if (type === 'html') {
 				uri += '&testclient';
 			}
 			if (uri[0] === '/') { //relative URI
 				uri = Dex.resourcePrefix + uri.substr(1);
 			}
-			if (data.name) {
-				Storage.prefs('userid', data.name);
-			}
+
 			if (sid) {
 				data.sid = sid;
 				post(uri, data, callback, type);
