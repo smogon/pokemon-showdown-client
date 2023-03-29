@@ -1614,6 +1614,9 @@ class BattleTooltips {
 		} else if (value.tryAbility('Compound Eyes')) {
 			accuracyModifiers.push(5325);
 			value.abilityModify(1.3, "Compound Eyes");
+		} else if (value.tryAbility('Ring Rust')) {
+			accuracyModifiers.push(4506);
+			value.abilityModify(1.1, "Ring Rust");
 		}
 
 		if (value.tryItem('Wide Lens')) {
@@ -1907,6 +1910,9 @@ class BattleTooltips {
 		}
 		if (move.type === 'Dark') {
 			value.abilityModify(1.5, "Shadow Synergy");
+		}
+		if (typeof move.accuracy === 'number' && move.accuracy < 100) {
+			value.abilityModify(1.3, "Ring Rust");
 		}
 		for (let i = 1; i <= 5 && i <= pokemon.side.faintCounter; i++) {
 			if (pokemon.volatiles[`fallen${i}`]) {
