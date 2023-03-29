@@ -96,6 +96,13 @@ export class ActionContext {
 		const handler = actions[act];
 		if (!handler) throw new ActionError(`Request type "${act}" was not recognized.`, 404);
 
+		// the cookies are actually the only CSRF risk,
+		// so there's no problem setting CORS
+		// if they send it directly
+		if (ActionContext.parseURLRequest(this.request).sid?.length) {
+			this.setHeader('Access-Control-Allow-Origin', '*');
+		}
+
 		try {
 			this.user = await this.session.getUser();
 			const result = await handler.call(this, body);
