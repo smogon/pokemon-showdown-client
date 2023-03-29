@@ -525,7 +525,6 @@ Storage.initTestClient = function () {
 		};
 		var post = $.post;
 		$.post = function (uri, data, callback, type) {
-			console.log(data);
 			if (type === 'html') {
 				uri += '&testclient';
 			}
