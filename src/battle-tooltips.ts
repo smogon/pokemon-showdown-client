@@ -1547,6 +1547,7 @@ class BattleTooltips {
 
 	// Gets the current accuracy for a move.
 	getMoveAccuracy(move: Move, value: ModifiableValue, target?: Pokemon) {
+		let moveOGacc = move.accuracy === true ? 100 : move.accuracy;
 		value.reset(move.accuracy === true ? 0 : move.accuracy, true);
 
 		let pokemon = value.pokemon!;
@@ -1614,7 +1615,7 @@ class BattleTooltips {
 		} else if (value.tryAbility('Compound Eyes')) {
 			accuracyModifiers.push(5325);
 			value.abilityModify(1.3, "Compound Eyes");
-		} else if (value.tryAbility('Ring Rust')) {
+		} else if (value.tryAbility('Ring Rust') && moveOGacc < 100) {
 			accuracyModifiers.push(4506);
 			value.abilityModify(1.1, "Ring Rust");
 		}
