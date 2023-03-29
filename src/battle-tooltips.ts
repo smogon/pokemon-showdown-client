@@ -1735,6 +1735,9 @@ class BattleTooltips {
 			}
 			value.set(20 + 20 * boostCount);
 		}
+		if (move.id === 'deserttempest' && serverPokemon.item === "Smooth Rock") {
+			value.set(75);
+		}
 		if (move.id === 'trumpcard') {
 			const ppLeft = 5 - this.ppUsed(move, pokemon);
 			let basePower = 40;
