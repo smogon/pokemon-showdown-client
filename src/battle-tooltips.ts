@@ -2148,11 +2148,10 @@ class BattleTooltips {
 		return value;
 	}
 	getPokemonTypes(pokemon: Pokemon | ServerPokemon, preterastallized = false): ReadonlyArray<TypeName> {
+		if (pokemon.speciesForme === "Giratina-Primal") {
+			return ["???", "Bug", "Dark", "Dragon", "Electric", "Fairy", "Fighting", "Fire", "Flying", "Ghost", "Grass", "Ground", "Ice", "Normal", "Poison", "Psychic", "Rock", "Steel", "Water"];
+		}
 		if (!(pokemon as Pokemon).getTypes) {
-			console.log(pokemon);
-			if (pokemon.speciesForme === "Giratina-Primal") {
-				return ["???", "Bug", "Dark", "Dragon", "Electric", "Fairy", "Fighting", "Fire", "Flying", "Ghost", "Grass", "Ground", "Ice", "Normal", "Poison", "Psychic", "Rock", "Steel", "Water"];
-			}
 			return this.battle.dex.species.get(pokemon.speciesForme).types;
 		}
 
