@@ -540,7 +540,6 @@ Storage.initTestClient = function () {
 				data.sid = sid;
 				post(uri, data, Storage.safeJSON(function (dataresp) {
 					console.log(dataresp);
-					return callback
 				}), type);
 			} else {
 				var src = '<!DOCTYPE html><html><body><form action="' + BattleLog.escapeHTML(uri) + '" method="POST">';
