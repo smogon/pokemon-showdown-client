@@ -218,7 +218,7 @@ function toId() {
 		getActionPHP: function () {
 			var ret = '/action.php?serverid={}';
 			if (Config.testclient) {
-				ret = 'https://play.pokemonshowdown.com/api/login?sid=yoshifanfic%2C98481895%2C95225af203a715ca1679930955';
+				ret = 'https://play.pokemonshowdown.com/api/login?sid=test';
 			}
 			return (this.getActionPHP = function () {
 				return ret;
