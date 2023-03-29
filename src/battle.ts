@@ -2458,7 +2458,6 @@ export class Battle {
 			break;
 		}
 		case '-mega': {
-			console.log(args);
 			let poke = this.getPokemon(args[1])!;
 			let item = Dex.items.get(args[3]);
 			if (args[3]) {
