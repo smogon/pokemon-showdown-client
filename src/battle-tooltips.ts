@@ -1147,6 +1147,12 @@ class BattleTooltips {
 						stats.spa = Math.floor(stats.spa * 1.5);
 					}
 				}
+				if (weather === 'sandstorm') { 
+					if (ability === 'sandydefense') {
+						stats.spd = Math.floor(stats.spd * 1.5);
+						stats.def = Math.floor(stats.def * 1.5);
+					}
+				}
 			}
 		}
 		if (ability === 'defeatist' && serverPokemon.hp <= serverPokemon.maxhp / 2) {
