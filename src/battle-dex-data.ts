@@ -843,6 +843,7 @@ const BattlePokemonIconIndexes: {[id: string]: number} = {
 	hydreigonmeganine: 1752 + 31,
 	sunfloramegaf: 1752 + 32,
 	venusaurdeltamegaf: 1752 + 33,
+	sceptiledeltamega: 1752 + 34,
 
 	mewtwoarmor: 1788 + 0,
 	mewtwoshadow: 1788 + 1,
