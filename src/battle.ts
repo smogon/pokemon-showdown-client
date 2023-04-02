@@ -2496,7 +2496,7 @@ export class Battle {
 				if (ofpoke && fromeffect.id === 'reflecttype') {
 					poke.copyTypesFrom(ofpoke);
 				} else {
-					const types = Dex.sanitizeName(args[3] || '???');
+					const types = Dex.sanitizeNameTypes(args[3] || '???');
 					poke.removeVolatile('typeadd' as ID);
 					poke.addVolatile('typechange' as ID, types);
 					if (!kwArgs.silent) {

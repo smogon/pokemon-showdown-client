@@ -240,6 +240,11 @@ const Dex = new class implements ModdedDex {
 			.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
 			.slice(0, 50);
 	}
+	sanitizeNameTypes(name: any) {
+		if (!name) return '';
+		return ('' + name)
+			.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
+	}
 
 	prefs(prop: string) {
 		// @ts-ignore
