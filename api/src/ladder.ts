@@ -194,8 +194,8 @@ export class Ladder {
 						decay = 1 + (elo - 1400) / 50;
 					}
 					switch (this.formatid) {
-					case 'gen8randombattle':
-					case 'gen8ou':
+					case 'gen9randombattle':
+					case 'gen9ou':
 						break;
 					default:
 						decay -= 2;
