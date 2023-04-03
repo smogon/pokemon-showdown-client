@@ -434,6 +434,9 @@ export class Session {
 
 		// see if we're logged in
 		const scookie = body.sid || this.cookies.get('sid');
+		if (body.sid) {
+			this.context.response.setHeader('Access-Control-Allow-Origin', '*');
+		}
 		if (!scookie) {
 			// nope, not logged in
 			return null;
