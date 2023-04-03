@@ -1216,6 +1216,7 @@ process.stdout.write("Building `data/moves,items,abilities,typechart,learnsets.j
 	}
 	const buf = 'exports.BattleItems = ' + es3stringify(Items) + ';';
 	fs.writeFileSync('data/items.js', buf);
+	fs.writeFileSync('data/items.json', JSON.stringify(Items));
 }
 
 /*********************************************************
@@ -1231,6 +1232,7 @@ process.stdout.write("Building `data/moves,items,abilities,typechart,learnsets.j
 	}
 	const buf = 'exports.BattleAbilities = ' + es3stringify(Abilities) + ';';
 	fs.writeFileSync('data/abilities.js', buf);
+	fs.writeFileSync('data/abilities.json', JSON.stringify(Abilities));
 }
 
 /*********************************************************
