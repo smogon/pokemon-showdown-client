@@ -578,6 +578,9 @@ class BattleTooltips {
 					case 'snow':
 						zMove = this.battle.dex.moves.get(BattleTooltips.zMoveTable['Ice']);
 						break;
+					case 'acidrain':
+						zMove = this.battle.dex.moves.get(BattleTooltips.zMoveTable['Poison']);
+						break;
 					}
 				}
 				move = new Move(zMove.id, zMove.name, {
@@ -1444,6 +1447,9 @@ class BattleTooltips {
 			case 'newmoon':
 				moveType = 'Dark';
 				break;
+			case 'acidrain':
+				moveType = 'Poison';
+				break;
 			case 'sunnyday':
 			case 'desolateland':
 				if (item.id === 'utilityumbrella') break;
@@ -1911,6 +1917,9 @@ class BattleTooltips {
 		}
 		if (move.type === 'Dark') {
 			value.abilityModify(1.5, "Shadow Synergy");
+		}
+		if (move.type === 'Poison' && this.battle.weather === 'acidrain') {
+			value.abilityModify(1.3, "Corrosion")
 		}
 		if (typeof move.accuracy === 'number' && move.accuracy < 100) {
 			value.abilityModify(1.3, "Ring Rust");
