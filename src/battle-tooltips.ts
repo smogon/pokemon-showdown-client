@@ -1570,6 +1570,9 @@ class BattleTooltips {
 			value.weatherModify(0, 'Rain Dance');
 			value.weatherModify(0, 'Primordial Sea');
 		}
+		if (move.id === 'smog') {
+			value.weatherModify(100, 'Acid Rain')
+		}
 		if (!move.ohko) {
 			value.abilityModify(0, 'No Guard');
 		}
