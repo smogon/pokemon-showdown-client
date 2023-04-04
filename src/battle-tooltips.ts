@@ -1685,7 +1685,7 @@ class BattleTooltips {
 				value.modify(2, "Acrobatics + no item");
 			}
 		}
-		if (move.id === 'smog') {
+		if (move.id === 'smog' && this.battle.weather === 'acidrain') {
 			value.modify(2, "Smog + Acid Rain")
 		}
 		if (['crushgrip', 'wringout'].includes(move.id) && target) {
@@ -1922,7 +1922,7 @@ class BattleTooltips {
 			value.abilityModify(1.5, "Shadow Synergy");
 		}
 		if (move.type === 'Poison' && this.battle.weather === 'acidrain') {
-			value.abilityModify(1.3, "Corrosion")
+			value.abilityModify(1.3, "Corrosion in Acid Rain")
 		}
 		if (typeof move.accuracy === 'number' && move.accuracy < 100) {
 			value.abilityModify(1.3, "Ring Rust");
