@@ -1925,7 +1925,7 @@ class BattleTooltips {
 			value.abilityModify(1.5, "Shadow Synergy");
 		}
 		if (move.type === 'Poison' && this.battle.weather === 'acidrain') {
-			value.abilityModify(1.3, "Corrosion + Acid Rain")
+			value.abilityModify(1.3, "Corrosion")
 		}
 		if (typeof move.accuracy === 'number' && move.accuracy < 100) {
 			value.abilityModify(1.3, "Ring Rust");
