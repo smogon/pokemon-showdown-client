@@ -900,9 +900,12 @@ export class BattleLog {
 
 				const time = /(?:\?|&)(?:t|start)=([0-9]+)/.exec(src)?.[1];
 
+				// only one player can ever be on-screen at once.
+				$('iframe.youtube.player').remove();
 				return {
 					tagName: 'iframe',
 					attribs: [
+						'class', 'youtube player',
 						'width', width, 'height', height,
 						'src', `https://www.youtube.com/embed/${videoId}${time ? `?start=${time}` : ''}`,
 						'frameborder', '0', 'allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture', 'allowfullscreen', 'allowfullscreen',
