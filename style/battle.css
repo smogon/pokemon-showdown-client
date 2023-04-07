@@ -483,6 +483,10 @@ License: GPLv2
 	background: #DDAAEE url(../fx/weather-newmoon.png) no-repeat scroll left top;
 	color: #661155;
 }
+.acidrainweather {
+	background: #3c3863 url(../fx/weather-acidrain.png) no-repeat scroll left top;
+	color: #470e55;
+}
 
 .battle .result {
 	display: none;
