@@ -641,8 +641,13 @@ abstract class BattleTypedSearch<T extends SearchType> {
 			
 		}
 		if (format.includes('poa')) {
-			format = format.slice(14) as ID;
-			if (!format) format = 'ou' as ID;
+			if (format.includes("doubles")) {
+				format = format.slice(10) as ID;
+				if (!format) format = 'ou' as ID;
+			} else {
+				format = format.slice(14) as ID;
+				if (!format) format = 'ou' as ID;
+			}
 			this.formatType = 'poa'
 			this.dex = Dex.mod('gen9poa' as ID);
 		}
