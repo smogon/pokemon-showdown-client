@@ -570,6 +570,7 @@
 						break;
 
 					case 'Banned':
+					case 'UserNameLocked':
 						appendError("You are banned from entering tournaments.");
 						break;
 
