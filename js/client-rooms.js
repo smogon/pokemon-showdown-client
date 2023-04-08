@@ -3,31 +3,6 @@
 	this.RoomsRoom = Room.extend({
 		minWidth: 320,
 		maxWidth: 1024,
-		type: 'calc',
-		title: 'Calc',
-		events: {
-			'change select[name=sections]': 'refresh'
-		},
-		isSideRoom: true,
-		initialize: function () {
-			this.focusedSection = '';
-
-			this.$el.addClass('ps-room-light').addClass('scrollable');
-			var buf = '<iframe src="https://poilerwags.github.io" width="100%" height="600"><p>Your browser does not support iframes.</p></iframe>';
-	
-			this.$el.html(buf);
-			app.on('response:calc', this.update, this);
-			var settings = Dex.prefs('serversettings');
-			if (settings) app.send('/updatesettings ' + JSON.stringify(settings));
-			app.send('/cmd calc');
-			app.user.on('change:named', this.updateUser, this);
-			this.update();
-		},
-	});
-
-	this.RoomsRoom = Room.extend({
-		minWidth: 320,
-		maxWidth: 1024,
 		type: 'rooms',
 		title: 'Rooms',
 		events: {
