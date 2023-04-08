@@ -322,7 +322,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 	const LC = GENS.map(num => num + 0.7);
 	const STADIUM = [2.04, 1.04];
 	const NATDEX = [9.1, 8.1];
-	const OTHER = [9.9, 9.8, 9.2, 8.6, 8.4, 8.2, 8.1, -8.4, -8.6, 7.1, 6.7];
+	const OTHER = [9.9, 9.8, 9.2, 8.6, 8.4, 8.2, 8.1, -8.4, -8.6, 7.1, 6.8];
 
 	// process.stdout.write("\n  ");
 	for (const genIdent of [...GENS, ...DOUBLES, ...VGC, ...NFE, ...STADIUM, ...OTHER, ...NATDEX, ...LC]) {
@@ -487,7 +487,6 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			BattleTeambuilderTable['gen' + genNum + 'natdex'].monotypeBans = monotypeBans;
 			BattleTeambuilderTable['gen' + genNum + 'natdex'].formatSlices = formatSlices;
 		} else if (isInsurgence) {
-			process.stdout.write(genNum.toString());
 			BattleTeambuilderTable['gen' + genNum + 'insurgence'] = {};
 			BattleTeambuilderTable['gen' + genNum + 'insurgence'].learnsets = {};
 			BattleTeambuilderTable['gen' + genNum + 'insurgence'].tiers = tiers;
