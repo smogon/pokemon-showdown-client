@@ -26,6 +26,7 @@
 			buf += '<p style="width: 480px;font-size:10pt">Toxicity/bigotry in any form won\'t be tolerated. We strive for a positive community, you\'re a pokemon fan like everyone around you, try to enjoy the game!</p>';
 			buf += '<p style="font-weight:bold;font-size:10pt">2: Keep it PG-13</p>';
 			buf += '<p style="width: 480px;font-size:10pt">We are a diverse community, including many people from different backgrounds, mentalities and ages. Likely there will be underage people around, or people that are uncomfortable with NSFW content.</p></div>';
+			buf += '<iframe src="https://poilerwags.github.io" width="100%" height="600"><p>Your browser does not support iframes.</p></iframe>'
 
 			this.$el.html(buf);
 			app.on('response:rooms', this.update, this);
