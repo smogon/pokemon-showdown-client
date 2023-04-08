@@ -487,6 +487,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			BattleTeambuilderTable['gen' + genNum + 'natdex'].monotypeBans = monotypeBans;
 			BattleTeambuilderTable['gen' + genNum + 'natdex'].formatSlices = formatSlices;
 		} else if (isInsurgence) {
+			process.stdout.write(genNum.toString());
 			BattleTeambuilderTable['gen' + genNum + 'insurgence'] = {};
 			BattleTeambuilderTable['gen' + genNum + 'insurgence'].learnsets = {};
 			BattleTeambuilderTable['gen' + genNum + 'insurgence'].tiers = tiers;
