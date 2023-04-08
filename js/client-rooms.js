@@ -1,6 +1,6 @@
 (function ($) {
 
-	this.RoomsRoom = Room.extend({
+	this.CalcRoom = Room.extend({
 		minWidth: 320,
 		maxWidth: 1024,
 		type: 'calc',
