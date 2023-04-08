@@ -551,7 +551,7 @@ abstract class BattleTypedSearch<T extends SearchType> {
 	set: PokemonSet | null = null;
 
 	protected formatType: 'doubles' | 'bdsp' | 'bdspdoubles' | 'letsgo' | 'metronome' | 'natdex' | 'insurgencenatdex' | 'insurgencelegacy' |
-	'poa' | 'nfe' | 'dlc1' | 'dlc1doubles' | 'stadium' | null = null;
+	'poa' | 'nfe' | 'dlc1' | 'dlc1doubles' | 'stadium' | 'lc' | null = null;
 
 	/**
 	 * Cached copy of what the results list would be with only base filters
@@ -659,6 +659,10 @@ abstract class BattleTypedSearch<T extends SearchType> {
 			format = format.slice(3) as ID;
 			this.formatType = 'nfe';
 			if (!format) format = 'ou' as ID;
+		}
+		if ((format.endsWith('lc') || format.startsWith('lc')) && format !== 'caplc') {
+			this.formatType = 'lc';
+			format = 'lc' as ID;
 		}
 		this.format = format;
 
@@ -833,6 +837,7 @@ abstract class BattleTypedSearch<T extends SearchType> {
 			this.formatType === 'bdsp' ? 'gen8bdsp' :
 			this.formatType === 'bdspdoubles' ? 'gen8bdspdoubles' :
 			this.formatType === 'nfe' ? `gen${gen}nfe` :
+			this.formatType === 'lc' ? `gen${gen}lc` :
 			this.formatType === 'dlc1' ? 'gen8dlc1' :
 			this.formatType === 'dlc1doubles' ? 'gen8dlc1doubles' :
 			this.formatType === 'natdex' ? `gen${gen}natdex` :
@@ -957,6 +962,8 @@ class BattlePokemonSearch extends BattleTypedSearch<'pokemon'> {
 			table = table['gen' + dex.gen + 'metronome'];
 		} else if (this.formatType === 'nfe') {
 			table = table['gen' + dex.gen + 'nfe'];
+		} else if (this.formatType === 'lc') {
+			table = table['gen' + dex.gen + 'lc'];
 		} else if (this.formatType?.startsWith('dlc1')) {
 			if (this.formatType.includes('doubles')) {
 				table = table['gen8dlc1doubles'];
@@ -1492,8 +1499,8 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 		if (moveData.flags?.recharge) {
 			return false;
 		}
-		if (moveData.flags?.slicing) {
-			return abilityid === 'sharpness';
+		if (moveData.flags?.slicing && abilityid === 'sharpness') {
+			return true;
 		}
 		return !BattleMoveSearch.BAD_STRONG_MOVES.includes(id);
 	}

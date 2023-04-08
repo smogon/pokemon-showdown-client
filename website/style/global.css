@@ -17,7 +17,7 @@ html {
 	font-size: 11pt;
 }
 .body {
-	background: transparent url(/images/bg-horizon-fade.jpg) no-repeat bottom right;
+	background: transparent url(/images/bg-horizon-fade@2x.jpg) no-repeat bottom right;
 	background-size: 100% auto;
 	padding-bottom: 30vw;
 }
@@ -61,6 +61,7 @@ header {
 	text-decoration: none;
 	border-radius: 0;
 	margin-left: -1px;
+	font-size: 11pt;
 }
 .nav a:hover {
 	background: linear-gradient(to bottom, #5a77c7, #2f447f);
@@ -73,6 +74,7 @@ header {
 	color: #CCCCCC;
 	background: rgba(79, 109, 148, 0.7);
 	box-shadow: 0.5px 1px 2px rgba(255, 255, 255, 0.45);
+	border: 1px solid #222c4a;
 }
 .nav a.nav-first {
 	margin-left: 10px;
@@ -97,6 +99,7 @@ header {
 @media (max-width:700px) {
 	.nav-wrapper {
 		width: auto;
+		display: inline-block;
 	}
 	.nav {
 		padding-left: 135px;
@@ -105,15 +108,14 @@ header {
 		font-weight: normal;
 		padding: 8px 7px;
 	}
+	.nav img {
+		top: 10px;
+	}
 }
 
 @media (max-width:554px) {
 	header {
 		height: 100px;
-	}
-	.nav-wrapper {
-		float: left;
-		padding-left: 10px;
 	}
 	.nav {
 		padding-left: 0;
@@ -121,7 +123,9 @@ header {
 	}
 	.nav img {
 		top: 10px;
-		left: 10px;
+	}
+	.nav a {
+		padding: 8px 12px;
 	}
 	.nav a.nav-first {
 		margin-left: 0;
@@ -132,7 +136,12 @@ header {
 		right: 0;
 	}
 }
-@media (max-width:360px) {
+@media (max-width:419px) {
+	.nav a {
+		padding: 8px 7px;
+	}
+}
+@media (max-width:359px) {
 	.nav-wrapper {
 		padding-left: 5px;
 	}

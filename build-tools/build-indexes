@@ -319,16 +319,18 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 	const DOUBLES = GENS.filter(x => x > 2).map(num => -num);
 	const VGC = GENS.filter(x => x > 3).map(num => -num - 0.5);
 	const NFE = GENS.map(num => num + 0.3);
+	const LC = GENS.map(num => num + 0.7);
 	const STADIUM = [2.04, 1.04];
 	const NATDEX = [9.1, 8.1];
 	const OTHER = [9.8, 9.7, 9.2, 8.6, 8.4, 8.2, 8.1, -8.4, -8.6, 7.1, 6.7];
 
 	// process.stdout.write("\n  ");
-	for (const genIdent of [...GENS, ...DOUBLES, ...VGC, ...NFE, ...STADIUM, ...OTHER, ...NATDEX]) {
+	for (const genIdent of [...GENS, ...DOUBLES, ...VGC, ...NFE, ...STADIUM, ...OTHER, ...NATDEX, ...LC]) {
 		const isLetsGo = (genIdent === 7.1);
 		const isBDSP = (genIdent === 8.6 || genIdent === -8.6);
 		const isMetBattle = ('' + genIdent).endsWith('.2');
 		const isNFE = ('' + genIdent).endsWith('.3');
+		const isLC = ('' + genIdent).endsWith('.7');
 		const isDLC1 = (genIdent === 8.4 || genIdent === -8.4);
 		const isNatDex = ('' + genIdent).endsWith('.1') && genIdent > 8;
 		const isStadium = ('' + genIdent).endsWith('.04');
@@ -393,6 +395,16 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 					}
 					return tier;
 				}
+				if (isLC) {
+					let tier = species.tier;
+					const lc = Dex.formats.get(gen + 'lc');
+					const lcBanlist = Dex.formats.getRuleTable(lc);
+					if (!species.nfe || species.prevo || lcBanlist.isBannedSpecies(species)) {
+						tier = 'Illegal';
+					}
+					if (/^([OURNP]U|Uber|AG)$/g.test(tier)) tier = 'LC';
+					return tier;
+				}
 				if (isLetsGo) {
 					let validNum = (baseSpecies.num <= 151 && species.num >= 1) || [808, 809].includes(baseSpecies.num);
 					if (!validNum) return 'Illegal';
@@ -444,19 +456,6 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			if (!tierTable[tier]) tierTable[tier] = [];
 			tierTable[tier].push(id);
 
-			if (
-				tier !== 'LC' &&
-				(
-					(gen === 'gen8' && ['ferroseed', 'sandshrewalola'].includes(id)) ||
-					(gen === 'gen7' && id === 'ferroseed') ||
-					(gen === 'gen6' && ['ferroseed', 'pawniard', 'vullaby'].includes(id)) ||
-					(gen === 'gen5' && ['bronzor', 'dwebble', 'ferroseed', 'natu', 'riolu', 'tentacool'].includes(id)) ||
-					(gen === 'gen4' && ['clamperl', 'diglett', 'gligar', 'hippopotas', 'snover', 'wynaut'].includes(id))
-				)
-			) {
-				if (!tierTable['LC']) tierTable['LC'] = [];
-				tierTable['LC'].push(id);
-			}
 			if (genNum >= 5) {
 				const zu = Dex.formats.get(gen + 'zu');
 				if (zu.exists && Dex.formats.getRuleTable(zu).isBannedSpecies(species) &&
@@ -511,6 +510,11 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			BattleTeambuilderTable[gen + 'nfe'].tiers = tiers;
 			BattleTeambuilderTable[gen + 'nfe'].overrideTier = overrideTier;
 			BattleTeambuilderTable[gen + 'nfe'].formatSlices = formatSlices;
+		} else if (isLC) {
+			BattleTeambuilderTable[gen + 'lc'] = {};
+			BattleTeambuilderTable[gen + 'lc'].tiers = tiers;
+			BattleTeambuilderTable[gen + 'lc'].overrideTier = overrideTier;
+			BattleTeambuilderTable[gen + 'lc'].formatSlices = formatSlices;
 		} else if (isLetsGo) {
 			BattleTeambuilderTable['gen7letsgo'] = {};
 			BattleTeambuilderTable['gen7letsgo'].learnsets = {};

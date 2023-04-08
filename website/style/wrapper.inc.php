@@ -20,7 +20,7 @@ function includeHeaderTop() {
 
 <title><?= $pageTitle ?> - Pok&eacute;mon Showdown!</title>
 
-<link rel="stylesheet" href="/style/global.css?v12" />
+<link rel="stylesheet" href="/style/global.css?v14" />
 
 <!-- Global site tag (gtag.js) - Google Analytics -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=UA-26211653-1"></script>
@@ -40,19 +40,18 @@ function includeHeaderBottom() {
 ?>
 <div class="body">
 
-<header>
-	<div class="nav-wrapper"><ul class="nav">
-		<li><a class="button nav-first" href="/"><img src="/images/pokemonshowdownbeta.png" srcset="/images/pokemonshowdownbeta.png 1x, /images/pokemonshowdownbeta@2x.png 2x" alt="Pok&eacute;mon Showdown" width="146" height="44" /> Home</a></li>
-		<li><a class="button" href="/dex/">Pok&eacute;dex</a></li>
-		<li><a class="button" href="//replay.pokemonshowdown.com/">Replays</a></li>
-		<li><a class="button" href="/ladder/">Ladder</a></li>
-		<li><a class="button nav-last" href="/forums/">Forum</a></li>
-		<li><a class="button greenbutton nav-first nav-last" href="//play.pokemonshowdown.com/">Play</a></li>
-	</ul></div>
-</header>
+	<header>
+		<div class="nav-wrapper"><ul class="nav">
+			<li><a class="button nav-first" href="/"><img src="/images/pokemonshowdownbeta.png" srcset="/images/pokemonshowdownbeta.png 1x, /images/pokemonshowdownbeta@2x.png 2x" alt="Pok&eacute;mon Showdown" width="146" height="44" /> Home</a></li>
+			<li><a class="button" href="/dex/">Pok&eacute;dex</a></li>
+			<li><a class="button" href="//replay.pokemonshowdown.com/">Replays</a></li>
+			<li><a class="button" href="/ladder/">Ladder</a></li>
+			<li><a class="button nav-last" href="/forums/">Forum</a></li>
+			<li><a class="button greenbutton nav-first nav-last" href="//play.pokemonshowdown.com/">Play</a></li>
+		</ul></div>
+	</header>
 
-<div class="main">
-	<section class="section">
+	<div class="main"><section class="section">
 
 <?php
 }
@@ -65,8 +64,8 @@ function includeHeader() {
 
 function includeFooter() {
 ?>
-		</section>
-	</div>
+
+	</section></div>
 </div>
 
 <footer>

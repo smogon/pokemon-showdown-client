@@ -21,41 +21,29 @@ $pageTitle = "External link";
 
 includeHeaderTop();
 ?>
-		<meta name="robots" content="noindex" />
+<meta name="robots" content="noindex" />
 <?php
 includeHeaderBottom();
 
 ?>
-		<div class="main">
+		<p>
+			You clicked on a link to:
+		</p>
+		<blockquote><p>
+			<code><?php echo $uri ?></code>
+		</p></blockquote>
+		<div style="clear:both"></div>
 
-			<div class="ps-ad" style="margin: 0 auto;max-width: 728px;">
-<!-- BEGIN JS TAG - [728x90] < - DO NOT MODIFY -->
-<script type="text/javascript">
-document.write('<SCR'+'IPT SRC="http://ads.sonobi.com/ttj?id=1871931&referrer=<?= $psconfig['routes']['root'] ?>&cb='+(parseInt(Math.random()*100000))+'" TYPE="text/javascript"></SCR'+'IPT>');
-</script>
-<!-- END TAG -->
-			</div>
+		<ul>
+			<li>This site is not related to us. We cannot guarantee its quality.</li>
+			<li>Unknown sites may contain offensive or shocking content or may harm your computer.</li>
+		</ul>
 
-			<p>
-				You clicked on a link to:
-			</p>
-			<blockquote><p>
-				<code><?php echo $uri ?></code>
-			</p></blockquote>
-			<div style="clear:both"></div>
+		<p>If you trust the source of this link:</p>
 
-			<ul>
-				<li>This site is not related to us. We cannot guarantee its quality.</li>
-				<li>Unknown sites may contain offensive or shocking content or may harm your computer.</li>
-			</ul>
-
-			<p>If you trust the source of this link:</p>
-
-			<blockquote><ul class="nav">
-				<li><a rel="nofollow" class="button nav-first nav-last" href="<?php echo $uri ?>" title="<?php echo $uri ?>">Visit external site</a></li>
-			</ul></blockquote>
-
-		</div>
+		<blockquote>
+			<a rel="nofollow" class="button bigbutton" href="<?php echo $uri ?>" title="<?php echo $uri ?>"><strong>Visit external site</strong></a>
+		</blockquote>
 <?php
 
 includeFooter();

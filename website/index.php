@@ -8,7 +8,7 @@ include_once __DIR__ . '/../config/config.inc.php';
 
 <title>Pok&eacute;mon Showdown! battle simulator</title>
 
-<link rel="stylesheet" href="/style/global.css?v12" />
+<link rel="stylesheet" href="/style/global.css?v14" />
 
 <!-- Global site tag (gtag.js) - Google Analytics -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=UA-26211653-1"></script>

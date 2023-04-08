@@ -176,14 +176,14 @@ var Replays = {
 		this.battle.reset();
 	},
 	ff: function () {
-		this.battle.skipTurn();
+		this.battle.seekBy(1);
 	},
 	rewind: function () {
-		this.battle.seekTurn(this.battle.turn - 1);
+		this.battle.seekBy(-1);
 	},
 	ffto: function () {
 		var turn = prompt('Turn?');
-		if (!turn.trim()) return;
+		if (!turn || !turn.trim()) return;
 		if (turn === 'e' || turn === 'end' || turn === 'f' || turn === 'finish') turn = Infinity;
 		turn = Number(turn);
 		if (isNaN(turn) || turn < 0) alert("Invalid turn");

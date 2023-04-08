@@ -1109,6 +1109,7 @@ export class Battle {
 	ignoreSpects = !!Dex.prefs('ignorespects');
 	debug: boolean;
 	joinButtons = false;
+	autoresize: boolean;
 
 	/**
 	 * The actual pause state. Will only be true if playback is actually
@@ -1120,11 +1121,13 @@ export class Battle {
 		$frame?: JQuery<HTMLElement>,
 		$logFrame?: JQuery<HTMLElement>,
 		id?: ID,
-		log?: string[],
+		log?: string[] | string,
 		paused?: boolean,
 		isReplay?: boolean,
 		debug?: boolean,
 		subscription?: Battle['subscription'],
+		/** autoresize `$frame` for browsers below 640px width (mobile) */
+		autoresize?: boolean,
 	} = {}) {
 		this.id = options.id || '';
 
@@ -1139,8 +1142,10 @@ export class Battle {
 		this.paused = !!options.paused;
 		this.started = !this.paused;
 		this.debug = !!options.debug;
+		if (typeof options.log === 'string') options.log = options.log.split('\n');
 		this.stepQueue = options.log || [];
 		this.subscription = options.subscription || null;
+		this.autoresize = !!options.autoresize;
 
 		this.p1 = new Side(this, 0);
 		this.p2 = new Side(this, 1);
@@ -1151,7 +1156,29 @@ export class Battle {
 		this.farSide = this.p2;
 
 		this.resetStep();
+		if (this.autoresize) {
+			window.addEventListener('resize', this.onResize);
+			this.onResize();
+		}
 	}
+
+	onResize = () => {
+		const width = $(window).width()!;
+		if (width < 950 || this.hardcoreMode) {
+			this.messageShownTime = 500;
+		} else {
+			this.messageShownTime = 1;
+		}
+		if (width && width < 640) {
+			const scale = (width / 640);
+			this.scene.$frame?.css('transform', 'scale(' + scale + ')');
+			this.scene.$frame?.css('transform-origin', 'top left');
+			// this.$foeHint.css('transform', 'scale(' + scale + ')');
+		} else {
+			this.scene.$frame?.css('transform', 'none');
+			// this.$foeHint.css('transform', 'none');
+		}
+	};
 
 	subscribe(listener: Battle['subscription']) {
 		this.subscription = listener;
@@ -1246,6 +1273,9 @@ export class Battle {
 		this.nextStep();
 	}
 	destroy() {
+		if (this.autoresize) {
+			window.removeEventListener('resize', this.onResize);
+		}
 		this.scene.destroy();
 
 		for (let i = 0; i < this.sides.length; i++) {
@@ -3729,13 +3759,19 @@ export class Battle {
 		this.subscription?.('playing');
 	}
 	skipTurn() {
-		this.seekTurn(this.turn + 1);
+		this.seekBy(1);
+	}
+	seekBy(deltaTurn: number) {
+		if (this.seeking === Infinity && deltaTurn < 0) {
+			return this.seekTurn(this.turn + 1);
+		}
+		this.seekTurn((this.seeking ?? this.turn) + deltaTurn);
 	}
 	seekTurn(turn: number, forceReset?: boolean) {
 		if (isNaN(turn)) return;
 		turn = Math.max(Math.floor(turn), 0);
 
-		if (this.seeking !== null && this.seeking > turn && !forceReset) {
+		if (this.seeking !== null && turn > this.turn && !forceReset) {
 			this.seeking = turn;
 			return;
 		}
@@ -3774,9 +3810,11 @@ export class Battle {
 	nextStep() {
 		if (!this.shouldStep()) return;
 
+		let time = Date.now();
 		this.scene.startAnimations();
 		let animations = undefined;
 
+		let interruptionCount: number;
 		do {
 			this.waitForAnimations = true;
 			if (this.currentStep >= this.stepQueue.length) {
@@ -3797,6 +3835,16 @@ export class Battle {
 			} else if (this.waitForAnimations === 'simult') {
 				this.scene.timeOffset = 0;
 			}
+
+			if (Date.now() - time > 300) {
+				interruptionCount = this.scene.interruptionCount;
+				setTimeout(() => {
+					if (interruptionCount === this.scene.interruptionCount) {
+						this.nextStep();
+					}
+				}, 1);
+				return;
+			}
 		} while (!animations && this.shouldStep());
 
 		if (this.paused && this.turn >= 0 && this.seeking === null) {
@@ -3807,7 +3855,7 @@ export class Battle {
 
 		if (!animations) return;
 
-		const interruptionCount = this.scene.interruptionCount;
+		interruptionCount = this.scene.interruptionCount;
 		animations.done(() => {
 			if (interruptionCount === this.scene.interruptionCount) {
 				this.nextStep();
