@@ -1569,7 +1569,6 @@ function toId() {
 				'': MainMenuRoom,
 				'teambuilder': TeambuilderRoom,
 				'rooms': RoomsRoom,
-				'calc': CalcRoom,
 				'battles': BattlesRoom,
 				'ladder': LadderRoom,
 				'lobby': ChatRoom,
