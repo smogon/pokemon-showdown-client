@@ -741,6 +741,7 @@ export class BattleLog {
 		};
 	})();
 
+	static players: any[] = [];
 	static tagPolicy: ((tagName: string, attribs: string[]) => any) | null = null;
 	static initSanitizeHTML() {
 		if (this.tagPolicy) return;
@@ -899,16 +900,14 @@ export class BattleLog {
 				if (!videoId) return {tagName: 'img', attribs: ['alt', `invalid src for <youtube>`]};
 
 				const time = /(?:\?|&)(?:t|start)=([0-9]+)/.exec(src)?.[1];
+				const id = `player-${this.players.length + 1}`;
 
-				// only one player can ever be on-screen at once.
-				$('iframe.youtube.player').remove();
+				this.initYoutubePlayer(id, [height, width], videoId, Number(time) || null);
 				return {
-					tagName: 'iframe',
+					tagName: 'div',
 					attribs: [
-						'class', 'youtube player',
+						'data-playerid', id,
 						'width', width, 'height', height,
-						'src', `https://www.youtube.com/embed/${videoId}${time ? `?start=${time}` : ''}`,
-						'frameborder', '0', 'allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture', 'allowfullscreen', 'allowfullscreen',
 					],
 				};
 			} else if (tagName === 'psicon') {
@@ -1017,6 +1016,66 @@ export class BattleLog {
 		return sanitized.replace(
 			/<time>\s*([+-]?\d{4,}-\d{2}-\d{2})[T ](\d{2}:\d{2}(?::\d{2}(?:\.\d{3})?)?)(Z|[+-]\d{2}:\d{2})?\s*<\/time>/ig,
 		this.localizeTime);
+	}
+
+	static initYoutubePlayer(
+		id: string, dim: [string, string], videoId: string, time: number | null = null
+	) {
+		const [height, width] = dim;
+		const loadPlayer = () => {
+			const el = $(`div[data-playerid=${id}]`).get(0);
+			if (!el) return;
+			const player = new window.YT.Player(el, {
+				height,
+				width,
+				videoId,
+				playerVars: {
+					'playsinline': 1,
+				},
+				events: {
+					onStateChange: (event: any) => {
+						if (event.data == window.YT.PlayerState.PLAYING) {
+							for (const curPlayer of BattleLog.players) {
+								if (player.psId === curPlayer.psId) continue;
+								curPlayer.pauseVideo?.();
+							}
+						}
+					},
+					onReady: () => {
+						// scroll chat - if it's a page it shouldn't matter much regardless
+						// but also why are we using this in a page?
+						const curElem = $(`[data-playerid=${id}]`).parent().parent();
+						curElem.scrollTop(curElem.height()!);
+						if (time && Number(time)) {
+							player.seekTo(Number(time));
+						}
+					},
+				},
+			});
+			player.psId = id;
+			this.players.push(player);
+		}
+		// ensures html element is attached to DOM
+		setTimeout(() => this.ensureYoutube(loadPlayer), 500);
+	}
+
+	static ensureYoutube(callback: () => void): void {
+		if (!window.YT) {
+			const el = document.createElement('script');
+			el.type = 'text/javascript';
+			el.async = true;
+			el.src = 'https://youtube.com/iframe_api';
+			el.onload = () => this.ensureYoutube(callback);
+			document.body.appendChild(el);
+		} else {
+			// the iframe_api script loads other scripts, 
+			// so if this isn't there we punt for a bit
+			if (!window.YT.Player) {
+				setTimeout(() => this.ensureYoutube(callback), 100);
+				return;
+			}
+			callback();
+		}
 	}
 
 	/*********************************************************
