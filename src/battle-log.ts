@@ -902,11 +902,11 @@ export class BattleLog {
 				const time = /(?:\?|&)(?:t|start)=([0-9]+)/.exec(src)?.[1];
 				const id = `player-${this.players.length + 1}`;
 
-				this.initYoutubePlayer(id, [height, width], videoId, Number(time) || null);
+				this.initYoutubePlayer(id);
 				return {
 					tagName: 'iframe',
 					attribs: [
-						'id', `youtube-${id}`,
+						'id', `youtube-iframe-${id}`,
 						'width', width, 'height', height,
 						'src', `https://www.youtube.com/embed/${videoId}?enablejsapi=1&playsinline=1${time ? `&start=${time}` : ''}`,
 						'frameborder', '0', 'allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture', 'allowfullscreen', 'allowfullscreen',
@@ -1020,14 +1020,10 @@ export class BattleLog {
 		this.localizeTime);
 	}
 
-	static initYoutubePlayer(
-		id: string, dim: [string, string], videoId: string, time: number | null = null
-	) {
-		const [height, width] = dim;
+	static initYoutubePlayer(id: string) {
 		const loadPlayer = () => {
-			const el = $(`#youtube-${id}`).get(0);
-			if (!el) return;
-			const player = new window.YT.Player(`youtube-${id}`, {
+			if (!$(`#youtube-iframe-${id}`).length) return;
+			const player = new window.YT.Player(`youtube-iframe-${id}`, {
 				events: {
 					onStateChange: (event: any) => {
 						if (event.data === window.YT.PlayerState.PLAYING) {
@@ -1035,11 +1031,6 @@ export class BattleLog {
 								if (player.psId === curPlayer.psId) continue;
 								curPlayer.pauseVideo?.();
 							}
-						}
-					},
-					onReady: () => {
-						if (time && Number(time)) {
-							player.seekTo(Number(time));
 						}
 					},
 				},
