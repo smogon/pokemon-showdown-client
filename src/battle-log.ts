@@ -904,10 +904,12 @@ export class BattleLog {
 
 				this.initYoutubePlayer(id, [height, width], videoId, Number(time) || null);
 				return {
-					tagName: 'div',
+					tagName: 'iframe',
 					attribs: [
-						'class', `youtube ${id}`,
+						'id', `youtube-${id}`,
 						'width', width, 'height', height,
+						'src', `https://www.youtube.com/embed/${videoId}?enablejsapi=1&playsinline=1${time ? `&start=${time}` : ''}`,
+						'frameborder', '0', 'allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture', 'allowfullscreen', 'allowfullscreen',
 					],
 				};
 			} else if (tagName === 'psicon') {
@@ -1023,15 +1025,9 @@ export class BattleLog {
 	) {
 		const [height, width] = dim;
 		const loadPlayer = () => {
-			const el = $(`div.youtube.${id}`).get(0);
+			const el = $(`#youtube-${id}`).get(0);
 			if (!el) return;
-			const player = new window.YT.Player(el, {
-				height,
-				width,
-				videoId,
-				playerVars: {
-					'playsinline': 1,
-				},
+			const player = new window.YT.Player(`youtube-${id}`, {
 				events: {
 					onStateChange: (event: any) => {
 						if (event.data === window.YT.PlayerState.PLAYING) {
