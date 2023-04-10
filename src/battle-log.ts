@@ -906,7 +906,7 @@ export class BattleLog {
 				return {
 					tagName: 'div',
 					attribs: [
-						'data-playerid', id,
+						'class', `youtube ${id}`,
 						'width', width, 'height', height,
 					],
 				};
@@ -1023,7 +1023,7 @@ export class BattleLog {
 	) {
 		const [height, width] = dim;
 		const loadPlayer = () => {
-			const el = $(`div[data-playerid=${id}]`).get(0);
+			const el = $(`div.youtube.${id}`).get(0);
 			if (!el) return;
 			const player = new window.YT.Player(el, {
 				height,
@@ -1042,10 +1042,6 @@ export class BattleLog {
 						}
 					},
 					onReady: () => {
-						// scroll chat - if it's a page it shouldn't matter much regardless
-						// but also why are we using this in a page?
-						const curElem = $(`[data-playerid=${id}]`).parent().parent();
-						curElem.scrollTop(curElem.height()!);
 						if (time && Number(time)) {
 							player.seekTo(Number(time));
 						}
