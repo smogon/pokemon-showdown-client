@@ -1034,7 +1034,7 @@ export class BattleLog {
 				},
 				events: {
 					onStateChange: (event: any) => {
-						if (event.data == window.YT.PlayerState.PLAYING) {
+						if (event.data === window.YT.PlayerState.PLAYING) {
 							for (const curPlayer of BattleLog.players) {
 								if (player.psId === curPlayer.psId) continue;
 								curPlayer.pauseVideo?.();
@@ -1054,7 +1054,7 @@ export class BattleLog {
 			});
 			player.psId = id;
 			this.players.push(player);
-		}
+		};
 		// ensures html element is attached to DOM
 		setTimeout(() => this.ensureYoutube(loadPlayer), 500);
 	}
@@ -1068,7 +1068,7 @@ export class BattleLog {
 			el.onload = () => this.ensureYoutube(callback);
 			document.body.appendChild(el);
 		} else {
-			// the iframe_api script loads other scripts, 
+			// the iframe_api script loads other scripts,
 			// so if this isn't there we punt for a bit
 			if (!window.YT.Player) {
 				setTimeout(() => this.ensureYoutube(callback), 100);
