@@ -1031,7 +1031,7 @@ export class BattleLog {
 						if (event.data === window.YT.PlayerState.PLAYING) {
 							for (const curPlayer of BattleLog.players) {
 								if (player === curPlayer) continue;
-								curPlayer.pauseVideo?.();
+								curPlayer?.pauseVideo?.();
 							}
 						}
 					},
