@@ -742,7 +742,7 @@ export class BattleLog {
 	})();
 
 	static players: any[] = [];
-	static ytLoading: Promise<void> | true | null = null;
+	static ytLoading: Promise<void> | null = null;
 	static tagPolicy: ((tagName: string, attribs: string[]) => any) | null = null;
 	static initSanitizeHTML() {
 		if (this.tagPolicy) return;
@@ -907,7 +907,7 @@ export class BattleLog {
 				return {
 					tagName: 'iframe',
 					attribs: [
-						'id', `youtube-iframe-player-${idx}`,
+						'id', `youtube-iframe-${idx}`,
 						'width', width, 'height', height,
 						'src', `https://www.youtube.com/embed/${videoId}?enablejsapi=1&playsinline=1${time ? `&start=${time}` : ''}`,
 						'frameborder', '0', 'allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture', 'allowfullscreen', 'allowfullscreen',
@@ -1022,7 +1022,7 @@ export class BattleLog {
 	}
 
 	static initYoutubePlayer(idx: number) {
-		const id = `player-${idx}`;
+		const id = `youtube-iframe-${idx}`;
 		const loadPlayer = () => {
 			if (!$(`#${id}`).length) return;
 			const player = new window.YT.Player(id, {
@@ -1030,49 +1030,44 @@ export class BattleLog {
 					onStateChange: (event: any) => {
 						if (event.data === window.YT.PlayerState.PLAYING) {
 							for (const curPlayer of BattleLog.players) {
-								if (player.psId === curPlayer.psId) continue;
+								if (player === curPlayer) continue;
 								curPlayer.pauseVideo?.();
 							}
 						}
 					},
 				},
 			});
-			player.psId = id;
 			this.players[idx - 1] = player;
 		};
-		// ensures html element is attached to DOM
-		setTimeout(() => this.ensureYoutube(loadPlayer), 500);
+		// wait for html element to be in DOM
+		this.ensureYoutube().then(() => {
+			setTimeout(() => loadPlayer(), 300);
+		});
 	}
 
-	static ensureYoutube(callback: () => void): void {
-		if (this.ytLoading === true) {
-			return callback();
-		}
-		if (!window.YT) {
-			if (!this.ytLoading) {
-				this.ytLoading = new Promise(resolve => {
-					const el = document.createElement('script');
-					el.type = 'text/javascript';
-					el.async = true;
-					el.src = 'https://youtube.com/iframe_api';
-					el.onload = () => {
-						// hack. since the src loads more files remotely we have to punt
-						// until the player exists
-						const loopCheck = () => {
-							if (!window.YT.Player) {
-								setTimeout(() => loopCheck(), 100);
-							} else {
-								this.ytLoading = true;
-								resolve();
-							}
-						};
-						loopCheck();
-					};
-					document.body.appendChild(el);
-				});
-			}
-			this.ytLoading = this.ytLoading.then(() => this.ensureYoutube(callback));
-		}
+	static ensureYoutube(): Promise<void> {
+		if (this.ytLoading) return this.ytLoading;
+
+		this.ytLoading = new Promise(resolve => {
+			const el = document.createElement('script');
+			el.type = 'text/javascript';
+			el.async = true;
+			el.src = 'https://youtube.com/iframe_api';
+			el.onload = () => {
+				// since the src loads more files remotely we'll just wait
+				// until the player exists
+				const loopCheck = () => {
+					if (!window.YT?.Player) {
+						setTimeout(() => loopCheck(), 300);
+					} else {
+						resolve();
+					}
+				};
+				loopCheck();
+			};
+			document.body.appendChild(el);
+		});
+		return this.ytLoading;
 	}
 
 	/*********************************************************
