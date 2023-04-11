@@ -1065,7 +1065,7 @@ export class BattleLog {
 								this.ytLoading = true;
 								resolve();
 							}
-						}
+						};
 						loopCheck();
 					};
 					document.body.appendChild(el);
