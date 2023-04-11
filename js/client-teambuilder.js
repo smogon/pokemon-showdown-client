@@ -30,6 +30,9 @@
 				if (this.curTeam.format.includes('insurgence')) {
 					this.curTeam.dex = Dex.mod('gen' + this.curTeam.gen + 'insurgence');
 				}
+				if (this.curTeam.format.includes('uranium')) {
+					this.curTeam.dex = Dex.mod('gen' + this.curTeam.gen + 'uranium');
+				}
 				if (this.curTeam.format.includes('poa')) {
 					this.curTeam.dex = Dex.mod('gen' + this.curTeam.gen + 'poa');
 				}
@@ -705,6 +708,9 @@
 			if (this.curTeam.format.includes('insurgence')) {
 				this.curTeam.dex = Dex.mod('gen'+ this.curTeam.gen + 'insurgence');
 			}
+			if (this.curTeam.format.includes('uranium')) {
+				this.curTeam.dex = Dex.mod('gen'+ this.curTeam.gen + 'uranium');
+			}
 			if (this.curTeam.format.includes('poa')) {
 				this.curTeam.dex = Dex.mod('gen' + this.curTeam.gen + 'poa');
 			}
@@ -1192,6 +1198,7 @@
 			var isBDSP = this.curTeam.format.includes('bdsp');
 			var isNatDex = this.curTeam.format.includes('nationaldex') || this.curTeam.format.includes('natdex');
 			var isInsurgence = this.curTeam.format.includes('insurgence');
+			var isUranium = this.curTeam.format.includes('uranium');
 			var isPOA = this.curTeam.format.includes('poa');
 			if (isInsurgence && !set.level) set.level = 120;
 			if (isInsurgence && !set.cmType) set.cmType = "Normal";
@@ -1515,6 +1522,9 @@
 			}
 			if (this.curTeam.format.includes('insurgence')) {
 				this.curTeam.dex = Dex.mod('gen' + this.curTeam.gen + 'insurgence');
+			}
+			if (this.curTeam.format.includes('uranium')) {
+				this.curTeam.dex = Dex.mod('gen' + this.curTeam.gen + 'uranium');
 			}
 			if (this.curTeam.format.includes('poa')) {
 				this.curTeam.dex = Dex.mod('gen' + this.curTeam.gen + 'poa');
@@ -2637,6 +2647,7 @@
 			var isBDSP = this.curTeam.format.includes('bdsp');
 			var isNatDex = this.curTeam.format.includes('nationaldex') || this.curTeam.format.includes('natdex');
 			var isInsurgence = this.curTeam.format.includes('insurgence');
+			var isUranium = this.curTeam.format.includes('uranium');
 			var isPOA = this.curTeam.format.includes('poa');
 			var isHackmons = this.curTeam.format.includes('hackmons') || this.curTeam.format.endsWith('bh');
 			var species = this.curTeam.dex.species.get(set.species);
@@ -2749,6 +2760,7 @@
 			var isBDSP = this.curTeam.format.includes('bdsp');
 			var isNatDex = this.curTeam.format.includes('nationaldex') || this.curTeam.format.includes('natdex');
 			var isInsurgence = this.curTeam.format.includes('insurgence');
+			var isUranium = this.curTeam.format.includes('uranium');
 			var isPOA = this.curTeam.format.includes('poa');
 
 			// level

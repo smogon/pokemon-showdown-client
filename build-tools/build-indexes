@@ -322,7 +322,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 	const LC = GENS.map(num => num + 0.7);
 	const STADIUM = [2.04, 1.04];
 	const NATDEX = [9.1, 8.1];
-	const OTHER = [9.9, 9.8, 9.2, 8.6, 8.4, 8.2, 8.1, -8.4, -8.6, 7.1, 6.8];
+	const OTHER = [9.91, 9.9, 9.8, 9.2, 8.6, 8.4, 8.2, 8.1, -8.4, -8.6, 7.1, 6.8];
 
 	// process.stdout.write("\n  ");
 	for (const genIdent of [...GENS, ...DOUBLES, ...VGC, ...NFE, ...STADIUM, ...OTHER, ...NATDEX, ...LC]) {
@@ -338,6 +338,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 		const isVGC = ('' + genIdent).endsWith('.5');
 		const isPOA = ('' + genIdent).endsWith('.9');
 		const isInsurgence = ('' + genIdent).endsWith('.8');
+		const isUranium = ('' + genIdent).endsWith('.91');
 		const genNum = Math.floor(isDoubles ? -genIdent : genIdent);
 		const gen = (() => {
 			let genStr = 'gen' + genNum;
@@ -345,6 +346,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			if (isLetsGo) genStr += 'letsgo';
 			if (isBDSP) genStr += 'bdsp';
 			if (isInsurgence) genStr += 'insurgence'
+			if (isUranium) genStr += 'uranium'
 			if (isPOA) genStr += 'poa'
 			if (isStadium) genStr += 'stadium' + (genNum > 1 ? genNum : '');
 			return genStr;
@@ -437,6 +439,9 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 				if (isPOA) {
 					return Dex.mod('gen9poa').species.get(species.name).natDexTier;
 				}
+				if (isUranium) {
+					return Dex.mod('gen9uranium').species.get(species.name).natDexTier;
+				}
 				if (isNatDex) {
 					return species.natDexTier;
 				}
@@ -493,6 +498,13 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			BattleTeambuilderTable['gen' + genNum + 'insurgence'].overrideTier = overrideTier;
 			BattleTeambuilderTable['gen' + genNum + 'insurgence'].items = items;
 			BattleTeambuilderTable['gen' + genNum + 'insurgence'].formatSlices = formatSlices;
+		} else if (isUranium) {
+			BattleTeambuilderTable['gen' + genNum + 'uranium'] = {};
+			BattleTeambuilderTable['gen' + genNum + 'uranium'].learnsets = {};
+			BattleTeambuilderTable['gen' + genNum + 'uranium'].tiers = tiers;
+			BattleTeambuilderTable['gen' + genNum + 'uranium'].overrideTier = overrideTier;
+			BattleTeambuilderTable['gen' + genNum + 'uranium'].items = items;
+			BattleTeambuilderTable['gen' + genNum + 'uranium'].formatSlices = formatSlices;
 		} else if (isPOA) {
 			BattleTeambuilderTable['gen' + genNum + 'poa'] = {};
 			BattleTeambuilderTable['gen' + genNum + 'poa'].learnsets = {};
@@ -971,6 +983,14 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			BattleTeambuilderTable['gen9insurgence'].learnsets[id][moveid] = '9g';
 		}
 	}
+	const G9UraniumLearnsets = Dex.mod('gen9uranium').data.Learnsets;
+	for (const id in G9UraniumLearnsets) {
+		const learnset = G9UraniumLearnsets[id].learnset;
+		BattleTeambuilderTable['gen9uranium'].learnsets[id] = {};
+		for (const moveid in learnset) {
+			BattleTeambuilderTable['gen9uranium'].learnsets[id][moveid] = '9g';
+		}
+	}
 	const POALearnsets = Dex.mod('gen9poa').data.Learnsets;
 	for (const id in POALearnsets) {
 		const learnset = POALearnsets[id].learnset;
@@ -1111,7 +1131,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 	// Mods
 	//
 
-	for (const mod of ['gen7letsgo', 'gen8bdsp', 'gen9insurgence', 'gen6insurgence', 'gen9poa']) {
+	for (const mod of ['gen7letsgo', 'gen8bdsp', 'gen9insurgence', 'gen6insurgence', 'gen9poa', 'gen9uranium']) {
 		const modDex = Dex.mod(mod);
 		const modData = modDex.data;
 		const parentDex = Dex.forGen(modDex.gen);

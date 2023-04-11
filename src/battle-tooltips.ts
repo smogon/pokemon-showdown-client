@@ -2203,6 +2203,8 @@ class BattleTooltips {
 			abilityDex = Dex.mod("gen6insurgence" as ID);
 		} else if (this.battle.id.includes("gen9poa")) {
 			abilityDex = Dex.mod("gen9poa" as ID);
+		} else if (this.battle.id.includes("gen9uranium")) {
+			abilityDex = Dex.mod("gen9uranium" as ID);
 		} else {
 			abilityDex = this.battle.dex;
 		}

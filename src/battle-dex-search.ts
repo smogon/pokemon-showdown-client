@@ -551,7 +551,7 @@ abstract class BattleTypedSearch<T extends SearchType> {
 	set: PokemonSet | null = null;
 
 	protected formatType: 'doubles' | 'bdsp' | 'bdspdoubles' | 'letsgo' | 'metronome' | 'natdex' | 'insurgencenatdex' | 'insurgencelegacy' |
-	'poa' | 'nfe' | 'dlc1' | 'dlc1doubles' | 'stadium' | 'lc' | null = null;
+	'uraniumnatdex' | 'poa' | 'nfe' | 'dlc1' | 'dlc1doubles' | 'stadium' | 'lc' | null = null;
 
 	/**
 	 * Cached copy of what the results list would be with only base filters
@@ -613,7 +613,7 @@ abstract class BattleTypedSearch<T extends SearchType> {
 			this.formatType = 'letsgo';
 			this.dex = Dex.mod('gen7letsgo' as ID);
 		}
-		if (!format.includes('insurgence') && !format.includes('poa')) {
+		if (!format.includes('insurgence') && !format.includes('poa') && !format.includes('uranium')) {
 			if (format.includes('nationaldex') || format.startsWith('nd') || format.includes('natdex')) {
 				format = (format.startsWith('nd') ? format.slice(2) :
 					format.includes('natdex') ? format.slice(6) : format.slice(11)) as ID;
@@ -639,6 +639,14 @@ abstract class BattleTypedSearch<T extends SearchType> {
 				this.dex = Dex.mod('gen6insurgence' as ID);
 			}
 			
+		}
+		if (format.includes('uranium')) {
+			if (format.includes('nationaldex')) {
+				format = format.slice(18) as ID;
+				if (!format) format = 'ou' as ID;
+				this.formatType = 'uraniumnatdex';	
+				this.dex = Dex.mod('gen9uranium' as ID);
+			}
 		}
 		if (format.includes('poa')) {
 			if (format.includes("doubles")) {
@@ -755,6 +763,7 @@ abstract class BattleTypedSearch<T extends SearchType> {
 		if (this.formatType?.startsWith('bdsp')) table = table['gen8bdsp'];
 		if (this.formatType === "insurgencenatdex") table = table['gen9insurgence'];
 		if (this.formatType === "insurgencelegacy") table = table['gen6insurgence'];
+		if (this.formatType === "uraniumnatdex") table = table['gen9uranium'];
 		if (this.formatType === "poa") table = table['gen9poa'];
 		if (this.formatType === 'letsgo') table = table['gen7letsgo'];
 		if (speciesid in table.learnsets) return speciesid;
@@ -786,7 +795,7 @@ abstract class BattleTypedSearch<T extends SearchType> {
 	}
 	protected canLearn(speciesid: ID, moveid: ID) {
 		const move = this.dex.moves.get(moveid);
-		if ((this.formatType === 'natdex' || this.formatType === 'insurgencenatdex' || this.formatType === 'poa') && move.isNonstandard && move.isNonstandard !== 'Past') {
+		if ((this.formatType === 'natdex' || this.formatType === 'insurgencenatdex' || this.formatType === 'uraniumnatdex' || this.formatType === 'poa') && move.isNonstandard && move.isNonstandard !== 'Past') {
 			return false;
 		}
 		const gen = this.dex.gen;
@@ -796,7 +805,7 @@ abstract class BattleTypedSearch<T extends SearchType> {
 			this.format.startsWith('battlespot') ||
 			this.format.startsWith('battlestadium') ||
 			this.format.startsWith('battlefestival') ||
-			(this.dex.gen === 9 && this.formatType !== 'natdex' && this.formatType !== 'insurgencenatdex' && this.formatType !== 'poa')
+			(this.dex.gen === 9 && this.formatType !== 'natdex' && this.formatType !== 'insurgencenatdex' && this.formatType !== 'uraniumnatdex' && this.formatType !== 'poa')
 		) {
 			if (gen === 9) {
 				genChar = 'a';
@@ -814,6 +823,7 @@ abstract class BattleTypedSearch<T extends SearchType> {
 			if (this.formatType?.startsWith('bdsp')) table = table['gen8bdsp'];
 			if (this.formatType === 'insurgencenatdex') table = table['gen9insurgence'];
 			if (this.formatType === 'insurgencelegacy') table = table['gen6insurgence'];
+			if (this.formatType === 'uraniumnatdex') table = table['gen9uranium'];
 			if (this.formatType === 'poa') table = table['gen9poa'];
 			if (this.formatType === 'letsgo') table = table['gen7letsgo'];
 			let learnset = table.learnsets[learnsetid];
@@ -843,6 +853,7 @@ abstract class BattleTypedSearch<T extends SearchType> {
 			this.formatType === 'natdex' ? `gen${gen}natdex` :
 			this.formatType === 'insurgencenatdex' ? `gen9insurgence` :
 			this.formatType === 'insurgencelegacy' ? `gen6insurgence` :
+			this.formatType === 'uraniumnatdex' ? `gen9uranium` :
 			this.formatType === 'poa' ? `gen9poa` :
 			this.formatType === 'stadium' ? `gen${gen}stadium${gen > 1 ? gen : ''}` :
 			`gen${gen}`;
@@ -956,6 +967,8 @@ class BattlePokemonSearch extends BattleTypedSearch<'pokemon'> {
 			table = table['gen9insurgence'];
 		} else if (this.formatType === 'insurgencelegacy') {
 			table = table['gen6insurgence'];
+		} else if (this.formatType === 'uraniumnatdex') {
+			table = table['gen9uranium'];
 		} else if (this.formatType === 'poa') {
 			table = table['gen9poa'];
 		} else if (this.formatType === 'metronome') {
@@ -1208,6 +1221,8 @@ class BattleItemSearch extends BattleTypedSearch<'item'> {
 			table = table['gen9insurgence'];
 		} else if (this.formatType === "insurgencelegacy") {
 			table = table['gen6insurgence'];
+		} else if (this.formatType === "uraniumnatdex") {
+			table = table['gen6uranium'];
 		} else if (this.formatType === "poa") {
 			table = table['gen9poa'];
 		} else if (this.formatType === 'metronome') {
@@ -1537,6 +1552,7 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 		if (this.formatType?.startsWith('bdsp')) lsetTable = lsetTable['gen8bdsp'];
 		if (this.formatType === "insurgencenatdex") lsetTable = lsetTable['gen9insurgence'];
 		if (this.formatType === "insurgencelegacy") lsetTable = lsetTable['gen6insurgence'];
+		if (this.formatType === "uraniumnatdex") lsetTable = lsetTable['gen9uranium'];
 		if (this.formatType === "poa") lsetTable = lsetTable['gen9poa'];
 		if (this.formatType === 'letsgo') lsetTable = lsetTable['gen7letsgo'];
 		if (this.formatType?.startsWith('dlc1')) lsetTable = lsetTable['gen8dlc1'];
@@ -1556,7 +1572,7 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 					) {
 						continue;
 					}
-					if (this.formatType !== 'natdex' && this.formatType !== 'insurgencenatdex' && this.formatType !== 'poa' && move.isNonstandard === "Past") {
+					if (this.formatType !== 'natdex' && this.formatType !== 'insurgencenatdex' && this.formatType !== 'uraniumnatdex' && this.formatType !== 'poa' && move.isNonstandard === "Past") {
 						continue;
 					}
 					// if (this.formatType !== 'insurgencenatdex' && move.isNonstandard === "Past") {
@@ -1591,6 +1607,7 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 					if (move.isNonstandard && move.isNonstandard !== 'Past') continue;
 					if (move.isNonstandard === 'Past' && this.formatType !== 'natdex') continue;
 					if (move.isNonstandard === 'Past' && this.formatType !== 'insurgencenatdex') continue;
+					if (move.isNonstandard === 'Past' && this.formatType !== 'uraniumnatdex') continue;
 					if (move.isNonstandard === 'Past' && this.formatType !== 'poa') continue;
 					sketchMoves.push(move.id);
 				} else {
@@ -1599,6 +1616,7 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 					if (move.isMax && dex.gen > 8) continue;
 					if (move.isNonstandard === 'Past' && this.formatType !== 'natdex') continue;
 					if (move.isNonstandard === 'Past' && this.formatType !== 'insurgencenatdex') continue;
+					if (move.isNonstandard === 'Past' && this.formatType !== 'uraniumnatdex') continue;
 					if (move.isNonstandard === 'Past' && this.formatType !== 'poa') continue;
 					if (move.isNonstandard === 'LGPE' && this.formatType !== 'letsgo') continue;
 					moves.push(move.id);
