@@ -563,7 +563,6 @@ class BattleTooltips {
 				if (move.id === 'weatherball') {
 					switch (this.battle.weather) {
 					case 'sunnyday':
-					case 'newmoon':
 					case 'desolateland':
 						zMove = this.battle.dex.moves.get(BattleTooltips.zMoveTable['Fire']);
 						break;
@@ -580,6 +579,15 @@ class BattleTooltips {
 						break;
 					case 'acidrain':
 						zMove = this.battle.dex.moves.get(BattleTooltips.zMoveTable['Poison']);
+						break;
+					case 'newmoon':
+						zMove = this.battle.dex.moves.get(BattleTooltips.zMoveTable['Dark']);
+						break;
+					case 'thunderstorm':
+						zMove = this.battle.dex.moves.get(BattleTooltips.zMoveTable['Electric']);
+						break;
+					case 'fallout':
+						zMove = this.battle.dex.moves.get(BattleTooltips.zMoveTable['Normal']);
 						break;
 					}
 				}
@@ -1444,6 +1452,12 @@ class BattleTooltips {
 		// Weather and pseudo-weather type changes.
 		if (move.id === 'weatherball' && value.weatherModify(0)) {
 			switch (this.battle.weather) {
+			case 'thunderstorm':
+				moveType = 'Electric';
+				break;
+			case 'fallout':
+				moveType = 'Nuclear';
+				break;
 			case 'newmoon':
 				moveType = 'Dark';
 				break;

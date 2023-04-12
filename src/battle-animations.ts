@@ -918,6 +918,8 @@ export class BattleScene implements BattleSceneStub {
 		if (this.battle.weather) {
 			const weatherNameTable: {[id: string]: string} = {
 				sunnyday: 'Sun',
+				fallout: "Fallout",
+				thunderstorm: "Thunderstorm",
 				newmoon: 'Darkness',
 				desolateland: 'Intense Sun',
 				raindance: 'Rain',

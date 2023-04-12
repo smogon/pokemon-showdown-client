@@ -1037,7 +1037,7 @@ class BattleTextParser {
 			const line1 = this.maybeAbility(kwArgs.from, kwArgs.of || pokemon);
 			let templateId = 'block';
 			if (['desolateland', 'primordialsea'].includes(blocker) &&
-				!['sunnyday', 'raindance', 'sandstorm', 'hail', 'snowscape', 'chillyreception', 'newmoon', 'acidrain'].includes(id)) {
+				!['sunnyday', 'raindance', 'sandstorm', 'hail', 'snowscape', 'chillyreception', 'newmoon', 'acidrain', 'fallout', 'thunderstorm'].includes(id)) {
 				templateId = 'blockMove';
 			} else if (blocker === 'uproar' && kwArgs.msg) {
 				templateId = 'blockSelf';

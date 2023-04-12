@@ -487,6 +487,14 @@ License: GPLv2
 	background: #3c3863 url(../fx/weather-acidrain.png) no-repeat scroll left top;
 	color: #470e55;
 }
+.falloutweather {
+	background: #DDAAEE url(../fx/weather-fallout.png) no-repeat scroll left top;
+	color: #661155;
+}
+.thunderstormweather {
+	background: #DDAAEE url(../fx/weather-thunderstorm.png) no-repeat scroll left top;
+	color: #661155;
+}
 
 .battle .result {
 	display: none;

@@ -671,6 +671,12 @@ export const BattleMoveAnims: AnimTable = {
 	sunnyday: {
 		anim: BattleOtherAnims.dance.anim,
 	},
+	thunderstorm: {
+		anim: BattleOtherAnims.dance.anim,
+	},
+	fallout: {
+		anim: BattleOtherAnims.dance.anim,
+	},
 	hail: {
 		anim: BattleOtherAnims.dance.anim,
 	},
