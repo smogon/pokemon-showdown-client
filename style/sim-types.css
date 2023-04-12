@@ -42,6 +42,28 @@
 	border-color: hsl(174,50%,41%);
 }
 
+.movemenu button.type-Nuclear {
+	/* bg: 97 to 90, border: 70 */
+	background: hsl(124,26%,93%);
+	background: linear-gradient(to bottom,  hsl(124,26%,97%),  hsl(124,26%,84%));
+	border-color: hsl(124,26%,70%);
+}
+.movemenu button.type-Nuclear small {
+	color: hsl(124,26%,41%);
+}
+.movemenu button.type-Nuclear:hover {
+	/* bg: 95 to 83, border: 41 */
+	background: hsl(124,26%,87%);
+	background: linear-gradient(to bottom,  hsl(124,26%,94%),  hsl(124,26%,77%));
+	border-color: hsl(124,26%,41%);
+}
+.movemenu button.type-Nuclear:active, .movemenu button.type-Nuclear.pressed {
+	/* bg: 83 to 88, border: 41 */
+	background: hsl(124,26%,77%);
+	background: linear-gradient(to bottom,  hsl(124,26%,77%),  hsl(124,26%,83%));
+	border-color: hsl(124,26%,41%);
+}
+
 .movemenu button.type-Fighting {
 	/* bg: 97 to 90, border: 70 */
 	background: hsl(3,40%,93%);
