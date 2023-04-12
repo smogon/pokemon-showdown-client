@@ -302,7 +302,7 @@
 
 		// icon
 		buf += '<span class="col iconcol">';
-		buf += '<span style="' + Dex.getPokemonIcon(pokemon.name) + '"></span>';
+		buf += '<span style="' + Dex.getPokemonIcon(pokemon.name) + '; image-rendering: -moz-crisp-edges; image-rendering: pixelated;' + '"></span>';
 		buf += '</span> ';
 
 		// name
@@ -414,7 +414,7 @@
 
 		// icon
 		buf += '<span class="col iconcol">';
-		buf += '<span style="' + Dex.getPokemonIcon(pokemon.name) + '"></span>';
+		buf += '<span style="' + Dex.getPokemonIcon(pokemon.name) + '; image-rendering: -moz-crisp-edges; image-rendering: pixelated;' +'"></span>';
 		buf += '</span> ';
 
 		// name
