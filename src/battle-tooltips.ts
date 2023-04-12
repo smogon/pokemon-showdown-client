@@ -1105,6 +1105,12 @@ class BattleTooltips {
 		if (ability === 'athenian') {
 			stats.spa *= 2;
 		}
+		if (ability === 'sharpcoral') {
+			stats.atk *= 2;
+			stats.spa *= 2;
+			stats.def /= 2;
+			stats.spd /= 2;
+		}
 		if (ability === 'hustle' || (ability === 'gorillatactics' && !clientPokemon?.volatiles['dynamax'])) {
 			stats.atk = Math.floor(stats.atk * 1.5);
 		}
@@ -1542,6 +1548,7 @@ class BattleTooltips {
 					if (value.abilityModify(0, 'Pixilate')) moveType = 'Fairy';
 					if (value.abilityModify(0, 'Refrigerate')) moveType = 'Ice';
 					if (value.abilityModify(0, 'Intoxicate')) moveType = 'Poison';
+					if (value.abilityModify(0, 'Atomizate')) moveType = 'Nuclear';
 				}
 				if (moveType === 'Rock') {
 					if (value.abilityModify(0, 'Foundry')) moveType = 'Fire';
@@ -1938,6 +1945,9 @@ class BattleTooltips {
 		if (move.type === 'Dark') {
 			value.abilityModify(1.5, "Shadow Synergy");
 		}
+		if (move.priority > 0) {
+			value.abilityModify(1.5, "Acceleration");
+		}
 		if (move.type === 'Poison' && this.battle.weather === 'acidrain') {
 			value.abilityModify(1.3, "Corrosion")
 		}
@@ -1970,6 +1980,7 @@ class BattleTooltips {
 				value.abilityModify(this.battle.gen > 6 ? 1.2 : 1.3, "Pixilate");
 				value.abilityModify(this.battle.gen > 6 ? 1.2 : 1.3, "Refrigerate");
 				value.abilityModify(this.battle.gen > 6 ? 1.2 : 1.3, "Intoxicate");
+				value.abilityModify(this.battle.gen > 6 ? 1.2 : 1.3, "Atomizate");
 			}
 			if (this.battle.gen > 6) {
 				value.abilityModify(1.2, "Normalize");
