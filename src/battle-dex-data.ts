@@ -1030,13 +1030,6 @@ const BattlePokemonIconIndexes: {[id: string]: number} = {
 	lanthan: 1812 + 157,
 	actan: 1812 + 158,
 	urayne: 1812 + 159,
-	
-
-
-	// uranium females
-	feligerf: 1548 + 0,
-	chimacondaf: 1548 + 1,
-	fafninterf: 1548 + 2,
   
 	// uranium nuclear formes
 	chyinmunknuclear: 1980 + 0,
@@ -1076,31 +1069,31 @@ const BattlePokemonIconIndexes: {[id: string]: number} = {
 	actannuclear: 1980 + 36,
   
 	// uranium urayne + relevant mystery gifts
-	uraynebeta: 1608 + 0,
-	minyanmystery: 1608 + 1,
-	vilucardmystery: 1608 + 2,
-	cocaranmystery: 1608 + 3,
-	cararalmmystery: 1608 + 4,
-	cocancermystery: 1608 + 5,
-	jackdearymystery: 1608 + 6,
-	winotingermystery: 1608 + 7,
+	uraynebeta: 2016 + 0,
+	minyanmystery: 2016 + 1,
+	vilucardmystery: 2016 + 2,
+	cocaranmystery: 2016 + 3,
+	cararalmmystery: 2016 + 4,
+	cocancermystery: 2016 + 5,
+	jackdearymystery: 2016 + 6,
+	winotingermystery: 2016 + 7,
   
 	// uranium mega sprites, added in 1.2.5
-	metalynxmega: 1620 + 0,
-	archillesmega: 1620 + 1,
-	electruxomega: 1620 + 2,
-	gyaradosnuclearmega: 1620 + 3,
-	arbokmega: 1620 + 4,
-	arboknuclearmega: 1620 + 5,
-	baariettemega: 1620 + 6,
-	baariettenuclearmega: 1620 + 7,
-	drilgannmega: 1620 + 8,
-	whimsicottmega: 1620 + 9,
-	s51amega: 1620 + 10,
-	inflagetahmega: 1620 + 11,
-	syrentidemega: 1620 + 12,
-	dramsamamega: 1620 + 13,
-	kiricornmega: 1620 + 14,
+	metalynxmega: 2016 + 8,
+	archillesmega: 2016 + 9,
+	electruxomega: 2016 + 10,
+	gyaradosnuclearmega: 2016 + 11,
+	arbokmega: 2016 + 12,
+	arboknuclearmega: 2016 + 13,
+	baariettemega: 2016 + 14,
+	baariettenuclearmega: 2016 + 15,
+	drilgannmega: 2016 + 16,
+	whimsicottmega: 2016 + 17,
+	s51amega: 2016 + 18,
+	inflagetahmega: 2016 + 19,
+	syrentidemega: 2016 + 20,
+	dramsamamega: 2016 + 21,
+	kiricornmega: 2016 + 22,
 };
 
 const BattlePokemonIconIndexesLeft: {[id: string]: number} = {
