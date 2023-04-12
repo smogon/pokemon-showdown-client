@@ -35,7 +35,7 @@
 	background: linear-gradient(to bottom,  hsl(174,50%,94%),  hsl(174,50%,77%));
 	border-color: hsl(174,50%,41%);
 }
-.movemenu button.type-Crystal:active, .movemenu button.type-Normal.pressed {
+.movemenu button.type-Crystal:active, .movemenu button.type-Crystal.pressed {
 	/* bg: 83 to 88, border: 41 */
 	background: hsl(174,50%,77%);
 	background: linear-gradient(to bottom,  hsl(174,50%,77%),  hsl(174,50%,83%));
@@ -44,24 +44,24 @@
 
 .movemenu button.type-Nuclear {
 	/* bg: 97 to 90, border: 70 */
-	background: hsl(124,26%,93%);
-	background: linear-gradient(to bottom,  hsl(124,26%,97%),  hsl(124,26%,84%));
-	border-color: hsl(124,26%,70%);
+	background: hsl(124,67%,93%);
+	background: linear-gradient(to bottom,  hsl(124,67%,97%),  hsl(124,67%,84%));
+	border-color: hsl(124,67%,70%);
 }
 .movemenu button.type-Nuclear small {
-	color: hsl(124,26%,41%);
+	color: hsl(124,67%,41%);
 }
 .movemenu button.type-Nuclear:hover {
 	/* bg: 95 to 83, border: 41 */
-	background: hsl(124,26%,87%);
-	background: linear-gradient(to bottom,  hsl(124,26%,94%),  hsl(124,26%,77%));
-	border-color: hsl(124,26%,41%);
+	background: hsl(124,67%,87%);
+	background: linear-gradient(to bottom,  hsl(124,67%,94%),  hsl(124,67%,77%));
+	border-color: hsl(124,67%,41%);
 }
 .movemenu button.type-Nuclear:active, .movemenu button.type-Nuclear.pressed {
 	/* bg: 83 to 88, border: 41 */
-	background: hsl(124,26%,77%);
-	background: linear-gradient(to bottom,  hsl(124,26%,77%),  hsl(124,26%,83%));
-	border-color: hsl(124,26%,41%);
+	background: hsl(124,67%,77%);
+	background: linear-gradient(to bottom,  hsl(124,67%,77%),  hsl(124,67%,83%));
+	border-color: hsl(124,67%,41%);
 }
 
 .movemenu button.type-Fighting {
