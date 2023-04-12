@@ -875,7 +875,7 @@ const BattlePokemonIconIndexes: {[id: string]: number} = {
 	fafninterf: 1548 + 2,
   
 	// uranium nuclear formes
-	chyinmunknuclear: 1788 + 187,
+	chyinmunknuclear: 1788 + 192,
 	kinetmunknuclear: 1560 + 1,
 	magikarpnuclear: 1560 + 4,
 	gyaradosnuclear: 1560 + 5,
