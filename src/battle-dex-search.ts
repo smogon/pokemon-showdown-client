@@ -1222,7 +1222,7 @@ class BattleItemSearch extends BattleTypedSearch<'item'> {
 		} else if (this.formatType === "insurgencelegacy") {
 			table = table['gen6insurgence'];
 		} else if (this.formatType === "uraniumnatdex") {
-			table = table['gen6uranium'];
+			table = table['gen9uranium'];
 		} else if (this.formatType === "poa") {
 			table = table['gen9poa'];
 		} else if (this.formatType === 'metronome') {
