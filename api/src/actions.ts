@@ -328,7 +328,7 @@ export const actions: {[k: string]: QueryHandler} = {
 		return {updated: update, success: true};
 	},
 
-	async rebuildclient() {
+	async rebuildclient(params) {
 		await this.requireMainServer();
 
 		if (!Config.restartip || !Config.clientpath) {
@@ -343,7 +343,9 @@ export const actions: {[k: string]: QueryHandler} = {
 		} catch (e: any) {
 			throw new ActionError(e.message);
 		}
-		const [, , stderr] = await bash('node build', Config.clientpath);
+		const [, , stderr] = await bash(
+			`node build${params.full ? ' full' : ''}`, Config.clientpath
+		);
 		if (stderr) throw new ActionError(`Compilation failed:\n${stderr}`);
 		return {updated: update, success: true};
 	},
