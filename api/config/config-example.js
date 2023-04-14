@@ -138,6 +138,11 @@ exports.restartip = null;
 exports.actions = null;
 
 exports.cssdir = __dirname + "/customcss/";
+/**
+ * Path to the client root dir.
+ * @type {string | null}
+ */
+exports.clientpath = null;
 
 /**
  * @type {Record<string, string>}

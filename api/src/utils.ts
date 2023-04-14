@@ -27,18 +27,18 @@ export function bash(command: string, cwd?: string): Promise<[number, string, st
 	});
 }
 
-export async function updateserver() {
-	let [code, stdout, stderr] = await bash(`git fetch`);
+export async function updateserver(path?: string) {
+	let [code, stdout, stderr] = await bash(`git fetch`, path);
 	if (code) throw new Error(`updateserver: Crash while fetching - make sure this is a Git repository`);
 	if (!stdout && !stderr) {
 		return true; // no changes. we're fine.
 	}
 
-	[code, stdout, stderr] = await bash(`git rev-parse HEAD`);
+	[code, stdout, stderr] = await bash(`git rev-parse HEAD`, path);
 	if (code || stderr) throw new Error(`updateserver: Crash while grabbing hash`);
 	const oldHash = String(stdout).trim();
 
-	[code, stdout, stderr] = await bash(`git stash save "PS /updateserver autostash"`);
+	[code, stdout, stderr] = await bash(`git stash save "PS /updateserver autostash"`, path);
 	let stashedChanges = true;
 	if (code) throw new Error(`updateserver: Crash while stashing`);
 	if ((stdout + stderr).includes("No local changes")) {
@@ -49,19 +49,19 @@ export async function updateserver() {
 
 	// errors can occur while rebasing or popping the stash; make sure to recover
 	try {
-		[code] = await bash(`git rebase --no-autostash FETCH_HEAD`);
+		[code] = await bash(`git rebase --no-autostash FETCH_HEAD`, path);
 		if (code) {
 			// conflict while rebasing
-			await bash(`git rebase --abort`);
+			await bash(`git rebase --abort`, path);
 			throw new Error(`restore`);
 		}
 
 		if (stashedChanges) {
-			[code] = await bash(`git stash pop`);
+			[code] = await bash(`git stash pop`, path);
 			if (code) {
 				// conflict while popping stash
-				await bash(`git reset HEAD .`);
-				await bash(`git checkout .`);
+				await bash(`git reset HEAD .`, path);
+				await bash(`git checkout .`, path);
 				throw new Error(`restore`);
 			}
 		}
@@ -69,8 +69,8 @@ export async function updateserver() {
 		return true;
 	} catch {
 		// failed while rebasing or popping the stash
-		await bash(`git reset --hard ${oldHash}`);
-		if (stashedChanges) await bash(`git stash pop`);
+		await bash(`git reset --hard ${oldHash}`, path);
+		if (stashedChanges) await bash(`git stash pop`, path);
 		return false;
 	}
 }
