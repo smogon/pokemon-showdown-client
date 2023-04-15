@@ -3433,10 +3433,61 @@ a.ilink.yours {
 
 /* main menu */
 
+.dark .pm-window h3,
+.dark .pm-window button {
+	color: #BBB;
+}
+
+.dark .pm-window .pm-buttonbar button {
+	color: #DDD;
+}
+
+.dark .pm-window h3 {
+	background: rgba(50,50,50,0.9);
+}
+.dark .pm-window.focused h3 {
+	background: #333;
+	color: #BBB;
+}
+
+.dark .pm-window h3.pm-notifying {
+	background: #79B;
+	border-color: #CCC;
+}
+
+.dark .pm-window h3.pm-notifying,
+.dark .pm-window h3.pm-notifying button {
+	color: #444;
+}
+.dark .pm-window h3.pm-notifying small {
+	color: #444;
+}
+
+.dark .pm-window h3.pm-notifying:hover {
+	background: #9BD;
+}
+
 .dark .pm-window.focused h3,
 .dark .pm-window.focused .pm-log,
 .dark .pm-window.focused .pm-log-add {
-	border-color: #CCC;
+	border-color: #888;
+}
+
+.pm-window h3:hover .minimizebutton {
+	color: #EEE;
+}
+.pm-window h3.pm-notifying:hover .minimizebutton {
+	color: #333;
+}
+
+.dark .challenge {
+	background: #8AB;
+	color: #17174f;
+	border-color: #5d8ba2;
+}
+
+.dark .pm-window .challenge button {
+	color: black;
 }
 
 /* chat */
