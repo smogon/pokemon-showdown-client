@@ -340,6 +340,8 @@ export const actions: {[k: string]: QueryHandler} = {
 		let update;
 		try {
 			update = await bash('sudo -u apache git pull', Config.clientpath);
+			if (update[2]) throw new Error(update[1]);
+			update = true;
 		} catch (e: any) {
 			throw new ActionError(e.message);
 		}
