@@ -339,12 +339,12 @@ export const actions: {[k: string]: QueryHandler} = {
 		}
 		let update;
 		try {
-			update = await updateserver(Config.clientpath);
+			update = await bash('sudo -u apache git pull', Config.clientpath);
 		} catch (e: any) {
 			throw new ActionError(e.message);
 		}
 		const [, , stderr] = await bash(
-			`node build${params.full ? ' full' : ''}`, Config.clientpath
+			`sudo -u apache node build${params.full ? ' full' : ''}`, Config.clientpath
 		);
 		if (stderr) throw new ActionError(`Compilation failed:\n${stderr}`);
 		return {updated: update, success: true};
