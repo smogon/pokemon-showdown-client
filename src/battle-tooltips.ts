@@ -1160,6 +1160,9 @@ class BattleTooltips {
 					if (ability === 'swiftswim') {
 						speedModifiers.push(2);
 					}
+					if (ability === 'flowingtranquility') {
+						speedModifiers.push(1.5);
+					}
 					if (ability === 'supercell') {
 						stats.spa = Math.floor(stats.spa * 1.5);
 					}
@@ -1949,7 +1952,10 @@ class BattleTooltips {
 			value.abilityModify(1.5, "Acceleration");
 		}
 		if (move.type === 'Poison' && this.battle.weather === 'acidrain') {
-			value.abilityModify(1.3, "Corrosion")
+			value.abilityModify(1.3, "Corrosion");
+		}
+		if (move.type === 'Psychic' && this.battle.weather === 'rainyday') {
+			value.abilityModify(1.3, "Flowing Tranquility");
 		}
 		if (typeof move.accuracy === 'number' && move.accuracy < 100) {
 			value.abilityModify(1.3, "Ring Rust");
