@@ -1094,6 +1094,11 @@ const BattlePokemonIconIndexes: {[id: string]: number} = {
 	syrentidemega: 2028 + 20,
 	dramsamamega: 2028 + 21,
 	kiricornmega: 2028 + 22,
+
+	// us!
+	cetitanhisui: 2052 + 0,
+	alakazamgambler: 2052 + 1,
+	golisopodshogun: 2052 + 2,
 };
 
 const BattlePokemonIconIndexesLeft: {[id: string]: number} = {
