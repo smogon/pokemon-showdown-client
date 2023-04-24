@@ -1713,7 +1713,7 @@ class BattleTooltips {
 			}
 		}
 		if (move.id === 'smog' && this.battle.weather === 'acidrain') {
-			value.modify(2, "Smog + Acid Rain")
+			value.weatherModify(2, "Acid Rain")
 		}
 		if (['crushgrip', 'wringout'].includes(move.id) && target) {
 			value.set(
