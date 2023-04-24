@@ -422,6 +422,9 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 					if (species.tier === 'LC') return 'LC';
 					return 'Regular';
 				}
+				if (isPOA) {
+					return Dex.mod('gen9poa').species.get(species.name).natDexTier;
+				}
 				if (species.tier === 'CAP' || species.tier === 'CAP NFE' || species.tier === 'CAP LC') {
 					return species.tier;
 				}
@@ -435,9 +438,6 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 					} else {
 						return Dex.mod('gen6insurgence').species.get(species.name).tier;
 					}
-				}
-				if (isPOA) {
-					return Dex.mod('gen9poa').species.get(species.name).natDexTier;
 				}
 				if (isUranium) {
 					return Dex.mod('gen9uranium').species.get(species.name).natDexTier;
