@@ -627,11 +627,6 @@ abstract class BattleTypedSearch<T extends SearchType> {
 				if (!format) format = 'ou' as ID;
 				this.formatType = 'insurgencenatdex';	
 				this.dex = Dex.mod('gen9insurgence' as ID);
-			} else if (format.includes('freeforall')) {
-				format = format.slice(20) as ID;
-				if (!format) format = 'ou' as ID;
-				this.formatType = 'insurgencenatdex';
-				this.dex = Dex.mod('gen9insurgence' as ID);
 			} else {
 				format = format.slice(10) as ID;
 				if (!format) format = 'ou' as ID;
@@ -646,11 +641,14 @@ abstract class BattleTypedSearch<T extends SearchType> {
 				if (!format) format = 'ou' as ID;
 				this.formatType = 'uraniumnatdex';	
 				this.dex = Dex.mod('gen9uranium' as ID);
-			}
+			} 
 		}
 		if (format.includes('poa')) {
 			if (format.includes("doubles")) {
 				format = format.slice(10) as ID;
+				if (!format) format = 'ou' as ID;
+			} else if (format.includes('freeforall')) {
+				format = format.slice(13) as ID;
 				if (!format) format = 'ou' as ID;
 			} else {
 				format = format.slice(14) as ID;
