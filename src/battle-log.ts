@@ -751,6 +751,8 @@ export class BattleLog {
 		};
 	})();
 
+	static players: any[] = [];
+	static ytLoading: Promise<void> | null = null;
 	static tagPolicy: ((tagName: string, attribs: string[]) => any) | null = null;
 	static initSanitizeHTML() {
 		if (this.tagPolicy) return;
@@ -909,12 +911,15 @@ export class BattleLog {
 				if (!videoId) return {tagName: 'img', attribs: ['alt', `invalid src for <youtube>`]};
 
 				const time = /(?:\?|&)(?:t|start)=([0-9]+)/.exec(src)?.[1];
-
+				this.players.push(null);
+				const idx = this.players.length;
+				this.initYoutubePlayer(idx);
 				return {
 					tagName: 'iframe',
 					attribs: [
+						'id', `youtube-iframe-${idx}`,
 						'width', width, 'height', height,
-						'src', `https://www.youtube.com/embed/${videoId}${time ? `?start=${time}` : ''}`,
+						'src', `https://www.youtube.com/embed/${videoId}?enablejsapi=1&playsinline=1${time ? `&start=${time}` : ''}`,
 						'frameborder', '0', 'allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture', 'allowfullscreen', 'allowfullscreen',
 					],
 				};
@@ -1024,6 +1029,55 @@ export class BattleLog {
 		return sanitized.replace(
 			/<time>\s*([+-]?\d{4,}-\d{2}-\d{2})[T ](\d{2}:\d{2}(?::\d{2}(?:\.\d{3})?)?)(Z|[+-]\d{2}:\d{2})?\s*<\/time>/ig,
 		this.localizeTime);
+	}
+
+	static initYoutubePlayer(idx: number) {
+		const id = `youtube-iframe-${idx}`;
+		const loadPlayer = () => {
+			if (!$(`#${id}`).length) return;
+			const player = new window.YT.Player(id, {
+				events: {
+					onStateChange: (event: any) => {
+						if (event.data === window.YT.PlayerState.PLAYING) {
+							for (const curPlayer of BattleLog.players) {
+								if (player === curPlayer) continue;
+								curPlayer?.pauseVideo?.();
+							}
+						}
+					},
+				},
+			});
+			this.players[idx - 1] = player;
+		};
+		// wait for html element to be in DOM
+		this.ensureYoutube().then(() => {
+			setTimeout(() => loadPlayer(), 300);
+		});
+	}
+
+	static ensureYoutube(): Promise<void> {
+		if (this.ytLoading) return this.ytLoading;
+
+		this.ytLoading = new Promise(resolve => {
+			const el = document.createElement('script');
+			el.type = 'text/javascript';
+			el.async = true;
+			el.src = 'https://youtube.com/iframe_api';
+			el.onload = () => {
+				// since the src loads more files remotely we'll just wait
+				// until the player exists
+				const loopCheck = () => {
+					if (!window.YT?.Player) {
+						setTimeout(() => loopCheck(), 300);
+					} else {
+						resolve();
+					}
+				};
+				loopCheck();
+			};
+			document.body.appendChild(el);
+		});
+		return this.ytLoading;
 	}
 
 	/*********************************************************
