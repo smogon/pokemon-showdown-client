@@ -1124,6 +1124,9 @@ class BattleTooltips {
 			if (ability === 'shadowdance' && weather === 'newmoon') {
 				speedModifiers.push(2);
 			}
+			if (ability === 'sludgeslider' && weather === 'acidrain') {
+				speedModifiers.push(2);
+			}
 			if (ability === 'sandrush' && weather === 'sandstorm') {
 				speedModifiers.push(2);
 			}
