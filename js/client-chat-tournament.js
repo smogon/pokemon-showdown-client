@@ -763,7 +763,6 @@
 							return;
 						}
 						$cell.addClass('tournament-bracket-table-cell-' + cell.state);
-						console.log(cell.type);
 						if (cell.type === 'nameCell') {
 							$cell.text(cell.name);
 						} else if (cell.state === 'unavailable')
