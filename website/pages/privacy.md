@@ -32,6 +32,8 @@ We reserve the right (but not the obligation) to keep text logs of all chatting 
 
 ## Other services
 
-We use several Google APIs, including YouTube API Services, to help improve chat experience. 
+We (the `API Client`) use several Google APIs, including YouTube API Services, to help improve chat experience. 
 
-[Review Google's privacy policy](https://policies.google.com/privacy).
+The `API Client` allows third parties to serve content, including advertisements.
+
+See [Google's privacy policy](https://policies.google.com/privacy).
