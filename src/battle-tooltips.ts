@@ -542,7 +542,7 @@ class BattleTooltips {
 
 		let value = new ModifiableValue(this.battle, pokemon, serverPokemon);
 		let [moveType, category] = this.getMoveType(move, value, gmaxMove || isZOrMax === 'maxmove');
-		const categoryDiff = move.category !== category;
+		let categoryDiff = move.category !== category;
 
 		if (isZOrMax === 'zmove') {
 			if (item.zMoveFrom === move.name) {
@@ -585,6 +585,7 @@ class BattleTooltips {
 					category: move.category,
 					basePower: movePower,
 				});
+				categoryDiff = false;
 			}
 		} else if (isZOrMax === 'maxmove') {
 			if (move.category === 'Status') {
@@ -598,6 +599,7 @@ class BattleTooltips {
 					category: move.category,
 					basePower,
 				});
+				categoryDiff = false;
 			}
 		}
 
@@ -605,7 +607,7 @@ class BattleTooltips {
 			move = new Move(move.id, move.name, {
 				...move,
 				category,
-			})
+			});
 		}
 
 		text += '<h2>' + move.name + '<br />';
@@ -1516,8 +1518,6 @@ class BattleTooltips {
 			move.id === 'terablast' && pokemon.terastallized) {
 			const stats = this.calculateModifiedStats(pokemon, serverPokemon, true);
 			if (stats.atk > stats.spa) category = 'Physical';
-		} else if (this.battle.gen <= 3 && category !== 'Status') {
-			category = Dex.getGen3Category(moveType);
 		}
 		return [moveType, category];
 	}
