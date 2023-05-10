@@ -3459,6 +3459,7 @@ export class Battle {
 		}
 		case 'inactiveoff': {
 			this.kickingInactive = false;
+			this.timerMessageHighlighted = false;
 			this.log(args, undefined, preempt);
 			break;
 		}
