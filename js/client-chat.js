@@ -531,6 +531,90 @@
 				$challenges[0].click();
 				return false;
 
+			case 'favoriteformat':
+				if (this.checkBroadcast(cmd, text)) return false;
+				var favFormats = (Storage.prefs('favoriteFormats') || '').split('|');
+				favFormats = favFormats.filter(function (format) {return format !== '';});
+				var buf = '<div class="infobox">';
+				if (!toID(target) || toID(target) === 'list') {
+					buf += '<strong>Favorite formats:</strong><br />';
+					if (!favFormats.length) {
+						buf += 'None<br />';
+					} else {
+						for (var i in favFormats) {
+							var format = favFormats[i];
+							buf += window.BattleFormats[format].name + ' <button class="button" name="parseCommand" value="/favoriteformat remove ' + format + '">(Delete)</button><br />';
+						}
+					}
+					buf += '<button class="button" name="parseCommand" value="/favoriteformat addNew">(Add favorite format)</button>';
+					buf += '</div>';
+					buf = (toID(target) === 'list' ? '|uhtmlchange' : '|uhtml') + '|favformat|' + buf;
+					this.add(buf);
+					return false;
+				} else if (target.startsWith('addNew')) {
+					buf += "<strong>Please select a section:</strong><br />";
+					var formats = Object.keys(window.BattleFormats);
+					var sections = [];
+					for (var i in formats) {
+						var format = window.BattleFormats[formats[i]];
+						if (!sections.includes(format.section)) sections.push(format.section);
+					}
+					for (var i in sections) {
+						var section = sections[i];
+						buf += '<button class="button" name="parseCommand" value="/favoriteformat section ' + section + '">' + section + '</button>';
+					}
+					buf += '<button class="button" name="parseCommand" value="/favoriteformat list">(Back to List)</button>';
+					buf += '</div>';
+					this.add('|uhtmlchange|favformat|' + buf);
+					return false;
+				} else if (target.startsWith('section')) {
+					var section = target.substring(8);
+					var formats = Object.keys(window.BattleFormats).filter(function (format) {
+						return toID(window.BattleFormats[format].section) === toID(section);
+					});
+					buf += "<strong>Please select a format:</strong><br />";
+					for (var i in formats) {
+						var format = formats[i];
+						buf += '<button class="button" name="parseCommand" value="/favoriteformat add ' + format + '">' + window.BattleFormats[format].name + '</button>';
+					}
+					buf += '<button class="button" name="parseCommand" value="/favoriteformat list">(Back to List)</button>';
+					buf += '</div>';
+					this.add('|uhtmlchange|favformat|' + buf);
+					return false;
+				} else if (target.startsWith('add ')) {
+					var targetFormat = toID(target.substring(4));
+					if (!(targetFormat && targetFormat in window.BattleFormats)) {
+						this.add('Error: Invalid Format');
+					} else {
+						if (favFormats.includes(targetFormat)) {
+							this.add("Format already favorited.");
+						} else {
+							favFormats.push(targetFormat);
+							Storage.prefs('favoriteFormats', favFormats.join('|'));
+							this.add("Format added to favorites.");
+							this.parseCommand('/favoriteformat list');
+						}
+					}
+				} else if (target.startsWith('remove ')) {
+					var targetFormat = toID(target.substring(7));
+					if (!(targetFormat && targetFormat in window.BattleFormats)) {
+						this.add('Error: Invalid Format');
+					} else {
+						if (!favFormats.includes(targetFormat)) {
+							this.add("Format not favorited.");
+						} else {
+							favFormats = favFormats.filter(function (item) {
+								return item !== targetFormat;
+							});
+							Storage.prefs('favoriteFormats', favFormats.join('|'));
+							this.add("Format removed from favorites.");
+							this.parseCommand('/favoriteformat list');
+						}
+						return false;
+					}
+				}
+				return false;
+
 			case 'user':
 			case 'open':
 				if (this.checkBroadcast(cmd, text)) return false;

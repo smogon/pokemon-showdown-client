@@ -1219,15 +1219,32 @@
 				bufs[1] = '<li><button name="selectFormat" value=""' + (curFormat === '' ? ' class="sel"' : '') + '>(All formats)</button></li>';
 			}
 			var curSection = '';
+			var favFormats = Storage.prefs('favoriteFormats') ? Storage.prefs('favoriteFormats').split('|') : [];
+			if (favFormats.length) {
+				curSection = "Favorite Formats";
+				curBuf = 1;
+				if (!bufs[curBuf]) {
+					bufs[curBuf] = '';
+				}
+				bufs[curBuf] += '<li><h3>' + BattleLog.escapeHTML(curSection) + '</h3></li>';
+			}
+			favFormats.forEach(function (curForm) {
+				var format = BattleFormats[curForm];
+				var formatName = BattleLog.escapeFormat(format.id);
+				if (formatName.charAt(0) !== '[') formatName = '[Gen 6] ' + formatName;
+				formatName = formatName.replace('[Gen 8 ', '[');
+				formatName = formatName.replace('[Gen 8] ', '');
+				formatName = formatName.replace('[Gen 7 ', '[');
+				bufs[curBuf] += '<li><button name="selectFormat" value="' + i + '"' + (curFormat === i ? ' class="sel"' : '') + '>' + formatName + '</button></li>';
+			});
 			for (var i in BattleFormats) {
 				var format = BattleFormats[i];
 				if (selectType === 'teambuilder') {
-					if (!format.isTeambuilderFormat) continue;
+					if (!format.isTeambuilderFormat || favFormats.includes(i)) continue;
 				} else {
 					if (format.effectType !== 'Format' || format.battleFormat) continue;
 					if (selectType != 'watch' && !format[selectType + 'Show']) continue;
 				}
-
 				if (format.section && format.section !== curSection) {
 					curSection = format.section;
 					if (!app.supports['formatColumns']) {
