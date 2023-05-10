@@ -215,7 +215,6 @@ export class BattleLog {
 			if (battle?.kickingInactive && battle.timerMessageHighlighted) {
 				divClass += ' message-urgent';
 			}
-			
 			divHTML = BattleLog.escapeHTML(args[1]);
 			break;
 
