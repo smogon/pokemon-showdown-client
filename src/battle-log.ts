@@ -210,6 +210,12 @@ export class BattleLog {
 
 		case 'error': case 'inactive': case 'inactiveoff':
 			divClass = 'chat message-error';
+			battle = this.scene?.battle;
+
+			if (battle?.kickingInactive && battle.timerMessageHighlighted) {
+				divClass += ' message-urgent';
+			}
+			
 			divHTML = BattleLog.escapeHTML(args[1]);
 			break;
 
