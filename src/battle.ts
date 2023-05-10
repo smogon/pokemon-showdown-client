@@ -3446,7 +3446,7 @@ export class Battle {
 					this.kickingInactive = timerValue;
 
 					if (typeof timerValue === "number") {
-						this.timerMessageHighlighted = this.currTurnTimeElapsed >= 30 && timerValue <= 240;
+						this.timerMessageHighlighted = this.currTurnTimeElapsed >= 30 && timerValue <= 10;
 					}
 				} else {
 					this.timerMessageHighlighted = false;
