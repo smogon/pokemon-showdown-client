@@ -213,7 +213,13 @@ export class BattleLog {
 			battle = this.scene?.battle;
 
 			if (battle?.kickingInactive && battle.timerMessageHighlighted) {
-				divClass += ' message-urgent';
+				divClass += ' highlighted';
+				if (this.scene?.battle?.roomid) {
+					const title = 'Make your move!';
+					const body = `${battle?.kickingInactive || 'Only a few'} seconds remaining!`;
+					const tag = 'highlight';
+					app.rooms[this.scene?.battle?.roomid].notifyOnce(title, body, tag);
+				}
 			}
 			divHTML = BattleLog.escapeHTML(args[1]);
 			break;

@@ -591,9 +591,6 @@ details.readmore[open] summary:hover:before {
 .message-error {
 	color: #992222;
 }
-.message-urgent {
-	background-color: #F1E740;
-}
 .dark .message-error {
 	color: #EF4333;
 }
