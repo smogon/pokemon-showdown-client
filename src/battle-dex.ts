@@ -136,7 +136,7 @@ function toRoomid(roomid: string) {
 function toName(name: any) {
 	if (typeof name !== 'string' && typeof name !== 'number') return '';
 	name = ('' + name).replace(/[\|\s\[\]\,\u202e]+/g, ' ').trim();
-	if (name.length > 50) name = name.substr(0, 50).trim();
+	if (name.length > 100) name = name.substr(0, 100).trim();
 
 	// remove zalgo
 	name = name.replace(
@@ -238,7 +238,7 @@ const Dex = new class implements ModdedDex {
 		if (!name) return '';
 		return ('' + name)
 			.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;')
-			.slice(0, 50);
+			.slice(0, 100);
 	}
 	sanitizeNameTypes(name: any) {
 		if (!name) return '';
