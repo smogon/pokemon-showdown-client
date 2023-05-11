@@ -2848,7 +2848,7 @@ export class PokemonSprite extends Sprite {
 	getStatbarHTML(pokemon: Pokemon) {
 		let buf = '<div class="statbar' + (this.isFrontSprite ? ' lstatbar' : ' rstatbar') + this.getClassForPosition(pokemon.slot) + '" style="display: none">';
 		const ignoreNick = this.isFrontSprite && (this.scene.battle.ignoreOpponent || this.scene.battle.ignoreNicks);
-		buf += `<strong>${BattleLog.escapeHTML(ignoreNick ? pokemon.speciesForme : pokemon.name)}`;
+		buf += `<strong>${(ignoreNick ? pokemon.speciesForme : pokemon.name)}`;
 		const gender = pokemon.gender;
 		if (gender === 'M' || gender === 'F') {
 			buf += ` <img src="${Dex.fxPrefix}gender-${gender.toLowerCase()}.png" alt="${gender}" width="7" height="10" class="pixelated" />`;
