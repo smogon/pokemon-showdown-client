@@ -260,6 +260,9 @@ export class DatabaseTable<Row> {
 	insert(partialRow: PartialOrSQL<Row>, where?: SQLStatement) {
 		return this.queryExec()`INSERT INTO \`${this.name}\` (${partialRow as SQLValue}) ${where}`;
 	}
+	insertIgnore(partialRow: PartialOrSQL<Row>, where?: SQLStatement) {
+		return this.queryExec()`INSERT IGNORE INTO \`${this.name}\` (${partialRow as SQLValue}) ${where}`;
+	}
 	async tryInsert(partialRow: PartialOrSQL<Row>, where?: SQLStatement) {
 		try {
 			return await this.insert(partialRow, where);

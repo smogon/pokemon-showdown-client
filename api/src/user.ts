@@ -123,16 +123,15 @@ export class Session {
 	async addUser(username: string, password: string) {
 		const hash = await bcrypt.hash(password, Config.passwordSalt);
 		const userid = toID(username);
-		const exists = await users.get(userid, ['userid']);
-		if (exists) return null;
 		const ip = this.context.getIp();
 
-		const result = await users.insert({
+		const result = await users.insertIgnore({
 			userid, username, passwordhash: hash, email: null, registertime: time(), ip,
 		});
 
 		if (!result.affectedRows) {
-			throw new Error(`User could not be created. (${userid}, ${ip})`);
+			// 0 affected rows almost always means user already exists
+			return null;
 		}
 		return this.login(username, password);
 	}
