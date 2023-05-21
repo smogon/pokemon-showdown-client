@@ -1604,6 +1604,9 @@ class BattleTooltips {
 		if (!move.ohko) {
 			value.abilityModify(0, 'No Guard');
 		}
+		if (!move.ohko) {
+			value.abilityModify(0, 'Ring Rust');
+		}
 		if (!value.value) return value;
 
 		// OHKO moves don't use standard accuracy / evasion modifiers
@@ -1652,9 +1655,6 @@ class BattleTooltips {
 		} else if (value.tryAbility('Compound Eyes')) {
 			accuracyModifiers.push(5325);
 			value.abilityModify(1.3, "Compound Eyes");
-		} else if (value.tryAbility('Ring Rust') && moveOGacc < 100) {
-			accuracyModifiers.push(4506);
-			value.abilityModify(1.1, "Ring Rust");
 		}
 
 		if (value.tryItem('Wide Lens')) {
@@ -1960,9 +1960,6 @@ class BattleTooltips {
 		}
 		if (move.type === 'Psychic' && this.battle.weather === 'rainyday') {
 			value.abilityModify(1.3, "Flowing Tranquility");
-		}
-		if (typeof move.accuracy === 'number' && move.accuracy < 100) {
-			value.abilityModify(1.3, "Ring Rust");
 		}
 		for (let i = 1; i <= 5 && i <= pokemon.side.faintCounter; i++) {
 			if (pokemon.volatiles[`fallen${i}`]) {
