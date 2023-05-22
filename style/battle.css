@@ -475,6 +475,10 @@ License: GPLv2
 	background: #DDAAEE url(../fx/weather-trickroom.png) no-repeat scroll left top;
 	color: #661155;
 }
+.panicroomweather {
+	background: #DDAAEE url(../fx/weather-panicroom.png) no-repeat scroll left top;
+	color: #661155;
+}
 .wonderroomweather {
 	background: #DDAAEE url(../fx/weather-wonderroom.png) no-repeat scroll left top;
 	color: #661155;

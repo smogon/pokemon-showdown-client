@@ -733,6 +733,9 @@ export const BattleMoveAnims: AnimTable = {
 	trickroom: {
 		anim: BattleOtherAnims.dance.anim,
 	},
+	panicroom: {
+		anim: BattleOtherAnims.dance.anim,
+	},
 	magicroom: {
 		anim: BattleOtherAnims.dance.anim,
 	},
