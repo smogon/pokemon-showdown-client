@@ -1099,6 +1099,10 @@ const BattlePokemonIconIndexes: {[id: string]: number} = {
 	cetitanhisui: 2052 + 0,
 	alakazamgambler: 2052 + 1,
 	golisopodshogun: 2052 + 2,
+	dewpiderdelta: 2052 + 3,
+	araquaniddelta: 2052 + 4,
+	spiritombdelta: 2052 + 5,
+	spiritombdeltamega: 2052 + 6,
 };
 
 const BattlePokemonIconIndexesLeft: {[id: string]: number} = {
