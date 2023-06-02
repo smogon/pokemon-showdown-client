@@ -11,9 +11,9 @@ allow from all
 order deny,allow
 deny from all
 </Limit>
-AuthName pokemonshowdown.com
-AuthUserFile /home/pokemon/public_html/_vti_pvt/service.pwd
-AuthGroupFile /home/pokemon/public_html/_vti_pvt/service.grp
+#AuthName pokemonshowdown.com
+#AuthUserFile /home/pokemon/public_html/_vti_pvt/service.pwd
+#AuthGroupFile /home/pokemon/public_html/_vti_pvt/service.grp
 
 AddType text/plain .phps
 AddType application/octet-stream .heapsnapshot

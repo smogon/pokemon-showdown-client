@@ -35,7 +35,7 @@ class Replays {
 		$alphabet = '0123456789abcdefghijklmnopqrstuvwxyz';
 		$password = '';
 		for ($i = 0; $i < 31; $i++) {
-			$password .= $alphabet{mt_rand(0, 35)};
+			$password .= $alphabet[mt_rand(0, 35)];
 		}
 		return $password;
 	}
