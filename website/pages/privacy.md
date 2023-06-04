@@ -22,11 +22,18 @@ Pokémon Showdown uses Google Analytics and Google AdSense, which collect referr
 
 Google has [a page that lets you opt out of AdSense-related tracking](https://www.google.com/settings/ads/onweb/).
 
+## Ads from Enthusiast Gaming
+
+We show advertisements from Enthusiast Gaming. See [Enthusiast Gaming's privacy policy](https://www.enthusiastgaming.com/privacy-policy/).
+
 ## Logging
 
 We reserve the right (but not the obligation) to keep text logs of all chatting in chat rooms, battles, and private messages, including secret rooms. We will keep private message logs as private as possible, and will only look at them if a participant gives us permission (such as through a "Report" button), or to help enforce laws.
 
 ## Other services
 
-We use several Google APIs to help improve chat experience. 
-[Review Google's privacy policy](https://policies.google.com/privacy).
+We (the `API Client`) use several Google APIs, including YouTube API Services, to help improve chat experience. 
+
+The `API Client` allows third parties to serve content, including advertisements.
+
+See [Google's privacy policy](https://policies.google.com/privacy).
