@@ -2426,6 +2426,14 @@ export class Battle {
 				newSpeciesForme = args[2].substr(0, commaIndex);
 			}
 			let species = this.dex.species.get(newSpeciesForme);
+			if (nextArgs) {
+				if (nextArgs[0] === '-mega') {
+					species = this.dex.species.get(this.dex.items.get(nextArgs[3]).megaStone);
+				} else if (nextArgs[0] === '-primal' && nextArgs.length > 2) {
+					if (nextArgs[2] === 'Red Orb') species = this.dex.species.get('Groudon-Primal');
+					if (nextArgs[2] === 'Blue Orb') species = this.dex.species.get('Kyogre-Primal');
+				}
+			}
 
 			poke.speciesForme = newSpeciesForme;
 			poke.ability = poke.baseAbility = (species.abilities ? species.abilities['0'] : '');

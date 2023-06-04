@@ -404,7 +404,9 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 					if (!species.nfe || species.prevo || lcBanlist.isBannedSpecies(species)) {
 						tier = 'Illegal';
 					}
-					if (/^([OURNP]U|Uber|AG)$/g.test(tier)) tier = 'LC';
+					if (/^([OURNP]U(BL)?|Uber|AG)$/g.test(tier) && tier !== 'Illegal') {
+						tier = 'LC';
+					}
 					return tier;
 				}
 				if (isLetsGo) {

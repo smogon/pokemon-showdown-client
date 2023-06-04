@@ -542,6 +542,7 @@ class BattleTooltips {
 
 		let value = new ModifiableValue(this.battle, pokemon, serverPokemon);
 		let [moveType, category] = this.getMoveType(move, value, gmaxMove || isZOrMax === 'maxmove');
+		let categoryDiff = move.category !== category;
 
 		if (isZOrMax === 'zmove') {
 			if (item.zMoveFrom === move.name) {
@@ -596,6 +597,7 @@ class BattleTooltips {
 					category: move.category,
 					basePower: movePower,
 				});
+				categoryDiff = false;
 			}
 		} else if (isZOrMax === 'maxmove') {
 			if (move.category === 'Status') {
@@ -609,7 +611,15 @@ class BattleTooltips {
 					category: move.category,
 					basePower,
 				});
+				categoryDiff = false;
 			}
+		}
+
+		if (categoryDiff) {
+			move = new Move(move.id, move.name, {
+				...move,
+				category,
+			});
 		}
 
 		text += '<h2>' + move.name + '<br />';
@@ -982,7 +992,7 @@ class BattleTooltips {
 		return false;
 	}
 
-	calculateModifiedStats(clientPokemon: Pokemon | null, serverPokemon: ServerPokemon) {
+	calculateModifiedStats(clientPokemon: Pokemon | null, serverPokemon: ServerPokemon, statStagesOnly?: boolean) {
 		let stats = {...serverPokemon.stats};
 		let pokemon = clientPokemon || serverPokemon;
 		const isPowerTrick = clientPokemon?.volatiles['powertrick'];
@@ -1008,6 +1018,7 @@ class BattleTooltips {
 				stats[statName] = Math.floor(stats[statName]);
 			}
 		}
+		if (statStagesOnly) return stats;
 
 		const ability = toID(
 			clientPokemon?.effectiveAbility(serverPokemon) ?? (serverPokemon.ability || serverPokemon.baseAbility)
@@ -1534,7 +1545,7 @@ class BattleTooltips {
 
 		// Other abilities that change the move type.
 		const noTypeOverride = [
-			'judgment', 'multiattack', 'naturalgift', 'revelationdance', 'struggle', 'technoblast', 'terablast', 'terrainpulse', 'weatherball',
+			'judgment', 'multiattack', 'naturalgift', 'revelationdance', 'struggle', 'technoblast', 'terrainpulse', 'weatherball',
 		];
 		const allowTypeOverride = !noTypeOverride.includes(move.id) && (move.id !== 'terablast' || !pokemon.terastallized);
 		if (allowTypeOverride) {
@@ -1573,8 +1584,10 @@ class BattleTooltips {
 			}
 		}
 
-		if (this.battle.gen <= 3 && category !== 'Status') {
-			category = Dex.getGen3Category(moveType);
+		if (move.id === 'photongeyser' || move.id === 'lightthatburnsthesky' ||
+			move.id === 'terablast' && pokemon.terastallized) {
+			const stats = this.calculateModifiedStats(pokemon, serverPokemon, true);
+			if (stats.atk > stats.spa) category = 'Physical';
 		}
 		return [moveType, category];
 	}
@@ -2185,7 +2198,9 @@ class BattleTooltips {
 			return value;
 		}
 
-		if (itemName === 'Punching Glove' && move.flags['punch']) {
+		if (itemName === 'Muscle Band' && move.category === 'Physical' ||
+			itemName === 'Wise Glasses' && move.category === 'Special' ||
+			itemName === 'Punching Glove' && move.flags['punch']) {
 			value.itemModify(1.1);
 		}
 		if (itemName === 'Smooth Rock' && moveName === 'Desert Tempest') {
