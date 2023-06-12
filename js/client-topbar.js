@@ -22,7 +22,7 @@
 			if (Storage.prefs('notifvolume') === undefined) Storage.prefs('notifvolume', 10);
 
 			if (Storage.prefs('bwgfx')) {
-				this.$el.html('<img class="logo" src="' + Dex.resourcePrefix + 'pokemonshowdownbetabw.png" srcset="' + Dex.resourcePrefix + 'pokemonshowdownbetabw@2x.png 2x" alt="Pok&eacute;mon Showdown! (beta)" width="146" height="44" /><div class="maintabbarbottom"></div><div class="tabbar maintabbar"><div class="inner"></div></div><div class="userbar"></div>');
+				this.$el.html('<img class="logo" src="' + Dex.resourcePrefix + 'pokemonshowdownbetabw.gif" srcset="' + Dex.resourcePrefix + 'pokemonshowdownbetabw@2x.gif 2x" alt="Pok&eacute;mon Showdown! (beta)" width="146" height="44" /><div class="maintabbarbottom"></div><div class="tabbar maintabbar"><div class="inner"></div></div><div class="userbar"></div>');
 			} else {
 				this.$el.html('<img class="logo" src="' + Dex.resourcePrefix + 'pokemonshowdownbeta.png" srcset="' + Dex.resourcePrefix + 'pokemonshowdownbeta@2x.png 2x" alt="Pok&eacute;mon Showdown! (beta)" width="146" height="44" /><div class="maintabbarbottom"></div><div class="tabbar maintabbar"><div class="inner"></div></div><div class="userbar"></div>');
 			}
