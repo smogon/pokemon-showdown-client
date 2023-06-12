@@ -1122,6 +1122,7 @@ const BattlePokemonIconIndexes: {[id: string]: number} = {
 	ariadosmega: 2052 + 23,
 	sceptiledeltamega: 2052 + 24,
 	spiritombdeltamega: 2052 + 25,
+	magnemiterhinian: 2052 + 26,
 };
 
 const BattlePokemonIconIndexesLeft: {[id: string]: number} = {
