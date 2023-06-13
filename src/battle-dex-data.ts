@@ -1105,7 +1105,7 @@ const BattlePokemonIconIndexes: {[id: string]: number} = {
 	appletundelta: 2052 + 6,
 	enteisupra: 2052 + 7,
 	raikousupra: 2052 + 8,
-	lycanrocdelta: 2052 + 9,
+	lycanrocduskdelta: 2052 + 9,
 	kleavordelta: 2052 + 10,
 	screamtaildelta: 2052 + 11,
 	meditao: 2052 + 12,
@@ -1123,6 +1123,8 @@ const BattlePokemonIconIndexes: {[id: string]: number} = {
 	sceptiledeltamega: 2052 + 24,
 	spiritombdeltamega: 2052 + 25,
 	magnemiterhinian: 2052 + 26,
+	barrimander: 2052 + 27,
+	blazikendeltamega: 2052 + 28,
 };
 
 const BattlePokemonIconIndexesLeft: {[id: string]: number} = {
