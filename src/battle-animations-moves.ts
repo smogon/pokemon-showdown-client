@@ -35087,7 +35087,7 @@ export const BattleMoveAnims: AnimTable = {
 			let ystep = (defender.x - 200 - attacker.x) / 5;
 			let zstep = (defender.z - attacker.z) / 5;
 
-			scene.backgroundEffect(`url('https://${Config.routes.client}/fx/weather-newmoon.jpg')`, 900, 0.5);
+			scene.backgroundEffect(`url('https://raw.githubusercontent.com/vikrambarr/sprites/main/fx/weather-newmoon.png')`, 900, 0.5);
 
 			for (let i = 0; i < 5; i++) {
 				scene.showEffect('shadowball', {
@@ -35653,7 +35653,17 @@ BattleMoveAnims['jetstream'] = {
 		BattleMoveAnims['tailwind'].anim(scene, [attacker, defender]);
 	},
 };
-
-
+BattleMoveAnims['medusaray'] = {
+	anim(scene, [attacker, defender]) {
+		BattleMoveAnims['meanlook'].anim(scene, [defender, attacker]);
+		BattleMoveAnims['meanlook'].anim(scene, [attacker, defender]);
+	},
+};
+BattleMoveAnims['nanorepair'] = {
+	anim(scene, [attacker, defender]) {
+		BattleMoveAnims['shiftgear'].anim(scene, [attacker, defender]);
+		BattleMoveAnims['recover'].anim(scene, [attacker, defender]);
+	},
+};
 
 
