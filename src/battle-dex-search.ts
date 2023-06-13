@@ -778,6 +778,7 @@ abstract class BattleTypedSearch<T extends SearchType> {
 		if (lsetSpecies.id === 'gastrodoneast') return 'gastrodon' as ID;
 		if (lsetSpecies.id === 'pumpkaboosuper') return 'pumpkaboo' as ID;
 		if (lsetSpecies.id === 'sinisteaantique') return 'sinistea' as ID;
+		if (['espeon', 'umbreon', 'sylveon', 'flareon', 'leafeon', 'vaporeon', 'jolteon', 'glaceon'].includes(lsetSpecies.id)) return '' as ID;
 
 		const next = lsetSpecies.battleOnly || lsetSpecies.changesFrom || lsetSpecies.prevo;
 		if (next) return toID(next);
