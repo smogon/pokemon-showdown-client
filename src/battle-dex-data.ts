@@ -1125,6 +1125,15 @@ const BattlePokemonIconIndexes: {[id: string]: number} = {
 	magnemiterhinian: 2052 + 26,
 	barrimander: 2052 + 27,
 	blazikendeltamega: 2052 + 28,
+	tyranitardelta: 2052 + 29,
+	eiscuedelta: 2052 + 30,
+	enchantobra: 2052 + 31,
+	heatransupra: 2052 + 32,
+	lycanrocmidnightdelta: 2052 + 33,
+	lycanrocdelta: 2052 + 34,
+	mausholddeltaformation: 2052 + 35,
+	thunderoustitan: 2052 + 36,
+	tinkatonrhinian: 2052 + 37,
 };
 
 const BattlePokemonIconIndexesLeft: {[id: string]: number} = {
