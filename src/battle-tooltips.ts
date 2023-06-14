@@ -1589,6 +1589,11 @@ class BattleTooltips {
 			const stats = this.calculateModifiedStats(pokemon, serverPokemon, true);
 			if (stats.atk > stats.spa) category = 'Physical';
 		}
+		
+		if (move.flags['bite'] && pokemon.ability == "Spectral Jaws") {
+			category = 'Special';
+		}
+
 		return [moveType, category];
 	}
 
