@@ -1138,6 +1138,8 @@ const BattlePokemonIconIndexes: {[id: string]: number} = {
 	ironsurge: 2052 + 39,
 	felapstan: 2052 + 40,
 	kaleidleon: 2052 + 41,
+	lycanmimiktoo: 2052 + 42,
+	lycanmimiktooruined: 2052 + 43,
 };
 
 const BattlePokemonIconIndexesLeft: {[id: string]: number} = {
