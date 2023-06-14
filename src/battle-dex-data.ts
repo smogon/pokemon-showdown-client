@@ -1140,6 +1140,18 @@ const BattlePokemonIconIndexes: {[id: string]: number} = {
 	kaleidleon: 2052 + 41,
 	lycanmimiktoo: 2052 + 42,
 	lycanmimiktooruined: 2052 + 43,
+	slowkingmega: 2052 + 44,
+	carbinkdelta: 2052 + 45,
+	rabbicicle: 2052 + 46,
+	electrodemega: 2052 + 47,
+	youcan: 2052 + 48,
+	toxice: 2052 + 49,
+	reflight: 2052 + 50,
+	simigloom: 2052 + 51,
+	porygonzrhinian: 2052 + 52,
+	canyou: 2052 + 53,
+	florgesmega: 2052 + 54,
+	torkoaldelta: 2052 + 55,
 };
 
 const BattlePokemonIconIndexesLeft: {[id: string]: number} = {
