@@ -1134,6 +1134,10 @@ const BattlePokemonIconIndexes: {[id: string]: number} = {
 	mausholddeltaformation: 2052 + 35,
 	thunderoustitan: 2052 + 36,
 	tinkatonrhinian: 2052 + 37,
+	ironbrew: 2052 + 38,
+	ironsurge: 2052 + 39,
+	felapstan: 2052 + 40,
+	kaleidleon: 2052 + 41,
 };
 
 const BattlePokemonIconIndexesLeft: {[id: string]: number} = {

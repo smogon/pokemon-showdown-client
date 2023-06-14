@@ -36102,7 +36102,6 @@ BattleMoveAnims['subduction'] = {
 	anim(scene, [attacker, defender]) {
 		BattleMoveAnims['bulldoze'].anim(scene, [attacker, defender]);
 		BattleMoveAnims['earthquake'].anim(scene, [attacker, defender]);
-		BattleMoveAnims['earthquake'].anim(scene, [attacker, defender]);
 	},
 };
 BattleMoveAnims['instantcrush'] = {anim: BattleMoveAnims['psychic'].anim};
