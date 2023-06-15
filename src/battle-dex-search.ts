@@ -1549,6 +1549,7 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 		let moves: string[] = [];
 		let sketchMoves: string[] = [];
 		let sketch = false;
+		let unown = (species.baseSpecies === "Unown" && species.forme);
 		let gen = '' + dex.gen;
 		let lsetTable = BattleTeambuilderTable;
 		if (this.formatType?.startsWith('bdsp')) lsetTable = lsetTable['gen8bdsp'];
@@ -1623,6 +1624,13 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 					if (move.isNonstandard === 'LGPE' && this.formatType !== 'letsgo') continue;
 					moves.push(move.id);
 				}
+			}
+		}
+		if (unown) {
+			for (let id in BattleMovedex) {
+				const move = dex.moves.get(id);
+				if (move.id.charAt(0) !== species.forme.toLowerCase()) continue;
+				moves.push(move.id);
 			}
 		}
 		if (this.formatType === 'metronome') moves = ['metronome'];
