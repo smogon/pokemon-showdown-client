@@ -551,7 +551,7 @@ abstract class BattleTypedSearch<T extends SearchType> {
 	set: PokemonSet | null = null;
 
 	protected formatType: 'doubles' | 'bdsp' | 'bdspdoubles' | 'letsgo' | 'metronome' | 'natdex' | 'insurgencenatdex' | 
-	'uraniumnatdex' | 'poa' | 'nfe' | 'dlc1' | 'dlc1doubles' | 'stadium' | 'lc' | null = null;
+	'uraniumnatdex' | 'poa' | 'regdex' | 'nfe' | 'dlc1' | 'dlc1doubles' | 'stadium' | 'lc' | null = null;
 
 	/**
 	 * Cached copy of what the results list would be with only base filters
@@ -641,15 +641,24 @@ abstract class BattleTypedSearch<T extends SearchType> {
 			if (format.includes("doubles")) {
 				format = format.slice(10) as ID;
 				if (!format) format = 'ou' as ID;
+				this.formatType = 'poa'
+				this.dex = Dex.mod('gen9poa' as ID);
 			} else if (format.includes('freeforall')) {
 				format = format.slice(13) as ID;
 				if (!format) format = 'ou' as ID;
+				this.formatType = 'poa'
+				this.dex = Dex.mod('gen9poa' as ID);
+			} else if (format.includes('regionaldex')) {
+				format = format.slice(14) as ID;
+				if (!format) format = 'ou' as ID;
+				this.formatType = 'regdex'
+				this.dex = Dex.mod('gen9regdex' as ID);
 			} else {
 				format = format.slice(14) as ID;
 				if (!format) format = 'ou' as ID;
+				this.formatType = 'poa'
+				this.dex = Dex.mod('gen9poa' as ID);
 			}
-			this.formatType = 'poa'
-			this.dex = Dex.mod('gen9poa' as ID);
 		}
 		if (this.formatType === 'letsgo') format = format.slice(6) as ID;
 		if (format.includes('metronome')) {
@@ -756,6 +765,7 @@ abstract class BattleTypedSearch<T extends SearchType> {
 		if (this.formatType === "insurgencenatdex") table = table['gen9insurgence'];
 		if (this.formatType === "uraniumnatdex") table = table['gen9uranium'];
 		if (this.formatType === "poa") table = table['gen9poa'];
+		if (this.formatType === "regdex") table = table['gen9regdex'];
 		if (this.formatType === 'letsgo') table = table['gen7letsgo'];
 		if (speciesid in table.learnsets) return speciesid;
 		const species = this.dex.species.get(speciesid);
@@ -816,6 +826,7 @@ abstract class BattleTypedSearch<T extends SearchType> {
 			if (this.formatType === 'insurgencenatdex') table = table['gen9insurgence'];
 			if (this.formatType === 'uraniumnatdex') table = table['gen9uranium'];
 			if (this.formatType === 'poa') table = table['gen9poa'];
+			if (this.formatType === 'regdex') table = table['gen9regdex'];
 			if (this.formatType === 'letsgo') table = table['gen7letsgo'];
 			let learnset = table.learnsets[learnsetid];
 			if (learnset && (moveid in learnset) && (!this.format.startsWith('tradebacks') ? learnset[moveid].includes(genChar) :
@@ -845,6 +856,7 @@ abstract class BattleTypedSearch<T extends SearchType> {
 			this.formatType === 'insurgencenatdex' ? `gen9insurgence` :
 			this.formatType === 'uraniumnatdex' ? `gen9uranium` :
 			this.formatType === 'poa' ? `gen9poa` :
+			this.formatType === 'regdex' ? `gen9regdex` :
 			this.formatType === 'stadium' ? `gen${gen}stadium${gen > 1 ? gen : ''}` :
 			`gen${gen}`;
 		if (table && table[tableKey]) {
@@ -959,6 +971,8 @@ class BattlePokemonSearch extends BattleTypedSearch<'pokemon'> {
 			table = table['gen9uranium'];
 		} else if (this.formatType === 'poa') {
 			table = table['gen9poa'];
+		} else if (this.formatType === 'regdex') {
+			table = table['gen9regdex'];
 		} else if (this.formatType === 'metronome') {
 			table = table['gen' + dex.gen + 'metronome'];
 		} else if (this.formatType === 'nfe') {
@@ -1211,6 +1225,8 @@ class BattleItemSearch extends BattleTypedSearch<'item'> {
 			table = table['gen9uranium'];
 		} else if (this.formatType === "poa") {
 			table = table['gen9poa'];
+		} else if (this.formatType === "regdex") {
+			table = table['gen9regdex'];
 		} else if (this.formatType === 'metronome') {
 			table = table['gen' + this.dex.gen + 'metronome'];
 		} else if (this.dex.gen < 9) {
@@ -1527,7 +1543,7 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 		const isTradebacks = format.includes('tradebacks');
 		const regionBornLegality = dex.gen >= 6 &&
 			/^battle(spot|stadium|festival)/.test(format) || format.startsWith('vgc') ||
-			(dex.gen === 9 && this.formatType !== 'natdex' && this.formatType !== 'insurgencenatdex' && this.formatType !== 'uraniumnatdex' &&this.formatType !== 'poa');
+			(dex.gen === 9 && this.formatType !== 'natdex' && this.formatType !== 'insurgencenatdex' && this.formatType !== 'uraniumnatdex' && this.formatType !== 'poa');
 
 		let learnsetid = this.firstLearnsetid(species.id);
 		let moves: string[] = [];
@@ -1539,6 +1555,7 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 		if (this.formatType === "insurgencenatdex") lsetTable = lsetTable['gen9insurgence'];
 		if (this.formatType === "uraniumnatdex") lsetTable = lsetTable['gen9uranium'];
 		if (this.formatType === "poa") lsetTable = lsetTable['gen9poa'];
+		if (this.formatType === "regdex") lsetTable = lsetTable['gen9regdex'];
 		if (this.formatType === 'letsgo') lsetTable = lsetTable['gen7letsgo'];
 		if (this.formatType?.startsWith('dlc1')) lsetTable = lsetTable['gen8dlc1'];
 		while (learnsetid) {

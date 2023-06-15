@@ -349,6 +349,8 @@
 				abilities = Dex.mod("gen9insurgence").species.get(id).abilities;
 			} else if (this.engine.dex.modid === "gen9poa")  {
 				abilities = Dex.mod("gen9poa").species.get(id).abilities;
+			} else if (this.engine.dex.modid === "gen9regdex")  {
+				abilities = Dex.mod("gen9regdex").species.get(id).abilities;
 			} else if (this.engine.dex.modid === "gen9uranium")  {
 				abilities = Dex.mod("gen9uranium").species.get(id).abilities;
 			} else {
