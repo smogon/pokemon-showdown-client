@@ -1626,7 +1626,7 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 				}
 			}
 		}
-		if (unown) {
+		if (unown && format.startsWith("gen9poanationaldex")) {
 			for (let id in BattleMovedex) {
 				const move = dex.moves.get(id);
 				if (move.id.charAt(0) !== species.forme.toLowerCase()) continue;
