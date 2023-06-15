@@ -1746,7 +1746,7 @@ class BattleTooltips {
 		if (move.id === 'brine' && target && target.hp * 2 <= target.maxhp) {
 			value.modify(2, 'Brine + target below half HP');
 		}
-		if (move.id === 'eruption' || move.id === 'waterspout' || move.id === 'dragonenergy' || move.id === 'bloomsday') {
+		if (move.id === 'eruption' || move.id === 'waterspout' || move.id === 'dragonenergy' || move.id === 'bloomsday' || move.id === 'meltdown') {
 			value.set(Math.floor(150 * pokemon.hp / pokemon.maxhp) || 1);
 		}
 		if (move.id === 'facade' && !['', 'slp', 'frz'].includes(pokemon.status)) {
