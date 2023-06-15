@@ -1152,6 +1152,15 @@ const BattlePokemonIconIndexes: {[id: string]: number} = {
 	canyou: 2052 + 53,
 	florgesmega: 2052 + 54,
 	torkoaldelta: 2052 + 55,
+	swampertdelta: 2052 + 56,
+	swampertdeltamega: 2052 + 57,
+	madame: 2052 + 58,
+	weezingrhinian: 2052 + 59,
+	sedimentairy: 2052 + 60,
+	pupitardelta: 2052 + 61,
+	larvitardelta: 2052 + 62,
+	clodsiredelta: 2052 + 63,
+	rockruffdelta: 2052 + 64,
 };
 
 const BattlePokemonIconIndexesLeft: {[id: string]: number} = {
