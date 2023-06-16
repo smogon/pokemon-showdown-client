@@ -14,7 +14,7 @@ use Wikimedia\CSS\Util;
 
 /**
  * Sanitizes a CSS stylesheet or rule list
- * @see https://www.w3.org/TR/2014/CR-css-syntax-3-20140220/#css-stylesheets
+ * @see https://www.w3.org/TR/2019/CR-css-syntax-3-20190716/#css-stylesheets
  */
 class StylesheetSanitizer extends Sanitizer {
 
@@ -52,7 +52,6 @@ class StylesheetSanitizer extends Sanitizer {
 		$ruleSanitizers = [
 			'style' => new StyleRuleSanitizer( $matcherFactory->cssSelectorList(), $propertySanitizer ),
 			'@font-face' => new FontFaceAtRuleSanitizer( $matcherFactory ),
-			'@font-feature-values' => new FontFeatureValuesAtRuleSanitizer( $matcherFactory ),
 			'@keyframes' => new KeyframesAtRuleSanitizer( $matcherFactory, $propertySanitizer ),
 			'@page' => new PageAtRuleSanitizer( $matcherFactory, $propertySanitizer ),
 			'@media' => new MediaAtRuleSanitizer( $matcherFactory->cssMediaQueryList() ),
@@ -66,15 +65,15 @@ class StylesheetSanitizer extends Sanitizer {
 		$ruleSanitizers['@supports']->setRuleSanitizers( $ruleSanitizers );
 
 		// Now we can put together the StylesheetSanitizer
-		$sanitizer = new StylesheetSanitizer( $ruleSanitizers + [
+		return new StylesheetSanitizer( $ruleSanitizers + [
 			// Note there's intentionally no "@charset" sanitizer, as that at-rule
 			// was removed in the Editor's Draft in favor of special handling
 			// in the parser.
-			'@import' => new ImportAtRuleSanitizer( $matcherFactory ),
+			'@import' => new ImportAtRuleSanitizer( $matcherFactory, [
+				'declarationSanitizer' => $propertySanitizer,
+			] ),
 			'@namespace' => new NamespaceAtRuleSanitizer( $matcherFactory ),
 		] );
-
-		return $sanitizer;
 	}
 
 	/**
@@ -94,9 +93,11 @@ class StylesheetSanitizer extends Sanitizer {
 		$this->ruleSanitizers = $ruleSanitizers;
 	}
 
+	/** @inheritDoc */
 	protected function doSanitize( CSSObject $object ) {
 		$isSheet = $object instanceof Stylesheet;
 		if ( $isSheet ) {
+			'@phan-var Stylesheet $object';
 			$object = $object->getRuleList();
 		}
 		if ( !$object instanceof RuleList ) {

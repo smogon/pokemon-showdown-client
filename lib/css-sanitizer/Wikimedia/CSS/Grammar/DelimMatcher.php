@@ -16,7 +16,7 @@ use Wikimedia\CSS\Objects\Token;
  * other types (case-sensitively) too. For the more common case-insensitive
  * identifier matching, use KeywordMatcher.
  *
- * @see https://www.w3.org/TR/2016/CR-css-values-3-20160929/#component-types
+ * @see https://www.w3.org/TR/2019/CR-css-values-3-20190606/#component-types
  */
 class DelimMatcher extends Matcher {
 	/** @var string One of the Token::T_* constants */
@@ -39,8 +39,9 @@ class DelimMatcher extends Matcher {
 		$this->type = $options['type'];
 	}
 
+	/** @inheritDoc */
 	protected function generateMatches( ComponentValueList $values, $start, array $options ) {
-		$cv = isset( $values[$start] ) ? $values[$start] : null;
+		$cv = $values[$start] ?? null;
 		if ( $cv instanceof Token && $cv->type() === $this->type &&
 			in_array( $cv->value(), $this->values, true )
 		) {
