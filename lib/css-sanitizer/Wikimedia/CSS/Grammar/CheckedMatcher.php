@@ -13,7 +13,7 @@ use Wikimedia\CSS\Objects\ComponentValueList;
  */
 class CheckedMatcher extends Matcher {
 	/** @var Matcher */
-	private $matcher = null;
+	private $matcher;
 
 	/** @var callable */
 	protected $check;
@@ -21,13 +21,14 @@ class CheckedMatcher extends Matcher {
 	/**
 	 * @param Matcher $matcher Base matcher
 	 * @param callable $check Function to check the match is really valid.
-	 *  Prototype is bool func( ComponentValueList $values, Match $match, array $options )
+	 *  Prototype is bool func( ComponentValueList $values, GrammarMatch $match, array $options )
 	 */
 	public function __construct( Matcher $matcher, callable $check ) {
 		$this->matcher = $matcher;
 		$this->check = $check;
 	}
 
+	/** @inheritDoc */
 	protected function generateMatches( ComponentValueList $values, $start, array $options ) {
 		foreach ( $this->matcher->generateMatches( $values, $start, $options ) as $match ) {
 			if ( call_user_func( $this->check, $values, $match, $options ) ) {

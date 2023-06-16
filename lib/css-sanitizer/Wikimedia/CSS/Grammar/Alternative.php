@@ -11,7 +11,7 @@ use Wikimedia\CSS\Util;
 
 /**
  * Matcher that matches one out of a set of Matchers ("|" combiner).
- * @see https://www.w3.org/TR/2016/CR-css-values-3-20160929/#comb-one
+ * @see https://www.w3.org/TR/2019/CR-css-values-3-20190606/#comb-one
  */
 class Alternative extends Matcher {
 	/** @var Matcher[] */
@@ -25,6 +25,7 @@ class Alternative extends Matcher {
 		$this->matchers = $matchers;
 	}
 
+	/** @inheritDoc */
 	protected function generateMatches( ComponentValueList $values, $start, array $options ) {
 		$used = [];
 		foreach ( $this->matchers as $matcher ) {

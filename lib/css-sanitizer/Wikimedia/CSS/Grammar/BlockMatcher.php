@@ -6,9 +6,9 @@
 
 namespace Wikimedia\CSS\Grammar;
 
+use InvalidArgumentException;
 use Wikimedia\CSS\Objects\ComponentValueList;
 use Wikimedia\CSS\Objects\SimpleBlock;
-use Wikimedia\CSS\Objects\Token;
 
 /**
  * Matcher that matches a SimpleBlock
@@ -34,7 +34,7 @@ class BlockMatcher extends Matcher {
 	 */
 	public function __construct( $blockType, Matcher $matcher ) {
 		if ( SimpleBlock::matchingDelimiter( $blockType ) === null ) {
-			throw new \InvalidArgumentException(
+			throw new InvalidArgumentException(
 				'A block is delimited by either {}, [], or ().'
 			);
 		}
@@ -42,8 +42,9 @@ class BlockMatcher extends Matcher {
 		$this->matcher = $matcher;
 	}
 
+	/** @inheritDoc */
 	protected function generateMatches( ComponentValueList $values, $start, array $options ) {
-		$cv = isset( $values[$start] ) ? $values[$start] : null;
+		$cv = $values[$start] ?? null;
 		if ( $cv instanceof SimpleBlock && $cv->getStartTokenType() === $this->blockType ) {
 			// To successfully match, our sub-Matcher needs to match the whole
 			// content of the block.

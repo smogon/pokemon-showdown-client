@@ -6,20 +6,25 @@
 
 namespace Wikimedia\CSS\Grammar;
 
+use Iterator;
+use UnexpectedValueException;
 use Wikimedia\CSS\Objects\ComponentValueList;
 use Wikimedia\CSS\Objects\Token;
 
 /**
  * Matcher that matches a sub-Matcher a certain number of times
  * ("?", "*", "+", "#", "{A,B}" multipliers)
- * @see https://www.w3.org/TR/2016/CR-css-values-3-20160929/#component-multipliers
+ * @see https://www.w3.org/TR/2019/CR-css-values-3-20190606/#component-multipliers
  */
 class Quantifier extends Matcher {
 	/** @var Matcher */
 	protected $matcher;
 
 	/** @var int */
-	protected $min, $max;
+	protected $min;
+
+	/** @var int */
+	protected $max;
 
 	/** @var bool Whether matches are comma-separated */
 	protected $commas;
@@ -39,7 +44,7 @@ class Quantifier extends Matcher {
 
 	/**
 	 * Implements "?": 0 or 1 matches
-	 * @see https://www.w3.org/TR/2016/CR-css-values-3-20160929/#mult-opt
+	 * @see https://www.w3.org/TR/2019/CR-css-values-3-20190606/#mult-opt
 	 * @param Matcher $matcher
 	 * @return static
 	 */
@@ -49,7 +54,7 @@ class Quantifier extends Matcher {
 
 	/**
 	 * Implements "*": 0 or more matches
-	 * @see https://www.w3.org/TR/2016/CR-css-values-3-20160929/#mult-zero-plus
+	 * @see https://www.w3.org/TR/2019/CR-css-values-3-20190606/#mult-zero-plus
 	 * @param Matcher $matcher
 	 * @return static
 	 */
@@ -59,7 +64,7 @@ class Quantifier extends Matcher {
 
 	/**
 	 * Implements "+": 1 or more matches
-	 * @see https://www.w3.org/TR/2016/CR-css-values-3-20160929/#mult-one-plus
+	 * @see https://www.w3.org/TR/2019/CR-css-values-3-20190606/#mult-one-plus
 	 * @param Matcher $matcher
 	 * @return static
 	 */
@@ -69,7 +74,7 @@ class Quantifier extends Matcher {
 
 	/**
 	 * Implements "{A,B}": Between A and B matches
-	 * @see https://www.w3.org/TR/2016/CR-css-values-3-20160929/#mult-num-range
+	 * @see https://www.w3.org/TR/2019/CR-css-values-3-20190606/#mult-num-range
 	 * @param Matcher $matcher
 	 * @param int|float $min Minimum number of matches
 	 * @param int|float $max Maximum number of matches
@@ -81,7 +86,7 @@ class Quantifier extends Matcher {
 
 	/**
 	 * Implements "#" and "#{A,B}": Between A and B matches, comma-separated
-	 * @see https://www.w3.org/TR/2016/CR-css-values-3-20160929/#mult-comma
+	 * @see https://www.w3.org/TR/2019/CR-css-values-3-20190606/#mult-comma
 	 * @param Matcher $matcher
 	 * @param int|float $min Minimum number of matches
 	 * @param int|float $max Maximum number of matches
@@ -91,17 +96,21 @@ class Quantifier extends Matcher {
 		return new static( $matcher, $min, $max, true );
 	}
 
+	/** @inheritDoc */
 	protected function generateMatches( ComponentValueList $values, $start, array $options ) {
 		$used = [];
 
 		// Maintain a stack of matches for backtracking purposes.
 		$stack = [
-			[ new Match( $values, $start, 0 ), $this->matcher->generateMatches( $values, $start, $options ) ]
+			[
+				new GrammarMatch( $values, $start, 0 ),
+				$this->matcher->generateMatches( $values, $start, $options )
+			]
 		];
 		do {
-			/** @var $lastMatch Match */
-			/** @var $iter \Iterator<Match> */
-			list( $lastMatch, $iter ) = $stack[count( $stack ) - 1];
+			/** @var $lastMatch GrammarMatch */
+			/** @var $iter Iterator<GrammarMatch> */
+			[ $lastMatch, $iter ] = $stack[count( $stack ) - 1];
 
 			// If the top of the stack has no more matches, pop it, maybe
 			// yield the last matched position, and loop.
@@ -126,7 +135,7 @@ class Quantifier extends Matcher {
 
 			// Quantifiers don't work well when the quantified thing can be empty.
 			if ( $match->getLength() === 0 ) {
-				throw new \UnexpectedValueException( 'Empty match in quantifier!' );
+				throw new UnexpectedValueException( 'Empty match in quantifier!' );
 			}
 
 			$nextFrom = $match->getNext();
@@ -136,17 +145,19 @@ class Quantifier extends Matcher {
 			$canBeMore = count( $stack ) < $this->max;
 
 			// Commas are slightly tricky:
-			//  1. If there is a following comma, start the next Matcher after it.
-			//  2. If not, there can't be any more Matchers following.
+			// 1. If there is a following comma, start the next Matcher after it.
+			// 2. If not, there can't be any more Matchers following.
 			// And in either case optional whitespace is always allowed.
 			if ( $this->commas ) {
 				$n = $nextFrom;
 				if ( isset( $values[$n] ) && $values[$n] instanceof Token &&
+					// @phan-suppress-next-line PhanNonClassMethodCall False positive
 					$values[$n]->type() === Token::T_WHITESPACE
 				) {
 					$n = $this->next( $values, $n, [ 'skip-whitespace' => true ] + $options );
 				}
 				if ( isset( $values[$n] ) && $values[$n] instanceof Token &&
+					// @phan-suppress-next-line PhanNonClassMethodCall False positive
 					$values[$n]->type() === Token::T_COMMA
 				) {
 					$nextFrom = $this->next( $values, $n, [ 'skip-whitespace' => true ] + $options );
@@ -156,7 +167,7 @@ class Quantifier extends Matcher {
 			}
 
 			// If there can be more matches, push another one onto the stack
-			// and try it. Otherwise yield and continue with the current match.
+			// and try it. Otherwise, yield and continue with the current match.
 			if ( $canBeMore ) {
 				$stack[] = [ $match, $this->matcher->generateMatches( $values, $nextFrom, $options ) ];
 			} else {

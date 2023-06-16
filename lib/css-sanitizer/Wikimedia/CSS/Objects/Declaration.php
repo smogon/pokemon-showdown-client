@@ -6,6 +6,7 @@
 
 namespace Wikimedia\CSS\Objects;
 
+use InvalidArgumentException;
 use Wikimedia\CSS\Util;
 
 /**
@@ -13,8 +14,11 @@ use Wikimedia\CSS\Util;
  */
 class Declaration implements DeclarationOrAtRule {
 
-	/** @var int Line and position in the input where this declaration starts */
-	protected $line = -1, $pos = -1;
+	/** @var int Line in the input where this declaration starts */
+	protected $line = -1;
+
+	/** @var int Position in the input where this declaration starts */
+	protected $pos = -1;
 
 	/** @var string */
 	protected $name;
@@ -30,18 +34,18 @@ class Declaration implements DeclarationOrAtRule {
 	 */
 	public function __construct( Token $token ) {
 		if ( $token->type() !== Token::T_IDENT ) {
-			throw new \InvalidArgumentException(
+			throw new InvalidArgumentException(
 				"Declaration must begin with an ident token, got {$token->type()}"
 			);
 		}
 
-		list( $this->line, $this->pos ) = $token->getPosition();
+		[ $this->line, $this->pos ] = $token->getPosition();
 		$this->name = $token->value();
 		$this->value = new ComponentValueList();
 	}
 
 	public function __clone() {
-		$this->value = clone( $this->value );
+		$this->value = clone $this->value;
 	}
 
 	/**
@@ -86,6 +90,7 @@ class Declaration implements DeclarationOrAtRule {
 
 	/**
 	 * @param string $function Function to call, toTokenArray() or toComponentValueArray()
+	 * @return Token[]|ComponentValue[]
 	 */
 	private function toTokenOrCVArray( $function ) {
 		$ret = [];
@@ -95,7 +100,7 @@ class Declaration implements DeclarationOrAtRule {
 			[ 'value' => $this->name, 'position' => [ $this->line, $this->pos ] ]
 		);
 		$ret[] = $v = new Token( Token::T_COLON );
-		// Manually looping and appending turns out to be noticably faster than array_merge.
+		// Manually looping and appending turns out to be noticeably faster than array_merge.
 		foreach ( $this->value->$function() as $v ) {
 			$ret[] = $v;
 		}
@@ -109,10 +114,12 @@ class Declaration implements DeclarationOrAtRule {
 		return $ret;
 	}
 
+	/** @inheritDoc */
 	public function toTokenArray() {
 		return $this->toTokenOrCVArray( __FUNCTION__ );
 	}
 
+	/** @inheritDoc */
 	public function toComponentValueArray() {
 		return $this->toTokenOrCVArray( __FUNCTION__ );
 	}

@@ -13,7 +13,7 @@ use Wikimedia\CSS\Util;
 
 /**
  * Sanitizes the margin at-rules inside a CSS \@page rule
- * @see https://www.w3.org/TR/2013/WD-css3-page-20130314/
+ * @see https://www.w3.org/TR/2018/WD-css-page-3-20181018/
  */
 class MarginAtRuleSanitizer extends RuleSanitizer {
 
@@ -34,13 +34,15 @@ class MarginAtRuleSanitizer extends RuleSanitizer {
 		$this->propertySanitizer = $propertySanitizer;
 	}
 
+	/** @inheritDoc */
 	public function handlesRule( Rule $rule ) {
 		return $rule instanceof AtRule &&
 			in_array( strtolower( $rule->getName() ), self::$marginRuleNames, true );
 	}
 
+	/** @inheritDoc */
 	protected function doSanitize( CSSObject $object ) {
-		if ( !$object instanceof Rule || !$this->handlesRule( $object ) ) {
+		if ( !$object instanceof AtRule || !$this->handlesRule( $object ) ) {
 			$this->sanitizationError( 'expected-page-margin-at-rule', $object );
 			return null;
 		}
@@ -56,7 +58,7 @@ class MarginAtRuleSanitizer extends RuleSanitizer {
 			return null;
 		}
 
-		$ret = clone( $object );
+		$ret = clone $object;
 		$this->fixPreludeWhitespace( $ret, false );
 		$this->sanitizeDeclarationBlock( $ret->getBlock(), $this->propertySanitizer );
 

@@ -14,8 +14,9 @@ use Wikimedia\CSS\Objects\Token;
  */
 class NoWhitespace extends Matcher {
 
+	/** @inheritDoc */
 	protected function generateMatches( ComponentValueList $values, $start, array $options ) {
-		$cv = isset( $values[$start-1] ) ? $values[$start-1] : null;
+		$cv = $values[$start - 1] ?? null;
 		if ( !$cv instanceof Token || $cv->type() !== Token::T_WHITESPACE ) {
 			yield $this->makeMatch( $values, $start, $start );
 		}

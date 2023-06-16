@@ -38,16 +38,19 @@ class NamespaceAtRuleSanitizer extends RuleSanitizer {
 		] );
 	}
 
+	/** @inheritDoc */
 	public function getIndex() {
 		return -900;
 	}
 
+	/** @inheritDoc */
 	public function handlesRule( Rule $rule ) {
 		return $rule instanceof AtRule && !strcasecmp( $rule->getName(), 'namespace' );
 	}
 
+	/** @inheritDoc */
 	protected function doSanitize( CSSObject $object ) {
-		if ( !$object instanceof Rule || !$this->handlesRule( $object ) ) {
+		if ( !$object instanceof AtRule || !$this->handlesRule( $object ) ) {
 			$this->sanitizationError( 'expected-at-rule', $object, [ 'namespace' ] );
 			return null;
 		}
@@ -56,7 +59,7 @@ class NamespaceAtRuleSanitizer extends RuleSanitizer {
 			$this->sanitizationError( 'at-rule-block-not-allowed', $object->getBlock(), [ 'namespace' ] );
 			return null;
 		}
-		if ( !$this->matcher->match( $object->getPrelude(), [ 'mark-significance' => true ] ) ) {
+		if ( !$this->matcher->matchAgainst( $object->getPrelude(), [ 'mark-significance' => true ] ) ) {
 			$cv = Util::findFirstNonWhitespace( $object->getPrelude() );
 			if ( $cv ) {
 				$this->sanitizationError( 'invalid-namespace-value', $cv );
@@ -65,8 +68,6 @@ class NamespaceAtRuleSanitizer extends RuleSanitizer {
 			}
 			return null;
 		}
-		$object = $this->fixPreludeWhitespace( $object, true );
-
-		return $object;
+		return $this->fixPreludeWhitespace( $object, true );
 	}
 }

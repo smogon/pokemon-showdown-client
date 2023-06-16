@@ -6,9 +6,15 @@
 
 namespace Wikimedia\CSS\Parser;
 
+use RuntimeException;
+use UtfNormal\Constants;
+use UtfNormal\Utils;
+use Wikimedia\AtEase\AtEase;
+
 /**
  * Character set conversion for CSS
- * @see https://www.w3.org/TR/2014/CR-css-syntax-3-20140220/#input-byte-stream
+ *
+ * @see https://www.w3.org/TR/2019/CR-css-syntax-3-20190716/#input-byte-stream
  */
 class Encoder {
 
@@ -96,9 +102,12 @@ class Encoder {
 		'iso_8859-8'            => 'ISO-8859-8',
 		'iso_8859-8:1988'       => 'ISO-8859-8',
 		'visual'                => 'ISO-8859-8',
-		'csiso88598i'           => 'ISO-8859-8', // ISO-8859-8-I?
-		'iso-8859-8-i'          => 'ISO-8859-8', // ISO-8859-8-I?
-		'logical'               => 'ISO-8859-8', // ISO-8859-8-I?
+		// ISO-8859-8-I?
+		'csiso88598i'           => 'ISO-8859-8',
+		// ISO-8859-8-I?
+		'iso-8859-8-i'          => 'ISO-8859-8',
+		// ISO-8859-8-I?
+		'logical'               => 'ISO-8859-8',
 		'csisolatin6'           => 'ISO-8859-10',
 		'iso-8859-10'           => 'ISO-8859-10',
 		'iso-ir-157'            => 'ISO-8859-10',
@@ -188,15 +197,24 @@ class Encoder {
 		'x-cp1258'              => 'Windows-1258',
 		'x-mac-cyrillic'        => 'mac-cyrillic',
 		'x-mac-ukrainian'       => 'mac-cyrillic',
-		'chinese'               => 'GB18030', // GBK
-		'csgb2312'              => 'GB18030', // GBK
-		'csiso58gb231280'       => 'GB18030', // GBK
-		'gb2312'                => 'GB18030', // GBK
-		'gb_2312'               => 'GB18030', // GBK
-		'gb_2312-80'            => 'GB18030', // GBK
-		'gbk'                   => 'GB18030', // GBK
-		'iso-ir-58'             => 'GB18030', // GBK
-		'x-gbk'                 => 'GB18030', // GBK
+		// GBK
+		'chinese'               => 'GB18030',
+		// GBK
+		'csgb2312'              => 'GB18030',
+		// GBK
+		'csiso58gb231280'       => 'GB18030',
+		// GBK
+		'gb2312'                => 'GB18030',
+		// GBK
+		'gb_2312'               => 'GB18030',
+		// GBK
+		'gb_2312-80'            => 'GB18030',
+		// GBK
+		'gbk'                   => 'GB18030',
+		// GBK
+		'iso-ir-58'             => 'GB18030',
+		// GBK
+		'x-gbk'                 => 'GB18030',
 		'gb18030'               => 'GB18030',
 		'big5'                  => 'BIG-5',
 		'big5-hkscs'            => 'BIG-5',
@@ -231,6 +249,7 @@ class Encoder {
 		'iso-2022-cn'           => 'replacement',
 		'iso-2022-cn-ext'       => 'replacement',
 		'iso-2022-kr'           => 'replacement',
+		'replacement'           => 'replacement',
 		'utf-16be'              => 'UTF-16BE',
 		'utf-16'                => 'UTF-16LE',
 		'utf-16le'              => 'UTF-16LE',
@@ -247,7 +266,7 @@ class Encoder {
 	 */
 	public static function convert( $text, $encodings = [] ) {
 		// First, check for a BOM and honor that if it's present.
-		if ( substr( $text, 0, 3 ) === "\xef\xbb\xbf" ) {
+		if ( strpos( $text, "\xef\xbb\xbf" ) === 0 ) {
 			// UTF-8 with BOM (convert it anyway in case the BOM is a lie)
 			return self::doConvert( 'UTF-8', substr( $text, 3 ) );
 		}
@@ -300,13 +319,13 @@ class Encoder {
 	protected static function doConvert( $encoding, $text ) {
 		// Pseudo-encoding that just outputs one replacement character
 		if ( $encoding === 'replacement' ) {
-			return \UtfNormal\Constants::UTF8_REPLACEMENT;
+			return Constants::UTF8_REPLACEMENT;
 		}
 
 		// Pseudo-encoding that shifts non-ASCII bytes to the BMP private use area
 		if ( $encoding === 'x-user-defined' ) {
-			return preg_replace_callback( '/[\x80-\xff]/', function ( $m ) {
-				return \UtfNormal\Utils::codepointToUtf8( 0xf700 + ord( $m[0] ) );
+			return preg_replace_callback( '/[\x80-\xff]/', static function ( $m ) {
+				return Utils::codepointToUtf8( 0xf700 + ord( $m[0] ) );
 			}, $text );
 		}
 
@@ -315,15 +334,15 @@ class Encoder {
 		// some encodings mbstring doesn't support.
 		if ( in_array( $encoding, mb_list_encodings(), true ) ) {
 			$old = mb_substitute_character();
-			mb_substitute_character( \UtfNormal\Constants::UNICODE_REPLACEMENT );
+			mb_substitute_character( Constants::UNICODE_REPLACEMENT );
 			$text = mb_convert_encoding( $text, 'UTF-8', $encoding );
 			mb_substitute_character( $old );
 			return $text;
 		}
 
-		$ret = \MediaWiki\quietCall( 'iconv', $encoding, 'UTF-8', $text );
+		$ret = AtEase::quietCall( 'iconv', $encoding, 'UTF-8', $text );
 		if ( $ret === false ) {
-			throw new \RuntimeException( "Cannot convert '$text' from $encoding" );
+			throw new RuntimeException( "Cannot convert '$text' from $encoding" );
 		}
 		return $ret;
 	}

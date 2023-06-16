@@ -26,9 +26,11 @@ class WhitespaceMatcher extends Matcher {
 		$this->significant = !empty( $options['significant'] );
 	}
 
+	/** @inheritDoc */
 	protected function generateMatches( ComponentValueList $values, $start, array $options ) {
 		$end = $start;
 		while ( isset( $values[$end] ) &&
+			// @phan-suppress-next-line PhanNonClassMethodCall False positive
 			$values[$end] instanceof Token && $values[$end]->type() === Token::T_WHITESPACE
 		) {
 			$end++;
@@ -46,6 +48,7 @@ class WhitespaceMatcher extends Matcher {
 		if ( $end === $start ) {
 			$start--;
 			if ( !$options['skip-whitespace'] || !isset( $values[$start] ) ||
+				// @phan-suppress-next-line PhanNonClassMethodCall False positive
 				!$values[$start] instanceof Token || $values[$start]->type() !== Token::T_WHITESPACE
 			) {
 				return;
@@ -54,7 +57,7 @@ class WhitespaceMatcher extends Matcher {
 
 		// Return the match. Include a 'significantWhitespace' capture.
 		yield $this->makeMatch( $values, $start, $end,
-			new Match( $values, $start, 1, 'significantWhitespace' )
+			new GrammarMatch( $values, $start, 1, 'significantWhitespace' )
 		);
 	}
 }

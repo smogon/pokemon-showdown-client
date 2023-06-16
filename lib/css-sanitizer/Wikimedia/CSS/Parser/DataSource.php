@@ -11,7 +11,7 @@ namespace Wikimedia\CSS\Parser;
  */
 interface DataSource {
 
-	const EOF = '';
+	public const EOF = '';
 
 	/**
 	 * Read a character from the data source.
