@@ -1194,6 +1194,11 @@ class BattleTooltips {
 			stats.spa = Math.floor(stats.spa * 0.5);
 		}
 		if (clientPokemon) {
+			for (let i = 1; i <= 5 && i <= clientPokemon.side.faintCounter; i++) {
+				if (clientPokemon.volatiles[`fallen${i}`] && ability === 'driftfactor') {
+					speedModifiers.push(1 + 0.1 * i);
+				}
+			}
 			if (clientPokemon.volatiles['slowstart']) {
 				stats.atk = Math.floor(stats.atk * 0.5);
 				speedModifiers.push(0.5);
