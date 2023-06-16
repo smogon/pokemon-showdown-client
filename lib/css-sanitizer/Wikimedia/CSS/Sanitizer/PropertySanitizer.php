@@ -10,7 +10,6 @@ use InvalidArgumentException;
 use Wikimedia\CSS\Grammar\Matcher;
 use Wikimedia\CSS\Grammar\NothingMatcher;
 use Wikimedia\CSS\Objects\CSSObject;
-use Wikimedia\CSS\Objects\ComponentValueList;
 use Wikimedia\CSS\Objects\Declaration;
 use Wikimedia\CSS\Util;
 
@@ -28,7 +27,7 @@ class PropertySanitizer extends Sanitizer {
 	/**
 	 * @param Matcher[] $properties Array mapping declaration names (lowercase)
 	 *  to Matchers for the values
-	 * @param Matcher $cssWideKeywordsMatcher Matcher for keywords that should
+	 * @param Matcher|null $cssWideKeywordsMatcher Matcher for keywords that should
 	 *  be recognized for all known properties.
 	 */
 	public function __construct( array $properties = [], Matcher $cssWideKeywordsMatcher = null ) {
@@ -63,20 +62,20 @@ class PropertySanitizer extends Sanitizer {
 
 	/**
 	 * Merge a list of matchers into the list of known properties
-	 * @param Matcher[] $properties Array mapping declaration names (lowercase)
+	 * @param Matcher[] $props Array mapping declaration names (lowercase)
 	 *  to Matchers for the values
 	 * @throws InvalidArgumentException if some property is already defined
 	 */
 	public function addKnownProperties( $props ) {
 		$dups = [];
 		foreach ( $props as $k => $v ) {
-			if ( isset( $this->knownProperties[$k] ) && $props[$k] !== $this->knownProperties[$k] ) {
+			if ( isset( $this->knownProperties[$k] ) && $v !== $this->knownProperties[$k] ) {
 				$dups[] = $k;
 			}
 		}
 		if ( $dups ) {
 			throw new InvalidArgumentException(
-				'Duplicate definitions for properties: ' . join( ' ', $dups )
+				'Duplicate definitions for properties: ' . implode( ' ', $dups )
 			);
 		}
 		$this->setKnownProperties( $this->knownProperties + $props );
@@ -98,6 +97,7 @@ class PropertySanitizer extends Sanitizer {
 		$this->cssWideKeywords = $matcher;
 	}
 
+	/** @inheritDoc */
 	protected function doSanitize( CSSObject $object ) {
 		if ( !$object instanceof Declaration ) {
 			$this->sanitizationError( 'expected-declaration', $object );
@@ -112,8 +112,8 @@ class PropertySanitizer extends Sanitizer {
 		}
 
 		$list = $object->getValue();
-		if ( !$knownProperties[$name]->match( $list, [ 'mark-significance' => true ] ) &&
-			!$this->getCssWideKeywordsMatcher()->match( $list, [ 'mark-significance' => true ] )
+		if ( !$knownProperties[$name]->matchAgainst( $list, [ 'mark-significance' => true ] ) &&
+			!$this->getCssWideKeywordsMatcher()->matchAgainst( $list, [ 'mark-significance' => true ] )
 		) {
 			$cv = Util::findFirstNonWhitespace( $list );
 			if ( $cv ) {
