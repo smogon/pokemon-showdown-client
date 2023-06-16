@@ -914,8 +914,8 @@ function toId() {
 		 */
 		sendTeam: function (team) {
 			var packedTeam = '' + Storage.getPackedTeam(team);
-			if (packedTeam.length > 100 * 1024 - 6) {
-				alert("Your team is over 100 KB, usually caused by having over 600 Pokemon in it. Please use a smaller team.");
+			if (packedTeam.length > 25 * 1024 - 6) {
+				alert("Your team is over 25 KB. Please use a smaller team.");
 				return;
 			}
 			this.send('/utm ' + packedTeam);
