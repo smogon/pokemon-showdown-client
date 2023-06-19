@@ -1161,6 +1161,15 @@ const BattlePokemonIconIndexes: {[id: string]: number} = {
 	larvitardelta: 2052 + 62,
 	clodsiredelta: 2052 + 63,
 	rockruffdelta: 2052 + 64,
+	laprasdelta: 2052 + 65,
+	excadrillmega: 2052 + 66,
+	diegain: 2052 + 67,
+	nekitan: 2052 + 68,
+	sharpedorhinian: 2052 + 69,
+	kingambitdelta: 2052 + 70,
+	mrmimerhinian: 2052 + 71,
+	hrsublime: 2052 + 72,
+	parashukado: 2052 + 73,
 };
 
 const BattlePokemonIconIndexesLeft: {[id: string]: number} = {
