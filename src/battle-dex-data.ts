@@ -387,6 +387,7 @@ const BattlePokemonIconIndexes: {[id: string]: number} = {
 	palkiaorigin: 1020 + 238,
 	basculinwhitestriped: 1020 + 239,
 
+	greninjabond: 658,
 	gumshoostotem: 735,
 	raticatealolatotem: 1020 + 120,
 	marowakalolatotem: 1020 + 136,
@@ -635,6 +636,7 @@ const BattlePokemonIconIndexesLeft: {[id: string]: number} = {
 	keldeoresolute: 1344 + 71,
 	meloetta: 1344 + 72,
 	greninja: 1344 + 73,
+	greninjabond: 1344 + 73,
 	greninjaash: 1344 + 74,
 	furfroudebutante: 1344 + 75,
 	barbaracle: 1344 + 76,
@@ -1429,6 +1431,7 @@ class Species implements Effect {
 		this.formeid = (baseId === this.id ? '' : '-' + toID(this.forme));
 		this.spriteid = baseId + this.formeid;
 		if (this.spriteid.slice(-5) === 'totem') this.spriteid = this.spriteid.slice(0, -5);
+		if (this.spriteid === 'greninja-bond') this.spriteid = 'greninja';
 		if (this.spriteid.slice(-1) === '-') this.spriteid = this.spriteid.slice(0, -1);
 		this.baseForme = data.baseForme || '';
 
