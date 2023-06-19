@@ -2782,6 +2782,9 @@ export class Battle {
 						if (effect.name === 'Future Sight') {
 							this.scene.runOtherAnim('futuresighthit' as ID, [poke]);
 						}
+						if (effect.name === 'Foreshadowing') {
+							this.scene.runOtherAnim('foreshadowinghit' as ID, [poke]);
+						}
 					}
 				}
 			}

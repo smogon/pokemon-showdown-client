@@ -1982,6 +1982,7 @@ export class PokemonSprite extends Sprite {
 		saltcure: ['Salt Cure', 'bad'],
 		doomdesire: null,
 		futuresight: null,
+		foreshadowing: null,
 		mimic: ['Mimic', 'good'],
 		watersport: ['Water Sport', 'good'],
 		mudsport: ['Mud Sport', 'good'],
@@ -4643,6 +4644,29 @@ export const BattleOtherAnims: AnimTable = {
 		anim(scene, [defender]) {
 			scene.backgroundEffect('#AA44BB', 250, 0.6);
 			scene.backgroundEffect('#AA44FF', 250, 0.6, 400);
+			defender.anim({
+				scale: 1.2,
+				time: 100,
+			});
+			defender.anim({
+				scale: 1,
+				time: 100,
+			});
+			defender.anim({
+				scale: 1.4,
+				time: 150,
+			});
+			defender.anim({
+				scale: 1,
+				time: 150,
+			});
+			scene.wait(700);
+		},
+	},
+	foreshadowinghit: {
+		anim(scene, [defender]) {
+			scene.backgroundEffect('#FFFFFF', 250, 0.8);
+			scene.backgroundEffect('#000000', 250, 0.8, 400);
 			defender.anim({
 				scale: 1.2,
 				time: 100,
