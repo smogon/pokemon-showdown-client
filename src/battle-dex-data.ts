@@ -1170,6 +1170,15 @@ const BattlePokemonIconIndexes: {[id: string]: number} = {
 	mrmimerhinian: 2052 + 71,
 	hrsublime: 2052 + 72,
 	parashukado: 2052 + 73,
+	shedinjarhinian: 2052 + 74,
+	coalossalmountain: 2052 + 75,
+	pebbal: 2052 + 76,
+	glitchomp: 2052 + 77,
+	pebmaul: 2052 + 78,
+	pelipperelectrified: 2052 + 79,
+	austratus: 2052 + 80,
+	malamarforest: 2052 + 81,
+	suicunesupra: 2052 + 82,
 };
 
 const BattlePokemonIconIndexesLeft: {[id: string]: number} = {
