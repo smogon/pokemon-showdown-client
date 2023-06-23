@@ -1179,6 +1179,10 @@ const BattlePokemonIconIndexes: {[id: string]: number} = {
 	austratus: 2052 + 80,
 	malamarforest: 2052 + 81,
 	suicunesupra: 2052 + 82,
+	mudkipdelta: 2052 + 83,
+	marshtompdelta: 2052 + 84,
+	nidokingdelta: 2052 + 85,
+	rabscadelta: 2052 + 86,
 };
 
 const BattlePokemonIconIndexesLeft: {[id: string]: number} = {
