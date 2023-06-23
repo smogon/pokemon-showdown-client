@@ -1469,6 +1469,9 @@ export class Battle {
 		if (move.id === 'focuspunch') {
 			pokemon.removeTurnstatus('focuspunch' as ID);
 		}
+		if (move.id === 'adaptivestance') {
+			pokemon.removeTurnstatus('adaptivestance' as ID);
+		}
 		this.scene.updateStatbar(pokemon);
 		if (fromeffect.id === 'sleeptalk') {
 			pokemon.rememberMove(move.name, 0);
@@ -1606,6 +1609,10 @@ export class Battle {
 		case 'focuspunch':
 			this.scene.resultAnim(pokemon, 'Lost focus', 'neutral');
 			pokemon.removeTurnstatus('focuspunch' as ID);
+			break;
+		case 'adaptivestance':
+			this.scene.resultAnim(pokemon, 'Lost focus', 'neutral');
+			pokemon.removeTurnstatus('adaptivestance' as ID);
 			break;
 		case 'shelltrap':
 			this.scene.resultAnim(pokemon, 'Trap failed', 'neutral');
@@ -2825,6 +2832,10 @@ export class Battle {
 				this.scene.resultAnim(poke, 'Helping Hand', 'good');
 				break;
 			case 'focuspunch':
+				this.scene.resultAnim(poke, 'Focusing', 'neutral');
+				poke.rememberMove(effect.name, 0);
+				break;
+			case 'adaptivestance':
 				this.scene.resultAnim(poke, 'Focusing', 'neutral');
 				poke.rememberMove(effect.name, 0);
 				break;

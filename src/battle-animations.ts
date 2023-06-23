@@ -2005,6 +2005,7 @@ export class PokemonSprite extends Sprite {
 		charge: ['Charge', 'good'],
 		endure: ['Endure', 'good'],
 		focuspunch: ['Focusing', 'neutral'],
+		adaptivestance: ['Focusing', 'neutral'],
 		shelltrap: ['Trap set', 'neutral'],
 		powder: ['Powder', 'bad'],
 		electrify: ['Electrify', 'bad'],
