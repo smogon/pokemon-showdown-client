@@ -1183,6 +1183,18 @@ const BattlePokemonIconIndexes: {[id: string]: number} = {
 	marshtompdelta: 2052 + 84,
 	nidokingdelta: 2052 + 85,
 	rabscadelta: 2052 + 86,
+	radiangler: 2052 + 87,
+	radianglerexposed: 2052 + 88,
+	terrakionrhinian: 2052 + 89,
+	shedinjatandor: 2052 + 90,
+	tiamutt: 2052 + 91,
+	aegislashsupra: 2052 + 92,
+	kyogrecorrupted: 2052 + 93,
+	gardevoirnightmare: 2052 + 94,
+	gastrodonpolluted: 2052 + 95,
+	mienshaoillusionist: 2052 + 96,
+	musifrog: 2052 + 97,
+	tardoso: 2052 + 98,
 };
 
 const BattlePokemonIconIndexesLeft: {[id: string]: number} = {
