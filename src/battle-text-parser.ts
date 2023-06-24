@@ -489,7 +489,9 @@ class BattleTextParser {
 				case 'darmanitangalarzen': id = 'zenmode'; break;
 				case 'darmanitangalar': id = 'zenmode'; templateName = 'transformEnd'; break;
 				case 'aegislashblade': id = 'stancechange'; break;
+				case 'aegislashsupraaxe': id = 'hardwoodstance'; break;
 				case 'aegislash': id = 'stancechange'; templateName = 'transformEnd'; break;
+				case 'aegislashsupra': id = 'hardwoodstance'; templateName = 'transformEnd'; break;
 				case 'wishiwashischool': id = 'schooling'; break;
 				case 'wishiwashi': id = 'schooling'; templateName = 'transformEnd'; break;
 				case 'miniormeteor': id = 'shieldsdown'; break;
