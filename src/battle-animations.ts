@@ -1983,6 +1983,7 @@ export class PokemonSprite extends Sprite {
 		doomdesire: null,
 		futuresight: null,
 		foreshadowing: null,
+		germinate: null,
 		mimic: ['Mimic', 'good'],
 		watersport: ['Water Sport', 'good'],
 		mudsport: ['Mud Sport', 'good'],
@@ -4668,6 +4669,29 @@ export const BattleOtherAnims: AnimTable = {
 		anim(scene, [defender]) {
 			scene.backgroundEffect('#FFFFFF', 250, 0.8);
 			scene.backgroundEffect('#000000', 250, 0.8, 400);
+			defender.anim({
+				scale: 1.2,
+				time: 100,
+			});
+			defender.anim({
+				scale: 1,
+				time: 100,
+			});
+			defender.anim({
+				scale: 1.4,
+				time: 150,
+			});
+			defender.anim({
+				scale: 1,
+				time: 150,
+			});
+			scene.wait(700);
+		},
+	},
+	germinatehit: {
+		anim(scene, [defender]) {
+			scene.backgroundEffect('#55FF55', 250, 0.8);
+			scene.backgroundEffect('#FF55FF', 250, 0.8, 400);
 			defender.anim({
 				scale: 1.2,
 				time: 100,

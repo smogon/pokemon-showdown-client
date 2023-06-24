@@ -37525,3 +37525,4 @@ BattleMoveAnims['mindtrap'] = {
 };
 BattleMoveAnims['bulwark'] = {anim: BattleMoveAnims['barrier'].anim};
 BattleMoveAnims['foreshadowing'] = {anim: BattleMoveAnims['doomdesire'].anim};
+BattleMoveAnims['germinate'] = {anim: BattleMoveAnims['doomdesire'].anim};

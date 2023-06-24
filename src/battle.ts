@@ -2792,6 +2792,9 @@ export class Battle {
 						if (effect.name === 'Foreshadowing') {
 							this.scene.runOtherAnim('foreshadowinghit' as ID, [poke]);
 						}
+						if (effect.name === 'Germinate') {
+							this.scene.runOtherAnim('germinatehit' as ID, [poke]);
+						}
 					}
 				}
 			}
