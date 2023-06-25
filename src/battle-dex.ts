@@ -180,14 +180,11 @@ const Dex = new class implements ModdedDex {
 	pokeballs: string[] | null = null;
 
 	resourcePrefix = (() => {
-		let prefix = '';
-		if (window.document?.location?.protocol !== 'http:') prefix = 'https:';
-		return `https://raw.githubusercontent.com/vikrambarr/sprites/main/`;
+		return `http://vikrambarr.com`;
 	})();
 
 	fxPrefix = (() => {
-		const protocol = (window.document?.location?.protocol !== 'http:') ? 'https:' : '';
-		return `https://raw.githubusercontent.com/vikrambarr/sprites/main/fx/`;
+		return `http://vikrambarr.com/fx/`;
 	})();
 
 	loadedSpriteData = {xy: 1, bw: 0};
