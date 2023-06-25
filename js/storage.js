@@ -202,7 +202,7 @@ if (!Storage.bg.id) {
 // localStorage is banned, and since prefs are cached in other
 // places in certain cases.
 
-Storage.origin = 'http://vikrambarr.com';
+Storage.origin = 'http://vikrambarr.com/';
 
 Storage.prefs = function (prop, value, save) {
 	if (value === undefined) {
