@@ -37497,8 +37497,8 @@ BattleMoveAnims['kamikazbee'] = {anim: BattleMoveAnims['fissionburst'].anim};
 BattleMoveAnims['electroplate'] = {anim: BattleOtherAnims.chargestatus.anim};
 BattleMoveAnims['prizewheel'] = {
 	anim(scene, [attacker, defender]) {
-		BattleMoveAnims['extremeevoboost'].anim(scene, [attacker, defender]);
-		BattleMoveAnims['geomancy'].anim(scene, [attacker, defender]);
+		BattleMoveAnims['extremeevoboost'].anim(scene, [attacker, attacker]);
+		BattleMoveAnims['geomancy'].anim(scene, [attacker, attacker]);
 	},
 };
 BattleMoveAnims['palettedrain'] = {anim: BattleMoveAnims['laserpulse'].anim};
