@@ -17,9 +17,9 @@
 			// this.$el.html('<img class="logo" src="' + Dex.resourcePrefix + 'sprites/afd/digimonshowdown.png" alt="Digimon Showdown! (beta)" width="146" height="44" /><div class="maintabbarbottom"></div><div class="tabbar maintabbar"><div class="inner"></div></div><div class="userbar"></div>');
 			if (Storage.prefs('bwgfx') === undefined) Storage.prefs('bwgfx', true);
 			if (Storage.prefs('theme') === undefined) Storage.prefs('theme', 'dark');
-			if (Storage.prefs('effectvolume') === undefined) Storage.prefs('effectvolume', 10);
-			if (Storage.prefs('musicvolume') === undefined) Storage.prefs('musicvolume', 10);
-			if (Storage.prefs('notifvolume') === undefined) Storage.prefs('notifvolume', 10);
+			// if (Storage.prefs('effectvolume') === undefined) Storage.prefs('effectvolume', 10);
+			// if (Storage.prefs('musicvolume') === undefined) Storage.prefs('musicvolume', 10);
+			// if (Storage.prefs('notifvolume') === undefined) Storage.prefs('notifvolume', 10);
 
 			if (Storage.prefs('bwgfx')) {
 				this.$el.html('<img class="logo" src="' + Dex.resourcePrefix + 'pokemonshowdownbetabw.gif" srcset="' + Dex.resourcePrefix + 'pokemonshowdownbetabw@2x.gif 2x" alt="Pok&eacute;mon Showdown! (beta)" width="146" height="44" /><div class="maintabbarbottom"></div><div class="tabbar maintabbar"><div class="inner"></div></div><div class="userbar"></div>');
