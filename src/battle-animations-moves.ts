@@ -35087,7 +35087,7 @@ export const BattleMoveAnims: AnimTable = {
 			let ystep = (defender.x - 200 - attacker.x) / 5;
 			let zstep = (defender.z - attacker.z) / 5;
 
-			scene.backgroundEffect(`url('https://raw.githubusercontent.com/vikrambarr/sprites/main/fx/weather-newmoon.png')`, 900, 0.5);
+			scene.backgroundEffect(`url('https://vikrambarr.com/fx/weather-newmoon.png')`, 900, 0.5);
 
 			for (let i = 0; i < 5; i++) {
 				scene.showEffect('shadowball', {
@@ -35952,7 +35952,7 @@ export const BattleMoveAnims: AnimTable = {
 			let ystep = (defender.x - 200 - attacker.x) / 5;
 			let zstep = (defender.z - attacker.z) / 5;
 
-			scene.backgroundEffect(`url('https://raw.githubusercontent.com/vikrambarr/sprites/main/fx/weather-fallout.png')`, 900, 0.5);
+			scene.backgroundEffect(`url('https://vikrambarr.com/fx/weather-fallout.png')`, 900, 0.5);
 
 			for (let i = 0; i < 5; i++) {
 				scene.showEffect('energyball', {
