@@ -1895,7 +1895,7 @@
 			var text = '';
 			// Sanitising the `userid` here is probably unnecessary, because
 			// IDs can't contain anything dangerous.
-			var styleString = (BattleLog.escapeHTML(userid) === 'yoshifanfic' ? 'style="background-image:url(https://media0.giphy.com/media/Fbox1ygIqnga5dLinz/giphy.gif?cid=ecf05e47ui1bhppv1kdth038zas6or6knx5ocato1shj3dzb&rid=giphy.gif&ct=g);' : '')
+			var styleString = (BattleLog.escapeHTML(userid) === 'yoshifanfic' ? 'style="background-image:url(https://media0.giphy.com/media/Fbox1ygIqnga5dLinz/giphy.gif?cid=ecf05e47ui1bhppv1kdth038zas6or6knx5ocato1shj3dzb&rid=giphy.gif&ct=g);' : '');
 
 			text += '<li' + (this.room.userForm === userid ? ' class="cur"' : '') + ' id="' + this.room.id + '-userlist-user-' + BattleLog.escapeHTML(userid) + '"' + styleString + '">';
 			text += '<button class="userbutton username" data-roomgroup="' + BattleLog.escapeHTML(user.group) + '" data-name="' + BattleLog.escapeHTML(user.name) + '"';

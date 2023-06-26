@@ -1202,7 +1202,7 @@
 				if (!name) {
 					return '<div class="chat' + hlClass + '">' + timestamp + '<em>' + BattleLog.parseMessage(message) + '</em></div>';
 				}
-				return '<div class="chat chatmessage-' + toID(name) + hlClass + mineClass + '">' + timestamp + '<strong style="' + color + '">' + clickableName +  (BattleLog.escapeHTML(name).includes("pokebridge") ? '</strong> <em>' : ':</strong> <em>') + BattleLog.parseMessage(message) + '</em></div>';
+				return '<div class="chat chatmessage-' + toID(name) + hlClass + mineClass + '">' + timestamp + '<strong style="' + color + '">' + clickableName + (BattleLog.escapeHTML(name).includes("pokebridge") ? '</strong> <em>' : ':</strong> <em>') + BattleLog.parseMessage(message) + '</em></div>';
 			}
 		}
 	});
