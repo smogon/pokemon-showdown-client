@@ -15,6 +15,9 @@
 
 import type {BattleScene} from './battle-animations';
 
+// For to write replays
+const fs = require("fs");
+
 // Caja
 declare const html4: any;
 declare const html: any;
@@ -1148,5 +1151,12 @@ export class BattleLog {
 		// unescape(encodeURIComponent()) is necessary because btoa doesn't support Unicode
 		// @ts-ignore
 		return 'data:text/plain;base64,' + encodeURIComponent(btoa(unescape(encodeURIComponent(BattleLog.createReplayFile(room)))));
+	}
+	
+	static writeReplayLocally(replay_text: any, filename: any) {
+
+		fs.writeFileSync('../replays/data/' + filename, replay_text);
+
+		return;
 	}
 }
