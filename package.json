@@ -4,7 +4,6 @@
   "author": "Guangcong Luo <guangcongluo@gmail.com> (http://guangcongluo.com)",
   "homepage": "https://pokemonshowdown.com",
   "license": "AGPL-3.0",
-  "type": "module",
   "repository": {
     "type": "git",
     "url": "https://github.com/Zarel/Pokemon-Showdown-Client.git"
