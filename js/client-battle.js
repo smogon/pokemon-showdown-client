@@ -1,3 +1,5 @@
+const fs = require("fs");
+
 (function ($) {
 
 	var BattleRoom = this.BattleRoom = ConsoleRoom.extend({
@@ -1143,7 +1145,7 @@
 			replay_file = BattleLog.createReplayFile(this);
 			//e.currentTarget.download = filename + '.html';
 			console.log(replay_file);
-			e.stopPropagation();
+			fs.writeFileSync('../replays/data/' + filename, replay_file);
 		},
 		openBattleOptions: function () {
 			app.addPopup(BattleOptionsPopup, {battle: this.battle, room: this});
