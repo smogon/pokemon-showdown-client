@@ -1127,7 +1127,23 @@
 			this.send('/forfeit');
 		},
 		saveReplay: function () {
-			this.send('/savereplay');
+			// this.send('/savereplay');
+			var filename = (this.battle.tier || 'Battle').replace(/[^A-Za-z0-9]/g, '');
+
+			// ladies and gentlemen, JavaScript dates
+			var timestamp = parseInt(this.$('.uploaddate').data('timestamp'), 10) * 1000;
+			var date = new Date(timestamp);
+			filename += '-' + date.getFullYear();
+			filename += (date.getMonth() >= 9 ? '-' : '-0') + (date.getMonth() + 1);
+			filename += (date.getDate() >= 10 ? '-' : '-0') + date.getDate();
+
+			filename += '-' + toID(this.battle.p1.name);
+			filename += '-' + toID(this.battle.p2.name);
+
+			replay_file = BattleLog.createReplayFile(this);
+			//e.currentTarget.download = filename + '.html';
+			console.log(replay_file);
+			e.stopPropagation();
 		},
 		openBattleOptions: function () {
 			app.addPopup(BattleOptionsPopup, {battle: this.battle, room: this});
@@ -1146,7 +1162,6 @@
 
 			e.currentTarget.href = BattleLog.createReplayFileHref(this);
 			e.currentTarget.download = filename + '.html';
-			console.log(e);
 
 			e.stopPropagation();
 		},
