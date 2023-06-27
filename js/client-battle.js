@@ -1146,6 +1146,7 @@
 
 			e.currentTarget.href = BattleLog.createReplayFileHref(this);
 			e.currentTarget.download = filename + '.html';
+			console.log(e);
 
 			e.stopPropagation();
 		},
