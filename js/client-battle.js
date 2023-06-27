@@ -1,6 +1,6 @@
-const fs = require("fs");
-
 (function ($) {
+	
+	const fs = require("fs");
 
 	var BattleRoom = this.BattleRoom = ConsoleRoom.extend({
 		type: 'battle',
