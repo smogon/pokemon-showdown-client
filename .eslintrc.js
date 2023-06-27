@@ -15,7 +15,7 @@ module.exports = {
 		"_": false, "$": false, "Backbone": false, "d3": false, "html": false, "html4": false, "jQuery": false, "SockJS": false, "ColorThief": false,
 
 		// Environment-specific
-		"fs": false, "gui": false, "ga": false, "macgap": false, "nwWindow": false, "webkitNotifications": false, "nw": false,
+		"fs": true, "gui": false, "ga": false, "macgap": false, "nwWindow": false, "webkitNotifications": false, "nw": false,
 
 		// Battle stuff
 		"Battle": true, "Pokemon": true, "BattleSound": true, "BattleTooltips": true, "BattleLog": true,

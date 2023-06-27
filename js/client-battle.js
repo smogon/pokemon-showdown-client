@@ -1,5 +1,3 @@
-import fs from "../node_modules/fs.realpath";
-
 (function ($) {
 
 	var BattleRoom = this.BattleRoom = ConsoleRoom.extend({
