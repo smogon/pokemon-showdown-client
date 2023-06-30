@@ -1196,6 +1196,13 @@ const BattlePokemonIconIndexes: {[id: string]: number} = {
 	mienshaoillusionist: 2052 + 96,
 	musifrog: 2052 + 97,
 	tardoso: 2052 + 98,
+	emperahog: 2052 + 99,
+	chiroptelinx: 2052 + 100,
+	bunnor: 2052 + 101,
+	slakong: 2052 + 102,
+	querubi: 2052 + 103,
+	mephistoxin: 2052 + 104,
+	staruhz: 2052 + 105,
 };
 
 const BattlePokemonIconIndexesLeft: {[id: string]: number} = {
