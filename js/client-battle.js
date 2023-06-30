@@ -1,5 +1,3 @@
-import * as fs from 'fs';
-
 (function ($) {
 
 	var BattleRoom = this.BattleRoom = ConsoleRoom.extend({
