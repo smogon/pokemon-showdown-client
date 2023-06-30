@@ -1536,7 +1536,7 @@ class BattleTooltips {
 			value.weatherModify(0, 'Hail');
 			value.weatherModify(0, 'Snow');
 		}
-		if (move.id === 'hurricane' || move.id === 'thunder') {
+		if (['hurricane', 'thunder', 'bleakwindstorm', 'wildboltstorm', 'sandsearstorm'].includes(move.id)) {
 			value.weatherModify(0, 'Rain Dance');
 			value.weatherModify(0, 'Primordial Sea');
 		}
