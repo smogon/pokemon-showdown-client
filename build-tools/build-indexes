@@ -958,6 +958,9 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 	for (const id in POALearnsets) {
 		const learnset = POALearnsets[id].learnset;
 		BattleTeambuilderTable['gen9poa'].learnsets[id] = {};
+		if (Dex.mod('gen9poa').species.get(id).tags.includes('Insurgence')) {
+			BattleTeambuilderTable['gen9poa'].learnsets[id]['insurgence'] = '9g';
+		}
 		for (const moveid in learnset) {
 			BattleTeambuilderTable['gen9poa'].learnsets[id][moveid] = '9g';
 		}
