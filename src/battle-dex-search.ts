@@ -12,7 +12,7 @@
  */
 
 type SearchType = (
-	'pokemon' | 'type' | 'tier' | 'move' | 'item' | 'ability' | 'egggroup' | 'tags' | 'category' | 'article'
+	'pokemon' | 'type' | 'tier' | 'move' | 'item' | 'ability' | 'egggroup' | 'category' | 'article'
 );
 
 type SearchRow = (
@@ -52,7 +52,6 @@ class DexSearch {
 		egggroup: 7,
 		category: 8,
 		article: 9,
-		tags: 10,
 	};
 	static typeName = {
 		pokemon: 'Pok&eacute;mon',
@@ -64,7 +63,6 @@ class DexSearch {
 		egggroup: 'Egg group',
 		category: 'Category',
 		article: 'Article',
-		tags: 'Tags',
 	};
 	firstPokemonColumn: 'Tier' | 'Number' = 'Number';
 
@@ -130,7 +128,7 @@ class DexSearch {
 		let [type] = entry;
 		if (this.typedSearch.searchType === 'pokemon') {
 			if (type === this.sortCol) this.sortCol = null;
-			if (!['type', 'move', 'ability', 'egggroup', 'tier', 'tags'].includes(type)) return false;
+			if (!['type', 'move', 'ability', 'egggroup', 'tier'].includes(type)) return false;
 			if (type === 'move') entry[1] = toID(entry[1]);
 			if (!this.filters) this.filters = [];
 			this.results = null;
@@ -1084,9 +1082,6 @@ class BattlePokemonSearch extends BattleTypedSearch<'pokemon'> {
 				break;
 			case 'egggroup':
 				if (species.eggGroups[0] !== value && species.eggGroups[1] !== value) return false;
-				break;
-			case 'tags':
-				if (!species.tags.includes(value)) return false;
 				break;
 			case 'tier':
 				if (this.getTier(species) !== value) return false;

@@ -226,22 +226,6 @@
 			}
 			var egggroup = {name: egName};
 			return this.renderEggGroupRow(egggroup, matchStart, matchLength, errorMessage);
-		case 'tags':
-			// very hardcode 2
-			// ["mythical", "restrictedlegendary", "sublegendary", "paradox", "insurgence"]
-			var tagsName;
-			if (id === 'mythical') tagsName = 'Mythical';
-			else if (id === 'restrictedlegendary') tagsName = 'Restricted Legendary';
-			else if (id === 'sublegendary') tagsName = 'Sub-Legendary';
-			else if (id === 'paradox') tagsName = 'Paradox';
-			else if (id === 'insurgence') tagsName = 'Insurgence';
-			if (tagsName) {
-				if (matchLength > 5) matchLength++;
-			} else {
-				tagsName = id[0].toUpperCase() + id.substr(1);
-			}
-			var tagout = {name: tagsName};
-			return this.renderTagsRow(tagout, matchStart, matchLength, errorMessage);
 		case 'tier':
 			// very hardcode
 			var tierTable = {
@@ -781,28 +765,6 @@
 
 		return buf;
 	};
-	Search.prototype.renderTagsRow = function (tagout, matchStart, matchLength, errorMessage) {
-		var attrs = '';
-		if (Search.urlRoot) attrs = ' href="' + Search.urlRoot + 'tags/' + toID(tagout.name) + '" data-target="push"';
-		var buf = '<li class="result"><a' + attrs + ' data-entry="tags|' + BattleLog.escapeHTML(tagout.name) + '">';
-
-		// name
-		var name = tagout.name;
-		if (matchLength) {
-			name = name.substr(0, matchStart) + '<b>' + name.substr(matchStart, matchLength) + '</b>' + name.substr(matchStart + matchLength);
-		}
-		buf += '<span class="col namecol">' + name + '</span> ';
-
-		// error
-		if (errorMessage) {
-			buf += errorMessage + '</a></li>';
-			return buf;
-		}
-
-		buf += '</a></li>';
-
-		return buf;
-	};
 	Search.prototype.renderTierRow = function (tier, matchStart, matchLength, errorMessage) {
 		var attrs = '';
 		if (Search.urlRoot) attrs = ' href="' + Search.urlRoot + 'tiers/' + toID(tier.name) + '" data-target="push"';
@@ -838,7 +800,6 @@
 	Search.renderTypeRow = Search.prototype.renderTypeRow;
 	Search.renderCategoryRow = Search.prototype.renderCategoryRow;
 	Search.renderEggGroupRow = Search.prototype.renderEggGroupRow;
-	Search.renderTagsRow = Search.prototype.renderTagsRow;
 	Search.renderTierRow = Search.prototype.renderTierRow;
 
 	exports.BattleSearch = Search;

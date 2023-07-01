@@ -279,30 +279,6 @@ class PSSearchResults extends preact.Component<{search: DexSearch}> {
 		</a></li>;
 	}
 
-	renderTagsRow(id: ID, matchStart: number, matchEnd: number, errorMessage?: preact.ComponentChildren) {
-		const search = this.props.search;
-		// very hardcode 2
-		let name: string | undefined;
-		if (id === 'mythical') name = 'Mythical';
-		else if (id === 'restrictedlegendary') name = 'Restricted Legendary';
-		else if (id === 'sublegendary') name = 'Sub-Legendary';
-		else if (id === 'paradox') name = 'Paradox';
-		else if (id === 'insurgence') name = 'Insurgence';
-		if (name) {
-			if (matchEnd > 5) matchEnd++;
-		} else {
-			name = id.charAt(0).toUpperCase() + id.slice(1);
-		}
-
-		return <li class="result"><a href={`${this.URL_ROOT}tags/${id}`} data-target="push" data-entry={`tags|${name}`}>
-			<span class="col namecol">{this.renderName(name, matchStart, matchEnd)}</span>
-
-			<span class="col movedesccol">(egg group)</span>
-
-			{errorMessage}
-		</a></li>;
-	}
-
 	renderTierRow(id: ID, matchStart: number, matchEnd: number, errorMessage?: preact.ComponentChildren) {
 		const search = this.props.search;
 		// very hardcode
@@ -366,14 +342,12 @@ class PSSearchResults extends preact.Component<{search: DexSearch}> {
 			return this.renderTypeRow(id as ID, matchStart, matchEnd, errorMessage);
 		case 'egggroup':
 			return this.renderEggGroupRow(id as ID, matchStart, matchEnd, errorMessage);
-		case 'tier':
+			case 'tier':
 			return this.renderTierRow(id as ID, matchStart, matchEnd, errorMessage);
 		case 'category':
 			return this.renderCategoryRow(id as ID, matchStart, matchEnd, errorMessage);
 		case 'article':
 			return this.renderArticleRow(id as ID, matchStart, matchEnd, errorMessage);
-		case 'tags':
-			return this.renderTagsRow(id as ID, matchStart, matchEnd, errorMessage);
 		}
 		return <li>Error: not found</li>;
 	}
