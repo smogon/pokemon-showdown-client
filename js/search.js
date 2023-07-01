@@ -34,7 +34,6 @@
 
 		this.engine = new DexSearch();
 		window.search = this;
-		console.log(this);
 		
 		var self = this;
 		this.$el.on('click', '.more button', function (e) {
