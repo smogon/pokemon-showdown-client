@@ -213,8 +213,6 @@
 			var type = {name: id[0].toUpperCase() + id.substr(1)};
 			return this.renderTypeRow(type, matchStart, matchLength, errorMessage);
 		case 'egggroup':
-			console.log('egggroup search.js');
-			console.log(id);
 			// very hardcode
 			var egName;
 			if (id === 'humanlike') egName = 'Human-Like';
@@ -229,8 +227,6 @@
 			var egggroup = {name: egName};
 			return this.renderEggGroupRow(egggroup, matchStart, matchLength, errorMessage);
 		case 'tags':
-			console.log('tags search.js');
-			console.log(id);
 			// very hardcode 2
 			// ["mythical", "restrictedlegendary", "sublegendary", "paradox", "insurgence"]
 			var tagsName;
