@@ -151,7 +151,6 @@
 				mStart = row[2];
 				mEnd = row[3];
 			}
-			console.log(row);
 			buf += this.renderRow(row[1], row[0], mStart, mEnd, errorMessage, row[1] in this.cur ? ' class="cur"' : '');
 
 			i++;
