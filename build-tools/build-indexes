@@ -51,6 +51,7 @@ function requireNoCache(pathSpec) {
 	index = index.concat(Object.keys(Dex.data.Items).map(x => x + ' item'));
 	index = index.concat(Object.keys(Dex.data.Abilities).map(x => x + ' ability'));
 	index = index.concat(Object.keys(Dex.data.TypeChart).map(x => toID(x) + ' type'));
+	index = index.concat(["mythical", "restrictedlegendary", "sublegendary", "paradox", "insurgence"].map(x => toID(x) + ' tags'));
 	index = index.concat(['physical', 'special', 'status'].map(x => toID(x) + ' category'));
 	index = index.concat(['monster', 'water1', 'bug', 'flying', 'field', 'fairy', 'grass', 'humanlike', 'water3', 'mineral', 'amorphous', 'water2', 'ditto', 'dragon', 'undiscovered'].map(x => toID(x) + ' egggroup'));
 	index = index.concat(['ou', 'uu', 'ru', 'nu', 'pu', 'lc', 'nfe', 'uber', 'uubl', 'rubl', 'nubl', 'publ', 'cap', 'caplc', 'capnfe'].map(x => toID(x) + ' tier'));
