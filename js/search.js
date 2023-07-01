@@ -34,6 +34,7 @@
 
 		this.engine = new DexSearch();
 		window.search = this;
+		console.log(this);
 		
 		var self = this;
 		this.$el.on('click', '.more button', function (e) {
@@ -213,7 +214,6 @@
 			return this.renderTypeRow(type, matchStart, matchLength, errorMessage);
 		case 'egggroup':
 			// very hardcode
-			console.log(this.resultSet);
 			var egName;
 			if (id === 'humanlike') egName = 'Human-Like';
 			else if (id === 'water1') egName = 'Water 1';

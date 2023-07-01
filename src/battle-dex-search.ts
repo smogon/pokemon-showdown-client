@@ -50,9 +50,9 @@ class DexSearch {
 		item: 5,
 		ability: 6,
 		egggroup: 7,
-		tags: 8,
-		category: 9,
-		article: 10,
+		category: 8,
+		article: 9,
+		tags: 10,
 	};
 	static typeName = {
 		pokemon: 'Pok&eacute;mon',
@@ -62,9 +62,9 @@ class DexSearch {
 		item: 'Items',
 		ability: 'Abilities',
 		egggroup: 'Egg group',
-		tags: 'Tags',
 		category: 'Category',
 		article: 'Article',
+		tags: 'Tags',
 	};
 	firstPokemonColumn: 'Tier' | 'Number' = 'Number';
 
