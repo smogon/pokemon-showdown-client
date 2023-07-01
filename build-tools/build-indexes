@@ -972,24 +972,8 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 		for (const moveid in learnset) {
 			BattleTeambuilderTable['gen9poa'].learnsets[id][moveid] = '9g';
 		}
-		if (learner.otherFormes && learner.otherFormes[0].includes('-Mega')) {
-			const altID = toID(learner.otherFormes[0]);
-			const altLearner = Dex.mod('gen9poa').species.get(altID);
-
-			if (altLearner.tags.includes('Plan of Attack')) {
-				BattleTeambuilderTable['gen9poa'].learnsets[altID]['planofattack'] = '9g';
-			} if (altLearner.tags.includes('Insurgence')) {
-				BattleTeambuilderTable['gen9poa'].learnsets[altID]['insurgence'] = '9g';
-			} if (altLearner.tags.includes('Uranium')) {
-				BattleTeambuilderTable['gen9poa'].learnsets[altID]['uranium'] = '9g';
-			} if (altLearner.isNonstandard === 'CAP') {
-				BattleTeambuilderTable['gen9poa'].learnsets[altID]['cap'] = '9g';
-			}
-			for (const moveid in learnset) {
-				BattleTeambuilderTable['gen9poa'].learnsets[altID][moveid] = '9g';
-			}
-		}
 	}
+	
 	const RegDexLearnsets = Dex.mod('gen9regdex').data.Learnsets;
 	for (const id in RegDexLearnsets) {
 		const learnset = RegDexLearnsets[id].learnset;
