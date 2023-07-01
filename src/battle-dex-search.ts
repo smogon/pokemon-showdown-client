@@ -1083,9 +1083,11 @@ class BattlePokemonSearch extends BattleTypedSearch<'pokemon'> {
 				if (species.types[0] !== value && species.types[1] !== value) return false;
 				break;
 			case 'egggroup':
+				console.log('filter egggroup');
 				if (species.eggGroups[0] !== value && species.eggGroups[1] !== value) return false;
 				break;
 			case 'tags':
+				console.log('filter tags');
 				if (!species.tags.includes(value)) return false;
 				break;
 			case 'tier':
