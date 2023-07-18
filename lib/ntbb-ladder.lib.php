@@ -316,8 +316,8 @@ class NTBBLadder {
 						$decay = 1 + intval(($elo-1400)/50);
 					}
 					switch ($this->formatid) {
-					case 'gen8randombattle':
-					case 'gen8ou':
+					case 'gen9randombattle':
+					case 'gen9ou':
 						break;
 					default:
 						$decay -= 2;
