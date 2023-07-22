@@ -91,6 +91,7 @@ export class Pokemon implements PokemonDetails, PokemonHealth {
 	prevItem = '';
 	prevItemEffect = '';
 	terastallized: string | '' = '';
+	teraType = '';
 
 	boosts: {[stat: string]: number} = {};
 	status: StatusName | 'tox' | '' | '???' = '';
@@ -358,6 +359,18 @@ export class Pokemon implements PokemonDetails, PokemonHealth {
 		this.ability = ability;
 		if (!this.baseAbility && !isNotBase) {
 			this.baseAbility = ability;
+		}
+	}
+	rememberSetData(kwArgs: KWArgs) {
+		if (!kwArgs) return;
+		if (kwArgs.name) this.name = kwArgs.name;
+		if (kwArgs.item) this.item = Dex.items.get(kwArgs.item).name;
+		if (kwArgs.ability) this.rememberAbility(kwArgs.ability);
+		if (kwArgs.teraType) this.teraType = Dex.types.get(kwArgs.teraType).name;
+		if (kwArgs.moveList) {
+			for (const moveName of kwArgs.moveList.split(`;`)) {
+				this.rememberMove(moveName, 0);
+			}
 		}
 	}
 	getBoost(boostStat: BoostStatName) {
@@ -735,16 +748,16 @@ export class Side {
 		this.battle.scene.removeSideCondition(this.n, id);
 	}
 	addPokemon(name: string, ident: string, details: string, replaceSlot = -1) {
-		const oldItem = replaceSlot >= 0 ? this.pokemon[replaceSlot].item : undefined;
-
 		const data = this.battle.parseDetails(name, ident, details);
 		const poke = new Pokemon(data, this);
-		if (oldItem) poke.item = oldItem;
 
-		if (!poke.ability && poke.baseAbility) poke.ability = poke.baseAbility;
+		if (replaceSlot >= 0) poke.baseAbility = this.pokemon[replaceSlot].baseAbility;
 		poke.reset();
 
 		if (replaceSlot >= 0) {
+			poke.item = this.pokemon[replaceSlot].item;
+			poke.teraType = this.pokemon[replaceSlot].teraType;
+			poke.moveTrack = this.pokemon[replaceSlot].moveTrack;
 			this.pokemon[replaceSlot] = poke;
 		} else {
 			this.pokemon.push(poke);
@@ -935,7 +948,10 @@ export class Side {
 
 		pokemon.fainted = true;
 		pokemon.hp = 0;
-		pokemon.terastallized = '';
+		if (pokemon.terastallized) {
+			pokemon.teraType = pokemon.terastallized;
+			pokemon.terastallized = '';
+		}
 		pokemon.details = pokemon.details.replace(/, tera:[a-z]+/i, '');
 		pokemon.searchid = pokemon.searchid.replace(/, tera:[a-z]+/i, '');
 		if (pokemon.side.faintCounter < 100) pokemon.side.faintCounter++;
@@ -2508,6 +2524,8 @@ export class Battle {
 			poke.terastallized = type;
 			poke.details += `, tera:${type}`;
 			poke.searchid += `, tera:${type}`;
+			// to distinguish the terastallized state in tooltips
+			for (const pokemon of poke.side.pokemon) pokemon.teraType = '';
 			this.scene.animTransform(poke, true);
 			this.scene.resetStatbar(poke);
 			this.log(args, kwArgs);
@@ -3544,6 +3562,7 @@ export class Battle {
 			} else if (args[3] === 'item') {
 				pokemon.item = '(exists)';
 			}
+			pokemon.rememberSetData(kwArgs);
 			break;
 		}
 		case 'updatepoke': {
