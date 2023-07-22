@@ -91,6 +91,7 @@ export class Pokemon implements PokemonDetails, PokemonHealth {
 	prevItem = '';
 	prevItemEffect = '';
 	terastallized: string | '' = '';
+	teraType = '';
 
 	boosts: {[stat: string]: number} = {};
 	status: StatusName | 'tox' | '' | '???' = '';
@@ -935,7 +936,10 @@ export class Side {
 
 		pokemon.fainted = true;
 		pokemon.hp = 0;
-		pokemon.terastallized = '';
+		if (pokemon.terastallized) {
+			pokemon.teraType = pokemon.terastallized;
+			pokemon.terastallized = '';
+		}
 		pokemon.details = pokemon.details.replace(/, tera:[a-z]+/i, '');
 		pokemon.searchid = pokemon.searchid.replace(/, tera:[a-z]+/i, '');
 		if (pokemon.side.faintCounter < 100) pokemon.side.faintCounter++;
