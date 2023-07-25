@@ -628,10 +628,11 @@ abstract class BattleTypedSearch<T extends SearchType> {
 			this.formatType = 'nfe';
 			if (!format) format = 'ou' as ID;
 		}
-		if ((format.endsWith('lc') || format.startsWith('lc')) && format !== 'caplc') {
+		if ((format.endsWith('lc') || format.startsWith('lc')) && format !== 'caplc' && !this.formatType) {
 			this.formatType = 'lc';
 			format = 'lc' as ID;
 		}
+		if (format.endsWith('draft')) format = format.slice(0, -5) as ID;
 		this.format = format;
 
 		this.species = '' as ID;
