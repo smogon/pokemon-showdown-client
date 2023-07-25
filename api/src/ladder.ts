@@ -46,11 +46,11 @@ export class Ladder {
 		this.rpoffset = 9 * 60 * 60;
 	}
 	getRP() {
-		const rpnum = ((time() - this.rpoffset) / this.rplen) + 1;
+		const rpnum = Math.trunc((time() - this.rpoffset) / this.rplen) + 1;
 		return rpnum * this.rplen + this.rpoffset;
 	}
 	nextRP(rp: number) {
-		const rpnum = (rp / this.rplen);
+		const rpnum = Math.trunc(rp / this.rplen);
 		return (rpnum + 1) * this.rplen + this.rpoffset;
 	}
 	clearRating(name: string) {
