@@ -885,6 +885,7 @@ class BattlePokemonSearch extends BattleTypedSearch<'pokemon'> {
 		const format = this.format;
 		if (!format) return this.getDefaultResults();
 		const isVGCOrBS = format.startsWith('battlespot') || format.startsWith('battlestadium') || format.startsWith('vgc');
+		const isHackmons = format.includes('hackmons') || format.endsWith('bh');
 		let isDoublesOrBS = isVGCOrBS || this.formatType?.includes('doubles');
 		const dex = this.dex;
 
@@ -893,6 +894,8 @@ class BattlePokemonSearch extends BattleTypedSearch<'pokemon'> {
 			table = table['gen' + dex.gen];
 		} else if (isVGCOrBS) {
 			table = table['gen' + dex.gen + 'vgc'];
+		} else if (dex.gen === 9 && isHackmons && !this.formatType) {
+			table = table['bh'];
 		} else if (
 			table['gen' + dex.gen + 'doubles'] && dex.gen > 4 &&
 			this.formatType !== 'letsgo' && this.formatType !== 'bdspdoubles' && this.formatType !== 'dlc1doubles' &&
@@ -911,7 +914,7 @@ class BattlePokemonSearch extends BattleTypedSearch<'pokemon'> {
 		} else if (this.formatType === 'letsgo') {
 			table = table['gen7letsgo'];
 		} else if (this.formatType === 'natdex') {
-			table = table['gen' + this.dex.gen + 'natdex'];
+			table = table['gen' + dex.gen + 'natdex'];
 		} else if (this.formatType === 'metronome') {
 			table = table['gen' + dex.gen + 'metronome'];
 		} else if (this.formatType === 'nfe') {
@@ -938,8 +941,8 @@ class BattlePokemonSearch extends BattleTypedSearch<'pokemon'> {
 		let tierSet: SearchRow[] = table.tierSet;
 		let slices: {[k: string]: number} = table.formatSlices;
 		if (format === 'ubers' || format === 'uber') tierSet = tierSet.slice(slices.Uber);
-		else if (isVGCOrBS) {
-			if (format.endsWith('series13')) {
+		else if (isVGCOrBS || (isHackmons && dex.gen === 9 && !this.formatType)) {
+			if (format.endsWith('series13') || isHackmons) {
 				// Show Mythicals
 			} else if (
 				format === 'vgc2010' || format === 'vgc2016' || format.startsWith('vgc2019') ||
@@ -961,8 +964,9 @@ class BattlePokemonSearch extends BattleTypedSearch<'pokemon'> {
 			tierSet = tierSet.slice(slices['CAP LC'], slices.AG || slices.Uber).concat(tierSet.slice(slices.LC));
 		} else if (format === 'anythinggoes' || format.endsWith('ag') || format.startsWith('ag')) {
 			tierSet = tierSet.slice(slices.AG);
-		} else if (format.includes('hackmons') || format.endsWith('bh')) tierSet = tierSet.slice(slices.AG || slices.Uber);
-		else if (format === 'monotype') tierSet = tierSet.slice(slices.Uber);
+		} else if (isHackmons && (dex.gen < 9 || this.formatType === 'natdex')) {
+			tierSet = tierSet.slice(slices.AG || slices.Uber);
+		} else if (format === 'monotype') tierSet = tierSet.slice(slices.Uber);
 		else if (format === 'doublesubers') tierSet = tierSet.slice(slices.DUber);
 		else if (format === 'doublesou' && dex.gen > 4) tierSet = tierSet.slice(slices.DOU);
 		else if (format === 'doublesuu') tierSet = tierSet.slice(slices.DUU);
