@@ -2851,8 +2851,8 @@
 						this.unChooseMove(curVal);
 						$inputEl.val('');
 						delete this.search.cur[toID(val)];
-						this.curSet.moves.splice(i - 1, 1);
-
+						// Remove all instances of the duplicate move from the moves array.
+						this.curSet.moves = this.curSet.moves.filter(e => e != curVal);
 					} else if (curVal) {
 						moves.push(curVal);
 					}
