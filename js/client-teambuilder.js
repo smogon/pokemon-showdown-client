@@ -2835,7 +2835,7 @@
 		},
 		chartClick: function (e) {
 			if (this.search.addFilter(e.currentTarget)) {
-				this.$('input[name=' + this.curChartName + ']').val('').select();
+				this.$('input[name=' + this.curChartName + ']').select();
 				this.search.find('');
 				return;
 			}
@@ -2851,6 +2851,8 @@
 						this.unChooseMove(curVal);
 						$inputEl.val('');
 						delete this.search.cur[toID(val)];
+						this.curSet.moves.splice(i - 1, 1);
+
 					} else if (curVal) {
 						moves.push(curVal);
 					}
