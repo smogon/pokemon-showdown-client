@@ -910,7 +910,7 @@ class BattlePokemonSearch extends BattleTypedSearch<'pokemon'> {
 			table = table['gen8' + this.formatType];
 		} else if (this.formatType === 'letsgo') {
 			table = table['gen7letsgo'];
-		} else if (this.formatType === 'natdex') {
+		} else if (this.formatType === 'natdex' || (dex.gen === 9 && (format.includes('hackmons') || format.endsWith('bh')))) {
 			table = table['gen' + this.dex.gen + 'natdex'];
 		} else if (this.formatType === 'metronome') {
 			table = table['gen' + dex.gen + 'metronome'];
