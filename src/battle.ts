@@ -3245,13 +3245,28 @@ export class Battle {
 				if (slot >= 0) pokemon.slot = slot;
 				return pokemon;
 			}
+
 			if (!pokemon.searchid && pokemon.checkDetails(details)) {
 				// switch-in matches Team Preview entry
 				pokemon = side.addPokemon(name, pokemonid, details, i);
 				if (slot >= 0) pokemon.slot = slot;
 				return pokemon;
 			}
-		}
+
+			if (this.rules['Tera Type Preview']) {
+				const splitDetails = pokemon.details.split(':');
+				let trimmedDetails = '';
+				if (splitDetails != null) {
+					trimmedDetails = splitDetails[splitDetails.length - 1];
+				}
+				if (details === trimmedDetails) {
+					pokemon = side.addPokemon(name, pokemonid, pokemon.details, i);
+					if (slot >= 0) pokemon.slot = slot;
+					console.log("hit loop");
+					return pokemon;
+				}
+			}
+ 		}
 
 		// pokemon not found, create a new pokemon object for it
 		const pokemon = side.addPokemon(name, pokemonid, details);
