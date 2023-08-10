@@ -180,7 +180,7 @@ const Dex = new class implements ModdedDex {
 	pokeballs: string[] | null = null;
 
 	resourcePrefix = (() => {
-        return `https://raw.githubusercontent.com/ry42/pokemon-showdown-client/master/`;
+        return `https://raw.githubusercontent.com/ry42/pokemon-showdown-client/`;
     })();
 
 	fxPrefix = (() => {
