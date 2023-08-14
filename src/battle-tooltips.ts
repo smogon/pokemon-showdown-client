@@ -806,6 +806,7 @@ class BattleTooltips {
 			}
 
 			let types = serverPokemon?.terastallized ? [serverPokemon.teraType] : this.getPokemonTypes(pokemon);
+			let knownPokemon = serverPokemon || clientPokemon!;
 
 			if (pokemon.terastallized) {
 				text += `<small>(Terastallized)</small><br />`;
@@ -815,8 +816,8 @@ class BattleTooltips {
 			text += `<span class="textaligned-typeicons">${types.map(type => Dex.getTypeIcon(type)).join(' ')}</span>`;
 			if (pokemon.terastallized) {
 				text += `&nbsp; &nbsp; <small>(base: <span class="textaligned-typeicons">${this.getPokemonTypes(pokemon, true).map(type => Dex.getTypeIcon(type)).join(' ')}</span>)</small>`;
-			} else if (serverPokemon?.teraType && !this.battle.rules['Terastal Clause']) {
-				text += `&nbsp; &nbsp; <small>(Tera Type: <span class="textaligned-typeicons">${Dex.getTypeIcon(serverPokemon.teraType)}</span>)</small>`;
+			} else if (knownPokemon.teraType && !this.battle.rules['Terastal Clause']) {
+				text += `&nbsp; &nbsp; <small>(Tera Type: <span class="textaligned-typeicons">${Dex.getTypeIcon(knownPokemon.teraType)}</span>)</small>`;
 			}
 			text += `</h2>`;
 		}
