@@ -1387,9 +1387,13 @@
 			this.curChartName = '';
 			this.update();
 			this.$('input[name=pokemon]').select();
-			if (this.curTeam.format.includes('monotype')) {
+			var formatid = this.curTeam.format;
+			if (formatid.includes('monotype') || formatid.includes('monothreat')) {
 				var typeTable = [];
 				var dex = this.curTeam.dex;
+				if (formatid.includes('monothreat')) {
+					typeTable = [dex.types.get(formatid.slice(14)).name || 'Normal'];
+				}
 				for (var i = 0; i < this.curSetList.length; i++) {
 					var set = this.curSetList[i];
 					var species = dex.species.get(set.species);
@@ -1397,13 +1401,15 @@
 						species = dex.species.get(species.baseSpecies);
 					}
 					if (!species.exists) continue;
-					if (i === 0) {
-						typeTable = species.types;
-					} else {
-						typeTable = typeTable.filter(function (type) {
-							return species.types.includes(type);
-						});
-						if (!typeTable.length) break;
+					if (!formatid.includes('monothreat')) {
+						if (i === 0) {
+							typeTable = species.types;
+						} else {
+							typeTable = typeTable.filter(function (type) {
+								return species.types.includes(type);
+							});
+							if (!typeTable.length) break;
+						}
 					}
 					if (this.curTeam.gen >= 6) {
 						var item = dex.items.get(set.item);
