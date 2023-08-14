@@ -1176,10 +1176,12 @@ export class Battle {
 			const scale = (width / 640);
 			this.scene.$frame?.css('transform', 'scale(' + scale + ')');
 			this.scene.$frame?.css('transform-origin', 'top left');
+			this.scene.$frame?.css('margin-bottom', '' + (360 * scale - 360) + 'px');
 			// this.$foeHint.css('transform', 'scale(' + scale + ')');
 		} else {
 			this.scene.$frame?.css('transform', 'none');
 			// this.$foeHint.css('transform', 'none');
+			this.scene.$frame?.css('margin-bottom', '0');
 		}
 	};
 
