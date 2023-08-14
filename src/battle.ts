@@ -91,6 +91,7 @@ export class Pokemon implements PokemonDetails, PokemonHealth {
 	prevItem = '';
 	prevItemEffect = '';
 	terastallized: string | '' = '';
+	teraType = '';
 
 	boosts: {[stat: string]: number} = {};
 	status: StatusName | 'tox' | '' | '???' = '';
@@ -856,15 +857,19 @@ export class Side {
 			pokemon.maxhp = oldpokemon.maxhp;
 			pokemon.hpcolor = oldpokemon.hpcolor;
 			pokemon.status = oldpokemon.status;
-			pokemon.terastallized = oldpokemon.terastallized;
 			pokemon.copyVolatileFrom(oldpokemon, true);
 			pokemon.statusData = {...oldpokemon.statusData};
+			if (oldpokemon.terastallized) {
+				pokemon.terastallized = oldpokemon.terastallized;
+				pokemon.teraType = oldpokemon.terastallized;
+				oldpokemon.terastallized = '';
+				oldpokemon.teraType = '';
+			}
 			// we don't know anything about the illusioned pokemon except that it's not fainted
 			// technically we also know its status but only at the end of the turn, not here
 			oldpokemon.fainted = false;
 			oldpokemon.hp = oldpokemon.maxhp;
 			oldpokemon.status = '???';
-			oldpokemon.terastallized = '';
 		}
 		this.active[slot] = pokemon;
 		pokemon.slot = slot;
@@ -2505,6 +2510,7 @@ export class Battle {
 			let poke = this.getPokemon(args[1])!;
 			let type = Dex.types.get(args[2]).name;
 			poke.removeVolatile('typeadd' as ID);
+			poke.teraType = type;
 			poke.terastallized = type;
 			poke.details += `, tera:${type}`;
 			poke.searchid += `, tera:${type}`;
