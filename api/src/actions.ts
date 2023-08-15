@@ -5,14 +5,27 @@
  * @author mia-pi-git
  */
 import {Config} from './config-loader';
-import * as fs from 'fs/promises';
+import {promises as fs, readFileSync} from 'fs';
 import {Ladder} from './ladder';
 import {Replays} from './replays';
-import {ActionError, QueryHandler} from './server';
-import {toID, updateserver, bash, time} from './utils';
+import {ActionError, QueryHandler, Server} from './server';
+import {toID, updateserver, bash, time, escapeHTML} from './utils';
 import * as tables from './tables';
 import * as pathModule from 'path';
 import IPTools from './ip-tools';
+import * as crypto from 'crypto';
+
+async function getOAuthClient(clientId?: string) {
+	if (!clientId) throw new ActionError("No client_id provided.");
+	const data = await tables.oauthClients.get(clientId);
+	if (!data) throw new ActionError("Invalid client_id");
+	return data;
+}
+
+const OAUTH_AUTHORIZE_CONTENT = readFileSync(
+	__dirname + "/../../src/public/oauth-authorize.html",
+	'utf-8'
+);
 
 export const actions: {[k: string]: QueryHandler} = {
 	async register(params) {
@@ -490,6 +503,71 @@ export const actions: {[k: string]: QueryHandler} = {
 		return {
 			matches: await tables.users.selectAll(['userid', 'banstate'])`WHERE ip = ${res.ip}`,
 		};
+	},
+	// oauth is broken into a few parts
+	// oauth/page - public-facing part
+	// oauth/api/page - api part (does the actual action)
+	async 'oauth/authorize'(params) {
+		if (!params.redirect_uri) {
+			throw new ActionError("No redirect_uri provided");
+		}
+		const clientInfo = await getOAuthClient(params.client_id);
+
+		this.response.setHeader('Content-Type', 'text/html');
+		try {
+			let content = OAUTH_AUTHORIZE_CONTENT;
+			// table keys are owner, clientName, id
+			// expects client, client_name, redirect_uri
+			content = content.replace(/\{\{client\}\}/g, escapeHTML(clientInfo.client_title));
+			content = content.replace(/\{\{client_name\}\}/g, escapeHTML(clientInfo.owner));
+			this.response.setHeader('Content-Length', content.length);
+			return content;
+		} catch (e) {
+			Server.crashlog(e, "oauth/authorize", params);
+			return "<body>The OAuth page could not be served at this time. Please try again later.</body>";
+		}
+	},
+
+	// make a token if they don't already have it
+	async 'oauth/api/authorize'(params) {
+		if (!this.user.loggedIn) {
+			throw new ActionError("You're not logged in.");
+		}
+		const clientInfo = await getOAuthClient(params.client_id);
+		const existing = await (
+			tables.oauthTokens.selectOne()
+		)`WHERE client = ${clientInfo.id} AND owner = ${this.user.id}`;
+		if (existing) {
+			if (Date.now() - existing.time > 2 * 7 * 24 * 60 * 1000) { // 2w
+				await tables.oauthTokens.delete(existing.id);
+				return {success: false};
+			} else {
+				return existing.id;
+			}
+		}
+		const id = crypto.randomBytes(16).toString('hex');
+		await tables.oauthTokens.insert({
+			id, owner: this.user.id, client: clientInfo.id, time: Date.now(),
+		});
+		return id;
+	},
+
+	// validate assertion & get token if it's valid
+	async 'oauth/api/getassertion'(params) {
+		if (!this.user.loggedIn) throw new ActionError("You're not logged in");
+		const client = await getOAuthClient(params.client_id);
+		const token = (params.token || "").toString();
+		if (!token) {
+			throw new ActionError('No token provided.');
+		}
+		const tokenEntry = await (
+			tables.oauthTokens.selectOne()
+		)`WHERE owner = ${this.user.id} and client = ${client.id}`;
+		if (!tokenEntry || tokenEntry.id !== token) {
+			return {success: false};
+		}
+		const challstr = crypto.randomBytes(20).toString('hex');
+		return this.session.getAssertion(this.user.id, undefined, this.user, challstr);
 	},
 };
 

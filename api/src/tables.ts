@@ -100,3 +100,18 @@ export const userstatshistory = new DatabaseTable<{
 	usercount: number;
 	programid: 'showdown' | 'po';
 }>(psdb, 'userstatshistory', 'id');
+
+// oauth stuff
+
+export const oauthClients = new DatabaseTable<{
+	owner: string; // ps username
+	client_title: string;
+	id: string; // hex hash
+}>(psdb, 'oauth_clients', 'id');
+
+export const oauthTokens = new DatabaseTable<{
+	owner: string;
+	client: string; // id of client
+	id: string;
+	time: number;
+}>(psdb, 'oauth_tokens', 'id');

@@ -95,3 +95,13 @@ export function signAsync(algo: string, data: string, key: string) {
 		});
 	});
 }
+
+export function escapeHTML(str: string | number) {
+	if (str === null || str === undefined) return '';
+	return ('' + str)
+		.replace(/&/g, '&amp;')
+		.replace(/</g, '&lt;')
+		.replace(/>/g, '&gt;')
+		.replace(/"/g, '&quot;')
+		.replace(/'/g, '&apos;');
+}
