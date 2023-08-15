@@ -14,11 +14,17 @@ import * as tables from './tables';
 import * as pathModule from 'path';
 import IPTools from './ip-tools';
 import * as crypto from 'crypto';
+import * as url from 'url';
 
-async function getOAuthClient(clientId?: string) {
+async function getOAuthClient(clientId?: string, origin?: string) {
 	if (!clientId) throw new ActionError("No client_id provided.");
 	const data = await tables.oauthClients.get(clientId);
 	if (!data) throw new ActionError("Invalid client_id");
+	if (origin) {
+		if (new url.URL(origin).host !== new url.URL(data.origin_url).host) {
+			throw new ActionError("This origin is not permitted to use this OAuth client.");
+		}
+	}
 	return data;
 }
 
@@ -508,10 +514,11 @@ export const actions: {[k: string]: QueryHandler} = {
 	// oauth/page - public-facing part
 	// oauth/api/page - api part (does the actual action)
 	async 'oauth/authorize'(params) {
+		this.setPrefix('');
 		if (!params.redirect_uri) {
 			throw new ActionError("No redirect_uri provided");
 		}
-		const clientInfo = await getOAuthClient(params.client_id);
+		const clientInfo = await getOAuthClient(params.client_id, this.request.headers.origin);
 
 		this.response.setHeader('Content-Type', 'text/html');
 		try {
@@ -530,6 +537,7 @@ export const actions: {[k: string]: QueryHandler} = {
 
 	// make a token if they don't already have it
 	async 'oauth/api/authorize'(params) {
+		this.setPrefix('');
 		if (!this.user.loggedIn) {
 			throw new ActionError("You're not logged in.");
 		}
@@ -554,6 +562,7 @@ export const actions: {[k: string]: QueryHandler} = {
 
 	// validate assertion & get token if it's valid
 	async 'oauth/api/getassertion'(params) {
+		this.setPrefix('');
 		if (!this.user.loggedIn) throw new ActionError("You're not logged in");
 		const client = await getOAuthClient(params.client_id);
 		const token = (params.token || "").toString();

@@ -107,6 +107,7 @@ export const oauthClients = new DatabaseTable<{
 	owner: string; // ps username
 	client_title: string;
 	id: string; // hex hash
+	origin_url: string;
 }>(psdb, 'oauth_clients', 'id');
 
 export const oauthTokens = new DatabaseTable<{
