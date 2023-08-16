@@ -78,6 +78,7 @@ export class ActionContext {
 	readonly request: http.IncomingMessage;
 	readonly response: http.ServerResponse;
 	readonly session: Session;
+	readonly ActionError = ActionError;
 	user: User;
 	private prefix: string | null = null;
 	readonly body: ActionRequest;
@@ -171,8 +172,7 @@ export class ActionContext {
 	static parseURLRequest(req: http.IncomingMessage) {
 		if (!req.url) return {};
 		const [pathname, params] = req.url.split('?');
-		const actPart = pathname.split('/api/')[1];
-		const act = actPart?.split('/')[0];
+		const act = pathname.split('/api/').slice(1).join('/api/');
 		const result = params ? Object.fromEntries(new URLSearchParams(params)) : {};
 		if (act) result.act = act;
 		return result;
@@ -364,7 +364,7 @@ export class Server {
 			}
 			this.ensureHeaders(res);
 			res.writeHead(200).end(Server.stringify(result));
-		} catch (e) {
+		} catch (e: any) {
 			this.ensureHeaders(res);
 			if (e instanceof ActionError) {
 				if (e.httpStatus) {
@@ -377,7 +377,6 @@ export class Server {
 				res.writeHead(500).end("Internal Server Error");
 			}
 		}
-
 		this.activeRequests--;
 		if (!this.activeRequests) this.awaitingEnd?.();
 	}

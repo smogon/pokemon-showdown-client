@@ -16,6 +16,8 @@ import IPTools from './ip-tools';
 import * as crypto from 'crypto';
 import * as url from 'url';
 
+const OAUTH_TOKEN_TIME = 2 * 7 * 24 * 60 * 1000;
+
 async function getOAuthClient(clientId?: string, origin?: string) {
 	if (!clientId) throw new ActionError("No client_id provided.");
 	const data = await tables.oauthClients.get(clientId);
@@ -546,24 +548,44 @@ export const actions: {[k: string]: QueryHandler} = {
 			tables.oauthTokens.selectOne()
 		)`WHERE client = ${clientInfo.id} AND owner = ${this.user.id}`;
 		if (existing) {
-			if (Date.now() - existing.time > 2 * 7 * 24 * 60 * 1000) { // 2w
+			if (Date.now() - existing.time > OAUTH_TOKEN_TIME) { // 2w
 				await tables.oauthTokens.delete(existing.id);
 				return {success: false};
 			} else {
-				return existing.id;
+				return {success: existing.id};
 			}
 		}
 		const id = crypto.randomBytes(16).toString('hex');
 		await tables.oauthTokens.insert({
 			id, owner: this.user.id, client: clientInfo.id, time: Date.now(),
 		});
-		return id;
+		return {success: id, expires: Date.now() + OAUTH_TOKEN_TIME};
+	},
+
+	async 'oauth/api/refreshtoken'(params) {
+		this.setPrefix('');
+		const clientInfo = await getOAuthClient(params.client_id);
+		const token = (params.token || "").toString();
+		if (!token) {
+			throw new ActionError('No token provided.');
+		}
+		const tokenEntry = await (
+			tables.oauthTokens.selectOne()
+		)`WHERE owner = ${this.user.id} and client = ${clientInfo.id}`;
+		if (!tokenEntry || tokenEntry.id !== token) {
+			return {success: false};
+		}
+		const id = crypto.randomBytes(16).toString('hex');
+		await tables.oauthTokens.insert({
+			id, owner: this.user.id, client: clientInfo.id, time: Date.now(),
+		});
+		await tables.oauthTokens.delete(tokenEntry.id);
+		return {success: id, expires: Date.now() + OAUTH_TOKEN_TIME};
 	},
 
 	// validate assertion & get token if it's valid
 	async 'oauth/api/getassertion'(params) {
 		this.setPrefix('');
-		if (!this.user.loggedIn) throw new ActionError("You're not logged in");
 		const client = await getOAuthClient(params.client_id);
 		const token = (params.token || "").toString();
 		if (!token) {
@@ -576,7 +598,7 @@ export const actions: {[k: string]: QueryHandler} = {
 			return {success: false};
 		}
 		const challstr = crypto.randomBytes(20).toString('hex');
-		return this.session.getAssertion(this.user.id, undefined, this.user, challstr);
+		return this.session.getAssertion(tokenEntry.owner, Config.challengekeyid, this.user, challstr);
 	},
 };
 

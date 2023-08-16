@@ -42,7 +42,11 @@
 			return function (data) {
 				if (data.length < 1) return;
 				if (data[0] == ']') data = data.substr(1);
-				return callback(JSON.parse(data));
+				try {
+					return callback(JSON.parse(data));
+				} catch {
+					return callback({data: data});
+				}
 			};
 		};
 		var params = new URLSearchParams(location.search);
@@ -69,8 +73,8 @@
 						authorize();
 					});
 				}
-				var redirect = new URL(params.redirect_uri);
-				redirect.search = new URLSearchParams({assertion: data.assertion});
+				var redirect = new URL(params.get('redirect_uri'));
+				redirect.search = new URLSearchParams({assertion: data.data, token: token});
 				location.replace(redirect);
 			}));
 		}
@@ -82,14 +86,14 @@
 				if (data.actionerror) {
 					return alert(`Error: ${data.actionerror}`);
 				}
-				params.set('token', data.token);
-				localStorage.setItem(tokenName, token);
+				params.set('token', data.success);
+				localStorage.setItem(tokenName, data.success);
 				getAssertion();
 			}));
 		}
 
 		var jqueryEl = document.createElement('script');
-		jqueryEl.src = '/js/jquery-1.9.1.min.js';
+		jqueryEl.src = '/js/lib/jquery-2.1.4.min.js';
 		jqueryEl.onload = function() {
 			if (!params.get('token')) {
 				$('#auth').on('click', () => { // this should send a req to get a token
