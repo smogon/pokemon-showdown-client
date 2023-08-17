@@ -571,12 +571,18 @@ class BattleTooltips {
 					case 'primordialsea':
 						zMove = this.battle.dex.moves.get(BattleTooltips.zMoveTable['Water']);
 						break;
-					case 'sandstorm':
-						zMove = this.battle.dex.moves.get(BattleTooltips.zMoveTable['Rock']);
-						break;
 					case 'hail':
 					case 'snow':
 						zMove = this.battle.dex.moves.get(BattleTooltips.zMoveTable['Ice']);
+						break;
+					case 'bloodmoon':
+						zMove = this.battle.dex.moves.get(BattleTooltips.zMoveTable['Dark']);
+						break;
+					case 'foghorn':
+						zMove = this.battle.dex.moves.get(BattleTooltips.zMoveTable['Normal']);
+						break;
+					case 'sandstorm':
+						zMove = this.battle.dex.moves.get(BattleTooltips.zMoveTable['Rock']);
 						break;
 					}
 				}
@@ -1098,25 +1104,19 @@ class BattleTooltips {
 			stats.atk = Math.floor(stats.atk * 1.5);
 		}
 		if (weather) {
-			if (this.battle.gen >= 4 && this.pokemonHasType(pokemon, 'Rock') && weather === 'sandstorm') {
-				stats.spd = Math.floor(stats.spd * 1.5);
-			}
-			if (this.pokemonHasType(pokemon, 'Ice') && weather === 'snow') {
-				stats.def = Math.floor(stats.def * 1.5);
-			}
-			if (ability === 'sandrush' && weather === 'sandstorm') {
-				speedModifiers.push(2);
-			}
-			if (ability === 'slushrush' && (weather === 'hail' || weather === 'snow')) {
-				speedModifiers.push(2);
-			}
 			if (item !== 'utilityumbrella') {
 				if (weather === 'sunnyday' || weather === 'desolateland') {
+					if (this.pokemonHasType(pokemon, 'Grass')) {
+						stats.spd = Math.floor(stats.spd * 1.25);
+					}
 					if (ability === 'chlorophyll') {
 						speedModifiers.push(2);
 					}
-					if (ability === 'solarpower') {
+					if (ability === 'solarpower' && serverPokemon.stats.spa >= serverPokemon.stats.atk) {
 						stats.spa = Math.floor(stats.spa * 1.5);
+					}
+					if (ability === 'solarpower' && serverPokemon.stats.atk > serverPokemon.stats.spa) {
+						stats.atk = Math.floor(stats.atk * 1.5);
 					}
 					if (ability === 'orichalcumpulse') {
 						stats.atk = Math.floor(stats.atk * 1.3);
@@ -1137,7 +1137,49 @@ class BattleTooltips {
 					if (ability === 'swiftswim') {
 						speedModifiers.push(2);
 					}
+					if (this.pokemonHasType(pokemon, 'Grass')) {
+						stats.def = Math.floor(stats.def * 1.25);
+					}
 				}
+				if (weather === 'hail' || weather === 'snow') {
+					if (ability === 'slushrush') {
+						speedModifiers.push(2);
+					}
+					if (ability === 'glacialarmor') {
+						stats.def = Math.floor(stats.def * 2);
+						stats.spd = Math.floor(stats.spd * 2);
+					}
+				}
+				if (weather === 'snow') {
+					if (this.pokemonHasType(pokemon, 'Ice')) {
+						stats.def = Math.floor(stats.def * 1.5);
+					}
+				}
+				if (weather === 'bloodmoon') {
+					if (ability === 'haunting') {
+						speedModifiers.push(2);
+					}
+					if (ability === 'malice' && serverPokemon.stats.spa >= serverPokemon.stats.atk) {
+						stats.spa = Math.floor(stats.spa * 1.5);
+					}
+					if (ability === 'malice' && serverPokemon.stats.atk > serverPokemon.stats.spa) {
+						stats.atk = Math.floor(stats.atk * 1.5);
+					}
+				}
+				if (weather === 'foghorn') {
+					if (ability === 'warpmist' && serverPokemon.stats.spa >= serverPokemon.stats.atk) {
+						stats.spa = Math.floor(stats.spa * 1.2);
+					}
+					if (ability === 'warpmist' && serverPokemon.stats.atk > serverPokemon.stats.spa) {
+						stats.atk = Math.floor(stats.atk * 1.2);
+					}
+				}
+			}
+			if (this.battle.gen >= 4 && this.pokemonHasType(pokemon, 'Rock') && weather === 'sandstorm') {
+				stats.spd = Math.floor(stats.spd * 1.5);
+			}
+			if (ability === 'sandrush' && weather === 'sandstorm') {
+				speedModifiers.push(2);
 			}
 		}
 		if (ability === 'defeatist' && serverPokemon.hp <= serverPokemon.maxhp / 2) {
@@ -1436,12 +1478,21 @@ class BattleTooltips {
 				if (item.id === 'utilityumbrella') break;
 				moveType = 'Water';
 				break;
-			case 'sandstorm':
-				moveType = 'Rock';
-				break;
 			case 'hail':
 			case 'snow':
+				if (item.id === 'utilityumbrella') break;
 				moveType = 'Ice';
+				break;
+			case 'bloodmoon':
+				if (item.id === 'utilityumbrella') break;
+				moveType = 'Dark';
+				break;
+			case 'foghorn':
+				if (item.id === 'utilityumbrella') break;
+				moveType = 'Normal';
+				break;
+			case 'sandstorm':
+				moveType = 'Rock';
 				break;
 			}
 		}
@@ -1945,6 +1996,14 @@ class BattleTooltips {
 					value.modify(1.33, auraBoosted);
 				}
 			}
+		}
+
+		// swse abilities
+		if (['Ice'].includes(moveType) && this.battle.weather === 'hail') {
+			if (value.tryAbility("Absolute Zero")) value.weatherModify(1.3, "Hail", "Absolute Zero");
+		}
+		if (['Ice'].includes(moveType) && this.battle.weather === 'snow') {
+			if (value.tryAbility("Absolute Zero")) value.weatherModify(1.3, "Snow", "Absolute Zero");
 		}
 
 		// Terrain
