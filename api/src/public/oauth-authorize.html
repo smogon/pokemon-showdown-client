@@ -23,7 +23,7 @@
 		<div class="main"><section class="section">
 			<h2>Authorize {{client}}</h2><hr />
 			<div class="infobox">
-				{{client}} by {{client_name}} wants to access your Pokemon Showdown account.<br />
+				{{client}} by {{client_name}} wants to access your Pokemon Showdown account<span id="username"></span>.<br />
 				This does not expose any private information, and will allow you to log in on their site using your Pokemon Showdown account for two weeks.<br /><br /><hr />
 				<a id="auth" class="button greenbutton nav-first nav-last">Authorize</a><br /><br />
 				<small>Authorizing will redirect you to <span id="uri"></span></small>
@@ -52,6 +52,13 @@
 		var params = new URLSearchParams(location.search);
 		var tokenName = 'ps-' + params.get('client_id') + "-token";
 		var token = localStorage.getItem(tokenName);
+		var username = localStorage.getItem('showdown_username');
+		if (!username) {
+			alert("Please log in on Pokemon Showdown before using this page.");
+			throw '';
+		} else {
+			$('#username').text(` (logged in as "${username}")`);
+		}
 		if (token) {
 			params.set('token', token);
 		}
@@ -108,7 +115,7 @@
 		}
 		document.body.appendChild(jqueryEl);
 
-		var redirectUri = document.createTextNode(params.redirect_uri || "");
+		var redirectUri = document.createTextNode(params.get('redirect_uri') || "");
 		document.getElementById('uri').appendChild(redirectUri);
 	</script>
 
