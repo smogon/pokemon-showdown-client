@@ -52,12 +52,15 @@
 		var params = new URLSearchParams(location.search);
 		var tokenName = 'ps-' + params.get('client_id') + "-token";
 		var token = localStorage.getItem(tokenName);
-		var username = localStorage.getItem('showdown_username');
+		var username = document.cookie
+			.split('; ')
+			.filter(x => x.startsWith('showdown_username'))
+			.map(x => x.split('=').slice(1).join('='))[0];
 		if (!username) {
 			alert("Please log in on Pokemon Showdown before using this page.");
 			throw '';
 		} else {
-			$('#username').text(` (logged in as "${username}")`);
+			document.getElementById('username').innerText = ` (logged in as "${username}")`;
 		}
 		if (token) {
 			params.set('token', token);
@@ -119,4 +122,4 @@
 		document.getElementById('uri').appendChild(redirectUri);
 	</script>
 
-	</body></html>
+</body></html>

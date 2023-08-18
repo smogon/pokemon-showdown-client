@@ -34,6 +34,10 @@ const OAUTH_AUTHORIZE_CONTENT = readFileSync(
 	__dirname + "/../../src/public/oauth-authorize.html",
 	'utf-8'
 );
+const OAUTH_AUTHORIZED_CONTENT = readFileSync(
+	__dirname + "/../../src/public/oauth-authorized.html",
+	'utf-8'
+);
 
 export const actions: {[k: string]: QueryHandler} = {
 	async register(params) {
@@ -599,6 +603,46 @@ export const actions: {[k: string]: QueryHandler} = {
 		}
 		const challstr = crypto.randomBytes(20).toString('hex');
 		return this.session.getAssertion(tokenEntry.owner, Config.challengekeyid, this.user, challstr);
+	},
+
+	'oauth/authorized'() {
+		this.setPrefix('');
+		this.response.setHeader('Content-Type', 'text/html');
+		const content = OAUTH_AUTHORIZED_CONTENT;
+		this.response.setHeader('Content-Length', content.length);
+		return content;
+	},
+
+	async 'oauth/api/authorized'() {
+		if (!this.user.loggedIn) {
+			throw new ActionError("You're not logged in.");
+		}
+		const applications = [];
+		const tokens = await tables.oauthTokens.selectAll()`WHERE owner = ${this.user.id}`;
+		for (const token of tokens) {
+			const client = await tables.oauthClients.get(token.client, ['client_title']);
+			if (!client) throw new Error("Tokens exist for nonexistent application");
+			applications.push({title: client.client_title, url: client.origin_url});
+		}
+		return {
+			username: this.user.id,
+			applications,
+		};
+	},
+
+	async 'oauth/api/revoke'(params) {
+		if (!this.user.loggedIn) {
+			throw new ActionError("You're not logged in.");
+		}
+		if (!params.uri) {
+			throw new ActionError("Specify the URL of the application you wish to revoke access for.");
+		}
+		const tokenEntry = await tables.oauthTokens.selectOne()`WHERE origin_url = ${params.uri}`;
+		if (!tokenEntry) {
+			throw new ActionError("That application doesn't have access granted to your account.");
+		}
+		await tables.oauthTokens.deleteOne()`WHERE origin_url = ${params.url}`;
+		return {success: true};
 	},
 };
 
