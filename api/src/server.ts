@@ -177,6 +177,11 @@ export class ActionContext {
 		if (act) result.act = act;
 		return result;
 	}
+	allowCORS(origin?: string) {
+		if (!origin) origin = this.request.headers.origin || "*";
+		this.setHeader('Access-Control-Allow-Origin', origin);
+		this.setHeader('Access-Control-Allow-Credentials', 'true');
+	}
 	verifyCrossDomainRequest(): string {
 		if (typeof this.prefix === 'string') return this.prefix;
 		// No cross-domain multi-requests for security reasons.
@@ -197,8 +202,7 @@ export class ActionContext {
 		}
 
 		// Valid CORS request.
-		this.setHeader('Access-Control-Allow-Origin', origin);
-		this.setHeader('Access-Control-Allow-Credentials', 'true');
+		this.allowCORS(origin);
 		this.prefix = prefix;
 		return prefix;
 	}

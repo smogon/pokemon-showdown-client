@@ -42,10 +42,11 @@
 				if (data.length < 1) return;
 				if (data[0] == ']') data = data.substr(1);
 				try {
-					return callback(JSON.parse(data));
+					data = (JSON.parse(data));
 				} catch {
 					return callback({data: data});
 				}
+				return callback(data);
 			};
 		};
 		function loadApplications() {
@@ -54,12 +55,16 @@
 					return alert(data.actionerror);
 				}
 				let buffer = `<strong>Applications authorized for account ${data.username}</strong>`;
+				if (!data.applications.length) {
+					buffer += ` None.`;
+					return $('#applications').html(buffer);
+				}
 				buffer += `<ul>`;
 				for (var [i, application] of data.applications.entries()) {
 					buffer += `<li>`;
 					buffer += `${application.title} (<a href="${application.url}">${application.url}</a>) `;
 					buffer += ` <button class="button greenbutton" id="revoke-${i}">Revoke access</button>`;
-					buf += `</li>`;
+					buffer += `</li>`;
 				}
 				$('#applications').html(buffer);
 				$('button').on('click', ev => {
@@ -74,6 +79,7 @@
 				});
 			}));
 		}
+		setTimeout(loadApplications, 10);
 	</script>
 
 </body></html>

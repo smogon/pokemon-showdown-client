@@ -520,7 +520,7 @@ export const actions: {[k: string]: QueryHandler} = {
 	// oauth/page - public-facing part
 	// oauth/api/page - api part (does the actual action)
 	async 'oauth/authorize'(params) {
-		this.setPrefix('');
+		this.allowCORS();
 		if (!params.redirect_uri) {
 			throw new ActionError("No redirect_uri provided");
 		}
@@ -543,7 +543,7 @@ export const actions: {[k: string]: QueryHandler} = {
 
 	// make a token if they don't already have it
 	async 'oauth/api/authorize'(params) {
-		this.setPrefix('');
+		this.allowCORS();
 		if (!this.user.loggedIn) {
 			throw new ActionError("You're not logged in.");
 		}
@@ -567,7 +567,7 @@ export const actions: {[k: string]: QueryHandler} = {
 	},
 
 	async 'oauth/api/refreshtoken'(params) {
-		this.setPrefix('');
+		this.allowCORS();
 		const clientInfo = await getOAuthClient(params.client_id);
 		const token = (params.token || "").toString();
 		if (!token) {
@@ -589,7 +589,7 @@ export const actions: {[k: string]: QueryHandler} = {
 
 	// validate assertion & get token if it's valid
 	async 'oauth/api/getassertion'(params) {
-		this.setPrefix('');
+		this.allowCORS();
 		const client = await getOAuthClient(params.client_id);
 		const token = (params.token || "").toString();
 		if (!token) {
@@ -606,7 +606,7 @@ export const actions: {[k: string]: QueryHandler} = {
 	},
 
 	'oauth/authorized'() {
-		this.setPrefix('');
+		this.allowCORS();
 		this.response.setHeader('Content-Type', 'text/html');
 		const content = OAUTH_AUTHORIZED_CONTENT;
 		this.response.setHeader('Content-Length', content.length);
@@ -620,7 +620,7 @@ export const actions: {[k: string]: QueryHandler} = {
 		const applications = [];
 		const tokens = await tables.oauthTokens.selectAll()`WHERE owner = ${this.user.id}`;
 		for (const token of tokens) {
-			const client = await tables.oauthClients.get(token.client, ['client_title']);
+			const client = await tables.oauthClients.get(token.client);
 			if (!client) throw new Error("Tokens exist for nonexistent application");
 			applications.push({title: client.client_title, url: client.origin_url});
 		}
@@ -637,11 +637,15 @@ export const actions: {[k: string]: QueryHandler} = {
 		if (!params.uri) {
 			throw new ActionError("Specify the URL of the application you wish to revoke access for.");
 		}
-		const tokenEntry = await tables.oauthTokens.selectOne()`WHERE origin_url = ${params.uri}`;
+		const client = await tables.oauthClients.selectOne()`WHERE origin_url = ${params.uri}`;
+		if (!client) {
+			throw new ActionError('No client found with that URL.');
+		}
+		const tokenEntry = await tables.oauthTokens.selectOne()`WHERE client = ${client.id}`;
 		if (!tokenEntry) {
 			throw new ActionError("That application doesn't have access granted to your account.");
 		}
-		await tables.oauthTokens.deleteOne()`WHERE origin_url = ${params.url}`;
+		await tables.oauthTokens.deleteAll()`WHERE client = ${client.id} and owner = ${this.user.id}`;
 		return {success: true};
 	},
 };
