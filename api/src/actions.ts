@@ -595,14 +595,19 @@ export const actions: {[k: string]: QueryHandler} = {
 		if (!token) {
 			throw new ActionError('No token provided.');
 		}
+		const challstr = params.challenge || params.challstr;
+		if (!challstr) {
+			throw new ActionError('No challstr provided.');
+		}
 		const tokenEntry = await (
 			tables.oauthTokens.selectOne()
 		)`WHERE owner = ${this.user.id} and client = ${client.id}`;
 		if (!tokenEntry || tokenEntry.id !== token) {
 			return {success: false};
 		}
-		const challstr = crypto.randomBytes(20).toString('hex');
-		return this.session.getAssertion(tokenEntry.owner, Config.challengekeyid, this.user, challstr);
+		return this.session.getAssertion(
+			tokenEntry.owner, Config.challengekeyid, this.user, challstr
+		);
 	},
 
 	'oauth/authorized'() {
