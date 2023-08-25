@@ -380,35 +380,29 @@ function pokeConvertInner($text) {
 			$out[] = '|-damage|'.$moveuser.'|??|from: confusion';
 		} else if ($line === "It's a one hit KO!") {
 			$out[] = '|-ohko|';
-		} else if ($line === "The sunlight turned harsh!") {
-			$out[] = '|-weather|Sunny Day';
 		} else if ($line === "The sunlight is strong!") {
 			$out[] = '|-weather|Sunny Day';
-		} else if ($line === "The sunlight faded!") {
-			$out[] = '|-weather|none';
-		} else if ($line === "It started to rain!") {
-			$out[] = '|-weather|Rain Dance';
 		} else if ($line === "Rain continues to fall!") {
 			$out[] = '|-weather|Rain Dance';
-		} else if ($line === "The rain stopped!") {
-			$out[] = '|-weather|none';
+		} else if ($line === "The sunlight turned harsh!") {
+			$out[] = '|-weather|Sunny Day';
+		} else if ($line === "It started to rain!") {
+			$out[] = '|-weather|Rain Dance';
 		} else if ($line === "A hailstorm brewed!") {
 			$out[] = '|-weather|Hail';
 		} else if ($line === "Hail continues to fall!") {
 			$out[] = '|-weather|Hail';
-		} else if ($line === "The hail subsided!") {
-			$out[] = '|-weather|none';
-		} else if ($line === "A blood moon rises!") {
-			$out[] = '|-weather|Blood Moon';
-		} else if ($line === "It's the hour of the blood moon.") {
-			$out[] = '|-weather|Blood Moon';
-		} else if ($line === "The blood moon passed.") {
-			$out[] = '|-weather|none';
 		} else if ($line === "A sandstorm brewed!") {
 			$out[] = '|-weather|Sandstorm';
 		} else if ($line === "The sandstorm rages!") {
 			$out[] = '|-weather|Sandstorm';
+		} else if ($line === "The sunlight faded!") {
+			$out[] = '|-weather|none';
+		} else if ($line === "The rain stopped!") {
+			$out[] = '|-weather|none';
 		} else if ($line === "The sandstorm subsided!") {
+			$out[] = '|-weather|none';
+		} else if ($line === "The hail subsided!") {
 			$out[] = '|-weather|none';
 		} else if ($line === 'All stat changes were eliminated!') {
 			$out[] = '|-clearallboost|';
