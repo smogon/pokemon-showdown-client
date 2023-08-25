@@ -559,6 +559,8 @@ const BattlePokemonIconIndexes: {[id: string]: number} = {
 	miasmite: 1488 + 32,
 	dorsoil: 1488 + 33,
 	saharascal: 1488 + 34,
+
+	llampas: 1524 + 0,
 };
 
 const BattlePokemonIconIndexesLeft: {[id: string]: number} = {
