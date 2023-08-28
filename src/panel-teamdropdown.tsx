@@ -398,13 +398,6 @@ class PSTeambuilder {
 			if (line.startsWith('Hidden Power [')) {
 				const hpType = line.slice(14, -1) as TypeName;
 				line = 'Hidden Power ' + hpType;
-				if (!set.ivs && Dex.types.isName(hpType)) {
-					set.ivs = {hp: 31, atk: 31, def: 31, spa: 31, spd: 31, spe: 31};
-					const hpIVs = Dex.types.get(hpType).HPivs || {};
-					for (let stat in hpIVs) {
-						set.ivs[stat as StatName] = hpIVs[stat as StatName]!;
-					}
-				}
 			}
 			if (line === 'Frustration' && set.happiness === undefined) {
 				set.happiness = 0;
