@@ -1247,13 +1247,11 @@ Storage.importTeam = function (buffer, teams) {
 			if (line.substr(0, 14) === 'Hidden Power [') {
 				var hptype = line.substr(14, line.length - 15);
 				line = 'Hidden Power ' + hptype;
-				if ((parseInt(format[3], 10) || 6) < 7) { // update IVs to match hidden power if format is gen 6 or earlier
-					var type = Dex.types.get(hptype);
-					if (!curSet.ivs && type) {
-						curSet.ivs = {};
-						for (var stat in type.HPivs) {
-							curSet.ivs[stat] = type.HPivs[stat];
-						}
+				var type = Dex.types.get(hptype);
+				if (!curSet.ivs && type) {
+					curSet.ivs = {};
+					for (var stat in type.HPivs) {
+						curSet.ivs[stat] = type.HPivs[stat];
 					}
 				}
 			}
