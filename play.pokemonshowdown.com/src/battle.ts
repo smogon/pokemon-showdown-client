@@ -2529,6 +2529,18 @@ export class Battle {
 			this.log(args, kwArgs);
 			break;
 		}
+		case '-endTerastallize': {
+			let poke = this.getPokemon(args[1])!;
+			poke.removeVolatile('terastallize' as ID);
+			poke.teraType = '';
+			poke.terastallized = '';
+			poke.details = poke.details.replace(/, tera:[a-z]+/i, '');
+			poke.searchid = poke.searchid.replace(/, tera:[a-z]+/i, '');
+			this.scene.animTransform(poke, true);
+			this.scene.resetStatbar(poke);
+			this.log(args, kwArgs);
+			break;
+		}
 		case '-start': {
 			let poke = this.getPokemon(args[1])!;
 			let effect = Dex.getEffect(args[2]);
