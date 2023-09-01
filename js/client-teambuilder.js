@@ -3026,6 +3026,10 @@
 				if (baseFormat.substr(0, 3) === 'gen') baseFormat = baseFormat.substr(4);
 				if (baseFormat.substr(0, 4) === 'bdsp') baseFormat = baseFormat.substr(4);
 				if (baseFormat.substr(0, 8) === 'pokebank') baseFormat = baseFormat.substr(8);
+				if (baseFormat.substr(0, 6) === 'natdex') baseFormat = baseFormat.substr(6);
+				if (baseFormat.substr(0, 11) === 'nationaldex') baseFormat = baseFormat.substr(11);
+				if (baseFormat.substr(-5) === 'draft') baseFormat = baseFormat.substr(0, baseFormat.length - 5);
+				if (!baseFormat) baseFormat = 'ou';
 				if (this.curTeam && this.curTeam.format) {
 					if (baseFormat === 'battlespotsingles' || baseFormat === 'battlespotdoubles' || baseFormat.substr(0, 3) === 'vgc' ||
 						baseFormat === 'battlefestivaldoubles') {
@@ -3057,6 +3061,10 @@
 				if (baseFormat.substr(0, 3) === 'gen') baseFormat = baseFormat.substr(4);
 				if (baseFormat.substr(0, 4) === 'bdsp') baseFormat = baseFormat.substr(4);
 				if (baseFormat.substr(0, 8) === 'pokebank') baseFormat = baseFormat.substr(8);
+				if (baseFormat.substr(0, 6) === 'natdex') baseFormat = baseFormat.substr(6);
+				if (baseFormat.substr(0, 11) === 'nationaldex') baseFormat = baseFormat.substr(11);
+				if (baseFormat.substr(-5) === 'draft') baseFormat = baseFormat.substr(0, baseFormat.length - 5);
+				if (!baseFormat) baseFormat = 'ou';
 				if (this.curTeam && this.curTeam.format) {
 					if (baseFormat === 'battlespotsingles' || baseFormat === 'battlespotdoubles' || baseFormat.substr(0, 3) === 'vgc' ||
 						baseFormat === 'battlefestivaldoubles') {
@@ -3272,6 +3280,10 @@
 				if (baseFormat.substr(0, 3) === 'gen') baseFormat = baseFormat.substr(4);
 				if (baseFormat.substr(0, 4) === 'bdsp') baseFormat = baseFormat.substr(4);
 				if (baseFormat.substr(0, 8) === 'pokebank') baseFormat = baseFormat.substr(8);
+				if (baseFormat.substr(0, 6) === 'natdex') baseFormat = baseFormat.substr(6);
+				if (baseFormat.substr(0, 11) === 'nationaldex') baseFormat = baseFormat.substr(11);
+				if (baseFormat.substr(-5) === 'draft') baseFormat = baseFormat.substr(0, baseFormat.length - 5);
+				if (!baseFormat) baseFormat = 'ou';
 				if (this.curTeam && this.curTeam.format) {
 					if (baseFormat.substr(0, 10) === 'battlespot' && baseFormat.substr(0, 19) !== 'battlespotspecial13' ||
 						baseFormat.substr(0, 3) === 'vgc' || baseFormat.substr(0, 14) === 'battlefestival') set.level = 50;
