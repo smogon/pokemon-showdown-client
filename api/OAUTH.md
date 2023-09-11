@@ -20,19 +20,41 @@ The root URL for these APIs is `https://play.pokemonshowdown.com/api`.
 Here's a simple functionality example for getting a token for a user. 
 
 ```ts
-const url = `https://play.pokemonshowdown.com/api/oauth/authorize?redirect_uri=https://mysite.com/oauth-demo&client_id=${clientId}`;
-const nWindow = window.n = open(url, null, 'popup=1');
+const authorizeUrl = new URL('https://play.pokemonshowdown.com/api/oauth/authorize');
+authorizeUrl.searchParams.append('redirect_uri', 'https://mysite.com/oauth-demo');
+authorizeUrl.searchParams.append('client_id', clientId);
+authorizeUrl.searchParams.append('challenge', challenge);
+
+const popup = window.open(authorizeUrl, undefined, 'popup=1');
 const checkIfUpdated = () => {
-    if (nWindow.location.host === 'mysite.com') {
-        const url = new URL(nWindow.location.href);
-        runLoginWithAssertion(url.searchParams.get('assertion'));
-        localStorage.setItem('ps-token', url.searchParams.get('token'));
-        nWindow.close();
-    } else {
-        setTimeout(checkIfUpdated(1000));
-    }
+   try {
+      if (popup?.location?.href?.startsWith(redirectUri)) {
+         const url = new URL(popup.location.href);
+         const assertion = url.searchParams.get('assertion');
+         if (!assertion) {
+            console.error('Received no assertion');
+            return;
+         }
+
+         runLoginWithAssertion(url.searchParams.get('assertion'));
+
+         const token = url.searchParams.get('token');
+         if (!token) {
+            console.error('Received no token')
+            return;
+         }
+
+         localStorage.setItem('ps-token', token);
+         popup.close();
+      } else {
+         setTimeout(checkIfUpdated, 500);
+      }
+   } catch (DOMException) {
+      setTimeout(checkIfUpdated, 500);
+   }
 };
-setTimeout(checkIfUpdated, 1500);
+
+checkIfUpdated();
 ```
 
 This opens the OAuth authorization page in a new window, waits for the user to click the button in the new window, then once the window's URL has changed, extracts the assertion and token from the new querystring, caches the token, and uses the assertion to log in.
