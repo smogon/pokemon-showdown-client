@@ -1479,6 +1479,20 @@ class BattleTooltips {
 				break;
 			}
 		}
+		// Ivy Cudgel's type depends on the Ogerpon forme
+		if (move.id === 'ivycudgel') {
+			switch (pokemon.getSpeciesForme()) {
+			case 'Ogerpon-Wellspring': case 'Ogerpon-Wellspring-Tera':
+				moveType = 'Water';
+				break;
+			case 'Ogerpon-Hearthflame': case 'Ogerpon-Hearthflame-Tera':
+				moveType = 'Fire';
+				break;
+			case 'Ogerpon-Cornerstone': case 'Ogerpon-Cornerstone-Tera':
+				moveType = 'Rock';
+				break;
+			}
+		}
 
 		// Other abilities that change the move type.
 		const noTypeOverride = [
