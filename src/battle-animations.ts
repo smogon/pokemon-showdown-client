@@ -1807,6 +1807,7 @@ export class PokemonSprite extends Sprite {
 		octolock: ['Octolock', 'bad'],
 		tarshot: ['Tar Shot', 'bad'],
 		saltcure: ['Salt Cure', 'bad'],
+		syrupbomb: ['Syrupy', 'bad'],
 		doomdesire: null,
 		futuresight: null,
 		mimic: ['Mimic', 'good'],
