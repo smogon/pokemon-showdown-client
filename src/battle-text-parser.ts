@@ -184,7 +184,6 @@ class BattleTextParser {
 		}
 
 		case '-heal': {
-			let [, pokemon] = args;
 			const id = BattleTextParser.effectId(kwArgs.from);
 			if (['dryskin', 'eartheater', 'voltabsorb', 'waterabsorb'].includes(id)) kwArgs.of = '';
 			break;
