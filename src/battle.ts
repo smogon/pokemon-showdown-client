@@ -1741,7 +1741,7 @@ export class Battle {
 			if (kwArgs.from) {
 				let effect = Dex.getEffect(kwArgs.from);
 				let ofpoke = this.getPokemon(kwArgs.of);
-				this.activateAbility(effect.id === 'hospitality' ? ofpoke : poke, effect);
+				this.activateAbility(ofpoke || poke, effect);
 				if (effect.effectType === 'Item' && !CONSUMED.includes(poke.prevItemEffect)) {
 					if (poke.prevItem !== effect.name) {
 						poke.item = effect.name;
