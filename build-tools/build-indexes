@@ -983,12 +983,12 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 					...gens.filter(gen => gen > 4)
 				);
 				legalGens += '0123456789'.slice(minUpperGen);
-				learnsets[id][moveid] = legalGens;
+				BattleTeambuilderTable['gen9predlc'].learnsets[id][moveid] = legalGens;
 			} else {
-				learnsets[id][moveid] = '0123456789'.slice(minGen);
+				BattleTeambuilderTable['gen9predlc'].learnsets[id][moveid] = '0123456789'.slice(minGen);
 			}
 
-			if (gens.indexOf(6) >= 0) learnsets[id][moveid] += 'p';
+			if (gens.indexOf(6) >= 0) BattleTeambuilderTable['gen9predlc'].learnsets[id][moveid] += 'p';
 			if (gens.indexOf(7) >= 0 && learnset[moveid].some(x => x[0] === '7' && x !== '7V')) {
 				BattleTeambuilderTable['gen9predlc'].learnsets[id][moveid] += 'q';
 			}
