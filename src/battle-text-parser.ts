@@ -930,7 +930,7 @@ class BattleTextParser {
 		case '-heal': {
 			let [, pokemon] = args;
 			let template = this.template('heal', kwArgs.from, 'NODEFAULT');
-			const line1 = this.maybeAbility(kwArgs.from, pokemon);
+			const line1 = this.maybeAbility(kwArgs.from, BattleTextParser.effectId(kwArgs.from) === 'hospitality' ? kwArgs.of : pokemon);
 			if (template) {
 				return line1 + template.replace('[POKEMON]', this.pokemon(pokemon)).replace('[SOURCE]', this.pokemon(kwArgs.of)).replace('[NICKNAME]', kwArgs.wisher);
 			}
