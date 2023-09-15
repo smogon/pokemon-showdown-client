@@ -1690,6 +1690,9 @@ export class Battle {
 				case 'psn':
 					this.scene.runStatusAnim('psn' as ID, [poke]);
 					break;
+				case 'frb':
+					this.scene.runStatusAnim('frb' as ID, [poke]);
+					break;
 				case 'baddreams':
 					this.scene.runStatusAnim('cursed' as ID, [poke]);
 					break;
@@ -2032,6 +2035,9 @@ export class Battle {
 			case 'frz':
 				this.scene.resultAnim(poke, 'Already frozen', 'neutral');
 				break;
+			case 'frb':
+				this.scene.resultAnim(poke, 'Already frostbitten', 'neutral');
+				break;
 			case 'unboost':
 				this.scene.resultAnim(poke, 'Stat drop blocked', 'neutral');
 				break;
@@ -2144,6 +2150,10 @@ export class Battle {
 				this.scene.resultAnim(poke, 'Frozen', 'frz');
 				this.scene.runStatusAnim('frz' as ID, [poke]);
 				break;
+			case 'frb':
+				this.scene.resultAnim(poke, 'Frostbitten', 'frb');
+				this.scene.runStatusAnim('frb' as ID, [poke]);
+				break;
 			default:
 				this.scene.updateStatbar(poke);
 				break;
@@ -2187,6 +2197,9 @@ export class Battle {
 					break;
 				case 'frz':
 					this.scene.resultAnim(poke, 'Thawed', 'good');
+					break;
+				case 'frb':
+					this.scene.resultAnim(poke, 'Frostbite cured', 'good');
 					break;
 				default:
 					poke.removeVolatile('confusion' as ID);
@@ -3196,7 +3209,7 @@ export class Battle {
 		// status parse
 		if (!status) {
 			output.status = '';
-		} else if (status === 'par' || status === 'brn' || status === 'slp' || status === 'frz' || status === 'tox') {
+		} else if (status === 'par' || status === 'brn' || status === 'slp' || status === 'frz' || status === 'tox' || status === 'frb') {
 			output.status = status;
 		} else if (status === 'psn' && output.status !== 'tox') {
 			output.status = status;

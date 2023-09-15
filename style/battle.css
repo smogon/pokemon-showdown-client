@@ -249,7 +249,8 @@ License: GPLv2
 .statbar span.psn,
 .statbar span.slp,
 .statbar span.par,
-.statbar span.frz {
+.statbar span.frz,
+.statbar span.frb {
 	padding: 1px 2px;
 	border: 0;
 	border-radius: 3px;
@@ -272,6 +273,10 @@ License: GPLv2
 }
 .statbar span.frz {
 	background: #009AA4;
+	color: #FFFFFF;
+}
+.statbar span.frb {
+	background: #74CEC0;
 	color: #FFFFFF;
 }
 .statbar span.bad {
@@ -522,6 +527,10 @@ License: GPLv2
 .battle .frzresult strong {
 	color: #FFFFFF;
 	background: #009AA4;
+}
+.battle .frbresult strong {
+	color: #FFFFFF;
+	background: #74CEC0;
 }
 .battle .abilityresult strong {
 	color: #FFFFFF;
