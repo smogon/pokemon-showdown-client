@@ -777,19 +777,67 @@ class BattleTextParser {
 			return template.replace('[TEAM]', this.team(side)).replace('[PARTY]', this.party(side));
 		}
 
-		case '-weather': {
-			const [, weather] = args;
-			if (!weather || weather === 'none') {
+		case '-climateweather': {
+			const [, climateWeather] = args;
+			if (!climateWeather || climateWeather === 'none') {
 				const template = this.template('end', kwArgs.from, 'NODEFAULT');
-				if (!template) return this.template('endFieldEffect').replace('[EFFECT]', this.effect(weather));
+				if (!template) return this.template('endFieldEffect').replace('[EFFECT]', this.effect(climateWeather));
 				return template;
 			}
 			if (kwArgs.upkeep) {
-				return this.template('upkeep', weather, 'NODEFAULT');
+				return this.template('upkeep', climateWeather, 'NODEFAULT');
 			}
 			const line1 = this.maybeAbility(kwArgs.from, kwArgs.of);
-			let template = this.template('start', weather, 'NODEFAULT');
-			if (!template) template = this.template('startFieldEffect').replace('[EFFECT]', this.effect(weather));
+			let template = this.template('start', climateWeather, 'NODEFAULT');
+			if (!template) template = this.template('startFieldEffect').replace('[EFFECT]', this.effect(climateWeather));
+			return line1 + template;
+		}
+
+		case '-irritantweather': {
+			const [, irritantWeather] = args;
+			if (!irritantWeather || irritantWeather === 'none') {
+				const template = this.template('end', kwArgs.from, 'NODEFAULT');
+				if (!template) return this.template('endFieldEffect').replace('[EFFECT]', this.effect(irritantWeather));
+				return template;
+			}
+			if (kwArgs.upkeep) {
+				return this.template('upkeep', irritantWeather, 'NODEFAULT');
+			}
+			const line1 = this.maybeAbility(kwArgs.from, kwArgs.of);
+			let template = this.template('start', irritantWeather, 'NODEFAULT');
+			if (!template) template = this.template('startFieldEffect').replace('[EFFECT]', this.effect(irritantWeather));
+			return line1 + template;
+		}
+
+		case '-energyweather': {
+			const [, energyWeather] = args;
+			if (!energyWeather || energyWeather === 'none') {
+				const template = this.template('end', kwArgs.from, 'NODEFAULT');
+				if (!template) return this.template('endFieldEffect').replace('[EFFECT]', this.effect(energyWeather));
+				return template;
+			}
+			if (kwArgs.upkeep) {
+				return this.template('upkeep', energyWeather, 'NODEFAULT');
+			}
+			const line1 = this.maybeAbility(kwArgs.from, kwArgs.of);
+			let template = this.template('start', energyWeather, 'NODEFAULT');
+			if (!template) template = this.template('startFieldEffect').replace('[EFFECT]', this.effect(energyWeather));
+			return line1 + template;
+		}
+
+		case '-clearingweather': {
+			const [, clearingWeather] = args;
+			if (!clearingWeather || clearingWeather === 'none') {
+				const template = this.template('end', kwArgs.from, 'NODEFAULT');
+				if (!template) return this.template('endFieldEffect').replace('[EFFECT]', this.effect(clearingWeather));
+				return template;
+			}
+			if (kwArgs.upkeep) {
+				return this.template('upkeep', clearingWeather, 'NODEFAULT');
+			}
+			const line1 = this.maybeAbility(kwArgs.from, kwArgs.of);
+			let template = this.template('start', clearingWeather, 'NODEFAULT');
+			if (!template) template = this.template('startFieldEffect').replace('[EFFECT]', this.effect(clearingWeather));
 			return line1 + template;
 		}
 
