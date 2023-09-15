@@ -560,7 +560,7 @@ const BattlePokemonIconIndexes: {[id: string]: number} = {
 	dorsoil: 1488 + 33,
 	saharascal: 1488 + 34,
 
-	llampas: 1524 + 0,
+	llampas: 1536 + 0,
 };
 
 const BattlePokemonIconIndexesLeft: {[id: string]: number} = {
