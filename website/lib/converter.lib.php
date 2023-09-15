@@ -431,6 +431,13 @@ function pokeConvertInner($text) {
 			$out[] = '|-fail|'.resolvePokemon($line).'|brn';
 		} else if (endsRemove($line, ' is already paralyzed.')) {
 			$out[] = '|-fail|'.resolvePokemon($line).'|par';
+		} else if (endsRemove($line, ' is already frostbitten.')) {
+			$out[] = '|-fail|'.resolvePokemon($line).'|frb';
+		} else if (endsRemove($line, ' is hurt by its frostbite!')) {
+			$out[] = '|-damage|'.resolvePokemon($line).'|??|[from]psn';
+			markLastDamage($out);
+		} else if (endsRemove($line, ' got frostbite!')) {
+			$out[] = '|-status|'.resolvePokemon($line).'|frb';
 		} else if (endsRemove($line, ' calmed down!')) {
 			$out[] = '|-activate|'.resolvePokemon($line).'|calm';
 		} else if (endsRemove($line, ' is confused!')) {

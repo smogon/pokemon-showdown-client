@@ -186,8 +186,8 @@ const Dex = new class implements ModdedDex {
 	})(); */
 
 	resourcePrefix = (() => {
-        return `https://raw.githubusercontent.com/ry42/pokemon-showdown-client/master/`;
-    })();
+		return `https://raw.githubusercontent.com/ry42/pokemon-showdown-client/master/`;
+	})();
 
 	fxPrefix = (() => {
 		const protocol = (window.document?.location?.protocol !== 'http:') ? 'https:' : '';

@@ -1026,8 +1026,9 @@ class BattleTooltips {
 				stats.atk = Math.floor(stats.atk * 0.5);
 			}
 
-			if (pokemon.status === 'frb')
+			if (pokemon.status === 'frb') {
 			stats.spa = Math.floor(stats.spa * 0.5);
+			}
 
 			if (this.battle.gen > 2 && ability === 'quickfeet') {
 				stats.spe = Math.floor(stats.spe * 1.5);
