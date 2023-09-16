@@ -2100,6 +2100,12 @@ class BattleTooltips {
 			value.itemModify(1.2);
 			return value;
 		}
+		if ((speciesName.startsWith('Ogerpon-Wellspring') && itemName === 'Wellspring Mask') ||
+			(speciesName.startsWith('Ogerpon-Hearthflame') && itemName === 'Hearthflame Mask') ||
+			(speciesName.startsWith('Ogerpon-Cornerstone') && itemName === 'Cornerstone Mask')) {
+			value.itemModify(1.2);
+			return value;
+		}
 
 		// Gems
 		if (BattleTooltips.noGemMoves.includes(moveName)) return value;
