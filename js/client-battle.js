@@ -1511,8 +1511,8 @@
 			this.close();
 		},
 		leaveRoom: function (data) {
-			this.room.send('/noreply /leave');
 			this.close();
+			return app.removeRoom(this.room.id);
 		}
 	});
 
