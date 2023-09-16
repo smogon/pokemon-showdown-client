@@ -1143,6 +1143,8 @@
 
 			filename += '-' + toID(this.battle.p1.name);
 			filename += '-' + toID(this.battle.p2.name);
+			filename += '-' + toID(this.battle.p3.name);
+			filename += '-' + toID(this.battle.p4.name);
 
 			e.currentTarget.href = BattleLog.createReplayFileHref(this);
 			e.currentTarget.download = filename + '.html';
@@ -1496,7 +1498,7 @@
 			var self = this;
 			app.addPopupPrompt("Replacement player's username", "Replace player", function (target) {
 				if (!target) return;
-				var side = (room.battle.mySide.id === room.battle.p1.id ? 'p1' : 'p2');
+				var side = (room.battle.mySide.id === room.battle.p1.id) ? 'p1' : (room.battle.mySide.id === room.battle.p2.id) ? 'p2' : (room.battle.mySide.id === room.battle.p3.id) ? 'p3' : 'p4';
 				room.leaveBattle();
 				room.send('/addplayer ' + target + ', ' + side);
 				self.close();
