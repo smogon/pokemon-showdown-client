@@ -73,7 +73,7 @@
 			if (this.battle) this.battle.destroy();
 		},
 		requestLeave: function (e) {
-			if (this.side && this.battle && !this.battleEnded && !this.expired && !this.battle.forfeitPending) {
+			if ((this.side || this.requireForfeit) && this.battle && !this.battleEnded && !this.expired && !this.battle.forfeitPending) {
 				app.addPopup(ForfeitPopup, {room: this, sourceEl: e && e.currentTarget, gameType: 'battle'});
 				return false;
 			}
@@ -137,6 +137,14 @@
 			if (!data) return;
 			if (data.substr(0, 6) === '|init|') {
 				return this.init(data);
+			}
+			if (data.substr(0, 11) === '|cantleave|') {
+				this.requireForfeit = true;
+				return;
+			}
+			if (data.substr(0, 12) === '|allowleave|') {
+				this.requireForfeit = false;
+				return;
 			}
 			if (data.substr(0, 9) === '|request|') {
 				data = data.slice(9);
