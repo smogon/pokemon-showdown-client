@@ -1289,7 +1289,8 @@ class BattleTooltips {
 			stats.spd = Math.floor(stats.spd * 1.5);
 		}
 		if (ability === 'grasspelt') {
-			if (this.battle.hasPseudoWeather('Grassy Terrain') || serverPokemon.item !== 'safetygoggles' && this.battle.weather.includes('Pollen Storm')) {
+			if (this.battle.hasPseudoWeather('Grassy Terrain') ||
+			serverPokemon.item !== 'safetygoggles' && this.battle.weather.includes('Pollen Storm')) {
 				stats.def = Math.floor(stats.def * 1.5);
 			}
 		}
@@ -1624,6 +1625,7 @@ class BattleTooltips {
 					if (value.abilityModify(0, 'Galvanize')) moveType = 'Electric';
 					if (value.abilityModify(0, 'Pixilate')) moveType = 'Fairy';
 					if (value.abilityModify(0, 'Refrigerate')) moveType = 'Ice';
+					if (value.abilityModify(0, 'Vegetate')) moveType = 'Grass';
 				}
 				if (value.abilityModify(0, 'Normalize')) moveType = 'Normal';
 			}
@@ -1700,7 +1702,7 @@ class BattleTooltips {
 			accuracyModifiers.push(6840);
 			value.modify(5 / 3, "Gravity");
 		}
-		
+
 		if (this.battle.weather.includes('Fog')) {
 			if (move.type !== 'Normal') {
 				accuracyModifiers.push(3686);
@@ -2004,6 +2006,9 @@ class BattleTooltips {
 		if (this.battle.gen > 2 && serverPokemon.status === 'brn' && move.id !== 'facade' && move.category === 'Physical') {
 			if (!value.tryAbility("Guts")) value.modify(0.5, 'Burn');
 		}
+		if (serverPokemon.status === 'frb' && move.category === 'Special') {
+			value.modify(0.5, 'Frostbite');
+		}
 		if (move.secondaries) {
 			value.abilityModify(1.3, "Sheer Force");
 		}
@@ -2062,6 +2067,7 @@ class BattleTooltips {
 				value.abilityModify(this.battle.gen > 6 ? 1.2 : 1.3, "Galvanize");
 				value.abilityModify(this.battle.gen > 6 ? 1.2 : 1.3, "Pixilate");
 				value.abilityModify(this.battle.gen > 6 ? 1.2 : 1.3, "Refrigerate");
+				value.abilityModify(1.2, "Vegetate");
 			}
 			if (this.battle.gen > 6) {
 				value.abilityModify(1.2, "Normalize");
@@ -2111,10 +2117,6 @@ class BattleTooltips {
 		}
 
 		// swse
-		if (serverPokemon.status === 'frb' && move.category === 'Special') {
-			value.modify(0.5, 'Frostbite');
-		}
-		
 
 		// Terrain
 		if ((this.battle.hasPseudoWeather('Electric Terrain') && moveType === 'Electric') ||
