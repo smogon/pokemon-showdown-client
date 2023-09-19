@@ -1007,11 +1007,23 @@ class BattleTooltips {
 		buf += `</tr><table>`;
 		if (!atLeastOne) buf = ``;
 
-		let weatherbuf = scene.weatherLeft() || `(no weather)`;
-		if (weatherbuf.startsWith('<br />')) {
-			weatherbuf = weatherbuf.slice(6);
+		let climateweatherbuf = scene.climateWeatherLeft() || `(no weather)`;
+		let irritantweatherbuf = scene.irritantWeatherLeft() || `(no weather)`;
+		let energyweatherbuf = scene.energyWeatherLeft() || `(no weather)`;
+		let clearingweatherbuf = scene.clearingWeatherLeft() || `(no weather)`;
+		if (climateweatherbuf.startsWith('<br />')) {
+			climateweatherbuf = climateweatherbuf.slice(6);
 		}
-		buf = `<p>${weatherbuf}</p>` + buf;
+		if (irritantweatherbuf.startsWith('<br />')) {
+			irritantweatherbuf = irritantweatherbuf.slice(6);
+		}
+		if (energyweatherbuf.startsWith('<br />')) {
+			energyweatherbuf = energyweatherbuf.slice(6);
+		}
+		if (clearingweatherbuf.startsWith('<br />')) {
+			clearingweatherbuf = clearingweatherbuf.slice(6);
+		}
+		buf = `<p>${climateweatherbuf}</p>` + `<p>${irritantweatherbuf}</p>` + `<p>${energyweatherbuf}</p>` + `<p>${irritantweatherbuf}</p>` + buf;
 		return `<p>${buf}</p>`;
 	}
 

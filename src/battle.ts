@@ -1401,7 +1401,7 @@ export class Battle {
 				if (this.climateWeatherMinTimeLeft !== 0) this.climateWeatherMinTimeLeft--;
 			}
 			if (this.seeking === null) {
-				this.scene.upkeepWeather();
+				this.scene.upkeepClimateWeather();
 			}
 			return;
 		}
@@ -1435,7 +1435,7 @@ export class Battle {
 				if (this.irritantWeatherMinTimeLeft !== 0) this.irritantWeatherMinTimeLeft--;
 			}
 			if (this.seeking === null) {
-				this.scene.upkeepWeather();
+				this.scene.upkeepIrritantWeather();
 			}
 			return;
 		}
@@ -1469,7 +1469,7 @@ export class Battle {
 				if (this.energyWeatherMinTimeLeft !== 0) this.energyWeatherMinTimeLeft--;
 			}
 			if (this.seeking === null) {
-				this.scene.upkeepWeather();
+				this.scene.upkeepEnergyWeather();
 			}
 			return;
 		}
@@ -1503,7 +1503,7 @@ export class Battle {
 				if (this.clearingWeatherMinTimeLeft !== 0) this.clearingWeatherMinTimeLeft--;
 			}
 			if (this.seeking === null) {
-				this.scene.upkeepWeather();
+				this.scene.upkeepClearingWeather();
 			}
 			return;
 		}

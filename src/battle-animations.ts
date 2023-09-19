@@ -1101,26 +1101,74 @@ export class BattleScene implements BattleSceneStub {
 			this.$irritantWeather.html('<em>' + irritantWeatherhtml + '</em>');
 			this.$energyWeather.html('<em>' + energyWeatherhtml + '</em>');
 			this.$clearingWeather.html('<em>' + clearingWeatherhtml + '</em>');
-			if (this.curWeather === weather && this.curTerrain === terrain) return;
+			if (this.curClimateWeather === climateWeather && this.curIrritantWeather === irritantWeather && this.curEnergyWeather === energyWeather && this.curClearingWeather === clearingWeather && this.curTerrain === terrain) return;
 			this.$terrain.attr('class', terrain ? 'weather ' + terrain + 'weather' : 'weather');
 			this.curTerrain = terrain;
-			this.$weather.attr('class', weather ? 'weather ' + weather + 'weather' : 'weather');
-			this.$weather.css('opacity', isIntense || !weather ? 0.9 : 0.5);
-			this.curWeather = weather;
+			this.$climateWeather.attr('class', climateWeather ? 'weather ' + climateWeather + 'weather' : 'weather');
+			this.$irritantWeather.attr('class', irritantWeather ? 'weather ' + irritantWeather + 'weather' : 'weather');
+			this.$energyWeather.attr('class', energyWeather ? 'weather ' + energyWeather + 'weather' : 'weather');
+			this.$clearingWeather.attr('class', clearingWeather ? 'weather ' + clearingWeather + 'weather' : 'weather');
+			this.$climateWeather.css('opacity', isIntense || !climateWeather ? 0.9 : 0.5);
+			this.$irritantWeather.css('opacity', !irritantWeather ? 0.9 : 0.5);
+			this.$energyWeather.css('opacity', !energyWeather ? 0.9 : 0.5);
+			this.$clearingWeather.css('opacity', !clearingWeather ? 0.9 : 0.5);
+			this.curClimateWeather = climateWeather;
+			this.curIrritantWeather = irritantWeather;
+			this.curEnergyWeather = energyWeather;
+			this.curClearingWeather = clearingWeather;
 			return;
 		}
 
-		if (weather !== this.curWeather) {
-			this.$weather.animate({
+		if (climateWeather !== this.curClimateWeather) {
+			this.$climateWeather.animate({
 				opacity: 0,
-			}, this.curWeather ? 300 : 100, () => {
-				this.$weather.html('<em>' + weatherhtml + '</em>');
-				this.$weather.attr('class', weather ? 'weather ' + weather + 'weather' : 'weather');
-				this.$weather.animate({opacity: isIntense || !weather ? 0.9 : 0.5}, 300);
+			}, this.curClimateWeather ? 300 : 100, () => {
+				this.$climateWeather.html('<em>' + climateWeatherhtml + '</em>');
+				this.$climateWeather.attr('class', climateWeather ? 'weather ' + climateWeather + 'weather' : 'weather');
+				this.$climateWeather.animate({opacity: isIntense || !climateWeather ? 0.9 : 0.5}, 300);
 			});
-			this.curWeather = weather;
+			this.curClimateWeather = climateWeather;
 		} else {
-			this.$weather.html('<em>' + weatherhtml + '</em>');
+			this.$climateWeather.html('<em>' + climateWeatherhtml + '</em>');
+		}
+
+		if (irritantWeather !== this.curIrritantWeather) {
+			this.$irritantWeather.animate({
+				opacity: 0,
+			}, this.curIrritantWeather ? 300 : 100, () => {
+				this.$irritantWeather.html('<em>' + irritantWeatherhtml + '</em>');
+				this.$irritantWeather.attr('class', irritantWeather ? 'weather ' + irritantWeather + 'weather' : 'weather');
+				this.$irritantWeather.animate({opacity: !irritantWeather ? 0.9 : 0.5}, 300);
+			});
+			this.curIrritantWeather = irritantWeather;
+		} else {
+			this.$irritantWeather.html('<em>' + irritantWeatherhtml + '</em>');
+		}
+
+		if (energyWeather !== this.curEnergyWeather) {
+			this.$energyWeather.animate({
+				opacity: 0,
+			}, this.curEnergyWeather ? 300 : 100, () => {
+				this.$energyWeather.html('<em>' + energyWeatherhtml + '</em>');
+				this.$energyWeather.attr('class', energyWeather ? 'weather ' + energyWeather + 'weather' : 'weather');
+				this.$energyWeather.animate({opacity: !energyWeather ? 0.9 : 0.5}, 300);
+			});
+			this.curEnergyWeather = energyWeather;
+		} else {
+			this.$energyWeather.html('<em>' + energyWeatherhtml + '</em>');
+		}
+
+		if (clearingWeather !== this.curClearingWeather) {
+			this.$clearingWeather.animate({
+				opacity: 0,
+			}, this.curClearingWeather ? 300 : 100, () => {
+				this.$clearingWeather.html('<em>' + clearingWeatherhtml + '</em>');
+				this.$clearingWeather.attr('class', clearingWeather ? 'weather ' + clearingWeather + 'weather' : 'weather');
+				this.$clearingWeather.animate({opacity: !clearingWeather ? 0.9 : 0.5}, 300);
+			});
+			this.curClearingWeather = clearingWeather;
+		} else {
+			this.$clearingWeather.html('<em>' + clearingWeatherhtml + '</em>');
 		}
 
 		if (terrain !== this.curTerrain) {
