@@ -54,7 +54,10 @@ export class BattleSceneStub {
 	updateSidebars(): void { }
 	updateStatbars(): void { }
 	updateWeather(instant?: boolean | undefined): void { }
-	upkeepWeather(): void { }
+	upkeepClimateWeather(): void { }
+	upkeepIrritantWeather(): void { }
+	upkeepEnergyWeather(): void { }
+	upkeepClearingWeather(): void { }
 	wait(time: number): void { }
 	setFrameHTML(html: any): void { }
 	setControlsHTML(html: any): void { }

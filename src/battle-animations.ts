@@ -53,7 +53,10 @@ export class BattleScene implements BattleSceneStub {
 	$options: JQuery = null!;
 	log: BattleLog;
 	$terrain: JQuery = null!;
-	$weather: JQuery = null!;
+	$climateWeather: JQuery = null!;
+	$irritantWeather: JQuery = null!;
+	$energyWeather: JQuery = null!;
+	$clearingWeather: JQuery = null!;
 	$bgEffect: JQuery = null!;
 	$bg: JQuery = null!;
 	$sprite: JQuery = null!;
@@ -82,7 +85,10 @@ export class BattleScene implements BattleSceneStub {
 	messagebarOpen = false;
 	customControls = false;
 	interruptionCount = 1;
-	curWeather = '';
+	curClimateWeather = '';
+	curIrritantWeather = '';
+	curEnergyWeather = '';
+	curClearingWeather = '';
 	curTerrain = '';
 
 	// Animation state
@@ -150,7 +156,10 @@ export class BattleScene implements BattleSceneStub {
 
 		this.$bg = $('<div class="backdrop" style="background-image:url(' + Dex.resourcePrefix + this.backdropImage + ');display:block;opacity:0.8"></div>');
 		this.$terrain = $('<div class="weather"></div>');
-		this.$weather = $('<div class="weather"></div>');
+		this.$climateWeather = $('<div class="weather"></div>');
+		this.$irritantWeather = $('<div class="weather"></div>');
+		this.$energyWeather = $('<div class="weather"></div>');
+		this.$clearingWeather = $('<div class="weather"></div>');
 		this.$bgEffect = $('<div></div>');
 		this.$sprite = $('<div></div>');
 
@@ -174,7 +183,10 @@ export class BattleScene implements BattleSceneStub {
 
 		this.$battle.append(this.$bg);
 		this.$battle.append(this.$terrain);
-		this.$battle.append(this.$weather);
+		this.$battle.append(this.$climateWeather);
+		this.$battle.append(this.$irritantWeather);
+		this.$battle.append(this.$energyWeather);
+		this.$battle.append(this.$clearingWeather);
 		this.$battle.append(this.$bgEffect);
 		this.$battle.append(this.$sprite);
 		this.$battle.append(this.$stat);
@@ -195,7 +207,10 @@ export class BattleScene implements BattleSceneStub {
 		this.timeOffset = 0;
 		this.pokemonTimeOffset = 0;
 		this.curTerrain = '';
-		this.curWeather = '';
+		this.curClimateWeather = '';
+		this.curIrritantWeather = '';
+		this.curEnergyWeather = '';
+		this.curClearingWeather = '';
 
 		this.log.battleParser!.perspective = this.battle.mySide.sideid;
 
@@ -910,12 +925,12 @@ export class BattleScene implements BattleSceneStub {
 		}
 		return buf + ' <small>(' + cond[2] + ' or ' + cond[3] + ' turns)</small>';
 	}
-	weatherLeft() {
+	climateWeatherLeft() {
 		if (this.battle.gen < 7 && this.battle.hardcoreMode) return '';
 
 		let weatherhtml = ``;
 
-		if (this.battle.weather) {
+		if (this.battle.climateWeather) {
 			const weatherNameTable: {[id: string]: string} = {
 				sunnyday: 'Sun',
 				desolateland: 'Intense Sun',
@@ -925,17 +940,85 @@ export class BattleScene implements BattleSceneStub {
 				snow: 'Snow',
 				bloodmoon: 'Blood Moon',
 				foghorn: 'Fog',
-				sandstorm: 'Sandstorm',
 				deltastream: 'Delta Stream',
 			};
-			weatherhtml = `${weatherNameTable[this.battle.weather] || this.battle.weather}`;
-			if (this.battle.weatherMinTimeLeft !== 0) {
-				weatherhtml += ` <small>(${this.battle.weatherMinTimeLeft} or ${this.battle.weatherTimeLeft} turns)</small>`;
-			} else if (this.battle.weatherTimeLeft !== 0) {
-				weatherhtml += ` <small>(${this.battle.weatherTimeLeft} turn${this.battle.weatherTimeLeft === 1 ? '' : 's'})</small>`;
+			weatherhtml = `${weatherNameTable[this.battle.climateWeather] || this.battle.climateWeather}`;
+			if (this.battle.climateWeatherMinTimeLeft !== 0) {
+				weatherhtml += ` <small>(${this.battle.climateWeatherMinTimeLeft} or ${this.battle.climateWeatherTimeLeft} turns)</small>`;
+			} else if (this.battle.climateWeatherTimeLeft !== 0) {
+				weatherhtml += ` <small>(${this.battle.climateWeatherTimeLeft} turn${this.battle.climateWeatherTimeLeft === 1 ? '' : 's'})</small>`;
 			}
 			const nullifyWeather = this.battle.abilityActive(['Air Lock', 'Cloud Nine']);
 			weatherhtml = `${nullifyWeather ? '<s>' : ''}${weatherhtml}${nullifyWeather ? '</s>' : ''}`;
+		}
+
+		for (const pseudoWeather of this.battle.pseudoWeather) {
+			weatherhtml += this.pseudoWeatherLeft(pseudoWeather);
+		}
+
+		return weatherhtml;
+	}
+	irritantWeatherLeft() {
+		if (this.battle.gen < 7 && this.battle.hardcoreMode) return '';
+
+		let weatherhtml = ``;
+
+		if (this.battle.irritantWeather) {
+			const weatherNameTable: {[id: string]: string} = {
+				sandstorm: 'Sandstorm',
+			};
+			weatherhtml = `${weatherNameTable[this.battle.irritantWeather] || this.battle.irritantWeather}`;
+			if (this.battle.irritantWeatherMinTimeLeft !== 0) {
+				weatherhtml += ` <small>(${this.battle.irritantWeatherMinTimeLeft} or ${this.battle.irritantWeatherTimeLeft} turns)</small>`;
+			} else if (this.battle.irritantWeatherTimeLeft !== 0) {
+				weatherhtml += ` <small>(${this.battle.irritantWeatherTimeLeft} turn${this.battle.irritantWeatherTimeLeft === 1 ? '' : 's'})</small>`;
+			}
+		}
+
+		for (const pseudoWeather of this.battle.pseudoWeather) {
+			weatherhtml += this.pseudoWeatherLeft(pseudoWeather);
+		}
+
+		return weatherhtml;
+	}
+	energyWeatherLeft() {
+		if (this.battle.gen < 7 && this.battle.hardcoreMode) return '';
+
+		let weatherhtml = ``;
+
+		if (this.battle.energyWeather) {
+			const weatherNameTable: {[id: string]: string} = {
+				
+			};
+			weatherhtml = `${weatherNameTable[this.battle.energyWeather] || this.battle.energyWeather}`;
+			if (this.battle.energyWeatherMinTimeLeft !== 0) {
+				weatherhtml += ` <small>(${this.battle.energyWeatherMinTimeLeft} or ${this.battle.energyWeatherTimeLeft} turns)</small>`;
+			} else if (this.battle.energyWeatherTimeLeft !== 0) {
+				weatherhtml += ` <small>(${this.battle.energyWeatherTimeLeft} turn${this.battle.energyWeatherTimeLeft === 1 ? '' : 's'})</small>`;
+			}
+		}
+
+		for (const pseudoWeather of this.battle.pseudoWeather) {
+			weatherhtml += this.pseudoWeatherLeft(pseudoWeather);
+		}
+
+		return weatherhtml;
+	}
+	clearingWeatherLeft() {
+		if (this.battle.gen < 7 && this.battle.hardcoreMode) return '';
+
+		let weatherhtml = ``;
+
+		if (this.battle.clearingWeather) {
+			const weatherNameTable: {[id: string]: string} = {
+				strongwinds: 'Strong Winds',
+			};
+			weatherhtml = `${weatherNameTable[this.battle.clearingWeather] || this.battle.clearingWeather}`;
+			if (this.battle.clearingWeatherMinTimeLeft !== 0) {
+				weatherhtml += ` <small>(${this.battle.clearingWeatherMinTimeLeft} or ${this.battle.clearingWeatherTimeLeft} turns)</small>`;
+			} else if (this.battle.clearingWeatherTimeLeft !== 0) {
+				weatherhtml += ` <small>(${this.battle.clearingWeatherTimeLeft} turn${this.battle.clearingWeatherTimeLeft === 1 ? '' : 's'})</small>`;
+			}
 		}
 
 		for (const pseudoWeather of this.battle.pseudoWeather) {
@@ -951,57 +1034,141 @@ export class BattleScene implements BattleSceneStub {
 		}
 		return buf;
 	}
-	upkeepWeather() {
-		const isIntense = ['desolateland', 'primordialsea', 'deltastream'].includes(this.curWeather);
-		this.$weather.animate({
+	upkeepClimateWeather() {
+		const isIntense = ['desolateland', 'primordialsea', 'deltastream'].includes(this.curClimateWeather);
+		this.$climateWeather.animate({
 			opacity: 1.0,
 		}, 300).animate({
 			opacity: isIntense ? 0.9 : 0.5,
 		}, 300);
 	}
+	upkeepIrritantWeather() {
+		this.$irritantWeather.animate({
+			opacity: 1.0,
+		}, 300).animate({
+			opacity: 0.5,
+		}, 300);
+	}
+	upkeepEnergyWeather() {
+		this.$energyWeather.animate({
+			opacity: 1.0,
+		}, 300).animate({
+			opacity: 0.5,
+		}, 300);
+	}
+	upkeepClearingWeather() {
+		this.$clearingWeather.animate({
+			opacity: 1.0,
+		}, 300).animate({
+			opacity: 0.5,
+		}, 300);
+	}
 	updateWeather(instant?: boolean) {
 		if (!this.animating) return;
 		let isIntense = false;
-		let weather = this.battle.weather;
+		let climateWeather = this.battle.climateWeather;
+		let irritantWeather = this.battle.irritantWeather;
+		let energyWeather = this.battle.energyWeather;
+		let clearingWeather = this.battle.clearingWeather;
 		if (this.battle.abilityActive(['Air Lock', 'Cloud Nine'])) {
-			weather = '' as ID;
+			climateWeather = '' as ID;
 		}
 		let terrain = '' as ID;
 		for (const pseudoWeatherData of this.battle.pseudoWeather) {
 			terrain = toID(pseudoWeatherData[0]);
 		}
-		if (weather === 'desolateland' || weather === 'primordialsea' || weather === 'deltastream') {
+		if (climateWeather === 'desolateland' || climateWeather === 'primordialsea' || climateWeather === 'deltastream') {
 			isIntense = true;
 		}
 
-		let weatherhtml = this.weatherLeft();
+		let climateWeatherhtml = this.climateWeatherLeft();
+		let irritantWeatherhtml = this.irritantWeatherLeft();
+		let energyWeatherhtml = this.energyWeatherLeft();
+		let clearingWeatherhtml = this.clearingWeatherLeft();
 		for (const side of this.battle.sides) {
-			weatherhtml += this.sideConditionsLeft(side);
+			climateWeatherhtml += this.sideConditionsLeft(side);
+			irritantWeatherhtml += this.sideConditionsLeft(side);
+			energyWeatherhtml += this.sideConditionsLeft(side);
+			clearingWeatherhtml += this.sideConditionsLeft(side);
 		}
-		if (weatherhtml) weatherhtml = `<br />` + weatherhtml;
+		if (climateWeatherhtml) climateWeatherhtml = `<br />` + climateWeatherhtml;
+		if (irritantWeatherhtml) irritantWeatherhtml = `<br />` + irritantWeatherhtml;
+		if (energyWeatherhtml) energyWeatherhtml = `<br />` + energyWeatherhtml;
+		if (clearingWeatherhtml) clearingWeatherhtml = `<br />` + clearingWeatherhtml;
 
 		if (instant) {
-			this.$weather.html('<em>' + weatherhtml + '</em>');
-			if (this.curWeather === weather && this.curTerrain === terrain) return;
+			this.$climateWeather.html('<em>' + climateWeatherhtml + '</em>');
+			this.$irritantWeather.html('<em>' + irritantWeatherhtml + '</em>');
+			this.$energyWeather.html('<em>' + energyWeatherhtml + '</em>');
+			this.$clearingWeather.html('<em>' + clearingWeatherhtml + '</em>');
+			if (this.curClimateWeather === climateWeather && this.curIrritantWeather === irritantWeather && this.curEnergyWeather === energyWeather && this.curClearingWeather === clearingWeather && this.curTerrain === terrain) return;
 			this.$terrain.attr('class', terrain ? 'weather ' + terrain + 'weather' : 'weather');
 			this.curTerrain = terrain;
-			this.$weather.attr('class', weather ? 'weather ' + weather + 'weather' : 'weather');
-			this.$weather.css('opacity', isIntense || !weather ? 0.9 : 0.5);
-			this.curWeather = weather;
+			this.$climateWeather.attr('class', climateWeather ? 'weather ' + climateWeather + 'weather' : 'weather');
+			this.$irritantWeather.attr('class', irritantWeather ? 'weather ' + irritantWeather + 'weather' : 'weather');
+			this.$energyWeather.attr('class', energyWeather ? 'weather ' + energyWeather + 'weather' : 'weather');
+			this.$clearingWeather.attr('class', clearingWeather ? 'weather ' + clearingWeather + 'weather' : 'weather');
+			this.$climateWeather.css('opacity', isIntense || !climateWeather ? 0.9 : 0.5);
+			this.$irritantWeather.css('opacity', !irritantWeather ? 0.9 : 0.5);
+			this.$energyWeather.css('opacity', !energyWeather ? 0.9 : 0.5);
+			this.$clearingWeather.css('opacity', !clearingWeather ? 0.9 : 0.5);
+			this.curClimateWeather = climateWeather;
+			this.curIrritantWeather = irritantWeather;
+			this.curEnergyWeather = energyWeather;
+			this.curClearingWeather = clearingWeather;
 			return;
 		}
 
-		if (weather !== this.curWeather) {
-			this.$weather.animate({
+		if (climateWeather !== this.curClimateWeather) {
+			this.$climateWeather.animate({
 				opacity: 0,
-			}, this.curWeather ? 300 : 100, () => {
-				this.$weather.html('<em>' + weatherhtml + '</em>');
-				this.$weather.attr('class', weather ? 'weather ' + weather + 'weather' : 'weather');
-				this.$weather.animate({opacity: isIntense || !weather ? 0.9 : 0.5}, 300);
+			}, this.curClimateWeather ? 300 : 100, () => {
+				this.$climateWeather.html('<em>' + climateWeatherhtml + '</em>');
+				this.$climateWeather.attr('class', climateWeather ? 'weather ' + climateWeather + 'weather' : 'weather');
+				this.$climateWeather.animate({opacity: isIntense || !climateWeather ? 0.9 : 0.5}, 300);
 			});
-			this.curWeather = weather;
+			this.curClimateWeather = climateWeather;
 		} else {
-			this.$weather.html('<em>' + weatherhtml + '</em>');
+			this.$climateWeather.html('<em>' + climateWeatherhtml + '</em>');
+		}
+
+		if (irritantWeather !== this.curIrritantWeather) {
+			this.$irritantWeather.animate({
+				opacity: 0,
+			}, this.curIrritantWeather ? 300 : 100, () => {
+				this.$irritantWeather.html('<em>' + irritantWeatherhtml + '</em>');
+				this.$irritantWeather.attr('class', irritantWeather ? 'weather ' + irritantWeather + 'weather' : 'weather');
+				this.$irritantWeather.animate({opacity: !irritantWeather ? 0.9 : 0.5}, 300);
+			});
+			this.curIrritantWeather = irritantWeather;
+		} else {
+			this.$irritantWeather.html('<em>' + irritantWeatherhtml + '</em>');
+		}
+
+		if (energyWeather !== this.curEnergyWeather) {
+			this.$energyWeather.animate({
+				opacity: 0,
+			}, this.curEnergyWeather ? 300 : 100, () => {
+				this.$energyWeather.html('<em>' + energyWeatherhtml + '</em>');
+				this.$energyWeather.attr('class', energyWeather ? 'weather ' + energyWeather + 'weather' : 'weather');
+				this.$energyWeather.animate({opacity: !energyWeather ? 0.9 : 0.5}, 300);
+			});
+			this.curEnergyWeather = energyWeather;
+		} else {
+			this.$energyWeather.html('<em>' + energyWeatherhtml + '</em>');
+		}
+
+		if (clearingWeather !== this.curClearingWeather) {
+			this.$clearingWeather.animate({
+				opacity: 0,
+			}, this.curClearingWeather ? 300 : 100, () => {
+				this.$clearingWeather.html('<em>' + clearingWeatherhtml + '</em>');
+				this.$clearingWeather.attr('class', clearingWeather ? 'weather ' + clearingWeather + 'weather' : 'weather');
+				this.$clearingWeather.animate({opacity: !clearingWeather ? 0.9 : 0.5}, 300);
+			});
+			this.curClearingWeather = clearingWeather;
+		} else {
+			this.$clearingWeather.html('<em>' + clearingWeatherhtml + '</em>');
 		}
 
 		if (terrain !== this.curTerrain) {
