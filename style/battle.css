@@ -453,6 +453,10 @@ License: GPLv2
 	background: #AAAAAA url(../fx/weather-strongwind.png) no-repeat scroll left top;
 	color: #666666;
 }
+.bloodmoonweather {
+	background: #05172559 url(../fx/weather-bloodmoon.png) no-repeat scroll left top;
+	color: #090c38;
+}
 .mistyterrainweather {
 	background: #EEAACC url(../fx/weather-mistyterrain.png) no-repeat scroll left top;
 	color: #551144;
