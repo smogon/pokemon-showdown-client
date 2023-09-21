@@ -1007,10 +1007,10 @@ class BattleTooltips {
 		buf += `</tr><table>`;
 		if (!atLeastOne) buf = ``;
 
-		let climateweatherbuf = scene.climateWeatherLeft() || `(no weather)`;
-		let irritantweatherbuf = scene.irritantWeatherLeft() || `(no weather)`;
-		let energyweatherbuf = scene.energyWeatherLeft() || `(no weather)`;
-		let clearingweatherbuf = scene.clearingWeatherLeft() || `(no weather)`;
+		let climateweatherbuf = scene.climateWeatherLeft() || `(no climate weather)`;
+		let irritantweatherbuf = scene.irritantWeatherLeft() || `(no irritant weather)`;
+		let energyweatherbuf = scene.energyWeatherLeft() || `(no energy weather)`;
+		let clearingweatherbuf = scene.clearingWeatherLeft() || `(no clearing weather)`;
 		if (climateweatherbuf.startsWith('<br />')) {
 			climateweatherbuf = climateweatherbuf.slice(6);
 		}
