@@ -952,10 +952,6 @@ export class BattleScene implements BattleSceneStub {
 			weatherhtml = `${nullifyWeather ? '<s>' : ''}${weatherhtml}${nullifyWeather ? '</s>' : ''}`;
 		}
 
-		for (const pseudoWeather of this.battle.pseudoWeather) {
-			weatherhtml += this.pseudoWeatherLeft(pseudoWeather);
-		}
-
 		return weatherhtml;
 	}
 	irritantWeatherLeft() {
@@ -978,10 +974,6 @@ export class BattleScene implements BattleSceneStub {
 			} else if (this.battle.irritantWeatherTimeLeft !== 0) {
 				weatherhtml += ` <small>(${this.battle.irritantWeatherTimeLeft} turn${this.battle.irritantWeatherTimeLeft === 1 ? '' : 's'})</small>`;
 			}
-		}
-
-		for (const pseudoWeather of this.battle.pseudoWeather) {
-			weatherhtml += this.pseudoWeatherLeft(pseudoWeather);
 		}
 
 		return weatherhtml;
@@ -1008,13 +1000,9 @@ export class BattleScene implements BattleSceneStub {
 			}
 		}
 
-		for (const pseudoWeather of this.battle.pseudoWeather) {
-			weatherhtml += this.pseudoWeatherLeft(pseudoWeather);
-		}
-
 		return weatherhtml;
 	}
-	clearingWeatherLeft() {
+	clearingWeatherLeft() { // also has psuedoweathers
 		if (this.battle.gen < 7 && this.battle.hardcoreMode) return '';
 
 		let weatherhtml = ``;
