@@ -1002,7 +1002,7 @@ export class BattleScene implements BattleSceneStub {
 
 		return weatherhtml;
 	}
-	clearingWeatherLeft() { // also has psuedoweathers
+	clearingWeatherLeft() { // also includes psuedoweathers
 		if (this.battle.gen < 7 && this.battle.hardcoreMode) return '';
 
 		let weatherhtml = ``;
