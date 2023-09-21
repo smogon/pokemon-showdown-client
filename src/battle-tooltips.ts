@@ -607,7 +607,7 @@ class BattleTooltips {
 					movePower = this.battle.dex.moves.get('hiddenpower').zMove!.basePower;
 				}
 				if (move.id === 'weatherball') {
-					switch (this.battle.climateWeather) { //needs to be fixed for other weathers (isn't an immediate issue since it should only be visual)
+					switch (this.battle.climateWeather) { // incomplete. add other weathers
 					case 'sunnyday':
 					case 'desolateland':
 						zMove = this.battle.dex.moves.get(BattleTooltips.zMoveTable['Fire']);
@@ -1604,7 +1604,7 @@ class BattleTooltips {
 			if (value.itemModify(0)) moveType = item.naturalGift.type;
 		}
 		// Weather and pseudo-weather type changes.
-		if (move.id === 'weatherball' && value.climateWeatherModify(0)) { // should only be visual but this does need to get fixed to include other weathers
+		if (move.id === 'weatherball' && value.climateWeatherModify(0)) { // incomplete. include other weathers
 			switch (this.battle.climateWeather) {
 			case 'sunnyday':
 			case 'desolateland':

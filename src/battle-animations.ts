@@ -966,6 +966,11 @@ export class BattleScene implements BattleSceneStub {
 		if (this.battle.irritantWeather) {
 			const weatherNameTable: {[id: string]: string} = {
 				sandstorm: 'Sandstorm',
+				duststorm: 'Dust Storm',
+				pollinate: 'Pollen Storm',
+				swarmsignal: 'Pheromones',
+				smogspread: 'Smog',
+				sprinkle: 'Fairy Dust',
 			};
 			weatherhtml = `${weatherNameTable[this.battle.irritantWeather] || this.battle.irritantWeather}`;
 			if (this.battle.irritantWeatherMinTimeLeft !== 0) {
@@ -988,7 +993,12 @@ export class BattleScene implements BattleSceneStub {
 
 		if (this.battle.energyWeather) {
 			const weatherNameTable: {[id: string]: string} = {
-				
+				auraprojection: 'Battle Aura',
+				haunt: 'Cursed Winds',
+				cosmicrays: 'Psychic Field',
+				dragonforce: 'Dragon Force',
+				supercell: 'Thunderstorm',
+				magnetize: 'Magnetosphere',
 			};
 			weatherhtml = `${weatherNameTable[this.battle.energyWeather] || this.battle.energyWeather}`;
 			if (this.battle.energyWeatherMinTimeLeft !== 0) {
@@ -1101,7 +1111,9 @@ export class BattleScene implements BattleSceneStub {
 			this.$irritantWeather.html('<em>' + irritantWeatherhtml + '</em>');
 			this.$energyWeather.html('<em>' + energyWeatherhtml + '</em>');
 			this.$clearingWeather.html('<em>' + clearingWeatherhtml + '</em>');
-			if (this.curClimateWeather === climateWeather && this.curIrritantWeather === irritantWeather && this.curEnergyWeather === energyWeather && this.curClearingWeather === clearingWeather && this.curTerrain === terrain) return;
+			if (this.curClimateWeather === climateWeather && this.curIrritantWeather === irritantWeather &&
+				this.curEnergyWeather === energyWeather && this.curClearingWeather === clearingWeather &&
+				this.curTerrain === terrain) return;
 			this.$terrain.attr('class', terrain ? 'weather ' + terrain + 'weather' : 'weather');
 			this.curTerrain = terrain;
 			this.$climateWeather.attr('class', climateWeather ? 'weather ' + climateWeather + 'weather' : 'weather');

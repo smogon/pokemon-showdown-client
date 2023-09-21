@@ -443,12 +443,13 @@ License: GPLv2
 	background: #E6E0AC url(../fx/weather-sandstorm.png) no-repeat scroll left top;
 	color: #554433;
 }
-.snowweather,
-.hailweather {
+.hailweather,
+.snowweather {
 	background: #AADDEE url(../fx/weather-hail.png) no-repeat scroll left top;
 	color: #114455;
 }
-.deltastreamweather {
+.deltastreamweather,
+.strongwindsweather {
 	background: #AAAAAA url(../fx/weather-strongwind.png) no-repeat scroll left top;
 	color: #666666;
 }

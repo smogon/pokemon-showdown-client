@@ -3155,7 +3155,7 @@ export class Battle {
 			this.log(args, kwArgs);
 			break;
 		}
-		case '-climateweather': {
+		case '-climateWeather': {
 			let effect = Dex.getEffect(args[1]);
 			let poke = this.getPokemon(kwArgs.of) || undefined;
 			let ability = Dex.getEffect(kwArgs.from);
@@ -3166,7 +3166,7 @@ export class Battle {
 			this.log(args, kwArgs);
 			break;
 		}
-		case '-irritantweather': {
+		case '-irritantWeather': {
 			let effect = Dex.getEffect(args[1]);
 			let poke = this.getPokemon(kwArgs.of) || undefined;
 			let ability = Dex.getEffect(kwArgs.from);
@@ -3177,7 +3177,7 @@ export class Battle {
 			this.log(args, kwArgs);
 			break;
 		}
-		case '-energyweather': {
+		case '-energyWeather': {
 			let effect = Dex.getEffect(args[1]);
 			let poke = this.getPokemon(kwArgs.of) || undefined;
 			let ability = Dex.getEffect(kwArgs.from);
@@ -3188,7 +3188,7 @@ export class Battle {
 			this.log(args, kwArgs);
 			break;
 		}
-		case '-clearingweather': {
+		case '-clearingWeather': {
 			let effect = Dex.getEffect(args[1]);
 			let poke = this.getPokemon(kwArgs.of) || undefined;
 			let ability = Dex.getEffect(kwArgs.from);
