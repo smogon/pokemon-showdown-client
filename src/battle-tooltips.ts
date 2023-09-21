@@ -1023,7 +1023,7 @@ class BattleTooltips {
 		if (clearingweatherbuf.startsWith('<br />')) {
 			clearingweatherbuf = clearingweatherbuf.slice(6);
 		}
-		buf = `<p>${climateweatherbuf}</p>` + `<p>${irritantweatherbuf}</p>` + `<p>${energyweatherbuf}</p>` + `<p>${irritantweatherbuf}</p>` + buf;
+		buf = `<p>${climateweatherbuf}</p>` + `<p>${irritantweatherbuf}</p>` + `<p>${energyweatherbuf}</p>` + `<p>${clearingweatherbuf}</p>` + buf;
 		return `<p>${buf}</p>`;
 	}
 
