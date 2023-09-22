@@ -974,6 +974,9 @@ export class BattleScene implements BattleSceneStub {
 			} else if (this.battle.irritantWeatherTimeLeft !== 0) {
 				weatherhtml += ` <small>(${this.battle.irritantWeatherTimeLeft} turn${this.battle.irritantWeatherTimeLeft === 1 ? '' : 's'})</small>`;
 			}
+			if (this.climateWeatherLeft()) {
+				weatherhtml = `<br />` + weatherhtml;
+			}
 		}
 
 		return weatherhtml;
@@ -998,6 +1001,12 @@ export class BattleScene implements BattleSceneStub {
 			} else if (this.battle.energyWeatherTimeLeft !== 0) {
 				weatherhtml += ` <small>(${this.battle.energyWeatherTimeLeft} turn${this.battle.energyWeatherTimeLeft === 1 ? '' : 's'})</small>`;
 			}
+			if (this.climateWeatherLeft()) {
+				weatherhtml = `<br />` + weatherhtml;
+			}
+			if (this.irritantWeatherLeft()) {
+				weatherhtml = `<br />` + weatherhtml;
+			}
 		}
 
 		return weatherhtml;
@@ -1016,6 +1025,15 @@ export class BattleScene implements BattleSceneStub {
 				weatherhtml += ` <small>(${this.battle.clearingWeatherMinTimeLeft} or ${this.battle.clearingWeatherTimeLeft} turns)</small>`;
 			} else if (this.battle.clearingWeatherTimeLeft !== 0) {
 				weatherhtml += ` <small>(${this.battle.clearingWeatherTimeLeft} turn${this.battle.clearingWeatherTimeLeft === 1 ? '' : 's'})</small>`;
+			}
+			if (this.climateWeatherLeft()) {
+				weatherhtml = `<br />` + weatherhtml;
+			}
+			if (this.irritantWeatherLeft()) {
+				weatherhtml = `<br />` + weatherhtml;
+			}
+			if (this.energyWeatherLeft()) {
+				weatherhtml = `<br />` + weatherhtml;
 			}
 		}
 
@@ -1135,7 +1153,7 @@ export class BattleScene implements BattleSceneStub {
 		if (irritantWeather !== this.curIrritantWeather) {
 			this.$irritantWeather.animate({
 				opacity: 0,
-			}, this.curIrritantWeather ? 300 : 100, () => {
+			}, this.curIrritantWeather ? 600 : 100, () => {
 				this.$irritantWeather.html('<em>' + irritantWeatherhtml + '</em>');
 				this.$irritantWeather.attr('class', irritantWeather ? 'weather ' + irritantWeather + 'weather' : 'weather');
 				this.$irritantWeather.animate({opacity: !irritantWeather ? 0.9 : 0.5}, 300);

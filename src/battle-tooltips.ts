@@ -1017,8 +1017,26 @@ class BattleTooltips {
 		if (irritantweatherbuf.startsWith('<br />')) {
 			irritantweatherbuf = irritantweatherbuf.slice(6);
 		}
+		if (irritantweatherbuf.startsWith('<br />')) {
+			irritantweatherbuf = irritantweatherbuf.slice(6);
+		}
 		if (energyweatherbuf.startsWith('<br />')) {
 			energyweatherbuf = energyweatherbuf.slice(6);
+		}
+		if (energyweatherbuf.startsWith('<br />')) {
+			energyweatherbuf = energyweatherbuf.slice(6);
+		}
+		if (energyweatherbuf.startsWith('<br />')) {
+			energyweatherbuf = energyweatherbuf.slice(6);
+		}
+		if (clearingweatherbuf.startsWith('<br />')) {
+			clearingweatherbuf = clearingweatherbuf.slice(6);
+		}
+		if (clearingweatherbuf.startsWith('<br />')) {
+			clearingweatherbuf = clearingweatherbuf.slice(6);
+		}
+		if (clearingweatherbuf.startsWith('<br />')) {
+			clearingweatherbuf = clearingweatherbuf.slice(6);
 		}
 		if (clearingweatherbuf.startsWith('<br />')) {
 			clearingweatherbuf = clearingweatherbuf.slice(6);
