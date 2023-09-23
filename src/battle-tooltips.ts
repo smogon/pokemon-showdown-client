@@ -1011,34 +1011,16 @@ class BattleTooltips {
 		let irritantweatherbuf = scene.irritantWeatherLeft() || `(No active Irritant Weathergy)`;
 		let energyweatherbuf = scene.energyWeatherLeft() || `(No active Energy Weathergy)`;
 		let clearingweatherbuf = scene.clearingWeatherLeft() || `(No active Clearing Weathergy)`;
-		if (climateweatherbuf.startsWith('<br />')) {
+		while (climateweatherbuf.startsWith('<br />')) {
 			climateweatherbuf = climateweatherbuf.slice(6);
 		}
-		if (irritantweatherbuf.startsWith('<br />')) {
+		while (irritantweatherbuf.startsWith('<br />')) {
 			irritantweatherbuf = irritantweatherbuf.slice(6);
 		}
-		if (irritantweatherbuf.startsWith('<br />')) {
-			irritantweatherbuf = irritantweatherbuf.slice(6);
-		}
-		if (energyweatherbuf.startsWith('<br />')) {
+		while (energyweatherbuf.startsWith('<br />')) {
 			energyweatherbuf = energyweatherbuf.slice(6);
 		}
-		if (energyweatherbuf.startsWith('<br />')) {
-			energyweatherbuf = energyweatherbuf.slice(6);
-		}
-		if (energyweatherbuf.startsWith('<br />')) {
-			energyweatherbuf = energyweatherbuf.slice(6);
-		}
-		if (clearingweatherbuf.startsWith('<br />')) {
-			clearingweatherbuf = clearingweatherbuf.slice(6);
-		}
-		if (clearingweatherbuf.startsWith('<br />')) {
-			clearingweatherbuf = clearingweatherbuf.slice(6);
-		}
-		if (clearingweatherbuf.startsWith('<br />')) {
-			clearingweatherbuf = clearingweatherbuf.slice(6);
-		}
-		if (clearingweatherbuf.startsWith('<br />')) {
+		while (clearingweatherbuf.startsWith('<br />')) {
 			clearingweatherbuf = clearingweatherbuf.slice(6);
 		}
 		buf = `<p>${climateweatherbuf}</p>` + `<p>${irritantweatherbuf}</p>` + `<p>${energyweatherbuf}</p>` + `<p>${clearingweatherbuf}</p>` + buf;
