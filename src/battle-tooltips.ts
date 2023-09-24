@@ -1185,6 +1185,9 @@ class BattleTooltips {
 					if (ability === 'orichalcumpulse') {
 						stats.atk = Math.floor(stats.atk * 1.3);
 					}
+					if (ability === 'eclipse') {
+						stats.def = Math.floor(stats.def * 2);
+					}
 					let allyActive = clientPokemon?.side.active;
 					if (allyActive) {
 						for (const ally of allyActive) {
@@ -1198,11 +1201,11 @@ class BattleTooltips {
 					}
 				}
 				if (climateWeather === 'raindance' || climateWeather === 'primordialsea') {
-					if (ability === 'swiftswim') {
-						speedModifiers.push(2);
-					}
 					if (this.pokemonHasType(pokemon, 'Grass')) {
 						stats.def = Math.floor(stats.def * 1.25);
+					}
+					if (ability === 'swiftswim') {
+						speedModifiers.push(2);
 					}
 				}
 				if (climateWeather === 'hail') {
@@ -1234,6 +1237,9 @@ class BattleTooltips {
 					}
 					if (ability === 'malice' && serverPokemon.stats.atk > serverPokemon.stats.spa) {
 						stats.atk = Math.floor(stats.atk * 1.5);
+					}
+					if (ability === 'eclipse') {
+						stats.spd = Math.floor(stats.spd * 2);
 					}
 				}
 				if (climateWeather === 'foghorn') {
@@ -2100,6 +2106,9 @@ class BattleTooltips {
 			} else if (["MM", "FF"].includes(pokemon.gender + target.gender)) {
 				value.abilityModify(1.25, "Rivalry");
 			}
+		}
+		if (moveType === 'Fairy') {
+			value.abilityModify(1.3, "Chakra");
 		}
 		if (serverPokemon.item !== 'utilityumbrella') {
 			if ('Ice'.includes(moveType) && (this.battle.climateWeather === 'hail' || this.battle.climateWeather === 'snow')) {
