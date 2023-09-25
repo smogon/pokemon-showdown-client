@@ -16,7 +16,7 @@ import IPTools from './ip-tools';
 import * as crypto from 'crypto';
 import * as url from 'url';
 
-const OAUTH_TOKEN_TIME = 2 * 7 * 24 * 60 * 1000;
+const OAUTH_TOKEN_TIME = 2 * 7 * 24 * 60 * 60 * 1000;
 
 async function getOAuthClient(clientId?: string, origin?: string) {
 	if (!clientId) throw new ActionError("No client_id provided.");
@@ -274,7 +274,7 @@ export const actions: {[k: string]: QueryHandler} = {
 	},
 
 	async getassertion(params) {
-		this.setPrefix('');
+		this.verifyCrossDomainRequest();
 		params.userid = toID(params.userid) || this.user.id;
 		// NaN is falsy so this validates
 		const challengekeyid = Number(params.challengekeyid) || -1;
@@ -573,15 +573,13 @@ export const actions: {[k: string]: QueryHandler} = {
 		if (!token) {
 			throw new ActionError('No token provided.');
 		}
-		const tokenEntry = await (
-			tables.oauthTokens.selectOne()
-		)`WHERE owner = ${this.user.id} and client = ${clientInfo.id}`;
-		if (!tokenEntry || tokenEntry.id !== token) {
+		const tokenEntry = await tables.oauthTokens.get(token);
+		if (!tokenEntry) {
 			return {success: false};
 		}
 		const id = crypto.randomBytes(16).toString('hex');
 		await tables.oauthTokens.insert({
-			id, owner: this.user.id, client: clientInfo.id, time: Date.now(),
+			id, owner: tokenEntry.owner, client: clientInfo.id, time: Date.now(),
 		});
 		await tables.oauthTokens.delete(tokenEntry.id);
 		return {success: id, expires: Date.now() + OAUTH_TOKEN_TIME};
@@ -590,7 +588,7 @@ export const actions: {[k: string]: QueryHandler} = {
 	// validate assertion & get token if it's valid
 	async 'oauth/api/getassertion'(params) {
 		this.allowCORS();
-		const client = await getOAuthClient(params.client_id);
+		await getOAuthClient(params.client_id);
 		const token = (params.token || "").toString();
 		if (!token) {
 			throw new ActionError('No token provided.');
@@ -599,14 +597,17 @@ export const actions: {[k: string]: QueryHandler} = {
 		if (!challstr) {
 			throw new ActionError('No challstr provided.');
 		}
-		const tokenEntry = await (
-			tables.oauthTokens.selectOne()
-		)`WHERE owner = ${this.user.id} and client = ${client.id}`;
+		const tokenEntry = await tables.oauthTokens.get(token);
 		if (!tokenEntry || tokenEntry.id !== token) {
 			return {success: false};
 		}
+		if ((Date.now() - tokenEntry.time) > OAUTH_TOKEN_TIME) { // 2w
+			await tables.oauthTokens.delete(tokenEntry.id);
+			return {success: false};
+		}
+		this.user.login(tokenEntry.owner);
 		return this.session.getAssertion(
-			tokenEntry.owner, Config.challengekeyid, this.user, challstr
+			this.user.id, Config.challengekeyid, this.user, challstr
 		);
 	},
 

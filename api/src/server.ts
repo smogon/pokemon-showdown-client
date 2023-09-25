@@ -178,7 +178,7 @@ export class ActionContext {
 		return result;
 	}
 	allowCORS(origin?: string) {
-		if (!origin) origin = this.request.headers.origin || "*";
+		if (!origin) origin = this.request.headers.origin || '*';
 		this.setHeader('Access-Control-Allow-Origin', origin);
 		this.setHeader('Access-Control-Allow-Credentials', 'true');
 	}
@@ -211,17 +211,21 @@ export class ActionContext {
 	}
 	isTrustedProxy(ip: string) {
 		// account for shit like ::ffff:127.0.0.1
-		return Config.trustedproxies.some(f => IPTools.checkPattern(f, ip));
+		return ip === '::ffff:127.0.0.1' || Config.trustedproxies.some(f => IPTools.checkPattern(f, ip));
 	}
+	_ip = '';
 	getIp() {
+		if (this._ip) return this._ip;
 		const ip = this.request.socket.remoteAddress || "";
 		let forwarded = this.request.headers['x-forwarded-for'] || '';
 		if (!Array.isArray(forwarded)) forwarded = forwarded.split(',');
 		const notProxy = forwarded.filter(f => !this.isTrustedProxy(f));
 		if (notProxy.length !== forwarded.length) {
-			return notProxy.pop() || ip;
+			this._ip = notProxy.pop() || ip;
+			return this._ip;
 		}
-		return ip || '';
+		this._ip = ip || '';
+		return this._ip;
 	}
 	setHeader(name: string, value: string | string[]) {
 		this.response.setHeader(name, value);

@@ -71,7 +71,7 @@
 			$.get('/api/oauth/api/getassertion', {
 				token: params.get('token'),
 				client_id: params.get('client_id'),
-				challenge: params.get('challenge'),
+				challenge: params.get('challenge') || params.get('challstr'),
 			}, safeJSON(function (data) {
 				if (data.success === false) {
 					params.delete('token');
