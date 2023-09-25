@@ -879,7 +879,6 @@ function toId() {
 			// fortunate, because form serialization is a HUGE MESS in older browsers
 			var elements = form.querySelectorAll('input[name], select[name], textarea[name], keygen[name], button[value]');
 			var out = [];
-			window.elements = elements;
 			for (var i = 0; i < elements.length; i++) {
 				var element = elements[i];
 				if ($(element).attr('type') === 'submit') continue;
@@ -889,7 +888,6 @@ function toId() {
 					out.push([element.name, element.value]);
 				}
 			}
-			window.out = out;
 			return out;
 		},
 		submitSend: function (e) {

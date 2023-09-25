@@ -924,7 +924,7 @@ export class BattleLog {
 						'value', getAttrib('value') || "gen9randombattle",
 						'name', getAttrib('name') || '',
 					],
-				}
+				};
 			} else if (tagName === 'psicon') {
 				// <psicon> is a custom element which supports a set of mutually incompatible attributes:
 				// <psicon pokemon> and <psicon item>
