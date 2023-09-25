@@ -654,6 +654,22 @@ export const actions: {[k: string]: QueryHandler} = {
 		await tables.oauthTokens.deleteAll()`WHERE client = ${client.id} and owner = ${this.user.id}`;
 		return {success: true};
 	},
+
+	async getteams(params) {
+		if (!this.user.loggedIn || this.user.id === 'guest') {
+			return {teams: []}; // don't wanna nag people with popups if they aren't logged in
+		}
+		let teams = [];
+		try {
+			teams = await tables.pgdb.query(
+				'SELECT teamid, team, format, title as name FROM teams WHERE ownerid = $1', [this.user.id]
+			) ?? [];
+		} catch (e) {
+			Server.crashlog(e, 'a teams database query', params);
+			throw new ActionError('The server could not load your teams. Please try again later.');
+		}
+		return {teams};
+	},
 };
 
 if (Config.actions) {

@@ -155,3 +155,8 @@ exports.standings = {
 	"30": "Permaban",
 	"100": "Disabled",
 };
+
+/**
+ * @type {import('pg').PoolConfig | null}
+ */
+exports.postgres = null;

@@ -1,7 +1,7 @@
 /**
  * Login server database tables
  */
-import {Database, DatabaseTable} from './database';
+import {Database, DatabaseTable, PGDatabase} from './database';
 import {Config} from './config-loader';
 
 import type {LadderEntry} from './ladder';
@@ -9,6 +9,7 @@ import type {ReplayData} from './replays';
 
 // direct access
 export const psdb = new Database(Config.mysql);
+export const pgdb = new PGDatabase(Config.postgres);
 export const replaysDB = Config.replaysdb ? new Database(Config.replaysdb!) : psdb;
 export const ladderDB = Config.ladderdb ? new Database(Config.ladderdb!) : psdb;
 
