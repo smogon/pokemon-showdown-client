@@ -759,6 +759,7 @@ export class BattleLog {
 			username: 0,
 			spotify: 0,
 			youtube: 0,
+			formatselect: 0,
 			twitch: 0,
 		});
 
@@ -780,6 +781,7 @@ export class BattleLog {
 			'psicon::pokemon': 0,
 			'psicon::item': 0,
 			'psicon::type': 0,
+			'selectformat::type': 0,
 			'psicon::category': 0,
 			'username::name': 0,
 			'form::data-submitsend': 0,
@@ -913,6 +915,16 @@ export class BattleLog {
 						'frameborder', '0', 'allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture', 'allowfullscreen', 'allowfullscreen',
 					],
 				};
+			} else if (tagName === 'formatselect') {
+				return {
+					tagName: 'button',
+					attribs: [
+						'type', 'selectformat',
+						'class', "select formatselect",
+						'value', getAttrib('value') || "gen9randombattle",
+						'name', getAttrib('name') || '',
+					],
+				}
 			} else if (tagName === 'psicon') {
 				// <psicon> is a custom element which supports a set of mutually incompatible attributes:
 				// <psicon pokemon> and <psicon item>
