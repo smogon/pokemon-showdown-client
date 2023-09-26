@@ -877,10 +877,11 @@ function toId() {
 		serializeForm: function (form, checkboxOnOff) {
 			// querySelector dates back to IE8 so we can use it
 			// fortunate, because form serialization is a HUGE MESS in older browsers
-			var elements = form.querySelectorAll('input[name], select[name], textarea[name], keygen[name]');
+			var elements = form.querySelectorAll('input[name], select[name], textarea[name], keygen[name], button[value]');
 			var out = [];
 			for (var i = 0; i < elements.length; i++) {
 				var element = elements[i];
+				if ($(element).attr('type') === 'submit') continue;
 				if (element.type === 'checkbox' && !element.value && checkboxOnOff) {
 					out.push([element.name, element.checked ? 'on' : 'off']);
 				} else if (!['checkbox', 'radio'].includes(element.type) || element.checked) {
@@ -2113,12 +2114,15 @@ function toId() {
 		},
 		dispatchClickButton: function (e) {
 			var target = e.currentTarget;
-			if (target.name) {
+			var type = $(target).attr('type');
+			if (type === 'submit') type = null;
+			if (target.name || type) {
 				app.dismissingSource = app.dismissPopups();
 				app.dispatchingButton = target;
 				e.preventDefault();
 				e.stopImmediatePropagation();
-				this[target.name](target.value, target);
+				if (target.name && this[target.name]) this[target.name](target.value, target);
+				if (type && this[type]) this[type](target.value, target);
 				delete app.dismissingSource;
 				delete app.dispatchingButton;
 			}
@@ -2144,6 +2148,15 @@ function toId() {
 		 */
 		receive: function (data) {
 			//
+		},
+
+		/**
+		 * Used for <formatselect>, does format popup and caches value in button value
+		 */
+		selectformat: function (value, target) {
+			app.addPopup(FormatPopup, {format: 'gen9randombattle', sourceEl: target, selectType: 'watch', onselect: function (newFormat) {
+				target.value = newFormat;
+			}});
 		},
 
 		// layout
