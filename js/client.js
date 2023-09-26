@@ -1256,6 +1256,9 @@ function toId() {
 			var columnChanged = false;
 
 			window.NonBattleGames = {rps: 'Rock Paper Scissors'};
+			for (var i = 3; i <= 9; i = i + 2) {
+				window.NonBattleGames['bestof' + i] = 'Best-of-' + i;
+			}
 			window.BattleFormats = {};
 			for (var j = 1; j < formatsList.length; j++) {
 				if (isSection) {
