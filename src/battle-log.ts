@@ -760,6 +760,7 @@ export class BattleLog {
 			spotify: 0,
 			youtube: 0,
 			formatselect: 0,
+			copytext: 0,
 			twitch: 0,
 		});
 
@@ -925,6 +926,16 @@ export class BattleLog {
 						'name', getAttrib('name') || '',
 					],
 				};
+			} else if (tagName === 'copytext') {
+				return {
+					tagName: 'button',
+					attribs: [
+						'type', getAttrib('type'),
+						'class', getAttrib('class') || 'button',
+						'value', getAttrib('value'),
+						'name', 'copyText',
+					],
+				}
 			} else if (tagName === 'psicon') {
 				// <psicon> is a custom element which supports a set of mutually incompatible attributes:
 				// <psicon pokemon> and <psicon item>
