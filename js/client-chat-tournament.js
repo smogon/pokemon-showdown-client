@@ -477,7 +477,7 @@
 					break;
 
 				case 'end':
-					var endData = JSON.parse(data[0]);
+					var endData = JSON.parse(data.join('|'));
 
 					var $bracket = this.generateBracket(endData.bracketData);
 					if ($bracket) {
