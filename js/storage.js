@@ -715,7 +715,7 @@ Storage.unpackLine = function (line) {
 	var format = bracketIndex > 0 ? line.slice((leftBracketIndex ? leftBracketIndex + 1 : 0), isBox ? bracketIndex - 4 : bracketIndex) : 'gen9';
 	if (format && format.slice(0, 3) !== 'gen') format = 'gen6' + format;
 	return {
-		teamid: leftBracketIndex > 0 ? line.slice(0, leftBracketIndex) : undefined,
+		teamid: leftBracketIndex > 0 ? Number(line.slice(0, leftBracketIndex)) : undefined,
 		name: line.slice(slashIndex + 1, pipeIndex),
 		format: format,
 		gen: parseInt(format[3], 10) || 6,
