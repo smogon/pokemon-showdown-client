@@ -656,6 +656,7 @@ export const actions: {[k: string]: QueryHandler} = {
 	},
 
 	async getteams(params) {
+		this.verifyCrossDomainRequest();
 		if (!this.user.loggedIn || this.user.id === 'guest') {
 			return {teams: []}; // don't wanna nag people with popups if they aren't logged in
 		}
@@ -668,7 +669,41 @@ export const actions: {[k: string]: QueryHandler} = {
 			Server.crashlog(e, 'a teams database query', params);
 			throw new ActionError('The server could not load your teams. Please try again later.');
 		}
+		for (const t of teams) {
+			const mons = [];
+			const sets = t.team.split(']');
+			for (const s of sets) {
+				const parts = s.split('|');
+				// defer to species if exists, otherwise name
+				mons.push(parts[1] || parts[0]);
+			}
+			// feed it only the species names, that way we can render it in teambuilder
+			// and fetch the team later
+			t.team = mons.map(species => `${species}|||||||||||`).join(']');
+		}
 		return {teams};
+	},
+	async getteam(params) {
+		if (!this.user.loggedIn || this.user.id === 'guest') {
+			throw new ActionError("Access denied");
+		}
+		let {teamid} = params;
+		teamid = toID(teamid);
+		if (!teamid) {
+			throw new ActionError("Invalid team ID");
+		}
+		try {
+			const data = await tables.pgdb.query(
+				`SELECT ownerid, team, private as privacy FROM teams WHERE teamid = $1`, [teamid]
+			);
+			if (!data || !data.length || data[0].ownerid !== this.user.id) {
+				return {team: null};
+			}
+			return data[0];
+		} catch (e) {
+			Server.crashlog(e, 'a teams database request', params);
+			throw new ActionError("Failed to fetch team. Please try again later.");
+		}
 	},
 };
 
