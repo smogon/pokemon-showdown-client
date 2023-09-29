@@ -555,7 +555,12 @@ function toId() {
 			});
 
 			this.on('loggedin', function () {
-				Storage.loadRemoteTeams();
+				Storage.loadRemoteTeams(function () {
+					if (app.rooms.teambuilder) {
+						// if they have it open, be sure to update so it doesn't show 'no teams'
+						app.rooms.teambuilder.update();
+					}
+				});
 			});
 
 			this.on('response:savereplay', this.uploadReplay, this);

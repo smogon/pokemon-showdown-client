@@ -585,7 +585,7 @@ Storage.loadTeams = function () {
 	} catch (e) {}
 };
 
-Storage.loadRemoteTeams = function () {
+Storage.loadRemoteTeams = function (after) {
 	$.get(app.user.getActionPHP(), {act: 'getteams'}, Storage.safeJSON(function (data) {
 		if (data.actionerror) {
 			return app.addPopupMessage('Error loading uploaded teams: ' + data.actionerror);
@@ -615,6 +615,7 @@ Storage.loadRemoteTeams = function () {
 				Storage.teams.push(team);
 			}
 		}
+		if (typeof after === 'function') after();
 	}));
 };
 
