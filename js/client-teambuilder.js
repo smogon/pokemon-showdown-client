@@ -136,6 +136,10 @@
 		update: function () {
 			teams = Storage.teams;
 			if (this.curTeam) {
+				if (this.curTeam.loaded === false || (this.curTeam.teamid && !this.curTeam.loaded)) {
+					this.loadTeam();
+					return this.updateTeamView();
+				}
 				this.ignoreEVLimits = (this.curTeam.gen < 3 ||
 					((this.curTeam.format.includes('hackmons') || this.curTeam.format.endsWith('bh')) && this.curTeam.gen !== 6) ||
 					this.curTeam.format.includes('metronomebattle'));
@@ -145,6 +149,20 @@
 				return this.updateTeamView();
 			}
 			return this.updateTeamInterface();
+		},
+
+		loadTeam: function () {
+			if (this.loadingTeam) return false;
+			this.loadingTeam = true;
+			var teambuilder = this;
+			app.loadTeam(this.curTeam, function (team) {
+				window.builderTeam = team;
+				teambuilder.loadingTeam = false;
+				teambuilder.curSetList = Storage.unpackTeam(team.team);
+				Storage.activeSetList = teambuilder.curSetList;
+				teambuilder.curTeam.team = Storage.packTeam(teambuilder.curSetList);
+				teambuilder.updateTeamView();
+			});
 		},
 
 		/*********************************************************
@@ -832,6 +850,20 @@
 			this.exportMode = true;
 			this.update();
 		},
+		psExport: function () {
+			var cmd = '/teams ';
+			cmd += this.curTeam.teamid ? 'update' : 'save';
+			// teamName, formatid, rawPrivacy, rawTeam
+			var buf = [];
+			if (this.curTeam.teamid) buf.push(this.curTeam.teamid);
+			buf.push(this.curTeam.name);
+			buf.push(this.curTeam.format);
+			buf.push(this.curTeam.privacy ? 1 : 0);
+			buf.push(Storage.exportTeam(this.curSetList, this.curTeam.gen, false));
+			app.send(cmd + " " + buf.join(', '));
+			this.exported = true;
+			$('button[name=psExport]').addClass('disabled');
+		},
 		pokepasteExport: function (type) {
 			var team = Storage.exportTeam(this.curSetList, this.curTeam.gen, type === 'openteamsheet');
 			if (!team) return app.addPopupMessage("Add a Pokémon to your team before uploading it!");
@@ -950,6 +982,8 @@
 			if (edited) {
 				Storage.saveTeam(team);
 				app.user.trigger('saveteams');
+				this.exported = false;
+				$('button[name=psExport]').removeClass('disabled');
 			}
 
 			// We're going to try to animate the team settling into its new position
@@ -1134,6 +1168,7 @@
 					if (/^gen\d+$/.test(formatName)) return true;
 					return false;
 				};
+				if (this.loadingTeam) buf += '<div style="message-error">Downloading team from server...</strong><br />';
 				if (exports.BattleFormats) {
 					buf += '<li class="format-select">';
 					buf += '<label class="label">Format:</label><button class="select formatselect teambuilderformatselect" name="format" value="' + this.curTeam.format + '">' + (isGenericFormat(this.curTeam.format) ? '<em>Select a format</em>' : BattleLog.escapeFormat(this.curTeam.format)) + '</button>';
@@ -1164,6 +1199,8 @@
 				buf += '<input type="hidden" name="paste" id="pasteData">';
 				buf += '<input type="hidden" name="author" id="pasteAuthor">';
 				buf += '<input type="hidden" name="notes" id="pasteNotes">';
+				buf += '<button name="psExport" type="submit" class="button exportbutton"> <i class="fa fa-upload"></i> Upload to Showdown database (saves across devices)</button>';
+				buf += '<br />';
 				buf += '<button name="pokepasteExport" type="submit" class="button exportbutton"><i class="fa fa-upload"></i> Upload to PokePaste</button></form>';
 				if (this.curTeam.format.includes('vgc')) {
 					buf += '<button name="pokepasteExport" value="openteamsheet" type="submit" class="button exportbutton"><i class="fa fa-upload"></i> Upload to PokePaste (Open Team Sheet)</button></form>';
@@ -1451,6 +1488,9 @@
 			}
 		},
 		validate: function () {
+			if (!this.curTeam.loaded) {
+				return app.loadTeam(this.curTeam, this.validate.bind(this));
+			}
 			var format = this.curTeam.format || 'gen7anythinggoes';
 
 			if (!this.curSetList.length) {
@@ -1461,8 +1501,9 @@
 			if (window.BattleFormats && BattleFormats[format] && BattleFormats[format].battleFormat) {
 				format = BattleFormats[format].battleFormat;
 			}
-			app.sendTeam(this.curTeam);
-			app.send('/vtm ' + format);
+			app.sendTeam(this.curTeam, function () {
+				app.send('/vtm ' + format);
+			});
 		},
 		teamNameChange: function (e) {
 			var name = ($.trim(e.currentTarget.value) || 'Untitled ' + (this.curTeamLoc + 1));

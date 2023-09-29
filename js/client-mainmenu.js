@@ -916,10 +916,14 @@
 					app.addPopupMessage("You need to go into the Teambuilder and build a team for this format.");
 					return;
 				}
-				app.sendTeam(team);
+				app.sendTeam(team, function () {
+					target.disabled = true;
+					app.send(privacy + '/accept ' + userid);
+				});
+			} else {
+				target.disabled = true;
+				app.send(privacy + '/accept ' + userid);
 			}
-			target.disabled = true;
-			app.send(privacy + '/accept ' + userid);
 		},
 		rejectChallenge: function (i, target) {
 			var userid = $(target).closest('.pm-window').data('userid');
@@ -949,8 +953,9 @@
 			buf += '<p class="buttonbar"><button name="cancelChallenge">Cancel</button></p></form>';
 
 			$(target).closest('.challenge').html(buf);
-			app.sendTeam(team);
-			app.send(privacy + '/challenge ' + userid + ', ' + format);
+			app.sendTeam(team, function () {
+				app.send(privacy + '/challenge ' + userid + ', ' + format);
+			});
 		},
 		cancelChallenge: function (i, target) {
 			var userid = $(target).closest('.pm-window').data('userid');
@@ -1090,11 +1095,12 @@
 			$searchForm.find('button.big').html('<strong><i class="fa fa-refresh fa-spin"></i> Connecting...</strong>').addClass('disabled');
 			$searchForm.append('<p class="cancel buttonbar"><button name="cancelSearch">Cancel</button></p>');
 
-			app.sendTeam(team);
 			var self = this;
-			this.searchDelay = setTimeout(function () {
-				app.send(self.adjustPrivacy($privacyCheckbox.is(':checked')) + '/search ' + format);
-			}, 3000);
+			app.sendTeam(team, function () {
+				self.searchDelay = setTimeout(function () {
+					app.send(self.adjustPrivacy($privacyCheckbox.is(':checked')) + '/search ' + format);
+				}, 3000);
+			});
 		},
 		cancelSearch: function () {
 			clearTimeout(this.searchDelay);
@@ -1379,6 +1385,7 @@
 							count++;
 							if (count % bufBoundary === 0 && count != 0 && curBuf < 4) curBuf++;
 						}
+						console.log(teamFormat);
 						if (!isNoFolder) {
 							for (var i = 0; i < teams.length; i++) {
 								if ((!teams[i].format && !teamFormat) || teams[i].format === teamFormat) {

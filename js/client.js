@@ -258,6 +258,7 @@ function toId() {
 			} else if (assertion.indexOf('\n') >= 0 || !assertion) {
 				app.addPopupMessage("Something is interfering with our connection to the login server.");
 			} else {
+				app.trigger('loggedin');
 				app.send('/trn ' + name + ',0,' + assertion);
 			}
 		},
@@ -551,6 +552,10 @@ function toId() {
 
 			this.user.on('login:authrequired', function (name, special) {
 				self.addPopup(LoginPasswordPopup, {username: name, special: special});
+			});
+
+			this.on('loggedin', function () {
+				Storage.loadRemoteTeams();
 			});
 
 			this.on('response:savereplay', this.uploadReplay, this);
@@ -909,16 +914,50 @@ function toId() {
 				e.stopPropagation();
 			}
 		},
+		loadingTeam: null,
+		loadingTeamQueue: [],
+		loadTeam: function (team, callback) {
+			if (!team.teamid) return;
+			if (!this.loadingTeam) {
+				var app = this;
+				this.loadingTeam = true;
+				$.get(app.user.getActionPHP(), {
+					act: 'getteam',
+					teamid: team.teamid,
+				}, Storage.safeJSON(function (data) {
+					app.loadingTeam = false;
+					if (data.actionerror) {
+						return app.addPopupMessage("Error loading team: " + data.actionerror);
+					}
+					team.privacy = data.privacy;
+					team.team = data.team;
+					team.loaded = true;
+					callback(team);
+					var entry = app.loadingTeamQueue.shift();
+					if (entry) {
+						app.loadTeam(entry[0], entry[1]);
+					}
+				}));
+			} else {
+				this.loadingTeamQueue.push([team, callback]);
+			}
+		},
 		/**
 		 * Send team to sim server
 		 */
-		sendTeam: function (team) {
+		sendTeam: function (team, callback) {
+			if (team.teamid && !team.loaded) {
+				return this.loadTeam(team, function (team) {
+					app.sendTeam(team, callback);
+				});
+			}
 			var packedTeam = '' + Storage.getPackedTeam(team);
 			if (packedTeam.length > 25 * 1024 - 6) {
 				alert("Your team is over 25 KB. Please use a smaller team.");
 				return;
 			}
 			this.send('/utm ' + packedTeam);
+			callback();
 		},
 		/**
 		 * Receive from sim server
