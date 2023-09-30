@@ -863,6 +863,7 @@
 			app.send(cmd + " " + buf.join(', '));
 			this.exported = true;
 			$('button[name=psExport]').addClass('disabled');
+			$('button[name=psExport]')[0].disabled = true;
 		},
 		pokepasteExport: function (type) {
 			var team = Storage.exportTeam(this.curSetList, this.curTeam.gen, type === 'openteamsheet');
@@ -984,6 +985,7 @@
 				app.user.trigger('saveteams');
 				this.exported = false;
 				$('button[name=psExport]').removeClass('disabled');
+				$('button[name=psExport]')[0].disabled = false;
 			}
 
 			// We're going to try to animate the team settling into its new position
