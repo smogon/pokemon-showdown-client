@@ -478,17 +478,21 @@
 				}
 			}
 
-			buf += '</ul>';
+			buf += '</ul><p>';
 			if (atLeastOne) {
-				buf += '<p><button name="new" value="team" class="button"><i class="fa fa-plus-circle"></i> ' + newTeamButtonText + '</button> <button name="new" value="box" class="button"><i class="fa fa-archive"></i> New Box</button></p>';
+				buf += '<button name="new" value="team" class="button"><i class="fa fa-plus-circle"></i> ' + newTeamButtonText + '</button> <button name="new" value="box" class="button"><i class="fa fa-archive"></i> New Box</button> ';
 			}
+			buf += '<button class="button" name="send" value="/teams">View teams uploaded to server</button>';
+			buf += '</p>';
 
 			if (window.nodewebkit) {
 				buf += '<button name="revealFolder" class="button"><i class="fa fa-folder-open"></i> Reveal teams folder</button> <button name="reloadTeamsFolder" class="button"><i class="fa fa-refresh"></i> Reload teams files</button> <button name="backup" class="button"><i class="fa fa-upload"></i> Backup/Restore all teams</button>';
 			} else if (this.curFolder) {
 				buf += '<button name="backup" class="button"><i class="fa fa-upload"></i> Backup all teams from this folder</button>';
 			} else if (atLeastOne) {
-				buf += '<p><strong>Clearing your cookies (specifically, <code>localStorage</code>) will delete your teams.</strong> <span class="storage-warning">Browsers sometimes randomly clear cookies - you should back up your teams or use the desktop client if you want to make sure you don\'t lose them.</span></p>';
+				buf += '<p><strong>Clearing your cookies (specifically, <code>localStorage</code>) will delete your teams.</strong> ';
+				buf += '<span class="storage-warning">Browsers sometimes randomly clear cookies - you should upload your teams to the Showdown database ';
+				buf += 'or make a backup yourself if you want to make sure you don\'t lose them.</span></p>';
 				buf += '<button name="backup" class="button"><i class="fa fa-upload"></i> Backup/Restore all teams</button>';
 				buf += '<p>If you want to clear your cookies or <code>localStorage</code>, you can use the Backup/Restore feature to save your teams as text first.</p>';
 				var self = this;
@@ -866,6 +870,7 @@
 			this.exported = true;
 			$('button[name=psExport]').addClass('disabled');
 			$('button[name=psExport]')[0].disabled = true;
+			$('label[name=editMessage]').hide();
 		},
 		pokepasteExport: function (type) {
 			var team = Storage.exportTeam(this.curSetList, this.curTeam.gen, type === 'openteamsheet');
@@ -988,6 +993,7 @@
 				this.exported = false;
 				$('button[name=psExport]').removeClass('disabled');
 				$('button[name=psExport]')[0].disabled = false;
+				$('label[name=editMessage]').show();
 			}
 
 			// We're going to try to animate the team settling into its new position
@@ -1173,6 +1179,8 @@
 					return false;
 				};
 				if (this.loadingTeam) buf += '<div style="message-error">Downloading team from server...</strong><br />';
+				buf += '<label name="editMessage" style="display: none">'
+				buf += 'Remember to click the upload button below to sync your changes to the server!</label><br />';
 				if (exports.BattleFormats) {
 					buf += '<li class="format-select">';
 					buf += '<label class="label">Format:</label><button class="select formatselect teambuilderformatselect" name="format" value="' + this.curTeam.format + '">' + (isGenericFormat(this.curTeam.format) ? '<em>Select a format</em>' : BattleLog.escapeFormat(this.curTeam.format)) + '</button>';
