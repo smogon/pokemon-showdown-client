@@ -859,7 +859,9 @@
 			buf.push(this.curTeam.name);
 			buf.push(this.curTeam.format);
 			buf.push(this.curTeam.privacy ? 1 : 0);
-			buf.push(Storage.exportTeam(this.curSetList, this.curTeam.gen, false));
+			var team = Storage.exportTeam(this.curSetList, this.curTeam.gen, false);
+			if (!team) return app.addPopupMessage("Add a Pokémon to your team before uploading it!");
+			buf.push(team);
 			app.send(cmd + " " + buf.join(', '));
 			this.exported = true;
 			$('button[name=psExport]').addClass('disabled');
