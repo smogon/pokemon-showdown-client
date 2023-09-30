@@ -606,8 +606,8 @@ class BattleTooltips {
 				if (!movePower && move.id.startsWith('hiddenpower')) {
 					movePower = this.battle.dex.moves.get('hiddenpower').zMove!.basePower;
 				}
-				if (move.id === 'weatherball') {
-					switch (this.battle.climateWeather) { // incomplete. add other weathers
+				if (move.id === 'weatherball') { // updated
+					switch (this.battle.climateWeather) {
 					case 'sunnyday':
 					case 'desolateland':
 						zMove = this.battle.dex.moves.get(BattleTooltips.zMoveTable['Fire']);
@@ -626,8 +626,50 @@ class BattleTooltips {
 					case 'foghorn':
 						zMove = this.battle.dex.moves.get(BattleTooltips.zMoveTable['Normal']);
 						break;
+					}
+					switch (this.battle.irritantWeather) {
 					case 'sandstorm':
 						zMove = this.battle.dex.moves.get(BattleTooltips.zMoveTable['Rock']);
+						break;
+					case 'duststorm':
+						zMove = this.battle.dex.moves.get(BattleTooltips.zMoveTable['Ground']);
+						break;
+					case 'pollinate':
+						zMove = this.battle.dex.moves.get(BattleTooltips.zMoveTable['Grass']);
+						break;
+					case 'swarmsignal':
+						zMove = this.battle.dex.moves.get(BattleTooltips.zMoveTable['Bug']);
+						break;
+					case 'smogspread':
+						zMove = this.battle.dex.moves.get(BattleTooltips.zMoveTable['Poison']);
+						break;
+					case 'sprinkle':
+						zMove = this.battle.dex.moves.get(BattleTooltips.zMoveTable['Fairy']);
+						break;
+					}
+					switch (this.battle.energyWeather) {
+					case 'auraprojection':
+						zMove = this.battle.dex.moves.get(BattleTooltips.zMoveTable['Fighting']);
+						break;
+					case 'haunt':
+						zMove = this.battle.dex.moves.get(BattleTooltips.zMoveTable['Ghost']);
+						break;
+					case 'cosmicrays':
+						zMove = this.battle.dex.moves.get(BattleTooltips.zMoveTable['Psychic']);
+						break;
+					case 'dragonforce':
+						zMove = this.battle.dex.moves.get(BattleTooltips.zMoveTable['Dragon']);
+						break;
+					case 'supercell':
+						zMove = this.battle.dex.moves.get(BattleTooltips.zMoveTable['Electric']);
+						break;
+					case 'magnetize':
+						zMove = this.battle.dex.moves.get(BattleTooltips.zMoveTable['Steel']);
+						break;
+					}
+					switch (this.battle.clearingWeather) {
+					case 'strongwinds':
+						zMove = this.battle.dex.moves.get(BattleTooltips.zMoveTable['Flying']);
 						break;
 					}
 				}
@@ -1210,8 +1252,8 @@ class BattleTooltips {
 				}
 				if (climateWeather === 'hail') {
 					if (this.pokemonHasType(pokemon, 'Ice')) {
-						stats.def = Math.floor(stats.def * 1.15);
-						stats.spd = Math.floor(stats.spd * 1.15);
+						stats.def = Math.floor(stats.def * 1.25);
+						stats.spd = Math.floor(stats.spd * 1.25);
 					}
 				}
 				if (climateWeather === 'snow') {
@@ -1224,8 +1266,8 @@ class BattleTooltips {
 						speedModifiers.push(2);
 					}
 					if (ability === 'glacialarmor') {
-						stats.def = Math.floor(stats.def * 2);
-						stats.spd = Math.floor(stats.spd * 2);
+						stats.def = Math.floor(stats.def * 1.4);
+						stats.spd = Math.floor(stats.spd * 1.4);
 					}
 				}
 				if (climateWeather === 'bloodmoon') {
@@ -1251,6 +1293,8 @@ class BattleTooltips {
 					}
 				}
 			}
+		}
+		if (irritantWeather) {
 			if (item !== 'safetygoggles') {
 				if (irritantWeather === 'sandstorm') {
 					if (this.battle.gen >= 4 && this.pokemonHasType(pokemon, 'Rock')) {
@@ -1269,7 +1313,8 @@ class BattleTooltips {
 				}
 				if (irritantWeather === 'pollinate') {
 					if (!this.pokemonHasType(pokemon, 'Grass') || !this.pokemonHasType(pokemon, 'Bug')) {
-						stats.spa = Math.floor(stats.spa * 0.5);
+						stats.atk = Math.floor(stats.atk * 0.75);
+						stats.spa = Math.floor(stats.spa * 0.75);
 					}
 				}
 				if (irritantWeather === 'swarmsignal') {
@@ -1283,6 +1328,8 @@ class BattleTooltips {
 					}
 				}
 			}
+		}
+		if (energyWeather) {
 			if (item !== 'energynullifier') {
 				if (energyWeather === 'haunt') {
 					if (ability === 'haunting') {
@@ -1312,15 +1359,12 @@ class BattleTooltips {
 					}
 				}
 			}
-			if (energyWeather === 'strongwinds') {
+		}
+		if (clearingWeather) {
+			if (clearingWeather === 'strongwinds') {
 				if (this.pokemonHasType(pokemon, 'Flying')) {
 					stats.spe = Math.floor(stats.spe * 1.25);
 				}
-			}
-		}
-		if (clearingWeather) {
-			if (this.pokemonHasType(pokemon, 'Flying') && clearingWeather === 'strongwinds') {
-				speedModifiers.push(1.25);
 			}
 		}
 		if (ability === 'defeatist' && serverPokemon.hp <= serverPokemon.maxhp / 2) {
@@ -1610,7 +1654,7 @@ class BattleTooltips {
 			if (value.itemModify(0)) moveType = item.naturalGift.type;
 		}
 		// Weather and pseudo-weather type changes.
-		if (move.id === 'weatherball' && value.climateWeatherModify(0)) { // incomplete. include other weathers
+		if (move.id === 'weatherball' && value.climateWeatherModify(0)) { // updated
 			switch (this.battle.climateWeather) {
 			case 'sunnyday':
 			case 'desolateland':
@@ -1635,9 +1679,62 @@ class BattleTooltips {
 				if (item.id === 'utilityumbrella') break;
 				moveType = 'Normal';
 				break;
+			}
+			switch (this.battle.irritantWeather) {
 			case 'sandstorm':
 				if (item.id === 'safetygoggles') break;
 				moveType = 'Rock';
+				break;
+			case 'duststorm':
+				if (item.id === 'safetygoggles') break;
+				moveType = 'Ground';
+				break;
+			case 'pollinate':
+				if (item.id === 'safetygoggles') break;
+				moveType = 'Grass';
+				break;
+			case 'swarmsignal':
+				if (item.id === 'safetygoggles') break;
+				moveType = 'Bug';
+				break;
+			case 'smogspread':
+				if (item.id === 'safetygoggles') break;
+				moveType = 'Poison';
+				break;
+			case 'sprinkle':
+				if (item.id === 'safetygoggles') break;
+				moveType = 'Fairy';
+				break;
+			}
+			switch (this.battle.energyWeather) {
+			case 'auraprojection':
+				if (item.id === 'energynullifier') break;
+				moveType = 'Fighting';
+				break;
+			case 'haunt':
+				if (item.id === 'energynullifier') break;
+				moveType = 'Ghost';
+				break;
+			case 'cosmicrays':
+				if (item.id === 'energynullifier') break;
+				moveType = 'Psychic';
+				break;
+			case 'dragonforce':
+				if (item.id === 'energynullifier') break;
+				moveType = 'Dragon';
+				break;
+			case 'supercell':
+				if (item.id === 'energynullifier') break;
+				moveType = 'Electric';
+				break;
+			case 'magnetize':
+				if (item.id === 'energynullifier') break;
+				moveType = 'Steel';
+				break;
+			}
+			switch (this.battle.clearingWeather) {
+			case 'strongwinds':
+				moveType = 'Flying';
 				break;
 			}
 		}
@@ -1953,9 +2050,18 @@ class BattleTooltips {
 				value.modify(2, 'Wake-Up Slap + Sleep');
 			}
 		}
-		if (move.id === 'weatherball') { // eventually fix this for other weathers
+		if (move.id === 'weatherball') { // updated
 			if (this.battle.climateWeather !== 'deltastream') {
 				value.climateWeatherModify(2);
+			}
+			if (this.battle.irritantWeather) {
+				value.irritantWeatherModify(2);
+			}
+			if (this.battle.energyWeather) {
+				value.energyWeatherModify(2);
+			}
+			if (this.battle.clearingWeather ) {
+				value.clearingWeatherModify(2);
 			}
 		}
 		if (move.id === 'hydrosteam') {
@@ -2063,7 +2169,7 @@ class BattleTooltips {
 			value.abilityModify(1.5, "Flare Boost");
 		}
 		if (move.flags['punch']) {
-			value.abilityModify(1.2, 'Iron Fist');
+			value.abilityModify(1.3, 'Iron Fist');
 		}
 		if (move.flags['pulse']) {
 			value.abilityModify(1.5, "Mega Launcher");
