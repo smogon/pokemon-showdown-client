@@ -1179,7 +1179,7 @@
 					return false;
 				};
 				if (this.loadingTeam) buf += '<div style="message-error">Downloading team from server...</strong><br />';
-				buf += '<label name="editMessage" style="display: none">'
+				buf += '<label name="editMessage" style="display: none">';
 				buf += 'Remember to click the upload button below to sync your changes to the server!</label><br />';
 				if (exports.BattleFormats) {
 					buf += '<li class="format-select">';
