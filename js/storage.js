@@ -612,7 +612,7 @@ Storage.loadRemoteTeams = function (after) {
 					return {species: mon};
 				});
 				team.team = Storage.packTeam(mons);
-				Storage.teams.push(team);
+				Storage.teams.unshift(team);
 			}
 		}
 		if (typeof after === 'function') after();
