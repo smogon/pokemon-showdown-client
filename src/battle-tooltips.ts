@@ -1680,6 +1680,8 @@ class BattleTooltips {
 				moveType = 'Normal';
 				break;
 			}
+		}
+		if (move.id === 'weatherball' && value.irritantWeatherModify(0)) {
 			switch (this.battle.irritantWeather) {
 			case 'sandstorm':
 				if (item.id === 'safetygoggles') break;
@@ -1706,6 +1708,8 @@ class BattleTooltips {
 				moveType = 'Fairy';
 				break;
 			}
+		}
+		if (move.id === 'weatherball' && value.energyWeatherModify(0)) {
 			switch (this.battle.energyWeather) {
 			case 'auraprojection':
 				if (item.id === 'energynullifier') break;
@@ -1732,6 +1736,8 @@ class BattleTooltips {
 				moveType = 'Steel';
 				break;
 			}
+		}
+		if (move.id === 'weatherball' && value.clearingWeatherModify(0)) {
 			switch (this.battle.clearingWeather) {
 			case 'strongwinds':
 				moveType = 'Flying';
@@ -2051,16 +2057,13 @@ class BattleTooltips {
 			}
 		}
 		if (move.id === 'weatherball') { // updated
-			if (this.battle.climateWeather !== 'deltastream') {
+			if (this.battle.climateWeather) {
 				value.climateWeatherModify(2);
-			}
-			if (this.battle.irritantWeather) {
+			} else if (this.battle.irritantWeather) {
 				value.irritantWeatherModify(2);
-			}
-			if (this.battle.energyWeather) {
+			} else if (this.battle.energyWeather) {
 				value.energyWeatherModify(2);
-			}
-			if (this.battle.clearingWeather ) {
+			} else if (this.battle.clearingWeather) {
 				value.clearingWeatherModify(2);
 			}
 		}
