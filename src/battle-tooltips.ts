@@ -1337,10 +1337,6 @@ class BattleTooltips {
 					}
 				}
 				if (energyWeather === 'dragonforce') {
-					if (this.pokemonHasType(pokemon, 'Dragon')) {
-						stats.atk = Math.floor(stats.atk * 1.15);
-						stats.spa = Math.floor(stats.spa * 1.15);
-					}
 				}
 				if (energyWeather === 'supercell') {
 					if (this.pokemonHasType(pokemon, 'Electric')) {
