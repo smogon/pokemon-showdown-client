@@ -1222,7 +1222,7 @@
 				buf += '<input type="hidden" name="author" id="pasteAuthor">';
 				buf += '<input type="hidden" name="notes" id="pasteNotes">';
 				buf += '<button name="psExport" type="submit" class="button exportbutton"> <i class="fa fa-upload"></i> Upload to Showdown database (saves across devices)</button>';
-				var privacy = Storage.prefs('uploadprivacy') ? 'checked' : '';
+				var privacy = (Storage.prefs('uploadprivacy') || typeof Storage.prefs('uploadprivacy') !== 'boolean') ? 'checked' : '';
 				buf += ' <small>(Private:</small> <input type="checkbox" name="teamprivacy" ' + privacy + ' /><small>)</small>';
 				buf += '<br />';
 				buf += '<button name="pokepasteExport" type="submit" class="button exportbutton"><i class="fa fa-upload"></i> Upload to PokePaste</button></form>';
