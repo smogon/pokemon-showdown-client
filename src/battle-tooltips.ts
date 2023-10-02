@@ -1312,7 +1312,7 @@ class BattleTooltips {
 					}
 				}
 				if (irritantWeather === 'pollinate') {
-					if (!this.pokemonHasType(pokemon, 'Grass') || !this.pokemonHasType(pokemon, 'Bug')) {
+					if (!(this.pokemonHasType(pokemon, 'Grass') || this.pokemonHasType(pokemon, 'Bug'))) {
 						stats.atk = Math.floor(stats.atk * 0.75);
 						stats.spa = Math.floor(stats.spa * 0.75);
 					}
