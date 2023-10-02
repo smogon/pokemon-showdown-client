@@ -922,7 +922,7 @@ export class BattleLog {
 					attribs: [
 						'type', 'selectformat',
 						'class', "select formatselect",
-						'value', getAttrib('value') || "gen9randombattle",
+						'value', getAttrib('format') || getAttrib('value') || '',
 						'name', getAttrib('name') || '',
 					],
 				};
