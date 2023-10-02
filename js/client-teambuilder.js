@@ -15,6 +15,9 @@
 				Storage.whenTeamsLoaded(this.update, this);
 			}
 			this.update();
+			if (typeof Storage.prefs('uploadprivacy') !== 'undefined') {
+				this.$('input[name=teamprivacy]').is('checked', Storage.prefs('uploadprivacy'));
+			}
 		},
 		focus: function () {
 			if (this.curTeam) {
@@ -41,6 +44,9 @@
 			'change input.teamnameedit': 'teamNameChange',
 			'click button.formatselect': 'selectFormat',
 			'change input[name=nickname]': 'nicknameChange',
+
+			// misc
+			'click input[name=teamprivacy]': 'privacyChange',
 
 			// details
 			'change .detailsform input': 'detailsChange',
@@ -149,6 +155,10 @@
 				return this.updateTeamView();
 			}
 			return this.updateTeamInterface();
+		},
+
+		privacyChange: function (ev) {
+			Storage.prefs('uploadprivacy', ev.currentTarget.checked);
 		},
 
 		loadTeam: function () {
@@ -862,7 +872,7 @@
 			if (this.curTeam.teamid) buf.push(this.curTeam.teamid);
 			buf.push(this.curTeam.name);
 			buf.push(this.curTeam.format);
-			buf.push(this.curTeam.privacy ? 1 : 0);
+			buf.push(this.$('input[name=teamprivacy]').get(0).checked ? 1 : 0);
 			var team = Storage.exportTeam(this.curSetList, this.curTeam.gen, false);
 			if (!team) return app.addPopupMessage("Add a Pokémon to your team before uploading it!");
 			buf.push(team);
@@ -1212,6 +1222,8 @@
 				buf += '<input type="hidden" name="author" id="pasteAuthor">';
 				buf += '<input type="hidden" name="notes" id="pasteNotes">';
 				buf += '<button name="psExport" type="submit" class="button exportbutton"> <i class="fa fa-upload"></i> Upload to Showdown database (saves across devices)</button>';
+				var privacy = Storage.prefs('uploadprivacy') ? 'checked' : '';
+				buf += ' <small>(Private:</small> <input type="checkbox" name="teamprivacy" ' + privacy + ' /><small>)</small>';
 				buf += '<br />';
 				buf += '<button name="pokepasteExport" type="submit" class="button exportbutton"><i class="fa fa-upload"></i> Upload to PokePaste</button></form>';
 				if (this.curTeam.format.includes('vgc')) {
