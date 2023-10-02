@@ -952,7 +952,7 @@ function toId() {
 		 * Send team to sim server
 		 */
 		sendTeam: function (team, callback) {
-			if (team.teamid && !team.loaded) {
+			if (team && team.teamid && !team.loaded) {
 				return this.loadTeam(team, function (team) {
 					app.sendTeam(team, callback);
 				});
