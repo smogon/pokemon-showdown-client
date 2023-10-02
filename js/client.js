@@ -2154,7 +2154,8 @@ function toId() {
 		 * Used for <formatselect>, does format popup and caches value in button value
 		 */
 		selectformat: function (value, target) {
-			app.addPopup(FormatPopup, {format: 'gen9randombattle', sourceEl: target, selectType: 'watch', onselect: function (newFormat) {
+			var format = value || 'gen9randombattle';
+			app.addPopup(FormatPopup, {format: format, sourceEl: target, selectType: 'watch', onselect: function (newFormat) {
 				target.value = newFormat;
 			}});
 		},
