@@ -1500,7 +1500,7 @@
 			}
 		},
 		validate: function () {
-			if (!this.curTeam.loaded) {
+			if (this.curTeam.teamid && !this.curTeam.loaded) {
 				return app.loadTeam(this.curTeam, this.validate.bind(this));
 			}
 			var format = this.curTeam.format || 'gen7anythinggoes';
