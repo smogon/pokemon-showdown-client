@@ -27,6 +27,9 @@
 				if (this.curTeam.format.includes('bdsp')) {
 					this.curTeam.dex = Dex.mod('gen8bdsp');
 				}
+				if (this.curTeam.format.includes('swse')) {
+					this.curTeam.dex = Dex.mod('swse');
+				}
 				Storage.activeSetList = this.curSetList;
 			}
 		},
@@ -696,6 +699,9 @@
 			if (this.curTeam.format.includes('bdsp')) {
 				this.curTeam.dex = Dex.mod('gen8bdsp');
 			}
+			if (this.curTeam.format.includes('swse')) {
+				this.curTeam.dex = Dex.mod('swse');
+			}
 			Storage.activeSetList = this.curSetList = Storage.unpackTeam(this.curTeam.team);
 			this.curTeamIndex = i;
 			this.update();
@@ -1178,6 +1184,7 @@
 			var species = this.curTeam.dex.species.get(set.species);
 			var isLetsGo = this.curTeam.format.includes('letsgo');
 			var isBDSP = this.curTeam.format.includes('bdsp');
+			var isSWSE = this.curTeam.format.includes('swse');
 			var isNatDex = this.curTeam.format.includes('nationaldex') || this.curTeam.format.includes('natdex');
 			var buf = '<li value="' + i + '">';
 			if (!set.species) {
@@ -1490,6 +1497,9 @@
 			}
 			if (this.curTeam.format.includes('bdsp')) {
 				this.curTeam.dex = Dex.mod('gen8bdsp');
+			}
+			if (this.curTeam.format.includes('swse')) {
+				this.curTeam.dex = Dex.mod('swse');
 			}
 			this.save();
 			if (this.curTeam.gen === 5 && !Dex.loadedSpriteData['bw']) Dex.loadSpriteData('bw');
@@ -2607,6 +2617,7 @@
 			var set = this.curSet;
 			var isLetsGo = this.curTeam.format.includes('letsgo');
 			var isBDSP = this.curTeam.format.includes('bdsp');
+			var isSWSE = this.curTeam.format.includes('swse');
 			var isNatDex = this.curTeam.format.includes('nationaldex') || this.curTeam.format.includes('natdex');
 			var isHackmons = this.curTeam.format.includes('hackmons') || this.curTeam.format.endsWith('bh');
 			var species = this.curTeam.dex.species.get(set.species);
@@ -2707,6 +2718,7 @@
 			var species = this.curTeam.dex.species.get(set.species);
 			var isLetsGo = this.curTeam.format.includes('letsgo');
 			var isBDSP = this.curTeam.format.includes('bdsp');
+			var isSWSE = this.curTeam.format.includes('swse');
 			var isNatDex = this.curTeam.format.includes('nationaldex') || this.curTeam.format.includes('natdex');
 
 			// level
@@ -3019,6 +3031,7 @@
 				var baseFormat = this.curTeam.format;
 				if (baseFormat.substr(0, 3) === 'gen') baseFormat = baseFormat.substr(4);
 				if (baseFormat.substr(0, 4) === 'bdsp') baseFormat = baseFormat.substr(4);
+				// if (baseFormat.substr(0, 5) === 'swse') baseFormat = baseFormat.substr(4); // incomplete
 				if (baseFormat.substr(0, 8) === 'pokebank') baseFormat = baseFormat.substr(8);
 				if (this.curTeam && this.curTeam.format) {
 					if (baseFormat === 'battlespotsingles' || baseFormat === 'battlespotdoubles' || baseFormat.substr(0, 3) === 'vgc' ||
@@ -3050,6 +3063,7 @@
 				var baseFormat = this.curTeam.format;
 				if (baseFormat.substr(0, 3) === 'gen') baseFormat = baseFormat.substr(4);
 				if (baseFormat.substr(0, 4) === 'bdsp') baseFormat = baseFormat.substr(4);
+				// if (baseFormat.substr(0, 5) === 'swse') baseFormat = baseFormat.substr(4); // incomplete
 				if (baseFormat.substr(0, 8) === 'pokebank') baseFormat = baseFormat.substr(8);
 				if (this.curTeam && this.curTeam.format) {
 					if (baseFormat === 'battlespotsingles' || baseFormat === 'battlespotdoubles' || baseFormat.substr(0, 3) === 'vgc' ||
@@ -3265,6 +3279,7 @@
 				var format = window.BattleFormats && window.BattleFormats[baseFormat];
 				if (baseFormat.substr(0, 3) === 'gen') baseFormat = baseFormat.substr(4);
 				if (baseFormat.substr(0, 4) === 'bdsp') baseFormat = baseFormat.substr(4);
+				// if (baseFormat.substr(0, 5) === 'swse') baseFormat = baseFormat.substr(4); // incomplete
 				if (baseFormat.substr(0, 8) === 'pokebank') baseFormat = baseFormat.substr(8);
 				if (this.curTeam && this.curTeam.format) {
 					if (baseFormat.substr(0, 10) === 'battlespot' && baseFormat.substr(0, 19) !== 'battlespotspecial13' ||
