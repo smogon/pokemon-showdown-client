@@ -1336,8 +1336,8 @@ class BattleTooltips {
 						speedModifiers.push(2);
 					}
 				}
-				if (energyWeather === 'dragonforce') {
-				}
+				/* if (energyWeather === 'dragonforce') {
+				} */
 				if (energyWeather === 'supercell') {
 					if (this.pokemonHasType(pokemon, 'Electric')) {
 						stats.spe = Math.floor(stats.spe * 1.25);
