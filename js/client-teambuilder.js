@@ -1539,6 +1539,11 @@
 				app.addPopupMessage("Names can't contain the character |, since they're used for storing teams.");
 				name = name.replace(/\|/g, '');
 			}
+			if (name.indexOf('[') >= 0 || name.indexOf(']') >= 0) {
+				app.addPopupMessage("Names can't contain the characters [ or ], since they're used for storing team IDs.");
+				name = name.replace(/\[/g, '');
+				name = name.replace(/\]/g, '');
+			}
 			this.curTeam.name = name;
 			e.currentTarget.value = name;
 			this.save();
