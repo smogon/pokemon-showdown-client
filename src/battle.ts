@@ -1625,9 +1625,13 @@ export class Battle {
 		case 'attract':
 			this.scene.resultAnim(pokemon, 'Immobilized', 'neutral');
 			break;
-		case 'taunt':
-			pokemon.volatilesData.tauntTurns++;
 		}
+		if(pokemon.volatiles['encore']) {
+				pokemon.volatilesData.encoreTurns++;
+			}
+			if(pokemon.volatiles['taunt']) {
+				pokemon.volatilesData.tauntTurns++;
+			}
 		this.scene.animReset(pokemon);
 	}
 
