@@ -15,7 +15,8 @@ function updateIndex() {
 
 	// add hashes to js and css files
 	process.stdout.write("Updating hashes... ");
-	indexContents = indexContents.replace(/(src|href)="\/(.*?)(\?[a-z0-9]*?)?"/g, runReplace);
+	// Check for <script, <link or <img so we don't add useless hashes to <a
+	indexContents = indexContents.replace(/(<script[^>]+?src|<link[^>]+?href|<img[^>]+?src)="\/(.*?)(\?[a-z0-9]*?)?"/g, runReplace);
 	console.log("DONE");
 
 	process.stdout.write("Writing new `wrapper.inc.php` file... ");
