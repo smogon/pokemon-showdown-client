@@ -3571,6 +3571,42 @@ export class Battle {
 			this.scene.teamPreview();
 			break;
 		}
+		case 'showteam': {
+			if (this.turn !== 0) return;
+			// @ts-ignore
+			if (!window.Storage?.unpackTeam || !window.Storage?.exportTeam) return;
+			// @ts-ignore
+			const team: PokemonSet[] = Storage.unpackTeam(args[2]);
+			if (!team) return;
+			const side = this.getSide(args[1]);
+			side.clearPokemon();
+			for (const set of team) {
+				const details = set.species + (set.level === 100 ? '' : ', L' + set.level) +
+					(set.gender === '' ? '' : ', ' + set.gender) + (set.shiny ? ', shiny' : '');
+				const pokemon = side.addPokemon('', '', details);
+				if (set.item) pokemon.item = set.item;
+				if (set.ability) pokemon.rememberAbility(set.ability);
+				for (const move of set.moves) {
+					pokemon.rememberMove(move, 0);
+				}
+				if (set.teraType) pokemon.teraType = set.teraType;
+			}
+			const exportedTeam = team.map(set => {
+				// @ts-ignore
+				let buf = Storage.exportTeam([set], this.gen).replace(/\n/g, '<br />');
+				if (set.name && set.name !== set.species) {
+					buf = buf.replace(set.name, BattleLog.sanitizeHTML(`<psicon pokemon="${set.species}" /> <br />${set.name}`));
+				} else {
+					buf = buf.replace(set.species, `<psicon pokemon="${set.species}" /> <br />${set.species}`);
+				}
+				if (set.item) {
+					buf = buf.replace(set.item, `${set.item} <psicon item="${set.item}" />`);
+				}
+				return buf;
+			}).join('');
+			this.add(`|raw|<div class="infobox" style="margin-top:5px"><details><summary>Open Team Sheet for ${side.name}</summary>${exportedTeam}</details></div>`);
+			break;
+		}
 		case 'switch': case 'drag': case 'replace': {
 			this.endLastTurn();
 			let poke = this.getSwitchedPokemon(args[1], args[2])!;
