@@ -2217,11 +2217,11 @@ class BattleTooltips {
 		}
 		if (serverPokemon.item !== 'utilityumbrella') {
 			if ('Ice'.includes(moveType) && (this.battle.climateWeather === 'hail' || this.battle.climateWeather === 'snow')) {
-				if (value.tryAbility("Absolute Zero")) value.climateWeatherModify(1.3, this.battle.climateWeather, "Absolute Zero");
+				if (value.tryAbility("Absolute Zero")) value.climateWeatherModify(1.3, "this.battle.climateWeather", "Absolute Zero");
 			}
 		}
 		if (serverPokemon.item !== 'safetygoggles') {
-			if (['Rock', 'Ground', 'Steel'].includes(moveType) && this.battle.irritantWeather === 'sandstorm') {
+			if (['Rock', 'Ground', 'Steel'].includes(moveType) && (this.battle.irritantWeather === 'sandstorm' || this.battle.irritantWeather === 'duststorm')) {
 				if (value.tryAbility("Sand Force")) value.irritantWeatherModify(1.3, "Sandstorm", "Sand Force");
 			}
 			if (['Fairy', 'Grass', 'Fire', 'Water'].includes(moveType) && (this.battle.irritantWeather === 'sprinkle')) {
