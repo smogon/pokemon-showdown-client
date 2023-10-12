@@ -649,6 +649,10 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			case 'heavydutyboots':
 			case 'expertbelt':
 			case 'salacberry':
+			case 'weatherballoon':
+			case 'volatilespray':
+			case 'energynullifier':
+			case 'portableturbine':
 				greatItems.push(id);
 				break;
 			case 'mentalherb':
@@ -664,10 +668,10 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 				else if (genNum > 3 && genNum < 7) greatItems.push(id);
 				else poorItems.push(id);
 				break;
-			case 'aguavberry':
+			// case 'aguavberry': // clutter
 			case 'figyberry':
-			case 'iapapaberry':
-			case 'magoberry':
+			// case 'iapapaberry': // clutter
+			// case 'magoberry': // clutter
 			case 'wikiberry':
 				if (genNum >= 7) greatItems.push(id);
 				else poorItems.push(id);
@@ -696,6 +700,8 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			case 'redorb':
 			case 'souldew':
 			// Other
+			case 'weathervane':
+			case 'whirligig':
 			// fallsthrough
 			case 'stick':
 			case 'thickclub':
@@ -781,6 +787,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			case 'rowapberry':
 			case 'bigroot':
 			case 'focusband':
+			case 'avocaberry':
 			// gen 2
 			case 'psncureberry':
 			case 'przcureberry':
