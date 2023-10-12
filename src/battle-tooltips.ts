@@ -2216,13 +2216,19 @@ class BattleTooltips {
 			value.abilityModify(1.3, "Chakra");
 		}
 		if (serverPokemon.item !== 'utilityumbrella') {
-			if ('Ice'.includes(moveType) && (this.battle.climateWeather === 'hail' || this.battle.climateWeather === 'snow')) {
-				if (value.tryAbility("Absolute Zero")) value.climateWeatherModify(1.3, "this.battle.climateWeather", "Absolute Zero");
+			if ('Ice'.includes(moveType) && this.battle.climateWeather === 'hail') {
+				if (value.tryAbility("Absolute Zero")) value.climateWeatherModify(1.3, "Hail", "Absolute Zero");
+			}
+			if ('Ice'.includes(moveType) && this.battle.climateWeather === 'snow') {
+				if (value.tryAbility("Absolute Zero")) value.climateWeatherModify(1.3, "Snow", "Absolute Zero");
 			}
 		}
 		if (serverPokemon.item !== 'safetygoggles') {
-			if (['Rock', 'Ground', 'Steel'].includes(moveType) && (this.battle.irritantWeather === 'sandstorm' || this.battle.irritantWeather === 'duststorm')) {
+			if (['Rock', 'Ground', 'Steel'].includes(moveType) && this.battle.irritantWeather === 'sandstorm') {
 				if (value.tryAbility("Sand Force")) value.irritantWeatherModify(1.3, "Sandstorm", "Sand Force");
+			}
+			if (['Rock', 'Ground', 'Steel'].includes(moveType) && this.battle.irritantWeather === 'duststorm') {
+				if (value.tryAbility("Sand Force")) value.irritantWeatherModify(1.3, "Dust Storm", "Sand Force");
 			}
 			if (['Fairy', 'Grass', 'Fire', 'Water'].includes(moveType) && (this.battle.irritantWeather === 'sprinkle')) {
 				if (value.tryAbility("Power Above")) value.irritantWeatherModify(1.3, "Fairy Dust", "Power Above");
