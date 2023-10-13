@@ -1027,13 +1027,13 @@ export class BattleScene implements BattleSceneStub {
 				weatherhtml += ` <small>(${this.battle.clearingWeatherTimeLeft} turn${this.battle.clearingWeatherTimeLeft === 1 ? '' : 's'})</small>`;
 			}
 			if (this.climateWeatherLeft()) {
-				weatherhtml = `<br />` + weatherhtml + `<br />`;
+				weatherhtml = `<br />` + weatherhtml;
 			}
 			if (this.irritantWeatherLeft()) {
-				weatherhtml = `<br />` + weatherhtml + `<br />`;
+				weatherhtml = `<br />` + weatherhtml;
 			}
 			if (this.energyWeatherLeft()) {
-				weatherhtml = `<br />` + weatherhtml + `<br />`;
+				weatherhtml = `<br />` + weatherhtml;
 			}
 		}
 
