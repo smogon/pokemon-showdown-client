@@ -2002,7 +2002,7 @@ class BattleTooltips {
 			pokemon.terastallized && pokemon.terastallized === move.type && value.value < 60 && move.priority <= 0 &&
 			!move.multihit && !((move.basePower === 0 || move.basePower === 150) && (move as any).basePowerCallback)
 		) {
-			value.setRange(60, value.maxValue, 'Tera type BP minimum');
+			value.set(60, 'Tera type BP minimum');
 		}
 
 		if (
