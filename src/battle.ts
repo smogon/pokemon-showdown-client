@@ -736,20 +736,19 @@ export class Side {
 		this.battle.scene.removeSideCondition(this.n, id);
 	}
 	addPokemon(name: string, ident: string, details: string, replaceSlot = -1) {
-		const oldItem = replaceSlot >= 0 ? this.pokemon[replaceSlot].item : undefined;
-		const oldAbility = replaceSlot >= 0 ? this.pokemon[replaceSlot].baseAbility : undefined;
-		const oldMoveTrack = replaceSlot >= 0 ? this.pokemon[replaceSlot].moveTrack : undefined;
-		const oldTeraType = replaceSlot >= 0 ? this.pokemon[replaceSlot].teraType : undefined;
+		const oldPokemon = replaceSlot >= 0 ? this.pokemon[replaceSlot] : undefined;
 
 		const data = this.battle.parseDetails(name, ident, details);
 		const poke = new Pokemon(data, this);
-		if (oldItem) poke.item = oldItem;
-		if (oldAbility) poke.baseAbility = oldAbility;
-		if (oldTeraType) poke.teraType = oldTeraType;
+		if (oldPokemon) {
+			poke.item = oldPokemon.item;
+			poke.baseAbility = oldPokemon.baseAbility;
+			poke.teraType = oldPokemon.teraType;
+		}
 
 		if (!poke.ability && poke.baseAbility) poke.ability = poke.baseAbility;
 		poke.reset();
-		if (oldMoveTrack?.length) poke.moveTrack = oldMoveTrack.slice();
+		if (oldPokemon?.moveTrack.length) poke.moveTrack = oldPokemon.moveTrack;
 
 		if (replaceSlot >= 0) {
 			this.pokemon[replaceSlot] = poke;
