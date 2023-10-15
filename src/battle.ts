@@ -737,13 +737,17 @@ export class Side {
 	}
 	addPokemon(name: string, ident: string, details: string, replaceSlot = -1) {
 		const oldItem = replaceSlot >= 0 ? this.pokemon[replaceSlot].item : undefined;
+		const oldAbility = replaceSlot >= 0 ? this.pokemon[replaceSlot].baseAbility : undefined;
+		const oldMoveTrack = replaceSlot >= 0 ? this.pokemon[replaceSlot].moveTrack : undefined;
 
 		const data = this.battle.parseDetails(name, ident, details);
 		const poke = new Pokemon(data, this);
 		if (oldItem) poke.item = oldItem;
+		if (oldAbility) poke.baseAbility = oldAbility;
 
 		if (!poke.ability && poke.baseAbility) poke.ability = poke.baseAbility;
 		poke.reset();
+		if (oldMoveTrack?.length) poke.moveTrack = oldMoveTrack.slice();
 
 		if (replaceSlot >= 0) {
 			this.pokemon[replaceSlot] = poke;
@@ -3582,7 +3586,7 @@ export class Battle {
 			side.clearPokemon();
 			for (const set of team) {
 				const details = set.species + (set.level === 100 ? '' : ', L' + set.level) +
-					(set.gender === '' ? '' : ', ' + set.gender) + (set.shiny ? ', shiny' : '');
+					(!set.gender || set.gender === 'N' ? '' : ', ' + set.gender) + (set.shiny ? ', shiny' : '');
 				const pokemon = side.addPokemon('', '', details);
 				if (set.item) pokemon.item = set.item;
 				if (set.ability) pokemon.rememberAbility(set.ability);
@@ -3604,7 +3608,7 @@ export class Battle {
 				}
 				return buf;
 			}).join('');
-			this.add(`|raw|<div class="infobox" style="margin-top:5px"><details><summary>Open Team Sheet for ${side.name}</summary>${exportedTeam}</details></div>`);
+			this.add(`|raw|<div class="infobox"><details><summary>Open Team Sheet for ${side.name}</summary>${exportedTeam}</details></div>`);
 			break;
 		}
 		case 'switch': case 'drag': case 'replace': {
