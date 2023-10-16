@@ -760,9 +760,8 @@ const BattlePokemonIconIndexes: {[id: string]: number} = {
 	droutdry: 1730 + 6,
 
 	tamroastf: 1730 + 7,
-	someone7f: 1730 + 8,
 
-	bearvoyancewhite: 1730 + 9,
+	bearvoyancewhite: 1730 + 8,
 };
 
 const BattlePokemonIconIndexesLeft: {[id: string]: number} = {
