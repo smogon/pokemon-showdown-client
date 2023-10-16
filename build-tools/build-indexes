@@ -655,6 +655,10 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			case 'portableturbine':
 				greatItems.push(id);
 				break;
+			/* case 'eviolite':
+				if (pokemon.baseSpecies.isNFE) greatItems.push(id);
+				else badItems.push(id);
+				break; */
 			case 'mentalherb':
 				if (genNum > 4) greatItems.push(id);
 				else poorItems.push(id);
