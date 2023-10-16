@@ -609,7 +609,6 @@ const BattlePokemonIconIndexes: {[id: string]: number} = {
 	pathagen: 1536 + 44,
 	ectogen: 1536 + 45,
 	legen: 1536 + 46,
-
 	depuray: 1536 + 47,
 	desoray: 1536 + 48,
 	dirrun: 1536 + 49,
@@ -755,12 +754,9 @@ const BattlePokemonIconIndexes: {[id: string]: number} = {
 	mosskrattidebloom: 1730 + 2,
 	catteraxef: 1730 + 3,
 	skinkaf: 1730 + 4,
-
 	blurruncharged: 1730 + 5,
 	droutdry: 1730 + 6,
-
 	tamroastf: 1730 + 7,
-
 	bearvoyancewhite: 1730 + 8,
 };
 
