@@ -696,7 +696,7 @@ const Dex = new class implements ModdedDex {
 		}
 
 		if (isFemale) {
-			if (['unfezant', 'frillish', 'jellicent', 'meowstic', 'pyroar'].includes(id)) {
+			if (['unfezant', 'frillish', 'jellicent', 'meowstic', 'pyroar', 'catteraxe', 'skinka'].includes(id)) {
 				num = BattlePokemonIconIndexes[id + 'f'];
 			}
 		}
