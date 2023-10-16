@@ -603,7 +603,7 @@ const BattlePokemonIconIndexes: {[id: string]: number} = {
 	dredgen: 1536 + 38,
 	stalagen: 1536 + 39,
 	chromagen: 1536 + 40,
-	aerogren: 1536 + 41,
+	aerogen: 1536 + 41,
 	caragen: 1536 + 42,
 	bludgen: 1536 + 43,
 	pathagen: 1536 + 44,

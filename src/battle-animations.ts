@@ -2695,7 +2695,11 @@ export class PokemonSprite extends Sprite {
 				BattleOtherAnims.schoolingin.anim(scene, [this]);
 			} else if (speciesid === 'wishiwashi') {
 				BattleOtherAnims.schoolingout.anim(scene, [this]);
-			} else if (speciesid === 'mimikyubusted' || speciesid === 'mimikyubustedtotem') {
+			} else if (speciesid === 'eecroachswarm') {
+				BattleOtherAnims.swarmingin.anim(scene, [this]);
+			} else if (speciesid === 'eecroach') {
+				BattleOtherAnims.swarmingout.anim(scene, [this]);
+			} else if (speciesid === 'mimikyubusted' || speciesid === 'mimikyubustedtotem' || speciesid === 'stackemrockless') {
 				// standard animation
 			} else {
 				BattleOtherAnims.megaevo.anim(scene, [this]);
@@ -3311,6 +3315,12 @@ const BattleEffects: {[k: string]: SpriteData} = {
 	mist: {
 		rawHTML: '<div class="sidecondition-mist" style="display:none;position:absolute" />',
 		w: 100, h: 50,
+	},
+
+	// swse
+	greenwisp: {
+		url: 'greenwisp.png',
+		w: 100, h: 100,
 	},
 };
 (() => {
@@ -5957,6 +5967,200 @@ export const BattleOtherAnims: AnimTable = {
 				opacity: 0.1,
 				time: 1000,
 			}, 'linear');
+		},
+	},
+
+	// swse
+
+	swarmingin: {
+		anim(scene, [attacker]) {
+			scene.backgroundEffect('#0000DD', 600, 0.2);
+			scene.showEffect('wisp', {
+				x: attacker.x,
+				y: attacker.y,
+				z: attacker.z,
+				scale: 2.5,
+				opacity: 1,
+			}, {
+				scale: 3,
+				time: 600,
+			}, 'linear', 'explode');
+			scene.showEffect('greenwisp', {
+				x: attacker.x,
+				y: attacker.y,
+				z: attacker.z,
+				scale: 3,
+				opacity: 0.3,
+			}, {
+				scale: 3.25,
+				time: 600,
+			}, 'linear', 'explode');
+
+			scene.showEffect('energyball', {
+				x: attacker.leftof(200),
+				y: attacker.y + 40,
+				z: attacker.z,
+				scale: 0.5,
+				opacity: 0.5,
+			}, {
+				x: attacker.x,
+				y: attacker.y,
+				z: attacker.z,
+				opacity: 0,
+				time: 200,
+			}, 'ballistic', 'fade');
+			scene.showEffect('energyball', {
+				x: attacker.leftof(-140),
+				y: attacker.y - 60,
+				z: attacker.z,
+				scale: 0.5,
+				opacity: 0.5,
+				time: 100,
+			}, {
+				x: attacker.x,
+				y: attacker.y,
+				z: attacker.z,
+				opacity: 0,
+				time: 300,
+			}, 'ballistic2Under', 'fade');
+			scene.showEffect('energyball', {
+				x: attacker.leftof(-140),
+				y: attacker.y + 50,
+				z: attacker.behind(170),
+				scale: 0.5,
+				opacity: 0.5,
+				time: 200,
+			}, {
+				x: attacker.x,
+				y: attacker.y,
+				z: attacker.z,
+				opacity: 0,
+				time: 400,
+			}, 'ballistic2', 'fade');
+			scene.showEffect('energyball', {
+				x: attacker.x,
+				y: attacker.y + 30,
+				z: attacker.behind(-250),
+				scale: 0.5,
+				opacity: 0.5,
+				time: 200,
+			}, {
+				x: attacker.x,
+				y: attacker.y,
+				z: attacker.z,
+				opacity: 0,
+				time: 500,
+			}, 'ballistic', 'fade');
+			scene.showEffect('energyball', {
+				x: attacker.leftof(240),
+				y: attacker.y - 80,
+				z: attacker.z,
+				scale: 0.5,
+				opacity: 0.5,
+				time: 300,
+			}, {
+				x: attacker.x,
+				y: attacker.y,
+				z: attacker.z,
+				opacity: 0,
+				time: 600,
+			}, 'ballistic2Under');
+		},
+	},
+	swarmingout: {
+		anim(scene, [attacker]) {
+			scene.backgroundEffect('#0000DD', 600, 0.2);
+			scene.showEffect('wisp', {
+				x: attacker.x,
+				y: attacker.y,
+				z: attacker.z,
+				scale: 3,
+				opacity: 1,
+			}, {
+				scale: 2,
+				time: 600,
+			}, 'linear', 'explode');
+			scene.showEffect('greenwisp', {
+				x: attacker.x,
+				y: attacker.y,
+				z: attacker.z,
+				scale: 3.25,
+				opacity: 0.3,
+			}, {
+				scale: 2.5,
+				time: 600,
+			}, 'linear', 'explode');
+
+			scene.showEffect('energyball', {
+				x: attacker.x,
+				y: attacker.y,
+				z: attacker.z,
+				scale: 0.5,
+				opacity: 0,
+			}, {
+				x: attacker.leftof(200),
+				y: attacker.y + 40,
+				z: attacker.z,
+				scale: 0.5,
+				opacity: 0.5,
+				time: 200,
+			}, 'ballistic', 'fade');
+			scene.showEffect('energyball', {
+				x: attacker.x,
+				y: attacker.y,
+				z: attacker.z,
+				scale: 0.5,
+				opacity: 0,
+				time: 100,
+			}, {
+				x: attacker.leftof(-140),
+				y: attacker.y - 60,
+				z: attacker.z,
+				opacity: 0.5,
+				time: 300,
+			}, 'ballistic2Under', 'fade');
+			scene.showEffect('energyball', {
+				x: attacker.x,
+				y: attacker.y,
+				z: attacker.z,
+				scale: 0.5,
+				opacity: 0,
+				time: 200,
+			}, {
+				x: attacker.leftof(-140),
+				y: attacker.y + 50,
+				z: attacker.behind(170),
+				opacity: 0.5,
+				time: 400,
+			}, 'ballistic2', 'fade');
+			scene.showEffect('energyball', {
+				x: attacker.x,
+				y: attacker.y,
+				z: attacker.z,
+				scale: 0.5,
+				opacity: 0,
+				time: 200,
+			}, {
+				x: attacker.x,
+				y: attacker.y + 30,
+				z: attacker.behind(-250),
+				opacity: 0.5,
+				time: 500,
+			}, 'ballistic', 'fade');
+			scene.showEffect('energyball', {
+				x: attacker.x,
+				y: attacker.y,
+				z: attacker.z,
+				scale: 0.5,
+				opacity: 0,
+				time: 300,
+			}, {
+				x: attacker.leftof(240),
+				y: attacker.y - 80,
+				z: attacker.z,
+				opacity: 0.5,
+				time: 600,
+			}, 'ballistic2Under');
 		},
 	},
 };
