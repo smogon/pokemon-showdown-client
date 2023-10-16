@@ -113,7 +113,7 @@ $panels->start();
 			<div class="replay-controls-2">
 				<div class="chooser leftchooser speedchooser">
 					<em>Speed:</em>
-					<div><button value="hyperfast">Hyperfast</button> <button value="fast">Fast</button><button value="normal" class="sel">Normal</button><button value="slow">Slow</button><button value="reallyslow">Really Slow</button></div>
+					<div><button value="hyperfast">Hyperfast</button><button value="fast">Fast</button><button value="normal" class="sel">Normal</button><button value="slow">Slow</button><button value="reallyslow">Really Slow</button></div>
 				</div>
 				<div class="chooser colorchooser">
 					<em>Color&nbsp;scheme:</em>
