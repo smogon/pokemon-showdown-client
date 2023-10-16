@@ -606,7 +606,7 @@ class BattleTooltips {
 				if (!movePower && move.id.startsWith('hiddenpower')) {
 					movePower = this.battle.dex.moves.get('hiddenpower').zMove!.basePower;
 				}
-				if (move.id === 'weatherball') { // updated
+				if (move.id === 'weatherball') { // incomplete
 					switch (this.battle.climateWeather) {
 					case 'sunnyday':
 					case 'desolateland':

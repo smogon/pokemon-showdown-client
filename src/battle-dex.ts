@@ -748,7 +748,7 @@ const Dex = new class implements ModdedDex {
 		if (species.exists === false) return { spriteDir: 'sprites/gen5', spriteid: '0', x: 10, y: 5 };
 		const spriteData: TeambuilderSpriteData = {
 			spriteid,
-			spriteDir: 'sprites/dex',
+			spriteDir: 'sprites/gen5',
 			x: -2,
 			y: -3,
 		};
