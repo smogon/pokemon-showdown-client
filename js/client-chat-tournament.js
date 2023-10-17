@@ -167,19 +167,22 @@
 				self.room.send('/tournament leave');
 			});
 			this.$challengeChallenge.on('click', function () {
-				app.sendTeam(Storage.teams[self.$teamSelect.children().val()]);
-				self.room.send('/tournament challenge ' + self.$challengeUserMenu.children().val());
+				app.sendTeam(Storage.teams[self.$teamSelect.children().val()], function () {
+					self.room.send('/tournament challenge ' + self.$challengeUserMenu.children().val());
+				});
 			});
 			this.$challengeAccept.on('click', function () {
-				app.sendTeam(Storage.teams[self.$teamSelect.children().val()]);
-				self.room.send('/tournament acceptchallenge');
+				app.sendTeam(Storage.teams[self.$teamSelect.children().val()], function () {
+					self.room.send('/tournament acceptchallenge');
+				});
 			});
 			this.$challengeCancel.on('click', function () {
 				self.room.send('/tournament cancelchallenge');
 			});
 			this.$validate.on('click', function () {
-				app.sendTeam(Storage.teams[self.$teamSelect.children().val()]);
-				self.room.send('/tournament vtm');
+				app.sendTeam(Storage.teams[self.$teamSelect.children().val()], function () {
+					self.room.send('/tournament vtm');
+				});
 			});
 
 			app.user.on('saveteams', this.updateTeams, this);
@@ -477,7 +480,7 @@
 					break;
 
 				case 'end':
-					var endData = JSON.parse(data[0]);
+					var endData = JSON.parse(data.join('|'));
 
 					var $bracket = this.generateBracket(endData.bracketData);
 					if ($bracket) {

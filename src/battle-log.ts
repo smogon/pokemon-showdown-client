@@ -759,6 +759,8 @@ export class BattleLog {
 			username: 0,
 			spotify: 0,
 			youtube: 0,
+			formatselect: 0,
+			copytext: 0,
 			twitch: 0,
 		});
 
@@ -780,9 +782,11 @@ export class BattleLog {
 			'psicon::pokemon': 0,
 			'psicon::item': 0,
 			'psicon::type': 0,
+			'selectformat::type': 0,
 			'psicon::category': 0,
 			'username::name': 0,
 			'form::data-submitsend': 0,
+			'formatselect::format': 0,
 			'div::data-server': 0,
 			'button::data-send': 0,
 			'form::data-delimiter': 0,
@@ -911,6 +915,26 @@ export class BattleLog {
 						'width', width, 'height', height,
 						'src', `https://www.youtube.com/embed/${videoId}?enablejsapi=1&playsinline=1${time ? `&start=${time}` : ''}`,
 						'frameborder', '0', 'allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture', 'allowfullscreen', 'allowfullscreen',
+					],
+				};
+			} else if (tagName === 'formatselect') {
+				return {
+					tagName: 'button',
+					attribs: [
+						'type', 'selectformat',
+						'class', "select formatselect",
+						'value', getAttrib('format') || getAttrib('value') || '',
+						'name', getAttrib('name') || '',
+					],
+				};
+			} else if (tagName === 'copytext') {
+				return {
+					tagName: 'button',
+					attribs: [
+						'type', getAttrib('type'),
+						'class', getAttrib('class') || 'button',
+						'value', getAttrib('value'),
+						'name', 'copyText',
 					],
 				};
 			} else if (tagName === 'psicon') {

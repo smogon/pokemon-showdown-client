@@ -258,6 +258,7 @@ function toId() {
 			} else if (assertion.indexOf('\n') >= 0 || !assertion) {
 				app.addPopupMessage("Something is interfering with our connection to the login server.");
 			} else {
+				app.trigger('loggedin');
 				app.send('/trn ' + name + ',0,' + assertion);
 			}
 		},
@@ -551,6 +552,15 @@ function toId() {
 
 			this.user.on('login:authrequired', function (name, special) {
 				self.addPopup(LoginPasswordPopup, {username: name, special: special});
+			});
+
+			this.on('loggedin', function () {
+				Storage.loadRemoteTeams(function () {
+					if (app.rooms.teambuilder) {
+						// if they have it open, be sure to update so it doesn't show 'no teams'
+						app.rooms.teambuilder.update();
+					}
+				});
 			});
 
 			this.on('response:savereplay', this.uploadReplay, this);
@@ -877,10 +887,11 @@ function toId() {
 		serializeForm: function (form, checkboxOnOff) {
 			// querySelector dates back to IE8 so we can use it
 			// fortunate, because form serialization is a HUGE MESS in older browsers
-			var elements = form.querySelectorAll('input[name], select[name], textarea[name], keygen[name]');
+			var elements = form.querySelectorAll('input[name], select[name], textarea[name], keygen[name], button[value]');
 			var out = [];
 			for (var i = 0; i < elements.length; i++) {
 				var element = elements[i];
+				if ($(element).attr('type') === 'submit') continue;
 				if (element.type === 'checkbox' && !element.value && checkboxOnOff) {
 					out.push([element.name, element.checked ? 'on' : 'off']);
 				} else if (!['checkbox', 'radio'].includes(element.type) || element.checked) {
@@ -909,16 +920,50 @@ function toId() {
 				e.stopPropagation();
 			}
 		},
+		loadingTeam: null,
+		loadingTeamQueue: [],
+		loadTeam: function (team, callback) {
+			if (!team.teamid) return;
+			if (!this.loadingTeam) {
+				var app = this;
+				this.loadingTeam = true;
+				$.get(app.user.getActionPHP(), {
+					act: 'getteam',
+					teamid: team.teamid,
+				}, Storage.safeJSON(function (data) {
+					app.loadingTeam = false;
+					if (data.actionerror) {
+						return app.addPopupMessage("Error loading team: " + data.actionerror);
+					}
+					team.privacy = data.privacy;
+					team.team = data.team;
+					team.loaded = true;
+					callback(team);
+					var entry = app.loadingTeamQueue.shift();
+					if (entry) {
+						app.loadTeam(entry[0], entry[1]);
+					}
+				}));
+			} else {
+				this.loadingTeamQueue.push([team, callback]);
+			}
+		},
 		/**
 		 * Send team to sim server
 		 */
-		sendTeam: function (team) {
+		sendTeam: function (team, callback) {
+			if (team && team.teamid && !team.loaded) {
+				return this.loadTeam(team, function (team) {
+					app.sendTeam(team, callback);
+				});
+			}
 			var packedTeam = '' + Storage.getPackedTeam(team);
 			if (packedTeam.length > 25 * 1024 - 6) {
 				alert("Your team is over 25 KB. Please use a smaller team.");
 				return;
 			}
 			this.send('/utm ' + packedTeam);
+			callback();
 		},
 		/**
 		 * Receive from sim server
@@ -1256,6 +1301,9 @@ function toId() {
 			var columnChanged = false;
 
 			window.NonBattleGames = {rps: 'Rock Paper Scissors'};
+			for (var i = 3; i <= 9; i = i + 2) {
+				window.NonBattleGames['bestof' + i] = 'Best-of-' + i;
+			}
 			window.BattleFormats = {};
 			for (var j = 1; j < formatsList.length; j++) {
 				if (isSection) {
@@ -2110,12 +2158,15 @@ function toId() {
 		},
 		dispatchClickButton: function (e) {
 			var target = e.currentTarget;
-			if (target.name) {
+			var type = $(target).attr('type');
+			if (type === 'submit') type = null;
+			if (target.name || type) {
 				app.dismissingSource = app.dismissPopups();
 				app.dispatchingButton = target;
 				e.preventDefault();
 				e.stopImmediatePropagation();
-				this[target.name](target.value, target);
+				if (target.name && this[target.name]) this[target.name](target.value, target);
+				if (type && this[type]) this[type](target.value, target);
 				delete app.dismissingSource;
 				delete app.dispatchingButton;
 			}
@@ -2141,6 +2192,31 @@ function toId() {
 		 */
 		receive: function (data) {
 			//
+		},
+
+		/**
+		 * Used for <formatselect>, does format popup and caches value in button value
+		 */
+		selectformat: function (value, target) {
+			var format = value || 'gen9randombattle';
+			app.addPopup(FormatPopup, {format: format, sourceEl: target, selectType: 'watch', onselect: function (newFormat) {
+				target.value = newFormat;
+			}});
+		},
+
+		copyText: function (value, target) {
+			var dummyInput = document.createElement("input");
+			// This is a hack. You can only "select" an input field.
+			//  The trick is to create a short lived input element and destroy it after a copy.
+			// (stolen from the replay code, obviously --mia)
+			dummyInput.id = "dummyInput";
+			dummyInput.value = value || target.value || target.href || "";
+			dummyInput.style.position = 'absolute';
+			target.appendChild(dummyInput);
+			dummyInput.select();
+			document.execCommand("copy");
+			target.removeChild(dummyInput);
+			$(target).text('Copied!');
 		},
 
 		// layout
