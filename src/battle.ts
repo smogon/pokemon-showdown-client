@@ -3586,7 +3586,7 @@ export class Battle {
 			const side = this.getSide(args[1]);
 			side.clearPokemon();
 			for (const set of team) {
-				const details = set.species + (set.level === 100 ? '' : ', L' + set.level) +
+				const details = set.species + (!set.level || set.level === 100 ? '' : ', L' + set.level) +
 					(!set.gender || set.gender === 'N' ? '' : ', ' + set.gender) + (set.shiny ? ', shiny' : '');
 				const pokemon = side.addPokemon('', '', details);
 				if (set.item) pokemon.item = set.item;
