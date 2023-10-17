@@ -896,6 +896,8 @@
 			buf += '<p><label class="label">Format:</label>' + this.renderFormats(format) + '</p>';
 			buf += '<p><label class="label">Team:</label>' + this.renderTeams(format) + '</p>';
 			buf += '<p><label class="checkbox"><input type="checkbox" name="private" ' + (Storage.prefs('disallowspectators') ? 'checked' : '') + ' /> <abbr title="You can still invite spectators by giving them the URL or using the /invite command">Don\'t allow spectators</abbr></label></p>';
+			buf += '<p' + (!(format && format.includes('vgc')) ? ' class="hidden">' : '>');
+			buf += '<label class="checkbox"><input type="checkbox" name="bestof" /> <abbr title="Start a team-locked best-of-3 series">Best-of-3</abbr></label></p>';
 			buf += '<p class="buttonbar"><button name="makeChallenge"><strong>Challenge</strong></button> <button type="button" name="dismissChallenge">Cancel</button></p></form>';
 			$challenge.html(buf);
 		},
@@ -916,10 +918,14 @@
 					app.addPopupMessage("You need to go into the Teambuilder and build a team for this format.");
 					return;
 				}
-				app.sendTeam(team);
+				app.sendTeam(team, function () {
+					target.disabled = true;
+					app.send(privacy + '/accept ' + userid);
+				});
+			} else {
+				target.disabled = true;
+				app.send(privacy + '/accept ' + userid);
 			}
-			target.disabled = true;
-			app.send(privacy + '/accept ' + userid);
 		},
 		rejectChallenge: function (i, target) {
 			var userid = $(target).closest('.pm-window').data('userid');
@@ -935,6 +941,14 @@
 			var format = $pmWindow.find('button[name=format]').val();
 			var teamIndex = $pmWindow.find('button[name=team]').val();
 			var privacy = this.adjustPrivacy($pmWindow.find('input[name=private]').is(':checked'));
+
+			var bestof = $pmWindow.find('input[name=bestof]').is(':checked');
+			var hasCustomRules = format.includes('@@@');
+			if (bestof) {
+				format += hasCustomRules ? ', ' : '@@@';
+				format += 'Best of = 3';
+			}
+
 			var team = null;
 			if (Storage.teams[teamIndex]) team = Storage.teams[teamIndex];
 
@@ -949,8 +963,9 @@
 			buf += '<p class="buttonbar"><button name="cancelChallenge">Cancel</button></p></form>';
 
 			$(target).closest('.challenge').html(buf);
-			app.sendTeam(team);
-			app.send(privacy + '/challenge ' + userid + ', ' + format);
+			app.sendTeam(team, function () {
+				app.send(privacy + '/challenge ' + userid + ', ' + format);
+			});
 		},
 		cancelChallenge: function (i, target) {
 			var userid = $(target).closest('.pm-window').data('userid');
@@ -1090,11 +1105,12 @@
 			$searchForm.find('button.big').html('<strong><i class="fa fa-refresh fa-spin"></i> Connecting...</strong>').addClass('disabled');
 			$searchForm.append('<p class="cancel buttonbar"><button name="cancelSearch">Cancel</button></p>');
 
-			app.sendTeam(team);
 			var self = this;
-			this.searchDelay = setTimeout(function () {
-				app.send(self.adjustPrivacy($privacyCheckbox.is(':checked')) + '/search ' + format);
-			}, 3000);
+			app.sendTeam(team, function () {
+				self.searchDelay = setTimeout(function () {
+					app.send(self.adjustPrivacy($privacyCheckbox.is(':checked')) + '/search ' + format);
+				}, 3000);
+			});
 		},
 		cancelSearch: function () {
 			clearTimeout(this.searchDelay);
@@ -1242,8 +1258,9 @@
 				}
 				var formatName = BattleLog.escapeFormat(format.id);
 				if (formatName.charAt(0) !== '[') formatName = '[Gen 6] ' + formatName;
-				formatName = formatName.replace('[Gen 8 ', '[');
 				formatName = formatName.replace('[Gen 9] ', '');
+				formatName = formatName.replace('[Gen 9 ', '[');
+				formatName = formatName.replace('[Gen 8 ', '[');
 				formatName = formatName.replace('[Gen 7 ', '[');
 				bufs[curBuf] += '<li><button name="selectFormat" value="' + i + '"' + (curFormat === i ? ' class="sel"' : '') + '>' + formatName + '</button></li>';
 			}
@@ -1271,6 +1288,18 @@
 				app.rooms[''].curTeamIndex = -1;
 				var $teamButton = this.sourceEl.closest('form').find('button[name=team]');
 				if ($teamButton.length) $teamButton.replaceWith(app.rooms[''].renderTeams(format));
+
+				var $bestOfCheckbox = this.sourceEl.closest('form').find('input[name=bestof]');
+				if ($bestOfCheckbox) {
+					var $parentTag = $bestOfCheckbox.parent().parent();
+					if (format.includes('vgc')) {
+						$parentTag.removeClass('hidden');
+					} else {
+						$parentTag.addClass('hidden');
+						$bestOfCheckbox.prop('checked', false);
+					}
+				}
+
 				var $partnerLabels = $('label[name=partner]');
 				$partnerLabels.each(function (i, label) {
 					label.style.display = BattleFormats[format].partner ? '' : 'none';
@@ -1378,6 +1407,7 @@
 							count++;
 							if (count % bufBoundary === 0 && count != 0 && curBuf < 4) curBuf++;
 						}
+						console.log(teamFormat);
 						if (!isNoFolder) {
 							for (var i = 0; i < teams.length; i++) {
 								if ((!teams[i].format && !teamFormat) || teams[i].format === teamFormat) {

@@ -1994,6 +1994,7 @@ export class PokemonSprite extends Sprite {
 		octolock: ['Octolock', 'bad'],
 		tarshot: ['Tar Shot', 'bad'],
 		saltcure: ['Salt Cure', 'bad'],
+		syrupbomb: ['Syrupy', 'bad'],
 		doomdesire: null,
 		futuresight: null,
 		mimic: ['Mimic', 'good'],
@@ -2028,7 +2029,6 @@ export class PokemonSprite extends Sprite {
 		beakblast: ['Beak Blast', 'neutral'],
 		laserfocus: ['Laser Focus', 'good'],
 		spotlight: ['Spotlight', 'neutral'],
-		caffeinecrash: ['Caffeine Crash', 'bad'],
 		itemremoved: null,
 		// partial trapping
 		bind: ['Bind', 'bad'],
@@ -2046,6 +2046,8 @@ export class PokemonSprite extends Sprite {
 		// Gen 1
 		lightscreen: ['Light Screen', 'good'],
 		reflect: ['Reflect', 'good'],
+		// swse
+		caffeinecrash: ['Caffeine Crash', 'bad'],
 	};
 	forme = '';
 	cryurl: string | undefined = undefined;

@@ -899,6 +899,7 @@ class BattleTooltips {
 			}
 
 			let types = serverPokemon?.terastallized ? [serverPokemon.teraType] : this.getPokemonTypes(pokemon);
+			let knownPokemon = serverPokemon || clientPokemon!;
 
 			if (pokemon.terastallized) {
 				text += `<small>(Terastallized)</small><br />`;
@@ -908,8 +909,8 @@ class BattleTooltips {
 			text += `<span class="textaligned-typeicons">${types.map(type => Dex.getTypeIcon(type)).join(' ')}</span>`;
 			if (pokemon.terastallized) {
 				text += `&nbsp; &nbsp; <small>(base: <span class="textaligned-typeicons">${this.getPokemonTypes(pokemon, true).map(type => Dex.getTypeIcon(type)).join(' ')}</span>)</small>`;
-			} else if (serverPokemon?.teraType && !this.battle.rules['Terastal Clause']) {
-				text += `&nbsp; &nbsp; <small>(Tera Type: <span class="textaligned-typeicons">${Dex.getTypeIcon(serverPokemon.teraType)}</span>)</small>`;
+			} else if (knownPokemon.teraType && !this.battle.rules['Terastal Clause']) {
+				text += `&nbsp; &nbsp; <small>(Tera Type: <span class="textaligned-typeicons">${Dex.getTypeIcon(knownPokemon.teraType)}</span>)</small>`;
 			}
 			text += `</h2>`;
 		}
@@ -1395,7 +1396,7 @@ class BattleTooltips {
 					// Pokemon with Hisui evolutions
 					evoSpecies.isNonstandard === "Unobtainable";
 		});
-		if (item === 'eviolite' && isNFE) {
+		if (item === 'eviolite' && (isNFE || this.battle.dex.species.get(serverPokemon.speciesForme).id === 'dipplin')) {
 			stats.def = Math.floor(stats.def * 1.5);
 			stats.spd = Math.floor(stats.spd * 1.5);
 		}
@@ -1770,6 +1771,20 @@ class BattleTooltips {
 				break;
 			case 'Tauros-Paldea-Aqua':
 				moveType = 'Water';
+				break;
+			}
+		}
+		// Ivy Cudgel's type depends on the Ogerpon forme
+		if (move.id === 'ivycudgel') {
+			switch (pokemon.getSpeciesForme()) {
+			case 'Ogerpon-Wellspring': case 'Ogerpon-Wellspring-Tera':
+				moveType = 'Water';
+				break;
+			case 'Ogerpon-Hearthflame': case 'Ogerpon-Hearthflame-Tera':
+				moveType = 'Fire';
+				break;
+			case 'Ogerpon-Cornerstone': case 'Ogerpon-Cornerstone-Tera':
+				moveType = 'Rock';
 				break;
 			}
 		}
@@ -2441,6 +2456,12 @@ class BattleTooltips {
 		if (item.name === 'Soul Dew' && this.battle.gen < 7) return value;
 		if (BattleTooltips.orbUsers[speciesName]?.includes(item.name) &&
 			BattleTooltips.orbTypes[item.name]?.includes(moveType)) {
+			value.itemModify(1.2);
+			return value;
+		}
+		if ((speciesName.startsWith('Ogerpon-Wellspring') && itemName === 'Wellspring Mask') ||
+			(speciesName.startsWith('Ogerpon-Hearthflame') && itemName === 'Hearthflame Mask') ||
+			(speciesName.startsWith('Ogerpon-Cornerstone') && itemName === 'Cornerstone Mask')) {
 			value.itemModify(1.2);
 			return value;
 		}
