@@ -641,6 +641,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			case 'heavydutyboots':
 			case 'expertbelt':
 			case 'salacberry':
+			// swse
 			case 'weatherballoon':
 			case 'volatilespray':
 			case 'energynullifier':
@@ -696,8 +697,6 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			case 'redorb':
 			case 'souldew':
 			// Other
-			case 'weathervane':
-			case 'whirligig':
 			// fallsthrough
 			case 'stick':
 			case 'thickclub':
@@ -707,6 +706,9 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			case 'metalpowder':
 			case 'deepseascale':
 			case 'deepseatooth':
+			// swse
+			case 'weathervane':
+			case 'whirligig':
 				specificItems.push(id);
 				break;
 			// Fling-only
@@ -757,6 +759,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			case 'chippedpot':
 			case 'crackedpot':
 			case 'galaricawreath':
+			// swse
 				badItems.push(id);
 				break;
 			// outclassed items
@@ -783,7 +786,6 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			case 'rowapberry':
 			case 'bigroot':
 			case 'focusband':
-			case 'avocaberry':
 			// gen 2
 			case 'psncureberry':
 			case 'przcureberry':
@@ -791,6 +793,8 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			case 'bitterberry':
 			case 'iceberry':
 			case 'berry':
+			// swse
+			case 'avocaberry':
 				poorItems.push(id);
 				break;
 			default:
