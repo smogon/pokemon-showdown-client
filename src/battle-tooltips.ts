@@ -1323,8 +1323,10 @@ class BattleTooltips {
 				}
 				if (irritantWeather === 'pollinate') {
 					if (!(this.pokemonHasType(pokemon, 'Grass') || this.pokemonHasType(pokemon, 'Bug'))) {
-						stats.atk = Math.floor(stats.atk * 0.75);
-						stats.spa = Math.floor(stats.spa * 0.75);
+						if (ability !== 'bubblehelm') {
+							stats.atk = Math.floor(stats.atk * 0.75);
+							stats.spa = Math.floor(stats.spa * 0.75);
+						}
 					}
 				}
 				if (irritantWeather === 'swarmsignal') {
@@ -1411,7 +1413,7 @@ class BattleTooltips {
 		}
 		if (ability === 'grasspelt') {
 			if (this.battle.hasPseudoWeather('Grassy Terrain') ||
-			serverPokemon.item !== 'safetygoggles' && this.battle.irritantWeather.includes('Pollen Storm')) {
+			(serverPokemon.item !== 'safetygoggles' && this.battle.irritantWeather.includes('Pollen Storm'))) {
 				stats.def = Math.floor(stats.def * 1.5);
 			}
 		}
@@ -1805,6 +1807,9 @@ class BattleTooltips {
 					if (value.abilityModify(0, 'Vegetate')) moveType = 'Grass';
 				}
 				if (value.abilityModify(0, 'Normalize')) moveType = 'Normal';
+				if (move.flags['sound']) {
+					if (value.abilityModify(0, 'Trumpet Weevil')) moveType = 'Bug';
+				}
 			}
 
 			// There aren't any max moves with the sound flag, but if there were, Liquid Voice would make them water type
@@ -1884,16 +1889,20 @@ class BattleTooltips {
 		}
 
 		if (this.battle.climateWeather.includes('Fog')) {
-			if (move.type !== 'Normal') {
+			if (move.type !== 'Normal' && value.pokemon.ability !== 'bubblehelm') {
 				accuracyModifiers.push(3686);
 				value.modify(9 / 10, "Fog");
 			}
 		}
 		if (this.battle.irritantWeather.includes('Pheromones')) {
 			if (this.pokemonHasType(pokemon, 'Bug') || this.pokemonHasType(pokemon, 'Poison')) {
-				accuracyModifiers.push(5325);
-				value.modify(6 / 5, "Pheromones");
+				accuracyModifiers.push(5461);
+				value.modify(4 / 3, "Pheromones");
 			}
+		}
+		if (this.battle.hasPseudoWeather('Pearl Drop')) {
+			accuracyModifiers.push(3686);
+				value.modify(9 / 10, "Pearl Drop");
 		}
 
 		for (const active of pokemon.side.active) {
@@ -2267,6 +2276,9 @@ class BattleTooltips {
 			if (this.battle.gen > 6) {
 				value.abilityModify(1.2, "Normalize");
 			}
+			if (move.flags['sound']) {
+				value.abilityModify(1.5, "Trumpet Weevil");
+			}
 		}
 		if (move.recoil || move.hasCrashDamage) {
 			value.abilityModify(1.2, 'Reckless');
@@ -2310,8 +2322,6 @@ class BattleTooltips {
 				}
 			}
 		}
-
-		// swse
 
 		// Terrain
 		if ((this.battle.hasPseudoWeather('Electric Terrain') && moveType === 'Electric') ||
