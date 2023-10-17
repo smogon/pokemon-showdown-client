@@ -1661,90 +1661,73 @@ class BattleTooltips {
 		}
 		// Weather and pseudo-weather type changes.
 		if (move.id === 'weatherball' && value.climateWeatherModify(0)) { // updated
-			switch (this.battle.climateWeather) {
+			switch (this.battle.getRecentWeather(item.id)) {
 			case 'sunnyday':
 			case 'desolateland':
-				if (item.id === 'utilityumbrella') break;
 				moveType = 'Fire';
 				break;
 			case 'raindance':
 			case 'primordialsea':
-				if (item.id === 'utilityumbrella') break;
 				moveType = 'Water';
 				break;
 			case 'hail':
 			case 'snow':
-				if (item.id === 'utilityumbrella') break;
 				moveType = 'Ice';
 				break;
 			case 'bloodmoon':
-				if (item.id === 'utilityumbrella') break;
 				moveType = 'Dark';
 				break;
 			case 'foghorn':
-				if (item.id === 'utilityumbrella') break;
 				moveType = 'Normal';
 				break;
 			}
 		}
 		if (move.id === 'weatherball' && value.irritantWeatherModify(0)) {
-			switch (this.battle.irritantWeather) {
+			switch (this.battle.getRecentWeather(item.id)) {
 			case 'sandstorm':
-				if (item.id === 'safetygoggles') break;
 				moveType = 'Rock';
 				break;
 			case 'duststorm':
-				if (item.id === 'safetygoggles') break;
 				moveType = 'Ground';
 				break;
 			case 'pollinate':
-				if (item.id === 'safetygoggles') break;
 				moveType = 'Grass';
 				break;
 			case 'swarmsignal':
-				if (item.id === 'safetygoggles') break;
 				moveType = 'Bug';
 				break;
 			case 'smogspread':
-				if (item.id === 'safetygoggles') break;
 				moveType = 'Poison';
 				break;
 			case 'sprinkle':
-				if (item.id === 'safetygoggles') break;
 				moveType = 'Fairy';
 				break;
 			}
 		}
 		if (move.id === 'weatherball' && value.energyWeatherModify(0)) {
-			switch (this.battle.energyWeather) {
+			switch (this.battle.getRecentWeather(item.id)) {
 			case 'auraprojection':
-				if (item.id === 'energynullifier') break;
 				moveType = 'Fighting';
 				break;
 			case 'haunt':
-				if (item.id === 'energynullifier') break;
 				moveType = 'Ghost';
 				break;
 			case 'cosmicrays':
-				if (item.id === 'energynullifier') break;
 				moveType = 'Psychic';
 				break;
 			case 'dragonforce':
-				if (item.id === 'energynullifier') break;
 				moveType = 'Dragon';
 				break;
 			case 'supercell':
-				if (item.id === 'energynullifier') break;
 				moveType = 'Electric';
 				break;
 			case 'magnetize':
-				if (item.id === 'energynullifier') break;
 				moveType = 'Steel';
 				break;
 			}
 		}
 		if (move.id === 'weatherball' && value.clearingWeatherModify(0)) {
-			switch (this.battle.clearingWeather) {
+			switch (this.battle.getRecentWeather(item.id)) {
 			case 'strongwinds':
 				moveType = 'Flying';
 				break;

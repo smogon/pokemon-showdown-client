@@ -1069,6 +1069,10 @@ export class Battle {
 	irritantWeatherMinTimeLeft = 0;
 	energyWeatherMinTimeLeft = 0;
 	clearingWeatherMinTimeLeft = 0;
+	climateWeatherTimeActive = 100;
+	irritantWeatherTimeActive = 100;
+	energyWeatherTimeActive = 100;
+	clearingWeatherTimeActive = 100;
 	/**
 	 * The side from which perspective we're viewing. Should be identical to
 	 * `nearSide` except in multi battles, where `nearSide` is always the first
@@ -1270,6 +1274,10 @@ export class Battle {
 		this.irritantWeatherMinTimeLeft = 0;
 		this.energyWeatherMinTimeLeft = 0;
 		this.clearingWeatherMinTimeLeft = 0;
+		this.climateWeatherTimeActive = 100;
+		this.irritantWeatherTimeActive = 100;
+		this.energyWeatherTimeActive = 100;
+		this.clearingWeatherTimeActive = 100;
 		this.pseudoWeather = [];
 		this.lastMove = '';
 
@@ -1399,10 +1407,12 @@ export class Battle {
 		let weather = toID(weatherName);
 		if (!weather || weather === 'none') {
 			weather = '' as ID;
+			this.climateWeatherTimeActive = 100;
 		}
 		if (isUpkeep) {
 			if (this.climateWeather && this.climateWeatherTimeLeft) {
 				this.climateWeatherTimeLeft--;
+				this.climateWeatherTimeActive += 1;
 				if (this.climateWeatherMinTimeLeft !== 0) this.climateWeatherMinTimeLeft--;
 			}
 			if (this.seeking === null) {
@@ -1418,6 +1428,7 @@ export class Battle {
 				}
 				this.climateWeatherTimeLeft = (this.gen <= 5 || isExtremeWeather) ? 0 : 8;
 				this.climateWeatherMinTimeLeft = (this.gen <= 5 || isExtremeWeather) ? 0 : 5;
+				this.climateWeatherTimeActive = 1;
 			} else if (isExtremeWeather) {
 				this.climateWeatherTimeLeft = 0;
 				this.climateWeatherMinTimeLeft = 0;
@@ -1433,10 +1444,12 @@ export class Battle {
 		let weather = toID(weatherName);
 		if (!weather || weather === 'none') {
 			weather = '' as ID;
+			this.irritantWeatherTimeActive = 100;
 		}
 		if (isUpkeep) {
 			if (this.irritantWeather && this.irritantWeatherTimeLeft) {
 				this.irritantWeatherTimeLeft--;
+				this.irritantWeatherTimeActive += 1;
 				if (this.irritantWeatherMinTimeLeft !== 0) this.irritantWeatherMinTimeLeft--;
 			}
 			if (this.seeking === null) {
@@ -1452,6 +1465,7 @@ export class Battle {
 				}
 				this.irritantWeatherTimeLeft = (this.gen <= 5 || isExtremeWeather) ? 0 : 8;
 				this.irritantWeatherMinTimeLeft = (this.gen <= 5 || isExtremeWeather) ? 0 : 5;
+				this.irritantWeatherTimeActive = 1;
 			} else if (isExtremeWeather) {
 				this.irritantWeatherTimeLeft = 0;
 				this.irritantWeatherMinTimeLeft = 0;
@@ -1467,10 +1481,12 @@ export class Battle {
 		let weather = toID(weatherName);
 		if (!weather || weather === 'none') {
 			weather = '' as ID;
+			this.energyWeatherTimeActive = 100;
 		}
 		if (isUpkeep) {
 			if (this.energyWeather && this.energyWeatherTimeLeft) {
 				this.energyWeatherTimeLeft--;
+				this.energyWeatherTimeActive += 1;
 				if (this.energyWeatherMinTimeLeft !== 0) this.energyWeatherMinTimeLeft--;
 			}
 			if (this.seeking === null) {
@@ -1486,6 +1502,7 @@ export class Battle {
 				}
 				this.energyWeatherTimeLeft = (this.gen <= 5 || isExtremeWeather) ? 0 : 8;
 				this.energyWeatherMinTimeLeft = (this.gen <= 5 || isExtremeWeather) ? 0 : 5;
+				this.energyWeatherTimeActive = 1;
 			} else if (isExtremeWeather) {
 				this.energyWeatherTimeLeft = 0;
 				this.energyWeatherMinTimeLeft = 0;
@@ -1501,10 +1518,12 @@ export class Battle {
 		let weather = toID(weatherName);
 		if (!weather || weather === 'none') {
 			weather = '' as ID;
+			this.clearingWeatherTimeActive = 100;
 		}
 		if (isUpkeep) {
 			if (this.clearingWeather && this.clearingWeatherTimeLeft) {
 				this.clearingWeatherTimeLeft--;
+				this.clearingWeatherTimeActive += 1;
 				if (this.clearingWeatherMinTimeLeft !== 0) this.clearingWeatherMinTimeLeft--;
 			}
 			if (this.seeking === null) {
@@ -1520,6 +1539,7 @@ export class Battle {
 				}
 				this.clearingWeatherTimeLeft = (this.gen <= 5 || isExtremeWeather) ? 0 : 8;
 				this.clearingWeatherMinTimeLeft = (this.gen <= 5 || isExtremeWeather) ? 0 : 5;
+				this.clearingWeatherTimeActive = 1;
 			} else if (isExtremeWeather) {
 				this.clearingWeatherTimeLeft = 0;
 				this.clearingWeatherMinTimeLeft = 0;
@@ -1530,6 +1550,45 @@ export class Battle {
 		}
 		this.clearingWeather = weather;
 		this.scene.updateWeather();
+	}
+	getRecentWeather(item: string | null = null) {
+		if (this.climateWeatherTimeActive <= this.irritantWeatherTimeActive && this.climateWeatherTimeActive <= this.energyWeatherTimeActive && this.climateWeatherTimeActive <= this.clearingWeatherTimeActive && this.climateWeatherTimeActive < 100 && item !== 'utilityumbrella') {
+			return this.climateWeather;
+		} else if (this.irritantWeatherTimeActive <= this.climateWeatherTimeActive && this.irritantWeatherTimeActive <= this.energyWeatherTimeActive && this.irritantWeatherTimeActive <= this.clearingWeatherTimeActive && this.irritantWeatherTimeActive < 100 && item !== 'safetygoggles') {
+			return this.irritantWeather;
+		} else if (this.energyWeatherTimeActive <= this.irritantWeatherTimeActive && this.energyWeatherTimeActive <= this.climateWeatherTimeActive && this.energyWeatherTimeActive <= this.clearingWeatherTimeActive && this.energyWeatherTimeActive < 100 && item !== 'energynullifier') {
+			return this.energyWeather;
+		} else if (this.clearingWeatherTimeActive <= this.irritantWeatherTimeActive && this.clearingWeatherTimeActive <= this.energyWeatherTimeActive && this.clearingWeatherTimeActive <= this.climateWeatherTimeActive && this.clearingWeatherTimeActive < 100) {
+			return this.clearingWeather;
+		} else {
+			if (item === 'utilityumbrella') {
+				if (this.irritantWeatherTimeActive <= this.energyWeatherTimeActive && this.irritantWeatherTimeActive <= this.clearingWeatherTimeActive && this.irritantWeatherTimeActive < 100) {
+					return this.irritantWeather;
+				} else if (this.energyWeatherTimeActive <= this.irritantWeatherTimeActive && this.energyWeatherTimeActive <= this.clearingWeatherTimeActive && this.energyWeatherTimeActive < 100) {
+					return this.energyWeather;
+				} else if (this.clearingWeatherTimeActive <= this.irritantWeatherTimeActive && this.clearingWeatherTimeActive <= this.energyWeatherTimeActive && this.clearingWeatherTimeActive < 100) {
+					return this.clearingWeather;
+				}
+			}
+			if (item === 'safetygoggles') {
+				if (this.climateWeatherTimeActive <= this.energyWeatherTimeActive && this.climateWeatherTimeActive <= this.clearingWeatherTimeActive && this.climateWeatherTimeActive < 100) {
+					return this.climateWeather;
+				} else if (this.energyWeatherTimeActive <= this.climateWeatherTimeActive && this.energyWeatherTimeActive <= this.clearingWeatherTimeActive && this.energyWeatherTimeActive < 100) {
+					return this.energyWeather;
+				} else if (this.clearingWeatherTimeActive <= this.energyWeatherTimeActive && this.clearingWeatherTimeActive <= this.climateWeatherTimeActive && this.clearingWeatherTimeActive < 100) {
+					return this.clearingWeather;
+				}
+			}
+			if (item === 'energynullifier') {
+				if (this.climateWeatherTimeActive <= this.irritantWeatherTimeActive && this.climateWeatherTimeActive <= this.clearingWeatherTimeActive && this.climateWeatherTimeActive < 100) {
+					return this.climateWeather;
+				} else if (this.irritantWeatherTimeActive <= this.climateWeatherTimeActive && this.irritantWeatherTimeActive <= this.clearingWeatherTimeActive && this.irritantWeatherTimeActive < 100) {
+					return this.irritantWeather;
+				} else if (this.clearingWeatherTimeActive <= this.irritantWeatherTimeActive && this.clearingWeatherTimeActive <= this.climateWeatherTimeActive && this.clearingWeatherTimeActive < 100) {
+					return this.clearingWeather;
+				}
+			}
+		}
 	}
 	swapSideConditions() {
 		const sideConditions = [
