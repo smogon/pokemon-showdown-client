@@ -1162,14 +1162,23 @@ class BattleTooltips {
 
 		// check for light ball, thick club, metal/quick powder
 		// the only stat modifying items in gen 2 were light ball, thick club, metal powder
-		if (item === 'lightball' && speciesName === 'Pikachu' && this.battle.gen !== 4) {
+		if (item === 'lightball') {
+			if (this.battle.gen !== 4 && (speciesName === 'Pikachu' || speciesName === 'Pichu')) {
 			if (this.battle.gen > 4) stats.atk *= 2;
 			stats.spa *= 2;
+			}
+			if (speciesName === 'Raichu' || speciesName === 'Emolga' || speciesName === 'Guruchi') {
+				stats.atk *= 1.5;
+				stats.spa *= 1.5;
+			}
 		}
 
 		if (item === 'thickclub') {
 			if (speciesName === 'Marowak' || speciesName === 'Cubone') {
 				stats.atk *= 2;
+			}
+			if (speciesName === 'Bearvoyance' || speciesName === 'Oracub') {
+				stats.spa *= 1.5;
 			}
 		}
 
@@ -2430,7 +2439,7 @@ class BattleTooltips {
 
 		// Plates
 		if (item.onPlate === moveType && !item.zMove) {
-			value.itemModify(1.2);
+			value.itemModify(1.3);
 			return value;
 		}
 
