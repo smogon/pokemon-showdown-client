@@ -948,7 +948,7 @@ export class BattleScene implements BattleSceneStub {
 			} else if (this.battle.climateWeatherTimeLeft !== 0) {
 				weatherhtml += ` <small>(${this.battle.climateWeatherTimeLeft} turn${this.battle.climateWeatherTimeLeft === 1 ? '' : 's'})</small>`;
 			}
-			const nullifyWeather = this.battle.abilityActive(['Air Lock', 'Cloud Nine']);
+			const nullifyWeather = this.battle.abilityActive(['Air Lock', 'Cloud Nine', 'Nullify']);
 			weatherhtml = `${nullifyWeather ? '<s>' : ''}${weatherhtml}${nullifyWeather ? '</s>' : ''}`;
 		}
 
@@ -977,6 +977,8 @@ export class BattleScene implements BattleSceneStub {
 			if (this.climateWeatherLeft()) {
 				weatherhtml = `<br />` + weatherhtml;
 			}
+			const nullifyWeather = this.battle.abilityActive('Nullify');
+			weatherhtml = `${nullifyWeather ? '<s>' : ''}${weatherhtml}${nullifyWeather ? '</s>' : ''}`;
 		}
 
 		return weatherhtml;
@@ -1007,6 +1009,8 @@ export class BattleScene implements BattleSceneStub {
 			if (this.irritantWeatherLeft()) {
 				weatherhtml = `<br />` + weatherhtml;
 			}
+			const nullifyWeather = this.battle.abilityActive('Nullify');
+			weatherhtml = `${nullifyWeather ? '<s>' : ''}${weatherhtml}${nullifyWeather ? '</s>' : ''}`;
 		}
 
 		return weatherhtml;
@@ -1035,6 +1039,8 @@ export class BattleScene implements BattleSceneStub {
 			if (this.energyWeatherLeft()) {
 				weatherhtml = `<br />` + weatherhtml;
 			}
+			const nullifyWeather = this.battle.abilityActive('Nullify');
+			weatherhtml = `${nullifyWeather ? '<s>' : ''}${weatherhtml}${nullifyWeather ? '</s>' : ''}`;
 		}
 
 		for (const pseudoWeather of this.battle.pseudoWeather) {
@@ -1086,7 +1092,7 @@ export class BattleScene implements BattleSceneStub {
 		let irritantWeather = this.battle.irritantWeather;
 		let energyWeather = this.battle.energyWeather;
 		let clearingWeather = this.battle.clearingWeather;
-		if (this.battle.abilityActive(['Air Lock', 'Cloud Nine'])) {
+		if (this.battle.abilityActive(['Air Lock', 'Cloud Nine', 'Nullify'])) {
 			climateWeather = '' as ID;
 		}
 		let terrain = '' as ID;

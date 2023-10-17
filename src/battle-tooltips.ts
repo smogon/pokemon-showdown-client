@@ -81,7 +81,7 @@ class ModifiableValue {
 		else if (weatherName !== this.climateWeatherName) return false;
 		for (const side of this.battle.sides) {
 			for (const active of side.active) {
-				if (active && ['Air Lock', 'Cloud Nine'].includes(active.ability)) {
+				if (active && ['Air Lock', 'Cloud Nine', 'Nullify'].includes(active.ability)) {
 					this.comment.push(` (${weatherName} suppressed by ${active.ability})`);
 					return false;
 				}
@@ -93,18 +93,42 @@ class ModifiableValue {
 		if (!this.irritantWeatherName) return false;
 		if (!weatherName) weatherName = this.irritantWeatherName;
 		else if (weatherName !== this.irritantWeatherName) return false;
+		for (const side of this.battle.sides) {
+			for (const active of side.active) {
+				if (active && ['Nullify'].includes(active.ability)) {
+					this.comment.push(` (${weatherName} suppressed by ${active.ability})`);
+					return false;
+				}
+			}
+		}
 		return true;
 	}
 	tryEnergyWeather(weatherName?: string) {
 		if (!this.energyWeatherName) return false;
 		if (!weatherName) weatherName = this.energyWeatherName;
 		else if (weatherName !== this.energyWeatherName) return false;
+		for (const side of this.battle.sides) {
+			for (const active of side.active) {
+				if (active && ['Nullify'].includes(active.ability)) {
+					this.comment.push(` (${weatherName} suppressed by ${active.ability})`);
+					return false;
+				}
+			}
+		}
 		return true;
 	}
 	tryClearingWeather(weatherName?: string) {
 		if (!this.clearingWeatherName) return false;
 		if (!weatherName) weatherName = this.clearingWeatherName;
 		else if (weatherName !== this.clearingWeatherName) return false;
+		for (const side of this.battle.sides) {
+			for (const active of side.active) {
+				if (active && ['Nullify'].includes(active.ability)) {
+					this.comment.push(` (${weatherName} suppressed by ${active.ability})`);
+					return false;
+				}
+			}
+		}
 		return true;
 	}
 	itemModify(factor: number, itemName?: string) {
