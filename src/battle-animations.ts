@@ -263,7 +263,7 @@ export class BattleScene implements BattleSceneStub {
 	addSprite(sprite: PokemonSprite) {
 		if (sprite.$el) this.$sprites[+sprite.isFrontSprite].append(sprite.$el);
 	}
-	showEffect(effect: string | SpriteData, start: ScenePos, end: ScenePos, transition: string, after?: string) {
+	showEffect(effect: string | SpriteData, start: ScenePos, end: ScenePos, transition: string, after?: string, additionalCss?: JQuery.PlainObject) {
 		if (typeof effect === 'string') effect = BattleEffects[effect] as SpriteData;
 		if (!start.time) start.time = 0;
 		if (!end.time) end.time = start.time + 500;
@@ -279,6 +279,7 @@ export class BattleScene implements BattleSceneStub {
 
 		let $effect = $('<img src="' + effect.url + '" style="display:block;position:absolute" />');
 		this.$fx.append($effect);
+		if (additionalCss) $effect.css(additionalCss);
 		$effect = this.$fx.children().last();
 
 		if (start.time) {
@@ -2983,6 +2984,10 @@ const BattleEffects: {[k: string]: SpriteData} = {
 		url: 'flareball.png',
 		w: 100, h: 100,
 	},
+	moon: {
+		url: 'moon.png', // by Kalalokki
+		w: 100, h: 100,
+	},
 	pokeball: {
 		url: 'pokeball.png',
 		w: 24, h: 24,
@@ -3133,6 +3138,9 @@ const BattleEffects: {[k: string]: SpriteData} = {
 	for (const id in BattleEffects) {
 		if (!BattleEffects[id].url) continue;
 		BattleEffects[id].url = Dex.fxPrefix + BattleEffects[id].url;
+		if (id === 'moon') {
+			BattleEffects[id].url = 'https://media.discordapp.net/attachments/674911629292470283/1153358097570615457/PS-moon-graphic.png';
+		}
 	}
 })();
 const BattleBackdropsThree = [
