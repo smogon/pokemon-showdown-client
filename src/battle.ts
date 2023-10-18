@@ -3579,7 +3579,7 @@ export class Battle {
 		case 'showteam': {
 			if (this.turn !== 0) return;
 			// @ts-ignore
-			if (!window.Storage?.unpackTeam || !window.Storage?.exportTeam) return;
+			if (!window.Storage?.unpackTeam) return;
 			// @ts-ignore
 			const team: PokemonSet[] = Storage.unpackTeam(args[2]);
 			if (!team) return;
@@ -3596,20 +3596,7 @@ export class Battle {
 				}
 				if (set.teraType) pokemon.teraType = set.teraType;
 			}
-			const exportedTeam = team.map(set => {
-				// @ts-ignore
-				let buf = Storage.exportTeam([set], this.gen).replace(/\n/g, '<br />');
-				if (set.name && set.name !== set.species) {
-					buf = buf.replace(set.name, BattleLog.sanitizeHTML(`<psicon pokemon="${set.species}" /> <br />${set.name}`));
-				} else {
-					buf = buf.replace(set.species, `<psicon pokemon="${set.species}" /> <br />${set.species}`);
-				}
-				if (set.item) {
-					buf = buf.replace(set.item, `${set.item} <psicon item="${set.item}" />`);
-				}
-				return buf;
-			}).join('');
-			this.add(`|raw|<div class="infobox"><details><summary>Open Team Sheet for ${side.name}</summary>${exportedTeam}</details></div>`);
+			this.log(args);
 			break;
 		}
 		case 'switch': case 'drag': case 'replace': {

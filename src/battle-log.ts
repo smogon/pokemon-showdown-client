@@ -259,6 +259,30 @@ export class BattleLog {
 			app.rooms[roomid].notifyOnce(title, body, 'highlight');
 			break;
 
+		case 'showteam': {
+			// @ts-ignore
+			if (!window.Storage?.unpackTeam || !window.Storage?.exportTeam) return;
+			// @ts-ignore
+			const team: PokemonSet[] = Storage.unpackTeam(args[2]);
+			const side = this.scene?.battle.getSide(args[1]);
+			if (!team || !side) return;
+			const exportedTeam = team.map(set => {
+				// @ts-ignore
+				let buf = Storage.exportTeam([set], this.gen).replace(/\n/g, '<br />');
+				if (set.name && set.name !== set.species) {
+					buf = buf.replace(set.name, BattleLog.sanitizeHTML(`<span class="picon" style="${Dex.getPokemonIcon(set.species)}"></span><br />${set.name}`));
+				} else {
+					buf = buf.replace(set.species, `<span class="picon" style="${Dex.getPokemonIcon(set.species)}"></span><br />${set.species}`);
+				}
+				if (set.item) {
+					buf = buf.replace(set.item, `${set.item} <span class="itemicon" style="${Dex.getItemIcon(set.item)}"></span>`);
+				}
+				return buf;
+			}).join('');
+			divHTML = `<div class="infobox"><details><summary>Open Team Sheet for ${side.name}</summary>${exportedTeam}</details></div>`;
+			break;
+		}
+
 		case 'seed': case 'choice': case ':': case 'timer': case 't:':
 		case 'J': case 'L': case 'N': case 'spectator': case 'spectatorleave':
 		case 'initdone':
