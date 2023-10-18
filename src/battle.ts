@@ -3334,7 +3334,7 @@ export class Battle {
 		let j = 0;
 
 		while (true) {
-			const set: PokemonSet = {} as any as PokemonSet;
+			const set: PokemonSet = {} as any;
 			team.push(set);
 
 			// name
