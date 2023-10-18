@@ -1872,11 +1872,11 @@ class BattleTooltips {
 			value.climateWeatherModify(0, 'Rain Dance');
 			value.climateWeatherModify(0, 'Primordial Sea');
 		}
-		if (move.flags['wind']) {
-			value.clearingWeatherModify(0, 'Strong Winds');
-		}
 		if (move.type === 'Steel') { // incomplete, need to code electric moves vs steel
 			value.energyWeatherModify(0, 'Magnetosphere');
+		}
+		if (move.flags['wind']) {
+			value.clearingWeatherModify(0, 'Strong Winds');
 		}
 		value.abilityModify(0, 'No Guard');
 		if (!value.value) return value;
@@ -1907,26 +1907,23 @@ class BattleTooltips {
 		// Accuracy modifiers start
 
 		let accuracyModifiers = [];
+		if (move.type !== 'Normal' || !value.tryAbility('Droughtproof')) {
+			if (value.tryClimateWeather('Foghorn')) value.modify(9 / 10, 'Fog');
+		}
+		if ((this.pokemonHasType(pokemon, 'Bug') || this.pokemonHasType(pokemon, 'Bug')) && !value.tryItem('Safety Goggles')) {
+			if (value.tryIrritantWeather('Swarm Signal')) value.modify(4 / 3, 'Pheromones');
+		}
+		if (value.tryAbility('Master Instinct')) {
+			if (value.tryEnergyWeather('Aura Projection')) value.modify(1.2, 'Battle Aura');
+		}
+
 		if (this.battle.hasPseudoWeather('Gravity')) {
 			accuracyModifiers.push(6840);
 			value.modify(5 / 3, "Gravity");
 		}
-
-		if (this.battle.climateWeather.includes('Fog')) { // incomplete
-			if (move.type !== 'Normal' && value.pokemon.ability !== 'bubblehelm') {
-				accuracyModifiers.push(3686);
-				value.modify(9 / 10, "Fog");
-			}
-		}
-		if (this.battle.irritantWeather.includes('Pheromones')) { // incomplete
-			if (this.pokemonHasType(pokemon, 'Bug') || this.pokemonHasType(pokemon, 'Poison')) {
-				accuracyModifiers.push(5461);
-				value.modify(4 / 3, "Pheromones");
-			}
-		}
-		if (this.battle.hasPseudoWeather('Pearl Drop')) { // incomplete
+		if (this.battle.hasPseudoWeather('Pearl Drop')) {
 			accuracyModifiers.push(3686);
-				value.modify(9 / 10, "Pearl Drop");
+			value.modify(9 / 10, "Pearl Drop");
 		}
 
 		for (const active of pokemon.side.active) {
@@ -1944,13 +1941,7 @@ class BattleTooltips {
 		} else if (value.tryAbility('Compound Eyes')) {
 			accuracyModifiers.push(5325);
 			value.abilityModify(1.3, "Compound Eyes");
-		} else if (value.tryAbility('Master Instinct')) { // incomplete
-			if (this.battle.energyWeather.includes('Battle Aura')) {
-				accuracyModifiers.push(4915);
-				value.abilityModify(1.2, "Master Instinct");
-			}
 		}
-
 		if (value.tryItem('Wide Lens')) {
 			accuracyModifiers.push(4505);
 			value.itemModify(1.1, "Wide Lens");
