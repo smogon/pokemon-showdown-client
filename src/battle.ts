@@ -3325,6 +3325,256 @@ export class Battle {
 		} as any;
 	}
 
+	// Taken from Storage, they need to be implemented here so `showteam` can work
+	unpackTeam(buf: string) {
+		if (!buf) return [];
+
+		const team = [];
+		let i = 0;
+		let j = 0;
+
+		while (true) {
+			const set: PokemonSet = {} as any as PokemonSet;
+			team.push(set);
+
+			// name
+			j = buf.indexOf('|', i);
+			set.name = buf.substring(i, j);
+			i = j + 1;
+
+			// species
+			j = buf.indexOf('|', i);
+			set.species = Dex.species.get(buf.substring(i, j)).name || set.name;
+			i = j + 1;
+
+			// item
+			j = buf.indexOf('|', i);
+			set.item = Dex.items.get(buf.substring(i, j)).name;
+			i = j + 1;
+
+			// ability
+			j = buf.indexOf('|', i);
+			const ability = Dex.abilities.get(buf.substring(i, j)).name;
+			const species = Dex.species.get(set.species);
+			set.ability = (species.abilities &&
+				['', '0', '1', 'H', 'S'].includes(ability) ? species.abilities[ability as '0' || '0'] : ability);
+			i = j + 1;
+
+			// moves
+			j = buf.indexOf('|', i);
+			set.moves = buf.substring(i, j).split(',').map(function (moveid) {
+				return Dex.moves.get(moveid).name;
+			});
+			i = j + 1;
+
+			// nature
+			j = buf.indexOf('|', i);
+			set.nature = buf.substring(i, j) as NatureName;
+			if (set.nature as any === 'undefined') delete set.nature;
+			i = j + 1;
+
+			// evs
+			j = buf.indexOf('|', i);
+			if (j !== i) {
+				const evstring = buf.substring(i, j);
+				if (evstring.length > 5) {
+					const evs = evstring.split(',');
+					set.evs = {
+						hp: Number(evs[0]) || 0,
+						atk: Number(evs[1]) || 0,
+						def: Number(evs[2]) || 0,
+						spa: Number(evs[3]) || 0,
+						spd: Number(evs[4]) || 0,
+						spe: Number(evs[5]) || 0,
+					};
+				} else if (evstring === '0') {
+					set.evs = {hp: 0, atk: 0, def: 0, spa: 0, spd: 0, spe: 0};
+				}
+			}
+			i = j + 1;
+
+			// gender
+			j = buf.indexOf('|', i);
+			if (i !== j) set.gender = buf.substring(i, j);
+			i = j + 1;
+
+			// ivs
+			j = buf.indexOf('|', i);
+			if (j !== i) {
+				const ivs = buf.substring(i, j).split(',');
+				set.ivs = {
+					hp: ivs[0] === '' ? 31 : Number(ivs[0]),
+					atk: ivs[1] === '' ? 31 : Number(ivs[1]),
+					def: ivs[2] === '' ? 31 : Number(ivs[2]),
+					spa: ivs[3] === '' ? 31 : Number(ivs[3]),
+					spd: ivs[4] === '' ? 31 : Number(ivs[4]),
+					spe: ivs[5] === '' ? 31 : Number(ivs[5]),
+				};
+			}
+			i = j + 1;
+
+			// shiny
+			j = buf.indexOf('|', i);
+			if (i !== j) set.shiny = true;
+			i = j + 1;
+
+			// level
+			j = buf.indexOf('|', i);
+			if (i !== j) set.level = parseInt(buf.substring(i, j), 10);
+			i = j + 1;
+
+			// happiness
+			j = buf.indexOf(']', i);
+			let misc;
+			if (j < 0) {
+				if (i < buf.length) misc = buf.substring(i).split(',', 6);
+			} else {
+				if (i !== j) misc = buf.substring(i, j).split(',', 6);
+			}
+			if (misc) {
+				set.happiness = (misc[0] ? Number(misc[0]) : 255);
+				set.hpType = misc[1];
+				set.pokeball = misc[2];
+				set.gigantamax = !!misc[3];
+				set.dynamaxLevel = (misc[4] ? Number(misc[4]) : 10);
+				set.teraType = misc[5];
+			}
+			if (j < 0) break;
+			i = j + 1;
+		}
+
+		return team;
+	}
+	exportTeam(team: PokemonSet[] | string, gen = this.gen, hidestats = false) {
+		if (!team) return '';
+		if (typeof team === 'string') {
+			if (team.indexOf('\n') >= 0) return team;
+			team = this.unpackTeam(team);
+		}
+		let text = '';
+		for (const curSet of team) {
+			if (curSet.name && curSet.name !== curSet.species) {
+				text += '' + curSet.name + ' (' + curSet.species + ')';
+			} else {
+				text += '' + curSet.species;
+			}
+			if (curSet.gender === 'M') text += ' (M)';
+			if (curSet.gender === 'F') text += ' (F)';
+			if (curSet.item) {
+				text += ' @ ' + curSet.item;
+			}
+			text += "  \n";
+			if (curSet.ability) {
+				text += 'Ability: ' + curSet.ability + "  \n";
+			}
+			if (curSet.level && curSet.level !== 100) {
+				text += 'Level: ' + curSet.level + "  \n";
+			}
+			if (curSet.shiny) {
+				text += 'Shiny: Yes  \n';
+			}
+			if (typeof curSet.happiness === 'number' && curSet.happiness !== 255 && !isNaN(curSet.happiness)) {
+				text += 'Happiness: ' + curSet.happiness + "  \n";
+			}
+			if (curSet.pokeball) {
+				text += 'Pokeball: ' + curSet.pokeball + "  \n";
+			}
+			if (curSet.hpType) {
+				text += 'Hidden Power: ' + curSet.hpType + "  \n";
+			}
+			if (typeof curSet.dynamaxLevel === 'number' && curSet.dynamaxLevel !== 10 && !isNaN(curSet.dynamaxLevel)) {
+				text += 'Dynamax Level: ' + curSet.dynamaxLevel + "  \n";
+			}
+			if (curSet.gigantamax) {
+				text += 'Gigantamax: Yes  \n';
+			}
+			if (gen === 9) {
+				const species = Dex.species.get(curSet.species);
+				text += 'Tera Type: ' + (species.forceTeraType || curSet.teraType || species.types[0]) + "  \n";
+			}
+			if (!hidestats) {
+				let first = true;
+				if (curSet.evs) {
+					let j: StatName;
+					for (j in BattleStatNames) {
+						if (!curSet.evs[j]) continue;
+						if (first) {
+							text += 'EVs: ';
+							first = false;
+						} else {
+							text += ' / ';
+						}
+						text += '' + curSet.evs[j] + ' ' + BattleStatNames[j];
+					}
+				}
+				if (!first) {
+					text += "  \n";
+				}
+				if (curSet.nature) {
+					text += '' + curSet.nature + ' Nature' + "  \n";
+				}
+				first = true;
+				if (curSet.ivs) {
+					let defaultIvs = true;
+					let hpType = '';
+					for (const move of curSet.moves) {
+						if (move.substr(0, 13) === 'Hidden Power ' && move.substr(0, 14) !== 'Hidden Power [') {
+							hpType = move.substr(13);
+							if (!Dex.types.isName(hpType)) {
+								alert(move + " is not a valid Hidden Power type.");
+								continue;
+							}
+							let stat: StatName;
+							for (stat in BattleStatNames) {
+								if ((curSet.ivs[stat] === undefined ? 31 : curSet.ivs[stat]) !== (Dex.types.get(hpType).HPivs?.[stat] || 31)) {
+									defaultIvs = false;
+									break;
+								}
+							}
+						}
+					}
+					if (defaultIvs && !hpType) {
+						let stat: StatName;
+						for (stat in BattleStatNames) {
+							if (curSet.ivs[stat] !== 31 && curSet.ivs[stat] !== undefined) {
+								defaultIvs = false;
+								break;
+							}
+						}
+					}
+					if (!defaultIvs) {
+						let stat: StatName;
+						for (stat in BattleStatNames) {
+							if (typeof curSet.ivs[stat] === 'undefined' || isNaN(curSet.ivs[stat]) || curSet.ivs[stat] === 31) continue;
+							if (first) {
+								text += 'IVs: ';
+								first = false;
+							} else {
+								text += ' / ';
+							}
+							text += '' + curSet.ivs[stat] + ' ' + BattleStatNames[stat];
+						}
+					}
+				}
+				if (!first) {
+					text += "  \n";
+				}
+			}
+			if (curSet.moves) {
+				for (let move of curSet.moves) {
+					if (move.substr(0, 13) === 'Hidden Power ') {
+						move = move.substr(0, 13) + '[' + move.substr(13) + ']';
+					}
+					if (move) {
+						text += '- ' + move + "  \n";
+					}
+				}
+			}
+			text += "\n";
+		}
+		return text;
+	}
+
 	add(command?: string) {
 		if (command) this.stepQueue.push(command);
 
@@ -3577,12 +3827,8 @@ export class Battle {
 			break;
 		}
 		case 'showteam': {
-			if (this.turn !== 0) return;
-			// @ts-ignore
-			if (!window.Storage?.unpackTeam) return;
-			// @ts-ignore
-			const team: PokemonSet[] = Storage.unpackTeam(args[2]);
-			if (!team) return;
+			const team: PokemonSet[] = this.unpackTeam(args[2]);
+			if (!team.length) return;
 			const side = this.getSide(args[1]);
 			side.clearPokemon();
 			for (const set of team) {

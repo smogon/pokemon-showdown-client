@@ -99,8 +99,8 @@ export class BattleLog {
 	}
 	add(args: Args, kwArgs?: KWArgs, preempt?: boolean) {
 		if (kwArgs?.silent) return;
-		if (this.scene?.battle.seeking) {
-			const battle = this.scene.battle;
+		const battle = this.scene?.battle;
+		if (battle?.seeking) {
 			if (battle.stepQueue.length > 2000) {
 				// adding elements gets slower and slower the more there are
 				// (so showing 100 turns takes around 2 seconds, and 1000 turns takes around a minute)
@@ -122,7 +122,6 @@ export class BattleLog {
 		if (!['name', 'n'].includes(args[0])) this.lastRename = null;
 		switch (args[0]) {
 		case 'chat': case 'c': case 'c:':
-			let battle = this.scene?.battle;
 			let name;
 			let message;
 			if (args[0] === 'c:') {
@@ -260,15 +259,12 @@ export class BattleLog {
 			break;
 
 		case 'showteam': {
-			// @ts-ignore
-			if (!window.Storage?.unpackTeam || !window.Storage?.exportTeam) return;
-			// @ts-ignore
-			const team: PokemonSet[] = Storage.unpackTeam(args[2]);
-			const side = this.scene?.battle.getSide(args[1]);
-			if (!team || !side) return;
+			if (!battle) return;
+			const team: PokemonSet[] = battle.unpackTeam(args[2]);
+			if (!team.length) return;
+			const side = battle.getSide(args[1]);
 			const exportedTeam = team.map(set => {
-				// @ts-ignore
-				let buf = Storage.exportTeam([set], this.gen).replace(/\n/g, '<br />');
+				let buf = battle.exportTeam([set]).replace(/\n/g, '<br />');
 				if (set.name && set.name !== set.species) {
 					buf = buf.replace(set.name, BattleLog.sanitizeHTML(`<span class="picon" style="${Dex.getPokemonIcon(set.species)}"></span><br />${set.name}`));
 				} else {
