@@ -1912,19 +1912,19 @@ class BattleTooltips {
 			value.modify(5 / 3, "Gravity");
 		}
 
-		if (this.battle.climateWeather.includes('Fog')) {
+		if (this.battle.climateWeather.includes('Fog')) { // incomplete
 			if (move.type !== 'Normal' && value.pokemon.ability !== 'bubblehelm') {
 				accuracyModifiers.push(3686);
 				value.modify(9 / 10, "Fog");
 			}
 		}
-		if (this.battle.irritantWeather.includes('Pheromones')) {
+		if (this.battle.irritantWeather.includes('Pheromones')) { // incomplete
 			if (this.pokemonHasType(pokemon, 'Bug') || this.pokemonHasType(pokemon, 'Poison')) {
 				accuracyModifiers.push(5461);
 				value.modify(4 / 3, "Pheromones");
 			}
 		}
-		if (this.battle.hasPseudoWeather('Pearl Drop')) {
+		if (this.battle.hasPseudoWeather('Pearl Drop')) { // incomplete
 			accuracyModifiers.push(3686);
 				value.modify(9 / 10, "Pearl Drop");
 		}
@@ -1944,10 +1944,10 @@ class BattleTooltips {
 		} else if (value.tryAbility('Compound Eyes')) {
 			accuracyModifiers.push(5325);
 			value.abilityModify(1.3, "Compound Eyes");
-		} else if (value.tryAbility('Master Instinct')) {
+		} else if (value.tryAbility('Master Instinct')) { // incomplete
 			if (this.battle.energyWeather.includes('Battle Aura')) {
 				accuracyModifiers.push(4915);
-				value.abilityModify(1.2, "Master Instinct ");
+				value.abilityModify(1.2, "Master Instinct");
 			}
 		}
 
