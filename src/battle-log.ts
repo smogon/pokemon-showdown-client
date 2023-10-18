@@ -260,7 +260,7 @@ export class BattleLog {
 
 		case 'showteam': {
 			if (!battle) return;
-			const team: PokemonSet[] = battle.unpackTeam(args[2]);
+			const team = battle.unpackTeam(args[2]);
 			if (!team.length) return;
 			const side = battle.getSide(args[1]);
 			const exportedTeam = team.map(set => {

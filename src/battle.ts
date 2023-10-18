@@ -3827,7 +3827,7 @@ export class Battle {
 			break;
 		}
 		case 'showteam': {
-			const team: PokemonSet[] = this.unpackTeam(args[2]);
+			const team = this.unpackTeam(args[2]);
 			if (!team.length) return;
 			const side = this.getSide(args[1]);
 			side.clearPokemon();
@@ -3842,7 +3842,7 @@ export class Battle {
 				}
 				if (set.teraType) pokemon.teraType = set.teraType;
 			}
-			this.log(args);
+			this.log(args, kwArgs);
 			break;
 		}
 		case 'switch': case 'drag': case 'replace': {
