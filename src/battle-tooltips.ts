@@ -2093,14 +2093,19 @@ class BattleTooltips {
 			}
 		}
 		if (move.id === 'weatherball') { // updated
-			if (this.battle.climateWeather) {
+			switch (this.battle.getRecentWeather()) {
+			case this.battle.climateWeather:
 				value.climateWeatherModify(2);
-			} else if (this.battle.irritantWeather) {
+				break;
+			case this.battle.irritantWeather:
 				value.irritantWeatherModify(2);
-			} else if (this.battle.energyWeather) {
+				break;
+			case this.battle.energyWeather:
 				value.energyWeatherModify(2);
-			} else if (this.battle.clearingWeather) {
+				break;
+			case this.battle.clearingWeather:
 				value.clearingWeatherModify(2);
+				break;
 			}
 		}
 		if (move.id === 'hydrosteam') {
