@@ -706,7 +706,9 @@ span.header-username:hover {
 	z-index: 20;
 }
 .ps-popup {
-	position: absolute;
+	position: fixed;
+	max-height: 99vh;
+	overflow-y: auto;
 	top: auto; right: auto; left: auto; bottom: auto;
 	text-align: left;
 	background: #E1E8E8;
