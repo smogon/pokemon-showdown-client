@@ -604,17 +604,17 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 		itemList.sort();
 
 		const newItems = [['header', "New items"]];
-		const greatItems = [['header', "Popular items"]];
+		const popularItems = [['header', "Popular items"]];
 		const healingBerryItems = [['header', " Healing Berries"]];
-		const plateItems = [['header', " Arceus Plates"]];
+		// const plateItems = [['header', " Arceus Plates"]];
 		const typeBoostItems = [['header', " Type boosting items"]];
-		const goodItems = [['header', "Good Items"]];
+		// const goodItems = [['header', "Good Items"]];
 		const nicheItems = [['header', "Niche Items"]];
 		const statBerryItems = [['header', " Stat Raising Berries"]];
 		const nicheBerryItems = [['header', " Niche Berries"]];
 		const poorItems = [['header', "Usually useless items"]];
 		const specificItems = [['header', "Pok&eacute;mon-specific items"]];
-		const badItems = [['header', "Useless items"]];
+		const uselessItems = [['header', "Useless items"]];
 		const futureItems = [['header', "Future items"]];
 		const unreleasedItems = [];
 		if (genNum === 6) unreleasedItems.push(['header', "Unreleased"]);
@@ -636,7 +636,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 				if (banlist.isBanned('item:' + item.id)) continue;
 			}
 			switch (id) {
-			// great items
+			// new items
 			case 'weatherballoon':
 			case 'volatilespray':
 			case 'energychannelizer':
@@ -655,6 +655,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			case 'flatunovan':
 				newItems.push(id);
 				break;
+			// popular items
 			case 'leftovers':
 			case 'lifeorb':
 			case 'choiceband':
@@ -669,23 +670,13 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			case 'expertbelt':
 			case 'salacberry':
 			case 'covertcloak':
-			// swse
 			case 'utilityumbrella':
 			case 'safetygoggles':
-				greatItems.push(id);
+			// swse
+				popularItems.push(id);
 				break;
 			case 'chestoberry':
 				healingBerryItems.push(id);
-				break;
-			case 'apicotberry':
-			case 'ganlonberry':
-			case 'keeberry':
-			case 'liechiberry':
-			case 'marangaberry':
-			case 'micleberry':
-			case 'petayaberry':
-			case 'starfberry':
-				statBerryItems.push(id);
 				break;
 			case 'blackbelt':
 			case 'blackglasses':
@@ -707,9 +698,43 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 				typeBoostItems.push(id);
 				break;
 			/* case 'airballoon':
-			case 'covertcloak':
 			case 'weaknesspolicy':
 				goodItems.push(id); */
+			case 'apicotberry':
+			case 'ganlonberry':
+			case 'keeberry':
+			case 'liechiberry':
+			case 'marangaberry':
+			case 'micleberry':
+			case 'petayaberry':
+			case 'starfberry':
+				statBerryItems.push(id);
+				break;
+			// outclassed items
+			case 'bindingband':
+			case 'destinyknot':
+			case 'floatstone':
+			case 'ironball':
+			case 'machobrace':
+			case 'poweranklet':
+			case 'powerband':
+			case 'powerbelt':
+			case 'powerbracer':
+			case 'powerlens':
+			case 'powerweight':
+			case 'ringtarget':
+			case 'bigroot':
+			case 'focusband':
+			// gen 2
+			case 'psncureberry':
+			case 'przcureberry':
+			case 'burntberry':
+			case 'bitterberry':
+			case 'iceberry':
+			case 'berry':
+			// swse
+				poorItems.push(id);
+				break;			
 			// Legendaries
 			case 'adamantorb':
 			case 'griseousorb':
@@ -786,38 +811,10 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			case 'masterpieceteacup':
 			case 'unremarkableteacup':
 			// swse
-			case 'amazedrive':
-			case 'blackaugurite':
-			case 'miststone':
 			case 'peatblock':
-			case 'scrollofdarkness':
-			case 'scrollofwaters':
-				badItems.push(id);
-				break;
-			// outclassed items
-			case 'bindingband':
-			case 'destinyknot':
-			case 'floatstone':
-			case 'ironball':
-			case 'machobrace':
-			case 'poweranklet':
-			case 'powerband':
-			case 'powerbelt':
-			case 'powerbracer':
-			case 'powerlens':
-			case 'powerweight':
-			case 'ringtarget':
-			case 'bigroot':
-			case 'focusband':
-			// gen 2
-			case 'psncureberry':
-			case 'przcureberry':
-			case 'burntberry':
-			case 'bitterberry':
-			case 'iceberry':
-			case 'berry':
-			// swse
-				poorItems.push(id);
+			case 'keybone':
+			case 'amazedrive':
+				uselessItems.push(id);
 				break;
 			case 'avocaberry':
 			case 'weathervane':
@@ -826,20 +823,20 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 				break;
 			// dependent items
 			/* case 'eviolite':
-				if (pokemon.baseSpecies.isNFE) greatItems.push(id);
-				else badItems.push(id);
+				if (pokemon.baseSpecies.isNFE) popularItems.push(id);
+				else uselessItems.push(id);
 				break; */
 			case 'mentalherb':
-				if (genNum > 4) greatItems.push(id);
+				if (genNum > 4) popularItems.push(id);
 				else poorItems.push(id);
 				break;
 			case 'lumberry':
 				if (genNum === 2 || genNum > 6) healingBerryItems.push(id);
-				else greatItems.push(id);
+				else popularItems.push(id);
 				break;
 			case 'sitrusberry':
 				if (genNum > 6) healingBerryItems.push(id);
-				else if (genNum > 3 && genNum < 7) greatItems.push(id);
+				else if (genNum > 3 && genNum < 7) popularItems.push(id);
 				else poorItems.push(id);
 				break;
 			case 'aguavberry':
@@ -855,12 +852,12 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 				else nicheItems.push(id);
 				break;
 			case 'dragonfang':
-				if (genNum === 2) badItems.push(id);
+				if (genNum === 2) uselessItems.push(id);
 				else typeBoostItems.push(id);
 				break;
 			case 'dragonscale':
 				if (genNum === 2) nicheItems.push(id);
-				else badItems.push(id);
+				else uselessItems.push(id);
 				break;
 			case 'mail':
 				if (genNum >= 6) unreleasedItems.push(id);
@@ -871,14 +868,14 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 					item.name.endsWith(" Ball") || item.name.endsWith(" Fossil") || item.name.startsWith("Fossilized ") ||
 					item.name.endsWith(" Sweet") || item.name.endsWith(" Apple")
 				) {
-					badItems.push(id);
+					uselessItems.push(id);
 				} else if (item.name.startsWith("TR")) {
-					badItems.push(id);
+					uselessItems.push(id);
 				} else if (item.name.endsWith(" Gem") && item.name !== "Normal Gem") {
 					if (genNum >= 6) {
 						unreleasedItems.push(id);
 					} else if (item.name === "Flying Gem") {
-						greatItems.push(id);
+						popularItems.push(id);
 					} else {
 						nicheItems.push(id);
 					}
@@ -889,6 +886,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 				} else if (item.name.startsWith("Rusted")) {
 					specificItems.push(id);
 				} else if (item.name.endsWith(" Plate")) {
+					// plateItems.push(id);
 					futureItems.push(id);
 				} else if (item.name.endsWith(" Berry")) {
 					nicheBerryItems.push(id);
@@ -902,7 +900,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			}
 		}
 		items.push(...newItems);
-		items.push(...greatItems);
+		items.push(...popularItems);
 		items.push(...healingBerryItems);
 		// items.push(...plateItems);
 		items.push(...typeBoostItems);
@@ -912,7 +910,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 		items.push(...nicheBerryItems);
 		items.push(...poorItems);
 		items.push(...specificItems);
-		items.push(...badItems);
+		items.push(...uselessItems);
 		items.push(...futureItems);
 		items.push(...unreleasedItems);
 	}
