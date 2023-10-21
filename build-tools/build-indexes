@@ -785,7 +785,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			case 'chippedpot':
 			case 'crackedpot':
 			case 'galaricawreath':
-			// added
+			// newly added
 			case 'auspiciousarmor':
 			case 'grepaberry':
 			case 'kelpsyberry':
