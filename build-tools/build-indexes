@@ -603,6 +603,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 		const itemList = Object.keys(Dex.data.Items);
 		itemList.sort();
 
+		const newItems = [['header', "New items"]];
 		const greatItems = [['header', "Popular items"]];
 		const goodItems = [['header', "Items"]];
 		const specificItems = [['header', "Pok&eacute;mon-specific items"]];
@@ -628,6 +629,28 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 				if (banlist.isBanned('item:' + item.id)) continue;
 			}
 			switch (id) {
+			// great items
+			case 'weatherballoon':
+			case 'volatilespray':
+			case 'energychannelizer':
+			case 'portableturbine':
+			case 'energynullifier':
+			// specific items
+			case 'weathervane':
+			case 'whirligig':
+			// poor items
+			case 'avocaberry':
+			case 'frostorb':
+			case 'charmingtalisman':
+			// undecided
+			case 'pikaspresso':
+			case 'worcanecoldbrew':
+			case 'sandygastmocha':
+			case 'mystictamroastdoppio':
+			case 'coffeegeistcappuccino':
+			case 'flatunovan':
+				newItems.push(id);
+				break;
 			case 'leftovers':
 			case 'lifeorb':
 			case 'choiceband':
@@ -642,10 +665,13 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			case 'expertbelt':
 			case 'salacberry':
 			// swse
-			case 'weatherballoon':
-			case 'volatilespray':
-			case 'energynullifier':
-			case 'portableturbine':
+			// case 'weatherballoon':
+			// case 'volatilespray':
+			// case 'energychannelizer':
+			// case 'portableturbine':
+			case 'utilityumbrella':
+			case 'safetygoggles':
+			// case 'energynullifier':
 				greatItems.push(id);
 				break;
 			/* case 'eviolite':
@@ -707,8 +733,8 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			case 'deepseascale':
 			case 'deepseatooth':
 			// swse
-			case 'weathervane':
-			case 'whirligig':
+			// case 'weathervane':
+			// case 'whirligig':
 				specificItems.push(id);
 				break;
 			// Fling-only
@@ -759,7 +785,20 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			case 'chippedpot':
 			case 'crackedpot':
 			case 'galaricawreath':
+			// added
+			case 'auspiciousarmor':
+			case 'grepaberry':
+			case 'kelpsyberry':
+			case 'maliciousarmor':
+			case 'masterpieceteacup':
+			case 'unremarkableteacup':
 			// swse
+			case 'amazedrive':
+			case 'blackaugurite':
+			case 'miststone':
+			case 'peatblock':
+			case 'scrollofdarkness':
+			case 'scrollofwaters':
 				badItems.push(id);
 				break;
 			// outclassed items
@@ -794,7 +833,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			case 'iceberry':
 			case 'berry':
 			// swse
-			case 'avocaberry':
+			// case 'avocaberry':
 				poorItems.push(id);
 				break;
 			default:
@@ -828,6 +867,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 				}
 			}
 		}
+		items.push(...newItems);
 		items.push(...greatItems);
 		items.push(...goodItems);
 		items.push(...specificItems);

@@ -1873,7 +1873,7 @@ class BattleTooltips {
 			value.climateWeatherModify(0, 'Primordial Sea');
 		}
 		if (move.type === 'Steel') { // incomplete, need to code electric moves vs steel
-			value.energyWeatherModify(0, 'Magnetosphere');
+			value.energyWeatherModify(0, 'Magnetize');
 		}
 		if (move.flags['wind']) {
 			value.clearingWeatherModify(0, 'Strong Winds');
@@ -2203,8 +2203,8 @@ class BattleTooltips {
 		if (pokemon.status === 'brn' && move.category === 'Special') {
 			value.abilityModify(1.5, "Flare Boost");
 		}
-		if (move.flags['punch']) {
-			value.abilityModify(1.3, 'Iron Fist');
+		if (move.flags['punch']) { // updated
+			value.abilityModify(1.5, 'Iron Fist');
 		}
 		if (move.flags['pulse']) {
 			value.abilityModify(1.5, "Mega Launcher");
@@ -2401,6 +2401,7 @@ class BattleTooltips {
 		'Black Belt': 'Fighting',
 		'Black Glasses': 'Dark',
 		'Charcoal': 'Fire',
+		'Charming Talisman': 'Fairy',
 		'Dragon Fang': 'Dragon',
 		'Hard Stone': 'Rock',
 		'Magnet': 'Electric',
