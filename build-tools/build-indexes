@@ -653,8 +653,6 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			case 'mystictamroastdoppio':
 			case 'coffeegeistcappuccino':
 			case 'flatunovan':
-			// delete
-			case 'avocaberry':
 				newItems.push(id);
 				break;
 			case 'leftovers':
@@ -821,6 +819,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			// swse
 				poorItems.push(id);
 				break;
+			case 'avocaberry':
 			case 'weathervane':
 			case 'whirligig':
 				futureItems.push(id);
