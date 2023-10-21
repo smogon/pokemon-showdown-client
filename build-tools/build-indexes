@@ -661,7 +661,6 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			case 'choiceband':
 			case 'choicescarf':
 			case 'choicespecs':
-			case 'eviolite':
 			case 'assaultvest':
 			case 'focussash':
 			case 'powerherb':
@@ -672,6 +671,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			case 'covertcloak':
 			case 'utilityumbrella':
 			case 'safetygoggles':
+			case 'eviolite':
 			// swse
 				popularItems.push(id);
 				break;
@@ -734,7 +734,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			case 'berry':
 			// swse
 				poorItems.push(id);
-				break;			
+				break;
 			// Legendaries
 			case 'adamantorb':
 			case 'griseousorb':
@@ -822,8 +822,8 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 				futureItems.push(id);
 				break;
 			// dependent items
-			/* case 'eviolite':
-				if (pokemon.baseSpecies.isNFE) popularItems.push(id);
+			/* case 'eviolite': // incomplete
+				if (isNFEviolite) popularItems.push(id);
 				else uselessItems.push(id);
 				break; */
 			case 'mentalherb':
@@ -847,7 +847,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 				if (genNum >= 7) healingBerryItems.push(id);
 				else poorItems.push(id);
 				break;
-			case 'berryjuice': // niche items maybe?
+			case 'berryjuice':
 				if (genNum === 2) poorItems.push(id);
 				else nicheItems.push(id);
 				break;
