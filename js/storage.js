@@ -585,6 +585,32 @@ Storage.loadTeams = function () {
 	} catch (e) {}
 };
 
+/** returns false to add the team, true to not add it, 'rename' to add it under a diff name */
+Storage.compareTeams = function (serverTeam, localTeam) {
+	// if titles match exactly and mons are the same, assume they're the same team
+	// if they don't match, it might be edited, but we'll go ahead and add it to the user's
+	// teambuilder since they may want that old version around. just go ahead and edit the name
+	var mons = serverTeam.team.split(',');
+	var matches = 0;
+	var otherMons = Storage.unpackTeam(localTeam.team);
+	for (var i = 0; i < mons.length; i++) {
+		for (var j = 0; j < otherMons.length; j++) {
+			if (toID(otherMons[j].species) === toID(mons[i])) {
+				matches++;
+			}
+		}
+	}
+	var localTeamName = localTeam.name.replace(' (server version)', '');
+	if (!(serverTeam.name === localTeamName && serverTeam.format === localTeam.format)) {
+		return false;
+	}
+	// if it's been edited since, invalidate the team id on this one (count it as new)
+	// and load from server
+	if (mons.length !== otherMons.length || matches !== otherMons.length) return 'rename';
+	if (serverTeam.teamid === localTeam.teamid && localTeam.teamid) return true;
+	return true;
+};
+
 Storage.loadRemoteTeams = function (after) {
 	$.get(app.user.getActionPHP(), {act: 'getteams'}, Storage.safeJSON(function (data) {
 		if (data.actionerror) {
@@ -595,11 +621,16 @@ Storage.loadRemoteTeams = function (after) {
 			var matched = false;
 			for (var j = 0; j < Storage.teams.length; j++) {
 				var curTeam = Storage.teams[j];
-				if (curTeam.teamid === team.teamid) {
+				var match = Storage.compareTeams(team, curTeam);
+				if (match === true) {
 					// prioritize locally saved teams over remote
 					// as so to not overwrite changes
 					matched = true;
 					break;
+				}
+				if (match === 'rename') {
+					delete curTeam.teamid;
+					team.name += ' (server version)';
 				}
 			}
 			team.loaded = false;
