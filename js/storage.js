@@ -600,8 +600,11 @@ Storage.compareTeams = function (serverTeam, localTeam) {
 			}
 		}
 	}
-	var localTeamName = localTeam.name.replace(' (server version)', '');
-	if (!(serverTeam.name === localTeamName && serverTeam.format === localTeam.format)) {
+	var sanitize = function (name) {
+		return (name || "").replace(' (server version)', '').trim();
+	};
+	var nameMatches = sanitize(serverTeam.name) === sanitize(localTeam.name);
+	if (!(nameMatches && serverTeam.format === localTeam.format)) {
 		return false;
 	}
 	// if it's been edited since, invalidate the team id on this one (count it as new)
