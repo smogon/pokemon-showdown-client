@@ -601,7 +601,7 @@ Storage.compareTeams = function (serverTeam, localTeam) {
 		}
 	}
 	var sanitize = function (name) {
-		return (name || "").replace(' (server version)', '').trim();
+		return (name || "").replace(/\s+\(server version\)/g, '').trim();
 	};
 	var nameMatches = sanitize(serverTeam.name) === sanitize(localTeam.name);
 	if (!(nameMatches && serverTeam.format === localTeam.format)) {
@@ -633,7 +633,9 @@ Storage.loadRemoteTeams = function (after) {
 				}
 				if (match === 'rename') {
 					delete curTeam.teamid;
-					team.name += ' (server version)';
+					if (!team.name.endsWith(' (server version)')) {
+						team.name += ' (server version)';
+					}
 				}
 			}
 			team.loaded = false;
