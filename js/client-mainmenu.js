@@ -1224,16 +1224,42 @@
 	});
 
 	var FormatPopup = this.FormatPopup = this.Popup.extend({
+		events: {
+			'keyup input': 'updateSearch',
+			'click details': 'updateOpen',
+		},
 		initialize: function (data) {
-			var curFormat = data.format;
+			this.data = data;
+			if (!this.open) {
+				// todo: maybe make this configurable? not sure since it will cache what users toggle.
+				// avoiding that decision for now because it requires either an ugly hack
+				// or an overhaul of BattleFormats.
+				this.open = Storage.prefs('openformats') || {
+					"S/V Singles": true, "S/V Doubles": true, "National Dex": true,
+					"OM of the Month": true, "Randomized Format Spotlight": true, "RoA Spotlight": true,
+				};
+			}
+			if (!this.search) this.search = "";
 			this.onselect = data.onselect;
+
+			var html = '<p><ul class="popupmenu"><li><input placeholder="Search formats" value="' + this.search + '"/>';
+			html += '</li></ul></p><span name="formats">';
+			html += this.renderFormats();
+			html += '</span><div style="clear:left"></div><p></p>';
+			this.$el.html(html);
+		},
+		renderFormats: function () {
+			var data = this.data;
+			var curFormat = data.format;
 			var selectType = data.selectType;
 			if (!selectType) selectType = (this.sourceEl.closest('form').data('search') ? 'search' : 'challenge');
+
 			var bufs = [];
 			var curBuf = 0;
 			if (selectType === 'watch') {
 				bufs[1] = '<li><button name="selectFormat" value=""' + (curFormat === '' ? ' class="sel"' : '') + '>(All formats)</button></li>';
 			}
+
 			var curSection = '';
 			for (var i in BattleFormats) {
 				var format = BattleFormats[i];
@@ -1245,6 +1271,7 @@
 				}
 
 				if (format.section && format.section !== curSection) {
+					if (curSection) bufs[curBuf] += '</details></p>';
 					curSection = format.section;
 					if (!app.supports['formatColumns']) {
 						curBuf = (curSection === 'Doubles' || curSection === 'Past Generations') ? 2 : 1;
@@ -1254,9 +1281,13 @@
 					if (!bufs[curBuf]) {
 						bufs[curBuf] = '';
 					}
-					bufs[curBuf] += '<li><h3>' + BattleLog.escapeHTML(curSection) + '</li>';
+					var open = (this.open[curSection] || this.search && this.search.length >= 3) ? ' open' : '';
+					bufs[curBuf] += '<p><details' + open + ' section="' + curSection + '">';
+					bufs[curBuf] += '<summary><strong style="color: #579">';
+					bufs[curBuf] += BattleLog.escapeHTML(curSection) + '</strong></summary>';
 				}
 				var formatName = BattleLog.escapeFormat(format.id);
+				if (this.search && !format.id.includes(toID(this.search))) continue;
 				if (formatName.charAt(0) !== '[') formatName = '[Gen 6] ' + formatName;
 				formatName = formatName.replace('[Gen 9] ', '');
 				formatName = formatName.replace('[Gen 9 ', '[');
@@ -1264,7 +1295,6 @@
 				formatName = formatName.replace('[Gen 7 ', '[');
 				bufs[curBuf] += '<li><button name="selectFormat" value="' + i + '"' + (curFormat === i ? ' class="sel"' : '') + '>' + formatName + '</button></li>';
 			}
-
 			var html = '';
 			for (var i = 1, l = bufs.length; i < l; i++) {
 				html += '<ul class="popupmenu"';
@@ -1277,8 +1307,21 @@
 				}
 				html += '>' + bufs[i] + '</ul>';
 			}
-			html += '<div style="clear:left"></div>';
-			this.$el.html(html);
+			return html;
+		},
+		update: function () {
+			var $formatEl = this.$el.find('span[name=formats]');
+			$formatEl.empty();
+			$formatEl.html(this.renderFormats());
+		},
+		updateOpen: function (ev) {
+			var section = $(ev.currentTarget).attr('section');
+			this.open[section] = !this.open[section];
+			Storage.prefs('openformats', this.open);
+		},
+		updateSearch: function (event) {
+			this.search = $(event.currentTarget).val();
+			this.update();
 		},
 		selectFormat: function (format) {
 			if (this.onselect) {
