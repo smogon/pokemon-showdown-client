@@ -1301,9 +1301,9 @@
 						buf += '<span class="detailcell"><label>Gmax</label>' + (set.gigantamax || species.forme === 'Gmax' ? 'Yes' : 'No') + '</span>';
 					}
 				}
-				if (this.curTeam.gen === 9) {
+				/* if (this.curTeam.gen === 9) {
 					buf += '<span class="detailcell"><label>Tera Type</label>' + (species.forceTeraType || set.teraType || species.types[0]) + '</span>';
-				}
+				} */
 			}
 			buf += '</button></div></div>';
 
@@ -2759,7 +2759,7 @@
 				buf += '</select></div></div>';
 			}
 
-			if (this.curTeam.gen === 9) {
+			/* if (this.curTeam.gen === 9) {
 				buf += '<div class="formrow"><label class="formlabel" title="Tera Type">Tera Type:</label><div>';
 				if (species.forceTeraType) {
 					buf += species.forceTeraType;
@@ -2773,7 +2773,7 @@
 					buf += '</select>';
 				}
 				buf += '</div></div>';
-			}
+			} */
 
 			buf += '</form>';
 			if (species.cosmeticFormes) {
@@ -2850,12 +2850,12 @@
 			}
 
 			// Tera type
-			var teraType = this.$chart.find('select[name=teratype]').val();
+			/* var teraType = this.$chart.find('select[name=teratype]').val();
 			if (Dex.types.isName(teraType) && teraType !== species.types[0]) {
 				set.teraType = teraType;
 			} else {
 				delete set.teraType;
-			}
+			} */
 
 			// update details cell
 			var buf = '';
@@ -2882,9 +2882,9 @@
 						buf += '<span class="detailcell"><label>Gmax</label>' + (set.gigantamax || species.forme === 'Gmax' ? 'Yes' : 'No') + '</span>';
 					}
 				}
-				if (this.curTeam.gen === 9) {
+				/* if (this.curTeam.gen === 9) {
 					buf += '<span class="detailcell"><label>Tera Type</label>' + (species.forceTeraType || set.teraType || species.types[0]) + '</span>';
-				}
+				} */
 			}
 			this.$('button[name=details]').html(buf);
 
