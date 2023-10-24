@@ -1281,7 +1281,7 @@
 					if (!bufs[curBuf]) {
 						bufs[curBuf] = '';
 					}
-					var open = (this.open[curSection] || this.search && this.search.length >= 3) ? ' open' : '';
+					var open = (this.open[curSection] || toID(this.search)) ? ' open' : '';
 					bufs[curBuf] += '<p><details' + open + ' section="' + curSection + '">';
 					bufs[curBuf] += '<summary><strong style="color: #579">';
 					bufs[curBuf] += BattleLog.escapeHTML(curSection) + '</strong></summary>';
