@@ -1256,7 +1256,7 @@
 
 			var bufs = [];
 			var curBuf = 0;
-			if (selectType === 'watch') {
+			if (selectType === 'watch' && !this.search) {
 				bufs[1] = '<li><button name="selectFormat" value=""' + (curFormat === '' ? ' class="sel"' : '') + '>(All formats)</button></li>';
 			}
 
@@ -1269,6 +1269,7 @@
 					if (format.effectType !== 'Format' || format.battleFormat) continue;
 					if (selectType != 'watch' && !format[selectType + 'Show']) continue;
 				}
+				if (this.search && !format.id.includes(toID(this.search))) continue;
 
 				if (format.section && format.section !== curSection) {
 					if (curSection) bufs[curBuf] += '</details></p>';
@@ -1287,7 +1288,6 @@
 					bufs[curBuf] += BattleLog.escapeHTML(curSection) + '</strong></summary>';
 				}
 				var formatName = BattleLog.escapeFormat(format.id);
-				if (this.search && !format.id.includes(toID(this.search))) continue;
 				if (formatName.charAt(0) !== '[') formatName = '[Gen 6] ' + formatName;
 				formatName = formatName.replace('[Gen 9] ', '');
 				formatName = formatName.replace('[Gen 9 ', '[');
@@ -1296,16 +1296,21 @@
 				bufs[curBuf] += '<li><button name="selectFormat" value="' + i + '"' + (curFormat === i ? ' class="sel"' : '') + '>' + formatName + '</button></li>';
 			}
 			var html = '';
-			for (var i = 1, l = bufs.length; i < l; i++) {
-				html += '<ul class="popupmenu"';
-				if (l > 1) {
-					html += ' style="float:left';
-					if (i > 0) {
-						html += ';padding-left:5px';
+			if (!bufs.length) {
+				html = '<ul class="popupmenu"><em>No formats found</em></ul>';
+			} else {
+				for (var i = 1, l = bufs.length; i < l; i++) {
+					if (!bufs[i]) continue;
+					html += '<ul class="popupmenu"';
+					if (l > 1) {
+						html += ' style="float:left';
+						if (i > 0) {
+							html += ';padding-left:5px';
+						}
+						html += '"';
 					}
-					html += '"';
+					html += '>' + bufs[i] + '</ul>';
 				}
-				html += '>' + bufs[i] + '</ul>';
 			}
 			return html;
 		},
