@@ -406,6 +406,7 @@ function toId() {
 
 			// down
 			// if (document.location.hostname === 'play.pokemonshowdown.com') this.down = true;
+			// this.down = true;
 
 			this.addRoom('');
 			this.topbar = new Topbar({el: $('#header')});
