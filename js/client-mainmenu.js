@@ -1263,6 +1263,7 @@
 			}
 
 			for (var i in this.starred) {
+				if (!bufs[1]) bufs[1] = '';
 				var format = BattleFormats[i];
 				if (!format) {
 					delete this.starred[i];
@@ -1272,7 +1273,6 @@
 				if (this.search && !i.includes(toID(this.search))) {
 					continue;
 				}
-				if (!bufs[1]) bufs[1] = '';
 				// <i class="fa fa-star"></i>
 				var formatName = BattleLog.escapeFormat(BattleFormats[i].id);
 				bufs[1] += (
@@ -1318,7 +1318,7 @@
 				);
 			}
 			var html = '';
-			if (!bufs.length) {
+			if (!bufs.every(function (buf) { return !!buf; })) {
 				html = '<ul class="popupmenu"><em>No formats found</em></ul>';
 			} else {
 				for (var i = 1, l = bufs.length; i < l; i++) {
