@@ -79,6 +79,7 @@ var Replays = {
 			log: log.split('\n'),
 			isReplay: true,
 			paused: true,
+			autoresize: true,
 		});
 
 		this.$('.replay-controls-2').html('<div class="chooser leftchooser speedchooser"> <em>Speed:</em> <div><button value="hyperfast">Hyperfast</button><button value="fast">Fast</button><button value="normal" class="sel">Normal</button><button value="slow">Slow</button><button value="reallyslow">Really Slow</button></div> </div> <div class="chooser colorchooser"> <em>Color&nbsp;scheme:</em> <div><button class="sel" value="light">Light</button><button value="dark">Dark</button></div> </div> <div class="chooser soundchooser" style="display:none"> <em>Music:</em> <div><button class="sel" value="on">On</button><button value="off">Off</button></div> </div>');
@@ -207,3 +208,12 @@ var Replays = {
 window.onload = function () {
 	Replays.init();
 };
+
+if (window.matchMedia) {
+	if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+		document.body.className = 'dark';
+	}
+	window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function (event) {
+		document.body.className = event.matches ? "dark" : "";
+	});
+}
