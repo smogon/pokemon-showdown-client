@@ -21,7 +21,7 @@ RewriteCond %{HTTP_HOST} ^play\.pokemonshowdown\.com$ [NC]
 RewriteCond %{QUERY_STRING} !^insecure [NC]
 RewriteRule ^([A-Za-z0-9-]*)$ https://play.pokemonshowdown.com/$1 [R=307,NE,L]
 
-# basic stuff
+# redirects
 RewriteCond %{HTTP_HOST} ^play\.pokemonshowdown\.com$ [NC]
 RewriteRule ^appeals?\/?$ https://play.pokemonshowdown.com/view-help-request--appeal [R=302,L]
 RewriteCond %{HTTP_HOST} ^play\.pokemonshowdown\.com$ [NC]
@@ -121,16 +121,16 @@ Header set Pragma "no-cache" env=INDEX_PAGE
 Header set Expires "0" env=INDEX_PAGE
 
 # No direct linking to the lobby.
-RewriteCond %{ENV:SCRIPT_URL} ^/(lobby/?)?$
-RewriteCond %{HTTP_REFERER} !^$
-RewriteCond %{HTTP_REFERER} !^https?:\/\/([a-z0-9-]+.)?(pokemonshowdown\.com|appjs)
-RewriteCond %{HTTP_HOST} ^play\.pokemonshowdown\.com$
-RewriteCond %{REMOTE_ADDR} !=127.0.0.1
-RewriteCond %{REMOTE_ADDR} !=162.243.13.96
-RewriteCond %{HTTP:CF-Connecting-IP} !=173.252.196.254
-RewriteCond %{HTTP:CF-Connecting-IP} !=198.27.67.31
-RewriteCond %{HTTP:CF-Connecting-IP} !=162.243.13.96
-RewriteRule ^.* https://pokemonshowdown.com/ [R=303,L]
+# RewriteCond %{ENV:SCRIPT_URL} ^/(lobby/?)?$
+# RewriteCond %{HTTP_REFERER} !^$
+# RewriteCond %{HTTP_REFERER} !^https?:\/\/([a-z0-9-]+.)?(pokemonshowdown\.com|# appjs)
+# RewriteCond %{HTTP_HOST} ^play\.pokemonshowdown\.com$
+# RewriteCond %{REMOTE_ADDR} !=127.0.0.1
+# RewriteCond %{REMOTE_ADDR} !=162.243.13.96
+# RewriteCond %{HTTP:CF-Connecting-IP} !=173.252.196.254
+# RewriteCond %{HTTP:CF-Connecting-IP} !=198.27.67.31
+# RewriteCond %{HTTP:CF-Connecting-IP} !=162.243.13.96
+# RewriteRule ^.* https://pokemonshowdown.com/ [R=303,L]
 
 AddType 'text/plain; charset=UTF-8' json5
 

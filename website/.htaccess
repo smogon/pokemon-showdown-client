@@ -11,9 +11,9 @@ allow from all
 order deny,allow
 deny from all
 </Limit>
-#AuthName pokemonshowdown.com
-#AuthUserFile /home/pokemon/public_html/_vti_pvt/service.pwd
-#AuthGroupFile /home/pokemon/public_html/_vti_pvt/service.grp
+# AuthName pokemonshowdown.com
+# AuthUserFile /home/pokemon/public_html/_vti_pvt/service.pwd
+# AuthGroupFile /home/pokemon/public_html/_vti_pvt/service.grp
 
 AddType text/plain .phps
 AddType application/octet-stream .heapsnapshot
@@ -35,7 +35,7 @@ RewriteRule ^(.*)$ https://pokemonshowdown.com/$1 [R=302,NE,L]
 RewriteCond %{HTTP_HOST} ^(www\.)?forum\.pokemonshowdown\.com$ [NC]
 RewriteRule ^(.*)$ https://pokemonshowdown.com/forums/ [R=301,NE,L]
 
-RewriteCond %{HTTP_HOST} !^pokemonshowdown\.com$
+RewriteCond %{HTTP_HOST} ^www\.pokemonshowdown\.com$
 RewriteRule ^(.*)$ https://pokemonshowdown.com/$1 [R=301,NE,L]
 
 RewriteRule ^secure$ ./ [L,QSA]
