@@ -55,6 +55,7 @@
 
 button, summary {
 	cursor: pointer;
+	touch-action: manipulation;
 }
 .button {
 	outline: none;
