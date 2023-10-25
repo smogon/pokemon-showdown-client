@@ -59,7 +59,7 @@ if ($lastmodified && (time() - $lastmodified < 60 * 10)) {
 			$more = true;
 		}
 ?>
-		<li><a href="<?php echo $server['uri'] ?>" class="blocklink"><?php if ($server['id'] === 'showdown') echo '<strong>',$server['name'],'<br />(official server)</strong>'; else echo $server['name']; ?><small><?php /**echo $server['server']; if ($server['port'] != 8000) echo ':',$server['port'];**/ echo $usersbit; ?></small></a></li>
+		<li><a href="<?php echo $server['uri'] ?>" class="blocklink"><?php if ($server['id'] === 'showdown') echo '<strong>',$server['name'],'<br />(official server)</strong>'; else echo $server['name']; ?><small><?php echo $usersbit; ?></small></a></li>
 <?php
 	}
 	$serverbits = ob_get_clean();
