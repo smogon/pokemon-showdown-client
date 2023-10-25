@@ -1225,8 +1225,9 @@
 
 	var FormatPopup = this.FormatPopup = this.Popup.extend({
 		events: {
-			'keyup input': 'updateSearch',
+			'keyup input[name=search]': 'updateSearch',
 			'click details': 'updateOpen',
+			'click i.fa': 'updateStar',
 		},
 		initialize: function (data) {
 			this.data = data;
@@ -1239,10 +1240,14 @@
 					"Other Metagames": true, "Randomized Format Spotlight": true, "RoA Spotlight": true,
 				};
 			}
+			if (!this.starred) this.starred = Storage.prefs('starredformats') || {};
 			if (!this.search) this.search = "";
 			this.onselect = data.onselect;
+			this.selectType = data.selectType;
+			if (!this.selectType) this.selectType = (this.sourceEl.closest('form').data('search') ? 'search' : 'challenge');
 
-			var html = '<p><ul class="popupmenu"><li><input placeholder="Search formats" value="' + this.search + '"/>';
+
+			var html = '<p><ul class="popupmenu"><li><input name="search" placeholder="Search formats" value="' + this.search + '"/>';
 			html += '</li></ul></p><span name="formats">';
 			html += this.renderFormats();
 			html += '</span><div style="clear:left"></div><p></p>';
@@ -1251,25 +1256,38 @@
 		renderFormats: function () {
 			var data = this.data;
 			var curFormat = data.format;
-			var selectType = data.selectType;
-			if (!selectType) selectType = (this.sourceEl.closest('form').data('search') ? 'search' : 'challenge');
-
 			var bufs = [];
 			var curBuf = 0;
-			if (selectType === 'watch' && !this.search) {
+			if (this.selectType === 'watch' && !this.search) {
 				bufs[1] = '<li><button name="selectFormat" value=""' + (curFormat === '' ? ' class="sel"' : '') + '>(All formats)</button></li>';
+			}
+
+			for (var i in this.starred) {
+				if (!bufs[1]) bufs[1] = '';
+				var format = BattleFormats[i];
+				if (!format) {
+					delete this.starred[i];
+					continue;
+				}
+				if (!this.shouldDisplayFormat(format)) continue;
+				if (this.search && !i.includes(toID(this.search))) {
+					continue;
+				}
+				// <i class="fa fa-star"></i>
+				var formatName = BattleLog.escapeFormat(BattleFormats[i].id);
+				bufs[1] += (
+					'<li><button name="selectFormat" value="' + i +
+					'"' + (curFormat === i ? ' class="sel"' : '') + '>' + formatName +
+					'<i class="fa fa-star" style="float: right; color: #FFD700; text-shadow: 0 0 1px #000;"></i></button></li>'
+				);
 			}
 
 			var curSection = '';
 			for (var i in BattleFormats) {
 				var format = BattleFormats[i];
-				if (selectType === 'teambuilder') {
-					if (!format.isTeambuilderFormat) continue;
-				} else {
-					if (format.effectType !== 'Format' || format.battleFormat) continue;
-					if (selectType != 'watch' && !format[selectType + 'Show']) continue;
-				}
+				if (!this.shouldDisplayFormat(format)) continue;
 				if (this.search && !format.id.includes(toID(this.search))) continue;
+				if (this.starred[i]) continue; // only show it in the starred section
 
 				if (format.section && format.section !== curSection) {
 					if (curSection) bufs[curBuf] += '</details></p>';
@@ -1293,7 +1311,11 @@
 				formatName = formatName.replace('[Gen 9 ', '[');
 				formatName = formatName.replace('[Gen 8 ', '[');
 				formatName = formatName.replace('[Gen 7 ', '[');
-				bufs[curBuf] += '<li><button name="selectFormat" value="' + i + '"' + (curFormat === i ? ' class="sel"' : '') + '>' + formatName + '</button></li>';
+				bufs[curBuf] += (
+					'<li><button name="selectFormat" value="' + i +
+					'"' + (curFormat === i ? ' class="sel"' : '') + '>' + formatName +
+					'<i class="fa fa-star subtle" style="float: right;"></i></button></li>'
+				);
 			}
 			var html = '';
 			if (!bufs.length) {
@@ -1319,6 +1341,18 @@
 			$formatEl.empty();
 			$formatEl.html(this.renderFormats());
 		},
+		updateStar: function (ev) {
+			ev.preventDefault();
+			ev.stopPropagation();
+			var format = $(ev.target).parent().attr('value');
+			if (this.starred[format]) {
+				delete this.starred[format];
+			} else {
+				this.starred[format] = true;
+			}
+			Storage.prefs('starredformats', this.starred);
+			this.update();
+		},
 		updateOpen: function (ev) {
 			var section = $(ev.currentTarget).attr('section');
 			this.open[section] = !this.open[section];
@@ -1327,6 +1361,15 @@
 		updateSearch: function (event) {
 			this.search = $(event.currentTarget).val();
 			this.update();
+		},
+		shouldDisplayFormat: function (format) {
+			if (this.selectType === 'teambuilder') {
+				if (!format.isTeambuilderFormat) return false;
+			} else {
+				if (format.effectType !== 'Format' || format.battleFormat) return false;
+				if (this.selectType != 'watch' && !format[this.selectType + 'Show']) return false;
+			}
+			return true;
 		},
 		selectFormat: function (format) {
 			if (this.onselect) {
