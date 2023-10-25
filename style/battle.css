@@ -569,8 +569,9 @@ License: GPLv2
 	display: block;
 	position: absolute;
 	top: 0; left: 0; bottom: 0; right: 0;
-	background: #FFFFFF;
+	background: #CCCCCC;
 	color: #000000;
+	font-size: 14px;
 }
 .seeking strong {
 	display: block;
