@@ -55,6 +55,8 @@ RewriteCond %{HTTP_HOST} ^play\.pokemonshowdown\.com$ [NC]
 RewriteRule ^insecure\/?$ http://play.pokemonshowdown.com/?insecure [R=302,L]
 RewriteCond %{HTTP_HOST} ^play\.pokemonshowdown\.com$ [NC]
 RewriteRule ^devdiscord\/?$ https://discord.com/invite/D8QwhsH [R=302,L]
+RewriteCond %{HTTP_HOST} ^play\.pokemonshowdown\.com$ [NC]
+RewriteRule ^formatsuggestions/?$ https://pokemonshowdown.com/pages/formatsuggestions [R=302,L]
 
 # rewrite old sprite directories/files
 RewriteRule ^sprites\/xyani(.*)?$ sprites/ani$1 [L,QSA]
