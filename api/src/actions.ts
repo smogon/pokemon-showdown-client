@@ -713,9 +713,10 @@ export const actions: {[k: string]: QueryHandler} = {
 			page: Number(params.page),
 			byRating: !!params.byRating,
 		};
-		if (isNaN(search.page) || search.page !== Math.trunc(search.page)) {
+		if (isNaN(search.page) || search.page !== Math.trunc(search.page) || search.page < 0) {
 			throw new ActionError(`Invalid page number: ${params.page}`);
 		}
+		if (!search.page) search.page = 1;
 		return Replays.search(search);
 	},
 	async 'replays/searchprivate'(params) {
@@ -732,9 +733,10 @@ export const actions: {[k: string]: QueryHandler} = {
 		if (!(this.user.isSysop() || [search.username, search.username2].includes(this.user.id))) {
 			throw new ActionError(`Access denied.`);
 		}
-		if (isNaN(search.page) || search.page !== Math.trunc(search.page)) {
+		if (isNaN(search.page) || search.page !== Math.trunc(search.page) || search.page < 0) {
 			throw new ActionError(`Invalid page number: ${params.page}`);
 		}
+		if (!search.page) search.page = 1;
 		return Replays.search(search);
 	},
 };
