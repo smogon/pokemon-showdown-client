@@ -77,6 +77,8 @@ RewriteRule ^servers\/([A-Za-z0-9-]+)\.json$ servers/server.php?id=$1&json [L,QS
 # RewriteRule ^replay\/?search/?$ replay/search.php [L,QSA]
 # RewriteRule ^replay\/?([A-Za-z0-9-]+)$ replay/battle.php?name=$1 [L,QSA]
 
+RewriteRule ^replays/([a-z0-9-]+)$ replays/index.html [L,QSA]
+
 RewriteRule ^replay\/(.*)$ https://replay.pokemonshowdown.com/$1 [R=302,L]
 RewriteRule ^dex\/(.*)$ https://dex.pokemonshowdown.com/$1 [R=302,L]
 RewriteRule ^pokedex\/(.*)$ https://dex.pokemonshowdown.com/$1 [R=302,L]
