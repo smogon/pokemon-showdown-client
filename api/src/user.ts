@@ -39,6 +39,9 @@ export class User {
 		this.setName('Guest');
 		this.loggedIn = '';
 	}
+	isSysop() {
+		return Config.sysops.includes(this.id);
+	}
 }
 
 export class Session {
@@ -201,7 +204,7 @@ export class Session {
 		if (user.loggedIn === userid) {
 			// already logged in
 			userType = '2';
-			if (Config.sysops.includes(user.id)) {
+			if (user.isSysop()) {
 				userType = '3';
 			} else {
 				const customType = (Config as any).getUserType?.call(

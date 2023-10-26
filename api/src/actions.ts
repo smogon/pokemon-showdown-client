@@ -705,6 +705,38 @@ export const actions: {[k: string]: QueryHandler} = {
 			throw new ActionError("Failed to fetch team. Please try again later.");
 		}
 	},
+	async 'replays/search'(params) {
+		const search = {
+			username: toID(params.username),
+			username2: toID(params.username2),
+			format: toID(params.format),
+			page: Number(params.page),
+			byRating: !!params.byRating,
+		};
+		if (isNaN(search.page) || search.page !== Math.trunc(search.page)) {
+			throw new ActionError(`Invalid page number: ${params.page}`);
+		}
+		return Replays.search(search);
+	},
+	async 'replays/searchprivate'(params) {
+		this.verifyCrossDomainRequest();
+		if (!this.user.loggedIn) throw new ActionError(`Access denied.`);
+		const search = {
+			username: toID(params.username),
+			username2: toID(params.username2),
+			format: toID(params.format),
+			page: Number(params.page),
+			byRating: !!params.byRating,
+			isPrivate: true,
+		};
+		if (!(this.user.isSysop() || [search.username, search.username2].includes(this.user.id))) {
+			throw new ActionError(`Access denied.`);
+		}
+		if (isNaN(search.page) || search.page !== Math.trunc(search.page)) {
+			throw new ActionError(`Invalid page number: ${params.page}`);
+		}
+		return Replays.search(search);
+	},
 };
 
 if (Config.actions) {
