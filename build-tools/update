@@ -143,7 +143,7 @@ function updateURL(a, b, c, d) {
 				const fstr = fs.readFileSync(filename, {encoding: 'utf8'});
 				hash = crypto.createHash('md5').update(fstr).digest('hex').substr(0, 8);
 			} catch (e) {}
-	
+
 			return b + '="' + c + '?' + hash + '"';
 		} else {
 			// hardcoded to Replays rn; TODO: generalize
