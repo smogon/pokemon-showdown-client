@@ -32,4 +32,6 @@ package-lock.json
 /website/files/
 /website/images/
 /website/ads.txt
+/website/replays/index.html
+/website/replays/js/
 node_modules

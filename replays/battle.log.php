@@ -56,6 +56,9 @@ if ($replay['inputlog']) {
 }
 
 if (isset($_REQUEST['json'])) {
+	$matchSuccess = preg_match('/\\n\\|tier\\|([^|]*)\\n/', $replay['log'], $matches);
+	if ($matchSuccess) $replay['format'] = $matches[1];
+
 	header('Content-Type: application/json');
 	header('Access-Control-Allow-Origin: *');
 	die(json_encode($replay));
