@@ -364,16 +364,16 @@ export const actions: {[k: string]: QueryHandler} = {
 		}
 		let update;
 		try {
-			update = await bash('sudo -u apache git pull', Config.clientpath);
-			if (update[2]) throw new Error(update[1]);
+			update = await bash('sudo -u www-data git pull', Config.clientpath);
+			if (update[0]) throw new Error(update.join(','));
 			update = true;
 		} catch (e: any) {
 			throw new ActionError(e.message);
 		}
-		const [, , stderr] = await bash(
-			`sudo -u apache node build${params.full ? ' full' : ''}`, Config.clientpath
+		update = await bash(
+			`sudo -u www-data node build${params.full ? ' full' : ''}`, Config.clientpath
 		);
-		if (stderr) throw new ActionError(`Compilation failed:\n${stderr}`);
+		if (update[0]) throw new ActionError(`Compilation failed:\n${update.join(',')}`);
 		return {updated: update, success: true};
 	},
 
@@ -679,7 +679,7 @@ export const actions: {[k: string]: QueryHandler} = {
 			}
 			// feed it only the species names, that way we can render it in teambuilder
 			// and fetch the team later
-			t.team = mons.map(species => `${species}|||||||||||`).join(']');
+			t.team = mons.join(',');
 		}
 		return {teams};
 	},
