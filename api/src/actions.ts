@@ -712,7 +712,7 @@ export const actions: {[k: string]: QueryHandler} = {
 	async 'replays/search'(params) {
 		this.allowCORS();
 		const search = {
-			username: toID(params.username),
+			username: toID(params.username || params.user),
 			username2: toID(params.username2),
 			format: toID(params.format),
 			page: Number(params.page),
@@ -728,7 +728,7 @@ export const actions: {[k: string]: QueryHandler} = {
 		this.verifyCrossDomainRequest();
 		if (!this.user.loggedIn) throw new ActionError(`Access denied: You must be logged in as a username you're searching for.`);
 		const search = {
-			username: toID(params.username),
+			username: toID(params.username || params.user),
 			username2: toID(params.username2),
 			format: toID(params.format),
 			page: Number(params.page),
