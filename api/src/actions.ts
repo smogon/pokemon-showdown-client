@@ -705,6 +705,10 @@ export const actions: {[k: string]: QueryHandler} = {
 			throw new ActionError("Failed to fetch team. Please try again later.");
 		}
 	},
+	async 'replays/recent'(params) {
+		this.allowCORS();
+		return Replays.recent();
+	},
 	async 'replays/search'(params) {
 		const search = {
 			username: toID(params.username),
