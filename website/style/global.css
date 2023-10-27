@@ -193,7 +193,7 @@ h1 {
 	backdrop-filter: blur(4px);
 }
 .dark .section {
-	border-color: rgba(255, 255, 255, .4);
+	border-color: rgba(255, 255, 255, .2);
 	background: rgba(50, 50, 50, .5);
 	color: #DDD;
 }

@@ -156,6 +156,9 @@ button:disabled {
 	padding: 2px 6px 2px 2px;
 	border-radius: 4px;
 }
+.checkbox.inline {
+	display: inline-block;
+}
 .checkbox input {
 	width: 14px;
 	height: 14px;

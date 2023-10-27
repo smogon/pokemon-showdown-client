@@ -35,51 +35,159 @@ function showAd(id: string) {
   });
 }
 
+interface ReplayResult {
+  uploadtime: number;
+  id: string;
+  format: string;
+  p1: string;
+  p2: string;
+  password?: string;
+}
+
 class SearchPanel extends preact.Component {
-  results: {
-    uploadtime: number;
-    id: string;
-    format: string;
-    p1: string;
-    p2: string;
-  }[] | null = null;
+  results: ReplayResult[] | null = null;
+  resultError: string | null = null;
   format = '';
   user = '';
+  loggedInUser: string | null = null;
+  loggedInUserIsSysop = false;
   sort = 'date';
-  moreFun = false;
-  moreCompetitive = false;
   override componentDidMount() {
     Net('https://replay.pokemonshowdown.com/search.json').get().then(result => {
       this.results = JSON.parse(result);
       this.forceUpdate();
     });
+    Net('check-login.php').get().then(result => {
+      if (result.charAt(0) !== ']') return;
+      const [userid, sysop] = result.slice(1).split(',');
+      this.loggedInUser = userid;
+      this.loggedInUserIsSysop = !!sysop;
+      this.forceUpdate();
+    });
+    this.base!.querySelector<HTMLInputElement>('input[name=private]')!.checked = true;
   }
-  search(format: string, user: string) {
+  parseResponse(response: string, isPrivate?: boolean) {
+    this.results = null;
+    this.resultError = null;
+
+    if (isPrivate) {
+      if (response.charAt(0) !== ']') {
+        this.resultError = `Unrecognized response: ${response}`;
+        return;
+      }
+      response = response.slice(1);
+    }
+    const results = JSON.parse(response);
+    if (!Array.isArray(results)) {
+      this.resultError = results.actionerror || `Unrecognized response: ${response}`;
+      return;
+    }
+    this.results = results;
+  }
+  search(format: string, user: string, isPrivate?: boolean) {
+    if (!format && !user) return this.recent();
     this.format = format;
     this.user = user;
     this.results = null;
-    this.moreFun = false;
-    this.moreCompetitive = false;
+    this.resultError = null;
     this.forceUpdate();
-    Net('https://replay.pokemonshowdown.com/search.json').get({
-      query: {user: this.user, format: this.format},
-    }).then(result => {
-      this.results = JSON.parse(result);
+    Net(`/api/replays/${isPrivate ? 'searchprivate' : 'search'}`).get({
+      query: {username: this.user, format: this.format},
+    }).then(response => {
+      if (this.format !== format || this.user !== user) return;
+      this.parseResponse(response, true);
+      this.forceUpdate();
+    }).catch(error => {
+      if (this.format !== '' || this.user !== '') return;
+      this.resultError = '' + error;
+      this.forceUpdate();
+    });
+  }
+  recent() {
+    this.format = '';
+    this.user = '';
+    this.results = null;
+    this.forceUpdate();
+    Net('https://replay.pokemonshowdown.com/search.json').get().then(response => {
+      if (this.format !== '' || this.user !== '') return;
+      this.parseResponse(response);
+      this.forceUpdate();
+    }).catch(error => {
+      if (this.format !== '' || this.user !== '') return;
+      this.resultError = '' + error;
       this.forceUpdate();
     });
   }
   submitForm = (e: Event) => {
     e.preventDefault();
-    // @ts-expect-error
-    const format = document.getElementsByName('format')[0]?.value || '';
-    // @ts-expect-error
-    const user = document.getElementsByName('user')[0]?.value || '';
-    this.search(format, user);
+    const format = this.base!.querySelector<HTMLInputElement>('input[name=format]')?.value || '';
+    const user = this.base!.querySelector<HTMLInputElement>('input[name=user]')?.value || '';
+    const isPrivate = !this.base!.querySelector<HTMLInputElement>('input[name=private]')?.checked;
+    this.search(format, user, isPrivate);
   };
   cancelForm = (e: Event) => {
     e.preventDefault();
     this.search('', '');
   };
+  searchLoggedIn = (e: Event) => {
+    if (!this.loggedInUser) return; // shouldn't happen
+    (this.base!.querySelector('input[name=user]') as HTMLInputElement).value = this.loggedInUser;
+    this.submitForm(e);
+  };
+  url(replay: ReplayResult) {
+    return replay.id + (replay.password ? `-${replay.password}pw` : '');
+  }
+  override render() {
+    const searchResults = <ul class="linklist">
+      {(this.resultError && <li>
+        <strong class="message-error">{this.resultError}</strong>
+      </li>) ||
+      (!this.results && <li>
+        <em>Loading...</em>
+      </li>) ||
+      (this.results?.map(result => <li>
+        <a href={this.url(result)} class="blocklink">
+          <small>[{result.format}]<br /></small>
+          <strong>{result.p1}</strong> vs. <strong>{result.p2}</strong>
+        </a>
+      </li>))}
+    </ul>;
+    const activelySearching = !!(this.format || this.user);
+    return <div><section class="section">
+      <h1>Search replays</h1>
+      <form onSubmit={this.submitForm}>
+        <p>
+          <label>Username:<br />
+          <input type="search" class="textbox" name="user" placeholder="(blank = any user)" size={25} /> {}
+          {this.loggedInUser && <button type="button" class="button" onClick={this.searchLoggedIn}>{this.loggedInUser}'s replays</button>}</label>
+        </p>
+        <p>
+          <label>Format:<br />
+          <input type="search" class="textbox" name="format" placeholder="(blank = any format)" size={35} /></label>
+        </p>
+        <p>
+          <label class="checkbox inline"><input type="radio" name="private" value="" /> Public</label> {}
+          <label class="checkbox inline"><input type="radio" name="private" value="1" /> Private (your own replays only)</label>
+        </p>
+        <p>
+          <button type="submit" class="button"><i class="fa fa-search" aria-hidden></i> <strong>Search</strong></button> {}
+          {activelySearching && <button class="button" onClick={this.cancelForm}>Cancel</button>}
+        </p>
+        {activelySearching && <h2>Results</h2>}
+        {activelySearching && searchResults}
+      </form>
+    </section>{!activelySearching && <FeaturedReplays />}{!activelySearching && <section class="section">
+      <h1>Recent replays</h1>
+      <ul class="linklist">
+        {searchResults}
+      </ul>
+    </section>}</div>;
+  }
+}
+
+class FeaturedReplays extends preact.Component {
+  moreFun = false;
+  moreCompetitive = false;
   showMoreFun = (e: Event) => {
     e.preventDefault();
     this.moreFun = true;
@@ -91,28 +199,7 @@ class SearchPanel extends preact.Component {
     this.forceUpdate();
   };
   override render() {
-    const searchResults = <ul class="linklist">
-      {!this.results && <li>
-        <em>Loading...</em>
-      </li>}
-      {this.results?.map(result => <li>
-        <a href={result.id} class="blocklink">
-          <small>[{result.format}]<br /></small>
-          <strong>{result.p1}</strong> vs. <strong>{result.p2}</strong>
-        </a>
-      </li>)}
-    </ul>;
-    const activelySearching = !!(this.format || this.user);
-    return <div><section class="section">
-      <h1>Search replays</h1>
-      <form onSubmit={this.submitForm}>
-        <p><label>Username:<br /><input type="text" class="textbox" name="user" placeholder="(blank = any user)" size={25} /></label></p>
-        <p><label>Format:<br /><input type="text" class="textbox" name="format" placeholder="(blank = any format)" size={35} /></label></p>
-        <p><button type="submit" class="button"><i class="fa fa-search" aria-hidden></i> <strong>Search</strong></button> {activelySearching && <button class="button" onClick={this.cancelForm}>Cancel</button>}</p>
-        {activelySearching && <h2>Results</h2>}
-        {activelySearching && searchResults}
-      </form>
-    </section>{!activelySearching && <section class="section">
+    return <section class="section">
       <h1>Featured replays</h1>
       <ul class="linklist">
         <li><h2>Fun</h2></li>
@@ -150,27 +237,27 @@ class SearchPanel extends preact.Component {
           <small><br />To a ver's frustration, PP stall is viable in Balanced Hackmons</small>
         </a></li>}
         <h2>Competitive</h2>
-        <li><a href="doublesou-232753081" class="blocklink" style="white-space:normal">
+        <li><a href="doublesou-232753081" class="blocklink">
           <small>[doubles ou]<br /></small>
           <strong>Electrolyte</strong> vs. <strong>finally</strong>
           <small><br />finally steals Electrolyte's spot in the finals of the Doubles Winter Seasonal by outplaying Toxic Aegislash.</small>
         </a></li>
-        <li><a href="smogtours-gen5ou-59402" class="blocklink" style="white-space:normal">
+        <li><a href="smogtours-gen5ou-59402" class="blocklink">
           <small>[bw ou]<br /></small>
           <strong>Reymedy</strong> vs. <strong>Leftiez</strong>
           <small><br />Reymedy's superior grasp over BW OU lead to his claim of victory over Leftiez in the No Johns Tournament.</small>
         </a></li>
-        <li><a href="smogtours-gen3ou-56583" class="blocklink" style="white-space:normal">
+        <li><a href="smogtours-gen3ou-56583" class="blocklink">
           <small>[adv ou]<br /></small>
           <strong>pokebasket</strong> vs. <strong>Alf'</strong>
           <small><br />pokebasket proved Blissey isn't really one to take a Focus Punch well in his victory match over Alf' in the Fuck Trappers ADV OU tournament.</small>
         </a></li>
-        <li><a href="smogtours-ou-55891" class="blocklink" style="white-space:normal">
+        <li><a href="smogtours-ou-55891" class="blocklink">
           <small>[oras ou]<br /></small>
           <strong>Marshall.Law</strong> vs. <strong>Malekith</strong>
           <small><br />In a "match full of reverses", Marshall.Law takes on Malekith in the finals of It's No Use.</small>
         </a></li>
-        <li><a href="smogtours-ubers-54583" class="blocklink" style="white-space:normal">
+        <li><a href="smogtours-ubers-54583" class="blocklink">
           <small>[custom]<br /></small>
           <strong>hard</strong> vs. <strong>panamaxis</strong>
           <small><br />Dark horse panamaxis proves his worth as the rightful winner of The Walkthrough Tournament in this exciting final versus hard.</small>
@@ -178,38 +265,33 @@ class SearchPanel extends preact.Component {
         {!this.moreCompetitive && <li style={{paddingLeft: '8px'}}>
           <button class="button" onClick={this.showMoreCompetitive}>More <i class="fa fa-caret-right" aria-hidden></i></button>
         </li>}
-        {this.moreCompetitive && <li><a href="smogtours-ubers-34646" class="blocklink" style="white-space:normal">
+        {this.moreCompetitive && <li><a href="smogtours-ubers-34646" class="blocklink">
           <small>[oras ubers]<br /></small>
           <strong>steelphoenix</strong> vs. <strong>Jibaku</strong>
           <small><br />In this SPL Week 4 battle, Jibaku's clever plays with Mega Sableye keep the momentum mostly in his favor.</small>
         </a></li>}
-        {this.moreCompetitive && <li><a href="smogtours-uu-36860" class="blocklink" style="white-space:normal">
+        {this.moreCompetitive && <li><a href="smogtours-uu-36860" class="blocklink">
           <small>[oras uu]<br /></small>
           <strong>IronBullet93</strong> vs. <strong>Laurel</strong>
           <small><br />Laurel outplays IronBullet's Substitute Tyrantrum with the sly use of a Shuca Berry Cobalion, but luck was inevitably the deciding factor in this SPL Week 6 match.</small>
         </a></li>}
-        {this.moreCompetitive && <li><a href="smogtours-gen5ou-36900" class="blocklink" style="white-space:normal">
+        {this.moreCompetitive && <li><a href="smogtours-gen5ou-36900" class="blocklink">
           <small>[bw ou]<br /></small>
           <strong>Lowgock</strong> vs. <strong>Meridian</strong>
           <small><br />This SPL Week 6 match features impressive plays, from Jirachi sacrificing itself to paralysis to avoid a burn to some clever late-game switches.</small>
         </a></li>}
-        {this.moreCompetitive && <li><a href="smogtours-gen4ou-36782" class="blocklink" style="white-space:normal">
+        {this.moreCompetitive && <li><a href="smogtours-gen4ou-36782" class="blocklink">
           <small>[dpp ou]<br /></small>
           <strong>Heist</strong> vs. <strong>liberty32</strong>
           <small><br />Starting out as an entry hazard-filled stallfest, this close match is eventually decided by liberty32's efficient use of Aerodactyl.</small>
         </a></li>}
-        {this.moreCompetitive && <li><a href="randombattle-213274483" class="blocklink" style="white-space:normal">
+        {this.moreCompetitive && <li><a href="randombattle-213274483" class="blocklink">
           <small>[randombattle]<br /></small>
           <strong>The Immortal</strong> vs. <strong>Amphinobite</strong>
           <small><br />Substitute Lugia and Rotom-Fan take advantage of Slowking's utility and large HP stat, respectively, in this high ladder match.</small>
         </a></li>}
       </ul>
-    </section>}{!activelySearching && <section class="section">
-      <h1>Recent replays</h1>
-      <ul class="linklist">
-        {searchResults}
-      </ul>
-    </section>}</div>;
+    </section>;
   }
 }
 
@@ -245,7 +327,7 @@ class BattlePanel extends preact.Component<{id: string}> {
     private: number;
     password: string;
   } | null | undefined = undefined;
-  battle: Battle;
+  battle: Battle | null;
   speed = 'normal';
   override componentDidMount() {
     Net(`https://replay.pokemonshowdown.com/${this.props.id}.json`).get().then(result => {
@@ -274,31 +356,31 @@ class BattlePanel extends preact.Component<{id: string}> {
     showAd('LeaderboardBTF');
   }
   override componentWillUnmount(): void {
-    this.battle.destroy();
+    this.battle?.destroy();
     (window as any).battle = null;
   }
   play = () => {
-    this.battle.play();
+    this.battle?.play();
   };
   replay = () => {
-    this.battle.reset();
-    this.battle.play();
+    this.battle?.reset();
+    this.battle?.play();
     this.forceUpdate();
   };
   pause = () => {
-    this.battle.pause();
+    this.battle?.pause();
   };
   nextTurn = () => {
-    this.battle.seekBy(1);
+    this.battle?.seekBy(1);
   };
   prevTurn = () => {
-    this.battle.seekBy(-1);
+    this.battle?.seekBy(-1);
   };
   firstTurn = () => {
-    this.battle.seekTurn(0);
+    this.battle?.seekTurn(0);
   };
   lastTurn = () => {
-    this.battle.seekTurn(Infinity);
+    this.battle?.seekTurn(Infinity);
   };
   goToTurn = () => {
 		const turn = prompt('Turn?');
@@ -306,10 +388,10 @@ class BattlePanel extends preact.Component<{id: string}> {
 		let turnNum = Number(turn);
 		if (turn === 'e' || turn === 'end' || turn === 'f' || turn === 'finish') turnNum = Infinity;
 		if (isNaN(turnNum) || turnNum < 0) alert("Invalid turn");
-		this.battle.seekTurn(turnNum);
+		this.battle?.seekTurn(turnNum);
   };
   switchSides = () => {
-    this.battle.switchSides();
+    this.battle?.switchSides();
   };
   changeSpeed = (e: Event) => {
     this.speed = (e.target as HTMLSelectElement).value;
@@ -327,13 +409,14 @@ class BattlePanel extends preact.Component<{id: string}> {
       slow: 1000,
       reallyslow: 3000
     };
+    if (!this.battle) return;
     this.battle.messageShownTime = delayTable[this.speed];
     this.battle.messageFadeTime = fadeTable[this.speed];
     this.battle.scene.updateAcceleration();
   };
   changeSound = (e: Event) => {
     const muted = (e.target as HTMLSelectElement).value;
-    this.battle.setMute(muted === 'off');
+    this.battle?.setMute(muted === 'off');
   };
   renderNotFound() {
     return <div><section class="section" style={{maxWidth: '200px'}}>
@@ -445,6 +528,28 @@ class BattlePanel extends preact.Component<{id: string}> {
 }
 
 class PSReplays extends preact.Component {
+  override componentDidMount() {
+    if (window.history) {
+      window.addEventListener('popstate', e => {
+        this.forceUpdate();
+      });
+      const baseLocSlashIndex = document.location.href.lastIndexOf('/');
+      const baseLoc = document.location.href.slice(0, baseLocSlashIndex + 1);
+      this.base!.addEventListener('click', e => {
+        let el = e.target as HTMLElement;
+        for (; el; el = el.parentNode as HTMLElement) {
+          if (el.tagName === 'A' && (el as HTMLAnchorElement).href.startsWith(baseLoc)) {
+            const href = (el as HTMLAnchorElement).href;
+            history.pushState(null, '', href);
+            e.preventDefault();
+            e.stopImmediatePropagation();
+            this.forceUpdate();
+            return;
+          }
+        }
+      });
+    }
+  }
   override render() {
     return <div>{
       document.location.pathname === '/replays/' ? 
