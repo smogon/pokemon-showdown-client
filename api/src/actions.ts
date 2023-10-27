@@ -743,6 +743,43 @@ export const actions: {[k: string]: QueryHandler} = {
 		if (!search.page) search.page = 1;
 		return Replays.search(search);
 	},
+	async 'replays/edit'(params) {
+		if (!this.user.isLeader()) throw new ActionError(`Access denied.`);
+		const id = toID(params.id);
+		if (!id) throw new ActionError(`No replay ID was provided.`);
+		const replay = await tables.replays.get(id);
+		if (!replay) throw new ActionError(`Replay ${id} not found.`);
+		let pw;
+		switch (Number(params.private)) {
+		case 3:
+			await tables.replays.update(id, {
+				password: null,
+				private: 3,
+			});
+			break;
+		case 2: // private [1], no pass
+			await tables.replays.update(id, {
+				private: 1,
+				password: null,
+			});
+			break;
+		case 1:
+			if (!replay.password) replay.password = Replays.generatePassword();
+			pw = replay.password;
+			await tables.replays.update(id, {
+				private: 1,
+				password: replay.password,
+			});
+			break;
+		default:
+			await tables.replays.update(id, {
+				password: null,
+				private: 0,
+			});
+			break;
+		}
+		return {password: pw};
+	},
 };
 
 if (Config.actions) {

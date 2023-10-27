@@ -23,6 +23,7 @@ export class User {
 	name = 'Guest';
 	id = 'guest';
 	loggedIn = '';
+	group = 0;
 	constructor(name?: string) {
 		if (name) this.setName(name);
 	}
@@ -41,6 +42,11 @@ export class User {
 	}
 	isSysop() {
 		return Config.sysops.includes(this.id);
+	}
+	isLeader() {
+		// 2 - admin with 2fa
+		// 6 - admin (no 2fa)
+		return [2, 6].includes(this.group);
 	}
 }
 
@@ -474,6 +480,7 @@ export class Session {
 		// okay, legit session ID - you're logged in now.
 		const user = new User();
 		user.login(cookieName as string);
+		user.group = (await users.get(user.id))?.group || 0;
 
 		this.sidhash = sid;
 		this.session = session;
