@@ -710,6 +710,7 @@ export const actions: {[k: string]: QueryHandler} = {
 		return Replays.recent();
 	},
 	async 'replays/search'(params) {
+		this.allowCORS();
 		const search = {
 			username: toID(params.username),
 			username2: toID(params.username2),
