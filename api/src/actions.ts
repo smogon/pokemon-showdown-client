@@ -725,7 +725,7 @@ export const actions: {[k: string]: QueryHandler} = {
 	},
 	async 'replays/searchprivate'(params) {
 		this.verifyCrossDomainRequest();
-		if (!this.user.loggedIn) throw new ActionError(`Access denied.`);
+		if (!this.user.loggedIn) throw new ActionError(`Access denied: You must be logged in as a username you're searching for.`);
 		const search = {
 			username: toID(params.username),
 			username2: toID(params.username2),
@@ -735,7 +735,7 @@ export const actions: {[k: string]: QueryHandler} = {
 			isPrivate: true,
 		};
 		if (!(this.user.isSysop() || [search.username, search.username2].includes(this.user.id))) {
-			throw new ActionError(`Access denied.`);
+			throw new ActionError(`Access denied: You must be logged in as a username you're searching for.`);
 		}
 		if (isNaN(search.page) || search.page !== Math.trunc(search.page) || search.page < 0) {
 			throw new ActionError(`Invalid page number: ${params.page}`);

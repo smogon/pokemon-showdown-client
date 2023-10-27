@@ -92,8 +92,7 @@ export class ActionContext {
 	async executeActions() {
 		const body = this.body;
 		const act = body.act;
-
-		if (!act) throw new ActionError('Request needs an act - /api/[act] or JSON {act: [act]}', 404);
+		if (!act) throw new ActionError('Request needs an action - /api/[act] or JSON {act: [act]}', 404);
 		const handler = actions[act];
 		if (!handler) throw new ActionError(`Request type "${act}" was not recognized.`, 404);
 
