@@ -1639,7 +1639,11 @@ export class BattleScene implements BattleSceneStub {
 	}
 	destroy() {
 		this.log.destroy();
-		if (this.$frame) this.$frame.empty();
+		if (this.$frame) {
+			this.$frame.empty();
+			// listeners set by BattleTooltips
+			this.$frame.off();
+		}
 		if (this.bgm) {
 			this.bgm.destroy();
 			this.bgm = null;

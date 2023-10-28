@@ -68,7 +68,7 @@ if (!window.console) {
  *********************************************************************/
 
 export interface PostData {
-	[key: string]: string | number;
+	[key: string]: string | number | undefined;
 }
 export interface NetRequestOptions {
 	method?: 'GET' | 'POST';
@@ -159,6 +159,7 @@ Net.encodeQuery = function (data: string | PostData) {
 	if (typeof data === 'string') return data;
 	let urlencodedData = '';
 	for (const key in data) {
+		if ((data as any)[key] === undefined) continue;
 		if (urlencodedData) urlencodedData += '&';
 		urlencodedData += encodeURIComponent(key) + '=' + encodeURIComponent((data as any)[key]);
 	}
