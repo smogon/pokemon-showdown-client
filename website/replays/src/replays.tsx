@@ -4,6 +4,7 @@ import {Net, PSModel} from './utils';
 import {Battle} from '../../../src/battle';
 import {BattleSound} from '../../../src/battle-sound';
 import $ from 'jquery';
+declare function toID(input: string): string;
 
 function showAd(id: string) {
   // @ts-expect-error
@@ -148,12 +149,15 @@ class SearchPanel extends preact.Component {
     this.submitForm(e);
   };
   url(replay: ReplayResult) {
-    return replay.id + (replay.password ? `-${replay.password}pw` : '');
+    const sidesSwitched = (toID(replay.p2) === toID(this.user));
+    return replay.id + (replay.password ? `-${replay.password}pw` : '') + (sidesSwitched ? '?p2' : '');
   }
   formatid(replay: ReplayResult) {
     let formatid = replay.format;
     if (!formatid.startsWith('gen') || !/[0-9]/.test(formatid.charAt(3))) {
-      formatid = 'gen6' + formatid;
+      // 2013 Oct 14, two days after X and Y were released; good enough
+      // estimate for when we renamed `ou` to `gen5ou`.
+      formatid = (replay.uploadtime > 1381734000 ? 'gen6' : 'gen5') + formatid;
     }
     if (!/^gen[0-9]+-/.test(formatid)) {
       formatid = formatid.slice(0, 4) + '-' + formatid.slice(4);
@@ -244,17 +248,17 @@ class FeaturedReplays extends preact.Component {
         {!this.moreFun && <li style={{paddingLeft: '8px'}}>
           <button class="button" onClick={this.showMoreFun}>More <i class="fa fa-caret-right" aria-hidden></i></button>
         </li>}
-        {this.moreFun && <li><a href="smogondoubles-75588440" class="blocklink">
+        {this.moreFun && <li><a href="smogondoubles-75588440?p2" class="blocklink">
           <small>[gen6-smogondoubles]<br /></small>
           <strong>jamace6</strong> vs. <strong>DubsWelder</strong>
           <small><br />Garchomp sweeps 11 pokemon</small>
         </a></li>}
-        {this.moreFun && <li><a href="ou-20651579" class="blocklink">
+        {this.moreFun && <li><a href="ou-20651579?p2" class="blocklink">
           <small>[gen5-ou]<br /></small>
           <strong>RainSeven07</strong> vs. <strong>my body is regi</strong>
           <small><br />An entire team based on Assist V-create</small>
         </a></li>}
-        {this.moreFun && <li><a href="balancedhackmons7322360" class="blocklink">
+        {this.moreFun && <li><a href="balancedhackmons7322360?p2" class="blocklink">
           <small>[gen5-balancedhackmons]<br /></small>
           <strong>a ver</strong> vs. <strong>Shuckie</strong>
           <small><br />To a ver's frustration, PP stall is viable in Balanced Hackmons</small>
@@ -357,15 +361,19 @@ class BattlePanel extends preact.Component<{id: string}> {
     showAd('LeaderboardBTF');
   }
   override componentWillReceiveProps(nextProps) {
-    if (this.props.id !== nextProps.id) {
+    if (this.stripQuery(this.props.id) !== this.stripQuery(nextProps.id)) {
       this.loadBattle(nextProps.id);
     }
+  }
+  stripQuery(id: string) {
+    return id.includes('?') ? id.slice(0, id.indexOf('?')) : id;
   }
   loadBattle(id: string) {
     if (this.battle) this.battle.destroy();
     this.battle = null;
     this.result = undefined;
-    Net(`https://replay.pokemonshowdown.com/${id}.json`).get().then(result => {
+
+    Net(`https://replay.pokemonshowdown.com/${this.stripQuery(id)}.json`).get().then(result => {
       const replay: NonNullable<BattlePanel['result']> = JSON.parse(result);
       this.result = replay;
       const $base = $(this.base!);
@@ -383,7 +391,7 @@ class BattlePanel extends preact.Component<{id: string}> {
       this.battle.subscribe(_ => {
         this.forceUpdate();
       });
-      if (PSRouter.rightLoc!.includes('?p2')) {
+      if (id.includes('?p2')) {
         this.battle.switchSides();
       }
       this.forceUpdate();
@@ -429,6 +437,11 @@ class BattlePanel extends preact.Component<{id: string}> {
   };
   switchSides = () => {
     this.battle?.switchSides();
+    if (this.battle?.sidesSwitched) {
+      PSRouter.replace(this.stripQuery(this.props.id) + '?p2');
+    } else {
+      PSRouter.replace(this.stripQuery(this.props.id));
+    }
   };
   changeSpeed = (e: Event) => {
     this.speed = (e.target as HTMLSelectElement).value;
@@ -535,9 +548,6 @@ class BattlePanel extends preact.Component<{id: string}> {
           <button class={"button button-last" + (atEnd ? " disabled" : "")} onClick={this.lastTurn}>
             <i class="fa fa-fast-forward"></i><br />Skip to end
           </button> {}
-          <button class="button" onClick={this.switchSides}>
-            <i class="fa fa-random"></i> Switch sides
-          </button> {}
           <button class="button" onClick={this.goToTurn}>
             <i class="fa fa-repeat"></i> Skip to turn...
           </button>
@@ -559,16 +569,23 @@ class BattlePanel extends preact.Component<{id: string}> {
               <option value="on">On</option>
               <option value="off">Muted</option>
             </select>
+          </label> {}
+          <label class="optgroup">
+            Viewpoint<br />
+            <button onClick={this.switchSides} class={this.battle ? 'button' : 'button disabled'}>
+              {(this.battle?.sidesSwitched ? this.result?.p2 : this.result?.p1)} <i class="fa fa-random"></i>
+            </button>
           </label>
         </p>
-        {!this.result && <h1><em>Loading...</em></h1>}
-        {this.result && <h1 style={{fontWeight: 'normal'}}>
+        {this.result ? <h1 style={{fontWeight: 'normal', fontSize: '18pt'}}>
           <strong>{this.result.format}</strong>: {this.result.p1} vs. {this.result.p2}
+        </h1> : <h1 style={{fontSize: '18pt'}}>
+          <em>Loading...</em>
         </h1>}
-        {this.result && <p>
+        {this.result ? <p>
           {this.result.uploadtime ? new Date(this.result.uploadtime * 1000).toDateString() : "Unknown upload date"}
           {this.result.rating ? ` | Rating: ${this.result.rating}` : ''}
-        </p>}
+        </p> : <p>&nbsp;</p>}
         {!PSRouter.showingLeft() && <p>
           <a href="." class="button"><i class="fa fa-caret-left"></i> More replays</a>
         </p>}
