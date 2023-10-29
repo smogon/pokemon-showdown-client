@@ -170,9 +170,9 @@ var ReplayPanel = Panels.StaticPanel.extend({
 
 		if (this.battle.paused) {
 			var resetDisabled = !this.battle.started ? ' disabled' : '';
-			this.$('.replay-controls').html('<button data-action="play"><i class="fa fa-play"></i> Play</button><button data-action="reset"' + resetDisabled + '><i class="fa fa-undo"></i> Reset</button> <button data-action="rewind"><i class="fa fa-step-backward"></i> Last turn</button><button data-action="ff"><i class="fa fa-step-forward"></i> Next turn</button> <button data-action="ffto"><i class="fa fa-fast-forward"></i> Go to turn...</button> <button data-action="switchSides"><i class="fa fa-random"></i> Switch sides</button>');
+			this.$('.replay-controls').html('<button data-action="play"><i class="fa fa-play"></i> Play</button><button data-action="reset"' + resetDisabled + '><i class="fa fa-undo"></i> Reset</button> <button data-action="rewind"><i class="fa fa-step-backward"></i> Last turn</button><button data-action="ff"><i class="fa fa-step-forward"></i> Next turn</button> <button data-action="ffto"><i class="fa fa-fast-forward"></i> Go to turn...</button> <button data-action="switchViewpoint"><i class="fa fa-random"></i> Switch sides</button>');
 		} else {
-			this.$('.replay-controls').html('<button data-action="pause"><i class="fa fa-pause"></i> Pause</button><button data-action="reset"><i class="fa fa-undo"></i> Reset</button> <button data-action="rewind"><i class="fa fa-step-backward"></i> Last turn</button><button data-action="ff"><i class="fa fa-step-forward"></i> Next turn</button> <button data-action="ffto"><i class="fa fa-fast-forward"></i> Go to turn...</button> <button data-action="switchSides"><i class="fa fa-random"></i> Switch sides</button>');
+			this.$('.replay-controls').html('<button data-action="pause"><i class="fa fa-pause"></i> Pause</button><button data-action="reset"><i class="fa fa-undo"></i> Reset</button> <button data-action="rewind"><i class="fa fa-step-backward"></i> Last turn</button><button data-action="ff"><i class="fa fa-step-forward"></i> Next turn</button> <button data-action="ffto"><i class="fa fa-fast-forward"></i> Go to turn...</button> <button data-action="switchViewpoint"><i class="fa fa-random"></i> Switch sides</button>');
 		}
 	},
 	clickReplayDownloadButton: function (e) {
@@ -216,8 +216,8 @@ var ReplayPanel = Panels.StaticPanel.extend({
 		if (isNaN(turn) || turn < 0) alert("Invalid turn");
 		this.battle.seekTurn(turn);
 	},
-	switchSides: function() {
-		this.battle.switchSides();
+	switchViewpoint: function() {
+		this.battle.switchViewpoint();
 	},
 	remove: function() {
 		this.battle.destroy();
