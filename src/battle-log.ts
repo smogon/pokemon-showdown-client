@@ -1139,23 +1139,26 @@ export class BattleLog {
 	// This allows pretty much anything about the replay viewer to be
 	// updated as desired.
 
-	static createReplayFile(room: any) {
+	static createReplayFile(room: {battle: Battle, id?: string, fragment?: string}) {
 		let battle = room.battle;
 		let replayid = room.id;
 		if (replayid) {
 			// battle room
 			replayid = replayid.slice(7);
-			if (Config.server.id !== 'showdown') {
-				if (!Config.server.registered) {
+			if (window.Config?.server.id !== 'showdown') {
+				if (!window.Config?.server.registered) {
 					replayid = 'unregisteredserver-' + replayid;
 				} else {
 					replayid = Config.server.id + '-' + replayid;
 				}
 			}
-		} else {
+		} else if (room.fragment) {
 			// replay panel
 			replayid = room.fragment;
+		} else {
+			replayid = battle.id;
 		}
+		// TODO: do this synchronously so large battles aren't cut off
 		battle.seekTurn(Infinity);
 		let buf = '<!DOCTYPE html>\n';
 		buf += '<meta charset="utf-8" />\n';
@@ -1175,7 +1178,7 @@ export class BattleLog {
 		return buf;
 	}
 
-	static createReplayFileHref(room: any) {
+	static createReplayFileHref(room: {battle: Battle, id?: string, fragment?: string}) {
 		// unescape(encodeURIComponent()) is necessary because btoa doesn't support Unicode
 		// @ts-ignore
 		return 'data:text/plain;base64,' + encodeURIComponent(btoa(unescape(encodeURIComponent(BattleLog.createReplayFile(room)))));
