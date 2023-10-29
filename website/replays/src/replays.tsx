@@ -11,14 +11,16 @@ interface ReplayResult {
   p1: string;
   p2: string;
   password?: string;
+  rating?: number;
 }
 
-class SearchPanel extends preact.Component {
+class SearchPanel extends preact.Component<{id: string}> {
   results: ReplayResult[] | null = null;
   resultError: string | null = null;
   format = '';
   user = '';
   isPrivate = false;
+  byRating = false;
   page = 1;
   loggedInUser: string | null = null;
   loggedInUserIsSysop = false;
@@ -31,17 +33,20 @@ class SearchPanel extends preact.Component {
       this.loggedInUserIsSysop = !!sysop;
       this.forceUpdate();
     });
-    this.updateSearch();
+    this.updateSearch(Net.decodeQuery(this.props.id));
   }
   override componentDidUpdate() {
-    const page = parseInt(decodeURIComponent(/\bpage=([^&]*)/.exec(PSRouter.leftLoc || '')?.[1] || '1'));
-    if (page !== this.page) this.updateSearch();
+    const query = Net.decodeQuery(this.props.id);
+    const page = parseInt(query.page || '1');
+    const byRating = (query.sort === 'rating');
+    if (page !== this.page || byRating !== this.byRating) this.updateSearch(query);
   }
-  updateSearch() {
-    const user = decodeURIComponent(/\buser=([^&]*)/.exec(PSRouter.leftLoc || '')?.[1] || '');
-    const format = decodeURIComponent(/\bformat=([^&]*)/.exec(PSRouter.leftLoc || '')?.[1] || '');
-    const page = parseInt(decodeURIComponent(/\bpage=([^&]*)/.exec(PSRouter.leftLoc || '')?.[1] || '1'));
-    const isPrivate = PSRouter.leftLoc!.includes('private=1');
+  updateSearch(query: {[k: string]: string}) {
+    const user = query.user || '';
+    const format = query.format || '';
+    const page = parseInt(query.page || '1');
+    const isPrivate = !!query.private;
+    this.byRating = (query.sort === 'rating');
     this.search(user, format, isPrivate, page);
   }
   parseResponse(response: string, isPrivate?: boolean) {
@@ -74,6 +79,7 @@ class SearchPanel extends preact.Component {
     this.page = page;
     this.results = null;
     this.resultError = null;
+    if (user || !format) this.byRating = false;
 
     if (!format && !user) {
       PSRouter.replace('')
@@ -83,11 +89,17 @@ class SearchPanel extends preact.Component {
         format: format || undefined,
         private: isPrivate ? '1' : undefined,
         page: page === 1 ? undefined : page,
+        sort: this.byRating ? 'rating' : undefined,
       }));
     }
     this.forceUpdate();
     Net(`/api/replays/${isPrivate ? 'searchprivate' : 'search'}`).get({
-      query: {username: this.user, format: this.format, page},
+      query: {
+        username: this.user,
+        format: this.format,
+        page,
+        sort: this.byRating ? 'rating' : undefined,
+      },
     }).then(response => {
       if (this.format !== format || this.user !== user) return;
       this.parseResponse(response, true);
@@ -98,20 +110,14 @@ class SearchPanel extends preact.Component {
       this.forceUpdate();
     });
   }
-  prevPageLink() {
+  modLink(overrides: {page?: number, sort?: string}) {
+    const newPage = this.page + (overrides.page || 0);
     return './?' + Net.encodeQuery({
       user: this.user || undefined,
       format: this.format || undefined,
       private: this.isPrivate ? '1' : undefined,
-      page: this.page - 1 === 1 ? undefined : this.page - 1,
-    });
-  }
-  nextPageLink() {
-    return './?' + Net.encodeQuery({
-      user: this.user || undefined,
-      format: this.format || undefined,
-      private: this.isPrivate ? '1' : undefined,
-      page: this.page + 1,
+      page: newPage === 1 ? undefined : newPage,
+      sort: (overrides.sort ? overrides.sort === 'rating' : this.byRating) ? 'rating' : undefined,
     });
   }
   recent() {
@@ -119,9 +125,9 @@ class SearchPanel extends preact.Component {
     this.user = '';
     this.results = null;
     this.forceUpdate();
-    Net('https://replay.pokemonshowdown.com/search.json').get().then(response => {
+    Net('/api/replays/recent').get().then(response => {
       if (this.format !== '' || this.user !== '') return;
-      this.parseResponse(response);
+      this.parseResponse(response, true);
       this.forceUpdate();
     }).catch(error => {
       if (this.format !== '' || this.user !== '') return;
@@ -174,7 +180,7 @@ class SearchPanel extends preact.Component {
       </li>) ||
       (results?.map(result => <li>
         <a href={this.url(result)} class="blocklink">
-          <small>[{this.formatid(result)}]<br /></small>
+          <small>[{this.formatid(result)}]{result.rating ? ` Rating: ${result.rating}` : ''}<br /></small>
           <strong>{result.p1}</strong> vs. <strong>{result.p2}</strong>
         </a>
       </li>))}
@@ -200,12 +206,17 @@ class SearchPanel extends preact.Component {
           {activelySearching && <button class="button" onClick={this.cancelForm}>Cancel</button>}
         </p>
         {activelySearching && <h1 aria-label="Results"></h1>}
+        {activelySearching && this.format && !this.user && <p>
+          Sort by: {}
+          <a href={this.modLink({sort: 'date', page: 1})} class={`button button-first${this.byRating ? '' : ' disabled'}`}>Date</a>
+          <a href={this.modLink({sort: 'rating', page: 1})} class={`button button-last${this.byRating ? ' disabled' : ''}`}>Rating</a>
+        </p>}
         {activelySearching && this.page > 1 && <p class="pagelink">
-          <a href={this.prevPageLink()} class="button"><i class="fa fa-caret-up"></i><br />Page {this.page - 1}</a>
+          <a href={this.modLink({page: -1})} class="button"><i class="fa fa-caret-up"></i><br />Page {this.page - 1}</a>
         </p>}
         {activelySearching && searchResults}
         {activelySearching && (this.results?.length || 0) > 50 && <p class="pagelink">
-          <a href={this.nextPageLink()} class="button">Page {this.page + 1}<br /><i class="fa fa-caret-down"></i></a>
+          <a href={this.modLink({page: 1})} class="button">Page {this.page + 1}<br /><i class="fa fa-caret-down"></i></a>
         </p>}
       </form>
     </section>{!activelySearching && <FeaturedReplays />}{!activelySearching && <section class="section">
@@ -430,7 +441,7 @@ class PSReplays extends preact.Component {
     const position = PSRouter.showingLeft() && PSRouter.showingRight() && !PSRouter.stickyRight ?
       {display: 'flex', flexDirection: 'column', justifyContent: 'flex-end'} : {};
     return <div class={'bar-wrapper' + (PSRouter.showingLeft() && PSRouter.showingRight() ? ' has-sidebar' : '')} style={position}>
-      {PSRouter.showingLeft() && <SearchPanel />}
+      {PSRouter.showingLeft() && <SearchPanel id={PSRouter.leftLoc!} />}
       {PSRouter.showingRight() && <BattlePanel id={PSRouter.rightLoc!} />}
       <div style={{clear: 'both'}}></div>
     </div>;
