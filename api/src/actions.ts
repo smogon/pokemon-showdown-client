@@ -705,7 +705,7 @@ export const actions: {[k: string]: QueryHandler} = {
 			throw new ActionError("Failed to fetch team. Please try again later.");
 		}
 	},
-	async 'replays/recent'(params) {
+	async 'replays/recent'() {
 		this.allowCORS();
 		return Replays.recent();
 	},
@@ -715,8 +715,8 @@ export const actions: {[k: string]: QueryHandler} = {
 			username: toID(params.username || params.user),
 			username2: toID(params.username2),
 			format: toID(params.format),
-			page: Number(params.page),
-			byRating: !!params.byRating,
+			page: Number(params.page || '1'),
+			byRating: params.sort === 'rating',
 		};
 		if (isNaN(search.page) || search.page !== Math.trunc(search.page) || search.page < 0) {
 			throw new ActionError(`Invalid page number: ${params.page}`);
@@ -726,15 +726,17 @@ export const actions: {[k: string]: QueryHandler} = {
 	},
 	async 'replays/searchprivate'(params) {
 		this.verifyCrossDomainRequest();
-		if (!this.user.loggedIn) throw new ActionError(`Access denied: You must be logged in as a username you're searching for.`);
+
+		if (!this.user.loggedIn) throw new ActionError(`Access denied: You must be logged in.`);
 		const search = {
 			username: toID(params.username || params.user),
 			username2: toID(params.username2),
 			format: toID(params.format),
-			page: Number(params.page),
-			byRating: !!params.byRating,
+			page: Number(params.page || '1'),
+			byRating: params.sort === 'rating',
 			isPrivate: true,
 		};
+
 		if (!(this.user.isSysop() || [search.username, search.username2].includes(this.user.id))) {
 			throw new ActionError(`Access denied: You must be logged in as a username you're searching for.`);
 		}
