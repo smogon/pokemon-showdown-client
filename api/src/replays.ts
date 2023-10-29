@@ -187,7 +187,7 @@ export const Replays = new class {
 		const format = args.format ? toID(args.format) : null;
 
 		if (args.username) {
-			const order = args.byRating ? 'rating' : 'uploadtime';
+			const order = args.byRating ? SQL`ORDER BY rating DESC` : SQL`ORDER BY uploadtime DESC`;
 			const userid = toID(args.username);
 			if (args.username2) {
 				const userid2 = toID(args.username2);
@@ -196,44 +196,44 @@ export const Replays = new class {
 						FORCE INDEX (p1) 
 						WHERE private = ${isPrivate} AND p1id = ${userid} 
 						AND p2id = ${userid2} AND format = ${format} 
-						ORDER BY \`${order}\` DESC)
+						${order})
 						 UNION 
 						(SELECT uploadtime, id, format, p1, p2, password 
 						FROM ps_replays FORCE INDEX (p1) 
 						WHERE private = ${isPrivate} AND p1id = ${userid2} AND p2id = ${userid} 
 						AND format = ${format}
-						 ORDER BY \`${order}\` DESC)
-						 ORDER BY \`${order}\` DESC LIMIT ${limit1}, 51;`;
+						 ${order})
+						 ${order} LIMIT ${limit1}, 51;`;
 				} else {
 					return replays.query()`(SELECT uploadtime, id, format, p1, p2, password FROM ps_replays 
 						FORCE INDEX (p1) 
 						WHERE private = ${isPrivate} AND p1id = ${userid} AND p2id = ${userid2}
-						 ORDER BY \`${order}\` DESC)
+						 ${order})
 						 UNION 
 						(SELECT uploadtime, id, format, p1, p2, password FROM ps_replays FORCE INDEX (p1) 
 						WHERE private = ${isPrivate} AND p1id = ${userid2} AND p2id = ${userid} 
-						ORDER BY \`${order}\` DESC)
-						 ORDER BY \`${order}\` DESC LIMIT ${limit1}, 51;`;
+						${order})
+						 ${order} LIMIT ${limit1}, 51;`;
 				}
 			} else {
 				if (format) {
 					return replays.query()`(SELECT uploadtime, id, format, p1, p2, password FROM ps_replays 
 						FORCE INDEX (p1) 
 						WHERE private = ${isPrivate} AND p1id = ${userid} AND format = ${format} 
-						ORDER BY \`${order}\` DESC)
+						${order})
 						 UNION 
 						(SELECT uploadtime, id, format, p1, p2, password FROM ps_replays FORCE INDEX (p2)
 						 WHERE private = ${isPrivate} AND p2id = ${userid} AND format = ${format} 
-						ORDER BY \`${order}\` DESC)
-						 ORDER BY \`${order}\` DESC LIMIT ${limit1}, 51;`;
+						${order})
+						 ${order} LIMIT ${limit1}, 51;`;
 				} else {
 					return replays.query()`(SELECT uploadtime, id, format, p1, p2, password FROM ps_replays 
 						FORCE INDEX (p1) 
-						WHERE private = ${isPrivate} AND p1id = ${userid} ORDER BY \`${order}\` DESC)
+						WHERE private = ${isPrivate} AND p1id = ${userid} ${order})
 						 UNION 
 						(SELECT uploadtime, id, format, p1, p2, password FROM ps_replays FORCE INDEX (p2) 
-						WHERE private = ${isPrivate} AND p2id = ${userid} ORDER BY \`${order}\` DESC)
-						 ORDER BY \`${order}\` DESC LIMIT ${limit1}, 51;`;
+						WHERE private = ${isPrivate} AND p2id = ${userid} ${order})
+						 ${order} LIMIT ${limit1}, 51;`;
 				}
 			}
 		}
