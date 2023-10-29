@@ -185,7 +185,11 @@ h1 {
 	margin: 0;
 }
 .dark h1 {
+	color: #CCC;
 	border-bottom-color: #888;
+}
+.dark h2, .dark h3 {
+	color: #CCC;
 }
 
 .section {
