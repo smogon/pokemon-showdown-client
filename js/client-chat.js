@@ -141,6 +141,7 @@
 			}
 			this.$chatbox.val('');
 			this.$chatbox.trigger('keyup'); // force a resize
+			this.$chatbox.focus(); // this is just for iOS's autocomplete
 		},
 		keyUp: function (e) {
 			// Android Chrome compose keycode
