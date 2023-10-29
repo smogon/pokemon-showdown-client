@@ -146,8 +146,8 @@ class SearchPanel extends preact.Component {
     this.submitForm(e);
   };
   url(replay: ReplayResult) {
-    const sidesSwitched = (toID(replay.p2) === toID(this.user));
-    return replay.id + (replay.password ? `-${replay.password}pw` : '') + (sidesSwitched ? '?p2' : '');
+    const viewpointSwitched = (toID(replay.p2) === toID(this.user));
+    return replay.id + (replay.password ? `-${replay.password}pw` : '') + (viewpointSwitched ? '?p2' : '');
   }
   formatid(replay: ReplayResult) {
     let formatid = replay.format;

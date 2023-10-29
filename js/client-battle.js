@@ -260,7 +260,7 @@
 		updateControls: function () {
 			if (this.battle.scene.customControls) return;
 			var controlsShown = this.controlsShown;
-			var switchSidesButton = '<p><button class="button" name="switchSides"><i class="fa fa-random"></i> Switch sides</button></p>';
+			var switchSidesButton = '<p><button class="button" name="switchViewpoint"><i class="fa fa-random"></i> Switch sides</button></p>';
 			this.controlsShown = false;
 
 			if (this.battle.seeking !== null) {
@@ -1089,14 +1089,14 @@
 			if (!sideData.id) return;
 			this.side = sideData.id;
 			if (this.battle.mySide.sideid !== this.side) {
-				this.battle.setPerspective(this.side);
+				this.battle.setViewpoint(this.side);
 				this.$chat = this.$chatFrame.find('.inner');
 			}
 		},
 		updateSide: function () {
 			var sideData = this.request.side;
 			this.battle.myPokemon = sideData.pokemon;
-			this.battle.setPerspective(sideData.id);
+			this.battle.setViewpoint(sideData.id);
 			for (var i = 0; i < sideData.pokemon.length; i++) {
 				var pokemonData = sideData.pokemon[i];
 				if (this.request.active && this.request.active[i]) pokemonData.canGmax = this.request.active[i].gigantamax || false;
@@ -1157,8 +1157,8 @@
 
 			e.stopPropagation();
 		},
-		switchSides: function () {
-			this.battle.switchSides();
+		switchViewpoint: function () {
+			this.battle.switchViewpoint();
 		},
 		pause: function () {
 			this.tooltips.hideTooltip();

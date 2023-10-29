@@ -792,7 +792,7 @@ export class BattleScene implements BattleSceneStub {
 		let newBGNum = 0;
 		for (let siden = 0; siden < 2 || (this.battle.gameType === 'multi' && siden < 4); siden++) {
 			let side = this.battle.sides[siden];
-			const spriteIndex = +this.battle.sidesSwitched ^ (siden % 2);
+			const spriteIndex = +this.battle.viewpointSwitched ^ (siden % 2);
 			let textBuf = '';
 			let buf = '';
 			let buf2 = '';

@@ -1011,7 +1011,7 @@ export interface ServerPokemon extends PokemonDetails, PokemonHealth {
 export class Battle {
 	scene: BattleSceneStub;
 
-	sidesSwitched = false;
+	viewpointSwitched = false;
 
 	stepQueue: string[];
 	/** See battle.instantAdd */
@@ -1303,10 +1303,10 @@ export class Battle {
 	resetToCurrentTurn() {
 		this.seekTurn(this.ended ? Infinity : this.turn, true);
 	}
-	switchSides() {
-		this.setPerspective(this.sidesSwitched ? 'p1' : 'p2');
+	switchViewpoint() {
+		this.setViewpoint(this.viewpointSwitched ? 'p1' : 'p2');
 	}
-	setPerspective(sideid: SideID) {
+	setViewpoint(sideid: SideID) {
 		if (this.mySide.sideid === sideid) return;
 		if (sideid.length !== 2 || !sideid.startsWith('p')) return;
 		const side = this[sideid];
@@ -1314,11 +1314,11 @@ export class Battle {
 		this.mySide = side;
 
 		if ((side.n % 2) === this.p1.n) {
-			this.sidesSwitched = false;
+			this.viewpointSwitched = false;
 			this.nearSide = this.p1;
 			this.farSide = this.p2;
 		} else {
-			this.sidesSwitched = true;
+			this.viewpointSwitched = true;
 			this.nearSide = this.p2;
 			this.farSide = this.p1;
 		}
