@@ -4,7 +4,9 @@ import $ from 'jquery';
 import {Net} from './utils';
 import {PSRouter} from './replays';
 import {Battle} from '../../../src/battle';
+import {BattleLog} from '../../../src/battle-log';
 import {BattleSound} from '../../../src/battle-sound';
+declare function toID(input: string): string;
 
 function showAd(id: string) {
   // @ts-expect-error
@@ -157,6 +159,30 @@ export class BattlePanel extends preact.Component<{id: string}> {
       PSRouter.replace(this.stripQuery(this.props.id));
     }
   };
+	clickDownload = (e: MouseEvent) => {
+    if (!this.battle) {
+      // should never happen
+      alert("Wait for the battle to finish loading before downloading.");
+      return;
+    }
+		let filename = (this.battle.tier || 'Battle').replace(/[^A-Za-z0-9]/g, '');
+
+		// ladies and gentlemen, JavaScript dates
+		const timestamp = (this.result?.uploadtime || 0) * 1000;
+		const date = new Date(timestamp);
+		filename += '-' + date.getFullYear();
+		filename += (date.getMonth() >= 9 ? '-' : '-0') + (date.getMonth() + 1);
+		filename += (date.getDate() >= 10 ? '-' : '-0') + date.getDate();
+
+		filename += '-' + toID(this.battle.p1.name);
+		filename += '-' + toID(this.battle.p2.name);
+
+    const a = e.currentTarget as HTMLAnchorElement;
+		a.href = BattleLog.createReplayFileHref({battle: this.battle});
+		a.download = filename + '.html';
+
+		e.stopPropagation();
+	};
   changeSpeed = (e: Event) => {
     this.speed = (e.target as HTMLSelectElement).value;
     const fadeTable = {
@@ -298,8 +324,11 @@ export class BattlePanel extends preact.Component<{id: string}> {
           <em>Loading...</em>
         </h1>}
         {this.result ? <p>
+          <a class="button" href="#" onClick={this.clickDownload} style={{float: 'right'}}>
+            <i class="fa fa-download" aria-hidden></i> Download
+          </a>
           {this.result.uploadtime ? new Date(this.result.uploadtime * 1000).toDateString() : "Unknown upload date"}
-          {this.result.rating ? ` | Rating: ${this.result.rating}` : ''}
+          {this.result.rating ? [` | `, <em>Rating:</em>, ` ${this.result.rating}`] : ''}
         </p> : <p>&nbsp;</p>}
         {!PSRouter.showingLeft() && <p>
           <a href="." class="button"><i class="fa fa-caret-left"></i> More replays</a>
