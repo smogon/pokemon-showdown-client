@@ -105,7 +105,7 @@ export class BattlePanel extends preact.Component<{id: string}> {
       this.battle.subscribe(_ => {
         this.forceUpdate();
       });
-      if (id.includes('?p2')) {
+      if ('p2' in Net.decodeQuery(id)) {
         this.battle.switchViewpoint();
       }
       this.forceUpdate();
