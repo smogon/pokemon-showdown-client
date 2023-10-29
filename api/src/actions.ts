@@ -711,6 +711,9 @@ export const actions: {[k: string]: QueryHandler} = {
 	},
 	async 'replays/search'(params) {
 		this.allowCORS();
+		if (params.sort && params.sort !== 'rating' && params.sort !== 'date') {
+			throw new ActionError('Sort must be "rating" or "date"');
+		}
 		const search = {
 			username: toID(params.username || params.user),
 			username2: toID(params.username2),
@@ -728,6 +731,9 @@ export const actions: {[k: string]: QueryHandler} = {
 		this.verifyCrossDomainRequest();
 
 		if (!this.user.loggedIn) throw new ActionError(`Access denied: You must be logged in.`);
+		if (params.sort && params.sort !== 'rating' && params.sort !== 'date') {
+			throw new ActionError('Sort must be "rating" or "date"');
+		}
 		const search = {
 			username: toID(params.username || params.user),
 			username2: toID(params.username2),
