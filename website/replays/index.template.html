@@ -56,6 +56,10 @@
 		border-bottom-left-radius: 0;
 		margin-left: -1px;
 	}
+	.button-first:hover, .button-middle:hover {
+		/* puts the right-border over the left border of the button to the right of it */
+		position: relative;
+	}
 	.linklist {
 		list-style: none;
 		margin: 0.5em 0;
@@ -82,6 +86,17 @@
 	.mainbar.has-sidebar {
 		margin-left: 330px;
 	}
+	@media (min-width: 1511px) {
+		.sidebar {
+			width: 400px;
+		}
+		.bar-wrapper.has-sidebar {
+			max-width: 1510px;
+		}
+		.mainbar.has-sidebar {
+			margin-left: 410px;
+		}
+	}
 	.section.first-section {
 		margin-top: 9px;
 	}
@@ -104,6 +119,15 @@
 	}
 	.pagelink a {
 		width: 150px;
+	}
+	.textbox, .button {
+		font-size: 11pt;
+		vertical-align: middle;
+	}
+	@media (max-width: 450px) {
+		.button {
+			font-size: 9pt;
+		}
 	}
 </style>
 
