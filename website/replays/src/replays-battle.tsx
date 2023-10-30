@@ -72,9 +72,13 @@ export class BattlePanel extends preact.Component<{id: string}> {
   } | null | undefined = undefined;
   battle: Battle | null;
   speed = 'normal';
+  keyCode = '0';
+  turnView: boolean | string = false;
+  autofocusTurnView: 'select' | 'end' | null = null;
   override componentDidMount() {
     this.loadBattle(this.props.id);
     showAd('LeaderboardBTF');
+    window.onkeydown = this.keyPressed;
   }
   override componentWillReceiveProps(nextProps) {
     if (this.stripQuery(this.props.id) !== this.stripQuery(nextProps.id)) {
@@ -107,8 +111,12 @@ export class BattlePanel extends preact.Component<{id: string}> {
       this.battle.subscribe(_ => {
         this.forceUpdate();
       });
-      if ('p2' in Net.decodeQuery(id)) {
+      const query = Net.decodeQuery(id);
+      if ('p2' in query) {
         this.battle.switchViewpoint();
+      }
+      if (query.turn || query.t) {
+        this.battle.seekTurn(parseInt(query.turn || query.t, 10));
       }
       this.forceUpdate();
     }).catch(_ => {
@@ -119,7 +127,83 @@ export class BattlePanel extends preact.Component<{id: string}> {
   override componentWillUnmount(): void {
     this.battle?.destroy();
     (window as any).battle = null;
+    window.onkeydown = null;
   }
+  override componentDidUpdate(): void {
+    if (this.autofocusTurnView === 'select') {
+      this.base?.querySelector<HTMLInputElement>('input[name=turn]')?.select();
+      this.autofocusTurnView = null;
+    }
+    if (this.autofocusTurnView === 'end') {
+      const turnbox = this.base?.querySelector<HTMLInputElement>('input[name=turn]');
+      turnbox?.setSelectionRange(2, 2);
+      turnbox?.focus();
+      this.autofocusTurnView = null;
+    }
+  }
+  keyPressed = (e: KeyboardEvent) => {
+    // @ts-ignore
+    this.keyCode = `${e.keyCode}`;
+    if (e.keyCode === 27 && this.turnView) { // Esc
+      this.closeTurn();
+      return;
+    }
+    // @ts-ignore
+    if (e.target?.tagName === 'INPUT' || e.target?.tagName === 'SELECT') return;
+    switch (e.keyCode) {
+    case 75: // k
+      if (this.battle?.atQueueEnd) {
+        this.replay();
+      } else if (this.battle?.paused) {
+        this.play();
+      } else {
+        this.pause();
+      }
+      break;
+    case 74: // j
+      if (e.shiftKey) this.firstTurn();
+      else this.prevTurn();
+      break;
+    case 76: // l
+      if (e.shiftKey) this.lastTurn();
+      else this.nextTurn();
+      break;
+    case 188: // , (<)
+      if (e.shiftKey) this.stepSpeed(-1);
+      break;
+    case 190: // . (>)
+      if (e.shiftKey) this.stepSpeed(1);
+      break;
+    case 191: // / (?)
+      if (e.shiftKey) {
+        alert(
+          'k = play/pause\n' +
+          'j = previous turn\n' +
+          'l = next turn\n' +
+          'J = first turn\n' +
+          'L = last turn\n' +
+          'm = mute\n' +
+          '< = slower\n' +
+          '> = faster\n' +
+          '1-9 = skip to turn\n' +
+          '? = keyboard shortcuts (this)\n'
+        );
+      }
+      break;
+    case 48: case 49: case 50: case 51: case 52: case 53: case 54: case 55: case 56: case 57:
+    case 96: case 97: case 98: case 99: case 100: case 101: case 102: case 103: case 104: case 105:
+      this.turnView = String.fromCharCode(e.keyCode - (e.keyCode >= 96 ? 48 : 0));
+      if (this.turnView === '0') this.turnView = '10';
+      this.autofocusTurnView = 'end';
+      e.preventDefault();
+      this.forceUpdate();
+      break;
+    case 77: // m
+      this.toggleMute();
+      break;
+    }
+    this.forceUpdate();
+  };
   play = () => {
     this.battle?.play();
   };
@@ -143,13 +227,14 @@ export class BattlePanel extends preact.Component<{id: string}> {
   lastTurn = () => {
     this.battle?.seekTurn(Infinity);
   };
-  goToTurn = () => {
-		const turn = prompt('Turn?');
-		if (!turn?.trim()) return;
+  goToTurn = (e) => {
+		const turn = this.base?.querySelector<HTMLInputElement>('input[name=turn]')?.value;
+		if (!turn?.trim()) return this.closeTurn(e);
 		let turnNum = Number(turn);
 		if (turn === 'e' || turn === 'end' || turn === 'f' || turn === 'finish') turnNum = Infinity;
 		if (isNaN(turnNum) || turnNum < 0) alert("Invalid turn");
 		this.battle?.seekTurn(turnNum);
+    this.closeTurn(e);
   };
   switchViewpoint = () => {
     this.battle?.switchViewpoint();
@@ -183,7 +268,7 @@ export class BattlePanel extends preact.Component<{id: string}> {
 
 		e.stopPropagation();
 	};
-  changeSpeed = (e: Event) => {
+  changeSpeed = (e: Event | {target: HTMLSelectElement}) => {
     this.speed = (e.target as HTMLSelectElement).value;
     const fadeTable = {
       hyperfast: 40,
@@ -204,9 +289,34 @@ export class BattlePanel extends preact.Component<{id: string}> {
     this.battle.messageFadeTime = fadeTable[this.speed];
     this.battle.scene.updateAcceleration();
   };
+  stepSpeed(delta: number) {
+    const target = this.base?.querySelector<HTMLSelectElement>('select[name=speed]');
+    if (!target) return; // should never happen
+    const values = ['reallyslow', 'slow', 'normal', 'fast', 'hyperfast'];
+    const newValue = values[values.indexOf(target.value) + delta];
+    if (newValue) {
+      target.value = newValue;
+      this.changeSpeed({target});
+    }
+  }
+  toggleMute() {
+    this.battle?.setMute(!BattleSound.muted);
+    this.forceUpdate();
+  }
   changeSound = (e: Event) => {
     const muted = (e.target as HTMLSelectElement).value;
     this.battle?.setMute(muted === 'off');
+  };
+  openTurn = (e: Event) => {
+    this.turnView = `${this.battle?.turn}` || true;
+    this.autofocusTurnView = 'select';
+    e.preventDefault();
+    this.forceUpdate();
+  };
+  closeTurn = (e?: Event) => {
+    this.turnView = false;
+    e?.preventDefault();
+    this.forceUpdate();
   };
   renderNotFound() {
     return <div class={PSRouter.showingLeft() ? 'mainbar has-sidebar' : 'mainbar'}><section class="section" style={{maxWidth: '200px'}}>
@@ -244,9 +354,98 @@ export class BattlePanel extends preact.Component<{id: string}> {
 			</p>
     </section></div>;
   }
-  override render() {
+  renderControls() {
     const atEnd = this.battle?.atQueueEnd;
     const atStart = !this.battle?.started;
+
+    if (this.turnView) {
+      const value = this.turnView === true ? undefined : this.turnView;
+      this.turnView = true;
+      return <div class="replay-controls"><section class="section">
+        <form onSubmit={this.goToTurn}>
+          Turn? <input name="turn" autofocus value={value} inputMode="numeric" class="textbox" size={5} /> {}
+          <button type="submit" class="button"><strong>Go</strong></button> {}
+          <button type="button" class="button" onClick={this.closeTurn}>Cancel</button>
+        </form>
+      </section></div>;
+    }
+
+    return <div class="replay-controls">
+      <p>
+        {atEnd ?
+          <button onClick={this.replay} class="button" style={{width: '5em'}}>
+            <i class="fa fa-undo"></i><br />Replay
+          </button>
+        : this.battle?.paused ?
+          <button onClick={this.play} class="button" style={{width: '5em'}}>
+            <i class="fa fa-play"></i><br />Play
+          </button>
+        :
+          <button onClick={this.pause} class="button" style={{width: '5em'}}>
+            <i class="fa fa-pause"></i><br />Pause
+          </button>
+        } {}
+        <button class={"button button-first" + (atStart ? " disabled" : "")} onClick={this.firstTurn}>
+          <i class="fa fa-fast-backward"></i><br />First turn
+        </button>
+        <button class={"button button-middle" + (atStart ? " disabled" : "")} onClick={this.prevTurn}>
+          <i class="fa fa-step-backward"></i><br />Prev turn
+        </button>
+        <button class={"button button-middle" + (atEnd ? " disabled" : "")} onClick={this.nextTurn}>
+          <i class="fa fa-step-forward"></i><br />Skip turn
+        </button>
+        <button class={"button button-last" + (atEnd ? " disabled" : "")} onClick={this.lastTurn}>
+          <i class="fa fa-fast-forward"></i><br />Skip to end
+        </button> {}
+        <button class="button" onClick={this.openTurn}>
+          <i class="fa fa-repeat"></i> Skip to turn...
+        </button>
+      </p>
+      <p>
+        <label class="optgroup">
+          Speed:<br />
+          <select name="speed" class="button" onChange={this.changeSpeed} value={this.speed}>
+            <option value="hyperfast">Hyperfast</option>
+            <option value="fast">Fast</option>
+            <option value="normal">Normal</option>
+            <option value="slow">Slow</option>
+            <option value="reallyslow">Really slow</option>
+          </select>
+        </label> {}
+        <label class="optgroup">
+          Sound:<br />
+          <select name="speed" class="button" onChange={this.changeSound} value={BattleSound.muted ? 'off' : 'on'}>
+            <option value="on">On</option>
+            <option value="off">Muted</option>
+          </select>
+        </label> {}
+        <label class="optgroup">
+          Viewpoint:<br />
+          <button onClick={this.switchViewpoint} class={this.battle ? 'button' : 'button disabled'}>
+            {(this.battle?.viewpointSwitched ? this.result?.p2 : this.result?.p1)} {}
+            <i class="fa fa-random" aria-label="Switch viewpoint"></i>
+          </button>
+        </label>
+      </p>
+      {this.result ? <h1>
+        <strong>{this.result.format}</strong>: {this.result.p1} vs. {this.result.p2}
+      </h1> : <h1>
+        <em>Loading...</em>
+      </h1>}
+      {this.result ? <p>
+        <a class="button" href="#" onClick={this.clickDownload} style={{float: 'right'}}>
+          <i class="fa fa-download" aria-hidden></i> Download
+        </a>
+        {this.result.uploadtime ? new Date(this.result.uploadtime * 1000).toDateString() : "Unknown upload date"}
+        {this.result.rating ? [` | `, <em>Rating:</em>, ` ${this.result.rating}`] : ''}
+        {/* {} <code>{this.keyCode}</code> */}
+      </p> : <p>&nbsp;</p>}
+      {!PSRouter.showingLeft() && <p>
+        <a href="." class="button"><i class="fa fa-caret-left"></i> More replays</a>
+      </p>}
+    </div>;
+  }
+  override render() {
     if (this.result === null) return this.renderNotFound();
 
     let position: any = {};
@@ -261,79 +460,7 @@ export class BattlePanel extends preact.Component<{id: string}> {
     return <div class={PSRouter.showingLeft() ? 'mainbar has-sidebar' : 'mainbar'} style={position}><div style={{position: 'relative'}}>
       <BattleDiv />
       <BattleLogDiv />
-      <div class="replay-controls">
-        <p>
-          {atEnd ?
-            <button onClick={this.replay} class="button" style={{width: '5em'}}>
-              <i class="fa fa-undo"></i><br />Replay
-            </button>
-          : this.battle?.paused ?
-            <button onClick={this.play} class="button" style={{width: '5em'}}>
-              <i class="fa fa-play"></i><br />Play
-            </button>
-          :
-            <button onClick={this.pause} class="button" style={{width: '5em'}}>
-              <i class="fa fa-pause"></i><br />Pause
-            </button>
-          } {}
-          <button class={"button button-first" + (atStart ? " disabled" : "")} onClick={this.firstTurn}>
-            <i class="fa fa-fast-backward"></i><br />First turn
-          </button>
-          <button class={"button button-middle" + (atStart ? " disabled" : "")} onClick={this.prevTurn}>
-            <i class="fa fa-step-backward"></i><br />Prev turn
-          </button>
-          <button class={"button button-middle" + (atEnd ? " disabled" : "")} onClick={this.nextTurn}>
-            <i class="fa fa-step-forward"></i><br />Skip turn
-          </button>
-          <button class={"button button-last" + (atEnd ? " disabled" : "")} onClick={this.lastTurn}>
-            <i class="fa fa-fast-forward"></i><br />Skip to end
-          </button> {}
-          <button class="button" onClick={this.goToTurn}>
-            <i class="fa fa-repeat"></i> Skip to turn...
-          </button>
-        </p>
-        <p>
-          <label class="optgroup">
-            Speed<br />
-            <select name="speed" class="button" onChange={this.changeSpeed} value={this.speed}>
-              <option value="hyperfast">Hyperfast</option>
-              <option value="fast">Fast</option>
-              <option value="normal">Normal</option>
-              <option value="slow">Slow</option>
-              <option value="reallyslow">Really slow</option>
-            </select>
-          </label> {}
-          <label class="optgroup">
-            Sound<br />
-            <select name="speed" class="button" onChange={this.changeSound} value={BattleSound.muted ? 'off' : 'on'}>
-              <option value="on">On</option>
-              <option value="off">Muted</option>
-            </select>
-          </label> {}
-          <label class="optgroup">
-            Viewpoint<br />
-            <button onClick={this.switchViewpoint} class={this.battle ? 'button' : 'button disabled'}>
-              {(this.battle?.viewpointSwitched ? this.result?.p2 : this.result?.p1)} {}
-              <i class="fa fa-random" aria-label="Switch viewpoint"></i>
-            </button>
-          </label>
-        </p>
-        {this.result ? <h1>
-          <strong>{this.result.format}</strong>: {this.result.p1} vs. {this.result.p2}
-        </h1> : <h1>
-          <em>Loading...</em>
-        </h1>}
-        {this.result ? <p>
-          <a class="button" href="#" onClick={this.clickDownload} style={{float: 'right'}}>
-            <i class="fa fa-download" aria-hidden></i> Download
-          </a>
-          {this.result.uploadtime ? new Date(this.result.uploadtime * 1000).toDateString() : "Unknown upload date"}
-          {this.result.rating ? [` | `, <em>Rating:</em>, ` ${this.result.rating}`] : ''}
-        </p> : <p>&nbsp;</p>}
-        {!PSRouter.showingLeft() && <p>
-          <a href="." class="button"><i class="fa fa-caret-left"></i> More replays</a>
-        </p>}
-      </div>
+      {this.renderControls()}
       <div id="LeaderboardBTF"></div>
     </div></div>;
   }

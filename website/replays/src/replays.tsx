@@ -190,12 +190,12 @@ class SearchPanel extends preact.Component<{id: string}> {
       <form onSubmit={this.submitForm}>
         <p>
           <label>Username:<br />
-          <input type="search" class="textbox" name="user" placeholder="(blank = any user)" size={25} /> {}
+          <input type="search" class="textbox" name="user" placeholder="(blank = any user)" size={20} /> {}
           {this.loggedInUser && <button type="button" class="button" onClick={this.searchLoggedIn}>{this.loggedInUser}'s replays</button>}</label>
         </p>
         <p>
           <label>Format:<br />
-          <input type="search" class="textbox" name="format" placeholder="(blank = any format)" size={35} /></label>
+          <input type="search" class="textbox" name="format" placeholder="(blank = any format)" size={30} /></label>
         </p>
         <p>
           <label class="checkbox inline"><input type="radio" name="private" value="" /> Public</label> {}
