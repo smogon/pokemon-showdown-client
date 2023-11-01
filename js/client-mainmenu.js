@@ -943,12 +943,12 @@
 			var teamIndex = $pmWindow.find('button[name=team]').val();
 			var privacy = this.adjustPrivacy($pmWindow.find('input[name=private]').is(':checked'));
 
-			var bestof = $pmWindow.find('input[name=bestof]').is(':checked');
-			var bestofvalue = $pmWindow.find('input[name=bestofvalue]').val();
-			if (bestof && bestofvalue) {
+			var bestOf = $pmWindow.find('input[name=bestof]').is(':checked');
+			var bestOfValue = $pmWindow.find('input[name=bestofvalue]').val();
+			if (bestOf && bestOfValue) {
 				var hasCustomRules = format.includes('@@@');
 				format += hasCustomRules ? ', ' : '@@@';
-				format += 'Best of = ' + bestofvalue;
+				format += 'Best of = ' + bestOfValue;
 			}
 
 			var team = null;
