@@ -48,7 +48,7 @@ if ($replay['password'] ?? null) {
 $replay['log'] = str_replace("\r","",$replay['log']);
 
 if ($replay['inputlog']) {
-	if (substr($replay['formatid'], -12) === 'randombattle' || substr($replay['formatid'], -19) === 'randomdoublesbattle' || $replay['formatid'] === 'gen7challengecup' || $replay['formatid'] === 'gen7challengecup1v1' || $replay['formatid'] === 'gen7battlefactory' || $replay['formatid'] === 'gen7bssfactory' || $replay['formatid'] === 'gen7hackmonscup' || $manage) {
+	if (substr($replay['formatid'], -12) === 'randombattle' || substr($replay['formatid'], -19) === 'randomdoublesbattle' || substr($replay['formatid'], -12) === 'challengecup' || substr($replay['formatid'], -15) === 'challengecup1v1' || substr($replay['formatid'], -7) === 'factory' || substr($replay['formatid'], -11) === 'hackmonscup' || substr($replay['formatid'], -22) === 'computergeneratedteams' || $manage) {
 		// ok
 	} else {
 		unset($replay['inputlog']);
