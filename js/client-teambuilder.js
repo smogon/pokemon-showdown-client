@@ -1252,7 +1252,7 @@
 			}
 			buf += '<div class="setmenu"><button name="copySet"><i class="fa fa-files-o"></i>Copy</button> <button name="importSet"><i class="fa fa-upload"></i>Import/Export</button> <button name="moveSet"><i class="fa fa-arrows"></i>Move</button> <button name="deleteSet"><i class="fa fa-trash"></i>Delete</button></div>';
 			buf += '<div class="setchart-nickname">';
-			buf += '<label>Nickname</label><input type="text" name="nickname" class="textbox" value="' + BattleLog.escapeHTML(set.name || '') + '" placeholder="' + BattleLog.escapeHTML(species.baseSpecies) + '" />';
+			buf += '<label for="nickname">Nickname</label><input type="text" id="nickname" name="nickname" class="textbox" value="' + BattleLog.escapeHTML(set.name || '') + '" placeholder="' + BattleLog.escapeHTML(species.baseSpecies) + '" />';
 			buf += '</div>';
 			buf += '<div class="setchart" style="' + Dex.getTeambuilderSprite(set, this.curTeam.gen) + ';">';
 
@@ -1263,7 +1263,7 @@
 			} else {
 				buf += '<div class="setcell-sprite"></div>';
 			}
-			buf += '<div class="setcell setcell-pokemon"><label>Pok&eacute;mon</label><input type="text" name="pokemon" class="textbox chartinput" value="' + BattleLog.escapeHTML(set.species) + '" autocomplete="off" /></div></div>';
+			buf += '<div class="setcell setcell-pokemon"><label for="pokemon">Pok&eacute;mon</label><input type="text" id="pokemon" name="pokemon" class="textbox chartinput" value="' + BattleLog.escapeHTML(set.species) + '" autocomplete="off" /></div></div>';
 
 			// details
 			buf += '<div class="setcol setcol-details"><div class="setrow">';
@@ -1326,17 +1326,17 @@
 
 			buf += '<div class="setrow">';
 			// if (this.curTeam.gen > 1 && !isLetsGo) buf += '<div class="setcell setcell-item"><label>Item</label><input type="text" name="item" class="textbox chartinput" value="' + BattleLog.escapeHTML(set.item) + '" /></div>';
-			if (this.curTeam.gen > 1) buf += '<div class="setcell setcell-item"><label>Item</label><input type="text" name="item" class="textbox chartinput" value="' + BattleLog.escapeHTML(set.item) + '" autocomplete="off" /></div>';
-			if (this.curTeam.gen > 2 && !isLetsGo) buf += '<div class="setcell setcell-ability"><label>Ability</label><input type="text" name="ability" class="textbox chartinput" value="' + BattleLog.escapeHTML(set.ability) + '" autocomplete="off" /></div>';
+			if (this.curTeam.gen > 1) buf += '<div class="setcell setcell-item"><label for="item">Item</label><input type="text" name="item" id="item" class="textbox chartinput" value="' + BattleLog.escapeHTML(set.item) + '" autocomplete="off" /></div>';
+			if (this.curTeam.gen > 2 && !isLetsGo) buf += '<div class="setcell setcell-ability"><label for="ability">Ability</label><input type="text" id="ability" name="ability" class="textbox chartinput" value="' + BattleLog.escapeHTML(set.ability) + '" autocomplete="off" /></div>';
 			buf += '</div></div>';
 
 			// moves
 			if (!set.moves) set.moves = [];
 			buf += '<div class="setcol setcol-moves"><div class="setcell"><label>Moves</label>';
-			buf += '<input type="text" name="move1" class="textbox chartinput" value="' + BattleLog.escapeHTML(set.moves[0]) + '" autocomplete="off" /></div>';
-			buf += '<div class="setcell"><input type="text" name="move2" class="textbox chartinput" value="' + BattleLog.escapeHTML(set.moves[1]) + '" autocomplete="off" /></div>';
-			buf += '<div class="setcell"><input type="text" name="move3" class="textbox chartinput" value="' + BattleLog.escapeHTML(set.moves[2]) + '" autocomplete="off" /></div>';
-			buf += '<div class="setcell"><input type="text" name="move4" class="textbox chartinput" value="' + BattleLog.escapeHTML(set.moves[3]) + '" autocomplete="off" /></div>';
+			buf += '<input type="text" aria-label="Move 1" name="move1" class="textbox chartinput" value="' + BattleLog.escapeHTML(set.moves[0]) + '" autocomplete="off" /></div>';
+			buf += '<div class="setcell"><input type="text" aria-label="Move 2" name="move2" class="textbox chartinput" value="' + BattleLog.escapeHTML(set.moves[1]) + '" autocomplete="off" /></div>';
+			buf += '<div class="setcell"><input type="text" aria-label="Move 3" name="move3" class="textbox chartinput" value="' + BattleLog.escapeHTML(set.moves[2]) + '" autocomplete="off" /></div>';
+			buf += '<div class="setcell"><input type="text" aria-label="Move 4" name="move4" class="textbox chartinput" value="' + BattleLog.escapeHTML(set.moves[3]) + '" autocomplete="off" /></div>';
 			buf += '</div>';
 
 			// stats
@@ -1915,7 +1915,7 @@
 				}
 			}
 			if (this.curSetList.length < this.curTeam.capacity && !isAdd) {
-				buf += '<button name="addPokemon"><i class="fa fa-plus"></i></button> ';
+				buf += '<button aria-label="Add Pokemon" name="addPokemon"><i class="fa fa-plus"></i></button> ';
 			}
 			return buf;
 		},
@@ -2258,7 +2258,7 @@
 					val += '-';
 					this.minus = i;
 				}
-				buf += '<div><input type="text" name="stat-' + i + '" value="' + val + '" class="textbox inputform numform" /></div>';
+				buf += '<div><input aria-label="' + this.getHumanReadableStatFromAbbreviatedStat(i) + ' EVs" type="text" name="stat-' + i + '" value="' + val + '" class="textbox inputform numform" /></div>';
 				totalev += (set.evs[i] || 0);
 			}
 			if (this.curTeam.gen > 2 && supportsEVs) {
@@ -2284,7 +2284,7 @@
 				for (var i in stats) {
 					if (set.ivs[i] === undefined || isNaN(set.ivs[i])) set.ivs[i] = 31;
 					var val = '' + (set.ivs[i]);
-					buf += '<div><input type="number" name="iv-' + i + '" value="' + BattleLog.escapeHTML(val) + '" class="textbox inputform numform" min="0" max="31" step="1" /></div>';
+					buf += '<div><input aria-label="' + this.getHumanReadableStatFromAbbreviatedStat(i) + ' IVs" type="number" name="iv-' + i + '" value="' + BattleLog.escapeHTML(val) + '" class="textbox inputform numform" min="0" max="31" step="1" /></div>';
 				}
 				var hpType = '';
 				if (set.moves) {
@@ -2404,7 +2404,7 @@
 				for (var i in stats) {
 					if (set.ivs[i] === undefined || isNaN(set.ivs[i])) set.ivs[i] = 31;
 					var val = '' + Math.floor(set.ivs[i] / 2);
-					buf += '<div><input type="number" name="iv-' + i + '" value="' + BattleLog.escapeHTML(val) + '" class="textbox inputform numform" min="0" max="15" step="1" /></div>';
+					buf += '<div><input aria-label="' + this.getHumanReadableStatFromAbbreviatedStat(i) + ' DVs" type="number" name="iv-' + i + '" value="' + BattleLog.escapeHTML(val) + '" class="textbox inputform numform" min="0" max="15" step="1" /></div>';
 				}
 				buf += '</div>';
 			}
@@ -2416,7 +2416,7 @@
 			buf += '</div>';
 
 			if (this.curTeam.gen > 2) {
-				buf += '<p style="clear:both">Nature: <select name="nature">';
+				buf += '<p style="clear:both">Nature: <select aria-label="Nature" name="nature">';
 				for (var i in BattleNatures) {
 					var curNature = BattleNatures[i];
 					buf += '<option value="' + i + '"' + (curNature === nature ? 'selected="selected"' : '') + '>' + i;
@@ -2432,6 +2432,22 @@
 
 			buf += '</div>';
 			this.$chart.html(buf);
+		},
+		getHumanReadableStatFromAbbreviatedStat: function (abbreviatedStat) {
+			switch (abbreviatedStat) {
+			case 'hp':
+				return "Hit Points";
+			case 'atk':
+				return "Attack";
+			case 'def':
+				return "Defense";
+			case 'spa':
+				return "Special Attack";
+			case 'spd':
+				return "Special Defense";
+			case 'spe':
+				return "Speed";
+			}
 		},
 		setStatFormGuesses: function () {
 			this.updateStatForm(true);
