@@ -1169,12 +1169,12 @@
 
 			var buf = '';
 			if (this.exportMode) {
-				buf = '<div class="pad"><button name="back"><i class="fa fa-chevron-left"></i> List</button> <input class="textbox teamnameedit" type="text" class="teamnameedit" size="30" value="' + BattleLog.escapeHTML(this.curTeam.name) + '" /> <button name="saveImport"><i class="fa fa-upload"></i> Import/Export</button> <button name="saveImport" class="savebutton"><i class="fa fa-floppy-o"></i> Save</button></div>';
+				buf = '<div class="pad"><button name="back" class="button"><i class="fa fa-chevron-left"></i> List</button> <input class="textbox teamnameedit" type="text" class="teamnameedit" size="30" value="' + BattleLog.escapeHTML(this.curTeam.name) + '" /> <button name="saveImport" class="button"><i class="fa fa-upload"></i> Import/Export</button> <button name="saveImport" class="savebutton button"><i class="fa fa-floppy-o"></i> Save</button></div>';
 				buf += '<div class="teamedit"><textarea class="textbox" rows="17">' + BattleLog.escapeHTML(Storage.exportTeam(this.curSetList, this.curTeam.gen)) + '</textarea></div>';
 			} else {
-				buf = '<div class="pad"><button name="back"><i class="fa fa-chevron-left"></i> List</button> ';
+				buf = '<div class="pad"><button name="back" class="button"><i class="fa fa-chevron-left"></i> List</button> ';
 				buf += '<input class="textbox teamnameedit" type="text" class="teamnameedit" size="30" value="' + BattleLog.escapeHTML(this.curTeam.name) + '" /> ';
-				buf += '<button name="import"><i class="fa fa-upload"></i> Import/Export</button> ';
+				buf += '<button name="import" class="button"><i class="fa fa-upload"></i> Import/Export</button> ';
 				buf += '<div class="teamchartbox">';
 				buf += '<ol class="teamchart">';
 				buf += '<li>' + this.clipboardHTML() + '</li>';
@@ -1846,7 +1846,7 @@
 		updateSetView: function () {
 			// pokemon
 			var buf = '<div class="pad">';
-			buf += '<button name="back"><i class="fa fa-chevron-left"></i> Team</button></div>';
+			buf += '<button name="back" class="button"><i class="fa fa-chevron-left"></i> Team</button></div>';
 			buf += '<div class="teambar">';
 			buf += this.renderTeambar();
 			buf += '</div>';
@@ -1864,7 +1864,7 @@
 
 			// import/export
 			buf += '<div class="teambuilder-pokemon-import">';
-			buf += '<div class="pokemonedit-buttons"><button name="closePokemonImport"><i class="fa fa-chevron-left"></i> Back</button> <button name="savePokemonImport"><i class="fa fa-floppy-o"></i> Save</button></div>';
+			buf += '<div class="pokemonedit-buttons"><button name="closePokemonImport" class="button"><i class="fa fa-chevron-left"></i> Back</button> <button name="savePokemonImport" class="button"><i class="fa fa-floppy-o"></i> Save</button></div>';
 			buf += '<textarea class="pokemonedit textbox" rows="14"></textarea>';
 			buf += '<div class="teambuilder-import-smogon-sets"></div>';
 			buf += '</div>';

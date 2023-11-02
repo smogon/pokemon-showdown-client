@@ -75,6 +75,9 @@ License: GPLv2
 	overflow-scrolling: touch;
 	word-wrap: break-word;
 }
+.dark .battle, .dark .battle-log, .dark .battle-log-add {
+	border-color: #5A5A5A;
+}
 .battle-log-inline {
 	position: static;
 	top: auto;

@@ -39,7 +39,7 @@
 .dark .blocklink {
 	box-shadow: none;
 	text-shadow: none;
-	border-color: #7799BB;
+	border-color: #526c87;
 	background: rgba(30, 40, 50, .5);
 	color: #7799BB;
 }
@@ -75,18 +75,21 @@ button, summary {
 	text-shadow: 0 1px 0 white;
 	border: 1px solid #AAAAAA;
 	background: #e3e3e3;
-	background: linear-gradient(to bottom,  #f6f6f6,  #e3e3e3);
+	background: linear-gradient(to bottom,  #f6f6f6,  #d3d3d3);
 
 	font-size: 9pt;
 	padding: 3px 8px;
 }
+select.button {
+	text-align: left;
+}
 .button:hover {
 	background: #cfcfcf;
-	background: linear-gradient(to bottom,  #f2f2f2,  #c2c2c2);
+	background: linear-gradient(to bottom,  #f2f2f2,  #b2b2b2);
 	border-color: #606060;
 }
 .button:active {
-	background: linear-gradient(to bottom,  #cfcfcf,  #f2f2f2);
+	background: linear-gradient(to bottom,  #bfbfbf,  #f2f2f2);
 }
 
 .button.disabled,
@@ -104,28 +107,45 @@ button:disabled {
 	cursor: default;
 }
 
+.button-first, .button-middle {
+	border-top-right-radius: 0;
+	border-bottom-right-radius: 0;
+}
+.button-last, .button-middle {
+	border-top-left-radius: 0;
+	border-bottom-left-radius: 0;
+	margin-left: -1px;
+}
+.button-first:hover, .button-middle:hover {
+	/* puts the right-border over the left border of the button to the right of it */
+	position: relative;
+}
+
 .dark .button {
-	background: #484848;
-	box-shadow: inset 0 3px 4px rgba(255, 255, 255, 0.25);
-	border-color: #A9A9A9;
+	background: #2b2c31;
+	background: linear-gradient(to bottom, #4e525a, #2b2c31);
+	box-shadow: 0.5px 1px 2px rgba(255, 255, 255, 0.45), inset 0.5px 1px 1px rgba(255, 255, 255, 0.5);
+	border-color: #34373b;
 	text-shadow: none;
 	color: #F9F9F9;
 }
 .dark .button:hover {
-	background: #606060;
-	border-color: #EEEEEE;
+	background: #3e4149;
+	background: linear-gradient(to bottom, #646877, #3e4149);
+	border-color: #50555b
 }
 .dark .button:active {
-	background: #3A3A3A;
-	border-color: #EEEEEE;
+	background: #2b2c31;
+	background: linear-gradient(to bottom, #2b2c31, #4e525a);
+	border-color: #34373b;
 	box-shadow: none;
 }
 .dark .button.disabled,
 .dark .button.disabled:hover,
 .dark .button.disabled:active {
 	background: #555555;
-	border-color: #555555;
-	box-shadow: none;
+	border-color: #34373b;
+	box-shadow: 0.5px 1px 2px rgba(255, 255, 255, 0.45);
 	color: #999999;
 }
 
@@ -217,26 +237,33 @@ button:disabled {
 	color: #555555;
 }
 .dark .textbox {
-	border-color: #888888;
+	border-color: #6b7178;
 
-	box-shadow: inset 0px -1px 2px #606060, -1px -1px 0 rgba(255,255,255,.2);
-	background: #282B2D;
+	/* box-shadow: inset 0px -1px 2px #606060, -1px -1px 0 rgba(255,255,255,.2); */
+	box-shadow: inset 0.5px 1px 2px rgba(0, 0, 0, 1), inset -0.5px -1px 1px rgba(255, 255, 255, 0.2), -0.5px -1px 1px rgba(255, 255, 255, 0.1);
+	background: #222527;
 	color: #DDD;
 }
 .dark .textbox:hover {
-	border-color: #BBBBBB;
-	box-shadow: inset 0px -1px 2px #606060, -1px -1px 0 rgba(255,255,255,.2);
-	background: #222222;
+	border-color: #8d959f;
+	box-shadow: inset 0.5px 1px 2px rgba(0, 0, 0, 0.8), inset -0.5px -1px 1px rgba(255, 255, 255, 0.5), -0.5px -1px 1px rgba(255, 255, 255, 0.1);
+	background: #111111;
 }
 .dark .textbox:focus,
 .dark .button:focus {
-	outline: 0 none;
-	border-color: #BBBBBB;
-	box-shadow: 0px 0px 4px #88CCFF, 0px 0px 6px #88CCFF;
+	outline: 1px solid #88CCFF;
+	border-color: #9199a2;
+	/* box-shadow: 0px 0px 4px #88CCFF, 0px 0px 6px #88CCFF; */
 }
 .dark .textbox:focus {
 	background: #111111;
-	box-shadow: inset 0px -1px 2px #606060, 0px 0px 4px #88CCFF, 0px 0px 6px #88CCFF;
+	/* box-shadow: inset 0.5px 1px 2px rgba(0, 0, 0, 0.8), inset -0.5px -1px 1px rgba(255, 255, 255, 0.5), 0px 0px 4px #88CCFF, 0px 0px 6px #88CCFF; */
+}
+.dark .textbox.disabled, .dark .textbox:disabled {
+	opacity: 0.7;
+	color: #AAA;
+	border-color: #444;
+	box-shadow: none;
 }
 
 .option {
@@ -277,6 +304,10 @@ hr {
 	border-bottom: 0;
 	border-left: 0;
 	border-right: 0;
+}
+
+.dark hr {
+	border-color: #707070;
 }
 
 select {
@@ -338,6 +369,50 @@ input[type=range]:active::-webkit-slider-thumb {
 	box-shadow: inset 0px 1px 1px #DDD;
 }
 
+/** stolen from devdocs.io */
+.dark:not(.native-scrollbars) *::-webkit-scrollbar {
+	-webkit-appearance: none
+}
+.dark:not(.native-scrollbars) *::-webkit-scrollbar:vertical {
+	width: 16px
+}
+.dark:not(.native-scrollbars) *::-webkit-scrollbar:horizontal {
+	height: 16px
+}
+.dark:not(.native-scrollbars) *::-webkit-scrollbar-button,.dark:not(.native-scrollbars) *::-webkit-scrollbar-corner {
+	display: none
+}
+.dark:not(.native-scrollbars) *::-webkit-scrollbar-track {
+	background: transparent;
+	border: 1px solid transparent;
+}
+.dark:not(.native-scrollbars) *::-webkit-scrollbar-track:hover {
+	background: #24282a;
+	border-color: #000000;
+}
+.dark:not(.native-scrollbars) *::-webkit-scrollbar-track:vertical {
+	border-width: 0 0 0 1px;
+}
+.dark:not(.native-scrollbars) *::-webkit-scrollbar-track:vertical:corner-present {
+	border-width: 0 0 1px 1px;
+	border-radius: 0 0 0 2px;
+}
+.dark:not(.native-scrollbars) *::-webkit-scrollbar-track:horizontal {
+	border-width: 1px 1px 0 1px;
+	border-radius: 2px 2px 0 0;
+}
+.dark:not(.native-scrollbars) *::-webkit-scrollbar-thumb {
+	min-height: 2rem;
+	background: #6c6c6f;
+	background-clip: padding-box;
+	border: 5px solid transparent;
+	border-radius: 10px;
+}
+.dark:not(.native-scrollbars) *::-webkit-scrollbar-thumb:hover,.dark:not(.native-scrollbars) *::-webkit-scrollbar-thumb:active {
+	background-color: #949697;
+	border-width: 4px;
+}
+
 /*********************************************************
  * Everything else
  *********************************************************/
@@ -353,6 +428,7 @@ input[type=range]:active::-webkit-slider-thumb {
 }
 .dark .message-log h2 {
 	background: #555555;
+	border-color: #5A5A5A;
 }
 .chat, .notice {
 	vertical-align: middle;

@@ -34,11 +34,11 @@
 			var status = app.user.get('status');
 			var color = away ? 'color:#888;' : BattleLog.hashColor(app.user.get('userid'));
 			if (!app.user.loaded) {
-				buf = '<button disabled>Loading...</button>';
+				buf = '<button disabled class="button disabled">Loading...</button>';
 			} else if (app.user.get('named')) {
 				buf = '<span class="username" data-name="' + BattleLog.escapeHTML(name) + '"' + (away ? ' data-away="true"' : '') + (status ? 'data-status="' + BattleLog.escapeHTML(status) + '"' : '') + ' style="' + color + '"><i class="fa fa-user" style="color:' + (away ? '#888;' : '#779EC5') + '"></i> <span class="usernametext">' + BattleLog.escapeHTML(name) + '</span></span>';
 			} else {
-				buf = '<button name="login">Choose name</button>';
+				buf = '<button name="login" class="button">Choose name</button>';
 			}
 			buf += ' <button class="icon button" name="openSounds" title="Sound" aria-label="Sound"><i class="' + (Dex.prefs('mute') ? 'fa fa-volume-off' : 'fa fa-volume-up') + '"></i></button> <button class="icon button" name="openOptions" title="Options" aria-label="Options"><i class="fa fa-cog"></i></button>';
 			this.$userbar.html(buf);
@@ -378,7 +378,7 @@
 			buf += '<p class="effect-volume"><label class="optlabel">Effect volume:</label>' + (muted ? '<em>(muted)</em>' : '<input type="range" min="0" max="100" step="1" name="effectvolume" value="' + this.getEffectVolume() + '" />') + '</p>';
 			buf += '<p class="music-volume"><label class="optlabel">Music volume:</label>' + (muted ? '<em>(muted)</em>' : '<input type="range" min="0" max="100" step="1" name="musicvolume" value="' + this.getMusicVolume() + '" />') + '</p>';
 			buf += '<p class="notif-volume"><label class="optlabel">Notification volume:</label>' + (muted ? '<em>(muted)</em>' : '<input type="range" min="0" max="100" step="1" name="notifvolume" value="' + this.getNotifVolume() + '" />') + '</p>';
-			buf += '<p><label class="optlabel"><input type="checkbox" name="muted"' + (muted ? ' checked' : '') + ' /> Mute sounds</label></p>';
+			buf += '<p><label class="checkbox"><input type="checkbox" name="muted"' + (muted ? ' checked' : '') + ' /> Mute sounds</label></p>';
 			this.$el.html(buf).css('min-width', 160);
 		},
 		events: {
@@ -478,13 +478,13 @@
 
 			var buf = '';
 			buf += '<p>' + (avatar ? '<img class="trainersprite" src="' + Dex.resolveAvatar(avatar) + '" width="40" height="40" style="vertical-align:middle;cursor:pointer" />' : '') + '<strong>' + BattleLog.escapeHTML(name) + '</strong></p>';
-			buf += '<p><button name="avatars">Change avatar</button></p>';
+			buf += '<p><button class="button" name="avatars">Avatar...</button></p>';
 			if (app.user.get('named')) {
 				var registered = app.user.get('registered');
 				if (registered && (registered.userid === app.user.get('userid'))) {
-					buf += '<p><button name="changepassword">Password change</button></p>';
+					buf += '<p><button class="button" name="changepassword">Password...</button></p>';
 				} else {
-					buf += '<p><button name="register">Register</button></p>';
+					buf += '<p><button class="button" name="register">Register</button></p>';
 				}
 			}
 
@@ -492,37 +492,37 @@
 			buf += '<p><strong>Graphics</strong></p>';
 			var theme = Dex.prefs('theme');
 			var colorSchemeQuerySupported = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').media !== 'not all';
-			buf += '<p><label class="optlabel">Theme: <select name="theme"><option value="light"' + (!theme || theme === 'light' ? ' selected="selected"' : '') + '>Light</option><option value="dark"' + (theme === 'dark' ? ' selected="selected"' : '') + '>Dark</option>';
+			buf += '<p><label class="optlabel">Theme: <select name="theme" class="button"><option value="light"' + (!theme || theme === 'light' ? ' selected="selected"' : '') + '>Light</option><option value="dark"' + (theme === 'dark' ? ' selected="selected"' : '') + '>Dark</option>';
 			if (colorSchemeQuerySupported) {
 				buf += '<option value="system"' + (theme === 'system' ? ' selected="selected"' : '') + '>Match system theme</option>';
 			}
 			buf += '</select></label></p>';
 			var onePanel = !!Dex.prefs('onepanel');
 			if ($(window).width() >= 660) {
-				buf += '<p><label class="optlabel">Layout: <select name="onepanel"><option value=""' + (!onePanel ? ' selected="selected"' : '') + '>&#x25EB; Left and right panels</option><option value="1"' + (onePanel ? ' selected="selected"' : '') + '>&#x25FB; Single panel</option></select></label></p>';
+				buf += '<p><label class="optlabel">Layout: <select name="onepanel" class="button"><option value=""' + (!onePanel ? ' selected="selected"' : '') + '>&#x25EB; Left and right panels</option><option value="1"' + (onePanel ? ' selected="selected"' : '') + '>&#x25FB; Single panel</option></select></label></p>';
 			}
-			buf += '<p><label class="optlabel">Background: <button name="background">Change background</button></label></p>';
-			buf += '<p><label class="optlabel"><input type="checkbox" name="noanim"' + (Dex.prefs('noanim') ? ' checked' : '') + ' /> Disable animations</label></p>';
+			buf += '<p><label class="optlabel">Background: <button class="button" name="background">Change background</button></label></p>';
+			buf += '<p><label class="checkbox"><input type="checkbox" name="noanim"' + (Dex.prefs('noanim') ? ' checked' : '') + ' /> Disable animations</label></p>';
 			if (navigator.userAgent.includes(' Chrome/64.')) {
-				buf += '<p><label class="optlabel"><input type="checkbox" name="nogif"' + (Dex.prefs('nogif') ? ' checked' : '') + ' /> Disable GIFs for Chrome 64 bug</label></p>';
+				buf += '<p><label class="checkbox"><input type="checkbox" name="nogif"' + (Dex.prefs('nogif') ? ' checked' : '') + ' /> Disable GIFs for Chrome 64 bug</label></p>';
 			}
-			buf += '<p><label class="optlabel"><input type="checkbox" name="bwgfx"' + (Dex.prefs('bwgfx') ? ' checked' : '') + ' /> Use BW sprites instead of XY models</label></p>';
-			buf += '<p><label class="optlabel"><input type="checkbox" name="nopastgens"' + (Dex.prefs('nopastgens') ? ' checked' : '') + ' /> Use modern sprites for past generations</label></p>';
+			buf += '<p><label class="checkbox"><input type="checkbox" name="bwgfx"' + (Dex.prefs('bwgfx') ? ' checked' : '') + ' /> Use BW sprites instead of XY models</label></p>';
+			buf += '<p><label class="checkbox"><input type="checkbox" name="nopastgens"' + (Dex.prefs('nopastgens') ? ' checked' : '') + ' /> Use modern sprites for past generations</label></p>';
 
 			buf += '<hr />';
 			buf += '<p><strong>Chat</strong></p>';
 			if (Object.keys(settings).length) {
-				buf += '<p><label class="optlabel"><input type="checkbox" name="blockpms"' + (settings.blockPMs ? ' checked' : '') + ' /> Block PMs</label></p>';
-				buf += '<p><label class="optlabel"><input type="checkbox" name="blockchallenges"' + (settings.blockChallenges ? ' checked' : '') + ' /> Block Challenges</label></p>';
+				buf += '<p><label class="checkbox"><input type="checkbox" name="blockpms"' + (settings.blockPMs ? ' checked' : '') + ' /> Block PMs</label></p>';
+				buf += '<p><label class="checkbox"><input type="checkbox" name="blockchallenges"' + (settings.blockChallenges ? ' checked' : '') + ' /> Block Challenges</label></p>';
 			}
-			buf += '<p><label class="optlabel"><input type="checkbox" name="inchatpm"' + (Dex.prefs('inchatpm') ? ' checked' : '') + ' /> Show PMs in chat rooms</label></p>';
-			buf += '<p><label class="optlabel"><input type="checkbox" name="selfhighlight"' + (!Dex.prefs('noselfhighlight') ? ' checked' : '') + '> Highlight when your name is said in chat</label></p>';
+			buf += '<p><label class="checkbox"><input type="checkbox" name="inchatpm"' + (Dex.prefs('inchatpm') ? ' checked' : '') + ' /> Show PMs in chat rooms</label></p>';
+			buf += '<p><label class="checkbox"><input type="checkbox" name="selfhighlight"' + (!Dex.prefs('noselfhighlight') ? ' checked' : '') + '> Highlight when your name is said in chat</label></p>';
 
 			if (window.Notification) {
-				buf += '<p><label class="optlabel"><input type="checkbox" name="temporarynotifications"' + (Dex.prefs('temporarynotifications') ? ' checked' : '') + ' /> Notifications disappear automatically</label></p>';
+				buf += '<p><label class="checkbox"><input type="checkbox" name="temporarynotifications"' + (Dex.prefs('temporarynotifications') ? ' checked' : '') + ' /> Notifications disappear automatically</label></p>';
 			}
-			buf += '<p><label class="optlabel"><input type="checkbox" name="leavePopupRoom"' + (Dex.prefs('leavePopupRoom') ? ' checked' : '') + ' /> Confirmation before leaving a room</label></p>';
-			buf += '<p><label class="optlabel"><input type="checkbox" name="refreshprompt"' + (Dex.prefs('refreshprompt') ? ' checked' : '') + '> Prompt on refresh</label></p>';
+			buf += '<p><label class="checkbox"><input type="checkbox" name="leavePopupRoom"' + (Dex.prefs('leavePopupRoom') ? ' checked' : '') + ' /> Confirm before leaving a room</label></p>';
+			buf += '<p><label class="checkbox"><input type="checkbox" name="refreshprompt"' + (Dex.prefs('refreshprompt') ? ' checked' : '') + '> Confirm before refreshing</label></p>';
 			var curLang = toID(Dex.prefs('serversettings').language) || 'english';
 			var possibleLanguages = {
 				"Deutsch": 'german',
@@ -538,18 +538,18 @@
 				"简体中文": 'simplifiedchinese',
 				"中文": 'traditionalchinese',
 			};
-			buf += '<p><label class="optlabel">Language: <select name="language">';
+			buf += '<p><label class="optlabel">Language: <select name="language" class="button">';
 			for (var name in possibleLanguages) {
 				buf += '<option value="' + possibleLanguages[name] + '"' + (possibleLanguages[name] === curLang ? ' selected="selected"' : '') + '>' + name + '</option>';
 			}
 			buf += '</select></label></p>';
 
 			var tours = Dex.prefs('tournaments') || 'notify';
-			buf += '<p><label class="optlabel">Tournaments: <select name="tournaments"><option value="notify"' + (tours === 'notify' ? ' selected="selected"' : '') + '>Notifications</option><option value="nonotify"' + (tours === 'nonotify' ? ' selected="selected"' : '') + '>No Notifications</option><option value="hide"' + (tours === 'hide' ? ' selected="selected"' : '') + '>Hide</option></select></label></p>';
+			buf += '<p><label class="optlabel">Tournaments: <select name="tournaments" class="button"><option value="notify"' + (tours === 'notify' ? ' selected="selected"' : '') + '>Notifications</option><option value="nonotify"' + (tours === 'nonotify' ? ' selected="selected"' : '') + '>No Notifications</option><option value="hide"' + (tours === 'hide' ? ' selected="selected"' : '') + '>Hide</option></select></label></p>';
 			var timestamps = this.timestamps = (Dex.prefs('timestamps') || {});
-			buf += '<p><label class="optlabel">Timestamps in chat rooms: <select name="timestamps-lobby"><option value="off">Off</option><option value="minutes"' + (timestamps.lobby === 'minutes' ? ' selected="selected"' : '') + '>[HH:MM]</option><option value="seconds"' + (timestamps.lobby === 'seconds' ? ' selected="selected"' : '') + '>[HH:MM:SS]</option></select></label></p>';
-			buf += '<p><label class="optlabel">Timestamps in PMs: <select name="timestamps-pms"><option value="off">Off</option><option value="minutes"' + (timestamps.pms === 'minutes' ? ' selected="selected"' : '') + '>[HH:MM]</option><option value="seconds"' + (timestamps.pms === 'seconds' ? ' selected="selected"' : '') + '>[HH:MM:SS]</option></select></label></p>';
-			buf += '<p><label class="optlabel">Chat preferences: <button name="formatting">Text formatting</button></label></p>';
+			buf += '<p><label class="optlabel">Timestamps in chat rooms: <select name="timestamps-lobby" class="button"><option value="off">Off</option><option value="minutes"' + (timestamps.lobby === 'minutes' ? ' selected="selected"' : '') + '>[HH:MM]</option><option value="seconds"' + (timestamps.lobby === 'seconds' ? ' selected="selected"' : '') + '>[HH:MM:SS]</option></select></label></p>';
+			buf += '<p><label class="optlabel">Timestamps in PMs: <select name="timestamps-pms" class="button"><option value="off">Off</option><option value="minutes"' + (timestamps.pms === 'minutes' ? ' selected="selected"' : '') + '>[HH:MM]</option><option value="seconds"' + (timestamps.pms === 'seconds' ? ' selected="selected"' : '') + '>[HH:MM:SS]</option></select></label></p>';
+			buf += '<p><label class="optlabel">Chat preferences: <button name="formatting" class="button">Text formatting</button></label></p>';
 
 			if (window.nodewebkit) {
 				buf += '<hr />';
@@ -560,9 +560,9 @@
 
 			buf += '<hr />';
 			if (app.user.get('named')) {
-				buf += '<p class="buttonbar" style="text-align:right"><button name="login"><i class="fa fa-pencil"></i> Change name</button> <button name="logout"><i class="fa fa-power-off"></i> Log out</button></p>';
+				buf += '<p class="buttonbar" style="text-align:right"><button name="login" class="button"><i class="fa fa-pencil"></i> Change name</button> <button name="logout" class="button"><i class="fa fa-power-off"></i> Log out</button></p>';
 			} else {
-				buf += '<p class="buttonbar" style="text-align:right"><button name="login">Choose name</button></p>';
+				buf += '<p class="buttonbar" style="text-align:right"><button name="login" class="button">Choose name</button></p>';
 			}
 			this.$el.html(buf).css('min-width', 160);
 		},
@@ -688,18 +688,18 @@
 			var cur = this.chatformatting = Dex.prefs('chatformatting') || {};
 			var buf = '<p>Usable formatting:</p>';
 			var ctrlPlus = '<kbd>' + (navigator.platform === 'MacIntel' ? 'Cmd' : 'Ctrl') + '</kbd> + ';
-			buf += '<p class="optlabel">**<strong>bold</strong>** (' + ctrlPlus + '<kbd>B</kbd>)</p>';
-			buf += '<p class="optlabel">__<em>italics</em>__ (' + ctrlPlus + '<bkd>I</kbd>)</p>';
-			buf += '<p class="optlabel">``<code>code formatting</code>`` (<kbd>Ctrl</kbd> + <kbd>`</kbd>)</p>';
-			buf += '<p class="optlabel">~~<s>strikethrough</s>~~</p>';
-			buf += '<p class="optlabel">^^<sup>superscript</sup>^^</p>';
-			buf += '<p class="optlabel">\\\\<sub>subscript</sub>\\\\</p>';
-			buf += '<p><label class="optlabel"><input type="checkbox" name="greentext" ' + (cur.hidegreentext ? 'checked' : '') + ' /> Suppress <span class="greentext">&gt;' + ['meme arrows', 'greentext', 'quote formatting'][Math.floor(Math.random() * 3)] + '</span></label></p>';
-			buf += '<p><label class="optlabel"><input type="checkbox" name="me" ' + (cur.hideme ? 'checked' : '') + ' /> Suppress <kbd>/me</kbd> <em>action formatting</em></label></p>';
-			buf += '<p><label class="optlabel"><input type="checkbox" name="spoiler" ' + (cur.hidespoiler ? 'checked' : '') + ' /> Auto-show spoilers: <span class="spoiler">these things</span></label></p>';
-			buf += '<p><label class="optlabel"><input type="checkbox" name="links" ' + (cur.hidelinks ? 'checked' : '') + ' /> Make [[clickable links]] unclickable</label></p>';
-			buf += '<p><label class="optlabel"><input type="checkbox" name="interstice"' + (cur.hideinterstice ? 'checked' : '') + ' /> Don\'t warn for untrusted links</label></p>';
-			buf += '<p><button name="close">Close</button></p>';
+			buf += '<p>**<strong>bold</strong>** (' + ctrlPlus + '<kbd>B</kbd>)</p>';
+			buf += '<p>__<em>italics</em>__ (' + ctrlPlus + '<bkd>I</kbd>)</p>';
+			buf += '<p>``<code>code formatting</code>`` (<kbd>Ctrl</kbd> + <kbd>`</kbd>)</p>';
+			buf += '<p>~~<s>strikethrough</s>~~</p>';
+			buf += '<p>^^<sup>superscript</sup>^^</p>';
+			buf += '<p>\\\\<sub>subscript</sub>\\\\</p>';
+			buf += '<p><label class="checkbox"><input type="checkbox" name="greentext" ' + (cur.hidegreentext ? 'checked' : '') + ' /> Suppress <span class="greentext">&gt;' + ['meme arrows', 'greentext', 'quote formatting'][Math.floor(Math.random() * 3)] + '</span></label></p>';
+			buf += '<p><label class="checkbox"><input type="checkbox" name="me" ' + (cur.hideme ? 'checked' : '') + ' /> Suppress <kbd>/me</kbd> <em>action formatting</em></label></p>';
+			buf += '<p><label class="checkbox"><input type="checkbox" name="spoiler" ' + (cur.hidespoiler ? 'checked' : '') + ' /> Auto-show spoilers: <span class="spoiler">these things</span></label></p>';
+			buf += '<p><label class="checkbox"><input type="checkbox" name="links" ' + (cur.hidelinks ? 'checked' : '') + ' /> Make [[clickable links]] unclickable</label></p>';
+			buf += '<p><label class="checkbox"><input type="checkbox" name="interstice"' + (cur.hideinterstice ? 'checked' : '') + ' /> Don\'t warn for untrusted links</label></p>';
+			buf += '<p><button name="close" class="button">Done</button></p>';
 			this.$el.html(buf);
 		},
 		setOption: function (e) {
@@ -714,7 +714,7 @@
 		initialize: function () {
 			var cur = +app.user.get('avatar');
 			var buf = '';
-			buf += '<p>Choose an avatar or <button name="close">Cancel</button></p>';
+			buf += '<p>Choose an avatar or <button name="close" class="button">Cancel</button></p>';
 
 			buf += '<div class="avatarlist">';
 			for (var i = 1; i <= 293; i++) {
@@ -724,7 +724,7 @@
 			}
 			buf += '</div><div style="clear:left"></div>';
 
-			buf += '<p><button name="close">Cancel</button></p>';
+			buf += '<p><button name="close" class="button">Cancel</button></p>';
 			this.$el.html(buf).css('max-width', 780);
 		},
 		setAvatar: function (avatar) {
@@ -813,7 +813,7 @@
 			buf += '<p><input type="file" accept="image/*" name="bgfile"></p>';
 			buf += '<p class="bgstatus"></p>';
 
-			buf += '<p><button name="close"><strong>Done</strong></button></p>';
+			buf += '<p><button name="close" class="button"><strong>Done</strong></button></p>';
 
 			// April Fool's 2016 - background change disabling
 			// buf = '<p>Sorry, the background chooser is experiencing technical difficulties. Please try again tomorrow!</p><p><button name="close"><strong>Done</strong></button></p>';
@@ -919,7 +919,7 @@
 			if (name) {
 				buf += '<p><small>(Others will be able to see your name change. To change name privately, use "Log out")</small></p>';
 			}
-			buf += '<p class="buttonbar"><button type="submit"><strong>Choose name</strong></button> <button type="button" name="close">Cancel</button></p>';
+			buf += '<p class="buttonbar"><button type="submit" class="button"><strong>Choose name</strong></button> <button type="button" name="close" class="button">Cancel</button></p>';
 
 			buf += '</form>';
 			this.$el.html(buf);
@@ -962,7 +962,7 @@
 			buf += '<p><label class="label">Old password: <input class="textbox autofocus" type="password" name="oldpassword" autocomplete="current-password" /></label></p>';
 			buf += '<p><label class="label">New password: <input class="textbox" type="password" name="password" autocomplete="new-password" /></label></p>';
 			buf += '<p><label class="label">New password (confirm): <input class="textbox" type="password" name="cpassword" autocomplete="new-password" /></label></p>';
-			buf += '<p class="buttonbar"><button type="submit"><strong>Change password</strong></button> <button type="button" name="close">Cancel</button></p></form>';
+			buf += '<p class="buttonbar"><button type="submit" class="button"><strong>Change password</strong></button> <button type="button" name="close" class="button">Cancel</button></p></form>';
 			this.$el.html(buf);
 		},
 		submit: function (data) {

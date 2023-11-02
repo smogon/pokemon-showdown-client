@@ -260,7 +260,7 @@
 		updateControls: function () {
 			if (this.battle.scene.customControls) return;
 			var controlsShown = this.controlsShown;
-			var switchSidesButton = '<p><button class="button" name="switchViewpoint"><i class="fa fa-random"></i> Switch sides</button></p>';
+			var switchViewpointButton = '<p><button class="button" name="switchViewpoint"><i class="fa fa-random"></i> Switch viewpoint</button></p>';
 			this.controlsShown = false;
 
 			if (this.battle.seeking !== null) {
@@ -276,10 +276,10 @@
 					// spectator
 					if (this.battle.paused) {
 						// paused
-						this.$controls.html('<p><button class="button" name="resume"><i class="fa fa-play"></i><br />Play</button> <button class="button" name="rewindTurn"><i class="fa fa-step-backward"></i><br />Last turn</button><button class="button" name="skipTurn"><i class="fa fa-step-forward"></i><br />Skip turn</button> <button class="button" name="instantReplay"><i class="fa fa-undo"></i><br />First turn</button><button class="button" name="goToEnd"><i class="fa fa-fast-forward"></i><br />Skip to end</button></p>' + switchSidesButton);
+						this.$controls.html('<p><button class="button" name="resume"><i class="fa fa-play"></i><br />Play</button> <button class="button button-first" name="rewindTurn"><i class="fa fa-step-backward"></i><br />Last turn</button><button class="button button-last" name="skipTurn"><i class="fa fa-step-forward"></i><br />Skip turn</button> <button class="button button-first" name="instantReplay"><i class="fa fa-undo"></i><br />First turn</button><button class="button button-last" name="goToEnd"><i class="fa fa-fast-forward"></i><br />Skip to end</button></p>' + switchViewpointButton);
 					} else {
 						// playing
-						this.$controls.html('<p><button class="button" name="pause"><i class="fa fa-pause"></i><br />Pause</button> <button class="button" name="rewindTurn"><i class="fa fa-step-backward"></i><br />Last turn</button><button class="button" name="skipTurn"><i class="fa fa-step-forward"></i><br />Skip turn</button> <button class="button" name="instantReplay"><i class="fa fa-undo"></i><br />First turn</button><button class="button" name="goToEnd"><i class="fa fa-fast-forward"></i><br />Skip to end</button></p>' + switchSidesButton);
+						this.$controls.html('<p><button class="button" name="pause"><i class="fa fa-pause"></i><br />Pause</button> <button class="button button-first" name="rewindTurn"><i class="fa fa-step-backward"></i><br />Last turn</button><button class="button button-last" name="skipTurn"><i class="fa fa-step-forward"></i><br />Skip turn</button> <button class="button button-first" name="instantReplay"><i class="fa fa-undo"></i><br />First turn</button><button class="button button-last" name="goToEnd"><i class="fa fa-fast-forward"></i><br />Skip to end</button></p>' + switchViewpointButton);
 					}
 				} else {
 					// is a player
@@ -299,7 +299,7 @@
 					this.closeNotification('choice');
 					this.$controls.html('<div class="controls"><p>' + replayDownloadButton + '<button class="button" name="instantReplay"><i class="fa fa-undo"></i><br />Instant replay</button></p><p><button class="button" name="closeAndMainMenu"><strong>Main menu</strong><br /><small>(closes this battle)</small></button> <button class="button" name="closeAndRematch"><strong>Rematch</strong><br /><small>(closes this battle)</small></button></p></div>');
 				} else {
-					this.$controls.html('<div class="controls"><p>' + replayDownloadButton + '<button class="button" name="instantReplay"><i class="fa fa-undo"></i><br />Instant replay</button></p>' + switchSidesButton + '</div>');
+					this.$controls.html('<div class="controls"><p>' + replayDownloadButton + '<button class="button" name="instantReplay"><i class="fa fa-undo"></i><br />Instant replay</button></p>' + switchViewpointButton + '</div>');
 				}
 
 			} else if (this.side) {
@@ -323,10 +323,10 @@
 				// full battle
 				if (this.battle.paused) {
 					// paused
-					this.$controls.html('<p><button class="button" name="resume"><i class="fa fa-play"></i><br />Play</button> <button class="button" name="rewindTurn"><i class="fa fa-step-backward"></i><br />Last turn</button><button class="button disabled" disabled><i class="fa fa-step-forward"></i><br />Skip turn</button> <button class="button" name="instantReplay"><i class="fa fa-undo"></i><br />First turn</button><button class="button disabled" disabled><i class="fa fa-fast-forward"></i><br />Skip to end</button></p>' + switchSidesButton + '<p><em>Waiting for players...</em></p>');
+					this.$controls.html('<p><button class="button" name="resume"><i class="fa fa-play"></i><br />Play</button> <button class="button" name="rewindTurn"><i class="fa fa-step-backward"></i><br />Last turn</button><button class="button disabled" disabled><i class="fa fa-step-forward"></i><br />Skip turn</button> <button class="button" name="instantReplay"><i class="fa fa-undo"></i><br />First turn</button><button class="button disabled" disabled><i class="fa fa-fast-forward"></i><br />Skip to end</button></p>' + switchViewpointButton + '<p><em>Waiting for players...</em></p>');
 				} else {
 					// playing
-					this.$controls.html('<p><button class="button" name="pause"><i class="fa fa-pause"></i><br />Pause</button> <button class="button" name="rewindTurn"><i class="fa fa-step-backward"></i><br />Last turn</button><button class="button disabled" disabled><i class="fa fa-step-forward"></i><br />Skip turn</button> <button class="button" name="instantReplay"><i class="fa fa-undo"></i><br />First turn</button><button class="button disabled" disabled><i class="fa fa-fast-forward"></i><br />Skip to end</button></p>' + switchSidesButton + '<p><em>Waiting for players...</em></p>');
+					this.$controls.html('<p><button class="button" name="pause"><i class="fa fa-pause"></i><br />Pause</button> <button class="button" name="rewindTurn"><i class="fa fa-step-backward"></i><br />Last turn</button><button class="button disabled" disabled><i class="fa fa-step-forward"></i><br />Skip turn</button> <button class="button" name="instantReplay"><i class="fa fa-undo"></i><br />First turn</button><button class="button disabled" disabled><i class="fa fa-fast-forward"></i><br />Skip to end</button></p>' + switchViewpointButton + '<p><em>Waiting for players...</em></p>');
 				}
 
 			}
@@ -1486,17 +1486,17 @@
 			}
 			if (this.gameType === 'help') {
 				buf += ' Are you sure?</p><p><label><input type="checkbox" name="closeroom" checked /> Close room</label></p>';
-				buf += '<p><button type="submit"><strong>Close ticket</strong></button> ';
+				buf += '<p><button type="submit" class="button"><strong>Close ticket</strong></button> ';
 			} else if (this.gameType === 'room') {
-				buf += ' </p><p><button type="leaveRoom" name="leaveRoom"><strong>Close room</strong></button>';
+				buf += ' </p><p><button type="submit" name="leaveRoom" class="button"><strong>Close room</strong></button>';
 			} else {
-				buf += ' Are you sure?</p><p><label><input type="checkbox" name="closeroom" checked /> Close after forfeiting</label></p>';
-				buf += '<p><button type="submit"><strong>Forfeit</strong></button> ';
+				buf += ' Are you sure?</p><p><label class="checkbox"><input type="checkbox" name="closeroom" checked /> Close after forfeiting</label></p>';
+				buf += '<p><button type="submit" class="button"><strong>Forfeit</strong></button> ';
 			}
 			if (this.gameType === 'battle' && this.room.battle && !this.room.battle.rated) {
-				buf += '<button type="button" name="replacePlayer">Replace player</button> ';
+				buf += '<button type="button" name="replacePlayer" class="button">Replace player</button> ';
 			}
-			buf += '<button type="button" name="close" class="autofocus">Cancel</button></p></form>';
+			buf += '<button type="button" name="close" class="autofocus" class="button">Cancel</button></p></form>';
 			this.$el.html(buf);
 		},
 		replacePlayer: function (data) {
@@ -1530,16 +1530,16 @@
 			this.room = data.room;
 			var rightPanelBattlesPossible = (MainMenuRoom.prototype.bestWidth + BattleRoom.prototype.minWidth < $(window).width());
 			var buf = '<p><strong>In this battle</strong></p>';
-			buf += '<p><label class="optlabel"><input type="checkbox" name="hardcoremode"' + (this.battle.hardcoreMode ? ' checked' : '') + '/> Hardcore mode (hide info not shown in-game) (beta)</label></p>';
-			buf += '<p><label class="optlabel"><input type="checkbox" name="ignorespects"' + (this.battle.ignoreSpects ? ' checked' : '') + '/> Ignore spectators</label></p>';
-			buf += '<p><label class="optlabel"><input type="checkbox" name="ignoreopp"' + (this.battle.ignoreOpponent ? ' checked' : '') + '/> Ignore opponent</label></p>';
+			buf += '<p><label class="checkbox"><input type="checkbox" name="hardcoremode"' + (this.battle.hardcoreMode ? ' checked' : '') + '/> Hardcore mode (hide info not shown in-game) (beta)</label></p>';
+			buf += '<p><label class="checkbox"><input type="checkbox" name="ignorespects"' + (this.battle.ignoreSpects ? ' checked' : '') + '/> Ignore spectators</label></p>';
+			buf += '<p><label class="checkbox"><input type="checkbox" name="ignoreopp"' + (this.battle.ignoreOpponent ? ' checked' : '') + '/> Ignore opponent</label></p>';
 			buf += '<p><strong>All battles</strong></p>';
-			buf += '<p><label class="optlabel"><input type="checkbox" name="ignorenicks"' + (Dex.prefs('ignorenicks') ? ' checked' : '') + ' /> Ignore nicknames</label></p>';
-			buf += '<p><label class="optlabel"><input type="checkbox" name="allignorespects"' + (Dex.prefs('ignorespects') ? ' checked' : '') + '/> Ignore spectators</label></p>';
-			buf += '<p><label class="optlabel"><input type="checkbox" name="allignoreopp"' + (Dex.prefs('ignoreopp') ? ' checked' : '') + '/> Ignore opponent</label></p>';
-			buf += '<p><label class="optlabel"><input type="checkbox" name="autotimer"' + (Dex.prefs('autotimer') ? ' checked' : '') + '/> Automatically start timer</label></p>';
-			if (rightPanelBattlesPossible) buf += '<p><label class="optlabel"><input type="checkbox" name="rightpanelbattles"' + (Dex.prefs('rightpanelbattles') ? ' checked' : '') + ' /> Open new battles on the right side</label></p>';
-			buf += '<p><button name="close">Close</button></p>';
+			buf += '<p><label class="checkbox"><input type="checkbox" name="ignorenicks"' + (Dex.prefs('ignorenicks') ? ' checked' : '') + ' /> Ignore nicknames</label></p>';
+			buf += '<p><label class="checkbox"><input type="checkbox" name="allignorespects"' + (Dex.prefs('ignorespects') ? ' checked' : '') + '/> Ignore spectators</label></p>';
+			buf += '<p><label class="checkbox"><input type="checkbox" name="allignoreopp"' + (Dex.prefs('ignoreopp') ? ' checked' : '') + '/> Ignore opponent</label></p>';
+			buf += '<p><label class="checkbox"><input type="checkbox" name="autotimer"' + (Dex.prefs('autotimer') ? ' checked' : '') + '/> Automatically start timer</label></p>';
+			if (rightPanelBattlesPossible) buf += '<p><label class="checkbox"><input type="checkbox" name="rightpanelbattles"' + (Dex.prefs('rightpanelbattles') ? ' checked' : '') + ' /> Open new battles on the right side</label></p>';
+			buf += '<p><button name="close" class="button">Done</button></p>';
 			this.$el.html(buf);
 		},
 		events: {

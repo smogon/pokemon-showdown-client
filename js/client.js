@@ -2797,17 +2797,17 @@ function toId() {
 
 			buf += '<p class="buttonbar">';
 			if (userid === app.user.get('userid') || !app.user.get('named')) {
-				buf += '<button disabled>Challenge</button>';
+				buf += '<button disabled class="button disabled">Challenge</button>';
 				if (userid === app.user.get('userid')) {
-					buf += ' <button name="pm">Chat self</button>';
+					buf += ' <button name="pm" class="button">Chat self</button>';
 					buf += '</p><hr /><p class="buttonbar" style="text-align: right">';
-					buf += '<button name="login"><i class="fa fa-pencil"></i> Change name</button> <button name="logout"><i class="fa fa-power-off"></i> Log out</button>';
+					buf += '<button name="login" class="button"><i class="fa fa-pencil"></i> Change name</button> <button name="logout" class="button"><i class="fa fa-power-off"></i> Log out</button>';
 				} else {
 					// Guests can't PM themselves
-					buf += ' <button disabled>Chat self</button>';
+					buf += ' <button disabled class="button disabled">Chat self</button>';
 				}
 			} else {
-				buf += '<button name="challenge">Challenge</button> <button name="pm">Chat</button> <button name="userOptions">\u2026</button>';
+				buf += '<button name="challenge" class="button">Challenge</button> <button name="pm" class="button">Chat</button> <button name="userOptions" class="button">\u2026</button>';
 			}
 			buf += '</p>';
 
@@ -2865,9 +2865,9 @@ function toId() {
 			var ignored = app.ignore[this.userid] ? 'Unignore' : 'Ignore';
 			var friended = this.data.friended ? 'Remove friend' : 'Add friend';
 			this.$el.html(
-				'<p><button name="toggleIgnoreUser">' + ignored + '</button></p>' +
-				'<p><button name="report">Report</button></p>' +
-				'<p><button name="toggleFriend">' + friended +
+				'<p><button name="toggleIgnoreUser" class="button">' + ignored + '</button></p>' +
+				'<p><button name="report" class="button">Report</button></p>' +
+				'<p><button name="toggleFriend" class="button">' + friended +
 				'</button></p>'
 			);
 		},
