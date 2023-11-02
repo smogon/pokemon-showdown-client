@@ -766,7 +766,9 @@
 							return;
 						}
 						$cell.addClass('tournament-bracket-table-cell-' + cell.state);
-						if (cell.state === 'unavailable')
+						if (cell.type === 'nameCell') {
+							$cell.text(cell.name);
+						} else if (cell.state === 'unavailable')
 							$cell.text("Unavailable");
 						else if (cell.state === 'available')
 							$cell.text("Waiting");
@@ -785,7 +787,9 @@
 							$cell.text(cell.score.join(" - "));
 						}
 					});
-					$row.append($('<th class="tournament-bracket-row-score"></th>').text(data.scores[r]));
+					if (data.scores) {
+						$row.append($('<th class="tournament-bracket-row-score"></th>').text(data.scores[r]));
+					}
 				});
 
 				return $table;
