@@ -71,8 +71,8 @@ select {
 } */
 
 .dark .button.notifying {
-	background: #6BACC5;
-	border-color: #2C9CC1;
+	background: #417589;
+	background: linear-gradient(to bottom, #6BACC5, #417589);
 }
 
 .dark .button.notifying.subtle {
@@ -82,8 +82,8 @@ select {
 }
 
 .dark .button.notifying:hover {
-	background: #6BACC5;
-	border-color: #FFFFFF;
+	background: #5499b4;
+	background: linear-gradient(to bottom, #7bc9e7, #5499b4);
 }
 
 .dark a.button:visited {
@@ -118,6 +118,16 @@ select {
 	background: #417589;
 	background: linear-gradient(to bottom, #6BACC5, #417589);
 	text-shadow: none;
+}
+.dark .tabbar a.button.notifying:hover {
+	background: #5499b4;
+	background: linear-gradient(to bottom, #7bc9e7, #5499b4);
+}
+.dark .tabbar a.button:active {
+	background: #2b2c31;
+	background: linear-gradient(to bottom, #2b2c31, #4e525a);
+	border-color: #34373b;
+	box-shadow: none;
 }
 .dark .maintabbarbottom {
 	background: #555555;
@@ -170,16 +180,6 @@ select {
 	color: #F9F9F9;
 }
 
-.dark .tabbar a.button.notifying:hover {
-	background: #5499b4;
-	background: linear-gradient(to bottom, #7bc9e7, #5499b4);
-}
-.dark .tabbar a.button:active {
-	background: #2b2c31;
-	background: linear-gradient(to bottom, #2b2c31, #4e525a);
-	border-color: #34373b;
-	box-shadow: none;
-}
 .dark .button.cur,
 .dark .button.cur:hover,
 .dark .tabbar a.button.cur,
@@ -189,21 +189,6 @@ select {
 	box-shadow: none;
 	color: #F9F9F9;
 }
-.dark .button.disabled,
-.dark .button.disabled:hover,
-.dark .button.disabled:active {
-	background: #555555;
-	border-color: #555555;
-	box-shadow: none;
-	color: #999999;
-}
-/*
-.dark .closebutton,
-.dark .minimizebutton,
-.dark button.subtle {
-	background: none;
-	border: none;
-} */
 
 /*********************************************************
  * Header
@@ -691,7 +676,9 @@ span.header-username:hover {
 	margin: 80px auto 20px auto;
 	max-width: 320px;
 }
-.ps-popup p,
+.ps-popup p {
+	margin: 4px 0;
+}
 .ps-popup h3 {
 	margin: 7px 0;
 }

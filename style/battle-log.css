@@ -444,6 +444,9 @@ input[type=range]:active::-webkit-slider-thumb {
 .chat > strong { /* username, changed rating */
 	color: #40576A;
 }
+.dark .username {
+	filter: brightness(1.2);
+}
 .chat > em,
 .chat > q { /* user's chat message */
 	padding: 0 4px 0 3px;
@@ -629,8 +632,12 @@ details.readmore[open] summary:hover:before {
 	padding: 2px 4px;
 }
 .infobox {
-	border: 1px solid #6688AA;
+	border: 1px solid #7799BB;
 	padding: 2px 4px;
+	border-radius: 4px;
+}
+.dark .infobox {
+	border-color: #506070;
 }
 .infobox-limited {
 	max-height: 200px;
