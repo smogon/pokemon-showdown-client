@@ -72,7 +72,8 @@ export class BattlePanel extends preact.Component<{id: string}> {
   } | null | undefined = undefined;
   battle: Battle | null;
   speed = 'normal';
-  keyCode = '0';
+  /** debug purposes */
+  lastUsedKeyCode = '0';
   turnView: boolean | string = false;
   autofocusTurnView: 'select' | 'end' | null = null;
   override componentDidMount() {
@@ -143,7 +144,8 @@ export class BattlePanel extends preact.Component<{id: string}> {
   }
   keyPressed = (e: KeyboardEvent) => {
     // @ts-ignore
-    this.keyCode = `${e.keyCode}`;
+    this.lastUsedKeyCode = `${e.keyCode}`;
+    if (e.ctrlKey || e.metaKey || e.altKey) return;
     if (e.keyCode === 27 && this.turnView) { // Esc
       this.closeTurn();
       return;
@@ -190,8 +192,8 @@ export class BattlePanel extends preact.Component<{id: string}> {
         );
       }
       break;
-    case 48: case 49: case 50: case 51: case 52: case 53: case 54: case 55: case 56: case 57:
-    case 96: case 97: case 98: case 99: case 100: case 101: case 102: case 103: case 104: case 105:
+    case 48: case 49: case 50: case 51: case 52: case 53: case 54: case 55: case 56: case 57: // 0-9
+    case 96: case 97: case 98: case 99: case 100: case 101: case 102: case 103: case 104: case 105: // numpad 0-9
       this.turnView = String.fromCharCode(e.keyCode - (e.keyCode >= 96 ? 48 : 0));
       if (this.turnView === '0') this.turnView = '10';
       this.autofocusTurnView = 'end';
