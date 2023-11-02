@@ -508,7 +508,6 @@
 			}
 			buf += '<p><label class="optlabel"><input type="checkbox" name="bwgfx"' + (Dex.prefs('bwgfx') ? ' checked' : '') + ' /> Use BW sprites instead of XY models</label></p>';
 			buf += '<p><label class="optlabel"><input type="checkbox" name="nopastgens"' + (Dex.prefs('nopastgens') ? ' checked' : '') + ' /> Use modern sprites for past generations</label></p>';
-
 			buf += '<hr />';
 			buf += '<p><strong>Chat</strong></p>';
 			if (Object.keys(settings).length) {

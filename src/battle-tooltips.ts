@@ -787,6 +787,8 @@ class BattleTooltips {
 		if (gender === 'M' || gender === 'F') {
 			genderBuf = ` <img src="${Dex.fxPrefix}gender-${gender.toLowerCase()}.png" alt="${gender}" width="7" height="10" class="pixelated" /> `;
 		}
+		let weightBuf = '<small>' + ' ' + clientPokemon?.getSpecies().weightkg.toFixed(2) + 'kg' + '</small>';
+		let heightBuf = '<small>' + ' ' + clientPokemon?.getSpecies().heightm + 'm' + '</small>';
 
 		let name = BattleLog.escapeHTML(pokemon.name);
 		if (pokemon.speciesForme !== pokemon.name) {
@@ -795,13 +797,17 @@ class BattleTooltips {
 
 		let levelBuf = (pokemon.level !== 100 ? ` <small>L${pokemon.level}</small>` : ``);
 		if (!illusionIndex || illusionIndex === 1) {
-			text += `<h2>${name}${genderBuf}${illusionIndex ? '' : levelBuf}<br />`;
+			if (Dex.prefs('showbasestats') === true) {
+				text += `<h2>${name}${genderBuf}${illusionIndex ? '' : levelBuf}${heightBuf}${weightBuf}<br />`;
+			} else {
+				text += `<h2>${name}${genderBuf}${illusionIndex ? '' : levelBuf}<br />`;
 
-			if (clientPokemon?.volatiles.formechange) {
-				if (clientPokemon.volatiles.transform) {
-					text += `<small>(Transformed into ${clientPokemon.volatiles.formechange[1]})</small><br />`;
-				} else {
-					text += `<small>(Changed forme: ${clientPokemon.volatiles.formechange[1]})</small><br />`;
+				if (clientPokemon?.volatiles.formechange) {
+					if (clientPokemon.volatiles.transform) {
+						text += `<small>(Transformed into ${clientPokemon.volatiles.formechange[1]})</small><br />`;
+					} else {
+						text += `<small>(Changed forme: ${clientPokemon.volatiles.formechange[1]})</small><br />`;
+					}
 				}
 			}
 
@@ -902,6 +908,16 @@ class BattleTooltips {
 
 		text += this.renderStats(clientPokemon, serverPokemon, !isActive);
 
+		let types = this.getPokemonTypes(pokemon);
+		if (Dex.prefs('showbasestats') === true) {
+			text += '<p><small>Base: ';
+			text += 'HP: ' + clientPokemon?.getSpecies().baseStats['hp'] + ' ';
+			text += 'Atk: ' + clientPokemon?.getSpecies().baseStats['atk'] + ' ';
+			text += 'Def: ' + clientPokemon?.getSpecies().baseStats['def'] + ' ';
+			text += 'SpA: ' + clientPokemon?.getSpecies().baseStats['spa'] + ' ';
+			text += 'SpD: ' + clientPokemon?.getSpecies().baseStats['spd'] + ' ';
+			text += 'Spe: ' + clientPokemon?.getSpecies().baseStats['spe'] + '</small>' + '</p>';
+		}
 		if (serverPokemon && !isActive) {
 			// move list
 			text += `<p class="section">`;
