@@ -896,8 +896,9 @@
 			buf += '<p><label class="label">Format:</label>' + this.renderFormats(format) + '</p>';
 			buf += '<p><label class="label">Team:</label>' + this.renderTeams(format) + '</p>';
 			buf += '<p><label class="checkbox"><input type="checkbox" name="private" ' + (Storage.prefs('disallowspectators') ? 'checked' : '') + ' /> <abbr title="You can still invite spectators by giving them the URL or using the /invite command">Don\'t allow spectators</abbr></label></p>';
-			buf += '<p' + (!(format && format.includes('vgc')) ? ' class="hidden">' : '>');
-			buf += '<label class="checkbox"><input type="checkbox" name="bestof" /> <abbr title="Start a team-locked best-of-3 series">Best-of-3</abbr></label></p>';
+			var bestOfDefault = format ? BattleFormats[format].bestOfDefault : false;
+			buf += '<p' + (!bestOfDefault ? ' class="hidden">' : '>');
+			buf += '<label class="checkbox"><input type="checkbox" name="bestof" /> <abbr title="Start a team-locked best-of-n series">Best-of-<input name="bestofvalue" type="number" min="3" max="9" step="2" value="3" style="width: 28px; vertical-align: initial;"></abbr></label></p>';
 			buf += '<p class="buttonbar"><button name="makeChallenge"><strong>Challenge</strong></button> <button type="button" name="dismissChallenge">Cancel</button></p></form>';
 			$challenge.html(buf);
 		},
@@ -942,11 +943,12 @@
 			var teamIndex = $pmWindow.find('button[name=team]').val();
 			var privacy = this.adjustPrivacy($pmWindow.find('input[name=private]').is(':checked'));
 
-			var bestof = $pmWindow.find('input[name=bestof]').is(':checked');
-			var hasCustomRules = format.includes('@@@');
-			if (bestof) {
+			var bestOf = $pmWindow.find('input[name=bestof]').is(':checked');
+			var bestOfValue = $pmWindow.find('input[name=bestofvalue]').val();
+			if (bestOf && bestOfValue) {
+				var hasCustomRules = format.includes('@@@');
 				format += hasCustomRules ? ', ' : '@@@';
-				format += 'Best of = 3';
+				format += 'Best of = ' + bestOfValue;
 			}
 
 			var team = null;
@@ -1381,10 +1383,13 @@
 				if ($teamButton.length) $teamButton.replaceWith(app.rooms[''].renderTeams(format));
 
 				var $bestOfCheckbox = this.sourceEl.closest('form').find('input[name=bestof]');
-				if ($bestOfCheckbox) {
+				var $bestOfValueInput = this.sourceEl.closest('form').find('input[name=bestofvalue]');
+				if ($bestOfCheckbox && $bestOfValueInput) {
 					var $parentTag = $bestOfCheckbox.parent().parent();
-					if (format.includes('vgc')) {
+					var bestOfDefault = BattleFormats[format].bestOfDefault;
+					if (bestOfDefault) {
 						$parentTag.removeClass('hidden');
+						$bestOfValueInput.val(3);
 					} else {
 						$parentTag.addClass('hidden');
 						$bestOfCheckbox.prop('checked', false);

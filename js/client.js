@@ -1328,6 +1328,7 @@ function toId() {
 					var challengeShow = true;
 					var tournamentShow = true;
 					var partner = false;
+					var bestOfDefault = false;
 					var team = null;
 					var teambuilderLevel = null;
 					var lastCommaIndex = name.lastIndexOf(',');
@@ -1340,6 +1341,7 @@ function toId() {
 						if (!(code & 8)) tournamentShow = false;
 						if (code & 16) teambuilderLevel = 50;
 						if (code & 32) partner = true;
+						if (code & 64) bestOfDefault = true;
 					} else {
 						// Backwards compatibility: late 0.9.0 -> 0.10.0
 						if (name.substr(name.length - 2) === ',#') { // preset teams
@@ -1403,6 +1405,7 @@ function toId() {
 						searchShow: searchShow,
 						challengeShow: challengeShow,
 						tournamentShow: tournamentShow,
+						bestOfDefault: bestOfDefault,
 						rated: searchShow && id.substr(4, 7) !== 'unrated',
 						teambuilderLevel: teambuilderLevel,
 						partner: partner,
