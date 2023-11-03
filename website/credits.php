@@ -81,7 +81,7 @@ includeHeader();
 			<ul>
 				<li><p><strong>Austin Couturier</strong> [Austin] <small>&ndash; Development (damage calculator)</small></p></li>
 				<li><p><strong>Kevin Lau</strong> [Ascriptmaster] <small>&ndash; Development, Art (battle animations)</small></p></li>
-				<li><p><strong>Konrad Borowski</strong> [xfix] <small>&ndash; Development</small></p></li>
+				<li><p><strong>Kamila Borowska</strong> [xfix] <small>&ndash; Development</small></p></li>
 				<li><p><strong>Neil Rashbrook</strong> [urkerab] <small>&ndash; Development</small></p></li>
 				<li><p>[<strong>peach</strong>] <small>&ndash; Development</small></p></li>
 				<li><p>[<strong>pyuk</strong>] <small>&ndash; Development (game mechanics)</small></p></li>
