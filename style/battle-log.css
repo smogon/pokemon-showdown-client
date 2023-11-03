@@ -109,14 +109,30 @@ button:disabled {
 .button.notifying {
 	border-color: #AA8866;
 	background: #e3c3a3;
-}
-.button.alt-notifying {
-	border-color: #669caa;
-	background: #a3d0e3;
+	background: linear-gradient(to bottom, #f6d6b6, #d3b396);
 }
 .button.notifying:hover {
 	border-color: #604020;
 	background: #cfaf8f;
+	background: linear-gradient(to bottom, #f2c6a6, #b28e6e);
+}
+.button.notifying:active {
+	background: #b28e6e;
+	background: linear-gradient(to bottom, #b28e6e, #f6d6b6);
+}
+.button.alt-notifying {
+	border-color: #669caa;
+	background: #a3d0e3;
+	background: linear-gradient(to bottom, #daf2fc, #a3d0e3);
+}
+.button.alt-notifying:hover {
+	border-color: #406070;
+	background: #8fb2cf;
+	background: linear-gradient(to bottom, #daf2fc, #8fb2cf);
+}
+.button.alt-notifying:active {
+	background: #8fb2cf;
+	background: linear-gradient(to bottom, #8fb2cf, #daf2fc);
 }
 .button.subtle-notifying {
 	color: #AA6600;
@@ -174,6 +190,11 @@ button:disabled {
 	background: #5499b4;
 	background: linear-gradient(to bottom, #7bc9e7, #5499b4);
 }
+.dark .button.notifying:active {
+	border-color: #34373b;
+	background: #5499b4;
+	background: linear-gradient(to bottom, #417589, #7bc9e7);
+}
 .dark .button.alt-notifying {
 	border-color: #34373b;
 	background: #502646;
@@ -183,6 +204,11 @@ button:disabled {
 	border-color: #34373b;
 	background: #713563;
 	background: linear-gradient(to bottom, #9f468b, #713563);
+}
+.dark .button.alt-notifying:active {
+	border-color: #34373b;
+	background: #713563;
+	background: linear-gradient(to bottom, #502646, #9f468b);
 }
 .dark .button.subtle-notifying {
 	color: #6BACC5;
@@ -288,7 +314,7 @@ button:disabled {
 	background: #111111;
 }
 .dark .textbox:focus {
-	outline: 1px solid #88CCFF;
+	outline: 1px solid #6295bc;
 	border-color: #9199a2;
 	/* box-shadow: 0px 0px 4px #88CCFF, 0px 0px 6px #88CCFF; */
 }

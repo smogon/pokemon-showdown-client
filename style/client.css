@@ -843,14 +843,20 @@ p.or:after {
 	border-color: #AA8866;
 	background: #E3C3A3;
 }
+.dark .pm-window h3.pm-notifying {
+	background: #417589;
+}
 .pm-window h3.pm-notifying:hover {
 	border-color: #604020;
 	background: #CFAF8F;
 }
+.dark .pm-window h3.pm-notifying:hover {
+	background: #417589;
+}
 .pm-window h3 .closebutton,
 .pm-window h3 .minimizebutton {
 	float: right;
-	margin: -3px -3px;
+	margin: -2px -3px;
 	width: 22px;
 	height: 22px;
 }
