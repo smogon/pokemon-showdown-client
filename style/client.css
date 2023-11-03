@@ -437,7 +437,6 @@ span.header-username:hover {
 .scrollable {
 	overflow: auto;
 	-webkit-overflow-scrolling: touch;
-	overflow-scrolling: touch;
 }
 .ps-room.ps-room-light {
 	background: rgba(242,247,250,.85);
@@ -459,7 +458,6 @@ span.header-username:hover {
 
 	overflow: auto;
 	-webkit-overflow-scrolling: touch;
-	overflow-scrolling: touch;
 	z-index: 20;
 }
 .ps-popup {
@@ -757,7 +755,6 @@ p.or:after {
 
 	overflow: auto;
 	-webkit-overflow-scrolling: touch;
-	overflow-scrolling: touch;
 	word-wrap: break-word;
 }
 .pm-buttonbar {
@@ -1071,7 +1068,6 @@ p.or:after {
 	overflow: auto;
 	overflow-x: hidden;
 	-webkit-overflow-scrolling: touch;
-	overflow-scrolling: touch;
 	word-wrap: break-word;
 }
 .chat-log-add {
@@ -1444,7 +1440,6 @@ a.ilink.yours {
 
 	overflow: auto;
 	-webkit-overflow-scrolling: touch;
-	overflow-scrolling: touch;
 }
 .pm-buttonbar {
 	height: 21px;
@@ -2586,8 +2581,6 @@ a.ilink.yours {
 	color: #CC3311;
 	border-color: #CC3311;
 }
-.setchart-nickname input {
-}
 .setchart .setcell-details input {
 	width: 216px;
 }
@@ -2711,7 +2704,6 @@ a.ilink.yours {
 
 	overflow-y: scroll;
 	-webkit-overflow-scrolling: touch;
-	overflow-scrolling: touch;
 }
 @media (max-height:410px) {
 	.teambuilder-results {
@@ -2748,7 +2740,6 @@ a.ilink.yours {
 
 	overflow: auto;
 	-webkit-overflow-scrolling: touch;
-	overflow-scrolling: touch;
 }
 .teamwrapper.scaled {
 	width: 640px;

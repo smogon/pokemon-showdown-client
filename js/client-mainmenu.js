@@ -1260,7 +1260,7 @@
 			var bufs = [];
 			var curBuf = 0;
 			if (this.selectType === 'watch' && !this.search) {
-				bufs[1] = '<li><button name="selectFormat" value="" class="option' + (curFormat === '' ? ' sel' : '') + '">(All formats)</button></li>';
+				bufs[1] = '<li><button name="selectFormat" value="" class="option' + (curFormat === '' ? ' cur' : '') + '">(All formats)</button></li>';
 			}
 
 			for (var i in this.starred) {
@@ -1278,7 +1278,7 @@
 				var formatName = BattleLog.escapeFormat(BattleFormats[i].id);
 				bufs[1] += (
 					'<li><button name="selectFormat" value="' + i +
-					'" class="option' + (curFormat === i ? ' sel' : '') + '">' + formatName +
+					'" class="option' + (curFormat === i ? ' cur' : '') + '">' + formatName +
 					'<i class="fa fa-star" style="float: right; color: #FFD700; text-shadow: 0 0 1px #000;"></i></button></li>'
 				);
 			}
@@ -1314,7 +1314,7 @@
 				formatName = formatName.replace('[Gen 7 ', '[');
 				bufs[curBuf] += (
 					'<li><button name="selectFormat" value="' + i +
-					'" class="option' + (curFormat === i ? ' sel' : '') + '">' + formatName +
+					'" class="option' + (curFormat === i ? ' cur' : '') + '">' + formatName +
 					'<i class="fa fa-star subtle" style="float: right;"></i></button></li>'
 				);
 			}
@@ -1507,7 +1507,7 @@
 								if ((!teams[i].format && !teamFormat) || teams[i].format === teamFormat) {
 									var selected = (i === curTeam);
 									if (teams[i].folder === "") {
-										bufs[curBuf] += '<li><button name="selectTeam" value="' + i + '" class="option' + (selected ? ' sel' : '') + '">' + BattleLog.escapeHTML(teams[i].name) + '</button></li>';
+										bufs[curBuf] += '<li><button name="selectTeam" value="' + i + '" class="option' + (selected ? ' cur' : '') + '">' + BattleLog.escapeHTML(teams[i].name) + '</button></li>';
 										count++;
 										if (count % bufBoundary === 0 && curBuf < 4) curBuf++;
 									}
@@ -1527,7 +1527,7 @@
 					for (var i = 0; i < teams.length; i++) {
 						if (teamFormat && teams[i].format === teamFormat) continue;
 						var selected = (i === curTeam);
-						bufs[curBuf] += '<li><button name="selectTeam" value="' + i + '" class="option' + (selected ? ' sel' : '') + '">' + BattleLog.escapeHTML(teams[i].name) + '</button></li>';
+						bufs[curBuf] += '<li><button name="selectTeam" value="' + i + '" class="option' + (selected ? ' cur' : '') + '">' + BattleLog.escapeHTML(teams[i].name) + '</button></li>';
 						count++;
 						if (count % bufBoundary === 0 && curBuf < 4) curBuf++;
 					}

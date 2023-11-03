@@ -857,8 +857,8 @@
 		initialize: function (data) {
 			var buf = '<br>';
 			buf += '<p><img src="' + data.bgUrl + '" style="display:block;margin:auto;max-width:90%;max-height:500px"></p>';
-			buf += '<p class="buttonbar"><button name="setBg" value="' + data.bgUrl + '"><strong>Change background</strong></button> ';
-			buf += '<button name="close">Cancel</button></p>';
+			buf += '<p class="buttonbar"><button name="setBg" value="' + data.bgUrl + '" class="button"><strong>Change background</strong></button> ';
+			buf += '<button name="close" class="button">Cancel</button></p>';
 
 			this.$el.css('max-width', 485).html(buf);
 			this.$el.html(buf);
@@ -905,8 +905,8 @@
 				if (noRenameGames) {
 					buf += '<p>You can\'t change name in the middle of these games:</p>';
 					buf += '<ul>' + noRenameGames + '</ul>';
-					buf += '<p class="buttonbar"><button type="button" name="force"><small style="color:red">Forfeit and change name</small></button></p>';
-					buf += '<p class="buttonbar"><button type="submit" autofocus><strong>Cancel</strong></button></p>';
+					buf += '<p class="buttonbar"><button type="button" name="force" class="button"><small style="color:red">Forfeit and change name</small></button></p>';
+					buf += '<p class="buttonbar"><button type="submit" autofocus class="button"><strong>Cancel</strong></button></p>';
 					buf += '</form>';
 					this.$el.html(buf);
 					return;
@@ -1000,7 +1000,7 @@
 			buf += '<p><label class="label">Password (confirm): <input class="textbox" type="password" name="cpassword" autocomplete="new-password" /></label></p>';
 			buf += '<p><label class="label"><img src="' + Dex.resourcePrefix + 'sprites/gen5ani/pikachu.gif" alt="An Electric-type mouse that is the mascot of the Pok\u00E9mon franchise." /></label></p>';
 			buf += '<p><label class="label">What is this pokemon? <input class="textbox" type="text" name="captcha" value="' + BattleLog.escapeHTML(data.captcha) + '" /></label></p>';
-			buf += '<p class="buttonbar"><button type="submit"><strong>Register</strong></button> <button type="button" name="close">Cancel</button></p></form>';
+			buf += '<p class="buttonbar"><button type="submit" class="button"><strong>Register</strong></button> <button type="button" name="close" class="button">Cancel</button></p></form>';
 			this.$el.html(buf);
 		},
 		submit: function (data) {
@@ -1073,12 +1073,12 @@
 				buf += '<p class="buttonbar"><button name="close">Cancel</button></p>';
 			} else {
 				buf += '<p><label class="label">Password: <input class="textbox autofocus" type="password" name="password" autocomplete="current-password" style="width:173px"><button type="button" name="showPassword" aria-label="Show password" style="float:right;margin:-21px 0 10px;padding: 2px 6px" class="button"><i class="fa fa-eye"></i></button></label></p>';
-				buf += '<p class="buttonbar"><button type="submit"><strong>Log in</strong></button> <button type="button" name="close">Cancel</button></p>';
+				buf += '<p class="buttonbar"><button type="submit" class="button"><strong>Log in</strong></button> <button type="button" name="close" class="button">Cancel</button></p>';
 			}
 
 			buf += '<p class="or">or</p>';
 			buf += '<p>If this is someone else\'s account:</p>';
-			buf += '<p class="buttonbar"><button type="button" name="login">Choose another name</button></p>';
+			buf += '<p class="buttonbar"><button type="button" name="login" class="button">Choose another name</button></p>';
 
 			buf += '</form>';
 			this.$el.html(buf);

@@ -677,9 +677,9 @@ class BattleTooltips {
 		if (zEffect) text += '<p>Z-Effect: ' + zEffect + '</p>';
 
 		if (this.battle.hardcoreMode) {
-			text += '<p class="section">' + move.shortDesc + '</p>';
+			text += '<p class="tooltip-section">' + move.shortDesc + '</p>';
 		} else {
-			text += '<p class="section">';
+			text += '<p class="tooltip-section">';
 			if (move.priority > 1) {
 				text += 'Nearly always moves first <em>(priority +' + move.priority + ')</em>.</p><p>';
 			} else if (move.priority <= -1) {
@@ -823,7 +823,7 @@ class BattleTooltips {
 		}
 
 		if (illusionIndex) {
-			text += `<p class="section"><strong>Possible Illusion #${illusionIndex}</strong>${levelBuf}</p>`;
+			text += `<p class="tooltip-section"><strong>Possible Illusion #${illusionIndex}</strong>${levelBuf}</p>`;
 		}
 
 		if (pokemon.fainted) {
@@ -904,7 +904,7 @@ class BattleTooltips {
 
 		if (serverPokemon && !isActive) {
 			// move list
-			text += `<p class="section">`;
+			text += `<p class="tooltip-section">`;
 			const battlePokemon = clientPokemon || this.battle.findCorrespondingPokemon(pokemon);
 			for (const moveid of serverPokemon.moves) {
 				const move = Dex.moves.get(moveid);
@@ -922,7 +922,7 @@ class BattleTooltips {
 			text += '</p>';
 		} else if (!this.battle.hardcoreMode && clientPokemon?.moveTrack.length) {
 			// move list (guessed)
-			text += `<p class="section">`;
+			text += `<p class="tooltip-section">`;
 			for (const row of clientPokemon.moveTrack) {
 				text += `${this.getPPUseText(row)}<br />`;
 			}
@@ -952,7 +952,7 @@ class BattleTooltips {
 		for (const side of this.battle.sides) {
 			const sideConditions = scene.sideConditionsLeft(side, true);
 			if (sideConditions) atLeastOne = true;
-			buf += `<td><p class="section"><strong>${BattleLog.escapeHTML(side.name)}</strong>${sideConditions || "<br />(no conditions)"}</p></td>`;
+			buf += `<td><p class="tooltip-section"><strong>${BattleLog.escapeHTML(side.name)}</strong>${sideConditions || "<br />(no conditions)"}</p></td>`;
 		}
 		buf += `</tr><table>`;
 		if (!atLeastOne) buf = ``;

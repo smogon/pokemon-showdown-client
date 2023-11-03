@@ -790,7 +790,7 @@ License: GPLv2
 #tooltipwrapper .tooltip p small {
 	font-size: 8pt;
 }
-#tooltipwrapper .tooltip p.section {
+#tooltipwrapper .tooltip p.tooltip-section {
 	border-top: 1px solid #888888;
 }
 #tooltipwrapper .tooltip .textaligned-typeicons img {
