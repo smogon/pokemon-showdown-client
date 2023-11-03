@@ -183,17 +183,17 @@ button:disabled {
 .dark .button.notifying {
 	border-color: #34373b;
 	background: #417589;
-	background: linear-gradient(to bottom, #6BACC5, #417589);
+	background: linear-gradient(to bottom, #449cbf, #2b6d87);
 }
 .dark .button.notifying:hover {
 	border-color: #34373b;
 	background: #5499b4;
-	background: linear-gradient(to bottom, #7bc9e7, #5499b4);
+	background: linear-gradient(to bottom, #4fb7df, #398bac);
 }
 .dark .button.notifying:active {
 	border-color: #34373b;
 	background: #5499b4;
-	background: linear-gradient(to bottom, #417589, #7bc9e7);
+	background: linear-gradient(to bottom, #2b6d87, #4ebde9);
 }
 .dark .button.alt-notifying {
 	border-color: #34373b;
@@ -211,7 +211,7 @@ button:disabled {
 	background: linear-gradient(to bottom, #502646, #9f468b);
 }
 .dark .button.subtle-notifying {
-	color: #6BACC5;
+	color: #72bcda;
 }
 
 /*********************************************************
