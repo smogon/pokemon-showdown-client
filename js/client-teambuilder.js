@@ -189,10 +189,10 @@
 
 			if (this.exportMode) {
 				if (this.curFolder) {
-					buf = '<div class="pad"><button name="back"><i class="fa fa-chevron-left"></i> List</button></div>';
+					buf = '<div class="pad"><button name="back" class="button"><i class="fa fa-chevron-left"></i> List</button></div>';
 					buf += '<div class="teamedit"><textarea readonly class="textbox" rows="17">' + BattleLog.escapeHTML(Storage.exportFolder(this.curFolder)) + '</textarea></div>';
 				} else {
-					buf = '<div class="pad"><button name="back"><i class="fa fa-chevron-left"></i> List</button> <button name="saveBackup" class="savebutton"><i class="fa fa-floppy-o"></i> Save</button></div>';
+					buf = '<div class="pad"><button name="back" class="button"><i class="fa fa-chevron-left"></i> List</button> <button name="saveBackup" class="savebutton button"><i class="fa fa-floppy-o"></i> Save</button></div>';
 					buf += '<div class="teamedit"><textarea class="textbox" rows="17">';
 					if (Storage.teams.length > 350) {
 						buf += BattleLog.escapeHTML(Storage.getPackedTeams());
@@ -3538,23 +3538,21 @@
 			}
 
 			var buf = '';
-			buf += '<p>Pick a variant or <button name="close">Cancel</button></p>';
+			buf += '<p>Pick a variant or <button name="close" class="button">Cancel</button></p>';
 			buf += '<div class="formlist">';
 
 			var formCount = forms.length;
 			for (var i = 0; i < formCount; i++) {
 				var formid = forms[i].substring(baseid.length);
 				var form = (formid ? formid[0].toUpperCase() + formid.slice(1) : '');
-				var offset = '-' + (((i - 1) % 7) * spriteSize) + 'px -' + (Math.floor((i - 1) / 7) * spriteSize) + 'px';
-				buf += '<button name="setForm" value="' + form + '"  style="';
-				buf += 'background-position:' + offset + '; background: url(' + spriteDir + '/' + baseid + (form ? '-' + formid : '') + '.png) no-repeat; ' + spriteDim + '"';
-				buf += (form === species.form || (form === '' && !species.form) ? ' class="cur"' : '') + '></button>';
+				buf += '<button name="setForm" value="' + form + '" style="';
+				buf += 'background-image: url(' + spriteDir + '/' + baseid + (form ? '-' + formid : '') + '.png); ' + spriteDim + '" class="option';
+				buf += (form === (species.forme || '') ? ' cur' : '') + '"></button>';
 			}
+			buf += '<div style="clear:both"></div>';
 			buf += '</div>';
 
-			var height = Math.ceil(formCount / 7);
-			var width = Math.ceil(formCount / height);
-			this.$el.html(buf).css({'max-width': (4 + spriteSize) * width, 'height': 42 + (4 + spriteSize) * height});
+			this.$el.html(buf).css({'max-width': (4 + spriteSize) * 7});
 		},
 		setForm: function (form) {
 			var species = Dex.species.get(this.curSet.species);

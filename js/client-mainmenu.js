@@ -1260,7 +1260,7 @@
 			var bufs = [];
 			var curBuf = 0;
 			if (this.selectType === 'watch' && !this.search) {
-				bufs[1] = '<li><button name="selectFormat" value=""' + (curFormat === '' ? ' class="sel"' : '') + '>(All formats)</button></li>';
+				bufs[1] = '<li><button name="selectFormat" value="" class="option' + (curFormat === '' ? ' sel' : '') + '">(All formats)</button></li>';
 			}
 
 			for (var i in this.starred) {
@@ -1278,7 +1278,7 @@
 				var formatName = BattleLog.escapeFormat(BattleFormats[i].id);
 				bufs[1] += (
 					'<li><button name="selectFormat" value="' + i +
-					'"' + (curFormat === i ? ' class="sel"' : '') + '>' + formatName +
+					'" class="option' + (curFormat === i ? ' sel' : '') + '">' + formatName +
 					'<i class="fa fa-star" style="float: right; color: #FFD700; text-shadow: 0 0 1px #000;"></i></button></li>'
 				);
 			}
@@ -1314,7 +1314,7 @@
 				formatName = formatName.replace('[Gen 7 ', '[');
 				bufs[curBuf] += (
 					'<li><button name="selectFormat" value="' + i +
-					'"' + (curFormat === i ? ' class="sel"' : '') + '>' + formatName +
+					'" class="option' + (curFormat === i ? ' sel' : '') + '">' + formatName +
 					'<i class="fa fa-star subtle" style="float: right;"></i></button></li>'
 				);
 			}
@@ -1448,7 +1448,7 @@
 						if ((!teams[i].format && !teamFormat) || teams[i].format === teamFormat) {
 							var selected = (i === curTeam);
 							if (!this.folderToggleOn) {
-								bufs[curBuf] += '<li><button name="selectTeam" value="' + i + '"' + (selected ? ' class="sel"' : '') + '>' + BattleLog.escapeHTML(teams[i].name) + '</button></li>';
+								bufs[curBuf] += '<li><button name="selectTeam" value="' + i + '" class="option' + (selected ? 'sel' : '') + '">' + BattleLog.escapeHTML(teams[i].name) + '</button></li>';
 								count++;
 								if (count % bufBoundary === 0 && curBuf < 4) curBuf++;
 							} else {
@@ -1473,7 +1473,7 @@
 								}
 							}
 							if (!exists) {
-								bufs[curBuf] += '<li><button name="selectFolder" class="folderButtonOpen folderButtonOver" value="' + key + '"><i class="fa fa-folder-open" style="margin-right: 7px; margin-left: 4px;"></i>' + BattleLog.escapeHTML(key) + '</button></li>';
+								bufs[curBuf] += '<li><button name="selectFolder" class="button" value="' + key + '"><i class="fa fa-folder-open" style="margin-right: 7px; margin-left: 4px;"></i>' + BattleLog.escapeHTML(key) + '</button></li>';
 								count++;
 								if (count % bufBoundary === 0 && curBuf < 4) curBuf++;
 								for (var j = 0; j < folderData.length; j++) {
@@ -1483,7 +1483,7 @@
 									if (count % bufBoundary === 0 && curBuf < 4) curBuf++;
 								}
 							} else {
-								bufs[curBuf] += '<li><button name="selectFolder" class="folderButton" value="' + key + '"><i class="fa fa-folder" style="margin-right: 7px; margin-left: 4px;"></i>' + BattleLog.escapeHTML(key) + '</button></li>';
+								bufs[curBuf] += '<li><button name="selectFolder" class="button" value="' + key + '"><i class="fa fa-folder" style="margin-right: 7px; margin-left: 4px;"></i>' + BattleLog.escapeHTML(key) + '</button></li>';
 								count++;
 								if (count % bufBoundary === 0 && curBuf < 4) curBuf++;
 							}
@@ -1496,19 +1496,18 @@
 							}
 						}
 						if (!isNoFolder) {
-							bufs[curBuf] += '<li><button name="selectFolder" class="folderButtonOpen folderButtonOver" value="(No Folder)"><i class="fa fa-folder-open" style="margin-right: 7px; margin-left: 4px;"></i>(No Folder)</button></li>';
+							bufs[curBuf] += '<li><button name="selectFolder" class="button" value="(No Folder)"><i class="fa fa-folder-open" style="margin-right: 7px; margin-left: 4px;"></i>(No Folder)</button></li>';
 						} else {
-							bufs[curBuf] += '<li><button name="selectFolder" class="folderButton" value="(No Folder)"><i class="fa fa-folder" style="margin-right: 7px; margin-left: 4px;"></i>(No Folder)</button></li>';
+							bufs[curBuf] += '<li><button name="selectFolder" class="button" value="(No Folder)"><i class="fa fa-folder" style="margin-right: 7px; margin-left: 4px;"></i>(No Folder)</button></li>';
 							count++;
 							if (count % bufBoundary === 0 && count != 0 && curBuf < 4) curBuf++;
 						}
-						console.log(teamFormat);
 						if (!isNoFolder) {
 							for (var i = 0; i < teams.length; i++) {
 								if ((!teams[i].format && !teamFormat) || teams[i].format === teamFormat) {
 									var selected = (i === curTeam);
 									if (teams[i].folder === "") {
-										bufs[curBuf] += '<li><button name="selectTeam" value="' + i + '"' + (selected ? ' class="sel"' : '') + '>' + BattleLog.escapeHTML(teams[i].name) + '</button></li>';
+										bufs[curBuf] += '<li><button name="selectTeam" value="' + i + '" class="option' + (selected ? ' sel' : '') + '">' + BattleLog.escapeHTML(teams[i].name) + '</button></li>';
 										count++;
 										if (count % bufBoundary === 0 && curBuf < 4) curBuf++;
 									}
@@ -1528,7 +1527,7 @@
 					for (var i = 0; i < teams.length; i++) {
 						if (teamFormat && teams[i].format === teamFormat) continue;
 						var selected = (i === curTeam);
-						bufs[curBuf] += '<li><button name="selectTeam" value="' + i + '"' + (selected ? ' class="sel"' : '') + '>' + BattleLog.escapeHTML(teams[i].name) + '</button></li>';
+						bufs[curBuf] += '<li><button name="selectTeam" value="' + i + '" class="option' + (selected ? ' sel' : '') + '">' + BattleLog.escapeHTML(teams[i].name) + '</button></li>';
 						count++;
 						if (count % bufBoundary === 0 && curBuf < 4) curBuf++;
 					}

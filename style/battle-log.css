@@ -330,7 +330,7 @@ button:disabled {
 }
 
 .option {
-	background: transparent;
+	background-color: transparent;
 	border: 1px solid transparent;
 	border-radius: 4px;
 	padding: 2px 5px;
@@ -341,13 +341,14 @@ button:disabled {
 	white-space: nowrap;
 	overflow: hidden;
 }
-.option.sel {
+.option.sel, .option.cur {
 	border-color: #999999;
 }
 .option:hover,
-.option.sel:hover {
+.option.sel:hover,
+.option.cur:hover {
 	border-color: #888888;
-	background: #D5D5D5;
+	background-color: #D5D5D5;
 	color: black;
 }
 
@@ -356,9 +357,10 @@ button:disabled {
 	box-shadow: none;
 }
 .dark .option:hover,
-.dark .option.sel:hover {
+.dark .option.sel:hover,
+.dark .option.cur:hover {
 	border-color: #777777;
-	background: rgba(100, 100, 100, 0.5);
+	background-color: rgba(100, 100, 100, 0.5);
 	color: #FFFFFF;
 }
 

@@ -55,41 +55,6 @@ select {
 	border-top-color: #34373b;
 }
 
-.dark .folderButton,
-.dark .popupmenu .folderButton,
-.dark .popupmenu .folderButtonOpen,
-.dark .popupmenu button.button {
-	background: #2b2c31;
-	background: linear-gradient(to bottom, #4e525a, #2b2c31);
-	box-shadow: inset 0.5px 1px 1px rgba(255, 255, 255, 0.5);
-	border-color: #34373b;
-	text-shadow: none;
-	color: #F9F9F9;
-}
-
-.dark .popupmenu button.folderButtonOver {
-	background: linear-gradient(to bottom, #2a2a2a, #313131);
-}
-
-.dark .popupmenu button.folderButtonOpen:hover {
-	color: #F9F9F9;
-}
-
-.dark .popupmenu button.folderButtonOpen:hover,
-.dark .folderButton:hover,
-.dark .popupmenu button.folderButton:hover,
-.dark .popupmenu button.button:hover {
-	background: #3e4149;
-	background: linear-gradient(to bottom, #646877, #3e4149);
-	border-color: #34373b;
-}
-
-.dark .folderButton:hover,
-.dark .popupmenu button.folderButton:hover,
-.dark .popupmenu button.button:hover {
-	color: #F9F9F9;
-}
-
 .dark .button.cur,
 .dark .button.cur:hover,
 .dark .tabbar a.button.cur,
@@ -208,61 +173,13 @@ select {
 	border-radius: 0;
 }
 
-.popupmenu button.button {
-	outline: none;
-	cursor: pointer;
-	text-align: center;
-	text-decoration: none;
-	border-radius: 5px;
-	-webkit-box-shadow: 0 1px 2px rgba(0,0,0,.2), inset 0 -1px 2px rgba(255,255,255,1);
-	-moz-box-shadow: 0 1px 2px rgba(0,0,0,.2), inset 0 -1px 2px rgba(255,255,255,1);
-	box-shadow: 0 1px 2px rgba(0,0,0,.2), inset 0 -1px 2px rgba(255,255,255,1);
-	border-radius: 5px;
-	font-family: Verdana, Helvetica, Arial, sans-serif;
-	display: inline-block;
-
-	/* default colors */
-	color: #222222;
-	text-shadow: 0 1px 0 white;
-	border: solid 1px #AAAAAA;
-	background: #e3e3e3;
-	background: linear-gradient(to bottom,  #f6f6f6,  #e3e3e3);
-
-	font-size: 9pt;
-	padding: 3px 8px;
+.popupmenu .option {
+	width: 204px;
 }
-
 .popupmenu i {
 	display: inline-block;
 	width: 16px;
 	color: #777777;
-}
-
-.popupmenu button.folderButton,
-.popupmenu button.folderButtonOpen {
-	width: 172px;
-	outline: none;
-	cursor: pointer;
-	text-decoration: none;
-	border-radius: 5px;
-	-webkit-box-shadow: 0 1px 2px rgba(0,0,0,.2), inset 0 -1px 2px rgba(255,255,255,1);
-	-moz-box-shadow: 0 1px 2px rgba(0,0,0,.2), inset 0 -1px 2px rgba(255,255,255,1);
-	box-shadow: 0 1px 2px rgba(0,0,0,.2), inset 0 -1px 2px rgba(255,255,255,1);
-	border-radius: 5px;
-	font-family: Verdana, Helvetica, Arial, sans-serif;
-	display: inline-block;
-	/* default colors */
-	color: #222222;
-	text-shadow: 0 1px 0 white;
-	border: solid 1px #AAAAAA;
-	background: #e3e3e3;
-	background: linear-gradient(to bottom,  #f6f6f6,  #e3e3e3);
-	font-size: 9pt;
-	padding: 3px 8px;
-}
-
-.popupmenu button.folderButtonOpen {
-	background: linear-gradient(to bottom,  #e4e4e4,  #d3d3d3);
 }
 
 .button.small,
@@ -274,16 +191,6 @@ select {
 .button.big {
 	font-size: 12pt;
 	padding: 5px 10px;
-}
-.popupmenu button.folderButton:hover,
-.popupmenu button.folderButtonOpen:hover,
-.popupmenu button.button:hover {
-	background: #cfcfcf;
-	background: linear-gradient(to bottom,  #f2f2f2,  #c2c2c2);
-	border-color: #606060;
-}
-.popupmenu button.button:active {
-	background: linear-gradient(to bottom,  #cfcfcf,  #f2f2f2);
 }
 
 .mainmenuwrapper .menugroup .button.disabled,
@@ -300,7 +207,6 @@ select {
 }
 
 .button.cur,
-.folderButton.cur,
 .button.cur:hover {
 	color: #333333;
 	background: #f8f8f8;
@@ -624,21 +530,6 @@ p.or:after {
 .popupmenu li:first-child h3 {
 	margin-top: 0;
 }
-.popupmenu button {
-	display: block;
-	font-size: 8pt;
-	font-family: Verdana, Helvetica, Arial, sans-serif;
-	margin: 0 0 0 6px;
-	padding: 2px 3px;
-	border: 1px solid transparent;
-	border-radius: 2px;
-	background: transparent;
-	color: black;
-	width: 204px;
-	text-align: left;
-
-	box-sizing: border-box;
-}
 @media (max-height:590px) {
 	.popupmenu h3 {
 		margin-top: 2px;
@@ -653,18 +544,7 @@ p.or:after {
 	}
 }
 
-.popupmenu button.sel {
-	border-color: #AAAAAA;
-	white-space: nowrap;
-	overflow: hidden;
-}
-.popupmenu button:hover,
-.popupmenu button.sel:hover {
-	border-color: #888888;
-	background: #D5D5D5;
-	color: black;
-}
-.popupmenu button.button {
+.popupmenu .button {
 	margin: 2px auto 5px;
 	width: 184px;
 }
@@ -845,6 +725,7 @@ p.or:after {
 }
 .dark .pm-window h3.pm-notifying {
 	background: #417589;
+	color: #BBBBBB;
 }
 .pm-window h3.pm-notifying:hover {
 	border-color: #604020;
@@ -3090,11 +2971,6 @@ a.ilink.yours {
 	float: left;
 	margin: 2px;
 	padding: 2px;
-
-	border: 1px solid transparent;
-	border-radius: 4px;
-	box-shadow: none;
-	background: transparent;
 }
 .avatarlist button {
 	width: 80px;
@@ -3107,20 +2983,8 @@ a.ilink.yours {
 	height: 90px;
 	background: url(../fx/client-bgsheet.png) no-repeat scroll 0px 0px;
 }
-.avatarlist button.cur,
-.formlist button.cur,
-.bglist button.cur {
-	border-color: #999999;
-}
-.avatarlist button:hover,
-.avatarlist button.cur:hover,
-.formlist button:hover,
-.formlist button.cur:hover,
-.bglist button:hover,
-.bglist button.cur:hover {
-	border: 1px solid #8899AA;
-	background-color: #F1F4F9;
-	box-shadow: 1px 1px 1px #D5D5D5;
+.formlist button {
+	background-repeat: no-repeat;
 }
 
 .effect-volume,
@@ -3226,20 +3090,6 @@ a.ilink.yours {
 	color: #BBB;
 }
 
-.dark .popupmenu button,
-.dark .bglist button,
-.dark .avatarlist button {
-	color: #AAA;
-	box-shadow: none;
-}
-.dark .popupmenu button:hover,
-.dark .popupmenu button.sel:hover,
-.dark .bglist button:hover,
-.dark .avatarlist button:hover {
-	border-color: #AAAAAA;
-	background-color: #AAAAAA;
-	color: black;
-}
 .dark .changeform i {
 	border-color: #bbb;
 	color: #bbb;
