@@ -96,11 +96,11 @@
 
 		renderRoomBtn: function (roomData) {
 			var id = toID(roomData.title);
-			var buf = '<div><a href="' + app.root + id + '" class="ilink"><small style="float:right">(' + Number(roomData.userCount) + ' users)</small><strong><i class="fa fa-comment-o"></i> ' + BattleLog.escapeHTML(roomData.title) + '<br /></strong><small>' + BattleLog.escapeHTML(roomData.desc || '') + '</small></a>';
+			var buf = '<div><a href="' + app.root + id + '" class="blocklink"><small style="float:right">(' + Number(roomData.userCount) + ' users)</small><strong><i class="fa fa-comment-o"></i> ' + BattleLog.escapeHTML(roomData.title) + '<br /></strong><small>' + BattleLog.escapeHTML(roomData.desc || '') + '</small></a>';
 			if (roomData.subRooms && roomData.subRooms.length) {
 				buf += '<div class="subrooms"><i class="fa fa-level-up fa-rotate-90"></i> Subrooms:';
 				for (var i = 0; i < roomData.subRooms.length; i++) {
-					buf += ' <a class="ilink" href="' + app.root + toID(roomData.subRooms[i]) + '"><i class="fa fa-comment-o"></i> <strong>' + BattleLog.escapeHTML(roomData.subRooms[i]) + '</strong></a>';
+					buf += ' <a class="blocklink" href="' + app.root + toID(roomData.subRooms[i]) + '"><i class="fa fa-comment-o"></i> <strong>' + BattleLog.escapeHTML(roomData.subRooms[i]) + '</strong></a>';
 				}
 				buf += '</div>';
 			}
@@ -280,7 +280,7 @@
 			} else if (!roomData.p2) {
 				roomDesc = formatBuf + '<em class="p1">' + BattleLog.escapeHTML(roomData.p1) + '</em>';
 			}
-			return '<div><a href="' + app.root + id + '" class="ilink">' + roomDesc + '</a></div>';
+			return '<div><a href="' + app.root + id + '" class="blocklink">' + roomDesc + '</a></div>';
 		},
 		submitSearch: function (e) {
 			e.preventDefault();
