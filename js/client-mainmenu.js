@@ -1443,7 +1443,7 @@
 				var count = 0;
 				if (teamFormat) {
 					bufs[curBuf] = '<li><h3 style="margin-bottom: 5px;">' + BattleLog.escapeFormat(teamFormat) + ' teams</h3></li>';
-					bufs[curBuf] += '<li style="padding-bottom: 5px;"><input type="checkbox"' + (this.folderToggleOn ? ' checked' : '') + '><strong>Group by folders</strong></button></li>';
+					bufs[curBuf] += '<li style="padding-bottom: 5px;"><label class="checkbox"><input type="checkbox"' + (this.folderToggleOn ? ' checked' : '') + '> Group by folders</label></li>';
 					for (var i = 0; i < teams.length; i++) {
 						if ((!teams[i].format && !teamFormat) || teams[i].format === teamFormat) {
 							var selected = (i === curTeam);
@@ -1478,7 +1478,7 @@
 								if (count % bufBoundary === 0 && curBuf < 4) curBuf++;
 								for (var j = 0; j < folderData.length; j++) {
 									var selected = (folderData[j].id === curTeam);
-									bufs[curBuf] += '<li><button name="selectTeam" value="' + folders[key][j].id + '"' + (selected ? ' class="sel"' : '') + '>' + BattleLog.escapeHTML(folderData[j].name) + '</button></li>';
+									bufs[curBuf] += '<li><button name="selectTeam" value="' + folders[key][j].id + '" class="option' + (selected ? ' cur' : '') + '">' + BattleLog.escapeHTML(folderData[j].name) + '</button></li>';
 									count++;
 									if (count % bufBoundary === 0 && curBuf < 4) curBuf++;
 								}
@@ -1547,7 +1547,7 @@
 			}
 		},
 		events: {
-			'click [type="checkbox"]': 'foldersToggle',
+			'click input[type=checkbox]': 'foldersToggle',
 		},
 		moreTeams: function () {
 			this.close();
