@@ -1202,12 +1202,12 @@
 				}
 				for (i = 0; i < this.curSetList.length; i++) {
 					if (this.curSetList.length < this.curTeam.capacity && this.deletedSet && i === this.deletedSetLoc) {
-						buf += '<li><button name="undeleteSet"><i class="fa fa-undo"></i> Undo Delete</button></li>';
+						buf += '<li><button name="undeleteSet" class="button"><i class="fa fa-undo"></i> Undo Delete</button></li>';
 					}
 					buf += this.renderSet(this.curSetList[i], i);
 				}
 				if (this.deletedSet && i === this.deletedSetLoc) {
-					buf += '<li><button name="undeleteSet"><i class="fa fa-undo"></i> Undo Delete</button></li>';
+					buf += '<li><button name="undeleteSet" class="button"><i class="fa fa-undo"></i> Undo Delete</button></li>';
 				}
 				if (i === 0) {
 					buf += '<li><button name="import" class="button big"><i class="fa fa-upload"></i> Import from text or URL</button></li>';
@@ -1243,7 +1243,7 @@
 			var buf = '<li value="' + i + '">';
 			if (!set.species) {
 				if (this.deletedSet) {
-					buf += '<div class="setmenu setmenu-left"><button name="undeleteSet"><i class="fa fa-undo"></i> Undo Delete</button></div>';
+					buf += '<div class="setmenu setmenu-left"><button name="undeleteSet" class="button"><i class="fa fa-undo"></i> Undo Delete</button></div>';
 				}
 				buf += '<div class="setmenu"><button name="importSet"><i class="fa fa-upload"></i>Import</button></div>';
 				buf += '<div class="setchart" style="background-image:url(' + Dex.resourcePrefix + 'sprites/gen5/0.png);"><div class="setcol setcol-icon"><div class="setcell-sprite"></div><div class="setcell setcell-pokemon"><label>Pok&eacute;mon</label><input type="text" name="pokemon" class="textbox chartinput" value="" autocomplete="off" /></div></div></div>';
@@ -1594,9 +1594,9 @@
 			buf += '<div class="teambuilder-clipboard-data" tabindex="-1">' + this.clipboardInnerHTML() + '</div>';
 			buf += '<div class="teambuilder-clipboard-buttons">';
 			if (this.curTeam && this.curSetList.length < this.curTeam.capacity) {
-				buf += '<button name="pastePokemon" class="teambuilder-clipboard-button-left"><i class="fa fa-clipboard"></i> Paste!</button>';
+				buf += '<button name="pastePokemon" class="teambuilder-clipboard-button-left button"><i class="fa fa-clipboard"></i> Paste!</button>';
 			}
-			buf += '<button name="clipboardRemoveAll" class="teambuilder-clipboard-button-right"><i class="fa fa-trash"></i> Clear clipboard</button>';
+			buf += '<button name="clipboardRemoveAll" class="teambuilder-clipboard-button-right button"><i class="fa fa-trash"></i> Clear clipboard</button>';
 			buf += '</div>';
 			buf += '</div>';
 
@@ -1766,7 +1766,7 @@
 
 			$setDiv.text('Sample sets: ');
 			for (var set in sets) {
-				$setDiv.append('<button name="importSmogonSet">' + BattleLog.escapeHTML(set) + '</button>');
+				$setDiv.append('<button name="importSmogonSet" class="button">' + BattleLog.escapeHTML(set) + '</button>');
 			}
 			$setDiv.append(' <small>(<a target="_blank" href="' + this.smogdexLink(species) + '">Smogon&nbsp;analysis</a>)</small>');
 		},
@@ -3506,7 +3506,7 @@
 			this.room = data.room;
 			this.folder = data.folder;
 			var buf = '<form><p>Remove "' + data.folder.slice(0, -1) + '"?</p><p><label><input type="checkbox" name="addname" /> Add "' + BattleLog.escapeHTML(this.folder.slice(0, -1)) + '" before team names</label></p>';
-			buf += '<p><button type="submit"><strong>Remove (keep teams)</strong></button> <!--button name="removeDelete"><strong>Remove (delete teams)</strong></button--> <button type="button" name="close" class="autofocus">Cancel</button></p></form>';
+			buf += '<p><button type="submit" class="button"><strong>Remove (keep teams)</strong></button> <!--button name="removeDelete"><strong>Remove (delete teams)</strong></button--> <button type="button" name="close" class="autofocus button">Cancel</button></p></form>';
 			this.$el.html(buf);
 		},
 		submit: function (data) {
