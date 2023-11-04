@@ -33,7 +33,7 @@
 				this.$chatAdd.html('Connecting...');
 				this.$chatbox = null;
 			} else if (!app.user.get('named')) {
-				this.$chatAdd.html('<form><button name="login">Join chat</button></form>');
+				this.$chatAdd.html('<form><button name="login" class="button">Join chat</button></form>');
 				this.$chatbox = null;
 			} else {
 				var color = app.user.get('away') ? 'color:#888;' : BattleLog.hashColor(app.user.get('userid'));
