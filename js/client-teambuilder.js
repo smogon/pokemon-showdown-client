@@ -2917,7 +2917,10 @@
 		},
 		chartClick: function (e) {
 			if (this.search.addFilter(e.currentTarget)) {
-				this.$('input[name=' + this.curChartName + ']').val('').select();
+				var curChart = this.$('input[name=' + this.curChartName + ']');
+				// if we were searching for the filter, remove it
+				if (this.search.q) curChart.val('');
+				curChart.select();
 				this.search.find('');
 				return;
 			}
@@ -2926,23 +2929,23 @@
 			if (this.curChartType === 'move' && e.currentTarget.className === 'cur') {
 				// clicked a move, remove it if we already have it
 				var moves = [];
-				for (var i = 1; i <= 4; i++) {
-					var $inputEl = this.$('input[name=move' + i + ']');
-					var curVal = $inputEl.val();
+				for (var i = 0; i < this.curSet.moves.length; i++) {
+					var curVal = this.curSet.moves[i];
 					if (curVal === val) {
 						this.unChooseMove(curVal);
-						$inputEl.val('');
 						delete this.search.cur[toID(val)];
 					} else if (curVal) {
 						moves.push(curVal);
 					}
 				}
-				if (moves.length < 4) {
+				if (moves.length < this.curSet.moves.length) {
 					this.$('input[name=move1]').val(moves[0] || '');
 					this.$('input[name=move2]').val(moves[1] || '');
 					this.$('input[name=move3]').val(moves[2] || '');
 					this.$('input[name=move4]').val(moves[3] || '');
-					this.$('input[name=move' + (1 + moves.length) + ']').focus();
+					this.$('input[name=move' + Math.min(moves.length + 1, 4) + ']').focus();
+					this.curSet.moves = moves;
+					this.search.find('');
 					return;
 				}
 			}
