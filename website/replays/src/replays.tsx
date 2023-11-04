@@ -462,8 +462,8 @@ class PSReplays extends preact.Component {
 preact.render(<PSReplays />, document.getElementById('main')!);
 
 if (window.matchMedia?.('(prefers-color-scheme: dark)').matches) {
-  document.body.className = 'dark';
+  document.documentElement.className = 'dark';
 }
 window.matchMedia?.('(prefers-color-scheme: dark)').addEventListener('change', event => {
-  document.body.className = event.matches ? "dark" : "";
+  document.documentElement.className = event.matches ? "dark" : "";
 });

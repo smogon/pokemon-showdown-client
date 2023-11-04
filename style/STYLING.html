@@ -15,7 +15,7 @@ function customCssErrored() { customCssLoaded = 'error'; updateCustomCss(); }
 function customCssSuccess() { customCssLoaded = 'success'; updateCustomCss(); }
 </script>
 
-<link rel="stylesheet" href="./battle.css" />
+<link rel="stylesheet" href="./battle.css?v1" />
 <link rel="stylesheet" href="./custom.css" onerror="customCssErrored()" onload="customCssSuccess()" />
 <link rel="stylesheet" href="./font-awesome.css" />
 <style>
@@ -88,7 +88,7 @@ h1, h2, p {
   <p><code>.button</code></p>
 
   <p>
-    Regular buttons always need <code>class="button"</code> to look like buttons &ndash; this is so you can apply other classes/styles if you want them to look like other things.
+    Regular buttons always need <code>class="button"</code> to look like buttons &ndash; this is so you can apply other classes/styles if you want them to look like other things. You can also add the class to other elements, like links, to make them look like buttons.
   </p>
   <p>
     Notice the active (pressed down) styling.
@@ -108,23 +108,60 @@ h1, h2, p {
   </div>
   <div class="clear"></div>
 
-  <p><code>.button.disabled</code></p>
+  <p><code>.button.disabled, .button:disabled</code></p>
 
   <p>
-    Disabled buttons are faded out. Implementing <code>disabled</code> as a class lets you detect when they're moused-over (for tooltips) and clicked, if necessary. Do instead set the <code>disabled</code> attribute if you don't need to do that, though, for accessibility reasons.
+    Disabled buttons are faded out. Implementing <code>disabled</code> as a class lets you detect when they're moused-over (for tooltips) and clicked, and also lets you style links, if necessary. If <em>not</em> necessary, do set the <code>disabled</code> attribute instead, though, for accessibility reasons.
   </p>
 
   <div class="light-container">
-    <button class="button disabled" disabled><strong>Do the thing</strong></button>
+    <button class="button" disabled><strong>Do the thing</strong></button>
     <a href="./" class="button disabled">Cancel</a>
   </div>
   <div class="dark-container dark">
-    <button class="button disabled" disabled><strong>Do the thing</strong></button>
+    <button class="button" disabled><strong>Do the thing</strong></button>
     <a href="./" class="button disabled">Cancel</a>
   </div>
   <div class="dark-container code dark">
     &lt;button class="button disabled">&lt;strong>Do the thing&lt;/strong>&lt;/button>
     &lt;a href="./" class="button disabled">Cancel&lt;/a>
+  </div>
+  <div class="clear"></div>
+
+  <p><code>.button.notifying, .button.subtle-notifying</code></p>
+
+  <p>
+    Notifying buttons are intended for situations where we're trying to get the user's attention. As usual, you can also style links or any other element.
+  </p>
+
+  <div class="light-container">
+    <button class="button notifying">2 new battles!</button>
+    <button class="button subtle-notifying">5 unimportant battles</button>
+  </div>
+  <div class="dark-container dark">
+    <button class="button notifying">2 new battles!</button>
+    <button class="button subtle-notifying">5 unimportant battles</button>
+  </div>
+  <div class="dark-container code dark">
+    &lt;button class="button notifying">2 new battles!&lt;/button>
+    &lt;button class="button subtle-notifying">5 unimportant battles&lt;/button>
+  </div>
+  <div class="clear"></div>
+
+  <p><code>.button.button-first, .button.button-middle, .button.button-last, .button.cur</code></p>
+
+  <p>
+    These are used to group buttons together. <code>cur</code> works a lot like <code>disabled</code>, except the text isn't as greyed out, and is used to denote a current selection.
+  </p>
+
+  <div class="light-container">
+    <button class="button button-first cur">Charmander</button><button class="button button-middle">Squirtle</button><button class="button button-last">Bulbasaur</button>
+  </div>
+  <div class="dark-container dark">
+    <button class="button button-first cur">Charmander</button><button class="button button-middle">Squirtle</button><button class="button button-last">Bulbasaur</button>
+  </div>
+  <div class="dark-container code dark">
+    &lt;button class="button button-first cur">Charmander&lt;/button>&lt;button class="button button-middle">Squirtle&lt;/button>&lt;button class="button button-last">Bulbasaur&lt;/button>
   </div>
   <div class="clear"></div>
 
@@ -234,7 +271,7 @@ h1, h2, p {
   <p><code>.checkbox</code></p>
 
   <p>
-    This makes checkboxes look slightly nicer. We don't currently try to override the built-in checkbox widget, just make it a bit bigger, add the usual finger-cursor, and add a hover effect.
+    This makes checkboxes and radio buttons look slightly nicer. We don't currently try to override the built-in checkbox widget, just make it a bit bigger, add the usual finger-cursor, and add a hover effect.
   </p>
 
   <div class="light-container">
@@ -260,6 +297,19 @@ h1, h2, p {
   </div>
   <div class="dark-container code dark">
     &lt;code>/([a-z]*)/g&lt;/code> is a regex.
+  </div>
+  <div class="clear"></div>
+
+  <p><code>kbd</code></p>
+
+  <div class="light-container">
+    Try pressing <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>Del</kbd>.
+  </div>
+  <div class="dark-container dark">
+    Try pressing <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>Del</kbd>.
+  </div>
+  <div class="dark-container code dark">
+    Try pressing &lt;kbd>Ctrl&lt;/kbd>+&lt;kbd>Alt&lt;/kbd>+&lt;kbd>Del&lt;/kbd>.
   </div>
   <div class="clear"></div>
 
@@ -305,7 +355,7 @@ h1, h2, p {
     Does not require JavaScript! As you can see, it's implemented with <code>&lt;details></code> and <code>&lt;summary></code>.
   </p>
   <p>
-    For accessibility reasons, the "read more" button can only appear at the end of a line (using <code>&lt;/summary</code> to replace a <code>&lt;br /></code>).
+    For accessibility reasons, the "read more" button can only appear at the end of a line (using <code>&lt;/summary></code> to replace a <code>&lt;br /></code>).
   </p>
 
   <div class="light-container">

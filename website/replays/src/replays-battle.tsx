@@ -357,7 +357,7 @@ export class BattlePanel extends preact.Component<{id: string}> {
     </section></div>;
   }
   renderControls() {
-    const atEnd = this.battle?.atQueueEnd;
+    const atEnd = !this.battle || this.battle.atQueueEnd;
     const atStart = !this.battle?.started;
 
     if (this.turnView) {
@@ -369,38 +369,41 @@ export class BattlePanel extends preact.Component<{id: string}> {
           <button type="submit" class="button"><strong>Go</strong></button> {}
           <button type="button" class="button" onClick={this.closeTurn}>Cancel</button>
         </form>
+        <p>
+          <em>Pro tip:</em> You don't need to click "Skip to turn" if you have a keyboard, just start typing the turn number and press <kbd>Enter</kbd>. For more shortcuts, press <kbd>Shift</kbd>+<kbd>/</kbd> when a text box isn't focused.
+        </p>
       </section></div>;
     }
 
     return <div class="replay-controls">
       <p>
-        {atEnd ?
-          <button onClick={this.replay} class="button" style={{width: '5em'}}>
+        {atEnd && this.battle ?
+          <button onClick={this.replay} class="button" style={{width: '5em', marginRight: '3px'}}>
             <i class="fa fa-undo"></i><br />Replay
           </button>
-        : this.battle?.paused ?
-          <button onClick={this.play} class="button" style={{width: '5em'}}>
-            <i class="fa fa-play"></i><br />Play
+        : (!this.battle || this.battle.paused) ?
+          <button onClick={this.play} class="button" disabled={!this.battle} style={{width: '5em', marginRight: '3px'}}>
+            <i class="fa fa-play"></i><br /><strong>Play</strong>
           </button>
         :
-          <button onClick={this.pause} class="button" style={{width: '5em'}}>
-            <i class="fa fa-pause"></i><br />Pause
+          <button onClick={this.pause} class="button" style={{width: '5em', marginRight: '3px'}}>
+            <i class="fa fa-pause"></i><br /><strong>Pause</strong>
           </button>
         } {}
-        <button class={"button button-first" + (atStart ? " disabled" : "")} onClick={this.firstTurn}>
+        <button class="button button-first" disabled={atStart} onClick={this.firstTurn}>
           <i class="fa fa-fast-backward"></i><br />First turn
         </button>
-        <button class={"button button-middle" + (atStart ? " disabled" : "")} onClick={this.prevTurn}>
+        <button class="button button-first" disabled={atStart} style={{marginLeft:'1px',position:'relative',zIndex:'1'}} onClick={this.prevTurn}>
           <i class="fa fa-step-backward"></i><br />Prev turn
         </button>
-        <button class={"button button-middle" + (atEnd ? " disabled" : "")} onClick={this.nextTurn}>
+        <button class="button button-last" disabled={atEnd} style={{marginRight:'2px'}} onClick={this.nextTurn}>
           <i class="fa fa-step-forward"></i><br />Skip turn
         </button>
-        <button class={"button button-last" + (atEnd ? " disabled" : "")} onClick={this.lastTurn}>
+        <button class="button button-last" disabled={atEnd} onClick={this.lastTurn}>
           <i class="fa fa-fast-forward"></i><br />Skip to end
         </button> {}
         <button class="button" onClick={this.openTurn}>
-          <i class="fa fa-repeat"></i> Skip to turn...
+          <i class="fa fa-repeat"></i> Go to turn...
         </button>
       </p>
       <p>
@@ -424,7 +427,7 @@ export class BattlePanel extends preact.Component<{id: string}> {
         <label class="optgroup">
           Viewpoint:<br />
           <button onClick={this.switchViewpoint} class={this.battle ? 'button' : 'button disabled'}>
-            {(this.battle?.viewpointSwitched ? this.result?.p2 : this.result?.p1)} {}
+            {(this.battle?.viewpointSwitched ? this.result?.p2 : this.result?.p1 || "Player")} {}
             <i class="fa fa-random" aria-label="Switch viewpoint"></i>
           </button>
         </label>

@@ -55,16 +55,6 @@ select {
 	border-top-color: #34373b;
 }
 
-.dark .button.cur,
-.dark .button.cur:hover,
-.dark .tabbar a.button.cur,
-.dark .tabbar a.button.cur:hover {
-	background: #555555;
-	border-color: #34373b;
-	box-shadow: none;
-	color: #F9F9F9;
-}
-
 /*********************************************************
  * Header
  *********************************************************/
@@ -206,14 +196,6 @@ select {
 	box-shadow: 0 1px 2px rgba(0,0,0,.1);
 }
 
-.button.cur,
-.button.cur:hover {
-	color: #333333;
-	background: #f8f8f8;
-	box-shadow: none;
-	border-color: #AAAAAA;
-	cursor: default;
-}
 .button.subtle-notifying .fa-comment-o:before,
 .button.notifying .fa-comment-o:before {
 	content: "\f0e6";
@@ -3152,7 +3134,7 @@ a.ilink.yours {
 }
 
 .dark .highlighted {
-	background: rgba(120,220,255,0.28);
+	background: rgba(120,220,255,0.25);
 }
 .dark .message-pm {
 	color: #00af00;
@@ -3165,7 +3147,7 @@ a.ilink.yours {
 	border-color: #526c87;
 }
 .dark .chat.mine {
-	background: rgba(255,255,255,0.05);
+	background: rgba(255,255,255,0.08);
 }
 
 /* teambuilder */
