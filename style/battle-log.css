@@ -586,7 +586,7 @@ input[type=range]:active::-webkit-slider-thumb {
 	background: #BBBBBB;
 	color: #BBBBBB;
 }
-code, .code,
+code, .code, kbd,
 .spoiler:hover code,
 .spoiler:active code,
 .spoiler-shown code {
@@ -596,6 +596,13 @@ code, .code,
 	color: black;
 	padding: 0 2px;
 	tab-size: 4;
+}
+kbd {
+	font-size: 90%;
+	padding: 0 4px;
+	border-radius: 4px;
+	border-width: 1px 3px 3px;
+	border-color: #CCC #BBB #AAA;
 }
 
 details.readmore {
@@ -641,14 +648,17 @@ details.readmore[open] summary:hover:before {
 	background: #777;
 	color: #777;
 }
-.dark code,
-.dark .code,
+.dark code, .dark .code, .dark kbd,
 .dark .spoiler:hover code,
 .dark .spoiler:active code,
 .dark .spoiler-shown code {
 	border-color: #555;
 	background: #333;
 	color: #DDD;
+}
+.dark kbd {
+	background: #555;
+	border-color: #666 #333 #111;
 }
 .stat-boosted {
 	color: #117911;

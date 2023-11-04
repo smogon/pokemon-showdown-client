@@ -689,13 +689,13 @@
 			var buf = '<p>Usable formatting:</p>';
 			var ctrlPlus = '<kbd>' + (navigator.platform === 'MacIntel' ? 'Cmd' : 'Ctrl') + '</kbd> + ';
 			buf += '<p>**<strong>bold</strong>** (' + ctrlPlus + '<kbd>B</kbd>)</p>';
-			buf += '<p>__<em>italics</em>__ (' + ctrlPlus + '<bkd>I</kbd>)</p>';
+			buf += '<p>__<em>italics</em>__ (' + ctrlPlus + '<kbd>I</kbd>)</p>';
 			buf += '<p>``<code>code formatting</code>`` (<kbd>Ctrl</kbd> + <kbd>`</kbd>)</p>';
 			buf += '<p>~~<s>strikethrough</s>~~</p>';
 			buf += '<p>^^<sup>superscript</sup>^^</p>';
 			buf += '<p>\\\\<sub>subscript</sub>\\\\</p>';
 			buf += '<p><label class="checkbox"><input type="checkbox" name="greentext" ' + (cur.hidegreentext ? 'checked' : '') + ' /> Suppress <span class="greentext">&gt;' + ['meme arrows', 'greentext', 'quote formatting'][Math.floor(Math.random() * 3)] + '</span></label></p>';
-			buf += '<p><label class="checkbox"><input type="checkbox" name="me" ' + (cur.hideme ? 'checked' : '') + ' /> Suppress <kbd>/me</kbd> <em>action formatting</em></label></p>';
+			buf += '<p><label class="checkbox"><input type="checkbox" name="me" ' + (cur.hideme ? 'checked' : '') + ' /> Suppress <code>/me</code> <em>action formatting</em></label></p>';
 			buf += '<p><label class="checkbox"><input type="checkbox" name="spoiler" ' + (cur.hidespoiler ? 'checked' : '') + ' /> Auto-show spoilers: <span class="spoiler">these things</span></label></p>';
 			buf += '<p><label class="checkbox"><input type="checkbox" name="links" ' + (cur.hidelinks ? 'checked' : '') + ' /> Make [[clickable links]] unclickable</label></p>';
 			buf += '<p><label class="checkbox"><input type="checkbox" name="interstice"' + (cur.hideinterstice ? 'checked' : '') + ' /> Don\'t warn for untrusted links</label></p>';
