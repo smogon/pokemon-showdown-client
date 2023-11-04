@@ -34,7 +34,7 @@
 			var status = app.user.get('status');
 			var color = away ? 'color:#888;' : BattleLog.hashColor(app.user.get('userid'));
 			if (!app.user.loaded) {
-				buf = '<button disabled class="button disabled">Loading...</button>';
+				buf = '<button disabled class="button">Loading...</button>';
 			} else if (app.user.get('named')) {
 				buf = '<span class="username" data-name="' + BattleLog.escapeHTML(name) + '"' + (away ? ' data-away="true"' : '') + (status ? 'data-status="' + BattleLog.escapeHTML(status) + '"' : '') + ' style="' + color + '"><i class="fa fa-user" style="color:' + (away ? '#888;' : '#779EC5') + '"></i> <span class="usernametext">' + BattleLog.escapeHTML(name) + '</span></span>';
 			} else {

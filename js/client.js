@@ -2797,14 +2797,14 @@ function toId() {
 
 			buf += '<p class="buttonbar">';
 			if (userid === app.user.get('userid') || !app.user.get('named')) {
-				buf += '<button disabled class="button disabled">Challenge</button>';
+				buf += '<button disabled class="button">Challenge</button>';
 				if (userid === app.user.get('userid')) {
 					buf += ' <button name="pm" class="button">Chat self</button>';
 					buf += '</p><hr /><p class="buttonbar" style="text-align: right">';
 					buf += '<button name="login" class="button"><i class="fa fa-pencil"></i> Change name</button> <button name="logout" class="button"><i class="fa fa-power-off"></i> Log out</button>';
 				} else {
 					// Guests can't PM themselves
-					buf += ' <button disabled class="button disabled">Chat self</button>';
+					buf += ' <button disabled class="button">Chat self</button>';
 				}
 			} else {
 				buf += '<button name="challenge" class="button">Challenge</button> <button name="pm" class="button">Chat</button> <button name="userOptions" class="button">\u2026</button>';
@@ -2922,18 +2922,18 @@ function toId() {
 				buf += '<p class="error">Couldn\'t connect to server!</p>';
 				if (window.wiiu && document.location.protocol === 'https:') {
 					buf += '<p class="error">The Wii U does not support secure connections.</p>';
-					buf += '<p class="buttonbar"><button name="tryhttp" autofocus><strong>Connect insecurely</button> <button name="close">Work offline</button></p>';
+					buf += '<p class="buttonbar"><button name="tryhttp" class="button autofocus"><strong>Connect insecurely</button> <button name="close" class="button">Work offline</button></p>';
 				} else if (document.location.protocol === 'https:') {
-					buf += '<p class="buttonbar"><button type="submit"><strong>Retry</strong></button> <button name="tryhttp">Retry with HTTP</button> <button name="close">Work offline</button></p>';
+					buf += '<p class="buttonbar"><button type="submit" class="button"><strong>Retry</strong></button> <button name="tryhttp" class="button">Retry with HTTP</button> <button name="close">Work offline</button></p>';
 				} else {
-					buf += '<p class="buttonbar"><button type="submit"><strong>Retry</strong></button> <button name="close">Work offline</button></p>';
+					buf += '<p class="buttonbar"><button type="submit" class="button"><strong>Retry</strong></button> <button name="close" class="button">Work offline</button></p>';
 				}
 			} else if (data.message && data.message !== true) {
 				buf += '<p>' + data.message + '</p>';
-				buf += '<p class="buttonbar"><button type="submit" class="autofocus"><strong>Reconnect</strong></button> <button type="button" name="close">Work offline</button></p>';
+				buf += '<p class="buttonbar"><button type="submit" class="button autofocus"><strong>Reconnect</strong></button> <button type="button" name="close" class="button">Work offline</button></p>';
 			} else {
 				buf += '<p>You have been disconnected &ndash; possibly because the server was restarted.</p>';
-				buf += '<p class="buttonbar"><button type="submit" class="autofocus"><strong>Reconnect</strong></button> <button type="button" name="close">Work offline</button></p>';
+				buf += '<p class="buttonbar"><button type="submit" class="button autofocus"><strong>Reconnect</strong></button> <button type="button" name="close" class="button">Work offline</button></p>';
 			}
 
 			buf += '</form>';
@@ -2959,7 +2959,7 @@ function toId() {
 			buf += '<p>Please copy <strong>all the text</strong> from the box above and paste it in the box below.</p>';
 			buf += '<p>(You should probably <a href="https://github.com/smogon/pokemon-showdown-client#test-keys" target="_blank">set up</a> <code>config/testclient-key.js</code> so you don\'t have to do this every time.)</p>';
 			buf += '<p><label class="label" style="float: left;">Data from the box above:</label> <input style="width: 100%;" class="textbox autofocus" type="text" name="result" /></p>';
-			buf += '<p class="buttonbar"><button type="submit"><strong>Submit</strong></button> <button type="button" name="close">Cancel</button></p>';
+			buf += '<p class="buttonbar"><button type="submit" class="button"><strong>Submit</strong></button> <button type="button" name="close" class="button">Cancel</button></p>';
 			buf += '</form>';
 			this.$el.html(buf).css('min-width', 500);
 		},
@@ -2977,8 +2977,8 @@ function toId() {
 		initialize: function (data) {
 			var buf = '';
 			buf = '<p>Your replay has been uploaded! It\'s available at:</p>';
-			buf += '<p> <a class="replay-link" href="https://' + Config.routes.replays + '/' + data.id + '" target="_blank" class="no-panel-intercept">https://' + Config.routes.replays + '/' + data.id + '</a> <button name="copyReplayLink">Copy</button></p>';
-			buf += '<p><button class="autofocus" name="close">Close</button><p>';
+			buf += '<p> <a class="replay-link" href="https://' + Config.routes.replays + '/' + data.id + '" target="_blank" class="no-panel-intercept">https://' + Config.routes.replays + '/' + data.id + '</a> <button name="copyReplayLink" class="button">Copy</button></p>';
+			buf += '<p><button class="autofocus button" name="close">Close</button><p>';
 			this.$el.html(buf).css('max-width', 620);
 		},
 		clickClose: function () {
@@ -3033,11 +3033,11 @@ function toId() {
 					'<p>This policy is less restrictive than that of many places, so you might see some "borderline" nicknames that might not be accepted elsewhere. You might consider it unfair that they are allowed to keep their nickname. The fact remains that their nickname follows the above rules, and if you were asked to choose a new name, yours does not.</p>';
 			}
 			if (warning) {
-				buf += '<p class="buttonbar"><button name="close" disabled>Close</button><small class="overlay-warn"> You will be able to close this in 5 seconds</small></p>';
+				buf += '<p class="buttonbar"><button name="close" disabled class="button">Close</button><small class="overlay-warn"> You will be able to close this in 5 seconds</small></p>';
 				setTimeout(_.bind(this.rulesTimeout, this), 5000);
 			} else {
 				this.type = 'semimodal';
-				buf += '<p class="buttonbar"><button name="close" class="autofocus">Close</button></p>';
+				buf += '<p class="buttonbar"><button name="close" class="autofocus button">Close</button></p>';
 			}
 			this.$el.css('max-width', 760).html(buf);
 		},

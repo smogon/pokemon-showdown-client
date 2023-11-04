@@ -614,7 +614,7 @@
 					}
 
 					if (disabled) {
-						targetMenus[0] += '<button disabled="disabled"></button> ';
+						targetMenus[0] += '<button disabled></button> ';
 					} else if (!pokemon || pokemon.fainted) {
 						targetMenus[0] += '<button name="chooseMoveTarget" value="' + (i + 1) + '"><span class="picon" style="' + Dex.getPokemonIcon('missingno') + '"></span></button> ';
 					} else {
@@ -634,7 +634,7 @@
 					if (moveTarget !== 'adjacentAllyOrSelf' && activePos == i) disabled = true;
 
 					if (disabled) {
-						targetMenus[1] += '<button disabled="disabled" style="visibility:hidden"></button> ';
+						targetMenus[1] += '<button disabled style="visibility:hidden"></button> ';
 					} else if (!pokemon || pokemon.fainted) {
 						targetMenus[1] += '<button name="chooseMoveTarget" value="' + (-(i + 1)) + '"><span class="picon" style="' + Dex.getPokemonIcon('missingno') + '"></span></button> ';
 					} else {
@@ -672,7 +672,7 @@
 					var moveType = this.tooltips.getMoveType(move, typeValueTracker)[0];
 					var tooltipArgs = 'move|' + moveData.move + '|' + pos;
 					if (moveData.disabled) {
-						movebuttons += '<button disabled="disabled" class="has-tooltip" data-tooltip="' + BattleLog.escapeHTML(tooltipArgs) + '">';
+						movebuttons += '<button disabled class="has-tooltip" data-tooltip="' + BattleLog.escapeHTML(tooltipArgs) + '">';
 					} else {
 						movebuttons += '<button class="type-' + moveType + ' has-tooltip" name="chooseMove" value="' + (i + 1) + '" data-move="' + BattleLog.escapeHTML(moveData.move) + '" data-target="' + BattleLog.escapeHTML(moveData.target) + '" data-tooltip="' + BattleLog.escapeHTML(tooltipArgs) + '">';
 						hasMoves = true;
@@ -712,7 +712,7 @@
 								}
 								movebuttons += specialMove.name + '<br /><small class="type">' + (moveType ? Dex.types.get(moveType).name : "Unknown") + '</small> <small class="pp">' + pp + '</small>&nbsp;</button> ';
 							} else {
-								movebuttons += '<button disabled="disabled">&nbsp;</button>';
+								movebuttons += '<button disabled>&nbsp;</button>';
 							}
 						}
 						if (!currentlyDynamaxed) movebuttons += '</div>';
@@ -910,7 +910,7 @@
 				var pokemon = switchables[oIndex];
 				var tooltipArgs = 'switchpokemon|' + oIndex;
 				if (i < this.choice.done) {
-					switchMenu += '<button disabled="disabled" class="has-tooltip" data-tooltip="' + BattleLog.escapeHTML(tooltipArgs) + '"><span class="picon" style="' + Dex.getPokemonIcon(pokemon) + '"></span>' + BattleLog.escapeHTML(pokemon.name) + '</button> ';
+					switchMenu += '<button disabled class="has-tooltip" data-tooltip="' + BattleLog.escapeHTML(tooltipArgs) + '"><span class="picon" style="' + Dex.getPokemonIcon(pokemon) + '"></span>' + BattleLog.escapeHTML(pokemon.name) + '</button> ';
 				} else {
 					switchMenu += '<button name="chooseTeamPreview" value="' + i + '" class="has-tooltip" data-tooltip="' + BattleLog.escapeHTML(tooltipArgs) + '"><span class="picon" style="' + Dex.getPokemonIcon(pokemon) + '"></span>' + BattleLog.escapeHTML(pokemon.name) + '</button> ';
 				}
