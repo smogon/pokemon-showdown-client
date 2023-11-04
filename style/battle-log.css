@@ -57,6 +57,10 @@ button, summary {
 	cursor: pointer;
 	touch-action: manipulation;
 }
+button:disabled {
+	cursor: default;
+}
+
 .button {
 	cursor: pointer;
 	text-align: center;
@@ -96,30 +100,6 @@ select.button {
 	background: linear-gradient(to bottom,  #bfbfbf,  #f2f2f2);
 }
 
-.button.disabled,
-.button.disabled:hover,
-.button.disabled:active,
-.button:disabled,
-.button:disabled:hover,
-.button:disabled:active,
-.button.cur,
-.button.cur:hover {
-	cursor: default;
-	background: #EEEEEE;
-	border: 1px solid #CCCCCC;
-	color: #999999;
-	text-shadow: none;
-	box-shadow: 0 1px 2px rgba(0,0,0,.1);
-}
-.button.cur,
-.button.cur:hover {
-	color: #444444;
-}
-
-button:disabled {
-	cursor: default;
-}
-
 .button.notifying {
 	border-color: #AA8866;
 	background: #e3c3a3;
@@ -150,6 +130,26 @@ button:disabled {
 }
 .button.subtle-notifying {
 	color: #AA6600;
+}
+
+.button.disabled,
+.button.disabled:hover,
+.button.disabled:active,
+.button:disabled,
+.button:disabled:hover,
+.button:disabled:active,
+.button.cur,
+.button.cur:hover {
+	cursor: default;
+	background: #EEEEEE;
+	border: 1px solid #CCCCCC;
+	color: #999999;
+	text-shadow: none;
+	box-shadow: 0 1px 2px rgba(0,0,0,.1);
+}
+.button.cur,
+.button.cur:hover {
+	color: #444444;
 }
 
 .button-first, .button-middle {
@@ -187,23 +187,6 @@ button:disabled {
 	background: linear-gradient(to bottom, #2b2c31, #4e525a);
 	border-color: #34373b;
 	box-shadow: 0.5px 1px 2px rgba(255, 255, 255, 0.45);
-}
-.dark .button.disabled,
-.dark .button.disabled:hover,
-.dark .button.disabled:active,
-.dark .button:disabled,
-.dark .button:disabled:hover,
-.dark .button:disabled:active,
-.dark .button.cur,
-.dark .button.cur:hover {
-	background: #555555;
-	border-color: #34373b;
-	box-shadow: 0.5px 1px 2px rgba(255, 255, 255, 0.45);
-	color: #999999;
-}
-.dark .button.cur,
-.dark .button.cur:hover {
-	color: #E9E9E9;
 }
 .dark .button option,
 .dark .button optgroup {
@@ -248,6 +231,24 @@ button:disabled {
 }
 .dark .button.subtle-notifying {
 	color: #72bcda;
+}
+
+.dark .button.disabled,
+.dark .button.disabled:hover,
+.dark .button.disabled:active,
+.dark .button:disabled,
+.dark .button:disabled:hover,
+.dark .button:disabled:active,
+.dark .button.cur,
+.dark .button.cur:hover {
+	background: #555555;
+	border-color: #34373b;
+	box-shadow: 0.5px 1px 2px rgba(255, 255, 255, 0.45);
+	color: #999999;
+}
+.dark .button.cur,
+.dark .button.cur:hover {
+	color: #E9E9E9;
 }
 
 /*********************************************************
