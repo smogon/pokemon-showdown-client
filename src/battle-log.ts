@@ -261,11 +261,11 @@ export class BattleLog {
 
 		case 'showteam': {
 			if (!battle) return;
-			const team = battle.unpackTeam(args[2]);
+			const team = Teams.unpack(args[2]);
 			if (!team.length) return;
 			const side = battle.getSide(args[1]);
 			const exportedTeam = team.map(set => {
-				let buf = battle.exportTeam([set]).replace(/\n/g, '<br />');
+				let buf = Teams.export([set], battle.gen).replace(/\n/g, '<br />');
 				if (set.name && set.name !== set.species) {
 					buf = buf.replace(set.name, BattleLog.sanitizeHTML(`<span class="picon" style="${Dex.getPokemonIcon(set.species)}"></span><br />${set.name}`));
 				} else {
