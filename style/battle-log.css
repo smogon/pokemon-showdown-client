@@ -163,6 +163,9 @@ button:disabled {
 	text-shadow: none;
 	color: #F9F9F9;
 }
+.dark select.button {
+	background-color: #2b2c31 !important;
+}
 .dark .button:hover {
 	background: #3e4149;
 	background: linear-gradient(to bottom, #646877, #3e4149);
