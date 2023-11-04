@@ -2924,7 +2924,7 @@ function toId() {
 					buf += '<p class="error">The Wii U does not support secure connections.</p>';
 					buf += '<p class="buttonbar"><button name="tryhttp" class="button autofocus"><strong>Connect insecurely</button> <button name="close" class="button">Work offline</button></p>';
 				} else if (document.location.protocol === 'https:') {
-					buf += '<p class="buttonbar"><button type="submit" class="button"><strong>Retry</strong></button> <button name="tryhttp" class="button">Retry with HTTP</button> <button name="close">Work offline</button></p>';
+					buf += '<p class="buttonbar"><button type="submit" class="button"><strong>Retry</strong></button> <button name="tryhttp" class="button">Retry with HTTP</button> <button name="close" class="button">Work offline</button></p>';
 				} else {
 					buf += '<p class="buttonbar"><button type="submit" class="button"><strong>Retry</strong></button> <button name="close" class="button">Work offline</button></p>';
 				}
