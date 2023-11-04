@@ -14,7 +14,7 @@ Helpチャットルームでは、ほとんどの問題を解決できます。�
 
 スタッフへの連絡は、以下のメールアドレスを利用してください。<strong>悪質なユーザーの通報は`/report`を利用してください。なお、英語のみに対応しています。ENGLISH ONLY!</strong>
 
-> <kbd>st</kbd><kbd>aff@pok</kbd><kbd>emonshowdown.com</kbd>
+> <tt>st</tt><tt>aff@pok</tt><tt>emonshowdown.com</tt>
 
 ### ちょっとした質問集
 

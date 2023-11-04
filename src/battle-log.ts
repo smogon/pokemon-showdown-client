@@ -83,6 +83,7 @@ export class BattleLog {
 	}
 	destroy() {
 		this.elem.onscroll = null;
+		this.elem.innerHTML = '';
 	}
 	addSeekEarlierButton() {
 		if (this.skippedLines) return;

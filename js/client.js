@@ -2546,7 +2546,7 @@ function toId() {
 		},
 		initialize: function (data) {
 			if (!this.type) this.type = 'semimodal';
-			this.$el.html('<form><p style="white-space:pre-wrap;word-wrap:break-word">' + (data.htmlMessage || BattleLog.parseMessage(data.message)) + '</p><p class="buttonbar">' + (data.buttons || '<button type="button" name="close" class="autofocus" class="button"><strong>OK</strong></button>') + '</p></form>').css('max-width', data.maxWidth || 480);
+			this.$el.html('<form><p style="white-space:pre-wrap;word-wrap:break-word">' + (data.htmlMessage || BattleLog.parseMessage(data.message)) + '</p><p class="buttonbar">' + (data.buttons || '<button type="button" name="close" class="button autofocus"><strong>OK</strong></button>') + '</p></form>').css('max-width', data.maxWidth || 480);
 		},
 
 		dispatchClickButton: function (e) {
@@ -2924,7 +2924,7 @@ function toId() {
 					buf += '<p class="error">The Wii U does not support secure connections.</p>';
 					buf += '<p class="buttonbar"><button name="tryhttp" class="button autofocus"><strong>Connect insecurely</button> <button name="close" class="button">Work offline</button></p>';
 				} else if (document.location.protocol === 'https:') {
-					buf += '<p class="buttonbar"><button type="submit" class="button"><strong>Retry</strong></button> <button name="tryhttp" class="button">Retry with HTTP</button> <button name="close">Work offline</button></p>';
+					buf += '<p class="buttonbar"><button type="submit" class="button"><strong>Retry</strong></button> <button name="tryhttp" class="button">Retry with HTTP</button> <button name="close" class="button">Work offline</button></p>';
 				} else {
 					buf += '<p class="buttonbar"><button type="submit" class="button"><strong>Retry</strong></button> <button name="close" class="button">Work offline</button></p>';
 				}
@@ -2978,7 +2978,7 @@ function toId() {
 			var buf = '';
 			buf = '<p>Your replay has been uploaded! It\'s available at:</p>';
 			buf += '<p> <a class="replay-link" href="https://' + Config.routes.replays + '/' + data.id + '" target="_blank" class="no-panel-intercept">https://' + Config.routes.replays + '/' + data.id + '</a> <button name="copyReplayLink" class="button">Copy</button></p>';
-			buf += '<p><button class="autofocus button" name="close">Close</button><p>';
+			buf += '<p><button class="button autofocus" name="close">Close</button><p>';
 			this.$el.html(buf).css('max-width', 620);
 		},
 		clickClose: function () {
@@ -3037,7 +3037,7 @@ function toId() {
 				setTimeout(_.bind(this.rulesTimeout, this), 5000);
 			} else {
 				this.type = 'semimodal';
-				buf += '<p class="buttonbar"><button name="close" class="autofocus button">Close</button></p>';
+				buf += '<p class="buttonbar"><button name="close" class="button autofocus">Close</button></p>';
 			}
 			this.$el.css('max-width', 760).html(buf);
 		},

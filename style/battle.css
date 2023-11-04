@@ -5,7 +5,7 @@ License: GPLv2
 
 */
 
-@import url(./battle-log.css?v6);
+@import url(./battle-log.css?v6.4);
 
 .battle {
 	position: absolute;
@@ -778,6 +778,7 @@ License: GPLv2
 	margin: 0;
 	border-bottom: 1px solid #888888;
 	font-size: 10pt;
+	color: black;
 }
 #tooltipwrapper .tooltip h2 small {
 	font-weight: normal;

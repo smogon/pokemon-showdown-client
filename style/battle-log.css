@@ -82,6 +82,11 @@ button, summary {
 select.button {
 	text-align: left;
 }
+.button option,
+.button optgroup {
+	background: #f6f6f6;
+	color: #222222;
+}
 .button:hover {
 	background: #cfcfcf;
 	background: linear-gradient(to bottom,  #f2f2f2,  #b2b2b2);
@@ -96,13 +101,19 @@ select.button {
 .button.disabled:active,
 .button:disabled,
 .button:disabled:hover,
-.button:disabled:active {
+.button:disabled:active,
+.button.cur,
+.button.cur:hover {
 	cursor: default;
 	background: #EEEEEE;
 	border: 1px solid #CCCCCC;
 	color: #999999;
 	text-shadow: none;
 	box-shadow: 0 1px 2px rgba(0,0,0,.1);
+}
+.button.cur,
+.button.cur:hover {
+	color: #444444;
 }
 
 button:disabled {
@@ -154,6 +165,9 @@ button:disabled {
 	/* puts the right-border over the left border of the button to the right of it */
 	position: relative;
 }
+.button-first.cur:hover, .button-middle.cur:hover {
+	position: static;
+}
 
 .dark .button {
 	background: #2b2c31;
@@ -172,18 +186,34 @@ button:disabled {
 	background: #2b2c31;
 	background: linear-gradient(to bottom, #2b2c31, #4e525a);
 	border-color: #34373b;
-	box-shadow: none;
+	box-shadow: 0.5px 1px 2px rgba(255, 255, 255, 0.45);
 }
 .dark .button.disabled,
 .dark .button.disabled:hover,
 .dark .button.disabled:active,
 .dark .button:disabled,
 .dark .button:disabled:hover,
-.dark .button:disabled:active {
+.dark .button:disabled:active,
+.dark .button.cur,
+.dark .button.cur:hover {
 	background: #555555;
 	border-color: #34373b;
 	box-shadow: 0.5px 1px 2px rgba(255, 255, 255, 0.45);
 	color: #999999;
+}
+.dark .button.cur,
+.dark .button.cur:hover {
+	color: #E9E9E9;
+}
+.dark .button option,
+.dark .button optgroup {
+	/* Chrome/Win does this thing where it takes <select> styling and applies it
+	to options, which would be cool except it of course can't handle gradient
+	backgrounds, and also can't fall back to the last non-gradient background,
+	ending up with white text on the default white background. Very fortunately,
+	styling <option> fixes this. */
+	background: #2b2c31;
+	color: #F9F9F9;
 }
 
 .dark .button.notifying {
