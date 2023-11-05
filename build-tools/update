@@ -100,7 +100,7 @@ if (process.argv[2] === 'full') {
 
 compiledFiles += compiler.compileToDir(`src`, `js`, compileOpts);
 
-compiledFiles += compiler.compileToDir(`website/replays/src`, `website/replays/js`, compileOpts);
+compiledFiles += compiler.compileToDir(`replay.pokemonshowdown.com/src`, `replay.pokemonshowdown.com/js`, compileOpts);
 
 compiledFiles += compiler.compileToFile(
 	['src/battle-dex.ts', 'src/battle-dex-data.ts', 'src/battle-log.ts', 'src/battle-log-misc.js', 'data/pokemon-showdown/server/chat-formatter.ts', 'data/text.js', 'src/battle-text-parser.ts'],
@@ -149,7 +149,7 @@ function updateURL(a, b, c, d) {
 			// hardcoded to Replays rn; TODO: generalize
 			let hash;
 			try {
-				const fstr = fs.readFileSync('website/replays/' + c, {encoding: 'utf8'});
+				const fstr = fs.readFileSync('replay.pokemonshowdown.com/' + c, {encoding: 'utf8'});
 				hash = crypto.createHash('md5').update(fstr).digest('hex').substr(0, 8);
 			} catch (e) {}
 
@@ -166,9 +166,9 @@ function writeFiles(indexContents, preactIndexContents, crossprotocolContents, r
 	fs.writeFileSync('crossprotocol.html', crossprotocolContents);
 	fs.writeFileSync('js/replay-embed.js', replayEmbedContents);
 
-	let replaysContents = fs.readFileSync('website/replays/index.template.html', {encoding: 'utf8'});
+	let replaysContents = fs.readFileSync('replay.pokemonshowdown.com/index.template.html', {encoding: 'utf8'});
 	replaysContents = replaysContents.replace(URL_REGEX, updateURL);
-	fs.writeFileSync('website/replays/index.html', replaysContents);
+	fs.writeFileSync('replay.pokemonshowdown.com/index.html', replaysContents);
 
 	console.log("DONE");
 }

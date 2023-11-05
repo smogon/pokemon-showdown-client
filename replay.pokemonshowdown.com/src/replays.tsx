@@ -26,7 +26,7 @@ class SearchPanel extends preact.Component<{id: string}> {
   loggedInUserIsSysop = false;
   sort = 'date';
   override componentDidMount() {
-    Net('check-login.php').get().then(result => {
+    Net('/check-login.php').get().then(result => {
       if (result.charAt(0) !== ']') return;
       const [userid, sysop] = result.slice(1).split(',');
       this.loggedInUser = userid;
@@ -262,7 +262,7 @@ class FeaturedReplays extends preact.Component {
           <strong>kdarewolf</strong> vs. <strong>Onox</strong>
           <small><br />Protean + prediction</small>
         </a></li>
-        <li><a href="anythinggoes-218380995" class="blocklink">
+        <li><a href="anythinggoes-218380995?p2" class="blocklink">
           <small>[gen6-anythinggoes]<br /></small>
           <strong>Anta2</strong> vs. <strong>dscottnew</strong>
           <small><br />Cheek Pouch</small>

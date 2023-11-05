@@ -65,6 +65,21 @@ class Replays {
 
 		return $replay;
 	}
+	function exists($id, $forcecache = false) {
+		if ($forcecache) return null;
+
+		if (!$this->db) {
+			$this->init();
+		}
+
+		$res = $this->db->prepare("SELECT id, password FROM ps_replays WHERE id = ? LIMIT 1");
+		$res->execute([$id]);
+		if (!$res) return null;
+		$replay = $res->fetch();
+		if (!$replay) return null;
+
+		return $replay;
+	}
 	function edit(&$replay) {
 		if ($replay['private'] === 3) {
 			$replay['private'] = 3;

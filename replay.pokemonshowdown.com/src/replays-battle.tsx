@@ -3,9 +3,9 @@ import preact from 'preact';
 import $ from 'jquery';
 import {Net} from './utils';
 import {PSRouter} from './replays';
-import {Battle} from '../../../src/battle';
-import {BattleLog} from '../../../src/battle-log';
-import {BattleSound} from '../../../src/battle-sound';
+import {Battle} from '../../src/battle';
+import {BattleLog} from '../../src/battle-log';
+import {BattleSound} from '../../src/battle-sound';
 declare function toID(input: string): string;
 
 function showAd(id: string) {
@@ -94,7 +94,7 @@ export class BattlePanel extends preact.Component<{id: string}> {
     this.battle = null;
     this.result = undefined;
 
-    Net(`https://replay.pokemonshowdown.com/${this.stripQuery(id)}.json`).get().then(result => {
+    Net(`/${this.stripQuery(id)}.json`).get().then(result => {
       const replay: NonNullable<BattlePanel['result']> = JSON.parse(result);
       this.result = replay;
       const $base = $(this.base!);
