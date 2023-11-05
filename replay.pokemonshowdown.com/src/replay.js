@@ -1,3 +1,5 @@
+// preserved for replay management
+
 /* function updateProgress(done, a, b)
 {
 	if (!battle.paused) return;
