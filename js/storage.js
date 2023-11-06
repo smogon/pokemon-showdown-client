@@ -597,6 +597,7 @@ Storage.compareTeams = function (serverTeam, localTeam) {
 		for (var j = 0; j < otherMons.length; j++) {
 			if (toID(otherMons[j].species) === toID(mons[i])) {
 				matches++;
+				break;
 			}
 		}
 	}
