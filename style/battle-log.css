@@ -43,6 +43,13 @@
 	background: rgba(30, 40, 50, .5);
 	color: #7799BB;
 }
+.dark .blocklink.battleform {
+	box-shadow: none;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+    border-color: #2c3d4d;
+    background: rgba(20, 30, 40, 0.7);
+    color: #7ab;
+}
 .dark .blocklink:hover {
 	border-color: #AACCEE;
 	background: rgba(30, 40, 50, 1);
