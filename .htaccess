@@ -91,7 +91,7 @@ RewriteCond %{HTTP_HOST} ^www\.play\.pokemonshowdown\.com$ [NC]
 RewriteRule ^(.*) https://play.pokemonshowdown.com/$1 [R=301,L]
 
 RewriteRule ^style/fonts?/.*?\.(eot|svg|ttf|woff|woff2)$ - [E=SAFE_RESOURCE:1]
-RewriteRule ^data/(moves|abilities|learnsets).json$ - [E=SAFE_RESOURCE:1]
+RewriteRule ^data\/\w*?\.js(on)?$ - [E=SAFE_RESOURCE:1]
 Header set Access-Control-Allow-Origin * env=SAFE_RESOURCE
 
 # Redirect old battles to their corresponding replay
