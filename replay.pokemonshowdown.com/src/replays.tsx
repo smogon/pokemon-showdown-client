@@ -26,7 +26,7 @@ class SearchPanel extends preact.Component<{id: string}> {
   loggedInUserIsSysop = false;
   sort = 'date';
   override componentDidMount() {
-    Net('check-login.php').get().then(result => {
+    Net('/check-login.php').get().then(result => {
       if (result.charAt(0) !== ']') return;
       const [userid, sysop] = result.slice(1).split(',');
       this.loggedInUser = userid;
@@ -35,7 +35,8 @@ class SearchPanel extends preact.Component<{id: string}> {
     });
     this.updateSearch(Net.decodeQuery(this.props.id));
   }
-  override componentDidUpdate() {
+  override componentDidUpdate(previousProps: this['props']) {
+    if (this.props.id === previousProps.id) return;
     const query = Net.decodeQuery(this.props.id);
     const page = parseInt(query.page || '1');
     const byRating = (query.sort === 'rating');
@@ -111,7 +112,7 @@ class SearchPanel extends preact.Component<{id: string}> {
     });
   }
   modLink(overrides: {page?: number, sort?: string}) {
-    const newPage = this.page + (overrides.page || 0);
+    const newPage = (overrides.page !== undefined ? this.page + overrides.page : 1);
     return './?' + Net.encodeQuery({
       user: this.user || undefined,
       format: this.format || undefined,
@@ -185,46 +186,56 @@ class SearchPanel extends preact.Component<{id: string}> {
         </a>
       </li>))}
     </ul>;
-    return <div class={PSRouter.showingRight() ? 'sidebar' : ''}><section class="section first-section">
-      <h1>Search replays</h1>
-      <form onSubmit={this.submitForm}>
-        <p>
-          <label>Username:<br />
-          <input type="search" class="textbox" name="user" placeholder="(blank = any user)" size={20} /> {}
-          {this.loggedInUser && <button type="button" class="button" onClick={this.searchLoggedIn}>{this.loggedInUser}'s replays</button>}</label>
-        </p>
-        <p>
-          <label>Format:<br />
-          <input type="search" class="textbox" name="format" placeholder="(blank = any format)" size={30} /></label>
-        </p>
-        <p>
-          <label class="checkbox inline"><input type="radio" name="private" value="" /> Public</label> {}
-          <label class="checkbox inline"><input type="radio" name="private" value="1" /> Private (your own replays only)</label>
-        </p>
-        <p>
-          <button type="submit" class="button"><i class="fa fa-search" aria-hidden></i> <strong>Search</strong></button> {}
-          {activelySearching && <button class="button" onClick={this.cancelForm}>Cancel</button>}
-        </p>
-        {activelySearching && <h1 aria-label="Results"></h1>}
-        {activelySearching && this.format && !this.user && <p>
-          Sort by: {}
-          <a href={this.modLink({sort: 'date', page: 1})} class={`button button-first${this.byRating ? '' : ' disabled'}`}>Date</a>
-          <a href={this.modLink({sort: 'rating', page: 1})} class={`button button-last${this.byRating ? ' disabled' : ''}`}>Rating</a>
-        </p>}
-        {activelySearching && this.page > 1 && <p class="pagelink">
-          <a href={this.modLink({page: -1})} class="button"><i class="fa fa-caret-up"></i><br />Page {this.page - 1}</a>
-        </p>}
-        {activelySearching && searchResults}
-        {activelySearching && (this.results?.length || 0) > 50 && <p class="pagelink">
-          <a href={this.modLink({page: 1})} class="button">Page {this.page + 1}<br /><i class="fa fa-caret-down"></i></a>
-        </p>}
-      </form>
-    </section>{!activelySearching && <FeaturedReplays />}{!activelySearching && <section class="section">
-      <h1>Recent replays</h1>
-      <ul class="linklist">
-        {searchResults}
-      </ul>
-    </section>}</div>;
+    return <div class={PSRouter.showingRight() ? 'sidebar' : ''}>
+      <section class="section first-section">
+        <h1>Search replays</h1>
+        <form onSubmit={this.submitForm}>
+          <p>
+            <label>
+              Username:<br />
+              <input type="search" class="textbox" name="user" placeholder="(blank = any user)" size={20} /> {}
+              {this.loggedInUser && <button type="button" class="button" onClick={this.searchLoggedIn}>{this.loggedInUser}'s replays</button>}
+            </label>
+          </p>
+          <p>
+            <label>Format:<br />
+            <input type="search" class="textbox" name="format" placeholder="(blank = any format)" size={30} /></label>
+          </p>
+          <p>
+            <label class="checkbox inline"><input type="radio" name="private" value="" /> Public</label> {}
+            <label class="checkbox inline"><input type="radio" name="private" value="1" /> Private (your own replays only)</label>
+          </p>
+          <p>
+            <button type="submit" class="button"><i class="fa fa-search" aria-hidden></i> <strong>Search</strong></button> {}
+            {activelySearching && <button class="button" onClick={this.cancelForm}>Cancel</button>}
+          </p>
+          {activelySearching && <h1 aria-label="Results"></h1>}
+          {activelySearching && this.format && !this.user && <p>
+            Sort by: {}
+            <a href={this.modLink({sort: 'date'})} class={`button button-first${this.byRating ? '' : ' disabled'}`}>
+              Date
+            </a>
+            <a href={this.modLink({sort: 'rating'})} class={`button button-last${this.byRating ? ' disabled' : ''}`}>
+              Rating
+            </a>
+          </p>}
+          {activelySearching && this.page > 1 && <p class="pagelink">
+            <a href={this.modLink({page: -1})} class="button"><i class="fa fa-caret-up"></i><br />Page {this.page - 1}</a>
+          </p>}
+          {activelySearching && searchResults}
+          {activelySearching && (this.results?.length || 0) > 50 && <p class="pagelink">
+            <a href={this.modLink({page: 1})} class="button">Page {this.page + 1}<br /><i class="fa fa-caret-down"></i></a>
+          </p>}
+        </form>
+      </section>
+      {!activelySearching && <FeaturedReplays />}
+      {!activelySearching && <section class="section">
+        <h1>Recent replays</h1>
+        <ul class="linklist">
+          {searchResults}
+        </ul>
+      </section>}
+    </div>;
   }
 }
 
@@ -251,7 +262,7 @@ class FeaturedReplays extends preact.Component {
           <strong>kdarewolf</strong> vs. <strong>Onox</strong>
           <small><br />Protean + prediction</small>
         </a></li>
-        <li><a href="anythinggoes-218380995" class="blocklink">
+        <li><a href="anythinggoes-218380995?p2" class="blocklink">
           <small>[gen6-anythinggoes]<br /></small>
           <strong>Anta2</strong> vs. <strong>dscottnew</strong>
           <small><br />Cheek Pouch</small>
@@ -451,8 +462,8 @@ class PSReplays extends preact.Component {
 preact.render(<PSReplays />, document.getElementById('main')!);
 
 if (window.matchMedia?.('(prefers-color-scheme: dark)').matches) {
-  document.body.className = 'dark';
+  document.documentElement.className = 'dark';
 }
 window.matchMedia?.('(prefers-color-scheme: dark)').addEventListener('change', event => {
-  document.body.className = event.matches ? "dark" : "";
+  document.documentElement.className = event.matches ? "dark" : "";
 });

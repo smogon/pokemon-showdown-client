@@ -3,9 +3,9 @@ import preact from 'preact';
 import $ from 'jquery';
 import {Net} from './utils';
 import {PSRouter} from './replays';
-import {Battle} from '../../../src/battle';
-import {BattleLog} from '../../../src/battle-log';
-import {BattleSound} from '../../../src/battle-sound';
+import {Battle} from '../../src/battle';
+import {BattleLog} from '../../src/battle-log';
+import {BattleSound} from '../../src/battle-sound';
 declare function toID(input: string): string;
 
 function showAd(id: string) {
@@ -72,7 +72,8 @@ export class BattlePanel extends preact.Component<{id: string}> {
   } | null | undefined = undefined;
   battle: Battle | null;
   speed = 'normal';
-  keyCode = '0';
+  /** debug purposes */
+  lastUsedKeyCode = '0';
   turnView: boolean | string = false;
   autofocusTurnView: 'select' | 'end' | null = null;
   override componentDidMount() {
@@ -93,7 +94,7 @@ export class BattlePanel extends preact.Component<{id: string}> {
     this.battle = null;
     this.result = undefined;
 
-    Net(`https://replay.pokemonshowdown.com/${this.stripQuery(id)}.json`).get().then(result => {
+    Net(`/${this.stripQuery(id)}.json`).get().then(result => {
       const replay: NonNullable<BattlePanel['result']> = JSON.parse(result);
       this.result = replay;
       const $base = $(this.base!);
@@ -143,7 +144,8 @@ export class BattlePanel extends preact.Component<{id: string}> {
   }
   keyPressed = (e: KeyboardEvent) => {
     // @ts-ignore
-    this.keyCode = `${e.keyCode}`;
+    this.lastUsedKeyCode = `${e.keyCode}`;
+    if (e.ctrlKey || e.metaKey || e.altKey) return;
     if (e.keyCode === 27 && this.turnView) { // Esc
       this.closeTurn();
       return;
@@ -190,8 +192,8 @@ export class BattlePanel extends preact.Component<{id: string}> {
         );
       }
       break;
-    case 48: case 49: case 50: case 51: case 52: case 53: case 54: case 55: case 56: case 57:
-    case 96: case 97: case 98: case 99: case 100: case 101: case 102: case 103: case 104: case 105:
+    case 48: case 49: case 50: case 51: case 52: case 53: case 54: case 55: case 56: case 57: // 0-9
+    case 96: case 97: case 98: case 99: case 100: case 101: case 102: case 103: case 104: case 105: // numpad 0-9
       this.turnView = String.fromCharCode(e.keyCode - (e.keyCode >= 96 ? 48 : 0));
       if (this.turnView === '0') this.turnView = '10';
       this.autofocusTurnView = 'end';
@@ -355,7 +357,7 @@ export class BattlePanel extends preact.Component<{id: string}> {
     </section></div>;
   }
   renderControls() {
-    const atEnd = this.battle?.atQueueEnd;
+    const atEnd = !this.battle || this.battle.atQueueEnd;
     const atStart = !this.battle?.started;
 
     if (this.turnView) {
@@ -367,38 +369,41 @@ export class BattlePanel extends preact.Component<{id: string}> {
           <button type="submit" class="button"><strong>Go</strong></button> {}
           <button type="button" class="button" onClick={this.closeTurn}>Cancel</button>
         </form>
+        <p>
+          <em>Pro tip:</em> You don't need to click "Skip to turn" if you have a keyboard, just start typing the turn number and press <kbd>Enter</kbd>. For more shortcuts, press <kbd>Shift</kbd>+<kbd>/</kbd> when a text box isn't focused.
+        </p>
       </section></div>;
     }
 
     return <div class="replay-controls">
       <p>
-        {atEnd ?
-          <button onClick={this.replay} class="button" style={{width: '5em'}}>
+        {atEnd && this.battle ?
+          <button onClick={this.replay} class="button" style={{width: '5em', marginRight: '3px'}}>
             <i class="fa fa-undo"></i><br />Replay
           </button>
-        : this.battle?.paused ?
-          <button onClick={this.play} class="button" style={{width: '5em'}}>
-            <i class="fa fa-play"></i><br />Play
+        : (!this.battle || this.battle.paused) ?
+          <button onClick={this.play} class="button" disabled={!this.battle} style={{width: '5em', marginRight: '3px'}}>
+            <i class="fa fa-play"></i><br /><strong>Play</strong>
           </button>
         :
-          <button onClick={this.pause} class="button" style={{width: '5em'}}>
-            <i class="fa fa-pause"></i><br />Pause
+          <button onClick={this.pause} class="button" style={{width: '5em', marginRight: '3px'}}>
+            <i class="fa fa-pause"></i><br /><strong>Pause</strong>
           </button>
         } {}
-        <button class={"button button-first" + (atStart ? " disabled" : "")} onClick={this.firstTurn}>
+        <button class="button button-first" disabled={atStart} onClick={this.firstTurn}>
           <i class="fa fa-fast-backward"></i><br />First turn
         </button>
-        <button class={"button button-middle" + (atStart ? " disabled" : "")} onClick={this.prevTurn}>
+        <button class="button button-first" disabled={atStart} style={{marginLeft:'1px',position:'relative',zIndex:'1'}} onClick={this.prevTurn}>
           <i class="fa fa-step-backward"></i><br />Prev turn
         </button>
-        <button class={"button button-middle" + (atEnd ? " disabled" : "")} onClick={this.nextTurn}>
+        <button class="button button-last" disabled={atEnd} style={{marginRight:'2px'}} onClick={this.nextTurn}>
           <i class="fa fa-step-forward"></i><br />Skip turn
         </button>
-        <button class={"button button-last" + (atEnd ? " disabled" : "")} onClick={this.lastTurn}>
+        <button class="button button-last" disabled={atEnd} onClick={this.lastTurn}>
           <i class="fa fa-fast-forward"></i><br />Skip to end
         </button> {}
         <button class="button" onClick={this.openTurn}>
-          <i class="fa fa-repeat"></i> Skip to turn...
+          <i class="fa fa-repeat"></i> Go to turn...
         </button>
       </p>
       <p>
@@ -422,7 +427,7 @@ export class BattlePanel extends preact.Component<{id: string}> {
         <label class="optgroup">
           Viewpoint:<br />
           <button onClick={this.switchViewpoint} class={this.battle ? 'button' : 'button disabled'}>
-            {(this.battle?.viewpointSwitched ? this.result?.p2 : this.result?.p1)} {}
+            {(this.battle?.viewpointSwitched ? this.result?.p2 : this.result?.p1 || "Player")} {}
             <i class="fa fa-random" aria-label="Switch viewpoint"></i>
           </button>
         </label>
