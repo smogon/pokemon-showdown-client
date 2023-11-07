@@ -1,6 +1,7 @@
 RewriteEngine on
 RewriteRule ^api(/.*)?$ http://localhost:9000/api$1 [P,L]
 
+RewriteRule ^search\.json$ search.json.php [L,QSA]
 RewriteRule ^([A-Za-z0-9-]+)$ replay.php?name=$1 [L,QSA]
 RewriteRule ^([A-Za-z0-9-]+)/manage$ replay-manage.php?name=$1&manage [L,QSA]
 RewriteRule ^([A-Za-z0-9-]+)\.log$ replay.log.php?name=$1 [L,QSA]
