@@ -10,7 +10,7 @@ $isPrivate = isset($_REQUEST['private']);
 header('Content-Type: application/json');
 header('Access-Control-Allow-Origin: *');
 
-require_once '../../replays/replays.lib.php';
+require_once 'replays.lib.php';
 
 $username = $Replays->toID($username);
 $isPrivateAllowed = false;
