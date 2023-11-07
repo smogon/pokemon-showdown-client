@@ -1011,7 +1011,7 @@ export interface ServerPokemon extends PokemonDetails, PokemonHealth {
 export class Battle {
 	scene: BattleSceneStub;
 
-	sidesSwitched = false;
+	viewpointSwitched = false;
 
 	stepQueue: string[];
 	/** See battle.instantAdd */
@@ -1189,10 +1189,12 @@ export class Battle {
 			const scale = (width / 640);
 			this.scene.$frame?.css('transform', 'scale(' + scale + ')');
 			this.scene.$frame?.css('transform-origin', 'top left');
+			this.scene.$frame?.css('margin-bottom', '' + (360 * scale - 360) + 'px');
 			// this.$foeHint.css('transform', 'scale(' + scale + ')');
 		} else {
 			this.scene.$frame?.css('transform', 'none');
 			// this.$foeHint.css('transform', 'none');
+			this.scene.$frame?.css('margin-bottom', '0');
 		}
 	};
 
@@ -1327,10 +1329,10 @@ export class Battle {
 	resetToCurrentTurn() {
 		this.seekTurn(this.ended ? Infinity : this.turn, true);
 	}
-	switchSides() {
-		this.setPerspective(this.sidesSwitched ? 'p1' : 'p2');
+	switchViewpoint() {
+		this.setViewpoint(this.viewpointSwitched ? 'p1' : 'p2');
 	}
-	setPerspective(sideid: SideID) {
+	setViewpoint(sideid: SideID) {
 		if (this.mySide.sideid === sideid) return;
 		if (sideid.length !== 2 || !sideid.startsWith('p')) return;
 		const side = this[sideid];
@@ -1338,11 +1340,11 @@ export class Battle {
 		this.mySide = side;
 
 		if ((side.n % 2) === this.p1.n) {
-			this.sidesSwitched = false;
+			this.viewpointSwitched = false;
 			this.nearSide = this.p1;
 			this.farSide = this.p2;
 		} else {
-			this.sidesSwitched = true;
+			this.viewpointSwitched = true;
 			this.nearSide = this.p2;
 			this.farSide = this.p1;
 		}
@@ -3804,12 +3806,8 @@ export class Battle {
 			break;
 		}
 		case 'showteam': {
-			if (this.turn !== 0) return;
-			// @ts-ignore
-			if (!window.Storage?.unpackTeam || !window.Storage?.exportTeam) return;
-			// @ts-ignore
-			const team: PokemonSet[] = Storage.unpackTeam(args[2]);
-			if (!team) return;
+			const team = Teams.unpack(args[2]);
+			if (!team.length) return;
 			const side = this.getSide(args[1]);
 			side.clearPokemon();
 			for (const set of team) {
@@ -3823,20 +3821,7 @@ export class Battle {
 				}
 				if (set.teraType) pokemon.teraType = set.teraType;
 			}
-			const exportedTeam = team.map(set => {
-				// @ts-ignore
-				let buf = Storage.exportTeam([set], this.gen).replace(/\n/g, '<br />');
-				if (set.name && set.name !== set.species) {
-					buf = buf.replace(set.name, BattleLog.sanitizeHTML(`<psicon pokemon="${set.species}" /> <br />${set.name}`));
-				} else {
-					buf = buf.replace(set.species, `<psicon pokemon="${set.species}" /> <br />${set.species}`);
-				}
-				if (set.item) {
-					buf = buf.replace(set.item, `${set.item} <psicon item="${set.item}" />`);
-				}
-				return buf;
-			}).join('');
-			this.add(`|raw|<div class="infobox"><details><summary>Open Team Sheet for ${side.name}</summary>${exportedTeam}</details></div>`);
+			this.log(args, kwArgs);
 			break;
 		}
 		case 'switch': case 'drag': case 'replace': {

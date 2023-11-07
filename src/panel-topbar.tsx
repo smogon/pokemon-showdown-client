@@ -203,10 +203,10 @@ class PSHeader extends preact.Component<{style: {}}> {
 	}
 	renderUser() {
 		if (!PS.connected) {
-			return <button class="button disabled" disabled><em>Offline</em></button>;
+			return <button class="button" disabled><em>Offline</em></button>;
 		}
 		if (!PS.user.userid) {
-			return <button class="button disabled" disabled><em>Connecting...</em></button>;
+			return <button class="button" disabled><em>Connecting...</em></button>;
 		}
 		if (!PS.user.named) {
 			return <a class="button" href="login">Choose name</a>;
@@ -366,8 +366,8 @@ class UserPanel extends PSRoomPanel<UserRoom> {
 			</div>
 			{isSelf || !PS.user.named ?
 				<p class="buttonbar">
-					<button class="button disabled" disabled>Challenge</button> {}
-					<button class="button disabled" disabled>Chat</button>
+					<button class="button" disabled>Challenge</button> {}
+					<button class="button" disabled>Chat</button>
 				</p>
 			:
 				<p class="buttonbar">

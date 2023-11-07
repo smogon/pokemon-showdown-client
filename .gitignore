@@ -12,6 +12,7 @@ Thumbs.db
 npm-debug.log
 package-lock.json
 /vendor/
+node_modules
 
 /js/server/
 /js/*.js.map
@@ -22,12 +23,14 @@ package-lock.json
 /js/client-core.js
 /js/client-connection.js
 
-/replays/caches/
-/replays/replay-config.inc.php
-/replays/theme/wrapper.inc.php
-
 /website/.well-known/
 /website/.pages-cached/
 /website/files/
 /website/images/
 /website/ads.txt
+
+/replay.pokemonshowdown.com/index.html
+/replay.pokemonshowdown.com/js/
+/replay.pokemonshowdown.com/caches/
+/replay.pokemonshowdown.com/replay-config.inc.php
+/replay.pokemonshowdown.com/theme/wrapper.inc.php

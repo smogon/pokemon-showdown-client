@@ -79,9 +79,10 @@ var Replays = {
 			log: log.split('\n'),
 			isReplay: true,
 			paused: true,
+			autoresize: true,
 		});
 
-		this.$('.replay-controls-2').html('<div class="chooser leftchooser speedchooser"> <em>Speed:</em> <div><button class="sel" value="fast">Fast</button><button value="normal">Normal</button><button value="slow">Slow</button><button value="reallyslow">Really Slow</button></div> </div> <div class="chooser colorchooser"> <em>Color&nbsp;scheme:</em> <div><button class="sel" value="light">Light</button><button value="dark">Dark</button></div> </div> <div class="chooser soundchooser" style="display:none"> <em>Music:</em> <div><button class="sel" value="on">On</button><button value="off">Off</button></div> </div>');
+		this.$('.replay-controls-2').html('<div class="chooser leftchooser speedchooser"> <em>Speed:</em> <div><button value="hyperfast">Hyperfast</button><button value="fast">Fast</button><button value="normal" class="sel">Normal</button><button value="slow">Slow</button><button value="reallyslow">Really Slow</button></div> </div> <div class="chooser colorchooser"> <em>Color&nbsp;scheme:</em> <div><button class="sel" value="light">Light</button><button value="dark">Dark</button></div> </div> <div class="chooser soundchooser" style="display:none"> <em>Music:</em> <div><button class="sel" value="on">On</button><button value="off">Off</button></div> </div>');
 
 		// this works around a WebKit/Blink bug relating to float layout
 		var rc2 = this.$('.replay-controls-2')[0];
@@ -138,13 +139,23 @@ var Replays = {
 			break;
 
 		case 'speed':
-			var speedTable = {
-				fast: 8,
-				normal: 800,
-				slow: 2500,
-				reallyslow: 5000
+			var fadeTable = {
+				hyperfast: 40,
+				fast: 50,
+				normal: 300,
+				slow: 500,
+				reallyslow: 1000
 			};
-			this.battle.messageDelay = speedTable[value];
+			var delayTable = {
+				hyperfast: 1,
+				fast: 1,
+				normal: 1,
+				slow: 1000,
+				reallyslow: 3000
+			};
+			this.battle.messageShownTime = delayTable[value];
+			this.battle.messageFadeTime = fadeTable[value];
+			this.battle.scene.updateAcceleration();
 			break;
 		}
 	},
@@ -161,9 +172,9 @@ var Replays = {
 
 		if (this.battle.paused) {
 			var resetDisabled = !this.battle.started ? ' disabled' : '';
-			this.$('.replay-controls').html('<button data-action="play"><i class="fa fa-play"></i> Play</button><button data-action="reset"' + resetDisabled + '><i class="fa fa-undo"></i> Reset</button> <button data-action="rewind"><i class="fa fa-step-backward"></i> Last turn</button><button data-action="ff"><i class="fa fa-step-forward"></i> Next turn</button> <button data-action="ffto"><i class="fa fa-fast-forward"></i> Go to turn...</button> <button data-action="switchSides"><i class="fa fa-random"></i> Switch sides</button>');
+			this.$('.replay-controls').html('<button data-action="play"><i class="fa fa-play"></i> Play</button><button data-action="reset"' + resetDisabled + '><i class="fa fa-undo"></i> Reset</button> <button data-action="rewind"><i class="fa fa-step-backward"></i> Last turn</button><button data-action="ff"><i class="fa fa-step-forward"></i> Next turn</button> <button data-action="ffto"><i class="fa fa-fast-forward"></i> Go to turn...</button> <button data-action="switchViewpoint"><i class="fa fa-random"></i> Switch sides</button>');
 		} else {
-			this.$('.replay-controls').html('<button data-action="pause"><i class="fa fa-pause"></i> Pause</button><button data-action="reset"><i class="fa fa-undo"></i> Reset</button> <button data-action="rewind"><i class="fa fa-step-backward"></i> Last turn</button><button data-action="ff"><i class="fa fa-step-forward"></i> Next turn</button> <button data-action="ffto"><i class="fa fa-fast-forward"></i> Go to turn...</button> <button data-action="switchSides"><i class="fa fa-random"></i> Switch sides</button>');
+			this.$('.replay-controls').html('<button data-action="pause"><i class="fa fa-pause"></i> Pause</button><button data-action="reset"><i class="fa fa-undo"></i> Reset</button> <button data-action="rewind"><i class="fa fa-step-backward"></i> Last turn</button><button data-action="ff"><i class="fa fa-step-forward"></i> Next turn</button> <button data-action="ffto"><i class="fa fa-fast-forward"></i> Go to turn...</button> <button data-action="switchViewpoint"><i class="fa fa-random"></i> Switch sides</button>');
 		}
 	},
 	pause: function () {
@@ -189,11 +200,20 @@ var Replays = {
 		if (isNaN(turn) || turn < 0) alert("Invalid turn");
 		this.battle.seekTurn(turn);
 	},
-	switchSides: function () {
-		this.battle.switchSides();
+	switchViewpoint: function () {
+		this.battle.switchViewpoint();
 	},
 };
 
 window.onload = function () {
 	Replays.init();
 };
+
+if (window.matchMedia) {
+	if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+		document.body.className = 'dark';
+	}
+	window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', function (event) {
+		document.body.className = event.matches ? "dark" : "";
+	});
+}

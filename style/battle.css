@@ -5,7 +5,7 @@ License: GPLv2
 
 */
 
-@import url(./battle-log.css?v4);
+@import url(./battle-log.css?v6.5);
 
 .battle {
 	position: absolute;
@@ -74,6 +74,9 @@ License: GPLv2
 	-webkit-overflow-scrolling: touch;
 	overflow-scrolling: touch;
 	word-wrap: break-word;
+}
+.dark .battle, .dark .battle-log, .dark .battle-log-add {
+	border-color: #5A5A5A;
 }
 .battle-log-inline {
 	position: static;
@@ -583,8 +586,9 @@ License: GPLv2
 	display: block;
 	position: absolute;
 	top: 0; left: 0; bottom: 0; right: 0;
-	background: #FFFFFF;
+	background: #CCCCCC;
 	color: #000000;
+	font-size: 14px;
 }
 .seeking strong {
 	display: block;
@@ -788,6 +792,7 @@ License: GPLv2
 	margin: 0;
 	border-bottom: 1px solid #888888;
 	font-size: 10pt;
+	color: black;
 }
 #tooltipwrapper .tooltip h2 small {
 	font-weight: normal;
@@ -800,7 +805,7 @@ License: GPLv2
 #tooltipwrapper .tooltip p small {
 	font-size: 8pt;
 }
-#tooltipwrapper .tooltip p.section {
+#tooltipwrapper .tooltip p.tooltip-section {
 	border-top: 1px solid #888888;
 }
 #tooltipwrapper .tooltip .textaligned-typeicons img {

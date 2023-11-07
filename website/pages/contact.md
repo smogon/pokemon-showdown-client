@@ -14,7 +14,7 @@ We have a Help chatroom, where our staff can help you with most problems. If you
 
 For contacting the staff, use the following e-mail address. <strong>ABUSIVE USERS SHOULD BE REPORTED WITH THE `/report` COMMAND, NOT THROUGH E-MAIL</strong>.
 
-> <kbd>st</kbd><kbd>aff@pok</kbd><kbd>emonshowdown.com</kbd>
+> <tt>st</tt><tt>aff@pok</tt><tt>emonshowdown.com</tt>
 
 Mini-FAQ:
 

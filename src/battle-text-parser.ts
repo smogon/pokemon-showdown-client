@@ -101,6 +101,11 @@ class BattleTextParser {
 		return {group, name, away, status};
 	}
 
+	/**
+	 * Old replays may use syntax we no longer use, so this function upgrades
+	 * them to modern versions. Used to keep battle.ts itself cleaner. Not
+	 * guaranteed to mutate or not mutate its inputs.
+	 */
 	static upgradeArgs({args, kwArgs}: {args: Args, kwArgs: KWArgs}): {args: Args, kwArgs: KWArgs} {
 		switch (args[0]) {
 		case '-activate': {
@@ -186,6 +191,11 @@ class BattleTextParser {
 		case '-heal': {
 			const id = BattleTextParser.effectId(kwArgs.from);
 			if (['dryskin', 'eartheater', 'voltabsorb', 'waterabsorb'].includes(id)) kwArgs.of = '';
+			break;
+		}
+
+		case '-restoreboost': {
+			args[0] = '-clearnegativeboost';
 			break;
 		}
 

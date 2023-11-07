@@ -129,7 +129,7 @@ class BattleRoom extends ChatRoom {
 			this.update(null);
 			return true;
 		} case 'switchsides': {
-			this.battle.switchSides();
+			this.battle.switchViewpoint();
 			return true;
 		} case 'cancel': case 'undo': {
 			if (!this.choices || !this.request) {
@@ -304,7 +304,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 
 		if (request.side) {
 			room.battle.myPokemon = request.side.pokemon;
-			room.battle.setPerspective(request.side.id);
+			room.battle.setViewpoint(request.side.id);
 			room.side = request.side;
 		}
 

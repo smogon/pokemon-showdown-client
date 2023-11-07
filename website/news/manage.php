@@ -120,6 +120,8 @@ includeHeader();
 		$summary = str_replace("[/url]", '</a>', $summary);
 		$summary = str_replace("[b]", '<strong>', $summary);
 		$summary = str_replace("[/b]", '</strong>', $summary);
+		$summary = str_replace("[i]", '<em>', $summary);
+		$summary = str_replace("[/i]", '</em>', $summary);
 		$summary = '<p>'.$summary.'</p>';
 
 		$time = ''.time();
