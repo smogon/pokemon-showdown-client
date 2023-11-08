@@ -308,6 +308,9 @@ export class BattlePanel extends preact.Component<{id: string}> {
   changeSound = (e: Event) => {
     const muted = (e.target as HTMLSelectElement).value;
     this.battle?.setMute(muted === 'off');
+    // Wolfram Alpha says that default volume is 100 e^(-(2 log^2(2))/log(10)) which is around 65.881
+    BattleSound.setBgmVolume(muted === 'musicoff' ? 0 : 65.881258001265573);
+    this.forceUpdate();
   };
   openTurn = (e: Event) => {
     this.turnView = `${this.battle?.turn}` || true;
@@ -419,14 +422,15 @@ export class BattlePanel extends preact.Component<{id: string}> {
         </label> {}
         <label class="optgroup">
           Sound:<br />
-          <select name="speed" class="button" onChange={this.changeSound} value={BattleSound.muted ? 'off' : 'on'}>
+          <select name="sound" class="button" onChange={this.changeSound} value={BattleSound.muted ? 'off' : BattleSound.bgmVolume ? 'on' : 'musicoff'}>
             <option value="on">On</option>
+            <option value="musicoff">Music Off</option>
             <option value="off">Muted</option>
           </select>
         </label> {}
         <label class="optgroup">
           Viewpoint:<br />
-          <button onClick={this.switchViewpoint} class={this.battle ? 'button' : 'button disabled'}>
+          <button onClick={this.switchViewpoint} name="viewpoint" class={this.battle ? 'button' : 'button disabled'}>
             {(this.battle?.viewpointSwitched ? this.result?.p2 : this.result?.p1 || "Player")} {}
             <i class="fa fa-random" aria-label="Switch viewpoint"></i>
           </button>
