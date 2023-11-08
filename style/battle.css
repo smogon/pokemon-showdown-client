@@ -80,10 +80,12 @@ License: GPLv2
 }
 .battle-log-inline {
 	position: static;
-	top: auto;
-	right: auto;
-	bottom: auto;
-	left: auto;
+	border: 1px solid #AAAAAA;
+	background: #EEF2F5;
+	color: black;
+	max-width: 640px;
+	margin: 0 auto 80px;
+	padding-bottom: 5px;
 	height: auto;
 	width: auto;
 	overflow-y: auto;
