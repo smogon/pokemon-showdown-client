@@ -1,8 +1,89 @@
-<!DOCTYPE html>
+<?php
+
+/**
+ * index.php
+ *
+ * Grabs some data to prepopulate a Replay page.
+ *
+ * `src/repays-battle.tsx` can also grab this data from our APIs, but
+ * doing it here makes it load faster, and also tells Google, Discord's
+ * link preview, and other bots which replays actually exist, and what
+ * their titles/descriptions are.
+ *
+ * @author Guangcong Luo <guangcongluo@gmail.com>
+ * @license MIT
+ */
+
+error_reporting(E_ALL);
+ini_set('display_errors', TRUE);
+ini_set('display_startup_errors', TRUE);
+
+$manage = false;
+
+require_once 'replays.lib.php';
+
+$replay = null;
+$id = $_REQUEST['name'] ?? '';
+$password = '';
+
+$fullid = $id;
+if (substr($id, -2) === 'pw') {
+	$dashpos = strrpos($id, '-');
+	$password = substr($id, $dashpos + 1, -2);
+	$id = substr($id, 0, $dashpos);
+	// die($id . ' ' . $password);
+}
+
+// $forcecache = isset($_REQUEST['forcecache8723']);
+$forcecache = false;
+if ($id) {
+	if (file_exists('caches/' . $id . '.inc.php')) {
+		include 'caches/' . $id . '.inc.php';
+		$replay['formatid'] = '';
+		$cached = true;
+		$replay['log'] = str_replace("\r","",$replay['log']);
+		$matchSuccess = preg_match('/\\n\\|tier\\|([^|]*)\\n/', $replay['log'], $matches);
+		if ($matchSuccess) $replay['format'] = $matches[1];
+		if (@$replay['date']) {
+			$replay['uploadtime'] = $replay['date'];
+			unset($replay['date']);
+		}
+	} else {
+		require_once 'replays.lib.php';
+		if (!$Replays->db && !$forcecache) {
+			header('HTTP/1.1 503 Service Unavailable');
+			die();
+		}
+		$replay = $Replays->get($id, $forcecache);
+	}
+	if (!$replay) {
+		header('HTTP/1.1 404 Not Found');
+		include '404.html';
+		die();
+	}
+	if ($replay['password'] ?? null) {
+		if ($password !== $replay['password']) {
+			header('HTTP/1.1 404 Not Found');
+			include '404.html';
+			die();
+		}
+	}
+}
+
+$title = '';
+if ($replay) {
+	$title = htmlspecialchars($replay['format'].': '.$replay['p1'].' vs. '.$replay['p2'].' - ');
+}
+
+?><!DOCTYPE html>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width" />
 
-<title>Replays - Pok&eacute;mon Showdown!</title>
+<title><?= $title ?>Replays - Pok&eacute;mon Showdown!</title>
+
+<?php
+if ($replay) echo '<meta name="description" content="Watch a replay of a Pok&eacute;mon battle between '.htmlspecialchars($replay['p1']).' and '.htmlspecialchars($replay['p2']).'! Format: '.htmlspecialchars($replay['format']).'; Date: '.date("M j, Y", @$replay['uploadtime']).'" />';
+?>
 
 <!--
 
@@ -174,4 +255,19 @@ https://replay.pokemonshowdown.com/gen7randomdoublesbattle-865046831.log
 
 <script defer src="js/utils.js?"></script>
 <script defer src="js/replays-battle.js?"></script>
+
+<?php
+
+if ($replay) {
+	// `src/repays-battle.tsx` can also grab this data from our APIs, but
+	// doing it here increases page load speed
+	echo "<!-- don't scrape this data! just add .json after the URL!\nFull API docs: https://github.com/smogon/pokemon-showdown-client/blob/master/WEB-API.md -->\n";
+	echo '<script type="text/plain" class="log" id="replaydata-'.$fullid.'">';
+	unset($replay['inputlog']);
+	echo json_encode($replay);
+	echo '</script>';
+}
+
+?>
+
 <script defer src="js/replays.js?"></script>

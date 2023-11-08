@@ -30,7 +30,7 @@ node_modules
 /website/images/
 /website/ads.txt
 
-/replay.pokemonshowdown.com/index.html
+/replay.pokemonshowdown.com/index.php
 /replay.pokemonshowdown.com/js/
 /replay.pokemonshowdown.com/caches/
 /replay.pokemonshowdown.com/replay-config.inc.php
