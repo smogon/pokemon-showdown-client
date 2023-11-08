@@ -63,6 +63,9 @@ class Replays {
 			$res->execute([$id]);
 		// }
 
+		$replay['log'] = str_replace("\r","",$replay['log']);
+		$matchSuccess = preg_match('/\\n\\|tier\\|([^|]*)\\n/', $replay['log'], $matches);
+		if ($matchSuccess) $replay['format'] = $matches[1];
 		return $replay;
 	}
 	function exists($id, $forcecache = false) {

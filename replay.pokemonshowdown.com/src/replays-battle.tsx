@@ -94,7 +94,20 @@ export class BattlePanel extends preact.Component<{id: string}> {
     this.battle = null;
     this.result = undefined;
 
+    const elem = document.getElementById(`replaydata-${id}`);
+    if (elem) {
+      this.loadResult(elem.innerText, id);
+      return;
+    }
+
     Net(`/${this.stripQuery(id)}.json`).get().then(result => {
+      this.loadResult(result, id);
+    }).catch(_ => {
+      this.loadResult('', id);
+    });
+  }
+  loadResult(result: string, id: string) {
+    try {
       const replay: NonNullable<BattlePanel['result']> = JSON.parse(result);
       this.result = replay;
       const $base = $(this.base!);
@@ -119,11 +132,10 @@ export class BattlePanel extends preact.Component<{id: string}> {
       if (query.turn || query.t) {
         this.battle.seekTurn(parseInt(query.turn || query.t, 10));
       }
-      this.forceUpdate();
-    }).catch(_ => {
+    } catch {
       this.result = null;
-      this.forceUpdate();
-    });
+    }
+    this.forceUpdate();
   }
   override componentWillUnmount(): void {
     this.battle?.destroy();

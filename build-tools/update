@@ -166,9 +166,9 @@ function writeFiles(indexContents, preactIndexContents, crossprotocolContents, r
 	fs.writeFileSync('crossprotocol.html', crossprotocolContents);
 	fs.writeFileSync('js/replay-embed.js', replayEmbedContents);
 
-	let replaysContents = fs.readFileSync('replay.pokemonshowdown.com/index.template.html', {encoding: 'utf8'});
+	let replaysContents = fs.readFileSync('replay.pokemonshowdown.com/index.template.php', {encoding: 'utf8'});
 	replaysContents = replaysContents.replace(URL_REGEX, updateURL);
-	fs.writeFileSync('replay.pokemonshowdown.com/index.html', replaysContents);
+	fs.writeFileSync('replay.pokemonshowdown.com/index.php', replaysContents);
 
 	console.log("DONE");
 }
