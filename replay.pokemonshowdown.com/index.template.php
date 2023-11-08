@@ -137,6 +137,8 @@ https://replay.pokemonshowdown.com/gen7randomdoublesbattle-865046831.log
 	}
 	.optgroup .button {
 		height: 25px;
+		padding-top: 0;
+		padding-bottom: 0;
 	}
 	.optgroup button.button {
 		padding-left: 12px;
