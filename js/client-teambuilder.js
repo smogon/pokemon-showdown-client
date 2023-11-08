@@ -142,7 +142,7 @@
 		update: function () {
 			teams = Storage.teams;
 			if (this.curTeam) {
-				if (this.curTeam.loaded === false || (this.curTeam.teamid && !this.curTeam.loaded)) {
+				if (this.curTeam.loaded === false) {
 					this.loadTeam();
 					return this.updateTeamView();
 				}
