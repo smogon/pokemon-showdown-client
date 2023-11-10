@@ -1161,6 +1161,7 @@ export class BattleLog {
 		}
 		// TODO: do this synchronously so large battles aren't cut off
 		battle.seekTurn(Infinity);
+		if (!battle.atQueueEnd) return null;
 		let buf = '<!DOCTYPE html>\n';
 		buf += '<meta charset="utf-8" />\n';
 		buf += '<!-- version 1 -->\n';
@@ -1185,7 +1186,8 @@ export class BattleLog {
 
 	static createReplayFileHref(room: {battle: Battle, id?: string, fragment?: string}) {
 		// unescape(encodeURIComponent()) is necessary because btoa doesn't support Unicode
-		// @ts-ignore
-		return 'data:text/plain;base64,' + encodeURIComponent(btoa(unescape(encodeURIComponent(BattleLog.createReplayFile(room)))));
+		const replayFile = BattleLog.createReplayFile(room);
+		if (!replayFile) return 'javascript:alert("You will need to click Download again once the replay file is at the end.");void 0';
+		return 'data:text/plain;base64,' + encodeURIComponent(btoa(unescape(encodeURIComponent(replayFile))));
 	}
 }
