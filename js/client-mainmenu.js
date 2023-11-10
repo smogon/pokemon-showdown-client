@@ -733,7 +733,7 @@
 				for (var roomid in this.games) {
 					var name = this.games[roomid];
 					if (name.slice(-1) === '*') name = name.slice(0, -1);
-					buf += '<div><a href="/' + toRoomid(roomid) + '" class="ilink" style="text-align: center">' + BattleLog.escapeHTML(name) + '</a></div>';
+					buf += '<div><a href="/' + toRoomid(roomid) + '" class="blocklink" style="text-align: center">' + BattleLog.escapeHTML(name) + '</a></div>';
 				}
 				buf += '</div>';
 				if (!$searchGroup.is(':visible')) buf += '<p class="buttonbar"><button name="showSearchGroup" class="button">Add game</button></p>';
