@@ -242,6 +242,30 @@
 			app.addPopup(OptionsPopup, {type: 'semimodal'});
 		},
 
+		// other buttons
+
+		maketour: function (i, button) {
+			if (!window.BattleFormats) return;
+			this.requestNotifications();
+			var $tourForm = $(button).closest('form');
+			var format = $tourForm.find('button[name=format]').val();
+			var generator = $tourForm.find('input[name=type]:checked').val();
+			if (!generator) {
+				app.addPopup(Popup, {
+					type: 'modal',
+					htmlMessage: "You must select a tournament type."
+				});
+			}
+			$tourForm.remove();
+			app.send('/tournament new ' + format + ', ' + generator, this.id);
+		},
+		closeform: function (i, button) {
+			$(button).closest('form').remove();
+		},
+		format: function (i, e) {
+			app.rooms[''].format(i, e);
+		},
+
 		// highlight
 
 		getHighlight: function (message) {

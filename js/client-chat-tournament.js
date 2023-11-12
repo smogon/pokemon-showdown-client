@@ -273,6 +273,20 @@
 				}
 			} else {
 				switch (cmd) {
+				case 'menu':
+					var generatorOptions = JSON.parse(data[0]);
+					var buf = '<form class="battleform challenge tournament-menu"><p>Create a Tournament?';
+					buf += '<p><label class="label">Format:</label>';
+					buf += app.rooms[''].renderFormats() + '</p><p>';
+					var defaultSet = false;
+					for (var gen in generatorOptions) {
+						buf += '<label><input type="radio" id="' + gen + '" name="type" value="' + gen + (!defaultSet ? '" checked> ' : '"> ') + generatorOptions[gen] + '</label>';
+						defaultSet = true;
+					}
+					buf += '</p><p class="buttonbar"><button class="buttonbar" name="maketour"><strong>Create Tournament</strong></button> <button name="closeform">Cancel</button></p></form>';
+					this.room.$chat.append(buf);
+					break;
+
 				case 'create':
 					var formatName = window.BattleFormats && BattleFormats[data[0]] ? BattleFormats[data[0]].name : data[0];
 					var type = data[1];

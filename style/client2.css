@@ -1093,6 +1093,10 @@ a.ilink.yours {
 	padding: 0;
 }
 
+.tournament-menu {
+	float: left;
+}
+
 .tournament-wrapper {
 	display: none;
 	position: absolute;
