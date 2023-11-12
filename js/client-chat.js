@@ -60,6 +60,9 @@
 						$(target).focus();
 					}, 0);
 				} */
+				$('ul.battle-userlist.userlist').removeClass('userlist-maximized');
+				$('ul.battle-userlist.userlist').addClass('userlist-minimized');
+				$('div.inner.message-log').removeClass('inner-chat-userlist-maximized');
 				return;
 			}
 			if (!this.$chatbox) {
@@ -71,6 +74,13 @@
 				return;
 			}
 
+			if ($(target).closest('.battle-userlist, .userlist').length) {
+				return;
+			}
+
+			$('ul.battle-userlist.userlist').removeClass('userlist-maximized');
+			$('ul.battle-userlist.userlist').addClass('userlist-minimized');
+			$('div.inner.message-log').removeClass('inner-chat-userlist-maximized');
 			if (window.isiOS) {
 				// Preventing the on-screen keyboard leads to other bugs, so we have to
 				// avoid focusing the textbox altogether. Sorry, Bluetooth keyboard users!
@@ -1204,7 +1214,8 @@
 			app.user.off('change', this.updateUser, this);
 			Room.prototype.destroy.call(this, alreadyLeft);
 		}
-	}, {
+	},
+	{
 		toggleFormatChar: function (textbox, formatChar) {
 			if (!textbox.setSelectionRange) return false;
 
@@ -1813,9 +1824,10 @@
 	var UserList = this.UserList = Backbone.View.extend({
 		initialize: function (options) {
 			this.room = options.room;
+			this.innerMessageLog = $('div.inner.message-log');
 		},
 		events: {
-			'click .userlist-count': 'toggleUserlist'
+			'click .userlist-count': 'toggleUserlist',
 		},
 		construct: function () {
 			var plural = this.room.userCount.users === 1 ? ' user' : ' users';
@@ -1849,9 +1861,15 @@
 			if (this.$el.hasClass('userlist-minimized')) {
 				this.$el.removeClass('userlist-minimized');
 				this.$el.addClass('userlist-maximized');
+				if (this.innerMessageLog != null) {
+					this.innerMessageLog.addClass('inner-chat-userlist-maximized');
+				}
 			} else if (this.$el.hasClass('userlist-maximized')) {
 				this.$el.removeClass('userlist-maximized');
 				this.$el.addClass('userlist-minimized');
+				if (this.innerMessageLog != null) {
+					this.innerMessageLog.removeClass('inner-chat-userlist-maximized');
+				}
 			}
 		},
 		show: function () {

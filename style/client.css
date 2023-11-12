@@ -1461,6 +1461,11 @@ a.ilink.yours {
 .pm-buttonbar button:hover {
 	background: #DEE4EA;
 }
+.inner-chat-userlist-maximized {
+	position: absolute;
+	left: 145px;
+	right: 0px;
+}
 .chat-log.hasuserlist,
 .chat-log-add.hasuserlist,
 .tournament-wrapper.hasuserlist {
