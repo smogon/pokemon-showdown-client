@@ -237,7 +237,7 @@ function toId() {
 		 *   `login:noresponse`
 		 *     triggered if the login server did not return a response
 		 */
-		finishRename: function (name, assertion) {
+		finishRename: function (name, assertion, nextAction) {
 			if (assertion.slice(0, 14).toLowerCase() === '<!doctype html') {
 				// some sort of MitM proxy; ignore it
 				var endIndex = assertion.indexOf('>');
@@ -250,14 +250,16 @@ function toId() {
 				return;
 			}
 			if (assertion === ';') {
-				this.trigger('login:authrequired', name);
+				this.trigger('login:authrequired', name, '', nextAction);
 			} else if (assertion === ';;@gmail') {
-				this.trigger('login:authrequired', name, '@gmail');
+				this.trigger('login:authrequired', name, '@gmail', nextAction);
 			} else if (assertion.substr(0, 2) === ';;') {
-				this.trigger('login:invalidname', name, assertion.substr(2));
+				this.trigger('login:invalidname', name, assertion.substr(2), nextAction);
 			} else if (assertion.indexOf('\n') >= 0 || !assertion) {
 				app.addPopupMessage("Something is interfering with our connection to the login server.");
 			} else {
+				// login completed, transfer any queued action to app scope
+				app.nextAction = nextAction;
 				app.trigger('loggedin');
 				app.send('/trn ' + name + ',0,' + assertion);
 			}
@@ -270,7 +272,7 @@ function toId() {
 		 *
 		 * See `finishRename` above for a list of events this can emit.
 		 */
-		rename: function (name) {
+		rename: function (name, nextAction) {
 			// | , ; are not valid characters in names
 			name = name.replace(/[\|,;]+/g, '');
 			for (var i in this.replaceList) {
@@ -279,7 +281,7 @@ function toId() {
 			for (var i in this.normalizeList) {
 				name = name.replace(this.normalizeList[i], i);
 			}
-			var userid = toUserid(name);
+			var userid = $.trim(toUserid(name));
 			if (!userid) {
 				app.addPopupMessage("Usernames must contain at least one letter.");
 				return;
@@ -292,13 +294,13 @@ function toId() {
 					userid: userid,
 					challstr: this.challstr
 				}, function (data) {
-					self.finishRename(name, data);
+					self.finishRename(name, data, nextAction);
 				});
 			} else {
 				app.send('/trn ' + name);
 			}
 		},
-		passwordRename: function (name, password, special) {
+		passwordRename: function (name, password, special, nextAction) {
 			var self = this;
 			$.post(this.getActionPHP(), {
 				act: 'login',
@@ -309,7 +311,7 @@ function toId() {
 				if (data && data.curuser && data.curuser.loggedin) {
 					// success!
 					self.set('registered', data.curuser);
-					self.finishRename(name, data.assertion);
+					self.finishRename(name, data.assertion, nextAction);
 				} else {
 					// wrong password
 					if (special === '@gmail') {
@@ -320,7 +322,8 @@ function toId() {
 					app.addPopup(LoginPasswordPopup, {
 						username: name,
 						error: data.error || 'Wrong password.',
-						special: special
+						special: special,
+						nextAction: nextAction
 					});
 				}
 			}), 'text');
@@ -547,12 +550,20 @@ function toId() {
 				self.addPopup(ReconnectPopup, {cantconnect: true});
 			});
 
-			this.user.on('login:invalidname', function (name, reason) {
-				self.addPopup(LoginPopup, {name: name, reason: reason});
+			this.user.on('login:invalidname', function (name, reason, nextAction) {
+				self.addPopup(LoginPopup, {
+					name: name,
+					reason: reason,
+					nextAction: nextAction
+				});
 			});
 
-			this.user.on('login:authrequired', function (name, special) {
-				self.addPopup(LoginPasswordPopup, {username: name, special: special});
+			this.user.on('login:authrequired', function (name, special, nextAction) {
+				self.addPopup(LoginPasswordPopup, {
+					username: name,
+					special: special,
+					nextAction: nextAction
+				});
 			});
 
 			this.on('loggedin', function () {

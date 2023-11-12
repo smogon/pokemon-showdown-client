@@ -42,6 +42,16 @@
 			}
 			buf += ' <button class="icon button" name="openSounds" title="Sound" aria-label="Sound"><i class="' + (Dex.prefs('mute') ? 'fa fa-volume-off' : 'fa fa-volume-up') + '"></i></button> <button class="icon button" name="openOptions" title="Options" aria-label="Options"><i class="fa fa-cog"></i></button>';
 			this.$userbar.html(buf);
+
+			// after userbar update, execute any queued action
+			switch (app.nextAction) {
+				case 'battle':
+					$('button[name=search]').click();
+					break;
+				default:
+					break;
+			}
+			app.nextAction = undefined;
 		},
 		login: function () {
 			app.addPopup(LoginPopup);
@@ -915,7 +925,7 @@
 
 			var name = (data.name || '');
 			if (!name && app.user.get('named')) name = app.user.get('name');
-			buf += '<p><label class="label">Username: <small class="preview" style="' + BattleLog.hashColor(toUserid(name)) + '">(color)</small><input class="textbox autofocus" type="text" name="username" value="' + BattleLog.escapeHTML(name) + '" autocomplete="username"></label></p>';
+			buf += '<p><label class="label">Username: <small class="preview" style="' + BattleLog.hashColor(toUserid(name)) + '">(color)</small><input class="textbox autofocus" type="text" name="username" value="' + BattleLog.escapeHTML(name) + '" autocomplete="username"></label>' + (data.nextAction ? '<input style="display:none" name="nextAction" value="' + data.nextAction + '">' : '') + '</p>';
 			if (name) {
 				buf += '<p><small>(Others will be able to see your name change. To change name privately, use "Log out")</small></p>';
 			}
@@ -944,8 +954,7 @@
 		},
 		submit: function (data) {
 			this.close();
-			if (!$.trim(data.username)) return;
-			app.user.rename(data.username);
+			app.user.rename(data.username, data.nextAction);
 		}
 	});
 
@@ -1067,7 +1076,7 @@
 			}
 
 			buf += '<p>If this is your account:</p>';
-			buf += '<p><label class="label">Username: <strong><input type="text" name="username" value="' + BattleLog.escapeHTML(data.username) + '" style="color:inherit;background:transparent;border:0;font:inherit;font-size:inherit;display:block" readonly autocomplete="username" /></strong></label></p>';
+			buf += '<p><label class="label">Username: <strong><input type="text" name="username" value="' + BattleLog.escapeHTML(data.username) + '" style="color:inherit;background:transparent;border:0;font:inherit;font-size:inherit;display:block" readonly autocomplete="username" /></strong></label>' + (data.nextAction ? '<input style="display:none" name="nextAction" value="' + data.nextAction + '">' : '') + '</p>';
 			if (data.special === '@gmail') {
 				buf += '<div id="gapi-custom-signin" style="width:240px;margin:0 auto">[loading Google log-in button]</div>';
 				buf += '<p class="buttonbar"><button name="close" class="button">Cancel</button></p>';
@@ -1113,12 +1122,13 @@
 			}
 		},
 		login: function () {
+			var nextAction = this.$('input[name=nextAction]').val();
 			this.close();
-			app.addPopup(LoginPopup);
+			app.addPopup(LoginPopup, {nextAction: nextAction});
 		},
 		submit: function (data) {
 			this.close();
-			app.user.passwordRename(data.username, data.password);
+			app.user.passwordRename(data.username, data.password, '', data.nextAction);
 		}
 	});
 

@@ -1082,7 +1082,7 @@
 			}
 
 			if (!app.user.get('named')) {
-				app.addPopup(LoginPopup);
+				app.addPopup(LoginPopup, {nextAction: 'battle'});
 				return;
 			}
 
