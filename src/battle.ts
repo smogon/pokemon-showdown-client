@@ -1063,6 +1063,8 @@ export class Battle {
 	usesUpkeep = false;
 	weather = '' as ID;
 	pseudoWeather = [] as WeatherState[];
+	echoedVoiceMultiplier = 1;
+	echoedVoiceState = false;
 	weatherTimeLeft = 0;
 	weatherMinTimeLeft = 0;
 	/**
@@ -1371,6 +1373,11 @@ export class Battle {
 		if (this.seeking === null) this.turnsSinceMoved++;
 
 		this.scene.incrementTurn();
+		// echoedVoiceState is only true if Echoed Voice is used by at least one Pokemon per turn
+		// If echoedVoiceState is never made to be true in a turn, the BP is reset to normal
+		// echoedVoicestate is always reset to false at the end of each turn to check activation next turn
+		if (!this.echoedVoiceState) this.echoedVoiceMultiplier = 1;
+		this.echoedVoiceState = false;
 
 		if (this.seeking !== null) {
 			if (turnNum >= this.seeking) {
@@ -1471,6 +1478,11 @@ export class Battle {
 		let fromeffect = Dex.getEffect(kwArgs.from);
 		this.activateAbility(pokemon, fromeffect);
 		pokemon.clearMovestatuses();
+		// echoedVoiceState can only be activated once per turn
+		if (move.id === 'echoedvoice' && !this.echoedVoiceState) {
+			this.echoedVoiceState = true;
+			if (this.echoedVoiceMultiplier < 5) this.echoedVoiceMultiplier++;
+		}
 		if (move.id === 'focuspunch') {
 			pokemon.removeTurnstatus('focuspunch' as ID);
 		}

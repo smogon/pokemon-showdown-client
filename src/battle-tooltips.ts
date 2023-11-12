@@ -957,6 +957,10 @@ class BattleTooltips {
 		buf += `</tr><table>`;
 		if (!atLeastOne) buf = ``;
 
+		if (this.battle.echoedVoiceMultiplier > 1) {
+			buf = `<p>Echoed Voice: ${40 * this.battle.echoedVoiceMultiplier} BP</p>` + buf;
+		}
+
 		let weatherbuf = scene.weatherLeft() || `(no weather)`;
 		if (weatherbuf.startsWith('<br />')) {
 			weatherbuf = weatherbuf.slice(6);
@@ -1673,6 +1677,9 @@ class BattleTooltips {
 		}
 		if (move.id === 'brine' && target && target.hp * 2 <= target.maxhp) {
 			value.modify(2, 'Brine + target below half HP');
+		}
+		if (move.id === 'echoedvoice' && this.battle.echoedVoiceMultiplier > 1) {
+			value.modify(this.battle.echoedVoiceMultiplier, 'Echoed Voice used in succession');
 		}
 		if (move.id === 'eruption' || move.id === 'waterspout' || move.id === 'dragonenergy') {
 			value.set(Math.floor(150 * pokemon.hp / pokemon.maxhp) || 1);
