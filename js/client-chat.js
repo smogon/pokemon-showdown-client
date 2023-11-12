@@ -591,7 +591,27 @@
 				if (this.checkBroadcast(cmd, text)) return false;
 				this.add('This is a PS system command; do not use it.');
 				return false;
-
+			case 'notifications':
+			case 'notifs':
+				target = toID(target);
+				if (target === 'off' || target === 'false') {
+					if (Storage.prefs('nonotifs')) {
+						this.add("|error|You already have notifications disabled.");
+						return false;
+					}
+					Storage.prefs('nonotifs', true);
+					this.add("You will now not receive notifications.");
+				} else if (target === 'on' || target === 'true') {
+					if (!Storage.prefs('nonotifs')) {
+						this.add("|error|You are already receiving notifications.");
+						return false;
+					}
+					Storage.prefs('nonotifs', false);
+					this.add("You will now receive notifications.");
+				} else {
+					this.parseCommand("/help notifs");
+				}
+				return false;
 			case 'ignore':
 				if (this.checkBroadcast(cmd, text)) return false;
 				if (!target) {
@@ -1097,6 +1117,9 @@
 					return false;
 				case 'news':
 					this.add('/news - Opens a popup containing the news.');
+					return false;
+				case 'notifs': case 'notifications':
+					this.add("/notifications OR /notifs [on/off]: Toggle receiving notifications.");
 					return false;
 				case 'ignore':
 				case 'unignore':

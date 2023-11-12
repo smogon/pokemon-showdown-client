@@ -2272,6 +2272,7 @@ function toId() {
 		notifications: null,
 		subtleNotification: false,
 		notify: function (title, body, tag, once) {
+			if (Dex.prefs('nonotifs')) return;
 			if (once && app.focused && (this === app.curRoom || this == app.curSideRoom)) return;
 			if (!tag) tag = 'message';
 			var needsTabbarUpdate = false;
