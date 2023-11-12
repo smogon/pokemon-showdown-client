@@ -327,6 +327,24 @@ class NTBBSession {
 		return '';
 	}
 
+	function canChangeStanding($targetid, $newstanding) {
+		global $psconfig, $curuser;
+		if (!isset($psconfig['authconfig'])) return false;
+		if (!$this->csrfCheck()) return false;
+		if ($curuser['group'] === 6) return true; // leaders / admins can change to anything
+		if (!isset($psconfig['authconfig'][$curuser['group']])) return false;
+		$tarUser = $this->getUser($this->userid($targetid));
+		if ($tarUser['group'] >= $curUser['group']) {
+			// can't change the standing of a user equal to or more than your group
+			return false;
+		}
+		// if we're trying to reset the standing, check that the user may first change them to the current standing
+		if ($newstanding === 0) {
+			return in_array($psconfig['authconfig'][$curuser['group']], $tarUser['standing']);
+		}
+		return in_array($psconfig['authconfig'][$curuser['group']], $newstanding);
+	}
+
 	function csrfCheck() {
 		if (empty($_POST['csrf'])) return false;
 		$csrf = $_POST['csrf'];

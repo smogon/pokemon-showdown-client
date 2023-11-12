@@ -37,6 +37,7 @@ $ntbb_groups = array(
 	),
 );
 $STANDINGS = $psconfig['standings'];
+$AUTHCONFIG = $psconfig['authconfig'] ?? [];
 
 include '../lib/ntbb-session.lib.php';
 include '../lib/ntbb-ladder.lib.php';
@@ -205,7 +206,7 @@ if (!$user) {
 			<p>Group updated</p>
 		</div>
 <?php
-		} else if ($csrfOk && isset($_POST['standing'])) {
+		} else if (isset($_POST['standing']) && $users->canChangeStanding($user['userid'], $_POST['standing'])) {
 			$newStanding = intval($_POST['standing']);
 			$psdb->query(
 				"UPDATE {$psdb->prefix}users SET banstate = ? WHERE userid = ? LIMIT 1",
@@ -338,11 +339,19 @@ if (!$user) {
 			<form action="" method="post" data-target="replace"><p>
 				<?php $users->csrfData(); ?>
 				<strong class="label"><label>Standing: </label></strong><br />
-<select name="standing" class="textbox"<?php if ($authLevel < 4) echo ' disabled'; ?>><?php
+<select name="standing" class="textbox"<?php if ($authLevel < 2) echo ' disabled'; ?>><?php
 		$userstanding = intval($user['banstate']);
+		$changeavailable = false;
 		// standings:
 		$userstandingshown = false;
 		foreach ($STANDINGS as $standing => $name) {
+			if (
+				$authLevel < 4 && !in_array($standing, $AUTHCONFIG[$curuser['group']]) &&
+				$standing !== $userstanding
+			) {
+				continue;
+			}
+			$changeavailable = true;
 			if (!$userstandingshown && (!$name || $userstanding < $standing)) {
 				echo '<option value="',$userstanding,'" selected>',$userstanding,'</option>';
 				$userstandingshown = true;
@@ -351,9 +360,8 @@ if (!$user) {
 				echo '<option value="',$standing,'"',($userstanding==$standing?' selected':''),'>',$standing,' = ',$name,'</option>';
 				if ($userstanding == $standing) $userstandingshown = true;
 			}
-
 		}
-?></select><?php if ($authLevel >= 4) { ?> <input name="reason" type="text" class="textbox" size="46" placeholder="Reason" style="display:none" /> <button type="submit"><strong>Change</strong></button><?php } ?>
+?></select><?php if ($changeavailable) { ?> <input name="reason" type="text" class="textbox" size="46" placeholder="Reason" style="display:none" /> <button type="submit"><strong>Change</strong></button><?php } ?>
 			</p></form>
 <?php
 		if ($authLevel >= 4) {
