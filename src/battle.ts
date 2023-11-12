@@ -356,7 +356,9 @@ export class Pokemon implements PokemonDetails, PokemonHealth {
 	}
 	rememberAbility(ability: string, isNotBase?: boolean) {
 		ability = Dex.abilities.get(ability).name;
-		this.ability = ability;
+		if (this.ability !== '(suppressed)') {
+			this.ability = ability;
+		}
 		if (!this.baseAbility && !isNotBase) {
 			this.baseAbility = ability;
 		}
@@ -2933,11 +2935,9 @@ export class Battle {
 				let pokeability = Dex.sanitizeName(kwArgs.ability) || target!.ability;
 				let targetability = Dex.sanitizeName(kwArgs.ability2) || poke.ability;
 				if (pokeability) {
-					poke.ability = pokeability;
 					if (!target!.baseAbility) target!.baseAbility = pokeability;
 				}
 				if (targetability) {
-					target!.ability = targetability;
 					if (!poke.baseAbility) poke.baseAbility = targetability;
 				}
 				if (poke.side !== target!.side) {
