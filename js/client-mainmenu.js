@@ -707,6 +707,9 @@
 				$formatButton.addClass('preselected')[0].disabled = true;
 				$teamButton.addClass('preselected')[0].disabled = true;
 				$searchForm.find('button.big').html('<strong><i class="fa fa-refresh fa-spin"></i> Searching...</strong>').addClass('disabled');
+				if (!$searchForm.find('p.cancel').length) {
+					$searchForm.append('<p class="cancel buttonbar"><button name="cancelSearch">Cancel</button></p>');
+				}
 				var searchEntries = $.isArray(this.searching) ? this.searching : [this.searching];
 				for (var i = 0; i < searchEntries.length; i++) {
 					var format = searchEntries[i].format || searchEntries[i];
