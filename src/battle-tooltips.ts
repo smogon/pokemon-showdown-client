@@ -1051,16 +1051,32 @@ class BattleTooltips {
 
 		let speedModifiers = [];
 
+		// clamp stats for gen 2
+		if (this.battle.gen === 2) {
+			for (const statName of Dex.statNamesExceptHP) {
+				if (stats[statName] > 999) stats[statName] = 999;
+				if (stats[statName] < 1) stats[statName] = 1;
+			}
+		}
+
 		// check for light ball, thick club, metal/quick powder
 		// the only stat modifying items in gen 2 were light ball, thick club, metal powder
 		if (item === 'lightball' && speciesName === 'Pikachu' && this.battle.gen !== 4) {
 			if (this.battle.gen > 4) stats.atk *= 2;
 			stats.spa *= 2;
+			// apply the stat roll over 
+			if (this.battle.gen === 2 && stats.spa >= 1024) {
+				stats.spa = Math.max(Math.floor(stats.spa / 4) % 256, 1) * 4
+			}
 		}
 
 		if (item === 'thickclub') {
 			if (speciesName === 'Marowak' || speciesName === 'Cubone') {
 				stats.atk *= 2;
+				// apply the stat roll over 
+				if (this.battle.gen === 2 && stats.atk >= 1024) {
+					stats.atk = Math.max(Math.floor(stats.atk / 4) % 256, 1) * 4
+				}
 			}
 		}
 
@@ -1072,6 +1088,13 @@ class BattleTooltips {
 				if (this.battle.gen === 2) {
 					stats.def = Math.floor(stats.def * 1.5);
 					stats.spd = Math.floor(stats.spd * 1.5);
+					// apply the stat roll over 
+					if (stats.def >= 1024) {
+						stats.def = Math.max(Math.floor(stats.def / 4) % 256, 1) * 4
+					}
+					if (stats.def >= 1024) {
+						stats.def = Math.max(Math.floor(stats.def / 4) % 256, 1) * 4
+					}
 				} else {
 					stats.def *= 2;
 				}
