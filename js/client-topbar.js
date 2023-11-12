@@ -10,7 +10,9 @@
 			'dragstart .roomtab': 'dragStartRoom',
 			'dragend .roomtab': 'dragEndRoom',
 			'dragenter .roomtab': 'dragEnterRoom',
-			'dragover .roomtab': 'dragEnterRoom'
+			'dragover .roomtab': 'dragEnterRoom',
+
+			'contextmenu .roomtab': 'showRoomTabRightClickMenu'
 		},
 		initialize: function () {
 			// April Fool's 2016 - Digimon Showdown
@@ -113,7 +115,7 @@
 				}
 				return buf + ' draggable="true"><i class="text">' + BattleLog.escapeFormat(formatid) + '</i><span>' + name + '</span></a><button class="closebutton" name="closeRoom" value="' + id + '" aria-label="Close"><i class="fa fa-times-circle"></i></a></li>';
 			case 'chat':
-				return buf + ' draggable="true"><i class="fa fa-comment-o"></i> <span>' + (BattleLog.escapeHTML(room.title) || (id === 'lobby' ? 'Lobby' : id)) + '</span></a><button class="closebutton" name="closeRoom" value="' + id + '" aria-label="Close"><i class="fa fa-times-circle"></i></a></li>';
+				return buf + ' draggable="true" data-chat="true"><i class="fa fa-comment-o"></i> <span>' + (BattleLog.escapeHTML(room.title) || (id === 'lobby' ? 'Lobby' : id)) + '</span></a><button class="closebutton" name="closeRoom" value="' + id + '" aria-label="Close"><i class="fa fa-times-circle"></i></a></li>';
 			case 'html':
 			default:
 				if (room.title && room.title.charAt(0) === '[') {
@@ -242,6 +244,14 @@
 		},
 		tablist: function () {
 			app.addPopup(TabListPopup);
+		},
+		showRoomTabRightClickMenu: function (e) {
+			if ($(e.currentTarget).data('chat')) {
+				e.preventDefault();
+				app.addPopup(TabRightClickPopup, {
+					sourceEl: e.currentTarget
+				});
+			}
 		},
 
 		// drag and drop
@@ -1121,5 +1131,39 @@
 			app.user.passwordRename(data.username, data.password);
 		}
 	});
+
+	var TabRightClickPopup = this.TabRightClickPopup = Popup.extend({
+		type: 'normal',
+		initialize: function (data) {
+			var sourceTab = data.sourceEl;
+			var roomId = $(sourceTab).attr('href').slice(1);
+			this.roomId = roomId;
+			var mutedRooms = Dex.prefs('mutedrooms') || {};
+			var roomMuted = mutedRooms[roomId];
+			var buf = '';
+			buf += '<p><strong>' + (sourceTab.context.innerText) + ' chat options</strong></p>';
+			buf += '<p><label class="optlabel"><input type="checkbox" name="roommuted"' + (roomMuted ? ' checked' : '') + '/>Hide new message indicator</label></p>';
+			buf += '<p><button name="closeRoom" value="' + roomId + '" aria-label="Leave Room">Leave Room</button></p>';
+			this.$el.html(buf).css('max-width', 200);
+		},
+		events: {
+			'change input[name=roommuted]': 'setRoomMute'
+		},
+		setRoomMute: function (e) {
+			var roomMuted = !!e.currentTarget.checked;
+			var mutedRooms = Dex.prefs('mutedrooms') || {};
+			if (roomMuted) {
+				mutedRooms[this.roomId] = 1;
+			} else {
+				delete mutedRooms[this.roomId];
+			}
+			Storage.prefs('mutedrooms', mutedRooms);
+		},
+		closeRoom: function (roomid, button, e) {
+			app.leaveRoom(roomid);
+			this.remove();
+		}
+	});
+
 
 }).call(this, jQuery);
