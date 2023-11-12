@@ -104,6 +104,7 @@ export class Pokemon implements PokemonDetails, PokemonHealth {
 	/** [[moveName, ppUsed]] */
 	moveTrack: [string, number][] = [];
 	statusData = {sleepTurns: 0, toxicTurns: 0};
+	volatilesData = {encoreTurns: 0, tauntTurns: 0};
 	timesAttacked = 0;
 
 	sprite: PokemonSprite;
@@ -277,6 +278,8 @@ export class Pokemon implements PokemonDetails, PokemonHealth {
 	removeVolatile(volatile: ID) {
 		this.side.battle.scene.removeEffect(this, volatile);
 		if (!this.hasVolatile(volatile)) return;
+		if(volatile == 'encore') this.volatilesData.encoreTurns = 0;
+		if(volatile == 'taunt') this.volatilesData.tauntTurns = 0;
 		delete this.volatiles[volatile];
 	}
 	addVolatile(volatile: ID, ...args: any[]) {
@@ -1534,6 +1537,12 @@ export class Battle {
 			} else {
 				pokemon.rememberMove(callerMoveForPressure.name, pp - 1); // 1 pp was already deducted from using the move itself
 			}
+			if(pokemon.volatiles['encore']) {
+				pokemon.volatilesData.encoreTurns++;
+			}
+			if(pokemon.volatiles['taunt']) {
+				pokemon.volatilesData.tauntTurns++;
+			}
 		}
 		pokemon.lastMove = move.id;
 		this.lastMove = move.id;
@@ -1624,6 +1633,12 @@ export class Battle {
 			this.scene.resultAnim(pokemon, 'Immobilized', 'neutral');
 			break;
 		}
+		if(pokemon.volatiles['encore']) {
+				pokemon.volatilesData.encoreTurns++;
+			}
+			if(pokemon.volatiles['taunt']) {
+				pokemon.volatilesData.tauntTurns++;
+			}
 		this.scene.animReset(pokemon);
 	}
 
@@ -1766,6 +1781,8 @@ export class Battle {
 					poke.side.wisher = null;
 					poke.statusData.sleepTurns = 0;
 					poke.statusData.toxicTurns = 0;
+					poke.volatilesData.encoreTurns = 0;
+					poke.volatilesData.tauntTurns = 0;
 					break;
 				case 'wish':
 					this.scene.runResidualAnim('wish' as ID, poke);
@@ -2733,6 +2750,7 @@ export class Battle {
 					break;
 				case 'taunt':
 					this.scene.resultAnim(poke, 'Taunt&nbsp;ended', 'good');
+					poke.volatilesData.tauntTurns = 0;
 					break;
 				case 'disable':
 					this.scene.resultAnim(poke, 'Disable&nbsp;ended', 'good');
@@ -2745,6 +2763,7 @@ export class Battle {
 					break;
 				case 'encore':
 					this.scene.resultAnim(poke, 'Encore&nbsp;ended', 'good');
+					poke.volatilesData.encoreTurns = 0;
 					break;
 				case 'bide':
 					this.scene.runOtherAnim('bideunleash' as ID, [poke]);

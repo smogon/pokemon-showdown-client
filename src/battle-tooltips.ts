@@ -854,6 +854,26 @@ class BattleTooltips {
 			text += '</p>';
 		}
 
+		if(pokemon.volatiles['encore']) {
+			if(this.battle.gen >= 5){
+				text += '<p><small>Encore turns remaining:</small> ' + (3 - clientPokemon.volatilesData.encoreTurns);
+			}
+			else{
+				text += '<p><small>Turns encored:</small> ' + clientPokemon.volatilesData.encoreTurns;
+			}
+			text += '</p>'
+		}
+
+		if(pokemon.volatiles['taunt']) {
+			if(this.battle.gen >= 5){
+				text += '<p><small>Taunt turns remaining:</small> ' + (3 - clientPokemon.volatilesData.tauntTurns);
+			}
+			else{
+				text += '<p><small>Turns taunted:</small> ' + clientPokemon.volatilesData.tauntTurns;
+			}
+			text += '</p>'
+		}
+
 		const supportsAbilities = this.battle.gen > 2 && !this.battle.tier.includes("Let's Go");
 
 		let abilityText = '';
