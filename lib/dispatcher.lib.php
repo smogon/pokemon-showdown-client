@@ -327,6 +327,23 @@ class DefaultActionHandler {
 		}
 	}
 
+	public function loginsearch($dispatcher, &$reqData, &$out) {
+		global $psdb;
+		$server = $dispatcher->findServer();
+		if (!$server || $server['id'] !== 'showdown') {
+			$out['actionerror'] = 'access denied';
+		} else if (!isset($_REQUEST['search'])) {
+			$out['actionerror'] = 'Specify a valid search.';
+		} else {
+			$search = $psdb->escape($_REQUEST['search']);
+			$result = $psdb->query(
+				"SELECT `userid`, `ip` FROM `ntbb_users` WHERE `ip` LIKE '" . $search . "%' " .
+				"OR `userid` LIKE '%" . $search . "%';"
+			);
+			$out['result'] = $result->fetchAll();
+		}
+	}
+
 	public function updateuserstats($dispatcher, &$reqData, &$out) {
 		global $psdb;
 
