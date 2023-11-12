@@ -97,6 +97,8 @@
 					'<div class="tournament-tools">' +
 						'<div class="tournament-team"></div>' +
 						'<button class="button tournament-join">Join</button><button class="button tournament-validate"><i class="fa fa-check"></i> Validate</button> <button class="button tournament-leave">Leave</button>' +
+						'<div class="tournament-teamlocked">Your team is locked.</div>' +
+						'<div class="tournament-teamlock-warning">Your team will be locked once you start your first battle.</div>' +
 						'<div class="tournament-nomatches">Waiting for battles to become available...</div>' +
 						'<div class="tournament-challenge">' +
 							'<div class="tournament-challenge-user"></div>' +
@@ -125,6 +127,8 @@
 			this.$leave = $wrapper.find('.tournament-leave');
 			this.$noMatches = $wrapper.find('.tournament-nomatches');
 			this.$teamSelect = $wrapper.find('.tournament-team');
+			this.$teamLocked = $wrapper.find('.tournament-teamlocked');
+			this.$teamLockWarning = $wrapper.find('.tournament-teamlock-warning');
 			this.$validate = $wrapper.find('.tournament-validate');
 			this.$challenge = $wrapper.find('.tournament-challenge');
 			this.$challengeUser = $wrapper.find('.tournament-challenge-user');
@@ -141,6 +145,7 @@
 			this.info = {};
 			this.updates = {};
 			this.savedBracketPosition = {};
+			this.teamLocked = false;
 
 			this.$lastJoinLeaveMessage = null;
 			this.batchedJoins = [];
@@ -210,9 +215,21 @@
 
 			if (!this.info.isJoined) {
 				this.$teamSelect.hide();
+				this.$teamLocked.hide();
+				this.$teamLockWarning.hide();
 				if (forceFormatChange) this.$teamSelect.html('');
 				return;
 			}
+
+			if (this.info.teamLocked) {
+				this.$teamSelect.hide();
+				this.$teamLocked.show();
+				this.$teamLockWarning.hide();
+				return;
+			}
+
+			this.$teamLocked.hide();
+			this.$teamLockWarning.toggle(this.teamLocked);
 
 			var teamIndex = -1;
 			if (!forceFormatChange && this.$teamSelect.children().val()) {
@@ -279,6 +296,7 @@
 					this.room.$chat.append("<div class=\"notice tournament-message-create\">" + BattleLog.escapeHTML(formatName) + " " + BattleLog.escapeHTML(type) + " Tournament created.</div>");
 					if (notify) this.room.notifyOnce("Tournament created", "Room: " + this.room.title + "\nFormat: " + formatName + "\nType: " + type, 'tournament-create');
 					this.curTeamIndex = 0;
+					this.teamLocked = false;
 					this.updateTeams();
 					break;
 
@@ -360,6 +378,17 @@
 					}
 					break;
 
+				case 'teamlock':
+					if (data[0] === 'on') {
+						this.room.$chat.append("<div class=\"notice tournament-message-teamlock\">This tournament is now team-locked (Tournament players can't change teams between games)</div>");
+						this.teamLocked = true;
+					} else if (data[0] === 'off') {
+						this.room.$chat.append("<div class=\"notice tournament-message-teamlock\">This tournament is no longer team-locked.</div>");
+						this.teamLocked = false;
+					}
+					this.updateTeams();
+					break;
+
 				case 'update':
 					$.extend(this.updates, JSON.parse(data.join('|')));
 					break;
@@ -378,7 +407,7 @@
 						this.$format.text(window.BattleFormats && BattleFormats[this.info.format] ? BattleFormats[this.info.format].name : this.info.format);
 						this.updateTeams();
 					}
-					if ('isJoined' in this.updates) {
+					if ('isJoined' in this.updates || 'teamLocked' in this.updates) {
 						this.updateTeams();
 					}
 					if ('generator' in this.updates)
@@ -388,10 +417,10 @@
 					}
 
 					// Update the toolbox
-					if ('isStarted' in this.updates || 'isJoined' in this.updates) {
+					if ('isStarted' in this.updates || 'isJoined' in this.updates || 'teamLocked' in this.updates) {
 						this.$join.toggleClass('active', !this.info.isStarted && !this.info.isJoined);
 						this.$leave.toggleClass('active', !this.info.isStarted && this.info.isJoined);
-						this.$validate.toggleClass('active', this.info.isJoined && !this.info.challenging && !this.info.challenged && !(this.info.challenges && this.info.challenges.length));
+						this.$validate.toggleClass('active', this.info.isJoined && !this.info.teamLocked && !this.info.challenging && !this.info.challenged && !(this.info.challenges && this.info.challenges.length));
 						this.$tools.toggleClass('active', !this.info.isStarted || this.info.isJoined);
 					}
 

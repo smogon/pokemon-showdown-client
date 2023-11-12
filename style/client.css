@@ -1352,6 +1352,10 @@ a.ilink.yours {
 .tournament-team {
 	padding-bottom: 5px;
 }
+.tournament-teamlocked, .tournament-teamlock-warning {
+	display: none;
+	padding-bottom: 5px;
+}
 .tournament-challenge-user,
 .tournament-challenged-message,
 .tournament-challenging-message,
