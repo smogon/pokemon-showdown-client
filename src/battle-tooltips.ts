@@ -1962,6 +1962,19 @@ class BattleTooltips {
 			}
 		}
 
+		// Weather
+		let isRainy = this.battle.weather === 'raindance' || this.battle.weather === 'primordialsea';
+		let isSunny = this.battle.weather === 'sunnyday' || this.battle.weather === 'desolateland';
+		if (isRainy && moveType === 'Water' || isSunny && moveType === 'Fire') {
+			value.modify(1.5, 'Boosted by Weather');
+		} else if (this.battle.weather === 'raindance' && moveType === 'Fire' ||
+			this.battle.weather === 'sunnyday' && moveType === 'Water') {
+				value.modify(0.5, 'Decreased by Weather');
+		} else if (this.battle.weather === 'primordialsea' && moveType === 'Fire' ||
+			this.battle.weather === 'desolateland' && moveType === 'Water') {
+				value.modify(0, 'Nullified by Weather');
+		}
+
 		// Terrain
 		if ((this.battle.hasPseudoWeather('Electric Terrain') && moveType === 'Electric') ||
 			(this.battle.hasPseudoWeather('Grassy Terrain') && moveType === 'Grass') ||
