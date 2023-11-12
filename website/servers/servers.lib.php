@@ -15,3 +15,17 @@ function saveservers() {
 $PokemonServers = '.var_export($GLOBALS['PokemonServers'], true).';
 ');
 }
+
+
+$serverinfo = json_decode(
+	file_get_contents(__DIR__ . '/../../config/serverinfo.json') ?: "{}",
+	true
+);
+
+function writeserverinfo() {
+	global $serverinfo;
+	file_put_contents(
+		__DIR__ . '/../../config/serverinfo.json',
+		json_encode($serverinfo, JSON_FORCE_OBJECT)
+	);
+}

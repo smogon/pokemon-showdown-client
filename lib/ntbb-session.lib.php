@@ -471,7 +471,12 @@ class NTBBSession {
 		if (($user['userid'] === $userid) && !empty($user['loggedin'])) {
 			// already logged in
 			$usertype = '2';
-			if (in_array($userid, $psconfig['sysops'], true)) {
+			$ismain = $serverhostname === 'sim3.psim.us' || $serverhostname === 'smogtours.psim.us';
+			if (
+				in_array($userid, $psconfig['sysops'], true) ||
+				// give admins and leaders sysop on side servers
+				(!$ismain && $users->isLeader())
+			) {
 				$usertype = '3';
 			} else {
 				// check autoconfirmed
