@@ -263,7 +263,10 @@ export class BattleScene implements BattleSceneStub {
 	addSprite(sprite: PokemonSprite) {
 		if (sprite.$el) this.$sprites[+sprite.isFrontSprite].append(sprite.$el);
 	}
-	showEffect(effect: string | SpriteData, start: ScenePos, end: ScenePos, transition: string, after?: string, additionalCss?: JQuery.PlainObject) {
+	showEffect(
+		effect: string | SpriteData, start: ScenePos, end: ScenePos,
+		transition: string, after?: string, additionalCss?: JQuery.PlainObject
+	) {
 		if (typeof effect === 'string') effect = BattleEffects[effect] as SpriteData;
 		if (!start.time) start.time = 0;
 		if (!end.time) end.time = start.time + 500;
