@@ -3623,6 +3623,17 @@ export const BattleMoveAnims: AnimTable = {
 	moonlight: {
 		anim(scene, [attacker]) {
 			scene.backgroundEffect(`url('https://${Config.routes.client}/fx/bg-space.jpg')`, 800, 0.6);
+			scene.showEffect('moon', {
+				x: attacker.x,
+				y: attacker.y + 150,
+				z: attacker.z,
+				scale: 1,
+				opacity: 0,
+				time: 200,
+			}, {
+				opacity: 0.8,
+				time: 900,
+			}, 'accel', 'fade');
 			scene.showEffect('shine', {
 				x: attacker.x + 40,
 				y: attacker.y - 40,
@@ -19135,6 +19146,20 @@ export const BattleMoveAnims: AnimTable = {
 	moonblast: {
 		anim(scene, [attacker, defender]) {
 			scene.backgroundEffect(`url('https://${Config.routes.client}/fx/bg-space.jpg')`, 800, 0.6);
+			scene.showEffect('moon', {
+				x: attacker.x,
+				y: attacker.y,
+				z: attacker.z,
+				scale: 0.9,
+				opacity: 0.3,
+			}, {
+				x: defender.x,
+				y: defender.y,
+				z: defender.z,
+				scale: 0.9,
+				opacity: 0.6,
+				time: 500,
+			}, 'linear', 'explode');
 			scene.showEffect('mistball', {
 				x: attacker.x,
 				y: attacker.y,
@@ -35057,7 +35082,7 @@ BattleMoveAnims['entrainment'] = {anim: BattleMoveAnims['painsplit'].anim};
 BattleMoveAnims['roleplay'] = {anim: BattleMoveAnims['painsplit'].anim};
 BattleMoveAnims['psychup'] = {anim: BattleMoveAnims['painsplit'].anim};
 BattleMoveAnims['holdhands'] = {anim: BattleMoveAnims['painsplit'].anim};
-BattleMoveAnims['lunardance'] = {anim: BattleMoveAnims['wish'].anim};
+BattleMoveAnims['lunardance'] = {anim: BattleMoveAnims['moonlight'].anim};
 
 BattleMoveAnims['brickbreak'] = {anim: BattleMoveAnims['karatechop'].anim};
 BattleMoveAnims['throatchop'] = {anim: BattleMoveAnims['karatechop'].anim};
