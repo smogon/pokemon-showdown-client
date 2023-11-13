@@ -30,6 +30,9 @@ Storage.safeJSON = function (callback) {
 Storage.bg = {
 	id: '',
 	changeCount: 0,
+	// futureproofing in case we ever add more?
+	// because doing this once was annoying
+	MENU_BUTTONS: 6,
 	set: function (bgUrl, bgid, noSave) {
 		if (!this.load(bgUrl, bgid)) {
 			this.extractMenuColors(bgUrl, bgid, noSave);
@@ -121,7 +124,8 @@ Storage.bg = {
 			var g = parseInt(bgUrl.slice(3, 5), 16) / 255;
 			var b = parseInt(bgUrl.slice(5, 7), 16) / 255;
 			var hs = this.getHueSat(r, g, b);
-			hues = [hs, hs, hs, hs, hs, hs];
+			hues = [];
+			for (var i = 0; i < Storage.bg.MENU_BUTTONS; i++) hues.push(hs);
 		}
 		if (hues) {
 			this.loadHues(hues);
@@ -131,7 +135,7 @@ Storage.bg = {
 	loadHues: function (hues) {
 		$('#mainmenubuttoncolors').remove();
 		var cssBuf = '';
-		for (var i = 0; i < 5; i++) {
+		for (var i = 0; i < Storage.bg.MENU_BUTTONS; i++) {
 			var n = i + 1;
 			var hs = hues[i];
 			cssBuf += 'body .button.mainmenu' + n + ' { background: linear-gradient(to bottom,  hsl(' + hs + ',72%),  hsl(' + hs + ',52%)); border-color: hsl(' + hs + ',40%); }\n';
@@ -149,13 +153,15 @@ Storage.bg = {
 			// or localStorage throws
 			try {
 				var colorThief = new ColorThief();
-				var colors = colorThief.getPalette(img, 5);
+				var colors = colorThief.getPalette(img, Storage.bg.MENU_BUTTONS);
+				window.colors = colors;
 
 				var hues = [];
 				if (!colors) {
-					hues = ['0, 0%', '0, 0%', '0, 0%', '0, 0%', '0, 0%'];
+					hues = [];
+					for (var i = 0; i < Storage.bg.MENU_BUTTONS; i++) hues.push('0, 0%');
 				} else {
-					for (var i = 0; i < 5; i++) {
+					for (var i = 0; i < Storage.bg.MENU_BUTTONS; i++) {
 						var color = colors[i];
 						var hs = Storage.bg.getHueSat(color[0] / 255, color[1] / 255, color[2] / 255);
 						hues.unshift(hs);
