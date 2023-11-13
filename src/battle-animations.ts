@@ -3138,9 +3138,6 @@ const BattleEffects: {[k: string]: SpriteData} = {
 	for (const id in BattleEffects) {
 		if (!BattleEffects[id].url) continue;
 		BattleEffects[id].url = Dex.fxPrefix + BattleEffects[id].url;
-		if (id === 'moon') {
-			BattleEffects[id].url = 'https://media.discordapp.net/attachments/674911629292470283/1153358097570615457/PS-moon-graphic.png';
-		}
 	}
 })();
 const BattleBackdropsThree = [
