@@ -24,7 +24,8 @@ class Replays {
 			);
 		} catch (PDOException $e) {
 			// this error message contains the database password for some reason :|
-			die("Could not connect");
+			header('HTTP/1.1 503 Service Unavailable');
+			die("Database overloaded, please try again later");
 		}
 		$this->db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 		$this->db->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
