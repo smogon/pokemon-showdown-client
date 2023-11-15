@@ -20,8 +20,6 @@ ini_set('display_startup_errors', TRUE);
 
 $manage = false;
 
-require_once 'replays.lib.php';
-
 $replay = null;
 $id = $_REQUEST['name'] ?? '';
 $password = '';
