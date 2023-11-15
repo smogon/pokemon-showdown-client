@@ -60,11 +60,11 @@
 		var innerX = 0;
 		var innerY = 0;
 
-		$element.on('mousedown', function (e) {
+		$element.on('pointerdown', function (e) {
 			innerX = e.pageX + ($element.parent().width() - $element.width() - this.offsetLeft);
 			innerY = e.pageY - this.offsetTop;
 
-			function mouseMoveCallback(e) {
+			function pointerMoveCallback(e) {
 				position.right = innerX - e.pageX;
 				position.top = e.pageY - innerY;
 				delete position.isDefault;
@@ -74,9 +74,9 @@
 					top: position.top
 				});
 			}
-			$(document).on('mousemove', mouseMoveCallback)
-				.one('mouseup', function () {
-					$(document).off('mousemove', mouseMoveCallback);
+			$(document).on('pointermove', pointerMoveCallback)
+				.one('pointerup', function () {
+					$(document).off('pointermove', pointerMoveCallback);
 				});
 		});
 	}

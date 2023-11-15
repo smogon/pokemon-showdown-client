@@ -1219,6 +1219,7 @@ a.ilink.yours {
 	overflow: hidden;
 	transition: max-height 0.15s;
 	-webkit-transition: max-height 0.15s;
+	touch-action: none;
 }
 
 .tournament-bracket {
@@ -1226,14 +1227,18 @@ a.ilink.yours {
 	padding: 10px;
 	overflow: hidden;
 	font-size: 8pt;
+	touch-action: none;
 }
+
 .tournament-bracket-overflowing {
 	height: 200px;
 	padding: 0;
 	position: relative;
 	left: 0;
 	top: 0;
+	touch-action: none;
 }
+
 
 .tournament-popout-link {
 	position: absolute;
