@@ -1320,7 +1320,7 @@
 				);
 			}
 			var html = '';
-			if (!bufs.length) {
+			if (bufs.every(function (buf) { return !buf; })) {
 				html = '<ul class="popupmenu"><em>No formats found</em></ul>';
 			} else {
 				for (var i = 1, l = bufs.length; i < l; i++) {
