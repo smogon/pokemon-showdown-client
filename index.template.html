@@ -29,7 +29,7 @@ https://psim.us/dev
 <title>Showdown!</title>
 <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
 <link rel="shortcut icon" href="//play.pokemonshowdown.com/favicon.ico" id="dynamic-favicon" />
-<link rel="icon" sizes="128x128" href="//play.pokemonshowdown.com/favicon-128.png" />
+<link rel="icon" sizes="256x256" href="//play.pokemonshowdown.com/favicon-256.png" />
 <link rel="stylesheet" href="//play.pokemonshowdown.com/style/battle.css?" />
 <link rel="stylesheet" href="//play.pokemonshowdown.com/style/client.css?" />
 <link rel="stylesheet" href="//play.pokemonshowdown.com/style/sim-types.css?" />
@@ -111,7 +111,15 @@ https://psim.us/dev
 <script src="//play.pokemonshowdown.com/data/graphics.js?"></script>
 
 <script>
-	var app = new App();
+	// framebust - see https://owasp.org/www-pdf-archive/OWASP_AppSec_Research_2010_Busting_Frame_Busting_by_Rydstedt.pdf
+	// should be robust against reflective XSS filters and navigation interception
+	var app;
+	if (self === top) {
+		app = new App();
+	} else {
+		LM.innerHTML += ' IN FRAME<br />Please visit Showdown directly.';
+		top.location = self.location;
+	}
 </script>
 
 <script src="//play.pokemonshowdown.com/data/pokedex.js?"></script>
