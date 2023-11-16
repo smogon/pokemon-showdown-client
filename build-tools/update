@@ -193,30 +193,26 @@ function updateFiles() {
 	replayEmbedContents = replayEmbedContents.replace(/play\.pokemonshowdown\.com/g, routes.client);
 
 	// add news, only if it's actually likely to exist
-	if (__dirname.endsWith('play.pokemonshowdown.com/build-tools')) {
-		process.stdout.write("and news... ");
-		child_process.exec('php ' + path.resolve(thisDir, 'news-data.php'), function (error, stdout, stderr) {
-			let newsData = [0, '[failed to retrieve news]'];
-			if (!error && !stderr) {
-				try {
-					newsData = JSON.parse(stdout);
-				} catch (e) {
-					console.log("git hook failed to retrieve news (parsing JSON failed):\n" + e.stack);
-				}
-			} else {
-				console.log("git hook failed to retrieve news (exec command failed):\n" + (error + stderr + stdout));
+	process.stdout.write("and news... ");
+	child_process.exec('php ' + path.resolve(thisDir, 'news-data.php'), function (error, stdout, stderr) {
+		let newsData = [0, '[failed to retrieve news]'];
+		if (!error && !stderr) {
+			try {
+				newsData = JSON.parse(stdout);
+			} catch (e) {
+				console.log("git hook failed to retrieve news (parsing JSON failed):\n" + e.stack);
 			}
+		} else {
+			console.log("git hook failed to retrieve news (exec command failed):\n" + (error + stderr + stdout));
+		}
 
-			indexContents = indexContents.replace(/<!-- newsid -->/g, newsData[0]);
-			indexContents = indexContents.replace(/<!-- news -->/g, newsData[1]);
+		indexContents = indexContents.replace(/<!-- newsid -->/g, newsData[0]);
+		indexContents = indexContents.replace(/<!-- news -->/g, newsData[1]);
 
-			indexContents = indexContents.replace(/<!-- head custom -->/g, '' + fs.readFileSync('config/head-custom.html'));
+		indexContents = indexContents.replace(/<!-- head custom -->/g, '' + fs.readFileSync('config/head-custom.html'));
 
-			writeFiles(indexContents, preactIndexContents, crossprotocolContents, replayEmbedContents);
-		});
-	} else {
 		writeFiles(indexContents, preactIndexContents, crossprotocolContents, replayEmbedContents);
-	}
+	});
 }
 
 updateFiles();
