@@ -8,14 +8,9 @@
       "sizes": "16x16"
     },
     {
-      "src": "favicon-48.png",
+      "src": "favicon-32.png",
       "type": "image/png",
-      "sizes": "48x48"
-    },
-    {
-      "src": "favicon-192.png",
-      "type": "image/png",
-      "sizes": "192x192"
+      "sizes": "32x32"
     },
     {
       "src": "favicon-256.png",
