@@ -17,5 +17,5 @@ foreach ($_COOKIE as $name => $value) {
 }
 
 if ($cleaned) {
-	echo 'alert("You had a cookie which was too big to handle and had to be deleted. If you had cookie settings, they may not be right.")';
+	echo 'alert("You had a cookie which was too big to handle and had to be deleted. If you had cookie settings, they may have been deleted.")';
 }
