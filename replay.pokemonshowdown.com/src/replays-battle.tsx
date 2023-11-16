@@ -3,9 +3,9 @@ import preact from 'preact';
 import $ from 'jquery';
 import {Net} from './utils';
 import {PSRouter, PSReplays} from './replays';
-import {Battle} from '../../src/battle';
-import {BattleLog} from '../../src/battle-log';
-import {BattleSound} from '../../src/battle-sound';
+import {Battle} from '../../play.pokemonshowdown.com/src/battle';
+import {BattleLog} from '../../play.pokemonshowdown.com/src/battle-log';
+import {BattleSound} from '../../play.pokemonshowdown.com/src/battle-sound';
 declare function toID(input: string): string;
 
 function showAd(id: string) {
