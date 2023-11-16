@@ -1993,6 +1993,18 @@ class BattleTooltips {
 		if (move.id === 'risingvoltage' && this.battle.hasPseudoWeather('Electric Terrain') && target?.isGrounded()) {
 			value.modify(2, 'Rising Voltage + Electric Terrain boost');
 		}
+
+		// Item
+		value = this.getItemBoost(move, value, moveType);
+
+		// Terastal base power floor
+		if (
+			pokemon.terastallized && pokemon.terastallized === move.type && value.value < 60 && move.priority <= 0 &&
+			!move.multihit && !((move.basePower === 0 || move.basePower === 150) && (move as any).basePowerCallback)
+		) {
+			value.set(60, 'Tera type BP minimum');
+		}
+
 		if (
 			move.id === 'steelroller' &&
 			!this.battle.hasPseudoWeather('Electric Terrain') &&
@@ -2002,9 +2014,6 @@ class BattleTooltips {
 		) {
 			value.set(0, 'no Terrain');
 		}
-
-		// Item
-		value = this.getItemBoost(move, value, moveType);
 
 		return value;
 	}
