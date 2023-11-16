@@ -2,12 +2,12 @@ const assert = require('assert').strict;
 
 window = global;
 
-require('../js/battle-dex-data.js');
-require('../js/battle-dex.js');
-require('../js/battle-scene-stub.js');
-// global.BattleText = require('../data/text.js').BattleText;
-require('../js/battle-text-parser.js');
-require('../js/battle.js');
+require('../play.pokemonshowdown.com/js/battle-dex-data.js');
+require('../play.pokemonshowdown.com/js/battle-dex.js');
+require('../play.pokemonshowdown.com/js/battle-scene-stub.js');
+// global.BattleText = require('../play.pokemonshowdown.com/data/text.js').BattleText;
+require('../play.pokemonshowdown.com/js/battle-text-parser.js');
+require('../play.pokemonshowdown.com/js/battle.js');
 
 describe('Battle', () => {
 

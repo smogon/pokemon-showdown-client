@@ -2,7 +2,7 @@
 
 const fs = require('fs');
 const path = require('path');
-const Dex = require('../data/pokemon-showdown/dist/sim/dex').Dex;
+const Dex = require('../caches/pokemon-showdown/dist/sim/dex').Dex;
 
 const dir = path.resolve(process.argv[2]);
 const ext = process.argv[3];
