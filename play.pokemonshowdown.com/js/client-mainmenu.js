@@ -1449,7 +1449,7 @@
 						if ((!teams[i].format && !teamFormat) || teams[i].format === teamFormat) {
 							var selected = (i === curTeam);
 							if (!this.folderToggleOn) {
-								bufs[curBuf] += '<li><button name="selectTeam" value="' + i + '" class="option' + (selected ? 'sel' : '') + '">' + BattleLog.escapeHTML(teams[i].name) + '</button></li>';
+								bufs[curBuf] += '<li><button name="selectTeam" value="' + i + '" class="option' + (selected ? ' cur' : '') + '">' + BattleLog.escapeHTML(teams[i].name) + '</button></li>';
 								count++;
 								if (count % bufBoundary === 0 && curBuf < 4) curBuf++;
 							} else {
