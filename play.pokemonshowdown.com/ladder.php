@@ -1,6 +1,6 @@
 <?php
 
-include 'lib/ntbb-ladder.lib.php';
+include '../lib/ntbb-ladder.lib.php';
 
 $formatid = 'OU';
 $prefix = null;

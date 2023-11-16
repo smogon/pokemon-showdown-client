@@ -9,7 +9,7 @@
     },
     "types": [],
     "include": [
-        "./js/lib/preact.d.ts",
-        "./src/*"
+        "./play.pokemonshowdown.com/js/lib/preact.d.ts",
+        "./play.pokemonshowdown.com/src/*"
     ]
 }
