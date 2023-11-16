@@ -1814,7 +1814,7 @@ class BattleTooltips {
 			}
 		}
 		// Moves which have base power changed according to weight
-		if (['lowkick', 'grassknot', 'heavyslam', 'heatcrash'].includes(move.id)) {
+		if (['lowkick', 'grassknot', 'heavyslam', 'heatcrash'].includes(move.id) && this.battle.gen > 2) {
 			let isGKLK = ['lowkick', 'grassknot'].includes(move.id);
 			if (target) {
 				let targetWeight = target.getWeightKg();
