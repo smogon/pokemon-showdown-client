@@ -1086,6 +1086,26 @@
 			if (data.special === '@gmail') {
 				var self = this;
 				window.gapiRenderButton = function () {
+					if (!window.gapiAuthenticated) {
+						gapi.load('auth2', function () { // eslint-disable-line no-undef
+							window.gapiAuthenticated = gapi.auth2.init({ // eslint-disable-line no-undef
+								client_id: '912270888098-jjnre816lsuhc5clj3vbcn4o2q7p4qvk.apps.googleusercontent.com',
+							});
+							window.gapiAuthenticated.then(function () {
+								window.gapiAuthenticated = true;
+								window.gapiRenderButton();
+							});
+						});
+						return;
+					}
+					// they're trying again in a new popup, set a new .then so it still works
+					if (window.gapiAuthenticated.then) {
+						window.gapiAuthenticated.then(function () {
+							window.gapiAuthenticated = true;
+							window.gapiRenderButton();
+						});
+						return;
+					}
 					gapi.signin2.render('gapi-custom-signin', { // eslint-disable-line no-undef
 						'scope': 'profile email',
 						'width': 240,
