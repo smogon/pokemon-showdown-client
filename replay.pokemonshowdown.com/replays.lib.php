@@ -1,6 +1,6 @@
 <?php
 
-require __DIR__.'/replay-config.inc.php';
+require __DIR__.'/../config/replay-config.inc.php';
 
 class Replays {
 	var $db;
