@@ -199,7 +199,7 @@ indexContents = indexContents.replace(/<!-- news -->/g, news);
 
 try {
 	indexContents = indexContents.replace(/<!-- head custom -->/g, '' + fs.readFileSync('config/head-custom.html'));
-} catch {}
+} catch (e) {}
 
 fs.writeFileSync('play.pokemonshowdown.com/index.html', indexContents);
 fs.writeFileSync('play.pokemonshowdown.com/preactalpha.html', preactIndexContents);
