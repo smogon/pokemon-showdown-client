@@ -35,6 +35,7 @@ module.exports = {
 		"no-confusing-arrow": 0,
 		"no-const-assign": 2,
 		"no-dupe-class-members": 2,
+		"no-restricted-syntax": "off",
 		"no-this-before-super": 2,
 		"no-var": 2,
 		"require-yield": 2,
