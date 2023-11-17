@@ -1012,13 +1012,13 @@ class BattlePokemonSearch extends BattleTypedSearch<'pokemon'> {
 			];
 		}
 
+		if (format === 'zu' && table.zuBans && dex.gen === 9) {
+			tierSet = tierSet.filter(([type, id]) => {
+				if (id in table.zuBans) return false;
+				return true;
+			});
+		}
 		if (dex.gen >= 5) {
-			if (format === 'zu' && table.zuBans) {
-				tierSet = tierSet.filter(([type, id]) => {
-					if (id in table.zuBans) return false;
-					return true;
-				});
-			}
 			if ((format === 'monotype' || format.startsWith('monothreat')) && table.monotypeBans) {
 				tierSet = tierSet.filter(([type, id]) => {
 					if (id in table.monotypeBans) return false;

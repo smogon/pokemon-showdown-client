@@ -461,7 +461,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			if (!tierTable[tier]) tierTable[tier] = [];
 			tierTable[tier].push(id);
 
-			if (genNum >= 5) {
+			if (genNum === 9) {
 				const zu = Dex.formats.get(gen + 'zu');
 				if (zu.exists && Dex.formats.getRuleTable(zu).isBannedSpecies(species) &&
 					["(PU)", "NFE", "LC"].includes(species.tier)) {
@@ -548,7 +548,6 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			BattleTeambuilderTable[gen].items = items;
 			BattleTeambuilderTable[gen].formatSlices = formatSlices;
 			if (genNum >= 5) {
-				BattleTeambuilderTable[gen].zuBans = zuBans;
 				BattleTeambuilderTable[gen].monotypeBans = monotypeBans;
 			}
 			if (isSSDLC1 || isPreDLC) {
@@ -573,7 +572,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 		for (const tier of tierOrder) {
 			if (tier in {OU:1, AG:1, Uber:1, UU:1, RU:1, NU:1, PU:1, ZU: 1, "(PU)":1, NFE:1, LC:1, DOU:1, DUU:1, "(DUU)":1, New:1, Legal:1, Regular:1, "Restricted Legendary":1, "CAP LC":1}) {
 				let usedTier = tier;
-				if (usedTier === "(PU)" && genNum !== 3) usedTier = "ZU";
+				if (usedTier === "(PU)" && genNum === 9) usedTier = "ZU";
 				if (usedTier === "(DUU)") usedTier = "DNU";
 				formatSlices[usedTier] = tiers.length;
 			}
