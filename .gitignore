@@ -23,6 +23,7 @@ package-lock.json
 /play.pokemonshowdown.com/js/client-main.js
 /play.pokemonshowdown.com/js/client-core.js
 /play.pokemonshowdown.com/js/client-connection.js
+/play.pokemonshowdown.com/ads.txt
 
 /pokemonshowdown.com/.well-known/
 /pokemonshowdown.com/.pages-cached/
@@ -34,3 +35,4 @@ package-lock.json
 /replay.pokemonshowdown.com/js/
 /replay.pokemonshowdown.com/caches/
 /replay.pokemonshowdown.com/theme/wrapper.inc.php
+/replay.pokemonshowdown.com/ads.txt

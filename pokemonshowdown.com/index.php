@@ -1,6 +1,3 @@
-<?php
-include_once __DIR__ . '/../config/config.inc.php';
-?>
 <!DOCTYPE html>
 
 <meta charset="utf-8" />
@@ -10,16 +7,11 @@ include_once __DIR__ . '/../config/config.inc.php';
 
 <link rel="stylesheet" href="/style/global.css?v14" />
 
-<!-- Global site tag (gtag.js) - Google Analytics -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=UA-26211653-1"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'UA-26211653-1');
-</script>
-<!-- End Google Analytics -->
+<?php
+include_once __DIR__ . '/../config/config.inc.php';
+include_once __DIR__ . '/../config/ads-landing.inc.php';
+@insertAtHead();
+?>
 
 <style>
 @font-face {
@@ -104,21 +96,9 @@ include_once __DIR__ . '/../config/config.inc.php';
 	</header>
 
 	<div class="main">
+		<div class="main-spacer"><?php @insertAboveIntro(); ?></div>
+
 		<section class="section" style="max-width: 850px">
-
-			<div class="main-spacer"><div id="ad-div">
-<script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
-<!-- PS home 1 -->
-<ins class="adsbygoogle"
-     style="display:block"
-     data-ad-client="ca-pub-6535472412829264"
-     data-ad-slot="6218061333"
-     data-ad-format="auto"></ins>
-<script>
-(adsbygoogle = window.adsbygoogle || []).push({});
-</script>
-			</div></div>
-
 			<div class="left">
 				<!--div class="screenshot"><img src="/images/screenshot-desktop.png" alt="" width="549" height="288" style="border:1px solid #AAAAAA;box-shadow: 3px 3px 3px rgba(0,0,0,.2);image-rendering: -moz-auto;" /></div-->
 				<iframe width="560" height="315" src="https://www.youtube.com/embed/daw9GoZWWSI" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
@@ -270,20 +250,7 @@ if (BrowserDetect.OS === 'Mac') {
 
 			<div class="under-main" style="clear:both;padding-top:1px">
 
-				<div class="main-spacer"><div id="ad-div2">
-<?php /*
-<script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
-<!-- PS home 2 -->
-<ins class="adsbygoogle"
-     style="display:block"
-     data-ad-client="ca-pub-6535472412829264"
-     data-ad-slot="7694794531"
-     data-ad-format="auto"></ins>
-<script>
-(adsbygoogle = window.adsbygoogle || []).push({});
-</script>
-*/ ?>
-				</div></div>
+				<div class="main-spacer"><?php @insertBelowIntro(); ?></div>
 				<div style="clear:both;padding-top:1px"></div>
 			</div>
 		</section>
@@ -397,19 +364,7 @@ foreach ($latestNewsCache as $topic_id) {
 <?php
 	if (++$count >= 2) break;
 	if ($count === 1) {
-?>
-		<div style="margin:10px 0"><div style="text-align:center" id="ad-div3">
-<script async src="//pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
-<!-- PS Home 3 LR -->
-<ins class="adsbygoogle"
-     style="display:inline-block;width:336px;height:280px"
-     data-ad-client="ca-pub-6535472412829264"
-     data-ad-slot="9252930937"></ins>
-<script>
-(adsbygoogle = window.adsbygoogle || []).push({});
-</script>
-		</div></div>
-<?php
+		@insertBetweenNews();
 	}
 }
 
@@ -426,3 +381,5 @@ foreach ($latestNewsCache as $topic_id) {
 		<small><a href="/rules">Rules</a> | <a href="/privacy">Privacy policy</a> | <a href="/credits">Credits</a> | <a href="/contact">Contact</a></small>
 	</p>
 </footer>
+
+<?php @insertAtEnd(); ?>
