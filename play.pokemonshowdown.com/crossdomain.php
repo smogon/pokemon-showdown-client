@@ -97,7 +97,7 @@ header('P3P: CP="NOI CUR ADM DEV COM NAV STA OUR IND"');
 ?>
 <!DOCTYPE html>
 <meta charset="utf-8" />
-<script src="/js/lib/jquery-2.1.4.min.js"></script>
+<script src="/js/lib/jquery-2.2.4.min.js"></script>
 <body>
 <script>
 
