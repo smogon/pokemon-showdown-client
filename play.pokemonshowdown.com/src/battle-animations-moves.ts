@@ -35868,22 +35868,22 @@ BattleMoveAnims['stoneaxe'] = {
 		BattleOtherAnims.slashattack.anim(scene, [attacker, defender]);
 	},
 };
-BattleMoveAnims['terablast'] = {anim: BattleMoveAnims['scald'].anim};
-BattleMoveAnims['terablastbug'] = {anim: BattleMoveAnims['bugbuzz'].anim};
+BattleMoveAnims['terablast'] = {anim: BattleMoveAnims['swift'].anim};
+BattleMoveAnims['terablastbug'] = {anim: BattleMoveAnims['signalbeam'].anim};
 BattleMoveAnims['terablastdark'] = {anim: BattleMoveAnims['darkpulse'].anim};
 BattleMoveAnims['terablastdragon'] = {anim: BattleMoveAnims['dragonpulse'].anim};
-BattleMoveAnims['terablastelectric'] = {anim: BattleMoveAnims['thunderbolt'].anim};
+BattleMoveAnims['terablastelectric'] = {anim: BattleMoveAnims['chargebeam'].anim};
 BattleMoveAnims['terablastfairy'] = {anim: BattleMoveAnims['moonblast'].anim};
 BattleMoveAnims['terablastfighting'] = {anim: BattleMoveAnims['focusblast'].anim};
 BattleMoveAnims['terablastfire'] = {anim: BattleMoveAnims['flamethrower'].anim};
 BattleMoveAnims['terablastflying'] = {anim: BattleMoveAnims['aeroblast'].anim};
 BattleMoveAnims['terablastghost'] = {anim: BattleMoveAnims['infernalparade'].anim};
-BattleMoveAnims['terablastgrass'] = {anim: BattleMoveAnims['seedflare'].anim};
-BattleMoveAnims['terablastground'] = {anim: BattleMoveAnims['earthpower'].anim};
+BattleMoveAnims['terablastgrass'] = {anim: BattleMoveAnims['razorleaf'].anim};
+BattleMoveAnims['terablastground'] = {anim: BattleMoveAnims['mudbomb'].anim};
 BattleMoveAnims['terablastice'] = {anim: BattleMoveAnims['icebeam'].anim};
 BattleMoveAnims['terablastnormal'] = {anim: BattleMoveAnims['technoblast'].anim};
 BattleMoveAnims['terablastpoison'] = {anim: BattleMoveAnims['sludgebomb'].anim};
-BattleMoveAnims['terablastpsychic'] = {anim: BattleMoveAnims['psychic'].anim};
+BattleMoveAnims['terablastpsychic'] = {anim: BattleMoveAnims['psybeam'].anim};
 BattleMoveAnims['terablastrock'] = {anim: BattleMoveAnims['powergem'].anim};
 BattleMoveAnims['terablaststeel'] = {anim: BattleMoveAnims['flashcannon'].anim};
 BattleMoveAnims['terablastwater'] = {anim: BattleMoveAnims['hydropump'].anim};
