@@ -1249,7 +1249,7 @@
 			this.selectType = data.selectType;
 			if (!this.selectType) this.selectType = (this.sourceEl.closest('form').data('search') ? 'search' : 'challenge');
 
-			var html = '<p><ul class="popupmenu"><li><input name="search" placeholder="Search formats" value="' + this.search + '" class="textbox" />';
+			var html = '<p><ul class="popupmenu"><li><input name="search" placeholder="Search formats" value="' + this.search + '" class="textbox autofocus" autocomplete="off" />';
 			html += '</li></ul></p><span name="formats">';
 			html += this.renderFormats();
 			html += '</span><div style="clear:left"></div><p></p>';
