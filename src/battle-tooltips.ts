@@ -2098,7 +2098,7 @@ class BattleTooltips {
 				value.clearingWeatherModify(2);
 				break;
 			}
-		} //test
+		} 
 		if (move.id === 'hydrosteam') {
 			value.climateWeatherModify(1.5, 'Sunny Day');
 		}
