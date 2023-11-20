@@ -16826,7 +16826,7 @@ export const BattleMoveAnims: AnimTable = {
 	},
 	syrupbomb: {
 		anim(scene, [attacker, defender]) {
-			const imageType = {filter: attacker.sp.shiny ? 'hue-rotate(-45deg)' : 'hue-rotate(30deg)'};
+			const imageType = {filter: !attacker.sp.shiny ? 'hue-rotate(-45deg)' : 'hue-rotate(30deg)'};
 			scene.showEffect('flareball', {
 				x: attacker.x,
 				y: attacker.y,
