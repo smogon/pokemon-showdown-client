@@ -38,6 +38,13 @@ if ($id) {
 		include 'caches/' . $id . '.inc.php';
 		$replay['formatid'] = '';
 		$cached = true;
+		$replay['log'] = str_replace("\r","",$replay['log']);
+		$matchSuccess = preg_match('/\\n\\|tier\\|([^|]*)\\n/', $replay['log'], $matches);
+		if ($matchSuccess) $replay['format'] = $matches[1];
+		if (@$replay['date']) {
+			$replay['uploadtime'] = $replay['date'];
+			unset($replay['date']);
+		}
 	} else {
 		require_once 'replays.lib.php';
 		if (!$Replays->db && !$forcecache) {
@@ -58,9 +65,7 @@ if ($replay['password'] ?? null) {
 	}
 }
 
-$replay['log'] = str_replace("\r","",$replay['log']);
-
-if ($replay['inputlog']) {
+if (@$replay['inputlog']) {
 	if (substr($replay['formatid'], -12) === 'randombattle' || substr($replay['formatid'], -19) === 'randomdoublesbattle' || $replay['formatid'] === 'gen7challengecup' || $replay['formatid'] === 'gen7challengecup1v1' || $replay['formatid'] === 'gen7battlefactory' || $replay['formatid'] === 'gen7bssfactory' || $replay['formatid'] === 'gen7hackmonscup' || $manage) {
 		// ok
 	} else {
@@ -76,6 +81,12 @@ if (isset($_REQUEST['json'])) {
 	header('Access-Control-Allow-Origin: *');
 	die(json_encode($replay));
 	die();
+}
+
+if (isset($_REQUEST['inputlog'])) {
+	header('Content-Type: text/plain');
+	header('Access-Control-Allow-Origin: *');
+	die($replay['inputlog'] ?? '');
 }
 
 header('Content-Type: text/plain');

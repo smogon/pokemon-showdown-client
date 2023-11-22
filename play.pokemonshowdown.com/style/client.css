@@ -1,0 +1,3281 @@
+/*********************************************************
+ * Global
+ *********************************************************/
+
+html, body {
+	margin: 0;
+	padding: 0;
+	height: 100%;
+	overflow: visible;
+}
+body {
+	color: white;
+	font-size: 11pt;
+	font-family: Verdana, Helvetica, Arial, sans-serif;
+
+	/* see https://pokemonshowdown.com/credits */
+	background: #344b6c url(../fx/client-bg-charizards.jpg) no-repeat left center fixed;
+	-webkit-background-size: cover;
+	-moz-background-size: cover;
+	-o-background-size: cover;
+	background-size: cover;
+}
+
+.pad {
+	margin: 0;
+	padding: 5px 15px;
+}
+.pad p {
+	margin: 9px 0;
+}
+.label strong {
+	font-size: 11pt;
+	display: block;
+}
+.buttonbar {
+	margin-top: 1em;
+	text-align: center;
+}
+
+select {
+	font-size: 9pt;
+	font-family: Verdana, Helvetica, Arial, sans-serif;
+}
+
+.dark .tabbar a.button {
+	box-shadow: inset 0.5px 1px 1px rgba(255, 255, 255, 0.5);
+}
+.dark .tabbar a.button:active,
+.dark .tabbar a.button.cur:active {
+	box-shadow: none;
+}
+.dark .maintabbarbottom {
+	background: #555555;
+	border-color: #5A5A5A;
+	border-top-color: #34373b;
+}
+
+/*********************************************************
+ * Header
+ *********************************************************/
+
+.header {
+	position: relative;
+	height: 50px;
+	background: url(../fx/client-topbar-bg.png) repeat-x left top scroll;
+}
+.header h1 {
+	margin: 0;
+	padding: 0;
+}
+.header .logo {
+	float: left;
+	margin: 2px 0 0 2px;
+}
+
+.userbar {
+	position: absolute;
+	top: 12px;
+	right: 12px;
+	font-weight: bold;
+}
+.userbar .username {
+	color: black;
+	text-shadow: 1px 1px 0 #f8f8f8, 1px -1px 0 #f8f8f8, -1px 1px 0 #f8f8f8, -1px -1px 0 #f8f8f8;
+}
+.username {
+	cursor: pointer;
+}
+@media (max-width: 500px) {
+	.usernametext {
+		display: none
+	}
+}
+.userbar button.icon {
+	height: 25px;
+	width: 27px;
+	font-size: 16px;
+	text-align: center;
+	padding: 0;
+}
+.userbar button.icon i {
+	margin: 0 -5px;
+}
+
+.tabbar {
+	position: absolute;
+	bottom: 1px;
+	left: 0;
+	right: 0;
+
+	display: block;
+	list-style: none;
+	margin: 0;
+	padding: 2px 0 0 0;
+	height: 37px;
+	text-align: left;
+
+	color: white;
+	text-shadow: 0 1px 0 black;
+	font-size: 10pt;
+
+	line-height: 100%;
+}
+.maintabbarbottom {
+	content: "";
+	display: block;
+	position: absolute;
+	left: 0;
+	right: 0;
+	bottom: -6px;
+	height: 6px;
+	background: #f8f8f8;
+	border: solid 1px #AAAAAA;
+	border-left: 0;
+	border-right: 0;
+	margin: -1px 0 0 0;
+	-webkit-box-shadow: 0 1px 2px rgba(0,0,0,.2);
+	-moz-box-shadow: 0 1px 2px rgba(0,0,0,.2);
+	box-shadow: 0 1px 2px rgba(0,0,0,.2);
+}
+.tabbar.maintabbar {
+	margin-left: 144px;
+	margin-right: 165px;
+	overflow: hidden;
+}
+.tabbar.maintabbar.minitabbar {
+	margin-left: 0;
+}
+.maintabbar .inner {
+	width: 400%; /* make sure overflows go right and not down */
+}
+.maintabbar .overflow {
+	position: absolute;
+	bottom: 0;
+	right: 0;
+	z-index: 12;
+}
+.maintabbar .overflow .button {
+	height: 37px;
+	width: 32px;
+	font-size: 12pt;
+	margin: 0;
+	border-radius: 0;
+}
+
+.popupmenu .option {
+	width: 204px;
+}
+.popupmenu i {
+	display: inline-block;
+	width: 16px;
+	color: #777777;
+}
+
+.button.small,
+.button.small {
+	font-size: 8pt;
+	padding: 2px 5px;
+}
+.button.big,
+.button.big {
+	font-size: 12pt;
+	padding: 5px 10px;
+}
+
+.mainmenuwrapper .menugroup .button.disabled,
+.mainmenuwrapper .menugroup .button.disabled:hover,
+.mainmenuwrapper .menugroup .button.disabled:active {
+	cursor: default;
+	background: #EEEEEE;
+	border-color: #CCCCCC;
+	border-style: solid;
+	border-width: 1px;
+	color: #999999;
+	text-shadow: none;
+	box-shadow: 0 1px 2px rgba(0,0,0,.1);
+}
+
+.button.subtle-notifying .fa-comment-o:before,
+.button.notifying .fa-comment-o:before {
+	content: "\f0e6";
+}
+
+i.subtle {
+	opacity: 0.25;
+	filter: alpha(opacity=25);
+}
+
+i.subtle:hover {
+	opacity: 1.0;
+	filter: alpha(opacity=100);
+}
+
+.tabbar li,
+.tabbar ul {
+	display: block;
+	float: left;
+
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+.tabbar a.button {
+	display: inline-block;
+	height: 28px;
+	min-width: 52px;
+	white-space: nowrap;
+
+	position: relative;
+	padding: 3px 2px 3px 2px;
+	margin: 0 -1px 0 0;
+	top: 1px;
+	border-radius: 0;
+	box-shadow: inset 0 -1px 2px rgba(255,255,255,1);
+	font-size: 11px;
+}
+.tabbar a.button.cur {
+	box-shadow: none;
+}
+.tabbar a.button i {
+	display: block;
+	text-align: center;
+	margin: 1px auto 0 auto;
+	font-style: normal;
+	font-size: 14px;
+	height: 14px;
+}
+.tabbar a.button span {
+	display: block;
+	overflow: hidden;
+}
+.tabbar a.button i.text {
+	font-size: 11px;
+	margin-right: 8px;
+	padding-left: 0;
+	overflow: hidden;
+	font-weight: bold;
+}
+.tabbar a.button i.text + span {
+	margin-right: -6px;
+}
+.tabbar a.button:hover,
+.tablist a.button:hover,
+.tabbar a.button:focus,
+.tablist a.button:focus {
+	z-index: 10;
+}
+.tabbar a.button.cur,
+.tabbar a.button.cur:hover {
+	border-bottom: 0;
+	padding-top: 3px;
+	padding-bottom: 5px;
+	top: 0px;
+}
+.tabbar li:first-child a.button {
+	border-top-left-radius: 5px;
+	margin-left: 6px;
+}
+.tabbar li:last-child a.button {
+	border-top-right-radius: 5px;
+}
+.tabbar a.closable {
+	padding-right: 8px;
+}
+.tabbar .closebutton {
+	display: inline-block;
+	margin: 0 0 0 -17px;
+	width: 17px;
+	text-align: left;
+	top: 3px;
+	vertical-align: top;
+	position: relative;
+	z-index: 11;
+}
+.tabbar a.cur + .closebutton {
+	top: 2px;
+}
+.header-username,
+.closebutton,
+.minimizebutton {
+	text-decoration: none;
+	font-size: 14px;
+	color: #999999;
+	text-shadow: none;
+	border: 0;
+	padding: 0;
+	margin: 0;
+	background: transparent;
+	cursor: pointer;
+}
+.closebutton:hover {
+	color: #BB2222;
+}
+.dark .closebutton:hover {
+	color: #EE7777;
+}
+span.header-username:hover {
+	color: #333333;
+}
+.minimizebutton:hover,
+.pm-window h3:hover .minimizebutton {
+	color: #333333;
+}
+.dark .minimizebutton:hover,
+.dark .pm-window h3:hover .minimizebutton {
+	color: #CCCCCC;
+}
+.pm-window h3 .closebutton:hover + .minimizebutton {
+	color: #999999 !important;
+}
+.pm-window h3 span.header-username:hover + .minimizebutton {
+	color: #999999 !important;
+}
+.closebutton:active,
+.minimizebutton:active {
+	color: #661111;
+}
+.pm-minimized .minimizebutton .fa-minus-circle:before {
+	/** replace the minus with a plus when PM is minimized */
+	content: "\f055";
+}
+
+.tablist li, .tablist ul {
+	/** tablist is the menu that's displayed when the window is too wide for all the tabs */
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+.tablist ul {
+	padding: 3px 0 4px 0;
+}
+.tablist li {
+	margin: 0 -5px -1px -5px;
+	padding: 0;
+}
+.tablist .button {
+	position: relative;
+	box-shadow: inset 0 0px 2px rgba(255,255,255,1);
+	font-size: 11pt;
+	padding: 4px 28px 4px 6px;
+	width: 120px;
+	height: 18px;
+	text-align: left;
+	border-radius: 0;
+	display: block;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+.tablist li:first-child .button {
+	border-top-left-radius: 5px;
+	border-top-right-radius: 5px;
+}
+.tablist li:last-child .button {
+	border-bottom-left-radius: 5px;
+	border-bottom-right-radius: 5px;
+}
+.tablist .closebutton {
+	display: block;
+	float: right;
+	margin-top: -28px;
+	padding: 5px 0 0 0;
+	height: 23px;
+	font-size: 14px;
+	width: 28px;
+	text-align: center;
+
+	position: relative;
+	z-index: 11;
+}
+.tablist i.text {
+	font-size: 9pt;
+	font-weight: normal;
+	font-style: normal;
+	margin-right: 3px;
+}
+.tablist i.text::before {
+	content: '[';
+}
+.tablist i.text::after {
+	content: ']';
+}
+
+/*********************************************************
+ * Rooms
+ *********************************************************/
+
+.ps-room {
+	position: absolute;
+	display: block;
+	top: 56px;
+	left: 0;
+	right: 0;
+	bottom: 0;
+
+	border-left: 1px solid #AAAAAA;
+	margin-left: -1px;
+}
+.scrollable {
+	overflow: auto;
+	-webkit-overflow-scrolling: touch;
+}
+.ps-room.ps-room-light {
+	background: rgba(242,247,250,.85);
+	color: black;
+}
+.ps-room.ps-room-opaque {
+	background: #EEF2F5;
+	color: black;
+}
+
+.ps-overlay {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background: #CCCCCC;
+	background: rgba(212, 212, 212, .5);
+
+	overflow: auto;
+	-webkit-overflow-scrolling: touch;
+	z-index: 20;
+}
+.ps-popup {
+	position: absolute;
+	top: auto; right: auto; left: auto; bottom: auto;
+	text-align: left;
+	background: #E1E8E8;
+	color: black;
+	border: 1px solid #999999;
+	padding: 2px 10px;
+
+	border-radius: 6px;
+	box-shadow: inset 1px 1px 0 #ffffff, inset -1px -1px 0 #DDDDDD, 2px 2px 3px rgba(0,0,0,.2);
+	z-index: 20;
+}
+.ps-overlay .ps-popup {
+	position: static;
+	margin: 80px auto 20px auto;
+	max-width: 320px;
+}
+.ps-popup p {
+	margin: 4px 0;
+}
+.ps-popup h3 {
+	margin: 7px 0;
+}
+.ps-popup h3 {
+	font-size: 12pt;
+}
+p.or {
+	font-size: 12pt;
+	font-style: italic;
+	font-weight: bold;
+	color: #444444;
+	margin: 20px 0;
+	text-align: center;
+}
+p.or:before,
+p.or:after {
+	content: "";
+	font-size: 10px;
+	padding: 0 0 0 85px;
+	margin: 0 9px 0 0;
+	border-bottom: 1px solid #777777;
+	position: relative;
+	top: -7px;
+}
+p.or:after {
+	margin: 0 0 0 9px;
+}
+.ps-popup p.error {
+	font-weight: bold;
+	color: #EE4422;
+}
+
+.popupmenu, popupmenu li {
+	margin: -2px 0 -1px 0;
+	padding: 0;
+	list-style: none;
+	font-size: 8pt;
+}
+.popupmenu h3 {
+	margin: 5px 0 0 -2px;
+	padding: 1px 0;
+	font-size: 8pt;
+	color: #579;
+}
+.popupmenu li:first-child h3 {
+	margin-top: 0;
+}
+@media (max-height:590px) {
+	.popupmenu h3 {
+		margin-top: 2px;
+	}
+	.popupmenu, popupmenu li {
+		margin: -3px 0 -2px 0;
+	}
+}
+@media (max-height:518px) {
+	.popupmenu h3 {
+		margin-top: 1px;
+	}
+}
+
+.popupmenu .button {
+	margin: 2px auto 5px;
+	width: 184px;
+}
+.select, .team {
+	width: 230px;
+	height: 32px;
+	padding: 0 5px;
+	font-size: 9pt;
+	text-align: left;
+	font-family: Verdana, Helvetica, Arial, sans-serif;
+	cursor: pointer;
+
+	border-radius: 4px;
+	border: 1px solid #888888;
+	background: #EEEEEE;
+	box-shadow: inset 0 1px 0 #FFFFFF;
+	background: linear-gradient(to bottom,  #edf2f8,  #d7e3ec);
+	color: black;
+	box-sizing: border-box;
+}
+.team:focus {
+	outline: 0 none;
+	border: 1px solid #004488;
+	box-shadow: inset 0px 1px 2px #D2D2D2, 0px 0px 5px #2266AA;
+}
+.select.teamselect {
+	height: 50px;
+	white-space: nowrap;
+	overflow: hidden;
+}
+.teamselect strong {
+	display: block;
+	font-size: 8pt;
+	margin-right: 15px;
+	text-align: center;
+}
+.teamselect:disabled strong {
+	color: #777777;
+}
+.dark .teamselect:disabled strong {
+	color: #505050;
+}
+.teamselect small {
+	margin: -1px 0 0 -3px;
+	display: block;
+}
+.teamselect small .picon {
+	margin: 0 -3px;
+}
+.select:hover, .team.team-hover {
+	border-color: #555555;
+	background: #FFFFFF;
+	background: linear-gradient(to bottom,  #dce4ec,  #c6d3e0);
+}
+.select:active, .team:active {
+	border-color: #777777;
+	background: #DDDDDD;
+	box-shadow: none;
+	background: linear-gradient(to bottom,  #d1dce6,  #e7edf2);
+}
+.select:after {
+	float: right;
+	font-size: 14px;
+	content: "\f0d7";
+	font-family: FontAwesome;
+	-webkit-font-smoothing: antialiased;
+	color: #777777;
+}
+.select:disabled {
+	border-color: #999999;
+	background: rgba(220,220,220,.65);
+	color: #555555;
+	box-shadow: none;
+}
+.select:disabled:after {
+	color: #AAAAAA;
+}
+.select:disabled small {
+	opacity: 0.7;
+}
+.select.preselected,
+.select:disabled.preselected {
+	color: black;
+}
+
+/*********************************************************
+ * Main menu
+ *********************************************************/
+
+.leftmenu {
+	padding: 40px 0 0 0;
+	width: 324px;
+}
+.rightmenu {
+	position: absolute;
+	top: 40px;
+	right: 25px;
+}
+.activitymenu {
+	position: absolute;
+	left: 325px;
+	top: 40px;
+}
+.mainmenu {
+	padding: 0 0 51px 0;
+}
+
+.battleform {
+	width: 230px;
+	text-align: left;
+	margin: 0 auto;
+}
+.battleform .buttonbar {
+	text-align: center;
+}
+
+.mainmenuwrapper {
+	position: relative;
+	min-height: 100%;
+}
+.mainmenufooter {
+	position: absolute;
+	bottom: 15px;
+	left: 20px;
+	color: #BBBBBB;
+	text-shadow: 0 0 3px black, 0 0 3px black, 0 0 3px black;
+}
+.mainmenufooter blockquote {
+	margin: 0 0 1em 0;
+	padding: 0;
+}
+.mainmenufooter small {
+	font-size: 9pt;
+}
+.mainmenufooter small small {
+	font-size: 8pt;
+}
+.mainmenufooter a {
+	text-decoration: underline;
+	color: #99BBEE;
+}
+.mainmenufooter a:hover {
+	text-decoration: underline;
+	color: #CCDDFF;
+}
+
+.pmbox {
+	width: 270px;
+	margin: 0 auto;
+	min-height: 2px;
+}
+.pm-window {
+	margin: 0 -12px 12px -10px;
+}
+.tiny-layout .pm-window {
+	margin: 0 0 12px 0;
+}
+.pm-window h3 {
+	background: rgba(248,248,248,.8);
+	color: #777777;
+	margin: 0;
+	padding: 2px 2px 2px 5px;
+	font-size: 11pt;
+	border: 1px solid #AAAAAA;
+	border-top-left-radius: 5px;
+	border-top-right-radius: 5px;
+	cursor: pointer;
+}
+.pm-window h3:hover {
+	color: #333333;
+}
+.pm-window h3.pm-minimized {
+	border-radius: 5px;
+}
+.pm-window h3.pm-notifying {
+	border-color: #AA8866;
+	background: #E3C3A3;
+}
+.dark .pm-window h3.pm-notifying {
+	background: #417589;
+	color: #BBBBBB;
+}
+.pm-window h3.pm-notifying:hover {
+	border-color: #604020;
+	background: #CFAF8F;
+}
+.dark .pm-window h3.pm-notifying:hover {
+	background: #417589;
+}
+.pm-window h3 .closebutton,
+.pm-window h3 .minimizebutton {
+	float: right;
+	margin: -2px -3px;
+	width: 22px;
+	height: 22px;
+}
+.pm-window h3 small {
+	color: #888888;
+	font-weight: normal;
+	vertical-align: 1px;
+}
+.pm-log {
+	min-height: 100px;
+	max-height: 300px;
+	background: rgba(242,247,250,.925);
+	color: black;
+	border: 1px solid #AAAAAA;
+	border-top: 0;
+	border-bottom: 0;
+
+	overflow: auto;
+	-webkit-overflow-scrolling: touch;
+	word-wrap: break-word;
+}
+.pm-buttonbar {
+	padding-bottom: 3px;
+}
+.pm-log-add {
+	color: black;
+	border: 1px solid #AAAAAA;
+	border-bottom-left-radius: 5px;
+	border-bottom-right-radius: 5px;
+	background: rgba(242,247,250,.85);
+}
+.pm-window.collapsed .pm-log,
+.pm-window.collapsed .pm-log-add {
+	display: none;
+}
+.pm-window.focused h3,
+.pm-window.focused .pm-log,
+.pm-window.focused .pm-log-add {
+	border-color: #555555;
+}
+.pm-window.focused h3,
+.pm-window.focused h3:hover {
+	background: #f8f8f8;
+	color: #222222;
+}
+.dark .pm-window h3 {
+	background: rgba(50,50,50,.8);
+	color: #AAA;
+}
+.dark .pm-window h3:hover {
+	color: #CCC;
+}
+.dark .pm-window.focused h3,
+.dark .pm-window.focused h3:hover {
+	background: #222;
+	color: #EEE;
+}
+.challenge {
+	margin-top: -1px;
+	background: #fcd2b3;
+	border: 1px solid #f57b21;
+	color: #682f05;
+	padding: 1px 5px;
+}
+.challenge p {
+	margin: 4px 0;
+}
+.newsentry {
+	font-size: 9pt;
+	padding: 1px 10px;
+	border-bottom: 1px solid #AAAAAA;
+}
+.unread {
+	background: rgba(255,240,130,0.33);
+}
+
+.tiny-layout .leftmenu,
+.tiny-layout .rightmenu,
+.tiny-layout .activitymenu {
+	position: static;
+	top: 0;
+	right: 0;
+	left: 0;
+	width: auto;
+	margin: 0;
+	padding: 0;
+}
+.tiny-layout .leftmenu {
+	padding-top: 30px;
+}
+.tiny-layout .activitymenu {
+	padding-bottom: 8px;
+}
+
+.mainmessage {
+	display: block;
+	padding: 10px 15px;
+	margin: 30px 40px;
+	max-width: 400px;
+	border-radius: 20px;
+
+	background: rgba(201, 207, 219, .8);
+	color: black;
+}
+.menugroup {
+	display: block;
+	padding: 10px 0;
+	margin: 0 auto 30px auto;
+	max-width: 270px;
+	border-radius: 20px;
+
+	background: rgba(0,0,0,.2);
+	color: white;
+	text-shadow: 0 1px 0 black;
+	text-align: center;
+}
+
+.mainmessage p,
+.menugroup p {
+	margin: 10px 0;
+}
+.menugroup .button {
+	box-sizing: border-box;
+	font-size: 12pt;
+
+	display: inline-block;
+	padding: 5px 7px 3px 7px;
+
+	width: 200px;
+
+	text-shadow: 0 -1px 0 hsl(210,40%,10%);
+	box-shadow: 0 1px 2px rgba(0,0,0,.2), inset 0 1px 1px rgba(255,255,255,.8);
+
+	/* default colors */
+	color: #FFFFFF;
+	border: solid 1px #AAAAAA;
+	background: #779EC5;
+	background: hsl(210,40%,62%);
+	background: linear-gradient(to bottom,  hsl(210,40%,72%),  hsl(210,40%,52%));
+	border-color: hsl(210,40%,40%);
+}
+.menugroup .button.big {
+	width: 230px;
+	height: 50px;
+	padding: 0;
+	font-size: 14pt;
+}
+.menugroup .button.big small {
+	display: block;
+	font-size: 9pt;
+}
+.menugroup .button:hover {
+	background: #5485B6;
+	background: hsl(210,40%,52%);
+	background: linear-gradient(to bottom,  hsl(210,40%,62%),  hsl(210,40%,42%));
+	border-color: hsl(210,40%,21%);
+}
+.menugroup .button:active {
+	box-shadow: 0 1px 2px rgba(0,0,0,.2), inset 0 -1px 1px rgba(255,255,255,.3), inset 0 1px 1px rgba(0,0,0,.4);
+	background: #406B96;
+	background: hsl(210,40%,42%);
+	background: linear-gradient(to bottom,  hsl(210,40%,42%),  hsl(210,40%,58%));
+	border-color: hsl(210,40%,21%);
+}
+
+.button.mainmenu1 { background: linear-gradient(to bottom,  hsl(5,40%,72%),  hsl(5,40%,52%)); border-color: hsl(5,40%,40%); }
+.button.mainmenu1:hover { background: linear-gradient(to bottom,  hsl(5,40%,62%),  hsl(5,40%,42%)); }
+.button.mainmenu1:active { background: linear-gradient(to bottom,  hsl(5,40%,42%),  hsl(5,40%,58%)); }
+
+.button.mainmenu2 { background: linear-gradient(to bottom,  hsl(30,40%,72%),  hsl(30,40%,52%)); border-color: hsl(30,40%,40%); }
+.button.mainmenu2:hover { background: linear-gradient(to bottom,  hsl(30,40%,62%),  hsl(30,40%,42%)); }
+.button.mainmenu2:active { background: linear-gradient(to bottom,  hsl(30,40%,42%),  hsl(30,40%,58%)); }
+
+.button.mainmenu3 { background: linear-gradient(to bottom,  hsl(60,40%,72%),  hsl(60,40%,52%)); border-color: hsl(60,40%,40%); }
+.button.mainmenu3:hover { background: linear-gradient(to bottom,  hsl(60,40%,62%),  hsl(60,40%,42%)); }
+.button.mainmenu3:active { background: linear-gradient(to bottom,  hsl(60,40%,42%),  hsl(60,40%,58%)); }
+
+.button.mainmenu4 { background: linear-gradient(to bottom,  hsl(130,40%,72%),  hsl(130,40%,52%)); border-color: hsl(130,40%,40%); }
+.button.mainmenu4:hover { background: linear-gradient(to bottom,  hsl(130,40%,62%),  hsl(130,40%,42%)); }
+.button.mainmenu4:active { background: linear-gradient(to bottom,  hsl(130,40%,42%),  hsl(130,40%,58%)); }
+
+.button.mainmenu5 { background: linear-gradient(to bottom,  hsl(210,40%,72%),  hsl(210,40%,52%)); border-color: hsl(210,40%,40%); }
+.button.mainmenu5:hover { background: linear-gradient(to bottom,  hsl(210,40%,62%),  hsl(210,40%,42%)); }
+.button.mainmenu5:active { background: linear-gradient(to bottom,  hsl(210,40%,42%),  hsl(210,40%,58%)); }
+
+.button.mainmenu6 { background: linear-gradient(to bottom,  hsl(270,40%,72%),  hsl(270,40%,52%)); border-color: hsl(270,40%,40%); }
+.button.mainmenu6:hover { background: linear-gradient(to bottom,  hsl(270,40%,62%),  hsl(270,40%,42%)); }
+.button.mainmenu6:active { background: linear-gradient(to bottom,  hsl(270,40%,42%),  hsl(300,40%,58%)); }
+
+.rightmenu {
+	width: 294px;
+}
+.rightmenu .menugroup .button {
+	width: 180px;
+}
+@media (max-width:895px) {
+	.mainmenu {
+		padding-bottom: 1px;
+	}
+	.rightmenu, .tiny-layout .rightmenu {
+		position: static;
+		top: 0;
+		right: 0;
+		padding-bottom: 51px;
+	}
+	.rightmenu {
+		width: 324px;
+	}
+	.rightmenu .menugroup .button {
+		width: 200px;
+	}
+}
+
+/*********************************************************
+ * Ladder
+ *********************************************************/
+
+.ladder table, .ladder td, .ladder th {
+	border-collapse: collapse;
+	border: 1px solid #BBBBBB;
+}
+.ladder td, .ladder th {
+	padding: 3px 5px;
+}
+.ladder th {
+	text-align: left;
+	font-size: 9pt;
+	background: #EEEEEE;
+	color: #111111;
+}
+.ladder span {
+	color: gray;
+}
+
+.hidden {
+	display: none;
+}
+
+/*********************************************************
+ * Room list
+ *********************************************************/
+
+.roomlisttop {
+	max-width: 480px;
+	margin-bottom: 10px;
+}
+.roomcounters {
+	max-width: 480px;
+	margin: 8px 0 15px 0;
+	text-align: center;
+}
+@media (max-width: 382px) {
+	.roomcounters {
+		margin: 38px 0 15px 0;
+	}
+}
+.roomcounters button {
+	margin: 0 auto;
+	width: 120px;
+	height: 60px;
+	padding: 3px 8px;
+	text-align: center;
+	vertical-align: middle;
+	font-size: 10pt;
+	position: relative;
+}
+.roomcounters button strong {
+	display: block;
+	font-size: 18pt;
+	font-weight: normal;
+}
+.roomcounters .usercount {
+	display: block;
+	width: 49px;
+	height: 63px;
+	position: absolute;
+	left: -30px;
+	bottom: -5px;
+	background: url(https://play.pokemonshowdown.com/sprites/gen5/meloetta.png) center no-repeat;
+}
+.roomcounters button:hover .usercount {
+	background: url(https://play.pokemonshowdown.com/sprites/gen5ani/meloetta.gif) center no-repeat;
+}
+.roomcounters .battlecount {
+	display: block;
+	width: 46px;
+	height: 76px;
+	position: absolute;
+	right: -30px;
+	bottom: -10px;
+	background: url(https://play.pokemonshowdown.com/sprites/gen5/meloetta-pirouette.png) center no-repeat;
+}
+.roomcounters button:hover .battlecount {
+	background: url(https://play.pokemonshowdown.com/sprites/gen5ani/meloetta-pirouette.gif) center no-repeat;
+}
+
+.roomlist {
+	max-width: 480px;
+	text-align: left;
+}
+.roomlist .subrooms {
+	font-size: 8pt;
+	padding-left: 20px;
+	margin: -5px 0 4px;
+}
+.roomlist .subrooms i.fa-level-up {
+	margin-right: 5px;
+}
+.roomlist .subrooms a.blocklink {
+	display: inline-block;
+	margin: 0;
+	vertical-align: middle;
+	font-size: 8pt;
+}
+
+/*********************************************************
+ * Chat
+ *********************************************************/
+
+.chat-log {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 40px;
+	font-size: 10pt;
+	background: rgba(242,247,250,.5);
+	color: black;
+
+	overflow: auto;
+	overflow-x: hidden;
+	-webkit-overflow-scrolling: touch;
+	word-wrap: break-word;
+}
+.chat-log-add {
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	min-height: 36px;
+	padding: 3px 4px 0 4px;
+	border-top: 1px solid #AAAAAA;
+}
+.chat-log .notice,
+.chat-log .chat,
+.pm-log .chat {
+	padding: 3px 0 3px 0;
+	font-size: 9pt;
+}
+.chat-log .chat.mine,
+.pm-log .chat.mine {
+	margin-left: -8px;
+	margin-right: -8px;
+	padding-left: 8px;
+	padding-right: 8px;
+}
+.chat em {
+	padding: 0 4px 0 3px;
+	font-style: normal;
+}
+.chat small {
+	font-weight: normal;
+	font-size: 8pt;
+	color: #888888;
+}
+.chat .message-announce small {
+    color: #def;
+}
+.chat.timer {
+	color: #992222;
+}
+.debug {
+	display: none;
+}
+.highlighted {
+	background: rgba(255,200,80,0.33);
+}
+.chat.highlighted {
+	margin-left: -8px;
+	margin-right: -8px;
+	padding-left: 8px;
+	padding-right: 8px;
+}
+.revealed {
+	background-color: #C8FDEA;
+}
+.message-pm {
+	color: #007100;
+}
+.message-pm .pmnote {
+	cursor: pointer;
+}
+.chat-log .inner,
+.pm-log .inner {
+	padding: 4px 8px 6px 8px;
+}
+a.ilink {
+	text-decoration: none;
+	color: #224488;
+}
+a.ilink:hover {
+	text-decoration: underline;
+	color: #6688CC;
+}
+a.ilink.yours {
+	color: #55388B;
+}
+
+.chatbox {
+	margin: 0 10px 0 80px;
+	padding: 5px 0 0 0;
+}
+.chatbox.nolabel {
+	margin: 0 14px 0 6px;
+	padding: 5px 0 5px 0;
+}
+.chatbox label {
+	float: left;
+	margin-left: -78px;
+	padding-top: 2px;
+	width: 73px;
+	text-align: right;
+	overflow: hidden;
+	white-space: pre;
+
+	font-weight: bold;
+	font-size: 8pt;
+}
+.chatbox textarea {
+	display: block;
+	height: 1.1em;
+	width: 100%;
+	resize: none;
+	font-size: 9pt;
+	font-family: Verdana, Helvetica, Arial, sans-serif;
+	overflow-x: hidden;
+	overflow-wrap: break-word;
+}
+
+/* Tournaments */
+
+.tournaments-info > ul {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.tournament-wrapper {
+	display: none;
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	height: 2em;
+	line-height: 2em;
+	text-align: center;
+	border-bottom: 1px #aaa solid;
+}
+.tournament-wrapper.active {
+	display: block;
+}
+.tournament-wrapper.active + .chat-log {
+	top: 2.4em;
+}
+
+.tournament-title {
+	font-weight: bold;
+	cursor: pointer;
+}
+
+.tournament-status, .tournament-toggle {
+	position: absolute;
+	top: 0;
+	padding: 0 0.5em;
+	font-weight: normal;
+	font-size: 80%;
+	background-color: rgba(242, 247, 250, 0.85);
+	border-right: 1px #aaa solid;
+}
+.tournament-status {
+	left: 0;
+}
+.tournament-toggle {
+	right: 0;
+	border-left: 1px #aaa solid;
+}
+
+.tournament-box {
+	position: absolute;
+	top: 2em;
+	left: 0;
+	right: 0;
+	z-index: 1;
+	line-height: 1em;
+	border-bottom: 1px #aaa solid;
+	border-right: 1px #aaa solid;
+	background-color: rgba(242, 247, 250, 0.85);
+	max-height: 0;
+	overflow: hidden;
+	transition: max-height 0.15s;
+	-webkit-transition: max-height 0.15s;
+	touch-action: none;
+}
+
+.tournament-bracket {
+	max-height: 200px;
+	padding: 10px;
+	overflow: hidden;
+	font-size: 8pt;
+	touch-action: none;
+}
+
+.tournament-bracket-overflowing {
+	height: 200px;
+	padding: 0;
+	position: relative;
+	left: 0;
+	top: 0;
+	touch-action: none;
+}
+
+
+.tournament-popout-link {
+	position: absolute;
+	bottom: 0.5em;
+	right: 0.5em;
+}
+.tournament-popout-bracket {
+	/* Actual max-width and -height setting is in client-chat-tournament.js (BracketPopup)
+	max-width: 80%;
+	max-height: 80%;*/
+	max-width: inherit !important;
+	position: relative !important;
+	left: 0;
+	top: 0;
+	overflow: hidden;
+	padding: 0;
+	font-size: 8pt;
+	text-align: center;
+}
+.tournament-popout-bracket > *[class^='tournament-bracket-'] {
+	position: absolute;
+	right: 0;
+	top: 0;
+}
+.tournament-popout-bracket > .buttonbar {
+	position: absolute;
+	right: 0.5em;
+	bottom: 0;
+}
+
+.tournament-bracket-table {
+	margin: 0 auto;
+	empty-cells: hide;
+	border-bottom: 1px #aaa solid;
+	border-collapse: collapse;
+}
+.tournament-bracket-table td, .tournament-bracket-table th {
+	border: 1px #aaa solid;
+	padding: 5px;
+}
+.tournament-bracket-table td {
+	white-space: nowrap;
+}
+.tournament-bracket-table .empty,
+.tournament-bracket-table .tournament-bracket-table-cell-null {
+	border-width: 0;
+}
+.tournament-bracket-table-cell-result-win {
+	background-color: rgba(128, 196, 128, 0.7);
+	color: black;
+}
+.tournament-bracket-table-cell-result-draw {
+	background-color: rgba(255, 196, 128, 0.7);
+	color: black;
+}
+.tournament-bracket-table-cell-result-loss {
+	background-color: rgba(255, 128, 128, 0.7);
+	color: black;
+}
+
+.tournament-bracket-tree-link {
+	fill: none;
+	stroke: #aaa;
+}
+.tournament-bracket-tree-link-active {
+	stroke: #aa0;
+	stroke-width: 3px;
+}
+.tournament-bracket-tree-node > rect {
+	/* Note: Due to SVG limitations, dimensions and border radii are in client-chat-tournament.js (nodeSize) */
+	fill: rgba(178, 194, 210, 0.7);
+	stroke: rgba(74, 77, 80, 0.7);
+	color: black;
+}
+.tournament-bracket-tree-node-win > rect {
+	fill: rgba(128, 196, 128, 0.7);
+	stroke: rgba(0, 128, 0, 0.7);
+	color: black;
+}
+.tournament-bracket-tree-node-draw > rect {
+	fill: rgba(255, 196, 128, 0.7);
+	stroke: rgba(255, 128, 0, 0.7);
+	color: black;
+}
+.tournament-bracket-tree-node-loss > rect {
+	fill: rgba(255, 128, 128, 0.7);
+	stroke: rgba(255, 0, 0, 0.7);
+	color: black;
+}
+.tournament-bracket-tree-node > text {
+	font-size: 0.8em;
+	text-anchor: middle;
+	dominant-baseline: central;
+}
+.tournament-bracket-tree-node > text > a {
+	fill: #248;
+}
+.tournament-bracket-tree-node > text > a:hover {
+	fill: #68c;
+}
+.tournament-bracket-tree-node-match-team {
+	font-weight: bold;
+}
+.tournament-bracket-tree-node-match-team-draw, .tournament-bracket-tree-node-match-team-loss {
+	fill: #555;
+}
+
+.tournament-tools {
+	padding: 10px;
+	display: none;
+	border-top: 1px #aaa solid;
+}
+.tournament-tools.active {
+	display: block;
+}
+.tournament-team {
+	padding-bottom: 5px;
+}
+.tournament-challenge-user,
+.tournament-challenged-message,
+.tournament-challenging-message,
+.tournament-challengeby {
+	font-size: 9pt;
+	padding-bottom: 5px;
+}
+.tournament-tools .button {
+	font-size: 9pt;
+}
+
+.tournament-join,
+.tournament-leave,
+.tournament-validate {
+	display: none;
+}
+.tournament-join.active,
+.tournament-leave.active,
+.tournament-validate.active {
+	display: inline;
+}
+
+.tournament-nomatches,
+.tournament-challenge,
+.tournament-challengeby,
+.tournament-challenging,
+.tournament-challenged {
+	display: none;
+}
+.tournament-nomatches.active,
+.tournament-challenge.active,
+.tournament-challengeby.active,
+.tournament-challenging.active,
+.tournament-challenged.active {
+	display: block;
+}
+
+.tournament-message-create,
+.tournament-message-start,
+.tournament-message-forceend,
+.tournament-message-end-winner {
+	font-weight: bold;
+}
+.tournament-message-end-bracket {
+	font-weight: normal !important;
+	max-height: 400px;
+	overflow: hidden;
+	text-align: center;
+}
+.tournament-message-end-bracket-overflowing {
+	height: 400px;
+	position: relative;
+	left: 0;
+	top: 0;
+}
+
+/* Userlist */
+
+.userlist {
+	display: block;
+	position: absolute;
+	top: 0;
+	left: 0;
+	bottom: 0;
+	width: 145px;
+	height: auto;
+	border-right: 1px solid #AAAAAA;
+
+	overflow: auto;
+	-webkit-overflow-scrolling: touch;
+}
+.pm-buttonbar {
+	height: 21px;
+}
+.pm-buttonbar button {
+	float: left;
+	font: 8pt Verdana, sans-serif;
+	height: 21px;
+	background: #EEF2F5;
+	color: black;
+	border: 0;
+	border-right: 1px solid #AAAAAA;
+	border-bottom: 1px solid #AAAAAA;
+}
+.dark .userlist, .dark .pm-buttonbar button, .dark .chat-log-add, .dark .pm-window h3, .dark .pm-log, .dark .newsentry {
+	border-color: #5A5A5A;
+}
+.userlist-minimized {
+	height: 21px;
+	bottom: auto;
+	overflow: hidden;
+	background: #EEF2F5;
+	border-bottom: 1px solid #AAAAAA;
+}
+.userlist-maximized {
+	height: auto;
+	bottom: 0;
+	overflow: auto;
+	background: #EEF2F5;
+}
+.userlist-minimized .userlist-count,
+.userlist-maximized .userlist-count {
+	cursor: pointer;
+}
+.userlist-minimized .userlist-count:hover,
+.userlist-maximized .userlist-count:hover,
+.pm-buttonbar button:hover {
+	background: #DEE4EA;
+}
+.chat-log.hasuserlist,
+.chat-log-add.hasuserlist,
+.tournament-wrapper.hasuserlist {
+	left: 146px;
+}
+.userlist,
+.userlist li {
+	display: block;
+	list-style-type: none;
+	margin: 0;
+	padding: 0;
+	text-align: left;
+}
+.userlist li {
+	height: 20px;
+	font: 10pt Verdana, sans-serif;
+	white-space: nowrap;
+}
+.userlist li em.group {
+	font-style: normal;
+	font-size: 8pt;
+	color: #AAAAAA;
+	display: block;
+	float: left;
+	text-align: center;
+	padding: 1px 0 0 1px;
+	width: 14px;
+}
+.userlist li button {
+	box-sizing: border-box;
+	display: block;
+	overflow: hidden;
+	height: auto;
+	background: transparent;
+	border: 0;
+	padding: 1px 0;
+	margin: 0;
+	height: 20px;
+	width: 100%;
+	white-space: nowrap;
+	font: 9pt Verdana, sans-serif;
+	text-align: left;
+}
+/* Remove Firefox's magic padding */
+.userlist li button::-moz-focus-inner {
+	padding: 0;
+}
+.userlist li button:hover {
+	background: #dce4ec;
+}
+.userlist li button:active {
+	background: #ccd4dc;
+}
+.userlist li.cur {
+	background: white;
+}
+.userlist li.cur button,
+.userlist li.cur button:hover {
+	background: white;
+	margin: 0 0 0 -1px;
+}
+
+/*********************************************************
+ * Battle
+ *********************************************************/
+
+.ps-room .battle-userlist {
+	left: 641px;
+}
+.ps-room .battle-log {
+	position: absolute;
+	top: 0;
+	left: 640px;
+	right: 0;
+	bottom: 40px;
+	height: auto;
+	width: auto;
+
+	word-wrap: break-word;
+	border-right: 0;
+	border-top: 0;
+	border-bottom: 0;
+}
+.ps-room .battle-log-add {
+	position: absolute;
+	bottom: 0;
+	left: 640px;
+	right: 0;
+	top: auto;
+	min-height: 36px;
+	height: auto;
+	width: auto;
+
+	padding: 3px 4px 0 4px;
+	border-right: 0;
+	border-bottom: 0;
+}
+.ps-room .battle {
+	border-top: 0;
+	border-left: 0;
+	border-right: 0;
+	top: 0;
+	left: 0;
+	transform-origin: top left;
+	-webkit-transform-origin: top left;
+}
+.ps-room .foehint {
+	transform-origin: top left;
+	-webkit-transform-origin: top left;
+}
+.ps-room .battle-controls {
+	position: absolute;
+	top: 370px;
+	left: 0;
+	width: 640px;
+	background: #EEF2F5;
+}
+.ps-room .ally-pokemon {
+	position: absolute;
+	top: 280px;
+	left: 0;
+	width: 640px;
+	background: #EEF2F5;
+}
+.battle-chat-toggle {
+	display: none;
+}
+.tiny-layout.ps-room .battle-controls {
+	left: 0;
+	right: 0;
+	width: auto;
+}
+.tiny-layout .movecontrols, .tiny-layout .switchcontrols {
+	max-width: 330px;
+	margin: 0 auto;
+}
+.timerbutton {
+	float: right;
+}
+.timerbutton-on,
+.timerbutton-on:hover {
+	color: #992222;
+	border-color: #992222;
+}
+.timerbutton-on:hover {
+	border-color: #661111;
+}
+.timerbutton-critical,
+.timerbutton-critical:hover {
+	color: #ffffff;
+	font-weight: bold;
+	border-color: #BB2222;
+	background: #BB2222;
+	text-shadow: none;
+}
+.dark .timerbutton-on,
+.dark .timerbutton-on:hover {
+	color: #EE6666;
+	border-color: #EE6666;
+}
+.dark .timerbutton-critical,
+.dark .timerbutton-critical:hover {
+	color: #ffffff;
+	font-weight: bold;
+	border-color: #BB2222;
+	background: #BB2222;
+	text-shadow: none;
+}
+
+.battle-controls p {
+	margin: 2px 0 8px 0;
+	padding: 0 8px;
+}
+.battle-controls .whatdo {
+	margin-top: -2px;
+	padding: 0 8px;
+	font-size: 9pt;
+	color: #555555;
+}
+.battle-controls .whatdo small {
+	padding: 1px 2px;
+	border: 1px solid #999999;
+	border-radius: 4px;
+}
+.battle-controls .whatdo small.weak {
+	color: #AAAA22;
+	border-color: #AAAA22;
+}
+.battle-controls .whatdo small.critical {
+	color: #EE4433;
+	border-color: #EE4433;
+}
+.small-layout .battle-userlist,
+.small-layout .battle-log,
+.small-layout .battle-log-add {
+	display: none;
+}
+.small-layout .battle-chat-toggle {
+	display: block;
+	position: absolute;
+	top: 4px;
+	left: 151px;
+	font-size: 14px;
+	padding: 3px 6px;
+}
+.small-layout .battle-chat-toggle[name=showChat] {
+	left: auto;
+	right: 6px;
+}
+.small-layout.showing-chat .battle,
+.small-layout.showing-chat .battle-controls {
+	display: none;
+}
+.small-layout.showing-chat .battle-userlist,
+.small-layout.showing-chat .battle-log,
+.small-layout.showing-chat .battle-log-add {
+	left: 0;
+	display: block;
+}
+.allyTeam button,
+.shiftselect button,
+.moveselect button,
+.switchselect button {
+	background: transparent;
+	border: 0;
+	font-weight: bold;
+	font-style: italic;
+	color: #555555;
+	font-size: 12pt;
+	display: block;
+	margin: 0;
+	padding: 9px 7px 0 7px;
+}
+.shiftselect button {
+	color: #445588;
+}
+.moveselect button {
+	color: #884422;
+	cursor: default;
+}
+.switchselect button {
+	color: #445588;
+	cursor: default;
+}
+.allyparty button,
+.switchmenu button {
+	position: relative;
+	display: block;
+	float: left;
+	width: 102px;
+	min-height: 30px;
+	margin-right: 4px;
+	font: 9pt Verdana, sans-serif;
+	padding: 5px 5px 5px 0;
+	white-space: pre;
+	overflow: hidden;
+}
+.allyparty button .picon,
+.switchmenu button .picon {
+	float: left;
+	margin: -6px -3px -6px -4px;
+	opacity: 0.8;
+}
+
+.allyparty button .hpbar,
+.switchmenu button .hpbar {
+	position: absolute;
+	display: block;
+	border: 1px solid #AAA;
+	background: #EEE;
+	height: 2px;
+	bottom: 2px; left: 4px; right: 2px;
+	border-radius: 2px;
+	opacity: .8;
+}
+
+/* The declaration order of these three hpbar* classes is significant. */
+
+.allyparty button .hpbar span,
+.switchmenu button .hpbar span {
+	display: block;
+	height: 1px;
+	background: #0A6;
+	border-top: 1px solid #3C0;
+	border-radius: 1px;
+}
+
+.allyparty button .hpbar-yellow span,
+.switchmenu button .hpbar-yellow span {
+	border-top-color: #a5aa53;
+	background-color: #a2a822;
+}
+
+.allyparty button .hpbar-red span,
+.switchmenu button .hpbar-red span {
+	border-top-color: #faa;
+	background-color: #f55;
+}
+
+/****************/
+
+.allyparty button .status,
+.switchmenu button .status {
+	position: absolute;
+	display: block;
+	right: 2px;
+	bottom: 1px;
+	width: 5px;
+	height: 5px;
+	padding: 0;
+	border-radius: 2px;
+	border: 1px solid #C2C2C2;
+	opacity: 1.0;
+}
+.status {
+	color: white;
+	border-radius: 3px;
+	padding: 0 2px;
+}
+.status.brn {
+	background: #EE5533;
+}
+.status.psn, .status.tox {
+	background: #A4009A;
+}
+.status.par {
+	background: #9AA400;
+}
+.status.slp {
+	background: #AA77AA;
+}
+.status.frz {
+	background: #009AA4;
+}
+.status.frb {
+	background: #74CEC0;
+}
+
+.movemenu button {
+	float: left;
+	display: block;
+	width: 155px;
+	margin-right: 4px;
+	height: 40px;
+	font: 10pt/100% Verdana, sans-serif;
+	position: relative;
+	padding:  6px 4px 0 4px;
+}
+.movemenu button small {
+	color: #777777;
+}
+.movemenu button small.type {
+	padding-top: 3px;
+	float: left;
+	font-size: 8pt;
+}
+.movemenu button small.pp {
+	padding-top: 2px;
+	float: right;
+	font-size: 8pt;
+}
+.megaevo {
+		clear: both;
+		display: block;
+		width: 180px;
+		margin: 0 auto 0;
+		position: relative;
+		top: 6px;
+		left: -7px;
+		padding: 2px;
+		text-align: center;
+
+		cursor: pointer;
+		border: 1px solid #BBB;
+		border-radius: 3px;
+		color: #333;
+		background: #EEF2F5;
+		font-size: 10pt;
+		font-weight: bold;
+}
+.megaevo:hover {
+		border-color: #888;
+		background: #E5E5E5;
+		color: black;
+}
+.allyparty,
+.switchmenu,
+.movemenu {
+	display: block;
+	margin-right: -10px;
+	padding-left: 4px;
+}
+.allyparty button,
+.switchmenu button,
+.movemenu button {
+	position: relative;
+	outline: none;
+	text-align: center;
+	text-decoration: none;
+	text-shadow: 0 1px 0 rgba(255,255,255,.4);
+	border-radius: 5px;
+	margin-top: 4px;
+	box-shadow: 0 1px 2px rgba(0,0,0,.2), inset 0 -1px 2px rgba(255,255,255,1);
+
+	/* default colors */
+	color: #000000;
+	border: solid 1px #AAAAAA;
+	background: #e3e3e3;
+	background: linear-gradient(to bottom,  #f6f6f6,  #e3e3e3);
+}
+.allyparty button:hover,
+.switchmenu button:hover,
+.movemenu button:hover {
+	background: #cfcfcf;
+	background: linear-gradient(to bottom,  #f2f2f2,  #cfcfcf);
+	border-color: #606060;
+}
+.allyparty button:active,
+.switchmenu button:active,
+.movemenu button:active,
+.switchmenu button.pressed,
+.movemenu button.pressed {
+	background: linear-gradient(to bottom,  #cfcfcf,  #f2f2f2);
+}
+
+.allyparty button.disabled,
+.allyparty button:disabled,
+.switchmenu button.disabled,
+.switchmenu button:disabled,
+.movemenu button:disabled {
+	cursor: default;
+	background: #F3F3F3 !important;
+	border-color: #CCCCCC !important;
+	-webkit-box-shadow: none !important;
+	-moz-box-shadow: none !important;
+	box-shadow: none !important;
+	color: #777777 !important;
+}
+
+@media (max-height:570px) and (min-width: 440px) {
+	/*
+	 * This is the black move/switch menu for low-res screens
+	 */
+
+	.controls {
+		position: absolute;
+		bottom: 10px;
+		left: 0;
+		right: 0;
+		width: auto;
+		background: #444444;
+		background: rgba(40,40,40,.85);
+		color: #FFFFFF;
+		padding: 4px 8px;
+	}
+	.battle-controls .whatdo {
+		color: #FFFFFF;
+	}
+	.battle-controls .whatdo small.weak {
+		color: #DDDD55;
+		border-color: #DDDD55;
+	}
+	.battle-controls .whatdo small.critical {
+		color: #FF7766;
+		border-color: #FF7766;
+	}
+	.battle-controls .movecontrols, .battle-controls .switchcontrols {
+		max-width: 640px;
+	}
+	.movemenu {
+		display: none;
+		padding: 0 75px 0 85px;
+	}
+	.allyparty,
+	.switchmenu {
+		display: none;
+		max-width: 325px;
+		padding: 0 75px 0 85px;
+		margin: 0 0 0 auto;
+	}
+	.moveselect {
+		position: absolute;
+		left: 20px;
+		bottom: 20px;
+	}
+	.allyTeam,
+	.switchselect {
+		position: absolute;
+		right: 20px;
+		bottom: 20px;
+	}
+	.shiftselect {
+		position: absolute;
+		right: 150px;
+		bottom: 20px;
+	}
+	.moveselect button, .switchselect button, .shiftselect button {
+		padding: 4px 8px;
+		border-radius: 6px;
+		background: #E5E5E5;
+	}
+	.megaevo {
+		margin: 0 auto 8px 50px;
+	}
+
+	.battle-controls .whatdo {
+		padding-bottom: 50px;
+	}
+	.battle-controls .move-controls .whatdo,
+	.battle-controls .switch-controls .whatdo {
+		padding-bottom: 5px;
+	}
+	.move-controls .movemenu,
+	.switch-controls .switchmenu {
+		display: block;
+		margin-right: 0;
+	}
+	.move-controls .moveselect button,
+	.switch-controls .switchselect button,
+	.shiftselect button {
+		background: #BBBBBB;
+	}
+	.controls .timer {
+		float: right;
+		margin-top: -25px;
+	}
+}
+
+/*********************************************************
+ * Teambuilder
+ *********************************************************/
+
+.folderpane {
+	position: absolute;
+	left: 0;
+	top: 0;
+	bottom: 0;
+	padding: 0;
+	border-left: 5px solid #d7e3ec;
+	width: 154px;
+	overflow: auto;
+	overflow-x: hidden;
+}
+.teampane {
+	position: absolute;
+	left: 159px;
+	top: 0;
+	right: 0;
+	bottom: 0;
+	padding: 5px 0 5px 8px;
+	overflow: auto;
+}
+@media (max-width:649px) {
+	.folderpane {
+		display: none;
+	}
+	.teampane {
+		left: 0;
+	}
+}
+
+.folderlist {
+	height: 100%;
+	width: 154px;
+	display: table;
+	margin: 0;
+	padding: 0;
+	border: 0;
+}
+.folderlist .folder,
+.folderlist .foldersep {
+	display: table-row;
+	margin: 0;
+	padding: 0;
+	border: 0;
+	height: 30px;
+}
+.folderlist .foldersep {
+	height: 15px;
+}
+.folderlist .foldersep:before {
+	display: table-cell;
+	height: 15px;
+	background: #d7e3ec;
+	border-right: 1px solid #888888;
+	content: '';
+}
+.folderlistafter {
+	display: table-row;
+	margin: 0;
+	padding: 0;
+	border: 0;
+	height: auto;
+}
+.folderlistbefore {
+	display: table-row;
+	margin: 0;
+	padding: 0;
+	border: 0;
+	height: 12px;
+	content: '';
+}
+.folderlistafter:before,
+.folderlistbefore:before {
+	display: table-cell;
+	background: #d7e3ec;
+	margin: 0;
+	padding: 0;
+	border: 0;
+	border-right: 1px solid #888888;
+	content: '';
+}
+
+.folderpane i {
+	display: inline-block;
+	width: 16px;
+	color: #777777;
+}
+.folderpane h3 {
+	margin: 0;
+	padding: 13px 0 0 0;
+	height: 17px;
+	font-size: 9pt;
+	background: #d7e3ec;
+	color: black;
+	border-right: 1px solid #888888;
+}
+.folder .selectFolder {
+	display: block;
+	padding: 0 0 0 7px;
+	border: 0;
+	border-right: 1px solid #888888;
+	background: #d7e3ec;
+	color: black;
+	width: auto;
+	max-width: 146px; /* I have no idea why this is required and width doesn't work */
+	padding-top: 7px;
+	height: 23px;
+	font-size: 9pt;
+	font-family: Verdana, sans-serif;
+	white-space: nowrap;
+	overflow: hidden;
+	text-align: left;
+	cursor: pointer;
+	user-select: none;
+	-webkit-user-select: none;
+}
+.folder .selectFolder:hover {
+	background: #c7d3dc;
+}
+.folder .selectFolder:active {
+	background: #b7c3cc;
+}
+.folder .selectFolder.active {
+	background: #27333c;
+	color: white;
+}
+.folder.cur .selectFolder,
+.folder.cur .selectFolder:hover,
+.folder.cur .selectFolder:active {
+	padding-top: 6px;
+	height: 22px;
+	cursor: default;
+	background: transparent;
+	color: black;
+	border-top: 1px solid #888888;
+	border-bottom: 1px solid #888888;
+	border-left: 1px solid #888888;
+	border-right: 0;
+	padding-left: 6px;
+	border-top-left-radius: 3px;
+	border-bottom-left-radius: 3px;
+}
+
+/* believe me, there was no other way to do this */
+.folderhack1,
+.folderhack2 {
+	position: absolute;
+	display: block;
+	left: 0;
+	width: 1px;
+	height: 1px;
+	background: #d7e3ec;
+	content: '';
+}
+.folderhack1 {
+	top: 0;
+}
+.folderhack2 {
+	bottom: 0;
+}
+.folderhack3 {
+	position: relative;
+	height: 30px;
+}
+
+.teamlist {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+.teamlist li {
+	margin: 3px 0;
+	padding: 0;
+}
+
+.teamlist .team {
+	display: inline-block;
+	white-space: nowrap;
+	width: 350px;
+	height: 49px;
+	padding: 1px 6px 1px 6px;
+	font-size: 8pt;
+	vertical-align: middle;
+	text-align: center;
+}
+.teamlist .dragging button {
+	visibility: hidden;
+}
+.teamlist .dragging .team {
+	opacity: 0.4;
+}
+.teamlist .team small {
+	display: block;
+	padding: 0 45px 0 55px;
+}
+.teamlist .team .picon {
+	margin: 0 -2px;
+}
+.teamlist .team .picon span {
+	font-size: 9px !important;
+	display: block;
+	overflow: visible;
+	position: relative;
+	width: 32px;
+	top: 22px;
+	color: transparent;
+}
+.teamlist .team.pc-box {
+	height: 139px;
+}
+
+.teamedit {
+	position: absolute;
+	display: block;
+	top: 45px;
+	left: 10px;
+	right: 16px;
+	bottom: 16px;
+	width: auto;
+	height: auto;
+	text-align: left;
+	font-size: inherit;
+	font-family: inherit;
+}
+.teamedit textarea {
+	width: 100%;
+	height: 100%;
+}
+
+.teamwrapper {
+	transform-origin: top left;
+	-webkit-transform-origin: top left;
+}
+
+.teambar {
+	position: absolute;
+	top: 0;
+	left: 92px;
+	min-width: 540px;
+}
+.teambar button {
+	display: block;
+	background: #F3F3F3;
+	color: black;
+	border: 1px solid #AAAAAA;
+	padding: 0;
+	margin: -1px 2px 0 0;
+	height: 44px;
+	float: left;
+	width: 88px;
+	white-space: pre;
+	font-size: 8pt;
+	font-family: Verdana, Arial, sans-serif;
+	overflow: hidden;
+}
+.teambar button span {
+	margin: -2px auto;
+}
+.teambar button:hover {
+	background: #DCDCDC;
+	border-color: #757575;
+}
+.teambar button:active {
+	background: #CCCCCC;
+	border-color: #373737;
+}
+.teambar button:disabled,
+.teambar button:disabled:hover,
+.teambar button:disabled:active {
+	color: #000000;
+	background: #FCFCFC;
+	border-color: #AAAAAA;
+	opacity: .5;
+	cursor: default;
+}
+.teambar .picon {
+	display: block;
+}
+.teamchart,
+.teamchart li {
+	list-style-type: none;
+	display: block;
+	margin: 0;
+	padding: 0;
+}
+.teamchart {
+	padding: 0 10px 10px 7px;
+}
+.teamchart li {
+	padding-top: 20px;
+	position: relative;
+}
+.teamchart li.format-select {
+	padding: 4px 0 10px;
+}
+.teamchart li.format-select label {
+	display: block;
+	font-size: 8pt;
+	font-weight: bold;
+}
+.teamchart li.format-select select,
+.teamchart li.format-select option {
+	margin-right: 5px;
+}
+
+.majorbutton {
+	font-size: 14pt;
+}
+
+.setmenu {
+	position: absolute;
+	top: 5px;
+	left: 130px;
+	width: 503px;
+	text-align: right;
+}
+.setmenu button,
+.teamlist button {
+	background: transparent;
+	border: 1px solid transparent;
+	border-radius: 4px;
+	padding: 2px 5px;
+	margin: 0;
+	font-size: 9pt;
+	font-family: Verdana, sans-serif;
+}
+.setmenu button:hover,
+.teamlist button:hover {
+	border-color: #888888;
+	background: #D5D5D5;
+}
+.setmenu button i,
+.teamlist button i {
+	margin-right: 2px;
+}
+.setmenu-left {
+	position: absolute;
+	top: 5px;
+	left: 5px;
+	text-align: left;
+}
+.setchart-nickname {
+	position: absolute;
+	left: -4px;
+	top: 5px;
+	border: 1px solid #999999;
+	background: #CBD6E1;
+	border-radius: 5px;
+	padding: 1px 0 0 0;
+	width: 110px;
+
+	box-shadow: inset 1px 1px 0 rgba(255,255,255,.6);
+}
+.setchart {
+	border: 1px solid #999999;
+	background: #DAE5F0 no-repeat scroll 10px 5px none;
+	border-radius: 5px;
+	padding: 2px 0 0 3px;
+	height: 127px;
+	width: 626px;
+	margin-top: 8px;
+
+	box-shadow: inset 1px 1px 0 rgba(255,255,255,.6);
+}
+.setcol {
+	height: 127px;
+	width: 112px;
+	float: left;
+}
+.setcol-icon {
+	background: transparent none no-repeat scroll center top;
+}
+.setcol-details {
+	width: 234px;
+}
+.setcell {
+	float: left;
+}
+.setcell-details {
+	float: none;
+}
+.setcell-ability {
+	float: right;
+}
+.setcol-details .itemicon {
+	display: block;
+	width: 24px;
+	height: 24px;
+	background-image: transparent none no-repeat scroll center center;
+	opacity: 0.8;
+}
+.setrow-icons {
+	height: 24px;
+}
+.setcell-typeicons {
+	margin-top: 4px;
+	margin-right: 4px;
+	float:  right;
+}
+.setcell-typeicons img {
+	margin-left: 1px;
+}
+.setcell-sprite {
+	height: 82px;
+	padding: 1px;
+}
+.setcell-pokemon {
+	margin-top: 0;
+}
+.setcell-details {
+	height: 60px;
+}
+.setcol-moves .setcell {
+	padding-bottom: 1px;
+}
+.setchart label,
+.setchart-nickname label {
+	display: block;
+	font-size: 8pt;
+	font-weight: bold;
+	color: #555555;
+	padding-left: 2px;
+}
+.setcol-icon label {
+	text-shadow: #DAE5F0 1px 1px 0, #DAE5F0 1px -1px 0, #DAE5F0 -1px 1px 0, #DAE5F0 -1px -1px 0;
+}
+.setchart-nickname label {
+	font-size: 7pt;
+	margin-bottom: -1px;
+}
+.setcol-moves {
+	width: 137px;
+}
+.setcol-stats {
+	width: 142px;
+}
+.setdetails, .setstats {
+	display: block;
+	box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	border: 1px solid #AAAAAA;
+	border-radius: 3px;
+	padding: 1px;
+	margin: 2px 2px 1px 1px;
+	font-size: 7pt;
+
+	box-shadow: inset 0px 1px 2px #CCCCCC, 1px 1px 0 rgba(255,255,255,.6);
+	background: #F8FBFD;
+	color: black;
+}
+.setdetails label, .setstats label {
+	cursor: pointer;
+}
+.setdetails:hover, .setstats:hover {
+	border-color: #474747;
+	box-shadow: inset 0px 1px 2px #D2D2D2, 1px 1px 0 rgba(255,255,255,.6);
+	background: #FFFFFF;
+}
+.setdetails:focus, .setstats:focus,
+.dark .setdetails:focus, .dark .setstats:focus {
+	border: 2px solid #004488;
+	margin: 1px 1px 0 0;
+	outline: 0 none;
+}
+.setdetails:active, .setstats:active {
+	box-shadow: inset 0px 2px 2px #AAAAAA;
+	background: #E4E9ED;
+	border: 2px solid #004488;
+	margin: 1px 1px 0 0;
+	outline: 0 none;
+}
+.setdetails {
+	width: 230px;
+	height: 34px;
+}
+.setdetails:focus,.setdetails:active {
+	width: 232px;
+	height: 36px;
+}
+.setdetails .detailcell {
+	border-left: 1px solid #CCCCCC;
+	padding: 2px 4px;
+	display: block;
+	float: left;
+	font-size: 9pt;
+	text-align: center;
+}
+.setdetails .detailcell-first {
+	border-left: 0;
+}
+.setchart .setdetails label {
+	float: none;
+	display: block;
+	font-weight: normal;
+	font-size: 7pt;
+	text-align: center;
+	padding: 0;
+}
+.setstats {
+	width: 138px;
+	height: 108px;
+	padding-right: 0;
+}
+.setstats:focus,.setstats:active {
+	width: 140px;
+	height: 110px;
+}
+.statrow {
+	display: block;
+	height: 15px;
+}
+.setchart .setstats label {
+	float: left;
+	width: 20px;
+	height: 5px;
+	text-align: right;
+	font-weight: normal;
+	font-size: 7pt;
+	padding: 0;
+}
+.setstats .statgraph {
+	float: left;
+	width: 75px;
+	padding: 0 0 0 3px;
+	height: 5px;
+}
+.setstats .statgraph span {
+	display: block;
+	margin-top: 3px;
+	height: 6px;
+	background: #CCCCCC;
+}
+.setstats em {
+	float: left;
+	font-style: normal;
+	width: 22px;
+	height: 5px;
+	text-align: right;
+}
+.setstats small {
+	float: left;
+	font-size: 7pt;
+}
+.setstats .statrow-head em {
+	color: #555555;
+}
+.teamnameedit {
+	width: 300px;
+}
+.label {
+	font-size: 9pt;
+	font-weight: bold;
+	display: block;
+}
+.optlabel {
+	font-size: 9pt;
+	display: block;
+}
+.label .textbox {
+	display: block;
+}
+.setchart input,
+.setchart-nickname input,
+.statform input.inputform {
+	display: block;
+	padding: 1px;
+	margin: 2px 3px 1px 1px;
+	width: 104px;
+	height: 20px;
+}
+.setchart input.incomplete {
+	color: #CC3311;
+	border-color: #CC3311;
+}
+.setchart .setcell-details input {
+	width: 216px;
+}
+.setchart .setcell-item input {
+	width: 114px;
+	margin-right: 0px;
+}
+.setchart .setcell-ability input {
+	margin-left: 0px;
+}
+.setchart .setcol-moves input {
+	width: 129px;
+}
+
+.teambuilder-clipboard-container {
+	height: 58px;
+	max-width: 463px;
+	font-size: 8pt;
+	padding: 4px;
+	position: relative;
+	margin: auto;
+
+	border: 1px solid #FFAA00;
+	border-radius: 5px;
+}
+.teambuilder-clipboard-title {
+	width: 74px;
+	padding-top: 8px;
+	font-weight: bold;
+
+	position: absolute;
+	bottom: 4px;
+	left: 8px;
+}
+.teambuilder-clipboard-data {
+	display: block;
+	width: 455px;
+	height: 32px;
+	overflow: hidden;
+	cursor: pointer;
+
+	border: 1px solid #999999;
+	border-radius: 5px;
+	background-image: linear-gradient(to bottom, rgb(218,229,240) 10%, rgb(203,214,225) 55%);
+	background-image: -o-linear-gradient(top, rgb(218,229,240) 10%, rgb(203,214,225) 55%);
+	background-image: -moz-linear-gradient(top, rgb(218,229,240) 10%, rgb(203,214,225) 55%);
+	background-image: -webkit-linear-gradient(top, rgb(218,229,240) 10%, rgb(203,214,225) 55%);
+	background-image: -ms-linear-gradient(top, rgb(218,229,240) 10%, rgb(203,214,225) 55%);
+	outline: none;
+
+	position: absolute;
+	top: 4px;
+	right: 8px;
+	z-index: 2;
+}
+.dark .teambuilder-clipboard-data {
+	color: #000000;
+}
+.teambuilder-clipboard-data:hover {
+	border: 1px solid #BBBBBB;
+}
+.teambuilder-clipboard-data .result {
+	height: 32px;
+}
+.teambuilder-clipboard-data span {
+	display: block;
+	height: 30px;
+
+	float: left;
+}
+.teambuilder-clipboard-data .icon {
+	width: 40px;
+}
+.teambuilder-clipboard-data .species {
+	width: 100px;
+	padding-top: 6px;
+	margin-left: 1px;
+}
+.teambuilder-clipboard-data .ability-item {
+	width: 98px;
+	padding-left: 2px;
+	margin-top: -1px;
+}
+.teambuilder-clipboard-data .moves {
+	width: 100px;
+	padding-left: 2px;
+	margin-top: -1px;
+}
+.teambuilder-clipboard-data .section {
+	height: 100%;
+	padding: 1px;
+	border-right: 1px solid #999999;
+	float: left;
+}
+.teambuilder-clipboard-data .section.no-border {
+	border: none;
+}
+.teambuilder-clipboard-buttons {
+	display: block;
+	width: 385px;
+
+	position: absolute;
+	top: 40px;
+	right: 8px;
+}
+.teambuilder-clipboard-button-left {
+	float: left;
+	height: 22px;
+}
+.teambuilder-clipboard-button-right {
+	float: right;
+	height: 22px;
+}
+.teambuilder-results {
+	position: absolute;
+	top: 200px;
+	left: 0;
+	bottom: 0;
+	right: 0;
+	min-width: 640px;
+
+	overflow-y: scroll;
+	-webkit-overflow-scrolling: touch;
+}
+@media (max-height:410px) {
+	.teambuilder-results {
+		bottom: auto;
+		overflow-y: visible;
+		background: #EEF2F5;
+		color: black;
+	}
+	.dark .teambuilder-results {
+		background: #0E1215;
+		color: #DDD;
+	}
+}
+@media (max-width:639px) {
+	.teambuilder-results {
+		bottom: auto;
+		overflow-y: visible;
+		background: #EEF2F5;
+		color: black;
+	}
+	.dark .teambuilder-results {
+		background: #0E1215;
+		color: #DDD;
+	}
+}
+
+.teamchartbox {
+	position: absolute;
+	top: 42px;
+	left: 0;
+	bottom: 0;
+	right: 0;
+	border-top: 1px solid #AAAAAA;
+
+	overflow: auto;
+	-webkit-overflow-scrolling: touch;
+}
+.teamwrapper.scaled {
+	width: 640px;
+	height: 100%;
+}
+.teamwrapper.scaled .teamchartbox {
+	bottom: auto;
+}
+.exportbutton {
+	margin-left: 6px;
+	margin-bottom: 3px;
+}
+.teamchartbox.individual {
+	overflow: visible;
+}
+.teamchartbox.individual .teamchart {
+	margin-top: -2px;
+}
+.teambuilder-results .result a {
+	border-radius: 4px;
+	cursor: pointer;
+}
+.teambuilder-results .result a.cur {
+	border-color: #555555;
+	background: rgba(248, 248, 248, 0.4);
+}
+.teambuilder-results .result a:hover,
+.teambuilder-results .result a.hover {
+	border-color: #D8D8D8;
+	background: #F8F8F8;
+}
+.teambuilder-results .result a.cur:hover,
+.teambuilder-results .result a.cur.hover {
+	border-color: #555555;
+	background: #F8F8F8;
+}
+
+.teambuilder-results .resultheader h3 {
+	border-right: 0;
+}
+
+.teambuilder-pokemon-import {
+	display: none;
+	position: absolute;
+	top: 206px;
+	left: 10px;
+	padding: 2px;
+	overflow: hidden;
+}
+
+.pokemonedit {
+	width: 626px;
+	text-align: left;
+	font-size: inherit;
+	font-family: inherit;
+}
+
+.statform {
+	padding: 3px 13px 10px 13px;
+	font-size: 10pt;
+}
+.statform p.suggested {
+	margin: 5px 0;
+}
+.statform .col > div {
+	padding-top: 1px;
+	height: 28px;
+}
+.statform .col div label,
+.statform .col div em,
+.statform .col div b {
+	display: block;
+	padding: 5px 0 0 0;
+}
+.statform .col {
+	float: left;
+	width: 52px;
+	text-align: right;
+	font-size: 9pt;
+}
+.statform .basestatscol {
+	width: 38px;
+}
+.statform .statscol {
+	width: 36px;
+}
+.statform .statscol em,
+.statform .statscol b {
+	font-style: normal;
+	font-weight: bold;
+}
+.statform .graphcol {
+	width: 185px;
+}
+.statform .graphcol div span {
+	margin: 3px 0 0 5px;
+	display: block;
+	height: 8px;
+	border-bottom: 1px solid #AAAAAA;
+	border-right: 1px solid #AAAAAA;
+	background: #CCCCCC;
+}
+.statform .evcol,
+.statform .ivcol {
+	width: 48px;
+	text-align: center;
+}
+.statform .evslidercol {
+	width: 193px;
+	margin-right: 9px;
+	margin-left: 5px;
+	padding-top: 2px;
+	text-align: center;
+}
+.evslider {
+	width: 192px;
+	margin: 0 auto;
+}
+.statform .totalev b {
+	color: #DD2222;
+}
+.statform .totalev em {
+	font-style: normal;
+}
+.statform input.numform {
+	width: 40px;
+	height: 16px;
+	font-size: 9pt;
+}
+
+.detailsform .formrow {
+	padding-left: 100px;
+}
+.detailsform .formrow .formlabel {
+	float: left;
+	margin-left: -100px;
+	width: 110px;
+	text-align: right;
+}
+.changeform i {
+	cursor: pointer;
+	display: block;
+	margin: 70px 2px 0 auto;
+	padding-left: 4px;
+	padding-top: 2px;
+	width: 12px;
+	height: 14px;
+	border: 1px solid #569;
+	border-radius: 2px;
+	color: #569;
+	background: rgba(255,255,255,.5);
+	box-shadow: 0 1px 2px rgba(0,0,0,.2);
+}
+.changeform i:hover {
+	color: #DAE5F0;
+	background: #569;
+}
+.altform {
+	margin-left: 10px;
+	margin-top: 4px;
+}
+
+
+/*********************************************************
+ * Popups
+ *********************************************************/
+
+.ps-popup .label {
+	width: 210px;
+	margin: 0 auto;
+}
+.ps-popup .textbox {
+	width: 200px;
+}
+
+.userstatus {
+	font-style: italic;
+	font-size: 8pt;
+	word-wrap: break-word;
+	overflow: hidden;
+	max-height: 21pt;
+	display: block;
+}
+.usergroup {
+	color: #333;
+	font-size: 8pt;
+	font-weight: bold;
+}
+
+.userdetails {
+	min-height: 80px;
+	width: 191px;
+	padding: 1px 1px 1px 86px;
+	margin: 5px 0;
+}
+.userdetails img {
+	float: left;
+	margin-left: -85px;
+}
+.userdetails .rooms {
+	font-size: 8pt;
+}
+.userdetails .offline {
+	color: red;
+}
+.trainersprite.yours {
+	cursor: pointer;
+}
+.buttonbar {
+	clear: both;
+}
+
+.bglist {
+	margin: 0 -7px;
+}
+.avatarlist button,
+.formlist button,
+.bglist button {
+	display: block;
+	float: left;
+	margin: 2px;
+	padding: 2px;
+}
+.avatarlist button {
+	width: 80px;
+	height: 80px;
+	background: transparent url(https://play.pokemonshowdown.com/sprites/trainers-sheet.png) no-repeat scroll 0px 0px;
+}
+.bglist button span {
+	display: block;
+	width: 144px;
+	height: 90px;
+	background: url(../fx/client-bgsheet.png) no-repeat scroll 0px 0px;
+}
+.formlist button {
+	background-repeat: no-repeat;
+}
+
+.effect-volume,
+.music-volume,
+.notif-volume {
+	min-height: 34px;
+}
+.effect-volume label,
+.music-volume label,
+.notif-volume label {
+	font-size: 8pt;
+}
+.effect-volume em,
+.music-volume em,
+.notif-volume em {
+	display: block;
+	font-size: 9pt;
+	padding-left: 5px;
+	color: #555555;
+}
+
+.preview {
+	float: right;
+}
+
+/*********************************************************
+ * Dark mode!
+ *********************************************************/
+
+.dark .header {
+	background: rgba(0,0,0,.30);
+}
+
+.dark .ps-room.ps-room-light,
+.dark .tournament-box,
+.dark .tournament-status,
+.dark .tournament-toggle,
+.dark .pm-log-add {
+	background: rgba(0,0,0,.70);
+	color: #DDD;
+	border-color: #5A5A5A;
+}
+
+.dark .pm-log {
+	background: rgba(0,0,0,.85);
+	color: #DDD;
+	backdrop-filter: blur(4px);
+}
+
+.dark .userlist-maximized {
+	background: #333333;
+	color: #DDD;
+}
+.dark .ps-room.ps-room-opaque,
+.dark .battle-log-add,
+.dark .battle-controls {
+	background: #444444;
+	color: #DDD;
+}
+.dark .userlist-minimized,
+.dark .pm-buttonbar button {
+	background: #444444;
+	color: #4488EE;
+}
+.dark .userlist-minimized .userlist-count:hover,
+.dark .userlist-maximized .userlist-count:hover,
+.dark .pm-buttonbar button:hover {
+	background: #666666;
+}
+
+.dark .moveselect button {
+	color: #AA6644;
+}
+.dark .switchselect button {
+	color: #6677AA;
+}
+.dark .whatdo {
+	color: #999999;
+}
+
+.dark .chat-log {
+	background: rgba(0,0,0,.5);
+	color: #DDD;
+	backdrop-filter: blur(4px);
+}
+
+.dark .userbar .username {
+	color: #DDD;
+	text-shadow: 1px 1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, -1px -1px 0 #000;
+}
+
+/* popups */
+
+.dark .ps-popup {
+	background: #0D151E;
+	color: #DDD;
+	border-color: #34373b;
+
+	box-shadow: 2px 2px 3px rgba(0,0,0,.5), inset 0.5px 1px 1px rgba(255, 255, 255, 0.5);
+}
+
+.dark .usergroup {
+	color: #BBB;
+}
+
+.dark .changeform i {
+	border-color: #bbb;
+	color: #bbb;
+	background: rgba(0,0,0,.5);
+}
+.dark .changeform i:hover {
+	border-color: #EEE;
+	color: #EEE;
+}
+
+.dark .ps-overlay {
+	background: rgba(40, 40, 40, .5);
+}
+
+/* semi-generic */
+
+.dark .select, .dark .team {
+	border-color: #000000;
+	box-shadow: none;
+	background: linear-gradient(to bottom, rgba(227, 239, 251, 0.85), rgba(118, 128, 140, 0.85));
+	color: black;
+}
+.dark .select:hover, .dark .team.team-hover {
+	border-color: #000000;
+	background: #FFFFFF;
+	color: black;
+	background: linear-gradient(to bottom, rgba(255, 255, 255, 0.85), rgba(161, 175, 189, 0.85));
+}
+.dark .select:active, .dark .team:active {
+	border-color: #000000;
+	box-shadow: none;
+	background: linear-gradient(to bottom, rgba(161, 175, 189, 0.85), rgba(255, 255, 255, 0.85));
+}
+.dark .select:disabled {
+	border-color: #888888;
+	background: linear-gradient(to bottom, rgba(227, 239, 251, 0.6), rgba(193, 199, 207, 0.6));
+	color: #444444;
+	box-shadow: none;
+}
+.dark .select:after {
+	color: #000000;
+}
+.dark .select:disabled:after {
+	color: #888888;
+}
+
+/* main menu */
+
+.dark .pm-window.focused h3,
+.dark .pm-window.focused .pm-log,
+.dark .pm-window.focused .pm-log-add {
+	border-color: #CCC;
+}
+
+/* chat */
+
+.dark .userlist strong,
+.dark .userlist span {
+	text-shadow: 1px 1px 0 #222222;
+}
+.dark .userlist li {
+	border-bottom-color: #444;
+}
+.dark .userlist li button:hover {
+	background: #222222;
+}
+.dark .userlist li button:active {
+	background: black;
+}
+
+.dark .highlighted {
+	background: rgba(120,220,255,0.25);
+}
+.dark .message-pm {
+	color: #00af00;
+}
+.dark .revealed {
+	background: rgba(0,255,200,0.18);
+}
+.dark a.ilink {
+	color: #4488EE;
+	border-color: #526c87;
+}
+.dark .chat.mine {
+	background: rgba(255,255,255,0.08);
+}
+
+/* teambuilder */
+
+.dark .folderpane {
+	border-left-color: #484848;
+}
+
+.dark .folderlist .foldersep:before,
+.dark .folderlistafter:before,
+.dark .folderlistbefore:before,
+.dark .folderpane h3,
+.dark .folder .selectFolder,
+.dark .folderhack1,
+.dark .folderhack2 {
+	background: #484848;
+	color: #ddd;
+}
+
+.dark .folder .selectFolder:hover {
+	background: #686868;
+}
+
+.dark .folderpane i {
+	color: #ddd;
+}
+
+.dark .folder .selectFolder.active,
+.dark .folder .selectFolder:active {
+	background: #27333c;
+	color: white;
+}
+
+.dark .folder.cur .selectFolder {
+	background: transparent;
+}
+
+/* teambuilder set */
+
+.dark .utilichart h3, .dark .dexentry h3, .dark .resultheader h3 {
+	background: #636363;
+	color: #F1F1F1;
+	border: 1px solid #A9A9A9;
+	text-shadow: 1px 1px 0 rgb(40, 43, 45);
+	box-shadow: inset 0px 1px 0 rgb(49, 49, 49);
+	border-right: none;
+}
+
+.dark .teambar button {
+	background: #5A6570;
+	color: #F1F1F1;
+	border: 1px solid #AAAAAA;
+}
+
+.dark .teambar button:hover {
+	background: #444C54;
+	color: #F1F1F1;
+	border: 1px solid #AAAAAA;
+}
+
+.dark .teambar button:disabled, .dark .teambar button:disabled:hover, .dark .teambar button:disabled:active {
+		color: #ffffff;
+		background: #2d343a;
+		border-color: #6bacc5;
+		opacity: 1;
+}
+
+.dark .teambuilder-results .result a.hover,
+.dark .teambuilder-results .result a:hover,
+.dark .setmenu button:hover,
+.dark .teamlist button:hover {
+	border-color: #777777;
+	background: rgba(100, 100, 100, 0.5);
+	color: #FFFFFF;
+}
+.dark .teambuilder-results .result a.cur {
+	border-color: #BBBBBB;
+	background: rgba(100, 100, 100, 0.2);
+}
+.dark .teambuilder-results .result a.cur:hover {
+	border-color: #BBBBBB;
+	background: rgba(100, 100, 100, 0.4);
+	color: #FFFFFF;
+}
+
+.dark .setmenu button,
+.dark .teamlist button,
+.dark .folder.cur .selectFolder,
+.dark .utilichart .namecol,
+.dark .utilichart .pokemonnamecol,
+.dark .utilichart .movenamecol {
+	color: #DDD;
+}
+.dark .utilichart .col {
+	color: #DDD;
+}
+.dark .utilichart .cur .col {
+	color: #FFF;
+}
+.dark .utilichart a:hover .col {
+	color: #FFF;
+}
+
+.dark .setchart,
+.dark .setchart-nickname {
+	background-color: #5A6570;
+	box-shadow: none;
+}
+.dark .setcol-icon label {
+	text-shadow: #5A6570 1px 1px 0,#5A6570 1px -1px 0,#5A6570 -1px 1px 0,#5A6570 -1px -1px 0;
+}
+.dark .setchart label,
+.dark .setchart-nickname label,
+.dark .setchart .statrow-head em {
+	color: #BBB;
+}
+
+/* for testclient */
+.dark iframe.textbox,
+.dark iframe.textbox:hover,
+.dark iframe.textbox:focus {
+	background: #DDDDDD;
+}

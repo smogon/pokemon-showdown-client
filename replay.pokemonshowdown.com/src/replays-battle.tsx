@@ -2,10 +2,10 @@
 import preact from 'preact';
 import $ from 'jquery';
 import {Net} from './utils';
-import {PSRouter} from './replays';
-import {Battle} from '../../src/battle';
-import {BattleLog} from '../../src/battle-log';
-import {BattleSound} from '../../src/battle-sound';
+import {PSRouter, PSReplays} from './replays';
+import {Battle} from '../../play.pokemonshowdown.com/src/battle';
+import {BattleLog} from '../../play.pokemonshowdown.com/src/battle-log';
+import {BattleSound} from '../../play.pokemonshowdown.com/src/battle-sound';
 declare function toID(input: string): string;
 
 function showAd(id: string) {
@@ -70,8 +70,8 @@ export class BattlePanel extends preact.Component<{id: string}> {
     private: number;
     password: string;
   } | null | undefined = undefined;
+  resultError = '';
   battle: Battle | null;
-  speed = 'normal';
   /** debug purposes */
   lastUsedKeyCode = '0';
   turnView: boolean | string = false;
@@ -93,8 +93,25 @@ export class BattlePanel extends preact.Component<{id: string}> {
     if (this.battle) this.battle.destroy();
     this.battle = null;
     this.result = undefined;
+    this.resultError = '';
+    this.forceUpdate();
+
+    const elem = document.getElementById(`replaydata-${id}`);
+    if (elem) {
+      // we actually do need to wait for that update to finish so
+      // loadResult definitely has access to $frame and $logFrame
+      setTimeout(() => this.loadResult(elem.innerText, id), 1);
+      return;
+    }
 
     Net(`/${this.stripQuery(id)}.json`).get().then(result => {
+      this.loadResult(result, id);
+    }).catch(err => {
+      this.loadResult(err.statusCode === 404 ? '' : String(err?.body || ''), id);
+    });
+  }
+  loadResult(result: string, id: string) {
+    try {
       const replay: NonNullable<BattlePanel['result']> = JSON.parse(result);
       this.result = replay;
       const $base = $(this.base!);
@@ -119,11 +136,11 @@ export class BattlePanel extends preact.Component<{id: string}> {
       if (query.turn || query.t) {
         this.battle.seekTurn(parseInt(query.turn || query.t, 10));
       }
-      this.forceUpdate();
-    }).catch(_ => {
+    } catch (err) {
       this.result = null;
-      this.forceUpdate();
-    });
+      this.resultError = result.startsWith('{') ? err.toString() : result;
+    }
+    this.forceUpdate();
   }
   override componentWillUnmount(): void {
     this.battle?.destroy();
@@ -270,8 +287,21 @@ export class BattlePanel extends preact.Component<{id: string}> {
 
 		e.stopPropagation();
 	};
+  getSpeed() {
+    if (!this.battle) return 'normal';
+    if (this.battle.messageFadeTime <= 40) {
+      return 'hyperfast';
+    } else if (this.battle.messageFadeTime <= 50) {
+      return 'fast';
+    } else if (this.battle.messageFadeTime >= 500) {
+      return 'slow';
+    } else if (this.battle.messageFadeTime >= 1000) {
+      return 'reallyslow';
+    }
+    return 'normal';
+  }
   changeSpeed = (e: Event | {target: HTMLSelectElement}) => {
-    this.speed = (e.target as HTMLSelectElement).value;
+    const speed = (e.target as HTMLSelectElement).value;
     const fadeTable = {
       hyperfast: 40,
       fast: 50,
@@ -287,8 +317,8 @@ export class BattlePanel extends preact.Component<{id: string}> {
       reallyslow: 3000
     };
     if (!this.battle) return;
-    this.battle.messageShownTime = delayTable[this.speed];
-    this.battle.messageFadeTime = fadeTable[this.speed];
+    this.battle.messageShownTime = delayTable[speed];
+    this.battle.messageFadeTime = fadeTable[speed];
     this.battle.scene.updateAcceleration();
   };
   stepSpeed(delta: number) {
@@ -308,6 +338,15 @@ export class BattlePanel extends preact.Component<{id: string}> {
   changeSound = (e: Event) => {
     const muted = (e.target as HTMLSelectElement).value;
     this.battle?.setMute(muted === 'off');
+    // Wolfram Alpha says that default volume is 100 e^(-(2 log^2(2))/log(10)) which is around 65.881
+    BattleSound.setBgmVolume(muted === 'musicoff' ? 0 : 65.881258001265573);
+    this.forceUpdate();
+  };
+  changeDarkMode = (e: Event) => {
+    const darkmode = (e.target as HTMLSelectElement).value as 'dark';
+    PSReplays.darkMode = darkmode;
+    PSReplays.updateDarkMode();
+    this.forceUpdate();
   };
   openTurn = (e: Event) => {
     this.turnView = `${this.battle?.turn}` || true;
@@ -320,20 +359,21 @@ export class BattlePanel extends preact.Component<{id: string}> {
     e?.preventDefault();
     this.forceUpdate();
   };
-  renderNotFound() {
-    return <div class={PSRouter.showingLeft() ? 'mainbar has-sidebar' : 'mainbar'}><section class="section" style={{maxWidth: '200px'}}>
-      {/* <div style={{margin: '0 -20px'}}>
-        <img src="//play.pokemonshowdown.com/sprites/dex/unown-n.png" alt="" width={120} height={120} style={{marginRight: '-60px'}} />
-        <img src="//play.pokemonshowdown.com/sprites/dex/unown-o.png" alt="" width={120} height={120} style={{marginRight: '-60px'}} />
-        <img src="//play.pokemonshowdown.com/sprites/dex/unown-t.png" alt="" width={120} height={120} />
-      </div>
-      <div style={{margin: '-40px -20px 0'}}>
-        <img src="//play.pokemonshowdown.com/sprites/dex/unown-f.png" alt="" width={120} height={120} style={{marginRight: '-60px'}} />
-        <img src="//play.pokemonshowdown.com/sprites/dex/unown-o.png" alt="" width={120} height={120} style={{marginRight: '-60px'}} />
-        <img src="//play.pokemonshowdown.com/sprites/dex/unown-u.png" alt="" width={120} height={120} style={{marginRight: '-60px'}} />
-        <img src="//play.pokemonshowdown.com/sprites/dex/unown-n.png" alt="" width={120} height={120} style={{marginRight: '-60px'}} />
-        <img src="//play.pokemonshowdown.com/sprites/dex/unown-d.png" alt="" width={120} height={120} />
-      </div> */}
+  renderError(position: any) {
+    if (this.resultError) {
+      return <div class={PSRouter.showingLeft() ? 'mainbar has-sidebar' : 'mainbar'} style={position}><section class="section">
+        <h1>Error</h1>
+        <p>
+          {this.resultError}
+        </p>
+      </section></div>;
+    }
+
+    // In theory, this should almost never happen, because Replays will
+    // never link to a nonexistent replay, but this might happen if e.g.
+    // a replay gets deleted or made private after you searched for it
+    // but before you clicked it.
+    return <div class={PSRouter.showingLeft() ? 'mainbar has-sidebar' : 'mainbar'} style={position}><section class="section" style={{maxWidth: '200px'}}>
       <div style={{textAlign: 'center'}}>
         <img src="//play.pokemonshowdown.com/sprites/gen5ani/unown-n.gif" alt="" style={{imageRendering: 'pixelated'}} />
         <img src="//play.pokemonshowdown.com/sprites/gen5ani/unown-o.gif" alt="" style={{imageRendering: 'pixelated'}} />
@@ -409,7 +449,7 @@ export class BattlePanel extends preact.Component<{id: string}> {
       <p>
         <label class="optgroup">
           Speed:<br />
-          <select name="speed" class="button" onChange={this.changeSpeed} value={this.speed}>
+          <select name="speed" class="button" onChange={this.changeSpeed} value={this.getSpeed()}>
             <option value="hyperfast">Hyperfast</option>
             <option value="fast">Fast</option>
             <option value="normal">Normal</option>
@@ -419,14 +459,23 @@ export class BattlePanel extends preact.Component<{id: string}> {
         </label> {}
         <label class="optgroup">
           Sound:<br />
-          <select name="speed" class="button" onChange={this.changeSound} value={BattleSound.muted ? 'off' : 'on'}>
+          <select name="sound" class="button" onChange={this.changeSound} value={BattleSound.muted ? 'off' : BattleSound.bgmVolume ? 'on' : 'musicoff'}>
             <option value="on">On</option>
+            <option value="musicoff">Music Off</option>
             <option value="off">Muted</option>
           </select>
         </label> {}
         <label class="optgroup">
+          Dark mode:<br />
+          <select name="darkmode" class="button" onChange={this.changeDarkMode} value={PSReplays.darkMode}>
+            <option value="auto">Automatic</option>
+            <option value="dark">Dark</option>
+            <option value="light">Light</option>
+          </select>
+        </label> {}
+        <label class="optgroup">
           Viewpoint:<br />
-          <button onClick={this.switchViewpoint} class={this.battle ? 'button' : 'button disabled'}>
+          <button onClick={this.switchViewpoint} name="viewpoint" class={this.battle ? 'button' : 'button disabled'}>
             {(this.battle?.viewpointSwitched ? this.result?.p2 : this.result?.p1 || "Player")} {}
             <i class="fa fa-random" aria-label="Switch viewpoint"></i>
           </button>
@@ -451,8 +500,6 @@ export class BattlePanel extends preact.Component<{id: string}> {
     </div>;
   }
   override render() {
-    if (this.result === null) return this.renderNotFound();
-
     let position: any = {};
     if (PSRouter.showingLeft()) {
       if (PSRouter.stickyRight) {
@@ -461,6 +508,8 @@ export class BattlePanel extends preact.Component<{id: string}> {
         position = {position: 'sticky', bottom: '0'};
       }
     }
+
+    if (this.result === null) return this.renderError(position);
 
     return <div class={PSRouter.showingLeft() ? 'mainbar has-sidebar' : 'mainbar'} style={position}><div style={{position: 'relative'}}>
       <BattleDiv />

@@ -1,0 +1,134 @@
+﻿<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8" />
+		<meta id="viewport" name="viewport" content="width=device-width" />
+		<title>Showdown!</title>
+		<link rel="shortcut icon" href="favicon.ico" id="dynamic-favicon" />
+		<link rel="stylesheet" href="style/battle.css" />
+		<link rel="stylesheet" href="style/client.css" />
+		<link rel="stylesheet" href="style/sim-types.css" />
+		<link rel="stylesheet" href="style/utilichart.css" />
+		<link rel="stylesheet" href="style/font-awesome.css" />
+		<meta name="robots" content="noindex" />
+		<meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+		<script src="https://play.pokemonshowdown.com/config/config.js"></script>
+		<script>
+			function loadRemoteData(src) {
+				var scriptEl = document.createElement('script');
+				scriptEl.src = src.replace(/.*\/?data\//g, 'https://play.pokemonshowdown.com/data/');
+				document.head.appendChild(scriptEl);
+			}
+			Config.testclient = true;
+			(function() {
+				if (location.search !== '') {
+					var m = /\?~~(([^:\/]*)(:[0-9]*)?)/.exec(location.search);
+					if (m) {
+						Config.server = {
+							id: m[1],
+							host: m[2],
+							port: (m[3] && parseInt(m[3].substr(1))) || 8000
+						};
+					} else {
+						alert('Unrecognised query string syntax: ' + location.search);
+					}
+				}
+			})();
+		</script>
+		<!--[if lte IE 8]><script>
+			Config.oldie = true;
+		</script><![endif]-->
+	</head>
+	<body>
+		<div id="header" class="header">
+			<img class="logo" src="pokemonshowdownbeta.png" alt="Pok&eacute;mon Showdown! (beta)" width="146" height="44" /><div class="maintabbarbottom"></div>
+		</div>
+		<div class="ps-room scrollable" id="mainmenu"><div class="mainmenuwrapper">
+			<div class="leftmenu">
+				<div class="activitymenu">
+					<div class="pmbox">
+						<div class="pm-window news-embed">
+							<h3><button class="closebutton" tabindex="-1" aria-label="Close"><i class="fa fa-times-circle"></i></button><button class="minimizebutton" tabindex="-1" aria-label="Minimize"><i class="fa fa-minus-circle"></i></button>Latest News</h3>
+							<div class="pm-log" style="max-height:none">
+								<div class="newsentry"><h4>Swirling Seasons Showdown</h4><p>Welcome to SwSeSh!</p><p>Check out the <a href="https://discord.gg/nrM6eBSTAy">Discord</a>!</p><p>&mdash;<strong>ry</strong> <small class="date">on Oct 18, 2023</small></p></div>
+							</div>
+						</div>
+					</div>
+				</div>
+				<div class="mainmenu">
+					<div id="loading-message" class="mainmessage">Initializing... <noscript>FAILED<br /><br />Pok&eacute;mon Showdown requires JavaScript.</noscript></div>
+				</div>
+			</div>
+			<div class="rightmenu">
+			</div>
+			<div class="mainmenufooter">
+				<small><a href="//pokemonshowdown.com/" target="_blank"><strong>Pok&eacute;mon Showdown</strong></a> | <a href="http://smogon.com/" target="_blank"><strong>Smogon</strong></a><br><a href="//pokemonshowdown.com/dex/" target="_blank">Pokédex</a> | <a href="//pokemonshowdown.com/replay/" target="_blank">Replays</a> | <a href="//pokemonshowdown.com/rules" target="_blank">Rules</a></small> | <small><a href="//pokemonshowdown.com/forums/" target="_blank">Forum</a></small>
+			</div>
+		</div></div>
+		<script>
+			document.getElementById('loading-message').innerHTML += ' DONE<br />Loading libraries...';
+		</script>
+		<script nomodule src="/js/lib/ps-polyfill.js"></script>
+		<script src="js/lib/jquery-2.1.4.min.js"></script>
+		<script src="js/lib/jquery-cookie.js"></script>
+		<script src="js/lib/autoresize.jquery.min.js"></script>
+		<script src="js/battle-sound.js"></script>
+		<script src="../config/testclient-key.js"></script>
+		<script src="js/lib/html-css-sanitizer-minified.js"></script>
+		<script src="js/lib/lodash.core.js"></script>
+		<script src="js/lib/backbone.js"></script>
+		<script src="js/lib/d3.v3.min.js"></script>
+
+		<script>
+			document.getElementById('loading-message').innerHTML += ' DONE<br />Loading data...';
+			window.exports = window;
+		</script>
+
+		<!-- fallback for if you've never done a full build -->
+		<script src="js/server/chat-formatter.js" onerror="loadRemoteData(this.src)"></script>
+		<script src="js/battledata.js" onerror="alert('You must build the client with `node build` before using testclient.html')"></script>
+		<script src="data/text.js" onerror="loadRemoteData(this.src)"></script>
+		<script src="data/pokedex-mini.js" onerror="loadRemoteData(this.src)"></script>
+		<script src="data/pokedex-mini-bw.js" onerror="loadRemoteData(this.src)"></script>
+		<script src="data/typechart.js" onerror="loadRemoteData(this.src)"></script>
+		<script src="js/battle.js"></script>
+		<script src="js/lib/sockjs-1.4.0-nwjsfix.min.js"></script>
+		<script src="js/lib/color-thief.min.js"></script>
+
+		<script>
+			document.getElementById('loading-message').innerHTML += ' DONE<br />Loading client...';
+		</script>
+
+		<script src="js/client.js"></script>
+		<script src="js/client-topbar.js"></script>
+		<script src="js/client-mainmenu.js"></script>
+		<script src="js/client-teambuilder.js"></script>
+		<script src="js/client-ladder.js"></script>
+		<script src="js/client-chat.js"></script>
+		<script src="js/client-chat-tournament.js"></script>
+		<script src="js/battle-tooltips.js"></script>
+		<script src="js/client-battle.js"></script>
+		<script src="js/client-rooms.js"></script>
+		<script src="js/storage.js"></script>
+		<script src="data/graphics.js" onerror="loadRemoteData(this.src)"></script>
+
+		<script src="data/pokedex.js" onerror="loadRemoteData(this.src)"></script>
+		<script src="data/moves.js" onerror="loadRemoteData(this.src)"></script>
+		<script src="data/items.js" onerror="loadRemoteData(this.src)"></script>
+		<script src="data/abilities.js" onerror="loadRemoteData(this.src)"></script>
+
+		<script src="data/search-index.js" onerror="loadRemoteData(this.src)"></script>
+		<script src="data/teambuilder-tables.js" onerror="loadRemoteData(this.src)"></script>
+		<script src="js/battle-dex-search.js"></script>
+		<script src="js/search.js"></script>
+
+		<script src="data/aliases.js" async="async" onerror="loadRemoteData(this.src)"></script>
+
+		<script>
+			window.onload = () => {
+				window.app = new App();
+			}
+		</script>
+
+	</body>
+</html>

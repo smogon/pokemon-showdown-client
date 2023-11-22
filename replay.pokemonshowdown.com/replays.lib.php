@@ -1,6 +1,6 @@
 <?php
 
-require __DIR__.'/replay-config.inc.php';
+require __DIR__.'/../config/replay-config.inc.php';
 
 class Replays {
 	var $db;
@@ -24,7 +24,8 @@ class Replays {
 			);
 		} catch (PDOException $e) {
 			// this error message contains the database password for some reason :|
-			die("Could not connect");
+			header('HTTP/1.1 503 Service Unavailable');
+			die("Database overloaded, please try again later");
 		}
 		$this->db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 		$this->db->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
@@ -63,6 +64,9 @@ class Replays {
 			$res->execute([$id]);
 		// }
 
+		$replay['log'] = str_replace("\r","",$replay['log']);
+		$matchSuccess = preg_match('/\\n\\|tier\\|([^|]*)\\n/', $replay['log'], $matches);
+		if ($matchSuccess) $replay['format'] = $matches[1];
 		return $replay;
 	}
 	function exists($id, $forcecache = false) {

@@ -1,0 +1,316 @@
+<!doctype html>
+<html lang=en>
+
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Sprites</title>
+	<style>
+		body {
+			font-family: "Roboto", "Helvetica Neue", "Helvetica", "Arial", sans-serif;
+		}
+
+		table {
+			border-collapse: collapse;
+		}
+
+		tr {
+			min-height: 96px;
+		}
+
+		td,
+		th {
+			border: 5px solid black;
+		}
+
+		.outline img {
+			border: 1px solid black;
+			margin: 2px;
+		}
+
+		img {
+			margin: 3px;
+		}
+
+		.picon {
+			display: inline-block;
+			width: 40px;
+			height: 30px;
+		}
+
+		th {
+			font-size: 2em;
+			position: sticky;
+			top: 0;
+			z-index: 10;
+			background: black;
+			color: white;
+		}
+
+		ul {
+			margin: 10px auto;
+			padding: 0;
+			display: block;
+			width: 100%;
+			text-align: center;
+		}
+
+		li {
+			/* font-size: 13px; */
+			display: inline-block;
+			padding: 0 5px;
+		}
+
+		button {
+			align-items: normal;
+			background-color: rgba(0, 0, 0, 0);
+			border-style: none;
+			box-sizing: content-box;
+			cursor: pointer;
+			display: inline;
+			font: inherit;
+			padding: 0;
+			perspective-origin: 0 0;
+			text-align: start;
+			transform-origin: 0 0;
+			-moz-appearance: none;
+		}
+	</style>
+</head>
+
+<body>
+	<div id="root"></div>
+	<script>
+		exports = window;
+	</script>
+	<script src="../data/pokedex-mini.js"></script>
+	<script src="../data/pokedex-mini-bw.js"></script>
+	<script src="../data/teambuilder-tables.js"></script>
+	<script src="../data/abilities.js"></script>
+	<script src="../data/aliases.js"></script>
+	<script src="../data/items.js"></script>
+	<script src="../data/moves.js"></script>
+	<script src="../data/pokedex.js"></script>
+	<script src="../data/typechart.js"></script>
+	<script src="../js/battle-dex-data.js"></script>
+	<script src="../js/battle-dex.js"></script>
+	<script src="../js/battle-scene-stub.js"></script>
+	<script src="../data/text.js"></script>
+	<script src="../js/battle-text-parser.js"></script>
+	<script src="../js/battle.js"></script>
+	<script>
+		//#region VARIABLES
+		const ROOT = document.getElementById('root');
+		const PAGE_SIZE = 25;
+		const GRAPHICS = {
+			// 'gen1rg': 1,
+			// 'gen1rb': 1,
+			'gen1': 1,
+			// 'gen2g': 2,
+			// 'gen2s': 2,
+			'gen2': 2,
+			// 'gen3rs': 3,
+			'gen3': 3,
+			// 'gen3frlg': 3,
+			// 'gen4dp': 4,
+			'gen4': 4,
+			'gen5': 5,
+			'gen5ani': 5,
+			'dex': 6,
+			'ani': 6,
+		};
+
+		var PAGE;
+		var PAGES = 0;
+		const SPECIES = [];
+		let i = 0;
+		for (let baseid in BattlePokedex) {
+			if (baseid.endsWith('totem')) continue;
+			const species = Dex.species.get(baseid);
+			for (let formid of [''].concat(species.cosmeticFormes || [])) {
+				let spriteid = species.spriteid;
+				if (formid) spriteid += '-' + formid.slice(species.id.length);
+				const id = toID(spriteid);
+				SPECIES.push([id, species]);
+				if (i++ % PAGE_SIZE === 0) PAGES++;
+			}
+		}
+
+		SPECIES.sort(([, a], [, b]) => {
+			if (a.gen - b.gen) return a.gen - b.gen;
+			return Math.abs(a.num) - Math.abs(b.num);
+		});
+
+		//#endregion
+		//#region FUNCTIONS
+
+		function e(type, options) {
+			const tag = document.createElement(type);
+			if (!options) return tag;
+
+			if (typeof options === 'string' || typeof options === 'number') {
+				tag.textContent = options;
+				return tag;
+			} else if (options instanceof Node) {
+				tag.appendChild(options);
+				return tag;
+			}
+			if (options.content) {
+				if (typeof options.content === 'string' || typeof options.content === 'number') {
+					tag.textContent = options.content;
+				} else if (tag instanceof Node) {
+					tag.appendChild(options.content);
+				}
+			}
+			if (options.id) tag.setAttribute('id', options.id);
+			if (options.class) tag.classList.add(options.class);
+			return tag;
+		}
+
+		function picons(spriteid) {
+			const styles = new Set([
+				Dex.getPokemonIcon({ id: spriteid }),
+				Dex.getPokemonIcon({ id: spriteid, gender: 'F' }),
+				Dex.getPokemonIcon({ id: spriteid }, true), // facingLeft
+			]);
+
+			const icons = [];
+			for (const style of styles) {
+				const span = e('span', { class: 'picon' });
+				span.style = style;
+				icons.push(span);
+			}
+
+			return icons;
+		};
+
+		function sprites(graphics, spriteid, name, species) {
+			const gen = GRAPHICS[graphics];
+			const imgs = [];
+
+			if (graphics === 'dex') {
+				// no gender or back sprites
+				const data = Dex.getTeambuilderSpriteData({ species: name }, gen);
+				for (const shiny of (gen > 1 ? ['', '-shiny'] : [''])) {
+					const img = e('img');
+					img.src = `${Dex.resourcePrefix}${data.spriteDir}${shiny}/${data.spriteid}.png`;
+					if (gen < 5) img.style = 'image-rendering: pixelated;';
+					imgs.push(img);
+				}
+				return imgs;
+			}
+
+			withPrefs({ noanim: !graphics.endsWith('ani') }, () => {
+				for (const shiny of (gen > 1 ? [false, true] : [false])) {
+					for (const siden of [1, 0]) {
+						for (const gender of (gen === 1 || species.gender ? [undefined] : ['M', 'F'])) {
+							const data = Dex.getSpriteData(spriteid, siden, { gen, noScale: true, shiny, gender });
+							const img = e('img');
+							img.src = data.url;
+							img.width = data.w;
+							img.height = data.h;
+							if (data.pixelated) img.style = 'image-rendering: pixelated;';
+							imgs.push(img);
+						}
+					}
+				}
+			});
+
+			return imgs;
+		};
+
+		function withPrefs(prefs, fn) {
+			const saved = Dex.prefs;
+			Dex.prefs = s => prefs[s];
+			fn();
+			Dex.prefs = saved;
+		}
+
+		function renderRow(i) {
+			const [spriteid, species] = SPECIES[i];
+			const tr = e('tr')
+
+			const td = e('td');
+			for (const icon of picons(spriteid)) {
+				td.appendChild(icon);
+			}
+			tr.appendChild(td);
+
+			const name = species.id !== spriteid ? formeName(species, spriteid) : species.name;
+			tr.appendChild(e('td', name));
+			for (const graphics in GRAPHICS) {
+				const td = e('td');
+				for (const sprite of sprites(graphics, spriteid, name, species)) {
+					td.appendChild(sprite);
+				}
+				tr.appendChild(td);
+			}
+
+			return tr;
+		}
+
+		function formeName(species, spriteid) {
+			if (species.name === 'Toxtricity-Low-Key-Gmax') return species.name;
+			let forme = spriteid.slice(species.id.length);
+			forme = forme.charAt(0).toUpperCase() + forme.substr(1);
+			return `${species.name}-${forme}`;
+		}
+
+		function createNav(page) {
+			const ul = e('ul');
+			for (let i = 0; i < PAGES; i++) {
+				const li = e('li');
+				if (page === i) li.style = 'background-color: yellow;'
+				const button = e('button', e(page === i ? 'b' : 'span', `${i + 1}`));
+				button.addEventListener('click', () => displayPage(i));
+				li.appendChild(button);
+				ul.appendChild(li);
+			}
+			return ul;
+		}
+
+		function displayPage(page) {
+			PAGE = page;
+			if (ROOT.firstChild) ROOT.removeChild(ROOT.firstChild);
+
+			const table = e('table')
+			const tr = e('tr');
+			tr.appendChild(e('th'));
+			tr.appendChild(e('th'));
+			for (const graphics in GRAPHICS) {
+				tr.appendChild(e('th', graphics));
+			}
+			table.appendChild(tr);
+			for (let i = page * PAGE_SIZE; i < Math.min(SPECIES.length, (page + 1) * PAGE_SIZE); i++) {
+				const row = renderRow(i);
+				table.appendChild(row);
+			}
+
+			const div = e('div');
+			div.appendChild(createNav(page));
+			div.appendChild(table);
+			div.appendChild(createNav(page));
+
+			ROOT.appendChild(div);
+			window.scrollTo(0, 0);
+		};
+
+		//#endregion
+		//#region MAIN
+
+		displayPage(0);
+
+		document.addEventListener('keydown', e => {
+			if (e.keyCode === 37 && PAGE !== 0) {
+				displayPage(PAGE - 1);
+			} else if (e.keyCode === 39 && PAGE !== PAGES) {
+				displayPage(PAGE + 1);
+			} else if (e.keyCode === 219) {
+				ROOT.classList.toggle('outline');
+			}
+		});
+		//#endregion
+	</script>
+</body>
+
+</html>

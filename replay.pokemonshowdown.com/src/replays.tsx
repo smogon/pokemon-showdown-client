@@ -431,7 +431,15 @@ export const PSRouter = new class extends PSModel {
   }
 };
 
-class PSReplays extends preact.Component {
+export class PSReplays extends preact.Component {
+  static darkMode: 'dark' | 'light' | 'auto' = 'auto';
+  static updateDarkMode() {
+    let dark = this.darkMode === 'dark' ? 'dark' : '';
+    if (this.darkMode === 'auto') {
+      dark = window.matchMedia?.('(prefers-color-scheme: dark)').matches ? 'dark' : '';
+    }
+    document.documentElement.className = dark;
+  }
   override componentDidMount() {
     PSRouter.subscribe(() => this.forceUpdate());
     if (window.history) {
@@ -465,5 +473,5 @@ if (window.matchMedia?.('(prefers-color-scheme: dark)').matches) {
   document.documentElement.className = 'dark';
 }
 window.matchMedia?.('(prefers-color-scheme: dark)').addEventListener('change', event => {
-  document.documentElement.className = event.matches ? "dark" : "";
+  if (PSReplays.darkMode === 'auto') document.documentElement.className = event.matches ? "dark" : "";
 });
