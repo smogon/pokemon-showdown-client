@@ -1559,39 +1559,95 @@ export class Battle {
 		this.scene.updateWeather();
 	}
 	getRecentWeather(item: string | null = null) {
-		if (this.climateWeatherTimeActive <= this.irritantWeatherTimeActive && this.climateWeatherTimeActive <= this.energyWeatherTimeActive && this.climateWeatherTimeActive <= this.clearingWeatherTimeActive && this.climateWeatherTimeActive < 100 && item !== 'utilityumbrella') {
+		if (
+			this.climateWeatherTimeActive <= this.irritantWeatherTimeActive &&
+			this.climateWeatherTimeActive <= this.energyWeatherTimeActive &&
+			this.climateWeatherTimeActive <= this.clearingWeatherTimeActive &&
+			this.climateWeatherTimeActive < 100 && item !== 'utilityumbrella'
+			) {
 			return this.climateWeather;
-		} else if (this.irritantWeatherTimeActive <= this.climateWeatherTimeActive && this.irritantWeatherTimeActive <= this.energyWeatherTimeActive && this.irritantWeatherTimeActive <= this.clearingWeatherTimeActive && this.irritantWeatherTimeActive < 100 && item !== 'safetygoggles') {
+		} else if (
+			this.irritantWeatherTimeActive <= this.climateWeatherTimeActive &&
+			this.irritantWeatherTimeActive <= this.energyWeatherTimeActive &&
+			this.irritantWeatherTimeActive <= this.clearingWeatherTimeActive &&
+			this.irritantWeatherTimeActive < 100 && item !== 'safetygoggles'
+			) {
 			return this.irritantWeather;
-		} else if (this.energyWeatherTimeActive <= this.irritantWeatherTimeActive && this.energyWeatherTimeActive <= this.climateWeatherTimeActive && this.energyWeatherTimeActive <= this.clearingWeatherTimeActive && this.energyWeatherTimeActive < 100 && item !== 'energynullifier') {
+		} else if (
+			this.energyWeatherTimeActive <= this.irritantWeatherTimeActive &&
+			this.energyWeatherTimeActive <= this.climateWeatherTimeActive &&
+			this.energyWeatherTimeActive <= this.clearingWeatherTimeActive &&
+			this.energyWeatherTimeActive < 100 && item !== 'energynullifier'
+			) {
 			return this.energyWeather;
-		} else if (this.clearingWeatherTimeActive <= this.irritantWeatherTimeActive && this.clearingWeatherTimeActive <= this.energyWeatherTimeActive && this.clearingWeatherTimeActive <= this.climateWeatherTimeActive && this.clearingWeatherTimeActive < 100) {
+		} else if (
+			this.clearingWeatherTimeActive <= this.irritantWeatherTimeActive &&
+			this.clearingWeatherTimeActive <= this.energyWeatherTimeActive &&
+			this.clearingWeatherTimeActive <= this.climateWeatherTimeActive &&
+			this.clearingWeatherTimeActive < 100
+			) {
 			return this.clearingWeather;
 		} else {
 			if (item === 'utilityumbrella') {
-				if (this.irritantWeatherTimeActive <= this.energyWeatherTimeActive && this.irritantWeatherTimeActive <= this.clearingWeatherTimeActive && this.irritantWeatherTimeActive < 100) {
+				if (
+					this.irritantWeatherTimeActive <= this.energyWeatherTimeActive &&
+					this.irritantWeatherTimeActive <= this.clearingWeatherTimeActive &&
+					this.irritantWeatherTimeActive < 100
+					) {
 					return this.irritantWeather;
-				} else if (this.energyWeatherTimeActive <= this.irritantWeatherTimeActive && this.energyWeatherTimeActive <= this.clearingWeatherTimeActive && this.energyWeatherTimeActive < 100) {
+				} else if (
+					this.energyWeatherTimeActive <= this.irritantWeatherTimeActive &&
+					this.energyWeatherTimeActive <= this.clearingWeatherTimeActive &&
+					this.energyWeatherTimeActive < 100
+					) {
 					return this.energyWeather;
-				} else if (this.clearingWeatherTimeActive <= this.irritantWeatherTimeActive && this.clearingWeatherTimeActive <= this.energyWeatherTimeActive && this.clearingWeatherTimeActive < 100) {
+				} else if (
+					this.clearingWeatherTimeActive <= this.irritantWeatherTimeActive &&
+					this.clearingWeatherTimeActive <= this.energyWeatherTimeActive &&
+					this.clearingWeatherTimeActive < 100
+					) {
 					return this.clearingWeather;
 				}
 			}
 			if (item === 'safetygoggles') {
-				if (this.climateWeatherTimeActive <= this.energyWeatherTimeActive && this.climateWeatherTimeActive <= this.clearingWeatherTimeActive && this.climateWeatherTimeActive < 100) {
+				if (
+					this.climateWeatherTimeActive <= this.energyWeatherTimeActive &&
+					this.climateWeatherTimeActive <= this.clearingWeatherTimeActive &&
+					this.climateWeatherTimeActive < 100
+					) {
 					return this.climateWeather;
-				} else if (this.energyWeatherTimeActive <= this.climateWeatherTimeActive && this.energyWeatherTimeActive <= this.clearingWeatherTimeActive && this.energyWeatherTimeActive < 100) {
+				} else if (
+					this.energyWeatherTimeActive <= this.climateWeatherTimeActive &&
+					this.energyWeatherTimeActive <= this.clearingWeatherTimeActive &&
+					this.energyWeatherTimeActive < 100
+					) {
 					return this.energyWeather;
-				} else if (this.clearingWeatherTimeActive <= this.energyWeatherTimeActive && this.clearingWeatherTimeActive <= this.climateWeatherTimeActive && this.clearingWeatherTimeActive < 100) {
+				} else if (
+					this.clearingWeatherTimeActive <= this.energyWeatherTimeActive &&
+					this.clearingWeatherTimeActive <= this.climateWeatherTimeActive &&
+					this.clearingWeatherTimeActive < 100
+					) {
 					return this.clearingWeather;
 				}
 			}
 			if (item === 'energynullifier') {
-				if (this.climateWeatherTimeActive <= this.irritantWeatherTimeActive && this.climateWeatherTimeActive <= this.clearingWeatherTimeActive && this.climateWeatherTimeActive < 100) {
+				if (
+					this.climateWeatherTimeActive <= this.irritantWeatherTimeActive &&
+					this.climateWeatherTimeActive <= this.clearingWeatherTimeActive &&
+					this.climateWeatherTimeActive < 100
+					) {
 					return this.climateWeather;
-				} else if (this.irritantWeatherTimeActive <= this.climateWeatherTimeActive && this.irritantWeatherTimeActive <= this.clearingWeatherTimeActive && this.irritantWeatherTimeActive < 100) {
+				} else if (
+					this.irritantWeatherTimeActive <= this.climateWeatherTimeActive &&
+					this.irritantWeatherTimeActive <= this.clearingWeatherTimeActive &&
+					this.irritantWeatherTimeActive < 100
+					) {
 					return this.irritantWeather;
-				} else if (this.clearingWeatherTimeActive <= this.irritantWeatherTimeActive && this.clearingWeatherTimeActive <= this.climateWeatherTimeActive && this.clearingWeatherTimeActive < 100) {
+				} else if (
+					this.clearingWeatherTimeActive <= this.irritantWeatherTimeActive &&
+					this.clearingWeatherTimeActive <= this.climateWeatherTimeActive &&
+					this.clearingWeatherTimeActive < 100
+					) {
 					return this.clearingWeather;
 				}
 			}

@@ -820,8 +820,8 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			case 'whirligig':
 				futureItems.push(id);
 				break;
-			// dependent items
-			/* case 'eviolite': // incomplete
+			/* dependent items
+			case 'eviolite': // incomplete
 				if (isNFEviolite) popularItems.push(id);
 				else uselessItems.push(id);
 				break; */

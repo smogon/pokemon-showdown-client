@@ -1910,7 +1910,8 @@ class BattleTooltips {
 		if (move.type !== 'Normal' || !value.tryAbility('Droughtproof')) {
 			if (value.tryClimateWeather('Foghorn')) value.modify(9 / 10, 'Fog');
 		}
-		if ((this.pokemonHasType(pokemon, 'Bug') || this.pokemonHasType(pokemon, 'Bug')) && !value.tryItem('Safety Goggles')) {
+		if ((this.pokemonHasType(pokemon, 'Bug') || this.pokemonHasType(pokemon, 'Bug')) &&
+		!value.tryItem('Safety Goggles')) {
 			if (value.tryIrritantWeather('Swarm Signal')) value.modify(4 / 3, 'Pheromones');
 		}
 		if (value.tryAbility('Master Instinct')) {
@@ -2098,7 +2099,7 @@ class BattleTooltips {
 				value.clearingWeatherModify(2);
 				break;
 			}
-		} 
+		}
 		if (move.id === 'hydrosteam') {
 			value.climateWeatherModify(1.5, 'Sunny Day');
 		}
