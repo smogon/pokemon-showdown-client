@@ -911,6 +911,8 @@ class BattlePokemonSearch extends BattleTypedSearch<'pokemon'> {
 			table = table['gen' + dex.gen + 'vgc'];
 		} else if (dex.gen === 9 && isHackmons && !this.formatType) {
 			table = table['bh'];
+		} else if (dex.gen === 9 && format === 'ubersuu' && !this.formatType) {
+			table = table['gen9ubersuu'];
 		} else if (
 			table['gen' + dex.gen + 'doubles'] && dex.gen > 4 &&
 			this.formatType !== 'letsgo' && this.formatType !== 'bdspdoubles' &&
@@ -964,7 +966,7 @@ class BattlePokemonSearch extends BattleTypedSearch<'pokemon'> {
 		}
 		let tierSet: SearchRow[] = table.tierSet;
 		let slices: {[k: string]: number} = table.formatSlices;
-		if (format === 'ubers' || format === 'uber') tierSet = tierSet.slice(slices.Uber);
+		if (format === 'ubers' || format === 'uber' || format === 'ubersuu') tierSet = tierSet.slice(slices.Uber);
 		else if (isVGCOrBS || (isHackmons && dex.gen === 9 && !this.formatType)) {
 			if (format.endsWith('series13') || isHackmons) {
 				// Show Mythicals
