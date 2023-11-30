@@ -1,17 +1,17 @@
 /**
  * Login server database tables
  */
-import {Database, DatabaseTable, PGDatabase} from './database';
+import {DatabaseTable, MySQLDatabase, PGDatabase} from './database';
 import {Config} from './config-loader';
 
 import type {LadderEntry} from './ladder';
 import type {ReplayData} from './replays';
 
 // direct access
-export const psdb = new Database(Config.mysql);
-export const pgdb = new PGDatabase(Config.postgres);
-export const replaysDB = Config.replaysdb ? new Database(Config.replaysdb!) : psdb;
-export const ladderDB = Config.ladderdb ? new Database(Config.ladderdb!) : psdb;
+export const psdb = new MySQLDatabase(Config.mysql);
+export const pgdb = new PGDatabase(Config.postgres!);
+export const replaysDB = Config.replaysdb ? new MySQLDatabase(Config.replaysdb!) : psdb;
+export const ladderDB = Config.ladderdb ? new MySQLDatabase(Config.ladderdb!) : psdb;
 
 export const users = new DatabaseTable<{
 	userid: string;
@@ -117,3 +117,12 @@ export const oauthTokens = new DatabaseTable<{
 	id: string;
 	time: number;
 }>(psdb, 'oauth_tokens', 'id');
+
+export const teams = new DatabaseTable<{
+	teamid: string;
+	ownerid: string;
+	team: string;
+	format: string;
+	title: string;
+	private: number;
+}>(pgdb, 'teams', 'teamid');

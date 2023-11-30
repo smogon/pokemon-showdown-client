@@ -11,6 +11,7 @@ import {Replays} from './replays';
 import {ActionError, QueryHandler, Server} from './server';
 import {toID, updateserver, bash, time, escapeHTML} from './utils';
 import * as tables from './tables';
+import {SQL} from './database';
 import * as pathModule from 'path';
 import IPTools from './ip-tools';
 import * as crypto from 'crypto';
@@ -662,9 +663,9 @@ export const actions: {[k: string]: QueryHandler} = {
 		}
 		let teams = [];
 		try {
-			teams = await tables.pgdb.query(
-				'SELECT teamid, team, format, title as name FROM teams WHERE ownerid = $1', [this.user.id]
-			) ?? [];
+			teams = await tables.teams.selectAll<any>(
+				SQL`teamid, team, format, title as name`
+			)`WHERE ownerid = ${this.user.id}`;
 		} catch (e) {
 			Server.crashlog(e, 'a teams database query', params);
 			throw new ActionError('The server could not load your teams. Please try again later.');
@@ -693,13 +694,13 @@ export const actions: {[k: string]: QueryHandler} = {
 			throw new ActionError("Invalid team ID");
 		}
 		try {
-			const data = await tables.pgdb.query(
-				`SELECT ownerid, team, private as privacy FROM teams WHERE teamid = $1`, [teamid]
-			);
-			if (!data || !data.length || data[0].ownerid !== this.user.id) {
+			const data = await tables.teams.selectOne<any>(
+				SQL`ownerid, team, private as privacy`
+			)`WHERE teamid = ${teamid}`;
+			if (!data || data.ownerid !== this.user.id) {
 				return {team: null};
 			}
-			return data[0];
+			return data;
 		} catch (e) {
 			Server.crashlog(e, 'a teams database request', params);
 			throw new ActionError("Failed to fetch team. Please try again later.");
