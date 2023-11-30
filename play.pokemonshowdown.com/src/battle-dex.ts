@@ -742,7 +742,13 @@ const Dex = new class implements ModdedDex {
 			spriteid = species.spriteid || toID(pokemon.species);
 		}
 		if (species.exists === false) return { spriteDir: 'sprites/gen5', spriteid: '0', x: 10, y: 5 };
-		if (window.Config?.server?.afd || Dex.prefs('afd')) return { spriteDir: 'sprites/afd', spriteid, x: 10, y: 5 };
+		if (window.Config?.server?.afd || Dex.prefs('afd')) return {
+			spriteid,
+			spriteDir: 'sprites/afd',
+			shiny: !!pokemon.shiny,
+			x: 10,
+			y: 5,
+		};
 		const spriteData: TeambuilderSpriteData = {
 			spriteid,
 			spriteDir: 'sprites/dex',
