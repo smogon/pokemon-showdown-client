@@ -911,8 +911,6 @@ class BattlePokemonSearch extends BattleTypedSearch<'pokemon'> {
 			table = table['gen' + dex.gen + 'vgc'];
 		} else if (dex.gen === 9 && isHackmons && !this.formatType) {
 			table = table['bh'];
-		} else if (dex.gen === 9 && format === 'ubersuu' && !this.formatType) {
-			table = table['gen9ubersuu'];
 		} else if (
 			table['gen' + dex.gen + 'doubles'] && dex.gen > 4 &&
 			this.formatType !== 'letsgo' && this.formatType !== 'bdspdoubles' &&
@@ -1015,9 +1013,9 @@ class BattlePokemonSearch extends BattleTypedSearch<'pokemon'> {
 			];
 		}
 
-		if (format === 'zu' && table.zuBans && dex.gen === 9) {
+		if (format === 'ubersuu' && table.ubersUUBans) {
 			tierSet = tierSet.filter(([type, id]) => {
-				if (id in table.zuBans) return false;
+				if (id in table.ubersUUBans) return false;
 				return true;
 			});
 		}
