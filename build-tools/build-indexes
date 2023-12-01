@@ -322,7 +322,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 	const LC = GENS.map(num => num + 0.7);
 	const STADIUM = [2.04, 1.04];
 	const NATDEX = [9.1, 8.1];
-	const OTHER = [9.9, 9.8, 9.41, 9.4, 9.2, -9.4, 8.6, 8.4, 8.2, 8.1, -8.4, -8.6, 7.1];
+	const OTHER = [9.9, 9.41, 9.4, 9.2, -9.4, 8.6, 8.4, 8.2, 8.1, -8.4, -8.6, 7.1];
 
 	// process.stdout.write("\n  ");
 	for (const genIdent of [...GENS, ...DOUBLES, ...VGC, ...NFE, ...STADIUM, ...OTHER, ...NATDEX, ...LC]) {
@@ -331,7 +331,6 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 		const isMetBattle = ('' + genIdent).endsWith('.2');
 		const isNFE = ('' + genIdent).endsWith('.3');
 		const isLC = ('' + genIdent).endsWith('.7');
-		const isUbersUU = ('' + genIdent).endsWith('.8');
 		const isSSDLC1 = (genIdent === 8.4 || genIdent === -8.4);
 		const isPreDLC = (genIdent === 9.4 || genIdent === 9.41 || genIdent === -9.4);
 		const isNatDex = ('' + genIdent).endsWith('.1') && genIdent > 8;
@@ -354,7 +353,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 		pokemon.sort();
 		const tierTable = {};
 		const overrideTier = {};
-		const zuBans = {};
+		const ubersUUBans = {};
 		const monotypeBans = {};
 		const nonstandardMoves = [];
 		for (const id of pokemon) {
@@ -383,14 +382,6 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 					if (bst > 625) tier = 'Illegal';
 					if (Dex.formats.getRuleTable(format).isBannedSpecies(species)) tier = 'Illegal';
 					if (species.types.includes('Steel')) tier = 'Illegal';
-					return tier;
-				}
-				if (isUbersUU) {
-					let tier = species.tier;
-					const ubersUU = Dex.formats.get(gen + 'ubersuu');
-					if (ubersUU.exists && Dex.formats.getRuleTable(ubersUU).isBannedSpecies(species)) {
-						tier = "Illegal";
-					}
 					return tier;
 				}
 				if (isNFE) {
@@ -471,10 +462,9 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			tierTable[tier].push(id);
 
 			if (genNum === 9) {
-				const zu = Dex.formats.get(gen + 'zu');
-				if (zu.exists && Dex.formats.getRuleTable(zu).isBannedSpecies(species) &&
-					["(PU)", "NFE", "LC"].includes(species.tier)) {
-					zuBans[species.id] = 1;
+				const ubersUU = Dex.formats.get(gen + 'ubersuu');
+				if (ubersUU.exists && Dex.formats.getRuleTable(ubersUU).isBannedSpecies(species)) {
+					ubersUUBans[species.id] = 1;
 				}
 				const mono = Dex.formats.get(gen + (isNatDex ? 'nationaldex' : '') + 'monotype');
 				if (Dex.formats.getRuleTable(mono).isBannedSpecies(species)) {
@@ -505,11 +495,6 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			BattleTeambuilderTable[gen + 'metronome'].tiers = tiers;
 			BattleTeambuilderTable[gen + 'metronome'].items = items;
 			BattleTeambuilderTable[gen + 'metronome'].formatSlices = formatSlices;
-		} else if (isUbersUU) {
-			BattleTeambuilderTable[gen + 'ubersuu'] = {};
-			BattleTeambuilderTable[gen + 'ubersuu'].tiers = tiers;
-			BattleTeambuilderTable[gen + 'ubersuu'].overrideTier = overrideTier;
-			BattleTeambuilderTable[gen + 'ubersuu'].formatSlices = formatSlices;
 		} else if (isNFE) {
 			BattleTeambuilderTable[gen + 'nfe'] = {};
 			BattleTeambuilderTable[gen + 'nfe'].tiers = tiers;
@@ -552,7 +537,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			BattleTeambuilderTable.tiers = tiers;
 			BattleTeambuilderTable.items = items;
 			BattleTeambuilderTable.overrideTier = overrideTier;
-			BattleTeambuilderTable.zuBans = zuBans;
+			BattleTeambuilderTable.ubersUUBans = ubersUUBans;
 			BattleTeambuilderTable.monotypeBans = monotypeBans;
 			BattleTeambuilderTable.formatSlices = formatSlices;
 		} else {
@@ -580,13 +565,12 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			if (gen === 'gen4') {
 				return ["CAP", "CAP NFE", "CAP LC", "AG", "Uber", "OU", "(OU)", "UUBL", "UU", "NUBL", "NU", "NFE", "LC"];
 			}
-			return ["CAP", "CAP NFE", "CAP LC", "AG", "Uber", "(Uber)", "OU", "(OU)", "UUBL", "UU", "RUBL", "RU", "NUBL", "NU", "PUBL", "PU", "ZUBL", "ZU", "(PU)", "New", "NFE", "LC", "Unreleased"];
+			return ["CAP", "CAP NFE", "CAP LC", "AG", "Uber", "(Uber)", "OU", "(OU)", "UUBL", "UU", "RUBL", "RU", "NUBL", "NU", "PUBL", "PU", "ZUBL", "ZU", "New", "NFE", "LC", "Unreleased"];
 		})();
 
 		for (const tier of tierOrder) {
-			if (tier in {OU:1, AG:1, Uber:1, UU:1, RU:1, NU:1, PU:1, ZU: 1, "(PU)":1, NFE:1, LC:1, DOU:1, DUU:1, "(DUU)":1, New:1, Legal:1, Regular:1, "Restricted Legendary":1, "CAP LC":1}) {
+			if (tier in {OU:1, AG:1, Uber:1, UU:1, RU:1, NU:1, PU:1, ZU: 1, NFE:1, LC:1, DOU:1, DUU:1, "(DUU)":1, New:1, Legal:1, Regular:1, "Restricted Legendary":1, "CAP LC":1}) {
 				let usedTier = tier;
-				if (usedTier === "(PU)" && genNum === 9) usedTier = "ZU";
 				if (usedTier === "(DUU)") usedTier = "DNU";
 				formatSlices[usedTier] = tiers.length;
 			}
