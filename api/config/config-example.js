@@ -1,4 +1,4 @@
-// MySQL DB settings.
+/** For the login and ladder databases */
 exports.mysql = {
 	charset: "utf8",
 	database: "ps",
@@ -8,6 +8,24 @@ exports.mysql = {
 	socketPath: '',
 	prefix: "ntbb_",
 };
+
+/** For the replay databases */
+exports.replaysdb = {
+	charset: "utf8",
+	database: "ps",
+	password: "",
+	host: 'localhost',
+	user: "root",
+	socketPath: '',
+	prefix: "ntbb_",
+};
+
+/**
+ * For the friends database
+ *
+ * @type {import('pg').PoolConfig | null}
+ */
+exports.postgres = null;
 
 /** For 2FA verification. */
 exports.gapi_clientid = '';
@@ -155,8 +173,3 @@ exports.standings = {
 	"30": "Permaban",
 	"100": "Disabled",
 };
-
-/**
- * @type {import('pg').PoolConfig | null}
- */
-exports.postgres = null;

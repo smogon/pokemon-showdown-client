@@ -172,41 +172,43 @@ export const actions: {[k: string]: QueryHandler} = {
 	},
 
 	async prepreplay(params) {
-		const server = await this.getServer(true);
-		if (!server) {
-			// legacy error
-			return {errorip: this.getIp()};
-		}
+		return 'currently unavailable';
+		// const server = await this.getServer(true);
+		// if (!server) {
+		// 	// legacy error
+		// 	return {errorip: this.getIp()};
+		// }
 
-		const extractedFormatId = /^([a-z0-9]+)-[0-9]+$/.exec(`${params.id}`)?.[1];
-		const formatId = /^([a-z0-9]+)$/.exec(`${params.format}`)?.[1];
-		if (
-			// the server must send all the required values
-			!params.id || !params.format || !params.loghash || !params.p1 || !params.p2 ||
-			// player usernames cannot be longer than 18 characters
-			params.p1.length > 18 || params.p2.length > 18 ||
-			// the battle ID must be valid
-			!extractedFormatId ||
-			// the format from the battle ID must match the format ID
-			formatId !== extractedFormatId
-		) {
-			return 0;
-		}
+		// const extractedFormatId = /^([a-z0-9]+)-[0-9]+$/.exec(`${params.id}`)?.[1];
+		// const formatId = /^([a-z0-9]+)$/.exec(`${params.format}`)?.[1];
+		// if (
+		// 	// the server must send all the required values
+		// 	!params.id || !params.format || !params.loghash || !params.p1 || !params.p2 ||
+		// 	// player usernames cannot be longer than 18 characters
+		// 	params.p1.length > 18 || params.p2.length > 18 ||
+		// 	// the battle ID must be valid
+		// 	!extractedFormatId ||
+		// 	// the format from the battle ID must match the format ID
+		// 	formatId !== extractedFormatId
+		// ) {
+		// 	return 0;
+		// }
 
-		if (server.id !== Config.mainserver) {
-			params.id = server.id + '-' + params.id;
-		}
-		params.serverid = server.id;
+		// if (server.id !== Config.mainserver) {
+		// 	params.id = server.id + '-' + params.id;
+		// }
+		// params.serverid = server.id;
 
-		const result = await Replays.prep(params);
+		// const result = await Replays.prep(params);
 
-		this.setPrefix(''); // No need for prefix since only usable by server.
-		return result;
+		// this.setPrefix(''); // No need for prefix since only usable by server.
+		// return result;
 	},
 
 	uploadreplay(params) {
-		this.setHeader('Content-Type', 'text/plain; charset=utf-8');
-		return Replays.upload(params, this);
+		return 'currently unavailable';
+		// this.setHeader('Content-Type', 'text/plain; charset=utf-8');
+		// return Replays.upload(params, this);
 	},
 
 	async invalidatecss() {
@@ -715,8 +717,12 @@ export const actions: {[k: string]: QueryHandler} = {
 		if (params.sort && params.sort !== 'rating' && params.sort !== 'date') {
 			throw new ActionError('Sort must be "rating" or "date"');
 		}
+		let username = (params.username ||= params.user);
+		if (!params.username2 && username?.includes(',')) {
+			[username, params.username2] = username.split(',');
+		}
 		const search = {
-			username: toID(params.username || params.user),
+			username: toID(username),
 			username2: toID(params.username2),
 			format: toID(params.format),
 			page: Number(params.page || '1'),
@@ -735,8 +741,12 @@ export const actions: {[k: string]: QueryHandler} = {
 		if (params.sort && params.sort !== 'rating' && params.sort !== 'date') {
 			throw new ActionError('Sort must be "rating" or "date"');
 		}
+		let username = (params.username ||= params.user);
+		if (!params.username2 && username?.includes(',')) {
+			[username, params.username2] = username.split(',');
+		}
 		const search = {
-			username: toID(params.username || params.user),
+			username: toID(username),
 			username2: toID(params.username2),
 			format: toID(params.format),
 			page: Number(params.page || '1'),

@@ -10,6 +10,7 @@ import * as mysql from 'mysql2';
 import * as pg from 'pg';
 
 export type BasicSQLValue = string | number | null;
+// eslint-disable-next-line
 export type SQLRow = {[k: string]: BasicSQLValue};
 export type SQLValue = BasicSQLValue | SQLStatement | PartialOrSQL<SQLRow> | BasicSQLValue[] | undefined;
 
@@ -119,6 +120,7 @@ export const connectedDatabases: Database[] = [];
 export abstract class Database<Pool extends mysql.Pool | pg.Pool = mysql.Pool | pg.Pool, OkPacket = unknown> {
 	connection: Pool;
 	prefix: string;
+	type = '';
 	constructor(connection: Pool, prefix = '') {
 		this.prefix = prefix;
 		this.connection = connection;
@@ -126,6 +128,7 @@ export abstract class Database<Pool extends mysql.Pool | pg.Pool = mysql.Pool | 
 	}
 	abstract _resolveSQL(query: SQLStatement): [query: string, values: BasicSQLValue[]];
 	abstract _query(sql: string, values: BasicSQLValue[]): Promise<any>;
+	abstract _queryExec(sql: string, values: BasicSQLValue[]): Promise<OkPacket>;
 	abstract escapeId(param: string): string;
 	query<T = ResultRow>(sql: SQLStatement): Promise<T[]>;
 	query<T = ResultRow>(): (strings: TemplateStringsArray, ...rest: SQLValue[]) => Promise<T[]>;
@@ -146,7 +149,12 @@ export abstract class Database<Pool extends mysql.Pool | pg.Pool = mysql.Pool | 
 	queryExec(): (strings: TemplateStringsArray, ...rest: SQLValue[]) => Promise<OkPacket>;
 	queryExec(sql?: SQLStatement) {
 		if (!sql) return (strings: any, ...rest: any) => this.queryExec(new SQLStatement(strings, rest));
-		return this.queryOne<OkPacket>(sql);
+
+		const [query, values] = this._resolveSQL(sql);
+		return this._queryExec(query, values);
+	}
+	getTable<Row>(name: string, primaryKeyName: keyof Row & string | null = null) {
+		return new DatabaseTable<Row, this>(this, name, primaryKeyName);
 	}
 	close() {
 		void this.connection.end();
@@ -157,15 +165,17 @@ type PartialOrSQL<T> = {
 	[P in keyof T]?: T[P] | SQLStatement;
 };
 
+type OkPacketOf<DB extends Database> = DB extends Database<any, infer T> ? T : never;
+
 // Row extends SQLRow but TS doesn't support closed types so we can't express this
-export class DatabaseTable<Row> {
-	db: Database;
+export class DatabaseTable<Row, DB extends Database> {
+	db: DB;
 	name: string;
-	primaryKeyName: keyof Row & string;
+	primaryKeyName: keyof Row & string | null;
 	constructor(
-		db: Database,
+		db: DB,
 		name: string,
-		primaryKeyName: keyof Row & string
+		primaryKeyName: keyof Row & string | null = null
 	) {
 		this.db = db;
 		this.name = db.prefix + name;
@@ -187,8 +197,8 @@ export class DatabaseTable<Row> {
 	queryOne<T = Row>(sql?: SQLStatement) {
 		return this.db.queryOne<T>(sql as any) as any;
 	}
-	queryExec(sql: SQLStatement): Promise<mysql.OkPacket>;
-	queryExec(): (strings: TemplateStringsArray, ...rest: SQLValue[]) => Promise<mysql.OkPacket>;
+	queryExec(sql: SQLStatement): Promise<OkPacketOf<DB>>;
+	queryExec(): (strings: TemplateStringsArray, ...rest: SQLValue[]) => Promise<OkPacketOf<DB>>;
 	queryExec(sql?: SQLStatement) {
 		return this.db.queryExec(sql as any) as any;
 	}
@@ -210,22 +220,22 @@ export class DatabaseTable<Row> {
 			this.queryOne<T>()`SELECT ${entries} FROM "${this.name}" ${new SQLStatement(strings, rest)} LIMIT 1`;
 	}
 	updateAll(partialRow: PartialOrSQL<Row>):
-	(strings: TemplateStringsArray, ...rest: SQLValue[]) => Promise<mysql.OkPacket> {
+	(strings: TemplateStringsArray, ...rest: SQLValue[]) => Promise<OkPacketOf<DB>> {
 		return (strings, ...rest) =>
 			this.queryExec()`UPDATE "${this.name}" SET ${partialRow as any} ${new SQLStatement(strings, rest)}`;
 	}
 	updateOne(partialRow: PartialOrSQL<Row>):
-	(strings: TemplateStringsArray, ...rest: SQLValue[]) => Promise<mysql.OkPacket> {
+	(strings: TemplateStringsArray, ...rest: SQLValue[]) => Promise<OkPacketOf<DB>> {
 		return (s, ...r) =>
 			this.queryExec()`UPDATE "${this.name}" SET ${partialRow as any} ${new SQLStatement(s, r)} LIMIT 1`;
 	}
 	deleteAll():
-	(strings: TemplateStringsArray, ...rest: SQLValue[]) => Promise<mysql.OkPacket> {
+	(strings: TemplateStringsArray, ...rest: SQLValue[]) => Promise<OkPacketOf<DB>> {
 		return (strings, ...rest) =>
 			this.queryExec()`DELETE FROM "${this.name}" ${new SQLStatement(strings, rest)}`;
 	}
 	deleteOne():
-	(strings: TemplateStringsArray, ...rest: SQLValue[]) => Promise<mysql.OkPacket> {
+	(strings: TemplateStringsArray, ...rest: SQLValue[]) => Promise<OkPacketOf<DB>> {
 		return (strings, ...rest) =>
 			this.queryExec()`DELETE FROM "${this.name}" ${new SQLStatement(strings, rest)} LIMIT 1`;
 	}
@@ -255,7 +265,17 @@ export class DatabaseTable<Row> {
 			throw err;
 		}
 	}
+	upsert(partialRow: PartialOrSQL<Row>, partialUpdate = partialRow, where?: SQLStatement) {
+		if (this.db.type === 'pg') {
+			return this.queryExec(
+			)`INSERT INTO "${this.name}" (${partialRow as any}) ON CONFLICT (${this.primaryKeyName
+			}) DO UPDATE ${partialUpdate as any} ${where}`;
+		}
+		return this.queryExec(
+		)`INSERT INTO "${this.name}" (${partialRow as any}) ON DUPLICATE KEY UPDATE ${partialUpdate as any} ${where}`;
+	}
 	set(primaryKey: BasicSQLValue, partialRow: PartialOrSQL<Row>, where?: SQLStatement) {
+		if (!this.primaryKeyName) throw new Error(`Cannot set() without a single-column primary key`);
 		partialRow[this.primaryKeyName] = primaryKey as any;
 		return this.replace(partialRow, where);
 	}
@@ -263,17 +283,21 @@ export class DatabaseTable<Row> {
 		return this.queryExec()`REPLACE INTO "${this.name}" (${partialRow as SQLValue}) ${where}`;
 	}
 	get(primaryKey: BasicSQLValue, entries?: (keyof Row & string)[] | SQLStatement) {
+		if (!this.primaryKeyName) throw new Error(`Cannot get() without a single-column primary key`);
 		return this.selectOne(entries)`WHERE "${this.primaryKeyName}" = ${primaryKey}`;
 	}
 	delete(primaryKey: BasicSQLValue) {
+		if (!this.primaryKeyName) throw new Error(`Cannot delete() without a single-column primary key`);
 		return this.deleteAll()`WHERE "${this.primaryKeyName}" = ${primaryKey} LIMIT 1`;
 	}
 	update(primaryKey: BasicSQLValue, data: PartialOrSQL<Row>) {
+		if (!this.primaryKeyName) throw new Error(`Cannot update() without a single-column primary key`);
 		return this.updateAll(data)`WHERE "${this.primaryKeyName}" = ${primaryKey} LIMIT 1`;
 	}
 }
 
 export class MySQLDatabase extends Database<mysql.Pool, mysql.OkPacket> {
+	override type = 'mysql' as const;
 	constructor(config: mysql.PoolOptions & {prefix?: string}) {
 		const prefix = config.prefix || "";
 		if (config.prefix) {
@@ -313,12 +337,16 @@ export class MySQLDatabase extends Database<mysql.Pool, mysql.OkPacket> {
 			});
 		});
 	}
+	override _queryExec(sql: string, values: BasicSQLValue[]): Promise<mysql.OkPacket> {
+		return this._query(sql, values);
+	}
 	override escapeId(id: string) {
-		return this.connection.escapeId(id);
+		return mysql.escapeId(id);
 	}
 }
 
-export class PGDatabase extends Database<pg.Pool, []> {
+export class PGDatabase extends Database<pg.Pool, {affectedRows: number | null}> {
+	override type = 'pg' as const;
 	constructor(config: pg.PoolConfig) {
 		super(new pg.Pool(config));
 	}
@@ -340,6 +368,9 @@ export class PGDatabase extends Database<pg.Pool, []> {
 	}
 	override _query(query: string, values: BasicSQLValue[]) {
 		return this.connection.query(query, values).then(res => res.rows);
+	}
+	override _queryExec(query: string, values: BasicSQLValue[]) {
+		return this.connection.query<never>(query, values).then(res => ({affectedRows: res.rowCount}));
 	}
 	override escapeId(id: string) {
 		// @ts-expect-error @types/pg really needs to be updated

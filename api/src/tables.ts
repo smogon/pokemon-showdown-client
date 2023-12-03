@@ -1,19 +1,19 @@
 /**
  * Login server database tables
  */
-import {DatabaseTable, MySQLDatabase, PGDatabase} from './database';
+import {MySQLDatabase, PGDatabase} from './database';
 import {Config} from './config-loader';
 
 import type {LadderEntry} from './ladder';
-import type {ReplayData} from './replays';
+import type {ReplayRow} from './replays';
 
 // direct access
 export const psdb = new MySQLDatabase(Config.mysql);
 export const pgdb = new PGDatabase(Config.postgres!);
-export const replaysDB = Config.replaysdb ? new MySQLDatabase(Config.replaysdb!) : psdb;
+export const replaysDB = Config.replaysdb ? new PGDatabase(Config.replaysdb) : pgdb;
 export const ladderDB = Config.ladderdb ? new MySQLDatabase(Config.ladderdb!) : psdb;
 
-export const users = new DatabaseTable<{
+export const users = psdb.getTable<{
 	userid: string;
 	usernum: number;
 	username: string;
@@ -33,17 +33,16 @@ export const users = new DatabaseTable<{
 	avatar: number;
 	logintime: number;
 	loginip: string | null;
-}>(psdb, 'users', 'userid');
+}>('users', 'userid');
 
-export const ladder = new DatabaseTable<LadderEntry>(
-	ladderDB, 'ladder', 'entryid',
-);
+export const ladder = ladderDB.getTable<
+LadderEntry
+>('ladder', 'entryid');
 
-export const prepreplays = new DatabaseTable<{
+export const replayPrep = replaysDB.getTable<{
 	id: string;
-	p1: string;
-	p2: string;
 	format: string;
+	players: string;
 	/**
 	 * 0 = public
 	 * 1 = private (with password)
@@ -55,74 +54,85 @@ export const prepreplays = new DatabaseTable<{
 	inputlog: string;
 	rating: number;
 	uploadtime: number;
-}>(
-	replaysDB, 'prepreplays', 'id',
-);
+}>('replayprep', 'id');
 
-export const replays = new DatabaseTable<ReplayData>(
-	replaysDB, 'replays', 'id',
-);
+export const replays = replaysDB.getTable<
+ReplayRow
+>('replays', 'id');
 
-export const sessions = new DatabaseTable<{
+export const replayPlayers = replaysDB.getTable<{
+	playerid: string;
+	formatid: string;
+	id: string;
+	rating: number | null;
+	uploadtime: number;
+	private: ReplayRow['private'];
+	password: string | null;
+	format: string;
+	/** comma-delimited player names */
+	players: string;
+}>('replayplayers');
+
+export const sessions = psdb.getTable<{
 	session: number;
 	sid: string;
 	userid: string;
 	time: number;
 	timeout: number;
 	ip: string;
-}>(psdb, 'sessions', 'session');
+}>('sessions', 'session');
 
-export const userstats = new DatabaseTable<{
+export const userstats = psdb.getTable<{
 	id: number;
 	serverid: string;
 	usercount: number;
 	date: number;
-}>(psdb, 'userstats', 'id');
+}>('userstats', 'id');
 
-export const loginthrottle = new DatabaseTable<{
+export const loginthrottle = psdb.getTable<{
 	ip: string;
 	count: number;
 	time: number;
 	lastuserid: string;
-}>(psdb, 'loginthrottle', 'ip');
+}>('loginthrottle', 'ip');
 
-export const usermodlog = new DatabaseTable<{
+export const usermodlog = psdb.getTable<{
 	entryid: number;
 	userid: string;
 	actorid: string;
 	date: number;
 	ip: string;
 	entry: string;
-}>(psdb, 'usermodlog', 'entryid');
+}>('usermodlog', 'entryid');
 
-export const userstatshistory = new DatabaseTable<{
+export const userstatshistory = psdb.getTable<{
 	id: number;
 	date: number;
 	usercount: number;
 	programid: 'showdown' | 'po';
-}>(psdb, 'userstatshistory', 'id');
+}>('userstatshistory', 'id');
 
 // oauth stuff
 
-export const oauthClients = new DatabaseTable<{
+export const oauthClients = psdb.getTable<{
 	owner: string; // ps username
 	client_title: string;
 	id: string; // hex hash
 	origin_url: string;
-}>(psdb, 'oauth_clients', 'id');
+}>('oauth_clients', 'id');
 
-export const oauthTokens = new DatabaseTable<{
+export const oauthTokens = psdb.getTable<{
 	owner: string;
 	client: string; // id of client
 	id: string;
 	time: number;
-}>(psdb, 'oauth_tokens', 'id');
+}>('oauth_tokens', 'id');
 
-export const teams = new DatabaseTable<{
+export const teams = pgdb.getTable<{
 	teamid: string;
 	ownerid: string;
 	team: string;
 	format: string;
 	title: string;
 	private: number;
-}>(pgdb, 'teams', 'teamid');
+}>('teams', 'teamid');

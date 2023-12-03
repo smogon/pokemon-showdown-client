@@ -74,37 +74,37 @@ describe('Loginserver actions', () => {
 		});
 	});
 
-	it('Should prepare replays', async () => {
-		// clear old
-		await tables.prepreplays.delete('gen8randombattle-3096');
+	// it('Should prepare replays', async () => {
+	// 	// clear old
+	// 	await tables.prepreplays.delete('gen8randombattle-3096');
 
-		// as long as it doesn't throw, we're fine
-		await utils.testDispatcher({
-			act: 'prepreplay',
-			id: 'gen8randombattle-3096',
-			loghash: 'ec4730e807719f9b94327f4b5ab28034',
-			p1: 'Adora',
-			p2: 'Catra',
-			format: 'gen8randombattle',
-			rating: '1500',
-			hidden: '',
-			private: '0',
-			serverid: 'showdown',
-			servertoken: token,
-			inputlog: [
-				'>version 3eeccb002ecc608fb66c25b6abb3ef87f667f8b6',
-				'>version-origin a5d3aaee353a60c91076162238b2a6d09c284165',
-				'>start {"formatid":"gen8randombattle","seed":[17049,48118,24089,21353],"rated":"Rated battle"}',
-				'>player p1 {"name":"Adora","avatar":"169","rating":1000,"seed":[14989,14520,19847,43935]}',
-				'>player p2 {"name":"Catra","avatar":"miapi.png","rating":1069,"seed":[35058,54063,46942,19311]}',
-			].join('\n'),
-		});
+	// 	// as long as it doesn't throw, we're fine
+	// 	await utils.testDispatcher({
+	// 		act: 'prepreplay',
+	// 		id: 'gen8randombattle-3096',
+	// 		loghash: 'ec4730e807719f9b94327f4b5ab28034',
+	// 		p1: 'Adora',
+	// 		p2: 'Catra',
+	// 		format: 'gen8randombattle',
+	// 		rating: '1500',
+	// 		hidden: '',
+	// 		private: '0',
+	// 		serverid: 'showdown',
+	// 		servertoken: token,
+	// 		inputlog: [
+	// 			'>version 3eeccb002ecc608fb66c25b6abb3ef87f667f8b6',
+	// 			'>version-origin a5d3aaee353a60c91076162238b2a6d09c284165',
+	// 			'>start {"formatid":"gen8randombattle","seed":[17049,48118,24089,21353],"rated":"Rated battle"}',
+	// 			'>player p1 {"name":"Adora","avatar":"169","rating":1000,"seed":[14989,14520,19847,43935]}',
+	// 			'>player p2 {"name":"Catra","avatar":"miapi.png","rating":1069,"seed":[35058,54063,46942,19311]}',
+	// 		].join('\n'),
+	// 	});
 
-		const cached = await tables.prepreplays.get(
-			'gen8randombattle-3096'
-		);
-		assert(cached, 'Could not locate entry for prepped replay');
-	});
+	// 	const cached = await tables.prepreplays.get(
+	// 		'gen8randombattle-3096'
+	// 	);
+	// 	assert(cached, 'Could not locate entry for prepped replay');
+	// });
 
 	describe('Ladder', () => {
 		it('Should update the ladder', async () => {
