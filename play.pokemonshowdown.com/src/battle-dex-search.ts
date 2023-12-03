@@ -358,7 +358,6 @@ class DexSearch {
 
 			// For pokemon queries, accept types/tier/abilities/moves/eggroups as filters
 			if (searchType === 'pokemon' && (typeIndex === 5 || typeIndex > 7)) continue;
-			if (searchType === 'pokemon' && typeIndex === 3 && this.dex.gen < 9) continue;
 			// For move queries, accept types/categories as filters
 			if (searchType === 'move' && ((typeIndex !== 8 && typeIndex > 4) || typeIndex === 3)) continue;
 			// For move queries in the teambuilder, don't accept pokemon as filters
