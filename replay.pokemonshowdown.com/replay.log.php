@@ -39,6 +39,7 @@ if ($id) {
 		$replay['formatid'] = '';
 		$cached = true;
 		$replay['log'] = str_replace("\r","",$replay['log']);
+		$replay['players'] = [$replay['p1'], $replay['p2']];
 		$matchSuccess = preg_match('/\\n\\|tier\\|([^|]*)\\n/', $replay['log'], $matches);
 		if ($matchSuccess) $replay['format'] = $matches[1];
 		if (@$replay['date']) {

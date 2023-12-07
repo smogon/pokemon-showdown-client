@@ -40,6 +40,7 @@ if ($id) {
 		$replay['formatid'] = '';
 		$cached = true;
 		$replay['log'] = str_replace("\r","",$replay['log']);
+		$replay['players'] = [$replay['p1'], $replay['p2']];
 		$matchSuccess = preg_match('/\\n\\|tier\\|([^|]*)\\n/', $replay['log'], $matches);
 		if ($matchSuccess) $replay['format'] = $matches[1];
 		if (@$replay['date']) {
@@ -70,7 +71,7 @@ if ($id) {
 
 $title = '';
 if ($replay) {
-	$title = htmlspecialchars($replay['format'].': '.$replay['p1'].' vs. '.$replay['p2'].' - ');
+	$title = htmlspecialchars($replay['format'].': '.implode(' vs. ', $replay['players']).' - ');
 }
 
 ?><!DOCTYPE html>
@@ -80,7 +81,7 @@ if ($replay) {
 <title><?= $title ?>Replays - Pok&eacute;mon Showdown!</title>
 
 <?php
-if ($replay) echo '<meta name="description" content="Watch a replay of a Pok&eacute;mon battle between '.htmlspecialchars($replay['p1']).' and '.htmlspecialchars($replay['p2']).'! Format: '.htmlspecialchars($replay['format']).'; Date: '.date("M j, Y", @$replay['uploadtime']).'" />';
+if ($replay) echo '<meta name="description" content="Watch a replay of a Pok&eacute;mon battle between '.htmlspecialchars(implode(' and ', $replay['players'])).'! Format: '.htmlspecialchars($replay['format']).'; Date: '.date("M j, Y", @$replay['uploadtime']).'" />';
 ?>
 
 <!--

@@ -60,12 +60,9 @@ export class BattlePanel extends preact.Component<{id: string}> {
     uploadtime: number;
     id: string;
     format: string;
-    p1: string;
-    p2: string;
+    players: string[];
     log: string;
     views: number;
-    p1id: string;
-    p2id: string;
     rating: number;
     private: number;
     password: string;
@@ -476,13 +473,13 @@ export class BattlePanel extends preact.Component<{id: string}> {
         <label class="optgroup">
           Viewpoint:<br />
           <button onClick={this.switchViewpoint} name="viewpoint" class={this.battle ? 'button' : 'button disabled'}>
-            {(this.battle?.viewpointSwitched ? this.result?.p2 : this.result?.p1 || "Player")} {}
+            {(this.battle?.viewpointSwitched ? this.result?.players[1] : this.result?.players[0] || "Player")} {}
             <i class="fa fa-random" aria-label="Switch viewpoint"></i>
           </button>
         </label>
       </p>
       {this.result ? <h1>
-        <strong>{this.result.format}</strong>: {this.result.p1} vs. {this.result.p2}
+        <strong>{this.result.format}</strong>: {this.result.players.join(' vs. ')}
       </h1> : <h1>
         <em>Loading...</em>
       </h1>}
