@@ -103,7 +103,7 @@
 		}
 
 		var jqueryEl = document.createElement('script');
-		jqueryEl.src = '/js/lib/jquery-2.1.4.min.js';
+		jqueryEl.src = '/js/lib/jquery-2.2.4.min.js';
 		jqueryEl.onload = function() {
 			if (!params.get('token')) {
 				$('#auth').on('click', () => { // this should send a req to get a token
