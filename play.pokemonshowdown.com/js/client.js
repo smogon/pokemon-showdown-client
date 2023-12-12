@@ -2555,6 +2555,21 @@ function toId() {
 			this.$el.html('<form><p style="white-space:pre-wrap;word-wrap:break-word">' + (data.htmlMessage || BattleLog.parseMessage(data.message)) + '</p><p class="buttonbar">' + (data.buttons || '<button type="button" name="close" class="button autofocus"><strong>OK</strong></button>') + '</p></form>').css('max-width', data.maxWidth || 480);
 		},
 
+		copyText: function (value, target) {
+			var dummyInput = document.createElement("input");
+			// This is a hack. You can only "select" an input field.
+			//  The trick is to create a short lived input element and destroy it after a copy.
+			// (stolen from the replay code, obviously --mia)
+			dummyInput.id = "dummyInput";
+			dummyInput.value = value || target.value || target.href || "";
+			dummyInput.style.position = 'absolute';
+			target.appendChild(dummyInput);
+			dummyInput.select();
+			document.execCommand("copy");
+			target.removeChild(dummyInput);
+			$(target).text('Copied!');
+		},
+
 		dispatchClickButton: function (e) {
 			var target = e.currentTarget;
 			if (target.name) {
