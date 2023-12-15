@@ -223,7 +223,7 @@
         "@typescript-eslint/consistent-type-assertions": ["error", {"assertionStyle": "as"}],
         "@typescript-eslint/consistent-type-definitions": "off",
         "@typescript-eslint/explicit-member-accessibility": ["error", {"accessibility": "no-public"}],
-        "@typescript-eslint/member-delimiter-style": "error",
+        "@typescript-eslint/member-delimiter-style": "off",
         "@typescript-eslint/no-parameter-properties": "error",
         "@typescript-eslint/no-this-alias": "error",
         "@typescript-eslint/no-var-requires": "off",

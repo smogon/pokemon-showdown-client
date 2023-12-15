@@ -11,30 +11,32 @@ import {Config} from './config-loader';
 import {SQL} from './database';
 
 // must be a type and not an interface to qualify as an SQLRow
+// eslint-disable-next-line
 export type ReplayRow = {
-	id: string;
-	format: string;
+	id: string,
+	format: string,
 	/** player names delimited by `,`; starting with `!` denotes that player wants the replay private */
-	players: string;
-	log: string;
-	inputlog: string | null;
-	uploadtime: number;
-	views: number;
-	formatid: string;
-	rating: number | null;
+	players: string,
+	log: string,
+	inputlog: string | null,
+	uploadtime: number,
+	views: number,
+	formatid: string,
+	rating: number | null,
 	/**
 	 * 0 = public
 	 * 1 = private (with or without password)
 	 * 2 = NOT USED; ONLY USED IN PREPREPLAY
 	 * 3 = deleted
+	 * 10 = autosaved
 	 */
-	private: 0 | 1 | 2 | 3;
-	password: string | null;
+	private: 0 | 1 | 2 | 3 | 10,
+	password: string | null,
 };
 type Replay = Omit<ReplayRow, 'formatid' | 'players' | 'password' | 'views'> & {
-	players: string[];
-	views?: number;
-	password?: string | null;
+	players: string[],
+	views?: number,
+	password?: string | null,
 };
 
 export const Replays = new class {
@@ -188,7 +190,8 @@ export const Replays = new class {
 					players: replayData.players,
 				});
 			}
-		} catch {
+		} catch (e: any) {
+			if (e?.routine !== 'NewUniquenessConstraintViolationError') throw e;
 			await replays.update(replay.id, {
 				log: replayData.log,
 				inputlog: replayData.inputlog,
@@ -200,7 +203,7 @@ export const Replays = new class {
 				rating: replayData.rating,
 				private: replayData.private,
 				password: replayData.password,
-			})`WHERE replayid = ${replay.id}`;
+			})`WHERE id = ${replay.id}`;
 		}
 		return fullid;
 	}
@@ -229,8 +232,8 @@ export const Replays = new class {
 	}
 
 	search(args: {
-		page?: number; isPrivate?: boolean; byRating?: boolean;
-		format?: string; username?: string; username2?: string;
+		page?: number, isPrivate?: boolean, byRating?: boolean,
+		format?: string, username?: string, username2?: string,
 	}): Promise<Replay[]> {
 		const page = args.page || 0;
 		if (page > 100) return Promise.resolve([]);
