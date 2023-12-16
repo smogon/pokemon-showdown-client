@@ -392,7 +392,7 @@ export const actions: {[k: string]: QueryHandler} = {
 			if (update[0]) throw new Error(update.join(','));
 			update = true;
 		} catch (e: any) {
-			throw new ActionError(e.message);
+			throw new ActionError(e.message as string);
 		}
 		update = await bash(
 			`sudo -u www-data node build${params.full ? ' full' : ''}`, Config.clientpath
@@ -464,7 +464,7 @@ export const actions: {[k: string]: QueryHandler} = {
 		if (!actor) {
 			throw new ActionError("The staff executing this action must be specified.");
 		}
-		if (!params.reason || !params.reason.length) {
+		if (!params.reason?.length) {
 			throw new ActionError("A reason must be specified.");
 		}
 		const standing = Number(params.standing);
@@ -501,7 +501,7 @@ export const actions: {[k: string]: QueryHandler} = {
 		if (!actor) {
 			throw new ActionError("The staff executing this action must be specified.");
 		}
-		if (!params.reason || !params.reason.length) {
+		if (!params.reason?.length) {
 			throw new ActionError("A reason must be specified.");
 		}
 		const standing = Number(params.standing);

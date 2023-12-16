@@ -1,6 +1,6 @@
 {
   "parserOptions": {
-    "ecmaVersion": 11,
+    "ecmaVersion": "es2021",
     "sourceType": "module",
     "ecmaFeatures": {
       "globalReturn": true
@@ -198,6 +198,7 @@
         // disable additional typescript-eslint 3.0 defaults
         "@typescript-eslint/explicit-module-boundary-types": "off",
         "@typescript-eslint/no-unsafe-member-access": "off",
+        "@typescript-eslint/no-unsafe-argument": "off",
         "@typescript-eslint/no-unsafe-assignment": "off",
         "@typescript-eslint/no-unsafe-call": "off",
         "@typescript-eslint/no-unsafe-return": "off",
@@ -224,9 +225,9 @@
         "@typescript-eslint/consistent-type-definitions": "off",
         "@typescript-eslint/explicit-member-accessibility": ["error", {"accessibility": "no-public"}],
         "@typescript-eslint/member-delimiter-style": "off",
-        "@typescript-eslint/no-parameter-properties": "error",
         "@typescript-eslint/no-this-alias": "error",
         "@typescript-eslint/no-var-requires": "off",
+        "@typescript-eslint/parameter-properties": "error",
         "@typescript-eslint/prefer-as-const": "error",
         "@typescript-eslint/prefer-for-of": "error",
         "@typescript-eslint/prefer-function-type": "error",
