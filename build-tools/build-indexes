@@ -616,8 +616,13 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			}
 			if (item.isNonstandard && !isMetBattle) {
 				if (isNatDex) {
-					if (item.isNonstandard !== "Past") continue;
-					if (!item.itemUser && !item.zMove) continue;
+					let curItem = item;
+					let curGen = genNum;
+					while (item.isNonstandard && curGen >= 7) {
+						curItem = Dex.forGen(curGen).items.get(item.id);
+						curGen--;
+					}
+					if (curItem.isNonstandard) continue;
 				} else if (genNum !== 2) {
 					continue;
 				}
