@@ -1,13 +1,12 @@
 /**
  * Code for uploading and managing replays.
  *
+ * By Zarel.
  * Ported to TypeScript by Annika and Mia.
+ * Ported to Postgres by Zarel.
  */
-import {Session} from './user';
-import {ActionError, ActionContext} from './server';
-import {toID, time, stripNonAscii, md5} from './utils';
-import {replayPrep, replayPlayers, replays} from './tables';
-import {Config} from './config-loader';
+import {toID, time} from './utils';
+import {replayPlayers, replays} from './tables';
 import {SQL} from './database';
 
 // must be a type and not an interface to qualify as an SQLRow
@@ -41,104 +40,6 @@ type Replay = Omit<ReplayRow, 'formatid' | 'players' | 'password' | 'views'> & {
 
 export const Replays = new class {
 	readonly passwordCharacters = '0123456789abcdefghijklmnopqrstuvwxyz';
-	// async prep(params: {[k: string]: unknown}) {
-	// 	const id = ('' + params.id).toLowerCase().replace(/[^a-z0-9-]+/g, '');
-	// 	let isPrivate: 0 | 1 | 2 = params.hidden ? 1 : 0;
-	// 	if (params.hidden === 2) isPrivate = 2;
-	// 	let p1 = Session.wordfilter(`${params.p1}`);
-	// 	let p2 = Session.wordfilter(`${params.p2}`);
-	// 	if (isPrivate) {
-	// 		p1 = `!${p1}`;
-	// 		p2 = `!${p2}`;
-	// 	}
-	// 	const {loghash, format} = params as Record<string, string>;
-	// 	let rating = Number(params.rating);
-	// 	if (params.serverid !== Config.mainserver) rating = 0;
-	// 	const inputlog = params.inputlog || null;
-	// 	const out = await replayPrep.replace({
-	// 		id, loghash,
-	// 		players: `${p1},${p2}`,
-	// 		format,
-	// 		uploadtime: time(),
-	// 		rating,
-	// 		inputlog: Array.isArray(inputlog) ? inputlog.join('\n') : inputlog as string,
-	// 		private: isPrivate,
-	// 	});
-	// 	return !!out.affectedRows;
-	// }
-
-	// /**
-	//  * Not a direct upload; you should call prep first.
-	//  *
-	//  * The intended use is that the sim server sends `prepreplay` directly
-	//  * to here, and then the client sends `upload`. Convoluted mostly in
-	//  * case of firewalls between the sim server and the loginserver.
-	//  */
-	// async upload(params: {[k: string]: string | undefined}, context: ActionContext) {
-	// 	let id = ('' + params.id).toLowerCase().replace(/[^a-z0-9-]+/g, '');
-	// 	if (!id) throw new ActionError('Battle ID needed.');
-	// 	const preppedReplay = await replayPrep.get(id);
-	// 	const replay = await replays.get(id, ['id', 'private', 'password']);
-	// 	if (!preppedReplay) {
-	// 		if (replay) {
-	// 			if (replay.password) {
-	// 				id += '-' + replay.password + 'pw';
-	// 			}
-	// 			return 'success:' + id;
-	// 		}
-	// 		if (!/^[a-z0-9]+-[a-z0-9]+-[0-9]+$/.test(id)) {
-	// 			return 'invalid id';
-	// 		}
-	// 		return 'not found';
-	// 	}
-	// 	let password: string | null = null;
-	// 	if (preppedReplay.private && preppedReplay.private !== 2) {
-	// 		if (replay?.password) {
-	// 			password = replay.password;
-	// 		} else if (!replay?.private) {
-	// 			password = this.generatePassword();
-	// 		}
-	// 	}
-	// 	if (typeof params.password === 'string') password = params.password;
-
-	// 	let fullid = id;
-	// 	if (password) fullid += '-' + password + 'pw';
-
-	// 	let log = params.log as string;
-	// 	if (md5(stripNonAscii(log)) !== preppedReplay.loghash) {
-	// 		log = log.replace('\r', '');
-	// 		if (md5(stripNonAscii(log)) !== preppedReplay.loghash) {
-	// 			// Hashes don't match.
-
-	// 			// Someone else tried to upload a replay of the same battle,
-	// 			// while we were uploading this
-	// 			// ...pretend it was a success
-	// 			return 'success:' + fullid;
-	// 		}
-	// 	}
-
-	// 	if (password && password.length > 31) {
-	// 		context.setHeader('HTTP/1.1', '403 Forbidden');
-	// 		return 'password must be 31 or fewer chars long';
-	// 	}
-
-	// 	const formatid = toID(preppedReplay.format);
-
-	// 	const privacy = preppedReplay.private ? 1 : 0;
-	// 	const {players, format, uploadtime, rating, inputlog} = preppedReplay;
-	// 	await replays.insert({
-	// 		id, players, format,
-	// 		formatid, uploadtime,
-	// 		private: privacy, rating, log,
-	// 		inputlog, password,
-	// 	}, SQL`ON DUPLICATE KEY UPDATE log = ${params.log as string},
-	// 		inputlog = ${inputlog}, rating = ${rating},
-	// 		private = ${privacy}, \`password\` = ${password}`);
-
-	// 	await replayPrep.deleteOne()`WHERE id = ${id} AND loghash = ${preppedReplay.loghash}`;
-
-	// 	return 'success:' + fullid;
-	// }
 
 	toReplay(this: void, row: ReplayRow) {
 		const replay: Replay = {
@@ -175,6 +76,7 @@ export const Replays = new class {
 
 		// obviously upsert exists but this is the easiest way when multiple things need to be changed
 		const replayData = this.toReplayRow(replay);
+		replayData.uploadtime ||= time();
 		try {
 			await replays.insert(replayData);
 			for (const playerName of replay.players) {
@@ -270,11 +172,13 @@ export const Replays = new class {
 				}
 			} else {
 				if (format) {
-					return replays.query()`SELECT uploadtime, id, format, players, rating, private, password FROM replayplayers 
+					return replays.query()`SELECT 
+							uploadtime, id, format, players, rating, private, password FROM replayplayers 
 						WHERE playerid = ${userid} AND formatid = ${format} AND "private" = ${isPrivate} 
 						${order} ${paginate};`.then(this.toReplays);
 				} else {
-					return replays.query()`SELECT uploadtime, id, format, players, rating, private, password FROM replayplayers 
+					return replays.query()`SELECT 
+							uploadtime, id, format, players, rating, private, password FROM replayplayers 
 						WHERE playerid = ${userid} AND private = ${isPrivate} 
 						${order} ${paginate};`.then(this.toReplays);
 				}
@@ -305,10 +209,11 @@ export const Replays = new class {
 
 		const secondPattern = patterns.length >= 2 ? SQL`AND log LIKE ${patterns[1]} ` : undefined;
 
-		return replays.query()`SELECT /*+ MAX_EXECUTION_TIME(10000) */ 
+		const DAYS = 24 * 60 * 60;
+		return replays.query()`SELECT 
 			uploadtime, id, format, players, rating FROM ps_replays 
-			WHERE private = 0 AND log LIKE ${patterns[0]} ${secondPattern}
-			ORDER BY uploadtime DESC LIMIT 10;`.then(this.toReplays);
+			WHERE private = 0 AND uploadtime > ${time() - 3 * DAYS} AND log LIKE ${patterns[0]} ${secondPattern}
+			ORDER BY uploadtime DESC LIMIT 50;`.then(this.toReplays);
 	}
 
 	recent() {

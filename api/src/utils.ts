@@ -12,9 +12,8 @@ export function toID(text: any): string {
 }
 
 export function time() {
-	// php has this with unix seconds. so we have to as well.
-	// for legacy reasons. Yes, I hate it too.
-	return Math.floor(Date.now() / 1000);
+	// Date.now() is in milliseconds but Unix timestamps are in seconds
+	return Math.trunc(Date.now() / 1000);
 }
 
 export function bash(command: string, cwd?: string): Promise<[number, string, string]> {

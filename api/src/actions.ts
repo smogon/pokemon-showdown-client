@@ -4,18 +4,19 @@
  * By Mia
  * @author mia-pi-git
  */
-import {Config} from './config-loader';
 import {promises as fs, readFileSync} from 'fs';
+import * as pathModule from 'path';
+import * as crypto from 'crypto';
+import * as url from 'url';
+import {Config} from './config-loader';
 import {Ladder} from './ladder';
 import {Replays} from './replays';
 import {ActionError, QueryHandler, Server} from './server';
+import {Session} from './user';
 import {toID, updateserver, bash, time, escapeHTML} from './utils';
 import * as tables from './tables';
 import {SQL} from './database';
-import * as pathModule from 'path';
 import IPTools from './ip-tools';
-import * as crypto from 'crypto';
-import * as url from 'url';
 
 const OAUTH_TOKEN_TIME = 2 * 7 * 24 * 60 * 60 * 1000;
 
@@ -171,44 +172,64 @@ export const actions: {[k: string]: QueryHandler} = {
 		throw new ActionError("Malformed request", 400);
 	},
 
-	async prepreplay(params) {
-		return 'currently unavailable';
-		// const server = await this.getServer(true);
-		// if (!server) {
-		// 	// legacy error
-		// 	return {errorip: this.getIp()};
-		// }
+	async addreplay(params) {
+		// required params:
+		//   id, format, log, players
+		// optional params:
+		//   inputlog, hidden, password
 
-		// const extractedFormatId = /^([a-z0-9]+)-[0-9]+$/.exec(`${params.id}`)?.[1];
-		// const formatId = /^([a-z0-9]+)$/.exec(`${params.format}`)?.[1];
-		// if (
-		// 	// the server must send all the required values
-		// 	!params.id || !params.format || !params.loghash || !params.p1 || !params.p2 ||
-		// 	// player usernames cannot be longer than 18 characters
-		// 	params.p1.length > 18 || params.p2.length > 18 ||
-		// 	// the battle ID must be valid
-		// 	!extractedFormatId ||
-		// 	// the format from the battle ID must match the format ID
-		// 	formatId !== extractedFormatId
-		// ) {
-		// 	return 0;
-		// }
+		const server = await this.getServer(true);
+		if (!server) {
+			// legacy error
+			return {errorip: this.getIp()};
+		}
 
-		// if (server.id !== Config.mainserver) {
-		// 	params.id = server.id + '-' + params.id;
-		// }
-		// params.serverid = server.id;
+		// the server must send all the required values
+		if (!params.id || !params.format || !params.log || !params.players) {
+			throw new ActionError("Required params: id, format, log, players", 400);
+		}
+		// player usernames cannot be longer than 18 characters
+		if (!params.players.split(',').some(p => p.length > 18)) {
+			throw new ActionError("Player names much be 18 chars or shorter", 400);
+		}
+		// the battle ID must be valid
+		// the format from the battle ID must match the format ID
+		const extractedFormatId = /^([a-z0-9]+)-[0-9]+$/.exec(`${params.id}`)?.[1];
+		const formatId = toID(params.format);
+		if (!extractedFormatId || formatId !== extractedFormatId) {
+			throw new ActionError("Format ID must match the one in the replay ID", 400);
+		}
 
-		// const result = await Replays.prep(params);
+		if (server.id !== Config.mainserver) {
+			params.id = server.id + '-' + params.id;
+		}
 
-		// this.setPrefix(''); // No need for prefix since only usable by server.
-		// return result;
+		const id = ('' + params.id).toLowerCase().replace(/[^a-z0-9-]+/g, '');
+		let isPrivate: 0 | 1 | 2 = params.hidden ? 1 : 0;
+		if (params.hidden === '2') isPrivate = 2;
+		const players = params.players.split(',').map(p => Session.wordfilter(p));
+		const out = await Replays.add({
+			id,
+			log: params.log,
+			players,
+			format: params.format,
+			uploadtime: time(),
+			rating: null,
+			inputlog: params.inputlog || null,
+			private: isPrivate,
+			password: params.password || null,
+		});
+
+		this.setPrefix(''); // No need for prefix since only usable by server.
+		return {replayid: out};
 	},
 
-	uploadreplay(params) {
-		return 'currently unavailable';
-		// this.setHeader('Content-Type', 'text/plain; charset=utf-8');
-		// return Replays.upload(params, this);
+	prepreplay() {
+		throw new ActionError("No longer exists; use addreplay.", 410);
+	},
+
+	uploadreplay() {
+		throw new ActionError("No longer exists; use addreplay.", 410);
 	},
 
 	async invalidatecss() {
@@ -708,7 +729,7 @@ export const actions: {[k: string]: QueryHandler} = {
 			throw new ActionError("Failed to fetch team. Please try again later.");
 		}
 	},
-	async 'replays/recent'() {
+	'replays/recent'() {
 		this.allowCORS();
 		return Replays.recent();
 	},
