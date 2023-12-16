@@ -619,6 +619,7 @@ abstract class BattleTypedSearch<T extends SearchType> {
 		if (format.startsWith('vgc')) this.formatType = 'doubles';
 		if (format === 'vgc2020') this.formatType = 'ssdlc1doubles';
 		if (format === 'vgc2023regulationd') this.formatType = 'predlcdoubles';
+		if (format === 'vgc2023regulatione') this.formatType = 'svdlc1doubles';
 		if (format.includes('bdsp')) {
 			if (format.includes('doubles')) {
 				this.formatType = 'bdspdoubles';
@@ -782,6 +783,7 @@ abstract class BattleTypedSearch<T extends SearchType> {
 		let genChar = `${gen}`;
 		if (
 			this.format.startsWith('vgc') ||
+			this.format.startsWith('bss') ||
 			this.format.startsWith('battlespot') ||
 			this.format.startsWith('battlestadium') ||
 			this.format.startsWith('battlefestival') ||
@@ -913,7 +915,8 @@ class BattlePokemonSearch extends BattleTypedSearch<'pokemon'> {
 	getBaseResults(): SearchRow[] {
 		const format = this.format;
 		if (!format) return this.getDefaultResults();
-		const isVGCOrBS = format.startsWith('battlespot') || format.startsWith('battlestadium') || format.startsWith('vgc');
+		const isVGCOrBS = format.startsWith('battlespot') || format.startsWith('bss') ||
+			format.startsWith('battlestadium') || format.startsWith('vgc');
 		const isHackmons = format.includes('hackmons') || format.endsWith('bh');
 		let isDoublesOrBS = isVGCOrBS || this.formatType?.includes('doubles');
 		const dex = this.dex;
@@ -1525,8 +1528,8 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 		const isSTABmons = (format.includes('stabmons') || format === 'staaabmons');
 		const isTradebacks = format.includes('tradebacks');
 		const regionBornLegality = dex.gen >= 6 &&
-			(/^battle(spot|stadium|festival)/.test(format) || format.startsWith('vgc') ||
-			(dex.gen === 9 && this.formatType !== 'natdex'));
+			(/^battle(spot|stadium|festival)/.test(format) || format.startsWith('bss') ||
+				format.startsWith('vgc') || (dex.gen === 9 && this.formatType !== 'natdex'));
 
 		let learnsetid = this.firstLearnsetid(species.id);
 		let moves: string[] = [];
