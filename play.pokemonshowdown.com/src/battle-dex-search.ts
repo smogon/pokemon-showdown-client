@@ -583,7 +583,7 @@ abstract class BattleTypedSearch<T extends SearchType> {
 			this.dex = Dex;
 		}
 
-		if (format.startsWith('dlc1')) {
+		if (format.startsWith('dlc1') && this.dex.gen === 8) {
 			if (format.includes('doubles')) {
 				this.formatType = 'ssdlc1doubles';
 			} else {
@@ -601,7 +601,7 @@ abstract class BattleTypedSearch<T extends SearchType> {
 			}
 			format = format.slice(6) as ID;
 		}
-		if (format.startsWith('dlc1')) {
+		if (format.startsWith('dlc1') && this.dex.gen === 9) {
 			if (format.includes('doubles') && !format.includes('nationaldex')) {
 				this.formatType = 'svdlc1doubles';
 			} else if (format.includes('nationaldex')) {
@@ -955,7 +955,7 @@ class BattlePokemonSearch extends BattleTypedSearch<'pokemon'> {
 			table = table['gen' + dex.gen + 'nfe'];
 		} else if (this.formatType === 'lc') {
 			table = table['gen' + dex.gen + 'lc'];
-		} else if (this.formatType?.startsWith('dlc1')) {
+		} else if (this.formatType?.startsWith('ssdlc1')) {
 			if (this.formatType.includes('doubles')) {
 				table = table['gen8dlc1doubles'];
 			} else {
