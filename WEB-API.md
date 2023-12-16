@@ -41,11 +41,11 @@ https://replay.pokemonshowdown.com/search.json?user=zarel&user2=yuyuko&format=ge
 
 Paginate searches:
 
-https://replay.pokemonshowdown.com/search.json?user=zarel&page=2
+https://replay.pokemonshowdown.com/search.json?user=zarel&before=1372221987
 
-Searches are limited to 51 results, and pages are offset by 50 each, so the existence of a 51st result means that there's at least one more page available.
+Searches are limited to 51 results, and pages are offset by 50 each, so the existence of a 51st result means that there's at least one more page available. For the timestamp, use the uploadtime of the last replay in the list.
 
-Pagination is not supported for the recent replays list, but is supported for everything else.
+You can also use `page=[number]`, but this is an older API that is poorly supported and should not be relied upon.
 
 
 Users (including ladder information)
