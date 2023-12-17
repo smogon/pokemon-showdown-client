@@ -94,10 +94,11 @@ export class BattlePanel extends preact.Component<{id: string}> {
     this.forceUpdate();
 
     const elem = document.getElementById(`replaydata-${id}`);
+    const logElem = document.getElementById(`replaylog-${id}`);
     if (elem) {
       // we actually do need to wait for that update to finish so
       // loadResult definitely has access to $frame and $logFrame
-      setTimeout(() => this.loadResult(elem.innerText, id), 1);
+      setTimeout(() => this.loadResult(elem.innerText, id, logElem?.innerText.replace(/<\\\//g, '</')), 1);
       return;
     }
 
@@ -107,9 +108,10 @@ export class BattlePanel extends preact.Component<{id: string}> {
       this.loadResult(err.statusCode === 404 ? '' : String(err?.body || ''), id);
     });
   }
-  loadResult(result: string, id: string) {
+  loadResult(result: string, id: string, log = '') {
     try {
       const replay: NonNullable<BattlePanel['result']> = JSON.parse(result);
+      replay.log ||= log;
       this.result = replay;
       const $base = $(this.base!);
       this.battle = new Battle({
