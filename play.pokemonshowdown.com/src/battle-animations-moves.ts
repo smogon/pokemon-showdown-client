@@ -35893,3 +35893,7 @@ BattleMoveAnims['trailblaze'] = {anim: BattleMoveAnims['powerwhip'].anim};
 BattleMoveAnims['tripledive'] = {anim: BattleMoveAnims['dive'].anim};
 BattleMoveAnims['hydrosteam'] = {anim: BattleMoveAnims['steameruption'].anim};
 BattleMoveAnims['psyblade'] = {anim: BattleMoveAnims['psychocut'].anim};
+BattleMoveAnims['electroshot'] = {
+	anim: BattleMoveAnims['zapcannon'].anim,
+	prepareAnim: BattleOtherAnims.lightstatus.anim,
+};
