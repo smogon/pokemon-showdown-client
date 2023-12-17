@@ -67,12 +67,16 @@ if ($replay['password'] ?? null) {
 }
 
 if (@$replay['inputlog']) {
-	if (substr($replay['formatid'], -12) === 'randombattle' || substr($replay['formatid'], -19) === 'randomdoublesbattle' || $replay['formatid'] === 'gen7challengecup' || $replay['formatid'] === 'gen7challengecup1v1' || $replay['formatid'] === 'gen7battlefactory' || $replay['formatid'] === 'gen7bssfactory' || $replay['formatid'] === 'gen7hackmonscup' || $manage) {
+	if (
+		$replay['safe_inputlog'] ||
+		$manage
+	) {
 		// ok
 	} else {
 		unset($replay['inputlog']);
 	}
 }
+unset($replay['safe_inputlog']);
 
 if (isset($_REQUEST['json'])) {
 	$matchSuccess = preg_match('/\\n\\|tier\\|([^|]*)\\n/', $replay['log'], $matches);

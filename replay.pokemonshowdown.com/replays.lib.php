@@ -66,14 +66,18 @@ class Replays {
 			if ($player[0] === '!') $player = substr($player, 1);
 		}
 
-		// if ($replay['private'] && !($replay['password'] ?? null)) {
-		// 	$replay['password'] = $this->genPassword();
-		// 	$res = $this->db->prepare("UPDATE ps_replays SET views = views + 1, `password` = ? WHERE id = ? LIMIT 1");
-		// 	$res->execute([$replay['password'], $id]);
-		// } else {
-			$res = $this->db->prepare("UPDATE replays SET views = views + 1 WHERE id = ? LIMIT 1");
-			$res->execute([$id]);
-		// }
+		$res = $this->db->prepare("UPDATE replays SET views = views + 1 WHERE id = ? LIMIT 1");
+		$res->execute([$id]);
+
+		$replay['safe_inputlog'] = (
+			str_ends_with($replay['formatid'], 'randombattle') ||
+			str_ends_with($replay['formatid'], 'randomdoublesbattle') ||
+			str_ends_with($replay['formatid'], 'challengecup') ||
+			str_ends_with($replay['formatid'], 'challengecup1v1') ||
+			str_ends_with($replay['formatid'], 'battlefactory') ||
+			str_ends_with($replay['formatid'], 'bssfactory') ||
+			str_ends_with($replay['formatid'], 'hackmonscup')
+		);
 
 		return $replay;
 	}
