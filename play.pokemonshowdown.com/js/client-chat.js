@@ -1054,11 +1054,11 @@
 				if (this.checkBroadcast(cmd, text)) return false;
 				var cleanedTarget = toID(target);
 				if (cleanedTarget === 'off' || cleanedTarget === 'disable') {
-					Config.server.afd = false;
+					Storage.prefs('afd', false);
 					if (typeof BattleTextNotAFD !== 'undefined') BattleText = BattleTextNotAFD;
 					this.add('April Fools\' day mode disabled.');
 				} else {
-					Config.server.afd = true;
+					Storage.prefs('afd', true);
 					if (typeof BattleTextAFD !== 'undefined') BattleText = BattleTextAFD;
 					this.add('April Fools\' day mode enabled.');
 				}
