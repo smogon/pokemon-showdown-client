@@ -135,24 +135,22 @@ export const Replays = new class {
 
 	search(args: {
 		page?: number, isPrivate?: boolean, byRating?: boolean,
-		format?: string, username?: string, username2?: string,
+		format?: string, usernames?: string[], before?: number,
 	}): Promise<Replay[]> {
-		const page = args.page || 0;
-		if (page > 100) return Promise.resolve([]);
-
-		let limit1 = 50 * (page - 1);
-		if (limit1 < 0) limit1 = 0;
+		if ((args.page || 0) > 100) return Promise.resolve([]);
+		const limit1 = 50 * ((args.page || 1) - 1);
 		const paginate = SQL`LIMIT 51 OFFSET ${limit1}`;
+		const before = args.before ? SQL`AND uploadtime < ${args.before}` : SQL``;
 
 		const isPrivate = args.isPrivate ? 1 : 0;
 
 		const format = args.format ? toID(args.format) : null;
 
-		if (args.username) {
+		if (args.usernames?.length) {
 			const order = args.byRating ? SQL`ORDER BY rating DESC` : SQL`ORDER BY uploadtime DESC`;
-			const userid = toID(args.username);
-			if (args.username2) {
-				const userid2 = toID(args.username2);
+			const userid = toID(args.usernames[0]);
+			if (args.usernames.length > 1) {
+				const userid2 = toID(args.usernames[1]);
 				if (format) {
 					return replays.query()`SELECT 
 							p1.uploadtime AS uploadtime, p1.id AS id, p1.format AS format, p1.players AS players, 
@@ -160,7 +158,7 @@ export const Replays = new class {
 						FROM replayplayers p1 INNER JOIN replayplayers p2 ON p2.id = p1.id 
 						WHERE p1.playerid = ${userid} AND p1.formatid = ${format} AND p1.private = ${isPrivate}
 							AND p2.playerid = ${userid2} 
-						${order} ${paginate};`.then(this.toReplays);
+						${before} ${order} ${paginate};`.then(this.toReplays);
 				} else {
 					return replays.query()`SELECT 
 							p1.uploadtime AS uploadtime, p1.id AS id, p1.format AS format, p1.players AS players, 
@@ -168,32 +166,34 @@ export const Replays = new class {
 						FROM replayplayers p1 INNER JOIN replayplayers p2 ON p2.id = p1.id 
 						WHERE p1.playerid = ${userid} AND p1.private = ${isPrivate}
 							AND p2.playerid = ${userid2} 
-						${order} ${paginate};`.then(this.toReplays);
+						${before} ${order} ${paginate};`.then(this.toReplays);
 				}
 			} else {
 				if (format) {
 					return replays.query()`SELECT 
 							uploadtime, id, format, players, rating, private, password FROM replayplayers 
 						WHERE playerid = ${userid} AND formatid = ${format} AND "private" = ${isPrivate} 
-						${order} ${paginate};`.then(this.toReplays);
+						${before} ${order} ${paginate};`.then(this.toReplays);
 				} else {
 					return replays.query()`SELECT 
 							uploadtime, id, format, players, rating, private, password FROM replayplayers 
 						WHERE playerid = ${userid} AND private = ${isPrivate} 
-						${order} ${paginate};`.then(this.toReplays);
+						${before} ${order} ${paginate};`.then(this.toReplays);
 				}
 			}
 		}
 
+		if (!format) return this.recent(args);
+
 		if (args.byRating) {
 			return replays.query()`SELECT uploadtime, id, format, players, rating, private, password 
 				FROM replays 
-				WHERE private = ${isPrivate} AND formatid = ${format} ORDER BY rating DESC ${paginate}`
+				WHERE private = ${isPrivate} AND formatid = ${format} ${before} ORDER BY rating DESC ${paginate}`
 				.then(this.toReplays);
 		} else {
 			return replays.query()`SELECT uploadtime, id, format, players, rating, private, password 
 				FROM replays 
-				WHERE private = ${isPrivate} AND formatid = ${format} ORDER BY uploadtime DESC ${paginate}`
+				WHERE private = ${isPrivate} AND formatid = ${format} ${before} ORDER BY uploadtime DESC ${paginate}`
 				.then(this.toReplays);
 		}
 	}
@@ -216,10 +216,16 @@ export const Replays = new class {
 			ORDER BY uploadtime DESC LIMIT 50;`.then(this.toReplays);
 	}
 
-	recent() {
+	recent(args?: {before?: number}) {
+		if (args?.before) {
+			return replays.selectAll(
+				SQL`uploadtime, id, format, players, rating`
+			)`WHERE private = 0 AND uploadtime <= ${args.before} ORDER BY uploadtime DESC LIMIT 51`
+				.then(this.toReplays);
+		}
 		return replays.selectAll(
 			SQL`uploadtime, id, format, players, rating`
-		)`WHERE private = 0 ORDER BY uploadtime DESC LIMIT 50`.then(this.toReplays);
+		)`WHERE private = 0 ORDER BY uploadtime DESC LIMIT 51`.then(this.toReplays);
 	}
 };
 

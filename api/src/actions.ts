@@ -738,22 +738,62 @@ export const actions: {[k: string]: QueryHandler} = {
 		if (params.sort && params.sort !== 'rating' && params.sort !== 'date') {
 			throw new ActionError('Sort must be "rating" or "date"');
 		}
-		let username = (params.username ||= params.user);
-		if (!params.username2 && username?.includes(',')) {
-			[username, params.username2] = username.split(',');
+		const usernames = [
+			...(params.username || params.user || '').split(','),
+			...(params.username2 || params.user2 || '').split(','),
+		].map(toID).filter(Boolean);
+		if (usernames.length > 2) {
+			throw new ActionError(`Limit 2 usernames in a search`);
 		}
-		const search = {
-			username: toID(username),
-			username2: toID(params.username2),
-			format: toID(params.format),
-			page: Number(params.page || '1'),
-			byRating: params.sort === 'rating',
-		};
-		if (isNaN(search.page) || search.page !== Math.trunc(search.page) || search.page < 0) {
+		const page = Number(params.page || '1');
+		const before = Number(params.before) || undefined;
+		if (isNaN(page) || page !== Math.trunc(page) || page <= 0) {
 			throw new ActionError(`Invalid page number: ${params.page}`);
 		}
-		if (!search.page) search.page = 1;
+		if (params.page && before) {
+			throw new ActionError(`Cannot set both "page" and "before", please choose one method of pagination`);
+		}
+
+		const search = {
+			usernames: usernames,
+			format: toID(params.format),
+			page,
+			before,
+			byRating: params.sort === 'rating',
+		};
 		return Replays.search(search);
+	},
+	async 'replays/search.json'(params) {
+		this.allowCORS();
+		if (params.sort && params.sort !== 'rating' && params.sort !== 'date') {
+			throw new ActionError('Sort must be "rating" or "date"');
+		}
+		const usernames = [
+			...(params.username || params.user || '').split(','),
+			...(params.username2 || params.user2 || '').split(','),
+		].map(toID).filter(Boolean);
+		if (usernames.length > 2) {
+			throw new ActionError(`Limit 2 usernames in a search`);
+		}
+		const page = Number(params.page || '1');
+		const before = Number(params.before) || undefined;
+		if (isNaN(page) || page !== Math.trunc(page) || page <= 0) {
+			throw new ActionError(`Invalid page number: ${params.page}`);
+		}
+		if (params.page && before) {
+			throw new ActionError(`Cannot set both "page" and "before", please choose one method of pagination`);
+		}
+
+		const search = {
+			usernames: usernames,
+			format: toID(params.format),
+			page,
+			before,
+			byRating: params.sort === 'rating',
+		};
+		const results = await Replays.search(search);
+		this.response.setHeader('Content-Type', 'application/json');
+		return JSON.stringify(results);
 	},
 	async 'replays/searchprivate'(params) {
 		this.verifyCrossDomainRequest();
@@ -762,26 +802,32 @@ export const actions: {[k: string]: QueryHandler} = {
 		if (params.sort && params.sort !== 'rating' && params.sort !== 'date') {
 			throw new ActionError('Sort must be "rating" or "date"');
 		}
-		let username = (params.username ||= params.user);
-		if (!params.username2 && username?.includes(',')) {
-			[username, params.username2] = username.split(',');
+		const usernames = [
+			...(params.username || params.user || '').split(','),
+			...(params.username2 || params.user2 || '').split(','),
+		].map(toID).filter(Boolean);
+		if (usernames.length > 2) {
+			throw new ActionError(`Limit 2 usernames in a search`);
 		}
+		const page = Number(params.page || '1');
+		const before = Number(params.before) || null;
+		if (isNaN(page) || page !== Math.trunc(page) || page <= 0) {
+			throw new ActionError(`Invalid page number: ${params.page}`);
+		}
+		if (params.page && before) {
+			throw new ActionError(`Cannot set both "page" and "before", please choose one method of pagination`);
+		}
+		if (!(this.user.isSysop() || usernames.includes(this.user.id))) {
+			throw new ActionError(`Access denied: You must be logged in as a username you're searching for.`);
+		}
+
 		const search = {
-			username: toID(username),
-			username2: toID(params.username2),
+			usernames,
 			format: toID(params.format),
-			page: Number(params.page || '1'),
+			page,
 			byRating: params.sort === 'rating',
 			isPrivate: true,
 		};
-
-		if (!(this.user.isSysop() || [search.username, search.username2].includes(this.user.id))) {
-			throw new ActionError(`Access denied: You must be logged in as a username you're searching for.`);
-		}
-		if (isNaN(search.page) || search.page !== Math.trunc(search.page) || search.page < 0) {
-			throw new ActionError(`Invalid page number: ${params.page}`);
-		}
-		if (!search.page) search.page = 1;
 		return Replays.search(search);
 	},
 	async 'replays/edit'(params) {
