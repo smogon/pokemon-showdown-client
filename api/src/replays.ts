@@ -46,7 +46,13 @@ export const Replays = new class {
 			...row,
 			players: row.players.split(',').map(player => player.startsWith('!') ? player.slice(1) : player),
 		};
+
+		// TODO: probably the database driver should be handling these conversions
+		if (typeof replay.rating === 'string') replay.rating = +replay.rating;
+		if (typeof replay.uploadtime === 'string') replay.uploadtime = +replay.uploadtime;
+		if (typeof replay.private === 'string') replay.private = +replay.private as 0;
 		if (!replay.password && replay.private === 1) replay.private = 2;
+
 		return replay;
 	}
 	toReplays(this: void, rows: ReplayRow[]) {
