@@ -1500,7 +1500,9 @@ function toId() {
 								if (roomEl && roomEl.id) {
 									var roomid = roomEl.id.slice(5);
 									window.app.renameRoom(roomid, target);
-									window.app.rooms[target].join();
+									if (window.app.rooms[target]) {
+										window.app.rooms[target].join();
+									}
 									e.preventDefault();
 									e.stopPropagation();
 									e.stopImmediatePropagation();
