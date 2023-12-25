@@ -2903,6 +2903,7 @@ export class Battle {
 			case 'hyperdrill':
 			case 'hyperspacefury':
 			case 'hyperspacehole':
+			case 'mightycleave':
 			case 'phantomforce':
 			case 'shadowforce':
 			case 'feint':

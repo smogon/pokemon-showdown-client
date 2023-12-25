@@ -2622,6 +2622,9 @@ export const BattleMoveAnims: AnimTable = {
 	spikyshield: {
 		anim: BattleOtherAnims.selfstatus.anim,
 	},
+	burningbulwark: {
+		anim: BattleOtherAnims.selfstatus.anim,
+	},
 	banefulbunker: {
 		anim(scene, [attacker]) {
 			scene.backgroundEffect('linear-gradient(#440044 30%, #000000', 600, 0.2);
