@@ -635,8 +635,10 @@ abstract class BattleTypedSearch<T extends SearchType> {
 			this.dex = Dex.mod('gen7letsgo' as ID);
 		}
 		if (format.includes('nationaldex') || format.startsWith('nd') || format.includes('natdex')) {
-			format = (format.startsWith('nd') ? format.slice(2) :
-				format.includes('natdex') ? format.slice(6) : format.slice(11)) as ID;
+			if (format !== 'nationaldexdoubles') {
+				format = (format.startsWith('nd') ? format.slice(2) :
+					format.includes('natdex') ? format.slice(6) : format.slice(11)) as ID;
+			}
 			this.formatType = 'natdex';
 			if (!format) format = 'ou' as ID;
 		}
@@ -931,7 +933,7 @@ class BattlePokemonSearch extends BattleTypedSearch<'pokemon'> {
 			table['gen' + dex.gen + 'doubles'] && dex.gen > 4 &&
 			this.formatType !== 'letsgo' && this.formatType !== 'bdspdoubles' &&
 			this.formatType !== 'ssdlc1doubles' && this.formatType !== 'predlcdoubles' &&
-			this.formatType !== 'svdlc1doubles' &&
+			this.formatType !== 'svdlc1doubles' && !this.formatType?.includes('natdex') &&
 			(
 				format.includes('doubles') || format.includes('triples') ||
 				format === 'freeforall' || format.startsWith('ffa') ||
@@ -989,8 +991,9 @@ class BattlePokemonSearch extends BattleTypedSearch<'pokemon'> {
 		}
 		let tierSet: SearchRow[] = table.tierSet;
 		let slices: {[k: string]: number} = table.formatSlices;
-		if (format === 'ubers' || format === 'uber' || format === 'ubersuu') tierSet = tierSet.slice(slices.Uber);
-		else if (isVGCOrBS || (isHackmons && dex.gen === 9 && !this.formatType)) {
+		if (format === 'ubers' || format === 'uber' || format === 'ubersuu' || format === 'nationaldexdoubles') {
+			tierSet = tierSet.slice(slices.Uber);
+		} else if (isVGCOrBS || (isHackmons && dex.gen === 9 && !this.formatType)) {
 			if (format.endsWith('series13') || isHackmons) {
 				// Show Mythicals
 			} else if (
@@ -1041,6 +1044,12 @@ class BattlePokemonSearch extends BattleTypedSearch<'pokemon'> {
 		if (format === 'ubersuu' && table.ubersUUBans) {
 			tierSet = tierSet.filter(([type, id]) => {
 				if (id in table.ubersUUBans) return false;
+				return true;
+			});
+		}
+		if (format === 'nationaldexdoubles' && table.ndDoublesBans) {
+			tierSet = tierSet.filter(([type, id]) => {
+				if (id in table.ndDoublesBans) return false;
 				return true;
 			});
 		}
