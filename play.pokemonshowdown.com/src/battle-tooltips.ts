@@ -494,6 +494,7 @@ class BattleTooltips {
 		Flying: "Supersonic Skystrike",
 		Ground: "Tectonic Rage",
 		Fairy: "Twinkle Tackle",
+		Stellar: "",
 		"???": "",
 	};
 
@@ -516,6 +517,7 @@ class BattleTooltips {
 		Flying: "Max Airstream",
 		Ground: "Max Quake",
 		Fairy: "Max Starfall",
+		Stellar: "",
 		"???": "",
 	};
 
@@ -1460,8 +1462,8 @@ class BattleTooltips {
 		if (move.id === 'terablast' && pokemon.terastallized) {
 			moveType = pokemon.terastallized as TypeName;
 		}
-		if (move.id === 'terastarstorm' && pokemon.terastallized === 'Stellar') {
-			moveType = pokemon.terastallized as TypeName;
+		if (move.id === 'terastarstorm' && pokemon.getSpeciesForme() === 'Terapagos-Stellar') {
+			moveType = 'Stellar';
 		}
 
 		// Aura Wheel as Morpeko-Hangry changes the type to Dark
