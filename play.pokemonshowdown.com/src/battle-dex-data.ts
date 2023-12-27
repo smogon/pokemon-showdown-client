@@ -433,8 +433,8 @@ const BattlePokemonIconIndexes: {[id: string]: number} = {
 	// alt forms with duplicate icons
 	greninjabond: 658,
 	gumshoostotem: 735,
-	raticatealolatotem: 1020 + 120,
-	marowakalolatotem: 1020 + 136,
+	raticatealolatotem: 1032 + 120,
+	marowakalolatotem: 1032 + 136,
 	araquanidtotem: 752,
 	lurantistotem: 754,
 	salazzletotem: 758,
