@@ -1122,7 +1122,7 @@ class BattleTooltips {
 						stats.spa = Math.floor(stats.spa * 1.5);
 					}
 					if (ability === 'orichalcumpulse') {
-						stats.atk = Math.floor(stats.atk * 1.333);
+						stats.atk = Math.floor(stats.atk * 1.3333);
 					}
 					let allyActive = clientPokemon?.side.active;
 					if (allyActive) {
@@ -1187,7 +1187,7 @@ class BattleTooltips {
 				speedModifiers.push(2);
 			}
 			if (ability === 'hadronengine') {
-				stats.spa = Math.floor(stats.spa * 1.333);
+				stats.spa = Math.floor(stats.spa * 1.3333);
 			}
 		}
 		if (item === 'choicespecs' && !clientPokemon?.volatiles['dynamax']) {
