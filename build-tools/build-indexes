@@ -1238,6 +1238,7 @@ process.stdout.write("Building `data/moves,items,abilities,typechart,learnsets.j
 		const move = Dex.moves.get(Moves[id].name);
 		if (move.desc) Moves[id].desc = move.desc;
 		if (move.shortDesc) Moves[id].shortDesc = move.shortDesc;
+		if (move.basePowerCallback) Moves[id].basePowerCallback = true;
 	}
 	const buf = 'exports.BattleMovedex = ' + es3stringify(Moves) + ';';
 	fs.writeFileSync('play.pokemonshowdown.com/data/moves.js', buf);
