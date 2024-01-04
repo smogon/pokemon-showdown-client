@@ -794,12 +794,11 @@
 			var newTeam = this.createTeam(null, type === "box");
 			teams.unshift(newTeam);
 			for (var room in app.rooms) {
-				var teamSelectButton = app.rooms[room].$('button.teamselect');
-				var selection = teamSelectButton.val();
+				var selection = app.rooms[room].$('button.teamselect').val();
 				if (!selection || selection === 'random') continue;
 				var obj = app.rooms[room].id === "" ? app.rooms[room] : app.rooms[room].tournamentBox;
 				obj.curTeamIndex++;
-				teamSelectButton.val(parseInt(selection, 10) + 1);
+				obj.updateTeams();
 			}
 			this.edit(0);
 		},
