@@ -2608,6 +2608,10 @@ function toId() {
 				app.addPopupMessage("You are already registered!");
 			}
 		},
+
+		copyText: function (value, target) {
+			app.curRoom.copyText(value, target);
+		},
 	});
 
 	var PromptPopup = this.PromptPopup = Popup.extend({
