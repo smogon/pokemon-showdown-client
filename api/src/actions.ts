@@ -189,8 +189,8 @@ export const actions: {[k: string]: QueryHandler} = {
 			throw new ActionError("Required params: id, format, log, players", 400);
 		}
 		// player usernames cannot be longer than 18 characters
-		if (!params.players.split(',').some(p => p.length > 18)) {
-			throw new ActionError("Player names much be 18 chars or shorter", 400);
+		if (params.players.split(',').some(p => p.length > 18)) {
+			throw new ActionError("Player names must be 18 chars or shorter", 400);
 		}
 		// the battle ID must be valid
 		// the format from the battle ID must match the format ID
