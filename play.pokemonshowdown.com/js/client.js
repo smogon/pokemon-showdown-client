@@ -2557,6 +2557,10 @@ function toId() {
 			this.$el.html('<form><p style="white-space:pre-wrap;word-wrap:break-word">' + (data.htmlMessage || BattleLog.parseMessage(data.message)) + '</p><p class="buttonbar">' + (data.buttons || '<button type="button" name="close" class="button autofocus"><strong>OK</strong></button>') + '</p></form>').css('max-width', data.maxWidth || 480);
 		},
 
+		copyText: function (value, target) {
+			app.curRoom.copyText(value, target);
+		},
+
 		dispatchClickButton: function (e) {
 			var target = e.currentTarget;
 			if (target.name) {
