@@ -2556,18 +2556,7 @@ function toId() {
 		},
 
 		copyText: function (value, target) {
-			var dummyInput = document.createElement("input");
-			// This is a hack. You can only "select" an input field.
-			//  The trick is to create a short lived input element and destroy it after a copy.
-			// (stolen from the replay code, obviously --mia)
-			dummyInput.id = "dummyInput";
-			dummyInput.value = value || target.value || target.href || "";
-			dummyInput.style.position = 'absolute';
-			target.appendChild(dummyInput);
-			dummyInput.select();
-			document.execCommand("copy");
-			target.removeChild(dummyInput);
-			$(target).text('Copied!');
+			app.curRoom.copyText(value, target)
 		},
 
 		dispatchClickButton: function (e) {
