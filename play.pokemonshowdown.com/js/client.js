@@ -2556,7 +2556,7 @@ function toId() {
 		},
 
 		copyText: function (value, target) {
-			app.curRoom.copyText(value, target)
+			app.curRoom.copyText(value, target);
 		},
 
 		dispatchClickButton: function (e) {
