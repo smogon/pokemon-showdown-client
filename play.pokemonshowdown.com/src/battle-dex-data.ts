@@ -1372,6 +1372,25 @@ class Move implements Effect {
 	}
 }
 
+interface AbilityFlags {
+	/** Can be suppressed by Mold Breaker and related effects */
+	breakable?: 1;
+	/** Ability can't be suppressed by e.g. Gastro Acid or Neutralizing Gas */
+	cantsuppress?: 1;
+	/** Role Play fails if target has this Ability */
+	failroleplay?: 1;
+	/** Skill Swap fails if either the user or target has this Ability */
+	failskillswap?: 1;
+	/** Entrainment fails if user has this Ability */
+	noentrain?: 1;
+	/** Receiver and Power of Alchemy will not activate if an ally faints with this Ability */
+	noreceiver?: 1;
+	/** Trace cannot copy this Ability */
+	notrace?: 1;
+	/** Disables the Ability if the user is Transformed */
+	notransform?: 1;
+}
+
 class Ability implements Effect {
 	// effect
 	readonly effectType = 'Ability';
@@ -1385,7 +1404,7 @@ class Ability implements Effect {
 	readonly desc: string;
 
 	readonly rating: number;
-	readonly isPermanent: boolean;
+	readonly flags: AbilityFlags;
 	readonly isNonstandard: boolean;
 
 	constructor(id: ID, name: string, data: any) {
@@ -1399,7 +1418,7 @@ class Ability implements Effect {
 		this.shortDesc = data.shortDesc || data.desc || '';
 		this.desc = data.desc || data.shortDesc || '';
 		this.rating = data.rating || 1;
-		this.isPermanent = !!data.isPermanent;
+		this.flags = data.flags || {};
 		this.isNonstandard = !!data.isNonstandard;
 		if (!this.gen) {
 			if (this.num >= 234) {
