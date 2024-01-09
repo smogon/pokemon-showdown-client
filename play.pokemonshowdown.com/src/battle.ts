@@ -521,11 +521,14 @@ export class Pokemon implements PokemonDetails, PokemonHealth {
 		return !this.getTypeList(serverPokemon).includes('Flying');
 	}
 	effectiveAbility(serverPokemon?: ServerPokemon) {
-		if (this.fainted || this.volatiles['gastroacid']) return '';
 		const ability = this.side.battle.dex.abilities.get(
 			serverPokemon?.ability || this.ability || serverPokemon?.baseAbility || ''
 		);
-		if (this.side.battle.ngasActive() && !ability.isPermanent) {
+		if (
+			this.fainted ||
+			(this.volatiles['transform'] && ability.flags['notransform']) ||
+			(!ability.flags['cantsuppress'] && (this.side.battle.ngasActive() || this.volatiles['gastroacid']))
+		) {
 			return '';
 		}
 		return ability.name;
@@ -1224,6 +1227,7 @@ export class Battle {
 		}
 		return pokemonList;
 	}
+	// Used in Pokemon#effectiveAbility over abilityActive to prevent infinite recursion
 	ngasActive() {
 		for (const active of this.getAllActive()) {
 			if (active.ability === 'Neutralizing Gas' && !active.volatiles['gastroacid']) {
@@ -1234,12 +1238,9 @@ export class Battle {
 	}
 	abilityActive(abilities: string | string[]) {
 		if (typeof abilities === 'string') abilities = [abilities];
-		if (this.ngasActive()) {
-			abilities = abilities.filter(a => this.dex.abilities.get(a).isPermanent);
-			if (!abilities.length) return false;
-		}
+		abilities = abilities.map(toID);
 		for (const active of this.getAllActive()) {
-			if (abilities.includes(active.ability) && !active.volatiles['gastroacid']) {
+			if (abilities.includes(toID(active.effectiveAbility()))) {
 				return true;
 			}
 		}
