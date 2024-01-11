@@ -916,11 +916,13 @@ export class BattleLog {
 
 				const src = getAttrib('src') || '';
 				// Google's ToS requires a minimum of 200x200
-				let width = '320';
-				let height = '200';
-				if (window.innerWidth >= 400) {
-					width = '400';
-					height = '225';
+				let width = getAttrib('width') || '0';
+				let height = getAttrib('height') || '0';
+				if (Number(width) < 200) {
+					width = window.innerWidth >= 400 ? '400' : '320';
+				}
+				if (Number(height) < 200) {
+					height = window.innerWidth >= 400 ? '225' : '200';
 				}
 				const videoId = /(?:\?v=|\/embed\/)([A-Za-z0-9_\-]+)/.exec(src)?.[1];
 				if (!videoId) return {tagName: 'img', attribs: ['alt', `invalid src for <youtube>`]};
@@ -929,7 +931,6 @@ export class BattleLog {
 				this.players.push(null);
 				const idx = this.players.length;
 				this.initYoutubePlayer(idx);
-				console.log(src, time);
 				return {
 					tagName: 'iframe',
 					attribs: [
