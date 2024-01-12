@@ -387,7 +387,10 @@
 		}
 		buf += '<span class="col statcol"><em>Spe</em><br />' + stats.spe + '</span> ';
 		var bst = 0;
-		for (i in stats) bst += stats[i];
+		for (i in stats) {
+			if (i === 'spd' && gen === 1) continue;
+			bst += stats[i];
+		}
 		buf += '<span class="col bstcol"><em>BST<br />' + bst + '</em></span> ';
 
 		buf += '</a></li>';
