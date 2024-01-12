@@ -1109,8 +1109,12 @@ class BattlePokemonSearch extends BattleTypedSearch<'pokemon'> {
 			return results.sort(([rowType1, id1], [rowType2, id2]) => {
 				const base1 = this.dex.species.get(id1).baseStats;
 				const base2 = this.dex.species.get(id2).baseStats;
-				const bst1 = base1.hp + base1.atk + base1.def + base1.spa + base1.spd + base1.spe;
-				const bst2 = base2.hp + base2.atk + base2.def + base2.spa + base2.spd + base2.spe;
+				let bst1 = base1.hp + base1.atk + base1.def + base1.spa + base1.spd + base1.spe;
+				let bst2 = base2.hp + base2.atk + base2.def + base2.spa + base2.spd + base2.spe;
+				if (this.dex.gen === 1) {
+					bst1 -= base1.spd;
+					bst2 -= base2.spd;
+				}
 				return (bst2 - bst1) * sortOrder;
 			});
 		} else if (sortCol === 'name') {
