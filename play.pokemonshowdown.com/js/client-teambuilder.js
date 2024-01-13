@@ -3286,6 +3286,9 @@
 				minSpe = true;
 			}
 
+			// only available through an event with 31 Spe IVs
+			if (set.species.startsWith('Terapagos')) minSpe = false;
+
 			if (this.curTeam.format === 'gen7hiddentype') return;
 
 			var minAtk = true;
@@ -3337,10 +3340,10 @@
 			if (minAtk) {
 				// min Atk
 				if (['Gouging Fire', 'Iron Boulder', 'Iron Crown', 'Raging Bolt'].includes(set.species)) {
-					// Min 20 IVs
+					// only available with 20 Atk IVs
 					set.ivs['atk'] = 20;
 				} else if (set.species.startsWith('Terapagos')) {
-					// Min 15 IVs
+					// only available with 15 Atk IVs
 					set.ivs['atk'] = 15;
 				} else {
 					set.ivs['atk'] = (hasHiddenPower ? set.ivs['atk'] % hpModulo : 0);
