@@ -637,6 +637,10 @@
 							app.addPopupMessage("Names can't contain slashes, since they're used as a folder separator.");
 							name = name.replace(/[\\\/]/g, '');
 						}
+						if (name.indexOf('|') >= 0) {
+							app.addPopupMessage("Names can't contain the character |, since they're used for storing teams.");
+							name = name.replace(/\|/g, '');
+						}
 						if (!name) return;
 						self.selectFolder(name + '/');
 					}});
@@ -659,6 +663,10 @@
 				if (name.indexOf('/') >= 0 || name.indexOf('\\') >= 0) {
 					app.addPopupMessage("Names can't contain slashes, since they're used as a folder separator.");
 					name = name.replace(/[\\\/]/g, '');
+				}
+				if (name.indexOf('|') >= 0) {
+					app.addPopupMessage("Names can't contain the character |, since they're used for storing teams.");
+					name = name.replace(/\|/g, '');
 				}
 				if (!name) return;
 				if (name === oldFolder) return;
