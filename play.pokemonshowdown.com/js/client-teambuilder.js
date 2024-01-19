@@ -637,6 +637,10 @@
 							app.addPopupMessage("Names can't contain slashes, since they're used as a folder separator.");
 							name = name.replace(/[\\\/]/g, '');
 						}
+						if (name.indexOf('|') >= 0) {
+							app.addPopupMessage("Names can't contain the character |, since they're used for storing teams.");
+							name = name.replace(/\|/g, '');
+						}
 						if (!name) return;
 						self.selectFolder(name + '/');
 					}});
@@ -659,6 +663,10 @@
 				if (name.indexOf('/') >= 0 || name.indexOf('\\') >= 0) {
 					app.addPopupMessage("Names can't contain slashes, since they're used as a folder separator.");
 					name = name.replace(/[\\\/]/g, '');
+				}
+				if (name.indexOf('|') >= 0) {
+					app.addPopupMessage("Names can't contain the character |, since they're used for storing teams.");
+					name = name.replace(/\|/g, '');
 				}
 				if (!name) return;
 				if (name === oldFolder) return;
@@ -3286,6 +3294,9 @@
 				minSpe = true;
 			}
 
+			// only available through an event with 31 Spe IVs
+			if (set.species.startsWith('Terapagos')) minSpe = false;
+
 			if (this.curTeam.format === 'gen7hiddentype') return;
 
 			var minAtk = true;
@@ -3336,7 +3347,15 @@
 			if (!set.ivs['atk'] && set.ivs['atk'] !== 0) set.ivs['atk'] = 31;
 			if (minAtk) {
 				// min Atk
-				set.ivs['atk'] = (hasHiddenPower ? set.ivs['atk'] % hpModulo : 0);
+				if (['Gouging Fire', 'Iron Boulder', 'Iron Crown', 'Raging Bolt'].includes(set.species)) {
+					// only available with 20 Atk IVs
+					set.ivs['atk'] = 20;
+				} else if (set.species.startsWith('Terapagos')) {
+					// only available with 15 Atk IVs
+					set.ivs['atk'] = 15;
+				} else {
+					set.ivs['atk'] = (hasHiddenPower ? set.ivs['atk'] % hpModulo : 0);
+				}
 			} else {
 				// max Atk
 				set.ivs['atk'] = (hasHiddenPower ? 30 + (set.ivs['atk'] % 2) : 31);
