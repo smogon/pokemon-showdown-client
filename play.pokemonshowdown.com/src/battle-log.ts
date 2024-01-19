@@ -916,11 +916,13 @@ export class BattleLog {
 
 				const src = getAttrib('src') || '';
 				// Google's ToS requires a minimum of 200x200
-				let width = '320';
-				let height = '200';
-				if (window.innerWidth >= 400) {
-					width = '400';
-					height = '225';
+				let width = getAttrib('width') || '0';
+				let height = getAttrib('height') || '0';
+				if (Number(width) < 200) {
+					width = window.innerWidth >= 400 ? '400' : '320';
+				}
+				if (Number(height) < 200) {
+					height = window.innerWidth >= 400 ? '225' : '200';
 				}
 				const videoId = /(?:\?v=|\/embed\/)([A-Za-z0-9_\-]+)/.exec(src)?.[1];
 				if (!videoId) return {tagName: 'img', attribs: ['alt', `invalid src for <youtube>`]};
@@ -936,6 +938,7 @@ export class BattleLog {
 						'width', width, 'height', height,
 						'src', `https://www.youtube.com/embed/${videoId}?enablejsapi=1&playsinline=1${time ? `&start=${time}` : ''}`,
 						'frameborder', '0', 'allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture', 'allowfullscreen', 'allowfullscreen',
+						'time', (time || 0) + "",
 					],
 				};
 			} else if (tagName === 'formatselect') {
@@ -1069,7 +1072,8 @@ export class BattleLog {
 	static initYoutubePlayer(idx: number) {
 		const id = `youtube-iframe-${idx}`;
 		const loadPlayer = () => {
-			if (!$(`#${id}`).length) return;
+			const el = $(`#${id}`);
+			if (!el.length) return;
 			const player = new window.YT.Player(id, {
 				events: {
 					onStateChange: (event: any) => {
@@ -1082,7 +1086,12 @@ export class BattleLog {
 					},
 				},
 			});
+			const time = Number(el.attr('time'));
+			if (time) {
+				player.seekTo(time);
+			}
 			this.players[idx - 1] = player;
+
 		};
 		// wait for html element to be in DOM
 		this.ensureYoutube().then(() => {
