@@ -1489,8 +1489,8 @@ export class BattleScene implements BattleSceneStub {
 	updateStatbarIfExists(pokemon: Pokemon, updatePrevhp?: boolean, updateHp?: boolean) {
 		return pokemon.sprite.updateStatbarIfExists(pokemon, updatePrevhp, updateHp);
 	}
-	animTransform(pokemon: Pokemon, isCustomAnim?: boolean, isPermanent?: boolean) {
-		return pokemon.sprite.animTransform(pokemon, isCustomAnim, isPermanent);
+	animTransform(pokemon: Pokemon, isCustomAnim?: boolean, isPermanent?: boolean, isDynamaxing?: boolean) {
+		return pokemon.sprite.animTransform(pokemon, isCustomAnim, isPermanent, isDynamaxing);
 	}
 	clearEffects(pokemon: Pokemon) {
 		return pokemon.sprite.clearEffects();
@@ -2473,8 +2473,42 @@ export class PokemonSprite extends Sprite {
 			});
 		}
 	}
-	animTransform(pokemon: Pokemon, isCustomAnim?: boolean, isPermanent?: boolean) {
-		if (!this.scene.animating && !isPermanent) return;
+	customAnimAndIfCry(speciesid: ID, isDynamaxing?: boolean): boolean {
+		console.log("customAnimAndIfCry is running");
+		const scene = this.scene;
+		if (isDynamaxing) {
+			BattleOtherAnims.megaevo.anim(scene, [this]);
+			return true;
+		}
+		switch (speciesid) {
+			case 'kyogreprimal':
+				BattleOtherAnims.primalalpha.anim(scene, [this]);
+				return true;
+			case 'groudonprimal':
+				BattleOtherAnims.primalomega.anim(scene, [this]);
+				return true;
+			case 'necrozmaultra':
+				BattleOtherAnims.ultraburst.anim(scene, [this]);
+				return true;
+			case 'zygardecomplete':
+				BattleOtherAnims.powerconstruct.anim(scene, [this]);
+				return false;
+			case 'wishiwashischool': case 'greninjaash':
+				BattleOtherAnims.schoolingin.anim(scene, [this]);
+				return false;
+			case 'wishiwashi':
+				BattleOtherAnims.schoolingout.anim(scene, [this]);
+				return false;
+			case 'mimikyubusted': case 'mimikyubustedtotem':
+				// standard animation
+				return false;
+			default:
+				BattleOtherAnims.megaevo.anim(scene, [this]);
+				return true;
+		}
+	}
+	animTransform(pokemon: Pokemon, isCustomAnim?: boolean, isPermanent?: boolean, isDynamaxing?: boolean) {
+		if (!(this.scene.animating || isPermanent)) return;
 		let sp = Dex.getSpriteData(pokemon, this.isFrontSprite, {
 			gen: this.scene.gen,
 			mod: this.scene.mod,
@@ -2500,29 +2534,8 @@ export class PokemonSprite extends Sprite {
 		if (!this.scene.animating) return;
 		let speciesid = toID(pokemon.getSpeciesForme());
 		let doCry = false;
-		const scene = this.scene;
 		if (isCustomAnim) {
-			if (speciesid === 'kyogreprimal') {
-				BattleOtherAnims.primalalpha.anim(scene, [this]);
-				doCry = true;
-			} else if (speciesid === 'groudonprimal') {
-				BattleOtherAnims.primalomega.anim(scene, [this]);
-				doCry = true;
-			} else if (speciesid === 'necrozmaultra') {
-				BattleOtherAnims.ultraburst.anim(scene, [this]);
-				doCry = true;
-			} else if (speciesid === 'zygardecomplete') {
-				BattleOtherAnims.powerconstruct.anim(scene, [this]);
-			} else if (speciesid === 'wishiwashischool' || speciesid === 'greninjaash') {
-				BattleOtherAnims.schoolingin.anim(scene, [this]);
-			} else if (speciesid === 'wishiwashi') {
-				BattleOtherAnims.schoolingout.anim(scene, [this]);
-			} else if (speciesid === 'mimikyubusted' || speciesid === 'mimikyubustedtotem') {
-				// standard animation
-			} else {
-				BattleOtherAnims.megaevo.anim(scene, [this]);
-				doCry = true;
-			}
+			doCry = this.customAnimAndIfCry(speciesid, isDynamaxing);
 		}
 		// Constructing here gives us 300ms extra time to preload the new sprite
 		let $newEl = $('<img src="' + sp.url + '" style="display:block;opacity:0;position:absolute"' + (sp.pixelated ? ' class="pixelated"' : '') + ' />');
@@ -2551,7 +2564,7 @@ export class PokemonSprite extends Sprite {
 				}
 				this.$el.replaceWith($newEl);
 				this.$el = $newEl;
-				this.$el.animate(scene.pos({
+				this.$el.animate(this.scene.pos({
 					x: this.x,
 					y: this.y,
 					z: this.z,
