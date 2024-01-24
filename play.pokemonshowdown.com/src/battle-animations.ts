@@ -2474,7 +2474,6 @@ export class PokemonSprite extends Sprite {
 		}
 	}
 	customAnimAndIfCry(speciesid: ID, isDynamaxing?: boolean): boolean {
-		console.log("customAnimAndIfCry is running");
 		const scene = this.scene;
 		if (isDynamaxing) {
 			BattleOtherAnims.megaevo.anim(scene, [this]);
