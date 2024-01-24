@@ -1670,13 +1670,16 @@ class BattleTooltips {
 				value.modify(2, "Acrobatics + no item");
 			}
 		}
-		if (['crushgrip', 'hardpress', 'wringout'].includes(move.id) && target) {
+		let variableBPCap = ['crushgrip', 'wringout'].includes(move.id) ? 120 : move.id === 'hardpress' ? 100 : undefined;
+		if (variableBPCap && target) {
 			value.set(
-				Math.floor(Math.floor((120 * (100 * Math.floor(target.hp * 4096 / target.maxhp)) + 2048 - 1) / 4096) / 100) || 1,
+				Math.floor(
+					Math.floor((variableBPCap * (100 * Math.floor(target.hp * 4096 / target.maxhp)) + 2048 - 1) / 4096) / 100
+				) || 1,
 				'approximate'
 			);
 		}
-		if (['terablast'].includes(move.id) && pokemon.terastallized === 'Stellar') {
+		if (move.id === 'terablast' && pokemon.terastallized === 'Stellar') {
 			value.set(100, 'Tera Stellar boost');
 		}
 		if (move.id === 'brine' && target && target.hp * 2 <= target.maxhp) {
@@ -2042,6 +2045,7 @@ class BattleTooltips {
 		'Black Glasses': 'Dark',
 		'Charcoal': 'Fire',
 		'Dragon Fang': 'Dragon',
+		'Fairy Feather': 'Fairy',
 		'Hard Stone': 'Rock',
 		'Magnet': 'Electric',
 		'Metal Coat': 'Steel',
