@@ -58,10 +58,10 @@ includeHeader();
 				<li><p><strong>Andrew Werner</strong> [HoeenHero] <small>&ndash; Development</small></p></li>
 				<li><p><strong>Annika L.</strong> [Annika] <small>&ndash; Development</small></p></li>
 				<li><p><a href="http://monsan.to/" target="_blank" class="subtle"><strong>Chris Monsanto</strong> [chaos]</a> <small>&ndash; Sysadmin</small></p></li>
-				<li><p><strong>Kris Johnson</strong> [Kris] <small>&ndash; Development</small></p></li>
+				<li><p><strong>Kris Johnson</strong> [dhelmise] <small>&ndash; Development</small></p></li>
 				<li><p><strong>Leonard Craft III</strong> [DaWoblefet] <small>&ndash; Research (game mechanics)</small></p></li>
 				<li><p><strong>Mathieu Dias-Martins</strong> [Marty] <small>&ndash; Research (game mechanics), Development</small></p></li>
-				<li><p><strong>Mia A.</strong> [Mia] <small>&ndash; Development</small></p></li>
+				<li><p><strong>Mia A.</strong> [Hecate] <small>&ndash; Development</small></p></li>
 			</ul>
 
 			<h2><span>Retired Staff</span></h2>
