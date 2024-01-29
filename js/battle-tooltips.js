@@ -1261,9 +1261,6 @@ stats.atk=Math.floor(stats.atk*1.5);
 if(ability==='orichalcumpulse'){
 stats.atk=Math.floor(stats.atk*1.3);
 }
-if(ability==='eclipse'){
-stats.def=Math.floor(stats.def*2);
-}
 var allyActive=clientPokemon==null?void 0:clientPokemon.side.active;
 if(allyActive){for(var _i36=0;_i36<
 allyActive.length;_i36++){var ally=allyActive[_i36];
@@ -1313,9 +1310,6 @@ stats.spa=Math.floor(stats.spa*1.5);
 }
 if(ability==='malice'&&serverPokemon.stats.atk>serverPokemon.stats.spa){
 stats.atk=Math.floor(stats.atk*1.5);
-}
-if(ability==='eclipse'){
-stats.spd=Math.floor(stats.spd*2);
 }
 }
 if(climateWeather==='foghorn'){

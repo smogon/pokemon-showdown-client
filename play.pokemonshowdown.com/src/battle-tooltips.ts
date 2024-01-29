@@ -1261,9 +1261,6 @@ class BattleTooltips {
 					if (ability === 'orichalcumpulse') {
 						stats.atk = Math.floor(stats.atk * 1.3);
 					}
-					if (ability === 'eclipse') {
-						stats.def = Math.floor(stats.def * 2);
-					}
 					let allyActive = clientPokemon?.side.active;
 					if (allyActive) {
 						for (const ally of allyActive) {
@@ -1313,9 +1310,6 @@ class BattleTooltips {
 					}
 					if (ability === 'malice' && serverPokemon.stats.atk > serverPokemon.stats.spa) {
 						stats.atk = Math.floor(stats.atk * 1.5);
-					}
-					if (ability === 'eclipse') {
-						stats.spd = Math.floor(stats.spd * 2);
 					}
 				}
 				if (climateWeather === 'foghorn') {
