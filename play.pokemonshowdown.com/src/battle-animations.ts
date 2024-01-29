@@ -995,8 +995,8 @@ export class BattleScene implements BattleSceneStub {
 		if (this.battle.energyWeather) {
 			const weatherNameTable: {[id: string]: string} = {
 				auraprojection: 'Battle Aura',
-				haunt: 'Cursed Winds',
-				cosmicrays: 'Psychic Field',
+				haunt: 'Paranormal Activity',
+				daydream: 'Dreamscape',
 				dragonforce: 'Dragon Force',
 				supercell: 'Thunderstorm',
 				magnetize: 'Magnetosphere',

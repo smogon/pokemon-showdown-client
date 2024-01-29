@@ -678,7 +678,7 @@ break;
 case'haunt':
 zMove=this.battle.dex.moves.get(BattleTooltips.zMoveTable['Ghost']);
 break;
-case'cosmicrays':
+case'daydream':
 zMove=this.battle.dex.moves.get(BattleTooltips.zMoveTable['Psychic']);
 break;
 case'dragonforce':
@@ -1302,7 +1302,7 @@ stats.spd=Math.floor(stats.spd*1.4);
 }
 }
 if(climateWeather==='bloodmoon'){
-if(ability==='haunting'){
+if(ability==='shadowstep'){
 speedModifiers.push(2);
 }
 if(ability==='malice'&&serverPokemon.stats.spa>=serverPokemon.stats.atk){
@@ -1362,7 +1362,7 @@ stats.spd=Math.floor(stats.spd*1.25);
 if(energyWeather){
 if(item!=='energynullifier'){
 if(energyWeather==='haunt'){
-if(ability==='haunting'){
+if(ability==='shadowstep'){
 speedModifiers.push(2);
 }
 }
@@ -1380,7 +1380,7 @@ if(energyWeather==='magnetize'){
 if(this.pokemonHasType(pokemon,'Steel')){
 stats.spd=Math.floor(stats.spd*1.25);
 }
-if(ability==='gravitysling'){
+if(ability==='magnapult'){
 speedModifiers.push(2);
 }
 }
@@ -1732,7 +1732,7 @@ break;
 case'haunt':
 moveType='Ghost';
 break;
-case'cosmicrays':
+case'daydream':
 moveType='Psychic';
 break;
 case'dragonforce':
@@ -2255,18 +2255,18 @@ if(value.tryAbility("Absolute Zero"))value.climateWeatherModify(1.3,"Snow","Abso
 }
 if(serverPokemon.item!=='safetygoggles'){
 if(['Rock','Ground','Steel'].includes(moveType)&&this.battle.irritantWeather==='sandstorm'){
-if(value.tryAbility("Sand Force"))value.irritantWeatherModify(1.3,"Sandstorm","Sand Force");
+if(value.tryAbility("Earth Force"))value.irritantWeatherModify(1.3,"Sandstorm","Earth Force");
 }
 if(['Rock','Ground','Steel'].includes(moveType)&&this.battle.irritantWeather==='duststorm'){
-if(value.tryAbility("Sand Force"))value.irritantWeatherModify(1.3,"Dust Storm","Sand Force");
+if(value.tryAbility("Earth Force"))value.irritantWeatherModify(1.3,"Dust Storm","Earth Force");
 }
 if(['Fairy','Grass','Fire','Water'].includes(moveType)&&this.battle.irritantWeather==='sprinkle'){
 if(value.tryAbility("Power Above"))value.irritantWeatherModify(1.3,"Fairy Dust","Power Above");
 }
 }
 if(serverPokemon.item!=='energynullifier'){
-if(move.category==='Special'&&this.battle.energyWeather==='cosmicrays'){
-if(value.tryAbility("Smoke and Mirrors"))value.energyWeatherModify(1.2,"Psychic Field","Smoke and Mirrors");
+if(move.category==='Special'&&this.battle.energyWeather==='daydream'){
+if(value.tryAbility("Smoke and Mirrors"))value.energyWeatherModify(1.2,"Dreamscape","Smoke and Mirrors");
 }
 if(['Dragon','Fire','Electric','Ice'].includes(moveType)&&this.battle.energyWeather==='dragonforce'){
 if(value.tryAbility("Power Within"))value.energyWeatherModify(1.3,"Dragon Force","Power Within");

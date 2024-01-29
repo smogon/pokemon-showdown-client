@@ -991,8 +991,8 @@ var weatherhtml="";
 if(this.battle.energyWeather){
 var weatherNameTable={
 auraprojection:'Battle Aura',
-haunt:'Cursed Winds',
-cosmicrays:'Psychic Field',
+haunt:'Paranormal Activity',
+daydream:'Dreamscape',
 dragonforce:'Dragon Force',
 supercell:'Thunderstorm',
 magnetize:'Magnetosphere'

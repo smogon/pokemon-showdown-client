@@ -1586,7 +1586,7 @@ export class Battle {
 				}
 			case 'auraprojection':
 			case 'haunt':
-			case 'cosmicrays':
+			case 'daydream':
 			case 'dragonforce':
 			case 'supercell':
 			case 'magnetize':
