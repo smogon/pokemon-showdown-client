@@ -463,7 +463,7 @@ if (!$user) {
 		</p>
 <?php
 	}
-	if ($user['userid'] === 'slarty' || $user['userid'] === 'peterthegreeat' || $user['userid'] === 'chrisloud' || $user['userid'] === 'skitty' || $user['userid'] === 'aulu' || $user['userid'] === 'morfent' || $user['userid'] === 'mikotomisaka') {
+	if ($user['userid'] === 'slarty' || $user['userid'] === 'peterthegreeat' || $user['userid'] === 'chrisloud' || $user['userid'] === 'skitty' || $user['userid'] === 'aulu' || $user['userid'] === 'morfent' || $user['userid'] === 'mikotomisaka' || $user['userid'] === 'xbossarux' || $user['userid'] === 'victoriousbig') {
 		echo '<p>;_;7</p>';
 	}
 

@@ -515,6 +515,7 @@ class BattleTextParser {
 				case 'minior': id = 'shieldsdown'; templateName = 'transformEnd'; break;
 				case 'eiscuenoice': id = 'iceface'; break;
 				case 'eiscue': id = 'iceface'; templateName = 'transformEnd'; break;
+				case 'terapagosterastal': id = 'terashift'; break;
 				}
 			} else if (newSpecies) {
 				id = 'transform';

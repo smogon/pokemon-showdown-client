@@ -375,7 +375,6 @@ select.button {
 	font-size: 9pt;
 	font-family: Verdana, sans-serif;
 	text-align: left;
-	white-space: nowrap;
 	overflow: hidden;
 }
 .option.sel, .option.cur {

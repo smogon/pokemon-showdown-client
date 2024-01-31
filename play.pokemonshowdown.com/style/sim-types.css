@@ -393,3 +393,19 @@
 	background: linear-gradient(to bottom,  hsl(310,41%,77%),  hsl(310,41%,83%));
 	border-color: hsl(310,41%,41%);
 }
+
+.movemenu button.type-Stellar {
+	background: linear-gradient(90deg, hsl(330, 65%, 65%), hsl(126, 71%, 73%), hsl(231, 100%, 77%));
+	border-color: linear-gradient(90deg, hsl(330, 66%, 58%), hsl(126, 79%, 65%), hsl(231, 98%, 65%));
+}
+.movemenu button.type-Stellar small {
+	color: hsl(244, 24%, 24%);
+}
+.movemenu button.type-Stellar:hover {
+	background: linear-gradient(90deg, hsl(330, 65%, 62%), hsl(126, 71%, 67%), hsl(231, 100%, 68%));
+	border-color: linear-gradient(90deg, hsl(330, 66%, 58%), hsl(126, 79%, 65%), hsl(231, 98%, 65%));
+}
+.movemenu button.type-Stellar:active, .movemenu button.type-Stellar.pressed {
+	background: linear-gradient(90deg, hsl(330, 65%, 45%), hsl(126, 71%, 73%), hsl(231, 100%, 86%));
+	border-color: linear-gradient(90deg, hsl(330, 66%, 58%), hsl(126, 79%, 65%), hsl(231, 98%, 65%));
+}

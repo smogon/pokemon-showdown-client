@@ -1988,6 +1988,7 @@ export class PokemonSprite extends Sprite {
 		magnetrise: ['Magnet Rise', 'good'],
 		smackdown: ['Smack Down', 'bad'],
 		focusenergy: ['Critical Hit Boost', 'good'],
+		dragoncheer: ['Critical Hit Boost', 'good'],
 		slowstart: ['Slow Start', 'bad'],
 		protosynthesisatk: ['Protosynthesis: Atk', 'good'],
 		protosynthesisdef: ['Protosynthesis: Def', 'good'],

@@ -234,7 +234,7 @@
 				ru: "RU",
 				nu: "NU",
 				pu: "PU",
-				zu: "(PU)",
+				zu: "ZU",
 				nfe: "NFE",
 				lc: "LC",
 				cap: "CAP",
@@ -243,7 +243,8 @@
 				uubl: "UUBL",
 				rubl: "RUBL",
 				nubl: "NUBL",
-				publ: "PUBL"
+				publ: "PUBL",
+				zubl: "ZUBL"
 			};
 			var tier = {name: tierTable[id]};
 			return this.renderTierRow(tier, matchStart, matchLength, errorMessage);
@@ -386,7 +387,10 @@
 		}
 		buf += '<span class="col statcol"><em>Spe</em><br />' + stats.spe + '</span> ';
 		var bst = 0;
-		for (i in stats) bst += stats[i];
+		for (i in stats) {
+			if (i === 'spd' && gen === 1) continue;
+			bst += stats[i];
+		}
 		buf += '<span class="col bstcol"><em>BST<br />' + bst + '</em></span> ';
 
 		buf += '</a></li>';

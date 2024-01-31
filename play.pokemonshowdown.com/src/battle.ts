@@ -476,7 +476,7 @@ export class Pokemon implements PokemonDetails, PokemonHealth {
 	}
 	getTypes(serverPokemon?: ServerPokemon, preterastallized = false): [ReadonlyArray<TypeName>, TypeName | ''] {
 		let types: ReadonlyArray<TypeName>;
-		if (this.terastallized && !preterastallized) {
+		if (!preterastallized && this.terastallized && this.terastallized !== 'Stellar') {
 			types = [this.terastallized as TypeName];
 		} else if (this.volatiles.typechange) {
 			types = this.volatiles.typechange[1].split('/');
@@ -521,11 +521,14 @@ export class Pokemon implements PokemonDetails, PokemonHealth {
 		return !this.getTypeList(serverPokemon).includes('Flying');
 	}
 	effectiveAbility(serverPokemon?: ServerPokemon) {
-		if (this.fainted || this.volatiles['gastroacid']) return '';
 		const ability = this.side.battle.dex.abilities.get(
 			serverPokemon?.ability || this.ability || serverPokemon?.baseAbility || ''
 		);
-		if (this.side.battle.ngasActive() && !ability.isPermanent) {
+		if (
+			this.fainted ||
+			(this.volatiles['transform'] && ability.flags['notransform']) ||
+			(!ability.flags['cantsuppress'] && (this.side.battle.ngasActive() || this.volatiles['gastroacid']))
+		) {
 			return '';
 		}
 		return ability.name;
@@ -1099,6 +1102,7 @@ export class Battle {
 	speciesClause = false;
 	tier = '';
 	gameType: 'singles' | 'doubles' | 'triples' | 'multi' | 'freeforall' = 'singles';
+	compatMode = true;
 	rated: string | boolean = false;
 	rules: {[ruleName: string]: 1 | 0} = {};
 	isBlitz = false;
@@ -1233,6 +1237,7 @@ export class Battle {
 		}
 		return pokemonList;
 	}
+	// Used in Pokemon#effectiveAbility over abilityActive to prevent infinite recursion
 	ngasActive() {
 		for (const active of this.getAllActive()) {
 			if (active.ability === 'Neutralizing Gas' && !active.volatiles['gastroacid']) {
@@ -1243,12 +1248,9 @@ export class Battle {
 	}
 	abilityActive(abilities: string | string[]) {
 		if (typeof abilities === 'string') abilities = [abilities];
-		if (this.ngasActive()) {
-			abilities = abilities.filter(a => this.dex.abilities.get(a).isPermanent);
-			if (!abilities.length) return false;
-		}
+		abilities = abilities.map(toID);
 		for (const active of this.getAllActive()) {
-			if (abilities.includes(active.ability) && !active.volatiles['gastroacid']) {
+			if (abilities.includes(toID(active.effectiveAbility()))) {
 				return true;
 			}
 		}
@@ -3094,7 +3096,6 @@ export class Battle {
 				target!.side.removeSideCondition('Reflect');
 				target!.side.removeSideCondition('LightScreen');
 				break;
-			case 'hyperdrill':
 			case 'hyperspacefury':
 			case 'hyperspacehole':
 			case 'phantomforce':
@@ -3531,7 +3532,7 @@ export class Battle {
 		if (!isInactive && side.active[slot]) return side.active[slot];
 
 		for (const pokemon of side.pokemon) {
-			if (isInactive && side.active.includes(pokemon)) continue;
+			if (isInactive && !this.compatMode && side.active.includes(pokemon)) continue;
 			if (faintedOnly && pokemon.hp) continue;
 			if (pokemon.ident === pokemonid) { // name matched, good enough
 				if (slot >= 0) pokemon.slot = slot;
@@ -3613,6 +3614,7 @@ export class Battle {
 		}
 		case 'gametype': {
 			this.gameType = args[1] as any;
+			this.compatMode = false;
 			switch (args[1]) {
 			case 'multi':
 			case 'freeforall':

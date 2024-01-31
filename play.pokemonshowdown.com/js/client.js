@@ -1037,7 +1037,7 @@ function toId() {
 					var replayLink = 'https://' + Config.routes.replays + '/' + replayid;
 					$.ajax(replayLink + '.json', {dataType: 'json'}).done(function (replay) {
 						if (replay) {
-							var title = replay.p1 + ' vs. ' + replay.p2;
+							var title = replay.players[0] + ' vs. ' + replay.players[1];
 							app.receive('>battle-' + replayid + '\n|init|battle\n|title|' + title + '\n' + replay.log);
 							app.receive('>battle-' + replayid + '\n|expire|<a href=' + replayLink + ' target="_blank" class="no-panel-intercept">Open replay in new tab</a>');
 						} else {
@@ -1500,7 +1500,9 @@ function toId() {
 								if (roomEl && roomEl.id) {
 									var roomid = roomEl.id.slice(5);
 									window.app.renameRoom(roomid, target);
-									window.app.rooms[target].join();
+									if (window.app.rooms[target]) {
+										window.app.rooms[target].join();
+									}
 									e.preventDefault();
 									e.stopPropagation();
 									e.stopImmediatePropagation();
@@ -2553,6 +2555,10 @@ function toId() {
 		initialize: function (data) {
 			if (!this.type) this.type = 'semimodal';
 			this.$el.html('<form><p style="white-space:pre-wrap;word-wrap:break-word">' + (data.htmlMessage || BattleLog.parseMessage(data.message)) + '</p><p class="buttonbar">' + (data.buttons || '<button type="button" name="close" class="button autofocus"><strong>OK</strong></button>') + '</p></form>').css('max-width', data.maxWidth || 480);
+		},
+
+		copyText: function (value, target) {
+			app.curRoom.copyText(value, target);
 		},
 
 		dispatchClickButton: function (e) {

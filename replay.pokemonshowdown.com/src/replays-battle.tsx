@@ -60,12 +60,9 @@ export class BattlePanel extends preact.Component<{id: string}> {
     uploadtime: number;
     id: string;
     format: string;
-    p1: string;
-    p2: string;
+    players: string[];
     log: string;
     views: number;
-    p1id: string;
-    p2id: string;
     rating: number;
     private: number;
     password: string;
@@ -97,10 +94,11 @@ export class BattlePanel extends preact.Component<{id: string}> {
     this.forceUpdate();
 
     const elem = document.getElementById(`replaydata-${id}`);
+    const logElem = document.getElementById(`replaylog-${id}`);
     if (elem) {
       // we actually do need to wait for that update to finish so
       // loadResult definitely has access to $frame and $logFrame
-      setTimeout(() => this.loadResult(elem.innerText, id), 1);
+      setTimeout(() => this.loadResult(elem.innerText, id, logElem?.innerText.replace(/<\\\//g, '</')), 1);
       return;
     }
 
@@ -110,9 +108,10 @@ export class BattlePanel extends preact.Component<{id: string}> {
       this.loadResult(err.statusCode === 404 ? '' : String(err?.body || ''), id);
     });
   }
-  loadResult(result: string, id: string) {
+  loadResult(result: string, id: string, log = '') {
     try {
       const replay: NonNullable<BattlePanel['result']> = JSON.parse(result);
+      replay.log ||= log;
       this.result = replay;
       const $base = $(this.base!);
       this.battle = new Battle({
@@ -476,13 +475,13 @@ export class BattlePanel extends preact.Component<{id: string}> {
         <label class="optgroup">
           Viewpoint:<br />
           <button onClick={this.switchViewpoint} name="viewpoint" class={this.battle ? 'button' : 'button disabled'}>
-            {(this.battle?.viewpointSwitched ? this.result?.p2 : this.result?.p1 || "Player")} {}
+            {(this.battle?.viewpointSwitched ? this.result?.players[1] : this.result?.players[0] || "Player")} {}
             <i class="fa fa-random" aria-label="Switch viewpoint"></i>
           </button>
         </label>
       </p>
       {this.result ? <h1>
-        <strong>{this.result.format}</strong>: {this.result.p1} vs. {this.result.p2}
+        <strong>{this.result.format}</strong>: {this.result.players.join(' vs. ')}
       </h1> : <h1>
         <em>Loading...</em>
       </h1>}

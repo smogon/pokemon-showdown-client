@@ -8,9 +8,9 @@ interface ReplayResult {
   uploadtime: number;
   id: string;
   format: string;
-  p1: string;
-  p2: string;
+  players: string[];
   password?: string;
+  private?: number;
   rating?: number;
 }
 
@@ -153,7 +153,7 @@ class SearchPanel extends preact.Component<{id: string}> {
     this.submitForm(e);
   };
   url(replay: ReplayResult) {
-    const viewpointSwitched = (toID(replay.p2) === toID(this.user));
+    const viewpointSwitched = (toID(replay.players[1]) === toID(this.user));
     return replay.id + (replay.password ? `-${replay.password}pw` : '') + (viewpointSwitched ? '?p2' : '');
   }
   formatid(replay: ReplayResult) {
@@ -181,8 +181,9 @@ class SearchPanel extends preact.Component<{id: string}> {
       </li>) ||
       (results?.map(result => <li>
         <a href={this.url(result)} class="blocklink">
-          <small>[{this.formatid(result)}]{result.rating ? ` Rating: ${result.rating}` : ''}<br /></small>
-          <strong>{result.p1}</strong> vs. <strong>{result.p2}</strong>
+          <small>{result.format}{result.rating ? ` (Rating: ${result.rating})` : ''}<br /></small>
+          {!!result.private && <i class="fa fa-lock"></i>} {}
+          <strong>{result.players[0]}</strong> vs. <strong>{result.players[1]}</strong>
         </a>
       </li>))}
     </ul>;
