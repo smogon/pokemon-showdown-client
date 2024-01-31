@@ -1377,6 +1377,16 @@ class BattleTooltips {
 				if (baseSpe > 255) baseSpe = 255;
 			}
 		}
+		if (rules['Flipped Mod']) {
+			baseSpe = species.baseStats.hp;
+			if (baseSpe < 1) baseSpe = 1;
+			if (baseSpe > 255) baseSpe = 255;
+		}
+		if (rules['350 Cup Mod'] && species.bst <= 350) {
+			baseSpe *= 2;
+			if (baseSpe < 1) baseSpe = 1;
+			if (baseSpe > 255) baseSpe = 255;
+		}
 		let level = pokemon.volatiles.transform?.[4] || pokemon.level;
 		let tier = this.battle.tier;
 		let gen = this.battle.gen;
@@ -2240,7 +2250,10 @@ class BattleTooltips {
 				if (baseAbilityName && baseAbilityName !== abilityName) text += ' (base: ' + baseAbilityName + ')';
 			}
 		}
-		if (!text && abilityData.possibilities.length && !hidePossible) {
+		const tier = this.battle.tier;
+		if (!text && abilityData.possibilities.length && !hidePossible &&
+			!(tier.includes('Almost Any Ability') || tier.includes('Hackmons') ||
+				tier.includes('Inheritance') || tier.includes('Metronome'))) {
 			text = '<small>Possible abilities:</small> ' + abilityData.possibilities.join(', ');
 		}
 		return text;
