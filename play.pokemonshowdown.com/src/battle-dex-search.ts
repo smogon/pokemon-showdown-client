@@ -1496,6 +1496,8 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 				!moves.includes('bitterblade') && !moves.includes('firepunch')) || this.formatType === 'doubles';
 		case 'terrainpulse': case 'waterpulse':
 			return ['megalauncher', 'technician'].includes(abilityid) && !moves.includes('originpulse');
+		case 'thief':
+			return dex.gen === 2;
 		case 'toxicspikes':
 			return abilityid !== 'toxicdebris';
 		case 'trickroom':
