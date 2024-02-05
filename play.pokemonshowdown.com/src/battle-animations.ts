@@ -2063,6 +2063,7 @@ export class PokemonSprite extends Sprite {
 		reflect: ['Reflect', 'good'],
 		// swse
 		caffeinecrash: ['Caffeine Crash', 'bad'],
+		sunscreen: ['Sunscreen', 'good'],
 	};
 	forme = '';
 	cryurl: string | undefined = undefined;
