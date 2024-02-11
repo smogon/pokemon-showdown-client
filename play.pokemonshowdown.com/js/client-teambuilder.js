@@ -1353,7 +1353,7 @@
 			buf += '<div class="setcol setcol-movepp"><div class="setcell"><label>PP Ups</label>';
 			for (var i = 0; i <= 3; i++) {
 				if (i > 0) buf += '<div class="setcell">';
-				buf += '<select name="move' + (i + 1) + 'pp" class="movepp">'
+				buf += '<select name="move' + (i + 1) + 'pp" class="textbox movepp">'
 				for (var j = 0; j <= 3; j++) {
 					var movePPUps = isNaN(set.movePPUps[i]) ? 3 : set.movePPUps[i];
 					buf += '<option value="' + j + '" ' + (movePPUps === j ? 'selected' : '') + '>' + j + '</option>'
