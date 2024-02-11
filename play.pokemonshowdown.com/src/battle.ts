@@ -2434,12 +2434,15 @@ export class Battle {
 				newSpeciesForme = args[2].substr(0, commaIndex);
 			}
 			let species = this.dex.species.get(newSpeciesForme);
+			let teraHangry = false;
 			if (nextArgs) {
 				if (nextArgs[0] === '-mega') {
 					species = this.dex.species.get(this.dex.items.get(nextArgs[3]).megaStone);
 				} else if (nextArgs[0] === '-primal' && nextArgs.length > 2) {
 					if (nextArgs[2] === 'Red Orb') species = this.dex.species.get('Groudon-Primal');
 					if (nextArgs[2] === 'Blue Orb') species = this.dex.species.get('Kyogre-Primal');
+				} else if (nextArgs[0] === '-terastallize' && species.id === 'morpekohangry') {
+					teraHangry = true;
 				}
 			}
 
@@ -2450,7 +2453,7 @@ export class Battle {
 			poke.searchid = args[1].substr(0, 2) + args[1].substr(3) + '|' + args[2];
 
 			let isCustomAnim = species.id !== 'palafinhero';
-			this.scene.animTransform(poke, isCustomAnim, true);
+			this.scene.animTransform(poke, isCustomAnim, true, teraHangry);
 			this.log(args, kwArgs);
 			break;
 		}

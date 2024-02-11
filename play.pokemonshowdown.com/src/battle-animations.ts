@@ -1489,8 +1489,8 @@ export class BattleScene implements BattleSceneStub {
 	updateStatbarIfExists(pokemon: Pokemon, updatePrevhp?: boolean, updateHp?: boolean) {
 		return pokemon.sprite.updateStatbarIfExists(pokemon, updatePrevhp, updateHp);
 	}
-	animTransform(pokemon: Pokemon, isCustomAnim?: boolean, isPermanent?: boolean) {
-		return pokemon.sprite.animTransform(pokemon, isCustomAnim, isPermanent);
+	animTransform(pokemon: Pokemon, isCustomAnim?: boolean, isPermanent?: boolean, noAnim?: boolean) {
+		return pokemon.sprite.animTransform(pokemon, isCustomAnim, isPermanent, noAnim);
 	}
 	clearEffects(pokemon: Pokemon) {
 		return pokemon.sprite.clearEffects();
@@ -2473,7 +2473,7 @@ export class PokemonSprite extends Sprite {
 			});
 		}
 	}
-	animTransform(pokemon: Pokemon, isCustomAnim?: boolean, isPermanent?: boolean) {
+	animTransform(pokemon: Pokemon, isCustomAnim?: boolean, isPermanent?: boolean, noAnim?: boolean) {
 		if (!this.scene.animating && !isPermanent) return;
 		let sp = Dex.getSpriteData(pokemon, this.isFrontSprite, {
 			gen: this.scene.gen,
@@ -2498,6 +2498,16 @@ export class PokemonSprite extends Sprite {
 		this.cryurl = sp.cryurl;
 
 		if (!this.scene.animating) return;
+
+		if (noAnim) {
+			if (isPermanent) {
+				this.resetStatbar(pokemon);
+			} else {
+				this.updateStatbar(pokemon);
+			}
+			return;
+		}
+
 		let speciesid = toID(pokemon.getSpeciesForme());
 		let doCry = false;
 		const scene = this.scene;
