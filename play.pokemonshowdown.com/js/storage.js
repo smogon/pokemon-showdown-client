@@ -812,6 +812,11 @@ Storage.packTeam = function (team) {
 			if (moveid.substr(0, 11) === 'hiddenpower' && moveid.length > 11) hasHP = true;
 		}
 
+		// move PP ups
+		if (set.movePPUps) {
+			buf += ';' + set.movePPUps.join(',');
+		}
+
 		// nature
 		buf += '|' + (set.nature || '');
 
@@ -913,9 +918,17 @@ Storage.fastUnpackTeam = function (buf) {
 		i = j + 1;
 
 		// moves
-		j = buf.indexOf('|', i);
+		j = buf.indexOf(';', i);
+		if (j < 0) j = buf.indexOf('|', i);
 		set.moves = buf.substring(i, j).split(',');
 		i = j + 1;
+
+		// move PP ups
+		if (buf.charAt(j) === ';') {
+			j = buf.indexOf('|', i);
+			set.movePPUps = buf.substring(i, j).split(',').map(number => parseInt(number));
+			i = j + 1;
+		}
 
 		// nature
 		j = buf.indexOf('|', i);
@@ -1029,11 +1042,23 @@ Storage.unpackTeam = function (buf) {
 		i = j + 1;
 
 		// moves
-		j = buf.indexOf('|', i);
+		j = buf.indexOf(';', i);
+		if (j < 0) {
+			j = buf.indexOf('|', i);
+			if (j < 0) return null;
+		}
 		set.moves = buf.substring(i, j).split(',').map(function (moveid) {
 			return Dex.moves.get(moveid).name;
 		});
 		i = j + 1;
+
+		// move PP ups
+		if (buf.charAt(j) === ';') {
+			j = buf.indexOf('|', i);
+			if (j < 0) return null;
+			set.movePPUps = buf.substring(i, j).split(',').map(number => parseInt(number));
+			i = j + 1;
+		}
 
 		// nature
 		j = buf.indexOf('|', i);
@@ -1344,7 +1369,14 @@ Storage.importTeam = function (buffer, teams) {
 			if (line === 'Frustration' && curSet.happiness === undefined) {
 				curSet.happiness = 0;
 			}
-			curSet.moves.push(line);
+			var [move, movePPUps] = line.split(';', 2);
+			curSet.moves.push(move);
+			if (!curSet.movePPUps) curSet.movePPUps = [];
+			if (isNaN(movePPUps)) {
+				curSet.movePPUps.push(3);
+			} else {
+				curSet.movePPUps.push(parseInt(movePPUps));
+			}
 		}
 	}
 	if (teams && teams.length && typeof teams[teams.length - 1].team !== 'string') {
@@ -1493,7 +1525,9 @@ Storage.exportTeam = function (team, gen, hidestats) {
 				move = move.substr(0, 13) + '[' + move.substr(13) + ']';
 			}
 			if (move) {
-				text += '- ' + move + "  \n";
+				text += '- ' + move;
+				if (curSet.movePPUps && curSet.movePPUps[j] < 3) text += ";" + curSet.movePPUps[j];
+				text += "  \n";
 			}
 		}
 		text += "\n";

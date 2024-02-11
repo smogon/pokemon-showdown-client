@@ -62,6 +62,7 @@
 			'change select[name=ivspread]': 'ivSpreadChange',
 			'change .evslider': 'statSlided',
 			'input .evslider': 'statSlide',
+			'change .movepp': 'movePPChange',
 
 			// teambuilder events
 			'click .utilichart a': 'chartClick',
@@ -1339,12 +1340,26 @@
 			buf += '</div></div>';
 
 			// moves
+			console.log(set);
 			if (!set.moves) set.moves = [];
+			if (!set.movePPUps) set.movePPUps = [3, 3, 3, 3];
 			buf += '<div class="setcol setcol-moves"><div class="setcell"><label>Moves</label>';
-			buf += '<input type="text" name="move1" class="textbox chartinput" value="' + BattleLog.escapeHTML(set.moves[0]) + '" autocomplete="off" /></div>';
-			buf += '<div class="setcell"><input type="text" name="move2" class="textbox chartinput" value="' + BattleLog.escapeHTML(set.moves[1]) + '" autocomplete="off" /></div>';
-			buf += '<div class="setcell"><input type="text" name="move3" class="textbox chartinput" value="' + BattleLog.escapeHTML(set.moves[2]) + '" autocomplete="off" /></div>';
-			buf += '<div class="setcell"><input type="text" name="move4" class="textbox chartinput" value="' + BattleLog.escapeHTML(set.moves[3]) + '" autocomplete="off" /></div>';
+			for (var i = 0; i <= 3; i++) {
+				if (i > 0) buf += '<div class="setcell">';
+				buf += '<input type="text" name="move' + (i + 1) + '" class="textbox chartinput" value="' + BattleLog.escapeHTML(set.moves[i]) + '" autocomplete="off" /></div>';
+			}
+			buf += '</div>';
+
+			buf += '<div class="setcol setcol-movepp"><div class="setcell"><label>PP Ups</label>';
+			for (var i = 0; i <= 3; i++) {
+				if (i > 0) buf += '<div class="setcell">';
+				buf += '<select name="move' + (i + 1) + 'pp" class="movepp">'
+				for (var j = 0; j <= 3; j++) {
+					var movePPUps = isNaN(set.movePPUps[i]) ? 3 : set.movePPUps[i];
+					buf += '<option value="' + j + '" ' + (movePPUps === j ? 'selected' : '') + '>' + j + '</option>'
+				}
+				buf += '</select></div>'
+			}
 			buf += '</div>';
 
 			// stats
@@ -2677,6 +2692,20 @@
 				set.ivs[stats[i]] = parseInt(spread[i], 10);
 			}
 			$(e.currentTarget).val('');
+
+			this.save();
+			this.updateStatGraph();
+		},
+		movePPChange: function (e) {
+			var set = this.curSet;
+			if (!set) set = this.curSetList[e.currentTarget.offsetParent.value];
+
+			var movePPUps = parseInt(e.currentTarget.value);
+			console.log(movePPUps);
+			if (!set.movePPUps) set.movePPUps = [3, 3, 3, 3];
+			var boxName = e.currentTarget.name;
+			set.movePPUps[parseInt(boxName.charAt(4)) - 1] = movePPUps;
+			console.log(set.movePPUps);
 
 			this.save();
 			this.updateStatGraph();

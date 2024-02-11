@@ -2378,6 +2378,9 @@ a.ilink.yours {
 .setcell-ability {
 	float: right;
 }
+.setcell-movepp {
+	display: block;
+}
 .setcol-details .itemicon {
 	display: block;
 	width: 24px;
@@ -2409,6 +2412,9 @@ a.ilink.yours {
 .setcol-moves .setcell {
 	padding-bottom: 1px;
 }
+.setcol-movepp .setcell {
+	padding-bottom: 1px;
+}
 .setchart label,
 .setchart-nickname label {
 	display: block;
@@ -2425,7 +2431,10 @@ a.ilink.yours {
 	margin-bottom: -1px;
 }
 .setcol-moves {
-	width: 137px;
+	width: 107px;
+}
+.setcol-movepp {
+	width: 30px;
 }
 .setcol-stats {
 	width: 142px;
