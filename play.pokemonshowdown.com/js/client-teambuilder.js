@@ -1340,7 +1340,6 @@
 			buf += '</div></div>';
 
 			// moves
-			console.log(set);
 			if (!set.moves) set.moves = [];
 			if (!set.movePPUps) set.movePPUps = [3, 3, 3, 3];
 			buf += '<div class="setcol setcol-moves"><div class="setcell"><label>Moves</label>';
@@ -2695,11 +2694,9 @@
 			if (!set) set = this.curSetList[e.currentTarget.offsetParent.value];
 
 			var movePPUps = parseInt(e.currentTarget.value);
-			console.log(movePPUps);
 			if (!set.movePPUps) set.movePPUps = [3, 3, 3, 3];
 			var boxName = e.currentTarget.name;
 			set.movePPUps[parseInt(boxName.charAt(4)) - 1] = movePPUps;
-			console.log(set.movePPUps);
 
 			this.save();
 			this.updateStatGraph();
