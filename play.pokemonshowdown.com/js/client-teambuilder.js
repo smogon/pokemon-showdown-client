@@ -1346,13 +1346,7 @@
 			buf += '<div class="setcol setcol-moves"><div class="setcell"><label>Moves</label>';
 			for (var i = 0; i <= 3; i++) {
 				if (i > 0) buf += '<div class="setcell">';
-				buf += '<input type="text" name="move' + (i + 1) + '" class="textbox chartinput" value="' + BattleLog.escapeHTML(set.moves[i]) + '" autocomplete="off" /></div>';
-			}
-			buf += '</div>';
-
-			buf += '<div class="setcol setcol-movepp"><div class="setcell"><label>PP Ups</label>';
-			for (var i = 0; i <= 3; i++) {
-				if (i > 0) buf += '<div class="setcell">';
+				buf += '<input type="text" name="move' + (i + 1) + '" class="textbox chartinput" value="' + BattleLog.escapeHTML(set.moves[i]) + '" autocomplete="off" />';
 				buf += '<select name="move' + (i + 1) + 'pp" class="textbox movepp">'
 				for (var j = 0; j <= 3; j++) {
 					var movePPUps = isNaN(set.movePPUps[i]) ? 3 : set.movePPUps[i];

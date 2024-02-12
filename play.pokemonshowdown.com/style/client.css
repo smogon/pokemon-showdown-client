@@ -2409,9 +2409,6 @@ a.ilink.yours {
 .setcol-moves .setcell {
 	padding-bottom: 1px;
 }
-.setcol-movepp .setcell {
-	padding-bottom: 1px;
-}
 .setchart label,
 .setchart-nickname label {
 	display: block;
@@ -2428,10 +2425,7 @@ a.ilink.yours {
 	margin-bottom: -1px;
 }
 .setcol-moves {
-	width: 117px;
-}
-.setcol-movepp {
-	width: 55px;
+	width: 172px;
 }
 .setcol-stats {
 	width: 142px;
@@ -2587,10 +2581,12 @@ a.ilink.yours {
 }
 .setchart .setcol-moves input {
 	width: 109px;
+	display: inline-block;
 }
-.setchart .setcol-movepp select {
+.setchart .setcol-moves select {
 	width: 50px;
 	height: 23.6px;
+	display: inline-block;
 }
 
 .teambuilder-clipboard-container {
