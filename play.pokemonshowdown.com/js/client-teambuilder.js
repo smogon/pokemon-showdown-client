@@ -1387,7 +1387,7 @@
 					type: 'GET',
 					url: url,
 					success: function (data) {
-						if (/^https?:\/\/pokepast\.es\/.*\/json\s*$/.test(url)) {
+						if (/^https?:\/\/(pokepast\.es|pokebin\.com)\/.*\/json\s*$/.test(url)) {
 
 							var notes = data.notes.split('\n');
 							if (notes[0].startsWith('Format: ')) {
@@ -1422,7 +1422,7 @@
 			}
 		},
 		importableUrl: function (value) {
-			var match = value.match(/^https?:\/\/(pokepast\.es|gist\.github(?:usercontent)?\.com)\/(.*)\s*$/);
+			var match = value.match(/^https?:\/\/(pokebin\.com|pokepast\.es|gist\.github(?:usercontent)?\.com)\/(.*)\s*$/);
 			if (!match) return;
 
 			var host = match[1];
@@ -1431,6 +1431,8 @@
 			switch (host) {
 			case 'pokepast.es':
 				return 'https://pokepast.es/' + path.replace(/\/.*/, '') + '/json';
+			case 'pokebin.com':
+				return 'https://pokebin.com/' + path.replace(/\/.*/, '') + '/json';
 			default: // gist
 				var split = path.split('/');
 				return split.length < 2 ? undefined : 'https://gist.githubusercontent.com/' + split[0] + '/' + split[1] + '/raw';
