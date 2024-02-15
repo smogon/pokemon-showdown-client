@@ -17,13 +17,13 @@ if (!$id) {
 $manage = false;
 $csrfOk = false;
 
-if (isset($_REQUEST['manage'])) {
-	require_once '../lib/ntbb-session.lib.php';
-	if (!$users->isLeader()) die("access denied");
-	$csrfOk = !!$users->csrfCheck();
-	$manage = true;
-	header('Cache-Control: max-age=0, no-cache, no-store, must-revalidate');
-}
+// this no longer needs to be in an if block, since the only reason to access
+// this at /manage is for managing. just assume they're always doing that
+require_once '../lib/ntbb-session.lib.php';
+if (!$users->isLeader()) die("access denied");
+$csrfOk = !!$users->csrfCheck();
+$manage = true;
+header('Cache-Control: max-age=0, no-cache, no-store, must-revalidate');
 
 if (preg_match('/[^A-Za-z0-9-]/', $id)) die("access denied");
 
