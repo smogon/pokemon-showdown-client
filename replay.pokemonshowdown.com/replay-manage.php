@@ -66,8 +66,8 @@ if (@$replay['password']) {
 	if (!$password && !$manage) {
 		header('Cache-Control: max-age=0, no-cache, no-store, must-revalidate');
 		require_once '../lib/ntbb-session.lib.php';
-		if ($curuser['userid'] !== $replay['p1id'] && $curuser['userid'] !== $replay['p2id']) {
-			die("Access denied (you must be logged into " . $replay['p1id'] . " or " . $replay['p2id'] . ")");
+		if ($curuser['userid'] !== $p1id && $curuser['userid'] !== $p2id) {
+			die("Access denied (you must be logged into " . $p1id . " or " . $p2id . ")");
 		}
 		$url = '/' . $id . '-' . $replay['password'] . 'pw';
 		echo '<p>This private replay now has a new harder-to-guess URL:</p>';
@@ -75,7 +75,7 @@ if (@$replay['password']) {
 		die();
 	}
 	if ($password !== $replay['password'] && !$manage) {
-		die("Access denied (please ask " . $replay['p1id'] . " or " . $replay['p2id'] . " for the password)");
+		die("Access denied (please ask " . $p1id . " or " . $p2id . " for the password)");
 	}
 }
 
@@ -95,9 +95,14 @@ $replay['log'] = str_replace("\r","",$replay['log']);
 $matchSuccess = preg_match('/\\n\\|tier\\|([^|]*)\\n/', $replay['log'], $matches);
 $format = $replay['format'];
 if ($matchSuccess) $format = $matches[1];
+$players = explode(",", $replay['players']);
+$p1 = $players[0];
+$p2 = $players[1];
+$p1id = $users->userid($p1);
+$p2id = $users->userid($p2);
 
-$panels->setPageTitle($format.' replay: '.$replay['p1'].' vs. '.$replay['p2']);
-$panels->setPageDescription('Watch a replay of a Pokémon battle between ' . $replay['p1'] . ' and ' . $replay['p2'] . ' (' . $format . ')');
+$panels->setPageTitle($format.' replay: '.$p1.' vs. '.$p2);
+$panels->setPageDescription('Watch a replay of a Pokémon battle between ' . $p1 . ' and ' . $p2 . ' (' . $format . ')');
 $panels->setTab('replay');
 $panels->start();
 
@@ -134,7 +139,7 @@ $panels->start();
 
 			<pre class="urlbox" style="word-wrap: break-word;"><?php echo htmlspecialchars('https://'.$psconfig['routes']['replays'].'/'.$fullid); ?></pre>
 
-			<h1 style="font-weight:normal;text-align:left"><strong><?= htmlspecialchars($format) ?></strong>: <a href="//<?= $psconfig['routes']['users'] ?>/<?= userid($replay['p1']) ?>" class="subtle"><?= htmlspecialchars($replay['p1']) ?></a> vs. <a href="//<?= $psconfig['routes']['users'] ?>/<?= userid($replay['p2']) ?>" class="subtle"><?= htmlspecialchars($replay['p2']) ?></a></h1>
+			<h1 style="font-weight:normal;text-align:left"><strong><?= htmlspecialchars($format) ?></strong>: <a href="//<?= $psconfig['routes']['users'] ?>/<?= userid($p1) ?>" class="subtle"><?= htmlspecialchars($p1) ?></a> vs. <a href="//<?= $psconfig['routes']['users'] ?>/<?= userid($p2) ?>" class="subtle"><?= htmlspecialchars($p2) ?></a></h1>
 			<p style="padding:0 1em;margin-top:0">
 				<small class="uploaddate" data-timestamp="<?= @$replay['uploadtime'] ?? @$replay['date'] ?>"><em>Uploaded:</em> <?php echo date("M j, Y", @$replay['uploadtime'] ?? @$replay['date']); ?><?= @$replay['rating'] ? ' | <em>Rating:</em> ' . $replay['rating'] : '' ?></small>
 			</p>
