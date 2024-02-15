@@ -95,9 +95,8 @@ $replay['log'] = str_replace("\r","",$replay['log']);
 $matchSuccess = preg_match('/\\n\\|tier\\|([^|]*)\\n/', $replay['log'], $matches);
 $format = $replay['format'];
 if ($matchSuccess) $format = $matches[1];
-$players = explode(",", $replay['players']);
-$p1 = $players[0];
-$p2 = $players[1];
+$p1 = $replay['players'][0];
+$p2 = $replay['players'][1];
 $p1id = $users->userid($p1);
 $p2id = $users->userid($p2);
 
