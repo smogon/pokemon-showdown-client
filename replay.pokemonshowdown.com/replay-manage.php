@@ -150,6 +150,8 @@ if ($manage) {
 		$replay['private'] = intval($_POST['private']);
 		$Replays->edit($replay);
 		echo '<p>Edited.</p>';
+	} else {
+		echo '<p>Editing privacy to '.$_POST['private']. 'failed. ';
 	}
 ?>
 			Change privacy: <form action="/<?= $replay['id'] ?>/manage" method="post" style="display: inline" data-target="replace">
