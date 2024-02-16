@@ -62,7 +62,6 @@
 			'change select[name=ivspread]': 'ivSpreadChange',
 			'change .evslider': 'statSlided',
 			'input .evslider': 'statSlide',
-			'change .movepp': 'movePPChange',
 
 			// teambuilder events
 			'click .utilichart a': 'chartClick',
@@ -1341,25 +1340,10 @@
 
 			// moves
 			if (!set.moves) set.moves = [];
-			if (!set.movePPUps) set.movePPUps = [3, 3, 3, 3];
 			buf += '<div class="setcol setcol-moves"><div class="setcell"><label>Moves</label>';
 			for (var i = 0; i <= 3; i++) {
-				var move = Dex.moves.get(set.moves[i]);
 				if (i > 0) buf += '<div class="setcell">';
-				buf += '<input type="text" name="move' + (i + 1) + '" class="textbox chartinput" value="' + BattleLog.escapeHTML(set.moves[i]) + '" autocomplete="off" />';
-				buf += '<select name="move' + (i + 1) + 'pp" class="textbox movepp">'
-				if (!move.exists) {
-					buf += '<option value="3"></option>';
-				} else if (!move.isZ && !move.noPPBoosts) {
-					for (var j = 0; j <= 3; j++) {
-						var movePPUps = isNaN(set.movePPUps[i]) ? 3 : set.movePPUps[i];
-						var movePP = (move.pp / 5) * (5 + j);
-						buf += '<option value="' + j + '" ' + (movePPUps === j ? 'selected' : '') + '>' + movePP + '</option>';
-					}
-				} else {
-					buf += '<option value="3">' + move.pp + '</option>';
-				}
-				buf += '</select></div>'
+				buf += '<input type="text" name="move' + (i + 1) + '" class="textbox chartinput" value="' + BattleLog.escapeHTML(set.moves[i]) + '" autocomplete="off" /></div>';
 			}
 			buf += '</div>';
 
@@ -2697,18 +2681,6 @@
 			this.save();
 			this.updateStatGraph();
 		},
-		movePPChange: function (e) {
-			var set = this.curSet;
-			if (!set) set = this.curSetList[e.currentTarget.offsetParent.value];
-
-			var movePPUps = parseInt(e.currentTarget.value);
-			if (!set.movePPUps) set.movePPUps = [3, 3, 3, 3];
-			var boxName = e.currentTarget.name;
-			set.movePPUps[parseInt(boxName.charAt(4)) - 1] = movePPUps;
-
-			this.save();
-			this.updateStatGraph();
-		},
 
 		/*********************************************************
 		 * Set details form
@@ -2965,7 +2937,6 @@
 			if (this.curChartType === 'move' && e.currentTarget.className === 'cur') {
 				// clicked a move, remove it if we already have it
 				var moves = [];
-				var movePPUps = [];
 				for (var i = 0; i < this.curSet.moves.length; i++) {
 					var curVal = this.curSet.moves[i];
 					if (curVal === val) {
@@ -2973,7 +2944,6 @@
 						delete this.search.cur[toID(val)];
 					} else if (curVal) {
 						moves.push(curVal);
-						movePPUps.push(this.curSet.movePPUps[i]);
 					}
 				}
 				if (moves.length < this.curSet.moves.length) {
@@ -2983,9 +2953,7 @@
 					this.$('input[name=move4]').val(moves[3] || '');
 					this.$('input[name=move' + Math.min(moves.length + 1, 4) + ']').focus();
 					this.curSet.moves = moves;
-					this.curSet.movePPUps = movePPUps;
 					this.search.find('');
-					this.updateMovePP();
 					return;
 				}
 			}
@@ -3228,7 +3196,6 @@
 				this.unChooseMove(this.curSet.moves[0]);
 				this.curSet.moves[0] = val;
 				this.chooseMove(val);
-				this.updateMovePP();
 				if (selectNext) this.$('input[name=move2]').select();
 				break;
 			case 'move2':
@@ -3236,7 +3203,6 @@
 				this.unChooseMove(this.curSet.moves[1]);
 				this.curSet.moves[1] = val;
 				this.chooseMove(val);
-				this.updateMovePP();
 				if (selectNext) this.$('input[name=move3]').select();
 				break;
 			case 'move3':
@@ -3245,7 +3211,6 @@
 				this.unChooseMove(this.curSet.moves[2]);
 				this.curSet.moves[2] = val;
 				this.chooseMove(val);
-				this.updateMovePP();
 				if (selectNext) this.$('input[name=move4]').select();
 				break;
 			case 'move4':
@@ -3255,7 +3220,6 @@
 				this.unChooseMove(this.curSet.moves[3]);
 				this.curSet.moves[3] = val;
 				this.chooseMove(val);
-				this.updateMovePP();
 				if (selectNext) {
 					this.stats();
 					this.$('button.setstats').focus();
@@ -3263,25 +3227,6 @@
 				break;
 			}
 			this.save();
-		},
-		updateMovePP: function () {
-			if (!this.curSet) return;
-			for (var i = 0; i <= 3; i++) {
-				var buf = '';
-				var move = Dex.moves.get(this.curSet.moves[i]);
-				if (!move.exists) {
-					buf += '<option value="3"></option>';
-				} else if (!move.isZ && !move.noPPBoosts) {
-					for (var j = 0; j <= 3; j++) {
-						var movePPUps = isNaN(this.curSet.movePPUps[i]) ? 3 : this.curSet.movePPUps[i];
-						var movePP = (move.pp / 5) * (5 + j);
-						buf += '<option value="' + j + '" ' + (movePPUps === j ? 'selected' : '') + '>' + movePP + '</option>';
-					}
-				} else {
-					buf += '<option value="3">' + move.pp + '</option>';
-				}
-				this.$('select[name=move' + (i + 1) + 'pp]').html(buf);
-			}
 		},
 		unChooseMove: function (moveName) {
 			var set = this.curSet;

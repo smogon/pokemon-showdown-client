@@ -2343,7 +2343,7 @@ a.ilink.yours {
 	background: #CBD6E1;
 	border-radius: 5px;
 	padding: 1px 0 0 0;
-	width: 100px;
+	width: 110px;
 
 	box-shadow: inset 1px 1px 0 rgba(255,255,255,.6);
 }
@@ -2360,14 +2360,14 @@ a.ilink.yours {
 }
 .setcol {
 	height: 127px;
-	width: 102px;
+	width: 112px;
 	float: left;
 }
 .setcol-icon {
 	background: transparent none no-repeat scroll center top;
 }
 .setcol-details {
-	width: 209px;
+	width: 234px;
 }
 .setcell {
 	float: left;
@@ -2425,7 +2425,7 @@ a.ilink.yours {
 	margin-bottom: -1px;
 }
 .setcol-moves {
-	width: 172px;
+	width: 137px;
 }
 .setcol-stats {
 	width: 142px;
@@ -2466,7 +2466,7 @@ a.ilink.yours {
 	outline: 0 none;
 }
 .setdetails {
-	width: 205px;
+	width: 230px;
 	height: 34px;
 }
 .setdetails:focus,.setdetails:active {
@@ -2556,13 +2556,12 @@ a.ilink.yours {
 	display: block;
 }
 .setchart input,
-.setchart select,
 .setchart-nickname input,
 .statform input.inputform {
 	display: block;
 	padding: 1px;
 	margin: 2px 3px 1px 1px;
-	width: 94px;
+	width: 104px;
 	height: 20px;
 }
 .setchart input.incomplete {
@@ -2573,20 +2572,14 @@ a.ilink.yours {
 	width: 216px;
 }
 .setchart .setcell-item input {
-	width: 99px;
+	width: 114px;
 	margin-right: 0px;
 }
 .setchart .setcell-ability input {
 	margin-left: 0px;
 }
 .setchart .setcol-moves input {
-	width: 109px;
-	display: inline-block;
-}
-.setchart .setcol-moves select {
-	width: 50px;
-	height: 23.6px;
-	display: inline-block;
+	width: 129px;
 }
 
 .teambuilder-clipboard-container {
