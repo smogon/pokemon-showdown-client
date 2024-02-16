@@ -2965,6 +2965,7 @@
 			if (this.curChartType === 'move' && e.currentTarget.className === 'cur') {
 				// clicked a move, remove it if we already have it
 				var moves = [];
+				var movePPUps = [];
 				for (var i = 0; i < this.curSet.moves.length; i++) {
 					var curVal = this.curSet.moves[i];
 					if (curVal === val) {
@@ -2972,6 +2973,7 @@
 						delete this.search.cur[toID(val)];
 					} else if (curVal) {
 						moves.push(curVal);
+						movePPUps.push(this.curSet.movePPUps[i]);
 					}
 				}
 				if (moves.length < this.curSet.moves.length) {
@@ -2981,6 +2983,7 @@
 					this.$('input[name=move4]').val(moves[3] || '');
 					this.$('input[name=move' + Math.min(moves.length + 1, 4) + ']').focus();
 					this.curSet.moves = moves;
+					this.curSet.movePPUps = movePPUps;
 					this.search.find('');
 					this.updateMovePP();
 					return;
@@ -3270,8 +3273,9 @@
 					buf += '<option value="3"></option>';
 				} else if (!move.isZ && !move.noPPBoosts) {
 					for (var j = 0; j <= 3; j++) {
+						var movePPUps = isNaN(this.curSet.movePPUps[i]) ? 3 : this.curSet.movePPUps[i];
 						var movePP = (move.pp / 5) * (5 + j);
-						buf += '<option value="' + j + '" ' + (this.curSet.movePPUps[i] === j ? 'selected' : '') + '>' + movePP + '</option>';
+						buf += '<option value="' + j + '" ' + (movePPUps === j ? 'selected' : '') + '>' + movePP + '</option>';
 					}
 				} else {
 					buf += '<option value="3">' + move.pp + '</option>';
