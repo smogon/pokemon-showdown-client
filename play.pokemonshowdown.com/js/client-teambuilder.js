@@ -1344,12 +1344,20 @@
 			if (!set.movePPUps) set.movePPUps = [3, 3, 3, 3];
 			buf += '<div class="setcol setcol-moves"><div class="setcell"><label>Moves</label>';
 			for (var i = 0; i <= 3; i++) {
+				var move = Dex.moves.get(set.moves[i]);
 				if (i > 0) buf += '<div class="setcell">';
 				buf += '<input type="text" name="move' + (i + 1) + '" class="textbox chartinput" value="' + BattleLog.escapeHTML(set.moves[i]) + '" autocomplete="off" />';
 				buf += '<select name="move' + (i + 1) + 'pp" class="textbox movepp">'
-				for (var j = 0; j <= 3; j++) {
-					var movePPUps = isNaN(set.movePPUps[i]) ? 3 : set.movePPUps[i];
-					buf += '<option value="' + j + '" ' + (movePPUps === j ? 'selected' : '') + '>' + j + '</option>'
+				if (!move.exists) {
+					buf += '<option value="3"></option>';
+				} else if (!move.isZ && !move.noPPBoosts) {
+					for (var j = 0; j <= 3; j++) {
+						var movePPUps = isNaN(set.movePPUps[i]) ? 3 : set.movePPUps[i];
+						var movePP = (move.pp / 5) * (5 + j);
+						buf += '<option value="' + j + '" ' + (movePPUps === j ? 'selected' : '') + '>' + movePP + '</option>';
+					}
+				} else {
+					buf += '<option value="3">' + move.pp + '</option>';
 				}
 				buf += '</select></div>'
 			}
@@ -2974,6 +2982,7 @@
 					this.$('input[name=move' + Math.min(moves.length + 1, 4) + ']').focus();
 					this.curSet.moves = moves;
 					this.search.find('');
+					this.updateMovePP();
 					return;
 				}
 			}
@@ -3216,6 +3225,7 @@
 				this.unChooseMove(this.curSet.moves[0]);
 				this.curSet.moves[0] = val;
 				this.chooseMove(val);
+				this.updateMovePP();
 				if (selectNext) this.$('input[name=move2]').select();
 				break;
 			case 'move2':
@@ -3223,6 +3233,7 @@
 				this.unChooseMove(this.curSet.moves[1]);
 				this.curSet.moves[1] = val;
 				this.chooseMove(val);
+				this.updateMovePP();
 				if (selectNext) this.$('input[name=move3]').select();
 				break;
 			case 'move3':
@@ -3231,6 +3242,7 @@
 				this.unChooseMove(this.curSet.moves[2]);
 				this.curSet.moves[2] = val;
 				this.chooseMove(val);
+				this.updateMovePP();
 				if (selectNext) this.$('input[name=move4]').select();
 				break;
 			case 'move4':
@@ -3240,6 +3252,7 @@
 				this.unChooseMove(this.curSet.moves[3]);
 				this.curSet.moves[3] = val;
 				this.chooseMove(val);
+				this.updateMovePP();
 				if (selectNext) {
 					this.stats();
 					this.$('button.setstats').focus();
@@ -3247,6 +3260,24 @@
 				break;
 			}
 			this.save();
+		},
+		updateMovePP: function () {
+			if (!this.curSet) return;
+			for (var i = 0; i <= 3; i++) {
+				var buf = '';
+				var move = Dex.moves.get(this.curSet.moves[i]);
+				if (!move.exists) {
+					buf += '<option value="3"></option>';
+				} else if (!move.isZ && !move.noPPBoosts) {
+					for (var j = 0; j <= 3; j++) {
+						var movePP = (move.pp / 5) * (5 + j);
+						buf += '<option value="' + j + '" ' + (this.curSet.movePPUps[i] === j ? 'selected' : '') + '>' + movePP + '</option>';
+					}
+				} else {
+					buf += '<option value="3">' + move.pp + '</option>';
+				}
+				this.$('select[name=move' + (i + 1) + 'pp]').html(buf);
+			}
 		},
 		unChooseMove: function (moveName) {
 			var set = this.curSet;
