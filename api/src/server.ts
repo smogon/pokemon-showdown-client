@@ -215,16 +215,19 @@ export class ActionContext {
 	_ip = '';
 	getIp() {
 		if (this._ip) return this._ip;
-		const ip = this.request.socket.remoteAddress || "";
-		let forwarded = this.request.headers['x-forwarded-for'] || '';
-		if (!Array.isArray(forwarded)) forwarded = forwarded.split(',');
-		const notProxy = forwarded.filter(f => !this.isTrustedProxy(f));
-		if (notProxy.length !== forwarded.length) {
-			this._ip = notProxy.pop() || ip;
-			return this._ip;
+		let ip = this.request.socket.remoteAddress || "";
+		if (this.isTrustedProxy(ip)) {
+			const ips = ((this.request.headers['x-forwarded-for'] || '') + "").split(',').reverse();
+			for (let proxy of ips) {
+				proxy = proxy.trim();
+				if (!this.isTrustedProxy(proxy)) {
+					ip = proxy;
+					break;
+				}
+			}
 		}
-		this._ip = ip || '';
-		return this._ip;
+		this._ip = ip;
+		return ip;
 	}
 	setHeader(name: string, value: string | string[]) {
 		this.response.setHeader(name, value);
