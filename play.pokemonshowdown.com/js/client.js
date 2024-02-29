@@ -216,7 +216,7 @@ function toId() {
 		 * domain in order to have access to the correct cookies.
 		 */
 		getActionPHP: function () {
-			var ret = '/action.php?serverid=' + Config.server.id;
+			var ret = '/~~' + Config.server.id + '/action.php';
 			if (Config.testclient) {
 				ret = 'https://' + Config.routes.client + ret;
 			}
