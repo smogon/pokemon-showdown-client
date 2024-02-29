@@ -181,12 +181,14 @@
 
 		tryLoadFormatResource: function (format) {
 			var teambuilder = this;
-			if (teambuilder.formatResources[format]) { // already loading, bypass
+			if (format in teambuilder.formatResources) { // already loading, bypass
 				return;
 			}
+			console.log(`called for ${format}`);
 			teambuilder.formatResources[format] = true; // true - loading, array - loaded
 			$.get('https://www.smogon.com/dex/api/formats/by-ps-name/' + format, {}, function (data) {
-				teambuilder.formatResources[format] = data;
+				// if the data doesn't exist, set it to true so it stops trying to load it
+				teambuilder.formatResources[format] = data || true;
 				teambuilder.update();
 			});
 		},
