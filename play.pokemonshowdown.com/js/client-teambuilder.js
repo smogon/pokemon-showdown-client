@@ -1249,10 +1249,11 @@
 							var resource = formatInfo.resources[i];
 							// these are not <li> because that adds too much padding around each entry, making the whole thing
 							// take up too much space
-							buf += '<small style="padding: 1">- <a href="' + resource.url + '">' + resource.resource_name + '</a></small><br />';
+							buf += '<small style="padding: 1">- <a href="' + resource.url + '" target="_blank">' + resource.resource_name + '</a></small><br />';
 						}
 					}
-					buf += '<small>Find more helpful resources for this tier on <a href="' + formatInfo.url + '">the Smogon Dex</a>.';
+					var desc = formatInfo.resources.length ? 'more ' : '';
+					buf += '<small>Find ' + desc + 'helpful resources for this tier on <a href="' + formatInfo.url + '" target="_blank">the Smogon Dex</a>.';
 					buf += '<br />';
 				}
 				buf += '</ol>';
