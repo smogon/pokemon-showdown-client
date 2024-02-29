@@ -184,7 +184,6 @@
 			if (format in teambuilder.formatResources) { // already loading, bypass
 				return;
 			}
-			console.log(`called for ${format}`);
 			teambuilder.formatResources[format] = true; // true - loading, array - loaded
 			$.get('https://www.smogon.com/dex/api/formats/by-ps-name/' + format, {}, function (data) {
 				// if the data doesn't exist, set it to true so it stops trying to load it
@@ -1241,24 +1240,21 @@
 				if (i < this.curTeam.capacity) {
 					buf += '<li><button name="addPokemon" class="button big"><i class="fa fa-plus"></i> Add Pok&eacute;mon</button></li>';
 				}
-				buf += '<br />';
+				buf += '</ol>';
 				var formatInfo = this.formatResources[this.curTeam.format];
 				// data's there and loaded
 				if (formatInfo && formatInfo !== true) {
 					if (formatInfo.resources.length || formatInfo.url) {
-						buf += '<strong>Teambuilding resources for this tier:</strong><br />';
+						buf += '<div style="padding-left: 5px"><h3 style="font-size: 12px">Teambuilding resources for this tier:</h3></div><ul>';
 						for (var i = 0; i < formatInfo.resources.length; i++) {
 							var resource = formatInfo.resources[i];
-							// these are not <li> because that adds too much padding around each entry, making the whole thing
-							// take up too much space
-							buf += '<small style="padding: 1">- <a href="' + resource.url + '" target="_blank">' + resource.resource_name + '</a></small><br />';
+							buf += '<li><p><a href="' + resource.url + '" target="_blank">' + resource.resource_name + '</a></p></li>';
 						}
 					}
+					buf += '</ul>';
 					var desc = formatInfo.resources.length ? 'more ' : '';
-					buf += '<small>Find ' + desc + 'helpful resources for this tier on <a href="' + formatInfo.url + '" target="_blank">the Smogon Dex</a>.';
-					buf += '<br />';
+					buf += '<div style="padding-left: 5px">Find ' + desc + 'helpful resources for this tier on <a href="' + formatInfo.url + '" target="_blank">the Smogon Dex</a>.</div>';
 				}
-				buf += '</ol>';
 				buf += '<form id="pokepasteForm" style="display:inline" method="post" action="https://pokepast.es/create" target="_blank">';
 				buf += '<input type="hidden" name="title" id="pasteTitle">';
 				buf += '<input type="hidden" name="paste" id="pasteData">';
