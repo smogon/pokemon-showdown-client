@@ -3111,21 +3111,6 @@ export class Battle {
 			this.log(args, kwArgs);
 			break;
 		}
-		case '-custom': {
-			// Style is always |-custom|-subprotocol|pokemon|additional info
-			if (args[1] === '-endterastallize') {
-				let poke = this.getPokemon(args[2])!;
-				poke.removeVolatile('terastallize' as ID);
-				poke.teraType = '';
-				poke.terastallized = '';
-				poke.details = poke.details.replace(/, tera:[a-z]+/i, '');
-				poke.searchid = poke.searchid.replace(/, tera:[a-z]+/i, '');
-				this.scene.animTransform(poke);
-				this.scene.resetStatbar(poke);
-				this.log(args, kwArgs);
-			}
-			break;
-		}
 		default: {
 			throw new Error(`Unrecognized minor action: ${args[0]}`);
 			break;
