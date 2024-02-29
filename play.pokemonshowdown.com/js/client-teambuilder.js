@@ -181,7 +181,7 @@
 
 		tryLoadFormatResource: function (format) {
 			var teambuilder = this;
-			if (teambuilder.formatResources[format] === true) { // already loading, bypass
+			if (teambuilder.formatResources[format]) { // already loading, bypass
 				return;
 			}
 			teambuilder.formatResources[format] = true; // true - loading, array - loaded
