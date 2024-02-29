@@ -139,9 +139,13 @@
 		curSearchVal: '',
 
 		exportMode: false,
+		formatResources: {},
 		update: function () {
 			teams = Storage.teams;
 			if (this.curTeam) {
+				if (this.curTeam.format && !this.formatResources[this.curTeam.format]) {
+					this.tryLoadFormatResource(this.curTeam.format);
+				}
 				if (this.curTeam.loaded === false || (this.curTeam.teamid && !this.curTeam.loaded)) {
 					this.loadTeam();
 					return this.updateTeamView();
@@ -172,6 +176,18 @@
 				Storage.activeSetList = teambuilder.curSetList;
 				teambuilder.curTeam.team = Storage.packTeam(teambuilder.curSetList);
 				teambuilder.updateTeamView();
+			});
+		},
+
+		tryLoadFormatResource: function (format) {
+			var teambuilder = this;
+			if (teambuilder.formatResources[format] === true) { // already loading, bypass
+				return;
+			}
+			teambuilder.formatResources[format] = true; // true - loading, array - loaded
+			$.get('https://www.smogon.com/dex/api/formats/by-ps-name/' + format, {}, function (data) {
+				teambuilder.formatResources[format] = data;
+				teambuilder.update();
 			});
 		},
 
@@ -1222,6 +1238,22 @@
 				}
 				if (i < this.curTeam.capacity) {
 					buf += '<li><button name="addPokemon" class="button big"><i class="fa fa-plus"></i> Add Pok&eacute;mon</button></li>';
+				}
+				buf += '<br />';
+				var formatInfo = this.formatResources[this.curTeam.format];
+				// data's there and loaded
+				if (formatInfo && formatInfo !== true) {
+					if (formatInfo.resources.length || formatInfo.url) {
+						buf += '<strong>Teambuilding resources for this tier:</strong><br />';
+						for (var i = 0; i < formatInfo.resources.length; i++) {
+							var resource = formatInfo.resources[i];
+							// these are not <li> because that adds too much padding around each entry, making the whole thing
+							// take up too much space
+							buf += '<small style="padding: 1">- <a href="' + resource.url + '">' + resource.resource_name + '</a></small><br />';
+						}
+					}
+					buf += '<small>Find more helpful resources for this tier on <a href="' + formatInfo.url + '">the Smogon Dex</a>.';
+					buf += '<br />';
 				}
 				buf += '</ol>';
 				buf += '<form id="pokepasteForm" style="display:inline" method="post" action="https://pokepast.es/create" target="_blank">';
