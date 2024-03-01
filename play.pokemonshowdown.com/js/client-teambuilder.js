@@ -1781,8 +1781,6 @@
 				return;
 			}
 
-			this.getUserSets(format);
-
 			// We fetch this as 'text' and JSON.parse it ourserves in order to have consistent behavior
 			// between the localdev CORS helper and the real jQuery.get function, which would already parse
 			// this into an object based on the content-type header.
@@ -1794,6 +1792,7 @@
 					// in the future.
 					self.smogonSets[format] = false;
 				}
+				self.getUserSets(format);
 				self.importSetButtons();
 			}, 'text');
 		},
@@ -1803,7 +1802,8 @@
 				if(team.format === format && team.capacity === 24) {
 					const setList = Storage.unpackTeam(team.team);
 					for(const pokemon of setList) {
-						this.smogonSets[format]["user"][pokemon.species] = {[pokemon.name] : pokemon};
+						console.log(pokemon);
+						this.smogonSets[format]['user'][pokemon.species] = $.extend(this.smogonSets[format]['user'][pokemon.species], {[pokemon.name] : pokemon});
 					}
 				}
 			}
@@ -1839,7 +1839,7 @@
 
 			var setName = this.$(button).text();
 			var smogonSet = formatSets['dex'][species][setName] || formatSets['stats'][species][setName] || formatSets['user'][species][setName];
-			var curSet = $.extend({}, this.curSet, smogonSet);
+			var curSet = $.extend({}, smogonSet);
 
 			var text = Storage.exportTeam([curSet], this.curTeam.gen);
 			this.$('.teambuilder-pokemon-import .pokemonedit').val(text);
