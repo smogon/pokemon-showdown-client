@@ -999,6 +999,11 @@ class BattleTooltips {
 				if (statName === 'def') sourceStatName = 'atk';
 			}
 			stats[statName] = serverPokemon.stats[sourceStatName];
+			// SSB
+			if (this.battle.tier.includes("Super Staff Bros") && clientPokemon?.volatiles['ok']) {
+				if (statName === 'spa') stats[statName] += Math.floor(stats.atk / 10);
+				if (statName === 'spe') stats[statName] += Math.floor(stats.atk * 9 / 10);
+			}
 			if (!clientPokemon) continue;
 
 			const clientStatName = clientPokemon.boosts.spc && (statName === 'spa' || statName === 'spd') ? 'spc' : statName;
