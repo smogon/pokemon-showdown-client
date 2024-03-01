@@ -1767,6 +1767,7 @@
 		},
 		getSmogonSets: function () {
 			this.$('.teambuilder-pokemon-import .teambuilder-import-smogon-sets').empty();
+			this.$('.teambuilder-pokemon-import .teambuilder-import-user-sets').empty();
 
 			var format = this.curTeam.format;
 			// If we don't have a specific format, don't try and guess which sets to use.
@@ -1775,15 +1776,19 @@
 			var self = this;
 			this.smogonSets = this.smogonSets || {};
 			if (this.smogonSets[format] !== undefined) {
+				this.getUserSets(format);
 				this.importSetButtons();
 				return;
 			}
+
+			this.getUserSets(format);
+
 			// We fetch this as 'text' and JSON.parse it ourserves in order to have consistent behavior
 			// between the localdev CORS helper and the real jQuery.get function, which would already parse
 			// this into an object based on the content-type header.
 			$.get('https://' + Config.routes.client + '/data/sets/' + format + '.json', {}, function (data) {
 				try {
-					self.smogonSets[format] = JSON.parse(data);
+					self.smogonSets[format] = $.extend(self.smogonSets[format], JSON.parse(data));
 				} catch (e) {
 					// An error occured. Mark this as false, so that we don't try to reimport sets for this format
 					// in the future.
@@ -1792,6 +1797,17 @@
 				self.importSetButtons();
 			}, 'text');
 		},
+		getUserSets: function (format) {
+			this.smogonSets[format] = $.extend(this.smogonSets[format], {"user": {}});
+			for(const team of teams) {
+				if(team.format === format && team.capacity === 24) {
+					const setList = Storage.unpackTeam(team.team);
+					for(const pokemon of setList) {
+						this.smogonSets[format]["user"][pokemon.species] = {[pokemon.name] : pokemon};
+					}
+				}
+			}
+		},
 		importSetButtons: function () {
 			var formatSets = this.smogonSets[this.curTeam.format];
 			var species = this.curSet.species;
@@ -1799,22 +1815,30 @@
 			var $setDiv = this.$('.teambuilder-pokemon-import .teambuilder-import-smogon-sets');
 			$setDiv.empty();
 
+			var $userSetDiv = this.$('.teambuilder-pokemon-import .teambuilder-import-user-sets');
+			$userSetDiv.empty();
+
 			if (!formatSets) return;
 
 			var sets = $.extend({}, formatSets['dex'][species], (formatSets['stats'] || {})[species]);
-
 			$setDiv.text('Sample sets: ');
 			for (var set in sets) {
 				$setDiv.append('<button name="importSmogonSet" class="button">' + BattleLog.escapeHTML(set) + '</button>');
 			}
 			$setDiv.append(' <small>(<a target="_blank" href="' + this.smogdexLink(species) + '">Smogon&nbsp;analysis</a>)</small>');
+
+			var userSets = $.extend({}, (formatSets['user'] || {})[species]);
+			$userSetDiv.text('User sets: ');
+			for (var set in userSets) {
+				$userSetDiv.append('<button name="importSmogonSet" class="button">' + BattleLog.escapeHTML(set) + '</button>');
+			}
 		},
 		importSmogonSet: function (i, button) {
 			var formatSets = this.smogonSets[this.curTeam.format];
 			var species = this.curSet.species;
 
 			var setName = this.$(button).text();
-			var smogonSet = formatSets['dex'][species][setName] || formatSets['stats'][species][setName];
+			var smogonSet = formatSets['dex'][species][setName] || formatSets['stats'][species][setName] || formatSets['user'][species][setName];
 			var curSet = $.extend({}, this.curSet, smogonSet);
 
 			var text = Storage.exportTeam([curSet], this.curTeam.gen);
@@ -1906,6 +1930,7 @@
 			buf += '<div class="pokemonedit-buttons"><button name="closePokemonImport" class="button"><i class="fa fa-chevron-left"></i> Back</button> <button name="savePokemonImport" class="button"><i class="fa fa-floppy-o"></i> Save</button></div>';
 			buf += '<textarea class="pokemonedit textbox" rows="14"></textarea>';
 			buf += '<div class="teambuilder-import-smogon-sets"></div>';
+			buf += '<div class="teambuilder-import-user-sets"></div>';
 			buf += '</div>';
 
 			this.$el.html('<div class="teamwrapper">' + buf + '</div>');
