@@ -1786,7 +1786,7 @@
 			// this into an object based on the content-type header.
 			$.get('https://' + Config.routes.client + '/data/sets/' + format + '.json', {}, function (data) {
 				try {
-					self.smogonSets[format] = $.extend(self.smogonSets[format], JSON.parse(data));
+					self.smogonSets[format] = JSON.parse(data);
 				} catch (e) {
 					// An error occured. Mark this as false, so that we don't try to reimport sets for this format
 					// in the future.
@@ -1798,12 +1798,16 @@
 		},
 		getUserSets: function (format) {
 			this.smogonSets[format] = $.extend(this.smogonSets[format], {"user": {}});
+
+			var duplicateNameIndices = {};
 			for(const team of teams) {
 				if(team.format === format && team.capacity === 24) {
 					const setList = Storage.unpackTeam(team.team);
 					for(const pokemon of setList) {
-						console.log(pokemon);
-						this.smogonSets[format]['user'][pokemon.species] = $.extend(this.smogonSets[format]['user'][pokemon.species], {[pokemon.name] : pokemon});
+						var name = pokemon.name + " " + (duplicateNameIndices[pokemon.name] || "");
+						var sets = this.smogonSets[format]['user'][pokemon.species];
+						this.smogonSets[format]['user'][pokemon.species] = $.extend({}, sets, {[name] : pokemon});
+						duplicateNameIndices[pokemon.name] = 1 + (duplicateNameIndices[pokemon.name] || 0);
 					}
 				}
 			}
