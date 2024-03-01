@@ -1824,17 +1824,21 @@
 
 			if (!formatSets) return;
 
-			var sets = $.extend({}, formatSets['dex'][species], (formatSets['stats'] || {})[species]);
-			$setDiv.text('Sample sets: ');
-			for (var set in sets) {
-				$setDiv.append('<button name="importSmogonSet" class="button">' + BattleLog.escapeHTML(set) + '</button>');
+			var sets = $.extend({}, formatSets['dex']?.[species], formatSets['stats']?.[species]);
+			if(Object.keys(sets).length !== 0) {
+				$setDiv.text('Sample sets: ');
+				for (var set in sets) {
+					$setDiv.append('<button name="importSmogonSet" class="button">' + BattleLog.escapeHTML(set) + '</button>');
+				}
+				$setDiv.append(' <small>(<a target="_blank" href="' + this.smogdexLink(species) + '">Smogon&nbsp;analysis</a>)</small>');
 			}
-			$setDiv.append(' <small>(<a target="_blank" href="' + this.smogdexLink(species) + '">Smogon&nbsp;analysis</a>)</small>');
 
-			var userSets = $.extend({}, (formatSets['user'] || {})[species]);
-			$userSetDiv.text('User sets: ');
-			for (var set in userSets) {
-				$userSetDiv.append('<button name="importSmogonSet" class="button">' + BattleLog.escapeHTML(set) + '</button>');
+			var userSets = formatSets['user']?.[species];
+			if(userSets) {
+				$userSetDiv.text('User sets: ');
+				for (var set in userSets) {
+					$userSetDiv.append('<button name="importSmogonSet" class="button">' + BattleLog.escapeHTML(set) + '</button>');
+				}
 			}
 		},
 		importSmogonSet: function (i, button) {
@@ -1842,8 +1846,16 @@
 			var species = this.curSet.species;
 
 			var setName = this.$(button).text();
-			var smogonSet = formatSets['dex'][species][setName] || formatSets['stats'][species][setName] || formatSets['user'][species][setName];
-			var curSet = $.extend({}, smogonSet);
+			var smogonSet = formatSets['dex']?.[species]?.[setName] 
+							|| formatSets['stats']?.[species]?.[setName] 
+							|| formatSets['user']?.[species]?.[setName];
+			
+			var curSet = $.extend({}, this.curSet, smogonSet);
+
+			// never preserve current set tera, even if smogon set used default
+			if(this.curSet.gen === 9) {
+				curSet.teraType = species.forceTeraType || smogonSet?.teraType || species.types[0]
+			}
 
 			var text = Storage.exportTeam([curSet], this.curTeam.gen);
 			this.$('.teambuilder-pokemon-import .pokemonedit').val(text);
