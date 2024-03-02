@@ -1797,7 +1797,7 @@
 			}, 'text');
 		},
 		getUserSets: function (format) {
-			this.smogonSets[format] = $.extend(this.smogonSets[format], {"user": {}});
+			this.smogonSets[format] = $.extend(this.smogonSets[format], {'user': {}});
 
 			var duplicateNameIndices = {};
 			for(const team of teams) {
