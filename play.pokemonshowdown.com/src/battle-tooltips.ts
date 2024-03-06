@@ -1281,7 +1281,7 @@ class BattleTooltips {
 			if (ability === 'magicalmysterycharge' && this.battle.hasPseudoWeather('Electric Terrain')) {
 				stats.spd = Math.floor(stats.spd * 1.5);
 			}
-			if (ability === 'youkaiofthedusk') {
+			if (ability === 'youkaiofthedusk' || ability === 'galeguard') {
 				stats.def *= 2;
 			}
 			if (ability === 'climatechange') {
@@ -1651,7 +1651,8 @@ class BattleTooltips {
 		// SSB
 		if (this.battle.tier.includes("Super Staff Bros")) {
 			if (allowTypeOverride && category !== "Status" && !move.isZ && !move.id.startsWith('hiddenpower')) {
-				if (moveType === 'Normal' && value.abilityModify(0, 'Acetosa')) moveType = 'Grass';
+				if (value.abilityModify(0, 'Acetosa')) moveType = 'Grass';
+				if (value.abilityModify(0, 'I Can Hear The Heart Beating As One') && moveType === 'Normal') moveType = 'Fairy';
 			}
 			if (move.id === 'tsignore' || move.id === 'o') {
 				const stats = this.calculateModifiedStats(pokemon, serverPokemon, true);
@@ -2263,6 +2264,7 @@ class BattleTooltips {
 			}
 			if (move.category !== 'Status' && allowTypeOverride && !move.isZ &&
 				!move.isMax && !move.id.startsWith('hiddenpower')) {
+				if (moveType === 'Normal') value.abilityModify(this.battle.gen > 6 ? 1.2 : 1.3, "I Can Hear The Heart Beating As One");
 				value.abilityModify(this.battle.gen > 6 ? 1.2 : 1.3, "Acetosa");
 			}
 			if (move.flags['sound']) {
@@ -2270,6 +2272,9 @@ class BattleTooltips {
 			}
 			if (move.flags['punch']) {
 				value.abilityModify(1.3, "Harambe Hit");
+			}
+			if (move.flags['slicing']) {
+				value.abilityModify(1.5, "I Can Hear The Heart Beating As One");
 			}
 			if (move.priority > 0) {
 				value.abilityModify(2, "Full Bloom");
