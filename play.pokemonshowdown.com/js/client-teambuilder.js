@@ -104,6 +104,10 @@
 				this.curSet = null;
 				Storage.saveTeam(this.curTeam);
 			} else if (this.curTeam) {
+				var format = this.curTeam.format;
+				if(this.smogonSets?.[format]) {
+					this.smogonSets[format]['user'] = undefined;
+				}
 				this.curTeam.team = Storage.packTeam(this.curSetList);
 				this.curTeam.iconCache = '';
 				var team = this.curTeam;
@@ -1776,7 +1780,6 @@
 			var self = this;
 			this.smogonSets = this.smogonSets || {};
 			if (this.smogonSets[format] !== undefined) {
-				this.getUserSets(format);
 				this.importSetButtons();
 				return;
 			}
@@ -1792,13 +1795,12 @@
 					// in the future.
 					self.smogonSets[format] = false;
 				}
-				self.getUserSets(format);
 				self.importSetButtons();
 			}, 'text');
 		},
 		getUserSets: function (format) {
-			this.smogonSets[format] = $.extend(this.smogonSets[format], {'user': {}});
-
+			console.log("lazily fetching user sets");
+			$.extend(this.smogonSets[format], {'user': {}});
 			var duplicateNameIndices = {};
 			for(const team of teams) {
 				if(team.format === format && team.capacity === 24) {
@@ -1813,7 +1815,8 @@
 			}
 		},
 		importSetButtons: function () {
-			var formatSets = this.smogonSets[this.curTeam.format];
+			const format = this.curTeam.format;
+			var formatSets = this.smogonSets[format];
 			var species = this.curSet.species;
 
 			var $setDiv = this.$('.teambuilder-pokemon-import .teambuilder-import-smogon-sets');
@@ -1831,6 +1834,10 @@
 					$setDiv.append('<button name="importSmogonSet" class="button">' + BattleLog.escapeHTML(set) + '</button>');
 				}
 				$setDiv.append(' <small>(<a target="_blank" href="' + this.smogdexLink(species) + '">Smogon&nbsp;analysis</a>)</small>');
+			}
+
+			if(!this.smogonSets[format]?.['user']) {
+				this.getUserSets(format);
 			}
 
 			var userSets = formatSets['user']?.[species];
