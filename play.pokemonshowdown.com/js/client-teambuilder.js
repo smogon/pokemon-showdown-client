@@ -1798,7 +1798,8 @@
 		updateCachedUserSets: function (format) {
 			if(this.smogonSets[format]?.['user']) return;
 
-			$.extend(this.smogonSets[format], {'user': {}});
+			this.smogonSets[format] = $.extend(this.smogonSets[format] || {}, {'user': {}});
+
 			var duplicateNameIndices = {};
 			for(const team of teams) {
 				if(team.format === format && team.capacity === 24) {
