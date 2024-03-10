@@ -104,10 +104,7 @@
 				this.curSet = null;
 				Storage.saveTeam(this.curTeam);
 			} else if (this.curTeam) {
-				var format = this.curTeam.format;
-				if(this.smogonSets?.[format]) {
-					this.smogonSets[format]['user'] = undefined;
-				}
+				this.clearCachedUserSetsIfNecessary(this.curTeam.format);
 				this.curTeam.team = Storage.packTeam(this.curSetList);
 				this.curTeam.iconCache = '';
 				var team = this.curTeam;
@@ -1798,8 +1795,9 @@
 				self.importSetButtons();
 			}, 'text');
 		},
-		getUserSets: function (format) {
-			console.log("lazily fetching user sets");
+		updateCachedUserSets: function (format) {
+			if(this.smogonSets[format]?.['user']) return;
+
 			$.extend(this.smogonSets[format], {'user': {}});
 			var duplicateNameIndices = {};
 			for(const team of teams) {
@@ -1812,6 +1810,12 @@
 						duplicateNameIndices[pokemon.name] = 1 + (duplicateNameIndices[pokemon.name] || 0);
 					}
 				}
+			}
+		},
+		clearCachedUserSetsIfNecessary: function (format) {
+			// clear cached user sets if we have just been in a box for given format
+			if(this.curTeam?.capacity === 24 && this.smogonSets?.[format]) {
+				this.smogonSets[format]['user'] = undefined;
 			}
 		},
 		importSetButtons: function () {
@@ -1836,10 +1840,7 @@
 				$setDiv.append(' <small>(<a target="_blank" href="' + this.smogdexLink(species) + '">Smogon&nbsp;analysis</a>)</small>');
 			}
 
-			if(!this.smogonSets[format]?.['user']) {
-				this.getUserSets(format);
-			}
-
+			this.updateCachedUserSets(format);
 			var userSets = formatSets['user']?.[species];
 			if(userSets) {
 				$userSetDiv.text('User sets: ');
