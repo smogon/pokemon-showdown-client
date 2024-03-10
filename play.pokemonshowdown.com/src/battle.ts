@@ -1574,31 +1574,28 @@ export class Battle {
 			case 'snow':
 			case 'bloodmoon':
 			case 'foghorn':
-				if (item != 'utilityumbrella') {
-					return recentWeather;
-				}
+				if (item !== 'utilityumbrella') return recentWeather;
+				break;
 			case 'sandstorm':
 			case 'duststorm':
 			case 'pollinate':
 			case 'swarmsignal':
 			case 'smogspread':
 			case 'sprinkle':
-				if (item != 'safetygoggles') {
-					return recentWeather;
-				}
+				if (item !== 'safetygoggles') return recentWeather;
+				break;
 			case 'auraprojection':
 			case 'haunt':
 			case 'daydream':
 			case 'dragonforce':
 			case 'supercell':
 			case 'magnetize':
-				if (item != 'energynullifier') {
-					return recentWeather;
-				}
+				if (item !== 'energynullifier') return recentWeather;
+				break;
 			case 'strongwinds':
 				return recentWeather;
 			}
-		}	
+		}
 		return "bozo";
 	}
 	swapSideConditions() {
