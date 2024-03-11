@@ -22,6 +22,7 @@
     "@babel/preset-env": "^7.20.2",
     "@babel/preset-typescript": "^7.21.0",
     "babel-plugin-remove-import-export": "^1.1.1",
+    "esbuild": "^0.20.1",
     "google-auth-library": "^3.1.2",
     "image-size": "^0.7.5"
   },
