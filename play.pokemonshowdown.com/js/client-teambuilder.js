@@ -139,9 +139,13 @@
 		curSearchVal: '',
 
 		exportMode: false,
+		formatResources: {},
 		update: function () {
 			teams = Storage.teams;
 			if (this.curTeam) {
+				if (this.curTeam.format && !this.formatResources[this.curTeam.format]) {
+					this.tryLoadFormatResource(this.curTeam.format);
+				}
 				if (this.curTeam.loaded === false || (this.curTeam.teamid && !this.curTeam.loaded)) {
 					this.loadTeam();
 					return this.updateTeamView();
@@ -172,6 +176,19 @@
 				Storage.activeSetList = teambuilder.curSetList;
 				teambuilder.curTeam.team = Storage.packTeam(teambuilder.curSetList);
 				teambuilder.updateTeamView();
+			});
+		},
+
+		tryLoadFormatResource: function (format) {
+			var teambuilder = this;
+			if (format in teambuilder.formatResources) { // already loading, bypass
+				return;
+			}
+			teambuilder.formatResources[format] = true; // true - loading, array - loaded
+			$.get('https://www.smogon.com/dex/api/formats/by-ps-name/' + format, {}, function (data) {
+				// if the data doesn't exist, set it to true so it stops trying to load it
+				teambuilder.formatResources[format] = data || true;
+				teambuilder.update();
 			});
 		},
 
@@ -1224,6 +1241,20 @@
 					buf += '<li><button name="addPokemon" class="button big"><i class="fa fa-plus"></i> Add Pok&eacute;mon</button></li>';
 				}
 				buf += '</ol>';
+				var formatInfo = this.formatResources[this.curTeam.format];
+				// data's there and loaded
+				if (formatInfo && formatInfo !== true) {
+					if (formatInfo.resources.length || formatInfo.url) {
+						buf += '<div style="padding-left: 5px"><h3 style="font-size: 12px">Teambuilding resources for this tier:</h3></div><ul>';
+						for (var i = 0; i < formatInfo.resources.length; i++) {
+							var resource = formatInfo.resources[i];
+							buf += '<li><p><a href="' + resource.url + '" target="_blank">' + resource.resource_name + '</a></p></li>';
+						}
+					}
+					buf += '</ul>';
+					var desc = formatInfo.resources.length ? 'more ' : '';
+					buf += '<div style="padding-left: 5px">Find ' + desc + 'helpful resources for this tier on <a href="https://discord.gg/nrM6eBSTAy">the Discord</a>.</div>';
+				}
 				buf += '<form id="pokepasteForm" style="display:inline" method="post" action="https://pokepast.es/create" target="_blank">';
 				buf += '<input type="hidden" name="title" id="pasteTitle">';
 				buf += '<input type="hidden" name="paste" id="pasteData">';
