@@ -57,8 +57,8 @@ includeHeader();
 			<ul>
 				<li><p><strong>Andrew Werner</strong> [HoeenHero] <small>&ndash; Development</small></p></li>
 				<li><p><strong>Annika L.</strong> [Annika] <small>&ndash; Development</small></p></li>
-				<li><p><a href="http://monsan.to/" target="_blank" class="subtle"><strong>Chris Monsanto</strong> [chaos]</a> <small>&ndash; Sysadmin</small></p></li>
-				<li><p><strong>Kris Johnson</strong> [dhelmise] <small>&ndash; Development</small></p></li>
+				<li><p><a href="http://monsan.to/" target="_blank" class="subtle"><strong>Chris Monsanto</strong> [chaos]</a> <small>&ndash; Development, Sysadmin</small></p></li>
+				<li><p><strong>Kris Johnson</strong> [dhelmise] <small>&ndash; Development, Art (battle animations)</small></p></li>
 				<li><p><strong>Leonard Craft III</strong> [DaWoblefet] <small>&ndash; Research (game mechanics)</small></p></li>
 				<li><p><strong>Mathieu Dias-Martins</strong> [Marty] <small>&ndash; Research (game mechanics), Development</small></p></li>
 				<li><p><strong>Mia A.</strong> [Hecate] <small>&ndash; Development</small></p></li>
@@ -102,11 +102,11 @@ includeHeader();
 				<li><p><a href="http://sailorwanda.deviantart.com/" target="_blank" class="subtle"><strong>Catherine D.</strong> [SailorCosmos, Matryoshkat]</a> <small>&ndash; Art (battle animations)</small></p></li>
 				<li><p><strong>Cody Thompson</strong> [Rising_Dusk] <small>&ndash; Development</small></p></li>
 				<li><p>[<strong>Enigami</strong>] <small>&ndash; Development</small></p></li>
-				<li><p>[<strong>Hisuian Zoroark</strong>] <small>&ndash; Development (Staff Bros format)</small></p></li>
+				<li><p>[<strong>Hisuian Zoroark, HiZo</strong>] <small>&ndash; Development</small></p></li>
 				<li><p>[<strong>Honko</strong>] <small>&ndash; Development (damage calculator)</small></p></li>
 				<li><p><strong>Ian Clail</strong> [Layell] <small>&ndash; Art (battle graphics, sprites)</small></p></li>
 				<li><p><strong>Jacob McLemore</strong> <small>&ndash; Development</small></p></li>
-				<li><p><strong>Erik Bruce</strong> [Kalalokki] <small>&ndash; Art (minisprite resizing)</small></p></li>
+				<li><p><a href="https://www.behance.net/erik-bruce" target="_blank" class="subtle"><strong>Erik Bruce</strong> [Kalalokki]</a> <small>&ndash; Art (minisprite resizing), Research (game mechanics)</small></p></li>
 				<li><p><a href="https://panpawn.github.io/" target="_blank" class="subtle"><strong>Jeremy Piemonte</strong> [panpawn]</a> <small>&ndash; Development</small></p></li>
 				<li><p><strong>Karthik Bandagonda</strong> <small>&ndash; Development</small></p></li>
 				<li><p><a href="http://leparagon.deviantart.com/" target="_blank" class="subtle">[<strong>leparagon</strong>]</a> <small>&ndash; Art (sprites, minisprite resizing)</small></p></li>
