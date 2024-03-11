@@ -1253,7 +1253,7 @@
 					}
 					buf += '</ul>';
 					var desc = formatInfo.resources.length ? 'more ' : '';
-					buf += '<div style="padding-left: 5px">Find ' + desc + 'helpful resources for this tier on <a href="' + formatInfo.url + '" target="_blank">the Smogon Dex</a>.</div>';
+					buf += '<div style="padding-left: 5px">Find ' + desc + 'helpful resources for this tier on <a href="https://discord.gg/nrM6eBSTAy">the Discord</a>.</div>';
 				}
 				buf += '<form id="pokepasteForm" style="display:inline" method="post" action="https://pokepast.es/create" target="_blank">';
 				buf += '<input type="hidden" name="title" id="pasteTitle">';
