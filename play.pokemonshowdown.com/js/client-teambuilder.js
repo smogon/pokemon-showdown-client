@@ -3584,7 +3584,7 @@
 			var gen = Math.max(this.room.curTeam.gen, species.gen);
 			var dir = gen > 5 ? 'dex' : 'gen' + gen;
 			if (Dex.prefs('nopastgens')) gen = 'dex';
-			if (Dex.prefs('bwgfx') && dir === 'dex') gen = 'gen5';
+			if (!Dex.prefs('bwgfx') && dir === 'dex') gen = 'gen5';
 			spriteDir += dir;
 			if (dir === 'dex') {
 				spriteSize = 120;
