@@ -186,7 +186,7 @@ const Dex = new class implements ModdedDex {
 	})(); */
 
 	resourcePrefix = (() => {
-		return `https://raw.githubusercontent.com/ry42/pokemon-showdown-client/master/play.pokemonshowdown.com/`;
+		return `https://raw.githubusercontent.com/ry42/kaskade-showdown-client/master/play.pokemonshowdown.com/`;
 	})();
 
 	fxPrefix = (() => {
