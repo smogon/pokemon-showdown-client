@@ -1285,9 +1285,9 @@ Storage.importTeam = function (buffer, teams) {
 		} else if (line.substr(0, 14) === 'Hidden Power: ') {
 			line = line.substr(14);
 			curSet.hpType = line;
-		} else if (line.substr(0, 11) === 'Tera Type: ') {
+		/* } else if (line.substr(0, 11) === 'Tera Type: ') {
 			line = line.substr(11);
-			curSet.teraType = line;
+			curSet.teraType = line; */
 		} else if (line.substr(0, 15) === 'Dynamax Level: ') {
 			line = line.substr(15);
 			curSet.dynamaxLevel = +line;
@@ -1418,10 +1418,10 @@ Storage.exportTeam = function (team, gen, hidestats) {
 		if (curSet.gigantamax) {
 			text += 'Gigantamax: Yes  \n';
 		}
-		if (gen === 9) {
+		/* if (gen === 9) {
 			var species = Dex.species.get(curSet.species);
 			text += 'Tera Type: ' + (species.forceTeraType || curSet.teraType || species.types[0]) + "  \n";
-		}
+		} */
 		if (!hidestats) {
 			var first = true;
 			if (curSet.evs) {
