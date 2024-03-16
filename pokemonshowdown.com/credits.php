@@ -69,7 +69,6 @@ includeHeader();
 			<ul>
 				<li><p><a href="http://meltsner.com/" target="_blank" class="subtle"><strong>Bill Meltsner</strong> [bmelts]</a> <small>&ndash; Development, Sysadmin</small></p></li>
 				<li><p>[<strong>bumbadadabum</strong>] <small>&ndash; Development</small></p></li>
-				<li><p><a href="https://cathyjf.com/" target="_blank" class="subtle"><strong>Cathy J. Fitzpatrick</strong> [cathyjf]</a> <small>&ndash; Development, Sysadmin</small></p></li>
 				<li><p><strong>Hugh Gordon</strong> [V4, DanUgore] <small>&ndash; Research (game mechanics), Development</small></p></li>
 				<li><p><strong>Juanma Serrano</strong> [Joim] <small>&ndash; Development, Sysadmin</small></p></li>
 				<li><p><strong>Leonardo Julca</strong> [Slayer95] <small>&ndash; Development</small></p></li>
