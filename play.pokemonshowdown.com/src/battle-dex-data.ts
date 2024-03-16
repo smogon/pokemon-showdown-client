@@ -809,10 +809,10 @@ const BattlePokemonIconIndexes: {[id: string]: number} = {
 	stackemrockless: 1800 + 1,
 	mosskrattidebloom: 1800 + 2,
 	catteraxef: 1800 + 3,
-	// skinkaf: 1800 + 4,
-	blurruncharged: 1800 + 5,
-	droutdry: 1800 + 6,
-	tamroastf: 1800 + 7,
+	blurruncharged: 1800 + 4,
+	droutdry: 1800 + 5,
+	tamroastf: 1800 + 6,
+	weepollenf: 1800 + 7,
 	bearvoyancewhite: 1800 + 8,
 };
 

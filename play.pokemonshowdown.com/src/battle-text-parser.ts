@@ -509,8 +509,8 @@ class BattleTextParser {
 				case 'aegislash': id = 'stancechange'; templateName = 'transformEnd'; break;
 				case 'wishiwashischool': id = 'schooling'; break;
 				case 'wishiwashi': id = 'schooling'; templateName = 'transformEnd'; break;
-				/* case 'eecroachswarming': id = 'swarming'; break;
-				case 'eecroach': id = 'swarming'; templateName = 'transformEnd'; break; */
+				case 'eecroachswarming': id = 'swarming'; break;
+				case 'eecroach': id = 'swarming'; templateName = 'transformEnd'; break;
 				case 'miniormeteor': id = 'shieldsdown'; break;
 				case 'minior': id = 'shieldsdown'; templateName = 'transformEnd'; break;
 				case 'eiscuenoice': id = 'iceface'; break;

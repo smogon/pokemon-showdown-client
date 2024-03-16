@@ -2164,7 +2164,7 @@
 				case 'Sawsbuck':
 				case 'Shellos':
 				case 'Sinistea':
-				case 'Stackem': // might break something
+				case 'Stackem':
 				case 'Vivillon':
 					break;
 				default:

@@ -2713,10 +2713,10 @@ export class PokemonSprite extends Sprite {
 				BattleOtherAnims.schoolingin.anim(scene, [this]);
 			} else if (speciesid === 'wishiwashi') {
 				BattleOtherAnims.schoolingout.anim(scene, [this]);
-			/* } else if (speciesid === 'eecroachswarm') {
+			} else if (speciesid === 'eecroachswarm') {
 				BattleOtherAnims.swarmingin.anim(scene, [this]);
 			} else if (speciesid === 'eecroach') {
-				BattleOtherAnims.swarmingout.anim(scene, [this]); */
+				BattleOtherAnims.swarmingout.anim(scene, [this]);
 			} else if (speciesid === 'mimikyubusted' || speciesid === 'mimikyubustedtotem' || speciesid === 'stackemrockless') {
 				// standard animation
 			} else {
