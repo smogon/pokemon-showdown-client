@@ -506,7 +506,7 @@
 			if (navigator.userAgent.includes(' Chrome/64.')) {
 				buf += '<p><label class="checkbox"><input type="checkbox" name="nogif"' + (Dex.prefs('nogif') ? ' checked' : '') + ' /> Disable GIFs for Chrome 64 bug</label></p>';
 			}
-			buf += '<p><label class="checkbox"><input type="checkbox" name="bwgfx"' + (Dex.prefs('bwgfx') ? ' checked' : '') + ' /> Use 2D sprites instead of 3D models</label></p>';
+			// buf += '<p><label class="checkbox"><input type="checkbox" name="bwgfx"' + (Dex.prefs('bwgfx') ? ' checked' : '') + ' /> Use 3D models instead of 2D sprites</label></p>';
 			// buf += '<p><label class="checkbox"><input type="checkbox" name="nopastgens"' + (Dex.prefs('nopastgens') ? ' checked' : '') + ' /> Use modern sprites for past generations</label></p>';
 
 			buf += '<hr />';
@@ -582,7 +582,7 @@
 		setNoanim: function (e) {
 			var noanim = !!e.currentTarget.checked;
 			Storage.prefs('noanim', noanim);
-			Dex.loadSpriteData(noanim || Dex.prefs('bwgfx') ? 'bw' : 'xy');
+			Dex.loadSpriteData(noanim || !Dex.prefs('bwgfx') ? 'bw' : 'xy');
 		},
 		setNogif: function (e) {
 			var nogif = !!e.currentTarget.checked;

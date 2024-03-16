@@ -575,7 +575,7 @@ export class BattleScene implements BattleSceneStub {
 	updateGen() {
 		let gen = this.battle.gen;
 		if (Dex.prefs('nopastgens')) gen = 6;
-		if (Dex.prefs('bwgfx') && gen > 5) gen = 5;
+		if (!Dex.prefs('bwgfx') && gen > 5) gen = 5;
 		this.gen = gen;
 		this.activeCount = this.battle.nearSide?.active.length || 1;
 

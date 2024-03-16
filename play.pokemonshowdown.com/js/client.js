@@ -503,7 +503,7 @@ function toId() {
 					self.updateLayout();
 				}
 
-				if (Dex.prefs('bwgfx') || Dex.prefs('noanim')) {
+				if (!Dex.prefs('bwgfx') || Dex.prefs('noanim')) {
 					// since xy data is loaded by default, only call
 					// loadSpriteData if we want bw sprites or if we need bw
 					// sprite data (if animations are disabled)

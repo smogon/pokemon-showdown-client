@@ -684,7 +684,9 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			case 'utilityumbrella':
 			case 'safetygoggles':
 			case 'eviolite':
-			// swse
+			/* case 'airballoon':
+			case 'weaknesspolicy':
+				goodItems.push(id); */
 				popularItems.push(id);
 				break;
 			case 'chestoberry':
@@ -709,9 +711,6 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			case 'twistedspoon':
 				typeBoostItems.push(id);
 				break;
-			/* case 'airballoon':
-			case 'weaknesspolicy':
-				goodItems.push(id); */
 			case 'apicotberry':
 			case 'ganlonberry':
 			case 'keeberry':
@@ -747,27 +746,11 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			// swse
 				poorItems.push(id);
 				break;
-			// Legendaries
-			case 'adamantorb':
-			case 'griseousorb':
-			case 'lustrousorb':
-			case 'blueorb':
-			case 'redorb':
-			case 'souldew':
-			// Other
-			// fallsthrough
-			case 'stick':
-			case 'thickclub':
-			case 'lightball':
-			case 'luckypunch':
-			case 'quickpowder':
-			case 'metalpowder':
-			case 'deepseascale':
-			case 'deepseatooth':
+			/* Specific
 			// swse
 				specificItems.push(id);
-				break;
-			// Fling-only
+				break; */
+			// No battle effect
 			case 'rarebone':
 			case 'belueberry':
 			case 'blukberry':
@@ -817,7 +800,6 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			case 'chippedpot':
 			case 'crackedpot':
 			case 'galaricawreath':
-			// newly added
 			case 'auspiciousarmor':
 			case 'maliciousarmor':
 			case 'masterpieceteacup':
