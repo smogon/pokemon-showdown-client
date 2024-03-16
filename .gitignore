@@ -7,7 +7,6 @@ package-lock.json
 /vendor/
 /caches/
 
-/play.pokemonshowdown.com/audio/
 /play.pokemonshowdown.com/index.php
 /play.pokemonshowdown.com/index.html
 /play.pokemonshowdown.com/preactalpha.html
