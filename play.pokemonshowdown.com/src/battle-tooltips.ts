@@ -1360,11 +1360,30 @@ class BattleTooltips {
 	getSpeedRange(pokemon: Pokemon): [number, number] {
 		const tr = Math.trunc || Math.floor;
 		const species = pokemon.getSpecies();
+		let rules = this.battle.rules;
 		let baseSpe = species.baseStats.spe;
-		if (this.battle.rules['Scalemons Mod']) {
+		if (rules['Scalemons Mod']) {
 			const bstWithoutHp = species.bst - species.baseStats.hp;
 			const scale = 600 - species.baseStats.hp;
 			baseSpe = tr(baseSpe * scale / bstWithoutHp);
+			if (baseSpe < 1) baseSpe = 1;
+			if (baseSpe > 255) baseSpe = 255;
+		}
+		if (rules['Frantic Fusions Mod']) {
+			const fusionSpecies = this.battle.dex.species.get(pokemon.name);
+			if (fusionSpecies.exists && fusionSpecies.name !== species.name) {
+				baseSpe = baseSpe + tr(fusionSpecies.baseStats.spe / 4);
+				if (baseSpe < 1) baseSpe = 1;
+				if (baseSpe > 255) baseSpe = 255;
+			}
+		}
+		if (rules['Flipped Mod']) {
+			baseSpe = species.baseStats.hp;
+			if (baseSpe < 1) baseSpe = 1;
+			if (baseSpe > 255) baseSpe = 255;
+		}
+		if (rules['350 Cup Mod'] && species.bst <= 350) {
+			baseSpe *= 2;
 			if (baseSpe < 1) baseSpe = 1;
 			if (baseSpe > 255) baseSpe = 255;
 		}
@@ -1670,13 +1689,16 @@ class BattleTooltips {
 				value.modify(2, "Acrobatics + no item");
 			}
 		}
-		if (['crushgrip', 'hardpress', 'wringout'].includes(move.id) && target) {
+		let variableBPCap = ['crushgrip', 'wringout'].includes(move.id) ? 120 : move.id === 'hardpress' ? 100 : undefined;
+		if (variableBPCap && target) {
 			value.set(
-				Math.floor(Math.floor((120 * (100 * Math.floor(target.hp * 4096 / target.maxhp)) + 2048 - 1) / 4096) / 100) || 1,
+				Math.floor(
+					Math.floor((variableBPCap * (100 * Math.floor(target.hp * 4096 / target.maxhp)) + 2048 - 1) / 4096) / 100
+				) || 1,
 				'approximate'
 			);
 		}
-		if (['terablast'].includes(move.id) && pokemon.terastallized === 'Stellar') {
+		if (move.id === 'terablast' && pokemon.terastallized === 'Stellar') {
 			value.set(100, 'Tera Stellar boost');
 		}
 		if (move.id === 'brine' && target && target.hp * 2 <= target.maxhp) {
@@ -2042,6 +2064,7 @@ class BattleTooltips {
 		'Black Glasses': 'Dark',
 		'Charcoal': 'Fire',
 		'Dragon Fang': 'Dragon',
+		'Fairy Feather': 'Fairy',
 		'Hard Stone': 'Rock',
 		'Magnet': 'Electric',
 		'Metal Coat': 'Steel',
@@ -2188,6 +2211,14 @@ class BattleTooltips {
 					if (species.abilities['1']) abilityData.possibilities.push(species.abilities['1']);
 					if (species.abilities['H']) abilityData.possibilities.push(species.abilities['H']);
 					if (species.abilities['S']) abilityData.possibilities.push(species.abilities['S']);
+					if (this.battle.rules['Frantic Fusions Mod']) {
+						const fusionSpecies = this.battle.dex.species.get(clientPokemon.name);
+						if (fusionSpecies.exists && fusionSpecies.name !== species.name) {
+							abilityData.possibilities = Array.from(
+								new Set(abilityData.possibilities.concat(Object.values(fusionSpecies.abilities)))
+							);
+						}
+					}
 				}
 			}
 		}
@@ -2219,7 +2250,10 @@ class BattleTooltips {
 				if (baseAbilityName && baseAbilityName !== abilityName) text += ' (base: ' + baseAbilityName + ')';
 			}
 		}
-		if (!text && abilityData.possibilities.length && !hidePossible) {
+		const tier = this.battle.tier;
+		if (!text && abilityData.possibilities.length && !hidePossible &&
+			!(tier.includes('Almost Any Ability') || tier.includes('Hackmons') ||
+				tier.includes('Inheritance') || tier.includes('Metronome'))) {
 			text = '<small>Possible abilities:</small> ' + abilityData.possibilities.join(', ');
 		}
 		return text;
