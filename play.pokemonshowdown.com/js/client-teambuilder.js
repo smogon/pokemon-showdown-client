@@ -1776,8 +1776,10 @@
 
 			var self = this;
 			this.smogonSets = this.smogonSets || {};
+			this.updateCachedUserSets(format);
+			this.importSetButtons();
+
 			if (this.smogonSets[format] !== undefined) {
-				this.importSetButtons();
 				return;
 			}
 
@@ -1796,9 +1798,10 @@
 			}, 'text');
 		},
 		updateCachedUserSets: function (format) {
-			if(this.smogonSets[format]?.['user']) return;
+			if(this.userSets?.[format]) return;
 
-			this.smogonSets[format] = $.extend(this.smogonSets[format] || {}, {'user': {}});
+			this.userSets = this.userSets || {};
+			this.userSets[format] = this.userSets[format] || {};
 
 			var duplicateNameIndices = {};
 			for(const team of teams) {
@@ -1806,8 +1809,8 @@
 					const setList = Storage.unpackTeam(team.team);
 					for(const pokemon of setList) {
 						var name = pokemon.name + " " + (duplicateNameIndices[pokemon.name] || "");
-						var sets = this.smogonSets[format]['user'][pokemon.species];
-						this.smogonSets[format]['user'][pokemon.species] = $.extend({}, sets, {[name] : pokemon});
+						var sets = this.userSets[format][pokemon.species];
+						this.userSets[format][pokemon.species] = $.extend(sets || {}, {[name] : pokemon});
 						duplicateNameIndices[pokemon.name] = 1 + (duplicateNameIndices[pokemon.name] || 0);
 					}
 				}
@@ -1815,49 +1818,47 @@
 		},
 		clearCachedUserSetsIfNecessary: function (format) {
 			// clear cached user sets if we have just been in a box for given format
-			if(this.curTeam?.capacity === 24 && this.smogonSets?.[format]) {
-				this.smogonSets[format]['user'] = undefined;
+			if(this.curTeam?.capacity === 24 && this.userSets?.[format]) {
+				this.userSets[format] = undefined;
 			}
 		},
 		importSetButtons: function () {
-			const format = this.curTeam.format;
-			var formatSets = this.smogonSets[format];
+			var format = this.curTeam.format;
+			var smogonFormatSets = this.smogonSets[format];
+			var userFormatSets = this.userSets[format];
 			var species = this.curSet.species;
 
-			var $setDiv = this.$('.teambuilder-pokemon-import .teambuilder-import-smogon-sets');
-			$setDiv.empty();
+			var $smogonSetDiv = this.$('.teambuilder-pokemon-import .teambuilder-import-smogon-sets');
+			$smogonSetDiv.empty();
 
 			var $userSetDiv = this.$('.teambuilder-pokemon-import .teambuilder-import-user-sets');
 			$userSetDiv.empty();
 
-			if (!formatSets) return;
-
-			var sets = $.extend({}, formatSets['dex']?.[species], formatSets['stats']?.[species]);
-			if(Object.keys(sets).length !== 0) {
-				$setDiv.text('Sample sets: ');
-				for (var set in sets) {
-					$setDiv.append('<button name="importSmogonSet" class="button">' + BattleLog.escapeHTML(set) + '</button>');
+			if(smogonFormatSets) {
+				var smogonSets = $.extend({}, smogonFormatSets['dex'][species], (smogonFormatSets['stats'] || {})[species]);
+				$smogonSetDiv.text('Sample sets: ');
+				for (var set in smogonSets) {
+					$smogonSetDiv.append('<button name="importSmogonSet" class="button">' + BattleLog.escapeHTML(set) + '</button>');
 				}
-				$setDiv.append(' <small>(<a target="_blank" href="' + this.smogdexLink(species) + '">Smogon&nbsp;analysis</a>)</small>');
+				$smogonSetDiv.append(' <small>(<a target="_blank" href="' + this.smogdexLink(species) + '">Smogon&nbsp;analysis</a>)</small>');
 			}
 
-			this.updateCachedUserSets(format);
-			var userSets = formatSets['user']?.[species];
-			if(userSets) {
+			if(userFormatSets?.[species]) {
 				$userSetDiv.text('User sets: ');
-				for (var set in userSets) {
+				for (var set in userFormatSets[species]) {
 					$userSetDiv.append('<button name="importSmogonSet" class="button">' + BattleLog.escapeHTML(set) + '</button>');
 				}
 			}
 		},
 		importSmogonSet: function (i, button) {
-			var formatSets = this.smogonSets[this.curTeam.format];
+			var smogonFormatSets = this.smogonSets?.[this.curTeam.format];
+			var userFormatSets = this.userSets?.[this.curTeam.format];
 			var species = this.curSet.species;
 
 			var setName = this.$(button).text();
-			var smogonSet = formatSets['dex']?.[species]?.[setName] 
-							|| formatSets['stats']?.[species]?.[setName] 
-							|| formatSets['user']?.[species]?.[setName];
+			var smogonSet = smogonFormatSets?.['dex']?.[species]?.[setName] 
+							|| smogonFormatSets?.['stats']?.[species]?.[setName] 
+							|| userFormatSets?.[species]?.[setName];
 			
 			var curSet = $.extend({}, this.curSet, smogonSet);
 
