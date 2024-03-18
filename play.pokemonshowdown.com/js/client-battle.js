@@ -53,6 +53,8 @@
 		},
 		events: {
 			'click .replayDownloadButton': 'clickReplayDownloadButton',
+			'change input[name=megaevox]': 'uncheckMegaEvoY',
+			'change input[name=megaevoy]': 'uncheckMegaEvoX',
 			'change input[name=zmove]': 'updateZMove',
 			'change input[name=dynamax]': 'updateMaxMove'
 		},
@@ -510,6 +512,12 @@
 			}
 			return '<button name="openTimer" class="button timerbutton' + timerTicking + '"><i class="fa fa-hourglass-start"></i> ' + time + '</button>';
 		},
+		uncheckMegaEvoX: function() {
+			this.$('input[name=megaevox]').prop('checked', false);
+		},
+		uncheckMegaEvoY: function() {
+			this.$('input[name=megaevoy]').prop('checked', false);
+		},
 		updateMaxMove: function () {
 			var dynaChecked = this.$('input[name=dynamax]')[0].checked;
 			if (dynaChecked) {
@@ -559,6 +567,8 @@
 			if (!curActive) return;
 			var trapped = curActive.trapped;
 			var canMegaEvo = curActive.canMegaEvo || switchables[pos].canMegaEvo;
+			var canMegaEvoX = curActive.canMegaEvoX || switchables[pos].canMegaEvoX;
+			var canMegaEvoY = curActive.canMegaEvoY || switchables[pos].canMegaEvoY;
 			var canZMove = curActive.canZMove || switchables[pos].canZMove;
 			var canUltraBurst = curActive.canUltraBurst || switchables[pos].canUltraBurst;
 			var canDynamax = curActive.canDynamax || switchables[pos].canDynamax;
@@ -721,6 +731,13 @@
 				}
 				if (canMegaEvo) {
 					moveMenu += '<br /><label class="megaevo"><input type="checkbox" name="megaevo" />&nbsp;Mega&nbsp;Evolution</label>';
+				} else if (canMegaEvoX && canMegaEvoY) {
+					moveMenu += '<br /><label class="megaevo"><input type="checkbox" name="megaevox" />&nbsp;Mega&nbsp;Evolution X</label>';
+					moveMenu += '<label class="megaevo"><input type="checkbox" name="megaevoy" />&nbsp;Mega&nbsp;Evolution Y</label>';
+				} else if (canMegaEvoX) {
+					moveMenu += '<br /><label class="megaevo"><input type="checkbox" name="megaevox" />&nbsp;Mega&nbsp;Evolution X</label>';
+				} else if (canMegaEvoY) {
+					moveMenu += '<br /><label class="megaevo"><input type="checkbox" name="megaevoy" />&nbsp;Mega&nbsp;Evolution Y</label>';
 				} else if (canZMove) {
 					moveMenu += '<br /><label class="megaevo"><input type="checkbox" name="zmove" />&nbsp;Z-Power</label>';
 				} else if (canUltraBurst) {
@@ -983,6 +1000,14 @@
 								buf += 'Mega Evolve, then ';
 								targetPos = parts[3];
 							}
+							if (targetPos === 'megax') {
+								buf += 'Mega Evolve X, then ';
+								targetPos = parts[3];
+							}
+							if (targetPos === 'megay') {
+								buf += 'Mega Evolve Y, then ';
+								targetPos = parts[3];
+							}
 							if (targetPos === 'zmove') {
 								move = this.request.active[i].canZMove[parseInt(parts[1], 10) - 1].move;
 								targetPos = parts[3];
@@ -1232,6 +1257,8 @@
 			if (pos !== undefined) { // pos === undefined if called by chooseMoveTarget()
 				var nearActive = this.battle.nearSide.active;
 				var isMega = !!(this.$('input[name=megaevo]')[0] || '').checked;
+				var isMegaX = !!(this.$('input[name=megaevox]')[0] || '').checked;
+				var isMegaY = !!(this.$('input[name=megaevoy]')[0] || '').checked;
 				var isZMove = !!(this.$('input[name=zmove]')[0] || '').checked;
 				var isUltraBurst = !!(this.$('input[name=ultraburst]')[0] || '').checked;
 				var isDynamax = !!(this.$('input[name=dynamax]')[0] || '').checked;
@@ -1240,7 +1267,7 @@
 				var target = e.getAttribute('data-target');
 				var choosableTargets = {normal: 1, any: 1, adjacentAlly: 1, adjacentAllyOrSelf: 1, adjacentFoe: 1};
 
-				this.choice.choices.push('move ' + pos + (isMega ? ' mega' : '') + (isZMove ? ' zmove' : '') + (isUltraBurst ? ' ultra' : '') + (isDynamax ? ' dynamax' : '') + (isTerastal ? ' terastallize' : ''));
+				this.choice.choices.push('move ' + pos + (isMega ? ' mega' : '') + (isMegaX ? ' megax' : isMegaY ? ' megay' : '') + (isZMove ? ' zmove' : '') + (isUltraBurst ? ' ultra' : '') + (isDynamax ? ' dynamax' : '') + (isTerastal ? ' terastallize' : ''));
 				if (nearActive.length > 1 && target in choosableTargets) {
 					this.choice.type = 'movetarget';
 					this.choice.moveTarget = target;
