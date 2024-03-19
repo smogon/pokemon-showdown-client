@@ -512,10 +512,10 @@
 			}
 			return '<button name="openTimer" class="button timerbutton' + timerTicking + '"><i class="fa fa-hourglass-start"></i> ' + time + '</button>';
 		},
-		uncheckMegaEvoX: function() {
+		uncheckMegaEvoX: function () {
 			this.$('input[name=megaevox]').prop('checked', false);
 		},
-		uncheckMegaEvoY: function() {
+		uncheckMegaEvoY: function () {
 			this.$('input[name=megaevoy]').prop('checked', false);
 		},
 		updateMaxMove: function () {
