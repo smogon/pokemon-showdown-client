@@ -3536,6 +3536,15 @@ export class Battle {
 			this.scene.updateSidebar(side);
 			break;
 		}
+		case 'badge': {
+			const slot = args[1] as SideID;
+			var side = this[slot];
+			if (!side) return; // weird
+			// handle all the rendering further down
+			side.badges.push(args.slice(2).join('|'));
+			this.scene.updateSidebar(side);
+			break;
+		}
 		case 'teamsize': {
 			let side = this.getSide(args[1]);
 			side.totalPokemon = parseInt(args[2], 10);
