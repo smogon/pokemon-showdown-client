@@ -692,6 +692,7 @@ export class BattleScene implements BattleSceneStub {
 		const faded = side.name ? `` : ` style="opacity: 0.4"`;
 		let badgehtml = '';
 		if (side.badges.length) {
+			badgehtml = '<span class="badges">';
 			// hard limiting it to only ever 3 allowed at a time
 			// that's what the server limit is anyway but there should be a client limit too
 			// just in case
@@ -704,11 +705,11 @@ export class BattleScene implements BattleSceneStub {
 				const hover = `Top ${threshold} in ${format} during ladder season ${season}`;
 				badgehtml += `<img src="${Dex.resourcePrefix}/sprites/misc/${type}.png" width="20px" height="20px" title="${hover}" />`;
 			}
-			badgehtml += '<br />';
+			badgehtml += '</span>';
 		}
 		return (
-			`<div class="trainer trainer-${posStr}"${faded}><strong>${BattleLog.escapeHTML(side.name)}</strong>${badgehtml}` +
-			`<div class="trainersprite"${ratinghtml} style="background-image:url(${Dex.resolveAvatar(side.avatar)})">` +
+			`<div class="trainer trainer-${posStr}"${faded}><strong>${BattleLog.escapeHTML(side.name)}</strong>` +
+			`<div class="trainersprite"${ratinghtml} style="background-image:url(${Dex.resolveAvatar(side.avatar)})">${badgehtml}` +
 			`</div>${pokemonhtml}</div>`
 		);
 	}
