@@ -761,6 +761,19 @@ class BattleTooltips {
 			if (move.flags.wind) {
 				text += `<p class="movetag">&#x2713; Wind <small>(activates Wind Power and Wind Rider)</small></p>`;
 			}
+			// RBY healing move glitch
+			if (this.battle.gen === 1 && !toID(this.battle.tier).includes('stadium') &&
+					['recover', 'softboiled', 'rest'].includes(move.id)) {
+				const hpValues = [];
+				let hp = serverPokemon.maxhp - 255;
+				if (hp > 0 && hp % 256 !== 0) {
+					hpValues.push(hp);
+					if (hp - 256 > 0) {
+						hpValues.push(hp - 256);
+					}
+				}
+				if (hpValues.length) text += `<p>Will fail if HP is ${hpValues.join(', ')}</p>`;
+			}
 		}
 		return text;
 	}
