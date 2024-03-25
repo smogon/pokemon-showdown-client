@@ -766,7 +766,7 @@ class BattleTooltips {
 					['recover', 'softboiled', 'rest'].includes(move.id)) {
 				const hpValues = [];
 				let hp = serverPokemon.maxhp - 255;
-				if (hp > 0 && hp % 256 !== 0) {
+				if (hp > 0 && serverPokemon.hp % 256 !== 0) {
 					hpValues.push(hp);
 					if (hp - 256 > 0) {
 						hpValues.push(hp - 256);
