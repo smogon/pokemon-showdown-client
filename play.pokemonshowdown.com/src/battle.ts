@@ -607,6 +607,7 @@ export class Side {
 	foe: Side = null!;
 	ally: Side | null = null;
 	avatar: string = 'unknown';
+	badges: string[] = [];
 	rating: string = '';
 	totalPokemon = 6;
 	x = 0;

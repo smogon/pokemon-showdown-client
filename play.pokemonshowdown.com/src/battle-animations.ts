@@ -690,7 +690,27 @@ export class BattleScene implements BattleSceneStub {
 		pokemonhtml = '<div class="teamicons">' + pokemonhtml + '</div>';
 		const ratinghtml = side.rating ? ` title="Rating: ${BattleLog.escapeHTML(side.rating)}"` : ``;
 		const faded = side.name ? `` : ` style="opacity: 0.4"`;
-		return `<div class="trainer trainer-${posStr}"${faded}><strong>${BattleLog.escapeHTML(side.name)}</strong><div class="trainersprite"${ratinghtml} style="background-image:url(${Dex.resolveAvatar(side.avatar)})"></div>${pokemonhtml}</div>`;
+		let badgehtml = '';
+		if (side.badges.length) {
+			// hard limiting it to only ever 3 allowed at a time
+			// that's what the server limit is anyway but there should be a client limit too
+			// just in case
+			for (const badgeData of side.badges.slice(0, 3)) {
+				// ${badge.type}|${badge.format}|${BADGE_THRESHOLDS[badge.type]}-${badge.season}
+				const [type, format, details] = badgeData.split('|');
+				// todo, maybe make this more easily configured if we ever add badges for other stuff?
+				// but idk that we're planning that for now so
+				const [threshold, season] = details.split('-');
+				const hover = `Top ${threshold} in ${format} during ladder season ${season}`;
+				badgehtml += `<img src="${Dex.resourcePrefix}/sprites/misc/${type}.png" width="20px" height="20px" title="${hover}" />`;
+			}
+			badgehtml += '<br />';
+		}
+		return (
+			`<div class="trainer trainer-${posStr}"${faded}><strong>${BattleLog.escapeHTML(side.name)}</strong>${badgehtml}` +
+			`<div class="trainersprite"${ratinghtml} style="background-image:url(${Dex.resolveAvatar(side.avatar)})">` +
+			`</div>${pokemonhtml}</div>`
+		);
 	}
 	updateSidebar(side: Side) {
 		if (this.battle.gameType === 'freeforall') {

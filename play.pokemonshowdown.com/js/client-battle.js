@@ -132,6 +132,17 @@
 			if (this.battle.ended) this.battleEnded = true;
 			this.updateLayout();
 			this.updateControls();
+			for (var i = 0; i < log.length; i++) {
+				var logLine = log[i];
+				// i don't like this hardcode, and my preferred solution would be not this
+				// but i don't know how many bugs would be caused by having BattleRoom#add
+				// not `return` the running of this function - i suspect a lot
+				// and i also don't want to move the |badge| message into battle.ts, since it's not simulator-related
+				// so we're doing this, for now. open to suggestions
+				if (logLine.substr(0, 7) === '|badge|') {
+					this.add(logLine);
+				}
+			}
 		},
 		add: function (data) {
 			if (!data) return;
@@ -216,6 +227,14 @@
 						break;
 					}
 				} else if (logLine.substr(0, 7) === '|title|') { // eslint-disable-line no-empty
+				} else if (logLine.substr(0, 7) === '|badge|') {
+					var parts = logLine.split('|').slice(2);
+					var slot = parts.shift();
+					var side = this.battle[slot];
+					if (!side) return; // weird
+					// handle all the rendering further down
+					side.badges.push(parts.join('|'));
+					this.battle.scene.updateSidebar(side);
 				} else if (logLine.substr(0, 5) === '|win|' || logLine === '|tie') {
 					this.battleEnded = true;
 					this.battle.stepQueue.push(logLine);
