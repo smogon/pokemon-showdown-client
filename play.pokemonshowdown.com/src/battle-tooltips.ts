@@ -1518,7 +1518,6 @@ class BattleTooltips {
 			}
 		}
 
-		console.log(pokemon)
 
 		// Other abilities that change the move type.
 		const noTypeOverride = [
