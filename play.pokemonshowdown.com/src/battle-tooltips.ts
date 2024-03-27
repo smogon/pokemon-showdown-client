@@ -1518,6 +1518,8 @@ class BattleTooltips {
 			}
 		}
 
+		console.log(pokemon)
+
 		// Other abilities that change the move type.
 		const noTypeOverride = [
 			'judgment', 'multiattack', 'naturalgift', 'revelationdance', 'struggle', 'technoblast', 'terrainpulse', 'weatherball',
@@ -1532,8 +1534,8 @@ class BattleTooltips {
 					}
 				}
 			}
-
-			if (category !== 'Status' && !move.isZ && !move.id.startsWith('hiddenpower')) {
+		
+			if (category !== 'Status' && !move.isZ && !move.id.startsWith('hiddenpower') && pokemon.ability != "(suppresed)") {
 				if (moveType === 'Normal') {
 					if (value.abilityModify(0, 'Aerilate')) moveType = 'Flying';
 					if (value.abilityModify(0, 'Galvanize')) moveType = 'Electric';
