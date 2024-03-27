@@ -1533,7 +1533,7 @@ class BattleTooltips {
 				}
 			}
 
-			if (category !== 'Status' && !move.isZ && !move.id.startsWith('hiddenpower')) {
+			if (category !== 'Status' && !move.isZ && !move.id.startsWith('hiddenpower') && pokemon.ability != "(suppresed)") {
 				if (moveType === 'Normal') {
 					if (value.abilityModify(0, 'Aerilate')) moveType = 'Flying';
 					if (value.abilityModify(0, 'Galvanize')) moveType = 'Electric';
