@@ -2904,7 +2904,125 @@ class BattleStatGuesser {
 	}
 }
 
+function BattleStatOptimizer(set: PokemonSet, formatid: ID) {
+	const dex = Dex.mod(formatid.slice(0, 4) as ID);
+	const ignoreEVLimits = (
+		dex.gen < 3 ||
+		((formatid.endsWith('hackmons') || formatid.endsWith('bh')) && dex.gen !== 6) ||
+		formatid.includes('metronomebattle') || formatid.endsWith('norestrictions')
+	);
+	const supportsEVs = !formatid.includes('letsgo');
+	if (!supportsEVs || ignoreEVLimits) return false;
+
+	const species = dex.species.get(set.species);
+	const level = set.level || 100;
+	const getStat = (stat: StatName, ev: number, nature: {plus?: StatName, minus?: StatName}) => {
+		const baseStat = species.baseStats[stat];
+		const iv = set.ivs?.[stat] || 31;
+		if (stat === 'hp') {
+			if (baseStat === 1) return 1;
+			return ~~(((2 * baseStat + iv + ~~(ev / 4)) * level) / 100) + level + 10;
+		}
+		let val = ~~(~~(2 * baseStat + iv + ~~(ev / 4)) * level / 100 + 5);
+		if (nature.plus === stat) {
+			val *= 1.1;
+		} else if (nature.minus === stat) {
+			val *= 0.9;
+		}
+		return ~~(val);
+	}
+
+	const origNature = BattleNatures[set.nature || 'Serious'];
+	const origStats = {
+		hp: getStat('hp', set.evs?.hp || 0, origNature),
+		atk: getStat('atk', set.evs?.atk || 0, origNature),
+		def: getStat('def', set.evs?.def || 0, origNature),
+		spa: getStat('spa', set.evs?.spa || 0, origNature),
+		spd: getStat('spd', set.evs?.spd || 0, origNature),
+		spe: getStat('spe', set.evs?.spe || 0, origNature),
+	};
+	const getMinEVs = (stat: StatName, nature: {plus?: StatName, minus?: StatName}) => {
+		let ev = 0;
+		while (getStat(stat, ev, nature) < origStats[stat]) {
+			ev += 4;
+		}
+		return ev;
+	}
+
+	const origSpread = {evs: set.evs, ...origNature};
+	let origLeftoverEVs = 508;
+	for (const stat of Dex.statNames) {
+		origLeftoverEVs -= origSpread.evs?.[stat] || 0;
+	}
+	// Only check for optimizations if EVs are completed
+	if (origLeftoverEVs > 4) return null;
+
+	let curSpread = origSpread;
+	let curLeftoverEVs = origLeftoverEVs;
+
+	// Can't optimize if nature boosts stat past normal EV limit
+	if (origNature.plus && getStat(origNature.plus, 252, origNature) < origStats[origNature.plus]) {
+		return null;
+	}
+
+	for (const nature of Object.values(BattleNatures)) {
+		if (!nature.plus || !nature.minus) continue;
+		
+		const spread = {
+			evs: {
+				hp: getMinEVs('hp', nature),
+				atk: getMinEVs('atk', nature),
+				def: getMinEVs('def', nature),
+				spa: getMinEVs('spa', nature),
+				spd: getMinEVs('spd', nature),
+				spe: getMinEVs('spe', nature),
+			},
+			plus: nature.plus,
+			minus: nature.minus,
+		};
+
+		let totalEVs = 0;
+		let allValidEVs = true;
+		for (const stat of Dex.statNames) {
+			if (spread.evs[stat] > 252) {
+				allValidEVs = false;
+				break;
+			}
+			totalEVs += spread.evs[stat];
+		}
+
+		const leftoverEVs = 508 - totalEVs;
+		if (totalEVs <= 508 && allValidEVs) {
+			if (leftoverEVs > curLeftoverEVs) {
+				curSpread = spread;
+				curLeftoverEVs = leftoverEVs;
+			} else {
+				// Check if we hit a jump point
+				let allGreaterThanOrEqual = true;
+				let atLeastOneGreaterThan = false;
+				for (const stat of Dex.statNames) {
+					const statVal = getStat(stat, spread.evs[stat], nature);
+					const curStatVal = getStat(stat, curSpread.evs?.[stat] || 0, curSpread);
+					if (statVal < curStatVal) {
+						allGreaterThanOrEqual = false;
+						break;
+					} else if (statVal > curStatVal) {
+						atLeastOneGreaterThan = true;
+					}
+				}
+				if (allGreaterThanOrEqual && atLeastOneGreaterThan) {
+					curSpread = spread;
+					curLeftoverEVs = leftoverEVs;
+				}
+			}
+		}
+	}
+
+	return curSpread === origSpread ? null : {...curSpread, savedEVs: curLeftoverEVs - origLeftoverEVs};
+}
+
 if (typeof require === 'function') {
 	// in Node
 	(global as any).BattleStatGuesser = BattleStatGuesser;
+	(global as any).BattleStatOptimizer = BattleStatOptimizer;
 }

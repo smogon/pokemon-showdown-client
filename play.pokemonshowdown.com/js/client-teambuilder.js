@@ -2040,6 +2040,7 @@
 				}
 			}
 			this.$chart.find('select[name=nature]').val(set.nature || 'Serious');
+			this.checkStatOptimizations();
 		},
 		curChartType: '',
 		curChartName: '',
@@ -2465,14 +2466,53 @@
 				}
 				buf += '</select></p>';
 
-				buf += '<p><em>Protip:</em> You can also set natures by typing <kbd>+</kbd> and <kbd>-</kbd> next to a stat.</p>';
+				buf += '<p><small><em>Protip:</em> You can also set natures by typing <kbd>+</kbd> and <kbd>-</kbd> next to a stat.</small></p>';
+
+				buf += '<p class="optimized"></p>';
 			}
 
 			buf += '</div>';
 			this.$chart.html(buf);
+			this.checkStatOptimizations();
 		},
 		setStatFormGuesses: function () {
 			this.updateStatForm(true);
+		},
+		checkStatOptimizations: function () {
+			var optimized = BattleStatOptimizer(this.curSet, this.curTeam.format);
+
+			if (optimized) {
+				var buf = '';
+				var msg = '';
+				if (optimized.savedEVs) {
+					msg = 'save ' + optimized.savedEVs + ' EVs';
+				} else {
+					msg = 'get higher stats';
+				}
+				buf += '<small><em>Protip:</em> Use a different nature to ' + msg + ': </small>';
+				buf += ' <button name="setStatFormOptimization" class="button">';
+				for (var i in BattleStatNames) {
+					if (optimized.evs[i]) {
+						buf += '' + optimized.evs[i] + ' ' + BattleStatNames[i] + ' / ';
+					}
+				}
+				buf += ' (+' + BattleStatNames[optimized.plus] + ', -' + BattleStatNames[optimized.minus] + ')';
+				buf += '</button>';
+				this.$chart.find('p.optimized').html(buf).show();
+			} else {
+				this.$chart.find('p.optimized').hide();
+			}
+		},
+		setStatFormOptimization: function () {
+			var optimized = BattleStatOptimizer(this.curSet, this.curTeam.format);
+			this.curSet.evs = optimized.evs;
+			this.plus = optimized.plus;
+			this.minus = optimized.minus;
+			this.updateNature();
+			this.save();
+			this.updateStatGraph();
+			this.natureChange();
+			this.$chart.find('p.optimized').hide();
 		},
 		setSlider: function (stat, val) {
 			this.$chart.find('input[name=evslider-' + stat + ']').val(val || 0);
