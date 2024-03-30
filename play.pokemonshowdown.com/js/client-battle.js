@@ -163,7 +163,7 @@
 					// This is backwards compatibility with old code that violates the
 					// expectation that server messages can be streamed line-by-line.
 					// Please do NOT EVER push protocol changes without a pull request.
-					// https://github.com/Zarel/Pokemon-Showdown/commit/e3c6cbe4b91740f3edc8c31a1158b506f5786d72#commitcomment-21278523
+					// https://github.com/smogon/pokemon-showdown/commit/e3c6cbe4b91740f3edc8c31a1158b506f5786d72#commitcomment-21278523
 					choiceText = '?';
 					data = data.slice(2, nlIndex);
 				} else if (nlIndex >= 0) {

@@ -4,7 +4,7 @@ Pokémon Showdown Client
 Navigation: [Website][1] | [Server repository][2] | **Client repository** | [Dex repository][3]
 
   [1]: http://pokemonshowdown.com/
-  [2]: https://github.com/Zarel/Pokemon-Showdown
+  [2]: https://github.com/smogon/pokemon-showdown
   [3]: https://github.com/Zarel/Pokemon-Showdown-Dex
 
 Introduction
@@ -17,7 +17,7 @@ This is what runs `play.pokemonshowdown.com`.
 **WARNING: You probably want the [Pokémon Showdown server][4]**, if you're
 setting up a server.
 
-  [4]: https://github.com/Zarel/Pokemon-Showdown
+  [4]: https://github.com/smogon/pokemon-showdown
 
 Browser support
 ------------------------------------------------------------------------
