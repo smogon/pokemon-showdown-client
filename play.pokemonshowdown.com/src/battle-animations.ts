@@ -707,9 +707,9 @@ export class BattleScene implements BattleSceneStub {
 				// (regex futureproofs for double digit gens)
 				let formatType = format.split(/gen\d+/)[1] || 'none';
 				if (!['ou', 'randombattle'].includes(formatType)) {
-					formatType = 'base';
+					formatType = 'rotating';
 				}
-				badgehtml += `<img src="${Dex.resourcePrefix}/sprites/misc/${formatType}-${type}.png" width="20px" height="20px" title="${hover}" />`;
+				badgehtml += `<img src="${Dex.resourcePrefix}/sprites/misc/${formatType}_${type}.png" width="20px" height="20px" title="${hover}" />`;
 			}
 			badgehtml += '</span>';
 		}
