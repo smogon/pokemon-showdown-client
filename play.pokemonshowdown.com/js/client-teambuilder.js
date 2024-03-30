@@ -2468,7 +2468,7 @@
 
 				buf += '<p><small><em>Protip:</em> You can also set natures by typing <kbd>+</kbd> and <kbd>-</kbd> next to a stat.</small></p>';
 
-				buf += '<p class="optimized"></p>';
+				buf += '<p id="statoptimizer"></p>';
 			}
 
 			buf += '</div>';
@@ -2498,9 +2498,9 @@
 				}
 				buf += ' (+' + BattleStatNames[optimized.plus] + ', -' + BattleStatNames[optimized.minus] + ')';
 				buf += '</button>';
-				this.$chart.find('p.optimized').html(buf).show();
+				this.$chart.find('#statoptimizer').html(buf).show();
 			} else {
-				this.$chart.find('p.optimized').hide();
+				this.$chart.find('#statoptimizer').hide();
 			}
 		},
 		setStatFormOptimization: function () {
@@ -2512,7 +2512,7 @@
 			this.save();
 			this.updateStatGraph();
 			this.natureChange();
-			this.$chart.find('p.optimized').hide();
+			this.$chart.find('#statoptimizer').hide();
 		},
 		setSlider: function (stat, val) {
 			this.$chart.find('input[name=evslider-' + stat + ']').val(val || 0);
