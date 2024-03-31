@@ -3539,7 +3539,9 @@ export class Battle {
 		case 'badge': {
 			let side = this.getSide(args[1]);
 			// handle all the rendering further down
-			side.badges.push(args.slice(2).join('|'));
+			const badge = args.slice(2).join('|');
+			// (don't allow duping)
+			if (!side.badges.includes(badge)) side.badges.push(badge);
 			this.scene.updateSidebar(side);
 			break;
 		}

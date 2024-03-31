@@ -701,15 +701,15 @@ export class BattleScene implements BattleSceneStub {
 				const [type, format, details] = badgeData.split('|');
 				// todo, maybe make this more easily configured if we ever add badges for other stuff?
 				// but idk that we're planning that for now so
-				const [threshold, season] = details.split('-');
-				const hover = `Top ${threshold} in ${format} during ladder season ${season}`;
+				const [threshold] = details.split('-');
+				const hover = `User is Top ${threshold} on the ${format} Ladder`;
 				// ou and randbats get diff badges from everyone else, find it
 				// (regex futureproofs for double digit gens)
 				let formatType = format.split(/gen\d+/)[1] || 'none';
 				if (!['ou', 'randombattle'].includes(formatType)) {
 					formatType = 'rotating';
 				}
-				badgehtml += `<img src="${Dex.resourcePrefix}/sprites/misc/${formatType}_${type}.png" width="20px" height="20px" title="${hover}" />`;
+				badgehtml += `<img src="${Dex.resourcePrefix}/sprites/misc/${formatType}_${type}.png" style="padding: 0px 1px 0px 1px" width="16px" height="16px" title="${hover}" />`;
 			}
 			badgehtml += '</span>';
 		}
