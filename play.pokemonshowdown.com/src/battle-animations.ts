@@ -2062,8 +2062,13 @@ export class PokemonSprite extends Sprite {
 		lightscreen: ['Light Screen', 'good'],
 		reflect: ['Reflect', 'good'],
 		// swse
-		caffeinecrash: ['Caffeine Crash', 'bad'],
+		stealthadvantageatk: ['Stealth Advantage: Atk', 'good'],
+		stealthadvantagedef: ['Stealth Advantage: Def', 'good'],
+		stealthadvantagespa: ['Stealth Advantage: SpA', 'good'],
+		stealthadvantagespd: ['Stealth Advantage: SpD', 'good'],
+		stealthadvantagespe: ['Stealth Advantage: Spe', 'good'],
 		sunscreen: ['Sunscreen', 'good'],
+		caffeinecrash: ['Caffeine Crash', 'bad'],
 	};
 	forme = '';
 	cryurl: string | undefined = undefined;
