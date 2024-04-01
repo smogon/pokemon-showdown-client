@@ -41,6 +41,8 @@ interface BattleRequestActivePokemon {
 	canDynamax?: boolean;
 	canGigantamax?: boolean;
 	canMegaEvo?: boolean;
+	canMegaEvoX?: boolean;
+	canMegaEvoY?: boolean;
 	canUltraBurst?: boolean;
 	canTerastallize?: boolean;
 	trapped?: boolean;
@@ -82,6 +84,8 @@ interface BattleMoveChoice {
 	move: number;
 	targetLoc: number;
 	mega: boolean;
+	megax: boolean;
+	megay: boolean;
 	ultra: boolean;
 	max: boolean;
 	z: boolean;
@@ -114,6 +118,8 @@ class BattleChoiceBuilder {
 		move: 0,
 		targetLoc: 0, // should always be 0: is not partial if `targetLoc` is known
 		mega: false,
+		megax: false,
+		megay: false,
 		ultra: false,
 		z: false,
 		max: false,
@@ -194,7 +200,7 @@ class BattleChoiceBuilder {
 					return null;
 				}
 			}
-			if (choice.mega) this.alreadyMega = true;
+			if (choice.mega || choice.megax || choice.megay) this.alreadyMega = true;
 			if (choice.z) this.alreadyZ = true;
 			if (choice.max) this.alreadyMax = true;
 			if (choice.tera) this.alreadyTera = true;
@@ -285,6 +291,8 @@ class BattleChoiceBuilder {
 				move: 0,
 				targetLoc: 0,
 				mega: false,
+				megax: false,
+				megay: false,
 				ultra: false,
 				z: false,
 				max: false,
@@ -302,6 +310,12 @@ class BattleChoiceBuilder {
 				} else if (choice.endsWith(' mega')) {
 					current.mega = true;
 					choice = choice.slice(0, -5);
+				} else if (choice.endsWith(' megax')) {
+					current.megax = true;
+					choice = choice.slice(0, -6);
+				} else if (choice.endsWith(' megay')) {
+					current.megay = true;
+					choice = choice.slice(0, -6);
 				} else if (choice.endsWith(' zmove')) {
 					current.z = true;
 					choice = choice.slice(0, -6);
