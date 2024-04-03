@@ -2930,7 +2930,7 @@ function BattleStatOptimizer(set: PokemonSet, formatid: ID) {
 			val *= 0.9;
 		}
 		return ~~(val);
-	}
+	};
 
 	const origNature = BattleNatures[set.nature || 'Serious'];
 	const origStats = {
@@ -2947,7 +2947,7 @@ function BattleStatOptimizer(set: PokemonSet, formatid: ID) {
 			ev += 4;
 		}
 		return ev;
-	}
+	};
 
 	const origSpread = {evs: set.evs, ...origNature};
 	let origLeftoverEVs = 508;
@@ -2967,7 +2967,7 @@ function BattleStatOptimizer(set: PokemonSet, formatid: ID) {
 
 	for (const nature of Object.values(BattleNatures)) {
 		if (!nature.plus || !nature.minus) continue;
-		
+
 		const spread = {
 			evs: {
 				hp: getMinEVs('hp', nature),
