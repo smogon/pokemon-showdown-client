@@ -2992,29 +2992,9 @@ function BattleStatOptimizer(set: PokemonSet, formatid: ID) {
 		}
 
 		const leftoverEVs = 508 - totalEVs;
-		if (totalEVs <= 508 && allValidEVs) {
-			if (leftoverEVs > curLeftoverEVs) {
-				curSpread = spread;
-				curLeftoverEVs = leftoverEVs;
-			} else {
-				// Check if we hit a jump point
-				let allGreaterThanOrEqual = true;
-				let atLeastOneGreaterThan = false;
-				for (const stat of Dex.statNames) {
-					const statVal = getStat(stat, spread.evs[stat], nature);
-					const curStatVal = getStat(stat, curSpread.evs?.[stat] || 0, curSpread);
-					if (statVal < curStatVal) {
-						allGreaterThanOrEqual = false;
-						break;
-					} else if (statVal > curStatVal) {
-						atLeastOneGreaterThan = true;
-					}
-				}
-				if (allGreaterThanOrEqual && atLeastOneGreaterThan) {
-					curSpread = spread;
-					curLeftoverEVs = leftoverEVs;
-				}
-			}
+		if (totalEVs <= 508 && allValidEVs && leftoverEVs > curLeftoverEVs) {
+			curSpread = spread;
+			curLeftoverEVs = leftoverEVs;
 		}
 	}
 
