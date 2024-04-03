@@ -1243,10 +1243,17 @@
 			app.focusRoom('');
 		},
 		closeAndRematch: function () {
-			app.rooms[''].requestNotifications();
-			app.rooms[''].challenge(this.battle.farSide.name, this.battle.tier);
-			this.close();
-			app.focusRoom('');
+			app.once('response:fullformat', function (data) {
+				app.rooms[''].requestNotifications();
+				if (data) {
+					app.rooms[''].challenge(this.battle.farSide.name, data);
+				} else {
+					app.rooms[''].challenge(this.battle.farSide.name, this.battle.tier);
+				}
+				this.close();
+				app.focusRoom('');
+			}, this);
+			app.send('/cmd fullformat ' + this.id);
 		},
 
 		// choice buttons
