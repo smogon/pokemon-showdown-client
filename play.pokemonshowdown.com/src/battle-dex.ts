@@ -186,12 +186,16 @@ const Dex = new class implements ModdedDex {
 	})(); */
 
 	resourcePrefix = (() => {
-		return `https://raw.githubusercontent.com/ry42/kaskade-showdown-client/master/play.pokemonshowdown.com/`;
+		return `https://raw.githubusercontent.com/ry42/kaskade-showdown-client/master/play.pokemonshowdown.com/`;	
 	})();
 
-	fxPrefix = (() => {
+	/* fxPrefix = (() => {
 		const protocol = (window.document?.location?.protocol !== 'http:') ? 'https:' : '';
 		return `${protocol}//${window.Config ? Config.routes.client : 'play.pokemonshowdown.com'}/fx/`;
+	})(); */
+
+	fxPrefix = (() => {
+		return `https://raw.githubusercontent.com/ry42/kaskade-showdown-client/master/play.pokemonshowdown.com/`;	
 	})();
 
 	loadedSpriteData = {xy: 1, bw: 0};
