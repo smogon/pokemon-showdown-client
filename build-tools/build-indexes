@@ -9,7 +9,7 @@ const rootDir = path.resolve(__dirname, '..');
 process.chdir(rootDir);
 
 if (!fs.existsSync('caches/pokemon-showdown')) {
-	child_process.execSync('git clone https://github.com/ry42/kaskade-showdown.git', {
+	child_process.execSync('git clone https://github.com/ry42/kaskade-showdown.git pokemon-showdown', {
 		cwd: 'caches',
 	});
 }
