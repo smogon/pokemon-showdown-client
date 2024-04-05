@@ -2496,7 +2496,11 @@
 						buf += '' + optimized.evs[i] + ' ' + BattleStatNames[i] + ' / ';
 					}
 				}
-				buf += ' (+' + BattleStatNames[optimized.plus] + ', -' + BattleStatNames[optimized.minus] + ')';
+				if (!optimized.plus && !optimized.minus) {
+					buf += ' (Neutral nature)';
+				} else {
+					buf += ' (+' + BattleStatNames[optimized.plus] + ', -' + BattleStatNames[optimized.minus] + ')';
+				}
 				buf += '</button>';
 				this.$chart.find('#statoptimizer').html(buf).show();
 			} else {
