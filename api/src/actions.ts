@@ -686,7 +686,7 @@ export const actions: {[k: string]: QueryHandler} = {
 		}
 		let teams = [];
 		try {
-			teams = await tables.teams.selectAll<any>(
+			teams = await tables.teams.selectAll(
 				SQL`teamid, team, format, title as name`
 			)`WHERE ownerid = ${this.user.id}`;
 		} catch (e) {
@@ -717,7 +717,7 @@ export const actions: {[k: string]: QueryHandler} = {
 			throw new ActionError("Invalid team ID");
 		}
 		try {
-			const data = await tables.teams.selectOne<any>(
+			const data = await tables.teams.selectOne(
 				SQL`ownerid, team, private as privacy`
 			)`WHERE teamid = ${teamid}`;
 			if (!data || data.ownerid !== this.user.id) {

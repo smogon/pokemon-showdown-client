@@ -14,7 +14,9 @@ import * as gal from 'google-auth-library';
 import {SQL} from './database';
 import {ActionError, ActionContext} from './server';
 import {toID, time, signAsync} from './utils';
-import {ladder, loginthrottle, sessions, users, usermodlog} from './tables';
+import {
+	ladder, loginthrottle, loginattempts, sessions, users, usermodlog,
+} from './tables';
 
 const SID_DURATION = 2 * 7 * 24 * 60 * 60;
 const LOGINTIME_INTERVAL = 24 * 60 * 60;
@@ -356,6 +358,22 @@ export class Session {
 	async passwordVerify(name: string, pass: string) {
 		const ip = this.context.getIp();
 		const userid = toID(name);
+		let attempts = (await loginattempts.get(userid)) as {time: number, count: number};
+		if (attempts) {
+			// too many attempts, no valid login session from that ip on that userid
+			if (attempts.count >= 500 && !(await sessions.selectOne()`WHERE ip = ${ip} AND userid = ${userid}`)) {
+				attempts.count++;
+				await loginattempts.update(userid, {time: time(), count: attempts.count});
+				throw new ActionError(
+					`Too many unrecognized login attempts have been made against this account. Please try again later.`
+				);
+			} else if (attempts.time + 24 * 60 * 60 < time()) {
+				attempts = {
+					time: time(),
+					count: 0,
+				};
+			}
+		}
 		let throttleTable = await loginthrottle.get(
 			ip, ['count', 'time']
 		) as {count: number; time: number} || null;
@@ -409,6 +427,14 @@ export class Session {
 					await loginthrottle.insert({
 						ip, count: 1, lastuserid: userid, time: time(),
 					});
+				}
+				if (attempts) {
+					attempts.count++;
+					await loginattempts.update(userid, {
+						count: attempts.count, time: time(),
+					});
+				} else {
+					await loginattempts.insert({userid, ip, time: time()});
 				}
 				return false;
 			}
