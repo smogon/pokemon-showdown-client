@@ -434,7 +434,7 @@ export class Session {
 						count: attempts.count, time: time(),
 					});
 				} else {
-					await loginattempts.insert({userid, ip, time: time()});
+					await loginattempts.insert({userid, time: time()});
 				}
 				return false;
 			}

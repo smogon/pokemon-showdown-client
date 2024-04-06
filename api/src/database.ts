@@ -153,8 +153,8 @@ export abstract class Database<Pool extends mysql.Pool | pg.Pool = mysql.Pool | 
 		const [query, values] = this._resolveSQL(sql);
 		return this._queryExec(query, values);
 	}
-	getTable<Row>(name: string, primaryKeyName: keyof Row & string | null = null) {
-		return new DatabaseTable<Row, this>(this, name, primaryKeyName);
+	getTable<Row>(name: string, primaryKeyName: keyof Row & string | null = null): DatabaseTable<Row, typeof this> {
+		return new DatabaseTable<Row, typeof this>(this, name, primaryKeyName);
 	}
 	close() {
 		void this.connection.end();
