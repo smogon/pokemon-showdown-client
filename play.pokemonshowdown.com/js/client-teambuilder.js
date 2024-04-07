@@ -1798,27 +1798,32 @@
 			}, 'text');
 		},
 		updateCachedUserSets: function (format) {
-			if(this.userSets?.[format]) return;
+			if (this.userSets && this.userSets[format]) return;
 
 			this.userSets = this.userSets || {};
-			this.userSets[format] = this.userSets[format] || {};
+			this.userSets[format] = {};
 
 			var duplicateNameIndices = {};
-			for(const team of teams) {
-				if(team.format === format && team.capacity === 24) {
-					const setList = Storage.unpackTeam(team.team);
-					for(const pokemon of setList) {
-						var name = pokemon.name + " " + (duplicateNameIndices[pokemon.name] || "");
-						var sets = this.userSets[format][pokemon.species];
-						this.userSets[format][pokemon.species] = $.extend(sets || {}, {[name] : pokemon});
-						duplicateNameIndices[pokemon.name] = 1 + (duplicateNameIndices[pokemon.name] || 0);
-					}
+			for (var i = 0; i < teams.length; i++) {
+				var team = teams[i];
+				if (team.format !== format || team.capacity !== 24) continue;
+
+				var setList = Storage.unpackTeam(team.team);
+				for (var j = 0; j < setList.length; j++) {
+					var set = setList[j];
+					var name = set.name + " " + (duplicateNameIndices[set.name] || "");
+					var sets = this.userSets[format][set.species] || {};
+					sets[name] = set;
+					this.userSets[format][set.species] = sets;
+					duplicateNameIndices[set.name] = 1 + (duplicateNameIndices[set.name] || 0);
 				}
 			}
 		},
 		clearCachedUserSetsIfNecessary: function (format) {
+			if (!this.curTeam || !this.userSets) return;
+
 			// clear cached user sets if we have just been in a box for given format
-			if(this.curTeam?.capacity === 24 && this.userSets?.[format]) {
+			if (this.curTeam.capacity === 24 && this.userSets[format]) {
 				this.userSets[format] = undefined;
 			}
 		},
@@ -1834,37 +1839,48 @@
 			var $userSetDiv = this.$('.teambuilder-pokemon-import .teambuilder-import-user-sets');
 			$userSetDiv.empty();
 
-			if(smogonFormatSets) {
+			if (smogonFormatSets) {
 				var smogonSets = $.extend({}, smogonFormatSets['dex'][species], (smogonFormatSets['stats'] || {})[species]);
 				$smogonSetDiv.text('Sample sets: ');
 				for (var set in smogonSets) {
-					$smogonSetDiv.append('<button name="importSmogonSet" class="button">' + BattleLog.escapeHTML(set) + '</button>');
+					$smogonSetDiv.append('<button name="importSmogonSet" class="button smogon">' + BattleLog.escapeHTML(set) + '</button>');
 				}
 				$smogonSetDiv.append(' <small>(<a target="_blank" href="' + this.smogdexLink(species) + '">Smogon&nbsp;analysis</a>)</small>');
 			}
 
-			if(userFormatSets?.[species]) {
-				$userSetDiv.text('User sets: ');
+			$userSetDiv.text('Box sets: ');
+			if (userFormatSets && userFormatSets[species]) {
 				for (var set in userFormatSets[species]) {
-					$userSetDiv.append('<button name="importSmogonSet" class="button">' + BattleLog.escapeHTML(set) + '</button>');
+					$userSetDiv.append('<button name="importSmogonSet" class="button box">' + BattleLog.escapeHTML(set) + '</button>');
 				}
+			} else {
+				$userSetDiv.append('<small>(Sets from your boxes in this format will be available here)</small>');
 			}
 		},
 		importSmogonSet: function (i, button) {
-			var smogonFormatSets = this.smogonSets?.[this.curTeam.format];
-			var userFormatSets = this.userSets?.[this.curTeam.format];
 			var species = this.curSet.species;
-
 			var setName = this.$(button).text();
-			var smogonSet = smogonFormatSets?.['dex']?.[species]?.[setName] 
-							|| smogonFormatSets?.['stats']?.[species]?.[setName] 
-							|| userFormatSets?.[species]?.[setName];
-			
-			var curSet = $.extend({}, this.curSet, smogonSet);
+			var sampleSet;
+			if (this.$(button).hasClass('smogon')) {
+				var smogonFormatSets = this.smogonSets[this.curTeam.format];
+				sampleSet = smogonFormatSets['dex'][species][setName] || smogonFormatSets['stats'][species][setName];
+			}
+
+			if (this.$(button).hasClass('box')) {
+				var userFormatSets = this.userSets[this.curTeam.format];
+				sampleSet = userFormatSets[species][setName];
+			}
+
+			if (!sampleSet) return;
+
+			var curSet = $.extend({}, this.curSet, sampleSet);
+
+			// smogon samples don't usually have sample names, box samples usually do; either way, don't use them
+			curSet.name = this.curSet.name || undefined;
 
 			// never preserve current set tera, even if smogon set used default
-			if(this.curSet.gen === 9) {
-				curSet.teraType = species.forceTeraType || smogonSet?.teraType || species.types[0]
+			if (this.curSet.gen === 9) {
+				curSet.teraType = species.forceTeraType || sampleSet.teraType || species.types[0];
 			}
 
 			var text = Storage.exportTeam([curSet], this.curTeam.gen);
