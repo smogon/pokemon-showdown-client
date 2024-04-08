@@ -3015,15 +3015,13 @@ function BattleStatOptimizer(set: PokemonSet, formatid: ID) {
 			minus?: StatNameExceptHP,
 		} = {evs: {...origSpread.evs}, plus: bestPlus, minus: bestMinus};
 		if (bestPlus !== origNature.plus || bestMinus !== origNature.minus) {
-			if (bestPlusMinEVs) newSpread.evs[bestPlus] = bestPlusMinEVs;
-			if (bestMinusMinEVs) newSpread.evs[bestMinus] = bestMinusMinEVs;
+			newSpread.evs[bestPlus] = bestPlusMinEVs!;
+			newSpread.evs[bestMinus] = bestMinusMinEVs!;
 			if (origNature.plus && origNature.plus !== bestPlus && origNature.plus !== bestMinus) {
-				const oldPlusEVs = getMinEVs(origNature.plus, newSpread);
-				if (oldPlusEVs) newSpread.evs[origNature.plus] = oldPlusEVs;
+				newSpread.evs[origNature.plus] = getMinEVs(origNature.plus, newSpread);
 			}
 			if (origNature.minus && origNature.minus !== bestPlus && origNature.minus !== bestMinus) {
-				const oldMinusEVS = getMinEVs(origNature.minus, newSpread);
-				if (oldMinusEVS) newSpread.evs[origNature.minus] = oldMinusEVS;
+				newSpread.evs[origNature.minus] = getMinEVs(origNature.minus, newSpread);
 			}
 			for (const stat of Dex.statNames) {
 				if (!newSpread.evs[stat]) delete newSpread.evs[stat];
