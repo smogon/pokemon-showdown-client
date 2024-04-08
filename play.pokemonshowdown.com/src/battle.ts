@@ -608,6 +608,7 @@ export class Side {
 	foe: Side = null!;
 	ally: Side | null = null;
 	avatar: string = 'unknown';
+	badges: string[] = [];
 	rating: string = '';
 	totalPokemon = 6;
 	x = 0;
@@ -3767,6 +3768,15 @@ export class Battle {
 			if (args[4]) side.rating = args[4];
 			if (this.joinButtons) this.scene.hideJoinButtons();
 			this.log(args);
+			this.scene.updateSidebar(side);
+			break;
+		}
+		case 'badge': {
+			let side = this.getSide(args[1]);
+			// handle all the rendering further down
+			const badge = args.slice(2).join('|');
+			// (don't allow duping)
+			if (!side.badges.includes(badge)) side.badges.push(badge);
 			this.scene.updateSidebar(side);
 			break;
 		}
