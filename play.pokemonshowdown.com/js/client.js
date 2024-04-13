@@ -756,7 +756,7 @@ function toId() {
 
 			var self = this;
 			var constructSocket = function () {
-				if (location.host === 'localhost.psim.us' || /[0-9]+.[0-9]+.[0-9]+.[0-9]+\.psim\.us/.test(location.host)) {
+				if (location.host === 'localhost.psim.us' || /[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+\.psim\.us/.test(location.host)) {
 					// normally we assume HTTPS means HTTPS, but make an exception for
 					// localhost and IPs which generally can't have a signed cert anyway.
 					Config.server.port = 8000;
