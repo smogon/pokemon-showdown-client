@@ -16,16 +16,16 @@
   "dependencies": {
     "bcrypt": "^5.0.1",
     "google-auth-library": "^3.1.2",
-    "mysql2": "^3.6.5",
+    "mysql2": "^3.9.4",
     "pg": "^8.11.3",
     "pm2": "^5.1.2",
     "testcontainers": "^9.1.1"
   },
   "devDependencies": {
-    "@types/node": "^15.12.4",
-    "@types/pg": "^8.10.3",
     "@types/bcrypt": "^5.0.0",
     "@types/mocha": "^5.2.6",
+    "@types/node": "^15.12.4",
+    "@types/pg": "^8.10.3",
     "@typescript-eslint/eslint-plugin": "^6.14.0",
     "@typescript-eslint/parser": "^6.14.0",
     "eslint": "^8.56.0",
