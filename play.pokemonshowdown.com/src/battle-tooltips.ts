@@ -108,7 +108,8 @@ class ModifiableValue {
 		if (name) this.comment.push(` (${this.round(factor)}&times; from ${name})`);
 		this.value *= factor;
 		if (!(name === 'Technician' && this.maxValue > 60)) this.maxValue *= factor;
-		if (this.battle.tier.includes('Super Staff Bros') && !(name === 'Confirmed Town' && this.maxValue > 60)) this.maxValue *= factor;
+		if (this.battle.tier.includes('Super Staff Bros') &&
+			!(name === 'Confirmed Town' && this.maxValue > 60)) this.maxValue *= factor;
 		return true;
 	}
 	set(value: number, reason?: string) {
@@ -1297,7 +1298,8 @@ class BattleTooltips {
 				}
 				if (weather === 'sunnyday' || weather === 'desolateland') stats.spa = Math.floor(stats.spa * 1.5);
 			}
-			if (item !== 'utilityumbrella' && ability === 'ridethesun' && (weather === 'sunnyday' || weather === 'desolateland')) {
+			if (item !== 'utilityumbrella' && ability === 'ridethesun' &&
+				(weather === 'sunnyday' || weather === 'desolateland')) {
 				speedModifiers.push(2);
 			}
 			if (ability === 'soulsurfer' && this.battle.hasPseudoWeather('Electric Terrain')) {
@@ -1696,7 +1698,7 @@ class BattleTooltips {
 			}
 			if (move.id === 'alting') {
 				moveType = '???';
-				if (pokemon.shiny){
+				if (pokemon.shiny) {
 					category = 'Special';
 				}
 			}
@@ -1801,7 +1803,8 @@ class BattleTooltips {
 					}
 				}
 			}
-			if (value.tryAbility('See No Evil, Hear No Evil, Speak No Evil') && pokemon.getSpeciesForme().includes('Wellspring')) {
+			if (value.tryAbility('See No Evil, Hear No Evil, Speak No Evil') &&
+				pokemon.getSpeciesForme().includes('Wellspring')) {
 				value.abilityModify(0, 'See No Evil, Hear No Evil, Speak No Evil');
 			}
 			value.abilityModify(0, 'Sure Hit Sorcery');
@@ -2292,7 +2295,7 @@ class BattleTooltips {
 					value.modify(1.2);
 				}
 			}
-			if (target?.gender == "M" && pokemon.getSpeciesForme().includes("Hearthflame")) {
+			if (target?.gender === "M" && pokemon.getSpeciesForme().includes("Hearthflame")) {
 				value.abilityModify(1.3, 'See No Evil, Hear No Evil, Speak No Evil');
 			}
 			for (let i = 1; i <= 5 && i <= pokemon.side.faintCounter; i++) {
