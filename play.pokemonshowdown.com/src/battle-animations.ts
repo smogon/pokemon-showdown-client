@@ -122,6 +122,7 @@ export class BattleScene implements BattleSceneStub {
 		}
 		this.numericId = numericId;
 		this.tooltips = new BattleTooltips(battle);
+		if (this.battle.id.includes('superstaffbros')) this.tooltips.dex = Dex.mod('gen9ssb' as ID);
 		this.tooltips.listen($frame[0]);
 
 		this.preloadEffects();
