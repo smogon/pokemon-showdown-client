@@ -273,6 +273,9 @@ class BattleTooltips {
 		 * cover up buttons above the hovered button.
 		 */
 		let ownHeight = !!elem.dataset.ownheight;
+		if (this.battle.id.includes('superstaffbros')) {
+			this.dex = Dex.mod('gen9ssb' as ID);
+		}
 
 		let buf: string;
 		switch (type) {
@@ -539,6 +542,9 @@ class BattleTooltips {
 
 		let zEffect = '';
 		let foeActive = pokemon.side.foe.active;
+		if (this.battle.id.includes('superstaffbros')) {
+			this.dex = Dex.mod('gen9ssb' as ID);
+		}
 		if (this.battle.gameType === 'freeforall') {
 			foeActive = [...foeActive, ...pokemon.side.active].filter(active => active !== pokemon);
 		}
@@ -2219,6 +2225,7 @@ class BattleTooltips {
 
 		// SSB
 		if (this.battle.tier.includes("Super Staff Bros")) {
+			this.dex = Dex.mod('gen9ssb' as ID);
 			if (move.id === 'bodycount') {
 				value.set(50 + 50 * pokemon.side.faintCounter,
 					pokemon.side.faintCounter > 0
