@@ -106,6 +106,8 @@ class ModifiableValue {
 		if (name) this.comment.push(` (${this.round(factor)}&times; from ${name})`);
 		this.value *= factor;
 		if (!(name === 'Technician' && this.maxValue > 60)) this.maxValue *= factor;
+		if (this.battle.tier.includes('Super Staff Bros') &&
+			!(name === 'Confirmed Town' && this.maxValue > 60)) this.maxValue *= factor;
 		return true;
 	}
 	set(value: number, reason?: string) {
@@ -994,6 +996,11 @@ class BattleTooltips {
 				if (statName === 'def') sourceStatName = 'atk';
 			}
 			stats[statName] = serverPokemon.stats[sourceStatName];
+			// SSB
+			if (this.battle.tier.includes('Super Staff Bros') && clientPokemon?.volatiles['ok']) {
+				if (statName === 'spa') stats[statName] += Math.floor(stats.atk / 10);
+				if (statName === 'spe') stats[statName] += Math.floor(stats.atk * 9 / 10);
+			}
 			if (!clientPokemon) continue;
 
 			const clientStatName = clientPokemon.boosts.spc && (statName === 'spa' || statName === 'spd') ? 'spc' : statName;
@@ -1249,6 +1256,86 @@ class BattleTooltips {
 				stats.spd = Math.floor(stats.spd * 0.75);
 			}
 		}
+
+		// SSB
+		if (this.battle.tier.includes('Super Staff Bros')) {
+			if (ability === 'misspelled') {
+				stats.spa = Math.floor(stats.spa * 1.5);
+			}
+			if (ability === 'fortifyingfrost' && weather === 'snow') {
+				stats.spa = Math.floor(stats.spa * 1.5);
+				stats.spd = Math.floor(stats.spd * 1.5);
+			}
+			if (weather === 'deserteddunes' && this.pokemonHasType(pokemon, 'Rock')) {
+				stats.spd = Math.floor(stats.spd * 1.5);
+			}
+			if (pokemon.status && ability === 'fortifiedmetal') {
+				stats.atk = Math.floor(stats.atk * 1.5);
+			}
+			if (ability === 'grassyemperor' && this.battle.hasPseudoWeather('Grassy Terrain')) {
+				stats.atk = Math.floor(stats.atk * 1.3333);
+			}
+			if (ability === 'magicalmysterycharge' && this.battle.hasPseudoWeather('Electric Terrain')) {
+				stats.spd = Math.floor(stats.spd * 1.5);
+			}
+			if (ability === 'youkaiofthedusk' || ability === 'galeguard') {
+				stats.def *= 2;
+			}
+			if (ability === 'climatechange') {
+				if (weather === 'snow') {
+					stats.def = Math.floor(stats.def * 1.5);
+					stats.spd = Math.floor(stats.spd * 1.5);
+				}
+				if (weather === 'sunnyday' || weather === 'desolateland') stats.spa = Math.floor(stats.spa * 1.5);
+			}
+			if (item !== 'utilityumbrella' && ability === 'ridethesun' &&
+				(weather === 'sunnyday' || weather === 'desolateland')) {
+				speedModifiers.push(2);
+			}
+			if (ability === 'soulsurfer' && this.battle.hasPseudoWeather('Electric Terrain')) {
+				speedModifiers.push(2);
+			}
+			if (item === 'eviolite' && this.battle.dex.species.get(serverPokemon.speciesForme).id === 'pichuspikyeared') {
+				stats.def = Math.floor(stats.def * 1.5);
+				stats.spd = Math.floor(stats.spd * 1.5);
+			}
+			if (this.battle.abilityActive('quagofruin')) {
+				if (ability !== 'quagofruin') {
+					stats.def = Math.floor(stats.def * 0.85);
+				}
+			}
+			if (this.battle.abilityActive('clodofruin')) {
+				if (ability !== 'clodofruin') {
+					stats.atk = Math.floor(stats.atk * 0.85);
+				}
+			}
+			if (this.battle.abilityActive('blitzofruin')) {
+				if (ability !== 'blitzofruin') {
+					speedModifiers.push(0.75);
+				}
+			}
+			if (this.battle.hasPseudoWeather('Anfield Atmosphere') && ability === 'youllneverwalkalone') {
+				stats.atk = Math.floor(stats.atk * 1.25);
+				stats.def = Math.floor(stats.def * 1.25);
+				stats.spd = Math.floor(stats.spd * 1.25);
+				speedModifiers.push(1.25);
+			}
+			if (clientPokemon) {
+				if (clientPokemon.volatiles['boiled']) {
+					stats.spa = Math.floor(stats.spa * 1.5);
+				}
+				for (const statName of Dex.statNamesExceptHP) {
+					if (clientPokemon.volatiles['ultramystik']) {
+						if (statName === 'spe') {
+							speedModifiers.push(1.5);
+						} else {
+							stats[statName] = Math.floor(stats[statName] * 1.5);
+						}
+					}
+				}
+			}
+		}
+
 		const sideConditions = this.battle.mySide.sideConditions;
 		if (sideConditions['tailwind']) {
 			speedModifiers.push(2);
@@ -1558,6 +1645,54 @@ class BattleTooltips {
 			const stats = this.calculateModifiedStats(pokemon, serverPokemon, true);
 			if (stats.atk > stats.spa) category = 'Physical';
 		}
+
+		// SSB
+		if (this.battle.tier.includes('Super Staff Bros')) {
+			if (allowTypeOverride && category !== "Status" && !move.isZ && !move.id.startsWith('hiddenpower')) {
+				if (value.abilityModify(0, 'Acetosa')) moveType = 'Grass';
+				if (value.abilityModify(0, 'I Can Hear The Heart Beating As One') && moveType === 'Normal') moveType = 'Fairy';
+			}
+			if (move.id === 'tsignore' || move.id === 'o') {
+				const stats = this.calculateModifiedStats(pokemon, serverPokemon, true);
+				if (stats.atk > stats.spa) category = 'Physical';
+			}
+			if (move.id === 'tsignore' && pokemon.getSpeciesForme().startsWith('Meloetta') &&
+				pokemon.terastallized) {
+				moveType = 'Stellar';
+			}
+			if (move.id === 'weatherball' && value.weatherModify(0)) {
+				if (this.battle.weather === 'stormsurge') moveType = 'Water';
+				if (this.battle.weather === 'deserteddunes') moveType = 'Rock';
+			}
+			if (move.id === 'o' || move.id === 'worriednoises') {
+				moveType = pokemonTypes[0];
+			}
+			if (move.id === 'dillydally') {
+				moveType = pokemonTypes[pokemonTypes.length - 1];
+			}
+			if (move.id === 'magicalfocus') {
+				if (this.battle.turn % 3 === 1) {
+					moveType = 'Fire';
+				} else if (this.battle.turn % 3 === 2) {
+					moveType = 'Electric';
+				} else {
+					moveType = 'Ice';
+				}
+			}
+			if (move.id === 'hydrostatics' && pokemon.terastallized) {
+				moveType = 'Water';
+			}
+			if (move.id === 'asongoficeandfire' && pokemon.getSpeciesForme() === 'Volcarona') moveType = 'Ice';
+			if (this.battle.abilityActive('dynamictyping')) {
+				moveType = '???';
+			}
+			if (move.id === 'alting') {
+				moveType = '???';
+				if (pokemon.shiny) {
+					category = 'Special';
+				}
+			}
+		}
 		return [moveType, category];
 	}
 
@@ -1633,6 +1768,38 @@ class BattleTooltips {
 		if (value.tryItem('Wide Lens')) {
 			accuracyModifiers.push(4505);
 			value.itemModify(1.1, "Wide Lens");
+		}
+
+		// SSB
+		if (this.battle.tier.includes('Super Staff Bros')) {
+			if (move.id === 'alting' && pokemon.shiny) {
+				value.set(100);
+			}
+			if (move.flags['wind'] && this.battle.weather === 'stormsurge') {
+				value.weatherModify(0, 'Storm Surge');
+			}
+			if (value.tryAbility('Misspelled') && move.category === 'Special') {
+				accuracyModifiers.push(3277);
+				value.abilityModify(0.8, "Misspelled");
+			}
+			if (value.tryAbility('Hydrostatic Positivity') && ['Electric', 'Water'].includes(move.type)) {
+				accuracyModifiers.push(5325);
+				value.abilityModify(1.3, "Hydrostatic Positivity");
+			}
+			if (value.tryAbility('Hardcore Hustle')) {
+				for (let i = 1; i <= 5 && i <= pokemon.side.faintCounter; i++) {
+					if (pokemon.volatiles[`fallen${i}`]) {
+						value.abilityModify([1, 0.95, 0.90, 0.85, 0.80, 0.75][i], "Hardcore Hustle");
+					}
+				}
+			}
+			if (value.tryAbility('See No Evil, Hear No Evil, Speak No Evil') &&
+				pokemon.getSpeciesForme().includes('Wellspring')) {
+				value.abilityModify(0, 'See No Evil, Hear No Evil, Speak No Evil');
+			}
+			value.abilityModify(0, 'Sure Hit Sorcery');
+			value.abilityModify(0, 'Eyes of Eternity');
+			if (!value.value) return value;
 		}
 
 		// Chaining modifiers
@@ -2047,6 +2214,87 @@ class BattleTooltips {
 			!this.battle.hasPseudoWeather('Psychic Terrain')
 		) {
 			value.set(0, 'no Terrain');
+		}
+
+		// SSB
+		if (this.battle.tier.includes('Super Staff Bros')) {
+			if (move.id === 'bodycount') {
+				value.set(50 + 50 * pokemon.side.faintCounter,
+					pokemon.side.faintCounter > 0
+						? `${pokemon.side.faintCounter} teammate${pokemon.side.faintCounter > 1 ? 's' : ''} KOed`
+						: undefined);
+			}
+			// Base power based on times hit
+			if (move.id === 'vengefulmood') {
+				value.set(Math.min(140, 60 + 20 * pokemon.timesAttacked),
+					pokemon.timesAttacked > 0
+						? `Hit ${pokemon.timesAttacked} time${pokemon.timesAttacked > 1 ? 's' : ''}`
+						: undefined);
+			}
+			if (move.id === 'alting' && pokemon.shiny) {
+				value.set(69, 'Shiny');
+			}
+			if (move.id === 'darkmooncackle') {
+				let boostCount = 0;
+				for (const boost of Object.values(pokemon.boosts)) {
+					if (boost > 0) boostCount += boost;
+				}
+				value.set(30 + 20 * boostCount);
+			}
+			if (move.id === 'buildingcharacter' && target?.terastallized) {
+				value.modify(2, 'Terastallized target');
+			}
+			if (move.id === 'mysticalbonfire' && target?.status) {
+				value.modify(2, 'Mystical Bonfire + status');
+			}
+			if (move.id === 'adaptivebeam' && target) {
+				let boostCount = 0;
+				let targetBoostCount = 0;
+				for (const boost of Object.values(pokemon.boosts)) {
+					if (boost > 0) boostCount += boost;
+				}
+				for (const boost of Object.values(target.boosts)) {
+					if (boost > 0) targetBoostCount += boost;
+				}
+				if (targetBoostCount >= boostCount) value.modify(2, "Target has more boosts");
+			}
+			if (value.value <= 60) {
+				value.abilityModify(1.5, "Confirmed Town");
+			}
+			if (move.category !== 'Status' && allowTypeOverride && !move.isZ &&
+				!move.isMax && !move.id.startsWith('hiddenpower')) {
+				if (moveType === 'Normal') value.abilityModify(this.battle.gen > 6 ? 1.2 : 1.3, "I Can Hear The Heart Beating As One");
+				value.abilityModify(this.battle.gen > 6 ? 1.2 : 1.3, "Acetosa");
+			}
+			if (move.flags['sound']) {
+				value.abilityModify(1.5, "Cacophony");
+			}
+			if (move.flags['punch']) {
+				value.abilityModify(1.3, "Harambe Hit");
+			}
+			if (move.flags['slicing']) {
+				value.abilityModify(1.5, "I Can Hear The Heart Beating As One");
+			}
+			if (move.priority > 0) {
+				value.abilityModify(2, "Full Bloom");
+			}
+			if (move.recoil || move.hasCrashDamage) {
+				value.abilityModify(1.2, 'Hogwash');
+				if (pokemon.name === "Billo") {
+					value.modify(1.2);
+				}
+			}
+			if (target?.gender === "M" && pokemon.getSpeciesForme().includes("Hearthflame")) {
+				value.abilityModify(1.3, 'See No Evil, Hear No Evil, Speak No Evil');
+			}
+			for (let i = 1; i <= 5 && i <= pokemon.side.faintCounter; i++) {
+				if (pokemon.volatiles[`fallen${i}`]) {
+					value.abilityModify([1, 1.15, 1.3, 1.45, 1.6, 1.75][i], "Hardcore Hustle");
+				}
+			}
+			let timeDilationBPMod = 1 + (0.1 * Math.floor(this.battle.turn / 10));
+			if (timeDilationBPMod > 2) timeDilationBPMod = 2;
+			value.abilityModify(timeDilationBPMod, "Time Dilation");
 		}
 
 		return value;
