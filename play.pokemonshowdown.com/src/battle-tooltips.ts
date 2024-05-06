@@ -13,7 +13,6 @@ class ModifiableValue {
 	maxValue = 0;
 	comment: string[];
 	battle: Battle;
-	dex: ModdedDex;
 	pokemon: Pokemon;
 	serverPokemon: ServerPokemon;
 	itemName: string;
@@ -23,15 +22,14 @@ class ModifiableValue {
 	constructor(battle: Battle, pokemon: Pokemon, serverPokemon: ServerPokemon) {
 		this.comment = [];
 		this.battle = battle;
-		this.dex = this.battle.dex;
 		this.pokemon = pokemon;
 		this.serverPokemon = serverPokemon;
 
-		this.itemName = this.dex.items.get(serverPokemon.item).name;
+		this.itemName = this.battle.dex.items.get(serverPokemon.item).name;
 		const ability = serverPokemon.ability || pokemon?.ability || serverPokemon.baseAbility;
-		this.abilityName = this.dex.abilities.get(ability).name;
-		this.weatherName = battle.weather === 'snow' ? 'Snow' : this.dex.moves.get(battle.weather).exists ?
-			this.dex.moves.get(battle.weather).name : this.dex.abilities.get(battle.weather).name;
+		this.abilityName = this.battle.dex.abilities.get(ability).name;
+		this.weatherName = battle.weather === 'snow' ? 'Snow' : this.battle.dex.moves.get(battle.weather).exists ?
+			this.battle.dex.moves.get(battle.weather).name : this.battle.dex.abilities.get(battle.weather).name;
 	}
 	reset(value = 0, isAccuracy?: boolean) {
 		this.value = value;
@@ -143,11 +141,9 @@ class ModifiableValue {
 
 class BattleTooltips {
 	battle: Battle;
-	dex: ModdedDex;
 
 	constructor(battle: Battle) {
 		this.battle = battle;
-		this.dex = this.battle.dex;
 	}
 
 	// tooltips
@@ -274,21 +270,18 @@ class BattleTooltips {
 		 * cover up buttons above the hovered button.
 		 */
 		let ownHeight = !!elem.dataset.ownheight;
-		if (this.battle.id.includes('superstaffbros')) {
-			this.dex = Dex.mod('gen9ssb' as ID);
-		}
 
 		let buf: string;
 		switch (type) {
 		case 'move':
 		case 'zmove':
 		case 'maxmove': { // move|MOVE|ACTIVEPOKEMON|[GMAXMOVE]
-			let move = this.dex.moves.get(args[1]);
+			let move = this.battle.dex.moves.get(args[1]);
 			let teamIndex = parseInt(args[2], 10);
 			let pokemon = this.battle.nearSide.active[
 				teamIndex + this.battle.pokemonControlled * Math.floor(this.battle.mySide.n / 2)
 			];
-			let gmaxMove = args[3] ? this.dex.moves.get(args[3]) : undefined;
+			let gmaxMove = args[3] ? this.battle.dex.moves.get(args[3]) : undefined;
 			if (!pokemon) return false;
 			let serverPokemon = this.battle.myPokemon![teamIndex];
 			buf = this.showMoveTooltip(move, type, pokemon, serverPokemon, gmaxMove);
@@ -532,10 +525,10 @@ class BattleTooltips {
 
 	getMaxMoveFromType(type: TypeName, gmaxMove?: string | Move) {
 		if (gmaxMove) {
-			if (typeof gmaxMove === 'string') gmaxMove = this.dex.moves.get(gmaxMove);
+			if (typeof gmaxMove === 'string') gmaxMove = this.battle.dex.moves.get(gmaxMove);
 			if (type === gmaxMove.type) return gmaxMove;
 		}
-		return this.dex.moves.get(BattleTooltips.maxMoveTable[type]);
+		return this.battle.dex.moves.get(BattleTooltips.maxMoveTable[type]);
 	}
 
 	showMoveTooltip(move: Move, isZOrMax: string, pokemon: Pokemon, serverPokemon: ServerPokemon, gmaxMove?: Move) {
@@ -543,16 +536,13 @@ class BattleTooltips {
 
 		let zEffect = '';
 		let foeActive = pokemon.side.foe.active;
-		if (this.battle.id.includes('superstaffbros')) {
-			this.dex = Dex.mod('gen9ssb' as ID);
-		}
 		if (this.battle.gameType === 'freeforall') {
 			foeActive = [...foeActive, ...pokemon.side.active].filter(active => active !== pokemon);
 		}
 		// TODO: move this somewhere it makes more sense
 		if (pokemon.ability === '(suppressed)') serverPokemon.ability = '(suppressed)';
 		let ability = toID(serverPokemon.ability || pokemon.ability || serverPokemon.baseAbility);
-		let item = this.dex.items.get(serverPokemon.item);
+		let item = this.battle.dex.items.get(serverPokemon.item);
 
 		let value = new ModifiableValue(this.battle, pokemon, serverPokemon);
 		let [moveType, category] = this.getMoveType(move, value, gmaxMove || isZOrMax === 'maxmove');
@@ -560,7 +550,7 @@ class BattleTooltips {
 
 		if (isZOrMax === 'zmove') {
 			if (item.zMoveFrom === move.name) {
-				move = this.dex.moves.get(item.zMove as string);
+				move = this.battle.dex.moves.get(item.zMove as string);
 			} else if (move.category === 'Status') {
 				move = new Move(move.id, "", {
 					...move,
@@ -569,28 +559,28 @@ class BattleTooltips {
 				zEffect = this.getStatusZMoveEffect(move);
 			} else {
 				let moveName = BattleTooltips.zMoveTable[item.zMoveType as TypeName];
-				let zMove = this.dex.moves.get(moveName);
+				let zMove = this.battle.dex.moves.get(moveName);
 				let movePower = move.zMove!.basePower;
 				// the different Hidden Power types don't have a Z power set, fall back on base move
 				if (!movePower && move.id.startsWith('hiddenpower')) {
-					movePower = this.dex.moves.get('hiddenpower').zMove!.basePower;
+					movePower = this.battle.dex.moves.get('hiddenpower').zMove!.basePower;
 				}
 				if (move.id === 'weatherball') {
 					switch (this.battle.weather) {
 					case 'sunnyday':
 					case 'desolateland':
-						zMove = this.dex.moves.get(BattleTooltips.zMoveTable['Fire']);
+						zMove = this.battle.dex.moves.get(BattleTooltips.zMoveTable['Fire']);
 						break;
 					case 'raindance':
 					case 'primordialsea':
-						zMove = this.dex.moves.get(BattleTooltips.zMoveTable['Water']);
+						zMove = this.battle.dex.moves.get(BattleTooltips.zMoveTable['Water']);
 						break;
 					case 'sandstorm':
-						zMove = this.dex.moves.get(BattleTooltips.zMoveTable['Rock']);
+						zMove = this.battle.dex.moves.get(BattleTooltips.zMoveTable['Rock']);
 						break;
 					case 'hail':
 					case 'snow':
-						zMove = this.dex.moves.get(BattleTooltips.zMoveTable['Ice']);
+						zMove = this.battle.dex.moves.get(BattleTooltips.zMoveTable['Ice']);
 						break;
 					}
 				}
@@ -603,7 +593,7 @@ class BattleTooltips {
 			}
 		} else if (isZOrMax === 'maxmove') {
 			if (move.category === 'Status') {
-				move = this.dex.moves.get('Max Guard');
+				move = this.battle.dex.moves.get('Max Guard');
 			} else {
 				let maxMove = this.getMaxMoveFromType(moveType, gmaxMove);
 				const basePower = ['gmaxdrumsolo', 'gmaxfireball', 'gmaxhydrosnipe'].includes(maxMove.id) ?
@@ -683,7 +673,7 @@ class BattleTooltips {
 				// In gen 3 it calls Swift, so it retains its normal typing.
 				calls = 'Swift';
 			}
-			let calledMove = this.dex.moves.get(calls);
+			let calledMove = this.battle.dex.moves.get(calls);
 			text += 'Calls ' + Dex.getTypeIcon(this.getMoveType(calledMove, value)[0]) + ' ' + calledMove.name;
 		}
 
@@ -883,10 +873,10 @@ class BattleTooltips {
 			let itemEffect = '';
 			if (clientPokemon?.prevItem) {
 				item = 'None';
-				let prevItem = this.dex.items.get(clientPokemon.prevItem).name;
+				let prevItem = this.battle.dex.items.get(clientPokemon.prevItem).name;
 				itemEffect += clientPokemon.prevItemEffect ? prevItem + ' was ' + clientPokemon.prevItemEffect : 'was ' + prevItem;
 			}
-			if (serverPokemon.item) item = this.dex.items.get(serverPokemon.item).name;
+			if (serverPokemon.item) item = this.battle.dex.items.get(serverPokemon.item).name;
 			if (itemEffect) itemEffect = ' (' + itemEffect + ')';
 			if (item) itemText = '<small>Item:</small> ' + item + itemEffect;
 		} else if (clientPokemon) {
@@ -895,10 +885,10 @@ class BattleTooltips {
 			if (clientPokemon.prevItem) {
 				item = 'None';
 				if (itemEffect) itemEffect += '; ';
-				let prevItem = this.dex.items.get(clientPokemon.prevItem).name;
+				let prevItem = this.battle.dex.items.get(clientPokemon.prevItem).name;
 				itemEffect += clientPokemon.prevItemEffect ? prevItem + ' was ' + clientPokemon.prevItemEffect : 'was ' + prevItem;
 			}
-			if (pokemon.item) item = this.dex.items.get(pokemon.item).name;
+			if (pokemon.item) item = this.battle.dex.items.get(pokemon.item).name;
 			if (itemEffect) itemEffect = ' (' + itemEffect + ')';
 			if (item) itemText = '<small>Item:</small> ' + item + itemEffect;
 		}
@@ -921,7 +911,7 @@ class BattleTooltips {
 			text += `<p class="tooltip-section">`;
 			const battlePokemon = clientPokemon || this.battle.findCorrespondingPokemon(pokemon);
 			for (const moveid of serverPokemon.moves) {
-				const move = this.dex.moves.get(moveid);
+				const move = this.battle.dex.moves.get(moveid);
 				let moveName = `&#8226; ${move.name}`;
 				if (battlePokemon?.moveTrack) {
 					for (const row of battlePokemon.moveTrack) {
@@ -942,7 +932,7 @@ class BattleTooltips {
 			}
 			if (clientPokemon.moveTrack.filter(([moveName]) => {
 				if (moveName.charAt(0) === '*') return false;
-				const move = this.dex.moves.get(moveName);
+				const move = this.battle.dex.moves.get(moveName);
 				return !move.isZ && !move.isMax && move.name !== 'Mimic';
 			}).length > 4) {
 				text += `(More than 4 moves is usually a sign of Illusion Zoroark/Zorua.) `;
@@ -1007,7 +997,7 @@ class BattleTooltips {
 			}
 			stats[statName] = serverPokemon.stats[sourceStatName];
 			// SSB
-			if (this.battle.tier.includes("Super Staff Bros") && clientPokemon?.volatiles['ok']) {
+			if (this.battle.tier.includes('Super Staff Bros') && clientPokemon?.volatiles['ok']) {
 				if (statName === 'spa') stats[statName] += Math.floor(stats.atk / 10);
 				if (statName === 'spe') stats[statName] += Math.floor(stats.atk * 9 / 10);
 			}
@@ -1063,10 +1053,10 @@ class BattleTooltips {
 			item = '' as ID;
 		}
 
-		const species = this.dex.species.get(serverPokemon.speciesForme).baseSpecies;
+		const species = this.battle.dex.species.get(serverPokemon.speciesForme).baseSpecies;
 		const isTransform = clientPokemon?.volatiles.transform;
 		const speciesName = isTransform && clientPokemon?.volatiles.formechange?.[1] && this.battle.gen <= 4 ?
-			this.dex.species.get(clientPokemon.volatiles.formechange[1]).baseSpecies : species;
+			this.battle.dex.species.get(clientPokemon.volatiles.formechange[1]).baseSpecies : species;
 
 		let speedModifiers = [];
 
@@ -1185,14 +1175,14 @@ class BattleTooltips {
 		if (ability === 'marvelscale' && pokemon.status) {
 			stats.def = Math.floor(stats.def * 1.5);
 		}
-		const isNFE = this.dex.species.get(serverPokemon.speciesForme).evos?.some(evo => {
-			const evoSpecies = this.dex.species.get(evo);
+		const isNFE = this.battle.dex.species.get(serverPokemon.speciesForme).evos?.some(evo => {
+			const evoSpecies = this.battle.dex.species.get(evo);
 			return !evoSpecies.isNonstandard ||
-					evoSpecies.isNonstandard === this.dex.species.get(serverPokemon.speciesForme)?.isNonstandard ||
+					evoSpecies.isNonstandard === this.battle.dex.species.get(serverPokemon.speciesForme)?.isNonstandard ||
 					// Pokemon with Hisui evolutions
 					evoSpecies.isNonstandard === "Unobtainable";
 		});
-		if (item === 'eviolite' && (isNFE || this.dex.species.get(serverPokemon.speciesForme).id === 'dipplin')) {
+		if (item === 'eviolite' && (isNFE || this.battle.dex.species.get(serverPokemon.speciesForme).id === 'dipplin')) {
 			stats.def = Math.floor(stats.def * 1.5);
 			stats.spd = Math.floor(stats.spd * 1.5);
 		}
@@ -1268,7 +1258,7 @@ class BattleTooltips {
 		}
 
 		// SSB
-		if (this.battle.tier.includes("Super Staff Bros")) {
+		if (this.battle.tier.includes('Super Staff Bros')) {
 			if (ability === 'misspelled') {
 				stats.spa = Math.floor(stats.spa * 1.5);
 			}
@@ -1305,7 +1295,7 @@ class BattleTooltips {
 			if (ability === 'soulsurfer' && this.battle.hasPseudoWeather('Electric Terrain')) {
 				speedModifiers.push(2);
 			}
-			if (item === 'eviolite' && this.dex.species.get(serverPokemon.speciesForme).id === 'pichuspikyeared') {
+			if (item === 'eviolite' && this.battle.dex.species.get(serverPokemon.speciesForme).id === 'pichuspikyeared') {
 				stats.def = Math.floor(stats.def * 1.5);
 				stats.spd = Math.floor(stats.spd * 1.5);
 			}
@@ -1426,10 +1416,10 @@ class BattleTooltips {
 		let maxpp;
 		if (moveName.charAt(0) === '*') {
 			// Transformed move
-			move = this.dex.moves.get(moveName.substr(1));
+			move = this.battle.dex.moves.get(moveName.substr(1));
 			maxpp = 5;
 		} else {
-			move = this.dex.moves.get(moveName);
+			move = this.battle.dex.moves.get(moveName);
 			maxpp = (move.pp === 1 || move.noPPBoosts ? move.pp : move.pp * 8 / 5);
 			if (this.battle.gen < 3) maxpp = Math.min(61, maxpp);
 		}
@@ -1467,7 +1457,7 @@ class BattleTooltips {
 			if (baseSpe > 255) baseSpe = 255;
 		}
 		if (rules['Frantic Fusions Mod']) {
-			const fusionSpecies = this.dex.species.get(pokemon.name);
+			const fusionSpecies = this.battle.dex.species.get(pokemon.name);
 			if (fusionSpecies.exists && fusionSpecies.name !== species.name) {
 				baseSpe = baseSpe + tr(fusionSpecies.baseStats.spe / 4);
 				if (baseSpe < 1) baseSpe = 1;
@@ -1529,7 +1519,7 @@ class BattleTooltips {
 			moveType = pokemonTypes[0];
 		}
 		// Moves that require an item to change their type.
-		let item = this.dex.items.get(value.itemName);
+		let item = this.battle.dex.items.get(value.itemName);
 		if (move.id === 'multiattack' && item.onMemory) {
 			if (value.itemModify(0)) moveType = item.onMemory;
 		}
@@ -1657,7 +1647,7 @@ class BattleTooltips {
 		}
 
 		// SSB
-		if (this.battle.tier.includes("Super Staff Bros")) {
+		if (this.battle.tier.includes('Super Staff Bros')) {
 			if (allowTypeOverride && category !== "Status" && !move.isZ && !move.id.startsWith('hiddenpower')) {
 				if (value.abilityModify(0, 'Acetosa')) moveType = 'Grass';
 				if (value.abilityModify(0, 'I Can Hear The Heart Beating As One') && moveType === 'Normal') moveType = 'Fairy';
@@ -1781,7 +1771,7 @@ class BattleTooltips {
 		}
 
 		// SSB
-		if (this.battle.tier.includes("Super Staff Bros")) {
+		if (this.battle.tier.includes('Super Staff Bros')) {
 			if (move.id === 'alting' && pokemon.shiny) {
 				value.set(100);
 			}
@@ -2012,7 +2002,7 @@ class BattleTooltips {
 		}
 		// Moves which have base power changed due to items
 		if (serverPokemon.item) {
-			let item = this.dex.items.get(serverPokemon.item);
+			let item = this.battle.dex.items.get(serverPokemon.item);
 			if (move.id === 'fling' && item.fling) {
 				value.itemModify(item.fling.basePower);
 			}
@@ -2227,8 +2217,7 @@ class BattleTooltips {
 		}
 
 		// SSB
-		if (this.battle.tier.includes("Super Staff Bros")) {
-			this.dex = Dex.mod('gen9ssb' as ID);
+		if (this.battle.tier.includes('Super Staff Bros')) {
 			if (move.id === 'bodycount') {
 				value.set(50 + 50 * pokemon.side.faintCounter,
 					pokemon.side.faintCounter > 0
@@ -2364,13 +2353,13 @@ class BattleTooltips {
 		'Water Pledge',
 	];
 	getItemBoost(move: Move, value: ModifiableValue, moveType: TypeName) {
-		let item = this.dex.items.get(value.serverPokemon.item);
+		let item = this.battle.dex.items.get(value.serverPokemon.item);
 		let itemName = item.name;
 		let moveName = move.name;
-		let species = this.dex.species.get(value.serverPokemon.speciesForme);
+		let species = this.battle.dex.species.get(value.serverPokemon.speciesForme);
 		let isTransform = value.pokemon.volatiles.transform;
 		let speciesName = isTransform && value.pokemon.volatiles.formechange?.[1] && this.battle.gen <= 4 ?
-			this.dex.species.get(value.pokemon.volatiles.formechange[1]).baseSpecies : species.baseSpecies;
+			this.battle.dex.species.get(value.pokemon.volatiles.formechange[1]).baseSpecies : species.baseSpecies;
 
 		// Plates
 		if (item.onPlate === moveType && !item.zMove) {
@@ -2427,7 +2416,7 @@ class BattleTooltips {
 	}
 	getPokemonTypes(pokemon: Pokemon | ServerPokemon, preterastallized = false): ReadonlyArray<TypeName> {
 		if (!(pokemon as Pokemon).getTypes) {
-			return this.dex.species.get(pokemon.speciesForme).types;
+			return this.battle.dex.species.get(pokemon.speciesForme).types;
 		}
 
 		return (pokemon as Pokemon).getTypeList(undefined, preterastallized);
@@ -2441,13 +2430,13 @@ class BattleTooltips {
 	}
 	getAllyAbility(ally: Pokemon) {
 		// this will only be available if the ability announced itself in some way
-		let allyAbility = this.dex.abilities.get(ally.ability).name;
+		let allyAbility = this.battle.dex.abilities.get(ally.ability).name;
 		// otherwise fall back on the original set data sent from the server
 		if (!allyAbility) {
 			if (this.battle.myAllyPokemon) { // multi battle ally
-				allyAbility = this.dex.abilities.get(this.battle.myAllyPokemon[ally.slot].ability || '').name;
+				allyAbility = this.battle.dex.abilities.get(this.battle.myAllyPokemon[ally.slot].ability || '').name;
 			} else if (this.battle.myPokemon) {
-				allyAbility = this.dex.abilities.get(this.battle.myPokemon[ally.slot].ability || '').name;
+				allyAbility = this.battle.dex.abilities.get(this.battle.myPokemon[ally.slot].ability || '').name;
 			}
 		}
 		return allyAbility;
@@ -2464,14 +2453,14 @@ class BattleTooltips {
 				}
 			} else {
 				const speciesForme = clientPokemon.getSpeciesForme() || serverPokemon?.speciesForme || '';
-				const species = this.dex.species.get(speciesForme);
+				const species = this.battle.dex.species.get(speciesForme);
 				if (species.exists && species.abilities) {
 					abilityData.possibilities = [species.abilities['0']];
 					if (species.abilities['1']) abilityData.possibilities.push(species.abilities['1']);
 					if (species.abilities['H']) abilityData.possibilities.push(species.abilities['H']);
 					if (species.abilities['S']) abilityData.possibilities.push(species.abilities['S']);
 					if (this.battle.rules['Frantic Fusions Mod']) {
-						const fusionSpecies = this.dex.species.get(clientPokemon.name);
+						const fusionSpecies = this.battle.dex.species.get(clientPokemon.name);
 						if (fusionSpecies.exists && fusionSpecies.name !== species.name) {
 							abilityData.possibilities = Array.from(
 								new Set(abilityData.possibilities.concat(Object.values(fusionSpecies.abilities)))
@@ -2500,12 +2489,12 @@ class BattleTooltips {
 		if (!isActive) {
 			// for switch tooltips, only show the original ability
 			const ability = abilityData.baseAbility || abilityData.ability;
-			if (ability) text = '<small>Ability:</small> ' + this.dex.abilities.get(ability).name;
+			if (ability) text = '<small>Ability:</small> ' + this.battle.dex.abilities.get(ability).name;
 		} else {
 			if (abilityData.ability) {
-				const abilityName = this.dex.abilities.get(abilityData.ability).name;
+				const abilityName = this.battle.dex.abilities.get(abilityData.ability).name;
 				text = '<small>Ability:</small> ' + abilityName;
-				const baseAbilityName = this.dex.abilities.get(abilityData.baseAbility).name;
+				const baseAbilityName = this.battle.dex.abilities.get(abilityData.baseAbility).name;
 				if (baseAbilityName && baseAbilityName !== abilityName) text += ' (base: ' + baseAbilityName + ')';
 			}
 		}
