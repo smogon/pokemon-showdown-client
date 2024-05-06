@@ -25,11 +25,11 @@ class ModifiableValue {
 		this.pokemon = pokemon;
 		this.serverPokemon = serverPokemon;
 
-		this.itemName = Dex.items.get(serverPokemon.item).name;
+		this.itemName = this.battle.dex.items.get(serverPokemon.item).name;
 		const ability = serverPokemon.ability || pokemon?.ability || serverPokemon.baseAbility;
-		this.abilityName = Dex.abilities.get(ability).name;
-		this.weatherName = battle.weather === 'snow' ? 'Snow' : Dex.moves.get(battle.weather).exists ?
-			Dex.moves.get(battle.weather).name : Dex.abilities.get(battle.weather).name;
+		this.abilityName = this.battle.dex.abilities.get(ability).name;
+		this.weatherName = battle.weather === 'snow' ? 'Snow' : this.battle.dex.moves.get(battle.weather).exists ?
+			this.battle.dex.moves.get(battle.weather).name : this.battle.dex.abilities.get(battle.weather).name;
 	}
 	reset(value = 0, isAccuracy?: boolean) {
 		this.value = value;
@@ -525,10 +525,10 @@ class BattleTooltips {
 
 	getMaxMoveFromType(type: TypeName, gmaxMove?: string | Move) {
 		if (gmaxMove) {
-			gmaxMove = Dex.moves.get(gmaxMove);
+			if (typeof gmaxMove === 'string') gmaxMove = this.battle.dex.moves.get(gmaxMove);
 			if (type === gmaxMove.type) return gmaxMove;
 		}
-		return Dex.moves.get(BattleTooltips.maxMoveTable[type]);
+		return this.battle.dex.moves.get(BattleTooltips.maxMoveTable[type]);
 	}
 
 	showMoveTooltip(move: Move, isZOrMax: string, pokemon: Pokemon, serverPokemon: ServerPokemon, gmaxMove?: Move) {
@@ -873,10 +873,10 @@ class BattleTooltips {
 			let itemEffect = '';
 			if (clientPokemon?.prevItem) {
 				item = 'None';
-				let prevItem = Dex.items.get(clientPokemon.prevItem).name;
+				let prevItem = this.battle.dex.items.get(clientPokemon.prevItem).name;
 				itemEffect += clientPokemon.prevItemEffect ? prevItem + ' was ' + clientPokemon.prevItemEffect : 'was ' + prevItem;
 			}
-			if (serverPokemon.item) item = Dex.items.get(serverPokemon.item).name;
+			if (serverPokemon.item) item = this.battle.dex.items.get(serverPokemon.item).name;
 			if (itemEffect) itemEffect = ' (' + itemEffect + ')';
 			if (item) itemText = '<small>Item:</small> ' + item + itemEffect;
 		} else if (clientPokemon) {
@@ -885,10 +885,10 @@ class BattleTooltips {
 			if (clientPokemon.prevItem) {
 				item = 'None';
 				if (itemEffect) itemEffect += '; ';
-				let prevItem = Dex.items.get(clientPokemon.prevItem).name;
+				let prevItem = this.battle.dex.items.get(clientPokemon.prevItem).name;
 				itemEffect += clientPokemon.prevItemEffect ? prevItem + ' was ' + clientPokemon.prevItemEffect : 'was ' + prevItem;
 			}
-			if (pokemon.item) item = Dex.items.get(pokemon.item).name;
+			if (pokemon.item) item = this.battle.dex.items.get(pokemon.item).name;
 			if (itemEffect) itemEffect = ' (' + itemEffect + ')';
 			if (item) itemText = '<small>Item:</small> ' + item + itemEffect;
 		}
@@ -911,7 +911,7 @@ class BattleTooltips {
 			text += `<p class="tooltip-section">`;
 			const battlePokemon = clientPokemon || this.battle.findCorrespondingPokemon(pokemon);
 			for (const moveid of serverPokemon.moves) {
-				const move = Dex.moves.get(moveid);
+				const move = this.battle.dex.moves.get(moveid);
 				let moveName = `&#8226; ${move.name}`;
 				if (battlePokemon?.moveTrack) {
 					for (const row of battlePokemon.moveTrack) {
@@ -1053,7 +1053,7 @@ class BattleTooltips {
 			item = '' as ID;
 		}
 
-		const species = Dex.species.get(serverPokemon.speciesForme).baseSpecies;
+		const species = this.battle.dex.species.get(serverPokemon.speciesForme).baseSpecies;
 		const isTransform = clientPokemon?.volatiles.transform;
 		const speciesName = isTransform && clientPokemon?.volatiles.formechange?.[1] && this.battle.gen <= 4 ?
 			this.battle.dex.species.get(clientPokemon.volatiles.formechange[1]).baseSpecies : species;
@@ -1519,7 +1519,7 @@ class BattleTooltips {
 			moveType = pokemonTypes[0];
 		}
 		// Moves that require an item to change their type.
-		let item = Dex.items.get(value.itemName);
+		let item = this.battle.dex.items.get(value.itemName);
 		if (move.id === 'multiattack' && item.onMemory) {
 			if (value.itemModify(0)) moveType = item.onMemory;
 		}
@@ -2002,7 +2002,7 @@ class BattleTooltips {
 		}
 		// Moves which have base power changed due to items
 		if (serverPokemon.item) {
-			let item = Dex.items.get(serverPokemon.item);
+			let item = this.battle.dex.items.get(serverPokemon.item);
 			if (move.id === 'fling' && item.fling) {
 				value.itemModify(item.fling.basePower);
 			}
@@ -2430,13 +2430,13 @@ class BattleTooltips {
 	}
 	getAllyAbility(ally: Pokemon) {
 		// this will only be available if the ability announced itself in some way
-		let allyAbility = Dex.abilities.get(ally.ability).name;
+		let allyAbility = this.battle.dex.abilities.get(ally.ability).name;
 		// otherwise fall back on the original set data sent from the server
 		if (!allyAbility) {
 			if (this.battle.myAllyPokemon) { // multi battle ally
-				allyAbility = Dex.abilities.get(this.battle.myAllyPokemon[ally.slot].ability).name;
+				allyAbility = this.battle.dex.abilities.get(this.battle.myAllyPokemon[ally.slot].ability || '').name;
 			} else if (this.battle.myPokemon) {
-				allyAbility = Dex.abilities.get(this.battle.myPokemon[ally.slot].ability).name;
+				allyAbility = this.battle.dex.abilities.get(this.battle.myPokemon[ally.slot].ability || '').name;
 			}
 		}
 		return allyAbility;
@@ -2489,12 +2489,12 @@ class BattleTooltips {
 		if (!isActive) {
 			// for switch tooltips, only show the original ability
 			const ability = abilityData.baseAbility || abilityData.ability;
-			if (ability) text = '<small>Ability:</small> ' + Dex.abilities.get(ability).name;
+			if (ability) text = '<small>Ability:</small> ' + this.battle.dex.abilities.get(ability).name;
 		} else {
 			if (abilityData.ability) {
-				const abilityName = Dex.abilities.get(abilityData.ability).name;
+				const abilityName = this.battle.dex.abilities.get(abilityData.ability).name;
 				text = '<small>Ability:</small> ' + abilityName;
-				const baseAbilityName = Dex.abilities.get(abilityData.baseAbility).name;
+				const baseAbilityName = this.battle.dex.abilities.get(abilityData.baseAbility).name;
 				if (baseAbilityName && baseAbilityName !== abilityName) text += ' (base: ' + baseAbilityName + ')';
 			}
 		}
