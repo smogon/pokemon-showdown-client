@@ -602,6 +602,11 @@ class BattleTextParser {
 				const template = this.template('activate', 'perishsong');
 				return line1 + template.replace('[POKEMON]', this.pokemon(pokemon)).replace('[NUMBER]', num);
 			}
+			if (id.startsWith('protosynthesis') || id.startsWith('quarkdrive')) {
+				const stat = id.slice(-3);
+				id = id.slice(0, 3);
+				if (stat) arg3 = stat;
+			}
 			let templateId = 'start';
 			if (kwArgs.already) templateId = 'alreadyStarted';
 			if (kwArgs.fatigue) templateId = 'startFromFatigue';
