@@ -996,11 +996,6 @@ class BattleTooltips {
 				if (statName === 'def') sourceStatName = 'atk';
 			}
 			stats[statName] = serverPokemon.stats[sourceStatName];
-			// SSB
-			if (this.battle.tier.includes('Super Staff Bros') && clientPokemon?.volatiles['ok']) {
-				if (statName === 'spa') stats[statName] += Math.floor(stats.atk / 10);
-				if (statName === 'spe') stats[statName] += Math.floor(stats.atk * 9 / 10);
-			}
 			if (!clientPokemon) continue;
 
 			const clientStatName = clientPokemon.boosts.spc && (statName === 'spa' || statName === 'spd') ? 'spc' : statName;
@@ -1259,6 +1254,9 @@ class BattleTooltips {
 
 		// SSB
 		if (this.battle.tier.includes('Super Staff Bros')) {
+			if (serverPokemon.name === 'Felucia') {
+				speedModifiers.push(1.5);
+			}
 			if (ability === 'misspelled') {
 				stats.spa = Math.floor(stats.spa * 1.5);
 			}
@@ -1327,9 +1325,9 @@ class BattleTooltips {
 				for (const statName of Dex.statNamesExceptHP) {
 					if (clientPokemon.volatiles['ultramystik']) {
 						if (statName === 'spe') {
-							speedModifiers.push(1.5);
+							speedModifiers.push(1.3);
 						} else {
-							stats[statName] = Math.floor(stats[statName] * 1.5);
+							stats[statName] = Math.floor(stats[statName] * 1.3);
 						}
 					}
 				}
