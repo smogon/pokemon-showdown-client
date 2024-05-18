@@ -1254,7 +1254,7 @@ class BattleTooltips {
 
 		// SSB
 		if (this.battle.tier.includes('Super Staff Bros')) {
-			if (serverPokemon.name === 'Felucia') {
+			if (pokemon.name === 'Felucia') {
 				speedModifiers.push(1.5);
 			}
 			if (ability === 'misspelled') {
