@@ -2243,18 +2243,10 @@ class BattleTooltips {
 				value.modify(2, 'Terastallized target');
 			}
 			if (move.id === 'mysticalbonfire' && target?.status) {
-				value.modify(2, 'Mystical Bonfire + status');
+				value.modify(1.5, 'Mystical Bonfire + status');
 			}
-			if (move.id === 'adaptivebeam' && target) {
-				let boostCount = 0;
-				let targetBoostCount = 0;
-				for (const boost of Object.values(pokemon.boosts)) {
-					if (boost > 0) boostCount += boost;
-				}
-				for (const boost of Object.values(target.boosts)) {
-					if (boost > 0) targetBoostCount += boost;
-				}
-				if (targetBoostCount >= boostCount) value.modify(2, "Target has more boosts");
+			if (move.id === 'adaptivebeam' && target && Object.values(target.boosts).some(x => x > 0)) {
+				value.set(0, "Target has more boosts");
 			}
 			if (value.value <= 60) {
 				value.abilityModify(1.5, "Confirmed Town");
@@ -2264,11 +2256,8 @@ class BattleTooltips {
 				if (moveType === 'Normal') value.abilityModify(this.battle.gen > 6 ? 1.2 : 1.3, "I Can Hear The Heart Beating As One");
 				value.abilityModify(this.battle.gen > 6 ? 1.2 : 1.3, "Acetosa");
 			}
-			if (move.flags['sound']) {
-				value.abilityModify(1.5, "Cacophony");
-			}
 			if (move.flags['punch']) {
-				value.abilityModify(1.3, "Harambe Hit");
+				value.abilityModify(1.5, "Harambe Hit");
 			}
 			if (move.flags['slicing']) {
 				value.abilityModify(1.5, "I Can Hear The Heart Beating As One");
