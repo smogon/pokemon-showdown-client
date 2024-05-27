@@ -19,7 +19,12 @@
  */
 type ID = string & {__isID: true};
 
-const BattleNatures: {[k in NatureName]: {plus?: StatName, minus?: StatName}} = {
+interface Nature {
+	plus?: StatNameExceptHP;
+	minus?: StatNameExceptHP;
+}
+
+const BattleNatures: {[k in NatureName]: Nature} = {
 	Adamant: {
 		plus: 'atk',
 		minus: 'spa',
@@ -615,6 +620,7 @@ const BattlePokemonIconIndexes: {[id: string]: number} = {
 	ababo: 1512 + 71,
 	scattervein: 1512 + 72,
 	cresceidon: 1512 + 73,
+	chuggalong: 1512 + 74,
 };
 
 const BattlePokemonIconIndexesLeft: {[id: string]: number} = {
