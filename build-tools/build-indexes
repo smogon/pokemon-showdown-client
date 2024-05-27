@@ -766,6 +766,12 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			case 'chippedpot':
 			case 'crackedpot':
 			case 'galaricawreath':
+			case 'auspiciousarmor':
+			case 'maliciousarmor':
+			case 'masterpieceteacup':
+			case 'metalalloy':
+			case 'unremarkableteacup':
+			case 'bignugget':
 				badItems.push(id);
 				break;
 			// outclassed items
