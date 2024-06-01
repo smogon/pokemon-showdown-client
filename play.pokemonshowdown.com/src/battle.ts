@@ -835,7 +835,6 @@ export class Side {
 		const effect = Dex.getEffect(kwArgs.from);
 		if (['batonpass', 'zbatonpass', 'shedtail'].includes(effect.id)) {
 			pokemon.copyVolatileFrom(this.lastPokemon!, effect.id === 'shedtail' ? 'shedtail' : false);
-			this.lastPokemon = null;
 		}
 
 		this.battle.scene.animSummon(pokemon, slot);
@@ -902,11 +901,7 @@ export class Side {
 		}
 		pokemon.statusData.toxicTurns = 0;
 		if (this.battle.gen === 5) pokemon.statusData.sleepTurns = 0;
-		if (effect.id && !['batonpass', 'zbatonpass', 'shedtail'].includes(effect.id)) {
-			this.lastPokemon = null;
-		} else {
-			this.lastPokemon = pokemon;
-		}
+		this.lastPokemon = pokemon;
 		this.active[slot] = null;
 
 		this.battle.scene.animUnsummon(pokemon);
@@ -3367,6 +3362,10 @@ export class Battle {
 		case 'upkeep': {
 			this.usesUpkeep = true;
 			this.updateTurnCounters();
+			// Prevents getSwitchedPokemon from skipping over a Pokemon that switched out mid turn (e.g. U-turn)
+			for (const side of this.sides) {
+				side.lastPokemon = null;
+			}
 			break;
 		}
 		case 'turn': {
