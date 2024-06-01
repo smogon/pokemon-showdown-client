@@ -1077,6 +1077,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 	const overrideSpeciesKeys = ['abilities', 'baseStats', 'cosmeticFormes', 'isNonstandard', 'requiredItems', 'types', 'unreleasedHidden'];
 	const overrideMoveKeys = ['accuracy', 'basePower', 'category', 'desc', 'flags', 'isNonstandard', 'noSketch', 'pp', 'priority', 'shortDesc', 'target', 'type'];
 	const overrideAbilityKeys = ['desc', 'flags', 'isNonstandard', 'rating', 'shortDesc'];
+	const overrideItemKeys = ['desc', 'fling', 'isNonstandard', 'naturalGift', 'shortDesc'];
 
 	//
 	// Past gen table
@@ -1130,13 +1131,16 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			}
 		}
 
-		const overrideItemDesc = {};
-		BattleTeambuilderTable[gen].overrideItemDesc = overrideItemDesc;
+		const overrideItemData = {};
+		BattleTeambuilderTable[gen].overrideItemData = overrideItemData;
 		for (const id in genData.Items) {
 			const curEntry = genDex.items.get(id);
 			const nextEntry = nextGenDex.items.get(id);
-			if ((curEntry.shortDesc || curEntry.desc) !== (nextEntry.shortDesc || nextEntry.desc)) {
-				overrideItemDesc[id] = (curEntry.shortDesc || curEntry.desc);
+			for (const key of overrideItemKeys) {
+				if (JSON.stringify(curEntry[key]) !== JSON.stringify(nextEntry[key])) {
+					if (!overrideItemData[id]) overrideItemData[id] = {};
+					overrideItemData[id][key] = curEntry[key];
+				}
 			}
 		}
 
@@ -1202,6 +1206,19 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 				if (JSON.stringify(modEntry[key]) !== JSON.stringify(parentEntry[key])) {
 					if (!overrideAbilityData[id]) overrideAbilityData[id] = {};
 					overrideAbilityData[id][key] = modEntry[key];
+				}
+			}
+		}
+
+		const overrideItemData = {};
+		BattleTeambuilderTable[mod].overrideItemData = overrideItemData;
+		for (const id in genData.Items) {
+			const modEntry = modDex.items.get(id);
+			const parentEntry = parentDex.items.get(id);
+			for (const key of overrideItemKeys) {
+				if (JSON.stringify(modEntry[key]) !== JSON.stringify(parentEntry[key])) {
+					if (!overrideItemData[id]) overrideItemData[id] = {};
+					overrideItemData[id][key] = modEntry[key];
 				}
 			}
 		}
