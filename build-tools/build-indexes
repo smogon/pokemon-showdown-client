@@ -1212,7 +1212,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 
 		const overrideItemData = {};
 		BattleTeambuilderTable[mod].overrideItemData = overrideItemData;
-		for (const id in genData.Items) {
+		for (const id in modData.Items) {
 			const modEntry = modDex.items.get(id);
 			const parentEntry = parentDex.items.get(id);
 			for (const key of overrideItemKeys) {
