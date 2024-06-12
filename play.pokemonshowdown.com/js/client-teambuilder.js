@@ -824,6 +824,7 @@
 				if (!selection || selection === 'random') continue;
 				var obj = app.rooms[room].id === "" ? app.rooms[room] : app.rooms[room].tournamentBox;
 				obj.curTeamIndex++;
+				obj.updateTeams();
 			}
 			this.edit(0);
 		},
