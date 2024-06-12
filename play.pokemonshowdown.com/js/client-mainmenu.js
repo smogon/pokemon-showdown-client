@@ -952,7 +952,7 @@
 			if (bestOf && bestOfValue) {
 				var hasCustomRules = format.includes('@@@');
 				format += hasCustomRules ? ', ' : '@@@';
-				format += 'Best of = ' + bestOfValue;
+				format += '!!Best of = ' + bestOfValue;
 			}
 
 			var team = null;
