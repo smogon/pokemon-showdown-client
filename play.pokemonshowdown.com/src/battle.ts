@@ -3362,6 +3362,10 @@ export class Battle {
 		case 'upkeep': {
 			this.usesUpkeep = true;
 			this.updateTurnCounters();
+			// Prevents getSwitchedPokemon from skipping over a Pokemon that switched out mid turn (e.g. U-turn)
+			for (const side of this.sides) {
+				side.lastPokemon = null;
+			}
 			break;
 		}
 		case 'turn': {
