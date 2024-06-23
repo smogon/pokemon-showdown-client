@@ -35727,7 +35727,7 @@ export const BattleMoveAnims: AnimTable = {
 				z: defender.z,
 				scale: 0,
 				opacity: 1,
-				time: 900
+				time: 900,
 			}, {
 				scale: 2,
 				opacity: 0,
@@ -35744,7 +35744,7 @@ export const BattleMoveAnims: AnimTable = {
 				opacity: 0,
 			}, 'decel');
 		},
-	}
+	},
 };
 
 // placeholder animations
