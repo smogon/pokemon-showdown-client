@@ -35704,6 +35704,47 @@ export const BattleMoveAnims: AnimTable = {
 			}, 'swing');
 		},
 	},
+	psychicnoise: {
+		anim(scene, [attacker, defender]) {
+			scene.showEffect('mistball', {
+				x: attacker.x,
+				y: attacker.y,
+				z: attacker.z,
+				scale: 0,
+				opacity: 0.8,
+				time: 0,
+			}, {
+				x: defender.x,
+				y: defender.y,
+				z: defender.z,
+				scale: 5,
+				opacity: 0.1,
+				time: 750,
+			}, 'linear');
+			scene.showEffect('poisonwisp', {
+				x: defender.x - 20,
+				y: defender.y + 20,
+				z: defender.z,
+				scale: 0,
+				opacity: 1,
+				time: 900
+			}, {
+				scale: 2,
+				opacity: 0,
+			}, 'decel');
+			scene.showEffect('poisonwisp', {
+				x: defender.x + 20,
+				y: defender.y + 20,
+				z: defender.z,
+				scale: 0,
+				opacity: 1,
+				time: 1050,
+			}, {
+				scale: 2,
+				opacity: 0,
+			}, 'decel');
+		},
+	}
 };
 
 // placeholder animations
