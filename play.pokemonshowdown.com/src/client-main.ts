@@ -999,7 +999,7 @@ const PS = new class extends PSModel {
 		}
 		this.room.autoDismissNotifications();
 		this.update();
-		if (this.room.onParentEvent) this.room.onParentEvent('focus', undefined);
+		this.room.onParentEvent?.('focus', undefined);
 		return true;
 	}
 	focusLeftRoom() {
