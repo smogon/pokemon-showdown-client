@@ -494,7 +494,7 @@ export class BattlePanel extends preact.Component<{id: string}> {
         {/* {} <code>{this.keyCode}</code> */}
       </p> : <p>&nbsp;</p>}
       {!PSRouter.showingLeft() && <p>
-        <a href={`./${PSRouter.leftLoc || ''}`} class="button"><i class="fa fa-caret-left"></i> More replays</a>
+        <a href={PSRouter.leftLoc || '.'} class="button"><i class="fa fa-caret-left"></i> More replays</a>
       </p>}
     </div>;
   }
