@@ -6,7 +6,7 @@
   "license": "AGPL-3.0",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Zarel/Pokemon-Showdown-Client.git"
+    "url": "https://github.com/smogon/pokemon-showdown-client.git"
   },
   "scripts": {
     "lint": "eslint --config=.eslintrc.js --cache --cache-file=caches/eslint-base.json play.pokemonshowdown.com/js/ && eslint --config=build-tools/.eslintrc.js --cache --cache-file=caches/eslint-build.json build-tools/update build-tools/build-indexes && tslint --project .",
