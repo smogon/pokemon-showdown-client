@@ -773,6 +773,14 @@ abstract class BattleTypedSearch<T extends SearchType> {
 		const next = lsetSpecies.battleOnly || lsetSpecies.changesFrom || lsetSpecies.prevo;
 		if (next) return toID(next);
 
+		if (!lsetSpecies.prevo && lsetSpecies.baseSpecies && this.dex.species.get(lsetSpecies.baseSpecies).prevo) {
+			let baseEvo = this.dex.species.get(lsetSpecies.baseSpecies);
+			while (baseEvo.prevo) {
+				baseEvo = this.dex.species.get(baseEvo.prevo);
+			}
+			return toID(baseEvo);
+		}
+
 		return '' as ID;
 	}
 	protected canLearn(speciesid: ID, moveid: ID) {
