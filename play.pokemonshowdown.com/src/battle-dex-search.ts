@@ -1587,6 +1587,14 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 					if (regionBornLegality && !learnsetEntry.includes(minGenCode[dex.gen])) {
 						continue;
 					}
+					const currentSpecies = dex.species.get(learnsetid);
+					const originalSpecies = dex.species.get(species.id);
+					if (
+						currentSpecies.baseSpecies !== originalSpecies.baseSpecies && !originalSpecies.prevo &&
+						!originalSpecies.changesFrom && (!learnsetEntry.includes('e') || dex.gen !== 9)
+					) {
+						continue;
+					}
 					if (
 						!learnsetEntry.includes(gen) &&
 						(!isTradebacks ? true : !(move.gen <= dex.gen && learnsetEntry.includes('' + (dex.gen + 1))))
