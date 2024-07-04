@@ -773,6 +773,14 @@ abstract class BattleTypedSearch<T extends SearchType> {
 		const next = lsetSpecies.battleOnly || lsetSpecies.changesFrom || lsetSpecies.prevo;
 		if (next) return toID(next);
 
+		if (!lsetSpecies.prevo && lsetSpecies.baseSpecies && this.dex.species.get(lsetSpecies.baseSpecies).prevo) {
+			let baseEvo = this.dex.species.get(lsetSpecies.baseSpecies);
+			while (baseEvo.prevo) {
+				baseEvo = this.dex.species.get(baseEvo.prevo);
+			}
+			return toID(baseEvo);
+		}
+
 		return '' as ID;
 	}
 	protected canLearn(speciesid: ID, moveid: ID) {
@@ -1577,6 +1585,14 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 					const move = dex.moves.get(moveid);
 					const minGenCode: {[gen: number]: string} = {6: 'p', 7: 'q', 8: 'g', 9: 'a'};
 					if (regionBornLegality && !learnsetEntry.includes(minGenCode[dex.gen])) {
+						continue;
+					}
+					const currentSpecies = dex.species.get(learnsetid);
+					const originalSpecies = dex.species.get(species.id);
+					if (
+						currentSpecies.baseSpecies !== originalSpecies.baseSpecies && !originalSpecies.prevo &&
+						!originalSpecies.changesFrom && (!learnsetEntry.includes('e') || dex.gen !== 9)
+					) {
 						continue;
 					}
 					if (
