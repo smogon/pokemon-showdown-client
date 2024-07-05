@@ -35704,6 +35704,102 @@ export const BattleMoveAnims: AnimTable = {
 			}, 'swing');
 		},
 	},
+	supercellslam: {
+		anim(scene, [attacker, defender]) {
+			scene.showEffect(attacker.sp, {
+				x: defender.leftof(-10),
+				y: attacker.y + 170,
+				z: attacker.behind(-35),
+				opacity: 0.3,
+				time: 25,
+			}, {
+				x: defender.x,
+				y: defender.y,
+				z: defender.behind(0),
+			}, 'ballistic', 'fade');
+			scene.showEffect(attacker.sp, {
+				x: defender.leftof(-10),
+				y: attacker.y + 170,
+				z: attacker.behind(-35),
+				opacity: 0.3,
+				time: 75,
+			}, {
+				x: defender.x,
+				y: defender.y,
+				z: defender.behind(0),
+			}, 'ballistic', 'fade');
+			scene.showEffect('electroball', {
+				x: defender.x,
+				y: defender.y - 40,
+				z: defender.z,
+				scale: 1,
+				opacity: 1,
+				time: 500,
+			}, {
+				x: defender.x,
+				y: defender.y + 10,
+				z: defender.z,
+				scale: 1.25,
+				opacity: 0.4,
+				time: 700,
+			}, 'decel', 'fade');
+			scene.showEffect('electroball', {
+				x: defender.x - 40,
+				y: defender.y - 40,
+				z: defender.z,
+				scale: 1,
+				opacity: 1,
+				time: 600,
+			}, {
+				x: defender.x - 30,
+				y: defender.y,
+				z: defender.z,
+				scale: 1.25,
+				opacity: 0.4,
+				time: 800,
+			}, 'decel', 'fade');
+			scene.showEffect('electroball', {
+				x: defender.x + 40,
+				y: defender.y - 40,
+				z: defender.z,
+				scale: 1,
+				opacity: 1,
+				time: 700,
+			}, {
+				x: defender.x + 40,
+				y: defender.y,
+				z: defender.z,
+				scale: 1.25,
+				opacity: 0.4,
+				time: 900,
+			}, 'decel', 'fade');
+			attacker.anim({
+				x: defender.x,
+				y: defender.y + 170,
+				z: defender.behind(-30),
+				time: 400,
+			}, 'ballistic');
+			attacker.anim({
+				x: defender.x,
+				y: defender.y + 5,
+				z: defender.z,
+				time: 200,
+			});
+			attacker.anim({
+				time: 500,
+			}, 'ballistic2Back');
+			defender.delay(500);
+			defender.anim({
+				y: defender.y - 30,
+				z: defender.behind(20),
+				yscale: 0.9,
+				time: 200,
+			}, 'swing');
+			defender.anim({
+				time: 300,
+			}, 'swing');
+		},
+	},
 };
 
 // placeholder animations
