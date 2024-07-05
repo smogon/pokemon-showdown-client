@@ -1040,7 +1040,6 @@ class BattlePokemonSearch extends BattleTypedSearch<'pokemon'> {
 				...tierSet.slice(slices.DUU),
 			];
 		}
-
 		if (format === 'ubersuu' && table.ubersUUBans) {
 			tierSet = tierSet.filter(([type, id]) => {
 				if (id in table.ubersUUBans) return false;
@@ -1060,6 +1059,12 @@ class BattlePokemonSearch extends BattleTypedSearch<'pokemon'> {
 					return true;
 				});
 			}
+		}
+		if (format === 'zu' && table.gen5zuBans) {
+			tierSet = tierSet.filter(([type, id]) => {
+				if (id in table.gen5zuBans) return false;
+				return true;
+			});
 		}
 
 		// Filter out Gmax Pokemon from standard tier selection

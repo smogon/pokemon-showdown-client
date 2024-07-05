@@ -361,6 +361,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 		const ndDoublesBans = {};
 		const monotypeBans = {};
 		const nonstandardMoves = [];
+		const gen5zuBans = {};
 		for (const id of pokemon) {
 			const species = Dex.mod(gen).species.get(id);
 			const baseSpecies = Dex.mod(gen).species.get(species.baseSpecies);
@@ -477,6 +478,14 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 				}
 			}
 			if (genNum >= 5) {
+				if (gen === 'gen5') {
+					const ZU = Dex.formats.get(gen + 'zu');
+					if (ZU.exists && Dex.formats.getRuleTable(ZU).isBannedSpecies(species)) {
+						gen5zuBans[species.id] = 1;
+					} else {
+						gen5zuBans[species.id] = 0;
+					}
+				}
 				const mono = Dex.formats.get(gen + (isNatDex ? 'nationaldex' : '') + 'monotype');
 				if (mono.exists && Dex.formats.getRuleTable(mono).isBannedSpecies(species)) {
 					monotypeBans[species.id] = 1;
@@ -569,6 +578,9 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			if (isSSDLC1 || isPreDLC || isSVDLC1) {
 				BattleTeambuilderTable[gen].nonstandardMoves = nonstandardMoves;
 				BattleTeambuilderTable[gen].learnsets = {};
+			}
+			if (genNum === 5) {
+				BattleTeambuilderTable[gen + 'zu'].gen5zuBans = gen5zuBans;
 			}
 		}
 
