@@ -1554,10 +1554,11 @@ class Species implements Effect {
 		this.canGigantamax = !!data.canGigantamax;
 		this.cannotDynamax = !!data.cannotDynamax;
 		this.forceTeraType = data.forceTeraType || '';
-		this.battleOnly = data.battleOnly || undefined;
+		this.battleOnly = data.battleOnly || (this.isMega ? this.baseSpecies : undefined);
 		this.isNonstandard = data.isNonstandard || null;
 		this.unreleasedHidden = data.unreleasedHidden || false;
-		this.changesFrom = data.changesFrom || undefined;
+		this.changesFrom = data.changesFrom ||
+			(this.battleOnly !== this.baseSpecies ? this.battleOnly : this.baseSpecies);
 		if (!this.gen) {
 			if (this.num >= 906 || this.formeid.startsWith('-paldea')) {
 				this.gen = 9;
