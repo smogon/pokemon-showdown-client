@@ -273,7 +273,7 @@ if ($replay) {
 	echo '<script type="text/plain" class="log" id="replaylog-'.$fullid.'">'."\n";
 	echo str_replace('</', '<\\/', $replay['log'])."\n";
 	echo '</script>'."\n";
-	if ($replay['safe_inputlog'] || $manage) {
+	if (@$replay['safe_inputlog'] || $manage) {
 		if (!$replay['safe_inputlog']) echo '<!-- only available with ?manage -->'."\n";
 		echo '<script type="text/plain" class="inputlog" id="replayinputlog-'.$fullid.'">'."\n";
 		echo str_replace('</', '<\\/', $replay['inputlog'])."\n";
