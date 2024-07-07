@@ -1603,7 +1603,8 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 					const originalSpecies = dex.species.get(species.id);
 					if (
 						currentSpecies.baseSpecies !== originalSpecies.baseSpecies && !originalSpecies.prevo &&
-						!originalSpecies.changesFrom && (!learnsetEntry.includes('e') || dex.gen !== 9)
+						(!originalSpecies.changesFrom || originalSpecies.name === "Greninja-Ash") &&
+						(!learnsetEntry.includes('e') || dex.gen !== 9)
 					) {
 						continue;
 					}
