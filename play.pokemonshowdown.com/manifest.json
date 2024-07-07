@@ -1,0 +1,23 @@
+{
+  "short_name": "Showdown!",
+  "name": "Pokémon Showdown!",
+  "icons": [
+    {
+      "src": "favicon-16.png",
+      "type": "image/png",
+      "sizes": "16x16"
+    },
+    {
+      "src": "favicon-32.png",
+      "type": "image/png",
+      "sizes": "32x32"
+    },
+    {
+      "src": "favicon-256.png",
+      "type": "image/png",
+      "sizes": "256x256"
+    }
+  ],
+  "start_url": "/?utm_source=homescreen",
+  "display": "standalone"
+}

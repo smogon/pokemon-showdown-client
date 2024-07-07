@@ -6,9 +6,9 @@
 
 namespace Wikimedia\CSS\Sanitizer;
 
-use Wikimedia\CSS\Objects\Rule;
 use Wikimedia\CSS\Objects\AtRule;
 use Wikimedia\CSS\Objects\CSSFunction;
+use Wikimedia\CSS\Objects\Rule;
 use Wikimedia\CSS\Objects\SimpleBlock;
 use Wikimedia\CSS\Objects\Token;
 use Wikimedia\CSS\Parser\Parser;
@@ -88,14 +88,17 @@ abstract class RuleSanitizer extends Sanitizer {
 		}
 
 		$significant = $cv instanceof CSSFunction ||
-			$cv instanceof Token &&
-				Token::separate( new Token( Token::T_AT_KEYWORD, $rule->getName() ), $cv );
+			( $cv instanceof Token &&
+				Token::separate( new Token( Token::T_AT_KEYWORD, $rule->getName() ), $cv )
+			);
 
+		// @phan-suppress-next-line PhanNonClassMethodCall False positive
 		if ( $prelude[0] instanceof Token && $prelude[0]->type() === Token::T_WHITESPACE ) {
+			// @phan-suppress-next-line PhanNonClassMethodCall False positive
 			$prelude[0] = $prelude[0]->copyWithSignificance( $significant );
 		} elseif ( $significant ) {
 			if ( $cloneIfNecessary ) {
-				$rule = clone( $rule );
+				$rule = clone $rule;
 				$prelude = $rule->getPrelude();
 			}
 			$prelude->add( new Token( Token::T_WHITESPACE ), 0 );

@@ -6,42 +6,38 @@
 
 namespace Wikimedia\CSS\Objects;
 
+use InvalidArgumentException;
+use UnexpectedValueException;
+
 /**
  * Represent a CSS token
  */
 class Token extends ComponentValue {
-	const T_IDENT = "ident";
-	const T_FUNCTION = "function";
-	const T_AT_KEYWORD = "at-keyword";
-	const T_HASH = "hash";
-	const T_STRING = "string";
-	const T_BAD_STRING = "bad-string";
-	const T_URL = "url";
-	const T_BAD_URL = "bad-url";
-	const T_DELIM = "delim";
-	const T_NUMBER = "number";
-	const T_PERCENTAGE = "percentage";
-	const T_DIMENSION = "dimension";
-	const T_UNICODE_RANGE = "unicode-range";
-	const T_INCLUDE_MATCH = "include-match";
-	const T_DASH_MATCH = "dash-match";
-	const T_PREFIX_MATCH = "prefix-match";
-	const T_SUFFIX_MATCH = "suffix-match";
-	const T_SUBSTRING_MATCH = "substring-match";
-	const T_COLUMN = "column";
-	const T_WHITESPACE = "whitespace";
-	const T_CDO = "CDO";
-	const T_CDC = "CDC";
-	const T_COLON = "colon";
-	const T_SEMICOLON = "semicolon";
-	const T_COMMA = "comma";
-	const T_LEFT_BRACKET = "[";
-	const T_RIGHT_BRACKET = "]";
-	const T_LEFT_PAREN = "(";
-	const T_RIGHT_PAREN = ")";
-	const T_LEFT_BRACE = "{";
-	const T_RIGHT_BRACE = "}";
-	const T_EOF = "EOF";
+	public const T_IDENT = "ident";
+	public const T_FUNCTION = "function";
+	public const T_AT_KEYWORD = "at-keyword";
+	public const T_HASH = "hash";
+	public const T_STRING = "string";
+	public const T_BAD_STRING = "bad-string";
+	public const T_URL = "url";
+	public const T_BAD_URL = "bad-url";
+	public const T_DELIM = "delim";
+	public const T_NUMBER = "number";
+	public const T_PERCENTAGE = "percentage";
+	public const T_DIMENSION = "dimension";
+	public const T_WHITESPACE = "whitespace";
+	public const T_CDO = "CDO";
+	public const T_CDC = "CDC";
+	public const T_COLON = "colon";
+	public const T_SEMICOLON = "semicolon";
+	public const T_COMMA = "comma";
+	public const T_LEFT_BRACKET = "[";
+	public const T_RIGHT_BRACKET = "]";
+	public const T_LEFT_PAREN = "(";
+	public const T_RIGHT_PAREN = ")";
+	public const T_LEFT_BRACE = "{";
+	public const T_RIGHT_BRACE = "}";
+	public const T_EOF = "EOF";
 
 	/** @var string One of the T_* constants */
 	protected $type;
@@ -58,11 +54,11 @@ class Token extends ComponentValue {
 	/** @var string Unit for dimension tokens */
 	protected $unit = '';
 
-	/** @var int Start and end for unicode-range tokens */
-	protected $start = 0, $end = 0;
-
 	/** @var bool Whether this token is considered "significant" */
 	protected $significant = true;
+
+	/** @var int See ::urangeHack() */
+	private $urangeHack = 0;
 
 	/**
 	 * @param string $type One of the T_* constants
@@ -78,8 +74,6 @@ class Token extends ComponentValue {
 	 *  - representation: (string) String representation of the value for
 	 *    T_NUMBER, T_PERCENTAGE, and T_DIMENSION.
 	 *  - unit: (string) Unit for T_DIMENSION.
-	 *  - start: (int) Start code point for T_UNICODE_RANGE.
-	 *  - end: (int) End code point for T_UNICODE_RANGE.
 	 *  - significant: (bool) Whether the token is considered "significant"
 	 */
 	public function __construct( $type, $value = [] ) {
@@ -89,11 +83,11 @@ class Token extends ComponentValue {
 
 		if ( isset( $value['position'] ) ) {
 			if ( !is_array( $value['position'] ) || count( $value['position'] ) !== 2 ) {
-				throw new \InvalidArgumentException( 'Position must be an array of two integers' );
+				throw new InvalidArgumentException( 'Position must be an array of two integers' );
 			}
-			list( $this->line, $this->pos ) = $value['position'];
+			[ $this->line, $this->pos ] = $value['position'];
 			if ( !is_int( $this->line ) || !is_int( $this->pos ) ) {
-				throw new \InvalidArgumentException( 'Position must be an array of two integers' );
+				throw new InvalidArgumentException( 'Position must be an array of two integers' );
 			}
 		}
 		if ( isset( $value['significant'] ) ) {
@@ -108,20 +102,20 @@ class Token extends ComponentValue {
 			case self::T_STRING:
 			case self::T_URL:
 				if ( !isset( $value['value'] ) ) {
-					throw new \InvalidArgumentException( "Token type $this->type requires a value" );
+					throw new InvalidArgumentException( "Token type $this->type requires a value" );
 				}
 				$this->value = (string)$value['value'];
 				break;
 
 			case self::T_HASH:
 				if ( !isset( $value['value'] ) ) {
-					throw new \InvalidArgumentException( "Token type $this->type requires a value" );
+					throw new InvalidArgumentException( "Token type $this->type requires a value" );
 				}
 				if ( !isset( $value['typeFlag'] ) ) {
-					throw new \InvalidArgumentException( "Token type $this->type requires a typeFlag" );
+					throw new InvalidArgumentException( "Token type $this->type requires a typeFlag" );
 				}
 				if ( !in_array( $value['typeFlag'], [ 'id', 'unrestricted' ], true ) ) {
-					throw new \InvalidArgumentException( "Invalid type flag for Token type $this->type" );
+					throw new InvalidArgumentException( "Invalid type flag for Token type $this->type" );
 				}
 				$this->value = (string)$value['value'];
 				$this->typeFlag = $value['typeFlag'];
@@ -129,11 +123,11 @@ class Token extends ComponentValue {
 
 			case self::T_DELIM:
 				if ( !isset( $value['value'] ) ) {
-					throw new \InvalidArgumentException( "Token type $this->type requires a value" );
+					throw new InvalidArgumentException( "Token type $this->type requires a value" );
 				}
 				$this->value = (string)$value['value'];
 				if ( mb_strlen( $this->value, 'UTF-8' ) !== 1 ) {
-					throw new \InvalidArgumentException(
+					throw new InvalidArgumentException(
 						"Value for Token type $this->type must be a single character"
 					);
 				}
@@ -145,32 +139,32 @@ class Token extends ComponentValue {
 				if ( !isset( $value['value'] ) ||
 					!is_numeric( $value['value'] ) || !is_finite( $value['value'] )
 				) {
-					throw new \InvalidArgumentException( "Token type $this->type requires a numeric value" );
+					throw new InvalidArgumentException( "Token type $this->type requires a numeric value" );
 				}
 				if ( !isset( $value['typeFlag'] ) ) {
-					throw new \InvalidArgumentException( "Token type $this->type requires a typeFlag" );
+					throw new InvalidArgumentException( "Token type $this->type requires a typeFlag" );
 				}
 				$this->typeFlag = $value['typeFlag'];
 				if ( $this->typeFlag === 'integer' ) {
 					$this->value = (int)$value['value'];
 					if ( (float)$this->value !== (float)$value['value'] ) {
-						throw new \InvalidArgumentException(
+						throw new InvalidArgumentException(
 							"typeFlag is 'integer', but value supplied is not an integer"
 						);
 					}
 				} elseif ( $this->typeFlag === 'number' ) {
 					$this->value = (float)$value['value'];
 				} else {
-					throw new \InvalidArgumentException( "Invalid type flag for Token type $this->type" );
+					throw new InvalidArgumentException( "Invalid type flag for Token type $this->type" );
 				}
 
 				if ( isset( $value['representation'] ) ) {
 					if ( !is_numeric( $value['representation'] ) ) {
-						throw new \InvalidArgumentException( 'Representation must be numeric' );
+						throw new InvalidArgumentException( 'Representation must be numeric' );
 					}
 					$this->representation = $value['representation'];
 					if ( (float)$this->representation !== (float)$this->value ) {
-						throw new \InvalidArgumentException(
+						throw new InvalidArgumentException(
 							"Representation \"$this->representation\" does not match value \"$this->value\""
 						);
 					}
@@ -178,36 +172,14 @@ class Token extends ComponentValue {
 
 				if ( $type === self::T_DIMENSION ) {
 					if ( !isset( $value['unit'] ) ) {
-						throw new \InvalidArgumentException( "Token type $this->type requires a unit" );
+						throw new InvalidArgumentException( "Token type $this->type requires a unit" );
 					}
 					$this->unit = $value['unit'];
 				}
 				break;
 
-			case self::T_UNICODE_RANGE:
-				if ( !isset( $value['start'] ) || !is_int( $value['start'] ) ) {
-					throw new \InvalidArgumentException(
-						"Token type $this->type requires a starting code point as an integer"
-					);
-				}
-				$this->start = $value['start'];
-				if ( !isset( $value['end'] ) ) {
-					$this->end = $this->start;
-				} elseif ( !is_int( $value['end'] ) ) {
-					throw new \InvalidArgumentException( 'Ending code point must be an integer' );
-				} else {
-					$this->end = $value['end'];
-				}
-				break;
-
 			case self::T_BAD_STRING:
 			case self::T_BAD_URL:
-			case self::T_INCLUDE_MATCH:
-			case self::T_DASH_MATCH:
-			case self::T_PREFIX_MATCH:
-			case self::T_SUFFIX_MATCH:
-			case self::T_SUBSTRING_MATCH:
-			case self::T_COLUMN:
 			case self::T_WHITESPACE:
 			case self::T_CDO:
 			case self::T_CDC:
@@ -228,13 +200,13 @@ class Token extends ComponentValue {
 				if ( isset( $value['typeFlag'] ) && $value['typeFlag'] !== '' ) {
 					$this->typeFlag = $value['typeFlag'];
 					if ( $this->typeFlag !== 'recursion-depth-exceeded' ) {
-						throw new \InvalidArgumentException( "Invalid type flag for Token type $this->type" );
+						throw new InvalidArgumentException( "Invalid type flag for Token type $this->type" );
 					}
 				}
 				break;
 
 			default:
-				throw new \InvalidArgumentException( "Unknown token type \"$this->type\"." );
+				throw new InvalidArgumentException( "Unknown token type \"$this->type\"." );
 		}
 	}
 
@@ -279,14 +251,6 @@ class Token extends ComponentValue {
 	}
 
 	/**
-	 * Get the unicode range for this T_UNICODE_RANGE token
-	 * @return array [ int $start, int $end ]
-	 */
-	public function range() {
-		return [ $this->start, $this->end ];
-	}
-
-	/**
 	 * Whether this token is considered "significant"
 	 *
 	 * A token that isn't "significant" may be removed for minification of CSS.
@@ -309,22 +273,24 @@ class Token extends ComponentValue {
 		if ( $significant === $this->significant ) {
 			return $this;
 		}
-		$ret = clone( $this );
+		$ret = clone $this;
 		$ret->significant = $significant;
 		return $ret;
 	}
 
+	/** @inheritDoc */
 	public function toTokenArray() {
 		return [ $this ];
 	}
 
+	/** @inheritDoc */
 	public function toComponentValueArray() {
 		switch ( $this->type ) {
 			case self::T_FUNCTION:
 			case self::T_LEFT_BRACKET:
 			case self::T_LEFT_PAREN:
 			case self::T_LEFT_BRACE:
-				throw new \UnexpectedValueException(
+				throw new UnexpectedValueException(
 					"Token type \"$this->type\" is not valid in a ComponentValueList."
 				);
 
@@ -341,18 +307,52 @@ class Token extends ComponentValue {
 	private static function escapeIdent( $s ) {
 		return preg_replace_callback(
 			'/
-				[^a-zA-Z0-9_\-\x{80}-\x{10ffff}] # Characters that are never allowed
-				| (?:^|(?<=^-))[0-9]             # Digits are not allowed at the start of an identifier
-				| (?<=^-)-                       # Two dashes are not allowed at the start of an identifier
+				[^a-zA-Z0-9_\-\x{80}-\x{10ffff}]   # Characters that are never allowed
+				| (?:^|(?<=^-))[0-9]               # Digits are not allowed at the start of an identifier
+				| [\p{Z}\p{Cc}\p{Cf}\p{Co}\p{Cs}]  # To be safe, control characters and whitespace
 			/ux',
-			function ( $m ) {
-				if ( $m[0] === "\n" || ctype_xdigit( $m[0] ) ) {
-					return sprintf( '\\%x ', ord( $m[0] ) );
-				}
-				return '\\' . $m[0];
-			},
+			[ __CLASS__, 'escapePregCallback' ],
 			$s
 		);
+	}
+
+	/**
+	 * Escape characters in a string
+	 *
+	 * - Double quote needs escaping as the string delimiter.
+	 * - Backslash needs escaping since it's the escape character.
+	 * - Newline (\n) isn't valid in a string, and so needs escaping.
+	 * - Carriage return (\r), form feed (\f), and U+0000 would be changed by
+	 *   CSS's input conversion rules, and so need escaping.
+	 * - Other non-space whitespace and controls don't need escaping, but it's
+	 *   safer to do so.
+	 * - Angle brackets are escaped numerically to make it safer to embed in HTML.
+	 *
+	 * @param string $s
+	 * @return string
+	 */
+	private static function escapeString( $s ) {
+		return preg_replace_callback(
+			'/[^ \P{Z}]|[\p{Cc}\p{Cf}\p{Co}\p{Cs}"\x5c<>]/u',
+			[ __CLASS__, 'escapePregCallback' ],
+			$s
+		);
+	}
+
+	/**
+	 * Callback for escaping functions
+	 * @param array $m Matches
+	 * @return string
+	 */
+	private static function escapePregCallback( $m ) {
+		// Newlines, carriage returns, form feeds, and hex digits have to be
+		// escaped numerically. Other non-space whitespace and controls don't
+		// have to be, but it's saner to do so. Angle brackets are escaped
+		// numerically too to make it safer to embed in HTML.
+		if ( preg_match( '/[^ \P{Z}]|[\p{Cc}\p{Cf}\p{Co}\p{Cs}0-9a-fA-F<>]/u', $m[0] ) ) {
+			return sprintf( '\\%x ', mb_ord( $m[0] ) );
+		}
+		return '\\' . $m[0];
 	}
 
 	public function __toString() {
@@ -369,29 +369,26 @@ class Token extends ComponentValue {
 			case self::T_HASH:
 				if ( $this->typeFlag === 'id' ) {
 					return '#' . self::escapeIdent( $this->value );
-				} else {
-					return '#' . preg_replace_callback( '/[^a-zA-Z0-9_\-\x{80}-\x{10ffff}]/u', function ( $m ) {
-						return $m[0] === "\n" ? '\\a ' : '\\' . $m[0];
-					}, $this->value );
 				}
+
+				return '#' . preg_replace_callback(
+					'/
+						[^a-zA-Z0-9_\-\x{80}-\x{10ffff}]   # Characters that are never allowed
+						| [\p{Z}\p{Cc}\p{Cf}\p{Co}\p{Cs}]  # To be safe, control characters and whitespace
+					/ux',
+					[ __CLASS__, 'escapePregCallback' ],
+					$this->value
+				);
 
 			case self::T_STRING:
 				// We could try to decide whether single or double quote is
 				// better, but it doesn't seem worth the effort.
-				return '"' . strtr( $this->value, [
-					'"' => '\\"',
-					'\\' => '\\\\',
-					"\n" => '\\a ',
-				] ) . '"';
+				return '"' . self::escapeString( $this->value ) . '"';
 
 			case self::T_URL:
 				// We could try to decide whether single or double quote is
 				// better, but it doesn't seem worth the effort.
-				return 'url("' . strtr( $this->value, [
-					'"' => '\\"',
-					'\\' => '\\\\',
-					"\n" => '\\a ',
-				] ) . '")';
+				return 'url("' . self::escapeString( $this->value ) . '")';
 
 			case self::T_BAD_STRING:
 				// It's supposed to round trip, so...
@@ -435,41 +432,6 @@ class Token extends ComponentValue {
 
 				return $number . $unit;
 
-			case self::T_UNICODE_RANGE:
-				if ( $this->start === 0 && $this->end === 0xffffff ) {
-					return 'U+??????';
-				}
-				$fmt = 'U+%x';
-				for ( $b = 0; $b < 24; $b += 4, $fmt .= '?' ) {
-					$mask = ( 1 << $b ) - 1;
-					if (
-						( $this->start & $mask ) === 0 &&
-						( $this->end & $mask ) === $mask &&
-						( $this->start & ~$mask ) === ( $this->end & ~$mask )
-					) {
-						return sprintf( $fmt, $this->start >> $b );
-					}
-				}
-				return sprintf( 'U+%x-%x', $this->start, $this->end );
-
-			case self::T_INCLUDE_MATCH:
-				return '~=';
-
-			case self::T_DASH_MATCH:
-				return '|=';
-
-			case self::T_PREFIX_MATCH:
-				return '^=';
-
-			case self::T_SUFFIX_MATCH:
-				return '$=';
-
-			case self::T_SUBSTRING_MATCH:
-				return '*=';
-
-			case self::T_COLUMN:
-				return '||';
-
 			case self::T_WHITESPACE:
 				return ' ';
 
@@ -500,13 +462,13 @@ class Token extends ComponentValue {
 				return '';
 
 			default:
-				throw new \UnexpectedValueException( "Unknown token type \"$this->type\"." );
+				throw new UnexpectedValueException( "Unknown token type \"$this->type\"." );
 		}
 	}
 
 	/**
 	 * Indicate whether the two tokens need to be separated
-	 * @see https://www.w3.org/TR/2014/CR-css-syntax-3-20140220/#serialization
+	 * @see https://www.w3.org/TR/2019/CR-css-syntax-3-20190716/#serialization
 	 * @param Token $firstToken
 	 * @param Token $secondToken
 	 * @return bool
@@ -516,53 +478,69 @@ class Token extends ComponentValue {
 		static $sepTable = [
 			self::T_IDENT => [
 				self::T_IDENT, self::T_FUNCTION, self::T_URL, self::T_BAD_URL, '-', self::T_NUMBER,
-				self::T_PERCENTAGE, self::T_DIMENSION, self::T_UNICODE_RANGE, self::T_CDC, self::T_LEFT_PAREN
+				self::T_PERCENTAGE, self::T_DIMENSION, self::T_CDC, self::T_LEFT_PAREN,
+				// Internet Explorer is buggy in some contexts (T191134)
+				self::T_HASH,
 			],
 			self::T_AT_KEYWORD => [
 				self::T_IDENT, self::T_FUNCTION, self::T_URL, self::T_BAD_URL, '-', self::T_NUMBER,
-				self::T_PERCENTAGE, self::T_DIMENSION, self::T_UNICODE_RANGE, self::T_CDC
+				self::T_PERCENTAGE, self::T_DIMENSION, self::T_CDC,
 			],
 			self::T_HASH => [
 				self::T_IDENT, self::T_FUNCTION, self::T_URL, self::T_BAD_URL, '-', self::T_NUMBER,
-				self::T_PERCENTAGE, self::T_DIMENSION, self::T_UNICODE_RANGE, self::T_CDC
+				self::T_PERCENTAGE, self::T_DIMENSION, self::T_CDC,
+				// Internet Explorer is buggy in some contexts (T191134)
+				self::T_HASH,
 			],
 			self::T_DIMENSION => [
 				self::T_IDENT, self::T_FUNCTION, self::T_URL, self::T_BAD_URL, '-', self::T_NUMBER,
-				self::T_PERCENTAGE, self::T_DIMENSION, self::T_UNICODE_RANGE, self::T_CDC
+				self::T_PERCENTAGE, self::T_DIMENSION, self::T_CDC,
+				// Internet Explorer is buggy in some contexts (T191134)
+				self::T_HASH,
 			],
 			'#' => [
 				self::T_IDENT, self::T_FUNCTION, self::T_URL, self::T_BAD_URL, '-', self::T_NUMBER,
-				self::T_PERCENTAGE, self::T_DIMENSION, self::T_UNICODE_RANGE
+				self::T_PERCENTAGE, self::T_DIMENSION,
 			],
 			'-' => [
-				// Add '-' here from Editor's Draft, to go with the draft's
-				// adding of tokens beginning with "--" that we also picked up.
 				self::T_IDENT, self::T_FUNCTION, self::T_URL, self::T_BAD_URL, '-', self::T_NUMBER,
-				self::T_PERCENTAGE, self::T_DIMENSION, self::T_UNICODE_RANGE
+				self::T_PERCENTAGE, self::T_DIMENSION,
 			],
 			self::T_NUMBER => [
 				self::T_IDENT, self::T_FUNCTION, self::T_URL, self::T_BAD_URL, self::T_NUMBER,
-				self::T_PERCENTAGE, self::T_DIMENSION, self::T_UNICODE_RANGE
+				self::T_PERCENTAGE, self::T_DIMENSION, '%',
+				// Internet Explorer is buggy in some contexts
+				self::T_HASH,
 			],
 			'@' => [
-				self::T_IDENT, self::T_FUNCTION, self::T_URL, self::T_BAD_URL, '-', self::T_UNICODE_RANGE
-			],
-			self::T_UNICODE_RANGE => [
-				self::T_IDENT, self::T_FUNCTION, self::T_NUMBER, self::T_PERCENTAGE, self::T_DIMENSION, '?'
+				self::T_IDENT, self::T_FUNCTION, self::T_URL, self::T_BAD_URL, '-',
 			],
 			'.' => [ self::T_NUMBER, self::T_PERCENTAGE, self::T_DIMENSION ],
 			'+' => [ self::T_NUMBER, self::T_PERCENTAGE, self::T_DIMENSION ],
-			'$' => [ '=' ],
-			'*' => [ '=' ],
-			'^' => [ '=' ],
-			'~' => [ '=' ],
-			'|' => [ '=', '|' ],
 			'/' => [ '*' ],
 		];
 
-		$t1 = $firstToken->type === Token::T_DELIM ? $firstToken->value : $firstToken->type;
-		$t2 = $secondToken->type === Token::T_DELIM ? $secondToken->value : $secondToken->type;
+		$t1 = $firstToken->type === self::T_DELIM ? $firstToken->value : $firstToken->type;
+		$t2 = $secondToken->type === self::T_DELIM ? $secondToken->value : $secondToken->type;
 
 		return isset( $sepTable[$t1] ) && in_array( $t2, $sepTable[$t1], true );
 	}
+
+	/**
+	 * Allow for marking the 'U' T_IDENT beginning a <urange>, to later avoid
+	 * serializing it with extraneous comments.
+	 * @internal
+	 * @see \Wikimedia\CSS\Util::stringify()
+	 * @see \Wikimedia\CSS\Grammar\UrangeMatcher
+	 * @param int|null $hack Set the hack value
+	 * @return int Current/old hack value
+	 */
+	public function urangeHack( $hack = null ) {
+		$ret = $this->urangeHack;
+		if ( $hack !== null ) {
+			$this->urangeHack = max( (int)$this->urangeHack, $hack );
+		}
+		return $ret;
+	}
+
 }

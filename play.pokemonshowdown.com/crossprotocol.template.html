@@ -1,0 +1,69 @@
+﻿<!DOCTYPE html>
+<meta charset="UTF-8" />
+<script src="/js/lib/jquery-2.2.4.min.js"></script>
+<script>
+
+var yourOrigin = 'http://play.pokemonshowdown.com';
+var myOrigin = 'https://play.pokemonshowdown.com';
+
+function postReply(message) {
+	return window.parent.postMessage(message, yourOrigin);
+}
+function messageHandler(e) {
+	if (e.origin !== yourOrigin) return;
+	var data = e.data;
+
+	// data's first char:
+	// T: store teams
+	// P: store prefs
+	// R: GET request
+	// S: POST request
+
+	switch (data.charAt(0)) {
+	case 'T':
+		try {
+			localStorage.setItem('showdown_teams', data.substr(1));
+		} catch (e) {}
+		break;
+	case 'P':
+		try {
+			localStorage.setItem('showdown_prefs', data.substr(1));
+		} catch (e) {}
+		break;
+	case 'R':
+	case 'S':
+		var rq = JSON.parse(data.substr(1));
+		$[(data.charAt(0) === 'R' ? 'get' : 'post')](
+			rq[0],
+			rq[1],
+			function(ajaxdata) {
+				postReply('r' + JSON.stringify([rq[2], ajaxdata]));
+			},
+			rq[3]
+		);
+		break;
+	}
+}
+
+window.addEventListener('message', messageHandler);
+var storageAvailable = false;
+try {
+	var testVal = '' + Date.now();
+	localStorage.setItem('showdown_allow3p', testVal);
+	if (localStorage.getItem('showdown_allow3p') === testVal) {
+		postReply('a1');
+		postReply('p' + localStorage.getItem('showdown_prefs'));
+		postReply('t' + localStorage.getItem('showdown_teams'));
+		storageAvailable = true;
+	}
+} catch (err) {}
+
+if (!storageAvailable) {
+	postReply('a0');
+}
+
+if (location.protocol + '//' + location.hostname !== myOrigin) {
+	// This happens sometimes, but we'll pretend it doesn't
+}
+
+</script>

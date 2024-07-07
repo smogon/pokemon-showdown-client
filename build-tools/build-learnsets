@@ -16,9 +16,9 @@ const fs = require('fs');
 
 const thisFile = __filename;
 const thisDir = __dirname;
-const rootDir = path.resolve(thisDir, '..');
+const rootDir = path.resolve(thisDir, '../play.pokemonshowdown.com');
 
-const Dex = require('../data/pokemon-showdown/dist/sim/dex').Dex;
+const Dex = require('../caches/pokemon-showdown/dist/sim/dex').Dex;
 const toID = Dex.toID;
 
 function updateLearnsets(callback) {

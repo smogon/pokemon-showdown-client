@@ -1,0 +1,854 @@
+/*********************************************************
+ * Links
+ *********************************************************/
+
+.dark a {
+	color: #4488EE;
+}
+/* will annoyingly need to be overridden a lot; lowest specificity possible */
+.dark :visited {
+	color: #AA81F2;
+}
+
+.blocklink {
+	display: block;
+	margin: 2px 7px 4px 7px;
+	padding: 1px 4px 2px 4px;
+	border: 1px solid #BBCCDD;
+	background: rgba(248, 251, 253, 0.5);
+
+	border-radius: 4px;
+	text-decoration: none;
+	color: #336699;
+	text-shadow: #ffffff 0px -1px 0;
+	cursor: pointer;
+	font-size: 10pt;
+
+	overflow: hidden;
+	white-space: nowrap;
+}
+.blocklink small {
+	font-size: 8pt;
+}
+.blocklink:hover {
+	border-color: #778899;
+	background: #E5EAED;
+	color: #224466;
+	text-decoration: none;
+}
+.dark .blocklink {
+	box-shadow: none;
+	text-shadow: none;
+	border-color: #526c87;
+	background: rgba(30, 40, 50, .5);
+	color: #7799BB;
+}
+.dark .blocklink:hover {
+	border-color: #AACCEE;
+	background: rgba(30, 40, 50, 1);
+	color: #AACCEE;
+}
+
+/*********************************************************
+ * Buttons
+ *********************************************************/
+
+button, summary {
+	cursor: pointer;
+	touch-action: manipulation;
+}
+button:disabled {
+	cursor: default;
+}
+
+.button {
+	cursor: pointer;
+	text-align: center;
+	text-decoration: none;
+	border-radius: 5px;
+	-webkit-box-shadow: 0 1px 2px rgba(0,0,0,.2), inset 0 -1px 2px rgba(255,255,255,1);
+	-moz-box-shadow: 0 1px 2px rgba(0,0,0,.2), inset 0 -1px 2px rgba(255,255,255,1);
+	box-shadow: 0 1px 2px rgba(0,0,0,.2), inset 0 -1px 2px rgba(255,255,255,1);
+	border-radius: 5px;
+	font-family: Verdana, Helvetica, Arial, sans-serif;
+	display: inline-block;
+
+	/* default colors */
+	color: #222222;
+	text-shadow: 0 1px 0 white;
+	border: 1px solid #AAAAAA;
+	background: #e3e3e3;
+	background: linear-gradient(to bottom,  #f6f6f6,  #d3d3d3);
+
+	font-size: 9pt;
+	padding: 3px 8px;
+}
+select.button {
+	text-align: left;
+}
+.button option,
+.button optgroup {
+	background: #f6f6f6;
+	color: #222222;
+}
+.button:hover {
+	background: #cfcfcf;
+	background: linear-gradient(to bottom,  #f2f2f2,  #b2b2b2);
+	border-color: #606060;
+}
+.button:active {
+	background: linear-gradient(to bottom,  #bfbfbf,  #f2f2f2);
+}
+
+.button.notifying {
+	border-color: #AA8866;
+	background: #e3c3a3;
+	background: linear-gradient(to bottom, #f6d6b6, #d3b396);
+}
+.button.notifying:hover {
+	border-color: #604020;
+	background: #cfaf8f;
+	background: linear-gradient(to bottom, #f2c6a6, #b28e6e);
+}
+.button.notifying:active {
+	background: #b28e6e;
+	background: linear-gradient(to bottom, #b28e6e, #f6d6b6);
+}
+.button.alt-notifying {
+	border-color: #669caa;
+	background: #a3d0e3;
+	background: linear-gradient(to bottom, #daf2fc, #a3d0e3);
+}
+.button.alt-notifying:hover {
+	border-color: #406070;
+	background: #8fb2cf;
+	background: linear-gradient(to bottom, #daf2fc, #8fb2cf);
+}
+.button.alt-notifying:active {
+	background: #8fb2cf;
+	background: linear-gradient(to bottom, #8fb2cf, #daf2fc);
+}
+.button.subtle-notifying {
+	color: #AA6600;
+}
+
+.button.disabled,
+.button.disabled:hover,
+.button.disabled:active,
+.button:disabled,
+.button:disabled:hover,
+.button:disabled:active,
+.button.cur,
+.button.cur:hover {
+	cursor: default;
+	background: #EEEEEE;
+	border: 1px solid #CCCCCC;
+	color: #999999;
+	text-shadow: none;
+	box-shadow: 0 1px 2px rgba(0,0,0,.1);
+}
+.button.cur,
+.button.cur:hover {
+	color: #444444;
+}
+
+.button-first, .button-middle {
+	border-top-right-radius: 0;
+	border-bottom-right-radius: 0;
+}
+.button-last, .button-middle {
+	border-top-left-radius: 0;
+	border-bottom-left-radius: 0;
+	margin-left: -1px;
+}
+.button-first:hover, .button-middle:hover {
+	/* puts the right-border over the left border of the button to the right of it */
+	position: relative;
+}
+.button-first.cur:hover, .button-middle.cur:hover {
+	position: static;
+}
+
+.dark .button {
+	background: #2b2c31;
+	background: linear-gradient(to bottom, #4e525a, #2b2c31);
+	box-shadow: 0.5px 1px 2px rgba(255, 255, 255, 0.45), inset 0.5px 1px 1px rgba(255, 255, 255, 0.5);
+	border-color: #34373b;
+	text-shadow: none;
+	color: #F9F9F9;
+}
+.dark .button:hover {
+	background: #3e4149;
+	background: linear-gradient(to bottom, #646877, #3e4149);
+	border-color: #50555b
+}
+.dark .button:active {
+	background: #2b2c31;
+	background: linear-gradient(to bottom, #2b2c31, #4e525a);
+	border-color: #34373b;
+	box-shadow: 0.5px 1px 2px rgba(255, 255, 255, 0.45);
+}
+.dark .button option,
+.dark .button optgroup {
+	/* Chrome/Win does this thing where it takes <select> styling and applies it
+	to options, which would be cool except it of course can't handle gradient
+	backgrounds, and also can't fall back to the last non-gradient background,
+	ending up with white text on the default white background. Very fortunately,
+	styling <option> fixes this. */
+	background: #2b2c31;
+	color: #F9F9F9;
+}
+
+.dark .button.notifying {
+	border-color: #34373b;
+	background: #417589;
+	background: linear-gradient(to bottom, #449cbf, #2b6d87);
+}
+.dark .button.notifying:hover {
+	border-color: #34373b;
+	background: #5499b4;
+	background: linear-gradient(to bottom, #4fb7df, #398bac);
+}
+.dark .button.notifying:active {
+	border-color: #34373b;
+	background: #5499b4;
+	background: linear-gradient(to bottom, #2b6d87, #4ebde9);
+}
+.dark .button.alt-notifying {
+	border-color: #34373b;
+	background: #502646;
+	background: linear-gradient(to bottom, #713262, #502646);
+}
+.dark .button.alt-notifying:hover {
+	border-color: #34373b;
+	background: #713563;
+	background: linear-gradient(to bottom, #9f468b, #713563);
+}
+.dark .button.alt-notifying:active {
+	border-color: #34373b;
+	background: #713563;
+	background: linear-gradient(to bottom, #502646, #9f468b);
+}
+.dark .button.subtle-notifying {
+	color: #72bcda;
+}
+
+.dark .button.disabled,
+.dark .button.disabled:hover,
+.dark .button.disabled:active,
+.dark .button:disabled,
+.dark .button:disabled:hover,
+.dark .button:disabled:active,
+.dark .button.cur,
+.dark .button.cur:hover {
+	background: #555555;
+	border-color: #34373b;
+	box-shadow: 0.5px 1px 2px rgba(255, 255, 255, 0.45);
+	color: #999999;
+}
+.dark .button.cur,
+.dark .button.cur:hover {
+	color: #E9E9E9;
+}
+
+/*********************************************************
+ * Forms
+ *********************************************************/
+
+.dark {
+	/* we already have custom scrollbars/buttons so this is really just checkboxes */
+	color-scheme: dark;
+}
+
+.label {
+	font-size: 9pt;
+	font-weight: bold;
+	display: block;
+}
+.optlabel {
+	font-size: 9pt;
+	display: block;
+}
+.value {
+	float: right;
+}
+.checkbox {
+	background: transparent;
+	color: inherit;
+	border: 0 none;
+	font-family: Verdana, Helvetica, Arial, sans-serif;
+	font-size: 10pt;
+	display: block;
+	cursor: pointer;
+	padding: 2px 6px 2px 2px;
+	border-radius: 4px;
+}
+.checkbox.inline {
+	display: inline-block;
+}
+.checkbox input {
+	width: 14px;
+	height: 14px;
+	vertical-align: -2px;
+	cursor: pointer;
+}
+.checkbox i {
+	font-size: 12pt;
+	vertical-align: -2px;
+	margin: 0 2px;
+}
+.checkbox:hover {
+	background: #D5D5D5;
+	color: black;
+	text-shadow: none;
+}
+.dark .checkbox:hover,
+.menugroup .checkbox:hover {
+	background: #383838;
+	color: white;
+}
+.label strong {
+	font-size: 11pt;
+	display: block;
+}
+.label .textbox {
+	display: block;
+}
+.textbox {
+	border: 1px solid #AAAAAA;
+	border-radius: 3px;
+	padding: 2px 3px;
+	font-family: Verdana, Helvetica, Arial, sans-serif;
+	font-size: 9pt;
+
+	box-shadow: inset 0px 1px 2px #CCCCCC, 1px 1px 0 rgba(255,255,255,.6);
+	background: #F8FBFD;
+	color: black;
+}
+.textbox:hover {
+	border-color: #474747;
+	box-shadow: inset 0px 1px 2px #D2D2D2, 1px 1px 0 rgba(255,255,255,.6);
+	background: #FFFFFF;
+}
+.textbox:focus {
+	outline: 0 none;
+	border-color: #004488;
+	box-shadow: inset 0px 1px 2px #D2D2D2, 0px 0px 6px #2266AA;
+}
+.textbox:focus {
+	background: #FFFFFF;
+}
+.textbox.disabled, .textbox:disabled {
+	background: #CCCCCC;
+	color: #555555;
+}
+.dark .textbox {
+	border-color: #6b7178;
+
+	/* box-shadow: inset 0px -1px 2px #606060, -1px -1px 0 rgba(255,255,255,.2); */
+	box-shadow: inset 0.5px 1px 2px rgba(0, 0, 0, 1), inset -0.5px -1px 1px rgba(255, 255, 255, 0.2), -0.5px -1px 1px rgba(255, 255, 255, 0.1);
+	background: #222527;
+	color: #DDD;
+}
+.dark .textbox:hover {
+	border-color: #8d959f;
+	box-shadow: inset 0.5px 1px 2px rgba(0, 0, 0, 0.8), inset -0.5px -1px 1px rgba(255, 255, 255, 0.5), -0.5px -1px 1px rgba(255, 255, 255, 0.1);
+	background: #111111;
+}
+.dark .textbox:focus {
+	outline: 1px solid #6295bc;
+	border-color: #9199a2;
+	/* box-shadow: 0px 0px 4px #88CCFF, 0px 0px 6px #88CCFF; */
+}
+.dark .textbox:focus {
+	background: #111111;
+	/* box-shadow: inset 0.5px 1px 2px rgba(0, 0, 0, 0.8), inset -0.5px -1px 1px rgba(255, 255, 255, 0.5), 0px 0px 4px #88CCFF, 0px 0px 6px #88CCFF; */
+}
+.dark .textbox.disabled, .dark .textbox:disabled {
+	opacity: 0.7;
+	color: #AAA;
+	border-color: #444;
+	box-shadow: none;
+}
+
+.option {
+	background-color: transparent;
+	border: 1px solid transparent;
+	border-radius: 4px;
+	padding: 2px 5px;
+	margin: 0;
+	font-size: 9pt;
+	font-family: Verdana, sans-serif;
+	text-align: left;
+	overflow: hidden;
+}
+.option.sel, .option.cur {
+	border-color: #999999;
+}
+.option:hover,
+.option.sel:hover,
+.option.cur:hover {
+	border-color: #888888;
+	background-color: #D5D5D5;
+	color: black;
+}
+
+.dark .option {
+	color: #DDD;
+	box-shadow: none;
+}
+.dark .option:hover,
+.dark .option.sel:hover,
+.dark .option.cur:hover {
+	border-color: #777777;
+	background-color: rgba(100, 100, 100, 0.5);
+	color: #FFFFFF;
+}
+
+hr {
+	border-top: 1px solid #999999;
+	border-bottom: 0;
+	border-left: 0;
+	border-right: 0;
+}
+
+.dark hr {
+	border-color: #707070;
+}
+
+select {
+	font-size: 9pt;
+	font-family: Verdana, Helvetica, Arial, sans-serif;
+}
+
+input[type=range] {
+	-webkit-appearance: none;
+	-moz-appearance: revert;
+	cursor: pointer;
+	height: 18px;
+	background: transparent;
+}
+input[type=range]::-webkit-slider-runnable-track {
+	width: 300px;
+	height: 5px;
+	background: #F8FBFD;
+	border: 1px solid #AAAAAA;
+	border-radius: 3px;
+
+	box-shadow: inset 0px 1px 1px #DDD, 1px 1px 0 rgba(255,255,255,.6);
+}
+input[type=range]::-webkit-slider-thumb {
+	-webkit-appearance: none;
+	height: 18px;
+	width: 18px;
+	border-radius: 9px;
+	margin-top: -7px;
+
+	box-shadow: 0 1px 2px rgba(0,0,0,.2), inset 0 -1px 2px rgba(255,255,255,1);
+	border: 1px solid #777;
+	background: #e3e3e3;
+	background: linear-gradient(to bottom,  #f6f6f6,  #e3e3e3);
+
+	cursor: grab;
+}
+input[type=range]:focus {
+	outline: none;
+}
+input[type=range]:hover::-webkit-slider-runnable-track {
+	border: 1px solid #999;
+}
+input[type=range]:hover::-webkit-slider-thumb {
+	background: #cfcfcf;
+	background: linear-gradient(to bottom,  #f2f2f2,  #c2c2c2);
+	border-color: #606060;
+}
+input[type=range]:focus::-webkit-slider-thumb {
+	border-color: #004488;
+	box-shadow: inset 0px -1px 2px #D2D2D2, 0px 0px 6px #2266AA;
+}
+input[type=range]:active::-webkit-slider-thumb {
+	background: #DDD;
+	cursor: grabbing;
+}
+
+.dark input[type=range]::-webkit-slider-runnable-track {
+	box-shadow: inset 0px 1px 1px #DDD;
+}
+
+/** stolen from devdocs.io */
+.dark:not(.native-scrollbars) *::-webkit-scrollbar {
+	-webkit-appearance: none
+}
+.dark:not(.native-scrollbars) *::-webkit-scrollbar:vertical {
+	width: 16px
+}
+.dark:not(.native-scrollbars) *::-webkit-scrollbar:horizontal {
+	height: 16px
+}
+.dark:not(.native-scrollbars) *::-webkit-scrollbar-button,.dark:not(.native-scrollbars) *::-webkit-scrollbar-corner {
+	display: none
+}
+.dark:not(.native-scrollbars) *::-webkit-scrollbar-track {
+	background: transparent;
+	border: 1px solid transparent;
+}
+.dark:not(.native-scrollbars) *::-webkit-scrollbar-track:hover {
+	background: #24282a;
+	border-color: #000000;
+}
+.dark:not(.native-scrollbars) *::-webkit-scrollbar-track:vertical {
+	border-width: 0 0 0 1px;
+}
+.dark:not(.native-scrollbars) *::-webkit-scrollbar-track:vertical:corner-present {
+	border-width: 0 0 1px 1px;
+	border-radius: 0 0 0 2px;
+}
+.dark:not(.native-scrollbars) *::-webkit-scrollbar-track:horizontal {
+	border-width: 1px 1px 0 1px;
+	border-radius: 2px 2px 0 0;
+}
+.dark:not(.native-scrollbars) *::-webkit-scrollbar-thumb {
+	min-height: 2rem;
+	background: #6c6c6f;
+	background-clip: padding-box;
+	border: 5px solid transparent;
+	border-radius: 10px;
+}
+.dark:not(.native-scrollbars) *::-webkit-scrollbar-thumb:hover,.dark:not(.native-scrollbars) *::-webkit-scrollbar-thumb:active {
+	background-color: #949697;
+	border-width: 4px;
+}
+
+/*********************************************************
+ * Everything else
+ *********************************************************/
+
+.message-log h2 {
+	margin: 0 -8px 6px;
+	padding: 4px 8px;
+	border: 1px solid #AAAAAA;
+	background: #E0E7EA;
+	border-left: 0; border-right: 0;
+	font-family: Verdana, sans-serif;
+	font-size: 13pt;
+}
+.dark .message-log h2 {
+	background: #555555;
+	border-color: #5A5A5A;
+}
+.chat, .notice {
+	vertical-align: middle;
+	padding: 3px 0 3px 0;
+	font-size: 9pt;
+}
+.chat.highlighted {
+	margin-left: -8px;
+	margin-right: -8px;
+	padding-left: 8px;
+	padding-right: 8px;
+}
+.chat > strong { /* username, changed rating */
+	color: #40576A;
+}
+.dark .username {
+	filter: brightness(1.2);
+}
+.chat > em,
+.chat > q { /* user's chat message */
+	padding: 0 4px 0 3px;
+	font-style: normal;
+}
+.chat > q:before,
+.chat > q:after {
+	content: '';
+}
+.dark .chat > strong, /* username, changed rating */
+.dark .battle-log .chat > em, /* user's chat message */
+.dark .battle-log .chat > q {
+	color: #8097BA;
+}
+
+.chat small {
+	font-weight: normal;
+	font-size: 8pt;
+	color: #888888;
+}
+.chat.timer {
+	color: #992222;
+}
+
+.chat.mine {
+	background: rgba(0,0,0,0.07);
+	margin-left: -8px;
+	margin-right: -8px;
+	padding-left: 8px;
+	padding-right: 8px;
+}
+.spoiler {
+	color: #BBBBBB;
+	background: #BBBBBB;
+	padding: 0px 3px;
+}
+.spoiler:hover,
+.spoiler:active,
+.spoiler-shown {
+	color: #000000;
+	background: #E2E2E2;
+	padding: 0px 3px;
+}
+.spoiler a {
+	color: #BBBBBB;
+}
+.spoiler:hover a,
+.spoiler:active a,
+.spoiler-shown a {
+	color: #2288CC;
+}
+.dark .spoiler {
+	color: #777;
+	background: #777;
+}
+.dark .spoiler:hover,
+.dark .spoiler:active,
+.dark .spoiler-shown {
+	color: #DDD;
+	background: #444;
+}
+.dark .spoiler a {
+	color: #777;
+}
+.dark .spoiler:hover a,
+.dark .spoiler:active a,
+.dark .spoiler-shown a {
+	color: #4488EE;
+}
+.spoiler code {
+	border-color: #BBBBBB;
+	background: #BBBBBB;
+	color: #BBBBBB;
+}
+code, .code, kbd,
+.spoiler:hover code,
+.spoiler:active code,
+.spoiler-shown code {
+	font-family: monospace;
+	border: 1px solid #C0C0C0;
+	background: #EEEEEE;
+	color: black;
+	padding: 0 2px;
+	tab-size: 4;
+}
+kbd {
+	font-size: 90%;
+	padding: 0 4px;
+	border-radius: 4px;
+	border-width: 1px 3px 3px;
+	border-color: #CCC #BBB #AAA;
+}
+
+details.readmore {
+	position: relative;
+}
+details.readmore summary {
+	display: block;
+	list-style: none;
+}
+details.readmore summary::-webkit-details-marker {
+	display:none;
+}
+details.readmore summary:after {
+	content: '[read more]';
+	font-family: Verdana, sans-serif;
+	margin-left: 0.5em;
+	color: #888;
+}
+details.readmore summary:hover:after {
+	text-decoration: underline;
+	color: #68B;
+}
+details.readmore[open] summary:after {
+	content: '';
+}
+details.readmore[open] summary:hover:before {
+	position: absolute;
+	top: 0;
+	right: 0;
+	content: '[-]';
+	font-family: Verdana, sans-serif;
+	color: #68B;
+}
+
+.greentext {
+	color: #187902;
+}
+.dark .greentext {
+	color: #60BF10;
+}
+.dark .spoiler code {
+	border-color: #777;
+	background: #777;
+	color: #777;
+}
+.dark code, .dark .code, .dark kbd,
+.dark .spoiler:hover code,
+.dark .spoiler:active code,
+.dark .spoiler-shown code {
+	border-color: #555;
+	background: #333;
+	color: #DDD;
+}
+.dark kbd {
+	background: #555;
+	border-color: #666 #333 #111;
+}
+.stat-boosted {
+	color: #117911;
+}
+.stat-lowered {
+	color: #991111;
+	font-weight: normal;
+}
+.message-log .rated {
+	padding: 3px 4px;
+}
+.message-log .rated strong {
+	color: white;
+	background: #89A;
+	padding: 1px 4px;
+	border-radius: 4px;
+}
+.spacer {
+	margin-top: 6px;
+	font-size: 2px;
+}
+.message-announce {
+	background: #6688AA;
+	color: white;
+	padding: 1px 4px 2px;
+}
+.message-announce a,
+.broadcast-green a,
+.broadcast-blue a,
+.broadcast-red a,
+.dark .message-announce a,
+.dark .broadcast-green a,
+.dark .broadcast-blue a,
+.dark .broadcast-red a {
+	/* Readable link colour */
+	color: #DDEEFF;
+}
+.broadcast-green, .broadcast-blue, .broadcast-red {
+	background-color: #559955;
+	color: white;
+	padding: 2px 4px;
+	border-radius: 4px;
+}
+.broadcast-blue {
+	background-color: #6688AA;
+}
+.broadcast-red {
+	background-color: #AA5544;
+}
+.infobox {
+	border: 1px solid #7799BB;
+	padding: 2px 4px;
+	border-radius: 4px;
+}
+.dark .infobox {
+	border-color: #506070;
+}
+.infobox-limited {
+	max-height: 200px;
+	overflow: auto;
+}
+.message-learn-canlearn {
+	font-weight: bold;
+	color: #228822;
+	text-decoration: underline;
+}
+.message-learn-cannotlearn {
+	font-weight: bold;
+	color: #CC2222;
+	text-decoration: underline;
+}
+.message-effect-weak {
+	font-weight: bold;
+	color: #CC2222;
+}
+.message-effect-resist {
+	font-weight: bold;
+	color: #6688AA;
+}
+.message-effect-immune {
+	font-weight: bold;
+	color: #666666;
+}
+.message-learn-list {
+	margin-top: 0;
+	margin-bottom: 0;
+}
+.message-throttle-notice,
+.message-error {
+	color: #992222;
+}
+.dark .message-error {
+	color: #EF4333;
+}
+.message-overflow,
+.chat small.message-overflow {
+	font-size: 0pt;
+}
+.message-overflow::before {
+	font-size:9pt;
+	content: '...';
+}
+a.subtle, .dark a.subtle {
+	text-decoration: none;
+	color: inherit;
+}
+a.subtle:hover {
+	text-decoration: underline;
+	color: #6688CC;
+}
+button.subtle {
+	border: 0;
+	background: transparent;
+	padding: 0;
+	margin: 0;
+	color: #224466;
+	outline: 0;
+	font-size: 9pt;
+	font-family: Verdana, sans-serif;
+}
+.dark button.subtle {
+	color: #7598BD;
+}
+button.subtle:hover {
+	text-decoration: underline;
+}
+
+/*********************************************************
+ * <blink>
+ *********************************************************/
+
+/* exists for April Fool's jokes; please do not use this seriously */
+
+@-webkit-keyframes blinker {
+	from { opacity: 1.0; }
+	to { opacity: 0.0; }
+}
+@keyframes blinker {
+	from { opacity: 1.0; }
+	to { opacity: 0.0; }
+}
+blink {
+	-webkit-animation-name: blinker;
+	-webkit-animation-iteration-count: infinite;
+	-webkit-animation-timing-function: cubic-bezier(1.0,0,0,1.0);
+	-webkit-animation-duration: 1s;
+	animation-name: blinker;
+	animation-iteration-count: infinite;
+	animation-timing-function: cubic-bezier(1.0,0,0,1.0);
+	animation-duration: 1s;
+	text-decoration: none;
+}

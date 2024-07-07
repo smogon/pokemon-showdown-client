@@ -5,9 +5,9 @@ const path = require('path');
 
 process.chdir(path.resolve(__dirname, '..'));
 
-require(`../js/battle-dex.js`); // only needed for toID
-global.BattleText = require(`../data/text.js`).BattleText;
-require(`../js/battle-text-parser.js`);
+require(`../play.pokemonshowdown.com/js/battle-dex.js`); // only needed for toID
+global.BattleText = require(`../play.pokemonshowdown.com/data/text.js`).BattleText;
+require(`../play.pokemonshowdown.com/js/battle-text-parser.js`);
 
 const parser = new BattleTextParser();
 

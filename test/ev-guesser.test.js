@@ -1,11 +1,11 @@
 const assert = require('assert').strict;
 
 try {
-  global.BattlePokedex = require('../data/pokedex.js').BattlePokedex;
+  global.BattlePokedex = require('../play.pokemonshowdown.com/data/pokedex.js').BattlePokedex;
 } catch (err) {}
-require('../js/battle-dex-data.js');
-require('../js/battle-dex.js');
-require('../js/battle-tooltips.js');
+require('../play.pokemonshowdown.com/js/battle-dex-data.js');
+require('../play.pokemonshowdown.com/js/battle-dex.js');
+require('../play.pokemonshowdown.com/js/battle-tooltips.js');
 
 describe('EV Guesser', () => {
 
