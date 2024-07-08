@@ -2381,9 +2381,9 @@ class BattleTooltips {
 		}
 		if (speciesName === 'Ogerpon') {
 			const speciesForme = value.pokemon.getSpeciesForme();
-			if ((speciesForme === 'Ogerpon-Wellspring' && value.itemName === 'Wellspring Mask') ||
-				(speciesForme === 'Ogerpon-Hearthflame' && value.itemName === 'Hearthflame Mask') ||
-				(speciesForme === 'Ogerpon-Cornerstone' && value.itemName === 'Cornerstone Mask')) {
+			if ((speciesForme.startsWith('Ogerpon-Wellspring') && itemName === 'Wellspring Mask') ||
+				(speciesForme.startsWith('Ogerpon-Hearthflame') && itemName === 'Hearthflame Mask') ||
+				(speciesForme.startsWith('Ogerpon-Cornerstone') && itemName === 'Cornerstone Mask')) {
 					value.itemModify(1.2);
 					return value;
 				}
