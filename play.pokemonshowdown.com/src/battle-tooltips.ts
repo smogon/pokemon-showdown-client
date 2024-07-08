@@ -2379,11 +2379,14 @@ class BattleTooltips {
 			value.itemModify(1.2);
 			return value;
 		}
-		if ((speciesName.startsWith('Ogerpon-Wellspring') && itemName === 'Wellspring Mask') ||
-			(speciesName.startsWith('Ogerpon-Hearthflame') && itemName === 'Hearthflame Mask') ||
-			(speciesName.startsWith('Ogerpon-Cornerstone') && itemName === 'Cornerstone Mask')) {
-			value.itemModify(1.2);
-			return value;
+		if (speciesName === 'Ogerpon') {
+			const speciesForme = value.pokemon.getSpeciesForme();
+			if ((speciesForme === 'Ogerpon-Wellspring' && value.itemName === 'Wellspring Mask') ||
+				(speciesForme === 'Ogerpon-Hearthflame' && value.itemName === 'Hearthflame Mask') ||
+				(speciesForme === 'Ogerpon-Cornerstone' && value.itemName === 'Cornerstone Mask')) {
+					value.itemModify(1.2);
+					return value;
+				}
 		}
 
 		// Gems
