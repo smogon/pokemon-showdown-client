@@ -763,7 +763,7 @@ abstract class BattleTypedSearch<T extends SearchType> {
 		if (baseLearnsetid in table.learnsets) return baseLearnsetid;
 		return '' as ID;
 	}
-	protected nextLearnsetid(learnsetid: ID, speciesid: ID) {
+	protected nextLearnsetid(learnsetid: ID, speciesid: ID, checkingMoves = false) {
 		if (learnsetid === 'lycanrocdusk' || (speciesid === 'rockruff' && learnsetid === 'rockruff')) {
 			return 'rockruffdusk' as ID;
 		}
@@ -778,7 +778,8 @@ abstract class BattleTypedSearch<T extends SearchType> {
 		const next = lsetSpecies.battleOnly || lsetSpecies.changesFrom || lsetSpecies.prevo;
 		if (next) return toID(next);
 
-		if (!lsetSpecies.prevo && lsetSpecies.baseSpecies && this.dex.species.get(lsetSpecies.baseSpecies).prevo) {
+		if (checkingMoves && !lsetSpecies.prevo && lsetSpecies.baseSpecies &&
+			this.dex.species.get(lsetSpecies.baseSpecies).prevo) {
 			let baseEvo = this.dex.species.get(lsetSpecies.baseSpecies);
 			while (baseEvo.prevo) {
 				baseEvo = this.dex.species.get(baseEvo.prevo);
@@ -825,7 +826,7 @@ abstract class BattleTypedSearch<T extends SearchType> {
 					(learnset[moveid].includes(`${gen + 1}`) && move.gen === gen))) {
 				return true;
 			}
-			learnsetid = this.nextLearnsetid(learnsetid, speciesid);
+			learnsetid = this.nextLearnsetid(learnsetid, speciesid, true);
 		}
 		return false;
 	}
@@ -1601,9 +1602,18 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 					}
 					const currentSpecies = dex.species.get(learnsetid);
 					const originalSpecies = dex.species.get(species.id);
+					let nextSpecies = this.nextLearnsetid(species.id, species.id);
+					while (nextSpecies) {
+						if (nextSpecies === learnsetid) break;
+						nextSpecies = this.nextLearnsetid(nextSpecies, species.id);
+					}
 					if (
+<<<<<<< Updated upstream
 						currentSpecies.baseSpecies !== originalSpecies.baseSpecies && !originalSpecies.prevo &&
 						(!originalSpecies.changesFrom || originalSpecies.name === "Greninja-Ash") &&
+=======
+						currentSpecies.baseSpecies !== originalSpecies.baseSpecies && !nextSpecies &&
+>>>>>>> Stashed changes
 						(!learnsetEntry.includes('e') || dex.gen !== 9)
 					) {
 						continue;
@@ -1645,7 +1655,7 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 					}
 				}
 			}
-			learnsetid = this.nextLearnsetid(learnsetid, species.id);
+			learnsetid = this.nextLearnsetid(learnsetid, species.id, true);
 		}
 		if (sketch || isHackmons) {
 			if (isHackmons) moves = [];
