@@ -1608,12 +1608,7 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 						nextSpecies = this.nextLearnsetid(nextSpecies, species.id);
 					}
 					if (
-<<<<<<< Updated upstream
-						currentSpecies.baseSpecies !== originalSpecies.baseSpecies && !originalSpecies.prevo &&
-						(!originalSpecies.changesFrom || originalSpecies.name === "Greninja-Ash") &&
-=======
 						currentSpecies.baseSpecies !== originalSpecies.baseSpecies && !nextSpecies &&
->>>>>>> Stashed changes
 						(!learnsetEntry.includes('e') || dex.gen !== 9)
 					) {
 						continue;
