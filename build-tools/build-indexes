@@ -1096,7 +1096,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 
 	// Client relevant data that should be overriden by past gens and mods
 	const overrideSpeciesKeys = ['abilities', 'baseStats', 'cosmeticFormes', 'isNonstandard', 'requiredItems', 'types', 'unreleasedHidden'];
-	const overrideMoveKeys = ['accuracy', 'basePower', 'category', 'desc', 'flags', 'isNonstandard', 'noSketch', 'pp', 'priority', 'shortDesc', 'target', 'type'];
+	const overrideMoveKeys = ['accuracy', 'basePower', 'category', 'desc', 'flags', 'isNonstandard', 'pp', 'priority', 'shortDesc', 'target', 'type'];
 	const overrideAbilityKeys = ['desc', 'flags', 'isNonstandard', 'rating', 'shortDesc'];
 	const overrideItemKeys = ['desc', 'fling', 'isNonstandard', 'naturalGift', 'shortDesc'];
 
