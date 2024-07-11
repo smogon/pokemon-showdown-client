@@ -1060,11 +1060,12 @@ class BattlePokemonSearch extends BattleTypedSearch<'pokemon'> {
 				});
 			}
 		}
-		if (format === 'zu' && table.gen5zuBans) {
-			tierSet = tierSet.filter(([type, id]) => {
-				if (id in table.gen5zuBans) return false;
-				return true;
-			});
+		if (format === 'zu' && dex.gen === 5) {
+			console.log(table.gen5zuBans)
+			// tierSet = tierSet.filter(([type, id]) => {
+			// 	if (id in table.gen5zuBans) return false;
+			// 	return true;
+			// });
 		}
 
 		// Filter out Gmax Pokemon from standard tier selection
