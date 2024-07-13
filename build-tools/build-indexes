@@ -565,8 +565,10 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			BattleTeambuilderTable.monotypeBans = monotypeBans;
 			BattleTeambuilderTable.formatSlices = formatSlices;
 		} else {
-			BattleTeambuilderTable.gen5zuBans = gen5zuBans;
 			BattleTeambuilderTable[gen] = {};
+			if (genNum === 5) {
+				BattleTeambuilderTable[gen].gen5zuBans = gen5zuBans;
+			}
 			BattleTeambuilderTable[gen].overrideTier = overrideTier;
 			BattleTeambuilderTable[gen].tiers = tiers;
 			BattleTeambuilderTable[gen].items = items;
