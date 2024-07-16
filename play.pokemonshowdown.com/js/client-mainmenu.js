@@ -1196,6 +1196,9 @@
 			case 'error':
 				return '<div class="chat message-error">' + BattleLog.escapeHTML(target) + '</div>';
 			case 'html':
+				if (!name) {
+					return {message: '<div class="chat' + hlClass + '">' + timestamp + '<em>' + BattleLog.sanitizeHTML(target) + '</em></div>', noNotify: isNotPM};
+				}
 				return {message: '<div class="chat chatmessage-' + toID(name) + hlClass + mineClass + '">' + timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <em>' + BattleLog.sanitizeHTML(target) + '</em></div>', noNotify: isNotPM};
 			case 'uhtml':
 			case 'uhtmlchange':
