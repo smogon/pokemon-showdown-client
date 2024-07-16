@@ -689,6 +689,12 @@ export class BattleLog {
 		case 'error':
 			return ['chat message-error', formatText(target, true)];
 		case 'html':
+			if (!name) {
+				return [
+					'chat' + hlClass,
+					`${timestamp}<em>${BattleLog.sanitizeHTML(target)}</em>`,
+				];
+			}
 			return [
 				'chat chatmessage-' + toID(name) + hlClass + mineClass,
 				`${timestamp}<strong${colorStyle}>${clickableName}:</strong> <em>${BattleLog.sanitizeHTML(target)}</em>`,
