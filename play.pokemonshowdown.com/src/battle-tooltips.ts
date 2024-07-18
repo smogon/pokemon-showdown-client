@@ -2419,17 +2419,13 @@ class BattleTooltips {
 		return false;
 	}
 	getAllyAbility(ally: Pokemon) {
-		// this will only be available if the ability announced itself in some way
-		let allyAbility = this.battle.dex.abilities.get(ally.ability).name;
-		// otherwise fall back on the original set data sent from the server
-		if (!allyAbility) {
-			if (this.battle.myAllyPokemon) { // multi battle ally
-				allyAbility = this.battle.dex.abilities.get(this.battle.myAllyPokemon[ally.slot].ability || '').name;
-			} else if (this.battle.myPokemon) {
-				allyAbility = this.battle.dex.abilities.get(this.battle.myPokemon[ally.slot].ability || '').name;
-			}
+		let serverPokemon;
+		if (this.battle.myAllyPokemon) {
+			serverPokemon = this.battle.myAllyPokemon[ally.slot];
+		} else if (this.battle.myPokemon) {
+			serverPokemon = this.battle.myPokemon[ally.slot];
 		}
-		return allyAbility;
+		return ally.effectiveAbility(serverPokemon);
 	}
 	getPokemonAbilityData(clientPokemon: Pokemon | null, serverPokemon: ServerPokemon | null | undefined) {
 		const abilityData: {ability: string, baseAbility: string, possibilities: string[]} = {
