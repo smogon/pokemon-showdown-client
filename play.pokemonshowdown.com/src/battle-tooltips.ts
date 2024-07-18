@@ -1025,8 +1025,9 @@ class BattleTooltips {
 				stats.atk = Math.floor(stats.atk * 0.5);
 			}
 
-			if (this.battle.gen > 2 && ability === 'quickfeet') {
-				stats.spe = Math.floor(stats.spe * 1.5);
+			// Paralysis is calculated later in newer generations, so we need to apply it early here
+			if (this.battle.gen <= 2 && pokemon.status === 'par') {
+				stats.spe = Math.floor(stats.spe * 0.25);
 			}
 		}
 
@@ -1167,8 +1168,13 @@ class BattleTooltips {
 				}
 			}
 		}
-		if (ability === 'marvelscale' && pokemon.status) {
-			stats.def = Math.floor(stats.def * 1.5);
+		if (pokemon.status) {
+			if (ability === 'marvelscale') {
+				stats.def = Math.floor(stats.def * 1.5);
+			}
+			if (ability === 'quickfeet') {
+				speedModifiers.push(1.5);
+			}
 		}
 		const isNFE = this.battle.dex.species.get(serverPokemon.speciesForme).evos?.some(evo => {
 			const evoSpecies = this.battle.dex.species.get(evo);
