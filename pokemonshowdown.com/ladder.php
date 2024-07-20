@@ -198,7 +198,7 @@ if (!$formatid) {
 	$toplist = $ladder->getTop();
 	$coil_vals = array();
 	try {
-		json_decode(file_get_contents('../config/coil.json'));
+		$coil_vals = json_decode(file_get_contents('../config/coil.json'));
 	} catch (Exception $e) {}
 	$i=0;
 

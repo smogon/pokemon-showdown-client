@@ -40,7 +40,7 @@ if (!count($toplist))
 
 $coil_vals = array();
 try {
-	json_decode(file_get_contents('./config/coil.json'));
+	$coil_vals = json_decode(file_get_contents('../config/coil.json'));
 } catch (Exception $e) {}
 
 foreach ($toplist as $row)
