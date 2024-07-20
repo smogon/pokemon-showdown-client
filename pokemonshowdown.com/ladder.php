@@ -196,7 +196,10 @@ if (!$formatid) {
 			</tr>
 <?php
 	$toplist = $ladder->getTop();
-	$coil_vals = json_parse(file_get_contents('./config/coil.json'));
+	$coil_vals = array();
+	try {
+		json_decode(file_get_contents('./config/coil.json'));
+	} catch (Exception $e) {}
 	$i=0;
 
 	if (!count($toplist)) {
