@@ -178,10 +178,11 @@
 		showHelp: function () {
 			var buf = '<div class="ladder pad"><p><button name="selectFormat"><i class="fa fa-chevron-left"></i> Format List</button></p>';
 			buf += '<h3>How the ladder works</h3>';
-			buf += '<p>Our ladder displays three ratings: Elo, GXE, and Glicko-1.</p>';
+			buf += '<p>Our ladder displays four ratings: Elo, GXE, Glicko-1, and COIL.</p>';
 			buf += '<p><strong>Elo</strong> is the main ladder rating. It\'s a pretty normal ladder rating: goes up when you win and down when you lose.</p>';
 			buf += '<p><strong>GXE</strong> (Glicko X-Act Estimate) is an estimate of your win chance against an average ladder player.</p>';
 			buf += '<p><strong>Glicko-1</strong> is a different rating system. It has rating and deviation values.</p>';
+			buf += '<p><strong>COIL</strong> (Converging Order Invariant Ladder) is mainly used for suspect tests. It goes up as you play games, but not too many games.</p>';
 			buf += '<p>Note that win/loss should not be used to estimate skill, since who you play against is much more important than how many times you win or lose. Our other stats like Elo and GXE are much better for estimating skill.</p>';
 			buf += '</div>';
 			this.$el.html(buf);
@@ -194,6 +195,8 @@
 			this.$('button[name=refresh]').addClass('disabled').prop('disabled', true);
 			this.update();
 		}
+	}, {
+		COIL_B: {},
 	});
 
 }).call(this, jQuery);

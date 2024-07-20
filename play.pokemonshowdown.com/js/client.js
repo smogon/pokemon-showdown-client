@@ -696,6 +696,11 @@ function toId() {
 				Object.assign(Config.customcolors, data);
 			});
 
+			// get coil values too
+			$.get('/config/coil.json', {}, function (data) {
+				Object.assign(LadderRoom.COIL_B, data);
+			});
+
 			this.initializeConnection();
 		},
 		/**
