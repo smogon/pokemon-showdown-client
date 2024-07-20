@@ -37,6 +37,12 @@ if (!count($toplist))
 		</tr>
 <?php
 }
+
+$coil_vals = array();
+try {
+	json_decode(file_get_contents('./config/coil.json'));
+} catch (Exception $e) {}
+
 foreach ($toplist as $row)
 {
 	$i++;
@@ -47,7 +53,6 @@ foreach ($toplist as $row)
 			<td><?php echo '<em>'.round($row['rpr']).'<small> &#177; '.round($row['rprd']).'</small></em>'; /* if (floatval($row['rprd']) > 100) echo ' <small>(provisional)</small>'; */ ?></td>
 			<td>
 			<?php
-			$coil_vals = json_parse(file_get_contents('./config/coil.json'));
 			if (in_array($coil_vals, $row['formatid'])) {
 				echo number_format($N ? 40*$row['gxe']*pow(2.0,-$coil_vals[$row['formatid']]/$N) : 0,1,'.','');
 			} else echo '--';
