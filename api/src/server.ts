@@ -339,7 +339,7 @@ export class Server {
 		}
 		try {
 			const {crashlogger} = require(Config.pspath);
-			crashlogger(error, source, details, Config.crashguardemail);
+			crashlogger(error, source, {...details, date: new Date().toISOString()}, Config.crashguardemail);
 		} catch (e) {
 			// don't have data/pokemon-showdown built? something else went wrong? oh well
 			console.log('CRASH', error);
