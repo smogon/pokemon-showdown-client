@@ -938,7 +938,7 @@
 						buffer += '</table></div>';
 						return self.add('|raw|' + buffer);
 					}
-					buffer += '<tr><th>Format</th><th><abbr title="Elo rating">Elo</abbr></th><th><abbr title="user\'s percentage chance of winning a random battle (aka GLIXARE)">GXE</abbr></th><th><abbr title="Glicko-1 rating: rating±deviation">Glicko-1</abbr></th><th>W</th><th>L</th><th>Total</th></tr>';
+					buffer += '<tr><th>Format</th><th><abbr title="Elo rating">Elo</abbr></th><th><abbr title="user\'s percentage chance of winning a random battle (aka GLIXARE)">GXE</abbr></th><th><abbr title="Glicko-1 rating: rating±deviation">Glicko-1</abbr></th><th>COIL</th><th>W</th><th>L</th><th>Total</th></tr>';
 
 					var hiddenFormats = [];
 					for (var i = 0; i < data.length; i++) {
@@ -969,6 +969,12 @@
 							buffer += '<td><em>' + Math.round(row.rpr) + '<small> &#177; ' + Math.round(row.rprd) + '</small></em></td>';
 						}
 						var N = parseInt(row.w, 10) + parseInt(row.l, 10) + parseInt(row.t, 10);
+						var COIL_B = LadderRoom.COIL_B[formatId];
+						if (COIL_B) {
+							buffer += '<td>' + Math.round(40.0 * parseFloat(row.gxe) * Math.pow(2.0, -COIL_B / N), 0) + '</td>';
+						} else {
+							buffer += '<td>--</td>';
+						}
 						buffer += '<td>' + row.w + '</td><td>' + row.l + '</td><td>' + N + '</td></tr>';
 					}
 					if (hiddenFormats.length) {
