@@ -231,7 +231,8 @@ if (!$formatid) {
 
 <td>
 <?php
-			if (in_array($formatid, $coil_vals)) {
+			if (isset($coil_vals[$formatid])) {
+				$N=$row['w']+$row['l']+$row['t'];
 				echo number_format($N ? 40*$row['gxe']*pow(2.0,-$coil_vals[$formatid]/$N) : 0,1,'.','');
 			} else echo '--';
 ?></td>
