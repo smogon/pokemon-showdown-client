@@ -198,7 +198,7 @@ if (!$formatid) {
 	$toplist = $ladder->getTop();
 	$coil_vals = array();
 	try {
-		json_decode(file_get_contents('./config/coil.json'));
+		json_decode(file_get_contents('../config/coil.json'));
 	} catch (Exception $e) {}
 	$i=0;
 
@@ -231,7 +231,7 @@ if (!$formatid) {
 
 <td>
 <?php
-			if (in_array($coil_vals, $formatid)) {
+			if (in_array($formatid, $coil_vals)) {
 				echo number_format($N ? 40*$row['gxe']*pow(2.0,-$coil_vals[$formatid]/$N) : 0,1,'.','');
 			} else echo '--';
 ?></td>
