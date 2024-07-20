@@ -453,6 +453,41 @@ export const actions: {[k: string]: QueryHandler} = {
 		return {success: true};
 	},
 
+	async updatecoil(params) {
+		await this.requireMainServer();
+
+		const formatid = toID(params.format);
+		if (!formatid) {
+			throw new ActionError('No format was specified.');
+		}
+		const source = parseInt(toID(params.coil_b));
+		if ('coil_b' in params && (isNaN(source) || !source || source < 1)) {
+			throw new ActionError('No B value was specified.');
+		}
+		if (!Config.coilpath) {
+			throw new ActionError("Editing COIL is disabled");
+		}
+		const coil = {} as Record<string, number>;
+		try {
+			const content = await fs.readFile(Config.coilpath, 'utf-8');
+			Object.assign(coil, JSON.parse(content));
+		} catch (e) {
+			throw new ActionError(`Could not read COIL file (${e})`);
+		}
+		if (!('coil_b' in params)) {
+			if (!coil[formatid]) {
+				throw new ActionError('That format does not have COIL set.');
+			} else {
+				delete coil[formatid];
+			}
+		} else {
+			coil[formatid] = source;
+		}
+		await fs.writeFile(Config.coilpath, JSON.stringify(coil));
+
+		return {success: true};
+	},
+
 	async setstanding(params) {
 		await this.requireMainServer();
 

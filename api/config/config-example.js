@@ -51,6 +51,8 @@ exports.mainserver = 'showdown';
 exports.serverlist = '/var/www/html/play.pokemonshowdown.com/config/servers.inc.php';
 /** @type {string | null} */
 exports.colorpath = null;
+/** @type {string | null} */
+exports.coilpath = null;
 
 /** @type {string | null} Password, whether to debug error stacks in request or not*/
 exports.devmode = null;
