@@ -458,7 +458,8 @@ function toId() {
 					var settings = Dex.prefs('serversettings') || {};
 					if (Object.keys(settings).length) app.user.set('settings', settings);
 					// HTML5 history throws exceptions when running on file://
-					Backbone.history.start({pushState: !Config.testclient});
+					var useHistory = !Config.testclient && (location.pathname.slice(-5) !== '.html');
+					Backbone.history.start({pushState: useHistory});
 					app.ignore = app.loadIgnore();
 				});
 			}
