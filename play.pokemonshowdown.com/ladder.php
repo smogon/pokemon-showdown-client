@@ -53,7 +53,7 @@ foreach ($toplist as $row)
 			<td><?php echo '<em>'.round($row['rpr']).'<small> &#177; '.round($row['rprd']).'</small></em>'; /* if (floatval($row['rprd']) > 100) echo ' <small>(provisional)</small>'; */ ?></td>
 			<td>
 			<?php
-			if (in_array($coil_vals, $row['formatid'])) {
+			if (in_array($row['formatid'], $coil_vals)) {
 				echo number_format($N ? 40*$row['gxe']*pow(2.0,-$coil_vals[$row['formatid']]/$N) : 0,1,'.','');
 			} else echo '--';
 			?></td>
