@@ -197,11 +197,18 @@ try {
 indexContents = indexContents.replace(/<!-- newsid -->/g, newsid);
 indexContents = indexContents.replace(/<!-- news -->/g, news);
 
+let indexContents2 = '';
 try {
+	let indexContentsOld = indexContents;
 	indexContents = indexContents.replace(/<!-- head custom -->/g, '' + fs.readFileSync('config/head-custom.html'));
+	indexContents2 = indexContentsOld.replace(/<!-- head custom -->/g, '' + fs.readFileSync('config/head-custom-test.html'));
+	indexContents2 = indexContents2.replace(/src="\/\/play.pokemonshowdown.com\/config\/config.js\?[a-z0-9]*"/, 'src="//play.pokemonshowdown.com/config/config-test.js?3"');
 } catch (e) {}
 
 fs.writeFileSync('play.pokemonshowdown.com/index.html', indexContents);
+if (indexContents2) {
+	fs.writeFileSync('play.pokemonshowdown.com/index-test.html', indexContents2);
+}
 fs.writeFileSync('play.pokemonshowdown.com/preactalpha.html', preactIndexContents);
 fs.writeFileSync('play.pokemonshowdown.com/crossprotocol.html', crossprotocolContents);
 fs.writeFileSync('play.pokemonshowdown.com/js/replay-embed.js', replayEmbedContents);
