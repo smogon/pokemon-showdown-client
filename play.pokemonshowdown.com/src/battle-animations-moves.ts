@@ -35792,7 +35792,7 @@ export const BattleMoveAnims: AnimTable = {
 			defender.anim({
 				y: defender.y - 30,
 				z: defender.behind(20),
-				yscale: 0.9,
+				yscale: 0.5,
 				time: 200,
 			}, 'swing');
 			defender.anim({
