@@ -35798,6 +35798,8 @@ export const BattleMoveAnims: AnimTable = {
 			defender.anim({
 				time: 300,
 			}, 'swing');
+		},
+	},
 	psychicnoise: {
 		anim(scene, [attacker, defender]) {
 			scene.showEffect('mistball', {
