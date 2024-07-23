@@ -360,8 +360,16 @@ export class Session {
 		const userid = toID(name);
 		let attempts = (await loginattempts.get(userid)) as {time: number, count: number};
 		if (attempts) {
-			// too many attempts, no valid login session from that ip on that userid
-			if (attempts.count >= 500 && !(await sessions.selectOne()`WHERE ip = ${ip} AND userid = ${userid}`)) {
+			const shouldBeBlocked = (
+				// too many attempts
+				attempts.count >= 500 && !(
+					// has an active login session on that IP - it's them, let them through
+					await sessions.selectOne()`WHERE ip = ${ip} AND userid = ${userid}` ||
+					// 2fa, allow them through
+					!!(await users.get(userid))?.email
+				)
+			);
+			if (shouldBeBlocked) {
 				attempts.count++;
 				await loginattempts.update(userid, {time: time(), count: attempts.count});
 				throw new ActionError(
