@@ -192,10 +192,14 @@ if (!$formatid) {
 				<th width="50" style="text-align:center"><abbr title="user's percentage chance of winning a random battle (aka GLIXARE)">GXE</abbr></th>
 				<!--th width="50" style="text-align:center"><abbr title="Win Chance vs Average Opponent">WCAO</abbr></th-->
 				<th width="80" style="text-align:center"><abbr title="Glicko-1 rating: rating&#177;deviation">Glicko-1</abbr></th>
+				<th width="50"><abbr title="A special rating used for suspect tests.">COIL</abbr></th>
 			</tr>
 <?php
 	$toplist = $ladder->getTop();
-
+	$coil_vals = array();
+	try {
+		$coil_vals = json_decode(file_get_contents('../config/coil.json'), true);
+	} catch (Exception $e) {}
 	$i=0;
 
 	if (!count($toplist)) {
@@ -222,7 +226,17 @@ if (!$formatid) {
 				<td style="text-align:center" colspan="3"><small style="color:#777">(more games needed)</small>
 <?php
 			}
+
 ?>
+
+<td>
+<?php
+			if (isset($coil_vals[$formatid])) {
+				$N=$row['w']+$row['l']+$row['t'];
+				echo number_format($N ? 40*$row['gxe']*pow(2.0,-$coil_vals[$formatid]/$N) : 0,1,'.','');
+			} else echo '--';
+?></td>
+
 				<!--td><?php echo $row['w']; ?></td><td><?php echo $row['l']; ?></td><td><?php echo $row['t']; ?></td-->
 			</tr>
 <?php

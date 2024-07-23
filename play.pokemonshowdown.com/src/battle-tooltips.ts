@@ -1025,8 +1025,9 @@ class BattleTooltips {
 				stats.atk = Math.floor(stats.atk * 0.5);
 			}
 
-			if (this.battle.gen > 2 && ability === 'quickfeet') {
-				stats.spe = Math.floor(stats.spe * 1.5);
+			// Paralysis is calculated later in newer generations, so we need to apply it early here
+			if (this.battle.gen <= 2 && pokemon.status === 'par') {
+				stats.spe = Math.floor(stats.spe * 0.25);
 			}
 		}
 
@@ -1167,8 +1168,13 @@ class BattleTooltips {
 				}
 			}
 		}
-		if (ability === 'marvelscale' && pokemon.status) {
-			stats.def = Math.floor(stats.def * 1.5);
+		if (pokemon.status) {
+			if (ability === 'marvelscale') {
+				stats.def = Math.floor(stats.def * 1.5);
+			}
+			if (ability === 'quickfeet') {
+				speedModifiers.push(1.5);
+			}
 		}
 		const isNFE = this.battle.dex.species.get(serverPokemon.speciesForme).evos?.some(evo => {
 			const evoSpecies = this.battle.dex.species.get(evo);
@@ -1639,7 +1645,8 @@ class BattleTooltips {
 		}
 
 		if (move.id === 'photongeyser' || move.id === 'lightthatburnsthesky' ||
-			move.id === 'terablast' && pokemon.terastallized) {
+			(move.id === 'terablast' && pokemon.terastallized) ||
+			(move.id === 'terastarstorm' && pokemon.getSpeciesForme() === 'Terapagos-Stellar')) {
 			const stats = this.calculateModifiedStats(pokemon, serverPokemon, true);
 			if (stats.atk > stats.spa) category = 'Physical';
 		}
@@ -2379,11 +2386,14 @@ class BattleTooltips {
 			value.itemModify(1.2);
 			return value;
 		}
-		if ((speciesName.startsWith('Ogerpon-Wellspring') && itemName === 'Wellspring Mask') ||
-			(speciesName.startsWith('Ogerpon-Hearthflame') && itemName === 'Hearthflame Mask') ||
-			(speciesName.startsWith('Ogerpon-Cornerstone') && itemName === 'Cornerstone Mask')) {
-			value.itemModify(1.2);
-			return value;
+		if (speciesName === 'Ogerpon') {
+			const speciesForme = value.pokemon.getSpeciesForme();
+			if ((speciesForme.startsWith('Ogerpon-Wellspring') && itemName === 'Wellspring Mask') ||
+				(speciesForme.startsWith('Ogerpon-Hearthflame') && itemName === 'Hearthflame Mask') ||
+				(speciesForme.startsWith('Ogerpon-Cornerstone') && itemName === 'Cornerstone Mask')) {
+					value.itemModify(1.2);
+					return value;
+				}
 		}
 
 		// Gems
@@ -2416,17 +2426,13 @@ class BattleTooltips {
 		return false;
 	}
 	getAllyAbility(ally: Pokemon) {
-		// this will only be available if the ability announced itself in some way
-		let allyAbility = this.battle.dex.abilities.get(ally.ability).name;
-		// otherwise fall back on the original set data sent from the server
-		if (!allyAbility) {
-			if (this.battle.myAllyPokemon) { // multi battle ally
-				allyAbility = this.battle.dex.abilities.get(this.battle.myAllyPokemon[ally.slot].ability || '').name;
-			} else if (this.battle.myPokemon) {
-				allyAbility = this.battle.dex.abilities.get(this.battle.myPokemon[ally.slot].ability || '').name;
-			}
+		let serverPokemon;
+		if (this.battle.myAllyPokemon) {
+			serverPokemon = this.battle.myAllyPokemon[ally.slot];
+		} else if (this.battle.myPokemon) {
+			serverPokemon = this.battle.myPokemon[ally.slot];
 		}
-		return allyAbility;
+		return ally.effectiveAbility(serverPokemon);
 	}
 	getPokemonAbilityData(clientPokemon: Pokemon | null, serverPokemon: ServerPokemon | null | undefined) {
 		const abilityData: {ability: string, baseAbility: string, possibilities: string[]} = {
