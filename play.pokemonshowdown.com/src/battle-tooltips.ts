@@ -2612,7 +2612,7 @@ class BattleStatGuesser {
 
 		if (set.moves.length < 1) return '?';
 		let needsFourMoves = !['unown', 'ditto'].includes(species.id);
-		let hasFourValidMoves = (set.moves.length >= 4) && !set.moves.includes('');
+		let hasFourValidMoves = set.moves.length >= 4 && !set.moves.includes('');
 		let moveids = set.moves.map(toID);
 		if (moveids.includes('lastresort' as ID)) needsFourMoves = false;
 		if (!hasFourValidMoves && needsFourMoves && !this.formatid.includes('metronomebattle')) {
