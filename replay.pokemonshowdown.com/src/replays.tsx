@@ -3,6 +3,7 @@ import preact from 'preact';
 import {Net, PSModel} from './utils';
 import {BattlePanel} from './replays-battle';
 declare function toID(input: string): string;
+declare const Config: any;
 
 interface ReplayResult {
   uploadtime: number;
@@ -456,6 +457,11 @@ export class PSReplays extends preact.Component {
         }
       });
     }
+    // load custom colors from loginserver
+    Net(`https://${Config.routes.client}/config/colors.json`).get().then(response => {
+      const data = JSON.parse(response);
+      Object.assign(Config.customcolors, data);
+    });
   }
   override render() {
     const position = PSRouter.showingLeft() && PSRouter.showingRight() && !PSRouter.stickyRight ?
