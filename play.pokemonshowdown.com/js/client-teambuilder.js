@@ -138,6 +138,8 @@
 		curFolder: '',
 		curFolderKeep: '',
 		curSearchVal: '',
+		// Debounce value for searching in the teambuilder
+		searchTimeout: null,
 
 		exportMode: false,
 		formatResources: {},
@@ -3239,11 +3241,20 @@
 			this.chartSet(val, selectNext);
 		},
 		searchChange: function (e) {
-			// 91 for right CMD / 93 for left CMD / 17 for CTL
-			if (e.keyCode !== 91 && e.keyCode !== 93 && e.keyCode !== 17) {
-				this.curSearchVal = e.currentTarget.value;
+			if (this.searchTimeout) clearTimeout(this.searchTimeout);
+
+			var searchVal = e.currentTarget.value;
+
+			function updateTeamList() {
+				// 91 for right CMD / 93 for left CMD / 17 for CTL
+				if (e.keyCode !== 91 && e.keyCode !== 93 && e.keyCode !== 17) {
+					this.curSearchVal = searchVal;
+				}
 				this.updateTeamList();
 			}
+			// Debounced to ensure this isn't called too frequently while typing
+			this.searchTimeout = setTimeout(updateTeamList.bind(this), 400);
+
 		},
 		chartSetCustom: function (val) {
 			val = toID(val);
