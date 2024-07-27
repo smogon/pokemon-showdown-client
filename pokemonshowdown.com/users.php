@@ -469,7 +469,8 @@ if (!$user) {
 
 	// Ladder
 
-	if ($user['userid'] === $curuser['userid']) {
+	$ladderTourID = str_starts_with($user['userid'], 'lt11');
+	if ($user['userid'] === $curuser['userid'] && !$ladderTourID) {
 		if ($users->csrfCheck() && @$_POST['resetLadder']) {
 			$formatLadder = new NTBBLadder(@$_POST['resetLadder']);
 			if (substr($formatLadder->formatid, -7) !== 'current' && substr($formatLadder->formatid, -11) !== 'suspecttest') {
@@ -492,7 +493,7 @@ if (!$user) {
 		} else {
 			$bufs[$buftype] .= '<td style="text-align:center" colspan="2"><small style="color:#777">(more games needed)</small>';
 		}
-		if ($user['userid'] === $curuser['userid']) {
+		if ($user['userid'] === $curuser['userid'] && !$ladderTourID) {
 			$bufs[$buftype] .= '</td><td style="text-align:center"><small>' . $row['w'] . '</small></td><td style="text-align:center"><small>' . $row['l'] . '</small></td>';
 			if (substr($row['formatid'], -7) !== 'current' && substr($row['formatid'], -11) !== 'suspecttest') {
 				$bufs[$buftype] .= '<td><button name="openReset" value="'.htmlspecialchars($row['formatid']).'"><small>Reset</small></button></td>';
@@ -546,7 +547,7 @@ if (!$user) {
 		}
 ?>
 <?php
-		if ($user['userid'] === $curuser['userid']) {
+		if ($user['userid'] === $curuser['userid'] && !$ladderTourID) {
 ?>
 			<tr style="display:none" class="ladderresetform">
 				<td colspan="7">
