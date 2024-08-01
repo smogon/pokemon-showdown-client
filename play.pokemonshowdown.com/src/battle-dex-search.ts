@@ -1027,6 +1027,7 @@ class BattlePokemonSearch extends BattleTypedSearch<'pokemon'> {
 				tierSet = tierSet.filter(([type, id]) => {
 					const tags = Dex.species.get(Dex.species.get(id).baseSpecies).tags;
 					return !tags.includes('Sub-Legendary') && !tags.includes('Paradox') &&
+						// The game does not classify these as Paradox Pokemon (Booster Energy can be knocked off)
 						!['gougingfire', 'ironboulder', 'ironcrown', 'ragingbolt'].includes(id);
 				});
 			}
