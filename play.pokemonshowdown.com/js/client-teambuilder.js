@@ -3227,7 +3227,11 @@
 				}
 				break;
 			case 'move1': case 'move2': case 'move3': case 'move4':
-				val = (id in BattleMovedex ? BattleMovedex[id].name : '');
+				if (id in BattlePokedex && format && format.endsWith("pokemoves")) {
+					val = BattlePokedex[id].name;
+				} else {
+					val = (id in BattleMovedex ? BattleMovedex[id].name : '');
+				}
 				break;
 			}
 			if (!val) {
