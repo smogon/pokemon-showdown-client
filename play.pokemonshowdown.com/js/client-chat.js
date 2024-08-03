@@ -358,9 +358,9 @@
 				var m2 = /^([\s\S]*?)([A-Za-z0-9][^, \n]* [^, ]*)$/.exec(prefix);
 				if (!m1 && !m2) return true;
 				var cmds = this.tabComplete.commands;
-				var shouldSearchCommands = !cmds || !cmds.filter(function (x) {
+				var shouldSearchCommands = !cmds || cmds.filter(function (x) {
 					return x.startsWith(prefix);
-				}).length;
+				}).length != cmds.length;
 				var isCommandSearch = text.startsWith('/') || text.startsWith('!');
 				if (isCommandSearch && shouldSearchCommands) {
 					if (this.tabComplete.searchPending) return true; // wait
