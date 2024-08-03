@@ -358,9 +358,9 @@
 				var m2 = /^([\s\S]*?)([A-Za-z0-9][^, \n]* [^, ]*)$/.exec(prefix);
 				if (!m1 && !m2) return true;
 				var cmds = this.tabComplete.commands;
-				var shouldSearchCommands = !cmds || (!!cmds.length && !cmds.filter(function (x) {
+				var shouldSearchCommands = !cmds || (cmds.length ? !!cmds.length && !cmds.filter(function (x) {
 					return x.startsWith(prefix);
-				}).length);
+				}).length : prefix != this.tabComplete.prefix);
 				var isCommandSearch = text.startsWith('/') || text.startsWith('!');
 				if (isCommandSearch && shouldSearchCommands) {
 					if (this.tabComplete.searchPending) return true; // wait
@@ -372,6 +372,7 @@
 						if (data) {
 							self.tabComplete.commands = data;
 							self.handleTabComplete($textbox, reverse);
+							self.tabComplete.prefix = prefix;
 						}
 					});
 					app.send('/crq cmdsearch ' + text);
