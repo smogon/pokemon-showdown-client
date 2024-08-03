@@ -366,7 +366,6 @@
 					if (this.tabComplete.searchPending) return true; // wait
 					this.tabComplete.isCommand = true;
 					this.tabComplete.searchPending = true;
-					app.send('/crq cmdsearch ' + text);
 					var self = this;
 					app.once('response:cmdsearch', function (data) {
 						delete self.tabComplete.searchPending;
@@ -375,6 +374,7 @@
 							self.handleTabComplete($textbox, reverse);
 						}
 					});
+					app.send('/crq cmdsearch ' + text);
 					return true;
 				} else if (!isCommandSearch) {
 					delete this.tabComplete.isCommand;
