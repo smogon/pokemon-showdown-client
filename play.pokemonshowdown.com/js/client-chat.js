@@ -371,8 +371,8 @@
 						delete self.tabComplete.searchPending;
 						if (data) {
 							self.tabComplete.commands = data;
-							self.handleTabComplete($textbox, reverse);
 							self.tabComplete.prefix = prefix;
+							self.handleTabComplete($textbox, reverse);
 						}
 					});
 					app.send('/crq cmdsearch ' + text);
