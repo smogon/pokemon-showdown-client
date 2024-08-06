@@ -36128,7 +36128,7 @@ export const BattleMoveAnims: AnimTable = {
 				scale: 0.8,
 				opacity: 0,
 				time: 1100,
-			}, 'ballistic', 'fade')
+			}, 'ballistic', 'fade');
 
 			scene.showEffect('fireball', {
 				x: defender.x,
