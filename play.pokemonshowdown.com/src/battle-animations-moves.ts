@@ -35887,7 +35887,7 @@ export const BattleMoveAnims: AnimTable = {
 	},
 	stompingtantrum: {
 		anim(scene, [attacker, defender]) {
-			BattleOtherAnims.anger.anim(scene, [attacker, defender])
+			BattleOtherAnims.anger.anim(scene, [attacker, defender]);
 
 			attacker.anim({
 				y: attacker.y + 20,
@@ -35961,7 +35961,7 @@ export const BattleMoveAnims: AnimTable = {
 				scale: 0.4,
 				opacity: 0,
 				time: 1100,
-			}, 'ballistic', 'fade')
+			}, 'ballistic', 'fade');
 
 			scene.showEffect('rock2', {
 				x: defender.x + 20,
@@ -35977,7 +35977,7 @@ export const BattleMoveAnims: AnimTable = {
 				scale: 0.4,
 				opacity: 0,
 				time: 1100,
-			}, 'ballistic', 'fade')
+			}, 'ballistic', 'fade');
 
 			scene.showEffect('rock3', {
 				x: defender.x - 20,
@@ -35993,7 +35993,7 @@ export const BattleMoveAnims: AnimTable = {
 				scale: 0.4,
 				opacity: 0,
 				time: 1100,
-			}, 'ballistic', 'fade')
+			}, 'ballistic', 'fade');
 
 			scene.showEffect(attacker.sp, {
 				x: attacker.x,
@@ -36036,11 +36036,11 @@ export const BattleMoveAnims: AnimTable = {
 			defender.anim({
 				time: 300,
 			}, 'swing');
-		}
+		},
 	},
 	temperflare: {
 		anim(scene, [attacker, defender]) {
-			BattleOtherAnims.anger.anim(scene, [attacker, defender])
+			BattleOtherAnims.anger.anim(scene, [attacker, defender]);
 
 			attacker.anim({
 				y: attacker.y + 20,
@@ -36082,21 +36082,6 @@ export const BattleMoveAnims: AnimTable = {
 					opacity: 0,
 					time: 800,
 				}, 'decel', 'fade', {filter: 'hue-rotate(-15deg)'});
-				scene.showEffect('blackwisp', {
-					x: attacker.x + 120 * xf[i],
-					y: attacker.y,
-					z: attacker.z + 68 * yf[i],
-					scale: 0.5,
-					opacity: 0.5,
-					time: 650,
-				}, {
-					x: attacker.x + 120 * xf[i],
-					y: attacker.y + 30,
-					z: attacker.z + 68 * yf[i],
-					scale: 0.5,
-					opacity: 0,
-					time: 950,
-				}, 'decel', 'explode');
 				scene.showEffect('flareball', {
 					x: attacker.x,
 					y: attacker.y,
@@ -36112,6 +36097,21 @@ export const BattleMoveAnims: AnimTable = {
 					opacity: 0,
 					time: 800,
 				}, 'decel', 'fade', {filter: 'hue-rotate(-15deg)'});
+				scene.showEffect('blackwisp', {
+					x: attacker.x + 120 * xf[i],
+					y: attacker.y,
+					z: attacker.z + 68 * yf[i],
+					scale: 0.5,
+					opacity: 0.5,
+					time: 650,
+				}, {
+					x: attacker.x + 120 * xf[i],
+					y: attacker.y + 30,
+					z: attacker.z + 68 * yf[i],
+					scale: 0.5,
+					opacity: 0,
+					time: 950,
+				}, 'decel', 'explode');
 			}
 
 			scene.showEffect('fireball', {
@@ -36144,7 +36144,7 @@ export const BattleMoveAnims: AnimTable = {
 				scale: 0.8,
 				opacity: 0,
 				time: 1100,
-			}, 'ballistic', 'fade')
+			}, 'ballistic', 'fade');
 
 			scene.showEffect('fireball', {
 				x: defender.x - 20,
@@ -36160,7 +36160,7 @@ export const BattleMoveAnims: AnimTable = {
 				scale: 0.8,
 				opacity: 0,
 				time: 1100,
-			}, 'ballistic', 'fade')
+			}, 'ballistic', 'fade');
 			attacker.anim({
 				x: defender.x,
 				y: defender.y,
