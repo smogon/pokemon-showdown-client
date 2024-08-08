@@ -1355,6 +1355,7 @@ function toId() {
 						if (code & 16) teambuilderLevel = 50;
 						if (code & 32) partner = true;
 						if (code & 64) bestOfDefault = true;
+						if (code & 128) teraPreviewDefault = true;
 					} else {
 						// Backwards compatibility: late 0.9.0 -> 0.10.0
 						if (name.substr(name.length - 2) === ',#') { // preset teams
@@ -1427,7 +1428,6 @@ function toId() {
 						isTeambuilderFormat: isTeambuilderFormat,
 						effectType: 'Format'
 					};
-					console.log(teraPreviewDefault ? true : false);
 				}
 			}
 
