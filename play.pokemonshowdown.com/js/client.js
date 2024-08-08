@@ -1341,6 +1341,7 @@ function toId() {
 					var tournamentShow = true;
 					var partner = false;
 					var bestOfDefault = false;
+					var teraPreviewDefault = false;
 					var team = null;
 					var teambuilderLevel = null;
 					var lastCommaIndex = name.lastIndexOf(',');
@@ -1418,6 +1419,7 @@ function toId() {
 						challengeShow: challengeShow,
 						tournamentShow: tournamentShow,
 						bestOfDefault: bestOfDefault,
+						teraPreviewDefault: teraPreviewDefault,
 						rated: searchShow && id.substr(4, 7) !== 'unrated',
 						teambuilderLevel: teambuilderLevel,
 						partner: partner,
@@ -1425,6 +1427,7 @@ function toId() {
 						isTeambuilderFormat: isTeambuilderFormat,
 						effectType: 'Format'
 					};
+					console.log(teraPreviewDefault ? true : false);
 				}
 			}
 
