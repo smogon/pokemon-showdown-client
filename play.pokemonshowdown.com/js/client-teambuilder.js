@@ -3241,10 +3241,7 @@
 			this.chartSet(val, selectNext);
 		},
 		searchChange: function (e) {
-			if (this.searchTimeout) clearTimeout(this.searchTimeout);
-
-			var searchVal = e.currentTarget.value;
-
+			var DEBOUNCE_THRESHOLD_TEAMS = 500;
 			function updateTeamList() {
 				// 91 for right CMD / 93 for left CMD / 17 for CTL
 				if (e.keyCode !== 91 && e.keyCode !== 93 && e.keyCode !== 17) {
@@ -3252,8 +3249,15 @@
 				}
 				this.updateTeamList();
 			}
-			// Debounced to ensure this isn't called too frequently while typing
-			this.searchTimeout = setTimeout(updateTeamList.bind(this), 400);
+
+			// If the user has a lot of teams, search is debounced to
+			// ensure this isn't called too frequently while typing
+			if (Storage.teams.length > DEBOUNCE_THRESHOLD_TEAMS) {
+				if (this.searchTimeout) clearTimeout(this.searchTimeout);
+
+				var searchVal = e.currentTarget.value;
+				this.searchTimeout = setTimeout(updateTeamList.bind(this), 400);
+			} else updateTeamList();
 
 		},
 		chartSetCustom: function (val) {
