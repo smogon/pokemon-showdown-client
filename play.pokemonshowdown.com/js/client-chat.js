@@ -378,7 +378,7 @@
 							self.handleTabComplete($textbox, reverse);
 						}
 					});
-					app.send('/crq cmdsearch ' + text);
+					this.send('/crq cmdsearch ' + text);
 					return true;
 				} else if (!isCommandSearch) {
 					delete this.tabComplete.isCommand;
