@@ -363,10 +363,12 @@
 					return x.startsWith(prefix);
 				}).length : prefix != this.tabComplete.prefix);
 				var isCommandSearch = (text.startsWith('/') && !text.startsWith('//')) || text.startsWith('!');
-				if (isCommandSearch && shouldSearchCommands) {
+				var resultsExist = this.tabComplete.lastSearch === text && this.tabComplete.commands;
+				if (isCommandSearch && shouldSearchCommands && !resultsExist) {
 					if (this.tabComplete.searchPending) return true; // wait
 					this.tabComplete.isCommand = true;
 					this.tabComplete.searchPending = true;
+					this.tabComplete.lastSearch = text;
 					var self = this;
 					app.once('response:cmdsearch', function (data) {
 						delete self.tabComplete.searchPending;
