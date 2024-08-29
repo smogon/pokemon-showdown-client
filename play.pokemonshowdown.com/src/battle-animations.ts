@@ -107,8 +107,8 @@ export class BattleScene implements BattleSceneStub {
 				if (pokemon) return pokemon.speciesForme;
 			}
 			if (!pokemonId.startsWith('p')) return '???pokemon:' + pokemonId + '???';
-			if (pokemonId.charAt(3) === ':') return pokemonId.slice(4).trim();
-			else if (pokemonId.charAt(2) === ':') return pokemonId.slice(3).trim();
+			if (pokemonId.charAt(3) === ':') return BattleTextParser.escapeReplace(pokemonId.slice(4).trim());
+			else if (pokemonId.charAt(2) === ':') return BattleTextParser.escapeReplace(pokemonId.slice(3).trim());
 			return '???pokemon:' + pokemonId + '???';
 		};
 
