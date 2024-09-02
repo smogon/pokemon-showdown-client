@@ -359,10 +359,17 @@
 				var m2 = /^([\s\S!/]*?)([A-Za-z0-9][^, \n]* [^, ]*)$/.exec(prefix);
 				if (!m1 && !m2) return true;
 				var cmds = this.tabComplete.commands;
+				var textboxLines = prefix.split('\n');
+				var currentLine = textboxLines.pop();
+				var prefixLength = 0;
+				for (var line of textboxLines) {
+					prefixLength += line.length + 1;
+				}
+				this.tabComplete.prefixLength = prefixLength;
 				var shouldSearchCommands = !cmds || (cmds.length ? !!cmds.length && !cmds.filter(function (x) {
-					return x.startsWith(prefix);
+					return x.startsWith(currentLine);
 				}).length : prefix != this.tabComplete.prefix);
-				var isCommandSearch = (text.startsWith('/') && !text.startsWith('//')) || text.startsWith('!');
+				var isCommandSearch = ((currentLine.startsWith('/') && !currentLine.startsWith('//')) || currentLine.startsWith('!')) && currentLine.indexOf(' ') < 0;
 				var resultsExist = this.tabComplete.lastSearch === text && this.tabComplete.commands;
 				if (isCommandSearch && shouldSearchCommands && !resultsExist) {
 					if (this.tabComplete.searchPending) return true; // wait
@@ -378,7 +385,7 @@
 							self.handleTabComplete($textbox, reverse);
 						}
 					});
-					this.send('/crq cmdsearch ' + text);
+					this.send('/crq cmdsearch ' + currentLine);
 					return true;
 				} else if (!isCommandSearch) {
 					delete this.tabComplete.isCommand;
@@ -390,39 +397,39 @@
 				var spaceprefix = (m2 ? m2[2].replace(/[^A-Za-z0-9 ]+/g, '').toLowerCase() : '');
 				var candidates = []; // array of [candidate userid, prefix length]
 
-				// don't include command names in autocomplete
-				if (m2 && (m2[0] === '/' || m2[0] === '!')) spaceprefix = '';
+				if (!this.tabComplete.isCommand) {
+					// don't include command names in autocomplete
+					if (m2 && (m2[0] === '/' || m2[0] === '!')) spaceprefix = '';
 
-				for (var i in users) {
-					if (spaceprefix && users[i].name.replace(/[^A-Za-z0-9 ]+/g, '').toLowerCase().substr(0, spaceprefix.length) === spaceprefix) {
-						candidates.push([i, m2[1].length]);
-					} else if (idprefix && i.substr(0, idprefix.length) === idprefix) {
-						candidates.push([i, m1[1].length]);
-					}
-				}
-
-				// Sort by most recent to speak in the chat, or, in the case of a tie,
-				// in alphabetical order.
-				var self = this;
-				candidates.sort(function (a, b) {
-					if (a[1] !== b[1]) {
-						// shorter prefix length comes first
-						return a[1] - b[1];
-					}
-					var aidx = self.userActivity.indexOf(a[0]);
-					var bidx = self.userActivity.indexOf(b[0]);
-					if (aidx !== -1) {
-						if (bidx !== -1) {
-							return bidx - aidx;
+					for (var i in users) {
+						if (spaceprefix && users[i].name.replace(/[^A-Za-z0-9 ]+/g, '').toLowerCase().substr(0, spaceprefix.length) === spaceprefix) {
+							candidates.push([i, m2[1].length]);
+						} else if (idprefix && i.substr(0, idprefix.length) === idprefix) {
+							candidates.push([i, m1[1].length]);
 						}
-						return -1; // a comes first
-					} else if (bidx != -1) {
-						return 1; // b comes first
 					}
-					return (a[0] < b[0]) ? -1 : 1; // alphabetical order
-				});
 
-				if (this.tabComplete.isCommand) {
+					// Sort by most recent to speak in the chat, or, in the case of a tie,
+					// in alphabetical order.
+					var self = this;
+					candidates.sort(function (a, b) {
+						if (a[1] !== b[1]) {
+							// shorter prefix length comes first
+							return a[1] - b[1];
+						}
+						var aidx = self.userActivity.indexOf(a[0]);
+						var bidx = self.userActivity.indexOf(b[0]);
+						if (aidx !== -1) {
+							if (bidx !== -1) {
+								return bidx - aidx;
+							}
+							return -1; // a comes first
+						} else if (bidx != -1) {
+							return 1; // b comes first
+						}
+						return (a[0] < b[0]) ? -1 : 1; // alphabetical order
+					});
+				} else {
 					this.tabComplete.commands.sort(function (a, b) {
 						return a.length < b.length ? 1 : -1;
 					});
@@ -447,7 +454,8 @@
 			if (!substituteUser) return true;
 			var name = typeof substituteUser === 'object' ? substituteUser.name : substituteUser;
 			name = Dex.getShortName(name);
-			var fullPrefix = this.tabComplete.prefix.substr(0, candidate[1]) + name;
+			let prefixIndex = this.tabComplete.isCommand ? this.tabComplete.prefixLength : candidate[1];
+			var fullPrefix = this.tabComplete.prefix.substr(0, prefixIndex) + name;
 			$textbox.val(fullPrefix + text.substr(idx));
 			var pos = fullPrefix.length;
 			$textbox[0].setSelectionRange(pos, pos);
