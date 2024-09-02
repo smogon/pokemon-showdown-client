@@ -361,11 +361,6 @@
 				var cmds = this.tabComplete.commands;
 				var textboxLines = prefix.split('\n');
 				var currentLine = textboxLines.pop();
-				var prefixLength = 0;
-				for (var line of textboxLines) {
-					prefixLength += line.length + 1;
-				}
-				this.tabComplete.prefixLength = prefixLength;
 				var shouldSearchCommands = !cmds || (cmds.length ? !!cmds.length && !cmds.filter(function (x) {
 					return x.startsWith(currentLine);
 				}).length : prefix != this.tabComplete.prefix);
@@ -454,7 +449,7 @@
 			if (!substituteUser) return true;
 			var name = typeof substituteUser === 'object' ? substituteUser.name : substituteUser;
 			name = Dex.getShortName(name);
-			let prefixIndex = this.tabComplete.isCommand ? this.tabComplete.prefixLength : candidate[1];
+			var prefixIndex = this.tabComplete.isCommand ? prefix.lastIndexOf('\n') + 1 : candidate[1];
 			var fullPrefix = this.tabComplete.prefix.substr(0, prefixIndex) + name;
 			$textbox.val(fullPrefix + text.substr(idx));
 			var pos = fullPrefix.length;
