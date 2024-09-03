@@ -359,10 +359,11 @@
 				var m2 = /^([\s\S!/]*?)([A-Za-z0-9][^, \n]* [^, ]*)$/.exec(prefix);
 				if (!m1 && !m2) return true;
 				var cmds = this.tabComplete.commands;
+				var currentLine = prefix.substr(prefix.lastIndexOf('\n') + 1);
 				var shouldSearchCommands = !cmds || (cmds.length ? !!cmds.length && !cmds.filter(function (x) {
-					return x.startsWith(prefix);
+					return x.startsWith(currentLine);
 				}).length : prefix != this.tabComplete.prefix);
-				var isCommandSearch = (text.startsWith('/') && !text.startsWith('//')) || text.startsWith('!');
+				var isCommandSearch = (currentLine.startsWith('/') && !currentLine.startsWith('//')) || currentLine.startsWith('!');
 				var resultsExist = this.tabComplete.lastSearch === text && this.tabComplete.commands;
 				if (isCommandSearch && shouldSearchCommands && !resultsExist) {
 					if (this.tabComplete.searchPending) return true; // wait
@@ -378,7 +379,7 @@
 							self.handleTabComplete($textbox, reverse);
 						}
 					});
-					this.send('/crq cmdsearch ' + text);
+					this.send('/crq cmdsearch ' + currentLine);
 					return true;
 				} else if (!isCommandSearch) {
 					delete this.tabComplete.isCommand;
@@ -447,7 +448,8 @@
 			if (!substituteUser) return true;
 			var name = typeof substituteUser === 'object' ? substituteUser.name : substituteUser;
 			name = Dex.getShortName(name);
-			var fullPrefix = this.tabComplete.prefix.substr(0, candidate[1]) + name;
+			var prefixIndex = candidate[1].toString().charAt(0) === '/' ? prefix.lastIndexOf('\n') + 1 : candidate[1];
+			var fullPrefix = this.tabComplete.prefix.substr(0, prefixIndex) + name;
 			$textbox.val(fullPrefix + text.substr(idx));
 			var pos = fullPrefix.length;
 			$textbox[0].setSelectionRange(pos, pos);
