@@ -3246,21 +3246,21 @@
 		},
 		searchChange: function (e) {
 			var DEBOUNCE_THRESHOLD_TEAMS = 500;
+			var searchVal = e.currentTarget.value;
+			var self = this;
 			function updateTeamList() {
 				// 91 for right CMD / 93 for left CMD / 17 for CTL
 				if (e.keyCode !== 91 && e.keyCode !== 93 && e.keyCode !== 17) {
-					this.curSearchVal = searchVal;
+					self.curSearchVal = searchVal;
 				}
-				this.updateTeamList();
+				self.updateTeamList();
 			}
 
 			// If the user has a lot of teams, search is debounced to
 			// ensure this isn't called too frequently while typing
 			if (Storage.teams.length > DEBOUNCE_THRESHOLD_TEAMS) {
 				if (this.searchTimeout) clearTimeout(this.searchTimeout);
-
-				var searchVal = e.currentTarget.value;
-				this.searchTimeout = setTimeout(updateTeamList.bind(this), 400);
+				this.searchTimeout = setTimeout(updateTeamList, 400);
 			} else updateTeamList();
 
 		},
