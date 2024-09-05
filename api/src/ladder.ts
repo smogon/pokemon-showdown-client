@@ -122,11 +122,29 @@ export class Ladder {
 				// an indexed query for additional rows and filter them down further. This is obviously *not* guaranteed
 				// to return exactly $limit results, but should be 'good enough' in practice.
 				const overfetch = limit * 2;
-				res = await ladder.query()`SELECT * FROM
-					(SELECT * FROM ntbb_ladder WHERE formatid = ${this.formatid} ORDER BY elo DESC LIMIT ${limit})
-					AS unusedalias WHERE userid LIKE ${prefix} LIMIT ${overfetch}`;
+				res = await ladder.query()`
+					WITH max_elo AS (
+						SELECT MAX(elo) AS max_elo FROM ntbb_ladder WHERE formatid = ${this.formatid}
+					),
+					rpr_filtered AS (
+							SELECT * FROM ntbb_ladder WHERE
+								((SELECT max_elo FROM max_elo) <= 1500 OR rprd <= 100)
+								AND formatid = ${this.formatid}
+					)
+					SELECT * FROM
+						(SELECT * FROM rpr_filtered WHERE formatid = ${this.formatid} ORDER BY elo DESC LIMIT ${limit})
+						AS unusedalias WHERE userid LIKE ${prefix} LIMIT ${overfetch}`;
 			} else {
-				res = await ladder.selectAll()`WHERE formatid = ${this.formatid} ORDER BY elo DESC`;
+				res = await ladder.query()`
+					WITH max_elo AS (
+						SELECT MAX(elo) AS max_elo FROM ntbb_ladder WHERE formatid = ${this.formatid}
+					),
+					rpr_filtered AS (
+							SELECT * FROM ntbb_ladder WHERE
+								((SELECT max_elo FROM max_elo) <= 1500 OR rprd <= 100)
+								AND formatid = ${this.formatid}
+					)
+					SELECT * FROM rpr_filtered ORDER BY elo DESC LIMIT ${limit}`;
 			}
 
 			for (const row of res) {
