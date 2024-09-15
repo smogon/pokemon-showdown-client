@@ -31,7 +31,6 @@ $formats = array(
 	'gen9anythinggoes' => 'Anything Goes',
 	'gen9zu' => 'ZU',
 	'gen91v1' => '1v1',
-	'gen9battlestadiumsingles' => 'Battle Stadium Singles',
 	'gen9randomdoublesbattle' => 'Random Doubles Battle',
 	'gen9doublesou' => 'Doubles OU',
 	'gen9vgc2024regh' => 'VGC 2024 Regulation H',
@@ -39,7 +38,6 @@ $formats = array(
 	'gen9mixandmega' => 'Mix and Mega',
 	'gen9almostanyability' => 'Almost Any Ability',
 	'gen9stabmons' => 'STABmons',
-	'gen9nfe' => 'NFE',
 	'gen9godlygift' => 'Godly Gift',
 	'gen8cap' => 'CAP',
 );
