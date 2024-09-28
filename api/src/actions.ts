@@ -33,6 +33,7 @@ const SMOGON_KEY = (() => {
 	const [key, salt] = keyData.split('\n');
 	return makeEncryptKey(key, salt);
 })();
+const SMOGON_VALIDATION_PREFIX = 'valid\n';
 
 async function getOAuthClient(clientId?: string, origin?: string) {
 	if (!clientId) throw new ActionError("No client_id provided.");
@@ -926,7 +927,9 @@ export const actions: {[k: string]: QueryHandler} = {
 		if (!params.username) {
 			throw new ActionError("Invalid PS username provided.");
 		}
-		return {encrypted_username: encrypt(SMOGON_KEY, params.username)};
+		return {
+			encrypted_username: encrypt(SMOGON_KEY, SMOGON_VALIDATION_PREFIX + params.username),
+		};
 	},
 
 	// sent by smogon to validate given encrypted name
@@ -937,9 +940,11 @@ export const actions: {[k: string]: QueryHandler} = {
 		if (!params.encrypted_name || !toID(params.encrypted_name)) {
 			throw new ActionError("No encrypted name provided.");
 		}
-		return {
-			decrypted_name: decrypt(SMOGON_KEY, decodeURIComponent(params.encrypted_name)),
-		};
+		const out = decrypt(SMOGON_KEY, decodeURIComponent(params.encrypted_name));
+		if (!out || !out.startsWith(SMOGON_VALIDATION_PREFIX)) {
+			return {decrypted_name: null};
+		}
+		return {decrypted_name: out.slice(SMOGON_VALIDATION_PREFIX.length)};
 	},
 };
 
