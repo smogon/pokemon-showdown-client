@@ -1,6 +1,7 @@
 /**
  * Initialization.
  */
+import * as fs from 'fs';
 import {Server} from './server';
 export const server = new Server();
 
@@ -19,6 +20,10 @@ process.on('unhandledRejection', (err: Error) => {
 // graceful shutdown.
 process.on('SIGINT', () => {
 	console.log(`Quitting...`);
+	try {
+		const {Config} = require('./config-loader');
+		fs.unlinkSync(Config.smogonpath);
+	} catch {}
 	void server.close().then(() => {
 		// we are no longer accepting requests and all requests have been handled.
 		// now it's safe to close DBs

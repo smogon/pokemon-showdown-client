@@ -4,7 +4,7 @@
  * By Mia
  * @author mia-pi-git
  */
-import {promises as fs, readFileSync} from 'fs';
+import {promises as fs, readFileSync, writeFileSync} from 'fs';
 import * as pathModule from 'path';
 import * as crypto from 'crypto';
 import * as url from 'url';
@@ -14,14 +14,25 @@ import {Replays} from './replays';
 import {ActionError, QueryHandler, Server} from './server';
 import {Session} from './user';
 import {
-	toID, updateserver, bash, time, escapeHTML, encrypt, decrypt, makeEncryptKey,
+	toID, updateserver, bash, time, escapeHTML, encrypt, decrypt, makeEncryptKey, randomString,
 } from './utils';
 import * as tables from './tables';
 import {SQL} from './database';
 import IPTools from './ip-tools';
 
 const OAUTH_TOKEN_TIME = 2 * 7 * 24 * 60 * 60 * 1000;
-const SMOGON_KEY = makeEncryptKey();
+const SMOGON_KEY = (() => {
+	let keyData;
+	if (!Config.smogonpath) return makeEncryptKey(randomString(), Math.random() + "");
+	try {
+		keyData = readFileSync(Config.smogonpath, 'utf-8');
+	} catch {
+		keyData = randomString() + "\n" + Math.random();
+		writeFileSync(Config.smogonpath, keyData);
+	}
+	const [key, salt] = keyData.split('\n');
+	return makeEncryptKey(key, salt);
+})();
 
 async function getOAuthClient(clientId?: string, origin?: string) {
 	if (!clientId) throw new ActionError("No client_id provided.");

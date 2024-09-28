@@ -134,7 +134,7 @@ export function decrypt(key: Buffer, text: string) {
 }
 
 // 32 chars - 256 bytes
-export function makeEncryptKey(len = 32) {
+export function randomString(len = 32) {
 	let chars = 'abcdefghijklmnopqrstuvwxyz';
 	chars += chars.toUpperCase();
 	chars += "1234567890";
@@ -144,6 +144,9 @@ export function makeEncryptKey(len = 32) {
 	for (let i = 0; i < len; i++) {
 		key += chars[Math.round(Math.random() * chars.length)];
 	}
+	return key;
+}
 
-	return crypto.pbkdf2Sync(key, Math.random() + "", 10000, len, 'sha512');
+export function makeEncryptKey(keyStr: string, saltStr: string) {
+	return crypto.pbkdf2Sync(keyStr, saltStr, 10000, keyStr.length, 'sha512');
 }

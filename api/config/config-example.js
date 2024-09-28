@@ -156,7 +156,11 @@ exports.restartip = null;
  * @type {null | string}
  */
 exports.smogonip = null;
-
+/**
+ * Retain smogon temporary encryption key at this path
+ * @type {null | string}
+ */
+exports.smogonpath = null;
 /**
  * Custom actions for your loginserver.
  * @type {{[k: string]: import('../src/server').QueryHandler} | null}
