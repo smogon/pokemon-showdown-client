@@ -937,7 +937,9 @@ export const actions: {[k: string]: QueryHandler} = {
 		if (!params.encrypted_name || !toID(params.encrypted_name)) {
 			throw new ActionError("No encrypted name provided.");
 		}
-		return {decrypted_name: decrypt(SMOGON_KEY, params.encrypted_name)};
+		return {
+			decrypted_name: decrypt(SMOGON_KEY, decodeURIComponent(params.encrypted_name)),
+		};
 	},
 };
 
