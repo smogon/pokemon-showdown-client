@@ -14,26 +14,13 @@ import {Replays} from './replays';
 import {ActionError, QueryHandler, Server} from './server';
 import {Session} from './user';
 import {
-	toID, updateserver, bash, time, escapeHTML, encrypt, decrypt, makeEncryptKey, randomString,
+	toID, updateserver, bash, time, escapeHTML, signAsync,
 } from './utils';
 import * as tables from './tables';
 import {SQL} from './database';
 import IPTools from './ip-tools';
 
 const OAUTH_TOKEN_TIME = 2 * 7 * 24 * 60 * 60 * 1000;
-const SMOGON_KEY = (() => {
-	let keyData;
-	if (!Config.smogonpath) return makeEncryptKey(randomString(), Math.random() + "");
-	try {
-		keyData = readFileSync(Config.smogonpath, 'utf-8');
-	} catch {
-		keyData = randomString() + "\n" + Math.random();
-		writeFileSync(Config.smogonpath, keyData);
-	}
-	const [key, salt] = keyData.split('\n');
-	return makeEncryptKey(key, salt);
-})();
-const SMOGON_VALIDATION_PREFIX = 'valid\n';
 
 async function getOAuthClient(clientId?: string, origin?: string) {
 	if (!clientId) throw new ActionError("No client_id provided.");
@@ -919,7 +906,7 @@ export const actions: {[k: string]: QueryHandler} = {
 	},
 
 	// sent by ps server
-	'smogon/encrypt'(params) {
+	async 'smogon/validate'(params) {
 		if (this.getIp() !== Config.restartip) {
 			throw new ActionError("Access denied.");
 		}
@@ -928,23 +915,8 @@ export const actions: {[k: string]: QueryHandler} = {
 			throw new ActionError("Invalid PS username provided.");
 		}
 		return {
-			encrypted_username: encrypt(SMOGON_KEY, SMOGON_VALIDATION_PREFIX + params.username),
+			signed_username: await signAsync("RSA-SHA1", params.username, Config.privatekey),
 		};
-	},
-
-	// sent by smogon to validate given encrypted name
-	'smogon/validate'(params) {
-		if (this.getIp() !== Config.smogonip) {
-			throw new ActionError("Access denied.");
-		}
-		if (!params.encrypted_name || !toID(params.encrypted_name)) {
-			throw new ActionError("No encrypted name provided.");
-		}
-		const out = decrypt(SMOGON_KEY, decodeURIComponent(params.encrypted_name));
-		if (!out || !out.startsWith(SMOGON_VALIDATION_PREFIX)) {
-			return {decrypted_name: null};
-		}
-		return {decrypted_name: out.slice(SMOGON_VALIDATION_PREFIX.length)};
 	},
 };
 
