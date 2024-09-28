@@ -13,12 +13,15 @@ import {Ladder} from './ladder';
 import {Replays} from './replays';
 import {ActionError, QueryHandler, Server} from './server';
 import {Session} from './user';
-import {toID, updateserver, bash, time, escapeHTML} from './utils';
+import {
+	toID, updateserver, bash, time, escapeHTML, encrypt, decrypt, makeEncryptKey,
+} from './utils';
 import * as tables from './tables';
 import {SQL} from './database';
 import IPTools from './ip-tools';
 
 const OAUTH_TOKEN_TIME = 2 * 7 * 24 * 60 * 60 * 1000;
+const SMOGON_KEY = makeEncryptKey();
 
 async function getOAuthClient(clientId?: string, origin?: string) {
 	if (!clientId) throw new ActionError("No client_id provided.");
@@ -901,6 +904,29 @@ export const actions: {[k: string]: QueryHandler} = {
 			break;
 		}
 		return {password: pw};
+	},
+
+	// sent by ps server
+	'smogon/encrypt'(params) {
+		if (this.getIp() !== Config.restartip) {
+			throw new ActionError("Access denied.");
+		}
+		params.username = toID(params.username);
+		if (!params.username) {
+			throw new ActionError("Invalid PS username provided.");
+		}
+		return {encrypted_username: encrypt(SMOGON_KEY, params.username)};
+	},
+
+	// sent by smogon to validate given encrypted name
+	'smogon/validate'(params) {
+		if (this.getIp() !== Config.smogonip) {
+			throw new ActionError("Access denied.");
+		}
+		if (!params.encrypted_name || !toID(params.encrypted_name)) {
+			throw new ActionError("No encrypted name provided.");
+		}
+		return {decrypted_name: decrypt(SMOGON_KEY, params.encrypted_name)};
 	},
 };
 

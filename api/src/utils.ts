@@ -104,3 +104,46 @@ export function escapeHTML(str: string | number) {
 		.replace(/"/g, '&quot;')
 		.replace(/'/g, '&apos;');
 }
+
+const IV_LENGTH = 16;
+
+const NONCE_LENGTH = 20;
+
+export function encrypt(key: Buffer, text: string) {
+	const nonce = crypto.randomBytes(NONCE_LENGTH);
+	const iv = Buffer.alloc(IV_LENGTH);
+	nonce.copy(iv);
+
+	const cipher = crypto.createCipheriv('aes-256-ctr', key, iv);
+	const encrypted = cipher.update(text.toString());
+	return Buffer.concat([nonce, encrypted, cipher.final()]).toString('base64');
+}
+
+export function decrypt(key: Buffer, text: string) {
+	const message = Buffer.from(text, 'base64');
+	const iv = Buffer.alloc(IV_LENGTH);
+	message.copy(iv, 0, 0, NONCE_LENGTH);
+	const decipher = crypto.createDecipheriv('aes-256-ctr', key, iv);
+	let decrypted = decipher.update(message.slice(NONCE_LENGTH));
+	try {
+		decrypted = Buffer.concat([decrypted, decipher.final()]);
+		return decrypted.toString();
+	} catch (err) {
+		return null;
+	}
+}
+
+// 32 chars - 256 bytes
+export function makeEncryptKey(len = 32) {
+	let chars = 'abcdefghijklmnopqrstuvwxyz';
+	chars += chars.toUpperCase();
+	chars += "1234567890";
+	chars += "()-={}|!@#$%^&*?><:";
+
+	let key = "";
+	for (let i = 0; i < len; i++) {
+		key += chars[Math.round(Math.random() * chars.length)];
+	}
+
+	return crypto.pbkdf2Sync(key, Math.random() + "", 10000, len, 'sha512');
+}

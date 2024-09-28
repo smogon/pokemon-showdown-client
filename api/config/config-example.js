@@ -152,6 +152,12 @@ exports.watchconfig = true;
 exports.restartip = null;
 
 /**
+ * An IP to allow Smogon acc-linking requests from.
+ * @type {null | string}
+ */
+exports.smogonip = null;
+
+/**
  * Custom actions for your loginserver.
  * @type {{[k: string]: import('../src/server').QueryHandler} | null}
  */
