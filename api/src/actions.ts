@@ -4,7 +4,7 @@
  * By Mia
  * @author mia-pi-git
  */
-import {promises as fs, readFileSync, writeFileSync} from 'fs';
+import {promises as fs, readFileSync} from 'fs';
 import * as pathModule from 'path';
 import * as crypto from 'crypto';
 import * as url from 'url';
@@ -917,6 +917,31 @@ export const actions: {[k: string]: QueryHandler} = {
 		return {
 			signed_username: await signAsync("RSA-SHA1", params.username, Config.privatekey),
 		};
+	},
+	async 'smogon/assoc-ips'(params) {
+		if (!Config.smogonip || this.getIp() !== Config.smogonip) {
+			throw new ActionError("Access denied.");
+		}
+		const userid = toID(params.userid);
+		if (!userid) throw new ActionError("Invalid userid provided.");
+		const userData = await tables.users.get(userid);
+		const times = new Map<string, number>();
+		if (userData) {
+			times.set(userData.ip, userData.registertime);
+			// probably more recent, if they overlap
+			if (userData.loginip) {
+				times.set(userData.loginip, userData.logintime);
+			}
+		}
+		const sessions = await tables.sessions.selectAll()`WHERE userid = ${userid}`;
+		for (const s of sessions) {
+			const existing = times.get(s.ip);
+			if (!existing || existing && s.time > existing) {
+				times.set(s.ip, s.time);
+			}
+		}
+
+		return {ips: Array.from(times).map(x => ({ip: x[0], time: x[1]}))};
 	},
 };
 
