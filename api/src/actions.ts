@@ -922,6 +922,10 @@ export const actions: {[k: string]: QueryHandler} = {
 		if (!Config.smogonip || this.getIp() !== Config.smogonip) {
 			throw new ActionError("Access denied.");
 		}
+		// smogon prefers not having to use this, and since we've verified
+		// it IS from smogon, we can skip this
+		this.useDispatchPrefix = false;
+
 		const userid = toID(params.userid);
 		if (!userid) throw new ActionError("Invalid userid provided.");
 		const userData = await tables.users.get(userid);

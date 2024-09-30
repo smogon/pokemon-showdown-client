@@ -82,6 +82,7 @@ export class ActionContext {
 	user: User;
 	private prefix: string | null = null;
 	readonly body: ActionRequest;
+	useDispatchPrefix = true;
 	constructor(req: http.IncomingMessage, res: http.ServerResponse, body: ActionRequest) {
 		this.request = req;
 		this.response = res;
@@ -349,7 +350,7 @@ export class Server {
 	async handle(req: http.IncomingMessage, res: http.ServerResponse) {
 		this.activeRequests++;
 		res.setHeader('Content-Type', 'text/plain; charset=utf-8');
-
+		let useDispatchPrefix = true;
 		try {
 			const body = await ActionContext.getBody(req);
 			let result;
@@ -367,20 +368,22 @@ export class Server {
 					if (context.body !== curBody) context = new ActionContext(req, res, curBody);
 					result.push(await context.executeActions());
 				}
+				if (!context.useDispatchPrefix) useDispatchPrefix = false;
 			} else {
 				const context = new ActionContext(req, res, body);
 				// turn undefined into null so it can be JSON stringified
 				result = await context.executeActions() ?? null;
+				if (!context.useDispatchPrefix) useDispatchPrefix = false;
 			}
 			this.ensureHeaders(res);
-			res.writeHead(200).end(Server.stringify(result));
+			res.writeHead(200).end(this.stringify(result, useDispatchPrefix));
 		} catch (e: any) {
 			this.ensureHeaders(res);
 			if (e instanceof ActionError) {
 				if (e.httpStatus) {
 					res.writeHead(e.httpStatus).end('Error: ' + e.message);
 				} else {
-					res.writeHead(200).end(Server.stringify({actionerror: e.message}));
+					res.writeHead(200).end(this.stringify({actionerror: e.message}));
 				}
 			} else {
 				Server.crashlog(e);
@@ -402,11 +405,13 @@ export class Server {
 		});
 		return this.closing;
 	}
-	static stringify(response: any) {
+	stringify(response: any, useDispatchPrefix = true) {
 		if (typeof response === 'string') {
 			return response; // allow ending with just strings;
 		}
 		// see DISPATCH_PREFIX
-		return DISPATCH_PREFIX + JSON.stringify(response);
+		return (
+			(useDispatchPrefix ? DISPATCH_PREFIX : "") + JSON.stringify(response)
+		);
 	}
 }
