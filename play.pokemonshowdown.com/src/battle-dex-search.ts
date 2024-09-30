@@ -821,9 +821,11 @@ abstract class BattleTypedSearch<T extends SearchType> {
 			if (this.formatType === 'letsgo') table = table['gen7letsgo'];
 			if (this.formatType === 'bw1') table = table['gen5bw1'];
 			let learnset = table.learnsets[learnsetid];
+			const eggMovesOnly = this.eggMovesOnly(learnsetid, speciesid);
 			if (learnset && (moveid in learnset) && (!this.format.startsWith('tradebacks') ? learnset[moveid].includes(genChar) :
-				learnset[moveid].includes(genChar) ||
-					(learnset[moveid].includes(`${gen + 1}`) && move.gen === gen))) {
+				learnset[moveid].includes(genChar) || (learnset[moveid].includes(`${gen + 1}`) && move.gen === gen)) &&
+				(!eggMovesOnly || (learnset[moveid].includes('e') && this.dex.gen === 9))
+				) {
 				return true;
 			}
 			learnsetid = this.nextLearnsetid(learnsetid, speciesid, true);
@@ -872,6 +874,15 @@ abstract class BattleTypedSearch<T extends SearchType> {
 		}
 
 		return pokemon.tier;
+	}
+	eggMovesOnly(child: ID, father: ID) {
+		if (this.dex.species.get(child).baseSpecies === this.dex.species.get(father).baseSpecies) return false;
+		const baseSpecies = father;
+		while (father) {
+			if (child === father) return false;
+			father = this.nextLearnsetid(father, baseSpecies);
+		}
+		return true;
 	}
 	abstract getTable(): {[id: string]: any};
 	abstract getDefaultResults(): SearchRow[];
@@ -1615,15 +1626,8 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 					if (regionBornLegality && !learnsetEntry.includes(minGenCode[dex.gen])) {
 						continue;
 					}
-					const currentSpecies = dex.species.get(learnsetid);
-					const originalSpecies = dex.species.get(species.id);
-					let nextSpecies = this.nextLearnsetid(species.id, species.id);
-					while (nextSpecies) {
-						if (nextSpecies === learnsetid) break;
-						nextSpecies = this.nextLearnsetid(nextSpecies, species.id);
-					}
 					if (
-						currentSpecies.baseSpecies !== originalSpecies.baseSpecies && !nextSpecies &&
+						this.eggMovesOnly(learnsetid, species.id) &&
 						(!learnsetEntry.includes('e') || dex.gen !== 9)
 					) {
 						continue;
