@@ -104,3 +104,39 @@ export function escapeHTML(str: string | number) {
 		.replace(/"/g, '&quot;')
 		.replace(/'/g, '&apos;');
 }
+
+export class TimeSorter {
+	private data: Record<string, {min: number, max: number}> = {};
+	add(key: string, timestamp: number) {
+		if (this.data[key]) {
+			if (this.data[key].min > timestamp) {
+				this.data[key].min = timestamp;
+			}
+			if (timestamp > this.data[key].max) {
+				this.data[key].max = timestamp;
+			}
+		} else {
+			this.data[key] = {min: timestamp, max: timestamp};
+		}
+	}
+	toJSON() {
+		return this.data;
+	}
+	merge(other: TimeSorter | TimeSorter['data']) {
+		if (other instanceof TimeSorter) {
+			other = other.toJSON();
+		}
+		for (const k in other) {
+			if (this.data[k]) {
+				if (other[k].min < this.data[k].min) {
+					this.data[k].min = other[k].min;
+				}
+				if (other[k].max > this.data[k].max) {
+					this.data[k].max = other[k].max;
+				}
+			} else {
+				this.data[k] = other[k];
+			}
+		}
+	}
+}

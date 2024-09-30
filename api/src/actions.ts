@@ -14,7 +14,7 @@ import {Replays} from './replays';
 import {ActionError, QueryHandler, Server} from './server';
 import {Session} from './user';
 import {
-	toID, updateserver, bash, time, escapeHTML, signAsync,
+	toID, updateserver, bash, time, escapeHTML, signAsync, TimeSorter,
 } from './utils';
 import * as tables from './tables';
 import {SQL} from './database';
@@ -929,23 +929,23 @@ export const actions: {[k: string]: QueryHandler} = {
 		const userid = toID(params.userid);
 		if (!userid) throw new ActionError("Invalid userid provided.");
 		const userData = await tables.users.get(userid);
-		const times = new Map<string, number>();
+		const times = new TimeSorter();
 		if (userData) {
-			times.set(userData.ip, userData.registertime);
+			times.add(userData.ip, userData.registertime);
 			// probably more recent, if they overlap
 			if (userData.loginip) {
-				times.set(userData.loginip, userData.logintime);
+				times.add(userData.loginip, userData.logintime);
 			}
 		}
 		const sessions = await tables.sessions.selectAll()`WHERE userid = ${userid}`;
 		for (const s of sessions) {
-			const existing = times.get(s.ip);
-			if (!existing || existing && s.time > existing) {
-				times.set(s.ip, s.time);
-			}
+			times.add(s.ip, s.time);
+		}
+		if (Config.getuserips) {
+			times.merge(await Config.getuserips(userid));
 		}
 
-		return {ips: Array.from(times).map(x => ({ip: x[0], time: x[1]}))};
+		return {ips: times.toJSON()};
 	},
 };
 

@@ -185,3 +185,9 @@ exports.standings = {
 	"30": "Permaban",
 	"100": "Disabled",
 };
+
+/**
+ * @type {null | ((userid: string) => Promise<{[k: string]: {min: number, max: number}}>)}
+ * Get IPs (Map<ip, timestamp used>) of a given userid.
+ */
+exports.getuserips = null;
