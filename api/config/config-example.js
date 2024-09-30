@@ -187,7 +187,7 @@ exports.standings = {
 };
 
 /**
- * @type {null | ((userid: string) => Promise<{[k: string]: {min: number, max: number}}>)}
- * Get IPs (Map<ip, timestamp used>) of a given userid.
+ * @type {null | ((userid: string) => Promise<{[k: string]: {min: number, max: number, count: number}}>)}
+ * Get IPs of a given userid.
  */
 exports.getuserips = null;

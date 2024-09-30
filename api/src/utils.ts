@@ -106,7 +106,7 @@ export function escapeHTML(str: string | number) {
 }
 
 export class TimeSorter {
-	private data: Record<string, {min: number, max: number}> = {};
+	private data: Record<string, {min: number, max: number, count: number}> = {};
 	add(key: string, timestamp: number) {
 		if (this.data[key]) {
 			if (this.data[key].min > timestamp) {
@@ -115,11 +115,12 @@ export class TimeSorter {
 			if (timestamp > this.data[key].max) {
 				this.data[key].max = timestamp;
 			}
+			this.data[key].count++;
 		} else {
-			this.data[key] = {min: timestamp, max: timestamp};
+			this.data[key] = {min: timestamp, max: timestamp, count: 1};
 		}
 	}
-	toJSON() {
+	toJSON(): TimeSorter['data'] {
 		return this.data;
 	}
 	merge(other: TimeSorter | TimeSorter['data']) {
