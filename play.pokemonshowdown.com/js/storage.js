@@ -1107,7 +1107,7 @@ Storage.unpackTeam = function (buf) {
 			set.dynamaxLevel = (misc[4] ? Number(misc[4]) : 10);
 			set.teraType = misc[5];
 		}
-		if (j < 0) break;
+		if (j < 0 || buf.indexOf('|', j) < 0) break;
 		i = j + 1;
 	}
 
