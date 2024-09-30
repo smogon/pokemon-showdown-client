@@ -63,6 +63,7 @@ $formats = array(
 	'gen9pu' => 'PU',
 	'gen9lc' => 'Little Cup',
 	'gen9monotype' => 'Monotype',
+	'gen9bssregh' => 'Battle Stadium Singles Regulation H',
 	'gen9cap' => 'CAP',
 	'gen9randomdoublesbattle' => 'Random Doubles Battle',
 	'gen9doublesou' => 'Doubles OU',
