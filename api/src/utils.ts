@@ -135,6 +135,7 @@ export class TimeSorter {
 				if (other[k].max > this.data[k].max) {
 					this.data[k].max = other[k].max;
 				}
+				this.data[k].count += other[k].count;
 			} else {
 				this.data[k] = other[k];
 			}
