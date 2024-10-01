@@ -639,10 +639,8 @@ abstract class BattleTypedSearch<T extends SearchType> {
 			this.dex = Dex.mod('gen7letsgo' as ID);
 		}
 		if (format.includes('nationaldex') || format.startsWith('nd') || format.includes('natdex')) {
-			if (format !== 'nationaldexdoubles') {
-				format = (format.startsWith('nd') ? format.slice(2) :
-					format.includes('natdex') ? format.slice(6) : format.slice(11)) as ID;
-			}
+			format = (format.startsWith('nd') ? format.slice(2) :
+				format.includes('natdex') ? format.slice(6) : format.slice(11)) as ID;
 			this.formatType = 'natdex';
 			if (!format) format = 'ou' as ID;
 		}
@@ -1085,10 +1083,16 @@ class BattlePokemonSearch extends BattleTypedSearch<'pokemon'> {
 				return true;
 			});
 		}
-		if (format === 'nationaldexdoubles' && table.ndDoublesBans) {
+		if (format === 'doubles' && this.formatType === 'natdex' && table.ndDoublesBans) {
 			tierSet = tierSet.filter(([type, id]) => {
 				if (id in table.ndDoublesBans) return false;
 				return true;
+			});
+		}
+		if (format === '35pokes' && table.thirtyfivePokes) {
+			tierSet = tierSet.filter(([type, id]) => {
+				if (id in table.thirtyfivePokes) return true;
+				return false;
 			});
 		}
 		if (dex.gen >= 5) {

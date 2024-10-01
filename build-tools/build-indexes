@@ -361,6 +361,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 		const overrideTier = {};
 		const ubersUUBans = {};
 		const ndDoublesBans = {};
+		const thirtyfivePokes = {};
 		const monotypeBans = {};
 		const nonstandardMoves = [];
 		const gen5zuBans = {};
@@ -478,6 +479,10 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 				if (ndDoubles.exists && Dex.formats.getRuleTable(ndDoubles).isBannedSpecies(species)) {
 					ndDoublesBans[species.id] = 1;
 				}
+				const nd35Pokes = Dex.formats.get(gen + 'nationaldex35pokes');
+				if (nd35Pokes.exists && !Dex.formats.getRuleTable(nd35Pokes).isBannedSpecies(species)) {
+					thirtyfivePokes[species.id] = 1;
+				}
 			}
 			if (genNum >= 5) {
 				if (genNum === 5) {
@@ -511,6 +516,9 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			BattleTeambuilderTable['gen' + genNum + 'natdex'].ndDoublesBans = ndDoublesBans;
 			BattleTeambuilderTable['gen' + genNum + 'natdex'].monotypeBans = monotypeBans;
 			BattleTeambuilderTable['gen' + genNum + 'natdex'].formatSlices = formatSlices;
+			if (isNatDex && genNum === 9) {
+				BattleTeambuilderTable['gen' + genNum + 'natdex'].thirtyfivePokes = thirtyfivePokes;
+			}
 		} else if (isMetBattle) {
 			BattleTeambuilderTable[gen + 'metronome'] = {};
 			BattleTeambuilderTable[gen + 'metronome'].tiers = tiers;
