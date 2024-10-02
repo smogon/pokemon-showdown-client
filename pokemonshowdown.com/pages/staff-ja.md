@@ -16,8 +16,6 @@
 
 **Room Owner (`#`)** 上記のほか、ユーザーを@に昇格、署名無しの告知文の作成、Room Introの作成が可能。
 
-**Section Leader (`§`)** そのセクションのpublicなチャットルームを管理しています。誰が各セクションを管理しているかは、[部屋のリスト](https://www.smogon.com/forums/threads/pok%C3%A9mon-showdown-forum-rules-resources-read-here-first.3570628/#post-6804772)から参照できます。
-
 **Global Driver (`%`)** チャットルームまたは全体で、ユーザーに警告、7分または60分のミュート、2日または7日のロック、強制的に名前を変更、ステータスメッセージの削除、他のアカウントの確認、全部屋の過去ログの確認が可能。
 
 **Global Moderator (`@`)** 上記のほか、ユーザーをサーバからBAN、IPの確認が可能で、Room Moderatorの全権限も有しています。
