@@ -2682,11 +2682,6 @@ function toId() {
 			type: 'staff',
 			order: 10006
 		},
-		'\u00a7': {
-			name: "Section Leader (\u00a7)",
-			type: 'staff',
-			order: 10007
-		},
 		'*': {
 			name: "Bot (*)",
 			type: 'normal',
