@@ -462,7 +462,7 @@ export const actions: {[k: string]: QueryHandler} = {
 		if (!formatid) {
 			throw new ActionError('No format was specified.');
 		}
-		const source = parseInt(toID(params.coil_b));
+		const source = parseFloat(toID(params.coil_b));
 		if ('coil_b' in params && (isNaN(source) || !source || source < 1)) {
 			throw new ActionError('No B value was specified.');
 		}
