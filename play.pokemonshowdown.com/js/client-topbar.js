@@ -469,7 +469,8 @@
 			'change select[name=theme]': 'setTheme',
 			'change input[name=logchat]': 'setLogChat',
 			'change input[name=selfhighlight]': 'setSelfHighlight',
-			'click img': 'avatars'
+			'click img': 'avatars',
+			'keydown input[name=statustext]': 'editstatus'
 		},
 		update: function () {
 			var name = app.user.get('name');
@@ -479,6 +480,12 @@
 			var buf = '';
 			buf += '<p>' + (avatar ? '<img class="trainersprite" src="' + Dex.resolveAvatar(avatar) + '" width="40" height="40" style="vertical-align:middle;cursor:pointer" />' : '') + '<strong>' + BattleLog.escapeHTML(name) + '</strong></p>';
 			buf += '<p><button class="button" name="avatars">Avatar...</button></p>';
+			if (!this.editingStatus) {
+				buf += '<p><button class="button" name="editstatus">Status...</button></p>';
+			} else {
+				buf += '<p><input name="statustext" />';
+				buf += '<button class="button" name="editstatus"><i class="fa fa-pencil"></i></button></p>';
+			}
 			if (app.user.get('named')) {
 				var registered = app.user.get('registered');
 				if (registered && (registered.userid === app.user.get('userid'))) {
@@ -506,7 +513,7 @@
 			if (navigator.userAgent.includes(' Chrome/64.')) {
 				buf += '<p><label class="checkbox"><input type="checkbox" name="nogif"' + (Dex.prefs('nogif') ? ' checked' : '') + ' /> Disable GIFs for Chrome 64 bug</label></p>';
 			}
-			buf += '<p><label class="checkbox"><input type="checkbox" name="bwgfx"' + (Dex.prefs('bwgfx') ? ' checked' : '') + ' /> Use BW sprites instead of XY models</label></p>';
+			buf += '<p><label class="checkbox"><input type="checkbox" name="bwgfx"' + (Dex.prefs('bwgfx') ? ' checked' : '') + ' /> Use 2D sprites instead of 3D models</label></p>';
 			buf += '<p><label class="checkbox"><input type="checkbox" name="nopastgens"' + (Dex.prefs('nopastgens') ? ' checked' : '') + ' /> Use modern sprites for past generations</label></p>';
 
 			buf += '<hr />';
@@ -661,6 +668,29 @@
 		},
 		avatars: function () {
 			app.addPopup(AvatarsPopup);
+		},
+		editstatus: function (ev) {
+			// from an input, key isn't enter
+			// there's no event if it's a click fsr
+			if (ev && ev.keyCode !== 13) return;
+			if (!this.editingStatus) {
+				this.editingStatus = true;
+				this.update();
+			} else {
+				var $input = $('input[name=statustext]');
+				var statusText = $input.val();
+				if (!toID(statusText).length) {
+					return;
+				}
+
+				app.send('/status ' + statusText);
+				var $editButton = $('button[name=editstatus]');
+				$editButton.text('Status updated!');
+				$editButton.attr('disabled', true);
+				$input.remove();
+
+				this.editingStatus = false;
+			}
 		},
 		formatting: function () {
 			app.addPopup(FormattingPopup);

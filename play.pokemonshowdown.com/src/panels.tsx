@@ -285,6 +285,9 @@ class PSMain extends preact.Component {
 				if (isTextInput && elem.value) {
 					return;
 				}
+				if (elem.contentEditable === 'true' && elem.textContent && elem.textContent !== '\n') {
+					return;
+				}
 			}
 			if (PS.room.onParentEvent) {
 				if (PS.room.onParentEvent('keydown', e) === false) {

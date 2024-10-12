@@ -63,17 +63,24 @@ $formats = array(
 	'gen9pu' => 'PU',
 	'gen9lc' => 'Little Cup',
 	'gen9monotype' => 'Monotype',
-	'gen9battlestadiumsingles' => 'Battle Stadium Singles',
+	'gen9bssregh' => 'Battle Stadium Singles Regulation H',
 	'gen9cap' => 'CAP',
 	'gen9randomdoublesbattle' => 'Random Doubles Battle',
 	'gen9doublesou' => 'Doubles OU',
-	'gen9vgc2023' => 'VGC 2023',
-	'gen9balancedhackmons' => 'Balanced Hackmons',
-	'gen9mixandmega' => 'Mix and Mega',
+	'gen9vgc2024regh' => 'VGC 2024 Regulation H',
 	'gen9almostanyability' => 'Almost Any Ability',
-	'gen9stabmons' => 'STABmons',
-	'gen9nfe' => 'NFE',
+	'gen9balancedhackmons' => 'Balanced Hackmons',
 	'gen9godlygift' => 'Godly Gift',
+	'gen9inheritance' => 'Inheritance',
+	'gen9mixandmega' => 'Mix and Mega',
+	'gen9partnersincrime' => 'Partners in Crime',
+	'gen9sharedpower' => 'Shared Power',
+	'gen9stabmons' => 'STABmons',
+	'gen9nationaldex' => 'National Dex OU',
+	'gen9nationaldexubers' => 'National Dex Ubers',
+	'gen9nationaldexuu' => 'National Dex UU',
+	'gen9nationaldexmonotype' => 'National Dex Monotype',
+	'gen9nationaldexdoubles' => 'National Dex Doubles',
 	'gen8randombattle' => '[Gen 8] Random Battle',
 	'gen8ou' => '[Gen 8] OU',
 	'gen7randombattle' => '[Gen 7] Random Battle',
@@ -469,7 +476,8 @@ if (!$user) {
 
 	// Ladder
 
-	if ($user['userid'] === $curuser['userid']) {
+	$ladderTourID = str_starts_with($user['userid'], 'lt11');
+	if ($user['userid'] === $curuser['userid'] && !$ladderTourID) {
 		if ($users->csrfCheck() && @$_POST['resetLadder']) {
 			$formatLadder = new NTBBLadder(@$_POST['resetLadder']);
 			if (substr($formatLadder->formatid, -7) !== 'current' && substr($formatLadder->formatid, -11) !== 'suspecttest') {
@@ -492,7 +500,7 @@ if (!$user) {
 		} else {
 			$bufs[$buftype] .= '<td style="text-align:center" colspan="2"><small style="color:#777">(more games needed)</small>';
 		}
-		if ($user['userid'] === $curuser['userid']) {
+		if ($user['userid'] === $curuser['userid'] && !$ladderTourID) {
 			$bufs[$buftype] .= '</td><td style="text-align:center"><small>' . $row['w'] . '</small></td><td style="text-align:center"><small>' . $row['l'] . '</small></td>';
 			if (substr($row['formatid'], -7) !== 'current' && substr($row['formatid'], -11) !== 'suspecttest') {
 				$bufs[$buftype] .= '<td><button name="openReset" value="'.htmlspecialchars($row['formatid']).'"><small>Reset</small></button></td>';
@@ -546,7 +554,7 @@ if (!$user) {
 		}
 ?>
 <?php
-		if ($user['userid'] === $curuser['userid']) {
+		if ($user['userid'] === $curuser['userid'] && !$ladderTourID) {
 ?>
 			<tr style="display:none" class="ladderresetform">
 				<td colspan="7">

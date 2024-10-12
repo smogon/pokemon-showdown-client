@@ -19,7 +19,12 @@
  */
 type ID = string & {__isID: true};
 
-const BattleNatures: {[k in NatureName]: {plus?: StatName, minus?: StatName}} = {
+interface Nature {
+	plus?: StatNameExceptHP;
+	minus?: StatNameExceptHP;
+}
+
+const BattleNatures: {[k in NatureName]: Nature} = {
 	Adamant: {
 		plus: 'atk',
 		minus: 'spa',
@@ -615,6 +620,7 @@ const BattlePokemonIconIndexes: {[id: string]: number} = {
 	ababo: 1512 + 71,
 	scattervein: 1512 + 72,
 	cresceidon: 1512 + 73,
+	chuggalong: 1512 + 74,
 };
 
 const BattlePokemonIconIndexesLeft: {[id: string]: number} = {
@@ -1174,6 +1180,8 @@ interface MoveFlags {
 	mirror?: 1 | 0;
 	/** Prevented from being executed or selected in a Sky Battle. */
 	nonsky?: 1 | 0;
+	/** Cannot be copied by Sketch */
+	nosketch?: 1 | 0;
 	/** Has no effect on Grass-type Pokemon, Pokemon with the Overcoat Ability, and Pokemon holding Safety Goggles. */
 	powder?: 1 | 0;
 	/** Blocked by Detect, Protect, Spiky Shield, and if not a Status move, King's Shield. */
@@ -1240,7 +1248,6 @@ class Move implements Effect {
 	readonly noPPBoosts: boolean;
 	readonly status: string;
 	readonly secondaries: ReadonlyArray<any> | null;
-	readonly noSketch: boolean;
 	readonly num: number;
 
 	constructor(id: ID, name: string, data: any) {
@@ -1277,7 +1284,6 @@ class Move implements Effect {
 		this.noPPBoosts = data.noPPBoosts || false;
 		this.status = data.status || '';
 		this.secondaries = data.secondaries || (data.secondary ? [data.secondary] : null);
-		this.noSketch = !!data.noSketch;
 
 		this.isMax = data.isMax || false;
 		this.maxMove = data.maxMove || {basePower: 0};
@@ -1548,10 +1554,11 @@ class Species implements Effect {
 		this.canGigantamax = !!data.canGigantamax;
 		this.cannotDynamax = !!data.cannotDynamax;
 		this.forceTeraType = data.forceTeraType || '';
-		this.battleOnly = data.battleOnly || undefined;
+		this.battleOnly = data.battleOnly || (this.isMega ? this.baseSpecies : undefined);
 		this.isNonstandard = data.isNonstandard || null;
 		this.unreleasedHidden = data.unreleasedHidden || false;
-		this.changesFrom = data.changesFrom || undefined;
+		this.changesFrom = data.changesFrom ||
+			(this.battleOnly !== this.baseSpecies ? this.battleOnly : this.baseSpecies);
 		if (!this.gen) {
 			if (this.num >= 906 || this.formeid.startsWith('-paldea')) {
 				this.gen = 9;

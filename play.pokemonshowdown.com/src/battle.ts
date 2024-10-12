@@ -607,6 +607,7 @@ export class Side {
 	foe: Side = null!;
 	ally: Side | null = null;
 	avatar: string = 'unknown';
+	badges: string[] = [];
 	rating: string = '';
 	totalPokemon = 6;
 	x = 0;
@@ -2449,8 +2450,7 @@ export class Battle {
 			poke.details = args[2];
 			poke.searchid = args[1].substr(0, 2) + args[1].substr(3) + '|' + args[2];
 
-			let isCustomAnim = species.id !== 'palafinhero';
-			this.scene.animTransform(poke, isCustomAnim, true);
+			this.scene.animTransform(poke, true, true);
 			this.log(args, kwArgs);
 			break;
 		}
@@ -2488,7 +2488,6 @@ export class Battle {
 			let poke = this.getPokemon(args[1])!;
 			let species = Dex.species.get(args[2]);
 			let fromeffect = Dex.getEffect(kwArgs.from);
-			let isCustomAnim = species.name.startsWith('Wishiwashi');
 			if (!poke.getSpeciesForme().endsWith('-Gmax') && !species.name.endsWith('-Gmax')) {
 				poke.removeVolatile('typeadd' as ID);
 				poke.removeVolatile('typechange' as ID);
@@ -2499,7 +2498,7 @@ export class Battle {
 				this.activateAbility(poke, fromeffect);
 			}
 			poke.addVolatile('formechange' as ID, species.name); // the formechange volatile reminds us to revert the sprite change on switch-out
-			this.scene.animTransform(poke, isCustomAnim);
+			this.scene.animTransform(poke, true);
 			this.log(args, kwArgs);
 			break;
 		}
@@ -2701,7 +2700,7 @@ export class Battle {
 			let fromeffect = Dex.getEffect(kwArgs.from);
 			poke.removeVolatile(effect.id);
 
-			if (kwArgs.silent) {
+			if (kwArgs.silent && !(effect.id === 'protosynthesis' || effect.id === 'quarkdrive')) {
 				// do nothing
 			} else {
 				switch (effect.id) {
@@ -3361,6 +3360,10 @@ export class Battle {
 		case 'upkeep': {
 			this.usesUpkeep = true;
 			this.updateTurnCounters();
+			// Prevents getSwitchedPokemon from skipping over a Pokemon that switched out mid turn (e.g. U-turn)
+			for (const side of this.sides) {
+				side.lastPokemon = null;
+			}
 			break;
 		}
 		case 'turn': {
@@ -3379,6 +3382,9 @@ export class Battle {
 			}
 			if (this.tier.includes(`Let's Go`)) {
 				this.dex = Dex.mod('gen7letsgo' as ID);
+			}
+			if (this.tier.includes('Super Staff Bros')) {
+				this.dex = Dex.mod('gen9ssb' as ID);
 			}
 			this.log(args);
 			break;
@@ -3535,6 +3541,15 @@ export class Battle {
 			this.scene.updateSidebar(side);
 			break;
 		}
+		case 'badge': {
+			let side = this.getSide(args[1]);
+			// handle all the rendering further down
+			const badge = args.slice(2).join('|');
+			// (don't allow duping)
+			if (!side.badges.includes(badge)) side.badges.push(badge);
+			this.scene.updateSidebar(side);
+			break;
+		}
 		case 'teamsize': {
 			let side = this.getSide(args[1]);
 			side.totalPokemon = parseInt(args[2], 10);
@@ -3683,6 +3698,21 @@ export class Battle {
 		}
 		case 'controlshtml': {
 			this.scene.setControlsHTML(BattleLog.sanitizeHTML(args[1]));
+			break;
+		}
+		case 'custom': {
+			// Style is always |custom|-subprotocol|pokemon|additional info
+			if (args[1] === '-endterastallize') {
+				let poke = this.getPokemon(args[2])!;
+				poke.removeVolatile('terastallize' as ID);
+				poke.teraType = '';
+				poke.terastallized = '';
+				poke.details = poke.details.replace(/, tera:[a-z]+/i, '');
+				poke.searchid = poke.searchid.replace(/, tera:[a-z]+/i, '');
+				this.scene.animTransform(poke);
+				this.scene.resetStatbar(poke);
+				this.log(args, kwArgs);
+			}
 			break;
 		}
 		default: {

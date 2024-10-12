@@ -1074,7 +1074,7 @@ a.ilink.yours {
 	font-weight: bold;
 	font-size: 8pt;
 }
-.chatbox textarea {
+.chatbox .textbox {
 	display: block;
 	height: 1.1em;
 	width: 100%;
@@ -1083,6 +1083,10 @@ a.ilink.yours {
 	font-family: Verdana, Helvetica, Arial, sans-serif;
 	overflow-x: hidden;
 	overflow-wrap: break-word;
+}
+.chatbox pre.textbox {
+	margin: 0;
+	height: auto;
 }
 
 /* Tournaments */

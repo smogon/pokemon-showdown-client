@@ -602,7 +602,8 @@ const Dex = new class implements ModdedDex {
 		if (options.shiny && mechanicsGen > 1) dir += '-shiny';
 
 		// April Fool's 2014
-		if (window.Config?.server?.afd || Dex.prefs('afd') || options.afd) {
+		if (Dex.prefs('afd') !== false && (window.Config?.server?.afd || Dex.prefs('afd') || options.afd)) {
+			// Explicit false check above means AFD will be off if the user disables it - no matter what
 			dir = 'afd' + dir;
 			spriteData.url += dir + '/' + name + '.png';
 			// Duplicate code but needed to make AFD tinymax work
@@ -903,11 +904,16 @@ class ModdedDex {
 
 			let data = {...Dex.items.get(name)};
 
-			for (let i = this.gen; i < 9; i++) {
-				const table = window.BattleTeambuilderTable['gen' + i];
-				if (id in table.overrideItemDesc) {
-					data.shortDesc = table.overrideItemDesc[id];
-					break;
+			for (let i = Dex.gen - 1; i >= this.gen; i--) {
+				const table = window.BattleTeambuilderTable[`gen${i}`];
+				if (id in table.overrideItemData) {
+					Object.assign(data, table.overrideItemData[id]);
+				}
+			}
+			if (this.modid !== `gen${this.gen}`) {
+				const table = window.BattleTeambuilderTable[this.modid];
+				if (id in table.overrideItemData) {
+					Object.assign(data, table.overrideItemData[id]);
 				}
 			}
 

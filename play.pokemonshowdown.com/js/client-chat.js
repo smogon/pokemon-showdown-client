@@ -354,9 +354,37 @@
 				// This is a new tab completion.
 
 				// There needs to be non-whitespace to the left of the cursor.
-				var m1 = /^([\s\S]*?)([A-Za-z0-9][^, \n]*)$/.exec(prefix);
-				var m2 = /^([\s\S]*?)([A-Za-z0-9][^, \n]* [^, ]*)$/.exec(prefix);
+				// no command prefixes either, we're testing for usernames here.
+				var m1 = /^([\s\S!/]*?)([A-Za-z0-9][^, \n]*)$/.exec(prefix);
+				var m2 = /^([\s\S!/]*?)([A-Za-z0-9][^, \n]* [^, ]*)$/.exec(prefix);
 				if (!m1 && !m2) return true;
+				var cmds = this.tabComplete.commands;
+				var currentLine = prefix.substr(prefix.lastIndexOf('\n') + 1);
+				var shouldSearchCommands = !cmds || (cmds.length ? !!cmds.length && !cmds.filter(function (x) {
+					return x.startsWith(currentLine);
+				}).length : prefix != this.tabComplete.prefix);
+				var isCommandSearch = (currentLine.startsWith('/') && !currentLine.startsWith('//')) || currentLine.startsWith('!');
+				var resultsExist = this.tabComplete.lastSearch === text && this.tabComplete.commands;
+				if (isCommandSearch && shouldSearchCommands && !resultsExist) {
+					if (this.tabComplete.searchPending) return true; // wait
+					this.tabComplete.isCommand = true;
+					this.tabComplete.searchPending = true;
+					this.tabComplete.lastSearch = text;
+					var self = this;
+					app.once('response:cmdsearch', function (data) {
+						delete self.tabComplete.searchPending;
+						if (data) {
+							self.tabComplete.commands = data;
+							self.tabComplete.prefix = prefix;
+							self.handleTabComplete($textbox, reverse);
+						}
+					});
+					this.send('/crq cmdsearch ' + currentLine);
+					return true;
+				} else if (!isCommandSearch) {
+					delete this.tabComplete.isCommand;
+					delete this.tabComplete.commands;
+				}
 
 				this.tabComplete.prefix = prefix;
 				var idprefix = (m1 ? toID(m1[2]) : '');
@@ -394,6 +422,17 @@
 					}
 					return (a[0] < b[0]) ? -1 : 1; // alphabetical order
 				});
+
+				if (this.tabComplete.isCommand) {
+					this.tabComplete.commands.sort(function (a, b) {
+						return a.length < b.length ? 1 : -1;
+					});
+					for (var i = 0; i < this.tabComplete.commands.length; i++) {
+						var cmd = this.tabComplete.commands[i];
+						candidates.unshift([i, cmd]);
+					}
+				}
+
 				this.tabComplete.candidates = candidates;
 				this.tabComplete.index = 0;
 				if (!candidates.length) {
@@ -405,11 +444,12 @@
 			// Substitute in the tab-completed name.
 			var candidate = this.tabComplete.candidates[this.tabComplete.index];
 			var substituteUserId = candidate[0];
-			var substituteUser = users[substituteUserId];
+			var substituteUser = users[substituteUserId] || candidate[1];
 			if (!substituteUser) return true;
-			var name = substituteUser.name;
+			var name = typeof substituteUser === 'object' ? substituteUser.name : substituteUser;
 			name = Dex.getShortName(name);
-			var fullPrefix = this.tabComplete.prefix.substr(0, candidate[1]) + name;
+			var prefixIndex = candidate[1].toString().charAt(0) === '/' ? prefix.lastIndexOf('\n') + 1 : candidate[1];
+			var fullPrefix = this.tabComplete.prefix.substr(0, prefixIndex) + name;
 			$textbox.val(fullPrefix + text.substr(idx));
 			var pos = fullPrefix.length;
 			$textbox[0].setSelectionRange(pos, pos);
@@ -938,7 +978,7 @@
 						buffer += '</table></div>';
 						return self.add('|raw|' + buffer);
 					}
-					buffer += '<tr><th>Format</th><th><abbr title="Elo rating">Elo</abbr></th><th><abbr title="user\'s percentage chance of winning a random battle (aka GLIXARE)">GXE</abbr></th><th><abbr title="Glicko-1 rating: rating±deviation">Glicko-1</abbr></th><th>W</th><th>L</th><th>Total</th></tr>';
+					buffer += '<tr><th>Format</th><th><abbr title="Elo rating">Elo</abbr></th><th><abbr title="user\'s percentage chance of winning a random battle (aka GLIXARE)">GXE</abbr></th><th><abbr title="Glicko-1 rating: rating±deviation">Glicko-1</abbr></th><th>COIL</th><th>W</th><th>L</th><th>Total</th></tr>';
 
 					var hiddenFormats = [];
 					for (var i = 0; i < data.length; i++) {
@@ -969,6 +1009,12 @@
 							buffer += '<td><em>' + Math.round(row.rpr) + '<small> &#177; ' + Math.round(row.rprd) + '</small></em></td>';
 						}
 						var N = parseInt(row.w, 10) + parseInt(row.l, 10) + parseInt(row.t, 10);
+						var COIL_B = LadderRoom.COIL_B[formatId];
+						if (COIL_B) {
+							buffer += '<td>' + Math.round(40.0 * parseFloat(row.gxe) * Math.pow(2.0, -COIL_B / N), 0) + '</td>';
+						} else {
+							buffer += '<td>--</td>';
+						}
 						buffer += '<td>' + row.w + '</td><td>' + row.l + '</td><td>' + N + '</td></tr>';
 					}
 					if (hiddenFormats.length) {

@@ -25,11 +25,11 @@ class ModifiableValue {
 		this.pokemon = pokemon;
 		this.serverPokemon = serverPokemon;
 
-		this.itemName = Dex.items.get(serverPokemon.item).name;
+		this.itemName = this.battle.dex.items.get(serverPokemon.item).name;
 		const ability = serverPokemon.ability || pokemon?.ability || serverPokemon.baseAbility;
-		this.abilityName = Dex.abilities.get(ability).name;
-		this.weatherName = battle.weather === 'snow' ? 'Snow' : Dex.moves.get(battle.weather).exists ?
-			Dex.moves.get(battle.weather).name : Dex.abilities.get(battle.weather).name;
+		this.abilityName = this.battle.dex.abilities.get(ability).name;
+		this.weatherName = battle.weather === 'snow' ? 'Snow' : this.battle.dex.moves.get(battle.weather).exists ?
+			this.battle.dex.moves.get(battle.weather).name : this.battle.dex.abilities.get(battle.weather).name;
 	}
 	reset(value = 0, isAccuracy?: boolean) {
 		this.value = value;
@@ -106,6 +106,8 @@ class ModifiableValue {
 		if (name) this.comment.push(` (${this.round(factor)}&times; from ${name})`);
 		this.value *= factor;
 		if (!(name === 'Technician' && this.maxValue > 60)) this.maxValue *= factor;
+		if (this.battle.tier.includes('Super Staff Bros') &&
+			!(name === 'Confirmed Town' && this.maxValue > 60)) this.maxValue *= factor;
 		return true;
 	}
 	set(value: number, reason?: string) {
@@ -523,10 +525,10 @@ class BattleTooltips {
 
 	getMaxMoveFromType(type: TypeName, gmaxMove?: string | Move) {
 		if (gmaxMove) {
-			gmaxMove = Dex.moves.get(gmaxMove);
+			if (typeof gmaxMove === 'string') gmaxMove = this.battle.dex.moves.get(gmaxMove);
 			if (type === gmaxMove.type) return gmaxMove;
 		}
-		return Dex.moves.get(BattleTooltips.maxMoveTable[type]);
+		return this.battle.dex.moves.get(BattleTooltips.maxMoveTable[type]);
 	}
 
 	showMoveTooltip(move: Move, isZOrMax: string, pokemon: Pokemon, serverPokemon: ServerPokemon, gmaxMove?: Move) {
@@ -871,10 +873,10 @@ class BattleTooltips {
 			let itemEffect = '';
 			if (clientPokemon?.prevItem) {
 				item = 'None';
-				let prevItem = Dex.items.get(clientPokemon.prevItem).name;
+				let prevItem = this.battle.dex.items.get(clientPokemon.prevItem).name;
 				itemEffect += clientPokemon.prevItemEffect ? prevItem + ' was ' + clientPokemon.prevItemEffect : 'was ' + prevItem;
 			}
-			if (serverPokemon.item) item = Dex.items.get(serverPokemon.item).name;
+			if (serverPokemon.item) item = this.battle.dex.items.get(serverPokemon.item).name;
 			if (itemEffect) itemEffect = ' (' + itemEffect + ')';
 			if (item) itemText = '<small>Item:</small> ' + item + itemEffect;
 		} else if (clientPokemon) {
@@ -883,10 +885,10 @@ class BattleTooltips {
 			if (clientPokemon.prevItem) {
 				item = 'None';
 				if (itemEffect) itemEffect += '; ';
-				let prevItem = Dex.items.get(clientPokemon.prevItem).name;
+				let prevItem = this.battle.dex.items.get(clientPokemon.prevItem).name;
 				itemEffect += clientPokemon.prevItemEffect ? prevItem + ' was ' + clientPokemon.prevItemEffect : 'was ' + prevItem;
 			}
-			if (pokemon.item) item = Dex.items.get(pokemon.item).name;
+			if (pokemon.item) item = this.battle.dex.items.get(pokemon.item).name;
 			if (itemEffect) itemEffect = ' (' + itemEffect + ')';
 			if (item) itemText = '<small>Item:</small> ' + item + itemEffect;
 		}
@@ -909,7 +911,7 @@ class BattleTooltips {
 			text += `<p class="tooltip-section">`;
 			const battlePokemon = clientPokemon || this.battle.findCorrespondingPokemon(pokemon);
 			for (const moveid of serverPokemon.moves) {
-				const move = Dex.moves.get(moveid);
+				const move = this.battle.dex.moves.get(moveid);
 				let moveName = `&#8226; ${move.name}`;
 				if (battlePokemon?.moveTrack) {
 					for (const row of battlePokemon.moveTrack) {
@@ -1023,8 +1025,9 @@ class BattleTooltips {
 				stats.atk = Math.floor(stats.atk * 0.5);
 			}
 
-			if (this.battle.gen > 2 && ability === 'quickfeet') {
-				stats.spe = Math.floor(stats.spe * 1.5);
+			// Paralysis is calculated later in newer generations, so we need to apply it early here
+			if (this.battle.gen <= 2 && pokemon.status === 'par') {
+				stats.spe = Math.floor(stats.spe * 0.25);
 			}
 		}
 
@@ -1046,7 +1049,7 @@ class BattleTooltips {
 			item = '' as ID;
 		}
 
-		const species = Dex.species.get(serverPokemon.speciesForme).baseSpecies;
+		const species = this.battle.dex.species.get(serverPokemon.speciesForme).baseSpecies;
 		const isTransform = clientPokemon?.volatiles.transform;
 		const speciesName = isTransform && clientPokemon?.volatiles.formechange?.[1] && this.battle.gen <= 4 ?
 			this.battle.dex.species.get(clientPokemon.volatiles.formechange[1]).baseSpecies : species;
@@ -1165,8 +1168,13 @@ class BattleTooltips {
 				}
 			}
 		}
-		if (ability === 'marvelscale' && pokemon.status) {
-			stats.def = Math.floor(stats.def * 1.5);
+		if (pokemon.status) {
+			if (ability === 'marvelscale') {
+				stats.def = Math.floor(stats.def * 1.5);
+			}
+			if (ability === 'quickfeet') {
+				speedModifiers.push(1.5);
+			}
 		}
 		const isNFE = this.battle.dex.species.get(serverPokemon.speciesForme).evos?.some(evo => {
 			const evoSpecies = this.battle.dex.species.get(evo);
@@ -1249,6 +1257,89 @@ class BattleTooltips {
 				stats.spd = Math.floor(stats.spd * 0.75);
 			}
 		}
+
+		// SSB
+		if (this.battle.tier.includes('Super Staff Bros')) {
+			if (pokemon.name === 'Felucia') {
+				speedModifiers.push(1.5);
+			}
+			if (ability === 'misspelled') {
+				stats.spa = Math.floor(stats.spa * 1.5);
+			}
+			if (ability === 'fortifyingfrost' && weather === 'snow') {
+				stats.spa = Math.floor(stats.spa * 1.5);
+				stats.spd = Math.floor(stats.spd * 1.5);
+			}
+			if (weather === 'deserteddunes' && this.pokemonHasType(pokemon, 'Rock')) {
+				stats.spd = Math.floor(stats.spd * 1.5);
+			}
+			if (pokemon.status && ability === 'fortifiedmetal') {
+				stats.atk = Math.floor(stats.atk * 1.5);
+			}
+			if (ability === 'grassyemperor' && this.battle.hasPseudoWeather('Grassy Terrain')) {
+				stats.atk = Math.floor(stats.atk * 1.3333);
+			}
+			if (ability === 'magicalmysterycharge' && this.battle.hasPseudoWeather('Electric Terrain')) {
+				stats.spd = Math.floor(stats.spd * 1.5);
+			}
+			if (ability === 'youkaiofthedusk' || ability === 'galeguard') {
+				stats.def *= 2;
+			}
+			if (ability === 'climatechange') {
+				if (weather === 'snow') {
+					stats.def = Math.floor(stats.def * 1.5);
+					stats.spd = Math.floor(stats.spd * 1.5);
+				}
+				if (weather === 'sunnyday' || weather === 'desolateland') stats.spa = Math.floor(stats.spa * 1.5);
+			}
+			if (item !== 'utilityumbrella' && ability === 'ridethesun' &&
+				(weather === 'sunnyday' || weather === 'desolateland')) {
+				speedModifiers.push(2);
+			}
+			if (ability === 'soulsurfer' && this.battle.hasPseudoWeather('Electric Terrain')) {
+				speedModifiers.push(2);
+			}
+			if (item === 'eviolite' && this.battle.dex.species.get(serverPokemon.speciesForme).id === 'pichuspikyeared') {
+				stats.def = Math.floor(stats.def * 1.5);
+				stats.spd = Math.floor(stats.spd * 1.5);
+			}
+			if (this.battle.abilityActive('quagofruin')) {
+				if (ability !== 'quagofruin') {
+					stats.def = Math.floor(stats.def * 0.85);
+				}
+			}
+			if (this.battle.abilityActive('clodofruin')) {
+				if (ability !== 'clodofruin') {
+					stats.atk = Math.floor(stats.atk * 0.85);
+				}
+			}
+			if (this.battle.abilityActive('blitzofruin')) {
+				if (ability !== 'blitzofruin') {
+					speedModifiers.push(0.75);
+				}
+			}
+			if (this.battle.hasPseudoWeather('Anfield Atmosphere') && ability === 'youllneverwalkalone') {
+				stats.atk = Math.floor(stats.atk * 1.25);
+				stats.def = Math.floor(stats.def * 1.25);
+				stats.spd = Math.floor(stats.spd * 1.25);
+				speedModifiers.push(1.25);
+			}
+			if (clientPokemon) {
+				if (clientPokemon.volatiles['boiled']) {
+					stats.spa = Math.floor(stats.spa * 1.5);
+				}
+				for (const statName of Dex.statNamesExceptHP) {
+					if (clientPokemon.volatiles['ultramystik']) {
+						if (statName === 'spe') {
+							speedModifiers.push(1.3);
+						} else {
+							stats[statName] = Math.floor(stats[statName] * 1.3);
+						}
+					}
+				}
+			}
+		}
+
 		const sideConditions = this.battle.mySide.sideConditions;
 		if (sideConditions['tailwind']) {
 			speedModifiers.push(2);
@@ -1432,7 +1523,7 @@ class BattleTooltips {
 			moveType = pokemonTypes[0];
 		}
 		// Moves that require an item to change their type.
-		let item = Dex.items.get(value.itemName);
+		let item = this.battle.dex.items.get(value.itemName);
 		if (move.id === 'multiattack' && item.onMemory) {
 			if (value.itemModify(0)) moveType = item.onMemory;
 		}
@@ -1554,9 +1645,58 @@ class BattleTooltips {
 		}
 
 		if (move.id === 'photongeyser' || move.id === 'lightthatburnsthesky' ||
-			move.id === 'terablast' && pokemon.terastallized) {
+			(move.id === 'terablast' && pokemon.terastallized) ||
+			(move.id === 'terastarstorm' && pokemon.getSpeciesForme() === 'Terapagos-Stellar')) {
 			const stats = this.calculateModifiedStats(pokemon, serverPokemon, true);
 			if (stats.atk > stats.spa) category = 'Physical';
+		}
+
+		// SSB
+		if (this.battle.tier.includes('Super Staff Bros')) {
+			if (allowTypeOverride && category !== "Status" && !move.isZ && !move.id.startsWith('hiddenpower')) {
+				if (value.abilityModify(0, 'Acetosa')) moveType = 'Grass';
+				if (value.abilityModify(0, 'I Can Hear The Heart Beating As One') && moveType === 'Normal') moveType = 'Fairy';
+			}
+			if (move.id === 'tsignore' || move.id === 'o') {
+				const stats = this.calculateModifiedStats(pokemon, serverPokemon, true);
+				if (stats.atk > stats.spa) category = 'Physical';
+			}
+			if (move.id === 'tsignore' && pokemon.getSpeciesForme().startsWith('Meloetta') &&
+				pokemon.terastallized) {
+				moveType = 'Stellar';
+			}
+			if (move.id === 'weatherball' && value.weatherModify(0)) {
+				if (this.battle.weather === 'stormsurge') moveType = 'Water';
+				if (this.battle.weather === 'deserteddunes') moveType = 'Rock';
+			}
+			if (move.id === 'o' || move.id === 'worriednoises') {
+				moveType = pokemonTypes[0];
+			}
+			if (move.id === 'dillydally') {
+				moveType = pokemonTypes[pokemonTypes.length - 1];
+			}
+			if (move.id === 'magicalfocus') {
+				if (this.battle.turn % 3 === 1) {
+					moveType = 'Fire';
+				} else if (this.battle.turn % 3 === 2) {
+					moveType = 'Electric';
+				} else {
+					moveType = 'Ice';
+				}
+			}
+			if (move.id === 'hydrostatics' && pokemon.terastallized) {
+				moveType = 'Water';
+			}
+			if (move.id === 'asongoficeandfire' && pokemon.getSpeciesForme() === 'Volcarona') moveType = 'Ice';
+			if (this.battle.abilityActive('dynamictyping')) {
+				moveType = '???';
+			}
+			if (move.id === 'alting') {
+				moveType = '???';
+				if (pokemon.shiny) {
+					category = 'Special';
+				}
+			}
 		}
 		return [moveType, category];
 	}
@@ -1633,6 +1773,38 @@ class BattleTooltips {
 		if (value.tryItem('Wide Lens')) {
 			accuracyModifiers.push(4505);
 			value.itemModify(1.1, "Wide Lens");
+		}
+
+		// SSB
+		if (this.battle.tier.includes('Super Staff Bros')) {
+			if (move.id === 'alting' && pokemon.shiny) {
+				value.set(100);
+			}
+			if (move.flags['wind'] && this.battle.weather === 'stormsurge') {
+				value.weatherModify(0, 'Storm Surge');
+			}
+			if (value.tryAbility('Misspelled') && move.category === 'Special') {
+				accuracyModifiers.push(3277);
+				value.abilityModify(0.8, "Misspelled");
+			}
+			if (value.tryAbility('Hydrostatic Positivity') && ['Electric', 'Water'].includes(move.type)) {
+				accuracyModifiers.push(5325);
+				value.abilityModify(1.3, "Hydrostatic Positivity");
+			}
+			if (value.tryAbility('Hardcore Hustle')) {
+				for (let i = 1; i <= 5 && i <= pokemon.side.faintCounter; i++) {
+					if (pokemon.volatiles[`fallen${i}`]) {
+						value.abilityModify([1, 0.95, 0.90, 0.85, 0.80, 0.75][i], "Hardcore Hustle");
+					}
+				}
+			}
+			if (value.tryAbility('See No Evil, Hear No Evil, Speak No Evil') &&
+				pokemon.getSpeciesForme().includes('Wellspring')) {
+				value.abilityModify(0, 'See No Evil, Hear No Evil, Speak No Evil');
+			}
+			value.abilityModify(0, 'Sure Hit Sorcery');
+			value.abilityModify(0, 'Eyes of Eternity');
+			if (!value.value) return value;
 		}
 
 		// Chaining modifiers
@@ -1835,7 +2007,7 @@ class BattleTooltips {
 		}
 		// Moves which have base power changed due to items
 		if (serverPokemon.item) {
-			let item = Dex.items.get(serverPokemon.item);
+			let item = this.battle.dex.items.get(serverPokemon.item);
 			if (move.id === 'fling' && item.fling) {
 				value.itemModify(item.fling.basePower);
 			}
@@ -2049,6 +2221,76 @@ class BattleTooltips {
 			value.set(0, 'no Terrain');
 		}
 
+		// SSB
+		if (this.battle.tier.includes('Super Staff Bros')) {
+			if (move.id === 'bodycount') {
+				value.set(50 + 50 * pokemon.side.faintCounter,
+					pokemon.side.faintCounter > 0
+						? `${pokemon.side.faintCounter} teammate${pokemon.side.faintCounter > 1 ? 's' : ''} KOed`
+						: undefined);
+			}
+			// Base power based on times hit
+			if (move.id === 'vengefulmood') {
+				value.set(Math.min(140, 60 + 20 * pokemon.timesAttacked),
+					pokemon.timesAttacked > 0
+						? `Hit ${pokemon.timesAttacked} time${pokemon.timesAttacked > 1 ? 's' : ''}`
+						: undefined);
+			}
+			if (move.id === 'alting' && pokemon.shiny) {
+				value.set(69, 'Shiny');
+			}
+			if (move.id === 'darkmooncackle') {
+				let boostCount = 0;
+				for (const boost of Object.values(pokemon.boosts)) {
+					if (boost > 0) boostCount += boost;
+				}
+				value.set(30 + 20 * boostCount);
+			}
+			if (move.id === 'buildingcharacter' && target?.terastallized) {
+				value.modify(2, 'Terastallized target');
+			}
+			if (move.id === 'mysticalbonfire' && target?.status) {
+				value.modify(1.5, 'Mystical Bonfire + status');
+			}
+			if (move.id === 'adaptivebeam' && target && Object.values(target.boosts).some(x => x > 0)) {
+				value.set(0, "Target has more boosts");
+			}
+			if (value.value <= 60) {
+				value.abilityModify(1.5, "Confirmed Town");
+			}
+			if (move.category !== 'Status' && allowTypeOverride && !move.isZ &&
+				!move.isMax && !move.id.startsWith('hiddenpower')) {
+				if (moveType === 'Normal') value.abilityModify(this.battle.gen > 6 ? 1.2 : 1.3, "I Can Hear The Heart Beating As One");
+				value.abilityModify(this.battle.gen > 6 ? 1.2 : 1.3, "Acetosa");
+			}
+			if (move.flags['punch']) {
+				value.abilityModify(1.5, "Harambe Hit");
+			}
+			if (move.flags['slicing']) {
+				value.abilityModify(1.5, "I Can Hear The Heart Beating As One");
+			}
+			if (move.priority > 0) {
+				value.abilityModify(2, "Full Bloom");
+			}
+			if (move.recoil || move.hasCrashDamage) {
+				value.abilityModify(1.2, 'Hogwash');
+				if (pokemon.name === "Billo") {
+					value.modify(1.2);
+				}
+			}
+			if (target?.gender === "M" && pokemon.getSpeciesForme().includes("Hearthflame")) {
+				value.abilityModify(1.3, 'See No Evil, Hear No Evil, Speak No Evil');
+			}
+			for (let i = 1; i <= 5 && i <= pokemon.side.faintCounter; i++) {
+				if (pokemon.volatiles[`fallen${i}`]) {
+					value.abilityModify([1, 1.15, 1.3, 1.45, 1.6, 1.75][i], "Hardcore Hustle");
+				}
+			}
+			let timeDilationBPMod = 1 + (0.1 * Math.floor(this.battle.turn / 10));
+			if (timeDilationBPMod > 2) timeDilationBPMod = 2;
+			value.abilityModify(timeDilationBPMod, "Time Dilation");
+		}
+
 		return value;
 	}
 
@@ -2144,11 +2386,14 @@ class BattleTooltips {
 			value.itemModify(1.2);
 			return value;
 		}
-		if ((speciesName.startsWith('Ogerpon-Wellspring') && itemName === 'Wellspring Mask') ||
-			(speciesName.startsWith('Ogerpon-Hearthflame') && itemName === 'Hearthflame Mask') ||
-			(speciesName.startsWith('Ogerpon-Cornerstone') && itemName === 'Cornerstone Mask')) {
-			value.itemModify(1.2);
-			return value;
+		if (speciesName === 'Ogerpon') {
+			const speciesForme = value.pokemon.getSpeciesForme();
+			if ((speciesForme.startsWith('Ogerpon-Wellspring') && itemName === 'Wellspring Mask') ||
+				(speciesForme.startsWith('Ogerpon-Hearthflame') && itemName === 'Hearthflame Mask') ||
+				(speciesForme.startsWith('Ogerpon-Cornerstone') && itemName === 'Cornerstone Mask')) {
+					value.itemModify(1.2);
+					return value;
+				}
 		}
 
 		// Gems
@@ -2181,17 +2426,13 @@ class BattleTooltips {
 		return false;
 	}
 	getAllyAbility(ally: Pokemon) {
-		// this will only be available if the ability announced itself in some way
-		let allyAbility = Dex.abilities.get(ally.ability).name;
-		// otherwise fall back on the original set data sent from the server
-		if (!allyAbility) {
-			if (this.battle.myAllyPokemon) { // multi battle ally
-				allyAbility = Dex.abilities.get(this.battle.myAllyPokemon[ally.slot].ability).name;
-			} else if (this.battle.myPokemon) {
-				allyAbility = Dex.abilities.get(this.battle.myPokemon[ally.slot].ability).name;
-			}
+		let serverPokemon;
+		if (this.battle.myAllyPokemon) {
+			serverPokemon = this.battle.myAllyPokemon[ally.slot];
+		} else if (this.battle.myPokemon) {
+			serverPokemon = this.battle.myPokemon[ally.slot];
 		}
-		return allyAbility;
+		return ally.effectiveAbility(serverPokemon);
 	}
 	getPokemonAbilityData(clientPokemon: Pokemon | null, serverPokemon: ServerPokemon | null | undefined) {
 		const abilityData: {ability: string, baseAbility: string, possibilities: string[]} = {
@@ -2241,12 +2482,12 @@ class BattleTooltips {
 		if (!isActive) {
 			// for switch tooltips, only show the original ability
 			const ability = abilityData.baseAbility || abilityData.ability;
-			if (ability) text = '<small>Ability:</small> ' + Dex.abilities.get(ability).name;
+			if (ability) text = '<small>Ability:</small> ' + this.battle.dex.abilities.get(ability).name;
 		} else {
 			if (abilityData.ability) {
-				const abilityName = Dex.abilities.get(abilityData.ability).name;
+				const abilityName = this.battle.dex.abilities.get(abilityData.ability).name;
 				text = '<small>Ability:</small> ' + abilityName;
-				const baseAbilityName = Dex.abilities.get(abilityData.baseAbility).name;
+				const baseAbilityName = this.battle.dex.abilities.get(abilityData.baseAbility).name;
 				if (baseAbilityName && baseAbilityName !== abilityName) text += ' (base: ' + baseAbilityName + ')';
 			}
 		}
@@ -2281,7 +2522,7 @@ interface PokemonSet {
 	/** Defaults to random legal gender, NOT subject to gender ratios */
 	gender?: string;
 	/** Defaults to flat 252's (200's/0's in Let's Go) (error in gen 3+) */
-	evs?: StatsTable;
+	evs?: Partial<StatsTable>;
 	/** Defaults to whatever makes sense - flat 31's unless you have Gyro Ball etc */
 	ivs?: StatsTable;
 	/** Defaults as you'd expect (100 normally, 50 in VGC-likes, 5 in LC) */
@@ -2371,9 +2612,10 @@ class BattleStatGuesser {
 
 		if (set.moves.length < 1) return '?';
 		let needsFourMoves = !['unown', 'ditto'].includes(species.id);
+		let hasFourValidMoves = set.moves.length >= 4 && !set.moves.includes('');
 		let moveids = set.moves.map(toID);
 		if (moveids.includes('lastresort' as ID)) needsFourMoves = false;
-		if (set.moves.length < 4 && needsFourMoves && !this.formatid.includes('metronomebattle')) {
+		if (!hasFourValidMoves && needsFourMoves && !this.formatid.includes('metronomebattle')) {
 			return '?';
 		}
 
@@ -2904,7 +3146,153 @@ class BattleStatGuesser {
 	}
 }
 
+function BattleStatOptimizer(set: PokemonSet, formatid: ID) {
+	if (!set.evs) return null;
+
+	const dex = Dex.mod(formatid.slice(0, 4) as ID);
+	const ignoreEVLimits = (
+		dex.gen < 3 ||
+		((formatid.endsWith('hackmons') || formatid.endsWith('bh')) && dex.gen !== 6) ||
+		formatid.includes('metronomebattle') || formatid.endsWith('norestrictions')
+	);
+	const supportsEVs = !formatid.includes('letsgo');
+	if (!supportsEVs || ignoreEVLimits) return false;
+
+	const species = dex.species.get(set.species);
+	const level = set.level || 100;
+	const getStat = (stat: StatNameExceptHP, ev: number, nature: Nature) => {
+		const baseStat = species.baseStats[stat];
+		const iv = set.ivs?.[stat] || 31;
+		let val = ~~(~~(2 * baseStat + iv + ~~(ev / 4)) * level / 100 + 5);
+		if (nature.plus === stat) {
+			val *= 1.1;
+		} else if (nature.minus === stat) {
+			val *= 0.9;
+		}
+		return ~~(val);
+	};
+
+	const origNature = BattleNatures[set.nature || 'Serious'];
+	const origStats = {
+		// no need to calculate hp
+		atk: getStat('atk', set.evs.atk || 0, origNature),
+		def: getStat('def', set.evs.def || 0, origNature),
+		spa: getStat('spa', set.evs.spa || 0, origNature),
+		spd: getStat('spd', set.evs.spd || 0, origNature),
+		spe: getStat('spe', set.evs.spe || 0, origNature),
+	};
+	const getMinEVs = (stat: StatNameExceptHP, nature: Nature) => {
+		let ev = 0;
+		while (getStat(stat, ev, nature) < origStats[stat]) {
+			ev += 4;
+		}
+		return ev;
+	};
+
+	const origSpread = {evs: set.evs, ...origNature};
+	let origLeftoverEVs = 508;
+	for (const stat of Dex.statNames) {
+		origLeftoverEVs -= origSpread.evs?.[stat] || 0;
+	}
+	// Only check for optimizations if EVs are completed
+	if (origLeftoverEVs > 4) return null;
+
+	// Can't move the plus if it boosts its stat past normal EV limit
+	const plusTooHigh = origNature.plus && getStat(origNature.plus, 252, {}) < origStats[origNature.plus];
+	// Can't move the minus if there's no investment in its stat to redistribute
+	const minusTooLow = origNature.minus && !origSpread.evs?.[origNature.minus];
+	// If we can't move either of them, do nothing
+	if (plusTooHigh && minusTooLow) return null;
+
+	let bestPlus = origNature.plus;
+	let bestPlusMinEVs = bestPlus && origSpread.evs[bestPlus];
+	let bestMinus = origNature.minus || 'atk';
+	let bestMinusMinEVs = origSpread.evs[bestMinus];
+	let savedEVs = 0;
+
+	// Try and move the minus first, as figuring out where the plus should go is harder if the minus hasn't been placed
+	if (!minusTooLow) {
+		for (const stat of Dex.statNamesExceptHP) {
+			if (origStats[stat] < origStats[bestMinus]) {
+				const minEVs = getMinEVs(stat, {minus: stat});
+				if (minEVs > 252) continue;
+				// This number can go negative at this point, but we'll make up for it later (and check to make sure)
+				savedEVs = (origSpread.evs[stat] || 0) - minEVs;
+				if (origNature.minus) {
+					savedEVs += (origSpread.evs[origNature.minus] || 0) - getMinEVs(origNature.minus, {minus: stat});
+				}
+				bestMinus = stat;
+				bestMinusMinEVs = minEVs;
+			}
+		}
+	}
+	if (!plusTooHigh) {
+		for (const stat of Dex.statNamesExceptHP) {
+			// Don't move the plus to an uninvested stat
+			if (stat !== origNature.plus && origSpread.evs[stat] && stat !== bestMinus) {
+				const minEVs = getMinEVs(stat, {plus: stat});
+				let plusEVsSaved = (origNature.minus === stat ? getMinEVs(stat, {}) : origSpread.evs[stat] || 0) - minEVs;
+				if (bestPlus && bestPlus !== bestMinus) {
+					plusEVsSaved += bestPlusMinEVs! - getMinEVs(bestPlus, {plus: stat, minus: bestMinus});
+				}
+				if (plusEVsSaved > 0 && savedEVs + plusEVsSaved > 0) {
+					savedEVs += plusEVsSaved;
+					bestPlus = stat;
+					bestPlusMinEVs = minEVs;
+				} else if (plusEVsSaved === 0 && (bestPlus || savedEVs > 0) || plusEVsSaved > 0 && savedEVs + plusEVsSaved === 0) {
+					if (!bestPlus || getStat(stat, getMinEVs(stat, {plus: stat}), {plus: stat}) > origStats[stat]) {
+						savedEVs += plusEVsSaved;
+						bestPlus = stat;
+						bestPlusMinEVs = minEVs;
+					}
+				}
+			}
+		}
+	}
+
+	if (bestPlus && savedEVs >= 0) {
+		const newSpread: {
+			evs: Partial<StatsTable>,
+			plus?: StatNameExceptHP,
+			minus?: StatNameExceptHP,
+		} = {evs: {...origSpread.evs}, plus: bestPlus, minus: bestMinus};
+		if (bestPlus !== origNature.plus || bestMinus !== origNature.minus) {
+			newSpread.evs[bestPlus] = bestPlusMinEVs!;
+			newSpread.evs[bestMinus] = bestMinusMinEVs!;
+			if (origNature.plus && origNature.plus !== bestPlus && origNature.plus !== bestMinus) {
+				newSpread.evs[origNature.plus] = getMinEVs(origNature.plus, newSpread);
+			}
+			if (origNature.minus && origNature.minus !== bestPlus && origNature.minus !== bestMinus) {
+				newSpread.evs[origNature.minus] = getMinEVs(origNature.minus, newSpread);
+			}
+			for (const stat of Dex.statNames) {
+				if (!newSpread.evs[stat]) delete newSpread.evs[stat];
+			}
+			return {...newSpread, savedEVs};
+		} else if (!plusTooHigh && !minusTooLow) {
+			if (Math.floor(getStat(bestPlus, bestMinusMinEVs!, newSpread) / 11) <= Math.ceil(origStats[bestMinus] / 9)) {
+				// We're not gaining more points from our plus than we're losing to our minus
+				// So a neutral nature would be better
+				delete newSpread.plus;
+				delete newSpread.minus;
+				newSpread.evs[origNature.plus] = getMinEVs(origNature.plus, newSpread);
+				newSpread.evs[origNature.minus] = getMinEVs(origNature.minus, newSpread);
+				savedEVs += (origSpread.evs[origNature.plus] || 0) - newSpread.evs[origNature.plus]!;
+				savedEVs += (origSpread.evs[origNature.minus] || 0) - newSpread.evs[origNature.minus]!;
+				if (savedEVs < 0) return null;
+				for (const stat of Dex.statNames) {
+					if (!newSpread.evs[stat]) delete newSpread.evs[stat];
+				}
+				return {...newSpread, savedEVs};
+			}
+		}
+	}
+
+	return null;
+}
+
 if (typeof require === 'function') {
 	// in Node
 	(global as any).BattleStatGuesser = BattleStatGuesser;
+	(global as any).BattleStatOptimizer = BattleStatOptimizer;
 }

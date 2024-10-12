@@ -245,6 +245,14 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 		case 'mega':
 			choices.current.mega = checkbox.checked;
 			break;
+		case 'megax':
+			choices.current.megax = checkbox.checked;
+			choices.current.megay = false;
+			break;
+		case 'megay':
+			choices.current.megay = checkbox.checked;
+			choices.current.megax = false;
+			break;
 		case 'ultra':
 			choices.current.ultra = checkbox.checked;
 			break;
@@ -549,6 +557,8 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 
 			const canDynamax = moveRequest.canDynamax && !choices.alreadyMax;
 			const canMegaEvo = moveRequest.canMegaEvo && !choices.alreadyMega;
+			const canMegaEvoX = moveRequest.canMegaEvoX && !choices.alreadyMega;
+			const canMegaEvoY = moveRequest.canMegaEvoY && !choices.alreadyMega;
 			const canZMove = moveRequest.zMoves && !choices.alreadyZ;
 
 			if (choices.current.move) {
@@ -587,6 +597,14 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 						{canMegaEvo && <label class={`megaevo${choices.current.mega ? ' cur' : ''}`}>
 							<input type="checkbox" name="mega" checked={choices.current.mega} onChange={this.toggleBoostedMove} /> {}
 							Mega Evolution
+						</label>}
+						{canMegaEvoX && <label class={`megaevo${choices.current.mega ? ' cur' : ''}`}>
+							<input type="checkbox" name="megax" checked={choices.current.megax} onChange={this.toggleBoostedMove} /> {}
+							Mega Evolution X
+						</label>}
+						{canMegaEvoY && <label class={`megaevo${choices.current.mega ? ' cur' : ''}`}>
+							<input type="checkbox" name="megay" checked={choices.current.megay} onChange={this.toggleBoostedMove} /> {}
+							Mega Evolution Y
 						</label>}
 						{moveRequest.canUltraBurst && <label class={`megaevo${choices.current.ultra ? ' cur' : ''}`}>
 							<input type="checkbox" name="ultra" checked={choices.current.ultra} onChange={this.toggleBoostedMove} /> {}

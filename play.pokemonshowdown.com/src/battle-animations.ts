@@ -107,8 +107,8 @@ export class BattleScene implements BattleSceneStub {
 				if (pokemon) return pokemon.speciesForme;
 			}
 			if (!pokemonId.startsWith('p')) return '???pokemon:' + pokemonId + '???';
-			if (pokemonId.charAt(3) === ':') return pokemonId.slice(4).trim();
-			else if (pokemonId.charAt(2) === ':') return pokemonId.slice(3).trim();
+			if (pokemonId.charAt(3) === ':') return BattleTextParser.escapeReplace(pokemonId.slice(4).trim());
+			else if (pokemonId.charAt(2) === ':') return BattleTextParser.escapeReplace(pokemonId.slice(3).trim());
 			return '???pokemon:' + pokemonId + '???';
 		};
 
@@ -690,7 +690,34 @@ export class BattleScene implements BattleSceneStub {
 		pokemonhtml = '<div class="teamicons">' + pokemonhtml + '</div>';
 		const ratinghtml = side.rating ? ` title="Rating: ${BattleLog.escapeHTML(side.rating)}"` : ``;
 		const faded = side.name ? `` : ` style="opacity: 0.4"`;
-		return `<div class="trainer trainer-${posStr}"${faded}><strong>${BattleLog.escapeHTML(side.name)}</strong><div class="trainersprite"${ratinghtml} style="background-image:url(${Dex.resolveAvatar(side.avatar)})"></div>${pokemonhtml}</div>`;
+		let badgehtml = '';
+		if (side.badges.length) {
+			badgehtml = '<span class="badges">';
+			// hard limiting it to only ever 3 allowed at a time
+			// that's what the server limit is anyway but there should be a client limit too
+			// just in case
+			for (const badgeData of side.badges.slice(0, 3)) {
+				// ${badge.type}|${badge.format}|${BADGE_THRESHOLDS[badge.type]}-${badge.season}
+				const [type, format, details] = badgeData.split('|');
+				// todo, maybe make this more easily configured if we ever add badges for other stuff?
+				// but idk that we're planning that for now so
+				const [threshold] = details.split('-');
+				const hover = `User is Top ${threshold} on the ${format} Ladder`;
+				// ou and randbats get diff badges from everyone else, find it
+				// (regex futureproofs for double digit gens)
+				let formatType = format.split(/gen\d+/)[1] || 'none';
+				if (!['ou', 'randombattle'].includes(formatType)) {
+					formatType = 'rotating';
+				}
+				badgehtml += `<img src="${Dex.resourcePrefix}/sprites/misc/${formatType}_${type}.png" style="padding: 0px 1px 0px 1px" width="16px" height="16px" title="${hover}" />`;
+			}
+			badgehtml += '</span>';
+		}
+		return (
+			`<div class="trainer trainer-${posStr}"${faded}><strong>${BattleLog.escapeHTML(side.name)}</strong>` +
+			`<div class="trainersprite"${ratinghtml} style="background-image:url(${Dex.resolveAvatar(side.avatar)})">` +
+			`</div>${badgehtml}${pokemonhtml}</div>`
+		);
 	}
 	updateSidebar(side: Side) {
 		if (this.battle.gameType === 'freeforall') {
@@ -1368,7 +1395,7 @@ export class BattleScene implements BattleSceneStub {
 
 	typeAnim(pokemon: Pokemon, types: string) {
 		const result = BattleLog.escapeHTML(types).split('/').map(type =>
-			'<img src="' + Dex.resourcePrefix + 'sprites/types/' + type + '.png" alt="' + type + '" class="pixelated" />'
+			'<img src="' + Dex.resourcePrefix + 'sprites/types/' + encodeURIComponent(type) + '.png" alt="' + type + '" class="pixelated" />'
 		).join(' ');
 		this.resultAnim(pokemon, result, 'neutral');
 	}
@@ -1489,8 +1516,8 @@ export class BattleScene implements BattleSceneStub {
 	updateStatbarIfExists(pokemon: Pokemon, updatePrevhp?: boolean, updateHp?: boolean) {
 		return pokemon.sprite.updateStatbarIfExists(pokemon, updatePrevhp, updateHp);
 	}
-	animTransform(pokemon: Pokemon, isCustomAnim?: boolean, isPermanent?: boolean) {
-		return pokemon.sprite.animTransform(pokemon, isCustomAnim, isPermanent);
+	animTransform(pokemon: Pokemon, useSpeciesAnim?: boolean, isPermanent?: boolean) {
+		return pokemon.sprite.animTransform(pokemon, useSpeciesAnim, isPermanent);
 	}
 	clearEffects(pokemon: Pokemon) {
 		return pokemon.sprite.clearEffects();
@@ -2473,7 +2500,12 @@ export class PokemonSprite extends Sprite {
 			});
 		}
 	}
-	animTransform(pokemon: Pokemon, isCustomAnim?: boolean, isPermanent?: boolean) {
+	/**
+	 * @param pokemon
+	 * @param useSpeciesAnim false = Transform the move or Imposter the ability
+	 * @param isPermanent false = reverts on switch-out
+	 */
+	animTransform(pokemon: Pokemon, useSpeciesAnim?: boolean, isPermanent?: boolean) {
 		if (!this.scene.animating && !isPermanent) return;
 		let sp = Dex.getSpriteData(pokemon, this.isFrontSprite, {
 			gen: this.scene.gen,
@@ -2500,8 +2532,9 @@ export class PokemonSprite extends Sprite {
 		if (!this.scene.animating) return;
 		let speciesid = toID(pokemon.getSpeciesForme());
 		let doCry = false;
+		let skipAnim = false;
 		const scene = this.scene;
-		if (isCustomAnim) {
+		if (useSpeciesAnim) {
 			if (speciesid === 'kyogreprimal') {
 				BattleOtherAnims.primalalpha.anim(scene, [this]);
 				doCry = true;
@@ -2517,8 +2550,11 @@ export class PokemonSprite extends Sprite {
 				BattleOtherAnims.schoolingin.anim(scene, [this]);
 			} else if (speciesid === 'wishiwashi') {
 				BattleOtherAnims.schoolingout.anim(scene, [this]);
-			} else if (speciesid === 'mimikyubusted' || speciesid === 'mimikyubustedtotem') {
+			} else if (speciesid === 'mimikyubusted' || speciesid === 'mimikyubustedtotem' ||
+				speciesid === 'aegislash' || speciesid === 'aegislashblade') {
 				// standard animation
+			} else if (speciesid === 'palafinhero') {
+				skipAnim = true;
 			} else {
 				BattleOtherAnims.megaevo.anim(scene, [this]);
 				doCry = true;
@@ -2534,9 +2570,10 @@ export class PokemonSprite extends Sprite {
 			xscale: 0,
 			opacity: 0,
 		}, sp));
-		if (speciesid === 'palafinhero') {
+		if (skipAnim) {
 			this.$el.replaceWith($newEl);
 			this.$el = $newEl;
+			this.animReset();
 		} else {
 			this.$el.animate(this.scene.pos({
 				x: this.x,
