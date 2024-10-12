@@ -926,7 +926,10 @@ Storage.fastUnpackTeam = function (buf) {
 		// move PP ups
 		if (buf.charAt(j) === ';') {
 			j = buf.indexOf('|', i);
-			set.movePPUps = buf.substring(i, j).split(',').map(number => parseInt(number));
+			set.movePPUps = buf.substring(i, j).split(',');
+			for (var index = 0; index < set.movePPUps.length; index++) {
+				set.movePPUps[index] = parseInt(set.movePPUps[index], 10);
+			}
 			i = j + 1;
 		}
 
@@ -1056,7 +1059,10 @@ Storage.unpackTeam = function (buf) {
 		if (buf.charAt(j) === ';') {
 			j = buf.indexOf('|', i);
 			if (j < 0) return null;
-			set.movePPUps = buf.substring(i, j).split(',').map(number => parseInt(number));
+			set.movePPUps = buf.substring(i, j).split(',');
+			for (var index = 0; index < set.movePPUps.length; index++) {
+				set.movePPUps[index] = parseInt(set.movePPUps[index], 10);
+			}
 			i = j + 1;
 		}
 
@@ -1369,14 +1375,14 @@ Storage.importTeam = function (buffer, teams) {
 			if (line === 'Frustration' && curSet.happiness === undefined) {
 				curSet.happiness = 0;
 			}
-			var [move, movePPUps] = line.split(' (PP Ups: ', 2);
-			curSet.moves.push(move);
+			var moveAndPPUps = line.split(' (PP Ups: ', 2);
+			curSet.moves.push(moveAndPPUps[0]);
 			if (!curSet.movePPUps) curSet.movePPUps = [];
-			if (movePPUps && movePPUps.length > 1) movePPUps = movePPUps.charAt(0);
-			if (isNaN(movePPUps)) {
+			if (moveAndPPUps[1] && moveAndPPUps[1].length > 1) moveAndPPUps[1] = moveAndPPUps[1].charAt(0);
+			if (isNaN(moveAndPPUps[1])) {
 				curSet.movePPUps.push(3);
 			} else {
-				curSet.movePPUps.push(parseInt(movePPUps));
+				curSet.movePPUps.push(parseInt(moveAndPPUps[1], 10));
 			}
 		}
 	}
