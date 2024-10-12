@@ -1369,9 +1369,10 @@ Storage.importTeam = function (buffer, teams) {
 			if (line === 'Frustration' && curSet.happiness === undefined) {
 				curSet.happiness = 0;
 			}
-			var [move, movePPUps] = line.split(';', 2);
+			var [move, movePPUps] = line.split(' (PP Ups: ', 2);
 			curSet.moves.push(move);
 			if (!curSet.movePPUps) curSet.movePPUps = [];
+			if (movePPUps && movePPUps.length > 1) movePPUps = movePPUps.charAt(0);
 			if (isNaN(movePPUps)) {
 				curSet.movePPUps.push(3);
 			} else {
@@ -1526,7 +1527,7 @@ Storage.exportTeam = function (team, gen, hidestats) {
 			}
 			if (move) {
 				text += '- ' + move;
-				if (curSet.movePPUps && curSet.movePPUps[j] < 3) text += ";" + curSet.movePPUps[j];
+				if (curSet.movePPUps && curSet.movePPUps[j] < 3) text += " (PP Ups: " + curSet.movePPUps[j] + ")";
 				text += "  \n";
 			}
 		}
