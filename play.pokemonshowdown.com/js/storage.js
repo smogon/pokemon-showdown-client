@@ -1527,7 +1527,9 @@ Storage.exportTeam = function (team, gen, hidestats) {
 			}
 			if (move) {
 				text += '- ' + move;
-				if (curSet.movePPUps && curSet.movePPUps[j] < 3) text += " (PP Ups: " + curSet.movePPUps[j] + ")";
+				if (curSet.movePPUps && curSet.movePPUps[j] && curSet.movePPUps[j] < 3) {
+					text += " (PP Ups: " + curSet.movePPUps[j] + ")";
+				}
 				text += "  \n";
 			}
 		}
