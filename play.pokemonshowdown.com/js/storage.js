@@ -888,7 +888,7 @@ Storage.fastUnpackTeam = function (buf) {
 	if (!buf) return [];
 
 	var team = [];
-	var i = 0, j = 0;
+	var i = 0, j = 0, k = 0;
 
 	while (true) {
 		var set = {};
@@ -919,7 +919,8 @@ Storage.fastUnpackTeam = function (buf) {
 
 		// moves
 		j = buf.indexOf(';', i);
-		if (j < 0) j = buf.indexOf('|', i);
+		k = buf.indexOf('|', i);
+		if (j < 0 || j > k) j = k;
 		set.moves = buf.substring(i, j).split(',');
 		i = j + 1;
 
@@ -1016,7 +1017,7 @@ Storage.unpackTeam = function (buf) {
 	if (!buf) return [];
 
 	var team = [];
-	var i = 0, j = 0;
+	var i = 0, j = 0, k = 0;
 
 	while (true) {
 		var set = {};
@@ -1046,8 +1047,9 @@ Storage.unpackTeam = function (buf) {
 
 		// moves
 		j = buf.indexOf(';', i);
-		if (j < 0) {
-			j = buf.indexOf('|', i);
+		k = buf.indexOf('|', i);
+		if (j < 0 || j > k) {
+			j = k;
 			if (j < 0) return null;
 		}
 		set.moves = buf.substring(i, j).split(',').map(function (moveid) {
