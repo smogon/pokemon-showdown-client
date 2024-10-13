@@ -151,7 +151,7 @@ class PSTeambuilder {
 			);
 
 			if (PPUps) {
-				set.movePPUps = PPUps.split(',').map(number => parseInt(number));
+				set.movePPUps = PPUps.split(',').map(n => parseInt(n, 10));
 			}
 
 			// nature
@@ -422,7 +422,7 @@ class PSTeambuilder {
 				}
 			}
 			if (!set.movePPUps) set.movePPUps = [];
-			set.movePPUps.push(parseInt(PPUps?.charAt(0)) || 3);
+			set.movePPUps.push(parseInt(PPUps?.charAt(0), 10) || 3);
 			if (line === 'Frustration' && set.happiness === undefined) {
 				set.happiness = 0;
 			}
