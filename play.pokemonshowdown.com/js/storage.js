@@ -1074,7 +1074,7 @@ Storage.unpackTeam = function (buf) {
 			set.movePPUps = buf.substring(i, j).split(',');
 			for (var index = 0; index < set.movePPUps.length; index++) {
 				set.movePPUps[index] = parseInt(set.movePPUps[index], 10);
-				if (!set.movePPUps[index]) set.movePPUps[index] = 3;
+				if (isNaN(set.movePPUps[index])) set.movePPUps[index] = 3;
 			}
 			i = j + 1;
 		}
