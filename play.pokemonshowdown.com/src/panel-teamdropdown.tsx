@@ -45,7 +45,7 @@ class PSTeambuilder {
 				const PPUps = set.movePPUps.map(n => {
 					if (n === 3) return '';
 					return n.toString();
-				})
+				});
 				buf += ';' + PPUps.join(',');
 			}
 

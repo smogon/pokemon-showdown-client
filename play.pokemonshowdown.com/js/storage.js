@@ -817,7 +817,7 @@ Storage.packTeam = function (team) {
 			var PPUps = '';
 			var showPPUps = false;
 			for (var j = 0; j < set.movePPUps.length; j++) {
-				if (j) PPUps += ','
+				if (j) PPUps += ',';
 				if (set.movePPUps[j] < 3) {
 					PPUps += set.movePPUps[j];
 					showPPUps = true;
@@ -939,7 +939,7 @@ Storage.fastUnpackTeam = function (buf) {
 			set.movePPUps = buf.substring(i, j).split(',');
 			for (var index = 0; index < set.movePPUps.length; index++) {
 				set.movePPUps[index] = parseInt(set.movePPUps[index], 10);
-				if (!set.movePPUps[index]) set.movePPUps[index] === 3;
+				if (!set.movePPUps[index]) set.movePPUps[index] = 3;
 			}
 			i = j + 1;
 		}
@@ -1074,7 +1074,7 @@ Storage.unpackTeam = function (buf) {
 			set.movePPUps = buf.substring(i, j).split(',');
 			for (var index = 0; index < set.movePPUps.length; index++) {
 				set.movePPUps[index] = parseInt(set.movePPUps[index], 10);
-				if (!set.movePPUps[index]) set.movePPUps[index] === 3;
+				if (!set.movePPUps[index]) set.movePPUps[index] = 3;
 			}
 			i = j + 1;
 		}
