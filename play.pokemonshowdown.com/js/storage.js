@@ -814,7 +814,16 @@ Storage.packTeam = function (team) {
 
 		// move PP ups
 		if (set.movePPUps) {
-			buf += ';' + set.movePPUps.join(',');
+			var PPUps = '';
+			var showPPUps = false;
+			for (var j = 0; j < set.movePPUps.length; j++) {
+				if (j) PPUps += ','
+				if (set.movePPUps[j] < 3) {
+					PPUps += set.movePPUps[j];
+					showPPUps = true;
+				}
+			}
+			if (showPPUps) buf += ';' + PPUps;
 		}
 
 		// nature
@@ -930,6 +939,7 @@ Storage.fastUnpackTeam = function (buf) {
 			set.movePPUps = buf.substring(i, j).split(',');
 			for (var index = 0; index < set.movePPUps.length; index++) {
 				set.movePPUps[index] = parseInt(set.movePPUps[index], 10);
+				if (!set.movePPUps[index]) set.movePPUps[index] === 3;
 			}
 			i = j + 1;
 		}
@@ -1064,6 +1074,7 @@ Storage.unpackTeam = function (buf) {
 			set.movePPUps = buf.substring(i, j).split(',');
 			for (var index = 0; index < set.movePPUps.length; index++) {
 				set.movePPUps[index] = parseInt(set.movePPUps[index], 10);
+				if (!set.movePPUps[index]) set.movePPUps[index] === 3;
 			}
 			i = j + 1;
 		}
@@ -1380,7 +1391,7 @@ Storage.importTeam = function (buffer, teams) {
 			var moveAndPPUps = line.split(' (PP Ups: ', 2);
 			curSet.moves.push(moveAndPPUps[0]);
 			if (!curSet.movePPUps) curSet.movePPUps = [];
-			if (moveAndPPUps[1] && moveAndPPUps[1].length > 1) moveAndPPUps[1] = moveAndPPUps[1].charAt(0);
+			if (moveAndPPUps[1]) moveAndPPUps[1] = moveAndPPUps[1].charAt(0);
 			if (isNaN(moveAndPPUps[1])) {
 				curSet.movePPUps.push(3);
 			} else {
@@ -1535,7 +1546,7 @@ Storage.exportTeam = function (team, gen, hidestats) {
 			}
 			if (move) {
 				text += '- ' + move;
-				if (curSet.movePPUps && curSet.movePPUps[j] && curSet.movePPUps[j] < 3) {
+				if (curSet.movePPUps && !isNaN(curSet.movePPUps[j]) && curSet.movePPUps[j] < 3) {
 					text += " (PP Ups: " + curSet.movePPUps[j] + ")";
 				}
 				text += "  \n";

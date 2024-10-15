@@ -41,8 +41,12 @@ class PSTeambuilder {
 				}
 			}
 
-			if (set.movePPUps) {
-				buf += ';' + set.movePPUps.join(',');
+			if (set.movePPUps && set.movePPUps.some(n => n < 3)) {
+				const PPUps = set.movePPUps.map(n => {
+					if (n === 3) return '';
+					return n.toString();
+				})
+				buf += ';' + PPUps.join(',');
 			}
 
 			// nature
@@ -151,7 +155,10 @@ class PSTeambuilder {
 			);
 
 			if (PPUps) {
-				set.movePPUps = PPUps.split(',').map(n => parseInt(n, 10));
+				set.movePPUps = PPUps.split(',').map(n => {
+					if (!n) return 3;
+					return parseInt(n, 10);
+				});
 			}
 
 			// nature
