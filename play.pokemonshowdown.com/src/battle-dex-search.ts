@@ -1574,7 +1574,7 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 		case 'wildcharge':
 			return !moves.includes('supercellslam');
 		case 'zapcannon':
-			return abilityid === 'noguard' || dex.gen < 4 && !moves.includes('thunderwave');
+			return abilityid === 'noguard' || (dex.gen < 4 && !moves.includes('thunderwave'));
 		}
 
 		if (this.formatType === 'doubles' && BattleMoveSearch.GOOD_DOUBLES_MOVES.includes(id)) {
