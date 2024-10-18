@@ -1099,7 +1099,8 @@
 			buf += '<p>If this is your account:</p>';
 			buf += '<p><label class="label">Username: <strong><input type="text" name="username" value="' + BattleLog.escapeHTML(data.username) + '" style="color:inherit;background:transparent;border:0;font:inherit;font-size:inherit;display:block" readonly autocomplete="username" /></strong></label></p>';
 			if (data.special === '@gmail') {
-				buf += '<div id="gapi-custom-signin" style="width:240px;margin:0 auto">[loading Google log-in button]</div>';
+				buf += '<div id="g_id_onload" data-client_id="912270888098-jjnre816lsuhc5clj3vbcn4o2q7p4qvk.apps.googleusercontent.com" data-context="signin" data-ux_mode="popup" data-callback="gapiCallback" data-auto_prompt="false"></div>';
+				buf += '<div class="g_id_signin" data-type="standard" data-shape="pill" data-theme="filled_blue" data-text="continue_with" data-size="large" data-logo_alignment="left" data-auto_select="true" data-itp_support="true" style="width:fit-content;margin:0 auto">[loading Google log-in button]</div>';
 				buf += '<p class="buttonbar"><button name="close" class="button">Cancel</button></p>';
 			} else {
 				buf += '<p><label class="label">Password: <input class="textbox autofocus" type="password" name="password" autocomplete="current-password" style="width:173px"><button type="button" name="showPassword" aria-label="Show password" style="float:right;margin:-21px 0 10px;padding: 2px 6px" class="button"><i class="fa fa-eye"></i></button></label></p>';
@@ -1115,50 +1116,14 @@
 
 			if (data.special === '@gmail') {
 				var self = this;
-				window.gapiRenderButton = function () {
-					if (!window.gapiAuthenticated) {
-						gapi.load('auth2', function () { // eslint-disable-line no-undef
-							window.gapiAuthenticated = gapi.auth2.init({ // eslint-disable-line no-undef
-								client_id: '912270888098-jjnre816lsuhc5clj3vbcn4o2q7p4qvk.apps.googleusercontent.com',
-							});
-							window.gapiAuthenticated.then(function () {
-								window.gapiAuthenticated = true;
-								window.gapiRenderButton();
-							});
-						});
-						return;
-					}
-					// they're trying again in a new popup, set a new .then so it still works
-					if (window.gapiAuthenticated.then) {
-						window.gapiAuthenticated.then(function () {
-							window.gapiAuthenticated = true;
-							window.gapiRenderButton();
-						});
-						return;
-					}
-					gapi.signin2.render('gapi-custom-signin', { // eslint-disable-line no-undef
-						'scope': 'profile email',
-						'width': 240,
-						'height': 50,
-						'longtitle': true,
-						'theme': 'dark',
-						'onsuccess': function (googleUser) {
-							// var profile = googleUser.getBasicProfile();
-							var id_token = googleUser.getAuthResponse().id_token;
-							self.close();
-							app.user.passwordRename(data.username, id_token, data.special);
-						},
-						'onfailure': function (googleUser) {
-							alert('sign-in failed');
-						}
-					});
+				window.gapiCallback = function (response) {
+					app.user.passwordRename(data.username, response.credential, data.special);
+					self.close();
 				};
-				if (window.gapiLoaded) return setTimeout(window.gapiRenderButton, 100);
-				window.gapiLoaded = true;
 
 				var script = document.createElement('script');
 				script.async = true;
-				script.src = 'https://apis.google.com/js/platform.js?onload=gapiRenderButton';
+				script.src = 'https://accounts.google.com/gsi/client';
 				document.getElementsByTagName('head')[0].appendChild(script);
 			}
 		},
