@@ -202,7 +202,7 @@ try {
 	let indexContentsOld = indexContents;
 	indexContents = indexContents.replace(/<!-- head custom -->/g, '' + fs.readFileSync('config/head-custom.html'));
 	indexContents2 = indexContentsOld.replace(/<!-- head custom -->/g, '' + fs.readFileSync('config/head-custom-test.html'));
-	indexContents2 = indexContents2.replace(/src="\/\/play.pokemonshowdown.com\/config\/config.js\?[a-z0-9]*"/, 'src="//play.pokemonshowdown.com/config/config-test.js?3"');
+	indexContents2 = indexContents2.replace(/src="\/\/play.pokemonshowdown.com\/config\/config.js\?[a-z0-9]*"/, 'src="//play.pokemonshowdown.com/config/config-test.js?4"');
 } catch (e) {}
 
 fs.writeFileSync('play.pokemonshowdown.com/index.html', indexContents);
