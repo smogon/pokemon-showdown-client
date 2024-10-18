@@ -334,7 +334,7 @@ export class Session {
 		}
 		return user;
 	}
-	static oauth = new gal.OAuth2Client(Config.gapi_clientid, '', '');
+	static oauth = new gal.OAuth2Client();
 	async changePassword(name: string, pass: string) {
 		const userid = toID(name);
 
@@ -405,19 +405,17 @@ export class Session {
 		const userData = await users.get(userid);
 		if (userData?.email?.endsWith('@')) {
 			try {
-				const payload = await new Promise<{[k: string]: any} | null>((resolve, reject) => {
-					Session.oauth.verifyIdToken({
-						idToken: pass,
-						audience: Config.gapi_clientid,
-					}, (e, login) => {
-						if (e) return reject(e);
-						resolve(login?.getPayload() || null);
-					});
+				const ticket = await Session.oauth.verifyIdToken({
+					idToken: pass,
+					audience: Config.gapi_clientid,
 				});
-				if (!payload) return false; // dunno why this would happen.
-				if (!payload.aud.includes(Config.gapi_clientid)) return false;
-				return payload.email === userData.email.slice(0, -1);
-			} catch {
+				const payload = ticket.getPayload()!; // dunno why this would happen.
+				if (payload.email?.toLowerCase() !== userData.email.slice(0, -1).toLowerCase()) {
+					throw new ActionError(`Wrong Google account for this Showdown account (must be ${userData.email.slice(0, -1)} not ${payload.email})`);
+				}
+				return true;
+			} catch (e) {
+				// throw new ActionError(`OAuth error: ${e}`);
 				return false;
 			}
 		}

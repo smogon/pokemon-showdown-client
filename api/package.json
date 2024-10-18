@@ -15,8 +15,8 @@
   },
   "dependencies": {
     "bcrypt": "^5.0.1",
-    "google-auth-library": "^3.1.2",
-    "mysql2": "^3.9.4",
+    "google-auth-library": "^9.14.2",
+    "mysql2": "^3.9.8",
     "pg": "^8.11.3",
     "pm2": "^5.1.2",
     "testcontainers": "^9.1.1"
