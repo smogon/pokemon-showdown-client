@@ -178,13 +178,18 @@
 			var $lastLi = $lastUl.children().last();
 			var offset = $lastLi.offset();
 			var width = $lastLi.outerWidth();
-			// 166 here is the difference between the .maintabbar's right margin and the a.button's right margin.
-			var overflow = offset.left + width + 166 - $(window).width();
+			// adjust the margin to the responsive margin of the main tab bar plus 1
+			var dynamicMargin = 166;
+			if (599 > $(window).width() >= 659) dynamicMargin = 226;
+			if (659 > $(window).width() >= 1023) dynamicMargin = 191;
+			if (1023 > $(window).width() >= 1439) dynamicMargin = 241;
+			if ($(window).width() > 1439) dynamicMargin = 321;
+			var overflow = offset.left + dynamicMargin - $(window).width();
 			if (app.curSideRoom && overflow > 0) {
 				margin -= overflow;
 				$lastUl.css('margin-left', margin + 'px');
 				offset = $lastLi.offset();
-				overflow = offset.left + width + 166 - $(window).width();
+				overflow = offset.left + width + dynamicMargin - $(window).width();
 			}
 			if (offset.top >= 37 || overflow > 0) {
 				this.$tabbar.append('<div class="overflow" aria-hidden="true"><button name="tablist" class="button" aria-label="More"><i class="fa fa-caret-down"></i></button></div>');
