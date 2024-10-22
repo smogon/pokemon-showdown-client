@@ -398,7 +398,7 @@ export const actions: {[k: string]: QueryHandler} = {
 						reqs: {required: reqs, actual: userData},
 						suspectStartDate: suspects[formatid].startDate,
 					});
-					void fetch("https://smogon.com/tools/api/suspect-verify", {
+					void fetch("https://www.smogon.com/tools/api/suspect-verify", {
 						method: 'POST',
 						body: new URLSearchParams({
 							data,
