@@ -67,6 +67,15 @@ if (Config.coilpath) {
 	watchFile(Config.coilpath, () => Object.assign(coil, loadData(Config.coilpath)));
 }
 
+const redundantFetch = async (targetUrl: string, data: RequestInit, attempts = 0): Promise<void> => {
+	if (attempts >= 10) return;
+	try {
+		await fetch(targetUrl, data);
+	} catch (e: any) {
+		if (e.code === 400) return console.error('400 on Smogon request', e, data);
+		return redundantFetch(targetUrl, data, attempts + 1);
+	}
+};
 
 export const actions: {[k: string]: QueryHandler} = {
 	async register(params) {
@@ -398,14 +407,12 @@ export const actions: {[k: string]: QueryHandler} = {
 						reqs: {required: reqs, actual: userData},
 						suspectStartDate: suspects[formatid].startDate,
 					});
-					void fetch("https://www.smogon.com/tools/api/suspect-verify", {
+					void redundantFetch("https://www.smogon.com/tools/api/suspect-verify", {
 						method: 'POST',
 						body: new URLSearchParams({
 							data,
 							hash: await signAsync("RSA-SHA1", data, Config.privatekey),
 						}),
-					}).catch(e => {
-						console.error("Smogon request failed", e, {data, params});
 					});
 				}
 			}
