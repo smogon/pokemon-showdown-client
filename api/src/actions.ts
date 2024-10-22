@@ -4,7 +4,7 @@
  * By Mia
  * @author mia-pi-git
  */
-import {promises as fs, readFileSync} from 'fs';
+import {promises as fs, readFileSync, watchFile} from 'fs';
 import * as pathModule from 'path';
 import * as crypto from 'crypto';
 import * as url from 'url';
@@ -56,6 +56,17 @@ function loadData(path: string | null) {
 type SuspectReqs = Partial<{elo: number, gxe: number, coil: number}>;
 const suspects: Record<string, {startDate: number, reqs: SuspectReqs}> = loadData(Config.suspectpath);
 const coil: Record<string, number> = loadData(Config.coilpath);
+
+if (Config.suspectpath) {
+	watchFile(
+		Config.suspectpath,
+		() => Object.assign(suspects, loadData(Config.suspectpath))
+	);
+}
+if (Config.coilpath) {
+	watchFile(Config.coilpath, () => Object.assign(coil, loadData(Config.coilpath)));
+}
+
 
 export const actions: {[k: string]: QueryHandler} = {
 	async register(params) {
