@@ -411,7 +411,9 @@ export class Session {
 				});
 				const payload = ticket.getPayload()!; // dunno why this would happen.
 				if (payload.email?.toLowerCase() !== userData.email.slice(0, -1).toLowerCase()) {
-					throw new ActionError(`Wrong Google account for this Showdown account (${payload.email} doesn't match this account)`);
+					throw new ActionError(
+						`Wrong Google account for this Showdown account (${payload.email} doesn't match this account)`
+					);
 				}
 				return true;
 			} catch (e) {

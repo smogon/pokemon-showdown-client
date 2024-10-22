@@ -191,3 +191,9 @@ exports.standings = {
  * Get IPs of a given userid.
  */
 exports.getuserips = null;
+
+/**
+ * @type {string | null}
+ * Index of suspect tests active
+ */
+exports.suspectpath = null;

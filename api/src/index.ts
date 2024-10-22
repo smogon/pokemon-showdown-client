@@ -1,7 +1,6 @@
 /**
  * Initialization.
  */
-import * as fs from 'fs';
 import {Server} from './server';
 export const server = new Server();
 

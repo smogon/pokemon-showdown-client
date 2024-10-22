@@ -43,6 +43,20 @@ const OAUTH_AUTHORIZED_CONTENT = readFileSync(
 	'utf-8'
 );
 
+function loadData(path: string | null) {
+	try {
+		if (!path) throw new Error();
+		const data = readFileSync(path, 'utf-8');
+		return JSON.parse(data);
+	} catch {
+		return {};
+	}
+}
+
+type SuspectReqs = Partial<{elo: number, gxe: number, coil: number}>;
+const suspects: Record<string, {startDate: number, reqs: SuspectReqs}> = loadData(Config.suspectpath);
+const coil: Record<string, number> = loadData(Config.coilpath);
+
 export const actions: {[k: string]: QueryHandler} = {
 	async register(params) {
 		this.verifyCrossDomainRequest();
@@ -321,14 +335,64 @@ export const actions: {[k: string]: QueryHandler} = {
 			return {errorip: this.getIp()};
 		}
 
-		if (!toID(params.format)) throw new ActionError("Invalid format.");
+		const formatid = toID(params.format);
+		if (!formatid) throw new ActionError("Invalid format.");
 		if (!params.score) throw new ActionError("Score required.");
-		const ladder = new Ladder(params.format!);
+		const ladder = new Ladder(formatid);
 		if (!Ladder.isValidPlayer(params.p1)) return 0;
 		if (!Ladder.isValidPlayer(params.p2)) return 0;
 
 		const out: {[k: string]: any} = {};
 		const [p1rating, p2rating] = await ladder.addMatch(params.p1!, params.p2!, parseFloat(params.score));
+
+		if (suspects[formatid]) {
+			const reqs = suspects[formatid].reqs;
+			for (const rating of [p1rating, p2rating]) {
+				let reqsMet = 0;
+				let reqCount = 0;
+				for (const k in reqs) {
+					if (!reqs[k as 'elo' | 'coil' | 'gxe']) continue;
+					reqCount++;
+					switch (k) {
+					case 'coil':
+						const N = rating.w + rating.l + rating.t;
+						const coilNum = Math.round(40.0 * rating.gxe * Math.pow(2.0, -coil[formatid] / N));
+						if (coilNum >= reqs.coil!) {
+							reqsMet++;
+						}
+						break;
+					case 'elo': case 'gxe':
+						if (reqs[k] && rating[k] >= reqs[k]!) {
+							reqsMet++;
+						}
+						break;
+					}
+				}
+				const regtime = (await tables.users.get(rating.userid))?.registertime;
+				if (
+					// sanity check for reqs existing just to be totally safe
+					(reqsMet >= 1 && reqsMet === reqCount) &&
+					// regged after the test began
+					(regtime && regtime > suspects[formatid].startDate)
+				) {
+					const data = JSON.stringify({
+						userid: rating.userid,
+						format: formatid,
+						reqs,
+						suspectStartDate: suspects[formatid].startDate,
+					});
+					void fetch("https://smogon.com/tools/api/suspect-verify", {
+						method: 'POST',
+						body: new URLSearchParams({
+							data,
+							hash: await signAsync("RSA-SHA1", data, Config.privatekey),
+						}),
+					}).catch(e => {
+						console.error("Smogon request failed", e, {data, params});
+					});
+				}
+			}
+		}
 		out.actionsuccess = true;
 		out.p1rating = p1rating;
 		out.p2rating = p2rating;
@@ -468,13 +532,6 @@ export const actions: {[k: string]: QueryHandler} = {
 		}
 		if (!Config.coilpath) {
 			throw new ActionError("Editing COIL is disabled");
-		}
-		const coil = {} as Record<string, number>;
-		try {
-			const content = await fs.readFile(Config.coilpath, 'utf-8');
-			Object.assign(coil, JSON.parse(content));
-		} catch (e) {
-			throw new ActionError(`Could not read COIL file (${e})`);
 		}
 		if (!('coil_b' in params)) {
 			if (!coil[formatid]) {
@@ -946,6 +1003,47 @@ export const actions: {[k: string]: QueryHandler} = {
 		}
 
 		return {ips: times.toJSON()};
+	},
+
+	async 'suspects/add'(params) {
+		if (this.getIp() !== Config.restartip) {
+			throw new ActionError("Access denied.");
+		}
+		const id = toID(params.formatid);
+		if (!id) throw new ActionError("No format ID specified.");
+		if (!params.reqs) {
+			throw new ActionError("Reqs not specified.");
+		}
+		let reqs;
+		try {
+			reqs = JSON.parse(params.reqs);
+		} catch {
+			throw new ActionError("Invalid reqs sent.");
+		}
+		if (!(reqs.gxe || reqs.elo || reqs.coil) || Object.values(reqs).some(x => typeof x !== 'number')) {
+			throw new ActionError("Invalid reqs sent.");
+		}
+		suspects[id] = {
+			startDate: time(),
+			reqs,
+		};
+		if (Config.suspectpath) {
+			await fs.writeFile(Config.suspectpath, JSON.stringify(suspects));
+		}
+		return true;
+	},
+	async 'suspects/end'(params) {
+		if (this.getIp() !== Config.restartip) {
+			throw new ActionError("Access denied.");
+		}
+		const id = toID(params.formatid);
+		if (!id) throw new ActionError("No format ID specified.");
+		if (!suspects[id]) throw new ActionError("There is no ongoing suspect for " + id);
+		delete suspects[id];
+		if (Config.suspectpath) {
+			await fs.writeFile(Config.suspectpath, JSON.stringify(suspects));
+		}
+		return true;
 	},
 };
 
