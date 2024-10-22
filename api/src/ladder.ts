@@ -28,6 +28,8 @@ export interface LadderEntry {
 	elo: number;
 	col1: number;
 	oldelo: number;
+	first_played: number;
+	last_played: number;
 }
 
 interface MatchElement {
@@ -73,9 +75,11 @@ export class Ladder {
 		if (!create) return null;
 
 		const rp = this.getRP();
+		const now = time();
 		const res = await ladder.insert({
 			formatid: this.formatid, username: user, userid,
 			rptime: rp, rpdata: '', col1: 0,
+			first_played: now, last_played: now,
 		});
 		return {
 			entryid: res.insertId,
@@ -90,6 +94,8 @@ export class Ladder {
 			elo: 1000,
 			col1: 0,
 			oldelo: 0,
+			first_played: now,
+			last_played: now,
 		};
 	}
 	static async getAllRatings(user: string) {
@@ -172,7 +178,7 @@ export class Ladder {
 			col1, entryid,
 		} = rating;
 		return !!(await ladder.update(entryid, {
-			elo, w, l, t, r, rd, sigma, rptime, rpr, rprd, rpsigma, rpdata, gxe, col1,
+			elo, w, l, t, r, rd, sigma, rptime, rpr, rprd, rpsigma, rpdata, gxe, col1, last_played: time(),
 		}));
 	}
 
