@@ -361,6 +361,7 @@ export const actions: {[k: string]: QueryHandler} = {
 			for (const rating of [p1rating, p2rating]) {
 				let reqsMet = 0;
 				let reqCount = 0;
+				const userData: Partial<{elo: number, gxe: number, coil: number}> = {};
 				for (const k in reqs) {
 					if (!reqs[k as 'elo' | 'coil' | 'gxe']) continue;
 					reqCount++;
@@ -371,11 +372,13 @@ export const actions: {[k: string]: QueryHandler} = {
 						if (coilNum >= reqs.coil!) {
 							reqsMet++;
 						}
+						userData.coil = coilNum;
 						break;
 					case 'elo': case 'gxe':
 						if (reqs[k] && rating[k] >= reqs[k]!) {
 							reqsMet++;
 						}
+						userData[k] = rating[k];
 						break;
 					}
 				}
@@ -389,7 +392,7 @@ export const actions: {[k: string]: QueryHandler} = {
 					const data = JSON.stringify({
 						userid: rating.userid,
 						format: formatid,
-						reqs,
+						reqs: {required: reqs, actual: userData},
 						suspectStartDate: suspects[formatid].startDate,
 					});
 					void fetch("https://smogon.com/tools/api/suspect-verify", {
