@@ -1009,7 +1009,7 @@ export const actions: {[k: string]: QueryHandler} = {
 		if (this.getIp() !== Config.restartip) {
 			throw new ActionError("Access denied.");
 		}
-		const id = toID(params.formatid);
+		const id = toID(params.format);
 		if (!id) throw new ActionError("No format ID specified.");
 		if (!params.reqs) {
 			throw new ActionError("Reqs not specified.");
@@ -1036,7 +1036,7 @@ export const actions: {[k: string]: QueryHandler} = {
 		if (this.getIp() !== Config.restartip) {
 			throw new ActionError("Access denied.");
 		}
-		const id = toID(params.formatid);
+		const id = toID(params.format);
 		if (!id) throw new ActionError("No format ID specified.");
 		if (!suspects[id]) throw new ActionError("There is no ongoing suspect for " + id);
 		delete suspects[id];
