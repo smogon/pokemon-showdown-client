@@ -391,13 +391,10 @@ export const actions: {[k: string]: QueryHandler} = {
 						break;
 					}
 				}
-				const regtime = (await tables.users.get(rating.userid))?.registertime;
 				const ratingData = await ladder.getRating(rating.userid);
 				if (
 					// sanity check for reqs existing just to be totally safe
 					(reqsMet >= 1 && reqsMet === reqCount) &&
-					// regged after the test began
-					(regtime && regtime > suspects[formatid].startDate) &&
 					// did not play games before the test began
 					(ratingData?.first_played && ratingData.first_played > suspects[formatid].startDate)
 				) {
@@ -1054,7 +1051,7 @@ export const actions: {[k: string]: QueryHandler} = {
 		if (Config.suspectpath) {
 			await fs.writeFile(Config.suspectpath, JSON.stringify(suspects));
 		}
-		return true;
+		return {success: true};
 	},
 	async 'suspects/end'(params) {
 		if (this.getIp() !== Config.restartip) {
@@ -1067,7 +1064,7 @@ export const actions: {[k: string]: QueryHandler} = {
 		if (Config.suspectpath) {
 			await fs.writeFile(Config.suspectpath, JSON.stringify(suspects));
 		}
-		return true;
+		return {success: true};
 	},
 };
 
