@@ -383,11 +383,14 @@ export const actions: {[k: string]: QueryHandler} = {
 					}
 				}
 				const regtime = (await tables.users.get(rating.userid))?.registertime;
+				const ratingData = await ladder.getRating(rating.userid);
 				if (
 					// sanity check for reqs existing just to be totally safe
 					(reqsMet >= 1 && reqsMet === reqCount) &&
 					// regged after the test began
-					(regtime && regtime > suspects[formatid].startDate)
+					(regtime && regtime > suspects[formatid].startDate) &&
+					// did not play games before the test began
+					(ratingData?.first_played && ratingData.first_played > suspects[formatid].startDate)
 				) {
 					const data = JSON.stringify({
 						userid: rating.userid,
