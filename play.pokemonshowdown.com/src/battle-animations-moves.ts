@@ -36218,6 +36218,151 @@ export const BattleMoveAnims: AnimTable = {
 			}, 'swing');
 		},
 	},
+	terastarstorm: {
+		anim(scene, [attacker, ...defenders]) {
+			scene.backgroundEffect('#000000', 900, 0.5);
+
+			scene.showEffect('iceball', {
+				x: attacker.x,
+				y: attacker.y,
+				z: attacker.z,
+				scale: 0.75,
+				opacity: 0.6,
+			}, {
+				x: attacker.x,
+				y: attacker.y + 200,
+				z: attacker.z,
+				scale: 1.25,
+				opacity: 0,
+				time: 200,
+			}, 'decel', '', {filter: 'hue-rotate(0deg)'});
+			scene.showEffect('wisp', {
+				x: attacker.x,
+				y: attacker.y,
+				z: attacker.z,
+				scale: 1,
+				opacity: 0.6,
+			}, {
+				x: attacker.x,
+				y: attacker.y + 200,
+				z: attacker.z,
+				scale: 1.5,
+				opacity: 0,
+				time: 200,
+			}, 'decel');
+
+			for (let defender of defenders) {
+				let xstep = (defender.x - attacker.x) / 6;
+				let ystep = (defender.y - 200 - attacker.y) / 6;
+				let zstep = (defender.z - attacker.z) / 6;
+
+				for (let i = 0; i < 6; i++) {
+					scene.showEffect('electroball', {
+						x: attacker.x + xstep * (i + 1),
+						y: (attacker.y + 200) + ystep * (i + 1),
+						z: attacker.z + zstep * (i + 1),
+						scale: 0.7,
+						opacity: 0.6,
+						time: 40 * i + 300,
+					}, {
+						opacity: 0,
+						time: 100 * i + 500,
+					}, 'linear', '', {filter: `hue-rotate(${60 * i + 30}deg)`});
+				}
+
+				scene.showEffect('electroball', {
+					x: attacker.x,
+					y: attacker.y + 200,
+					z: attacker.z,
+					scale: 0.4,
+					opacity: 0.6,
+					time: 300,
+				}, {
+					x: defender.x + 30,
+					y: defender.y + 30,
+					z: defender.z,
+					scale: 0.6,
+					opacity: 0.3,
+					time: 500,
+				}, 'linear', 'explode', {filter: 'hue-rotate(30deg)'});
+				scene.showEffect('electroball', {
+					x: attacker.x,
+					y: attacker.y + 200,
+					z: attacker.z,
+					scale: 0.4,
+					opacity: 0.6,
+					time: 375,
+				}, {
+					x: defender.x + 20,
+					y: defender.y - 30,
+					z: defender.z,
+					scale: 0.6,
+					opacity: 0.3,
+					time: 575,
+				}, 'linear', 'explode', {filter: 'hue-rotate(90deg)'});
+				scene.showEffect('electroball', {
+					x: attacker.x,
+					y: attacker.y + 200,
+					z: attacker.z,
+					scale: 0.4,
+					opacity: 0.6,
+					time: 425,
+				}, {
+					x: defender.x - 10,
+					y: defender.y + 10,
+					z: defender.z,
+					scale: 0.6,
+					opacity: 0.3,
+					time: 625,
+				}, 'linear', 'explode', {filter: 'hue-rotate(150deg)'});
+				scene.showEffect('electroball', {
+					x: attacker.x,
+					y: attacker.y + 200,
+					z: attacker.z,
+					scale: 0.4,
+					opacity: 0.6,
+					time: 450,
+				}, {
+					x: defender.x - 30,
+					y: defender.y,
+					z: defender.z,
+					scale: 0.6,
+					opacity: 0.3,
+					time: 650,
+				}, 'linear', 'explode', {filter: 'hue-rotate(210deg)'});
+				scene.showEffect('electroball', {
+					x: attacker.x,
+					y: attacker.y + 200,
+					z: attacker.z,
+					scale: 0.4,
+					opacity: 0.6,
+					time: 500,
+				}, {
+					x: defender.x + 10,
+					y: defender.y - 10,
+					z: defender.z,
+					scale: 0.6,
+					opacity: 0.3,
+					time: 700,
+				}, 'linear', 'explode', {filter: 'hue-rotate(270deg)'});
+				scene.showEffect('electroball', {
+					x: attacker.x,
+					y: attacker.y + 200,
+					z: attacker.z,
+					scale: 0.4,
+					opacity: 0.6,
+					time: 575,
+				}, {
+					x: defender.x - 20,
+					y: defender.y,
+					z: defender.z,
+					scale: 0.6,
+					opacity: 0.3,
+					time: 775,
+				}, 'linear', 'explode', {filter: 'hue-rotate(330deg)'});
+			}
+		},
+	},
 };
 
 // placeholder animations
