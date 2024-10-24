@@ -36,7 +36,7 @@
 			if (!app.user.loaded) {
 				buf = '<button disabled class="button">Loading...</button>';
 			} else if (app.user.get('named')) {
-				buf = '<span class="username" data-name="' + BattleLog.escapeHTML(name) + '"' + (away ? ' data-away="true"' : '') + (status ? 'data-status="' + BattleLog.escapeHTML(status) + '"' : '') + ' style="' + color + '"><i class="fa fa-user" style="color:' + (away ? '#888;' : '#779EC5') + '"></i> <span class="usernametext">' + BattleLog.escapeHTML(name) + '</span></span>';
+				buf = '<span class="username myuser" data-name="' + BattleLog.escapeHTML(name) + '"' + (away ? ' data-away="true"' : '') + (status ? 'data-status="' + BattleLog.escapeHTML(status) + '"' : '') + ' style="' + color + '"><i class="fa fa-user" style="color:' + (away ? '#888;' : '#779EC5') + '"></i> <span class="usernametext">' + BattleLog.escapeHTML(name) + '</span></span>';
 			} else {
 				buf = '<button name="login" class="button">Choose name</button>';
 			}
@@ -178,13 +178,18 @@
 			var $lastLi = $lastUl.children().last();
 			var offset = $lastLi.offset();
 			var width = $lastLi.outerWidth();
-			// 166 here is the difference between the .maintabbar's right margin and the a.button's right margin.
-			var overflow = offset.left + width + 166 - $(window).width();
+			// adjust the margin to the responsive margin of the main tab bar plus 1
+			var dynamicMargin = 166;
+			if (599 > $(window).width() >= 659) dynamicMargin = 226;
+			if (659 > $(window).width() >= 1023) dynamicMargin = 191;
+			if (1023 > $(window).width() >= 1439) dynamicMargin = 241;
+			if ($(window).width() > 1439) dynamicMargin = 321;
+			var overflow = offset.left + dynamicMargin - $(window).width();
 			if (app.curSideRoom && overflow > 0) {
 				margin -= overflow;
 				$lastUl.css('margin-left', margin + 'px');
 				offset = $lastLi.offset();
-				overflow = offset.left + width + 166 - $(window).width();
+				overflow = offset.left + width + dynamicMargin - $(window).width();
 			}
 			if (offset.top >= 37 || overflow > 0) {
 				this.$tabbar.append('<div class="overflow" aria-hidden="true"><button name="tablist" class="button" aria-label="More"><i class="fa fa-caret-down"></i></button></div>');
