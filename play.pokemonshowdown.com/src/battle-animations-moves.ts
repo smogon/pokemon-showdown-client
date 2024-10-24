@@ -36366,15 +36366,17 @@ export const BattleMoveAnims: AnimTable = {
 	thunderclap: {
 		anim(scene, [attacker, defender]) {
 			scene.backgroundEffect('#000000', 200, 0.2);
-			attacker.anim({
-				y: attacker.y + 8,
-				scale: 1.3,
+			scene.showEffect('electroball', {
+				x: attacker.x,
+				y: attacker.y,
+				z: attacker.z,
+				scale: 1.5,
+				opacity: 0.8,
+			}, {
+				scale: 3,
+				opacity: 0.2,
 				time: 200,
-			}, 'linear');
-			attacker.delay(100);
-			attacker.anim({
-				time: 200,
-			}, 'decel');
+			}, 'accel', 'fade', {filter: 'hue-rotate(150deg)'})
 			scene.showEffect('lightning', {
 				x: defender.x,
 				y: defender.y + 150,
