@@ -1055,7 +1055,7 @@ export const actions: {[k: string]: QueryHandler} = {
 			await smogonFetch("tools/api/suspect-create", "POST", {
 				url: params.url,
 				date: start + "",
-				reqs: JSON.stringify(reqs),
+				reqs,
 				format: id,
 			});
 		} catch (e: any) {
