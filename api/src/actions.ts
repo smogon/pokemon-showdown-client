@@ -1047,13 +1047,13 @@ export const actions: {[k: string]: QueryHandler} = {
 			throw new ActionError("Invalid reqs sent.");
 		}
 		// sim server should validate this already
-		if (!reqs.url?.trim().length) {
+		if (!params.url?.trim().length) {
 			throw new ActionError("Invalid suspect URL provided.");
 		}
 		const start = time();
 		try {
 			await smogonFetch("tools/api/suspect-create", "POST", {
-				url: reqs.url,
+				url: params.url,
 				date: start + "",
 				reqs: JSON.stringify(reqs),
 				format: id,
