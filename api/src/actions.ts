@@ -77,6 +77,15 @@ const redundantFetch = async (targetUrl: string, data: RequestInit, attempts = 0
 	}
 };
 
+const smogonFetch = async (targetUrl: string, method: string, data: {[k: string]: any}) => {
+	const bodyText = JSON.stringify(data);
+	const hash = await signAsync("RSA-SHA1", bodyText, Config.privatekey);
+	return redundantFetch(`https://www.smogon.com/${targetUrl}`, {
+		method,
+		body: new URLSearchParams({data: bodyText, hash}),
+	});
+};
+
 export const actions: {[k: string]: QueryHandler} = {
 	async register(params) {
 		this.verifyCrossDomainRequest();
@@ -398,18 +407,11 @@ export const actions: {[k: string]: QueryHandler} = {
 					// did not play games before the test began
 					(ratingData?.first_played && ratingData.first_played > suspects[formatid].startDate)
 				) {
-					const data = JSON.stringify({
+					void smogonFetch("tools/api/suspect-verify", "POST", {
 						userid: rating.userid,
 						format: formatid,
 						reqs: {required: reqs, actual: userData},
 						suspectStartDate: suspects[formatid].startDate,
-					});
-					void redundantFetch("https://www.smogon.com/tools/api/suspect-verify", {
-						method: 'POST',
-						body: new URLSearchParams({
-							data,
-							hash: await signAsync("RSA-SHA1", data, Config.privatekey),
-						}),
 					});
 				}
 			}
@@ -1043,6 +1045,21 @@ export const actions: {[k: string]: QueryHandler} = {
 		}
 		if (!(reqs.gxe || reqs.elo || reqs.coil) || Object.values(reqs).some(x => typeof x !== 'number')) {
 			throw new ActionError("Invalid reqs sent.");
+		}
+		// sim server should validate this already
+		if (!reqs.url?.trim().length) {
+			throw new ActionError("Invalid suspect URL provided.");
+		}
+		const start = time();
+		try {
+			await smogonFetch("tools/api/suspect-create", "POST", {
+				url: reqs.url,
+				date: start + "",
+				reqs: JSON.stringify(reqs),
+				format: id,
+			});
+		} catch (e: any) {
+			throw new ActionError("Failed to update Smogon suspect test record: " + e.message);
 		}
 		suspects[id] = {
 			startDate: time(),
