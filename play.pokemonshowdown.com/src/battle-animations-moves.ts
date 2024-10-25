@@ -36376,7 +36376,7 @@ export const BattleMoveAnims: AnimTable = {
 				scale: 3,
 				opacity: 0.2,
 				time: 200,
-			}, 'accel', 'fade', {filter: 'hue-rotate(150deg)'})
+			}, 'accel', 'fade', {filter: 'hue-rotate(150deg)'});
 			scene.showEffect('lightning', {
 				x: defender.x,
 				y: defender.y + 150,
