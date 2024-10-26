@@ -36363,6 +36363,36 @@ export const BattleMoveAnims: AnimTable = {
 			}
 		},
 	},
+	thunderclap: {
+		anim(scene, [attacker, defender]) {
+			scene.backgroundEffect('#000000', 200, 0.2);
+			scene.showEffect('electroball', {
+				x: attacker.x,
+				y: attacker.y,
+				z: attacker.z,
+				scale: 1.5,
+				opacity: 0.8,
+			}, {
+				scale: 3,
+				opacity: 0.2,
+				time: 200,
+			}, 'accel', 'fade', {filter: 'hue-rotate(150deg)'});
+			scene.showEffect('lightning', {
+				x: defender.x,
+				y: defender.y + 150,
+				z: defender.z,
+				yscale: 0,
+				xscale: 2,
+				time: 200,
+			}, {
+				y: defender.y + 50,
+				yscale: 1,
+				xscale: 1.5,
+				opacity: 0.8,
+				time: 400,
+			}, 'linear', 'fade', {filter: 'hue-rotate(180deg)'});
+		},
+	},
 };
 
 // placeholder animations
