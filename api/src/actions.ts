@@ -71,7 +71,7 @@ const redundantFetch = async (targetUrl: string, data: RequestInit, attempts = 0
 	}
 };
 
-const smogonFetch = async (targetUrl: string, method: string, data: {[k: string]: any}) => {
+export const smogonFetch = async (targetUrl: string, method: string, data: {[k: string]: any}) => {
 	const bodyText = JSON.stringify(data);
 	const hash = await signAsync("RSA-SHA1", bodyText, Config.privatekey);
 	return redundantFetch(`https://www.smogon.com/${targetUrl}`, {
@@ -80,7 +80,7 @@ const smogonFetch = async (targetUrl: string, method: string, data: {[k: string]
 	});
 };
 
-function checkSuspectVerified(
+export function checkSuspectVerified(
 	rating: LadderEntry,
 	suspect: {formatid: string, start_date: number},
 	reqs: Record<string, number | null>
@@ -110,7 +110,7 @@ function checkSuspectVerified(
 	}
 	if (
 		// sanity check for reqs existing just to be totally safe
-		(reqsMet >= 1 && reqsMet === reqCount) &&
+		(reqsMet > 0 && reqsMet === reqCount) &&
 		// did not play games before the test began
 		(rating?.first_played && rating.first_played > suspect.start_date)
 	) {
