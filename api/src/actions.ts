@@ -9,7 +9,7 @@ import * as pathModule from 'path';
 import * as crypto from 'crypto';
 import * as url from 'url';
 import {Config} from './config-loader';
-import {Ladder} from './ladder';
+import {Ladder, LadderEntry} from './ladder';
 import {Replays} from './replays';
 import {ActionError, QueryHandler, Server} from './server';
 import {Session} from './user';
@@ -79,6 +79,51 @@ const smogonFetch = async (targetUrl: string, method: string, data: {[k: string]
 		body: new URLSearchParams({data: bodyText, hash}),
 	});
 };
+
+function checkSuspectVerified(
+	rating: LadderEntry,
+	suspect: {formatid: string, start_date: number},
+	reqs: Record<string, number | null>
+) {
+	let reqsMet = 0;
+	let reqCount = 0;
+	const userData: Partial<{elo: number, gxe: number, coil: number}> = {};
+	for (const k in reqs) {
+		if (!reqs[k as 'elo' | 'coil' | 'gxe']) continue;
+		reqCount++;
+		switch (k) {
+		case 'coil':
+			const N = rating.w + rating.l + rating.t;
+			const coilNum = Math.round(40.0 * rating.gxe * Math.pow(2.0, -coil[suspect.formatid] / N));
+			if (coilNum >= reqs.coil!) {
+				reqsMet++;
+			}
+			userData.coil = coilNum;
+			break;
+		case 'elo': case 'gxe':
+			if (reqs[k] && rating[k] >= reqs[k]!) {
+				reqsMet++;
+			}
+			userData[k] = rating[k];
+			break;
+		}
+	}
+	if (
+		// sanity check for reqs existing just to be totally safe
+		(reqsMet >= 1 && reqsMet === reqCount) &&
+		// did not play games before the test began
+		(rating?.first_played && rating.first_played > suspect.start_date)
+	) {
+		void smogonFetch("tools/api/suspect-verify", "POST", {
+			userid: rating.userid,
+			format: suspect.formatid,
+			reqs: {required: reqs, actual: userData},
+			suspectStartDate: suspect.start_date,
+		});
+		return true;
+	}
+	return false;
+}
 
 export const actions: {[k: string]: QueryHandler} = {
 	async register(params) {
@@ -372,43 +417,7 @@ export const actions: {[k: string]: QueryHandler} = {
 		if (suspect) {
 			const reqs = {elo: suspect.elo, gxe: suspect.gxe, coil: suspect.coil};
 			for (const rating of [p1rating, p2rating]) {
-				let reqsMet = 0;
-				let reqCount = 0;
-				const userData: Partial<{elo: number, gxe: number, coil: number}> = {};
-				for (const k in reqs) {
-					if (!reqs[k as 'elo' | 'coil' | 'gxe']) continue;
-					reqCount++;
-					switch (k) {
-					case 'coil':
-						const N = rating.w + rating.l + rating.t;
-						const coilNum = Math.round(40.0 * rating.gxe * Math.pow(2.0, -coil[formatid] / N));
-						if (coilNum >= reqs.coil!) {
-							reqsMet++;
-						}
-						userData.coil = coilNum;
-						break;
-					case 'elo': case 'gxe':
-						if (reqs[k] && rating[k] >= reqs[k]!) {
-							reqsMet++;
-						}
-						userData[k] = rating[k];
-						break;
-					}
-				}
-				const ratingData = await ladder.getRating(rating.userid);
-				if (
-					// sanity check for reqs existing just to be totally safe
-					(reqsMet >= 1 && reqsMet === reqCount) &&
-					// did not play games before the test began
-					(ratingData?.first_played && ratingData.first_played > suspect.start_date)
-				) {
-					void smogonFetch("tools/api/suspect-verify", "POST", {
-						userid: rating.userid,
-						format: formatid,
-						reqs: {required: reqs, actual: userData},
-						suspectStartDate: suspect.start_date,
-					});
-				}
+				checkSuspectVerified(rating, suspect, reqs);
 			}
 		}
 		out.actionsuccess = true;
@@ -1075,6 +1084,22 @@ export const actions: {[k: string]: QueryHandler} = {
 		if (!suspect) throw new ActionError("There is no ongoing suspect for " + id);
 		await tables.suspects.delete(id);
 		return {success: true};
+	},
+	async 'suspects/verify'(params) {
+		if (this.getIp() !== Config.restartip) {
+			throw new ActionError("Access denied.");
+		}
+		const id = toID(params.format);
+		if (!id) throw new ActionError("No format ID specified.");
+		const suspect = await tables.suspects.get(id);
+		if (!suspect) throw new ActionError("There is no ongoing suspect for " + id);
+		const userid = toID(params.userid);
+		if (!userid || userid.length > 18) throw new ActionError("Invalid userid Pprovided.");
+		const rating = await tables.ladder.get(userid);
+		if (!rating) throw new ActionError("That user has no ratings in the given ladder.");
+		return {
+			result: checkSuspectVerified(rating, suspect, {elo: suspect.elo, coil: suspect.coil, gxe: suspect.gxe}),
+		};
 	},
 };
 

@@ -149,4 +149,4 @@ export const suspects = psdb.getTable<{
 	coil: number | null;
 	gxe: number | null;
 	elo: number | null;
-}>("ntbb_suspects", 'formatid');
+}>("suspects", 'formatid');
