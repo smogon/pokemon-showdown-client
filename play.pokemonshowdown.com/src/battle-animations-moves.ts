@@ -36438,14 +36438,16 @@ export const BattleMoveAnims: AnimTable = {
 				y: defender.y,
 				z: defender.z,
 				time: 500,
-				scale: 0.8,
+				xscale: 1.2,
+				yscale: 0.4,
 				opacity: 0.8,
 			}, {
 				time: 760,
-				scale: 1,
+				xscale: 1.4,
+				yscale: 0.6,
 				opacity: 0.4,
-			}, 'accel', 'explode', {filter: 'hue-rotate(180deg)'});
-			scene.showEffect('leftslash', {
+			}, 'accel', 'explode', {filter: 'hue-rotate(180deg)', rotate: '-45deg'});
+			scene.showEffect('rightslash', {
 				x: defender.x,
 				y: defender.y,
 				z: defender.z,
