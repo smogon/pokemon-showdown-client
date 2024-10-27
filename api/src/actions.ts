@@ -118,7 +118,6 @@ export function checkSuspectVerified(
 			userid: rating.userid,
 			format: suspect.formatid,
 			reqs: {required: reqs, actual: userData},
-			suspectStartDate: suspect.start_date,
 		});
 		return true;
 	}
@@ -1067,7 +1066,7 @@ export const actions: {[k: string]: QueryHandler} = {
 		}
 		await tables.suspects.replace({
 			formatid: id,
-			start_date: time(),
+			start_date: start,
 			elo: reqs.elo || null,
 			gxe: reqs.gxe || null,
 			coil: reqs.coil || null,
