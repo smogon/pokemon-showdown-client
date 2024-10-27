@@ -1064,13 +1064,22 @@ export const actions: {[k: string]: QueryHandler} = {
 		} catch (e: any) {
 			throw new ActionError("Failed to update Smogon suspect test record: " + e.message);
 		}
-		await tables.suspects.replace({
-			formatid: id,
-			start_date: start,
-			elo: reqs.elo || null,
-			gxe: reqs.gxe || null,
-			coil: reqs.coil || null,
-		});
+		const existing = await tables.suspects.get(id);
+		if (existing) {
+			await tables.suspects.update(id, {
+				elo: reqs.elo || null,
+				gxe: reqs.gxe || null,
+				coil: reqs.coil || null,
+			});
+		} else {
+			await tables.suspects.insert({
+				formatid: id,
+				start_date: start,
+				elo: reqs.elo || null,
+				gxe: reqs.gxe || null,
+				coil: reqs.coil || null,
+			});
+		}
 		return {success: true};
 	},
 	async 'suspects/end'(params) {
