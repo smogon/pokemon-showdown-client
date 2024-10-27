@@ -1068,9 +1068,9 @@ export const actions: {[k: string]: QueryHandler} = {
 		await tables.suspects.replace({
 			formatid: id,
 			start_date: time(),
-			elo: reqs.elo,
-			gxe: reqs.gxe,
-			coil: reqs.coil,
+			elo: reqs.elo || null,
+			gxe: reqs.gxe || null,
+			coil: reqs.coil || null,
 		});
 		return {success: true};
 	},
