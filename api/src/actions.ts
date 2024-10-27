@@ -53,18 +53,12 @@ function loadData(path: string | null) {
 	}
 }
 
-type SuspectReqs = Partial<{elo: number, gxe: number, coil: number}>;
-const suspects: Record<string, {startDate: number, reqs: SuspectReqs}> = loadData(Config.suspectpath);
-const coil: Record<string, number> = loadData(Config.coilpath);
+export let coil: Record<string, number> = loadData(Config.coilpath);
 
-if (Config.suspectpath) {
-	watchFile(
-		Config.suspectpath,
-		() => Object.assign(suspects, loadData(Config.suspectpath))
-	);
-}
 if (Config.coilpath) {
-	watchFile(Config.coilpath, () => Object.assign(coil, loadData(Config.coilpath)));
+	watchFile(Config.coilpath, () => {
+		coil = loadData(Config.coilpath);
+	});
 }
 
 const redundantFetch = async (targetUrl: string, data: RequestInit, attempts = 0): Promise<void> => {
@@ -374,8 +368,9 @@ export const actions: {[k: string]: QueryHandler} = {
 		const out: {[k: string]: any} = {};
 		const [p1rating, p2rating] = await ladder.addMatch(params.p1!, params.p2!, parseFloat(params.score));
 
-		if (suspects[formatid]) {
-			const reqs = suspects[formatid].reqs;
+		const suspect = await tables.suspects.get(formatid);
+		if (suspect) {
+			const reqs = {elo: suspect.elo, gxe: suspect.gxe, coil: suspect.coil};
 			for (const rating of [p1rating, p2rating]) {
 				let reqsMet = 0;
 				let reqCount = 0;
@@ -405,13 +400,13 @@ export const actions: {[k: string]: QueryHandler} = {
 					// sanity check for reqs existing just to be totally safe
 					(reqsMet >= 1 && reqsMet === reqCount) &&
 					// did not play games before the test began
-					(ratingData?.first_played && ratingData.first_played > suspects[formatid].startDate)
+					(ratingData?.first_played && ratingData.first_played > suspect.start_date)
 				) {
 					void smogonFetch("tools/api/suspect-verify", "POST", {
 						userid: rating.userid,
 						format: formatid,
 						reqs: {required: reqs, actual: userData},
-						suspectStartDate: suspects[formatid].startDate,
+						suspectStartDate: suspect.start_date,
 					});
 				}
 			}
@@ -1061,13 +1056,13 @@ export const actions: {[k: string]: QueryHandler} = {
 		} catch (e: any) {
 			throw new ActionError("Failed to update Smogon suspect test record: " + e.message);
 		}
-		suspects[id] = {
-			startDate: time(),
-			reqs,
-		};
-		if (Config.suspectpath) {
-			await fs.writeFile(Config.suspectpath, JSON.stringify(suspects));
-		}
+		await tables.suspects.replace({
+			formatid: id,
+			start_date: time(),
+			elo: reqs.elo,
+			gxe: reqs.gxe,
+			coil: reqs.coil,
+		});
 		return {success: true};
 	},
 	async 'suspects/end'(params) {
@@ -1076,11 +1071,9 @@ export const actions: {[k: string]: QueryHandler} = {
 		}
 		const id = toID(params.format);
 		if (!id) throw new ActionError("No format ID specified.");
-		if (!suspects[id]) throw new ActionError("There is no ongoing suspect for " + id);
-		delete suspects[id];
-		if (Config.suspectpath) {
-			await fs.writeFile(Config.suspectpath, JSON.stringify(suspects));
-		}
+		const suspect = await tables.suspects.get(id);
+		if (!suspect) throw new ActionError("There is no ongoing suspect for " + id);
+		await tables.suspects.delete(id);
 		return {success: true};
 	},
 };

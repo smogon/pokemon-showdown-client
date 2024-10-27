@@ -142,3 +142,11 @@ export const teams = pgdb.getTable<{
 	title: string;
 	private: number;
 }>('teams', 'teamid');
+
+export const suspects = psdb.getTable<{
+	formatid: string;
+	start_date: number;
+	coil: number | null;
+	gxe: number | null;
+	elo: number | null;
+}>("ntbb_suspects", 'formatid');
