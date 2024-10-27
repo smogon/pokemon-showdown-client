@@ -118,6 +118,7 @@ export function checkSuspectVerified(
 			userid: rating.userid,
 			format: suspect.formatid,
 			reqs: {required: reqs, actual: userData},
+			suspectStartDate: suspect.start_date,
 		});
 		return true;
 	}
