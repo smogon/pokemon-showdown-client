@@ -66,7 +66,8 @@ const redundantFetch = async (targetUrl: string, data: RequestInit, attempts = 0
 	try {
 		await fetch(targetUrl, data);
 	} catch (e: any) {
-		if (e.code === 400) return console.error('400 on Smogon request', e, data);
+		console.log('error in smogon fetch', e);
+		if (e.code === 400) return;
 		return redundantFetch(targetUrl, data, attempts + 1);
 	}
 };
@@ -88,8 +89,9 @@ export function checkSuspectVerified(
 	let reqsMet = 0;
 	let reqCount = 0;
 	const userData: Partial<{elo: number, gxe: number, coil: number}> = {};
-	for (const k in reqs) {
-		if (!reqs[k as 'elo' | 'coil' | 'gxe']) continue;
+	const reqKeys = ['elo', 'coil', 'gxe'] as const;
+	for (const k of reqKeys) {
+		if (!reqs[k]) continue;
 		reqCount++;
 		switch (k) {
 		case 'coil':
@@ -1098,13 +1100,13 @@ export const actions: {[k: string]: QueryHandler} = {
 		if (this.getIp() !== Config.restartip) {
 			throw new ActionError("Access denied.");
 		}
-		const id = toID(params.format);
+		const id = toID(params.format || params.formatid);
 		if (!id) throw new ActionError("No format ID specified.");
 		const suspect = await tables.suspects.get(id);
 		if (!suspect) throw new ActionError("There is no ongoing suspect for " + id);
 		const userid = toID(params.userid);
 		if (!userid || userid.length > 18) throw new ActionError("Invalid userid Pprovided.");
-		const rating = await tables.ladder.get(userid);
+		const rating = await new Ladder(id).getRating(userid);
 		if (!rating) throw new ActionError("That user has no ratings in the given ladder.");
 		return {
 			result: checkSuspectVerified(rating, suspect, {elo: suspect.elo, coil: suspect.coil, gxe: suspect.gxe}),
