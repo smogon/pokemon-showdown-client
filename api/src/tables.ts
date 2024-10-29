@@ -6,6 +6,7 @@ import {Config} from './config-loader';
 
 import type {LadderEntry} from './ladder';
 import type {ReplayRow} from './replays';
+import type {Suspect} from './actions';
 
 // direct access
 export const psdb = new MySQLDatabase(Config.mysql);
@@ -143,10 +144,4 @@ export const teams = pgdb.getTable<{
 	private: number;
 }>('teams', 'teamid');
 
-export const suspects = psdb.getTable<{
-	formatid: string;
-	start_date: number;
-	coil: number | null;
-	gxe: number | null;
-	elo: number | null;
-}>("suspects", 'formatid');
+export const suspects = psdb.getTable<Suspect>("suspects", 'formatid');

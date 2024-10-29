@@ -20,6 +20,14 @@ import * as tables from './tables';
 import {SQL} from './database';
 import IPTools from './ip-tools';
 
+export interface Suspect {
+	formatid: string;
+	start_date: number;
+	coil: number | null;
+	gxe: number | null;
+	elo: number | null;
+}
+
 const OAUTH_TOKEN_TIME = 2 * 7 * 24 * 60 * 60 * 1000;
 
 async function getOAuthClient(clientId?: string, origin?: string) {
@@ -83,27 +91,26 @@ export const smogonFetch = async (targetUrl: string, method: string, data: {[k: 
 
 export function checkSuspectVerified(
 	rating: LadderEntry,
-	suspect: {formatid: string, start_date: number},
-	reqs: Record<string, number | null>
+	suspect: Suspect,
 ) {
 	let reqsMet = 0;
 	let reqCount = 0;
 	const userData: Partial<{elo: number, gxe: number, coil: number}> = {};
 	const reqKeys = ['elo', 'coil', 'gxe'] as const;
 	for (const k of reqKeys) {
-		if (!reqs[k]) continue;
+		if (!suspect[k]) continue;
 		reqCount++;
 		switch (k) {
 		case 'coil':
 			const N = rating.w + rating.l + rating.t;
 			const coilNum = Math.round(40.0 * rating.gxe * Math.pow(2.0, -coil[suspect.formatid] / N));
-			if (coilNum >= reqs.coil!) {
+			if (coilNum >= suspect.coil!) {
 				reqsMet++;
 			}
 			userData.coil = coilNum;
 			break;
 		case 'elo': case 'gxe':
-			if (reqs[k] && rating[k] >= reqs[k]!) {
+			if (suspect[k] && rating[k] >= suspect[k]!) {
 				reqsMet++;
 			}
 			userData[k] = rating[k];
@@ -119,7 +126,10 @@ export function checkSuspectVerified(
 		void smogonFetch("tools/api/suspect-verify", "POST", {
 			userid: rating.userid,
 			format: suspect.formatid,
-			reqs: {required: reqs, actual: userData},
+			reqs: {
+				required: {elo: suspect.elo, gxe: suspect.gxe, coil: suspect.coil},
+				actual: userData,
+			},
 			suspectStartDate: suspect.start_date,
 		});
 		return true;
@@ -417,9 +427,8 @@ export const actions: {[k: string]: QueryHandler} = {
 
 		const suspect = await tables.suspects.get(formatid);
 		if (suspect) {
-			const reqs = {elo: suspect.elo, gxe: suspect.gxe, coil: suspect.coil};
 			for (const rating of [p1rating, p2rating]) {
-				checkSuspectVerified(rating, suspect, reqs);
+				checkSuspectVerified(rating, suspect);
 			}
 		}
 		out.actionsuccess = true;
@@ -1109,7 +1118,7 @@ export const actions: {[k: string]: QueryHandler} = {
 		const rating = await new Ladder(id).getRating(userid);
 		if (!rating) throw new ActionError("That user has no ratings in the given ladder.");
 		return {
-			result: checkSuspectVerified(rating, suspect, {elo: suspect.elo, coil: suspect.coil, gxe: suspect.gxe}),
+			result: checkSuspectVerified(rating, suspect),
 		};
 	},
 };
