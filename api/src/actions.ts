@@ -446,7 +446,14 @@ export const actions: {[k: string]: QueryHandler} = {
 		const user = Ladder.isValidPlayer(params.user);
 		if (!user) throw new ActionError("Invalid username.");
 
-		return Ladder.getAllRatings(user);
+		const ratings = await Ladder.getAllRatings(user) as (LadderEntry & {suspect?: boolean})[];
+		for (const rating of ratings) {
+			const suspect = await tables.suspects.get(rating.formatid);
+			if (suspect) {
+				rating.suspect = !!rating.first_played && rating.first_played > suspect.start_date;
+			}
+		}
+		return ratings;
 	},
 
 	async mmr(params) {
