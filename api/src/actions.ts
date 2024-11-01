@@ -1101,6 +1101,42 @@ export const actions: {[k: string]: QueryHandler} = {
 		}
 		return {success: true};
 	},
+	async 'suspects/edit'(params) {
+		if (this.getIp() !== Config.restartip) {
+			throw new ActionError("Access denied.");
+		}
+		const id = toID(params.format);
+		if (!id) throw new ActionError("No format ID specified.");
+		const suspect = await tables.suspects.get(id);
+		if (!suspect) throw new ActionError("There is no ongoing suspect for " + id);
+		let reqs;
+		try {
+			reqs = JSON.parse(params.reqs || "");
+			for (const k in reqs) {
+				if (!['coil', 'elo', 'gxe'].includes(k)) {
+					throw new Error("Invalid req type: " + k);
+				}
+				if (reqs[k]) {
+					reqs[k] = Number(reqs[k]);
+					if (isNaN(reqs[k])) {
+						throw new Error("Req values must be numbers.");
+					}
+				} else {
+					reqs[k] = null;
+				}
+			}
+		} catch (e: any) {
+			throw new ActionError("Invalid reqs sent: " + e.message);
+		}
+		await tables.suspects.update(id, reqs);
+		await smogonFetch("tools/api/suspect-edit", "POST", {
+			url: params.url,
+			date: suspect.start_date,
+			format: id,
+			reqs,
+		});
+		return {success: true};
+	},
 	async 'suspects/end'(params) {
 		if (this.getIp() !== Config.restartip) {
 			throw new ActionError("Access denied.");
@@ -1110,6 +1146,10 @@ export const actions: {[k: string]: QueryHandler} = {
 		const suspect = await tables.suspects.get(id);
 		if (!suspect) throw new ActionError("There is no ongoing suspect for " + id);
 		await tables.suspects.delete(id);
+		await smogonFetch("tools/api/suspect-end", "POST", {
+			formatid: id,
+			time: suspect.start_date,
+		});
 		return {success: true};
 	},
 	async 'suspects/verify'(params) {
