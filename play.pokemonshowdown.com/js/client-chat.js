@@ -972,9 +972,9 @@
 					user: targets[0]
 				}, Storage.safeJSON(function (data) {
 					if (!data || !$.isArray(data)) return self.add('|raw|Error: corrupted ranking data');
-					var buffer = '<div class="ladder"><table><tr><td colspan="8">User: <strong>' + toName(targets[0]) + '</strong></td></tr>';
+					var buffer = '<div class="ladder"><table><tr><td colspan="9">User: <strong>' + toName(targets[0]) + '</strong></td></tr>';
 					if (!data.length) {
-						buffer += '<tr><td colspan="8"><em>This user has not played any ladder games yet.</em></td></tr>';
+						buffer += '<tr><td colspan="9"><em>This user has not played any ladder games yet.</em></td></tr>';
 						buffer += '</table></div>';
 						return self.add('|raw|' + buffer);
 					}
