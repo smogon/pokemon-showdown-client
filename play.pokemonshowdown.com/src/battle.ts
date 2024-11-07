@@ -2523,6 +2523,10 @@ export class Battle {
 			poke.terastallized = type;
 			poke.details += `, tera:${type}`;
 			poke.searchid += `, tera:${type}`;
+			if (poke.speciesForme.startsWith("Morpeko")) {
+				poke.details = poke.details.replace("Morpeko", poke.speciesForme);
+				poke.searchid = `${poke.ident}|${poke.details}`
+			}
 			this.scene.animTransform(poke, true);
 			this.scene.resetStatbar(poke);
 			this.log(args, kwArgs);
