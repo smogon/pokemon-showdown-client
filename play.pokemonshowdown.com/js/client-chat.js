@@ -983,7 +983,7 @@
 					for (var i = 0; i < data.length; i++) {
 						if ('suspect' in data[i]) suspect = true;
 					}
-					if (suspect) buffer += '<th>Suspect test eligible?</th>';
+					if (suspect) buffer += '<th>Suspect reqs possible?</th>';
 					buffer += '</tr>';
 					var hiddenFormats = [];
 					for (var i = 0; i < data.length; i++) {
