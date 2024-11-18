@@ -2872,7 +2872,7 @@ export class PokemonSprite extends Sprite {
 		if (pokemon.maxhp === 48 || this.scene.battle.hardcoreMode && pokemon.maxhp === 100) {
 			$hptext.hide();
 			$hptextborder.hide();
-		} else if (this.scene.battle.hardcoreMode) {
+		} else if (this.scene.battle.hardcoreMode || this.scene.battle.reportExactHP) {
 			$hptext.html(pokemon.hp + '/');
 			$hptext.show();
 			$hptextborder.show();
