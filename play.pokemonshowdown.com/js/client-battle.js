@@ -761,7 +761,12 @@
 
 				var shiftControls = '';
 				if (this.battle.gameType === 'triples' && pos !== 1) {
-					shiftControls += '<div class="shiftselect"><button name="chooseShift">Shift</button></div>';
+					shiftControls = (
+						'<div class="shiftcontrols">' +
+						'<div class="shiftselect"><button name="chooseShift">Shift</button></div>' +
+						'<div class="switchmenu"><button name="chooseShift">Shift to Center</button><div style="clear:left"></div></div>' +
+						'</div>'
+					);
 				}
 
 				var switchMenu = '';
