@@ -2225,7 +2225,7 @@ export class Battle {
 			break;
 		}
 		case '-item': {
-			let poke = this.getPokemon(args[1]);
+			let poke = this.getPokemon(args[1])!;
 			let item = Dex.items.get(args[2]);
 			let effect = Dex.getEffect(kwArgs.from);
 			let ofpoke = this.getPokemon(kwArgs.of);
