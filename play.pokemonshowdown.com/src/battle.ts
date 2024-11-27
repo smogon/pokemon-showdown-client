@@ -2233,7 +2233,7 @@ export class Battle {
 				if (effect.id === 'frisk') {
 					const possibleTargets = ofpoke!.side.foe.active.filter(p => p !== null);
 					if (possibleTargets.length === 1) {
-						poke = possibleTargets[0];
+						poke = possibleTargets[0]!;
 					} else {
 						this.activateAbility(ofpoke!, "Frisk");
 						this.log(args, kwArgs);
