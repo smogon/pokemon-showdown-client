@@ -2231,6 +2231,20 @@ export class Battle {
 			let item = Dex.items.get(args[2]);
 			let effect = Dex.getEffect(kwArgs.from);
 			let ofpoke = this.getPokemon(kwArgs.of);
+			if (!poke) {
+				if (effect.id === 'frisk') {
+					const possibleTargets = ofpoke!.side.foe.active.filter(p => p !== null);
+					if (possibleTargets.length === 1) {
+						poke = possibleTargets[0]!;
+					} else {
+						this.activateAbility(ofpoke!, "Frisk");
+						this.log(args, kwArgs);
+						break;
+					}
+				} else {
+					throw new Error('No Pokemon in -item message');
+				}
+			}
 			poke.item = item.name;
 			poke.itemEffect = '';
 			poke.removeVolatile('airballoon' as ID);
