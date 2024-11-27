@@ -2520,16 +2520,20 @@ export class Battle {
 		case '-terastallize': {
 			let poke = this.getPokemon(args[1])!;
 			let type = Dex.types.get(args[2]).name;
+			let lockForme = false;
 			poke.removeVolatile('typeadd' as ID);
 			poke.teraType = type;
 			poke.terastallized = type;
 			poke.details += `, tera:${type}`;
 			poke.searchid += `, tera:${type}`;
 			if (poke.speciesForme.startsWith("Morpeko")) {
+				lockForme = true;
+				poke.speciesForme = poke.getSpeciesForme();
 				poke.details = poke.details.replace("Morpeko", poke.speciesForme);
 				poke.searchid = `${poke.ident}|${poke.details}`;
+				delete poke.volatiles['formechange'];
 			}
-			this.scene.animTransform(poke, true);
+			this.scene.animTransform(poke, true, lockForme);
 			this.scene.resetStatbar(poke);
 			this.log(args, kwArgs);
 			break;
