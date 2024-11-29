@@ -129,7 +129,7 @@ includeHeader();
 
 			<ul>
 				<li><p><a href="http://cargocollective.com/bluep" target="_blank" class="subtle"><strong>Daniel Kong</strong></a> <small>&ndash; Art (Shaymin background)</small></p></li>
-				<li><p><a href="http://seiryuuden.deviantart.com/" target="_blank" class="subtle"><strong>Jessica Valencia</strong> [seiryuuden]</a> <small>&ndash; Art (Charizards background)</small></p></li>
+				<li><p><a href="https://lit.link/en/seiryuuden" target="_blank" class="subtle"><strong>Jessica Valencia</strong> [seiryuuden]</a> <small>&ndash; Art (Charizards background)</small></p></li>
 				<li><p><a href="http://kyle-dove.deviantart.com/" target="_blank" class="subtle"><strong>Kyle Dove</strong></a> <small>&ndash; Art (battle backdrops)</small></p></li>
 				<li><p><a href="http://vtas.deviantart.com/" target="_blank" class="subtle"><strong>Vivian Zou</strong> [Vtas]</a> <small>&ndash; Art (Horizon background)</small></p></li>
 				<li><p><strong>Samuel Teo</strong> [Yilx] <small>&ndash; Art (Waterfall background)</small></p></li>
