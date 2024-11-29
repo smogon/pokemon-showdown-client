@@ -303,7 +303,7 @@ const PSBackground = new class extends PSStreamModel {
 				"210,29.629629629629633%",
 			];
 			attrib = {
-				url: 'https://seiryuuden.deviantart.com/art/The-Ultimate-Mega-Showdown-Charizards-414587079',
+				url: 'https://lit.link/en/seiryuuden',
 				title: 'Charizards',
 				artist: 'Jessica Valencia',
 			};
