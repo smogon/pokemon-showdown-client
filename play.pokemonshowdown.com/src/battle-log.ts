@@ -873,6 +873,8 @@ export class BattleLog {
 
 			let dataUri = '';
 			let targetReplace = false;
+			// if Caja CSS isn't loaded, we still trust <psicon> CSS
+			let unsanitizedStyle = '';
 
 			if (tagName === 'a') {
 				if (getAttrib('target') === 'replace') {
@@ -982,14 +984,13 @@ export class BattleLog {
 
 				if (iconType) {
 					const className = getAttrib('class');
-					const style = getAttrib('style');
 
 					if (iconType === 'pokemon') {
 						setAttrib('class', 'picon' + (className ? ' ' + className : ''));
-						setAttrib('style', Dex.getPokemonIcon(iconValue) + (style ? '; ' + style : ''));
+						unsanitizedStyle = Dex.getPokemonIcon(iconValue);
 					} else if (iconType === 'item') {
 						setAttrib('class', 'itemicon' + (className ? ' ' + className : ''));
-						setAttrib('style', Dex.getItemIcon(iconValue) + (style ? '; ' + style : ''));
+						unsanitizedStyle = Dex.getItemIcon(iconValue);
 					} else if (iconType === 'type') {
 						tagName = Dex.getTypeIcon(iconValue).slice(1, -3);
 					} else if (iconType === 'category') {
@@ -1002,6 +1003,10 @@ export class BattleLog {
 				if (urlData.scheme_ === 'geo' || urlData.scheme_ === 'sms' || urlData.scheme_ === 'tel') return null;
 				return urlData;
 			});
+			if (unsanitizedStyle) {
+				const style = getAttrib('style');
+				setAttrib('style', unsanitizedStyle + (style ? '; ' + style : ''));
+			}
 
 			if (dataUri && tagName === 'img') {
 				setAttrib('src', dataUri);
