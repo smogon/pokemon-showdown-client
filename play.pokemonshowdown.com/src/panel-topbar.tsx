@@ -212,7 +212,7 @@ class PSHeader extends preact.Component<{style: {}}> {
 			return <a class="button" href="login">Choose name</a>;
 		}
 		const userColor = window.BattleLog && {color: BattleLog.usernameColor(PS.user.userid)};
-		return <span class="username" data-name={PS.user.name} style={userColor}>
+		return <span class="username myuser" data-name={PS.user.name} style={userColor}>
 			<i class="fa fa-user" style="color:#779EC5"></i> <span class="usernametext">{PS.user.name}</span>
 		</span>;
 	}

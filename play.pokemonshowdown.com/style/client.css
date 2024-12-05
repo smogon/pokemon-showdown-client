@@ -2,7 +2,7 @@
  * Global
  *********************************************************/
 
-html, body {
+ html, body {
 	margin: 0;
 	padding: 0;
 	height: 100%;
@@ -75,9 +75,12 @@ select {
 
 .userbar {
 	position: absolute;
-	top: 12px;
+	top: 13px;
 	right: 12px;
 	font-weight: bold;
+	display: flex;
+	align-items: center;
+	gap: 5px;
 }
 .userbar .username {
 	color: black;
@@ -86,9 +89,49 @@ select {
 .username {
 	cursor: pointer;
 }
-@media (max-width: 500px) {
+.myuser {
+	display: flex;
+	align-items: flex-end;
+	gap: 5px;
+}
+.usernametext {
+	overflow: hidden;
+	text-overflow: ellipsis;
+	padding-right: 1px;
+}
+@media (max-width:350px) {
 	.usernametext {
-		display: none
+		max-width: 90px;
+	}
+}
+@media (min-width:351px) and (max-width:419px) {
+	.usernametext {
+		max-width: 120px;
+	}
+}
+@media (min-width:420px) and (max-width:600px) {
+	.usernametext {
+		max-width: 65px;
+	}
+}
+@media (min-width:601px) and (max-width:659px) {
+	.usernametext {
+		max-width: 120px;
+	}
+}
+@media (min-width:660px) and (max-width:1023px) {
+	.usernametext {
+		max-width: 90px;
+	}
+}
+@media (min-width:1024px) and (max-width: 1439px) {
+	.usernametext {
+		max-width: 140px;
+	}
+}
+@media (min-width:1440px) {
+	.usernametext {
+		max-width: 200px;
 	}
 }
 .userbar button.icon {
@@ -140,8 +183,32 @@ select {
 }
 .tabbar.maintabbar {
 	margin-left: 144px;
-	margin-right: 165px;
 	overflow: hidden;
+}
+@media (max-width: 599px) {
+	.tabbar.maintabbar {
+		margin-right: 165px;
+	}
+}
+@media (min-width: 600px) and (max-width: 659px) {
+	.tabbar.maintabbar {
+		margin-right: 225px;
+	}
+}
+@media (min-width: 660px) and (max-width: 1023px) {
+	.tabbar.maintabbar {
+		margin-right: 190px;
+	}
+}
+@media (min-width: 1024px) and (max-width: 1439px) {
+	.tabbar.maintabbar {
+		margin-right: 240px;
+	}
+}
+@media (min-width: 1440px) {
+	.tabbar.maintabbar {
+		margin-right: 320px;
+	}
 }
 .tabbar.maintabbar.minitabbar {
 	margin-left: 0;
