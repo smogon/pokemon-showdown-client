@@ -32,7 +32,7 @@
 
 Puedes elegir un nombre de usuario y cambiarlo en cualquier momento (lo puedes cambiar desconectándote y conectándote de nuevo con un nuevo nombre). Ten en cuenta que:
 
-1. **No hagas impersonating.** Los nombres de usuario no pueden ser demasiado parecidos al de un staff (usuarios con `%`, `@`, `#` o `&` al lado de su nombre) o a usuarios reconocidos que usen PS o estén asociados a Pokémon.
+1. **No hagas impersonating.** Los nombres de usuario no pueden ser demasiado parecidos al de un staff (usuarios con `%`, `@`, `#` o `~` al lado de su nombre) o a usuarios reconocidos que usen PS o estén asociados a Pokémon.
 
 2. **Los nombres no deben insultar a una persona o a un grupo.** Insultarte a ti mismo está permitido, siempre y cuando no sea nada demasiado serio.
 
