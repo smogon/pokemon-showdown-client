@@ -20,7 +20,7 @@ Mitglieder des Raumstaffs besitzen Berechtigungen, welche sich ausschließlich a
 
 **Global Moderator (`@`)** können alles obrige und zusätzlich Nutzer vom Server verbannen, alle Berechtigungen eines Raum-Moderators ausführen und die IP-Adresse von Nutzern einsehen.
 
-**Global Administrator (`&`)** können alles obrige und zusätzlich Nutzer auf jeden beliebigen Rang befördern, Unentschieden oder Siege herbeizwingen, serverweite Ankündigungen anzeigen lassen, Räume erstellen, IP-Bereiche sperren, Passwörter zurücksetzen und Nutzer permanent sperren und verbannen.
+**Global Administrator (`~`)** können alles obrige und zusätzlich Nutzer auf jeden beliebigen Rang befördern, Unentschieden oder Siege herbeizwingen, serverweite Ankündigungen anzeigen lassen, Räume erstellen, IP-Bereiche sperren, Passwörter zurücksetzen und Nutzer permanent sperren und verbannen.
 
 ###  Wie werde ich ein Staffmitglied? 
 

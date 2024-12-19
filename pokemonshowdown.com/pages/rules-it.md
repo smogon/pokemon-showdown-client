@@ -32,7 +32,7 @@
 
 Il tuo username può essere scelto e cambiato in ogni momento (per farlo fai log out e rifai il log in scegliendone uno differente). Le regole a riguardo sono le seguenti:
 
-1. **Gli username non devono impersonare** un membro dello staff (coloro che hanno `%`, `@`, `#`, o `&` a lato del proprio nome) o persone famose/organizzazioni che utilizzano PS o che sono associate con Pokémon.
+1. **Gli username non devono impersonare** un membro dello staff (coloro che hanno `%`, `@`, `#`, o `~` a lato del proprio nome) o persone famose/organizzazioni che utilizzano PS o che sono associate con Pokémon.
 
 2. **Gli username non devono insultare** o essere un'offesa ad un individuo o a un gruppo di individui (un insulto a te stesso è ok se non troppo pesante).
 
