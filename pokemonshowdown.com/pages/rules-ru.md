@@ -32,7 +32,7 @@
 
 Vashe imya pol'zovatelya mozhet byt' vybrano i izmeneno v lyuboye vremya (izmenite yego, vypolniv vkhod i voydya v sistemu s novym imenem pol'zovatelya). Imet' vvidu:
 
-1. **Imena pol'zovateley ne mogut olitsetvoryat' priznannogo** pol'zovatelya (pol'zovatelya s %, @, #, Ili & ryadom s ikh imenem pol'zovatelya.) ili izvestnym chelovekom/organizatsiyey, kotoraya ispol'zuyet PS ili svyazana s Pokémon.
+1. **Imena pol'zovateley ne mogut olitsetvoryat' priznannogo** pol'zovatelya (pol'zovatelya s %, @, #, Ili ~ ryadom s ikh imenem pol'zovatelya.) ili izvestnym chelovekom/organizatsiyey, kotoraya ispol'zuyet PS ili svyazana s Pokémon.
 
 2. **Imena ne mogut oskorblyat' cheloveka ili gruppu. ** Oskorblyat' sebya mozhno, yesli eto ne slishkom ser'yezno.
 
