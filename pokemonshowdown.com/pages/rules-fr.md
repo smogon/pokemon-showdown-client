@@ -32,7 +32,7 @@
 
 Votre pseudo peut être choisi et modifié à tout moment (vous pouvez le changer en vous déconnectant et en vous reconnectant avec un autre pseudo). Gardez à l'esprit que :
 
-1. **Les pseudos ne doivent pas imiter** ceux du staff (les utilisateurs avec les symboles `%`, `@`, `#`, ou `&` à côté de leur pseudo) ou de personnes/organisations connues qui utilisent PS ou sont associées à Pokémon.
+1. **Les pseudos ne doivent pas imiter** ceux du staff (les utilisateurs avec les symboles `%`, `@`, `#`, ou `~` à côté de leur pseudo) ou de personnes/organisations connues qui utilisent PS ou sont associées à Pokémon.
 
 2. **Les pseudos ne doivent pas être insultants**, que ce soit envers une personne ou un groupe (vous insulter vous même est accepté à la condition que ce ne soit pas trop sérieux).
 
