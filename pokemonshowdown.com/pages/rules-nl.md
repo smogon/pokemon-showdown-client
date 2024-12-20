@@ -34,7 +34,7 @@
 
 Je kunt op ieder moment een gebruikersnaam kiezen of hem wijzigen (wijzig hem door uit te loggen en in te loggen met een nieuwe gebruikersnaam). Let wel op:
 
-1. **Gebruikersnamen mogen niet gebruikt worden om je vals voor te doen** als staf (iemand met een `%`, `@`, `#` of `&` voor zijn of haar naam) of bekende personen die PS gebruiken of in verbinding staan met Pokémon.
+1. **Gebruikersnamen mogen niet gebruikt worden om je vals voor te doen** als staf (iemand met een `%`, `@`, `#` of `~` voor zijn of haar naam) of bekende personen die PS gebruiken of in verbinding staan met Pokémon.
 
 2. **Gebruikersnamen mogen niet beledigend zijn** naar een groep of een individu (jezelf beledigen is toegestaan, zolang het niet al te serieus is).
 
