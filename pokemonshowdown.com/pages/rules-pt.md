@@ -32,7 +32,7 @@
 
 Seu nome de usuário pode ser trocado a qualquer momento (mude-o dando log out e depois log in com um novo nome), mas tenha as seguintes regras em mente:
 
-1. **Nomes não podem personificar** um membro do staff (usuários com `%`, `@`, `#` ou `&` frente ao nome) ou pessoas / organizações famosas que usam o PS ou são associadas a Pokémon.
+1. **Nomes não podem personificar** um membro do staff (usuários com `%`, `@`, `#` ou `~` frente ao nome) ou pessoas / organizações famosas que usam o PS ou são associadas a Pokémon.
 
 2. **Nomes não podem ofender** um indivíduo ou um grupo (insultar a si mesmo é aceitável, contanto que não seja algo muito sério).
 

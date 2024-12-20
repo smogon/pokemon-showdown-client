@@ -20,7 +20,7 @@ Room staff have permissions tied specifically to the room they were promoted in,
 
 **Global Moderators (`@`)** can do all of the above, as well as ban users from the server, do anything a Room Moderator can do, and check users' IP addresses.
 
-**Global Administrators (`&`)** can: do all of the above, as well as promote users to any rank, force ties and wins in battle, make unsigned global declarations, create rooms, ban a range of IP addresses, reset passwords, and permanently lock / ban users.
+**Global Administrators (`~`)** can: do all of the above, as well as promote users to any rank, force ties and wins in battle, make unsigned global declarations, create rooms, ban a range of IP addresses, reset passwords, and permanently lock / ban users.
 
 ###  How do I become a staff member?
 

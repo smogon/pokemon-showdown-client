@@ -36,7 +36,7 @@ Oh, wait, that wasn't the kind of rules we're talking about? Well, PS still rule
 
 Your username can be chosen and changed at any time (change it by logging out and logging in with a new username). Keep in mind:
 
-1. **Names may not impersonate** staff (users with `%`, `@`, `#`, or `&` next to their name) or famous people/organizations that use PS or are associated with Pokémon.
+1. **Names may not impersonate** staff (users with `%`, `@`, `#`, or `~` next to their name) or famous people/organizations that use PS or are associated with Pokémon.
 
 2. **Names may not insult** an individual or group (insulting yourself is okay as long as it's not too serious).
 
