@@ -2859,6 +2859,8 @@ export class PokemonSprite extends Sprite {
 				label = Dex.moves.get(id).name;
 			} else if (Dex.abilities.get(id).exists) {
 				label = Dex.abilities.get(id).name;
+			} else if (Dex.natures.get(id).exists) {
+				label = Dex.natures.get(id).name;
 			}
 			effect = [label, 'neutral'];
 		}
