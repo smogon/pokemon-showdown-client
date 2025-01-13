@@ -1343,7 +1343,7 @@
 					}
 				}
 				if (this.curTeam.gen === 9) {
-					buf += '<span class="detailcell"><label>Tera Type</label>' + (set.teraType || species.forceTeraType || species.types[0]) + '</span>';
+					buf += '<span class="detailcell"><label>Tera Type</label>' + (set.teraType || species.requiredTeraType || species.types[0]) + '</span>';
 				}
 			}
 			buf += '</button></div></div>';
@@ -1880,7 +1880,7 @@
 
 			// never preserve current set tera, even if smogon set used default
 			if (this.curSet.gen === 9) {
-				curSet.teraType = sampleSet.teraType || species.forceTeraType || species.types[0];
+				curSet.teraType = sampleSet.teraType || species.requiredTeraType || species.types[0];
 			}
 
 			var text = Storage.exportTeam([curSet], this.curTeam.gen);
@@ -2913,7 +2913,7 @@
 				buf += '<div class="formrow"><label class="formlabel" title="Tera Type">Tera Type:</label><div>';
 				buf += '<select name="teratype" class="button">';
 				var types = Dex.types.all();
-				var teraType = set.teraType || species.forceTeraType || species.types[0];
+				var teraType = set.teraType || species.requiredTeraType || species.types[0];
 				for (var i = 0; i < types.length; i++) {
 					buf += '<option value="' + types[i].name + '"' + (teraType === types[i].name ? ' selected="selected"' : '') + '>' + types[i].name + '</option>';
 				}
@@ -3028,7 +3028,7 @@
 					}
 				}
 				if (this.curTeam.gen === 9) {
-					buf += '<span class="detailcell"><label>Tera Type</label>' + (set.teraType || species.forceTeraType || species.types[0]) + '</span>';
+					buf += '<span class="detailcell"><label>Tera Type</label>' + (set.teraType || species.requiredTeraType || species.types[0]) + '</span>';
 				}
 			}
 			this.$('button[name=details]').html(buf);
