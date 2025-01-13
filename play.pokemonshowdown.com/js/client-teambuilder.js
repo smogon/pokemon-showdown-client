@@ -1343,7 +1343,7 @@
 					}
 				}
 				if (this.curTeam.gen === 9) {
-					buf += '<span class="detailcell"><label>Tera Type</label>' + (species.forceTeraType || set.teraType || species.types[0]) + '</span>';
+					buf += '<span class="detailcell"><label>Tera Type</label>' + (set.teraType || species.forceTeraType || species.types[0]) + '</span>';
 				}
 			}
 			buf += '</button></div></div>';
@@ -1880,7 +1880,7 @@
 
 			// never preserve current set tera, even if smogon set used default
 			if (this.curSet.gen === 9) {
-				curSet.teraType = species.forceTeraType || sampleSet.teraType || species.types[0];
+				curSet.teraType = sampleSet.teraType || species.forceTeraType || species.types[0];
 			}
 
 			var text = Storage.exportTeam([curSet], this.curTeam.gen);
@@ -2911,18 +2911,13 @@
 
 			if (this.curTeam.gen === 9) {
 				buf += '<div class="formrow"><label class="formlabel" title="Tera Type">Tera Type:</label><div>';
-				if (species.forceTeraType) {
-					buf += species.forceTeraType;
-				} else {
-					buf += '<select name="teratype" class="button">';
-					var types = Dex.types.all();
-					var teraType = set.teraType || species.types[0];
-					for (var i = 0; i < types.length; i++) {
-						buf += '<option value="' + types[i].name + '"' + (teraType === types[i].name ? ' selected="selected"' : '') + '>' + types[i].name + '</option>';
-					}
-					buf += '</select>';
+				buf += '<select name="teratype" class="button">';
+				var types = Dex.types.all();
+				var teraType = set.teraType || species.forceTeraType || species.types[0];
+				for (var i = 0; i < types.length; i++) {
+					buf += '<option value="' + types[i].name + '"' + (teraType === types[i].name ? ' selected="selected"' : '') + '>' + types[i].name + '</option>';
 				}
-				buf += '</div></div>';
+				buf += '</select></div></div>';
 			}
 
 			buf += '</form>';
@@ -3033,7 +3028,7 @@
 					}
 				}
 				if (this.curTeam.gen === 9) {
-					buf += '<span class="detailcell"><label>Tera Type</label>' + (species.forceTeraType || set.teraType || species.types[0]) + '</span>';
+					buf += '<span class="detailcell"><label>Tera Type</label>' + (set.teraType || species.forceTeraType || species.types[0]) + '</span>';
 				}
 			}
 			this.$('button[name=details]').html(buf);
