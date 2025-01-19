@@ -701,10 +701,7 @@
 			if (!this.searching || $.isArray(this.searching) && !this.searching.length) {
 				var format = $formatButton.val();
 				var teamIndex = $teamButton.val();
-				if (teamIndex === '') {
-					this.curTeamIndex = -1;
-					teamIndex = undefined;
-				}
+				
 				$formatButton.replaceWith(this.renderFormats(format));
 				$teamButton.replaceWith(this.renderTeams(format, teamIndex));
 
@@ -1075,7 +1072,12 @@
 			if (!teams.length) {
 				return '<button class="select teamselect" name="team" disabled>You have no teams</button>';
 			}
-			if (teamIndex === undefined) teamIndex = -1;
+			if (teamIndex === undefined || teamIndex === '' || teamIndex === -1) {
+				// if format is selected from default on reload, teamIndex gets set to -1 or ''
+				// handle both cases so we find the first team in that format
+				teamIndex = -1;
+				this.curTeamIndex = -1;
+			}
 			if (teamIndex < 0) {
 				if (this.curTeamIndex >= 0) {
 					teamIndex = this.curTeamIndex;
