@@ -1027,10 +1027,9 @@
 			}
 			if (!noChoice) {
 				var defaultFormat = Storage.prefs('defaultformat');
-				if(BattleFormats[defaultFormat]) {
+				if (BattleFormats[defaultFormat]) {
 					this.curFormat = defaultFormat;
-				}
-				else {
+				} else {
 					this.curFormat = formatid;
 					if (!this.curFormat) {
 						if (BattleFormats['gen9randombattle']) {
