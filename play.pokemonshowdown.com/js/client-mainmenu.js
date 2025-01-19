@@ -701,6 +701,10 @@
 			if (!this.searching || $.isArray(this.searching) && !this.searching.length) {
 				var format = $formatButton.val();
 				var teamIndex = $teamButton.val();
+				if (teamIndex === '') {
+					this.curTeamIndex = -1;
+					teamIndex = undefined;
+				}
 				$formatButton.replaceWith(this.renderFormats(format));
 				$teamButton.replaceWith(this.renderTeams(format, teamIndex));
 
