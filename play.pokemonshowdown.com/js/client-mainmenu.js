@@ -1026,6 +1026,11 @@
 				return '<button class="select formatselect" name="format" disabled><em>No formats available</em></button>';
 			}
 			if (!noChoice) {
+				var defaultFormat = Storage.prefs('defaultformat');
+				if(BattleFormats[defaultFormat]) {
+					this.curFormat = defaultFormat;
+				}
+				else {
 				this.curFormat = formatid;
 				if (!this.curFormat) {
 					if (BattleFormats['gen9randombattle']) {
@@ -1035,6 +1040,7 @@
 						this.curFormat = i;
 						break;
 					}
+				}
 				}
 				formatid = this.curFormat;
 			}
