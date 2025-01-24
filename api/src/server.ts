@@ -211,7 +211,12 @@ export class ActionContext {
 	}
 	isTrustedProxy(ip: string) {
 		// account for shit like ::ffff:127.0.0.1
-		return ip === '::ffff:127.0.0.1' || Config.trustedproxies.some(f => IPTools.checkPattern(f, ip));
+		const num = IPTools.ipToNumber(ip) || 0;
+		return (
+			ip === '::ffff:127.0.0.1' ||
+			Config.trustedproxies.some(f => IPTools.checkPattern(f, ip)) ||
+			IPTools.privateRelayIPs.some(f => f.minIP <= num && num <= f.maxIP)
+		);
 	}
 	_ip = '';
 	getIp() {
@@ -415,3 +420,5 @@ export class Server {
 		);
 	}
 }
+
+void IPTools.loadPrivateRelayIPs();

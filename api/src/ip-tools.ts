@@ -3,6 +3,7 @@
  */
 
 export const IPTools = new class {
+	privateRelayIPs: {minIP: number; maxIP: number}[] = [];
 	// eslint-disable-next-line max-len
 	readonly ipRegex = /^(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\.(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\.(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\.(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])$/;
 	getCidrRange(cidr: string): {minIP: number; maxIP: number} | null {
@@ -50,6 +51,24 @@ export const IPTools = new class {
 		const range = this.getCidrRange(rangeString);
 		if (!range) return false;
 		return range.minIP <= ip && ip <= range.maxIP;
+	}
+
+	async loadPrivateRelayIPs() {
+		const seen = new Set<string>();
+		try {
+			const res = await (await fetch("https://mask-api.icloud.com/egress-ip-ranges.csv")).text();
+			for (const line of res.split('\n')) {
+				const [range] = line.split(',');
+				const [ip] = range.split('/');
+				if (this.ipRegex.test(ip) && !seen.has(range)) {
+					const cidr = this.getCidrRange(range);
+					if (cidr) {
+						this.privateRelayIPs.push(cidr);
+						seen.add(range);
+					}
+				}
+			}
+		} catch {}
 	}
 };
 
