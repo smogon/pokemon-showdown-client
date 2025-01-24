@@ -112,7 +112,7 @@ export class ActionContext {
 
 			return result;
 		} catch (e: any) {
-			if (e instanceof ActionError) {
+			if (e?.name?.endsWith('ActionError')) {
 				return {actionerror: e.message};
 			}
 
@@ -384,7 +384,7 @@ export class Server {
 			res.writeHead(200).end(this.stringify(result, useDispatchPrefix));
 		} catch (e: any) {
 			this.ensureHeaders(res);
-			if (e instanceof ActionError) {
+			if (e?.name?.endsWith('ActionError')) {
 				if (e.httpStatus) {
 					res.writeHead(e.httpStatus).end('Error: ' + e.message);
 				} else {
