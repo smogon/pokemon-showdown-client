@@ -677,21 +677,29 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			switch (id) {
 			case 'leftovers':
 			case 'lifeorb':
-			case 'choiceband':
 			case 'choicescarf':
-			case 'choicespecs':
-			case 'eviolite':
 			case 'assaultvest':
 			case 'focussash':
 			case 'powerherb':
 			case 'rockyhelmet':
-			case 'heavydutyboots':
 			case 'expertbelt':
 			case 'salacberry':
+				if (!isMetBattle) greatItems.push(id);
+				else goodItems.push(id);
+				break;
+			case 'choiceband':
+			case 'choicespecs':
+			case 'eviolite':
 				greatItems.push(id);
 				break;
+			case 'mirrorherb':
+			case 'weaknesspolicy':
+				if (isMetBattle) greatItems.push(id);
+				else goodItems.push(id);
+				break;
 			case 'mentalherb':
-				if (genNum > 4) greatItems.push(id);
+				if (isMetBattle) goodItems.push(id);
+				else if (genNum > 4) greatItems.push(id);
 				else poorItems.push(id);
 				break;
 			case 'lumberry':
