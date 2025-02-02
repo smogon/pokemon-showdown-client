@@ -703,9 +703,6 @@ abstract class BattleTypedSearch<T extends SearchType> {
 		let results: SearchRow[];
 		let illegalResults: SearchRow[] | null;
 
-		if (this.defaultFilter) {
-			results = this.defaultFilter(this.baseResults);
-		}
 		if (filters) {
 			results = [];
 			illegalResults = [];
@@ -729,6 +726,9 @@ abstract class BattleTypedSearch<T extends SearchType> {
 		} else {
 			results = [...this.baseResults];
 			illegalResults = null;
+		}
+		if (this.defaultFilter) {
+			results = this.defaultFilter(results);
 		}
 
 		if (sortCol) {
@@ -1309,7 +1309,7 @@ class BattleItemSearch extends BattleTypedSearch<'item'> {
 			// poisonheal: 'toxicorb',
 			// toxicboost: 'toxicorb',
 			// flareboost: 'flameorb',
-		}[toID(this.set?.ability) as string]
+		}[toID(this.set?.ability) as string];
 		for (const row of results) {
 			if (row[0] !== 'item') continue;
 			const item = this.dex.items.get(row[1]);
@@ -1319,13 +1319,13 @@ class BattleItemSearch extends BattleTypedSearch<'item'> {
 		if (speciesSpecific.length) {
 			results.unshift(
 				['header', "Specific to " + speciesName],
-				...speciesSpecific,
+				...speciesSpecific
 			);
 		}
 		if (abilitySpecific.length) {
 			results.unshift(
 				['header', "Specific to " + this.set!.ability],
-				...abilitySpecific,
+				...abilitySpecific
 			);
 		}
 		return results;
