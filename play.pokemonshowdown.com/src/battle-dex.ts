@@ -396,6 +396,12 @@ const Dex = new class implements ModdedDex {
 				if (!data.tier && data.baseSpecies && toID(data.baseSpecies) !== id) {
 					data.tier = this.species.get(data.baseSpecies).tier;
 				}
+				data.nfe = data.id === 'dipplin' || !!(data as Species).evos?.some(evo => {
+					const evoSpecies = this.species.get(evo);
+					return !evoSpecies.isNonstandard || evoSpecies.isNonstandard === data.isNonstandard ||
+						// Pokemon with Hisui evolutions
+						evoSpecies.isNonstandard === "Unobtainable";
+				});
 				species = new Species(id, name, data);
 				window.BattlePokedex[id] = species;
 			}
@@ -989,6 +995,12 @@ class ModdedDex {
 				data.tier = this.species.get(data.baseSpecies).tier;
 			}
 			if (data.gen > this.gen) data.tier = 'Illegal';
+			data.nfe = data.id === 'dipplin' || !!data.evos?.some(evo => {
+				const evoSpecies = this.species.get(evo);
+				return !evoSpecies.isNonstandard || evoSpecies.isNonstandard === data.isNonstandard ||
+					// Pokemon with Hisui evolutions
+					evoSpecies.isNonstandard === "Unobtainable";
+			});
 
 			const species = new Species(id, name, data);
 			this.cache.Species[id] = species;

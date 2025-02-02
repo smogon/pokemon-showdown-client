@@ -1176,14 +1176,7 @@ class BattleTooltips {
 				speedModifiers.push(1.5);
 			}
 		}
-		const isNFE = this.battle.dex.species.get(serverPokemon.speciesForme).evos?.some(evo => {
-			const evoSpecies = this.battle.dex.species.get(evo);
-			return !evoSpecies.isNonstandard ||
-					evoSpecies.isNonstandard === this.battle.dex.species.get(serverPokemon.speciesForme)?.isNonstandard ||
-					// Pokemon with Hisui evolutions
-					evoSpecies.isNonstandard === "Unobtainable";
-		});
-		if (item === 'eviolite' && (isNFE || this.battle.dex.species.get(serverPokemon.speciesForme).id === 'dipplin')) {
+		if (item === 'eviolite' && this.battle.dex.species.get(serverPokemon.speciesForme).nfe) {
 			stats.def = Math.floor(stats.def * 1.5);
 			stats.spd = Math.floor(stats.spd * 1.5);
 		}
