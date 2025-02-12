@@ -622,6 +622,8 @@ const BattlePokemonIconIndexes: {[id: string]: number} = {
 	cresceidon: 1512 + 73,
 	chuggalong: 1512 + 74,
 	shox: 1512 + 75,
+	chuggon: 1512 + 76,
+	draggalong: 1512 + 77,
 };
 
 const BattlePokemonIconIndexesLeft: {[id: string]: number} = {
