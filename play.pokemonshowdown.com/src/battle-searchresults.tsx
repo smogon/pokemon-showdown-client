@@ -7,7 +7,11 @@
  * @license AGPLv3
  */
 
-class PSSearchResults extends preact.Component<{search: DexSearch}> {
+import preact from "../js/lib/preact";
+import {Dex, type ID} from "./battle-dex";
+import type {DexSearch, SearchRow} from "./battle-dex-search";
+
+export class PSSearchResults extends preact.Component<{search: DexSearch}> {
 	readonly URL_ROOT = `//${Config.routes.dex}/`;
 
 	renderPokemonSortRow() {

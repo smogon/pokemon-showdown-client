@@ -1,3 +1,4 @@
+import {PS} from "./client-main";
 
 export class BattleBGM {
 	/**

@@ -27,9 +27,12 @@
  * @license MIT
  */
 
+// import $ from 'jquery';
 import {BattleSceneStub} from './battle-scene-stub';
 import {BattleLog} from './battle-log';
 import {BattleScene, PokemonSprite, BattleStatusAnims} from './battle-animations';
+import {Dex, Teams, toID, toUserid, type ID, type ModdedDex} from './battle-dex';
+import {BattleTextParser, type Args, type KWArgs, type SideID} from './battle-text-parser';
 
 /** [id, element?, ...misc] */
 export type EffectState = any[] & {0: ID};
@@ -79,7 +82,7 @@ export class Pokemon implements PokemonDetails, PokemonHealth {
 	hp = 0;
 	maxhp = 1000;
 	level = 100;
-	gender: GenderName = 'N';
+	gender: Dex.GenderName = 'N';
 	shiny = false;
 
 	hpcolor: HPColor = 'g';
@@ -94,7 +97,7 @@ export class Pokemon implements PokemonDetails, PokemonHealth {
 	teraType = '';
 
 	boosts: {[stat: string]: number} = {};
-	status: StatusName | 'tox' | '' | '???' = '';
+	status: Dex.StatusName | 'tox' | '' | '???' = '';
 	statusStage = 0;
 	volatiles: {[effectid: string]: EffectState} = {};
 	turnstatuses: {[effectid: string]: EffectState} = {};
@@ -361,7 +364,7 @@ export class Pokemon implements PokemonDetails, PokemonHealth {
 			this.baseAbility = ability;
 		}
 	}
-	getBoost(boostStat: BoostStatName) {
+	getBoost(boostStat: Dex.BoostStatName) {
 		let boostStatTable = {
 			atk: 'Atk',
 			def: 'Def',
@@ -409,7 +412,7 @@ export class Pokemon implements PokemonDetails, PokemonHealth {
 		let autotomizeFactor = this.volatiles.autotomize?.[1] * 100 || 0;
 		return Math.max(this.getSpecies(serverPokemon).weightkg - autotomizeFactor, 0.1);
 	}
-	getBoostType(boostStat: BoostStatName) {
+	getBoostType(boostStat: Dex.BoostStatName) {
 		if (!this.boosts[boostStat]) return 'neutral';
 		if (this.boosts[boostStat] > 0) return 'good';
 		return 'bad';
@@ -474,10 +477,10 @@ export class Pokemon implements PokemonDetails, PokemonHealth {
 			this.removeVolatile('typeadd' as ID);
 		}
 	}
-	getTypes(serverPokemon?: ServerPokemon, preterastallized = false): [ReadonlyArray<TypeName>, TypeName | ''] {
-		let types: ReadonlyArray<TypeName>;
+	getTypes(serverPokemon?: ServerPokemon, preterastallized = false): [ReadonlyArray<Dex.TypeName>, Dex.TypeName | ''] {
+		let types: ReadonlyArray<Dex.TypeName>;
 		if (!preterastallized && this.terastallized && this.terastallized !== 'Stellar') {
-			types = [this.terastallized as TypeName];
+			types = [this.terastallized as Dex.TypeName];
 		} else if (this.volatiles.typechange) {
 			types = this.volatiles.typechange[1].split('/');
 		} else {
@@ -675,7 +678,7 @@ export class Side {
 			if (this.foe && this.avatar === this.foe.avatar) this.rollTrainerSprites();
 		}
 	}
-	addSideCondition(effect: Effect, persist: boolean) {
+	addSideCondition(effect: Dex.Effect, persist: boolean) {
 		let condition = effect.id;
 		if (this.sideConditions[condition]) {
 			if (condition === 'spikes' || condition === 'toxicspikes') {
@@ -970,7 +973,7 @@ export interface PokemonDetails {
 	speciesForme: string;
 	level: number;
 	shiny: boolean;
-	gender: GenderName | '';
+	gender: Dex.GenderName | '';
 	ident: string;
 	terastallized: string;
 	searchid: string;
@@ -979,7 +982,7 @@ export interface PokemonHealth {
 	hp: number;
 	maxhp: number;
 	hpcolor: HPColor | '';
-	status: StatusName | 'tox' | '' | '???';
+	status: Dex.StatusName | 'tox' | '' | '???';
 	fainted?: boolean;
 }
 export interface ServerPokemon extends PokemonDetails, PokemonHealth {
@@ -1389,7 +1392,7 @@ export class Battle {
 		this.turnsSinceMoved = 0;
 		this.scene.updateAcceleration();
 	}
-	changeWeather(weatherName: string, poke?: Pokemon, isUpkeep?: boolean, ability?: Effect) {
+	changeWeather(weatherName: string, poke?: Pokemon, isUpkeep?: boolean, ability?: Dex.Effect) {
 		let weather = toID(weatherName);
 		if (!weather || weather === 'none') {
 			weather = '' as ID;
@@ -1472,7 +1475,7 @@ export class Battle {
 		}
 		this.scene.updateWeather();
 	}
-	useMove(pokemon: Pokemon, move: Move, target: Pokemon | null, kwArgs: KWArgs) {
+	useMove(pokemon: Pokemon, move: Dex.Move, target: Pokemon | null, kwArgs: KWArgs) {
 		let fromeffect = Dex.getEffect(kwArgs.from);
 		this.activateAbility(pokemon, fromeffect);
 		pokemon.clearMovestatuses();
@@ -1486,7 +1489,7 @@ export class Battle {
 		let callerMoveForPressure = null;
 		// will not include effects that are conditions named after moves like Magic Coat and Snatch, which is good
 		if (fromeffect.id && kwArgs.from.startsWith("move:")) {
-			callerMoveForPressure = fromeffect as Move;
+			callerMoveForPressure = fromeffect as Dex.Move;
 		}
 		if (!fromeffect.id || callerMoveForPressure || fromeffect.id === 'pursuit') {
 			let moveName = move.name;
@@ -1546,7 +1549,7 @@ export class Battle {
 			pokemon.side.wisher = pokemon;
 		}
 	}
-	animateMove(pokemon: Pokemon, move: Move, target: Pokemon | null, kwArgs: KWArgs) {
+	animateMove(pokemon: Pokemon, move: Dex.Move, target: Pokemon | null, kwArgs: KWArgs) {
 		this.activeMoveIsSpread = kwArgs.spread;
 		if (this.seeking !== null || kwArgs.still) return;
 
@@ -1587,7 +1590,7 @@ export class Battle {
 
 		this.scene.runMoveAnim(usedMove.id, targets);
 	}
-	cantUseMove(pokemon: Pokemon, effect: Effect, move: Move, kwArgs: KWArgs) {
+	cantUseMove(pokemon: Pokemon, effect: Dex.Effect, move: Dex.Move, kwArgs: KWArgs) {
 		pokemon.clearMovestatuses();
 		this.scene.updateStatbar(pokemon);
 		if (effect.id in BattleStatusAnims) {
@@ -1632,7 +1635,7 @@ export class Battle {
 		this.scene.animReset(pokemon);
 	}
 
-	activateAbility(pokemon: Pokemon | null, effectOrName: Effect | string, isNotBase?: boolean) {
+	activateAbility(pokemon: Pokemon | null, effectOrName: Dex.Effect | string, isNotBase?: boolean) {
 		if (!pokemon || !effectOrName) return;
 		if (typeof effectOrName !== 'string') {
 			if (effectOrName.effectType !== 'Ability') return;
@@ -1810,7 +1813,7 @@ export class Battle {
 		}
 		case '-boost': {
 			let poke = this.getPokemon(args[1])!;
-			let stat = args[2] as BoostStatName;
+			let stat = args[2] as Dex.BoostStatName;
 			if (this.gen === 1 && stat === 'spd') break;
 			if (this.gen === 1 && stat === 'spa') stat = 'spc';
 			let amount = parseInt(args[3], 10);
@@ -1837,7 +1840,7 @@ export class Battle {
 		}
 		case '-unboost': {
 			let poke = this.getPokemon(args[1])!;
-			let stat = args[2] as BoostStatName;
+			let stat = args[2] as Dex.BoostStatName;
 			if (this.gen === 1 && stat === 'spd') break;
 			if (this.gen === 1 && stat === 'spa') stat = 'spc';
 			let amount = parseInt(args[3], 10);
@@ -1862,7 +1865,7 @@ export class Battle {
 		}
 		case '-setboost': {
 			let poke = this.getPokemon(args[1])!;
-			let stat = args[2] as BoostStatName;
+			let stat = args[2] as Dex.BoostStatName;
 			let amount = parseInt(args[3], 10);
 			poke.boosts[stat] = amount;
 			this.scene.resultAnim(poke, poke.getBoost(stat), (amount > 0 ? 'good' : 'bad'));
@@ -2128,7 +2131,7 @@ export class Battle {
 			let poke = this.getPokemon(args[1])!;
 			let effect = Dex.getEffect(kwArgs.from);
 			let ofpoke = this.getPokemon(kwArgs.of) || poke;
-			poke.status = args[2] as StatusName;
+			poke.status = args[2] as Dex.StatusName;
 			this.activateAbility(ofpoke || poke, effect);
 			if (effect.effectType === 'Item') {
 				ofpoke.item = effect.name;
@@ -3195,7 +3198,7 @@ export class Battle {
 			splitDetails.pop();
 		}
 		if (splitDetails[splitDetails.length - 1] === 'M' || splitDetails[splitDetails.length - 1] === 'F') {
-			output.gender = splitDetails[splitDetails.length - 1] as GenderName;
+			output.gender = splitDetails[splitDetails.length - 1] as Dex.GenderName;
 			splitDetails.pop();
 		}
 		if (splitDetails[1]) {
@@ -3947,6 +3950,8 @@ export class Battle {
 	}
 }
 
+declare const require: any;
+declare const global: any;
 if (typeof require === 'function') {
 	// in Node
 	(global as any).Battle = Battle;

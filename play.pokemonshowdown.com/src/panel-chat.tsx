@@ -5,11 +5,19 @@
  * @license AGPLv3
  */
 
-declare const MiniEdit: typeof import('./miniedit').MiniEdit;
-type MiniEdit = import('./miniedit').MiniEdit;
+import preact from "../js/lib/preact";
+import type {PSSubscription} from "./client-core";
+import {PS, PSRoom, type RoomOptions, type RoomID, type Team} from "./client-main";
+import {PSPanelWrapper, PSRoomPanel} from "./panels";
+import {TeamForm} from "./panel-mainmenu";
+import {BattleLog} from "./battle-log";
+import type {Battle} from "./battle";
+import {MiniEdit} from "./miniedit";
+import {PSUtils, toID, type ID} from "./battle-dex";
+
 declare const formatText: any;
 
-class ChatRoom extends PSRoom {
+export class ChatRoom extends PSRoom {
 	override readonly classType: 'chat' | 'battle' = 'chat';
 	users: {[userid: string]: string} = {};
 	userCount = 0;
@@ -153,7 +161,7 @@ class ChatRoom extends PSRoom {
 	}
 }
 
-class ChatTextEntry extends preact.Component<{
+export class ChatTextEntry extends preact.Component<{
 	room: PSRoom, onMessage: (msg: string) => void, onKey: (e: KeyboardEvent) => boolean,
 	left?: number,
 }> {
@@ -444,7 +452,7 @@ class ChatPanel extends PSRoomPanel<ChatRoom> {
 	}
 }
 
-class ChatUserList extends preact.Component<{room: ChatRoom, left?: number, minimized?: boolean}> {
+export class ChatUserList extends preact.Component<{room: ChatRoom, left?: number, minimized?: boolean}> {
 	subscription: PSSubscription | null = null;
 	override state = {
 		expanded: false,
@@ -495,7 +503,7 @@ class ChatUserList extends preact.Component<{room: ChatRoom, left?: number, mini
 	}
 }
 
-class ChatLog extends preact.Component<{
+export class ChatLog extends preact.Component<{
 	class: string, room: ChatRoom, onClick?: (e: Event) => void, children?: preact.ComponentChildren,
 	left?: number, top?: number, noSubscription?: boolean;
 }> {

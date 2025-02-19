@@ -8,6 +8,13 @@
  * @license MIT
  */
 
+import {Pokemon, type Battle, type ServerPokemon} from "./battle";
+import {Dex, ModdedDex, toID, type ID} from "./battle-dex";
+import type {BattleScene} from "./battle-animations";
+import {BattleLog} from "./battle-log";
+import {BattleNatures} from "./battle-dex-data";
+import {BattleTextParser} from "./battle-text-parser";
+
 class ModifiableValue {
 	value = 0;
 	maxValue = 0;
@@ -139,7 +146,7 @@ class ModifiableValue {
 	}
 }
 
-class BattleTooltips {
+export class BattleTooltips {
 	battle: Battle;
 
 	constructor(battle: Battle) {
@@ -463,13 +470,13 @@ class BattleTooltips {
 		'healreplacement': "Restores replacement's HP 100%",
 	};
 
-	getStatusZMoveEffect(move: Move) {
+	getStatusZMoveEffect(move: Dex.Move) {
 		if (move.zMove!.effect! in BattleTooltips.zMoveEffects) {
 			return BattleTooltips.zMoveEffects[move.zMove!.effect!];
 		}
 		let boostText = '';
 		if (move.zMove!.boost) {
-			let boosts = Object.keys(move.zMove!.boost) as StatName[];
+			let boosts = Object.keys(move.zMove!.boost) as Dex.StatName[];
 			boostText = boosts.map(stat =>
 				BattleTextParser.stat(stat) + ' +' + move.zMove!.boost![stat]
 			).join(', ');
@@ -477,7 +484,7 @@ class BattleTooltips {
 		return boostText;
 	}
 
-	static zMoveTable: {[type in TypeName]: string} = {
+	static zMoveTable: {[type in Dex.TypeName]: string} = {
 		Poison: "Acid Downpour",
 		Fighting: "All-Out Pummeling",
 		Dark: "Black Hole Eclipse",
@@ -500,7 +507,7 @@ class BattleTooltips {
 		"???": "",
 	};
 
-	static maxMoveTable: {[type in TypeName]: string} = {
+	static maxMoveTable: {[type in Dex.TypeName]: string} = {
 		Poison: "Max Ooze",
 		Fighting: "Max Knuckle",
 		Dark: "Max Darkness",
@@ -523,7 +530,7 @@ class BattleTooltips {
 		"???": "",
 	};
 
-	getMaxMoveFromType(type: TypeName, gmaxMove?: string | Move) {
+	getMaxMoveFromType(type: Dex.TypeName, gmaxMove?: string | Dex.Move) {
 		if (gmaxMove) {
 			if (typeof gmaxMove === 'string') gmaxMove = this.battle.dex.moves.get(gmaxMove);
 			if (type === gmaxMove.type) return gmaxMove;
@@ -531,7 +538,9 @@ class BattleTooltips {
 		return this.battle.dex.moves.get(BattleTooltips.maxMoveTable[type]);
 	}
 
-	showMoveTooltip(move: Move, isZOrMax: string, pokemon: Pokemon, serverPokemon: ServerPokemon, gmaxMove?: Move) {
+	showMoveTooltip(
+		move: Dex.Move, isZOrMax: string, pokemon: Pokemon, serverPokemon: ServerPokemon, gmaxMove?: Dex.Move
+	) {
 		let text = '';
 
 		let zEffect = '';
@@ -552,13 +561,13 @@ class BattleTooltips {
 			if (item.zMoveFrom === move.name) {
 				move = this.battle.dex.moves.get(item.zMove as string);
 			} else if (move.category === 'Status') {
-				move = new Move(move.id, "", {
+				move = new Dex.Move(move.id, "", {
 					...move,
 					name: 'Z-' + move.name,
 				});
 				zEffect = this.getStatusZMoveEffect(move);
 			} else {
-				let moveName = BattleTooltips.zMoveTable[item.zMoveType as TypeName];
+				let moveName = BattleTooltips.zMoveTable[item.zMoveType as Dex.TypeName];
 				let zMove = this.battle.dex.moves.get(moveName);
 				let movePower = move.zMove!.basePower;
 				// the different Hidden Power types don't have a Z power set, fall back on base move
@@ -584,7 +593,7 @@ class BattleTooltips {
 						break;
 					}
 				}
-				move = new Move(zMove.id, zMove.name, {
+				move = new Dex.Move(zMove.id, zMove.name, {
 					...zMove,
 					category: move.category,
 					basePower: movePower,
@@ -598,7 +607,7 @@ class BattleTooltips {
 				let maxMove = this.getMaxMoveFromType(moveType, gmaxMove);
 				const basePower = ['gmaxdrumsolo', 'gmaxfireball', 'gmaxhydrosnipe'].includes(maxMove.id) ?
 					maxMove.basePower : move.maxMove.basePower;
-				move = new Move(maxMove.id, maxMove.name, {
+				move = new Dex.Move(maxMove.id, maxMove.name, {
 					...maxMove,
 					category: move.category,
 					basePower,
@@ -608,7 +617,7 @@ class BattleTooltips {
 		}
 
 		if (categoryDiff) {
-			move = new Move(move.id, move.name, {
+			move = new Dex.Move(move.id, move.name, {
 				...move,
 				category,
 			});
@@ -1437,7 +1446,7 @@ class BattleTooltips {
 		return `${bullet} ${move.name} ${showKnown ? ' <small>(revealed)</small>' : ''}`;
 	}
 
-	ppUsed(move: Move, pokemon: Pokemon) {
+	ppUsed(move: Dex.Move, pokemon: Pokemon) {
 		for (let [moveName, ppUsed] of pokemon.moveTrack) {
 			if (moveName.charAt(0) === '*') moveName = moveName.substr(1);
 			if (move.name === moveName) return ppUsed;
@@ -1507,7 +1516,9 @@ class BattleTooltips {
 	/**
 	 * Gets the proper current type for moves with a variable type.
 	 */
-	getMoveType(move: Move, value: ModifiableValue, forMaxMove?: boolean | Move): [TypeName, 'Physical' | 'Special' | 'Status'] {
+	getMoveType(
+		move: Dex.Move, value: ModifiableValue, forMaxMove?: boolean | Dex.Move
+	): [Dex.TypeName, 'Physical' | 'Special' | 'Status'] {
 		const pokemon = value.pokemon;
 		const serverPokemon = value.serverPokemon;
 
@@ -1570,7 +1581,7 @@ class BattleTooltips {
 			}
 		}
 		if (move.id === 'terablast' && pokemon.terastallized) {
-			moveType = pokemon.terastallized as TypeName;
+			moveType = pokemon.terastallized as Dex.TypeName;
 		}
 		if (move.id === 'terastarstorm' && pokemon.getSpeciesForme() === 'Terapagos-Stellar') {
 			moveType = 'Stellar';
@@ -1702,7 +1713,7 @@ class BattleTooltips {
 	}
 
 	// Gets the current accuracy for a move.
-	getMoveAccuracy(move: Move, value: ModifiableValue, target?: Pokemon) {
+	getMoveAccuracy(move: Dex.Move, value: ModifiableValue, target?: Pokemon) {
 		value.reset(move.accuracy === true ? 0 : move.accuracy, true);
 
 		let pokemon = value.pokemon!;
@@ -1847,7 +1858,7 @@ class BattleTooltips {
 	// Gets the proper current base power for moves which have a variable base power.
 	// Takes into account the target for some moves.
 	// If it is unsure of the actual base power, it gives an estimate.
-	getMoveBasePower(move: Move, moveType: TypeName, value: ModifiableValue, target: Pokemon | null = null) {
+	getMoveBasePower(move: Dex.Move, moveType: Dex.TypeName, value: ModifiableValue, target: Pokemon | null = null) {
 		const pokemon = value.pokemon!;
 		const serverPokemon = value.serverPokemon;
 
@@ -2294,14 +2305,14 @@ class BattleTooltips {
 		return value;
 	}
 
-	static incenseTypes: {[itemName: string]: TypeName} = {
+	static incenseTypes: {[itemName: string]: Dex.TypeName} = {
 		'Odd Incense': 'Psychic',
 		'Rock Incense': 'Rock',
 		'Rose Incense': 'Grass',
 		'Sea Incense': 'Water',
 		'Wave Incense': 'Water',
 	};
-	static itemTypes: {[itemName: string]: TypeName} = {
+	static itemTypes: {[itemName: string]: Dex.TypeName} = {
 		'Black Belt': 'Fighting',
 		'Black Glasses': 'Dark',
 		'Charcoal': 'Fire',
@@ -2329,7 +2340,7 @@ class BattleTooltips {
 		'Giratina': ['Griseous Core', 'Griseous Orb'],
 		'Venomicon': ['Vile Vial'],
 	};
-	static orbTypes: {[itemName: string]: TypeName[]} = {
+	static orbTypes: {[itemName: string]: Dex.TypeName[]} = {
 		'Soul Dew': ['Psychic', 'Dragon'],
 		'Adamant Crystal': ['Steel', 'Dragon'],
 		'Adamant Orb': ['Steel', 'Dragon'],
@@ -2346,7 +2357,7 @@ class BattleTooltips {
 		'Struggle',
 		'Water Pledge',
 	];
-	getItemBoost(move: Move, value: ModifiableValue, moveType: TypeName) {
+	getItemBoost(move: Dex.Move, value: ModifiableValue, moveType: Dex.TypeName) {
 		let item = this.battle.dex.items.get(value.serverPokemon.item);
 		let itemName = item.name;
 		let moveName = move.name;
@@ -2411,14 +2422,14 @@ class BattleTooltips {
 
 		return value;
 	}
-	getPokemonTypes(pokemon: Pokemon | ServerPokemon, preterastallized = false): ReadonlyArray<TypeName> {
+	getPokemonTypes(pokemon: Pokemon | ServerPokemon, preterastallized = false): ReadonlyArray<Dex.TypeName> {
 		if (!(pokemon as Pokemon).getTypes) {
 			return this.battle.dex.species.get(pokemon.speciesForme).types;
 		}
 
 		return (pokemon as Pokemon).getTypeList(undefined, preterastallized);
 	}
-	pokemonHasType(pokemon: Pokemon | ServerPokemon, type: TypeName, types?: ReadonlyArray<TypeName>) {
+	pokemonHasType(pokemon: Pokemon | ServerPokemon, type: Dex.TypeName, types?: ReadonlyArray<Dex.TypeName>) {
 		if (!types) types = this.getPokemonTypes(pokemon);
 		for (const curType of types) {
 			if (curType === type) return true;
@@ -2501,48 +2512,6 @@ class BattleTooltips {
 	}
 }
 
-type StatsTable = {hp: number, atk: number, def: number, spa: number, spd: number, spe: number};
-
-/**
- * PokemonSet can be sparse, in which case that entry should be
- * inferred from the rest of the set, according to sensible
- * defaults.
- */
-interface PokemonSet {
-	/** Defaults to species name (not including forme), like in games */
-	name?: string;
-	species: string;
-	/** Defaults to no item */
-	item?: string;
-	/** Defaults to no ability (error in Gen 3+) */
-	ability?: string;
-	moves: string[];
-	/** Defaults to no nature (error in Gen 3+) */
-	nature?: NatureName;
-	/** Defaults to random legal gender, NOT subject to gender ratios */
-	gender?: string;
-	/** Defaults to flat 252's (200's/0's in Let's Go) (error in gen 3+) */
-	evs?: Partial<StatsTable>;
-	/** Defaults to whatever makes sense - flat 31's unless you have Gyro Ball etc */
-	ivs?: StatsTable;
-	/** Defaults as you'd expect (100 normally, 50 in VGC-likes, 5 in LC) */
-	level?: number;
-	/** Defaults to no (error if shiny event) */
-	shiny?: boolean;
-	/** Defaults to 255 unless you have Frustration, in which case 0 */
-	happiness?: number;
-	/** Defaults to event required ball, otherwise Poké Ball */
-	pokeball?: string;
-	/** Defaults to the type of your Hidden Power in Moves, otherwise Dark */
-	hpType?: string;
-	/** Defaults to 10 */
-	dynamaxLevel?: number;
-	/** Defaults to no (can only be yes for certain Pokemon) */
-	gigantamax?: boolean;
-	/** Defaults to the primary type */
-	teraType?: string;
-}
-
 class BattleStatGuesser {
 	formatid: ID;
 	dex: ModdedDex;
@@ -2565,18 +2534,18 @@ class BattleStatGuesser {
 		this.supportsEVs = !this.formatid.includes('letsgo');
 		this.supportsAVs = !this.supportsEVs && this.formatid.endsWith('norestrictions');
 	}
-	guess(set: PokemonSet) {
+	guess(set: Dex.PokemonSet) {
 		let role = this.guessRole(set);
 		let comboEVs = this.guessEVs(set, role);
 		let evs = {hp: 0, atk: 0, def: 0, spa: 0, spd: 0, spe: 0};
 		for (let stat in evs) {
-			evs[stat as StatName] = comboEVs[stat as StatName] || 0;
+			evs[stat as Dex.StatName] = comboEVs[stat as Dex.StatName] || 0;
 		}
 		let plusStat = comboEVs.plusStat || '';
 		let minusStat = comboEVs.minusStat || '';
 		return {role, evs, plusStat, minusStat, moveCount: this.moveCount, hasMove: this.hasMove};
 	}
-	guessRole(set: PokemonSet) {
+	guessRole(set: Dex.PokemonSet) {
 		if (!set) return '?';
 		if (!set.moves) return '?';
 
@@ -2855,7 +2824,7 @@ class BattleStatGuesser {
 		if (specialBulk >= physicalBulk) return 'Specially Defensive';
 		return 'Physically Defensive';
 	}
-	ensureMinEVs(evs: StatsTable, stat: StatName, min: number, evTotal: number) {
+	ensureMinEVs(evs: Dex.StatsTable, stat: Dex.StatName, min: number, evTotal: number) {
 		if (!evs[stat]) evs[stat] = 0;
 		let diff = min - evs[stat];
 		if (diff <= 0) return evTotal;
@@ -2867,7 +2836,7 @@ class BattleStatGuesser {
 		}
 		if (diff <= 0) return evTotal;
 		let evPriority = {def: 1, spd: 1, hp: 1, atk: 1, spa: 1, spe: 1};
-		let prioStat: StatName;
+		let prioStat: Dex.StatName;
 		for (prioStat in evPriority) {
 			if (prioStat === stat) continue;
 			if (evs[prioStat] && evs[prioStat] > 128) {
@@ -2878,7 +2847,7 @@ class BattleStatGuesser {
 		}
 		return evTotal; // can't do it :(
 	}
-	ensureMaxEVs(evs: StatsTable, stat: StatName, min: number, evTotal: number) {
+	ensureMaxEVs(evs: Dex.StatsTable, stat: Dex.StatName, min: number, evTotal: number) {
 		if (!evs[stat]) evs[stat] = 0;
 		let diff = evs[stat] - min;
 		if (diff <= 0) return evTotal;
@@ -2886,7 +2855,9 @@ class BattleStatGuesser {
 		evTotal -= diff;
 		return evTotal; // can't do it :(
 	}
-	guessEVs(set: PokemonSet, role: string): Partial<StatsTable> & {plusStat?: StatName | '', minusStat?: StatName | ''} {
+	guessEVs(
+		set: Dex.PokemonSet, role: string
+	): Partial<Dex.StatsTable> & {plusStat?: Dex.StatName | '', minusStat?: Dex.StatName | ''} {
 		if (!set) return {};
 		if (role === '?') return {};
 		let species = this.dex.species.get(set.species || set.name!);
@@ -2895,13 +2866,13 @@ class BattleStatGuesser {
 		let hasMove = this.hasMove;
 		let moveCount = this.moveCount;
 
-		let evs: StatsTable & {plusStat?: StatName | '', minusStat?: StatName | ''} = {
+		let evs: Dex.StatsTable & {plusStat?: Dex.StatName | '', minusStat?: Dex.StatName | ''} = {
 			hp: 0, atk: 0, def: 0, spa: 0, spd: 0, spe: 0,
 		};
-		let plusStat: StatName | '' = '';
-		let minusStat: StatName | '' = '';
+		let plusStat: Dex.StatName | '' = '';
+		let minusStat: Dex.StatName | '' = '';
 
-		let statChart: {[role: string]: [StatName, StatName]} = {
+		let statChart: {[role: string]: [Dex.StatName, Dex.StatName]} = {
 			'Bulky Band': ['atk', 'hp'],
 			'Fast Band': ['spe', 'atk'],
 			'Bulky Specs': ['spa', 'hp'],
@@ -2963,7 +2934,7 @@ class BattleStatGuesser {
 			evs[primaryStat] = ev;
 			evTotal += ev;
 
-			let secondaryStat: StatName | null = statChart[role][1];
+			let secondaryStat: Dex.StatName | null = statChart[role][1];
 			if (secondaryStat === 'hp' && set.level && set.level < 20) secondaryStat = 'spd';
 			stat = this.getStat(secondaryStat, set, 252, plusStat === secondaryStat ? 1.1 : 1.0);
 			ev = 252;
@@ -3106,7 +3077,7 @@ class BattleStatGuesser {
 		return evs;
 	}
 
-	getStat(stat: StatName, set: PokemonSet, evOverride?: number, natureOverride?: number) {
+	getStat(stat: Dex.StatName, set: Dex.PokemonSet, evOverride?: number, natureOverride?: number) {
 		let species = this.dex.species.get(set.species);
 		if (!species.exists) return 0;
 
@@ -3146,7 +3117,7 @@ class BattleStatGuesser {
 	}
 }
 
-function BattleStatOptimizer(set: PokemonSet, formatid: ID) {
+function BattleStatOptimizer(set: Dex.PokemonSet, formatid: ID) {
 	if (!set.evs) return null;
 
 	const dex = Dex.mod(formatid.slice(0, 4) as ID);
@@ -3160,7 +3131,7 @@ function BattleStatOptimizer(set: PokemonSet, formatid: ID) {
 
 	const species = dex.species.get(set.species);
 	const level = set.level || 100;
-	const getStat = (stat: StatNameExceptHP, ev: number, nature: Nature) => {
+	const getStat = (stat: Dex.StatNameExceptHP, ev: number, nature: Dex.Nature) => {
 		const baseStat = species.baseStats[stat];
 		const iv = set.ivs?.[stat] || 31;
 		let val = ~~(~~(2 * baseStat + iv + ~~(ev / 4)) * level / 100 + 5);
@@ -3181,7 +3152,7 @@ function BattleStatOptimizer(set: PokemonSet, formatid: ID) {
 		spd: getStat('spd', set.evs.spd || 0, origNature),
 		spe: getStat('spe', set.evs.spe || 0, origNature),
 	};
-	const getMinEVs = (stat: StatNameExceptHP, nature: Nature) => {
+	const getMinEVs = (stat: Dex.StatNameExceptHP, nature: Dex.Nature) => {
 		let ev = 0;
 		while (getStat(stat, ev, nature) < origStats[stat]) {
 			ev += 4;
@@ -3252,9 +3223,9 @@ function BattleStatOptimizer(set: PokemonSet, formatid: ID) {
 
 	if (bestPlus && savedEVs >= 0) {
 		const newSpread: {
-			evs: Partial<StatsTable>,
-			plus?: StatNameExceptHP,
-			minus?: StatNameExceptHP,
+			evs: Partial<Dex.StatsTable>,
+			plus?: Dex.StatNameExceptHP,
+			minus?: Dex.StatNameExceptHP,
 		} = {evs: {...origSpread.evs}, plus: bestPlus, minus: bestMinus};
 		if (bestPlus !== origNature.plus || bestMinus !== origNature.minus) {
 			newSpread.evs[bestPlus] = bestPlusMinEVs!;
@@ -3291,6 +3262,8 @@ function BattleStatOptimizer(set: PokemonSet, formatid: ID) {
 	return null;
 }
 
+declare const require: any;
+declare const global: any;
 if (typeof require === 'function') {
 	// in Node
 	(global as any).BattleStatGuesser = BattleStatGuesser;

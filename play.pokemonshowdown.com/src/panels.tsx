@@ -9,7 +9,16 @@
  * @license AGPLv3
  */
 
-class PSRouter {
+import preact from "../js/lib/preact";
+import {toID} from "./battle-dex";
+import {BattleLog} from "./battle-log";
+import type { Args } from "./battle-text-parser";
+import {BattleTooltips} from "./battle-tooltips";
+import type {PSSubscription} from "./client-core";
+import {PS, PSRoom, type RoomID} from "./client-main";
+import {PSHeader} from "./panel-topbar";
+
+export class PSRouter {
 	roomid = '' as RoomID;
 	panelState = '';
 	constructor() {
@@ -118,7 +127,7 @@ class PSRouter {
 }
 PS.router = new PSRouter();
 
-class PSRoomPanel<T extends PSRoom = PSRoom> extends preact.Component<{room: T}> {
+export class PSRoomPanel<T extends PSRoom = PSRoom> extends preact.Component<{room: T}> {
 	subscriptions: PSSubscription[] = [];
 	override componentDidMount() {
 		if (PS.room === this.props.room) this.focus();
@@ -166,7 +175,7 @@ class PSRoomPanel<T extends PSRoom = PSRoom> extends preact.Component<{room: T}>
 	}
 }
 
-function PSPanelWrapper(props: {
+export function PSPanelWrapper(props: {
 	room: PSRoom, children: preact.ComponentChildren, scrollable?: boolean, width?: number | 'auto',
 }) {
 	const room = props.room;
@@ -192,7 +201,7 @@ function PSPanelWrapper(props: {
 	</div>;
 }
 
-class PSMain extends preact.Component {
+export class PSMain extends preact.Component {
 	constructor() {
 		super();
 		PS.subscribe(() => this.forceUpdate());
@@ -513,6 +522,6 @@ class PSMain extends preact.Component {
 
 type PanelPosition = {top?: number, bottom?: number, left?: number, right?: number} | null;
 
-function SanitizedHTML(props: {children: string}) {
+export function SanitizedHTML(props: {children: string}) {
 	return <div dangerouslySetInnerHTML={{__html: BattleLog.sanitizeHTML(props.children)}}/>;
 }

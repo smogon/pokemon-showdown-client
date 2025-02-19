@@ -7,7 +7,14 @@
  * @license MIT
  */
 
-class LadderRoom extends PSRoom {
+import preact from "../js/lib/preact";
+import {PS, PSRoom} from "./client-main";
+import {Net} from "./client-connection";
+import {PSPanelWrapper, PSRoomPanel, SanitizedHTML} from "./panels";
+import {BattleLog} from "./battle-log";
+import {toID} from "./battle-dex";
+
+export class LadderRoom extends PSRoom {
 	override readonly classType: string = 'ladder';
 	readonly format?: string = this.id.split('-')[1];
 	notice?: string;

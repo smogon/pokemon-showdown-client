@@ -5,8 +5,13 @@
  * @license AGPLv3
  */
 
-class PSTeambuilder {
-	static packTeam(team: PokemonSet[]) {
+import {PS, type Team} from "./client-main";
+import {PSPanelWrapper, PSRoomPanel} from "./panels";
+import {Dex, toID, type ID} from "./battle-dex";
+import { BattleStatIDs, BattleStatNames } from "./battle-dex-data";
+
+export class PSTeambuilder {
+	static packTeam(team: Dex.PokemonSet[]) {
 		let buf = '';
 		if (!team) return '';
 
@@ -113,12 +118,12 @@ class PSTeambuilder {
 	static unpackTeam(buf: string) {
 		if (!buf) return [];
 
-		let team: PokemonSet[] = [];
+		let team: Dex.PokemonSet[] = [];
 
 		for (const setBuf of buf.split(`]`)) {
 			const parts = setBuf.split(`|`);
 			if (parts.length < 11) continue;
-			let set: PokemonSet = {species: '', moves: []};
+			let set: Dex.PokemonSet = {species: '', moves: []};
 			team.push(set);
 
 			// name
@@ -146,7 +151,7 @@ class PSTeambuilder {
 			);
 
 			// nature
-			set.nature = parts[5] as NatureName;
+			set.nature = parts[5] as Dex.NatureName;
 			if (set.nature as any === 'undefined') set.nature = undefined;
 
 			// evs
@@ -205,7 +210,7 @@ class PSTeambuilder {
 	 * (Exports end with two spaces so linebreaks are preserved in Markdown;
 	 * I assume mostly for Reddit.)
 	 */
-	static exportSet(set: PokemonSet) {
+	static exportSet(set: Dex.PokemonSet) {
 		let text = '';
 
 		// core
@@ -293,7 +298,7 @@ class PSTeambuilder {
 		text += `\n`;
 		return text;
 	}
-	static exportTeam(sets: PokemonSet[]) {
+	static exportTeam(sets: Dex.PokemonSet[]) {
 		let text = '';
 		for (const set of sets) {
 			// core
@@ -311,7 +316,7 @@ class PSTeambuilder {
 		if (delimIndex < 0) return [buffer, ''];
 		return [buffer.slice(0, delimIndex), buffer.slice(delimIndex + delimiter.length)];
 	}
-	static parseExportedTeamLine(line: string, isFirstLine: boolean, set: PokemonSet) {
+	static parseExportedTeamLine(line: string, isFirstLine: boolean, set: Dex.PokemonSet) {
 		if (isFirstLine) {
 			let item;
 			[line, item] = line.split(' @ ');
@@ -392,17 +397,17 @@ class PSTeambuilder {
 			if (natureIndex === -1) natureIndex = line.indexOf(' nature');
 			if (natureIndex === -1) return;
 			line = line.substr(0, natureIndex);
-			if (line !== 'undefined') set.nature = line as NatureName;
+			if (line !== 'undefined') set.nature = line as Dex.NatureName;
 		} else if (line.charAt(0) === '-' || line.charAt(0) === '~') {
 			line = line.slice(line.charAt(1) === ' ' ? 2 : 1);
 			if (line.startsWith('Hidden Power [')) {
-				const hpType = line.slice(14, -1) as TypeName;
+				const hpType = line.slice(14, -1) as Dex.TypeName;
 				line = 'Hidden Power ' + hpType;
 				if (!set.ivs && Dex.types.isName(hpType)) {
 					set.ivs = {hp: 31, atk: 31, def: 31, spa: 31, spd: 31, spe: 31};
 					const hpIVs = Dex.types.get(hpType).HPivs || {};
 					for (let stat in hpIVs) {
-						set.ivs[stat as StatName] = hpIVs[stat as StatName]!;
+						set.ivs[stat as Dex.StatName] = hpIVs[stat as Dex.StatName]!;
 					}
 				}
 			}
@@ -412,11 +417,11 @@ class PSTeambuilder {
 			set.moves.push(line);
 		}
 	}
-	static importTeam(buffer: string): PokemonSet[] {
+	static importTeam(buffer: string): Dex.PokemonSet[] {
 		const lines = buffer.split("\n");
 
-		const sets: PokemonSet[] = [];
-		let curSet: PokemonSet | null = null;
+		const sets: Dex.PokemonSet[] = [];
+		let curSet: Dex.PokemonSet | null = null;
 
 		while (lines.length && !lines[0]) lines.shift();
 		while (lines.length && !lines[lines.length - 1]) lines.pop();
@@ -453,9 +458,9 @@ class PSTeambuilder {
 		const lines = buffer.split("\n");
 
 		let curTeam: Team | null = null;
-		let sets: PokemonSet[] | null = null;
+		let sets: Dex.PokemonSet[] | null = null;
 
-		let curSet: PokemonSet | null = null;
+		let curSet: Dex.PokemonSet | null = null;
 
 		while (lines.length && !lines[0]) lines.shift();
 		while (lines.length && !lines[lines.length - 1]) lines.pop();
@@ -541,7 +546,7 @@ class PSTeambuilder {
 	}
 }
 
-function TeamFolder(props: {cur?: boolean, value: string, children: preact.ComponentChildren}) {
+export function TeamFolder(props: {cur?: boolean, value: string, children: preact.ComponentChildren}) {
 	// folders are <div>s rather than <button>s because in theory it has
 	// less weird interactions with HTML5 drag-and-drop
 	if (props.cur) {
@@ -555,7 +560,7 @@ function TeamFolder(props: {cur?: boolean, value: string, children: preact.Compo
 	</div>;
 }
 
-function TeamBox(props: {team: Team | null, noLink?: boolean, button?: boolean}) {
+export function TeamBox(props: {team: Team | null, noLink?: boolean, button?: boolean}) {
 	const team = props.team;
 	let contents;
 	if (team) {
@@ -725,7 +730,7 @@ class TeamDropdownPanel extends PSRoomPanel {
 	}
 }
 
-interface FormatData {
+export interface FormatData {
 	id: ID;
 	name: string;
 	team?: 'preset' | null;
@@ -742,9 +747,9 @@ interface FormatData {
 	effectType: 'Format';
 }
 
-declare var BattleFormats: {[id: string]: FormatData};
+declare const BattleFormats: {[id: string]: FormatData};
 /** id:name */
-declare var NonBattleGames: {[id: string]: string};
+declare const NonBattleGames: {[id: string]: string};
 
 class FormatDropdownPanel extends PSRoomPanel {
 	gen = '';

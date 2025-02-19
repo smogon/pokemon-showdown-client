@@ -16,6 +16,10 @@ import type {BattleSceneStub} from './battle-scene-stub';
 import {BattleMoveAnims} from './battle-animations-moves';
 import {BattleLog} from './battle-log';
 import {BattleBGM, BattleSound} from './battle-sound';
+import {Dex, toID, type ID, type SpriteData} from './battle-dex';
+import {BattleNatures} from './battle-dex-data';
+import {BattleTooltips} from './battle-tooltips';
+import {BattleTextParser, type Args, type KWArgs} from './battle-text-parser';
 
 /*
 
@@ -1399,7 +1403,7 @@ export class BattleScene implements BattleSceneStub {
 		).join(' ');
 		this.resultAnim(pokemon, result, 'neutral');
 	}
-	resultAnim(pokemon: Pokemon, result: string, type: 'bad' | 'good' | 'neutral' | StatusName) {
+	resultAnim(pokemon: Pokemon, result: string, type: 'bad' | 'good' | 'neutral' | Dex.StatusName) {
 		if (!this.animating) return;
 		let $effect = $('<div class="result ' + type + 'result"><strong>' + result + '</strong></div>');
 		this.$fx.append($effect);
@@ -2827,7 +2831,7 @@ export class PokemonSprite extends Sprite {
 		}
 		for (const stat in pokemon.boosts) {
 			if (pokemon.boosts[stat]) {
-				status += '<span class="' + pokemon.getBoostType(stat as BoostStatName) + '">' + pokemon.getBoost(stat as BoostStatName) + '</span> ';
+				status += '<span class="' + pokemon.getBoostType(stat as Dex.BoostStatName) + '">' + pokemon.getBoost(stat as Dex.BoostStatName) + '</span> ';
 			}
 		}
 

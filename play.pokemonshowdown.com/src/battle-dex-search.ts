@@ -11,11 +11,13 @@
  * @license MIT
  */
 
+import {Dex, ModdedDex, toID, type ID} from "./battle-dex";
+
 type SearchType = (
 	'pokemon' | 'type' | 'tier' | 'move' | 'item' | 'ability' | 'egggroup' | 'category' | 'article'
 );
 
-type SearchRow = (
+export type SearchRow = (
 	[SearchType, ID, number?, number?] | ['sortpokemon' | 'sortmove', ''] | ['header' | 'html', string]
 );
 
@@ -29,7 +31,7 @@ declare const BattleTeambuilderTable: any;
 /**
  * Backend for search UIs.
  */
-class DexSearch {
+export class DexSearch {
 	query = '';
 
 	/**
@@ -84,7 +86,7 @@ class DexSearch {
 		this.setType(searchType, formatid, species);
 	}
 
-	getTypedSearch(searchType: SearchType | '', format = '' as ID, speciesOrSet: ID | PokemonSet = '' as ID) {
+	getTypedSearch(searchType: SearchType | '', format = '' as ID, speciesOrSet: ID | Dex.PokemonSet = '' as ID) {
 		if (!searchType) return null;
 		switch (searchType) {
 		case 'pokemon': return new BattlePokemonSearch('pokemon', format, speciesOrSet);
@@ -111,7 +113,7 @@ class DexSearch {
 		return true;
 	}
 
-	setType(searchType: SearchType | '', format = '' as ID, speciesOrSet: ID | PokemonSet = '' as ID) {
+	setType(searchType: SearchType | '', format = '' as ID, speciesOrSet: ID | Dex.PokemonSet = '' as ID) {
 		// invalidate caches
 		this.results = null;
 
@@ -198,7 +200,7 @@ class DexSearch {
 		return this.typedSearch?.illegalReasons?.[id] || null;
 	}
 
-	getTier(species: Species) {
+	getTier(species: Dex.Species) {
 		return this.typedSearch?.getTier(species) || '';
 	}
 
@@ -457,7 +459,7 @@ class DexSearch {
 		if (searchType === 'pokemon') {
 			switch (fType) {
 			case 'type':
-				let type = fId.charAt(0).toUpperCase() + fId.slice(1) as TypeName;
+				let type = fId.charAt(0).toUpperCase() + fId.slice(1) as Dex.TypeName;
 				buf.push(['header', `${type}-type Pok&eacute;mon`]);
 				for (let id in BattlePokedex) {
 					if (!BattlePokedex[id].types) continue;
@@ -547,7 +549,7 @@ abstract class BattleTypedSearch<T extends SearchType> {
 	 * `set` is a pseudo-base filter; it has minor effects on move sorting.
 	 * (Abilities/items can affect what moves are sorted as usable.)
 	 */
-	set: PokemonSet | null = null;
+	set: Dex.PokemonSet | null = null;
 
 	protected formatType: 'doubles' | 'bdsp' | 'bdspdoubles' | 'bw1' | 'letsgo' | 'metronome' | 'natdex' | 'nfe' |
 	'ssdlc1' | 'ssdlc1doubles' | 'predlc' | 'predlcdoubles' | 'predlcnatdex' | 'svdlc1' | 'svdlc1doubles' |
@@ -568,7 +570,7 @@ abstract class BattleTypedSearch<T extends SearchType> {
 
 	protected readonly sortRow: SearchRow | null = null;
 
-	constructor(searchType: T, format = '' as ID, speciesOrSet: ID | PokemonSet = '' as ID) {
+	constructor(searchType: T, format = '' as ID, speciesOrSet: ID | Dex.PokemonSet = '' as ID) {
 		this.searchType = searchType;
 
 		this.baseResults = null;
@@ -666,7 +668,7 @@ abstract class BattleTypedSearch<T extends SearchType> {
 		if (typeof speciesOrSet === 'string') {
 			if (speciesOrSet) this.species = speciesOrSet;
 		} else {
-			this.set = speciesOrSet as PokemonSet;
+			this.set = speciesOrSet as Dex.PokemonSet;
 			this.species = toID(this.set.species);
 		}
 		if (!searchType || !this.set) return;
@@ -830,7 +832,7 @@ abstract class BattleTypedSearch<T extends SearchType> {
 		}
 		return false;
 	}
-	getTier(pokemon: Species) {
+	getTier(pokemon: Dex.Species) {
 		if (this.formatType === 'metronome') {
 			return pokemon.num >= 0 ? String(pokemon.num) : pokemon.tier;
 		}
@@ -1149,8 +1151,8 @@ class BattlePokemonSearch extends BattleTypedSearch<'pokemon'> {
 		const sortOrder = reverseSort ? -1 : 1;
 		if (['hp', 'atk', 'def', 'spa', 'spd', 'spe'].includes(sortCol)) {
 			return results.sort(([rowType1, id1], [rowType2, id2]) => {
-				const stat1 = this.dex.species.get(id1).baseStats[sortCol as StatName];
-				const stat2 = this.dex.species.get(id2).baseStats[sortCol as StatName];
+				const stat1 = this.dex.species.get(id1).baseStats[sortCol as Dex.StatName];
+				const stat2 = this.dex.species.get(id2).baseStats[sortCol as Dex.StatName];
 				return (stat2 - stat1) * sortOrder;
 			});
 		} else if (sortCol === 'bst') {
@@ -1349,7 +1351,7 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 		}
 		return results;
 	}
-	private moveIsNotUseless(id: ID, species: Species, moves: string[], set: PokemonSet | null) {
+	private moveIsNotUseless(id: ID, species: Dex.Species, moves: string[], set: Dex.PokemonSet | null) {
 		const dex = this.dex;
 
 		let abilityid: ID = set ? toID(set.ability) : '' as ID;
@@ -1743,7 +1745,7 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 					if (pokemon.battleOnly && typeof pokemon.battleOnly === 'string') {
 						species = dex.species.get(pokemon.battleOnly);
 					}
-					const excludedForme = (s: Species) => [
+					const excludedForme = (s: Dex.Species) => [
 						'Alola', 'Alola-Totem', 'Galar', 'Galar-Zen', 'Hisui', 'Paldea', 'Paldea-Combat', 'Paldea-Blaze', 'Paldea-Aqua',
 					].includes(s.forme);
 					if (baseSpecies.otherFormes && !['Wormadam', 'Urshifu'].includes(baseSpecies.baseSpecies)) {

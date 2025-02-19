@@ -5,9 +5,11 @@
  * @license MIT
  */
 
+import {PS} from "./client-main";
+
 declare var SockJS: any;
 
-class PSConnection {
+export class PSConnection {
 	socket: any = null;
 	connected = false;
 	queue = [] as string[];
@@ -57,7 +59,7 @@ class PSConnection {
 
 PS.connection = new PSConnection();
 
-const PSLoginServer = new class {
+export const PSLoginServer = new class {
 	query(data: PostData): Promise<{[k: string]: any} | null> {
 		let url = '/~~' + PS.server.id + '/action.php';
 		if (location.pathname.endsWith('.html')) {
@@ -160,7 +162,7 @@ class NetRequest {
 	}
 }
 
-function Net(uri: string) {
+export function Net(uri: string) {
 	return new NetRequest(uri);
 }
 
