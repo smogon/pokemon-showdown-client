@@ -9,6 +9,13 @@
  * @license AGPLv3
  */
 
+import preact from "../js/lib/preact";
+import {PS, PSRoom, type RoomOptions, type RoomID} from "./client-main";
+import {PSMain, PSPanelWrapper, PSRoomPanel} from "./panels";
+import type {Battle} from "./battle";
+import {Dex, toRoomid, toUserid, type ID} from "./battle-dex";
+import {BattleLog} from "./battle-log";
+
 window.addEventListener('drop', e => {
 	console.log('drop ' + e.dataTransfer!.dropEffect);
 	const target = e.target as HTMLElement;
@@ -33,7 +40,7 @@ window.addEventListener('dragover', e => {
 	e.preventDefault();
 });
 
-class PSHeader extends preact.Component<{style: {}}> {
+export class PSHeader extends preact.Component<{style: {}}> {
 	handleDragEnter = (e: DragEvent) => {
 		console.log('dragenter ' + e.dataTransfer!.dropEffect);
 		e.preventDefault();
@@ -260,7 +267,7 @@ preact.render(<PSMain />, document.body, document.getElementById('ps-frame')!);
  * User popup
  */
 
-class UserRoom extends PSRoom {
+export class UserRoom extends PSRoom {
 	override readonly classType = 'user';
 	userid: ID;
 	name: string;
@@ -352,8 +359,8 @@ class UserPanel extends PSRoomPanel<UserRoom> {
 			away = user.status.startsWith('!');
 			status = away ? user.status.slice(1) : user.status;
 		}
-
 		return <PSPanelWrapper room={room}>
+
 			<div class="userdetails">
 				{user.avatar !== '[loading]' &&
 					<img

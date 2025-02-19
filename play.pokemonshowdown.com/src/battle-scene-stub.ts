@@ -1,6 +1,8 @@
 import type {Pokemon, Side} from './battle';
 import type {ScenePos, PokemonSprite} from './battle-animations';
 import type {BattleLog} from './battle-log';
+import type {ID} from './battle-dex';
+import type {Args, KWArgs} from './battle-text-parser';
 
 export class BattleSceneStub {
 	animating: boolean = false;
@@ -77,7 +79,9 @@ export class BattleSceneStub {
 	afterMove(pokemon: Pokemon) { }
 }
 
+declare const require: any;
+declare const global: any;
 if (typeof require === 'function') {
 	// in Node
-	(global as any).BattleSceneStub = BattleSceneStub;
+	global.BattleSceneStub = BattleSceneStub;
 }

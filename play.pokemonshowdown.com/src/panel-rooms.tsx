@@ -5,7 +5,12 @@
  * @license AGPLv3
  */
 
-class RoomsRoom extends PSRoom {
+import {PS, PSRoom, type RoomID, type RoomOptions} from "./client-main";
+import {PSPanelWrapper, PSRoomPanel} from "./panels";
+import type {RoomInfo} from "./panel-mainmenu";
+import {toID} from "./battle-dex";
+
+export class RoomsRoom extends PSRoom {
 	override readonly classType: string = 'rooms';
 	constructor(options: RoomOptions) {
 		super(options);

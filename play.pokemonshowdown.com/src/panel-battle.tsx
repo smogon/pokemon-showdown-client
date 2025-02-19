@@ -5,8 +5,19 @@
  * @license AGPLv3
  */
 
-// import preact from "../js/lib/preact";
-// import {Battle} from "./battle";
+import preact from "../js/lib/preact";
+import {PS, PSRoom, type RoomOptions, type RoomID} from "./client-main";
+import {PSPanelWrapper, PSRoomPanel} from "./panels";
+import {ChatLog, ChatRoom, ChatTextEntry, ChatUserList} from "./panel-chat";
+import {FormatDropdown} from "./panel-mainmenu";
+import {Battle, Pokemon, type ServerPokemon} from "./battle";
+import {BattleScene} from "./battle-animations";
+import { Dex, toID } from "./battle-dex";
+import {
+	BattleChoiceBuilder, type BattleMoveRequest, type BattleRequest, type BattleRequestSideInfo,
+	type BattleSwitchRequest, type BattleTeamRequest
+} from "./battle-choices";
+import type {Args} from "./battle-text-parser";
 
 type BattleDesc = {
 	id: RoomID,
@@ -17,7 +28,7 @@ type BattleDesc = {
 	p4?: string,
 };
 
-class BattlesRoom extends PSRoom {
+export class BattlesRoom extends PSRoom {
 	override readonly classType = 'battles';
 	/** null means still loading */
 	format = '';
@@ -173,7 +184,7 @@ class BattleDiv extends preact.Component {
 }
 
 function MoveButton(props: {
-	children: string, cmd: string, moveData: {pp: number, maxpp: number}, type: TypeName, tooltip: string,
+	children: string, cmd: string, moveData: {pp: number, maxpp: number}, type: Dex.TypeName, tooltip: string,
 }) {
 	return <button name="cmd" value={props.cmd} class={`type-${props.type} has-tooltip`} data-tooltip={props.tooltip}>
 		{props.children}<br />

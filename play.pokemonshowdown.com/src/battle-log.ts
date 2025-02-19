@@ -13,7 +13,10 @@
  * @license MIT
  */
 
+import type {Battle} from './battle';
 import type {BattleScene} from './battle-animations';
+import {Dex, Teams, toID, toRoomid, toUserid, type ID} from './battle-dex';
+import {BattleTextParser, type Args, type KWArgs} from './battle-text-parser';
 
 // Caja
 declare const html4: any;
@@ -22,6 +25,7 @@ declare const html: any;
 // defined in battle-log-misc
 declare function MD5(input: string): string;
 declare function formatText(input: string, isTrusted?: boolean): string;
+export {MD5, formatText};
 
 export class BattleLog {
 	elem: HTMLDivElement;

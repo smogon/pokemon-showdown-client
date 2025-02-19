@@ -5,13 +5,24 @@
  * @license AGPLv3
  */
 
-// import type {BattlesRoom} from "./panel-battle";
+import preact from "../js/lib/preact";
+import {PSLoginServer} from "./client-connection";
+import {PS, PSRoom, type RoomID, type Team} from "./client-main";
+import {PSPanelWrapper, PSRoomPanel} from "./panels";
+import type {BattlesRoom} from "./panel-battle";
+import type {ChatRoom} from "./panel-chat";
+import type {LadderRoom} from "./panel-ladder";
+import type {RoomsRoom} from "./panel-rooms";
+import {TeamBox} from "./panel-teamdropdown";
+import type {UserRoom} from "./panel-topbar";
+import {Dex, toID, type ID} from "./battle-dex";
+import type {Args} from "./battle-text-parser";
 
-type RoomInfo = {
+export type RoomInfo = {
 	title: string, desc?: string, userCount?: number, section?: string, spotlight?: string, subRooms?: string[],
 };
 
-class MainMenuRoom extends PSRoom {
+export class MainMenuRoom extends PSRoom {
 	override readonly classType: string = 'mainmenu';
 	userdetailsCache: {[userid: string]: {
 		userid: ID,
@@ -404,7 +415,7 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
 	}
 }
 
-class FormatDropdown extends preact.Component<{format?: string, onChange?: JSX.EventHandler<Event>}> {
+export class FormatDropdown extends preact.Component<{format?: string, onChange?: JSX.EventHandler<Event>}> {
 	declare base?: HTMLButtonElement;
 	format = '[Gen 7] Random Battle';
 	change = (e: Event) => {
@@ -474,7 +485,7 @@ class TeamDropdown extends preact.Component<{format: string}> {
 	}
 }
 
-class TeamForm extends preact.Component<{
+export class TeamForm extends preact.Component<{
 	children: preact.ComponentChildren, class?: string, format?: string,
 	onSubmit: null | ((e: Event, format: string, team?: Team) => void),
 }> {

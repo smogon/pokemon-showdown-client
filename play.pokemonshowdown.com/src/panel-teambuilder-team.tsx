@@ -5,6 +5,14 @@
  * @license AGPLv3
  */
 
+import preact from "../js/lib/preact";
+import {PS, PSRoom, type Team} from "./client-main";
+import {PSPanelWrapper, PSRoomPanel} from "./panels";
+import {PSTeambuilder} from "./panel-teamdropdown";
+import {Dex, toID, type ID} from "./battle-dex";
+import {DexSearch} from "./battle-dex-search";
+import {PSSearchResults} from "./battle-searchresults";
+
 class TeamRoom extends PSRoom {
 	team: Team | null = null;
 }
@@ -14,7 +22,7 @@ class TeamTextbox extends preact.Component<{team: Team}> {
 		species: string,
 		bottomY: number,
 	}[] = [];
-	sets: PokemonSet[] = [];
+	sets: Dex.PokemonSet[] = [];
 	textbox: HTMLTextAreaElement = null!;
 	heightTester: HTMLTextAreaElement = null!;
 	activeType: 'pokemon' | 'move' | 'item' | 'ability' | '' = '';

@@ -9,6 +9,14 @@
  * @license AGPLv3
  */
 
+import { PSConnection, PSLoginServer } from './client-connection';
+import {PSModel, PSStreamModel} from './client-core';
+import type {PSRouter} from './panels';
+import type {ChatRoom} from './panel-chat';
+import type {MainMenuRoom} from './panel-mainmenu';
+import {toID, type ID} from './battle-dex';
+import {BattleTextParser, type Args} from './battle-text-parser';
+
 /**********************************************************************
  * Prefs
  *********************************************************************/
@@ -16,7 +24,7 @@
 /**
  * String that contains only lowercase alphanumeric characters.
  */
-type RoomID = string & {__isRoomID: true};
+export type RoomID = string & {__isRoomID: true};
 
 const PSPrefsDefaults: {[key: string]: any} = {};
 
@@ -146,7 +154,7 @@ class PSPrefs extends PSStreamModel<string | null> {
  * Teams
  *********************************************************************/
 
-interface Team {
+export interface Team {
 	name: string;
 	format: ID;
 	packedTeam: string;
@@ -409,7 +417,7 @@ class PSServer {
 
 type PSRoomLocation = 'left' | 'right' | 'popup' | 'mini-window' | 'modal-popup' | 'semimodal-popup';
 
-interface RoomOptions {
+export interface RoomOptions {
 	id: RoomID;
 	title?: string;
 	type?: string;
@@ -436,7 +444,7 @@ interface PSNotificationState {
  * As a PSStreamModel, PSRoom can emit `Args` to mean "we received a message",
  * and `null` to mean "tell Preact to re-render this room"
  */
-class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
+export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 	id: RoomID;
 	title = "";
 	type = '';
@@ -580,7 +588,7 @@ type RoomType = {Model?: typeof PSRoom, Component: any, title?: string};
  * - changing which room is focused
  * - changing the width of the left room, in two-panel mode
  */
-const PS = new class extends PSModel {
+export const PS = new class extends PSModel {
 	down: string | boolean = false;
 
 	prefs = new PSPrefs();

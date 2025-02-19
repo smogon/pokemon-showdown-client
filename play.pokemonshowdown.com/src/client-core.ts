@@ -84,7 +84,7 @@ if (!window.console) {
 
 const PSURL = `${document.location!.protocol !== 'http:' ? 'https:' : ''}//${Config.routes.client}/`;
 
-class PSSubscription {
+export class PSSubscription {
 	observable: PSModel | PSStreamModel<any>;
 	listener: (value?: any) => void;
 	constructor(observable: PSModel | PSStreamModel<any>, listener: (value?: any) => void) {
@@ -102,7 +102,7 @@ class PSSubscription {
  * spec - just the parts we use. PSModel just notifies subscribers of
  * updates - a simple model for React.
  */
-class PSModel {
+export class PSModel {
 	subscriptions = [] as PSSubscription[];
 	subscribe(listener: () => void) {
 		const subscription = new PSSubscription(this, listener);
@@ -128,7 +128,7 @@ class PSModel {
  * which hold state, PSStreamModels give state directly to views,
  * so that the model doesn't need to hold a redundant copy of state.
  */
-class PSStreamModel<T = string> {
+export class PSStreamModel<T = string> {
 	subscriptions = [] as PSSubscription[];
 	updates = [] as T[];
 	subscribe(listener: (value: T) => void) {

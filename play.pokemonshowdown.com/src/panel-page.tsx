@@ -7,6 +7,11 @@
  * @license MIT
  */
 
+import {PS, PSRoom, type RoomOptions} from "./client-main";
+import {PSPanelWrapper, PSRoomPanel, SanitizedHTML} from "./panels";
+import {BattleLog} from "./battle-log";
+import type {Args} from "./battle-text-parser";
+
 class PageRoom extends PSRoom {
 	override readonly classType: string = 'html';
 	readonly page?: string = this.id.split("-")[1];

@@ -8,13 +8,13 @@
  * @license MIT
  */
 
-declare const BattleText: {[id: string]: {[templateName: string]: string}};
+import {toID, type ID} from "./battle-dex";
 
-type Args = [string, ...string[]];
-type KWArgs = {[kw: string]: string};
-type SideID = 'p1' | 'p2' | 'p3' | 'p4';
+export type Args = [string, ...string[]];
+export type KWArgs = {[kw: string]: string};
+export type SideID = 'p1' | 'p2' | 'p3' | 'p4';
 
-class BattleTextParser {
+export class BattleTextParser {
 	/** escaped for string.replace */
 	p1 = "Player 1";
 	/** escaped for string.replace */
@@ -1190,6 +1190,8 @@ class BattleTextParser {
 	}
 }
 
+declare const require: any;
+declare const global: any;
 if (typeof require === 'function') {
 	// in Node
 	(global as any).BattleTextParser = BattleTextParser;

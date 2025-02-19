@@ -18,12 +18,83 @@
  * @license MIT
  */
 
-declare var require: any;
-declare var global: any;
+import {Pokemon, type ServerPokemon} from "./battle";
+import {
+	BattleAvatarNumbers, BattleBaseSpeciesChart, BattlePokemonIconIndexes, BattlePokemonIconIndexesLeft, BattleStatNames,
+	Ability, Item, Move, Species, PureEffect, type ID, type Type,
+} from "./battle-dex-data";
+// tslint:disable-next-line
+import * as DexData from "./battle-dex-data";
+
+export declare namespace Dex {
+	/* tslint:disable:no-shadowed-variable */
+	export type Ability = DexData.Ability;
+	export type Item = DexData.Item;
+	export type Move = DexData.Move;
+	export type Species = DexData.Species;
+	export type Type = DexData.Type;
+	export type Nature = DexData.Nature;
+	export type PureEffect = DexData.PureEffect;
+	export type Effect = DexData.Effect;
+	export type ID = DexData.ID;
+	/* tslint:enable:no-shadowed-variable */
+	export type StatName = DexData.StatName;
+	export type StatNameExceptHP = DexData.StatNameExceptHP;
+	export type BoostStatName = DexData.BoostStatName;
+	export type TypeName = DexData.TypeName;
+	export type StatusName = DexData.StatusName;
+	export type GenderName = DexData.GenderName;
+	export type NatureName = DexData.NatureName;
+	export type MoveTarget = DexData.MoveTarget;
+	export type StatsTable = {hp: number, atk: number, def: number, spa: number, spd: number, spe: number};
+	/**
+	 * Dex.PokemonSet can be sparse, in which case that entry should be
+	 * inferred from the rest of the set, according to sensible
+	 * defaults.
+	 */
+	export interface PokemonSet {
+		/** Defaults to species name (not including forme), like in games */
+		name?: string;
+		species: string;
+		/** Defaults to no item */
+		item?: string;
+		/** Defaults to no ability (error in Gen 3+) */
+		ability?: string;
+		moves: string[];
+		/** Defaults to no nature (error in Gen 3+) */
+		nature?: NatureName;
+		/** Defaults to random legal gender, NOT subject to gender ratios */
+		gender?: string;
+		/** Defaults to flat 252's (200's/0's in Let's Go) (error in gen 3+) */
+		evs?: Partial<Dex.StatsTable>;
+		/** Defaults to whatever makes sense - flat 31's unless you have Gyro Ball etc */
+		ivs?: Dex.StatsTable;
+		/** Defaults as you'd expect (100 normally, 50 in VGC-likes, 5 in LC) */
+		level?: number;
+		/** Defaults to no (error if shiny event) */
+		shiny?: boolean;
+		/** Defaults to 255 unless you have Frustration, in which case 0 */
+		happiness?: number;
+		/** Defaults to event required ball, otherwise Poké Ball */
+		pokeball?: string;
+		/** Defaults to the type of your Hidden Power in Moves, otherwise Dark */
+		hpType?: string;
+		/** Defaults to 10 */
+		dynamaxLevel?: number;
+		/** Defaults to no (can only be yes for certain Pokemon) */
+		gigantamax?: boolean;
+		/** Defaults to the primary type */
+		teraType?: string;
+	}
+}
+export type {ID};
+
+declare const require: any;
+declare const global: any;
 
 if (typeof window === 'undefined') {
 	// Node
-	(global as any).window = global;
+	global.window = global;
 } else {
 	// browser (possibly NW.js!)
 	window.exports = window;
@@ -32,7 +103,7 @@ if (typeof window === 'undefined') {
 // @ts-ignore
 window.nodewebkit = !!(typeof process !== 'undefined' && process.versions && process.versions['node-webkit']);
 
-function toID(text: any) {
+export function toID(text: any) {
 	if (text?.id) {
 		text = text.id;
 	} else if (text?.userid) {
@@ -42,12 +113,12 @@ function toID(text: any) {
 	return ('' + text).toLowerCase().replace(/[^a-z0-9]+/g, '') as ID;
 }
 
-function toUserid(text: any) {
+export function toUserid(text: any) {
 	return toID(text);
 }
 
 type Comparable = number | string | boolean | Comparable[] | {reverse: Comparable};
-const PSUtils = new class {
+export const PSUtils = new class {
 	/**
 	 * Like string.split(delimiter), but only recognizes the first `limit`
 	 * delimiters (default 1).
@@ -129,11 +200,11 @@ const PSUtils = new class {
  * Sanitize a room ID by removing anything that isn't alphanumeric or `-`.
  * Shouldn't actually do anything except against malicious input.
  */
-function toRoomid(roomid: string) {
+export function toRoomid(roomid: string) {
 	return roomid.replace(/[^a-zA-Z0-9-]+/g, '').toLowerCase();
 }
 
-function toName(name: any) {
+export function toName(name: any) {
 	if (typeof name !== 'string' && typeof name !== 'number') return '';
 	name = ('' + name).replace(/[\|\s\[\]\,\u202e]+/g, ' ').trim();
 	if (name.length > 18) name = name.substr(0, 18).trim();
@@ -148,7 +219,7 @@ function toName(name: any) {
 	return name;
 }
 
-interface SpriteData {
+export interface SpriteData {
 	w: number;
 	h: number;
 	y?: number;
@@ -161,7 +232,7 @@ interface SpriteData {
 	shiny?: boolean;
 }
 
-interface TeambuilderSpriteData {
+export interface TeambuilderSpriteData {
 	x: number;
 	y: number;
 	spriteDir: string;
@@ -169,13 +240,18 @@ interface TeambuilderSpriteData {
 	shiny?: boolean;
 }
 
-const Dex = new class implements ModdedDex {
+export const Dex = new class implements ModdedDex {
+	readonly Ability = Ability;
+	readonly Item = Item;
+	readonly Move = Move;
+	readonly Species = Species;
+
 	readonly gen = 9;
 	readonly modid = 'gen9' as ID;
 	readonly cache = null!;
 
-	readonly statNames: ReadonlyArray<StatName> = ['hp', 'atk', 'def', 'spa', 'spd', 'spe'];
-	readonly statNamesExceptHP: ReadonlyArray<StatNameExceptHP> = ['atk', 'def', 'spa', 'spd', 'spe'];
+	readonly statNames: ReadonlyArray<Dex.StatName> = ['hp', 'atk', 'def', 'spa', 'spd', 'spe'];
+	readonly statNamesExceptHP: ReadonlyArray<Dex.StatNameExceptHP> = ['atk', 'def', 'spa', 'spd', 'spe'];
 
 	pokeballs: string[] | null = null;
 
@@ -476,7 +552,7 @@ const Dex = new class implements ModdedDex {
 	getSpriteData(pokemon: Pokemon | Species | string, isFront: boolean, options: {
 		gen?: number,
 		shiny?: boolean,
-		gender?: GenderName,
+		gender?: Dex.GenderName,
 		afd?: boolean,
 		noScale?: boolean,
 		mod?: string,
@@ -705,7 +781,7 @@ const Dex = new class implements ModdedDex {
 		return num;
 	}
 
-	getPokemonIcon(pokemon: string | Pokemon | ServerPokemon | PokemonSet | null, facingLeft?: boolean) {
+	getPokemonIcon(pokemon: string | Pokemon | ServerPokemon | Dex.PokemonSet | null, facingLeft?: boolean) {
 		if (pokemon === 'pokeball') {
 			return `background:transparent url(${Dex.resourcePrefix}sprites/pokemonicons-pokeball-sheet.png) no-repeat scroll -0px 4px`;
 		} else if (pokemon === 'pokeball-statused') {
@@ -843,7 +919,7 @@ const Dex = new class implements ModdedDex {
 	}
 };
 
-class ModdedDex {
+export class ModdedDex {
 	readonly gen: number;
 	readonly modid: ID;
 	readonly cache = {
@@ -851,7 +927,7 @@ class ModdedDex {
 		Items: {} as any as {[k: string]: Item},
 		Abilities: {} as any as {[k: string]: Ability},
 		Species: {} as any as {[k: string]: Species},
-		Types: {} as any as {[k: string]: Effect},
+		Types: {} as any as {[k: string]: Dex.Effect},
 	};
 	pokeballs: string[] | null = null;
 	constructor(modid: ID) {
@@ -997,7 +1073,7 @@ class ModdedDex {
 	};
 
 	types = {
-		get: (name: string): Effect => {
+		get: (name: string): Dex.Effect => {
 			const id = toID(name) as ID;
 			name = id.substr(0, 1).toUpperCase() + id.substr(1);
 
@@ -1035,7 +1111,7 @@ class ModdedDex {
 	}
 }
 
-const Teams = new class {
+export const Teams = new class {
 	unpack(buf: string) {
 		if (!buf) return [];
 
@@ -1044,7 +1120,7 @@ const Teams = new class {
 		let j = 0;
 
 		while (true) {
-			const set: PokemonSet = {} as any;
+			const set: Dex.PokemonSet = {} as any;
 			team.push(set);
 
 			// name
@@ -1079,7 +1155,7 @@ const Teams = new class {
 
 			// nature
 			j = buf.indexOf('|', i);
-			set.nature = buf.substring(i, j) as NatureName;
+			set.nature = buf.substring(i, j) as Dex.NatureName;
 			if (set.nature as any === 'undefined') delete set.nature;
 			i = j + 1;
 
@@ -1155,7 +1231,7 @@ const Teams = new class {
 
 		return team;
 	}
-	export(team: PokemonSet[] | string, gen: number, hidestats = false) {
+	export(team: Dex.PokemonSet[] | string, gen: number, hidestats = false) {
 		if (!team) return '';
 		if (typeof team === 'string') {
 			if (team.indexOf('\n') >= 0) return team;
@@ -1205,7 +1281,7 @@ const Teams = new class {
 			if (!hidestats) {
 				let first = true;
 				if (curSet.evs) {
-					let j: StatName;
+					let j: Dex.StatName;
 					for (j in BattleStatNames) {
 						if (!curSet.evs[j]) continue;
 						if (first) {
@@ -1234,7 +1310,7 @@ const Teams = new class {
 								alert(move + " is not a valid Hidden Power type.");
 								continue;
 							}
-							let stat: StatName;
+							let stat: Dex.StatName;
 							for (stat in BattleStatNames) {
 								if ((curSet.ivs[stat] === undefined ? 31 : curSet.ivs[stat]) !== (Dex.types.get(hpType).HPivs?.[stat] || 31)) {
 									defaultIvs = false;
@@ -1244,7 +1320,7 @@ const Teams = new class {
 						}
 					}
 					if (defaultIvs && !hpType) {
-						let stat: StatName;
+						let stat: Dex.StatName;
 						for (stat in BattleStatNames) {
 							if (curSet.ivs[stat] !== 31 && curSet.ivs[stat] !== undefined) {
 								defaultIvs = false;
@@ -1253,7 +1329,7 @@ const Teams = new class {
 						}
 					}
 					if (!defaultIvs) {
-						let stat: StatName;
+						let stat: Dex.StatName;
 						for (stat in BattleStatNames) {
 							if (typeof curSet.ivs[stat] === 'undefined' || isNaN(curSet.ivs[stat]) || curSet.ivs[stat] === 31) continue;
 							if (first) {
