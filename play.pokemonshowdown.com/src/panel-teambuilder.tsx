@@ -21,7 +21,7 @@ class TeambuilderRoom extends PSRoom {
 	/**
 	 * @return true to prevent line from being sent to server
 	 */
-	handleMessage(line: string) {
+	override handleMessage(line: string) {
 		if (!line.startsWith('/') || line.startsWith('//')) return false;
 		const spaceIndex = line.indexOf(' ');
 		const cmd = spaceIndex >= 0 ? line.slice(1, spaceIndex) : line.slice(1);
@@ -195,7 +195,7 @@ class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
 		</div>;
 	}
 
-	render() {
+	override render() {
 		const room = this.props.room;
 		let teams: (Team | null)[] = PS.teams.list.slice();
 

@@ -5,6 +5,9 @@
  * @license AGPLv3
  */
 
+// import preact from "../js/lib/preact";
+// import {Battle} from "./battle";
+
 type BattleDesc = {
 	id: RoomID,
 	minElo?: number | string,
@@ -52,7 +55,7 @@ class BattlesPanel extends PSRoomPanel<BattlesRoom> {
 			<em class="p1">{battle.p1}</em> <small class="vs">vs.</small> <em class="p2">{battle.p2}</em>
 		</a></div>;
 	}
-	render() {
+	override render() {
 		const room = this.props.room;
 		return <PSPanelWrapper room={room} scrollable><div class="pad">
 			<button class="button" style="float:right;font-size:10pt;margin-top:3px" name="close"><i class="fa fa-times"></i> Close</button>
@@ -99,7 +102,7 @@ class BattleRoom extends ChatRoom {
 	/**
 	 * @return true to prevent line from being sent to server
 	 */
-	handleMessage(line: string) {
+	override handleMessage(line: string) {
 		if (!line.startsWith('/') || line.startsWith('//')) return false;
 		const spaceIndex = line.indexOf(' ');
 		const cmd = spaceIndex >= 0 ? line.slice(1, spaceIndex) : line.slice(1);
@@ -161,10 +164,10 @@ class BattleRoom extends ChatRoom {
 }
 
 class BattleDiv extends preact.Component {
-	shouldComponentUpdate() {
+	override shouldComponentUpdate() {
 		return false;
 	}
-	render() {
+	override render() {
 		return <div class="battle"></div>;
 	}
 }
@@ -217,7 +220,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 	send = (text: string) => {
 		this.props.room.send(text);
 	};
-	focus() {
+	override focus() {
 		this.base!.querySelector('textarea')!.focus();
 	}
 	focusIfNoSelection = () => {
@@ -265,7 +268,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 		}
 		this.props.room.update(null);
 	};
-	componentDidMount() {
+	override componentDidMount() {
 		const $elem = $(this.base!);
 		const battle = new Battle({
 			$frame: $elem.find('.battle'),
@@ -276,7 +279,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 		super.componentDidMount();
 		battle.subscribe(() => this.forceUpdate());
 	}
-	receiveLine(args: Args) {
+	override receiveLine(args: Args) {
 		const room = this.props.room;
 		switch (args[0]) {
 		case 'initdone':
@@ -668,8 +671,9 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 				</div>
 			</div>;
 		}}
+		return null;
 	}
-	render() {
+	override render() {
 		const room = this.props.room;
 
 		return <PSPanelWrapper room={room}>

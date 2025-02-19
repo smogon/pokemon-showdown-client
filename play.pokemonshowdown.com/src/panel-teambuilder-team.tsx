@@ -135,7 +135,7 @@ class TeamTextbox extends preact.Component<{team: Team}> {
 		this.props.team.iconCache = null;
 		PS.teams.save();
 	}
-	componentDidMount() {
+	override componentDidMount() {
 		this.textbox = this.base!.getElementsByClassName('teamtextbox')[0] as HTMLTextAreaElement;
 		this.heightTester = this.base!.getElementsByClassName('heighttester')[0] as HTMLTextAreaElement;
 
@@ -144,7 +144,7 @@ class TeamTextbox extends preact.Component<{team: Team}> {
 		this.textbox.value = exportedTeam;
 		this.update();
 	}
-	componentWillUnmount() {
+	override componentWillUnmount() {
 		this.textbox = null!;
 		this.heightTester = null!;
 	}
@@ -193,7 +193,7 @@ class TeamPanel extends PSRoomPanel<TeamRoom> {
 		room.team!.name = textbox.value.trim();
 		PS.teams.save();
 	};
-	render() {
+	override render() {
 		const room = this.props.room;
 		const team = PS.teams.byKey[room.id.slice(5)];
 		if (!team) {

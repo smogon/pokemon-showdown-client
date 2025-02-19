@@ -5,12 +5,14 @@
  * @license AGPLv3
  */
 
+// import type {BattlesRoom} from "./panel-battle";
+
 type RoomInfo = {
 	title: string, desc?: string, userCount?: number, section?: string, spotlight?: string, subRooms?: string[],
 };
 
 class MainMenuRoom extends PSRoom {
-	readonly classType: string = 'mainmenu';
+	override readonly classType: string = 'mainmenu';
 	userdetailsCache: {[userid: string]: {
 		userid: ID,
 		avatar?: string | number,
@@ -25,7 +27,7 @@ class MainMenuRoom extends PSRoom {
 		chat?: RoomInfo[],
 		sectionTitles?: string[],
 	} = {};
-	receiveLine(args: Args) {
+	override receiveLine(args: Args) {
 		const [cmd] = args;
 		switch (cmd) {
 		case 'challstr': {
@@ -285,7 +287,7 @@ class MainMenuRoom extends PSRoom {
 }
 
 class NewsPanel extends PSRoomPanel {
-	render() {
+	override render() {
 		return <PSPanelWrapper room={this.props.room} scrollable>
 			<div class="mini-window-body" dangerouslySetInnerHTML={{__html: PS.newsHTML}}></div>
 		</PSPanelWrapper>;
@@ -293,7 +295,7 @@ class NewsPanel extends PSRoomPanel {
 }
 
 class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
-	focus() {
+	override focus() {
 		(this.base!.querySelector('button.big') as HTMLButtonElement).focus();
 	}
 	submit = (e: Event) => {
@@ -356,7 +358,7 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
 			</button>
 		</TeamForm>;
 	}
-	render() {
+	override render() {
 		const onlineButton = ' button' + (PS.isOffline ? ' disabled' : '');
 		return <PSPanelWrapper room={this.props.room} scrollable>
 			<div class="mainmenuwrapper">
@@ -476,7 +478,7 @@ class TeamForm extends preact.Component<{
 	children: preact.ComponentChildren, class?: string, format?: string,
 	onSubmit: null | ((e: Event, format: string, team?: Team) => void),
 }> {
-	state = {format: '[Gen 7] Random Battle'};
+	override state = {format: '[Gen 7] Random Battle'};
 	changeFormat = (e: Event) => {
 		this.setState({format: (e.target as HTMLButtonElement).value});
 	};

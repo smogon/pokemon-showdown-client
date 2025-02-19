@@ -1924,7 +1924,7 @@ export class PokemonSprite extends Sprite {
 		this.cryurl = this.sp.cryurl;
 		this.isFrontSprite = isFrontSprite;
 	}
-	destroy() {
+	override destroy() {
 		if (this.$el) this.$el.remove();
 		this.$el = null!;
 		if (this.$statbar) this.$statbar.remove();
@@ -1934,12 +1934,12 @@ export class PokemonSprite extends Sprite {
 		this.scene = null!;
 	}
 
-	delay(time: number) {
+	override delay(time: number) {
 		this.$el.delay(time);
 		if (this.$sub) this.$sub.delay(time);
 		return this;
 	}
-	anim(end: ScenePos, transition?: string) {
+	override anim(end: ScenePos, transition?: string) {
 		end = {
 			x: this.x,
 			y: this.y,

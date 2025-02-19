@@ -6,7 +6,7 @@
  */
 
 class RoomsRoom extends PSRoom {
-	readonly classType: string = 'rooms';
+	override readonly classType: string = 'rooms';
 	constructor(options: RoomOptions) {
 		super(options);
 		PS.send(`|/cmd rooms`);
@@ -17,7 +17,7 @@ class RoomsPanel extends PSRoomPanel {
 	hidden = false;
 	search = '';
 	lastKeyCode = 0;
-	componentDidMount() {
+	override componentDidMount() {
 		super.componentDidMount();
 		this.subscriptions.push(PS.user.subscribe(() => {
 			if (PS.user.named) PS.send(`|/cmd rooms`);
@@ -105,10 +105,10 @@ class RoomsPanel extends PSRoomPanel {
 
 		return {start, abbr, hidden};
 	}
-	focus() {
+	override focus() {
 		(this.base!.querySelector('input[type=search]') as HTMLInputElement).focus();
 	}
-	render() {
+	override render() {
 		if (this.hidden && PS.isVisible(this.props.room)) this.hidden = false;
 		if (this.hidden) {
 			return <PSPanelWrapper room={this.props.room} scrollable>{null}</PSPanelWrapper>;

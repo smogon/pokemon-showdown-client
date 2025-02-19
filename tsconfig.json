@@ -4,8 +4,13 @@
         "noEmit": true,
         "target": "esnext",
         "module": "None",
+        "esModuleInterop": true,
+        "allowSyntheticDefaultImports": true,
+        "verbatimModuleSyntax": true,
+        "forceConsistentCasingInFileNames": true,
         "jsx": "preserve",
-        "strict": true
+        "strict": true,
+        "noImplicitOverride": true
     },
     "types": [],
     "include": [

@@ -562,8 +562,8 @@ class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 
 class PlaceholderRoom extends PSRoom {
 	queue = [] as Args[];
-	readonly classType: 'placeholder' = 'placeholder';
-	receiveLine(args: Args) {
+	override readonly classType: 'placeholder' = 'placeholder';
+	override receiveLine(args: Args) {
 		this.queue.push(args);
 	}
 }
@@ -778,7 +778,7 @@ const PS = new class extends PSModel {
 			if (!alreadyUpdating) this.update(true);
 		}
 	}
-	update(layoutAlreadyUpdated?: boolean) {
+	override update(layoutAlreadyUpdated?: boolean) {
 		if (!layoutAlreadyUpdated) this.updateLayout(true);
 		super.update();
 	}
@@ -1046,7 +1046,7 @@ const PS = new class extends PSModel {
 		const roomid = `pm-${[userid, myUserid].sort().join('-')}` as RoomID;
 		if (this.rooms[roomid]) return this.rooms[roomid] as ChatRoom;
 		this.join(roomid);
-		return this.rooms[roomid] as ChatRoom;
+		return this.rooms[roomid]! as ChatRoom;
 	}
 	addRoom(options: RoomOptions, noFocus?: boolean) {
 		// support hardcoded PM room-IDs

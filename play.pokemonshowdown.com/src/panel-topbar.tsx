@@ -261,7 +261,7 @@ preact.render(<PSMain />, document.body, document.getElementById('ps-frame')!);
  */
 
 class UserRoom extends PSRoom {
-	readonly classType = 'user';
+	override readonly classType = 'user';
 	userid: ID;
 	name: string;
 	isSelf: boolean;
@@ -276,7 +276,7 @@ class UserRoom extends PSRoom {
 }
 
 class UserPanel extends PSRoomPanel<UserRoom> {
-	render() {
+	override render() {
 		const room = this.props.room;
 		const user = PS.mainmenu.userdetailsCache[room.userid] || {userid: room.userid, avatar: '[loading]'};
 		const name = room.name.slice(1);
@@ -405,13 +405,13 @@ class VolumePanel extends PSRoomPanel {
 		PS.prefs.set('mute', !!checkbox.checked);
 		PS.update();
 	};
-	componentDidMount() {
+	override componentDidMount() {
 		super.componentDidMount();
 		this.subscriptions.push(PS.prefs.subscribe(() => {
 			this.forceUpdate();
 		}));
 	}
-	render() {
+	override render() {
 		const room = this.props.room;
 		return <PSPanelWrapper room={room}>
 			<h3>Volume</h3>
@@ -459,7 +459,7 @@ class OptionsPanel extends PSRoomPanel {
 		PS.prefs.set('theme', theme);
 		this.forceUpdate();
 	};
-	render() {
+	override render() {
 		const room = this.props.room;
 		return <PSPanelWrapper room={room}>
 			<h3>Graphics</h3>

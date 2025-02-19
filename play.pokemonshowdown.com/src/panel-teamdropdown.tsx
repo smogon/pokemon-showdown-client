@@ -626,7 +626,7 @@ class TeamDropdownPanel extends PSRoomPanel {
 
 		this.chooseParentValue(target.value);
 	};
-	render() {
+	override render() {
 		const room = this.props.room;
 		if (!room.parentElem) {
 			return <PSPanelWrapper room={room}>
@@ -762,7 +762,7 @@ class FormatDropdownPanel extends PSRoomPanel {
 
 		this.chooseParentValue(target.value);
 	};
-	render() {
+	override render() {
 		const room = this.props.room;
 		if (!room.parentElem) {
 			return <PSPanelWrapper room={room}>

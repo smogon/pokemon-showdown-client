@@ -10,10 +10,10 @@ type MiniEdit = import('./miniedit').MiniEdit;
 declare const formatText: any;
 
 class ChatRoom extends PSRoom {
-	readonly classType: 'chat' | 'battle' = 'chat';
+	override readonly classType: 'chat' | 'battle' = 'chat';
 	users: {[userid: string]: string} = {};
 	userCount = 0;
-	readonly canConnect = true;
+	override readonly canConnect = true;
 
 	// PM-only properties
 	pmTarget: string | null = null;
@@ -28,7 +28,7 @@ class ChatRoom extends PSRoom {
 		this.updateTarget(true);
 		this.connect();
 	}
-	connect() {
+	override connect() {
 		if (!this.connected) {
 			if (!this.pmTarget) PS.send(`|/join ${this.id}`);
 			this.connected = true;
@@ -56,7 +56,7 @@ class ChatRoom extends PSRoom {
 	/**
 	 * @return true to prevent line from being sent to server
 	 */
-	handleMessage(line: string) {
+	override handleMessage(line: string) {
 		if (!line.startsWith('/') || line.startsWith('//')) return false;
 		const spaceIndex = line.indexOf(' ');
 		const cmd = spaceIndex >= 0 ? line.slice(1, spaceIndex) : line.slice(1);
@@ -109,7 +109,7 @@ class ChatRoom extends PSRoom {
 		}
 		this.update(null);
 	}
-	send(line: string, direct?: boolean) {
+	override send(line: string, direct?: boolean) {
 		this.updateTarget();
 		if (!direct && !line) return;
 		if (!direct && this.handleMessage(line)) return;
@@ -147,7 +147,7 @@ class ChatRoom extends PSRoom {
 		this.addUser(username);
 		this.update(null);
 	}
-	destroy() {
+	override destroy() {
 		if (this.pmTarget) this.connected = false;
 		super.destroy();
 	}
@@ -365,7 +365,7 @@ class ChatPanel extends PSRoomPanel<ChatRoom> {
 	send = (text: string) => {
 		this.props.room.send(text);
 	};
-	focus() {
+	override focus() {
 		// Called synchronously after a forceUpdate, so before the DOM has
 		// been updated to make the panel visible. The order isn't
 		// important for textboxes, which can be focused while inside a
@@ -411,7 +411,7 @@ class ChatPanel extends PSRoomPanel<ChatRoom> {
 		room.challengedFormat = null;
 		room.update(null);
 	};
-	render() {
+	override render() {
 		const room = this.props.room;
 		const tinyLayout = room.width < 450;
 
@@ -446,18 +446,18 @@ class ChatPanel extends PSRoomPanel<ChatRoom> {
 
 class ChatUserList extends preact.Component<{room: ChatRoom, left?: number, minimized?: boolean}> {
 	subscription: PSSubscription | null = null;
-	state = {
+	override state = {
 		expanded: false,
 	};
 	toggleExpanded = () => {
 		this.setState({expanded: !this.state.expanded});
 	};
-	componentDidMount() {
+	override componentDidMount() {
 		this.subscription = this.props.room.subscribe(msg => {
 			if (!msg) this.forceUpdate();
 		});
 	}
-	componentWillUnmount() {
+	override componentWillUnmount() {
 		if (this.subscription) this.subscription.unsubscribe();
 	}
 	render() {
@@ -501,7 +501,7 @@ class ChatLog extends preact.Component<{
 }> {
 	log: BattleLog | null = null;
 	subscription: PSSubscription | null = null;
-	componentDidMount() {
+	override componentDidMount() {
 		if (!this.props.noSubscription) {
 			this.log = new BattleLog(this.base! as HTMLDivElement);
 		}
@@ -527,10 +527,10 @@ class ChatLog extends preact.Component<{
 		});
 		this.setControlsJSX(this.props.children);
 	}
-	componentWillUnmount() {
+	override componentWillUnmount() {
 		if (this.subscription) this.subscription.unsubscribe();
 	}
-	shouldComponentUpdate(props: typeof ChatLog.prototype.props) {
+	override shouldComponentUpdate(props: typeof ChatLog.prototype.props) {
 		if (props.class !== this.props.class) {
 			this.base!.className = props.class;
 		}
