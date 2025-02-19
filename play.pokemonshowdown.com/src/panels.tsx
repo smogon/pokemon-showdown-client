@@ -120,7 +120,7 @@ PS.router = new PSRouter();
 
 class PSRoomPanel<T extends PSRoom = PSRoom> extends preact.Component<{room: T}> {
 	subscriptions: PSSubscription[] = [];
-	componentDidMount() {
+	override componentDidMount() {
 		if (PS.room === this.props.room) this.focus();
 		this.props.room.onParentEvent = (id: string, e?: Event) => {
 			if (id === 'focus') this.focus();
@@ -133,12 +133,12 @@ class PSRoomPanel<T extends PSRoom = PSRoom> extends preact.Component<{room: T}>
 			this.props.room.setDimensions(this.base.offsetWidth, this.base.offsetHeight);
 		}
 	}
-	componentDidUpdate() {
+	override componentDidUpdate() {
 		if (this.base && ['popup', 'semimodal-popup'].includes(this.props.room.location)) {
 			this.props.room.setDimensions(this.base.offsetWidth, this.base.offsetHeight);
 		}
 	}
-	componentWillUnmount() {
+	override componentWillUnmount() {
 		this.props.room.onParentEvent = null;
 		for (const subscription of this.subscriptions) {
 			subscription.unsubscribe();

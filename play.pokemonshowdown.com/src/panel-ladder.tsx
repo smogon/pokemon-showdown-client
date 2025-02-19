@@ -8,7 +8,7 @@
  */
 
 class LadderRoom extends PSRoom {
-	readonly classType: string = 'ladder';
+	override readonly classType: string = 'ladder';
 	readonly format?: string = this.id.split('-')[1];
 	notice?: string;
 	searchValue: string = '';
@@ -137,7 +137,7 @@ function LadderFormat(props: {room: LadderRoom}) {
 }
 
 class LadderPanel extends PSRoomPanel<LadderRoom> {
-	componentDidMount() {
+	override componentDidMount() {
 		const {room} = this.props;
 		// Request ladder data either on mount or after BattleFormats are loaded
 		if (BattleFormats && room.format !== undefined) room.requestLadderData();
@@ -227,7 +227,7 @@ class LadderPanel extends PSRoomPanel<LadderRoom> {
 			<LadderPanel.BattleFormatList />
 		</>;
 	};
-	render() {
+	override render() {
 		const {room} = this.props;
 		return <PSPanelWrapper room={room} scrollable>
 			<div class="ladder pad">

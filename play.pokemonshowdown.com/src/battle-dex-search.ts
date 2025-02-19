@@ -890,7 +890,7 @@ abstract class BattleTypedSearch<T extends SearchType> {
 }
 
 class BattlePokemonSearch extends BattleTypedSearch<'pokemon'> {
-	sortRow: SearchRow = ['sortpokemon', ''];
+	override sortRow: SearchRow = ['sortpokemon', ''];
 	getTable() {
 		return BattlePokedex;
 	}
@@ -1330,7 +1330,7 @@ class BattleItemSearch extends BattleTypedSearch<'item'> {
 }
 
 class BattleMoveSearch extends BattleTypedSearch<'move'> {
-	sortRow: SearchRow = ['sortmove', ''];
+	override sortRow: SearchRow = ['sortmove', ''];
 	getTable() {
 		return BattleMovedex;
 	}

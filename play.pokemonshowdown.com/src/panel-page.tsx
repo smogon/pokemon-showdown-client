@@ -8,9 +8,9 @@
  */
 
 class PageRoom extends PSRoom {
-	readonly classType: string = 'html';
+	override readonly classType: string = 'html';
 	readonly page?: string = this.id.split("-")[1];
-	readonly canConnect = true;
+	override readonly canConnect = true;
 
 	loading: boolean = true;
 	htmlData?: string;
@@ -25,7 +25,7 @@ class PageRoom extends PSRoom {
 		super(options);
 		this.connect();
 	}
-	connect() {
+	override connect() {
 		if (!this.connected) {
 			PS.send(`|/join ${this.id}`);
 			this.connected = true;
@@ -74,7 +74,7 @@ class PagePanel extends PSRoomPanel<PageRoom> {
 	/**
 	 * @return true to prevent line from being sent to server
 	 */
-	receiveLine(args: Args) {
+	override receiveLine(args: Args) {
 		const {room} = this.props;
 		switch (args[0]) {
 		case 'title':
@@ -108,7 +108,7 @@ class PagePanel extends PSRoomPanel<PageRoom> {
 			return true;
 		}
 	}
-	render() {
+	override render() {
 		const {room} = this.props;
 		let renderPage;
 		if (room.page !== undefined && this.clientRooms[room.page]) {

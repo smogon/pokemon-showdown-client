@@ -9,7 +9,7 @@
  * @license CC0-1.0
  */
 
-import {AnimTable, BattleOtherAnims} from './battle-animations';
+import {type AnimTable, BattleOtherAnims} from './battle-animations';
 
 export const BattleMoveAnims: AnimTable = {
 	taunt: {

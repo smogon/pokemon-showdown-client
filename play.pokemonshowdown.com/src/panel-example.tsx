@@ -10,14 +10,14 @@
 // Example room with panel
 
 class ExampleRoom extends PSRoom {
-	readonly classType: string = 'example';
+	override readonly classType: string = 'example';
 	constructor(options: RoomOptions) {
 		super(options);
 	}
 }
 
 class ExamplePanel extends PSRoomPanel<ExampleRoom> {
-	render() {
+	override render() {
 		const room = this.props.room;
 		return <PSPanelWrapper room={room}>
 			<div class="mainmessage"><p>Loading...</p></div>
@@ -33,7 +33,7 @@ PS.roomTypes['example'] = {
 // Example panel with no room
 
 class ExampleViewPanel extends PSRoomPanel {
-	render() {
+	override render() {
 		const room = this.props.room;
 		return <PSPanelWrapper room={room}>
 			<div class="mainmessage"><p>Loading...</p></div>
