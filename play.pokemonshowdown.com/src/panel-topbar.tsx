@@ -107,13 +107,17 @@ class PSHeader extends preact.Component<{style: {}}> {
 		}
 		if (fromRoomList !== toRoomList) {
 			if (fromRoom === PS.leftRoom.id) {
+				if (PS.room === PS.mainmenu) PS.room = PS.mainmenu;
 				PS.leftRoom = PS.mainmenu;
 			} else if (PS.rightRoom && fromRoom === PS.rightRoom.id) {
+				if (PS.room === PS.rightRoom) PS.room = PS.rooms['rooms']!;
 				PS.rightRoom = PS.rooms['rooms']!;
 			}
 			if (toRoomList === 'rightRoomList') {
+				if (PS.room === PS.rightRoom) PS.room = room;
 				PS.rightRoom = room;
 			} else if (toRoomList === 'leftRoomList') {
+				if (PS.room === PS.leftRoom) PS.room = room;
 				PS.leftRoom = room;
 			}
 		}
