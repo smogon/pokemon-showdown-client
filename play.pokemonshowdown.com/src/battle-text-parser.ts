@@ -203,6 +203,11 @@ export class BattleTextParser {
 			break;
 		}
 
+		case '-weather': {
+			if (args[1] === 'Snow') args[1] = 'Snowscape';
+			break;
+		}
+
 		case '-nothing':
 			// OLD: |-nothing
 			// NEW: |-activate||move:Splash
