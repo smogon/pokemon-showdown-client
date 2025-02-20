@@ -893,6 +893,13 @@ export const actions: {[k: string]: QueryHandler} = {
 			throw new ActionError(`Cannot set both "page" and "before", please choose one method of pagination`);
 		}
 
+		if (params.contains) {
+			if (Object.keys(params).length > 1) {
+				throw new ActionError(`Contains can't be combined with other things.`);
+			}
+			return Replays.fullSearch(params.contains);
+		}
+
 		const search = {
 			usernames: usernames,
 			format: toID(params.format),
@@ -921,6 +928,18 @@ export const actions: {[k: string]: QueryHandler} = {
 		}
 		if (params.page && before) {
 			throw new ActionError(`Cannot set both "page" and "before", please choose one method of pagination`);
+		}
+
+		if (params.contains) {
+			if (Object.keys(params).length > 2) {
+				throw new ActionError(`Contains can't be combined with other things.`);
+			}
+			this.response.setHeader('Content-Type', 'application/json');
+			try {
+				return JSON.stringify(await Replays.fullSearch(params.contains));
+			} catch (e) {
+				throw new ActionError(`Could not search (timeout?)`);
+			}
 		}
 
 		const search = {

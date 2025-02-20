@@ -213,12 +213,12 @@ export const Replays = new class {
 		});
 		if (patterns.length !== 1 && patterns.length !== 2) return Promise.resolve([]);
 
-		const secondPattern = patterns.length >= 2 ? SQL`AND log LIKE ${patterns[1]} ` : undefined;
+		const secondPattern = patterns.length >= 2 ? SQL`AND log LIKE ${patterns[1]} ` : SQL``;
 
-		const DAYS = 24 * 60 * 60;
+		const HOUR = 60 * 60;
 		return replays.query()`SELECT 
-			uploadtime, id, format, players, rating FROM ps_replays 
-			WHERE private = 0 AND uploadtime > ${time() - 3 * DAYS} AND log LIKE ${patterns[0]} ${secondPattern}
+			uploadtime, id, format, players, rating FROM replays 
+			WHERE private = 0 AND uploadtime > ${time() - HOUR} AND log LIKE ${patterns[0]} ${secondPattern}
 			ORDER BY uploadtime DESC LIMIT 50;`.then(this.toReplays);
 	}
 
