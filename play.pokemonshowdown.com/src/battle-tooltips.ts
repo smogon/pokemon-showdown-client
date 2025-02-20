@@ -35,7 +35,7 @@ class ModifiableValue {
 		this.itemName = this.battle.dex.items.get(serverPokemon.item).name;
 		const ability = serverPokemon.ability || pokemon?.ability || serverPokemon.baseAbility;
 		this.abilityName = this.battle.dex.abilities.get(ability).name;
-		this.weatherName = battle.weather === 'snow' ? 'Snow' : this.battle.dex.moves.get(battle.weather).exists ?
+		this.weatherName = this.battle.dex.moves.get(battle.weather).exists ?
 			this.battle.dex.moves.get(battle.weather).name : this.battle.dex.abilities.get(battle.weather).name;
 	}
 	reset(value = 0, isAccuracy?: boolean) {
@@ -588,7 +588,7 @@ export class BattleTooltips {
 						zMove = this.battle.dex.moves.get(BattleTooltips.zMoveTable['Rock']);
 						break;
 					case 'hail':
-					case 'snow':
+					case 'snowscape':
 						zMove = this.battle.dex.moves.get(BattleTooltips.zMoveTable['Ice']);
 						break;
 					}
@@ -1116,13 +1116,13 @@ export class BattleTooltips {
 			if (this.battle.gen >= 4 && this.pokemonHasType(pokemon, 'Rock') && weather === 'sandstorm') {
 				stats.spd = Math.floor(stats.spd * 1.5);
 			}
-			if (this.pokemonHasType(pokemon, 'Ice') && weather === 'snow') {
+			if (this.pokemonHasType(pokemon, 'Ice') && weather === 'snowscape') {
 				stats.def = Math.floor(stats.def * 1.5);
 			}
 			if (ability === 'sandrush' && weather === 'sandstorm') {
 				speedModifiers.push(2);
 			}
-			if (ability === 'slushrush' && (weather === 'hail' || weather === 'snow')) {
+			if (ability === 'slushrush' && (weather === 'hail' || weather === 'snowscape')) {
 				speedModifiers.push(2);
 			}
 			if (item !== 'utilityumbrella') {
@@ -1275,7 +1275,7 @@ export class BattleTooltips {
 			if (ability === 'misspelled') {
 				stats.spa = Math.floor(stats.spa * 1.5);
 			}
-			if (ability === 'fortifyingfrost' && weather === 'snow') {
+			if (ability === 'fortifyingfrost' && weather === 'snowscape') {
 				stats.spa = Math.floor(stats.spa * 1.5);
 				stats.spd = Math.floor(stats.spd * 1.5);
 			}
@@ -1295,7 +1295,7 @@ export class BattleTooltips {
 				stats.def *= 2;
 			}
 			if (ability === 'climatechange') {
-				if (weather === 'snow') {
+				if (weather === 'snowscape') {
 					stats.def = Math.floor(stats.def * 1.5);
 					stats.spd = Math.floor(stats.spd * 1.5);
 				}
@@ -1564,7 +1564,7 @@ export class BattleTooltips {
 				moveType = 'Rock';
 				break;
 			case 'hail':
-			case 'snow':
+			case 'snowscape':
 				moveType = 'Ice';
 				break;
 			}
