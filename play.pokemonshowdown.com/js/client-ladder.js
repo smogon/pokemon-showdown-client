@@ -93,7 +93,7 @@
 			e.stopPropagation();
 			var name = $(e.currentTarget).data('name') || $(e.currentTarget).text();
 			app.addPopup(UserPopup, {name: name, sourceEl: e.currentTarget});
-		},
+		}
 	});
 
 	this.LadderRoom = HTMLRoom.extend({
@@ -196,7 +196,7 @@
 			this.update();
 		}
 	}, {
-		COIL_B: {},
+		COIL_B: {}
 	});
 
 }).call(this, jQuery);

@@ -9,7 +9,7 @@
  * @license AGPLv3
  */
 
-import { PSConnection, PSLoginServer } from './client-connection';
+import {type PSConnection, PSLoginServer} from './client-connection';
 import {PSModel, PSStreamModel} from './client-core';
 import type {PSRouter} from './panels';
 import type {ChatRoom} from './panel-chat';
@@ -204,7 +204,7 @@ class PSTeams extends PSStreamModel<'team' | 'format'> {
 			return;
 		}
 
-		if (buffer.charAt(0) === '[' && !buffer.trim().includes('\n')) {
+		if (buffer.startsWith('[') && !buffer.trim().includes('\n')) {
 			this.unpackOldBuffer(buffer);
 			return;
 		}
@@ -264,7 +264,7 @@ class PSTeams extends PSStreamModel<'team' | 'format'> {
 		let slashIndex = line.lastIndexOf('/', pipeIndex);
 		if (slashIndex < 0) slashIndex = bracketIndex; // line.slice(slashIndex + 1, pipeIndex) will be ''
 		let format = bracketIndex > 0 ? line.slice(0, bracketIndex) : 'gen7';
-		if (format.slice(0, 3) !== 'gen') format = 'gen6' + format;
+		if (!format.startsWith('gen')) format = 'gen6' + format;
 		const name = line.slice(slashIndex + 1, pipeIndex);
 		return {
 			name,
@@ -458,14 +458,14 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 	 * In particular, this is `true` after sending `/join`, and `false`
 	 * after sending `/leave`, even before the server responds.
 	 */
-	connected: boolean = false;
+	connected = false;
 	/**
 	 * Can this room even be connected to at all?
 	 * `true` = pass messages from the server to subscribers
 	 * `false` = throw an error if we receive messages from the server
 	 */
 	readonly canConnect: boolean = false;
-	connectWhenLoggedIn: boolean = false;
+	connectWhenLoggedIn = false;
 	onParentEvent: ((eventId: 'focus' | 'keydown', e?: Event) => false | void) | null = null;
 
 	width = 0;
@@ -540,7 +540,8 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 			} else {
 				throw new Error(`This room is not designed to receive messages`);
 			}
-		}}
+		}
+		}
 	}
 	handleMessage(line: string) {
 		if (!line.startsWith('/') || line.startsWith('//')) return false;
@@ -551,7 +552,8 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 		case 'logout': {
 			PS.user.logOut();
 			return true;
-		}}
+		}
+		}
 		return false;
 	}
 	send(msg: string, direct?: boolean) {
@@ -570,7 +572,7 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 
 class PlaceholderRoom extends PSRoom {
 	queue = [] as Args[];
-	override readonly classType: 'placeholder' = 'placeholder';
+	override readonly classType = 'placeholder';
 	override receiveLine(args: Args) {
 		this.queue.push(args);
 	}
@@ -667,7 +669,7 @@ export const PS = new class extends PSModel {
 	 * the Rooms panel and clicking "Hide")
 	 *
 	 * Will NOT be true if only one panel fits onto the screen at the
-	 * moment, but resizing will display multiple panels – for that,
+	 * moment, but resizing will display multiple panels – for that,
 	 * check `PS.leftRoomWidth === 0`
 	 */
 	onePanelMode = false;
@@ -841,7 +843,8 @@ export const PS = new class extends PSModel {
 				}
 				this.update();
 				continue;
-			}}
+			}
+			}
 			if (room) room.receiveLine(args);
 		}
 		if (room) room.update(isInit ? [`initdone`] : null);
@@ -1062,7 +1065,7 @@ export const PS = new class extends PSModel {
 			options.id = `pm-${options.id.slice(10)}` as RoomID;
 			options.challengeMenuOpen = true;
 		}
-		if (options.id.startsWith('pm-') && options.id.indexOf('-', 3) < 0) {
+		if (options.id.startsWith('pm-') && !options.id.includes('-', 3)) {
 			const userid1 = PS.user.userid;
 			const userid2 = options.id.slice(3);
 			options.id = `pm-${[userid1, userid2].sort().join('-')}` as RoomID;

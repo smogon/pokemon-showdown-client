@@ -14015,7 +14015,6 @@ export const BattleMoveAnims: AnimTable = {
 					opacity: 0.4,
 					time: 200 * i + 200,
 				}, 'linear', 'fade');
-
 			}
 		},
 	},

@@ -15,7 +15,7 @@ import type {Battle} from "./battle";
 import {MiniEdit} from "./miniedit";
 import {PSUtils, toID, type ID} from "./battle-dex";
 
-declare const formatText: any;
+declare const formatText: any; // from js/server/chat-formatter.js
 
 export class ChatRoom extends PSRoom {
 	override readonly classType: 'chat' | 'battle' = 'chat';

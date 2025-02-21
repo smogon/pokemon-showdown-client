@@ -15,7 +15,7 @@ import type {Battle, Pokemon, Side, WeatherState} from './battle';
 import type {BattleSceneStub} from './battle-scene-stub';
 import {BattleMoveAnims} from './battle-animations-moves';
 import {BattleLog} from './battle-log';
-import {BattleBGM, BattleSound} from './battle-sound';
+import {type BattleBGM, BattleSound} from './battle-sound';
 import {Dex, toID, type ID, type SpriteData} from './battle-dex';
 import {BattleNatures} from './battle-dex-data';
 import {BattleTooltips} from './battle-tooltips';
@@ -79,7 +79,7 @@ export class BattleScene implements BattleSceneStub {
 	preloadDone = 0;
 	preloadNeeded = 0;
 	bgm: BattleBGM | null = null;
-	backdropImage: string = '';
+	backdropImage = '';
 	bgmNum = 0;
 	preloadCache: {[url: string]: HTMLImageElement} = {};
 
@@ -349,10 +349,10 @@ export class BattleScene implements BattleSceneStub {
 
 		let left = 210;
 		let top = 245;
-		let scale = (obj.gen === 5
-			? 2.0 - ((loc.z!) / 200)
-			: 1.5 - 0.5 * ((loc.z!) / 200));
-		if (scale < .1) scale = .1;
+		let scale = (obj.gen === 5 ?
+			2.0 - ((loc.z!) / 200) :
+			1.5 - 0.5 * ((loc.z!) / 200));
+		if (scale < 0.1) scale = 0.1;
 
 		left += (410 - 190) * ((loc.z!) / 200);
 		top += (135 - 245) * ((loc.z!) / 200);
@@ -476,7 +476,7 @@ export class BattleScene implements BattleSceneStub {
 				}, this.battle.messageFadeTime / this.acceleration);
 			}
 		}
-		if (this.battle.hardcoreMode && message.slice(0, 8) === '<small>(') {
+		if (this.battle.hardcoreMode && message.startsWith('<small>(')) {
 			message = '';
 		}
 		if (message && this.animating) {
@@ -596,7 +596,7 @@ export class BattleScene implements BattleSceneStub {
 		let name = pokemon.side?.isFar &&
 			(this.battle.ignoreOpponent || this.battle.ignoreNicks) ? pokemon.speciesForme : pokemon.name;
 		if (name !== pokemon.speciesForme) {
-				name += ' (' + pokemon.speciesForme + ')';
+			name += ' (' + pokemon.speciesForme + ')';
 		}
 		if (pokemon === pokemon.side.active[0]) {
 			name += ' (active)';
@@ -1071,7 +1071,7 @@ export class BattleScene implements BattleSceneStub {
 			opacity: 1,
 			left: 110,
 		}, 500).animate({
-			opacity: .4,
+			opacity: 0.4,
 		}, 1500);
 		$prevTurn.animate({
 			opacity: 0,
@@ -1318,7 +1318,7 @@ export class BattleScene implements BattleSceneStub {
 					x: x + 30,
 					y: y - 45,
 					z: side.z,
-					scale: .3,
+					scale: 0.3,
 				}, this);
 				this.$spritesFront[spriteIndex].append(spike2.$el!);
 				spikeArray.push(spike2);
@@ -1329,7 +1329,7 @@ export class BattleScene implements BattleSceneStub {
 					x: x + 50,
 					y: y - 40,
 					z: side.z,
-					scale: .3,
+					scale: 0.3,
 				}, this);
 				this.$spritesFront[spriteIndex].append(spike3.$el!);
 				spikeArray.push(spike3);
@@ -1359,7 +1359,7 @@ export class BattleScene implements BattleSceneStub {
 					x: x - 15,
 					y: y - 35,
 					z: side.z,
-					scale: .3,
+					scale: 0.3,
 				}, this);
 				this.$spritesFront[spriteIndex].append(tspike2.$el!);
 				tspikeArray.push(tspike2);
@@ -1985,7 +1985,7 @@ export class PokemonSprite extends Sprite {
 			x: this.x,
 			y: this.y,
 			z: (this.isSubActive ? this.behind(30) : this.z),
-			opacity: (this.$sub ? .3 : 1),
+			opacity: (this.$sub ? 0.3 : 1),
 		}, sp));
 	}
 	animSub(instant?: boolean, noAnim?: boolean) {
@@ -2164,7 +2164,7 @@ export class PokemonSprite extends Sprite {
 				x: this.x,
 				y: this.y,
 				z: this.behind(30),
-				opacity: .3,
+				opacity: 0.3,
 			}, this.sp));
 			this.$sub.css(this.scene.pos({
 				x: this.x,
@@ -2278,7 +2278,7 @@ export class PokemonSprite extends Sprite {
 			x: this.x,
 			y: this.y + 30,
 			z: this.behind(50),
-			scale: .7,
+			scale: 0.7,
 		}, {
 			opacity: 1,
 			x: this.x,
@@ -2447,7 +2447,7 @@ export class PokemonSprite extends Sprite {
 			x: this.x,
 			y: this.y - 40,
 			z: this.z,
-			scale: .7,
+			scale: 0.7,
 			time: 300 / this.scene.acceleration,
 		}, {
 			opacity: 0,
@@ -2617,7 +2617,7 @@ export class PokemonSprite extends Sprite {
 				opacity: 1,
 				time: 100,
 			}).anim({
-				opacity: .4,
+				opacity: 0.4,
 				time: 300,
 			});
 		}
@@ -2636,24 +2636,24 @@ export class PokemonSprite extends Sprite {
 				x: this.x - 30,
 				y: this.y - 40,
 				z: this.z,
-				scale: .2,
-				opacity: .6,
+				scale: 0.2,
+				opacity: 0.6,
 			};
 			const pos2 = {
 				display: 'block',
 				x: this.x + 40,
 				y: this.y - 35,
 				z: this.z,
-				scale: .2,
-				opacity: .6,
+				scale: 0.2,
+				opacity: 0.6,
 			};
 			const pos3 = {
 				display: 'block',
 				x: this.x + 20,
 				y: this.y - 25,
 				z: this.z,
-				scale: .2,
-				opacity: .6,
+				scale: 0.2,
+				opacity: 0.6,
 			};
 
 			const leechseed1 = new Sprite(BattleEffects.energyball, pos1, this.scene);
@@ -2671,15 +2671,15 @@ export class PokemonSprite extends Sprite {
 				z: this.behind(-15),
 				xscale: 1,
 				yscale: 0,
-				opacity: .1,
+				opacity: 0.1,
 			}, this.scene);
 			this.scene.$spritesFront[spriten].append(protect.$el!);
 			this.effects[id] = [protect];
 			protect.anim({
-				opacity: .9,
+				opacity: 0.9,
 				time: instant ? 0 : 400,
 			}).anim({
-				opacity: .4,
+				opacity: 0.4,
 				time: instant ? 0 : 300,
 			});
 		}
@@ -2702,7 +2702,7 @@ export class PokemonSprite extends Sprite {
 	dogarsCheck(pokemon: Pokemon) {
 		if (pokemon.side.isFar) return;
 
-		if (pokemon.speciesForme === 'Koffing' && pokemon.name.match(/dogars/i)) {
+		if (pokemon.speciesForme === 'Koffing' && (/dogars/i.exec(pokemon.name))) {
 			this.scene.setBgm(-1);
 		} else if (this.scene.bgmNum === -1) {
 			this.scene.rollBgm();
@@ -2734,7 +2734,7 @@ export class PokemonSprite extends Sprite {
 		buf += (pokemon.level === 100 ? `` : ` <small>L${pokemon.level}</small>`);
 
 		let symbol = '';
-		if (pokemon.speciesForme.indexOf('-Mega') >= 0) symbol = 'mega';
+		if (pokemon.speciesForme.includes('-Mega')) symbol = 'mega';
 		else if (pokemon.speciesForme === 'Kyogre-Primal') symbol = 'alpha';
 		else if (pokemon.speciesForme === 'Groudon-Primal') symbol = 'omega';
 		if (symbol) {
@@ -2897,7 +2897,6 @@ export class PokemonSprite extends Sprite {
 // slp: -webkit-filter:  grayscale(100%);
 // frz: -webkit-filter:  sepia(100%) hue-rotate(154deg) saturate(759%) brightness(23%);
 
-// @ts-ignore
 Object.assign($.easing, {
 	ballisticUp(x: number, t: number, b: number, c: number, d: number) {
 		return -3 * x * x + 4 * x;

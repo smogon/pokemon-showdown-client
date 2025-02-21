@@ -314,9 +314,9 @@ export class PSSearchResults extends preact.Component<{search: DexSearch}> {
 
 		let errorMessage: preact.ComponentChild = null;
 		let label;
-		if ((label = search.filterLabel(type))) { // tslint:disable-line
+		if ((label = search.filterLabel(type))) {
 			errorMessage = <span class="col filtercol"><em>{label}</em></span>;
-		} else if ((label = search.illegalLabel(id as ID))) { // tslint:disable-line
+		} else if ((label = search.illegalLabel(id as ID))) {
 			errorMessage = <span class="col illegalcol"><em>{label}</em></span>;
 		}
 

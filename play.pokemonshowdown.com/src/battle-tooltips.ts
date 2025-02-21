@@ -9,7 +9,7 @@
  */
 
 import {Pokemon, type Battle, type ServerPokemon} from "./battle";
-import {Dex, ModdedDex, toID, type ID} from "./battle-dex";
+import {Dex, type ModdedDex, toID, type ID} from "./battle-dex";
 import type {BattleScene} from "./battle-animations";
 import {BattleLog} from "./battle-log";
 import {BattleNatures} from "./battle-dex-data";
@@ -359,9 +359,9 @@ export class BattleTooltips {
 			// let side = this.battle.mySide.ally;
 			let activeIndex = parseInt(args[1], 10);
 			let pokemon = null;
-			/*if (activeIndex < side.pokemon.length) {
+			/* if (activeIndex < side.pokemon.length) {
 				pokemon = side.pokemon[activeIndex] || side.ally ? side.ally.pokemon[activeIndex] : null;
-			}*/
+			} */
 			let serverPokemon = this.battle.myAllyPokemon ? this.battle.myAllyPokemon[activeIndex] : null;
 			buf = this.showPokemonTooltip(pokemon, serverPokemon);
 			break;
@@ -412,7 +412,7 @@ export class BattleTooltips {
 				try {
 					const selection = window.getSelection()!;
 					if (selection.type === 'Range') return;
-				} catch (err) {}
+				} catch {}
 				BattleTooltips.hideTooltip();
 			});
 		} else {
@@ -635,7 +635,7 @@ export class BattleTooltips {
 			// Otherwise, it is just shown as in singles.
 			// The trick is that we need to calculate it first for each Pokémon to see if it changes.
 			let prevBasePower: string | null = null;
-			let basePower: string = '';
+			let basePower = '';
 			let difference = false;
 			let basePowers = [];
 			for (const active of foeActive) {
@@ -940,7 +940,7 @@ export class BattleTooltips {
 				text += `${this.getPPUseText(row)}<br />`;
 			}
 			if (clientPokemon.moveTrack.filter(([moveName]) => {
-				if (moveName.charAt(0) === '*') return false;
+				if (moveName.startsWith('*')) return false;
 				const move = this.battle.dex.moves.get(moveName);
 				return !move.isZ && !move.isMax && move.name !== 'Mimic';
 			}).length > 4) {
@@ -1049,7 +1049,9 @@ export class BattleTooltips {
 		}
 
 		let item = toID(serverPokemon.item);
-		let speedHalvingEVItems = ['machobrace', 'poweranklet', 'powerband', 'powerbelt', 'powerbracer', 'powerlens', 'powerweight'];
+		let speedHalvingEVItems = [
+			'machobrace', 'poweranklet', 'powerband', 'powerbelt', 'powerbracer', 'powerlens', 'powerweight',
+		];
 		if (
 			(ability === 'klutz' && !speedHalvingEVItems.includes(item)) ||
 			this.battle.hasPseudoWeather('Magic Room') ||
@@ -1188,9 +1190,9 @@ export class BattleTooltips {
 		const isNFE = this.battle.dex.species.get(serverPokemon.speciesForme).evos?.some(evo => {
 			const evoSpecies = this.battle.dex.species.get(evo);
 			return !evoSpecies.isNonstandard ||
-					evoSpecies.isNonstandard === this.battle.dex.species.get(serverPokemon.speciesForme)?.isNonstandard ||
-					// Pokemon with Hisui evolutions
-					evoSpecies.isNonstandard === "Unobtainable";
+				evoSpecies.isNonstandard === this.battle.dex.species.get(serverPokemon.speciesForme)?.isNonstandard ||
+				// Pokemon with Hisui evolutions
+				evoSpecies.isNonstandard === "Unobtainable";
 		});
 		if (item === 'eviolite' && (isNFE || this.battle.dex.species.get(serverPokemon.speciesForme).id === 'dipplin')) {
 			stats.def = Math.floor(stats.def * 1.5);
@@ -1427,7 +1429,7 @@ export class BattleTooltips {
 		let [moveName, ppUsed] = moveTrackRow;
 		let move;
 		let maxpp;
-		if (moveName.charAt(0) === '*') {
+		if (moveName.startsWith('*')) {
 			// Transformed move
 			move = this.battle.dex.moves.get(moveName.substr(1));
 			maxpp = 5;
@@ -1436,11 +1438,11 @@ export class BattleTooltips {
 			maxpp = (move.pp === 1 || move.noPPBoosts ? move.pp : move.pp * 8 / 5);
 			if (this.battle.gen < 3) maxpp = Math.min(61, maxpp);
 		}
-		const bullet = moveName.charAt(0) === '*' || move.isZ ? '<span style="color:#888">&#8226;</span>' : '&#8226;';
+		const bullet = moveName.startsWith('*') || move.isZ ? '<span style="color:#888">&#8226;</span>' : '&#8226;';
 		if (ppUsed === Infinity) {
 			return `${bullet} ${move.name} <small>(0/${maxpp})</small>`;
 		}
-		if (ppUsed || moveName.charAt(0) === '*') {
+		if (ppUsed || moveName.startsWith('*')) {
 			return `${bullet} ${move.name} <small>(${maxpp - ppUsed}/${maxpp})</small>`;
 		}
 		return `${bullet} ${move.name} ${showKnown ? ' <small>(revealed)</small>' : ''}`;
@@ -1448,7 +1450,7 @@ export class BattleTooltips {
 
 	ppUsed(move: Dex.Move, pokemon: Pokemon) {
 		for (let [moveName, ppUsed] of pokemon.moveTrack) {
-			if (moveName.charAt(0) === '*') moveName = moveName.substr(1);
+			if (moveName.startsWith('*')) moveName = moveName.substr(1);
 			if (move.name === moveName) return ppUsed;
 		}
 		return 0;
@@ -1648,7 +1650,7 @@ export class BattleTooltips {
 			// There aren't any max moves with the sound flag, but if there were, Liquid Voice would make them water type
 			const isSound = !!(
 				forMaxMove ?
-				this.getMaxMoveFromType(moveType, forMaxMove !== true && forMaxMove || undefined) : move
+					this.getMaxMoveFromType(moveType, forMaxMove !== true && forMaxMove || undefined) : move
 			).flags['sound'];
 			if (isSound && value.abilityModify(0, 'Liquid Voice')) {
 				moveType = 'Water';
@@ -2059,9 +2061,9 @@ export class BattleTooltips {
 		// Base power based on times hit
 		if (move.id === 'ragefist') {
 			value.set(Math.min(350, 50 + 50 * pokemon.timesAttacked),
-				pokemon.timesAttacked > 0
-					? `Hit ${pokemon.timesAttacked} time${pokemon.timesAttacked > 1 ? 's' : ''}`
-					: undefined);
+				pokemon.timesAttacked > 0 ?
+					`Hit ${pokemon.timesAttacked} time${pokemon.timesAttacked > 1 ? 's' : ''}` :
+					undefined);
 		}
 		if (!value.value) return value;
 
@@ -2236,16 +2238,16 @@ export class BattleTooltips {
 		if (this.battle.tier.includes('Super Staff Bros')) {
 			if (move.id === 'bodycount') {
 				value.set(50 + 50 * pokemon.side.faintCounter,
-					pokemon.side.faintCounter > 0
-						? `${pokemon.side.faintCounter} teammate${pokemon.side.faintCounter > 1 ? 's' : ''} KOed`
-						: undefined);
+					pokemon.side.faintCounter > 0 ?
+						`${pokemon.side.faintCounter} teammate${pokemon.side.faintCounter > 1 ? 's' : ''} KOed` :
+						undefined);
 			}
 			// Base power based on times hit
 			if (move.id === 'vengefulmood') {
 				value.set(Math.min(140, 60 + 20 * pokemon.timesAttacked),
-					pokemon.timesAttacked > 0
-						? `Hit ${pokemon.timesAttacked} time${pokemon.timesAttacked > 1 ? 's' : ''}`
-						: undefined);
+					pokemon.timesAttacked > 0 ?
+						`Hit ${pokemon.timesAttacked} time${pokemon.timesAttacked > 1 ? 's' : ''}` :
+						undefined);
 			}
 			if (move.id === 'alting' && pokemon.shiny) {
 				value.set(69, 'Shiny');
@@ -2399,12 +2401,14 @@ export class BattleTooltips {
 		}
 		if (speciesName === 'Ogerpon') {
 			const speciesForme = value.pokemon.getSpeciesForme();
-			if ((speciesForme.startsWith('Ogerpon-Wellspring') && itemName === 'Wellspring Mask') ||
+			if (
+				(speciesForme.startsWith('Ogerpon-Wellspring') && itemName === 'Wellspring Mask') ||
 				(speciesForme.startsWith('Ogerpon-Hearthflame') && itemName === 'Hearthflame Mask') ||
-				(speciesForme.startsWith('Ogerpon-Cornerstone') && itemName === 'Cornerstone Mask')) {
-					value.itemModify(1.2);
-					return value;
-				}
+				(speciesForme.startsWith('Ogerpon-Cornerstone') && itemName === 'Cornerstone Mask')
+			) {
+				value.itemModify(1.2);
+				return value;
+			}
 		}
 
 		// Gems
@@ -2422,14 +2426,14 @@ export class BattleTooltips {
 
 		return value;
 	}
-	getPokemonTypes(pokemon: Pokemon | ServerPokemon, preterastallized = false): ReadonlyArray<Dex.TypeName> {
+	getPokemonTypes(pokemon: Pokemon | ServerPokemon, preterastallized = false): readonly Dex.TypeName[] {
 		if (!(pokemon as Pokemon).getTypes) {
 			return this.battle.dex.species.get(pokemon.speciesForme).types;
 		}
 
 		return (pokemon as Pokemon).getTypeList(undefined, preterastallized);
 	}
-	pokemonHasType(pokemon: Pokemon | ServerPokemon, type: Dex.TypeName, types?: ReadonlyArray<Dex.TypeName>) {
+	pokemonHasType(pokemon: Pokemon | ServerPokemon, type: Dex.TypeName, types?: readonly Dex.TypeName[]) {
 		if (!types) types = this.getPokemonTypes(pokemon);
 		for (const curType of types) {
 			if (curType === type) return true;
@@ -2946,14 +2950,14 @@ class BattleStatGuesser {
 			let SRresistances = ['Ground', 'Steel', 'Fighting'];
 			let SRweak = 0;
 			if (set.ability !== 'Magic Guard' && set.ability !== 'Mountaineer') {
-				if (SRweaknesses.indexOf(species.types[0]) >= 0) {
+				if (SRweaknesses.includes(species.types[0])) {
 					SRweak++;
-				} else if (SRresistances.indexOf(species.types[0]) >= 0) {
+				} else if (SRresistances.includes(species.types[0])) {
 					SRweak--;
 				}
-				if (SRweaknesses.indexOf(species.types[1]) >= 0) {
+				if (SRweaknesses.includes(species.types[1])) {
 					SRweak++;
-				} else if (SRresistances.indexOf(species.types[1]) >= 0) {
+				} else if (SRresistances.includes(species.types[1])) {
 					SRweak--;
 				}
 			}
@@ -2965,10 +2969,10 @@ class BattleStatGuesser {
 				hpDivisibility = 4;
 			} else if (set.item === 'Leftovers' || set.item === 'Black Sludge') {
 				hpDivisibility = 0;
-			} else if (hasMove['bellydrum'] && (set.item || '').slice(-5) === 'Berry') {
+			} else if (hasMove['bellydrum'] && (set.item || '').endsWith('Berry')) {
 				hpDivisibility = 2;
 				hpShouldBeDivisible = true;
-			} else if (hasMove['substitute'] && (set.item || '').slice(-5) === 'Berry') {
+			} else if (hasMove['substitute'] && (set.item || '').endsWith('Berry')) {
 				hpDivisibility = 4;
 				hpShouldBeDivisible = true;
 			} else if (SRweak >= 2 || hasMove['bellydrum']) {
@@ -3044,7 +3048,6 @@ class BattleStatGuesser {
 					if (ev) evs['spe'] = ev;
 				}
 			}
-
 		}
 
 		if (hasMove['gyroball'] || hasMove['trickroom']) {

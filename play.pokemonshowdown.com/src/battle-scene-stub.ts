@@ -5,14 +5,14 @@ import type {ID} from './battle-dex';
 import type {Args, KWArgs} from './battle-text-parser';
 
 export class BattleSceneStub {
-	animating: boolean = false;
-	acceleration: number = NaN;
-	gen: number = NaN;
-	activeCount: number = NaN;
-	numericId: number = NaN;
-	timeOffset: number = NaN;
-	interruptionCount: number = NaN;
-	messagebarOpen: boolean = false;
+	animating = false;
+	acceleration = NaN;
+	gen = NaN;
+	activeCount = NaN;
+	numericId = NaN;
+	timeOffset = NaN;
+	interruptionCount = NaN;
+	messagebarOpen = false;
 	log: BattleLog = {add: (args: Args, kwargs?: KWArgs) => {}} as any;
 	$frame?: JQuery;
 
@@ -25,7 +25,7 @@ export class BattleSceneStub {
 	closeMessagebar(): boolean { return false; }
 	damageAnim(pokemon: Pokemon, damage: string | number): void { }
 	destroy(): void { }
-	finishAnimations(): JQuery.Promise<JQuery<HTMLElement>, any, any> | undefined { return void(0); }
+	finishAnimations(): JQuery.Promise<JQuery<HTMLElement>, any, any> | undefined { return undefined; }
 	healAnim(pokemon: Pokemon, damage: string | number): void { }
 	hideJoinButtons(): void { }
 	incrementTurn(): void { }

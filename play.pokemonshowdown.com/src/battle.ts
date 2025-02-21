@@ -30,7 +30,7 @@
 // import $ from 'jquery';
 import {BattleSceneStub} from './battle-scene-stub';
 import {BattleLog} from './battle-log';
-import {BattleScene, PokemonSprite, BattleStatusAnims} from './battle-animations';
+import {BattleScene, type PokemonSprite, BattleStatusAnims} from './battle-animations';
 import {Dex, Teams, toID, toUserid, type ID, type ModdedDex} from './battle-dex';
 import {BattleTextParser, type Args, type KWArgs, type SideID} from './battle-text-parser';
 
@@ -266,7 +266,7 @@ export class Pokemon implements PokemonDetails, PokemonHealth {
 		if (!details) return false;
 		if (details === this.details) return true;
 		if (this.searchid) return false;
-		if (details.indexOf(', shiny') >= 0) {
+		if (details.includes(', shiny')) {
 			if (this.checkDetails(details.replace(', shiny', ''))) return true;
 		}
 		// the actual forme was hidden on Team Preview
@@ -340,7 +340,7 @@ export class Pokemon implements PokemonDetails, PokemonHealth {
 	rememberMove(moveName: string, pp = 1, recursionSource?: string) {
 		if (recursionSource === this.ident) return;
 		moveName = Dex.moves.get(moveName).name;
-		if (moveName.charAt(0) === '*') return;
+		if (moveName.startsWith('*')) return;
 		if (moveName === 'Struggle') return;
 		if (this.volatiles.transform) {
 			// make sure there is no infinite recursion if both Pokemon are transformed into each other
@@ -422,7 +422,7 @@ export class Pokemon implements PokemonDetails, PokemonHealth {
 		this.boosts = {};
 		this.clearVolatiles();
 		for (let i = 0; i < this.moveTrack.length; i++) {
-			if (this.moveTrack[i][0].charAt(0) === '*') {
+			if (this.moveTrack[i][0].startsWith('*')) {
 				this.moveTrack.splice(i, 1);
 				i--;
 			}
@@ -477,8 +477,8 @@ export class Pokemon implements PokemonDetails, PokemonHealth {
 			this.removeVolatile('typeadd' as ID);
 		}
 	}
-	getTypes(serverPokemon?: ServerPokemon, preterastallized = false): [ReadonlyArray<Dex.TypeName>, Dex.TypeName | ''] {
-		let types: ReadonlyArray<Dex.TypeName>;
+	getTypes(serverPokemon?: ServerPokemon, preterastallized = false): [readonly Dex.TypeName[], Dex.TypeName | ''] {
+		let types: readonly Dex.TypeName[];
 		if (!preterastallized && this.terastallized && this.terastallized !== 'Stellar') {
 			types = [this.terastallized as Dex.TypeName];
 		} else if (this.volatiles.typechange) {
@@ -610,9 +610,9 @@ export class Side {
 	isFar: boolean;
 	foe: Side = null!;
 	ally: Side | null = null;
-	avatar: string = 'unknown';
+	avatar = 'unknown';
 	badges: string[] = [];
-	rating: string = '';
+	rating = '';
 	totalPokemon = 6;
 	x = 0;
 	y = 0;
@@ -777,9 +777,9 @@ export class Side {
 						toRemove = poke2i;
 					} else if (poke === poke2) {
 						toRemove = poke1i;
-					} else if (this.active.indexOf(poke1) >= 0) {
+					} else if (this.active.includes(poke1)) {
 						toRemove = poke2i;
-					} else if (this.active.indexOf(poke2) >= 0) {
+					} else if (this.active.includes(poke2)) {
 						toRemove = poke1i;
 					} else if (poke1.fainted && !poke2.fainted) {
 						toRemove = poke2i;
@@ -797,7 +797,7 @@ export class Side {
 					for (const curPoke of this.pokemon) {
 						if (curPoke === poke) continue;
 						if (curPoke.fainted) continue;
-						if (this.active.indexOf(curPoke) >= 0) continue;
+						if (this.active.includes(curPoke)) continue;
 						if (curPoke.speciesForme === 'Zoroark' || curPoke.speciesForme === 'Zorua' || curPoke.ability === 'Illusion') {
 							illusionFound = curPoke;
 							break;
@@ -811,7 +811,7 @@ export class Side {
 						for (const curPoke of this.pokemon) {
 							if (curPoke === poke) continue;
 							if (curPoke.fainted) continue;
-							if (this.active.indexOf(curPoke) >= 0) continue;
+							if (this.active.includes(curPoke)) continue;
 							illusionFound = curPoke;
 							break;
 						}
@@ -1498,7 +1498,7 @@ export class Battle {
 					pokemon.item = move.isZ;
 					let item = Dex.items.get(move.isZ);
 					if (item.zMoveFrom) moveName = item.zMoveFrom;
-				} else if (move.name.slice(0, 2) === 'Z-') {
+				} else if (move.name.startsWith('Z-')) {
 					moveName = moveName.slice(2);
 					move = Dex.moves.get(moveName);
 					if (window.BattleItems) {
@@ -2216,7 +2216,6 @@ export class Battle {
 			}
 			this.log(args, kwArgs);
 			break;
-
 		}
 		case '-cureteam': { // For old gens when the whole team was always cured
 			let poke = this.getPokemon(args[1])!;
@@ -2448,7 +2447,7 @@ export class Battle {
 			let commaIndex = newSpeciesForme.indexOf(',');
 			if (commaIndex !== -1) {
 				let level = newSpeciesForme.substr(commaIndex + 1).trim();
-				if (level.charAt(0) === 'L') {
+				if (level.startsWith('L')) {
 					poke.level = parseInt(level.substr(1), 10);
 				}
 				newSpeciesForme = args[2].substr(0, commaIndex);
@@ -3139,7 +3138,8 @@ export class Battle {
 		default: {
 			throw new Error(`Unrecognized minor action: ${args[0]}`);
 			break;
-		}}
+		}
+		}
 	}
 	/*
 	parseSpriteData(name) {
@@ -3400,10 +3400,10 @@ export class Battle {
 		}
 		case 'tier': {
 			this.tier = args[1];
-			if (this.tier.slice(-13) === 'Random Battle') {
+			if (this.tier.endsWith('Random Battle')) {
 				this.speciesClause = true;
 			}
-			if (this.tier.slice(-8) === ' (Blitz)') {
+			if (this.tier.endsWith(' (Blitz)')) {
 				this.messageFadeTime = 40;
 				this.isBlitz = true;
 			}
@@ -3480,26 +3480,26 @@ export class Battle {
 		}
 		case 'inactive': {
 			if (!this.kickingInactive) this.kickingInactive = true;
-			if (args[1].slice(0, 11) === "Time left: ") {
+			if (args[1].startsWith("Time left: ")) {
 				let [time, totalTime, graceTime] = args[1].split(' | ');
 				this.kickingInactive = parseInt(time.slice(11), 10) || true;
 				this.totalTimeLeft = parseInt(totalTime, 10);
 				this.graceTimeLeft = parseInt(graceTime || '', 10) || 0;
 				if (this.totalTimeLeft === this.kickingInactive) this.totalTimeLeft = 0;
 				return;
-			} else if (args[1].slice(0, 9) === "You have ") {
+			} else if (args[1].startsWith("You have ")) {
 				// this is ugly but parseInt is documented to work this way
 				// so I'm going to be lazy and not chop off the rest of the
 				// sentence
 				this.kickingInactive = parseInt(args[1].slice(9), 10) || true;
 				return;
-			} else if (args[1].slice(-14) === ' seconds left.') {
+			} else if (args[1].endsWith(' seconds left.')) {
 				let hasIndex = args[1].indexOf(' has ');
 				let userid = window.app?.user?.get('userid');
 				if (toID(args[1].slice(0, hasIndex)) === userid) {
 					this.kickingInactive = parseInt(args[1].slice(hasIndex + 5), 10) || true;
 				}
-			} else if (args[1].slice(-27) === ' 15 seconds left this turn.') {
+			} else if (args[1].endsWith(' 15 seconds left this turn.')) {
 				if (this.isBlitz) return;
 			}
 			this.log(args, undefined, preempt);
@@ -3648,7 +3648,7 @@ export class Battle {
 			let slot = poke.slot;
 			poke.healthParse(args[3]);
 			poke.removeVolatile('itemremoved' as ID);
-			poke.terastallized = args[2].match(/tera:([a-z]+)$/i)?.[1] || '';
+			poke.terastallized = (/tera:([a-z]+)$/i.exec(args[2]))?.[1] || '';
 			if (args[0] === 'switch') {
 				if (poke.side.active[slot]) {
 					poke.side.switchOut(poke.side.active[slot]!, kwArgs);
@@ -3746,7 +3746,8 @@ export class Battle {
 		default: {
 			this.log(args, kwArgs, preempt);
 			break;
-		}}
+		}
+		}
 	}
 
 	run(str: string, preempt?: boolean) {
@@ -3768,19 +3769,19 @@ export class Battle {
 		let nextArgs: Args = [''];
 		let nextKwargs: KWArgs = {};
 		const nextLine = this.stepQueue[this.currentStep + 1] || '';
-		if (nextLine.slice(0, 2) === '|-') {
+		if (nextLine.startsWith('|-')) {
 			({args: nextArgs, kwArgs: nextKwargs} = BattleTextParser.parseBattleLine(nextLine));
 		}
 
 		if (this.debug) {
-			if (args[0].charAt(0) === '-' || args[0] === 'detailschange') {
+			if (args[0].startsWith('-') || args[0] === 'detailschange') {
 				this.runMinor(args, kwArgs, nextArgs, nextKwargs);
 			} else {
 				this.runMajor(args, kwArgs, preempt);
 			}
 		} else {
 			try {
-				if (args[0].charAt(0) === '-' || args[0] === 'detailschange') {
+				if (args[0].startsWith('-') || args[0] === 'detailschange') {
 					this.runMinor(args, kwArgs, nextArgs, nextKwargs);
 				} else {
 					this.runMajor(args, kwArgs, preempt);

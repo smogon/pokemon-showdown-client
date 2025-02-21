@@ -1246,7 +1246,7 @@
 		events: {
 			'keyup input[name=search]': 'updateSearch',
 			'click details': 'updateOpen',
-			'click i.fa': 'updateStar',
+			'click i.fa': 'updateStar'
 		},
 		initialize: function (data) {
 			this.data = data;
@@ -1258,7 +1258,7 @@
 					"S/V Singles": true, "S/V Doubles": true, "Unofficial Metagames": true, "National Dex": true, "OM of the Month": true,
 					"Other Metagames": true, "Randomized Format Spotlight": true, "RoA Spotlight": true,
 					// For AFD
-					"Random Meta of the Decade": true,
+					"Random Meta of the Decade": true
 				};
 			}
 			if (!this.starred) this.starred = Storage.prefs('starredformats') || {};
@@ -1578,7 +1578,7 @@
 			}
 		},
 		events: {
-			'click input[type=checkbox]': 'foldersToggle',
+			'click input[type=checkbox]': 'foldersToggle'
 		},
 		moreTeams: function () {
 			this.close();

@@ -1252,7 +1252,7 @@ export class Move implements Effect {
 	readonly basePowerCallback: boolean;
 	readonly noPPBoosts: boolean;
 	readonly status: string;
-	readonly secondaries: ReadonlyArray<any> | null;
+	readonly secondaries: readonly any[] | null;
 	readonly num: number;
 
 	constructor(id: ID, name: string, data: any) {
@@ -1310,7 +1310,7 @@ export class Move implements Effect {
 					this.maxMove = {basePower: 80};
 				} else if (this.basePower >= 45) {
 					this.maxMove = {basePower: 75};
-				} else  {
+				} else {
 					this.maxMove = {basePower: 70};
 				}
 			} else {
@@ -1326,7 +1326,7 @@ export class Move implements Effect {
 					this.maxMove = {basePower: 110};
 				} else if (this.basePower >= 45) {
 					this.maxMove = {basePower: 100};
-				} else  {
+				} else {
 					this.maxMove = {basePower: 90};
 				}
 			}
@@ -1468,7 +1468,7 @@ export class Species implements Effect {
 
 	// basic data
 	readonly num: number;
-	readonly types: ReadonlyArray<TypeName>;
+	readonly types: readonly TypeName[];
 	readonly abilities: Readonly<{
 		0: string, 1?: string, H?: string, S?: string,
 	}>;
@@ -1483,20 +1483,20 @@ export class Species implements Effect {
 	readonly gender: GenderName;
 	readonly color: string;
 	readonly genderRatio: Readonly<{M: number, F: number}> | null;
-	readonly eggGroups: ReadonlyArray<string>;
-	readonly tags: ReadonlyArray<string>;
+	readonly eggGroups: readonly string[];
+	readonly tags: readonly string[];
 
 	// format data
-	readonly otherFormes: ReadonlyArray<string> | null;
-	readonly cosmeticFormes: ReadonlyArray<string> | null;
-	readonly evos: ReadonlyArray<string> | null;
+	readonly otherFormes: readonly string[] | null;
+	readonly cosmeticFormes: readonly string[] | null;
+	readonly evos: readonly string[] | null;
 	readonly prevo: string;
 	readonly evoType: 'trade' | 'useItem' | 'levelMove' | 'levelExtra' | 'levelFriendship' | 'levelHold' | 'other' | '';
 	readonly evoLevel: number;
 	readonly evoMove: string;
 	readonly evoItem: string;
 	readonly evoCondition: string;
-	readonly requiredItems: ReadonlyArray<string>;
+	readonly requiredItems: readonly string[];
 	readonly tier: string;
 	readonly isTotem: boolean;
 	readonly isMega: boolean;
@@ -1521,9 +1521,9 @@ export class Species implements Effect {
 		const baseId = toID(this.baseSpecies);
 		this.formeid = (baseId === this.id ? '' : '-' + toID(this.forme));
 		this.spriteid = baseId + this.formeid;
-		if (this.spriteid.slice(-5) === 'totem') this.spriteid = this.spriteid.slice(0, -5);
+		if (this.spriteid.endsWith('totem')) this.spriteid = this.spriteid.slice(0, -5);
 		if (this.spriteid === 'greninja-bond') this.spriteid = 'greninja';
-		if (this.spriteid.slice(-1) === '-') this.spriteid = this.spriteid.slice(0, -1);
+		if (this.spriteid.endsWith('-')) this.spriteid = this.spriteid.slice(0, -1);
 		this.baseForme = data.baseForme || '';
 
 		this.num = data.num || 0;

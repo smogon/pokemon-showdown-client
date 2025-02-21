@@ -7,7 +7,8 @@
 
 import {PS} from "./client-main";
 
-declare var SockJS: any;
+declare const SockJS: any;
+declare const POKEMON_SHOWDOWN_TESTCLIENT_KEY: string | undefined;
 
 export class PSConnection {
 	socket: any = null;
@@ -64,10 +65,8 @@ export const PSLoginServer = new class {
 		let url = '/~~' + PS.server.id + '/action.php';
 		if (location.pathname.endsWith('.html')) {
 			url = 'https://' + Config.routes.client + url;
-			// @ts-ignore
 			if (typeof POKEMON_SHOWDOWN_TESTCLIENT_KEY === 'string') {
-				// @ts-ignore
-				data.sid = POKEMON_SHOWDOWN_TESTCLIENT_KEY.replace(/\%2C/g, ',');
+				data.sid = POKEMON_SHOWDOWN_TESTCLIENT_KEY.replace(/%2C/g, ',');
 			}
 		}
 		return Net(url).get({method: data ? 'POST' : 'GET', body: data}).then(
@@ -96,7 +95,7 @@ class HttpError extends Error {
 		this.body = body;
 		try {
 			(Error as any).captureStackTrace(this, HttpError);
-		} catch (err) {}
+		} catch {}
 	}
 }
 class NetRequest {

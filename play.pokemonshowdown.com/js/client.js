@@ -942,7 +942,7 @@ function toId() {
 				this.loadingTeam = true;
 				$.get(app.user.getActionPHP(), {
 					act: 'getteam',
-					teamid: team.teamid,
+					teamid: team.teamid
 				}, Storage.safeJSON(function (data) {
 					app.loadingTeam = false;
 					if (data.actionerror) {
@@ -2629,7 +2629,7 @@ function toId() {
 			} else {
 				app.addPopupMessage("You are already registered!");
 			}
-		},
+		}
 	});
 
 	var PromptPopup = this.PromptPopup = Popup.extend({
@@ -2872,7 +2872,7 @@ function toId() {
 			app.addPopup(UserOptionsPopup, {
 				name: this.data.name,
 				userid: this.data.userid,
-				friended: this.data.friended,
+				friended: this.data.friended
 			});
 		}
 	}, {
