@@ -10,7 +10,7 @@ import type {ID} from '../../play.pokemonshowdown.com/src/battle-dex';
 declare function toID(input: string): string;
 
 function showAd(id: string) {
-	// @ts-expect-error
+	// @ts-expect-error no clue how to declare this one
 	window.top.__vm_add = window.top.__vm_add || [];
 
 	// this is a x-browser way to make sure content has loaded.
@@ -34,7 +34,7 @@ function showAd(id: string) {
 			placement.setAttribute("data-id", "645268557bc7b571c2f06f62");
 		}
 		document.querySelector("#" + id)!.appendChild(placement);
-		// @ts-expect-error
+		// @ts-expect-error no clue how to declare this one
 		window.top.__vm_add.push(placement);
 	});
 }
@@ -160,14 +160,13 @@ export class BattlePanel extends preact.Component<{id: string}> {
 		}
 	}
 	keyPressed = (e: KeyboardEvent) => {
-		// @ts-ignore
 		this.lastUsedKeyCode = `${e.keyCode}`;
 		if (e.ctrlKey || e.metaKey || e.altKey) return;
 		if (e.keyCode === 27 && this.turnView) { // Esc
 			this.closeTurn();
 			return;
 		}
-		// @ts-ignore
+		// @ts-expect-error really wish they let me assert that the target is an HTMLElement
 		if (e.target?.tagName === 'INPUT' || e.target?.tagName === 'SELECT') return;
 		switch (e.keyCode) {
 		case 75: // k

@@ -461,7 +461,7 @@ class TeamDropdown extends preact.Component<{format: string}> {
 	render() {
 		const teamFormat = PS.teams.teambuilderFormat(this.props.format);
 		const formatData = window.BattleFormats?.[teamFormat];
-		if (formatData && formatData.team) {
+		if (formatData?.team) {
 			return <button class="select teamselect preselected" name="team" value="random" disabled>
 				<div class="team">
 					<strong>Random team</strong>

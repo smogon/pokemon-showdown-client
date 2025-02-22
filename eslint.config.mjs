@@ -57,14 +57,8 @@ export const defaultRules = {
 	"@stylistic/new-parens": "off", // used for the `new class {...}` pattern
 	"no-prototype-builtins": "off",
 
-	// typescript-eslint defaults too strict
-	// =====================================
-	"@typescript-eslint/ban-ts-comment": "off",
-	"@typescript-eslint/no-empty-function": "off",
-	"@typescript-eslint/no-explicit-any": "off",
-	"@typescript-eslint/no-non-null-assertion": "off",
-	"@typescript-eslint/no-use-before-define": "off",
-	"@typescript-eslint/no-unsafe-argument": "off",
+	// defaults too strict
+	// ===================
 	"no-empty": ["error", {"allowEmptyCatch": true}],
 	"no-case-declarations": "off",
 
@@ -180,15 +174,12 @@ export const defaultRulesTS = {
 
 	// TODO: revisit
 	// we should do this someday but it'd have to be a gradual manual process
-	"@typescript-eslint/explicit-module-boundary-types": "off",
+	// "@typescript-eslint/explicit-module-boundary-types": "off",
 	// like above but slightly harder, so do that one first
-	"@typescript-eslint/explicit-function-return-type": "off",
+	// "@typescript-eslint/explicit-function-return-type": "off",
 	// probably we should settle on a standard someday
-	"@typescript-eslint/member-ordering": "off",
+	// "@typescript-eslint/member-ordering": "off",
 	// "@typescript-eslint/no-extraneous-class": "error",
-	// "@typescript-eslint/no-type-alias": "error",
-	"@typescript-eslint/prefer-optional-chain": "off",
-	"@typescript-eslint/consistent-type-imports": "error", // TODO after no-duplicate-imports fix
 	// maybe we should consider this
 	"@typescript-eslint/consistent-indexed-object-style": "off",
 
@@ -203,10 +194,11 @@ export const defaultRulesTS = {
 	"no-unused-expressions": "off",
 	"@typescript-eslint/no-unused-expressions": defaultRules["no-unused-expressions"],
 
-	// PS code (code specific to PS)
-	// =============================
-	"@typescript-eslint/unbound-method": "off", // used for sim event handlers, command handlers, etc
-	"@typescript-eslint/no-require-imports": "off",
+	// defaults too strict
+	// ===================
+	"@typescript-eslint/no-empty-function": "off",
+	"@typescript-eslint/no-explicit-any": "off",
+	"@typescript-eslint/no-non-null-assertion": "off",
 
 	// probably bugs
 	// =============
@@ -214,6 +206,7 @@ export const defaultRulesTS = {
 	"@typescript-eslint/no-extra-non-null-assertion": "error",
 	"@typescript-eslint/no-misused-new": "error",
 	"@typescript-eslint/no-non-null-asserted-optional-chain": "error",
+	"@typescript-eslint/consistent-type-imports": "error",
 
 	// naming style
 	// ============
@@ -245,10 +238,6 @@ export const defaultRulesTS = {
 /** @type {NonNullable<Config['rules']>} */
 export const defaultRulesTSChecked = {
 	...defaultRulesTS,
-	// yes-types
-	// =========
-	// "@typescript-eslint/restrict-template-expressions": "off",
-	"@typescript-eslint/prefer-includes": "error",
 
 	// we use `any`
 	// ============
@@ -256,9 +245,11 @@ export const defaultRulesTSChecked = {
 	"@typescript-eslint/no-unsafe-call": "off",
 	"@typescript-eslint/no-unsafe-member-access": "off",
 	"@typescript-eslint/no-unsafe-return": "off",
+	"@typescript-eslint/no-unsafe-argument": "off",
 
 	// yes-types syntax style, overriding base
 	// =======================================
+	"@typescript-eslint/prefer-includes": "error",
 	"@typescript-eslint/prefer-nullish-coalescing": "off",
 	"@typescript-eslint/dot-notation": "off",
 	"@typescript-eslint/no-confusing-non-null-assertion": "off",

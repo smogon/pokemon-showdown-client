@@ -502,7 +502,7 @@ export const Dex = new class implements ModdedDex {
 			if (!type || typeof type === 'string') {
 				const id = toID(type) as string;
 				const name = id.substr(0, 1).toUpperCase() + id.substr(1);
-				type = (window.BattleTypeChart && window.BattleTypeChart[id]) || {};
+				type = window.BattleTypeChart?.[id] || {};
 				if (type.damageTaken) type.exists = true;
 				if (!type.id) type.id = id;
 				if (!type.name) type.name = name;
@@ -524,7 +524,7 @@ export const Dex = new class implements ModdedDex {
 		isName: (name: string | null): boolean => {
 			const id = toID(name);
 			if (name !== id.substr(0, 1).toUpperCase() + id.substr(1)) return false;
-			return (window.BattleTypeChart || {}).hasOwnProperty(id);
+			return window.BattleTypeChart?.hasOwnProperty(id);
 		},
 	};
 

@@ -742,7 +742,7 @@ abstract class BattleTypedSearch<T extends SearchType> {
 		if (this.sortRow) {
 			results = [this.sortRow, ...results];
 		}
-		if (illegalResults && illegalResults.length) {
+		if (illegalResults?.length) {
 			results = [...results, ['header', "Illegal results"], ...illegalResults];
 		}
 		return results;
@@ -856,7 +856,7 @@ abstract class BattleTypedSearch<T extends SearchType> {
 			this.formatType === 'natdex' ? `gen${gen}natdex` :
 			this.formatType === 'stadium' ? `gen${gen}stadium${gen > 1 ? gen : ''}` :
 			`gen${gen}`;
-		if (table && table[tableKey]) {
+		if (table?.[tableKey]) {
 			table = table[tableKey];
 		}
 		if (!table) return pokemon.tier;

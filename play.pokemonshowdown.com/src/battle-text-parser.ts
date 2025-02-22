@@ -380,7 +380,7 @@ export class BattleTextParser {
 
 	static stat(stat: string) {
 		const entry = BattleText[stat || "stats"];
-		if (!entry || !entry.statName) return `???stat:${stat}???`;
+		if (!entry?.statName) return `???stat:${stat}???`;
 		return entry.statName;
 	}
 

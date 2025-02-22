@@ -267,8 +267,7 @@ export class PSSearchResults extends preact.Component<{search: DexSearch}> {
 
 	renderArticleRow(id: ID, matchStart: number, matchEnd: number, errorMessage?: preact.ComponentChildren) {
 		const isSearchType = (id === 'pokemon' || id === 'moves');
-		const name = (window.BattleArticleTitles && window.BattleArticleTitles[id]) ||
-			(id.charAt(0).toUpperCase() + id.substr(1));
+		const name = window.BattleArticleTitles?.[id] || (id.charAt(0).toUpperCase() + id.substr(1));
 
 		return <li class="result"><a href={`${this.URL_ROOT}articles/${id}`} data-target="push" data-entry={`article|${name}`}>
 			<span class="col namecol">{this.renderName(name, matchStart, matchEnd)}</span>
@@ -387,13 +386,11 @@ export class PSSearchResults extends preact.Component<{search: DexSearch}> {
 				)}
 				{!search.query && <small style="color: #888">(backspace = delete filter)</small>}
 			</p>}
-			{search.results && (
+			{
 				// TODO: implement windowing
 				// for now, just show first twenty results
-				search.results.slice(0, 20).map(result =>
-					this.renderRow(result)
-				)
-			)}
+				search.results?.slice(0, 20).map(result => this.renderRow(result))
+			}
 		</ul>;
 	}
 }

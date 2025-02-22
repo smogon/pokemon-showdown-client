@@ -3088,11 +3088,11 @@ class BattleStatGuesser {
 
 		let baseStat = species.baseStats[stat];
 
-		let iv = (set.ivs && set.ivs[stat]);
+		let iv = set.ivs?.[stat];
 		if (typeof iv !== 'number') iv = 31;
 		if (this.dex.gen <= 2) iv &= 30;
 
-		let ev = (set.evs && set.evs[stat]);
+		let ev = set.evs?.[stat];
 		if (typeof ev !== 'number') ev = (this.dex.gen > 2 ? 0 : 252);
 		if (evOverride !== undefined) ev = evOverride;
 

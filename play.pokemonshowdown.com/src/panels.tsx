@@ -327,7 +327,7 @@ export class PSMain extends preact.Component {
 		PS.prefs.subscribeAndRun(key => {
 			if (!key || key === 'theme') {
 				const dark = PS.prefs.theme === 'dark' ||
-					(PS.prefs.theme === 'system' && colorSchemeQuery && colorSchemeQuery.matches);
+					(PS.prefs.theme === 'system' && colorSchemeQuery?.matches);
 				document.body.className = dark ? 'dark' : '';
 			}
 		});

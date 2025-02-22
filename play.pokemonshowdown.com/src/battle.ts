@@ -216,7 +216,7 @@ export class Pokemon implements PokemonDetails, PokemonHealth {
 	healthParse(hpstring: string, parsedamage?: boolean, heal?: boolean):
 		[number, number, number] | [number, number, number, number, HPColor] | null {
 		// returns [delta, denominator, percent(, oldnum, oldcolor)] or null
-		if (!hpstring || !hpstring.length) return null;
+		if (!hpstring?.length) return null;
 		let parenIndex = hpstring.lastIndexOf('(');
 		if (parenIndex >= 0) {
 			// old style damage and health reporting
