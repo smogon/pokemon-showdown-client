@@ -353,23 +353,23 @@ export class PSSearchResults extends preact.Component<{search: DexSearch}> {
 		case 'sortmove':
 			return this.renderMoveSortRow();
 		case 'pokemon':
-			return this.renderPokemonRow(id as ID, matchStart, matchEnd, errorMessage);
+			return this.renderPokemonRow(id, matchStart, matchEnd, errorMessage);
 		case 'move':
-			return this.renderMoveRow(id as ID, matchStart, matchEnd, errorMessage);
+			return this.renderMoveRow(id, matchStart, matchEnd, errorMessage);
 		case 'item':
-			return this.renderItemRow(id as ID, matchStart, matchEnd, errorMessage);
+			return this.renderItemRow(id, matchStart, matchEnd, errorMessage);
 		case 'ability':
-			return this.renderAbilityRow(id as ID, matchStart, matchEnd, errorMessage);
+			return this.renderAbilityRow(id, matchStart, matchEnd, errorMessage);
 		case 'type':
-			return this.renderTypeRow(id as ID, matchStart, matchEnd, errorMessage);
+			return this.renderTypeRow(id, matchStart, matchEnd, errorMessage);
 		case 'egggroup':
-			return this.renderEggGroupRow(id as ID, matchStart, matchEnd, errorMessage);
+			return this.renderEggGroupRow(id, matchStart, matchEnd, errorMessage);
 		case 'tier':
-			return this.renderTierRow(id as ID, matchStart, matchEnd, errorMessage);
+			return this.renderTierRow(id, matchStart, matchEnd, errorMessage);
 		case 'category':
-			return this.renderCategoryRow(id as ID, matchStart, matchEnd, errorMessage);
+			return this.renderCategoryRow(id, matchStart, matchEnd, errorMessage);
 		case 'article':
-			return this.renderArticleRow(id as ID, matchStart, matchEnd, errorMessage);
+			return this.renderArticleRow(id, matchStart, matchEnd, errorMessage);
 		}
 		return <li>Error: not found</li>;
 	}

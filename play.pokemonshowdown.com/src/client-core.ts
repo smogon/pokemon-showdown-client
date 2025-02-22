@@ -18,7 +18,7 @@
  *********************************************************************/
 // PS's model classes are defined here
 
-const PSURL = `${document.location!.protocol !== 'http:' ? 'https:' : ''}//${Config.routes.client}/`;
+const PSURL = `${document.location.protocol !== 'http:' ? 'https:' : ''}//${Config.routes.client}/`;
 
 export class PSSubscription {
 	observable: PSModel | PSStreamModel<any>;
@@ -360,7 +360,7 @@ PSBackground.subscribe(bgUrl => {
 			buttonStyleElem = new HTMLStyleElement();
 			buttonStyleElem.id = 'mainmenubuttoncolors';
 			buttonStyleElem.textContent = cssBuf;
-			document.head!.appendChild(buttonStyleElem);
+			document.head.appendChild(buttonStyleElem);
 		}
 	} else {
 		buttonStyleElem.textContent = cssBuf;

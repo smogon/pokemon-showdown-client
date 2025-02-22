@@ -477,7 +477,7 @@ export class BattleTooltips {
 		let boostText = '';
 		if (move.zMove!.boost) {
 			boostText = Object.entries(move.zMove!.boost).map(([stat, boost]) =>
-				`${BattleTextParser.stat(stat)} +${boost!}`
+				`${BattleTextParser.stat(stat)} +${boost}`
 			).join(', ');
 		}
 		return boostText;
@@ -1723,7 +1723,7 @@ export class BattleTooltips {
 	getMoveAccuracy(move: Dex.Move, value: ModifiableValue, target?: Pokemon) {
 		value.reset(move.accuracy === true ? 0 : move.accuracy, true);
 
-		let pokemon = value.pokemon!;
+		let pokemon = value.pokemon;
 		// Sure-hit accuracy
 		if (move.id === 'toxic' && this.battle.gen >= 6 && this.pokemonHasType(pokemon, 'Poison')) {
 			value.set(0, "Poison type");
@@ -1866,7 +1866,7 @@ export class BattleTooltips {
 	// Takes into account the target for some moves.
 	// If it is unsure of the actual base power, it gives an estimate.
 	getMoveBasePower(move: Dex.Move, moveType: Dex.TypeName, value: ModifiableValue, target: Pokemon | null = null) {
-		const pokemon = value.pokemon!;
+		const pokemon = value.pokemon;
 		const serverPokemon = value.serverPokemon;
 
 		// apply modifiers for moves that depend on the actual stats
@@ -3274,6 +3274,6 @@ declare const require: any;
 declare const global: any;
 if (typeof require === 'function') {
 	// in Node
-	(global as any).BattleStatGuesser = BattleStatGuesser;
-	(global as any).BattleStatOptimizer = BattleStatOptimizer;
+	global.BattleStatGuesser = BattleStatGuesser;
+	global.BattleStatOptimizer = BattleStatOptimizer;
 }

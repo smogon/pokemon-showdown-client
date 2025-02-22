@@ -33,6 +33,7 @@ import {BattleLog} from './battle-log';
 import {BattleScene, type PokemonSprite, BattleStatusAnims} from './battle-animations';
 import {Dex, Teams, toID, toUserid, type ID, type ModdedDex} from './battle-dex';
 import {BattleTextParser, type Args, type KWArgs, type SideID} from './battle-text-parser';
+declare const app: {user: AnyObject, rooms: AnyObject, ignore?: AnyObject} | undefined;
 
 /** [id, element?, ...misc] */
 export type EffectState = any[] & {0: ID};
@@ -92,7 +93,7 @@ export class Pokemon implements PokemonDetails, PokemonHealth {
 	itemEffect = '';
 	prevItem = '';
 	prevItemEffect = '';
-	terastallized: string | '' = '';
+	terastallized = '';
 	teraType = '';
 
 	boosts: {[stat: string]: number} = {};
@@ -2237,7 +2238,7 @@ export class Battle {
 					if (possibleTargets.length === 1) {
 						poke = possibleTargets[0]!;
 					} else {
-						this.activateAbility(ofpoke!, "Frisk");
+						this.activateAbility(ofpoke, "Frisk");
 						this.log(args, kwArgs);
 						break;
 					}
@@ -2260,7 +2261,7 @@ export class Battle {
 					this.scene.resultAnim(poke, item.name, 'neutral');
 					break;
 				case 'frisk':
-					this.activateAbility(ofpoke!, "Frisk");
+					this.activateAbility(ofpoke, "Frisk");
 					if (poke && poke !== ofpoke) { // used for gen 6
 						poke.itemEffect = 'frisked';
 						this.scene.resultAnim(poke, item.name, 'neutral');
@@ -3596,7 +3597,7 @@ export class Battle {
 			break;
 		}
 		case 'poke': {
-			let pokemon = this.rememberTeamPreviewPokemon(args[1], args[2])!;
+			let pokemon = this.rememberTeamPreviewPokemon(args[1], args[2]);
 			if (args[3] === 'mail') {
 				pokemon.item = '(mail)';
 			} else if (args[3] === 'item') {
@@ -3642,14 +3643,14 @@ export class Battle {
 		}
 		case 'switch': case 'drag': case 'replace': {
 			this.endLastTurn();
-			let poke = this.getSwitchedPokemon(args[1], args[2])!;
+			let poke = this.getSwitchedPokemon(args[1], args[2]);
 			let slot = poke.slot;
 			poke.healthParse(args[3]);
 			poke.removeVolatile('itemremoved' as ID);
 			poke.terastallized = (/tera:([a-z]+)$/i.exec(args[2]))?.[1] || '';
 			if (args[0] === 'switch') {
 				if (poke.side.active[slot]) {
-					poke.side.switchOut(poke.side.active[slot]!, kwArgs);
+					poke.side.switchOut(poke.side.active[slot], kwArgs);
 				}
 				poke.side.switchIn(poke, kwArgs);
 			} else if (args[0] === 'replace') {
@@ -3954,6 +3955,6 @@ declare const require: any;
 declare const global: any;
 if (typeof require === 'function') {
 	// in Node
-	(global as any).Battle = Battle;
-	(global as any).Pokemon = Pokemon;
+	global.Battle = Battle;
+	global.Pokemon = Pokemon;
 }

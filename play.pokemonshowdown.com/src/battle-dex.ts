@@ -910,7 +910,7 @@ export const Dex = new class implements ModdedDex {
 		if (this.pokeballs) return this.pokeballs;
 		this.pokeballs = [];
 		if (!window.BattleItems) window.BattleItems = {};
-		for (const data of Object.values(window.BattleItems) as AnyObject[]) {
+		for (const data of Object.values<AnyObject>(window.BattleItems)) {
 			if (!data.isPokeball) continue;
 			this.pokeballs.push(data.name);
 		}
@@ -1073,7 +1073,7 @@ export class ModdedDex {
 
 	types = {
 		get: (name: string): Dex.Effect => {
-			const id = toID(name) as ID;
+			const id = toID(name);
 			name = id.substr(0, 1).toUpperCase() + id.substr(1);
 
 			if (this.cache.Types.hasOwnProperty(id)) return this.cache.Types[id];
@@ -1101,7 +1101,7 @@ export class ModdedDex {
 		if (this.pokeballs) return this.pokeballs;
 		this.pokeballs = [];
 		if (!window.BattleItems) window.BattleItems = {};
-		for (const data of Object.values(window.BattleItems) as AnyObject[]) {
+		for (const data of Object.values<AnyObject>(window.BattleItems)) {
 			if (data.gen && data.gen > this.gen) continue;
 			if (!data.isPokeball) continue;
 			this.pokeballs.push(data.name);
@@ -1363,6 +1363,6 @@ export const Teams = new class {
 
 if (typeof require === 'function') {
 	// in Node
-	(global as any).Dex = Dex;
-	(global as any).toID = toID;
+	global.Dex = Dex;
+	global.toID = toID;
 }

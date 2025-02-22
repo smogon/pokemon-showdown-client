@@ -18,7 +18,7 @@ export class BattleSceneStub {
 
 	abilityActivateAnim(pokemon: Pokemon, result: string): void { }
 	addPokemonSprite(pokemon: Pokemon): PokemonSprite { return null!; }
-	addSideCondition(siden: number, id: ID, instant?: boolean | undefined): void { }
+	addSideCondition(siden: number, id: ID, instant?: boolean): void { }
 	animationOff(): void { }
 	animationOn(): void { }
 	maybeCloseMessagebar(args: Args, kwArgs: KWArgs): boolean { return false; }
@@ -30,7 +30,7 @@ export class BattleSceneStub {
 	hideJoinButtons(): void { }
 	incrementTurn(): void { }
 	updateAcceleration(): void { }
-	message(message: string, hiddenMessage?: string | undefined): void { }
+	message(message: string, hiddenMessage?: string): void { }
 	pause(): void { }
 	setMute(muted: boolean): void { }
 	preemptCatchup(): void { }
@@ -55,7 +55,7 @@ export class BattleSceneStub {
 	updateSidebar(side: Side): void { }
 	updateSidebars(): void { }
 	updateStatbars(): void { }
-	updateWeather(instant?: boolean | undefined): void { }
+	updateWeather(instant?: boolean): void { }
 	upkeepWeather(): void { }
 	wait(time: number): void { }
 	setFrameHTML(html: any): void { }

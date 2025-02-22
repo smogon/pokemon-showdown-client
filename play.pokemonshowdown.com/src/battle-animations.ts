@@ -271,7 +271,7 @@ export class BattleScene implements BattleSceneStub {
 		effect: string | SpriteData, start: ScenePos, end: ScenePos,
 		transition: string, after?: string, additionalCss?: JQuery.PlainObject
 	) {
-		if (typeof effect === 'string') effect = BattleEffects[effect] as SpriteData;
+		if (typeof effect === 'string') effect = BattleEffects[effect];
 		if (!start.time) start.time = 0;
 		if (!end.time) end.time = start.time + 500;
 		start.time += this.timeOffset;
@@ -737,7 +737,7 @@ export class BattleScene implements BattleSceneStub {
 		const side = this.battle.nearSide;
 
 		if (side.ally) {
-			const side2 = side.ally!;
+			const side2 = side.ally;
 			this.$leftbar.html(this.getSidebarHTML(side, 'near2') + this.getSidebarHTML(side2, 'near'));
 		} else if (this.battle.sides.length > 2) { // FFA
 			const side2 = this.battle.sides[side.n === 0 ? 3 : 2];
@@ -750,7 +750,7 @@ export class BattleScene implements BattleSceneStub {
 		const side = this.battle.farSide;
 
 		if (side.ally) {
-			const side2 = side.ally!;
+			const side2 = side.ally;
 			this.$rightbar.html(this.getSidebarHTML(side, 'far2') + this.getSidebarHTML(side2, 'far'));
 		} else if (this.battle.sides.length > 2) { // FFA
 			const side2 = this.battle.sides[side.n === 0 ? 3 : 2];
@@ -1130,7 +1130,7 @@ export class BattleScene implements BattleSceneStub {
 				yscale: 0,
 				opacity: 0.1,
 			}, this);
-			this.$spritesFront[spriteIndex].append(auroraveil.$el!);
+			this.$spritesFront[spriteIndex].append(auroraveil.$el);
 			this.sideConditions[siden][id] = [auroraveil];
 			auroraveil.anim({
 				opacity: 0.7,
@@ -1150,7 +1150,7 @@ export class BattleScene implements BattleSceneStub {
 				yscale: 0,
 				opacity: 0.1,
 			}, this);
-			this.$spritesFront[spriteIndex].append(reflect.$el!);
+			this.$spritesFront[spriteIndex].append(reflect.$el);
 			this.sideConditions[siden][id] = [reflect];
 			reflect.anim({
 				opacity: 0.7,
@@ -1170,7 +1170,7 @@ export class BattleScene implements BattleSceneStub {
 				yscale: 0,
 				opacity: 0.1,
 			}, this);
-			this.$spritesFront[spriteIndex].append(safeguard.$el!);
+			this.$spritesFront[spriteIndex].append(safeguard.$el);
 			this.sideConditions[siden][id] = [safeguard];
 			safeguard.anim({
 				opacity: 0.7,
@@ -1190,7 +1190,7 @@ export class BattleScene implements BattleSceneStub {
 				yscale: 0,
 				opacity: 0.1,
 			}, this);
-			this.$spritesFront[spriteIndex].append(lightscreen.$el!);
+			this.$spritesFront[spriteIndex].append(lightscreen.$el);
 			this.sideConditions[siden][id] = [lightscreen];
 			lightscreen.anim({
 				opacity: 0.7,
@@ -1210,7 +1210,7 @@ export class BattleScene implements BattleSceneStub {
 				yscale: 0,
 				opacity: 0.1,
 			}, this);
-			this.$spritesFront[spriteIndex].append(mist.$el!);
+			this.$spritesFront[spriteIndex].append(mist.$el);
 			this.sideConditions[siden][id] = [mist];
 			mist.anim({
 				opacity: 0.7,
@@ -1257,10 +1257,10 @@ export class BattleScene implements BattleSceneStub {
 				scale: 0.2,
 			}, this);
 
-			this.$spritesFront[spriteIndex].append(rock1.$el!);
-			this.$spritesFront[spriteIndex].append(rock2.$el!);
-			this.$spritesFront[spriteIndex].append(rock3.$el!);
-			this.$spritesFront[spriteIndex].append(rock4.$el!);
+			this.$spritesFront[spriteIndex].append(rock1.$el);
+			this.$spritesFront[spriteIndex].append(rock2.$el);
+			this.$spritesFront[spriteIndex].append(rock3.$el);
+			this.$spritesFront[spriteIndex].append(rock4.$el);
 			this.sideConditions[siden][id] = [rock1, rock2, rock3, rock4];
 			break;
 		case 'gmaxsteelsurge':
@@ -1289,9 +1289,9 @@ export class BattleScene implements BattleSceneStub {
 				scale: 0.8,
 			}, this);
 
-			this.$spritesFront[spriteIndex].append(surge1.$el!);
-			this.$spritesFront[spriteIndex].append(surge2.$el!);
-			this.$spritesFront[spriteIndex].append(surge3.$el!);
+			this.$spritesFront[spriteIndex].append(surge1.$el);
+			this.$spritesFront[spriteIndex].append(surge2.$el);
+			this.$spritesFront[spriteIndex].append(surge3.$el);
 			this.sideConditions[siden][id] = [surge1, surge2, surge3];
 			break;
 		case 'spikes':
@@ -1309,7 +1309,7 @@ export class BattleScene implements BattleSceneStub {
 					z: side.z,
 					scale: 0.3,
 				}, this);
-				this.$spritesFront[spriteIndex].append(spike1.$el!);
+				this.$spritesFront[spriteIndex].append(spike1.$el);
 				spikeArray.push(spike1);
 			}
 			if (spikeArray.length < 2 && levels >= 2) {
@@ -1320,7 +1320,7 @@ export class BattleScene implements BattleSceneStub {
 					z: side.z,
 					scale: 0.3,
 				}, this);
-				this.$spritesFront[spriteIndex].append(spike2.$el!);
+				this.$spritesFront[spriteIndex].append(spike2.$el);
 				spikeArray.push(spike2);
 			}
 			if (spikeArray.length < 3 && levels >= 3) {
@@ -1331,7 +1331,7 @@ export class BattleScene implements BattleSceneStub {
 					z: side.z,
 					scale: 0.3,
 				}, this);
-				this.$spritesFront[spriteIndex].append(spike3.$el!);
+				this.$spritesFront[spriteIndex].append(spike3.$el);
 				spikeArray.push(spike3);
 			}
 			break;
@@ -1350,7 +1350,7 @@ export class BattleScene implements BattleSceneStub {
 					z: side.z,
 					scale: 0.3,
 				}, this);
-				this.$spritesFront[spriteIndex].append(tspike1.$el!);
+				this.$spritesFront[spriteIndex].append(tspike1.$el);
 				tspikeArray.push(tspike1);
 			}
 			if (tspikeArray.length < 2 && tspikeLevels >= 2) {
@@ -1361,7 +1361,7 @@ export class BattleScene implements BattleSceneStub {
 					z: side.z,
 					scale: 0.3,
 				}, this);
-				this.$spritesFront[spriteIndex].append(tspike2.$el!);
+				this.$spritesFront[spriteIndex].append(tspike2.$el);
 				tspikeArray.push(tspike2);
 			}
 			break;
@@ -1374,7 +1374,7 @@ export class BattleScene implements BattleSceneStub {
 				opacity: 0.4,
 				scale: 0.7,
 			}, this);
-			this.$spritesFront[spriteIndex].append(web.$el!);
+			this.$spritesFront[spriteIndex].append(web.$el);
 			this.sideConditions[siden][id] = [web];
 			break;
 		}
@@ -1746,7 +1746,7 @@ export class Sprite {
 		this.x = pos.x;
 		this.y = pos.y;
 		this.z = pos.z;
-		if (pos.opacity !== 0 && spriteData) this.$el!.css(scene.pos(pos, sp));
+		if (pos.opacity !== 0 && spriteData) this.$el.css(scene.pos(pos, sp));
 
 		if (!spriteData) {
 			this.delay = function () { return this; };
@@ -1760,7 +1760,7 @@ export class Sprite {
 		this.scene = null!;
 	}
 	delay(time: number) {
-		this.$el!.delay(time);
+		this.$el.delay(time);
 		return this;
 	}
 	anim(end: ScenePos, transition?: string) {
@@ -1774,10 +1774,10 @@ export class Sprite {
 			...end,
 		};
 		if (end.time === 0) {
-			this.$el!.css(this.scene.pos(end, this.sp));
+			this.$el.css(this.scene.pos(end, this.sp));
 			return this;
 		}
-		this.$el!.animate(this.scene.posT(end, this.sp, transition, this), end.time!);
+		this.$el.animate(this.scene.posT(end, this.sp, transition, this), end.time!);
 		return this;
 	}
 }
@@ -2409,7 +2409,7 @@ export class PokemonSprite extends Sprite {
 				left: this.statbarLeft - (this.isFrontSprite ? -100 : 100),
 				opacity: 0,
 			}, 300 / this.scene.acceleration, () => {
-				$statbar!.remove();
+				$statbar.remove();
 			});
 		}
 	}
@@ -2466,7 +2466,7 @@ export class PokemonSprite extends Sprite {
 				left: this.statbarLeft + (this.isFrontSprite ? 50 : -50),
 				opacity: 0,
 			}, 300 / this.scene.acceleration, () => {
-				$statbar!.remove();
+				$statbar.remove();
 			});
 		}
 	}
@@ -2500,7 +2500,7 @@ export class PokemonSprite extends Sprite {
 			$statbar.animate({
 				opacity: 0,
 			}, 300, () => {
-				$statbar!.remove();
+				$statbar.remove();
 			});
 		}
 	}
@@ -2659,9 +2659,9 @@ export class PokemonSprite extends Sprite {
 			const leechseed1 = new Sprite(BattleEffects.energyball, pos1, this.scene);
 			const leechseed2 = new Sprite(BattleEffects.energyball, pos2, this.scene);
 			const leechseed3 = new Sprite(BattleEffects.energyball, pos3, this.scene);
-			this.scene.$spritesFront[spriten].append(leechseed1.$el!);
-			this.scene.$spritesFront[spriten].append(leechseed2.$el!);
-			this.scene.$spritesFront[spriten].append(leechseed3.$el!);
+			this.scene.$spritesFront[spriten].append(leechseed1.$el);
+			this.scene.$spritesFront[spriten].append(leechseed2.$el);
+			this.scene.$spritesFront[spriten].append(leechseed3.$el);
 			this.effects['leechseed'] = [leechseed1, leechseed2, leechseed3];
 		} else if (id === 'protect' || id === 'magiccoat') {
 			const protect = new Sprite(BattleEffects.protect, {
@@ -2673,7 +2673,7 @@ export class PokemonSprite extends Sprite {
 				yscale: 0,
 				opacity: 0.1,
 			}, this.scene);
-			this.scene.$spritesFront[spriten].append(protect.$el!);
+			this.scene.$spritesFront[spriten].append(protect.$el);
 			this.effects[id] = [protect];
 			protect.anim({
 				opacity: 0.9,

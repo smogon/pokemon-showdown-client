@@ -668,7 +668,7 @@ abstract class BattleTypedSearch<T extends SearchType> {
 		if (typeof speciesOrSet === 'string') {
 			if (speciesOrSet) this.species = speciesOrSet;
 		} else {
-			this.set = speciesOrSet as Dex.PokemonSet;
+			this.set = speciesOrSet;
 			this.species = toID(this.set.species);
 		}
 		// if (!searchType || !this.set) return;

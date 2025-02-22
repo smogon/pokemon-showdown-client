@@ -113,7 +113,7 @@ export class BattleLog {
 				if (
 					battle.seeking === Infinity ?
 						battle.currentStep < battle.stepQueue.length - 2000 :
-						battle.turn < battle.seeking! - 100
+						battle.turn < battle.seeking - 100
 				) {
 					this.addSeekEarlierButton();
 					return;

@@ -72,7 +72,7 @@ class SearchPanel extends preact.Component<{id: string}> {
 	search(user: string, format: string, isPrivate?: boolean, page = 1) {
 		this.base!.querySelector<HTMLInputElement>('input[name=user]')!.value = user;
 		this.base!.querySelector<HTMLInputElement>('input[name=format]')!.value = format;
-		this.base!.querySelectorAll<HTMLInputElement>('input[name=private]')[isPrivate ? 1 : 0]!.checked = true;
+		this.base!.querySelectorAll<HTMLInputElement>('input[name=private]')[isPrivate ? 1 : 0].checked = true;
 
 		if (!format && !user) return this.recent();
 		this.user = user;
