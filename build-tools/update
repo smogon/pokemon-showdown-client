@@ -22,7 +22,7 @@ const AUTOCONFIG_START = '/*** Begin automatically generated configuration ***/'
 const AUTOCONFIG_END = '/*** End automatically generated configuration ***/';
 
 function escapeRegex(string) {
-	return string.replace(/[\/\*\.]/g, '\\$&');
+	return string.replace(/[/*.]/g, '\\$&');
 }
 
 /*********************************************************
@@ -42,7 +42,7 @@ try {
 	});
 	const origin = ('' + commit).trim();
 	version += ` (${head.slice(0, 8)}${head !== origin ? `/${origin.slice(0, 8)}` : ''})`;
-} catch (e) {}
+} catch {}
 
 const routes = JSON.parse(fs.readFileSync('config/routes.json'));
 const autoconfigRegex = new RegExp(`${escapeRegex(AUTOCONFIG_START)}[^]+${escapeRegex(AUTOCONFIG_END)}`);
@@ -74,11 +74,11 @@ console.log("DONE");
 
 process.stdout.write("Compiling TS files... ");
 
-let compileStartTime = process.hrtime();
+const compileStartTime = process.hrtime();
 let compiledFiles = 0;
 
 // Babel can't find babelrc if we try to compile stuff in caches/pokemon-showdown/ fsr
-let compileOpts = Object.assign(eval('(' + fs.readFileSync('.babelrc') + ')'), {
+const compileOpts = Object.assign(eval('(' + fs.readFileSync('.babelrc') + ')'), {
 	babelrc: false,
 	incremental: true,
 	ignore: ['play.pokemonshowdown.com/src/battle-animations.js', 'play.pokemonshowdown.com/src/battle-animations-moves.js'],
@@ -95,7 +95,7 @@ if (process.argv[2] === 'full') {
 		fs.statSync('play.pokemonshowdown.com/data/graphics.js');
 		// graphics.js exists, recompile it
 		delete compileOpts.ignore;
-	} catch (e) {}
+	} catch {}
 }
 
 compiledFiles += compiler.compileToDir(`play.pokemonshowdown.com/src`, `play.pokemonshowdown.com/js`, compileOpts);
@@ -150,7 +150,7 @@ function addCachebuster(_, attr, url, urlQuery) {
 				const filename = url.slice(1).replace('/' + routes.client + '/', '');
 				const fstr = fs.readFileSync(filename, {encoding: 'utf8'});
 				hash = crypto.createHash('md5').update(fstr).digest('hex').substr(0, 8);
-			} catch (e) {}
+			} catch {}
 
 			return attr + '="' + url + '?' + hash + '"';
 		} else {
@@ -159,7 +159,7 @@ function addCachebuster(_, attr, url, urlQuery) {
 			try {
 				const fstr = fs.readFileSync('replay.pokemonshowdown.com/' + url, {encoding: 'utf8'});
 				hash = crypto.createHash('md5').update(fstr).digest('hex').substr(0, 8);
-			} catch (e) {}
+			} catch {}
 
 			return attr + '="' + url + '?' + (hash || 'v1') + '"';
 		}
@@ -199,10 +199,11 @@ indexContents = indexContents.replace(/<!-- news -->/g, news);
 
 let indexContents2 = '';
 try {
-	let indexContentsOld = indexContents;
+	const indexContentsOld = indexContents;
 	indexContents = indexContents.replace(/<!-- head custom -->/g, '' + fs.readFileSync('config/head-custom.html'));
-	indexContents2 = indexContentsOld.replace(/<!-- head custom -->/g, '' + fs.readFileSync('config/head-custom-test.html'));
-} catch (e) {}
+	indexContents2 = indexContentsOld
+		.replace(/<!-- head custom -->/g, '' + fs.readFileSync('config/head-custom-test.html'));
+} catch {}
 
 fs.writeFileSync('play.pokemonshowdown.com/index.html', indexContents);
 if (indexContents2) {

@@ -57,7 +57,7 @@ function updateLearnsets(callback) {
 	}
 
 	const buf = [];
-	const pokemonList = Object.keys(Pokedex).map(speciesId => Pokedex[speciesId]).sort(function (a, b) {
+	const pokemonList = Object.keys(Pokedex).map(speciesId => Pokedex[speciesId]).sort((a, b) => {
 		// Missingno. goes first (zeroth); afterwards, CAP in descending dex order (increasingly negative)
 		// Finally, standard Pokémon in ascending dex order
 		if (a.num <= 0 && b.num > 0) return -1;
@@ -89,11 +89,9 @@ try {
 	// It doesn't exist currently, but it will by the end of the script execution.
 	// Any other error is unacceptable and will throw.
 }
-try {
+{
 	updateStats = fs.statSync(thisFile);
 	updateMTime = updateStats.mtime.getTime();
-} catch (err) {
-	throw err; // !!
 }
 
 // update learnsets-g6
@@ -105,7 +103,7 @@ let learnsetsG6ToUpdate = true;
 
 try {
 	learnsetsStats = fs.statSync(path.join(rootDir, 'data', 'learnsets.js'));
-} catch (err) {
+} catch {
 	// Couldn't find learnsets.js, but that's not the end of the world: skip to next task.
 	console.error("Couldn't find `data/learnsets.js`. Task aborted.");
 	learnsetsG6ToUpdate = false;
@@ -124,10 +122,13 @@ if (learnsetsG6ToUpdate) {
 	}
 }
 
-if (learnsetsG6ToUpdate && (!indexStats || !learnsetsG6Stats || indexMTime < updateMTime || indexMTime < learnsetsStats.mtime.getTime() || indexMTime < learnsetsG6Stats.mtime.getTime())) {
+if (learnsetsG6ToUpdate && (
+	!indexStats || !learnsetsG6Stats || indexMTime < updateMTime || indexMTime < learnsetsStats.mtime.getTime() ||
+	indexMTime < learnsetsG6Stats.mtime.getTime()
+)) {
 	// Only merge learnsets.js with learnsets-g6.js if any of those files, or this one, have been modified recently (or if we don't know what "recently" means)
 
-	updateLearnsets(function (err) {
+	updateLearnsets(err => {
 		if (err) {
 			let stack = err.stack || '';
 			stack = "File `data/learnsets-g6` failed to update.\n" + stack;

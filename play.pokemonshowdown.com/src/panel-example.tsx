@@ -14,6 +14,7 @@ import {PSPanelWrapper, PSRoomPanel} from "./panels";
 
 class ExampleRoom extends PSRoom {
 	override readonly classType: string = 'example';
+	// eslint-disable-next-line no-useless-constructor
 	constructor(options: RoomOptions) {
 		super(options);
 	}

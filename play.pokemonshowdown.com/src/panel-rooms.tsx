@@ -36,7 +36,7 @@ class RoomsPanel extends PSRoomPanel {
 		PS.update();
 	};
 	changeSearch = (e: Event) => {
-		const target = (e.currentTarget as HTMLInputElement);
+		const target = e.currentTarget as HTMLInputElement;
 		if (target.selectionStart !== target.selectionEnd) return;
 		this.search = target.value;
 		this.forceUpdate();
@@ -44,7 +44,7 @@ class RoomsPanel extends PSRoomPanel {
 	keyDownSearch = (e: KeyboardEvent) => {
 		this.lastKeyCode = e.keyCode;
 		if (e.keyCode === 13) {
-			const target = (e.currentTarget as HTMLInputElement);
+			const target = e.currentTarget as HTMLInputElement;
 			let value = target.value;
 			const arrowIndex = value.indexOf(' \u21d2 ');
 			if (arrowIndex >= 0) value = value.slice(arrowIndex + 3);
@@ -103,7 +103,7 @@ class RoomsPanel extends PSRoomPanel {
 				autoFillValue = ' \u21d2 ' + firstTitle;
 			}
 			const oldSearch = this.search;
-			const searchElem = this.base!.querySelector('input[type=search]') as HTMLInputElement;
+			const searchElem = this.base!.querySelector<HTMLInputElement>('input[type=search]')!;
 			searchElem.value = oldSearch + autoFillValue;
 			searchElem.setSelectionRange(oldSearch.length, oldSearch.length + autoFillValue.length);
 		}
@@ -111,7 +111,7 @@ class RoomsPanel extends PSRoomPanel {
 		return {start, abbr, hidden};
 	}
 	override focus() {
-		(this.base!.querySelector('input[type=search]') as HTMLInputElement).focus();
+		this.base!.querySelector<HTMLInputElement>('input[type=search]')!.focus();
 	}
 	override render() {
 		if (this.hidden && PS.isVisible(this.props.room)) this.hidden = false;

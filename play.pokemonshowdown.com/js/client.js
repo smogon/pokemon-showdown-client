@@ -1,3 +1,4 @@
+/* exported toId */
 function toId() {
 	// toId has been renamed toID
 	alert("You have an old extension/script for Pokemon Showdown which is incompatible with this client. It needs to be removed or updated.");
@@ -20,7 +21,7 @@ function toId() {
 	}
 
 	$(document).on('keydown', function (e) {
-		if (e.keyCode == 27) { // Esc
+		if (e.keyCode === 27) { // Esc
 			e.preventDefault();
 			e.stopPropagation();
 			e.stopImmediatePropagation();
@@ -1323,7 +1324,7 @@ function toId() {
 			var columnChanged = false;
 
 			window.NonBattleGames = {rps: 'Rock Paper Scissors'};
-			for (var i = 3; i <= 9; i = i + 2) {
+			for (var i = 3; i <= 9; i += 2) {
 				window.NonBattleGames['bestof' + i] = 'Best-of-' + i;
 			}
 			window.BattleFormats = {};
@@ -1724,7 +1725,6 @@ function toId() {
 			}
 
 			room.focus(null, focusTextbox);
-			return;
 		},
 		focusRoomLeft: function (id) {
 			var room = this.rooms[id];
@@ -1750,7 +1750,6 @@ function toId() {
 			if (this.curRoom.id === id) this.navigate(id);
 
 			room.focus(null, true);
-			return;
 		},
 		focusRoomRight: function (id) {
 			var room = this.rooms[id];
@@ -1774,7 +1773,6 @@ function toId() {
 			// if (this.curRoom.id === id) this.navigate(id);
 
 			room.focus(null, true);
-			return;
 		},
 		/**
 		 * This is the function for handling the two-panel layout
@@ -2298,14 +2296,14 @@ function toId() {
 		notifications: null,
 		subtleNotification: false,
 		notify: function (title, body, tag, once) {
-			if (once && app.focused && (this === app.curRoom || this == app.curSideRoom)) return;
+			if (once && app.focused && (this === app.curRoom || this === app.curSideRoom)) return;
 			if (!tag) tag = 'message';
 			var needsTabbarUpdate = false;
 			if (!this.notifications) {
 				this.notifications = {};
 				needsTabbarUpdate = true;
 			}
-			if (app.focused && (this === app.curRoom || this == app.curSideRoom)) {
+			if (app.focused && (this === app.curRoom || this === app.curSideRoom)) {
 				this.notifications[tag] = {};
 			} else if (window.nodewebkit && !nwWindow.setBadgeLabel) {
 				// old desktop client
@@ -2359,7 +2357,7 @@ function toId() {
 			}
 		},
 		subtleNotifyOnce: function () {
-			if (app.focused && (this === app.curRoom || this == app.curSideRoom)) return;
+			if (app.focused && (this === app.curRoom || this === app.curSideRoom)) return;
 			if (this.notifications || this.subtleNotification) return;
 			this.subtleNotification = true;
 			this.notificationClass = ' subtle-notifying';

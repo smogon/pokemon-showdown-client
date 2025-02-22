@@ -1147,9 +1147,9 @@ export const Teams = new class {
 
 			// moves
 			j = buf.indexOf('|', i);
-			set.moves = buf.substring(i, j).split(',').map(function (moveid) {
-				return Dex.moves.get(moveid).name;
-			});
+			set.moves = buf.substring(i, j).split(',').map(
+				moveid => Dex.moves.get(moveid).name
+			);
 			i = j + 1;
 
 			// nature

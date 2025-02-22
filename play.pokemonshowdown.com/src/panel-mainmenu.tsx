@@ -24,14 +24,16 @@ export type RoomInfo = {
 
 export class MainMenuRoom extends PSRoom {
 	override readonly classType: string = 'mainmenu';
-	userdetailsCache: {[userid: string]: {
-		userid: ID,
-		avatar?: string | number,
-		status?: string,
-		group?: string,
-		customgroup?: string,
-		rooms?: {[roomid: string]: {isPrivate?: true, p1?: string, p2?: string}},
-	}} = {};
+	userdetailsCache: {
+		[userid: string]: {
+			userid: ID,
+			avatar?: string | number,
+			status?: string,
+			group?: string,
+			customgroup?: string,
+			rooms?: {[roomid: string]: {isPrivate?: true, p1?: string, p2?: string}},
+		},
+	} = {};
 	roomsCache: {
 		battleCount?: number,
 		userCount?: number,
@@ -75,7 +77,8 @@ export class MainMenuRoom extends PSRoom {
 			const [, message] = args;
 			alert(message.replace(/\|\|/g, '\n'));
 			return;
-		}}
+		}
+		}
 		const lobby = PS.rooms['lobby'];
 		if (lobby) lobby.receiveLine(args);
 	}
@@ -110,7 +113,7 @@ export class MainMenuRoom extends PSRoom {
 		let column = 0;
 
 		window.NonBattleGames = {rps: 'Rock Paper Scissors'};
-		for (let i = 3; i <= 9; i = i + 2) {
+		for (let i = 3; i <= 9; i += 2) {
 			window.NonBattleGames['bestof' + i] = 'Best-of-' + i;
 		}
 		window.BattleFormats = {};
@@ -121,7 +124,7 @@ export class MainMenuRoom extends PSRoom {
 				isSection = false;
 			} else if (entry === ',LL') {
 				PS.teams.usesLocalLadder = true;
-			} else if (entry === '' || (entry.charAt(0) === ',' && !isNaN(Number(entry.slice(1))))) {
+			} else if (entry === '' || (entry.startsWith(',') && !isNaN(Number(entry.slice(1))))) {
 				isSection = true;
 
 				if (entry) {
@@ -158,16 +161,16 @@ export class MainMenuRoom extends PSRoom {
 					}
 				}
 				let id = toID(name);
-				let isTeambuilderFormat = !team && name.slice(-11) !== 'Custom Game';
+				let isTeambuilderFormat = !team && !name.endsWith('Custom Game');
 				let teambuilderFormat = '' as ID;
 				let teambuilderFormatName = '';
 				if (isTeambuilderFormat) {
 					teambuilderFormatName = name;
-					if (id.slice(0, 3) !== 'gen') {
+					if (!id.startsWith('gen')) {
 						teambuilderFormatName = '[Gen 6] ' + name;
 					}
 					let parenPos = teambuilderFormatName.indexOf('(');
-					if (parenPos > 0 && name.slice(-1) === ')') {
+					if (parenPos > 0 && name.endsWith(')')) {
 						// variation of existing tier
 						teambuilderFormatName = teambuilderFormatName.slice(0, parenPos).trim();
 					}
@@ -307,7 +310,7 @@ class NewsPanel extends PSRoomPanel {
 
 class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
 	override focus() {
-		(this.base!.querySelector('button.big') as HTMLButtonElement).focus();
+		this.base!.querySelector<HTMLButtonElement>('button.big')!.focus();
 	}
 	submit = (e: Event) => {
 		alert('todo: implement');
@@ -327,7 +330,9 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
 			return <div class="pmbox">
 				<div class="mini-window">
 					<h3 draggable onDragStart={this.handleDragStart} data-roomid={roomid}>
-						<button class="closebutton" name="closeRoom" value={roomid} aria-label="Close" tabIndex={-1}><i class="fa fa-times-circle"></i></button>
+						<button class="closebutton" name="closeRoom" value={roomid} aria-label="Close" tabIndex={-1}>
+							<i class="fa fa-times-circle"></i>
+						</button>
 						<button class="minimizebutton" tabIndex={-1}><i class="fa fa-minus-circle"></i></button>
 						{room.title}
 					</h3>
@@ -339,11 +344,11 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
 	renderSearchButton() {
 		if (PS.down) {
 			return <div class="menugroup" style="background: rgba(10,10,10,.6)">
-				{PS.down === 'ddos' ?
+				{PS.down === 'ddos' ? (
 					<p class="error"><strong>Pok&eacute;mon Showdown is offline due to a DDoS attack!</strong></p>
-				:
+				) : (
 					<p class="error"><strong>Pok&eacute;mon Showdown is offline due to technical difficulties!</strong></p>
-				}
+				)}
 				<p>
 					<div style={{textAlign: 'center'}}>
 						<img width="96" height="96" src={`//${Config.routes.client}/sprites/gen5/teddiursa.png`} alt="" />
@@ -393,11 +398,11 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
 				</div>
 				<div class="rightmenu" style={{display: PS.leftRoomWidth ? 'none' : 'block'}}>
 					<div class="menugroup">
-						{PS.server.id === 'showdown' ?
+						{PS.server.id === 'showdown' ? (
 							<p><button class={"mainmenu1" + onlineButton} name="joinRoom" value="rooms">Join chat</button></p>
-						:
+						) : (
 							<p><button class={"mainmenu1" + onlineButton} name="joinRoom" value="lobby">Join lobby chat</button></p>
-						}
+						)}
 					</div>
 				</div>
 				<div class="mainmenufooter">
@@ -427,7 +432,7 @@ export class FormatDropdown extends preact.Component<{format?: string, onChange?
 	render() {
 		if (this.props.format) {
 			return <button
-			name="format" value={this.props.format} class="select formatselect preselected" disabled
+				name="format" value={this.props.format} class="select formatselect preselected" disabled
 			>{this.props.format}</button>;
 		}
 		return <button
@@ -495,8 +500,8 @@ export class TeamForm extends preact.Component<{
 	};
 	submit = (e: Event) => {
 		e.preventDefault();
-		const format = (this.base!.querySelector('button[name=format]') as HTMLButtonElement).value;
-		const teamKey = (this.base!.querySelector('button[name=team]') as HTMLButtonElement).value;
+		const format = this.base!.querySelector<HTMLButtonElement>('button[name=format]')!.value;
+		const teamKey = this.base!.querySelector<HTMLButtonElement>('button[name=team]')!.value;
 		const team = teamKey ? PS.teams.byKey[teamKey] : undefined;
 		if (this.props.onSubmit) this.props.onSubmit(e, format, team);
 	};

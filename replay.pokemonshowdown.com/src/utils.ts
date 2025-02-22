@@ -20,7 +20,7 @@ export class HttpError extends Error {
 		this.body = body;
 		try {
 			(Error as any).captureStackTrace(this, HttpError);
-		} catch (err) {}
+		} catch {}
 	}
 }
 export class NetRequest {
@@ -101,7 +101,7 @@ Net.encodeQuery = function (data: string | PostData) {
 	return urlencodedData;
 };
 Net.decodeQuery = function (query: string): {[key: string]: string} {
-	let out = {};
+	let out: {[key: string]: string} = {};
 	const questionIndex = query.indexOf('?');
 	if (questionIndex >= 0) query = query.slice(questionIndex + 1);
 	for (const queryPart of query.split('&')) {

@@ -17,7 +17,7 @@ class PageRoom extends PSRoom {
 	readonly page?: string = this.id.split("-")[1];
 	override readonly canConnect = true;
 
-	loading: boolean = true;
+	loading = true;
 	htmlData?: string;
 
 	setHTMLData = (htmlData?: string) => {
@@ -40,7 +40,6 @@ class PageRoom extends PSRoom {
 }
 
 function PageLadderHelp(props: {room: PageRoom}) {
-	const {room} = props;
 	return <div class="ladder pad">
 		<p>
 			<button name="selectFormat" data-href="ladder" data-target="replace">
@@ -74,7 +73,7 @@ function PageLadderHelp(props: {room: PageRoom}) {
 }
 
 class PagePanel extends PSRoomPanel<PageRoom> {
-	clientRooms: {[key: string]: JSX.Element} = {'ladderhelp': <PageLadderHelp room={this.props.room}/>};
+	clientRooms: {[key: string]: JSX.Element} = {'ladderhelp': <PageLadderHelp room={this.props.room} />};
 
 	/**
 	 * @return true to prevent line from being sent to server

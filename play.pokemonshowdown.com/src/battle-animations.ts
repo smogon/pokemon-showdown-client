@@ -2852,7 +2852,7 @@ export class PokemonSprite extends Sprite {
 	private static getEffectTag(id: string) {
 		let effect = PokemonSprite.statusTable[id];
 		if (typeof effect === 'string') return effect;
-		if (effect === null) return PokemonSprite.statusTable[id] = '';
+		if (effect === null) return (PokemonSprite.statusTable[id] = '');
 		if (effect === undefined) {
 			let label = `[[${id}]]`;
 			if (Dex.species.get(id).exists) {
@@ -2868,7 +2868,7 @@ export class PokemonSprite extends Sprite {
 			}
 			effect = [label, 'neutral'];
 		}
-		return PokemonSprite.statusTable[id] = `<span class="${effect[1]}">${effect[0].replace(/ /g, '&nbsp;')}</span> `;
+		return (PokemonSprite.statusTable[id] = `<span class="${effect[1]}">${effect[0].replace(/ /g, '&nbsp;')}</span> `);
 	}
 
 	updateHPText(pokemon: Pokemon) {

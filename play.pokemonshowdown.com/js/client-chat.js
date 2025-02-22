@@ -362,7 +362,7 @@
 				var currentLine = prefix.substr(prefix.lastIndexOf('\n') + 1);
 				var shouldSearchCommands = !cmds || (cmds.length ? !!cmds.length && !cmds.filter(function (x) {
 					return x.startsWith(currentLine);
-				}).length : prefix != this.tabComplete.prefix);
+				}).length : prefix !== this.tabComplete.prefix);
 				var isCommandSearch = (currentLine.startsWith('/') && !currentLine.startsWith('//')) || currentLine.startsWith('!');
 				var resultsExist = this.tabComplete.lastSearch === text && this.tabComplete.commands;
 				if (isCommandSearch && shouldSearchCommands && !resultsExist) {
@@ -417,7 +417,7 @@
 							return bidx - aidx;
 						}
 						return -1; // a comes first
-					} else if (bidx != -1) {
+					} else if (bidx !== -1) {
 						return 1; // b comes first
 					}
 					return (a[0] < b[0]) ? -1 : 1; // alphabetical order
@@ -1500,7 +1500,6 @@
 					this.addJoinLeave('rename', row[1], row[2], true);
 					break;
 
-
 				case 'users':
 					this.parseUserList(row[1]);
 					break;
@@ -1738,9 +1737,9 @@
 					break;
 				}
 				if (j > 0) {
-					if (j == 1 && list.length == 2) {
+					if (j === 1 && list.length === 2) {
 						message += ' and ';
-					} else if (j == list.length - 1) {
+					} else if (j === list.length - 1) {
 						message += ', and ';
 					} else {
 						message += ', ';
@@ -1900,7 +1899,7 @@
 				buf += this.getNoNamedUsersOnline();
 			}
 			if (this.room.userCount.guests) {
-				buf += '<li id="' + this.room.id + '-userlist-guests" style="text-align:center;padding:2px 0"><small>(<span id="' + this.room.id + '-usercount-guests">' + this.room.userCount.guests + '</span> guest' + (this.room.userCount.guests == 1 ? '' : 's') + ')</small></li>';
+				buf += '<li id="' + this.room.id + '-userlist-guests" style="text-align:center;padding:2px 0"><small>(<span id="' + this.room.id + '-usercount-guests">' + this.room.userCount.guests + '</span> guest' + (this.room.userCount.guests === 1 ? '' : 's') + ')</small></li>';
 			}
 			this.$el.html(buf);
 		},

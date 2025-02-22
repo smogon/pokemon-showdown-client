@@ -243,7 +243,6 @@ class PSTeams extends PSStreamModel<'team' | 'format'> {
 	unpackOldBuffer(buffer: string) {
 		alert(`Your team storage format is too old for PS. You'll need to upgrade it at https://${Config.routes.client}/recoverteams.html`);
 		this.list = [];
-		return;
 	}
 	packAll(teams: Team[]) {
 		return teams.map(team => (

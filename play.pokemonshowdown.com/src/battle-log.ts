@@ -576,7 +576,7 @@ export class BattleLog {
 
 		let HLmod = (lum - 0.2) * -150; // -80 (yellow) to 28 (dark blue)
 		if (HLmod > 18) HLmod = (HLmod - 18) * 2.5;
-		else if (HLmod < 0) HLmod = (HLmod - 0) / 3;
+		else if (HLmod < 0) HLmod /= 3;
 		else HLmod = 0;
 		// let mod = ';border-right: ' + Math.abs(HLmod) + 'px solid ' + (HLmod > 0 ? 'red' : '#0088FF');
 		let Hdist = Math.min(Math.abs(180 - H), Math.abs(240 - H));

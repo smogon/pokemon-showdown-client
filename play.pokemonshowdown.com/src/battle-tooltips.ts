@@ -1364,7 +1364,7 @@ export class BattleTooltips {
 			chainedSpeedModifier *= modifier;
 		}
 		// Chained modifiers round down on 0.5
-		stats.spe = stats.spe * chainedSpeedModifier;
+		stats.spe *= chainedSpeedModifier;
 		stats.spe = stats.spe % 1 > 0.5 ? Math.ceil(stats.spe) : Math.floor(stats.spe);
 
 		if (pokemon.status === 'par' && ability !== 'quickfeet') {
@@ -1474,7 +1474,7 @@ export class BattleTooltips {
 		if (rules['Frantic Fusions Mod']) {
 			const fusionSpecies = this.battle.dex.species.get(pokemon.name);
 			if (fusionSpecies.exists && fusionSpecies.name !== species.name) {
-				baseSpe = baseSpe + tr(fusionSpecies.baseStats.spe / 4);
+				baseSpe += tr(fusionSpecies.baseStats.spe / 4);
 				if (baseSpe < 1) baseSpe = 1;
 				if (baseSpe > 255) baseSpe = 255;
 			}

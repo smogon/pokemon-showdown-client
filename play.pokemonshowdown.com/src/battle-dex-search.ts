@@ -671,7 +671,7 @@ abstract class BattleTypedSearch<T extends SearchType> {
 			this.set = speciesOrSet as Dex.PokemonSet;
 			this.species = toID(this.set.species);
 		}
-		if (!searchType || !this.set) return;
+		// if (!searchType || !this.set) return;
 	}
 	getResults(filters?: SearchFilter[] | null, sortCol?: string | null, reverseSort?: boolean): SearchRow[] {
 		if (sortCol === 'type') {

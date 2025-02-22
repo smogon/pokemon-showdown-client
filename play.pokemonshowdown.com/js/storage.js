@@ -15,7 +15,7 @@ Storage.initialize = function () {
 Storage.safeJSON = function (callback) {
 	return function (data) {
 		if (data.length < 1) return;
-		if (data[0] == ']') data = data.substr(1);
+		if (data[0] === ']') data = data.substr(1);
 		return callback(JSON.parse(data));
 	};
 };
@@ -183,16 +183,15 @@ Storage.bg = {
 		var l = (max + min) / 2;
 		if (max === min) {
 			return '0, 0%';
-		} else {
-			var d = max - min;
-			s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
-			switch (max) {
-			case r: h = (g - b) / d + (g < b ? 6 : 0); break;
-			case g: h = (b - r) / d + 2; break;
-			case b: h = (r - g) / d + 4; break;
-			}
-			h /= 6;
 		}
+		var d = max - min;
+		s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+		switch (max) {
+		case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+		case g: h = (b - r) / d + 2; break;
+		case b: h = (r - g) / d + 4; break;
+		}
+		h /= 6;
 		return '' + (h * 360) + ',' + (s * 100) + '%';
 	}
 };
@@ -546,7 +545,7 @@ Storage.initTestClient = function () {
 			if (type === 'html') {
 				uri += '&testclient';
 			}
-			if (uri[0] === '/') { //relative URI
+			if (uri[0] === '/') { // relative URI
 				uri = Dex.resourcePrefix + uri.substr(1);
 			}
 
@@ -854,7 +853,7 @@ Storage.packTeam = function (team) {
 		}
 
 		// level
-		if (set.level && set.level != 100) {
+		if (set.level && set.level !== 100) {
 			buf += '|' + set.level;
 		} else {
 			buf += '|';
@@ -1025,7 +1024,7 @@ Storage.unpackTeam = function (buf) {
 		j = buf.indexOf('|', i);
 		var ability = Dex.abilities.get(buf.substring(i, j)).name;
 		var species = Dex.species.get(set.species);
-		set.ability = (species.abilities && ability in {'':1, 0:1, 1:1, H:1} ? species.abilities[ability || '0'] : ability);
+		set.ability = (species.abilities && ability in {'': 1, 0: 1, 1: 1, H: 1} ? species.abilities[ability || '0'] : ability);
 		i = j + 1;
 
 		// moves
@@ -1397,7 +1396,7 @@ Storage.exportTeam = function (team, gen, hidestats) {
 		if (curSet.ability) {
 			text += 'Ability: ' + curSet.ability + "  \n";
 		}
-		if (curSet.level && curSet.level != 100) {
+		if (curSet.level && curSet.level !== 100) {
 			text += 'Level: ' + curSet.level + "  \n";
 		}
 		if (curSet.shiny) {
@@ -1472,7 +1471,7 @@ Storage.exportTeam = function (team, gen, hidestats) {
 				}
 				if (!defaultIvs) {
 					for (var stat in BattleStatNames) {
-						if (typeof curSet.ivs[stat] === 'undefined' || isNaN(curSet.ivs[stat]) || curSet.ivs[stat] == 31) continue;
+						if (typeof curSet.ivs[stat] === 'undefined' || isNaN(curSet.ivs[stat]) || curSet.ivs[stat] === 31) continue;
 						if (first) {
 							text += 'IVs: ';
 							first = false;

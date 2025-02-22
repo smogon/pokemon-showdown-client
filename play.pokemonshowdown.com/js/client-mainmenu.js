@@ -12,7 +12,7 @@
 			'click .closebutton': 'closePM',
 			'click .minimizebutton': 'minimizePM',
 			'click .pm-challenge': 'clickPMButtonBarChallenge',
-			'click .pm-userOptions':'clickPMButtonBarUserOptions',
+			'click .pm-userOptions': 'clickPMButtonBarUserOptions',
 			'click .pm-window': 'clickPMBackground',
 			'dblclick .pm-window h3': 'dblClickPMHeader',
 			'focus textarea': 'onFocusPM',
@@ -1387,7 +1387,7 @@
 				if (!format.isTeambuilderFormat) return false;
 			} else {
 				if (format.effectType !== 'Format' || format.battleFormat) return false;
-				if (this.selectType != 'watch' && !format[this.selectType + 'Show']) return false;
+				if (this.selectType !== 'watch' && !format[this.selectType + 'Show']) return false;
 			}
 			return true;
 		},
@@ -1531,7 +1531,7 @@
 						} else {
 							bufs[curBuf] += '<li><button name="selectFolder" class="button" value="(No Folder)"><i class="fa fa-folder" style="margin-right: 7px; margin-left: 4px;"></i>(No Folder)</button></li>';
 							count++;
-							if (count % bufBoundary === 0 && count != 0 && curBuf < 4) curBuf++;
+							if (count % bufBoundary === 0 && count !== 0 && curBuf < 4) curBuf++;
 						}
 						if (!isNoFolder) {
 							for (var i = 0; i < teams.length; i++) {
@@ -1599,9 +1599,8 @@
 				if (folder === key) {
 					keyExists = true;
 					return false;
-				} else {
-					return true;
 				}
+				return true;
 			});
 			if (!keyExists) {
 				folderNotExpanded.push(key);

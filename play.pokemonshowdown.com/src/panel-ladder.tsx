@@ -18,9 +18,9 @@ export class LadderRoom extends PSRoom {
 	override readonly classType: string = 'ladder';
 	readonly format?: string = this.id.split('-')[1];
 	notice?: string;
-	searchValue: string = '';
-	lastSearch: string = '';
-	loading: boolean = false;
+	searchValue = '';
+	lastSearch = '';
+	loading = false;
 	error?: string;
 	ladderData?: string;
 
@@ -51,7 +51,7 @@ export class LadderRoom extends PSRoom {
 		this.update(null);
 	};
 	requestLadderData = (searchValue?: string) => {
-		const { teams } = PS;
+		const {teams} = PS;
 		if (teams.usesLocalLadder) {
 			this.send(`/cmd laddertop ${this.format} ${toID(this.searchValue)}`);
 		} else if (this.format !== undefined) {
@@ -124,18 +124,18 @@ function LadderFormat(props: {room: LadderRoom}) {
 		}
 		return <>
 			<p>
-				<button class="button" data-href="ladder" data-target="replace" >
+				<button class="button" data-href="ladder" data-target="replace">
 					<i class="fa fa-refresh"></i> Refresh
 				</button>
-				<RenderSearch/>
+				<RenderSearch />
 			</p>
-			<RenderHeader/>
+			<RenderHeader />
 			<SanitizedHTML>{ladderData}</SanitizedHTML>
 		</>;
 	};
 	return <div class="ladder pad">
 		<p>
-		<button class="button" data-href="ladder" data-target="replace">
+			<button class="button" data-href="ladder" data-target="replace">
 				<i class="fa fa-chevron-left"></i> Format List
 			</button>
 		</p>
@@ -185,7 +185,7 @@ class LadderPanel extends PSRoomPanel<LadderRoom> {
 		if (!BattleFormats) {
 			return <p>Loading...</p>;
 		}
-		let currentSection: string = "";
+		let currentSection = "";
 		let sections: JSX.Element[] = [];
 		let formats: JSX.Element[] = [];
 		for (const [key, format] of Object.entries(BattleFormats)) {

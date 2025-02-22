@@ -52,8 +52,8 @@
 			'change .detailsform input': 'detailsChange',
 			'change .detailsform select': 'detailsChange',
 			'submit .detailsform': 'detailsChange',
-			'click .changeform' : 'altForm',
-			'click .altform' : 'altForm',
+			'click .changeform': 'altForm',
+			'click .altform': 'altForm',
 
 			// stats
 			'keyup .statform input.numform': 'statChange',
@@ -544,7 +544,7 @@
 				this.teamScrollPos = 0;
 			}
 
-			//reset focus to searchbar
+			// reset focus to searchbar
 			var teamSearchBar = this.$("#teamSearchBar");
 			var strLength = teamSearchBar.val().length;
 			if (strLength) {
@@ -555,7 +555,6 @@
 		updatePersistence: function (state) {
 			if (state) {
 				this.$('.storage-warning').html('');
-				return;
 			}
 		},
 		greeting: function (answer, button) {
@@ -1397,7 +1396,7 @@
 					evBuf += '<small>&minus;</small>';
 				}
 				var width = stats[j] * 75 / 504;
-				if (j == 'hp') width = stats[j] * 75 / 704;
+				if (j === 'hp') width = stats[j] * 75 / 704;
 				if (width > 75) width = 75;
 				var color = Math.floor(stats[j] * 180 / 714);
 				if (color > 360) color = 360;
@@ -1430,7 +1429,7 @@
 								if (format) self.changeFormat(format.id);
 								notes.shift();
 							}
-							var teamNotes = notes.join('\n'); // Not implemented yet
+							// var teamNotes = notes.join('\n'); // Not implemented yet
 
 							var title = data.title;
 							if (title && !title.startsWith('Untitled')) {
@@ -2016,7 +2015,7 @@
 				if (!set.species) {
 					buf += '<button disabled class="addpokemon" aria-label="Add Pok&eacute;mon"><i class="fa fa-plus"></i></button> ';
 					isAdd = true;
-				} else if (i == this.curSetLoc) {
+				} else if (i === this.curSetLoc) {
 					buf += '<button disabled class="pokemon">' + pokemonicon + BattleLog.escapeHTML(set.name || this.curTeam.dex.species.get(set.species).baseSpecies || '<i class="fa fa-plus"></i>') + '</button> ';
 				} else {
 					buf += '<button name="selectPokemon" value="' + i + '" class="pokemon">' + pokemonicon + BattleLog.escapeHTML(set.name || this.curTeam.dex.species.get(set.species).baseSpecies) + '</button> ';
@@ -2048,7 +2047,7 @@
 			var set = this.curSet;
 			if (!set) return;
 
-			var stats = {hp:'', atk:'', def:'', spa:'', spd:'', spe:''};
+			var stats = {hp: '', atk: '', def: '', spa: '', spd: '', spe: ''};
 
 			var supportsEVs = !this.curTeam.format.includes('letsgo');
 
@@ -2066,7 +2065,7 @@
 					evBuf += '<small>&minus;</small>';
 				}
 				var width = stats[stat] * 75 / 504;
-				if (stat == 'hp') width = stats[stat] * 75 / 704;
+				if (stat === 'hp') width = stats[stat] * 75 / 704;
 				if (width > 75) width = 75;
 				var color = Math.floor(stats[stat] * 180 / 714);
 				if (color > 360) color = 360;
@@ -2089,7 +2088,7 @@
 			for (var stat in stats) {
 				if (stat === 'spd' && this.curTeam.gen === 1) continue;
 				var width = stats[stat] * 180 / 504;
-				if (stat == 'hp') width = stats[stat] * 180 / 704;
+				if (stat === 'hp') width = stats[stat] * 180 / 704;
 				if (width > 179) width = 179;
 				var color = Math.floor(stats[stat] * 180 / 714);
 				if (color > 360) color = 360;
@@ -2311,7 +2310,7 @@
 				return;
 			}
 
-			var stats = {hp:'', atk:'', def:'', spa:'', spd:'', spe:''};
+			var stats = {hp: '', atk: '', def: '', spa: '', spd: '', spe: ''};
 			if (this.curTeam.gen === 1) delete stats.spd;
 			if (!set) return;
 			var nature = BattleNatures[set.nature || 'Serious'];
@@ -2344,7 +2343,7 @@
 			for (var i in stats) {
 				stats[i] = this.getStat(i);
 				var width = stats[i] * 180 / 504;
-				if (i == 'hp') width = Math.floor(stats[i] * 180 / 704);
+				if (i === 'hp') width = Math.floor(stats[i] * 180 / 704);
 				if (width > 179) width = 179;
 				var color = Math.floor(stats[i] * 180 / 714);
 				if (color > 360) color = 360;
@@ -2735,7 +2734,7 @@
 			var supportsEVs = !this.curTeam.format.includes('letsgo');
 			var supportsAVs = !supportsEVs && this.curTeam.format.endsWith('norestrictions');
 			if (supportsEVs) {
-				while (val > 0 && this.getStat(stat, set, val - 4) == result) val -= 4;
+				while (val > 0 && this.getStat(stat, set, val - 4) === result) val -= 4;
 			}
 
 			if (supportsEVs && !this.ignoreEVLimits && set.evs) {
@@ -3125,7 +3124,6 @@
 				var entry = $firstResult.data('entry');
 				var val = entry.slice(entry.indexOf("|") + 1);
 				this.chartSet(val, true);
-				return;
 			} else if (e.keyCode === 38) { // up
 				e.preventDefault();
 				e.stopPropagation();
@@ -3153,7 +3151,6 @@
 			} else if (e.keyCode === 27 || e.keyCode === 8) { // esc, backspace
 				if (!e.currentTarget.value && this.search.removeFilter()) {
 					this.search.find('');
-					return;
 				}
 			} else if (e.keyCode === 188) {
 				var $firstResult = this.$chart.find('a').first();
@@ -3163,7 +3160,6 @@
 					e.stopPropagation();
 					$(e.currentTarget).val('').select();
 					this.search.find('');
-					return;
 				}
 			}
 		},

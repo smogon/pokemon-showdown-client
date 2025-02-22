@@ -8,7 +8,7 @@
 import {PS, type Team} from "./client-main";
 import {PSPanelWrapper, PSRoomPanel} from "./panels";
 import {Dex, toID, type ID} from "./battle-dex";
-import { BattleStatIDs, BattleStatNames } from "./battle-dex-data";
+import {BattleStatIDs, BattleStatNames} from "./battle-dex-data";
 
 export class PSTeambuilder {
 	static packTeam(team: Dex.PokemonSet[]) {
@@ -137,13 +137,12 @@ export class PSTeambuilder {
 
 			// ability
 			const species = Dex.species.get(set.species);
-			set.ability = parts[3] === '-' ?
-				'' :
-				(species.baseSpecies === 'Zygarde' && parts[3] === 'H') ?
-				'Power Construct' :
+			set.ability =
+				parts[3] === '-' ? '' :
+				(species.baseSpecies === 'Zygarde' && parts[3] === 'H') ? 'Power Construct' :
 				['', '0', '1', 'H', 'S'].includes(parts[3]) ?
-				species.abilities[parts[3] as '0' || '0'] || (parts[3] === '' ? '' : '!!!ERROR!!!') :
-				Dex.abilities.get(parts[3]).name;
+					species.abilities[parts[3] as '0' || '0'] || (parts[3] === '' ? '' : '!!!ERROR!!!') :
+					Dex.abilities.get(parts[3]).name;
 
 			// moves
 			set.moves = parts[4].split(',').map(moveid =>
@@ -333,7 +332,7 @@ export class PSTeambuilder {
 				line = line.slice(0, -4);
 			}
 			let parenIndex = line.lastIndexOf(' (');
-			if (line.charAt(line.length - 1) === ')' && parenIndex !== -1) {
+			if (line.endsWith(')') && parenIndex !== -1) {
 				set.species = Dex.species.get(line.slice(parenIndex + 2, -1)).name;
 				set.name = line.slice(0, parenIndex);
 			} else {
@@ -392,13 +391,13 @@ export class PSTeambuilder {
 				if (isNaN(statval)) statval = 31;
 				set.ivs[statid] = statval;
 			}
-		} else if (line.match(/^[A-Za-z]+ (N|n)ature/)) {
+		} else if (/^[A-Za-z]+ (N|n)ature/.exec(line)) {
 			let natureIndex = line.indexOf(' Nature');
 			if (natureIndex === -1) natureIndex = line.indexOf(' nature');
 			if (natureIndex === -1) return;
 			line = line.substr(0, natureIndex);
 			if (line !== 'undefined') set.nature = line as Dex.NatureName;
-		} else if (line.charAt(0) === '-' || line.charAt(0) === '~') {
+		} else if (line.startsWith('-') || line.startsWith('~')) {
 			line = line.slice(line.charAt(1) === ' ' ? 2 : 1);
 			if (line.startsWith('Hidden Power [')) {
 				const hpType = line.slice(14, -1) as Dex.TypeName;
@@ -676,13 +675,27 @@ class TeamDropdownPanel extends PSRoomPanel {
 		const hasOtherGens = genList.length > 1 || genList[0] !== baseGen;
 
 		teamList.push(<p>
-			{baseFormat.length > 4 && <button class={'button' + (baseFormat === this.format ? ' disabled' : '')} onClick={this.setFormat} name="format" value={baseFormat}>
-				<i class="fa fa-folder-o"></i> [{baseFormat.slice(0, 4)}] {baseFormat.slice(4)}
-			</button>} <button class={'button' + (baseGen === this.format ? ' disabled' : '')} onClick={this.setFormat} name="format" value={baseGen}>
+			{baseFormat.length > 4 && (
+				<button
+					class={'button' + (baseFormat === this.format ? ' disabled' : '')}
+					onClick={this.setFormat} name="format" value={baseFormat}
+				>
+					<i class="fa fa-folder-o"></i> [{baseFormat.slice(0, 4)}] {baseFormat.slice(4)}
+				</button>
+			)} {}
+			<button
+				class={'button' + (baseGen === this.format ? ' disabled' : '')} onClick={this.setFormat} name="format" value={baseGen}
+			>
 				<i class="fa fa-folder-o"></i> [{baseGen}] <em>(uncategorized)</em>
-			</button> <button class={'button' + (baseGen === this.gen ? ' disabled' : '')} onClick={this.setFormat} name="gen" value={baseGen}>
+			</button> {}
+			<button
+				class={'button' + (baseGen === this.gen ? ' disabled' : '')} onClick={this.setFormat} name="gen" value={baseGen}
+			>
 				<i class="fa fa-folder-o"></i> [{baseGen}] <em>(all)</em>
-			</button> {hasOtherGens && !this.gen && <button class="button" onClick={this.setFormat} name="gen" value={baseGen}>Other gens</button>}
+			</button> {}
+			{hasOtherGens && !this.gen && (
+				<button class="button" onClick={this.setFormat} name="gen" value={baseGen}>Other gens</button>
+			)}
 		</p>);
 
 		if (hasOtherGens && this.gen) {
@@ -716,7 +729,7 @@ class TeamDropdownPanel extends PSRoomPanel {
 				</h2>);
 			}
 			teamList.push(<ul class="teamdropdown" onClick={this.click}>
-				{teamBuckets[folder].map(team => <li key={team.key} style={"display:inline-block"}>
+				{teamBuckets[folder].map(team => <li key={team.key} style={{display: 'inline-block'}}>
 					<TeamBox team={team} button />
 				</li>)}
 			</ul>);
@@ -748,8 +761,6 @@ export interface FormatData {
 }
 
 declare const BattleFormats: {[id: string]: FormatData};
-/** id:name */
-declare const NonBattleGames: {[id: string]: string};
 
 class FormatDropdownPanel extends PSRoomPanel {
 	gen = '';
@@ -778,6 +789,7 @@ class FormatDropdownPanel extends PSRoomPanel {
 		let formatsLoaded = !!window.BattleFormats;
 		if (formatsLoaded) {
 			formatsLoaded = false;
+			// eslint-disable-next-line @typescript-eslint/no-unused-vars
 			for (let i in window.BattleFormats) {
 				formatsLoaded = true;
 				break;

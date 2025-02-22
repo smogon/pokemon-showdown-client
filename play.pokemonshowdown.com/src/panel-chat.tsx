@@ -92,7 +92,8 @@ export class ChatRoom extends PSRoom {
 			this.challengedFormat = null;
 			this.update(null);
 			return false;
-		}}
+		}
+		}
 		return super.handleMessage(line);
 	}
 	openChallenge() {
@@ -256,7 +257,7 @@ export class ChatTextEntry extends preact.Component<{
 	}
 	handleKey(ev: KeyboardEvent) {
 		const cmdKey = ((ev.metaKey ? 1 : 0) + (ev.ctrlKey ? 1 : 0) === 1) && !ev.altKey && !ev.shiftKey;
-		const anyModifier = ev.ctrlKey || ev.altKey || ev.metaKey || ev.shiftKey;
+		// const anyModifier = ev.ctrlKey || ev.altKey || ev.metaKey || ev.shiftKey;
 		if (ev.keyCode === 13 && !ev.shiftKey) { // Enter key
 			return this.submit();
 		} else if (ev.keyCode === 13 && this.miniedit) { // enter
@@ -380,7 +381,7 @@ class ChatPanel extends PSRoomPanel<ChatRoom> {
 		// `display: none` element, but contentEditable boxes are pickier.
 		// Waiting for a 0 timeout turns out to be enough.
 		setTimeout(() => {
-			(this.base!.querySelector('textarea, pre.textbox') as HTMLElement).focus();
+			this.base!.querySelector<HTMLElement>('textarea, pre.textbox')!.focus();
 		}, 0);
 	}
 	focusIfNoSelection = () => {
@@ -474,7 +475,10 @@ export class ChatUserList extends preact.Component<{room: ChatRoom, left?: numbe
 		PSUtils.sortBy(userList, ([id, name]) => (
 			[PS.server.getGroup(name.charAt(0)).order, !name.endsWith('@!'), id]
 		));
-		return <ul class={'userlist' + (this.props.minimized ? (this.state.expanded ? ' userlist-maximized' : ' userlist-minimized') : '')} style={{left: this.props.left || 0}}>
+		return <ul
+			class={'userlist' + (this.props.minimized ? (this.state.expanded ? ' userlist-maximized' : ' userlist-minimized') : '')}
+			style={{left: this.props.left || 0}}
+		>
 			<li class="userlist-count" onClick={this.toggleExpanded}><small>{room.userCount} users</small></li>
 			{userList.map(([userid, name]) => {
 				const groupSymbol = name.charAt(0);
@@ -490,13 +494,13 @@ export class ChatUserList extends preact.Component<{room: ChatRoom, left?: numbe
 					<em class={`group${['leadership', 'staff'].includes(group.type!) ? ' staffgroup' : ''}`}>
 						{groupSymbol}
 					</em>
-					{group.type === 'leadership' ?
+					{group.type === 'leadership' ? (
 						<strong><em style={{color}}>{name.substr(1)}</em></strong>
-					: group.type === 'staff' ?
+					) : group.type === 'staff' ? (
 						<strong style={{color}}>{name.substr(1)}</strong>
-					:
+					) : (
 						<span style={{color}}>{name.substr(1)}</span>
-					}
+					)}
 				</button></li>;
 			})}
 		</ul>;
@@ -505,7 +509,7 @@ export class ChatUserList extends preact.Component<{room: ChatRoom, left?: numbe
 
 export class ChatLog extends preact.Component<{
 	class: string, room: ChatRoom, onClick?: (e: Event) => void, children?: preact.ComponentChildren,
-	left?: number, top?: number, noSubscription?: boolean;
+	left?: number, top?: number, noSubscription?: boolean,
 }> {
 	log: BattleLog | null = null;
 	subscription: PSSubscription | null = null;
@@ -575,9 +579,10 @@ export class ChatLog extends preact.Component<{
 		}
 	}
 	render() {
-		return <div class={this.props.class} role="log" onClick={this.props.onClick} style={{
-			left: this.props.left || 0, top: this.props.top || 0,
-		}}></div>;
+		return <div
+			class={this.props.class} role="log" onClick={this.props.onClick}
+			style={{left: this.props.left || 0, top: this.props.top || 0}}
+		></div>;
 	}
 }
 

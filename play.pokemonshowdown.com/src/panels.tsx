@@ -12,10 +12,10 @@
 import preact from "../js/lib/preact";
 import {toID} from "./battle-dex";
 import {BattleLog} from "./battle-log";
-import type { Args } from "./battle-text-parser";
+import type {Args} from "./battle-text-parser";
 import {BattleTooltips} from "./battle-tooltips";
 import type {PSSubscription} from "./client-core";
-import {PS, PSRoom, type RoomID} from "./client-main";
+import {PS, type PSRoom, type RoomID} from "./client-main";
 import {PSHeader} from "./panel-topbar";
 
 export class PSRouter {
@@ -277,6 +277,7 @@ export class PSMain extends preact.Component {
 			}
 			if (PS.room !== clickedRoom) {
 				if (clickedRoom) PS.room = clickedRoom;
+				// eslint-disable-next-line no-unmodified-loop-condition
 				while (PS.popups.length && (!clickedRoom || clickedRoom.id !== PS.popups[PS.popups.length - 1])) {
 					PS.closePopup();
 				}
@@ -318,7 +319,7 @@ export class PSMain extends preact.Component {
 
 		const colorSchemeQuery = window.matchMedia?.('(prefers-color-scheme: dark)');
 		if (colorSchemeQuery?.media !== 'not all') {
-			colorSchemeQuery.addEventListener('change', function (cs) {
+			colorSchemeQuery.addEventListener('change', cs => {
 				if (PS.prefs.theme === 'system') document.body.className = cs.matches ? 'dark' : '';
 			});
 		}
@@ -374,7 +375,7 @@ export class PSMain extends preact.Component {
 		try {
 			const selection = window.getSelection()!;
 			if (selection.type === 'Range') return false;
-		} catch (err) {}
+		} catch {}
 		BattleTooltips.hideTooltip();
 	}
 	static posStyle(room: PSRoom) {
@@ -523,5 +524,5 @@ export class PSMain extends preact.Component {
 type PanelPosition = {top?: number, bottom?: number, left?: number, right?: number} | null;
 
 export function SanitizedHTML(props: {children: string}) {
-	return <div dangerouslySetInnerHTML={{__html: BattleLog.sanitizeHTML(props.children)}}/>;
+	return <div dangerouslySetInnerHTML={{__html: BattleLog.sanitizeHTML(props.children)}} />;
 }

@@ -1433,25 +1433,24 @@ export class Battle {
 		if (this.gameType === 'freeforall') {
 			// TODO: Add FFA support
 			return;
-		} else {
-			let side1 = this.sides[0];
-			let side2 = this.sides[1];
-			for (const id of sideConditions) {
-				if (side1.sideConditions[id] && side2.sideConditions[id]) {
-					[side1.sideConditions[id], side2.sideConditions[id]] = [
-						side2.sideConditions[id], side1.sideConditions[id],
-					];
-					this.scene.addSideCondition(side1.n, id as ID);
-					this.scene.addSideCondition(side2.n, id as ID);
-				} else if (side1.sideConditions[id] && !side2.sideConditions[id]) {
-					side2.sideConditions[id] = side1.sideConditions[id];
-					this.scene.addSideCondition(side2.n, id as ID);
-					side1.removeSideCondition(id);
-				} else if (side2.sideConditions[id] && !side1.sideConditions[id]) {
-					side1.sideConditions[id] = side2.sideConditions[id];
-					this.scene.addSideCondition(side1.n, id as ID);
-					side2.removeSideCondition(id);
-				}
+		}
+		let side1 = this.sides[0];
+		let side2 = this.sides[1];
+		for (const id of sideConditions) {
+			if (side1.sideConditions[id] && side2.sideConditions[id]) {
+				[side1.sideConditions[id], side2.sideConditions[id]] = [
+					side2.sideConditions[id], side1.sideConditions[id],
+				];
+				this.scene.addSideCondition(side1.n, id as ID);
+				this.scene.addSideCondition(side2.n, id as ID);
+			} else if (side1.sideConditions[id] && !side2.sideConditions[id]) {
+				side2.sideConditions[id] = side1.sideConditions[id];
+				this.scene.addSideCondition(side2.n, id as ID);
+				side1.removeSideCondition(id);
+			} else if (side2.sideConditions[id] && !side1.sideConditions[id]) {
+				side1.sideConditions[id] = side2.sideConditions[id];
+				this.scene.addSideCondition(side1.n, id as ID);
+				side2.removeSideCondition(id);
 			}
 		}
 	}
