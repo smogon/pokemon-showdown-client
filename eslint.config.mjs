@@ -205,6 +205,8 @@ export const defaultRulesTS = {
 	"@typescript-eslint/no-empty-object-type": "error",
 	"@typescript-eslint/no-extra-non-null-assertion": "error",
 	"@typescript-eslint/no-misused-new": "error",
+	// no way to get it to be less strict unfortunately
+	// "@typescript-eslint/no-misused-spread": "error",
 	"@typescript-eslint/no-non-null-asserted-optional-chain": "error",
 	"@typescript-eslint/consistent-type-imports": "error",
 
@@ -228,9 +230,11 @@ export const defaultRulesTS = {
 	// `source` and `target` are frequently used as variables that may point to `this`
 	// or to another `Pokemon` object, depending on how the given method is invoked
 	"@typescript-eslint/no-this-alias": ["error", {"allowedNames": ["source", "target"]}],
+	"@typescript-eslint/no-unnecessary-boolean-literal-compare": "error",
 	"@typescript-eslint/prefer-as-const": "error",
 	"@typescript-eslint/prefer-for-of": "error",
 	"@typescript-eslint/prefer-function-type": "error",
+	"@typescript-eslint/prefer-return-this-type": "error",
 	"@typescript-eslint/triple-slash-reference": "error",
 	"@typescript-eslint/unified-signatures": "error",
 };

@@ -3893,7 +3893,8 @@ export class Battle {
 
 		let interruptionCount: number;
 		do {
-			this.waitForAnimations = true;
+			// modified in this.run() but idk how to tell TS that
+			this.waitForAnimations = true as this['waitForAnimations'];
 			if (this.currentStep >= this.stepQueue.length) {
 				this.atQueueEnd = true;
 				if (!this.ended && this.isReplay) this.prematureEnd();

@@ -817,7 +817,7 @@ export const Dex = new class implements ModdedDex {
 		if (pokemon.species && !spriteid) {
 			spriteid = species.spriteid || toID(pokemon.species);
 		}
-		if (species.exists === false) return {spriteDir: 'sprites/gen5', spriteid: '0', x: 10, y: 5};
+		if (!species.exists) return {spriteDir: 'sprites/gen5', spriteid: '0', x: 10, y: 5};
 		if (window.Config?.server?.afd || Dex.prefs('afd')) {
 			return {
 				spriteid,
