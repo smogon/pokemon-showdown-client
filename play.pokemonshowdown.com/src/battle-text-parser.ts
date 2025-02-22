@@ -630,7 +630,7 @@ export class BattleTextParser {
 			if (kwArgs.damage) templateId = 'activate';
 			if (kwArgs.block) templateId = 'block';
 			if (kwArgs.upkeep) templateId = 'upkeep';
-			if (id === 'mist' && this.gen <= 2) templateId = 'startGen' + this.gen;
+			if (id === 'mist' && this.gen <= 2) templateId = `startGen${this.gen}`;
 			if (id === 'reflect' || id === 'lightscreen') templateId = 'startGen1';
 			if (templateId === 'start' && kwArgs.from?.startsWith('item:')) {
 				templateId += 'FromItem';
@@ -1069,7 +1069,7 @@ export class BattleTextParser {
 			const line1 = this.maybeAbility(effect, kwArgs.of || pokemon);
 			let id = BattleTextParser.effectId(effect);
 			let templateId = 'block';
-			if (id === 'mist' && this.gen <= 2) templateId = 'blockGen' + this.gen;
+			if (id === 'mist' && this.gen <= 2) templateId = `blockGen${this.gen}`;
 			const template = this.template(templateId, effect);
 			return line1 + template.replace('[POKEMON]', this.pokemon(pokemon))
 				.replace('[SOURCE]', this.pokemon(attacker || kwArgs.of)).replace('[MOVE]', move);

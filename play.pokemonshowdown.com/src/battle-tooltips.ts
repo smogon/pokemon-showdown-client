@@ -197,7 +197,7 @@ export class BattleTooltips {
 		if (!BattleTooltips.isLocked) BattleTooltips.hideTooltip();
 	}
 
-	listen(elem: HTMLElement | JQuery<HTMLElement>) {
+	listen(elem: HTMLElement | JQuery) {
 		const $elem = $(elem);
 		$elem.on('mouseover', '.has-tooltip', this.showTooltipEvent);
 		$elem.on('click', '.has-tooltip', this.clickTooltipEvent);
@@ -373,7 +373,7 @@ export class BattleTooltips {
 		default:
 			// "throws" an error without crashing
 			Promise.resolve(new Error(`unrecognized type`));
-			buf = `<p class="message-error" style="white-space: pre-wrap">${new Error(`unrecognized type`).stack}</p>`;
+			buf = `<p class="message-error" style="white-space: pre-wrap">${new Error(`unrecognized type`).stack!}</p>`;
 		}
 
 		this.placeTooltip(buf, elem, ownHeight, type);
@@ -422,7 +422,7 @@ export class BattleTooltips {
 			left: x,
 			top: y,
 		});
-		innerHTML = `<div class="tooltipinner"><div class="tooltip tooltip-${type}">${innerHTML}</div></div>`;
+		innerHTML = `<div class="tooltipinner"><div class="tooltip tooltip-${type!}">${innerHTML}</div></div>`;
 		$wrapper.html(innerHTML).appendTo(document.body);
 		BattleTooltips.elem = $wrapper.find('.tooltip')[0] as HTMLDivElement;
 		BattleTooltips.isLocked = false;
@@ -476,9 +476,8 @@ export class BattleTooltips {
 		}
 		let boostText = '';
 		if (move.zMove!.boost) {
-			let boosts = Object.keys(move.zMove!.boost) as Dex.StatName[];
-			boostText = boosts.map(stat =>
-				BattleTextParser.stat(stat) + ' +' + move.zMove!.boost![stat]
+			boostText = Object.entries(move.zMove!.boost).map(([stat, boost]) =>
+				`${BattleTextParser.stat(stat)} +${boost!}`
 			).join(', ');
 		}
 		return boostText;
@@ -623,7 +622,7 @@ export class BattleTooltips {
 			});
 		}
 
-		text += '<h2>' + move.name + '<br />';
+		text += `<h2>${move.name}<br />`;
 
 		text += Dex.getTypeIcon(moveType);
 		text += ` ${Dex.getCategoryIcon(category)}</h2>`;
@@ -641,10 +640,10 @@ export class BattleTooltips {
 			for (const active of foeActive) {
 				if (!active) continue;
 				value = this.getMoveBasePower(move, moveType, value, active);
-				basePower = '' + value;
+				basePower = `${value}`;
 				if (prevBasePower === null) prevBasePower = basePower;
 				if (prevBasePower !== basePower) difference = true;
-				basePowers.push('Base power vs ' + active.name + ': ' + basePower);
+				basePowers.push(`Base power vs ${active.name}: ${basePower}`);
 			}
 			if (difference) {
 				text += '<p>' + basePowers.join('<br />') + '</p>';
@@ -655,7 +654,7 @@ export class BattleTooltips {
 		if (!showingMultipleBasePowers && category !== 'Status') {
 			let activeTarget = foeActive[0] || foeActive[1] || foeActive[2];
 			value = this.getMoveBasePower(move, moveType, value, activeTarget);
-			text += '<p>Base power: ' + value + '</p>';
+			text += `<p>Base power: ${value}</p>`;
 		}
 
 		let accuracy = this.getMoveAccuracy(move, value);
@@ -683,22 +682,22 @@ export class BattleTooltips {
 				calls = 'Swift';
 			}
 			let calledMove = this.battle.dex.moves.get(calls);
-			text += 'Calls ' + Dex.getTypeIcon(this.getMoveType(calledMove, value)[0]) + ' ' + calledMove.name;
+			text += `Calls ${Dex.getTypeIcon(this.getMoveType(calledMove, value)[0])} ${calledMove.name}`;
 		}
 
-		text += '<p>Accuracy: ' + accuracy + '</p>';
-		if (zEffect) text += '<p>Z-Effect: ' + zEffect + '</p>';
+		text += `<p>Accuracy: ${accuracy}</p>`;
+		if (zEffect) text += `<p>Z-Effect: ${zEffect}</p>`;
 
 		if (this.battle.hardcoreMode) {
-			text += '<p class="tooltip-section">' + move.shortDesc + '</p>';
+			text += `<p class="tooltip-section">${move.shortDesc}</p>`;
 		} else {
 			text += '<p class="tooltip-section">';
 			if (move.priority > 1) {
-				text += 'Nearly always moves first <em>(priority +' + move.priority + ')</em>.</p><p>';
+				text += `Nearly always moves first <em>(priority +${move.priority})</em>.</p><p>`;
 			} else if (move.priority <= -1) {
-				text += 'Nearly always moves last <em>(priority &minus;' + (-move.priority) + ')</em>.</p><p>';
+				text += `Nearly always moves last <em>(priority &minus;${-move.priority})</em>.</p><p>`;
 			} else if (move.priority === 1) {
-				text += 'Usually moves first <em>(priority +' + move.priority + ')</em>.</p><p>';
+				text += `Usually moves first <em>(priority +${move.priority})</em>.</p><p>`;
 			} else {
 				if (move.id === 'grassyglide' && this.battle.hasPseudoWeather('Grassy Terrain')) {
 					text += 'Usually moves first <em>(priority +1)</em>.</p><p>';
@@ -803,7 +802,7 @@ export class BattleTooltips {
 
 		let name = BattleLog.escapeHTML(pokemon.name);
 		if (pokemon.speciesForme !== pokemon.name) {
-			name += ' <small>(' + BattleLog.escapeHTML(pokemon.speciesForme) + ')</small>';
+			name += ` <small>(${BattleLog.escapeHTML(pokemon.speciesForme)})</small>`;
 		}
 
 		let levelBuf = (pokemon.level !== 100 ? ` <small>L${pokemon.level}</small>` : ``);
@@ -843,25 +842,31 @@ export class BattleTooltips {
 			text += '<p><small>HP:</small> (fainted)</p>';
 		} else if (this.battle.hardcoreMode) {
 			if (serverPokemon) {
-				text += '<p><small>HP:</small> ' + serverPokemon.hp + '/' + serverPokemon.maxhp + (pokemon.status ? ' <span class="status ' + pokemon.status + '">' + pokemon.status.toUpperCase() + '</span>' : '') + '</p>';
+				const status = pokemon.status ? ` <span class="status ${pokemon.status}">${pokemon.status.toUpperCase()}</span>` : '';
+				text += `<p><small>HP:</small> ${serverPokemon.hp}/${serverPokemon.maxhp}${status}</p>`;
 			}
 		} else {
 			let exacthp = '';
 			if (serverPokemon) {
-				exacthp = ' (' + serverPokemon.hp + '/' + serverPokemon.maxhp + ')';
+				exacthp = ` (${serverPokemon.hp}/${serverPokemon.maxhp})`;
 			} else if (pokemon.maxhp === 48) {
-				exacthp = ' <small>(' + pokemon.hp + '/' + pokemon.maxhp + ' pixels)</small>';
+				exacthp = ` <small>(${pokemon.hp}/${pokemon.maxhp} pixels)</small>`;
 			}
-			text += '<p><small>HP:</small> ' + Pokemon.getHPText(pokemon, this.battle.reportExactHP) + exacthp + (pokemon.status ? ' <span class="status ' + pokemon.status + '">' + pokemon.status.toUpperCase() + '</span>' : '');
+			const status = pokemon.status ? ` <span class="status ${pokemon.status}">${pokemon.status.toUpperCase()}</span>` : '';
+			text += `<p><small>HP:</small> ${Pokemon.getHPText(pokemon, this.battle.reportExactHP)}${exacthp}${status}`;
 			if (clientPokemon) {
 				if (pokemon.status === 'tox') {
 					if (pokemon.ability === 'Poison Heal' || pokemon.ability === 'Magic Guard') {
-						text += ' <small>Would take if ability removed: ' + Math.floor(100 / 16 * Math.min(clientPokemon.statusData.toxicTurns + 1, 15)) + '%</small>';
+						text += ` <small>Would take if ability removed: ${Math.floor(
+							100 / 16 * Math.min(clientPokemon.statusData.toxicTurns + 1, 15)
+						)}%</small>`;
 					} else {
-						text += ' Next damage: ' + Math.floor(100 / (clientPokemon.volatiles['dynamax'] ? 32 : 16) * Math.min(clientPokemon.statusData.toxicTurns + 1, 15)) + '%';
+						text += ` Next damage: ${Math.floor(
+							100 / (clientPokemon.volatiles['dynamax'] ? 32 : 16) * Math.min(clientPokemon.statusData.toxicTurns + 1, 15)
+						)}%`;
 					}
 				} else if (pokemon.status === 'slp') {
-					text += ' Turns asleep: ' + clientPokemon.statusData.sleepTurns;
+					text += ` Turns asleep: ${clientPokemon.statusData.sleepTurns}`;
 				}
 			}
 			text += '</p>';
@@ -1383,7 +1388,7 @@ export class BattleTooltips {
 		if (!serverPokemon || isTransformed) {
 			if (!clientPokemon) throw new Error('Must pass either clientPokemon or serverPokemon');
 			let [min, max] = this.getSpeedRange(clientPokemon);
-			return '<p><small>Spe</small> ' + min + ' to ' + max + ' <small>(before items/abilities/modifiers)</small></p>';
+			return `<p><small>Spe</small> ${min} to ${max} <small>(before items/abilities/modifiers)</small></p>`;
 		}
 		const stats = serverPokemon.stats;
 		const modifiedStats = this.calculateModifiedStats(clientPokemon, serverPokemon);
@@ -1396,8 +1401,8 @@ export class BattleTooltips {
 				if (this.battle.gen === 1 && statName === 'spd') continue;
 				let statLabel = this.battle.gen === 1 && statName === 'spa' ? 'spc' : statName;
 				buf += statName === 'atk' ? '<small>' : '<small> / ';
-				buf += '' + BattleText[statLabel].statShortName + '&nbsp;</small>';
-				buf += '' + stats[statName];
+				buf += `${BattleText[statLabel].statShortName}&nbsp;</small>`;
+				buf += `${stats[statName]}`;
 				if (modifiedStats[statName] !== stats[statName]) hasModifiedStat = true;
 			}
 			buf += '</p>';
@@ -1412,13 +1417,13 @@ export class BattleTooltips {
 			if (this.battle.gen === 1 && statName === 'spd') continue;
 			let statLabel = this.battle.gen === 1 && statName === 'spa' ? 'spc' : statName;
 			buf += statName === 'atk' ? '<small>' : '<small> / ';
-			buf += '' + BattleText[statLabel].statShortName + '&nbsp;</small>';
+			buf += `${BattleText[statLabel].statShortName}&nbsp;</small>`;
 			if (modifiedStats[statName] === stats[statName]) {
-				buf += '' + modifiedStats[statName];
+				buf += `${modifiedStats[statName]}`;
 			} else if (modifiedStats[statName] < stats[statName]) {
-				buf += '<strong class="stat-lowered">' + modifiedStats[statName] + '</strong>';
+				buf += `<strong class="stat-lowered">${modifiedStats[statName]}</strong>`;
 			} else {
-				buf += '<strong class="stat-boosted">' + modifiedStats[statName] + '</strong>';
+				buf += `<strong class="stat-boosted">${modifiedStats[statName]}</strong>`;
 			}
 		}
 		buf += '</p>';

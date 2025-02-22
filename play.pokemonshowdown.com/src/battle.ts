@@ -36,8 +36,7 @@ import {BattleTextParser, type Args, type KWArgs, type SideID} from './battle-te
 
 /** [id, element?, ...misc] */
 export type EffectState = any[] & {0: ID};
-/** [name, minTimeLeft, maxTimeLeft] */
-export type WeatherState = [string, number, number];
+export type WeatherState = [name: string, minTimeLeft: number, maxTimeLeft: number];
 export type HPColor = 'r' | 'y' | 'g';
 
 export class Pokemon implements PokemonDetails, PokemonHealth {
@@ -174,7 +173,7 @@ export class Pokemon implements PokemonDetails, PokemonHealth {
 		if (range[0] === range[1]) {
 			let percentage = Math.abs(range[0] * 100);
 			if (Math.floor(percentage) === percentage) {
-				return percentage + '%';
+				return `${percentage}%`;
 			}
 			return percentage.toFixed(precision) + '%';
 		}
@@ -187,7 +186,7 @@ export class Pokemon implements PokemonDetails, PokemonHealth {
 			lower = (range[0] * 100).toFixed(precision);
 			upper = (range[1] * 100).toFixed(precision);
 		}
-		return '' + lower + separator + upper + '%';
+		return `${lower}${separator}${upper}%`;
 	}
 	// Returns [min, max] damage dealt as a proportion of total HP from 0 to 1
 	getDamageRange(damage: any): [number, number] {
@@ -588,8 +587,8 @@ export class Pokemon implements PokemonDetails, PokemonHealth {
 		return Pokemon.getHPText(this, this.side.battle.reportExactHP, precision);
 	}
 	static getHPText(pokemon: PokemonHealth, exactHP: boolean, precision = 1) {
-		if (exactHP) return pokemon.hp + '/' + pokemon.maxhp;
-		if (pokemon.maxhp === 100) return pokemon.hp + '%';
+		if (exactHP) return `${pokemon.hp}/${pokemon.maxhp}`;
+		if (pokemon.maxhp === 100) return `${pokemon.hp}%`;
 		if (pokemon.maxhp !== 48) return (100 * pokemon.hp / pokemon.maxhp).toFixed(precision) + '%';
 		let range = Pokemon.getPixelRange(pokemon.hp, pokemon.hpcolor);
 		return Pokemon.getFormattedRange(range, precision, '–');
@@ -625,8 +624,9 @@ export class Side {
 	lastPokemon = null as Pokemon | null;
 	pokemon = [] as Pokemon[];
 
-	/** [effectName, levels, minDuration, maxDuration] */
-	sideConditions: {[id: string]: [string, number, number, number]} = {};
+	sideConditions: {
+		[id: string]: [effectName: string, levels: number, minDuration: number, maxDuration: number],
+	} = {};
 	faintCounter = 0;
 
 	constructor(battle: Battle, n: number) {
@@ -1131,8 +1131,8 @@ export class Battle {
 	paused: boolean;
 
 	constructor(options: {
-		$frame?: JQuery<HTMLElement>,
-		$logFrame?: JQuery<HTMLElement>,
+		$frame?: JQuery,
+		$logFrame?: JQuery,
 		id?: ID,
 		log?: string[] | string,
 		paused?: boolean,
@@ -1184,9 +1184,9 @@ export class Battle {
 		}
 		if (width && width < 640) {
 			const scale = (width / 640);
-			this.scene.$frame?.css('transform', 'scale(' + scale + ')');
+			this.scene.$frame?.css('transform', `scale(${scale})`);
 			this.scene.$frame?.css('transform-origin', 'top left');
-			this.scene.$frame?.css('margin-bottom', '' + (360 * scale - 360) + 'px');
+			this.scene.$frame?.css('margin-bottom', `${360 * scale - 360}px`);
 			// this.$foeHint.css('transform', 'scale(' + scale + ')');
 		} else {
 			this.scene.$frame?.css('transform', 'none');
@@ -1732,8 +1732,7 @@ export class Battle {
 				}
 				let damageinfo = '' + Pokemon.getFormattedRange(range, damage[1] === 100 ? 0 : 1, '\u2013');
 				if (damage[1] !== 100) {
-					let hover = '' + ((damage[0] < 0) ? '\u2212' : '') +
-						Math.abs(damage[0]) + '/' + damage[1];
+					let hover = `${(damage[0] < 0) ? '\u2212' : ''}${Math.abs(damage[0])}/${damage[1]}`;
 					if (damage[1] === 48) { // this is a hack
 						hover += ' pixels';
 					}
@@ -3628,8 +3627,8 @@ export class Battle {
 			const side = this.getSide(args[1]);
 			side.clearPokemon();
 			for (const set of team) {
-				const details = set.species + (!set.level || set.level === 100 ? '' : ', L' + set.level) +
-					(!set.gender || set.gender === 'N' ? '' : ', ' + set.gender) + (set.shiny ? ', shiny' : '');
+				const details = set.species + (!set.level || set.level === 100 ? '' : `, L${set.level}`) +
+					(!set.gender || set.gender === 'N' ? '' : `, ${set.gender}`) + (set.shiny ? ', shiny' : '');
 				const pokemon = side.addPokemon('', '', details);
 				if (set.item) pokemon.item = set.item;
 				if (set.ability) pokemon.rememberAbility(set.ability);

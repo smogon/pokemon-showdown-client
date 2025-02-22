@@ -284,7 +284,7 @@ export class BattleScene implements BattleSceneStub {
 		let startpos = this.pos(start, effect);
 		let endpos = this.posT(end, effect, transition, start);
 
-		let $effect = $('<img src="' + effect.url + '" style="display:block;position:absolute" />');
+		let $effect = $(`<img src="${effect.url!}" style="display:block;position:absolute" />`);
 		this.$fx.append($effect);
 		if (additionalCss) $effect.css(additionalCss);
 		$effect = this.$fx.children().last();
@@ -580,15 +580,15 @@ export class BattleScene implements BattleSceneStub {
 		} else {
 			if (gen <= 1) bg = 'fx/bg-gen1.png?';
 			else if (gen <= 2) bg = 'fx/bg-gen2.png?';
-			else if (gen <= 3) bg = 'fx/' + BattleBackdropsThree[this.numericId % BattleBackdropsThree.length] + '?';
-			else if (gen <= 4) bg = 'fx/' + BattleBackdropsFour[this.numericId % BattleBackdropsFour.length];
-			else if (gen <= 5) bg = 'fx/' + BattleBackdropsFive[this.numericId % BattleBackdropsFive.length];
-			else bg = 'sprites/gen6bgs/' + BattleBackdrops[this.numericId % BattleBackdrops.length];
+			else if (gen <= 3) bg = `fx/${BattleBackdropsThree[this.numericId % BattleBackdropsThree.length]}?`;
+			else if (gen <= 4) bg = `fx/${BattleBackdropsFour[this.numericId % BattleBackdropsFour.length]}`;
+			else if (gen <= 5) bg = `fx/${BattleBackdropsFive[this.numericId % BattleBackdropsFive.length]}`;
+			else bg = `sprites/gen6bgs/${BattleBackdrops[this.numericId % BattleBackdrops.length]}`;
 		}
 
 		this.backdropImage = bg;
 		if (this.$bg) {
-			this.$bg.css('background-image', 'url(' + Dex.resourcePrefix + '' + this.backdropImage + ')');
+			this.$bg.css('background-image', `url(${Dex.resourcePrefix}${this.backdropImage})`);
 		}
 	}
 
@@ -665,29 +665,29 @@ export class BattleScene implements BattleSceneStub {
 		for (let i = 0; i < sidebarIcons.length; i++) {
 			const [iconType, pokeIndex] = sidebarIcons[i];
 			const poke = pokeIndex !== null ? side.pokemon[pokeIndex] : null;
-			const tooltipCode = ` class="picon has-tooltip" data-tooltip="pokemon|${side.n}|${pokeIndex}${iconType === 'pokemon-illusion' ? '|illusion' : ''}"`;
+			const tooltipCode = ` class="picon has-tooltip" data-tooltip="pokemon|${side.n}|${pokeIndex!}${iconType === 'pokemon-illusion' ? '|illusion' : ''}"`;
 			if (iconType === 'empty') {
-				pokemonhtml += `<span class="picon" style="` + Dex.getPokemonIcon('pokeball-none') + `"></span>`;
+				pokemonhtml += `<span class="picon" style="${Dex.getPokemonIcon('pokeball-none')}"></span>`;
 			} else if (noShow) {
 				if (poke?.fainted) {
-					pokemonhtml += `<span${tooltipCode} style="` + Dex.getPokemonIcon('pokeball-fainted') + `" aria-label="Fainted"></span>`;
+					pokemonhtml += `<span${tooltipCode} style="${Dex.getPokemonIcon('pokeball-fainted')}" aria-label="Fainted"></span>`;
 				} else if (poke?.status) {
-					pokemonhtml += `<span${tooltipCode} style="` + Dex.getPokemonIcon('pokeball-statused') + `" aria-label="Statused"></span>`;
+					pokemonhtml += `<span${tooltipCode} style="${Dex.getPokemonIcon('pokeball-statused')}" aria-label="Statused"></span>`;
 				} else {
-					pokemonhtml += `<span${tooltipCode} style="` + Dex.getPokemonIcon('pokeball') + `" aria-label="Non-statused"></span>`;
+					pokemonhtml += `<span${tooltipCode} style="${Dex.getPokemonIcon('pokeball')}" aria-label="Non-statused"></span>`;
 				}
 			} else if (iconType === 'pseudo-zoroark') {
-				pokemonhtml += `<span class="picon" style="` + Dex.getPokemonIcon('zoroark') + `" title="Unrevealed Illusion user" aria-label="Unrevealed Illusion user"></span>`;
+				pokemonhtml += `<span class="picon" style="${Dex.getPokemonIcon('zoroark')}" title="Unrevealed Illusion user" aria-label="Unrevealed Illusion user"></span>`;
 			} else if (!poke) {
-				pokemonhtml += `<span class="picon" style="` + Dex.getPokemonIcon('pokeball') + `" title="Not revealed" aria-label="Not revealed"></span>`;
+				pokemonhtml += `<span class="picon" style="${Dex.getPokemonIcon('pokeball')}" title="Not revealed" aria-label="Not revealed"></span>`;
 			} else if (!poke.ident && this.battle.teamPreviewCount && this.battle.teamPreviewCount < side.pokemon.length) {
 				// in VGC (bring 6 pick 4) and other pick-less-than-you-bring formats, this is
 				// a pokemon that's been brought but not necessarily picked
 				const details = this.getDetailsText(poke);
-				pokemonhtml += `<span${tooltipCode} style="` + Dex.getPokemonIcon(poke, !side.isFar) + `;opacity:0.6" aria-label="${details}"></span>`;
+				pokemonhtml += `<span${tooltipCode} style="${Dex.getPokemonIcon(poke, !side.isFar)};opacity:0.6" aria-label="${details}"></span>`;
 			} else {
 				const details = this.getDetailsText(poke);
-				pokemonhtml += `<span${tooltipCode} style="` + Dex.getPokemonIcon(poke, !side.isFar) + `" aria-label="${details}"></span>`;
+				pokemonhtml += `<span${tooltipCode} style="${Dex.getPokemonIcon(poke, !side.isFar)}" aria-label="${details}"></span>`;
 			}
 			if (i % 3 === 2) pokemonhtml += `</div><div class="teamicons">`;
 		}
@@ -861,26 +861,26 @@ export class BattleScene implements BattleSceneStub {
 				textBuf += pokemon.speciesForme;
 				let url = spriteData.url;
 				// if (this.paused) url.replace('/xyani', '/xy').replace('.gif', '.png');
-				buf += '<img src="' + url + '" width="' + spriteData.w + '" height="' + spriteData.h + '" style="position:absolute;top:' + Math.floor(y - spriteData.h / 2) + 'px;left:' + Math.floor(x - spriteData.w / 2) + 'px" />';
-				buf2 += '<div style="position:absolute;top:' + (y + 45) + 'px;left:' + (x - 40) + 'px;width:80px;font-size:10px;text-align:center;color:#FFF;">';
+				buf += `<img src="${url}" width="${spriteData.w}" height="${spriteData.h}" style="position:absolute;top:${Math.floor(y - spriteData.h / 2)}px;left:${Math.floor(x - spriteData.w / 2)}px" />`;
+				buf2 += `<div style="position:absolute;top:${y + 45}px;left:${x - 40}px;width:80px;font-size:10px;text-align:center;color:#FFF;">`;
 				const gender = pokemon.gender;
 				if (gender === 'M' || gender === 'F') {
 					buf2 += `<img src="${Dex.fxPrefix}gender-${gender.toLowerCase()}.png" alt="${gender}" width="7" height="10" class="pixelated" style="margin-bottom:-1px" /> `;
 				}
 				if (pokemon.level !== 100) {
-					buf2 += '<span style="text-shadow:#000 1px 1px 0,#000 1px -1px 0,#000 -1px 1px 0,#000 -1px -1px 0"><small>L</small>' + pokemon.level + '</span>';
+					buf2 += `<span style="text-shadow:#000 1px 1px 0,#000 1px -1px 0,#000 -1px 1px 0,#000 -1px -1px 0"><small>L</small>${pokemon.level}</span>`;
 				}
 				if (pokemon.item === '(mail)') {
-					buf2 += ' <img src="' + Dex.resourcePrefix + 'fx/mail.png" width="8" height="10" alt="F" style="margin-bottom:-1px" />';
+					buf2 += ` <img src="${Dex.resourcePrefix}fx/mail.png" width="8" height="10" alt="F" style="margin-bottom:-1px" />`;
 				} else if (pokemon.item) {
-					buf2 += ' <img src="' + Dex.resourcePrefix + 'fx/item.png" width="8" height="10" alt="F" style="margin-bottom:-1px" />';
+					buf2 += ` <img src="${Dex.resourcePrefix}fx/item.png" width="8" height="10" alt="F" style="margin-bottom:-1px" />`;
 				}
 				buf2 += '</div>';
 			}
 			side.totalPokemon = side.pokemon.length;
 			if (textBuf) {
 				this.log.addDiv('chat battle-history',
-					'<strong>' + BattleLog.escapeHTML(side.name) + '\'s team:</strong> <em style="color:#445566;display:block;">' + BattleLog.escapeHTML(textBuf) + '</em>'
+					`<strong>${BattleLog.escapeHTML(side.name)}'s team:</strong> <em style="color:#445566;display:block;">${BattleLog.escapeHTML(textBuf)}</em>`
 				);
 			}
 			this.$sprites[spriteIndex].html(buf + buf2);
@@ -916,21 +916,21 @@ export class BattleScene implements BattleSceneStub {
 	}
 
 	pseudoWeatherLeft(pWeather: WeatherState) {
-		let buf = '<br />' + Dex.moves.get(pWeather[0]).name;
+		let buf = `<br />${Dex.moves.get(pWeather[0]).name}`;
 		if (!pWeather[1] && pWeather[2]) {
 			pWeather[1] = pWeather[2];
 			pWeather[2] = 0;
 		}
 		if (this.battle.gen < 7 && this.battle.hardcoreMode) return buf;
 		if (pWeather[2]) {
-			return buf + ' <small>(' + pWeather[1] + ' or ' + pWeather[2] + ' turns)</small>';
+			return `${buf} <small>(${pWeather[1]} or ${pWeather[2]} turns)</small>`;
 		}
 		if (pWeather[1]) {
-			return buf + ' <small>(' + pWeather[1] + ' turn' + (pWeather[1] === 1 ? '' : 's') + ')</small>';
+			return `${buf} <small>(${pWeather[1]} turn${pWeather[1] === 1 ? '' : 's'})</small>`;
 		}
 		return buf; // weather not found
 	}
-	sideConditionLeft(cond: [string, number, number, number], isFoe: boolean, all?: boolean) {
+	sideConditionLeft(cond: Side['sideConditions'][string], isFoe: boolean, all?: boolean) {
 		if (!cond[2] && !cond[3] && !all) return '';
 		let buf = `<br />${isFoe && !all ? "Foe's " : ""}${Dex.moves.get(cond[0]).name}`;
 		if (this.battle.gen < 7 && this.battle.hardcoreMode) return buf;
@@ -941,9 +941,9 @@ export class BattleScene implements BattleSceneStub {
 			cond[3] = 0;
 		}
 		if (!cond[3]) {
-			return buf + ' <small>(' + cond[2] + ' turn' + (cond[2] === 1 ? '' : 's') + ')</small>';
+			return `${buf} <small>(${cond[2]} turn${cond[2] === 1 ? '' : 's'})</small>`;
 		}
-		return buf + ' <small>(' + cond[2] + ' or ' + cond[3] + ' turns)</small>';
+		return `${buf} <small>(${cond[2]} or ${cond[3]} turns)</small>`;
 	}
 	weatherLeft() {
 		if (this.battle.gen < 7 && this.battle.hardcoreMode) return '';
@@ -1053,7 +1053,7 @@ export class BattleScene implements BattleSceneStub {
 			this.$turn.html('');
 			return;
 		}
-		this.$turn.html('<div class="turn has-tooltip" data-tooltip="field" data-ownheight="1">Turn ' + this.battle.turn + '</div>');
+		this.$turn.html(`<div class="turn has-tooltip" data-tooltip="field" data-ownheight="1">Turn ${this.battle.turn}</div>`);
 	}
 	incrementTurn() {
 		if (!this.animating) return;
@@ -1061,7 +1061,7 @@ export class BattleScene implements BattleSceneStub {
 		const turn = this.battle.turn;
 		if (turn <= 0) return;
 		const $prevTurn = this.$turn.children();
-		const $newTurn = $('<div class="turn has-tooltip" data-tooltip="field" data-ownheight="1">Turn ' + turn + '</div>');
+		const $newTurn = $(`<div class="turn has-tooltip" data-tooltip="field" data-ownheight="1">Turn ${turn}</div>`);
 		$newTurn.css({
 			opacity: 0,
 			left: 160,
@@ -1399,7 +1399,7 @@ export class BattleScene implements BattleSceneStub {
 
 	typeAnim(pokemon: Pokemon, types: string) {
 		const result = BattleLog.escapeHTML(types).split('/').map(type =>
-			'<img src="' + Dex.resourcePrefix + 'sprites/types/' + encodeURIComponent(type) + '.png" alt="' + type + '" class="pixelated" />'
+			`<img src="${Dex.resourcePrefix}sprites/types/${encodeURIComponent(type)}.png" alt="${type}" class="pixelated" />`
 		).join(' ');
 		this.resultAnim(pokemon, result, 'neutral');
 	}
@@ -1425,7 +1425,7 @@ export class BattleScene implements BattleSceneStub {
 	}
 	abilityActivateAnim(pokemon: Pokemon, result: string) {
 		if (!this.animating) return;
-		this.$fx.append('<div class="result abilityresult"><strong>' + result + '</strong></div>');
+		this.$fx.append(`<div class="result abilityresult"><strong>${result}</strong></div>`);
 		let $effect = this.$fx.children().last();
 		$effect.delay(this.timeOffset).css({
 			display: 'block',
@@ -1459,7 +1459,7 @@ export class BattleScene implements BattleSceneStub {
 		}
 
 		if (damage === '100%' && pokemon.hp > 0) damage = '99%';
-		this.resultAnim(pokemon, this.battle.hardcoreMode ? 'Damage' : '&minus;' + damage, 'bad');
+		this.resultAnim(pokemon, this.battle.hardcoreMode ? 'Damage' : `&minus;${damage}`, 'bad');
 
 		$hp.animate({
 			width: w,
@@ -1482,7 +1482,7 @@ export class BattleScene implements BattleSceneStub {
 			callback = () => { $hp.removeClass('hp-red'); };
 		}
 
-		this.resultAnim(pokemon, this.battle.hardcoreMode ? 'Heal' : '+' + damage, 'good');
+		this.resultAnim(pokemon, this.battle.hardcoreMode ? 'Heal' : `+${damage}`, 'good');
 
 		$hp.animate({
 			width: w,
@@ -1732,7 +1732,7 @@ export class Sprite {
 		if (spriteData) {
 			sp = spriteData;
 			let rawHTML = sp.rawHTML ||
-				'<img src="' + sp.url + '" style="display:none;position:absolute"' + (sp.pixelated ? ' class="pixelated"' : '') + ' />';
+				`<img src="${sp.url!}" style="display:none;position:absolute"${sp.pixelated ? ' class="pixelated"' : ''} />`;
 			this.$el = $(rawHTML);
 		} else {
 			sp = {
@@ -2128,7 +2128,7 @@ export class PokemonSprite extends Sprite {
 		if (this.$el) {
 			this.$el.stop(true, false);
 			this.$el.remove();
-			const $newEl = $('<img src="' + this.sp.url + '" style="display:none;position:absolute"' + (this.sp.pixelated ? ' class="pixelated"' : '') + ' />');
+			const $newEl = $(`<img src="${this.sp.url!}" style="display:none;position:absolute"${this.sp.pixelated ? ' class="pixelated"' : ''} />`);
 			this.$el = $newEl;
 		}
 
@@ -2879,11 +2879,11 @@ export class PokemonSprite extends Sprite {
 			$hptext.hide();
 			$hptextborder.hide();
 		} else if (this.scene.battle.hardcoreMode || this.scene.battle.reportExactHP) {
-			$hptext.html(pokemon.hp + '/');
+			$hptext.html(`${pokemon.hp}/`);
 			$hptext.show();
 			$hptextborder.show();
 		} else {
-			$hptext.html(pokemon.hpWidth(100) + '%');
+			$hptext.html(`${pokemon.hpWidth(100)}%`);
 			$hptext.show();
 			$hptextborder.show();
 		}

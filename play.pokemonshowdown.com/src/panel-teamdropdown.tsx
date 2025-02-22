@@ -24,14 +24,14 @@ export class PSTeambuilder {
 
 			// species
 			let id = toID(set.species);
-			buf += '|' + (toID(set.name || set.species) === id ? '' : id);
+			buf += `|${toID(set.name || set.species) === id ? '' : id}`;
 
 			// item
-			buf += '|' + toID(set.item);
+			buf += `|${toID(set.item)}`;
 
 			// ability
 			id = toID(set.ability);
-			buf += '|' + (id || '-');
+			buf += `|${id || '-'}`;
 
 			// moves
 			buf += '|';
@@ -39,7 +39,7 @@ export class PSTeambuilder {
 				for (let j = 0; j < set.moves.length; j++) {
 					let moveid = toID(set.moves[j]);
 					if (j && !moveid) continue;
-					buf += (j ? ',' : '') + moveid;
+					buf += `${j ? ',' : ''}${moveid}`;
 					if (moveid.substr(0, 11) === 'hiddenpower' && moveid.length > 11) {
 						hasHP = moveid.slice(11);
 					}
@@ -47,35 +47,24 @@ export class PSTeambuilder {
 			}
 
 			// nature
-			buf += '|' + (set.nature || '');
+			buf += `|${set.nature || ''}`;
 
 			// evs
 			if (set.evs) {
-				buf += '|' + (set.evs['hp'] || '') + ',' +
-					(set.evs['atk'] || '') + ',' +
-					(set.evs['def'] || '') + ',' +
-					(set.evs['spa'] || '') + ',' +
-					(set.evs['spd'] || '') + ',' +
-					(set.evs['spe'] || '');
+				buf += `|${set.evs['hp'] || ''},${set.evs['atk'] || ''},${set.evs['def'] || ''},` +
+					`${set.evs['spa'] || ''},${set.evs['spd'] || ''},${set.evs['spe'] || ''}`;
 			} else {
 				buf += '|';
 			}
 
 			// gender
-			if (set.gender) {
-				buf += '|' + set.gender;
-			} else {
-				buf += '|';
-			}
+			buf += `|${set.gender || ''}`;
 
 			// ivs
 			if (set.ivs) {
-				buf += '|' + (set.ivs['hp'] === 31 ? '' : set.ivs['hp']) + ',' +
-					(set.ivs['atk'] === 31 ? '' : set.ivs['atk']) + ',' +
-					(set.ivs['def'] === 31 ? '' : set.ivs['def']) + ',' +
-					(set.ivs['spa'] === 31 ? '' : set.ivs['spa']) + ',' +
-					(set.ivs['spd'] === 31 ? '' : set.ivs['spd']) + ',' +
-					(set.ivs['spe'] === 31 ? '' : set.ivs['spe']);
+				buf += `|${set.ivs['hp'] === 31 ? '' : set.ivs['hp']},${set.ivs['atk'] === 31 ? '' : set.ivs['atk']},` +
+					`${set.ivs['def'] === 31 ? '' : set.ivs['def']},${set.ivs['spa'] === 31 ? '' : set.ivs['spa']},` +
+					`${set.ivs['spd'] === 31 ? '' : set.ivs['spd']},${set.ivs['spe'] === 31 ? '' : set.ivs['spe']}`;
 			} else {
 				buf += '|';
 			}
@@ -89,14 +78,14 @@ export class PSTeambuilder {
 
 			// level
 			if (set.level) {
-				buf += '|' + set.level;
+				buf += `|${set.level}`;
 			} else {
 				buf += '|';
 			}
 
 			// happiness
 			if (set.happiness !== undefined) {
-				buf += '|' + set.happiness;
+				buf += `|${set.happiness}`;
 			} else {
 				buf += '|';
 			}
@@ -105,10 +94,10 @@ export class PSTeambuilder {
 				set.pokeball || (set.hpType && toID(set.hpType) !== hasHP) || set.gigantamax ||
 				(set.dynamaxLevel !== undefined && set.dynamaxLevel !== 10)
 			) {
-				buf += ',' + (set.hpType || '');
-				buf += ',' + toID(set.pokeball);
-				buf += ',' + (set.gigantamax ? 'G' : '');
-				buf += ',' + (set.dynamaxLevel !== undefined && set.dynamaxLevel !== 10 ? set.dynamaxLevel : '');
+				buf += `,${set.hpType || ''}`;
+				buf += `,${toID(set.pokeball)}`;
+				buf += `,${set.gigantamax ? 'G' : ''}`;
+				buf += `,${set.dynamaxLevel !== undefined && set.dynamaxLevel !== 10 ? set.dynamaxLevel : ''}`;
 			}
 		}
 

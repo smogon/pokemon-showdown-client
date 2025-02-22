@@ -367,7 +367,7 @@ class UserPanel extends PSRoomPanel<UserRoom> {
 				{user.avatar !== '[loading]' &&
 					<img
 						class={'trainersprite' + (room.isSelf ? ' yours' : '')}
-						src={Dex.resolveAvatar('' + (user.avatar || 'unknown'))}
+						src={Dex.resolveAvatar(`${user.avatar || 'unknown'}`)}
 					/>}
 				<strong><a
 					href={`//${Config.routes.users}/${user.userid}`} target="_blank" style={away ? {color: '#888888'} : null}

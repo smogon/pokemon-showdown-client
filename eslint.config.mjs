@@ -243,6 +243,17 @@ export const defaultRulesTS = {
 export const defaultRulesTSChecked = {
 	...defaultRulesTS,
 
+	// style
+	// =====
+	"@typescript-eslint/no-unnecessary-type-arguments": "error",
+	"@typescript-eslint/restrict-plus-operands": ["error", {
+		allowBoolean: false, allowNullish: false, allowNumberAndString: false, allowRegExp: false,
+	}],
+	"@typescript-eslint/restrict-template-expressions": ["error", {
+		allow: [{name: ['Error', 'URL', 'URLSearchParams'], from: 'lib'}],
+		allowBoolean: false, allowNever: false, allowNullish: false, allowRegExp: false,
+	}],
+
 	// we use `any`
 	// ============
 	"@typescript-eslint/no-unsafe-assignment": "off",
@@ -441,6 +452,13 @@ export default tseslint.config([
 			"prefer-const": "off",
 			// we use these for grouping
 			"@stylistic/padded-blocks": "off",
+			"@typescript-eslint/restrict-template-expressions": ["error", {
+				allow: [
+					{name: ['Error', 'URL', 'URLSearchParams'], from: 'lib'},
+					{name: ['ModifiableValue'], from: 'file'},
+				],
+				allowBoolean: false, allowNever: false, allowNullish: false, allowRegExp: false,
+			}],
 		},
 	},
 ]);

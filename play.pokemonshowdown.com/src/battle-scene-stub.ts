@@ -25,7 +25,7 @@ export class BattleSceneStub {
 	closeMessagebar(): boolean { return false; }
 	damageAnim(pokemon: Pokemon, damage: string | number): void { }
 	destroy(): void { }
-	finishAnimations(): JQuery.Promise<JQuery<HTMLElement>, any, any> | undefined { return undefined; }
+	finishAnimations(): JQuery.Promise<JQuery> | undefined { return undefined; }
 	healAnim(pokemon: Pokemon, damage: string | number): void { }
 	hideJoinButtons(): void { }
 	incrementTurn(): void { }

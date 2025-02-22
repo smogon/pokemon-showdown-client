@@ -114,7 +114,7 @@ export class MainMenuRoom extends PSRoom {
 
 		window.NonBattleGames = {rps: 'Rock Paper Scissors'};
 		for (let i = 3; i <= 9; i += 2) {
-			window.NonBattleGames['bestof' + i] = 'Best-of-' + i;
+			window.NonBattleGames[`bestof${i}`] = `Best-of-${i}`;
 		}
 		window.BattleFormats = {};
 		for (let j = 1; j < formatsList.length; j++) {

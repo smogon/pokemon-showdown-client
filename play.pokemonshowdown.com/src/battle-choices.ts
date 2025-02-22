@@ -429,7 +429,7 @@ export class BattleChoiceBuilder {
 				throw new Error(`Couldn't find Pokémon "${choice}" to switch to!`);
 			}
 			if (target.fainted) {
-				throw new Error(`${target} is fainted and cannot battle!`);
+				throw new Error(`${target.name} is fainted and cannot battle!`);
 			}
 			return current;
 		}

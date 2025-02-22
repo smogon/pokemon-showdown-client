@@ -907,7 +907,7 @@ export class BattleLog {
 				return {
 					tagName: 'iframe',
 					attribs: [
-						'src', `https://player.twitch.tv/?channel=${channelId}&parent=${location.hostname}&autoplay=false`,
+						'src', `https://player.twitch.tv/?channel=${channelId!}&parent=${location.hostname}&autoplay=false`,
 						'allowfullscreen', 'true', 'height', `${height}`, 'width', `${width}`,
 					],
 				};
@@ -915,7 +915,7 @@ export class BattleLog {
 				// <username> is a custom element that handles namecolors
 				tagName = 'strong';
 				const color = this.usernameColor(toID(getAttrib('name')));
-				const style = getAttrib('style');
+				const style = getAttrib('style') || '';
 				setAttrib('style', `${style};color:${color}`);
 			} else if (tagName === 'spotify') {
 				// <iframe src="https://open.spotify.com/embed/track/6aSYnCIwcLpnDXngGKAEzZ" width="300" height="380" frameborder="0" allowtransparency="true" allow="encrypted-media"></iframe>
@@ -924,7 +924,7 @@ export class BattleLog {
 
 				return {
 					tagName: 'iframe',
-					attribs: ['src', `https://open.spotify.com/embed/track/${songId}`, 'width', '300', 'height', '380', 'frameborder', '0', 'allowtransparency', 'true', 'allow', 'encrypted-media'],
+					attribs: ['src', `https://open.spotify.com/embed/track/${songId!}`, 'width', '300', 'height', '380', 'frameborder', '0', 'allowtransparency', 'true', 'allow', 'encrypted-media'],
 				};
 			} else if (tagName === 'youtube') {
 				// <iframe width="320" height="180" src="https://www.youtube.com/embed/dQw4w9WgXcQ" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
@@ -953,7 +953,7 @@ export class BattleLog {
 						'width', width, 'height', height,
 						'src', `https://www.youtube.com/embed/${videoId}?enablejsapi=1&playsinline=1${time ? `&start=${time}` : ''}`,
 						'frameborder', '0', 'allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture', 'allowfullscreen', 'allowfullscreen',
-						'time', (time || 0) + "",
+						'time', `${time || 0}`,
 					],
 				};
 			} else if (tagName === 'formatselect') {

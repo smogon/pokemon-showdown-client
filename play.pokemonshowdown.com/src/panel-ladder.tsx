@@ -53,7 +53,7 @@ export class LadderRoom extends PSRoom {
 	requestLadderData = (searchValue?: string) => {
 		const {teams} = PS;
 		if (teams.usesLocalLadder) {
-			this.send(`/cmd laddertop ${this.format} ${toID(this.searchValue)}`);
+			this.send(`/cmd laddertop ${this.format!} ${toID(this.searchValue)}`);
 		} else if (this.format !== undefined) {
 			Net('/ladder.php')
 				.get({

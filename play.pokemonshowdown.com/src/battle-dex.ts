@@ -109,7 +109,7 @@ export function toID(text: any) {
 		text = text.userid;
 	}
 	if (typeof text !== 'string' && typeof text !== 'number') return '' as ID;
-	return ('' + text).toLowerCase().replace(/[^a-z0-9]+/g, '') as ID;
+	return `${text}`.toLowerCase().replace(/[^a-z0-9]+/g, '') as ID;
 }
 
 export function toUserid(text: any) {
@@ -175,7 +175,7 @@ export const PSUtils = new class {
 		if (a.reverse) {
 			return PSUtils.compare((b as {reverse: string}).reverse, a.reverse);
 		}
-		throw new Error(`Passed value ${a} is not comparable`);
+		throw new Error(`Passed value ${a as any} is not comparable`);
 	}
 	/**
 	 * Sorts an array according to the callback's output on its elements.
@@ -205,7 +205,7 @@ export function toRoomid(roomid: string) {
 
 export function toName(name: any) {
 	if (typeof name !== 'string' && typeof name !== 'number') return '';
-	name = ('' + name).replace(/[|\s[\],\u202e]+/g, ' ').trim();
+	name = `${name}`.replace(/[|\s[\],\u202e]+/g, ' ').trim();
 	if (name.length > 18) name = name.substr(0, 18).trim();
 
 	// remove zalgo
@@ -870,7 +870,7 @@ export const Dex = new class implements ModdedDex {
 		if (!pokemon) return '';
 		const data = this.getTeambuilderSpriteData(pokemon, gen);
 		const shiny = (data.shiny ? '-shiny' : '');
-		return 'background-image:url(' + Dex.resourcePrefix + data.spriteDir + shiny + '/' + data.spriteid + '.png);background-position:' + data.x + 'px ' + data.y + 'px;background-repeat:no-repeat';
+		return `background-image:url(${Dex.resourcePrefix}${data.spriteDir}${shiny}/${data.spriteid}.png);background-position:${data.x}px ${data.y}px;background-repeat:no-repeat`;
 	}
 
 	getItemIcon(item: any) {
@@ -880,7 +880,7 @@ export const Dex = new class implements ModdedDex {
 
 		let top = Math.floor(num / 16) * 24;
 		let left = (num % 16) * 24;
-		return 'background:transparent url(' + Dex.resourcePrefix + 'sprites/itemicons-sheet.png?v1) no-repeat scroll -' + left + 'px -' + top + 'px';
+		return `background:transparent url(${Dex.resourcePrefix}sprites/itemicons-sheet.png?v1) no-repeat scroll -${left}px -${top}px`;
 	}
 
 	getTypeIcon(type: string | null, b?: boolean) { // b is just for utilichart.js
@@ -1081,7 +1081,7 @@ export class ModdedDex {
 			let data = {...Dex.types.get(name)};
 
 			for (let i = 7; i >= this.gen; i--) {
-				const table = window.BattleTeambuilderTable['gen' + i];
+				const table = window.BattleTeambuilderTable[`gen${i}`];
 				if (id in table.removeType) {
 					data.exists = false;
 					// don't bother correcting its attributes given it doesn't exist
@@ -1239,43 +1239,43 @@ export const Teams = new class {
 		let text = '';
 		for (const curSet of team) {
 			if (curSet.name && curSet.name !== curSet.species) {
-				text += '' + curSet.name + ' (' + curSet.species + ')';
+				text += `${curSet.name} (${curSet.species})`;
 			} else {
-				text += '' + curSet.species;
+				text += `${curSet.species}`;
 			}
 			if (curSet.gender === 'M') text += ' (M)';
 			if (curSet.gender === 'F') text += ' (F)';
 			if (curSet.item) {
-				text += ' @ ' + curSet.item;
+				text += ` @ ${curSet.item}`;
 			}
 			text += "  \n";
 			if (curSet.ability) {
-				text += 'Ability: ' + curSet.ability + "  \n";
+				text += `Ability: ${curSet.ability}  \n`;
 			}
 			if (curSet.level && curSet.level !== 100) {
-				text += 'Level: ' + curSet.level + "  \n";
+				text += `Level: ${curSet.level}  \n`;
 			}
 			if (curSet.shiny) {
 				text += 'Shiny: Yes  \n';
 			}
 			if (typeof curSet.happiness === 'number' && curSet.happiness !== 255 && !isNaN(curSet.happiness)) {
-				text += 'Happiness: ' + curSet.happiness + "  \n";
+				text += `Happiness: ${curSet.happiness}  \n`;
 			}
 			if (curSet.pokeball) {
-				text += 'Pokeball: ' + curSet.pokeball + "  \n";
+				text += `Pokeball: ${curSet.pokeball}  \n`;
 			}
 			if (curSet.hpType) {
-				text += 'Hidden Power: ' + curSet.hpType + "  \n";
+				text += `Hidden Power: ${curSet.hpType}  \n`;
 			}
 			if (typeof curSet.dynamaxLevel === 'number' && curSet.dynamaxLevel !== 10 && !isNaN(curSet.dynamaxLevel)) {
-				text += 'Dynamax Level: ' + curSet.dynamaxLevel + "  \n";
+				text += `Dynamax Level: ${curSet.dynamaxLevel}  \n`;
 			}
 			if (curSet.gigantamax) {
 				text += 'Gigantamax: Yes  \n';
 			}
 			if (gen === 9) {
 				const species = Dex.species.get(curSet.species);
-				text += 'Tera Type: ' + (species.forceTeraType || curSet.teraType || species.types[0]) + "  \n";
+				text += `Tera Type: ${species.forceTeraType || curSet.teraType || species.types[0]}  \n`;
 			}
 			if (!hidestats) {
 				let first = true;
@@ -1289,14 +1289,14 @@ export const Teams = new class {
 						} else {
 							text += ' / ';
 						}
-						text += '' + curSet.evs[j] + ' ' + BattleStatNames[j];
+						text += `${curSet.evs[j]!} ${BattleStatNames[j]}`;
 					}
 				}
 				if (!first) {
 					text += "  \n";
 				}
 				if (curSet.nature) {
-					text += '' + curSet.nature + ' Nature' + "  \n";
+					text += `${curSet.nature} Nature  \n`;
 				}
 				first = true;
 				if (curSet.ivs) {
@@ -1337,7 +1337,7 @@ export const Teams = new class {
 							} else {
 								text += ' / ';
 							}
-							text += '' + curSet.ivs[stat] + ' ' + BattleStatNames[stat];
+							text += `${curSet.ivs[stat]} ${BattleStatNames[stat]}`;
 						}
 					}
 				}
@@ -1347,11 +1347,11 @@ export const Teams = new class {
 			}
 			if (curSet.moves) {
 				for (let move of curSet.moves) {
-					if (move.substr(0, 13) === 'Hidden Power ') {
-						move = move.substr(0, 13) + '[' + move.substr(13) + ']';
+					if (move.startsWith('Hidden Power ')) {
+						move = `${move.slice(0, 13)}[${move.slice(13)}]`;
 					}
 					if (move) {
-						text += '- ' + move + "  \n";
+						text += `- ${move}  \n`;
 					}
 				}
 			}

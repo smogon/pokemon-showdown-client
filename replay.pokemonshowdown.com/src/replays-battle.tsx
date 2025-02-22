@@ -273,9 +273,9 @@ export class BattlePanel extends preact.Component<{id: string}> {
 		// ladies and gentlemen, JavaScript dates
 		const timestamp = (this.result?.uploadtime || 0) * 1000;
 		const date = new Date(timestamp);
-		filename += '-' + date.getFullYear();
-		filename += (date.getMonth() >= 9 ? '-' : '-0') + (date.getMonth() + 1);
-		filename += (date.getDate() >= 10 ? '-' : '-0') + date.getDate();
+		filename += `-${date.getFullYear()}`;
+		filename += `${date.getMonth() >= 9 ? '-' : '-0'}${date.getMonth() + 1}`;
+		filename += `${date.getDate() >= 10 ? '-' : '-0'}${date.getDate()}`;
 
 		filename += '-' + toID(this.battle.p1.name);
 		filename += '-' + toID(this.battle.p2.name);
@@ -348,7 +348,7 @@ export class BattlePanel extends preact.Component<{id: string}> {
 		this.forceUpdate();
 	};
 	openTurn = (e: Event) => {
-		this.turnView = `${this.battle?.turn}` || true;
+		this.turnView = `${this.battle?.turn || ''}` || true;
 		this.autofocusTurnView = 'select';
 		e.preventDefault();
 		this.forceUpdate();
