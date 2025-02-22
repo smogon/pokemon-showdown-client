@@ -422,17 +422,19 @@ export class BattlePanel extends preact.Component<{id: string}> {
 
 		return <div class="replay-controls">
 			<p>
-				{atEnd && this.battle ?
+				{atEnd && this.battle ? (
 					<button onClick={this.replay} class="button" style={{width: '5em', marginRight: '3px'}}>
 						<i class="fa fa-undo"></i><br />Replay
-					</button> :
-					(!this.battle || this.battle.paused) ?
-						<button onClick={this.play} class="button" disabled={!this.battle} style={{width: '5em', marginRight: '3px'}}>
-							<i class="fa fa-play"></i><br /><strong>Play</strong>
-						</button> :
-						<button onClick={this.pause} class="button" style={{width: '5em', marginRight: '3px'}}>
-							<i class="fa fa-pause"></i><br /><strong>Pause</strong>
-						</button>} {}
+					</button>
+				) : !this.battle || this.battle.paused ? (
+					<button onClick={this.play} class="button" disabled={!this.battle} style={{width: '5em', marginRight: '3px'}}>
+						<i class="fa fa-play"></i><br /><strong>Play</strong>
+					</button>
+				) : (
+					<button onClick={this.pause} class="button" style={{width: '5em', marginRight: '3px'}}>
+						<i class="fa fa-pause"></i><br /><strong>Pause</strong>
+					</button>
+				)} {}
 				<button class="button button-first" disabled={atStart} onClick={this.firstTurn}>
 					<i class="fa fa-fast-backward"></i><br />First turn
 				</button>
