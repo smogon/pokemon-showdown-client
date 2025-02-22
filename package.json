@@ -9,9 +9,9 @@
     "url": "https://github.com/Zarel/Pokemon-Showdown-Client.git"
   },
   "scripts": {
-    "lint": "eslint",
-    "test": "node build && tsc && npm run lint && mocha test/*.js",
-    "fix": "eslint --fix",
+    "lint": "eslint --cache --cache-location caches/eslintcache.json",
+    "test": "node build && tsc && eslint --cache --cache-location caches/eslintcache.json --max-warnings 0 && mocha test/*.js",
+    "fix": "eslint --cache --cache-location caches/eslintcache.json --fix",
     "build": "node build",
     "build-full": "node build full"
   },

@@ -267,6 +267,8 @@ export const defaultRulesTSChecked = {
 /** @type {NonNullable<Config['rules']>} */
 export const defaultRulesES3 = {
 	...defaultRules,
+	// required in ES3
+	// ================
 	"no-var": "off",
 	"object-shorthand": ["error", "never"],
 	"prefer-arrow-callback": "off",
@@ -277,13 +279,6 @@ export const defaultRulesES3 = {
 	"prefer-spread": "off",
 	"radix": "off",
 	"@stylistic/comma-dangle": "error",
-	// treat var as let
-	// unfortunately incompatible with reusing i
-	// "block-scoped-var": "error",
-	"no-caller": "error",
-	"no-invalid-this": "error",
-	"no-new-wrappers": "error",
-	"no-restricted-globals": ["error", "Proxy", "Reflect", "Symbol", "WeakSet", "WeakMap"],
 	"no-unused-vars": ["warn", {
 		args: "all",
 		argsIgnorePattern: ".",
@@ -292,6 +287,17 @@ export const defaultRulesES3 = {
 		destructuredArrayIgnorePattern: ".",
 		ignoreRestSiblings: true,
 	}],
+
+	// with no block scoping, coming up with original variable names is too hard
+	"no-redeclare": "off",
+
+	// treat var as let
+	// unfortunately doesn't actually let me redeclare
+	// "block-scoped-var": "error",
+	"no-caller": "error",
+	"no-invalid-this": "error",
+	"no-new-wrappers": "error",
+	"no-restricted-globals": ["error", "Proxy", "Reflect", "Symbol", "WeakSet", "WeakMap"],
 	"unicode-bom": "error",
 };
 
@@ -388,7 +394,6 @@ export default tseslint.config([
 			"@stylistic/max-len": "off",
 			// we use these for the big IIFEs that wrap entire files
 			"@stylistic/padded-blocks": "off",
-			"no-redeclare": "off",
 			// TODO: actually fix useless escapes
 			"no-useless-escape": "off",
 			"no-shadow-restricted-names": "error",
@@ -398,7 +403,7 @@ export default tseslint.config([
 	{
 		name: "JavaScript for Node",
 		files: [
-			'*.mjs',
+			'*.mjs', // look mom I'm linting myself!
 			'build-tools/*.js',
 			'build-tools/update',
 			'build-tools/build-*',
