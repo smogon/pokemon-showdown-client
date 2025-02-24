@@ -584,6 +584,8 @@
 
 			this.finalDecisionMove = curActive.maybeDisabled || false;
 			this.finalDecisionSwitch = curActive.maybeTrapped || false;
+			this.finalDecisionPartiallyTrapped = curActive.maybePartiallyTrapped || false;
+			this.finalDecisionPartiallyTrapping = curActive.maybePartiallyTrapping || false;
 			for (var i = pos + 1; i < this.battle.nearSide.active.length; ++i) {
 				var p = this.battle.nearSide.active[i];
 				if (p && !p.fainted) {
@@ -676,8 +678,8 @@
 					var name = move.name;
 					var pp = moveData.pp + '/' + moveData.maxpp;
 					if (!moveData.maxpp) pp = '&ndash;';
-					if (move.id === 'Struggle' || move.id === 'Recharge') pp = '&ndash;';
-					if (move.id === 'Recharge') move.type = '&ndash;';
+					if (move.id === 'Struggle' || move.id === 'Recharge' || move.id === 'Fight') pp = '&ndash;';
+					if (move.id === 'Recharge' || move.id === 'Fight') move.type = '&ndash;';
 					if (name.substr(0, 12) === 'Hidden Power') name = 'Hidden Power';
 					var moveType = this.tooltips.getMoveType(move, typeValueTracker)[0];
 					var tooltipArgs = 'move|' + moveData.move + '|' + pos;
@@ -749,6 +751,12 @@
 				}
 				if (this.finalDecisionMove) {
 					moveMenu += '<em style="display:block;clear:both">You <strong>might</strong> have some moves disabled, so you won\'t be able to cancel an attack!</em><br/>';
+				}
+				if (this.finalDecisionPartiallyTrapped) {
+					moveMenu += '<em style="display:block;clear:both">You <strong>might</strong> be partially trapped, if you are still partially trapped then you might be unable to cancel attempting to attack!</em><br/>';
+				}
+				if (this.finalDecisionPartiallyTrapping) {
+					moveMenu += '<em style="display:block;clear:both">You <strong>might</strong> be partially trapping, if you are still partially trapping then you might be unable to cancel attempting to attack!</em><br/>';
 				}
 				moveMenu += '<div style="clear:left"></div>';
 
@@ -1107,7 +1115,7 @@
 			}
 
 			this.choice = choiceText ? {waiting: true} : null;
-			this.finalDecision = this.finalDecisionMove = this.finalDecisionSwitch = false;
+			this.finalDecision = this.finalDecisionMove = this.finalDecisionSwitch = this.finalDecisionPartiallyTrapped = this.finalDecisionPartiallyTrapping = false;
 			this.request = request;
 			if (request.side) {
 				this.updateSideLocation(request.side);
