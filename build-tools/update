@@ -78,6 +78,7 @@ const compileStartTime = process.hrtime();
 let compiledFiles = 0;
 
 // Babel can't find babelrc if we try to compile stuff in caches/pokemon-showdown/ fsr
+// eslint-disable-next-line no-eval
 const compileOpts = Object.assign(eval('(' + fs.readFileSync('.babelrc') + ')'), {
 	babelrc: false,
 	incremental: true,

@@ -87,11 +87,12 @@ export const defaultRules = {
 	"no-extend-native": "error",
 	"no-extra-bind": "warn",
 	"no-extra-label": "warn",
+	"no-eval": "error",
 	"no-implied-eval": "error",
 	"no-inner-declarations": ["error", "functions"],
 	"no-iterator": "error",
 	"no-fallthrough": ["error", {allowEmptyCase: true, reportUnusedFallthroughComment: true}],
-	"no-promise-executor-return": "error",
+	"no-promise-executor-return": ["error", {allowVoid: true}],
 	"no-return-assign": "error",
 	"no-self-compare": "error",
 	"no-sequences": "error",
@@ -224,7 +225,6 @@ export const defaultRulesTS = {
 	// no way to get it to be less strict unfortunately
 	// "@typescript-eslint/no-misused-spread": "error",
 	"@typescript-eslint/no-non-null-asserted-optional-chain": "error",
-	"@typescript-eslint/consistent-type-imports": "error",
 
 	// naming style
 	// ============
@@ -241,6 +241,7 @@ export const defaultRulesTS = {
 	"@typescript-eslint/array-type": "error",
 	"@typescript-eslint/consistent-type-assertions": ["error", {"assertionStyle": "as"}],
 	"@typescript-eslint/consistent-type-definitions": "off",
+	"@typescript-eslint/consistent-type-imports": ["error", {fixStyle: "inline-type-imports"}],
 	"@typescript-eslint/explicit-member-accessibility": ["error", {"accessibility": "no-public"}],
 	"@typescript-eslint/parameter-properties": "error",
 	// `source` and `target` are frequently used as variables that may point to `this`
