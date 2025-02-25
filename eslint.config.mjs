@@ -88,7 +88,7 @@ export default configure([
 			'build-tools/update',
 			'build-tools/build-*',
 		],
-		extends: [configs.default],
+		extends: [configs.js],
 		languageOptions: {
 			globals: {
 				...globals.builtin,

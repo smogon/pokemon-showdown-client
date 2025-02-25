@@ -246,7 +246,8 @@ export const defaultRulesTS = {
 	// `source` and `target` are frequently used as variables that may point to `this`
 	// or to another `Pokemon` object, depending on how the given method is invoked
 	"@typescript-eslint/no-this-alias": ["error", {"allowedNames": ["source", "target"]}],
-	"@typescript-eslint/no-unnecessary-boolean-literal-compare": "error",
+	// unfortunately this has lots of false positives without strict array/object property access
+	// "@typescript-eslint/no-unnecessary-boolean-literal-compare": "error",
 	"@typescript-eslint/prefer-as-const": "error",
 	"@typescript-eslint/prefer-for-of": "error",
 	"@typescript-eslint/prefer-function-type": "error",
@@ -340,9 +341,18 @@ export const defaultRulesES3TSChecked = {
 	"no-restricted-syntax": ["error", "TaggedTemplateExpression", "YieldExpression", "AwaitExpression", "BigIntLiteral"],
 };
 
+/**
+ * @param {Config[]} configs
+ * @returns {Config}
+ */
 function extractPlugin(configs) {
-	return configs.find(config => !config.rules);
+	return configs.find(config => !config.rules) ||
+		(() => { throw new Error('No plugin found'); })();
 }
+/**
+ * @param {Config[]} configs
+ * @returns {Rules}
+ */
 function extractRules(configs) {
 	const rules = {};
 	for (const config of configs.filter(c => c.rules)) {
@@ -352,8 +362,9 @@ function extractRules(configs) {
 }
 const tseslintPlugin = extractPlugin(tseslint.configs.stylisticTypeChecked);
 
+/** @type {{[k: string]: Config[]}} */
 export const configs = {
-	default: [{
+	js: [{
 		rules: {
 			...eslint.configs.recommended.rules,
 			...defaultRules,
