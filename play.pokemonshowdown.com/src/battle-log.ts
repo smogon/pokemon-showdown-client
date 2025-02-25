@@ -113,7 +113,7 @@ export class BattleLog {
 				if (
 					battle.seeking === Infinity ?
 						battle.currentStep < battle.stepQueue.length - 2000 :
-						battle.turn < battle.seeking! - 100
+						battle.turn < battle.seeking - 100
 				) {
 					this.addSeekEarlierButton();
 					return;
@@ -154,7 +154,7 @@ export class BattleLog {
 			const user = BattleTextParser.parseNameParts(args[1]);
 			if (battle?.ignoreSpects && ' +'.includes(user.group)) return;
 			const formattedUser = user.group + user.name;
-			const isJoin = (args[0].charAt(0) === 'j');
+			const isJoin = (args[0].startsWith('j'));
 			if (!this.joinLeave) {
 				this.joinLeave = {
 					joins: [],
@@ -271,9 +271,11 @@ export class BattleLog {
 			const exportedTeam = team.map(set => {
 				let buf = Teams.export([set], battle.gen).replace(/\n/g, '<br />');
 				if (set.name && set.name !== set.species) {
-					buf = buf.replace(set.name, BattleLog.sanitizeHTML(`<span class="picon" style="${Dex.getPokemonIcon(set.species)}"></span><br />${set.name}`));
+					buf = buf.replace(set.name, BattleLog.sanitizeHTML(
+						`<span class="picon" style="${Dex.getPokemonIcon(set.species)}"></span><br />${set.name}`));
 				} else {
-					buf = buf.replace(set.species, `<span class="picon" style="${Dex.getPokemonIcon(set.species)}"></span><br />${set.species}`);
+					buf = buf.replace(set.species,
+						`<span class="picon" style="${Dex.getPokemonIcon(set.species)}"></span><br />${set.species}`);
 				}
 				if (set.item) {
 					buf = buf.replace(set.item, `${set.item} <span class="itemicon" style="${Dex.getItemIcon(set.item)}"></span>`);
@@ -380,7 +382,7 @@ export class BattleLog {
 		const messages = message.split('\n').map(line => {
 			line = BattleLog.escapeHTML(line);
 			line = line.replace(/\*\*(.*)\*\*/, '<strong>$1</strong>');
-			line = line.replace(/\|\|([^\|]*)\|\|([^\|]*)\|\|/, '<abbr title="$1">$2</abbr>');
+			line = line.replace(/\|\|([^|]*)\|\|([^|]*)\|\|/, '<abbr title="$1">$2</abbr>');
 			if (line.startsWith('  ')) line = '<small>' + line.trim() + '</small>';
 			return line;
 		});
@@ -574,7 +576,7 @@ export class BattleLog {
 
 		let HLmod = (lum - 0.2) * -150; // -80 (yellow) to 28 (dark blue)
 		if (HLmod > 18) HLmod = (HLmod - 18) * 2.5;
-		else if (HLmod < 0) HLmod = (HLmod - 0) / 3;
+		else if (HLmod < 0) HLmod /= 3;
 		else HLmod = 0;
 		// let mod = ';border-right: ' + Math.abs(HLmod) + 'px solid ' + (HLmod > 0 ? 'red' : '#0088FF');
 		let Hdist = Math.min(Math.abs(180 - H), Math.abs(240 - H));
@@ -616,10 +618,11 @@ export class BattleLog {
 	}
 
 	static prefs(name: string) {
-		// @ts-ignore
+		// @ts-expect-error optional, for old client
 		if (window.Storage?.prefs) return Storage.prefs(name);
-		// @ts-ignore
+		// @ts-expect-error optional, for Preact client
 		if (window.PS) return PS.prefs[name];
+		// may be neither, for e.g. Replays
 		return undefined;
 	}
 
@@ -641,7 +644,7 @@ export class BattleLog {
 
 		let cmd = '';
 		let target = '';
-		if (message.charAt(0) === '/') {
+		if (message.startsWith('/')) {
 			if (message.charAt(1) === '/') {
 				message = message.slice(1);
 			} else {
@@ -753,11 +756,11 @@ export class BattleLog {
 	static interstice = (() => {
 		const whitelist: string[] = Config.whitelist;
 		const patterns = whitelist.map(entry => new RegExp(
-			`^(https?:)?//([A-Za-z0-9-]*\\.)?${entry.replace(/\./g, '\\.')}(/.*)?`,
-		'i'));
+			`^(https?:)?//([A-Za-z0-9-]*\\.)?${entry.replace(/\./g, '\\.')}(/.*)?`, 'i'
+		));
 		return {
 			isWhitelisted(uri: string) {
-				if (uri[0] === '/' && uri[1] !== '/') {
+				if (uri.startsWith('/') && uri[1] !== '/') {
 					// domain-relative URIs are safe
 					return true;
 				}
@@ -904,7 +907,7 @@ export class BattleLog {
 				return {
 					tagName: 'iframe',
 					attribs: [
-						'src', `https://player.twitch.tv/?channel=${channelId}&parent=${location.hostname}&autoplay=false`,
+						'src', `https://player.twitch.tv/?channel=${channelId!}&parent=${location.hostname}&autoplay=false`,
 						'allowfullscreen', 'true', 'height', `${height}`, 'width', `${width}`,
 					],
 				};
@@ -912,7 +915,7 @@ export class BattleLog {
 				// <username> is a custom element that handles namecolors
 				tagName = 'strong';
 				const color = this.usernameColor(toID(getAttrib('name')));
-				const style = getAttrib('style');
+				const style = getAttrib('style') || '';
 				setAttrib('style', `${style};color:${color}`);
 			} else if (tagName === 'spotify') {
 				// <iframe src="https://open.spotify.com/embed/track/6aSYnCIwcLpnDXngGKAEzZ" width="300" height="380" frameborder="0" allowtransparency="true" allow="encrypted-media"></iframe>
@@ -921,7 +924,7 @@ export class BattleLog {
 
 				return {
 					tagName: 'iframe',
-					attribs: ['src', `https://open.spotify.com/embed/track/${songId}`, 'width', '300', 'height', '380', 'frameborder', '0', 'allowtransparency', 'true', 'allow', 'encrypted-media'],
+					attribs: ['src', `https://open.spotify.com/embed/track/${songId!}`, 'width', '300', 'height', '380', 'frameborder', '0', 'allowtransparency', 'true', 'allow', 'encrypted-media'],
 				};
 			} else if (tagName === 'youtube') {
 				// <iframe width="320" height="180" src="https://www.youtube.com/embed/dQw4w9WgXcQ" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
@@ -936,7 +939,7 @@ export class BattleLog {
 				if (Number(height) < 200) {
 					height = window.innerWidth >= 400 ? '225' : '200';
 				}
-				const videoId = /(?:\?v=|\/embed\/)([A-Za-z0-9_\-]+)/.exec(src)?.[1];
+				const videoId = /(?:\?v=|\/embed\/)([A-Za-z0-9_-]+)/.exec(src)?.[1];
 				if (!videoId) return {tagName: 'img', attribs: ['alt', `invalid src for <youtube>`]};
 
 				const time = /(?:\?|&)(?:t|start)=([0-9]+)/.exec(src)?.[1];
@@ -950,7 +953,7 @@ export class BattleLog {
 						'width', width, 'height', height,
 						'src', `https://www.youtube.com/embed/${videoId}?enablejsapi=1&playsinline=1${time ? `&start=${time}` : ''}`,
 						'frameborder', '0', 'allow', 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture', 'allowfullscreen', 'allowfullscreen',
-						'time', (time || 0) + "",
+						'time', `${time || 0}`,
 					],
 				};
 			} else if (tagName === 'formatselect') {
@@ -1081,7 +1084,8 @@ export class BattleLog {
 		// allows T, however it's more practical to also allow spaces.
 		return sanitized.replace(
 			/<time>\s*([+-]?\d{4,}-\d{2}-\d{2})[T ](\d{2}:\d{2}(?::\d{2}(?:\.\d{3})?)?)(Z|[+-]\d{2}:\d{2})?\s*<\/time>/ig,
-		this.localizeTime);
+			this.localizeTime
+		);
 	}
 
 	static initYoutubePlayer(idx: number) {
@@ -1106,7 +1110,6 @@ export class BattleLog {
 				player.seekTo(time);
 			}
 			this.players[idx - 1] = player;
-
 		};
 		// wait for html element to be in DOM
 		this.ensureYoutube().then(() => {
@@ -1211,7 +1214,9 @@ export class BattleLog {
 	static createReplayFileHref(room: {battle: Battle, id?: string, fragment?: string}) {
 		// unescape(encodeURIComponent()) is necessary because btoa doesn't support Unicode
 		const replayFile = BattleLog.createReplayFile(room);
-		if (!replayFile) return 'javascript:alert("You will need to click Download again once the replay file is at the end.");void 0';
+		if (!replayFile) {
+			return 'javascript:alert("You will need to click Download again once the replay file is at the end.");void 0';
+		}
 		return 'data:text/plain;base64,' + encodeURIComponent(btoa(unescape(encodeURIComponent(replayFile))));
 	}
 }

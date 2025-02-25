@@ -543,7 +543,7 @@
 				"हिंदी": 'hindi',
 				"日本語": 'japanese',
 				"简体中文": 'simplifiedchinese',
-				"中文": 'traditionalchinese',
+				"中文": 'traditionalchinese'
 			};
 			buf += '<p><label class="optlabel">Language: <select name="language" class="button">';
 			for (var name in possibleLanguages) {

@@ -2,6 +2,5 @@
   "editor.formatOnSave": false,
   "showdown.server": "", // e.g., "?~~localhost:8000"
   "showdown.clientUrl": "http://localhost:8080",
-  "tslint.configFile": "tslint.json",
   "typescript.tsdk": "node_modules/typescript/lib"
 }

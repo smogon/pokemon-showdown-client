@@ -88,30 +88,30 @@
 
 			$wrapper.html(
 				'<div class="tournament-title">' +
-					'<span class="tournament-format"></span> <span class="tournament-generator"></span> Tournament' +
-					'<div class="tournament-status"></div>' +
-					'<div class="tournament-toggle">Toggle</div>' +
+				'	<span class="tournament-format"></span> <span class="tournament-generator"></span> Tournament' +
+				'	<div class="tournament-status"></div>' +
+				'	<div class="tournament-toggle">Toggle</div>' +
 				'</div>' +
 				'<div class="tournament-box">' +
-					'<div class="tournament-bracket"></div>' +
-					'<div class="tournament-tools">' +
-						'<div class="tournament-team"></div>' +
-						'<button class="button tournament-join">Join</button><button class="button tournament-validate"><i class="fa fa-check"></i> Validate</button> <button class="button tournament-leave">Leave</button>' +
-						'<div class="tournament-nomatches">Waiting for battles to become available...</div>' +
-						'<div class="tournament-challenge">' +
-							'<div class="tournament-challenge-user"></div>' +
-							'<button class="button tournament-challenge-challenge"><strong>Ready!</strong></button><span class="tournament-challenge-user-menu"></span>' +
-						'</div>' +
-						'<div class="tournament-challengeby"></div>' +
-						'<div class="tournament-challenging">' +
-							'<div class="tournament-challenging-message"></div>' +
-							'<button class="button tournament-challenge-cancel">Cancel</button>' +
-						'</div>' +
-						'<div class="tournament-challenged">' +
-							'<div class="tournament-challenged-message"></div>' +
-							'<button class="button tournament-challenge-accept"><strong>Ready!</strong></button>' +
-						'</div>' +
-					'</div>' +
+				'	<div class="tournament-bracket"></div>' +
+				'	<div class="tournament-tools">' +
+				'		<div class="tournament-team"></div>' +
+				'		<button class="button tournament-join">Join</button><button class="button tournament-validate"><i class="fa fa-check"></i> Validate</button> <button class="button tournament-leave">Leave</button>' +
+				'		<div class="tournament-nomatches">Waiting for battles to become available...</div>' +
+				'		<div class="tournament-challenge">' +
+				'			<div class="tournament-challenge-user"></div>' +
+				'			<button class="button tournament-challenge-challenge"><strong>Ready!</strong></button><span class="tournament-challenge-user-menu"></span>' +
+				'		</div>' +
+				'		<div class="tournament-challengeby"></div>' +
+				'		<div class="tournament-challenging">' +
+				'			<div class="tournament-challenging-message"></div>' +
+				'			<button class="button tournament-challenge-cancel">Cancel</button>' +
+				'		</div>' +
+				'		<div class="tournament-challenged">' +
+				'			<div class="tournament-challenged-message"></div>' +
+				'			<button class="button tournament-challenge-accept"><strong>Ready!</strong></button>' +
+				'		</div>' +
+				'	</div>' +
 				'</div>');
 
 			this.$title = $wrapper.find('.tournament-title');

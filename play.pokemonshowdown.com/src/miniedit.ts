@@ -31,7 +31,6 @@ export class MiniEdit {
 	 * it doesn't already exist and the user types a newline at the end
 	 * of the text, it wouldn't appear.
 	 */
-	// tslint:disable-next-line
 	_setContent: (text: string) => void;
 	pushHistory?: (text: string, selection: MiniEditSelection) => void;
 	onKeyDown = (ev: KeyboardEvent) => {
@@ -55,7 +54,6 @@ export class MiniEdit {
 		});
 		this.element.addEventListener('keydown', this.onKeyDown);
 
-		// tslint:disable-next-line
 		for (const Plugin of MiniEdit.plugins) new Plugin(this);
 	}
 
@@ -79,7 +77,7 @@ export class MiniEdit {
 		this.pushHistory?.(text, selection);
 	}
 	getValue(): string {
-		let text = this.element.textContent || '';
+		const text = this.element.textContent || '';
 		if (text.endsWith('\n')) return text.slice(0, -1);
 		return text;
 	}

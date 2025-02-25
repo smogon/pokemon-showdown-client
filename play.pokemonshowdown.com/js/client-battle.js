@@ -217,7 +217,8 @@
 						this.battle.stepQueue.push('|' + args.join('|'));
 						break;
 					}
-				} else if (logLine.substr(0, 7) === '|title|') { // eslint-disable-line no-empty
+				} else if (logLine.substr(0, 7) === '|title|') {
+					// empty
 				} else if (logLine.substr(0, 5) === '|win|' || logLine === '|tie') {
 					this.battleEnded = true;
 					this.battle.stepQueue.push(logLine);
@@ -641,7 +642,7 @@
 					} else if (moveTarget === 'normal' || moveTarget === 'adjacentAlly' || moveTarget === 'adjacentAllyOrSelf') {
 						if (Math.abs(activePos - i) > 1) disabled = true;
 					}
-					if (moveTarget !== 'adjacentAllyOrSelf' && activePos == i) disabled = true;
+					if (moveTarget !== 'adjacentAllyOrSelf' && activePos === i) disabled = true;
 
 					if (disabled) {
 						targetMenus[1] += '<button disabled style="visibility:hidden"></button> ';
@@ -840,7 +841,7 @@
 			}
 
 			var switchables = this.request && this.request.side ? this.battle.myPokemon : [];
-			var nearActive = this.battle.nearSide.active;
+			// var nearActive = this.battle.nearSide.active;
 			var isReviving = !!switchables[pos].reviving;
 
 			var requestTitle = '';
@@ -1328,7 +1329,7 @@
 			}
 
 			// After choosing the position to which a pokemon will switch in (Doubles/Triples end-game).
-			if (!this.request || this.request.requestType !== 'switch') return false; //??
+			if (!this.request || this.request.requestType !== 'switch') return false; // ??
 			if (this.choice.canSwitch > _.filter(this.choice.choices, function (choice) {return choice;}).length) {
 				// More switches are pending.
 				this.choice.type = 'switch2';
@@ -1414,8 +1415,10 @@
 				}
 			} else if (this.request.requestType === 'move') {
 				var requestDetails = this.request && this.request.side ? this.battle.myPokemon : [];
-				while (choices.length < this.battle.pokemonControlled &&
-						(!nearActive[choices.length] || requestDetails[choices.length].commanding)) {
+				while (
+					choices.length < this.battle.pokemonControlled &&
+					(!nearActive[choices.length] || requestDetails[choices.length].commanding)
+				) {
 					choices.push('pass');
 				}
 

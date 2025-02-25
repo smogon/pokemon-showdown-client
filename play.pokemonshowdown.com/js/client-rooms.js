@@ -117,8 +117,8 @@
 			if (rooms.userCount) {
 				var userCount = Number(rooms.userCount);
 				var battleCount = Number(rooms.battleCount);
-				var leftSide = '<button class="button" name="finduser" title="Find an online user"><span class="pixelated usercount" title="Meloetta is PS\'s mascot! The Aria forme is about using its voice, and represents our chatrooms." ></span><strong>' + userCount + '</strong> ' + (userCount == 1 ? 'user' : 'users') + ' online</button> ';
-				var rightSide = '<button class="button" name="roomlist" title="Watch an active battle"><span class="pixelated battlecount" title="Meloetta is PS\'s mascot! The Pirouette forme is Fighting-type, and represents our battles." ></span><strong>' + battleCount + '</strong> active ' + (battleCount == 1 ? 'battle' : 'battles') + '</button>';
+				var leftSide = '<button class="button" name="finduser" title="Find an online user"><span class="pixelated usercount" title="Meloetta is PS\'s mascot! The Aria forme is about using its voice, and represents our chatrooms." ></span><strong>' + userCount + '</strong> ' + (userCount === 1 ? 'user' : 'users') + ' online</button> ';
+				var rightSide = '<button class="button" name="roomlist" title="Watch an active battle"><span class="pixelated battlecount" title="Meloetta is PS\'s mascot! The Pirouette forme is Fighting-type, and represents our battles." ></span><strong>' + battleCount + '</strong> active ' + (battleCount === 1 ? 'battle' : 'battles') + '</button>';
 				this.$('.roomlisttop').html('<div class="roomcounters">' + leftSide + '</td><td>' + rightSide + '</div>');
 			}
 
@@ -174,9 +174,11 @@
 			);
 			this.$('.roomlist').last().html(
 				(otherRooms.length ?
-					'<h2 class="rooms-chatrooms">Chat rooms</h2>' + otherRooms.sort(this.compareRooms).map(this.renderRoomBtn).join("") : '') +
+					'<h2 class="rooms-chatrooms">Chat rooms</h2>' + otherRooms.sort(this.compareRooms).map(this.renderRoomBtn).join("") : ''
+				) +
 				(hiddenRooms.length && this.showMoreRooms ?
-					'<h2 class="rooms-chatrooms">Hidden rooms</h2>' + hiddenRooms.sort(this.compareRooms).map(this.renderRoomBtn).join("") : '')
+					'<h2 class="rooms-chatrooms">Hidden rooms</h2>' + hiddenRooms.sort(this.compareRooms).map(this.renderRoomBtn).join("") : ''
+				)
 			);
 		},
 		roomlist: function () {

@@ -15,6 +15,7 @@
     "types": [],
     "include": [
         "./play.pokemonshowdown.com/js/lib/preact.d.ts",
-        "./play.pokemonshowdown.com/src/*"
+        "./play.pokemonshowdown.com/src/*",
+        "./replay.pokemonshowdown.com/src/*"
     ]
 }
