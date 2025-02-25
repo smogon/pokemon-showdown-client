@@ -7,8 +7,8 @@
  * @license AGPLv3
  */
 
-import {PS, PSRoom, type RoomOptions} from "./client-main";
-import {PSPanelWrapper, PSRoomPanel} from "./panels";
+import { PS, PSRoom, type RoomOptions } from "./client-main";
+import { PSPanelWrapper, PSRoomPanel } from "./panels";
 
 // Example room with panel
 

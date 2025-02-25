@@ -11,15 +11,15 @@
  * @license MIT
  */
 
-import type {Battle, Pokemon, Side, WeatherState} from './battle';
-import type {BattleSceneStub} from './battle-scene-stub';
-import {BattleMoveAnims} from './battle-animations-moves';
-import {BattleLog} from './battle-log';
-import {type BattleBGM, BattleSound} from './battle-sound';
-import {Dex, toID, type ID, type SpriteData} from './battle-dex';
-import {BattleNatures} from './battle-dex-data';
-import {BattleTooltips} from './battle-tooltips';
-import {BattleTextParser, type Args, type KWArgs} from './battle-text-parser';
+import type { Battle, Pokemon, Side, WeatherState } from './battle';
+import type { BattleSceneStub } from './battle-scene-stub';
+import { BattleMoveAnims } from './battle-animations-moves';
+import { BattleLog } from './battle-log';
+import { type BattleBGM, BattleSound } from './battle-sound';
+import { Dex, toID, type ID, type SpriteData } from './battle-dex';
+import { BattleNatures } from './battle-dex-data';
+import { BattleTooltips } from './battle-tooltips';
+import { BattleTextParser, type Args, type KWArgs } from './battle-text-parser';
 
 /*
 
@@ -74,14 +74,14 @@ export class BattleScene implements BattleSceneStub {
 	$tooltips: JQuery = null!;
 	tooltips: BattleTooltips;
 
-	sideConditions: [{[id: string]: Sprite[]}, {[id: string]: Sprite[]}] = [{}, {}];
+	sideConditions: [{ [id: string]: Sprite[] }, { [id: string]: Sprite[] }] = [{}, {}];
 
 	preloadDone = 0;
 	preloadNeeded = 0;
 	bgm: BattleBGM | null = null;
 	backdropImage = '';
 	bgmNum = 0;
-	preloadCache: {[url: string]: HTMLImageElement} = {};
+	preloadCache: { [url: string]: HTMLImageElement } = {};
 
 	messagebarOpen = false;
 	customControls = false;
@@ -279,7 +279,7 @@ export class BattleScene implements BattleSceneStub {
 		if (!end.scale && end.scale !== 0 && start.scale) end.scale = start.scale;
 		if (!end.xscale && end.xscale !== 0 && start.xscale) end.xscale = start.xscale;
 		if (!end.yscale && end.yscale !== 0 && start.yscale) end.yscale = start.yscale;
-		end = {...start, ...end};
+		end = { ...start, ...end };
 
 		let startpos = this.pos(start, effect);
 		let endpos = this.posT(end, effect, transition, start);
@@ -290,7 +290,7 @@ export class BattleScene implements BattleSceneStub {
 		$effect = this.$fx.children().last();
 
 		if (start.time) {
-			$effect.css({...startpos, opacity: 0});
+			$effect.css({ ...startpos, opacity: 0 });
 			$effect.delay(start.time).animate({
 				opacity: startpos.opacity,
 			}, 1);
@@ -802,17 +802,17 @@ export class BattleScene implements BattleSceneStub {
 		const tooltips = this.battle.gameType === 'freeforall' ? {
 			// FFA battles are visually rendered as triple battle with the center slots empty
 			// so we swap the 2nd and 3rd tooltips on each side
-			p2b: {top: 70, left: 250, width: 80, height: 100, tooltip: 'activepokemon|1|1'},
-			p2a: {top: 90, left: 390, width: 100, height: 100, tooltip: 'activepokemon|1|0'},
-			p1a: {top: 200, left: 130, width: 120, height: 160, tooltip: 'activepokemon|0|0'},
-			p1b: {top: 200, left: 350, width: 150, height: 160, tooltip: 'activepokemon|0|1'},
+			p2b: { top: 70, left: 250, width: 80, height: 100, tooltip: 'activepokemon|1|1' },
+			p2a: { top: 90, left: 390, width: 100, height: 100, tooltip: 'activepokemon|1|0' },
+			p1a: { top: 200, left: 130, width: 120, height: 160, tooltip: 'activepokemon|0|0' },
+			p1b: { top: 200, left: 350, width: 150, height: 160, tooltip: 'activepokemon|0|1' },
 		} : {
-			p2c: {top: 70, left: 250, width: 80, height: 100, tooltip: 'activepokemon|1|2'},
-			p2b: {top: 85, left: 320, width: 90, height: 100, tooltip: 'activepokemon|1|1'},
-			p2a: {top: 90, left: 390, width: 100, height: 100, tooltip: 'activepokemon|1|0'},
-			p1a: {top: 200, left: 130, width: 120, height: 160, tooltip: 'activepokemon|0|0'},
-			p1b: {top: 200, left: 250, width: 150, height: 160, tooltip: 'activepokemon|0|1'},
-			p1c: {top: 200, left: 350, width: 150, height: 160, tooltip: 'activepokemon|0|2'},
+			p2c: { top: 70, left: 250, width: 80, height: 100, tooltip: 'activepokemon|1|2' },
+			p2b: { top: 85, left: 320, width: 90, height: 100, tooltip: 'activepokemon|1|1' },
+			p2a: { top: 90, left: 390, width: 100, height: 100, tooltip: 'activepokemon|1|0' },
+			p1a: { top: 200, left: 130, width: 120, height: 160, tooltip: 'activepokemon|0|0' },
+			p1b: { top: 200, left: 250, width: 150, height: 160, tooltip: 'activepokemon|0|1' },
+			p1c: { top: 200, left: 350, width: 150, height: 160, tooltip: 'activepokemon|0|2' },
 		};
 		for (const id in tooltips) {
 			let layout = tooltips[id as 'p1a'];
@@ -951,7 +951,7 @@ export class BattleScene implements BattleSceneStub {
 		let weatherhtml = ``;
 
 		if (this.battle.weather) {
-			const weatherNameTable: {[id: string]: string} = {
+			const weatherNameTable: { [id: string]: string } = {
 				sunnyday: 'Sun',
 				desolateland: 'Intense Sun',
 				raindance: 'Rain',
@@ -1030,7 +1030,7 @@ export class BattleScene implements BattleSceneStub {
 			}, this.curWeather ? 300 : 100, () => {
 				this.$weather.html('<em>' + weatherhtml + '</em>');
 				this.$weather.attr('class', weather ? 'weather ' + weather + 'weather' : 'weather');
-				this.$weather.animate({opacity: isIntense || !weather ? 0.9 : 0.5}, 300);
+				this.$weather.animate({ opacity: isIntense || !weather ? 0.9 : 0.5 }, 300);
 			});
 			this.curWeather = weather;
 		} else {
@@ -1043,7 +1043,7 @@ export class BattleScene implements BattleSceneStub {
 				opacity: 0,
 			}, this.curTerrain ? 400 : 1, () => {
 				this.$terrain.attr('class', terrain ? 'weather ' + terrain + 'weather' : 'weather');
-				this.$terrain.animate({top: 0, opacity: 1}, 400);
+				this.$terrain.animate({ top: 0, opacity: 1 }, 400);
 			});
 			this.curTerrain = terrain;
 		}
@@ -1685,7 +1685,7 @@ export class BattleScene implements BattleSceneStub {
 		}
 		this.battle = null!;
 	}
-	static getHPColor(pokemon: {hp: number, maxhp: number}) {
+	static getHPColor(pokemon: { hp: number, maxhp: number }) {
 		let ratio = pokemon.hp / pokemon.maxhp;
 		if (ratio > 0.5) return 'g';
 		if (ratio > 0.2) return 'y';
@@ -1784,7 +1784,7 @@ export class Sprite {
 
 export class PokemonSprite extends Sprite {
 	// HTML strings are constructed from this table and stored back in it to cache them
-	protected static statusTable: {[id: string]: [string, 'good' | 'bad' | 'neutral'] | null | string} = {
+	protected static statusTable: { [id: string]: [string, 'good' | 'bad' | 'neutral'] | null | string } = {
 		formechange: null,
 		typechange: null,
 		typeadd: null,
@@ -1921,7 +1921,7 @@ export class PokemonSprite extends Sprite {
 	left = 0;
 	top = 0;
 
-	effects: {[id: string]: Sprite[]} = {};
+	effects: { [id: string]: Sprite[] } = {};
 
 	constructor(spriteData: SpriteData | null, pos: InitScenePos, scene: BattleScene, isFrontSprite: boolean) {
 		super(spriteData, pos, scene);
@@ -2043,14 +2043,14 @@ export class PokemonSprite extends Sprite {
 		}, this.subsp!), 500);
 
 		this.$sub = null;
-		this.anim({time: 500});
+		this.anim({ time: 500 });
 		if (this.scene.animating) this.scene.waitFor(this.$el);
 	}
 	beforeMove() {
 		if (!this.scene.animating) return false;
 		if (!this.isSubActive) return false;
 		this.isSubActive = false;
-		this.anim({time: 300});
+		this.anim({ time: 300 });
 		this.$sub!.animate(this.scene.pos({
 			x: this.leftof(-50),
 			y: this.y,
@@ -2082,7 +2082,7 @@ export class PokemonSprite extends Sprite {
 				z: this.behind(30),
 				opacity: 0.3,
 			}, this.sp), 300);
-			this.anim({time: 300});
+			this.anim({ time: 300 });
 		});
 		return false;
 	}
@@ -2919,9 +2919,9 @@ interface AnimData {
 	prepareAnim?(scene: BattleScene, args: PokemonSprite[]): void;
 	residualAnim?(scene: BattleScene, args: PokemonSprite[]): void;
 }
-export type AnimTable = {[k: string]: AnimData};
+export type AnimTable = { [k: string]: AnimData };
 
-const BattleEffects: {[k: string]: SpriteData} = {
+const BattleEffects: { [k: string]: SpriteData } = {
 	wisp: {
 		url: 'wisp.png',
 		w: 100, h: 100,
@@ -4265,16 +4265,16 @@ export const BattleOtherAnims: AnimTable = {
 	},
 	shake: {
 		anim(scene, [attacker]) {
-			attacker.anim({x: attacker.x - 10, time: 200});
-			attacker.anim({x: attacker.x + 10, time: 300});
-			attacker.anim({x: attacker.x, time: 200});
+			attacker.anim({ x: attacker.x - 10, time: 200 });
+			attacker.anim({ x: attacker.x + 10, time: 300 });
+			attacker.anim({ x: attacker.x, time: 200 });
 		},
 	},
 	dance: {
 		anim(scene, [attacker]) {
-			attacker.anim({x: attacker.x - 10});
-			attacker.anim({x: attacker.x + 10});
-			attacker.anim({x: attacker.x});
+			attacker.anim({ x: attacker.x - 10 });
+			attacker.anim({ x: attacker.x + 10 });
+			attacker.anim({ x: attacker.x });
 		},
 	},
 	consume: {
@@ -6071,11 +6071,11 @@ export const BattleStatusAnims: AnimTable = {
 		anim(scene, [attacker]) {
 			scene.backgroundEffect('#000000', 700, 0.2);
 			attacker.delay(300);
-			attacker.anim({x: attacker.x - 5, time: 50});
-			attacker.anim({x: attacker.x + 5, time: 50});
-			attacker.anim({x: attacker.x - 5, time: 50});
-			attacker.anim({x: attacker.x + 5, time: 50});
-			attacker.anim({x: attacker.x, time: 50});
+			attacker.anim({ x: attacker.x - 5, time: 50 });
+			attacker.anim({ x: attacker.x + 5, time: 50 });
+			attacker.anim({ x: attacker.x - 5, time: 50 });
+			attacker.anim({ x: attacker.x + 5, time: 50 });
+			attacker.anim({ x: attacker.x, time: 50 });
 
 			scene.showEffect(attacker.sp, {
 				x: attacker.x,
@@ -6171,4 +6171,4 @@ export const BattleStatusAnims: AnimTable = {
 		},
 	},
 };
-BattleStatusAnims['focuspunch'] = {anim: BattleStatusAnims['flinch'].anim};
+BattleStatusAnims['focuspunch'] = { anim: BattleStatusAnims['flinch'].anim };

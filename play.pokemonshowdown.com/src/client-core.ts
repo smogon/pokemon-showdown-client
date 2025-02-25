@@ -115,7 +115,7 @@ declare const ColorThief: any;
 const PSBackground = new class extends PSStreamModel {
 	id = '';
 	curId = '';
-	attrib: {url: string, title: string, artist: string} | null = null;
+	attrib: { url: string, title: string, artist: string } | null = null;
 	changeCount = 0;
 	menuColors: string[] | null = null;
 

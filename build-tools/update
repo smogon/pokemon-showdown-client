@@ -20,6 +20,7 @@ process.chdir(rootDir);
 
 const AUTOCONFIG_START = '/*** Begin automatically generated configuration ***/';
 const AUTOCONFIG_END = '/*** End automatically generated configuration ***/';
+const UTF8 = { encoding: 'utf8' };
 
 function escapeRegex(string) {
 	return string.replace(/[/*.]/g, '\\$&');
@@ -59,7 +60,7 @@ Config.routes = {
 ${AUTOCONFIG_END}`;
 
 // remove old automatically generated configuration and add the new one
-let configBuf = fs.readFileSync('config/config.js', {encoding: 'utf8'});
+let configBuf = fs.readFileSync('config/config.js', UTF8);
 if (autoconfigRegex.test(configBuf)) {
 	configBuf = configBuf.replace(autoconfigRegex, autoconfig);
 } else {
@@ -149,7 +150,7 @@ function addCachebuster(_, attr, url, urlQuery) {
 			let hash = Math.random(); // just in case creating the hash fails
 			try {
 				const filename = url.slice(1).replace('/' + routes.client + '/', '');
-				const fstr = fs.readFileSync(filename, {encoding: 'utf8'});
+				const fstr = fs.readFileSync(filename, UTF8);
 				hash = crypto.createHash('md5').update(fstr).digest('hex').substr(0, 8);
 			} catch {}
 
@@ -158,7 +159,7 @@ function addCachebuster(_, attr, url, urlQuery) {
 			// hardcoded to Replays rn; TODO: generalize
 			let hash;
 			try {
-				const fstr = fs.readFileSync('replay.pokemonshowdown.com/' + url, {encoding: 'utf8'});
+				const fstr = fs.readFileSync('replay.pokemonshowdown.com/' + url, UTF8);
 				hash = crypto.createHash('md5').update(fstr).digest('hex').substr(0, 8);
 			} catch {}
 
@@ -170,13 +171,13 @@ function addCachebuster(_, attr, url, urlQuery) {
 }
 
 // add hashes to js and css files and rewrite URLs
-let indexContents = fs.readFileSync('play.pokemonshowdown.com/index.template.html', {encoding: 'utf8'});
+let indexContents = fs.readFileSync('play.pokemonshowdown.com/index.template.html', UTF8);
 indexContents = indexContents.replace(URL_REGEX, addCachebuster);
-let preactIndexContents = fs.readFileSync('play.pokemonshowdown.com/preactalpha.template.html', {encoding: 'utf8'});
+let preactIndexContents = fs.readFileSync('play.pokemonshowdown.com/preactalpha.template.html', UTF8);
 preactIndexContents = preactIndexContents.replace(URL_REGEX, addCachebuster);
-let crossprotocolContents = fs.readFileSync('play.pokemonshowdown.com/crossprotocol.template.html', {encoding: 'utf8'});
+let crossprotocolContents = fs.readFileSync('play.pokemonshowdown.com/crossprotocol.template.html', UTF8);
 crossprotocolContents = crossprotocolContents.replace(URL_REGEX, addCachebuster);
-let replayEmbedContents = fs.readFileSync('play.pokemonshowdown.com/js/replay-embed.template.js', {encoding: 'utf8'});
+let replayEmbedContents = fs.readFileSync('play.pokemonshowdown.com/js/replay-embed.template.js', UTF8);
 replayEmbedContents = replayEmbedContents.replace(/play\.pokemonshowdown\.com/g, routes.client);
 
 // add news, only if it's actually likely to exist
@@ -214,7 +215,7 @@ fs.writeFileSync('play.pokemonshowdown.com/preactalpha.html', preactIndexContent
 fs.writeFileSync('play.pokemonshowdown.com/crossprotocol.html', crossprotocolContents);
 fs.writeFileSync('play.pokemonshowdown.com/js/replay-embed.js', replayEmbedContents);
 
-let replaysContents = fs.readFileSync('replay.pokemonshowdown.com/index.template.php', {encoding: 'utf8'});
+let replaysContents = fs.readFileSync('replay.pokemonshowdown.com/index.template.php', UTF8);
 replaysContents = replaysContents.replace(URL_REGEX, addCachebuster);
 fs.writeFileSync('replay.pokemonshowdown.com/index.php', replaysContents);
 

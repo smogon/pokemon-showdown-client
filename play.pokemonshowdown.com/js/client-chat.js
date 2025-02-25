@@ -215,7 +215,7 @@
 			var name = $(e.currentTarget).data('name') || $(e.currentTarget).text();
 			var away = $(e.currentTarget).data('away') || false;
 			var status = $(e.currentTarget).data('status');
-			app.addPopup(UserPopup, {roomGroup: roomGroup, name: name, away: away, status: status, sourceEl: e.currentTarget, position: position});
+			app.addPopup(UserPopup, { roomGroup: roomGroup, name: name, away: away, status: status, sourceEl: e.currentTarget, position: position });
 		},
 		openPM: function (e) {
 			e.preventDefault();
@@ -236,10 +236,10 @@
 			app.addPopup(AvatarsPopup);
 		},
 		openSounds: function () {
-			app.addPopup(SoundsPopup, {type: 'semimodal'});
+			app.addPopup(SoundsPopup, { type: 'semimodal' });
 		},
 		openOptions: function () {
-			app.addPopup(OptionsPopup, {type: 'semimodal'});
+			app.addPopup(OptionsPopup, { type: 'semimodal' });
 		},
 
 		// highlight
@@ -247,7 +247,7 @@
 		getHighlight: function (message) {
 			var highlights = Dex.prefs('highlights') || {};
 			if (Array.isArray(highlights)) {
-				highlights = {global: highlights};
+				highlights = { global: highlights };
 				// Migrate from the old highlight system
 				Storage.prefs('highlights', highlights);
 			}
@@ -502,7 +502,7 @@
 				var self = this;
 				var challenge = function (targets) {
 					target = toID(targets[0]);
-					self.challengeData = {userid: target, format: targets.length > 1 ? targets.slice(1).join(',') : '', team: ''};
+					self.challengeData = { userid: target, format: targets.length > 1 ? targets.slice(1).join(',') : '', team: '' };
 					app.on('response:userdetails', self.challengeUserdetails, self);
 					app.send('/cmd userdetails ' + target);
 				};
@@ -575,7 +575,7 @@
 			case 'open':
 				if (this.checkBroadcast(cmd, text)) return false;
 				var openUser = function (target) {
-					app.addPopup(UserPopup, {name: target});
+					app.addPopup(UserPopup, { name: target });
 				};
 				target = toName(target);
 				if (!target) {
@@ -710,7 +710,7 @@
 					if (!userid) {
 						var newsId = $(this).data('newsid');
 						if (newsId) {
-							$.cookie('showdown_readnews', '' + newsId, {expires: 365});
+							$.cookie('showdown_readnews', '' + newsId, { expires: 365 });
 						}
 						$(this).remove();
 						return;
@@ -772,7 +772,7 @@
 					}
 					this.add('Join/leave messages on room ' + room + ': ALWAYS ON');
 				} else {
-					serverShowjoins = {global: 1};
+					serverShowjoins = { global: 1 };
 					this.add('Join/leave messages: ALWAYS ON');
 				}
 				showjoins[Config.server.id] = serverShowjoins;
@@ -791,7 +791,7 @@
 					}
 					this.add('Join/leave messages on room ' + room + ': AUTOMATIC');
 				} else {
-					serverShowjoins = {global: 0};
+					serverShowjoins = { global: 0 };
 					this.add('Join/leave messages: AUTOMATIC');
 				}
 				showjoins[Config.server.id] = serverShowjoins;
@@ -1373,10 +1373,10 @@
 		},
 		requestLeave: function (e) {
 			if (app.rooms[''].games && app.rooms[''].games[this.id]) {
-				app.addPopup(ForfeitPopup, {room: this, sourceEl: e && e.currentTarget, gameType: (this.id.substring(0, 5) === 'help-' ? 'help' : 'game')});
+				app.addPopup(ForfeitPopup, { room: this, sourceEl: e && e.currentTarget, gameType: (this.id.substring(0, 5) === 'help-' ? 'help' : 'game') });
 				return false;
 			} else if (Dex.prefs('leavePopupRoom')) {
-				app.addPopup(ForfeitPopup, {room: this, sourceEl: e && e.currentTarget, gameType: 'room'});
+				app.addPopup(ForfeitPopup, { room: this, sourceEl: e && e.currentTarget, gameType: 'room' });
 				return false;
 			}
 			return true;
@@ -1385,7 +1385,7 @@
 			this.add(data);
 		},
 		getUserGroup: function (userid) {
-			return (app.rooms[this.id].users[userid] || {group: ' '}).group;
+			return (app.rooms[this.id].users[userid] || { group: ' ' }).group;
 		},
 		add: function (log) {
 			if (typeof log === 'string') log = log.split('\n');
@@ -1959,7 +1959,7 @@
 			text += '<button class="userbutton username" data-roomgroup="' + BattleLog.escapeHTML(user.group) + '" data-name="' + BattleLog.escapeHTML(user.name) + '"';
 			text += (user.away ? ' data-away=true' : '') + (user.status ? ' data-status="' + BattleLog.escapeHTML(user.status) + '"' : '') + '>';
 			var group = user.group;
-			var details = Config.groups[group] || {type: 'user'};
+			var details = Config.groups[group] || { type: 'user' };
 			var color = user.away ? 'color:#888;' : BattleLog.hashColor(userid);
 			text += '<em class="group' + (details.group === 2 ? ' staffgroup' : '') + '">' + BattleLog.escapeHTML(group) + '</em>';
 			if (details.type === 'leadership') {
@@ -1991,16 +1991,16 @@
 		comparator: function (a, b) {
 			if (a === b) return 0;
 
-			var aUser = this.room.users[a] || {group: Config.defaultGroup, away: false};
-			var bUser = this.room.users[b] || {group: Config.defaultGroup, away: false};
+			var aUser = this.room.users[a] || { group: Config.defaultGroup, away: false };
+			var bUser = this.room.users[b] || { group: Config.defaultGroup, away: false };
 
 			var aRank = (
 				Config.groups[aUser.group || ' '] ||
-				{order: (Config.defaultOrder || 10006.5)}
+				{ order: (Config.defaultOrder || 10006.5) }
 			).order;
 			var bRank = (
 				Config.groups[bUser.group || ' '] ||
-				{order: (Config.defaultOrder || 10006.5)}
+				{ order: (Config.defaultOrder || 10006.5) }
 			).order;
 
 			if (aRank !== bRank) return aRank - bRank;

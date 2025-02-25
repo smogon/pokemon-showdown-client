@@ -198,10 +198,10 @@
 			app.addPopupPrompt("Username", "Open", function (target) {
 				if (!target) return;
 				if (toID(target) === 'zarel') {
-					app.addPopup(Popup, {htmlMessage: "Zarel is very busy; please don't contact him this way. If you're looking for help, try <a href=\"/help\">joining the Help room</a>?"});
+					app.addPopup(Popup, { htmlMessage: "Zarel is very busy; please don't contact him this way. If you're looking for help, try <a href=\"/help\">joining the Help room</a>?" });
 					return;
 				}
-				app.addPopup(UserPopup, {name: target});
+				app.addPopup(UserPopup, { name: target });
 			});
 		},
 		refresh: function () {
@@ -245,9 +245,9 @@
 				return;
 			}
 			var self = this;
-			app.addPopup(FormatPopup, {format: format, sourceEl: button, selectType: 'watch', onselect: function (newFormat) {
+			app.addPopup(FormatPopup, { format: format, sourceEl: button, selectType: 'watch', onselect: function (newFormat) {
 				self.changeFormat(newFormat);
-			}});
+			} });
 		},
 		changeFormat: function (format) {
 			this.format = format;

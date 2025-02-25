@@ -53,7 +53,7 @@ function updateLearnsets(callback) {
 			);
 		}
 
-		newLearnsetsG6[speciesid] = {learnset: newLearnset};
+		newLearnsetsG6[speciesid] = { learnset: newLearnset };
 	}
 
 	const buf = [];

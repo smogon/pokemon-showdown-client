@@ -1,6 +1,6 @@
 // @ts-check
 
-import {configs, configure, globals} from './eslint-ps-standard.mjs';
+import { configs, configure, globals } from './eslint-ps-standard.mjs';
 
 export default configure([
 	{
@@ -124,8 +124,8 @@ export default configure([
 			"@typescript-eslint/unbound-method": "off",
 			"@typescript-eslint/restrict-template-expressions": ["error", {
 				allow: [
-					{name: ['Error', 'URL', 'URLSearchParams'], from: 'lib'},
-					{name: ['ModifiableValue'], from: 'file'},
+					{ name: ['Error', 'URL', 'URLSearchParams'], from: 'lib' },
+					{ name: ['ModifiableValue'], from: 'file' },
 				],
 				allowBoolean: false, allowNever: false, allowNullish: false, allowRegExp: false,
 			}],

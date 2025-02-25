@@ -1,12 +1,12 @@
 /** @jsx preact.h */
 import preact from '../../play.pokemonshowdown.com/js/lib/preact';
 import $ from 'jquery';
-import {Net} from './utils';
-import {PSRouter, PSReplays} from './replays';
-import {Battle} from '../../play.pokemonshowdown.com/src/battle';
-import {BattleLog} from '../../play.pokemonshowdown.com/src/battle-log';
-import {BattleSound} from '../../play.pokemonshowdown.com/src/battle-sound';
-import type {ID} from '../../play.pokemonshowdown.com/src/battle-dex';
+import { Net } from './utils';
+import { PSRouter, PSReplays } from './replays';
+import { Battle } from '../../play.pokemonshowdown.com/src/battle';
+import { BattleLog } from '../../play.pokemonshowdown.com/src/battle-log';
+import { BattleSound } from '../../play.pokemonshowdown.com/src/battle-sound';
+import type { ID } from '../../play.pokemonshowdown.com/src/battle-dex';
 declare function toID(input: string): string;
 
 function showAd(id: string) {
@@ -44,7 +44,7 @@ export class BattleDiv extends preact.Component {
 		return false;
 	}
 	override render() {
-		return <div class="battle" style={{position: 'relative'}}></div>;
+		return <div class="battle" style={{ position: 'relative' }}></div>;
 	}
 }
 class BattleLogDiv extends preact.Component {
@@ -56,7 +56,7 @@ class BattleLogDiv extends preact.Component {
 	}
 }
 
-export class BattlePanel extends preact.Component<{id: string}> {
+export class BattlePanel extends preact.Component<{ id: string }> {
 	result: {
 		uploadtime: number,
 		id: string,
@@ -281,7 +281,7 @@ export class BattlePanel extends preact.Component<{id: string}> {
 		filename += '-' + toID(this.battle.p2.name);
 
 		const a = e.currentTarget as HTMLAnchorElement;
-		a.href = BattleLog.createReplayFileHref({battle: this.battle});
+		a.href = BattleLog.createReplayFileHref({ battle: this.battle });
 		a.download = filename + '.html';
 
 		e.stopPropagation();
@@ -299,7 +299,7 @@ export class BattlePanel extends preact.Component<{id: string}> {
 		}
 		return 'normal';
 	}
-	changeSpeed = (e: Event | {target: HTMLSelectElement}) => {
+	changeSpeed = (e: Event | { target: HTMLSelectElement }) => {
 		const speed = (e.target as HTMLSelectElement).value;
 		const fadeTable = {
 			hyperfast: 40,
@@ -327,7 +327,7 @@ export class BattlePanel extends preact.Component<{id: string}> {
 		const newValue = values[values.indexOf(target.value) + delta];
 		if (newValue) {
 			target.value = newValue;
-			this.changeSpeed({target});
+			this.changeSpeed({ target });
 		}
 	}
 	toggleMute() {
@@ -375,18 +375,18 @@ export class BattlePanel extends preact.Component<{id: string}> {
 		// a replay gets deleted or made private after you searched for it
 		// but before you clicked it.
 		return <div class={PSRouter.showingLeft() ? 'mainbar has-sidebar' : 'mainbar'} style={position}>
-			<section class="section" style={{maxWidth: '200px'}}>
-				<div style={{textAlign: 'center'}}>
-					<img src="//play.pokemonshowdown.com/sprites/gen5ani/unown-n.gif" alt="" style={{imageRendering: 'pixelated'}} />
-					<img src="//play.pokemonshowdown.com/sprites/gen5ani/unown-o.gif" alt="" style={{imageRendering: 'pixelated'}} />
-					<img src="//play.pokemonshowdown.com/sprites/gen5ani/unown-t.gif" alt="" style={{imageRendering: 'pixelated'}} />
+			<section class="section" style={{ maxWidth: '200px' }}>
+				<div style={{ textAlign: 'center' }}>
+					<img src="//play.pokemonshowdown.com/sprites/gen5ani/unown-n.gif" alt="" style={{ imageRendering: 'pixelated' }} />
+					<img src="//play.pokemonshowdown.com/sprites/gen5ani/unown-o.gif" alt="" style={{ imageRendering: 'pixelated' }} />
+					<img src="//play.pokemonshowdown.com/sprites/gen5ani/unown-t.gif" alt="" style={{ imageRendering: 'pixelated' }} />
 				</div>
-				<div style={{textAlign: 'center'}}>
-					<img src="//play.pokemonshowdown.com/sprites/gen5ani/unown-f.gif" alt="" style={{imageRendering: 'pixelated'}} />
-					<img src="//play.pokemonshowdown.com/sprites/gen5ani/unown-o.gif" alt="" style={{imageRendering: 'pixelated'}} />
-					<img src="//play.pokemonshowdown.com/sprites/gen5ani/unown-u.gif" alt="" style={{imageRendering: 'pixelated'}} />
-					<img src="//play.pokemonshowdown.com/sprites/gen5ani/unown-n.gif" alt="" style={{imageRendering: 'pixelated'}} />
-					<img src="//play.pokemonshowdown.com/sprites/gen5ani/unown-d.gif" alt="" style={{imageRendering: 'pixelated'}} />
+				<div style={{ textAlign: 'center' }}>
+					<img src="//play.pokemonshowdown.com/sprites/gen5ani/unown-f.gif" alt="" style={{ imageRendering: 'pixelated' }} />
+					<img src="//play.pokemonshowdown.com/sprites/gen5ani/unown-o.gif" alt="" style={{ imageRendering: 'pixelated' }} />
+					<img src="//play.pokemonshowdown.com/sprites/gen5ani/unown-u.gif" alt="" style={{ imageRendering: 'pixelated' }} />
+					<img src="//play.pokemonshowdown.com/sprites/gen5ani/unown-n.gif" alt="" style={{ imageRendering: 'pixelated' }} />
+					<img src="//play.pokemonshowdown.com/sprites/gen5ani/unown-d.gif" alt="" style={{ imageRendering: 'pixelated' }} />
 				</div>
 			</section><section class="section">
 				<h1>Not Found</h1>
@@ -423,15 +423,15 @@ export class BattlePanel extends preact.Component<{id: string}> {
 		return <div class="replay-controls">
 			<p>
 				{atEnd && this.battle ? (
-					<button onClick={this.replay} class="button" style={{width: '5em', marginRight: '3px'}}>
+					<button onClick={this.replay} class="button" style={{ width: '5em', marginRight: '3px' }}>
 						<i class="fa fa-undo"></i><br />Replay
 					</button>
 				) : !this.battle || this.battle.paused ? (
-					<button onClick={this.play} class="button" disabled={!this.battle} style={{width: '5em', marginRight: '3px'}}>
+					<button onClick={this.play} class="button" disabled={!this.battle} style={{ width: '5em', marginRight: '3px' }}>
 						<i class="fa fa-play"></i><br /><strong>Play</strong>
 					</button>
 				) : (
-					<button onClick={this.pause} class="button" style={{width: '5em', marginRight: '3px'}}>
+					<button onClick={this.pause} class="button" style={{ width: '5em', marginRight: '3px' }}>
 						<i class="fa fa-pause"></i><br /><strong>Pause</strong>
 					</button>
 				)} {}
@@ -439,12 +439,12 @@ export class BattlePanel extends preact.Component<{id: string}> {
 					<i class="fa fa-fast-backward"></i><br />First turn
 				</button>
 				<button
-					class="button button-first" disabled={atStart} style={{marginLeft: '1px', position: 'relative', zIndex: '1'}}
+					class="button button-first" disabled={atStart} style={{ marginLeft: '1px', position: 'relative', zIndex: '1' }}
 					onClick={this.prevTurn}
 				>
 					<i class="fa fa-step-backward"></i><br />Prev turn
 				</button>
-				<button class="button button-last" disabled={atEnd} style={{marginRight: '2px'}} onClick={this.nextTurn}>
+				<button class="button button-last" disabled={atEnd} style={{ marginRight: '2px' }} onClick={this.nextTurn}>
 					<i class="fa fa-step-forward"></i><br />Skip turn
 				</button>
 				<button class="button button-last" disabled={atEnd} onClick={this.lastTurn}>
@@ -498,7 +498,7 @@ export class BattlePanel extends preact.Component<{id: string}> {
 				<em>Loading...</em>
 			</h1>}
 			{this.result ? <p>
-				<a class="button" href="#" onClick={this.clickDownload} style={{float: 'right'}}>
+				<a class="button" href="#" onClick={this.clickDownload} style={{ float: 'right' }}>
 					<i class="fa fa-download" aria-hidden></i> Download
 				</a>
 				{this.result.uploadtime ? new Date(this.result.uploadtime * 1000).toDateString() : "Unknown upload date"}
@@ -514,16 +514,16 @@ export class BattlePanel extends preact.Component<{id: string}> {
 		let position: any = {};
 		if (PSRouter.showingLeft()) {
 			if (PSRouter.stickyRight) {
-				position = {position: 'sticky', top: '0'};
+				position = { position: 'sticky', top: '0' };
 			} else {
-				position = {position: 'sticky', bottom: '0'};
+				position = { position: 'sticky', bottom: '0' };
 			}
 		}
 
 		if (this.result === null) return this.renderError(position);
 
 		return <div class={PSRouter.showingLeft() ? 'mainbar has-sidebar' : 'mainbar'} style={position}>
-			<div style={{position: 'relative'}}>
+			<div style={{ position: 'relative' }}>
 				<BattleDiv />
 				<BattleLogDiv />
 				{this.renderControls()}

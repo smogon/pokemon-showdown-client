@@ -6,17 +6,17 @@
  */
 
 import preact from "../js/lib/preact";
-import {PSLoginServer} from "./client-connection";
-import {PS, PSRoom, type RoomID, type Team} from "./client-main";
-import {PSPanelWrapper, PSRoomPanel} from "./panels";
-import type {BattlesRoom} from "./panel-battle";
-import type {ChatRoom} from "./panel-chat";
-import type {LadderRoom} from "./panel-ladder";
-import type {RoomsRoom} from "./panel-rooms";
-import {TeamBox} from "./panel-teamdropdown";
-import type {UserRoom} from "./panel-topbar";
-import {Dex, toID, type ID} from "./battle-dex";
-import type {Args} from "./battle-text-parser";
+import { PSLoginServer } from "./client-connection";
+import { PS, PSRoom, type RoomID, type Team } from "./client-main";
+import { PSPanelWrapper, PSRoomPanel } from "./panels";
+import type { BattlesRoom } from "./panel-battle";
+import type { ChatRoom } from "./panel-chat";
+import type { LadderRoom } from "./panel-ladder";
+import type { RoomsRoom } from "./panel-rooms";
+import { TeamBox } from "./panel-teamdropdown";
+import type { UserRoom } from "./panel-topbar";
+import { Dex, toID, type ID } from "./battle-dex";
+import type { Args } from "./battle-text-parser";
 
 export type RoomInfo = {
 	title: string, desc?: string, userCount?: number, section?: string, spotlight?: string, subRooms?: string[],
@@ -31,7 +31,7 @@ export class MainMenuRoom extends PSRoom {
 			status?: string,
 			group?: string,
 			customgroup?: string,
-			rooms?: {[roomid: string]: {isPrivate?: true, p1?: string, p2?: string}},
+			rooms?: { [roomid: string]: { isPrivate?: true, p1?: string, p2?: string } },
 		},
 	} = {};
 	roomsCache: {
@@ -112,7 +112,7 @@ export class MainMenuRoom extends PSRoom {
 
 		let column = 0;
 
-		window.NonBattleGames = {rps: 'Rock Paper Scissors'};
+		window.NonBattleGames = { rps: 'Rock Paper Scissors' };
 		for (let i = 3; i <= 9; i += 2) {
 			window.NonBattleGames[`bestof${i}`] = `Best-of-${i}`;
 		}
@@ -217,7 +217,7 @@ export class MainMenuRoom extends PSRoom {
 		}
 
 		// Match base formats to their variants, if they are unavailable in the server.
-		let multivariantFormats: {[id: string]: 1} = {};
+		let multivariantFormats: { [id: string]: 1 } = {};
 		for (let id in BattleFormats) {
 			let teambuilderFormat = BattleFormats[BattleFormats[id].teambuilderFormat!];
 			if (!teambuilderFormat || multivariantFormats[teambuilderFormat.id]) continue;
@@ -303,7 +303,7 @@ export class MainMenuRoom extends PSRoom {
 class NewsPanel extends PSRoomPanel {
 	override render() {
 		return <PSPanelWrapper room={this.props.room} scrollable>
-			<div class="mini-window-body" dangerouslySetInnerHTML={{__html: PS.newsHTML}}></div>
+			<div class="mini-window-body" dangerouslySetInnerHTML={{ __html: PS.newsHTML }}></div>
 		</PSPanelWrapper>;
 	}
 }
@@ -317,7 +317,7 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
 	};
 	handleDragStart = (e: DragEvent) => {
 		const roomid = (e.currentTarget as HTMLElement).getAttribute('data-roomid') as RoomID;
-		PS.dragging = {type: 'room', roomid};
+		PS.dragging = { type: 'room', roomid };
 	};
 	renderMiniRoom(room: PSRoom) {
 		const roomType = PS.roomTypes[room.type];
@@ -350,7 +350,7 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
 					<p class="error"><strong>Pok&eacute;mon Showdown is offline due to technical difficulties!</strong></p>
 				)}
 				<p>
-					<div style={{textAlign: 'center'}}>
+					<div style={{ textAlign: 'center' }}>
 						<img width="96" height="96" src={`//${Config.routes.client}/sprites/gen5/teddiursa.png`} alt="" />
 					</div>
 					Bear with us as we freak out.
@@ -396,7 +396,7 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
 						</div>
 					</div>
 				</div>
-				<div class="rightmenu" style={{display: PS.leftRoomWidth ? 'none' : 'block'}}>
+				<div class="rightmenu" style={{ display: PS.leftRoomWidth ? 'none' : 'block' }}>
 					<div class="menugroup">
 						{PS.server.id === 'showdown' ? (
 							<p><button class={"mainmenu1" + onlineButton} name="joinRoom" value="rooms">Join chat</button></p>
@@ -420,7 +420,7 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
 	}
 }
 
-export class FormatDropdown extends preact.Component<{format?: string, onChange?: JSX.EventHandler<Event>}> {
+export class FormatDropdown extends preact.Component<{ format?: string, onChange?: JSX.EventHandler<Event> }> {
 	declare base?: HTMLButtonElement;
 	format = '[Gen 7] Random Battle';
 	change = (e: Event) => {
@@ -444,7 +444,7 @@ export class FormatDropdown extends preact.Component<{format?: string, onChange?
 	}
 }
 
-class TeamDropdown extends preact.Component<{format: string}> {
+class TeamDropdown extends preact.Component<{ format: string }> {
 	teamFormat = '';
 	teamKey = '';
 	change = () => {
@@ -494,9 +494,9 @@ export class TeamForm extends preact.Component<{
 	children: preact.ComponentChildren, class?: string, format?: string,
 	onSubmit: null | ((e: Event, format: string, team?: Team) => void),
 }> {
-	override state = {format: '[Gen 7] Random Battle'};
+	override state = { format: '[Gen 7] Random Battle' };
 	changeFormat = (e: Event) => {
-		this.setState({format: (e.target as HTMLButtonElement).value});
+		this.setState({ format: (e.target as HTMLButtonElement).value });
 	};
 	submit = (e: Event) => {
 		e.preventDefault();

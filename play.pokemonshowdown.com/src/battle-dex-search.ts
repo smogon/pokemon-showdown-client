@@ -11,7 +11,7 @@
  * @license MIT
  */
 
-import {Dex, type ModdedDex, toID, type ID} from "./battle-dex";
+import { Dex, type ModdedDex, toID, type ID } from "./battle-dex";
 
 type SearchType = (
 	'pokemon' | 'type' | 'tier' | 'move' | 'item' | 'ability' | 'egggroup' | 'category' | 'article'
@@ -565,7 +565,7 @@ abstract class BattleTypedSearch<T extends SearchType> {
 	 * is wondering why a specific result isn't showing up.
 	 */
 	baseIllegalResults: SearchRow[] | null = null;
-	illegalReasons: {[id: string]: string} | null = null;
+	illegalReasons: { [id: string]: string } | null = null;
 	results: SearchRow[] | null = null;
 
 	protected readonly sortRow: SearchRow | null = null;
@@ -687,7 +687,7 @@ abstract class BattleTypedSearch<T extends SearchType> {
 		}
 
 		if (!this.baseIllegalResults) {
-			const legalityFilter: {[id: string]: 1} = {};
+			const legalityFilter: { [id: string]: 1 } = {};
 			for (const [resultType, value] of this.baseResults) {
 				if (resultType === this.searchType) legalityFilter[value] = 1;
 			}
@@ -884,7 +884,7 @@ abstract class BattleTypedSearch<T extends SearchType> {
 		}
 		return true;
 	}
-	abstract getTable(): {[id: string]: any};
+	abstract getTable(): { [id: string]: any };
 	abstract getDefaultResults(): SearchRow[];
 	abstract getBaseResults(): SearchRow[];
 	abstract filter(input: SearchRow, filters: string[][]): boolean;
@@ -1019,7 +1019,7 @@ class BattlePokemonSearch extends BattleTypedSearch<'pokemon'> {
 			table.tiers = null;
 		}
 		let tierSet: SearchRow[] = table.tierSet;
-		let slices: {[k: string]: number} = table.formatSlices;
+		let slices: { [k: string]: number } = table.formatSlices;
 		if (format === 'ubers' || format === 'uber' || format === 'ubersuu' || format === 'nationaldexdoubles') {
 			tierSet = tierSet.slice(slices.Uber);
 		} else if (isVGCOrBS || (isHackmons && dex.gen === 9 && !this.formatType)) {
@@ -1651,7 +1651,7 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 				for (let moveid in learnset) {
 					let learnsetEntry = learnset[moveid];
 					const move = dex.moves.get(moveid);
-					const minGenCode: {[gen: number]: string} = {6: 'p', 7: 'q', 8: 'g', 9: 'a'};
+					const minGenCode: { [gen: number]: string } = { 6: 'p', 7: 'q', 8: 'g', 9: 'a' };
 					if (regionBornLegality && !learnsetEntry.includes(minGenCode[dex.gen])) {
 						continue;
 					}
@@ -1821,7 +1821,7 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 		const sortOrder = reverseSort ? -1 : 1;
 		switch (sortCol) {
 		case 'power':
-			let powerTable: {[id: string]: number | undefined} = {
+			let powerTable: { [id: string]: number | undefined } = {
 				return: 102, frustration: 102, spitup: 300, trumpcard: 200, naturalgift: 80, grassknot: 120,
 				lowkick: 120, gyroball: 150, electroball: 150, flail: 200, reversal: 200, present: 120,
 				wringout: 120, crushgrip: 120, heatcrash: 120, heavyslam: 120, fling: 130, magnitude: 150,
@@ -1863,7 +1863,7 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 
 class BattleCategorySearch extends BattleTypedSearch<'category'> {
 	getTable() {
-		return {physical: 1, special: 1, status: 1};
+		return { physical: 1, special: 1, status: 1 };
 	}
 	getDefaultResults(): SearchRow[] {
 		return [

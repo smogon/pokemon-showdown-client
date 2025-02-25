@@ -8,10 +8,10 @@
  */
 
 import preact from "../js/lib/preact";
-import {Dex, type ID} from "./battle-dex";
-import type {DexSearch, SearchRow} from "./battle-dex-search";
+import { Dex, type ID } from "./battle-dex";
+import type { DexSearch, SearchRow } from "./battle-dex-search";
 
-export class PSSearchResults extends preact.Component<{search: DexSearch}> {
+export class PSSearchResults extends preact.Component<{ search: DexSearch }> {
 	readonly URL_ROOT = `//${Config.routes.dex}/`;
 
 	renderPokemonSortRow() {
@@ -304,7 +304,7 @@ export class PSSearchResults extends preact.Component<{search: DexSearch}> {
 
 	renderTierRow(id: ID, matchStart: number, matchEnd: number, errorMessage?: preact.ComponentChildren) {
 		// very hardcode
-		const tierTable: {[id: string]: string} = {
+		const tierTable: { [id: string]: string } = {
 			uber: "Uber",
 			caplc: "CAP LC",
 			capnfe: "CAP NFE",
@@ -344,7 +344,7 @@ export class PSSearchResults extends preact.Component<{search: DexSearch}> {
 				.replace(/&lt;em>/g, '<em>').replace(/&lt;\/em>/g, '</em>')
 				.replace(/&lt;strong>/g, '<strong>').replace(/&lt;\/strong>/g, '</strong>');
 			return <li class="result">
-				<p dangerouslySetInnerHTML={{__html: sanitizedHTML}}></p>
+				<p dangerouslySetInnerHTML={{ __html: sanitizedHTML }}></p>
 			</li>;
 		case 'header':
 			return <li class="result"><h3>{id}</h3></li>;

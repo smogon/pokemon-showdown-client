@@ -1,8 +1,8 @@
-import type {Pokemon, Side} from './battle';
-import type {ScenePos, PokemonSprite} from './battle-animations';
-import type {BattleLog} from './battle-log';
-import type {ID} from './battle-dex';
-import type {Args, KWArgs} from './battle-text-parser';
+import type { Pokemon, Side } from './battle';
+import type { ScenePos, PokemonSprite } from './battle-animations';
+import type { BattleLog } from './battle-log';
+import type { ID } from './battle-dex';
+import type { Args, KWArgs } from './battle-text-parser';
 
 export class BattleSceneStub {
 	animating = false;
@@ -13,7 +13,7 @@ export class BattleSceneStub {
 	timeOffset = NaN;
 	interruptionCount = NaN;
 	messagebarOpen = false;
-	log: BattleLog = {add: (args: Args, kwargs?: KWArgs) => {}} as any;
+	log: BattleLog = { add: (args: Args, kwargs?: KWArgs) => {} } as any;
 	$frame?: JQuery;
 
 	abilityActivateAnim(pokemon: Pokemon, result: string): void { }

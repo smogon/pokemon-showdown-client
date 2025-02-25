@@ -303,7 +303,7 @@ var updatePrefs = function () {
 	var oldShowjoins = Storage.prefs('showjoins');
 	if (oldShowjoins !== undefined && typeof oldShowjoins !== 'object') {
 		var showjoins = {};
-		var serverShowjoins = {global: (oldShowjoins ? 1 : 0)};
+		var serverShowjoins = { global: (oldShowjoins ? 1 : 0) };
 		var showroomjoins = Storage.prefs('showroomjoins');
 		for (var roomid in showroomjoins) {
 			serverShowjoins[roomid] = (showroomjoins[roomid] ? 1 : 0);
@@ -537,7 +537,7 @@ Storage.initTestClient = function () {
 				data.sid = sid;
 				get(uri, data, callback, type);
 			} else {
-				app.addPopup(ProxyPopup, {uri: uri, callback: callback});
+				app.addPopup(ProxyPopup, { uri: uri, callback: callback });
 			}
 		};
 		var post = $.post;
@@ -559,7 +559,7 @@ Storage.initTestClient = function () {
 					src += '<input type=hidden name="' + i + '" value="' + BattleLog.escapeHTML(data[i]) + '">';
 				}
 				src += '<input type=submit value="Please click this button first."></form></body></html>';
-				app.addPopup(ProxyPopup, {uri: "data:text/html;charset=UTF-8," + encodeURIComponent(src), callback: callback});
+				app.addPopup(ProxyPopup, { uri: "data:text/html;charset=UTF-8," + encodeURIComponent(src), callback: callback });
 			}
 		};
 		Storage.whenPrefsLoaded.load();
@@ -621,7 +621,7 @@ Storage.compareTeams = function (serverTeam, localTeam) {
 };
 
 Storage.loadRemoteTeams = function (after) {
-	$.get(app.user.getActionPHP(), {act: 'getteams'}, Storage.safeJSON(function (data) {
+	$.get(app.user.getActionPHP(), { act: 'getteams' }, Storage.safeJSON(function (data) {
 		if (data.actionerror) {
 			return app.addPopupMessage('Error loading uploaded teams: ' + data.actionerror);
 		}
@@ -651,7 +651,7 @@ Storage.loadRemoteTeams = function (after) {
 				// team comes down from loginserver as comma-separated list of mons
 				// to save bandwidth
 				var mons = team.team.split(',').map(function (mon) {
-					return {species: mon};
+					return { species: mon };
 				});
 				team.team = Storage.packTeam(mons);
 				Storage.teams.unshift(team);
@@ -937,7 +937,7 @@ Storage.fastUnpackTeam = function (buf) {
 					spe: Number(evs[5]) || 0
 				};
 			} else if (evstring === '0') {
-				set.evs = {hp: 0, atk: 0, def: 0, spa: 0, spd: 0, spe: 0};
+				set.evs = { hp: 0, atk: 0, def: 0, spa: 0, spd: 0, spe: 0 };
 			}
 		}
 		i = j + 1;
@@ -1024,7 +1024,7 @@ Storage.unpackTeam = function (buf) {
 		j = buf.indexOf('|', i);
 		var ability = Dex.abilities.get(buf.substring(i, j)).name;
 		var species = Dex.species.get(set.species);
-		set.ability = (species.abilities && ability in {'': 1, 0: 1, 1: 1, H: 1} ? species.abilities[ability || '0'] : ability);
+		set.ability = (species.abilities && ability in { '': 1, 0: 1, 1: 1, H: 1 } ? species.abilities[ability || '0'] : ability);
 		i = j + 1;
 
 		// moves
@@ -1055,7 +1055,7 @@ Storage.unpackTeam = function (buf) {
 					spe: Number(evs[5]) || 0
 				};
 			} else if (evstring === '0') {
-				set.evs = {hp: 0, atk: 0, def: 0, spa: 0, spd: 0, spe: 0};
+				set.evs = { hp: 0, atk: 0, def: 0, spa: 0, spd: 0, spe: 0 };
 			}
 		}
 		i = j + 1;
@@ -1238,7 +1238,7 @@ Storage.importTeam = function (buffer, teams) {
 			curSet = null;
 			teams.push(Storage.unpackLine(line));
 		} else if (!curSet) {
-			curSet = {name: '', species: '', gender: ''};
+			curSet = { name: '', species: '', gender: '' };
 			team.push(curSet);
 			var atIndex = line.lastIndexOf(' @ ');
 			if (atIndex !== -1) {
@@ -1295,7 +1295,7 @@ Storage.importTeam = function (buffer, teams) {
 		} else if (line.substr(0, 5) === 'EVs: ') {
 			line = line.substr(5);
 			var evLines = line.split('/');
-			curSet.evs = {hp: 0, atk: 0, def: 0, spa: 0, spd: 0, spe: 0};
+			curSet.evs = { hp: 0, atk: 0, def: 0, spa: 0, spd: 0, spe: 0 };
 			for (var j = 0; j < evLines.length; j++) {
 				var evLine = $.trim(evLines[j]);
 				var spaceIndex = evLine.indexOf(' ');
@@ -1308,7 +1308,7 @@ Storage.importTeam = function (buffer, teams) {
 		} else if (line.substr(0, 5) === 'IVs: ') {
 			line = line.substr(5);
 			var ivLines = line.split(' / ');
-			curSet.ivs = {hp: 31, atk: 31, def: 31, spa: 31, spd: 31, spe: 31};
+			curSet.ivs = { hp: 31, atk: 31, def: 31, spa: 31, spd: 31, spe: 31 };
 			for (var j = 0; j < ivLines.length; j++) {
 				var ivLine = ivLines[j];
 				var spaceIndex = ivLine.indexOf(' ');
@@ -1508,7 +1508,7 @@ Storage.initDirectory = function () {
 	var self = this;
 
 	var dir = process.env.HOME || process.env.USERPROFILE || process.env.HOMEPATH;
-	if (!(dir.charAt(dir.length - 1) in {'/': 1, '\\': 1})) dir += '/';
+	if (!(dir.charAt(dir.length - 1) in { '/': 1, '\\': 1 })) dir += '/';
 	fs.stat(dir + 'Documents', function (err, stats) {
 		if (err || !stats.isDirectory()) {
 			fs.stat(dir + 'My Documents', function (err, stats) {
@@ -1859,7 +1859,7 @@ Storage.nwLogChat = function (roomid, line) {
 	var timestamp = '[' + hours + ':' + minutes + '] ';
 
 	if (!this.chatLogStreams[roomid]) {
-		this.chatLogStreams[roomid] = fs.createWriteStream(this.dir + 'Logs/' + chatLogFdMonth + '/' + roomid + '.txt', {flags: 'a'});
+		this.chatLogStreams[roomid] = fs.createWriteStream(this.dir + 'Logs/' + chatLogFdMonth + '/' + roomid + '.txt', { flags: 'a' });
 		this.chatLogStreams[roomid].write('\n\n\nLog starting ' + now + '\n\n');
 	}
 	this.chatLogStreams[roomid].write(timestamp + line + '\n');

@@ -5,10 +5,10 @@
  * @license AGPLv3
  */
 
-import {PS, type Team} from "./client-main";
-import {PSPanelWrapper, PSRoomPanel} from "./panels";
-import {Dex, toID, type ID} from "./battle-dex";
-import {BattleStatIDs, BattleStatNames} from "./battle-dex-data";
+import { PS, type Team } from "./client-main";
+import { PSPanelWrapper, PSRoomPanel } from "./panels";
+import { Dex, toID, type ID } from "./battle-dex";
+import { BattleStatIDs, BattleStatNames } from "./battle-dex-data";
 
 export class PSTeambuilder {
 	static packTeam(team: Dex.PokemonSet[]) {
@@ -112,7 +112,7 @@ export class PSTeambuilder {
 		for (const setBuf of buf.split(`]`)) {
 			const parts = setBuf.split(`|`);
 			if (parts.length < 11) continue;
-			let set: Dex.PokemonSet = {species: '', moves: []};
+			let set: Dex.PokemonSet = { species: '', moves: [] };
 			team.push(set);
 
 			// name
@@ -155,7 +155,7 @@ export class PSTeambuilder {
 						spe: Number(evs[5]) || 0,
 					};
 				} else if (parts[6] === '0') {
-					set.evs = {hp: 0, atk: 0, def: 0, spa: 0, spd: 0, spe: 0};
+					set.evs = { hp: 0, atk: 0, def: 0, spa: 0, spd: 0, spe: 0 };
 				}
 			}
 
@@ -356,7 +356,7 @@ export class PSTeambuilder {
 		} else if (line.startsWith('EVs: ')) {
 			line = line.slice(5);
 			let evLines = line.split('/');
-			set.evs = {hp: 0, atk: 0, def: 0, spa: 0, spd: 0, spe: 0};
+			set.evs = { hp: 0, atk: 0, def: 0, spa: 0, spd: 0, spe: 0 };
 			for (let evLine of evLines) {
 				evLine = evLine.trim();
 				let spaceIndex = evLine.indexOf(' ');
@@ -369,7 +369,7 @@ export class PSTeambuilder {
 		} else if (line.startsWith('IVs: ')) {
 			line = line.slice(5);
 			let ivLines = line.split(' / ');
-			set.ivs = {hp: 31, atk: 31, def: 31, spa: 31, spd: 31, spe: 31};
+			set.ivs = { hp: 31, atk: 31, def: 31, spa: 31, spd: 31, spe: 31 };
 			for (let ivLine of ivLines) {
 				ivLine = ivLine.trim();
 				let spaceIndex = ivLine.indexOf(' ');
@@ -392,7 +392,7 @@ export class PSTeambuilder {
 				const hpType = line.slice(14, -1) as Dex.TypeName;
 				line = 'Hidden Power ' + hpType;
 				if (!set.ivs && Dex.types.isName(hpType)) {
-					set.ivs = {hp: 31, atk: 31, def: 31, spa: 31, spd: 31, spe: 31};
+					set.ivs = { hp: 31, atk: 31, def: 31, spa: 31, spd: 31, spe: 31 };
 					const hpIVs = Dex.types.get(hpType).HPivs || {};
 					for (let stat in hpIVs) {
 						set.ivs[stat as Dex.StatName] = hpIVs[stat as Dex.StatName]!;
@@ -534,7 +534,7 @@ export class PSTeambuilder {
 	}
 }
 
-export function TeamFolder(props: {cur?: boolean, value: string, children: preact.ComponentChildren}) {
+export function TeamFolder(props: { cur?: boolean, value: string, children: preact.ComponentChildren }) {
 	// folders are <div>s rather than <button>s because in theory it has
 	// less weird interactions with HTML5 drag-and-drop
 	if (props.cur) {
@@ -548,7 +548,7 @@ export function TeamFolder(props: {cur?: boolean, value: string, children: preac
 	</div>;
 }
 
-export function TeamBox(props: {team: Team | null, noLink?: boolean, button?: boolean}) {
+export function TeamBox(props: { team: Team | null, noLink?: boolean, button?: boolean }) {
 	const team = props.team;
 	let contents;
 	if (team) {
@@ -647,7 +647,7 @@ class TeamDropdownPanel extends PSRoomPanel {
 		if (availableWidth > 636) width = 613;
 		if (availableWidth > 945) width = 919;
 
-		let teamBuckets: {[folder: string]: Team[]} = {};
+		let teamBuckets: { [folder: string]: Team[] } = {};
 		for (const team of teams) {
 			const list = teamBuckets[team.folder] || (teamBuckets[team.folder] = []);
 			list.push(team);
@@ -718,7 +718,7 @@ class TeamDropdownPanel extends PSRoomPanel {
 				</h2>);
 			}
 			teamList.push(<ul class="teamdropdown" onClick={this.click}>
-				{teamBuckets[folder].map(team => <li key={team.key} style={{display: 'inline-block'}}>
+				{teamBuckets[folder].map(team => <li key={team.key} style={{ display: 'inline-block' }}>
 					<TeamBox team={team} button />
 				</li>)}
 			</ul>);
@@ -749,7 +749,7 @@ export interface FormatData {
 	effectType: 'Format';
 }
 
-declare const BattleFormats: {[id: string]: FormatData};
+declare const BattleFormats: { [id: string]: FormatData };
 
 class FormatDropdownPanel extends PSRoomPanel {
 	gen = '';
@@ -807,7 +807,7 @@ class FormatDropdownPanel extends PSRoomPanel {
 
 		let curSection = '';
 		let curColumnNum = 0;
-		let curColumn: (FormatData | {id: null, section: string})[] = [];
+		let curColumn: (FormatData | { id: null, section: string })[] = [];
 		const columns = [curColumn];
 		for (const format of formats) {
 			if (format.column !== curColumnNum) {
@@ -820,7 +820,7 @@ class FormatDropdownPanel extends PSRoomPanel {
 			if (format.section !== curSection) {
 				curSection = format.section;
 				if (curSection) {
-					curColumn.push({id: null, section: curSection});
+					curColumn.push({ id: null, section: curSection });
 				}
 			}
 			curColumn.push(format);

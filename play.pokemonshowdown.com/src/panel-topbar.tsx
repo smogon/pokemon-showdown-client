@@ -10,11 +10,11 @@
  */
 
 import preact from "../js/lib/preact";
-import {PS, PSRoom, type RoomOptions, type RoomID} from "./client-main";
-import {PSMain, PSPanelWrapper, PSRoomPanel} from "./panels";
-import type {Battle} from "./battle";
-import {Dex, toRoomid, toUserid, type ID} from "./battle-dex";
-import {BattleLog} from "./battle-log";
+import { PS, PSRoom, type RoomOptions, type RoomID } from "./client-main";
+import { PSMain, PSPanelWrapper, PSRoomPanel } from "./panels";
+import type { Battle } from "./battle";
+import { Dex, toRoomid, toUserid, type ID } from "./battle-dex";
+import { BattleLog } from "./battle-log";
 
 window.addEventListener('drop', e => {
 	console.log('drop ' + e.dataTransfer!.dropEffect);
@@ -40,7 +40,7 @@ window.addEventListener('dragover', e => {
 	e.preventDefault();
 });
 
-export class PSHeader extends preact.Component<{style: object}> {
+export class PSHeader extends preact.Component<{ style: object }> {
 	handleDragEnter = (e: DragEvent) => {
 		console.log('dragenter ' + e.dataTransfer!.dropEffect);
 		e.preventDefault();
@@ -76,7 +76,7 @@ export class PSHeader extends preact.Component<{style: object}> {
 		const roomid = PS.router.extractRoomID((e.currentTarget as HTMLAnchorElement).href);
 		if (!roomid) return; // should never happen
 
-		PS.dragging = {type: 'room', roomid};
+		PS.dragging = { type: 'room', roomid };
 	};
 	dragOnto(fromRoom: RoomID, toRoomList: 'leftRoomList' | 'rightRoomList' | 'miniRoomList', toIndex: number) {
 		// one day you will be able to rearrange mainmenu and rooms, but not today
@@ -223,7 +223,7 @@ export class PSHeader extends preact.Component<{style: object}> {
 		if (!PS.user.named) {
 			return <a class="button" href="login">Choose name</a>;
 		}
-		const userColor = window.BattleLog && {color: BattleLog.usernameColor(PS.user.userid)};
+		const userColor = window.BattleLog && { color: BattleLog.usernameColor(PS.user.userid) };
 		return <span class="username" data-name={PS.user.name} style={userColor}>
 			<i class="fa fa-user" style="color:#779EC5"></i> <span class="usernametext">{PS.user.name}</span>
 		</span>;
@@ -245,7 +245,7 @@ export class PSHeader extends preact.Component<{style: object}> {
 				<ul>
 					{PS.leftRoomList.slice(1).map(roomid => this.renderRoomTab(roomid))}
 				</ul>
-				<ul class="siderooms" style={{float: 'none', marginLeft: PS.leftRoomWidth - 144}}>
+				<ul class="siderooms" style={{ float: 'none', marginLeft: PS.leftRoomWidth - 144 }}>
 					{PS.rightRoomList.map(roomid => this.renderRoomTab(roomid))}
 				</ul>
 			</div></div>
@@ -286,7 +286,7 @@ export class UserRoom extends PSRoom {
 class UserPanel extends PSRoomPanel<UserRoom> {
 	override render() {
 		const room = this.props.room;
-		const user = PS.mainmenu.userdetailsCache[room.userid] || {userid: room.userid, avatar: '[loading]'};
+		const user = PS.mainmenu.userdetailsCache[room.userid] || { userid: room.userid, avatar: '[loading]' };
 		const name = room.name.slice(1);
 
 		const group = PS.server.getGroup(room.name);
@@ -370,7 +370,7 @@ class UserPanel extends PSRoomPanel<UserRoom> {
 						src={Dex.resolveAvatar(`${user.avatar || 'unknown'}`)}
 					/>}
 				<strong><a
-					href={`//${Config.routes.users}/${user.userid}`} target="_blank" style={away ? {color: '#888888'} : null}
+					href={`//${Config.routes.users}/${user.userid}`} target="_blank" style={away ? { color: '#888888' } : null}
 				>
 					{name}
 				</a></strong><br />

@@ -6,18 +6,18 @@
  */
 
 import preact from "../js/lib/preact";
-import {PS, PSRoom, type Team} from "./client-main";
-import {PSPanelWrapper, PSRoomPanel} from "./panels";
-import {PSTeambuilder} from "./panel-teamdropdown";
-import {Dex, toID, type ID} from "./battle-dex";
-import {DexSearch} from "./battle-dex-search";
-import {PSSearchResults} from "./battle-searchresults";
+import { PS, PSRoom, type Team } from "./client-main";
+import { PSPanelWrapper, PSRoomPanel } from "./panels";
+import { PSTeambuilder } from "./panel-teamdropdown";
+import { Dex, toID, type ID } from "./battle-dex";
+import { DexSearch } from "./battle-dex-search";
+import { PSSearchResults } from "./battle-searchresults";
 
 class TeamRoom extends PSRoom {
 	team: Team | null = null;
 }
 
-class TeamTextbox extends preact.Component<{team: Team}> {
+class TeamTextbox extends preact.Component<{ team: Team }> {
 	setInfo: {
 		species: string,
 		bottomY: number,
@@ -184,11 +184,13 @@ class TeamTextbox extends preact.Component<{team: Team}> {
 					></span>;
 				})}
 				{this.activeOffsetY >= 0 && (
-					<div class="teaminnertextbox" style={{top: this.activeOffsetY - 1}}></div>
+					<div class="teaminnertextbox" style={{ top: this.activeOffsetY - 1 }}></div>
 				)}
 			</div>
 			{this.activeType && (
-				<div class="searchresults" style={{top: this.activeSetIndex >= 0 ? this.setInfo[this.activeSetIndex].bottomY - 12 : 0}}>
+				<div
+					class="searchresults" style={{ top: this.activeSetIndex >= 0 ? this.setInfo[this.activeSetIndex].bottomY - 12 : 0 }}
+				>
 					<button class="button closesearch" onClick={this.closeMenu}><i class="fa fa-times"></i> Close</button>
 					<PSSearchResults search={this.search} />
 				</div>

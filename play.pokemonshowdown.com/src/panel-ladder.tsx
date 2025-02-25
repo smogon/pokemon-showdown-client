@@ -8,11 +8,11 @@
  */
 
 import preact from "../js/lib/preact";
-import {PS, PSRoom} from "./client-main";
-import {Net} from "./client-connection";
-import {PSPanelWrapper, PSRoomPanel, SanitizedHTML} from "./panels";
-import {BattleLog} from "./battle-log";
-import {toID} from "./battle-dex";
+import { PS, PSRoom } from "./client-main";
+import { Net } from "./client-connection";
+import { PSPanelWrapper, PSRoomPanel, SanitizedHTML } from "./panels";
+import { BattleLog } from "./battle-log";
+import { toID } from "./battle-dex";
 
 export class LadderRoom extends PSRoom {
 	override readonly classType: string = 'ladder';
@@ -51,7 +51,7 @@ export class LadderRoom extends PSRoom {
 		this.update(null);
 	};
 	requestLadderData = (searchValue?: string) => {
-		const {teams} = PS;
+		const { teams } = PS;
 		if (teams.usesLocalLadder) {
 			this.send(`/cmd laddertop ${this.format!} ${toID(this.searchValue)}`);
 		} else if (this.format !== undefined) {
@@ -71,8 +71,8 @@ export class LadderRoom extends PSRoom {
 	};
 }
 
-function LadderFormat(props: {room: LadderRoom}) {
-	const {room} = props;
+function LadderFormat(props: { room: LadderRoom }) {
+	const { room } = props;
 	const {
 		format, searchValue, lastSearch, loading, error, ladderData,
 		setSearchValue, setLastSearch, requestLadderData,
@@ -145,7 +145,7 @@ function LadderFormat(props: {room: LadderRoom}) {
 
 class LadderPanel extends PSRoomPanel<LadderRoom> {
 	override componentDidMount() {
-		const {room} = this.props;
+		const { room } = this.props;
 		// Request ladder data either on mount or after BattleFormats are loaded
 		if (BattleFormats && room.format !== undefined) room.requestLadderData();
 		this.subscriptions.push(
@@ -170,8 +170,8 @@ class LadderPanel extends PSRoomPanel<LadderRoom> {
 			})
 		);
 	}
-	static Notice = (props: {notice: string | undefined}) => {
-		const {notice} = props;
+	static Notice = (props: { notice: string | undefined }) => {
+		const { notice } = props;
 		if (notice) {
 			return (
 				<p>
@@ -217,8 +217,8 @@ class LadderPanel extends PSRoomPanel<LadderRoom> {
 		}
 		return <>{sections}</>;
 	};
-	static ShowFormatList = (props: {room: LadderRoom}) => {
-		const {room} = props;
+	static ShowFormatList = (props: { room: LadderRoom }) => {
+		const { room } = props;
 		return <>
 			<p>
 				<a class="button" href={`/${Config.routes.users}/`} target="_blank">
@@ -235,7 +235,7 @@ class LadderPanel extends PSRoomPanel<LadderRoom> {
 		</>;
 	};
 	override render() {
-		const {room} = this.props;
+		const { room } = this.props;
 		return <PSPanelWrapper room={room} scrollable>
 			<div class="ladder pad">
 				{room.format === undefined && (

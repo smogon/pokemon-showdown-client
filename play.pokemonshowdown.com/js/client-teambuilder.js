@@ -639,9 +639,9 @@
 				if (format === '+') {
 					e.stopImmediatePropagation();
 					var self = this;
-					app.addPopup(FormatPopup, {format: '', sourceEl: e.currentTarget, selectType: 'teambuilder', onselect: function (newFormat) {
+					app.addPopup(FormatPopup, { format: '', sourceEl: e.currentTarget, selectType: 'teambuilder', onselect: function (newFormat) {
 						self.selectFolder(newFormat);
-					}});
+					} });
 					return;
 				}
 				if (format === '++') {
@@ -650,7 +650,7 @@
 					// app.addPopupPrompt("Folder name:", "Create folder", function (newFormat) {
 					// 	self.selectFolder(newFormat + '/');
 					// });
-					app.addPopup(PromptPopup, {message: "Folder name:", button: "Create folder", sourceEl: e.currentTarget, callback: function (name) {
+					app.addPopup(PromptPopup, { message: "Folder name:", button: "Create folder", sourceEl: e.currentTarget, callback: function (name) {
 						name = $.trim(name);
 						if (name.indexOf('/') >= 0 || name.indexOf('\\') >= 0) {
 							app.addPopupMessage("Names can't contain slashes, since they're used as a folder separator.");
@@ -662,7 +662,7 @@
 						}
 						if (!name) return;
 						self.selectFolder(name + '/');
-					}});
+					} });
 					return;
 				}
 			} else {
@@ -677,7 +677,7 @@
 			if (this.curFolder.slice(-1) !== '/') return;
 			var oldFolder = this.curFolder.slice(0, -1);
 			var self = this;
-			app.addPopup(PromptPopup, {message: "Folder name:", button: "Rename folder", value: oldFolder, callback: function (name) {
+			app.addPopup(PromptPopup, { message: "Folder name:", button: "Rename folder", value: oldFolder, callback: function (name) {
 				name = $.trim(name);
 				if (name.indexOf('/') >= 0 || name.indexOf('\\') >= 0) {
 					app.addPopupMessage("Names can't contain slashes, since they're used as a folder separator.");
@@ -697,10 +697,10 @@
 				}
 				if (!window.nodewebkit) Storage.saveTeams();
 				self.selectFolder(name + '/');
-			}});
+			} });
 		},
 		promptDeleteFolder: function () {
-			app.addPopup(DeleteFolderPopup, {folder: this.curFolder, room: this});
+			app.addPopup(DeleteFolderPopup, { folder: this.curFolder, room: this });
 		},
 		deleteFolder: function (format, addName) {
 			if (format.slice(-1) !== '/') return;
@@ -1594,9 +1594,9 @@
 				return;
 			}
 			var self = this;
-			app.addPopup(FormatPopup, {format: format, sourceEl: button, selectType: 'teambuilder', onselect: function (newFormat) {
+			app.addPopup(FormatPopup, { format: format, sourceEl: button, selectType: 'teambuilder', onselect: function (newFormat) {
 				self.changeFormat(newFormat);
-			}});
+			} });
 		},
 		changeFormat: function (format) {
 			this.curTeam.format = format;
@@ -1682,7 +1682,7 @@
 		clipboardExpanded: false,
 		clipboardExpand: function () {
 			var $clipboard = $('.teambuilder-clipboard-data');
-			$clipboard.animate({height: this.clipboardCount() * 34}, 500, function () {
+			$clipboard.animate({ height: this.clipboardCount() * 34 }, 500, function () {
 				setTimeout(function () { $clipboard.focus(); }, 100);
 			});
 
@@ -1692,7 +1692,7 @@
 		},
 		clipboardShrink: function () {
 			var $clipboard = $('.teambuilder-clipboard-data');
-			$clipboard.animate({height: 32}, 500);
+			$clipboard.animate({ height: 32 }, 500);
 
 			setTimeout(function () {
 				this.clipboardExpanded = false;
@@ -1724,7 +1724,7 @@
 			if (this.clipboardCount() === 1) {
 				var $clipboard = $('.teambuilder-clipboard-container').css('opacity', 0);
 				$clipboard.slideDown(250, function () {
-					$clipboard.animate({opacity: 1}, 250);
+					$clipboard.animate({ opacity: 1 }, 250);
 				});
 			}
 		},
@@ -1733,7 +1733,7 @@
 
 			var self = this;
 			var $clipboard = $('.teambuilder-clipboard-container');
-			$clipboard.animate({opacity: 0}, 250, function () {
+			$clipboard.animate({ opacity: 0 }, 250, function () {
 				$clipboard.slideUp(250, function () {
 					self.clipboardUpdate();
 				});
@@ -2047,7 +2047,7 @@
 			var set = this.curSet;
 			if (!set) return;
 
-			var stats = {hp: '', atk: '', def: '', spa: '', spd: '', spe: ''};
+			var stats = { hp: '', atk: '', def: '', spa: '', spd: '', spe: '' };
 
 			var supportsEVs = !this.curTeam.format.includes('letsgo');
 
@@ -2310,7 +2310,7 @@
 				return;
 			}
 
-			var stats = {hp: '', atk: '', def: '', spa: '', spd: '', spe: ''};
+			var stats = { hp: '', atk: '', def: '', spa: '', spd: '', spe: '' };
 			if (this.curTeam.gen === 1) delete stats.spd;
 			if (!set) return;
 			var nature = BattleNatures[set.nature || 'Serious'];
@@ -2708,7 +2708,7 @@
 			} else {
 				var hpTypeX = 0;
 				var i = 1;
-				var stats = {hp: 31, atk: 31, def: 31, spe: 31, spa: 31, spd: 31};
+				var stats = { hp: 31, atk: 31, def: 31, spe: 31, spa: 31, spd: 31 };
 				for (var s in stats) {
 					if (set.ivs[s] === undefined) set.ivs[s] = 31;
 					hpTypeX += i * (set.ivs[s] % 2);
@@ -2847,7 +2847,7 @@
 			if (this.curTeam.gen > 1) {
 				buf += '<div class="formrow"><label class="formlabel">Gender:</label><div>';
 				if (species.gender && !isHackmons) {
-					var genderTable = {'M': "Male", 'F': "Female", 'N': "Genderless"};
+					var genderTable = { 'M': "Male", 'F': "Female", 'N': "Genderless" };
 					buf += genderTable[species.gender];
 				} else {
 					buf += '<label class="checkbox inline"><input type="radio" name="gender" value="M"' + (set.gender === 'M' ? ' checked' : '') + ' /> Male</label> ';
@@ -3049,7 +3049,7 @@
 				i = +$(e.currentTarget).closest('li').attr('value');
 				set = this.curSetList[i];
 			}
-			app.addPopup(AltFormPopup, {curSet: set, index: i, room: this});
+			app.addPopup(AltFormPopup, { curSet: set, index: i, room: this });
 		},
 
 		/*********************************************************
@@ -3290,7 +3290,7 @@
 				set.item = 'Starf Berry';
 				set.ability = 'Harvest';
 				set.moves = ['Substitute', 'Horn Leech', 'Earthquake', 'Phantom Force'];
-				set.evs = {hp: 36, atk: 252, def: 0, spa: 0, spd: 0, spe: 220};
+				set.evs = { hp: 36, atk: 252, def: 0, spa: 0, spd: 0, spe: 220 };
 				set.ivs = {};
 				set.nature = 'Jolly';
 				this.updateSetTop();
@@ -3324,7 +3324,7 @@
 				set.item = 'Leftovers';
 				set.ability = 'Battle Armor';
 				set.moves = ['Acupressure', 'Knock Off', 'Rest', 'Sleep Talk'];
-				set.evs = {hp: 248, atk: 0, def: 96, spa: 0, spd: 108, spe: 56};
+				set.evs = { hp: 248, atk: 0, def: 96, spa: 0, spd: 108, spe: 56 };
 				set.ivs = {};
 				set.nature = 'Impish';
 				this.updateSetTop();
@@ -3424,7 +3424,7 @@
 				if (!this.canHyperTrain(set)) {
 					var hpType = moveName.substr(13);
 
-					set.ivs = {hp: 31, atk: 31, def: 31, spa: 31, spd: 31, spe: 31};
+					set.ivs = { hp: 31, atk: 31, def: 31, spa: 31, spd: 31, spe: 31 };
 					if (this.curTeam.gen > 2) {
 						var HPivs = this.curTeam.dex.types.get(hpType).HPivs;
 						for (var i in HPivs) {
@@ -3732,7 +3732,7 @@
 			buf += '<div style="clear:both"></div>';
 			buf += '</div>';
 
-			this.$el.html(buf).css({'max-width': (4 + spriteSize) * 7});
+			this.$el.html(buf).css({ 'max-width': (4 + spriteSize) * 7 });
 		},
 		setForm: function (form) {
 			var species = Dex.species.get(this.curSet.species);

@@ -28,15 +28,15 @@
  */
 
 // import $ from 'jquery';
-import {BattleSceneStub} from './battle-scene-stub';
-import {BattleLog} from './battle-log';
-import {BattleScene, type PokemonSprite, BattleStatusAnims} from './battle-animations';
-import {Dex, Teams, toID, toUserid, type ID, type ModdedDex} from './battle-dex';
-import {BattleTextParser, type Args, type KWArgs, type SideID} from './battle-text-parser';
-declare const app: {user: AnyObject, rooms: AnyObject, ignore?: AnyObject} | undefined;
+import { BattleSceneStub } from './battle-scene-stub';
+import { BattleLog } from './battle-log';
+import { BattleScene, type PokemonSprite, BattleStatusAnims } from './battle-animations';
+import { Dex, Teams, toID, toUserid, type ID, type ModdedDex } from './battle-dex';
+import { BattleTextParser, type Args, type KWArgs, type SideID } from './battle-text-parser';
+declare const app: { user: AnyObject, rooms: AnyObject, ignore?: AnyObject } | undefined;
 
 /** [id, element?, ...misc] */
-export type EffectState = any[] & {0: ID};
+export type EffectState = any[] & { 0: ID };
 export type WeatherState = [name: string, minTimeLeft: number, maxTimeLeft: number];
 export type HPColor = 'r' | 'y' | 'g';
 
@@ -96,17 +96,17 @@ export class Pokemon implements PokemonDetails, PokemonHealth {
 	terastallized = '';
 	teraType = '';
 
-	boosts: {[stat: string]: number} = {};
+	boosts: { [stat: string]: number } = {};
 	status: Dex.StatusName | 'tox' | '' | '???' = '';
 	statusStage = 0;
-	volatiles: {[effectid: string]: EffectState} = {};
-	turnstatuses: {[effectid: string]: EffectState} = {};
-	movestatuses: {[effectid: string]: EffectState} = {};
+	volatiles: { [effectid: string]: EffectState } = {};
+	turnstatuses: { [effectid: string]: EffectState } = {};
+	movestatuses: { [effectid: string]: EffectState } = {};
 	lastMove = '';
 
 	/** [[moveName, ppUsed]] */
 	moveTrack: [string, number][] = [];
-	statusData = {sleepTurns: 0, toxicTurns: 0};
+	statusData = { sleepTurns: 0, toxicTurns: 0 };
 	timesAttacked = 0;
 
 	sprite: PokemonSprite;
@@ -766,7 +766,7 @@ export class Side {
 		}
 		if (this.pokemon.length > this.totalPokemon || this.battle.speciesClause) {
 			// check for Illusion
-			let existingTable: {[searchid: string]: number} = {};
+			let existingTable: { [searchid: string]: number } = {};
 			let toRemove = -1;
 			for (let poke1i = 0; poke1i < this.pokemon.length; poke1i++) {
 				let poke1 = this.pokemon[poke1i];
@@ -872,7 +872,7 @@ export class Side {
 			pokemon.hpcolor = oldpokemon.hpcolor;
 			pokemon.status = oldpokemon.status;
 			pokemon.copyVolatileFrom(oldpokemon, true);
-			pokemon.statusData = {...oldpokemon.statusData};
+			pokemon.statusData = { ...oldpokemon.statusData };
 			if (oldpokemon.terastallized) {
 				pokemon.terastallized = oldpokemon.terastallized;
 				pokemon.teraType = oldpokemon.terastallized;
@@ -902,7 +902,7 @@ export class Side {
 			pokemon.removeVolatile('formechange' as ID);
 		}
 		if (!['batonpass', 'zbatonpass', 'shedtail', 'teleport'].includes(effect.id)) {
-			this.battle.log(['switchout', pokemon.ident], {from: effect.id});
+			this.battle.log(['switchout', pokemon.ident], { from: effect.id });
 		}
 		pokemon.statusData.toxicTurns = 0;
 		if (this.battle.gen === 5) pokemon.statusData.sleepTurns = 0;
@@ -1100,7 +1100,7 @@ export class Battle {
 	gameType: 'singles' | 'doubles' | 'triples' | 'multi' | 'freeforall' = 'singles';
 	compatMode = true;
 	rated: string | boolean = false;
-	rules: {[ruleName: string]: 1 | 0} = {};
+	rules: { [ruleName: string]: 1 | 0 } = {};
 	isBlitz = false;
 	reportExactHP = false;
 	endLastTurnPending = false;
@@ -1779,7 +1779,7 @@ export class Battle {
 					break;
 				case 'revivalblessing':
 					this.scene.runResidualAnim('wish' as ID, poke);
-					const {siden} = this.parsePokemonId(args[1]);
+					const { siden } = this.parsePokemonId(args[1]);
 					const side = this.sides[siden];
 					poke.fainted = false;
 					poke.status = '';
@@ -2481,7 +2481,7 @@ export class Battle {
 				this.activateAbility(poke, effect);
 			}
 
-			poke.boosts = {...tpoke.boosts};
+			poke.boosts = { ...tpoke.boosts };
 			poke.copyTypesFrom(tpoke, true);
 			poke.ability = tpoke.ability;
 			poke.timesAttacked = tpoke.timesAttacked;
@@ -2740,7 +2740,7 @@ export class Battle {
 					break;
 				case 'skydrop':
 					if (kwArgs.interrupt) {
-						this.scene.anim(poke, {time: 100});
+						this.scene.anim(poke, { time: 100 });
 					}
 					break;
 				case 'confusion':
@@ -2951,7 +2951,7 @@ export class Battle {
 			case 'gravity':
 				poke.removeVolatile('magnetrise' as ID);
 				poke.removeVolatile('telekinesis' as ID);
-				this.scene.anim(poke, {time: 100});
+				this.scene.anim(poke, { time: 100 });
 				break;
 			case 'skillswap': case 'wanderingspirit':
 				if (this.gen <= 4) break;
@@ -3255,17 +3255,17 @@ export class Battle {
 			siden = parseInt(name.charAt(1), 10) - 1;
 			name = name.slice(4);
 		} else if (/^p[1-9][a-f]: /.test(name)) {
-			const slotChart: {[k: string]: number} = {a: 0, b: 1, c: 2, d: 3, e: 4, f: 5};
+			const slotChart: { [k: string]: number } = { a: 0, b: 1, c: 2, d: 3, e: 4, f: 5 };
 			siden = parseInt(name.charAt(1), 10) - 1;
 			slot = slotChart[name.charAt(2)];
 			name = name.slice(5);
 			pokemonid = `p${siden + 1}: ${name}`;
 		}
-		return {name, siden, slot, pokemonid};
+		return { name, siden, slot, pokemonid };
 	}
 	getSwitchedPokemon(pokemonid: string, details: string) {
 		if (pokemonid === '??') throw new Error(`pokemonid not passed`);
-		const {name, siden, slot, pokemonid: parsedPokemonid} = this.parsePokemonId(pokemonid);
+		const { name, siden, slot, pokemonid: parsedPokemonid } = this.parsePokemonId(pokemonid);
 		pokemonid = parsedPokemonid;
 
 		const searchid = `${pokemonid}|${details}`;
@@ -3299,12 +3299,12 @@ export class Battle {
 		return pokemon;
 	}
 	rememberTeamPreviewPokemon(sideid: string, details: string) {
-		const {siden} = this.parsePokemonId(sideid);
+		const { siden } = this.parsePokemonId(sideid);
 
 		return this.sides[siden].addPokemon('', '', details);
 	}
-	findCorrespondingPokemon(serverPokemon: {ident: string, details: string}) {
-		const {siden} = this.parsePokemonId(serverPokemon.ident);
+	findCorrespondingPokemon(serverPokemon: { ident: string, details: string }) {
+		const { siden } = this.parsePokemonId(serverPokemon.ident);
 		const searchid = `${serverPokemon.ident}|${serverPokemon.details}`;
 		for (const pokemon of this.sides[siden].pokemon) {
 			if (pokemon.searchid === searchid) {
@@ -3317,7 +3317,7 @@ export class Battle {
 		if (!pokemonid || pokemonid === '??' || pokemonid === 'null' || pokemonid === 'false') {
 			return null;
 		}
-		const {siden, slot, pokemonid: parsedPokemonid} = this.parsePokemonId(pokemonid);
+		const { siden, slot, pokemonid: parsedPokemonid } = this.parsePokemonId(pokemonid);
 		pokemonid = parsedPokemonid;
 
 		/** if true, don't match an active pokemon */
@@ -3606,7 +3606,7 @@ export class Battle {
 			break;
 		}
 		case 'updatepoke': {
-			const {siden} = this.parsePokemonId(args[1]);
+			const { siden } = this.parsePokemonId(args[1]);
 			const side = this.sides[siden];
 			for (let i = 0; i < side.pokemon.length; i++) {
 				const pokemon = side.pokemon[i];
@@ -3756,7 +3756,7 @@ export class Battle {
 			return;
 		}
 		if (!str) return;
-		const {args, kwArgs} = BattleTextParser.parseBattleLine(str);
+		const { args, kwArgs } = BattleTextParser.parseBattleLine(str);
 
 		if (this.scene.maybeCloseMessagebar(args, kwArgs)) {
 			this.currentStep--;
@@ -3769,7 +3769,7 @@ export class Battle {
 		let nextKwargs: KWArgs = {};
 		const nextLine = this.stepQueue[this.currentStep + 1] || '';
 		if (nextLine.startsWith('|-')) {
-			({args: nextArgs, kwArgs: nextKwargs} = BattleTextParser.parseBattleLine(nextLine));
+			({ args: nextArgs, kwArgs: nextKwargs } = BattleTextParser.parseBattleLine(nextLine));
 		}
 
 		if (this.debug) {

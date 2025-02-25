@@ -609,7 +609,7 @@
 				};
 
 				var nodesByDepth = [];
-				var stack = [{node: data.rootNode, depth: 0}];
+				var stack = [{ node: data.rootNode, depth: 0 }];
 				while (stack.length > 0) {
 					var frame = stack.pop();
 
@@ -619,7 +619,7 @@
 
 					if (!frame.node.children) frame.node.children = [];
 					frame.node.children.forEach(function (child) {
-						stack.push({node: child, depth: frame.depth + 1});
+						stack.push({ node: child, depth: frame.depth + 1 });
 					});
 				}
 				var maxDepth = nodesByDepth.length;
@@ -653,10 +653,10 @@
 
 				var link = d3.svg.diagonal()
 					.source(function (link) {
-						return {x: link.source.x, y: link.source.y + nodeSize.realWidth / 2};
+						return { x: link.source.x, y: link.source.y + nodeSize.realWidth / 2 };
 					})
 					.target(function (link) {
-						return {x: link.target.x, y: link.target.y - nodeSize.realWidth / 2};
+						return { x: link.target.x, y: link.target.y - nodeSize.realWidth / 2 };
 					})
 					.projection(function (link) {
 						return [size.width - link.y, link.x];
@@ -793,20 +793,20 @@
 		};
 		TournamentBox.prototype.showBracketPopup = function (data, isStandalone) {
 			if (isStandalone)
-				app.addPopup(BracketPopup, {$bracket: this.generateBracket(data)});
+				app.addPopup(BracketPopup, { $bracket: this.generateBracket(data) });
 			else
-				this.bracketPopup = app.addPopup(BracketPopup, {parent: this, $bracket: this.generateBracket(data)});
+				this.bracketPopup = app.addPopup(BracketPopup, { parent: this, $bracket: this.generateBracket(data) });
 		};
 
 		TournamentBox.prototype.renderChallengeUsers = function () {
 			return ' <button class="button" value="' + toID(this.info.challenges[0]) + '" name="tournamentButton" data-type="challengeUser">Change opponent</button>';
 		};
 		TournamentBox.prototype.challengeUser = function (user, button) {
-			app.addPopup(UserPopup, {user: user, users: this.info.challenges, sourceEl: button});
+			app.addPopup(UserPopup, { user: user, users: this.info.challenges, sourceEl: button });
 		};
 
 		TournamentBox.prototype.teamSelect = function (team, button) {
-			app.addPopup(TeamPopup, {team: team, format: this.info.teambuilderFormat, sourceEl: button, room: this.room.id, isMoreTeams: false, folderToggleOn: true, folderNotExpanded: []});
+			app.addPopup(TeamPopup, { team: team, format: this.info.teambuilderFormat, sourceEl: button, room: this.room.id, isMoreTeams: false, folderToggleOn: true, folderNotExpanded: [] });
 		};
 
 		return TournamentBox;

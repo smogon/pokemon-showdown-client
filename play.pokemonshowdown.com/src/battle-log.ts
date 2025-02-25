@@ -13,10 +13,10 @@
  * @license MIT
  */
 
-import type {Battle} from './battle';
-import type {BattleScene} from './battle-animations';
-import {Dex, Teams, toID, toRoomid, toUserid, type ID} from './battle-dex';
-import {BattleTextParser, type Args, type KWArgs} from './battle-text-parser';
+import type { Battle } from './battle';
+import type { BattleScene } from './battle-animations';
+import { Dex, Teams, toID, toRoomid, toUserid, type ID } from './battle-dex';
+import { BattleTextParser, type Args, type KWArgs } from './battle-text-parser';
 
 // Caja
 declare const html4: any;
@@ -25,7 +25,7 @@ declare const html: any;
 // defined in battle-log-misc
 declare function MD5(input: string): string;
 declare function formatText(input: string, isTrusted?: boolean): string;
-export {MD5, formatText};
+export { MD5, formatText };
 
 export class BattleLog {
 	elem: HTMLDivElement;
@@ -552,7 +552,7 @@ export class BattleLog {
 		return str.replace(/&quot;/g, '"').replace(/&gt;/g, '>').replace(/&lt;/g, '<').replace(/&amp;/g, '&');
 	}
 
-	static colorCache: {[userid: string]: string} = {};
+	static colorCache: { [userid: string]: string } = {};
 
 	/** @deprecated */
 	static hashColor(name: ID) {
@@ -571,7 +571,7 @@ export class BattleLog {
 		let S = parseInt(hash.substr(0, 4), 16) % 50 + 40; // 40 to 89
 		let L = Math.floor(parseInt(hash.substr(8, 4), 16) % 20 + 30); // 30 to 49
 
-		let {R, G, B} = this.HSLToRGB(H, S, L);
+		let { R, G, B } = this.HSLToRGB(H, S, L);
 		let lum = R * R * R * 0.2126 + G * G * G * 0.7152 + B * B * B * 0.0722; // 0.013 (dark blue) to 0.737 (yellow)
 
 		let HLmod = (lum - 0.2) * -150; // -80 (yellow) to 28 (dark blue)
@@ -586,7 +586,7 @@ export class BattleLog {
 
 		L += HLmod;
 
-		let {R: r, G: g, B: b} = this.HSLToRGB(H, S, L);
+		let { R: r, G: g, B: b } = this.HSLToRGB(H, S, L);
 		const toHex = (x: number) => {
 			const hex = Math.round(x * 255).toString(16);
 			return hex.length === 1 ? '0' + hex : hex;
@@ -614,7 +614,7 @@ export class BattleLog {
 		let R = R1 + m;
 		let G = G1 + m;
 		let B = B1 + m;
-		return {R, G, B};
+		return { R, G, B };
 	}
 
 	static prefs(name: string) {
@@ -940,7 +940,7 @@ export class BattleLog {
 					height = window.innerWidth >= 400 ? '225' : '200';
 				}
 				const videoId = /(?:\?v=|\/embed\/)([A-Za-z0-9_-]+)/.exec(src)?.[1];
-				if (!videoId) return {tagName: 'img', attribs: ['alt', `invalid src for <youtube>`]};
+				if (!videoId) return { tagName: 'img', attribs: ['alt', `invalid src for <youtube>`] };
 
 				const time = /(?:\?|&)(?:t|start)=([0-9]+)/.exec(src)?.[1];
 				this.players.push(null);
@@ -1029,7 +1029,7 @@ export class BattleLog {
 					setAttrib('rel', 'noopener');
 				}
 			}
-			return {tagName, attribs};
+			return { tagName, attribs };
 		};
 	}
 	static localizeTime(full: string, date: string, time: string, timezone?: string) {
@@ -1167,7 +1167,7 @@ export class BattleLog {
 	// This allows pretty much anything about the replay viewer to be
 	// updated as desired.
 
-	static createReplayFile(room: {battle: Battle, id?: string, fragment?: string}) {
+	static createReplayFile(room: { battle: Battle, id?: string, fragment?: string }) {
 		let battle = room.battle;
 		let replayid = room.id;
 		if (replayid) {
@@ -1211,7 +1211,7 @@ export class BattleLog {
 		return buf;
 	}
 
-	static createReplayFileHref(room: {battle: Battle, id?: string, fragment?: string}) {
+	static createReplayFileHref(room: { battle: Battle, id?: string, fragment?: string }) {
 		// unescape(encodeURIComponent()) is necessary because btoa doesn't support Unicode
 		const replayFile = BattleLog.createReplayFile(room);
 		if (!replayFile) {

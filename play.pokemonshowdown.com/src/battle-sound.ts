@@ -1,4 +1,4 @@
-import {PS} from "./client-main";
+import { PS } from "./client-main";
 
 export class BattleBGM {
 	/**
@@ -102,7 +102,7 @@ export class BattleBGM {
 }
 
 export const BattleSound = new class {
-	soundCache: {[url: string]: HTMLAudioElement | undefined} = {};
+	soundCache: { [url: string]: HTMLAudioElement | undefined } = {};
 
 	bgm: BattleBGM[] = [];
 

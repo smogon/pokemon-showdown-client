@@ -5,10 +5,10 @@
  * @license AGPLv3
  */
 
-import {PS, PSRoom, type RoomID, type RoomOptions} from "./client-main";
-import {PSPanelWrapper, PSRoomPanel} from "./panels";
-import type {RoomInfo} from "./panel-mainmenu";
-import {toID} from "./battle-dex";
+import { PS, PSRoom, type RoomID, type RoomOptions } from "./client-main";
+import { PSPanelWrapper, PSRoomPanel } from "./panels";
+import type { RoomInfo } from "./panel-mainmenu";
+import { toID } from "./battle-dex";
 
 export class RoomsRoom extends PSRoom {
 	override readonly classType: string = 'rooms';
@@ -86,7 +86,7 @@ class RoomsPanel extends PSRoomPanel {
 			room.title.replace(/[^A-Z0-9]+/g, '').toLowerCase().startsWith(searchid)
 		);
 
-		const hidden = !exactMatch ? [{title: this.search, desc: "(Private room?)"}] : [];
+		const hidden = !exactMatch ? [{ title: this.search, desc: "(Private room?)" }] : [];
 
 		const autoFill = this.lastKeyCode !== 127 && this.lastKeyCode >= 32;
 		if (autoFill) {
@@ -108,7 +108,7 @@ class RoomsPanel extends PSRoomPanel {
 			searchElem.setSelectionRange(oldSearch.length, oldSearch.length + autoFillValue.length);
 		}
 
-		return {start, abbr, hidden};
+		return { start, abbr, hidden };
 	}
 	override focus() {
 		this.base!.querySelector<HTMLInputElement>('input[type=search]')!.focus();

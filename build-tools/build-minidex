@@ -49,7 +49,7 @@ function updateSizes() {
 			const id = toID(spriteid);
 
 			{
-				const row = {num: species.num};
+				const row = { num: species.num };
 				const frontSize = sizeObj('sprites/ani/' + spriteid + '.gif');
 				if (frontSize) row.front = frontSize;
 				const frontSizeF = sizeObj('sprites/ani/' + spriteid + '-f.gif');
@@ -64,7 +64,7 @@ function updateSizes() {
 			}
 
 			{
-				const g5row = {num: species.num};
+				const g5row = { num: species.num };
 				const frontSize = sizeObj('sprites/gen5ani/' + spriteid + '.gif');
 				if (frontSize) g5row.front = frontSize;
 				const frontSizeF = sizeObj('sprites/gen5ani/' + spriteid + '-f.gif');

@@ -6,18 +6,18 @@
  */
 
 import preact from "../js/lib/preact";
-import {PS, PSRoom, type RoomOptions, type RoomID} from "./client-main";
-import {PSPanelWrapper, PSRoomPanel} from "./panels";
-import {ChatLog, ChatRoom, ChatTextEntry, ChatUserList} from "./panel-chat";
-import {FormatDropdown} from "./panel-mainmenu";
-import {Battle, type Pokemon, type ServerPokemon} from "./battle";
-import {BattleScene} from "./battle-animations";
-import {Dex, toID} from "./battle-dex";
+import { PS, PSRoom, type RoomOptions, type RoomID } from "./client-main";
+import { PSPanelWrapper, PSRoomPanel } from "./panels";
+import { ChatLog, ChatRoom, ChatTextEntry, ChatUserList } from "./panel-chat";
+import { FormatDropdown } from "./panel-mainmenu";
+import { Battle, type Pokemon, type ServerPokemon } from "./battle";
+import { BattleScene } from "./battle-animations";
+import { Dex, toID } from "./battle-dex";
 import {
 	BattleChoiceBuilder, type BattleMoveRequest, type BattleRequest, type BattleRequestSideInfo,
 	type BattleSwitchRequest, type BattleTeamRequest,
 } from "./battle-choices";
-import type {Args} from "./battle-text-parser";
+import type { Args } from "./battle-text-parser";
 
 type BattleDesc = {
 	id: RoomID,
@@ -197,7 +197,7 @@ class BattleDiv extends preact.Component {
 }
 
 function MoveButton(props: {
-	children: string, cmd: string, moveData: {pp: number, maxpp: number}, type: Dex.TypeName, tooltip: string,
+	children: string, cmd: string, moveData: { pp: number, maxpp: number }, type: Dex.TypeName, tooltip: string,
 }) {
 	return <button name="cmd" value={props.cmd} class={`type-${props.type} has-tooltip`} data-tooltip={props.tooltip}>
 		{props.children}<br />
@@ -211,7 +211,7 @@ function PokemonButton(props: {
 	if (!pokemon) {
 		return <button
 			name="cmd" value={props.cmd} class={`${props.disabled ? 'disabled ' : ''}has-tooltip`}
-			style={{opacity: props.disabled === 'fade' ? 0.5 : 1}} data-tooltip={props.tooltip}
+			style={{ opacity: props.disabled === 'fade' ? 0.5 : 1 }} data-tooltip={props.tooltip}
 		>
 			(empty slot)
 		</button>;
@@ -226,14 +226,14 @@ function PokemonButton(props: {
 
 	return <button
 		name="cmd" value={props.cmd} class={`${props.disabled ? 'disabled ' : ''}has-tooltip`}
-		style={{opacity: props.disabled === 'fade' ? 0.5 : 1}} data-tooltip={props.tooltip}
+		style={{ opacity: props.disabled === 'fade' ? 0.5 : 1 }} data-tooltip={props.tooltip}
 	>
 		<span class="picon" style={Dex.getPokemonIcon(pokemon)}></span>
 		{pokemon.name}
 		{
 			!props.noHPBar && !pokemon.fainted &&
 			<span class={hpColorClass}>
-				<span style={{width: Math.round(pokemon.hp * 92 / pokemon.maxhp) || 1}}></span>
+				<span style={{ width: Math.round(pokemon.hp * 92 / pokemon.maxhp) || 1 }}></span>
 			</span>
 		}
 		{!props.noHPBar && pokemon.status && <span class={`status ${pokemon.status}`}></span>}
@@ -415,7 +415,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 					return <button disabled>&nbsp;</button>;
 				}
 				const tooltip = `zmove|${moveData.name}|${pokemonIndex}`;
-				return <MoveButton cmd={`/move ${i + 1} zmove`} type={move.type} tooltip={tooltip} moveData={{pp: 1, maxpp: 1}}>
+				return <MoveButton cmd={`/move ${i + 1} zmove`} type={move.type} tooltip={tooltip} moveData={{ pp: 1, maxpp: 1 }}>
 					{zMoveData.name}
 				</MoveButton>;
 			});

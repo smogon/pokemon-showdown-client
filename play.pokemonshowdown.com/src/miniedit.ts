@@ -14,7 +14,7 @@
 
 const MAX_UNDO_HISTORY = 100;
 export type MiniEditPlugin = new (editor: MiniEdit) => unknown;
-export type MiniEditSelection = {start: number, end: number} | null;
+export type MiniEditSelection = { start: number, end: number } | null;
 export class MiniEdit {
 	static plugins: MiniEditPlugin[] = [];
 
@@ -40,7 +40,9 @@ export class MiniEdit {
 		}
 	};
 
-	constructor(el: HTMLElement, options: {setContent: MiniEdit['_setContent'], onKeyDown?: (ev: KeyboardEvent) => void}) {
+	constructor(
+		el: HTMLElement, options: { setContent: MiniEdit['_setContent'], onKeyDown?: (ev: KeyboardEvent) => void }
+	) {
 		this.element = el;
 
 		this._setContent = options.setContent;
@@ -88,7 +90,7 @@ export class MiniEdit {
 		const selection = this.getSelection()!;
 		const oldContent = this.getValue();
 		const newText = oldContent.slice(0, selection.start) + text + oldContent.slice(selection.end);
-		this.setValue(newText, {start: selection.start + text.length, end: selection.start + text.length});
+		this.setValue(newText, { start: selection.start + text.length, end: selection.start + text.length });
 	}
 
 	getSelection(): MiniEditSelection {
@@ -114,7 +116,7 @@ export class MiniEdit {
 			});
 		}
 
-		return (start === null || end === null) ? null : {start, end};
+		return (start === null || end === null) ? null : { start, end };
 	}
 
 	setSelection(sel: MiniEditSelection): void {
@@ -147,7 +149,7 @@ export class MiniEdit {
 		}
 	}
 	select(): void {
-		this.setSelection({start: 0, end: this.getValue().length});
+		this.setSelection({ start: 0, end: this.getValue().length });
 	}
 }
 
@@ -172,11 +174,11 @@ export class MiniEditUndoPlugin {
 	editor: MiniEdit;
 	undoIndex: number | null = null;
 	ignoreInput = false;
-	history: {text: string, selection: MiniEditSelection}[] = [];
+	history: { text: string, selection: MiniEditSelection }[] = [];
 
 	constructor(editor: MiniEdit) {
 		this.editor = editor;
-		this.history.push({text: editor.getValue(), selection: {start: 0, end: 0}});
+		this.history.push({ text: editor.getValue(), selection: { start: 0, end: 0 } });
 
 		this.editor.pushHistory = this.onPushHistory;
 		editor.element.addEventListener('keydown', this.onKeyDown);
@@ -195,7 +197,7 @@ export class MiniEditUndoPlugin {
 			this.undoIndex = null;
 		}
 
-		this.history.push({text, selection});
+		this.history.push({ text, selection });
 
 		if (this.history.length > MAX_UNDO_HISTORY) this.history.shift();
 	};
@@ -225,7 +227,7 @@ export class MiniEditUndoPlugin {
 			return;
 		}
 
-		const {text, selection} = this.history[this.undoIndex];
+		const { text, selection } = this.history[this.undoIndex];
 		this.ignoreInput = true;
 		this.editor.setValue(text, selection);
 	};

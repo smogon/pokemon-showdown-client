@@ -3,8 +3,8 @@
 // dex data
 ///////////
 
-declare const BattleText: {[id: string]: {[templateName: string]: string}};
-declare const BattleFormats: {[id: string]: import('./panel-teamdropdown').FormatData};
+declare const BattleText: { [id: string]: { [templateName: string]: string } };
+declare const BattleFormats: { [id: string]: import('./panel-teamdropdown').FormatData };
 declare const BattlePokedex: any;
 declare const BattleMovedex: any;
 declare const BattleAbilities: any;
@@ -13,7 +13,7 @@ declare const BattleAliases: any;
 declare const BattleStatuses: any;
 declare const BattlePokemonSprites: any;
 declare const BattlePokemonSpritesBW: any;
-declare const NonBattleGames: {[id: string]: string};
+declare const NonBattleGames: { [id: string]: string };
 
 // PS globals
 /////////////
@@ -21,8 +21,8 @@ declare const NonBattleGames: {[id: string]: string};
 declare const Config: any;
 declare const Replays: any;
 declare const exports: any;
-type AnyObject = {[k: string]: any};
-declare const app: {user: AnyObject, rooms: AnyObject, ignore?: AnyObject};
+type AnyObject = { [k: string]: any };
+declare const app: { user: AnyObject, rooms: AnyObject, ignore?: AnyObject };
 
 interface Window {
 	[k: string]: any;

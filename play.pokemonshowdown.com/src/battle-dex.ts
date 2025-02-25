@@ -18,7 +18,7 @@
  * @license MIT
  */
 
-import {Pokemon, type ServerPokemon} from "./battle";
+import { Pokemon, type ServerPokemon } from "./battle";
 import {
 	BattleAvatarNumbers, BattleBaseSpeciesChart, BattlePokemonIconIndexes, BattlePokemonIconIndexesLeft, BattleStatNames,
 	Ability, Item, Move, Species, PureEffect, type ID, type Type,
@@ -45,7 +45,7 @@ export declare namespace Dex {
 	export type GenderName = DexData.GenderName;
 	export type NatureName = DexData.NatureName;
 	export type MoveTarget = DexData.MoveTarget;
-	export type StatsTable = {hp: number, atk: number, def: number, spa: number, spd: number, spe: number};
+	export type StatsTable = { hp: number, atk: number, def: number, spa: number, spd: number, spe: number };
 	/**
 	 * Dex.PokemonSet can be sparse, in which case that entry should be
 	 * inferred from the rest of the set, according to sensible
@@ -86,7 +86,7 @@ export declare namespace Dex {
 		teraType?: string;
 	}
 }
-export type {ID};
+export type { ID };
 
 declare const require: any;
 declare const global: any;
@@ -116,7 +116,7 @@ export function toUserid(text: any) {
 	return toID(text);
 }
 
-type Comparable = number | string | boolean | Comparable[] | {reverse: Comparable};
+type Comparable = number | string | boolean | Comparable[] | { reverse: Comparable };
 export const PSUtils = new class {
 	/**
 	 * Like string.split(delimiter), but only recognizes the first `limit`
@@ -173,7 +173,7 @@ export const PSUtils = new class {
 			return 0;
 		}
 		if (a.reverse) {
-			return PSUtils.compare((b as {reverse: string}).reverse, a.reverse);
+			return PSUtils.compare((b as { reverse: string }).reverse, a.reverse);
 		}
 		throw new Error(`Passed value ${a as any} is not comparable`);
 	}
@@ -265,8 +265,8 @@ export const Dex = new class implements ModdedDex {
 		return `${protocol}//${window.Config ? Config.routes.client : 'play.pokemonshowdown.com'}/fx/`;
 	})();
 
-	loadedSpriteData = {xy: 1, bw: 0};
-	moddedDexes: {[mod: string]: ModdedDex} = {};
+	loadedSpriteData = { xy: 1, bw: 0 };
+	moddedDexes: { [mod: string]: ModdedDex } = {};
 
 	mod(modid: ID): ModdedDex {
 		if (modid === 'gen9') return this;
@@ -378,7 +378,7 @@ export const Dex = new class implements ModdedDex {
 				};
 			}
 
-			if (!data) data = {exists: false};
+			if (!data) data = { exists: false };
 			let move = new Move(id, name, data);
 			window.BattleMovedex[id] = move;
 			return move;
@@ -406,7 +406,7 @@ export const Dex = new class implements ModdedDex {
 			if (!window.BattleItems) window.BattleItems = {};
 			let data = window.BattleItems[id];
 			if (data && typeof data.exists === 'boolean') return data;
-			if (!data) data = {exists: false};
+			if (!data) data = { exists: false };
 			let item = new Item(id, name, data);
 			window.BattleItems[id] = item;
 			return item;
@@ -428,7 +428,7 @@ export const Dex = new class implements ModdedDex {
 			if (!window.BattleAbilities) window.BattleAbilities = {};
 			let data = window.BattleAbilities[id];
 			if (data && typeof data.exists === 'boolean') return data;
-			if (!data) data = {exists: false};
+			if (!data) data = { exists: false };
 			let ability = new Ability(id, name, data);
 			window.BattleAbilities[id] = ability;
 			return ability;
@@ -464,7 +464,7 @@ export const Dex = new class implements ModdedDex {
 			if (data && typeof data.exists === 'boolean') {
 				species = data;
 			} else {
-				if (!data) data = {exists: false};
+				if (!data) data = { exists: false };
 				if (!data.tier && id.endsWith('totem')) {
 					data.tier = this.species.get(id.slice(0, -5)).tier;
 				}
@@ -555,7 +555,7 @@ export const Dex = new class implements ModdedDex {
 		noScale?: boolean,
 		mod?: string,
 		dynamax?: boolean,
-	} = {gen: 6}) {
+	} = { gen: 6 }) {
 		const mechanicsGen = options.gen || 6;
 		let isDynamax = !!options.dynamax;
 		if (pokemon instanceof Pokemon) {
@@ -817,7 +817,7 @@ export const Dex = new class implements ModdedDex {
 		if (pokemon.species && !spriteid) {
 			spriteid = species.spriteid || toID(pokemon.species);
 		}
-		if (!species.exists) return {spriteDir: 'sprites/gen5', spriteid: '0', x: 10, y: 5};
+		if (!species.exists) return { spriteDir: 'sprites/gen5', spriteid: '0', x: 10, y: 5 };
 		if (window.Config?.server?.afd || Dex.prefs('afd')) {
 			return {
 				spriteid,
@@ -922,11 +922,11 @@ export class ModdedDex {
 	readonly gen: number;
 	readonly modid: ID;
 	readonly cache = {
-		Moves: {} as {[k: string]: Move},
-		Items: {} as {[k: string]: Item},
-		Abilities: {} as {[k: string]: Ability},
-		Species: {} as {[k: string]: Species},
-		Types: {} as {[k: string]: Dex.Effect},
+		Moves: {} as { [k: string]: Move },
+		Items: {} as { [k: string]: Item },
+		Abilities: {} as { [k: string]: Ability },
+		Species: {} as { [k: string]: Species },
+		Types: {} as { [k: string]: Dex.Effect },
 	};
 	pokeballs: string[] | null = null;
 	constructor(modid: ID) {
@@ -944,7 +944,7 @@ export class ModdedDex {
 			}
 			if (this.cache.Moves.hasOwnProperty(id)) return this.cache.Moves[id];
 
-			let data = {...Dex.moves.get(name)};
+			let data = { ...Dex.moves.get(name) };
 
 			for (let i = Dex.gen - 1; i >= this.gen; i--) {
 				const table = window.BattleTeambuilderTable[`gen${i}`];
@@ -977,7 +977,7 @@ export class ModdedDex {
 			}
 			if (this.cache.Items.hasOwnProperty(id)) return this.cache.Items[id];
 
-			let data = {...Dex.items.get(name)};
+			let data = { ...Dex.items.get(name) };
 
 			for (let i = Dex.gen - 1; i >= this.gen; i--) {
 				const table = window.BattleTeambuilderTable[`gen${i}`];
@@ -1007,7 +1007,7 @@ export class ModdedDex {
 			}
 			if (this.cache.Abilities.hasOwnProperty(id)) return this.cache.Abilities[id];
 
-			let data = {...Dex.abilities.get(name)};
+			let data = { ...Dex.abilities.get(name) };
 
 			for (let i = Dex.gen - 1; i >= this.gen; i--) {
 				const table = window.BattleTeambuilderTable[`gen${i}`];
@@ -1037,7 +1037,7 @@ export class ModdedDex {
 			}
 			if (this.cache.Species.hasOwnProperty(id)) return this.cache.Species[id];
 
-			let data = {...Dex.species.get(name)};
+			let data = { ...Dex.species.get(name) };
 
 			for (let i = Dex.gen - 1; i >= this.gen; i--) {
 				const table = window.BattleTeambuilderTable[`gen${i}`];
@@ -1052,7 +1052,7 @@ export class ModdedDex {
 				}
 			}
 			if (this.gen < 3 || this.modid === 'gen7letsgo') {
-				data.abilities = {0: "No Ability"};
+				data.abilities = { 0: "No Ability" };
 			}
 
 			const table = window.BattleTeambuilderTable[this.modid];
@@ -1078,7 +1078,7 @@ export class ModdedDex {
 
 			if (this.cache.Types.hasOwnProperty(id)) return this.cache.Types[id];
 
-			let data = {...Dex.types.get(name)};
+			let data = { ...Dex.types.get(name) };
 
 			for (let i = 7; i >= this.gen; i--) {
 				const table = window.BattleTeambuilderTable[`gen${i}`];
@@ -1088,7 +1088,7 @@ export class ModdedDex {
 					break;
 				}
 				if (id in table.overrideTypeChart) {
-					data = {...data, ...table.overrideTypeChart[id]};
+					data = { ...data, ...table.overrideTypeChart[id] };
 				}
 			}
 
@@ -1173,7 +1173,7 @@ export const Teams = new class {
 						spe: Number(evs[5]) || 0,
 					};
 				} else if (evstring === '0') {
-					set.evs = {hp: 0, atk: 0, def: 0, spa: 0, spd: 0, spe: 0};
+					set.evs = { hp: 0, atk: 0, def: 0, spa: 0, spd: 0, spe: 0 };
 				}
 			}
 			i = j + 1;

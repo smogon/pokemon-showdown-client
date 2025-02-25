@@ -56,7 +56,7 @@
 			e.preventDefault();
 			e.stopPropagation();
 			var name = $(e.currentTarget).data('name');
-			app.addPopup(UserPopup, {name: name, sourceEl: e.currentTarget});
+			app.addPopup(UserPopup, { name: name, sourceEl: e.currentTarget });
 		},
 		toggleMute: function () {
 			var muted = !Dex.prefs('mute');
@@ -224,7 +224,7 @@
 			e.preventDefault();
 			var $target = $(e.currentTarget);
 			if ($target.hasClass('minilogo')) {
-				app.addPopup(TabListPopup, {sourceEl: e.currentTarget});
+				app.addPopup(TabListPopup, { sourceEl: e.currentTarget });
 				return;
 			}
 			var id = $target.attr('href');
@@ -877,7 +877,7 @@
 				popup.$('.cur').removeClass('cur');
 				Storage.bg.set(e.target.result, 'custom');
 			} else {
-				app.addPopup(ConfirmBackgroundPopup, {bgUrl: e.target.result});
+				app.addPopup(ConfirmBackgroundPopup, { bgUrl: e.target.result });
 			}
 		};
 		reader.readAsDataURL(file);

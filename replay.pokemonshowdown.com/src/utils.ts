@@ -100,8 +100,8 @@ Net.encodeQuery = function (data: string | PostData) {
 	}
 	return urlencodedData;
 };
-Net.decodeQuery = function (query: string): {[key: string]: string} {
-	let out: {[key: string]: string} = {};
+Net.decodeQuery = function (query: string): { [key: string]: string } {
+	let out: { [key: string]: string } = {};
 	const questionIndex = query.indexOf('?');
 	if (questionIndex >= 0) query = query.slice(questionIndex + 1);
 	for (const queryPart of query.split('&')) {

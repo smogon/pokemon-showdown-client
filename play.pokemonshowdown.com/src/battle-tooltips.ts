@@ -8,12 +8,12 @@
  * @license MIT
  */
 
-import {Pokemon, type Battle, type ServerPokemon} from "./battle";
-import {Dex, type ModdedDex, toID, type ID} from "./battle-dex";
-import type {BattleScene} from "./battle-animations";
-import {BattleLog} from "./battle-log";
-import {BattleNatures} from "./battle-dex-data";
-import {BattleTextParser} from "./battle-text-parser";
+import { Pokemon, type Battle, type ServerPokemon } from "./battle";
+import { Dex, type ModdedDex, toID, type ID } from "./battle-dex";
+import type { BattleScene } from "./battle-animations";
+import { BattleLog } from "./battle-log";
+import { BattleNatures } from "./battle-dex-data";
+import { BattleTextParser } from "./battle-text-parser";
 
 class ModifiableValue {
 	value = 0;
@@ -461,7 +461,7 @@ export class BattleTooltips {
 		BattleTooltips.hideTooltip();
 	}
 
-	static zMoveEffects: {[zEffect: string]: string} = {
+	static zMoveEffects: { [zEffect: string]: string } = {
 		'clearnegativeboost': "Restores negative stat stages to 0",
 		'crit2': "Crit ratio +2",
 		'heal': "Restores HP 100%",
@@ -483,7 +483,7 @@ export class BattleTooltips {
 		return boostText;
 	}
 
-	static zMoveTable: {[type in Dex.TypeName]: string} = {
+	static zMoveTable: { [type in Dex.TypeName]: string } = {
 		Poison: "Acid Downpour",
 		Fighting: "All-Out Pummeling",
 		Dark: "Black Hole Eclipse",
@@ -506,7 +506,7 @@ export class BattleTooltips {
 		"???": "",
 	};
 
-	static maxMoveTable: {[type in Dex.TypeName]: string} = {
+	static maxMoveTable: { [type in Dex.TypeName]: string } = {
 		Poison: "Max Ooze",
 		Fighting: "Max Knuckle",
 		Dark: "Max Darkness",
@@ -1000,7 +1000,7 @@ export class BattleTooltips {
 	}
 
 	calculateModifiedStats(clientPokemon: Pokemon | null, serverPokemon: ServerPokemon, statStagesOnly?: boolean) {
-		let stats = {...serverPokemon.stats};
+		let stats = { ...serverPokemon.stats };
 		let pokemon = clientPokemon || serverPokemon;
 		const isPowerTrick = clientPokemon?.volatiles['powertrick'];
 		for (const statName of Dex.statNamesExceptHP) {
@@ -2312,14 +2312,14 @@ export class BattleTooltips {
 		return value;
 	}
 
-	static incenseTypes: {[itemName: string]: Dex.TypeName} = {
+	static incenseTypes: { [itemName: string]: Dex.TypeName } = {
 		'Odd Incense': 'Psychic',
 		'Rock Incense': 'Rock',
 		'Rose Incense': 'Grass',
 		'Sea Incense': 'Water',
 		'Wave Incense': 'Water',
 	};
-	static itemTypes: {[itemName: string]: Dex.TypeName} = {
+	static itemTypes: { [itemName: string]: Dex.TypeName } = {
 		'Black Belt': 'Fighting',
 		'Black Glasses': 'Dark',
 		'Charcoal': 'Fire',
@@ -2339,7 +2339,7 @@ export class BattleTooltips {
 		'Spell Tag': 'Ghost',
 		'Twisted Spoon': 'Psychic',
 	};
-	static orbUsers: {[speciesForme: string]: string[]} = {
+	static orbUsers: { [speciesForme: string]: string[] } = {
 		'Latias': ['Soul Dew'],
 		'Latios': ['Soul Dew'],
 		'Dialga': ['Adamant Crystal', 'Adamant Orb'],
@@ -2347,7 +2347,7 @@ export class BattleTooltips {
 		'Giratina': ['Griseous Core', 'Griseous Orb'],
 		'Venomicon': ['Vile Vial'],
 	};
-	static orbTypes: {[itemName: string]: Dex.TypeName[]} = {
+	static orbTypes: { [itemName: string]: Dex.TypeName[] } = {
 		'Soul Dew': ['Psychic', 'Dragon'],
 		'Adamant Crystal': ['Steel', 'Dragon'],
 		'Adamant Orb': ['Steel', 'Dragon'],
@@ -2455,7 +2455,7 @@ export class BattleTooltips {
 		return ally.effectiveAbility(serverPokemon);
 	}
 	getPokemonAbilityData(clientPokemon: Pokemon | null, serverPokemon: ServerPokemon | null | undefined) {
-		const abilityData: {ability: string, baseAbility: string, possibilities: string[]} = {
+		const abilityData: { ability: string, baseAbility: string, possibilities: string[] } = {
 			ability: '', baseAbility: '', possibilities: [],
 		};
 		if (clientPokemon) {
@@ -2546,13 +2546,13 @@ class BattleStatGuesser {
 	guess(set: Dex.PokemonSet) {
 		let role = this.guessRole(set);
 		let comboEVs = this.guessEVs(set, role);
-		let evs = {hp: 0, atk: 0, def: 0, spa: 0, spd: 0, spe: 0};
+		let evs = { hp: 0, atk: 0, def: 0, spa: 0, spd: 0, spe: 0 };
 		for (let stat in evs) {
 			evs[stat as Dex.StatName] = comboEVs[stat as Dex.StatName] || 0;
 		}
 		let plusStat = comboEVs.plusStat || '';
 		let minusStat = comboEVs.minusStat || '';
-		return {role, evs, plusStat, minusStat, moveCount: this.moveCount, hasMove: this.hasMove};
+		return { role, evs, plusStat, minusStat, moveCount: this.moveCount, hasMove: this.hasMove };
 	}
 	guessRole(set: Dex.PokemonSet) {
 		if (!set) return '?';
@@ -2578,7 +2578,7 @@ class BattleStatGuesser {
 			'specialBulk': 0,
 			'physicalBulk': 0,
 		};
-		let hasMove: {[moveid: string]: 1} = {};
+		let hasMove: { [moveid: string]: 1 } = {};
 		let itemid = toID(set.item);
 		let item = this.dex.items.get(itemid);
 		let abilityid = toID(set.ability);
@@ -2844,7 +2844,7 @@ class BattleStatGuesser {
 			diff -= change;
 		}
 		if (diff <= 0) return evTotal;
-		let evPriority = {def: 1, spd: 1, hp: 1, atk: 1, spa: 1, spe: 1};
+		let evPriority = { def: 1, spd: 1, hp: 1, atk: 1, spa: 1, spe: 1 };
 		let prioStat: Dex.StatName;
 		for (prioStat in evPriority) {
 			if (prioStat === stat) continue;
@@ -2866,7 +2866,7 @@ class BattleStatGuesser {
 	}
 	guessEVs(
 		set: Dex.PokemonSet, role: string
-	): Partial<Dex.StatsTable> & {plusStat?: Dex.StatName | '', minusStat?: Dex.StatName | ''} {
+	): Partial<Dex.StatsTable> & { plusStat?: Dex.StatName | '', minusStat?: Dex.StatName | '' } {
 		if (!set) return {};
 		if (role === '?') return {};
 		let species = this.dex.species.get(set.species || set.name!);
@@ -2875,13 +2875,13 @@ class BattleStatGuesser {
 		let hasMove = this.hasMove;
 		let moveCount = this.moveCount;
 
-		let evs: Dex.StatsTable & {plusStat?: Dex.StatName | '', minusStat?: Dex.StatName | ''} = {
+		let evs: Dex.StatsTable & { plusStat?: Dex.StatName | '', minusStat?: Dex.StatName | '' } = {
 			hp: 0, atk: 0, def: 0, spa: 0, spd: 0, spe: 0,
 		};
 		let plusStat: Dex.StatName | '' = '';
 		let minusStat: Dex.StatName | '' = '';
 
-		let statChart: {[role: string]: [Dex.StatName, Dex.StatName]} = {
+		let statChart: { [role: string]: [Dex.StatName, Dex.StatName] } = {
 			'Bulky Band': ['atk', 'hp'],
 			'Fast Band': ['spe', 'atk'],
 			'Bulky Specs': ['spa', 'hp'],
@@ -2915,7 +2915,7 @@ class BattleStatGuesser {
 
 		if (this.supportsAVs) {
 			// Let's Go, AVs enabled
-			evs = {hp: 200, atk: 200, def: 200, spa: 200, spd: 200, spe: 200};
+			evs = { hp: 200, atk: 200, def: 200, spa: 200, spd: 200, spe: 200 };
 			if (!moveCount['PhysicalAttack']) evs.atk = 0;
 			if (!moveCount['SpecialAttack']) evs.spa = 0;
 			if (hasMove['gyroball'] || hasMove['trickroom']) evs.spe = 0;
@@ -2924,7 +2924,7 @@ class BattleStatGuesser {
 			// no change
 		} else if (this.ignoreEVLimits) {
 			// Gen 1-2, hackable EVs (like Hackmons)
-			evs = {hp: 252, atk: 252, def: 252, spa: 252, spd: 252, spe: 252};
+			evs = { hp: 252, atk: 252, def: 252, spa: 252, spd: 252, spe: 252 };
 			if (!moveCount['PhysicalAttack']) evs.atk = 0;
 			if (!moveCount['SpecialAttack'] && this.dex.gen > 1) evs.spa = 0;
 			if (hasMove['gyroball'] || hasMove['trickroom']) evs.spe = 0;
@@ -3168,7 +3168,7 @@ function BattleStatOptimizer(set: Dex.PokemonSet, formatid: ID) {
 		return ev;
 	};
 
-	const origSpread = {evs: set.evs, ...origNature};
+	const origSpread = { evs: set.evs, ...origNature };
 	let origLeftoverEVs = 508;
 	for (const stat of Dex.statNames) {
 		origLeftoverEVs -= origSpread.evs?.[stat] || 0;
@@ -3193,12 +3193,12 @@ function BattleStatOptimizer(set: Dex.PokemonSet, formatid: ID) {
 	if (!minusTooLow) {
 		for (const stat of Dex.statNamesExceptHP) {
 			if (origStats[stat] < origStats[bestMinus]) {
-				const minEVs = getMinEVs(stat, {minus: stat});
+				const minEVs = getMinEVs(stat, { minus: stat });
 				if (minEVs > 252) continue;
 				// This number can go negative at this point, but we'll make up for it later (and check to make sure)
 				savedEVs = (origSpread.evs[stat] || 0) - minEVs;
 				if (origNature.minus) {
-					savedEVs += (origSpread.evs[origNature.minus] || 0) - getMinEVs(origNature.minus, {minus: stat});
+					savedEVs += (origSpread.evs[origNature.minus] || 0) - getMinEVs(origNature.minus, { minus: stat });
 				}
 				bestMinus = stat;
 				bestMinusMinEVs = minEVs;
@@ -3209,17 +3209,17 @@ function BattleStatOptimizer(set: Dex.PokemonSet, formatid: ID) {
 		for (const stat of Dex.statNamesExceptHP) {
 			// Don't move the plus to an uninvested stat
 			if (stat !== origNature.plus && origSpread.evs[stat] && stat !== bestMinus) {
-				const minEVs = getMinEVs(stat, {plus: stat});
+				const minEVs = getMinEVs(stat, { plus: stat });
 				let plusEVsSaved = (origNature.minus === stat ? getMinEVs(stat, {}) : origSpread.evs[stat] || 0) - minEVs;
 				if (bestPlus && bestPlus !== bestMinus) {
-					plusEVsSaved += bestPlusMinEVs! - getMinEVs(bestPlus, {plus: stat, minus: bestMinus});
+					plusEVsSaved += bestPlusMinEVs! - getMinEVs(bestPlus, { plus: stat, minus: bestMinus });
 				}
 				if (plusEVsSaved > 0 && savedEVs + plusEVsSaved > 0) {
 					savedEVs += plusEVsSaved;
 					bestPlus = stat;
 					bestPlusMinEVs = minEVs;
 				} else if (plusEVsSaved === 0 && (bestPlus || savedEVs > 0) || plusEVsSaved > 0 && savedEVs + plusEVsSaved === 0) {
-					if (!bestPlus || getStat(stat, getMinEVs(stat, {plus: stat}), {plus: stat}) > origStats[stat]) {
+					if (!bestPlus || getStat(stat, getMinEVs(stat, { plus: stat }), { plus: stat }) > origStats[stat]) {
 						savedEVs += plusEVsSaved;
 						bestPlus = stat;
 						bestPlusMinEVs = minEVs;
@@ -3234,7 +3234,7 @@ function BattleStatOptimizer(set: Dex.PokemonSet, formatid: ID) {
 			evs: Partial<Dex.StatsTable>,
 			plus?: Dex.StatNameExceptHP,
 			minus?: Dex.StatNameExceptHP,
-		} = {evs: {...origSpread.evs}, plus: bestPlus, minus: bestMinus};
+		} = { evs: { ...origSpread.evs }, plus: bestPlus, minus: bestMinus };
 		if (bestPlus !== origNature.plus || bestMinus !== origNature.minus) {
 			newSpread.evs[bestPlus] = bestPlusMinEVs!;
 			newSpread.evs[bestMinus] = bestMinusMinEVs!;
@@ -3247,7 +3247,7 @@ function BattleStatOptimizer(set: Dex.PokemonSet, formatid: ID) {
 			for (const stat of Dex.statNames) {
 				if (!newSpread.evs[stat]) delete newSpread.evs[stat];
 			}
-			return {...newSpread, savedEVs};
+			return { ...newSpread, savedEVs };
 		} else if (!plusTooHigh && !minusTooLow) {
 			if (Math.floor(getStat(bestPlus, bestMinusMinEVs!, newSpread) / 11) <= Math.ceil(origStats[bestMinus] / 9)) {
 				// We're not gaining more points from our plus than we're losing to our minus
@@ -3262,7 +3262,7 @@ function BattleStatOptimizer(set: Dex.PokemonSet, formatid: ID) {
 				for (const stat of Dex.statNames) {
 					if (!newSpread.evs[stat]) delete newSpread.evs[stat];
 				}
-				return {...newSpread, savedEVs};
+				return { ...newSpread, savedEVs };
 			}
 		}
 	}

@@ -18,7 +18,7 @@ const sourceMap = require('source-map');
 const VERBOSE = false;
 
 function outputFileSync(filePath, res, opts) {
-	fs.mkdirSync(path.dirname(filePath), {recursive: true});
+	fs.mkdirSync(path.dirname(filePath), { recursive: true });
 
 	// we've requested explicit sourcemaps to be written to disk
 	if (
@@ -100,12 +100,12 @@ async function combineResults(fileResults, sourceMapOptions, opts) {
 		code += "\n//# sourceMappingURL=data:application/json;charset=utf-8;base64," + base64;
 	}
 
-	return {map, code};
+	return { map, code };
 }
 
 function noRebuildNeeded(src, dest) {
 	try {
-		const srcStat = fs.statSync(src, {throwIfNoEntry: false});
+		const srcStat = fs.statSync(src, { throwIfNoEntry: false });
 		if (!srcStat) return true;
 		const destStat = fs.statSync(dest);
 		if (srcStat.ctimeMs < destStat.ctimeMs) return true;
@@ -150,7 +150,7 @@ function compileToDir(srcDir, destDir, opts = {}) {
 	}
 
 	function handle(src, base) {
-		const stat = fs.statSync(src, {throwIfNoEntry: false});
+		const stat = fs.statSync(src, { throwIfNoEntry: false });
 
 		if (!stat) return 0;
 
@@ -176,7 +176,7 @@ function compileToDir(srcDir, destDir, opts = {}) {
 	}
 
 	let total = 0;
-	fs.mkdirSync(destDir, {recursive: true});
+	fs.mkdirSync(destDir, { recursive: true });
 	const srcDirs = typeof srcDir === 'string' ? [srcDir] : srcDir;
 	for (const dir of srcDirs) total += handle(dir);
 	if (incremental) opts.incremental = true; // incredibly dumb hack to preserve the option

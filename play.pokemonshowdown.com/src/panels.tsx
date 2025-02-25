@@ -10,13 +10,13 @@
  */
 
 import preact from "../js/lib/preact";
-import {toID} from "./battle-dex";
-import {BattleLog} from "./battle-log";
-import type {Args} from "./battle-text-parser";
-import {BattleTooltips} from "./battle-tooltips";
-import type {PSSubscription} from "./client-core";
-import {PS, type PSRoom, type RoomID} from "./client-main";
-import {PSHeader} from "./panel-topbar";
+import { toID } from "./battle-dex";
+import { BattleLog } from "./battle-log";
+import type { Args } from "./battle-text-parser";
+import { BattleTooltips } from "./battle-tooltips";
+import type { PSSubscription } from "./client-core";
+import { PS, type PSRoom, type RoomID } from "./client-main";
+import { PSHeader } from "./panel-topbar";
 
 export class PSRouter {
 	roomid = '' as RoomID;
@@ -127,7 +127,7 @@ export class PSRouter {
 }
 PS.router = new PSRouter();
 
-export class PSRoomPanel<T extends PSRoom = PSRoom> extends preact.Component<{room: T}> {
+export class PSRoomPanel<T extends PSRoom = PSRoom> extends preact.Component<{ room: T }> {
 	subscriptions: PSSubscription[] = [];
 	override componentDidMount() {
 		if (PS.room === this.props.room) this.focus();
@@ -382,14 +382,14 @@ export class PSMain extends preact.Component {
 		let pos: PanelPosition | null = null;
 		if (PS.leftRoomWidth === 0) {
 			// one panel visible
-			if (room === PS.activePanel) pos = {top: 56};
+			if (room === PS.activePanel) pos = { top: 56 };
 		} else {
 			// both panels visible
-			if (room === PS.leftRoom) pos = {top: 56, right: PS.leftRoomWidth};
-			if (room === PS.rightRoom) pos = {top: 56, left: PS.leftRoomWidth};
+			if (room === PS.leftRoom) pos = { top: 56, right: PS.leftRoomWidth };
+			if (room === PS.rightRoom) pos = { top: 56, left: PS.leftRoomWidth };
 		}
 
-		if (!pos) return {display: 'none'};
+		if (!pos) return { display: 'none' };
 
 		let top: number | null = (pos.top || 0);
 		let height: number | null = null;
@@ -423,7 +423,7 @@ export class PSMain extends preact.Component {
 	}
 	static getPopupStyle(room: PSRoom, width?: number | 'auto'): any {
 		if (room.location === 'modal-popup' || !room.parentElem) {
-			return {width: width || 480};
+			return { width: width || 480 };
 		}
 		if (!room.width || !room.height) {
 			return {
@@ -514,15 +514,15 @@ export class PSMain extends preact.Component {
 			}
 		}
 		return <div class="ps-frame">
-			<PSHeader style={{top: 0, left: 0, right: 0, height: '50px'}} />
+			<PSHeader style={{ top: 0, left: 0, right: 0, height: '50px' }} />
 			{rooms}
 			{PS.popups.map(roomid => this.renderPopup(PS.rooms[roomid]!))}
 		</div>;
 	}
 }
 
-type PanelPosition = {top?: number, bottom?: number, left?: number, right?: number} | null;
+type PanelPosition = { top?: number, bottom?: number, left?: number, right?: number } | null;
 
-export function SanitizedHTML(props: {children: string}) {
-	return <div dangerouslySetInnerHTML={{__html: BattleLog.sanitizeHTML(props.children)}} />;
+export function SanitizedHTML(props: { children: string }) {
+	return <div dangerouslySetInnerHTML={{ __html: BattleLog.sanitizeHTML(props.children) }} />;
 }

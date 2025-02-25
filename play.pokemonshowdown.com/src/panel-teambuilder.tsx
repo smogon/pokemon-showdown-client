@@ -5,10 +5,10 @@
  * @license AGPLv3
  */
 
-import {PS, PSRoom, type Team} from "./client-main";
-import {PSPanelWrapper, PSRoomPanel} from "./panels";
-import {TeamBox, TeamFolder} from "./panel-teamdropdown";
-import {PSUtils, type ID} from "./battle-dex";
+import { PS, PSRoom, type Team } from "./client-main";
+import { PSPanelWrapper, PSRoomPanel } from "./panels";
+import { TeamBox, TeamFolder } from "./panel-teamdropdown";
+import { PSUtils, type ID } from "./battle-dex";
 
 class TeambuilderRoom extends PSRoom {
 	readonly DEFAULT_FORMAT = 'gen8' as ID;
@@ -111,7 +111,7 @@ class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
 		// (This is why folders you create will automatically disappear
 		// if you leave them without adding anything to them.)
 
-		const folderTable: {[folder: string]: 1 | undefined} = {'': 1};
+		const folderTable: { [folder: string]: 1 | undefined } = { '': 1 };
 		const folders: string[] = [];
 		for (const team of PS.teams.list) {
 			const folder = team.folder;

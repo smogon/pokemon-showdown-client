@@ -12,8 +12,8 @@
  * @license MIT
  */
 
-import type {Battle, ServerPokemon} from "./battle";
-import {Dex, toID, type ID} from "./battle-dex";
+import type { Battle, ServerPokemon } from "./battle";
+import { Dex, toID, type ID } from "./battle-dex";
 
 export interface BattleRequestSideInfo {
 	name: string;
@@ -281,7 +281,7 @@ export class BattleChoiceBuilder {
 
 		const index = this.choices.length;
 
-		if (choice === 'shift') return {choiceType: 'shift'};
+		if (choice === 'shift') return { choiceType: 'shift' };
 
 		if (choice.startsWith('move ')) {
 			if (request.requestType !== 'move') {

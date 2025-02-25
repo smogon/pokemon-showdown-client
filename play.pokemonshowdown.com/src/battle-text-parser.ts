@@ -8,10 +8,10 @@
  * @license MIT
  */
 
-import {toID, type ID} from "./battle-dex";
+import { toID, type ID } from "./battle-dex";
 
 export type Args = [string, ...string[]];
-export type KWArgs = {[kw: string]: string};
+export type KWArgs = { [kw: string]: string };
 export type SideID = 'p1' | 'p2' | 'p3' | 'p4';
 
 export class BattleTextParser {
@@ -64,9 +64,9 @@ export class BattleTextParser {
 		return line.slice(1).split('|') as [string, ...string[]];
 	}
 
-	static parseBattleLine(line: string): {args: Args, kwArgs: KWArgs} {
+	static parseBattleLine(line: string): { args: Args, kwArgs: KWArgs } {
 		let args = this.parseLine(line, true);
-		if (args) return {args, kwArgs: {}};
+		if (args) return { args, kwArgs: {} };
 
 		args = line.slice(1).split('|') as [string, ...string[]];
 		const kwArgs: KWArgs = {};
@@ -79,7 +79,7 @@ export class BattleTextParser {
 			kwArgs[lastArg.slice(1, bracketPos)] = lastArg.slice(bracketPos + 1).trim() || '.';
 			args.pop();
 		}
-		return BattleTextParser.upgradeArgs({args, kwArgs});
+		return BattleTextParser.upgradeArgs({ args, kwArgs });
 	}
 
 	static parseNameParts(text: string) {
@@ -102,7 +102,7 @@ export class BattleTextParser {
 				status = status.slice(1);
 			}
 		}
-		return {group, name, away, status};
+		return { group, name, away, status };
 	}
 
 	/**
@@ -110,19 +110,19 @@ export class BattleTextParser {
 	 * them to modern versions. Used to keep battle.ts itself cleaner. Not
 	 * guaranteed to mutate or not mutate its inputs.
 	 */
-	static upgradeArgs({args, kwArgs}: {args: Args, kwArgs: KWArgs}): {args: Args, kwArgs: KWArgs} {
+	static upgradeArgs({ args, kwArgs }: { args: Args, kwArgs: KWArgs }): { args: Args, kwArgs: KWArgs } {
 		switch (args[0]) {
 		case '-activate': {
-			if (kwArgs.item || kwArgs.move || kwArgs.number || kwArgs.ability) return {args, kwArgs};
+			if (kwArgs.item || kwArgs.move || kwArgs.number || kwArgs.ability) return { args, kwArgs };
 			let [, pokemon, effect, arg3, arg4] = args;
 			let target = kwArgs.of;
 			const id = BattleTextParser.effectId(effect);
 
-			if (kwArgs.block) return {args: ['-fail', pokemon], kwArgs};
+			if (kwArgs.block) return { args: ['-fail', pokemon], kwArgs };
 
-			if (id === 'wonderguard') return {args: ['-immune', pokemon], kwArgs: {from: 'ability:Wonder Guard'}};
+			if (id === 'wonderguard') return { args: ['-immune', pokemon], kwArgs: { from: 'ability:Wonder Guard' } };
 
-			if (id === 'beatup' && kwArgs.of) return {args, kwArgs: {name: kwArgs.of}};
+			if (id === 'beatup' && kwArgs.of) return { args, kwArgs: { name: kwArgs.of } };
 
 			if ([
 				'ingrain', 'quickguard', 'wideguard', 'craftyshield', 'matblock', 'protect', 'mist', 'safeguard',
@@ -131,22 +131,22 @@ export class BattleTextParser {
 			].includes(id)) {
 				if (target) {
 					kwArgs.of = pokemon;
-					return {args: ['-block', target, effect, arg3], kwArgs};
+					return { args: ['-block', target, effect, arg3], kwArgs };
 				}
-				return {args: ['-block', pokemon, effect, arg3], kwArgs};
+				return { args: ['-block', pokemon, effect, arg3], kwArgs };
 			}
 
 			if (id === 'charge') {
-				return {args: ['-singlemove', pokemon, effect], kwArgs: {of: target}};
+				return { args: ['-singlemove', pokemon, effect], kwArgs: { of: target } };
 			}
 			if ([
 				'bind', 'wrap', 'clamp', 'whirlpool', 'firespin', 'magmastorm', 'sandtomb', 'infestation', 'snaptrap', 'thundercage', 'trapped',
 			].includes(id)) {
-				return {args: ['-start', pokemon, effect], kwArgs: {of: target}};
+				return { args: ['-start', pokemon, effect], kwArgs: { of: target } };
 			}
 
 			if (id === 'fairylock') {
-				return {args: ['-fieldactivate', effect], kwArgs: {}};
+				return { args: ['-fieldactivate', effect], kwArgs: {} };
 			}
 
 			if (id === 'symbiosis' || id === 'poltergeist') {
@@ -168,7 +168,7 @@ export class BattleTextParser {
 
 		case '-fail': {
 			if (kwArgs.from === 'ability: Flower Veil') {
-				return {args: ['-block', kwArgs.of, 'ability: Flower Veil'], kwArgs: {of: args[1]}};
+				return { args: ['-block', kwArgs.of, 'ability: Flower Veil'], kwArgs: { of: args[1] } };
 			}
 			break;
 		}
@@ -187,7 +187,7 @@ export class BattleTextParser {
 			let [, pokemon, effect, move] = args;
 			if (['ability: Damp', 'ability: Dazzling', 'ability: Queenly Majesty', 'ability: Armor Tail'].includes(effect)) {
 				args[0] = '-block';
-				return {args: ['-block', pokemon, effect, move, kwArgs.of], kwArgs: {}};
+				return { args: ['-block', pokemon, effect, move, kwArgs.of], kwArgs: {} };
 			}
 			break;
 		}
@@ -211,15 +211,15 @@ export class BattleTextParser {
 		case '-nothing':
 			// OLD: |-nothing
 			// NEW: |-activate||move:Splash
-			return {args: ['-activate', '', 'move:Splash'], kwArgs};
+			return { args: ['-activate', '', 'move:Splash'], kwArgs };
 		}
-		return {args, kwArgs};
+		return { args, kwArgs };
 	}
 
 	extractMessage(buf: string) {
 		let out = '';
 		for (const line of buf.split('\n')) {
-			const {args, kwArgs} = BattleTextParser.parseBattleLine(line);
+			const { args, kwArgs } = BattleTextParser.parseBattleLine(line);
 			out += this.parseArgs(args, kwArgs) || '';
 		}
 		return out;

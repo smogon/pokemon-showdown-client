@@ -14,19 +14,19 @@
  * @license MIT
  */
 
-import {Dex, toID} from "./battle-dex";
+import { Dex, toID } from "./battle-dex";
 
 /**
  * String that contains only lowercase alphanumeric characters.
  */
-export type ID = string & {__isID: true};
+export type ID = string & { __isID: true };
 
 export interface Nature {
 	plus?: StatNameExceptHP;
 	minus?: StatNameExceptHP;
 }
 
-export const BattleNatures: {[k in NatureName]: Nature} = {
+export const BattleNatures: { [k in NatureName]: Nature } = {
 	Adamant: {
 		plus: 'atk',
 		minus: 'spa',
@@ -113,7 +113,7 @@ export const BattleNatures: {[k in NatureName]: Nature} = {
 		minus: 'atk',
 	},
 };
-export const BattleStatIDs: {[k: string]: StatName | undefined} = {
+export const BattleStatIDs: { [k: string]: StatName | undefined } = {
 	HP: 'hp',
 	hp: 'hp',
 	Atk: 'atk',
@@ -148,7 +148,7 @@ export const BattleBaseSpeciesChart = [
 	"unown", "burmy", "shellos", "gastrodon", "deerling", "sawsbuck", "vivillon", "flabebe", "floette", "florges", "furfrou", "minior", "alcremie", "tatsugiri", "pokestarufo", "pokestarbrycenman", "pokestarmt", "pokestarmt2", "pokestartransport", "pokestargiant", "pokestarhumanoid", "pokestarmonster", "pokestarf00", "pokestarf002", "pokestarspirit", "pokestarblackdoor", "pokestarwhitedoor", "pokestarblackbelt",
 ] as ID[];
 
-export const BattlePokemonIconIndexes: {[id: string]: number} = {
+export const BattlePokemonIconIndexes: { [id: string]: number } = {
 	// alt forms
 	egg: 1032 + 1,
 	pikachubelle: 1032 + 2,
@@ -628,7 +628,7 @@ export const BattlePokemonIconIndexes: {[id: string]: number} = {
 	draggalong: 1512 + 77,
 };
 
-export const BattlePokemonIconIndexesLeft: {[id: string]: number} = {
+export const BattlePokemonIconIndexesLeft: { [id: string]: number } = {
 	pikachubelle: 1404 + 0,
 	pikachupopstar: 1404 + 1,
 	clefairy: 1404 + 2,
@@ -738,7 +738,7 @@ export const BattlePokemonIconIndexesLeft: {[id: string]: number} = {
 	blacephalon: 1404 + 105,
 };
 
-export const BattleAvatarNumbers: {[k: string]: string} = {
+export const BattleAvatarNumbers: { [k: string]: string } = {
 	1: 'lucas',
 	2: 'dawn',
 	3: 'youngster-gen4dp',
@@ -1240,10 +1240,10 @@ export class Move implements Effect {
 	readonly zMove?: {
 		basePower?: number,
 		effect?: string,
-		boost?: {[stat in StatName]?: number},
+		boost?: { [stat in StatName]?: number },
 	};
 	readonly isMax: boolean | string;
-	readonly maxMove: {basePower: number};
+	readonly maxMove: { basePower: number };
 	readonly ohko: true | 'Ice' | null;
 	readonly recoil: number[] | null;
 	readonly heal: number[] | null;
@@ -1291,43 +1291,43 @@ export class Move implements Effect {
 		this.secondaries = data.secondaries || (data.secondary ? [data.secondary] : null);
 
 		this.isMax = data.isMax || false;
-		this.maxMove = data.maxMove || {basePower: 0};
+		this.maxMove = data.maxMove || { basePower: 0 };
 		if (this.category !== 'Status' && !this.maxMove?.basePower) {
 			if (this.isZ || this.isMax) {
-				this.maxMove = {basePower: 1};
+				this.maxMove = { basePower: 1 };
 			} else if (!this.basePower) {
-				this.maxMove = {basePower: 100};
+				this.maxMove = { basePower: 100 };
 			} else if (['Fighting', 'Poison'].includes(this.type)) {
 				if (this.basePower >= 150) {
-					this.maxMove = {basePower: 100};
+					this.maxMove = { basePower: 100 };
 				} else if (this.basePower >= 110) {
-					this.maxMove = {basePower: 95};
+					this.maxMove = { basePower: 95 };
 				} else if (this.basePower >= 75) {
-					this.maxMove = {basePower: 90};
+					this.maxMove = { basePower: 90 };
 				} else if (this.basePower >= 65) {
-					this.maxMove = {basePower: 85};
+					this.maxMove = { basePower: 85 };
 				} else if (this.basePower >= 55) {
-					this.maxMove = {basePower: 80};
+					this.maxMove = { basePower: 80 };
 				} else if (this.basePower >= 45) {
-					this.maxMove = {basePower: 75};
+					this.maxMove = { basePower: 75 };
 				} else {
-					this.maxMove = {basePower: 70};
+					this.maxMove = { basePower: 70 };
 				}
 			} else {
 				if (this.basePower >= 150) {
-					this.maxMove = {basePower: 150};
+					this.maxMove = { basePower: 150 };
 				} else if (this.basePower >= 110) {
-					this.maxMove = {basePower: 140};
+					this.maxMove = { basePower: 140 };
 				} else if (this.basePower >= 75) {
-					this.maxMove = {basePower: 130};
+					this.maxMove = { basePower: 130 };
 				} else if (this.basePower >= 65) {
-					this.maxMove = {basePower: 120};
+					this.maxMove = { basePower: 120 };
 				} else if (this.basePower >= 55) {
-					this.maxMove = {basePower: 110};
+					this.maxMove = { basePower: 110 };
 				} else if (this.basePower >= 45) {
-					this.maxMove = {basePower: 100};
+					this.maxMove = { basePower: 100 };
 				} else {
-					this.maxMove = {basePower: 90};
+					this.maxMove = { basePower: 90 };
 				}
 			}
 		}
@@ -1482,7 +1482,7 @@ export class Species implements Effect {
 	readonly heightm: number;
 	readonly gender: GenderName;
 	readonly color: string;
-	readonly genderRatio: Readonly<{M: number, F: number}> | null;
+	readonly genderRatio: Readonly<{ M: number, F: number }> | null;
 	readonly eggGroups: readonly string[];
 	readonly tags: readonly string[];
 
@@ -1528,8 +1528,8 @@ export class Species implements Effect {
 
 		this.num = data.num || 0;
 		this.types = data.types || ['???'];
-		this.abilities = data.abilities || {0: "No Ability"};
-		this.baseStats = data.baseStats || {hp: 0, atk: 0, def: 0, spa: 0, spd: 0, spe: 0};
+		this.abilities = data.abilities || { 0: "No Ability" };
+		this.baseStats = data.baseStats || { hp: 0, atk: 0, def: 0, spa: 0, spd: 0, spe: 0 };
 		this.bst = this.baseStats.hp + this.baseStats.atk + this.baseStats.def +
 			this.baseStats.spa + this.baseStats.spd + this.baseStats.spe;
 		this.weightkg = data.weightkg || 0;

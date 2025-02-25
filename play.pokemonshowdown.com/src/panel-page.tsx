@@ -7,10 +7,10 @@
  * @license MIT
  */
 
-import {PS, PSRoom, type RoomOptions} from "./client-main";
-import {PSPanelWrapper, PSRoomPanel, SanitizedHTML} from "./panels";
-import {BattleLog} from "./battle-log";
-import type {Args} from "./battle-text-parser";
+import { PS, PSRoom, type RoomOptions } from "./client-main";
+import { PSPanelWrapper, PSRoomPanel, SanitizedHTML } from "./panels";
+import { BattleLog } from "./battle-log";
+import type { Args } from "./battle-text-parser";
 
 class PageRoom extends PSRoom {
 	override readonly classType: string = 'html';
@@ -39,7 +39,7 @@ class PageRoom extends PSRoom {
 	}
 }
 
-function PageLadderHelp(props: {room: PageRoom}) {
+function PageLadderHelp(props: { room: PageRoom }) {
 	return <div class="ladder pad">
 		<p>
 			<button name="selectFormat" data-href="ladder" data-target="replace">
@@ -73,13 +73,13 @@ function PageLadderHelp(props: {room: PageRoom}) {
 }
 
 class PagePanel extends PSRoomPanel<PageRoom> {
-	clientRooms: {[key: string]: JSX.Element} = {'ladderhelp': <PageLadderHelp room={this.props.room} />};
+	clientRooms: { [key: string]: JSX.Element } = { 'ladderhelp': <PageLadderHelp room={this.props.room} /> };
 
 	/**
 	 * @return true to prevent line from being sent to server
 	 */
 	override receiveLine(args: Args) {
-		const {room} = this.props;
+		const { room } = this.props;
 		switch (args[0]) {
 		case 'title':
 			room.title = args[1];
@@ -87,7 +87,7 @@ class PagePanel extends PSRoomPanel<PageRoom> {
 			return true;
 		case 'tempnotify': {
 			const [, id, title, body] = args;
-			room.notify({title, body, id});
+			room.notify({ title, body, id });
 			return true;
 		}
 		case 'tempnotifyoff': {
@@ -113,7 +113,7 @@ class PagePanel extends PSRoomPanel<PageRoom> {
 		}
 	}
 	override render() {
-		const {room} = this.props;
+		const { room } = this.props;
 		let renderPage;
 		if (room.page !== undefined && this.clientRooms[room.page]) {
 			renderPage = this.clientRooms[room.page];

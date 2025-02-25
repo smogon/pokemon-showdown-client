@@ -92,7 +92,7 @@
 		clickUsername: function (e) {
 			e.stopPropagation();
 			var name = $(e.currentTarget).data('name') || $(e.currentTarget).text();
-			app.addPopup(UserPopup, {name: name, sourceEl: e.currentTarget});
+			app.addPopup(UserPopup, { name: name, sourceEl: e.currentTarget });
 		}
 	});
 

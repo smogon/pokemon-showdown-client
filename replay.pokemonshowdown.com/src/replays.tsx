@@ -1,7 +1,7 @@
 /** @jsx preact.h */
 import preact from '../../play.pokemonshowdown.com/js/lib/preact';
-import {Net, PSModel} from './utils';
-import {BattlePanel} from './replays-battle';
+import { Net, PSModel } from './utils';
+import { BattlePanel } from './replays-battle';
 declare function toID(input: string): string;
 declare const Config: any;
 
@@ -15,7 +15,7 @@ interface ReplayResult {
 	rating?: number;
 }
 
-class SearchPanel extends preact.Component<{id: string}> {
+class SearchPanel extends preact.Component<{ id: string }> {
 	results: ReplayResult[] | null = null;
 	resultError: string | null = null;
 	format = '';
@@ -43,7 +43,7 @@ class SearchPanel extends preact.Component<{id: string}> {
 		const byRating = (query.sort === 'rating');
 		if (page !== this.page || byRating !== this.byRating) this.updateSearch(query);
 	}
-	updateSearch(query: {[k: string]: string}) {
+	updateSearch(query: { [k: string]: string }) {
 		const user = query.user || '';
 		const format = query.format || '';
 		const page = parseInt(query.page || '1');
@@ -112,7 +112,7 @@ class SearchPanel extends preact.Component<{id: string}> {
 			this.forceUpdate();
 		});
 	}
-	modLink(overrides: {page?: number, sort?: string}) {
+	modLink(overrides: { page?: number, sort?: string }) {
 		const newPage = (overrides.page !== undefined ? this.page + overrides.page : 1);
 		return './?' + Net.encodeQuery({
 			user: this.user || undefined,
@@ -215,19 +215,19 @@ class SearchPanel extends preact.Component<{id: string}> {
 					{activelySearching && <h1 aria-label="Results"></h1>}
 					{activelySearching && this.format && !this.user && <p>
 						Sort by: {}
-						<a href={this.modLink({sort: 'date'})} class={`button button-first${this.byRating ? '' : ' disabled'}`}>
+						<a href={this.modLink({ sort: 'date' })} class={`button button-first${this.byRating ? '' : ' disabled'}`}>
 							Date
 						</a>
-						<a href={this.modLink({sort: 'rating'})} class={`button button-last${this.byRating ? ' disabled' : ''}`}>
+						<a href={this.modLink({ sort: 'rating' })} class={`button button-last${this.byRating ? ' disabled' : ''}`}>
 							Rating
 						</a>
 					</p>}
 					{activelySearching && this.page > 1 && <p class="pagelink">
-						<a href={this.modLink({page: -1})} class="button"><i class="fa fa-caret-up"></i><br />Page {this.page - 1}</a>
+						<a href={this.modLink({ page: -1 })} class="button"><i class="fa fa-caret-up"></i><br />Page {this.page - 1}</a>
 					</p>}
 					{activelySearching && searchResults}
 					{activelySearching && (this.results?.length || 0) > 50 && <p class="pagelink">
-						<a href={this.modLink({page: 1})} class="button">Page {this.page + 1}<br /><i class="fa fa-caret-down"></i></a>
+						<a href={this.modLink({ page: 1 })} class="button">Page {this.page + 1}<br /><i class="fa fa-caret-down"></i></a>
 					</p>}
 				</form>
 			</section>
@@ -275,7 +275,7 @@ class FeaturedReplays extends preact.Component {
 					<strong>Metal Brellow</strong> vs. <strong>zig100</strong>
 					<small><br />Topsy-Turvy</small>
 				</a></li>
-				{!this.moreFun && <li style={{paddingLeft: '8px'}}>
+				{!this.moreFun && <li style={{ paddingLeft: '8px' }}>
 					<button class="button" onClick={this.showMoreFun}>More <i class="fa fa-caret-right" aria-hidden></i></button>
 				</li>}
 				{this.moreFun && <li><a href="smogondoubles-75588440?p2" class="blocklink">
@@ -331,7 +331,7 @@ class FeaturedReplays extends preact.Component {
 						final versus hard.
 					</small>
 				</a></li>
-				{!this.moreCompetitive && <li style={{paddingLeft: '8px'}}>
+				{!this.moreCompetitive && <li style={{ paddingLeft: '8px' }}>
 					<button class="button" onClick={this.showMoreCompetitive}>More <i class="fa fa-caret-right" aria-hidden></i></button>
 				</li>}
 				{this.moreCompetitive && <li><a href="smogtours-ubers-34646" class="blocklink">
@@ -492,13 +492,13 @@ export class PSReplays extends preact.Component {
 	}
 	override render() {
 		const position = PSRouter.showingLeft() && PSRouter.showingRight() && !PSRouter.stickyRight ?
-			{display: 'flex', flexDirection: 'column', justifyContent: 'flex-end'} : {};
+			{ display: 'flex', flexDirection: 'column', justifyContent: 'flex-end' } : {};
 		return <div
 			class={'bar-wrapper' + (PSRouter.showingLeft() && PSRouter.showingRight() ? ' has-sidebar' : '')} style={position}
 		>
 			{PSRouter.showingLeft() && <SearchPanel id={PSRouter.leftLoc!} />}
 			{PSRouter.showingRight() && <BattlePanel id={PSRouter.rightLoc!} />}
-			<div style={{clear: 'both'}}></div>
+			<div style={{ clear: 'both' }}></div>
 		</div>;
 	}
 }
