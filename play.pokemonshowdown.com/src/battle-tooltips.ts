@@ -2468,16 +2468,14 @@ export class BattleTooltips {
 				const speciesForme = clientPokemon.getSpeciesForme() || serverPokemon?.speciesForme || '';
 				const species = this.battle.dex.species.get(speciesForme);
 				if (species.exists && species.abilities) {
-					abilityData.possibilities = [species.abilities['0']];
-					if (species.abilities['1']) abilityData.possibilities.push(species.abilities['1']);
-					if (species.abilities['H']) abilityData.possibilities.push(species.abilities['H']);
-					if (species.abilities['S']) abilityData.possibilities.push(species.abilities['S']);
+					abilityData.possibilities = Object.values(species.abilities);
 					if (this.battle.rules['Frantic Fusions Mod']) {
 						const fusionSpecies = this.battle.dex.species.get(clientPokemon.name);
 						if (fusionSpecies.exists && fusionSpecies.name !== species.name) {
-							abilityData.possibilities = Array.from(
-								new Set(abilityData.possibilities.concat(Object.values(fusionSpecies.abilities)))
-							);
+							for (const newAbility of Object.values(fusionSpecies.abilities)) {
+								if (abilityData.possibilities.includes(newAbility)) continue;
+								abilityData.possibilities.push(newAbility);
+							}
 						}
 					}
 				}

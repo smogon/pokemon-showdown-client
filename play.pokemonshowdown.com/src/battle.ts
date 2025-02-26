@@ -1100,7 +1100,7 @@ export class Battle {
 	gameType: 'singles' | 'doubles' | 'triples' | 'multi' | 'freeforall' = 'singles';
 	compatMode = true;
 	rated: string | boolean = false;
-	rules: { [ruleName: string]: 1 | 0 } = {};
+	rules: { [ruleName: string]: 1 | undefined } = {};
 	isBlitz = false;
 	reportExactHP = false;
 	endLastTurnPending = false;
