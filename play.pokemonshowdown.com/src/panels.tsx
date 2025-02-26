@@ -9,7 +9,16 @@
  * @license AGPLv3
  */
 
-class PSRouter {
+import preact from "../js/lib/preact";
+import { toID } from "./battle-dex";
+import { BattleLog } from "./battle-log";
+import type { Args } from "./battle-text-parser";
+import { BattleTooltips } from "./battle-tooltips";
+import type { PSSubscription } from "./client-core";
+import { PS, type PSRoom, type RoomID } from "./client-main";
+import { PSHeader } from "./panel-topbar";
+
+export class PSRouter {
 	roomid = '' as RoomID;
 	panelState = '';
 	constructor() {
@@ -118,9 +127,9 @@ class PSRouter {
 }
 PS.router = new PSRouter();
 
-class PSRoomPanel<T extends PSRoom = PSRoom> extends preact.Component<{room: T}> {
+export class PSRoomPanel<T extends PSRoom = PSRoom> extends preact.Component<{ room: T }> {
 	subscriptions: PSSubscription[] = [];
-	componentDidMount() {
+	override componentDidMount() {
 		if (PS.room === this.props.room) this.focus();
 		this.props.room.onParentEvent = (id: string, e?: Event) => {
 			if (id === 'focus') this.focus();
@@ -133,12 +142,12 @@ class PSRoomPanel<T extends PSRoom = PSRoom> extends preact.Component<{room: T}>
 			this.props.room.setDimensions(this.base.offsetWidth, this.base.offsetHeight);
 		}
 	}
-	componentDidUpdate() {
+	override componentDidUpdate() {
 		if (this.base && ['popup', 'semimodal-popup'].includes(this.props.room.location)) {
 			this.props.room.setDimensions(this.base.offsetWidth, this.base.offsetHeight);
 		}
 	}
-	componentWillUnmount() {
+	override componentWillUnmount() {
 		this.props.room.onParentEvent = null;
 		for (const subscription of this.subscriptions) {
 			subscription.unsubscribe();
@@ -166,7 +175,7 @@ class PSRoomPanel<T extends PSRoom = PSRoom> extends preact.Component<{room: T}>
 	}
 }
 
-function PSPanelWrapper(props: {
+export function PSPanelWrapper(props: {
 	room: PSRoom, children: preact.ComponentChildren, scrollable?: boolean, width?: number | 'auto',
 }) {
 	const room = props.room;
@@ -192,7 +201,7 @@ function PSPanelWrapper(props: {
 	</div>;
 }
 
-class PSMain extends preact.Component {
+export class PSMain extends preact.Component {
 	constructor() {
 		super();
 		PS.subscribe(() => this.forceUpdate());
@@ -268,6 +277,7 @@ class PSMain extends preact.Component {
 			}
 			if (PS.room !== clickedRoom) {
 				if (clickedRoom) PS.room = clickedRoom;
+				// eslint-disable-next-line no-unmodified-loop-condition
 				while (PS.popups.length && (!clickedRoom || clickedRoom.id !== PS.popups[PS.popups.length - 1])) {
 					PS.closePopup();
 				}
@@ -309,7 +319,7 @@ class PSMain extends preact.Component {
 
 		const colorSchemeQuery = window.matchMedia?.('(prefers-color-scheme: dark)');
 		if (colorSchemeQuery?.media !== 'not all') {
-			colorSchemeQuery.addEventListener('change', function (cs) {
+			colorSchemeQuery.addEventListener('change', cs => {
 				if (PS.prefs.theme === 'system') document.body.className = cs.matches ? 'dark' : '';
 			});
 		}
@@ -317,7 +327,7 @@ class PSMain extends preact.Component {
 		PS.prefs.subscribeAndRun(key => {
 			if (!key || key === 'theme') {
 				const dark = PS.prefs.theme === 'dark' ||
-					(PS.prefs.theme === 'system' && colorSchemeQuery && colorSchemeQuery.matches);
+					(PS.prefs.theme === 'system' && colorSchemeQuery?.matches);
 				document.body.className = dark ? 'dark' : '';
 			}
 		});
@@ -365,21 +375,21 @@ class PSMain extends preact.Component {
 		try {
 			const selection = window.getSelection()!;
 			if (selection.type === 'Range') return false;
-		} catch (err) {}
+		} catch {}
 		BattleTooltips.hideTooltip();
 	}
 	static posStyle(room: PSRoom) {
 		let pos: PanelPosition | null = null;
 		if (PS.leftRoomWidth === 0) {
 			// one panel visible
-			if (room === PS.activePanel) pos = {top: 56};
+			if (room === PS.activePanel) pos = { top: 56 };
 		} else {
 			// both panels visible
-			if (room === PS.leftRoom) pos = {top: 56, right: PS.leftRoomWidth};
-			if (room === PS.rightRoom) pos = {top: 56, left: PS.leftRoomWidth};
+			if (room === PS.leftRoom) pos = { top: 56, right: PS.leftRoomWidth };
+			if (room === PS.rightRoom) pos = { top: 56, left: PS.leftRoomWidth };
 		}
 
-		if (!pos) return {display: 'none'};
+		if (!pos) return { display: 'none' };
 
 		let top: number | null = (pos.top || 0);
 		let height: number | null = null;
@@ -413,7 +423,7 @@ class PSMain extends preact.Component {
 	}
 	static getPopupStyle(room: PSRoom, width?: number | 'auto'): any {
 		if (room.location === 'modal-popup' || !room.parentElem) {
-			return {width: width || 480};
+			return { width: width || 480 };
 		}
 		if (!room.width || !room.height) {
 			return {
@@ -504,15 +514,15 @@ class PSMain extends preact.Component {
 			}
 		}
 		return <div class="ps-frame">
-			<PSHeader style={{top: 0, left: 0, right: 0, height: '50px'}} />
+			<PSHeader style={{ top: 0, left: 0, right: 0, height: '50px' }} />
 			{rooms}
 			{PS.popups.map(roomid => this.renderPopup(PS.rooms[roomid]!))}
 		</div>;
 	}
 }
 
-type PanelPosition = {top?: number, bottom?: number, left?: number, right?: number} | null;
+type PanelPosition = { top?: number, bottom?: number, left?: number, right?: number } | null;
 
-function SanitizedHTML(props: {children: string}) {
-	return <div dangerouslySetInnerHTML={{__html: BattleLog.sanitizeHTML(props.children)}}/>;
+export function SanitizedHTML(props: { children: string }) {
+	return <div dangerouslySetInnerHTML={{ __html: BattleLog.sanitizeHTML(props.children) }} />;
 }

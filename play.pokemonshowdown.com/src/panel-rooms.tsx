@@ -5,8 +5,13 @@
  * @license AGPLv3
  */
 
-class RoomsRoom extends PSRoom {
-	readonly classType: string = 'rooms';
+import { PS, PSRoom, type RoomID, type RoomOptions } from "./client-main";
+import { PSPanelWrapper, PSRoomPanel } from "./panels";
+import type { RoomInfo } from "./panel-mainmenu";
+import { toID } from "./battle-dex";
+
+export class RoomsRoom extends PSRoom {
+	override readonly classType: string = 'rooms';
 	constructor(options: RoomOptions) {
 		super(options);
 		PS.send(`|/cmd rooms`);
@@ -17,7 +22,7 @@ class RoomsPanel extends PSRoomPanel {
 	hidden = false;
 	search = '';
 	lastKeyCode = 0;
-	componentDidMount() {
+	override componentDidMount() {
 		super.componentDidMount();
 		this.subscriptions.push(PS.user.subscribe(() => {
 			if (PS.user.named) PS.send(`|/cmd rooms`);
@@ -31,7 +36,7 @@ class RoomsPanel extends PSRoomPanel {
 		PS.update();
 	};
 	changeSearch = (e: Event) => {
-		const target = (e.currentTarget as HTMLInputElement);
+		const target = e.currentTarget as HTMLInputElement;
 		if (target.selectionStart !== target.selectionEnd) return;
 		this.search = target.value;
 		this.forceUpdate();
@@ -39,7 +44,7 @@ class RoomsPanel extends PSRoomPanel {
 	keyDownSearch = (e: KeyboardEvent) => {
 		this.lastKeyCode = e.keyCode;
 		if (e.keyCode === 13) {
-			const target = (e.currentTarget as HTMLInputElement);
+			const target = e.currentTarget as HTMLInputElement;
 			let value = target.value;
 			const arrowIndex = value.indexOf(' \u21d2 ');
 			if (arrowIndex >= 0) value = value.slice(arrowIndex + 3);
@@ -81,7 +86,7 @@ class RoomsPanel extends PSRoomPanel {
 			room.title.replace(/[^A-Z0-9]+/g, '').toLowerCase().startsWith(searchid)
 		);
 
-		const hidden = !exactMatch ? [{title: this.search, desc: "(Private room?)"}] : [];
+		const hidden = !exactMatch ? [{ title: this.search, desc: "(Private room?)" }] : [];
 
 		const autoFill = this.lastKeyCode !== 127 && this.lastKeyCode >= 32;
 		if (autoFill) {
@@ -98,17 +103,17 @@ class RoomsPanel extends PSRoomPanel {
 				autoFillValue = ' \u21d2 ' + firstTitle;
 			}
 			const oldSearch = this.search;
-			const searchElem = this.base!.querySelector('input[type=search]') as HTMLInputElement;
+			const searchElem = this.base!.querySelector<HTMLInputElement>('input[type=search]')!;
 			searchElem.value = oldSearch + autoFillValue;
 			searchElem.setSelectionRange(oldSearch.length, oldSearch.length + autoFillValue.length);
 		}
 
-		return {start, abbr, hidden};
+		return { start, abbr, hidden };
 	}
-	focus() {
-		(this.base!.querySelector('input[type=search]') as HTMLInputElement).focus();
+	override focus() {
+		this.base!.querySelector<HTMLInputElement>('input[type=search]')!.focus();
 	}
-	render() {
+	override render() {
 		if (this.hidden && PS.isVisible(this.props.room)) this.hidden = false;
 		if (this.hidden) {
 			return <PSPanelWrapper room={this.props.room} scrollable>{null}</PSPanelWrapper>;
@@ -161,7 +166,7 @@ class RoomsPanel extends PSRoomPanel {
 		</div></PSPanelWrapper>;
 	}
 	renderRoomList(title: string, rooms?: RoomInfo[]) {
-		if (!rooms || !rooms.length) return null;
+		if (!rooms?.length) return null;
 		// Descending order
 		const sortedRooms = rooms.sort((a, b) => (b.userCount || 0) - (a.userCount || 0));
 		return <div class="roomlist">

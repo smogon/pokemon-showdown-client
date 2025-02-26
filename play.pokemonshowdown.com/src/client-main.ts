@@ -9,6 +9,14 @@
  * @license AGPLv3
  */
 
+import { type PSConnection, PSLoginServer } from './client-connection';
+import { PSModel, PSStreamModel } from './client-core';
+import type { PSRouter } from './panels';
+import type { ChatRoom } from './panel-chat';
+import type { MainMenuRoom } from './panel-mainmenu';
+import { toID, type ID } from './battle-dex';
+import { BattleTextParser, type Args } from './battle-text-parser';
+
 /**********************************************************************
  * Prefs
  *********************************************************************/
@@ -16,9 +24,9 @@
 /**
  * String that contains only lowercase alphanumeric characters.
  */
-type RoomID = string & {__isRoomID: true};
+export type RoomID = string & { __isRoomID: true };
 
-const PSPrefsDefaults: {[key: string]: any} = {};
+const PSPrefsDefaults: { [key: string]: any } = {};
 
 /**
  * Tracks user preferences, stored in localStorage. Contains most local
@@ -46,7 +54,7 @@ class PSPrefs extends PSStreamModel<string | null> {
 	 * table. Uses 1 and 0 instead of true/false for JSON packing
 	 * reasons.
 	 */
-	showjoins: {[serverid: string]: {[roomid: string]: 1 | 0}} | null = null;
+	showjoins: { [serverid: string]: { [roomid: string]: 1 | 0 } } | null = null;
 	/**
 	 * true = one panel, false = two panels, left and right
 	 */
@@ -58,7 +66,7 @@ class PSPrefs extends PSStreamModel<string | null> {
 	notifvolume = 50;
 
 	storageEngine: 'localStorage' | 'iframeLocalStorage' | '' = '';
-	storage: {[k: string]: any} = {};
+	storage: { [k: string]: any } = {};
 	readonly origin = `https://${Config.routes.client}`;
 	constructor() {
 		super();
@@ -108,9 +116,9 @@ class PSPrefs extends PSStreamModel<string | null> {
 	fixPrefs(newPrefs: any) {
 		const oldShowjoins = newPrefs['showjoins'];
 		if (oldShowjoins !== undefined && typeof oldShowjoins !== 'object') {
-			const showjoins: {[serverid: string]: {[roomid: string]: 1 | 0}} = {};
-			const serverShowjoins: {[roomid: string]: 1 | 0} = {global: (oldShowjoins ? 1 : 0)};
-			const showroomjoins = newPrefs['showroomjoins'] as {[roomid: string]: boolean};
+			const showjoins: { [serverid: string]: { [roomid: string]: 1 | 0 } } = {};
+			const serverShowjoins: { [roomid: string]: 1 | 0 } = { global: (oldShowjoins ? 1 : 0) };
+			const showroomjoins = newPrefs['showroomjoins'] as { [roomid: string]: boolean };
 			for (const roomid in showroomjoins) {
 				serverShowjoins[roomid] = (showroomjoins[roomid] ? 1 : 0);
 			}
@@ -146,7 +154,7 @@ class PSPrefs extends PSStreamModel<string | null> {
  * Teams
  *********************************************************************/
 
-interface Team {
+export interface Team {
 	name: string;
 	format: ID;
 	packedTeam: string;
@@ -164,7 +172,7 @@ class PSTeams extends PSStreamModel<'team' | 'format'> {
 	/** false if it uses the ladder in the website */
 	usesLocalLadder = false;
 	list: Team[] = [];
-	byKey: {[key: string]: Team | undefined} = {};
+	byKey: { [key: string]: Team | undefined } = {};
 	deletedTeams: [Team, number][] = [];
 	constructor() {
 		super();
@@ -196,7 +204,7 @@ class PSTeams extends PSStreamModel<'team' | 'format'> {
 			return;
 		}
 
-		if (buffer.charAt(0) === '[' && !buffer.trim().includes('\n')) {
+		if (buffer.startsWith('[') && !buffer.trim().includes('\n')) {
 			this.unpackOldBuffer(buffer);
 			return;
 		}
@@ -235,7 +243,6 @@ class PSTeams extends PSStreamModel<'team' | 'format'> {
 	unpackOldBuffer(buffer: string) {
 		alert(`Your team storage format is too old for PS. You'll need to upgrade it at https://${Config.routes.client}/recoverteams.html`);
 		this.list = [];
-		return;
 	}
 	packAll(teams: Team[]) {
 		return teams.map(team => (
@@ -256,7 +263,7 @@ class PSTeams extends PSStreamModel<'team' | 'format'> {
 		let slashIndex = line.lastIndexOf('/', pipeIndex);
 		if (slashIndex < 0) slashIndex = bracketIndex; // line.slice(slashIndex + 1, pipeIndex) will be ''
 		let format = bracketIndex > 0 ? line.slice(0, bracketIndex) : 'gen7';
-		if (format.slice(0, 3) !== 'gen') format = 'gen6' + format;
+		if (!format.startsWith('gen')) format = 'gen6' + format;
 		const name = line.slice(slashIndex + 1, pipeIndex);
 		return {
 			name,
@@ -282,7 +289,7 @@ class PSUser extends PSModel {
 	avatar = "1";
 	setName(fullName: string, named: boolean, avatar: string) {
 		const loggingIn = (!this.named && named);
-		const {name, group} = BattleTextParser.parseNameParts(fullName);
+		const { name, group } = BattleTextParser.parseNameParts(fullName);
 		this.name = name;
 		this.group = group;
 		this.userid = toID(name);
@@ -332,7 +339,7 @@ class PSServer {
 	registered = Config.defaultserver.registered;
 	prefix = '/showdown';
 	protocol: 'http' | 'https' = Config.defaultserver.httpport ? 'https' : 'http';
-	groups: {[symbol: string]: PSGroup} = {
+	groups: { [symbol: string]: PSGroup } = {
 		'~': {
 			name: "Administrator (~)",
 			type: 'leadership',
@@ -409,7 +416,7 @@ class PSServer {
 
 type PSRoomLocation = 'left' | 'right' | 'popup' | 'mini-window' | 'modal-popup' | 'semimodal-popup';
 
-interface RoomOptions {
+export interface RoomOptions {
 	id: RoomID;
 	title?: string;
 	type?: string;
@@ -436,7 +443,7 @@ interface PSNotificationState {
  * As a PSStreamModel, PSRoom can emit `Args` to mean "we received a message",
  * and `null` to mean "tell Preact to re-render this room"
  */
-class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
+export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 	id: RoomID;
 	title = "";
 	type = '';
@@ -450,14 +457,14 @@ class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 	 * In particular, this is `true` after sending `/join`, and `false`
 	 * after sending `/leave`, even before the server responds.
 	 */
-	connected: boolean = false;
+	connected = false;
 	/**
 	 * Can this room even be connected to at all?
 	 * `true` = pass messages from the server to subscribers
 	 * `false` = throw an error if we receive messages from the server
 	 */
 	readonly canConnect: boolean = false;
-	connectWhenLoggedIn: boolean = false;
+	connectWhenLoggedIn = false;
 	onParentEvent: ((eventId: 'focus' | 'keydown', e?: Event) => false | void) | null = null;
 
 	width = 0;
@@ -483,7 +490,7 @@ class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 		if (options.rightPopup) this.rightPopup = true;
 		if (options.connected) this.connected = true;
 	}
-	notify(options: {title: string, body?: string, noAutoDismiss?: boolean, id?: string}) {
+	notify(options: { title: string, body?: string, noAutoDismiss?: boolean, id?: string }) {
 		if (options.noAutoDismiss && !options.id) {
 			throw new Error(`Must specify id for manual dismissing`);
 		}
@@ -520,7 +527,7 @@ class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 			break;
 		} case 'tempnotify': {
 			const [, id, title, body, toHighlight] = args;
-			this.notify({title, body, id});
+			this.notify({ title, body, id });
 			break;
 		} case 'tempnotifyoff': {
 			const [, id] = args;
@@ -532,7 +539,8 @@ class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 			} else {
 				throw new Error(`This room is not designed to receive messages`);
 			}
-		}}
+		}
+		}
 	}
 	handleMessage(line: string) {
 		if (!line.startsWith('/') || line.startsWith('//')) return false;
@@ -543,7 +551,8 @@ class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 		case 'logout': {
 			PS.user.logOut();
 			return true;
-		}}
+		}
+		}
 		return false;
 	}
 	send(msg: string, direct?: boolean) {
@@ -562,8 +571,8 @@ class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 
 class PlaceholderRoom extends PSRoom {
 	queue = [] as Args[];
-	readonly classType: 'placeholder' = 'placeholder';
-	receiveLine(args: Args) {
+	override readonly classType = 'placeholder';
+	override receiveLine(args: Args) {
 		this.queue.push(args);
 	}
 }
@@ -572,7 +581,7 @@ class PlaceholderRoom extends PSRoom {
  * PS
  *********************************************************************/
 
-type RoomType = {Model?: typeof PSRoom, Component: any, title?: string};
+type RoomType = { Model?: typeof PSRoom, Component: any, title?: string };
 
 /**
  * This model updates:
@@ -580,7 +589,7 @@ type RoomType = {Model?: typeof PSRoom, Component: any, title?: string};
  * - changing which room is focused
  * - changing the width of the left room, in two-panel mode
  */
-const PS = new class extends PSModel {
+export const PS = new class extends PSModel {
 	down: string | boolean = false;
 
 	prefs = new PSPrefs();
@@ -601,7 +610,7 @@ const PS = new class extends PSModel {
 
 	router: PSRouter = null!;
 
-	rooms: {[roomid: string]: PSRoom | undefined} = {};
+	rooms: { [roomid: string]: PSRoom | undefined } = {};
 	roomTypes: {
 		[type: string]: RoomType | undefined,
 	} = {};
@@ -659,7 +668,7 @@ const PS = new class extends PSModel {
 	 * the Rooms panel and clicking "Hide")
 	 *
 	 * Will NOT be true if only one panel fits onto the screen at the
-	 * moment, but resizing will display multiple panels – for that,
+	 * moment, but resizing will display multiple panels – for that,
 	 * check `PS.leftRoomWidth === 0`
 	 */
 	onePanelMode = false;
@@ -680,7 +689,7 @@ const PS = new class extends PSModel {
 	 * for security reasons it's impossible to know what they are until
 	 * they're dropped.
 	 */
-	dragging: {type: 'room', roomid: RoomID} | null = null;
+	dragging: { type: 'room', roomid: RoomID } | null = null;
 
 	/** Tracks whether or not to display the "Use arrow keys" hint */
 	arrowKeysUsed = false;
@@ -778,7 +787,7 @@ const PS = new class extends PSModel {
 			if (!alreadyUpdating) this.update(true);
 		}
 	}
-	update(layoutAlreadyUpdated?: boolean) {
+	override update(layoutAlreadyUpdated?: boolean) {
 		if (!layoutAlreadyUpdated) this.updateLayout(true);
 		super.update();
 	}
@@ -833,7 +842,8 @@ const PS = new class extends PSModel {
 				}
 				this.update();
 				continue;
-			}}
+			}
+			}
 			if (room) room.receiveLine(args);
 		}
 		if (room) room.update(isInit ? [`initdone`] : null);
@@ -1046,7 +1056,7 @@ const PS = new class extends PSModel {
 		const roomid = `pm-${[userid, myUserid].sort().join('-')}` as RoomID;
 		if (this.rooms[roomid]) return this.rooms[roomid] as ChatRoom;
 		this.join(roomid);
-		return this.rooms[roomid] as ChatRoom;
+		return this.rooms[roomid]! as ChatRoom;
 	}
 	addRoom(options: RoomOptions, noFocus?: boolean) {
 		// support hardcoded PM room-IDs
@@ -1054,7 +1064,7 @@ const PS = new class extends PSModel {
 			options.id = `pm-${options.id.slice(10)}` as RoomID;
 			options.challengeMenuOpen = true;
 		}
-		if (options.id.startsWith('pm-') && options.id.indexOf('-', 3) < 0) {
+		if (options.id.startsWith('pm-') && !options.id.includes('-', 3)) {
 			const userid1 = PS.user.userid;
 			const userid2 = options.id.slice(3);
 			options.id = `pm-${[userid1, userid2].sort().join('-')}` as RoomID;
@@ -1166,7 +1176,7 @@ const PS = new class extends PSModel {
 	}
 	join(roomid: RoomID, side?: PSRoomLocation | null, noFocus?: boolean) {
 		if (this.room.id === roomid) return;
-		this.addRoom({id: roomid, side}, noFocus);
+		this.addRoom({ id: roomid, side }, noFocus);
 		this.update();
 	}
 	leave(roomid: RoomID) {
