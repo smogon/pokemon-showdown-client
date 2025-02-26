@@ -1328,7 +1328,7 @@ class BattleItemSearch extends BattleTypedSearch<'item'> {
 		}
 		if (abilitySpecific.length) {
 			results.unshift(
-				['header', `Specific to ${this.set!.ability as string}`],
+				['header', `Specific to ${this.set!.ability!}`],
 				...abilitySpecific
 			);
 		}
