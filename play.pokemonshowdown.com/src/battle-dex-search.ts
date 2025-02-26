@@ -1282,9 +1282,9 @@ class BattleItemSearch extends BattleTypedSearch<'item'> {
 		} else if (this.formatType === 'bw1') {
 			table = table['gen5bw1'];
 		} else if (this.formatType === 'natdex') {
-			table = table['gen' + this.dex.gen + 'natdex'];
+			table = table[`gen${this.dex.gen}natdex`];
 		} else if (this.formatType?.endsWith('doubles')) { // no natdex/bdsp doubles support
-			table = table['gen' + this.dex.gen + 'doubles'];
+			table = table[`gen${this.dex.gen}doubles`];
 		} else if (this.formatType === 'metronome') {
 			table = table[`gen${this.dex.gen}metronome`];
 		} else if (this.dex.gen < 9) {
@@ -1328,7 +1328,7 @@ class BattleItemSearch extends BattleTypedSearch<'item'> {
 		}
 		if (abilitySpecific.length) {
 			results.unshift(
-				['header', "Specific to " + this.set!.ability],
+				['header', `Specific to ${this.set!.ability}`],
 				...abilitySpecific
 			);
 		}
