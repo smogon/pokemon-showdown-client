@@ -589,7 +589,6 @@ export class BattleScene implements BattleSceneStub {
 			else bg = `sprites/gen6bgs/${BattleBackdrops[this.numericId % BattleBackdrops.length]}`;
 		}
 
-		console.log(bg);
 		this.backdropImage = bg;
 		if (this.$bg) {
 			this.$bg.css('background-image', `url(${Dex.resourcePrefix}${this.backdropImage})`);
