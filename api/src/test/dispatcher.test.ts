@@ -3,9 +3,9 @@
  * By Mia.
  * @author mia-pi-git
  */
-import {strict as assert} from 'assert';
-import {Config} from '../config-loader';
-import {ActionContext, ActionError, SimServers} from '../server';
+import { strict as assert } from 'assert';
+import { Config } from '../config-loader';
+import { ActionContext, ActionError, SimServers } from '../server';
 import * as path from 'path';
 
 import * as utils from './test-utils';
@@ -33,6 +33,7 @@ describe('Dispatcher features', () => {
 		assert(cur);
 		assert(server.id === cur.id);
 		// invalidate the servertoken, we shouldn't find the server now
+		// eslint-disable-next-line require-atomic-updates
 		context.body.servertoken = '';
 		const result = await context.getServer(true).catch(e => e);
 		assert(result instanceof ActionError);
@@ -44,7 +45,7 @@ describe('Dispatcher features', () => {
 		];
 		context.request.headers['origin'] = 'https://etheria.psim.us/';
 		let prefix = context.verifyCrossDomainRequest();
-		assert(prefix === 'server_', 'Wrong challengeprefix: ' + prefix);
+		assert(prefix === 'server_', `Wrong challengeprefix: ${prefix}`);
 		assert(context.response.hasHeader('Access-Control-Allow-Origin'), 'missing CORS header');
 
 		context.response.removeHeader('Access-Control-Allow-Origin');
@@ -52,9 +53,9 @@ describe('Dispatcher features', () => {
 
 		context.setPrefix('');
 		prefix = context.verifyCrossDomainRequest();
-		assert(prefix === '', 'has improper challengeprefix: ' + prefix);
+		assert(prefix === '', `has improper challengeprefix: ${prefix}`);
 		const header = context.response.hasHeader('Access-Control-Allow-Origin');
-		assert(!header, 'has CORS header where it should not: ' + header);
+		assert(!header, `has CORS header where it should not: ${header}`);
 	});
 	it('Should support requesting /api/[action]', async () => {
 		const req = context.request;
@@ -81,7 +82,7 @@ describe('Dispatcher features', () => {
 				id: 'showdown',
 				server: 'sim.psim.us',
 				port: 8000,
-				owner: 'mia'
+				owner: 'mia',
 			},
 		}, servers);
 	});

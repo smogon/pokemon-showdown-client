@@ -8,7 +8,7 @@ export function toID(text: any): string {
 		text = text.userid;
 	}
 	if (typeof text !== 'string' && typeof text !== 'number') return '';
-	return ('' + text).toLowerCase().replace(/[^a-z0-9]+/g, '');
+	return `${text}`.toLowerCase().replace(/[^a-z0-9]+/g, '');
 }
 
 export function time() {
@@ -97,7 +97,7 @@ export function signAsync(algo: string, data: string, key: string) {
 
 export function escapeHTML(str: string | number) {
 	if (str === null || str === undefined) return '';
-	return ('' + str)
+	return `${str}`
 		.replace(/&/g, '&amp;')
 		.replace(/</g, '&lt;')
 		.replace(/>/g, '&gt;')
@@ -106,7 +106,7 @@ export function escapeHTML(str: string | number) {
 }
 
 export class TimeSorter {
-	private data: Record<string, {min: number, max: number, count: number}> = {};
+	private data: Record<string, { min: number, max: number, count: number }> = {};
 	add(key: string, timestamp: number) {
 		if (this.data[key]) {
 			if (this.data[key].min > timestamp) {
@@ -117,7 +117,7 @@ export class TimeSorter {
 			}
 			this.data[key].count++;
 		} else {
-			this.data[key] = {min: timestamp, max: timestamp, count: 1};
+			this.data[key] = { min: timestamp, max: timestamp, count: 1 };
 		}
 	}
 	toJSON(): TimeSorter['data'] {

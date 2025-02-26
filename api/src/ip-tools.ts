@@ -3,16 +3,15 @@
  */
 
 export const IPTools = new class {
-	privateRelayIPs: {minIP: number; maxIP: number}[] = [];
-	// eslint-disable-next-line max-len
+	privateRelayIPs: { minIP: number, maxIP: number }[] = [];
 	readonly ipRegex = /^(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\.(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\.(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\.(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])$/;
-	getCidrRange(cidr: string): {minIP: number; maxIP: number} | null {
+	getCidrRange(cidr: string): { minIP: number, maxIP: number } | null {
 		if (!cidr) return null;
 		const index = cidr.indexOf('/');
 		if (index <= 0) {
 			const ip = IPTools.ipToNumber(cidr);
 			if (ip === null) return null;
-			return {minIP: ip, maxIP: ip};
+			return { minIP: ip, maxIP: ip };
 		}
 		const low = IPTools.ipToNumber(cidr.slice(0, index));
 		const bits = this.parseExactInt(cidr.slice(index + 1));
@@ -20,7 +19,7 @@ export const IPTools = new class {
 		// does << with signed int32s.
 		if (low === null || !bits || bits < 2 || bits > 32) return null;
 		const high = low + (1 << (32 - bits)) - 1;
-		return {minIP: low, maxIP: high};
+		return { minIP: low, maxIP: high };
 	}
 	parseExactInt(str: string): number {
 		if (!/^-?(0|[1-9][0-9]*)$/.test(str)) return NaN;

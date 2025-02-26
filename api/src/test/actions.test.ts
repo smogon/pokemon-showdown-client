@@ -3,15 +3,15 @@
  * By Mia.
  * @author mia-pi-git
  */
-import {strict as assert} from 'assert';
-import {Ladder} from '../ladder';
-import {toID} from '../utils';
+import { strict as assert } from 'assert';
+import { Ladder } from '../ladder';
+import { toID } from '../utils';
 import * as utils from './test-utils';
 import * as tables from '../tables';
 
 const token = '42354y6dhgfdsretr';
 describe('Loginserver actions', () => {
-	const server = utils.addServer({
+	/* const server = */ utils.addServer({
 		id: 'showdown',
 		name: 'Etheria',
 		port: 8000,
@@ -20,7 +20,7 @@ describe('Loginserver actions', () => {
 	});
 
 	it('Should properly log userstats and userstats history', async () => {
-		const {result} = await utils.testDispatcher({
+		const { result } = await utils.testDispatcher({
 			act: 'updateuserstats',
 			users: '20',
 			date: `${Date.now()}`,
@@ -36,7 +36,7 @@ describe('Loginserver actions', () => {
 			// erase the user so the test runs uncorrupted
 			await tables.users.delete('catra').catch(() => null);
 
-			const {result} = await utils.testDispatcher({
+			const { result } = await utils.testDispatcher({
 				act: 'register',
 				username: 'Catra',
 				password: 'applesauce',
@@ -51,7 +51,7 @@ describe('Loginserver actions', () => {
 		});
 
 		it('Should log in a user', async () => {
-			const {result} = await utils.testDispatcher({
+			const { result } = await utils.testDispatcher({
 				act: 'login',
 				name: 'catra',
 				pass: 'applesauce',
@@ -63,7 +63,7 @@ describe('Loginserver actions', () => {
 		});
 
 		it("should change the user's password", async () => {
-			const {result} = await utils.testDispatcher({
+			const { result } = await utils.testDispatcher({
 				act: 'changepassword',
 				username: 'Catra',
 				oldpassword: 'applesauce',
@@ -112,7 +112,7 @@ describe('Loginserver actions', () => {
 				// clear their ratings entirely
 				await tables.ladder.deleteOne()`userid = ${id} AND formatid = ${'gen1randombattle'}`;
 			}
-			const {result} = await utils.testDispatcher({
+			const { result } = await utils.testDispatcher({
 				act: 'ladderupdate',
 				serverid: 'showdown',
 				servertoken: token,
@@ -133,7 +133,7 @@ describe('Loginserver actions', () => {
 				await tables.ladder.deleteAll()`WHERE userid = ${toID(player)} AND formatid = ${ladder.formatid}`;
 			}
 			const [p1r, _p2r] = await ladder.addMatch(p1, p2, 1);
-			const {result} = await utils.testDispatcher({
+			const { result } = await utils.testDispatcher({
 				act: 'mmr',
 				format: 'gen5randombattle',
 				user: 'shera',

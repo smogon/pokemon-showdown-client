@@ -5,8 +5,8 @@
  * @author Zarel, mia-pi-git
  */
 
-import {toID, time} from './utils';
-import {ladder} from './tables';
+import { toID, time } from './utils';
+import { ladder } from './tables';
 
 export interface LadderEntry {
 	entryid: number;
@@ -269,7 +269,7 @@ export class Ladder {
 
 		const exp = ((1500 - glicko.rating) / 400 / Math.sqrt(1 + 0.0000100724 * (glicko.rd * glicko.rd + 130 * 130)));
 		rating.gxe = Number((
-			100 / (1 + Math.pow(10, exp))
+			100 / (1 + (10 ** exp))
 		).toFixed(1));
 
 		// if ($newM) {
@@ -286,7 +286,7 @@ export class Ladder {
 		// 	}
 		// }
 		if (offset) {
-			rating.rpdata += '##' + offset;
+			rating.rpdata += `##${offset}`;
 		}
 
 		if (newM) {
@@ -302,7 +302,7 @@ export class Ladder {
 			} else if (elo > 1300) {
 				K = 40;
 			}
-			const E = 1 / (1 + Math.pow(10, (newMelo - elo) / 400));
+			const E = 1 / (1 + (10 ** ((newMelo - elo) / 400)));
 			elo += K * (newM.score - E);
 
 			if (elo < 1000) elo = 1000;
@@ -389,7 +389,7 @@ export class GlickoPlayer {
 
 		if (m.length === 0) {
 			const RD = Math.sqrt((this.rd * this.rd) + (this.c * this.c));
-			return {R: this.rating, RD};
+			return { R: this.rating, RD };
 		}
 
 		let A = 0.0;
@@ -416,7 +416,7 @@ export class GlickoPlayer {
 			RD = this.RDmin;
 		}
 
-		return {R, RD};
+		return { R, RD };
 	}
 
 	g(RD: number) {
@@ -424,6 +424,6 @@ export class GlickoPlayer {
 	}
 
 	E(R: number, rJ: number, rdJ: number) {
-		return 1.0 / (1.0 + Math.pow(10.0, -this.g(rdJ) * (R - rJ) / 400.0));
+		return 1.0 / (1.0 + (10.0 ** (-this.g(rdJ) * (R - rJ) / 400.0)));
 	}
 }

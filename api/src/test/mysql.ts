@@ -2,7 +2,7 @@
 
 import * as tc from 'testcontainers';
 import * as path from 'path';
-import {Config} from '../config-loader';
+import { Config } from '../config-loader';
 
 /* HACK
 Similar hack to postgresql.
@@ -28,18 +28,29 @@ class MySQLReadyHack extends RegExp {
 }
 
 export class StartedMysqlContainer {
+	private container: tc.StartedTestContainer;
+	connectionInfo: {
+		address: {
+			host: string,
+			port: number,
+		},
+		user: string,
+		database: string,
+	};
 	constructor(
-		private container: tc.StartedTestContainer,
-		public connectionInfo = {
+		container: tc.StartedTestContainer,
+		connectionInfo?: StartedMysqlContainer['connectionInfo']
+	) {
+		this.container = container;
+		this.connectionInfo = connectionInfo ?? {
 			address: {
 				host: container.getHost(),
 				port: container.getMappedPort(3306),
 			},
 			user: 'test',
 			database: 'test',
-		}
-	) {
-		(Config.mysql as any) = connectionInfo;
+		};
+		(Config.mysql as any) = this.connectionInfo;
 	}
 
 	stop() {
@@ -47,7 +58,7 @@ export class StartedMysqlContainer {
 	}
 }
 
-export type StartupFile = {src: string; dst: string} | string;
+export type StartupFile = { src: string, dst: string } | string;
 
 export interface StartOptions {
 	version?: number;
@@ -74,7 +85,7 @@ export async function start(options: StartOptions = {}) {
 	const startupFiles = options.startupFiles ?? [];
 	const container = await new tc.GenericContainer(`mysql:${version}`)
 		.withExposedPorts(3306)
-		.withEnvironment({MYSQL_ALLOW_EMPTY_PASSWORD: "yes", MYSQL_DATABASE: "xenforo"})
+		.withEnvironment({ MYSQL_ALLOW_EMPTY_PASSWORD: "yes", MYSQL_DATABASE: "xenforo" })
 		.withWaitStrategy(tc.Wait.forLogMessage(new MySQLReadyHack))
 		.withCopyFilesToContainer(startupFiles.map(toTcCopyFile))
 		.start();

@@ -6,13 +6,13 @@
  */
 
 import * as net from 'net';
-import {IncomingMessage, ServerResponse} from 'http';
-import {ActionContext, RegisteredServer, SimServers, ActionRequest} from '../server';
+import { IncomingMessage, ServerResponse } from 'http';
+import { ActionContext, type RegisteredServer, SimServers, type ActionRequest } from '../server';
 import * as crypto from 'crypto';
-import {strict as assert} from 'assert';
-import {md5} from '../utils';
+import { strict as assert } from 'assert';
+import { md5 } from '../utils';
 
-/** Removing this as it does not work, but could be useful for future reference.
+/* Removing this as it does not work, but could be useful for future reference.
 const commands = [
 	'docker run --name api-test -p 3308:3306 -e MYSQL_ROOT_PASSWORD=testpw -d mysql:latest',
 ];
@@ -22,17 +22,17 @@ const config = {
 	user: 'root',
 	host: '127.0.0.1',
 	port: 3308,
-};*/
+}; */
 
 export function makeDispatcher(body: ActionRequest, url?: string) {
 	const socket = new net.Socket();
 	const req = new IncomingMessage(socket);
-	if (body && !url) {
-		const params = Object.entries(body)
-			.filter(k => k[0] !== 'act')
-			.map(([k, v]) => `${k}=${v}`)
-			.join('&');
-	}
+	// if (body && !url) {
+	// 	const params = Object.entries(body)
+	// 		.filter(k => k[0] !== 'act')
+	// 		.map(([k, v]) => `${k}=${v!}`)
+	// 		.join('&');
+	// }
 	if (url) req.url = url;
 	return new ActionContext(req, new ServerResponse(req), body);
 }
@@ -57,7 +57,7 @@ export async function testDispatcher(
 		assert(false, e.message);
 	}
 	// we return context in case we need to do more
-	return {result, context};
+	return { result, context };
 }
 
 export async function randomBytes(size = 128) {

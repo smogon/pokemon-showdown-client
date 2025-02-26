@@ -1,7 +1,7 @@
 /**
  * Test setup.
  */
-import {start} from './mysql';
+import { start } from './mysql';
 import * as fs from 'fs';
 import * as path from 'path';
 before(async () => {

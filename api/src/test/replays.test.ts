@@ -2,11 +2,11 @@
 * Tests for replays.ts.
 * @author Annika
 */
-import {Replays, ReplayRow} from '../replays';
-import {replayPrep, replays} from '../tables';
-import {strict as assert} from 'assert';
-import * as utils from './test-utils';
-import {md5, stripNonAscii} from '../utils';
+import { Replays } from '../replays';
+import { replays } from '../tables';
+import { strict as assert } from 'assert';
+// import * as utils from './test-utils';
+// import {md5, stripNonAscii} from '../utils';
 
 (describe.skip)('Replay database manipulation', () => {
 	// it('should properly prepare replays', async () => {
@@ -172,23 +172,23 @@ import {md5, stripNonAscii} from '../utils';
 		});
 
 		it('should support searching for replays by privacy', async () => {
-			const results = await search({isPrivate: true});
+			const results = await search({ isPrivate: true });
 			assert.deepEqual(results, ['searchtest1', 'searchtest2', 'searchtest3']);
 		});
 
 		it('should support searching for replays by format', async () => {
-			const results = await search({format: 'gen8ou'});
+			const results = await search({ format: 'gen8ou' });
 			assert.deepEqual(results, ['searchtest3', 'searchtest4']);
 		});
 
 		it('should support searching for replays by username', async () => {
-			const oneName = await search({username: 'somerandomreg'});
+			const oneName = await search({ username: 'somerandomreg' });
 			assert.deepEqual(oneName, ['searchtest1', 'searchtest2', 'searchtest3', 'searchtest4']);
 
-			const twoNames = await search({username: 'somerandomreg', username2: 'annikaskywalker'});
+			const twoNames = await search({ username: 'somerandomreg', username2: 'annikaskywalker' });
 			assert.deepEqual(twoNames, ['searchtest1']);
 
-			const reversed = await search({username: 'annikaskywalker', username2: 'somerandomreg'});
+			const reversed = await search({ username: 'annikaskywalker', username2: 'somerandomreg' });
 			assert.deepEqual(twoNames, reversed);
 		});
 
@@ -200,10 +200,10 @@ import {md5, stripNonAscii} from '../utils';
 		});
 
 		it('should support different orderings', async () => {
-			const rating = await search({format: 'gen8anythinggoes', byRating: true});
+			const rating = await search({ format: 'gen8anythinggoes', byRating: true });
 			assert.deepEqual(rating, ['searchtest6', 'searchtest5']);
 
-			const uploadtime = await search({format: 'gen8anythinggoes'});
+			const uploadtime = await search({ format: 'gen8anythinggoes' });
 			assert.deepEqual(uploadtime, ['searchtest5', 'searchtest6']);
 		});
 

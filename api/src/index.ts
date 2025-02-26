@@ -1,10 +1,10 @@
 /**
  * Initialization.
  */
-import {Server} from './server';
+import { Server } from './server';
 export const server = new Server();
 
-import {connectedDatabases} from './database';
+import { connectedDatabases } from './database';
 
 console.log(`Server listening on ${server.port}`);
 

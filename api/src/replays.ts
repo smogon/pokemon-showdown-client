@@ -5,12 +5,11 @@
  * Ported to TypeScript by Annika and Mia.
  * Ported to Postgres by Zarel.
  */
-import {toID, time} from './utils';
-import {replayPlayers, replays} from './tables';
-import {SQL} from './database';
+import { toID, time } from './utils';
+import { replayPlayers, replays } from './tables';
+import { SQL } from './database';
 
 // must be a type and not an interface to qualify as an SQLRow
-// eslint-disable-next-line
 export type ReplayRow = {
 	id: string,
 	format: string,
@@ -120,14 +119,14 @@ export const Replays = new class {
 		const replayData = await replays.get(id);
 		if (!replayData) return null;
 
-		await replays.update(replayData.id, {views: SQL`views + 1`});
+		await replays.update(replayData.id, { views: SQL`views + 1` });
 
 		return this.toReplay(replayData);
 	}
 
 	async edit(replay: Replay) {
 		const replayData = this.toReplayRow(replay);
-		await replays.update(replay.id, {private: replayData.private, password: replayData.password});
+		await replays.update(replay.id, { private: replayData.private, password: replayData.password });
 	}
 
 	generatePassword(length = 31) {
@@ -222,7 +221,7 @@ export const Replays = new class {
 			ORDER BY uploadtime DESC LIMIT 50;`.then(this.toReplays);
 	}
 
-	recent(args?: {before?: number}) {
+	recent(args?: { before?: number }) {
 		if (args?.before) {
 			return replays.selectAll(
 				SQL`uploadtime, id, format, players, rating`

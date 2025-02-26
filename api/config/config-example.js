@@ -54,7 +54,7 @@ exports.colorpath = null;
 /** @type {string | null} */
 exports.coilpath = null;
 
-/** @type {string | null} Password, whether to debug error stacks in request or not*/
+/** @type {string | null} Password, whether to debug error stacks in request or not */
 exports.devmode = null;
 
 // absolute path to your PS instance. can use the checked-out client that the client clones in.
@@ -106,9 +106,9 @@ exports.challengekeyid = 4;
 /**
  * DBs.
  */
-/** @type {typeof exports.mysql | undefined}*/
+/** @type {typeof exports.mysql | undefined} */
 exports.replaysdb = undefined;
-/** @type {typeof exports.mysql | undefined}*/
+/** @type {typeof exports.mysql | undefined} */
 exports.ladderdb = undefined;
 
 /**

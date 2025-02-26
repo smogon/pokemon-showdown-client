@@ -8,11 +8,11 @@ import * as https from 'https';
 import * as child from 'child_process';
 import * as dns from 'dns';
 import * as fs from 'fs';
-import {toID, md5} from './utils';
-import {Config} from './config-loader';
-import {actions} from './actions';
-import {User, Session} from './user';
-import {URLSearchParams} from 'url';
+import { toID, md5 } from './utils';
+import { Config } from './config-loader';
+import { actions } from './actions';
+import { type User, Session } from './user';
+import { URLSearchParams } from 'url';
 import IPTools from './ip-tools';
 
 /**
@@ -72,7 +72,7 @@ export interface RegisteredServer {
 
 export type QueryHandler = (
 	this: ActionContext, params: ActionRequest
-) => {[k: string]: any} | string | Promise<{[k: string]: any} | string>;
+) => { [k: string]: any } | string | Promise<{ [k: string]: any } | string>;
 
 export class ActionContext {
 	readonly request: http.IncomingMessage;
@@ -108,12 +108,12 @@ export class ActionContext {
 			this.user = await this.session.getUser();
 			const result = await handler.call(this, body);
 
-			if (result === null) return {code: 404};
+			if (result === null) return { code: 404 };
 
 			return result;
 		} catch (e: any) {
 			if (e?.name?.endsWith('ActionError')) {
-				return {actionerror: e.message};
+				return { actionerror: e.message };
 			}
 
 			for (const k of ['pass', 'password']) delete body[k];
@@ -131,7 +131,7 @@ export class ActionContext {
 		return body;
 	}
 	static sanitizeBody(body: any): ActionRequest {
-		if (typeof body === 'string') return {act: body};
+		if (typeof body === 'string') return { act: body };
 		if (typeof body !== 'object') throw new ActionError("Body must be an object or string", 400);
 		if (!('act' in body)) body.act = ''; // we'll let the action handler throw the error
 		for (const k in body) {
@@ -140,7 +140,7 @@ export class ActionContext {
 		return body as ActionRequest;
 	}
 	static async getBody(req: http.IncomingMessage): Promise<ActionRequest | ActionRequest[]> {
-		let result: {[k: string]: any} = this.parseURLRequest(req);
+		let result: { [k: string]: any } = this.parseURLRequest(req);
 
 		let json;
 		const bodyData = await this.getRequestBody(req);
@@ -162,7 +162,7 @@ export class ActionContext {
 		try {
 			const jsonResult = JSON.parse(json);
 			if (Array.isArray(jsonResult)) {
-				return jsonResult.map(body => this.sanitizeBody({...result, ...body}));
+				return jsonResult.map(body => this.sanitizeBody({ ...result, ...body }));
 			} else {
 				result = Object.assign(result, jsonResult);
 			}
@@ -223,7 +223,7 @@ export class ActionContext {
 		if (this._ip) return this._ip;
 		let ip = this.request.socket.remoteAddress || "";
 		if (this.isTrustedProxy(ip)) {
-			const ips = ((this.request.headers['x-forwarded-for'] || '') + "").split(',').reverse();
+			const ips = `${this.request.headers['x-forwarded-for'] as any || ''}`.split(',').reverse();
 			for (let proxy of ips) {
 				proxy = proxy.trim();
 				if (!this.isTrustedProxy(proxy)) {
@@ -260,7 +260,7 @@ export class ActionContext {
 }
 
 export const SimServers = new class SimServersT {
-	servers: {[k: string]: RegisteredServer} = this.loadServers();
+	servers: { [k: string]: RegisteredServer } = this.loadServers();
 	hostCache = new Map<string, string>();
 	constructor() {
 		fs.watchFile(Config.serverlist, (curr, prev) => {
@@ -307,7 +307,7 @@ export const SimServers = new class SimServersT {
 		}
 		return server;
 	}
-	loadServers(path = Config.serverlist): {[k: string]: RegisteredServer} {
+	loadServers(path = Config.serverlist): { [k: string]: RegisteredServer } {
 		if (!path) return {};
 		try {
 			const stdout = child.execFileSync(
@@ -344,8 +344,8 @@ export class Server {
 			return console.log(`${source} crashed`, error, details);
 		}
 		try {
-			const {crashlogger} = require(Config.pspath);
-			crashlogger(error, source, {...details, date: new Date().toISOString()}, Config.crashguardemail);
+			const { crashlogger } = require(Config.pspath);
+			crashlogger(error, source, { ...details, date: new Date().toISOString() }, Config.crashguardemail);
 		} catch (e) {
 			// don't have data/pokemon-showdown built? something else went wrong? oh well
 			console.log('CRASH', error);
@@ -388,7 +388,7 @@ export class Server {
 				if (e.httpStatus) {
 					res.writeHead(e.httpStatus).end('Error: ' + e.message);
 				} else {
-					res.writeHead(200).end(this.stringify({actionerror: e.message}));
+					res.writeHead(200).end(this.stringify({ actionerror: e.message }));
 				}
 			} else {
 				Server.crashlog(e);
