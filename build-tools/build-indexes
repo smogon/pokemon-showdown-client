@@ -560,6 +560,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 		} else if (isDoubles) {
 			BattleTeambuilderTable[gen + 'doubles'] = {};
 			BattleTeambuilderTable[gen + 'doubles'].tiers = tiers;
+			BattleTeambuilderTable[gen + 'doubles'].items = items;
 			BattleTeambuilderTable[gen + 'doubles'].overrideTier = overrideTier;
 			BattleTeambuilderTable[gen + 'doubles'].formatSlices = formatSlices;
 		} else if (isGen9BH) {
@@ -685,23 +686,55 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 				if (banlist.isBanned('item:' + item.id)) continue;
 			}
 			switch (id) {
-			case 'leftovers':
-			case 'lifeorb':
+			// mainstays
 			case 'choiceband':
-			case 'choicescarf':
 			case 'choicespecs':
 			case 'eviolite':
+				greatItems.push(id);
+				break;
+			// great everywhere but metronome
+			case 'leftovers':
+			case 'lifeorb':
+			case 'choicescarf':
 			case 'assaultvest':
 			case 'focussash':
 			case 'powerherb':
 			case 'rockyhelmet':
+				if (!isMetBattle) greatItems.push(id);
+				else goodItems.push(id);
+				break;
+			// just singles
+			case 'airballoon':
+			case 'loadeddice':
 			case 'heavydutyboots':
 			case 'expertbelt':
 			case 'salacberry':
-				greatItems.push(id);
+				if (isDoubles || isMetBattle) goodItems.push(id);
+				else greatItems.push(id);
 				break;
+			// just doubles
+			case 'safetygoggles':
+			case 'ejectbutton':
+			case 'ejectpack':
+				if (isDoubles) greatItems.push(id);
+				else goodItems.push(id);
+				break;
+			// doubles + metronome
+			case 'covertcloak':
+			case 'clearamulet':
+			case 'weaknesspolicy':
+				if (isDoubles || isMetBattle) greatItems.push(id);
+				else goodItems.push(id);
+				break;
+			// metronome only
+			case 'mirrorherb':
+				if (isMetBattle) greatItems.push(id);
+				else goodItems.push(id);
+				break;
+			// generation specific
 			case 'mentalherb':
-				if (genNum > 4) greatItems.push(id);
+				if (isMetBattle) goodItems.push(id);
+				else if (genNum > 4) greatItems.push(id);
 				else poorItems.push(id);
 				break;
 			case 'lumberry':
@@ -709,8 +742,8 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 				else greatItems.push(id);
 				break;
 			case 'sitrusberry':
-				if (genNum > 6) goodItems.push(id);
-				else if (genNum > 3 && genNum < 7) greatItems.push(id);
+				if (genNum > 3 && (genNum < 7 || isDoubles)) greatItems.push(id);
+				else if (genNum > 6) goodItems.push(id);
 				else poorItems.push(id);
 				break;
 			case 'aguavberry':
@@ -718,7 +751,8 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			case 'iapapaberry':
 			case 'magoberry':
 			case 'wikiberry':
-				if (genNum >= 7) greatItems.push(id);
+				if (genNum === 7) greatItems.push(id);
+				else if (genNum >= 8) goodItems.push(id);
 				else poorItems.push(id);
 				break;
 			case 'berryjuice':
@@ -744,8 +778,8 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			case 'blueorb':
 			case 'redorb':
 			case 'souldew':
+			// falls through
 			// Other
-			// fallsthrough
 			case 'stick':
 			case 'thickclub':
 			case 'lightball':
