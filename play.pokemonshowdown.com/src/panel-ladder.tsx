@@ -7,13 +7,20 @@
  * @license MIT
  */
 
-class LadderRoom extends PSRoom {
-	readonly classType: string = 'ladder';
+import preact from "../js/lib/preact";
+import { PS, PSRoom } from "./client-main";
+import { Net } from "./client-connection";
+import { PSPanelWrapper, PSRoomPanel, SanitizedHTML } from "./panels";
+import { BattleLog } from "./battle-log";
+import { toID } from "./battle-dex";
+
+export class LadderRoom extends PSRoom {
+	override readonly classType: string = 'ladder';
 	readonly format?: string = this.id.split('-')[1];
 	notice?: string;
-	searchValue: string = '';
-	lastSearch: string = '';
-	loading: boolean = false;
+	searchValue = '';
+	lastSearch = '';
+	loading = false;
 	error?: string;
 	ladderData?: string;
 
@@ -46,7 +53,7 @@ class LadderRoom extends PSRoom {
 	requestLadderData = (searchValue?: string) => {
 		const { teams } = PS;
 		if (teams.usesLocalLadder) {
-			this.send(`/cmd laddertop ${this.format} ${toID(this.searchValue)}`);
+			this.send(`/cmd laddertop ${this.format!} ${toID(this.searchValue)}`);
 		} else if (this.format !== undefined) {
 			Net('/ladder.php')
 				.get({
@@ -64,8 +71,8 @@ class LadderRoom extends PSRoom {
 	};
 }
 
-function LadderFormat(props: {room: LadderRoom}) {
-	const {room} = props;
+function LadderFormat(props: { room: LadderRoom }) {
+	const { room } = props;
 	const {
 		format, searchValue, lastSearch, loading, error, ladderData,
 		setSearchValue, setLastSearch, requestLadderData,
@@ -117,18 +124,18 @@ function LadderFormat(props: {room: LadderRoom}) {
 		}
 		return <>
 			<p>
-				<button class="button" data-href="ladder" data-target="replace" >
+				<button class="button" data-href="ladder" data-target="replace">
 					<i class="fa fa-refresh"></i> Refresh
 				</button>
-				<RenderSearch/>
+				<RenderSearch />
 			</p>
-			<RenderHeader/>
+			<RenderHeader />
 			<SanitizedHTML>{ladderData}</SanitizedHTML>
 		</>;
 	};
 	return <div class="ladder pad">
 		<p>
-		<button class="button" data-href="ladder" data-target="replace">
+			<button class="button" data-href="ladder" data-target="replace">
 				<i class="fa fa-chevron-left"></i> Format List
 			</button>
 		</p>
@@ -137,8 +144,8 @@ function LadderFormat(props: {room: LadderRoom}) {
 }
 
 class LadderPanel extends PSRoomPanel<LadderRoom> {
-	componentDidMount() {
-		const {room} = this.props;
+	override componentDidMount() {
+		const { room } = this.props;
 		// Request ladder data either on mount or after BattleFormats are loaded
 		if (BattleFormats && room.format !== undefined) room.requestLadderData();
 		this.subscriptions.push(
@@ -163,8 +170,8 @@ class LadderPanel extends PSRoomPanel<LadderRoom> {
 			})
 		);
 	}
-	static Notice = (props: {notice: string | undefined}) => {
-		const {notice} = props;
+	static Notice = (props: { notice: string | undefined }) => {
+		const { notice } = props;
 		if (notice) {
 			return (
 				<p>
@@ -178,7 +185,7 @@ class LadderPanel extends PSRoomPanel<LadderRoom> {
 		if (!BattleFormats) {
 			return <p>Loading...</p>;
 		}
-		let currentSection: string = "";
+		let currentSection = "";
 		let sections: JSX.Element[] = [];
 		let formats: JSX.Element[] = [];
 		for (const [key, format] of Object.entries(BattleFormats)) {
@@ -210,8 +217,8 @@ class LadderPanel extends PSRoomPanel<LadderRoom> {
 		}
 		return <>{sections}</>;
 	};
-	static ShowFormatList = (props: {room: LadderRoom}) => {
-		const {room} = props;
+	static ShowFormatList = (props: { room: LadderRoom }) => {
+		const { room } = props;
 		return <>
 			<p>
 				<a class="button" href={`/${Config.routes.users}/`} target="_blank">
@@ -227,8 +234,8 @@ class LadderPanel extends PSRoomPanel<LadderRoom> {
 			<LadderPanel.BattleFormatList />
 		</>;
 	};
-	render() {
-		const {room} = this.props;
+	override render() {
+		const { room } = this.props;
 		return <PSPanelWrapper room={room} scrollable>
 			<div class="ladder pad">
 				{room.format === undefined && (

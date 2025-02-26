@@ -325,6 +325,12 @@ select.button {
 	background: #F8FBFD;
 	color: black;
 }
+pre.textbox {
+	white-space: pre-wrap;
+}
+.textbox tt {
+	color: #3388CC;
+}
 .textbox:hover {
 	border-color: #474747;
 	box-shadow: inset 0px 1px 2px #D2D2D2, 1px 1px 0 rgba(255,255,255,.6);
@@ -422,6 +428,7 @@ select {
 }
 
 input[type=range] {
+	appearance: auto;
 	-webkit-appearance: none;
 	-moz-appearance: revert;
 	cursor: pointer;

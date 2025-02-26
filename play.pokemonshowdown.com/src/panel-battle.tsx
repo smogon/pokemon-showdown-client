@@ -5,6 +5,20 @@
  * @license AGPLv3
  */
 
+import preact from "../js/lib/preact";
+import { PS, PSRoom, type RoomOptions, type RoomID } from "./client-main";
+import { PSPanelWrapper, PSRoomPanel } from "./panels";
+import { ChatLog, ChatRoom, ChatTextEntry, ChatUserList } from "./panel-chat";
+import { FormatDropdown } from "./panel-mainmenu";
+import { Battle, type Pokemon, type ServerPokemon } from "./battle";
+import { BattleScene } from "./battle-animations";
+import { Dex, toID } from "./battle-dex";
+import {
+	BattleChoiceBuilder, type BattleMoveRequest, type BattleRequest, type BattleRequestSideInfo,
+	type BattleSwitchRequest, type BattleTeamRequest,
+} from "./battle-choices";
+import type { Args } from "./battle-text-parser";
+
 type BattleDesc = {
 	id: RoomID,
 	minElo?: number | string,
@@ -14,7 +28,7 @@ type BattleDesc = {
 	p4?: string,
 };
 
-class BattlesRoom extends PSRoom {
+export class BattlesRoom extends PSRoom {
 	override readonly classType = 'battles';
 	/** null means still loading */
 	format = '';
@@ -52,32 +66,44 @@ class BattlesPanel extends PSRoomPanel<BattlesRoom> {
 			<em class="p1">{battle.p1}</em> <small class="vs">vs.</small> <em class="p2">{battle.p2}</em>
 		</a></div>;
 	}
-	render() {
+	override render() {
 		const room = this.props.room;
 		return <PSPanelWrapper room={room} scrollable><div class="pad">
-			<button class="button" style="float:right;font-size:10pt;margin-top:3px" name="close"><i class="fa fa-times"></i> Close</button>
+			<button class="button" style="float:right;font-size:10pt;margin-top:3px" name="close">
+				<i class="fa fa-times"></i> Close
+			</button>
 			<div class="roomlist">
 				<p>
-					<button class="button" name="refresh" onClick={this.refresh}><i class="fa fa-refresh"></i> Refresh</button> <span style={Dex.getPokemonIcon('meloetta-pirouette') + ';display:inline-block;vertical-align:middle'} class="picon" title="Meloetta is PS's mascot! The Pirouette forme is Fighting-type, and represents our battles."></span>
+					<button class="button" name="refresh" onClick={this.refresh}><i class="fa fa-refresh"></i> Refresh</button> {}
+					<span
+						style={Dex.getPokemonIcon('meloetta-pirouette') + ';display:inline-block;vertical-align:middle'} class="picon"
+						title="Meloetta is PS's mascot! The Pirouette forme is Fighting-type, and represents our battles."
+					></span>
 				</p>
 
 				<p>
 					<label class="label">Format:</label><FormatDropdown onChange={this.changeFormat} />
 				</p>
-				{/* <label>Minimum Elo: <select name="elofilter"><option value="none">None</option><option value="1100">1100</option><option value="1300">1300</option><option value="1500">1500</option><option value="1700">1700</option><option value="1900">1900</option></select></label>
+				{/* <label>
+					Minimum Elo: <select name="elofilter">
+						<option value="none">None</option><option value="1100">1100</option><option value="1300">1300</option>
+						<option value="1500">1500</option><option value="1700">1700</option><option value="1900">1900</option>
+					</select>
+				</label>
 
 				<form class="search">
 					<p>
-						<input type="text" name="prefixsearch" class="textbox" placeholder="Username prefix"/><button type="submit" class="button">Search</button>
+						<input type="text" name="prefixsearch" class="textbox" placeholder="Username prefix"/>
+						<button type="submit" class="button">Search</button>
 					</p>
 				</form> */}
-				<div class="list">{!room.battles ?
+				<div class="list">{!room.battles ? (
 					<p>Loading...</p>
-				: !room.battles.length ?
+				) : !room.battles.length ? (
 					<p>No battles are going on</p>
-				:
+				) : (
 					room.battles.map(battle => this.renderBattleLink(battle))
-				}</div>
+				)}</div>
 			</div>
 		</div></PSPanelWrapper>;
 	}
@@ -99,7 +125,7 @@ class BattleRoom extends ChatRoom {
 	/**
 	 * @return true to prevent line from being sent to server
 	 */
-	handleMessage(line: string) {
+	override handleMessage(line: string) {
 		if (!line.startsWith('/') || line.startsWith('//')) return false;
 		const spaceIndex = line.indexOf(' ');
 		const cmd = spaceIndex >= 0 ? line.slice(1, spaceIndex) : line.slice(1);
@@ -115,7 +141,7 @@ class BattleRoom extends ChatRoom {
 			return true;
 		} case 'ffto': case 'fastfowardto': {
 			let turnNum = Number(target);
-			if (target.charAt(0) === '+' || turnNum < 0) {
+			if (target.startsWith('+') || turnNum < 0) {
 				turnNum += this.battle.turn;
 				if (turnNum < 0) turnNum = 0;
 			} else if (target === 'end') {
@@ -155,22 +181,23 @@ class BattleRoom extends ChatRoom {
 			if (this.choices.isDone()) this.send(`/choose ${this.choices.toString()}`, true);
 			this.update(null);
 			return true;
-		}}
+		}
+		}
 		return super.handleMessage(line);
 	}
 }
 
 class BattleDiv extends preact.Component {
-	shouldComponentUpdate() {
+	override shouldComponentUpdate() {
 		return false;
 	}
-	render() {
+	override render() {
 		return <div class="battle"></div>;
 	}
 }
 
 function MoveButton(props: {
-	children: string, cmd: string, moveData: {pp: number, maxpp: number}, type: TypeName, tooltip: string,
+	children: string, cmd: string, moveData: { pp: number, maxpp: number }, type: Dex.TypeName, tooltip: string,
 }) {
 	return <button name="cmd" value={props.cmd} class={`type-${props.type} has-tooltip`} data-tooltip={props.tooltip}>
 		{props.children}<br />
@@ -184,7 +211,7 @@ function PokemonButton(props: {
 	if (!pokemon) {
 		return <button
 			name="cmd" value={props.cmd} class={`${props.disabled ? 'disabled ' : ''}has-tooltip`}
-			style={{opacity: props.disabled === 'fade' ? 0.5 : 1}} data-tooltip={props.tooltip}
+			style={{ opacity: props.disabled === 'fade' ? 0.5 : 1 }} data-tooltip={props.tooltip}
 		>
 			(empty slot)
 		</button>;
@@ -199,14 +226,14 @@ function PokemonButton(props: {
 
 	return <button
 		name="cmd" value={props.cmd} class={`${props.disabled ? 'disabled ' : ''}has-tooltip`}
-		style={{opacity: props.disabled === 'fade' ? 0.5 : 1}} data-tooltip={props.tooltip}
+		style={{ opacity: props.disabled === 'fade' ? 0.5 : 1 }} data-tooltip={props.tooltip}
 	>
 		<span class="picon" style={Dex.getPokemonIcon(pokemon)}></span>
 		{pokemon.name}
 		{
 			!props.noHPBar && !pokemon.fainted &&
 			<span class={hpColorClass}>
-				<span style={{width: Math.round(pokemon.hp * 92 / pokemon.maxhp) || 1}}></span>
+				<span style={{ width: Math.round(pokemon.hp * 92 / pokemon.maxhp) || 1 }}></span>
 			</span>
 		}
 		{!props.noHPBar && pokemon.status && <span class={`status ${pokemon.status}`}></span>}
@@ -217,7 +244,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 	send = (text: string) => {
 		this.props.room.send(text);
 	};
-	focus() {
+	override focus() {
 		this.base!.querySelector('textarea')!.focus();
 	}
 	focusIfNoSelection = () => {
@@ -265,7 +292,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 		}
 		this.props.room.update(null);
 	};
-	componentDidMount() {
+	override componentDidMount() {
 		const $elem = $(this.base!);
 		const battle = new Battle({
 			$frame: $elem.find('.battle'),
@@ -276,7 +303,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 		super.componentDidMount();
 		battle.subscribe(() => this.forceUpdate());
 	}
-	receiveLine(args: Args) {
+	override receiveLine(args: Args) {
 		const room = this.props.room;
 		switch (args[0]) {
 		case 'initdone':
@@ -329,20 +356,30 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 		const atEnd = room.battle.atQueueEnd;
 		return <div class="controls">
 			<p>
-				{atEnd ?
+				{atEnd ? (
 					<button class="button disabled" name="cmd" value="/play"><i class="fa fa-play"></i><br />Play</button>
-				: room.battle.paused ?
+				) : room.battle.paused ? (
 					<button class="button" name="cmd" value="/play"><i class="fa fa-play"></i><br />Play</button>
-				:
+				) : (
 					<button class="button" name="cmd" value="/pause"><i class="fa fa-pause"></i><br />Pause</button>
-				} {}
-				<button class="button" name="cmd" value="/ffto -1"><i class="fa fa-step-backward"></i><br />Last turn</button>
-				<button class={"button" + (atEnd ? " disabled" : "")} name="cmd" value="/ffto +1"><i class="fa fa-step-forward"></i><br />Skip turn</button> {}
-				<button class="button" name="cmd" value="/ffto 0"><i class="fa fa-undo"></i><br />First turn</button>
-				<button class={"button" + (atEnd ? " disabled" : "")} name="cmd" value="/ffto end"><i class="fa fa-fast-forward"></i><br />Skip to end</button>
+				)} {}
+				<button class="button" name="cmd" value="/ffto -1">
+					<i class="fa fa-step-backward"></i><br />Last turn
+				</button>
+				<button class={"button" + (atEnd ? " disabled" : "")} name="cmd" value="/ffto +1">
+					<i class="fa fa-step-forward"></i><br />Skip turn
+				</button> {}
+				<button class="button" name="cmd" value="/ffto 0">
+					<i class="fa fa-undo"></i><br />First turn
+				</button>
+				<button class={"button" + (atEnd ? " disabled" : "")} name="cmd" value="/ffto end">
+					<i class="fa fa-fast-forward"></i><br />Skip to end
+				</button>
 			</p>
 			<p>
-				<button class="button" name="cmd" value="/switchsides"><i class="fa fa-random"></i> Switch sides</button>
+				<button class="button" name="cmd" value="/switchsides">
+					<i class="fa fa-random"></i> Switch sides
+				</button>
 			</p>
 		</div>;
 	}
@@ -378,7 +415,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 					return <button disabled>&nbsp;</button>;
 				}
 				const tooltip = `zmove|${moveData.name}|${pokemonIndex}`;
-				return <MoveButton cmd={`/move ${i + 1} zmove`} type={move.type} tooltip={tooltip} moveData={{pp: 1, maxpp: 1}}>
+				return <MoveButton cmd={`/move ${i + 1} zmove`} type={move.type} tooltip={tooltip} moveData={{ pp: 1, maxpp: 1 }}>
 					{zMoveData.name}
 				</MoveButton>;
 			});
@@ -461,7 +498,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 			<div class="switchmenu">
 				{team.map((serverPokemon, i) => {
 					return <PokemonButton
-						pokemon={serverPokemon} cmd={``} noHPBar disabled={true} tooltip={`switchpokemon|${i}`}
+						pokemon={serverPokemon} cmd="" noHPBar disabled tooltip={`switchpokemon|${i}`}
 					/>;
 				})}
 			</div>
@@ -646,15 +683,17 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 			return <div class="controls">
 				<div class="whatdo">
 					<button name="openTimer" class="button disabled timerbutton"><i class="fa fa-hourglass-start"></i> Timer</button>
-					{choices.alreadySwitchingIn.length > 0 ?
+					{choices.alreadySwitchingIn.length > 0 ? (
 						[<button name="cmd" value="/cancel" class="button"><i class="fa fa-chevron-left"></i> Back</button>,
-						" What about the rest of your team? "]
-					:
+							" What about the rest of your team? "]
+					) : (
 						"How will you start the battle? "
-					}
+					)}
 				</div>
 				<div class="switchcontrols">
-					<h3 class="switchselect">Choose {choices.alreadySwitchingIn.length <= 0 ? `lead` : `slot ${choices.alreadySwitchingIn.length + 1}`}</h3>
+					<h3 class="switchselect">
+						Choose {choices.alreadySwitchingIn.length <= 0 ? `lead` : `slot ${choices.alreadySwitchingIn.length + 1}`}
+					</h3>
 					<div class="switchmenu">
 						{this.renderTeamControls(request, choices)}
 						<div style="clear:left"></div>
@@ -667,14 +706,18 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 					</div>
 				</div>
 			</div>;
-		}}
+		}
+		}
+		return null;
 	}
-	render() {
+	override render() {
 		const room = this.props.room;
 
 		return <PSPanelWrapper room={room}>
 			<BattleDiv></BattleDiv>
-			<ChatLog class="battle-log hasuserlist" room={this.props.room} onClick={this.focusIfNoSelection} left={640} noSubscription>
+			<ChatLog
+				class="battle-log hasuserlist" room={this.props.room} onClick={this.focusIfNoSelection} left={640} noSubscription
+			>
 				{}
 			</ChatLog>
 			<ChatTextEntry room={this.props.room} onMessage={this.send} onKey={this.onKey} left={640} />

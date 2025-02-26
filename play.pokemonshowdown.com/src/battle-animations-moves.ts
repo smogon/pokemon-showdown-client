@@ -9,7 +9,7 @@
  * @license CC0-1.0
  */
 
-import {AnimTable, BattleOtherAnims} from './battle-animations';
+import { type AnimTable, BattleOtherAnims } from './battle-animations';
 
 export const BattleMoveAnims: AnimTable = {
 	taunt: {
@@ -451,13 +451,13 @@ export const BattleMoveAnims: AnimTable = {
 	},
 	agility: {
 		anim(scene, [attacker]) {
-			attacker.anim({x: attacker.x - 10, time: 200});
-			attacker.anim({x: attacker.x + 10, time: 300});
-			attacker.anim({x: attacker.x - 20, time: 150});
-			attacker.anim({x: attacker.x + 20, time: 150});
-			attacker.anim({x: attacker.x, opacity: 0, time: 1});
+			attacker.anim({ x: attacker.x - 10, time: 200 });
+			attacker.anim({ x: attacker.x + 10, time: 300 });
+			attacker.anim({ x: attacker.x - 20, time: 150 });
+			attacker.anim({ x: attacker.x + 20, time: 150 });
+			attacker.anim({ x: attacker.x, opacity: 0, time: 1 });
 			attacker.delay(550);
-			attacker.anim({x: attacker.x, time: 150});
+			attacker.anim({ x: attacker.x, time: 150 });
 
 			scene.showEffect(attacker.sp, {
 				x: attacker.x + 20,
@@ -619,9 +619,9 @@ export const BattleMoveAnims: AnimTable = {
 	},
 	encore: {
 		anim(scene, [attacker, defender]) {
-			attacker.anim({x: attacker.x - 10, time: 100});
-			attacker.anim({x: attacker.x + 10, time: 200});
-			attacker.anim({x: attacker.x, time: 100});
+			attacker.anim({ x: attacker.x - 10, time: 100 });
+			attacker.anim({ x: attacker.x + 10, time: 200 });
+			attacker.anim({ x: attacker.x, time: 100 });
 		},
 	},
 	attract: {
@@ -2623,7 +2623,45 @@ export const BattleMoveAnims: AnimTable = {
 		anim: BattleOtherAnims.selfstatus.anim,
 	},
 	burningbulwark: {
-		anim: BattleOtherAnims.selfstatus.anim,
+		anim(scene, [attacker]) {
+			scene.backgroundEffect('linear-gradient(#390000 30%, #000000)', 600, 0.2);
+			scene.showEffect('flareball', {
+				x: attacker.x,
+				y: attacker.y - 30,
+				z: attacker.z,
+				scale: 0.5,
+				xscale: 0.25,
+				yscale: 0.75,
+				opacity: 0.5,
+			}, {
+				scale: 2,
+				xscale: 3.5,
+				opacity: 0.1,
+				time: 500,
+			}, 'decel', 'fade');
+			scene.showEffect('flareball', {
+				x: attacker.x,
+				y: attacker.y - 15,
+				z: attacker.z,
+				opacity: 0.5,
+				scale: 1.5,
+			}, {
+				scale: 1.8,
+				opacity: 0.1,
+				time: 500,
+			}, 'decel', 'fade');
+			scene.showEffect('poisonwisp', {
+				x: attacker.x,
+				y: attacker.y - 15,
+				z: attacker.z,
+				opacity: 1,
+				scale: 3,
+			}, {
+				scale: 1.8,
+				opacity: 0.5,
+				time: 500,
+			}, 'decel', 'fade', { filter: 'hue-rotate(90deg)' });
+		},
 	},
 	banefulbunker: {
 		anim(scene, [attacker]) {
@@ -2958,17 +2996,17 @@ export const BattleMoveAnims: AnimTable = {
 				time: 800,
 			}, 'accel');
 
-			attacker.anim({x: attacker.x - 5, time: 75});
-			attacker.anim({x: attacker.x + 5, time: 100});
-			attacker.anim({x: attacker.x - 10, time: 50});
-			attacker.anim({x: attacker.x + 10, time: 50});
-			attacker.anim({x: attacker.x - 10, time: 50});
-			attacker.anim({x: attacker.x + 10, time: 50});
-			attacker.anim({x: attacker.x - 10, time: 50});
-			attacker.anim({x: attacker.x + 10, time: 50});
-			attacker.anim({x: attacker.x - 10, time: 50});
-			attacker.anim({x: attacker.x + 10, time: 150});
-			attacker.anim({x: attacker.x, time: 150});
+			attacker.anim({ x: attacker.x - 5, time: 75 });
+			attacker.anim({ x: attacker.x + 5, time: 100 });
+			attacker.anim({ x: attacker.x - 10, time: 50 });
+			attacker.anim({ x: attacker.x + 10, time: 50 });
+			attacker.anim({ x: attacker.x - 10, time: 50 });
+			attacker.anim({ x: attacker.x + 10, time: 50 });
+			attacker.anim({ x: attacker.x - 10, time: 50 });
+			attacker.anim({ x: attacker.x + 10, time: 50 });
+			attacker.anim({ x: attacker.x - 10, time: 50 });
+			attacker.anim({ x: attacker.x + 10, time: 150 });
+			attacker.anim({ x: attacker.x, time: 150 });
 		},
 	},
 	shiftgear: {
@@ -3239,13 +3277,13 @@ export const BattleMoveAnims: AnimTable = {
 				time: 400,
 			}, 'linear');
 			attacker.delay(75);
-			attacker.anim({x: attacker.x - 20, time: 75});
-			attacker.anim({x: attacker.x + 20, time: 100});
-			attacker.anim({x: attacker.x - 20, time: 100});
-			attacker.anim({x: attacker.x + 20, time: 100});
-			attacker.anim({x: attacker.x - 20, time: 100});
-			attacker.anim({x: attacker.x + 20, time: 100});
-			attacker.anim({x: attacker.x, time: 75});
+			attacker.anim({ x: attacker.x - 20, time: 75 });
+			attacker.anim({ x: attacker.x + 20, time: 100 });
+			attacker.anim({ x: attacker.x - 20, time: 100 });
+			attacker.anim({ x: attacker.x + 20, time: 100 });
+			attacker.anim({ x: attacker.x - 20, time: 100 });
+			attacker.anim({ x: attacker.x + 20, time: 100 });
+			attacker.anim({ x: attacker.x, time: 75 });
 		},
 	},
 	stockpile: {
@@ -3400,8 +3438,8 @@ export const BattleMoveAnims: AnimTable = {
 				time: 300,
 			}, 'accel');
 			attacker.delay(500);
-			attacker.anim({opacity: 0, time: 0});
-			attacker.anim({opacity: 1, time: 300});
+			attacker.anim({ opacity: 0, time: 0 });
+			attacker.anim({ opacity: 1, time: 300 });
 		},
 	},
 	cottonguard: {
@@ -3437,7 +3475,7 @@ export const BattleMoveAnims: AnimTable = {
 				time: 400,
 			}, 'linear');
 			attacker.delay(75);
-			attacker.anim({x: attacker.x, time: 75});
+			attacker.anim({ x: attacker.x, time: 75 });
 		},
 	},
 	roost: {
@@ -4417,15 +4455,15 @@ export const BattleMoveAnims: AnimTable = {
 		},
 		prepareAnim(scene, [attacker]) {
 			scene.backgroundEffect('#000000', 700, 0.3);
-			attacker.anim({opacity: 0, time: 50}, 'linear');
-			attacker.anim({opacity: 1, time: 50}, 'linear');
-			attacker.anim({opacity: 0, time: 50}, 'linear');
-			attacker.anim({opacity: 1, time: 50}, 'linear');
-			attacker.anim({opacity: 0, time: 50}, 'linear');
-			attacker.anim({opacity: 1, time: 50}, 'linear');
-			attacker.anim({opacity: 0, time: 50}, 'linear');
-			attacker.anim({opacity: 1, time: 50}, 'linear');
-			attacker.anim({opacity: 0, time: 50}, 'linear');
+			attacker.anim({ opacity: 0, time: 50 }, 'linear');
+			attacker.anim({ opacity: 1, time: 50 }, 'linear');
+			attacker.anim({ opacity: 0, time: 50 }, 'linear');
+			attacker.anim({ opacity: 1, time: 50 }, 'linear');
+			attacker.anim({ opacity: 0, time: 50 }, 'linear');
+			attacker.anim({ opacity: 1, time: 50 }, 'linear');
+			attacker.anim({ opacity: 0, time: 50 }, 'linear');
+			attacker.anim({ opacity: 1, time: 50 }, 'linear');
+			attacker.anim({ opacity: 0, time: 50 }, 'linear');
 			scene.wait(200);
 		},
 	},
@@ -6449,7 +6487,7 @@ export const BattleMoveAnims: AnimTable = {
 				scale: 1.5,
 				opacity: 0.7,
 				time: 0,
-			}, 'decel', '', {filter: 'hue-rotate(-45deg)'});
+			}, 'decel', '', { filter: 'hue-rotate(-45deg)' });
 			scene.showEffect('flareball', {
 				x: attacker.x,
 				y: attacker.y + 100,
@@ -6461,7 +6499,7 @@ export const BattleMoveAnims: AnimTable = {
 				scale: 3,
 				opacity: 0,
 				time: 1300,
-			}, 'decel', '', {filter: 'hue-rotate(-45deg)'});
+			}, 'decel', '', { filter: 'hue-rotate(-45deg)' });
 			for (let i = 0; i < 5; i++) {
 				scene.showEffect('flareball', {
 					x: attacker.x + xstep * (i + 1),
@@ -6474,7 +6512,7 @@ export const BattleMoveAnims: AnimTable = {
 					scale: 1,
 					opacity: 0,
 					time: 60 * i + 1500,
-				}, 'linear', '', {filter: 'hue-rotate(-45deg)'});
+				}, 'linear', '', { filter: 'hue-rotate(-45deg)' });
 			}
 			scene.showEffect('flareball', {
 				x: attacker.x,
@@ -6490,7 +6528,7 @@ export const BattleMoveAnims: AnimTable = {
 				scale: 0.6,
 				opacity: 0.3,
 				time: 1000,
-			}, 'linear', 'explode', {filter: 'hue-rotate(-45deg)'});
+			}, 'linear', 'explode', { filter: 'hue-rotate(-45deg)' });
 			scene.showEffect('flareball', {
 				x: attacker.x,
 				y: attacker.y + 100,
@@ -6505,7 +6543,7 @@ export const BattleMoveAnims: AnimTable = {
 				scale: 0.6,
 				opacity: 0.3,
 				time: 1075,
-			}, 'linear', 'explode', {filter: 'hue-rotate(-45deg)'});
+			}, 'linear', 'explode', { filter: 'hue-rotate(-45deg)' });
 			scene.showEffect('flareball', {
 				x: attacker.x,
 				y: attacker.y + 100,
@@ -6520,7 +6558,7 @@ export const BattleMoveAnims: AnimTable = {
 				scale: 0.6,
 				opacity: 0.3,
 				time: 1150,
-			}, 'linear', 'explode', {filter: 'hue-rotate(-45deg)'});
+			}, 'linear', 'explode', { filter: 'hue-rotate(-45deg)' });
 			scene.showEffect('flareball', {
 				x: attacker.x,
 				y: attacker.y + 100,
@@ -6535,7 +6573,7 @@ export const BattleMoveAnims: AnimTable = {
 				scale: 0.6,
 				opacity: 0.3,
 				time: 1225,
-			}, 'linear', 'explode', {filter: 'hue-rotate(-45deg)'});
+			}, 'linear', 'explode', { filter: 'hue-rotate(-45deg)' });
 			scene.showEffect('flareball', {
 				x: attacker.x,
 				y: attacker.y + 100,
@@ -6550,7 +6588,7 @@ export const BattleMoveAnims: AnimTable = {
 				scale: 0.6,
 				opacity: 0.3,
 				time: 1300,
-			}, 'linear', 'explode', {filter: 'hue-rotate(-45deg)'});
+			}, 'linear', 'explode', { filter: 'hue-rotate(-45deg)' });
 			scene.showEffect('flareball', {
 				x: attacker.x,
 				y: attacker.y + 100,
@@ -6565,7 +6603,7 @@ export const BattleMoveAnims: AnimTable = {
 				scale: 0.6,
 				opacity: 0.3,
 				time: 1375,
-			}, 'linear', 'explode', {filter: 'hue-rotate(-45deg)'});
+			}, 'linear', 'explode', { filter: 'hue-rotate(-45deg)' });
 			scene.showEffect('flareball', {
 				x: defender.x,
 				y: defender.y - 50,
@@ -6579,7 +6617,7 @@ export const BattleMoveAnims: AnimTable = {
 				xscale: 8,
 				opacity: 0.1,
 				time: 1675,
-			}, 'linear', 'explode', {filter: 'hue-rotate(-45deg)'});
+			}, 'linear', 'explode', { filter: 'hue-rotate(-45deg)' });
 			scene.showEffect('flareball', {
 				x: defender.x,
 				y: defender.y,
@@ -6591,7 +6629,7 @@ export const BattleMoveAnims: AnimTable = {
 				scale: 8,
 				opacity: 0,
 				time: 1375,
-			}, 'linear', '', {filter: 'hue-rotate(-45deg)'});
+			}, 'linear', '', { filter: 'hue-rotate(-45deg)' });
 			scene.showEffect('flareball', {
 				x: defender.x,
 				y: defender.y,
@@ -6603,7 +6641,7 @@ export const BattleMoveAnims: AnimTable = {
 				scale: 8,
 				opacity: 0,
 				time: 1675,
-			}, 'linear', '', {filter: 'hue-rotate(-45deg)'});
+			}, 'linear', '', { filter: 'hue-rotate(-45deg)' });
 
 			defender.delay(775);
 			defender.anim({
@@ -9190,14 +9228,14 @@ export const BattleMoveAnims: AnimTable = {
 				time: 525,
 			}, 'accel');
 
-			attacker.anim({opacity: 0, time: 50}, 'linear');
-			attacker.anim({opacity: 1, time: 50}, 'linear');
-			attacker.anim({opacity: 0, time: 50}, 'linear');
-			attacker.anim({opacity: 1, time: 50}, 'linear');
-			attacker.anim({opacity: 0, time: 50}, 'linear');
-			attacker.anim({opacity: 1, time: 50}, 'linear');
-			attacker.anim({opacity: 0, time: 50}, 'linear');
-			attacker.anim({opacity: 1, time: 50}, 'linear');
+			attacker.anim({ opacity: 0, time: 50 }, 'linear');
+			attacker.anim({ opacity: 1, time: 50 }, 'linear');
+			attacker.anim({ opacity: 0, time: 50 }, 'linear');
+			attacker.anim({ opacity: 1, time: 50 }, 'linear');
+			attacker.anim({ opacity: 0, time: 50 }, 'linear');
+			attacker.anim({ opacity: 1, time: 50 }, 'linear');
+			attacker.anim({ opacity: 0, time: 50 }, 'linear');
+			attacker.anim({ opacity: 1, time: 50 }, 'linear');
 			attacker.anim({
 				z: attacker.behind(-100),
 				opacity: 0,
@@ -13977,7 +14015,6 @@ export const BattleMoveAnims: AnimTable = {
 					opacity: 0.4,
 					time: 200 * i + 200,
 				}, 'linear', 'fade');
-
 			}
 		},
 	},
@@ -16829,7 +16866,7 @@ export const BattleMoveAnims: AnimTable = {
 	},
 	syrupbomb: {
 		anim(scene, [attacker, defender]) {
-			const imageType = {filter: !attacker.sp.shiny ? 'hue-rotate(-45deg)' : 'hue-rotate(30deg)'};
+			const imageType = { filter: !attacker.sp.shiny ? 'hue-rotate(-45deg)' : 'hue-rotate(30deg)' };
 			scene.showEffect('flareball', {
 				x: attacker.x,
 				y: attacker.y,
@@ -22886,7 +22923,7 @@ export const BattleMoveAnims: AnimTable = {
 				}, {
 					opacity: 0,
 					time: 100 * i + 500,
-				}, 'linear', '', {filter: 'hue-rotate(120deg)'});
+				}, 'linear', '', { filter: 'hue-rotate(120deg)' });
 			}
 
 			scene.showEffect('electroball', {
@@ -22902,7 +22939,7 @@ export const BattleMoveAnims: AnimTable = {
 				scale: 1.25,
 				opacity: 0,
 				time: 200,
-			}, 'decel', '', {filter: 'hue-rotate(120deg)'});
+			}, 'decel', '', { filter: 'hue-rotate(120deg)' });
 			scene.showEffect('wisp', {
 				x: attacker.x,
 				y: attacker.y,
@@ -22932,7 +22969,7 @@ export const BattleMoveAnims: AnimTable = {
 				scale: 0.6,
 				opacity: 0.3,
 				time: 500,
-			}, 'linear', 'explode', {filter: 'hue-rotate(120deg)'});
+			}, 'linear', 'explode', { filter: 'hue-rotate(120deg)' });
 			scene.showEffect('electroball', {
 				x: attacker.x,
 				y: attacker.y + 200,
@@ -22977,7 +23014,7 @@ export const BattleMoveAnims: AnimTable = {
 				scale: 0.6,
 				opacity: 0.3,
 				time: 650,
-			}, 'linear', 'explode', {filter: 'hue-rotate(120deg)'});
+			}, 'linear', 'explode', { filter: 'hue-rotate(120deg)' });
 			scene.showEffect('electroball', {
 				x: attacker.x,
 				y: attacker.y + 200,
@@ -22992,7 +23029,7 @@ export const BattleMoveAnims: AnimTable = {
 				scale: 0.6,
 				opacity: 0.3,
 				time: 700,
-			}, 'linear', 'explode', {filter: 'hue-rotate(120deg)'});
+			}, 'linear', 'explode', { filter: 'hue-rotate(120deg)' });
 			scene.showEffect('electroball', {
 				x: attacker.x,
 				y: attacker.y + 200,
@@ -23023,7 +23060,7 @@ export const BattleMoveAnims: AnimTable = {
 				scale: 0.2,
 				opacity: 0.2,
 				time: 300,
-			}, 'linear', 'fade', {filter: 'hue-rotate(120deg)'});
+			}, 'linear', 'fade', { filter: 'hue-rotate(120deg)' });
 			scene.showEffect('electroball', {
 				x: attacker.x + 60,
 				y: attacker.y - 5,
@@ -23037,7 +23074,7 @@ export const BattleMoveAnims: AnimTable = {
 				scale: 0.2,
 				opacity: 0.2,
 				time: 300,
-			}, 'linear', 'fade', {filter: 'hue-rotate(120deg)'});
+			}, 'linear', 'fade', { filter: 'hue-rotate(120deg)' });
 			scene.showEffect('electroball', {
 				x: attacker.x - 30,
 				y: attacker.y + 60,
@@ -23051,7 +23088,7 @@ export const BattleMoveAnims: AnimTable = {
 				scale: 0.2,
 				opacity: 0.2,
 				time: 400,
-			}, 'linear', 'fade', {filter: 'hue-rotate(120deg)'});
+			}, 'linear', 'fade', { filter: 'hue-rotate(120deg)' });
 			scene.showEffect('electroball', {
 				x: attacker.x + 20,
 				y: attacker.y - 50,
@@ -23065,7 +23102,7 @@ export const BattleMoveAnims: AnimTable = {
 				scale: 0.2,
 				opacity: 0.2,
 				time: 400,
-			}, 'linear', 'fade', {filter: 'hue-rotate(120deg)'});
+			}, 'linear', 'fade', { filter: 'hue-rotate(120deg)' });
 			scene.showEffect('electroball', {
 				x: attacker.x - 70,
 				y: attacker.y - 50,
@@ -23079,7 +23116,7 @@ export const BattleMoveAnims: AnimTable = {
 				scale: 0.2,
 				opacity: 0.2,
 				time: 500,
-			}, 'linear', 'fade', {filter: 'hue-rotate(120deg)'});
+			}, 'linear', 'fade', { filter: 'hue-rotate(120deg)' });
 		},
 	},
 	solarblade: {
@@ -26532,9 +26569,9 @@ export const BattleMoveAnims: AnimTable = {
 	petaldance: { // Work on this later
 		anim(scene, [attacker, defender]) {
 			scene.backgroundEffect('#FF99FF', 1400, 0.5);
-			attacker.anim({x: attacker.x - 10, time: 100});
-			attacker.anim({x: attacker.x + 10, time: 200});
-			attacker.anim({x: attacker.x, time: 100});
+			attacker.anim({ x: attacker.x - 10, time: 100 });
+			attacker.anim({ x: attacker.x + 10, time: 200 });
+			attacker.anim({ x: attacker.x, time: 100 });
 			attacker.anim({
 				x: defender.x,
 				y: defender.y + 50,
@@ -26548,7 +26585,7 @@ export const BattleMoveAnims: AnimTable = {
 				time: 100,
 			}, 'accel');
 
-			attacker.anim({z: attacker.z, time: 400}, 'swing');
+			attacker.anim({ z: attacker.z, time: 400 }, 'swing');
 			scene.showEffect('petal', {
 				x: attacker.x,
 				y: attacker.y,
@@ -34790,9 +34827,9 @@ export const BattleMoveAnims: AnimTable = {
 	},
 	clangoroussoulblaze: {
 		anim(scene, [attacker, ...defenders]) {
-			attacker.anim({x: attacker.x - 10, time: 300});
-			attacker.anim({x: attacker.x + 10, time: 400});
-			attacker.anim({x: attacker.x, time: 300});
+			attacker.anim({ x: attacker.x - 10, time: 300 });
+			attacker.anim({ x: attacker.x + 10, time: 400 });
+			attacker.anim({ x: attacker.x, time: 300 });
 			attacker.delay(50);
 			attacker.anim({
 				y: attacker.y - 10,
@@ -35927,7 +35964,7 @@ export const BattleMoveAnims: AnimTable = {
 					scale: 0.5,
 					opacity: 0,
 					time: 800,
-				}, 'decel', 'fade', {filter: 'hue-rotate(-15deg) brightness(0.5) saturate(0.7)'});
+				}, 'decel', 'fade', { filter: 'hue-rotate(-15deg) brightness(0.5) saturate(0.7)' });
 				scene.showEffect('flareball', {
 					x: attacker.x,
 					y: attacker.y,
@@ -35942,7 +35979,7 @@ export const BattleMoveAnims: AnimTable = {
 					scale: 0.5,
 					opacity: 0,
 					time: 800,
-				}, 'decel', 'fade', {filter: 'hue-rotate(-15deg) brightness(0.5) saturate(0.7)'});
+				}, 'decel', 'fade', { filter: 'hue-rotate(-15deg) brightness(0.5) saturate(0.7)' });
 			}
 
 			defender.delay(500);
@@ -36081,7 +36118,7 @@ export const BattleMoveAnims: AnimTable = {
 					scale: 0.5,
 					opacity: 0,
 					time: 800,
-				}, 'decel', 'fade', {filter: 'hue-rotate(-15deg)'});
+				}, 'decel', 'fade', { filter: 'hue-rotate(-15deg)' });
 				scene.showEffect('flareball', {
 					x: attacker.x,
 					y: attacker.y,
@@ -36096,7 +36133,7 @@ export const BattleMoveAnims: AnimTable = {
 					scale: 0.5,
 					opacity: 0,
 					time: 800,
-				}, 'decel', 'fade', {filter: 'hue-rotate(-15deg)'});
+				}, 'decel', 'fade', { filter: 'hue-rotate(-15deg)' });
 				scene.showEffect('blackwisp', {
 					x: attacker.x + 120 * xf[i],
 					y: attacker.y,
@@ -36180,264 +36217,670 @@ export const BattleMoveAnims: AnimTable = {
 			}, 'swing');
 		},
 	},
+	terastarstorm: {
+		anim(scene, [attacker, ...defenders]) {
+			scene.backgroundEffect('#000000', 900, 0.5);
+
+			scene.showEffect('iceball', {
+				x: attacker.x,
+				y: attacker.y,
+				z: attacker.z,
+				scale: 0.75,
+				opacity: 0.6,
+			}, {
+				x: attacker.x,
+				y: attacker.y + 200,
+				z: attacker.z,
+				scale: 1.25,
+				opacity: 0,
+				time: 200,
+			}, 'decel', '', { filter: 'hue-rotate(0deg)' });
+			scene.showEffect('wisp', {
+				x: attacker.x,
+				y: attacker.y,
+				z: attacker.z,
+				scale: 1,
+				opacity: 0.6,
+			}, {
+				x: attacker.x,
+				y: attacker.y + 200,
+				z: attacker.z,
+				scale: 1.5,
+				opacity: 0,
+				time: 200,
+			}, 'decel');
+
+			for (let defender of defenders) {
+				let xstep = (defender.x - attacker.x) / 6;
+				let ystep = (defender.y - 200 - attacker.y) / 6;
+				let zstep = (defender.z - attacker.z) / 6;
+
+				for (let i = 0; i < 6; i++) {
+					scene.showEffect('electroball', {
+						x: attacker.x + xstep * (i + 1),
+						y: (attacker.y + 200) + ystep * (i + 1),
+						z: attacker.z + zstep * (i + 1),
+						scale: 0.7,
+						opacity: 0.6,
+						time: 40 * i + 300,
+					}, {
+						opacity: 0,
+						time: 100 * i + 500,
+					}, 'linear', '', { filter: `hue-rotate(${60 * i + 30}deg)` });
+				}
+
+				scene.showEffect('electroball', {
+					x: attacker.x,
+					y: attacker.y + 200,
+					z: attacker.z,
+					scale: 0.4,
+					opacity: 0.6,
+					time: 300,
+				}, {
+					x: defender.x + 30,
+					y: defender.y + 30,
+					z: defender.z,
+					scale: 0.6,
+					opacity: 0.3,
+					time: 500,
+				}, 'linear', 'explode', { filter: 'hue-rotate(30deg)' });
+				scene.showEffect('electroball', {
+					x: attacker.x,
+					y: attacker.y + 200,
+					z: attacker.z,
+					scale: 0.4,
+					opacity: 0.6,
+					time: 375,
+				}, {
+					x: defender.x + 20,
+					y: defender.y - 30,
+					z: defender.z,
+					scale: 0.6,
+					opacity: 0.3,
+					time: 575,
+				}, 'linear', 'explode', { filter: 'hue-rotate(90deg)' });
+				scene.showEffect('electroball', {
+					x: attacker.x,
+					y: attacker.y + 200,
+					z: attacker.z,
+					scale: 0.4,
+					opacity: 0.6,
+					time: 425,
+				}, {
+					x: defender.x - 10,
+					y: defender.y + 10,
+					z: defender.z,
+					scale: 0.6,
+					opacity: 0.3,
+					time: 625,
+				}, 'linear', 'explode', { filter: 'hue-rotate(150deg)' });
+				scene.showEffect('electroball', {
+					x: attacker.x,
+					y: attacker.y + 200,
+					z: attacker.z,
+					scale: 0.4,
+					opacity: 0.6,
+					time: 450,
+				}, {
+					x: defender.x - 30,
+					y: defender.y,
+					z: defender.z,
+					scale: 0.6,
+					opacity: 0.3,
+					time: 650,
+				}, 'linear', 'explode', { filter: 'hue-rotate(210deg)' });
+				scene.showEffect('electroball', {
+					x: attacker.x,
+					y: attacker.y + 200,
+					z: attacker.z,
+					scale: 0.4,
+					opacity: 0.6,
+					time: 500,
+				}, {
+					x: defender.x + 10,
+					y: defender.y - 10,
+					z: defender.z,
+					scale: 0.6,
+					opacity: 0.3,
+					time: 700,
+				}, 'linear', 'explode', { filter: 'hue-rotate(270deg)' });
+				scene.showEffect('electroball', {
+					x: attacker.x,
+					y: attacker.y + 200,
+					z: attacker.z,
+					scale: 0.4,
+					opacity: 0.6,
+					time: 575,
+				}, {
+					x: defender.x - 20,
+					y: defender.y,
+					z: defender.z,
+					scale: 0.6,
+					opacity: 0.3,
+					time: 775,
+				}, 'linear', 'explode', { filter: 'hue-rotate(330deg)' });
+			}
+		},
+	},
+	thunderclap: {
+		anim(scene, [attacker, defender]) {
+			scene.backgroundEffect('#000000', 200, 0.2);
+			scene.showEffect('electroball', {
+				x: attacker.x,
+				y: attacker.y,
+				z: attacker.z,
+				scale: 1.5,
+				opacity: 0.8,
+			}, {
+				scale: 3,
+				opacity: 0.2,
+				time: 200,
+			}, 'accel', 'fade', { filter: 'hue-rotate(150deg)' });
+			scene.showEffect('lightning', {
+				x: defender.x,
+				y: defender.y + 150,
+				z: defender.z,
+				yscale: 0,
+				xscale: 2,
+				time: 200,
+			}, {
+				y: defender.y + 50,
+				yscale: 1,
+				xscale: 1.5,
+				opacity: 0.8,
+				time: 400,
+			}, 'linear', 'fade', { filter: 'hue-rotate(180deg)' });
+		},
+	},
+	mightycleave: {
+		anim(scene, [attacker, defender]) {
+			scene.showEffect('sword', {
+				x: attacker.leftof(-10),
+				y: attacker.y - 10,
+				z: attacker.z,
+				scale: 0.5,
+				opacity: 1,
+			}, {
+				y: attacker.y + 10,
+				scale: 1,
+				opacity: 0.4,
+				time: 300,
+			}, 'decel', 'fade');
+			attacker.delay(300);
+			attacker.anim({
+				x: defender.x,
+				y: defender.y,
+				z: defender.behind(70),
+				time: 300,
+				opacity: 0.5,
+			}, 'accel');
+			attacker.anim({
+				x: defender.x,
+				y: defender.x,
+				z: defender.behind(100),
+				opacity: 0,
+				time: 100,
+			}, 'linear');
+			attacker.anim({
+				x: attacker.x,
+				y: attacker.y,
+				z: attacker.behind(70),
+				opacity: 0,
+				time: 1,
+			}, 'linear');
+			attacker.anim({
+				opacity: 1,
+				time: 500,
+			}, 'decel');
+			scene.showEffect('iceball', {
+				x: defender.x,
+				y: defender.y,
+				z: defender.z,
+				time: 500,
+				xscale: 1.2,
+				yscale: 0.4,
+				opacity: 0.8,
+			}, {
+				time: 760,
+				xscale: 1.4,
+				yscale: 0.6,
+				opacity: 0.4,
+			}, 'accel', 'explode', { filter: 'hue-rotate(180deg)', rotate: '-45deg' });
+			scene.showEffect('rightslash', {
+				x: defender.x,
+				y: defender.y,
+				z: defender.z,
+				scale: 1.5,
+				time: 500,
+			}, {
+				scale: 2,
+				opacity: 0,
+				time: 760,
+			}, 'accel', 'fade');
+			defender.delay(760);
+			defender.anim({
+				z: defender.behind(30),
+				time: 100,
+			}, 'swing');
+			defender.anim({
+				time: 300,
+			}, 'swing');
+		},
+	},
+	spiritbreak: {
+		anim(scene, [attacker, defender]) {
+			scene.backgroundEffect('#000000', 1000, 0.3);
+
+			scene.showEffect('mistball', {
+				x: defender.x,
+				y: defender.y,
+				z: defender.z,
+				scale: 0.4,
+				time: 425,
+				opacity: 0.2,
+			}, {
+				scale: 0.6,
+				time: 750,
+				opacity: 1,
+			}, 'decel', 'fade');
+			scene.showEffect('mistball', {
+				x: defender.x,
+				y: defender.y,
+				z: defender.z,
+				scale: 0.6,
+				time: 750,
+				opacity: 1,
+			}, {
+				time: 1000,
+				scale: 2.5,
+				opacity: 0.2,
+			}, 'decel', 'explode');
+
+			scene.showEffect('iceball', {
+				x: defender.x,
+				y: defender.y,
+				z: defender.z,
+				scale: 2,
+				time: 850,
+				opacity: 0.4,
+			}, {
+				time: 1000,
+				scale: 3,
+				opacity: 0.1,
+			}, 'decel', 'explode');
+
+			scene.showEffect('shine', {
+				x: defender.x,
+				y: defender.y,
+				z: defender.z,
+				time: 750,
+				scale: 0.8,
+			}, {
+				opacity: 0.4,
+				time: 800,
+			}, 'decel', 'explode', { filter: 'invert(1)' });
+			scene.showEffect('impact', {
+				x: defender.x,
+				y: defender.y,
+				z: defender.z,
+				time: 875,
+				scale: 0.8,
+			}, {
+				opacity: 0.4,
+				time: 925,
+			}, 'decel', 'explode', { filter: 'brightness(50%)' });
+
+			attacker.anim({
+				x: defender.leftof(20),
+				y: defender.y,
+				z: defender.behind(-20),
+				time: 400,
+			}, 'ballistic2Under');
+			attacker.anim({
+				x: defender.x,
+				y: defender.y,
+				z: defender.z,
+				time: 50,
+			});
+			attacker.anim({
+				time: 500,
+			}, 'ballistic2');
+			defender.delay(750);
+			defender.anim({
+				x: defender.leftof(15),
+				y: defender.y,
+				z: defender.behind(20),
+				time: 50,
+			}, 'swing');
+			defender.anim({
+				time: 200,
+			}, 'swing');
+		},
+	},
+	stoneaxe: {
+		anim(scene, [attacker, defender]) {
+			BattleOtherAnims.slashattack.anim(scene, [attacker, defender]);
+
+			scene.showEffect('rock1', {
+				x: defender.x,
+				y: defender.y,
+				z: defender.z,
+				scale: 0.1,
+				opacity: 0.5,
+				time: 500,
+			}, {
+				x: defender.x - 30,
+				y: defender.y + 15,
+				z: defender.z,
+				scale: 0.2,
+				opacity: 1,
+				time: 800,
+			}, 'ballistic', 'fade');
+			scene.showEffect('rock3', {
+				x: defender.x,
+				y: defender.y,
+				z: defender.z,
+				scale: 0.1,
+				opacity: 0.5,
+				time: 500,
+			}, {
+				x: defender.x + 36,
+				y: defender.y + 45,
+				z: defender.z,
+				scale: 0.2,
+				opacity: 1,
+				time: 800,
+			}, 'ballistic', 'fade');
+			scene.showEffect('rock2', {
+				x: defender.x,
+				y: defender.y,
+				z: defender.z,
+				scale: 0.1,
+				opacity: 0.5,
+				time: 500,
+			}, {
+				x: defender.x + 40,
+				y: defender.y - 25,
+				z: defender.z,
+				scale: 0.2,
+				opacity: 1,
+				time: 800,
+			}, 'ballistic', 'fade');
+			scene.showEffect('rock3', {
+				x: defender.x,
+				y: defender.y,
+				z: defender.z,
+				scale: 0.1,
+				opacity: 0.5,
+				time: 500,
+			}, {
+				x: defender.x - 20,
+				y: defender.y - 25,
+				z: defender.z,
+				scale: 0.2,
+				opacity: 1,
+				time: 800,
+			}, 'ballistic', 'fade');
+		},
+	},
 };
 
 // placeholder animations
-BattleMoveAnims['torment'] = {anim: BattleMoveAnims['swagger'].anim};
+BattleMoveAnims['torment'] = { anim: BattleMoveAnims['swagger'].anim };
 
-BattleMoveAnims['mefirst'] = {anim: BattleMoveAnims['mimic'].anim};
+BattleMoveAnims['mefirst'] = { anim: BattleMoveAnims['mimic'].anim };
 
-BattleMoveAnims['conversion2'] = {anim: BattleMoveAnims['conversion'].anim};
+BattleMoveAnims['conversion2'] = { anim: BattleMoveAnims['conversion'].anim };
 
-BattleMoveAnims['gearup'] = {anim: BattleMoveAnims['shiftgear'].anim};
-BattleMoveAnims['honeclaws'] = {anim: BattleMoveAnims['rockpolish'].anim};
+BattleMoveAnims['gearup'] = { anim: BattleMoveAnims['shiftgear'].anim };
+BattleMoveAnims['honeclaws'] = { anim: BattleMoveAnims['rockpolish'].anim };
 
-BattleMoveAnims['workup'] = {anim: BattleMoveAnims['bulkup'].anim};
+BattleMoveAnims['workup'] = { anim: BattleMoveAnims['bulkup'].anim };
 
-BattleMoveAnims['heatcrash'] = {anim: BattleMoveAnims['flareblitz'].anim};
-BattleMoveAnims['darkestlariat'] = {anim: BattleMoveAnims['flareblitz'].anim};
-BattleMoveAnims['flameburst'] = {anim: BattleMoveAnims['shelltrap'].anim};
-BattleMoveAnims['searingshot'] = {anim: BattleMoveAnims['shelltrap'].anim};
-BattleMoveAnims['fierydance'] = {anim: BattleMoveAnims['magmastorm'].anim};
-BattleMoveAnims['inferno'] = {anim: BattleMoveAnims['magmastorm'].anim};
-BattleMoveAnims['mysticalfire'] = {anim: BattleMoveAnims['flamethrower'].anim};
-BattleMoveAnims['firepledge'] = {anim: BattleMoveAnims['flamethrower'].anim};
-BattleMoveAnims['ember'] = {anim: BattleMoveAnims['flamethrower'].anim};
-BattleMoveAnims['incinerate'] = {anim: BattleMoveAnims['flamethrower'].anim};
-BattleMoveAnims['flamewheel'] = {anim: BattleMoveAnims['flamecharge'].anim};
+BattleMoveAnims['heatcrash'] = { anim: BattleMoveAnims['flareblitz'].anim };
+BattleMoveAnims['darkestlariat'] = { anim: BattleMoveAnims['flareblitz'].anim };
+BattleMoveAnims['flameburst'] = { anim: BattleMoveAnims['shelltrap'].anim };
+BattleMoveAnims['searingshot'] = { anim: BattleMoveAnims['shelltrap'].anim };
+BattleMoveAnims['fierydance'] = { anim: BattleMoveAnims['magmastorm'].anim };
+BattleMoveAnims['inferno'] = { anim: BattleMoveAnims['magmastorm'].anim };
+BattleMoveAnims['mysticalfire'] = { anim: BattleMoveAnims['flamethrower'].anim };
+BattleMoveAnims['firepledge'] = { anim: BattleMoveAnims['flamethrower'].anim };
+BattleMoveAnims['ember'] = { anim: BattleMoveAnims['flamethrower'].anim };
+BattleMoveAnims['incinerate'] = { anim: BattleMoveAnims['flamethrower'].anim };
+BattleMoveAnims['flamewheel'] = { anim: BattleMoveAnims['flamecharge'].anim };
 
-BattleMoveAnims['razorleaf'] = {anim: BattleMoveAnims['magicalleaf'].anim};
-BattleMoveAnims['grasspledge'] = {anim: BattleMoveAnims['magicalleaf'].anim};
-BattleMoveAnims['sleeppowder'] = {anim: BattleMoveAnims['spore'].anim};
-BattleMoveAnims['poisonpowder'] = {anim: BattleMoveAnims['spore'].anim};
-BattleMoveAnims['stunspore'] = {anim: BattleMoveAnims['spore'].anim};
-BattleMoveAnims['powder'] = {anim: BattleMoveAnims['spore'].anim};
-BattleMoveAnims['cottonspore'] = {anim: BattleMoveAnims['spore'].anim};
-BattleMoveAnims['vinewhip'] = {anim: BattleMoveAnims['powerwhip'].anim};
+BattleMoveAnims['razorleaf'] = { anim: BattleMoveAnims['magicalleaf'].anim };
+BattleMoveAnims['grasspledge'] = { anim: BattleMoveAnims['magicalleaf'].anim };
+BattleMoveAnims['sleeppowder'] = { anim: BattleMoveAnims['spore'].anim };
+BattleMoveAnims['poisonpowder'] = { anim: BattleMoveAnims['spore'].anim };
+BattleMoveAnims['stunspore'] = { anim: BattleMoveAnims['spore'].anim };
+BattleMoveAnims['powder'] = { anim: BattleMoveAnims['spore'].anim };
+BattleMoveAnims['cottonspore'] = { anim: BattleMoveAnims['spore'].anim };
+BattleMoveAnims['vinewhip'] = { anim: BattleMoveAnims['powerwhip'].anim };
 
-BattleMoveAnims['bubble'] = {anim: BattleMoveAnims['bubblebeam'].anim};
-BattleMoveAnims['sparklingaria'] = {anim: BattleMoveAnims['bubblebeam'].anim};
+BattleMoveAnims['bubble'] = { anim: BattleMoveAnims['bubblebeam'].anim };
+BattleMoveAnims['sparklingaria'] = { anim: BattleMoveAnims['bubblebeam'].anim };
 
-BattleMoveAnims['watergun'] = {anim: BattleMoveAnims['watersport'].anim};
-BattleMoveAnims['whirlpool'] = {anim: BattleMoveAnims['watersport'].anim};
+BattleMoveAnims['watergun'] = { anim: BattleMoveAnims['watersport'].anim };
+BattleMoveAnims['whirlpool'] = { anim: BattleMoveAnims['watersport'].anim };
 
-BattleMoveAnims['waterfall'] = {anim: BattleMoveAnims['aquajet'].anim};
-BattleMoveAnims['aquatail'] = {anim: BattleMoveAnims['crabhammer'].anim};
-BattleMoveAnims['liquidation'] = {anim: BattleMoveAnims['crabhammer'].anim};
+BattleMoveAnims['waterfall'] = { anim: BattleMoveAnims['aquajet'].anim };
+BattleMoveAnims['aquatail'] = { anim: BattleMoveAnims['crabhammer'].anim };
+BattleMoveAnims['liquidation'] = { anim: BattleMoveAnims['crabhammer'].anim };
 
-BattleMoveAnims['magikarpsrevenge'] = {anim: BattleMoveAnims['outrage'].anim};
+BattleMoveAnims['magikarpsrevenge'] = { anim: BattleMoveAnims['outrage'].anim };
 
-BattleMoveAnims['electrify'] = {anim: BattleMoveAnims['thunderwave'].anim};
-BattleMoveAnims['volttackle'] = {anim: BattleMoveAnims['wildcharge'].anim};
-BattleMoveAnims['zingzap'] = {anim: BattleMoveAnims['wildcharge'].anim};
-BattleMoveAnims['nuzzle'] = {anim: BattleMoveAnims['spark'].anim};
-BattleMoveAnims['thundershock'] = {anim: BattleMoveAnims['electroball'].anim};
+BattleMoveAnims['electrify'] = { anim: BattleMoveAnims['thunderwave'].anim };
+BattleMoveAnims['volttackle'] = { anim: BattleMoveAnims['wildcharge'].anim };
+BattleMoveAnims['zingzap'] = { anim: BattleMoveAnims['wildcharge'].anim };
+BattleMoveAnims['nuzzle'] = { anim: BattleMoveAnims['spark'].anim };
+BattleMoveAnims['thundershock'] = { anim: BattleMoveAnims['electroball'].anim };
 
-BattleMoveAnims['glaciate'] = {anim: BattleMoveAnims['freezedry'].anim};
-BattleMoveAnims['frostbreath'] = {anim: BattleMoveAnims['freezedry'].anim};
-BattleMoveAnims['aurorabeam'] = {anim: BattleMoveAnims['icebeam'].anim};
-BattleMoveAnims['powdersnow'] = {anim: BattleMoveAnims['icywind'].anim};
+BattleMoveAnims['glaciate'] = { anim: BattleMoveAnims['freezedry'].anim };
+BattleMoveAnims['frostbreath'] = { anim: BattleMoveAnims['freezedry'].anim };
+BattleMoveAnims['aurorabeam'] = { anim: BattleMoveAnims['icebeam'].anim };
+BattleMoveAnims['powdersnow'] = { anim: BattleMoveAnims['icywind'].anim };
 
-BattleMoveAnims['pinmissile'] = {anim: BattleMoveAnims['bulletseed'].anim};
-BattleMoveAnims['attackorder'] = {anim: BattleMoveAnims['bulletseed'].anim};
-BattleMoveAnims['fellstinger'] = {anim: BattleMoveAnims['bulletseed'].anim};
-BattleMoveAnims['strugglebug'] = {anim: BattleMoveAnims['bulletseed'].anim};
-BattleMoveAnims['infestation'] = {anim: BattleMoveAnims['bulletseed'].anim};
+BattleMoveAnims['pinmissile'] = { anim: BattleMoveAnims['bulletseed'].anim };
+BattleMoveAnims['attackorder'] = { anim: BattleMoveAnims['bulletseed'].anim };
+BattleMoveAnims['fellstinger'] = { anim: BattleMoveAnims['bulletseed'].anim };
+BattleMoveAnims['strugglebug'] = { anim: BattleMoveAnims['bulletseed'].anim };
+BattleMoveAnims['infestation'] = { anim: BattleMoveAnims['bulletseed'].anim };
 
-BattleMoveAnims['nightdaze'] = {anim: BattleMoveAnims['darkpulse'].anim};
+BattleMoveAnims['nightdaze'] = { anim: BattleMoveAnims['darkpulse'].anim };
 
-BattleMoveAnims['strengthsap'] = {anim: BattleMoveAnims['leechlife'].anim};
-BattleMoveAnims['hornattack'] = {anim: BattleMoveAnims['megahorn'].anim};
-BattleMoveAnims['lunge'] = {anim: BattleMoveAnims['megahorn'].anim};
+BattleMoveAnims['strengthsap'] = { anim: BattleMoveAnims['leechlife'].anim };
+BattleMoveAnims['hornattack'] = { anim: BattleMoveAnims['megahorn'].anim };
+BattleMoveAnims['lunge'] = { anim: BattleMoveAnims['megahorn'].anim };
 
-BattleMoveAnims['constrict'] = {anim: BattleMoveAnims['bind'].anim};
-BattleMoveAnims['wrap'] = {anim: BattleMoveAnims['bind'].anim};
+BattleMoveAnims['constrict'] = { anim: BattleMoveAnims['bind'].anim };
+BattleMoveAnims['wrap'] = { anim: BattleMoveAnims['bind'].anim };
 
-BattleMoveAnims['lowsweep'] = {anim: BattleMoveAnims['lowkick'].anim};
-BattleMoveAnims['megakick'] = {anim: BattleMoveAnims['jumpkick'].anim};
-BattleMoveAnims['frustration'] = {anim: BattleMoveAnims['thrash'].anim};
-BattleMoveAnims['rage'] = {anim: BattleMoveAnims['thrash'].anim};
-BattleMoveAnims['headsmash'] = {anim: BattleMoveAnims['gigaimpact'].anim};
-BattleMoveAnims['headcharge'] = {anim: BattleMoveAnims['gigaimpact'].anim};
-BattleMoveAnims['takedown'] = {anim: BattleMoveAnims['gigaimpact'].anim};
-BattleMoveAnims['dragonrush'] = {anim: BattleMoveAnims['gigaimpact'].anim};
-BattleMoveAnims['lastresort'] = {anim: BattleMoveAnims['gigaimpact'].anim};
-BattleMoveAnims['horndrill'] = {anim: BattleMoveAnims['gigaimpact'].anim};
-BattleMoveAnims['trumpcard'] = {anim: BattleMoveAnims['gigaimpact'].anim};
-BattleMoveAnims['doubleedge'] = {anim: BattleMoveAnims['gigaimpact'].anim};
+BattleMoveAnims['lowsweep'] = { anim: BattleMoveAnims['lowkick'].anim };
+BattleMoveAnims['megakick'] = { anim: BattleMoveAnims['jumpkick'].anim };
+BattleMoveAnims['frustration'] = { anim: BattleMoveAnims['thrash'].anim };
+BattleMoveAnims['rage'] = { anim: BattleMoveAnims['thrash'].anim };
+BattleMoveAnims['headsmash'] = { anim: BattleMoveAnims['gigaimpact'].anim };
+BattleMoveAnims['headcharge'] = { anim: BattleMoveAnims['gigaimpact'].anim };
+BattleMoveAnims['takedown'] = { anim: BattleMoveAnims['gigaimpact'].anim };
+BattleMoveAnims['dragonrush'] = { anim: BattleMoveAnims['gigaimpact'].anim };
+BattleMoveAnims['lastresort'] = { anim: BattleMoveAnims['gigaimpact'].anim };
+BattleMoveAnims['horndrill'] = { anim: BattleMoveAnims['gigaimpact'].anim };
+BattleMoveAnims['trumpcard'] = { anim: BattleMoveAnims['gigaimpact'].anim };
+BattleMoveAnims['doubleedge'] = { anim: BattleMoveAnims['gigaimpact'].anim };
 
-BattleMoveAnims['paleowave'] = {anim: BattleMoveAnims['muddywater'].anim};
-BattleMoveAnims['rocktomb'] = {anim: BattleMoveAnims['rockslide'].anim};
+BattleMoveAnims['paleowave'] = { anim: BattleMoveAnims['muddywater'].anim };
+BattleMoveAnims['rocktomb'] = { anim: BattleMoveAnims['rockslide'].anim };
 
-BattleMoveAnims['frenzyplant'] = {anim: BattleMoveAnims['leafstorm'].anim};
-BattleMoveAnims['hydrocannon'] = {anim: BattleMoveAnims['hydropump'].anim};
+BattleMoveAnims['frenzyplant'] = { anim: BattleMoveAnims['leafstorm'].anim };
+BattleMoveAnims['hydrocannon'] = { anim: BattleMoveAnims['hydropump'].anim };
 
-BattleMoveAnims['guardsplit'] = {anim: BattleMoveAnims['skillswap'].anim};
-BattleMoveAnims['powersplit'] = {anim: BattleMoveAnims['skillswap'].anim};
-BattleMoveAnims['guardswap'] = {anim: BattleMoveAnims['skillswap'].anim};
-BattleMoveAnims['heartswap'] = {anim: BattleMoveAnims['skillswap'].anim};
-BattleMoveAnims['powerswap'] = {anim: BattleMoveAnims['skillswap'].anim};
-BattleMoveAnims['speedswap'] = {anim: BattleMoveAnims['skillswap'].anim};
-BattleMoveAnims['psychoshift'] = {anim: BattleMoveAnims['painsplit'].anim};
-BattleMoveAnims['helpinghand'] = {anim: BattleMoveAnims['painsplit'].anim};
-BattleMoveAnims['entrainment'] = {anim: BattleMoveAnims['painsplit'].anim};
-BattleMoveAnims['roleplay'] = {anim: BattleMoveAnims['painsplit'].anim};
-BattleMoveAnims['psychup'] = {anim: BattleMoveAnims['painsplit'].anim};
-BattleMoveAnims['holdhands'] = {anim: BattleMoveAnims['painsplit'].anim};
-BattleMoveAnims['lunardance'] = {anim: BattleMoveAnims['moonlight'].anim};
+BattleMoveAnims['guardsplit'] = { anim: BattleMoveAnims['skillswap'].anim };
+BattleMoveAnims['powersplit'] = { anim: BattleMoveAnims['skillswap'].anim };
+BattleMoveAnims['guardswap'] = { anim: BattleMoveAnims['skillswap'].anim };
+BattleMoveAnims['heartswap'] = { anim: BattleMoveAnims['skillswap'].anim };
+BattleMoveAnims['powerswap'] = { anim: BattleMoveAnims['skillswap'].anim };
+BattleMoveAnims['speedswap'] = { anim: BattleMoveAnims['skillswap'].anim };
+BattleMoveAnims['psychoshift'] = { anim: BattleMoveAnims['painsplit'].anim };
+BattleMoveAnims['helpinghand'] = { anim: BattleMoveAnims['painsplit'].anim };
+BattleMoveAnims['entrainment'] = { anim: BattleMoveAnims['painsplit'].anim };
+BattleMoveAnims['roleplay'] = { anim: BattleMoveAnims['painsplit'].anim };
+BattleMoveAnims['psychup'] = { anim: BattleMoveAnims['painsplit'].anim };
+BattleMoveAnims['holdhands'] = { anim: BattleMoveAnims['painsplit'].anim };
+BattleMoveAnims['lunardance'] = { anim: BattleMoveAnims['moonlight'].anim };
 
-BattleMoveAnims['brickbreak'] = {anim: BattleMoveAnims['karatechop'].anim};
-BattleMoveAnims['throatchop'] = {anim: BattleMoveAnims['karatechop'].anim};
-BattleMoveAnims['wringout'] = {anim: BattleMoveAnims['forcepalm'].anim};
-BattleMoveAnims['stormthrow'] = {anim: BattleMoveAnims['circlethrow'].anim};
-BattleMoveAnims['vitalthrow'] = {anim: BattleMoveAnims['circlethrow'].anim};
-BattleMoveAnims['doubleslap'] = {anim: BattleMoveAnims['wakeupslap'].anim};
-BattleMoveAnims['crushgrip'] = {anim: BattleMoveAnims['quash'].anim};
+BattleMoveAnims['brickbreak'] = { anim: BattleMoveAnims['karatechop'].anim };
+BattleMoveAnims['throatchop'] = { anim: BattleMoveAnims['karatechop'].anim };
+BattleMoveAnims['wringout'] = { anim: BattleMoveAnims['forcepalm'].anim };
+BattleMoveAnims['stormthrow'] = { anim: BattleMoveAnims['circlethrow'].anim };
+BattleMoveAnims['vitalthrow'] = { anim: BattleMoveAnims['circlethrow'].anim };
+BattleMoveAnims['doubleslap'] = { anim: BattleMoveAnims['wakeupslap'].anim };
+BattleMoveAnims['crushgrip'] = { anim: BattleMoveAnims['quash'].anim };
 
-BattleMoveAnims['beatup'] = {anim: BattleMoveAnims['slam'].anim};
-BattleMoveAnims['counter'] = {anim: BattleMoveAnims['slam'].anim};
-BattleMoveAnims['payback'] = {anim: BattleMoveAnims['slam'].anim};
-BattleMoveAnims['revenge'] = {anim: BattleMoveAnims['slam'].anim};
-BattleMoveAnims['rockclimb'] = {anim: BattleMoveAnims['slam'].anim};
-BattleMoveAnims['tackle'] = {anim: BattleMoveAnims['slam'].anim};
-BattleMoveAnims['dragonhammer'] = {anim: BattleMoveAnims['heavyslam'].anim};
+BattleMoveAnims['beatup'] = { anim: BattleMoveAnims['slam'].anim };
+BattleMoveAnims['counter'] = { anim: BattleMoveAnims['slam'].anim };
+BattleMoveAnims['payback'] = { anim: BattleMoveAnims['slam'].anim };
+BattleMoveAnims['revenge'] = { anim: BattleMoveAnims['slam'].anim };
+BattleMoveAnims['rockclimb'] = { anim: BattleMoveAnims['slam'].anim };
+BattleMoveAnims['tackle'] = { anim: BattleMoveAnims['slam'].anim };
+BattleMoveAnims['dragonhammer'] = { anim: BattleMoveAnims['heavyslam'].anim };
 
-BattleMoveAnims['highhorsepower'] = {anim: BattleMoveAnims['stomp'].anim};
+BattleMoveAnims['highhorsepower'] = { anim: BattleMoveAnims['stomp'].anim };
 
-BattleMoveAnims['retaliate'] = {anim: BattleMoveAnims['closecombat'].anim};
-BattleMoveAnims['superpower'] = {anim: BattleMoveAnims['closecombat'].anim};
-BattleMoveAnims['submission'] = {anim: BattleMoveAnims['closecombat'].anim};
-BattleMoveAnims['bonerush'] = {anim: BattleMoveAnims['boneclub'].anim};
+BattleMoveAnims['retaliate'] = { anim: BattleMoveAnims['closecombat'].anim };
+BattleMoveAnims['superpower'] = { anim: BattleMoveAnims['closecombat'].anim };
+BattleMoveAnims['submission'] = { anim: BattleMoveAnims['closecombat'].anim };
+BattleMoveAnims['bonerush'] = { anim: BattleMoveAnims['boneclub'].anim };
 
-BattleMoveAnims['dragonrage'] = {anim: BattleMoveAnims['dragonbreath'].anim};
+BattleMoveAnims['dragonrage'] = { anim: BattleMoveAnims['dragonbreath'].anim };
 
-BattleMoveAnims['silverwind'] = {anim: BattleMoveAnims['whirlwind'].anim};
-BattleMoveAnims['gust'] = {anim: BattleMoveAnims['whirlwind'].anim};
-BattleMoveAnims['twister'] = {anim: BattleMoveAnims['whirlwind'].anim};
+BattleMoveAnims['silverwind'] = { anim: BattleMoveAnims['whirlwind'].anim };
+BattleMoveAnims['gust'] = { anim: BattleMoveAnims['whirlwind'].anim };
+BattleMoveAnims['twister'] = { anim: BattleMoveAnims['whirlwind'].anim };
 BattleMoveAnims['razorwind'].anim = BattleMoveAnims['airslash'].anim;
 
-BattleMoveAnims['chatter'] = {anim: BattleMoveAnims['hypervoice'].anim};
-BattleMoveAnims['echoedvoice'] = {anim: BattleMoveAnims['hypervoice'].anim};
-BattleMoveAnims['relicsong'] = {anim: BattleMoveAnims['hypervoice'].anim};
-BattleMoveAnims['uproar'] = {anim: BattleMoveAnims['hypervoice'].anim};
+BattleMoveAnims['chatter'] = { anim: BattleMoveAnims['hypervoice'].anim };
+BattleMoveAnims['echoedvoice'] = { anim: BattleMoveAnims['hypervoice'].anim };
+BattleMoveAnims['relicsong'] = { anim: BattleMoveAnims['hypervoice'].anim };
+BattleMoveAnims['uproar'] = { anim: BattleMoveAnims['hypervoice'].anim };
 
-BattleMoveAnims['destinybond'] = {anim: BattleMoveAnims['painsplit'].anim};
-BattleMoveAnims['reflecttype'] = {anim: BattleMoveAnims['painsplit'].anim};
+BattleMoveAnims['destinybond'] = { anim: BattleMoveAnims['painsplit'].anim };
+BattleMoveAnims['reflecttype'] = { anim: BattleMoveAnims['painsplit'].anim };
 
-BattleMoveAnims['selfdestruct'] = {anim: BattleMoveAnims['explosion'].anim};
+BattleMoveAnims['selfdestruct'] = { anim: BattleMoveAnims['explosion'].anim };
 
-BattleMoveAnims['acid'] = {anim: BattleMoveAnims['sludge'].anim};
-BattleMoveAnims['acidspray'] = {anim: BattleMoveAnims['sludge'].anim};
-BattleMoveAnims['belch'] = {anim: BattleMoveAnims['gunkshot'].anim};
-BattleMoveAnims['venoshock'] = {anim: BattleMoveAnims['sludgebomb'].anim};
-BattleMoveAnims['venomdrench'] = {anim: BattleMoveAnims['sludge'].anim};
-BattleMoveAnims['poisonsting'] = {anim: BattleMoveAnims['poisonjab'].anim};
-BattleMoveAnims['poisontail'] = {anim: BattleMoveAnims['poisonjab'].anim};
-BattleMoveAnims['gastroacid'] = {anim: BattleMoveAnims['toxic'].anim};
+BattleMoveAnims['acid'] = { anim: BattleMoveAnims['sludge'].anim };
+BattleMoveAnims['acidspray'] = { anim: BattleMoveAnims['sludge'].anim };
+BattleMoveAnims['belch'] = { anim: BattleMoveAnims['gunkshot'].anim };
+BattleMoveAnims['venoshock'] = { anim: BattleMoveAnims['sludgebomb'].anim };
+BattleMoveAnims['venomdrench'] = { anim: BattleMoveAnims['sludge'].anim };
+BattleMoveAnims['poisonsting'] = { anim: BattleMoveAnims['poisonjab'].anim };
+BattleMoveAnims['poisontail'] = { anim: BattleMoveAnims['poisonjab'].anim };
+BattleMoveAnims['gastroacid'] = { anim: BattleMoveAnims['toxic'].anim };
 
-BattleMoveAnims['magnitude'] = {anim: BattleMoveAnims['earthquake'].anim};
-BattleMoveAnims['fissure'] = {anim: BattleMoveAnims['earthquake'].anim};
-BattleMoveAnims['landswrath'] = {anim: BattleMoveAnims['earthquake'].anim};
+BattleMoveAnims['magnitude'] = { anim: BattleMoveAnims['earthquake'].anim };
+BattleMoveAnims['fissure'] = { anim: BattleMoveAnims['earthquake'].anim };
+BattleMoveAnims['landswrath'] = { anim: BattleMoveAnims['earthquake'].anim };
 
-BattleMoveAnims['mindblown'] = {anim: BattleMoveAnims['iceball'].anim};
+BattleMoveAnims['mindblown'] = { anim: BattleMoveAnims['iceball'].anim };
 
-BattleMoveAnims['camouflage'] = {anim: BattleMoveAnims['tailglow'].anim};
-BattleMoveAnims['telekinesis'] = {anim: BattleMoveAnims['kinesis'].anim};
-BattleMoveAnims['foulplay'] = {anim: BattleMoveAnims['psyshock'].anim};
-BattleMoveAnims['psywave'] = {anim: BattleMoveAnims['psybeam'].anim};
-BattleMoveAnims['extrasensory'] = {anim: BattleMoveAnims['psychic'].anim};
-BattleMoveAnims['confusion'] = {anim: BattleMoveAnims['psychic'].anim};
-BattleMoveAnims['miracleeye'] = {anim: BattleMoveAnims['mindreader'].anim};
-BattleMoveAnims['futuresight'] = {anim: BattleMoveAnims['doomdesire'].anim};
+BattleMoveAnims['camouflage'] = { anim: BattleMoveAnims['tailglow'].anim };
+BattleMoveAnims['telekinesis'] = { anim: BattleMoveAnims['kinesis'].anim };
+BattleMoveAnims['foulplay'] = { anim: BattleMoveAnims['psyshock'].anim };
+BattleMoveAnims['psywave'] = { anim: BattleMoveAnims['psybeam'].anim };
+BattleMoveAnims['extrasensory'] = { anim: BattleMoveAnims['psychic'].anim };
+BattleMoveAnims['confusion'] = { anim: BattleMoveAnims['psychic'].anim };
+BattleMoveAnims['miracleeye'] = { anim: BattleMoveAnims['mindreader'].anim };
+BattleMoveAnims['futuresight'] = { anim: BattleMoveAnims['doomdesire'].anim };
 
-BattleMoveAnims['glare'] = {anim: BattleMoveAnims['meanlook'].anim};
-BattleMoveAnims['grudge'] = {anim: BattleMoveAnims['meanlook'].anim};
-BattleMoveAnims['scaryface'] = {anim: BattleMoveAnims['meanlook'].anim};
-BattleMoveAnims['disable'] = {anim: BattleMoveAnims['meanlook'].anim};
-BattleMoveAnims['laserfocus'] = {anim: BattleMoveAnims['meanlook'].anim};
-BattleMoveAnims['nightmare'] = {anim: BattleMoveAnims['nightshade'].anim};
+BattleMoveAnims['glare'] = { anim: BattleMoveAnims['meanlook'].anim };
+BattleMoveAnims['grudge'] = { anim: BattleMoveAnims['meanlook'].anim };
+BattleMoveAnims['scaryface'] = { anim: BattleMoveAnims['meanlook'].anim };
+BattleMoveAnims['disable'] = { anim: BattleMoveAnims['meanlook'].anim };
+BattleMoveAnims['laserfocus'] = { anim: BattleMoveAnims['meanlook'].anim };
+BattleMoveAnims['nightmare'] = { anim: BattleMoveAnims['nightshade'].anim };
 
-BattleMoveAnims['captivate'] = {anim: BattleMoveAnims['attract'].anim};
-BattleMoveAnims['charm'] = {anim: BattleMoveAnims['attract'].anim};
-BattleMoveAnims['flatter'] = {anim: BattleMoveAnims['attract'].anim};
+BattleMoveAnims['captivate'] = { anim: BattleMoveAnims['attract'].anim };
+BattleMoveAnims['charm'] = { anim: BattleMoveAnims['attract'].anim };
+BattleMoveAnims['flatter'] = { anim: BattleMoveAnims['attract'].anim };
 
-BattleMoveAnims['armthrust'] = {anim: BattleMoveAnims['smellingsalts'].anim};
+BattleMoveAnims['armthrust'] = { anim: BattleMoveAnims['smellingsalts'].anim };
 
 BattleMoveAnims['phantomforce'] = {
 	anim: BattleMoveAnims['shadowforce'].anim,
 	prepareAnim: BattleMoveAnims['shadowforce'].prepareAnim,
 };
-BattleMoveAnims['shadowstrike'] = {anim: BattleMoveAnims['shadowforce'].anim};
+BattleMoveAnims['shadowstrike'] = { anim: BattleMoveAnims['shadowforce'].anim };
 
-BattleMoveAnims['smackdown'] = {anim: BattleMoveAnims['rockblast'].anim};
+BattleMoveAnims['smackdown'] = { anim: BattleMoveAnims['rockblast'].anim };
 
-BattleMoveAnims['fairywind'] = {anim: BattleMoveAnims['dazzlinggleam'].anim};
-BattleMoveAnims['dreameater'] = {anim: BattleMoveAnims['drainingkiss'].anim};
-BattleMoveAnims['sweetkiss'] = {anim: BattleMoveAnims['lovelykiss'].anim};
+BattleMoveAnims['fairywind'] = { anim: BattleMoveAnims['dazzlinggleam'].anim };
+BattleMoveAnims['dreameater'] = { anim: BattleMoveAnims['drainingkiss'].anim };
+BattleMoveAnims['sweetkiss'] = { anim: BattleMoveAnims['lovelykiss'].anim };
 
-BattleMoveAnims['mirrorshot'] = {anim: BattleMoveAnims['flashcannon'].anim};
-BattleMoveAnims['mirrorcoat'] = {anim: BattleMoveAnims['flashcannon'].anim};
-BattleMoveAnims['metalburst'] = {anim: BattleMoveAnims['flashcannon'].anim};
+BattleMoveAnims['mirrorshot'] = { anim: BattleMoveAnims['flashcannon'].anim };
+BattleMoveAnims['mirrorcoat'] = { anim: BattleMoveAnims['flashcannon'].anim };
+BattleMoveAnims['metalburst'] = { anim: BattleMoveAnims['flashcannon'].anim };
 
-BattleMoveAnims['mudslap'] = {anim: BattleMoveAnims['mudshot'].anim};
-BattleMoveAnims['sandattack'] = {anim: BattleMoveAnims['mudshot'].anim};
-BattleMoveAnims['mudsport'] = {anim: BattleMoveAnims['mudbomb'].anim};
+BattleMoveAnims['mudslap'] = { anim: BattleMoveAnims['mudshot'].anim };
+BattleMoveAnims['sandattack'] = { anim: BattleMoveAnims['mudshot'].anim };
+BattleMoveAnims['mudsport'] = { anim: BattleMoveAnims['mudbomb'].anim };
 
-BattleMoveAnims['spiderweb'] = {anim: BattleMoveAnims['electroweb'].anim};
-BattleMoveAnims['stringshot'] = {anim: BattleMoveAnims['electroweb'].anim};
-BattleMoveAnims['toxicthread'] = {anim: BattleMoveAnims['electroweb'].anim};
+BattleMoveAnims['spiderweb'] = { anim: BattleMoveAnims['electroweb'].anim };
+BattleMoveAnims['stringshot'] = { anim: BattleMoveAnims['electroweb'].anim };
+BattleMoveAnims['toxicthread'] = { anim: BattleMoveAnims['electroweb'].anim };
 
-BattleMoveAnims['hyperfang'] = {anim: BattleMoveAnims['superfang'].anim};
+BattleMoveAnims['hyperfang'] = { anim: BattleMoveAnims['superfang'].anim };
 
-BattleMoveAnims['barrage'] = {anim: BattleMoveAnims['magnetbomb'].anim};
-BattleMoveAnims['eggbomb'] = {anim: BattleMoveAnims['magnetbomb'].anim};
-BattleMoveAnims['spitup'] = {anim: BattleMoveAnims['magnetbomb'].anim};
+BattleMoveAnims['barrage'] = { anim: BattleMoveAnims['magnetbomb'].anim };
+BattleMoveAnims['eggbomb'] = { anim: BattleMoveAnims['magnetbomb'].anim };
+BattleMoveAnims['spitup'] = { anim: BattleMoveAnims['magnetbomb'].anim };
 
-BattleMoveAnims['rollingkick'] = {anim: BattleMoveAnims['doublekick'].anim};
-BattleMoveAnims['triplekick'] = {anim: BattleMoveAnims['doublekick'].anim};
+BattleMoveAnims['rollingkick'] = { anim: BattleMoveAnims['doublekick'].anim };
+BattleMoveAnims['triplekick'] = { anim: BattleMoveAnims['doublekick'].anim };
 
-BattleMoveAnims['aromaticmist'] = {anim: BattleMoveAnims['mistyterrain'].anim};
-BattleMoveAnims['sweetscent'] = {anim: BattleMoveAnims['mistyterrain'].anim};
-BattleMoveAnims['psychicterrain'] = {anim: BattleMoveAnims['mistyterrain'].anim};
-BattleMoveAnims['iondeluge'] = {anim: BattleMoveAnims['electricterrain'].anim};
-BattleMoveAnims['magneticflux'] = {anim: BattleMoveAnims['electricterrain'].anim};
-BattleMoveAnims['rototiller'] = {anim: BattleMoveAnims['electricterrain'].anim};
-BattleMoveAnims['flowershield'] = {anim: BattleMoveAnims['grassyterrain'].anim};
+BattleMoveAnims['aromaticmist'] = { anim: BattleMoveAnims['mistyterrain'].anim };
+BattleMoveAnims['sweetscent'] = { anim: BattleMoveAnims['mistyterrain'].anim };
+BattleMoveAnims['psychicterrain'] = { anim: BattleMoveAnims['mistyterrain'].anim };
+BattleMoveAnims['iondeluge'] = { anim: BattleMoveAnims['electricterrain'].anim };
+BattleMoveAnims['magneticflux'] = { anim: BattleMoveAnims['electricterrain'].anim };
+BattleMoveAnims['rototiller'] = { anim: BattleMoveAnims['electricterrain'].anim };
+BattleMoveAnims['flowershield'] = { anim: BattleMoveAnims['grassyterrain'].anim };
 
-BattleMoveAnims['imprison'] = {anim: BattleMoveAnims['embargo'].anim};
+BattleMoveAnims['imprison'] = { anim: BattleMoveAnims['embargo'].anim };
 
-BattleMoveAnims['healorder'] = {anim: BattleMoveAnims['recover'].anim};
-BattleMoveAnims['synthesis'] = {anim: BattleMoveAnims['recover'].anim};
+BattleMoveAnims['healorder'] = { anim: BattleMoveAnims['recover'].anim };
+BattleMoveAnims['synthesis'] = { anim: BattleMoveAnims['recover'].anim };
 
-BattleMoveAnims['floralhealing'] = {anim: BattleMoveAnims['healpulse'].anim};
-BattleMoveAnims['purify'] = {anim: BattleMoveAnims['weatherball'].anim};
+BattleMoveAnims['floralhealing'] = { anim: BattleMoveAnims['healpulse'].anim };
+BattleMoveAnims['purify'] = { anim: BattleMoveAnims['weatherball'].anim };
 
-BattleMoveAnims['pollenpuff'] = {anim: BattleMoveAnims['revelationdance'].anim};
+BattleMoveAnims['pollenpuff'] = { anim: BattleMoveAnims['revelationdance'].anim };
 
-BattleMoveAnims['amnesia'] = {anim: BattleMoveAnims['rest'].anim};
-BattleMoveAnims['slackoff'] = {anim: BattleMoveAnims['rest'].anim};
+BattleMoveAnims['amnesia'] = { anim: BattleMoveAnims['rest'].anim };
+BattleMoveAnims['slackoff'] = { anim: BattleMoveAnims['rest'].anim };
 
-BattleMoveAnims['secretpower'] = {anim: BattleMoveAnims['technoblast'].anim};
-BattleMoveAnims['naturalgift'] = {anim: BattleMoveAnims['technoblast'].anim};
+BattleMoveAnims['secretpower'] = { anim: BattleMoveAnims['technoblast'].anim };
+BattleMoveAnims['naturalgift'] = { anim: BattleMoveAnims['technoblast'].anim };
 
-BattleMoveAnims['firelash'] = {anim: BattleMoveAnims['multiattack'].anim};
+BattleMoveAnims['firelash'] = { anim: BattleMoveAnims['multiattack'].anim };
 
-BattleMoveAnims['fleurcannon'] = {anim: BattleMoveAnims['diamondstorm'].anim};
+BattleMoveAnims['fleurcannon'] = { anim: BattleMoveAnims['diamondstorm'].anim };
 
-BattleMoveAnims['bloomdoom'] = {anim: BattleMoveAnims['petaldance'].anim};
-BattleMoveAnims['hydrovortex'] = {anim: BattleMoveAnims['originpulse'].anim};
-BattleMoveAnims['breakneckblitz'] = {anim: BattleMoveAnims['gigaimpact'].anim};
-BattleMoveAnims['savagespinout'] = {anim: BattleMoveAnims['electroweb'].anim};
-BattleMoveAnims['maliciousmoonsault'] = {anim: BattleMoveAnims['pulverizingpancake'].anim};
-BattleMoveAnims['devastatingdrake'] = {anim: BattleMoveAnims['dragonpulse'].anim};
-BattleMoveAnims['tectonicrage'] = {anim: BattleMoveAnims['precipiceblades'].anim};
-BattleMoveAnims['subzeroslammer'] = {anim: BattleMoveAnims['sheercold'].anim};
-BattleMoveAnims['shatteredpsyche'] = {anim: BattleMoveAnims['psychic'].anim};
-BattleMoveAnims['maximumpsybreaker'] = {anim: BattleMoveAnims['psychic'].anim};
-BattleMoveAnims['genesissupernova'] = {anim: BattleMoveAnims['psychoboost'].anim};
-BattleMoveAnims['10000000voltthunderbolt'] = {anim: BattleMoveAnims['triattack'].anim};
-BattleMoveAnims['menacingmoonrazemaelstrom'] = {anim: BattleMoveAnims['moongeistbeam'].anim};
-BattleMoveAnims['lightthatburnsthesky'] = {anim: BattleMoveAnims['fusionflare'].anim};
+BattleMoveAnims['bloomdoom'] = { anim: BattleMoveAnims['petaldance'].anim };
+BattleMoveAnims['hydrovortex'] = { anim: BattleMoveAnims['originpulse'].anim };
+BattleMoveAnims['breakneckblitz'] = { anim: BattleMoveAnims['gigaimpact'].anim };
+BattleMoveAnims['savagespinout'] = { anim: BattleMoveAnims['electroweb'].anim };
+BattleMoveAnims['maliciousmoonsault'] = { anim: BattleMoveAnims['pulverizingpancake'].anim };
+BattleMoveAnims['devastatingdrake'] = { anim: BattleMoveAnims['dragonpulse'].anim };
+BattleMoveAnims['tectonicrage'] = { anim: BattleMoveAnims['precipiceblades'].anim };
+BattleMoveAnims['subzeroslammer'] = { anim: BattleMoveAnims['sheercold'].anim };
+BattleMoveAnims['shatteredpsyche'] = { anim: BattleMoveAnims['psychic'].anim };
+BattleMoveAnims['maximumpsybreaker'] = { anim: BattleMoveAnims['psychic'].anim };
+BattleMoveAnims['genesissupernova'] = { anim: BattleMoveAnims['psychoboost'].anim };
+BattleMoveAnims['10000000voltthunderbolt'] = { anim: BattleMoveAnims['triattack'].anim };
+BattleMoveAnims['menacingmoonrazemaelstrom'] = { anim: BattleMoveAnims['moongeistbeam'].anim };
+BattleMoveAnims['lightthatburnsthesky'] = { anim: BattleMoveAnims['fusionflare'].anim };
 
 BattleMoveAnims['maxflutterby'] = BattleMoveAnims['savagespinout'];
 BattleMoveAnims['gmaxbefuddle'] = BattleMoveAnims['savagespinout'];
@@ -36477,112 +36920,105 @@ BattleMoveAnims['maxgeyser'] = BattleMoveAnims['hydrovortex'];
 BattleMoveAnims['gmaxcannonade'] = BattleMoveAnims['hydrovortex'];
 BattleMoveAnims['gmaxhydrosnipe'] = BattleMoveAnims['hydrovortex'];
 
-BattleMoveAnims['dynamaxcannon'] = {anim: BattleMoveAnims['dragonpulse'].anim};
-BattleMoveAnims['snipeshot'] = {anim: BattleMoveAnims['waterpulse'].anim};
-BattleMoveAnims['jawlock'] = {anim: BattleMoveAnims['crunch'].anim};
-BattleMoveAnims['stuffcheeks'] = {anim: BattleMoveAnims['stockpile'].anim};
-BattleMoveAnims['noretreat'] = {anim: BattleMoveAnims['stockpile'].anim};
-BattleMoveAnims['tarshot'] = {anim: BattleMoveAnims['mudbomb'].anim};
-BattleMoveAnims['magicpowder'] = {anim: BattleMoveAnims['spore'].anim};
-BattleMoveAnims['dragondarts'] = {anim: BattleMoveAnims['dragonbreath'].anim};
-BattleMoveAnims['teatime'] = {anim: BattleMoveAnims['healbell'].anim};
-BattleMoveAnims['octolock'] = {anim: BattleMoveAnims['bind'].anim};
-BattleMoveAnims['boltbeak'] = {anim: BattleMoveAnims['spark'].anim};
-BattleMoveAnims['courtchange'] = {anim: BattleMoveAnims['skillswap'].anim};
-BattleMoveAnims['clangoroussoul'] = {anim: BattleMoveAnims['extremeevoboost'].anim};
-BattleMoveAnims['bodypress'] = {anim: BattleMoveAnims['heavyslam'].anim};
-BattleMoveAnims['decorate'] = {anim: BattleMoveAnims['spore'].anim};
-BattleMoveAnims['drumbeating'] = {anim: BattleMoveAnims['magicalleaf'].anim};
-BattleMoveAnims['snaptrap'] = {anim: BattleMoveAnims['magicalleaf'].anim};
-BattleMoveAnims['pyroball'] = {anim: BattleMoveAnims['flameburst'].anim};
-BattleMoveAnims['behemothblade'] = {anim: BattleMoveAnims['smartstrike'].anim};
-BattleMoveAnims['behemothbash'] = {anim: BattleMoveAnims['smartstrike'].anim};
-BattleMoveAnims['aurawheel'] = {anim: BattleMoveAnims['discharge'].anim};
-BattleMoveAnims['breakingswipe'] = {anim: BattleMoveAnims['dragonclaw'].anim};
-BattleMoveAnims['branchpoke'] = {anim: BattleMoveAnims['vinewhip'].anim};
-BattleMoveAnims['overdrive'] = {anim: BattleMoveAnims['discharge'].anim};
-BattleMoveAnims['appleacid'] = {anim: BattleMoveAnims['energyball'].anim};
-BattleMoveAnims['gravapple'] = {anim: BattleMoveAnims['energyball'].anim};
-BattleMoveAnims['spiritbreak'] = {anim: BattleMoveAnims['moonblast'].anim};
-BattleMoveAnims['obstruct'] = {anim: BattleMoveAnims['kingsshield'].anim};
-BattleMoveAnims['maxguard'] = {anim: BattleMoveAnims['banefulbunker'].anim};
-BattleMoveAnims['falsesurrender'] = {anim: BattleMoveAnims['feintattack'].anim};
-BattleMoveAnims['meteorassault'] = {anim: BattleMoveAnims['aurasphere'].anim};
-BattleMoveAnims['eternabeam'] = {anim: BattleMoveAnims['roaroftime'].anim};
-BattleMoveAnims['steelbeam'] = {anim: BattleMoveAnims['magnetbomb'].anim};
-BattleMoveAnims['strangesteam'] = {anim: BattleMoveAnims['dazzlinggleam'].anim};
-BattleMoveAnims['burningjealousy'] = {anim: BattleMoveAnims['heatwave'].anim};
-BattleMoveAnims['grassyglide'] = {anim: BattleMoveAnims['powerwhip'].anim};
-BattleMoveAnims['risingvoltage'] = {anim: BattleMoveAnims['discharge'].anim};
-BattleMoveAnims['coaching'] = {anim: BattleMoveAnims['bulkup'].anim};
-BattleMoveAnims['corrosivegas'] = {anim: BattleMoveAnims['poisongas'].anim};
-BattleMoveAnims['scorchingsands'] = {anim: BattleMoveAnims['earthpower'].anim};
-BattleMoveAnims['expandingforce'] = {anim: BattleMoveAnims['psybeam'].anim};
-BattleMoveAnims['skittersmack'] = {anim: BattleMoveAnims['megahorn'].anim};
-BattleMoveAnims['poltergeist'] = {anim: BattleMoveAnims['neverendingnightmare'].anim};
-BattleMoveAnims['scaleshot'] = {anim: BattleMoveAnims['clangingscales'].anim};
-BattleMoveAnims['lashout'] = {anim: BattleMoveAnims['nightslash'].anim};
-BattleMoveAnims['steelroller'] = {anim: BattleMoveAnims['steamroller'].anim};
-BattleMoveAnims['shellsidearmphysical'] = {anim: BattleMoveAnims['poisonjab'].anim};
-BattleMoveAnims['shellsidearmspecial'] = {anim: BattleMoveAnims['sludgebomb'].anim};
-BattleMoveAnims['surgingstrikes'] = {anim: BattleMoveAnims['aquajet'].anim};
-BattleMoveAnims['eeriespell'] = {anim: BattleMoveAnims['psyshock'].anim};
+BattleMoveAnims['dynamaxcannon'] = { anim: BattleMoveAnims['dragonpulse'].anim };
+BattleMoveAnims['snipeshot'] = { anim: BattleMoveAnims['waterpulse'].anim };
+BattleMoveAnims['jawlock'] = { anim: BattleMoveAnims['crunch'].anim };
+BattleMoveAnims['stuffcheeks'] = { anim: BattleMoveAnims['stockpile'].anim };
+BattleMoveAnims['noretreat'] = { anim: BattleMoveAnims['stockpile'].anim };
+BattleMoveAnims['tarshot'] = { anim: BattleMoveAnims['mudbomb'].anim };
+BattleMoveAnims['magicpowder'] = { anim: BattleMoveAnims['spore'].anim };
+BattleMoveAnims['dragondarts'] = { anim: BattleMoveAnims['dragonbreath'].anim };
+BattleMoveAnims['teatime'] = { anim: BattleMoveAnims['healbell'].anim };
+BattleMoveAnims['octolock'] = { anim: BattleMoveAnims['bind'].anim };
+BattleMoveAnims['boltbeak'] = { anim: BattleMoveAnims['spark'].anim };
+BattleMoveAnims['courtchange'] = { anim: BattleMoveAnims['skillswap'].anim };
+BattleMoveAnims['clangoroussoul'] = { anim: BattleMoveAnims['extremeevoboost'].anim };
+BattleMoveAnims['bodypress'] = { anim: BattleMoveAnims['heavyslam'].anim };
+BattleMoveAnims['decorate'] = { anim: BattleMoveAnims['spore'].anim };
+BattleMoveAnims['drumbeating'] = { anim: BattleMoveAnims['magicalleaf'].anim };
+BattleMoveAnims['snaptrap'] = { anim: BattleMoveAnims['magicalleaf'].anim };
+BattleMoveAnims['pyroball'] = { anim: BattleMoveAnims['flameburst'].anim };
+BattleMoveAnims['behemothblade'] = { anim: BattleMoveAnims['smartstrike'].anim };
+BattleMoveAnims['behemothbash'] = { anim: BattleMoveAnims['smartstrike'].anim };
+BattleMoveAnims['aurawheel'] = { anim: BattleMoveAnims['discharge'].anim };
+BattleMoveAnims['breakingswipe'] = { anim: BattleMoveAnims['dragonclaw'].anim };
+BattleMoveAnims['branchpoke'] = { anim: BattleMoveAnims['vinewhip'].anim };
+BattleMoveAnims['overdrive'] = { anim: BattleMoveAnims['discharge'].anim };
+BattleMoveAnims['appleacid'] = { anim: BattleMoveAnims['energyball'].anim };
+BattleMoveAnims['gravapple'] = { anim: BattleMoveAnims['energyball'].anim };
+BattleMoveAnims['obstruct'] = { anim: BattleMoveAnims['kingsshield'].anim };
+BattleMoveAnims['maxguard'] = { anim: BattleMoveAnims['banefulbunker'].anim };
+BattleMoveAnims['falsesurrender'] = { anim: BattleMoveAnims['feintattack'].anim };
+BattleMoveAnims['meteorassault'] = { anim: BattleMoveAnims['aurasphere'].anim };
+BattleMoveAnims['eternabeam'] = { anim: BattleMoveAnims['roaroftime'].anim };
+BattleMoveAnims['steelbeam'] = { anim: BattleMoveAnims['magnetbomb'].anim };
+BattleMoveAnims['strangesteam'] = { anim: BattleMoveAnims['dazzlinggleam'].anim };
+BattleMoveAnims['burningjealousy'] = { anim: BattleMoveAnims['heatwave'].anim };
+BattleMoveAnims['grassyglide'] = { anim: BattleMoveAnims['powerwhip'].anim };
+BattleMoveAnims['risingvoltage'] = { anim: BattleMoveAnims['discharge'].anim };
+BattleMoveAnims['coaching'] = { anim: BattleMoveAnims['bulkup'].anim };
+BattleMoveAnims['corrosivegas'] = { anim: BattleMoveAnims['poisongas'].anim };
+BattleMoveAnims['scorchingsands'] = { anim: BattleMoveAnims['earthpower'].anim };
+BattleMoveAnims['expandingforce'] = { anim: BattleMoveAnims['psybeam'].anim };
+BattleMoveAnims['skittersmack'] = { anim: BattleMoveAnims['megahorn'].anim };
+BattleMoveAnims['poltergeist'] = { anim: BattleMoveAnims['neverendingnightmare'].anim };
+BattleMoveAnims['scaleshot'] = { anim: BattleMoveAnims['clangingscales'].anim };
+BattleMoveAnims['lashout'] = { anim: BattleMoveAnims['nightslash'].anim };
+BattleMoveAnims['steelroller'] = { anim: BattleMoveAnims['steamroller'].anim };
+BattleMoveAnims['shellsidearmphysical'] = { anim: BattleMoveAnims['poisonjab'].anim };
+BattleMoveAnims['shellsidearmspecial'] = { anim: BattleMoveAnims['sludgebomb'].anim };
+BattleMoveAnims['surgingstrikes'] = { anim: BattleMoveAnims['aquajet'].anim };
+BattleMoveAnims['eeriespell'] = { anim: BattleMoveAnims['psyshock'].anim };
 
-BattleMoveAnims['axekick'] = {anim: BattleMoveAnims['highjumpkick'].anim};
-BattleMoveAnims['bittermalice'] = {anim: BattleMoveAnims['spectralthief'].anim};
-BattleMoveAnims['bleakwindstorm'] = {anim: BattleMoveAnims['hurricane'].anim};
-BattleMoveAnims['ceaselessedge'] = {anim: BattleMoveAnims['nightslash'].anim};
-BattleMoveAnims['chillingwater'] = {anim: BattleMoveAnims['waterpulse'].anim};
-BattleMoveAnims['comeuppance'] = {anim: BattleMoveAnims['darkpulse'].anim};
-BattleMoveAnims['doubleshock'] = {anim: BattleMoveAnims['wildcharge'].anim};
-BattleMoveAnims['filletaway'] = {anim: BattleMoveAnims['bulkup'].anim};
-BattleMoveAnims['glaiverush'] = {anim: BattleMoveAnims['outrage'].anim};
+BattleMoveAnims['axekick'] = { anim: BattleMoveAnims['highjumpkick'].anim };
+BattleMoveAnims['bittermalice'] = { anim: BattleMoveAnims['spectralthief'].anim };
+BattleMoveAnims['bleakwindstorm'] = { anim: BattleMoveAnims['hurricane'].anim };
+BattleMoveAnims['ceaselessedge'] = { anim: BattleMoveAnims['nightslash'].anim };
+BattleMoveAnims['chillingwater'] = { anim: BattleMoveAnims['waterpulse'].anim };
+BattleMoveAnims['comeuppance'] = { anim: BattleMoveAnims['darkpulse'].anim };
+BattleMoveAnims['doubleshock'] = { anim: BattleMoveAnims['wildcharge'].anim };
+BattleMoveAnims['filletaway'] = { anim: BattleMoveAnims['bulkup'].anim };
+BattleMoveAnims['glaiverush'] = { anim: BattleMoveAnims['outrage'].anim };
 BattleMoveAnims['headlongrush'] = {
 	anim(scene, [attacker, defender]) {
 		BattleMoveAnims['closecombat'].anim(scene, [attacker, defender]);
 		BattleMoveAnims['earthpower'].anim(scene, [attacker, defender]);
 	},
 };
-BattleMoveAnims['hyperdrill'] = {anim: BattleMoveAnims['drillrun'].anim};
-BattleMoveAnims['kowtowcleave'] = {anim: BattleMoveAnims['nightslash'].anim};
-BattleMoveAnims['lastrespects'] = {anim: BattleMoveAnims['memento'].anim};
-BattleMoveAnims['luminacrash'] = {anim: BattleMoveAnims['esperwing'].anim};
-BattleMoveAnims['lunarblessing'] = {anim: BattleMoveAnims['moonlight'].anim};
-BattleMoveAnims['mountaingale'] = {anim: BattleMoveAnims['powergem'].anim};
-BattleMoveAnims['pounce'] = {anim: BattleMoveAnims['bodyslam'].anim};
-BattleMoveAnims['powershift'] = {anim: BattleMoveAnims['skillswap'].anim};
-BattleMoveAnims['ragefist'] = {anim: BattleMoveAnims['shadowpunch'].anim};
-BattleMoveAnims['ragingbull'] = {anim: BattleMoveAnims['gigaimpact'].anim};
-BattleMoveAnims['shedtail'] = {anim: BattleMoveAnims['substitute'].anim};
-BattleMoveAnims['shelter'] = {anim: BattleMoveAnims['withdraw'].anim};
-BattleMoveAnims['stoneaxe'] = {
-	anim(scene, [attacker, defender]) {
-		BattleMoveAnims['stoneedge'].anim(scene, [attacker, defender]);
-		BattleOtherAnims.slashattack.anim(scene, [attacker, defender]);
-	},
-};
-BattleMoveAnims['terablast'] = {anim: BattleMoveAnims['scald'].anim};
-BattleMoveAnims['terablastbug'] = {anim: BattleMoveAnims['bugbuzz'].anim};
-BattleMoveAnims['terablastdark'] = {anim: BattleMoveAnims['darkpulse'].anim};
-BattleMoveAnims['terablastdragon'] = {anim: BattleMoveAnims['dragonpulse'].anim};
-BattleMoveAnims['terablastelectric'] = {anim: BattleMoveAnims['thunderbolt'].anim};
-BattleMoveAnims['terablastfairy'] = {anim: BattleMoveAnims['moonblast'].anim};
-BattleMoveAnims['terablastfighting'] = {anim: BattleMoveAnims['focusblast'].anim};
-BattleMoveAnims['terablastfire'] = {anim: BattleMoveAnims['flamethrower'].anim};
-BattleMoveAnims['terablastflying'] = {anim: BattleMoveAnims['aeroblast'].anim};
-BattleMoveAnims['terablastghost'] = {anim: BattleMoveAnims['infernalparade'].anim};
-BattleMoveAnims['terablastgrass'] = {anim: BattleMoveAnims['seedflare'].anim};
-BattleMoveAnims['terablastground'] = {anim: BattleMoveAnims['earthpower'].anim};
-BattleMoveAnims['terablastice'] = {anim: BattleMoveAnims['icebeam'].anim};
-BattleMoveAnims['terablastnormal'] = {anim: BattleMoveAnims['technoblast'].anim};
-BattleMoveAnims['terablastpoison'] = {anim: BattleMoveAnims['sludgebomb'].anim};
-BattleMoveAnims['terablastpsychic'] = {anim: BattleMoveAnims['psychic'].anim};
-BattleMoveAnims['terablastrock'] = {anim: BattleMoveAnims['powergem'].anim};
-BattleMoveAnims['terablaststeel'] = {anim: BattleMoveAnims['flashcannon'].anim};
-BattleMoveAnims['terablastwater'] = {anim: BattleMoveAnims['hydropump'].anim};
-BattleMoveAnims['terablaststellar'] = {anim: BattleMoveAnims['dracometeor'].anim};
-BattleMoveAnims['tidyup'] = {anim: BattleMoveAnims['bulkup'].anim};
-BattleMoveAnims['trailblaze'] = {anim: BattleMoveAnims['powerwhip'].anim};
-BattleMoveAnims['tripledive'] = {anim: BattleMoveAnims['dive'].anim};
-BattleMoveAnims['hydrosteam'] = {anim: BattleMoveAnims['steameruption'].anim};
-BattleMoveAnims['psyblade'] = {anim: BattleMoveAnims['psychocut'].anim};
+BattleMoveAnims['hyperdrill'] = { anim: BattleMoveAnims['drillrun'].anim };
+BattleMoveAnims['kowtowcleave'] = { anim: BattleMoveAnims['nightslash'].anim };
+BattleMoveAnims['lastrespects'] = { anim: BattleMoveAnims['memento'].anim };
+BattleMoveAnims['luminacrash'] = { anim: BattleMoveAnims['esperwing'].anim };
+BattleMoveAnims['lunarblessing'] = { anim: BattleMoveAnims['moonlight'].anim };
+BattleMoveAnims['mountaingale'] = { anim: BattleMoveAnims['powergem'].anim };
+BattleMoveAnims['pounce'] = { anim: BattleMoveAnims['bodyslam'].anim };
+BattleMoveAnims['powershift'] = { anim: BattleMoveAnims['skillswap'].anim };
+BattleMoveAnims['ragefist'] = { anim: BattleMoveAnims['shadowpunch'].anim };
+BattleMoveAnims['ragingbull'] = { anim: BattleMoveAnims['gigaimpact'].anim };
+BattleMoveAnims['shedtail'] = { anim: BattleMoveAnims['substitute'].anim };
+BattleMoveAnims['shelter'] = { anim: BattleMoveAnims['withdraw'].anim };
+BattleMoveAnims['terablast'] = { anim: BattleMoveAnims['scald'].anim };
+BattleMoveAnims['terablastbug'] = { anim: BattleMoveAnims['bugbuzz'].anim };
+BattleMoveAnims['terablastdark'] = { anim: BattleMoveAnims['darkpulse'].anim };
+BattleMoveAnims['terablastdragon'] = { anim: BattleMoveAnims['dragonpulse'].anim };
+BattleMoveAnims['terablastelectric'] = { anim: BattleMoveAnims['thunderbolt'].anim };
+BattleMoveAnims['terablastfairy'] = { anim: BattleMoveAnims['moonblast'].anim };
+BattleMoveAnims['terablastfighting'] = { anim: BattleMoveAnims['focusblast'].anim };
+BattleMoveAnims['terablastfire'] = { anim: BattleMoveAnims['flamethrower'].anim };
+BattleMoveAnims['terablastflying'] = { anim: BattleMoveAnims['aeroblast'].anim };
+BattleMoveAnims['terablastghost'] = { anim: BattleMoveAnims['infernalparade'].anim };
+BattleMoveAnims['terablastgrass'] = { anim: BattleMoveAnims['seedflare'].anim };
+BattleMoveAnims['terablastground'] = { anim: BattleMoveAnims['earthpower'].anim };
+BattleMoveAnims['terablastice'] = { anim: BattleMoveAnims['icebeam'].anim };
+BattleMoveAnims['terablastnormal'] = { anim: BattleMoveAnims['technoblast'].anim };
+BattleMoveAnims['terablastpoison'] = { anim: BattleMoveAnims['sludgebomb'].anim };
+BattleMoveAnims['terablastpsychic'] = { anim: BattleMoveAnims['psychic'].anim };
+BattleMoveAnims['terablastrock'] = { anim: BattleMoveAnims['powergem'].anim };
+BattleMoveAnims['terablaststeel'] = { anim: BattleMoveAnims['flashcannon'].anim };
+BattleMoveAnims['terablastwater'] = { anim: BattleMoveAnims['hydropump'].anim };
+BattleMoveAnims['terablaststellar'] = { anim: BattleMoveAnims['dracometeor'].anim };
+BattleMoveAnims['tidyup'] = { anim: BattleMoveAnims['bulkup'].anim };
+BattleMoveAnims['trailblaze'] = { anim: BattleMoveAnims['powerwhip'].anim };
+BattleMoveAnims['tripledive'] = { anim: BattleMoveAnims['dive'].anim };
+BattleMoveAnims['hydrosteam'] = { anim: BattleMoveAnims['steameruption'].anim };
+BattleMoveAnims['psyblade'] = { anim: BattleMoveAnims['psychocut'].anim };

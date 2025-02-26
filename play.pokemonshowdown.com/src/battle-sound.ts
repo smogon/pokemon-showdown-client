@@ -1,3 +1,4 @@
+import { PS } from "./client-main";
 
 export class BattleBGM {
 	/**
@@ -101,7 +102,7 @@ export class BattleBGM {
 }
 
 export const BattleSound = new class {
-	soundCache: {[url: string]: HTMLAudioElement | undefined} = {};
+	soundCache: { [url: string]: HTMLAudioElement | undefined } = {};
 
 	bgm: BattleBGM[] = [];
 
@@ -170,7 +171,7 @@ export const BattleSound = new class {
 	loudnessPercentToAmplitudePercent(loudnessPercent: number) {
 		// 10 dB is perceived as approximately twice as loud
 		let decibels = 10 * Math.log(loudnessPercent / 100) / Math.log(2);
-		return Math.pow(10, decibels / 20) * 100;
+		return 10 ** (decibels / 20) * 100;
 	}
 	setBgmVolume(bgmVolume: number) {
 		this.bgmVolume = this.loudnessPercentToAmplitudePercent(bgmVolume);

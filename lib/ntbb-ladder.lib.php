@@ -233,10 +233,32 @@ class NTBBLadder {
 					"SELECT * FROM (SELECT * FROM `{$ladderdb->prefix}ladder` WHERE `formatid` = ? ORDER BY `elo` DESC LIMIT $overfetch) AS `unusedalias` WHERE `userid` LIKE ? LIMIT $limit",
 					[$this->formatid, "$prefix%"]
 				);
+				$res = $ladderdb->query(
+					"WITH `max_elo` AS (
+						SELECT MAX(elo) AS `max_elo` FROM `{$ladderdb->prefix}ladder` WHERE `formatid` = ?
+					),
+					`rpr_filtered` AS (
+							SELECT * FROM `{$ladderdb->prefix}ladder` WHERE
+								((SELECT `max_elo` FROM `max_elo`) <= 1500 OR `rprd` <= 100)
+								AND `formatid` = ?
+					)
+					SELECT * FROM
+						(SELECT * FROM `rpr_filtered` WHERE `formatid` = ? ORDER BY `elo` DESC LIMIT {$overfetch})
+						AS `unusedalias` WHERE `userid` LIKE ? LIMIT $limit",
+					[$this->formatid, $this->formatid, $this->formatid, "$prefix%"]
+				);
 			} else {
 				$res = $ladderdb->query(
-					"SELECT * FROM `{$ladderdb->prefix}ladder` WHERE `formatid` = ? ORDER BY `elo` DESC LIMIT $limit",
-					[$this->formatid]
+					"WITH max_elo AS (
+						SELECT MAX(elo) AS max_elo FROM `{$ladderdb->prefix}ladder` WHERE `formatid` = ?
+					),
+					rpr_filtered AS (
+							SELECT * FROM `{$ladderdb->prefix}ladder` WHERE
+								((SELECT `max_elo` FROM `max_elo`) <= 1500 OR `rprd` <= 100)
+								AND `formatid` = ?
+					)
+					SELECT * FROM `rpr_filtered` ORDER BY `elo` DESC LIMIT $limit",
+					[$this->formatid, $this->formatid]
 				);
 			}
 

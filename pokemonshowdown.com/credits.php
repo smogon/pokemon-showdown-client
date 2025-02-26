@@ -129,10 +129,10 @@ includeHeader();
 
 			<ul>
 				<li><p><a href="http://cargocollective.com/bluep" target="_blank" class="subtle"><strong>Daniel Kong</strong></a> <small>&ndash; Art (Shaymin background)</small></p></li>
-				<li><p><a href="http://seiryuuden.deviantart.com/" target="_blank" class="subtle"><strong>Jessica Valencia</strong> [seiryuuden]</a> <small>&ndash; Art (Charizards background)</small></p></li>
+				<li><p><a href="https://lit.link/en/seiryuuden" target="_blank" class="subtle"><strong>Jessica Valencia</strong> [seiryuuden]</a> <small>&ndash; Art (Charizards background)</small></p></li>
 				<li><p><a href="http://kyle-dove.deviantart.com/" target="_blank" class="subtle"><strong>Kyle Dove</strong></a> <small>&ndash; Art (battle backdrops)</small></p></li>
 				<li><p><a href="http://vtas.deviantart.com/" target="_blank" class="subtle"><strong>Vivian Zou</strong> [Vtas]</a> <small>&ndash; Art (Horizon background)</small></p></li>
-				<li><p><strong>Samuel Teo</strong> [Yilx] <small>&ndash; Art (Waterfall background)</small></p></li>
+				<li><p><a href="https://x.com/Yilxaevum" target="_blank" class="subtle"><strong>Samuel Teo</strong> [Yilx]</a> <small>&ndash; Art (Waterfall background)</small></p></li>
 				<li><p><a href="http://quanyails.deviantart.com/" target="_blank" class="subtle">[<strong>Quanyails</strong>]</a> <small>&ndash; Art (Ocean background)</small></p></li>
 				<li><p><a href="http://smogon.com/forums/threads/3486712/" target="_blank" class="subtle"><strong>X/Y</strong></a> and <a href="http://www.smogon.com/forums/threads/3577711/" target="_blank" class="subtle"><strong>Sun/Moon Sprite Projects</strong></a> led by <strong>Ian Clail</strong> [Layell]<small>&ndash; Sprites</small></p></li>
 				<li><p><a href="http://www.smogon.com/forums/threads/3577711/" target="_blank" class="subtle"><strong>Sun/Moon</strong></a> and <a href="https://www.smogon.com/forums/threads/3647722/" target="_blank" class="subtle"><strong>Sword/Shield Sprite Projects</strong></a> led by [<strong>leparagon</strong>] <small>&ndash; Sprites</small></p></li>

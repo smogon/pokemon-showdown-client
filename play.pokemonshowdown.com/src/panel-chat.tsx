@@ -5,11 +5,23 @@
  * @license AGPLv3
  */
 
-class ChatRoom extends PSRoom {
-	readonly classType: 'chat' | 'battle' = 'chat';
-	users: {[userid: string]: string} = {};
+import preact from "../js/lib/preact";
+import type { PSSubscription } from "./client-core";
+import { PS, PSRoom, type RoomOptions, type RoomID, type Team } from "./client-main";
+import { PSPanelWrapper, PSRoomPanel } from "./panels";
+import { TeamForm } from "./panel-mainmenu";
+import { BattleLog } from "./battle-log";
+import type { Battle } from "./battle";
+import { MiniEdit } from "./miniedit";
+import { PSUtils, toID, type ID } from "./battle-dex";
+
+declare const formatText: any; // from js/server/chat-formatter.js
+
+export class ChatRoom extends PSRoom {
+	override readonly classType: 'chat' | 'battle' = 'chat';
+	users: { [userid: string]: string } = {};
 	userCount = 0;
-	readonly canConnect = true;
+	override readonly canConnect = true;
 
 	// PM-only properties
 	pmTarget: string | null = null;
@@ -24,7 +36,7 @@ class ChatRoom extends PSRoom {
 		this.updateTarget(true);
 		this.connect();
 	}
-	connect() {
+	override connect() {
 		if (!this.connected) {
 			if (!this.pmTarget) PS.send(`|/join ${this.id}`);
 			this.connected = true;
@@ -52,7 +64,7 @@ class ChatRoom extends PSRoom {
 	/**
 	 * @return true to prevent line from being sent to server
 	 */
-	handleMessage(line: string) {
+	override handleMessage(line: string) {
 		if (!line.startsWith('/') || line.startsWith('//')) return false;
 		const spaceIndex = line.indexOf(' ');
 		const cmd = spaceIndex >= 0 ? line.slice(1, spaceIndex) : line.slice(1);
@@ -80,7 +92,8 @@ class ChatRoom extends PSRoom {
 			this.challengedFormat = null;
 			this.update(null);
 			return false;
-		}}
+		}
+		}
 		return super.handleMessage(line);
 	}
 	openChallenge() {
@@ -105,7 +118,7 @@ class ChatRoom extends PSRoom {
 		}
 		this.update(null);
 	}
-	send(line: string, direct?: boolean) {
+	override send(line: string, direct?: boolean) {
 		this.updateTarget();
 		if (!direct && !line) return;
 		if (!direct && this.handleMessage(line)) return;
@@ -143,38 +156,46 @@ class ChatRoom extends PSRoom {
 		this.addUser(username);
 		this.update(null);
 	}
-	destroy() {
+	override destroy() {
 		if (this.pmTarget) this.connected = false;
 		super.destroy();
 	}
 }
 
-class ChatTextEntry extends preact.Component<{
+export class ChatTextEntry extends preact.Component<{
 	room: PSRoom, onMessage: (msg: string) => void, onKey: (e: KeyboardEvent) => boolean,
 	left?: number,
 }> {
 	subscription: PSSubscription | null = null;
 	textbox: HTMLTextAreaElement = null!;
+	miniedit: MiniEdit | null = null;
 	history: string[] = [];
 	historyIndex = 0;
-	componentDidMount() {
+	override componentDidMount() {
 		this.subscription = PS.user.subscribe(() => {
 			this.forceUpdate();
 		});
-		this.textbox = this.base!.children[0].children[1] as HTMLTextAreaElement;
+		const textbox = this.base!.children[0].children[1] as HTMLElement;
+		if (textbox.tagName === 'TEXTAREA') this.textbox = textbox as HTMLTextAreaElement;
+		this.miniedit = new MiniEdit(textbox, {
+			setContent: text => {
+				textbox.innerHTML = formatText(text, false, false, true) + '\n';
+			},
+			onKeyDown: this.onKeyDown,
+		});
 		if (this.base) this.update();
 	}
-	componentWillUnmount() {
+	override componentWillUnmount() {
 		if (this.subscription) {
 			this.subscription.unsubscribe();
 			this.subscription = null;
 		}
 	}
 	update = () => {
-		const textbox = this.textbox;
-		textbox.style.height = `12px`;
-		const newHeight = Math.min(Math.max(textbox.scrollHeight - 2, 16), 600);
-		textbox.style.height = `${newHeight}px`;
+		// const textbox = this.textbox;
+		// textbox.style.height = `12px`;
+		// const newHeight = Math.min(Math.max(textbox.scrollHeight - 2, 16), 600);
+		// textbox.style.height = `${newHeight}px`;
 	};
 	focusIfNoSelection = (e: Event) => {
 		if ((e.target as HTMLElement).tagName === 'TEXTAREA') return;
@@ -184,35 +205,46 @@ class ChatTextEntry extends preact.Component<{
 		elem.focus();
 	};
 	submit() {
-		this.props.onMessage(this.textbox.value);
-		this.historyPush(this.textbox.value);
-		this.textbox.value = '';
+		this.props.onMessage(this.getValue());
+		this.historyPush(this.getValue());
+		this.setValue('');
 		this.update();
 		return true;
 	}
-	keyDown = (e: KeyboardEvent) => {
+	onKeyDown = (e: KeyboardEvent) => {
 		if (this.handleKey(e) || this.props.onKey(e)) {
 			e.preventDefault();
 			e.stopImmediatePropagation();
 		}
 	};
+	getValue() {
+		return this.miniedit ? this.miniedit.getValue() : this.textbox.value;
+	}
+	setValue(value: string, selection?: { start: number, end: number }) {
+		if (this.miniedit) {
+			this.miniedit.setValue(value, selection);
+		} else {
+			this.textbox.value = value;
+			if (selection) this.textbox.setSelectionRange?.(selection.start, selection.end);
+		}
+	}
 	historyUp() {
 		if (this.historyIndex === 0) return false;
-		const line = this.textbox.value;
+		const line = this.getValue();
 		if (line !== '') this.history[this.historyIndex] = line;
-		this.textbox.value = this.history[--this.historyIndex];
+		this.setValue(this.history[--this.historyIndex]);
 		return true;
 	}
 	historyDown() {
-		const line = this.textbox.value;
+		const line = this.getValue();
 		if (line !== '') this.history[this.historyIndex] = line;
 		if (this.historyIndex === this.history.length) {
 			if (!line) return false;
-			this.textbox.value = '';
+			this.setValue('');
 		} else if (++this.historyIndex === this.history.length) {
-			this.textbox.value = '';
+			this.setValue('');
 		} else {
-			this.textbox.value = this.history[this.historyIndex];
+			this.setValue(this.history[this.historyIndex]);
 		}
 		return true;
 	}
@@ -223,22 +255,26 @@ class ChatTextEntry extends preact.Component<{
 		this.history.push(line);
 		this.historyIndex = this.history.length;
 	}
-	handleKey(e: KeyboardEvent) {
-		const cmdKey = ((e.metaKey ? 1 : 0) + (e.ctrlKey ? 1 : 0) === 1) && !e.altKey && !e.shiftKey;
-		if (e.keyCode === 13 && !e.shiftKey) { // Enter key
+	handleKey(ev: KeyboardEvent) {
+		const cmdKey = ((ev.metaKey ? 1 : 0) + (ev.ctrlKey ? 1 : 0) === 1) && !ev.altKey && !ev.shiftKey;
+		// const anyModifier = ev.ctrlKey || ev.altKey || ev.metaKey || ev.shiftKey;
+		if (ev.keyCode === 13 && !ev.shiftKey) { // Enter key
 			return this.submit();
-		} else if (e.keyCode === 73 && cmdKey) { // Ctrl + I key
+		} else if (ev.keyCode === 13 && this.miniedit) { // enter
+			this.miniedit.replaceSelection('\n');
+			return true;
+		} else if (ev.keyCode === 73 && cmdKey) { // Ctrl + I key
 			return this.toggleFormatChar('_');
-		} else if (e.keyCode === 66 && cmdKey) { // Ctrl + B key
+		} else if (ev.keyCode === 66 && cmdKey) { // Ctrl + B key
 			return this.toggleFormatChar('*');
-		} else if (e.keyCode === 192 && cmdKey) { // Ctrl + ` key
+		} else if (ev.keyCode === 192 && cmdKey) { // Ctrl + ` key
 			return this.toggleFormatChar('`');
 		// } else if (e.keyCode === 9 && !e.ctrlKey) { // Tab key
 		// 	const reverse = !!e.shiftKey; // Shift+Tab reverses direction
 		// 	return this.handleTabComplete(this.$chatbox, reverse);
-		} else if (e.keyCode === 38 && !e.shiftKey && !e.altKey) { // Up key
+		} else if (ev.keyCode === 38 && !ev.shiftKey && !ev.altKey) { // Up key
 			return this.historyUp();
-		} else if (e.keyCode === 40 && !e.shiftKey && !e.altKey) { // Down key
+		} else if (ev.keyCode === 40 && !ev.shiftKey && !ev.altKey) { // Down key
 			return this.historyDown();
 		// } else if (app.user.lastPM && (textbox.value === '/reply' || textbox.value === '/r' || textbox.value === '/R') && e.keyCode === 32) { // '/reply ' is being written
 		// 	var val = '/pm ' + app.user.lastPM + ', ';
@@ -248,13 +284,21 @@ class ChatTextEntry extends preact.Component<{
 		}
 		return false;
 	}
+	getSelection() {
+		return this.miniedit ?
+			(this.miniedit.getSelection() || { start: 0, end: 0 }) :
+			{ start: this.textbox.selectionStart, end: this.textbox.selectionEnd };
+	}
+	setSelection(start: number, end: number) {
+		if (this.miniedit) {
+			this.miniedit.setSelection({ start, end });
+		} else {
+			this.textbox.setSelectionRange?.(start, end);
+		}
+	}
 	toggleFormatChar(formatChar: string) {
-		const textbox = this.textbox;
-		if (!textbox.setSelectionRange) return false;
-
-		let value = textbox.value;
-		let start = textbox.selectionStart;
-		let end = textbox.selectionEnd;
+		let value = this.getValue();
+		let { start, end } = this.getSelection();
 
 		// make sure start and end aren't midway through the syntax
 		if (value.charAt(start) === formatChar && value.charAt(start - 1) === formatChar &&
@@ -290,27 +334,39 @@ class ChatTextEntry extends preact.Component<{
 			end -= 2;
 		}
 
-		textbox.value = value;
-		textbox.setSelectionRange(start, end);
+		this.setValue(value, { start, end });
 		return true;
 	}
-	render() {
+	override render() {
+		const OLD_TEXTBOX = false;
 		return <div
-			class="chat-log-add hasuserlist" onClick={this.focusIfNoSelection} style={{left: this.props.left || 0}}
+			class="chat-log-add hasuserlist" onClick={this.focusIfNoSelection} style={{ left: this.props.left || 0 }}
 		>
 			<form class="chatbox">
-				<label style={{color: BattleLog.usernameColor(PS.user.userid)}}>{PS.user.name}:</label>
-				<textarea
+				<label style={{ color: BattleLog.usernameColor(PS.user.userid) }}>{PS.user.name}:</label>
+				{OLD_TEXTBOX ? <textarea
 					class={this.props.room.connected ? 'textbox' : 'textbox disabled'}
 					autofocus
 					rows={1}
 					onInput={this.update}
-					onKeyDown={this.keyDown}
-					style={{resize: 'none', width: '100%', height: '16px', padding: '2px 3px 1px 3px'}}
+					onKeyDown={this.onKeyDown}
+					style={{ resize: 'none', width: '100%', height: '16px', padding: '2px 3px 1px 3px' }}
 					placeholder={PS.focusPreview(this.props.room)}
-				/>
+				/> : <ChatTextBox
+					class={this.props.room.connected ? 'textbox' : 'textbox disabled'}
+					placeholder={PS.focusPreview(this.props.room)}
+				/>}
 			</form>
 		</div>;
+	}
+}
+
+class ChatTextBox extends preact.Component<{ placeholder: string, class: string }> {
+	override shouldComponentUpdate() {
+		return false;
+	}
+	override render() {
+		return <pre class={this.props.class} placeholder={this.props.placeholder}>{'\n'}</pre>;
 	}
 }
 
@@ -318,8 +374,15 @@ class ChatPanel extends PSRoomPanel<ChatRoom> {
 	send = (text: string) => {
 		this.props.room.send(text);
 	};
-	focus() {
-		this.base!.querySelector('textarea')!.focus();
+	override focus() {
+		// Called synchronously after a forceUpdate, so before the DOM has
+		// been updated to make the panel visible. The order isn't
+		// important for textboxes, which can be focused while inside a
+		// `display: none` element, but contentEditable boxes are pickier.
+		// Waiting for a 0 timeout turns out to be enough.
+		setTimeout(() => {
+			this.base!.querySelector<HTMLElement>('textarea, pre.textbox')!.focus();
+		}, 0);
 	}
 	focusIfNoSelection = () => {
 		const selection = window.getSelection()!;
@@ -357,7 +420,7 @@ class ChatPanel extends PSRoomPanel<ChatRoom> {
 		room.challengedFormat = null;
 		room.update(null);
 	};
-	render() {
+	override render() {
 		const room = this.props.room;
 		const tinyLayout = room.width < 450;
 
@@ -390,20 +453,20 @@ class ChatPanel extends PSRoomPanel<ChatRoom> {
 	}
 }
 
-class ChatUserList extends preact.Component<{room: ChatRoom, left?: number, minimized?: boolean}> {
+export class ChatUserList extends preact.Component<{ room: ChatRoom, left?: number, minimized?: boolean }> {
 	subscription: PSSubscription | null = null;
-	state = {
+	override state = {
 		expanded: false,
 	};
 	toggleExpanded = () => {
-		this.setState({expanded: !this.state.expanded});
+		this.setState({ expanded: !this.state.expanded });
 	};
-	componentDidMount() {
+	override componentDidMount() {
 		this.subscription = this.props.room.subscribe(msg => {
 			if (!msg) this.forceUpdate();
 		});
 	}
-	componentWillUnmount() {
+	override componentWillUnmount() {
 		if (this.subscription) this.subscription.unsubscribe();
 	}
 	render() {
@@ -412,11 +475,14 @@ class ChatUserList extends preact.Component<{room: ChatRoom, left?: number, mini
 		PSUtils.sortBy(userList, ([id, name]) => (
 			[PS.server.getGroup(name.charAt(0)).order, !name.endsWith('@!'), id]
 		));
-		return <ul class={'userlist' + (this.props.minimized ? (this.state.expanded ? ' userlist-maximized' : ' userlist-minimized') : '')} style={{left: this.props.left || 0}}>
+		return <ul
+			class={'userlist' + (this.props.minimized ? (this.state.expanded ? ' userlist-maximized' : ' userlist-minimized') : '')}
+			style={{ left: this.props.left || 0 }}
+		>
 			<li class="userlist-count" onClick={this.toggleExpanded}><small>{room.userCount} users</small></li>
 			{userList.map(([userid, name]) => {
 				const groupSymbol = name.charAt(0);
-				const group = PS.server.groups[groupSymbol] || {type: 'user', order: 0};
+				const group = PS.server.groups[groupSymbol] || { type: 'user', order: 0 };
 				let color;
 				if (name.endsWith('@!')) {
 					name = name.slice(0, -2);
@@ -428,26 +494,26 @@ class ChatUserList extends preact.Component<{room: ChatRoom, left?: number, mini
 					<em class={`group${['leadership', 'staff'].includes(group.type!) ? ' staffgroup' : ''}`}>
 						{groupSymbol}
 					</em>
-					{group.type === 'leadership' ?
-						<strong><em style={{color}}>{name.substr(1)}</em></strong>
-					: group.type === 'staff' ?
-						<strong style={{color}}>{name.substr(1)}</strong>
-					:
-						<span style={{color}}>{name.substr(1)}</span>
-					}
+					{group.type === 'leadership' ? (
+						<strong><em style={{ color }}>{name.substr(1)}</em></strong>
+					) : group.type === 'staff' ? (
+						<strong style={{ color }}>{name.substr(1)}</strong>
+					) : (
+						<span style={{ color }}>{name.substr(1)}</span>
+					)}
 				</button></li>;
 			})}
 		</ul>;
 	}
 }
 
-class ChatLog extends preact.Component<{
+export class ChatLog extends preact.Component<{
 	class: string, room: ChatRoom, onClick?: (e: Event) => void, children?: preact.ComponentChildren,
-	left?: number, top?: number, noSubscription?: boolean;
+	left?: number, top?: number, noSubscription?: boolean,
 }> {
 	log: BattleLog | null = null;
 	subscription: PSSubscription | null = null;
-	componentDidMount() {
+	override componentDidMount() {
 		if (!this.props.noSubscription) {
 			this.log = new BattleLog(this.base! as HTMLDivElement);
 		}
@@ -473,10 +539,10 @@ class ChatLog extends preact.Component<{
 		});
 		this.setControlsJSX(this.props.children);
 	}
-	componentWillUnmount() {
+	override componentWillUnmount() {
 		if (this.subscription) this.subscription.unsubscribe();
 	}
-	shouldComponentUpdate(props: typeof ChatLog.prototype.props) {
+	override shouldComponentUpdate(props: typeof ChatLog.prototype.props) {
 		if (props.class !== this.props.class) {
 			this.base!.className = props.class;
 		}
@@ -513,9 +579,10 @@ class ChatLog extends preact.Component<{
 		}
 	}
 	render() {
-		return <div class={this.props.class} role="log" onClick={this.props.onClick} style={{
-			left: this.props.left || 0, top: this.props.top || 0,
-		}}></div>;
+		return <div
+			class={this.props.class} role="log" onClick={this.props.onClick}
+			style={{ left: this.props.left || 0, top: this.props.top || 0 }}
+		></div>;
 	}
 }
 
