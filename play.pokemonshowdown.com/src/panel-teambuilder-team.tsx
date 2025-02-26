@@ -6,18 +6,18 @@
  */
 
 import preact from "../js/lib/preact";
-import {PS, PSRoom, type Team} from "./client-main";
-import {PSPanelWrapper, PSRoomPanel} from "./panels";
-import {PSTeambuilder} from "./panel-teamdropdown";
-import {Dex, toID, type ID} from "./battle-dex";
-import {DexSearch} from "./battle-dex-search";
-import {PSSearchResults} from "./battle-searchresults";
+import { PS, PSRoom, type Team } from "./client-main";
+import { PSPanelWrapper, PSRoomPanel } from "./panels";
+import { PSTeambuilder } from "./panel-teamdropdown";
+import { Dex, toID, type ID } from "./battle-dex";
+import { DexSearch } from "./battle-dex-search";
+import { PSSearchResults } from "./battle-searchresults";
 
 class TeamRoom extends PSRoom {
 	team: Team | null = null;
 }
 
-class TeamTextbox extends preact.Component<{team: Team}> {
+class TeamTextbox extends preact.Component<{ team: Team }> {
 	setInfo: {
 		species: string,
 		bottomY: number,
@@ -158,7 +158,9 @@ class TeamTextbox extends preact.Component<{team: Team}> {
 	}
 	render() {
 		return <div class="teameditor">
-			<textarea class="textbox teamtextbox" onInput={this.input} onSelect={this.select} onClick={this.select} onKeyUp={this.select} />
+			<textarea
+				class="textbox teamtextbox" onInput={this.input} onSelect={this.select} onClick={this.select} onKeyUp={this.select}
+			/>
 			<textarea
 				class="textbox teamtextbox heighttester" style="visibility:hidden" tabIndex={-1} aria-hidden={true}
 			/>
@@ -177,18 +179,22 @@ class TeamTextbox extends preact.Component<{team: Team}> {
 					const left = (num % 12) * 40;
 					const iconStyle = `background:transparent url(${Dex.resourcePrefix}sprites/pokemonicons-sheet.png) no-repeat scroll -${left}px -${top}px`;
 
-					return <span class="picon" style={
-						`top:${prevOffset + 1}px;left:50px;position:absolute;${iconStyle}`
-					}></span>;
+					return <span
+						class="picon" style={`top:${prevOffset + 1}px;left:50px;position:absolute;${iconStyle}`}
+					></span>;
 				})}
-				{this.activeOffsetY >= 0 &&
-					<div class="teaminnertextbox" style={{top: this.activeOffsetY - 1}}></div>
-				}
+				{this.activeOffsetY >= 0 && (
+					<div class="teaminnertextbox" style={{ top: this.activeOffsetY - 1 }}></div>
+				)}
 			</div>
-			{this.activeType && <div class="searchresults" style={{top: this.activeSetIndex >= 0 ? this.setInfo[this.activeSetIndex].bottomY - 12 : 0}}>
-				<button class="button closesearch" onClick={this.closeMenu}><i class="fa fa-times"></i> Close</button>
-				<PSSearchResults search={this.search} />
-			</div>}
+			{this.activeType && (
+				<div
+					class="searchresults" style={{ top: this.activeSetIndex >= 0 ? this.setInfo[this.activeSetIndex].bottomY - 12 : 0 }}
+				>
+					<button class="button closesearch" onClick={this.closeMenu}><i class="fa fa-times"></i> Close</button>
+					<PSSearchResults search={this.search} />
+				</div>
+			)}
 		</div>;
 	}
 }
@@ -223,7 +229,9 @@ class TeamPanel extends PSRoomPanel<TeamRoom> {
 				</button>
 				<label class="label teamname">
 					Team name:
-					<input class="textbox" type="text" value={team.name} onInput={this.rename} onChange={this.rename} onKeyUp={this.rename} />
+					<input
+						class="textbox" type="text" value={team.name} onInput={this.rename} onChange={this.rename} onKeyUp={this.rename}
+					/>
 				</label>
 				<TeamTextbox team={team} />
 			</div>

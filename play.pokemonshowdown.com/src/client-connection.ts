@@ -5,9 +5,10 @@
  * @license MIT
  */
 
-import {PS} from "./client-main";
+import { PS } from "./client-main";
 
-declare var SockJS: any;
+declare const SockJS: any;
+declare const POKEMON_SHOWDOWN_TESTCLIENT_KEY: string | undefined;
 
 export class PSConnection {
 	socket: any = null;
@@ -20,7 +21,7 @@ export class PSConnection {
 		const server = PS.server;
 		const port = server.protocol === 'https' ? '' : ':' + server.port;
 		const url = server.protocol + '://' + server.host + port + server.prefix;
-		const socket = this.socket = new SockJS(url, [], {timeout: 5 * 60 * 1000});
+		const socket = this.socket = new SockJS(url, [], { timeout: 5 * 60 * 1000 });
 		socket.onopen = () => {
 			console.log('\u2705 (CONNECTED)');
 			this.connected = true;
@@ -60,17 +61,15 @@ export class PSConnection {
 PS.connection = new PSConnection();
 
 export const PSLoginServer = new class {
-	query(data: PostData): Promise<{[k: string]: any} | null> {
+	query(data: PostData): Promise<{ [k: string]: any } | null> {
 		let url = '/~~' + PS.server.id + '/action.php';
 		if (location.pathname.endsWith('.html')) {
 			url = 'https://' + Config.routes.client + url;
-			// @ts-ignore
 			if (typeof POKEMON_SHOWDOWN_TESTCLIENT_KEY === 'string') {
-				// @ts-ignore
-				data.sid = POKEMON_SHOWDOWN_TESTCLIENT_KEY.replace(/\%2C/g, ',');
+				data.sid = POKEMON_SHOWDOWN_TESTCLIENT_KEY.replace(/%2C/g, ',');
 			}
 		}
-		return Net(url).get({method: data ? 'POST' : 'GET', body: data}).then(
+		return Net(url).get({ method: data ? 'POST' : 'GET', body: data }).then(
 			res => res ? JSON.parse(res.slice(1)) : null
 		).catch(
 			() => null
@@ -96,7 +95,7 @@ class HttpError extends Error {
 		this.body = body;
 		try {
 			(Error as any).captureStackTrace(this, HttpError);
-		} catch (err) {}
+		} catch {}
 	}
 }
 class NetRequest {

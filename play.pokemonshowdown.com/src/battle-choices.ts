@@ -12,8 +12,8 @@
  * @license MIT
  */
 
-import type {Battle, ServerPokemon} from "./battle";
-import {Dex, toID, type ID} from "./battle-dex";
+import type { Battle, ServerPokemon } from "./battle";
+import { Dex, toID, type ID } from "./battle-dex";
 
 export interface BattleRequestSideInfo {
 	name: string;
@@ -281,7 +281,7 @@ export class BattleChoiceBuilder {
 
 		const index = this.choices.length;
 
-		if (choice === 'shift') return {choiceType: 'shift'};
+		if (choice === 'shift') return { choiceType: 'shift' };
 
 		if (choice.startsWith('move ')) {
 			if (request.requestType !== 'move') {
@@ -397,7 +397,7 @@ export class BattleChoiceBuilder {
 				const choiceid = toID(choice);
 				let matchLevel = 0;
 				let match = 0;
-				for (let i = 0 ; i < request.side.pokemon.length; i++) {
+				for (let i = 0; i < request.side.pokemon.length; i++) {
 					const serverPokemon = request.side.pokemon[i];
 					let curMatchLevel = 0;
 					if (choice === serverPokemon.name) {
@@ -429,7 +429,7 @@ export class BattleChoiceBuilder {
 				throw new Error(`Couldn't find Pokémon "${choice}" to switch to!`);
 			}
 			if (target.fainted) {
-				throw new Error(`${target} is fainted and cannot battle!`);
+				throw new Error(`${target.name} is fainted and cannot battle!`);
 			}
 			return current;
 		}
