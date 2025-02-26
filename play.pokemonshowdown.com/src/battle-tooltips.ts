@@ -1731,7 +1731,7 @@ export class BattleTooltips {
 		}
 		if (move.id === 'blizzard' && this.battle.gen >= 4) {
 			value.weatherModify(0, 'Hail');
-			value.weatherModify(0, 'Snow');
+			value.weatherModify(0, 'Snowscape');
 		}
 		if (['hurricane', 'thunder', 'bleakwindstorm', 'wildboltstorm', 'sandsearstorm'].includes(move.id)) {
 			value.weatherModify(0, 'Rain Dance');
