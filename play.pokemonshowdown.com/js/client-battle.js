@@ -39,7 +39,7 @@
 			this.battle.subscribe(function () { self.updateControls(); });
 
 			this.users = {};
-			this.userCount = {users: 0};
+			this.userCount = { users: 0 };
 			this.$userList = this.$('.userlist');
 			this.userList = new UserList({
 				el: this.$userList,
@@ -76,7 +76,7 @@
 		},
 		requestLeave: function (e) {
 			if ((this.side || this.requireForfeit) && this.battle && !this.battleEnded && !this.expired && !this.battle.forfeitPending) {
-				app.addPopup(ForfeitPopup, {room: this, sourceEl: e && e.currentTarget, gameType: 'battle'});
+				app.addPopup(ForfeitPopup, { room: this, sourceEl: e && e.currentTarget, gameType: 'battle' });
 				return false;
 			}
 			return true;
@@ -217,7 +217,8 @@
 						this.battle.stepQueue.push('|' + args.join('|'));
 						break;
 					}
-				} else if (logLine.substr(0, 7) === '|title|') { // eslint-disable-line no-empty
+				} else if (logLine.substr(0, 7) === '|title|') {
+					// empty
 				} else if (logLine.substr(0, 5) === '|win|' || logLine === '|tie') {
 					this.battleEnded = true;
 					this.battle.stepQueue.push(logLine);
@@ -410,8 +411,8 @@
 					};
 
 					if (this.request.forceSwitch !== true) {
-						var faintedLength = _.filter(this.request.forceSwitch, function (fainted) {return fainted;}).length;
-						var freedomDegrees = faintedLength - _.filter(switchables.slice(this.battle.pokemonControlled), function (mon) {return !mon.fainted;}).length;
+						var faintedLength = _.filter(this.request.forceSwitch, function (fainted) { return fainted; }).length;
+						var freedomDegrees = faintedLength - _.filter(switchables.slice(this.battle.pokemonControlled), function (mon) { return !mon.fainted; }).length;
 						this.choice.freedomDegrees = Math.max(freedomDegrees, 0);
 						this.choice.canSwitch = faintedLength - this.choice.freedomDegrees;
 					}
@@ -542,7 +543,7 @@
 			this.$('.timerbutton').replaceWith(this.getTimerHTML());
 		},
 		openTimer: function () {
-			app.addPopup(TimerPopup, {room: this});
+			app.addPopup(TimerPopup, { room: this });
 		},
 		updateMoveControls: function (type) {
 			var switchables = this.request && this.request.side ? this.battle.myPokemon : [];
@@ -577,7 +578,7 @@
 			var canTerastallize = curActive.canTerastallize || switchables[pos].canTerastallize;
 			if (canZMove && typeof canZMove[0] === 'string') {
 				canZMove = _.map(canZMove, function (move) {
-					return {move: move, target: Dex.moves.get(move).target};
+					return { move: move, target: Dex.moves.get(move).target };
 				});
 			}
 			if (gigantamax) gigantamax = Dex.moves.get(gigantamax);
@@ -641,7 +642,7 @@
 					} else if (moveTarget === 'normal' || moveTarget === 'adjacentAlly' || moveTarget === 'adjacentAllyOrSelf') {
 						if (Math.abs(activePos - i) > 1) disabled = true;
 					}
-					if (moveTarget !== 'adjacentAllyOrSelf' && activePos == i) disabled = true;
+					if (moveTarget !== 'adjacentAllyOrSelf' && activePos === i) disabled = true;
 
 					if (disabled) {
 						targetMenus[1] += '<button disabled style="visibility:hidden"></button> ';
@@ -840,7 +841,7 @@
 			}
 
 			var switchables = this.request && this.request.side ? this.battle.myPokemon : [];
-			var nearActive = this.battle.nearSide.active;
+			// var nearActive = this.battle.nearSide.active;
 			var isReviving = !!switchables[pos].reviving;
 
 			var requestTitle = '';
@@ -1106,7 +1107,7 @@
 				request.requestType = 'wait';
 			}
 
-			this.choice = choiceText ? {waiting: true} : null;
+			this.choice = choiceText ? { waiting: true } : null;
 			this.finalDecision = this.finalDecisionMove = this.finalDecisionSwitch = false;
 			this.request = request;
 			if (request.side) {
@@ -1184,7 +1185,7 @@
 			this.send('/savereplay');
 		},
 		openBattleOptions: function () {
-			app.addPopup(BattleOptionsPopup, {battle: this.battle, room: this});
+			app.addPopup(BattleOptionsPopup, { battle: this.battle, room: this });
 		},
 		clickReplayDownloadButton: function (e) {
 			var filename = (this.battle.tier || 'Battle').replace(/[^A-Za-z0-9]/g, '');
@@ -1277,7 +1278,7 @@
 				var isTerastal = !!(this.$('input[name=terastallize]')[0] || '').checked;
 
 				var target = e.getAttribute('data-target');
-				var choosableTargets = {normal: 1, any: 1, adjacentAlly: 1, adjacentAllyOrSelf: 1, adjacentFoe: 1};
+				var choosableTargets = { normal: 1, any: 1, adjacentAlly: 1, adjacentAllyOrSelf: 1, adjacentFoe: 1 };
 				if (this.battle.gameType === 'freeforall') delete choosableTargets['adjacentAllyOrSelf'];
 
 				this.choice.choices.push('move ' + pos + (isMega ? ' mega' : '') + (isMegaX ? ' megax' : isMegaY ? ' megay' : '') + (isZMove ? ' zmove' : '') + (isUltraBurst ? ' ultra' : '') + (isDynamax ? ' dynamax' : '') + (isTerastal ? ' terastallize' : ''));
@@ -1328,8 +1329,8 @@
 			}
 
 			// After choosing the position to which a pokemon will switch in (Doubles/Triples end-game).
-			if (!this.request || this.request.requestType !== 'switch') return false; //??
-			if (this.choice.canSwitch > _.filter(this.choice.choices, function (choice) {return choice;}).length) {
+			if (!this.request || this.request.requestType !== 'switch') return false; // ??
+			if (this.choice.canSwitch > _.filter(this.choice.choices, function (choice) { return choice; }).length) {
 				// More switches are pending.
 				this.choice.type = 'switch2';
 				this.updateControlsForPlayer();
@@ -1414,8 +1415,10 @@
 				}
 			} else if (this.request.requestType === 'move') {
 				var requestDetails = this.request && this.request.side ? this.battle.myPokemon : [];
-				while (choices.length < this.battle.pokemonControlled &&
-						(!nearActive[choices.length] || requestDetails[choices.length].commanding)) {
+				while (
+					choices.length < this.battle.pokemonControlled &&
+					(!nearActive[choices.length] || requestDetails[choices.length].commanding)
+				) {
 					choices.push('pass');
 				}
 

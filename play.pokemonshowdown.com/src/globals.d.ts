@@ -1,26 +1,28 @@
+/* eslint-disable @typescript-eslint/consistent-type-imports */
+
 // dex data
 ///////////
 
-declare var BattleText: {[id: string]: {[templateName: string]: string}};
-declare var BattleFormats: {[id: string]: import('./panel-teamdropdown').FormatData};
-declare var BattlePokedex: any;
-declare var BattleMovedex: any;
-declare var BattleAbilities: any;
-declare var BattleItems: any;
-declare var BattleAliases: any;
-declare var BattleStatuses: any;
-declare var BattlePokemonSprites: any;
-declare var BattlePokemonSpritesBW: any;
-declare var NonBattleGames: {[id: string]: string};
+declare const BattleText: { [id: string]: { [templateName: string]: string } };
+declare const BattleFormats: { [id: string]: import('./panel-teamdropdown').FormatData };
+declare const BattlePokedex: any;
+declare const BattleMovedex: any;
+declare const BattleAbilities: any;
+declare const BattleItems: any;
+declare const BattleAliases: any;
+declare const BattleStatuses: any;
+declare const BattlePokemonSprites: any;
+declare const BattlePokemonSpritesBW: any;
+declare const NonBattleGames: { [id: string]: string };
 
 // PS globals
 /////////////
 
-declare var Config: any;
-declare var Replays: any;
-declare var exports: any;
-type AnyObject = {[k: string]: any};
-declare var app: {user: AnyObject, rooms: AnyObject, ignore?: AnyObject};
+declare const Config: any;
+declare const Replays: any;
+declare const exports: any;
+type AnyObject = { [k: string]: any };
+declare const app: { user: AnyObject, rooms: AnyObject, ignore?: AnyObject };
 
 interface Window {
 	[k: string]: any;

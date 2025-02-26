@@ -88,30 +88,30 @@
 
 			$wrapper.html(
 				'<div class="tournament-title">' +
-					'<span class="tournament-format"></span> <span class="tournament-generator"></span> Tournament' +
-					'<div class="tournament-status"></div>' +
-					'<div class="tournament-toggle">Toggle</div>' +
+				'	<span class="tournament-format"></span> <span class="tournament-generator"></span> Tournament' +
+				'	<div class="tournament-status"></div>' +
+				'	<div class="tournament-toggle">Toggle</div>' +
 				'</div>' +
 				'<div class="tournament-box">' +
-					'<div class="tournament-bracket"></div>' +
-					'<div class="tournament-tools">' +
-						'<div class="tournament-team"></div>' +
-						'<button class="button tournament-join">Join</button><button class="button tournament-validate"><i class="fa fa-check"></i> Validate</button> <button class="button tournament-leave">Leave</button>' +
-						'<div class="tournament-nomatches">Waiting for battles to become available...</div>' +
-						'<div class="tournament-challenge">' +
-							'<div class="tournament-challenge-user"></div>' +
-							'<button class="button tournament-challenge-challenge"><strong>Ready!</strong></button><span class="tournament-challenge-user-menu"></span>' +
-						'</div>' +
-						'<div class="tournament-challengeby"></div>' +
-						'<div class="tournament-challenging">' +
-							'<div class="tournament-challenging-message"></div>' +
-							'<button class="button tournament-challenge-cancel">Cancel</button>' +
-						'</div>' +
-						'<div class="tournament-challenged">' +
-							'<div class="tournament-challenged-message"></div>' +
-							'<button class="button tournament-challenge-accept"><strong>Ready!</strong></button>' +
-						'</div>' +
-					'</div>' +
+				'	<div class="tournament-bracket"></div>' +
+				'	<div class="tournament-tools">' +
+				'		<div class="tournament-team"></div>' +
+				'		<button class="button tournament-join">Join</button><button class="button tournament-validate"><i class="fa fa-check"></i> Validate</button> <button class="button tournament-leave">Leave</button>' +
+				'		<div class="tournament-nomatches">Waiting for battles to become available...</div>' +
+				'		<div class="tournament-challenge">' +
+				'			<div class="tournament-challenge-user"></div>' +
+				'			<button class="button tournament-challenge-challenge"><strong>Ready!</strong></button><span class="tournament-challenge-user-menu"></span>' +
+				'		</div>' +
+				'		<div class="tournament-challengeby"></div>' +
+				'		<div class="tournament-challenging">' +
+				'			<div class="tournament-challenging-message"></div>' +
+				'			<button class="button tournament-challenge-cancel">Cancel</button>' +
+				'		</div>' +
+				'		<div class="tournament-challenged">' +
+				'			<div class="tournament-challenged-message"></div>' +
+				'			<button class="button tournament-challenge-accept"><strong>Ready!</strong></button>' +
+				'		</div>' +
+				'	</div>' +
 				'</div>');
 
 			this.$title = $wrapper.find('.tournament-title');
@@ -609,7 +609,7 @@
 				};
 
 				var nodesByDepth = [];
-				var stack = [{node: data.rootNode, depth: 0}];
+				var stack = [{ node: data.rootNode, depth: 0 }];
 				while (stack.length > 0) {
 					var frame = stack.pop();
 
@@ -619,7 +619,7 @@
 
 					if (!frame.node.children) frame.node.children = [];
 					frame.node.children.forEach(function (child) {
-						stack.push({node: child, depth: frame.depth + 1});
+						stack.push({ node: child, depth: frame.depth + 1 });
 					});
 				}
 				var maxDepth = nodesByDepth.length;
@@ -653,10 +653,10 @@
 
 				var link = d3.svg.diagonal()
 					.source(function (link) {
-						return {x: link.source.x, y: link.source.y + nodeSize.realWidth / 2};
+						return { x: link.source.x, y: link.source.y + nodeSize.realWidth / 2 };
 					})
 					.target(function (link) {
-						return {x: link.target.x, y: link.target.y - nodeSize.realWidth / 2};
+						return { x: link.target.x, y: link.target.y - nodeSize.realWidth / 2 };
 					})
 					.projection(function (link) {
 						return [size.width - link.y, link.x];
@@ -793,20 +793,20 @@
 		};
 		TournamentBox.prototype.showBracketPopup = function (data, isStandalone) {
 			if (isStandalone)
-				app.addPopup(BracketPopup, {$bracket: this.generateBracket(data)});
+				app.addPopup(BracketPopup, { $bracket: this.generateBracket(data) });
 			else
-				this.bracketPopup = app.addPopup(BracketPopup, {parent: this, $bracket: this.generateBracket(data)});
+				this.bracketPopup = app.addPopup(BracketPopup, { parent: this, $bracket: this.generateBracket(data) });
 		};
 
 		TournamentBox.prototype.renderChallengeUsers = function () {
 			return ' <button class="button" value="' + toID(this.info.challenges[0]) + '" name="tournamentButton" data-type="challengeUser">Change opponent</button>';
 		};
 		TournamentBox.prototype.challengeUser = function (user, button) {
-			app.addPopup(UserPopup, {user: user, users: this.info.challenges, sourceEl: button});
+			app.addPopup(UserPopup, { user: user, users: this.info.challenges, sourceEl: button });
 		};
 
 		TournamentBox.prototype.teamSelect = function (team, button) {
-			app.addPopup(TeamPopup, {team: team, format: this.info.teambuilderFormat, sourceEl: button, room: this.room.id, isMoreTeams: false, folderToggleOn: true, folderNotExpanded: []});
+			app.addPopup(TeamPopup, { team: team, format: this.info.teambuilderFormat, sourceEl: button, room: this.room.id, isMoreTeams: false, folderToggleOn: true, folderNotExpanded: [] });
 		};
 
 		return TournamentBox;

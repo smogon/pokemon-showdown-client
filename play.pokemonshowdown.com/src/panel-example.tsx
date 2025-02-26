@@ -7,13 +7,14 @@
  * @license AGPLv3
  */
 
-import {PS, PSRoom, type RoomOptions} from "./client-main";
-import {PSPanelWrapper, PSRoomPanel} from "./panels";
+import { PS, PSRoom, type RoomOptions } from "./client-main";
+import { PSPanelWrapper, PSRoomPanel } from "./panels";
 
 // Example room with panel
 
 class ExampleRoom extends PSRoom {
 	override readonly classType: string = 'example';
+	// eslint-disable-next-line no-useless-constructor
 	constructor(options: RoomOptions) {
 		super(options);
 	}

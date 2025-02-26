@@ -1,3 +1,4 @@
+/* exported toId */
 function toId() {
 	// toId has been renamed toID
 	alert("You have an old extension/script for Pokemon Showdown which is incompatible with this client. It needs to be removed or updated.");
@@ -20,7 +21,7 @@ function toId() {
 	}
 
 	$(document).on('keydown', function (e) {
-		if (e.keyCode == 27) { // Esc
+		if (e.keyCode === 27) { // Esc
 			e.preventDefault();
 			e.stopPropagation();
 			e.stopImmediatePropagation();
@@ -178,8 +179,8 @@ function toId() {
 				Storage.prefs('serversettings', self.get('settings'));
 			});
 
-			var replaceList = {'A': 'ＡⱯȺ', 'B': 'ＢƂƁɃ', 'C': 'ＣꜾȻ', 'D': 'ＤĐƋƊƉꝹ', 'E': 'ＥƐƎ', 'F': 'ＦƑꝻ', 'G': 'ＧꞠꝽꝾ', 'H': 'ＨĦⱧⱵꞍ', 'I': 'ＩƗ', 'J': 'ＪɈ', 'K': 'ＫꞢ', 'L': 'ＬꝆꞀ', 'M': 'ＭⱮƜ', 'N': 'ＮȠƝꞐꞤ', 'O': 'ＯǪǬØǾƆƟꝊꝌ', 'P': 'ＰƤⱣꝐꝒꝔ', 'Q': 'ＱꝖꝘɊ', 'R': 'ＲɌⱤꝚꞦꞂ', 'S': 'ＳẞꞨꞄ', 'T': 'ＴŦƬƮȾꞆ', 'U': 'ＵɄ', 'V': 'ＶƲꝞɅ', 'W': 'ＷⱲ', 'X': 'Ｘ', 'Y': 'ＹɎỾ', 'Z': 'ＺƵȤⱿⱫꝢ', 'a': 'ａąⱥɐ', 'b': 'ｂƀƃɓ', 'c': 'ｃȼꜿↄ', 'd': 'ｄđƌɖɗꝺ', 'e': 'ｅɇɛǝ', 'f': 'ｆḟƒꝼ', 'g': 'ｇɠꞡᵹꝿ', 'h': 'ｈħⱨⱶɥ', 'i': 'ｉɨı', 'j': 'ｊɉ', 'k': 'ｋƙⱪꝁꝃꝅꞣ', 'l': 'ｌſłƚɫⱡꝉꞁꝇ', 'm': 'ｍɱɯ', 'n': 'ｎƞɲŉꞑꞥ', 'o': 'ｏǫǭøǿɔꝋꝍɵ', 'p': 'ｐƥᵽꝑꝓꝕ', 'q': 'ｑɋꝗꝙ', 'r': 'ｒɍɽꝛꞧꞃ', 's': 'ｓꞩꞅẛ', 't': 'ｔŧƭʈⱦꞇ', 'u': 'ｕưừứữửựųṷṵʉ', 'v': 'ｖʋꝟʌ', 'w': 'ｗⱳ', 'x': 'ｘ', 'y': 'ｙɏỿ', 'z': 'ｚƶȥɀⱬꝣ', 'AA': 'Ꜳ', 'AE': 'ÆǼǢ', 'AO': 'Ꜵ', 'AU': 'Ꜷ', 'AV': 'ꜸꜺ', 'AY': 'Ꜽ', 'DZ': 'ǱǄ', 'Dz': 'ǲǅ', 'LJ': 'Ǉ', 'Lj': 'ǈ', 'NJ': 'Ǌ', 'Nj': 'ǋ', 'OI': 'Ƣ', 'OO': 'Ꝏ', 'OU': 'Ȣ', 'TZ': 'Ꜩ', 'VY': 'Ꝡ', 'aa': 'ꜳ', 'ae': 'æǽǣ', 'ao': 'ꜵ', 'au': 'ꜷ', 'av': 'ꜹꜻ', 'ay': 'ꜽ', 'dz': 'ǳǆ', 'hv': 'ƕ', 'lj': 'ǉ', 'nj': 'ǌ', 'oi': 'ƣ', 'ou': 'ȣ', 'oo': 'ꝏ', 'ss': 'ß', 'tz': 'ꜩ', 'vy': 'ꝡ'};
-			var normalizeList = {'A': 'ÀÁÂẦẤẪẨÃĀĂẰẮẴẲȦǠÄǞẢÅǺǍȀȂẠẬẶḀĄ', 'B': 'ḂḄḆ', 'C': 'ĆĈĊČÇḈƇ', 'D': 'ḊĎḌḐḒḎ', 'E': 'ÈÉÊỀẾỄỂẼĒḔḖĔĖËẺĚȄȆẸỆȨḜĘḘḚ', 'F': 'Ḟ', 'G': 'ǴĜḠĞĠǦĢǤƓ', 'H': 'ĤḢḦȞḤḨḪ', 'I': 'ÌÍÎĨĪĬİÏḮỈǏȈȊỊĮḬ', 'J': 'Ĵ', 'K': 'ḰǨḲĶḴƘⱩꝀꝂꝄ', 'L': 'ĿĹĽḶḸĻḼḺŁȽⱢⱠꝈ', 'M': 'ḾṀṂ', 'N': 'ǸŃÑṄŇṆŅṊṈ', 'O': 'ÒÓÔỒỐỖỔÕṌȬṎŌṐṒŎȮȰÖȪỎŐǑȌȎƠỜỚỠỞỢỌỘ', 'P': 'ṔṖ', 'Q': '', 'R': 'ŔṘŘȐȒṚṜŖṞ', 'S': 'ŚṤŜṠŠṦṢṨȘŞⱾ', 'T': 'ṪŤṬȚŢṰṮ', 'U': 'ÙÚÛŨṸŪṺŬÜǛǗǕǙỦŮŰǓȔȖƯỪỨỮỬỰỤṲŲṶṴ', 'V': 'ṼṾ', 'W': 'ẀẂŴẆẄẈ', 'X': 'ẊẌ', 'Y': 'ỲÝŶỸȲẎŸỶỴƳ', 'Z': 'ŹẐŻŽẒẔ', 'a': 'ẚàáâầấẫẩãāăằắẵẳȧǡäǟảåǻǎȁȃạậặḁ', 'b': 'ḃḅḇ', 'c': 'ćĉċčçḉƈ', 'd': 'ḋďḍḑḓḏ', 'e': 'èéêềếễểẽēḕḗĕėëẻěȅȇẹệȩḝęḙḛ', 'f': '', 'g': 'ǵĝḡğġǧģǥ', 'h': 'ĥḣḧȟḥḩḫẖ', 'i': 'ìíîĩīĭïḯỉǐȉȋịįḭ', 'j': 'ĵǰ', 'k': 'ḱǩḳķḵ', 'l': 'ŀĺľḷḹļḽḻ', 'm': 'ḿṁṃ', 'n': 'ǹńñṅňṇņṋṉ', 'o': 'òóôồốỗổõṍȭṏōṑṓŏȯȱöȫỏőǒȍȏơờớỡởợọộ', 'p': 'ṕṗ', 'q': '', 'r': 'ŕṙřȑȓṛṝŗṟ', 's': 'śṥŝṡšṧṣṩșşȿ', 't': 'ṫẗťṭțţṱṯ', 'u': 'ùúûũṹūṻŭüǜǘǖǚủůűǔȕȗụṳ', 'v': 'ṽṿ', 'w': 'ẁẃŵẇẅẘẉ', 'x': 'ẋẍ', 'y': 'ỳýŷỹȳẏÿỷẙỵƴ', 'z': 'źẑżžẓẕ'};
+			var replaceList = { 'A': 'ＡⱯȺ', 'B': 'ＢƂƁɃ', 'C': 'ＣꜾȻ', 'D': 'ＤĐƋƊƉꝹ', 'E': 'ＥƐƎ', 'F': 'ＦƑꝻ', 'G': 'ＧꞠꝽꝾ', 'H': 'ＨĦⱧⱵꞍ', 'I': 'ＩƗ', 'J': 'ＪɈ', 'K': 'ＫꞢ', 'L': 'ＬꝆꞀ', 'M': 'ＭⱮƜ', 'N': 'ＮȠƝꞐꞤ', 'O': 'ＯǪǬØǾƆƟꝊꝌ', 'P': 'ＰƤⱣꝐꝒꝔ', 'Q': 'ＱꝖꝘɊ', 'R': 'ＲɌⱤꝚꞦꞂ', 'S': 'ＳẞꞨꞄ', 'T': 'ＴŦƬƮȾꞆ', 'U': 'ＵɄ', 'V': 'ＶƲꝞɅ', 'W': 'ＷⱲ', 'X': 'Ｘ', 'Y': 'ＹɎỾ', 'Z': 'ＺƵȤⱿⱫꝢ', 'a': 'ａąⱥɐ', 'b': 'ｂƀƃɓ', 'c': 'ｃȼꜿↄ', 'd': 'ｄđƌɖɗꝺ', 'e': 'ｅɇɛǝ', 'f': 'ｆḟƒꝼ', 'g': 'ｇɠꞡᵹꝿ', 'h': 'ｈħⱨⱶɥ', 'i': 'ｉɨı', 'j': 'ｊɉ', 'k': 'ｋƙⱪꝁꝃꝅꞣ', 'l': 'ｌſłƚɫⱡꝉꞁꝇ', 'm': 'ｍɱɯ', 'n': 'ｎƞɲŉꞑꞥ', 'o': 'ｏǫǭøǿɔꝋꝍɵ', 'p': 'ｐƥᵽꝑꝓꝕ', 'q': 'ｑɋꝗꝙ', 'r': 'ｒɍɽꝛꞧꞃ', 's': 'ｓꞩꞅẛ', 't': 'ｔŧƭʈⱦꞇ', 'u': 'ｕưừứữửựųṷṵʉ', 'v': 'ｖʋꝟʌ', 'w': 'ｗⱳ', 'x': 'ｘ', 'y': 'ｙɏỿ', 'z': 'ｚƶȥɀⱬꝣ', 'AA': 'Ꜳ', 'AE': 'ÆǼǢ', 'AO': 'Ꜵ', 'AU': 'Ꜷ', 'AV': 'ꜸꜺ', 'AY': 'Ꜽ', 'DZ': 'ǱǄ', 'Dz': 'ǲǅ', 'LJ': 'Ǉ', 'Lj': 'ǈ', 'NJ': 'Ǌ', 'Nj': 'ǋ', 'OI': 'Ƣ', 'OO': 'Ꝏ', 'OU': 'Ȣ', 'TZ': 'Ꜩ', 'VY': 'Ꝡ', 'aa': 'ꜳ', 'ae': 'æǽǣ', 'ao': 'ꜵ', 'au': 'ꜷ', 'av': 'ꜹꜻ', 'ay': 'ꜽ', 'dz': 'ǳǆ', 'hv': 'ƕ', 'lj': 'ǉ', 'nj': 'ǌ', 'oi': 'ƣ', 'ou': 'ȣ', 'oo': 'ꝏ', 'ss': 'ß', 'tz': 'ꜩ', 'vy': 'ꝡ' };
+			var normalizeList = { 'A': 'ÀÁÂẦẤẪẨÃĀĂẰẮẴẲȦǠÄǞẢÅǺǍȀȂẠẬẶḀĄ', 'B': 'ḂḄḆ', 'C': 'ĆĈĊČÇḈƇ', 'D': 'ḊĎḌḐḒḎ', 'E': 'ÈÉÊỀẾỄỂẼĒḔḖĔĖËẺĚȄȆẸỆȨḜĘḘḚ', 'F': 'Ḟ', 'G': 'ǴĜḠĞĠǦĢǤƓ', 'H': 'ĤḢḦȞḤḨḪ', 'I': 'ÌÍÎĨĪĬİÏḮỈǏȈȊỊĮḬ', 'J': 'Ĵ', 'K': 'ḰǨḲĶḴƘⱩꝀꝂꝄ', 'L': 'ĿĹĽḶḸĻḼḺŁȽⱢⱠꝈ', 'M': 'ḾṀṂ', 'N': 'ǸŃÑṄŇṆŅṊṈ', 'O': 'ÒÓÔỒỐỖỔÕṌȬṎŌṐṒŎȮȰÖȪỎŐǑȌȎƠỜỚỠỞỢỌỘ', 'P': 'ṔṖ', 'Q': '', 'R': 'ŔṘŘȐȒṚṜŖṞ', 'S': 'ŚṤŜṠŠṦṢṨȘŞⱾ', 'T': 'ṪŤṬȚŢṰṮ', 'U': 'ÙÚÛŨṸŪṺŬÜǛǗǕǙỦŮŰǓȔȖƯỪỨỮỬỰỤṲŲṶṴ', 'V': 'ṼṾ', 'W': 'ẀẂŴẆẄẈ', 'X': 'ẊẌ', 'Y': 'ỲÝŶỸȲẎŸỶỴƳ', 'Z': 'ŹẐŻŽẒẔ', 'a': 'ẚàáâầấẫẩãāăằắẵẳȧǡäǟảåǻǎȁȃạậặḁ', 'b': 'ḃḅḇ', 'c': 'ćĉċčçḉƈ', 'd': 'ḋďḍḑḓḏ', 'e': 'èéêềếễểẽēḕḗĕėëẻěȅȇẹệȩḝęḙḛ', 'f': '', 'g': 'ǵĝḡğġǧģǥ', 'h': 'ĥḣḧȟḥḩḫẖ', 'i': 'ìíîĩīĭïḯỉǐȉȋịįḭ', 'j': 'ĵǰ', 'k': 'ḱǩḳķḵ', 'l': 'ŀĺľḷḹļḽḻ', 'm': 'ḿṁṃ', 'n': 'ǹńñṅňṇņṋṉ', 'o': 'òóôồốỗổõṍȭṏōṑṓŏȯȱöȫỏőǒȍȏơờớỡởợọộ', 'p': 'ṕṗ', 'q': '', 'r': 'ŕṙřȑȓṛṝŗṟ', 's': 'śṥŝṡšṧṣṩșşȿ', 't': 'ṫẗťṭțţṱṯ', 'u': 'ùúûũṹūṻŭüǜǘǖǚủůűǔȕȗụṳ', 'v': 'ṽṿ', 'w': 'ẁẃŵẇẅẘẉ', 'x': 'ẋẍ', 'y': 'ỳýŷỹȳẏÿỷẙỵƴ', 'z': 'źẑżžẓẕ' };
 			for (var i in replaceList) {
 				replaceList[i] = new RegExp('[' + replaceList[i] + ']', 'g');
 			}
@@ -409,7 +410,7 @@ function toId() {
 			// this.down = true;
 
 			this.addRoom('');
-			this.topbar = new Topbar({el: $('#header')});
+			this.topbar = new Topbar({ el: $('#header') });
 			if (this.down) {
 				this.isDisconnected = true;
 			// } else if (location.origin === 'http://smogtours.psim.us') {
@@ -427,7 +428,7 @@ function toId() {
 				Storage.whenPrefsLoaded(function () {
 					if (!Config.server.registered) {
 						app.send('/autojoin');
-						Backbone.history.start({pushState: !Config.testclient});
+						Backbone.history.start({ pushState: !Config.testclient });
 						return;
 					}
 					// Support legacy tournament setting and migrate to new pref
@@ -459,7 +460,7 @@ function toId() {
 					if (Object.keys(settings).length) app.user.set('settings', settings);
 					// HTML5 history throws exceptions when running on file://
 					var useHistory = !Config.testclient && (location.pathname.slice(-5) !== '.html');
-					Backbone.history.start({pushState: useHistory});
+					Backbone.history.start({ pushState: useHistory });
 					app.ignore = app.loadIgnore();
 				});
 			}
@@ -539,21 +540,21 @@ function toId() {
 				$('.battle-log-add').html('<small>You are disconnected and cannot chat.</small>');
 
 				self.reconnectPending = (message || true);
-				if (!self.popups.length) self.addPopup(ReconnectPopup, {message: message});
+				if (!self.popups.length) self.addPopup(ReconnectPopup, { message: message });
 			});
 
 			this.on('init:connectionerror', function () {
 				self.isDisconnected = true;
 				self.rooms[''].updateFormats();
-				self.addPopup(ReconnectPopup, {cantconnect: true});
+				self.addPopup(ReconnectPopup, { cantconnect: true });
 			});
 
 			this.user.on('login:invalidname', function (name, reason) {
-				self.addPopup(LoginPopup, {name: name, reason: reason});
+				self.addPopup(LoginPopup, { name: name, reason: reason });
 			});
 
 			this.user.on('login:authrequired', function (name, special) {
-				self.addPopup(LoginPasswordPopup, {username: name, special: special});
+				self.addPopup(LoginPasswordPopup, { username: name, special: special });
 			});
 
 			this.on('loggedin', function () {
@@ -790,7 +791,7 @@ function toId() {
 					}
 					return new SockJS(
 						protocol + '://' + Config.server.host + ':' + Config.server.port + Config.sockjsprefix,
-						[], {timeout: 5 * 60 * 1000}
+						[], { timeout: 5 * 60 * 1000 }
 					);
 				} catch (err) {
 					// The most common case this happens is if an HTTPS connection fails,
@@ -942,7 +943,7 @@ function toId() {
 				this.loadingTeam = true;
 				$.get(app.user.getActionPHP(), {
 					act: 'getteam',
-					teamid: team.teamid,
+					teamid: team.teamid
 				}, Storage.safeJSON(function (data) {
 					app.loadingTeam = false;
 					if (data.actionerror) {
@@ -1041,7 +1042,7 @@ function toId() {
 					var replayid = roomid.slice(7);
 					if (Config.server.id !== 'showdown') replayid = Config.server.id + '-' + replayid;
 					var replayLink = 'https://' + Config.routes.replays + '/' + replayid;
-					$.ajax(replayLink + '.json', {dataType: 'json'}).done(function (replay) {
+					$.ajax(replayLink + '.json', { dataType: 'json' }).done(function (replay) {
 						if (replay) {
 							var title = replay.players[0] + ' vs. ' + replay.players[1];
 							app.receive('>battle-' + replayid + '\n|init|battle\n|title|' + title + '\n' + replay.log);
@@ -1169,7 +1170,7 @@ function toId() {
 				break;
 
 			case 'nametaken':
-				app.addPopup(LoginPopup, {name: parts[1] || '', error: parts[2] || ''});
+				app.addPopup(LoginPopup, { name: parts[1] || '', error: parts[2] || '' });
 				break;
 
 			case 'queryresponse':
@@ -1258,7 +1259,7 @@ function toId() {
 			case 'chat':
 				if (parts[1] === '~') {
 					if (parts[2].substr(0, 6) === '/warn ') {
-						app.addPopup(RulesPopup, {warning: parts[2].substr(6)});
+						app.addPopup(RulesPopup, { warning: parts[2].substr(6) });
 						break;
 					}
 				}
@@ -1322,8 +1323,8 @@ function toId() {
 			var column = 0;
 			var columnChanged = false;
 
-			window.NonBattleGames = {rps: 'Rock Paper Scissors'};
-			for (var i = 3; i <= 9; i = i + 2) {
+			window.NonBattleGames = { rps: 'Rock Paper Scissors' };
+			for (var i = 3; i <= 9; i += 2) {
 				window.NonBattleGames['bestof' + i] = 'Best-of-' + i;
 			}
 			window.BattleFormats = {};
@@ -1473,7 +1474,7 @@ function toId() {
 				if (silent) return;
 				var sData = data.split(':');
 				if (sData[0] === 'success') {
-					app.addPopup(ReplayUploadedPopup, {id: sData[1] || id});
+					app.addPopup(ReplayUploadedPopup, { id: sData[1] || id });
 				} else if (data === 'hash mismatch') {
 					app.addPopupMessage("Someone else is already uploading a replay of this battle. Try again in five seconds.");
 				} else if (data === 'not found') {
@@ -1603,7 +1604,7 @@ function toId() {
 		 */
 		unjoinRoom: function (id, reason) {
 			this.removeRoom(id, true);
-			if (this.curRoom) this.navigate(this.curRoom.id, {replace: true});
+			if (this.curRoom) this.navigate(this.curRoom.id, { replace: true });
 			this.updateAutojoin();
 		},
 		tryJoinRoom: function (id) {
@@ -1724,7 +1725,6 @@ function toId() {
 			}
 
 			room.focus(null, focusTextbox);
-			return;
 		},
 		focusRoomLeft: function (id) {
 			var room = this.rooms[id];
@@ -1750,7 +1750,6 @@ function toId() {
 			if (this.curRoom.id === id) this.navigate(id);
 
 			room.focus(null, true);
-			return;
 		},
 		focusRoomRight: function (id) {
 			var room = this.rooms[id];
@@ -1774,7 +1773,6 @@ function toId() {
 			// if (this.curRoom.id === id) this.navigate(id);
 
 			room.focus(null, true);
-			return;
 		},
 		/**
 		 * This is the function for handling the two-panel layout
@@ -2068,7 +2066,7 @@ function toId() {
 			} else {
 				if (Config.server.id !== 'showdown') {
 					// Switch to the autojoin object to handle multiple servers
-					curAutojoin = {showdown: curAutojoin};
+					curAutojoin = { showdown: curAutojoin };
 					if (!autojoins.length) return;
 					curAutojoin[Config.server.id] = autojoins.join(',');
 				} else {
@@ -2142,19 +2140,19 @@ function toId() {
 		addPopupMessage: function (message) {
 			// shorthand for adding a popup message
 			// this is the equivalent of alert(message)
-			app.addPopup(Popup, {message: message});
+			app.addPopup(Popup, { message: message });
 		},
 		addPopupPrompt: function (message, buttonOrCallback, callback) {
 			var button = (callback ? buttonOrCallback : 'OK');
 			callback = (!callback ? buttonOrCallback : callback);
-			app.addPopup(PromptPopup, {message: message, button: button, callback: callback});
+			app.addPopup(PromptPopup, { message: message, button: button, callback: callback });
 		},
 		closePopup: function (id) {
 			if (this.popups.length) {
 				var popup = this.popups.pop();
 				if (popup.lastFocusedEl && popup.lastFocusedEl.focus) popup.lastFocusedEl.focus();
 				popup.remove();
-				if (this.reconnectPending) this.addPopup(ReconnectPopup, {message: this.reconnectPending});
+				if (this.reconnectPending) this.addPopup(ReconnectPopup, { message: this.reconnectPending });
 				return true;
 			}
 			return false;
@@ -2229,9 +2227,9 @@ function toId() {
 		 */
 		selectformat: function (value, target) {
 			var format = value || 'gen9randombattle';
-			app.addPopup(FormatPopup, {format: format, sourceEl: target, selectType: 'watch', onselect: function (newFormat) {
+			app.addPopup(FormatPopup, { format: format, sourceEl: target, selectType: 'watch', onselect: function (newFormat) {
 				target.value = newFormat;
-			}});
+			} });
 		},
 
 		copyText: function (value, target) {
@@ -2256,14 +2254,14 @@ function toId() {
 			this.leftWidth = 0;
 			switch (position) {
 			case 'left':
-				this.$el.css({left: 0, width: leftWidth, right: 'auto'});
+				this.$el.css({ left: 0, width: leftWidth, right: 'auto' });
 				break;
 			case 'right':
-				this.$el.css({left: leftWidth + 1, width: 'auto', right: 0});
+				this.$el.css({ left: leftWidth + 1, width: 'auto', right: 0 });
 				this.leftWidth = leftWidth;
 				break;
 			case 'full':
-				this.$el.css({left: 0, width: 'auto', right: 0});
+				this.$el.css({ left: 0, width: 'auto', right: 0 });
 				break;
 			}
 			this.$el.show();
@@ -2298,14 +2296,14 @@ function toId() {
 		notifications: null,
 		subtleNotification: false,
 		notify: function (title, body, tag, once) {
-			if (once && app.focused && (this === app.curRoom || this == app.curSideRoom)) return;
+			if (once && app.focused && (this === app.curRoom || this === app.curSideRoom)) return;
 			if (!tag) tag = 'message';
 			var needsTabbarUpdate = false;
 			if (!this.notifications) {
 				this.notifications = {};
 				needsTabbarUpdate = true;
 			}
-			if (app.focused && (this === app.curRoom || this == app.curSideRoom)) {
+			if (app.focused && (this === app.curRoom || this === app.curSideRoom)) {
 				this.notifications[tag] = {};
 			} else if (window.nodewebkit && !nwWindow.setBadgeLabel) {
 				// old desktop client
@@ -2330,9 +2328,9 @@ function toId() {
 					};
 					if (Dex.prefs('temporarynotifications')) {
 						if (notification.cancel) {
-							setTimeout(function () {notification.cancel();}, 5000);
+							setTimeout(function () { notification.cancel(); }, 5000);
 						} else if (notification.close) {
-							setTimeout(function () {notification.close();}, 5000);
+							setTimeout(function () { notification.close(); }, 5000);
 						}
 					}
 					if (once) notification.psAutoclose = true;
@@ -2359,7 +2357,7 @@ function toId() {
 			}
 		},
 		subtleNotifyOnce: function () {
-			if (app.focused && (this === app.curRoom || this == app.curSideRoom)) return;
+			if (app.focused && (this === app.curRoom || this === app.curSideRoom)) return;
 			if (this.notifications || this.subtleNotification) return;
 			this.subtleNotification = true;
 			this.notificationClass = ' subtle-notifying';
@@ -2629,7 +2627,7 @@ function toId() {
 			} else {
 				app.addPopupMessage("You are already registered!");
 			}
-		},
+		}
 	});
 
 	var PromptPopup = this.PromptPopup = Popup.extend({
@@ -2872,7 +2870,7 @@ function toId() {
 			app.addPopup(UserOptionsPopup, {
 				name: this.data.name,
 				userid: this.data.userid,
-				friended: this.data.friended,
+				friended: this.data.friended
 			});
 		}
 	}, {

@@ -14,75 +14,11 @@
  */
 
 /**********************************************************************
- * Polyfills
- *********************************************************************/
-
-if (!Array.prototype.indexOf) {
-	Array.prototype.indexOf = function (searchElement, fromIndex) {
-		for (let i = (fromIndex || 0); i < this.length; i++) {
-			if (this[i] === searchElement) return i;
-		}
-		return -1;
-	};
-}
-if (!Array.prototype.includes) {
-	Array.prototype.includes = function (thing) {
-		return this.indexOf(thing) !== -1;
-	};
-}
-if (!String.prototype.includes) {
-	String.prototype.includes = function (thing) {
-		return this.indexOf(thing) !== -1;
-	};
-}
-if (!String.prototype.startsWith) {
-	String.prototype.startsWith = function (thing) {
-		return this.slice(0, thing.length) === thing;
-	};
-}
-if (!String.prototype.endsWith) {
-	String.prototype.endsWith = function (thing) {
-		return this.slice(-thing.length) === thing;
-	};
-}
-if (!String.prototype.trim) {
-	String.prototype.trim = function () {
-		return this.replace(/^[\s\uFEFF\xA0]+|[\s\uFEFF\xA0]+$/g, '');
-	};
-}
-if (!Object.assign) {
-	Object.assign = function (thing: any, rest: any) {
-		for (let i = 1; i < arguments.length; i++) {
-			let source = arguments[i];
-			for (let k in source) {
-				thing[k] = source[k];
-			}
-		}
-		return thing;
-	};
-}
-if (!Object.create) {
-	Object.create = function (proto: any) {
-		function F() {}
-		F.prototype = proto;
-		return new (F as any)();
-	};
-}
-if (!window.console) {
-	// in IE8, the console object is only defined when devtools is open
-	// I don't actually know if this will cause problems when you open devtools,
-	// but that's something I can figure out if I ever bother testing in IE8
-	(window as any).console = {
-		log() {},
-	};
-}
-
-/**********************************************************************
  * PS Models
  *********************************************************************/
 // PS's model classes are defined here
 
-const PSURL = `${document.location!.protocol !== 'http:' ? 'https:' : ''}//${Config.routes.client}/`;
+const PSURL = `${document.location.protocol !== 'http:' ? 'https:' : ''}//${Config.routes.client}/`;
 
 export class PSSubscription {
 	observable: PSModel | PSStreamModel<any>;
@@ -179,7 +115,7 @@ declare const ColorThief: any;
 const PSBackground = new class extends PSStreamModel {
 	id = '';
 	curId = '';
-	attrib: {url: string, title: string, artist: string} | null = null;
+	attrib: { url: string, title: string, artist: string } | null = null;
 	changeCount = 0;
 	menuColors: string[] | null = null;
 
@@ -318,7 +254,7 @@ const PSBackground = new class extends PSStreamModel {
 				"",
 			];
 		}
-		if (!menuColors && bgUrl.charAt(0) === '#') {
+		if (!menuColors && bgUrl.startsWith('#')) {
 			const r = parseInt(bgUrl.slice(1, 3), 16) / 255;
 			const g = parseInt(bgUrl.slice(3, 5), 16) / 255;
 			const b = parseInt(bgUrl.slice(5, 7), 16) / 255;
@@ -396,7 +332,7 @@ PSBackground.subscribe(bgUrl => {
 
 	if (bgUrl !== null) {
 		let background;
-		if (bgUrl.charAt(0) === '#') {
+		if (bgUrl.startsWith('#')) {
 			background = bgUrl;
 		} else if (PSBackground.curId !== 'custom') {
 			background = `#546bac url(${bgUrl}) no-repeat left center fixed`;
@@ -424,7 +360,7 @@ PSBackground.subscribe(bgUrl => {
 			buttonStyleElem = new HTMLStyleElement();
 			buttonStyleElem.id = 'mainmenubuttoncolors';
 			buttonStyleElem.textContent = cssBuf;
-			document.head!.appendChild(buttonStyleElem);
+			document.head.appendChild(buttonStyleElem);
 		}
 	} else {
 		buttonStyleElem.textContent = cssBuf;

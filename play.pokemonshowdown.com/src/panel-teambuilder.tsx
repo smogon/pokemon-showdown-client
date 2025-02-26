@@ -5,10 +5,10 @@
  * @license AGPLv3
  */
 
-import {PS, PSRoom, type Team} from "./client-main";
-import {PSPanelWrapper, PSRoomPanel} from "./panels";
-import {TeamBox, TeamFolder} from "./panel-teamdropdown";
-import {PSUtils, type ID} from "./battle-dex";
+import { PS, PSRoom, type Team } from "./client-main";
+import { PSPanelWrapper, PSRoomPanel } from "./panels";
+import { TeamBox, TeamFolder } from "./panel-teamdropdown";
+import { PSUtils, type ID } from "./battle-dex";
 
 class TeambuilderRoom extends PSRoom {
 	readonly DEFAULT_FORMAT = 'gen8' as ID;
@@ -49,7 +49,8 @@ class TeambuilderRoom extends PSRoom {
 			PS.teams.undelete();
 			this.update(null);
 			return true;
-		}}
+		}
+		}
 
 		// unrecognized command
 		alert(`Unrecognized command: ${line}`);
@@ -110,7 +111,7 @@ class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
 		// (This is why folders you create will automatically disappear
 		// if you leave them without adding anything to them.)
 
-		const folderTable: {[folder: string]: 1 | undefined} = {'': 1};
+		const folderTable: { [folder: string]: 1 | undefined } = { '': 1 };
 		const folders: string[] = [];
 		for (const team of PS.teams.list) {
 			const folder = team.folder;
@@ -169,9 +170,9 @@ class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
 			const folderOpenIcon = room.curFolder === format ? 'fa-folder-open' : 'fa-folder';
 			if (gen === 0) {
 				renderedFolders.push(<TeamFolder cur={room.curFolder === format} value={format}>
-					<i class={
-						`fa ${folderOpenIcon}${format === '/' ? '-o' : ''}`
-					}></i>
+					<i
+						class={`fa ${folderOpenIcon}${format === '/' ? '-o' : ''}`}
+					></i>
 					{format.slice(0, -1) || '(uncategorized)'}
 				</TeamFolder>);
 				continue;
@@ -212,7 +213,7 @@ class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
 		let filterFolder: string | null = null;
 		let filterFormat: string | null = null;
 		if (room.curFolder) {
-			if (room.curFolder.slice(-1) === '/') {
+			if (room.curFolder.endsWith('/')) {
 				filterFolder = room.curFolder.slice(0, -1);
 				teams = teams.filter(team => !team || team.folder === filterFolder);
 			} else {
@@ -226,7 +227,7 @@ class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
 				{this.renderFolderList()}
 			</div>
 			<div class="teampane">
-				{filterFolder ?
+				{filterFolder ? (
 					<h2>
 						<i class="fa fa-folder-open"></i> {filterFolder} {}
 						<button class="button small" style="margin-left:5px" name="renameFolder">
@@ -236,13 +237,13 @@ class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
 							<i class="fa fa-times"></i> Remove
 						</button>
 					</h2>
-				: filterFolder === '' ?
+				) : filterFolder === '' ? (
 					<h2><i class="fa fa-folder-open-o"></i> Teams not in any folders</h2>
-				: filterFormat ?
+				) : filterFormat ? (
 					<h2><i class="fa fa-folder-open-o"></i> {filterFormat} <small>({teams.length})</small></h2>
-				:
+				) : (
 					<h2>All Teams <small>({teams.length})</small></h2>
-				}
+				)}
 				<p>
 					<button name="cmd" value="/newteam" class="button big"><i class="fa fa-plus-circle"></i> New Team</button>
 				</p>
@@ -254,7 +255,7 @@ class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
 						</li>
 					) : (
 						<li key="undelete">
-							<button name="cmd" value={`/undeleteteam`}><i class="fa fa-undo"></i> Undo delete</button>
+							<button name="cmd" value="/undeleteteam"><i class="fa fa-undo"></i> Undo delete</button>
 						</li>
 					))}
 				</ul>

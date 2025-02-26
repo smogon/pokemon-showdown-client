@@ -18,16 +18,15 @@
  * @license MIT
  */
 
-import {Pokemon, type ServerPokemon} from "./battle";
+import { Pokemon, type ServerPokemon } from "./battle";
 import {
 	BattleAvatarNumbers, BattleBaseSpeciesChart, BattlePokemonIconIndexes, BattlePokemonIconIndexesLeft, BattleStatNames,
 	Ability, Item, Move, Species, PureEffect, type ID, type Type,
 } from "./battle-dex-data";
-// tslint:disable-next-line
-import * as DexData from "./battle-dex-data";
+import type * as DexData from "./battle-dex-data";
 
 export declare namespace Dex {
-	/* tslint:disable:no-shadowed-variable */
+	/* eslint-disable @typescript-eslint/no-shadow */
 	export type Ability = DexData.Ability;
 	export type Item = DexData.Item;
 	export type Move = DexData.Move;
@@ -37,7 +36,7 @@ export declare namespace Dex {
 	export type PureEffect = DexData.PureEffect;
 	export type Effect = DexData.Effect;
 	export type ID = DexData.ID;
-	/* tslint:enable:no-shadowed-variable */
+	/* eslint-enable @typescript-eslint/no-shadow */
 	export type StatName = DexData.StatName;
 	export type StatNameExceptHP = DexData.StatNameExceptHP;
 	export type BoostStatName = DexData.BoostStatName;
@@ -46,7 +45,7 @@ export declare namespace Dex {
 	export type GenderName = DexData.GenderName;
 	export type NatureName = DexData.NatureName;
 	export type MoveTarget = DexData.MoveTarget;
-	export type StatsTable = {hp: number, atk: number, def: number, spa: number, spd: number, spe: number};
+	export type StatsTable = { hp: number, atk: number, def: number, spa: number, spd: number, spe: number };
 	/**
 	 * Dex.PokemonSet can be sparse, in which case that entry should be
 	 * inferred from the rest of the set, according to sensible
@@ -87,10 +86,11 @@ export declare namespace Dex {
 		teraType?: string;
 	}
 }
-export type {ID};
+export type { ID };
 
 declare const require: any;
 declare const global: any;
+declare const process: any;
 
 if (typeof window === 'undefined') {
 	// Node
@@ -100,8 +100,7 @@ if (typeof window === 'undefined') {
 	window.exports = window;
 }
 
-// @ts-ignore
-window.nodewebkit = !!(typeof process !== 'undefined' && process.versions && process.versions['node-webkit']);
+window.nodewebkit = !!(typeof process !== 'undefined' && process.versions?.['node-webkit']);
 
 export function toID(text: any) {
 	if (text?.id) {
@@ -110,14 +109,14 @@ export function toID(text: any) {
 		text = text.userid;
 	}
 	if (typeof text !== 'string' && typeof text !== 'number') return '' as ID;
-	return ('' + text).toLowerCase().replace(/[^a-z0-9]+/g, '') as ID;
+	return `${text}`.toLowerCase().replace(/[^a-z0-9]+/g, '') as ID;
 }
 
 export function toUserid(text: any) {
 	return toID(text);
 }
 
-type Comparable = number | string | boolean | Comparable[] | {reverse: Comparable};
+type Comparable = number | string | boolean | Comparable[] | { reverse: Comparable };
 export const PSUtils = new class {
 	/**
 	 * Like string.split(delimiter), but only recognizes the first `limit`
@@ -129,7 +128,7 @@ export const PSUtils = new class {
 	 *
 	 * Returns an array of length exactly limit + 1.
 	 */
-	splitFirst(str: string, delimiter: string, limit: number = 1) {
+	splitFirst(str: string, delimiter: string, limit = 1) {
 		let splitStr: string[] = [];
 		while (splitStr.length < limit) {
 			let delimiterIndex = str.indexOf(delimiter);
@@ -174,9 +173,9 @@ export const PSUtils = new class {
 			return 0;
 		}
 		if (a.reverse) {
-			return PSUtils.compare((b as {reverse: string}).reverse, a.reverse);
+			return PSUtils.compare((b as { reverse: string }).reverse, a.reverse);
 		}
-		throw new Error(`Passed value ${a} is not comparable`);
+		throw new Error(`Passed value ${a as any} is not comparable`);
 	}
 	/**
 	 * Sorts an array according to the callback's output on its elements.
@@ -206,7 +205,7 @@ export function toRoomid(roomid: string) {
 
 export function toName(name: any) {
 	if (typeof name !== 'string' && typeof name !== 'number') return '';
-	name = ('' + name).replace(/[\|\s\[\]\,\u202e]+/g, ' ').trim();
+	name = `${name}`.replace(/[|\s[\],\u202e]+/g, ' ').trim();
 	if (name.length > 18) name = name.substr(0, 18).trim();
 
 	// remove zalgo
@@ -250,8 +249,8 @@ export const Dex = new class implements ModdedDex {
 	readonly modid = 'gen9' as ID;
 	readonly cache = null!;
 
-	readonly statNames: ReadonlyArray<Dex.StatName> = ['hp', 'atk', 'def', 'spa', 'spd', 'spe'];
-	readonly statNamesExceptHP: ReadonlyArray<Dex.StatNameExceptHP> = ['atk', 'def', 'spa', 'spd', 'spe'];
+	readonly statNames: readonly Dex.StatName[] = ['hp', 'atk', 'def', 'spa', 'spd', 'spe'];
+	readonly statNamesExceptHP: readonly Dex.StatNameExceptHP[] = ['atk', 'def', 'spa', 'spd', 'spe'];
 
 	pokeballs: string[] | null = null;
 
@@ -266,8 +265,8 @@ export const Dex = new class implements ModdedDex {
 		return `${protocol}//${window.Config ? Config.routes.client : 'play.pokemonshowdown.com'}/fx/`;
 	})();
 
-	loadedSpriteData = {xy: 1, bw: 0};
-	moddedDexes: {[mod: string]: ModdedDex} = {};
+	loadedSpriteData = { xy: 1, bw: 0 };
+	moddedDexes: { [mod: string]: ModdedDex } = {};
 
 	mod(modid: ID): ModdedDex {
 		if (modid === 'gen9') return this;
@@ -287,14 +286,14 @@ export const Dex = new class implements ModdedDex {
 		if (window.BattleAvatarNumbers && avatar in BattleAvatarNumbers) {
 			avatar = BattleAvatarNumbers[avatar];
 		}
-		if (avatar.charAt(0) === '#') {
+		if (avatar.startsWith('#')) {
 			return Dex.resourcePrefix + 'sprites/trainers-custom/' + toID(avatar.substr(1)) + '.png';
 		}
 		if (avatar.includes('.') && window.Config?.server?.registered) {
 			// custom avatar served by the server
 			let protocol = (Config.server.port === 443) ? 'https' : 'http';
 			return protocol + '://' + Config.server.host + ':' + Config.server.port +
-				'/avatars/' + encodeURIComponent(avatar).replace(/\%3F/g, '?');
+				'/avatars/' + encodeURIComponent(avatar).replace(/%3F/g, '?');
 		}
 		return Dex.resourcePrefix + 'sprites/trainers/' + Dex.sanitizeName(avatar || 'unknown') + '.png';
 	}
@@ -318,14 +317,14 @@ export const Dex = new class implements ModdedDex {
 	}
 
 	prefs(prop: string) {
-		// @ts-ignore
+		// @ts-expect-error this is what I get for calling it Storage...
 		return window.Storage?.prefs?.(prop);
 	}
 
 	getShortName(name: string) {
 		let shortName = name.replace(/[^A-Za-z0-9]+$/, '');
-		if (shortName.indexOf('(') >= 0) {
-			shortName += name.slice(shortName.length).replace(/[^\(\)]+/g, '').replace(/\(\)/g, '');
+		if (shortName.includes('(')) {
+			shortName += name.slice(shortName.length).replace(/[^()]+/g, '').replace(/\(\)/g, '');
 		}
 		return shortName;
 	}
@@ -379,7 +378,7 @@ export const Dex = new class implements ModdedDex {
 				};
 			}
 
-			if (!data) data = {exists: false};
+			if (!data) data = { exists: false };
 			let move = new Move(id, name, data);
 			window.BattleMovedex[id] = move;
 			return move;
@@ -407,7 +406,7 @@ export const Dex = new class implements ModdedDex {
 			if (!window.BattleItems) window.BattleItems = {};
 			let data = window.BattleItems[id];
 			if (data && typeof data.exists === 'boolean') return data;
-			if (!data) data = {exists: false};
+			if (!data) data = { exists: false };
 			let item = new Item(id, name, data);
 			window.BattleItems[id] = item;
 			return item;
@@ -429,7 +428,7 @@ export const Dex = new class implements ModdedDex {
 			if (!window.BattleAbilities) window.BattleAbilities = {};
 			let data = window.BattleAbilities[id];
 			if (data && typeof data.exists === 'boolean') return data;
-			if (!data) data = {exists: false};
+			if (!data) data = { exists: false };
 			let ability = new Ability(id, name, data);
 			window.BattleAbilities[id] = ability;
 			return ability;
@@ -465,8 +464,8 @@ export const Dex = new class implements ModdedDex {
 			if (data && typeof data.exists === 'boolean') {
 				species = data;
 			} else {
-				if (!data) data = {exists: false};
-				if (!data.tier && id.slice(-5) === 'totem') {
+				if (!data) data = { exists: false };
+				if (!data.tier && id.endsWith('totem')) {
 					data.tier = this.species.get(id.slice(0, -5)).tier;
 				}
 				if (!data.tier && data.baseSpecies && toID(data.baseSpecies) !== id) {
@@ -503,7 +502,7 @@ export const Dex = new class implements ModdedDex {
 			if (!type || typeof type === 'string') {
 				const id = toID(type) as string;
 				const name = id.substr(0, 1).toUpperCase() + id.substr(1);
-				type = (window.BattleTypeChart && window.BattleTypeChart[id]) || {};
+				type = window.BattleTypeChart?.[id] || {};
 				if (type.damageTaken) type.exists = true;
 				if (!type.id) type.id = id;
 				if (!type.name) type.name = name;
@@ -525,14 +524,13 @@ export const Dex = new class implements ModdedDex {
 		isName: (name: string | null): boolean => {
 			const id = toID(name);
 			if (name !== id.substr(0, 1).toUpperCase() + id.substr(1)) return false;
-			return (window.BattleTypeChart || {}).hasOwnProperty(id);
+			return window.BattleTypeChart?.hasOwnProperty(id);
 		},
 	};
 
 	hasAbility(species: Species, ability: string) {
 		for (const i in species.abilities) {
-			// @ts-ignore
-			if (ability === species.abilities[i]) return true;
+			if (ability === species.abilities[i as '0']) return true;
 		}
 		return false;
 	}
@@ -543,7 +541,7 @@ export const Dex = new class implements ModdedDex {
 
 		let path = $('script[src*="pokedex-mini.js"]').attr('src') || '';
 		let qs = '?' + (path.split('?')[1] || '');
-		path = (path.match(/.+?(?=data\/pokedex-mini\.js)/) || [])[0] || '';
+		path = ((/.+?(?=data\/pokedex-mini\.js)/.exec(path)) || [])[0] || '';
 
 		let el = document.createElement('script');
 		el.src = path + 'data/pokedex-mini-bw.js' + qs;
@@ -557,7 +555,7 @@ export const Dex = new class implements ModdedDex {
 		noScale?: boolean,
 		mod?: string,
 		dynamax?: boolean,
-	} = {gen: 6}) {
+	} = { gen: 6 }) {
 		const mechanicsGen = options.gen || 6;
 		let isDynamax = !!options.dynamax;
 		if (pokemon instanceof Pokemon) {
@@ -706,7 +704,7 @@ export const Dex = new class implements ModdedDex {
 		let allowAnim = !Dex.prefs('noanim') && !Dex.prefs('nogif');
 		if (allowAnim && spriteData.gen >= 6) spriteData.pixelated = false;
 		if (allowAnim && animationData[facing] && spriteData.gen >= 5) {
-			if (facing.slice(-1) === 'f') name += '-f';
+			if (facing.endsWith('f')) name += '-f';
 			dir = baseDir + 'ani' + dir;
 
 			spriteData.w = animationData[facing].w;
@@ -794,31 +792,32 @@ export const Dex = new class implements ModdedDex {
 
 		let id = toID(pokemon);
 		if (!pokemon || typeof pokemon === 'string') pokemon = null;
-		// @ts-ignore
+		// @ts-expect-error safe, but too lazy to cast
 		if (pokemon?.speciesForme) id = toID(pokemon.speciesForme);
-		// @ts-ignore
+		// @ts-expect-error safe, but too lazy to cast
 		if (pokemon?.species) id = toID(pokemon.species);
-		// @ts-ignore
+		// @ts-expect-error safe, but too lazy to cast
 		if (pokemon?.volatiles?.formechange && !pokemon.volatiles.transform) {
-			// @ts-ignore
+			// @ts-expect-error safe, but too lazy to cast
 			id = toID(pokemon.volatiles.formechange[1]);
 		}
 		let num = this.getPokemonIconNum(id, pokemon?.gender === 'F', facingLeft);
 
 		let top = Math.floor(num / 12) * 30;
 		let left = (num % 12) * 40;
-		let fainted = ((pokemon as Pokemon | ServerPokemon)?.fainted ? `;opacity:.3;filter:grayscale(100%) brightness(.5)` : ``);
+		let fainted = ((pokemon as Pokemon | ServerPokemon)?.fainted ?
+			`;opacity:.3;filter:grayscale(100%) brightness(.5)` : ``);
 		return `background:transparent url(${Dex.resourcePrefix}sprites/pokemonicons-sheet.png?v18) no-repeat scroll -${left}px -${top}px${fainted}`;
 	}
 
-	getTeambuilderSpriteData(pokemon: any, gen: number = 0): TeambuilderSpriteData {
+	getTeambuilderSpriteData(pokemon: any, gen = 0): TeambuilderSpriteData {
 		let id = toID(pokemon.species);
 		let spriteid = pokemon.spriteid;
 		let species = Dex.species.get(pokemon.species);
 		if (pokemon.species && !spriteid) {
 			spriteid = species.spriteid || toID(pokemon.species);
 		}
-		if (species.exists === false) return { spriteDir: 'sprites/gen5', spriteid: '0', x: 10, y: 5 };
+		if (!species.exists) return { spriteDir: 'sprites/gen5', spriteid: '0', x: 10, y: 5 };
 		if (window.Config?.server?.afd || Dex.prefs('afd')) {
 			return {
 				spriteid,
@@ -867,11 +866,11 @@ export const Dex = new class implements ModdedDex {
 		return spriteData;
 	}
 
-	getTeambuilderSprite(pokemon: any, gen: number = 0) {
+	getTeambuilderSprite(pokemon: any, gen = 0) {
 		if (!pokemon) return '';
 		const data = this.getTeambuilderSpriteData(pokemon, gen);
 		const shiny = (data.shiny ? '-shiny' : '');
-		return 'background-image:url(' + Dex.resourcePrefix + data.spriteDir + shiny + '/' + data.spriteid + '.png);background-position:' + data.x + 'px ' + data.y + 'px;background-repeat:no-repeat';
+		return `background-image:url(${Dex.resourcePrefix}${data.spriteDir}${shiny}/${data.spriteid}.png);background-position:${data.x}px ${data.y}px;background-repeat:no-repeat`;
 	}
 
 	getItemIcon(item: any) {
@@ -881,7 +880,7 @@ export const Dex = new class implements ModdedDex {
 
 		let top = Math.floor(num / 16) * 24;
 		let left = (num % 16) * 24;
-		return 'background:transparent url(' + Dex.resourcePrefix + 'sprites/itemicons-sheet.png?v1) no-repeat scroll -' + left + 'px -' + top + 'px';
+		return `background:transparent url(${Dex.resourcePrefix}sprites/itemicons-sheet.png?v1) no-repeat scroll -${left}px -${top}px`;
 	}
 
 	getTypeIcon(type: string | null, b?: boolean) { // b is just for utilichart.js
@@ -911,7 +910,7 @@ export const Dex = new class implements ModdedDex {
 		if (this.pokeballs) return this.pokeballs;
 		this.pokeballs = [];
 		if (!window.BattleItems) window.BattleItems = {};
-		for (const data of Object.values(window.BattleItems) as AnyObject[]) {
+		for (const data of Object.values<AnyObject>(window.BattleItems)) {
 			if (!data.isPokeball) continue;
 			this.pokeballs.push(data.name);
 		}
@@ -923,11 +922,11 @@ export class ModdedDex {
 	readonly gen: number;
 	readonly modid: ID;
 	readonly cache = {
-		Moves: {} as any as {[k: string]: Move},
-		Items: {} as any as {[k: string]: Item},
-		Abilities: {} as any as {[k: string]: Ability},
-		Species: {} as any as {[k: string]: Species},
-		Types: {} as any as {[k: string]: Dex.Effect},
+		Moves: {} as { [k: string]: Move },
+		Items: {} as { [k: string]: Item },
+		Abilities: {} as { [k: string]: Ability },
+		Species: {} as { [k: string]: Species },
+		Types: {} as { [k: string]: Dex.Effect },
 	};
 	pokeballs: string[] | null = null;
 	constructor(modid: ID) {
@@ -945,7 +944,7 @@ export class ModdedDex {
 			}
 			if (this.cache.Moves.hasOwnProperty(id)) return this.cache.Moves[id];
 
-			let data = {...Dex.moves.get(name)};
+			let data = { ...Dex.moves.get(name) };
 
 			for (let i = Dex.gen - 1; i >= this.gen; i--) {
 				const table = window.BattleTeambuilderTable[`gen${i}`];
@@ -978,7 +977,7 @@ export class ModdedDex {
 			}
 			if (this.cache.Items.hasOwnProperty(id)) return this.cache.Items[id];
 
-			let data = {...Dex.items.get(name)};
+			let data = { ...Dex.items.get(name) };
 
 			for (let i = Dex.gen - 1; i >= this.gen; i--) {
 				const table = window.BattleTeambuilderTable[`gen${i}`];
@@ -1008,7 +1007,7 @@ export class ModdedDex {
 			}
 			if (this.cache.Abilities.hasOwnProperty(id)) return this.cache.Abilities[id];
 
-			let data = {...Dex.abilities.get(name)};
+			let data = { ...Dex.abilities.get(name) };
 
 			for (let i = Dex.gen - 1; i >= this.gen; i--) {
 				const table = window.BattleTeambuilderTable[`gen${i}`];
@@ -1038,7 +1037,7 @@ export class ModdedDex {
 			}
 			if (this.cache.Species.hasOwnProperty(id)) return this.cache.Species[id];
 
-			let data = {...Dex.species.get(name)};
+			let data = { ...Dex.species.get(name) };
 
 			for (let i = Dex.gen - 1; i >= this.gen; i--) {
 				const table = window.BattleTeambuilderTable[`gen${i}`];
@@ -1053,12 +1052,12 @@ export class ModdedDex {
 				}
 			}
 			if (this.gen < 3 || this.modid === 'gen7letsgo') {
-				data.abilities = {0: "No Ability"};
+				data.abilities = { 0: "No Ability" };
 			}
 
 			const table = window.BattleTeambuilderTable[this.modid];
 			if (id in table.overrideTier) data.tier = table.overrideTier[id];
-			if (!data.tier && id.slice(-5) === 'totem') {
+			if (!data.tier && id.endsWith('totem')) {
 				data.tier = this.species.get(id.slice(0, -5)).tier;
 			}
 			if (!data.tier && data.baseSpecies && toID(data.baseSpecies) !== id) {
@@ -1074,22 +1073,22 @@ export class ModdedDex {
 
 	types = {
 		get: (name: string): Dex.Effect => {
-			const id = toID(name) as ID;
+			const id = toID(name);
 			name = id.substr(0, 1).toUpperCase() + id.substr(1);
 
 			if (this.cache.Types.hasOwnProperty(id)) return this.cache.Types[id];
 
-			let data = {...Dex.types.get(name)};
+			let data = { ...Dex.types.get(name) };
 
 			for (let i = 7; i >= this.gen; i--) {
-				const table = window.BattleTeambuilderTable['gen' + i];
+				const table = window.BattleTeambuilderTable[`gen${i}`];
 				if (id in table.removeType) {
 					data.exists = false;
 					// don't bother correcting its attributes given it doesn't exist
 					break;
 				}
 				if (id in table.overrideTypeChart) {
-					data = {...data, ...table.overrideTypeChart[id]};
+					data = { ...data, ...table.overrideTypeChart[id] };
 				}
 			}
 
@@ -1102,7 +1101,7 @@ export class ModdedDex {
 		if (this.pokeballs) return this.pokeballs;
 		this.pokeballs = [];
 		if (!window.BattleItems) window.BattleItems = {};
-		for (const data of Object.values(window.BattleItems) as AnyObject[]) {
+		for (const data of Object.values<AnyObject>(window.BattleItems)) {
 			if (data.gen && data.gen > this.gen) continue;
 			if (!data.isPokeball) continue;
 			this.pokeballs.push(data.name);
@@ -1148,9 +1147,9 @@ export const Teams = new class {
 
 			// moves
 			j = buf.indexOf('|', i);
-			set.moves = buf.substring(i, j).split(',').map(function (moveid) {
-				return Dex.moves.get(moveid).name;
-			});
+			set.moves = buf.substring(i, j).split(',').map(
+				moveid => Dex.moves.get(moveid).name
+			);
 			i = j + 1;
 
 			// nature
@@ -1174,7 +1173,7 @@ export const Teams = new class {
 						spe: Number(evs[5]) || 0,
 					};
 				} else if (evstring === '0') {
-					set.evs = {hp: 0, atk: 0, def: 0, spa: 0, spd: 0, spe: 0};
+					set.evs = { hp: 0, atk: 0, def: 0, spa: 0, spd: 0, spe: 0 };
 				}
 			}
 			i = j + 1;
@@ -1234,49 +1233,49 @@ export const Teams = new class {
 	export(team: Dex.PokemonSet[] | string, gen: number, hidestats = false) {
 		if (!team) return '';
 		if (typeof team === 'string') {
-			if (team.indexOf('\n') >= 0) return team;
+			if (team.includes('\n')) return team;
 			team = this.unpack(team);
 		}
 		let text = '';
 		for (const curSet of team) {
 			if (curSet.name && curSet.name !== curSet.species) {
-				text += '' + curSet.name + ' (' + curSet.species + ')';
+				text += `${curSet.name} (${curSet.species})`;
 			} else {
-				text += '' + curSet.species;
+				text += `${curSet.species}`;
 			}
 			if (curSet.gender === 'M') text += ' (M)';
 			if (curSet.gender === 'F') text += ' (F)';
 			if (curSet.item) {
-				text += ' @ ' + curSet.item;
+				text += ` @ ${curSet.item}`;
 			}
 			text += "  \n";
 			if (curSet.ability) {
-				text += 'Ability: ' + curSet.ability + "  \n";
+				text += `Ability: ${curSet.ability}  \n`;
 			}
 			if (curSet.level && curSet.level !== 100) {
-				text += 'Level: ' + curSet.level + "  \n";
+				text += `Level: ${curSet.level}  \n`;
 			}
 			if (curSet.shiny) {
 				text += 'Shiny: Yes  \n';
 			}
 			if (typeof curSet.happiness === 'number' && curSet.happiness !== 255 && !isNaN(curSet.happiness)) {
-				text += 'Happiness: ' + curSet.happiness + "  \n";
+				text += `Happiness: ${curSet.happiness}  \n`;
 			}
 			if (curSet.pokeball) {
-				text += 'Pokeball: ' + curSet.pokeball + "  \n";
+				text += `Pokeball: ${curSet.pokeball}  \n`;
 			}
 			if (curSet.hpType) {
-				text += 'Hidden Power: ' + curSet.hpType + "  \n";
+				text += `Hidden Power: ${curSet.hpType}  \n`;
 			}
 			if (typeof curSet.dynamaxLevel === 'number' && curSet.dynamaxLevel !== 10 && !isNaN(curSet.dynamaxLevel)) {
-				text += 'Dynamax Level: ' + curSet.dynamaxLevel + "  \n";
+				text += `Dynamax Level: ${curSet.dynamaxLevel}  \n`;
 			}
 			if (curSet.gigantamax) {
 				text += 'Gigantamax: Yes  \n';
 			}
 			if (gen === 9) {
 				const species = Dex.species.get(curSet.species);
-				text += 'Tera Type: ' + (species.forceTeraType || curSet.teraType || species.types[0]) + "  \n";
+				text += `Tera Type: ${species.forceTeraType || curSet.teraType || species.types[0]}  \n`;
 			}
 			if (!hidestats) {
 				let first = true;
@@ -1290,14 +1289,14 @@ export const Teams = new class {
 						} else {
 							text += ' / ';
 						}
-						text += '' + curSet.evs[j] + ' ' + BattleStatNames[j];
+						text += `${curSet.evs[j]!} ${BattleStatNames[j]}`;
 					}
 				}
 				if (!first) {
 					text += "  \n";
 				}
 				if (curSet.nature) {
-					text += '' + curSet.nature + ' Nature' + "  \n";
+					text += `${curSet.nature} Nature  \n`;
 				}
 				first = true;
 				if (curSet.ivs) {
@@ -1338,7 +1337,7 @@ export const Teams = new class {
 							} else {
 								text += ' / ';
 							}
-							text += '' + curSet.ivs[stat] + ' ' + BattleStatNames[stat];
+							text += `${curSet.ivs[stat]} ${BattleStatNames[stat]}`;
 						}
 					}
 				}
@@ -1348,11 +1347,11 @@ export const Teams = new class {
 			}
 			if (curSet.moves) {
 				for (let move of curSet.moves) {
-					if (move.substr(0, 13) === 'Hidden Power ') {
-						move = move.substr(0, 13) + '[' + move.substr(13) + ']';
+					if (move.startsWith('Hidden Power ')) {
+						move = `${move.slice(0, 13)}[${move.slice(13)}]`;
 					}
 					if (move) {
-						text += '- ' + move + "  \n";
+						text += `- ${move}  \n`;
 					}
 				}
 			}
@@ -1364,6 +1363,6 @@ export const Teams = new class {
 
 if (typeof require === 'function') {
 	// in Node
-	(global as any).Dex = Dex;
-	(global as any).toID = toID;
+	global.Dex = Dex;
+	global.toID = toID;
 }

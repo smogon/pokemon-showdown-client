@@ -49,8 +49,8 @@ if (!Array.prototype.filter) {
 }
 // ES2016, predates nomodule
 if (!Array.prototype.includes) {
-	Array.prototype.includes = function includes(thing) {
-		return this.indexOf(thing) !== -1;
+	Array.prototype.includes = function includes(thing, offset) {
+		return this.indexOf(thing, offset) !== -1;
 	};
 }
 // ES5
@@ -61,8 +61,8 @@ if (!Array.isArray) {
 }
 // ES6
 if (!String.prototype.includes) {
-	String.prototype.includes = function includes(thing) {
-		return this.indexOf(thing) !== -1;
+	String.prototype.includes = function includes(thing, offset) {
+		return this.indexOf(thing, offset) !== -1;
 	};
 }
 // ES6
