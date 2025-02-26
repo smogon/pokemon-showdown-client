@@ -1115,7 +1115,6 @@
 				request.requestType = 'wait';
 			}
 
-
 			this.choice = choiceText ? { waiting: true } : null;
 			this.finalDecision = this.finalDecisionMove = this.finalDecisionSwitch = this.finalDecisionPartiallyTrapped = this.finalDecisionPartiallyTrapping = false;
 			this.request = request;
