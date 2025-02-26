@@ -891,7 +891,7 @@ abstract class BattleTypedSearch<T extends SearchType> {
 	abstract getDefaultResults(): SearchRow[];
 	abstract getBaseResults(): SearchRow[];
 	abstract filter(input: SearchRow, filters: string[][]): boolean;
-	abstract defaultFilter?(input: SearchRow[]): SearchRow[];
+	defaultFilter?(input: SearchRow[]): SearchRow[];
 	abstract sort(input: SearchRow[], sortCol: string, reverseSort?: boolean): SearchRow[];
 }
 
@@ -1334,7 +1334,7 @@ class BattleItemSearch extends BattleTypedSearch<'item'> {
 		}
 		return results;
 	}
-	defaultFilter(results: SearchRow[]) {
+	override defaultFilter(results: SearchRow[]) {
 		if (this.species && !this.dex.species.get(this.species).nfe) {
 			results.splice(results.findIndex(row => row[1] === 'eviolite'), 1);
 			return results;
