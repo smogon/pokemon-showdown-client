@@ -915,8 +915,7 @@ export class BattleLog {
 				// <username> is a custom element that handles namecolors
 				tagName = 'strong';
 				const color = this.usernameColor(toID(getAttrib('name')));
-				const style = getAttrib('style') || '';
-				setAttrib('style', `${style};color:${color}`);
+				unsanitizedStyle = `color:${color}`;
 			} else if (tagName === 'spotify') {
 				// <iframe src="https://open.spotify.com/embed/track/6aSYnCIwcLpnDXngGKAEzZ" width="300" height="380" frameborder="0" allowtransparency="true" allow="encrypted-media"></iframe>
 				const src = getAttrib('src') || '';
