@@ -3864,7 +3864,6 @@ export class Battle {
 		if (turn === 0) {
 			this.seeking = null;
 			this.resetStep();
-			this.scene.resetSideConditions();
 			this.scene.animationOn();
 			if (this.paused) this.subscription?.('paused');
 			return;
