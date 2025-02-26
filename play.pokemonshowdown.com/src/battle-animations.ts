@@ -160,6 +160,7 @@ export class BattleScene implements BattleSceneStub {
 
 		this.$sprites = [$('<div></div>'), $('<div></div>')];
 		this.$spritesFront = [$('<div></div>'), $('<div></div>')];
+		this.sideConditions = [{}, {}];
 
 		this.$sprite.append(this.$sprites[1]);
 		this.$sprite.append(this.$spritesFront[1]);
