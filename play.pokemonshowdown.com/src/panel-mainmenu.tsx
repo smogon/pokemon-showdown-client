@@ -6,17 +6,17 @@
  */
 
 import preact from "../js/lib/preact";
-import {PSLoginServer} from "./client-connection";
-import {PS, PSRoom, type RoomID, type Team} from "./client-main";
-import {PSPanelWrapper, PSRoomPanel} from "./panels";
-import type {BattlesRoom} from "./panel-battle";
-import type {ChatRoom} from "./panel-chat";
-import type {LadderRoom} from "./panel-ladder";
-import type {RoomsRoom} from "./panel-rooms";
-import {TeamBox} from "./panel-teamdropdown";
-import type {UserRoom} from "./panel-topbar";
-import {Dex, toID, type ID} from "./battle-dex";
-import type {Args} from "./battle-text-parser";
+import { PSLoginServer } from "./client-connection";
+import { PS, PSRoom, type RoomID, type Team } from "./client-main";
+import { PSPanelWrapper, PSRoomPanel } from "./panels";
+import type { BattlesRoom } from "./panel-battle";
+import type { ChatRoom } from "./panel-chat";
+import type { LadderRoom } from "./panel-ladder";
+import type { RoomsRoom } from "./panel-rooms";
+import { TeamBox } from "./panel-teamdropdown";
+import type { UserRoom } from "./panel-topbar";
+import { Dex, toID, type ID } from "./battle-dex";
+import type { Args } from "./battle-text-parser";
 
 export type RoomInfo = {
 	title: string, desc?: string, userCount?: number, section?: string, spotlight?: string, subRooms?: string[],
@@ -24,14 +24,16 @@ export type RoomInfo = {
 
 export class MainMenuRoom extends PSRoom {
 	override readonly classType: string = 'mainmenu';
-	userdetailsCache: {[userid: string]: {
-		userid: ID,
-		avatar?: string | number,
-		status?: string,
-		group?: string,
-		customgroup?: string,
-		rooms?: {[roomid: string]: {isPrivate?: true, p1?: string, p2?: string}},
-	}} = {};
+	userdetailsCache: {
+		[userid: string]: {
+			userid: ID,
+			avatar?: string | number,
+			status?: string,
+			group?: string,
+			customgroup?: string,
+			rooms?: { [roomid: string]: { isPrivate?: true, p1?: string, p2?: string } },
+		},
+	} = {};
 	roomsCache: {
 		battleCount?: number,
 		userCount?: number,
@@ -75,7 +77,8 @@ export class MainMenuRoom extends PSRoom {
 			const [, message] = args;
 			alert(message.replace(/\|\|/g, '\n'));
 			return;
-		}}
+		}
+		}
 		const lobby = PS.rooms['lobby'];
 		if (lobby) lobby.receiveLine(args);
 	}
@@ -109,9 +112,9 @@ export class MainMenuRoom extends PSRoom {
 
 		let column = 0;
 
-		window.NonBattleGames = {rps: 'Rock Paper Scissors'};
-		for (let i = 3; i <= 9; i = i + 2) {
-			window.NonBattleGames['bestof' + i] = 'Best-of-' + i;
+		window.NonBattleGames = { rps: 'Rock Paper Scissors' };
+		for (let i = 3; i <= 9; i += 2) {
+			window.NonBattleGames[`bestof${i}`] = `Best-of-${i}`;
 		}
 		window.BattleFormats = {};
 		for (let j = 1; j < formatsList.length; j++) {
@@ -121,7 +124,7 @@ export class MainMenuRoom extends PSRoom {
 				isSection = false;
 			} else if (entry === ',LL') {
 				PS.teams.usesLocalLadder = true;
-			} else if (entry === '' || (entry.charAt(0) === ',' && !isNaN(Number(entry.slice(1))))) {
+			} else if (entry === '' || (entry.startsWith(',') && !isNaN(Number(entry.slice(1))))) {
 				isSection = true;
 
 				if (entry) {
@@ -158,16 +161,16 @@ export class MainMenuRoom extends PSRoom {
 					}
 				}
 				let id = toID(name);
-				let isTeambuilderFormat = !team && name.slice(-11) !== 'Custom Game';
+				let isTeambuilderFormat = !team && !name.endsWith('Custom Game');
 				let teambuilderFormat = '' as ID;
 				let teambuilderFormatName = '';
 				if (isTeambuilderFormat) {
 					teambuilderFormatName = name;
-					if (id.slice(0, 3) !== 'gen') {
+					if (!id.startsWith('gen')) {
 						teambuilderFormatName = '[Gen 6] ' + name;
 					}
 					let parenPos = teambuilderFormatName.indexOf('(');
-					if (parenPos > 0 && name.slice(-1) === ')') {
+					if (parenPos > 0 && name.endsWith(')')) {
 						// variation of existing tier
 						teambuilderFormatName = teambuilderFormatName.slice(0, parenPos).trim();
 					}
@@ -214,7 +217,7 @@ export class MainMenuRoom extends PSRoom {
 		}
 
 		// Match base formats to their variants, if they are unavailable in the server.
-		let multivariantFormats: {[id: string]: 1} = {};
+		let multivariantFormats: { [id: string]: 1 } = {};
 		for (let id in BattleFormats) {
 			let teambuilderFormat = BattleFormats[BattleFormats[id].teambuilderFormat!];
 			if (!teambuilderFormat || multivariantFormats[teambuilderFormat.id]) continue;
@@ -300,21 +303,21 @@ export class MainMenuRoom extends PSRoom {
 class NewsPanel extends PSRoomPanel {
 	override render() {
 		return <PSPanelWrapper room={this.props.room} scrollable>
-			<div class="mini-window-body" dangerouslySetInnerHTML={{__html: PS.newsHTML}}></div>
+			<div class="mini-window-body" dangerouslySetInnerHTML={{ __html: PS.newsHTML }}></div>
 		</PSPanelWrapper>;
 	}
 }
 
 class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
 	override focus() {
-		(this.base!.querySelector('button.big') as HTMLButtonElement).focus();
+		this.base!.querySelector<HTMLButtonElement>('button.big')!.focus();
 	}
 	submit = (e: Event) => {
 		alert('todo: implement');
 	};
 	handleDragStart = (e: DragEvent) => {
 		const roomid = (e.currentTarget as HTMLElement).getAttribute('data-roomid') as RoomID;
-		PS.dragging = {type: 'room', roomid};
+		PS.dragging = { type: 'room', roomid };
 	};
 	renderMiniRoom(room: PSRoom) {
 		const roomType = PS.roomTypes[room.type];
@@ -327,7 +330,9 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
 			return <div class="pmbox">
 				<div class="mini-window">
 					<h3 draggable onDragStart={this.handleDragStart} data-roomid={roomid}>
-						<button class="closebutton" name="closeRoom" value={roomid} aria-label="Close" tabIndex={-1}><i class="fa fa-times-circle"></i></button>
+						<button class="closebutton" name="closeRoom" value={roomid} aria-label="Close" tabIndex={-1}>
+							<i class="fa fa-times-circle"></i>
+						</button>
 						<button class="minimizebutton" tabIndex={-1}><i class="fa fa-minus-circle"></i></button>
 						{room.title}
 					</h3>
@@ -339,13 +344,13 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
 	renderSearchButton() {
 		if (PS.down) {
 			return <div class="menugroup" style="background: rgba(10,10,10,.6)">
-				{PS.down === 'ddos' ?
+				{PS.down === 'ddos' ? (
 					<p class="error"><strong>Pok&eacute;mon Showdown is offline due to a DDoS attack!</strong></p>
-				:
+				) : (
 					<p class="error"><strong>Pok&eacute;mon Showdown is offline due to technical difficulties!</strong></p>
-				}
+				)}
 				<p>
-					<div style={{textAlign: 'center'}}>
+					<div style={{ textAlign: 'center' }}>
 						<img width="96" height="96" src={`//${Config.routes.client}/sprites/gen5/teddiursa.png`} alt="" />
 					</div>
 					Bear with us as we freak out.
@@ -391,13 +396,13 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
 						</div>
 					</div>
 				</div>
-				<div class="rightmenu" style={{display: PS.leftRoomWidth ? 'none' : 'block'}}>
+				<div class="rightmenu" style={{ display: PS.leftRoomWidth ? 'none' : 'block' }}>
 					<div class="menugroup">
-						{PS.server.id === 'showdown' ?
+						{PS.server.id === 'showdown' ? (
 							<p><button class={"mainmenu1" + onlineButton} name="joinRoom" value="rooms">Join chat</button></p>
-						:
+						) : (
 							<p><button class={"mainmenu1" + onlineButton} name="joinRoom" value="lobby">Join lobby chat</button></p>
-						}
+						)}
 					</div>
 				</div>
 				<div class="mainmenufooter">
@@ -415,7 +420,7 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
 	}
 }
 
-export class FormatDropdown extends preact.Component<{format?: string, onChange?: JSX.EventHandler<Event>}> {
+export class FormatDropdown extends preact.Component<{ format?: string, onChange?: JSX.EventHandler<Event> }> {
 	declare base?: HTMLButtonElement;
 	format = '[Gen 7] Random Battle';
 	change = (e: Event) => {
@@ -427,7 +432,7 @@ export class FormatDropdown extends preact.Component<{format?: string, onChange?
 	render() {
 		if (this.props.format) {
 			return <button
-			name="format" value={this.props.format} class="select formatselect preselected" disabled
+				name="format" value={this.props.format} class="select formatselect preselected" disabled
 			>{this.props.format}</button>;
 		}
 		return <button
@@ -439,7 +444,7 @@ export class FormatDropdown extends preact.Component<{format?: string, onChange?
 	}
 }
 
-class TeamDropdown extends preact.Component<{format: string}> {
+class TeamDropdown extends preact.Component<{ format: string }> {
 	teamFormat = '';
 	teamKey = '';
 	change = () => {
@@ -456,7 +461,7 @@ class TeamDropdown extends preact.Component<{format: string}> {
 	render() {
 		const teamFormat = PS.teams.teambuilderFormat(this.props.format);
 		const formatData = window.BattleFormats?.[teamFormat];
-		if (formatData && formatData.team) {
+		if (formatData?.team) {
 			return <button class="select teamselect preselected" name="team" value="random" disabled>
 				<div class="team">
 					<strong>Random team</strong>
@@ -489,14 +494,14 @@ export class TeamForm extends preact.Component<{
 	children: preact.ComponentChildren, class?: string, format?: string,
 	onSubmit: null | ((e: Event, format: string, team?: Team) => void),
 }> {
-	override state = {format: '[Gen 7] Random Battle'};
+	override state = { format: '[Gen 7] Random Battle' };
 	changeFormat = (e: Event) => {
-		this.setState({format: (e.target as HTMLButtonElement).value});
+		this.setState({ format: (e.target as HTMLButtonElement).value });
 	};
 	submit = (e: Event) => {
 		e.preventDefault();
-		const format = (this.base!.querySelector('button[name=format]') as HTMLButtonElement).value;
-		const teamKey = (this.base!.querySelector('button[name=team]') as HTMLButtonElement).value;
+		const format = this.base!.querySelector<HTMLButtonElement>('button[name=format]')!.value;
+		const teamKey = this.base!.querySelector<HTMLButtonElement>('button[name=team]')!.value;
 		const team = teamKey ? PS.teams.byKey[teamKey] : undefined;
 		if (this.props.onSubmit) this.props.onSubmit(e, format, team);
 	};
