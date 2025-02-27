@@ -1309,7 +1309,7 @@ class BattleItemSearch extends BattleTypedSearch<'item'> {
 		const abilitySpecific: SearchRow[] = [];
 		const abilityItem = {
 			protosynthesis: 'boosterenergy',
-			quarkdrive: 'boosterenegy',
+			quarkdrive: 'boosterenergy',
 			// poisonheal: 'toxicorb',
 			// toxicboost: 'toxicorb',
 			// flareboost: 'flameorb',
