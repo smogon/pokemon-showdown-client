@@ -12,7 +12,7 @@ import { Pokemon, type Battle, type ServerPokemon } from "./battle";
 import { Dex, type ModdedDex, toID, type ID } from "./battle-dex";
 import type { BattleScene } from "./battle-animations";
 import { BattleLog } from "./battle-log";
-import { BattleNatures } from "./battle-dex-data";
+import { Move, BattleNatures } from "./battle-dex-data";
 import { BattleTextParser } from "./battle-text-parser";
 
 class ModifiableValue {
@@ -560,7 +560,7 @@ export class BattleTooltips {
 			if (item.zMoveFrom === move.name) {
 				move = this.battle.dex.moves.get(item.zMove as string);
 			} else if (move.category === 'Status') {
-				move = new Dex.Move(move.id, "", {
+				move = new Move(move.id, "", {
 					...move,
 					name: 'Z-' + move.name,
 				});
@@ -592,7 +592,7 @@ export class BattleTooltips {
 						break;
 					}
 				}
-				move = new Dex.Move(zMove.id, zMove.name, {
+				move = new Move(zMove.id, zMove.name, {
 					...zMove,
 					category: move.category,
 					basePower: movePower,
@@ -606,7 +606,7 @@ export class BattleTooltips {
 				let maxMove = this.getMaxMoveFromType(moveType, gmaxMove);
 				const basePower = ['gmaxdrumsolo', 'gmaxfireball', 'gmaxhydrosnipe'].includes(maxMove.id) ?
 					maxMove.basePower : move.maxMove.basePower;
-				move = new Dex.Move(maxMove.id, maxMove.name, {
+				move = new Move(maxMove.id, maxMove.name, {
 					...maxMove,
 					category: move.category,
 					basePower,
@@ -616,7 +616,7 @@ export class BattleTooltips {
 		}
 
 		if (categoryDiff) {
-			move = new Dex.Move(move.id, move.name, {
+			move = new Move(move.id, move.name, {
 				...move,
 				category,
 			});
