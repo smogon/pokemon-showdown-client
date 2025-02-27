@@ -1321,23 +1321,23 @@ class BattleItemSearch extends BattleTypedSearch<'item'> {
 			if (abilityItem === item.id) abilitySpecific.push(row);
 		}
 
-    const specific: SearchRow[] = [];
+    const specificItems: SearchRow[] = [];
 
 		if (speciesSpecific.length) {
-			specific.unshift(
+			specificItems.unshift(
 				['header', "Specific to " + speciesName],
 				...speciesSpecific
 			);
 		}
 		if (abilitySpecific.length) {
-			specific.unshift(
+			specificItems.unshift(
 				['header', `Specific to ${this.set!.ability!}`],
 				...abilitySpecific
 			);
 		}
-    if (specific.length) {
+    if (specificItems.length) {
       return [
-        ...specific,
+        ...specificItems,
         ...results,
       ];
     }
