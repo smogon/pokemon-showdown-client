@@ -1335,12 +1335,12 @@ class BattleItemSearch extends BattleTypedSearch<'item'> {
 				...abilitySpecific
 			);
 		}
-    if (specificItems.length) {
-      return [
-        ...specificItems,
-        ...results,
-      ];
-    }
+		if (specificItems.length) {
+			return [
+				...specificItems,
+				...results,
+			];
+		}
 		return results;
 	}
 	override defaultFilter(results: SearchRow[]) {
