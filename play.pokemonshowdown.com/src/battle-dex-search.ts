@@ -1320,18 +1320,27 @@ class BattleItemSearch extends BattleTypedSearch<'item'> {
 			if (item.itemUser?.includes(speciesName)) speciesSpecific.push(row);
 			if (abilityItem === item.id) abilitySpecific.push(row);
 		}
+
+    const specific: SearchRow[] = [];
+
 		if (speciesSpecific.length) {
-			results.unshift(
+			specific.unshift(
 				['header', "Specific to " + speciesName],
 				...speciesSpecific
 			);
 		}
 		if (abilitySpecific.length) {
-			results.unshift(
+			specific.unshift(
 				['header', `Specific to ${this.set!.ability!}`],
 				...abilitySpecific
 			);
 		}
+    if (specific.length) {
+      return [
+        ...specific,
+        ...results,
+      ];
+    }
 		return results;
 	}
 	override defaultFilter(results: SearchRow[]) {
