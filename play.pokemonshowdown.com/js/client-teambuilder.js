@@ -3374,6 +3374,7 @@
 				this.unChooseMove(this.curSet.moves[0]);
 				this.curSet.moves[0] = val;
 				this.chooseMove(val);
+				this.setPPUps(val, 0);
 				if (selectNext) this.$('input[name=move2]').select();
 				break;
 			case 'move2':
@@ -3381,6 +3382,7 @@
 				this.unChooseMove(this.curSet.moves[1]);
 				this.curSet.moves[1] = val;
 				this.chooseMove(val);
+				this.setPPUps(val, 1);
 				if (selectNext) this.$('input[name=move3]').select();
 				break;
 			case 'move3':
@@ -3389,6 +3391,7 @@
 				this.unChooseMove(this.curSet.moves[2]);
 				this.curSet.moves[2] = val;
 				this.chooseMove(val);
+				this.setPPUps(val, 2);
 				if (selectNext) this.$('input[name=move4]').select();
 				break;
 			case 'move4':
@@ -3398,6 +3401,7 @@
 				this.unChooseMove(this.curSet.moves[3]);
 				this.curSet.moves[3] = val;
 				this.chooseMove(val);
+				this.setPPUps(val, 3);
 				if (selectNext) {
 					this.stats();
 					this.$('button.setstats').focus();
@@ -3507,12 +3511,6 @@
 				if (minSpe === false && moveName === 'Gyro Ball') {
 					minSpe = undefined;
 				}
-				if (!set.movePPUps) set.movePPUps = [];
-				if (move.id === 'trumpcard') {
-					set.movePPUps[i] = 0;
-				} else {
-					set.movePPUps[i] = 3;
-				}
 			}
 
 			if (!set.ivs) {
@@ -3596,6 +3594,15 @@
 			set.nature = '';
 			this.updateSetTop();
 			if (selectNext) this.$(set.item || !this.$('input[name=item]').length ? (this.$('input[name=ability]').length ? 'input[name=ability]' : 'input[name=move1]') : 'input[name=item]').select();
+		},
+		setPPUps: function (move, slot) {
+			var set = this.curSet;
+			if (!set.movePPUps) set.movePPUps = [];
+			if (toID(move) === 'trumpcard') {
+				set.movePPUps[slot] = 0;
+			} else {
+				set.movePPUps[slot] = 3;
+			}
 		},
 
 		/*********************************************************
