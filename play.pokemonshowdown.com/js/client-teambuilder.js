@@ -3507,6 +3507,10 @@
 				if (minSpe === false && moveName === 'Gyro Ball') {
 					minSpe = undefined;
 				}
+				if (move.id === 'trumpcard') {
+					if (!set.movePPUps) set.movePPUps = [];
+					set.movePPUps[i] = 0;
+				}
 			}
 
 			if (!set.ivs) {
