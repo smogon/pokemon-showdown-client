@@ -2926,6 +2926,22 @@
 				buf += '</div></div>';
 			}
 
+			console.log(set.movePPUps);
+			for (var i = 0; i <= 3; i++) {
+				buf += '<div class="formrow"><label class="formlabel" title="Move ' + (i + 1) + ' PP Ups">Move ' + (i + 1) + ' PP Ups:</label><div>';
+				var defaultPPUps = toID(set.moves[i]) === 'trumpcard' ? 0 : 3;
+				var movePPUps = defaultPPUps;
+				if (set.movePPUps && !isNaN(set.movePPUps[i])) movePPUps = set.movePPUps[i];
+				console.log(movePPUps);
+				buf += '<select name="move' + i + 'ppups" class="button">';
+				for (var j = 0; j <= 3; j++) {
+					if (movePPUps === j) console.log("match");
+					buf += '<option value="' + j + '" ' + (movePPUps === j ? 'selected' : '') + '>' + j + '</option>'
+				}
+				buf += '</select>';
+				buf += '</div></div>';
+			}
+
 			buf += '</form>';
 			if (species.cosmeticFormes) {
 				buf += '<button class="altform button">Change sprite</button>';
@@ -3006,6 +3022,13 @@
 				set.teraType = teraType;
 			} else {
 				delete set.teraType;
+			}
+
+			// PP Ups
+			for (var i = 0; i <= 3; i++) {
+				if (!set.movePPUps) set.movePPUps = [];
+				var PPUps = this.$chart.find('select[name=move' + i + 'ppups]').val();
+				set.movePPUps[i] = parseInt(PPUps);
 			}
 
 			// update details cell

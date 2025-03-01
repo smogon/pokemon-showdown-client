@@ -2859,12 +2859,12 @@ a.ilink.yours {
 }
 
 .detailsform .formrow {
-	padding-left: 100px;
+	padding-left: 150px;
 }
 .detailsform .formrow .formlabel {
 	float: left;
-	margin-left: -100px;
-	width: 110px;
+	margin-left: -150px;
+	width: 165px;
 	text-align: right;
 }
 .changeform i {
