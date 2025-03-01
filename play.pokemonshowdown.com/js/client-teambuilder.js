@@ -1374,10 +1374,10 @@
 			// moves
 			if (!set.moves) set.moves = [];
 			buf += '<div class="setcol setcol-moves"><div class="setcell"><label>Moves</label>';
-			buf += '<input type="text" name="move1" class="textbox chartinput" value="' + BattleLog.escapeHTML(set.moves[0]) + '" autocomplete="off" /></div>';
-			buf += '<div class="setcell"><input type="text" name="move2" class="textbox chartinput" value="' + BattleLog.escapeHTML(set.moves[1]) + '" autocomplete="off" /></div>';
-			buf += '<div class="setcell"><input type="text" name="move3" class="textbox chartinput" value="' + BattleLog.escapeHTML(set.moves[2]) + '" autocomplete="off" /></div>';
-			buf += '<div class="setcell"><input type="text" name="move4" class="textbox chartinput" value="' + BattleLog.escapeHTML(set.moves[3]) + '" autocomplete="off" /></div>';
+			for (var i = 0; i <= 3; i++) {
+				if (i > 0) buf += '<div class="setcell">';
+				buf += '<input type="text" name="move' + (i + 1) + '" class="textbox chartinput" value="' + BattleLog.escapeHTML(set.moves[i]) + '" autocomplete="off" /></div>';
+			}
 			buf += '</div>';
 
 			// stats
@@ -2926,6 +2926,19 @@
 				buf += '</div></div>';
 			}
 
+			for (var i = 0; i <= 3; i++) {
+				buf += '<div class="formrow"><label class="formlabel" title="Move ' + (i + 1) + ' PP Ups">Move ' + (i + 1) + ' PP Ups:</label><div>';
+				var defaultPPUps = toID(set.moves[i]) === 'trumpcard' ? 0 : 3;
+				var movePPUps = defaultPPUps;
+				if (set.movePPUps && !isNaN(set.movePPUps[i])) movePPUps = set.movePPUps[i];
+				buf += '<select name="move' + i + 'ppups" class="button">';
+				for (var j = 0; j <= 3; j++) {
+					buf += '<option value="' + j + '" ' + (movePPUps === j ? 'selected' : '') + '>' + j + '</option>';
+				}
+				buf += '</select>';
+				buf += '</div></div>';
+			}
+
 			buf += '</form>';
 			if (species.cosmeticFormes) {
 				buf += '<button class="altform button">Change sprite</button>';
@@ -3006,6 +3019,13 @@
 				set.teraType = teraType;
 			} else {
 				delete set.teraType;
+			}
+
+			// PP Ups
+			for (var i = 0; i <= 3; i++) {
+				if (!set.movePPUps) set.movePPUps = [];
+				var PPUps = this.$chart.find('select[name=move' + i + 'ppups]').val();
+				set.movePPUps[i] = parseInt(PPUps);
 			}
 
 			// update details cell
@@ -3486,6 +3506,12 @@
 				}
 				if (minSpe === false && moveName === 'Gyro Ball') {
 					minSpe = undefined;
+				}
+				if (!set.movePPUps) set.movePPUps = [];
+				if (move.id === 'trumpcard') {
+					set.movePPUps[i] = 0;
+				} else {
+					set.movePPUps[i] = 3;
 				}
 			}
 

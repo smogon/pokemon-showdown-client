@@ -46,6 +46,12 @@ export class PSTeambuilder {
 				}
 			}
 
+			if (set.movePPUps?.some(n => n < 3)) {
+				buf += ';' + set.movePPUps.map(
+					n => n === 3 ? '' : `${n}`
+				).join(',');
+			}
+
 			// nature
 			buf += `|${set.nature || ''}`;
 
@@ -133,10 +139,18 @@ export class PSTeambuilder {
 					species.abilities[parts[3] as '0' || '0'] || (parts[3] === '' ? '' : '!!!ERROR!!!') :
 					Dex.abilities.get(parts[3]).name;
 
-			// moves
-			set.moves = parts[4].split(',').map(moveid =>
+			// moves and PP ups
+			const [moves, PPUps] = parts[4].split(';', 2);
+			set.moves = moves.split(',').map(moveid =>
 				Dex.moves.get(moveid).name
 			);
+
+			if (PPUps) {
+				set.movePPUps = PPUps.split(',').map(n => {
+					if (!n) return 3;
+					return parseInt(n, 10);
+				});
+			}
 
 			// nature
 			set.nature = parts[5] as Dex.NatureName;
@@ -217,14 +231,19 @@ export class PSTeambuilder {
 			text += `Ability: ${set.ability}  \n`;
 		}
 		if (set.moves) {
-			for (let move of set.moves) {
+			for (let i = 0; i < set.moves.length; i++) {
+				let move = set.moves[i];
+				let PPUps = ``;
 				if (move.substr(0, 13) === 'Hidden Power ') {
 					const hpType = move.slice(13);
 					move = move.slice(0, 13);
 					move = `${move}[${hpType}]`;
 				}
+				if (set.movePPUps && !isNaN(set.movePPUps[i]) && set.movePPUps[i] < 3) {
+					PPUps = ` (PP Ups: ${set.movePPUps[i]})`;
+				}
 				if (move) {
-					text += `- ${move}  \n`;
+					text += `- ${move}${PPUps}  \n`;
 				}
 			}
 		}
@@ -388,9 +407,10 @@ export class PSTeambuilder {
 			if (line !== 'undefined') set.nature = line as Dex.NatureName;
 		} else if (line.startsWith('-') || line.startsWith('~')) {
 			line = line.slice(line.charAt(1) === ' ' ? 2 : 1);
-			if (line.startsWith('Hidden Power [')) {
-				const hpType = line.slice(14, -1) as Dex.TypeName;
-				line = 'Hidden Power ' + hpType;
+			let [move, PPUps] = line.split(' (PP Ups: ');
+			if (move.startsWith('Hidden Power [')) {
+				const hpType = move.slice(14, -1) as Dex.TypeName;
+				move = 'Hidden Power ' + hpType;
 				if (!set.ivs && Dex.types.isName(hpType)) {
 					set.ivs = { hp: 31, atk: 31, def: 31, spa: 31, spd: 31, spe: 31 };
 					const hpIVs = Dex.types.get(hpType).HPivs || {};
@@ -399,6 +419,8 @@ export class PSTeambuilder {
 					}
 				}
 			}
+			if (!set.movePPUps) set.movePPUps = [];
+			set.movePPUps.push(parseInt(PPUps?.charAt(0), 10) || 3);
 			if (line === 'Frustration' && set.happiness === undefined) {
 				set.happiness = 0;
 			}
