@@ -3,7 +3,3 @@ cd "$(dirname "$0")"
 cd ..
 cp config/config.js config/config.js.old
 cp config/head-custom.html config/head-custom.html.old
-mv -f config/config-test.js config/config.js
-mv -f config/head-custom-test.html config/head-custom.html
-mv -i config/config.js.old config/config-test.js
-mv -i config/head-custom.html.old config/head-custom-test.html

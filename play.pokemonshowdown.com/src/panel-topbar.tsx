@@ -9,10 +9,17 @@
  * @license AGPLv3
  */
 
+import preact from "../js/lib/preact";
+import { PS, PSRoom, type RoomOptions, type RoomID } from "./client-main";
+import { PSMain, PSPanelWrapper, PSRoomPanel } from "./panels";
+import type { Battle } from "./battle";
+import { Dex, toRoomid, toUserid, type ID } from "./battle-dex";
+import { BattleLog } from "./battle-log";
+
 window.addEventListener('drop', e => {
 	console.log('drop ' + e.dataTransfer!.dropEffect);
 	const target = e.target as HTMLElement;
-	if (/^text/.test((target as HTMLInputElement).type)) {
+	if ((target as HTMLInputElement).type.startsWith("text")) {
 		PS.dragging = null;
 		return; // Ignore text fields
 	}
@@ -33,7 +40,7 @@ window.addEventListener('dragover', e => {
 	e.preventDefault();
 });
 
-class PSHeader extends preact.Component<{style: {}}> {
+export class PSHeader extends preact.Component<{ style: object }> {
 	handleDragEnter = (e: DragEvent) => {
 		console.log('dragenter ' + e.dataTransfer!.dropEffect);
 		e.preventDefault();
@@ -56,6 +63,7 @@ class PSHeader extends preact.Component<{style: {}}> {
 			if (rightIndex >= 0) {
 				this.dragOnto(draggingRoom, 'rightRoomList', rightIndex);
 			} else {
+				// eslint-disable-next-line no-useless-return
 				return;
 			}
 		}
@@ -68,7 +76,7 @@ class PSHeader extends preact.Component<{style: {}}> {
 		const roomid = PS.router.extractRoomID((e.currentTarget as HTMLAnchorElement).href);
 		if (!roomid) return; // should never happen
 
-		PS.dragging = {type: 'room', roomid};
+		PS.dragging = { type: 'room', roomid };
 	};
 	dragOnto(fromRoom: RoomID, toRoomList: 'leftRoomList' | 'rightRoomList' | 'miniRoomList', toIndex: number) {
 		// one day you will be able to rearrange mainmenu and rooms, but not today
@@ -107,13 +115,17 @@ class PSHeader extends preact.Component<{style: {}}> {
 		}
 		if (fromRoomList !== toRoomList) {
 			if (fromRoom === PS.leftRoom.id) {
+				if (PS.room === PS.mainmenu) PS.room = PS.mainmenu;
 				PS.leftRoom = PS.mainmenu;
 			} else if (PS.rightRoom && fromRoom === PS.rightRoom.id) {
+				if (PS.room === PS.rightRoom) PS.room = PS.rooms['rooms']!;
 				PS.rightRoom = PS.rooms['rooms']!;
 			}
 			if (toRoomList === 'rightRoomList') {
+				if (PS.room === PS.rightRoom) PS.room = room;
 				PS.rightRoom = room;
 			} else if (toRoomList === 'leftRoomList') {
+				if (PS.room === PS.leftRoom) PS.room = room;
 				PS.leftRoom = room;
 			}
 		}
@@ -175,7 +187,7 @@ class PSHeader extends preact.Component<{style: {}}> {
 			break;
 		case 'html':
 		default:
-			if (title.charAt(0) === '[') {
+			if (title.startsWith('[')) {
 				let closeBracketIndex = title.indexOf(']');
 				if (closeBracketIndex > 0) {
 					icon = <i class="text">{title.slice(1, closeBracketIndex)}</i>;
@@ -211,7 +223,7 @@ class PSHeader extends preact.Component<{style: {}}> {
 		if (!PS.user.named) {
 			return <a class="button" href="login">Choose name</a>;
 		}
-		const userColor = window.BattleLog && {color: BattleLog.usernameColor(PS.user.userid)};
+		const userColor = window.BattleLog && { color: BattleLog.usernameColor(PS.user.userid) };
 		return <span class="username" data-name={PS.user.name} style={userColor}>
 			<i class="fa fa-user" style="color:#779EC5"></i> <span class="usernametext">{PS.user.name}</span>
 		</span>;
@@ -233,7 +245,7 @@ class PSHeader extends preact.Component<{style: {}}> {
 				<ul>
 					{PS.leftRoomList.slice(1).map(roomid => this.renderRoomTab(roomid))}
 				</ul>
-				<ul class="siderooms" style={{float: 'none', marginLeft: PS.leftRoomWidth - 144}}>
+				<ul class="siderooms" style={{ float: 'none', marginLeft: PS.leftRoomWidth - 144 }}>
 					{PS.rightRoomList.map(roomid => this.renderRoomTab(roomid))}
 				</ul>
 			</div></div>
@@ -256,8 +268,8 @@ preact.render(<PSMain />, document.body, document.getElementById('ps-frame')!);
  * User popup
  */
 
-class UserRoom extends PSRoom {
-	readonly classType = 'user';
+export class UserRoom extends PSRoom {
+	override readonly classType = 'user';
 	userid: ID;
 	name: string;
 	isSelf: boolean;
@@ -272,21 +284,21 @@ class UserRoom extends PSRoom {
 }
 
 class UserPanel extends PSRoomPanel<UserRoom> {
-	render() {
+	override render() {
 		const room = this.props.room;
-		const user = PS.mainmenu.userdetailsCache[room.userid] || {userid: room.userid, avatar: '[loading]'};
+		const user = PS.mainmenu.userdetailsCache[room.userid] || { userid: room.userid, avatar: '[loading]' };
 		const name = room.name.slice(1);
 
 		const group = PS.server.getGroup(room.name);
 		let groupName: preact.ComponentChild = group.name || null;
 		if (group.type === 'punishment') {
-			groupName = <span style='color:#777777'>{groupName}</span>;
+			groupName = <span style="color:#777777">{groupName}</span>;
 		}
 
 		const globalGroup = PS.server.getGroup(user.group);
 		let globalGroupName: preact.ComponentChild = globalGroup.name && `Global ${globalGroup.name}` || null;
 		if (globalGroup.type === 'punishment') {
-			globalGroupName = <span style='color:#777777'>{globalGroupName}</span>;
+			globalGroupName = <span style="color:#777777">{globalGroupName}</span>;
 		}
 		if (globalGroup.name === group.name) groupName = null;
 
@@ -308,7 +320,8 @@ class UserPanel extends PSRoomPanel<UserRoom> {
 					const p1 = curRoom.p1!.substr(1);
 					const p2 = curRoom.p2!.substr(1);
 					const ownBattle = (PS.user.userid === toUserid(p1) || PS.user.userid === toUserid(p2));
-					const roomLink = <a href={`/${roomid}`} class={'ilink' + (ownBattle || roomid in PS.rooms ? ' yours' : '')}
+					const roomLink = <a
+						href={`/${roomid}`} class={'ilink' + (ownBattle || roomid in PS.rooms ? ' yours' : '')}
 						title={`${p1 || '?'} v. ${p2 || '?'}`}
 					>{roomrank}{roomid.substr(7)}</a>;
 					if (curRoom.isPrivate) {
@@ -348,34 +361,37 @@ class UserPanel extends PSRoomPanel<UserRoom> {
 			away = user.status.startsWith('!');
 			status = away ? user.status.slice(1) : user.status;
 		}
-
 		return <PSPanelWrapper room={room}>
+
 			<div class="userdetails">
 				{user.avatar !== '[loading]' &&
 					<img
 						class={'trainersprite' + (room.isSelf ? ' yours' : '')}
-						src={Dex.resolveAvatar('' + (user.avatar || 'unknown'))}
-					/>
-				}
-				<strong><a href={`//${Config.routes.users}/${user.userid}`} target="_blank" style={away ? {color: '#888888'} : null}>{name}</a></strong><br />
+						src={Dex.resolveAvatar(`${user.avatar || 'unknown'}`)}
+					/>}
+				<strong><a
+					href={`//${Config.routes.users}/${user.userid}`} target="_blank" style={away ? { color: '#888888' } : null}
+				>
+					{name}
+				</a></strong><br />
 				{status && <div class="userstatus">{status}</div>}
 				{groupName && <div class="usergroup roomgroup">{groupName}</div>}
 				{globalGroupName && <div class="usergroup globalgroup">{globalGroupName}</div>}
 				{user.customgroup && <div class="usergroup globalgroup">{user.customgroup}</div>}
 				{roomsList}
 			</div>
-			{isSelf || !PS.user.named ?
+			{isSelf || !PS.user.named ? (
 				<p class="buttonbar">
 					<button class="button" disabled>Challenge</button> {}
 					<button class="button" disabled>Chat</button>
 				</p>
-			:
+			) : (
 				<p class="buttonbar">
 					<button class="button" data-href={`/challenge-${user.userid}`}>Challenge</button> {}
 					<button class="button" data-href={`/pm-${user.userid}`}>Chat</button> {}
 					<button class="button disabled" name="userOptions">{'\u2026'}</button>
 				</p>
-			}
+			)}
 			{isSelf && <hr />}
 			{isSelf && <p class="buttonbar" style="text-align: right">
 				<button class="button disabled" name="login"><i class="fa fa-pencil"></i> Change name</button> {}
@@ -401,18 +417,20 @@ class VolumePanel extends PSRoomPanel {
 		PS.prefs.set('mute', !!checkbox.checked);
 		PS.update();
 	};
-	componentDidMount() {
+	override componentDidMount() {
 		super.componentDidMount();
 		this.subscriptions.push(PS.prefs.subscribe(() => {
 			this.forceUpdate();
 		}));
 	}
-	render() {
+	override render() {
 		const room = this.props.room;
 		return <PSPanelWrapper room={room}>
 			<h3>Volume</h3>
 			<p class="volume">
-				<label class="optlabel">Effects: <span class="value">{!PS.prefs.mute && PS.prefs.effectvolume ? `${PS.prefs.effectvolume}%` : `muted`}</span></label>
+				<label class="optlabel">
+					Effects: <span class="value">{!PS.prefs.mute && PS.prefs.effectvolume ? `${PS.prefs.effectvolume}%` : `muted`}</span>
+				</label>
 				{PS.prefs.mute ?
 					<em>(muted)</em> :
 					<input
@@ -421,7 +439,9 @@ class VolumePanel extends PSRoomPanel {
 					/>}
 			</p>
 			<p class="volume">
-				<label class="optlabel">Music: <span class="value">{!PS.prefs.mute && PS.prefs.musicvolume ? `${PS.prefs.musicvolume}%` : `muted`}</span></label>
+				<label class="optlabel">
+					Music: <span class="value">{!PS.prefs.mute && PS.prefs.musicvolume ? `${PS.prefs.musicvolume}%` : `muted`}</span>
+				</label>
 				{PS.prefs.mute ?
 					<em>(muted)</em> :
 					<input
@@ -430,7 +450,10 @@ class VolumePanel extends PSRoomPanel {
 					/>}
 			</p>
 			<p class="volume">
-				<label class="optlabel">Notifications: <span class="value">{!PS.prefs.mute && PS.prefs.notifvolume ? `${PS.prefs.notifvolume}%` : `muted`}</span></label>
+				<label class="optlabel">
+					Notifications: {}
+					<span class="value">{!PS.prefs.mute && PS.prefs.notifvolume ? `${PS.prefs.notifvolume}%` : `muted`}</span>
+				</label>
 				{PS.prefs.mute ?
 					<em>(muted)</em> :
 					<input
@@ -439,7 +462,9 @@ class VolumePanel extends PSRoomPanel {
 					/>}
 			</p>
 			<p>
-				<label class="checkbox"><input type="checkbox" name="mute" checked={PS.prefs.mute} onChange={this.setMute} /> Mute all</label>
+				<label class="checkbox">
+					<input type="checkbox" name="mute" checked={PS.prefs.mute} onChange={this.setMute} /> Mute all
+				</label>
 			</p>
 		</PSPanelWrapper>;
 	}
@@ -455,7 +480,7 @@ class OptionsPanel extends PSRoomPanel {
 		PS.prefs.set('theme', theme);
 		this.forceUpdate();
 	};
-	render() {
+	override render() {
 		const room = this.props.room;
 		return <PSPanelWrapper room={room}>
 			<h3>Graphics</h3>

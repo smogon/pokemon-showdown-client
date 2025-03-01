@@ -19,7 +19,7 @@ El room staff tiene poderes limitados a la sala en la que fueron ascendidos, mie
 
 **Global Moderators (`@`)** pueden hacer todo lo anterior, además de banear a usuarios del servidor, hacer todo lo que un Room Moderator puede hacer y comprobar la dirección IP de los usuarios.
 
-**Global Administrators (`&`)** pueden: hacer todo lo anterior, además de ascender a usuarios a cualquier rango, forzar empates y victorias en batallas, hacer anuncios globales puntuales, crear salas, banear un rango de direcciones IPs, restablecer contraseñas y dar lock o ban permanentemente.
+**Global Administrators (`~`)** pueden: hacer todo lo anterior, además de ascender a usuarios a cualquier rango, forzar empates y victorias en batallas, hacer anuncios globales puntuales, crear salas, banear un rango de direcciones IPs, restablecer contraseñas y dar lock o ban permanentemente.
 
 ###  ¿Cómo me hago un miembro del Staff?
 

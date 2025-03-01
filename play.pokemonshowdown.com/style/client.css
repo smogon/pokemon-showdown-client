@@ -1598,7 +1598,7 @@ a.ilink.yours {
 	right: 0;
 	width: auto;
 }
-.tiny-layout .movecontrols, .tiny-layout .switchcontrols {
+.tiny-layout .movecontrols, .tiny-layout .shiftcontrols, .tiny-layout .switchcontrols {
 	max-width: 330px;
 	margin: 0 auto;
 }
@@ -1701,6 +1701,7 @@ a.ilink.yours {
 }
 .shiftselect button {
 	color: #445588;
+	cursor: default;
 }
 .moveselect button {
 	color: #884422;
@@ -1929,7 +1930,7 @@ a.ilink.yours {
 		color: #FF7766;
 		border-color: #FF7766;
 	}
-	.battle-controls .movecontrols, .battle-controls .switchcontrols {
+	.battle-controls .movecontrols, .battle-controls .shiftcontrols, .battle-controls .switchcontrols {
 		max-width: 640px;
 	}
 	.movemenu {

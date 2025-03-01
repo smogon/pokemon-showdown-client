@@ -11,11 +11,15 @@
  * @license MIT
  */
 
-import type {Battle, Pokemon, Side, WeatherState} from './battle';
-import type {BattleSceneStub} from './battle-scene-stub';
-import {BattleMoveAnims} from './battle-animations-moves';
-import {BattleLog} from './battle-log';
-import {BattleBGM, BattleSound} from './battle-sound';
+import type { Battle, Pokemon, Side, WeatherState } from './battle';
+import type { BattleSceneStub } from './battle-scene-stub';
+import { BattleMoveAnims } from './battle-animations-moves';
+import { BattleLog } from './battle-log';
+import { type BattleBGM, BattleSound } from './battle-sound';
+import { Dex, toID, type ID, type SpriteData } from './battle-dex';
+import { BattleNatures } from './battle-dex-data';
+import { BattleTooltips } from './battle-tooltips';
+import { BattleTextParser, type Args, type KWArgs } from './battle-text-parser';
 
 /*
 
@@ -70,14 +74,14 @@ export class BattleScene implements BattleSceneStub {
 	$tooltips: JQuery = null!;
 	tooltips: BattleTooltips;
 
-	sideConditions: [{[id: string]: Sprite[]}, {[id: string]: Sprite[]}] = [{}, {}];
+	sideConditions: [{ [id: string]: Sprite[] }, { [id: string]: Sprite[] }] = [{}, {}];
 
 	preloadDone = 0;
 	preloadNeeded = 0;
 	bgm: BattleBGM | null = null;
-	backdropImage: string = '';
+	backdropImage = '';
 	bgmNum = 0;
-	preloadCache: {[url: string]: HTMLImageElement} = {};
+	preloadCache: { [url: string]: HTMLImageElement } = {};
 
 	messagebarOpen = false;
 	customControls = false;
@@ -156,6 +160,7 @@ export class BattleScene implements BattleSceneStub {
 
 		this.$sprites = [$('<div></div>'), $('<div></div>')];
 		this.$spritesFront = [$('<div></div>'), $('<div></div>')];
+		this.sideConditions = [{}, {}];
 
 		this.$sprite.append(this.$sprites[1]);
 		this.$sprite.append(this.$spritesFront[1]);
@@ -267,7 +272,7 @@ export class BattleScene implements BattleSceneStub {
 		effect: string | SpriteData, start: ScenePos, end: ScenePos,
 		transition: string, after?: string, additionalCss?: JQuery.PlainObject
 	) {
-		if (typeof effect === 'string') effect = BattleEffects[effect] as SpriteData;
+		if (typeof effect === 'string') effect = BattleEffects[effect];
 		if (!start.time) start.time = 0;
 		if (!end.time) end.time = start.time + 500;
 		start.time += this.timeOffset;
@@ -275,18 +280,18 @@ export class BattleScene implements BattleSceneStub {
 		if (!end.scale && end.scale !== 0 && start.scale) end.scale = start.scale;
 		if (!end.xscale && end.xscale !== 0 && start.xscale) end.xscale = start.xscale;
 		if (!end.yscale && end.yscale !== 0 && start.yscale) end.yscale = start.yscale;
-		end = {...start, ...end};
+		end = { ...start, ...end };
 
 		let startpos = this.pos(start, effect);
 		let endpos = this.posT(end, effect, transition, start);
 
-		let $effect = $('<img src="' + effect.url + '" style="display:block;position:absolute" />');
+		let $effect = $(`<img src="${effect.url!}" style="display:block;position:absolute" />`);
 		this.$fx.append($effect);
 		if (additionalCss) $effect.css(additionalCss);
 		$effect = this.$fx.children().last();
 
 		if (start.time) {
-			$effect.css({...startpos, opacity: 0});
+			$effect.css({ ...startpos, opacity: 0 });
 			$effect.delay(start.time).animate({
 				opacity: startpos.opacity,
 			}, 1);
@@ -345,10 +350,10 @@ export class BattleScene implements BattleSceneStub {
 
 		let left = 210;
 		let top = 245;
-		let scale = (obj.gen === 5
-			? 2.0 - ((loc.z!) / 200)
-			: 1.5 - 0.5 * ((loc.z!) / 200));
-		if (scale < .1) scale = .1;
+		let scale = (obj.gen === 5 ?
+			2.0 - ((loc.z!) / 200) :
+			1.5 - 0.5 * ((loc.z!) / 200));
+		if (scale < 0.1) scale = 0.1;
 
 		left += (410 - 190) * ((loc.z!) / 200);
 		top += (135 - 245) * ((loc.z!) / 200);
@@ -472,7 +477,7 @@ export class BattleScene implements BattleSceneStub {
 				}, this.battle.messageFadeTime / this.acceleration);
 			}
 		}
-		if (this.battle.hardcoreMode && message.slice(0, 8) === '<small>(') {
+		if (this.battle.hardcoreMode && message.startsWith('<small>(')) {
 			message = '';
 		}
 		if (message && this.animating) {
@@ -564,27 +569,30 @@ export class BattleScene implements BattleSceneStub {
 		this.gen = gen;
 		this.activeCount = this.battle.nearSide?.active.length || 1;
 
-		const isSPL = (typeof this.battle.rated === 'string' && this.battle.rated.startsWith("Smogon Premier League"));
+		const rated = this.battle.rated;
 		let bg: string;
-		if (isSPL) {
+		if (typeof rated === 'string' && rated.startsWith("Smogon Premier League")) {
 			if (gen <= 1) bg = 'fx/bg-gen1-spl.png';
 			else if (gen <= 2) bg = 'fx/bg-gen2-spl.png';
 			else if (gen <= 3) bg = 'fx/bg-gen3-spl.png';
 			else if (gen <= 4) bg = 'fx/bg-gen4-spl.png';
 			else bg = 'fx/bg-spl.png';
 			this.setBgm(-101);
+		} else if (typeof rated === 'string' && rated.startsWith('National Pokemon Association')) {
+			bg = 'fx/bg-npa.png';
+			this.setBgm(-101);
 		} else {
 			if (gen <= 1) bg = 'fx/bg-gen1.png?';
 			else if (gen <= 2) bg = 'fx/bg-gen2.png?';
-			else if (gen <= 3) bg = 'fx/' + BattleBackdropsThree[this.numericId % BattleBackdropsThree.length] + '?';
-			else if (gen <= 4) bg = 'fx/' + BattleBackdropsFour[this.numericId % BattleBackdropsFour.length];
-			else if (gen <= 5) bg = 'fx/' + BattleBackdropsFive[this.numericId % BattleBackdropsFive.length];
-			else bg = 'sprites/gen6bgs/' + BattleBackdrops[this.numericId % BattleBackdrops.length];
+			else if (gen <= 3) bg = `fx/${BattleBackdropsThree[this.numericId % BattleBackdropsThree.length]}?`;
+			else if (gen <= 4) bg = `fx/${BattleBackdropsFour[this.numericId % BattleBackdropsFour.length]}`;
+			else if (gen <= 5) bg = `fx/${BattleBackdropsFive[this.numericId % BattleBackdropsFive.length]}`;
+			else bg = `sprites/gen6bgs/${BattleBackdrops[this.numericId % BattleBackdrops.length]}`;
 		}
 
 		this.backdropImage = bg;
 		if (this.$bg) {
-			this.$bg.css('background-image', 'url(' + Dex.resourcePrefix + '' + this.backdropImage + ')');
+			this.$bg.css('background-image', `url(${Dex.resourcePrefix}${this.backdropImage})`);
 		}
 	}
 
@@ -592,7 +600,7 @@ export class BattleScene implements BattleSceneStub {
 		let name = pokemon.side?.isFar &&
 			(this.battle.ignoreOpponent || this.battle.ignoreNicks) ? pokemon.speciesForme : pokemon.name;
 		if (name !== pokemon.speciesForme) {
-				name += ' (' + pokemon.speciesForme + ')';
+			name += ' (' + pokemon.speciesForme + ')';
 		}
 		if (pokemon === pokemon.side.active[0]) {
 			name += ' (active)';
@@ -661,29 +669,29 @@ export class BattleScene implements BattleSceneStub {
 		for (let i = 0; i < sidebarIcons.length; i++) {
 			const [iconType, pokeIndex] = sidebarIcons[i];
 			const poke = pokeIndex !== null ? side.pokemon[pokeIndex] : null;
-			const tooltipCode = ` class="picon has-tooltip" data-tooltip="pokemon|${side.n}|${pokeIndex}${iconType === 'pokemon-illusion' ? '|illusion' : ''}"`;
+			const tooltipCode = ` class="picon has-tooltip" data-tooltip="pokemon|${side.n}|${pokeIndex!}${iconType === 'pokemon-illusion' ? '|illusion' : ''}"`;
 			if (iconType === 'empty') {
-				pokemonhtml += `<span class="picon" style="` + Dex.getPokemonIcon('pokeball-none') + `"></span>`;
+				pokemonhtml += `<span class="picon" style="${Dex.getPokemonIcon('pokeball-none')}"></span>`;
 			} else if (noShow) {
 				if (poke?.fainted) {
-					pokemonhtml += `<span${tooltipCode} style="` + Dex.getPokemonIcon('pokeball-fainted') + `" aria-label="Fainted"></span>`;
+					pokemonhtml += `<span${tooltipCode} style="${Dex.getPokemonIcon('pokeball-fainted')}" aria-label="Fainted"></span>`;
 				} else if (poke?.status) {
-					pokemonhtml += `<span${tooltipCode} style="` + Dex.getPokemonIcon('pokeball-statused') + `" aria-label="Statused"></span>`;
+					pokemonhtml += `<span${tooltipCode} style="${Dex.getPokemonIcon('pokeball-statused')}" aria-label="Statused"></span>`;
 				} else {
-					pokemonhtml += `<span${tooltipCode} style="` + Dex.getPokemonIcon('pokeball') + `" aria-label="Non-statused"></span>`;
+					pokemonhtml += `<span${tooltipCode} style="${Dex.getPokemonIcon('pokeball')}" aria-label="Non-statused"></span>`;
 				}
 			} else if (iconType === 'pseudo-zoroark') {
-				pokemonhtml += `<span class="picon" style="` + Dex.getPokemonIcon('zoroark') + `" title="Unrevealed Illusion user" aria-label="Unrevealed Illusion user"></span>`;
+				pokemonhtml += `<span class="picon" style="${Dex.getPokemonIcon('zoroark')}" title="Unrevealed Illusion user" aria-label="Unrevealed Illusion user"></span>`;
 			} else if (!poke) {
-				pokemonhtml += `<span class="picon" style="` + Dex.getPokemonIcon('pokeball') + `" title="Not revealed" aria-label="Not revealed"></span>`;
+				pokemonhtml += `<span class="picon" style="${Dex.getPokemonIcon('pokeball')}" title="Not revealed" aria-label="Not revealed"></span>`;
 			} else if (!poke.ident && this.battle.teamPreviewCount && this.battle.teamPreviewCount < side.pokemon.length) {
 				// in VGC (bring 6 pick 4) and other pick-less-than-you-bring formats, this is
 				// a pokemon that's been brought but not necessarily picked
 				const details = this.getDetailsText(poke);
-				pokemonhtml += `<span${tooltipCode} style="` + Dex.getPokemonIcon(poke, !side.isFar) + `;opacity:0.6" aria-label="${details}"></span>`;
+				pokemonhtml += `<span${tooltipCode} style="${Dex.getPokemonIcon(poke, !side.isFar)};opacity:0.6" aria-label="${details}"></span>`;
 			} else {
 				const details = this.getDetailsText(poke);
-				pokemonhtml += `<span${tooltipCode} style="` + Dex.getPokemonIcon(poke, !side.isFar) + `" aria-label="${details}"></span>`;
+				pokemonhtml += `<span${tooltipCode} style="${Dex.getPokemonIcon(poke, !side.isFar)}" aria-label="${details}"></span>`;
 			}
 			if (i % 3 === 2) pokemonhtml += `</div><div class="teamicons">`;
 		}
@@ -733,7 +741,7 @@ export class BattleScene implements BattleSceneStub {
 		const side = this.battle.nearSide;
 
 		if (side.ally) {
-			const side2 = side.ally!;
+			const side2 = side.ally;
 			this.$leftbar.html(this.getSidebarHTML(side, 'near2') + this.getSidebarHTML(side2, 'near'));
 		} else if (this.battle.sides.length > 2) { // FFA
 			const side2 = this.battle.sides[side.n === 0 ? 3 : 2];
@@ -746,7 +754,7 @@ export class BattleScene implements BattleSceneStub {
 		const side = this.battle.farSide;
 
 		if (side.ally) {
-			const side2 = side.ally!;
+			const side2 = side.ally;
 			this.$rightbar.html(this.getSidebarHTML(side, 'far2') + this.getSidebarHTML(side2, 'far'));
 		} else if (this.battle.sides.length > 2) { // FFA
 			const side2 = this.battle.sides[side.n === 0 ? 3 : 2];
@@ -798,17 +806,17 @@ export class BattleScene implements BattleSceneStub {
 		const tooltips = this.battle.gameType === 'freeforall' ? {
 			// FFA battles are visually rendered as triple battle with the center slots empty
 			// so we swap the 2nd and 3rd tooltips on each side
-			p2b: {top: 70, left: 250, width: 80, height: 100, tooltip: 'activepokemon|1|1'},
-			p2a: {top: 90, left: 390, width: 100, height: 100, tooltip: 'activepokemon|1|0'},
-			p1a: {top: 200, left: 130, width: 120, height: 160, tooltip: 'activepokemon|0|0'},
-			p1b: {top: 200, left: 350, width: 150, height: 160, tooltip: 'activepokemon|0|1'},
+			p2b: { top: 70, left: 250, width: 80, height: 100, tooltip: 'activepokemon|1|1' },
+			p2a: { top: 90, left: 390, width: 100, height: 100, tooltip: 'activepokemon|1|0' },
+			p1a: { top: 200, left: 130, width: 120, height: 160, tooltip: 'activepokemon|0|0' },
+			p1b: { top: 200, left: 350, width: 150, height: 160, tooltip: 'activepokemon|0|1' },
 		} : {
-			p2c: {top: 70, left: 250, width: 80, height: 100, tooltip: 'activepokemon|1|2'},
-			p2b: {top: 85, left: 320, width: 90, height: 100, tooltip: 'activepokemon|1|1'},
-			p2a: {top: 90, left: 390, width: 100, height: 100, tooltip: 'activepokemon|1|0'},
-			p1a: {top: 200, left: 130, width: 120, height: 160, tooltip: 'activepokemon|0|0'},
-			p1b: {top: 200, left: 250, width: 150, height: 160, tooltip: 'activepokemon|0|1'},
-			p1c: {top: 200, left: 350, width: 150, height: 160, tooltip: 'activepokemon|0|2'},
+			p2c: { top: 70, left: 250, width: 80, height: 100, tooltip: 'activepokemon|1|2' },
+			p2b: { top: 85, left: 320, width: 90, height: 100, tooltip: 'activepokemon|1|1' },
+			p2a: { top: 90, left: 390, width: 100, height: 100, tooltip: 'activepokemon|1|0' },
+			p1a: { top: 200, left: 130, width: 120, height: 160, tooltip: 'activepokemon|0|0' },
+			p1b: { top: 200, left: 250, width: 150, height: 160, tooltip: 'activepokemon|0|1' },
+			p1c: { top: 200, left: 350, width: 150, height: 160, tooltip: 'activepokemon|0|2' },
 		};
 		for (const id in tooltips) {
 			let layout = tooltips[id as 'p1a'];
@@ -857,26 +865,26 @@ export class BattleScene implements BattleSceneStub {
 				textBuf += pokemon.speciesForme;
 				let url = spriteData.url;
 				// if (this.paused) url.replace('/xyani', '/xy').replace('.gif', '.png');
-				buf += '<img src="' + url + '" width="' + spriteData.w + '" height="' + spriteData.h + '" style="position:absolute;top:' + Math.floor(y - spriteData.h / 2) + 'px;left:' + Math.floor(x - spriteData.w / 2) + 'px" />';
-				buf2 += '<div style="position:absolute;top:' + (y + 45) + 'px;left:' + (x - 40) + 'px;width:80px;font-size:10px;text-align:center;color:#FFF;">';
+				buf += `<img src="${url}" width="${spriteData.w}" height="${spriteData.h}" style="position:absolute;top:${Math.floor(y - spriteData.h / 2)}px;left:${Math.floor(x - spriteData.w / 2)}px" />`;
+				buf2 += `<div style="position:absolute;top:${y + 45}px;left:${x - 40}px;width:80px;font-size:10px;text-align:center;color:#FFF;">`;
 				const gender = pokemon.gender;
 				if (gender === 'M' || gender === 'F') {
 					buf2 += `<img src="${Dex.fxPrefix}gender-${gender.toLowerCase()}.png" alt="${gender}" width="7" height="10" class="pixelated" style="margin-bottom:-1px" /> `;
 				}
 				if (pokemon.level !== 100) {
-					buf2 += '<span style="text-shadow:#000 1px 1px 0,#000 1px -1px 0,#000 -1px 1px 0,#000 -1px -1px 0"><small>L</small>' + pokemon.level + '</span>';
+					buf2 += `<span style="text-shadow:#000 1px 1px 0,#000 1px -1px 0,#000 -1px 1px 0,#000 -1px -1px 0"><small>L</small>${pokemon.level}</span>`;
 				}
 				if (pokemon.item === '(mail)') {
-					buf2 += ' <img src="' + Dex.resourcePrefix + 'fx/mail.png" width="8" height="10" alt="F" style="margin-bottom:-1px" />';
+					buf2 += ` <img src="${Dex.resourcePrefix}fx/mail.png" width="8" height="10" alt="F" style="margin-bottom:-1px" />`;
 				} else if (pokemon.item) {
-					buf2 += ' <img src="' + Dex.resourcePrefix + 'fx/item.png" width="8" height="10" alt="F" style="margin-bottom:-1px" />';
+					buf2 += ` <img src="${Dex.resourcePrefix}fx/item.png" width="8" height="10" alt="F" style="margin-bottom:-1px" />`;
 				}
 				buf2 += '</div>';
 			}
 			side.totalPokemon = side.pokemon.length;
 			if (textBuf) {
 				this.log.addDiv('chat battle-history',
-					'<strong>' + BattleLog.escapeHTML(side.name) + '\'s team:</strong> <em style="color:#445566;display:block;">' + BattleLog.escapeHTML(textBuf) + '</em>'
+					`<strong>${BattleLog.escapeHTML(side.name)}'s team:</strong> <em style="color:#445566;display:block;">${BattleLog.escapeHTML(textBuf)}</em>`
 				);
 			}
 			this.$sprites[spriteIndex].html(buf + buf2);
@@ -912,21 +920,21 @@ export class BattleScene implements BattleSceneStub {
 	}
 
 	pseudoWeatherLeft(pWeather: WeatherState) {
-		let buf = '<br />' + Dex.moves.get(pWeather[0]).name;
+		let buf = `<br />${Dex.moves.get(pWeather[0]).name}`;
 		if (!pWeather[1] && pWeather[2]) {
 			pWeather[1] = pWeather[2];
 			pWeather[2] = 0;
 		}
 		if (this.battle.gen < 7 && this.battle.hardcoreMode) return buf;
 		if (pWeather[2]) {
-			return buf + ' <small>(' + pWeather[1] + ' or ' + pWeather[2] + ' turns)</small>';
+			return `${buf} <small>(${pWeather[1]} or ${pWeather[2]} turns)</small>`;
 		}
 		if (pWeather[1]) {
-			return buf + ' <small>(' + pWeather[1] + ' turn' + (pWeather[1] === 1 ? '' : 's') + ')</small>';
+			return `${buf} <small>(${pWeather[1]} turn${pWeather[1] === 1 ? '' : 's'})</small>`;
 		}
 		return buf; // weather not found
 	}
-	sideConditionLeft(cond: [string, number, number, number], isFoe: boolean, all?: boolean) {
+	sideConditionLeft(cond: Side['sideConditions'][string], isFoe: boolean, all?: boolean) {
 		if (!cond[2] && !cond[3] && !all) return '';
 		let buf = `<br />${isFoe && !all ? "Foe's " : ""}${Dex.moves.get(cond[0]).name}`;
 		if (this.battle.gen < 7 && this.battle.hardcoreMode) return buf;
@@ -937,9 +945,9 @@ export class BattleScene implements BattleSceneStub {
 			cond[3] = 0;
 		}
 		if (!cond[3]) {
-			return buf + ' <small>(' + cond[2] + ' turn' + (cond[2] === 1 ? '' : 's') + ')</small>';
+			return `${buf} <small>(${cond[2]} turn${cond[2] === 1 ? '' : 's'})</small>`;
 		}
-		return buf + ' <small>(' + cond[2] + ' or ' + cond[3] + ' turns)</small>';
+		return `${buf} <small>(${cond[2]} or ${cond[3]} turns)</small>`;
 	}
 	weatherLeft() {
 		if (this.battle.gen < 7 && this.battle.hardcoreMode) return '';
@@ -947,14 +955,14 @@ export class BattleScene implements BattleSceneStub {
 		let weatherhtml = ``;
 
 		if (this.battle.weather) {
-			const weatherNameTable: {[id: string]: string} = {
+			const weatherNameTable: { [id: string]: string } = {
 				sunnyday: 'Sun',
 				desolateland: 'Intense Sun',
 				raindance: 'Rain',
 				primordialsea: 'Heavy Rain',
 				sandstorm: 'Sandstorm',
 				hail: 'Hail',
-				snow: 'Snow',
+				snowscape: 'Snow',
 				deltastream: 'Strong Winds',
 			};
 			weatherhtml = `${weatherNameTable[this.battle.weather] || this.battle.weather}`;
@@ -1026,7 +1034,7 @@ export class BattleScene implements BattleSceneStub {
 			}, this.curWeather ? 300 : 100, () => {
 				this.$weather.html('<em>' + weatherhtml + '</em>');
 				this.$weather.attr('class', weather ? 'weather ' + weather + 'weather' : 'weather');
-				this.$weather.animate({opacity: isIntense || !weather ? 0.9 : 0.5}, 300);
+				this.$weather.animate({ opacity: isIntense || !weather ? 0.9 : 0.5 }, 300);
 			});
 			this.curWeather = weather;
 		} else {
@@ -1039,7 +1047,7 @@ export class BattleScene implements BattleSceneStub {
 				opacity: 0,
 			}, this.curTerrain ? 400 : 1, () => {
 				this.$terrain.attr('class', terrain ? 'weather ' + terrain + 'weather' : 'weather');
-				this.$terrain.animate({top: 0, opacity: 1}, 400);
+				this.$terrain.animate({ top: 0, opacity: 1 }, 400);
 			});
 			this.curTerrain = terrain;
 		}
@@ -1049,7 +1057,7 @@ export class BattleScene implements BattleSceneStub {
 			this.$turn.html('');
 			return;
 		}
-		this.$turn.html('<div class="turn has-tooltip" data-tooltip="field" data-ownheight="1">Turn ' + this.battle.turn + '</div>');
+		this.$turn.html(`<div class="turn has-tooltip" data-tooltip="field" data-ownheight="1">Turn ${this.battle.turn}</div>`);
 	}
 	incrementTurn() {
 		if (!this.animating) return;
@@ -1057,7 +1065,7 @@ export class BattleScene implements BattleSceneStub {
 		const turn = this.battle.turn;
 		if (turn <= 0) return;
 		const $prevTurn = this.$turn.children();
-		const $newTurn = $('<div class="turn has-tooltip" data-tooltip="field" data-ownheight="1">Turn ' + turn + '</div>');
+		const $newTurn = $(`<div class="turn has-tooltip" data-tooltip="field" data-ownheight="1">Turn ${turn}</div>`);
 		$newTurn.css({
 			opacity: 0,
 			left: 160,
@@ -1067,7 +1075,7 @@ export class BattleScene implements BattleSceneStub {
 			opacity: 1,
 			left: 110,
 		}, 500).animate({
-			opacity: .4,
+			opacity: 0.4,
 		}, 1500);
 		$prevTurn.animate({
 			opacity: 0,
@@ -1126,7 +1134,7 @@ export class BattleScene implements BattleSceneStub {
 				yscale: 0,
 				opacity: 0.1,
 			}, this);
-			this.$spritesFront[spriteIndex].append(auroraveil.$el!);
+			this.$spritesFront[spriteIndex].append(auroraveil.$el);
 			this.sideConditions[siden][id] = [auroraveil];
 			auroraveil.anim({
 				opacity: 0.7,
@@ -1146,7 +1154,7 @@ export class BattleScene implements BattleSceneStub {
 				yscale: 0,
 				opacity: 0.1,
 			}, this);
-			this.$spritesFront[spriteIndex].append(reflect.$el!);
+			this.$spritesFront[spriteIndex].append(reflect.$el);
 			this.sideConditions[siden][id] = [reflect];
 			reflect.anim({
 				opacity: 0.7,
@@ -1166,7 +1174,7 @@ export class BattleScene implements BattleSceneStub {
 				yscale: 0,
 				opacity: 0.1,
 			}, this);
-			this.$spritesFront[spriteIndex].append(safeguard.$el!);
+			this.$spritesFront[spriteIndex].append(safeguard.$el);
 			this.sideConditions[siden][id] = [safeguard];
 			safeguard.anim({
 				opacity: 0.7,
@@ -1186,7 +1194,7 @@ export class BattleScene implements BattleSceneStub {
 				yscale: 0,
 				opacity: 0.1,
 			}, this);
-			this.$spritesFront[spriteIndex].append(lightscreen.$el!);
+			this.$spritesFront[spriteIndex].append(lightscreen.$el);
 			this.sideConditions[siden][id] = [lightscreen];
 			lightscreen.anim({
 				opacity: 0.7,
@@ -1206,7 +1214,7 @@ export class BattleScene implements BattleSceneStub {
 				yscale: 0,
 				opacity: 0.1,
 			}, this);
-			this.$spritesFront[spriteIndex].append(mist.$el!);
+			this.$spritesFront[spriteIndex].append(mist.$el);
 			this.sideConditions[siden][id] = [mist];
 			mist.anim({
 				opacity: 0.7,
@@ -1253,10 +1261,10 @@ export class BattleScene implements BattleSceneStub {
 				scale: 0.2,
 			}, this);
 
-			this.$spritesFront[spriteIndex].append(rock1.$el!);
-			this.$spritesFront[spriteIndex].append(rock2.$el!);
-			this.$spritesFront[spriteIndex].append(rock3.$el!);
-			this.$spritesFront[spriteIndex].append(rock4.$el!);
+			this.$spritesFront[spriteIndex].append(rock1.$el);
+			this.$spritesFront[spriteIndex].append(rock2.$el);
+			this.$spritesFront[spriteIndex].append(rock3.$el);
+			this.$spritesFront[spriteIndex].append(rock4.$el);
 			this.sideConditions[siden][id] = [rock1, rock2, rock3, rock4];
 			break;
 		case 'gmaxsteelsurge':
@@ -1285,9 +1293,9 @@ export class BattleScene implements BattleSceneStub {
 				scale: 0.8,
 			}, this);
 
-			this.$spritesFront[spriteIndex].append(surge1.$el!);
-			this.$spritesFront[spriteIndex].append(surge2.$el!);
-			this.$spritesFront[spriteIndex].append(surge3.$el!);
+			this.$spritesFront[spriteIndex].append(surge1.$el);
+			this.$spritesFront[spriteIndex].append(surge2.$el);
+			this.$spritesFront[spriteIndex].append(surge3.$el);
 			this.sideConditions[siden][id] = [surge1, surge2, surge3];
 			break;
 		case 'spikes':
@@ -1305,7 +1313,7 @@ export class BattleScene implements BattleSceneStub {
 					z: side.z,
 					scale: 0.3,
 				}, this);
-				this.$spritesFront[spriteIndex].append(spike1.$el!);
+				this.$spritesFront[spriteIndex].append(spike1.$el);
 				spikeArray.push(spike1);
 			}
 			if (spikeArray.length < 2 && levels >= 2) {
@@ -1314,9 +1322,9 @@ export class BattleScene implements BattleSceneStub {
 					x: x + 30,
 					y: y - 45,
 					z: side.z,
-					scale: .3,
+					scale: 0.3,
 				}, this);
-				this.$spritesFront[spriteIndex].append(spike2.$el!);
+				this.$spritesFront[spriteIndex].append(spike2.$el);
 				spikeArray.push(spike2);
 			}
 			if (spikeArray.length < 3 && levels >= 3) {
@@ -1325,9 +1333,9 @@ export class BattleScene implements BattleSceneStub {
 					x: x + 50,
 					y: y - 40,
 					z: side.z,
-					scale: .3,
+					scale: 0.3,
 				}, this);
-				this.$spritesFront[spriteIndex].append(spike3.$el!);
+				this.$spritesFront[spriteIndex].append(spike3.$el);
 				spikeArray.push(spike3);
 			}
 			break;
@@ -1346,7 +1354,7 @@ export class BattleScene implements BattleSceneStub {
 					z: side.z,
 					scale: 0.3,
 				}, this);
-				this.$spritesFront[spriteIndex].append(tspike1.$el!);
+				this.$spritesFront[spriteIndex].append(tspike1.$el);
 				tspikeArray.push(tspike1);
 			}
 			if (tspikeArray.length < 2 && tspikeLevels >= 2) {
@@ -1355,9 +1363,9 @@ export class BattleScene implements BattleSceneStub {
 					x: x - 15,
 					y: y - 35,
 					z: side.z,
-					scale: .3,
+					scale: 0.3,
 				}, this);
-				this.$spritesFront[spriteIndex].append(tspike2.$el!);
+				this.$spritesFront[spriteIndex].append(tspike2.$el);
 				tspikeArray.push(tspike2);
 			}
 			break;
@@ -1370,7 +1378,7 @@ export class BattleScene implements BattleSceneStub {
 				opacity: 0.4,
 				scale: 0.7,
 			}, this);
-			this.$spritesFront[spriteIndex].append(web.$el!);
+			this.$spritesFront[spriteIndex].append(web.$el);
 			this.sideConditions[siden][id] = [web];
 			break;
 		}
@@ -1395,11 +1403,11 @@ export class BattleScene implements BattleSceneStub {
 
 	typeAnim(pokemon: Pokemon, types: string) {
 		const result = BattleLog.escapeHTML(types).split('/').map(type =>
-			'<img src="' + Dex.resourcePrefix + 'sprites/types/' + encodeURIComponent(type) + '.png" alt="' + type + '" class="pixelated" />'
+			`<img src="${Dex.resourcePrefix}sprites/types/${encodeURIComponent(type)}.png" alt="${type}" class="pixelated" />`
 		).join(' ');
 		this.resultAnim(pokemon, result, 'neutral');
 	}
-	resultAnim(pokemon: Pokemon, result: string, type: 'bad' | 'good' | 'neutral' | StatusName) {
+	resultAnim(pokemon: Pokemon, result: string, type: 'bad' | 'good' | 'neutral' | Dex.StatusName) {
 		if (!this.animating) return;
 		let $effect = $('<div class="result ' + type + 'result"><strong>' + result + '</strong></div>');
 		this.$fx.append($effect);
@@ -1421,7 +1429,7 @@ export class BattleScene implements BattleSceneStub {
 	}
 	abilityActivateAnim(pokemon: Pokemon, result: string) {
 		if (!this.animating) return;
-		this.$fx.append('<div class="result abilityresult"><strong>' + result + '</strong></div>');
+		this.$fx.append(`<div class="result abilityresult"><strong>${result}</strong></div>`);
 		let $effect = this.$fx.children().last();
 		$effect.delay(this.timeOffset).css({
 			display: 'block',
@@ -1455,7 +1463,7 @@ export class BattleScene implements BattleSceneStub {
 		}
 
 		if (damage === '100%' && pokemon.hp > 0) damage = '99%';
-		this.resultAnim(pokemon, this.battle.hardcoreMode ? 'Damage' : '&minus;' + damage, 'bad');
+		this.resultAnim(pokemon, this.battle.hardcoreMode ? 'Damage' : `&minus;${damage}`, 'bad');
 
 		$hp.animate({
 			width: w,
@@ -1478,7 +1486,7 @@ export class BattleScene implements BattleSceneStub {
 			callback = () => { $hp.removeClass('hp-red'); };
 		}
 
-		this.resultAnim(pokemon, this.battle.hardcoreMode ? 'Heal' : '+' + damage, 'good');
+		this.resultAnim(pokemon, this.battle.hardcoreMode ? 'Heal' : `+${damage}`, 'good');
 
 		$hp.animate({
 			width: w,
@@ -1681,7 +1689,7 @@ export class BattleScene implements BattleSceneStub {
 		}
 		this.battle = null!;
 	}
-	static getHPColor(pokemon: {hp: number, maxhp: number}) {
+	static getHPColor(pokemon: { hp: number, maxhp: number }) {
 		let ratio = pokemon.hp / pokemon.maxhp;
 		if (ratio > 0.5) return 'g';
 		if (ratio > 0.2) return 'y';
@@ -1728,7 +1736,7 @@ export class Sprite {
 		if (spriteData) {
 			sp = spriteData;
 			let rawHTML = sp.rawHTML ||
-				'<img src="' + sp.url + '" style="display:none;position:absolute"' + (sp.pixelated ? ' class="pixelated"' : '') + ' />';
+				`<img src="${sp.url!}" style="display:none;position:absolute"${sp.pixelated ? ' class="pixelated"' : ''} />`;
 			this.$el = $(rawHTML);
 		} else {
 			sp = {
@@ -1742,7 +1750,7 @@ export class Sprite {
 		this.x = pos.x;
 		this.y = pos.y;
 		this.z = pos.z;
-		if (pos.opacity !== 0 && spriteData) this.$el!.css(scene.pos(pos, sp));
+		if (pos.opacity !== 0 && spriteData) this.$el.css(scene.pos(pos, sp));
 
 		if (!spriteData) {
 			this.delay = function () { return this; };
@@ -1756,7 +1764,7 @@ export class Sprite {
 		this.scene = null!;
 	}
 	delay(time: number) {
-		this.$el!.delay(time);
+		this.$el.delay(time);
 		return this;
 	}
 	anim(end: ScenePos, transition?: string) {
@@ -1770,17 +1778,17 @@ export class Sprite {
 			...end,
 		};
 		if (end.time === 0) {
-			this.$el!.css(this.scene.pos(end, this.sp));
+			this.$el.css(this.scene.pos(end, this.sp));
 			return this;
 		}
-		this.$el!.animate(this.scene.posT(end, this.sp, transition, this), end.time!);
+		this.$el.animate(this.scene.posT(end, this.sp, transition, this), end.time!);
 		return this;
 	}
 }
 
 export class PokemonSprite extends Sprite {
 	// HTML strings are constructed from this table and stored back in it to cache them
-	protected static statusTable: {[id: string]: [string, 'good' | 'bad' | 'neutral'] | null | string} = {
+	protected static statusTable: { [id: string]: [string, 'good' | 'bad' | 'neutral'] | null | string } = {
 		formechange: null,
 		typechange: null,
 		typeadd: null,
@@ -1917,14 +1925,14 @@ export class PokemonSprite extends Sprite {
 	left = 0;
 	top = 0;
 
-	effects: {[id: string]: Sprite[]} = {};
+	effects: { [id: string]: Sprite[] } = {};
 
 	constructor(spriteData: SpriteData | null, pos: InitScenePos, scene: BattleScene, isFrontSprite: boolean) {
 		super(spriteData, pos, scene);
 		this.cryurl = this.sp.cryurl;
 		this.isFrontSprite = isFrontSprite;
 	}
-	destroy() {
+	override destroy() {
 		if (this.$el) this.$el.remove();
 		this.$el = null!;
 		if (this.$statbar) this.$statbar.remove();
@@ -1934,12 +1942,12 @@ export class PokemonSprite extends Sprite {
 		this.scene = null!;
 	}
 
-	delay(time: number) {
+	override delay(time: number) {
 		this.$el.delay(time);
 		if (this.$sub) this.$sub.delay(time);
 		return this;
 	}
-	anim(end: ScenePos, transition?: string) {
+	override anim(end: ScenePos, transition?: string) {
 		end = {
 			x: this.x,
 			y: this.y,
@@ -1981,7 +1989,7 @@ export class PokemonSprite extends Sprite {
 			x: this.x,
 			y: this.y,
 			z: (this.isSubActive ? this.behind(30) : this.z),
-			opacity: (this.$sub ? .3 : 1),
+			opacity: (this.$sub ? 0.3 : 1),
 		}, sp));
 	}
 	animSub(instant?: boolean, noAnim?: boolean) {
@@ -2039,14 +2047,14 @@ export class PokemonSprite extends Sprite {
 		}, this.subsp!), 500);
 
 		this.$sub = null;
-		this.anim({time: 500});
+		this.anim({ time: 500 });
 		if (this.scene.animating) this.scene.waitFor(this.$el);
 	}
 	beforeMove() {
 		if (!this.scene.animating) return false;
 		if (!this.isSubActive) return false;
 		this.isSubActive = false;
-		this.anim({time: 300});
+		this.anim({ time: 300 });
 		this.$sub!.animate(this.scene.pos({
 			x: this.leftof(-50),
 			y: this.y,
@@ -2078,7 +2086,7 @@ export class PokemonSprite extends Sprite {
 				z: this.behind(30),
 				opacity: 0.3,
 			}, this.sp), 300);
-			this.anim({time: 300});
+			this.anim({ time: 300 });
 		});
 		return false;
 	}
@@ -2124,7 +2132,7 @@ export class PokemonSprite extends Sprite {
 		if (this.$el) {
 			this.$el.stop(true, false);
 			this.$el.remove();
-			const $newEl = $('<img src="' + this.sp.url + '" style="display:none;position:absolute"' + (this.sp.pixelated ? ' class="pixelated"' : '') + ' />');
+			const $newEl = $(`<img src="${this.sp.url!}" style="display:none;position:absolute"${this.sp.pixelated ? ' class="pixelated"' : ''} />`);
 			this.$el = $newEl;
 		}
 
@@ -2160,7 +2168,7 @@ export class PokemonSprite extends Sprite {
 				x: this.x,
 				y: this.y,
 				z: this.behind(30),
-				opacity: .3,
+				opacity: 0.3,
 			}, this.sp));
 			this.$sub.css(this.scene.pos({
 				x: this.x,
@@ -2274,7 +2282,7 @@ export class PokemonSprite extends Sprite {
 			x: this.x,
 			y: this.y + 30,
 			z: this.behind(50),
-			scale: .7,
+			scale: 0.7,
 		}, {
 			opacity: 1,
 			x: this.x,
@@ -2405,7 +2413,7 @@ export class PokemonSprite extends Sprite {
 				left: this.statbarLeft - (this.isFrontSprite ? -100 : 100),
 				opacity: 0,
 			}, 300 / this.scene.acceleration, () => {
-				$statbar!.remove();
+				$statbar.remove();
 			});
 		}
 	}
@@ -2443,7 +2451,7 @@ export class PokemonSprite extends Sprite {
 			x: this.x,
 			y: this.y - 40,
 			z: this.z,
-			scale: .7,
+			scale: 0.7,
 			time: 300 / this.scene.acceleration,
 		}, {
 			opacity: 0,
@@ -2462,7 +2470,7 @@ export class PokemonSprite extends Sprite {
 				left: this.statbarLeft + (this.isFrontSprite ? 50 : -50),
 				opacity: 0,
 			}, 300 / this.scene.acceleration, () => {
-				$statbar!.remove();
+				$statbar.remove();
 			});
 		}
 	}
@@ -2496,7 +2504,7 @@ export class PokemonSprite extends Sprite {
 			$statbar.animate({
 				opacity: 0,
 			}, 300, () => {
-				$statbar!.remove();
+				$statbar.remove();
 			});
 		}
 	}
@@ -2613,7 +2621,7 @@ export class PokemonSprite extends Sprite {
 				opacity: 1,
 				time: 100,
 			}).anim({
-				opacity: .4,
+				opacity: 0.4,
 				time: 300,
 			});
 		}
@@ -2632,32 +2640,32 @@ export class PokemonSprite extends Sprite {
 				x: this.x - 30,
 				y: this.y - 40,
 				z: this.z,
-				scale: .2,
-				opacity: .6,
+				scale: 0.2,
+				opacity: 0.6,
 			};
 			const pos2 = {
 				display: 'block',
 				x: this.x + 40,
 				y: this.y - 35,
 				z: this.z,
-				scale: .2,
-				opacity: .6,
+				scale: 0.2,
+				opacity: 0.6,
 			};
 			const pos3 = {
 				display: 'block',
 				x: this.x + 20,
 				y: this.y - 25,
 				z: this.z,
-				scale: .2,
-				opacity: .6,
+				scale: 0.2,
+				opacity: 0.6,
 			};
 
 			const leechseed1 = new Sprite(BattleEffects.energyball, pos1, this.scene);
 			const leechseed2 = new Sprite(BattleEffects.energyball, pos2, this.scene);
 			const leechseed3 = new Sprite(BattleEffects.energyball, pos3, this.scene);
-			this.scene.$spritesFront[spriten].append(leechseed1.$el!);
-			this.scene.$spritesFront[spriten].append(leechseed2.$el!);
-			this.scene.$spritesFront[spriten].append(leechseed3.$el!);
+			this.scene.$spritesFront[spriten].append(leechseed1.$el);
+			this.scene.$spritesFront[spriten].append(leechseed2.$el);
+			this.scene.$spritesFront[spriten].append(leechseed3.$el);
 			this.effects['leechseed'] = [leechseed1, leechseed2, leechseed3];
 		} else if (id === 'protect' || id === 'magiccoat') {
 			const protect = new Sprite(BattleEffects.protect, {
@@ -2667,15 +2675,15 @@ export class PokemonSprite extends Sprite {
 				z: this.behind(-15),
 				xscale: 1,
 				yscale: 0,
-				opacity: .1,
+				opacity: 0.1,
 			}, this.scene);
-			this.scene.$spritesFront[spriten].append(protect.$el!);
+			this.scene.$spritesFront[spriten].append(protect.$el);
 			this.effects[id] = [protect];
 			protect.anim({
-				opacity: .9,
+				opacity: 0.9,
 				time: instant ? 0 : 400,
 			}).anim({
-				opacity: .4,
+				opacity: 0.4,
 				time: instant ? 0 : 300,
 			});
 		}
@@ -2698,7 +2706,7 @@ export class PokemonSprite extends Sprite {
 	dogarsCheck(pokemon: Pokemon) {
 		if (pokemon.side.isFar) return;
 
-		if (pokemon.speciesForme === 'Koffing' && pokemon.name.match(/dogars/i)) {
+		if (pokemon.speciesForme === 'Koffing' && (/dogars/i.exec(pokemon.name))) {
 			this.scene.setBgm(-1);
 		} else if (this.scene.bgmNum === -1) {
 			this.scene.rollBgm();
@@ -2730,7 +2738,7 @@ export class PokemonSprite extends Sprite {
 		buf += (pokemon.level === 100 ? `` : ` <small>L${pokemon.level}</small>`);
 
 		let symbol = '';
-		if (pokemon.speciesForme.indexOf('-Mega') >= 0) symbol = 'mega';
+		if (pokemon.speciesForme.includes('-Mega')) symbol = 'mega';
 		else if (pokemon.speciesForme === 'Kyogre-Primal') symbol = 'alpha';
 		else if (pokemon.speciesForme === 'Groudon-Primal') symbol = 'omega';
 		if (symbol) {
@@ -2827,7 +2835,7 @@ export class PokemonSprite extends Sprite {
 		}
 		for (const stat in pokemon.boosts) {
 			if (pokemon.boosts[stat]) {
-				status += '<span class="' + pokemon.getBoostType(stat as BoostStatName) + '">' + pokemon.getBoost(stat as BoostStatName) + '</span> ';
+				status += '<span class="' + pokemon.getBoostType(stat as Dex.BoostStatName) + '">' + pokemon.getBoost(stat as Dex.BoostStatName) + '</span> ';
 			}
 		}
 
@@ -2848,7 +2856,7 @@ export class PokemonSprite extends Sprite {
 	private static getEffectTag(id: string) {
 		let effect = PokemonSprite.statusTable[id];
 		if (typeof effect === 'string') return effect;
-		if (effect === null) return PokemonSprite.statusTable[id] = '';
+		if (effect === null) return (PokemonSprite.statusTable[id] = '');
 		if (effect === undefined) {
 			let label = `[[${id}]]`;
 			if (Dex.species.get(id).exists) {
@@ -2859,10 +2867,12 @@ export class PokemonSprite extends Sprite {
 				label = Dex.moves.get(id).name;
 			} else if (Dex.abilities.get(id).exists) {
 				label = Dex.abilities.get(id).name;
+			} else if ((BattleNatures as any)[id.substr(0, 1).toUpperCase() + id.substr(1).toLowerCase()]) {
+				label = id.substr(0, 1).toUpperCase() + id.substr(1).toLowerCase();
 			}
 			effect = [label, 'neutral'];
 		}
-		return PokemonSprite.statusTable[id] = `<span class="${effect[1]}">${effect[0].replace(/ /g, '&nbsp;')}</span> `;
+		return (PokemonSprite.statusTable[id] = `<span class="${effect[1]}">${effect[0].replace(/ /g, '&nbsp;')}</span> `);
 	}
 
 	updateHPText(pokemon: Pokemon) {
@@ -2872,12 +2882,12 @@ export class PokemonSprite extends Sprite {
 		if (pokemon.maxhp === 48 || this.scene.battle.hardcoreMode && pokemon.maxhp === 100) {
 			$hptext.hide();
 			$hptextborder.hide();
-		} else if (this.scene.battle.hardcoreMode) {
-			$hptext.html(pokemon.hp + '/');
+		} else if (this.scene.battle.hardcoreMode || this.scene.battle.reportExactHP) {
+			$hptext.html(`${pokemon.hp}/`);
 			$hptext.show();
 			$hptextborder.show();
 		} else {
-			$hptext.html(pokemon.hpWidth(100) + '%');
+			$hptext.html(`${pokemon.hpWidth(100)}%`);
 			$hptext.show();
 			$hptextborder.show();
 		}
@@ -2891,7 +2901,6 @@ export class PokemonSprite extends Sprite {
 // slp: -webkit-filter:  grayscale(100%);
 // frz: -webkit-filter:  sepia(100%) hue-rotate(154deg) saturate(759%) brightness(23%);
 
-// @ts-ignore
 Object.assign($.easing, {
 	ballisticUp(x: number, t: number, b: number, c: number, d: number) {
 		return -3 * x * x + 4 * x;
@@ -2914,9 +2923,9 @@ interface AnimData {
 	prepareAnim?(scene: BattleScene, args: PokemonSprite[]): void;
 	residualAnim?(scene: BattleScene, args: PokemonSprite[]): void;
 }
-export type AnimTable = {[k: string]: AnimData};
+export type AnimTable = { [k: string]: AnimData };
 
-const BattleEffects: {[k: string]: SpriteData} = {
+const BattleEffects: { [k: string]: SpriteData } = {
 	wisp: {
 		url: 'wisp.png',
 		w: 100, h: 100,
@@ -4260,16 +4269,16 @@ export const BattleOtherAnims: AnimTable = {
 	},
 	shake: {
 		anim(scene, [attacker]) {
-			attacker.anim({x: attacker.x - 10, time: 200});
-			attacker.anim({x: attacker.x + 10, time: 300});
-			attacker.anim({x: attacker.x, time: 200});
+			attacker.anim({ x: attacker.x - 10, time: 200 });
+			attacker.anim({ x: attacker.x + 10, time: 300 });
+			attacker.anim({ x: attacker.x, time: 200 });
 		},
 	},
 	dance: {
 		anim(scene, [attacker]) {
-			attacker.anim({x: attacker.x - 10});
-			attacker.anim({x: attacker.x + 10});
-			attacker.anim({x: attacker.x});
+			attacker.anim({ x: attacker.x - 10 });
+			attacker.anim({ x: attacker.x + 10 });
+			attacker.anim({ x: attacker.x });
 		},
 	},
 	consume: {
@@ -6066,11 +6075,11 @@ export const BattleStatusAnims: AnimTable = {
 		anim(scene, [attacker]) {
 			scene.backgroundEffect('#000000', 700, 0.2);
 			attacker.delay(300);
-			attacker.anim({x: attacker.x - 5, time: 50});
-			attacker.anim({x: attacker.x + 5, time: 50});
-			attacker.anim({x: attacker.x - 5, time: 50});
-			attacker.anim({x: attacker.x + 5, time: 50});
-			attacker.anim({x: attacker.x, time: 50});
+			attacker.anim({ x: attacker.x - 5, time: 50 });
+			attacker.anim({ x: attacker.x + 5, time: 50 });
+			attacker.anim({ x: attacker.x - 5, time: 50 });
+			attacker.anim({ x: attacker.x + 5, time: 50 });
+			attacker.anim({ x: attacker.x, time: 50 });
 
 			scene.showEffect(attacker.sp, {
 				x: attacker.x,
@@ -6166,4 +6175,4 @@ export const BattleStatusAnims: AnimTable = {
 		},
 	},
 };
-BattleStatusAnims['focuspunch'] = {anim: BattleStatusAnims['flinch'].anim};
+BattleStatusAnims['focuspunch'] = { anim: BattleStatusAnims['flinch'].anim };
