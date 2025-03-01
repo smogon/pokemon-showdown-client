@@ -2926,17 +2926,14 @@
 				buf += '</div></div>';
 			}
 
-			console.log(set.movePPUps);
 			for (var i = 0; i <= 3; i++) {
 				buf += '<div class="formrow"><label class="formlabel" title="Move ' + (i + 1) + ' PP Ups">Move ' + (i + 1) + ' PP Ups:</label><div>';
 				var defaultPPUps = toID(set.moves[i]) === 'trumpcard' ? 0 : 3;
 				var movePPUps = defaultPPUps;
 				if (set.movePPUps && !isNaN(set.movePPUps[i])) movePPUps = set.movePPUps[i];
-				console.log(movePPUps);
 				buf += '<select name="move' + i + 'ppups" class="button">';
 				for (var j = 0; j <= 3; j++) {
-					if (movePPUps === j) console.log("match");
-					buf += '<option value="' + j + '" ' + (movePPUps === j ? 'selected' : '') + '>' + j + '</option>'
+					buf += '<option value="' + j + '" ' + (movePPUps === j ? 'selected' : '') + '>' + j + '</option>';
 				}
 				buf += '</select>';
 				buf += '</div></div>';
