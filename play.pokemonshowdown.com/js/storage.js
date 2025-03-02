@@ -942,6 +942,7 @@ Storage.fastUnpackTeam = function (buf) {
 			}
 			i = j + 1;
 		} else {
+			set.movePPUps = [];
 			for (var index = 0; index < set.moves.length; index++) {
 				set.movePPUps[index] = 3;
 			}
@@ -1081,6 +1082,7 @@ Storage.unpackTeam = function (buf) {
 			}
 			i = j + 1;
 		} else {
+			set.movePPUps = [];
 			for (var index = 0; index < set.moves.length; index++) {
 				set.movePPUps[index] = 3;
 			}
