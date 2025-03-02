@@ -340,13 +340,13 @@ class PSServer {
 	prefix = '/showdown';
 	protocol: 'http' | 'https' = Config.defaultserver.httpport ? 'https' : 'http';
 	groups: { [symbol: string]: PSGroup } = {
-		'~': {
-			name: "Administrator (~)",
+		'#': {
+			name: "Room Owner (#)",
 			type: 'leadership',
 			order: 101,
 		},
-		'#': {
-			name: "Room Owner (#)",
+		'~': {
+			name: "Administrator (~)",
 			type: 'leadership',
 			order: 102,
 		},
