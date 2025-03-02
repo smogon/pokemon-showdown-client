@@ -941,6 +941,10 @@ Storage.fastUnpackTeam = function (buf) {
 				if (!set.movePPUps[index]) set.movePPUps[index] = 3;
 			}
 			i = j + 1;
+		} else {
+			for (var index = 0; index < set.moves.length; index++) {
+				set.movePPUps[index] = 3;
+			}
 		}
 
 		// nature
@@ -1076,6 +1080,10 @@ Storage.unpackTeam = function (buf) {
 				if (isNaN(set.movePPUps[index])) set.movePPUps[index] = 3;
 			}
 			i = j + 1;
+		} else {
+			for (var index = 0; index < set.moves.length; index++) {
+				set.movePPUps[index] = 3;
+			}
 		}
 
 		// nature
