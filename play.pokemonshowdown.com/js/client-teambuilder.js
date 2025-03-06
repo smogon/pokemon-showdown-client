@@ -1840,7 +1840,7 @@
 			var $userSetDiv = this.$('.teambuilder-pokemon-import .teambuilder-import-user-sets');
 			$userSetDiv.empty();
 
-			if (smogonFormatSets) {
+			if (smogonFormatSets && smogonFormatSets['dex']) {
 				var smogonSets = $.extend({}, smogonFormatSets['dex'][species], (smogonFormatSets['stats'] || {})[species]);
 				$smogonSetDiv.text('Sample sets: ');
 				for (var set in smogonSets) {
