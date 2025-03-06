@@ -729,6 +729,9 @@ abstract class BattleTypedSearch<T extends SearchType> {
 			results = [...this.baseResults];
 			illegalResults = null;
 		}
+		if (this.defaultFilter) {
+			results = this.defaultFilter(results);
+		}
 
 		if (sortCol) {
 			results = results.filter(([rowType]) => rowType === this.searchType);
@@ -888,6 +891,7 @@ abstract class BattleTypedSearch<T extends SearchType> {
 	abstract getDefaultResults(): SearchRow[];
 	abstract getBaseResults(): SearchRow[];
 	abstract filter(input: SearchRow, filters: string[][]): boolean;
+	defaultFilter?(input: SearchRow[]): SearchRow[];
 	abstract sort(input: SearchRow[], sortCol: string, reverseSort?: boolean): SearchRow[];
 }
 
@@ -1279,6 +1283,8 @@ class BattleItemSearch extends BattleTypedSearch<'item'> {
 			table = table['gen5bw1'];
 		} else if (this.formatType === 'natdex') {
 			table = table[`gen${this.dex.gen}natdex`];
+		} else if (this.formatType?.endsWith('doubles')) { // no natdex/bdsp doubles support
+			table = table[`gen${this.dex.gen}doubles`];
 		} else if (this.formatType === 'metronome') {
 			table = table[`gen${this.dex.gen}metronome`];
 		} else if (this.dex.gen < 9) {
@@ -1300,11 +1306,19 @@ class BattleItemSearch extends BattleTypedSearch<'item'> {
 		const speciesName = this.dex.species.get(this.species).name;
 		const results = this.getDefaultResults();
 		const speciesSpecific: SearchRow[] = [];
+		const abilitySpecific: SearchRow[] = [];
+		const abilityItem = {
+			protosynthesis: 'boosterenergy',
+			quarkdrive: 'boosterenergy',
+			// poisonheal: 'toxicorb',
+			// toxicboost: 'toxicorb',
+			// flareboost: 'flameorb',
+		}[toID(this.set?.ability) as string];
 		for (const row of results) {
 			if (row[0] !== 'item') continue;
-			if (this.dex.items.get(row[1]).itemUser?.includes(speciesName)) {
-				speciesSpecific.push(row);
-			}
+			const item = this.dex.items.get(row[1]);
+			if (item.itemUser?.includes(speciesName)) speciesSpecific.push(row);
+			if (abilityItem === item.id) abilitySpecific.push(row);
 		}
 		if (speciesSpecific.length) {
 			return [
@@ -1313,19 +1327,23 @@ class BattleItemSearch extends BattleTypedSearch<'item'> {
 				...results,
 			];
 		}
+		if (abilitySpecific.length) {
+			return [
+				['header', `Specific to ${this.set!.ability!}`],
+				...abilitySpecific,
+				...results,
+			];
+		}
+		return results;
+	}
+	override defaultFilter(results: SearchRow[]) {
+		if (this.species && !this.dex.species.get(this.species).nfe) {
+			results.splice(results.findIndex(row => row[1] === 'eviolite'), 1);
+			return results;
+		}
 		return results;
 	}
 	filter(row: SearchRow, filters: string[][]) {
-		if (!filters) return true;
-		if (row[0] !== 'ability') return true;
-		const ability = this.dex.abilities.get(row[1]);
-		for (const [filterType, value] of filters) {
-			switch (filterType) {
-			case 'pokemon':
-				if (!Dex.hasAbility(this.dex.species.get(value), ability.name)) return false;
-				break;
-			}
-		}
 		return true;
 	}
 	sort(results: SearchRow[], sortCol: string | null, reverseSort?: boolean): SearchRow[] {

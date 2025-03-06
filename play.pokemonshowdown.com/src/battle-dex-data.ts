@@ -1496,6 +1496,7 @@ export class Species implements Effect {
 	readonly evoMove: string;
 	readonly evoItem: string;
 	readonly evoCondition: string;
+	readonly nfe: boolean;
 	readonly requiredItems: readonly string[];
 	readonly tier: string;
 	readonly isTotem: boolean;
@@ -1550,6 +1551,7 @@ export class Species implements Effect {
 		this.evoMove = data.evoMove || '';
 		this.evoItem = data.evoItem || '';
 		this.evoCondition = data.evoCondition || '';
+		this.nfe = data.nfe || false;
 		this.requiredItems = data.requiredItems || (data.requiredItem ? [data.requiredItem] : []);
 		this.tier = data.tier || '';
 

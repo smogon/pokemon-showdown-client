@@ -2897,6 +2897,14 @@ export class Battle {
 				poke.item = kwArgs.item;
 				poke.itemEffect = 'disturbed';
 				break;
+			case 'symbiosis':
+				poke.item = '';
+				poke.itemEffect = '';
+				poke.prevItem = kwArgs.item;
+				poke.prevItemEffect = 'given away';
+				target!.item = kwArgs.item;
+				target!.itemEffect = 'shared';
+				break;
 			case 'grudge':
 				poke.rememberMove(kwArgs.move, Infinity);
 				break;

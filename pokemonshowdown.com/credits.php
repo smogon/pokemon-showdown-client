@@ -61,7 +61,7 @@ includeHeader();
 				<li><p><strong>Kris Johnson</strong> [dhelmise] <small>&ndash; Development, Art (battle animations)</small></p></li>
 				<li><p><strong>Leonard Craft III</strong> [DaWoblefet] <small>&ndash; Research (game mechanics)</small></p></li>
 				<li><p><strong>Mathieu Dias-Martins</strong> [Marty] <small>&ndash; Research (game mechanics), Development</small></p></li>
-				<li><p><strong>Mia A.</strong> [Hecate] <small>&ndash; Development</small></p></li>
+				<li><p><strong>Mia H.</strong> [Hecate] <small>&ndash; Development</small></p></li>
 			</ul>
 
 			<h2><span>Retired Staff</span></h2>
