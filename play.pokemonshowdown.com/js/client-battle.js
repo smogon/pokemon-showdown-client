@@ -1064,6 +1064,9 @@
 					case 'shift':
 						buf += myPokemon[i].speciesForme + ' will shift position.<br />';
 						break;
+					case 'fight':
+						buf += myPokemon[i].speciesForme + ' is locked into a move.<br />';
+						break;
 					}
 				}
 			}
@@ -1305,7 +1308,7 @@
 			this.tooltips.hideTooltip();
 
 			// TODO?: change this action
-			this.choice.choices.push('move fight');
+			this.choice.choices.push('fight');
 			this.endChoice();
 		},
 		chooseShift: function () {
