@@ -1308,7 +1308,7 @@
 			this.tooltips.hideTooltip();
 
 			// TODO?: change this action
-			this.choice.choices.push('fight');
+			this.choice.choices.push('testfight');
 			this.endChoice();
 		},
 		chooseShift: function () {
