@@ -1064,7 +1064,7 @@
 					case 'shift':
 						buf += myPokemon[i].speciesForme + ' will shift position.<br />';
 						break;
-					case 'fight':
+					case 'testfight':
 						buf += myPokemon[i].speciesForme + ' is locked into a move.<br />';
 						break;
 					}
