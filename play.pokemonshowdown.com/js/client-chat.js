@@ -1101,15 +1101,14 @@
 				return text;
 
 			case 'avatar':
-				if (this.checkBroadcast(cmd, text)) return false;
 				var parts = target.split(',');
 				var avatar = parts[0].toLowerCase().replace(/[^a-z0-9-]+/g, '');
 				// Replace avatar number with name before sending it to the server, only the client knows what to do with the numbers
 				if (window.BattleAvatarNumbers && Object.prototype.hasOwnProperty.call(window.BattleAvatarNumbers, avatar)) {
 					avatar = window.BattleAvatarNumbers[avatar];
 				}
-				Storage.prefs('avatar', avatar);
-				return '/avatar ' + avatar; // Send the command through to the server.
+				if (text.startsWith('/')) Storage.prefs('avatar', avatar);
+				return text.charAt(0) + 'avatar ' + avatar; // Send the command through to the server.
 
 			case 'afd':
 				if (this.checkBroadcast(cmd, text)) return false;
