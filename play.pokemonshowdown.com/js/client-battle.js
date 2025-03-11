@@ -683,9 +683,9 @@
 					var moveType = this.tooltips.getMoveType(move, typeValueTracker)[0];
 					var tooltipArgs = 'move|' + moveData.move + '|' + pos;
 					if (moveData.disabled) {
-						movebuttons += '<button disabled class="has-tooltip" data-tooltip="' + BattleLog.escapeHTML(tooltipArgs) + '">';
+						movebuttons += '<button disabled class="movebutton has-tooltip" data-tooltip="' + BattleLog.escapeHTML(tooltipArgs) + '">';
 					} else {
-						movebuttons += '<button class="type-' + moveType + ' has-tooltip" name="chooseMove" value="' + (i + 1) + '" data-move="' + BattleLog.escapeHTML(moveData.move) + '" data-target="' + BattleLog.escapeHTML(moveData.target) + '" data-tooltip="' + BattleLog.escapeHTML(tooltipArgs) + '">';
+						movebuttons += '<button class="movebutton type-' + moveType + ' has-tooltip" name="chooseMove" value="' + (i + 1) + '" data-move="' + BattleLog.escapeHTML(moveData.move) + '" data-target="' + BattleLog.escapeHTML(moveData.target) + '" data-tooltip="' + BattleLog.escapeHTML(tooltipArgs) + '">';
 						hasMoves = true;
 					}
 					movebuttons += name + '<br /><small class="type">' + (moveType ? Dex.types.get(moveType).name : "Unknown") + '</small> <small class="pp">' + pp + '</small>&nbsp;</button> ';
@@ -714,7 +714,7 @@
 								var tooltipArgs = classType + 'move|' + baseMove.id + '|' + pos;
 								if (specialMove.id.startsWith('gmax')) tooltipArgs += '|' + specialMove.id;
 								var isDisabled = specialMoves[i].disabled ? 'disabled="disabled"' : '';
-								movebuttons += '<button ' + isDisabled + ' class="type-' + moveType + ' has-tooltip" name="chooseMove" value="' + (i + 1) + '" data-move="' + BattleLog.escapeHTML(specialMoves[i].move) + '" data-target="' + BattleLog.escapeHTML(specialMoves[i].target) + '" data-tooltip="' + BattleLog.escapeHTML(tooltipArgs) + '">';
+								movebuttons += '<button ' + isDisabled + ' class="movebutton type-' + moveType + ' has-tooltip" name="chooseMove" value="' + (i + 1) + '" data-move="' + BattleLog.escapeHTML(specialMoves[i].move) + '" data-target="' + BattleLog.escapeHTML(specialMoves[i].target) + '" data-tooltip="' + BattleLog.escapeHTML(tooltipArgs) + '">';
 								var pp = curActive.moves[i].pp + '/' + curActive.moves[i].maxpp;
 								if (canZMove) {
 									pp = '1/1';
@@ -749,11 +749,10 @@
 					moveMenu += '<br /><label class="megaevo"><input type="checkbox" name="terastallize" />&nbsp;Terastallize<br />' + Dex.getTypeIcon(canTerastallize) + '</label>';
 				}
 				if (this.finalDecisionMove) {
-					moveMenu += '<em style="display:block;clear:both">You <strong>might</strong> have some moves disabled, so you won\'t be able to cancel an attack!</em><br/>';
+					moveMenu += '<em class="movewarning">You <strong>might</strong> have some moves disabled, so you won\'t be able to cancel an attack!</em>';
 				}
 				if (curActive.maybeLocked) {
-					moveMenu += '<em style="display:block;clear:both">You <strong>might</strong> be locked into a move.</em><br/>';
-					moveMenu += '<button class="button" name="chooseFight">Check for Lock</button> (You won\'t be able to switch if locked.)<br/>';
+					moveMenu += '<em class="movewarning">You <strong>might</strong> be locked into a move. <button class="button" name="chooseFight">Try Fight button</button> (prevents switching if you\'re locked)</em>';
 				}
 				moveMenu += '<div style="clear:left"></div>';
 
@@ -781,7 +780,7 @@
 				} else {
 					switchMenu += this.displayParty(switchables, trapped);
 					if (this.finalDecisionSwitch && this.battle.gen > 2) {
-						switchMenu += '<em style="display:block;clear:both">You <strong>might</strong> be trapped, so you won\'t be able to cancel a switch!</em><br/>';
+						switchMenu += '<em class="movewarning">You <strong>might</strong> be trapped, so you won\'t be able to cancel a switch!</em>';
 					}
 				}
 				var switchControls = (
