@@ -1696,7 +1696,7 @@ a.ilink.yours {
 	background: #009AA4;
 }
 
-.movemenu button {
+.movebutton {
 	float: left;
 	display: block;
 	width: 155px;
@@ -1706,15 +1706,15 @@ a.ilink.yours {
 	position: relative;
 	padding:  6px 4px 0 4px;
 }
-.movemenu button small {
+.movebutton small {
 	color: #777777;
 }
-.movemenu button small.type {
+.movebutton small.type {
 	padding-top: 3px;
 	float: left;
 	font-size: 8pt;
 }
-.movemenu button small.pp {
+.movebutton small.pp {
 	padding-top: 2px;
 	float: right;
 	font-size: 8pt;
@@ -1757,7 +1757,7 @@ a.ilink.yours {
 	padding-left: 4px;
 }
 .switchmenu button,
-.movemenu button {
+.movebutton {
 	position: relative;
 	outline: none;
 	text-align: center;
@@ -1774,21 +1774,21 @@ a.ilink.yours {
 	background: linear-gradient(to bottom,  #f6f6f6,  #e3e3e3);
 }
 .switchmenu button:hover,
-.movemenu button:hover {
+.movebutton:hover {
 	background: #cfcfcf;
 	background: linear-gradient(to bottom,  #f2f2f2,  #cfcfcf);
 	border-color: #606060;
 }
 .switchmenu button:active,
-.movemenu button:active,
+.movebutton:active,
 .switchmenu button.pressed,
-.movemenu button.pressed {
+.movebutton.pressed {
 	background: linear-gradient(to bottom,  #cfcfcf,  #f2f2f2);
 }
 
 .switchmenu button.disabled,
 .switchmenu button:disabled,
-.movemenu button:disabled {
+.movebutton:disabled {
 	cursor: default;
 	background: #F3F3F3 !important;
 	border-color: #CCCCCC !important;
