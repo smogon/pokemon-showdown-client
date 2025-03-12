@@ -387,8 +387,11 @@ export class GlickoPlayer {
 
 		// Follow along the steps using: http://www.glicko.net/glicko/glicko.pdf
 
+		let RD = Math.sqrt((this.rd * this.rd) + (this.c * this.c));
+		if (RD > this.RDmax) {
+			RD = this.RDmax;
+		}
 		if (m.length === 0) {
-			const RD = Math.sqrt((this.rd * this.rd) + (this.c * this.c));
 			return { R: this.rating, RD };
 		}
 
@@ -405,7 +408,7 @@ export class GlickoPlayer {
 
 		d2 = 1.0 / this.q / this.q / d2;
 
-		let RD = 1.0 / Math.sqrt(1.0 / (this.rd * this.rd) + 1.0 / d2);
+		RD = 1.0 / Math.sqrt(1.0 / (RD * RD) + 1.0 / d2);
 		const R = this.rating + this.q * (RD * RD) * A;
 
 		if (RD > this.RDmax) {
