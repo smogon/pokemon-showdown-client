@@ -811,9 +811,10 @@ Storage.packTeam = function (team) {
 			moves += (j ? ',' : '') + moveid;
 			if (moveid.substr(0, 11) === 'hiddenpower' && moveid.length > 11) hasHP = true;
 			PPUps += (j ? ',' : ';');
-			var defaultPPUps = toID(set.moves[j]) === 'trumpcard' ? 0 : 3;
-			if (set.movePPUps && (set.movePPUps[j] ?? defaultPPUps) !== defaultPPUps) {
-				PPUps += set.movePPUps[j].toString();
+			if (set.movePPUps) {
+				var defaultPPUps = toID(set.moves[j]) === 'trumpcard' ? 0 : 3;
+				var PPUp = isNaN(set.movePPUps[j]) ? defaultPPUps : set.movePPUps[j];
+				if (PPUp !== defaultPPUps) PPUps += set.movePPUps[j].toString();
 			}
 		}
 		if (PPUps.length === set.moves.length) PPUps = '';
