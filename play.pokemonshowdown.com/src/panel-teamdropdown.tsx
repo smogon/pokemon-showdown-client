@@ -33,24 +33,21 @@ export class PSTeambuilder {
 			id = toID(set.ability);
 			buf += `|${id || '-'}`;
 
-			// moves
-			buf += '|';
-			if (set.moves) {
-				for (let j = 0; j < set.moves.length; j++) {
-					let moveid = toID(set.moves[j]);
-					if (j && !moveid) continue;
-					buf += `${j ? ',' : ''}${moveid}`;
-					if (moveid.substr(0, 11) === 'hiddenpower' && moveid.length > 11) {
-						hasHP = moveid.slice(11);
-					}
+			// moves and PP Ups
+			let moves = '|';
+			let PPUps = '';
+			if (set.moves) for (let j = 0; j < set.moves.length; j++) {
+				const moveid = toID(set.moves[j]);
+				if (j && !moveid) continue;
+				moves += (j ? ',' : '') + moveid;
+				PPUps += (j ? ',' : ';');
+				const defaultPPUps = toID(set.moves[j]) === 'trumpcard' ? 0 : 3;
+				if (set.movePPUps && (set.movePPUps[j] ?? defaultPPUps) !== defaultPPUps) {
+					PPUps += set.movePPUps[j].toString();
 				}
 			}
-
-			if (set.movePPUps?.some(n => n < 3)) {
-				buf += ';' + set.movePPUps.map(
-					n => n === 3 ? '' : `${n}`
-				).join(',');
-			}
+			if (PPUps.length === set.moves.length) PPUps = '';
+			buf += moves + PPUps;
 
 			// nature
 			buf += `|${set.nature || ''}`;
@@ -146,10 +143,12 @@ export class PSTeambuilder {
 			);
 
 			if (PPUps) {
-				set.movePPUps = PPUps.split(',').map(n => {
-					if (!n) return 3;
-					return parseInt(n, 10);
-				});
+				const movePPUps = PPUps.split(',');
+				for (let i = 0; i < set.moves.length; i++) {
+					const defaultPPUps = toID(set.moves[i]) === 'trumpcard' ? 0 : 3;
+					if (!set.movePPUps) set.movePPUps = [];
+					set.movePPUps.push(movePPUps[i] ? parseInt(movePPUps[i]) : defaultPPUps);
+				}
 			}
 
 			// nature
@@ -239,8 +238,9 @@ export class PSTeambuilder {
 					move = move.slice(0, 13);
 					move = `${move}[${hpType}]`;
 				}
-				if (set.movePPUps && !isNaN(set.movePPUps[i]) && set.movePPUps[i] < 3) {
-					PPUps = ` (PP Ups: ${set.movePPUps[i]})`;
+				const defaultPPUps = toID(move) === 'trumpcard' ? 0 : 3;
+				if ((set.movePPUps?.[i] ?? defaultPPUps) !== defaultPPUps) {
+					PPUps = ` (PP Ups: ${set.movePPUps![i]})`;
 				}
 				if (move) {
 					text += `- ${move}${PPUps}  \n`;
@@ -420,7 +420,8 @@ export class PSTeambuilder {
 				}
 			}
 			if (!set.movePPUps) set.movePPUps = [];
-			set.movePPUps.push(parseInt(PPUps?.charAt(0), 10) || 3);
+			const defaultPPUps = toID(move) === 'trumpcard' ? 0 : 3;
+			set.movePPUps.push(parseInt(PPUps?.charAt(0)) ?? defaultPPUps);
 			if (line === 'Frustration' && set.happiness === undefined) {
 				set.happiness = 0;
 			}
