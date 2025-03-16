@@ -385,6 +385,10 @@ export class BattleTextParser {
 	}
 
 	lineSection(args: Args, kwArgs: KWArgs) {
+		if (kwArgs.premajor) return 'preMajor';
+		if (kwArgs.postmajor) return 'postMajor';
+		if (kwArgs.major) return 'major';
+
 		const cmd = args[0];
 		switch (cmd) {
 		case 'done' : case 'turn':
