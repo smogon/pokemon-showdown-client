@@ -28,14 +28,14 @@ $formats = array(
 	'gen9pu' => 'PU',
 	'gen9lc' => 'Little Cup',
 	'gen9monotype' => 'Monotype',
-	'gen9bssregh' => 'Battle Stadium Singles Regulation H',
+	'gen9bssregg' => 'Battle Stadium Singles Regulation G',
 	'gen9anythinggoes' => 'Anything Goes',
 	'gen9zu' => 'ZeroUsed',
 	'gen91v1' => '1v1',
 	'gen9cap' => 'CAP',
 	'gen9randomdoublesbattle' => 'Random Doubles Battle',
 	'gen9doublesou' => 'Doubles OU',
-	'gen9vgc2024regh' => 'VGC 2024 Regulation H',
+	'gen9vgc2025regg' => 'VGC 2025 Regulation G',
 	'gen9almostanyability' => 'Almost Any Ability',
 	'gen9balancedhackmons' => 'Balanced Hackmons',
 	'gen9godlygift' => 'Godly Gift',
@@ -123,14 +123,14 @@ if (!$formatid) {
 			<li><a data-target="push" class="button nav-first" href="/ladder/gen91v1">1v1</a></li>
 			<li><a data-target="push" class="button" href="/ladder/gen9anythinggoes">Anything Goes</a></li>
 			<li><a data-target="push" class="button" href="/ladder/gen9zu">ZeroUsed</a></li>
-			<li><a data-target="push" class="button" href="/ladder/gen9bssregh">Battle Stadium Singles Regulation H</a></li>
+			<li><a data-target="push" class="button" href="/ladder/gen9bssregg">Battle Stadium Singles Regulation H</a></li>
 			<li><a data-target="push" class="button nav-last" href="/ladder/gen9cap">CAP</a></li>
 		</ul>
 		<ul class="laddernav">
 			<li><a data-target="push" class="button nav-first" href="/ladder/gen9randomdoublesbattle">Random Doubles Battle</a></li>
 			<li><a data-target="push" class="button" href="/ladder/gen9doublesou">Doubles OU</a></li>
-			<li><a data-target="push" class="button" href="/ladder/gen9vgc2024regh">VGC 2024 Regulation H</a></li>
-			<li><a data-target="push" class="button nav-last" href="/ladder/gen9vgc2024reghbo3">VGC 2024 Regulation H (Bo3)</a></li>
+			<li><a data-target="push" class="button" href="/ladder/gen9vgc2025regg">VGC 2025 Regulation G</a></li>
+			<li><a data-target="push" class="button nav-last" href="/ladder/gen9vgc2025reggbo3">VGC 2025 Regulation G (Bo3)</a></li>
 		</ul>
 		<ul class="laddernav">
 			<li><a data-target="push" class="button nav-first" href="/ladder/gen9almostanyability">Almost Any Ability</a></li>
