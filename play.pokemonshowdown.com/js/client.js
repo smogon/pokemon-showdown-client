@@ -3038,7 +3038,7 @@ function toId() {
 				'<p><b>2.</b> Follow US laws (PS is based in the US). No porn (minors use PS), don\'t distribute pirated material, and don\'t slander others.</p>' +
 				'<p><b>3.</b>&nbsp;No sex. Don\'t discuss anything sexually explicit, not even in private messages, not even if you\'re both adults.</p>' +
 				'<p><b>4.</b>&nbsp;No cheating. Don\'t exploit bugs to gain an unfair advantage. Don\'t game the system (by intentionally losing against yourself or a friend in a ladder match, by timerstalling, etc). Don\'t impersonate staff if you\'re not.</p>' +
-				'<p><b>5.</b> Moderators have discretion to punish any behaviour they deem inappropriate, whether or not it\'s on this list. If you disagree with a moderator ruling, appeal to an administrator (a user with &amp; next to their name) or <a href=\'https://pokemonshowdown.com/appeal\'>Discipline Appeals</a>.</p>' +
+				'<p><b>5.</b> Moderators have discretion to punish any behaviour they deem inappropriate, whether or not it\'s on this list. If you disagree with a moderator ruling, appeal to an administrator (a user with ~ next to their name) or <a href=\'https://pokemonshowdown.com/appeal\'>Discipline Appeals</a>.</p>' +
 				'<p>(Note: The First Amendment does not apply to PS, since PS is not a government organization.)</p>' +
 				'<p><b>Chat</b></p>' +
 				'<p><b>1.</b> Do not spam, flame, or troll. This includes advertising, raiding, asking questions with one-word answers in the lobby, and flooding the chat such as by copy/pasting logs in the lobby.</p>' +
@@ -3050,7 +3050,7 @@ function toId() {
 			if (!warning) {
 				buf += '<p><b>Usernames</b></p>' +
 					'<p>Your username can be chosen and changed at any time. Keep in mind:</p>' +
-					'<p><b>1.</b> Usernames may not impersonate a recognized user (a user with %, @, #, or &amp; next to their name) or a famous person/organization that uses PS or is associated with Pokémon.</p>' +
+					'<p><b>1.</b> Usernames may not impersonate a recognized user (a user with %, @, #, or ~ next to their name) or a famous person/organization that uses PS or is associated with Pokémon.</p>' +
 					'<p><b>2.</b> Usernames may not be derogatory or insulting in nature, to an individual or group (insulting yourself is okay as long as it\'s not too serious).</p>' +
 					'<p><b>3.</b> Usernames may not directly reference sexual activity, or be excessively disgusting.</p>' +
 					'<p>This policy is less restrictive than that of many places, so you might see some "borderline" nicknames that might not be accepted elsewhere. You might consider it unfair that they are allowed to keep their nickname. The fact remains that their nickname follows the above rules, and if you were asked to choose a new name, yours does not.</p>';
