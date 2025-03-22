@@ -1991,6 +1991,7 @@ export class Battle {
 			if (poke) {
 				this.scene.resultAnim(poke, 'Super-effective', 'bad');
 				if (window.Config?.server?.afd) {
+					// April Fool's 2018
 					this.scene.runOtherAnim('hitmark' as ID, [poke]);
 				}
 			}
