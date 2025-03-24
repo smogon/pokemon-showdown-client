@@ -515,7 +515,7 @@ export class BattleLog {
 				messageFromArgs(args, kwArgs);
 				const dadJokes = [
 					"This should be a Fire-type move, because I'm spitting flames.",
-					"Why didn't Vigoroth evolve? Because it was Slaking on its training!"
+					"Why didn't Vigoroth evolve? Because it was Slaking on its training!",
 					"I'm going snowwhere fast!",
 					"Don't Slack Off if you wanna beat me!",
 					"Where do you buy toys for a Ground-type? Land-R-Us!",
