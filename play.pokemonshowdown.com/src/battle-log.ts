@@ -342,12 +342,12 @@ export class BattleLog {
 			break;
 
 		default:
+			if (this.addAFDMessage(args, kwArgs)) return;
 			const line = this.battleParser?.parseArgs(args, kwArgs || {}, true) ?? null;
 			if (line === null) {
 				this.addDiv('chat message-error', 'Unrecognized: |' + BattleLog.escapeHTML(args.join('|')));
 				return;
 			}
-			if (this.addAFDMessage(args, kwArgs)) return;
 			if (line) this.messageFromLog(line);
 			break;
 		}
@@ -357,9 +357,8 @@ export class BattleLog {
 		if (!this.battleParser || !this.scene) return;
 
 		// return true to skip the default message
-		let line = '';
-		const messageFromArgs = (args1: Args, kwArgs1: KWArgs = {}) => {
-			this.messageFromLog(this.battleParser!.parseArgs(args1, kwArgs1));
+		const messageFromArgs = (args1: Args, kwArgs1: KWArgs = {}, noSectionBreak?: boolean) => {
+			this.messageFromLog(this.battleParser!.parseArgs(args1, kwArgs1, noSectionBreak));
 		};
 
 		if (args[0] === 'faint') {
@@ -425,9 +424,14 @@ export class BattleLog {
 					"Yo mama so dumb, she thought Sylveon would be Light Type!",
 				];
 				const battle = this.scene.battle;
-				// make sure it's not the same quote every time
-				const quote = quotes[(battle.p1.name.charCodeAt(2) + battle.p2.name.charCodeAt(2) + battle.turn) % quotes.length];
-				this.messageFromLog(`${this.battleParser.pokemon(args[1])} said, "${quote}"`);
+				// make sure it's the same joke for both players (and spectators)
+				const quote = quotes[(
+					(battle.p1.name.charCodeAt(2) || 0) + (battle.p2.name.charCodeAt(2) || 0) * 19 +
+					(battle.p1.name.charCodeAt(3) || 0) * 61 + (battle.p2.name.charCodeAt(3) || 0) +
+					battle.turn + (args[1].charCodeAt(1) || 0) * 109 + (args[1].charCodeAt(2) || 0) * 113
+				) % quotes.length];
+				this.messageFromLog(this.battleParser.fixLowercase(`${this.battleParser.pokemon(args[1])} said, "${quote}"`));
+				this.scene.wait(2 * this.scene.battle.messageFadeTime / this.scene.acceleration);
 				return true;
 			// } else if (move.id === 'metronome' || move.id === 'sleeptalk' || move.id === 'assist') {
 			// 	// April Fool's 2014 - NOT UPDATED TO NEW BATTLE LOG
@@ -460,7 +464,7 @@ export class BattleLog {
 				return true;
 			}
 		}
-		if (line) this.messageFromLog(line);
+		return false;
 	}
 	messageFromLog(line: string) {
 		this.message(...this.parseLogMessage(line));
@@ -482,7 +486,6 @@ export class BattleLog {
 			message += `${list[i]}, `;
 		}
 		return `${message}and ${list[list.length - 1]}`;
-		return message;
 	}
 	/**
 	 * To avoid trolling with nicknames, we can't just run this through
