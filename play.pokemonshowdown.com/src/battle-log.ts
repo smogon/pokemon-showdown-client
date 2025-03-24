@@ -479,7 +479,8 @@ export class BattleLog {
 					battle.turn + (args[1].charCodeAt(1) || 0) * 109 + (args[1].charCodeAt(2) || 0) * 113
 				) % quotes.length];
 				this.messageFromLog(this.battleParser.fixLowercase(`${this.battleParser.pokemon(args[1])} said, "${quote}"`));
-				this.scene.wait(2 * this.scene.battle.messageFadeTime / this.scene.acceleration);
+				// give time to read
+				this.scene.wait(3 * this.scene.battle.messageFadeTime / this.scene.acceleration);
 				return true;
 			// } else if (move.id === 'metronome' || move.id === 'sleeptalk' || move.id === 'assist') {
 			// 	// April Fool's 2014 - NOT UPDATED TO NEW BATTLE LOG
@@ -510,9 +511,11 @@ export class BattleLog {
 				// April Fool's 2018
 				messageFromArgs(['move', args[1], 'Tsubame Gaeshi']);
 				return true;
-			} else if (moveid === 'chillyreception') {
+			}
+		} else if (args[0] === '-prepare') {
+			const moveid = toID(args[2]);
+			if (moveid === 'chillyreception') {
 				// April Fool's 2025
-				messageFromArgs(args, kwArgs);
 				const dadJokes = [
 					"This should be a Fire-type move, because I'm spitting flames.",
 					"Why didn't Vigoroth evolve? Because it was Slaking on its training!",
@@ -836,9 +839,16 @@ export class BattleLog {
 					"Does Gen 1 have a Pokémon missing? No!",
 				];
 				const battle = this.scene.battle;
-				// make sure it's not the same joke every time
-				const joke = dadJokes[(battle.p1.name.charCodeAt(2) + battle.p2.name.charCodeAt(2) + battle.turn) % dadJokes.length];
-				this.messageFromLog(`${this.battleParser.pokemon(args[1])} said, "${joke}"`);
+				// make sure it's the same joke for both players (and spectators)
+				const joke = dadJokes[(
+					(battle.p1.name.charCodeAt(2) || 0) + (battle.p2.name.charCodeAt(2) || 0) * 19 +
+					(battle.p1.name.charCodeAt(3) || 0) * 61 + (battle.p2.name.charCodeAt(3) || 0) +
+					battle.turn + (args[1].charCodeAt(1) || 0) * 109 + (args[1].charCodeAt(2) || 0) * 113
+				) % dadJokes.length];
+				messageFromArgs(args, kwArgs);
+				this.messageFromLog(`"${joke}"`);
+				// give time to read
+				this.scene.wait(3 * this.scene.battle.messageFadeTime / this.scene.acceleration);
 				return true;
 			}
 		}
