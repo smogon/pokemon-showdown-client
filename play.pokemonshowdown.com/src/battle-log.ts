@@ -445,7 +445,7 @@ export class BattleLog {
 					"Yo Mama so fat, she changes type when holding a Dinner Plate!",
 					"Yo Mama so slow, even Trick Room won't let her go first!",
 					"Yo Mama so dumb, not even Gummis can raise her IQ!",
-					"Show me your moves!"
+					"Show me your moves!",
 					"Yo Mama so nasty, thinking about her gives a +2 Special Attack boost!",
 					"Yo Mama so broke, her deck has no energy cards so she can save on electricity!",
 					"Yo Mama so dumb, she tried using Twitch Plays Pokemon as a walkthrough guide!",
