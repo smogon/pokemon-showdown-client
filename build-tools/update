@@ -186,14 +186,20 @@ let stdout = '';
 let newsid = 0;
 let news = '[failed to retrieve news]';
 try {
-	stdout = child_process.execSync('php ' + path.resolve(thisDir, 'news-embed.php'));
+	stdout = child_process.execSync('php ' + path.resolve(thisDir, 'news-embed.php'), {
+		stdio: 'pipe',
+	});
 } catch (e) {
 	console.log("git hook failed to retrieve news (exec command failed):\n" + (e.error + e.stderr + e.stdout));
 }
 try {
 	if (stdout) [newsid, news] = JSON.parse(stdout);
 } catch (e) {
-	console.log("git hook failed to retrieve news (parsing JSON failed):\n" + e.stack);
+	if (stdout.includes("config/news.inc.php): Failed to open stream: No such file or directory")) {
+		console.log("news.inc.php unavailable");
+	} else {
+		console.log("git hook failed to retrieve news (parsing JSON failed):\n\n" + e.message + '\n\n' + stdout);
+	}
 }
 
 indexContents = indexContents.replace(/<!-- newsid -->/g, newsid);
