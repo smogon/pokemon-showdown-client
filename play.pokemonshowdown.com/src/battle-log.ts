@@ -526,7 +526,7 @@ export class BattleLog {
 					"Why did the Slowking cross the road?",
 					"What's the best Pokemon to get rid of bugs? Flygone!",
 					"What's the best Pokemon to get rid of bugs? Heatmor. What, were you expecting a pun?",
-					"I guess you could call Heatmor and Ant-heater.",
+					"I guess you could call Heatmor an Ant-heater.",
 					"Why do they call it Enamor-us when you can only have one of them on a team?",
 					"Cloyster? I hardly know 'er!",
 					"Why do they call Shedinja invincible when I can still see it?",
