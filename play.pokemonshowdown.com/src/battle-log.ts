@@ -541,7 +541,7 @@ export class BattleLog {
 					"Baxcalibur? I hardly know 'er!",
 					"Why do they call it Kyurem when it doesn't heal anybody?",
 					"Conkeldurr? I hardly know 'er!",
-					"Weavile? No, i don't think we are.",
+					"Weavile? No, I don't think we are.",
 					"Dragapult? Doesn't seem very efficient, don't they usually have wheels?",
 					"Dragonite? Sounds like it'd be hard with all that heavy armor.",
 					"How do you play whack-a-mole with a Fighting-type? Hit 'm on top!",
