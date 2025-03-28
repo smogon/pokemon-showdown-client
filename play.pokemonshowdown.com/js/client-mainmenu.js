@@ -661,7 +661,7 @@
 		},
 
 		clickDatasearchResults: function (e) {
-			if ($(e.target).href) return;
+			if ($(e.target)[0].href) return;
 			var target = $(e.currentTarget).closest('[class=datasearch]')[0];
 			var button = target.querySelector('button');
 			var results = target.querySelectorAll('[class=datasearch-body]');
