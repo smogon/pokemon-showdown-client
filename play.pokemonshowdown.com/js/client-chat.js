@@ -117,7 +117,9 @@
 			var results = target.querySelectorAll('[class=datasearch-body]');
 			if (!button || !results || results.length < 2) return;
 			button.innerHTML = button.innerHTML === '[-]' ? '[+]' : '[-]';
-			for (body of results) body.style.display = body.style.display === 'none' ? 'block' : 'none';
+			for (var i = 0; i < results.length; i++) {
+				results[i].style.display = results[i].style.display === 'none' ? 'block' : 'none';
+			}
 		},
 
 		login: function () {
