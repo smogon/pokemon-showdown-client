@@ -12,6 +12,7 @@
 			if (!this.events['focus textarea']) this.events['focus textarea'] = 'focusText';
 			if (!this.events['blur textarea']) this.events['blur textarea'] = 'blurText';
 			if (!this.events['click .spoiler']) this.events['click .spoiler'] = 'clickSpoiler';
+			if (!this.events['click .datasearch']) this.events['click .datasearch'] = 'clickDatasearchResults';
 			if (!this.events['click .message-pm i']) this.events['click .message-pm i'] = 'openPM';
 
 			this.initializeTabComplete();
@@ -107,6 +108,18 @@
 		},
 		clickSpoiler: function (e) {
 			$(e.currentTarget).toggleClass('spoiler-shown');
+		},
+
+		clickDatasearchResults: function (e) {
+			if ($(e.target)[0].href) return;
+			var target = $(e.currentTarget).closest('[class=datasearch]')[0];
+			var button = target.querySelector('button');
+			var results = target.querySelectorAll('[class=datasearch-body]');
+			if (!button || !results || results.length < 2) return;
+			button.innerHTML = button.innerHTML === '[-]' ? '[+]' : '[-]';
+			for (var i = 0; i < results.length; i++) {
+				results[i].style.display = results[i].style.display === 'none' ? 'block' : 'none';
+			}
 		},
 
 		login: function () {
