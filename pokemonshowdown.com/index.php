@@ -5,7 +5,7 @@
 
 <title>Pok&eacute;mon Showdown! battle simulator</title>
 
-<link rel="stylesheet" href="/style/global.css?v14" />
+<link rel="stylesheet" href="/style/global.css?v15" />
 
 <?php
 include_once __DIR__ . '/../config/config.inc.php';
@@ -311,13 +311,10 @@ if (BrowserDetect.OS === 'Mac') {
 	margin-left: 260px;
 }
 @media (max-width:600px) {
-	.section-servers {
+	.section-servers, .section-news {
 		float: none;
 		width: auto;
-		margin: 20px auto;
-	}
-	.section-news {
-		margin-left: 0;
+		margin: 20px 10px;
 	}
 }
 

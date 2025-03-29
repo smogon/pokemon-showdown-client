@@ -201,13 +201,19 @@ h1 {
 	border-radius: 10px;
 	max-width: 800px;
 	padding: 20px;
-	margin: 20px auto 20px;
+	margin: 20px auto;
 
 	backdrop-filter: blur(4px);
 }
+@media (max-width: 600px) {
+	.section {
+		padding: 14px;
+		margin: 20px 6px;
+	}
+}
 .dark .section {
 	border-color: rgba(255, 255, 255, .2);
-	background: rgba(50, 50, 50, .5);
+	background: rgba(0, 0, 0, .5);
 	color: #DDD;
 }
 
