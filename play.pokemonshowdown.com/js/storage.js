@@ -802,14 +802,23 @@ Storage.packTeam = function (team) {
 		// ability
 		buf += '|' + toID(set.ability);
 
-		// moves
-		buf += '|';
+		// moves and PP Ups
+		var moves = '|';
+		var PPUps = '';
 		if (set.moves) for (var j = 0; j < set.moves.length; j++) {
 			var moveid = toID(set.moves[j]);
 			if (j && !moveid) continue;
-			buf += (j ? ',' : '') + moveid;
+			moves += (j ? ',' : '') + moveid;
 			if (moveid.substr(0, 11) === 'hiddenpower' && moveid.length > 11) hasHP = true;
+			PPUps += (j ? ',' : ';');
+			if (set.movePPUps) {
+				var defaultPPUps = toID(set.moves[j]) === 'trumpcard' ? 0 : 3;
+				var PPUp = isNaN(set.movePPUps[j]) ? defaultPPUps : set.movePPUps[j];
+				if (PPUp !== defaultPPUps) PPUps += set.movePPUps[j].toString();
+			}
 		}
+		if (PPUps.length === set.moves.length) PPUps = '';
+		buf += moves + PPUps;
 
 		// nature
 		buf += '|' + (set.nature || '');
@@ -882,7 +891,7 @@ Storage.fastUnpackTeam = function (buf) {
 	if (!buf) return [];
 
 	var team = [];
-	var i = 0, j = 0;
+	var i = 0, j = 0, k = 0;
 
 	while (true) {
 		var set = {};
@@ -912,9 +921,29 @@ Storage.fastUnpackTeam = function (buf) {
 		i = j + 1;
 
 		// moves
-		j = buf.indexOf('|', i);
+		j = buf.indexOf(';', i);
+		k = buf.indexOf('|', i);
+		if (j < 0 || j > k) j = k;
 		set.moves = buf.substring(i, j).split(',');
 		i = j + 1;
+
+		// move PP ups
+		if (buf.charAt(j) === ';') {
+			j = buf.indexOf('|', i);
+			if (j < 0) return null;
+			set.movePPUps = buf.substring(i, j).split(',');
+			for (var index = 0; index < set.movePPUps.length; index++) {
+				var defaultPPUps = toID(set.moves[index]) === 'trumpcard' ? 0 : 3;
+				set.movePPUps[index] = parseInt(set.movePPUps[index], 10);
+				if (isNaN(set.movePPUps[index])) set.movePPUps[index] = defaultPPUps;
+			}
+			i = j + 1;
+		} else {
+			set.movePPUps = [];
+			for (var index = 0; index < set.moves.length; index++) {
+				set.movePPUps[index] = toID(set.moves[index]) === 'trumpcard' ? 0 : 3;
+			}
+		}
 
 		// nature
 		j = buf.indexOf('|', i);
@@ -999,7 +1028,7 @@ Storage.unpackTeam = function (buf) {
 	if (!buf) return [];
 
 	var team = [];
-	var i = 0, j = 0;
+	var i = 0, j = 0, k = 0;
 
 	while (true) {
 		var set = {};
@@ -1028,11 +1057,34 @@ Storage.unpackTeam = function (buf) {
 		i = j + 1;
 
 		// moves
-		j = buf.indexOf('|', i);
+		j = buf.indexOf(';', i);
+		k = buf.indexOf('|', i);
+		if (j < 0 || j > k) {
+			j = k;
+			if (j < 0) return null;
+		}
 		set.moves = buf.substring(i, j).split(',').map(function (moveid) {
 			return Dex.moves.get(moveid).name;
 		});
 		i = j + 1;
+
+		// move PP ups
+		if (buf.charAt(j) === ';') {
+			j = buf.indexOf('|', i);
+			if (j < 0) return null;
+			set.movePPUps = buf.substring(i, j).split(',');
+			for (var index = 0; index < set.movePPUps.length; index++) {
+				var defaultPPUps = toID(set.moves[index]) === 'trumpcard' ? 0 : 3;
+				set.movePPUps[index] = parseInt(set.movePPUps[index], 10);
+				if (isNaN(set.movePPUps[index])) set.movePPUps[index] = defaultPPUps;
+			}
+			i = j + 1;
+		} else {
+			set.movePPUps = [];
+			for (var index = 0; index < set.moves.length; index++) {
+				set.movePPUps[index] = toID(set.moves[index]) === 'trumpcard' ? 0 : 3;
+			}
+		}
 
 		// nature
 		j = buf.indexOf('|', i);
@@ -1343,7 +1395,16 @@ Storage.importTeam = function (buffer, teams) {
 			if (line === 'Frustration' && curSet.happiness === undefined) {
 				curSet.happiness = 0;
 			}
-			curSet.moves.push(line);
+			var moveAndPPUps = line.split(' (PP Ups: ', 2);
+			curSet.moves.push(moveAndPPUps[0]);
+			if (!curSet.movePPUps) curSet.movePPUps = [];
+			if (moveAndPPUps[1]) moveAndPPUps[1] = moveAndPPUps[1].charAt(0);
+			var defaultPPUps = toID(moveAndPPUps[0]) === 'trumpcard' ? 0 : 3;
+			if (isNaN(moveAndPPUps[1])) {
+				curSet.movePPUps.push(defaultPPUps);
+			} else {
+				curSet.movePPUps.push(parseInt(moveAndPPUps[1], 10));
+			}
 		}
 	}
 	if (teams && teams.length && typeof teams[teams.length - 1].team !== 'string') {
@@ -1492,7 +1553,12 @@ Storage.exportTeam = function (team, gen, hidestats) {
 				move = move.substr(0, 13) + '[' + move.substr(13) + ']';
 			}
 			if (move) {
-				text += '- ' + move + "  \n";
+				text += '- ' + move;
+				var defaultPPUps = toID(move) === 'trumpcard' ? 0 : 3;
+				if (curSet.movePPUps && !isNaN(curSet.movePPUps[j]) && curSet.movePPUps[j] !== defaultPPUps) {
+					text += " (PP Ups: " + curSet.movePPUps[j] + ")";
+				}
+				text += "  \n";
 			}
 		}
 		text += "\n";
