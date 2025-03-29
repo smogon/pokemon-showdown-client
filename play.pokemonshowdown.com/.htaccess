@@ -62,6 +62,8 @@ RewriteRule ^formatsuggestions/?$ https://pokemonshowdown.com/pages/formatsugges
 RewriteRule ^sprites\/xyani(.*)?$ sprites/ani$1 [L,QSA]
 RewriteRule ^sprites\/xydex(.*)?$ sprites/dex$1 [L,QSA]
 RewriteRule ^sprites\/smicons(.*)?$ sprites/pokemonicons$1 [L,QSA]
+RewriteRule ^sprites\/trainers\/latest\/?$ /sprites/trainers/?filter=recent [R=302,L,QSA]
+RewriteRule ^sprites\/trainers\/credits\/?$ /sprites/trainers/?filter=credited [R=302,L,QSA]
 
 RewriteRule ^sprites\/rby(.*)?$ sprites/gen1$1 [L,QSA]
 RewriteRule ^sprites\/gsc(.*)?$ sprites/gen2$1 [L,QSA]
@@ -149,12 +151,8 @@ RewriteRule ^~~([^:/]*):([0-9]*)(/.*)?$ http://$1-$2.psim.us$3 [R=301,L]
 
 RewriteRule ^backup/ - [F]
 RewriteRule ^\.git/ - [F]
-RewriteRule ^data/Pokemon-Showdown/ - [F]
 RewriteRule ^lib/ - [F]
-RewriteRule ^githooks/ - [F]
 
-RewriteRule ^\.gitignore$ - [F]
-RewriteRule ^README\.md$ - [F]
 RewriteRule ^index\.template\.html$ - [F]
 RewriteRule ^preactalpha\.template\.html$ - [F]
 RewriteRule ^testclient\.html$ - [F]
@@ -164,3 +162,6 @@ RewriteCond %{REQUEST_FILENAME} !-f
 RewriteRule ^(apple-touch-icon-precomposed\.png)$ - [R=404,L]
 
 </IfModule>
+
+DirectoryIndex index.php index.html /dirindex/dirindex.php
+ErrorDocument 404 /dirindex/404.html

@@ -8,3 +8,6 @@ RewriteRule ^([A-Za-z0-9-]+)/manage$ replay-manage.php?name=$1&manage [L,QSA]
 RewriteRule ^([A-Za-z0-9-]+)\.log$ replay.log.php?name=$1 [L,QSA]
 RewriteRule ^([A-Za-z0-9-]+)\.inputlog$ replay.log.php?inputlog&name=$1 [L,QSA]
 RewriteRule ^([A-Za-z0-9-]+)\.json$ replay.log.php?json&name=$1 [L,QSA]
+
+DirectoryIndex index.php index.html /dirindex/dirindex.php
+ErrorDocument 404 /dirindex/404.html
