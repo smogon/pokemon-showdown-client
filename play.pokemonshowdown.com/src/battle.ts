@@ -3703,8 +3703,8 @@ export class Battle {
 			this.scene.beforeMove(poke);
 			this.useMove(poke, move, poke2, kwArgs);
 			this.animateMove(poke, move, poke2, kwArgs);
-			this.log(args, kwArgs);
 			this.scene.afterMove(poke);
+			this.log(args, kwArgs);
 			break;
 		}
 		case 'cant': {
