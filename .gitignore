@@ -6,8 +6,13 @@ npm-debug.log
 /vendor/
 /caches/
 
+/play.pokemonshowdown.com/dirindex/webfonts/
+/play.pokemonshowdown.com/dirindex/fontawesome5*
+
 /play.pokemonshowdown.com/sprites/
 /play.pokemonshowdown.com/audio/
+
+# built from other sources
 /play.pokemonshowdown.com/index.php
 /play.pokemonshowdown.com/index.html
 /play.pokemonshowdown.com/index-test.html
