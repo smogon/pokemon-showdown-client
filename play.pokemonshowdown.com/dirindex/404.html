@@ -52,11 +52,32 @@
 
 		<section class="section" style="max-width:200px;margin:20px auto">
       <div style="text-align:center">
-        <img src="//play.pokemonshowdown.com/sprites/gen5ani/unown-e.gif" alt="" style="image-rendering: pixelated"
+        <noscript><img src="//play.pokemonshowdown.com/sprites/gen5ani/unown-e.gif" alt="" style="image-rendering: pixelated"
 				/><img src="//play.pokemonshowdown.com/sprites/gen5ani/unown-r.gif" alt="" style="image-rendering: pixelated;margin:0 8px"
 				/><img src="//play.pokemonshowdown.com/sprites/gen5ani/unown-r.gif" alt="" style="image-rendering: pixelated"
 				/><img src="//play.pokemonshowdown.com/sprites/gen5ani/unown-o.gif" alt="" style="image-rendering: pixelated"
-				/><img src="//play.pokemonshowdown.com/sprites/gen5ani/unown-r.gif" alt="" style="image-rendering: pixelated" />
+				/><img src="//play.pokemonshowdown.com/sprites/gen5ani/unown-r.gif" alt="" style="image-rendering: pixelated" /></noscript>
+				<script>
+					var unownMessages = ['E R ROR', 'SOR R Y', 'T Y PO?'];
+					var unownMessage = unownMessages[Math.trunc(Math.random() * unownMessages.length)];
+					for (var i = 0; i < unownMessage.length; i++) {
+						var current = unownMessage[i];
+						var next = unownMessage[i + 1];
+						var unown = '';
+						var margin = next === ' ' ? ';margin-right:8px' : '';
+						if (current.charCodeAt(0) >= 'A'.charCodeAt(0) && current.charCodeAt(0) <= 'Z'.charCodeAt(0)) {
+							unown = current.toLowerCase();
+						} else if (current === '?') {
+							unown = 'question';
+						}
+						if (unown) {
+							document.write(
+								'<img src="//play.pokemonshowdown.com/sprites/gen5ani/unown-' + unown +
+								'.gif" alt="" style="image-rendering: pixelated' + margin + '" />'
+							);
+						}
+					}
+				</script>
       </div>
     </section><section class="section">
 			<h1>Error 404: Not Found</h1>
