@@ -1,5 +1,28 @@
 <?php
 
+$sprites_whitelist = [
+	'/sprites/afd-back-shiny/' => '*.png',
+	'/sprites/afd-shiny/' => '*.png',
+	'/sprites/gen1/' => '*.png',
+	'/sprites/gen1-back/' => '*.png',
+	'/sprites/gen1rb/' => '*.png',
+	'/sprites/gen1rg/' => '*.png',
+	'/sprites/gen1rgb-back/' => '*.png',
+	'/sprites/gen2/' => '*.png',
+	'/sprites/gen2-back/' => '*.png',
+	// gen 3+? too many sprites, not gonna make that easy on people
+	'/sprites/misc/' => '*.png',
+	'/sprites/types/' => '*.png',
+	'/sprites/digimon/sprites/digimon/' => '*.png',
+	'/sprites/digimon/sprites/digimon-back/' => '*.png',
+	'/sprites/digimon/sprites/digimonani/' => '*.gif',
+	'/sprites/digimon/sprites/digimonani-back/' => '*.gif',
+	'/sprites/digimon/sprites/pokemon/' => '*.png',
+	'/sprites/digimon/sprites/pokemon-back/' => '*.png',
+	'/sprites/digimon/sprites/pokemonani/' => '*.gif',
+	'/sprites/digimon/sprites/pokemonani-back/' => '*.gif',
+];
+
 $rel_dir = explode('?', $_SERVER['REQUEST_URI'])[0];
 $slash_pos = strrpos($rel_dir, '/');
 if ($slash_pos !== false) $rel_dir = substr($rel_dir, 0, $slash_pos + 1);
@@ -12,7 +35,7 @@ $fileinfo = [];
 $at_root = ($rel_dir === '/');
 $up = null;
 
-function get_icon($file, $is_dir) {
+function get_icon(string $file, bool $is_dir) {
 	if ($is_dir) {
 		return 'folder-open';
 	} else {
@@ -56,9 +79,7 @@ foreach ($files as $file) {
 	$is_dir = is_dir($path);
 	$ext = '';
 	$type = get_icon($file, $is_dir);
-	if ($file === '..') {
-		$type = 'arrow-circle-o-up';
-	} else if (!$is_dir) {
+	if (!$is_dir) {
 		$info = pathinfo($file);
 		$ext = strtolower($info['extension'] ?? '.');
 	}
@@ -86,7 +107,7 @@ foreach ($files as $file) {
 		'size_text' => $size_text,
 	];
 	if ($file === '..') {
-		$up = $next;
+		if (!$at_root) $up = $next;
 	} else {
 		$fileinfo[] = $next;
 	}
@@ -102,15 +123,15 @@ function sort_icon($col) {
 	}
 	return '';
 }
-function sort_link($col) {
-	global $sort_by, $sort_order;
+function sort_link(string $col) {
+	global $sort_by, $sort_order, $has_sprites;
 	if ($col === $sort_by && $sort_order === 'asc') {
-		return './?sort=' . $col . '&order=desc';
+		return './?' . ($has_sprites ? 'view=dir&' : '') . 'sort=' . $col . '&order=desc';
 	}
 	if ($col === $sort_by && $sort_order === 'desc') {
-		return './';
+		return './' . ($has_sprites ? '?view=dir' : '');
 	}
-	return './?sort=' . $col;
+	return './?' . ($has_sprites ? 'view=dir&' : '') . 'sort=' . $col;
 }
 
 if ($sort_by === 'name' || $sort_by === 'N') {
@@ -125,16 +146,12 @@ if ($sort_by === 'name' || $sort_by === 'N') {
 	usort($fileinfo, fn($a, $b) => !!$a['ext'] <=> !!$b['ext']) * ($sort_order === 'asc' ? 1 : -1);
 }
 
-if ($up !== null && !$at_root) array_unshift($fileinfo, $up);
-
-$title = 'Index of ' . $rel_dir;
-
 ?><!DOCTYPE html>
 <html lang="en"><head>
 
 	<meta charset="UTF-8" />
 
-	<title><?= htmlentities($title) ?></title>
+	<title><?= htmlentities(function_exists('dirindex_title') ? dirindex_title() : $rel_dir) ?> - Showdown!</title>
 
 	<meta name="viewport" content="width=device-width" />
 	<link rel="stylesheet" href="/dirindex/font-awesome.min.css" />
@@ -175,6 +192,9 @@ $title = 'Index of ' . $rel_dir;
 			position: relative;
 		}
 		.nav {
+			padding: 0;
+		}
+		.nav-wrapper .nav {
 			padding-left: 140px;
 			padding-top: 5px;
 		}
@@ -249,7 +269,7 @@ $title = 'Index of ' . $rel_dir;
 				width: auto;
 				display: inline-block;
 			}
-			.nav {
+			.nav-wrapper .nav {
 				padding-left: 135px;
 			}
 			.nav a {
@@ -265,7 +285,7 @@ $title = 'Index of ' . $rel_dir;
 			header {
 				height: 100px;
 			}
-			.nav {
+			.nav-wrapper .nav {
 				padding-left: 0;
 				padding-top: 50px;
 			}
@@ -337,6 +357,9 @@ $title = 'Index of ' . $rel_dir;
 			font-size: 11pt;
 			cursor: pointer;
 		}
+		.button:hover {
+			text-decoration: none;
+		}
 		main {
 			margin: 0 auto;
 			padding: 0 15px 15px 15px;
@@ -366,6 +389,9 @@ $title = 'Index of ' . $rel_dir;
 		.parentlink a:hover {
 			background: #e7ebee;
 			border-color: #5f8a9e;
+		}
+		.parentlink i, .parentlink em {
+			vertical-align: middle;
 		}
 		@media (prefers-color-scheme: dark) {
 			html {
@@ -415,6 +441,7 @@ $title = 'Index of ' . $rel_dir;
 			color: inherit;
 		}
 		.header a:hover {
+			text-decoration: none;
 			background: #dddddd;
 		}
 		a.row {
@@ -489,7 +516,43 @@ $title = 'Index of ' . $rel_dir;
 				color: #888;
 			}
 		}
+
+		/*********************************************************
+		 * Spriteindex
+		 *********************************************************/
+
+		figure {
+			width: 96px;
+			display: inline-block;
+			vertical-align: top;
+			text-align: center;
+			margin: 0.5em 10px;
+			overflow-wrap: break-word;
+		}
+		figure img {
+			image-rendering: pixelated;
+		}
+		figure figcaption {
+			font-size: 12px;
+			text-align: center;
+		}
+		a {
+			text-decoration: none;
+		}
+		a:hover {
+			text-decoration: underline;
+		}
 	</style>
+	<!-- Global site tag (gtag.js) - Google Analytics -->
+	<script async src="https://www.googletagmanager.com/gtag/js?id=UA-26211653-1"></script>
+	<script>
+		window.dataLayer = window.dataLayer || [];
+		function gtag(){dataLayer.push(arguments);}
+		gtag('js', new Date());
+
+		gtag('config', 'UA-26211653-1');
+	</script>
+	<!-- End Google Analytics -->
 </head><body>
 
 	<header>
@@ -503,9 +566,10 @@ $title = 'Index of ' . $rel_dir;
 		</ul></div>
 	</header>
 
-	<main><h1>
-		Index of
-		<a href="/"><?= htmlentities($_SERVER['SERVER_NAME']) ?></a><?php
+	<main>
+		<h1>
+			Index of
+			<a href="/"><?= htmlentities($_SERVER['SERVER_NAME']) ?></a><?php
 
 $path = '';
 $pathparts = array_slice(explode('/', $rel_dir), 1, -1);
@@ -519,31 +583,73 @@ echo '<wbr />/' . htmlentities($lastpart) . '/';
 
 ?>
 
-	</h1>
+		</h1>
 
-	<ul class="dirlist">
-		<li class="header">
-			<a class="icon" href="<?= sort_link('type') ?>">&nbsp;<?= sort_icon('type') ?>
-
-			</a><a class="filename" href="<?= sort_link('name') ?>">Name<?= sort_icon('name') ?>
-
-			</a><a class="filesize" href="<?= sort_link('size') ?>">Size<?= sort_icon('size') ?>
-
-			</a><a class="filemtime" href="<?= sort_link('mtime') ?>">Last Modified<?= sort_icon('mtime') ?></a>
-		</li>
-<?php foreach ($fileinfo as $file) : ?>
-		<li<?= $file['name'] === '..' ? ' class="parentlink"' : '' ?>>
-			<a class="row" href="./<?= htmlentities($file['name']) ?>">
-				<i class="icon fa fa-<?= $file['type'] ?>">
-				</i><code class="filename"><?= $file['name'] === '..' ? '(Parent directory)' : htmlentities($file['name']) ?>
-
-				</code><em class="filesize"><?= $file['size_text'] ?>
-
-				</em><small class="filemtime"><?= $file['mtime'] ?></small>
+<?php if ($up) { ?>
+		<p class="parentlink">
+			<a class="row" href="../">
+				<i class="icon fa fa-arrow-circle-o-up">
+				</i><em class="filename">(Parent directory)
+				</em>
 			</a>
-		</li>
+		</p>
+<?php } ?>
+<?php
+if (function_exists('dirindex_intro')) {
+	dirindex_intro();
+}
+$has_sprites = false;
+$special_sprites = function_exists('dirindex_sprites');
+if ($special_sprites || array_key_exists($rel_dir, $sprites_whitelist)) {
+	$has_sprites = true;
+	$view = $_GET['view'] ?? ($special_sprites ? 'sprites' : 'dir');
+	if ($view !== 'dir') {
+		require_once __DIR__ . '/spriteindex.inc.php';
+		if ($special_sprites) {
+			$sprites = dirindex_sprites();
+		} else {
+			chdir($dir);
+			$sprites = $sprites_whitelist[$rel_dir];
+		}
+		showSpriteIndex($sprites, $dir);
+		echo "</html>\n";
+		die();
+	}
+?>
+	<div>
+		View:
+		<ul class="nav" style="display:inline-block;vertical-align:middle;margin:0 10px 0 0">
+			<li><a class="button nav-first" href="./?view=sprites">Sprites</a></li>
+			<li><a class="button nav-last cur" href="./?view=dir">Directory</a></li>
+		</ul>
+	</div>
+<?php
+}
+?>
+
+		<ul class="dirlist">
+			<li class="header">
+				<a class="icon" href="<?= sort_link('type') ?>">&nbsp;<?= sort_icon('type') ?>
+
+				</a><a class="filename" href="<?= sort_link('name') ?>">Name<?= sort_icon('name') ?>
+
+				</a><a class="filesize" href="<?= sort_link('size') ?>">Size<?= sort_icon('size') ?>
+
+				</a><a class="filemtime" href="<?= sort_link('mtime') ?>">Last Modified<?= sort_icon('mtime') ?></a>
+			</li>
+<?php foreach ($fileinfo as $file) : ?>
+			<li>
+				<a class="row" href="./<?= urlencode($file['name']) ?>">
+					<i class="icon fa fa-<?= $file['type'] ?>">
+					</i><code class="filename"><?= $file['name'] === '..' ? '(Parent directory)' : htmlentities($file['name']) ?>
+
+					</code><em class="filesize"><?= $file['size_text'] ?>
+
+					</em><small class="filemtime"><?= $file['mtime'] ?></small>
+				</a>
+			</li>
 <?php endforeach; ?>
-	</ul>
+		</ul>
 
 	</main>
 
