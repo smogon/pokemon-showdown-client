@@ -1,12 +1,21 @@
 <?php
-require_once '../../dirindex/spriteindex.inc.php';
 
-showHeader("Trainer sprites");
+function dirindex_title() {
+	return "Trainer sprites";
+}
+
+function dirindex_intro() {
 ?>
 	<h2>Trainer sprites</h2>
 	<h4>Many of these sprites are not from the games. Credit must be given to the <a href="./?filter=credited">appropriate artist</a> if used elsewhere. DO NOT EDIT without permission.</h4>
 <?php
-$sprite_notes = [
+}
+
+function dirindex_sprites() {
+	return '*.png';
+}
+
+$sprite_credits = [
 	"acerola.png" => "Beliot419",
 	"aetheremployee.png" => "Beliot419",
 	"aetheremployeef.png" => "Beliot419",
@@ -772,4 +781,4 @@ $sprite_notes = [
 	"zirco-unite.png" => "kyledove",
 ];
 
-showSpriteIndex('*.png');
+require_once '../../dirindex/dirindex.php';
