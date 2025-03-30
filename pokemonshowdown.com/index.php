@@ -237,11 +237,11 @@ if (navigator && navigator.mozApps && navigator.mozApps.install) {
 }
 if (BrowserDetect.OS === 'Mac') {
 	// document.getElementById('play-online').style.display = 'none';
-	document.getElementById('mac-install').style.display = 'block';
+	// document.getElementById('mac-install').style.display = 'block';
 	// document.getElementById('install-after').innerHTML = '<p style="text-align:center;color:#777;margin:-10px 0 -0px 0"><small><em>or</em></small></p><p class="subtle" style="text-align:center"><a href="//play.pokemonshowdown.com/" class="button" style="padding:9px 24px"><strong>Play online</strong></a></p>';
 } else if (BrowserDetect.OS === 'Windows') {
 	// document.getElementById('play-online').style.display = 'none';
-	document.getElementById('win-install').style.display = 'block';
+	// document.getElementById('win-install').style.display = 'block';
 	// document.getElementById('install-after').innerHTML = '<p style="text-align:center;color:#777;margin:-10px 0 -0px 0"><small><em>or</em></small></p><p class="subtle" style="text-align:center"><a href="//play.pokemonshowdown.com/" class="button" style="padding:9px 24px"><strong>Play online</strong></a></p>';
 }
 
