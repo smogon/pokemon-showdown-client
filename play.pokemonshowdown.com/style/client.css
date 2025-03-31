@@ -1825,29 +1825,31 @@ a.ilink.yours {
 	float: right;
 	font-size: 8pt;
 }
+.megaevo-box {
+	clear: both;
+	padding-top: 10px;
+	text-align: center;
+}
 .megaevo {
-		clear: both;
-		display: block;
-		width: 180px;
-		margin: 0 auto 0;
-		position: relative;
-		top: 6px;
-		left: -7px;
-		padding: 2px;
-		text-align: center;
+	display: inline-block;
+	vertical-align: middle;
+	width: 180px;
+	margin: 2px;
+	padding: 2px;
+	text-align: center;
 
-		cursor: pointer;
-		border: 1px solid #BBB;
-		border-radius: 3px;
-		color: #333;
-		background: #EEF2F5;
-		font-size: 10pt;
-		font-weight: bold;
+	cursor: pointer;
+	border: 1px solid #BBB;
+	border-radius: 3px;
+	color: #333;
+	background: #EEF2F5;
+	font-size: 10pt;
+	font-weight: bold;
 }
 .megaevo:hover {
-		border-color: #888;
-		background: #E5E5E5;
-		color: black;
+	border-color: #888;
+	background: #E5E5E5;
+	color: black;
 }
 .movewarning {
 	clear: both;
@@ -1971,8 +1973,8 @@ a.ilink.yours {
 		border-radius: 6px;
 		background: #E5E5E5;
 	}
-	.megaevo {
-		margin: 0 auto 8px 50px;
+	.megaevo-box {
+		text-align: left;
 	}
 
 	.battle-controls .whatdo {
