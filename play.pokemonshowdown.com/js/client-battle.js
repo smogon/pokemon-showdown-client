@@ -753,7 +753,7 @@
 					checkboxes.push('<label class="megaevo"><input type="checkbox" name="terastallize" />&nbsp;Terastallize<br />' + Dex.getTypeIcon(canTerastallize) + '</label>');
 				}
 				if (checkboxes.length) {
-					moveMenu += '<br />' + checkboxes.join('');
+					moveMenu += '<div class="megaevo-box">' + checkboxes.join('') + '</div>';
 				}
 				if (this.finalDecisionMove) {
 					moveMenu += '<em class="movewarning">You <strong>might</strong> have some moves disabled, so you won\'t be able to cancel an attack!</em>';
