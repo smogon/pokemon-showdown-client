@@ -1112,15 +1112,40 @@
 
 			case 'afd':
 				if (this.checkBroadcast(cmd, text)) return false;
-				var cleanedTarget = toID(target);
-				if (cleanedTarget === 'off' || cleanedTarget === 'disable') {
-					Storage.prefs('afd', false);
-					if (typeof BattleTextNotAFD !== 'undefined') BattleText = BattleTextNotAFD;
-					this.add('April Fools\' day mode disabled.');
-				} else {
+				target = toID(target);
+				if (target === 'sprites') {
+					Storage.prefs('afd', 'sprites');
+					app.setAFD('sprites');
+					this.add('April Fools\' Day mode set to SPRITES.');
+				} else if (target === 'full') {
 					Storage.prefs('afd', true);
-					if (typeof BattleTextAFD !== 'undefined') BattleText = BattleTextAFD;
-					this.add('April Fools\' day mode enabled.');
+					app.setAFD(true);
+					this.add('April Fools\' Day mode set to FULL.');
+				} else if (target === 'default') {
+					Storage.prefs('afd', null);
+					app.setAFD();
+					this.add('April Fools\' Day mode set to DEFAULT (Currently ' + (Dex.afdMode ? 'FULL' : 'OFF') + ').');
+				} else if (target === 'off' || target === 'false' || target === '0') {
+					Storage.prefs('afd', null);
+					app.setAFD(false);
+					this.add('April Fools\' Day mode set to OFF temporarily.');
+					this.add('Trying to turn it off permanently? Use /afd never');
+				} else if (target === 'never') {
+					Storage.prefs('afd', false);
+					app.setAFD(false);
+					this.add('April Fools\' Day mode set to NEVER.');
+					if (Config.server.afd) {
+						this.add('You\'re using the AFD URL, which will still override this setting and enable AFD mode on refresh.');
+					}
+				} else {
+					if (target) this.add('AFD option "' + target + '" not recognized');
+					var mode = Storage.prefs('afd');
+					if (mode === true) mode = 'FULL';
+					if (mode === false) mode = 'NEVER';
+					if (mode) mode = mode.toUpperCase();
+					if (!mode) mode = 'DEFAULT (currently ' + (Dex.afdMode ? 'FULL' : 'OFF') + ')';
+					this.add('AFD is currently set to ' + mode);
+					this.parseCommand('/help afd');
 				}
 				for (var roomid in app.rooms) {
 					var battle = app.rooms[roomid] && app.rooms[roomid].battle;
@@ -1220,8 +1245,11 @@
 					this.add('/rating [username] - Get user [username]\'s rating.');
 					return false;
 				case 'afd':
-					this.add('/afd - Enable April Fools\' Day sprites.');
-					this.add('/afd disable - Disable April Fools\' Day sprites.');
+					this.add('/afd full - Enable all April Fools\' Day jokes.');
+					this.add('/afd sprites - Enable April Fools\' Day sprites.');
+					this.add('/afd default - Set April Fools\' Day to default (full on April 1st, off otherwise).');
+					this.add('/afd off - Disable April Fools\' Day jokes until the next refresh, and set /afd default.');
+					this.add('/afd never - Disable April Fools\' Day permanently.');
 					return false;
 				}
 			}
