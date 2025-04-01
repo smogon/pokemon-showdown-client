@@ -353,8 +353,7 @@ export class BattleLog {
 		}
 	}
 	addAFDMessage(args: Args, kwArgs: KWArgs = {}) {
-		const afdEnabled = Dex.prefs('afd') !== undefined ? Dex.prefs('afd') : window.Config?.server?.afd;
-		if (!afdEnabled) return;
+		if (Dex.afdMode !== true) return;
 		if (!this.battleParser || !this.scene) return;
 
 		// return true to skip the default message
