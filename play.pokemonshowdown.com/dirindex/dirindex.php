@@ -334,6 +334,16 @@ if ($sort_by === 'name' || $sort_by === 'N') {
 			background: linear-gradient(to bottom, #276136, #4ca363);
 			box-shadow: 0 1px 2px rgba(255, 255, 255, 0.45), inset 0.5px 1px -1px rgba(255, 255, 255, 0.5);
 		}
+		.nav a.purplebutton {
+			background: linear-gradient(to bottom,hsl(267, 36.40%, 46.90%),hsl(267, 42.60%, 26.70%));
+		}
+		.nav a.purplebutton:hover {
+			background: linear-gradient(to bottom,hsl(267, 49.30%, 56.70%),hsl(267, 46.00%, 34.10%));
+		}
+		.nav a.purplebutton:active {
+			background: linear-gradient(to bottom,hsl(267, 42.60%, 26.70%),hsl(267, 36.40%, 46.90%));
+			box-shadow: 0 1px 2px rgba(255, 255, 255, 0.45), inset 0.5px 1px -1px rgba(255, 255, 255, 0.5);
+		}
 
 		@media (max-width:700px) {
 			.nav-wrapper {
@@ -655,9 +665,9 @@ if ($sort_by === 'name' || $sort_by === 'N') {
 		<div class="nav-wrapper"><ul class="nav">
 			<li><a class="button nav-first" href="//pokemonshowdown.com/"><img src="//play.pokemonshowdown.com/pokemonshowdownbeta.png" srcset="//play.pokemonshowdown.com/pokemonshowdownbeta.png 1x, //play.pokemonshowdown.com/pokemonshowdownbeta@2x.png 2x" alt="Pok&eacute;mon Showdown" width="146" height="44" /> Home</a></li>
 			<li><a class="button" href="//pokemonshowdown.com/dex/">Pok&eacute;dex</a></li>
-			<li><a class="button" href="//replay.pokemonshowdown.com/">Replays</a></li>
-			<li><a class="button" href="//pokemonshowdown.com/ladder/">Ladder</a></li>
-			<li><a class="button nav-last" href="//pokemonshowdown.com/forums/">Forum</a></li>
+			<li><a class="button" href="//replay.pokemonshowdown.com/">Replay</a></li>
+			<li><a class="button purplebutton" href="//smogon.com/dex/" target="_blank">Strategy</a></li>
+			<li><a class="button nav-last purplebutton" href="//smogon.com/forums/" target="_blank">Forum</a></li>
 			<li><a class="button greenbutton nav-first nav-last" href="//play.pokemonshowdown.com/">Play</a></li>
 		</ul></div>
 	</header>
