@@ -353,68 +353,21 @@ export class BattleLog {
 		}
 	}
 	addAFDMessage(args: Args, kwArgs: KWArgs = {}) {
-		if (Dex.afdMode !== true) return;
+		if (!Dex.afdMode) return;
 		if (!this.battleParser || !this.scene) return;
 
 		// return true to skip the default message
-		const messageFromArgs = (args1: Args, kwArgs1: KWArgs = {}, noSectionBreak?: boolean) => {
-			this.messageFromLog(this.battleParser!.parseArgs(args1, kwArgs1, noSectionBreak));
+		const messageFromArgs = (args1: Args, kwArgs1: KWArgs = {}) => {
+			this.messageFromLog(this.battleParser!.parseArgs(args1, kwArgs1, true));
 		};
 
-		if (args[0] === 'faint') {
-			// April Fool's 2018 (DLC)
-			if (!Config.server.afdFaint) {
-				messageFromArgs(args, kwArgs);
-				this.message('<div class="broadcast-red" style="font-size:10pt">Needed that one alive? Buy <strong>Max Revive DLC</strong>, yours for only $9.99!<br /> <u>CLICK HERE!</u></div>');
-				Config.server.afdFaint = true;
-				return true;
-			}
-		} else if (args[0] === '-crit') {
-			// April Fool's 2018 (DLC)
-			if (!Config.server.afdCrit) {
-				messageFromArgs(args, kwArgs);
-				this.message('<div class="broadcast-red" style="font-size:10pt">Crit mattered? Buy <strong>Crit Insurance DLC</strong>, yours for only $4.99!<br /> <u>CLICK HERE!</u></div>');
-				Config.server.afdCrit = true;
-				return true;
-			}
-		} else if (args[0] === 'move') {
+		// Taunt and Chilly Reception messages (below) will appear in ALL AFD modes.
+
+		if (args[0] === 'move') {
 			if (kwArgs.from) return false;
 
 			const moveid = toID(args[2]);
-			if (moveid === 'earthquake') {
-				// April Fool's 2013
-				if (this.scene.animating && window.$) {
-					$('body').css({
-						position: 'absolute',
-						left: 0,
-						right: 0,
-						top: 0,
-						bottom: 0,
-					}).animate({
-						left: -30,
-						right: 30,
-					}, 75).animate({
-						left: 30,
-						right: -30,
-					}, 100).animate({
-						left: -30,
-						right: 30,
-					}, 100).animate({
-						left: 30,
-						right: -30,
-					}, 100).animate({
-						left: 0,
-						right: 0,
-					}, 100, () => {
-						$('body').css({
-							position: 'static',
-						});
-					});
-				}
-				messageFromArgs(['move', args[1], 'Fissure']);
-				this.messageFromLog('Just kidding! It was **Earthquake**!');
-				return true;
-			} else if (moveid === 'taunt') {
+			if (moveid === 'taunt') {
 				// April Fool's 2013, expanded in 2025
 				messageFromArgs(args, kwArgs);
 				const quotes = [
@@ -480,35 +433,6 @@ export class BattleLog {
 				this.messageFromLog(this.battleParser.fixLowercase(`${this.battleParser.pokemon(args[1])} said, "${quote}"`));
 				// give time to read
 				this.scene.wait(3 * this.scene.battle.messageFadeTime / this.scene.acceleration);
-				return true;
-			// } else if (move.id === 'metronome' || move.id === 'sleeptalk' || move.id === 'assist') {
-			// 	// April Fool's 2014 - NOT UPDATED TO NEW BATTLE LOG
-			// 	this.message(pokemon.getName() + ' used <strong>' + move.name + '</strong>!');
-			// 	let buttons = ["A", "B", "START", "SELECT", "UP", "DOWN", "LEFT", "RIGHT", "DEMOCRACY", "ANARCHY"];
-			// 	let people = ["Zarel", "The Immortal", "Diatom", "Nani Man", "shaymin", "apt-get", "sirDonovan", "Arcticblast", "Trickster"];
-			// 	let button;
-			// 	for (let i = 0; i < 10; i++) {
-			// 		let name = people[Math.floor(Math.random() * people.length)];
-			// 		if (!button) button = buttons[Math.floor(Math.random() * buttons.length)];
-			// 		this.scene.log('<div class="chat"><strong style="' + BattleLog.hashColor(toUserid(name)) + '" class="username" data-name="' + BattleLog.escapeHTML(name) + '">' + BattleLog.escapeHTML(name) + ':</strong> <em>' + button + '</em></div>');
-			// 		button = (name === 'Diatom' ? "thanks diatom" : null);
-			// 	}
-			} else if (moveid === 'stealthrock') {
-				// April Fool's 2016
-				const srNames = [
-					'Sneaky Pebbles', 'Sly Rubble', 'Subtle Sediment', 'Buried Bedrock', 'Camouflaged Cinnabar', 'Clandestine Cobblestones', 'Cloaked Clay', 'Concealed Ore', 'Covert Crags', 'Crafty Coal', 'Discreet Bricks', 'Disguised Debris', 'Espionage Pebbles', 'Furtive Fortress', 'Hush-Hush Hardware', 'Incognito Boulders', 'Invisible Quartz', 'Masked Minerals', 'Mischievous Masonry', 'Obscure Ornaments', 'Private Paragon', 'Secret Solitaire', 'Sheltered Sand', 'Surreptitious Sapphire', 'Undercover Ultramarine',
-				];
-				messageFromArgs(['move', args[1], srNames[Math.floor(Math.random() * srNames.length)]]);
-				return true;
-			} else if (moveid === 'extremespeed') {
-				// April Fool's 2018
-				messageFromArgs(args, kwArgs);
-				const fastWords = ['H-Hayai', 'Masaka', 'Its fast'];
-				this.messageFromLog(`**${fastWords[Math.floor(Math.random() * fastWords.length)]}**`);
-				return true;
-			} else if (moveid === 'aerialace') {
-				// April Fool's 2018
-				messageFromArgs(['move', args[1], 'Tsubame Gaeshi']);
 				return true;
 			}
 		} else if (args[0] === '-prepare') {
@@ -847,6 +771,94 @@ export class BattleLog {
 				this.messageFromLog(`"${joke}"`);
 				// give time to read
 				this.scene.wait(3 * this.scene.battle.messageFadeTime / this.scene.acceleration);
+				return true;
+			}
+		}
+
+		// !!! EVERYTHING BELOW THIS LINE DOESN'T HAPPEN IN `/afd sprites` MODE
+		if (Dex.afdMode !== true) return;
+
+		if (args[0] === 'faint') {
+			// April Fool's 2018 (DLC)
+			if (!Config.server.afdFaint) {
+				messageFromArgs(args, kwArgs);
+				this.message('<div class="broadcast-red" style="font-size:10pt">Needed that one alive? Buy <strong>Max Revive DLC</strong>, yours for only $9.99!<br /> <u>CLICK HERE!</u></div>');
+				Config.server.afdFaint = true;
+				return true;
+			}
+		} else if (args[0] === '-crit') {
+			// April Fool's 2018 (DLC)
+			if (!Config.server.afdCrit) {
+				messageFromArgs(args, kwArgs);
+				this.message('<div class="broadcast-red" style="font-size:10pt">Crit mattered? Buy <strong>Crit Insurance DLC</strong>, yours for only $4.99!<br /> <u>CLICK HERE!</u></div>');
+				Config.server.afdCrit = true;
+				return true;
+			}
+		} else if (args[0] === 'move') {
+			if (kwArgs.from) return false;
+
+			const moveid = toID(args[2]);
+			if (moveid === 'earthquake') {
+				// April Fool's 2013
+				if (this.scene.animating && window.$) {
+					$('body').css({
+						position: 'absolute',
+						left: 0,
+						right: 0,
+						top: 0,
+						bottom: 0,
+					}).animate({
+						left: -30,
+						right: 30,
+					}, 75).animate({
+						left: 30,
+						right: -30,
+					}, 100).animate({
+						left: -30,
+						right: 30,
+					}, 100).animate({
+						left: 30,
+						right: -30,
+					}, 100).animate({
+						left: 0,
+						right: 0,
+					}, 100, () => {
+						$('body').css({
+							position: 'static',
+						});
+					});
+				}
+				messageFromArgs(['move', args[1], 'Fissure']);
+				this.messageFromLog('Just kidding! It was **Earthquake**!');
+				return true;
+			// } else if (move.id === 'metronome' || move.id === 'sleeptalk' || move.id === 'assist') {
+			// 	// April Fool's 2014 - NOT UPDATED TO NEW BATTLE LOG
+			// 	this.message(pokemon.getName() + ' used <strong>' + move.name + '</strong>!');
+			// 	let buttons = ["A", "B", "START", "SELECT", "UP", "DOWN", "LEFT", "RIGHT", "DEMOCRACY", "ANARCHY"];
+			// 	let people = ["Zarel", "The Immortal", "Diatom", "Nani Man", "shaymin", "apt-get", "sirDonovan", "Arcticblast", "Trickster"];
+			// 	let button;
+			// 	for (let i = 0; i < 10; i++) {
+			// 		let name = people[Math.floor(Math.random() * people.length)];
+			// 		if (!button) button = buttons[Math.floor(Math.random() * buttons.length)];
+			// 		this.scene.log('<div class="chat"><strong style="' + BattleLog.hashColor(toUserid(name)) + '" class="username" data-name="' + BattleLog.escapeHTML(name) + '">' + BattleLog.escapeHTML(name) + ':</strong> <em>' + button + '</em></div>');
+			// 		button = (name === 'Diatom' ? "thanks diatom" : null);
+			// 	}
+			} else if (moveid === 'stealthrock') {
+				// April Fool's 2016
+				const srNames = [
+					'Sneaky Pebbles', 'Sly Rubble', 'Subtle Sediment', 'Buried Bedrock', 'Camouflaged Cinnabar', 'Clandestine Cobblestones', 'Cloaked Clay', 'Concealed Ore', 'Covert Crags', 'Crafty Coal', 'Discreet Bricks', 'Disguised Debris', 'Espionage Pebbles', 'Furtive Fortress', 'Hush-Hush Hardware', 'Incognito Boulders', 'Invisible Quartz', 'Masked Minerals', 'Mischievous Masonry', 'Obscure Ornaments', 'Private Paragon', 'Secret Solitaire', 'Sheltered Sand', 'Surreptitious Sapphire', 'Undercover Ultramarine',
+				];
+				messageFromArgs(['move', args[1], srNames[Math.floor(Math.random() * srNames.length)]]);
+				return true;
+			} else if (moveid === 'extremespeed') {
+				// April Fool's 2018
+				messageFromArgs(args, kwArgs);
+				const fastWords = ['H-Hayai', 'Masaka', 'Its fast'];
+				this.messageFromLog(`**${fastWords[Math.floor(Math.random() * fastWords.length)]}**`);
+				return true;
+			} else if (moveid === 'aerialace') {
+				// April Fool's 2018
+				messageFromArgs(['move', args[1], 'Tsubame Gaeshi']);
 				return true;
 			}
 		}
