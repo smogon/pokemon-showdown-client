@@ -898,14 +898,14 @@ export class Side {
 	switchOut(pokemon: Pokemon, kwArgs: KWArgs, slot = pokemon.slot) {
 		const effect = Dex.getEffect(kwArgs.from);
 		if (!['batonpass', 'zbatonpass', 'shedtail'].includes(effect.id) &&
-			 !(this.battle.tier.includes(`Relay Race`) && !effect.id)) {
+			!(this.battle.tier.includes(`Relay Race`) && !effect.id)) {
 			pokemon.clearVolatile();
 		} else {
 			pokemon.removeVolatile('transform' as ID);
 			pokemon.removeVolatile('formechange' as ID);
 		}
 		if (!['batonpass', 'zbatonpass', 'shedtail', 'teleport'].includes(effect.id) &&
-			 !(this.battle.tier.includes(`Relay Race`) && !effect.id)) {
+			!(this.battle.tier.includes(`Relay Race`) && !effect.id)) {
 			this.battle.log(['switchout', pokemon.ident], { from: effect.id });
 		}
 		pokemon.statusData.toxicTurns = 0;
