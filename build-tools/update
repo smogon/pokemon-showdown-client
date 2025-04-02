@@ -112,6 +112,7 @@ compiledFiles += compiler.compileToFile(
 		'play.pokemonshowdown.com/src/battle-log-misc.js',
 		'caches/pokemon-showdown/server/chat-formatter.ts',
 		'play.pokemonshowdown.com/data/text.js',
+		'play.pokemonshowdown.com/data/text-afd.js',
 		'play.pokemonshowdown.com/src/battle-text-parser.ts',
 	],
 	'play.pokemonshowdown.com/js/battledata.js',

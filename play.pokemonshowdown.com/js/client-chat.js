@@ -1249,7 +1249,7 @@
 					this.add('/afd sprites - Enable April Fools\' Day sprites.');
 					this.add('/afd default - Set April Fools\' Day to default (full on April 1st, off otherwise).');
 					this.add('/afd off - Disable April Fools\' Day jokes until the next refresh, and set /afd default.');
-					this.add('/afd never - Disable April Fools\' Day permanently.');
+					this.add('/afd never - Disable April Fools\' Day jokes permanently.');
 					return false;
 				}
 			}
