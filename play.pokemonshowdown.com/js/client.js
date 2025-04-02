@@ -759,9 +759,6 @@ function toId() {
 					mode = true;
 				} else if (Dex.prefs('afd') !== undefined) {
 					mode = Dex.prefs('afd');
-				} else {
-					// uncomment on April Fools' Day
-					mode = true;
 				}
 			}
 
