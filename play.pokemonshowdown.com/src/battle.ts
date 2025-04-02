@@ -841,8 +841,8 @@ export class Side {
 		if (['batonpass', 'zbatonpass', 'shedtail'].includes(effect.id)) {
 			pokemon.copyVolatileFrom(this.lastPokemon!, effect.id === 'shedtail' ? 'shedtail' : false);
 		} else if (this.battle.tier.includes(`Relay Race`) && !effect.id) {
-      if (this.lastPokemon && !this.lastPokemon.fainted) pokemon.copyVolatileFrom(this.lastPokemon!, false);
-    }
+			if (this.lastPokemon && !this.lastPokemon.fainted) pokemon.copyVolatileFrom(this.lastPokemon!, false);
+		}
 
 		this.battle.scene.animSummon(pokemon, slot);
 	}
