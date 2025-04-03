@@ -1025,7 +1025,14 @@ export const actions: { [k: string]: QueryHandler } = {
 		}
 		return { password: pw };
 	},
-
+	async 'replays/batch'(params) {
+		if (!params.ids) {
+			throw new ActionError("Invalid batch replay request, must provide ids");
+		}
+		const ids = params.ids.split(',');
+		if (ids.length > 51) throw new ActionError(`Limit 51 IDs (you have ${ids.length}).`);
+		return Replays.getBatch(ids);
+	},
 	// sent by ps server
 	async 'smogon/validate'(params) {
 		if (this.getIp() !== Config.restartip) {

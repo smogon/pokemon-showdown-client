@@ -232,6 +232,9 @@ export const Replays = new class {
 			SQL`uploadtime, id, format, players, rating`
 		)`WHERE private = 0 ORDER BY uploadtime DESC LIMIT 51`.then(this.toReplays);
 	}
+	getBatch(ids: string[]) {
+		return replays.selectAll()`WHERE private = 0 AND id IN (${ids}) LIMIT 51`.then(this.toReplays);
+	}
 };
 
 export default Replays;
