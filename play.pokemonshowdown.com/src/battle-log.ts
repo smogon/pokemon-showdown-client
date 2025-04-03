@@ -780,18 +780,18 @@ export class BattleLog {
 
 		if (args[0] === 'faint') {
 			// April Fool's 2018 (DLC)
-			if (!Config.server.afdFaint) {
+			if (!(Dex as any).afdFaint) {
 				messageFromArgs(args, kwArgs);
 				this.message('<div class="broadcast-red" style="font-size:10pt">Needed that one alive? Buy <strong>Max Revive DLC</strong>, yours for only $9.99!<br /> <a href="/trustworthy-dlc-link">CLICK HERE!</a></div>');
-				Config.server.afdFaint = true;
+				(Dex as any).afdFaint = true;
 				return true;
 			}
 		} else if (args[0] === '-crit') {
 			// April Fool's 2018 (DLC)
-			if (!Config.server.afdCrit) {
+			if (!(Dex as any).afdCrit) {
 				messageFromArgs(args, kwArgs);
 				this.message('<div class="broadcast-red" style="font-size:10pt">Crit mattered? Buy <strong>Crit Insurance DLC</strong>, yours for only $4.99!<br /> <a href="/trustworthy-dlc-link">CLICK HERE!</a></div>');
-				Config.server.afdCrit = true;
+				(Dex as any).afdCrit = true;
 				return true;
 			}
 		} else if (args[0] === 'move') {
