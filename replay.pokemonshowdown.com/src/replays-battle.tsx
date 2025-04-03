@@ -341,6 +341,14 @@ export class BattlePanel extends preact.Component<{ id: string }> {
 		BattleSound.setBgmVolume(muted === 'musicoff' ? 0 : 65.88125800126558);
 		this.forceUpdate();
 	};
+	changeVolume = (e: Event) => {
+		const volume = Number((e.target as HTMLSelectElement).value);
+		BattleSound.setBgmVolume(volume);
+		BattleSound.setEffectVolume(volume);
+		this.battle?.setMute(true);
+		this.battle?.setMute(false);
+		this.forceUpdate();
+	};
 	changeDarkMode = (e: Event) => {
 		const darkmode = (e.target as HTMLSelectElement).value as 'dark';
 		PSReplays.darkMode = darkmode;
@@ -490,6 +498,10 @@ export class BattlePanel extends preact.Component<{ id: string }> {
 						{(this.battle?.viewpointSwitched ? this.result?.players[1] : this.result?.players[0] || "Player")} {}
 						<i class="fa fa-random" aria-label="Switch viewpoint"></i>
 					</button>
+				</label> {}
+				<label class="optgroup">
+					Volume:<br />
+					<input type="range" onInput={this.changeVolume} />
 				</label>
 			</p>
 			{this.result ? <h1>
