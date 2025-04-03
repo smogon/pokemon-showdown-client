@@ -905,21 +905,25 @@ p.or:after {
  * Ladder
  *********************************************************/
 
-.ladder table, .ladder td, .ladder th {
+.table-header {
+	position: relative;
+	position: sticky;
+	top: 0;
+}
+.ladder table, .ladder td, .ladder th,
+.table, .table td, .table th {
 	border-collapse: collapse;
 	border: 1px solid #BBBBBB;
 }
-.ladder td, .ladder th {
+.ladder td, .ladder th,
+.table td, .table th {
 	padding: 3px 5px;
 }
-.ladder th {
+.ladder th, .table th {
 	text-align: left;
 	font-size: 9pt;
 	background: #EEEEEE;
 	color: #111111;
-}
-.ladder span {
-	color: gray;
 }
 
 .hidden {
@@ -999,14 +1003,16 @@ p.or:after {
 	right: 0;
 	bottom: 40px;
 	font-size: 10pt;
-	background: rgba(242,247,250,.5);
-	color: black;
 	word-wrap: break-word;
 
 	overflow: auto;
 	overflow-x: hidden;
 	-webkit-overflow-scrolling: touch;
 	overflow-scrolling: touch;
+}
+.chat-log, .readable-bg {
+	background: rgba(242,247,250,.5);
+	color: black;
 }
 .chat-log-add {
 	position: absolute;
@@ -2123,7 +2129,7 @@ a.ilink.yours {
 	color: #999999;
 }
 
-.dark .chat-log {
+.dark .chat-log, .dark .readable-bg {
 	background: rgba(0,0,0,.5);
 	color: #DDD;
 }
