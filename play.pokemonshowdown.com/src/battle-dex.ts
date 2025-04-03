@@ -268,6 +268,12 @@ export const Dex = new class implements ModdedDex {
 	loadedSpriteData = { xy: 1, bw: 0 };
 	moddedDexes: { [mod: string]: ModdedDex } = {};
 
+	/**
+	 * April Fools' Day setting:
+	 * * `true` = FULL, all jokes on
+	 * * `'sprites'` = SPRITES, only sprites and taunts
+	 * * `false | null | undefined` = OFF
+	 */
 	afdMode?: boolean | 'sprites';
 
 	mod(modid: ID): ModdedDex {
