@@ -761,6 +761,10 @@ export class BattleTextParser {
 		case '-status': {
 			const [, pokemon, status] = args;
 			const line1 = this.maybeAbility(kwArgs.from, kwArgs.of || pokemon);
+			if (kwArgs.from?.startsWith('item:')) {
+				const template = this.template('startFromItem', status);
+				return line1 + template.replace('[POKEMON]', this.pokemon(pokemon)).replace('[ITEM]', this.effect(kwArgs.from));
+			}
 			if (BattleTextParser.effectId(kwArgs.from) === 'rest') {
 				const template = this.template('startFromRest', status);
 				return line1 + template.replace('[POKEMON]', this.pokemon(pokemon));
