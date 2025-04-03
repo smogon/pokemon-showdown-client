@@ -2,7 +2,8 @@
 import preact from '../../play.pokemonshowdown.com/js/lib/preact';
 import { Net, PSModel } from './utils';
 import { BattlePanel } from './replays-battle';
-declare function toID(input: string): string;
+type ID = Lowercase<string>;
+declare function toID(input: string): ID;
 declare const Config: any;
 
 interface ReplayResult {
@@ -27,7 +28,7 @@ class SearchPanel extends preact.Component<{ id: string }> {
 	loggedInUserIsSysop = false;
 	sort = 'date';
 	override componentDidMount() {
-		Net('/check-login.php').get().then(result => {
+		if (!Net.defaultRoute) Net(`/check-login.php`).get().then(result => {
 			if (!result.startsWith(']')) return;
 			const [userid, sysop] = result.slice(1).split(',');
 			this.loggedInUser = userid;
@@ -114,20 +115,20 @@ class SearchPanel extends preact.Component<{ id: string }> {
 	}
 	modLink(overrides: { page?: number, sort?: string }) {
 		const newPage = (overrides.page !== undefined ? this.page + overrides.page : 1);
-		return './?' + Net.encodeQuery({
+		return PSRouter.href('?' + Net.encodeQuery({
 			user: this.user || undefined,
 			format: this.format || undefined,
 			private: this.isPrivate ? '1' : undefined,
 			page: newPage === 1 ? undefined : newPage,
 			sort: (overrides.sort ? overrides.sort === 'rating' : this.byRating) ? 'rating' : undefined,
-		});
+		}));
 	}
 	recent() {
 		this.format = '';
 		this.user = '';
 		this.results = null;
 		this.forceUpdate();
-		Net('/api/replays/recent').get().then(response => {
+		Net(`/api/replays/recent`).get().then(response => {
 			if (this.format !== '' || this.user !== '') return;
 			this.parseResponse(response, true);
 			this.forceUpdate();
@@ -181,11 +182,7 @@ class SearchPanel extends preact.Component<{ id: string }> {
 				<em>Loading...</em>
 			</li>) ||
 			(results?.map(result => <li>
-				<a href={this.url(result)} class="blocklink">
-					<small>{result.format}{result.rating ? ` (Rating: ${result.rating})` : ''}<br /></small>
-					{!!result.private && <i class="fa fa-lock"></i>} {}
-					<strong>{result.players[0]}</strong> vs. <strong>{result.players[1]}</strong>
-				</a>
+				<ReplayLink replay={result} user={toID(this.user)}></ReplayLink>
 			</li>))}
 		</ul>;
 		return <div class={PSRouter.showingRight() ? 'sidebar' : ''}>
@@ -260,122 +257,122 @@ class FeaturedReplays extends preact.Component {
 			<h1>Featured replays</h1>
 			<ul class="linklist">
 				<li><h2>Fun</h2></li>
-				<li><a href="oumonotype-82345404" class="blocklink">
-					<small>[gen6-oumonotype]<br /></small>
-					<strong>kdarewolf</strong> vs. <strong>Onox</strong>
-					<small><br />Protean + prediction</small>
-				</a></li>
-				<li><a href="anythinggoes-218380995?p2" class="blocklink">
-					<small>[gen6-anythinggoes]<br /></small>
-					<strong>Anta2</strong> vs. <strong>dscottnew</strong>
-					<small><br />Cheek Pouch</small>
-				</a></li>
-				<li><a href="uberssuspecttest-147833524" class="blocklink">
-					<small>[gen6-ubers]<br /></small>
-					<strong>Metal Brellow</strong> vs. <strong>zig100</strong>
-					<small><br />Topsy-Turvy</small>
-				</a></li>
+				<li><ReplayLink
+					replay={{ id: 'oumonotype-82345404', format: 'gen6-oumonotype', players: ['kdarewolf', 'Onox'] }}
+				>
+					Protean + prediction
+				</ReplayLink></li>
+				<li><ReplayLink
+					replay={{ id: 'anythinggoes-218380995', format: 'gen6-anythinggoes', players: ['Anta2', 'dscottnew'] }}
+				>
+					Cheek Pouch
+				</ReplayLink></li>
+				<li><ReplayLink
+					replay={{ id: 'uberssuspecttest-147833524', format: 'gen6-ubers', players: ['Metal Brellow', 'zig100'] }}
+				>
+					Topsy-Turvy
+				</ReplayLink></li>
 				{!this.moreFun && <li style={{ paddingLeft: '8px' }}>
 					<button class="button" onClick={this.showMoreFun}>More <i class="fa fa-caret-right" aria-hidden></i></button>
 				</li>}
-				{this.moreFun && <li><a href="smogondoubles-75588440?p2" class="blocklink">
-					<small>[gen6-smogondoubles]<br /></small>
-					<strong>jamace6</strong> vs. <strong>DubsWelder</strong>
-					<small><br />Garchomp sweeps 11 pokemon</small>
-				</a></li>}
-				{this.moreFun && <li><a href="ou-20651579?p2" class="blocklink">
-					<small>[gen5-ou]<br /></small>
-					<strong>RainSeven07</strong> vs. <strong>my body is regi</strong>
-					<small><br />An entire team based on Assist V-create</small>
-				</a></li>}
-				{this.moreFun && <li><a href="balancedhackmons7322360?p2" class="blocklink">
-					<small>[gen5-balancedhackmons]<br /></small>
-					<strong>a ver</strong> vs. <strong>Shuckie</strong>
-					<small><br />To a ver's frustration, PP stall is viable in Balanced Hackmons</small>
-				</a></li>}
+				{this.moreFun && <li><ReplayLink
+					replay={{ id: 'smogondoubles-75588440', format: 'gen6-smogondoubles', players: ['jamace6', 'DubsWelder'] }}
+				>
+					Garchomp sweeps 11 pokemon
+				</ReplayLink></li>}
+				{this.moreFun && <li><ReplayLink
+					replay={{ id: 'ou-20651579', format: 'gen5-ou', players: ['RainSeven07', 'my body is regi'] }}
+				>
+					An entire team based on Assist V-create
+				</ReplayLink></li>}
+				{this.moreFun && <li><ReplayLink
+					replay={{ id: 'balancedhackmons7322360', format: 'gen5-balancedhackmons', players: ['a ver', 'Shuckie'] }}
+				>
+					To a ver's frustration, PP stall is viable in Balanced Hackmons
+				</ReplayLink></li>}
 				<h2>Competitive</h2>
-				<li><a href="doublesou-232753081" class="blocklink">
-					<small>[gen6-doublesou]<br /></small>
-					<strong>Electrolyte</strong> vs. <strong>finally</strong>
-					<small><br />
-						finally steals Electrolyte's spot in the finals of the Doubles Winter Seasonal by outplaying Toxic Aegislash.
-					</small>
-				</a></li>
-				<li><a href="smogtours-gen5ou-59402" class="blocklink">
-					<small>[gen5-ou]<br /></small>
-					<strong>Reymedy</strong> vs. <strong>Leftiez</strong>
-					<small><br />
-						Reymedy's superior grasp over BW OU lead to his claim of victory over Leftiez in the No Johns Tournament.
-					</small>
-				</a></li>
-				<li><a href="smogtours-gen3ou-56583" class="blocklink">
-					<small>[gen3-ou]<br /></small>
-					<strong>pokebasket</strong> vs. <strong>Alf'</strong>
-					<small><br />
-						pokebasket proved Blissey isn't really one to take a Focus Punch well in his victory match over Alf' in the
-						Fuck Trappers ADV OU tournament.
-					</small>
-				</a></li>
-				<li><a href="smogtours-ou-55891" class="blocklink">
-					<small>[gen6-ou]<br /></small>
-					<strong>Marshall.Law</strong> vs. <strong>Malekith</strong>
-					<small><br />
-						In a "match full of reverses", Marshall.Law takes on Malekith in the finals of It's No Use.
-					</small>
-				</a></li>
-				<li><a href="smogtours-ubers-54583" class="blocklink">
-					<small>[gen6-custom]<br /></small>
-					<strong>hard</strong> vs. <strong>panamaxis</strong>
-					<small><br />
-						Dark horse panamaxis proves his worth as the rightful winner of The Walkthrough Tournament in this exciting
-						final versus hard.
-					</small>
-				</a></li>
+				<li><ReplayLink
+					replay={{ id: 'doublesou-232753081', format: 'gen6-doublesou', players: ['Electrolyte', 'finally'] }}
+				>
+					finally steals Electrolyte's spot in the finals of the Doubles Winter Seasonal by outplaying Toxic Aegislash.
+				</ReplayLink></li>
+				<li><ReplayLink
+					replay={{ id: 'smogtours-gen5ou-59402', format: 'gen5-ou', players: ['Reymedy', 'Leftiez'] }}
+				>
+					Reymedy's superior grasp over BW OU lead to his claim of victory over Leftiez in the No Johns Tournament.
+				</ReplayLink></li>
+				<li><ReplayLink
+					replay={{ id: 'smogtours-gen3ou-56583', format: 'gen3-ou', players: ['pokebasket', "Alf'"] }}
+				>
+					pokebasket proved Blissey isn't really one to take a Focus Punch well in his victory match over Alf' in the
+					Fuck Trappers ADV OU tournament.
+				</ReplayLink></li>
+				<li><ReplayLink
+					replay={{ id: 'smogtours-ou-55891', format: 'gen6-ou', players: ['Marshall.Law', 'Malekith'] }}
+				>
+					In a "match full of reverses", Marshall.Law takes on Malekith in the finals of It's No Use.
+				</ReplayLink></li>
+				<li><ReplayLink
+					replay={{ id: 'smogtours-ubers-54583', format: 'gen6-custom', players: ['hard', 'panamaxis'] }}
+				>
+					Dark horse panamaxis proves his worth as the rightful winner of The Walkthrough Tournament in this exciting
+					final versus hard.
+				</ReplayLink></li>
 				{!this.moreCompetitive && <li style={{ paddingLeft: '8px' }}>
 					<button class="button" onClick={this.showMoreCompetitive}>More <i class="fa fa-caret-right" aria-hidden></i></button>
 				</li>}
-				{this.moreCompetitive && <li><a href="smogtours-ubers-34646" class="blocklink">
-					<small>[gen6-ubers]<br /></small>
-					<strong>steelphoenix</strong> vs. <strong>Jibaku</strong>
-					<small><br />
-						In this SPL Week 4 battle, Jibaku's clever plays with Mega Sableye keep the momentum mostly in his favor.
-					</small>
-				</a></li>}
-				{this.moreCompetitive && <li><a href="smogtours-uu-36860" class="blocklink">
-					<small>[gen6-uu]<br /></small>
-					<strong>IronBullet93</strong> vs. <strong>Laurel</strong>
-					<small><br />
-						Laurel outplays IronBullet's Substitute Tyrantrum with the sly use of a Shuca Berry Cobalion, but luck was
-						inevitably the deciding factor in this SPL Week 6 match.
-					</small>
-				</a></li>}
-				{this.moreCompetitive && <li><a href="smogtours-gen5ou-36900" class="blocklink">
-					<small>[gen5-ou]<br /></small>
-					<strong>Lowgock</strong> vs. <strong>Meridian</strong>
-					<small><br />
-						This SPL Week 6 match features impressive plays, from Jirachi sacrificing itself to paralysis to avoid a
-						burn to some clever late-game switches.
-					</small>
-				</a></li>}
-				{this.moreCompetitive && <li><a href="smogtours-gen4ou-36782" class="blocklink">
-					<small>[gen4-ou]<br /></small>
-					<strong>Heist</strong> vs. <strong>liberty32</strong>
-					<small><br />
-						Starting out as an entry hazard-filled stallfest, this close match is eventually decided by liberty32's
-						efficient use of Aerodactyl.
-					</small>
-				</a></li>}
-				{this.moreCompetitive && <li><a href="randombattle-213274483" class="blocklink">
-					<small>[gen6-randombattle]<br /></small>
-					<strong>The Immortal</strong> vs. <strong>Amphinobite</strong>
-					<small><br />
-						Substitute Lugia and Rotom-Fan take advantage of Slowking's utility and large HP stat, respectively,
-						in this high ladder match.
-					</small>
-				</a></li>}
+				{this.moreCompetitive && <li><ReplayLink
+					replay={{ id: 'smogtours-ubers-34646', format: 'gen6-ubers', players: ['steelphoenix', 'Jibaku'] }}
+				>
+					In this SPL Week 4 battle, Jibaku's clever plays with Mega Sableye keep the momentum mostly in his favor.
+				</ReplayLink></li>}
+				{this.moreCompetitive && <li><ReplayLink
+					replay={{ id: 'smogtours-uu-36860', format: 'gen6-uu', players: ['IronBullet93', 'Laurel'] }}
+				>
+					Laurel outplays IronBullet's Substitute Tyrantrum with the sly use of a Shuca Berry Cobalion, but luck was
+					inevitably the deciding factor in this SPL Week 6 match.
+				</ReplayLink></li>}
+				{this.moreCompetitive && <ReplayLink
+					replay={{ id: 'smogtours-gen5ou-36900', format: 'gen5-ou', players: ['Lowgock', 'Meridian'] }}
+				>
+					This SPL Week 6 match features impressive plays, from Jirachi sacrificing itself to paralysis to avoid a
+					burn to some clever late-game switches.
+				</ReplayLink>}
+				{this.moreCompetitive && <li><ReplayLink
+					replay={{ id: 'smogtours-gen4ou-36782', format: 'gen4-ou', players: ['Heist', 'liberty32'] }}
+				>
+					Starting out as an entry hazard-filled stallfest, this close match is eventually decided by liberty32's
+					efficient use of Aerodactyl.
+				</ReplayLink></li>}
+				{this.moreCompetitive && <li><ReplayLink
+					replay={{ id: 'randombattle-213274483', format: 'gen6-randombattle', players: ['The Immortal', 'Amphinobite'] }}
+				>
+					Substitute Lugia and Rotom-Fan take advantage of Slowking's utility and large HP stat, respectively,
+					in this high ladder match.
+				</ReplayLink></li>}
 			</ul>
 		</section>;
 	}
+}
+
+function ReplayLink(props: {
+	user?: ID, replay: {
+		id: string, format?: string, players: string[], password?: string, rating?: number, private?: number,
+	}, children?: preact.ComponentChildren,
+}) {
+	const user = props.user;
+	const replay = props.replay;
+	const viewpointSwitched = (toID(replay.players[1]) === user);
+	const url = replay.id + (replay.password ? `-${replay.password}pw` : '') + (viewpointSwitched ? '?p2' : '');
+
+	return <a href={PSRouter.href(url)} class="blocklink">
+		<small>{replay.format}{replay.rating ? ` (Rating: ${replay.rating})` : ''}<br /></small>
+		{!!replay.private && <i class="fa fa-lock"></i>} {}
+		<strong>{replay.players[0]}</strong> vs. <strong>{replay.players[1]}</strong>
+		{props.children && <small><br />
+			{props.children}
+		</small>}
+	</a>;
 }
 
 export const PSRouter = new class extends PSModel {
@@ -388,6 +385,9 @@ export const PSRouter = new class extends PSModel {
 		super();
 		const baseLocSlashIndex = document.location.href.lastIndexOf('/');
 		this.baseLoc = document.location.href.slice(0, baseLocSlashIndex + 1);
+		if (Net.defaultRoute) {
+			this.baseLoc = document.location.href.replace(/#.*/, '') + '#';
+		}
 		this.go(document.location.href);
 		this.setSinglePanel(true);
 		if (window.history) window.addEventListener('popstate', e => {
@@ -403,6 +403,9 @@ export const PSRouter = new class extends PSModel {
 	}
 	showingRight() {
 		return this.rightLoc !== null;
+	}
+	href(route: string | null) {
+		return `${Net.defaultRoute ? '#' : route?.startsWith('?') ? './' : ''}${route || ''}` || '.';
 	}
 	setSinglePanel(init?: boolean) {
 		const singlePanel = window.innerWidth < 1300;
@@ -423,7 +426,7 @@ export const PSRouter = new class extends PSModel {
 	}
 	/** returns whether the URL should change */
 	go(href: string): boolean {
-		if (!href.startsWith(this.baseLoc)) return false;
+		if (!href.startsWith(this.baseLoc) && href + '#' !== this.baseLoc) return false;
 
 		const loc = href.slice(this.baseLoc.length);
 		if (!loc || loc.startsWith('?')) {
