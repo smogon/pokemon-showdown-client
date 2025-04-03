@@ -60,8 +60,17 @@ function PageLadderHelp(props: { room: PageRoom }) {
 			your win chance against an average ladder player.
 		</p>
 		<p>
-			<strong>Glicko-1</strong> is a different rating system. It has
-			rating and deviation values.
+			<strong>Glicko-1</strong> is {}
+			<a href="https://en.wikipedia.org/wiki/Glicko_rating_system">another rating system</a>.
+			It has rating and deviation values.
+		</p>
+		<p>
+			<strong>COIL</strong> (Converging Order Invariant Ladder) is
+			used for suspect tests. The more games you play, the closer
+			it will get to your GXE &times; 4000. How fast it reaches
+			GXE &times; 4000 depends on {}
+			<a href="https://www.smogon.com/forums/threads/reintroducing-coil.3747719/" target="_blank">a custom B value</a> {}
+			which is different for each suspect test.
 		</p>
 		<p>
 			Note that win/loss should not be used to estimate skill, since
