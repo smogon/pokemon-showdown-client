@@ -162,8 +162,12 @@ class NetRequest {
 }
 
 export function Net(uri: string) {
+	if (uri.startsWith('/') && !uri.startsWith('//') && Net.defaultRoute) uri = Net.defaultRoute + uri;
+	if (uri.startsWith('//') && document.location.protocol === 'file:') uri = 'https:' + uri;
 	return new NetRequest(uri);
 }
+
+Net.defaultRoute = '';
 
 Net.encodeQuery = function (data: string | PostData) {
 	if (typeof data === 'string') return data;
