@@ -219,7 +219,7 @@ export class PSMain extends preact.Component {
 				if (` ${elem.className} `.includes(' username ')) {
 					const name = elem.getAttribute('data-name');
 					const userid = toID(name);
-					const roomid = `user-${userid}` as RoomID;
+					const roomid = `${` ${elem.className} `.includes(' no-interact ') ? 'viewuser' : 'user'}-${userid}` as RoomID;
 					PS.addRoom({
 						id: roomid,
 						parentElem: elem,
@@ -344,7 +344,8 @@ export class PSMain extends preact.Component {
 	handleButtonClick(elem: HTMLButtonElement) {
 		switch (elem.name) {
 		case 'closeRoom':
-			PS.leave(elem.value as RoomID);
+			const roomid = elem.value as RoomID || this.getRoom(elem)?.id || '' as RoomID;
+			PS.leave(roomid);
 			return true;
 		case 'joinRoom':
 			PS.addRoom({

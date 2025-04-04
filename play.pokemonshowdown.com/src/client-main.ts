@@ -24,7 +24,7 @@ import { BattleTextParser, type Args } from './battle-text-parser';
 /**
  * String that contains only lowercase alphanumeric characters.
  */
-export type RoomID = string & { __isRoomID: true };
+export type RoomID = Lowercase<string> & { __isRoomID: true };
 
 const PSPrefsDefaults: { [key: string]: any } = {};
 
@@ -862,7 +862,7 @@ export const PS = new class extends PSModel {
 	isVisible(room: PSRoom) {
 		if (this.leftRoomWidth === 0) {
 			// one panel visible
-			return room === this.room;
+			return room === this.activePanel;
 		} else {
 			// both panels visible
 			return room === this.rightRoom || room === this.leftRoom;
@@ -917,6 +917,9 @@ export const PS = new class extends PSModel {
 				break;
 			case 'battle-': case 'user-': case 'team-': case 'ladder-':
 				options.type = options.id.slice(0, hyphenIndex);
+				break;
+			case 'viewuser-':
+				options.type = 'user';
 				break;
 			case 'view-':
 				options.type = 'html';
@@ -1120,7 +1123,7 @@ export const PS = new class extends PSModel {
 			break;
 		}
 		if (!noFocus) {
-			if (!this.popups.length) this.activePanel = room;
+			if (this.leftRoom === room || this.rightRoom === room) this.activePanel = room;
 			this.room = room;
 		}
 		if (options.queue) {
@@ -1129,6 +1132,13 @@ export const PS = new class extends PSModel {
 			}
 		}
 		return room;
+	}
+	hideRightRoom() {
+		if (PS.rightRoom) {
+			if (PS.activePanel === PS.rightRoom) PS.activePanel = PS.leftRoom;
+			if (PS.room === PS.rightRoom) PS.room = PS.leftRoom;
+			PS.rightRoom = null;
+		}
 	}
 	removeRoom(room: PSRoom) {
 		room.destroy();
@@ -1180,6 +1190,7 @@ export const PS = new class extends PSModel {
 		this.update();
 	}
 	leave(roomid: RoomID) {
+		if (!roomid) return;
 		const room = PS.rooms[roomid];
 		if (room) this.removeRoom(room);
 	}

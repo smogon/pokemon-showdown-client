@@ -275,7 +275,7 @@ export class UserRoom extends PSRoom {
 	isSelf: boolean;
 	constructor(options: RoomOptions) {
 		super(options);
-		this.userid = this.id.slice(5) as ID;
+		this.userid = (this.id.split('-')[1] || '') as ID;
 		this.isSelf = (this.userid === PS.user.userid);
 		this.name = options.username as string || this.userid;
 		if (/[a-zA-Z0-9]/.test(this.name.charAt(0))) this.name = ' ' + this.name;
@@ -288,6 +288,7 @@ class UserPanel extends PSRoomPanel<UserRoom> {
 		const room = this.props.room;
 		const user = PS.mainmenu.userdetailsCache[room.userid] || { userid: room.userid, avatar: '[loading]' };
 		const name = room.name.slice(1);
+		const hideInteraction = room.id.startsWith('viewuser-');
 
 		const group = PS.server.getGroup(room.name);
 		let groupName: preact.ComponentChild = group.name || null;
@@ -361,8 +362,33 @@ class UserPanel extends PSRoomPanel<UserRoom> {
 			away = user.status.startsWith('!');
 			status = away ? user.status.slice(1) : user.status;
 		}
-		return <PSPanelWrapper room={room}>
 
+		const buttonbar = [];
+		if (!hideInteraction) {
+			buttonbar.push(isSelf || !PS.user.named ? (
+				<p class="buttonbar">
+					<button class="button" disabled>Challenge</button> {}
+					<button class="button" disabled>Chat</button>
+				</p>
+			) : (
+				<p class="buttonbar">
+					<button class="button" data-href={`/challenge-${user.userid}`}>Challenge</button> {}
+					<button class="button" data-href={`/pm-${user.userid}`}>Chat</button> {}
+					<button class="button disabled" name="userOptions">{'\u2026'}</button>
+				</p>
+			));
+			if (isSelf) {
+				buttonbar.push(
+					<hr />,
+					<p class="buttonbar" style="text-align: right">
+						<button class="button disabled" name="login"><i class="fa fa-pencil"></i> Change name</button> {}
+						<button class="button" name="cmd" value="/logout"><i class="fa fa-power-off"></i> Log out</button>
+					</p>
+				);
+			}
+		}
+
+		return <PSPanelWrapper room={room}>
 			<div class="userdetails">
 				{user.avatar !== '[loading]' &&
 					<img
@@ -378,25 +404,9 @@ class UserPanel extends PSRoomPanel<UserRoom> {
 				{groupName && <div class="usergroup roomgroup">{groupName}</div>}
 				{globalGroupName && <div class="usergroup globalgroup">{globalGroupName}</div>}
 				{user.customgroup && <div class="usergroup globalgroup">{user.customgroup}</div>}
-				{roomsList}
+				{!hideInteraction && roomsList}
 			</div>
-			{isSelf || !PS.user.named ? (
-				<p class="buttonbar">
-					<button class="button" disabled>Challenge</button> {}
-					<button class="button" disabled>Chat</button>
-				</p>
-			) : (
-				<p class="buttonbar">
-					<button class="button" data-href={`/challenge-${user.userid}`}>Challenge</button> {}
-					<button class="button" data-href={`/pm-${user.userid}`}>Chat</button> {}
-					<button class="button disabled" name="userOptions">{'\u2026'}</button>
-				</p>
-			)}
-			{isSelf && <hr />}
-			{isSelf && <p class="buttonbar" style="text-align: right">
-				<button class="button disabled" name="login"><i class="fa fa-pencil"></i> Change name</button> {}
-				<button class="button" name="cmd" value="/logout"><i class="fa fa-power-off"></i> Log out</button>
-			</p>}
+			{buttonbar}
 		</PSPanelWrapper>;
 	}
 }
@@ -429,7 +439,7 @@ class VolumePanel extends PSRoomPanel {
 			<h3>Volume</h3>
 			<p class="volume">
 				<label class="optlabel">
-					Effects: <span class="value">{!PS.prefs.mute && PS.prefs.effectvolume ? `${PS.prefs.effectvolume}%` : `muted`}</span>
+					Effects: <span class="value">{!PS.prefs.mute && PS.prefs.effectvolume ? `${PS.prefs.effectvolume}%` : `-`}</span>
 				</label>
 				{PS.prefs.mute ?
 					<em>(muted)</em> :
@@ -440,7 +450,7 @@ class VolumePanel extends PSRoomPanel {
 			</p>
 			<p class="volume">
 				<label class="optlabel">
-					Music: <span class="value">{!PS.prefs.mute && PS.prefs.musicvolume ? `${PS.prefs.musicvolume}%` : `muted`}</span>
+					Music: <span class="value">{!PS.prefs.mute && PS.prefs.musicvolume ? `${PS.prefs.musicvolume}%` : `-`}</span>
 				</label>
 				{PS.prefs.mute ?
 					<em>(muted)</em> :
@@ -452,7 +462,7 @@ class VolumePanel extends PSRoomPanel {
 			<p class="volume">
 				<label class="optlabel">
 					Notifications: {}
-					<span class="value">{!PS.prefs.mute && PS.prefs.notifvolume ? `${PS.prefs.notifvolume}%` : `muted`}</span>
+					<span class="value">{!PS.prefs.mute && PS.prefs.notifvolume ? `${PS.prefs.notifvolume}%` : `-`}</span>
 				</label>
 				{PS.prefs.mute ?
 					<em>(muted)</em> :

@@ -69,7 +69,7 @@ class BattlesPanel extends PSRoomPanel<BattlesRoom> {
 	override render() {
 		const room = this.props.room;
 		return <PSPanelWrapper room={room} scrollable><div class="pad">
-			<button class="button" style="float:right;font-size:10pt;margin-top:3px" name="close">
+			<button class="button" style="float:right;font-size:10pt;margin-top:3px" name="closeRoom">
 				<i class="fa fa-times"></i> Close
 			</button>
 			<div class="roomlist">
@@ -145,7 +145,7 @@ class BattleRoom extends ChatRoom {
 				turnNum += this.battle.turn;
 				if (turnNum < 0) turnNum = 0;
 			} else if (target === 'end') {
-				turnNum = -1;
+				turnNum = Infinity;
 			}
 			if (isNaN(turnNum)) {
 				this.receiveLine([`error`, `/ffto - Invalid turn number: ${target}`]);
@@ -247,7 +247,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 		this.props.room.send(text);
 	};
 	override focus() {
-		this.base!.querySelector('textarea')!.focus();
+		this.base!.querySelector('textarea')?.focus();
 	}
 	focusIfNoSelection = () => {
 		const selection = window.getSelection()!;
