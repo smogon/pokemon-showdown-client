@@ -263,12 +263,12 @@ class FeaturedReplays extends preact.Component {
 					Protean + prediction
 				</ReplayLink></li>
 				<li><ReplayLink
-					replay={{ id: 'anythinggoes-218380995', format: 'gen6-anythinggoes', players: ['Anta2', 'dscottnew'] }}
+					replay={{ id: 'anythinggoes-218380995', format: 'gen6-anythinggoes', players: ['Anta2', 'dscottnew'] }} switched
 				>
 					Cheek Pouch
 				</ReplayLink></li>
 				<li><ReplayLink
-					replay={{ id: 'uberssuspecttest-147833524', format: 'gen6-ubers', players: ['Metal Brellow', 'zig100'] }}
+					replay={{ id: 'uberssuspecttest-147833524', format: 'gen6-ubers', players: ['Metal Brellow', 'zig100'] }} switched
 				>
 					Topsy-Turvy
 				</ReplayLink></li>
@@ -276,17 +276,17 @@ class FeaturedReplays extends preact.Component {
 					<button class="button" onClick={this.showMoreFun}>More <i class="fa fa-caret-right" aria-hidden></i></button>
 				</li>}
 				{this.moreFun && <li><ReplayLink
-					replay={{ id: 'smogondoubles-75588440', format: 'gen6-smogondoubles', players: ['jamace6', 'DubsWelder'] }}
+					replay={{ id: 'smogondoubles-75588440', format: 'gen6-smogondoubles', players: ['jamace6', 'DubsWelder'] }} switched
 				>
 					Garchomp sweeps 11 pokemon
 				</ReplayLink></li>}
 				{this.moreFun && <li><ReplayLink
-					replay={{ id: 'ou-20651579', format: 'gen5-ou', players: ['RainSeven07', 'my body is regi'] }}
+					replay={{ id: 'ou-20651579', format: 'gen5-ou', players: ['RainSeven07', 'my body is regi'] }} switched
 				>
 					An entire team based on Assist V-create
 				</ReplayLink></li>}
 				{this.moreFun && <li><ReplayLink
-					replay={{ id: 'balancedhackmons7322360', format: 'gen5-balancedhackmons', players: ['a ver', 'Shuckie'] }}
+					replay={{ id: 'balancedhackmons7322360', format: 'gen5-balancedhackmons', players: ['a ver', 'Shuckie'] }} switched
 				>
 					To a ver's frustration, PP stall is viable in Balanced Hackmons
 				</ReplayLink></li>}
@@ -356,14 +356,15 @@ class FeaturedReplays extends preact.Component {
 }
 
 function ReplayLink(props: {
-	user?: ID, replay: {
+	user?: ID, switched?: boolean, replay: {
 		id: string, format?: string, players: string[], password?: string, rating?: number, private?: number,
 	}, children?: preact.ComponentChildren,
 }) {
 	const user = props.user;
 	const replay = props.replay;
 	const viewpointSwitched = (toID(replay.players[1]) === user);
-	const url = replay.id + (replay.password ? `-${replay.password}pw` : '') + (viewpointSwitched ? '?p2' : '');
+	const url = replay.id + (replay.password ? `-${replay.password}pw` : '') +
+		(viewpointSwitched || props.switched ? '?p2' : '');
 
 	return <a href={PSRouter.href(url)} class="blocklink">
 		<small>{replay.format}{replay.rating ? ` (Rating: ${replay.rating})` : ''}<br /></small>
