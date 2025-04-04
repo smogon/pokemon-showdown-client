@@ -28,11 +28,9 @@ class RoomsPanel extends PSRoomPanel {
 			if (PS.user.named) PS.send(`|/cmd rooms`);
 		}));
 	}
-	hide = () => {
-		this.hidden = true;
-		PS.rightRoom = null;
-		PS.room = PS.leftRoom;
-		this.forceUpdate();
+	hide = (e: Event) => {
+		e.stopImmediatePropagation();
+		PS.hideRightRoom();
 		PS.update();
 	};
 	changeSearch = (e: Event) => {

@@ -14,7 +14,6 @@ import type { ChatRoom } from "./panel-chat";
 import type { LadderRoom } from "./panel-ladder";
 import type { RoomsRoom } from "./panel-rooms";
 import { TeamBox } from "./panel-teamdropdown";
-import type { UserRoom } from "./panel-topbar";
 import { Dex, toID, type ID } from "./battle-dex";
 import type { Args } from "./battle-text-parser";
 
@@ -259,8 +258,8 @@ export class MainMenuRoom extends PSRoom {
 			} else {
 				Object.assign(userdetails, response);
 			}
-			const userRoom = PS.rooms[`user-${userid}`] as UserRoom;
-			if (userRoom) userRoom.update(null);
+			PS.rooms[`user-${userid}`]?.update(null);
+			PS.rooms[`viewuser-${userid}`]?.update(null);
 			break;
 		case 'rooms':
 			if (response.pspl) {

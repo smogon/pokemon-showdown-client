@@ -151,7 +151,7 @@ class LadderFormat extends preact.Component<{ room: LadderRoom }> {
 					{i < 3 && <i class="fa fa-trophy" style={{ color: ['#d6c939', '#adb2bb', '#ca8530'][i] }}></i>} {i + 1}
 				</td>
 				<td><span
-					class="username" data-name={row.username} style={{
+					class="username no-interact" data-name={row.username} style={{
 						fontWeight: i < 10 ? 'bold' : 'normal', color: BattleLog.usernameColor(row.userid),
 					}}
 				>
