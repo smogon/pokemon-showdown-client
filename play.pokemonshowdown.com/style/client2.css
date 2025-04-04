@@ -33,26 +33,6 @@ body {
 	text-align: center;
 }
 
-.dark .button.notifying {
-	background: #6BACC5;
-	border-color: #2C9CC1;
-}
-
-.dark .button.notifying.subtle {
-	border-color: #000000;
-	background: #b2d7f7;
-	color: black;
-}
-
-.dark .button.notifying:hover {
-	background: #6BACC5;
-	border-color: #FFFFFF;
-}
-
-.dark a.button.subtle-notifying {
-	color: #61A3BB;
-}
-
 /* .dark .roomtab.button.closable,
 .dark .roomtab.button {
 	background: #3A3A3A;
@@ -71,15 +51,6 @@ body {
 	color: #F9F9F9;
 	text-shadow: 1px 1px 0 #111;
 } */
-.dark .tabbar a.button.subtle-notifying {
-	color: #6BACC5;
-}
-.dark .tabbar a.button.notifying {
-	background: #6BACC5;
-	border-color: #2C9CC1;
-	color: #000;
-	text-shadow: none;
-}
 .dark .maintabbarbottom {
 	background: #636363;
 	border-color: #A9A9A9;
@@ -96,9 +67,6 @@ body {
 .dark .tabbar a.button:hover {
 	background: #606060;
 	border-color: #EEEEEE;
-}
-.dark .tabbar a.button.notifying:hover {
-	background: #92C2D3;
 }
 .dark .button.cur,
 .dark .button.cur:hover,
@@ -248,21 +216,6 @@ body {
 	box-shadow: 0 1px 2px rgba(0,0,0,.1);
 }
 
-.button.notifying {
-	border-color: #AA8866;
-	background: #e3c3a3;
-}
-
-.button.notifying.subtle {
-	border-color: #000000;
-	background: #b2d7f7;
-	color: black;
-}
-
-.button.notifying:hover {
-	border-color: #604020;
-	background: #cfaf8f;
-}
 .button.cur,
 .button.cur:hover {
 	color: #777777;
@@ -270,9 +223,6 @@ body {
 	box-shadow: none;
 	border-color: #AAAAAA;
 	cursor: default;
-}
-.button.subtle-notifying {
-	color: #AA6600;
 }
 .button.subtle-notifying .fa-comment-o:before,
 .button.notifying .fa-comment-o:before {

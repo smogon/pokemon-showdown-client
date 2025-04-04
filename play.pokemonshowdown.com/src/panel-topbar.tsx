@@ -19,7 +19,7 @@ import { BattleLog } from "./battle-log";
 window.addEventListener('drop', e => {
 	console.log('drop ' + e.dataTransfer!.dropEffect);
 	const target = e.target as HTMLElement;
-	if ((target as HTMLInputElement).type.startsWith("text")) {
+	if ((target as HTMLInputElement).type?.startsWith("text")) {
 		PS.dragging = null;
 		return; // Ignore text fields
 	}
