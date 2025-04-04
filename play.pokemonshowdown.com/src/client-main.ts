@@ -1067,10 +1067,16 @@ export const PS = new class extends PSModel {
 			options.id = `pm-${options.id.slice(10)}` as RoomID;
 			options.challengeMenuOpen = true;
 		}
-		if (options.id.startsWith('pm-') && !options.id.includes('-', 3)) {
-			const userid1 = PS.user.userid;
-			const userid2 = options.id.slice(3);
-			options.id = `pm-${[userid1, userid2].sort().join('-')}` as RoomID;
+		if (options.id.startsWith('pm-')) {
+			if (options.id.length >= 5 && options.id.endsWith('--')) {
+				options.id = options.id.slice(0, -2) as RoomID;
+				options.initialSlash = true;
+			}
+			if (options.id !== 'pm-' && !options.id.includes('-', 3)) {
+				const userid1 = PS.user.userid;
+				const userid2 = options.id.slice(3);
+				options.id = `pm-${[userid1, userid2].sort().join('-')}` as RoomID;
+			}
 		}
 
 		if (this.rooms[options.id]) {

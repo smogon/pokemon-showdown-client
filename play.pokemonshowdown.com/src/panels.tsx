@@ -287,16 +287,20 @@ export class PSMain extends preact.Component {
 
 		window.addEventListener('keydown', e => {
 			let elem = e.target as HTMLInputElement | null;
+			let isTextInput = false;
 			if (elem) {
-				let isTextInput = (elem.tagName === 'INPUT' || elem.tagName === 'TEXTAREA');
+				isTextInput = (elem.tagName === 'INPUT' || elem.tagName === 'TEXTAREA');
 				if (isTextInput && ['button', 'radio', 'checkbox', 'file'].includes(elem.type)) {
 					isTextInput = false;
 				}
 				if (isTextInput && elem.value) {
 					return;
 				}
-				if (elem.contentEditable === 'true' && elem.textContent && elem.textContent !== '\n') {
-					return;
+				if (elem.contentEditable === 'true') {
+					isTextInput = true;
+					if (elem.textContent && elem.textContent !== '\n') {
+						return;
+					}
 				}
 			}
 			if (PS.room.onParentEvent) {
@@ -314,6 +318,10 @@ export class PSMain extends preact.Component {
 			} else if (e.keyCode === 39) { // right
 				PS.arrowKeysUsed = true;
 				PS.focusRightRoom();
+			} else if (e.keyCode === 191 && !isTextInput && PS.room === PS.mainmenu) { // forward slash
+				e.stopImmediatePropagation();
+				e.preventDefault();
+				PS.join('pm---' as RoomID);
 			}
 		});
 

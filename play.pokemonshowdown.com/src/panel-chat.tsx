@@ -26,6 +26,7 @@ export class ChatRoom extends PSRoom {
 	// PM-only properties
 	pmTarget: string | null = null;
 	challengeMenuOpen = false;
+	initialSlash = false;
 	challengingFormat: string | null = null;
 	challengedFormat: string | null = null;
 
@@ -33,6 +34,7 @@ export class ChatRoom extends PSRoom {
 		super(options);
 		if (options.pmTarget) this.pmTarget = options.pmTarget as string;
 		if (options.challengeMenuOpen) this.challengeMenuOpen = true;
+		if (options.initialSlash) this.initialSlash = true;
 		this.updateTarget(true);
 		this.connect();
 	}
@@ -44,7 +46,13 @@ export class ChatRoom extends PSRoom {
 		}
 	}
 	updateTarget(force?: boolean) {
-		if (this.id.startsWith('pm-')) {
+		if (this.id === 'pm-') {
+			this.pmTarget = PS.user.userid;
+			if (!this.userCount) {
+				this.setUsers(1, [` ${PS.user.userid}`]);
+			}
+			this.title = `[Console]`;
+		} else if (this.id.startsWith('pm-')) {
 			const [id1, id2] = this.id.slice(3).split('-');
 			if (id1 === PS.user.userid && toID(this.pmTarget) !== id2) {
 				this.pmTarget = id2;
@@ -183,6 +191,10 @@ export class ChatTextEntry extends preact.Component<{
 			},
 			onKeyDown: this.onKeyDown,
 		});
+		if (this.props.room.initialSlash) {
+			this.props.room.initialSlash = false;
+			this.miniedit.setValue('/', { start: 1, end: 1 });
+		}
 		if (this.base) this.update();
 	}
 	override componentWillUnmount() {
@@ -276,6 +288,11 @@ export class ChatTextEntry extends preact.Component<{
 			return this.historyUp();
 		} else if (ev.keyCode === 40 && !ev.shiftKey && !ev.altKey) { // Down key
 			return this.historyDown();
+		} else if (ev.keyCode === 27) { // esc
+			if (PS.room !== PS.activePanel) { // only close if in mini-room mode
+				PS.removeRoom(PS.room);
+				return true;
+			}
 		// } else if (app.user.lastPM && (textbox.value === '/reply' || textbox.value === '/r' || textbox.value === '/R') && e.keyCode === 32) { // '/reply ' is being written
 		// 	var val = '/pm ' + app.user.lastPM + ', ';
 		// 	textbox.value = val;

@@ -235,7 +235,8 @@ export class MainMenuRoom extends PSRoom {
 	handlePM(user1: string, user2: string, message: string) {
 		const userid1 = toID(user1);
 		const userid2 = toID(user2);
-		const roomid = `pm-${[userid1, userid2].sort().join('-')}` as RoomID;
+		let roomid = `pm-${[userid1, userid2].sort().join('-')}` as RoomID;
+		if (userid1 === userid2 || !userid1) roomid = 'pm-' as RoomID;
 		let room = PS.rooms[roomid];
 		if (!room) {
 			const pmTarget = PS.user.userid === userid1 ? user2 : user1;
