@@ -140,6 +140,7 @@ https://replay.pokemonshowdown.com/gen7randomdoublesbattle-865046831.log
 		display: inline-block;
 		line-height: 22px;
 		font-size: 10pt;
+		vertical-align: top;
 	}
 	.optgroup .button {
 		height: 25px;
