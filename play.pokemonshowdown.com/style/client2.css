@@ -604,9 +604,6 @@ p.or:after {
 	word-wrap: break-word;
 	border: 1px solid #AAAAAA;
 	border-top: 0;
-
-	overflow: auto;
-	-webkit-overflow-scrolling: touch;
 }
 .mini-window-body {
 	border-bottom-left-radius: 5px;
@@ -614,6 +611,8 @@ p.or:after {
 }
 .pm-log {
 	border-bottom: 0;
+	overflow: auto;
+	-webkit-overflow-scrolling: touch;
 }
 .pm-log-add {
 	color: black;
@@ -895,7 +894,18 @@ p.or:after {
 	max-width: 480px;
 	text-align: left;
 }
-.roomlist .blocklink small {
+.roomlist .subrooms {
+	font-size: 8pt;
+	padding-left: 20px;
+	margin: -5px 0 4px;
+}
+.roomlist .subrooms i.fa-level-up {
+	margin-right: 5px;
+}
+.roomlist .subrooms a.blocklink {
+	display: inline-block;
+	margin: 0;
+	vertical-align: middle;
 	font-size: 8pt;
 }
 

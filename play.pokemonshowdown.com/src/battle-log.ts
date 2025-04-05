@@ -840,7 +840,7 @@ export class BattleLog {
 			// 	for (let i = 0; i < 10; i++) {
 			// 		let name = people[Math.floor(Math.random() * people.length)];
 			// 		if (!button) button = buttons[Math.floor(Math.random() * buttons.length)];
-			// 		this.scene.log('<div class="chat"><strong style="' + BattleLog.hashColor(toUserid(name)) + '" class="username" data-name="' + BattleLog.escapeHTML(name) + '">' + BattleLog.escapeHTML(name) + ':</strong> <em>' + button + '</em></div>');
+			// 		this.scene.log('<div class="chat"><strong style="' + BattleLog.hashColor(toUserid(name)) + '" class="username">' + BattleLog.escapeHTML(name) + ':</strong> <em>' + button + '</em></div>');
 			// 		button = (name === 'Diatom' ? "thanks diatom" : null);
 			// 	}
 			} else if (moveid === 'stealthrock') {
@@ -1150,7 +1150,7 @@ export class BattleLog {
 			name = name.substr(1);
 		}
 		const colorStyle = ` style="color:${BattleLog.usernameColor(toID(name))}"`;
-		const clickableName = `<small>${BattleLog.escapeHTML(group)}</small><span class="username" data-name="${BattleLog.escapeHTML(name)}">${BattleLog.escapeHTML(name)}</span>`;
+		const clickableName = `<small>${BattleLog.escapeHTML(group)}</small><span class="username">${BattleLog.escapeHTML(name)}</span>`;
 		let hlClass = isHighlighted ? ' highlighted' : '';
 		let isMine = (window.app?.user?.get('name') === name) || (window.PS?.user.name === name);
 		let mineClass = isMine ? ' mine' : '';

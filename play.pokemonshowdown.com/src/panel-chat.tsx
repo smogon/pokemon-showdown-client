@@ -507,7 +507,7 @@ export class ChatUserList extends preact.Component<{ room: ChatRoom, left?: numb
 				} else {
 					color = BattleLog.usernameColor(userid);
 				}
-				return <li key={userid}><button class="userbutton username" data-name={name}>
+				return <li key={userid}><button class="userbutton username">
 					<em class={`group${['leadership', 'staff'].includes(group.type!) ? ' staffgroup' : ''}`}>
 						{groupSymbol}
 					</em>

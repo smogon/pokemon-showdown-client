@@ -102,7 +102,7 @@ RewriteRule ^([A-Za-z0-9][A-Za-z0-9-]*)/$ /$1 [R=301,L]
 
 # Anything that looks like a roomid: connect to the server
 RewriteRule ^$ - [E=INDEX_PAGE:1]
-RewriteRule ^(preactalpha|pm-[a-z0-9-]*|challenge-[a-z0-9-]*|)$ ./preactalpha.html [L,E=INDEX_PAGE:1]
+RewriteRule ^(preactalpha|pm-[a-z0-9-]*|challenge-[a-z0-9-]*)$ ./preactalpha.html [L,E=INDEX_PAGE:1]
 RewriteRule ^([A-Za-z0-9][A-Za-z0-9-]*)$ ./ [L,E=INDEX_PAGE:1]
 
 # RewriteRule ^crossprotocol\.html$ - [E=CROSSPROTOCOL:1]

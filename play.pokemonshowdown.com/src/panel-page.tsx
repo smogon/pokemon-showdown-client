@@ -42,7 +42,7 @@ class PageRoom extends PSRoom {
 function PageLadderHelp(props: { room: PageRoom }) {
 	return <div class="ladder pad">
 		<p>
-			<button name="selectFormat" data-href="ladder" data-target="replace">
+			<button class="button" data-href="/ladder" data-target="replace">
 				<i class="fa fa-chevron-left"></i> Format List
 			</button>
 		</p>
