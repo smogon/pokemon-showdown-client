@@ -168,7 +168,7 @@ export class PSRoomPanel<T extends PSRoom = PSRoom> extends preact.Component<{ r
 		PS.closePopup();
 	}
 	focus() {}
-	render() {
+	override render() {
 		return <PSPanelWrapper room={this.props.room}>
 			<div class="mainmessage"><p>Loading...</p></div>
 		</PSPanelWrapper>;
@@ -221,7 +221,7 @@ export class PSMain extends preact.Component {
 			let clickedRoom = null;
 			while (elem) {
 				if (` ${elem.className} `.includes(' username ')) {
-					const name = elem.getAttribute('data-name');
+					const name = elem.getAttribute('data-name') || elem.innerText;
 					const userid = toID(name);
 					const roomid = `${` ${elem.className} `.includes(' no-interact ') ? 'viewuser' : 'user'}-${userid}` as RoomID;
 					PS.addRoom({
@@ -241,13 +241,18 @@ export class PSMain extends preact.Component {
 					const roomid = PS.router.extractRoomID(href);
 
 					if (roomid !== null) {
+						let location = null;
 						if (elem.getAttribute('data-target') === 'replace') {
 							const room = PS.getRoom(elem);
-							if (room) PS.leave(room.id);
+							if (room) {
+								PS.leave(room.id);
+								location = room.location;
+							}
 						}
 						PS.addRoom({
 							id: roomid,
 							parentElem: elem,
+							location,
 						});
 						PS.update();
 						e.preventDefault();

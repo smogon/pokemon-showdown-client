@@ -174,14 +174,13 @@ class RoomsPanel extends PSRoomPanel {
 					{roomInfo.userCount !== undefined && <small style="float:right">({roomInfo.userCount} users)</small>}
 					<strong><i class="fa fa-comment-o"></i> {roomInfo.title}<br /></strong>
 					<small>{roomInfo.desc || ''}</small>
-					{roomInfo.subRooms && <small><br />
-						<i class="fa fa-level-up fa-rotate-90"></i> Subrooms: <strong>
-							{roomInfo.subRooms.map((roomName, i) => [
-								<i class="fa fa-comment-o"></i>, " " + roomName + (i === roomInfo.subRooms!.length - 1 ? "" : ", "),
-							])}
-						</strong>
-					</small>}
 				</a>
+				{roomInfo.subRooms && <div class="subrooms">
+					<i class="fa fa-level-up fa-rotate-90"></i> Subrooms: {}
+					{roomInfo.subRooms.map((roomName, i) => [<a href={`/${toID(roomName)}`} class="blocklink">
+						<i class="fa fa-comment-o"></i> <strong>{roomName}</strong>
+					</a>, ' '])}
+				</div>}
 			</div>)}
 		</div>;
 	}
