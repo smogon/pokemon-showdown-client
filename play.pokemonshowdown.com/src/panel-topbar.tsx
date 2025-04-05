@@ -57,11 +57,11 @@ export class PSHeader extends preact.Component<{ style: object }> {
 
 		const leftIndex = PS.leftRoomList.indexOf(draggedOverRoom);
 		if (leftIndex >= 0) {
-			this.dragOnto(draggingRoom, 'leftRoomList', leftIndex);
+			PS.dragOnto(draggingRoom, 'leftRoomList', leftIndex);
 		} else {
 			const rightIndex = PS.rightRoomList.indexOf(draggedOverRoom);
 			if (rightIndex >= 0) {
-				this.dragOnto(draggingRoom, 'rightRoomList', rightIndex);
+				PS.dragOnto(draggingRoom, 'rightRoomList', rightIndex);
 			} else {
 				// eslint-disable-next-line no-useless-return
 				return;
@@ -78,59 +78,6 @@ export class PSHeader extends preact.Component<{ style: object }> {
 
 		PS.dragging = { type: 'room', roomid };
 	};
-	dragOnto(fromRoom: RoomID, toRoomList: 'leftRoomList' | 'rightRoomList' | 'miniRoomList', toIndex: number) {
-		// one day you will be able to rearrange mainmenu and rooms, but not today
-		if (fromRoom === '' || fromRoom === 'rooms') return;
-
-		if (fromRoom === PS[toRoomList][toIndex]) return;
-		if (fromRoom === '' && toRoomList === 'miniRoomList') return;
-
-		const roomLists = ['leftRoomList', 'rightRoomList', 'miniRoomList'] as const;
-		let fromRoomList;
-		let fromIndex = -1;
-		for (const roomList of roomLists) {
-			fromIndex = PS[roomList].indexOf(fromRoom);
-			if (fromIndex >= 0) {
-				fromRoomList = roomList;
-				break;
-			}
-		}
-		if (!fromRoomList) return; // shouldn't happen
-
-		if (toRoomList === 'leftRoomList' && toIndex === 0) toIndex = 1; // Home is always leftmost
-		if (toRoomList === 'rightRoomList' && toIndex === PS.rightRoomList.length - 1) toIndex--; // Rooms is always rightmost
-
-		PS[fromRoomList].splice(fromIndex, 1);
-		// if dragging within the same roomlist and toIndex > fromIndex,
-		// toIndex is offset by 1 now. Fortunately for us, we want to
-		// drag to the right of this tab in that case, so the -1 +1
-		// cancel out
-		PS[toRoomList].splice(toIndex, 0, fromRoom);
-
-		const room = PS.rooms[fromRoom]!;
-		switch (toRoomList) {
-		case 'leftRoomList': room.location = 'left'; break;
-		case 'rightRoomList': room.location = 'right'; break;
-		case 'miniRoomList': room.location = 'mini-window'; break;
-		}
-		if (fromRoomList !== toRoomList) {
-			if (fromRoom === PS.leftRoom.id) {
-				if (PS.room === PS.mainmenu) PS.room = PS.mainmenu;
-				PS.leftRoom = PS.mainmenu;
-			} else if (PS.rightRoom && fromRoom === PS.rightRoom.id) {
-				if (PS.room === PS.rightRoom) PS.room = PS.rooms['rooms']!;
-				PS.rightRoom = PS.rooms['rooms']!;
-			}
-			if (toRoomList === 'rightRoomList') {
-				if (PS.room === PS.rightRoom) PS.room = room;
-				PS.rightRoom = room;
-			} else if (toRoomList === 'leftRoomList') {
-				if (PS.room === PS.leftRoom) PS.room = room;
-				PS.leftRoom = room;
-			}
-		}
-		PS.update();
-	}
 	renderRoomTab(id: RoomID) {
 		const room = PS.rooms[id]!;
 		const closable = (id === '' || id === 'rooms' ? '' : ' closable');
@@ -245,7 +192,7 @@ export class PSHeader extends preact.Component<{ style: object }> {
 				<ul>
 					{PS.leftRoomList.slice(1).map(roomid => this.renderRoomTab(roomid))}
 				</ul>
-				<ul class="siderooms" style={{ float: 'none', marginLeft: PS.leftRoomWidth - 144 }}>
+				<ul class="siderooms" style={{ float: 'none', marginLeft: PS.leftPanelWidth - 144 }}>
 					{PS.rightRoomList.map(roomid => this.renderRoomTab(roomid))}
 				</ul>
 			</div></div>
@@ -368,7 +315,7 @@ class UserPanel extends PSRoomPanel<UserRoom> {
 			buttonbar.push(isSelf || !PS.user.named ? (
 				<p class="buttonbar">
 					<button class="button" disabled>Challenge</button> {}
-					<button class="button" disabled>Chat</button>
+					<button class="button" data-href="/pm-">Chat Self</button>
 				</p>
 			) : (
 				<p class="buttonbar">

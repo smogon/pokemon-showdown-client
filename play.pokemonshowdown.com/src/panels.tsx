@@ -92,8 +92,8 @@ export class PSRouter {
 		PS.subscribeAndRun(() => {
 			const room = PS.room;
 			const roomid = room.id;
-			const panelState = (PS.leftRoomWidth ?
-				PS.leftRoom.id + '..' + PS.rightRoom!.id :
+			const panelState = (PS.leftPanelWidth ?
+				PS.leftPanel.id + '..' + PS.rightPanel!.id :
 				roomid);
 			if (roomid === this.roomid && panelState === this.panelState) {
 				return;
@@ -181,9 +181,13 @@ export function PSPanelWrapper(props: {
 	const room = props.room;
 	if (room.location === 'mini-window') {
 		if (room.id === 'news') {
-			return <div>{props.children}</div>;
+			return <div id={`room-${room.id}`}>{props.children}</div>;
 		}
-		return <div id={`room-${room.id}`} class="mini-window-contents ps-room-light">{props.children}</div>;
+		return <div
+			id={`room-${room.id}`} class={'mini-window-contents ps-room-light' + (props.scrollable ? ' scrollable' : '')}
+		>
+			{props.children}
+		</div>;
 	}
 	if (room.location !== 'left' && room.location !== 'right') {
 		const style = PSMain.getPopupStyle(room, props.width);
@@ -238,7 +242,7 @@ export class PSMain extends preact.Component {
 
 					if (roomid !== null) {
 						if (elem.getAttribute('data-target') === 'replace') {
-							const room = this.getRoom(elem);
+							const room = PS.getRoom(elem);
 							if (room) PS.leave(room.id);
 						}
 						PS.addRoom({
@@ -340,19 +344,10 @@ export class PSMain extends preact.Component {
 			}
 		});
 	}
-	getRoom(elem: HTMLElement) {
-		let curElem: HTMLElement | null = elem;
-		while (curElem) {
-			if (curElem.id.startsWith('room-')) {
-				return PS.rooms[curElem.id.slice(5)];
-			}
-			curElem = curElem.parentElement;
-		}
-	}
 	handleButtonClick(elem: HTMLButtonElement) {
 		switch (elem.name) {
 		case 'closeRoom':
-			const roomid = elem.value as RoomID || this.getRoom(elem)?.id || '' as RoomID;
+			const roomid = elem.value as RoomID || PS.getRoom(elem)?.id || '' as RoomID;
 			PS.leave(roomid);
 			return true;
 		case 'joinRoom':
@@ -364,7 +359,7 @@ export class PSMain extends preact.Component {
 			return true;
 		case 'send':
 		case 'cmd':
-			const room = this.getRoom(elem) || PS.mainmenu;
+			const room = PS.getRoom(elem) || PS.mainmenu;
 			room.send(elem.value, elem.name === 'send');
 			return true;
 		}
@@ -389,13 +384,13 @@ export class PSMain extends preact.Component {
 	}
 	static posStyle(room: PSRoom) {
 		let pos: PanelPosition | null = null;
-		if (PS.leftRoomWidth === 0) {
+		if (PS.leftPanelWidth === 0) {
 			// one panel visible
-			if (room === PS.activePanel) pos = { top: 56 };
+			if (room === PS.panel) pos = { top: 56 };
 		} else {
 			// both panels visible
-			if (room === PS.leftRoom) pos = { top: 56, right: PS.leftRoomWidth };
-			if (room === PS.rightRoom) pos = { top: 56, left: PS.leftRoomWidth };
+			if (room === PS.leftPanel) pos = { top: 56, right: PS.leftPanelWidth };
+			if (room === PS.rightPanel) pos = { top: 56, left: PS.leftPanelWidth };
 		}
 
 		if (!pos) return { display: 'none' };
