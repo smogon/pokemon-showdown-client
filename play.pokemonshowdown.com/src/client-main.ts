@@ -632,7 +632,7 @@ export const PS = new class extends PSModel {
 	 * `PS.room`. Still tracked when not visible, so we know which
 	 * panels to display if PS is resized to two-panel mode.
 	 */
-	leftRoom: PSRoom = null!;
+	leftPanel: PSRoom = null!;
 	/**
 	 * Currently active right room.
 	 *
@@ -642,11 +642,11 @@ export const PS = new class extends PSModel {
 	 * `PS.room`. Still tracked when not visible, so we know which
 	 * panels to display if PS is resized to two-panel mode.
 	 */
-	rightRoom: PSRoom | null = null;
+	rightPanel: PSRoom | null = null;
 	/**
 	 * The currently focused room. Should always be the topmost popup
 	 * if it exists. If no popups are open, it should be
-	 * `PS.activePanel`.
+	 * `PS.panel`.
 	 *
 	 * Determines which room receives keyboard shortcuts.
 	 *
@@ -658,9 +658,9 @@ export const PS = new class extends PSModel {
 	 * or `PS.rightRoom`. If no popups are open, should be `PS.room`.
 	 *
 	 * In one-panel mode, determines whether the left or right panel is
-	 * visible.
+	 * visible. Otherwise, no effect.
 	 */
-	activePanel: PSRoom = null!;
+	panel: PSRoom = null!;
 	/**
 	 * Not to be confused with PSPrefs.onepanel, which is permanent.
 	 * PS.onePanelMode will be true if one-panel mode is on, but it will
@@ -677,7 +677,7 @@ export const PS = new class extends PSModel {
 	 * n.b. PS will only update if the left room width changes. Resizes
 	 * that don't change the left room width will not trigger an update.
 	 */
-	leftRoomWidth = 0;
+	leftPanelWidth = 0;
 	mainmenu: MainMenuRoom = null!;
 
 	/**
@@ -689,7 +689,7 @@ export const PS = new class extends PSModel {
 	 * for security reasons it's impossible to know what they are until
 	 * they're dropped.
 	 */
-	dragging: { type: 'room', roomid: RoomID } | null = null;
+	dragging: { type: 'room', roomid: RoomID, foreground?: boolean } | null = null;
 
 	/** Tracks whether or not to display the "Use arrow keys" hint */
 	arrowKeysUsed = false;
@@ -773,19 +773,98 @@ export const PS = new class extends PSModel {
 		let roomHeight = document.body.offsetHeight - 56;
 		let totalWidth = document.body.offsetWidth;
 		if (leftRoomWidth) {
-			this.leftRoom.width = leftRoomWidth;
-			this.leftRoom.height = roomHeight;
-			this.rightRoom!.width = totalWidth + 1 - leftRoomWidth;
-			this.rightRoom!.height = roomHeight;
+			this.leftPanel.width = leftRoomWidth;
+			this.leftPanel.height = roomHeight;
+			this.rightPanel!.width = totalWidth + 1 - leftRoomWidth;
+			this.rightPanel!.height = roomHeight;
 		} else {
-			this.activePanel.width = totalWidth;
-			this.activePanel.height = roomHeight;
+			this.panel.width = totalWidth;
+			this.panel.height = roomHeight;
 		}
 
-		if (this.leftRoomWidth !== leftRoomWidth) {
-			this.leftRoomWidth = leftRoomWidth;
+		if (this.leftPanelWidth !== leftRoomWidth) {
+			this.leftPanelWidth = leftRoomWidth;
 			if (!alreadyUpdating) this.update(true);
 		}
+	}
+	getRoom(elem: HTMLElement) {
+		let curElem: HTMLElement | null = elem;
+		while (curElem) {
+			if (curElem.id.startsWith('room-')) {
+				return PS.rooms[curElem.id.slice(5)];
+			}
+			curElem = curElem.parentElement;
+		}
+	}
+	dragOnto(fromRoom: RoomID, toRoomList: 'leftRoomList' | 'rightRoomList' | 'miniRoomList', toIndex: number) {
+		// one day you will be able to rearrange mainmenu and rooms, but not today
+		if (fromRoom === '' || fromRoom === 'rooms') return;
+
+		const room = PS.rooms[fromRoom]!;
+		if (fromRoom === PS[toRoomList][toIndex]) {
+			// already in the right place, so just check focus
+			if (toRoomList === 'leftRoomList' && PS.leftPanel !== room) {
+				if (PS.room === PS.leftPanel) PS.room = room;
+				PS.leftPanel = room;
+				PS.update();
+			}
+			return;
+		}
+		if (fromRoom === '' && toRoomList === 'miniRoomList') return;
+
+		const roomLists = ['leftRoomList', 'rightRoomList', 'miniRoomList'] as const;
+		let fromRoomList;
+		let fromIndex = -1;
+		for (const roomList of roomLists) {
+			fromIndex = PS[roomList].indexOf(fromRoom);
+			if (fromIndex >= 0) {
+				fromRoomList = roomList;
+				break;
+			}
+		}
+		if (!fromRoomList) return; // shouldn't happen
+
+		const onHome = (toRoomList === 'leftRoomList' && toIndex === 0);
+		if (onHome) toIndex = 1; // Home is always leftmost
+		if (toRoomList === 'rightRoomList' && toIndex === PS.rightRoomList.length - 1) toIndex--; // Rooms is always rightmost
+
+		PS[fromRoomList].splice(fromIndex, 1);
+		// if dragging within the same roomlist and toIndex > fromIndex,
+		// toIndex is offset by 1 now. Fortunately for us, we want to
+		// drag to the right of this tab in that case, so the -1 +1
+		// cancel out
+		PS[toRoomList].splice(toIndex, 0, fromRoom);
+
+		switch (toRoomList) {
+		case 'leftRoomList': room.location = 'left'; break;
+		case 'rightRoomList': room.location = 'right'; break;
+		case 'miniRoomList': room.location = 'mini-window'; break;
+		}
+		if (onHome) {
+			if (PS.room === PS.panel) PS.room = PS.mainmenu;
+			PS.panel = PS.mainmenu;
+			PS.leftPanel = PS.mainmenu;
+			if (PS.rightPanel === room) {
+				PS.rightPanel = PS.rooms['rooms']!;
+			}
+		} else if (fromRoomList !== toRoomList) {
+			if (PS.leftPanel === room || PS.rightPanel === room) {
+				// active room
+				if (PS.room === PS.panel) PS.room = room;
+				PS.panel = room;
+				if (room === PS.leftPanel) {
+					PS.leftPanel = PS.mainmenu;
+				} else if (room === PS.rightPanel) {
+					PS.rightPanel = PS.rooms['rooms']!;
+				}
+				if (toRoomList === 'rightRoomList') {
+					PS.rightPanel = room;
+				} else if (toRoomList === 'leftRoomList') {
+					PS.leftPanel = room;
+				}
+			}
+		}
+		PS.update();
 	}
 	override update(layoutAlreadyUpdated?: boolean) {
 		if (!layoutAlreadyUpdated) this.updateLayout(true);
@@ -844,9 +923,9 @@ export const PS = new class extends PSModel {
 				continue;
 			}
 			}
-			if (room) room.receiveLine(args);
+			room?.receiveLine(args);
 		}
-		if (room) room.update(isInit ? [`initdone`] : null);
+		room?.update(isInit ? [`initdone`] : null);
 	}
 	send(fullMsg: string) {
 		const pipeIndex = fullMsg.indexOf('|');
@@ -860,26 +939,26 @@ export const PS = new class extends PSModel {
 		this.connection.send(fullMsg);
 	}
 	isVisible(room: PSRoom) {
-		if (this.leftRoomWidth === 0) {
+		if (this.leftPanelWidth === 0) {
 			// one panel visible
-			return room === this.activePanel;
+			return room === this.panel;
 		} else {
 			// both panels visible
-			return room === this.rightRoom || room === this.leftRoom;
+			return room === this.rightPanel || room === this.leftPanel;
 		}
 	}
 	calculateLeftRoomWidth() {
 		// If we don't have both a left room and a right room, obviously
 		// just show one room
-		if (!this.leftRoom || !this.rightRoom || this.onePanelMode) {
+		if (!this.leftPanel || !this.rightPanel || this.onePanelMode) {
 			return 0;
 		}
 
 		// The rest of this code can assume we have both a left room and a
 		// right room, and also want to show both if they fit
 
-		const left = this.getWidthFor(this.leftRoom);
-		const right = this.getWidthFor(this.rightRoom);
+		const left = this.getWidthFor(this.leftPanel);
+		const right = this.getWidthFor(this.rightPanel);
 		const available = document.body.offsetWidth;
 
 		let excess = available - (left.width + right.width);
@@ -973,9 +1052,9 @@ export const PS = new class extends PSModel {
 			const Model = roomType.Model || PSRoom;
 			const newRoom = new Model(options);
 			this.rooms[roomid] = newRoom;
-			if (this.leftRoom === room) this.leftRoom = newRoom;
-			if (this.rightRoom === room) this.rightRoom = newRoom;
-			if (this.activePanel === room) this.activePanel = newRoom;
+			if (this.leftPanel === room) this.leftPanel = newRoom;
+			if (this.rightPanel === room) this.rightPanel = newRoom;
+			if (this.panel === room) this.panel = newRoom;
 			if (this.room === room) this.room = newRoom;
 			if (roomid === '') this.mainmenu = newRoom as MainMenuRoom;
 
@@ -991,15 +1070,15 @@ export const PS = new class extends PSModel {
 	focusRoom(roomid: RoomID) {
 		if (this.room.id === roomid) return;
 		if (this.leftRoomList.includes(roomid)) {
-			this.leftRoom = this.rooms[roomid]!;
-			this.activePanel = this.leftRoom;
+			this.leftPanel = this.rooms[roomid]!;
+			this.panel = this.leftPanel;
 			while (this.popups.length) this.leave(this.popups.pop()!);
-			this.room = this.leftRoom;
+			this.room = this.leftPanel;
 		} else if (this.rightRoomList.includes(roomid)) {
-			this.rightRoom = this.rooms[roomid]!;
-			this.activePanel = this.rightRoom;
+			this.rightPanel = this.rooms[roomid]!;
+			this.panel = this.rightPanel;
 			while (this.popups.length) this.leave(this.popups.pop()!);
-			this.room = this.rightRoom;
+			this.room = this.rightPanel;
 		} else if (this.rooms[roomid]) { // popup
 			this.room = this.rooms[roomid]!;
 		} else {
@@ -1109,7 +1188,7 @@ export const PS = new class extends PSModel {
 		switch (room.location) {
 		case 'left':
 			this.leftRoomList.push(room.id);
-			if (!noFocus) this.leftRoom = room;
+			if (!noFocus) this.leftPanel = room;
 			break;
 		case 'right':
 			this.rightRoomList.push(room.id);
@@ -1117,7 +1196,7 @@ export const PS = new class extends PSModel {
 				this.rightRoomList.splice(-2, 1);
 				this.rightRoomList.push('rooms' as RoomID);
 			}
-			if (!noFocus || !this.rightRoom) this.rightRoom = room;
+			if (!noFocus || !this.rightPanel) this.rightPanel = room;
 			break;
 		case 'mini-window':
 			this.miniRoomList.push(room.id);
@@ -1129,7 +1208,7 @@ export const PS = new class extends PSModel {
 			break;
 		}
 		if (!noFocus) {
-			if (this.leftRoom === room || this.rightRoom === room) this.activePanel = room;
+			if (this.leftPanel === room || this.rightPanel === room) this.panel = room;
 			this.room = room;
 		}
 		if (options.queue) {
@@ -1140,10 +1219,10 @@ export const PS = new class extends PSModel {
 		return room;
 	}
 	hideRightRoom() {
-		if (PS.rightRoom) {
-			if (PS.activePanel === PS.rightRoom) PS.activePanel = PS.leftRoom;
-			if (PS.room === PS.rightRoom) PS.room = PS.leftRoom;
-			PS.rightRoom = null;
+		if (PS.rightPanel) {
+			if (PS.panel === PS.rightPanel) PS.panel = PS.leftPanel;
+			if (PS.room === PS.rightPanel) PS.room = PS.leftPanel;
+			PS.rightPanel = null;
 		}
 	}
 	removeRoom(room: PSRoom) {
@@ -1154,9 +1233,9 @@ export const PS = new class extends PSModel {
 		if (leftRoomIndex >= 0) {
 			PS.leftRoomList.splice(leftRoomIndex, 1);
 		}
-		if (PS.leftRoom === room) {
-			PS.leftRoom = this.mainmenu;
-			if (PS.activePanel === room) PS.activePanel = this.mainmenu;
+		if (PS.leftPanel === room) {
+			PS.leftPanel = this.mainmenu;
+			if (PS.panel === room) PS.panel = this.mainmenu;
 			if (PS.room === room) PS.room = this.mainmenu;
 		}
 
@@ -1164,11 +1243,11 @@ export const PS = new class extends PSModel {
 		if (rightRoomIndex >= 0) {
 			PS.rightRoomList.splice(rightRoomIndex, 1);
 		}
-		if (PS.rightRoom === room) {
+		if (PS.rightPanel === room) {
 			let newRightRoomid = PS.rightRoomList[rightRoomIndex] || PS.rightRoomList[rightRoomIndex - 1];
-			PS.rightRoom = newRightRoomid ? PS.rooms[newRightRoomid]! : null;
-			if (PS.activePanel === room) PS.activePanel = PS.rightRoom || PS.leftRoom;
-			if (PS.room === room) PS.room = PS.activePanel;
+			PS.rightPanel = newRightRoomid ? PS.rooms[newRightRoomid]! : null;
+			if (PS.panel === room) PS.panel = PS.rightPanel || PS.leftPanel;
+			if (PS.room === room) PS.room = PS.panel;
 		}
 
 		if (room.location === 'mini-window') {
@@ -1180,7 +1259,7 @@ export const PS = new class extends PSModel {
 
 		if (this.popups.length && room.id === this.popups[this.popups.length - 1]) {
 			this.popups.pop();
-			PS.room = this.popups.length ? PS.rooms[this.popups[this.popups.length - 1]]! : PS.activePanel;
+			PS.room = this.popups.length ? PS.rooms[this.popups[this.popups.length - 1]]! : PS.panel;
 		}
 
 		this.update();

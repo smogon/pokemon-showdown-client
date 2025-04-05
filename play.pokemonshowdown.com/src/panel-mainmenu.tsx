@@ -317,7 +317,29 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
 	};
 	handleDragStart = (e: DragEvent) => {
 		const roomid = (e.currentTarget as HTMLElement).getAttribute('data-roomid') as RoomID;
-		PS.dragging = { type: 'room', roomid };
+		const foreground = (PS.leftPanel.id === roomid || PS.rightPanel?.id === roomid);
+		PS.dragging = { type: 'room', roomid, foreground };
+	};
+	handleDragEnter = (e: DragEvent) => {
+		console.log('dragenter ' + e.dataTransfer!.dropEffect);
+		e.preventDefault();
+		if (!PS.dragging) return; // TODO: handle dragging other things onto roomtabs
+		const draggingRoom = PS.dragging.roomid;
+		if (draggingRoom === null) return;
+
+		const draggedOverRoom = PS.getRoom(e.target as HTMLElement);
+		if (draggingRoom === draggedOverRoom?.id) return;
+
+		const index = PS.miniRoomList.indexOf(draggedOverRoom?.id as any);
+		if (index >= 0) {
+			PS.dragOnto(draggingRoom, 'miniRoomList', index);
+		} else if (PS.rooms[draggingRoom]?.location !== 'mini-window') {
+			PS.dragOnto(draggingRoom, 'miniRoomList', 0);
+		}
+
+		// dropEffect !== 'none' prevents bounce-back animation in
+		// Chrome/Safari/Opera
+		// if (e.dataTransfer) e.dataTransfer.dropEffect = 'move';
 	};
 	renderMiniRoom(room: PSRoom) {
 		const roomType = PS.roomTypes[room.type];
@@ -377,7 +399,7 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
 	override render() {
 		const onlineButton = ' button' + (PS.isOffline ? ' disabled' : '');
 		return <PSPanelWrapper room={this.props.room} scrollable>
-			<div class="mainmenuwrapper">
+			<div class="mainmenuwrapper" onDragEnter={this.handleDragEnter}>
 				<div class="leftmenu">
 					<div class="activitymenu">
 						{this.renderMiniRooms()}
@@ -396,7 +418,7 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
 						</div>
 					</div>
 				</div>
-				<div class="rightmenu" style={{ display: PS.leftRoomWidth ? 'none' : 'block' }}>
+				<div class="rightmenu" style={{ display: PS.leftPanelWidth ? 'none' : 'block' }}>
 					<div class="menugroup">
 						{PS.server.id === 'showdown' ? (
 							<p><button class={"mainmenu1" + onlineButton} name="joinRoom" value="rooms">Join chat</button></p>

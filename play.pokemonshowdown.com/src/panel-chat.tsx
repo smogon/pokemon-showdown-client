@@ -289,7 +289,7 @@ export class ChatTextEntry extends preact.Component<{
 		} else if (ev.keyCode === 40 && !ev.shiftKey && !ev.altKey) { // Down key
 			return this.historyDown();
 		} else if (ev.keyCode === 27) { // esc
-			if (PS.room !== PS.activePanel) { // only close if in mini-room mode
+			if (PS.room !== PS.panel) { // only close if in mini-room mode
 				PS.removeRoom(PS.room);
 				return true;
 			}
