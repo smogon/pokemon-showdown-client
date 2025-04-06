@@ -69,21 +69,23 @@ if (Config.coilpath) {
 	});
 }
 
-const redundantFetch = async (targetUrl: string, data: RequestInit, attempts = 0): Promise<void> => {
-	if (attempts >= 10) return;
+const redundantFetch = async <T = Record<string, any>>(targetUrl: string, data: RequestInit, attempts = 0): Promise<T | null> => {
+	if (attempts >= 10) return null;
+	let out;
 	try {
-		await fetch(targetUrl, data);
+		out = await fetch(targetUrl, data);
 	} catch (e: any) {
 		console.log('error in smogon fetch', e);
-		if (e.code === 400) return;
+		if (e.code === 400) return null;
 		return redundantFetch(targetUrl, data, attempts + 1);
 	}
+	return out.json() as Promise<T>;
 };
 
-export const smogonFetch = async (targetUrl: string, method: string, data: { [k: string]: any }) => {
+export const smogonFetch = async <T>(targetUrl: string, method: string, data: { [k: string]: any }) => {
 	const bodyText = JSON.stringify(data);
 	const hash = await signAsync("RSA-SHA1", bodyText, Config.privatekey);
-	return redundantFetch(`https://www.smogon.com/${targetUrl}`, {
+	return redundantFetch<T>(`https://www.smogon.com/${targetUrl}`, {
 		method,
 		body: new URLSearchParams({ data: bodyText, hash }),
 	});
@@ -1094,18 +1096,15 @@ export const actions: { [k: string]: QueryHandler } = {
 		if (!(reqs.gxe || reqs.elo || reqs.coil) || Object.values(reqs).some(x => typeof x !== 'number')) {
 			throw new ActionError("Invalid reqs sent.");
 		}
-		// sim server should validate this already
-		if (!params.url?.trim().length) {
-			throw new ActionError("Invalid suspect URL provided.");
-		}
 		const start = time();
+		let out;
 		try {
-			await smogonFetch("tools/api/suspect-create", "POST", {
-				url: params.url,
+			out = await smogonFetch<{url: string}>("tools/api/suspect-create", "POST", {
 				date: `${start}`,
 				reqs,
 				format: id,
 			});
+			if (!out) throw new Error("failed");
 		} catch (e: any) {
 			throw new ActionError("Failed to update Smogon suspect test record: " + e.message);
 		}
@@ -1125,7 +1124,7 @@ export const actions: { [k: string]: QueryHandler } = {
 				coil: reqs.coil || null,
 			});
 		}
-		return { success: true };
+		return { success: true, url: out.url};
 	},
 	async 'suspects/edit'(params) {
 		if (this.getIp() !== Config.restartip) {
@@ -1156,7 +1155,6 @@ export const actions: { [k: string]: QueryHandler } = {
 		}
 		await tables.suspects.update(id, reqs);
 		await smogonFetch("tools/api/suspect-edit", "POST", {
-			url: params.url,
 			date: suspect.start_date,
 			format: id,
 			reqs,
