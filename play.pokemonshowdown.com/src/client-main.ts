@@ -477,6 +477,7 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 
 	/** only affects mini-windows */
 	minimized = false;
+	caughtError: string | undefined;
 	// for compatibility with RoomOptions
 	[k: string]: unknown;
 

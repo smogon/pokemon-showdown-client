@@ -154,6 +154,10 @@ export class PSRoomPanel<T extends PSRoom = PSRoom> extends preact.Component<{ r
 		}
 		this.subscriptions = [];
 	}
+	componentDidCatch(err: Error) {
+		this.props.room.caughtError = err.stack || err.message;
+		this.setState({});
+	}
 	receiveLine(args: Args) {}
 	/**
 	 * PS has "fake select menus", buttons that act like <select> dropdowns.
@@ -203,7 +207,7 @@ export function PSPanelWrapper(props: {
 		id={`room-${room.id}`}
 		style={style}
 	>
-		{props.children}
+		{room.caughtError ? <div class="broadcast broadcast-red"><pre>{room.caughtError}</pre></div> : props.children}
 	</div>;
 }
 
@@ -372,6 +376,10 @@ export class PSMain extends preact.Component {
 		}
 		return false;
 	}
+	componentDidCatch(err: Error) {
+		PS.mainmenu.caughtError = err.stack || err.message;
+		this.setState({});
+	}
 	static containingRoomid(elem: HTMLElement) {
 		let curElem: HTMLElement | null = elem;
 		while (curElem) {
@@ -503,7 +511,7 @@ export class PSMain extends preact.Component {
 	}
 	renderRoom(room: PSRoom) {
 		const RoomType = PS.roomTypes[room.type];
-		const Panel = RoomType ? RoomType : PSRoomPanel;
+		const Panel = RoomType && !room.caughtError ? RoomType : PSRoomPanel;
 		return <Panel key={room.id} room={room} />;
 	}
 	renderPopup(room: PSRoom) {
