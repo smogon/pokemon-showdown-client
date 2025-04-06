@@ -74,7 +74,7 @@ export class MainMenuRoom extends PSRoom {
 			return;
 		} case 'popup': {
 			const [, message] = args;
-			alert(message.replace(/\|\|/g, '\n'));
+			PS.alert(message.replace(/\|\|/g, '\n'));
 			return;
 		}
 		}
@@ -321,12 +321,13 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
 		this.base!.querySelector<HTMLButtonElement>('button.big')!.focus();
 	}
 	submit = (e: Event) => {
-		alert('todo: implement');
+		PS.alert('todo: implement');
 	};
 	handleDragStart = (e: DragEvent) => {
-		const roomid = (e.currentTarget as HTMLElement).getAttribute('data-roomid') as RoomID;
-		const foreground = (PS.leftPanel.id === roomid || PS.rightPanel?.id === roomid);
-		PS.dragging = { type: 'room', roomid, foreground };
+		const room = PS.getRoom(e.currentTarget);
+		if (!room) return;
+		const foreground = (PS.leftPanel.id === room.id || PS.rightPanel?.id === room.id);
+		PS.dragging = { type: 'room', roomid: room.id, foreground };
 	};
 	handleDragEnter = (e: DragEvent) => {
 		// console.log('dragenter ' + e.dataTransfer!.dropEffect);
@@ -361,7 +362,7 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
 		if (((e.target as any)?.parentNode as HTMLInputElement)?.name === 'closeRoom') {
 			return;
 		}
-		const room = PS.rooms[(e.currentTarget as any).getAttribute('data-roomid') as RoomID];
+		const room = PS.getRoom(e.currentTarget);
 		if (room) {
 			room.minimized = !room.minimized;
 			this.forceUpdate();
@@ -370,17 +371,18 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
 	renderMiniRooms() {
 		return PS.miniRoomList.map(roomid => {
 			const room = PS.rooms[roomid]!;
-			return <div class="pmbox">
-				<div class="mini-window">
-					<h3 draggable onDragStart={this.handleDragStart} onClick={this.handleClickMinimize} data-roomid={roomid}>
-						<button class="closebutton" name="closeRoom" value={roomid} aria-label="Close" tabIndex={-1}>
-							<i class="fa fa-times-circle"></i>
-						</button>
-						<button class="minimizebutton" tabIndex={-1}><i class="fa fa-minus-circle"></i></button>
-						{room.title}
-					</h3>
-					{this.renderMiniRoom(room)}
-				</div>
+			return <div
+				class={`mini-window${room.minimized ? ' collapsed' : ''}${room === PS.room ? ' focused' : ''}`}
+				key={roomid} data-roomid={roomid}
+			>
+				<h3 draggable onDragStart={this.handleDragStart} onClick={this.handleClickMinimize}>
+					<button class="closebutton" name="closeRoom" value={roomid} aria-label="Close" tabIndex={-1}>
+						<i class="fa fa-times-circle"></i>
+					</button>
+					<button class="minimizebutton" tabIndex={-1}><i class="fa fa-minus-circle"></i></button>
+					{room.title}
+				</h3>
+				{this.renderMiniRoom(room)}
 			</div>;
 		});
 	}
@@ -465,7 +467,7 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
 
 export class FormatDropdown extends preact.Component<{ format?: string, onChange?: JSX.EventHandler<Event> }> {
 	declare base?: HTMLButtonElement;
-	format = '[Gen 7] Random Battle';
+	format = `[Gen ${Dex.gen}] Random Battle`;
 	change = (e: Event) => {
 		if (!this.base) return;
 		this.format = this.base.value;

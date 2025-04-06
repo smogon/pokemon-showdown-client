@@ -57,6 +57,28 @@ export class PSRouter {
 
 		return url as RoomID;
 	}
+	updatePanelState(): { roomid: RoomID, changed: boolean } {
+		const room = PS.room;
+		let roomid = room.id;
+		const panelState = (PS.leftPanelWidth && PS.room === PS.panel ?
+			PS.leftPanel.id + '..' + PS.rightPanel!.id :
+			PS.room.id);
+		// don't generate history when focusing things on the home page
+		if (roomid === 'news' && PS.room.location === 'mini-window') roomid = '' as RoomID;
+		if (roomid === 'rooms') roomid = '' as RoomID;
+		if (roomid === this.roomid && panelState === this.panelState) {
+			return { roomid, changed: false };
+		}
+
+		if (roomid === '' || roomid === 'rooms') {
+			document.title = 'Showdown!';
+		} else {
+			document.title = room.title + ' - Showdown!';
+		}
+		this.roomid = roomid;
+		this.panelState = panelState;
+		return { roomid, changed: true };
+	}
 	subscribeHash() {
 		if (location.hash) {
 			const currentRoomid = location.hash.slice(1);
@@ -67,8 +89,8 @@ export class PSRouter {
 			}
 		}
 		PS.subscribeAndRun(() => {
-			const roomid = PS.room.id;
-			location.hash = roomid ? '#' + roomid : '';
+			const { roomid, changed } = this.updatePanelState();
+			if (changed) location.hash = roomid ? `#${roomid}` : '';
 		});
 		window.addEventListener('hashchange', e => {
 			const possibleRoomid = location.hash.slice(1);
@@ -90,21 +112,12 @@ export class PSRouter {
 		}
 		if (!window.history) return;
 		PS.subscribeAndRun(() => {
-			const room = PS.room;
-			const roomid = room.id;
-			const panelState = (PS.leftPanelWidth ?
-				PS.leftPanel.id + '..' + PS.rightPanel!.id :
-				roomid);
-			if (roomid === this.roomid && panelState === this.panelState) {
-				return;
-			}
-			if (panelState === this.panelState) {
-				history.pushState(panelState, room.title, '/' + roomid);
+			const { roomid, changed } = this.updatePanelState();
+			if (changed) {
+				history.pushState(this.panelState, '', `/${roomid}`);
 			} else {
-				history.replaceState(panelState, room.title, '/' + roomid);
+				history.replaceState(this.panelState, '', `/${roomid}`);
 			}
-			this.roomid = roomid;
-			this.panelState = panelState;
 		});
 		window.addEventListener('popstate', e => {
 			const possibleRoomid = location.pathname.slice(1);
@@ -114,9 +127,11 @@ export class PSRouter {
 			}
 			if (typeof e.state === 'string') {
 				const [leftRoomid, rightRoomid] = e.state.split('..') as RoomID[];
-				PS.join(leftRoomid, 'left');
 				if (rightRoomid) {
+					PS.join(leftRoomid, 'left');
 					PS.join(rightRoomid, 'right');
+				} else {
+					PS.join(leftRoomid);
 				}
 			}
 			if (roomid !== null) {
@@ -187,13 +202,11 @@ export function PSPanelWrapper(props: {
 }) {
 	const room = props.room;
 	if (room.location === 'mini-window') {
-		const minimized = room.minimized ? { display: 'none' } : {};
 		if (room.id === 'news') {
-			return <div id={`room-${room.id}`} style={minimized}>{props.children}</div>;
+			return <div id={`room-${room.id}`}>{props.children}</div>;
 		}
 		return <div
 			id={`room-${room.id}`} class={'mini-window-contents ps-room-light' + (props.scrollable ? ' scrollable' : '')}
-			style={minimized}
 		>
 			{props.children}
 		</div>;
@@ -236,7 +249,6 @@ export class PSMain extends preact.Component {
 					PS.addRoom({
 						id: roomid,
 						parentElem: elem,
-						parentRoomid: PSMain.containingRoomid(elem),
 						rightPopup: elem.className === 'userbutton username',
 						username: name,
 					});

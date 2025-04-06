@@ -134,7 +134,7 @@ class PSPrefs extends PSStreamModel<string | null> {
 			}
 		} else if (isChrome64) {
 			newPrefs['nogif'] = true;
-			alert('Your version of Chrome has a bug that makes animated GIFs freeze games sometimes, so certain animations have been disabled. Only some people have the problem, so you can experiment and enable them in the Options menu setting "Disable GIFs for Chrome 64 bug".');
+			PS.alert('Your version of Chrome has a bug that makes animated GIFs freeze games sometimes, so certain animations have been disabled. Only some people have the problem, so you can experiment and enable them in the Options menu setting "Disable GIFs for Chrome 64 bug".');
 		}
 
 		const colorSchemeQuerySupported = window.matchMedia?.('(prefers-color-scheme: dark)').media !== 'not all';
@@ -241,7 +241,7 @@ class PSTeams extends PSStreamModel<'team' | 'format'> {
 		this.byKey[team.key] = team;
 	}
 	unpackOldBuffer(buffer: string) {
-		alert(`Your team storage format is too old for PS. You'll need to upgrade it at https://${Config.routes.client}/recoverteams.html`);
+		PS.alert(`Your team storage format is too old for PS. You'll need to upgrade it at https://${Config.routes.client}/recoverteams.html`);
 		this.list = [];
 	}
 	packAll(teams: Team[]) {
@@ -431,7 +431,7 @@ class PSUser extends PSStreamModel<PSLoginState | null> {
 		PS.send('|/logout');
 		PS.connection?.disconnect();
 
-		alert("You have been logged out and disconnected.\n\nIf you wanted to change your name while staying connected, use the 'Change Name' button or the '/nick' command.");
+		PS.alert("You have been logged out and disconnected.\n\nIf you wanted to change your name while staying connected, use the 'Change Name' button or the '/nick' command.");
 		this.name = "";
 		this.group = '';
 		this.userid = "" as ID;
@@ -539,12 +539,24 @@ type PSRoomLocation = 'left' | 'right' | 'popup' | 'mini-window' | 'modal-popup'
 export interface RoomOptions {
 	id: RoomID;
 	title?: string;
+	/** @see {PS.roomTypes} */
 	type?: string;
 	location?: PSRoomLocation | null;
-	/** Handled after initialization, outside of the constructor */
+	/** Fed to `room.receiveLine` after initialization, outside of the constructor */
 	queue?: Args[];
+	/**
+	 * Popup parent element. If it exists, a popup shows up right above/below that element.
+	 *
+	 * No effect on non-popup panels.
+	 */
 	parentElem?: HTMLElement | null;
+	/**
+	 * Popup's parent room. Inferred from `parentElem`. Closes any popup that isn't this popup.
+	 *
+	 * No effect on non-popup panels.
+	 */
 	parentRoomid?: RoomID | null;
+	/** Opens the popup to the right of its parent, instead of the default above/below (for userlists) */
 	rightPopup?: boolean;
 	connected?: boolean;
 	[k: string]: unknown;
@@ -667,6 +679,9 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 		}
 		}
 	}
+	/**
+	 * Handles OUTGOING messages, like `/logout`.
+	 */
 	handleMessage(line: string) {
 		if (!line.startsWith('/') || line.startsWith('//')) return false;
 		const spaceIndex = line.indexOf(' ');
@@ -950,14 +965,18 @@ export const PS = new class extends PSModel {
 			if (!alreadyUpdating) this.update(true);
 		}
 	}
-	getRoom(elem: HTMLElement) {
-		let curElem: HTMLElement | null = elem;
+	getRoom(elem: HTMLElement | EventTarget | null | undefined): PSRoom | null {
+		let curElem: HTMLElement | null = elem as HTMLElement;
 		while (curElem) {
 			if (curElem.id.startsWith('room-')) {
-				return PS.rooms[curElem.id.slice(5)];
+				return PS.rooms[curElem.id.slice(5)] || null;
+			}
+			if (curElem.getAttribute('data-roomid')) {
+				return PS.rooms[curElem.getAttribute('data-roomid') as RoomID] || null;
 			}
 			curElem = curElem.parentElement;
 		}
+		return null;
 	}
 	dragOnto(fromRoom: PSRoom, toLocation: 'left' | 'right' | 'mini-window', toIndex: number) {
 		// one day you will be able to rearrange mainmenu and rooms, but not today
@@ -1039,7 +1058,7 @@ export const PS = new class extends PSModel {
 		const msg = fullMsg.slice(pipeIndex + 1);
 		console.log('\u25b6\ufe0f ' + (roomid ? '[' + roomid + '] ' : '') + '%c' + msg, "color: #776677");
 		if (!this.connection) {
-			alert(`You are not connected and cannot send ${msg}.`);
+			PS.alert(`You are not connected and cannot send ${msg}.`);
 			return;
 		}
 		this.connection.send(fullMsg);
@@ -1165,6 +1184,9 @@ export const PS = new class extends PSModel {
 		const room = this.rooms[roomid];
 		if (!room) return false;
 		if (this.room === room) return true;
+		while (this.popups.length && PS.room !== room) {
+			this.leave(this.popups.pop()!);
+		}
 		if (room.location === 'left') {
 			this.leftPanel = this.panel = room;
 			while (this.popups.length) this.leave(this.popups.pop()!);
@@ -1176,10 +1198,6 @@ export const PS = new class extends PSModel {
 		} else { // popup or mini-window
 			if (room.location === 'mini-window') {
 				this.leftPanel = this.panel = PS.mainmenu;
-			} else {
-				while (this.popups.length && this.popups[this.popups.length - 1] !== roomid) {
-					this.leave(this.popups.pop()!);
-				}
 			}
 			this.room = room;
 		}
@@ -1230,6 +1248,17 @@ export const PS = new class extends PSModel {
 		}
 		return buf;
 	}
+	alert(message: string) {
+		alert(message);
+	}
+	prompt(message: string, defaultValue?: string, opts?: {
+		okButton?: string, type?: 'text' | 'password' | 'number',
+	}): Promise<string | null> {
+		return new Promise(resolve => {
+			const input = prompt(message, defaultValue);
+			resolve(input);
+		});
+	}
 	getPMRoom(userid: ID): ChatRoom {
 		const myUserid = PS.user.userid;
 		const roomid = `pm-${[userid, myUserid].sort().join('-')}` as RoomID;
@@ -1255,6 +1284,7 @@ export const PS = new class extends PSModel {
 			}
 		}
 
+		options.parentRoomid ??= this.getRoom(options.parentElem)?.id;
 		if (this.rooms[options.id]) {
 			for (let i = 0; i < this.popups.length; i++) {
 				const popup = this.rooms[this.popups[i]]!;
@@ -1387,8 +1417,8 @@ export const PS = new class extends PSModel {
 			if (location === 'left') this.leftPanel = this.panel = room;
 			if (location === 'right') this.rightPanel = this.panel = room;
 			if (location === 'mini-window') this.leftPanel = this.panel = this.mainmenu;
+			this.room = room;
 		}
-		this.room = room;
 	}
 	removeRoom(room: PSRoom) {
 		room.destroy();
