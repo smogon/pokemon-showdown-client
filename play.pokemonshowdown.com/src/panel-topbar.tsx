@@ -305,10 +305,15 @@ class UserPanel extends PSRoomPanel<UserRoom> {
 
 		const buttonbar = [];
 		if (!hideInteraction) {
-			buttonbar.push(isSelf || !PS.user.named ? (
+			buttonbar.push(isSelf ? (
 				<p class="buttonbar">
 					<button class="button" disabled>Challenge</button> {}
 					<button class="button" data-href="/pm-">Chat Self</button>
+				</p>
+			) : !PS.user.named ? (
+				<p class="buttonbar">
+					<button class="button" disabled>Challenge</button> {}
+					<button class="button" disabled>Chat</button>
 				</p>
 			) : (
 				<p class="buttonbar">

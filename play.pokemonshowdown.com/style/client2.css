@@ -274,24 +274,24 @@ span.header-username:hover {
 	color: #333333;
 }
 .minimizebutton:hover,
-.pm-window h3:hover .minimizebutton {
+.mini-window h3:hover .minimizebutton {
 	color: #333333;
 }
 .dark .minimizebutton:hover,
-.dark .pm-window h3:hover .minimizebutton {
+.dark .mini-window h3:hover .minimizebutton {
 	color: #CCCCCC;
 }
-.pm-window h3 .closebutton:hover + .minimizebutton {
+.mini-window h3 .closebutton:hover + .minimizebutton {
 	color: #999999 !important;
 }
-.pm-window h3 span.header-username:hover + .minimizebutton {
+.mini-window h3 span.header-username:hover + .minimizebutton {
 	color: #999999 !important;
 }
 .closebutton:active,
 .minimizebutton:active {
 	color: #661111;
 }
-.pm-minimized .minimizebutton .fa-minus-circle:before {
+.collapsed .minimizebutton .fa-minus-circle:before {
 	/** replace the minus with a plus when PM is minimized */
 	content: "\f055";
 }
@@ -501,6 +501,7 @@ p.or:after {
 	position: absolute;
 	left: 325px;
 	top: 40px;
+	min-height: 2px;
 }
 .mainmenu {
 	padding: 0 0 51px 0;
@@ -545,13 +546,9 @@ p.or:after {
 	color: #CCDDFF;
 }
 
-.pmbox {
-	width: 270px;
-	margin: 0 auto;
-	min-height: 2px;
-}
 .mini-window {
 	margin: 0 -12px 12px -10px;
+	width: 292px;
 }
 .tiny-layout .mini-window {
 	margin: 0 0 12px 0;
@@ -570,21 +567,28 @@ p.or:after {
 .mini-window h3:hover {
 	color: #333333;
 }
-.mini-window h3.pm-minimized {
+.mini-window.collapsed h3 {
 	border-radius: 5px;
 }
 .mini-window h3.pm-notifying {
 	border-color: #AA8866;
 	background: #E3C3A3;
 }
+.dark .mini-window h3.pm-notifying {
+	background: #417589;
+	color: #BBBBBB;
+}
 .mini-window h3.pm-notifying:hover {
 	border-color: #604020;
 	background: #CFAF8F;
 }
+.dark .mini-window h3.pm-notifying:hover {
+	background: #417589;
+}
 .mini-window h3 .closebutton,
 .mini-window h3 .minimizebutton {
 	float: right;
-	margin: -3px -3px;
+	margin: -2px -3px;
 	width: 22px;
 	height: 22px;
 }
@@ -618,6 +622,10 @@ p.or:after {
 	border-bottom: 0;
 	overflow: auto;
 	-webkit-overflow-scrolling: touch;
+	word-wrap: break-word;
+}
+.pm-buttonbar {
+	padding-bottom: 3px;
 }
 .pm-log-add {
 	color: black;
@@ -626,13 +634,13 @@ p.or:after {
 	border-bottom-right-radius: 5px;
 	background: rgba(242,247,250,.85);
 }
-.mini-window.collapsed .pm-log,
-.mini-window.collapsed .pm-log-add {
+.mini-window.collapsed .mini-window-contents,
+.mini-window.collapsed .mini-window-body {
 	display: none;
 }
 .mini-window.focused h3,
-.mini-window.focused .pm-log,
-.mini-window.focused .pm-log-add {
+.mini-window.focused .mini-window-contents,
+.mini-window.focused .mini-window-body {
 	border-color: #555555;
 }
 .mini-window.focused h3,
@@ -640,6 +648,19 @@ p.or:after {
 	background: #f8f8f8;
 	color: #222222;
 }
+.dark .mini-window h3 {
+	background: rgba(50,50,50,.8);
+	color: #AAA;
+}
+.dark .mini-window h3:hover {
+	color: #CCC;
+}
+.dark .mini-window.focused h3,
+.dark .mini-window.focused h3:hover {
+	background: #222;
+	color: #EEE;
+}
+
 .challenge {
 	margin: 0 5px;
 	background: #fcd2b3;
@@ -2008,6 +2029,7 @@ a.ilink.yours {
 }
 
 .dark .ps-room.ps-room-light,
+.dark .ps-room-light,
 .dark .tournament-box,
 .dark .tournament-status,
 .dark .tournament-toggle,
@@ -2016,7 +2038,7 @@ a.ilink.yours {
 	color: #DDD;
 }
 
-.dark .pm-log {
+.dark .pm-log, .dark .mini-window-body {
 	background: rgba(0,0,0,.85);
 	color: #DDD;
 }
@@ -2121,8 +2143,8 @@ a.ilink.yours {
 	background: rgba(0,0,0,.2);
 }
 .dark .mini-window.focused h3,
-.dark .mini-window.focused .pm-log,
-.dark .mini-window.focused .pm-log-add {
+.dark .mini-window.focused .mini-window-body,
+.dark .mini-window.focused .mini-window-contents {
 	border-color: #CCC;
 }
 

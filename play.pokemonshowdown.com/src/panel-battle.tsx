@@ -55,6 +55,7 @@ class BattlesPanel extends PSRoomPanel<BattlesRoom> {
 	static readonly Model = BattlesRoom;
 	static readonly location = 'right';
 	static readonly icon = <i class="fa fa-caret-square-o-right"></i>;
+	static readonly title = 'Battles';
 	refresh = () => {
 		this.props.room.refresh();
 	};

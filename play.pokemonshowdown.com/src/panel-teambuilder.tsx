@@ -53,7 +53,7 @@ class TeambuilderRoom extends PSRoom {
 		}
 
 		// unrecognized command
-		alert(`Unrecognized command: ${line}`);
+		PS.alert(`Unrecognized command: ${line}`);
 		return true;
 	}
 
