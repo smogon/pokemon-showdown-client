@@ -15,8 +15,6 @@ error_reporting(E_ALL);
 ini_set('display_errors', TRUE);
 ini_set('display_startup_errors', TRUE);
 
-$manage = false;
-
 require_once 'replays.lib.php';
 
 $replay = null;
@@ -66,34 +64,39 @@ if ($replay['password'] ?? null) {
 	}
 }
 
-if (@$replay['inputlog']) {
-	if (
-		$replay['safe_inputlog'] ||
-		$manage
-	) {
-		// ok
-	} else {
+$manage = false;
+if (!empty($replay['inputlog'])) {
+	if (isset($_REQUEST['manage'])) {
+		require_once '../lib/ntbb-session.lib.php';
+		if (!$users->isLeader()) die("[access denied: not logged in as an admin]");
+		$manage = true;
+	} else if (!$replay['safe_inputlog']) {
 		unset($replay['inputlog']);
+		if (isset($_REQUEST['inputlog'])) {
+			header('Content-Type: text/plain');
+			die("[access denied: not a random battle]\n\nIf you are an admin, you can get this using: https://replay.pokemonshowdown.com/$fullid.inputlog?manage");
+		}
 	}
 }
 unset($replay['safe_inputlog']);
+
+if (!$manage) {
+	header('Access-Control-Allow-Origin: *');
+}
 
 if (isset($_REQUEST['json'])) {
 	$matchSuccess = preg_match('/\\n\\|tier\\|([^|]*)\\n/', $replay['log'], $matches);
 	if ($matchSuccess) $replay['format'] = $matches[1];
 
 	header('Content-Type: application/json');
-	header('Access-Control-Allow-Origin: *');
 	die(json_encode($replay));
 	die();
 }
 
 if (isset($_REQUEST['inputlog'])) {
 	header('Content-Type: text/plain');
-	header('Access-Control-Allow-Origin: *');
-	die($replay['inputlog'] ?? '');
+	die($replay['inputlog'] ?? '[inputlog not found]');
 }
 
 header('Content-Type: text/plain');
-header('Access-Control-Allow-Origin: *');
 echo $replay['log'];
