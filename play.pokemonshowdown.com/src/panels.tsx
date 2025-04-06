@@ -180,11 +180,13 @@ export function PSPanelWrapper(props: {
 }) {
 	const room = props.room;
 	if (room.location === 'mini-window') {
+		const minimized = room.minimized ? { display: 'none' } : {};
 		if (room.id === 'news') {
-			return <div id={`room-${room.id}`}>{props.children}</div>;
+			return <div id={`room-${room.id}`} style={minimized}>{props.children}</div>;
 		}
 		return <div
 			id={`room-${room.id}`} class={'mini-window-contents ps-room-light' + (props.scrollable ? ' scrollable' : '')}
+			style={minimized}
 		>
 			{props.children}
 		</div>;
@@ -500,13 +502,13 @@ export class PSMain extends preact.Component {
 		return style;
 	}
 	renderRoom(room: PSRoom) {
-		const roomType = PS.roomTypes[room.type];
-		const Panel = roomType ? roomType.Component : PSRoomPanel;
+		const RoomType = PS.roomTypes[room.type];
+		const Panel = RoomType ? RoomType : PSRoomPanel;
 		return <Panel key={room.id} room={room} />;
 	}
 	renderPopup(room: PSRoom) {
-		const roomType = PS.roomTypes[room.type];
-		const Panel = roomType ? roomType.Component : PSRoomPanel;
+		const RoomType = PS.roomTypes[room.type];
+		const Panel = RoomType ? RoomType : PSRoomPanel;
 		if (room.location === 'popup' && room.parentElem) {
 			return <Panel key={room.id} room={room} />;
 		}

@@ -19,6 +19,11 @@ export class RoomsRoom extends PSRoom {
 }
 
 class RoomsPanel extends PSRoomPanel {
+	static readonly id = 'rooms';
+	static readonly routes = ['rooms'];
+	static readonly Model = RoomsRoom;
+	static readonly location = 'right';
+	static readonly icon = <i class="fa fa-plus" style="margin:7px auto -6px auto"></i>;
 	hidden = false;
 	search = '';
 	lastKeyCode = 0;
@@ -186,8 +191,4 @@ class RoomsPanel extends PSRoomPanel {
 	}
 }
 
-PS.roomTypes['rooms'] = {
-	Model: RoomsRoom,
-	Component: RoomsPanel,
-};
-PS.updateRoomTypes();
+PS.addRoomType(RoomsPanel);

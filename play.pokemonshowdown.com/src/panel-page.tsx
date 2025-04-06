@@ -29,9 +29,10 @@ class PageRoom extends PSRoom {
 	constructor(options: RoomOptions) {
 		super(options);
 		this.connect();
+		this.title = this.id.split('-')[1];
 	}
 	override connect() {
-		if (!this.connected) {
+		if (!this.connected && !PagePanel.clientRooms.hasOwnProperty(this.id.split('-')[1])) {
 			PS.send(`|/join ${this.id}`);
 			this.connected = true;
 			this.connectWhenLoggedIn = false;
@@ -39,7 +40,7 @@ class PageRoom extends PSRoom {
 	}
 }
 
-function PageLadderHelp(props: { room: PageRoom }) {
+function PageLadderHelp() {
 	return <div class="ladder pad">
 		<p>
 			<button class="button" data-href="/ladder" data-target="replace">
@@ -82,7 +83,10 @@ function PageLadderHelp(props: { room: PageRoom }) {
 }
 
 class PagePanel extends PSRoomPanel<PageRoom> {
-	clientRooms: { [key: string]: JSX.Element } = { 'ladderhelp': <PageLadderHelp room={this.props.room} /> };
+	static readonly id = 'html';
+	static readonly routes = ['view-*'];
+	static readonly Model = PageRoom;
+	static clientRooms: { [key: string]: JSX.Element } = { 'ladderhelp': <PageLadderHelp /> };
 
 	/**
 	 * @return true to prevent line from being sent to server
@@ -124,8 +128,8 @@ class PagePanel extends PSRoomPanel<PageRoom> {
 	override render() {
 		const { room } = this.props;
 		let renderPage;
-		if (room.page !== undefined && this.clientRooms[room.page]) {
-			renderPage = this.clientRooms[room.page];
+		if (room.page !== undefined && PagePanel.clientRooms[room.page]) {
+			renderPage = PagePanel.clientRooms[room.page];
 		} else {
 			if (room.loading) {
 				renderPage = <p>Loading...</p>;
@@ -141,8 +145,4 @@ class PagePanel extends PSRoomPanel<PageRoom> {
 	}
 }
 
-PS.roomTypes['html'] = {
-	Model: PageRoom,
-	Component: PagePanel,
-};
-PS.updateRoomTypes();
+PS.addRoomType(PagePanel);

@@ -1050,6 +1050,20 @@ export class BattleLog {
 		}
 		return this.escapeHTML(formatid);
 	}
+	static formatName(formatid: string): string {
+		let atIndex = formatid.indexOf('@@@');
+		if (atIndex >= 0) {
+			return this.formatName(formatid.slice(0, atIndex)) +
+				' (Custom rules: ' + this.escapeHTML(formatid.slice(atIndex + 3)) + ')';
+		}
+		if (window.BattleFormats && BattleFormats[formatid]) {
+			return BattleFormats[formatid].name;
+		}
+		if (window.NonBattleGames && NonBattleGames[formatid]) {
+			return NonBattleGames[formatid];
+		}
+		return formatid;
+	}
 
 	static escapeHTML(str: string, jsEscapeToo?: boolean) {
 		if (typeof str !== 'string') return '';

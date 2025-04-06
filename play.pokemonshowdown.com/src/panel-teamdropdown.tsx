@@ -590,6 +590,9 @@ export function TeamBox(props: { team: Team | null, noLink?: boolean, button?: b
  */
 
 class TeamDropdownPanel extends PSRoomPanel {
+	static readonly id = 'teamdropdown';
+	static readonly routes = ['teamdropdown'];
+	static readonly location = 'semimodal-popup';
 	gen = '';
 	format: string | null = null;
 	getTeams() {
@@ -752,6 +755,9 @@ export interface FormatData {
 declare const BattleFormats: { [id: string]: FormatData };
 
 class FormatDropdownPanel extends PSRoomPanel {
+	static readonly id = 'formatdropdown';
+	static readonly routes = ['formatdropdown'];
+	static readonly location = 'semimodal-popup';
 	gen = '';
 	format: string | null = null;
 	click = (e: MouseEvent) => {
@@ -845,10 +851,4 @@ class FormatDropdownPanel extends PSRoomPanel {
 	}
 }
 
-PS.roomTypes['teamdropdown'] = {
-	Component: TeamDropdownPanel,
-};
-
-PS.roomTypes['formatdropdown'] = {
-	Component: FormatDropdownPanel,
-};
+PS.addRoomType(TeamDropdownPanel, FormatDropdownPanel);

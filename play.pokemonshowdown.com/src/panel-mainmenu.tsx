@@ -301,6 +301,10 @@ export class MainMenuRoom extends PSRoom {
 }
 
 class NewsPanel extends PSRoomPanel {
+	static readonly id = 'news';
+	static readonly routes = ['news'];
+	static readonly title = 'News';
+	static readonly location = 'mini-window';
 	override render() {
 		return <PSPanelWrapper room={this.props.room} scrollable>
 			<div class="mini-window-body" dangerouslySetInnerHTML={{ __html: PS.newsHTML }}></div>
@@ -309,6 +313,10 @@ class NewsPanel extends PSRoomPanel {
 }
 
 class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
+	static readonly id = 'mainmenu';
+	static readonly routes = [''];
+	static readonly Model = MainMenuRoom;
+	static readonly icon = <i class="fa fa-home"></i>;
 	override focus() {
 		this.base!.querySelector<HTMLButtonElement>('button.big')!.focus();
 	}
@@ -321,7 +329,7 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
 		PS.dragging = { type: 'room', roomid, foreground };
 	};
 	handleDragEnter = (e: DragEvent) => {
-		console.log('dragenter ' + e.dataTransfer!.dropEffect);
+		// console.log('dragenter ' + e.dataTransfer!.dropEffect);
 		e.preventDefault();
 		if (!PS.dragging) return; // TODO: handle dragging other things onto roomtabs
 		const draggingRoom = PS.dragging.roomid;
@@ -332,9 +340,9 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
 
 		const index = PS.miniRoomList.indexOf(draggedOverRoom?.id as any);
 		if (index >= 0) {
-			PS.dragOnto(draggingRoom, 'miniRoomList', index);
+			PS.dragOnto(PS.rooms[draggingRoom]!, 'mini-window', index);
 		} else if (PS.rooms[draggingRoom]?.location !== 'mini-window') {
-			PS.dragOnto(draggingRoom, 'miniRoomList', 0);
+			PS.dragOnto(PS.rooms[draggingRoom]!, 'mini-window', 0);
 		}
 
 		// dropEffect !== 'none' prevents bounce-back animation in
@@ -342,16 +350,29 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
 		// if (e.dataTransfer) e.dataTransfer.dropEffect = 'move';
 	};
 	renderMiniRoom(room: PSRoom) {
-		const roomType = PS.roomTypes[room.type];
-		const Panel = roomType ? roomType.Component : PSRoomPanel;
+		const RoomType = PS.roomTypes[room.type];
+		const Panel = RoomType || PSRoomPanel;
 		return <Panel key={room.id} room={room} />;
 	}
+	handleClickMinimize = (e: MouseEvent) => {
+		if ((e.target as HTMLInputElement)?.name === 'closeRoom') {
+			return;
+		}
+		if (((e.target as any)?.parentNode as HTMLInputElement)?.name === 'closeRoom') {
+			return;
+		}
+		const room = PS.rooms[(e.currentTarget as any).getAttribute('data-roomid') as RoomID];
+		if (room) {
+			room.minimized = !room.minimized;
+			this.forceUpdate();
+		}
+	};
 	renderMiniRooms() {
 		return PS.miniRoomList.map(roomid => {
 			const room = PS.rooms[roomid]!;
 			return <div class="pmbox">
 				<div class="mini-window">
-					<h3 draggable onDragStart={this.handleDragStart} data-roomid={roomid}>
+					<h3 draggable onDragStart={this.handleDragStart} onClick={this.handleClickMinimize} data-roomid={roomid}>
 						<button class="closebutton" name="closeRoom" value={roomid} aria-label="Close" tabIndex={-1}>
 							<i class="fa fa-times-circle"></i>
 						</button>
@@ -546,11 +567,4 @@ export class TeamForm extends preact.Component<{
 	}
 }
 
-PS.roomTypes['news'] = {
-	Component: NewsPanel,
-};
-
-PS.roomTypes['mainmenu'] = {
-	Model: MainMenuRoom,
-	Component: MainMenuPanel,
-};
+PS.addRoomType(NewsPanel, MainMenuPanel);
