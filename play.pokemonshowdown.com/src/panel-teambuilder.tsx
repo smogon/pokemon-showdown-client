@@ -83,6 +83,11 @@ class TeambuilderRoom extends PSRoom {
 }
 
 class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
+	static readonly id = 'teambuilder';
+	static readonly routes = ['teambuilder'];
+	static readonly Model = TeambuilderRoom;
+	static readonly icon = <i class="fa fa-pencil-square-o"></i>;
+	static readonly title = 'Teambuilder';
 	selectFolder = (e: MouseEvent) => {
 		const room = this.props.room;
 		let elem = e.target as HTMLElement | null;
@@ -267,8 +272,4 @@ class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
 	}
 }
 
-PS.roomTypes['teambuilder'] = {
-	Model: TeambuilderRoom,
-	Component: TeambuilderPanel,
-	title: "Teambuilder",
-};
+PS.addRoomType(TeambuilderPanel);

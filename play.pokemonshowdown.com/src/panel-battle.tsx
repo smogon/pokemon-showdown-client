@@ -50,6 +50,11 @@ export class BattlesRoom extends PSRoom {
 }
 
 class BattlesPanel extends PSRoomPanel<BattlesRoom> {
+	static readonly id = 'battles';
+	static readonly routes = ['battles'];
+	static readonly Model = BattlesRoom;
+	static readonly location = 'right';
+	static readonly icon = <i class="fa fa-caret-square-o-right"></i>;
 	refresh = () => {
 		this.props.room.refresh();
 	};
@@ -243,6 +248,9 @@ function PokemonButton(props: {
 }
 
 class BattlePanel extends PSRoomPanel<BattleRoom> {
+	static readonly id = 'battle';
+	static readonly routes = ['battle-*'];
+	static readonly Model = BattleRoom;
 	send = (text: string) => {
 		this.props.room.send(text);
 	};
@@ -731,12 +739,4 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 	}
 }
 
-PS.roomTypes['battle'] = {
-	Model: BattleRoom,
-	Component: BattlePanel,
-};
-PS.roomTypes['battles'] = {
-	Model: BattlesRoom,
-	Component: BattlesPanel,
-};
-PS.updateRoomTypes();
+PS.addRoomType(BattlePanel, BattlesPanel);

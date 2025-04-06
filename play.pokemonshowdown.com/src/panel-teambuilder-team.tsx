@@ -200,6 +200,11 @@ class TeamTextbox extends preact.Component<{ team: Team }> {
 }
 
 class TeamPanel extends PSRoomPanel<TeamRoom> {
+	static readonly id = 'team';
+	static readonly routes = ['team-*'];
+	static readonly Model = TeamRoom;
+	static readonly title = 'Team';
+
 	rename = (e: Event) => {
 		const textbox = e.currentTarget as HTMLInputElement;
 		const room = this.props.room;
@@ -239,9 +244,4 @@ class TeamPanel extends PSRoomPanel<TeamRoom> {
 	}
 }
 
-PS.roomTypes['team'] = {
-	Model: TeamRoom,
-	Component: TeamPanel,
-	title: "Team",
-};
-PS.updateRoomTypes();
+PS.addRoomType(TeamPanel);

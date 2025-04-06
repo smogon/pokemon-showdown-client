@@ -21,6 +21,10 @@ class ExampleRoom extends PSRoom {
 }
 
 class ExamplePanel extends PSRoomPanel<ExampleRoom> {
+	static readonly id = 'exampleview';
+	static readonly routes = ['exampleview'];
+	static readonly Model = ExampleRoom;
+	static readonly title = 'Example View';
 	override render() {
 		const room = this.props.room;
 		return <PSPanelWrapper room={room}>
@@ -29,14 +33,14 @@ class ExamplePanel extends PSRoomPanel<ExampleRoom> {
 	}
 }
 
-PS.roomTypes['example'] = {
-	Model: ExampleRoom,
-	Component: ExamplePanel,
-};
+PS.addRoomType(ExamplePanel);
 
 // Example panel with no room
 
 class ExampleViewPanel extends PSRoomPanel {
+	static readonly id = 'exampleview';
+	static readonly routes = ['exampleview'];
+	static readonly title = 'Example View';
 	override render() {
 		const room = this.props.room;
 		return <PSPanelWrapper room={room}>
@@ -45,6 +49,4 @@ class ExampleViewPanel extends PSRoomPanel {
 	}
 }
 
-PS.roomTypes['exampleview'] = {
-	Component: ExampleViewPanel,
-};
+PS.addRoomType(ExampleViewPanel);

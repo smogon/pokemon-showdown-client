@@ -388,6 +388,11 @@ class ChatTextBox extends preact.Component<{ placeholder: string, class: string 
 }
 
 class ChatPanel extends PSRoomPanel<ChatRoom> {
+	static readonly id = 'chat';
+	static readonly routes = ['pm-*', '*'];
+	static readonly Model = ChatRoom;
+	static readonly location = 'right';
+	static readonly icon = <i class="fa fa-comment-o"></i>;
 	send = (text: string) => {
 		this.props.room.send(text);
 	};
@@ -603,8 +608,4 @@ export class ChatLog extends preact.Component<{
 	}
 }
 
-PS.roomTypes['chat'] = {
-	Model: ChatRoom,
-	Component: ChatPanel,
-};
-PS.updateRoomTypes();
+PS.addRoomType(ChatPanel);

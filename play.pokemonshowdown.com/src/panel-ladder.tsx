@@ -47,6 +47,11 @@ export class LadderRoom extends PSRoom {
 	error?: string;
 	ladderData?: LadderData;
 
+	constructor(options: any) {
+		super(options);
+		if (this.format) this.title = BattleLog.formatName(this.format);
+	}
+
 	setNotice = (notice: string) => {
 		this.notice = notice;
 		this.update(null);
@@ -98,7 +103,7 @@ class LadderFormat extends preact.Component<{ room: LadderRoom }> {
 		const room = this.props.room;
 		if (!PS.teams.usesLocalLadder) {
 			return <h3>
-				{BattleLog.escapeFormat(room.format!)} Top
+				{BattleLog.formatName(room.format!)} Top
 				{room.searchValue ? ` - '${room.searchValue}'` : " 500"}
 			</h3>;
 		}
@@ -194,6 +199,11 @@ class LadderFormat extends preact.Component<{ room: LadderRoom }> {
 }
 
 class LadderPanel extends PSRoomPanel<LadderRoom> {
+	static readonly id = 'ladder';
+	static readonly routes = ['ladder', 'ladder-*'];
+	static readonly Model = LadderRoom;
+	static readonly icon = <i class="fa fa-list-ol"></i>;
+	static readonly title = 'Ladder';
 	override componentDidMount() {
 		const { room } = this.props;
 		room.requestLadderData('');
@@ -290,8 +300,4 @@ class LadderPanel extends PSRoomPanel<LadderRoom> {
 	}
 }
 
-PS.roomTypes['ladder'] = {
-	Model: LadderRoom,
-	Component: LadderPanel,
-};
-PS.updateRoomTypes();
+PS.addRoomType(LadderPanel);

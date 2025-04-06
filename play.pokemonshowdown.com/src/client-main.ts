@@ -11,7 +11,7 @@
 
 import { type PSConnection, PSLoginServer } from './client-connection';
 import { PSModel, PSStreamModel } from './client-core';
-import type { PSRouter } from './panels';
+import type { PSRoomPanel, PSRouter } from './panels';
 import type { ChatRoom } from './panel-chat';
 import type { MainMenuRoom } from './panel-mainmenu';
 import { toID, type ID } from './battle-dex';
@@ -475,14 +475,15 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 	notifications: PSNotificationState[] = [];
 	isSubtleNotifying = false;
 
+	/** only affects mini-windows */
+	minimized = false;
 	// for compatibility with RoomOptions
 	[k: string]: unknown;
 
 	constructor(options: RoomOptions) {
 		super();
 		this.id = options.id;
-		if (options.title) this.title = options.title;
-		if (!this.title) this.title = this.id;
+		this.title = options.title || this.title || this.id;
 		if (options.type) this.type = options.type;
 		if (options.location) this.location = options.location;
 		if (options.parentElem) this.parentElem = options.parentElem;
@@ -581,7 +582,14 @@ class PlaceholderRoom extends PSRoom {
  * PS
  *********************************************************************/
 
-type RoomType = { Model?: typeof PSRoom, Component: any, title?: string };
+type RoomType = (new () => PSRoomPanel) & {
+	readonly id: string,
+	readonly routes: string[],
+	readonly Model?: typeof PSRoom,
+	readonly location?: PSRoomLocation,
+	icon?: preact.ComponentChildren,
+	title?: string,
+};
 
 /**
  * This model updates:
@@ -614,6 +622,36 @@ export const PS = new class extends PSModel {
 	roomTypes: {
 		[type: string]: RoomType | undefined,
 	} = {};
+	/**
+	 * If a route starts with `*`, it's a cached room location for the room placeholder.
+	 * Otherwise, it's a RoomType ID.
+	 *
+	 * Routes are filled in by `PS.updateRoomTypes()` and do not need to be manually
+	 * filled.
+	 */
+	routes: Record<string, string> = Object.assign(Object.create(null), {
+		// locations cached here because it needs to be guessed before roomTypes is filled in
+		// this cache is optional, but prevents some flickering during loading
+		// to update:
+		// console.log('\t\t' + JSON.stringify(Object.fromEntries(Object.entries(PS.routes).filter(([k, v]) => k !== 'pm-*').map(([k, v]) => [k, '*' + (PS.roomTypes[v].location || '')]))).replaceAll(',', ',\n\t\t').replaceAll('":"', '": "').slice(1, -1) + ',')
+		"teambuilder": "*",
+		"news": "*mini-window",
+		"": "*",
+		"rooms": "*right",
+		"user-*": "*popup",
+		"viewuser-*": "*popup",
+		"volume": "*popup",
+		"options": "*popup",
+		"*": "*right",
+		"battle-*": "*",
+		"battles": "*right",
+		"teamdropdown": "*semimodal-popup",
+		"formatdropdown": "*semimodal-popup",
+		"team-*": "*",
+		"ladder": "*",
+		"ladder-*": "*",
+		"view-*": "*",
+	});
 	/** List of rooms on the left side of the top tabbar */
 	leftRoomList: RoomID[] = [];
 	/** List of rooms on the right side of the top tabbar */
@@ -699,10 +737,10 @@ export const PS = new class extends PSModel {
 	constructor() {
 		super();
 
-		this.addRoom({
+		this.mainmenu = this.addRoom({
 			id: '' as RoomID,
 			title: "Home",
-		});
+		}) as MainMenuRoom;
 
 		this.addRoom({
 			id: 'rooms' as RoomID,
@@ -713,7 +751,7 @@ export const PS = new class extends PSModel {
 			this.addRoom({
 				id: 'news' as RoomID,
 				title: "News",
-			});
+			}, true);
 		}
 
 		this.updateLayout();
@@ -796,74 +834,13 @@ export const PS = new class extends PSModel {
 			curElem = curElem.parentElement;
 		}
 	}
-	dragOnto(fromRoom: RoomID, toRoomList: 'leftRoomList' | 'rightRoomList' | 'miniRoomList', toIndex: number) {
+	dragOnto(fromRoom: PSRoom, toLocation: 'left' | 'right' | 'mini-window', toIndex: number) {
 		// one day you will be able to rearrange mainmenu and rooms, but not today
-		if (fromRoom === '' || fromRoom === 'rooms') return;
+		if (fromRoom.id === '' || fromRoom.id === 'rooms') return;
 
-		const room = PS.rooms[fromRoom]!;
-		if (fromRoom === PS[toRoomList][toIndex]) {
-			// already in the right place, so just check focus
-			if (toRoomList === 'leftRoomList' && PS.leftPanel !== room) {
-				if (PS.room === PS.leftPanel) PS.room = room;
-				PS.leftPanel = room;
-				PS.update();
-			}
-			return;
-		}
-		if (fromRoom === '' && toRoomList === 'miniRoomList') return;
+		const onHome = (toLocation === 'left' && toIndex === 0);
 
-		const roomLists = ['leftRoomList', 'rightRoomList', 'miniRoomList'] as const;
-		let fromRoomList;
-		let fromIndex = -1;
-		for (const roomList of roomLists) {
-			fromIndex = PS[roomList].indexOf(fromRoom);
-			if (fromIndex >= 0) {
-				fromRoomList = roomList;
-				break;
-			}
-		}
-		if (!fromRoomList) return; // shouldn't happen
-
-		const onHome = (toRoomList === 'leftRoomList' && toIndex === 0);
-		if (onHome) toIndex = 1; // Home is always leftmost
-		if (toRoomList === 'rightRoomList' && toIndex === PS.rightRoomList.length - 1) toIndex--; // Rooms is always rightmost
-
-		PS[fromRoomList].splice(fromIndex, 1);
-		// if dragging within the same roomlist and toIndex > fromIndex,
-		// toIndex is offset by 1 now. Fortunately for us, we want to
-		// drag to the right of this tab in that case, so the -1 +1
-		// cancel out
-		PS[toRoomList].splice(toIndex, 0, fromRoom);
-
-		switch (toRoomList) {
-		case 'leftRoomList': room.location = 'left'; break;
-		case 'rightRoomList': room.location = 'right'; break;
-		case 'miniRoomList': room.location = 'mini-window'; break;
-		}
-		if (onHome) {
-			if (PS.room === PS.panel) PS.room = PS.mainmenu;
-			PS.panel = PS.mainmenu;
-			PS.leftPanel = PS.mainmenu;
-			if (PS.rightPanel === room) {
-				PS.rightPanel = PS.rooms['rooms']!;
-			}
-		} else if (fromRoomList !== toRoomList) {
-			if (PS.leftPanel === room || PS.rightPanel === room) {
-				// active room
-				if (PS.room === PS.panel) PS.room = room;
-				PS.panel = room;
-				if (room === PS.leftPanel) {
-					PS.leftPanel = PS.mainmenu;
-				} else if (room === PS.rightPanel) {
-					PS.rightPanel = PS.rooms['rooms']!;
-				}
-				if (toRoomList === 'rightRoomList') {
-					PS.rightPanel = room;
-				} else if (toRoomList === 'leftRoomList') {
-					PS.leftPanel = room;
-				}
-			}
-		}
+		PS.moveRoom(fromRoom, toLocation, onHome, toIndex);
 		PS.update();
 	}
 	override update(layoutAlreadyUpdated?: boolean) {
@@ -917,6 +894,10 @@ export const PS = new class extends PSModel {
 					room.connected = false;
 					if (args[1] === 'namerequired') {
 						room.connectWhenLoggedIn = true;
+					} else if (args[1] === 'nonexistent') {
+						// sometimes we assume a room is a chatroom when it's not
+						// when that happens, just ignore this error
+						if (room.type === 'chat') room.receiveLine(['bigerror', 'Room does not exist']);
 					}
 				}
 				this.update();
@@ -985,71 +966,59 @@ export const PS = new class extends PSModel {
 		return 0;
 	}
 	createRoom(options: RoomOptions) {
-		// type/side not defined in roomTypes because they need to be guessed before the types are loaded
-		if (!options.type) {
-			const hyphenIndex = options.id.indexOf('-');
-			switch (hyphenIndex < 0 ? options.id : options.id.slice(0, hyphenIndex + 1)) {
-			case 'teambuilder': case 'ladder': case 'battles': case 'rooms':
-			case 'options': case 'volume': case 'teamdropdown': case 'formatdropdown':
-			case 'news':
-				options.type = options.id;
-				break;
-			case 'battle-': case 'user-': case 'team-': case 'ladder-':
-				options.type = options.id.slice(0, hyphenIndex);
-				break;
-			case 'viewuser-':
-				options.type = 'user';
-				break;
-			case 'view-':
-				options.type = 'html';
-				break;
-			case '':
-				options.type = 'mainmenu';
-				break;
-			default:
-				options.type = 'chat';
-				break;
-			}
-		}
-
-		if (!options.location) {
-			switch (options.type) {
-			case 'rooms':
-			case 'chat':
-				options.location = 'right';
-				break;
-			case 'options':
-			case 'volume':
-			case 'user':
-				options.location = 'popup';
-				break;
-			case 'teamdropdown':
-			case 'formatdropdown':
-				options.location = 'semimodal-popup';
-				break;
-			case 'news':
-				options.location = 'mini-window';
-				break;
-			}
-			if (options.id.startsWith('pm-')) options.location = 'mini-window';
-		}
-
-		const roomType = this.roomTypes[options.type];
-		if (roomType?.title) options.title = roomType.title;
-		const Model = roomType ? (roomType.Model || PSRoom) : PlaceholderRoom;
+		options.location ||= this.getRouteLocation(options.id);
+		options.type ||= this.getRoute(options.id) || '';
+		const RoomType = this.roomTypes[options.type];
+		if (RoomType?.title) options.title = RoomType.title;
+		const Model = RoomType ? (RoomType.Model || PSRoom) : PlaceholderRoom;
 		return new Model(options);
+	}
+	getRouteInfo(roomid: RoomID) {
+		if (this.routes[roomid]) return this.routes[roomid];
+		const hyphenIndex = roomid.indexOf('-');
+		if (hyphenIndex < 0) return this.routes['*'] || null;
+		roomid = roomid.slice(0, hyphenIndex) + '-*' as RoomID;
+		if (this.routes[roomid]) return this.routes[roomid];
+		return null;
+	}
+	getRouteLocation(roomid: RoomID): PSRoomLocation {
+		// must be hardcoded here to have a different loc while also being a ChatRoom
+		if (roomid.startsWith('pm-')) return 'mini-window';
+		const routeInfo = this.getRouteInfo(roomid);
+		if (!routeInfo) return 'left';
+		if (routeInfo.startsWith('*')) return routeInfo.slice(1) as PSRoomLocation;
+		return PS.roomTypes[routeInfo]!.location || 'left';
+	}
+	getRoute(roomid: RoomID) {
+		const routeInfo = this.getRouteInfo(roomid);
+		return routeInfo?.startsWith('*') ? null : routeInfo || null;
+	}
+	addRoomType(...types: RoomType[]) {
+		for (const RoomType of types) {
+			this.roomTypes[RoomType.id] = RoomType;
+			for (const route of RoomType.routes) {
+				this.routes[route] = RoomType.id;
+			}
+		}
+		this.updateRoomTypes();
 	}
 	updateRoomTypes() {
 		let updated = false;
 		for (const roomid in this.rooms) {
 			const room = this.rooms[roomid]!;
-			if (room.type === room.classType) continue;
-			const roomType = this.roomTypes[room.type];
-			if (!roomType) continue;
+			let type = this.getRoute(roomid as RoomID) || room.type || '';
+			// room IDs with no `-` default to chat, so they can be overridden by more specific routes
+			if (room.type && room.type !== this.routes['*'] && !roomid.includes('-')) {
+				type = room.type;
+			}
+			if (type === room.type || !type) continue;
+			const RoomType = this.roomTypes[type];
+			if (!RoomType) continue;
 
 			const options: RoomOptions = room;
-			if (roomType.title) options.title = roomType.title;
-			const Model = roomType.Model || PSRoom;
+			if (RoomType.title) options.title = RoomType.title;
+			options.type = type;
+			const Model = RoomType.Model || PSRoom;
 			const newRoom = new Model(options);
 			this.rooms[roomid] = newRoom;
 			if (this.leftPanel === room) this.leftPanel = newRoom;
@@ -1068,21 +1037,26 @@ export const PS = new class extends PSModel {
 		if (updated) this.update();
 	}
 	focusRoom(roomid: RoomID) {
-		if (this.room.id === roomid) return;
-		if (this.leftRoomList.includes(roomid)) {
-			this.leftPanel = this.rooms[roomid]!;
-			this.panel = this.leftPanel;
+		const room = this.rooms[roomid];
+		if (!room) return false;
+		if (this.room === room) return true;
+		if (room.location === 'left') {
+			this.leftPanel = this.panel = room;
 			while (this.popups.length) this.leave(this.popups.pop()!);
-			this.room = this.leftPanel;
-		} else if (this.rightRoomList.includes(roomid)) {
-			this.rightPanel = this.rooms[roomid]!;
-			this.panel = this.rightPanel;
+			this.room = room;
+		} else if (room.location === 'right') {
+			this.rightPanel = this.panel = room;
 			while (this.popups.length) this.leave(this.popups.pop()!);
-			this.room = this.rightPanel;
-		} else if (this.rooms[roomid]) { // popup
-			this.room = this.rooms[roomid]!;
-		} else {
-			return false;
+			this.room = room;
+		} else { // popup or mini-window
+			if (room.location === 'mini-window') {
+				this.leftPanel = this.panel = PS.mainmenu;
+			} else {
+				while (this.popups.length && this.popups[this.popups.length - 1] !== roomid) {
+					this.leave(this.popups.pop()!);
+				}
+			}
+			this.room = room;
 		}
 		this.room.autoDismissNotifications();
 		this.update();
@@ -1116,16 +1090,14 @@ export const PS = new class extends PSModel {
 	focusPreview(room: PSRoom) {
 		if (room !== this.room) return '';
 		const allRooms = this.leftRoomList.concat(this.rightRoomList);
-		let roomIndex = allRooms.indexOf(this.room.id);
+		let roomIndex = allRooms.indexOf(room.id);
 		if (roomIndex === -1) {
-			// inconsistent state: should not happen
+			// mini-window or something
 			return '';
 		}
 		let buf = '  ';
-		if (roomIndex > 1) { // don't show Home
-			const leftRoom = this.rooms[allRooms[roomIndex - 1]]!;
-			buf += `\u2190 ${leftRoom.title}`;
-		}
+		const leftRoom = this.rooms[allRooms[roomIndex - 1]];
+		if (leftRoom) buf += `\u2190 ${leftRoom.title}`;
 		buf += (this.arrowKeysUsed ? " | " : " (use arrow keys) ");
 		if (roomIndex < allRooms.length - 1) {
 			const rightRoom = this.rooms[allRooms[roomIndex + 1]]!;
@@ -1133,14 +1105,14 @@ export const PS = new class extends PSModel {
 		}
 		return buf;
 	}
-	getPMRoom(userid: ID) {
+	getPMRoom(userid: ID): ChatRoom {
 		const myUserid = PS.user.userid;
 		const roomid = `pm-${[userid, myUserid].sort().join('-')}` as RoomID;
 		if (this.rooms[roomid]) return this.rooms[roomid] as ChatRoom;
 		this.join(roomid);
 		return this.rooms[roomid]! as ChatRoom;
 	}
-	addRoom(options: RoomOptions, noFocus?: boolean) {
+	addRoom(options: RoomOptions, noFocus = false) {
 		// support hardcoded PM room-IDs
 		if (options.id.startsWith('challenge-')) {
 			options.id = `pm-${options.id.slice(10)}` as RoomID;
@@ -1175,7 +1147,7 @@ export const PS = new class extends PSModel {
 				}
 				this.focusRoom(options.id);
 			}
-			return;
+			return this.rooms[options.id];
 		}
 		if (!noFocus) {
 			while (this.popups.length && this.popups[this.popups.length - 1] !== options.parentRoomid) {
@@ -1185,32 +1157,9 @@ export const PS = new class extends PSModel {
 		}
 		const room = this.createRoom(options);
 		this.rooms[room.id] = room;
-		switch (room.location) {
-		case 'left':
-			this.leftRoomList.push(room.id);
-			if (!noFocus) this.leftPanel = room;
-			break;
-		case 'right':
-			this.rightRoomList.push(room.id);
-			if (this.rightRoomList[this.rightRoomList.length - 2] === 'rooms') {
-				this.rightRoomList.splice(-2, 1);
-				this.rightRoomList.push('rooms' as RoomID);
-			}
-			if (!noFocus || !this.rightPanel) this.rightPanel = room;
-			break;
-		case 'mini-window':
-			this.miniRoomList.push(room.id);
-			break;
-		case 'popup':
-		case 'semimodal-popup':
-		case 'modal-popup':
-			this.popups.push(room.id);
-			break;
-		}
-		if (!noFocus) {
-			if (this.leftPanel === room || this.rightPanel === room) this.panel = room;
-			this.room = room;
-		}
+		const location = room.location;
+		room.location = null!;
+		this.moveRoom(room, location, noFocus);
 		if (options.queue) {
 			for (const args of options.queue) {
 				room.receiveLine(args);
@@ -1224,6 +1173,97 @@ export const PS = new class extends PSModel {
 			if (PS.room === PS.rightPanel) PS.room = PS.leftPanel;
 			PS.rightPanel = null;
 		}
+	}
+	roomVisible(room: PSRoom): boolean {
+		if (room.location === 'left' || room.location === 'right') {
+			return this.leftPanelWidth === 0 ? room === this.panel : room === this.leftPanel || room === this.rightPanel;
+		}
+		if (room.location === 'mini-window') {
+			return this.leftPanelWidth === 0 ? this.mainmenu === this.panel : this.mainmenu === this.leftPanel;
+		}
+		// some kind of popup
+		return true;
+	}
+	moveRoom(room: PSRoom, location: PSRoomLocation, background?: boolean, index?: number) {
+		if (room.location === location && index === undefined) {
+			if (background === true) {
+				if (room === this.leftPanel) {
+					this.leftPanel = this.mainmenu;
+					this.panel = this.mainmenu;
+				} else if (room === this.rightPanel) {
+					this.rightPanel = this.rooms['rooms'] || null;
+					this.panel = this.rightPanel || this.leftPanel;
+				}
+			} else if (background === false) {
+				this.focusRoom(room.id);
+			}
+			return;
+		}
+		const POPUPS = ['popup', 'semimodal-popup', 'modal-popup'];
+		if (POPUPS.includes(room.location) && POPUPS.includes(location)) {
+			room.location = location;
+			return;
+		}
+
+		background ??= !this.roomVisible(room);
+
+		if (room.location === 'mini-window') {
+			const miniRoomIndex = this.miniRoomList.indexOf(room.id);
+			if (miniRoomIndex >= 0) {
+				this.miniRoomList.splice(miniRoomIndex, 1);
+			}
+			if (this.room === room) this.room = this.panel;
+		} else if (POPUPS.includes(room.location)) {
+			const popupIndex = this.popups.indexOf(room.id);
+			if (popupIndex >= 0) {
+				this.popups.splice(popupIndex, 1);
+			}
+			if (this.room === room) this.room = this.panel;
+		} else if (room.location === 'left') {
+			const leftRoomIndex = this.leftRoomList.indexOf(room.id);
+			if (leftRoomIndex >= 0) {
+				this.leftRoomList.splice(leftRoomIndex, 1);
+			}
+			if (this.room === room) this.room = this.mainmenu;
+			if (this.panel === room) this.panel = this.mainmenu;
+			if (this.leftPanel === room) this.leftPanel = this.mainmenu;
+		} else if (room.location === 'right') {
+			const rightRoomIndex = this.rightRoomList.indexOf(room.id);
+			if (rightRoomIndex >= 0) {
+				this.rightRoomList.splice(rightRoomIndex, 1);
+			}
+			if (this.room === room) this.room = this.rooms['rooms'] || this.leftPanel;
+			if (this.panel === room) this.panel = this.rooms['rooms'] || this.leftPanel;
+			if (this.rightPanel === room) this.rightPanel = this.rooms['rooms'] || null;
+		}
+
+		room.location = location;
+		switch (location) {
+		case 'left':
+			this.leftRoomList.splice(Math.max(index ?? Infinity, 1), 0, room.id);
+			break;
+		case 'right':
+			this.rightRoomList.splice(Math.min(index ?? -1, this.rightRoomList.length - 1), 0, room.id);
+			break;
+		case 'mini-window':
+			this.miniRoomList.splice(index ?? 0, 0, room.id);
+			break;
+		case 'popup':
+		case 'semimodal-popup':
+		case 'modal-popup':
+			// moving a room to a popup must move it to the topmost popup
+			this.popups.push(room.id);
+			this.room = room; // popups can't be backgrounded
+			break;
+		default:
+			throw new Error(`Invalid room location: ${location satisfies never as string}`);
+		}
+		if (!background) {
+			if (location === 'left') this.leftPanel = this.panel = room;
+			if (location === 'right') this.rightPanel = this.panel = room;
+			if (location === 'mini-window') this.leftPanel = this.panel = this.mainmenu;
+		}
+		this.room = room;
 	}
 	removeRoom(room: PSRoom) {
 		room.destroy();

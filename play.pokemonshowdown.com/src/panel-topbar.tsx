@@ -57,11 +57,11 @@ export class PSHeader extends preact.Component<{ style: object }> {
 
 		const leftIndex = PS.leftRoomList.indexOf(draggedOverRoom);
 		if (leftIndex >= 0) {
-			PS.dragOnto(draggingRoom, 'leftRoomList', leftIndex);
+			PS.dragOnto(PS.rooms[draggingRoom]!, 'left', leftIndex);
 		} else {
 			const rightIndex = PS.rightRoomList.indexOf(draggedOverRoom);
 			if (rightIndex >= 0) {
-				PS.dragOnto(draggingRoom, 'rightRoomList', rightIndex);
+				PS.dragOnto(PS.rooms[draggingRoom]!, 'right', rightIndex);
 			} else {
 				// eslint-disable-next-line no-useless-return
 				return;
@@ -79,31 +79,18 @@ export class PSHeader extends preact.Component<{ style: object }> {
 		PS.dragging = { type: 'room', roomid };
 	};
 	renderRoomTab(id: RoomID) {
-		const room = PS.rooms[id]!;
+		const room = PS.rooms[id];
+		if (!room) return null;
 		const closable = (id === '' || id === 'rooms' ? '' : ' closable');
 		const cur = PS.isVisible(room) ? ' cur' : '';
 		const notifying = room.notifications.length ? ' notifying' : room.isSubtleNotifying ? ' subtle-notifying' : '';
+		const RoomType = PS.roomTypes[room.type];
 		let className = `roomtab button${notifying}${closable}${cur}`;
-		let icon = null;
+		let icon = RoomType?.icon || <i class="fa fa-file-text-o"></i>;
 		let title = room.title;
 		let closeButton = null;
 		switch (room.type) {
-		case '':
-		case 'mainmenu':
-			icon = <i class="fa fa-home"></i>;
-			break;
-		case 'teambuilder':
-			icon = <i class="fa fa-pencil-square-o"></i>;
-			break;
-		case 'ladder':
-		case 'ladderformat':
-			icon = <i class="fa fa-list-ol"></i>;
-			break;
-		case 'battles':
-			icon = <i class="fa fa-caret-square-o-right"></i>;
-			break;
 		case 'rooms':
-			icon = <i class="fa fa-plus" style="margin:7px auto -6px auto"></i>;
 			title = '';
 			break;
 		case 'battle':
@@ -129,9 +116,6 @@ export class PSHeader extends preact.Component<{ style: object }> {
 			}
 			icon = <i class="text">{formatid}</i>;
 			break;
-		case 'chat':
-			icon = <i class="fa fa-comment-o"></i>;
-			break;
 		case 'html':
 		default:
 			if (title.startsWith('[')) {
@@ -142,7 +126,6 @@ export class PSHeader extends preact.Component<{ style: object }> {
 					break;
 				}
 			}
-			icon = <i class="fa fa-file-text-o"></i>;
 			break;
 		}
 		if (closable) {
@@ -171,7 +154,7 @@ export class PSHeader extends preact.Component<{ style: object }> {
 			return <a class="button" href="login">Choose name</a>;
 		}
 		const userColor = window.BattleLog && { color: BattleLog.usernameColor(PS.user.userid) };
-		return <span class="username" data-name={PS.user.name} style={userColor}>
+		return <span class="username" style={userColor}>
 			<i class="fa fa-user" style="color:#779EC5"></i> <span class="usernametext">{PS.user.name}</span>
 		</span>;
 	}
@@ -231,6 +214,11 @@ export class UserRoom extends PSRoom {
 }
 
 class UserPanel extends PSRoomPanel<UserRoom> {
+	static readonly id = 'user';
+	static readonly routes = ['user-*', 'viewuser-*'];
+	static readonly Model = UserRoom;
+	static readonly location = 'popup';
+
 	override render() {
 		const room = this.props.room;
 		const user = PS.mainmenu.userdetailsCache[room.userid] || { userid: room.userid, avatar: '[loading]' };
@@ -358,12 +346,13 @@ class UserPanel extends PSRoomPanel<UserRoom> {
 	}
 }
 
-PS.roomTypes['user'] = {
-	Model: UserRoom,
-	Component: UserPanel,
-};
+PS.addRoomType(UserPanel);
 
 class VolumePanel extends PSRoomPanel {
+	static readonly id = 'volume';
+	static readonly routes = ['volume'];
+	static readonly location = 'popup';
+
 	setVolume = (e: Event) => {
 		const slider = e.currentTarget as HTMLInputElement;
 		PS.prefs.set(slider.name as 'effectvolume', Number(slider.value));
@@ -427,11 +416,13 @@ class VolumePanel extends PSRoomPanel {
 	}
 }
 
-PS.roomTypes['volume'] = {
-	Component: VolumePanel,
-};
+PS.addRoomType(VolumePanel);
 
 class OptionsPanel extends PSRoomPanel {
+	static readonly id = 'options';
+	static readonly routes = ['options'];
+	static readonly location = 'popup';
+
 	setTheme = (e: Event) => {
 		const theme = (e.currentTarget as HTMLSelectElement).value as 'light' | 'dark' | 'system';
 		PS.prefs.set('theme', theme);
@@ -452,6 +443,4 @@ class OptionsPanel extends PSRoomPanel {
 	}
 }
 
-PS.roomTypes['options'] = {
-	Component: OptionsPanel,
-};
+PS.addRoomType(OptionsPanel);
