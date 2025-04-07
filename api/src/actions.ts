@@ -69,7 +69,7 @@ if (Config.coilpath) {
 	});
 }
 
-const redundantFetch = async <T = Record<string, any>>(targetUrl: string, data: RequestInit, attempts = 0): Promise<T | null> => {
+const redundantFetch = async (targetUrl: string, data: RequestInit, attempts = 0): Promise<Response | null> => {
 	if (attempts >= 10) return null;
 	let out;
 	try {
@@ -79,13 +79,13 @@ const redundantFetch = async <T = Record<string, any>>(targetUrl: string, data: 
 		if (e.code === 400) return null;
 		return redundantFetch(targetUrl, data, attempts + 1);
 	}
-	return out.json() as Promise<T>;
+	return out;
 };
 
 export const smogonFetch = async <T>(targetUrl: string, method: string, data: { [k: string]: any }) => {
 	const bodyText = JSON.stringify(data);
 	const hash = await signAsync("RSA-SHA1", bodyText, Config.privatekey);
-	return redundantFetch<T>(`https://www.smogon.com/${targetUrl}`, {
+	return redundantFetch(`https://www.smogon.com/${targetUrl}`, {
 		method,
 		body: new URLSearchParams({ data: bodyText, hash }),
 	});
@@ -1099,12 +1099,13 @@ export const actions: { [k: string]: QueryHandler } = {
 		const start = time();
 		let out;
 		try {
-			out = await smogonFetch<{url: string}>("tools/api/suspect-create", "POST", {
+			const res = await smogonFetch("tools/api/suspect-create", "POST", {
 				date: `${start}`,
 				reqs,
 				format: id,
 			});
-			if (!out) throw new Error("failed");
+			if (!res) throw new Error('failed');
+			out = await res.json();
 		} catch (e: any) {
 			throw new ActionError("Failed to update Smogon suspect test record: " + e.message);
 		}
@@ -1124,7 +1125,7 @@ export const actions: { [k: string]: QueryHandler } = {
 				coil: reqs.coil || null,
 			});
 		}
-		return { success: true, url: out.url};
+		return { success: true, url: (out as any).url};
 	},
 	async 'suspects/edit'(params) {
 		if (this.getIp() !== Config.restartip) {
