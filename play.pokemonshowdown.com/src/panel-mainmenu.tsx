@@ -44,10 +44,10 @@ export class MainMenuRoom extends PSRoom {
 		switch (cmd) {
 		case 'challstr': {
 			const [, challstr] = args;
-			PSLoginServer.query({
-				act: 'upkeep',
-				challstr,
-			}).then(res => {
+			PS.user.challstr = challstr;
+			PSLoginServer.query(
+				'upkeep', { challstr }
+			).then(res => {
 				if (!res) return;
 				if (!res.loggedin) return;
 				this.send(`/trn ${res.username},0,${res.assertion}`);
