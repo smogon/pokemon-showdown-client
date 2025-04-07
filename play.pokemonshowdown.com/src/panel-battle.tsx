@@ -122,7 +122,7 @@ class BattleRoom extends ChatRoom {
 	declare challengingFormat: null;
 	declare challengedFormat: null;
 
-	battle: Battle = null!;
+	override battle: Battle = null!;
 	/** null if spectator, otherwise current player's info */
 	side: BattleRequestSideInfo | null = null;
 	request: BattleRequest | null = null;

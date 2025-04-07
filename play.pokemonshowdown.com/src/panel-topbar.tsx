@@ -10,7 +10,7 @@
  */
 
 import preact from "../js/lib/preact";
-import { PS, PSRoom, type RoomOptions, type RoomID } from "./client-main";
+import { PS, PSRoom, type RoomOptions, type RoomID, type PSLoginState } from "./client-main";
 import { PSMain, PSPanelWrapper, PSRoomPanel } from "./panels";
 import type { Battle } from "./battle";
 import { Dex, toID, toRoomid, toUserid, type ID } from "./battle-dex";
@@ -152,7 +152,7 @@ export class PSHeader extends preact.Component<{ style: object }> {
 		if (!PS.connected) {
 			return <button class="button" disabled><em>Offline</em></button>;
 		}
-		if (!PS.user.userid) {
+		if (PS.user.initializing) {
 			return <button class="button" disabled><em>Connecting...</em></button>;
 		}
 		if (!PS.user.named) {
@@ -205,27 +205,33 @@ preact.render(<PSMain />, document.body, document.getElementById('ps-frame')!);
 
 export class UserRoom extends PSRoom {
 	override readonly classType = 'user';
-	userid: ID;
-	name: string;
-	isSelf: boolean;
+	userid!: ID;
+	name!: string;
+	isSelf!: boolean;
 	constructor(options: RoomOptions) {
 		super(options);
-		this.userid = (this.id.split('-')[1] || '') as ID;
+		const userid = (this.id.split('-')[1] || '') as ID;
+		this.setName(options.args?.username as string || userid);
+	}
+	setName(name: string) {
+		this.name = name;
+		this.userid = toID(name);
 		this.isSelf = (this.userid === PS.user.userid);
-		this.name = options.username as string || this.userid;
 		if (/[a-zA-Z0-9]/.test(this.name.charAt(0))) this.name = ' ' + this.name;
+		this.update(null);
 		PS.send(`|/cmd userdetails ${this.userid}`);
 	}
 }
 
 class UserPanel extends PSRoomPanel<UserRoom> {
 	static readonly id = 'user';
-	static readonly routes = ['user-*', 'viewuser-*'];
+	static readonly routes = ['user-*', 'viewuser-*', 'users'];
 	static readonly Model = UserRoom;
 	static readonly location = 'popup';
 
-	override render() {
+	renderUser() {
 		const room = this.props.room;
+		if (!room.userid) return null;
 		const user = PS.mainmenu.userdetailsCache[room.userid] || { userid: room.userid, avatar: '[loading]' };
 		const name = room.name.slice(1);
 		const hideInteraction = room.id.startsWith('viewuser-');
@@ -308,7 +314,7 @@ class UserPanel extends PSRoomPanel<UserRoom> {
 			buttonbar.push(isSelf ? (
 				<p class="buttonbar">
 					<button class="button" disabled>Challenge</button> {}
-					<button class="button" data-href="/pm-">Chat Self</button>
+					<button class="button" data-href="/dm-">Chat Self</button>
 				</p>
 			) : !PS.user.named ? (
 				<p class="buttonbar">
@@ -318,7 +324,7 @@ class UserPanel extends PSRoomPanel<UserRoom> {
 			) : (
 				<p class="buttonbar">
 					<button class="button" data-href={`/challenge-${user.userid}`}>Challenge</button> {}
-					<button class="button" data-href={`/pm-${user.userid}`}>Chat</button> {}
+					<button class="button" data-href={`/dm-${user.userid}`}>Chat</button> {}
 					<button class="button disabled" name="userOptions">{'\u2026'}</button>
 				</p>
 			));
@@ -333,27 +339,63 @@ class UserPanel extends PSRoomPanel<UserRoom> {
 			}
 		}
 
-		return <PSPanelWrapper room={room}>
-			<div class="userdetails">
-				{user.avatar !== '[loading]' &&
-					<img
-						class={'trainersprite' + (room.isSelf ? ' yours' : '')}
-						src={Dex.resolveAvatar(`${user.avatar || 'unknown'}`)}
-					/>}
-				<strong><a
-					href={`//${Config.routes.users}/${user.userid}`} target="_blank"
-					style={{ color: away ? '#888888' : BattleLog.usernameColor(user.userid) }}
-				>
-					{name}
-				</a></strong><br />
-				{status && <div class="userstatus">{status}</div>}
-				{groupName && <div class="usergroup roomgroup">{groupName}</div>}
-				{globalGroupName && <div class="usergroup globalgroup">{globalGroupName}</div>}
-				{user.customgroup && <div class="usergroup globalgroup">{user.customgroup}</div>}
-				{!hideInteraction && roomsList}
-			</div>
-			{buttonbar}
-		</PSPanelWrapper>;
+		return [<div class="userdetails">
+			{user.avatar !== '[loading]' &&
+				<img
+					class={'trainersprite' + (room.isSelf ? ' yours' : '')}
+					src={Dex.resolveAvatar(`${user.avatar || 'unknown'}`)}
+				/>}
+			<strong><a
+				href={`//${Config.routes.users}/${user.userid}`} target="_blank"
+				style={{ color: away ? '#888888' : BattleLog.usernameColor(user.userid) }}
+			>
+				{name}
+			</a></strong><br />
+			{status && <div class="userstatus">{status}</div>}
+			{groupName && <div class="usergroup roomgroup">{groupName}</div>}
+			{globalGroupName && <div class="usergroup globalgroup">{globalGroupName}</div>}
+			{user.customgroup && <div class="usergroup globalgroup">{user.customgroup}</div>}
+			{!hideInteraction && roomsList}
+		</div>, buttonbar];
+	}
+
+	lookup = (ev: Event) => {
+		ev.preventDefault();
+		ev.stopImmediatePropagation();
+		const room = this.props.room;
+		const username = this.base!.querySelector<HTMLInputElement>('input[name=username]')?.value;
+		room.setName(username || '');
+	};
+	maybeReset = (ev: Event) => {
+		const room = this.props.room;
+		const username = this.base!.querySelector<HTMLInputElement>('input[name=username]')?.value;
+		if (toID(username) !== room.userid) {
+			room.setName('');
+		}
+	};
+	override focus() {
+		this.base?.querySelector<HTMLElement>('.autofocus')?.focus();
+	}
+
+	override render() {
+		const room = this.props.room;
+		const showLookup = room.id === 'users';
+
+		return <PSPanelWrapper room={room}><div class="pad">
+			{showLookup && <form onSubmit={this.lookup} style={{ minWidth: '278px' }}>
+				<label class="label">
+					Username:
+					<input type="search" name="username" class="textbox autofocus" onInput={this.maybeReset} onChange={this.maybeReset} />
+				</label>
+				{!room.userid && <p class="buttonbar">
+					<button type="submit" class="button"><strong>Look up</strong></button> {}
+					<button name="closeRoom" class="button">Close</button>
+				</p>}
+				{!!room.userid && <hr />}
+			</form>}
+
+			{this.renderUser()}
+		</div></PSPanelWrapper>;
 	}
 }
 
@@ -380,7 +422,7 @@ class VolumePanel extends PSRoomPanel {
 	}
 	override render() {
 		const room = this.props.room;
-		return <PSPanelWrapper room={room}>
+		return <PSPanelWrapper room={room}><div class="pad">
 			<h3>Volume</h3>
 			<p class="volume">
 				<label class="optlabel">
@@ -421,7 +463,7 @@ class VolumePanel extends PSRoomPanel {
 					<input type="checkbox" name="mute" checked={PS.prefs.mute} onChange={this.setMute} /> Mute all
 				</label>
 			</p>
-		</PSPanelWrapper>;
+		</div></PSPanelWrapper>;
 	}
 }
 
@@ -437,7 +479,7 @@ class OptionsPanel extends PSRoomPanel {
 	};
 	override render() {
 		const room = this.props.room;
-		return <PSPanelWrapper room={room}>
+		return <PSPanelWrapper room={room}><div class="pad">
 			<h3>Graphics</h3>
 			<p>
 				<label class="optlabel">Theme: <select onChange={this.setTheme}>
@@ -446,7 +488,7 @@ class OptionsPanel extends PSRoomPanel {
 					<option value="system" selected={PS.prefs.theme === 'system'}>Match system theme</option>
 				</select></label>
 			</p>
-		</PSPanelWrapper>;
+		</div></PSPanelWrapper>;
 	}
 }
 
@@ -491,16 +533,14 @@ class LoginPanel extends PSRoomPanel {
 					this.close();
 					return;
 				}
-				this.props.room.loginState = args;
+				this.props.room.args = args;
 				setTimeout(() => this.focus(), 1);
 			}
 			this.forceUpdate();
 		}));
-		// I think it's the click when opening the panel that causes focus to be lost
-		setTimeout(() => this.focus(), 1);
 	}
 	getUsername() {
-		const loginName = PS.user.loggingIn || this.props.room.loginState?.name;
+		const loginName = PS.user.loggingIn || this.props.room.args?.name as string;
 		if (loginName) return loginName;
 
 		const input = this.base?.querySelector<HTMLInputElement>('input[name=username]');
@@ -529,7 +569,7 @@ class LoginPanel extends PSRoomPanel {
 	reset = (ev: Event) => {
 		ev.preventDefault();
 		ev.stopImmediatePropagation();
-		this.props.room.loginState = null;
+		this.props.room.args = null;
 		this.forceUpdate();
 	};
 	handleShowPassword = (ev: Event) => {
@@ -539,8 +579,8 @@ class LoginPanel extends PSRoomPanel {
 	};
 	override render() {
 		const room = this.props.room;
-		const loginState = room.loginState;
-		return <PSPanelWrapper room={room} width={280}>
+		const loginState = room.args as PSLoginState;
+		return <PSPanelWrapper room={room} width={280}><div class="pad">
 			<h3>Log in</h3>
 			<form onSubmit={this.handleSubmit}>
 				{loginState?.error && <p class="error">{loginState.error}</p>}
@@ -601,8 +641,29 @@ class LoginPanel extends PSRoomPanel {
 					</p>
 				</div>}
 			</form>
-		</PSPanelWrapper>;
+		</div></PSPanelWrapper>;
 	}
 }
 
-PS.addRoomType(UserPanel, VolumePanel, OptionsPanel, LoginPanel);
+class PopupPanel extends PSRoomPanel {
+	static readonly id = 'popup';
+	static readonly routes = ['popup-*'];
+	static readonly location = 'semimodal-popup';
+	static readonly noURL = true;
+
+	override focus() {
+		this.base?.querySelector<HTMLButtonElement>('.autofocus')?.focus();
+	}
+	override render() {
+		const room = this.props.room;
+		const okButtonLabel = room.args?.okButtonLabel as string || 'OK';
+		return <PSPanelWrapper room={room} width={480}><div class="pad">
+			{room.args?.message && <p style="white-space:pre-wrap;word-wrap:break-word">
+				{room.args.message}
+			</p>}
+			<p class="buttonbar"><button class="button autofocus" name="closeRoom"><strong>{okButtonLabel}</strong></button></p>
+		</div></PSPanelWrapper>;
+	}
+}
+
+PS.addRoomType(UserPanel, VolumePanel, OptionsPanel, LoginPanel, PopupPanel);

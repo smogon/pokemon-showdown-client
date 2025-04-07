@@ -290,6 +290,7 @@ class PSUser extends PSStreamModel<PSLoginState | null> {
 	avatar = "1";
 	challstr = '';
 	loggingIn: string | null = null;
+	initializing = true;
 	gapiLoaded = false;
 	setName(fullName: string, named: boolean, avatar: string) {
 		const loggingIn = (!this.named && named);
@@ -390,13 +391,13 @@ class PSUser extends PSStreamModel<PSLoginState | null> {
 	updateLogin(update: PSLoginState) {
 		this.update(update);
 		if (!PS.rooms['login']) {
-			PS.addRoom({ id: 'login' as RoomID, loginState: update });
+			PS.addRoom({ id: 'login' as RoomID, args: update });
 			PS.update();
 		}
 	}
 	handleAssertion(name: string, assertion?: string | null) {
 		if (!assertion) {
-			alert("Error logging in.");
+			PS.alert("Error logging in.");
 			return;
 		}
 		this.loggingIn = null;
@@ -408,7 +409,7 @@ class PSUser extends PSStreamModel<PSLoginState | null> {
 		if (assertion.startsWith('\r')) assertion = assertion.slice(1);
 		if (assertion.startsWith('\n')) assertion = assertion.slice(1);
 		if (assertion.includes('<')) {
-			alert("Something is interfering with our connection to the login server. Most likely, your internet provider needs you to re-log-in, or your internet provider is blocking Pokémon Showdown.");
+			PS.alert("Something is interfering with our connection to the login server. Most likely, your internet provider needs you to re-log-in, or your internet provider is blocking Pokémon Showdown.");
 			return;
 		}
 		if (assertion === ';') {
@@ -418,8 +419,11 @@ class PSUser extends PSStreamModel<PSLoginState | null> {
 		} else if (assertion.startsWith(';;')) {
 			this.updateLogin({ error: assertion.slice(2) });
 		} else if (assertion.includes('\n') || !assertion) {
-			alert("Something is interfering with our connection to the login server.");
+			PS.alert("Something is interfering with our connection to the login server.");
 		} else {
+			// we're getting a little ahead of ourselves
+			this.name = name;
+			this.named = true;
 			PS.send(`|/trn ${name},0,${assertion}`);
 			this.update({ success: true });
 		}
@@ -559,7 +563,9 @@ export interface RoomOptions {
 	/** Opens the popup to the right of its parent, instead of the default above/below (for userlists) */
 	rightPopup?: boolean;
 	connected?: boolean;
-	[k: string]: unknown;
+	/** @see {RoomType#noURL} */
+	noURL?: boolean;
+	args?: Record<string, unknown> | null;
 }
 
 interface PSNotificationState {
@@ -601,6 +607,12 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 
 	width = 0;
 	height = 0;
+	/**
+	 * popups sometimes initialize hidden, to calculate their position from their
+	 * width/height without flickering. But hidden popups can't be focused, so
+	 * we need to track their focus timing here.
+	 */
+	hiddenInit = false;
 	parentElem: HTMLElement | null = null;
 	rightPopup = false;
 
@@ -610,10 +622,9 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 	/** only affects mini-windows */
 	minimized = false;
 	caughtError: string | undefined;
-	/** only on login */
-	loginState?: PSLoginState | null;
-	// for compatibility with RoomOptions
-	[k: string]: unknown;
+	/** @see {RoomType#noURL} */
+	noURL: boolean;
+	args: Record<string, unknown> | null;
 
 	constructor(options: RoomOptions) {
 		super();
@@ -625,7 +636,8 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 		if (this.location !== 'popup' && this.location !== 'semimodal-popup') this.parentElem = null;
 		if (options.rightPopup) this.rightPopup = true;
 		if (options.connected) this.connected = true;
-		this.loginState = options.loginState || null;
+		this.noURL = options.noURL || false;
+		this.args = options.args || null;
 	}
 	notify(options: { title: string, body?: string, noAutoDismiss?: boolean, id?: string }) {
 		if (options.noAutoDismiss && !options.id) {
@@ -724,8 +736,11 @@ class PlaceholderRoom extends PSRoom {
 type RoomType = (new () => PSRoomPanel) & {
 	readonly id: string,
 	readonly routes: string[],
+	/** optional Room class */
 	readonly Model?: typeof PSRoom,
 	readonly location?: PSRoomLocation,
+	/** do not put the roomid into the URL */
+	noURL?: boolean,
 	icon?: preact.ComponentChildren,
 	title?: string,
 };
@@ -772,7 +787,7 @@ export const PS = new class extends PSModel {
 		// locations cached here because it needs to be guessed before roomTypes is filled in
 		// this cache is optional, but prevents some flickering during loading
 		// to update:
-		// console.log('\t\t' + JSON.stringify(Object.fromEntries(Object.entries(PS.routes).filter(([k, v]) => k !== 'pm-*').map(([k, v]) => [k, '*' + (PS.roomTypes[v].location || '')]))).replaceAll(',', ',\n\t\t').replaceAll('":"', '": "').slice(1, -1) + ',')
+		// console.log('\t\t' + JSON.stringify(Object.fromEntries(Object.entries(PS.routes).filter(([k, v]) => k !== 'dm-*').map(([k, v]) => [k, '*' + (PS.roomTypes[v].location || '')]))).replaceAll(',', ',\n\t\t').replaceAll('":"', '": "').slice(1, -1) + ',')
 		"teambuilder": "*",
 		"news": "*mini-window",
 		"": "*",
@@ -1113,6 +1128,7 @@ export const PS = new class extends PSModel {
 		options.location ||= this.getRouteLocation(options.id);
 		options.type ||= this.getRoute(options.id) || '';
 		const RoomType = this.roomTypes[options.type];
+		options.noURL ??= RoomType?.noURL;
 		if (RoomType?.title) options.title = RoomType.title;
 		const Model = RoomType ? (RoomType.Model || PSRoom) : PlaceholderRoom;
 		return new Model(options);
@@ -1127,7 +1143,7 @@ export const PS = new class extends PSModel {
 	}
 	getRouteLocation(roomid: RoomID): PSRoomLocation {
 		// must be hardcoded here to have a different loc while also being a ChatRoom
-		if (roomid.startsWith('pm-')) return 'mini-window';
+		if (roomid.startsWith('dm-')) return 'mini-window';
 		const routeInfo = this.getRouteInfo(roomid);
 		if (!routeInfo) return 'left';
 		if (routeInfo.startsWith('*')) return routeInfo.slice(1) as PSRoomLocation;
@@ -1249,7 +1265,11 @@ export const PS = new class extends PSModel {
 		return buf;
 	}
 	alert(message: string) {
-		alert(message);
+		this.addRoom({
+			id: `popup-${this.popups.length}` as RoomID,
+			args: { message },
+		});
+		this.update();
 	}
 	prompt(message: string, defaultValue?: string, opts?: {
 		okButton?: string, type?: 'text' | 'password' | 'number',
@@ -1261,7 +1281,7 @@ export const PS = new class extends PSModel {
 	}
 	getPMRoom(userid: ID): ChatRoom {
 		const myUserid = PS.user.userid;
-		const roomid = `pm-${[userid, myUserid].sort().join('-')}` as RoomID;
+		const roomid = `dm-${[userid, myUserid].sort().join('-')}` as RoomID;
 		if (this.rooms[roomid]) return this.rooms[roomid] as ChatRoom;
 		this.join(roomid);
 		return this.rooms[roomid]! as ChatRoom;
@@ -1269,18 +1289,13 @@ export const PS = new class extends PSModel {
 	addRoom(options: RoomOptions, noFocus = false) {
 		// support hardcoded PM room-IDs
 		if (options.id.startsWith('challenge-')) {
-			options.id = `pm-${options.id.slice(10)}` as RoomID;
-			options.challengeMenuOpen = true;
+			options.id = `dm-${options.id.slice(10)}` as RoomID;
+			options.args = { challengeMenuOpen: true };
 		}
-		if (options.id.startsWith('pm-')) {
+		if (options.id.startsWith('dm-')) {
 			if (options.id.length >= 5 && options.id.endsWith('--')) {
 				options.id = options.id.slice(0, -2) as RoomID;
-				options.initialSlash = true;
-			}
-			if (options.id !== 'pm-' && !options.id.includes('-', 3)) {
-				const userid1 = PS.user.userid;
-				const userid2 = options.id.slice(3);
-				options.id = `pm-${[userid1, userid2].sort().join('-')}` as RoomID;
+				options.args = { initialSlash: true };
 			}
 		}
 
@@ -1297,7 +1312,7 @@ export const PS = new class extends PSModel {
 				}
 			}
 			if (!noFocus) {
-				if (options.challengeMenuOpen) {
+				if (options.args?.challengeMenuOpen) {
 					(this.rooms[options.id] as ChatRoom).openChallenge();
 				}
 				this.focusRoom(options.id);
@@ -1464,9 +1479,9 @@ export const PS = new class extends PSModel {
 		this.leave(this.popups[this.popups.length - 1]);
 		if (!skipUpdate) this.update();
 	}
-	join(roomid: RoomID, side?: PSRoomLocation | null, noFocus?: boolean) {
+	join(roomid: RoomID, location?: PSRoomLocation | null, noFocus?: boolean) {
 		if (this.room.id === roomid) return;
-		this.addRoom({ id: roomid, side }, noFocus);
+		this.addRoom({ id: roomid, location }, noFocus);
 		this.update();
 	}
 	leave(roomid: RoomID) {

@@ -48,9 +48,10 @@ export class MainMenuRoom extends PSRoom {
 			PSLoginServer.query(
 				'upkeep', { challstr }
 			).then(res => {
+				PS.user.initializing = false;
 				if (!res) return;
 				if (!res.loggedin) return;
-				this.send(`/trn ${res.username},0,${res.assertion}`);
+				PS.user.handleAssertion(res.username, res.assertion);
 			});
 			return;
 		} case 'updateuser': {
@@ -235,14 +236,15 @@ export class MainMenuRoom extends PSRoom {
 	handlePM(user1: string, user2: string, message: string) {
 		const userid1 = toID(user1);
 		const userid2 = toID(user2);
-		let roomid = `pm-${[userid1, userid2].sort().join('-')}` as RoomID;
-		if (userid1 === userid2 || !userid1) roomid = 'pm-' as RoomID;
+		const pmTarget = PS.user.userid === userid1 ? user2 : user1;
+		const pmTargetid = PS.user.userid === userid1 ? userid2 : userid1;
+		let roomid = `dm-${pmTargetid}` as RoomID;
+		if (pmTargetid === PS.user.userid) roomid = 'dm-' as RoomID;
 		let room = PS.rooms[roomid];
 		if (!room) {
-			const pmTarget = PS.user.userid === userid1 ? user2 : user1;
 			PS.addRoom({
 				id: roomid,
-				pmTarget,
+				args: { pmTarget },
 			}, true);
 			room = PS.rooms[roomid]!;
 		}
@@ -320,7 +322,7 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
 	override focus() {
 		this.base!.querySelector<HTMLButtonElement>('button.big')!.focus();
 	}
-	submit = (e: Event) => {
+	submit = (ev: Event) => {
 		PS.alert('todo: implement');
 	};
 	handleDragStart = (e: DragEvent) => {
@@ -406,14 +408,14 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
 
 		if (!PS.user.userid || PS.isOffline) {
 			return <TeamForm class="menugroup" onSubmit={this.submit}>
-				<button class="mainmenu1 big button disabled" name="search">
+				<button class="mainmenu1 big button disabled" disabled name="search">
 					<em>{PS.isOffline ? "Disconnected" : "Connecting..."}</em>
 				</button>
 			</TeamForm>;
 		}
 
 		return <TeamForm class="menugroup" onSubmit={this.submit}>
-			<button class="mainmenu1 big button" name="search">
+			<button class="mainmenu1 big button" type="submit">
 				<strong>Battle!</strong><br />
 				<small>Find a random opponent</small>
 			</button>
@@ -437,7 +439,7 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
 
 						<div class="menugroup">
 							<p><button class={"mainmenu4" + onlineButton} name="joinRoom" value="battles">Watch a battle</button></p>
-							<p><button class={"mainmenu5" + onlineButton} name="finduser">Find a user</button></p>
+							<p><button class={"mainmenu5" + onlineButton} name="joinRoom" value="users">Find a user</button></p>
 						</div>
 					</div>
 				</div>
@@ -537,7 +539,7 @@ class TeamDropdown extends preact.Component<{ format: string }> {
 
 export class TeamForm extends preact.Component<{
 	children: preact.ComponentChildren, class?: string, format?: string,
-	onSubmit: null | ((e: Event, format: string, team?: Team) => void),
+	onSubmit: ((e: Event, format: string, team?: Team) => void) | null,
 }> {
 	override state = { format: '[Gen 7] Random Battle' };
 	changeFormat = (e: Event) => {
@@ -548,7 +550,7 @@ export class TeamForm extends preact.Component<{
 		const format = this.base!.querySelector<HTMLButtonElement>('button[name=format]')!.value;
 		const teamKey = this.base!.querySelector<HTMLButtonElement>('button[name=team]')!.value;
 		const team = teamKey ? PS.teams.byKey[teamKey] : undefined;
-		if (this.props.onSubmit) this.props.onSubmit(e, format, team);
+		this.props.onSubmit?.(e, format, team);
 	};
 	render() {
 		return <form class={this.props.class} onSubmit={this.submit}>

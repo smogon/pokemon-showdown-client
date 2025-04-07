@@ -58,13 +58,16 @@ export class PSRouter {
 		return url as RoomID;
 	}
 	updatePanelState(): { roomid: RoomID, changed: boolean } {
-		const room = PS.room;
+		let room = PS.room;
+		// there's definitely a better way to do this but I'm lazy
+		if (room.noURL) room = PS.rooms[PS.popups[PS.popups.length - 2]] || PS.panel;
+		if (room.noURL) room = PS.panel;
 		let roomid = room.id;
-		const panelState = (PS.leftPanelWidth && PS.room === PS.panel ?
+		const panelState = (PS.leftPanelWidth && room === PS.panel ?
 			PS.leftPanel.id + '..' + PS.rightPanel!.id :
-			PS.room.id);
+			room.id);
 		// don't generate history when focusing things on the home page
-		if (roomid === 'news' && PS.room.location === 'mini-window') roomid = '' as RoomID;
+		if (roomid === 'news' && room.location === 'mini-window') roomid = '' as RoomID;
 		if (roomid === 'rooms') roomid = '' as RoomID;
 		if (roomid === this.roomid && panelState === this.panelState) {
 			return { roomid, changed: false };
@@ -158,8 +161,13 @@ export class PSRoomPanel<T extends PSRoom = PSRoom> extends preact.Component<{ r
 		}
 	}
 	override componentDidUpdate() {
-		if (this.base && ['popup', 'semimodal-popup'].includes(this.props.room.location)) {
-			this.props.room.setDimensions(this.base.offsetWidth, this.base.offsetHeight);
+		const room = this.props.room;
+		if (this.base && ['popup', 'semimodal-popup'].includes(room.location)) {
+			if (room.width && room.hiddenInit) {
+				room.hiddenInit = false;
+				this.focus();
+			}
+			room.setDimensions(this.base.offsetWidth, this.base.offsetHeight);
 		}
 	}
 	override componentWillUnmount() {
@@ -250,7 +258,7 @@ export class PSMain extends preact.Component {
 						id: roomid,
 						parentElem: elem,
 						rightPopup: elem.className === 'userbutton username',
-						username: name,
+						args: { username: name },
 					});
 					PS.update();
 					e.preventDefault();
@@ -351,7 +359,7 @@ export class PSMain extends preact.Component {
 			} else if (e.keyCode === 191 && !isTextInput && PS.room === PS.mainmenu) { // forward slash
 				e.stopImmediatePropagation();
 				e.preventDefault();
-				PS.join('pm---' as RoomID);
+				PS.join('dm---' as RoomID);
 			}
 		});
 
@@ -457,9 +465,10 @@ export class PSMain extends preact.Component {
 	}
 	static getPopupStyle(room: PSRoom, width?: number | 'auto'): any {
 		if (room.location === 'modal-popup' || !room.parentElem) {
-			return { width: width || 480 };
+			return { maxWidth: width || 480 };
 		}
 		if (!room.width || !room.height) {
+			room.hiddenInit = true;
 			return {
 				position: 'absolute',
 				visibility: 'hidden',

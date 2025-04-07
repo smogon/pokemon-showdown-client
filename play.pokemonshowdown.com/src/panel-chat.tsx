@@ -29,44 +29,38 @@ export class ChatRoom extends PSRoom {
 	initialSlash = false;
 	challengingFormat: string | null = null;
 	challengedFormat: string | null = null;
+	/** n.b. this will be null outside of battle rooms */
+	battle: Battle | null = null;
 
 	constructor(options: RoomOptions) {
 		super(options);
-		if (options.pmTarget) this.pmTarget = options.pmTarget as string;
-		if (options.challengeMenuOpen) this.challengeMenuOpen = true;
-		if (options.initialSlash) this.initialSlash = true;
+		if (options.args?.pmTarget) this.pmTarget = options.args.pmTarget as string;
+		if (options.args?.challengeMenuOpen) this.challengeMenuOpen = true;
+		if (options.args?.initialSlash) this.initialSlash = true;
 		this.updateTarget(true);
 		this.connect();
 	}
 	override connect() {
 		if (!this.connected) {
-			if (!this.pmTarget) PS.send(`|/join ${this.id}`);
+			if (this.pmTarget === null) PS.send(`|/join ${this.id}`);
 			this.connected = true;
 			this.connectWhenLoggedIn = false;
 		}
 	}
 	updateTarget(force?: boolean) {
-		if (this.id === 'pm-') {
+		if (this.id === 'dm-') {
 			this.pmTarget = PS.user.userid;
 			if (!this.userCount) {
 				this.setUsers(1, [` ${PS.user.userid}`]);
 			}
 			this.title = `[Console]`;
-		} else if (this.id.startsWith('pm-')) {
-			const [id1, id2] = this.id.slice(3).split('-');
-			if (id1 === PS.user.userid && toID(this.pmTarget) !== id2) {
-				this.pmTarget = id2;
-			} else if (id2 === PS.user.userid && toID(this.pmTarget) !== id1) {
-				this.pmTarget = id1;
-			} else if (!force) {
-				return;
-			} else {
-				this.pmTarget = id1;
-			}
+		} else if (this.id.startsWith('dm-')) {
+			const id = this.id.slice(3);
+			this.pmTarget = id;
 			if (!this.userCount) {
-				this.setUsers(2, [` ${id1}`, ` ${id2}`]);
+				this.setUsers(2, [` ${id}`, ` ${PS.user.userid}`]);
 			}
-			this.title = `[PM] ${this.pmTarget}`;
+			this.title = `[DM] ${this.pmTarget}`;
 		}
 	}
 	/**
@@ -191,8 +185,8 @@ export class ChatTextEntry extends preact.Component<{
 			},
 			onKeyDown: this.onKeyDown,
 		});
-		if (this.props.room.initialSlash) {
-			this.props.room.initialSlash = false;
+		if (this.props.room.args?.initialSlash) {
+			this.props.room.args.initialSlash = false;
 			this.miniedit.setValue('/', { start: 1, end: 1 });
 		}
 		if (this.base) this.update();
@@ -389,7 +383,7 @@ class ChatTextBox extends preact.Component<{ placeholder: string, class: string 
 
 class ChatPanel extends PSRoomPanel<ChatRoom> {
 	static readonly id = 'chat';
-	static readonly routes = ['pm-*', '*'];
+	static readonly routes = ['dm-*', '*'];
 	static readonly Model = ChatRoom;
 	static readonly location = 'right';
 	static readonly icon = <i class="fa fa-comment-o"></i>;
@@ -596,7 +590,7 @@ export class ChatLog extends preact.Component<{
 		if (this.log) {
 			this.log.updateScroll();
 		} else if (this.props.room.battle) {
-			this.log = (this.props.room.battle as Battle).scene.log;
+			this.log = this.props.room.battle.scene.log;
 			this.log.updateScroll();
 		}
 	}
