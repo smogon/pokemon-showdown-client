@@ -154,6 +154,9 @@ export class PSRoomPanel<T extends PSRoom = PSRoom> extends preact.Component<{ r
 		}
 		this.subscriptions = [];
 	}
+	close() {
+		PS.removeRoom(this.props.room);
+	}
 	componentDidCatch(err: Error) {
 		this.props.room.caughtError = err.stack || err.message;
 		this.setState({});

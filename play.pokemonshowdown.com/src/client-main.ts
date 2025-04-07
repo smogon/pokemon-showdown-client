@@ -280,13 +280,17 @@ class PSTeams extends PSStreamModel<'team' | 'format'> {
  * User
  *********************************************************************/
 
-class PSUser extends PSModel {
+export type PSLoginState = { error?: string, success?: true, name?: string, needsPassword?: true, needsGoogle?: true };
+class PSUser extends PSStreamModel<PSLoginState | null> {
 	name = "";
 	group = '';
 	userid = "" as ID;
 	named = false;
 	registered = false;
 	avatar = "1";
+	challstr = '';
+	loggingIn: string | null = null;
+	gapiLoaded = false;
 	setName(fullName: string, named: boolean, avatar: string) {
 		const loggingIn = (!this.named && named);
 		const { name, group } = BattleTextParser.parseNameParts(fullName);
@@ -295,7 +299,7 @@ class PSUser extends PSModel {
 		this.userid = toID(name);
 		this.named = named;
 		this.avatar = avatar;
-		this.update();
+		this.update(null);
 		if (loggingIn) {
 			for (const roomid in PS.rooms) {
 				const room = PS.rooms[roomid]!;
@@ -303,11 +307,127 @@ class PSUser extends PSModel {
 			}
 		}
 	}
-	logOut() {
-		PSLoginServer.query({
-			act: 'logout',
-			userid: this.userid,
+	validateName(name: string): string {
+		// | , ; are not valid characters in names
+		name = name.replace(/[|,;]+/g, '');
+		const replaceList = {
+			'A': 'ＡⱯȺ', 'B': 'ＢƂƁɃ', 'C': 'ＣꜾȻ', 'D': 'ＤĐƋƊƉꝹ', 'E': 'ＥƐƎ', 'F': 'ＦƑꝻ', 'G': 'ＧꞠꝽꝾ', 'H': 'ＨĦⱧⱵꞍ', 'I': 'ＩƗ', 'J': 'ＪɈ', 'K': 'ＫꞢ', 'L': 'ＬꝆꞀ', 'M': 'ＭⱮƜ', 'N': 'ＮȠƝꞐꞤ', 'O': 'ＯǪǬØǾƆƟꝊꝌ', 'P': 'ＰƤⱣꝐꝒꝔ', 'Q': 'ＱꝖꝘɊ', 'R': 'ＲɌⱤꝚꞦꞂ', 'S': 'ＳẞꞨꞄ', 'T': 'ＴŦƬƮȾꞆ', 'U': 'ＵɄ', 'V': 'ＶƲꝞɅ', 'W': 'ＷⱲ', 'X': 'Ｘ', 'Y': 'ＹɎỾ', 'Z': 'ＺƵȤⱿⱫꝢ', 'a': 'ａąⱥɐ', 'b': 'ｂƀƃɓ', 'c': 'ｃȼꜿↄ', 'd': 'ｄđƌɖɗꝺ', 'e': 'ｅɇɛǝ', 'f': 'ｆḟƒꝼ', 'g': 'ｇɠꞡᵹꝿ', 'h': 'ｈħⱨⱶɥ', 'i': 'ｉɨı', 'j': 'ｊɉ', 'k': 'ｋƙⱪꝁꝃꝅꞣ', 'l': 'ｌſłƚɫⱡꝉꞁꝇ', 'm': 'ｍɱɯ', 'n': 'ｎƞɲŉꞑꞥ', 'o': 'ｏǫǭøǿɔꝋꝍɵ', 'p': 'ｐƥᵽꝑꝓꝕ', 'q': 'ｑɋꝗꝙ', 'r': 'ｒɍɽꝛꞧꞃ', 's': 'ｓꞩꞅẛ', 't': 'ｔŧƭʈⱦꞇ', 'u': 'ｕưừứữửựųṷṵʉ', 'v': 'ｖʋꝟʌ', 'w': 'ｗⱳ', 'x': 'ｘ', 'y': 'ｙɏỿ', 'z': 'ｚƶȥɀⱬꝣ', 'AA': 'Ꜳ', 'AE': 'ÆǼǢ', 'AO': 'Ꜵ', 'AU': 'Ꜷ', 'AV': 'ꜸꜺ', 'AY': 'Ꜽ', 'DZ': 'ǱǄ', 'Dz': 'ǲǅ', 'LJ': 'Ǉ', 'Lj': 'ǈ', 'NJ': 'Ǌ', 'Nj': 'ǋ', 'OI': 'Ƣ', 'OO': 'Ꝏ', 'OU': 'Ȣ', 'TZ': 'Ꜩ', 'VY': 'Ꝡ', 'aa': 'ꜳ', 'ae': 'æǽǣ', 'ao': 'ꜵ', 'au': 'ꜷ', 'av': 'ꜹꜻ', 'ay': 'ꜽ', 'dz': 'ǳǆ', 'hv': 'ƕ', 'lj': 'ǉ', 'nj': 'ǌ', 'oi': 'ƣ', 'ou': 'ȣ', 'oo': 'ꝏ', 'ss': 'ß', 'tz': 'ꜩ', 'vy': 'ꝡ',
+		};
+		const normalizeList = {
+			'A': 'ÀÁÂẦẤẪẨÃĀĂẰẮẴẲȦǠÄǞẢÅǺǍȀȂẠẬẶḀĄ', 'B': 'ḂḄḆ', 'C': 'ĆĈĊČÇḈƇ', 'D': 'ḊĎḌḐḒḎ', 'E': 'ÈÉÊỀẾỄỂẼĒḔḖĔĖËẺĚȄȆẸỆȨḜĘḘḚ', 'F': 'Ḟ', 'G': 'ǴĜḠĞĠǦĢǤƓ', 'H': 'ĤḢḦȞḤḨḪ', 'I': 'ÌÍÎĨĪĬİÏḮỈǏȈȊỊĮḬ', 'J': 'Ĵ', 'K': 'ḰǨḲĶḴƘⱩꝀꝂꝄ', 'L': 'ĿĹĽḶḸĻḼḺŁȽⱢⱠꝈ', 'M': 'ḾṀṂ', 'N': 'ǸŃÑṄŇṆŅṊṈ', 'O': 'ÒÓÔỒỐỖỔÕṌȬṎŌṐṒŎȮȰÖȪỎŐǑȌȎƠỜỚỠỞỢỌỘ', 'P': 'ṔṖ', 'Q': '', 'R': 'ŔṘŘȐȒṚṜŖṞ', 'S': 'ŚṤŜṠŠṦṢṨȘŞⱾ', 'T': 'ṪŤṬȚŢṰṮ', 'U': 'ÙÚÛŨṸŪṺŬÜǛǗǕǙỦŮŰǓȔȖƯỪỨỮỬỰỤṲŲṶṴ', 'V': 'ṼṾ', 'W': 'ẀẂŴẆẄẈ', 'X': 'ẊẌ', 'Y': 'ỲÝŶỸȲẎŸỶỴƳ', 'Z': 'ŹẐŻŽẒẔ', 'a': 'ẚàáâầấẫẩãāăằắẵẳȧǡäǟảåǻǎȁȃạậặḁ', 'b': 'ḃḅḇ', 'c': 'ćĉċčçḉƈ', 'd': 'ḋďḍḑḓḏ', 'e': 'èéêềếễểẽēḕḗĕėëẻěȅȇẹệȩḝęḙḛ', 'f': '', 'g': 'ǵĝḡğġǧģǥ', 'h': 'ĥḣḧȟḥḩḫẖ', 'i': 'ìíîĩīĭïḯỉǐȉȋịįḭ', 'j': 'ĵǰ', 'k': 'ḱǩḳķḵ', 'l': 'ŀĺľḷḹļḽḻ', 'm': 'ḿṁṃ', 'n': 'ǹńñṅňṇņṋṉ', 'o': 'òóôồốỗổõṍȭṏōṑṓŏȯȱöȫỏőǒȍȏơờớỡởợọộ', 'p': 'ṕṗ', 'q': '', 'r': 'ŕṙřȑȓṛṝŗṟ', 's': 'śṥŝṡšṧṣṩșşȿ', 't': 'ṫẗťṭțţṱṯ', 'u': 'ùúûũṹūṻŭüǜǘǖǚủůűǔȕȗụṳ', 'v': 'ṽṿ', 'w': 'ẁẃŵẇẅẘẉ', 'x': 'ẋẍ', 'y': 'ỳýŷỹȳẏÿỷẙỵƴ', 'z': 'źẑżžẓẕ',
+		};
+		const replaceRegexes: [RegExp, string][] = [];
+		for (const i in replaceList) {
+			replaceRegexes.push([new RegExp('[' + replaceList[i as 'A'] + ']', 'g'), i]);
+		}
+		const normalizeRegexes: [RegExp, string][] = [];
+		for (const i in normalizeList) {
+			normalizeRegexes.push([new RegExp('[' + normalizeList[i as 'A'] + ']', 'g'), i]);
+		}
+
+		for (const [regex, replacement] of replaceRegexes) {
+			name = name.replace(regex, replacement);
+		}
+		for (const [regex, replacement] of normalizeRegexes) {
+			name = name.replace(regex, replacement);
+		}
+		return name.trim();
+	}
+	changeName(name: string) {
+		name = this.validateName(name);
+		const userid = toID(name);
+		if (!userid) {
+			this.updateLogin({ name, error: "Usernames must contain at least one letter." });
+			return;
+		}
+
+		if (userid === this.userid) {
+			PS.send(`|/trn ${name}`);
+			this.update({ success: true });
+			return;
+		}
+		this.loggingIn = name;
+		this.update(null);
+		PSLoginServer.rawQuery(
+			'getassertion', { userid, challstr: this.challstr }
+		).then(res => {
+			this.handleAssertion(name, res);
 		});
+	}
+	changeNameWithPassword(name: string, password: string, special: PSLoginState = { needsPassword: true }) {
+		this.loggingIn = name;
+		if (!password && !special) {
+			this.updateLogin({
+				name,
+				error: "Password can't be empty.",
+				...special as any,
+			});
+		}
+		this.update(null);
+		PSLoginServer.query(
+			'login', { name, pass: password, challstr: this.challstr }
+		).then(data => {
+			this.loggingIn = null;
+			if (data?.curuser?.loggedin) {
+				// success!
+				this.handleAssertion(name, data.assertion);
+			} else {
+				// wrong password
+				if (special.needsGoogle) {
+					try {
+						// @ts-expect-error gapi included dynamically
+						gapi.auth2.getAuthInstance().signOut();
+					} catch {}
+				}
+				this.updateLogin({
+					name,
+					error: data?.error || 'Wrong password.',
+					...special as any,
+				});
+			}
+		});
+	}
+	updateLogin(update: PSLoginState) {
+		this.update(update);
+		if (!PS.rooms['login']) {
+			PS.addRoom({ id: 'login' as RoomID, loginState: update });
+			PS.update();
+		}
+	}
+	handleAssertion(name: string, assertion?: string | null) {
+		if (!assertion) {
+			alert("Error logging in.");
+			return;
+		}
+		this.loggingIn = null;
+		if (assertion.slice(0, 14).toLowerCase() === '<!doctype html') {
+			// some sort of MitM proxy; ignore it
+			const endIndex = assertion.indexOf('>');
+			if (endIndex > 0) assertion = assertion.slice(endIndex + 1);
+		}
+		if (assertion.startsWith('\r')) assertion = assertion.slice(1);
+		if (assertion.startsWith('\n')) assertion = assertion.slice(1);
+		if (assertion.includes('<')) {
+			alert("Something is interfering with our connection to the login server. Most likely, your internet provider needs you to re-log-in, or your internet provider is blocking Pokémon Showdown.");
+			return;
+		}
+		if (assertion === ';') {
+			this.updateLogin({ name, needsPassword: true });
+		} else if (assertion === ';;@gmail') {
+			this.updateLogin({ name, needsGoogle: true });
+		} else if (assertion.startsWith(';;')) {
+			this.updateLogin({ error: assertion.slice(2) });
+		} else if (assertion.includes('\n') || !assertion) {
+			alert("Something is interfering with our connection to the login server.");
+		} else {
+			PS.send(`|/trn ${name},0,${assertion}`);
+			this.update({ success: true });
+		}
+	}
+	logOut() {
+		PSLoginServer.query(
+			'logout', { userid: this.userid }
+		);
 		PS.send('|/logout');
 		PS.connection?.disconnect();
 
@@ -317,7 +437,7 @@ class PSUser extends PSModel {
 		this.userid = "" as ID;
 		this.named = false;
 		this.registered = false;
-		this.update();
+		this.update(null);
 	}
 }
 
@@ -478,6 +598,8 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 	/** only affects mini-windows */
 	minimized = false;
 	caughtError: string | undefined;
+	/** only on login */
+	loginState?: PSLoginState | null;
 	// for compatibility with RoomOptions
 	[k: string]: unknown;
 
@@ -491,6 +613,7 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 		if (this.location !== 'popup' && this.location !== 'semimodal-popup') this.parentElem = null;
 		if (options.rightPopup) this.rightPopup = true;
 		if (options.connected) this.connected = true;
+		this.loginState = options.loginState || null;
 	}
 	notify(options: { title: string, body?: string, noAutoDismiss?: boolean, id?: string }) {
 		if (options.noAutoDismiss && !options.id) {
@@ -652,6 +775,7 @@ export const PS = new class extends PSModel {
 		"ladder": "*",
 		"ladder-*": "*",
 		"view-*": "*",
+		"login": "*semimodal-popup",
 	});
 	/** List of rooms on the left side of the top tabbar */
 	leftRoomList: RoomID[] = [];

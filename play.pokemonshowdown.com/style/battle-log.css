@@ -154,7 +154,9 @@ select.button {
 	box-shadow: 0 1px 2px rgba(0,0,0,.1);
 }
 .button.cur,
-.button.cur:hover {
+.button.cur:hover,
+.button.cur:disabled,
+.button.cur:disabled:hover {
 	background: #f8f8f8;
 	color: #444444;
 	border-color: #AAAAAA;

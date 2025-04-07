@@ -13,7 +13,7 @@ import preact from "../js/lib/preact";
 import { PS, PSRoom, type RoomOptions, type RoomID } from "./client-main";
 import { PSMain, PSPanelWrapper, PSRoomPanel } from "./panels";
 import type { Battle } from "./battle";
-import { Dex, toRoomid, toUserid, type ID } from "./battle-dex";
+import { Dex, toID, toRoomid, toUserid, type ID } from "./battle-dex";
 import { BattleLog } from "./battle-log";
 
 window.addEventListener('drop', e => {
@@ -143,6 +143,11 @@ export class PSHeader extends preact.Component<{ style: object }> {
 			{closeButton}
 		</li>;
 	}
+	override componentDidMount() {
+		PS.user.subscribe(() => {
+			this.forceUpdate();
+		});
+	}
 	renderUser() {
 		if (!PS.connected) {
 			return <button class="button" disabled><em>Offline</em></button>;
@@ -158,7 +163,7 @@ export class PSHeader extends preact.Component<{ style: object }> {
 			<i class="fa fa-user" style="color:#779EC5"></i> <span class="usernametext">{PS.user.name}</span>
 		</span>;
 	}
-	render() {
+	override render() {
 		return <div id="header" class="header" style={this.props.style}>
 			<img
 				class="logo"
@@ -316,7 +321,7 @@ class UserPanel extends PSRoomPanel<UserRoom> {
 				buttonbar.push(
 					<hr />,
 					<p class="buttonbar" style="text-align: right">
-						<button class="button disabled" name="login"><i class="fa fa-pencil"></i> Change name</button> {}
+						<button class="button" name="joinRoom" value="login"><i class="fa fa-pencil"></i> Change name</button> {}
 						<button class="button" name="cmd" value="/logout"><i class="fa fa-power-off"></i> Log out</button>
 					</p>
 				);
@@ -331,7 +336,8 @@ class UserPanel extends PSRoomPanel<UserRoom> {
 						src={Dex.resolveAvatar(`${user.avatar || 'unknown'}`)}
 					/>}
 				<strong><a
-					href={`//${Config.routes.users}/${user.userid}`} target="_blank" style={away ? { color: '#888888' } : null}
+					href={`//${Config.routes.users}/${user.userid}`} target="_blank"
+					style={{ color: away ? '#888888' : BattleLog.usernameColor(user.userid) }}
 				>
 					{name}
 				</a></strong><br />
@@ -345,8 +351,6 @@ class UserPanel extends PSRoomPanel<UserRoom> {
 		</PSPanelWrapper>;
 	}
 }
-
-PS.addRoomType(UserPanel);
 
 class VolumePanel extends PSRoomPanel {
 	static readonly id = 'volume';
@@ -416,8 +420,6 @@ class VolumePanel extends PSRoomPanel {
 	}
 }
 
-PS.addRoomType(VolumePanel);
-
 class OptionsPanel extends PSRoomPanel {
 	static readonly id = 'options';
 	static readonly routes = ['options'];
@@ -443,4 +445,159 @@ class OptionsPanel extends PSRoomPanel {
 	}
 }
 
-PS.addRoomType(OptionsPanel);
+class GooglePasswordBox extends preact.Component<{ name: string }> {
+	override componentDidMount() {
+		window.gapiCallback = (response: any) => {
+			PS.user.changeNameWithPassword(this.props.name, response.credential, { needsGoogle: true });
+		};
+
+		PS.user.gapiLoaded = true;
+		const script = document.createElement('script');
+		script.async = true;
+		script.src = 'https://accounts.google.com/gsi/client';
+		document.getElementsByTagName('head')[0].appendChild(script);
+	}
+	override render() {
+		return <div class="google-password-box">
+			<div
+				id="g_id_onload" data-client_id="912270888098-jjnre816lsuhc5clj3vbcn4o2q7p4qvk.apps.googleusercontent.com"
+				data-context="signin" data-ux_mode="popup" data-callback="gapiCallback" data-auto_prompt="false"
+			></div>
+			<div
+				class="g_id_signin" data-type="standard" data-shape="pill" data-theme="filled_blue" data-text="continue_with"
+				data-size="large" data-logo_alignment="left" data-auto_select="true" data-itp_support="true"
+				style="width:fit-content;margin:0 auto"
+			>[loading Google log-in button]</div>
+		</div>;
+	}
+}
+
+class LoginPanel extends PSRoomPanel {
+	static readonly id = 'login';
+	static readonly routes = ['login'];
+	static readonly location = 'semimodal-popup';
+	declare state: { passwordShown?: boolean };
+
+	override componentDidMount() {
+		super.componentDidMount();
+		this.subscriptions.push(PS.user.subscribe(args => {
+			if (args) {
+				if (args.success) {
+					this.close();
+					return;
+				}
+				this.props.room.loginState = args;
+				setTimeout(() => this.focus(), 1);
+			}
+			this.forceUpdate();
+		}));
+		// I think it's the click when opening the panel that causes focus to be lost
+		setTimeout(() => this.focus(), 1);
+	}
+	getUsername() {
+		const loginName = PS.user.loggingIn || this.props.room.loginState?.name;
+		if (loginName) return loginName;
+
+		const input = this.base?.querySelector<HTMLInputElement>('input[name=username]');
+		if (input && !input.disabled) {
+			return input.value;
+		}
+		return PS.user.named ? PS.user.name : '';
+	}
+	handleSubmit = (ev: Event) => {
+		ev.preventDefault();
+		const passwordBox = this.base!.querySelector<HTMLInputElement>('input[name=password]');
+		if (passwordBox) {
+			PS.user.changeNameWithPassword(this.getUsername(), passwordBox.value);
+		} else {
+			PS.user.changeName(this.getUsername());
+		}
+	};
+	update = () => {
+		this.forceUpdate();
+	};
+	override focus() {
+		const passwordBox = this.base!.querySelector<HTMLInputElement>('input[name=password]');
+		const usernameBox = this.base!.querySelector<HTMLInputElement>('input[name=username]');
+		(passwordBox || usernameBox)?.select();
+	}
+	reset = (ev: Event) => {
+		ev.preventDefault();
+		ev.stopImmediatePropagation();
+		this.props.room.loginState = null;
+		this.forceUpdate();
+	};
+	handleShowPassword = (ev: Event) => {
+		ev.preventDefault();
+		ev.stopImmediatePropagation();
+		this.setState({ passwordShown: !this.state.passwordShown });
+	};
+	override render() {
+		const room = this.props.room;
+		const loginState = room.loginState;
+		return <PSPanelWrapper room={room} width={280}>
+			<h3>Log in</h3>
+			<form onSubmit={this.handleSubmit}>
+				{loginState?.error && <p class="error">{loginState.error}</p>}
+				<p><label class="label">
+					Username: <small class="preview" style={{ color: BattleLog.usernameColor(toID(this.getUsername())) }}>(color)</small>
+					<input
+						class="textbox" type="text" name="username"
+						onInput={this.update} onChange={this.update} autocomplete="username"
+						value={this.getUsername()} disabled={!!PS.user.loggingIn || !!loginState?.name}
+					/>
+				</label></p>
+				{PS.user.named && !loginState && <p>
+					<small>(Others will be able to see your name change. To change name privately, use "Log out")</small>
+				</p>}
+				{loginState?.needsPassword && <p>
+					<i class="fa fa-level-up fa-rotate-90"></i> <strong>if you registered this name:</strong>
+					<label class="label">Password: {}
+						<input
+							class="textbox" type={this.state.passwordShown ? 'text' : 'password'} name="password"
+							autocomplete="current-password" style="width:173px"
+						/>
+						<button
+							type="button" onClick={this.handleShowPassword} aria-label="Show password"
+							class="button" style="float:right;margin:-21px 0 10px;padding: 2px 6px"
+						><i class="fa fa-eye"></i></button>
+					</label>
+				</p>}
+				{loginState?.needsGoogle && <>
+					<p><i class="fa fa-level-up fa-rotate-90"></i> <strong>if you registered this name:</strong></p>
+					<p><GooglePasswordBox name={this.getUsername()} /></p>
+				</>}
+				<p class="buttonbar">
+					{PS.user.loggingIn ? (
+						<button disabled class="cur">Logging in...</button>
+					) : loginState?.needsPassword ? (
+						<>
+							<button type="submit" class="button"><strong>Log in</strong></button> {}
+							<button type="button" onClick={this.reset} class="button">Cancel</button>
+						</>
+					) : loginState?.needsGoogle ? (
+						<button type="button" onClick={this.reset} class="button">Cancel</button>
+					) : (
+						<>
+							<button type="submit" class="button"><strong>Choose name</strong></button> {}
+							<button type="button" name="closeRoom" class="button">Cancel</button>
+						</>
+					)} {}
+				</p>
+				{loginState?.name && <div>
+					<p>
+						<i class="fa fa-level-up fa-rotate-90"></i> <strong>if not:</strong>
+					</p>
+					<p style={{ maxWidth: '210px', margin: '0 auto' }}>
+						This is someone else's account. Sorry.
+					</p>
+					<p class="buttonbar">
+						<button class="button" onClick={this.reset}>Try another name</button>
+					</p>
+				</div>}
+			</form>
+		</PSPanelWrapper>;
+	}
+}
+
+PS.addRoomType(UserPanel, VolumePanel, OptionsPanel, LoginPanel);

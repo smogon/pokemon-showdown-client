@@ -29,8 +29,8 @@ class RoomsPanel extends PSRoomPanel {
 	lastKeyCode = 0;
 	override componentDidMount() {
 		super.componentDidMount();
-		this.subscriptions.push(PS.user.subscribe(() => {
-			if (PS.user.named) PS.send(`|/cmd rooms`);
+		this.subscriptions.push(PS.user.subscribe(update => {
+			if (!update && PS.user.named) PS.send(`|/cmd rooms`);
 		}));
 	}
 	hide = (e: Event) => {
