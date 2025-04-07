@@ -593,6 +593,7 @@ class TeamDropdownPanel extends PSRoomPanel {
 	static readonly id = 'teamdropdown';
 	static readonly routes = ['teamdropdown'];
 	static readonly location = 'semimodal-popup';
+	static readonly noURL = true;
 	gen = '';
 	format: string | null = null;
 	getTeams() {
@@ -728,10 +729,10 @@ class TeamDropdownPanel extends PSRoomPanel {
 			isEmpty = false;
 		}
 
-		return <PSPanelWrapper room={room} width={width}>
+		return <PSPanelWrapper room={room} width={width}><div class="pad">
 			{teamList}
 			{isEmpty && <p><em>No teams found</em></p>}
-		</PSPanelWrapper>;
+		</div></PSPanelWrapper>;
 	}
 }
 
@@ -758,6 +759,7 @@ class FormatDropdownPanel extends PSRoomPanel {
 	static readonly id = 'formatdropdown';
 	static readonly routes = ['formatdropdown'];
 	static readonly location = 'semimodal-popup';
+	static readonly noURL = true;
 	gen = '';
 	format: string | null = null;
 	click = (e: MouseEvent) => {
@@ -834,7 +836,7 @@ class FormatDropdownPanel extends PSRoomPanel {
 
 		const width = columns.length * 225 + 10;
 
-		return <PSPanelWrapper room={room} width={width}>
+		return <PSPanelWrapper room={room} width={width}><div class="pad">
 			{columns.map(column => <ul class="options" onClick={this.click}>
 				{column.map(format => format.id ? (
 					<li><button value={format.name} class="option">
@@ -847,7 +849,7 @@ class FormatDropdownPanel extends PSRoomPanel {
 				))}
 			</ul>)}
 			<div style="float: left"></div>
-		</PSPanelWrapper>;
+		</div></PSPanelWrapper>;
 	}
 }
 

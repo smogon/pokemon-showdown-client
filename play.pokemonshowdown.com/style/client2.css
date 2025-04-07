@@ -405,7 +405,6 @@ span.header-username:hover {
 	background: #E1E8E8;
 	color: black;
 	border: 1px solid #999999;
-	padding: 2px 10px;
 
 	border-radius: 6px;
 	box-shadow: inset 1px 1px 0 #ffffff, inset -1px -1px 0 #DDDDDD, 2px 2px 3px rgba(0,0,0,.2);
@@ -665,6 +664,7 @@ p.or:after {
 	margin: 0 5px;
 	background: #fcd2b3;
 	border: 1px solid #f57b21;
+	border-radius: 5px;
 	color: #682f05;
 	padding: 1px 5px;
 }
