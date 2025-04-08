@@ -59,21 +59,27 @@ export class PSRouter {
 	}
 	updatePanelState(): { roomid: RoomID, changed: boolean } {
 		let room = PS.room;
+		// some popups don't have URLs and don't generate history
 		// there's definitely a better way to do this but I'm lazy
 		if (room.noURL) room = PS.rooms[PS.popups[PS.popups.length - 2]] || PS.panel;
 		if (room.noURL) room = PS.panel;
+
+		// don't generate history when focusing things on things visible on the home screen
+		if (room.id === 'news' && room.location === 'mini-window') room = PS.mainmenu;
+		if (room.id === '' && PS.leftPanelWidth && PS.rightPanel) {
+			room = PS.rightPanel;
+		}
+		if (room.id === 'rooms') room = PS.leftPanel;
+
 		let roomid = room.id;
 		const panelState = (PS.leftPanelWidth && room === PS.panel ?
 			PS.leftPanel.id + '..' + PS.rightPanel!.id :
 			room.id);
-		// don't generate history when focusing things on the home page
-		if (roomid === 'news' && room.location === 'mini-window') roomid = '' as RoomID;
-		if (roomid === 'rooms') roomid = '' as RoomID;
 		if (roomid === this.roomid && panelState === this.panelState) {
 			return { roomid, changed: false };
 		}
 
-		if (roomid === '' || roomid === 'rooms') {
+		if (roomid === '') {
 			document.title = 'Showdown!';
 		} else {
 			document.title = room.title + ' - Showdown!';
@@ -168,6 +174,9 @@ export class PSRoomPanel<T extends PSRoom = PSRoom> extends preact.Component<{ r
 				this.focus();
 			}
 			room.setDimensions(this.base.offsetWidth, this.base.offsetHeight);
+		} else if (this.base && room.hiddenInit) {
+			room.hiddenInit = false;
+			this.focus();
 		}
 	}
 	override componentWillUnmount() {
@@ -197,7 +206,11 @@ export class PSRoomPanel<T extends PSRoom = PSRoom> extends preact.Component<{ r
 		dropdownButton.dispatchEvent(changeEvent);
 		PS.closePopup();
 	}
-	focus() {}
+	focus() {
+		const autofocus = this.base?.querySelector<HTMLElement>('.autofocus');
+		autofocus?.focus();
+		(autofocus as HTMLInputElement)?.select?.();
+	}
 	override render() {
 		return <PSPanelWrapper room={this.props.room}>
 			<div class="mainmessage"><p>Loading...</p></div>
@@ -356,6 +369,16 @@ export class PSMain extends preact.Component {
 			} else if (e.keyCode === 39) { // right
 				PS.arrowKeysUsed = true;
 				PS.focusRightRoom();
+			} else if (e.keyCode === 27) { // escape
+				// close popups
+				if (PS.popups.length) {
+					e.stopImmediatePropagation();
+					e.preventDefault();
+					PS.closePopup();
+					PS.focusRoom(PS.room.id);
+				} else if (PS.room.id === 'rooms') {
+					PS.hideRightRoom();
+				}
 			} else if (e.keyCode === 191 && !isTextInput && PS.room === PS.mainmenu) { // forward slash
 				e.stopImmediatePropagation();
 				e.preventDefault();

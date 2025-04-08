@@ -3,7 +3,7 @@
  *
  * Panel for ladder formats and associated ladder tables.
  *
- * @author Adam Tran <aviettran@gmail.com>
+ * @author Guangcong Luo <guangcongluo@gmail.com>, Adam Tran <aviettran@gmail.com>
  * @license MIT
  */
 
@@ -228,71 +228,51 @@ class LadderPanel extends PSRoomPanel<LadderRoom> {
 			})
 		);
 	}
-	static Notice = (props: { notice: string | undefined }) => {
-		const { notice } = props;
-		if (notice) {
-			return (
-				<p>
-					<strong style="color:red">{notice}</strong>
-				</p>
-			);
-		}
-		return null;
-	};
-	static BattleFormatList = () => {
-		if (!BattleFormats) {
+	renderList() {
+		if (!window.BattleFormats) {
 			return <p>Loading...</p>;
 		}
 		let currentSection = "";
-		let sections: JSX.Element[] = [];
-		let formats: JSX.Element[] = [];
-		for (const [key, format] of Object.entries(BattleFormats)) {
+		const buf: JSX.Element[] = [];
+		for (const [id, format] of Object.entries(BattleFormats)) {
 			if (!format.rated || !format.searchShow) continue;
 			if (format.section !== currentSection) {
-				if (formats.length > 0) {
-					sections.push(<preact.Fragment key={currentSection}>
-						<h3>{currentSection}</h3>
-						<ul style="list-style:none;margin:0;padding:0">
-							{formats}
-						</ul>
-					</preact.Fragment>);
-					formats = [];
-				}
 				currentSection = format.section;
+				buf.push(<h3>{currentSection}</h3>);
 			}
-			formats.push(
-				<li key={key} style="margin:5px">
-					<a href={`/ladder-${key}`} class="blocklink" style={{ fontSize: '11pt', padding: '3px 6px' }}>
-						{BattleLog.escapeFormat(format.id)}
-					</a>
-				</li>
-			);
+			buf.push(<div>
+				<a href={`/ladder-${id}`} class="blocklink" style={{ fontSize: '11pt', padding: '3px 6px' }}>
+					{BattleLog.formatName(format.id)}
+				</a>
+			</div>);
 		}
-		return <>{sections}</>;
-	};
-	static ShowFormatList = (props: { room: LadderRoom }) => {
-		const { room } = props;
+		return buf;
+	}
+	renderFormatList() {
+		const room = this.props.room;
 		return <>
 			<p>
 				<a class="button" href={`/${Config.routes.users}/`} target="_blank">
 					Look up a specific user's rating
 				</a>
 			</p>
-			<LadderPanel.Notice notice={room.notice} />
+			{room.notice && <p>
+				<strong style="color:red">{room.notice}</strong>
+			</p>}
 			<p>
 				<button name="joinRoom" value="view-ladderhelp" class="button">
 					<i class="fa fa-info-circle"></i> How the ladder works
 				</button>
 			</p>
-			<LadderPanel.BattleFormatList />
+			{this.renderList()}
 		</>;
 	};
 	override render() {
-		const { room } = this.props;
+		const room = this.props.room;
 		return <PSPanelWrapper room={room} scrollable>
 			<div class="ladder pad">
 				{room.format === undefined && (
-					<LadderPanel.ShowFormatList room={room} />
+					this.renderFormatList()
 				)}
 				{room.format && <LadderFormat room={room} />}
 			</div>

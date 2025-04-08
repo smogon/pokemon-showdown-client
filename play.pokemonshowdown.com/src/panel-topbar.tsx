@@ -133,10 +133,12 @@ export class PSHeader extends preact.Component<{ style: object }> {
 				<i class="fa fa-times-circle"></i>
 			</button>;
 		}
+		const ariaLabel = id === 'rooms' ? { "aria-label": "Join chat" } : {};
 		return <li>
 			<a
 				class={className} href={`/${id}`} draggable={true}
 				onDragEnter={this.handleDragEnter} onDragStart={this.handleDragStart}
+				{...ariaLabel}
 			>
 				{icon} <span>{title}</span>
 			</a>
@@ -373,9 +375,6 @@ class UserPanel extends PSRoomPanel<UserRoom> {
 			room.setName('');
 		}
 	};
-	override focus() {
-		this.base?.querySelector<HTMLElement>('.autofocus')?.focus();
-	}
 
 	override render() {
 		const room = this.props.room;
@@ -651,9 +650,6 @@ class PopupPanel extends PSRoomPanel {
 	static readonly location = 'semimodal-popup';
 	static readonly noURL = true;
 
-	override focus() {
-		this.base?.querySelector<HTMLButtonElement>('.autofocus')?.focus();
-	}
 	override render() {
 		const room = this.props.room;
 		const okButtonLabel = room.args?.okButtonLabel as string || 'OK';
@@ -661,7 +657,9 @@ class PopupPanel extends PSRoomPanel {
 			{room.args?.message && <p style="white-space:pre-wrap;word-wrap:break-word">
 				{room.args.message}
 			</p>}
-			<p class="buttonbar"><button class="button autofocus" name="closeRoom"><strong>{okButtonLabel}</strong></button></p>
+			<p class="buttonbar">
+				<button class="button autofocus" name="closeRoom" style="min-width:50px"><strong>{okButtonLabel}</strong></button>
+			</p>
 		</div></PSPanelWrapper>;
 	}
 }

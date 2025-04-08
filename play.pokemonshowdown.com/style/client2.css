@@ -604,7 +604,7 @@ p.or:after {
 	border-bottom-left-radius: 5px;
 	border-bottom-right-radius: 5px;
 }
-.mini-window-body, .pm-log {
+.mini-window-body {
 	min-height: 100px;
 	max-height: 300px;
 	background: rgba(242,247,250,.925);
@@ -617,21 +617,8 @@ p.or:after {
 	border-bottom-left-radius: 5px;
 	border-bottom-right-radius: 5px;
 }
-.pm-log {
-	border-bottom: 0;
-	overflow: auto;
-	-webkit-overflow-scrolling: touch;
-	word-wrap: break-word;
-}
 .pm-buttonbar {
 	padding-bottom: 3px;
-}
-.pm-log-add {
-	color: black;
-	border: 1px solid #AAAAAA;
-	border-bottom-left-radius: 5px;
-	border-bottom-right-radius: 5px;
-	background: rgba(242,247,250,.85);
 }
 .mini-window.collapsed .mini-window-contents,
 .mini-window.collapsed .mini-window-body {
@@ -919,6 +906,9 @@ p.or:after {
 .roomlist {
 	max-width: 480px;
 	text-align: left;
+	list-style: none;
+	margin: 0;
+	padding: 0;
 }
 .roomlist .subrooms {
 	font-size: 8pt;
@@ -1007,7 +997,7 @@ a.ilink.yours {
 	padding: 5px 0 0 0;
 }
 .chatbox.nolabel {
-	margin: 0 14px 0 6px;
+	margin: 0 10px 0 2px;
 	padding: 5px 0 5px 0;
 }
 .chatbox label {
@@ -1022,6 +1012,9 @@ a.ilink.yours {
 	font-weight: bold;
 	font-size: 8pt;
 }
+.chatbox.nolabel label {
+	display: none;
+}
 .chatbox .textbox {
 	display: block;
 	height: 1.1em;
@@ -1035,6 +1028,11 @@ a.ilink.yours {
 .chatbox pre.textbox {
 	margin: 0;
 	height: auto;
+}
+pre.textbox.textbox-empty[placeholder]:before {
+	content: attr(placeholder);
+	color: #777;
+	position: absolute;
 }
 
 /* Tournaments */
@@ -2043,9 +2041,10 @@ a.ilink.yours {
 	color: #DDD;
 }
 
-.dark .pm-log, .dark .mini-window-body {
+.dark .mini-window-body {
 	background: rgba(0,0,0,.85);
 	color: #DDD;
+	backdrop-filter: blur(4px);
 }
 
 .dark .userlist-maximized {
@@ -2079,6 +2078,7 @@ a.ilink.yours {
 .dark .chat-log, .dark .readable-bg {
 	background: rgba(0,0,0,.5);
 	color: #DDD;
+	backdrop-filter: blur(4px);
 }
 
 .dark .userbar .username {

@@ -19,7 +19,8 @@ import type { Args } from "./battle-text-parser";
 import { BattleLog } from "./battle-log";
 
 export type RoomInfo = {
-	title: string, desc?: string, userCount?: number, section?: string, spotlight?: string, subRooms?: string[],
+	title: string, desc?: string, userCount?: number, section?: string, privacy?: 'hidden',
+	spotlight?: string, subRooms?: string[],
 };
 
 export class MainMenuRoom extends PSRoom {
@@ -49,15 +50,18 @@ export class MainMenuRoom extends PSRoom {
 			PSLoginServer.query(
 				'upkeep', { challstr }
 			).then(res => {
-				PS.user.initializing = false;
-				if (!res) return;
-				if (!res.loggedin) return;
+				if (!res?.loggedin) {
+					PS.user.initializing = false;
+					return;
+				}
 				PS.user.handleAssertion(res.username, res.assertion);
 			});
 			return;
 		} case 'updateuser': {
 			const [, fullName, namedCode, avatar] = args;
-			PS.user.setName(fullName, namedCode === '1', avatar);
+			const named = namedCode === '1';
+			if (named) PS.user.initializing = false;
+			PS.user.setName(fullName, named, avatar);
 			return;
 		} case 'updatechallenges': {
 			const [, challengesBuf] = args;
@@ -321,7 +325,7 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
 	static readonly Model = MainMenuRoom;
 	static readonly icon = <i class="fa fa-home"></i>;
 	override focus() {
-		this.base!.querySelector<HTMLButtonElement>('button.big')!.focus();
+		this.base?.querySelector<HTMLButtonElement>('.formatselect')?.focus();
 	}
 	submit = (ev: Event) => {
 		PS.alert('todo: implement');
@@ -459,7 +463,7 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
 						<a href={`//${Config.routes.dex}/`} target="_blank">Pok&eacute;dex</a> | {}
 						<a href={`//${Config.routes.replays}/`} target="_blank">Replays</a> | {}
 						<a href={`//${Config.routes.root}/rules`} target="_blank">Rules</a> | {}
-						<a href={`//${Config.routes.dex}/credits`} target="_blank">Credits</a> | {}
+						<a href={`//${Config.routes.root}/credits`} target="_blank">Credits</a> | {}
 						<a href="//smogon.com/forums/" target="_blank">Forum</a>
 					</small>
 				</div>

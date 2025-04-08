@@ -158,7 +158,7 @@ export class ChatRoom extends PSRoom {
 				this.challenging = null;
 			}
 			this.challenged = challenge;
-			// this.notifyOnce("Challenge from " + name, "Format: " + BattleLog.escapeFormat(formatName), 'challenge:' + userid);
+			// this.notifyOnce("Challenge from " + name, "Format: " + BattleLog.formatName(formatName), 'challenge:' + userid);
 			// app.playNotificationSound();
 		}
 		this.update(null);
@@ -209,7 +209,7 @@ export class ChatRoom extends PSRoom {
 
 export class ChatTextEntry extends preact.Component<{
 	room: PSRoom, onMessage: (msg: string) => void, onKey: (e: KeyboardEvent) => boolean,
-	left?: number,
+	left?: number, tinyLayout?: boolean,
 }> {
 	subscription: PSSubscription | null = null;
 	textbox: HTMLTextAreaElement = null!;
@@ -225,6 +225,7 @@ export class ChatTextEntry extends preact.Component<{
 		this.miniedit = new MiniEdit(textbox, {
 			setContent: text => {
 				textbox.innerHTML = formatText(text, false, false, true) + '\n';
+				textbox.classList?.toggle('textbox-empty', !text);
 			},
 			onKeyDown: this.onKeyDown,
 		});
@@ -396,10 +397,10 @@ export class ChatTextEntry extends preact.Component<{
 		return <div
 			class="chat-log-add hasuserlist" onClick={this.focusIfNoSelection} style={{ left: this.props.left || 0 }}
 		>
-			<form class="chatbox">
+			<form class={`chatbox${this.props.tinyLayout ? ' nolabel' : ''}`} style={PS.user.named ? {} : { display: 'none' }}>
 				<label style={{ color: BattleLog.usernameColor(PS.user.userid) }}>{PS.user.name}:</label>
 				{OLD_TEXTBOX ? <textarea
-					class={this.props.room.connected ? 'textbox' : 'textbox disabled'}
+					class={this.props.room.connected && PS.user.named ? 'textbox autofocus' : 'textbox disabled'}
 					autofocus
 					rows={1}
 					onInput={this.update}
@@ -407,20 +408,28 @@ export class ChatTextEntry extends preact.Component<{
 					style={{ resize: 'none', width: '100%', height: '16px', padding: '2px 3px 1px 3px' }}
 					placeholder={PS.focusPreview(this.props.room)}
 				/> : <ChatTextBox
-					class={this.props.room.connected ? 'textbox' : 'textbox disabled'}
+					disabled={!this.props.room.connected || !PS.user.named}
 					placeholder={PS.focusPreview(this.props.room)}
 				/>}
 			</form>
+			{!PS.user.named && <button data-href="login" class="button autofocus">
+				Choose a name before sending messages
+			</button>}
 		</div>;
 	}
 }
 
-class ChatTextBox extends preact.Component<{ placeholder: string, class: string }> {
-	override shouldComponentUpdate() {
+class ChatTextBox extends preact.Component<{ placeholder: string, disabled?: boolean }> {
+	override shouldComponentUpdate(nextProps: any) {
+		this.base!.setAttribute("placeholder", nextProps.placeholder);
+		this.base!.classList?.toggle('disabled', !!nextProps.disabled);
+		this.base!.classList?.toggle('autofocus', !nextProps.disabled);
 		return false;
 	}
 	override render() {
-		return <pre class={this.props.class} placeholder={this.props.placeholder}>{'\n'}</pre>;
+		return <pre
+			class={`textbox textbox-empty ${this.props.disabled ? ' disabled' : ''}`} placeholder={this.props.placeholder}
+		>{'\n'}</pre>;
 	}
 }
 
@@ -433,16 +442,6 @@ class ChatPanel extends PSRoomPanel<ChatRoom> {
 	send = (text: string) => {
 		this.props.room.send(text);
 	};
-	override focus() {
-		// Called synchronously after a forceUpdate, so before the DOM has
-		// been updated to make the panel visible. The order isn't
-		// important for textboxes, which can be focused while inside a
-		// `display: none` element, but contentEditable boxes are pickier.
-		// Waiting for a 0 timeout turns out to be enough.
-		setTimeout(() => {
-			this.base!.querySelector<HTMLElement>('textarea, pre.textbox')!.focus();
-		}, 0);
-	}
 	focusIfNoSelection = () => {
 		const selection = window.getSelection()!;
 		if (selection.type === 'Range') return;
@@ -511,7 +510,9 @@ class ChatPanel extends PSRoomPanel<ChatRoom> {
 			<ChatLog class="chat-log" room={this.props.room} onClick={this.focusIfNoSelection} left={tinyLayout ? 0 : 146}>
 				{challengeTo || challengeFrom && [challengeTo, challengeFrom]}
 			</ChatLog>
-			<ChatTextEntry room={this.props.room} onMessage={this.send} onKey={this.onKey} left={tinyLayout ? 0 : 146} />
+			<ChatTextEntry
+				room={this.props.room} onMessage={this.send} onKey={this.onKey} left={tinyLayout ? 0 : 146} tinyLayout={tinyLayout}
+			/>
 			<ChatUserList room={this.props.room} minimized={tinyLayout} />
 		</PSPanelWrapper>;
 	}
