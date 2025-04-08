@@ -661,7 +661,7 @@ p.or:after {
 }
 
 .challenge {
-	margin: 0 5px;
+	margin: 0 5px 5px;
 	background: #fcd2b3;
 	border: 1px solid #f57b21;
 	border-radius: 5px;

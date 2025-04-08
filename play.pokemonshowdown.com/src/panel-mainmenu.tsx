@@ -16,6 +16,7 @@ import type { RoomsRoom } from "./panel-rooms";
 import { TeamBox } from "./panel-teamdropdown";
 import { Dex, toID, type ID } from "./battle-dex";
 import type { Args } from "./battle-text-parser";
+import { BattleLog } from "./battle-log";
 
 export type RoomInfo = {
 	title: string, desc?: string, userCount?: number, section?: string, spotlight?: string, subRooms?: string[],
@@ -97,12 +98,12 @@ export class MainMenuRoom extends PSRoom {
 			const room = PS.rooms[roomid] as ChatRoom;
 			if (!room.pmTarget) continue;
 			const targetUserid = toID(room.pmTarget);
-			if (!room.challengedFormat && !(targetUserid in json.challengesFrom) &&
-				!room.challengingFormat && json.challengeTo?.to !== targetUserid) {
+			if (!room.challenged && !(targetUserid in json.challengesFrom) &&
+				!room.challenging && json.challengeTo?.to !== targetUserid) {
 				continue;
 			}
-			room.challengedFormat = json.challengesFrom[targetUserid] || null;
-			room.challengingFormat = json.challengeTo?.to === targetUserid ? json.challengeTo.format : null;
+			room.challenged = room.parseChallenge(json.challengesFrom[targetUserid]);
+			room.challenging = json.challengeTo?.to === targetUserid ? room.parseChallenge(json.challengeTo.format) : null;
 			room.update(null);
 		}
 	}
@@ -240,13 +241,13 @@ export class MainMenuRoom extends PSRoom {
 		const pmTargetid = PS.user.userid === userid1 ? userid2 : userid1;
 		let roomid = `dm-${pmTargetid}` as RoomID;
 		if (pmTargetid === PS.user.userid) roomid = 'dm-' as RoomID;
-		let room = PS.rooms[roomid];
+		let room = PS.rooms[roomid] as ChatRoom | undefined;
 		if (!room) {
 			PS.addRoom({
 				id: roomid,
 				args: { pmTarget },
 			}, true);
-			room = PS.rooms[roomid]!;
+			room = PS.rooms[roomid] as ChatRoom;
 		}
 		room.receiveLine([`c`, user1, message]);
 		PS.update();
@@ -480,7 +481,8 @@ export class FormatDropdown extends preact.Component<{ format?: string, onChange
 		if (this.props.format) {
 			return <button
 				name="format" value={this.props.format} class="select formatselect preselected" disabled
-			>{this.props.format}</button>;
+				dangerouslySetInnerHTML={{ __html: BattleLog.escapeFormat(this.props.format) }}
+			></button>;
 		}
 		return <button
 			name="format" value={this.format}
@@ -538,7 +540,7 @@ class TeamDropdown extends preact.Component<{ format: string }> {
 }
 
 export class TeamForm extends preact.Component<{
-	children: preact.ComponentChildren, class?: string, format?: string,
+	children: preact.ComponentChildren, class?: string, format?: string, teamFormat?: string,
 	onSubmit: ((e: Event, format: string, team?: Team) => void) | null,
 }> {
 	override state = { format: '[Gen 7] Random Battle' };
@@ -563,7 +565,7 @@ export class TeamForm extends preact.Component<{
 			<p>
 				<label class="label">
 					Team:<br />
-					<TeamDropdown format={this.state.format} />
+					<TeamDropdown format={this.props.teamFormat || this.state.format} />
 				</label>
 			</p>
 			<p>{this.props.children}</p>
