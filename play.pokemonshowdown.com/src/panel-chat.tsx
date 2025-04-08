@@ -17,6 +17,14 @@ import { PSUtils, toID, type ID } from "./battle-dex";
 
 declare const formatText: any; // from js/server/chat-formatter.js
 
+type Challenge = {
+	formatName: string,
+	teamFormat: string,
+	message?: string,
+	acceptButtonLabel?: string,
+	rejectButtonLabel?: string,
+};
+
 export class ChatRoom extends PSRoom {
 	override readonly classType: 'chat' | 'battle' = 'chat';
 	users: { [userid: string]: string } = {};
@@ -27,8 +35,8 @@ export class ChatRoom extends PSRoom {
 	pmTarget: string | null = null;
 	challengeMenuOpen = false;
 	initialSlash = false;
-	challengingFormat: string | null = null;
-	challengedFormat: string | null = null;
+	challenging: Challenge | null = null;
+	challenged: Challenge | null = null;
 	/** n.b. this will be null outside of battle rooms */
 	battle: Battle | null = null;
 
@@ -91,7 +99,7 @@ export class ChatRoom extends PSRoom {
 			this.cancelChallenge();
 			return true;
 		} case 'reject': {
-			this.challengedFormat = null;
+			this.challenged = null;
 			this.update(null);
 			return false;
 		}
@@ -111,12 +119,47 @@ export class ChatRoom extends PSRoom {
 			this.receiveLine([`error`, `Can only be used in a PM.`]);
 			return;
 		}
-		if (this.challengingFormat) {
+		if (this.challenging) {
 			this.send('/cancelchallenge', true);
-			this.challengingFormat = null;
+			this.challenging = null;
 			this.challengeMenuOpen = true;
 		} else {
 			this.challengeMenuOpen = false;
+		}
+		this.update(null);
+	}
+	parseChallenge(challengeString: string | null): Challenge | null {
+		if (!challengeString) return null;
+
+		let splitChallenge = challengeString.split('|');
+
+		const challenge = {
+			formatName: splitChallenge[0],
+			teamFormat: splitChallenge[1] ?? splitChallenge[0],
+			message: splitChallenge[2],
+			acceptButtonLabel: splitChallenge[3],
+			rejectButtonLabel: splitChallenge[4],
+		};
+		if (!challenge.formatName && !challenge.message) {
+			return null;
+		}
+		return challenge;
+	}
+	updateChallenge(name: string, challengeString: string) {
+		const challenge = this.parseChallenge(challengeString);
+		const userid = toID(name);
+
+		if (userid === PS.user.userid) {
+			// we are sending the challenge
+			this.challenging = challenge;
+		} else {
+			if (!challenge && !this.challenged) {
+				// this is also used for rejecting challenges
+				this.challenging = null;
+			}
+			this.challenged = challenge;
+			// this.notifyOnce("Challenge from " + name, "Format: " + BattleLog.escapeFormat(formatName), 'challenge:' + userid);
+			// app.playNotificationSound();
 		}
 		this.update(null);
 	}
@@ -424,7 +467,10 @@ class ChatPanel extends PSRoomPanel<ChatRoom> {
 		PS.send(`|/utm ${packedTeam}`);
 		PS.send(`|/challenge ${room.pmTarget}, ${format}`);
 		room.challengeMenuOpen = false;
-		room.challengingFormat = format;
+		room.challenging = {
+			formatName: format,
+			teamFormat: format,
+		};
 		room.update(null);
 	};
 	acceptChallenge = (e: Event, format: string, team?: Team) => {
@@ -433,15 +479,16 @@ class ChatPanel extends PSRoomPanel<ChatRoom> {
 		if (!room.pmTarget) throw new Error("Not a PM room");
 		PS.send(`|/utm ${packedTeam}`);
 		this.props.room.send(`/accept`);
-		room.challengedFormat = null;
+		room.challenged = null;
 		room.update(null);
 	};
 	override render() {
 		const room = this.props.room;
 		const tinyLayout = room.width < 450;
 
-		const challengeTo = room.challengingFormat ? <div class="challenge">
-			<TeamForm format={room.challengingFormat} onSubmit={null}>
+		const challengeTo = room.challenging ? <div class="challenge">
+			<p>Waiting for {room.pmTarget}...</p>
+			<TeamForm format={room.challenging.formatName} teamFormat={room.challenging.teamFormat} onSubmit={null}>
 				<button name="cmd" value="/cancelchallenge" class="button">Cancel</button>
 			</TeamForm>
 		</div> : room.challengeMenuOpen ? <div class="challenge">
@@ -451,10 +498,11 @@ class ChatPanel extends PSRoomPanel<ChatRoom> {
 			</TeamForm>
 		</div> : null;
 
-		const challengeFrom = room.challengedFormat ? <div class="challenge">
-			<TeamForm format={room.challengedFormat} onSubmit={this.acceptChallenge}>
-				<button type="submit" class="button"><strong>Accept</strong></button> {}
-				<button name="cmd" value="/reject" class="button">Reject</button>
+		const challengeFrom = room.challenged ? <div class="challenge">
+			{!!room.challenged.message && <p>{room.challenged.message}</p>}
+			<TeamForm format={room.challenged.formatName} teamFormat={room.challenged.teamFormat} onSubmit={this.acceptChallenge}>
+				<button type="submit" class="button"><strong>{room.challenged.acceptButtonLabel || 'Accept'}</strong></button> {}
+				<button name="cmd" value="/reject" class="button">{room.challenged.rejectButtonLabel || 'Reject'}</button>
 			</TeamForm>
 		</div> : null;
 
@@ -549,6 +597,12 @@ export class ChatLog extends preact.Component<{
 				break;
 			case 'name': case 'n': case 'N':
 				this.props.room.renameUser(tokens[1], tokens[2]);
+				break;
+			case 'c':
+				if (`${tokens[2]} `.startsWith('/challenge ')) {
+					this.props.room.updateChallenge(tokens[1], tokens[2].slice(11));
+					return;
+				}
 				break;
 			}
 			if (!this.props.noSubscription) this.log!.add(tokens);
