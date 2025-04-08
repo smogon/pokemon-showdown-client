@@ -339,29 +339,46 @@ export class PSMain extends preact.Component {
 		window.addEventListener('keydown', e => {
 			let elem = e.target as HTMLInputElement | null;
 			let isTextInput = false;
+			let isNonEmptyTextInput = false;
 			if (elem) {
 				isTextInput = (elem.tagName === 'INPUT' || elem.tagName === 'TEXTAREA');
 				if (isTextInput && ['button', 'radio', 'checkbox', 'file'].includes(elem.type)) {
 					isTextInput = false;
 				}
 				if (isTextInput && elem.value) {
-					return;
+					isNonEmptyTextInput = true;
 				}
 				if (elem.contentEditable === 'true') {
 					isTextInput = true;
 					if (elem.textContent && elem.textContent !== '\n') {
-						return;
+						isNonEmptyTextInput = true;
 					}
 				}
 			}
-			if (PS.room.onParentEvent) {
+			if (PS.room.onParentEvent && !isNonEmptyTextInput) {
 				if (PS.room.onParentEvent('keydown', e) === false) {
 					e.stopImmediatePropagation();
 					e.preventDefault();
 					return;
 				}
 			}
-			let modifierKey = e.ctrlKey || e.altKey || e.metaKey || e.shiftKey;
+			const modifierKey = e.ctrlKey || e.altKey || e.metaKey || e.shiftKey;
+			const altKey = !e.ctrlKey && e.altKey && !e.metaKey && !e.shiftKey;
+			if (altKey && e.keyCode === 38) { // up
+				PS.arrowKeysUsed = true;
+				PS.focusUpRoom();
+			} else if (altKey && e.keyCode === 40) { // down
+				PS.arrowKeysUsed = true;
+				PS.focusDownRoom();
+			}
+			if (isNonEmptyTextInput) return;
+			if (altKey && e.keyCode === 37) { // left
+				PS.arrowKeysUsed = true;
+				PS.focusLeftRoom();
+			} else if (altKey && e.keyCode === 39) { // right
+				PS.arrowKeysUsed = true;
+				PS.focusRightRoom();
+			}
 			if (modifierKey) return;
 			if (e.keyCode === 37) { // left
 				PS.arrowKeysUsed = true;
