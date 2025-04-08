@@ -1229,46 +1229,93 @@ export const PS = new class extends PSModel {
 		this.room.onParentEvent?.('focus', undefined);
 		return true;
 	}
+	horizontalNav(room = this.room) {
+		const rooms = this.leftRoomList.concat(this.rightRoomList);
+		const miniRoom = this.miniRoomList[0] !== 'news' ? this.miniRoomList[0] : null;
+		if (miniRoom) rooms.splice(1, 0, miniRoom);
+		const roomid = (room.location === 'mini-window' && miniRoom) || room.id;
+
+		const index = rooms.indexOf(roomid);
+		// index === -1: popup or something
+		return { rooms, index };
+	}
+	verticalNav(room = this.room) {
+		if (room.location !== 'mini-window') {
+			return { rooms: [], index: -1 };
+		}
+		const rooms = this.miniRoomList;
+		const index = rooms.indexOf(room.id);
+		// index === -1: shouldn't happen
+		return { rooms, index };
+	}
 	focusLeftRoom() {
-		const allRooms = this.leftRoomList.concat(this.rightRoomList);
-		let roomIndex = allRooms.indexOf(this.room.id);
-		if (roomIndex === -1) {
-			// inconsistent state: should not happen
-			return this.focusRoom('' as RoomID);
+		const { rooms, index } = this.horizontalNav();
+		if (index === -1) return;
+
+		if (index === 0) {
+			return this.focusRoom(rooms[rooms.length - 1]);
 		}
-		if (roomIndex === 0) {
-			return this.focusRoom(allRooms[allRooms.length - 1]);
-		}
-		return this.focusRoom(allRooms[roomIndex - 1]);
+		return this.focusRoom(rooms[index - 1]);
 	}
 	focusRightRoom() {
-		const allRooms = this.leftRoomList.concat(this.rightRoomList);
-		let roomIndex = allRooms.indexOf(this.room.id);
-		if (roomIndex === -1) {
-			// inconsistent state: should not happen
-			return this.focusRoom('' as RoomID);
+		const { rooms, index } = this.horizontalNav();
+		if (index === -1) return;
+
+		if (index === rooms.length - 1) {
+			return this.focusRoom(rooms[0]);
 		}
-		if (roomIndex === allRooms.length - 1) {
-			return this.focusRoom(allRooms[0]);
+		return this.focusRoom(rooms[index + 1]);
+	}
+	focusUpRoom() {
+		const { rooms, index } = this.verticalNav();
+		if (index === -1) return;
+
+		if (index === 0) {
+			return this.focusRoom(rooms[rooms.length - 1]);
 		}
-		return this.focusRoom(allRooms[roomIndex + 1]);
+		return this.focusRoom(rooms[index - 1]);
+	}
+	focusDownRoom() {
+		const { rooms, index } = this.verticalNav();
+		if (index === -1) return;
+
+		if (index === rooms.length - 1) {
+			return this.focusRoom(rooms[0]);
+		}
+		return this.focusRoom(rooms[index + 1]);
 	}
 	focusPreview(room: PSRoom) {
 		if (room !== this.room) return '';
-		const allRooms = this.leftRoomList.concat(this.rightRoomList);
-		let roomIndex = allRooms.indexOf(room.id);
-		if (roomIndex === -1) {
-			// mini-window or something
-			return '';
-		}
-		let buf = '  ';
-		const leftRoom = this.rooms[allRooms[roomIndex - 1]];
+
+		const verticalBuf = this.verticalFocusPreview();
+		if (verticalBuf) return verticalBuf;
+
+		const isMiniRoom = this.room.location === 'mini-window';
+		const { rooms, index } = this.horizontalNav();
+		if (index === -1) return '';
+
+		let buf = ' ';
+		const leftRoom = this.rooms[rooms[index - 1]];
 		if (leftRoom) buf += `\u2190 ${leftRoom.title}`;
-		buf += (this.arrowKeysUsed ? " | " : " (use arrow keys) ");
-		if (roomIndex < allRooms.length - 1) {
-			const rightRoom = this.rooms[allRooms[roomIndex + 1]]!;
-			buf += `${rightRoom.title} \u2192`;
-		}
+		buf += (this.arrowKeysUsed || isMiniRoom ? " | " : " (use arrow keys) ");
+		const rightRoom = this.rooms[rooms[index + 1]];
+		if (rightRoom) buf += `${rightRoom.title} \u2192`;
+		return buf;
+	}
+	verticalFocusPreview() {
+		const { rooms, index } = this.verticalNav();
+		if (index === -1) return '';
+
+		const upRoom = this.rooms[rooms[index - 1]];
+		let downRoom = this.rooms[rooms[index + 1]];
+		if (index === rooms.length - 2 && rooms[index + 1] === 'news') downRoom = undefined;
+		if (!upRoom && !downRoom) return '';
+
+		let buf = ' ';
+		if (upRoom) buf += `Alt+\u2191 ${upRoom.title}`;
+		buf += " | ";
+		if (downRoom) buf += `${downRoom.title} Alt+\u2193`;
+
 		return buf;
 	}
 	alert(message: string) {
