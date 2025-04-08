@@ -421,9 +421,6 @@ class PSUser extends PSStreamModel<PSLoginState | null> {
 		} else if (assertion.includes('\n') || !assertion) {
 			PS.alert("Something is interfering with our connection to the login server.");
 		} else {
-			// we're getting a little ahead of ourselves
-			this.name = name;
-			this.named = true;
 			PS.send(`|/trn ${name},0,${assertion}`);
 			this.update({ success: true });
 		}
@@ -1053,10 +1050,17 @@ export const PS = new class extends PSModel {
 					room.connected = false;
 					if (args[1] === 'namerequired') {
 						room.connectWhenLoggedIn = true;
+						if (!PS.user.initializing) {
+							room.receiveLine(['error', args[2]]);
+						}
 					} else if (args[1] === 'nonexistent') {
 						// sometimes we assume a room is a chatroom when it's not
 						// when that happens, just ignore this error
 						if (room.type === 'chat') room.receiveLine(['bigerror', 'Room does not exist']);
+					} else if (args[1] === 'rename') {
+						room.connected = true;
+						room.title = args[3] || room.title;
+						this.renameRoom(room, args[2] as RoomID);
 					}
 				}
 				this.update();
@@ -1203,6 +1207,9 @@ export const PS = new class extends PSModel {
 		while (this.popups.length && PS.room !== room) {
 			this.leave(this.popups.pop()!);
 		}
+		if (!this.isVisible(room)) {
+			room.hiddenInit = true;
+		}
 		if (room.location === 'left') {
 			this.leftPanel = this.panel = room;
 			while (this.popups.length) this.leave(this.popups.pop()!);
@@ -1342,6 +1349,8 @@ export const PS = new class extends PSModel {
 			if (PS.panel === PS.rightPanel) PS.panel = PS.leftPanel;
 			if (PS.room === PS.rightPanel) PS.room = PS.leftPanel;
 			PS.rightPanel = null;
+			PS.update();
+			PS.focusRoom(PS.leftPanel.id);
 		}
 	}
 	roomVisible(room: PSRoom): boolean {
@@ -1353,6 +1362,26 @@ export const PS = new class extends PSModel {
 		}
 		// some kind of popup
 		return true;
+	}
+	renameRoom(room: PSRoom, id: RoomID) {
+		// should never happen
+		if (this.rooms[id]) this.removeRoom(this.rooms[id]);
+
+		const oldid = room.id;
+		room.id = id;
+		this.rooms[id] = room;
+		delete this.rooms[oldid];
+
+		const popupIndex = this.popups.indexOf(oldid);
+		if (popupIndex >= 0) this.popups[popupIndex] = id;
+		const leftRoomIndex = this.leftRoomList.indexOf(oldid);
+		if (leftRoomIndex >= 0) this.leftRoomList[leftRoomIndex] = id;
+		const rightRoomIndex = this.rightRoomList.indexOf(oldid);
+		if (rightRoomIndex >= 0) this.rightRoomList[rightRoomIndex] = id;
+		const miniRoomIndex = this.miniRoomList.indexOf(oldid);
+		if (miniRoomIndex >= 0) this.miniRoomList[miniRoomIndex] = id;
+
+		this.update();
 	}
 	moveRoom(room: PSRoom, location: PSRoomLocation, background?: boolean, index?: number) {
 		if (room.location === location && index === undefined) {

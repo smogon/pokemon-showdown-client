@@ -255,12 +255,8 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 	send = (text: string) => {
 		this.props.room.send(text);
 	};
-	override focus() {
-		this.base!.querySelector('textarea')?.focus();
-	}
 	focusIfNoSelection = () => {
-		const selection = window.getSelection()!;
-		if (selection.type === 'Range') return;
+		if (window.getSelection?.()?.type === 'Range') return;
 		this.focus();
 	};
 	onKey = (e: KeyboardEvent) => {
@@ -535,7 +531,9 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 			<button name="cmd" value="/cancel" class="button"><i class="fa fa-chevron-left"></i> Back</button>, ' ',
 		];
 		if (choices.isDone() && request.noCancel) {
-			buf = ['Waiting for opponent...'];
+			buf = ['Waiting for opponent...', <br />];
+		} else if (choices.isDone() && choices.choices.length <= 1) {
+			buf = [];
 		}
 
 		const battle = this.props.room.battle;

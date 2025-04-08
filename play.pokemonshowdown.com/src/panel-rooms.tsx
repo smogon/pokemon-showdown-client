@@ -36,7 +36,6 @@ class RoomsPanel extends PSRoomPanel {
 	hide = (e: Event) => {
 		e.stopImmediatePropagation();
 		PS.hideRightRoom();
-		PS.update();
 	};
 	changeSearch = (e: Event) => {
 		const target = e.currentTarget as HTMLInputElement;
@@ -113,9 +112,6 @@ class RoomsPanel extends PSRoomPanel {
 
 		return { start, abbr, hidden };
 	}
-	override focus() {
-		this.base!.querySelector<HTMLInputElement>('input[type=search]')!.focus();
-	}
 	override render() {
 		if (this.hidden && PS.isVisible(this.props.room)) this.hidden = false;
 		if (this.hidden) {
@@ -132,8 +128,22 @@ class RoomsPanel extends PSRoomPanel {
 				this.renderRoomList("Possible hidden room", search.hidden),
 			];
 		} else {
+			const roomSections = {
+				official: [] as RoomInfo[], chat: [] as RoomInfo[], hidden: [] as RoomInfo[],
+			};
+			for (const room of rooms.chat || []) {
+				if (room.privacy === 'hidden') {
+					roomSections.hidden.push(room);
+				} else if (room.section === 'Official') {
+					roomSections.official.push(room);
+				} else {
+					roomSections.chat.push(room);
+				}
+			}
 			roomList = [
-				this.renderRoomList("Chat rooms", rooms.chat),
+				this.renderRoomList("Official chat rooms", roomSections.official),
+				this.renderRoomList("Chat rooms", roomSections.chat),
+				this.renderRoomList("Hidden rooms", roomSections.hidden),
 			];
 		}
 
@@ -159,7 +169,7 @@ class RoomsPanel extends PSRoomPanel {
 			</div>
 			<div>
 				<input
-					type="search" name="roomsearch" class="textbox" style="width: 100%; max-width: 480px"
+					type="search" name="roomsearch" class="textbox autofocus" style="width: 100%; max-width: 480px"
 					placeholder="Join or search for rooms"
 					onInput={this.changeSearch} onKeyDown={this.keyDownSearch}
 				/>
