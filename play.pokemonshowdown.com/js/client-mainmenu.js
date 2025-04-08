@@ -18,6 +18,7 @@
 			'focus textarea': 'onFocusPM',
 			'blur textarea': 'onBlurPM',
 			'click .spoiler': 'clickSpoiler',
+			'click .datasearch': 'clickDatasearchResults',
 			'click button.formatselect': 'selectFormat',
 			'click button.teamselect': 'selectTeam',
 			'click button[name=partnersubmit]': 'selectTeammate'
@@ -657,6 +658,18 @@
 		},
 		clickSpoiler: function (e) {
 			$(e.currentTarget).toggleClass('spoiler-shown');
+		},
+
+		clickDatasearchResults: function (e) {
+			if ($(e.target)[0].href) return;
+			var target = $(e.currentTarget).closest('[class=datasearch]')[0];
+			var button = target.querySelector('button');
+			var results = target.querySelectorAll('[class=datasearch-body]');
+			if (!button || !results || results.length < 2) return;
+			button.innerHTML = button.innerHTML === '[-]' ? '[+]' : '[-]';
+			for (var i = 0; i < results.length; i++) {
+				results[i].style.display = results[i].style.display === 'none' ? 'block' : 'none';
+			}
 		},
 
 		// support for buttons that can be sent by the server:
