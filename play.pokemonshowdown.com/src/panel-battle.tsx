@@ -300,6 +300,9 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 		case 'max':
 			choices.current.max = checkbox.checked;
 			break;
+		case 'tera':
+			choices.current.tera = checkbox.checked;
+			break;
 		}
 		this.props.room.update(null);
 	};
@@ -546,6 +549,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 				buf.push(`${pokemon.name} will `);
 				if (choice.mega) buf.push(`Mega Evolve and `);
 				if (choice.ultra) buf.push(`Ultra Burst and `);
+				if (choice.tera) buf.push(`Terastallize and `);
 				if (choice.max && active?.canDynamax) buf.push(active?.canGigantamax ? `Gigantamax and ` : `Dynamax and `);
 				buf.push(`use `, <strong>{choices.getChosenMove(choice, i).name}</strong>);
 				if (choice.targetLoc > 0) {
@@ -608,6 +612,8 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 			const canMegaEvoX = moveRequest.canMegaEvoX && !choices.alreadyMega;
 			const canMegaEvoY = moveRequest.canMegaEvoY && !choices.alreadyMega;
 			const canZMove = moveRequest.zMoves && !choices.alreadyZ;
+			const canUltraBurst = moveRequest.canUltraBurst;
+			const canTerastallize = moveRequest.canTerastallize;
 
 			if (choices.current.move) {
 				const moveName = choices.getChosenMove(choices.current, choices.index()).name;
@@ -637,31 +643,36 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 					<h3 class="moveselect">Attack</h3>
 					<div class="movemenu">
 						{this.renderMoveControls(request, choices)}
-						<div style="clear:left"></div>
-						{canDynamax && <label class={`megaevo${choices.current.max ? ' cur' : ''}`}>
-							<input type="checkbox" name="max" checked={choices.current.max} onChange={this.toggleBoostedMove} /> {}
-							{moveRequest.canGigantamax ? 'Gigantamax' : 'Dynamax'}
-						</label>}
-						{canMegaEvo && <label class={`megaevo${choices.current.mega ? ' cur' : ''}`}>
-							<input type="checkbox" name="mega" checked={choices.current.mega} onChange={this.toggleBoostedMove} /> {}
-							Mega Evolution
-						</label>}
-						{canMegaEvoX && <label class={`megaevo${choices.current.mega ? ' cur' : ''}`}>
-							<input type="checkbox" name="megax" checked={choices.current.megax} onChange={this.toggleBoostedMove} /> {}
-							Mega Evolution X
-						</label>}
-						{canMegaEvoY && <label class={`megaevo${choices.current.mega ? ' cur' : ''}`}>
-							<input type="checkbox" name="megay" checked={choices.current.megay} onChange={this.toggleBoostedMove} /> {}
-							Mega Evolution Y
-						</label>}
-						{moveRequest.canUltraBurst && <label class={`megaevo${choices.current.ultra ? ' cur' : ''}`}>
-							<input type="checkbox" name="ultra" checked={choices.current.ultra} onChange={this.toggleBoostedMove} /> {}
-							Ultra Burst
-						</label>}
-						{canZMove && <label class={`megaevo${choices.current.z ? ' cur' : ''}`}>
-							<input type="checkbox" name="z" checked={choices.current.z} onChange={this.toggleBoostedMove} /> {}
-							Z-Power
-						</label>}
+						<div class="megaevo-box">
+							{canDynamax && <label class={`megaevo${choices.current.max ? ' cur' : ''}`}>
+								<input type="checkbox" name="max" checked={choices.current.max} onChange={this.toggleBoostedMove} /> {}
+								{moveRequest.canGigantamax ? 'Gigantamax' : 'Dynamax'}
+							</label>}
+							{canMegaEvo && <label class={`megaevo${choices.current.mega ? ' cur' : ''}`}>
+								<input type="checkbox" name="mega" checked={choices.current.mega} onChange={this.toggleBoostedMove} /> {}
+								Mega Evolution
+							</label>}
+							{canMegaEvoX && <label class={`megaevo${choices.current.mega ? ' cur' : ''}`}>
+								<input type="checkbox" name="megax" checked={choices.current.megax} onChange={this.toggleBoostedMove} /> {}
+								Mega Evolution X
+							</label>}
+							{canMegaEvoY && <label class={`megaevo${choices.current.mega ? ' cur' : ''}`}>
+								<input type="checkbox" name="megay" checked={choices.current.megay} onChange={this.toggleBoostedMove} /> {}
+								Mega Evolution Y
+							</label>}
+							{canUltraBurst && <label class={`megaevo${choices.current.ultra ? ' cur' : ''}`}>
+								<input type="checkbox" name="ultra" checked={choices.current.ultra} onChange={this.toggleBoostedMove} /> {}
+								Ultra Burst
+							</label>}
+							{canZMove && <label class={`megaevo${choices.current.z ? ' cur' : ''}`}>
+								<input type="checkbox" name="z" checked={choices.current.z} onChange={this.toggleBoostedMove} /> {}
+								Z-Power
+							</label>}
+							{canTerastallize && <label class={`megaevo${choices.current.tera ? ' cur' : ''}`}>
+								<input type="checkbox" name="terastallize" checked={choices.current.tera} onChange={this.toggleBoostedMove} /> {}
+								Terastallize<br /><span dangerouslySetInnerHTML={{ __html: Dex.getTypeIcon(canTerastallize) }} />
+							</label>}
+						</div>
 					</div>
 				</div>
 				<div class="switchcontrols">
