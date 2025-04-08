@@ -1666,6 +1666,11 @@ a.ilink.yours {
 	float: right;
 	font-size: 8pt;
 }
+.megaevo-box {
+	clear: both;
+	padding-top: 10px;
+	text-align: center;
+}
 .megaevo {
 	clear: both;
 	display: block;

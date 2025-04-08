@@ -47,7 +47,7 @@ export interface BattleRequestActivePokemon {
 	canMegaEvoX?: boolean;
 	canMegaEvoY?: boolean;
 	canUltraBurst?: boolean;
-	canTerastallize?: boolean;
+	canTerastallize?: string;
 	trapped?: boolean;
 	maybeTrapped?: boolean;
 }
@@ -86,12 +86,16 @@ interface BattleMoveChoice {
 	/** 1-based move */
 	move: number;
 	targetLoc: number;
+	// gen 6
 	mega: boolean;
 	megax: boolean;
 	megay: boolean;
-	ultra: boolean;
-	max: boolean;
+	// gen 7
 	z: boolean;
+	ultra: boolean;
+	// gen 8
+	max: boolean;
+	// gen 9
 	tera: boolean;
 }
 interface BattleShiftChoice {
