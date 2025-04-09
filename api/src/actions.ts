@@ -852,16 +852,17 @@ export const actions: { [k: string]: QueryHandler } = {
 		if (!this.user.loggedIn || this.user.id === 'guest') {
 			throw new ActionError("Access denied");
 		}
-		let { teamid } = params;
+		let { teamid, password } = params;
 		teamid = toID(teamid);
+		password = toID(password);
 		if (!teamid) {
 			throw new ActionError("Invalid team ID");
 		}
 		try {
 			const data = await tables.teams.selectOne(
-				SQL`ownerid, team, private as privacy`
+				SQL`team, private`
 			)`WHERE teamid = ${teamid}`;
-			if (!data || data.ownerid !== this.user.id) {
+			if (!data || (data.private && password !== toID(data.private))) {
 				return { team: null };
 			}
 			return data;
