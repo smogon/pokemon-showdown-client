@@ -14,6 +14,7 @@ import { BattleLog } from "./battle-log";
 import type { Battle } from "./battle";
 import { MiniEdit } from "./miniedit";
 import { PSUtils, toID, type ID } from "./battle-dex";
+import type { Args } from "./battle-text-parser";
 
 declare const formatText: any; // from js/server/chat-formatter.js
 
@@ -39,13 +40,16 @@ export class ChatRoom extends PSRoom {
 	challenged: Challenge | null = null;
 	/** n.b. this will be null outside of battle rooms */
 	battle: Battle | null = null;
+	log: BattleLog | null = null;
+	/** during initialization, room could get messages before it has a log */
+	backlog: Args[] | null = null;
 
 	constructor(options: RoomOptions) {
 		super(options);
 		if (options.args?.pmTarget) this.pmTarget = options.args.pmTarget as string;
 		if (options.args?.challengeMenuOpen) this.challengeMenuOpen = true;
 		if (options.args?.initialSlash) this.initialSlash = true;
-		this.updateTarget(true);
+		this.updateTarget();
 		this.connect();
 	}
 	override connect() {
@@ -55,17 +59,21 @@ export class ChatRoom extends PSRoom {
 			this.connectWhenLoggedIn = false;
 		}
 	}
-	updateTarget(force?: boolean) {
+	override receiveLine(args: Args) {
+		if (!this.log) (this.backlog ||= []).push(args);
+		super.receiveLine(args);
+	}
+	updateTarget() {
 		if (this.id === 'dm-') {
 			this.pmTarget = PS.user.userid;
-			if (!this.userCount) {
-				this.setUsers(1, [` ${PS.user.userid}`]);
-			}
-			this.title = `[Console]`;
+			this.setUsers(1, [` ${PS.user.userid}`]);
+			this.title = `Console`;
 		} else if (this.id.startsWith('dm-')) {
 			const id = this.id.slice(3);
 			this.pmTarget = id;
-			if (!this.userCount) {
+			if (!PS.user.userid) {
+				this.setUsers(1, [` ${id}`]);
+			} else {
 				this.setUsers(2, [` ${id}`, ` ${PS.user.userid}`]);
 			}
 			this.title = `[DM] ${this.pmTarget}`;
@@ -74,7 +82,7 @@ export class ChatRoom extends PSRoom {
 	/**
 	 * @return true to prevent line from being sent to server
 	 */
-	override handleMessage(line: string) {
+	override handleSend(line: string) {
 		if (!line.startsWith('/') || line.startsWith('//')) return false;
 		const spaceIndex = line.indexOf(' ');
 		const cmd = spaceIndex >= 0 ? line.slice(1, spaceIndex) : line.slice(1);
@@ -104,7 +112,7 @@ export class ChatRoom extends PSRoom {
 			return false;
 		}
 		}
-		return super.handleMessage(line);
+		return super.handleSend(line);
 	}
 	openChallenge() {
 		if (!this.pmTarget) {
@@ -120,7 +128,7 @@ export class ChatRoom extends PSRoom {
 			return;
 		}
 		if (this.challenging) {
-			this.send('/cancelchallenge', true);
+			this.sendDirect('/cancelchallenge');
 			this.challenging = null;
 			this.challengeMenuOpen = true;
 		} else {
@@ -150,6 +158,10 @@ export class ChatRoom extends PSRoom {
 		const userid = toID(name);
 
 		if (userid === PS.user.userid) {
+			if (!challenge && !this.challenging) {
+				// this is also used for canceling challenges
+				this.challenged = null;
+			}
 			// we are sending the challenge
 			this.challenging = challenge;
 		} else {
@@ -163,15 +175,12 @@ export class ChatRoom extends PSRoom {
 		}
 		this.update(null);
 	}
-	override send(line: string, direct?: boolean) {
-		this.updateTarget();
-		if (!direct && !line) return;
-		if (!direct && this.handleMessage(line)) return;
+	override sendDirect(line: string) {
 		if (this.pmTarget) {
 			PS.send(`|/pm ${this.pmTarget}, ${line}`);
 			return;
 		}
-		super.send(line, true);
+		super.sendDirect(line);
 	}
 	setUsers(count: number, usernames: string[]) {
 		this.userCount = count;
@@ -439,6 +448,12 @@ class ChatPanel extends PSRoomPanel<ChatRoom> {
 	static readonly Model = ChatRoom;
 	static readonly location = 'right';
 	static readonly icon = <i class="fa fa-comment-o"></i>;
+	override componentDidMount(): void {
+		this.subscribeTo(PS.user, () => {
+			this.props.room.updateTarget();
+		});
+		super.componentDidMount();
+	}
 	send = (text: string) => {
 		this.props.room.send(text);
 	};
@@ -505,9 +520,9 @@ class ChatPanel extends PSRoomPanel<ChatRoom> {
 			</TeamForm>
 		</div> : null;
 
-		return <PSPanelWrapper room={room}>
+		return <PSPanelWrapper room={room} focusClick>
 			<div class="tournament-wrapper hasuserlist"></div>
-			<ChatLog class="chat-log" room={this.props.room} onClick={this.focusIfNoSelection} left={tinyLayout ? 0 : 146}>
+			<ChatLog class="chat-log" room={this.props.room} left={tinyLayout ? 0 : 146}>
 				{challengeTo || challengeFrom && [challengeTo, challengeFrom]}
 			</ChatLog>
 			<ChatTextEntry
@@ -573,16 +588,30 @@ export class ChatUserList extends preact.Component<{ room: ChatRoom, left?: numb
 }
 
 export class ChatLog extends preact.Component<{
-	class: string, room: ChatRoom, onClick?: (e: Event) => void, children?: preact.ComponentChildren,
+	class: string, room: ChatRoom, children?: preact.ComponentChildren,
 	left?: number, top?: number, noSubscription?: boolean,
 }> {
-	log: BattleLog | null = null;
 	subscription: PSSubscription | null = null;
 	override componentDidMount() {
-		if (!this.props.noSubscription) {
-			this.log = new BattleLog(this.base! as HTMLDivElement);
+		const room = this.props.room;
+		if (room.log) {
+			const elem = room.log.elem;
+			this.base!.replaceChild(elem, this.base!.firstChild!);
+			elem.className = this.props.class;
+			elem.style.left = `${this.props.left || 0}px`;
+			elem.style.top = `${this.props.top || 0}px`;
 		}
-		this.subscription = this.props.room.subscribe(tokens => {
+		if (!this.props.noSubscription) {
+			room.log ||= new BattleLog(this.base!.firstChild as HTMLDivElement);
+			if (room.backlog) {
+				const backlog = room.backlog;
+				room.backlog = null;
+				for (const args of backlog) {
+					room.log.add(args);
+				}
+			}
+		}
+		this.subscription = room.subscribe(tokens => {
 			if (!tokens) return;
 			switch (tokens[0]) {
 			case 'users':
@@ -606,54 +635,51 @@ export class ChatLog extends preact.Component<{
 				}
 				break;
 			}
-			if (!this.props.noSubscription) this.log!.add(tokens);
+			if (!this.props.noSubscription) this.props.room.log!.add(tokens);
 		});
 		this.setControlsJSX(this.props.children);
 	}
 	override componentWillUnmount() {
-		if (this.subscription) this.subscription.unsubscribe();
+		this.subscription?.unsubscribe();
 	}
 	override shouldComponentUpdate(props: typeof ChatLog.prototype.props) {
+		const elem = this.base!.firstChild as HTMLDivElement;
 		if (props.class !== this.props.class) {
-			this.base!.className = props.class;
+			elem.className = props.class;
 		}
-		if (props.left !== this.props.left) this.base!.style.left = `${props.left || 0}px`;
-		if (props.top !== this.props.top) this.base!.style.top = `${props.top || 0}px`;
+		if (props.left !== this.props.left) elem.style.left = `${props.left || 0}px`;
+		if (props.top !== this.props.top) elem.style.top = `${props.top || 0}px`;
 		this.setControlsJSX(props.children);
 		this.updateScroll();
 		return false;
 	}
 	setControlsJSX(jsx: preact.ComponentChildren | undefined) {
-		const children = this.base!.children;
+		const elem = this.base!.firstChild as HTMLDivElement;
+		const children = elem.children;
 		let controlsElem = children[children.length - 1] as HTMLDivElement | undefined;
 		if (controlsElem && controlsElem.className !== 'controls') controlsElem = undefined;
 		if (!jsx) {
 			if (!controlsElem) return;
-			preact.render(null, this.base!, controlsElem);
+			preact.render(null, elem, controlsElem);
 			this.updateScroll();
 			return;
 		}
 		if (!controlsElem) {
 			controlsElem = document.createElement('div');
 			controlsElem.className = 'controls';
-			this.base!.appendChild(controlsElem);
+			elem.appendChild(controlsElem);
 		}
-		preact.render(<div class="controls">{jsx}</div>, this.base!, controlsElem);
+		preact.render(<div class="controls">{jsx}</div>, elem, controlsElem);
 		this.updateScroll();
 	}
 	updateScroll() {
-		if (this.log) {
-			this.log.updateScroll();
-		} else if (this.props.room.battle) {
-			this.log = this.props.room.battle.scene.log;
-			this.log.updateScroll();
-		}
+		this.props.room.log?.updateScroll();
 	}
 	render() {
-		return <div
-			class={this.props.class} role="log" onClick={this.props.onClick}
+		return <div><div
+			class={this.props.class} role="log"
 			style={{ left: this.props.left || 0, top: this.props.top || 0 }}
-		></div>;
+		></div></div>;
 	}
 }
 

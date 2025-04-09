@@ -131,7 +131,7 @@ class BattleRoom extends ChatRoom {
 	/**
 	 * @return true to prevent line from being sent to server
 	 */
-	override handleMessage(line: string) {
+	override handleSend(line: string) {
 		if (!line.startsWith('/') || line.startsWith('//')) return false;
 		const spaceIndex = line.indexOf(' ');
 		const cmd = spaceIndex >= 0 ? line.slice(1, spaceIndex) : line.slice(1);
@@ -169,7 +169,7 @@ class BattleRoom extends ChatRoom {
 				return true;
 			}
 			if (this.choices.isDone() || this.choices.isEmpty()) {
-				this.send('/undo', true);
+				this.sendDirect('/undo');
 			}
 			this.choices = new BattleChoiceBuilder(this.request);
 			this.update(null);
@@ -184,21 +184,27 @@ class BattleRoom extends ChatRoom {
 				this.receiveLine([`error`, possibleError]);
 				return true;
 			}
-			if (this.choices.isDone()) this.send(`/choose ${this.choices.toString()}`, true);
+			if (this.choices.isDone()) this.sendDirect(`/choose ${this.choices.toString()}`);
 			this.update(null);
 			return true;
 		}
 		}
-		return super.handleMessage(line);
+		return super.handleSend(line);
 	}
 }
 
-class BattleDiv extends preact.Component {
+class BattleDiv extends preact.Component<{ room: BattleRoom }> {
 	override shouldComponentUpdate() {
 		return false;
 	}
+	override componentDidMount() {
+		const room = this.props.room;
+		if (room.battle) {
+			this.base!.replaceChild(room.battle.scene.$frame![0], this.base!.firstChild!);
+		}
+	}
 	override render() {
-		return <div class="battle"></div>;
+		return <div><div class="battle"></div></div>;
 	}
 }
 
@@ -303,14 +309,19 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 		this.props.room.update(null);
 	};
 	override componentDidMount() {
+		const room = this.props.room;
 		const $elem = $(this.base!);
-		const battle = new Battle({
+		const battle = room.battle || new Battle({
 			$frame: $elem.find('.battle'),
 			$logFrame: $elem.find('.battle-log'),
+			log: room.backlog?.map(args => '|' + args.join('|')),
 		});
-		this.props.room.battle = battle;
+		room.backlog = null;
+		room.battle ||= battle;
+		room.log ||= battle.scene.log;
 		(battle.scene as BattleScene).tooltips.listen($elem.find('.battle-controls'));
 		super.componentDidMount();
+		battle.seekTurn(Infinity);
 		battle.subscribe(() => this.forceUpdate());
 	}
 	override receiveLine(args: Args) {
@@ -431,10 +442,11 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 			});
 		}
 
+		const special = choices.moveSpecial(choices.current);
 		return active.moves.map((moveData, i) => {
 			const move = dex.moves.get(moveData.name);
 			const tooltip = `move|${moveData.name}|${pokemonIndex}`;
-			return <MoveButton cmd={`/move ${i + 1}`} type={move.type} tooltip={tooltip} moveData={moveData}>
+			return <MoveButton cmd={`/move ${i + 1}${special}`} type={move.type} tooltip={tooltip} moveData={moveData}>
 				{move.name}
 			</MoveButton>;
 		});
@@ -545,9 +557,11 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 			const active = request.requestType === 'move' ? request.active[i] : null;
 			if (choice.choiceType === 'move') {
 				buf.push(`${pokemon.name} will `);
-				if (choice.mega) buf.push(`Mega Evolve and `);
-				if (choice.ultra) buf.push(`Ultra Burst and `);
-				if (choice.tera) buf.push(`Terastallize and `);
+				if (choice.mega) buf.push(<strong>Mega</strong>, ` Evolve and `);
+				if (choice.megax) buf.push(<strong>Mega</strong>, ` Evolve (X) and `);
+				if (choice.megay) buf.push(<strong>Mega</strong>, ` Evolve (Y) and `);
+				if (choice.ultra) buf.push(<strong>Ultra</strong>, ` Burst and `);
+				if (choice.tera) buf.push(`Terastallize (`, <strong>{active?.canTerastallize || '???'}</strong>, `) and `);
 				if (choice.max && active?.canDynamax) buf.push(active?.canGigantamax ? `Gigantamax and ` : `Dynamax and `);
 				buf.push(`use `, <strong>{choices.getChosenMove(choice, i).name}</strong>);
 				if (choice.targetLoc > 0) {
@@ -667,7 +681,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 								Z-Power
 							</label>}
 							{canTerastallize && <label class={`megaevo${choices.current.tera ? ' cur' : ''}`}>
-								<input type="checkbox" name="terastallize" checked={choices.current.tera} onChange={this.toggleBoostedMove} /> {}
+								<input type="checkbox" name="tera" checked={choices.current.tera} onChange={this.toggleBoostedMove} /> {}
 								Terastallize<br /><span dangerouslySetInnerHTML={{ __html: Dex.getTypeIcon(canTerastallize) }} />
 							</label>}
 						</div>
@@ -733,15 +747,15 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 	override render() {
 		const room = this.props.room;
 
-		return <PSPanelWrapper room={room}>
-			<BattleDiv></BattleDiv>
+		return <PSPanelWrapper room={room} focusClick>
+			<BattleDiv room={room} />
 			<ChatLog
-				class="battle-log hasuserlist" room={this.props.room} onClick={this.focusIfNoSelection} left={640} noSubscription
+				class="battle-log hasuserlist" room={room} left={640} noSubscription
 			>
 				{}
 			</ChatLog>
-			<ChatTextEntry room={this.props.room} onMessage={this.send} onKey={this.onKey} left={640} />
-			<ChatUserList room={this.props.room} left={640} minimized />
+			<ChatTextEntry room={room} onMessage={this.send} onKey={this.onKey} left={640} />
+			<ChatUserList room={room} left={640} minimized />
 			<div class="battle-controls" role="complementary" aria-label="Battle Controls" style="top: 370px;">
 				{this.renderControls()}
 			</div>

@@ -36,6 +36,8 @@ const PSPrefsDefaults: { [key: string]: any } = {};
  * Updates will name the key updated, so you don't need to overreact.
  */
 class PSPrefs extends PSStreamModel<string | null> {
+	// PREFS START HERE
+
 	/**
 	 * The theme to use. "system" matches the theme of the system accessing the client.
 	 */
@@ -65,6 +67,8 @@ class PSPrefs extends PSStreamModel<string | null> {
 	musicvolume = 50;
 	notifvolume = 50;
 
+	// PREFS END HERE
+
 	storageEngine: 'localStorage' | 'iframeLocalStorage' | '' = '';
 	storage: { [k: string]: any } = {};
 	readonly origin = `https://${Config.routes.client}`;
@@ -73,7 +77,7 @@ class PSPrefs extends PSStreamModel<string | null> {
 
 		for (const key in this) {
 			const value = (this as any)[key];
-			if (['storage', 'subscriptions', 'origin', 'storageEngine'].includes(key)) continue;
+			if (['storage', 'subscriptions', 'origin', 'storageEngine', 'updates'].includes(key)) continue;
 			if (typeof value === 'function') continue;
 			PSPrefsDefaults[key] = value;
 		}
@@ -104,6 +108,9 @@ class PSPrefs extends PSStreamModel<string | null> {
 		this.fixPrefs(newPrefs);
 		Object.assign(this, PSPrefsDefaults);
 		this.storage = newPrefs;
+		for (const key in PSPrefsDefaults) {
+			if (key in newPrefs) (this as any)[key] = (newPrefs as any)[key];
+		}
 		this.update(null);
 		if (!noSave) this.save();
 	}
@@ -391,8 +398,7 @@ class PSUser extends PSStreamModel<PSLoginState | null> {
 	updateLogin(update: PSLoginState) {
 		this.update(update);
 		if (!PS.rooms['login']) {
-			PS.addRoom({ id: 'login' as RoomID, args: update });
-			PS.update();
+			PS.join('login' as RoomID, { args: update });
 		}
 	}
 	handleAssertion(name: string, assertion?: string | null) {
@@ -543,8 +549,12 @@ export interface RoomOptions {
 	/** @see {PS.roomTypes} */
 	type?: string;
 	location?: PSRoomLocation | null;
-	/** Fed to `room.receiveLine` after initialization, outside of the constructor */
-	queue?: Args[];
+	/**
+	 * In case the room received messages before it was ready for them.
+	 *
+	 * Fed to `room.receiveLine` after initialization, after the constructor is run.
+	 */
+	backlog?: Args[];
 	/**
 	 * Popup parent element. If it exists, a popup shows up right above/below that element.
 	 *
@@ -560,7 +570,7 @@ export interface RoomOptions {
 	/** Opens the popup to the right of its parent, instead of the default above/below (for userlists) */
 	rightPopup?: boolean;
 	connected?: boolean;
-	/** @see {RoomType#noURL} */
+	/** @see {PSRoomPanelSubclass#noURL} */
 	noURL?: boolean;
 	args?: Record<string, unknown> | null;
 }
@@ -619,7 +629,7 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 	/** only affects mini-windows */
 	minimized = false;
 	caughtError: string | undefined;
-	/** @see {RoomType#noURL} */
+	/** @see {PSRoomPanelSubclass#noURL} */
 	noURL: boolean;
 	args: Record<string, unknown> | null;
 
@@ -689,40 +699,59 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 		}
 	}
 	/**
-	 * Handles OUTGOING messages, like `/logout`.
+	 * Handles outgoing messages, like `/logout`. Return `true` to prevent
+	 * the line from being sent to servers.
 	 */
-	handleMessage(line: string) {
+	handleSend(line: string) {
 		if (!line.startsWith('/') || line.startsWith('//')) return false;
 		const spaceIndex = line.indexOf(' ');
 		const cmd = spaceIndex >= 0 ? line.slice(1, spaceIndex) : line.slice(1);
-		// const target = spaceIndex >= 0 ? line.slice(spaceIndex + 1) : '';
+		const target = spaceIndex >= 0 ? line.slice(spaceIndex + 1) : '';
 		switch (cmd) {
-		case 'logout': {
+		case 'logout':
 			PS.user.logOut();
 			return true;
-		}
+		case 'cancelsearch':
+			PS.mainmenu.cancelSearch();
+			return true;
+		case 'nick':
+			if (target) {
+				PS.user.changeName(target);
+			} else {
+				PS.join('login' as RoomID);
+			}
+			return true;
 		}
 		return false;
 	}
-	send(msg: string, direct?: boolean) {
-		if (!direct && !msg) return;
-		if (!direct && this.handleMessage(msg)) return;
-
+	send(msg: string) {
+		if (!msg) return;
+		if (this.handleSend(msg)) return;
+		this.sendDirect(msg);
+	}
+	sendDirect(msg: string) {
 		PS.send(this.id + '|' + msg);
 	}
 	destroy() {
 		if (this.connected) {
-			this.send('/noreply /leave', true);
+			this.sendDirect('/noreply /leave');
 			this.connected = false;
 		}
 	}
 }
 
 class PlaceholderRoom extends PSRoom {
-	queue = [] as Args[];
+	backlog = [] as Args[];
 	override readonly classType = 'placeholder';
 	override receiveLine(args: Args) {
-		this.queue.push(args);
+		try {
+			this.backlog.push(args);
+		} catch (err: any) {
+			console.log(this.backlog.length);
+			console.log(args.length);
+			console.log(this.backlog.slice(0, 1000));
+			throw err;
+		}
 	}
 }
 
@@ -730,7 +759,7 @@ class PlaceholderRoom extends PSRoom {
  * PS
  *********************************************************************/
 
-type RoomType = (new () => PSRoomPanel) & {
+type PSRoomPanelSubclass = (new () => PSRoomPanel) & {
 	readonly id: string,
 	readonly routes: string[],
 	/** optional Room class */
@@ -771,7 +800,7 @@ export const PS = new class extends PSModel {
 
 	rooms: { [roomid: string]: PSRoom | undefined } = {};
 	roomTypes: {
-		[type: string]: RoomType | undefined,
+		[type: string]: PSRoomPanelSubclass | undefined,
 	} = {};
 	/**
 	 * If a route starts with `*`, it's a cached room location for the room placeholder.
@@ -884,7 +913,7 @@ export const PS = new class extends PSModel {
 	/** Tracks whether or not to display the "Use arrow keys" hint */
 	arrowKeysUsed = false;
 
-	newsHTML = document.querySelector('.news-embed .pm-log')?.innerHTML || '';
+	newsHTML = document.querySelector('#room-news .mini-window-body')?.innerHTML || '';
 
 	constructor() {
 		super();
@@ -977,7 +1006,7 @@ export const PS = new class extends PSModel {
 			if (!alreadyUpdating) this.update(true);
 		}
 	}
-	getRoom(elem: HTMLElement | EventTarget | null | undefined): PSRoom | null {
+	getRoom(elem: HTMLElement | EventTarget | null | undefined, skipClickable?: boolean): PSRoom | null {
 		let curElem: HTMLElement | null = elem as HTMLElement;
 		while (curElem) {
 			if (curElem.id.startsWith('room-')) {
@@ -985,6 +1014,13 @@ export const PS = new class extends PSModel {
 			}
 			if (curElem.getAttribute('data-roomid')) {
 				return PS.rooms[curElem.getAttribute('data-roomid') as RoomID] || null;
+			}
+			if (skipClickable && (
+				curElem.tagName === 'A' || curElem.tagName === 'BUTTON' || curElem.tagName === 'INPUT' ||
+				curElem.tagName === 'SELECT' || curElem.tagName === 'TEXTAREA' || curElem.tagName === 'LABEL' ||
+				curElem.classList?.contains('textbox') || curElem.classList?.contains('username')
+			)) {
+				return null;
 			}
 			curElem = curElem.parentElement;
 		}
@@ -1157,7 +1193,7 @@ export const PS = new class extends PSModel {
 		const routeInfo = this.getRouteInfo(roomid);
 		return routeInfo?.startsWith('*') ? null : routeInfo || null;
 	}
-	addRoomType(...types: RoomType[]) {
+	addRoomType(...types: PSRoomPanelSubclass[]) {
 		for (const RoomType of types) {
 			this.roomTypes[RoomType.id] = RoomType;
 			for (const route of RoomType.routes) {
@@ -1191,8 +1227,8 @@ export const PS = new class extends PSModel {
 			if (this.room === room) this.room = newRoom;
 			if (roomid === '') this.mainmenu = newRoom as MainMenuRoom;
 
-			if (options.queue) {
-				for (const args of options.queue) {
+			if (options.backlog) {
+				for (const args of options.backlog) {
 					room.receiveLine(args);
 				}
 			}
@@ -1200,10 +1236,16 @@ export const PS = new class extends PSModel {
 		}
 		if (updated) this.update();
 	}
+	setFocus(room: PSRoom) {
+		room.onParentEvent?.('focus');
+	}
 	focusRoom(roomid: RoomID) {
 		const room = this.rooms[roomid];
 		if (!room) return false;
-		if (this.room === room) return true;
+		if (this.room === room) {
+			this.setFocus(room);
+			return true;
+		}
 		while (this.popups.length && PS.room !== room) {
 			this.leave(this.popups.pop()!);
 		}
@@ -1226,7 +1268,7 @@ export const PS = new class extends PSModel {
 		}
 		this.room.autoDismissNotifications();
 		this.update();
-		this.room.onParentEvent?.('focus', undefined);
+		this.setFocus(room);
 		return true;
 	}
 	horizontalNav(room = this.room) {
@@ -1319,11 +1361,9 @@ export const PS = new class extends PSModel {
 		return buf;
 	}
 	alert(message: string) {
-		this.addRoom({
-			id: `popup-${this.popups.length}` as RoomID,
+		this.join(`popup-${this.popups.length}` as RoomID, {
 			args: { message },
 		});
-		this.update();
 	}
 	prompt(message: string, defaultValue?: string, opts?: {
 		okButton?: string, type?: 'text' | 'password' | 'number',
@@ -1384,8 +1424,8 @@ export const PS = new class extends PSModel {
 		const location = room.location;
 		room.location = null!;
 		this.moveRoom(room, location, noFocus);
-		if (options.queue) {
-			for (const args of options.queue) {
+		if (options.backlog) {
+			for (const args of options.backlog) {
 				room.receiveLine(args);
 			}
 		}
@@ -1541,6 +1581,9 @@ export const PS = new class extends PSModel {
 			if (miniRoomIndex >= 0) {
 				PS.miniRoomList.splice(miniRoomIndex, 1);
 			}
+			if (PS.room === room) {
+				PS.room = PS.rooms[PS.miniRoomList[miniRoomIndex]] || PS.rooms[PS.miniRoomList[miniRoomIndex - 1]] || PS.mainmenu;
+			}
 		}
 
 		if (this.popups.length && room.id === this.popups[this.popups.length - 1]) {
@@ -1548,6 +1591,7 @@ export const PS = new class extends PSModel {
 			PS.room = this.popups.length ? PS.rooms[this.popups[this.popups.length - 1]]! : PS.panel;
 		}
 
+		PS.setFocus(PS.room);
 		this.update();
 	}
 	closePopup(skipUpdate?: boolean) {
@@ -1555,9 +1599,13 @@ export const PS = new class extends PSModel {
 		this.leave(this.popups[this.popups.length - 1]);
 		if (!skipUpdate) this.update();
 	}
-	join(roomid: RoomID, location?: PSRoomLocation | null, noFocus?: boolean) {
+	join(roomid: RoomID, options?: Partial<RoomOptions> | null, noFocus?: boolean) {
 		if (this.room.id === roomid) return;
-		this.addRoom({ id: roomid, location }, noFocus);
+		if (PS.rooms[roomid]) {
+			this.focusRoom(roomid);
+			return;
+		}
+		this.addRoom({ id: roomid, ...options }, noFocus);
 		this.update();
 	}
 	leave(roomid: RoomID) {

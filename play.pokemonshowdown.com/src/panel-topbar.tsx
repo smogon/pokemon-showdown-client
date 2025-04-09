@@ -95,12 +95,12 @@ export class PSHeader extends preact.Component<{ style: object }> {
 			break;
 		case 'battle':
 			let idChunks = id.substr(7).split('-');
-			let formatid;
+			let formatName;
 			// TODO: relocate to room implementation
 			if (idChunks.length <= 1) {
-				if (idChunks[0] === 'uploadedreplay') formatid = 'Uploaded Replay';
+				if (idChunks[0] === 'uploadedreplay') formatName = 'Uploaded Replay';
 			} else {
-				formatid = idChunks[0];
+				formatName = BattleLog.formatName(idChunks[0]);
 			}
 			if (!title) {
 				let battle = (room as any).battle as Battle | undefined;
@@ -114,7 +114,7 @@ export class PSHeader extends preact.Component<{ style: object }> {
 					title = `(empty room)`;
 				}
 			}
-			icon = <i class="text">{formatid}</i>;
+			icon = <i class="text">{formatName}</i>;
 			break;
 		case 'html':
 		default:
@@ -169,10 +169,9 @@ export class PSHeader extends preact.Component<{ style: object }> {
 		return <div id="header" class="header" style={this.props.style}>
 			<img
 				class="logo"
-				src={`https://${Config.routes.client}/pokemonshowdownbeta.png`}
-				srcset={`https://${Config.routes.client}/pokemonshowdownbeta@2x.png 2x`}
+				src={`https://${Config.routes.client}/favicon-256.png`}
 				alt="Pokémon Showdown! (beta)"
-				width="146" height="44"
+				width="50" height="50"
 			/>
 			<div class="maintabbarbottom"></div>
 			<div class="tabbar maintabbar"><div class="inner">
@@ -182,7 +181,7 @@ export class PSHeader extends preact.Component<{ style: object }> {
 				<ul>
 					{PS.leftRoomList.slice(1).map(roomid => this.renderRoomTab(roomid))}
 				</ul>
-				<ul class="siderooms" style={{ float: 'none', marginLeft: PS.leftPanelWidth - 144 }}>
+				<ul class="siderooms" style={{ float: 'none', marginLeft: PS.leftPanelWidth - 52 }}>
 					{PS.rightRoomList.map(roomid => this.renderRoomTab(roomid))}
 				</ul>
 			</div></div>
@@ -654,9 +653,10 @@ class PopupPanel extends PSRoomPanel {
 		const room = this.props.room;
 		const okButtonLabel = room.args?.okButtonLabel as string || 'OK';
 		return <PSPanelWrapper room={room} width={480}><div class="pad">
-			{room.args?.message && <p style="white-space:pre-wrap;word-wrap:break-word">
-				{room.args.message}
-			</p>}
+			{room.args?.message && <p
+				style="white-space:pre-wrap;word-wrap:break-word"
+				dangerouslySetInnerHTML={{ __html: BattleLog.parseMessage(room.args.message as string) }}
+			></p>}
 			<p class="buttonbar">
 				<button class="button autofocus" name="closeRoom" style="min-width:50px"><strong>{okButtonLabel}</strong></button>
 			</p>
