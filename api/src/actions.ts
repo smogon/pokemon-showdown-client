@@ -869,6 +869,34 @@ export const actions: { [k: string]: QueryHandler } = {
 			throw new ActionError("Failed to fetch team. Please try again later.");
 		}
 	},
+	async searchteams(params) {
+		let count = Number(params.count);
+		if (!this.user.loggedIn || this.user.id === 'guest') {
+			count = 20; // limit results just to be safe
+		}
+		const args = SQL``;
+		if (count > 200) {
+			throw new ActionError("Cannot search more than 200 teams at a time.");
+		}
+		if (toID(params.format)) {
+			args.append(SQL` format = ${toID(params.format)}`);
+		}
+		if (toID(params.owner)) {
+			args.append(SQL` ownerid = ${toID(params.owner)}`);
+		}
+		const gen = Number(params.gen);
+		if (!isNaN(gen)) {
+			if (gen > 0 && gen < 10) throw new ActionError(`Invalid generation: ${gen}`);
+			args.append(SQL` format LIKE 'gen${gen}%'`);
+		}
+		args.append(SQL` private IS NULL`);
+
+		return {
+			result: await tables.teams.query(
+				SQL`SELECT * FROM teams WHERE ${args} ORDER BY date DESC LIMIT ${count}`,
+			),
+		};
+	},
 	'replays/recent'() {
 		this.allowCORS();
 		return Replays.recent();
