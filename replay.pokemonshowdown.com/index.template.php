@@ -5,10 +5,13 @@
  *
  * Grabs some data to prepopulate a Replay page.
  *
- * `src/repays-battle.tsx` can also grab this data from our APIs, but
+ * `src/replays-battle.tsx` can also grab this data from our APIs, but
  * doing it here makes it load faster, and also tells Google, Discord's
  * link preview, and other bots which replays actually exist, and what
  * their titles/descriptions are.
+ *
+ * It also puts the replay log in the source, so you can easily look at
+ * it by viewing source.
  *
  * @author Guangcong Luo <guangcongluo@gmail.com>
  * @license MIT
@@ -264,6 +267,7 @@ https://replay.pokemonshowdown.com/gen7randomdoublesbattle-865046831.log
 
 <script defer src="js/utils.js?"></script>
 <script defer src="js/replays-battle.js?"></script>
+<script defer src="js/replays-index.js?"></script>
 
 <?php
 
