@@ -823,12 +823,12 @@ export const actions: { [k: string]: QueryHandler } = {
 	async getteams(params) {
 		this.verifyCrossDomainRequest();
 		if (!this.user.loggedIn || this.user.id === 'guest') {
-			return { teams: [] }; // don't wanna nag people with popups if they aren't logged in
+			return { loggedIn: false, teams: [] }; // don't wanna nag people with popups if they aren't logged in
 		}
 		let teams = [];
 		try {
 			teams = await tables.teams.selectAll(
-				SQL`teamid, team, format, title as name`
+				SQL`teamid, team, format, title as name, private`
 			)`WHERE ownerid = ${this.user.id}`;
 		} catch (e) {
 			Server.crashlog(e, 'a teams database query', params);
@@ -846,7 +846,7 @@ export const actions: { [k: string]: QueryHandler } = {
 			// and fetch the team later
 			t.team = mons.join(',');
 		}
-		return { teams };
+		return { loggedIn: this.user.id, teams };
 	},
 	async getteam(params) {
 		let { teamid, password, full } = params;
@@ -857,11 +857,11 @@ export const actions: { [k: string]: QueryHandler } = {
 		}
 		try {
 			const data = await tables.teams.selectOne(
-				full ? SQL`team, private, ownerid, format, title, views` : SQL`team, private`
+				full ? SQL`team, private, ownerid, format, title, views` : SQL`ownerid, team, private`
 			)`WHERE teamid = ${teamid}`;
 			const owns = data?.ownerid === this.user.id;
-			if (!data || owns ? false : (data.private && (password !== toID(data.private)))) {
-				return { team: null };
+			if (!data || (owns ? false : (data.private && (password !== toID(data.private))))) {
+				return { team: null }
 			}
 			return data;
 		} catch (e) {
