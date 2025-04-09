@@ -28,6 +28,7 @@ export class MainMenuRoom extends PSRoom {
 	userdetailsCache: {
 		[userid: string]: {
 			userid: ID,
+			name: string,
 			avatar?: string | number,
 			status?: string,
 			group?: string,
@@ -326,6 +327,7 @@ export class MainMenuRoom extends PSRoom {
 			}
 			PS.rooms[`user-${userid}`]?.update(null);
 			PS.rooms[`viewuser-${userid}`]?.update(null);
+			PS.rooms.users?.update(null);
 			break;
 		case 'rooms':
 			if (response.pspl) {

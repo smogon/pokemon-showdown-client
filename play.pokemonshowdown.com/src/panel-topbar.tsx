@@ -220,7 +220,7 @@ export class UserRoom extends PSRoom {
 		this.isSelf = (this.userid === PS.user.userid);
 		if (/[a-zA-Z0-9]/.test(this.name.charAt(0))) this.name = ' ' + this.name;
 		this.update(null);
-		PS.send(`|/cmd userdetails ${this.userid}`);
+		if (name !== '') PS.send(`|/cmd userdetails ${this.userid}`);
 	}
 }
 
@@ -234,7 +234,6 @@ class UserPanel extends PSRoomPanel<UserRoom> {
 		const room = this.props.room;
 		if (!room.userid) return null;
 		const user = PS.mainmenu.userdetailsCache[room.userid] || { userid: room.userid, avatar: '[loading]' };
-		const name = room.name.slice(1);
 		const hideInteraction = room.id.startsWith('viewuser-');
 
 		const group = PS.server.getGroup(room.name);
@@ -350,7 +349,7 @@ class UserPanel extends PSRoomPanel<UserRoom> {
 				href={`//${Config.routes.users}/${user.userid}`} target="_blank"
 				style={{ color: away ? '#888888' : BattleLog.usernameColor(user.userid) }}
 			>
-				{name}
+				{user.name}
 			</a></strong><br />
 			{status && <div class="userstatus">{status}</div>}
 			{groupName && <div class="usergroup roomgroup">{groupName}</div>}
