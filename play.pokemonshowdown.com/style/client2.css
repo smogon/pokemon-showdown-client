@@ -69,7 +69,7 @@ pre {
 }
 .header .logo {
 	float: left;
-	margin: 2px 0 0 2px;
+	margin: 0;
 }
 
 .userbar {
@@ -138,7 +138,7 @@ pre {
 	box-shadow: 0 1px 2px rgba(0,0,0,.2);
 }
 .tabbar.maintabbar {
-	margin-left: 144px;
+	margin-left: 52px;
 	margin-right: 165px;
 	overflow: hidden;
 }
@@ -661,8 +661,9 @@ p.or:after {
 .newsentry {
 	font-size: 9pt;
 	padding: 1px 10px;
-	border-bottom: 1px solid #AAAAAA;
-	margin-bottom: -1px;
+}
+.newsentry + .newsentry {
+	border-top: 1px solid #AAAAAA;
 }
 .unread {
 	background: rgba(255,240,130,0.33);
@@ -703,7 +704,8 @@ p.or:after {
 	max-width: 270px;
 	border-radius: 20px;
 
-	background: rgba(201, 207, 219, .4);
+	background: rgba(0,0,0,.2);
+	backdrop-filter: blur(4px);
 	color: white;
 	text-shadow: 0 1px 0 black;
 	text-align: center;
@@ -716,7 +718,7 @@ p.or:after {
 .menugroup p {
 	margin: 10px 0;
 }
-.menugroup .button {
+.mainmenu.button {
 	box-sizing: border-box;
 	font-size: 12pt;
 
@@ -736,32 +738,32 @@ p.or:after {
 	background: linear-gradient(to bottom,  hsl(210,40%,72%),  hsl(210,40%,52%));
 	border-color: hsl(210,40%,40%);
 }
-.menugroup .button.big {
+.mainmenu.button.big {
 	width: 230px;
 	height: 50px;
 	padding: 0;
 	font-size: 14pt;
 }
-.menugroup .button.big small {
+.mainmenu.button.big small {
 	display: block;
 	font-size: 9pt;
 }
-.menugroup .button:hover {
+.mainmenu.button:hover {
 	background: #5485B6;
 	background: hsl(210,40%,52%);
 	background: linear-gradient(to bottom,  hsl(210,40%,62%),  hsl(210,40%,42%));
 	border-color: hsl(210,40%,21%);
 }
-.menugroup .button:active {
+.mainmenu.button:active {
 	box-shadow: 0 1px 2px rgba(0,0,0,.2), inset 0 -1px 1px rgba(255,255,255,.3), inset 0 1px 1px rgba(0,0,0,.4);
 	background: #406B96;
 	background: hsl(210,40%,42%);
 	background: linear-gradient(to bottom,  hsl(210,40%,42%),  hsl(210,40%,58%));
 	border-color: hsl(210,40%,21%);
 }
-.menugroup .button.disabled,
-.menugroup .button.disabled:hover,
-.menugroup .button.disabled:active {
+.mainmenu.button.disabled,
+.mainmenu.button.disabled:hover,
+.mainmenu.button.disabled:active {
 	cursor: default;
 	background: #EEEEEE;
 	border-color: #CCCCCC;
@@ -780,9 +782,9 @@ p.or:after {
 .button.mainmenu2:hover { background: linear-gradient(to bottom,  hsl(30,40%,62%),  hsl(30,40%,42%)); }
 .button.mainmenu2:active { background: linear-gradient(to bottom,  hsl(30,40%,42%),  hsl(30,40%,58%)); }
 
-.button.mainmenu3 { background: linear-gradient(to bottom,  hsl(60,40%,72%),  hsl(60,40%,52%)); border-color: hsl(60,40%,40%); }
-.button.mainmenu3:hover { background: linear-gradient(to bottom,  hsl(60,40%,62%),  hsl(60,40%,42%)); }
-.button.mainmenu3:active { background: linear-gradient(to bottom,  hsl(60,40%,42%),  hsl(60,40%,58%)); }
+.button.mainmenu3 { background: linear-gradient(to bottom,  hsl(60,40%,62%),  hsl(60,40%,42%)); border-color: hsl(60,40%,40%); }
+.button.mainmenu3:hover { background: linear-gradient(to bottom,  hsl(60,40%,52%),  hsl(60,40%,32%)); }
+.button.mainmenu3:active { background: linear-gradient(to bottom,  hsl(60,40%,32%),  hsl(60,40%,48%)); }
 
 .button.mainmenu4 { background: linear-gradient(to bottom,  hsl(130,40%,72%),  hsl(130,40%,52%)); border-color: hsl(130,40%,40%); }
 .button.mainmenu4:hover { background: linear-gradient(to bottom,  hsl(130,40%,62%),  hsl(130,40%,42%)); }
@@ -799,7 +801,7 @@ p.or:after {
 .rightmenu {
 	width: 294px;
 }
-.rightmenu .menugroup .button {
+.rightmenu .mainmenu.button {
 	width: 180px;
 }
 @media (max-width:895px) {
@@ -815,7 +817,7 @@ p.or:after {
 	.rightmenu {
 		width: 324px;
 	}
-	.rightmenu .menugroup .button {
+	.rightmenu .mainmenu.button {
 		width: 200px;
 	}
 }
@@ -1033,6 +1035,7 @@ pre.textbox.textbox-empty[placeholder]:before {
 	content: attr(placeholder);
 	color: #777;
 	position: absolute;
+	cursor: text;
 }
 
 /* Tournaments */
@@ -2037,12 +2040,12 @@ pre.textbox.textbox-empty[placeholder]:before {
 .dark .tournament-status,
 .dark .tournament-toggle,
 .dark .pm-log-add {
-	background: rgba(0,0,0,.70);
+	background: rgba(0,0,0,.8);
 	color: #DDD;
 }
 
 .dark .mini-window-body {
-	background: rgba(0,0,0,.85);
+	background: rgba(0,0,0,.9);
 	color: #DDD;
 	backdrop-filter: blur(4px);
 }
@@ -2144,9 +2147,6 @@ pre.textbox.textbox-empty[placeholder]:before {
 
 /* main menu */
 
-.dark .menugroup {
-	background: rgba(0,0,0,.2);
-}
 .dark .mini-window.focused h3,
 .dark .mini-window.focused .mini-window-body,
 .dark .mini-window.focused .mini-window-contents {

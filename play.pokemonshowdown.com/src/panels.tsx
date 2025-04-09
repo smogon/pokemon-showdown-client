@@ -14,7 +14,7 @@ import { toID } from "./battle-dex";
 import { BattleLog } from "./battle-log";
 import type { Args } from "./battle-text-parser";
 import { BattleTooltips } from "./battle-tooltips";
-import type { PSSubscription } from "./client-core";
+import type { PSStreamModel, PSSubscription } from "./client-core";
 import { PS, type PSRoom, type RoomID } from "./client-main";
 import { PSHeader } from "./panel-topbar";
 
@@ -137,8 +137,8 @@ export class PSRouter {
 			if (typeof e.state === 'string') {
 				const [leftRoomid, rightRoomid] = e.state.split('..') as RoomID[];
 				if (rightRoomid) {
-					PS.join(leftRoomid, 'left');
-					PS.join(rightRoomid, 'right');
+					PS.join(leftRoomid, { location: 'left' });
+					PS.join(rightRoomid, { location: 'right' });
 				} else {
 					PS.join(leftRoomid);
 				}
@@ -153,6 +153,11 @@ PS.router = new PSRouter();
 
 export class PSRoomPanel<T extends PSRoom = PSRoom> extends preact.Component<{ room: T }> {
 	subscriptions: PSSubscription[] = [];
+	subscribeTo<M>(model: PSStreamModel<M>, callback: (value: M) => void): PSSubscription {
+		const subscription = model.subscribe(callback);
+		this.subscriptions.push(subscription);
+		return subscription;
+	}
 	override componentDidMount() {
 		if (PS.room === this.props.room) this.focus();
 		this.props.room.onParentEvent = (id: string, e?: Event) => {
@@ -220,6 +225,7 @@ export class PSRoomPanel<T extends PSRoom = PSRoom> extends preact.Component<{ r
 
 export function PSPanelWrapper(props: {
 	room: PSRoom, children: preact.ComponentChildren, scrollable?: boolean, width?: number | 'auto',
+	focusClick?: boolean,
 }) {
 	const room = props.room;
 	if (room.location === 'mini-window') {
@@ -228,6 +234,7 @@ export function PSPanelWrapper(props: {
 		}
 		return <div
 			id={`room-${room.id}`} class={'mini-window-contents ps-room-light' + (props.scrollable ? ' scrollable' : '')}
+			onClick={props.focusClick ? PSMain.focusIfNoSelection : undefined}
 		>
 			{props.children}
 		</div>;
@@ -242,7 +249,7 @@ export function PSPanelWrapper(props: {
 	return <div
 		class={'ps-room' + (room.id === '' ? '' : ' ps-room-light') + (props.scrollable ? ' scrollable' : '')}
 		id={`room-${room.id}`}
-		style={style}
+		style={style} onClick={props.focusClick ? PSMain.focusIfNoSelection : undefined}
 	>
 		{room.caughtError ? <div class="broadcast broadcast-red"><pre>{room.caughtError}</pre></div> : props.children}
 	</div>;
@@ -267,13 +274,11 @@ export class PSMain extends preact.Component {
 					const name = elem.getAttribute('data-name') || elem.innerText;
 					const userid = toID(name);
 					const roomid = `${` ${elem.className} `.includes(' no-interact ') ? 'viewuser' : 'user'}-${userid}` as RoomID;
-					PS.addRoom({
-						id: roomid,
+					PS.join(roomid, {
 						parentElem: elem,
 						rightPopup: elem.className === 'userbutton username',
 						args: { username: name },
 					});
-					PS.update();
 					e.preventDefault();
 					e.stopImmediatePropagation();
 					return;
@@ -291,15 +296,25 @@ export class PSMain extends preact.Component {
 								location = room.location;
 							}
 						}
-						PS.addRoom({
-							id: roomid,
+						PS.join(roomid, {
 							parentElem: elem,
 							location,
 						});
-						PS.update();
 						e.preventDefault();
 						e.stopImmediatePropagation();
 					}
+					return;
+				}
+				if (elem.getAttribute('data-cmd')) {
+					const cmd = elem.getAttribute('data-cmd')!;
+					const room = PS.getRoom(elem) || PS.mainmenu;
+					room.send(cmd);
+					return;
+				}
+				if (elem.getAttribute('data-sendraw')) {
+					const cmd = elem.getAttribute('data-sendraw')!;
+					const room = PS.getRoom(elem) || PS.mainmenu;
+					room.sendDirect(cmd);
 					return;
 				}
 				if (elem.tagName === 'BUTTON') {
@@ -355,8 +370,8 @@ export class PSMain extends preact.Component {
 					}
 				}
 			}
-			if (PS.room.onParentEvent && !isNonEmptyTextInput) {
-				if (PS.room.onParentEvent('keydown', e) === false) {
+			if (!isNonEmptyTextInput) {
+				if (PS.room.onParentEvent?.('keydown', e) === false) {
 					e.stopImmediatePropagation();
 					e.preventDefault();
 					return;
@@ -418,6 +433,14 @@ export class PSMain extends preact.Component {
 			}
 		});
 	}
+	static focusIfNoSelection = (ev: MouseEvent) => {
+		const room = PS.getRoom(ev.target as HTMLElement, true);
+		if (!room) return;
+
+		if (window.getSelection?.()?.type === 'Range') return;
+		ev.preventDefault();
+		PS.setFocus(room);
+	};
 	handleButtonClick(elem: HTMLButtonElement) {
 		switch (elem.name) {
 		case 'closeRoom':
@@ -425,16 +448,18 @@ export class PSMain extends preact.Component {
 			PS.leave(roomid);
 			return true;
 		case 'joinRoom':
-			PS.addRoom({
-				id: elem.value as RoomID,
+			PS.join(elem.value as RoomID, {
 				parentElem: elem,
 			});
-			PS.update();
 			return true;
 		case 'send':
 		case 'cmd':
 			const room = PS.getRoom(elem) || PS.mainmenu;
-			room.send(elem.value, elem.name === 'send');
+			if (elem.name === 'send') {
+				room.sendDirect(elem.value);
+			} else {
+				room.send(elem.value);
+			}
 			return true;
 		}
 		return false;

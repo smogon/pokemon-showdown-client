@@ -26,7 +26,7 @@ class TeambuilderRoom extends PSRoom {
 	/**
 	 * @return true to prevent line from being sent to server
 	 */
-	override handleMessage(line: string) {
+	override handleSend(line: string) {
 		if (!line.startsWith('/') || line.startsWith('//')) return false;
 		const spaceIndex = line.indexOf(' ');
 		const cmd = spaceIndex >= 0 ? line.slice(1, spaceIndex) : line.slice(1);
@@ -52,9 +52,10 @@ class TeambuilderRoom extends PSRoom {
 		}
 		}
 
-		// unrecognized command
-		PS.alert(`Unrecognized command: ${line}`);
-		return true;
+		return super.handleSend(line);
+	}
+	override sendDirect(msg: string): void {
+		PS.alert(`Unrecognized command: ${msg}`);
 	}
 
 	createTeam(copyFrom?: Team): Team {

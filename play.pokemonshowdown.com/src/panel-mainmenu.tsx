@@ -41,6 +41,51 @@ export class MainMenuRoom extends PSRoom {
 		chat?: RoomInfo[],
 		sectionTitles?: string[],
 	} = {};
+	searchCountdown: { format: string, packedTeam: string, countdown: number, timer: number } | null = null;
+	/** used to track the moment between "search sent" and "server acknowledged search sent" */
+	searchSent = false;
+	search: { searching: string[], games: Record<RoomID, string> | null } = { searching: [], games: null };
+	startSearch = (format: string, team?: Team) => {
+		if (this.searchCountdown) {
+			PS.alert("Wait for this countdown to finish first...");
+			return;
+		}
+		this.searchCountdown = {
+			format,
+			packedTeam: team?.packedTeam || '',
+			countdown: 3,
+			timer: setInterval(this.doSearchCountdown, 1000),
+		};
+		this.update(null);
+	};
+	cancelSearch = () => {
+		if (this.searchCountdown) {
+			clearTimeout(this.searchCountdown.timer);
+			this.searchCountdown = null;
+			this.update(null);
+		}
+		if (this.searchSent) {
+			this.searchSent = false;
+			PS.send('|/cancelsearch');
+			this.update(null);
+		}
+	};
+	doSearchCountdown = () => {
+		if (!this.searchCountdown) return; // ??? race???
+
+		this.searchCountdown.countdown--;
+		if (this.searchCountdown.countdown <= 0) {
+			this.doSearch(this.searchCountdown);
+			clearTimeout(this.searchCountdown.timer);
+			this.searchCountdown = null;
+		}
+		this.update(null);
+	};
+	doSearch = (search: NonNullable<typeof this.searchCountdown>) => {
+		this.searchSent = true;
+		PS.send(`|/utm ${search.packedTeam}`);
+		PS.send(`|/search ${search.format}`);
+	};
 	override receiveLine(args: Args) {
 		const [cmd] = args;
 		switch (cmd) {
@@ -66,6 +111,10 @@ export class MainMenuRoom extends PSRoom {
 		} case 'updatechallenges': {
 			const [, challengesBuf] = args;
 			this.receiveChallenges(challengesBuf);
+			return;
+		} case 'updatesearch': {
+			const [, searchBuf] = args;
+			this.receiveSearch(searchBuf);
 			return;
 		} case 'queryresponse': {
 			const [, queryId, responseJSON] = args;
@@ -110,6 +159,15 @@ export class MainMenuRoom extends PSRoom {
 			room.challenging = json.challengeTo?.to === targetUserid ? room.parseChallenge(json.challengeTo.format) : null;
 			room.update(null);
 		}
+	}
+	receiveSearch(dataBuf: string) {
+		let json;
+		this.searchSent = false;
+		try {
+			json = JSON.parse(dataBuf);
+		} catch {}
+		this.search = json;
+		this.update(null);
 	}
 	parseFormats(formatsList: string[]) {
 		let isSection = false;
@@ -314,7 +372,7 @@ class NewsPanel extends PSRoomPanel {
 	static readonly location = 'mini-window';
 	override render() {
 		return <PSPanelWrapper room={this.props.room} scrollable>
-			<div class="mini-window-body" dangerouslySetInnerHTML={{ __html: PS.newsHTML }}></div>
+			<div class="mini-window-body" style="max-height:none" dangerouslySetInnerHTML={{ __html: PS.newsHTML }}></div>
 		</PSPanelWrapper>;
 	}
 }
@@ -327,8 +385,8 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
 	override focus() {
 		this.base?.querySelector<HTMLButtonElement>('.formatselect')?.focus();
 	}
-	submit = (ev: Event) => {
-		PS.alert('todo: implement');
+	submitSearch = (ev: Event, format: string, team?: Team) => {
+		PS.mainmenu.startSearch(format, team);
 	};
 	handleDragStart = (e: DragEvent) => {
 		const room = PS.getRoom(e.currentTarget);
@@ -393,6 +451,16 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
 			</div>;
 		});
 	}
+	renderGames() {
+		if (!PS.mainmenu.search.games) return null;
+
+		return <div class="menugroup">
+			<p class="label">You are in:</p>
+			{Object.entries(PS.mainmenu.search.games).map(([roomid, gameName]) => <div>
+				<a class="blocklink" href={`${roomid}`}>{gameName}</a>
+			</div>)}
+		</div>;
+	}
 	renderSearchButton() {
 		if (PS.down) {
 			return <div class="menugroup" style="background: rgba(10,10,10,.6)">
@@ -412,18 +480,34 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
 		}
 
 		if (!PS.user.userid || PS.isOffline) {
-			return <TeamForm class="menugroup" onSubmit={this.submit}>
-				<button class="mainmenu1 big button disabled" disabled name="search">
+			return <TeamForm class="menugroup" onSubmit={this.submitSearch}>
+				<button class="mainmenu1 mainmenu big button disabled" disabled name="search">
 					<em>{PS.isOffline ? "Disconnected" : "Connecting..."}</em>
 				</button>
 			</TeamForm>;
 		}
 
-		return <TeamForm class="menugroup" onSubmit={this.submit}>
-			<button class="mainmenu1 big button" type="submit">
-				<strong>Battle!</strong><br />
-				<small>Find a random opponent</small>
-			</button>
+		return <TeamForm class="menugroup" onSubmit={this.submitSearch}>
+			{PS.mainmenu.searchCountdown ? (
+				<>
+					<button class="mainmenu1 mainmenu big button disabled" type="submit">
+						<strong><i class="fa fa-refresh fa-spin"></i> Searching in {PS.mainmenu.searchCountdown.countdown}...</strong>
+					</button>
+					<p class="buttonbar"><button class="button" data-cmd="/cancelsearch">Cancel</button></p>
+				</>
+			) : (PS.mainmenu.searchSent || PS.mainmenu.search.searching.length) ? (
+				<>
+					<button class="mainmenu1 mainmenu big button disabled" type="submit">
+						<strong><i class="fa fa-refresh fa-spin"></i> Searching...</strong>
+					</button>
+					<p class="buttonbar"><button class="button" data-cmd="/cancelsearch">Cancel</button></p>
+				</>
+			) : (
+				<button class="mainmenu1 mainmenu big button" type="submit">
+					<strong>Battle!</strong><br />
+					<small>Find a random opponent</small>
+				</button>
+			)}
 		</TeamForm>;
 	}
 	override render() {
@@ -435,25 +519,29 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
 						{this.renderMiniRooms()}
 					</div>
 					<div class="mainmenu">
+						{this.renderGames()}
+
 						{this.renderSearchButton()}
 
 						<div class="menugroup">
-							<p><button class="mainmenu2 button" name="joinRoom" value="teambuilder">Teambuilder</button></p>
-							<p><button class={"mainmenu3" + onlineButton} name="joinRoom" value="ladder">Ladder</button></p>
+							<p><button class="mainmenu2 mainmenu button" data-href="teambuilder">Teambuilder</button></p>
+							<p><button class={"mainmenu3 mainmenu" + onlineButton} data-href="ladder">Ladder</button></p>
+							<p><button class={"mainmenu4 mainmenu" + onlineButton} data-href="view-tournaments-all">Tournaments</button></p>
 						</div>
 
 						<div class="menugroup">
-							<p><button class={"mainmenu4" + onlineButton} name="joinRoom" value="battles">Watch a battle</button></p>
-							<p><button class={"mainmenu5" + onlineButton} name="joinRoom" value="users">Find a user</button></p>
+							<p><button class={"mainmenu4 mainmenu" + onlineButton} data-href="battles">Watch a battle</button></p>
+							<p><button class={"mainmenu5 mainmenu" + onlineButton} data-href="users">Find a user</button></p>
+							<p><button class={"mainmenu6 mainmenu" + onlineButton} data-href="view-friends-all">Friends</button></p>
 						</div>
 					</div>
 				</div>
 				<div class="rightmenu" style={{ display: PS.leftPanelWidth ? 'none' : 'block' }}>
 					<div class="menugroup">
 						{PS.server.id === 'showdown' ? (
-							<p><button class={"mainmenu1" + onlineButton} name="joinRoom" value="rooms">Join chat</button></p>
+							<p><button class={"mainmenu1 mainmenu" + onlineButton} data-href="rooms">Join chat</button></p>
 						) : (
-							<p><button class={"mainmenu1" + onlineButton} name="joinRoom" value="lobby">Join lobby chat</button></p>
+							<p><button class={"mainmenu1 mainmenu" + onlineButton} data-href="lobby">Join lobby chat</button></p>
 						)}
 					</div>
 				</div>

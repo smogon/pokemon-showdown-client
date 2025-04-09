@@ -451,14 +451,21 @@ export class BattleChoiceBuilder {
 		switch (choice.choiceType) {
 		case 'move':
 			const target = choice.targetLoc ? ` ${choice.targetLoc > 0 ? '+' : ''}${choice.targetLoc}` : ``;
-			const boost = `${choice.max ? ' max' : ''}${choice.mega ? ' mega' : ''}${choice.z ? ' zmove' : ''}${choice.tera ? ' terastallize' : ''}`;
-			return `move ${choice.move}${boost}${target}`;
+			return `move ${choice.move}${this.moveSpecial(choice)}${target}`;
 		case 'switch':
 		case 'team':
 			return `${choice.choiceType} ${choice.targetPokemon}`;
 		case 'shift':
 			return `shift`;
 		}
+	}
+	moveSpecial(choice: BattleMoveChoice) {
+		return (choice.max ? ' max' : '') +
+			(choice.mega ? ' mega' : '') +
+			(choice.megax ? ' megax' : '') +
+			(choice.megay ? ' megay' : '') +
+			(choice.z ? ' zmove' : '') +
+			(choice.tera ? ' terastallize' : '');
 	}
 
 	/**

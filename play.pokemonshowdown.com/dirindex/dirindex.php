@@ -727,7 +727,7 @@ foreach ($pathparts as $cur_dir) {
 	echo '<wbr />/';
 	echo '<a href="' . htmlentities($path) . '/">' . htmlentities($cur_dir) . '</a>';
 }
-echo '<wbr />/' . htmlentities($lastpart) . '/';
+echo '<wbr />/' . ($lastpart ? htmlentities($lastpart) . '/' : '');
 
 ?>
 
