@@ -7,7 +7,6 @@
  * @license MIT
  */
 
-import preact from "../js/lib/preact";
 import { PS, PSRoom } from "./client-main";
 import { Net } from "./client-connection";
 import { PSPanelWrapper, PSRoomPanel } from "./panels";
@@ -38,7 +37,7 @@ type LadderData = {
 	}[],
 };
 
-export class LadderRoom extends PSRoom {
+export class LadderFormatRoom extends PSRoom {
 	override readonly classType: string = 'ladder';
 	readonly format?: string = this.id.split('-')[1];
 	notice?: string;
@@ -94,43 +93,70 @@ export class LadderRoom extends PSRoom {
 	};
 }
 
-class LadderFormat extends preact.Component<{ room: LadderRoom }> {
+class LadderFormatPanel extends PSRoomPanel<LadderFormatRoom> {
+	static readonly id = 'ladderformat';
+	static readonly routes = ['ladder-*'];
+	static readonly Model = LadderFormatRoom;
+	static readonly icon = <i class="fa fa-list-ol"></i>;
+
+	override componentDidMount() {
+		const { room } = this.props;
+		room.requestLadderData('');
+		this.subscriptions.push(
+			room.subscribe((response: any) => {
+				if (response) {
+					const [format, ladderData] = response;
+					if (room.format === format) {
+						if (!ladderData) {
+							room.setError(new Error('No data returned from server.'));
+						} else {
+							room.setLadderData(ladderData);
+						}
+					}
+				}
+				this.forceUpdate();
+			})
+		);
+		this.subscriptions.push(
+			PS.teams.subscribe(() => {
+				this.forceUpdate();
+			})
+		);
+	}
 	changeSearch = (e: Event) => {
 		e.preventDefault();
 		this.props.room.requestLadderData(this.base!.querySelector<HTMLInputElement>('input[name=searchValue]')!.value);
 	};
 	renderHeader() {
+		if (PS.teams.usesLocalLadder) return null;
+
 		const room = this.props.room;
-		if (!PS.teams.usesLocalLadder) {
-			return <h3>
-				{BattleLog.formatName(room.format!)} Top
-				{room.searchValue ? ` - '${room.searchValue}'` : " 500"}
-			</h3>;
-		}
-		return null;
+		return <h3>
+			{BattleLog.formatName(room.format!)} Top
+			{room.searchValue ? ` - '${room.searchValue}'` : " 500"}
+		</h3>;
 	}
 	renderSearch() {
-		if (!PS.teams.usesLocalLadder) {
-			const room = this.props.room;
-			return <form class="search" onSubmit={this.changeSearch}><p>
-				<input
-					type="text"
-					name="searchValue"
-					class="textbox searchinput"
-					value={BattleLog.escapeHTML(room.searchValue)}
-					placeholder="username prefix"
-					onChange={this.changeSearch}
-				/> {}
-				<button type="submit" class="button">Search</button>
-			</p></form>;
-		}
-		return null;
+		if (PS.teams.usesLocalLadder) return null;
+
+		const room = this.props.room;
+		return <form class="search" onSubmit={this.changeSearch}><p>
+			<input
+				type="text"
+				name="searchValue"
+				class="textbox searchinput"
+				value={BattleLog.escapeHTML(room.searchValue)}
+				placeholder="username prefix"
+				onChange={this.changeSearch}
+			/> {}
+			<button type="submit" class="button">Search</button>
+		</p></form>;
 	}
 	renderTable() {
 		const room = this.props.room;
 
 		if (room.loading || !BattleFormats) {
-			return <p>Loading...</p>;
+			return <p><i class="fa fa-refresh fa-spin"></i> <em>Loading...</em></p>;
 		} else if (room.error !== undefined) {
 			return <p>Error: {room.error}</p>;
 		} else if (!room.ladderData) {
@@ -172,61 +198,40 @@ class LadderFormat extends preact.Component<{ room: LadderRoom }> {
 			</td></tr>}
 		</table>;
 	}
-	renderFormat() {
-		return <>
-			<p>
-				<button class="button" data-href="ladder" data-target="replace">
-					<i class="fa fa-refresh"></i> Refresh
-				</button> <a class="button" href="/view-seasonladder-gen9randombattle">
-					<i class="fa fa-trophy"></i> Seasonal rankings
-				</a>
-				{this.renderSearch()}
-			</p>
-			{this.renderHeader()}
-			{this.renderTable()}
-		</>;
-	};
 	override render() {
-		return <div class="ladder pad">
-			<p>
-				<button class="button" data-href="ladder" data-target="replace">
-					<i class="fa fa-chevron-left"></i> Format List
-				</button>
-			</p>
-			{this.renderFormat()}
-		</div>;
+		const room = this.props.room;
+		return <PSPanelWrapper room={room} scrollable>
+			<div class="ladder pad">
+				<p>
+					<button class="button" data-href="ladder" data-target="replace">
+						<i class="fa fa-chevron-left"></i> Format List
+					</button>
+				</p>
+				<p>
+					<button class="button" data-href="ladder" data-target="replace">
+						<i class="fa fa-refresh"></i> Refresh
+					</button> <a class="button" href="/view-seasonladder-gen9randombattle">
+						<i class="fa fa-trophy"></i> Seasonal rankings
+					</a>
+					{this.renderSearch()}
+				</p>
+				{this.renderHeader()}
+				{this.renderTable()}
+			</div>
+		</PSPanelWrapper>;
 	}
 }
 
-class LadderPanel extends PSRoomPanel<LadderRoom> {
+class LadderListPanel extends PSRoomPanel {
 	static readonly id = 'ladder';
-	static readonly routes = ['ladder', 'ladder-*'];
-	static readonly Model = LadderRoom;
+	static readonly routes = ['ladder'];
 	static readonly icon = <i class="fa fa-list-ol"></i>;
 	static readonly title = 'Ladder';
+
 	override componentDidMount() {
-		const { room } = this.props;
-		room.requestLadderData('');
-		this.subscriptions.push(
-			room.subscribe((response: any) => {
-				if (response) {
-					const [format, ladderData] = response;
-					if (room.format === format) {
-						if (!ladderData) {
-							room.setError(new Error('No data returned from server.'));
-						} else {
-							room.setLadderData(ladderData);
-						}
-					}
-				}
-				this.forceUpdate();
-			})
-		);
-		this.subscriptions.push(
-			PS.teams.subscribe(() => {
-				this.forceUpdate();
-			})
-		);
+		this.subscribeTo(PS.teams, () => {
+			this.forceUpdate();
+		});
 	}
 	renderList() {
 		if (!window.BattleFormats) {
@@ -248,36 +253,24 @@ class LadderPanel extends PSRoomPanel<LadderRoom> {
 		}
 		return buf;
 	}
-	renderFormatList() {
-		const room = this.props.room;
-		return <>
-			<p>
-				<a class="button" href={`/${Config.routes.users}/`} target="_blank">
-					Look up a specific user's rating
-				</a>
-			</p>
-			{room.notice && <p>
-				<strong style="color:red">{room.notice}</strong>
-			</p>}
-			<p>
-				<button name="joinRoom" value="view-ladderhelp" class="button">
-					<i class="fa fa-info-circle"></i> How the ladder works
-				</button>
-			</p>
-			{this.renderList()}
-		</>;
-	};
 	override render() {
 		const room = this.props.room;
 		return <PSPanelWrapper room={room} scrollable>
 			<div class="ladder pad">
-				{room.format === undefined && (
-					this.renderFormatList()
-				)}
-				{room.format && <LadderFormat room={room} />}
+				<p>
+					<a class="button" href={`//${Config.routes.users}/`} target="_blank">
+						Look up a specific user's rating
+					</a>
+				</p>
+				<p>
+					<button name="joinRoom" value="view-ladderhelp" class="button">
+						<i class="fa fa-info-circle"></i> How the ladder works
+					</button>
+				</p>
+				{this.renderList()}
 			</div>
 		</PSPanelWrapper>;
 	}
 }
 
-PS.addRoomType(LadderPanel);
+PS.addRoomType(LadderFormatPanel, LadderListPanel);
