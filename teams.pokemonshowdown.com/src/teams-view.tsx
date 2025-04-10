@@ -16,6 +16,98 @@ interface Team {
 	teamid: string;
 }
 
+function exportSet(set: Dex.PokemonSet) {
+	let out = ``;
+
+	// core
+	if (set.name && set.name !== set.species) {
+		out += `${set.name} (${set.species})`;
+	} else {
+		out += set.species;
+	}
+	if (set.gender === 'M') out += ` (M)`;
+	if (set.gender === 'F') out += ` (F)`;
+	if (set.item) out += ` @ ${set.item}`;
+	out += `  \n`;
+
+	if (set.ability) {
+		out += `Ability: ${set.ability}  \n`;
+	}
+
+	// details
+	if (set.level && set.level !== 100) {
+		out += `Level: ${set.level}  \n`;
+	}
+	if (set.shiny) {
+		out += `Shiny: Yes  \n`;
+	}
+	if (typeof set.happiness === 'number' && set.happiness !== 255 && !isNaN(set.happiness)) {
+		out += `Happiness: ${set.happiness}  \n`;
+	}
+	if (set.pokeball) {
+		out += `Pokeball: ${set.pokeball}  \n`;
+	}
+	if (set.hpType) {
+		out += `Hidden Power: ${set.hpType}  \n`;
+	}
+	if (typeof set.dynamaxLevel === 'number' && set.dynamaxLevel !== 10 && !isNaN(set.dynamaxLevel)) {
+		out += `Dynamax Level: ${set.dynamaxLevel}  \n`;
+	}
+	if (set.gigantamax) {
+		out += `Gigantamax: Yes  \n`;
+	}
+	if (set.teraType) {
+		out += `Tera Type: ${set.teraType}  \n`;
+	}
+
+	// stats
+	let first = true;
+	if (set.evs) {
+		for (const stat of Dex.statNames) {
+			if (!set.evs[stat]) continue;
+			if (first) {
+				out += `EVs: `;
+				first = false;
+			} else {
+				out += ` / `;
+			}
+			out += `${set.evs[stat]} ${BattleStatNames[stat]}`;
+		}
+	}
+	if (!first) {
+		out += `  \n`;
+	}
+	if (set.nature) {
+		out += `${set.nature} Nature  \n`;
+	}
+	first = true;
+	if (set.ivs) {
+		for (const stat of Dex.statNames) {
+			if (set.ivs[stat] === undefined || isNaN(set.ivs[stat]) || set.ivs[stat] === 31) continue;
+			if (first) {
+				out += `IVs: `;
+				first = false;
+			} else {
+				out += ` / `;
+			}
+			out += `${set.ivs[stat]} ${BattleStatNames[stat]}`;
+		}
+	}
+	if (!first) {
+		out += `  \n`;
+	}
+
+	// moves
+	for (let move of set.moves) {
+		if (move.startsWith(`Hidden Power `) && move.charAt(13) !== '[') {
+			move = `Hidden Power [${move.slice(13)}]`;
+		}
+		out += `- ${move}  \n`;
+	}
+
+	return out;
+}
+
 function PokemonSet({ set }: { set: Dex.PokemonSet }) {
 	return <div>
 		{set.name && set.name !== set.species ? <>{set.name} ({set.species})</> : <>{set.species}</>}
@@ -71,7 +163,9 @@ export class TeamViewer extends preact.Component<PageProps> {
 	id: string;
 	pw?: string;
 	override state = {
-		team: undefined as null | void | Team, error: undefined as string | undefined,
+		team: undefined as null | void | Team,
+		error: undefined as string | undefined,
+		copyButtonMsg: false as boolean,
 	};
 	constructor(props: PageProps) {
 		super(props);
@@ -103,6 +197,11 @@ export class TeamViewer extends preact.Component<PageProps> {
 			Format: {format}<br />
 			Views: {views}<br />
 			<label>Shortlink: </label><a href={`https://psim.us/t/${this.id}`}>https://psim.us/t/{this.id}</a><br />
+			<button
+				class="button"
+				disabled={!this.state.team || this.state.copyButtonMsg}
+				onClick={() => this.copyTeam()}
+			>{this.state.copyButtonMsg ? 'Copied!' : 'Copy team'}</button>
 			<hr />
 			<div name="sets" style={{ display: 'flex', flexWrap: 'wrap', rowGap: '1rem' }}>
 				{teamData.map(
@@ -154,5 +253,15 @@ export class TeamViewer extends preact.Component<PageProps> {
 		}).catch(e => {
 			this.setState({ error: `HTTP${e.code}: ${e.message}` });
 		});
+	}
+
+	copyTeam() {
+		if (!this.state.team) return;
+		const team = unpackTeam(this.state.team.team);
+		navigator.clipboard.writeText(team.map(exportSet).join('\n'));
+		this.setState({ copyButtonMsg: true });
+		setTimeout(() => {
+			this.setState({ copyButtonMsg: false });
+		}, 1000);
 	}
 }
