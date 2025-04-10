@@ -159,6 +159,37 @@ function PokemonSet({ set }: { set: Dex.PokemonSet }) {
 	</div>;
 }
 
+class SetBlock extends preact.Component<{ set: Dex.PokemonSet, gen: number }> {
+	render() {
+		const set = this.props.set;
+		const gen = this.props.gen || (Dex.prefs('noanim') ? 5 : 6);
+		const spriteData = Dex.getSpriteData(
+			Dex.species.get(set.species),
+			true,
+			{ gen, shiny: set.shiny, gender: set.gender as 'F' }
+		);
+		const forceResize = 110;
+		if (spriteData.w > forceResize) {
+			const w = spriteData.w;
+			spriteData.w *= (forceResize / w);
+			spriteData.h *= (forceResize / w);
+		}
+		return <>
+			<div style={{ flex: '0 0 20%', width: 'auto' }}>
+				<img
+					src={spriteData.url}
+					width={spriteData.w}
+					height={spriteData.h}
+				/>
+				{set.item ? <PSIcon item={set.item} /> : <></>}
+			</div>
+			<div style={{ flex: "0 0 80%", textAlign: 'left' }}>
+				<PokemonSet set={set} />
+			</div>
+		</>;
+	}
+}
+
 export class TeamViewer extends preact.Component<PageProps> {
 	id: string;
 	pw?: string;
@@ -166,6 +197,7 @@ export class TeamViewer extends preact.Component<PageProps> {
 		team: undefined as null | void | Team,
 		error: undefined as string | undefined,
 		copyButtonMsg: false as boolean,
+		displayMode: localStorage.getItem('teamdisplaymode') || null,
 	};
 	constructor(props: PageProps) {
 		super(props);
@@ -180,7 +212,7 @@ export class TeamViewer extends preact.Component<PageProps> {
 		if (!this.state.team) {
 			return <div class="section" style={{ textAlign: 'center' }}>{
 				typeof this.state.team === 'undefined' ?
-					JSON.stringify(this.state) :
+					'Loading...' :
 					<>
 						<h2 class="message-error">Team not found.</h2><br />
 						<em>Either it doesn't exist or it's password protected. Check the link?</em>
@@ -189,7 +221,9 @@ export class TeamViewer extends preact.Component<PageProps> {
 		}
 		const { team, title, ownerid, format, views } = this.state.team;
 		const teamData = unpackTeam(team);
-		const gen = Number(/\d+/.exec(format)?.[0]) || 6;
+		const gen = Dex.prefs('noanim') ? 5 : (Number(/\d+/.exec(format)?.[0]) || 6);
+		const is2Col = this.state.displayMode === '2col';
+		const isDark = document.querySelector('html')?.classList[0] === 'dark';
 
 		return <div class="section" style={{ wordWrap: 'break-word' }}>
 			<h2>{title}</h2>
@@ -202,25 +236,17 @@ export class TeamViewer extends preact.Component<PageProps> {
 				disabled={!this.state.team || this.state.copyButtonMsg}
 				onClick={() => this.copyTeam()}
 			>{this.state.copyButtonMsg ? 'Copied!' : 'Copy team'}</button>
+			<button class="button" onClick={() => this.changeDisplayMode()}>Display: {is2Col ? '2-column' : '1-column'}</button>
+			<button class="button" onClick={() => this.changeColorMode()}>{isDark ? 'Dark mode' : 'Light mode'}</button>
 			<hr />
-			<div name="sets" style={{ display: 'flex', flexWrap: 'wrap', rowGap: '1rem' }}>
+			<div name="sets" style={{ display: 'flex', flexWrap: 'wrap', rowGap: '1rem', colGap: is2Col ? '1rem' : undefined }}>
 				{teamData.map(
-					set => <>
-						<div style={{ flex: '0 0 20%' }}>
-							<img src={
-								Dex.getSpriteData(
-									Dex.species.get(set.species),
-									true,
-									{ gen, shiny: set.shiny, gender: set.gender as 'F' }
-								).url
-							}
-							/>
-							{set.item ? <PSIcon item={set.item} /> : <></>}
-						</div>
-						<div style={{ flex: "0 0 80%", textAlign: 'left' }}>
-							<PokemonSet set={set} />
-						</div>
-					</>
+					set => (
+						is2Col ? <div style={{ flex: '0 0 50%' }}>
+							<span style={{ display: 'flex' }}><SetBlock set={set} gen={gen} /></span>
+						</div> :
+						<SetBlock set={set} gen={gen} />
+					)
 				)}
 			</div>
 		</div>;
@@ -234,6 +260,30 @@ export class TeamViewer extends preact.Component<PageProps> {
 			return;
 		}
 		this.loadTeamData();
+	}
+
+	changeDisplayMode() {
+		if (this.state.displayMode === '2col') {
+			this.state.displayMode = 'default';
+		} else {
+			this.state.displayMode = '2col';
+		}
+		localStorage.setItem('teamdisplaymode', this.state.displayMode);
+		this.setState({ displayMode: this.state.displayMode });
+	}
+
+	changeColorMode() {
+		const classList = document.querySelector('html')?.classList;
+		const isDark = classList?.[0] === 'dark';
+		if (isDark) {
+			classList.remove('dark');
+			localStorage.removeItem('darkmode');
+		} else {
+			classList?.add('dark');
+			localStorage.setItem('darkmode', 'true');
+		}
+		// not something we keep in elem state but... still gotta poke it to update
+		this.forceUpdate();
 	}
 
 	loadTeamData() {
