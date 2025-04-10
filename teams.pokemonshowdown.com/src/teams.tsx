@@ -4,6 +4,7 @@ import { TeamViewer } from './teams-view';
 import { TeamIndex } from './teams-index';
 import { TeamSearcher } from './teams-search';
 
+declare const Config: any;
 export type PageProps = { args: Record<string, string> };
 
 export const PSRouter = new class {
@@ -55,6 +56,13 @@ export const PSRouter = new class {
 		}
 	}
 };
+
+if (window.matchMedia?.('(prefers-color-scheme: dark)').matches) {
+	localStorage.setItem('darkmode', 'true');
+}
+if (localStorage.getItem('darkmode')) {
+	document.querySelector('html')?.classList.add('dark');
+}
 
 PSRouter.setRoutes({
 	'/view/:id': TeamViewer,

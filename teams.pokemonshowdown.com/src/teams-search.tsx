@@ -5,6 +5,7 @@ import { Net, type ServerTeam, MiniTeam } from './utils';
 import type { PageProps } from './teams';
 
 declare const toID: (val: any) => string;
+declare const BattleAliases: Record<string, string>;
 
 const SEARCH_KEYS = ['format', 'owner', 'gen'];
 
@@ -67,8 +68,23 @@ export class TeamSearcher extends preact.Component<PageProps> {
 		url.searchParams.set('count', `${this.state.curCount}`);
 		if (!noSetUrl) history.pushState({}, '', url);
 
+		let format = this.state.search.format ?
+			toID(BattleAliases?.[this.state.search.format]) || this.state.search.format :
+			undefined;
+
+		if (format) {
+			if (!format.startsWith('gen')) {
+				format = `gen${this.state.search.gen || 9}${format}`;
+				delete this.state.search.gen; // don't let them conflict
+			}
+		} else {
+			format = undefined;
+		}
+		for (const k in this.state.search) {
+			if (!this.state.search[k]) delete this.state.search[k];
+		}
 		void Net('/api/searchteams').get({
-			query: { ...this.state.search, count: this.state.curCount },
+			query: { ...this.state.search, format, count: this.state.curCount },
 		}).then(resultText => {
 			if (resultText.startsWith(']')) resultText = resultText.slice(1);
 			let result;
