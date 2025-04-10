@@ -88,7 +88,7 @@ const compileOpts = Object.assign(eval('(' + fs.readFileSync('.babelrc') + ')'),
 if (process.argv[2] === 'full') {
 	delete compileOpts.ignore;
 	compiler.compileToDir(
-		['caches/pokemon-showdown/server/chat-formatter.ts'],
+		['caches/pokemon-showdown/server/chat-formatter.ts', 'caches/pokemon-showdown/sim/teams.ts'],
 		'play.pokemonshowdown.com/js/server/',
 		compileOpts
 	);
@@ -103,6 +103,8 @@ if (process.argv[2] === 'full') {
 compiledFiles += compiler.compileToDir(`play.pokemonshowdown.com/src`, `play.pokemonshowdown.com/js`, compileOpts);
 
 compiledFiles += compiler.compileToDir(`replay.pokemonshowdown.com/src`, `replay.pokemonshowdown.com/js`, compileOpts);
+
+compiledFiles += compiler.compileToDir(`teams.pokemonshowdown.com/src`, `teams.pokemonshowdown.com/js`, compileOpts);
 
 compiledFiles += compiler.compileToFile(
 	[
@@ -145,6 +147,7 @@ function addCachebuster(_, attr, url, urlQuery) {
 	url = url.replace('/dex.pokemonshowdown.com/', '/' + routes.dex + '/');
 	url = url.replace('/play.pokemonshowdown.com/', '/' + routes.client + '/');
 	url = url.replace('/pokemonshowdown.com/', '/' + routes.root + '/');
+	url = url.replace('/teams.pokemonshowdown.com/', '/' + routes.teams + '/');
 
 	if (urlQuery) {
 		if (url.startsWith('/')) {
@@ -157,12 +160,15 @@ function addCachebuster(_, attr, url, urlQuery) {
 
 			return attr + '="' + url + '?' + hash + '"';
 		} else {
-			// hardcoded to Replays rn; TODO: generalize
+			// TODO: generalize better
 			let hash;
-			try {
-				const fstr = fs.readFileSync('replay.pokemonshowdown.com/' + url, UTF8);
-				hash = crypto.createHash('md5').update(fstr).digest('hex').substr(0, 8);
-			} catch {}
+			for (const subdir of ['teams', 'replays']) {
+				if (hash) break;
+				try {
+					const fstr = fs.readFileSync(subdir + '.pokemonshowdown.com/' + url, UTF8);
+					hash = crypto.createHash('md5').update(fstr).digest('hex').substr(0, 8);
+				} catch {}
+			}
 
 			return attr + '="' + url + '?' + (hash || 'v1') + '"';
 		}
@@ -225,5 +231,9 @@ fs.writeFileSync('play.pokemonshowdown.com/js/replay-embed.js', replayEmbedConte
 let replaysContents = fs.readFileSync('replay.pokemonshowdown.com/index.template.php', UTF8);
 replaysContents = replaysContents.replace(URL_REGEX, addCachebuster);
 fs.writeFileSync('replay.pokemonshowdown.com/index.php', replaysContents);
+
+let teamsContents = fs.readFileSync('teams.pokemonshowdown.com/index.template.html', UTF8);
+teamsContents = teamsContents.replace(URL_REGEX, addCachebuster);
+fs.writeFileSync('teams.pokemonshowdown.com/index.html', teamsContents);
 
 console.log("DONE");
