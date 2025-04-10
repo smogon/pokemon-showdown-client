@@ -168,6 +168,7 @@ export class BattlePanel extends preact.Component<{ id: string }> {
 		}
 		// @ts-expect-error really wish they let me assert that the target is an HTMLElement
 		if (e.target?.tagName === 'INPUT' || e.target?.tagName === 'SELECT') return;
+		let target;
 		switch (e.keyCode) {
 		case 75: // k
 			if (this.battle?.atQueueEnd) {
@@ -218,6 +219,36 @@ export class BattlePanel extends preact.Component<{ id: string }> {
 			break;
 		case 77: // m
 			this.toggleMute();
+			break;
+		case 72: // h
+			target = this.base?.querySelector<HTMLSelectElement>('select[name=speed]');
+			if (!target) return;
+			target.value = 'hyperfast';
+			this.changeSpeed({ target });
+			break;
+		case 70: // f
+			target = this.base?.querySelector<HTMLSelectElement>('select[name=speed]');
+			if (!target) return;
+			target.value = 'fast';
+			this.changeSpeed({ target });
+			break;
+		case 78: // n
+			target = this.base?.querySelector<HTMLSelectElement>('select[name=speed]');
+			if (!target) return;
+			target.value = 'normal';
+			this.changeSpeed({ target });
+			break;
+		case 83: // s
+			target = this.base?.querySelector<HTMLSelectElement>('select[name=speed]');
+			if (!target) return;
+			target.value = 'slow';
+			this.changeSpeed({ target });
+			break;
+		case 82: // r
+			target = this.base?.querySelector<HTMLSelectElement>('select[name=speed]');
+			if (!target) return;
+			target.value = 'reallyslow';
+			this.changeSpeed({ target });
 			break;
 		}
 		this.forceUpdate();
