@@ -69,6 +69,8 @@ includeHeader();
 		$summary = str_replace("[/url]", '</a>', $summary);
 		$summary = str_replace("[b]", '<strong>', $summary);
 		$summary = str_replace("[/b]", '</strong>', $summary);
+		$summary = preg_replace('/\[psicon (pokemon|item|type|category)="([^\]]+)"\]/', '<psicon $1="$2" />', $summary);
+		$title = preg_replace('/\[psicon (pokemon|item|type|category)=([^\]]+)\]/', '<psicon $1="$2" />', $title);
 		$summary = '<p>'.$summary.'</p>';
 
 		$newsCache[$topic_id]['summary_html'] = $summary;
@@ -88,6 +90,8 @@ includeHeader();
 				$details = str_replace("[/url]", '</a>', $details);
 				$details = str_replace("[b]", '<strong>', $details);
 				$details = str_replace("[/b]", '</strong>', $details);
+				$details = preg_replace('/\[psicon (pokemon|item|type|category)="([^\]]+)"\]/', '<psicon $1="$2" />', $details);
+				$details = preg_replace('/\[psicon (pokemon|item|type|category)=([^\]]+)\]/', '<psicon $1="$2" />', $details);
 				$details = '<p>'.$details.'</p>';
 				$newsCache[$topic_id]['details_html'] = $details;
 			} else {

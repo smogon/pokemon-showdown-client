@@ -33,89 +33,26 @@ body {
 	text-align: center;
 }
 
-.dark .button.notifying {
-	background: #6BACC5;
-	border-color: #2C9CC1;
+.dark .tabbar a.button,
+.dark .tabbar a.button:hover {
+	box-shadow: inset 0.5px 1px 1px rgba(255, 255, 255, 0.5);
 }
-
-.dark .button.notifying.subtle {
-	border-color: #000000;
-	background: #b2d7f7;
-	color: black;
-}
-
-.dark .button.notifying:hover {
-	background: #6BACC5;
-	border-color: #FFFFFF;
-}
-
-.dark a.button.subtle-notifying {
-	color: #61A3BB;
-}
-
-/* .dark .roomtab.button.closable,
-.dark .roomtab.button {
-	background: #3A3A3A;
-	border-color: #A9A9A9;
-	color: #F9F9F9;
-	text-shadow: 1px 1px 0 #111;
-}
-.dark .roomtab.button:hover {
-	background: #606060;
-	border-color: #EEEEEE;
-}
-.dark .roomtab.button.cur.closable,
-.dark .roomtab.button.cur {
-	background: #636363;
-	border-color: #A9A9A9;
-	color: #F9F9F9;
-	text-shadow: 1px 1px 0 #111;
-} */
-.dark .tabbar a.button.subtle-notifying {
-	color: #6BACC5;
-}
-.dark .tabbar a.button.notifying {
-	background: #6BACC5;
-	border-color: #2C9CC1;
-	color: #000;
-	text-shadow: none;
+.dark .tabbar a.button:active,
+.dark .tabbar a.button.cur,
+.dark .tabbar a.button.cur:hover,
+.dark .tabbar a.button.cur:active {
+	box-shadow: none;
 }
 .dark .maintabbarbottom {
-	background: #636363;
-	border-color: #A9A9A9;
+	background: #555555;
+	border-color: #5A5A5A;
+	border-top-color: #34373b;
 }
 
-/* .dark button {
-	background: #777777;
-	box-shadow: none;
-	border: 1px solid #EEEEEE;
-	color: #EEEEEE;
-	border-radius: 5px;
+pre {
+	white-space: pre-wrap;
+	word-wrap: break-word;
 }
-*/
-.dark .tabbar a.button:hover {
-	background: #606060;
-	border-color: #EEEEEE;
-}
-.dark .tabbar a.button.notifying:hover {
-	background: #92C2D3;
-}
-.dark .button.cur,
-.dark .button.cur:hover,
-.dark .tabbar a.button.cur,
-.dark .tabbar a.button.cur:hover {
-	background: #636363;
-	border-color: #A9A9A9;
-	box-shadow: none;
-	color: #F9F9F9;
-}
-/*
-.dark .closebutton,
-.dark .minimizebutton,
-.dark button.subtle {
-	background: none;
-	border: none;
-} */
 
 /*********************************************************
  * Header
@@ -132,7 +69,7 @@ body {
 }
 .header .logo {
 	float: left;
-	margin: 2px 0 0 2px;
+	margin: 0;
 }
 
 .userbar {
@@ -173,7 +110,7 @@ body {
 	display: block;
 	list-style: none;
 	margin: 0;
-	padding: 0 0 0 0;
+	padding: 2px 0 0 0;
 	height: 37px;
 	text-align: left;
 
@@ -194,13 +131,14 @@ body {
 	background: #f8f8f8;
 	border: solid 1px #AAAAAA;
 	border-left: 0;
+	border-right: 0;
 	margin: -1px 0 0 0;
 	-webkit-box-shadow: 0 1px 2px rgba(0,0,0,.2);
 	-moz-box-shadow: 0 1px 2px rgba(0,0,0,.2);
 	box-shadow: 0 1px 2px rgba(0,0,0,.2);
 }
 .tabbar.maintabbar {
-	margin-left: 144px;
+	margin-left: 52px;
 	margin-right: 165px;
 	overflow: hidden;
 }
@@ -224,56 +162,6 @@ body {
 	border-radius: 0;
 }
 
-.button.small,
-.button.small {
-	font-size: 8pt;
-	padding: 2px 5px;
-}
-.button.big,
-.button.big {
-	font-size: 12pt;
-	padding: 5px 10px;
-}
-
-.menugroup .button.disabled,
-.menugroup .button.disabled:hover,
-.menugroup .button.disabled:active {
-	cursor: default;
-	background: #EEEEEE;
-	border-color: #CCCCCC;
-	border-style: solid;
-	border-width: 1px;
-	color: #999999;
-	text-shadow: none;
-	box-shadow: 0 1px 2px rgba(0,0,0,.1);
-}
-
-.button.notifying {
-	border-color: #AA8866;
-	background: #e3c3a3;
-}
-
-.button.notifying.subtle {
-	border-color: #000000;
-	background: #b2d7f7;
-	color: black;
-}
-
-.button.notifying:hover {
-	border-color: #604020;
-	background: #cfaf8f;
-}
-.button.cur,
-.button.cur:hover {
-	color: #777777;
-	background: #f8f8f8;
-	box-shadow: none;
-	border-color: #AAAAAA;
-	cursor: default;
-}
-.button.subtle-notifying {
-	color: #AA6600;
-}
 .button.subtle-notifying .fa-comment-o:before,
 .button.notifying .fa-comment-o:before {
 	content: "\f0e6";
@@ -299,8 +187,11 @@ body {
 	margin: 0 -1px 0 0;
 	top: 1px;
 	border-radius: 0;
-	box-shadow: none;
+	box-shadow: inset 0 -1px 2px rgba(255,255,255,1);
 	font-size: 11px;
+}
+.tabbar a.button.cur {
+	box-shadow: none;
 }
 .tabbar a.button i {
 	display: block;
@@ -325,7 +216,9 @@ body {
 	margin-right: -6px;
 }
 .tabbar a.button:hover,
-.tablist a.button:hover {
+.tablist a.button:hover,
+.tabbar a.button:focus,
+.tablist a.button:focus {
 	z-index: 10;
 }
 .tabbar a.button.cur,
@@ -374,6 +267,9 @@ body {
 .closebutton:hover {
 	color: #BB2222;
 }
+.dark .closebutton:hover {
+	color: #EE7777;
+}
 span.header-username:hover {
 	color: #333333;
 }
@@ -381,21 +277,27 @@ span.header-username:hover {
 .mini-window h3:hover .minimizebutton {
 	color: #333333;
 }
+.dark .minimizebutton:hover,
+.dark .mini-window h3:hover .minimizebutton {
+	color: #CCCCCC;
+}
 .mini-window h3 .closebutton:hover + .minimizebutton {
 	color: #999999 !important;
 }
-.pm-window h3 span.header-username:hover + .minimizebutton {
+.mini-window h3 span.header-username:hover + .minimizebutton {
 	color: #999999 !important;
 }
 .closebutton:active,
 .minimizebutton:active {
 	color: #661111;
 }
-.pm-minimized .minimizebutton .fa-minus-circle:before {
+.collapsed .minimizebutton .fa-minus-circle:before {
+	/** replace the minus with a plus when PM is minimized */
 	content: "\f055";
 }
 
 .tablist li, .tablist ul {
+	/** tablist is the menu that's displayed when the window is too wide for all the tabs */
 	list-style: none;
 	margin: 0;
 	padding: 0;
@@ -412,6 +314,7 @@ span.header-username:hover {
 	box-shadow: inset 0 0px 2px rgba(255,255,255,1);
 	font-size: 11pt;
 	padding: 4px 28px 4px 6px;
+	width: 120px;
 	height: 18px;
 	text-align: left;
 	border-radius: 0;
@@ -472,7 +375,6 @@ span.header-username:hover {
 .scrollable {
 	overflow: auto;
 	-webkit-overflow-scrolling: touch;
-	overflow-scrolling: touch;
 }
 .ps-room.ps-room-light, .ps-room-light {
 	background: rgba(242,247,250,.85);
@@ -494,7 +396,6 @@ span.header-username:hover {
 
 	overflow: auto;
 	-webkit-overflow-scrolling: touch;
-	overflow-scrolling: touch;
 	z-index: 20;
 }
 .ps-popup {
@@ -504,7 +405,6 @@ span.header-username:hover {
 	background: #E1E8E8;
 	color: black;
 	border: 1px solid #999999;
-	padding: 2px 10px;
 
 	border-radius: 6px;
 	box-shadow: inset 1px 1px 0 #ffffff, inset -1px -1px 0 #DDDDDD, 2px 2px 3px rgba(0,0,0,.2);
@@ -600,6 +500,7 @@ p.or:after {
 	position: absolute;
 	left: 325px;
 	top: 40px;
+	min-height: 2px;
 }
 .mainmenu {
 	padding: 0 0 51px 0;
@@ -644,13 +545,9 @@ p.or:after {
 	color: #CCDDFF;
 }
 
-.pmbox {
-	width: 270px;
-	margin: 0 auto;
-	min-height: 2px;
-}
 .mini-window {
 	margin: 0 -12px 12px -10px;
+	width: 292px;
 }
 .tiny-layout .mini-window {
 	margin: 0 0 12px 0;
@@ -669,21 +566,28 @@ p.or:after {
 .mini-window h3:hover {
 	color: #333333;
 }
-.mini-window h3.pm-minimized {
+.mini-window.collapsed h3 {
 	border-radius: 5px;
 }
 .mini-window h3.pm-notifying {
 	border-color: #AA8866;
 	background: #E3C3A3;
 }
+.dark .mini-window h3.pm-notifying {
+	background: #417589;
+	color: #BBBBBB;
+}
 .mini-window h3.pm-notifying:hover {
 	border-color: #604020;
 	background: #CFAF8F;
 }
+.dark .mini-window h3.pm-notifying:hover {
+	background: #417589;
+}
 .mini-window h3 .closebutton,
 .mini-window h3 .minimizebutton {
 	float: right;
-	margin: -3px -3px;
+	margin: -2px -3px;
 	width: 22px;
 	height: 22px;
 }
@@ -700,7 +604,7 @@ p.or:after {
 	border-bottom-left-radius: 5px;
 	border-bottom-right-radius: 5px;
 }
-.mini-window-body, .pm-log {
+.mini-window-body {
 	min-height: 100px;
 	max-height: 300px;
 	background: rgba(242,247,250,.925);
@@ -708,32 +612,21 @@ p.or:after {
 	word-wrap: break-word;
 	border: 1px solid #AAAAAA;
 	border-top: 0;
-
-	overflow: auto;
-	-webkit-overflow-scrolling: touch;
-	overflow-scrolling: touch;
 }
 .mini-window-body {
 	border-bottom-left-radius: 5px;
 	border-bottom-right-radius: 5px;
 }
-.pm-log {
-	border-bottom: 0;
+.pm-buttonbar {
+	padding-bottom: 3px;
 }
-.pm-log-add {
-	color: black;
-	border: 1px solid #AAAAAA;
-	border-bottom-left-radius: 5px;
-	border-bottom-right-radius: 5px;
-	background: rgba(242,247,250,.85);
-}
-.mini-window.collapsed .pm-log,
-.mini-window.collapsed .pm-log-add {
+.mini-window.collapsed .mini-window-contents,
+.mini-window.collapsed .mini-window-body {
 	display: none;
 }
 .mini-window.focused h3,
-.mini-window.focused .pm-log,
-.mini-window.focused .pm-log-add {
+.mini-window.focused .mini-window-contents,
+.mini-window.focused .mini-window-body {
 	border-color: #555555;
 }
 .mini-window.focused h3,
@@ -741,10 +634,24 @@ p.or:after {
 	background: #f8f8f8;
 	color: #222222;
 }
+.dark .mini-window h3 {
+	background: rgba(50,50,50,.8);
+	color: #AAA;
+}
+.dark .mini-window h3:hover {
+	color: #CCC;
+}
+.dark .mini-window.focused h3,
+.dark .mini-window.focused h3:hover {
+	background: #222;
+	color: #EEE;
+}
+
 .challenge {
-	margin: 0 5px;
+	margin: 0 5px 5px;
 	background: #fcd2b3;
 	border: 1px solid #f57b21;
+	border-radius: 5px;
 	color: #682f05;
 	padding: 1px 5px;
 }
@@ -754,8 +661,9 @@ p.or:after {
 .newsentry {
 	font-size: 9pt;
 	padding: 1px 10px;
-	border-bottom: 1px solid #AAAAAA;
-	margin-bottom: -1px;
+}
+.newsentry + .newsentry {
+	border-top: 1px solid #AAAAAA;
 }
 .unread {
 	background: rgba(255,240,130,0.33);
@@ -796,7 +704,8 @@ p.or:after {
 	max-width: 270px;
 	border-radius: 20px;
 
-	background: rgba(201, 207, 219, .4);
+	background: rgba(0,0,0,.2);
+	backdrop-filter: blur(4px);
 	color: white;
 	text-shadow: 0 1px 0 black;
 	text-align: center;
@@ -809,7 +718,7 @@ p.or:after {
 .menugroup p {
 	margin: 10px 0;
 }
-.menugroup .button {
+.mainmenu.button {
 	box-sizing: border-box;
 	font-size: 12pt;
 
@@ -829,28 +738,40 @@ p.or:after {
 	background: linear-gradient(to bottom,  hsl(210,40%,72%),  hsl(210,40%,52%));
 	border-color: hsl(210,40%,40%);
 }
-.menugroup .button.big {
+.mainmenu.button.big {
 	width: 230px;
 	height: 50px;
 	padding: 0;
 	font-size: 14pt;
 }
-.menugroup .button.big small {
+.mainmenu.button.big small {
 	display: block;
 	font-size: 9pt;
 }
-.menugroup .button:hover {
+.mainmenu.button:hover {
 	background: #5485B6;
 	background: hsl(210,40%,52%);
 	background: linear-gradient(to bottom,  hsl(210,40%,62%),  hsl(210,40%,42%));
 	border-color: hsl(210,40%,21%);
 }
-.menugroup .button:active {
+.mainmenu.button:active {
 	box-shadow: 0 1px 2px rgba(0,0,0,.2), inset 0 -1px 1px rgba(255,255,255,.3), inset 0 1px 1px rgba(0,0,0,.4);
 	background: #406B96;
 	background: hsl(210,40%,42%);
 	background: linear-gradient(to bottom,  hsl(210,40%,42%),  hsl(210,40%,58%));
 	border-color: hsl(210,40%,21%);
+}
+.mainmenu.button.disabled,
+.mainmenu.button.disabled:hover,
+.mainmenu.button.disabled:active {
+	cursor: default;
+	background: #EEEEEE;
+	border-color: #CCCCCC;
+	border-style: solid;
+	border-width: 1px;
+	color: #999999;
+	text-shadow: none;
+	box-shadow: 0 1px 2px rgba(0,0,0,.1);
 }
 
 .button.mainmenu1 { background: linear-gradient(to bottom,  hsl(5,40%,72%),  hsl(5,40%,52%)); border-color: hsl(5,40%,40%); }
@@ -861,9 +782,9 @@ p.or:after {
 .button.mainmenu2:hover { background: linear-gradient(to bottom,  hsl(30,40%,62%),  hsl(30,40%,42%)); }
 .button.mainmenu2:active { background: linear-gradient(to bottom,  hsl(30,40%,42%),  hsl(30,40%,58%)); }
 
-.button.mainmenu3 { background: linear-gradient(to bottom,  hsl(60,40%,72%),  hsl(60,40%,52%)); border-color: hsl(60,40%,40%); }
-.button.mainmenu3:hover { background: linear-gradient(to bottom,  hsl(60,40%,62%),  hsl(60,40%,42%)); }
-.button.mainmenu3:active { background: linear-gradient(to bottom,  hsl(60,40%,42%),  hsl(60,40%,58%)); }
+.button.mainmenu3 { background: linear-gradient(to bottom,  hsl(60,40%,62%),  hsl(60,40%,42%)); border-color: hsl(60,40%,40%); }
+.button.mainmenu3:hover { background: linear-gradient(to bottom,  hsl(60,40%,52%),  hsl(60,40%,32%)); }
+.button.mainmenu3:active { background: linear-gradient(to bottom,  hsl(60,40%,32%),  hsl(60,40%,48%)); }
 
 .button.mainmenu4 { background: linear-gradient(to bottom,  hsl(130,40%,72%),  hsl(130,40%,52%)); border-color: hsl(130,40%,40%); }
 .button.mainmenu4:hover { background: linear-gradient(to bottom,  hsl(130,40%,62%),  hsl(130,40%,42%)); }
@@ -880,7 +801,7 @@ p.or:after {
 .rightmenu {
 	width: 294px;
 }
-.rightmenu .menugroup .button {
+.rightmenu .mainmenu.button {
 	width: 180px;
 }
 @media (max-width:895px) {
@@ -896,7 +817,7 @@ p.or:after {
 	.rightmenu {
 		width: 324px;
 	}
-	.rightmenu .menugroup .button {
+	.rightmenu .mainmenu.button {
 		width: 200px;
 	}
 }
@@ -905,21 +826,25 @@ p.or:after {
  * Ladder
  *********************************************************/
 
-.ladder table, .ladder td, .ladder th {
+.table-header {
+	position: relative;
+	position: sticky;
+	top: 0;
+}
+.ladder table, .ladder td, .ladder th,
+.table, .table td, .table th {
 	border-collapse: collapse;
 	border: 1px solid #BBBBBB;
 }
-.ladder td, .ladder th {
+.ladder td, .ladder th,
+.table td, .table th {
 	padding: 3px 5px;
 }
-.ladder th {
+.ladder th, .table th {
 	text-align: left;
 	font-size: 9pt;
 	background: #EEEEEE;
 	color: #111111;
-}
-.ladder span {
-	color: gray;
 }
 
 .hidden {
@@ -983,8 +908,22 @@ p.or:after {
 .roomlist {
 	max-width: 480px;
 	text-align: left;
+	list-style: none;
+	margin: 0;
+	padding: 0;
 }
-.roomlist .blocklink small {
+.roomlist .subrooms {
+	font-size: 8pt;
+	padding-left: 20px;
+	margin: -5px 0 4px;
+}
+.roomlist .subrooms i.fa-level-up {
+	margin-right: 5px;
+}
+.roomlist .subrooms a.blocklink {
+	display: inline-block;
+	margin: 0;
+	vertical-align: middle;
 	font-size: 8pt;
 }
 
@@ -999,14 +938,15 @@ p.or:after {
 	right: 0;
 	bottom: 40px;
 	font-size: 10pt;
-	background: rgba(242,247,250,.5);
-	color: black;
 	word-wrap: break-word;
 
 	overflow: auto;
 	overflow-x: hidden;
 	-webkit-overflow-scrolling: touch;
-	overflow-scrolling: touch;
+}
+.chat-log, .readable-bg {
+	background: rgba(242,247,250,.5);
+	color: black;
 }
 .chat-log-add {
 	position: absolute;
@@ -1059,7 +999,7 @@ a.ilink.yours {
 	padding: 5px 0 0 0;
 }
 .chatbox.nolabel {
-	margin: 0 14px 0 6px;
+	margin: 0 10px 0 2px;
 	padding: 5px 0 5px 0;
 }
 .chatbox label {
@@ -1074,6 +1014,9 @@ a.ilink.yours {
 	font-weight: bold;
 	font-size: 8pt;
 }
+.chatbox.nolabel label {
+	display: none;
+}
 .chatbox .textbox {
 	display: block;
 	height: 1.1em;
@@ -1087,6 +1030,12 @@ a.ilink.yours {
 .chatbox pre.textbox {
 	margin: 0;
 	height: auto;
+}
+pre.textbox.textbox-empty[placeholder]:before {
+	content: attr(placeholder);
+	color: #777;
+	position: absolute;
+	cursor: text;
 }
 
 /* Tournaments */
@@ -1357,9 +1306,8 @@ a.ilink.yours {
 
 	overflow: auto;
 	-webkit-overflow-scrolling: touch;
-	overflow-scrolling: touch;
 }
-.userlist-count {
+.userlist-count, .userlist .userlist-count {
 	text-align: center;
 	padding: 2px 0;
 }
@@ -1508,7 +1456,7 @@ a.ilink.yours {
 	right: 0;
 	width: auto;
 }
-.tiny-layout .movecontrols, .tiny-layout .switchcontrols {
+.tiny-layout .movecontrols, .tiny-layout .shiftcontrols, .tiny-layout .switchcontrols {
 	max-width: 330px;
 	margin: 0 auto;
 }
@@ -1696,7 +1644,7 @@ a.ilink.yours {
 	background: #009AA4;
 }
 
-.movemenu button {
+.movebutton {
 	float: left;
 	display: block;
 	width: 155px;
@@ -1706,18 +1654,23 @@ a.ilink.yours {
 	position: relative;
 	padding:  6px 4px 0 4px;
 }
-.movemenu button small {
+.movebutton small {
 	color: #777777;
 }
-.movemenu button small.type {
+.movebutton small.type {
 	padding-top: 3px;
 	float: left;
 	font-size: 8pt;
 }
-.movemenu button small.pp {
+.movebutton small.pp {
 	padding-top: 2px;
 	float: right;
 	font-size: 8pt;
+}
+.megaevo-box {
+	clear: both;
+	padding-top: 10px;
+	text-align: center;
 }
 .megaevo {
 	clear: both;
@@ -1734,7 +1687,7 @@ a.ilink.yours {
 	border: 1px solid #BBB;
 	border-radius: 3px;
 	color: #333;
-	background: #EEF2F5;
+	background: transparent;
 	font-size: 10pt;
 	font-weight: bold;
 }
@@ -1742,6 +1695,33 @@ a.ilink.yours {
 	border-color: #888;
 	background: #E5E5E5;
 	color: black;
+}
+.dark .megaevo {
+	color: #EEE;
+	border-color: #888;
+}
+.dark .megaevo:hover {
+	color: #FFF;
+	background: #333;
+	border-color: #BBB;
+}
+.megaevo:has(:checked),
+.dark .megaevo:has(:checked) {
+	text-shadow: -1px -1px 0 #FFF, 1px 1px 0 #FFF, -1px 1px 0 #FFF, 1px -1px 0 #FFF;
+	color: black;
+  background-image: linear-gradient(120deg,
+		hsl(0, 100%, 75%) 0%,
+		hsl(36, 100%, 75%) 10%,
+		hsl(64, 100%, 75%) 20%,
+		hsl(118, 100%, 83%) 30%,
+		hsl(179, 100%, 80%) 40%,
+		hsl(188, 100%, 79%) 50%,
+		hsl(212, 100%, 77%) 60%,
+		hsl(260, 100%, 77%) 70%,
+		hsl(284, 100%, 76%) 80%,
+		hsl(308, 100%, 76%) 90%,
+		hsl(0, 100%, 75%) 100%
+	);
 }
 .megaevo input {
 	width: 16px;
@@ -1757,7 +1737,7 @@ a.ilink.yours {
 	padding-left: 4px;
 }
 .switchmenu button,
-.movemenu button {
+.movebutton {
 	position: relative;
 	outline: none;
 	text-align: center;
@@ -1774,21 +1754,21 @@ a.ilink.yours {
 	background: linear-gradient(to bottom,  #f6f6f6,  #e3e3e3);
 }
 .switchmenu button:hover,
-.movemenu button:hover {
+.movebutton:hover {
 	background: #cfcfcf;
 	background: linear-gradient(to bottom,  #f2f2f2,  #cfcfcf);
 	border-color: #606060;
 }
 .switchmenu button:active,
-.movemenu button:active,
+.movebutton:active,
 .switchmenu button.pressed,
-.movemenu button.pressed {
+.movebutton.pressed {
 	background: linear-gradient(to bottom,  #cfcfcf,  #f2f2f2);
 }
 
 .switchmenu button.disabled,
 .switchmenu button:disabled,
-.movemenu button:disabled {
+.movebutton:disabled {
 	cursor: default;
 	background: #F3F3F3 !important;
 	border-color: #CCCCCC !important;
@@ -1954,6 +1934,9 @@ a.ilink.yours {
 	font-size: 8pt;
 	font-weight: bold;
 }
+.dark .usergroup {
+	color: #BBB;
+}
 
 .userdetails {
 	min-height: 80px;
@@ -2055,17 +2038,19 @@ a.ilink.yours {
 }
 
 .dark .ps-room.ps-room-light,
+.dark .ps-room-light,
 .dark .tournament-box,
 .dark .tournament-status,
 .dark .tournament-toggle,
 .dark .pm-log-add {
-	background: rgba(0,0,0,.70);
+	background: rgba(0,0,0,.8);
 	color: #DDD;
 }
 
-.dark .pm-log {
-	background: rgba(0,0,0,.85);
+.dark .mini-window-body {
+	background: rgba(0,0,0,.9);
 	color: #DDD;
+	backdrop-filter: blur(4px);
 }
 
 .dark .userlist-maximized {
@@ -2096,9 +2081,10 @@ a.ilink.yours {
 	color: #999999;
 }
 
-.dark .chat-log {
+.dark .chat-log, .dark .readable-bg {
 	background: rgba(0,0,0,.5);
 	color: #DDD;
+	backdrop-filter: blur(4px);
 }
 
 .dark .userbar .username {
@@ -2164,12 +2150,9 @@ a.ilink.yours {
 
 /* main menu */
 
-.dark .menugroup {
-	background: rgba(0,0,0,.2);
-}
 .dark .mini-window.focused h3,
-.dark .mini-window.focused .pm-log,
-.dark .mini-window.focused .pm-log-add {
+.dark .mini-window.focused .mini-window-body,
+.dark .mini-window.focused .mini-window-contents {
 	border-color: #CCC;
 }
 

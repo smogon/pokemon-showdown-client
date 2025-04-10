@@ -9,10 +9,17 @@
  * @license AGPLv3
  */
 
+import preact from "../js/lib/preact";
+import { PS, PSRoom, type RoomOptions, type RoomID, type PSLoginState } from "./client-main";
+import { PSMain, PSPanelWrapper, PSRoomPanel } from "./panels";
+import type { Battle } from "./battle";
+import { Dex, toID, toRoomid, toUserid, type ID } from "./battle-dex";
+import { BattleLog } from "./battle-log";
+
 window.addEventListener('drop', e => {
 	console.log('drop ' + e.dataTransfer!.dropEffect);
 	const target = e.target as HTMLElement;
-	if (/^text/.test((target as HTMLInputElement).type)) {
+	if ((target as HTMLInputElement).type?.startsWith("text")) {
 		PS.dragging = null;
 		return; // Ignore text fields
 	}
@@ -33,7 +40,7 @@ window.addEventListener('dragover', e => {
 	e.preventDefault();
 });
 
-class PSHeader extends preact.Component<{style: {}}> {
+export class PSHeader extends preact.Component<{ style: object }> {
 	handleDragEnter = (e: DragEvent) => {
 		console.log('dragenter ' + e.dataTransfer!.dropEffect);
 		e.preventDefault();
@@ -50,12 +57,13 @@ class PSHeader extends preact.Component<{style: {}}> {
 
 		const leftIndex = PS.leftRoomList.indexOf(draggedOverRoom);
 		if (leftIndex >= 0) {
-			this.dragOnto(draggingRoom, 'leftRoomList', leftIndex);
+			PS.dragOnto(PS.rooms[draggingRoom]!, 'left', leftIndex);
 		} else {
 			const rightIndex = PS.rightRoomList.indexOf(draggedOverRoom);
 			if (rightIndex >= 0) {
-				this.dragOnto(draggingRoom, 'rightRoomList', rightIndex);
+				PS.dragOnto(PS.rooms[draggingRoom]!, 'right', rightIndex);
 			} else {
+				// eslint-disable-next-line no-useless-return
 				return;
 			}
 		}
@@ -68,93 +76,31 @@ class PSHeader extends preact.Component<{style: {}}> {
 		const roomid = PS.router.extractRoomID((e.currentTarget as HTMLAnchorElement).href);
 		if (!roomid) return; // should never happen
 
-		PS.dragging = {type: 'room', roomid};
+		PS.dragging = { type: 'room', roomid };
 	};
-	dragOnto(fromRoom: RoomID, toRoomList: 'leftRoomList' | 'rightRoomList' | 'miniRoomList', toIndex: number) {
-		// one day you will be able to rearrange mainmenu and rooms, but not today
-		if (fromRoom === '' || fromRoom === 'rooms') return;
-
-		if (fromRoom === PS[toRoomList][toIndex]) return;
-		if (fromRoom === '' && toRoomList === 'miniRoomList') return;
-
-		const roomLists = ['leftRoomList', 'rightRoomList', 'miniRoomList'] as const;
-		let fromRoomList;
-		let fromIndex = -1;
-		for (const roomList of roomLists) {
-			fromIndex = PS[roomList].indexOf(fromRoom);
-			if (fromIndex >= 0) {
-				fromRoomList = roomList;
-				break;
-			}
-		}
-		if (!fromRoomList) return; // shouldn't happen
-
-		if (toRoomList === 'leftRoomList' && toIndex === 0) toIndex = 1; // Home is always leftmost
-		if (toRoomList === 'rightRoomList' && toIndex === PS.rightRoomList.length - 1) toIndex--; // Rooms is always rightmost
-
-		PS[fromRoomList].splice(fromIndex, 1);
-		// if dragging within the same roomlist and toIndex > fromIndex,
-		// toIndex is offset by 1 now. Fortunately for us, we want to
-		// drag to the right of this tab in that case, so the -1 +1
-		// cancel out
-		PS[toRoomList].splice(toIndex, 0, fromRoom);
-
-		const room = PS.rooms[fromRoom]!;
-		switch (toRoomList) {
-		case 'leftRoomList': room.location = 'left'; break;
-		case 'rightRoomList': room.location = 'right'; break;
-		case 'miniRoomList': room.location = 'mini-window'; break;
-		}
-		if (fromRoomList !== toRoomList) {
-			if (fromRoom === PS.leftRoom.id) {
-				PS.leftRoom = PS.mainmenu;
-			} else if (PS.rightRoom && fromRoom === PS.rightRoom.id) {
-				PS.rightRoom = PS.rooms['rooms']!;
-			}
-			if (toRoomList === 'rightRoomList') {
-				PS.rightRoom = room;
-			} else if (toRoomList === 'leftRoomList') {
-				PS.leftRoom = room;
-			}
-		}
-		PS.update();
-	}
 	renderRoomTab(id: RoomID) {
-		const room = PS.rooms[id]!;
+		const room = PS.rooms[id];
+		if (!room) return null;
 		const closable = (id === '' || id === 'rooms' ? '' : ' closable');
 		const cur = PS.isVisible(room) ? ' cur' : '';
 		const notifying = room.notifications.length ? ' notifying' : room.isSubtleNotifying ? ' subtle-notifying' : '';
+		const RoomType = PS.roomTypes[room.type];
 		let className = `roomtab button${notifying}${closable}${cur}`;
-		let icon = null;
+		let icon = RoomType?.icon || <i class="fa fa-file-text-o"></i>;
 		let title = room.title;
 		let closeButton = null;
 		switch (room.type) {
-		case '':
-		case 'mainmenu':
-			icon = <i class="fa fa-home"></i>;
-			break;
-		case 'teambuilder':
-			icon = <i class="fa fa-pencil-square-o"></i>;
-			break;
-		case 'ladder':
-		case 'ladderformat':
-			icon = <i class="fa fa-list-ol"></i>;
-			break;
-		case 'battles':
-			icon = <i class="fa fa-caret-square-o-right"></i>;
-			break;
 		case 'rooms':
-			icon = <i class="fa fa-plus" style="margin:7px auto -6px auto"></i>;
 			title = '';
 			break;
 		case 'battle':
 			let idChunks = id.substr(7).split('-');
-			let formatid;
+			let formatName;
 			// TODO: relocate to room implementation
 			if (idChunks.length <= 1) {
-				if (idChunks[0] === 'uploadedreplay') formatid = 'Uploaded Replay';
+				if (idChunks[0] === 'uploadedreplay') formatName = 'Uploaded Replay';
 			} else {
-				formatid = idChunks[0];
+				formatName = BattleLog.formatName(idChunks[0]);
 			}
 			if (!title) {
 				let battle = (room as any).battle as Battle | undefined;
@@ -168,14 +114,11 @@ class PSHeader extends preact.Component<{style: {}}> {
 					title = `(empty room)`;
 				}
 			}
-			icon = <i class="text">{formatid}</i>;
-			break;
-		case 'chat':
-			icon = <i class="fa fa-comment-o"></i>;
+			icon = <i class="text">{formatName}</i>;
 			break;
 		case 'html':
 		default:
-			if (title.charAt(0) === '[') {
+			if (title.startsWith('[')) {
 				let closeBracketIndex = title.indexOf(']');
 				if (closeBracketIndex > 0) {
 					icon = <i class="text">{title.slice(1, closeBracketIndex)}</i>;
@@ -183,7 +126,6 @@ class PSHeader extends preact.Component<{style: {}}> {
 					break;
 				}
 			}
-			icon = <i class="fa fa-file-text-o"></i>;
 			break;
 		}
 		if (closable) {
@@ -191,39 +133,45 @@ class PSHeader extends preact.Component<{style: {}}> {
 				<i class="fa fa-times-circle"></i>
 			</button>;
 		}
+		const ariaLabel = id === 'rooms' ? { "aria-label": "Join chat" } : {};
 		return <li>
 			<a
 				class={className} href={`/${id}`} draggable={true}
 				onDragEnter={this.handleDragEnter} onDragStart={this.handleDragStart}
+				{...ariaLabel}
 			>
 				{icon} <span>{title}</span>
 			</a>
 			{closeButton}
 		</li>;
 	}
+	override componentDidMount() {
+		PS.user.subscribe(() => {
+			this.forceUpdate();
+		});
+	}
 	renderUser() {
 		if (!PS.connected) {
 			return <button class="button" disabled><em>Offline</em></button>;
 		}
-		if (!PS.user.userid) {
+		if (PS.user.initializing) {
 			return <button class="button" disabled><em>Connecting...</em></button>;
 		}
 		if (!PS.user.named) {
 			return <a class="button" href="login">Choose name</a>;
 		}
-		const userColor = window.BattleLog && {color: BattleLog.usernameColor(PS.user.userid)};
-		return <span class="username" data-name={PS.user.name} style={userColor}>
+		const userColor = window.BattleLog && { color: BattleLog.usernameColor(PS.user.userid) };
+		return <span class="username" style={userColor}>
 			<i class="fa fa-user" style="color:#779EC5"></i> <span class="usernametext">{PS.user.name}</span>
 		</span>;
 	}
-	render() {
+	override render() {
 		return <div id="header" class="header" style={this.props.style}>
 			<img
 				class="logo"
-				src={`https://${Config.routes.client}/pokemonshowdownbeta.png`}
-				srcset={`https://${Config.routes.client}/pokemonshowdownbeta@2x.png 2x`}
+				src={`https://${Config.routes.client}/favicon-256.png`}
 				alt="Pokémon Showdown! (beta)"
-				width="146" height="44"
+				width="50" height="50"
 			/>
 			<div class="maintabbarbottom"></div>
 			<div class="tabbar maintabbar"><div class="inner">
@@ -233,7 +181,7 @@ class PSHeader extends preact.Component<{style: {}}> {
 				<ul>
 					{PS.leftRoomList.slice(1).map(roomid => this.renderRoomTab(roomid))}
 				</ul>
-				<ul class="siderooms" style={{float: 'none', marginLeft: PS.leftRoomWidth - 144}}>
+				<ul class="siderooms" style={{ float: 'none', marginLeft: PS.leftPanelWidth - 52 }}>
 					{PS.rightRoomList.map(roomid => this.renderRoomTab(roomid))}
 				</ul>
 			</div></div>
@@ -256,37 +204,49 @@ preact.render(<PSMain />, document.body, document.getElementById('ps-frame')!);
  * User popup
  */
 
-class UserRoom extends PSRoom {
-	readonly classType = 'user';
-	userid: ID;
-	name: string;
-	isSelf: boolean;
+export class UserRoom extends PSRoom {
+	override readonly classType = 'user';
+	userid!: ID;
+	name!: string;
+	isSelf!: boolean;
 	constructor(options: RoomOptions) {
 		super(options);
-		this.userid = this.id.slice(5) as ID;
+		const userid = (this.id.split('-')[1] || '') as ID;
+		this.setName(options.args?.username as string || userid);
+	}
+	setName(name: string) {
+		this.name = name;
+		this.userid = toID(name);
 		this.isSelf = (this.userid === PS.user.userid);
-		this.name = options.username as string || this.userid;
 		if (/[a-zA-Z0-9]/.test(this.name.charAt(0))) this.name = ' ' + this.name;
+		this.update(null);
 		PS.send(`|/cmd userdetails ${this.userid}`);
 	}
 }
 
 class UserPanel extends PSRoomPanel<UserRoom> {
-	render() {
+	static readonly id = 'user';
+	static readonly routes = ['user-*', 'viewuser-*', 'users'];
+	static readonly Model = UserRoom;
+	static readonly location = 'popup';
+
+	renderUser() {
 		const room = this.props.room;
-		const user = PS.mainmenu.userdetailsCache[room.userid] || {userid: room.userid, avatar: '[loading]'};
+		if (!room.userid) return null;
+		const user = PS.mainmenu.userdetailsCache[room.userid] || { userid: room.userid, avatar: '[loading]' };
 		const name = room.name.slice(1);
+		const hideInteraction = room.id.startsWith('viewuser-');
 
 		const group = PS.server.getGroup(room.name);
 		let groupName: preact.ComponentChild = group.name || null;
 		if (group.type === 'punishment') {
-			groupName = <span style='color:#777777'>{groupName}</span>;
+			groupName = <span style="color:#777777">{groupName}</span>;
 		}
 
 		const globalGroup = PS.server.getGroup(user.group);
 		let globalGroupName: preact.ComponentChild = globalGroup.name && `Global ${globalGroup.name}` || null;
 		if (globalGroup.type === 'punishment') {
-			globalGroupName = <span style='color:#777777'>{globalGroupName}</span>;
+			globalGroupName = <span style="color:#777777">{globalGroupName}</span>;
 		}
 		if (globalGroup.name === group.name) groupName = null;
 
@@ -308,7 +268,8 @@ class UserPanel extends PSRoomPanel<UserRoom> {
 					const p1 = curRoom.p1!.substr(1);
 					const p2 = curRoom.p2!.substr(1);
 					const ownBattle = (PS.user.userid === toUserid(p1) || PS.user.userid === toUserid(p2));
-					const roomLink = <a href={`/${roomid}`} class={'ilink' + (ownBattle || roomid in PS.rooms ? ' yours' : '')}
+					const roomLink = <a
+						href={`/${roomid}`} class={'ilink' + (ownBattle || roomid in PS.rooms ? ' yours' : '')}
 						title={`${p1 || '?'} v. ${p2 || '?'}`}
 					>{roomrank}{roomid.substr(7)}</a>;
 					if (curRoom.isPrivate) {
@@ -349,48 +310,98 @@ class UserPanel extends PSRoomPanel<UserRoom> {
 			status = away ? user.status.slice(1) : user.status;
 		}
 
-		return <PSPanelWrapper room={room}>
-			<div class="userdetails">
-				{user.avatar !== '[loading]' &&
-					<img
-						class={'trainersprite' + (room.isSelf ? ' yours' : '')}
-						src={Dex.resolveAvatar('' + (user.avatar || 'unknown'))}
-					/>
-				}
-				<strong><a href={`//${Config.routes.users}/${user.userid}`} target="_blank" style={away ? {color: '#888888'} : null}>{name}</a></strong><br />
-				{status && <div class="userstatus">{status}</div>}
-				{groupName && <div class="usergroup roomgroup">{groupName}</div>}
-				{globalGroupName && <div class="usergroup globalgroup">{globalGroupName}</div>}
-				{user.customgroup && <div class="usergroup globalgroup">{user.customgroup}</div>}
-				{roomsList}
-			</div>
-			{isSelf || !PS.user.named ?
+		const buttonbar = [];
+		if (!hideInteraction) {
+			buttonbar.push(isSelf ? (
+				<p class="buttonbar">
+					<button class="button" disabled>Challenge</button> {}
+					<button class="button" data-href="/dm-">Chat Self</button>
+				</p>
+			) : !PS.user.named ? (
 				<p class="buttonbar">
 					<button class="button" disabled>Challenge</button> {}
 					<button class="button" disabled>Chat</button>
 				</p>
-			:
+			) : (
 				<p class="buttonbar">
 					<button class="button" data-href={`/challenge-${user.userid}`}>Challenge</button> {}
-					<button class="button" data-href={`/pm-${user.userid}`}>Chat</button> {}
+					<button class="button" data-href={`/dm-${user.userid}`}>Chat</button> {}
 					<button class="button disabled" name="userOptions">{'\u2026'}</button>
 				</p>
+			));
+			if (isSelf) {
+				buttonbar.push(
+					<hr />,
+					<p class="buttonbar" style="text-align: right">
+						<button class="button" name="joinRoom" value="login"><i class="fa fa-pencil"></i> Change name</button> {}
+						<button class="button" name="cmd" value="/logout"><i class="fa fa-power-off"></i> Log out</button>
+					</p>
+				);
 			}
-			{isSelf && <hr />}
-			{isSelf && <p class="buttonbar" style="text-align: right">
-				<button class="button disabled" name="login"><i class="fa fa-pencil"></i> Change name</button> {}
-				<button class="button" name="cmd" value="/logout"><i class="fa fa-power-off"></i> Log out</button>
-			</p>}
-		</PSPanelWrapper>;
+		}
+
+		return [<div class="userdetails">
+			{user.avatar !== '[loading]' &&
+				<img
+					class={'trainersprite' + (room.isSelf ? ' yours' : '')}
+					src={Dex.resolveAvatar(`${user.avatar || 'unknown'}`)}
+				/>}
+			<strong><a
+				href={`//${Config.routes.users}/${user.userid}`} target="_blank"
+				style={{ color: away ? '#888888' : BattleLog.usernameColor(user.userid) }}
+			>
+				{name}
+			</a></strong><br />
+			{status && <div class="userstatus">{status}</div>}
+			{groupName && <div class="usergroup roomgroup">{groupName}</div>}
+			{globalGroupName && <div class="usergroup globalgroup">{globalGroupName}</div>}
+			{user.customgroup && <div class="usergroup globalgroup">{user.customgroup}</div>}
+			{!hideInteraction && roomsList}
+		</div>, buttonbar];
+	}
+
+	lookup = (ev: Event) => {
+		ev.preventDefault();
+		ev.stopImmediatePropagation();
+		const room = this.props.room;
+		const username = this.base!.querySelector<HTMLInputElement>('input[name=username]')?.value;
+		room.setName(username || '');
+	};
+	maybeReset = (ev: Event) => {
+		const room = this.props.room;
+		const username = this.base!.querySelector<HTMLInputElement>('input[name=username]')?.value;
+		if (toID(username) !== room.userid) {
+			room.setName('');
+		}
+	};
+
+	override render() {
+		const room = this.props.room;
+		const showLookup = room.id === 'users';
+
+		return <PSPanelWrapper room={room}><div class="pad">
+			{showLookup && <form onSubmit={this.lookup} style={{ minWidth: '278px' }}>
+				<label class="label">
+					Username:
+					<input type="search" name="username" class="textbox autofocus" onInput={this.maybeReset} onChange={this.maybeReset} />
+				</label>
+				{!room.userid && <p class="buttonbar">
+					<button type="submit" class="button"><strong>Look up</strong></button> {}
+					<button name="closeRoom" class="button">Close</button>
+				</p>}
+				{!!room.userid && <hr />}
+			</form>}
+
+			{this.renderUser()}
+		</div></PSPanelWrapper>;
 	}
 }
 
-PS.roomTypes['user'] = {
-	Model: UserRoom,
-	Component: UserPanel,
-};
-
 class VolumePanel extends PSRoomPanel {
+	static readonly id = 'volume';
+	static readonly routes = ['volume'];
+	static readonly location = 'popup';
+
 	setVolume = (e: Event) => {
 		const slider = e.currentTarget as HTMLInputElement;
 		PS.prefs.set(slider.name as 'effectvolume', Number(slider.value));
@@ -401,18 +412,20 @@ class VolumePanel extends PSRoomPanel {
 		PS.prefs.set('mute', !!checkbox.checked);
 		PS.update();
 	};
-	componentDidMount() {
+	override componentDidMount() {
 		super.componentDidMount();
 		this.subscriptions.push(PS.prefs.subscribe(() => {
 			this.forceUpdate();
 		}));
 	}
-	render() {
+	override render() {
 		const room = this.props.room;
-		return <PSPanelWrapper room={room}>
+		return <PSPanelWrapper room={room}><div class="pad">
 			<h3>Volume</h3>
 			<p class="volume">
-				<label class="optlabel">Effects: <span class="value">{!PS.prefs.mute && PS.prefs.effectvolume ? `${PS.prefs.effectvolume}%` : `muted`}</span></label>
+				<label class="optlabel">
+					Effects: <span class="value">{!PS.prefs.mute && PS.prefs.effectvolume ? `${PS.prefs.effectvolume}%` : `-`}</span>
+				</label>
 				{PS.prefs.mute ?
 					<em>(muted)</em> :
 					<input
@@ -421,7 +434,9 @@ class VolumePanel extends PSRoomPanel {
 					/>}
 			</p>
 			<p class="volume">
-				<label class="optlabel">Music: <span class="value">{!PS.prefs.mute && PS.prefs.musicvolume ? `${PS.prefs.musicvolume}%` : `muted`}</span></label>
+				<label class="optlabel">
+					Music: <span class="value">{!PS.prefs.mute && PS.prefs.musicvolume ? `${PS.prefs.musicvolume}%` : `-`}</span>
+				</label>
 				{PS.prefs.mute ?
 					<em>(muted)</em> :
 					<input
@@ -430,7 +445,10 @@ class VolumePanel extends PSRoomPanel {
 					/>}
 			</p>
 			<p class="volume">
-				<label class="optlabel">Notifications: <span class="value">{!PS.prefs.mute && PS.prefs.notifvolume ? `${PS.prefs.notifvolume}%` : `muted`}</span></label>
+				<label class="optlabel">
+					Notifications: {}
+					<span class="value">{!PS.prefs.mute && PS.prefs.notifvolume ? `${PS.prefs.notifvolume}%` : `-`}</span>
+				</label>
 				{PS.prefs.mute ?
 					<em>(muted)</em> :
 					<input
@@ -439,25 +457,27 @@ class VolumePanel extends PSRoomPanel {
 					/>}
 			</p>
 			<p>
-				<label class="checkbox"><input type="checkbox" name="mute" checked={PS.prefs.mute} onChange={this.setMute} /> Mute all</label>
+				<label class="checkbox">
+					<input type="checkbox" name="mute" checked={PS.prefs.mute} onChange={this.setMute} /> Mute all
+				</label>
 			</p>
-		</PSPanelWrapper>;
+		</div></PSPanelWrapper>;
 	}
 }
 
-PS.roomTypes['volume'] = {
-	Component: VolumePanel,
-};
-
 class OptionsPanel extends PSRoomPanel {
+	static readonly id = 'options';
+	static readonly routes = ['options'];
+	static readonly location = 'popup';
+
 	setTheme = (e: Event) => {
 		const theme = (e.currentTarget as HTMLSelectElement).value as 'light' | 'dark' | 'system';
 		PS.prefs.set('theme', theme);
 		this.forceUpdate();
 	};
-	render() {
+	override render() {
 		const room = this.props.room;
-		return <PSPanelWrapper room={room}>
+		return <PSPanelWrapper room={room}><div class="pad">
 			<h3>Graphics</h3>
 			<p>
 				<label class="optlabel">Theme: <select onChange={this.setTheme}>
@@ -466,10 +486,182 @@ class OptionsPanel extends PSRoomPanel {
 					<option value="system" selected={PS.prefs.theme === 'system'}>Match system theme</option>
 				</select></label>
 			</p>
-		</PSPanelWrapper>;
+		</div></PSPanelWrapper>;
 	}
 }
 
-PS.roomTypes['options'] = {
-	Component: OptionsPanel,
-};
+class GooglePasswordBox extends preact.Component<{ name: string }> {
+	override componentDidMount() {
+		window.gapiCallback = (response: any) => {
+			PS.user.changeNameWithPassword(this.props.name, response.credential, { needsGoogle: true });
+		};
+
+		PS.user.gapiLoaded = true;
+		const script = document.createElement('script');
+		script.async = true;
+		script.src = 'https://accounts.google.com/gsi/client';
+		document.getElementsByTagName('head')[0].appendChild(script);
+	}
+	override render() {
+		return <div class="google-password-box">
+			<div
+				id="g_id_onload" data-client_id="912270888098-jjnre816lsuhc5clj3vbcn4o2q7p4qvk.apps.googleusercontent.com"
+				data-context="signin" data-ux_mode="popup" data-callback="gapiCallback" data-auto_prompt="false"
+			></div>
+			<div
+				class="g_id_signin" data-type="standard" data-shape="pill" data-theme="filled_blue" data-text="continue_with"
+				data-size="large" data-logo_alignment="left" data-auto_select="true" data-itp_support="true"
+				style="width:fit-content;margin:0 auto"
+			>[loading Google log-in button]</div>
+		</div>;
+	}
+}
+
+class LoginPanel extends PSRoomPanel {
+	static readonly id = 'login';
+	static readonly routes = ['login'];
+	static readonly location = 'semimodal-popup';
+	declare state: { passwordShown?: boolean };
+
+	override componentDidMount() {
+		super.componentDidMount();
+		this.subscriptions.push(PS.user.subscribe(args => {
+			if (args) {
+				if (args.success) {
+					this.close();
+					return;
+				}
+				this.props.room.args = args;
+				setTimeout(() => this.focus(), 1);
+			}
+			this.forceUpdate();
+		}));
+	}
+	getUsername() {
+		const loginName = PS.user.loggingIn || this.props.room.args?.name as string;
+		if (loginName) return loginName;
+
+		const input = this.base?.querySelector<HTMLInputElement>('input[name=username]');
+		if (input && !input.disabled) {
+			return input.value;
+		}
+		return PS.user.named ? PS.user.name : '';
+	}
+	handleSubmit = (ev: Event) => {
+		ev.preventDefault();
+		const passwordBox = this.base!.querySelector<HTMLInputElement>('input[name=password]');
+		if (passwordBox) {
+			PS.user.changeNameWithPassword(this.getUsername(), passwordBox.value);
+		} else {
+			PS.user.changeName(this.getUsername());
+		}
+	};
+	update = () => {
+		this.forceUpdate();
+	};
+	override focus() {
+		const passwordBox = this.base!.querySelector<HTMLInputElement>('input[name=password]');
+		const usernameBox = this.base!.querySelector<HTMLInputElement>('input[name=username]');
+		(passwordBox || usernameBox)?.select();
+	}
+	reset = (ev: Event) => {
+		ev.preventDefault();
+		ev.stopImmediatePropagation();
+		this.props.room.args = null;
+		this.forceUpdate();
+	};
+	handleShowPassword = (ev: Event) => {
+		ev.preventDefault();
+		ev.stopImmediatePropagation();
+		this.setState({ passwordShown: !this.state.passwordShown });
+	};
+	override render() {
+		const room = this.props.room;
+		const loginState = room.args as PSLoginState;
+		return <PSPanelWrapper room={room} width={280}><div class="pad">
+			<h3>Log in</h3>
+			<form onSubmit={this.handleSubmit}>
+				{loginState?.error && <p class="error">{loginState.error}</p>}
+				<p><label class="label">
+					Username: <small class="preview" style={{ color: BattleLog.usernameColor(toID(this.getUsername())) }}>(color)</small>
+					<input
+						class="textbox" type="text" name="username"
+						onInput={this.update} onChange={this.update} autocomplete="username"
+						value={this.getUsername()} disabled={!!PS.user.loggingIn || !!loginState?.name}
+					/>
+				</label></p>
+				{PS.user.named && !loginState && <p>
+					<small>(Others will be able to see your name change. To change name privately, use "Log out")</small>
+				</p>}
+				{loginState?.needsPassword && <p>
+					<i class="fa fa-level-up fa-rotate-90"></i> <strong>if you registered this name:</strong>
+					<label class="label">Password: {}
+						<input
+							class="textbox" type={this.state.passwordShown ? 'text' : 'password'} name="password"
+							autocomplete="current-password" style="width:173px"
+						/>
+						<button
+							type="button" onClick={this.handleShowPassword} aria-label="Show password"
+							class="button" style="float:right;margin:-21px 0 10px;padding: 2px 6px"
+						><i class="fa fa-eye"></i></button>
+					</label>
+				</p>}
+				{loginState?.needsGoogle && <>
+					<p><i class="fa fa-level-up fa-rotate-90"></i> <strong>if you registered this name:</strong></p>
+					<p><GooglePasswordBox name={this.getUsername()} /></p>
+				</>}
+				<p class="buttonbar">
+					{PS.user.loggingIn ? (
+						<button disabled class="cur">Logging in...</button>
+					) : loginState?.needsPassword ? (
+						<>
+							<button type="submit" class="button"><strong>Log in</strong></button> {}
+							<button type="button" onClick={this.reset} class="button">Cancel</button>
+						</>
+					) : loginState?.needsGoogle ? (
+						<button type="button" onClick={this.reset} class="button">Cancel</button>
+					) : (
+						<>
+							<button type="submit" class="button"><strong>Choose name</strong></button> {}
+							<button type="button" name="closeRoom" class="button">Cancel</button>
+						</>
+					)} {}
+				</p>
+				{loginState?.name && <div>
+					<p>
+						<i class="fa fa-level-up fa-rotate-90"></i> <strong>if not:</strong>
+					</p>
+					<p style={{ maxWidth: '210px', margin: '0 auto' }}>
+						This is someone else's account. Sorry.
+					</p>
+					<p class="buttonbar">
+						<button class="button" onClick={this.reset}>Try another name</button>
+					</p>
+				</div>}
+			</form>
+		</div></PSPanelWrapper>;
+	}
+}
+
+class PopupPanel extends PSRoomPanel {
+	static readonly id = 'popup';
+	static readonly routes = ['popup-*'];
+	static readonly location = 'semimodal-popup';
+	static readonly noURL = true;
+
+	override render() {
+		const room = this.props.room;
+		const okButtonLabel = room.args?.okButtonLabel as string || 'OK';
+		return <PSPanelWrapper room={room} width={480}><div class="pad">
+			{room.args?.message && <p
+				style="white-space:pre-wrap;word-wrap:break-word"
+				dangerouslySetInnerHTML={{ __html: BattleLog.parseMessage(room.args.message as string) }}
+			></p>}
+			<p class="buttonbar">
+				<button class="button autofocus" name="closeRoom" style="min-width:50px"><strong>{okButtonLabel}</strong></button>
+			</p>
+		</div></PSPanelWrapper>;
+	}
+}
+
+PS.addRoomType(UserPanel, VolumePanel, OptionsPanel, LoginPanel, PopupPanel);

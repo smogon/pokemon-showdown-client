@@ -12,6 +12,7 @@
 			if (!this.events['focus textarea']) this.events['focus textarea'] = 'focusText';
 			if (!this.events['blur textarea']) this.events['blur textarea'] = 'blurText';
 			if (!this.events['click .spoiler']) this.events['click .spoiler'] = 'clickSpoiler';
+			if (!this.events['click .datasearch']) this.events['click .datasearch'] = 'clickDatasearchResults';
 			if (!this.events['click .message-pm i']) this.events['click .message-pm i'] = 'openPM';
 
 			this.initializeTabComplete();
@@ -107,6 +108,18 @@
 		},
 		clickSpoiler: function (e) {
 			$(e.currentTarget).toggleClass('spoiler-shown');
+		},
+
+		clickDatasearchResults: function (e) {
+			if ($(e.target)[0].href) return;
+			var target = $(e.currentTarget).closest('[class=datasearch]')[0];
+			var button = target.querySelector('button');
+			var results = target.querySelectorAll('[class=datasearch-body]');
+			if (!button || !results || results.length < 2) return;
+			button.innerHTML = button.innerHTML === '[-]' ? '[+]' : '[-]';
+			for (var i = 0; i < results.length; i++) {
+				results[i].style.display = results[i].style.display === 'none' ? 'block' : 'none';
+			}
 		},
 
 		login: function () {
@@ -215,7 +228,7 @@
 			var name = $(e.currentTarget).data('name') || $(e.currentTarget).text();
 			var away = $(e.currentTarget).data('away') || false;
 			var status = $(e.currentTarget).data('status');
-			app.addPopup(UserPopup, {roomGroup: roomGroup, name: name, away: away, status: status, sourceEl: e.currentTarget, position: position});
+			app.addPopup(UserPopup, { roomGroup: roomGroup, name: name, away: away, status: status, sourceEl: e.currentTarget, position: position });
 		},
 		openPM: function (e) {
 			e.preventDefault();
@@ -236,10 +249,10 @@
 			app.addPopup(AvatarsPopup);
 		},
 		openSounds: function () {
-			app.addPopup(SoundsPopup, {type: 'semimodal'});
+			app.addPopup(SoundsPopup, { type: 'semimodal' });
 		},
 		openOptions: function () {
-			app.addPopup(OptionsPopup, {type: 'semimodal'});
+			app.addPopup(OptionsPopup, { type: 'semimodal' });
 		},
 
 		// highlight
@@ -247,7 +260,7 @@
 		getHighlight: function (message) {
 			var highlights = Dex.prefs('highlights') || {};
 			if (Array.isArray(highlights)) {
-				highlights = {global: highlights};
+				highlights = { global: highlights };
 				// Migrate from the old highlight system
 				Storage.prefs('highlights', highlights);
 			}
@@ -362,7 +375,7 @@
 				var currentLine = prefix.substr(prefix.lastIndexOf('\n') + 1);
 				var shouldSearchCommands = !cmds || (cmds.length ? !!cmds.length && !cmds.filter(function (x) {
 					return x.startsWith(currentLine);
-				}).length : prefix != this.tabComplete.prefix);
+				}).length : prefix !== this.tabComplete.prefix);
 				var isCommandSearch = (currentLine.startsWith('/') && !currentLine.startsWith('//')) || currentLine.startsWith('!');
 				var resultsExist = this.tabComplete.lastSearch === text && this.tabComplete.commands;
 				if (isCommandSearch && shouldSearchCommands && !resultsExist) {
@@ -417,7 +430,7 @@
 							return bidx - aidx;
 						}
 						return -1; // a comes first
-					} else if (bidx != -1) {
+					} else if (bidx !== -1) {
 						return 1; // b comes first
 					}
 					return (a[0] < b[0]) ? -1 : 1; // alphabetical order
@@ -502,7 +515,7 @@
 				var self = this;
 				var challenge = function (targets) {
 					target = toID(targets[0]);
-					self.challengeData = {userid: target, format: targets.length > 1 ? targets.slice(1).join(',') : '', team: ''};
+					self.challengeData = { userid: target, format: targets.length > 1 ? targets.slice(1).join(',') : '', team: '' };
 					app.on('response:userdetails', self.challengeUserdetails, self);
 					app.send('/cmd userdetails ' + target);
 				};
@@ -575,7 +588,7 @@
 			case 'open':
 				if (this.checkBroadcast(cmd, text)) return false;
 				var openUser = function (target) {
-					app.addPopup(UserPopup, {name: target});
+					app.addPopup(UserPopup, { name: target });
 				};
 				target = toName(target);
 				if (!target) {
@@ -710,7 +723,7 @@
 					if (!userid) {
 						var newsId = $(this).data('newsid');
 						if (newsId) {
-							$.cookie('showdown_readnews', '' + newsId, {expires: 365});
+							$.cookie('showdown_readnews', '' + newsId, { expires: 365 });
 						}
 						$(this).remove();
 						return;
@@ -772,7 +785,7 @@
 					}
 					this.add('Join/leave messages on room ' + room + ': ALWAYS ON');
 				} else {
-					serverShowjoins = {global: 1};
+					serverShowjoins = { global: 1 };
 					this.add('Join/leave messages: ALWAYS ON');
 				}
 				showjoins[Config.server.id] = serverShowjoins;
@@ -791,7 +804,7 @@
 					}
 					this.add('Join/leave messages on room ' + room + ': AUTOMATIC');
 				} else {
-					serverShowjoins = {global: 0};
+					serverShowjoins = { global: 0 };
 					this.add('Join/leave messages: AUTOMATIC');
 				}
 				showjoins[Config.server.id] = serverShowjoins;
@@ -972,14 +985,19 @@
 					user: targets[0]
 				}, Storage.safeJSON(function (data) {
 					if (!data || !$.isArray(data)) return self.add('|raw|Error: corrupted ranking data');
-					var buffer = '<div class="ladder"><table><tr><td colspan="8">User: <strong>' + toName(targets[0]) + '</strong></td></tr>';
+					var buffer = '<div class="ladder"><table><tr><td colspan="9">User: <strong>' + toName(targets[0]) + '</strong></td></tr>';
 					if (!data.length) {
-						buffer += '<tr><td colspan="8"><em>This user has not played any ladder games yet.</em></td></tr>';
+						buffer += '<tr><td colspan="9"><em>This user has not played any ladder games yet.</em></td></tr>';
 						buffer += '</table></div>';
 						return self.add('|raw|' + buffer);
 					}
-					buffer += '<tr><th>Format</th><th><abbr title="Elo rating">Elo</abbr></th><th><abbr title="user\'s percentage chance of winning a random battle (aka GLIXARE)">GXE</abbr></th><th><abbr title="Glicko-1 rating: rating±deviation">Glicko-1</abbr></th><th>COIL</th><th>W</th><th>L</th><th>Total</th></tr>';
-
+					buffer += '<tr><th>Format</th><th><abbr title="Elo rating">Elo</abbr></th><th><abbr title="user\'s percentage chance of winning a random battle (aka GLIXARE)">GXE</abbr></th><th><abbr title="Glicko-1 rating: rating±deviation">Glicko-1</abbr></th><th>COIL</th><th>W</th><th>L</th><th>Total</th>';
+					var suspect = false;
+					for (var i = 0; i < data.length; i++) {
+						if ('suspect' in data[i]) suspect = true;
+					}
+					if (suspect) buffer += '<th>Suspect reqs possible?</th>';
+					buffer += '</tr>';
 					var hiddenFormats = [];
 					for (var i = 0; i < data.length; i++) {
 						var row = data[i];
@@ -1015,7 +1033,17 @@
 						} else {
 							buffer += '<td>--</td>';
 						}
-						buffer += '<td>' + row.w + '</td><td>' + row.l + '</td><td>' + N + '</td></tr>';
+						buffer += '<td>' + row.w + '</td><td>' + row.l + '</td><td>' + N + '</td>';
+						if (suspect) {
+							if (typeof row.suspect === 'undefined') {
+								buffer += '<td>--</td>';
+							} else {
+								buffer += '<td>';
+								buffer += (row.suspect ? "Yes" : "No");
+								buffer += '</td>';
+							}
+						}
+						buffer += '</tr>';
 					}
 					if (hiddenFormats.length) {
 						if (hiddenFormats.length === data.length) {
@@ -1086,27 +1114,51 @@
 				return text;
 
 			case 'avatar':
-				if (this.checkBroadcast(cmd, text)) return false;
 				var parts = target.split(',');
 				var avatar = parts[0].toLowerCase().replace(/[^a-z0-9-]+/g, '');
 				// Replace avatar number with name before sending it to the server, only the client knows what to do with the numbers
 				if (window.BattleAvatarNumbers && Object.prototype.hasOwnProperty.call(window.BattleAvatarNumbers, avatar)) {
 					avatar = window.BattleAvatarNumbers[avatar];
 				}
-				Storage.prefs('avatar', avatar);
-				return '/avatar ' + avatar; // Send the command through to the server.
+				if (text.startsWith('/')) Storage.prefs('avatar', avatar);
+				return text.charAt(0) + 'avatar ' + avatar; // Send the command through to the server.
 
 			case 'afd':
 				if (this.checkBroadcast(cmd, text)) return false;
-				var cleanedTarget = toID(target);
-				if (cleanedTarget === 'off' || cleanedTarget === 'disable') {
-					Storage.prefs('afd', false);
-					if (typeof BattleTextNotAFD !== 'undefined') BattleText = BattleTextNotAFD;
-					this.add('April Fools\' day mode disabled.');
-				} else {
+				target = toID(target);
+				if (target === 'sprites') {
+					Storage.prefs('afd', 'sprites');
+					app.setAFD('sprites');
+					this.add('April Fools\' Day mode set to SPRITES.');
+				} else if (target === 'full') {
 					Storage.prefs('afd', true);
-					if (typeof BattleTextAFD !== 'undefined') BattleText = BattleTextAFD;
-					this.add('April Fools\' day mode enabled.');
+					app.setAFD(true);
+					this.add('April Fools\' Day mode set to FULL.');
+				} else if (target === 'default') {
+					Storage.prefs('afd', null);
+					app.setAFD();
+					this.add('April Fools\' Day mode set to DEFAULT (Currently ' + (Dex.afdMode ? 'FULL' : 'OFF') + ').');
+				} else if (target === 'off' || target === 'false' || target === '0') {
+					Storage.prefs('afd', null);
+					app.setAFD(false);
+					this.add('April Fools\' Day mode set to OFF temporarily.');
+					this.add('Trying to turn it off permanently? Use /afd never');
+				} else if (target === 'never') {
+					Storage.prefs('afd', false);
+					app.setAFD(false);
+					this.add('April Fools\' Day mode set to NEVER.');
+					if (Config.server.afd) {
+						this.add('You\'re using the AFD URL, which will still override this setting and enable AFD mode on refresh.');
+					}
+				} else {
+					if (target) this.add('AFD option "' + target + '" not recognized');
+					var mode = Storage.prefs('afd');
+					if (mode === true) mode = 'FULL';
+					if (mode === false) mode = 'NEVER';
+					if (mode) mode = mode.toUpperCase();
+					if (!mode) mode = 'DEFAULT (currently ' + (Dex.afdMode ? 'FULL' : 'OFF') + ')';
+					this.add('AFD is currently set to ' + mode);
+					this.parseCommand('/help afd');
 				}
 				for (var roomid in app.rooms) {
 					var battle = app.rooms[roomid] && app.rooms[roomid].battle;
@@ -1206,8 +1258,11 @@
 					this.add('/rating [username] - Get user [username]\'s rating.');
 					return false;
 				case 'afd':
-					this.add('/afd - Enable April Fools\' Day sprites.');
-					this.add('/afd disable - Disable April Fools\' Day sprites.');
+					this.add('/afd full - Enable all April Fools\' Day jokes.');
+					this.add('/afd sprites - Enable April Fools\' Day sprites.');
+					this.add('/afd default - Set April Fools\' Day to default (full on April 1st, off otherwise).');
+					this.add('/afd off - Disable April Fools\' Day jokes until the next refresh, and set /afd default.');
+					this.add('/afd never - Disable April Fools\' Day jokes permanently.');
 					return false;
 				}
 			}
@@ -1358,10 +1413,10 @@
 		},
 		requestLeave: function (e) {
 			if (app.rooms[''].games && app.rooms[''].games[this.id]) {
-				app.addPopup(ForfeitPopup, {room: this, sourceEl: e && e.currentTarget, gameType: (this.id.substring(0, 5) === 'help-' ? 'help' : 'game')});
+				app.addPopup(ForfeitPopup, { room: this, sourceEl: e && e.currentTarget, gameType: (this.id.substring(0, 5) === 'help-' ? 'help' : 'game') });
 				return false;
 			} else if (Dex.prefs('leavePopupRoom')) {
-				app.addPopup(ForfeitPopup, {room: this, sourceEl: e && e.currentTarget, gameType: 'room'});
+				app.addPopup(ForfeitPopup, { room: this, sourceEl: e && e.currentTarget, gameType: 'room' });
 				return false;
 			}
 			return true;
@@ -1370,7 +1425,7 @@
 			this.add(data);
 		},
 		getUserGroup: function (userid) {
-			return (app.rooms[this.id].users[userid] || {group: ' '}).group;
+			return (app.rooms[this.id].users[userid] || { group: ' ' }).group;
 		},
 		add: function (log) {
 			if (typeof log === 'string') log = log.split('\n');
@@ -1484,7 +1539,6 @@
 				case 'N':
 					this.addJoinLeave('rename', row[1], row[2], true);
 					break;
-
 
 				case 'users':
 					this.parseUserList(row[1]);
@@ -1723,9 +1777,9 @@
 					break;
 				}
 				if (j > 0) {
-					if (j == 1 && list.length == 2) {
+					if (j === 1 && list.length === 2) {
 						message += ' and ';
-					} else if (j == list.length - 1) {
+					} else if (j === list.length - 1) {
 						message += ', and ';
 					} else {
 						message += ', ';
@@ -1885,7 +1939,7 @@
 				buf += this.getNoNamedUsersOnline();
 			}
 			if (this.room.userCount.guests) {
-				buf += '<li id="' + this.room.id + '-userlist-guests" style="text-align:center;padding:2px 0"><small>(<span id="' + this.room.id + '-usercount-guests">' + this.room.userCount.guests + '</span> guest' + (this.room.userCount.guests == 1 ? '' : 's') + ')</small></li>';
+				buf += '<li id="' + this.room.id + '-userlist-guests" style="text-align:center;padding:2px 0"><small>(<span id="' + this.room.id + '-usercount-guests">' + this.room.userCount.guests + '</span> guest' + (this.room.userCount.guests === 1 ? '' : 's') + ')</small></li>';
 			}
 			this.$el.html(buf);
 		},
@@ -1945,7 +1999,7 @@
 			text += '<button class="userbutton username" data-roomgroup="' + BattleLog.escapeHTML(user.group) + '" data-name="' + BattleLog.escapeHTML(user.name) + '"';
 			text += (user.away ? ' data-away=true' : '') + (user.status ? ' data-status="' + BattleLog.escapeHTML(user.status) + '"' : '') + '>';
 			var group = user.group;
-			var details = Config.groups[group] || {type: 'user'};
+			var details = Config.groups[group] || { type: 'user' };
 			var color = user.away ? 'color:#888;' : BattleLog.hashColor(userid);
 			text += '<em class="group' + (details.group === 2 ? ' staffgroup' : '') + '">' + BattleLog.escapeHTML(group) + '</em>';
 			if (details.type === 'leadership') {
@@ -1977,16 +2031,16 @@
 		comparator: function (a, b) {
 			if (a === b) return 0;
 
-			var aUser = this.room.users[a] || {group: Config.defaultGroup, away: false};
-			var bUser = this.room.users[b] || {group: Config.defaultGroup, away: false};
+			var aUser = this.room.users[a] || { group: Config.defaultGroup, away: false };
+			var bUser = this.room.users[b] || { group: Config.defaultGroup, away: false };
 
 			var aRank = (
 				Config.groups[aUser.group || ' '] ||
-				{order: (Config.defaultOrder || 10006.5)}
+				{ order: (Config.defaultOrder || 10006.5) }
 			).order;
 			var bRank = (
 				Config.groups[bUser.group || ' '] ||
-				{order: (Config.defaultOrder || 10006.5)}
+				{ order: (Config.defaultOrder || 10006.5) }
 			).order;
 
 			if (aRank !== bRank) return aRank - bRank;

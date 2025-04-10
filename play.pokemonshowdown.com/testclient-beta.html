@@ -19,10 +19,10 @@
 		<div class="ps-room scrollable" id="mainmenu"><div class="mainmenuwrapper">
 			<div class="leftmenu">
 				<div class="activitymenu">
-					<div class="pmbox">
-						<div class="pm-window news-embed">
-							<h3><button class="closebutton" tabindex="-1" aria-label="Close"><i class="fa fa-times-circle"></i></button><button class="minimizebutton" tabindex="-1" aria-label="Minimize"><i class="fa fa-minus-circle"></i></button>Latest News</h3>
-							<div class="pm-log" style="max-height:none">
+					<div class="mini-window">
+						<h3><button class="closebutton" tabindex="-1" aria-label="Close"><i class="fa fa-times-circle"></i></button><button class="minimizebutton" tabindex="-1" aria-label="Minimize"><i class="fa fa-minus-circle"></i></button>Latest News</h3>
+						<div id="room-news">
+							<div class="mini-window-body">
 								<div class="newsentry"><h4>Test client</h4><p>Welcome to the test client! You can test client changes here!</p><p>&mdash;<strong>Zarel</strong> <small class="date">on Sep 25, 2015</small></p></div>
 							</div>
 						</div>
@@ -93,25 +93,28 @@
 			}
 		})();
 	</script>
+	<script nomodule src="/js/lib/ps-polyfill.js"></script>
 	<script src="../config/testclient-key.js"></script>
 	<script src="js/client-core.js"></script>
-	<script nomodule src="/js/lib/ps-polyfill.js"></script>
 
+	<script src="js/battle-dex-data.js"></script>
 	<script src="js/battle-dex.js"></script>
 	<script src="js/battle-text-parser.js"></script>
 	<script src="js/client-main.js"></script>
 	<script src="js/lib/sockjs-1.4.0-nwjsfix.min.js"></script>
 	<script src="js/client-connection.js"></script>
-	<script src="js/lib/preact.min.js"></script>
-	<script src="js/panels.js"></script>
-	<script src="js/panel-mainmenu.js"></script>
-	<script src="js/panel-rooms.js"></script>
-	<script src="js/panel-topbar.js"></script>
+	<script> Net.defaultRoute = 'https://play.pokemonshowdown.com'; </script>
 
 	<script src="js/lib/html-css-sanitizer-minified.js"></script>
 	<script src="src/battle-log-misc.js"></script>
 	<script src="js/server/chat-formatter.js"></script>
 	<script src="js/battle-log.js"></script>
+
+	<script src="js/lib/preact.min.js"></script>
+	<script src="js/panels.js"></script>
+	<script src="js/panel-mainmenu.js"></script>
+	<script src="js/panel-rooms.js"></script>
+	<script src="js/panel-topbar.js"></script>
 	<script src="js/miniedit.js"></script>
 	<script src="js/panel-chat.js"></script>
 
@@ -124,7 +127,6 @@
 	<script src="js/battle-choices.js"></script>
 	<script src="js/panel-battle.js"></script>
 
-	<script src="js/battle-dex-data.js"></script>
 	<script src="data/pokedex.js"></script>
 	<script src="data/moves.js"></script>
 	<script src="data/items.js"></script>

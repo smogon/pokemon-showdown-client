@@ -42,10 +42,13 @@ select {
 	font-family: Verdana, Helvetica, Arial, sans-serif;
 }
 
-.dark .tabbar a.button {
+.dark .tabbar a.button,
+.dark .tabbar a.button:hover {
 	box-shadow: inset 0.5px 1px 1px rgba(255, 255, 255, 0.5);
 }
 .dark .tabbar a.button:active,
+.dark .tabbar a.button.cur,
+.dark .tabbar a.button.cur:hover,
 .dark .tabbar a.button.cur:active {
 	box-shadow: none;
 }
@@ -163,52 +166,9 @@ select {
 	border-radius: 0;
 }
 
-.popupmenu .option {
-	width: 204px;
-}
-.popupmenu i {
-	display: inline-block;
-	width: 16px;
-	color: #777777;
-}
-
-.button.small,
-.button.small {
-	font-size: 8pt;
-	padding: 2px 5px;
-}
-.button.big,
-.button.big {
-	font-size: 12pt;
-	padding: 5px 10px;
-}
-
-.mainmenuwrapper .menugroup .button.disabled,
-.mainmenuwrapper .menugroup .button.disabled:hover,
-.mainmenuwrapper .menugroup .button.disabled:active {
-	cursor: default;
-	background: #EEEEEE;
-	border-color: #CCCCCC;
-	border-style: solid;
-	border-width: 1px;
-	color: #999999;
-	text-shadow: none;
-	box-shadow: 0 1px 2px rgba(0,0,0,.1);
-}
-
 .button.subtle-notifying .fa-comment-o:before,
 .button.notifying .fa-comment-o:before {
 	content: "\f0e6";
-}
-
-i.subtle {
-	opacity: 0.25;
-	filter: alpha(opacity=25);
-}
-
-i.subtle:hover {
-	opacity: 1.0;
-	filter: alpha(opacity=100);
 }
 
 .tabbar li,
@@ -495,7 +455,7 @@ p.or:after {
 	color: #EE4422;
 }
 
-.popupmenu, popupmenu li {
+.popupmenu {
 	margin: -2px 0 -1px 0;
 	padding: 0;
 	list-style: none;
@@ -522,6 +482,23 @@ p.or:after {
 	.popupmenu h3 {
 		margin-top: 1px;
 	}
+}
+
+.popupmenu .option {
+	width: 204px;
+}
+.popupmenu i {
+	display: inline-block;
+	width: 16px;
+	color: #777777;
+}
+.popupmenu i.subtle {
+	opacity: 0.25;
+	filter: alpha(opacity=25);
+}
+.popupmenu i.subtle:hover {
+	opacity: 1.0;
+	filter: alpha(opacity=100);
 }
 
 .popupmenu .button {
@@ -881,6 +858,18 @@ p.or:after {
 	background: hsl(210,40%,42%);
 	background: linear-gradient(to bottom,  hsl(210,40%,42%),  hsl(210,40%,58%));
 	border-color: hsl(210,40%,21%);
+}
+.menugroup .button.disabled,
+.menugroup .button.disabled:hover,
+.menugroup .button.disabled:active {
+	cursor: default;
+	background: #EEEEEE;
+	border-color: #CCCCCC;
+	border-style: solid;
+	border-width: 1px;
+	color: #999999;
+	text-shadow: none;
+	box-shadow: 0 1px 2px rgba(0,0,0,.1);
 }
 
 .button.mainmenu1 { background: linear-gradient(to bottom,  hsl(5,40%,72%),  hsl(5,40%,52%)); border-color: hsl(5,40%,40%); }
@@ -1598,7 +1587,7 @@ a.ilink.yours {
 	right: 0;
 	width: auto;
 }
-.tiny-layout .movecontrols, .tiny-layout .switchcontrols {
+.tiny-layout .movecontrols, .tiny-layout .shiftcontrols, .tiny-layout .switchcontrols {
 	max-width: 330px;
 	margin: 0 auto;
 }
@@ -1701,6 +1690,7 @@ a.ilink.yours {
 }
 .shiftselect button {
 	color: #445588;
+	cursor: default;
 }
 .moveselect button {
 	color: #884422;
@@ -1801,7 +1791,7 @@ a.ilink.yours {
 	background: #009AA4;
 }
 
-.movemenu button {
+.movebutton {
 	float: left;
 	display: block;
 	width: 155px;
@@ -1811,42 +1801,77 @@ a.ilink.yours {
 	position: relative;
 	padding:  6px 4px 0 4px;
 }
-.movemenu button small {
+.movebutton small {
 	color: #777777;
 }
-.movemenu button small.type {
+.movebutton small.type {
 	padding-top: 3px;
 	float: left;
 	font-size: 8pt;
 }
-.movemenu button small.pp {
+.movebutton small.pp {
 	padding-top: 2px;
 	float: right;
 	font-size: 8pt;
 }
+.megaevo-box {
+	clear: both;
+	padding-top: 10px;
+	text-align: center;
+}
 .megaevo {
-		clear: both;
-		display: block;
-		width: 180px;
-		margin: 0 auto 0;
-		position: relative;
-		top: 6px;
-		left: -7px;
-		padding: 2px;
-		text-align: center;
+	display: inline-block;
+	vertical-align: middle;
+	width: 180px;
+	margin: 2px;
+	padding: 2px;
+	text-align: center;
 
-		cursor: pointer;
-		border: 1px solid #BBB;
-		border-radius: 3px;
-		color: #333;
-		background: #EEF2F5;
-		font-size: 10pt;
-		font-weight: bold;
+	cursor: pointer;
+	border: 1px solid #BBB;
+	border-radius: 3px;
+	color: #333;
+	background: transparent;
+	font-size: 10pt;
+	font-weight: bold;
 }
 .megaevo:hover {
-		border-color: #888;
-		background: #E5E5E5;
-		color: black;
+	border-color: #888;
+	background: #E5E5E5;
+	color: black;
+}
+.dark .megaevo {
+	color: #EEE;
+	border-color: #888;
+}
+.dark .megaevo:hover {
+	color: #FFF;
+	background: #333;
+	border-color: #BBB;
+}
+.megaevo:has(:checked),
+.dark .megaevo:has(:checked) {
+	text-shadow: -1px -1px 0 #FFF, 1px 1px 0 #FFF, -1px 1px 0 #FFF, 1px -1px 0 #FFF;
+	color: black;
+  background-image: linear-gradient(120deg,
+		hsl(0, 100%, 75%) 0%,
+		hsl(36, 100%, 75%) 10%,
+		hsl(64, 100%, 75%) 20%,
+		hsl(118, 100%, 83%) 30%,
+		hsl(179, 100%, 80%) 40%,
+		hsl(188, 100%, 79%) 50%,
+		hsl(212, 100%, 77%) 60%,
+		hsl(260, 100%, 77%) 70%,
+		hsl(284, 100%, 76%) 80%,
+		hsl(308, 100%, 76%) 90%,
+		hsl(0, 100%, 75%) 100%
+	);
+}
+.movewarning {
+	clear: both;
+	display: block;
+	font-size: 10pt;
+	padding: 8px 0 5px;
 }
 .allyparty,
 .switchmenu,
@@ -1857,7 +1882,7 @@ a.ilink.yours {
 }
 .allyparty button,
 .switchmenu button,
-.movemenu button {
+.movebutton {
 	position: relative;
 	outline: none;
 	text-align: center;
@@ -1875,16 +1900,16 @@ a.ilink.yours {
 }
 .allyparty button:hover,
 .switchmenu button:hover,
-.movemenu button:hover {
+.movebutton:hover {
 	background: #cfcfcf;
 	background: linear-gradient(to bottom,  #f2f2f2,  #cfcfcf);
 	border-color: #606060;
 }
 .allyparty button:active,
 .switchmenu button:active,
-.movemenu button:active,
+.movebutton:active,
 .switchmenu button.pressed,
-.movemenu button.pressed {
+.movebutton.pressed {
 	background: linear-gradient(to bottom,  #cfcfcf,  #f2f2f2);
 }
 
@@ -1892,7 +1917,7 @@ a.ilink.yours {
 .allyparty button:disabled,
 .switchmenu button.disabled,
 .switchmenu button:disabled,
-.movemenu button:disabled {
+.movebutton:disabled {
 	cursor: default;
 	background: #F3F3F3 !important;
 	border-color: #CCCCCC !important;
@@ -1929,7 +1954,7 @@ a.ilink.yours {
 		color: #FF7766;
 		border-color: #FF7766;
 	}
-	.battle-controls .movecontrols, .battle-controls .switchcontrols {
+	.battle-controls .movecontrols, .battle-controls .shiftcontrols, .battle-controls .switchcontrols {
 		max-width: 640px;
 	}
 	.movemenu {
@@ -1964,8 +1989,8 @@ a.ilink.yours {
 		border-radius: 6px;
 		background: #E5E5E5;
 	}
-	.megaevo {
-		margin: 0 auto 8px 50px;
+	.megaevo-box {
+		text-align: left;
 	}
 
 	.battle-controls .whatdo {

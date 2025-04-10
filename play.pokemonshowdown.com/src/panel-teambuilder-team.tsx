@@ -5,16 +5,24 @@
  * @license AGPLv3
  */
 
+import preact from "../js/lib/preact";
+import { PS, PSRoom, type Team } from "./client-main";
+import { PSPanelWrapper, PSRoomPanel } from "./panels";
+import { PSTeambuilder } from "./panel-teamdropdown";
+import { Dex, toID, type ID } from "./battle-dex";
+import { DexSearch } from "./battle-dex-search";
+import { PSSearchResults } from "./battle-searchresults";
+
 class TeamRoom extends PSRoom {
 	team: Team | null = null;
 }
 
-class TeamTextbox extends preact.Component<{team: Team}> {
+class TeamTextbox extends preact.Component<{ team: Team }> {
 	setInfo: {
 		species: string,
 		bottomY: number,
 	}[] = [];
-	sets: PokemonSet[] = [];
+	sets: Dex.PokemonSet[] = [];
 	textbox: HTMLTextAreaElement = null!;
 	heightTester: HTMLTextAreaElement = null!;
 	activeType: 'pokemon' | 'move' | 'item' | 'ability' | '' = '';
@@ -135,7 +143,7 @@ class TeamTextbox extends preact.Component<{team: Team}> {
 		this.props.team.iconCache = null;
 		PS.teams.save();
 	}
-	componentDidMount() {
+	override componentDidMount() {
 		this.textbox = this.base!.getElementsByClassName('teamtextbox')[0] as HTMLTextAreaElement;
 		this.heightTester = this.base!.getElementsByClassName('heighttester')[0] as HTMLTextAreaElement;
 
@@ -144,13 +152,15 @@ class TeamTextbox extends preact.Component<{team: Team}> {
 		this.textbox.value = exportedTeam;
 		this.update();
 	}
-	componentWillUnmount() {
+	override componentWillUnmount() {
 		this.textbox = null!;
 		this.heightTester = null!;
 	}
 	render() {
 		return <div class="teameditor">
-			<textarea class="textbox teamtextbox" onInput={this.input} onSelect={this.select} onClick={this.select} onKeyUp={this.select} />
+			<textarea
+				class="textbox teamtextbox" onInput={this.input} onSelect={this.select} onClick={this.select} onKeyUp={this.select}
+			/>
 			<textarea
 				class="textbox teamtextbox heighttester" style="visibility:hidden" tabIndex={-1} aria-hidden={true}
 			/>
@@ -169,23 +179,32 @@ class TeamTextbox extends preact.Component<{team: Team}> {
 					const left = (num % 12) * 40;
 					const iconStyle = `background:transparent url(${Dex.resourcePrefix}sprites/pokemonicons-sheet.png) no-repeat scroll -${left}px -${top}px`;
 
-					return <span class="picon" style={
-						`top:${prevOffset + 1}px;left:50px;position:absolute;${iconStyle}`
-					}></span>;
+					return <span
+						class="picon" style={`top:${prevOffset + 1}px;left:50px;position:absolute;${iconStyle}`}
+					></span>;
 				})}
-				{this.activeOffsetY >= 0 &&
-					<div class="teaminnertextbox" style={{top: this.activeOffsetY - 1}}></div>
-				}
+				{this.activeOffsetY >= 0 && (
+					<div class="teaminnertextbox" style={{ top: this.activeOffsetY - 1 }}></div>
+				)}
 			</div>
-			{this.activeType && <div class="searchresults" style={{top: this.activeSetIndex >= 0 ? this.setInfo[this.activeSetIndex].bottomY - 12 : 0}}>
-				<button class="button closesearch" onClick={this.closeMenu}><i class="fa fa-times"></i> Close</button>
-				<PSSearchResults search={this.search} />
-			</div>}
+			{this.activeType && (
+				<div
+					class="searchresults" style={{ top: this.activeSetIndex >= 0 ? this.setInfo[this.activeSetIndex].bottomY - 12 : 0 }}
+				>
+					<button class="button closesearch" onClick={this.closeMenu}><i class="fa fa-times"></i> Close</button>
+					<PSSearchResults search={this.search} />
+				</div>
+			)}
 		</div>;
 	}
 }
 
 class TeamPanel extends PSRoomPanel<TeamRoom> {
+	static readonly id = 'team';
+	static readonly routes = ['team-*'];
+	static readonly Model = TeamRoom;
+	static readonly title = 'Team';
+
 	rename = (e: Event) => {
 		const textbox = e.currentTarget as HTMLInputElement;
 		const room = this.props.room;
@@ -193,7 +212,7 @@ class TeamPanel extends PSRoomPanel<TeamRoom> {
 		room.team!.name = textbox.value.trim();
 		PS.teams.save();
 	};
-	render() {
+	override render() {
 		const room = this.props.room;
 		const team = PS.teams.byKey[room.id.slice(5)];
 		if (!team) {
@@ -215,7 +234,9 @@ class TeamPanel extends PSRoomPanel<TeamRoom> {
 				</button>
 				<label class="label teamname">
 					Team name:
-					<input class="textbox" type="text" value={team.name} onInput={this.rename} onChange={this.rename} onKeyUp={this.rename} />
+					<input
+						class="textbox" type="text" value={team.name} onInput={this.rename} onChange={this.rename} onKeyUp={this.rename}
+					/>
 				</label>
 				<TeamTextbox team={team} />
 			</div>
@@ -223,9 +244,4 @@ class TeamPanel extends PSRoomPanel<TeamRoom> {
 	}
 }
 
-PS.roomTypes['team'] = {
-	Model: TeamRoom,
-	Component: TeamPanel,
-	title: "Team",
-};
-PS.updateRoomTypes();
+PS.addRoomType(TeamPanel);

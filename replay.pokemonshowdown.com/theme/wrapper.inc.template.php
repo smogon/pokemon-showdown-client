@@ -1,5 +1,7 @@
 <?php
 
+// NOTE: this is Old Replays. Mostly unused except for `/manage`
+
 if ((substr($_SERVER['REMOTE_ADDR'],0,11) === '69.164.163.') ||
 		(substr(@$_SERVER['HTTP_X_FORWARDED_FOR'],0,11) === '69.164.163.')) {
 	die('website disabled');
@@ -55,9 +57,9 @@ function ThemeHeaderTemplate() {
 			<ul class="nav">
 				<li><a class="button nav-first<?php if ($panels->tab === 'home') echo ' cur'; ?>" href="//pokemonshowdown.com/"><img src="//pokemonshowdown.com/images/pokemonshowdownbeta.png" alt="Pok&eacute;mon Showdown! (beta)" /> Home</a></li>
 				<li><a class="button<?php if ($panels->tab === 'pokedex') echo ' cur'; ?>" href="//dex.pokemonshowdown.com/">Pok&eacute;dex</a></li>
-				<li><a class="button<?php if ($panels->tab === 'replay') echo ' cur'; ?>" href="/">Replays</a></li>
-				<li><a class="button<?php if ($panels->tab === 'ladder') echo ' cur'; ?>" href="//pokemonshowdown.com/ladder/">Ladder</a></li>
-				<li><a class="button nav-last" href="//pokemonshowdown.com/forums/">Forum</a></li>
+				<li><a class="button<?php if ($panels->tab === 'replay') echo ' cur'; ?>" href="/">Replay</a></li>
+				<li><a class="button purplebutton" href="//smogon.com/dex/" target="_blank">Strategy</a></li>
+				<li><a class="button nav-last purplebutton" href="//smogon.com/forums/" target="_blank">Forum</a></li>
 			</ul>
 			<ul class="nav nav-play">
 				<li><a class="button greenbutton nav-first nav-last" href="http://play.pokemonshowdown.com/">Play</a></li>

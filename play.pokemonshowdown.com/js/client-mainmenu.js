@@ -12,12 +12,13 @@
 			'click .closebutton': 'closePM',
 			'click .minimizebutton': 'minimizePM',
 			'click .pm-challenge': 'clickPMButtonBarChallenge',
-			'click .pm-userOptions':'clickPMButtonBarUserOptions',
+			'click .pm-userOptions': 'clickPMButtonBarUserOptions',
 			'click .pm-window': 'clickPMBackground',
 			'dblclick .pm-window h3': 'dblClickPMHeader',
 			'focus textarea': 'onFocusPM',
 			'blur textarea': 'onBlurPM',
 			'click .spoiler': 'clickSpoiler',
+			'click .datasearch': 'clickDatasearchResults',
 			'click button.formatselect': 'selectFormat',
 			'click button.teamselect': 'selectTeam',
 			'click button[name=partnersubmit]': 'selectTeammate'
@@ -132,7 +133,7 @@
 			options.noMinimize = options.noMinimize || false;
 
 			this.$pmBox[options.append ? 'append' : 'prepend']('<div class="pm-window ' + options.cssClass + '" ' + options.attributes + '><h3><button class="closebutton" tabindex="-1" aria-label="Close"><i class="fa fa-times-circle"></i></button>' + (!options.noMinimize ? '<button class="minimizebutton" tabindex="-1" aria-label="Minimize"><i class="fa fa-minus-circle"></i></button>' : '') + options.title + '</h3><div class="pm-log" style="overflow:visible;height:' + (typeof options.height === 'number' ? options.height + 'px' : options.height) + ';' + (parseInt(options.height, 10) ? 'max-height:none' : (options.maxHeight ? 'max-height:' + (typeof options.maxHeight === 'number' ? options.maxHeight + 'px' : options.maxHeight) : '')) + '">' +
-				options.html +
+				BattleLog.sanitizeHTML(options.html) +
 				'</div></div>');
 		},
 
@@ -347,7 +348,7 @@
 				$pmWindow = $(e.currentTarget).closest('.pm-window');
 				var newsId = $pmWindow.data('newsid');
 				if (newsId) {
-					$.cookie('showdown_readnews', '' + newsId, {expires: 365});
+					$.cookie('showdown_readnews', '' + newsId, { expires: 365 });
 				}
 				$pmWindow.remove();
 				return;
@@ -414,7 +415,7 @@
 		clickUsername: function (e) {
 			e.stopPropagation();
 			var name = $(e.currentTarget).data('name') || $(e.currentTarget).text();
-			app.addPopup(UserPopup, {name: name, sourceEl: e.currentTarget});
+			app.addPopup(UserPopup, { name: name, sourceEl: e.currentTarget });
 		},
 		clickPMButtonBarChallenge: function (e) {
 			var name = $(e.currentTarget).closest('.pm-window').data('name');
@@ -426,7 +427,7 @@
 			e.stopPropagation();
 			var name = $(e.currentTarget).closest('.pm-window').data('name');
 			var userid = toID($(e.currentTarget).closest('.pm-window').data('name'));
-			app.addPopup(UserOptions, {name: name, userid: userid, sourceEl: e.currentTarget});
+			app.addPopup(UserOptions, { name: name, userid: userid, sourceEl: e.currentTarget });
 		},
 		focusPM: function (name) {
 			this.openPM(name).prependTo(this.$pmBox).find('textarea[name=message]').focus();
@@ -659,6 +660,18 @@
 			$(e.currentTarget).toggleClass('spoiler-shown');
 		},
 
+		clickDatasearchResults: function (e) {
+			if ($(e.target)[0].href) return;
+			var target = $(e.currentTarget).closest('[class=datasearch]')[0];
+			var button = target.querySelector('button');
+			var results = target.querySelectorAll('[class=datasearch-body]');
+			if (!button || !results || results.length < 2) return;
+			button.innerHTML = button.innerHTML === '[-]' ? '[+]' : '[-]';
+			for (var i = 0; i < results.length; i++) {
+				results[i].style.display = results[i].style.display === 'none' ? 'block' : 'none';
+			}
+		},
+
 		// support for buttons that can be sent by the server:
 
 		joinRoom: function (room) {
@@ -668,10 +681,10 @@
 			app.addPopup(AvatarsPopup);
 		},
 		openSounds: function () {
-			app.addPopup(SoundsPopup, {type: 'semimodal'});
+			app.addPopup(SoundsPopup, { type: 'semimodal' });
 		},
 		openOptions: function () {
-			app.addPopup(OptionsPopup, {type: 'semimodal'});
+			app.addPopup(OptionsPopup, { type: 'semimodal' });
 		},
 
 		// challenges and searching
@@ -1002,7 +1015,7 @@
 			}
 		},
 		format: function (format, button) {
-			if (window.BattleFormats) app.addPopup(FormatPopup, {format: format, sourceEl: button});
+			if (window.BattleFormats) app.addPopup(FormatPopup, { format: format, sourceEl: button });
 		},
 		adjustPrivacy: function (disallowSpectators) {
 			Storage.prefs('disallowspectators', disallowSpectators);
@@ -1012,7 +1025,7 @@
 		},
 		team: function (team, button) {
 			var format = $(button).closest('form').find('button[name=format]').val();
-			app.addPopup(TeamPopup, {team: team, format: format, sourceEl: button, folderToggleOn: true, folderNotExpanded: []});
+			app.addPopup(TeamPopup, { team: team, format: format, sourceEl: button, folderToggleOn: true, folderNotExpanded: [] });
 		},
 
 		// format/team selection
@@ -1142,7 +1155,7 @@
 			app.addPopupPrompt("Username", "Open", function (target) {
 				if (!target) return;
 				if (toID(target) === 'zarel') {
-					app.addPopup(Popup, {htmlMessage: "Zarel is very busy; please don't contact him this way. If you're looking for help, try <a href=\"/help\">joining the Help room</a>?"});
+					app.addPopup(Popup, { htmlMessage: "Zarel is very busy; please don't contact him this way. If you're looking for help, try <a href=\"/help\">joining the Help room</a>?" });
 					return;
 				}
 				if (target === '~') {
@@ -1150,7 +1163,7 @@
 					app.rooms[''].focusPM('~');
 					return;
 				}
-				app.addPopup(UserPopup, {name: target});
+				app.addPopup(UserPopup, { name: target });
 			});
 		}
 	}, {
@@ -1202,14 +1215,14 @@
 			case 'data-move':
 				return '[outdated message type not supported]';
 			case 'text':
-				return {message: '<div class="chat">' + BattleLog.parseMessage(target) + '</div>', noNotify: true};
+				return { message: '<div class="chat">' + BattleLog.parseMessage(target) + '</div>', noNotify: true };
 			case 'error':
 				return '<div class="chat message-error">' + BattleLog.escapeHTML(target) + '</div>';
 			case 'html':
 				if (!name) {
-					return {message: '<div class="chat' + hlClass + '">' + timestamp + '<em>' + BattleLog.sanitizeHTML(target) + '</em></div>', noNotify: isNotPM};
+					return { message: '<div class="chat' + hlClass + '">' + timestamp + '<em>' + BattleLog.sanitizeHTML(target) + '</em></div>', noNotify: isNotPM };
 				}
-				return {message: '<div class="chat chatmessage-' + toID(name) + hlClass + mineClass + '">' + timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <em>' + BattleLog.sanitizeHTML(target) + '</em></div>', noNotify: isNotPM};
+				return { message: '<div class="chat chatmessage-' + toID(name) + hlClass + mineClass + '">' + timestamp + '<strong style="' + color + '">' + clickableName + ':</strong> <em>' + BattleLog.sanitizeHTML(target) + '</em></div>', noNotify: isNotPM };
 			case 'uhtml':
 			case 'uhtmlchange':
 				var parts = target.split(',');
@@ -1225,13 +1238,13 @@
 					$elements.remove();
 					$chatElem.append('<div class="chat uhtml-' + toID(parts[0]) + ' chatmessage-' + toID(name) + '">' + BattleLog.sanitizeHTML(html) + '</div>');
 				}
-				return {message: '', noNotify: isNotPM};
+				return { message: '', noNotify: isNotPM };
 			case 'raw':
-				return {message: '<div class="chat chatmessage-' + toID(name) + '">' + BattleLog.sanitizeHTML(target) + '</div>', noNotify: isNotPM};
+				return { message: '<div class="chat chatmessage-' + toID(name) + '">' + BattleLog.sanitizeHTML(target) + '</div>', noNotify: isNotPM };
 			case 'nonotify':
-				return {message: '<div class="chat">' + timestamp + BattleLog.sanitizeHTML(target) + '</div>', noNotify: true};
+				return { message: '<div class="chat">' + timestamp + BattleLog.sanitizeHTML(target) + '</div>', noNotify: true };
 			case 'challenge':
-				return {challenge: target};
+				return { challenge: target };
 			default:
 				// Not a command or unsupported. Parsed as a normal chat message.
 				if (!name) {
@@ -1246,7 +1259,7 @@
 		events: {
 			'keyup input[name=search]': 'updateSearch',
 			'click details': 'updateOpen',
-			'click i.fa': 'updateStar',
+			'click i.fa': 'updateStar'
 		},
 		initialize: function (data) {
 			this.data = data;
@@ -1258,7 +1271,7 @@
 					"S/V Singles": true, "S/V Doubles": true, "Unofficial Metagames": true, "National Dex": true, "OM of the Month": true,
 					"Other Metagames": true, "Randomized Format Spotlight": true, "RoA Spotlight": true,
 					// For AFD
-					"Random Meta of the Decade": true,
+					"Random Meta of the Decade": true
 				};
 			}
 			if (!this.starred) this.starred = Storage.prefs('starredformats') || {};
@@ -1387,7 +1400,7 @@
 				if (!format.isTeambuilderFormat) return false;
 			} else {
 				if (format.effectType !== 'Format' || format.battleFormat) return false;
-				if (this.selectType != 'watch' && !format[this.selectType + 'Show']) return false;
+				if (this.selectType !== 'watch' && !format[this.selectType + 'Show']) return false;
 			}
 			return true;
 		},
@@ -1531,7 +1544,7 @@
 						} else {
 							bufs[curBuf] += '<li><button name="selectFolder" class="button" value="(No Folder)"><i class="fa fa-folder" style="margin-right: 7px; margin-left: 4px;"></i>(No Folder)</button></li>';
 							count++;
-							if (count % bufBoundary === 0 && count != 0 && curBuf < 4) curBuf++;
+							if (count % bufBoundary === 0 && count !== 0 && curBuf < 4) curBuf++;
 						}
 						if (!isNoFolder) {
 							for (var i = 0; i < teams.length; i++) {
@@ -1578,11 +1591,11 @@
 			}
 		},
 		events: {
-			'click input[type=checkbox]': 'foldersToggle',
+			'click input[type=checkbox]': 'foldersToggle'
 		},
 		moreTeams: function () {
 			this.close();
-			app.addPopup(TeamPopup, {team: this.team, format: this.format, sourceEl: this.sourceEl, room: this.room, isMoreTeams: true, folderToggleOn: this.folderToggleOn, folderNotExpanded: this.folderNotExpanded});
+			app.addPopup(TeamPopup, { team: this.team, format: this.format, sourceEl: this.sourceEl, room: this.room, isMoreTeams: true, folderToggleOn: this.folderToggleOn, folderNotExpanded: this.folderNotExpanded });
 		},
 		teambuilder: function () {
 			var teamFormat = this.teamFormat;
@@ -1599,19 +1612,18 @@
 				if (folder === key) {
 					keyExists = true;
 					return false;
-				} else {
-					return true;
 				}
+				return true;
 			});
 			if (!keyExists) {
 				folderNotExpanded.push(key);
 			}
 			this.close();
-			app.addPopup(TeamPopup, {team: this.team, format: this.format, sourceEl: this.sourceEl, room: this.room, isMoreTeams: this.isMoreTeams, folderToggleOn: this.folderToggleOn, folderNotExpanded: folderNotExpanded});
+			app.addPopup(TeamPopup, { team: this.team, format: this.format, sourceEl: this.sourceEl, room: this.room, isMoreTeams: this.isMoreTeams, folderToggleOn: this.folderToggleOn, folderNotExpanded: folderNotExpanded });
 		},
 		foldersToggle: function () {
 			this.close();
-			app.addPopup(TeamPopup, {team: this.team, format: this.format, sourceEl: this.sourceEl, room: this.room, isMoreTeams: this.isMoreTeams, folderToggleOn: !this.folderToggleOn, folderNotExpanded: this.folderNotExpanded});
+			app.addPopup(TeamPopup, { team: this.team, format: this.format, sourceEl: this.sourceEl, room: this.room, isMoreTeams: this.isMoreTeams, folderToggleOn: !this.folderToggleOn, folderNotExpanded: this.folderNotExpanded });
 		},
 		selectTeam: function (i) {
 			i = +i;

@@ -1,4 +1,27 @@
 ﻿<!DOCTYPE html>
+<!--
+                      ,///////,
+      +#########+     ///////,
+   +###############+  ///////
+  +#################+,//////,
+ +###################,/////,
+ ########+   +########////
+                     ////,  PokemonShowdown.com                          
+ ########+   +########///
+ +###################+//
+  +#################+
+   +###############+
+      +#########+///////,
+                ///////,
+
+Viewing source? We're open source! Check us out on GitHub!
+https://github.com/smogon/pokemon-showdown
+https://github.com/smogon/pokemon-showdown-client (you are here)
+
+Also visit us in the Dev chatroom:
+https://psim.us/dev
+
+-->
 <html><head>
 	<meta charset="UTF-8" />
 	<meta name="viewport" content="width=device-width" />
@@ -19,11 +42,12 @@
 		<div class="ps-room scrollable" id="mainmenu"><div class="mainmenuwrapper">
 			<div class="leftmenu">
 				<div class="activitymenu">
-					<div class="pmbox">
-						<div class="pm-window news-embed">
-							<h3><button class="closebutton" tabindex="-1" aria-label="Close"><i class="fa fa-times-circle"></i></button><button class="minimizebutton" tabindex="-1" aria-label="Minimize"><i class="fa fa-minus-circle"></i></button>Latest News</h3>
-							<div class="pm-log" style="max-height:none">
-								<div class="newsentry"><h4>Test client</h4><p>Welcome to the test client! You can test client changes here!</p><p>&mdash;<strong>Zarel</strong> <small class="date">on Sep 25, 2015</small></p></div>
+					<div class="mini-window">
+						<h3><button class="closebutton" tabindex="-1" aria-label="Close"><i class="fa fa-times-circle"></i></button><button class="minimizebutton" tabindex="-1" aria-label="Minimize"><i class="fa fa-minus-circle"></i></button>Latest News</h3>
+						<div id="room-news">
+							<div class="mini-window-body">
+								<div class="newsentry"><h4>New updates</h4><p>The Preact alpha test client is very far along!</p><p>Other than the teambuilder, everything else should be ready.</p><p>&mdash;<strong>Zarel</strong> <small class="date">on Apr 9, 2025</small></p></div>
+								<div class="newsentry"><h4>Preact alpha</h4><p>Welcome to the Preact alpha test client!</p><p>Many parts are unimplemented and there may be bugs; we're using this page to test it.</p><p>&mdash;<strong>Zarel</strong> <small class="date">on Sep 25, 2015</small></p></div>
 							</div>
 						</div>
 					</div>
@@ -51,25 +75,28 @@
 		linkStyle("style/battle-search.css");
 		linkStyle("/style/font-awesome.css");
 	</script>
+	<script nomodule defer src="/js/lib/ps-polyfill.js"></script>
 	<script defer src="/config/config.js?"></script>
 	<script defer src="/js/client-core.js?"></script>
-	<script nomodule defer src="/js/lib/ps-polyfill.js"></script>
 
+	<script defer src="/js/battle-dex-data.js?"></script>
 	<script defer src="/js/battle-dex.js?"></script>
 	<script defer src="/js/battle-text-parser.js?"></script>
 	<script defer src="/js/client-main.js?"></script>
 	<script defer src="/js/lib/sockjs-1.4.0-nwjsfix.min.js?"></script>
 	<script defer src="/js/client-connection.js?"></script>
-	<script defer src="/js/lib/preact.min.js?"></script>
-	<script defer src="/js/panels.js?"></script>
-	<script defer src="/js/panel-mainmenu.js?"></script>
-	<script defer src="/js/panel-rooms.js?"></script>
-	<script defer src="/js/panel-topbar.js?"></script>
 
 	<script defer src="/js/lib/html-css-sanitizer-minified.js?"></script>
 	<script defer src="/src/battle-log-misc.js?"></script>
 	<script defer src="/js/server/chat-formatter.js?"></script>
 	<script defer src="/js/battle-log.js?"></script>
+
+	<script defer src="/js/lib/preact.min.js?"></script>
+	<script defer src="/js/panels.js?"></script>
+	<script defer src="/js/panel-mainmenu.js?"></script>
+	<script defer src="/js/panel-rooms.js?"></script>
+	<script defer src="/js/panel-topbar.js?"></script>
+	<script defer src="/js/miniedit.js?"></script>
 	<script defer src="/js/panel-chat.js?"></script>
 
 	<script defer src="/js/battle-sound.js"></script>
@@ -81,7 +108,6 @@
 	<script defer src="/js/battle-choices.js?"></script>
 	<script defer src="/js/panel-battle.js?"></script>
 
-	<script defer src="/js/battle-dex-data.js?"></script>
 	<script defer src="/data/pokedex.js?"></script>
 	<script defer src="/data/moves.js?"></script>
 	<script defer src="/data/items.js?"></script>

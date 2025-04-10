@@ -5,58 +5,84 @@
  * @license AGPLv3
  */
 
-declare const MiniEdit: typeof import('./miniedit').MiniEdit;
-type MiniEdit = import('./miniedit').MiniEdit;
-declare const formatText: any;
+import preact from "../js/lib/preact";
+import type { PSSubscription } from "./client-core";
+import { PS, PSRoom, type RoomOptions, type RoomID, type Team } from "./client-main";
+import { PSPanelWrapper, PSRoomPanel } from "./panels";
+import { TeamForm } from "./panel-mainmenu";
+import { BattleLog } from "./battle-log";
+import type { Battle } from "./battle";
+import { MiniEdit } from "./miniedit";
+import { PSUtils, toID, type ID } from "./battle-dex";
+import type { Args } from "./battle-text-parser";
 
-class ChatRoom extends PSRoom {
-	readonly classType: 'chat' | 'battle' = 'chat';
-	users: {[userid: string]: string} = {};
+declare const formatText: any; // from js/server/chat-formatter.js
+
+type Challenge = {
+	formatName: string,
+	teamFormat: string,
+	message?: string,
+	acceptButtonLabel?: string,
+	rejectButtonLabel?: string,
+};
+
+export class ChatRoom extends PSRoom {
+	override readonly classType: 'chat' | 'battle' = 'chat';
+	users: { [userid: string]: string } = {};
 	userCount = 0;
-	readonly canConnect = true;
+	override readonly canConnect = true;
 
 	// PM-only properties
 	pmTarget: string | null = null;
 	challengeMenuOpen = false;
-	challengingFormat: string | null = null;
-	challengedFormat: string | null = null;
+	initialSlash = false;
+	challenging: Challenge | null = null;
+	challenged: Challenge | null = null;
+	/** n.b. this will be null outside of battle rooms */
+	battle: Battle | null = null;
+	log: BattleLog | null = null;
+	/** during initialization, room could get messages before it has a log */
+	backlog: Args[] | null = null;
 
 	constructor(options: RoomOptions) {
 		super(options);
-		if (options.pmTarget) this.pmTarget = options.pmTarget as string;
-		if (options.challengeMenuOpen) this.challengeMenuOpen = true;
-		this.updateTarget(true);
+		if (options.args?.pmTarget) this.pmTarget = options.args.pmTarget as string;
+		if (options.args?.challengeMenuOpen) this.challengeMenuOpen = true;
+		if (options.args?.initialSlash) this.initialSlash = true;
+		this.updateTarget();
 		this.connect();
 	}
-	connect() {
+	override connect() {
 		if (!this.connected) {
-			if (!this.pmTarget) PS.send(`|/join ${this.id}`);
+			if (this.pmTarget === null) PS.send(`|/join ${this.id}`);
 			this.connected = true;
 			this.connectWhenLoggedIn = false;
 		}
 	}
-	updateTarget(force?: boolean) {
-		if (this.id.startsWith('pm-')) {
-			const [id1, id2] = this.id.slice(3).split('-');
-			if (id1 === PS.user.userid && toID(this.pmTarget) !== id2) {
-				this.pmTarget = id2;
-			} else if (id2 === PS.user.userid && toID(this.pmTarget) !== id1) {
-				this.pmTarget = id1;
-			} else if (!force) {
-				return;
+	override receiveLine(args: Args) {
+		if (!this.log) (this.backlog ||= []).push(args);
+		super.receiveLine(args);
+	}
+	updateTarget() {
+		if (this.id === 'dm-') {
+			this.pmTarget = PS.user.userid;
+			this.setUsers(1, [` ${PS.user.userid}`]);
+			this.title = `Console`;
+		} else if (this.id.startsWith('dm-')) {
+			const id = this.id.slice(3);
+			this.pmTarget = id;
+			if (!PS.user.userid) {
+				this.setUsers(1, [` ${id}`]);
 			} else {
-				this.pmTarget = id1;
+				this.setUsers(2, [` ${id}`, ` ${PS.user.userid}`]);
 			}
-			if (!this.userCount) {
-				this.setUsers(2, [` ${id1}`, ` ${id2}`]);
-			}
-			this.title = `[PM] ${this.pmTarget}`;
+			this.title = `[DM] ${this.pmTarget}`;
 		}
 	}
 	/**
 	 * @return true to prevent line from being sent to server
 	 */
-	handleMessage(line: string) {
+	override handleSend(line: string) {
 		if (!line.startsWith('/') || line.startsWith('//')) return false;
 		const spaceIndex = line.indexOf(' ');
 		const cmd = spaceIndex >= 0 ? line.slice(1, spaceIndex) : line.slice(1);
@@ -81,11 +107,12 @@ class ChatRoom extends PSRoom {
 			this.cancelChallenge();
 			return true;
 		} case 'reject': {
-			this.challengedFormat = null;
+			this.challenged = null;
 			this.update(null);
 			return false;
-		}}
-		return super.handleMessage(line);
+		}
+		}
+		return super.handleSend(line);
 	}
 	openChallenge() {
 		if (!this.pmTarget) {
@@ -100,24 +127,60 @@ class ChatRoom extends PSRoom {
 			this.receiveLine([`error`, `Can only be used in a PM.`]);
 			return;
 		}
-		if (this.challengingFormat) {
-			this.send('/cancelchallenge', true);
-			this.challengingFormat = null;
+		if (this.challenging) {
+			this.sendDirect('/cancelchallenge');
+			this.challenging = null;
 			this.challengeMenuOpen = true;
 		} else {
 			this.challengeMenuOpen = false;
 		}
 		this.update(null);
 	}
-	send(line: string, direct?: boolean) {
-		this.updateTarget();
-		if (!direct && !line) return;
-		if (!direct && this.handleMessage(line)) return;
+	parseChallenge(challengeString: string | null): Challenge | null {
+		if (!challengeString) return null;
+
+		let splitChallenge = challengeString.split('|');
+
+		const challenge = {
+			formatName: splitChallenge[0],
+			teamFormat: splitChallenge[1] ?? splitChallenge[0],
+			message: splitChallenge[2],
+			acceptButtonLabel: splitChallenge[3],
+			rejectButtonLabel: splitChallenge[4],
+		};
+		if (!challenge.formatName && !challenge.message) {
+			return null;
+		}
+		return challenge;
+	}
+	updateChallenge(name: string, challengeString: string) {
+		const challenge = this.parseChallenge(challengeString);
+		const userid = toID(name);
+
+		if (userid === PS.user.userid) {
+			if (!challenge && !this.challenging) {
+				// this is also used for canceling challenges
+				this.challenged = null;
+			}
+			// we are sending the challenge
+			this.challenging = challenge;
+		} else {
+			if (!challenge && !this.challenged) {
+				// this is also used for rejecting challenges
+				this.challenging = null;
+			}
+			this.challenged = challenge;
+			// this.notifyOnce("Challenge from " + name, "Format: " + BattleLog.formatName(formatName), 'challenge:' + userid);
+			// app.playNotificationSound();
+		}
+		this.update(null);
+	}
+	override sendDirect(line: string) {
 		if (this.pmTarget) {
 			PS.send(`|/pm ${this.pmTarget}, ${line}`);
 			return;
 		}
-		super.send(line, true);
+		super.sendDirect(line);
 	}
 	setUsers(count: number, usernames: string[]) {
 		this.userCount = count;
@@ -147,15 +210,15 @@ class ChatRoom extends PSRoom {
 		this.addUser(username);
 		this.update(null);
 	}
-	destroy() {
+	override destroy() {
 		if (this.pmTarget) this.connected = false;
 		super.destroy();
 	}
 }
 
-class ChatTextEntry extends preact.Component<{
+export class ChatTextEntry extends preact.Component<{
 	room: PSRoom, onMessage: (msg: string) => void, onKey: (e: KeyboardEvent) => boolean,
-	left?: number,
+	left?: number, tinyLayout?: boolean,
 }> {
 	subscription: PSSubscription | null = null;
 	textbox: HTMLTextAreaElement = null!;
@@ -171,9 +234,14 @@ class ChatTextEntry extends preact.Component<{
 		this.miniedit = new MiniEdit(textbox, {
 			setContent: text => {
 				textbox.innerHTML = formatText(text, false, false, true) + '\n';
+				textbox.classList?.toggle('textbox-empty', !text);
 			},
 			onKeyDown: this.onKeyDown,
 		});
+		if (this.props.room.args?.initialSlash) {
+			this.props.room.args.initialSlash = false;
+			this.miniedit.setValue('/', { start: 1, end: 1 });
+		}
 		if (this.base) this.update();
 	}
 	override componentWillUnmount() {
@@ -211,7 +279,7 @@ class ChatTextEntry extends preact.Component<{
 	getValue() {
 		return this.miniedit ? this.miniedit.getValue() : this.textbox.value;
 	}
-	setValue(value: string, selection?: {start: number, end: number}) {
+	setValue(value: string, selection?: { start: number, end: number }) {
 		if (this.miniedit) {
 			this.miniedit.setValue(value, selection);
 		} else {
@@ -248,7 +316,7 @@ class ChatTextEntry extends preact.Component<{
 	}
 	handleKey(ev: KeyboardEvent) {
 		const cmdKey = ((ev.metaKey ? 1 : 0) + (ev.ctrlKey ? 1 : 0) === 1) && !ev.altKey && !ev.shiftKey;
-		const anyModifier = ev.ctrlKey || ev.altKey || ev.metaKey || ev.shiftKey;
+		// const anyModifier = ev.ctrlKey || ev.altKey || ev.metaKey || ev.shiftKey;
 		if (ev.keyCode === 13 && !ev.shiftKey) { // Enter key
 			return this.submit();
 		} else if (ev.keyCode === 13 && this.miniedit) { // enter
@@ -267,6 +335,11 @@ class ChatTextEntry extends preact.Component<{
 			return this.historyUp();
 		} else if (ev.keyCode === 40 && !ev.shiftKey && !ev.altKey) { // Down key
 			return this.historyDown();
+		} else if (ev.keyCode === 27) { // esc
+			if (PS.room !== PS.panel) { // only close if in mini-room mode
+				PS.removeRoom(PS.room);
+				return true;
+			}
 		// } else if (app.user.lastPM && (textbox.value === '/reply' || textbox.value === '/r' || textbox.value === '/R') && e.keyCode === 32) { // '/reply ' is being written
 		// 	var val = '/pm ' + app.user.lastPM + ', ';
 		// 	textbox.value = val;
@@ -277,19 +350,19 @@ class ChatTextEntry extends preact.Component<{
 	}
 	getSelection() {
 		return this.miniedit ?
-			(this.miniedit.getSelection() || {start: 0, end: 0}) :
-			{start: this.textbox.selectionStart, end: this.textbox.selectionEnd};
+			(this.miniedit.getSelection() || { start: 0, end: 0 }) :
+			{ start: this.textbox.selectionStart, end: this.textbox.selectionEnd };
 	}
 	setSelection(start: number, end: number) {
 		if (this.miniedit) {
-			this.miniedit.setSelection({start, end});
+			this.miniedit.setSelection({ start, end });
 		} else {
 			this.textbox.setSelectionRange?.(start, end);
 		}
 	}
 	toggleFormatChar(formatChar: string) {
 		let value = this.getValue();
-		let {start, end} = this.getSelection();
+		let { start, end } = this.getSelection();
 
 		// make sure start and end aren't midway through the syntax
 		if (value.charAt(start) === formatChar && value.charAt(start - 1) === formatChar &&
@@ -325,56 +398,65 @@ class ChatTextEntry extends preact.Component<{
 			end -= 2;
 		}
 
-		this.setValue(value, {start, end});
+		this.setValue(value, { start, end });
 		return true;
 	}
 	override render() {
 		const OLD_TEXTBOX = false;
 		return <div
-			class="chat-log-add hasuserlist" onClick={this.focusIfNoSelection} style={{left: this.props.left || 0}}
+			class="chat-log-add hasuserlist" onClick={this.focusIfNoSelection} style={{ left: this.props.left || 0 }}
 		>
-			<form class="chatbox">
-				<label style={{color: BattleLog.usernameColor(PS.user.userid)}}>{PS.user.name}:</label>
+			<form class={`chatbox${this.props.tinyLayout ? ' nolabel' : ''}`} style={PS.user.named ? {} : { display: 'none' }}>
+				<label style={{ color: BattleLog.usernameColor(PS.user.userid) }}>{PS.user.name}:</label>
 				{OLD_TEXTBOX ? <textarea
-					class={this.props.room.connected ? 'textbox' : 'textbox disabled'}
+					class={this.props.room.connected && PS.user.named ? 'textbox autofocus' : 'textbox disabled'}
 					autofocus
 					rows={1}
 					onInput={this.update}
 					onKeyDown={this.onKeyDown}
-					style={{resize: 'none', width: '100%', height: '16px', padding: '2px 3px 1px 3px'}}
+					style={{ resize: 'none', width: '100%', height: '16px', padding: '2px 3px 1px 3px' }}
 					placeholder={PS.focusPreview(this.props.room)}
 				/> : <ChatTextBox
-					class={this.props.room.connected ? 'textbox' : 'textbox disabled'}
+					disabled={!this.props.room.connected || !PS.user.named}
 					placeholder={PS.focusPreview(this.props.room)}
 				/>}
 			</form>
+			{!PS.user.named && <button data-href="login" class="button autofocus">
+				Choose a name before sending messages
+			</button>}
 		</div>;
 	}
 }
 
-class ChatTextBox extends preact.Component<{placeholder: string, class: string}> {
-	override shouldComponentUpdate() {
+class ChatTextBox extends preact.Component<{ placeholder: string, disabled?: boolean }> {
+	override shouldComponentUpdate(nextProps: any) {
+		this.base!.setAttribute("placeholder", nextProps.placeholder);
+		this.base!.classList?.toggle('disabled', !!nextProps.disabled);
+		this.base!.classList?.toggle('autofocus', !nextProps.disabled);
 		return false;
 	}
 	override render() {
-		return <pre class={this.props.class} placeholder={this.props.placeholder}>{'\n'}</pre>;
+		return <pre
+			class={`textbox textbox-empty ${this.props.disabled ? ' disabled' : ''}`} placeholder={this.props.placeholder}
+		>{'\n'}</pre>;
 	}
 }
 
 class ChatPanel extends PSRoomPanel<ChatRoom> {
+	static readonly id = 'chat';
+	static readonly routes = ['dm-*', '*'];
+	static readonly Model = ChatRoom;
+	static readonly location = 'right';
+	static readonly icon = <i class="fa fa-comment-o"></i>;
+	override componentDidMount(): void {
+		this.subscribeTo(PS.user, () => {
+			this.props.room.updateTarget();
+		});
+		super.componentDidMount();
+	}
 	send = (text: string) => {
 		this.props.room.send(text);
 	};
-	focus() {
-		// Called synchronously after a forceUpdate, so before the DOM has
-		// been updated to make the panel visible. The order isn't
-		// important for textboxes, which can be focused while inside a
-		// `display: none` element, but contentEditable boxes are pickier.
-		// Waiting for a 0 timeout turns out to be enough.
-		setTimeout(() => {
-			(this.base!.querySelector('textarea, pre.textbox') as HTMLElement).focus();
-		}, 0);
-	}
 	focusIfNoSelection = () => {
 		const selection = window.getSelection()!;
 		if (selection.type === 'Range') return;
@@ -399,7 +481,10 @@ class ChatPanel extends PSRoomPanel<ChatRoom> {
 		PS.send(`|/utm ${packedTeam}`);
 		PS.send(`|/challenge ${room.pmTarget}, ${format}`);
 		room.challengeMenuOpen = false;
-		room.challengingFormat = format;
+		room.challenging = {
+			formatName: format,
+			teamFormat: format,
+		};
 		room.update(null);
 	};
 	acceptChallenge = (e: Event, format: string, team?: Team) => {
@@ -408,15 +493,16 @@ class ChatPanel extends PSRoomPanel<ChatRoom> {
 		if (!room.pmTarget) throw new Error("Not a PM room");
 		PS.send(`|/utm ${packedTeam}`);
 		this.props.room.send(`/accept`);
-		room.challengedFormat = null;
+		room.challenged = null;
 		room.update(null);
 	};
-	render() {
+	override render() {
 		const room = this.props.room;
 		const tinyLayout = room.width < 450;
 
-		const challengeTo = room.challengingFormat ? <div class="challenge">
-			<TeamForm format={room.challengingFormat} onSubmit={null}>
+		const challengeTo = room.challenging ? <div class="challenge">
+			<p>Waiting for {room.pmTarget}...</p>
+			<TeamForm format={room.challenging.formatName} teamFormat={room.challenging.teamFormat} onSubmit={null}>
 				<button name="cmd" value="/cancelchallenge" class="button">Cancel</button>
 			</TeamForm>
 		</div> : room.challengeMenuOpen ? <div class="challenge">
@@ -426,38 +512,41 @@ class ChatPanel extends PSRoomPanel<ChatRoom> {
 			</TeamForm>
 		</div> : null;
 
-		const challengeFrom = room.challengedFormat ? <div class="challenge">
-			<TeamForm format={room.challengedFormat} onSubmit={this.acceptChallenge}>
-				<button type="submit" class="button"><strong>Accept</strong></button> {}
-				<button name="cmd" value="/reject" class="button">Reject</button>
+		const challengeFrom = room.challenged ? <div class="challenge">
+			{!!room.challenged.message && <p>{room.challenged.message}</p>}
+			<TeamForm format={room.challenged.formatName} teamFormat={room.challenged.teamFormat} onSubmit={this.acceptChallenge}>
+				<button type="submit" class="button"><strong>{room.challenged.acceptButtonLabel || 'Accept'}</strong></button> {}
+				<button name="cmd" value="/reject" class="button">{room.challenged.rejectButtonLabel || 'Reject'}</button>
 			</TeamForm>
 		</div> : null;
 
-		return <PSPanelWrapper room={room}>
+		return <PSPanelWrapper room={room} focusClick>
 			<div class="tournament-wrapper hasuserlist"></div>
-			<ChatLog class="chat-log" room={this.props.room} onClick={this.focusIfNoSelection} left={tinyLayout ? 0 : 146}>
+			<ChatLog class="chat-log" room={this.props.room} left={tinyLayout ? 0 : 146}>
 				{challengeTo || challengeFrom && [challengeTo, challengeFrom]}
 			</ChatLog>
-			<ChatTextEntry room={this.props.room} onMessage={this.send} onKey={this.onKey} left={tinyLayout ? 0 : 146} />
+			<ChatTextEntry
+				room={this.props.room} onMessage={this.send} onKey={this.onKey} left={tinyLayout ? 0 : 146} tinyLayout={tinyLayout}
+			/>
 			<ChatUserList room={this.props.room} minimized={tinyLayout} />
 		</PSPanelWrapper>;
 	}
 }
 
-class ChatUserList extends preact.Component<{room: ChatRoom, left?: number, minimized?: boolean}> {
+export class ChatUserList extends preact.Component<{ room: ChatRoom, left?: number, minimized?: boolean }> {
 	subscription: PSSubscription | null = null;
-	state = {
+	override state = {
 		expanded: false,
 	};
 	toggleExpanded = () => {
-		this.setState({expanded: !this.state.expanded});
+		this.setState({ expanded: !this.state.expanded });
 	};
-	componentDidMount() {
+	override componentDidMount() {
 		this.subscription = this.props.room.subscribe(msg => {
 			if (!msg) this.forceUpdate();
 		});
 	}
-	componentWillUnmount() {
+	override componentWillUnmount() {
 		if (this.subscription) this.subscription.unsubscribe();
 	}
 	render() {
@@ -466,11 +555,14 @@ class ChatUserList extends preact.Component<{room: ChatRoom, left?: number, mini
 		PSUtils.sortBy(userList, ([id, name]) => (
 			[PS.server.getGroup(name.charAt(0)).order, !name.endsWith('@!'), id]
 		));
-		return <ul class={'userlist' + (this.props.minimized ? (this.state.expanded ? ' userlist-maximized' : ' userlist-minimized') : '')} style={{left: this.props.left || 0}}>
+		return <ul
+			class={'userlist' + (this.props.minimized ? (this.state.expanded ? ' userlist-maximized' : ' userlist-minimized') : '')}
+			style={{ left: this.props.left || 0 }}
+		>
 			<li class="userlist-count" onClick={this.toggleExpanded}><small>{room.userCount} users</small></li>
 			{userList.map(([userid, name]) => {
 				const groupSymbol = name.charAt(0);
-				const group = PS.server.groups[groupSymbol] || {type: 'user', order: 0};
+				const group = PS.server.groups[groupSymbol] || { type: 'user', order: 0 };
 				let color;
 				if (name.endsWith('@!')) {
 					name = name.slice(0, -2);
@@ -478,34 +570,48 @@ class ChatUserList extends preact.Component<{room: ChatRoom, left?: number, mini
 				} else {
 					color = BattleLog.usernameColor(userid);
 				}
-				return <li key={userid}><button class="userbutton username" data-name={name}>
+				return <li key={userid}><button class="userbutton username">
 					<em class={`group${['leadership', 'staff'].includes(group.type!) ? ' staffgroup' : ''}`}>
 						{groupSymbol}
 					</em>
-					{group.type === 'leadership' ?
-						<strong><em style={{color}}>{name.substr(1)}</em></strong>
-					: group.type === 'staff' ?
-						<strong style={{color}}>{name.substr(1)}</strong>
-					:
-						<span style={{color}}>{name.substr(1)}</span>
-					}
+					{group.type === 'leadership' ? (
+						<strong><em style={{ color }}>{name.substr(1)}</em></strong>
+					) : group.type === 'staff' ? (
+						<strong style={{ color }}>{name.substr(1)}</strong>
+					) : (
+						<span style={{ color }}>{name.substr(1)}</span>
+					)}
 				</button></li>;
 			})}
 		</ul>;
 	}
 }
 
-class ChatLog extends preact.Component<{
-	class: string, room: ChatRoom, onClick?: (e: Event) => void, children?: preact.ComponentChildren,
-	left?: number, top?: number, noSubscription?: boolean;
+export class ChatLog extends preact.Component<{
+	class: string, room: ChatRoom, children?: preact.ComponentChildren,
+	left?: number, top?: number, noSubscription?: boolean,
 }> {
-	log: BattleLog | null = null;
 	subscription: PSSubscription | null = null;
-	componentDidMount() {
-		if (!this.props.noSubscription) {
-			this.log = new BattleLog(this.base! as HTMLDivElement);
+	override componentDidMount() {
+		const room = this.props.room;
+		if (room.log) {
+			const elem = room.log.elem;
+			this.base!.replaceChild(elem, this.base!.firstChild!);
+			elem.className = this.props.class;
+			elem.style.left = `${this.props.left || 0}px`;
+			elem.style.top = `${this.props.top || 0}px`;
 		}
-		this.subscription = this.props.room.subscribe(tokens => {
+		if (!this.props.noSubscription) {
+			room.log ||= new BattleLog(this.base!.firstChild as HTMLDivElement);
+			if (room.backlog) {
+				const backlog = room.backlog;
+				room.backlog = null;
+				for (const args of backlog) {
+					room.log.add(args);
+				}
+			}
+		}
+		this.subscription = room.subscribe(tokens => {
 			if (!tokens) return;
 			switch (tokens[0]) {
 			case 'users':
@@ -522,59 +628,59 @@ class ChatLog extends preact.Component<{
 			case 'name': case 'n': case 'N':
 				this.props.room.renameUser(tokens[1], tokens[2]);
 				break;
+			case 'c':
+				if (`${tokens[2]} `.startsWith('/challenge ')) {
+					this.props.room.updateChallenge(tokens[1], tokens[2].slice(11));
+					return;
+				}
+				break;
 			}
-			if (!this.props.noSubscription) this.log!.add(tokens);
+			if (!this.props.noSubscription) this.props.room.log!.add(tokens);
 		});
 		this.setControlsJSX(this.props.children);
 	}
-	componentWillUnmount() {
-		if (this.subscription) this.subscription.unsubscribe();
+	override componentWillUnmount() {
+		this.subscription?.unsubscribe();
 	}
-	shouldComponentUpdate(props: typeof ChatLog.prototype.props) {
+	override shouldComponentUpdate(props: typeof ChatLog.prototype.props) {
+		const elem = this.base!.firstChild as HTMLDivElement;
 		if (props.class !== this.props.class) {
-			this.base!.className = props.class;
+			elem.className = props.class;
 		}
-		if (props.left !== this.props.left) this.base!.style.left = `${props.left || 0}px`;
-		if (props.top !== this.props.top) this.base!.style.top = `${props.top || 0}px`;
+		if (props.left !== this.props.left) elem.style.left = `${props.left || 0}px`;
+		if (props.top !== this.props.top) elem.style.top = `${props.top || 0}px`;
 		this.setControlsJSX(props.children);
 		this.updateScroll();
 		return false;
 	}
 	setControlsJSX(jsx: preact.ComponentChildren | undefined) {
-		const children = this.base!.children;
+		const elem = this.base!.firstChild as HTMLDivElement;
+		const children = elem.children;
 		let controlsElem = children[children.length - 1] as HTMLDivElement | undefined;
 		if (controlsElem && controlsElem.className !== 'controls') controlsElem = undefined;
 		if (!jsx) {
 			if (!controlsElem) return;
-			preact.render(null, this.base!, controlsElem);
+			preact.render(null, elem, controlsElem);
 			this.updateScroll();
 			return;
 		}
 		if (!controlsElem) {
 			controlsElem = document.createElement('div');
 			controlsElem.className = 'controls';
-			this.base!.appendChild(controlsElem);
+			elem.appendChild(controlsElem);
 		}
-		preact.render(<div class="controls">{jsx}</div>, this.base!, controlsElem);
+		preact.render(<div class="controls">{jsx}</div>, elem, controlsElem);
 		this.updateScroll();
 	}
 	updateScroll() {
-		if (this.log) {
-			this.log.updateScroll();
-		} else if (this.props.room.battle) {
-			this.log = (this.props.room.battle as Battle).scene.log;
-			this.log.updateScroll();
-		}
+		this.props.room.log?.updateScroll();
 	}
 	render() {
-		return <div class={this.props.class} role="log" onClick={this.props.onClick} style={{
-			left: this.props.left || 0, top: this.props.top || 0,
-		}}></div>;
+		return <div><div
+			class={this.props.class} role="log"
+			style={{ left: this.props.left || 0, top: this.props.top || 0 }}
+		></div></div>;
 	}
 }
 
-PS.roomTypes['chat'] = {
-	Model: ChatRoom,
-	Component: ChatPanel,
-};
-PS.updateRoomTypes();
+PS.addRoomType(ChatPanel);

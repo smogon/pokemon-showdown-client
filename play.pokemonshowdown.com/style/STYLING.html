@@ -40,7 +40,7 @@ h1, h2, p {
   padding: 8px 10px;
   font-size: 10pt;
 
-  background: #CCDDEE;
+  background: #dde5ed;
   color: #000;
   border: 1px solid #111;
 }
@@ -108,6 +108,29 @@ h1, h2, p {
   </div>
   <div class="clear"></div>
 
+  <p><code>.button.big, .button.small</code></p>
+
+  <p>
+    You may prefer buttons of different sizes. These should <em>never</em> be used next to each other, and <em>very sparingly</em> otherwise. When next to each other, we use bold and non-bold buttons to show importance, like above.
+  </p>
+
+  <div class="light-container">
+    <button class="button big">Big</button>
+    <button class="button">Normal</button>
+    <button class="button small">Small</button>
+  </div>
+  <div class="dark-container dark">
+    <button class="button big">Big</button>
+    <button class="button">Normal</button>
+    <button class="button small">Small</button>
+  </div>
+  <div class="dark-container code dark">
+    &lt;button class="button big">Big&lt;/button>
+    &lt;button class="button">Normal&lt;/button>
+    &lt;button class="button small">Small&lt;/button>
+  </div>
+  <div class="clear"></div>
+
   <p><code>.button.disabled, .button:disabled</code></p>
 
   <p>
@@ -128,7 +151,7 @@ h1, h2, p {
   </div>
   <div class="clear"></div>
 
-  <p><code>.button.notifying, .button.subtle-notifying</code></p>
+  <p><code>.button.notifying</code></p>
 
   <p>
     Notifying buttons are intended for situations where we're trying to get the user's attention. As usual, you can also style links or any other element.
@@ -136,15 +159,32 @@ h1, h2, p {
 
   <div class="light-container">
     <button class="button notifying">2 new battles!</button>
-    <button class="button subtle-notifying">5 unimportant battles</button>
   </div>
   <div class="dark-container dark">
     <button class="button notifying">2 new battles!</button>
-    <button class="button subtle-notifying">5 unimportant battles</button>
   </div>
   <div class="dark-container code dark">
     &lt;button class="button notifying">2 new battles!&lt;/button>
-    &lt;button class="button subtle-notifying">5 unimportant battles&lt;/button>
+  </div>
+  <div class="clear"></div>
+
+  <p><code>.button.subtle-notifying, .button.alt-notifying</code></p>
+
+  <p>
+    If you have different kinds of notifications, consider these.
+  </p>
+
+  <div class="light-container">
+    <button class="button subtle-notifying">2 weird battles!</button>
+    <button class="button alt-notifying">5 unimportant battles</button>
+  </div>
+  <div class="dark-container dark">
+    <button class="button subtle-notifying">2 weird battles!</button>
+    <button class="button alt-notifying">5 unimportant battles</button>
+  </div>
+  <div class="dark-container code dark">
+    &lt;button class="button subtle-notifying">2 weird battles!&lt;/button>
+    &lt;button class="button alt-notifying">5 unimportant battles&lt;/button>
   </div>
   <div class="clear"></div>
 

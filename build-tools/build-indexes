@@ -15,8 +15,8 @@ if (!fs.existsSync('caches/pokemon-showdown')) {
 }
 
 process.stdout.write("Syncing data from Git repository... ");
-child_process.execSync('git pull', {cwd: 'caches/pokemon-showdown'});
-child_process.execSync('npm run build', {cwd: 'caches/pokemon-showdown'});
+child_process.execSync('git pull', { cwd: 'caches/pokemon-showdown' });
+child_process.execSync('npm run build', { cwd: 'caches/pokemon-showdown' });
 console.log("DONE");
 
 const Dex = require('../caches/pokemon-showdown/dist/sim/dex').Dex;
@@ -27,7 +27,7 @@ console.log("DONE");
 
 function es3stringify(obj) {
 	const buf = JSON.stringify(obj);
-	return buf.replace(/\"([A-Za-z][A-Za-z0-9]*)\"\:/g, (fullMatch, key) => (
+	return buf.replace(/"([A-Za-z][A-Za-z0-9]*)":/g, (fullMatch, key) => (
 		['return', 'new', 'delete'].includes(key) ? fullMatch : `${key}:`
 	));
 }
@@ -52,10 +52,14 @@ function requireNoCache(pathSpec) {
 	index = index.concat(Object.keys(Dex.data.Abilities).map(x => x + ' ability'));
 	index = index.concat(Object.keys(Dex.data.TypeChart).map(x => toID(x) + ' type'));
 	index = index.concat(['physical', 'special', 'status'].map(x => toID(x) + ' category'));
-	index = index.concat(['monster', 'water1', 'bug', 'flying', 'field', 'fairy', 'grass', 'humanlike', 'water3', 'mineral', 'amorphous', 'water2', 'ditto', 'dragon', 'undiscovered'].map(x => toID(x) + ' egggroup'));
-	index = index.concat(['ou', 'uu', 'ru', 'nu', 'pu', 'zu', 'lc', 'nfe', 'uber', 'uubl', 'rubl', 'nubl', 'publ', 'zubl', 'cap', 'caplc', 'capnfe'].map(x => toID(x) + ' tier'));
+	index = index.concat([
+		'monster', 'water1', 'bug', 'flying', 'field', 'fairy', 'grass', 'humanlike', 'water3', 'mineral', 'amorphous', 'water2', 'ditto', 'dragon', 'undiscovered',
+	].map(x => toID(x) + ' egggroup'));
+	index = index.concat([
+		'ou', 'uu', 'ru', 'nu', 'pu', 'zu', 'lc', 'nfe', 'uber', 'uubl', 'rubl', 'nubl', 'publ', 'zubl', 'cap', 'caplc', 'capnfe',
+	].map(x => toID(x) + ' tier'));
 
-	let BattleArticleTitles = {};
+	const BattleArticleTitles = {};
 
 	try {
 		for (const file of fs.readdirSync('../dex.pokemonshowdown.com/articles/')) {
@@ -71,7 +75,7 @@ function requireNoCache(pathSpec) {
 				index.push('' + id + ' article');
 			}
 		}
-	} catch (e) {
+	} catch {
 		console.log('\n(WARNING: NO ARTICLES)');
 	}
 	index.push('pokemon article');
@@ -79,8 +83,8 @@ function requireNoCache(pathSpec) {
 
 	// generate aliases
 	function generateAlias(id, name, type) {
-		let i = name.lastIndexOf(' ');
-		if (i < 0) i = name.lastIndexOf('-');
+		let offset = name.lastIndexOf(' ');
+		if (offset < 0) offset = name.lastIndexOf('-');
 		if (name.endsWith('-Mega-X') || name.endsWith('-Mega-Y')) {
 			index.push('mega' + toID(name.slice(0, -7) + name.slice(-1)) + ' ' + type + ' ' + id + ' 0');
 			index.push('m' + toID(name.slice(0, -7) + name.slice(-1)) + ' ' + type + ' ' + id + ' 0');
@@ -96,86 +100,86 @@ function requireNoCache(pathSpec) {
 			index.push('alolan' + toID(name.slice(0, -6)) + ' ' + type + ' ' + id + ' 0');
 			return;
 		}
-		let oldI = i;
-		if (name === 'Alakazam') i = 5;
-		if (name === 'Arctovish') i = 5;
-		if (name === 'Arctozolt') i = 5;
-		if (name === 'Articuno') i = 5;
-		if (name === 'Breloom') i = 3;
-		if (name === 'Bronzong') i = 4;
-		if (name === 'Celebi') i = 4;
-		if (name === 'Charizard') i = 5;
-		if (name === 'Donphan') i = 3;
-		if (name === 'Dracovish') i = 5;
-		if (name === 'Dracozolt') i = 5;
-		if (name === 'Dragapult') i = 5;
-		if (name === 'Dusclops') i = 3;
-		if (name === 'Electabuzz') i = 6;
-		if (name === 'Exeggutor') i = 2;
-		if (name === 'Garchomp') i = 3;
-		if (name === 'Hariyama') i = 4;
-		if (name === 'Magearna') i = 2;
-		if (name === 'Magnezone') i = 5;
-		if (name === 'Mamoswine') i = 4;
-		if (name === 'Moltres') i = 3;
-		if (name === 'Nidoking') i = 4;
-		if (name === 'Nidoqueen') i = 4;
-		if (name === 'Nidorina') i = 4;
-		if (name === 'Nidorino') i = 4;
-		if (name === 'Regice') i = 3;
-		if (name === 'Regidrago') i = 4;
-		if (name === 'Regieleki') i = 4;
-		if (name === 'Regigigas') i = 4;
-		if (name === 'Regirock') i = 4;
-		if (name === 'Registeel') i = 4;
-		if (name === 'Slowbro') i = 4;
-		if (name === 'Slowking') i = 4;
-		if (name === 'Starmie') i = 4;
-		if (name === 'Tyranitar') i = 6;
-		if (name === 'Zapdos') i = 3;
+		const oldOffset = offset;
+		if (name === 'Alakazam') offset = 5;
+		if (name === 'Arctovish') offset = 5;
+		if (name === 'Arctozolt') offset = 5;
+		if (name === 'Articuno') offset = 5;
+		if (name === 'Breloom') offset = 3;
+		if (name === 'Bronzong') offset = 4;
+		if (name === 'Celebi') offset = 4;
+		if (name === 'Charizard') offset = 5;
+		if (name === 'Donphan') offset = 3;
+		if (name === 'Dracovish') offset = 5;
+		if (name === 'Dracozolt') offset = 5;
+		if (name === 'Dragapult') offset = 5;
+		if (name === 'Dusclops') offset = 3;
+		if (name === 'Electabuzz') offset = 6;
+		if (name === 'Exeggutor') offset = 2;
+		if (name === 'Garchomp') offset = 3;
+		if (name === 'Hariyama') offset = 4;
+		if (name === 'Magearna') offset = 2;
+		if (name === 'Magnezone') offset = 5;
+		if (name === 'Mamoswine') offset = 4;
+		if (name === 'Moltres') offset = 3;
+		if (name === 'Nidoking') offset = 4;
+		if (name === 'Nidoqueen') offset = 4;
+		if (name === 'Nidorina') offset = 4;
+		if (name === 'Nidorino') offset = 4;
+		if (name === 'Regice') offset = 3;
+		if (name === 'Regidrago') offset = 4;
+		if (name === 'Regieleki') offset = 4;
+		if (name === 'Regigigas') offset = 4;
+		if (name === 'Regirock') offset = 4;
+		if (name === 'Registeel') offset = 4;
+		if (name === 'Slowbro') offset = 4;
+		if (name === 'Slowking') offset = 4;
+		if (name === 'Starmie') offset = 4;
+		if (name === 'Tyranitar') offset = 6;
+		if (name === 'Zapdos') offset = 3;
 
-		if (name === 'Acupressure') i = 3;
-		if (name === 'Aromatherapy') i = 5;
-		if (name === 'Boomburst') i = 4;
-		if (name === 'Crabhammer') i = 4;
-		if (name === 'Discharge') i = 3;
-		if (name === 'Earthquake') i = 5;
-		if (name === 'Extrasensory') i = 5;
-		if (name === 'Flamethrower') i = 5;
-		if (name === 'Headbutt') i = 4;
-		if (name === 'Moonblast') i = 4;
-		if (name === 'Moonlight') i = 4;
-		if (name === 'Overheat') i = 4;
-		if (name === 'Outrage') i = 3;
-		if (name === 'Octazooka') i = 4;
-		if (name === 'Payback') i = 3;
-		if (name === 'Psyshock') i = 3;
-		if (name === 'Psywave') i = 3;
-		if (name === 'Rototiller') i = 4;
-		if (name === 'Rollout') i = 4;
-		if (name === 'Safeguard') i = 4;
-		if (name === 'Sandstorm') i = 4;
-		if (name === 'Smokescreen') i = 5;
-		if (name === 'Stockpile') i = 5;
-		if (name === 'Steamroller') i = 5;
-		if (name === 'Superpower') i = 5;
-		if (name === 'Supersonic') i = 5;
-		if (name === 'Synchronoise') i = 7;
-		if (name === 'Tailwind') i = 4;
-		if (name === 'Telekinesis') i = 4;
-		if (name === 'Teleport') i = 4;
-		if (name === 'Thunderbolt') i = 7;
-		if (name === 'Twineedle') i = 3;
-		if (name === 'Uproar') i = 2;
-		if (name === 'Venoshock') i = 4;
-		if (name === 'Whirlpool') i = 5;
-		if (name === 'Whirlwind') i = 5;
+		if (name === 'Acupressure') offset = 3;
+		if (name === 'Aromatherapy') offset = 5;
+		if (name === 'Boomburst') offset = 4;
+		if (name === 'Crabhammer') offset = 4;
+		if (name === 'Discharge') offset = 3;
+		if (name === 'Earthquake') offset = 5;
+		if (name === 'Extrasensory') offset = 5;
+		if (name === 'Flamethrower') offset = 5;
+		if (name === 'Headbutt') offset = 4;
+		if (name === 'Moonblast') offset = 4;
+		if (name === 'Moonlight') offset = 4;
+		if (name === 'Overheat') offset = 4;
+		if (name === 'Outrage') offset = 3;
+		if (name === 'Octazooka') offset = 4;
+		if (name === 'Payback') offset = 3;
+		if (name === 'Psyshock') offset = 3;
+		if (name === 'Psywave') offset = 3;
+		if (name === 'Rototiller') offset = 4;
+		if (name === 'Rollout') offset = 4;
+		if (name === 'Safeguard') offset = 4;
+		if (name === 'Sandstorm') offset = 4;
+		if (name === 'Smokescreen') offset = 5;
+		if (name === 'Stockpile') offset = 5;
+		if (name === 'Steamroller') offset = 5;
+		if (name === 'Superpower') offset = 5;
+		if (name === 'Supersonic') offset = 5;
+		if (name === 'Synchronoise') offset = 7;
+		if (name === 'Tailwind') offset = 4;
+		if (name === 'Telekinesis') offset = 4;
+		if (name === 'Teleport') offset = 4;
+		if (name === 'Thunderbolt') offset = 7;
+		if (name === 'Twineedle') offset = 3;
+		if (name === 'Uproar') offset = 2;
+		if (name === 'Venoshock') offset = 4;
+		if (name === 'Whirlpool') offset = 5;
+		if (name === 'Whirlwind') offset = 5;
 		let acronym;
-		if (oldI < 0 && i > 0) {
-			acronym = toID(name.charAt(0) + name.slice(i));
+		if (oldOffset < 0 && offset > 0) {
+			acronym = toID(name.charAt(0) + name.slice(offset));
 		}
-		if (i < 0) return;
-		index.push('' + toID(name.slice(i)) + ' ' + type + ' ' + id + ' ' + toID(name.slice(0, i)).length);
+		if (offset < 0) return;
+		index.push('' + toID(name.slice(offset)) + ' ' + type + ' ' + id + ' ' + toID(name.slice(0, offset)).length);
 		if (name.startsWith('Hidden Power ')) {
 			acronym = 'hp' + toID(name.substr(13));
 			index.push('' + acronym + ' ' + type + ' ' + id + ' 0');
@@ -200,8 +204,8 @@ function requireNoCache(pathSpec) {
 			index.push('cuno ' + type + ' ' + id + ' 4');
 		}
 
-		let i2 = name.lastIndexOf(' ', i - 1);
-		if (i2 < 0) i2 = name.lastIndexOf('-', i - 1);
+		let i2 = name.lastIndexOf(' ', offset - 1);
+		if (i2 < 0) i2 = name.lastIndexOf('-', offset - 1);
 		if (name === 'Zen Headbutt') i2 = 8;
 		if (i2 >= 0) {
 			index.push('' + toID(name.slice(i2)) + ' ' + type + ' ' + id + ' ' + toID(name.slice(0, i2)).length);
@@ -248,8 +252,7 @@ function requireNoCache(pathSpec) {
 	index[index.indexOf('ditto pokemon')] = 'ditto egggroup';
 	index[index.indexOf('ditto egggroup')] = 'ditto pokemon';
 
-
-	let BattleSearchIndex = index.map(x => {
+	const BattleSearchIndex = index.map(x => {
 		x = x.split(' ');
 		if (x.length > 3) {
 			x[3] = Number(x[3]);
@@ -258,7 +261,7 @@ function requireNoCache(pathSpec) {
 		return x;
 	});
 
-	let BattleSearchIndexOffset = BattleSearchIndex.map((entry, i) => {
+	const BattleSearchIndexOffset = BattleSearchIndex.map(entry => {
 		const id = entry[0];
 		let name = '';
 		switch (entry[1]) {
@@ -281,13 +284,15 @@ function requireNoCache(pathSpec) {
 		return '';
 	});
 
-	let BattleSearchCountIndex = {};
+	const BattleSearchCountIndex = {};
 	for (const type in Dex.data.TypeChart) {
-		BattleSearchCountIndex[type + ' move'] = Object.keys(Dex.data.Moves).filter(id => (Dex.data.Moves[id].type === type)).length;
+		BattleSearchCountIndex[type + ' move'] = Object.keys(Dex.data.Moves)
+			.filter(id => (Dex.data.Moves[id].type === type)).length;
 	}
 
 	for (const type in Dex.data.TypeChart) {
-		BattleSearchCountIndex[type + ' pokemon'] = Object.keys(Dex.data.Pokedex).filter(id => (Dex.data.Pokedex[id].types.indexOf(type) >= 0)).length;
+		BattleSearchCountIndex[type + ' pokemon'] = Object.keys(Dex.data.Pokedex)
+			.filter(id => (Dex.data.Pokedex[id].types.indexOf(type) >= 0)).length;
 	}
 
 	let buf = '// DO NOT EDIT - automatically built with build-tools/build-indexes\n\n';
@@ -369,7 +374,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			const species = Dex.mod(gen).species.get(id);
 			const baseSpecies = Dex.mod(gen).species.get(species.baseSpecies);
 			if (species.gen > genNum) continue;
-			const tier = (() => {
+			const speciesTier = (() => {
 				if (isMetBattle) {
 					let tier = species.tier;
 					if (species.isNonstandard) {
@@ -416,7 +421,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 					return tier;
 				}
 				if (isLetsGo) {
-					let validNum = (baseSpecies.num <= 151 && species.num >= 1) || [808, 809].includes(baseSpecies.num);
+					const validNum = (baseSpecies.num <= 151 && species.num >= 1) || [808, 809].includes(baseSpecies.num);
 					if (!validNum) return 'Illegal';
 					if (species.forme && !['Alola', 'Mega', 'Mega-X', 'Mega-Y', 'Starter'].includes(species.forme)) return 'Illegal';
 					if (species.name === 'Pikachu-Alola') return 'Illegal';
@@ -442,7 +447,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 					if (species.isNonstandard && ['LGPE', 'CAP', 'Future'].includes(species.isNonstandard)) return 'Illegal';
 					return species.tags.includes('Mythical') ? 'Mythical' :
 						species.tags.includes('Restricted Legendary') ? 'Restricted Legendary' :
-							species.nfe ? (species.prevo ? 'NFE' : 'LC') : 'Regular';
+						species.nfe ? (species.prevo ? 'NFE' : 'LC') : 'Regular';
 				}
 				if (species.tier === 'CAP' || species.tier === 'CAP NFE' || species.tier === 'CAP LC') {
 					return species.tier;
@@ -455,7 +460,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 				}
 				return species.tier;
 			})();
-			overrideTier[species.id] = tier;
+			overrideTier[species.id] = speciesTier;
 			if (species.forme) {
 				if (
 					[
@@ -467,8 +472,8 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 				}
 			}
 
-			if (!tierTable[tier]) tierTable[tier] = [];
-			tierTable[tier].push(id);
+			if (!tierTable[speciesTier]) tierTable[speciesTier] = [];
+			tierTable[speciesTier].push(id);
 
 			if (genNum === 9) {
 				const ubersUU = Dex.formats.get(gen + 'ubersuu');
@@ -555,6 +560,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 		} else if (isDoubles) {
 			BattleTeambuilderTable[gen + 'doubles'] = {};
 			BattleTeambuilderTable[gen + 'doubles'].tiers = tiers;
+			BattleTeambuilderTable[gen + 'doubles'].items = items;
 			BattleTeambuilderTable[gen + 'doubles'].overrideTier = overrideTier;
 			BattleTeambuilderTable[gen + 'doubles'].formatSlices = formatSlices;
 		} else if (isGen9BH) {
@@ -610,11 +616,16 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			if (gen === 'gen4') {
 				return ["CAP", "CAP NFE", "CAP LC", "AG", "Uber", "OU", "(OU)", "UUBL", "UU", "NUBL", "NU", "NFE", "LC"];
 			}
-			return ["CAP", "CAP NFE", "CAP LC", "AG", "Uber", "(Uber)", "OU", "(OU)", "UUBL", "UU", "RUBL", "RU", "NUBL", "NU", "PUBL", "PU", "ZUBL", "ZU", "New", "NFE", "LC", "Unreleased"];
+			return [
+				"CAP", "CAP NFE", "CAP LC", "AG", "Uber", "(Uber)", "OU", "(OU)", "UUBL", "UU", "RUBL", "RU", "NUBL", "NU", "PUBL", "PU", "ZUBL", "ZU", "New", "NFE", "LC", "Unreleased",
+			];
 		})();
 
 		for (const tier of tierOrder) {
-			if (tier in {OU:1, AG:1, Uber:1, UU:1, RU:1, NU:1, PU:1, ZU: 1, NFE:1, LC:1, DOU:1, DUU:1, "(DUU)":1, New:1, Legal:1, Regular:1, "Restricted Legendary":1, "CAP LC":1}) {
+			if (tier in {
+				OU: 1, UUBL: 1, AG: 1, Uber: 1, UU: 1, RU: 1, NU: 1, PU: 1, ZU: 1, NFE: 1, LC: 1, DOU: 1, DUU: 1,
+				"(DUU)": 1, New: 1, Legal: 1, Regular: 1, "Restricted Legendary": 1, "CAP LC": 1,
+			}) {
 				let usedTier = tier;
 				if (usedTier === "(DUU)") usedTier = "DNU";
 				formatSlices[usedTier] = tiers.length;
@@ -675,23 +686,55 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 				if (banlist.isBanned('item:' + item.id)) continue;
 			}
 			switch (id) {
-			case 'leftovers':
-			case 'lifeorb':
+			// mainstays
 			case 'choiceband':
-			case 'choicescarf':
 			case 'choicespecs':
 			case 'eviolite':
+				greatItems.push(id);
+				break;
+			// great everywhere but metronome
+			case 'leftovers':
+			case 'lifeorb':
+			case 'choicescarf':
 			case 'assaultvest':
 			case 'focussash':
 			case 'powerherb':
 			case 'rockyhelmet':
+				if (!isMetBattle) greatItems.push(id);
+				else goodItems.push(id);
+				break;
+			// just singles
+			case 'airballoon':
+			case 'loadeddice':
 			case 'heavydutyboots':
 			case 'expertbelt':
 			case 'salacberry':
-				greatItems.push(id);
+				if (isDoubles || isMetBattle) goodItems.push(id);
+				else greatItems.push(id);
 				break;
+			// just doubles
+			case 'safetygoggles':
+			case 'ejectbutton':
+			case 'ejectpack':
+				if (isDoubles) greatItems.push(id);
+				else goodItems.push(id);
+				break;
+			// doubles + metronome
+			case 'covertcloak':
+			case 'clearamulet':
+			case 'weaknesspolicy':
+				if (isDoubles || isMetBattle) greatItems.push(id);
+				else goodItems.push(id);
+				break;
+			// metronome only
+			case 'mirrorherb':
+				if (isMetBattle) greatItems.push(id);
+				else goodItems.push(id);
+				break;
+			// generation specific
 			case 'mentalherb':
-				if (genNum > 4) greatItems.push(id);
+				if (isMetBattle) goodItems.push(id);
+				else if (genNum > 4) greatItems.push(id);
 				else poorItems.push(id);
 				break;
 			case 'lumberry':
@@ -699,8 +742,8 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 				else greatItems.push(id);
 				break;
 			case 'sitrusberry':
-				if (genNum > 6) goodItems.push(id);
-				else if (genNum > 3 && genNum < 7) greatItems.push(id);
+				if (genNum > 3 && (genNum < 7 || isDoubles)) greatItems.push(id);
+				else if (genNum > 6) goodItems.push(id);
 				else poorItems.push(id);
 				break;
 			case 'aguavberry':
@@ -708,7 +751,8 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			case 'iapapaberry':
 			case 'magoberry':
 			case 'wikiberry':
-				if (genNum >= 7) greatItems.push(id);
+				if (genNum === 7) greatItems.push(id);
+				else if (genNum >= 8) goodItems.push(id);
 				else poorItems.push(id);
 				break;
 			case 'berryjuice':
@@ -734,8 +778,8 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			case 'blueorb':
 			case 'redorb':
 			case 'souldew':
+			// falls through
 			// Other
-			// fallsthrough
 			case 'stick':
 			case 'thickclub':
 			case 'lightball':
@@ -907,7 +951,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 				}
 				if (available) available = !gen4HMs.has(moveid);
 
-				let minUpperGen = available ? 5 : Math.min(
+				const minUpperGen = available ? 5 : Math.min(
 					...gens.filter(gen => gen > 4)
 				);
 				legalGens += '0123456789'.slice(minUpperGen);
@@ -1001,7 +1045,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 				}
 				if (available) available = !gen4HMs.has(moveid);
 
-				let minUpperGen = available ? 5 : Math.min(
+				const minUpperGen = available ? 5 : Math.min(
 					...gens.filter(gen => gen > 4)
 				);
 				legalGens += '012345678'.slice(minUpperGen);
@@ -1044,7 +1088,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 				}
 				if (available) available = !gen4HMs.has(moveid);
 
-				let minUpperGen = available ? 5 : Math.min(
+				const minUpperGen = available ? 5 : Math.min(
 					...gens.filter(gen => gen > 4)
 				);
 				legalGens += '0123456789'.slice(minUpperGen);
@@ -1090,7 +1134,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 				}
 				if (available) available = !gen4HMs.has(moveid);
 
-				let minUpperGen = available ? 5 : Math.min(
+				const minUpperGen = available ? 5 : Math.min(
 					...gens.filter(gen => gen > 4)
 				);
 				legalGens += '0123456789'.slice(minUpperGen);
@@ -1113,8 +1157,12 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 	}
 
 	// Client relevant data that should be overriden by past gens and mods
-	const overrideSpeciesKeys = ['abilities', 'baseStats', 'cosmeticFormes', 'isNonstandard', 'requiredItems', 'types', 'unreleasedHidden'];
-	const overrideMoveKeys = ['accuracy', 'basePower', 'category', 'desc', 'flags', 'isNonstandard', 'pp', 'priority', 'shortDesc', 'target', 'type'];
+	const overrideSpeciesKeys = [
+		'abilities', 'baseStats', 'cosmeticFormes', 'isNonstandard', 'requiredItems', 'types', 'unreleasedHidden',
+	];
+	const overrideMoveKeys = [
+		'accuracy', 'basePower', 'category', 'desc', 'flags', 'isNonstandard', 'pp', 'priority', 'shortDesc', 'target', 'type',
+	];
 	const overrideAbilityKeys = ['desc', 'flags', 'isNonstandard', 'rating', 'shortDesc'];
 	const overrideItemKeys = ['desc', 'fling', 'isNonstandard', 'naturalGift', 'shortDesc'];
 

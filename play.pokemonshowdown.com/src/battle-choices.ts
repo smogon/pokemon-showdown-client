@@ -12,30 +12,33 @@
  * @license MIT
  */
 
-interface BattleRequestSideInfo {
+import type { Battle, ServerPokemon } from "./battle";
+import { Dex, toID, type ID } from "./battle-dex";
+
+export interface BattleRequestSideInfo {
 	name: string;
 	id: 'p1' | 'p2' | 'p3' | 'p4';
 	pokemon: ServerPokemon[];
 }
-interface BattleRequestActivePokemon {
+export interface BattleRequestActivePokemon {
 	moves: {
 		name: string,
 		id: ID,
 		pp: number,
 		maxpp: number,
-		target: MoveTarget,
+		target: Dex.MoveTarget,
 		disabled?: boolean,
 	}[];
 	maxMoves?: {
 		name: string,
 		id: ID,
-		target: MoveTarget,
+		target: Dex.MoveTarget,
 		disabled?: boolean,
 	}[];
 	zMoves?: ({
 		name: string,
 		id: ID,
-		target: MoveTarget,
+		target: Dex.MoveTarget,
 	} | null)[];
 	/** also true if the pokemon can Gigantamax */
 	canDynamax?: boolean;
@@ -44,51 +47,55 @@ interface BattleRequestActivePokemon {
 	canMegaEvoX?: boolean;
 	canMegaEvoY?: boolean;
 	canUltraBurst?: boolean;
-	canTerastallize?: boolean;
+	canTerastallize?: string;
 	trapped?: boolean;
 	maybeTrapped?: boolean;
 }
 
-interface BattleMoveRequest {
+export interface BattleMoveRequest {
 	requestType: 'move';
 	rqid: number;
 	side: BattleRequestSideInfo;
 	active: (BattleRequestActivePokemon | null)[];
 	noCancel?: boolean;
 }
-interface BattleSwitchRequest {
+export interface BattleSwitchRequest {
 	requestType: 'switch';
 	rqid: number;
 	side: BattleRequestSideInfo;
 	forceSwitch: boolean[];
 	noCancel?: boolean;
 }
-interface BattleTeamRequest {
+export interface BattleTeamRequest {
 	requestType: 'team';
 	rqid: number;
 	side: BattleRequestSideInfo;
 	maxTeamSize?: number;
 	noCancel?: boolean;
 }
-interface BattleWaitRequest {
+export interface BattleWaitRequest {
 	requestType: 'wait';
 	rqid: number;
 	side: undefined;
 	noCancel?: boolean;
 }
-type BattleRequest = BattleMoveRequest | BattleSwitchRequest | BattleTeamRequest | BattleWaitRequest;
+export type BattleRequest = BattleMoveRequest | BattleSwitchRequest | BattleTeamRequest | BattleWaitRequest;
 
 interface BattleMoveChoice {
 	choiceType: 'move';
 	/** 1-based move */
 	move: number;
 	targetLoc: number;
+	// gen 6
 	mega: boolean;
 	megax: boolean;
 	megay: boolean;
-	ultra: boolean;
-	max: boolean;
+	// gen 7
 	z: boolean;
+	ultra: boolean;
+	// gen 8
+	max: boolean;
+	// gen 9
 	tera: boolean;
 }
 interface BattleShiftChoice {
@@ -107,7 +114,7 @@ type BattleChoice = BattleMoveChoice | BattleShiftChoice | BattleSwitchChoice;
  *
  * Doesn't support going backwards; just use `new BattleChoiceBuilder`.
  */
-class BattleChoiceBuilder {
+export class BattleChoiceBuilder {
 	request: BattleRequest;
 	/** Completed choices in string form */
 	choices: string[] = [];
@@ -278,7 +285,7 @@ class BattleChoiceBuilder {
 
 		const index = this.choices.length;
 
-		if (choice === 'shift') return {choiceType: 'shift'};
+		if (choice === 'shift') return { choiceType: 'shift' };
 
 		if (choice.startsWith('move ')) {
 			if (request.requestType !== 'move') {
@@ -394,7 +401,7 @@ class BattleChoiceBuilder {
 				const choiceid = toID(choice);
 				let matchLevel = 0;
 				let match = 0;
-				for (let i = 0 ; i < request.side.pokemon.length; i++) {
+				for (let i = 0; i < request.side.pokemon.length; i++) {
 					const serverPokemon = request.side.pokemon[i];
 					let curMatchLevel = 0;
 					if (choice === serverPokemon.name) {
@@ -426,7 +433,7 @@ class BattleChoiceBuilder {
 				throw new Error(`Couldn't find Pokémon "${choice}" to switch to!`);
 			}
 			if (target.fainted) {
-				throw new Error(`${target} is fainted and cannot battle!`);
+				throw new Error(`${target.name} is fainted and cannot battle!`);
 			}
 			return current;
 		}
@@ -444,14 +451,21 @@ class BattleChoiceBuilder {
 		switch (choice.choiceType) {
 		case 'move':
 			const target = choice.targetLoc ? ` ${choice.targetLoc > 0 ? '+' : ''}${choice.targetLoc}` : ``;
-			const boost = `${choice.max ? ' max' : ''}${choice.mega ? ' mega' : ''}${choice.z ? ' zmove' : ''}${choice.tera ? ' terastallize' : ''}`;
-			return `move ${choice.move}${boost}${target}`;
+			return `move ${choice.move}${this.moveSpecial(choice)}${target}`;
 		case 'switch':
 		case 'team':
 			return `${choice.choiceType} ${choice.targetPokemon}`;
 		case 'shift':
 			return `shift`;
 		}
+	}
+	moveSpecial(choice: BattleMoveChoice) {
+		return (choice.max ? ' max' : '') +
+			(choice.mega ? ' mega' : '') +
+			(choice.megax ? ' megax' : '') +
+			(choice.megay ? ' megay' : '') +
+			(choice.z ? ' zmove' : '') +
+			(choice.tera ? ' terastallize' : '');
 	}
 
 	/**

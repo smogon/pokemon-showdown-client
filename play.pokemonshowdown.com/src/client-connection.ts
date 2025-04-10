@@ -5,9 +5,12 @@
  * @license MIT
  */
 
-declare var SockJS: any;
+import { PS } from "./client-main";
 
-class PSConnection {
+declare const SockJS: any;
+declare const POKEMON_SHOWDOWN_TESTCLIENT_KEY: string | undefined;
+
+export class PSConnection {
 	socket: any = null;
 	connected = false;
 	queue = [] as string[];
@@ -18,7 +21,7 @@ class PSConnection {
 		const server = PS.server;
 		const port = server.protocol === 'https' ? '' : ':' + server.port;
 		const url = server.protocol + '://' + server.host + port + server.prefix;
-		const socket = this.socket = new SockJS(url, [], {timeout: 5 * 60 * 1000});
+		const socket = this.socket = new SockJS(url, [], { timeout: 5 * 60 * 1000 });
 		socket.onopen = () => {
 			console.log('\u2705 (CONNECTED)');
 			this.connected = true;
@@ -57,18 +60,24 @@ class PSConnection {
 
 PS.connection = new PSConnection();
 
-const PSLoginServer = new class {
-	query(data: PostData): Promise<{[k: string]: any} | null> {
+export const PSLoginServer = new class {
+	rawQuery(act: string, data: PostData): Promise<string | null> {
+		data.act = act;
 		let url = '/~~' + PS.server.id + '/action.php';
 		if (location.pathname.endsWith('.html')) {
 			url = 'https://' + Config.routes.client + url;
-			// @ts-ignore
 			if (typeof POKEMON_SHOWDOWN_TESTCLIENT_KEY === 'string') {
-				// @ts-ignore
-				data.sid = POKEMON_SHOWDOWN_TESTCLIENT_KEY.replace(/\%2C/g, ',');
+				data.sid = POKEMON_SHOWDOWN_TESTCLIENT_KEY.replace(/%2C/g, ',');
 			}
 		}
-		return Net(url).get({method: data ? 'POST' : 'GET', body: data}).then(
+		return Net(url).get({ method: 'POST', body: data }).then(
+			res => res ?? null
+		).catch(
+			() => null
+		);
+	}
+	query(act: string, data: PostData): Promise<{ [k: string]: any } | null> {
+		return this.rawQuery(act, data).then(
 			res => res ? JSON.parse(res.slice(1)) : null
 		).catch(
 			() => null
@@ -94,7 +103,7 @@ class HttpError extends Error {
 		this.body = body;
 		try {
 			(Error as any).captureStackTrace(this, HttpError);
-		} catch (err) {}
+		} catch {}
 	}
 }
 class NetRequest {
@@ -160,9 +169,13 @@ class NetRequest {
 	}
 }
 
-function Net(uri: string) {
+export function Net(uri: string) {
+	if (uri.startsWith('/') && !uri.startsWith('//') && Net.defaultRoute) uri = Net.defaultRoute + uri;
+	if (uri.startsWith('//') && document.location.protocol === 'file:') uri = 'https:' + uri;
 	return new NetRequest(uri);
 }
+
+Net.defaultRoute = '';
 
 Net.encodeQuery = function (data: string | PostData) {
 	if (typeof data === 'string') return data;

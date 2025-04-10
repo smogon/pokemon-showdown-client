@@ -9,7 +9,16 @@
  * @license AGPLv3
  */
 
-class PSRouter {
+import preact from "../js/lib/preact";
+import { toID } from "./battle-dex";
+import { BattleLog } from "./battle-log";
+import type { Args } from "./battle-text-parser";
+import { BattleTooltips } from "./battle-tooltips";
+import type { PSStreamModel, PSSubscription } from "./client-core";
+import { PS, type PSRoom, type RoomID } from "./client-main";
+import { PSHeader } from "./panel-topbar";
+
+export class PSRouter {
 	roomid = '' as RoomID;
 	panelState = '';
 	constructor() {
@@ -48,6 +57,37 @@ class PSRouter {
 
 		return url as RoomID;
 	}
+	updatePanelState(): { roomid: RoomID, changed: boolean } {
+		let room = PS.room;
+		// some popups don't have URLs and don't generate history
+		// there's definitely a better way to do this but I'm lazy
+		if (room.noURL) room = PS.rooms[PS.popups[PS.popups.length - 2]] || PS.panel;
+		if (room.noURL) room = PS.panel;
+
+		// don't generate history when focusing things on things visible on the home screen
+		if (room.id === 'news' && room.location === 'mini-window') room = PS.mainmenu;
+		if (room.id === '' && PS.leftPanelWidth && PS.rightPanel) {
+			room = PS.rightPanel;
+		}
+		if (room.id === 'rooms') room = PS.leftPanel;
+
+		let roomid = room.id;
+		const panelState = (PS.leftPanelWidth && room === PS.panel ?
+			PS.leftPanel.id + '..' + PS.rightPanel!.id :
+			room.id);
+		if (roomid === this.roomid && panelState === this.panelState) {
+			return { roomid, changed: false };
+		}
+
+		if (roomid === '') {
+			document.title = 'Showdown!';
+		} else {
+			document.title = room.title + ' - Showdown!';
+		}
+		this.roomid = roomid;
+		this.panelState = panelState;
+		return { roomid, changed: true };
+	}
 	subscribeHash() {
 		if (location.hash) {
 			const currentRoomid = location.hash.slice(1);
@@ -58,8 +98,8 @@ class PSRouter {
 			}
 		}
 		PS.subscribeAndRun(() => {
-			const roomid = PS.room.id;
-			location.hash = roomid ? '#' + roomid : '';
+			const { roomid, changed } = this.updatePanelState();
+			if (changed) location.hash = roomid ? `#${roomid}` : '';
 		});
 		window.addEventListener('hashchange', e => {
 			const possibleRoomid = location.hash.slice(1);
@@ -81,21 +121,12 @@ class PSRouter {
 		}
 		if (!window.history) return;
 		PS.subscribeAndRun(() => {
-			const room = PS.room;
-			const roomid = room.id;
-			const panelState = (PS.leftRoomWidth ?
-				PS.leftRoom.id + '..' + PS.rightRoom!.id :
-				roomid);
-			if (roomid === this.roomid && panelState === this.panelState) {
-				return;
-			}
-			if (panelState === this.panelState) {
-				history.pushState(panelState, room.title, '/' + roomid);
+			const { roomid, changed } = this.updatePanelState();
+			if (changed) {
+				history.pushState(this.panelState, '', `/${roomid}`);
 			} else {
-				history.replaceState(panelState, room.title, '/' + roomid);
+				history.replaceState(this.panelState, '', `/${roomid}`);
 			}
-			this.roomid = roomid;
-			this.panelState = panelState;
 		});
 		window.addEventListener('popstate', e => {
 			const possibleRoomid = location.pathname.slice(1);
@@ -105,9 +136,11 @@ class PSRouter {
 			}
 			if (typeof e.state === 'string') {
 				const [leftRoomid, rightRoomid] = e.state.split('..') as RoomID[];
-				PS.join(leftRoomid, 'left');
 				if (rightRoomid) {
-					PS.join(rightRoomid, 'right');
+					PS.join(leftRoomid, { location: 'left' });
+					PS.join(rightRoomid, { location: 'right' });
+				} else {
+					PS.join(leftRoomid);
 				}
 			}
 			if (roomid !== null) {
@@ -118,9 +151,14 @@ class PSRouter {
 }
 PS.router = new PSRouter();
 
-class PSRoomPanel<T extends PSRoom = PSRoom> extends preact.Component<{room: T}> {
+export class PSRoomPanel<T extends PSRoom = PSRoom> extends preact.Component<{ room: T }> {
 	subscriptions: PSSubscription[] = [];
-	componentDidMount() {
+	subscribeTo<M>(model: PSStreamModel<M>, callback: (value: M) => void): PSSubscription {
+		const subscription = model.subscribe(callback);
+		this.subscriptions.push(subscription);
+		return subscription;
+	}
+	override componentDidMount() {
 		if (PS.room === this.props.room) this.focus();
 		this.props.room.onParentEvent = (id: string, e?: Event) => {
 			if (id === 'focus') this.focus();
@@ -133,17 +171,32 @@ class PSRoomPanel<T extends PSRoom = PSRoom> extends preact.Component<{room: T}>
 			this.props.room.setDimensions(this.base.offsetWidth, this.base.offsetHeight);
 		}
 	}
-	componentDidUpdate() {
-		if (this.base && ['popup', 'semimodal-popup'].includes(this.props.room.location)) {
-			this.props.room.setDimensions(this.base.offsetWidth, this.base.offsetHeight);
+	override componentDidUpdate() {
+		const room = this.props.room;
+		if (this.base && ['popup', 'semimodal-popup'].includes(room.location)) {
+			if (room.width && room.hiddenInit) {
+				room.hiddenInit = false;
+				this.focus();
+			}
+			room.setDimensions(this.base.offsetWidth, this.base.offsetHeight);
+		} else if (this.base && room.hiddenInit) {
+			room.hiddenInit = false;
+			this.focus();
 		}
 	}
-	componentWillUnmount() {
+	override componentWillUnmount() {
 		this.props.room.onParentEvent = null;
 		for (const subscription of this.subscriptions) {
 			subscription.unsubscribe();
 		}
 		this.subscriptions = [];
+	}
+	close() {
+		PS.removeRoom(this.props.room);
+	}
+	componentDidCatch(err: Error) {
+		this.props.room.caughtError = err.stack || err.message;
+		this.setState({});
 	}
 	receiveLine(args: Args) {}
 	/**
@@ -158,23 +211,33 @@ class PSRoomPanel<T extends PSRoom = PSRoom> extends preact.Component<{room: T}>
 		dropdownButton.dispatchEvent(changeEvent);
 		PS.closePopup();
 	}
-	focus() {}
-	render() {
+	focus() {
+		const autofocus = this.base?.querySelector<HTMLElement>('.autofocus');
+		autofocus?.focus();
+		(autofocus as HTMLInputElement)?.select?.();
+	}
+	override render() {
 		return <PSPanelWrapper room={this.props.room}>
 			<div class="mainmessage"><p>Loading...</p></div>
 		</PSPanelWrapper>;
 	}
 }
 
-function PSPanelWrapper(props: {
+export function PSPanelWrapper(props: {
 	room: PSRoom, children: preact.ComponentChildren, scrollable?: boolean, width?: number | 'auto',
+	focusClick?: boolean,
 }) {
 	const room = props.room;
 	if (room.location === 'mini-window') {
 		if (room.id === 'news') {
-			return <div>{props.children}</div>;
+			return <div id={`room-${room.id}`}>{props.children}</div>;
 		}
-		return <div id={`room-${room.id}`} class="mini-window-contents ps-room-light">{props.children}</div>;
+		return <div
+			id={`room-${room.id}`} class={'mini-window-contents ps-room-light' + (props.scrollable ? ' scrollable' : '')}
+			onClick={props.focusClick ? PSMain.focusIfNoSelection : undefined}
+		>
+			{props.children}
+		</div>;
 	}
 	if (room.location !== 'left' && room.location !== 'right') {
 		const style = PSMain.getPopupStyle(room, props.width);
@@ -186,13 +249,13 @@ function PSPanelWrapper(props: {
 	return <div
 		class={'ps-room' + (room.id === '' ? '' : ' ps-room-light') + (props.scrollable ? ' scrollable' : '')}
 		id={`room-${room.id}`}
-		style={style}
+		style={style} onClick={props.focusClick ? PSMain.focusIfNoSelection : undefined}
 	>
-		{props.children}
+		{room.caughtError ? <div class="broadcast broadcast-red"><pre>{room.caughtError}</pre></div> : props.children}
 	</div>;
 }
 
-class PSMain extends preact.Component {
+export class PSMain extends preact.Component {
 	constructor() {
 		super();
 		PS.subscribe(() => this.forceUpdate());
@@ -208,17 +271,14 @@ class PSMain extends preact.Component {
 			let clickedRoom = null;
 			while (elem) {
 				if (` ${elem.className} `.includes(' username ')) {
-					const name = elem.getAttribute('data-name');
+					const name = elem.getAttribute('data-name') || elem.innerText;
 					const userid = toID(name);
-					const roomid = `user-${userid}` as RoomID;
-					PS.addRoom({
-						id: roomid,
+					const roomid = `${` ${elem.className} `.includes(' no-interact ') ? 'viewuser' : 'user'}-${userid}` as RoomID;
+					PS.join(roomid, {
 						parentElem: elem,
-						parentRoomid: PSMain.containingRoomid(elem),
 						rightPopup: elem.className === 'userbutton username',
-						username: name,
+						args: { username: name },
 					});
-					PS.update();
 					e.preventDefault();
 					e.stopImmediatePropagation();
 					return;
@@ -228,18 +288,33 @@ class PSMain extends preact.Component {
 					const roomid = PS.router.extractRoomID(href);
 
 					if (roomid !== null) {
+						let location = null;
 						if (elem.getAttribute('data-target') === 'replace') {
-							const room = this.getRoom(elem);
-							if (room) PS.leave(room.id);
+							const room = PS.getRoom(elem);
+							if (room) {
+								PS.leave(room.id);
+								location = room.location;
+							}
 						}
-						PS.addRoom({
-							id: roomid,
+						PS.join(roomid, {
 							parentElem: elem,
+							location,
 						});
-						PS.update();
 						e.preventDefault();
 						e.stopImmediatePropagation();
 					}
+					return;
+				}
+				if (elem.getAttribute('data-cmd')) {
+					const cmd = elem.getAttribute('data-cmd')!;
+					const room = PS.getRoom(elem) || PS.mainmenu;
+					room.send(cmd);
+					return;
+				}
+				if (elem.getAttribute('data-sendraw')) {
+					const cmd = elem.getAttribute('data-sendraw')!;
+					const room = PS.getRoom(elem) || PS.mainmenu;
+					room.sendDirect(cmd);
 					return;
 				}
 				if (elem.tagName === 'BUTTON') {
@@ -268,6 +343,7 @@ class PSMain extends preact.Component {
 			}
 			if (PS.room !== clickedRoom) {
 				if (clickedRoom) PS.room = clickedRoom;
+				// eslint-disable-next-line no-unmodified-loop-condition
 				while (PS.popups.length && (!clickedRoom || clickedRoom.id !== PS.popups[PS.popups.length - 1])) {
 					PS.closePopup();
 				}
@@ -277,26 +353,47 @@ class PSMain extends preact.Component {
 
 		window.addEventListener('keydown', e => {
 			let elem = e.target as HTMLInputElement | null;
+			let isTextInput = false;
+			let isNonEmptyTextInput = false;
 			if (elem) {
-				let isTextInput = (elem.tagName === 'INPUT' || elem.tagName === 'TEXTAREA');
+				isTextInput = (elem.tagName === 'INPUT' || elem.tagName === 'TEXTAREA');
 				if (isTextInput && ['button', 'radio', 'checkbox', 'file'].includes(elem.type)) {
 					isTextInput = false;
 				}
 				if (isTextInput && elem.value) {
-					return;
+					isNonEmptyTextInput = true;
 				}
-				if (elem.contentEditable === 'true' && elem.textContent && elem.textContent !== '\n') {
-					return;
+				if (elem.contentEditable === 'true') {
+					isTextInput = true;
+					if (elem.textContent && elem.textContent !== '\n') {
+						isNonEmptyTextInput = true;
+					}
 				}
 			}
-			if (PS.room.onParentEvent) {
-				if (PS.room.onParentEvent('keydown', e) === false) {
+			if (!isNonEmptyTextInput) {
+				if (PS.room.onParentEvent?.('keydown', e) === false) {
 					e.stopImmediatePropagation();
 					e.preventDefault();
 					return;
 				}
 			}
-			let modifierKey = e.ctrlKey || e.altKey || e.metaKey || e.shiftKey;
+			const modifierKey = e.ctrlKey || e.altKey || e.metaKey || e.shiftKey;
+			const altKey = !e.ctrlKey && e.altKey && !e.metaKey && !e.shiftKey;
+			if (altKey && e.keyCode === 38) { // up
+				PS.arrowKeysUsed = true;
+				PS.focusUpRoom();
+			} else if (altKey && e.keyCode === 40) { // down
+				PS.arrowKeysUsed = true;
+				PS.focusDownRoom();
+			}
+			if (isNonEmptyTextInput) return;
+			if (altKey && e.keyCode === 37) { // left
+				PS.arrowKeysUsed = true;
+				PS.focusLeftRoom();
+			} else if (altKey && e.keyCode === 39) { // right
+				PS.arrowKeysUsed = true;
+				PS.focusRightRoom();
+			}
 			if (modifierKey) return;
 			if (e.keyCode === 37) { // left
 				PS.arrowKeysUsed = true;
@@ -304,12 +401,26 @@ class PSMain extends preact.Component {
 			} else if (e.keyCode === 39) { // right
 				PS.arrowKeysUsed = true;
 				PS.focusRightRoom();
+			} else if (e.keyCode === 27) { // escape
+				// close popups
+				if (PS.popups.length) {
+					e.stopImmediatePropagation();
+					e.preventDefault();
+					PS.closePopup();
+					PS.focusRoom(PS.room.id);
+				} else if (PS.room.id === 'rooms') {
+					PS.hideRightRoom();
+				}
+			} else if (e.keyCode === 191 && !isTextInput && PS.room === PS.mainmenu) { // forward slash
+				e.stopImmediatePropagation();
+				e.preventDefault();
+				PS.join('dm---' as RoomID);
 			}
 		});
 
 		const colorSchemeQuery = window.matchMedia?.('(prefers-color-scheme: dark)');
 		if (colorSchemeQuery?.media !== 'not all') {
-			colorSchemeQuery.addEventListener('change', function (cs) {
+			colorSchemeQuery.addEventListener('change', cs => {
 				if (PS.prefs.theme === 'system') document.body.className = cs.matches ? 'dark' : '';
 			});
 		}
@@ -317,39 +428,45 @@ class PSMain extends preact.Component {
 		PS.prefs.subscribeAndRun(key => {
 			if (!key || key === 'theme') {
 				const dark = PS.prefs.theme === 'dark' ||
-					(PS.prefs.theme === 'system' && colorSchemeQuery && colorSchemeQuery.matches);
+					(PS.prefs.theme === 'system' && colorSchemeQuery?.matches);
 				document.body.className = dark ? 'dark' : '';
 			}
 		});
 	}
-	getRoom(elem: HTMLElement) {
-		let curElem: HTMLElement | null = elem;
-		while (curElem) {
-			if (curElem.id.startsWith('room-')) {
-				return PS.rooms[curElem.id.slice(5)];
-			}
-			curElem = curElem.parentElement;
-		}
-	}
+	static focusIfNoSelection = (ev: MouseEvent) => {
+		const room = PS.getRoom(ev.target as HTMLElement, true);
+		if (!room) return;
+
+		if (window.getSelection?.()?.type === 'Range') return;
+		ev.preventDefault();
+		PS.setFocus(room);
+	};
 	handleButtonClick(elem: HTMLButtonElement) {
 		switch (elem.name) {
 		case 'closeRoom':
-			PS.leave(elem.value as RoomID);
+			const roomid = elem.value as RoomID || PS.getRoom(elem)?.id || '' as RoomID;
+			PS.leave(roomid);
 			return true;
 		case 'joinRoom':
-			PS.addRoom({
-				id: elem.value as RoomID,
+			PS.join(elem.value as RoomID, {
 				parentElem: elem,
 			});
-			PS.update();
 			return true;
 		case 'send':
 		case 'cmd':
-			const room = this.getRoom(elem) || PS.mainmenu;
-			room.send(elem.value, elem.name === 'send');
+			const room = PS.getRoom(elem) || PS.mainmenu;
+			if (elem.name === 'send') {
+				room.sendDirect(elem.value);
+			} else {
+				room.send(elem.value);
+			}
 			return true;
 		}
 		return false;
+	}
+	componentDidCatch(err: Error) {
+		PS.mainmenu.caughtError = err.stack || err.message;
+		this.setState({});
 	}
 	static containingRoomid(elem: HTMLElement) {
 		let curElem: HTMLElement | null = elem;
@@ -365,21 +482,21 @@ class PSMain extends preact.Component {
 		try {
 			const selection = window.getSelection()!;
 			if (selection.type === 'Range') return false;
-		} catch (err) {}
+		} catch {}
 		BattleTooltips.hideTooltip();
 	}
 	static posStyle(room: PSRoom) {
 		let pos: PanelPosition | null = null;
-		if (PS.leftRoomWidth === 0) {
+		if (PS.leftPanelWidth === 0) {
 			// one panel visible
-			if (room === PS.activePanel) pos = {top: 56};
+			if (room === PS.panel) pos = { top: 56 };
 		} else {
 			// both panels visible
-			if (room === PS.leftRoom) pos = {top: 56, right: PS.leftRoomWidth};
-			if (room === PS.rightRoom) pos = {top: 56, left: PS.leftRoomWidth};
+			if (room === PS.leftPanel) pos = { top: 56, right: PS.leftPanelWidth };
+			if (room === PS.rightPanel) pos = { top: 56, left: PS.leftPanelWidth };
 		}
 
-		if (!pos) return {display: 'none'};
+		if (!pos) return { display: 'none' };
 
 		let top: number | null = (pos.top || 0);
 		let height: number | null = null;
@@ -413,9 +530,10 @@ class PSMain extends preact.Component {
 	}
 	static getPopupStyle(room: PSRoom, width?: number | 'auto'): any {
 		if (room.location === 'modal-popup' || !room.parentElem) {
-			return {width: width || 480};
+			return { maxWidth: width || 480 };
 		}
 		if (!room.width || !room.height) {
+			room.hiddenInit = true;
 			return {
 				position: 'absolute',
 				visibility: 'hidden',
@@ -481,13 +599,13 @@ class PSMain extends preact.Component {
 		return style;
 	}
 	renderRoom(room: PSRoom) {
-		const roomType = PS.roomTypes[room.type];
-		const Panel = roomType ? roomType.Component : PSRoomPanel;
+		const RoomType = PS.roomTypes[room.type];
+		const Panel = RoomType && !room.caughtError ? RoomType : PSRoomPanel;
 		return <Panel key={room.id} room={room} />;
 	}
 	renderPopup(room: PSRoom) {
-		const roomType = PS.roomTypes[room.type];
-		const Panel = roomType ? roomType.Component : PSRoomPanel;
+		const RoomType = PS.roomTypes[room.type];
+		const Panel = RoomType ? RoomType : PSRoomPanel;
 		if (room.location === 'popup' && room.parentElem) {
 			return <Panel key={room.id} room={room} />;
 		}
@@ -504,15 +622,15 @@ class PSMain extends preact.Component {
 			}
 		}
 		return <div class="ps-frame">
-			<PSHeader style={{top: 0, left: 0, right: 0, height: '50px'}} />
+			<PSHeader style={{ top: 0, left: 0, right: 0, height: '50px' }} />
 			{rooms}
 			{PS.popups.map(roomid => this.renderPopup(PS.rooms[roomid]!))}
 		</div>;
 	}
 }
 
-type PanelPosition = {top?: number, bottom?: number, left?: number, right?: number} | null;
+type PanelPosition = { top?: number, bottom?: number, left?: number, right?: number } | null;
 
-function SanitizedHTML(props: {children: string}) {
-	return <div dangerouslySetInnerHTML={{__html: BattleLog.sanitizeHTML(props.children)}}/>;
+export function SanitizedHTML(props: { children: string }) {
+	return <div dangerouslySetInnerHTML={{ __html: BattleLog.sanitizeHTML(props.children) }} />;
 }

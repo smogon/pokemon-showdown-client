@@ -5,10 +5,13 @@
  *
  * Grabs some data to prepopulate a Replay page.
  *
- * `src/repays-battle.tsx` can also grab this data from our APIs, but
+ * `src/replays-battle.tsx` can also grab this data from our APIs, but
  * doing it here makes it load faster, and also tells Google, Discord's
  * link preview, and other bots which replays actually exist, and what
  * their titles/descriptions are.
+ *
+ * It also puts the replay log in the source, so you can easily look at
+ * it by viewing source.
  *
  * @author Guangcong Luo <guangcongluo@gmail.com>
  * @license MIT
@@ -140,6 +143,7 @@ https://replay.pokemonshowdown.com/gen7randomdoublesbattle-865046831.log
 		display: inline-block;
 		line-height: 22px;
 		font-size: 10pt;
+		vertical-align: top;
 	}
 	.optgroup .button {
 		height: 25px;
@@ -227,9 +231,9 @@ https://replay.pokemonshowdown.com/gen7randomdoublesbattle-865046831.log
 		<div class="nav-wrapper"><ul class="nav">
 			<li><a class="button nav-first" href="//pokemonshowdown.com/"><img src="//pokemonshowdown.com/images/pokemonshowdownbeta.png" srcset="//pokemonshowdown.com/images/pokemonshowdownbeta.png 1x, //pokemonshowdown.com/images/pokemonshowdownbeta@2x.png 2x" alt="Pok&eacute;mon Showdown" width="146" height="44" /> Home</a></li>
 			<li><a class="button" href="//pokemonshowdown.com/dex/">Pok&eacute;dex</a></li>
-			<li><a class="button cur" href="/">Replays</a></li>
-			<li><a class="button" href="//pokemonshowdown.com/ladder/">Ladder</a></li>
-			<li><a class="button nav-last" href="//pokemonshowdown.com/forums/">Forum</a></li>
+			<li><a class="button cur" href="/">Replay</a></li>
+			<li><a class="button purplebutton" href="//smogon.com/dex/" target="_blank">Strategy</a></li>
+			<li><a class="button nav-last purplebutton" href="//smogon.com/forums/" target="_blank">Forum</a></li>
 			<li><a class="button greenbutton nav-first nav-last" href="//play.pokemonshowdown.com/">Play</a></li>
 		</ul></div>
 	</header>
@@ -263,6 +267,7 @@ https://replay.pokemonshowdown.com/gen7randomdoublesbattle-865046831.log
 
 <script defer src="js/utils.js?"></script>
 <script defer src="js/replays-battle.js?"></script>
+<script defer src="js/replays-index.js?"></script>
 
 <?php
 

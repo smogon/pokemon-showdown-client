@@ -36,6 +36,9 @@
 	color: #224466;
 	text-decoration: none;
 }
+.blocklink:active {
+	background: #d6dfe4;
+}
 .dark .blocklink {
 	box-shadow: none;
 	text-shadow: none;
@@ -47,6 +50,9 @@
 	border-color: #AACCEE;
 	background: rgba(30, 40, 50, 1);
 	color: #AACCEE;
+}
+.dark .blocklink:active {
+	background: rgb(40, 52, 63);
 }
 
 /*********************************************************
@@ -91,7 +97,7 @@ select.button {
 	background: #f6f6f6;
 	color: #222222;
 }
-.button:hover {
+.button:hover, .button:active {
 	background: #cfcfcf;
 	background: linear-gradient(to bottom,  #f2f2f2,  #b2b2b2);
 	border-color: #606060;
@@ -142,14 +148,18 @@ select.button {
 .button.cur:hover {
 	cursor: default;
 	background: #EEEEEE;
-	border: 1px solid #CCCCCC;
+	border-color: #CCCCCC;
 	color: #999999;
 	text-shadow: none;
 	box-shadow: 0 1px 2px rgba(0,0,0,.1);
 }
 .button.cur,
-.button.cur:hover {
+.button.cur:hover,
+.button.cur:disabled,
+.button.cur:disabled:hover {
+	background: #f8f8f8;
 	color: #444444;
+	border-color: #AAAAAA;
 }
 
 .button-first, .button-middle {
@@ -248,7 +258,20 @@ select.button {
 }
 .dark .button.cur,
 .dark .button.cur:hover {
+	background: #555555;
 	color: #E9E9E9;
+	border-color: #34373b;
+}
+
+.button.small,
+.button.small {
+	font-size: 8pt;
+	padding: 2px 5px;
+}
+.button.big,
+.button.big {
+	font-size: 12pt;
+	padding: 5px 10px;
 }
 
 /*********************************************************
@@ -760,6 +783,7 @@ details.readmore[open] summary:hover:before {
 	border: 1px solid #7799BB;
 	padding: 2px 4px;
 	border-radius: 4px;
+	overflow-x: auto;
 }
 .dark .infobox {
 	border-color: #506070;
