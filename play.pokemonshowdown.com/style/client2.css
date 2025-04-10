@@ -1934,6 +1934,9 @@ pre.textbox.textbox-empty[placeholder]:before {
 	font-size: 8pt;
 	font-weight: bold;
 }
+.dark .usergroup {
+	color: #BBB;
+}
 
 .userdetails {
 	min-height: 80px;

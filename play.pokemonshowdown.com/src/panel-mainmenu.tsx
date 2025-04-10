@@ -11,7 +11,7 @@ import { PS, PSRoom, type RoomID, type Team } from "./client-main";
 import { PSPanelWrapper, PSRoomPanel } from "./panels";
 import type { BattlesRoom } from "./panel-battle";
 import type { ChatRoom } from "./panel-chat";
-import type { LadderRoom } from "./panel-ladder";
+import type { LadderFormatRoom } from "./panel-ladder";
 import type { RoomsRoom } from "./panel-rooms";
 import { TeamBox } from "./panel-teamdropdown";
 import { Dex, toID, type ID } from "./battle-dex";
@@ -327,7 +327,7 @@ export class MainMenuRoom extends PSRoom {
 			}
 			PS.rooms[`user-${userid}`]?.update(null);
 			PS.rooms[`viewuser-${userid}`]?.update(null);
-			PS.rooms.users?.update(null);
+			PS.rooms[`users`]?.update(null);
 			break;
 		case 'rooms':
 			if (response.pspl) {
@@ -358,9 +358,10 @@ export class MainMenuRoom extends PSRoom {
 			}
 			break;
 		case 'laddertop':
-			const ladderRoomEntries = Object.entries(PS.rooms).filter(entry => entry[0].startsWith('ladder'));
-			for (const [, ladderRoom] of ladderRoomEntries) {
-				(ladderRoom as LadderRoom).update(response);
+			for (const [roomid, ladderRoom] of Object.entries(PS.rooms)) {
+				if (roomid.startsWith('ladder-')) {
+					(ladderRoom as LadderFormatRoom).update(response);
+				}
 			}
 			break;
 		}
