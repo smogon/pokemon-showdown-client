@@ -46,6 +46,13 @@ RewriteRule ^smogdex\/?$ https://smogon.com/dex/ [R=302,L]
 RewriteRule ^forums?\/?$ https://smogon.com/forums/ [R=302,L]
 RewriteRule ^trustworthy\-dlc\-link\/?$ https://www.youtube.com/watch?v=dQw4w9WgXcQ [R=302,L]
 
+# teams shortlinks
+RewriteRule ^t\/?$ https://teams.pokemonshowdown.com/ [R=302,L]
+RewriteRule ^t\/([a-z0-9-]*)$ https://teams.pokemonshowdown.com/view/$1 [R=302,L]
+# replays shortlinks
+RewriteRule ^r\/?$ https://replay.pokemonshowdown.com/ [R=302,L]
+RewriteRule ^r\/([a-z0-9-]*)$ https://replay.pokemonshowdown.com/$1 [R=302,L]
+
 # rewrite old sprite directories/files
 RewriteRule ^sprites\/xyani(.*)?$ sprites/ani$1 [L,QSA]
 RewriteRule ^sprites\/xydex(.*)?$ sprites/dex$1 [L,QSA]
