@@ -10,7 +10,7 @@
  */
 
 import preact from "../js/lib/preact";
-import { PS, type RoomID } from "./client-main";
+import { PS, type PSRoom, type RoomID } from "./client-main";
 import { PSMain } from "./panels";
 import type { Battle } from "./battle";
 import { BattleLog } from "./battle-log";
@@ -77,23 +77,13 @@ export class PSHeader extends preact.Component<{ style: object }> {
 
 		PS.dragging = { type: 'room', roomid };
 	};
-	renderRoomTab(id: RoomID) {
-		const room = PS.rooms[id];
-		if (!room) return null;
-		const closable = (id === '' || id === 'rooms' ? '' : ' closable');
-		const cur = PS.isVisible(room) ? ' cur' : '';
-		const notifying = room.notifications.length ? ' notifying' : room.isSubtleNotifying ? ' subtle-notifying' : '';
+	static roomInfo(room: PSRoom) {
 		const RoomType = PS.roomTypes[room.type];
-		let className = `roomtab button${notifying}${closable}${cur}`;
 		let icon = RoomType?.icon || <i class="fa fa-file-text-o"></i>;
 		let title = room.title;
-		let closeButton = null;
 		switch (room.type) {
-		case 'rooms':
-			title = '';
-			break;
 		case 'battle':
-			let idChunks = id.substr(7).split('-');
+			let idChunks = room.id.slice(7).split('-');
 			let formatName;
 			// TODO: relocate to room implementation
 			if (idChunks.length <= 1) {
@@ -127,6 +117,20 @@ export class PSHeader extends preact.Component<{ style: object }> {
 			}
 			break;
 		}
+		return { icon, title };
+	}
+	renderRoomTab(id: RoomID) {
+		const room = PS.rooms[id];
+		if (!room) return null;
+		const closable = (id === '' || id === 'rooms' ? '' : ' closable');
+		const cur = PS.isVisible(room) ? ' cur' : '';
+		const notifying = room.notifications.length ? ' notifying' : room.isSubtleNotifying ? ' subtle-notifying' : '';
+		let className = `roomtab button${notifying}${closable}${cur}`;
+
+		let { icon, title } = PSHeader.roomInfo(room);
+		if (room.type === 'rooms') title = '';
+
+		let closeButton = null;
 		if (closable) {
 			closeButton = <button class="closebutton" name="closeRoom" value={id} aria-label="Close">
 				<i class="fa fa-times-circle"></i>
@@ -161,10 +165,58 @@ export class PSHeader extends preact.Component<{ style: object }> {
 		}
 		const userColor = window.BattleLog && { color: BattleLog.usernameColor(PS.user.userid) };
 		return <span class="username" style={userColor}>
-			<i class="fa fa-user" style="color:#779EC5"></i> <span class="usernametext">{PS.user.name}</span>
+			<span class="usernametext">{PS.user.name}</span>
 		</span>;
 	}
+	scrollToHeader = () => {
+		if (window.scrollX > 0) {
+			window.scrollTo({ left: 0 });
+		}
+	};
+	renderVertical() {
+		return <div id="header" class="header-vertical" style={this.props.style} onClick={this.scrollToHeader}>
+			<img
+				class="logo"
+				src={`https://${Config.routes.client}/favicon-256.png`}
+				alt="Pokémon Showdown! (beta)"
+				width="50" height="50"
+			/>
+			<div class="maintabbarbottom"></div>
+			<div class="tablist"><div class="inner">
+				<ul>
+					{this.renderRoomTab(PS.leftRoomList[0])}
+				</ul>
+				<ul>
+					{PS.miniRoomList.map(roomid => this.renderRoomTab(roomid))}
+				</ul>
+				<ul>
+					{PS.leftRoomList.slice(1).map(roomid => this.renderRoomTab(roomid))}
+				</ul>
+				<ul class="siderooms">
+					{PS.rightRoomList.map(roomid => this.renderRoomTab(roomid))}
+				</ul>
+			</div></div>
+			<div class="userbar">
+				{this.renderUser()} {}
+				<div style="float:right">
+					<button class="icon button" name="joinRoom" value="volume" title="Sound" aria-label="Sound">
+						<i class={PS.prefs.mute ? 'fa fa-volume-off' : 'fa fa-volume-up'}></i>
+					</button> {}
+					<button class="icon button" name="joinRoom" value="options" title="Options" aria-label="Options">
+						<i class="fa fa-cog"></i>
+					</button>
+				</div>
+			</div>
+		</div>;
+	}
 	override render() {
+		if (PS.leftPanelWidth === null) {
+			document.documentElement.classList?.add('vertical-header-layout');
+			return this.renderVertical();
+		} else {
+			document.documentElement.classList?.remove('vertical-header-layout');
+		}
+
 		return <div id="header" class="header" style={this.props.style}>
 			<img
 				class="logo"
@@ -180,7 +232,7 @@ export class PSHeader extends preact.Component<{ style: object }> {
 				<ul>
 					{PS.leftRoomList.slice(1).map(roomid => this.renderRoomTab(roomid))}
 				</ul>
-				<ul class="siderooms" style={{ float: 'none', marginLeft: PS.leftPanelWidth - 52 }}>
+				<ul class="siderooms" style={{ float: 'none', marginLeft: Math.max(PS.leftPanelWidth - 52, 0) }}>
 					{PS.rightRoomList.map(roomid => this.renderRoomTab(roomid))}
 				</ul>
 			</div></div>
@@ -194,6 +246,16 @@ export class PSHeader extends preact.Component<{ style: object }> {
 				</button>
 			</div>
 		</div>;
+	}
+}
+
+export class PSMiniHeader extends preact.Component {
+	override render() {
+		if (PS.leftPanelWidth !== null) return null;
+
+		const minWidth = Math.min(500, Math.max(320, document.body.offsetWidth - 9));
+		const { icon, title } = PSHeader.roomInfo(PS.panel);
+		return <div class="mini-header" style={{ minWidth: `${minWidth}px` }}>{icon} {title}</div>;
 	}
 }
 

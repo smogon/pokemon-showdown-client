@@ -311,18 +311,34 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 	override componentDidMount() {
 		const room = this.props.room;
 		const $elem = $(this.base!);
-		const battle = room.battle || new Battle({
+		const battle = (room.battle ||= new Battle({
+			id: room.id as any,
 			$frame: $elem.find('.battle'),
 			$logFrame: $elem.find('.battle-log'),
 			log: room.backlog?.map(args => '|' + args.join('|')),
-		});
+		}));
+		const scene = battle.scene as BattleScene;
 		room.backlog = null;
-		room.battle ||= battle;
-		room.log ||= battle.scene.log;
-		(battle.scene as BattleScene).tooltips.listen($elem.find('.battle-controls'));
+		room.log ||= scene.log;
+		scene.tooltips.listen($elem.find('.battle-controls-container'));
+		scene.tooltips.listen(scene.log.elem);
 		super.componentDidMount();
 		battle.seekTurn(Infinity);
 		battle.subscribe(() => this.forceUpdate());
+	}
+	battleHeight = 360;
+	updateLayout() {
+		if (!this.base) return;
+		const room = this.props.room;
+		const width = this.base.offsetWidth;
+		if (width && width < 640) {
+			const scale = (width / 640);
+			room.battle?.scene.$frame!.css('transform', `scale(${scale})`);
+			this.battleHeight = Math.round(360 * scale);
+		} else {
+			room.battle?.scene.$frame!.css('transform', 'none');
+			this.battleHeight = 360;
+		}
 	}
 	override receiveLine(args: Args) {
 		const room = this.props.room;
@@ -371,8 +387,8 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 	renderControls() {
 		const room = this.props.room;
 		if (!room.battle) return null;
-		if (room.side) {
-			return this.renderPlayerControls();
+		if (room.side && room.request) {
+			return this.renderPlayerControls(room.request);
 		}
 		const atEnd = room.battle.atQueueEnd;
 		return <div class="controls">
@@ -589,11 +605,9 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 		}
 		return buf;
 	}
-	renderPlayerControls() {
+	renderPlayerControls(request: BattleRequest) {
 		const room = this.props.room;
-		const request = room.request;
 		let choices = room.choices;
-		if (!request) return 'Error: Missing request';
 		if (!choices) return 'Error: Missing BattleChoiceBuilder';
 		if (choices.request !== request) {
 			choices = new BattleChoiceBuilder(request);
@@ -746,8 +760,25 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 	}
 	override render() {
 		const room = this.props.room;
+		this.updateLayout();
 
-		return <PSPanelWrapper room={room} focusClick>
+		if (room.width < 700) {
+			return <PSPanelWrapper room={room} focusClick scrollable="hidden">
+				<BattleDiv room={room} />
+				<ChatLog
+					class="battle-log hasuserlist" room={room} top={this.battleHeight} noSubscription
+				>
+					<div class="battle-controls" role="complementary" aria-label="Battle Controls">
+						{this.renderControls()}
+					</div>
+				</ChatLog>
+				<ChatTextEntry room={room} onMessage={this.send} onKey={this.onKey} left={0} />
+				<ChatUserList room={room} top={this.battleHeight} minimized />
+				<div class="battle-controls-container"></div>
+			</PSPanelWrapper>;
+		}
+
+		return <PSPanelWrapper room={room} focusClick scrollable="hidden">
 			<BattleDiv room={room} />
 			<ChatLog
 				class="battle-log hasuserlist" room={room} left={640} noSubscription
@@ -756,8 +787,10 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 			</ChatLog>
 			<ChatTextEntry room={room} onMessage={this.send} onKey={this.onKey} left={640} />
 			<ChatUserList room={room} left={640} minimized />
-			<div class="battle-controls" role="complementary" aria-label="Battle Controls" style="top: 370px;">
-				{this.renderControls()}
+			<div class="battle-controls-container">
+				<div class="battle-controls" role="complementary" aria-label="Battle Controls" style="top: 370px;">
+					{this.renderControls()}
+				</div>
 			</div>
 		</PSPanelWrapper>;
 	}
