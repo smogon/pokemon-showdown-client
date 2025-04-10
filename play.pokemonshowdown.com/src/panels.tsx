@@ -16,7 +16,7 @@ import type { Args } from "./battle-text-parser";
 import { BattleTooltips } from "./battle-tooltips";
 import type { PSStreamModel, PSSubscription } from "./client-core";
 import { PS, type PSRoom, type RoomID } from "./client-main";
-import { PSHeader } from "./panel-topbar";
+import { PSHeader, PSMiniHeader } from "./panel-topbar";
 
 export class PSRouter {
 	roomid = '' as RoomID;
@@ -212,6 +212,9 @@ export class PSRoomPanel<T extends PSRoom = PSRoom> extends preact.Component<{ r
 		PS.closePopup();
 	}
 	focus() {
+		// mobile probably
+		if (document.body.offsetWidth < 500) return;
+
 		const autofocus = this.base?.querySelector<HTMLElement>('.autofocus');
 		autofocus?.focus();
 		(autofocus as HTMLInputElement)?.select?.();
@@ -224,30 +227,31 @@ export class PSRoomPanel<T extends PSRoom = PSRoom> extends preact.Component<{ r
 }
 
 export function PSPanelWrapper(props: {
-	room: PSRoom, children: preact.ComponentChildren, scrollable?: boolean, width?: number | 'auto',
-	focusClick?: boolean,
+	room: PSRoom, children: preact.ComponentChildren,
+	focusClick?: boolean, scrollable?: boolean | 'hidden', width?: number | 'auto',
 }) {
 	const room = props.room;
-	if (room.location === 'mini-window') {
+	if (room.location === 'mini-window' && PS.leftPanelWidth !== null) {
 		if (room.id === 'news') {
 			return <div id={`room-${room.id}`}>{props.children}</div>;
 		}
 		return <div
-			id={`room-${room.id}`} class={'mini-window-contents ps-room-light' + (props.scrollable ? ' scrollable' : '')}
+			id={`room-${room.id}`} class={'mini-window-contents ps-room-light' + (props.scrollable === true ? ' scrollable' : '')}
 			onClick={props.focusClick ? PSMain.focusIfNoSelection : undefined}
 		>
 			{props.children}
 		</div>;
 	}
-	if (room.location !== 'left' && room.location !== 'right') {
+	if (PS.isPopup(room)) {
 		const style = PSMain.getPopupStyle(room, props.width);
 		return <div class="ps-popup" id={`room-${room.id}`} style={style}>
 			{props.children}
 		</div>;
 	}
-	const style = PSMain.posStyle(room);
+	const style = PSMain.posStyle(room) as any;
+	if (props.scrollable === 'hidden') style.overflow = 'hidden';
 	return <div
-		class={'ps-room' + (room.id === '' ? '' : ' ps-room-light') + (props.scrollable ? ' scrollable' : '')}
+		class={'ps-room' + (room.id === '' ? '' : ' ps-room-light') + (props.scrollable === true ? ' scrollable' : '')}
 		id={`room-${room.id}`}
 		style={style} onClick={props.focusClick ? PSMain.focusIfNoSelection : undefined}
 	>
@@ -259,6 +263,13 @@ export class PSMain extends preact.Component {
 	constructor() {
 		super();
 		PS.subscribe(() => this.forceUpdate());
+
+		if (navigator.userAgent.includes(' Safari/')) {
+			// I don't want to prevent users from being able to zoom, but iOS Safari
+			// auto-zooms when focusing textboxes (unless the font size is 16px),
+			// and this apparently fixes it while still allowing zooming.
+			document.querySelector('meta[name=viewport]')?.setAttribute('content', 'width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0');
+		}
 
 		window.addEventListener('click', e => {
 			let elem = e.target as HTMLElement | null;
@@ -300,6 +311,9 @@ export class PSMain extends preact.Component {
 							parentElem: elem,
 							location,
 						});
+						if (!PS.isPopup(PS.rooms[roomid])) {
+							PS.closeAllPopups();
+						}
 						e.preventDefault();
 						e.stopImmediatePropagation();
 					}
@@ -343,8 +357,8 @@ export class PSMain extends preact.Component {
 			}
 			if (PS.room !== clickedRoom) {
 				if (clickedRoom) PS.room = clickedRoom;
-				// eslint-disable-next-line no-unmodified-loop-condition
-				while (PS.popups.length && (!clickedRoom || clickedRoom.id !== PS.popups[PS.popups.length - 1])) {
+				for (let i = PS.popups.length - 1; i >= 0; i--) {
+					if (clickedRoom && clickedRoom.id === PS.popups[i]) break;
 					PS.closePopup();
 				}
 				PS.update();
@@ -437,6 +451,17 @@ export class PSMain extends preact.Component {
 		const room = PS.getRoom(ev.target as HTMLElement, true);
 		if (!room) return;
 
+		if (document.documentElement.scrollWidth > document.documentElement.clientWidth && window.scrollX === 0) {
+			if (navigator.userAgent.includes(' Safari/') && PS.leftPanelWidth === null) {
+				// Safari is buggy here and requires temporarily disabling scroll snap
+				document.documentElement.classList.remove('vertical-header-layout');
+				window.scrollBy(400, 0);
+				setTimeout(() => document.documentElement.classList.add('vertical-header-layout'));
+			} else {
+				// intentionally around twice as big as necessary
+				window.scrollBy(400, 0);
+			}
+		}
 		if (window.getSelection?.()?.type === 'Range') return;
 		ev.preventDefault();
 		PS.setFocus(room);
@@ -486,47 +511,22 @@ export class PSMain extends preact.Component {
 		BattleTooltips.hideTooltip();
 	}
 	static posStyle(room: PSRoom) {
-		let pos: PanelPosition | null = null;
-		if (PS.leftPanelWidth === 0) {
+		if (PS.leftPanelWidth === null) {
+			// vertical mode
+			if (room === PS.panel) {
+				const minWidth = Math.min(500, Math.max(320, document.body.offsetWidth - 9));
+				return { top: '25px', left: '200px', minWidth: `${minWidth}px` };
+			}
+		} else if (PS.leftPanelWidth === 0) {
 			// one panel visible
-			if (room === PS.panel) pos = { top: 56 };
+			if (room === PS.panel) return {};
 		} else {
 			// both panels visible
-			if (room === PS.leftPanel) pos = { top: 56, right: PS.leftPanelWidth };
-			if (room === PS.rightPanel) pos = { top: 56, left: PS.leftPanelWidth };
+			if (room === PS.leftPanel) return { width: `${PS.leftPanelWidth}px`, right: 'auto' };
+			if (room === PS.rightPanel) return { top: 56, left: PS.leftPanelWidth + 1 };
 		}
 
-		if (!pos) return { display: 'none' };
-
-		let top: number | null = (pos.top || 0);
-		let height: number | null = null;
-		let bottom: number | null = (pos.bottom || 0);
-		if (bottom > 0 || top < 0) {
-			height = bottom - top;
-			if (height < 0) throw new RangeError("Invalid pos range");
-			if (top < 0) top = null;
-			else bottom = null;
-		}
-
-		let left: number | null = (pos.left || 0);
-		let width: number | null = null;
-		let right: number | null = (pos.right || 0);
-		if (right > 0 || left < 0) {
-			width = right - left - 1;
-			if (width < 0) throw new RangeError("Invalid pos range");
-			if (left < 0) left = null;
-			else right = null;
-		}
-
-		return {
-			display: 'block',
-			top: top === null ? `auto` : `${top}px`,
-			height: height === null ? `auto` : `${height}px`,
-			bottom: bottom === null ? `auto` : `${-bottom}px`,
-			left: left === null ? `auto` : `${left}px`,
-			width: width === null ? `auto` : `${width}px`,
-			right: right === null ? `auto` : `${-right}px`,
-		};
+		return { display: 'none' };
 	}
 	static getPopupStyle(room: PSRoom, width?: number | 'auto'): any {
 		if (room.location === 'modal-popup' || !room.parentElem) {
@@ -547,49 +547,68 @@ export class PSMain extends preact.Component {
 			position: 'absolute',
 			margin: 0,
 		};
-		let offset = room.parentElem.getBoundingClientRect();
-		let sourceWidth = offset.width;
-		let sourceHeight = offset.height;
+		// semimodal popups exist in a fixed-positioned overlay and are
+		// positioned relative to the overlay (the viewport).
+		// regular popups are positioned relative to the document root, and so
+		// need to account for scrolling.
+		const isFixed = room.location !== 'popup';
+		const offsetLeft = isFixed ? 0 : window.scrollX;
+		const offsetTop = isFixed ? 0 : window.scrollY;
+		const availableWidth = document.documentElement.clientWidth + offsetLeft;
+		const availableHeight = document.documentElement.clientHeight;
 
-		let availableHeight = document.documentElement.clientHeight;
-		let height = room.height;
+		const source = room.parentElem.getBoundingClientRect();
+		const sourceWidth = source.width;
+		const sourceHeight = source.height;
+		const sourceTop = source.top + offsetTop;
+		const sourceLeft = source.left + offsetLeft;
+
+		const height = room.height;
 		width = width || room.width;
 
 		if (room.rightPopup) {
 
-			if (availableHeight > offset.top + height + 5 &&
-				(offset.top < availableHeight * 2 / 3 || offset.top + 200 < availableHeight)) {
-				style.top = offset.top;
-			} else if (offset.top + sourceHeight >= height) {
-				style.bottom = Math.max(availableHeight - offset.top - sourceHeight, 0);
+			if (availableHeight > sourceTop + height + 5 &&
+				(sourceTop < availableHeight * 2 / 3 || sourceTop + 200 < availableHeight)) {
+				style.top = sourceTop;
+			} else if (sourceTop + sourceHeight >= height) {
+				style.bottom = Math.max(availableHeight - sourceTop - sourceHeight, 0);
 			} else {
 				style.top = Math.max(0, availableHeight - height);
 			}
-			let offsetLeft = offset.left + sourceWidth;
-			if (width !== 'auto' && offsetLeft + width > document.documentElement.clientWidth) {
-				style.right = 1;
+			const popupLeft = sourceLeft + sourceWidth;
+			if (width !== 'auto' && popupLeft + width > availableWidth) {
+				// can't fit, give up and put it in the normal place
+				style = {
+					position: 'absolute',
+					margin: 0,
+				};
 			} else {
-				style.left = offsetLeft;
+				style.left = popupLeft;
 			}
 
-		} else {
+		}
 
-			if (availableHeight > offset.top + sourceHeight + height + 5 &&
-				(offset.top + sourceHeight < availableHeight * 2 / 3 || offset.top + sourceHeight + 200 < availableHeight)) {
-				style.top = offset.top + sourceHeight;
-			} else if (height + 5 <= offset.top) {
-				style.bottom = Math.max(availableHeight - offset.top, 0);
+		if (style.left === undefined) {
+
+			if (availableHeight > sourceTop + sourceHeight + height + 5 &&
+				(sourceTop + sourceHeight < availableHeight * 2 / 3 || sourceTop + sourceHeight + 200 < availableHeight)) {
+				style.top = sourceTop + sourceHeight;
+			} else if (height + 5 <= sourceTop) {
+				style.bottom = Math.max(availableHeight - sourceTop, 0);
 			} else if (height + 10 < availableHeight) {
 				style.bottom = 5;
 			} else {
 				style.top = 0;
 			}
 
-			let availableWidth = document.documentElement.clientWidth - offset.left;
-			if (width !== 'auto' && availableWidth < width + 10) {
-				style.right = 10;
+			const availableAlignedWidth = availableWidth - sourceLeft;
+			if (width !== 'auto' && availableAlignedWidth < width + 10) {
+				// while `right: 10` would be simpler, it doesn't work if there is horizontal scrolling,
+				// like in the mobile layout
+				style.left = Math.max(availableWidth - width - 10, offsetLeft);
 			} else {
-				style.left = offset.left;
+				style.left = sourceLeft;
 			}
 
 		}
@@ -617,19 +636,18 @@ export class PSMain extends preact.Component {
 		let rooms = [] as preact.VNode[];
 		for (const roomid in PS.rooms) {
 			const room = PS.rooms[roomid]!;
-			if (room.location === 'left' || room.location === 'right') {
+			if (PS.isNormalRoom(room)) {
 				rooms.push(this.renderRoom(room));
 			}
 		}
 		return <div class="ps-frame">
-			<PSHeader style={{ top: 0, left: 0, right: 0, height: '50px' }} />
+			<PSHeader style={{}} />
+			<PSMiniHeader />
 			{rooms}
 			{PS.popups.map(roomid => this.renderPopup(PS.rooms[roomid]!))}
 		</div>;
 	}
 }
-
-type PanelPosition = { top?: number, bottom?: number, left?: number, right?: number } | null;
 
 export function SanitizedHTML(props: { children: string }) {
 	return <div dangerouslySetInnerHTML={{ __html: BattleLog.sanitizeHTML(props.children) }} />;

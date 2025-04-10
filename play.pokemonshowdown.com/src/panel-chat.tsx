@@ -533,7 +533,9 @@ class ChatPanel extends PSRoomPanel<ChatRoom> {
 	}
 }
 
-export class ChatUserList extends preact.Component<{ room: ChatRoom, left?: number, minimized?: boolean }> {
+export class ChatUserList extends preact.Component<{
+	room: ChatRoom, left?: number, top?: number, minimized?: boolean,
+}> {
 	subscription: PSSubscription | null = null;
 	override state = {
 		expanded: false,
@@ -557,7 +559,7 @@ export class ChatUserList extends preact.Component<{ room: ChatRoom, left?: numb
 		));
 		return <ul
 			class={'userlist' + (this.props.minimized ? (this.state.expanded ? ' userlist-maximized' : ' userlist-minimized') : '')}
-			style={{ left: this.props.left || 0 }}
+			style={{ left: this.props.left || 0, top: this.props.top || 0 }}
 		>
 			<li class="userlist-count" onClick={this.toggleExpanded}><small>{room.userCount} users</small></li>
 			{userList.map(([userid, name]) => {

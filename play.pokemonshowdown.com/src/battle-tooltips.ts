@@ -419,7 +419,7 @@ export class BattleTooltips {
 			$wrapper.removeClass('tooltip-locked');
 		}
 		$wrapper.css({
-			left: x,
+			left: Math.min(x, document.documentElement.clientWidth - 400),
 			top: y,
 		});
 		innerHTML = `<div class="tooltipinner"><div class="tooltip tooltip-${type!}">${innerHTML}</div></div>`;
@@ -448,8 +448,11 @@ export class BattleTooltips {
 		}
 
 		let width = $(BattleTooltips.elem).outerWidth()!;
-		if (x > document.documentElement.clientWidth - width - 2) {
-			x = document.documentElement.clientWidth - width - 2;
+		const availableWidth = document.documentElement.clientWidth + window.scrollX;
+		if (x > availableWidth - width - 2) {
+			x = availableWidth - width - 2;
+			$wrapper.css('left', x);
+		} else if (x > document.documentElement.clientWidth - 400) {
 			$wrapper.css('left', x);
 		}
 

@@ -23,7 +23,7 @@ class RoomsPanel extends PSRoomPanel {
 	static readonly routes = ['rooms'];
 	static readonly Model = RoomsRoom;
 	static readonly location = 'right';
-	static readonly icon = <i class="fa fa-plus" style="margin:7px auto -6px auto"></i>;
+	static readonly icon = <i class="fa fa-plus rooms-plus"></i>;
 	hidden = false;
 	search = '';
 	lastKeyCode = 0;
