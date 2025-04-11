@@ -387,6 +387,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 	renderControls() {
 		const room = this.props.room;
 		if (!room.battle) return null;
+		if (room.battle.ended) return this.renderAfterBattleControls(null);
 		if (room.side && room.request) {
 			return this.renderPlayerControls(room.request);
 		}
@@ -758,6 +759,69 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 		}
 		return null;
 	}
+
+	renderAfterBattleControls(request: BattleRequest | null) {
+		const room = this.props.room;
+		return <div>
+			<div class="controls">
+				<p>
+					<span style="float: right"><a
+						onClick={e => {
+							{
+								// download replay
+								let filename = (room.battle.tier || 'Battle').replace(/[^A-Za-z0-9]/g, '');
+								let date = new Date();
+								filename += '-' + date.getFullYear();
+								filename += (date.getMonth() >= 9 ? '-' : '-0') + (date.getMonth() + 1);
+								filename += (date.getDate() >= 10 ? '-' : '-0') + date.getDate();
+								filename += '-' + toID(room.battle.p1.name);
+								filename += '-' + toID(room.battle.p2.name);
+								e.currentTarget.href = BattleLog.createReplayFileHref(room);
+								e.currentTarget.download = filename + '.html';
+								e.stopPropagation();
+							}
+						}}
+						href={`//${Config.routes.replays}/`}
+						class="button replayDownloadButton"
+					>
+						<i class="fa fa-download"></i> Download replay</a>
+					<br />
+					<br />
+					<button class="button" name="cmd" value="/savereplay">
+						<i class="fa fa-upload"></i> Upload and share replay
+					</button>
+					</span>
+					
+					<button
+						class="button" name="instantReplay" onClick={() => {
+							room.request = null;
+							room.battle.reset();
+							room.battle.play();
+						}}
+					>
+						<i class="fa fa-undo"></i><br />Instant replay
+					</button>
+				</p>
+				{room.side ?
+					<p>
+						<button class="button" name="closeAndMainMenu" onClick={() => this.close()}>
+							<strong>Main menu</strong><br /><small>(closes this battle)</small>
+						</button>
+						<button
+							class="button" onClick={() => {
+								this.send("/challenge " + room.battle.farSide.id);
+								this.close();
+							}} name="closeAndRematch"
+						>
+							<strong>Rematch</strong><br /><small>(closes this battle)</small>
+						</button>
+					</p> :
+					<p><button class="button" name="switchViewpoint" name="cmd" value="/switchsides"><i class="fa fa-random"></i> Switch sides</button></p>}
+			</div>
+		</div>;
+
+	}
+
 	override render() {
 		const room = this.props.room;
 		this.updateLayout();
