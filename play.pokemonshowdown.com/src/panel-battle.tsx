@@ -765,20 +765,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 		return <div class="controls">
 			<p>
 				<span style="float: right"><a
-					onClick={(e: MouseEvent) => {
-						const target = e.currentTarget as HTMLAnchorElement;
-						// download replay
-						let filename = (room.battle.tier || 'Battle').replace(/[^A-Za-z0-9]/g, '');
-						let date = new Date();
-						filename += '-' + date.getFullYear();
-						filename += (date.getMonth() >= 9 ? '-' : '-0') + (date.getMonth() + 1);
-						filename += (date.getDate() >= 10 ? '-' : '-0') + date.getDate();
-						filename += '-' + toID(room.battle.p1.name);
-						filename += '-' + toID(room.battle.p2.name);
-						target.href = window.BattleLog.createReplayFileHref(room);
-						target.download = filename + '.html';
-						e.stopPropagation();
-					}}
+					onClick={this.handleDownloadReplay}
 					href={`//${Config.routes.replays}/`}
 					class="button replayDownloadButton"
 				>
@@ -791,11 +778,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 				</span>
 
 				<button
-					class="button" name="instantReplay" onClick={() => {
-						room.request = null;
-						room.battle.reset();
-						room.battle.play();
-					}}
+					class="button" name="instantReplay" onClick={this.handleInstantReplay}
 				>
 					<i class="fa fa-undo"></i><br />Instant replay
 				</button>
@@ -806,10 +789,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 						<strong>Main menu</strong><br /><small>(closes this battle)</small>
 					</button>
 					<button
-						class="button" onClick={() => {
-							this.send("/challenge " + room.battle.farSide.id);
-							this.close();
-						}} name="closeAndRematch"
+						class="button" name="cmd" value={`/closeandchallenge ${room.battle.farSide.id}`}
 					>
 						<strong>Rematch</strong><br /><small>(closes this battle)</small>
 					</button>
@@ -818,6 +798,35 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 		</div>;
 
 	}
+
+	handleDownloadReplay = (e: MouseEvent) => {
+		let room = this.props.room;
+		const target = e.currentTarget as HTMLAnchorElement;
+		// download replay
+		let filename = (room.battle.tier || 'Battle').replace(/[^A-Za-z0-9]/g, '');
+		let date = new Date();
+		filename += '-' + date.getFullYear();
+		filename += (date.getMonth() >= 9 ? '-' : '-0') + (date.getMonth() + 1);
+		filename += (date.getDate() >= 10 ? '-' : '-0') + date.getDate();
+		filename += '-' + toID(room.battle.p1.name);
+		filename += '-' + toID(room.battle.p2.name);
+		target.href = window.BattleLog.createReplayFileHref(room);
+		target.download = filename + '.html';
+		e.stopPropagation();
+	};
+
+	handleInstantReplay = () => {
+		let room = this.props.room;
+		room.request = null;
+		room.battle.reset();
+		room.battle.play();
+	};
+
+	handleCloseAndRematch = () => {
+		let room = this.props.room;
+		this.send("/challenge " + room.battle.farSide.id);
+		this.close();
+	};
 
 	override render() {
 		const room = this.props.room;
