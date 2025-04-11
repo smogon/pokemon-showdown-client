@@ -822,12 +822,6 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 		room.battle.play();
 	};
 
-	handleCloseAndRematch = () => {
-		let room = this.props.room;
-		this.send("/challenge " + room.battle.farSide.id);
-		this.close();
-	};
-
 	override render() {
 		const room = this.props.room;
 		this.updateLayout();
