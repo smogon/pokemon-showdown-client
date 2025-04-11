@@ -358,7 +358,7 @@ export class MiniTeam extends preact.Component<{ team: ServerTeam, fullTeam?: bo
 		return <>
 			<a
 				class="team"
-				style={{color: 'black', textDecoration: 'none'}}
+				style={{ color: 'black', textDecoration: 'none' }}
 				href={`/view/${team.teamid}${team.private ? `-${team.private}` : ''}`}
 			>
 				<strong>
