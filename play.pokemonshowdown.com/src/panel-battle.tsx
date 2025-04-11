@@ -387,7 +387,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 	renderControls() {
 		const room = this.props.room;
 		if (!room.battle) return null;
-		if (room.battle.ended) return this.renderAfterBattleControls(null);
+		if (room.battle.ended) return this.renderAfterBattleControls();
 		if (room.side && room.request) {
 			return this.renderPlayerControls(room.request);
 		}
@@ -760,7 +760,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 		return null;
 	}
 
-	renderAfterBattleControls(request: BattleRequest | null) {
+	renderAfterBattleControls() {
 		const room = this.props.room;
 		return <div class="controls">
 			<p>
