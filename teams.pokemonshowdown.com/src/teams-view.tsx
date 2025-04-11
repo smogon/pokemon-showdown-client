@@ -143,7 +143,7 @@ function PokemonSet({ set }: { set: Dex.PokemonSet }) {
 				</>
 			)}<br /></>}
 
-		{set.moves && set.moves.map(move => {
+		{set.moves?.map(move => {
 			if (move.substr(0, 13) === 'Hidden Power ') {
 				const hpType = move.slice(13);
 				move = move.slice(0, 13);
