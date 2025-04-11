@@ -41,15 +41,13 @@ export class ChatRoom extends PSRoom {
 	/** n.b. this will be null outside of battle rooms */
 	battle: Battle | null = null;
 	log: BattleLog | null = null;
-	/** during initialization, room could get messages before it has a log */
-	backlog: Args[] | null = null;
 
 	constructor(options: RoomOptions) {
 		super(options);
 		if (options.args?.pmTarget) this.pmTarget = options.args.pmTarget as string;
 		if (options.args?.challengeMenuOpen) this.challengeMenuOpen = true;
 		if (options.args?.initialSlash) this.initialSlash = true;
-		this.updateTarget();
+		this.updateTarget(this.pmTarget);
 		this.connect();
 	}
 	override connect() {
@@ -60,23 +58,45 @@ export class ChatRoom extends PSRoom {
 		}
 	}
 	override receiveLine(args: Args) {
-		if (!this.log) (this.backlog ||= []).push(args);
+		switch (args[0]) {
+		case 'users':
+			const usernames = args[1].split(',');
+			const count = parseInt(usernames.shift()!, 10);
+			this.setUsers(count, usernames);
+			return;
+		case 'join': case 'j': case 'J':
+			this.addUser(args[1]);
+			break;
+		case 'leave': case 'l': case 'L':
+			this.removeUser(args[1]);
+			break;
+		case 'name': case 'n': case 'N':
+			this.renameUser(args[1], args[2]);
+			break;
+		case 'c':
+			if (`${args[2]} `.startsWith('/challenge ')) {
+				this.updateChallenge(args[1], args[2].slice(11));
+				return;
+			}
+			break;
+		}
 		super.receiveLine(args);
 	}
-	updateTarget() {
+	updateTarget(name?: string | null) {
 		if (this.id === 'dm-') {
-			this.pmTarget = PS.user.userid;
-			this.setUsers(1, [` ${PS.user.userid}`]);
+			this.pmTarget = PS.user.name;
+			this.setUsers(1, [` ${PS.user.name}`]);
 			this.title = `Console`;
 		} else if (this.id.startsWith('dm-')) {
 			const id = this.id.slice(3);
-			this.pmTarget = id;
+			if (!name || toID(name) !== id) name = this.pmTarget || id;
+			this.pmTarget = name;
 			if (!PS.user.userid) {
-				this.setUsers(1, [` ${id}`]);
+				this.setUsers(1, [` ${name}`]);
 			} else {
-				this.setUsers(2, [` ${id}`, ` ${PS.user.userid}`]);
+				this.setUsers(2, [` ${name}`, ` ${PS.user.name}`]);
 			}
-			this.title = `[DM] ${this.pmTarget}`;
+			this.title = `[DM] ${name}`;
 		}
 	}
 	/**
@@ -212,6 +232,12 @@ export class ChatRoom extends PSRoom {
 	}
 	override destroy() {
 		if (this.pmTarget) this.connected = false;
+		if (this.battle) {
+			// since battle is defined here, we might as well deallocate it here
+			this.battle.destroy();
+		} else {
+			this.log?.destroy();
+		}
 		super.destroy();
 	}
 }
@@ -536,21 +562,12 @@ class ChatPanel extends PSRoomPanel<ChatRoom> {
 export class ChatUserList extends preact.Component<{
 	room: ChatRoom, left?: number, top?: number, minimized?: boolean,
 }> {
-	subscription: PSSubscription | null = null;
 	override state = {
 		expanded: false,
 	};
 	toggleExpanded = () => {
 		this.setState({ expanded: !this.state.expanded });
 	};
-	override componentDidMount() {
-		this.subscription = this.props.room.subscribe(msg => {
-			if (!msg) this.forceUpdate();
-		});
-	}
-	override componentWillUnmount() {
-		if (this.subscription) this.subscription.unsubscribe();
-	}
 	render() {
 		const room = this.props.room;
 		let userList = Object.entries(room.users) as [ID, string][];
@@ -612,33 +629,11 @@ export class ChatLog extends preact.Component<{
 					room.log.add(args);
 				}
 			}
+			this.subscription = room.subscribe(tokens => {
+				if (!tokens) return;
+				this.props.room.log!.add(tokens);
+			});
 		}
-		this.subscription = room.subscribe(tokens => {
-			if (!tokens) return;
-			switch (tokens[0]) {
-			case 'users':
-				const usernames = tokens[1].split(',');
-				const count = parseInt(usernames.shift()!, 10);
-				this.props.room.setUsers(count, usernames);
-				return;
-			case 'join': case 'j': case 'J':
-				this.props.room.addUser(tokens[1]);
-				break;
-			case 'leave': case 'l': case 'L':
-				this.props.room.removeUser(tokens[1]);
-				break;
-			case 'name': case 'n': case 'N':
-				this.props.room.renameUser(tokens[1], tokens[2]);
-				break;
-			case 'c':
-				if (`${tokens[2]} `.startsWith('/challenge ')) {
-					this.props.room.updateChallenge(tokens[1], tokens[2].slice(11));
-					return;
-				}
-				break;
-			}
-			if (!this.props.noSubscription) this.props.room.log!.add(tokens);
-		});
 		this.setControlsJSX(this.props.children);
 	}
 	override componentWillUnmount() {

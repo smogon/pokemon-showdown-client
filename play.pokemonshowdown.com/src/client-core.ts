@@ -20,74 +20,78 @@
 
 const PSURL = `${document.location.protocol !== 'http:' ? 'https:' : ''}//${Config.routes.client}/`;
 
-export class PSSubscription {
-	observable: PSModel | PSStreamModel<any>;
-	listener: (value?: any) => void;
-	constructor(observable: PSModel | PSStreamModel<any>, listener: (value?: any) => void) {
+export class PSSubscription<T = any> {
+	observable: PSModel<T> | PSStreamModel<T>;
+	listener: (value: T) => void;
+	constructor(observable: PSModel<T> | PSStreamModel<T>, listener: (value: T) => void) {
 		this.observable = observable;
 		this.listener = listener;
 	}
 	unsubscribe() {
-		const index = this.observable.subscriptions.indexOf(this);
+		const index = this.observable.subscriptions.indexOf(this as any);
 		if (index >= 0) this.observable.subscriptions.splice(index, 1);
 	}
 }
 
 /**
- * PS Models roughly implement the Observable spec. Not the entire
- * spec - just the parts we use. PSModel just notifies subscribers of
- * updates - a simple model for React.
+ * PS Models roughly implement the Observable spec. By default,
+ * PSModel notifies listeners when the model is updated. With a
+ * value, PSModel can also stream data out.
+ *
+ * Note that unlike React's usual paradigm, PS Models are not
+ * immutable.
  */
-export class PSModel {
-	subscriptions = [] as PSSubscription[];
-	subscribe(listener: () => void) {
-		const subscription = new PSSubscription(this, listener);
+export class PSModel<T = null> {
+	subscriptions: PSSubscription<T>[] = [];
+	subscribe(listener: (value: T) => void) {
+		const subscription = new PSSubscription<T>(this, listener);
 		this.subscriptions.push(subscription);
 		return subscription;
 	}
-	subscribeAndRun(listener: () => void) {
+	subscribeAndRun(listener: (value: T) => void, value?: T) {
 		const subscription = this.subscribe(listener);
-		subscription.listener();
+		subscription.listener(value!);
 		return subscription;
 	}
-	update() {
+	update(this: PSModel): void;
+	update(value: T): void;
+	update(value?: T) {
 		for (const subscription of this.subscriptions) {
-			subscription.listener();
+			subscription.listener(value!);
 		}
 	}
 }
 
 /**
- * PS Models roughly implement the Observable spec. PSStreamModel
- * streams some data out. This is very not-React, which generally
- * expects the DOM to be a pure function of state. Instead PSModels
- * which hold state, PSStreamModels give state directly to views,
- * so that the model doesn't need to hold a redundant copy of state.
+ * @see PSModel
+ *
+ * The main difference is that StreamModel keeps a backlog,
+ * so events generated before something subscribes are not
+ * lost. Nullish values are not kept in the backlog.
  */
 export class PSStreamModel<T = string> {
-	subscriptions = [] as PSSubscription[];
-	updates = [] as T[];
+	subscriptions: PSSubscription<T>[] = [];
+	backlog: NonNullable<T>[] | null = [];
 	subscribe(listener: (value: T) => void) {
-		// TypeScript bug
-		const subscription: PSSubscription = new PSSubscription(this, listener);
+		const subscription: PSSubscription<T> = new PSSubscription<T>(this, listener);
 		this.subscriptions.push(subscription);
-		if (this.updates.length) {
-			for (const update of this.updates) {
+		if (this.backlog) {
+			for (const update of this.backlog) {
 				subscription.listener(update);
 			}
-			this.updates = [];
+			this.backlog = null;
 		}
 		return subscription;
 	}
-	subscribeAndRun(listener: (value: T) => void) {
+	subscribeAndRun(listener: (value: T) => void, value: T = null!) {
 		const subscription = this.subscribe(listener);
-		subscription.listener(null);
+		subscription.listener(value);
 		return subscription;
 	}
 	update(value: T) {
-		if (!this.subscriptions.length) {
+		if (!this.subscriptions.length && value !== null && value !== undefined) {
 			// save updates for later
-			this.updates.push(value);
+			(this.backlog ||= []).push(value);
 		}
 		for (const subscription of this.subscriptions) {
 			subscription.listener(value);
