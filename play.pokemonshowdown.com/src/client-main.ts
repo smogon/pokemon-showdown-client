@@ -14,8 +14,11 @@ import { PSModel, PSStreamModel } from './client-core';
 import type { PSRoomPanel, PSRouter } from './panels';
 import type { ChatRoom } from './panel-chat';
 import type { MainMenuRoom } from './panel-mainmenu';
-import { toID, type ID } from './battle-dex';
+import { Dex, toID, type ID } from './battle-dex';
 import { BattleTextParser, type Args } from './battle-text-parser';
+
+declare const BattleTextAFD: any;
+declare const BattleTextNotAFD: any;
 
 /**********************************************************************
  * Prefs
@@ -67,6 +70,8 @@ class PSPrefs extends PSStreamModel<string | null> {
 	musicvolume = 50;
 	notifvolume = 50;
 
+	afd: boolean | 'sprites' = false;
+
 	// PREFS END HERE
 
 	storageEngine: 'localStorage' | 'iframeLocalStorage' | '' = '';
@@ -104,6 +109,7 @@ class PSPrefs extends PSStreamModel<string | null> {
 		this.update(key);
 		this.save();
 	}
+
 	load(newPrefs: object, noSave?: boolean) {
 		this.fixPrefs(newPrefs);
 		Object.assign(this, PSPrefsDefaults);
@@ -111,6 +117,7 @@ class PSPrefs extends PSStreamModel<string | null> {
 		for (const key in PSPrefsDefaults) {
 			if (key in newPrefs) (this as any)[key] = (newPrefs as any)[key];
 		}
+		this.setAFD();
 		this.update(null);
 		if (!noSave) this.save();
 	}
@@ -153,6 +160,38 @@ class PSPrefs extends PSStreamModel<string | null> {
 				newPrefs['theme'] = 'dark';
 			}
 			delete newPrefs['dark'];
+		}
+	}
+
+	setAFD(mode?: typeof this['afd']) {
+		if (mode === undefined) {
+			// init
+			if (typeof BattleTextAFD !== 'undefined') {
+				for (const id in BattleTextNotAFD) {
+					if (!BattleTextAFD[id]) {
+						BattleTextAFD[id] = BattleTextNotAFD[id];
+					} else {
+						BattleTextAFD[id] = { ...BattleTextNotAFD[id], ...BattleTextAFD[id] };
+					}
+				}
+			}
+
+			if (Config.server.afd) {
+				mode = true;
+			} else if (this.afd !== undefined) {
+				mode = this.afd;
+			} else {
+				// uncomment on April Fools' Day
+				// mode = true;
+			}
+		}
+
+		Dex.afdMode = mode;
+
+		if (mode === true) {
+			(BattleText as any) = BattleTextAFD;
+		} else {
+			(BattleText as any) = BattleTextNotAFD;
 		}
 	}
 }
@@ -551,10 +590,8 @@ export interface RoomOptions {
 	location?: PSRoomLocation | null;
 	/**
 	 * In case the room received messages before it was ready for them.
-	 *
-	 * Fed to `room.receiveLine` after initialization, after the constructor is run.
 	 */
-	backlog?: Args[];
+	backlog?: Args[] | null;
 	/**
 	 * Popup parent element. If it exists, a popup shows up right above/below that element.
 	 *
@@ -643,6 +680,7 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 		if (this.location !== 'popup' && this.location !== 'semimodal-popup') this.parentElem = null;
 		if (options.rightPopup) this.rightPopup = true;
 		if (options.connected) this.connected = true;
+		if (options.backlog) this.backlog = options.backlog;
 		this.noURL = options.noURL || false;
 		this.args = options.args || null;
 	}
@@ -741,17 +779,9 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 }
 
 class PlaceholderRoom extends PSRoom {
-	backlog = [] as Args[];
 	override readonly classType = 'placeholder';
 	override receiveLine(args: Args) {
-		try {
-			this.backlog.push(args);
-		} catch (err: any) {
-			console.log(this.backlog.length);
-			console.log(args.length);
-			console.log(this.backlog.slice(0, 1000));
-			throw err;
-		}
+		(this.backlog ||= []).push(args);
 	}
 }
 
@@ -936,7 +966,10 @@ export const PS = new class extends PSModel {
 		}
 
 		this.updateLayout();
-		window.addEventListener('resize', () => this.updateLayout());
+		window.addEventListener('resize', () => {
+			// super.update() skips another updateLayout() call
+			if (this.updateLayout()) super.update();
+		});
 	}
 
 	// Panel layout
@@ -987,7 +1020,8 @@ export const PS = new class extends PSModel {
 			maxWidth: 640,
 		};
 	}
-	updateLayout(alreadyUpdating?: boolean) {
+	/** @returns changed */
+	updateLayout(): boolean {
 		const leftPanelWidth = this.calculateLeftPanelWidth();
 		const totalWidth = document.body.offsetWidth;
 		const totalHeight = document.body.offsetHeight;
@@ -1007,8 +1041,9 @@ export const PS = new class extends PSModel {
 
 		if (this.leftPanelWidth !== leftPanelWidth) {
 			this.leftPanelWidth = leftPanelWidth;
-			if (!alreadyUpdating) this.update(true);
+			return true;
 		}
+		return false;
 	}
 	getRoom(elem: HTMLElement | EventTarget | null | undefined, skipClickable?: boolean): PSRoom | null {
 		let curElem: HTMLElement | null = elem as HTMLElement;
@@ -1039,8 +1074,8 @@ export const PS = new class extends PSModel {
 		PS.moveRoom(fromRoom, toLocation, onHome, toIndex);
 		PS.update();
 	}
-	override update(layoutAlreadyUpdated?: boolean) {
-		if (!layoutAlreadyUpdated) this.updateLayout(true);
+	override update() {
+		this.updateLayout();
 		super.update();
 	}
 	receive(msg: string) {
@@ -1234,11 +1269,6 @@ export const PS = new class extends PSModel {
 			if (this.room === room) this.room = newRoom;
 			if (roomid === '') this.mainmenu = newRoom as MainMenuRoom;
 
-			if (options.backlog) {
-				for (const args of options.backlog) {
-					room.receiveLine(args);
-				}
-			}
 			updated = true;
 		}
 		if (updated) this.update();

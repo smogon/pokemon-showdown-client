@@ -310,6 +310,8 @@ export class MainMenuRoom extends PSRoom {
 				args: { pmTarget },
 			}, true);
 			room = PS.rooms[roomid] as ChatRoom;
+		} else {
+			room.updateTarget(pmTarget);
 		}
 		room.receiveLine([`c`, user1, message]);
 		PS.update();
@@ -388,6 +390,12 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
 		this.base?.querySelector<HTMLButtonElement>('.formatselect')?.focus();
 	}
 	submitSearch = (ev: Event, format: string, team?: Team) => {
+		if (!PS.user.named) {
+			PS.join('login' as RoomID, {
+				parentElem: this.base!.querySelector<HTMLElement>('.big.button'),
+			});
+			return;
+		}
 		PS.mainmenu.startSearch(format, team);
 	};
 	handleDragStart = (e: DragEvent) => {
