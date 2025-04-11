@@ -805,9 +805,9 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 		// download replay
 		let filename = (room.battle.tier || 'Battle').replace(/[^A-Za-z0-9]/g, '');
 		let date = new Date();
-		filename += '-' + date.getFullYear();
-		filename += (date.getMonth() >= 9 ? '-' : '-0') + (date.getMonth() + 1);
-		filename += (date.getDate() >= 10 ? '-' : '-0') + date.getDate();
+		filename += `-${date.getFullYear()}`;
+		filename += `-${date.getMonth() >= 9 ? '' : '0'}${date.getMonth() + 1}`;
+		filename += `-${date.getDate() >= 10 ? '' : '0'}${date.getDate()}`;
 		filename += '-' + toID(room.battle.p1.name);
 		filename += '-' + toID(room.battle.p2.name);
 		target.href = window.BattleLog.createReplayFileHref(room);
