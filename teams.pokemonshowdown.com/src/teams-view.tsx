@@ -233,16 +233,22 @@ export class TeamViewer extends preact.Component<PageProps> {
 			Views: {views}<br />
 			<label>Shortlink: </label><a href={`https://psim.us/t/${link}`}>https://psim.us/t/{link}</a><br />
 			<hr />
-			<button
-				class="button"
-				disabled={!this.state.team || this.state.copyButtonMsg}
-				onClick={() => this.copyTeam()}
-			>{this.state.copyButtonMsg ? 'Copied!' : 'Copy team'}</button>
-			<button class="button" onClick={() => this.changeDisplayMode()}>Display: {is2Col ? '2-column' : '1-column'}</button>
-			<button class="button" onClick={() => this.changeColorMode()}>{isDark ? 'Dark mode' : 'Light mode'}</button>
-			<select onChange={ev => this.changeSpriteGen(ev)} value={this.state.spriteGen}>
-				{[1, 2, 3, 4, 5, 6].map(num => <option value={num}>Gen {num} Sprites</option>)}
-			</select>
+			<div name="manage" style={{ display: 'flex', gap: '5px' }}>
+				<button
+					class="button"
+					disabled={!this.state.team || this.state.copyButtonMsg}
+					onClick={() => this.copyTeam()}
+				>{this.state.copyButtonMsg ? 'Copied!' : 'Copy team'}</button>
+				<button class="button" onClick={() => this.changeDisplayMode()}>Display: {is2Col ? '2-column' : '1-column'}</button>
+				<button class="button" onClick={() => this.changeColorMode()}>{isDark ? 'Dark mode' : 'Light mode'}</button>
+				<select
+					onChange={ev => this.changeSpriteGen(ev)}
+					value={this.state.spriteGen}
+					style={{ borderRadius: '10px' }}
+				>
+					{[1, 2, 3, 4, 5, 6].map(num => <option value={num}>Gen {num} Sprites</option>)}
+				</select>
+			</div>
 			<hr />
 			<div name="sets" style={{ display: 'flex', flexWrap: 'wrap', rowGap: '1rem', colGap: is2Col ? '1rem' : undefined }}>
 				{teamData.map(
