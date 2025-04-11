@@ -762,8 +762,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 
 	renderAfterBattleControls(request: BattleRequest | null) {
 		const room = this.props.room;
-		return <div>
-			<div class="controls">
+		return <div class="controls">
 				<p>
 					<span style="float: right"><a
 						onClick={e => {
@@ -817,8 +816,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 						</button>
 					</p> :
 					<p><button class="button" name="switchViewpoint" name="cmd" value="/switchsides"><i class="fa fa-random"></i> Switch sides</button></p>}
-			</div>
-		</div>;
+			</div>;
 
 	}
 
