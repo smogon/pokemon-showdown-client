@@ -68,5 +68,6 @@ PSRouter.setRoutes({
 	'/view/:id': TeamViewer,
 	'/': TeamIndex,
 	'/search/?:type/?:val': TeamSearcher,
+	'/search': TeamSearcher,
 });
 PSRouter.go();
