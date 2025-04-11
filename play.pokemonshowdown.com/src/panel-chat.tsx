@@ -116,9 +116,13 @@ export class ChatRoom extends PSRoom {
 			const roomid = /[^a-z0-9-]/.test(target) ? toID(target) as any as RoomID : target as RoomID;
 			PS.leave(roomid || this.id);
 			return true;
-		} case 'chall': case 'challenge': {
+		}
+
+		case 'chall': case 'challenge': case 'closeandchallenge': {
 			if (target) {
-				PS.join(`challenge-${toID(target)}` as RoomID);
+				const [targetUser, format] = target.split(",");
+				PS.join(`challenge-${toID(targetUser)}` as RoomID);
+				if (cmd === "closeandchallenge") PS.leave(this.id);
 				return true;
 			}
 			this.openChallenge();
