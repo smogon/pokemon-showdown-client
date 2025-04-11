@@ -28,6 +28,7 @@ export class MainMenuRoom extends PSRoom {
 	userdetailsCache: {
 		[userid: string]: {
 			userid: ID,
+			name: string,
 			avatar?: string | number,
 			status?: string,
 			group?: string,
