@@ -815,7 +815,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 							<strong>Rematch</strong><br /><small>(closes this battle)</small>
 						</button>
 					</p> :
-					<p><button class="button" name="switchViewpoint" name="cmd" value="/switchsides"><i class="fa fa-random"></i> Switch sides</button></p>}
+					<p><button class="button" name="cmd" value="/switchsides"><i class="fa fa-random"></i> Switch sides</button></p>}
 			</div>;
 
 	}
