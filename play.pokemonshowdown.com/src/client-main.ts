@@ -14,8 +14,11 @@ import { PSModel, PSStreamModel } from './client-core';
 import type { PSRoomPanel, PSRouter } from './panels';
 import type { ChatRoom } from './panel-chat';
 import type { MainMenuRoom } from './panel-mainmenu';
-import { toID, type ID } from './battle-dex';
+import { Dex, toID, type ID } from './battle-dex';
 import { BattleTextParser, type Args } from './battle-text-parser';
+
+declare const BattleTextAFD: any;
+declare const BattleTextNotAFD: any;
 
 /**********************************************************************
  * Prefs
@@ -67,6 +70,8 @@ class PSPrefs extends PSStreamModel<string | null> {
 	musicvolume = 50;
 	notifvolume = 50;
 
+	afd: boolean | 'sprites' = false;
+
 	// PREFS END HERE
 
 	storageEngine: 'localStorage' | 'iframeLocalStorage' | '' = '';
@@ -104,6 +109,7 @@ class PSPrefs extends PSStreamModel<string | null> {
 		this.update(key);
 		this.save();
 	}
+
 	load(newPrefs: object, noSave?: boolean) {
 		this.fixPrefs(newPrefs);
 		Object.assign(this, PSPrefsDefaults);
@@ -111,6 +117,7 @@ class PSPrefs extends PSStreamModel<string | null> {
 		for (const key in PSPrefsDefaults) {
 			if (key in newPrefs) (this as any)[key] = (newPrefs as any)[key];
 		}
+		this.setAFD();
 		this.update(null);
 		if (!noSave) this.save();
 	}
@@ -153,6 +160,38 @@ class PSPrefs extends PSStreamModel<string | null> {
 				newPrefs['theme'] = 'dark';
 			}
 			delete newPrefs['dark'];
+		}
+	}
+
+	setAFD(mode?: typeof this['afd']) {
+		if (mode === undefined) {
+			// init
+			if (typeof BattleTextAFD !== 'undefined') {
+				for (const id in BattleTextNotAFD) {
+					if (!BattleTextAFD[id]) {
+						BattleTextAFD[id] = BattleTextNotAFD[id];
+					} else {
+						BattleTextAFD[id] = { ...BattleTextNotAFD[id], ...BattleTextAFD[id] };
+					}
+				}
+			}
+
+			if (Config.server.afd) {
+				mode = true;
+			} else if (this.afd !== undefined) {
+				mode = this.afd;
+			} else {
+				// uncomment on April Fools' Day
+				// mode = true;
+			}
+		}
+
+		Dex.afdMode = mode;
+
+		if (mode === true) {
+			(BattleText as any) = BattleTextAFD;
+		} else {
+			(BattleText as any) = BattleTextNotAFD;
 		}
 	}
 }
@@ -551,10 +590,8 @@ export interface RoomOptions {
 	location?: PSRoomLocation | null;
 	/**
 	 * In case the room received messages before it was ready for them.
-	 *
-	 * Fed to `room.receiveLine` after initialization, after the constructor is run.
 	 */
-	backlog?: Args[];
+	backlog?: Args[] | null;
 	/**
 	 * Popup parent element. If it exists, a popup shows up right above/below that element.
 	 *
@@ -643,6 +680,7 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 		if (this.location !== 'popup' && this.location !== 'semimodal-popup') this.parentElem = null;
 		if (options.rightPopup) this.rightPopup = true;
 		if (options.connected) this.connected = true;
+		if (options.backlog) this.backlog = options.backlog;
 		this.noURL = options.noURL || false;
 		this.args = options.args || null;
 	}
@@ -741,17 +779,9 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 }
 
 class PlaceholderRoom extends PSRoom {
-	backlog = [] as Args[];
 	override readonly classType = 'placeholder';
 	override receiveLine(args: Args) {
-		try {
-			this.backlog.push(args);
-		} catch (err: any) {
-			console.log(this.backlog.length);
-			console.log(args.length);
-			console.log(this.backlog.slice(0, 1000));
-			throw err;
-		}
+		(this.backlog ||= []).push(args);
 	}
 }
 
@@ -882,21 +912,21 @@ export const PS = new class extends PSModel {
 	panel: PSRoom = null!;
 	/**
 	 * Not to be confused with PSPrefs.onepanel, which is permanent.
-	 * PS.onePanelMode will be true if one-panel mode is on, but it will
-	 * also be true if the right panel is temporarily hidden (by opening
-	 * the Rooms panel and clicking "Hide")
+	 * Normally tracks PSPrefs.onepanel, but will become 'vertical'
+	 * at low widths.
 	 *
 	 * Will NOT be true if only one panel fits onto the screen at the
 	 * moment, but resizing will display multiple panels – for that,
 	 * check `PS.leftRoomWidth === 0`
 	 */
-	onePanelMode = false;
+	onePanelMode: boolean | 'vertical' = false;
 	/**
-	 * 0 = only one panel visible.
+	 * * 0 = only one panel visible
+	 * * null = vertical nav layout
 	 * n.b. PS will only update if the left room width changes. Resizes
 	 * that don't change the left room width will not trigger an update.
 	 */
-	leftPanelWidth = 0;
+	leftPanelWidth: number | null = 0;
 	mainmenu: MainMenuRoom = null!;
 
 	/**
@@ -936,7 +966,10 @@ export const PS = new class extends PSModel {
 		}
 
 		this.updateLayout();
-		window.addEventListener('resize', () => this.updateLayout());
+		window.addEventListener('resize', () => {
+			// super.update() skips another updateLayout() call
+			if (this.updateLayout()) super.update();
+		});
 	}
 
 	// Panel layout
@@ -987,24 +1020,30 @@ export const PS = new class extends PSModel {
 			maxWidth: 640,
 		};
 	}
-	updateLayout(alreadyUpdating?: boolean) {
-		const leftRoomWidth = this.calculateLeftRoomWidth();
-		let roomHeight = document.body.offsetHeight - 56;
-		let totalWidth = document.body.offsetWidth;
-		if (leftRoomWidth) {
-			this.leftPanel.width = leftRoomWidth;
+	/** @returns changed */
+	updateLayout(): boolean {
+		const leftPanelWidth = this.calculateLeftPanelWidth();
+		const totalWidth = document.body.offsetWidth;
+		const totalHeight = document.body.offsetHeight;
+		const roomHeight = totalHeight - 56;
+		if (leftPanelWidth === null) {
+			this.panel.width = totalWidth - 200;
+			this.panel.height = totalHeight;
+		} else if (leftPanelWidth) {
+			this.leftPanel.width = leftPanelWidth;
 			this.leftPanel.height = roomHeight;
-			this.rightPanel!.width = totalWidth + 1 - leftRoomWidth;
+			this.rightPanel!.width = totalWidth + 1 - leftPanelWidth;
 			this.rightPanel!.height = roomHeight;
 		} else {
 			this.panel.width = totalWidth;
 			this.panel.height = roomHeight;
 		}
 
-		if (this.leftPanelWidth !== leftRoomWidth) {
-			this.leftPanelWidth = leftRoomWidth;
-			if (!alreadyUpdating) this.update(true);
+		if (this.leftPanelWidth !== leftPanelWidth) {
+			this.leftPanelWidth = leftPanelWidth;
+			return true;
 		}
+		return false;
 	}
 	getRoom(elem: HTMLElement | EventTarget | null | undefined, skipClickable?: boolean): PSRoom | null {
 		let curElem: HTMLElement | null = elem as HTMLElement;
@@ -1035,8 +1074,8 @@ export const PS = new class extends PSModel {
 		PS.moveRoom(fromRoom, toLocation, onHome, toIndex);
 		PS.update();
 	}
-	override update(layoutAlreadyUpdated?: boolean) {
-		if (!layoutAlreadyUpdated) this.updateLayout(true);
+	override update() {
+		this.updateLayout();
 		super.update();
 	}
 	receive(msg: string) {
@@ -1119,7 +1158,7 @@ export const PS = new class extends PSModel {
 		this.connection.send(fullMsg);
 	}
 	isVisible(room: PSRoom) {
-		if (this.leftPanelWidth === 0) {
+		if (!this.leftPanelWidth) {
 			// one panel visible
 			return room === this.panel;
 		} else {
@@ -1127,7 +1166,11 @@ export const PS = new class extends PSModel {
 			return room === this.rightPanel || room === this.leftPanel;
 		}
 	}
-	calculateLeftRoomWidth() {
+	calculateLeftPanelWidth() {
+		const available = document.body.offsetWidth;
+		if (available < 800) {
+			return null;
+		}
 		// If we don't have both a left room and a right room, obviously
 		// just show one room
 		if (!this.leftPanel || !this.rightPanel || this.onePanelMode) {
@@ -1139,7 +1182,6 @@ export const PS = new class extends PSModel {
 
 		const left = this.getWidthFor(this.leftPanel);
 		const right = this.getWidthFor(this.rightPanel);
-		const available = document.body.offsetWidth;
 
 		let excess = available - (left.width + right.width);
 		if (excess >= 0) {
@@ -1227,11 +1269,6 @@ export const PS = new class extends PSModel {
 			if (this.room === room) this.room = newRoom;
 			if (roomid === '') this.mainmenu = newRoom as MainMenuRoom;
 
-			if (options.backlog) {
-				for (const args of options.backlog) {
-					room.receiveLine(args);
-				}
-			}
 			updated = true;
 		}
 		if (updated) this.update();
@@ -1252,12 +1289,12 @@ export const PS = new class extends PSModel {
 		if (!this.isVisible(room)) {
 			room.hiddenInit = true;
 		}
-		if (room.location === 'left') {
-			this.leftPanel = this.panel = room;
-			while (this.popups.length) this.leave(this.popups.pop()!);
-			this.room = room;
-		} else if (room.location === 'right') {
-			this.rightPanel = this.panel = room;
+		if (PS.isNormalRoom(room)) {
+			if (room.location === 'right') {
+				this.rightPanel = this.panel = room;
+			} else {
+				this.leftPanel = this.panel = room;
+			}
 			while (this.popups.length) this.leave(this.popups.pop()!);
 			this.room = room;
 		} else { // popup or mini-window
@@ -1272,6 +1309,9 @@ export const PS = new class extends PSModel {
 		return true;
 	}
 	horizontalNav(room = this.room) {
+		if (this.leftPanelWidth === null) {
+			return { rooms: [], index: -1 };
+		}
 		const rooms = this.leftRoomList.concat(this.rightRoomList);
 		const miniRoom = this.miniRoomList[0] !== 'news' ? this.miniRoomList[0] : null;
 		if (miniRoom) rooms.splice(1, 0, miniRoom);
@@ -1282,6 +1322,11 @@ export const PS = new class extends PSModel {
 		return { rooms, index };
 	}
 	verticalNav(room = this.room) {
+		if (this.leftPanelWidth === null) {
+			const rooms = ['' as RoomID, ...this.miniRoomList, ...this.leftRoomList.slice(1), ...this.rightRoomList];
+			const index = rooms.indexOf(room.id);
+			return { rooms, index };
+		}
 		if (room.location !== 'mini-window') {
 			return { rooms: [], index: -1 };
 		}
@@ -1354,9 +1399,11 @@ export const PS = new class extends PSModel {
 		if (!upRoom && !downRoom) return '';
 
 		let buf = ' ';
-		if (upRoom) buf += `Alt+\u2191 ${upRoom.title}`;
+		// const altLabel = navigator.platform?.startsWith('Mac') ? '⌥' : 'ᴀʟᴛ';
+		const altLabel = navigator.platform?.startsWith('Mac') ? 'ᴏᴘᴛ' : 'ᴀʟᴛ';
+		if (upRoom) buf += `${altLabel}\u2191 ${upRoom.title}`;
 		buf += " | ";
-		if (downRoom) buf += `${downRoom.title} Alt+\u2193`;
+		if (downRoom) buf += `${altLabel}\u2193 ${downRoom.title}`;
 
 		return buf;
 	}
@@ -1441,11 +1488,11 @@ export const PS = new class extends PSModel {
 		}
 	}
 	roomVisible(room: PSRoom): boolean {
-		if (room.location === 'left' || room.location === 'right') {
-			return this.leftPanelWidth === 0 ? room === this.panel : room === this.leftPanel || room === this.rightPanel;
+		if (PS.isNormalRoom(room)) {
+			return !this.leftPanelWidth ? room === this.panel : room === this.leftPanel || room === this.rightPanel;
 		}
 		if (room.location === 'mini-window') {
-			return this.leftPanelWidth === 0 ? this.mainmenu === this.panel : this.mainmenu === this.leftPanel;
+			return !this.leftPanelWidth ? this.mainmenu === this.panel : this.mainmenu === this.leftPanel;
 		}
 		// some kind of popup
 		return true;
@@ -1470,6 +1517,15 @@ export const PS = new class extends PSModel {
 
 		this.update();
 	}
+	isPopup(room: PSRoom | undefined | null) {
+		if (!room) return false;
+		return room.location === 'popup' || room.location === 'semimodal-popup' || room.location === 'modal-popup';
+	}
+	isNormalRoom(room: PSRoom | undefined | null) {
+		if (!room) return false;
+		return room.location === 'left' || room.location === 'right' ||
+			(room.location === 'mini-window' && PS.leftPanelWidth === null);
+	}
 	moveRoom(room: PSRoom, location: PSRoomLocation, background?: boolean, index?: number) {
 		if (room.location === location && index === undefined) {
 			if (background === true) {
@@ -1486,7 +1542,7 @@ export const PS = new class extends PSModel {
 			return;
 		}
 		const POPUPS = ['popup', 'semimodal-popup', 'modal-popup'];
-		if (POPUPS.includes(room.location) && POPUPS.includes(location)) {
+		if (this.isPopup(room) && POPUPS.includes(location)) {
 			room.location = location;
 			return;
 		}
@@ -1548,6 +1604,7 @@ export const PS = new class extends PSModel {
 			if (location === 'left') this.leftPanel = this.panel = room;
 			if (location === 'right') this.rightPanel = this.panel = room;
 			if (location === 'mini-window') this.leftPanel = this.panel = this.mainmenu;
+			if (location === 'mini-window' && PS.leftPanelWidth === null) this.leftPanel = this.panel = room;
 			this.room = room;
 		}
 	}
@@ -1597,6 +1654,13 @@ export const PS = new class extends PSModel {
 	closePopup(skipUpdate?: boolean) {
 		if (!this.popups.length) return;
 		this.leave(this.popups[this.popups.length - 1]);
+		if (!skipUpdate) this.update();
+	}
+	closeAllPopups(skipUpdate?: boolean) {
+		// this is more sensibly a while-loop, but I don't want accidental infinite loops
+		for (let i = this.popups.length - 1; i >= 0; i--) {
+			this.leave(this.popups[i]);
+		}
 		if (!skipUpdate) this.update();
 	}
 	join(roomid: RoomID, options?: Partial<RoomOptions> | null, noFocus?: boolean) {

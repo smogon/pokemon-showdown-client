@@ -34,19 +34,20 @@ body {
 }
 
 .dark .tabbar a.button,
-.dark .tabbar a.button:hover {
+.dark .tabbar a.button:hover,
+.dark .header-vertical .tablist a.button,
+.dark .header-vertical .tablist a.button:hover {
 	box-shadow: inset 0.5px 1px 1px rgba(255, 255, 255, 0.5);
 }
 .dark .tabbar a.button:active,
 .dark .tabbar a.button.cur,
 .dark .tabbar a.button.cur:hover,
-.dark .tabbar a.button.cur:active {
+.dark .tabbar a.button.cur:active,
+.dark .header-vertical .tablist a.button:active,
+.dark .header-vertical .tablist a.button.cur,
+.dark .header-vertical .tablist a.button.cur:hover,
+.dark .header-vertical .tablist a.button.cur:active {
 	box-shadow: none;
-}
-.dark .maintabbarbottom {
-	background: #555555;
-	border-color: #5A5A5A;
-	border-top-color: #34373b;
 }
 
 pre {
@@ -57,6 +58,16 @@ pre {
 /*********************************************************
  * Header
  *********************************************************/
+
+.vertical-header-layout {
+  scroll-snap-type: x mandatory;
+}
+.vertical-header-layout .header-vertical {
+	scroll-snap-align: start;
+}
+.vertical-header-layout .mini-header {
+	scroll-snap-align: end;
+}
 
 .header {
 	position: relative;
@@ -71,6 +82,17 @@ pre {
 	float: left;
 	margin: 0;
 }
+.header-vertical {
+	position: absolute;
+	top: 0;
+	left: 0;
+	bottom: 0;
+	width: 194px;
+	background: rgba(255,255,255,.3);
+}
+.dark .header, .dark .header-vertical {
+	background: rgba(0,0,0,.30);
+}
 
 .userbar {
 	position: absolute;
@@ -78,9 +100,21 @@ pre {
 	right: 12px;
 	font-weight: bold;
 }
+.header-vertical .userbar {
+	right: auto;
+	top: auto;
+	left: 12px;
+	bottom: 12px;
+	width: 170px;
+	word-wrap: break-word;
+}
 .userbar .username {
 	color: black;
 	text-shadow: 1px 1px 0 #f8f8f8, 1px -1px 0 #f8f8f8, -1px 1px 0 #f8f8f8, -1px -1px 0 #f8f8f8;
+}
+.dark .userbar .username {
+	color: #DDD;
+	text-shadow: 1px 1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, -1px -1px 0 #000;
 }
 .username {
 	cursor: pointer;
@@ -88,6 +122,9 @@ pre {
 @media (max-width: 500px) {
 	.usernametext {
 		display: none
+	}
+	.header-vertical .usernametext {
+		display: inline;
 	}
 }
 .userbar button.icon {
@@ -120,6 +157,11 @@ pre {
 
 	line-height: 100%;
 }
+.mini-header, .maintabbarbottom {
+	background: #f8f8f8;
+	border: solid 1px #AAAAAA;
+	color: black;
+}
 .maintabbarbottom {
 	content: "";
 	display: block;
@@ -128,15 +170,58 @@ pre {
 	right: 0;
 	bottom: -6px;
 	height: 6px;
-	background: #f8f8f8;
-	border: solid 1px #AAAAAA;
-	border-left: 0;
-	border-right: 0;
+	border-left-width: 0;
+	border-right-width: 0;
 	margin: -1px 0 0 0;
 	-webkit-box-shadow: 0 1px 2px rgba(0,0,0,.2);
 	-moz-box-shadow: 0 1px 2px rgba(0,0,0,.2);
 	box-shadow: 0 1px 2px rgba(0,0,0,.2);
 }
+.mini-header {
+	position: absolute;
+	left: 199px;
+	right: 0;
+	top: 0;
+	padding: 0;
+	height: 24px;
+	line-height: 24px;
+	border-left: 0;
+	border-right: 0;
+	border-top: 0;
+}
+.mini-header i.text {
+	font-size: 12px;
+	font-style: normal;
+	border: 1px solid #777;
+	padding: 1px 3px;
+	border-radius: 5px;
+	vertical-align: middle;
+	margin-top: -2px;
+	display: inline-block;
+	line-height: 12px;
+}
+.header-vertical .maintabbarbottom {
+	top: 0;
+	bottom: 0;
+	left: 194px;
+	right: auto;
+	width: 6px;
+	height: auto;
+	border-top: 0;
+	border-bottom: 0;
+	border-left-width: 1px;
+	border-right-width: 1px;
+	margin: 0 0 0 -1px;
+}
+.dark .mini-header, .dark .maintabbarbottom {
+	background: #555555;
+	border-color: #34373b;
+	color: #CCCCCC;
+}
+.dark .maintabbarbottom {
+	border-bottom-color: #5A5A5A;
+}
+
 .tabbar.maintabbar {
 	margin-left: 52px;
 	margin-right: 165px;
@@ -200,6 +285,9 @@ pre {
 	font-style: normal;
 	font-size: 14px;
 	height: 14px;
+}
+.tabbar a.button i.rooms-plus {
+	margin: 7px auto -6px auto;
 }
 .tabbar a.button span {
 	display: block;
@@ -303,10 +391,11 @@ span.header-username:hover {
 	padding: 0;
 }
 .tablist ul {
-	padding: 3px 0 4px 0;
+	padding: 3px 0 4px 5px;
 }
 .tablist li {
-	margin: 0 -5px -1px -5px;
+	clear: both;
+	margin: -1px 0 0 0;
 	padding: 0;
 }
 .tablist .button {
@@ -331,14 +420,26 @@ span.header-username:hover {
 	border-bottom-left-radius: 5px;
 	border-bottom-right-radius: 5px;
 }
+.header-vertical .tablist li .button {
+	width: auto;
+	border-top-right-radius: 0;
+	border-bottom-right-radius: 0;
+	border-right-width: 0;
+	margin: 0 1px 0 2px;
+	box-shadow: none;
+}
+.header-vertical .tablist li .button.cur {
+	margin: 0;
+}
 .tablist .closebutton {
 	display: block;
 	float: right;
 	margin-top: -28px;
+	margin-right: 4px;
 	padding: 5px 0 0 0;
 	height: 23px;
 	font-size: 14px;
-	width: 28px;
+	width: 24px;
 	text-align: center;
 
 	position: relative;
@@ -386,7 +487,7 @@ span.header-username:hover {
 }
 
 .ps-overlay {
-	position: absolute;
+	position: fixed;
 	top: 0;
 	left: 0;
 	right: 0;
@@ -550,7 +651,7 @@ p.or:after {
 	width: 292px;
 }
 .tiny-layout .mini-window {
-	margin: 0 0 12px 0;
+	margin: 0 auto 12px;
 }
 .mini-window h3 {
 	background: rgba(248,248,248,.8);
@@ -1442,7 +1543,7 @@ pre.textbox.textbox-empty[placeholder]:before {
 	transform-origin: top left;
 	-webkit-transform-origin: top left;
 }
-.ps-room .battle-controls {
+.battle-controls {
 	position: absolute;
 	top: 370px;
 	left: 0;
@@ -1451,12 +1552,13 @@ pre.textbox.textbox-empty[placeholder]:before {
 .battle-chat-toggle {
 	display: none;
 }
-.tiny-layout.ps-room .battle-controls {
-	left: 0;
-	right: 0;
+.battle-log .battle-controls {
+	top: 0;
+	position: static;
 	width: auto;
+	padding-bottom: 6px;
 }
-.tiny-layout .movecontrols, .tiny-layout .shiftcontrols, .tiny-layout .switchcontrols {
+.battle-log .movecontrols, .battle-log .shiftcontrols, .battle-log .switchcontrols {
 	max-width: 330px;
 	margin: 0 auto;
 }
@@ -1735,6 +1837,11 @@ pre.textbox.textbox-empty[placeholder]:before {
 	display: block;
 	margin-right: -10px;
 	padding-left: 4px;
+}
+.switchmenu:after {
+	content: '';
+	display: block;
+	clear: both;
 }
 .switchmenu button,
 .movebutton {
@@ -2033,10 +2140,6 @@ pre.textbox.textbox-empty[placeholder]:before {
  * Dark mode!
  *********************************************************/
 
-.dark .header {
-	background: rgba(0,0,0,.30);
-}
-
 .dark .ps-room.ps-room-light,
 .dark .ps-room-light,
 .dark .tournament-box,
@@ -2085,11 +2188,6 @@ pre.textbox.textbox-empty[placeholder]:before {
 	background: rgba(0,0,0,.5);
 	color: #DDD;
 	backdrop-filter: blur(4px);
-}
-
-.dark .userbar .username {
-	color: #DDD;
-	text-shadow: 1px 1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, -1px -1px 0 #000;
 }
 
 /* popups */
