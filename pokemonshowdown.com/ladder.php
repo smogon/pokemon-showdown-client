@@ -55,12 +55,12 @@ $format = $formatid;
 if (isset($formats[$formatid])) $format = $formats[$formatid];
 $ladder = null;
 
-$coil_val = null;
+$coil_B = null;
 try {
 	if ($formatid) {
 		$coil_vals = json_decode(file_get_contents('../config/coil.json'), true);
 		if (isset($coil_vals[$formatid])) {
-			$coil_val = $coil_vals[$formatid];
+			$coil_B = $coil_vals[$formatid];
 		}
 	}
 } catch (Exception $e) {}
@@ -87,9 +87,9 @@ if (isset($_REQUEST['json'])) {
 		$row['rprd'] = floatval($row['rprd']);
 		$row['rpsigma'] = floatval($row['rpsigma']);
 		$row['elo'] = floatval($row['elo']);
-		if ($coil_val !== null) {
+		if ($coil_B !== null) {
 			$N = $row['w'] + $row['l'] + $row['t'];
-			$row['coil'] = $N ? 40 * $row['gxe'] * pow(2.0, -$coil_val / $N) : 0;
+			$row['coil'] = $N ? 40 * $row['gxe'] * pow(2.0, -$coil_B / $N) : 0;
 		}
 	}
 	echo json_encode([
@@ -258,9 +258,9 @@ if (!$formatid) {
 
 <td>
 <?php
-			if ($coil_val !== null) {
+			if ($coil_B !== null) {
 				$N=$row['w']+$row['l']+$row['t'];
-				echo number_format($N ? 40*$row['gxe']*pow(2.0,-$coil_val/$N) : 0,1,'.','');
+				echo number_format($N ? 40*$row['gxe']*pow(2.0,-$coil_B/$N) : 0,1,'.','');
 			} else echo '--';
 ?></td>
 
