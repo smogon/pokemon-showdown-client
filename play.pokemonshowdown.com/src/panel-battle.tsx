@@ -777,9 +777,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 				</button>
 				</span>
 
-				<button
-					class="button" name="instantReplay" onClick={this.handleInstantReplay}
-				>
+				<button class="button" onClick={this.handleInstantReplay}>
 					<i class="fa fa-undo"></i><br />Instant replay
 				</button>
 			</p>
