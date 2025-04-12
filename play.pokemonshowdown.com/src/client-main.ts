@@ -821,9 +821,9 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 			return true;
 
 		}
-			
+
 		}
-			return false;
+		return false;
 	}
 	send(msg: string) {
 		if (!msg) return;
