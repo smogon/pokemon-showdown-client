@@ -50,6 +50,7 @@ export class PSRouter {
 			}
 		}
 		if (url.startsWith('/')) url = url.slice(1);
+		if (url === '.') url = '';
 
 		if (!/^[a-z0-9-]*$/.test(url)) return null;
 
@@ -278,11 +279,26 @@ export function PSPanelWrapper(props: {
 }
 
 export class PSMain extends preact.Component {
+	static readonly isChrome = navigator.userAgent.includes(' Chrome/');
+	static readonly isSafari = !this.isChrome && navigator.userAgent.includes(' Safari/');
+	static textboxFocused = false;
+	static setTextboxFocused(focused: boolean) {
+		if (!PSMain.isChrome || PS.leftPanelWidth !== null) return;
+		// Chrome bug: on Android, it insistently scrolls everything leftmost when scroll snap is enabled
+
+		this.textboxFocused = focused;
+		if (focused) {
+			document.documentElement.classList.remove('scroll-snap-enabled');
+			PSMain.scrollToRoom();
+		} else {
+			document.documentElement.classList.add('scroll-snap-enabled');
+		}
+	}
 	constructor() {
 		super();
 		PS.subscribe(() => this.forceUpdate());
 
-		if (navigator.userAgent.includes(' Safari/')) {
+		if (PSMain.isSafari) {
 			// I don't want to prevent users from being able to zoom, but iOS Safari
 			// auto-zooms when focusing textboxes (unless the font size is 16px),
 			// and this apparently fixes it while still allowing zooming.
@@ -378,7 +394,7 @@ export class PSMain extends preact.Component {
 			}
 			if (PS.room !== clickedRoom) {
 				if (clickedRoom) PS.room = clickedRoom;
-				PS.closePopupsUntil(clickedRoom);
+				PS.closePopupsAbove(clickedRoom);
 				PS.update();
 			}
 			if (clickedRoom && !PS.isPopup(clickedRoom)) {
@@ -475,11 +491,14 @@ export class PSMain extends preact.Component {
 	}
 	static scrollToRoom() {
 		if (document.documentElement.scrollWidth > document.documentElement.clientWidth && window.scrollX === 0) {
-			if (navigator.userAgent.includes(' Safari/') && PS.leftPanelWidth === null) {
-				// Safari is buggy here and requires temporarily disabling scroll snap
-				document.documentElement.classList.remove('vertical-header-layout');
+			if (PSMain.isSafari && PS.leftPanelWidth === null) {
+				// Safari bug: `scrollBy` doesn't actually work when scroll snap is enabled
+				// note: interferes with the `PSMain.textboxFocused` workaround for a Chrome bug
+				document.documentElement.classList.remove('scroll-snap-enabled');
 				window.scrollBy(400, 0);
-				setTimeout(() => document.documentElement.classList.add('vertical-header-layout'));
+				setTimeout(() => {
+					document.documentElement.classList.add('scroll-snap-enabled');
+				}, 0);
 			} else {
 				// intentionally around twice as big as necessary
 				window.scrollBy(400, 0);

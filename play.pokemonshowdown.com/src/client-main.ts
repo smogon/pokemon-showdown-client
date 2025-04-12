@@ -1275,7 +1275,7 @@ export const PS = new class extends PSModel {
 			this.setFocus(room);
 			return true;
 		}
-		this.closePopupsUntil(room, true);
+		this.closePopupsAbove(room, true);
 		if (!this.isVisible(room)) {
 			room.hiddenInit = true;
 		}
@@ -1437,7 +1437,7 @@ export const PS = new class extends PSModel {
 		let preexistingRoom = this.rooms[options.id];
 		if (preexistingRoom && this.isPopup(preexistingRoom)) {
 			const sameOpener = (preexistingRoom.parentElem === options.parentElem);
-			this.closePopupsUntil(this.rooms[options.parentRoomid!], true);
+			this.closePopupsAbove(this.rooms[options.parentRoomid!], true);
 			if (sameOpener) return;
 			preexistingRoom = this.rooms[options.id];
 		}
@@ -1451,7 +1451,7 @@ export const PS = new class extends PSModel {
 			return preexistingRoom;
 		}
 		if (!noFocus) {
-			this.closePopupsUntil(this.rooms[options.parentRoomid!], true);
+			this.closePopupsAbove(this.rooms[options.parentRoomid!], true);
 		}
 		const room = this.createRoom(options);
 		this.rooms[room.id] = room;
@@ -1644,9 +1644,9 @@ export const PS = new class extends PSModel {
 		if (!skipUpdate) this.update();
 	}
 	closeAllPopups(skipUpdate?: boolean) {
-		this.closePopupsUntil(null, skipUpdate);
+		this.closePopupsAbove(null, skipUpdate);
 	}
-	closePopupsUntil(room: PSRoom | null | undefined, skipUpdate?: boolean) {
+	closePopupsAbove(room: PSRoom | null | undefined, skipUpdate?: boolean) {
 		// a while-loop may be simpler, but the loop invariant is very hard to prove
 		// and any bugs (opening a popup while leaving a room) could lead to an infinite loop
 		// a for-loop doesn't have that problem
