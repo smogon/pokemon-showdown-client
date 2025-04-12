@@ -1200,8 +1200,8 @@ export class BattleLog {
 			let roomid = toRoomid(target);
 			return [
 				'chat',
-				`${timestamp}<em>${clickableName} invited you to join the room "${roomid}"</em>' +
-				'<div class="notice"><button name="joinRoom" value="${roomid}">Join ${roomid}</button></div>`,
+				`${timestamp}<em>${clickableName} invited you to join the room "${roomid}"</em>` +
+				`<div class="notice"><button class="button" name="joinRoom" value="${roomid}">Join ${roomid}</button></div>`,
 			];
 		case 'announce':
 			return [
