@@ -29,7 +29,8 @@ export class PSRouter {
 			this.subscribeHash();
 		}
 	}
-	extractRoomID(url: string) {
+	extractRoomID(url: string | null) {
+		if (!url) return null;
 		if (url.startsWith(document.location.origin)) {
 			url = url.slice(document.location.origin.length);
 		} else {
@@ -319,7 +320,7 @@ export class PSMain extends preact.Component {
 				}
 
 				if (elem.tagName === 'A' || elem.getAttribute('data-href')) {
-					const href = elem.getAttribute('data-href') || (elem as HTMLAnchorElement).href;
+					const href = elem.getAttribute('data-href') || elem.getAttribute('href');
 					const roomid = PS.router.extractRoomID(href);
 
 					if (roomid !== null) {
