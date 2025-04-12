@@ -770,8 +770,59 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 				PS.join('login' as RoomID);
 			}
 			return true;
+		case 'open':
+		case 'user': {
+			let roomid = `user-${toID(target)}` as RoomID;
+			PS.join(roomid, {
+				rightPopup: true,
+				args: { username: target },
+			});
+			return true;
 		}
-		return false;
+
+		case 'showjoins': {
+			let showjoins = PS.prefs.showjoins || {};
+			let serverShowjoins = showjoins[PS.server.id] || {};
+			if (target) {
+				let room = toID(target);
+				if (serverShowjoins['global']) {
+					delete serverShowjoins[room];
+				} else {
+					serverShowjoins[room] = 1;
+				}
+				this.receiveLine([`c`, "", `Join/leave messages on room ${room}: ALWAYS ON`]);
+			} else {
+				serverShowjoins = { global: 1 };
+				this.receiveLine([`c`, "", `Join/leave messages: ALWAYS ON`]);
+			}
+			showjoins[PS.server.id] = serverShowjoins;
+			PS.prefs.set("showjoins", showjoins);
+			return true;
+		}
+
+		case 'hidejoins': {
+			let showjoins = PS.prefs.showjoins || {};
+			let serverShowjoins = showjoins[PS.server.id] || {};
+			if (target) {
+				let room = toID(target);
+				if (!serverShowjoins['global']) {
+					delete serverShowjoins[room];
+				} else {
+					serverShowjoins[room] = 0;
+				}
+				this.receiveLine([`c`, "", `Join/leave messages on room ${room}: AUTOMATIC`]);
+			} else {
+				serverShowjoins = { global: 0 };
+				this.receiveLine([`c`, "", `Join/leave messages: AUTOMATIC`]);
+
+			}
+			showjoins[PS.server.id] = serverShowjoins;
+			PS.prefs.set('showjoins', showjoins);
+			return true;
+
+		}
+
+		}
 	}
 	send(msg: string) {
 		if (!msg) return;
@@ -1141,6 +1192,26 @@ export const PS = new class extends PSModel {
 				}
 				this.update();
 				continue;
+			}
+
+			case 'j':
+			case 'J': {
+				if (!room) continue;
+				let showjoins = this.prefs.showjoins || {};
+				let serverShowjoins = showjoins[this.server.id] || {};
+				if (!serverShowjoins[room.id] && !serverShowjoins.global) continue;
+				room.receiveLine([`j`, args[1]]);
+				break;
+			}
+
+			case 'l':
+			case 'L': {
+				if (!room) continue;
+				let showjoins = this.prefs.showjoins || {};
+				let serverShowjoins = showjoins[this.server.id] || {};
+				if (!serverShowjoins[room.id] && !serverShowjoins.global) continue;
+				room.receiveLine([`l`, args[1]]);
+				break;
 			}
 			}
 			room?.receiveLine(args);
