@@ -16,7 +16,7 @@
 		<script>
 			function loadRemoteData(src) {
 				var scriptEl = document.createElement('script');
-				scriptEl.src = src.replace(/.*\/?data\//g, 'https://play.pokemonshowdown.com/data/');
+				scriptEl.src = src.replace(/.*\/data\//g, 'https://play.pokemonshowdown.com/data/');
 				document.head.appendChild(scriptEl);
 			}
 			Config.testclient = true;
