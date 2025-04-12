@@ -575,9 +575,9 @@ class PSServer {
 		return this.groups[(symbol || ' ').charAt(0)] || this.defaultGroup;
 	}
 	getActionPHP() {
-		let ret = '/~~' + Config.server.id + '/action.php';
-		if (Config.testclient) {
-			ret = 'https://' + Config.routes.client + ret;
+		let ret = '/~~' + this.id + '/action.php';
+		if (Config.defaultserver.testclient) {
+			ret = 'https://' + PS.routes.client + ret;
 		}
 		return (this.getActionPHP = function () {
 			return ret;
