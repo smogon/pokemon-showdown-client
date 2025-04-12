@@ -63,7 +63,7 @@ class PSPrefs extends PSStreamModel<string | null> {
 	/**
 	 * true = one panel, false = two panels, left and right
 	 */
-	onepanel = false;
+	onepanel: boolean | 'vertical' = false;
 
 	mute = false;
 	effectvolume = 50;
@@ -98,7 +98,7 @@ class PSPrefs extends PSStreamModel<string | null> {
 	/**
 	 * Change a preference.
 	 */
-	set<T extends keyof PSPrefs>(key: T, value: PSPrefs[T]) {
+	set<T extends keyof PSPrefs>(key: T, value: PSPrefs[T] | null) {
 		if (value === null) {
 			delete this.storage[key];
 			(this as any)[key] = PSPrefsDefaults[key];
@@ -694,8 +694,12 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 		this.args = options.args || null;
 	}
 	notify(options: { title: string, body?: string, noAutoDismiss?: boolean, id?: string }) {
+		if (PS.isVisible(this)) return;
 		if (options.noAutoDismiss && !options.id) {
 			throw new Error(`Must specify id for manual dismissing`);
+		}
+		if (options.id) {
+			this.notifications = this.notifications.filter(notification => notification.id !== options.id);
 		}
 		this.notifications.push({
 			title: options.title,
@@ -705,6 +709,10 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 		});
 		PS.update();
 	}
+	subtleNotify() {
+		if (PS.isVisible(this)) return;
+		this.isSubtleNotifying = true;
+	}
 	dismissNotification(id: string) {
 		this.notifications = this.notifications.filter(notification => notification.id !== id);
 		PS.update();
@@ -712,12 +720,6 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 	autoDismissNotifications() {
 		this.notifications = this.notifications.filter(notification => notification.noAutoDismiss);
 		this.isSubtleNotifying = false;
-	}
-	setDimensions(width: number, height: number) {
-		if (this.width === width && this.height === height) return;
-		this.width = width;
-		this.height = height;
-		this.update(null);
 	}
 	connect(): void {
 		throw new Error(`This room is not designed to connect to a server room`);
@@ -970,16 +972,6 @@ export const PS = new class extends PSModel {
 	 * visible. Otherwise, no effect.
 	 */
 	panel: PSRoom = null!;
-	/**
-	 * Not to be confused with PSPrefs.onepanel, which is permanent.
-	 * Normally tracks PSPrefs.onepanel, but will become 'vertical'
-	 * at low widths.
-	 *
-	 * Will NOT be true if only one panel fits onto the screen at the
-	 * moment, but resizing will display multiple panels – for that,
-	 * check `PS.leftRoomWidth === 0`
-	 */
-	onePanelMode: boolean | 'vertical' = false;
 	/**
 	 * * 0 = only one panel visible
 	 * * null = vertical nav layout
@@ -1240,20 +1232,20 @@ export const PS = new class extends PSModel {
 	isVisible(room: PSRoom) {
 		if (!this.leftPanelWidth) {
 			// one panel visible
-			return room === this.panel;
+			return room === this.panel || room === this.room;
 		} else {
 			// both panels visible
-			return room === this.rightPanel || room === this.leftPanel;
+			return room === this.rightPanel || room === this.leftPanel || room === this.room;
 		}
 	}
 	calculateLeftPanelWidth() {
 		const available = document.body.offsetWidth;
-		if (available < 800) {
+		if (available < 800 || this.prefs.onepanel === 'vertical') {
 			return null;
 		}
 		// If we don't have both a left room and a right room, obviously
 		// just show one room
-		if (!this.leftPanel || !this.rightPanel || this.onePanelMode) {
+		if (!this.leftPanel || !this.rightPanel || this.prefs.onepanel) {
 			return 0;
 		}
 
@@ -1363,19 +1355,17 @@ export const PS = new class extends PSModel {
 			this.setFocus(room);
 			return true;
 		}
-		while (this.popups.length && PS.room !== room) {
-			this.leave(this.popups.pop()!);
-		}
+		this.closePopupsUntil(room, true);
 		if (!this.isVisible(room)) {
 			room.hiddenInit = true;
 		}
 		if (PS.isNormalRoom(room)) {
-			if (room.location === 'right') {
+			if (room.location === 'right' && !this.prefs.onepanel) {
 				this.rightPanel = this.panel = room;
 			} else {
 				this.leftPanel = this.panel = room;
 			}
-			while (this.popups.length) this.leave(this.popups.pop()!);
+			PS.closeAllPopups(true);
 			this.room = room;
 		} else { // popup or mini-window
 			if (room.location === 'mini-window') {
@@ -1507,6 +1497,9 @@ export const PS = new class extends PSModel {
 		this.join(roomid);
 		return this.rooms[roomid]! as ChatRoom;
 	}
+	/**
+	 * Low-level add room. You usually want `join`.
+	 */
 	addRoom(options: RoomOptions, noFocus = false) {
 		// support hardcoded PM room-IDs
 		if (options.id.startsWith('challenge-')) {
@@ -1521,30 +1514,24 @@ export const PS = new class extends PSModel {
 		}
 
 		options.parentRoomid ??= this.getRoom(options.parentElem)?.id;
-		if (this.rooms[options.id]) {
-			for (let i = 0; i < this.popups.length; i++) {
-				const popup = this.rooms[this.popups[i]]!;
-				if (popup.parentElem === options.parentElem) {
-					while (this.popups.length > i) {
-						const popupid = this.popups.pop()!;
-						this.leave(popupid);
-					}
-					return;
-				}
-			}
+		let preexistingRoom = this.rooms[options.id];
+		if (preexistingRoom && this.isPopup(preexistingRoom)) {
+			const sameOpener = (preexistingRoom.parentElem === options.parentElem);
+			this.closePopupsUntil(this.rooms[options.parentRoomid!], true);
+			if (sameOpener) return;
+			preexistingRoom = this.rooms[options.id];
+		}
+		if (preexistingRoom) {
 			if (!noFocus) {
 				if (options.args?.challengeMenuOpen) {
-					(this.rooms[options.id] as ChatRoom).openChallenge();
+					(preexistingRoom as ChatRoom).openChallenge();
 				}
-				this.focusRoom(options.id);
+				this.focusRoom(preexistingRoom.id);
 			}
-			return this.rooms[options.id];
+			return preexistingRoom;
 		}
 		if (!noFocus) {
-			while (this.popups.length && this.popups[this.popups.length - 1] !== options.parentRoomid) {
-				const popupid = this.popups.pop()!;
-				this.leave(popupid);
-			}
+			this.closePopupsUntil(this.rooms[options.parentRoomid!], true);
 		}
 		const room = this.createRoom(options);
 		this.rooms[room.id] = room;
@@ -1729,23 +1716,30 @@ export const PS = new class extends PSModel {
 		}
 
 		PS.setFocus(PS.room);
-		this.update();
 	}
+	/** do NOT use this in a while loop: see `closePopupsUntil */
 	closePopup(skipUpdate?: boolean) {
 		if (!this.popups.length) return;
 		this.leave(this.popups[this.popups.length - 1]);
 		if (!skipUpdate) this.update();
 	}
 	closeAllPopups(skipUpdate?: boolean) {
-		// this is more sensibly a while-loop, but I don't want accidental infinite loops
+		this.closePopupsUntil(null, skipUpdate);
+	}
+	closePopupsUntil(room: PSRoom | null | undefined, skipUpdate?: boolean) {
+		// a while-loop may be simpler, but the loop invariant is very hard to prove
+		// and any bugs (opening a popup while leaving a room) could lead to an infinite loop
+		// a for-loop doesn't have that problem
 		for (let i = this.popups.length - 1; i >= 0; i--) {
-			this.leave(this.popups[i]);
+			if (room && this.popups[i] === room.id) break;
+			this.removeRoom(PS.rooms[this.popups[i]]!);
 		}
 		if (!skipUpdate) this.update();
 	}
 	join(roomid: RoomID, options?: Partial<RoomOptions> | null, noFocus?: boolean) {
-		if (this.room.id === roomid) return;
-		if (PS.rooms[roomid]) {
+		// popups are always reopened rather than focused
+		if (PS.rooms[roomid] && !PS.isPopup(PS.rooms[roomid])) {
+			if (this.room.id === roomid) return;
 			this.focusRoom(roomid);
 			return;
 		}
@@ -1753,8 +1747,11 @@ export const PS = new class extends PSModel {
 		this.update();
 	}
 	leave(roomid: RoomID) {
-		if (!roomid) return;
+		if (!roomid || roomid === 'rooms') return;
 		const room = PS.rooms[roomid];
-		if (room) this.removeRoom(room);
+		if (room) {
+			this.removeRoom(room);
+			this.update();
+		}
 	}
 };

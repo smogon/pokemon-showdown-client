@@ -2,6 +2,7 @@
  * Net
  *********************************************************************/
 /** @jsx preact.h */
+/** @jsxFrag preact.Fragment */
 import preact from "../../play.pokemonshowdown.com/js/lib/preact";
 import { Dex } from "../../play.pokemonshowdown.com/src/battle-dex";
 
@@ -355,8 +356,15 @@ export class MiniTeam extends preact.Component<{ team: ServerTeam, fullTeam?: bo
 	render() {
 		const team = this.props.team;
 		return <>
-			<a class="team" href={`/view/${team.teamid}${team.private ? `-${team.private}` : ''}`}>
-				<strong>{team.name || team.title || "Untitled " + team.teamid}</strong>
+			<a
+				class="team"
+				style={{ color: 'black', textDecoration: 'none' }}
+				href={`/view/${team.teamid}${team.private ? `-${team.private}` : ''}`}
+			>
+				<strong>
+					{team.name || team.title || "Untitled " + team.teamid}
+					{team.private ? <> <i class="fa fa-lock"></i></> : <></>}
+				</strong>
 				<br />
 				<small>
 					{(this.props.fullTeam ?

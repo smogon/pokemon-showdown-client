@@ -159,7 +159,9 @@ function PokemonSet({ set }: { set: Dex.PokemonSet }) {
 	</div>;
 }
 
-class SetBlock extends preact.Component<{ set: Dex.PokemonSet, gen: number }> {
+class SetBlock extends preact.Component<{
+	set: Dex.PokemonSet, gen: number, mode?: string | null,
+}> {
 	render() {
 		const set = this.props.set;
 		const gen = this.props.gen || (Dex.prefs('noanim') ? 5 : 6);
@@ -168,14 +170,17 @@ class SetBlock extends preact.Component<{ set: Dex.PokemonSet, gen: number }> {
 			true,
 			{ gen, shiny: set.shiny, gender: set.gender as 'F' }
 		);
-		const forceResize = 110;
+		let forceResize = 110;
+		if (matchMedia("(max-width: 450px)").matches && this.props.mode === '2col') {
+			forceResize = 55;
+		}
 		if (spriteData.w > forceResize) {
 			const w = spriteData.w;
 			spriteData.w *= (forceResize / w);
 			spriteData.h *= (forceResize / w);
 		}
-		return <>
-			<div style={{ flex: '0 0 20%', width: 'auto' }}>
+		return <div>
+			<div style={{ flex: '0 0 20%', width: 'auto', pad: '3px' }}>
 				<img
 					src={spriteData.url}
 					width={spriteData.w}
@@ -186,7 +191,7 @@ class SetBlock extends preact.Component<{ set: Dex.PokemonSet, gen: number }> {
 			<div style={{ flex: "0 0 80%", textAlign: 'left' }}>
 				<PokemonSet set={set} />
 			</div>
-		</>;
+		</div>;
 	}
 }
 
@@ -198,6 +203,7 @@ export class TeamViewer extends preact.Component<PageProps> {
 		error: undefined as string | undefined,
 		copyButtonMsg: false as boolean,
 		displayMode: localStorage.getItem('teamdisplaymode') || null,
+		spriteGen: Number(localStorage.getItem('spritegen')) || 6,
 	};
 	constructor(props: PageProps) {
 		super(props);
@@ -221,31 +227,46 @@ export class TeamViewer extends preact.Component<PageProps> {
 		}
 		const { team, title, ownerid, format, views } = this.state.team;
 		const teamData = unpackTeam(team);
-		const gen = Dex.prefs('noanim') ? 5 : (Number(/\d+/.exec(format)?.[0]) || 6);
 		const is2Col = this.state.displayMode === '2col';
 		const isDark = document.querySelector('html')?.classList[0] === 'dark';
+		const link = this.id + (this.pw ? `-${this.pw}` : '');
 
 		return <div class="section" style={{ wordWrap: 'break-word' }}>
-			<h2>{title}</h2>
+			<small><a href={'//' + Config.routes.teams}><i class="fa fa-arrow-left"></i></a></small>
+			<h1>{title}</h1>
 			Owner: <strong style={{ color: BattleLog.usernameColor(ownerid as any) }}>{ownerid}</strong><br />
 			Format: {format}<br />
 			Views: {views}<br />
-			<label>Shortlink: </label><a href={`https://psim.us/t/${this.id}`}>https://psim.us/t/{this.id}</a><br />
-			<button
-				class="button"
-				disabled={!this.state.team || this.state.copyButtonMsg}
-				onClick={() => this.copyTeam()}
-			>{this.state.copyButtonMsg ? 'Copied!' : 'Copy team'}</button>
-			<button class="button" onClick={() => this.changeDisplayMode()}>Display: {is2Col ? '2-column' : '1-column'}</button>
-			<button class="button" onClick={() => this.changeColorMode()}>{isDark ? 'Dark mode' : 'Light mode'}</button>
+			<label>Shortlink: </label><a href={`https://psim.us/t/${link}`}>https://psim.us/t/{link}</a><br />
 			<hr />
-			<div name="sets" style={{ display: 'flex', flexWrap: 'wrap', rowGap: '1rem', colGap: is2Col ? '1rem' : undefined }}>
+			<div name="manage" style={{ display: 'flex', gap: '5px' }}>
+				<button
+					class="button"
+					disabled={!this.state.team || this.state.copyButtonMsg}
+					onClick={() => this.copyTeam()}
+				>{this.state.copyButtonMsg ? 'Copied!' : 'Copy team'}</button>
+				<button class="button" onClick={() => this.changeDisplayMode()}>Display: {is2Col ? '2-column' : '1-column'}</button>
+				<button class="button" onClick={() => this.changeColorMode()}>Use {isDark ? 'light' : 'dark'} mode</button>
+				<select
+					onChange={ev => this.changeSpriteGen(ev)}
+					value={this.state.spriteGen}
+					class="button"
+				>
+					{[1, 2, 3, 4, 5, 6].map(num => <option value={num}>Gen {num} Sprites</option>)}
+				</select>
+			</div>
+			<hr />
+			<div
+				name="sets"
+				style={{ display: 'flex', alignItems: 'stretch', flexWrap: 'wrap', rowGap: '1rem', colGap: is2Col ? '2rem' : '' }}
+			>
 				{teamData.map(
 					set => (
-						is2Col ? <div style={{ flex: '0 0 50%' }}>
-							<span style={{ display: 'flex' }}><SetBlock set={set} gen={gen} /></span>
-						</div> :
-						<SetBlock set={set} gen={gen} />
+						<div style={{ flex: `0 0 ${is2Col ? 50 : 100}%` }}>
+							<span style={{ display: 'flex' }}>
+								<SetBlock set={set} gen={this.state.spriteGen} mode={this.state.displayMode} />
+							</span>
+						</div>
 					)
 				)}
 			</div>
@@ -260,6 +281,11 @@ export class TeamViewer extends preact.Component<PageProps> {
 			return;
 		}
 		this.loadTeamData();
+	}
+
+	changeSpriteGen(event: any) {
+		localStorage.setItem('spritegen', `${event.target.value}`);
+		this.setState({ spriteGen: event.target.value });
 	}
 
 	changeDisplayMode() {

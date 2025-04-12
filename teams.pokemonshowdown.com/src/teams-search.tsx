@@ -102,6 +102,7 @@ export class TeamSearcher extends preact.Component<PageProps> {
 			return <div class="section" style={{ wordWrap: 'break-word' }}>Loading...</div>;
 		}
 		return <div class="section" style={{ wordWrap: 'break-word', textAlign: 'center' }}>
+			<small><a href={'//' + Config.routes.teams}><i class="fa fa-arrow-left"></i></a></small>
 			<h1>Search Teams</h1>
 			<br />
 			<div name="searchsection">
@@ -122,7 +123,7 @@ export class TeamSearcher extends preact.Component<PageProps> {
 				<div class="message-error">{(this.state.result as any).actionerror}</div> :
 				<></>}
 			{
-				this.state.result.length ?
+				this.state.result.length === this.state.curCount ?
 					<button class="button notifying" onClick={() => this.search(20)}>More</button> :
 					<></>
 			}
