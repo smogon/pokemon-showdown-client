@@ -772,7 +772,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 					<i class="fa fa-download"></i> Download replay</a>
 				<br />
 				<br />
-				<button class="button" name="cmd" value="/savereplay">
+				<button class="button" data-cmd="/savereplay">
 					<i class="fa fa-upload"></i> Upload and share replay
 				</button>
 				</span>
