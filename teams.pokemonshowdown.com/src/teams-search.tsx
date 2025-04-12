@@ -123,7 +123,7 @@ export class TeamSearcher extends preact.Component<PageProps> {
 				<div class="message-error">{(this.state.result as any).actionerror}</div> :
 				<></>}
 			{
-				this.state.result.length ?
+				this.state.result.length === this.state.curCount ?
 					<button class="button notifying" onClick={() => this.search(20)}>More</button> :
 					<></>
 			}
