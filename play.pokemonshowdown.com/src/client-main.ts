@@ -574,15 +574,6 @@ class PSServer {
 	getGroup(symbol: string | undefined) {
 		return this.groups[(symbol || ' ').charAt(0)] || this.defaultGroup;
 	}
-	getActionPHP() {
-		let ret = '/~~' + this.id + '/action.php';
-		if (Config.testclient) {
-			ret = 'https://' + Config.routes.client + ret;
-		}
-		return (this.getActionPHP = function () {
-			return ret;
-		})();
-	}
 }
 
 /**********************************************************************
