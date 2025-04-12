@@ -141,6 +141,7 @@ class BattleRoom extends ChatRoom {
 			if (this.battle.atQueueEnd) {
 				this.battle.reset();
 			}
+			this.request = null;
 			this.battle.play();
 			this.update(null);
 			return true;
