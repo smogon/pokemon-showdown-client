@@ -551,10 +551,9 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
 				</div>
 				<div class="rightmenu" style={{ display: PS.leftPanelWidth ? 'none' : 'block' }}>
 					<div class="menugroup">
-						{PS.server.id === 'showdown' ? (
-							<p><button class={"mainmenu1 mainmenu" + onlineButton} data-href="rooms">Join chat</button></p>
-						) : (
-							<p><button class={"mainmenu1 mainmenu" + onlineButton} data-href="lobby">Join lobby chat</button></p>
+						<p><button class={"mainmenu1 mainmenu" + onlineButton} data-href="rooms">Chat rooms</button></p>
+						{PS.server.id !== 'showdown' && (
+							<p><button class={"mainmenu2 mainmenu" + onlineButton} data-href="lobby">Lobby chat</button></p>
 						)}
 					</div>
 				</div>

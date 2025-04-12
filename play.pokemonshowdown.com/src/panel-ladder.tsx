@@ -263,7 +263,7 @@ class LadderListPanel extends PSRoomPanel {
 					</a>
 				</p>
 				<p>
-					<button name="joinRoom" value="view-ladderhelp" class="button">
+					<button data-href="view-ladderhelp" class="button">
 						<i class="fa fa-info-circle"></i> How the ladder works
 					</button>
 				</p>

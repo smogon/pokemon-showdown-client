@@ -167,9 +167,26 @@ export class PSRoomPanel<T extends PSRoom = PSRoom> extends preact.Component<{ r
 			if (!args) this.forceUpdate();
 			else this.receiveLine(args);
 		}));
-		if (this.base) {
-			this.props.room.setDimensions(this.base.offsetWidth, this.base.offsetHeight);
+		this.updateDimensions();
+	}
+	justUpdatedDimensions = false;
+	updateDimensions() {
+		const justUpdated = this.justUpdatedDimensions;
+		this.justUpdatedDimensions = false;
+
+		const room = this.props.room;
+		const newWidth = this.base!.offsetWidth;
+		const newHeight = this.base!.offsetHeight;
+		if (room.width === newWidth && room.height === newHeight) {
+			return;
 		}
+
+		room.width = newWidth;
+		room.height = newHeight;
+
+		if (justUpdated) return; // should never happen; safeguard against infinite loops
+		this.justUpdatedDimensions = true;
+		this.forceUpdate();
 	}
 	override componentDidUpdate() {
 		const room = this.props.room;
@@ -178,7 +195,7 @@ export class PSRoomPanel<T extends PSRoom = PSRoom> extends preact.Component<{ r
 				room.hiddenInit = false;
 				this.focus();
 			}
-			room.setDimensions(this.base.offsetWidth, this.base.offsetHeight);
+			this.updateDimensions();
 		} else if (this.base && room.hiddenInit) {
 			room.hiddenInit = false;
 			this.focus();
@@ -192,7 +209,7 @@ export class PSRoomPanel<T extends PSRoom = PSRoom> extends preact.Component<{ r
 		this.subscriptions = [];
 	}
 	close() {
-		PS.removeRoom(this.props.room);
+		PS.leave(this.props.room.id);
 	}
 	componentDidCatch(err: Error) {
 		this.props.room.caughtError = err.stack || err.message;
@@ -279,8 +296,14 @@ export class PSMain extends preact.Component {
 				e.stopImmediatePropagation();
 				return;
 			}
-			let clickedRoom = null;
+			const clickedRoom = PS.getRoom(elem);
 			while (elem) {
+				if (elem.className === 'spoiler') {
+					elem.className = 'spoiler-shown';
+				} else if (elem.className === 'spoiler-shown') {
+					elem.className = 'spoiler';
+				}
+
 				if (` ${elem.className} `.includes(' username ')) {
 					const name = elem.getAttribute('data-name') || elem.innerText;
 					const userid = toID(name);
@@ -294,6 +317,7 @@ export class PSMain extends preact.Component {
 					e.stopImmediatePropagation();
 					return;
 				}
+
 				if (elem.tagName === 'A' || elem.getAttribute('data-href')) {
 					const href = elem.getAttribute('data-href') || (elem as HTMLAnchorElement).href;
 					const roomid = PS.router.extractRoomID(href);
@@ -340,28 +364,24 @@ export class PSMain extends preact.Component {
 						// the spec says that buttons with no `type` attribute should be
 						// submit buttons, but this is a bad default so we're going
 						// to just assume they're not
+						elem.setAttribute('type', 'button');
 
 						// don't return, to allow <a><button> to make links that look
 						// like buttons
-						e.preventDefault();
-					} else {
-						// presumably a different part of the app is handling this button
-						return;
 					}
 				}
 				if (elem.id.startsWith('room-')) {
-					clickedRoom = PS.rooms[elem.id.slice(5)];
 					break;
 				}
 				elem = elem.parentElement;
 			}
 			if (PS.room !== clickedRoom) {
 				if (clickedRoom) PS.room = clickedRoom;
-				for (let i = PS.popups.length - 1; i >= 0; i--) {
-					if (clickedRoom && clickedRoom.id === PS.popups[i]) break;
-					PS.closePopup();
-				}
+				PS.closePopupsUntil(clickedRoom);
 				PS.update();
+			}
+			if (clickedRoom && !PS.isPopup(clickedRoom)) {
+				PSMain.scrollToRoom();
 			}
 		});
 
@@ -447,10 +467,12 @@ export class PSMain extends preact.Component {
 			}
 		});
 	}
-	static focusIfNoSelection = (ev: MouseEvent) => {
-		const room = PS.getRoom(ev.target as HTMLElement, true);
-		if (!room) return;
-
+	static scrollToHeader() {
+		if (window.scrollX > 0) {
+			window.scrollTo({ left: 0 });
+		}
+	}
+	static scrollToRoom() {
 		if (document.documentElement.scrollWidth > document.documentElement.clientWidth && window.scrollX === 0) {
 			if (navigator.userAgent.includes(' Safari/') && PS.leftPanelWidth === null) {
 				// Safari is buggy here and requires temporarily disabling scroll snap
@@ -462,8 +484,12 @@ export class PSMain extends preact.Component {
 				window.scrollBy(400, 0);
 			}
 		}
+	}
+	static focusIfNoSelection = (ev: MouseEvent) => {
+		const room = PS.getRoom(ev.target as HTMLElement, true);
+		if (!room) return;
+
 		if (window.getSelection?.()?.type === 'Range') return;
-		ev.preventDefault();
 		PS.setFocus(room);
 	};
 	handleButtonClick(elem: HTMLButtonElement) {

@@ -251,22 +251,22 @@ class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
 					<h2>All Teams <small>({teams.length})</small></h2>
 				)}
 				<p>
-					<button name="cmd" value="/newteam" class="button big"><i class="fa fa-plus-circle"></i> New Team</button>
+					<button data-cmd="/newteam" class="button big"><i class="fa fa-plus-circle"></i> New Team</button>
 				</p>
 				<ul class="teamlist">
 					{teams.map(team => team ? (
 						<li key={team.key}>
 							<TeamBox team={team} /> {}
-							<button name="cmd" value={`/deleteteam ${team.key}`}><i class="fa fa-trash"></i> Delete</button>
+							<button data-cmd={`/deleteteam ${team.key}`}><i class="fa fa-trash"></i> Delete</button>
 						</li>
 					) : (
 						<li key="undelete">
-							<button name="cmd" value="/undeleteteam"><i class="fa fa-undo"></i> Undo delete</button>
+							<button data-cmd="/undeleteteam"><i class="fa fa-undo"></i> Undo delete</button>
 						</li>
 					))}
 				</ul>
 				<p>
-					<button name="cmd" value="/newteam bottom" class="button"><i class="fa fa-plus-circle"></i> New Team</button>
+					<button data-cmd="/newteam bottom" class="button"><i class="fa fa-plus-circle"></i> New Team</button>
 				</p>
 			</div>
 		</PSPanelWrapper>;

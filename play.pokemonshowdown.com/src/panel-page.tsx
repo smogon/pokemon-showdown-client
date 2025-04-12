@@ -113,7 +113,7 @@ class PagePanel extends PSRoomPanel<PageRoom> {
 			const selectedElement = pageHTMLContainer?.querySelector(args[1]);
 			if (!selectedElement) return;
 			selectedElement.innerHTML = BattleLog.sanitizeHTML(args.slice(2).join('|'));
-			room.isSubtleNotifying = true;
+			room.subtleNotify();
 			return true;
 		case 'noinit':
 			if (args[1] === 'namerequired') {
@@ -122,6 +122,7 @@ class PagePanel extends PSRoomPanel<PageRoom> {
 			return true;
 		case 'pagehtml':
 			room.setHTMLData(args[1]);
+			room.subtleNotify();
 			return true;
 		}
 	}

@@ -41,6 +41,10 @@ class UserPanel extends PSRoomPanel<UserRoom> {
 		const user = PS.mainmenu.userdetailsCache[room.userid] || {
 			userid: room.userid, name: room.name, avatar: '[loading]',
 		};
+		if (!user.avatar) {
+			// offline; server doesn't know the actual username
+			user.name = room.name;
+		}
 		const hideInteraction = room.id.startsWith('viewuser-');
 
 		const group = PS.server.getGroup(room.name);
@@ -139,8 +143,8 @@ class UserPanel extends PSRoomPanel<UserRoom> {
 				buttonbar.push(
 					<hr />,
 					<p class="buttonbar" style="text-align: right">
-						<button class="button" name="joinRoom" value="login"><i class="fa fa-pencil"></i> Change name</button> {}
-						<button class="button" name="cmd" value="/logout"><i class="fa fa-power-off"></i> Log out</button>
+						<button class="button" data-href="login"><i class="fa fa-pencil"></i> Change name</button> {}
+						<button class="button" data-cmd="/logout"><i class="fa fa-power-off"></i> Log out</button>
 					</p>
 				);
 			}
@@ -281,17 +285,54 @@ class OptionsPanel extends PSRoomPanel {
 		PS.prefs.set('theme', theme);
 		this.forceUpdate();
 	};
+	setLayout = (e: Event) => {
+		const layout = (e.currentTarget as HTMLSelectElement).value;
+		switch (layout) {
+		case '':
+			PS.prefs.set('onepanel', null);
+			break;
+		case 'onepanel':
+			PS.prefs.set('onepanel', true);
+			break;
+		case 'vertical':
+			PS.prefs.set('onepanel', 'vertical');
+			break;
+		}
+		PS.update();
+	};
 	override render() {
 		const room = this.props.room;
 		return <PSPanelWrapper room={room}><div class="pad">
+			<p>
+				<img
+					class="trainersprite yours" width="40" height="40" style={{ verticalAlign: 'middle' }}
+					src={Dex.resolveAvatar(`${PS.user.avatar}`)}
+				/> {}
+				{PS.user.name}
+			</p>
+			<hr />
 			<h3>Graphics</h3>
 			<p>
-				<label class="optlabel">Theme: <select onChange={this.setTheme}>
+				<label class="optlabel">Theme: <select name="theme" class="button" onChange={this.setTheme}>
 					<option value="light" selected={PS.prefs.theme === 'light'}>Light</option>
 					<option value="dark" selected={PS.prefs.theme === 'dark'}>Dark</option>
 					<option value="system" selected={PS.prefs.theme === 'system'}>Match system theme</option>
 				</select></label>
 			</p>
+			<p>
+				<label class="optlabel">Layout: <select name="layout" class="button" onChange={this.setLayout}>
+					<option value="" selected={!PS.prefs.onepanel}>Two panels (if wide enough)</option>
+					<option value="onepanel" selected={PS.prefs.onepanel === true}>Single panel</option>
+					<option value="vertical" selected={PS.prefs.onepanel === 'vertical'}>Vertical tabs</option>
+				</select></label>
+			</p>
+			<hr />
+			{PS.user.named ? <p class="buttonbar" style="text-align: right">
+				<button class="button" data-href="login"><i class="fa fa-pencil"></i> Change name</button> {}
+				<button class="button" data-cmd="/logout"><i class="fa fa-power-off"></i> Log out</button>
+			</p> : <p class="buttonbar" style="text-align: right">
+				<button class="button" data-href="login"><i class="fa fa-pencil"></i> Choose name</button>
+			</p> }
 		</div></PSPanelWrapper>;
 	}
 }

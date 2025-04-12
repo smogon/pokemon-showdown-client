@@ -707,6 +707,10 @@ details.readmore[open] summary:hover:before {
 	font-family: Verdana, sans-serif;
 	color: #68B;
 }
+details.readmore.code {
+	display: table;
+	min-width: 80px;
+}
 
 .greentext {
 	color: #187902;

@@ -128,7 +128,7 @@ export class PSHeader extends preact.Component<{ style: object }> {
 		let className = `roomtab button${notifying}${closable}${cur}`;
 
 		let { icon, title } = PSHeader.roomInfo(room);
-		if (room.type === 'rooms') title = '';
+		if (room.type === 'rooms' && PS.leftPanelWidth !== null) title = '';
 
 		let closeButton = null;
 		if (closable) {
@@ -168,41 +168,38 @@ export class PSHeader extends preact.Component<{ style: object }> {
 			<span class="usernametext">{PS.user.name}</span>
 		</span>;
 	}
-	scrollToHeader = () => {
-		if (window.scrollX > 0) {
-			window.scrollTo({ left: 0 });
-		}
-	};
 	renderVertical() {
-		return <div id="header" class="header-vertical" style={this.props.style} onClick={this.scrollToHeader}>
-			<img
-				class="logo"
-				src={`https://${Config.routes.client}/favicon-256.png`}
-				alt="Pokémon Showdown! (beta)"
-				width="50" height="50"
-			/>
+		return <div id="header" class="header-vertical" style={this.props.style} onClick={PSMain.scrollToHeader}>
 			<div class="maintabbarbottom"></div>
-			<div class="tablist"><div class="inner">
-				<ul>
-					{this.renderRoomTab(PS.leftRoomList[0])}
-				</ul>
-				<ul>
-					{PS.miniRoomList.map(roomid => this.renderRoomTab(roomid))}
-				</ul>
-				<ul>
-					{PS.leftRoomList.slice(1).map(roomid => this.renderRoomTab(roomid))}
-				</ul>
-				<ul class="siderooms">
-					{PS.rightRoomList.map(roomid => this.renderRoomTab(roomid))}
-				</ul>
-			</div></div>
+			<div class="scrollable-part">
+				<img
+					class="logo"
+					src={`https://${Config.routes.client}/favicon-256.png`}
+					alt="Pokémon Showdown! (beta)"
+					width="50" height="50"
+				/>
+				<div class="tablist">
+					<ul>
+						{this.renderRoomTab(PS.leftRoomList[0])}
+					</ul>
+					<ul>
+						{PS.miniRoomList.map(roomid => this.renderRoomTab(roomid))}
+					</ul>
+					<ul>
+						{PS.leftRoomList.slice(1).map(roomid => this.renderRoomTab(roomid))}
+					</ul>
+					<ul class="siderooms">
+						{PS.rightRoomList.map(roomid => this.renderRoomTab(roomid))}
+					</ul>
+				</div>
+			</div>
 			<div class="userbar">
 				{this.renderUser()} {}
 				<div style="float:right">
-					<button class="icon button" name="joinRoom" value="volume" title="Sound" aria-label="Sound">
+					<button class="icon button" data-href="volume" title="Sound" aria-label="Sound">
 						<i class={PS.prefs.mute ? 'fa fa-volume-off' : 'fa fa-volume-up'}></i>
 					</button> {}
-					<button class="icon button" name="joinRoom" value="options" title="Options" aria-label="Options">
+					<button class="icon button" data-href="options" title="Options" aria-label="Options">
 						<i class="fa fa-cog"></i>
 					</button>
 				</div>
@@ -218,13 +215,13 @@ export class PSHeader extends preact.Component<{ style: object }> {
 		}
 
 		return <div id="header" class="header" style={this.props.style}>
+			<div class="maintabbarbottom"></div>
 			<img
 				class="logo"
 				src={`https://${Config.routes.client}/favicon-256.png`}
 				alt="Pokémon Showdown! (beta)"
 				width="50" height="50"
 			/>
-			<div class="maintabbarbottom"></div>
 			<div class="tabbar maintabbar"><div class="inner">
 				<ul>
 					{this.renderRoomTab(PS.leftRoomList[0])}
@@ -238,10 +235,10 @@ export class PSHeader extends preact.Component<{ style: object }> {
 			</div></div>
 			<div class="userbar">
 				{this.renderUser()} {}
-				<button class="icon button" name="joinRoom" value="volume" title="Sound" aria-label="Sound">
+				<button class="icon button" data-href="volume" title="Sound" aria-label="Sound">
 					<i class={PS.prefs.mute ? 'fa fa-volume-off' : 'fa fa-volume-up'}></i>
 				</button> {}
-				<button class="icon button" name="joinRoom" value="options" title="Options" aria-label="Options">
+				<button class="icon button" data-href="options" title="Options" aria-label="Options">
 					<i class="fa fa-cog"></i>
 				</button>
 			</div>
@@ -250,12 +247,43 @@ export class PSHeader extends preact.Component<{ style: object }> {
 }
 
 export class PSMiniHeader extends preact.Component {
+	override componentDidMount() {
+		window.addEventListener('scroll', this.handleScroll);
+	}
+	override componentWillUnmount() {
+		window.removeEventListener('scroll', this.handleScroll);
+	}
+	handleScroll = () => {
+		this.forceUpdate();
+	};
 	override render() {
 		if (PS.leftPanelWidth !== null) return null;
 
 		const minWidth = Math.min(500, Math.max(320, document.body.offsetWidth - 9));
 		const { icon, title } = PSHeader.roomInfo(PS.panel);
-		return <div class="mini-header" style={{ minWidth: `${minWidth}px` }}>{icon} {title}</div>;
+		const userColor = window.BattleLog && { color: BattleLog.usernameColor(PS.user.userid) };
+		const showMenuButton = document.documentElement.offsetWidth >= document.documentElement.scrollWidth;
+		const notifying = (
+			showMenuButton && !window.scrollX && Object.values(PS.rooms).some(room => room!.notifications.length)
+		) ? ' notifying' : '';
+		const menuButton = showMenuButton ? (
+			null
+		) : window.scrollX ? (
+			<button onClick={PSMain.scrollToHeader} class={`mini-header-left ${notifying}`} aria-label="Menu">
+				<i class="fa fa-arrow-left"></i>
+			</button>
+		) : (
+			<button onClick={PSMain.scrollToRoom} class="mini-header-left" aria-label="Menu">
+				<i class="fa fa-arrow-right"></i>
+			</button>
+		);
+		return <div class="mini-header" style={{ minWidth: `${minWidth}px` }}>
+			{menuButton}
+			{icon} {title}
+			<button data-href="options" class="mini-header-right" aria-label="Options">
+				{PS.user.named ? <strong style={userColor}>{PS.user.name}</strong> : <i class="fa fa-cog"></i>}
+			</button>
+		</div>;
 	}
 }
 
