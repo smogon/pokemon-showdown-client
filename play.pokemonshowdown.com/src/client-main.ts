@@ -577,7 +577,7 @@ class PSServer {
 	getActionPHP() {
 		let ret = '/~~' + this.id + '/action.php';
 		if (Config.testclient) {
-			ret = 'https://' + PS.routes.client + ret;
+			ret = 'https://' + Config.routes.client + ret;
 		}
 		return (this.getActionPHP = function () {
 			return ret;

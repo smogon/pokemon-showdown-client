@@ -171,11 +171,9 @@ export class ChatRoom extends PSRoom {
 			$.get(PS.server.getActionPHP(), {
 				act: 'ladderget',
 				user: targets[0],
-				sid: "Aurastic%20%E2%9C%A7%2C135794200%2Cabde1fe4161e822c1743854012",
 			}, data => {
 				if (data[0] === ']') data = data.substr(1);
 				data = JSON.parse(data);
-				console.log(data);
 				if (!data || !Array.isArray(data)) return this.receiveLine(['raw', 'Error: corrupted ranking data']);
 				let buffer = '<div class="ladder"><table><tr><td colspan="9">User: <strong>' + toID(targets[0]) + '</strong></td></tr>';
 				if (!data.length) {
@@ -224,7 +222,7 @@ export class ChatRoom extends PSRoom {
 					let N = parseInt(row.w, 10) + parseInt(row.l, 10) + parseInt(row.t, 10);
 					let COIL_B = undefined;
 
-					// Uncomment this after LadderRoom logic is implemented
+					// TODO: Uncomment this after LadderRoom logic is implemented
 					// COIL_B = LadderRoom?.COIL_B[formatId];
 
 					if (COIL_B) {
