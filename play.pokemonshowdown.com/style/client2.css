@@ -59,13 +59,13 @@ pre {
  * Header
  *********************************************************/
 
-.vertical-header-layout {
+.scroll-snap-enabled {
   scroll-snap-type: x mandatory;
 }
-.vertical-header-layout .header-vertical {
+.scroll-snap-enabled .header-vertical {
 	scroll-snap-align: start;
 }
-.vertical-header-layout .mini-header {
+.scroll-snap-enabled .mini-header {
 	scroll-snap-align: end;
 }
 
@@ -192,8 +192,9 @@ pre {
 	overflow: hidden;
 }
 .mini-header i.text, .tablist i.text {
-	font-size: 12px;
+	font-size: 11px;
 	font-style: normal;
+	font-weight: bold;
 	border: 1px solid #777;
 	padding: 1px 3px;
 	border-radius: 5px;
@@ -201,6 +202,11 @@ pre {
 	margin-top: -2px;
 	display: inline-block;
 	line-height: 12px;
+}
+.tablist .roomtab-battle i.text {
+	display: block;
+	border: 0;
+	padding: 3px 0 0;
 }
 .mini-header-right, .mini-header-left {
 	float: right;
@@ -225,6 +231,11 @@ pre {
 .dark .mini-header-left.notifying {
 	color: #72bcda;
 }
+
+/* for debugging */
+/* .scroll-snap-enabled .maintabbarbottom {
+	background: green !important;
+} */
 
 .header-vertical .scrollable-part {
 	position: absolute;
@@ -446,6 +457,9 @@ span.header-username:hover {
 	white-space: nowrap;
 	overflow: hidden;
 	text-overflow: ellipsis;
+}
+.tablist .button.roomtab-battle {
+	height: auto;
 }
 .tablist li:first-child .button {
 	border-top-left-radius: 5px;
@@ -1539,6 +1553,23 @@ pre.textbox.textbox-empty[placeholder]:before {
 	border-top: 0;
 	border-bottom: 0;
 }
+
+/* I like this one (bottom-aligns chat logs) but it's controversial */
+/* .battle-log, .chat-log {
+	display: flex;
+	flex-direction: column;
+	justify-content: flex-end;
+} */
+
+/* these two bottom-align controls in the mobile UI, while leaving everything else at the top */
+.battle-log {
+	display: flex;
+	flex-direction: column;
+}
+.battle-log .inner-preempt {
+	flex-grow: 1;
+}
+
 .ps-room .battle-log-add {
 	position: absolute;
 	bottom: 0;

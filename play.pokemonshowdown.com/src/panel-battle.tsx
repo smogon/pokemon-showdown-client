@@ -394,32 +394,39 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 		if (room.side && room.request) {
 			return this.renderPlayerControls(room.request);
 		}
+		const atStart = !room.battle.started;
 		const atEnd = room.battle.atQueueEnd;
 		return <div class="controls">
 			<p>
 				{atEnd ? (
-					<button class="button disabled" data-cmd="/play"><i class="fa fa-play"></i><br />Play</button>
+					<button class="button disabled" data-cmd="/play" style="min-width:4.5em">
+						<i class="fa fa-play"></i><br />Play
+					</button>
 				) : room.battle.paused ? (
-					<button class="button" data-cmd="/play"><i class="fa fa-play"></i><br />Play</button>
+					<button class="button" data-cmd="/play" style="min-width:4.5em">
+						<i class="fa fa-play"></i><br />Play
+					</button>
 				) : (
-					<button class="button" data-cmd="/pause"><i class="fa fa-pause"></i><br />Pause</button>
+					<button class="button" data-cmd="/pause" style="min-width:4.5em">
+						<i class="fa fa-pause"></i><br />Pause
+					</button>
 				)} {}
-				<button class="button" data-cmd="/ffto -1">
-					<i class="fa fa-step-backward"></i><br />Last turn
-				</button>
-				<button class={"button" + (atEnd ? " disabled" : "")} data-cmd="/ffto +1">
-					<i class="fa fa-step-forward"></i><br />Skip turn
-				</button> {}
-				<button class="button" data-cmd="/ffto 0">
+				<button class={"button button-first" + (atStart ? " disabled" : "")} data-cmd="/ffto 0" style="margin-right:2px">
 					<i class="fa fa-undo"></i><br />First turn
 				</button>
-				<button class={"button" + (atEnd ? " disabled" : "")} data-cmd="/ffto end">
+				<button class={"button button-first" + (atStart ? " disabled" : "")} data-cmd="/ffto -1">
+					<i class="fa fa-step-backward"></i><br />Prev turn
+				</button>
+				<button class={"button button-last" + (atEnd ? " disabled" : "")} data-cmd="/ffto +1" style="margin-right:2px">
+					<i class="fa fa-step-forward"></i><br />Skip turn
+				</button>
+				<button class={"button button-last" + (atEnd ? " disabled" : "")} data-cmd="/ffto end">
 					<i class="fa fa-fast-forward"></i><br />Skip to end
 				</button>
 			</p>
 			<p>
 				<button class="button" data-cmd="/switchsides">
-					<i class="fa fa-random"></i> Switch sides
+					<i class="fa fa-random"></i> Switch viewpoint
 				</button>
 			</p>
 		</div>;
@@ -765,37 +772,45 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 
 	renderAfterBattleControls() {
 		const room = this.props.room;
+		const isNotTiny = room.width > 700;
 		return <div class="controls">
 			<p>
-				<span style="float: right"><a
-					onClick={this.handleDownloadReplay}
-					href={`//${Config.routes.replays}/download`}
-					class="button replayDownloadButton"
-				>
-					<i class="fa fa-download"></i> Download replay</a>
-				<br />
-				<br />
-				<button class="button" data-cmd="/savereplay">
-					<i class="fa fa-upload"></i> Upload and share replay
-				</button>
+				<span style="float: right">
+					<a
+						onClick={this.handleDownloadReplay}
+						href={`//${Config.routes.replays}/download`}
+						class="button replayDownloadButton"
+					>
+						<i class="fa fa-download"></i> Download replay</a>
+					<br />
+					<br />
+					<button class="button" data-cmd="/savereplay">
+						<i class="fa fa-upload"></i> Upload and share replay
+					</button>
 				</span>
 
-				<button class="button" data-cmd="/play">
-					<i class="fa fa-undo"></i><br />Instant replay
-				</button>
+				<button class="button" data-cmd="/play" style="min-width:4.5em">
+					<i class="fa fa-undo"></i><br />Replay
+				</button> {}
+				{isNotTiny && <button class="button button-first" data-cmd="/ffto 0" style="margin-right:2px">
+					<i class="fa fa-undo"></i><br />First turn
+				</button>}
+				{isNotTiny && <button class="button button-first" data-cmd="/ffto -1">
+					<i class="fa fa-step-backward"></i><br />Prev turn
+				</button>}
 			</p>
 			{room.side ?
 				<p>
 					<button class="button" name="closeAndMainMenu" onClick={() => this.close()}>
 						<strong>Main menu</strong><br /><small>(closes this battle)</small>
-					</button>
+					</button> {}
 					<button
 						class="button" name="cmd" value={`/closeandchallenge ${room.battle.farSide.id},${room.battle.tier}`}
 					>
 						<strong>Rematch</strong><br /><small>(closes this battle)</small>
 					</button>
 				</p> :
-				<p><button class="button" name="cmd" value="/switchsides"><i class="fa fa-random"></i> Switch sides</button></p>}
+				<p><button class="button" name="cmd" value="/switchsides"><i class="fa fa-random"></i> Switch viewpoint</button></p>}
 		</div>;
 
 	}

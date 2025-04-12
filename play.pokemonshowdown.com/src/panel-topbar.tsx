@@ -129,6 +129,7 @@ export class PSHeader extends preact.Component<{ style: object }> {
 
 		let { icon, title } = PSHeader.roomInfo(room);
 		if (room.type === 'rooms' && PS.leftPanelWidth !== null) title = '';
+		if (room.type === 'battle') className += ' roomtab-battle';
 
 		let closeButton = null;
 		if (closable) {
@@ -208,10 +209,12 @@ export class PSHeader extends preact.Component<{ style: object }> {
 	}
 	override render() {
 		if (PS.leftPanelWidth === null) {
-			document.documentElement.classList?.add('vertical-header-layout');
+			if (!PSMain.textboxFocused) {
+				document.documentElement.classList?.add('scroll-snap-enabled');
+			}
 			return this.renderVertical();
 		} else {
-			document.documentElement.classList?.remove('vertical-header-layout');
+			document.documentElement.classList?.remove('scroll-snap-enabled');
 		}
 
 		return <div id="header" class="header" style={this.props.style}>

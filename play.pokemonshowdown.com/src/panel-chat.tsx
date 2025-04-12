@@ -8,7 +8,7 @@
 import preact from "../js/lib/preact";
 import type { PSSubscription } from "./client-core";
 import { PS, PSRoom, type RoomOptions, type RoomID, type Team } from "./client-main";
-import { PSPanelWrapper, PSRoomPanel } from "./panels";
+import { PSMain, PSPanelWrapper, PSRoomPanel } from "./panels";
 import { TeamForm } from "./panel-mainmenu";
 import { BattleLog } from "./battle-log";
 import type { Battle } from "./battle";
@@ -93,13 +93,16 @@ export class ChatRoom extends PSRoom {
 		} else if (this.id.startsWith('dm-')) {
 			const id = this.id.slice(3);
 			if (!name || toID(name) !== id) name = this.pmTarget || id;
+			if (/[A-Za-z0-9]/.test(name.charAt(0))) name = ` ${name}`;
+			const nameWithGroup = name;
+			name = name.slice(1);
 			this.pmTarget = name;
 			if (!PS.user.userid) {
-				this.setUsers(1, [` ${name}`]);
+				this.setUsers(1, [nameWithGroup]);
 			} else {
-				this.setUsers(2, [` ${name}`, ` ${PS.user.name}`]);
+				this.setUsers(2, [nameWithGroup, ` ${PS.user.name}`]);
 			}
-			this.title = `[DM] ${name}`;
+			this.title = `[DM] ${nameWithGroup.trim()}`;
 		}
 	}
 	/**
@@ -472,9 +475,16 @@ class ChatTextBox extends preact.Component<{ placeholder: string, disabled?: boo
 		this.base!.classList?.toggle('autofocus', !nextProps.disabled);
 		return false;
 	}
+	handleFocus = () => {
+		PSMain.setTextboxFocused(true);
+	};
+	handleBlur = () => {
+		PSMain.setTextboxFocused(false);
+	};
 	override render() {
 		return <pre
 			class={`textbox textbox-empty ${this.props.disabled ? ' disabled' : ''}`} placeholder={this.props.placeholder}
+			onFocus={this.handleFocus} onBlur={this.handleBlur}
 		>{'\n'}</pre>;
 	}
 }
