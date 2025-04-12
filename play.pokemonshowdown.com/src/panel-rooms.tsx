@@ -24,6 +24,7 @@ class RoomsPanel extends PSRoomPanel {
 	static readonly Model = RoomsRoom;
 	static readonly location = 'right';
 	static readonly icon = <i class="fa fa-plus rooms-plus"></i>;
+	static readonly title = "Chat Rooms";
 	hidden = false;
 	search = '';
 	lastKeyCode = 0;

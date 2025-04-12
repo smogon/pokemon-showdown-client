@@ -138,6 +138,9 @@ class BattleRoom extends ChatRoom {
 		const target = spaceIndex >= 0 ? line.slice(spaceIndex + 1) : '';
 		switch (cmd) {
 		case 'play': {
+			if (this.battle.atQueueEnd) {
+				this.battle.reset();
+			}
 			this.battle.play();
 			this.update(null);
 			return true;
@@ -212,7 +215,7 @@ function MoveButton(props: {
 	children: string, cmd: string, moveData: { pp: number, maxpp: number }, type: Dex.TypeName, tooltip: string,
 }) {
 	return <button
-		name="cmd" value={props.cmd} class={`movebutton type-${props.type} has-tooltip`} data-tooltip={props.tooltip}
+		data-cmd={props.cmd} class={`movebutton type-${props.type} has-tooltip`} data-tooltip={props.tooltip}
 	>
 		{props.children}<br />
 		<small class="type">{props.type}</small> <small class="pp">{props.moveData.pp}/{props.moveData.maxpp}</small>&nbsp;
@@ -224,7 +227,7 @@ function PokemonButton(props: {
 	const pokemon = props.pokemon;
 	if (!pokemon) {
 		return <button
-			name="cmd" value={props.cmd} class={`${props.disabled ? 'disabled ' : ''}has-tooltip`}
+			data-cmd={props.cmd} class={`${props.disabled ? 'disabled ' : ''}has-tooltip`}
 			style={{ opacity: props.disabled === 'fade' ? 0.5 : 1 }} data-tooltip={props.tooltip}
 		>
 			(empty slot)
@@ -239,7 +242,7 @@ function PokemonButton(props: {
 	}
 
 	return <button
-		name="cmd" value={props.cmd} class={`${props.disabled ? 'disabled ' : ''}has-tooltip`}
+		data-cmd={props.cmd} class={`${props.disabled ? 'disabled ' : ''}has-tooltip`}
 		style={{ opacity: props.disabled === 'fade' ? 0.5 : 1 }} data-tooltip={props.tooltip}
 	>
 		<span class="picon" style={Dex.getPokemonIcon(pokemon)}></span>
@@ -395,27 +398,27 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 		return <div class="controls">
 			<p>
 				{atEnd ? (
-					<button class="button disabled" name="cmd" value="/play"><i class="fa fa-play"></i><br />Play</button>
+					<button class="button disabled" data-cmd="/play"><i class="fa fa-play"></i><br />Play</button>
 				) : room.battle.paused ? (
-					<button class="button" name="cmd" value="/play"><i class="fa fa-play"></i><br />Play</button>
+					<button class="button" data-cmd="/play"><i class="fa fa-play"></i><br />Play</button>
 				) : (
-					<button class="button" name="cmd" value="/pause"><i class="fa fa-pause"></i><br />Pause</button>
+					<button class="button" data-cmd="/pause"><i class="fa fa-pause"></i><br />Pause</button>
 				)} {}
-				<button class="button" name="cmd" value="/ffto -1">
+				<button class="button" data-cmd="/ffto -1">
 					<i class="fa fa-step-backward"></i><br />Last turn
 				</button>
-				<button class={"button" + (atEnd ? " disabled" : "")} name="cmd" value="/ffto +1">
+				<button class={"button" + (atEnd ? " disabled" : "")} data-cmd="/ffto +1">
 					<i class="fa fa-step-forward"></i><br />Skip turn
 				</button> {}
-				<button class="button" name="cmd" value="/ffto 0">
+				<button class="button" data-cmd="/ffto 0">
 					<i class="fa fa-undo"></i><br />First turn
 				</button>
-				<button class={"button" + (atEnd ? " disabled" : "")} name="cmd" value="/ffto end">
+				<button class={"button" + (atEnd ? " disabled" : "")} data-cmd="/ffto end">
 					<i class="fa fa-fast-forward"></i><br />Skip to end
 				</button>
 			</p>
 			<p>
-				<button class="button" name="cmd" value="/switchsides">
+				<button class="button" data-cmd="/switchsides">
 					<i class="fa fa-random"></i> Switch sides
 				</button>
 			</p>
@@ -557,7 +560,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 		if (choices.isEmpty()) return null;
 
 		let buf: preact.ComponentChild[] = [
-			<button name="cmd" value="/cancel" class="button"><i class="fa fa-chevron-left"></i> Back</button>, ' ',
+			<button data-cmd="/cancel" class="button"><i class="fa fa-chevron-left"></i> Back</button>, ' ',
 		];
 		if (choices.isDone() && request.noCancel) {
 			buf = ['Waiting for opponent...', <br />];
@@ -622,7 +625,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 					{this.renderOldChoices(request, choices)}
 				</div>
 				<div class="pad">
-					{request.noCancel ? null : <button name="cmd" value="/cancel" class="button">Cancel</button>}
+					{request.noCancel ? null : <button data-cmd="/cancel" class="button">Cancel</button>}
 				</div>
 				{this.renderTeamList()}
 			</div>;
@@ -705,7 +708,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 				<div class="switchcontrols">
 					{canShift && [
 						<h3 class="shiftselect">Shift</h3>,
-						<button name="cmd" value="/shift">Move to center</button>,
+						<button data-cmd="/shift">Move to center</button>,
 					]}
 					<h3 class="switchselect">Switch</h3>
 					<div class="switchmenu">
@@ -733,7 +736,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 				<div class="whatdo">
 					<button name="openTimer" class="button disabled timerbutton"><i class="fa fa-hourglass-start"></i> Timer</button>
 					{choices.alreadySwitchingIn.length > 0 ? (
-						[<button name="cmd" value="/cancel" class="button"><i class="fa fa-chevron-left"></i> Back</button>,
+						[<button data-cmd="/cancel" class="button"><i class="fa fa-chevron-left"></i> Back</button>,
 							" What about the rest of your team? "]
 					) : (
 						"How will you start the battle? "
@@ -777,7 +780,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 				</button>
 				</span>
 
-				<button class="button" onClick={this.handleInstantReplay}>
+				<button class="button" data-cmd="/play">
 					<i class="fa fa-undo"></i><br />Instant replay
 				</button>
 			</p>
@@ -811,13 +814,6 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 		target.href = window.BattleLog.createReplayFileHref(room);
 		target.download = filename + '.html';
 		e.stopPropagation();
-	};
-
-	handleInstantReplay = () => {
-		let room = this.props.room;
-		room.request = null;
-		room.battle.reset();
-		room.battle.play();
 	};
 
 	override render() {

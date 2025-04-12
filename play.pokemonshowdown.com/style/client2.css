@@ -87,7 +87,8 @@ pre {
 	top: 0;
 	left: 0;
 	bottom: 0;
-	width: 194px;
+	width: 193px;
+	padding-right: 7px;
 	background: rgba(255,255,255,.3);
 }
 .dark .header, .dark .header-vertical {
@@ -112,7 +113,7 @@ pre {
 	color: black;
 	text-shadow: 1px 1px 0 #f8f8f8, 1px -1px 0 #f8f8f8, -1px 1px 0 #f8f8f8, -1px -1px 0 #f8f8f8;
 }
-.dark .userbar .username {
+.dark .userbar .username, .dark .mini-header-right {
 	color: #DDD;
 	text-shadow: 1px 1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, -1px -1px 0 #000;
 }
@@ -188,8 +189,9 @@ pre {
 	border-left: 0;
 	border-right: 0;
 	border-top: 0;
+	overflow: hidden;
 }
-.mini-header i.text {
+.mini-header i.text, .tablist i.text {
 	font-size: 12px;
 	font-style: normal;
 	border: 1px solid #777;
@@ -200,23 +202,56 @@ pre {
 	display: inline-block;
 	line-height: 12px;
 }
+.mini-header-right, .mini-header-left {
+	float: right;
+	background: transparent;
+	color: inherit;
+	font-family: inherit;
+	font-size: inherit;
+	line-height: inherit;
+	border: 0;
+	border: 1px solid #777;
+	border-width: 0 0 0 1px;
+	padding: 0 6px;
+}
+.mini-header-left {
+	float: left;
+	border-width: 0 1px 0 0;
+	margin-right: 5px;
+}
+.mini-header-left.notifying {
+	color: #AA6600;
+}
+.dark .mini-header-left.notifying {
+	color: #72bcda;
+}
+
+.header-vertical .scrollable-part {
+	position: absolute;
+	top: 0;
+	bottom: 50px;
+	left: 0;
+	right: 7px;
+	overflow: auto;
+	-webkit-overflow-scrolling: touch;
+}
 .header-vertical .maintabbarbottom {
 	top: 0;
 	bottom: 0;
-	left: 194px;
-	right: auto;
+	left: auto;
+	right: 0;
 	width: 6px;
 	height: auto;
 	border-top: 0;
 	border-bottom: 0;
 	border-left-width: 1px;
 	border-right-width: 1px;
-	margin: 0 0 0 -1px;
+	margin: 0;
 }
 .dark .mini-header, .dark .maintabbarbottom {
 	background: #555555;
 	border-color: #34373b;
-	color: #CCCCCC;
+	color: #DDDDDD;
 }
 .dark .maintabbarbottom {
 	border-bottom-color: #5A5A5A;
@@ -444,18 +479,6 @@ span.header-username:hover {
 
 	position: relative;
 	z-index: 11;
-}
-.tablist i.text {
-	font-size: 9pt;
-	font-weight: normal;
-	font-style: normal;
-	margin-right: 3px;
-}
-.tablist i.text::before {
-	content: '[';
-}
-.tablist i.text::after {
-	content: ']';
 }
 
 /*********************************************************
