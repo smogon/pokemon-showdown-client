@@ -227,7 +227,7 @@ export class ChatRoom extends PSRoom {
 					// COIL_B = LadderRoom?.COIL_B[formatId];
 
 					if (COIL_B) {
-						buffer += `<td> ${Math.round(40.0 * parseFloat(row.gxe) * 2.0 ** (-COIL_B / N), 0)} </td>`;
+						buffer += `<td> ${Math.round(40.0 * parseFloat(row.gxe) * Math.pow(2.0, -COIL_B / N))} </td>`;
 					} else {
 						buffer += '<td>--</td>';
 					}
