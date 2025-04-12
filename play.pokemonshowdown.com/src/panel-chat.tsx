@@ -171,8 +171,8 @@ export class ChatRoom extends PSRoom {
 			$.get(PS.server.getActionPHP(), {
 				act: 'ladderget',
 				user: targets[0],
-			}, (data:string) => {
-				if (data[0] === ']') data = data.substr(1);
+			}, (data: string) => {
+				if (data.startsWith(']')) data = data.substr(1);
 				data = JSON.parse(data);
 				console.log(data);
 				if (!data || !Array.isArray(data)) return this.receiveLine(['raw', 'Error: corrupted ranking data']);
@@ -227,7 +227,7 @@ export class ChatRoom extends PSRoom {
 					// COIL_B = LadderRoom?.COIL_B[formatId];
 
 					if (COIL_B) {
-						buffer += `<td> ${Math.round(40.0 * parseFloat(row.gxe) * Math.pow(2.0, -COIL_B / N))} </td>`;
+						buffer += `<td> ${Math.round(40.0 * parseFloat(row.gxe) * 2.0 ** (-COIL_B / N))} </td>`;
 					} else {
 						buffer += '<td>--</td>';
 					}
@@ -247,7 +247,7 @@ export class ChatRoom extends PSRoom {
 					if (hiddenFormats.length === data.length) {
 						buffer += '<tr class="no-matches"><td colspan="8"><em>This user has not played any ladder games that match "' + BattleLog.escapeHTML(Object.keys(gens).concat(Object.keys(formats)).join(', ')) + '".</em></td></tr>';
 					}
-					buffer += `<tr><td colspan="8"><button name="showOtherFormats"> ${hiddenFormats.slice(0, 3).join(', ') + (hiddenFormats.length > 3 ? ' and ' + (hiddenFormats.length - 3) + ' other formats' : '')} not shown</button></td></tr>'`;
+					buffer += `<tr><td colspan="8"><button name="showOtherFormats"> ${hiddenFormats.slice(0, 3).join(', ') + (hiddenFormats.length > 3 ? ' and ' + String(hiddenFormats.length - 3) + ' other formats' : '')} not shown</button></td></tr>'`;
 				}
 				let userid = toID(targets[0]);
 				let registered = PS.user.registered;
