@@ -232,7 +232,8 @@ export class TeamViewer extends preact.Component<PageProps> {
 		const link = this.id + (this.pw ? `-${this.pw}` : '');
 
 		return <div class="section" style={{ wordWrap: 'break-word' }}>
-			<h2>{title}</h2>
+			<small><a href={'//' + Config.routes.teams}><i class="fa fa-arrow-left"></i></a></small>
+			<h1>{title}</h1>
 			Owner: <strong style={{ color: BattleLog.usernameColor(ownerid as any) }}>{ownerid}</strong><br />
 			Format: {format}<br />
 			Views: {views}<br />
