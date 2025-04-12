@@ -78,6 +78,11 @@
 				customcolors: {}
 			};
 		}
+		function loadRemoteData(src) {
+			var scriptEl = document.createElement('script');
+			scriptEl.src = src.replace(/.*\/(data|js)\//g, 'https://play.pokemonshowdown.com/$1/');
+			document.head.appendChild(scriptEl);
+		}
 		Config.testclient = true;
 		(function() {
 			if (location.search !== '') {
@@ -96,7 +101,7 @@
 	</script>
 	<script nomodule src="/js/lib/ps-polyfill.js"></script>
 	<script src="../config/testclient-key.js"></script>
-	<script src="js/client-core.js"></script>
+	<script src="js/client-core.js" onerror="alert('You must build the client with `node build` before using testclient.html')"></script>
 
 	<script src="js/battle-dex-data.js"></script>
 	<script src="js/battle-dex.js"></script>
@@ -108,7 +113,7 @@
 
 	<script src="js/lib/html-css-sanitizer-minified.js"></script>
 	<script src="src/battle-log-misc.js"></script>
-	<script src="js/server/chat-formatter.js"></script>
+	<script src="js/server/chat-formatter.js" onerror="loadRemoteData(this.src)"></script>
 	<script src="js/battle-log.js"></script>
 
 	<script src="js/lib/preact.min.js"></script>
@@ -122,19 +127,19 @@
 
 	<script src="js/battle-sound.js"></script>
 	<script src="js/lib/jquery-2.2.4.min.js"></script>
-	<script src="data/graphics.js"></script>
-	<script src="data/text.js"></script>
+	<script src="data/graphics.js" onerror="loadRemoteData(this.src)"></script>
+	<script src="data/text.js" onerror="loadRemoteData(this.src)"></script>
 	<script src="js/battle-tooltips.js"></script>
 	<script src="js/battle.js"></script>
 	<script src="js/battle-choices.js"></script>
 	<script src="js/panel-battle.js"></script>
 
-	<script src="data/pokedex.js"></script>
-	<script src="data/moves.js"></script>
-	<script src="data/items.js"></script>
-	<script src="data/abilities.js"></script>
-	<script src="data/search-index.js"></script>
-	<script src="data/teambuilder-tables.js"></script>
+	<script src="data/pokedex.js" onerror="loadRemoteData(this.src)"></script>
+	<script src="data/moves.js" onerror="loadRemoteData(this.src)"></script>
+	<script src="data/items.js" onerror="loadRemoteData(this.src)"></script>
+	<script src="data/abilities.js" onerror="loadRemoteData(this.src)"></script>
+	<script src="data/search-index.js" onerror="loadRemoteData(this.src)"></script>
+	<script src="data/teambuilder-tables.js" onerror="loadRemoteData(this.src)"></script>
 	<script src="js/panel-teamdropdown.js"></script>
 	<script src="js/panel-teambuilder.js?"></script>
 	<script src="js/battle-dex-search.js?"></script>
