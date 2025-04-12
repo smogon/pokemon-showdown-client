@@ -15,6 +15,7 @@ import type { Battle } from "./battle";
 import { MiniEdit } from "./miniedit";
 import { PSUtils, toID, type ID } from "./battle-dex";
 import type { Args } from "./battle-text-parser";
+import { PSLoginServer } from "./client-connection";
 
 declare const formatText: any; // from js/server/chat-formatter.js
 
@@ -167,14 +168,9 @@ export class ChatRoom extends PSRoom {
 				formatTargeting = true;
 			}
 
-			// let self = this;
-			$.get(PS.server.getActionPHP(), {
-				act: 'ladderget',
+			PSLoginServer.query("ladderget", {
 				user: targets[0],
-			}, (data: string) => {
-				if (data.startsWith(']')) data = data.substr(1);
-				data = JSON.parse(data);
-				console.log(data);
+			}).then(data => {
 				if (!data || !Array.isArray(data)) return this.receiveLine(['raw', 'Error: corrupted ranking data']);
 				let buffer = '<div class="ladder"><table><tr><td colspan="9">User: <strong>' + toID(targets[0]) + '</strong></td></tr>';
 				if (!data.length) {
@@ -256,7 +252,7 @@ export class ChatRoom extends PSRoom {
 				}
 				buffer += '</table></div>';
 				this.receiveLine(['raw', buffer]);
-			}, 'text');
+			});
 			return true;
 		}
 
