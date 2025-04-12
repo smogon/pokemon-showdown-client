@@ -136,6 +136,130 @@ export class ChatRoom extends PSRoom {
 			this.update(null);
 			return false;
 		}
+		case 'clear': {
+			this.log?.reset();
+			this.update(null);
+			return true;
+		}
+		case 'rank':
+		case 'ranking':
+		case 'rating':
+		case 'ladder': {
+			let arg = target;
+			if (!arg) {
+				arg = PS.user.userid;
+			}
+			if (this.battle && !arg.includes(',')) {
+				arg += ", " + this.id.split('-')[1];
+			}
+
+			let targets = arg.split(',');
+			let formatTargeting = false;
+			let formats: { [key: string]: number } = {};
+			let gens: { [key: string]: number } = {};
+			for (let i = 1, len = targets.length; i < len; i++) {
+				targets[i] = $.trim(targets[i]);
+				if (targets[i].length === 4 && targets[i].substr(0, 3) === 'gen') {
+					gens[targets[i]] = 1;
+				} else {
+					formats[toID(targets[i])] = 1;
+				}
+				formatTargeting = true;
+			}
+
+			// let self = this;
+			$.get(PS.server.getActionPHP(), {
+				act: 'ladderget',
+				user: targets[0],
+			}, (data:string) => {
+				if (data[0] === ']') data = data.substr(1);
+				data = JSON.parse(data);
+				console.log(data);
+				if (!data || !Array.isArray(data)) return this.receiveLine(['raw', 'Error: corrupted ranking data']);
+				let buffer = '<div class="ladder"><table><tr><td colspan="9">User: <strong>' + toID(targets[0]) + '</strong></td></tr>';
+				if (!data.length) {
+					buffer += '<tr><td colspan="9"><em>This user has not played any ladder games yet.</em></td></tr>';
+					buffer += '</table></div>';
+					return this.receiveLine(['raw', buffer]);
+				}
+				buffer += '<tr><th>Format</th><th><abbr title="Elo rating">Elo</abbr></th><th><abbr title="user\'s percentage chance of winning a random battle (aka GLIXARE)">GXE</abbr></th><th><abbr title="Glicko-1 rating: rating±deviation">Glicko-1</abbr></th><th>COIL</th><th>W</th><th>L</th><th>Total</th>';
+				let suspect = false;
+				for (let item of data) {
+					if ('suspect' in item) suspect = true;
+				}
+				if (suspect) buffer += '<th>Suspect reqs possible?</th>';
+				buffer += '</tr>';
+				let hiddenFormats = [];
+				for (let row of data) {
+					if (!row) return this.receiveLine(['raw', 'Error: corrupted ranking data']);
+					let formatId = toID(row.formatid);
+					if (!formatTargeting ||
+						formats[formatId] ||
+						gens[formatId.slice(0, 4)] ||
+						(gens['gen6'] && formatId.substr(0, 3) !== 'gen')) {
+						buffer += '<tr>';
+					} else {
+						buffer += '<tr class="hidden">';
+						hiddenFormats.push(window.BattleLog.escapeFormat(formatId));
+					}
+
+					// Validate all the numerical data
+					let values = [row.elo, row.rpr, row.rprd, row.gxe, row.w, row.l, row.t];
+					for (let value of values) {
+						if (typeof value !== 'number' && typeof value !== 'string' ||
+							isNaN(value as number)) return this.receiveLine(['raw', 'Error: corrupted ranking data']);
+					}
+
+					buffer += `<td> ${BattleLog.escapeFormat(formatId)} </td><td><strong> ${Math.round(row.elo)} </strong></td>'`;
+					if (row.rprd > 100) {
+						// High rating deviation. Provisional rating.
+						buffer += `<td>&ndash;</td>`;
+						buffer += `<td><span><em> ${Math.round(row.rpr)} <small> &#177; ${Math.round(row.rprd)} </small></em> <small>(provisional)</small></span></td>`;
+					} else {
+						let gxe = Math.round(row.gxe * 10);
+						buffer += `<td> ${Math.floor(gxe / 10)} <small> ${(gxe % 10)}%</small></td>`;
+						buffer += `<td><em> ${Math.round(row.rpr)} <small> &#177; ${Math.round(row.rprd)}</small></em></td>`;
+					}
+					let N = parseInt(row.w, 10) + parseInt(row.l, 10) + parseInt(row.t, 10);
+					let COIL_B = undefined;
+
+					// Uncomment this after LadderRoom logic is implemented
+					// COIL_B = LadderRoom?.COIL_B[formatId];
+
+					if (COIL_B) {
+						buffer += `<td> ${Math.round(40.0 * parseFloat(row.gxe) * 2.0 ** (-COIL_B / N), 0)} </td>`;
+					} else {
+						buffer += '<td>--</td>';
+					}
+					buffer += `<td> ${row.w} </td><td> ${row.l} </td><td> ${N} </td>`;
+					if (suspect) {
+						if (typeof row.suspect === 'undefined') {
+							buffer += '<td>--</td>';
+						} else {
+							buffer += '<td>';
+							buffer += (row.suspect ? "Yes" : "No");
+							buffer += '</td>';
+						}
+					}
+					buffer += '</tr>';
+				}
+				if (hiddenFormats.length) {
+					if (hiddenFormats.length === data.length) {
+						buffer += '<tr class="no-matches"><td colspan="8"><em>This user has not played any ladder games that match "' + BattleLog.escapeHTML(Object.keys(gens).concat(Object.keys(formats)).join(', ')) + '".</em></td></tr>';
+					}
+					buffer += `<tr><td colspan="8"><button name="showOtherFormats"> ${hiddenFormats.slice(0, 3).join(', ') + (hiddenFormats.length > 3 ? ' and ' + (hiddenFormats.length - 3) + ' other formats' : '')} not shown</button></td></tr>'`;
+				}
+				let userid = toID(targets[0]);
+				let registered = PS.user.registered;
+				if (registered && PS.user.userid === userid) {
+					buffer += '<tr><td colspan="8" style="text-align:right"><a href="//' + PS.routes.users + '/' + userid + '">Reset W/L</a></tr></td>';
+				}
+				buffer += '</table></div>';
+				this.receiveLine(['raw', buffer]);
+			}, 'text');
+			return true;
+		}
+
 		}
 		return super.handleSend(line);
 	}
