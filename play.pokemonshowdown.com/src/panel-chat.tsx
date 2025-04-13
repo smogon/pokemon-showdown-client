@@ -142,7 +142,8 @@ export class ChatRoom extends PSRoom {
 			if (toID(target) === PS.user.userid) {
 				this.receiveLine([`You are not able to ignore yourself.`]);
 			} else if (serverIgnore[toID(target)]) {
-				this.receiveLine([`c`, "", `User '` + target + `' is already on your ignore list. (Moderator messages will not be ignored.)`]);
+				this.receiveLine([`c`, "", `User '` + target + `' is already on your ignore list.` +
+					`(Moderator messages will not be ignored.)`]);
 			} else {
 				serverIgnore[toID(target)] = 1;
 				this.receiveLine([`c`, "", `User '` + target + `' ignored. (Moderator messages will not be ignored.)`]);
