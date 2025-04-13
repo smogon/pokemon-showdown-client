@@ -412,7 +412,7 @@ export class ChatRoom extends PSRoom {
 	formatJoinLeave(preList: string[], action: 'joined' | 'left') {
 		let message = '';
 		let list: string[] = [];
-		let named = {};
+		let named: { [key: string]: boolean } = {};
 		for (let item of preList) {
 			if (!named[item]) list.push(item);
 			named[item] = true;
