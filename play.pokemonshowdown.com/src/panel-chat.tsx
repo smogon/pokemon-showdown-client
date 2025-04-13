@@ -43,6 +43,8 @@ export class ChatRoom extends PSRoom {
 	battle: Battle | null = null;
 	log: BattleLog | null = null;
 
+	joinLeave: { join: string[], leave: string[], messageId: string } | null = null;
+
 	constructor(options: RoomOptions) {
 		super(options);
 		if (options.args?.pmTarget) this.pmTarget = options.args.pmTarget as string;
@@ -65,12 +67,19 @@ export class ChatRoom extends PSRoom {
 			const count = parseInt(usernames.shift()!, 10);
 			this.setUsers(count, usernames);
 			return;
-		case 'join': case 'j': case 'J':
+
+		case 'join': case 'j': case 'J': {
 			this.addUser(args[1]);
-			break;
-		case 'leave': case 'l': case 'L':
+			this.handleJoinLeave("join", args[1], args[0] === "J");
+			return true;
+		}
+
+		case 'leave': case 'l': case 'L': {
 			this.removeUser(args[1]);
-			break;
+			this.handleJoinLeave("leave", args[1], args[0] === "L");
+			return true;
+		}
+
 		case 'name': case 'n': case 'N':
 			this.renameUser(args[1], args[2]);
 			break;
@@ -81,6 +90,7 @@ export class ChatRoom extends PSRoom {
 			}
 			// falls through
 		case 'c:':
+			this.joinLeave = null;
 			this.subtleNotify();
 			break;
 		}
@@ -361,6 +371,71 @@ export class ChatRoom extends PSRoom {
 		this.addUser(username);
 		this.update(null);
 	}
+
+	handleJoinLeave(action: 'join' | 'leave', name: string, silent: boolean) {
+		if (!this.joinLeave) {
+			this.joinLeave = {
+				join: [],
+				leave: [],
+				messageId: 'joinleave-' + String(Date.now()),
+			};
+		}
+		if (!action) return;
+		if (action === 'join') {
+			this.addUser(name);
+		} else if (action === 'leave') {
+			this.removeUser(name);
+		}
+		let allShowjoins = PS.prefs.showjoins || {};
+		let showjoins = allShowjoins[PS.server.id];
+		if (silent && (!showjoins || (!showjoins['global'] && !showjoins[this.id]) || showjoins[this.id] === 0)) {
+			return;
+		}
+		let formattedUser = name;
+		if (action === 'join' && this.joinLeave['leave'].includes(formattedUser)) {
+			this.joinLeave['leave'].splice(this.joinLeave['leave'].indexOf(formattedUser), 1);
+		} else {
+			this.joinLeave[action].push(formattedUser);
+		}
+
+		let message = '';
+		if (this.joinLeave['join'].length) {
+			message += this.formatJoinLeave(this.joinLeave['join'], 'joined');
+		}
+		if (this.joinLeave['leave'].length) {
+			if (this.joinLeave['join'].length) message += '; ';
+			message += this.formatJoinLeave(this.joinLeave['leave'], 'left') + '<br />';
+		}
+		this.receiveLine(['uhtml', this.joinLeave.messageId, `<small style="color: #555555"> ${message} </small>`]);
+	}
+
+	formatJoinLeave(preList: string[], action: 'joined' | 'left') {
+		let message = '';
+		let list: string[] = [];
+		let named = {};
+		for (let item of preList) {
+			if (!named[item]) list.push(item);
+			named[item] = true;
+		}
+		for (let j = 0; j < list.length; j++) {
+			if (j >= 5) {
+				message += `, and ${(list.length - 5)} others`;
+				break;
+			}
+			if (j > 0) {
+				if (j === 1 && list.length === 2) {
+					message += ' and ';
+				} else if (j === list.length - 1) {
+					message += ', and ';
+				} else {
+					message += ', ';
+				}
+			}
+			message += BattleLog.escapeHTML(list[j]);
+		}
+		return message + ' ' + action;
+	}
+
 	override destroy() {
 		if (this.pmTarget) this.connected = false;
 		if (this.battle) {
