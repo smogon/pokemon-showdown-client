@@ -15,6 +15,7 @@ import type { Battle } from "./battle";
 import { MiniEdit } from "./miniedit";
 import { PSUtils, toID, type ID } from "./battle-dex";
 import type { Args } from "./battle-text-parser";
+import { PSLoginServer } from "./client-connection";
 
 declare const formatText: any; // from js/server/chat-formatter.js
 
@@ -42,6 +43,8 @@ export class ChatRoom extends PSRoom {
 	battle: Battle | null = null;
 	log: BattleLog | null = null;
 
+	joinLeave: { join: string[], leave: string[], messageId: string } | null = null;
+
 	constructor(options: RoomOptions) {
 		super(options);
 		if (options.args?.pmTarget) this.pmTarget = options.args.pmTarget as string;
@@ -64,12 +67,19 @@ export class ChatRoom extends PSRoom {
 			const count = parseInt(usernames.shift()!, 10);
 			this.setUsers(count, usernames);
 			return;
-		case 'join': case 'j': case 'J':
+
+		case 'join': case 'j': case 'J': {
 			this.addUser(args[1]);
-			break;
-		case 'leave': case 'l': case 'L':
+			this.handleJoinLeave("join", args[1], args[0] === "J");
+			return true;
+		}
+
+		case 'leave': case 'l': case 'L': {
 			this.removeUser(args[1]);
-			break;
+			this.handleJoinLeave("leave", args[1], args[0] === "L");
+			return true;
+		}
+
 		case 'name': case 'n': case 'N':
 			this.renameUser(args[1], args[2]);
 			break;
@@ -80,6 +90,7 @@ export class ChatRoom extends PSRoom {
 			}
 			// falls through
 		case 'c:':
+			this.joinLeave = null;
 			this.subtleNotify();
 			break;
 		}
@@ -164,6 +175,125 @@ export class ChatRoom extends PSRoom {
 			}
 			return true;
 		}
+		case 'clear': {
+			this.log?.reset();
+			this.update(null);
+			return true;
+		}
+		case 'rank':
+		case 'ranking':
+		case 'rating':
+		case 'ladder': {
+			let arg = target;
+			if (!arg) {
+				arg = PS.user.userid;
+			}
+			if (this.battle && !arg.includes(',')) {
+				arg += ", " + this.id.split('-')[1];
+			}
+
+			let targets = arg.split(',');
+			let formatTargeting = false;
+			let formats: { [key: string]: number } = {};
+			let gens: { [key: string]: number } = {};
+			for (let i = 1, len = targets.length; i < len; i++) {
+				targets[i] = $.trim(targets[i]);
+				if (targets[i].length === 4 && targets[i].substr(0, 3) === 'gen') {
+					gens[targets[i]] = 1;
+				} else {
+					formats[toID(targets[i])] = 1;
+				}
+				formatTargeting = true;
+			}
+
+			PSLoginServer.query("ladderget", {
+				user: targets[0],
+			}).then(data => {
+				if (!data || !Array.isArray(data)) return this.receiveLine(['raw', 'Error: corrupted ranking data']);
+				let buffer = '<div class="ladder"><table><tr><td colspan="9">User: <strong>' + toID(targets[0]) + '</strong></td></tr>';
+				if (!data.length) {
+					buffer += '<tr><td colspan="9"><em>This user has not played any ladder games yet.</em></td></tr>';
+					buffer += '</table></div>';
+					return this.receiveLine(['raw', buffer]);
+				}
+				buffer += '<tr><th>Format</th><th><abbr title="Elo rating">Elo</abbr></th><th><abbr title="user\'s percentage chance of winning a random battle (aka GLIXARE)">GXE</abbr></th><th><abbr title="Glicko-1 rating: rating±deviation">Glicko-1</abbr></th><th>COIL</th><th>W</th><th>L</th><th>Total</th>';
+				let suspect = false;
+				for (let item of data) {
+					if ('suspect' in item) suspect = true;
+				}
+				if (suspect) buffer += '<th>Suspect reqs possible?</th>';
+				buffer += '</tr>';
+				let hiddenFormats = [];
+				for (let row of data) {
+					if (!row) return this.receiveLine(['raw', 'Error: corrupted ranking data']);
+					let formatId = toID(row.formatid);
+					if (!formatTargeting ||
+						formats[formatId] ||
+						gens[formatId.slice(0, 4)] ||
+						(gens['gen6'] && formatId.substr(0, 3) !== 'gen')) {
+						buffer += '<tr>';
+					} else {
+						buffer += '<tr class="hidden">';
+						hiddenFormats.push(window.BattleLog.escapeFormat(formatId));
+					}
+
+					// Validate all the numerical data
+					let values = [row.elo, row.rpr, row.rprd, row.gxe, row.w, row.l, row.t];
+					for (let value of values) {
+						if (typeof value !== 'number' && typeof value !== 'string' ||
+							isNaN(value as number)) return this.receiveLine(['raw', 'Error: corrupted ranking data']);
+					}
+
+					buffer += `<td> ${BattleLog.escapeFormat(formatId)} </td><td><strong> ${Math.round(row.elo)} </strong></td>'`;
+					if (row.rprd > 100) {
+						// High rating deviation. Provisional rating.
+						buffer += `<td>&ndash;</td>`;
+						buffer += `<td><span><em> ${Math.round(row.rpr)} <small> &#177; ${Math.round(row.rprd)} </small></em> <small>(provisional)</small></span></td>`;
+					} else {
+						let gxe = Math.round(row.gxe * 10);
+						buffer += `<td> ${Math.floor(gxe / 10)} <small> ${(gxe % 10)}%</small></td>`;
+						buffer += `<td><em> ${Math.round(row.rpr)} <small> &#177; ${Math.round(row.rprd)}</small></em></td>`;
+					}
+					let N = parseInt(row.w, 10) + parseInt(row.l, 10) + parseInt(row.t, 10);
+					let COIL_B = undefined;
+
+					// Uncomment this after LadderRoom logic is implemented
+					// COIL_B = LadderRoom?.COIL_B[formatId];
+
+					if (COIL_B) {
+						buffer += `<td> ${Math.round(40.0 * parseFloat(row.gxe) * 2.0 ** (-COIL_B / N))} </td>`;
+					} else {
+						buffer += '<td>--</td>';
+					}
+					buffer += `<td> ${row.w} </td><td> ${row.l} </td><td> ${N} </td>`;
+					if (suspect) {
+						if (typeof row.suspect === 'undefined') {
+							buffer += '<td>--</td>';
+						} else {
+							buffer += '<td>';
+							buffer += (row.suspect ? "Yes" : "No");
+							buffer += '</td>';
+						}
+					}
+					buffer += '</tr>';
+				}
+				if (hiddenFormats.length) {
+					if (hiddenFormats.length === data.length) {
+						buffer += '<tr class="no-matches"><td colspan="8"><em>This user has not played any ladder games that match "' + BattleLog.escapeHTML(Object.keys(gens).concat(Object.keys(formats)).join(', ')) + '".</em></td></tr>';
+					}
+					buffer += `<tr><td colspan="8"><button name="showOtherFormats"> ${hiddenFormats.slice(0, 3).join(', ') + (hiddenFormats.length > 3 ? ' and ' + String(hiddenFormats.length - 3) + ' other formats' : '')} not shown</button></td></tr>'`;
+				}
+				let userid = toID(targets[0]);
+				let registered = PS.user.registered;
+				if (registered && PS.user.userid === userid) {
+					buffer += '<tr><td colspan="8" style="text-align:right"><a href="//' + PS.routes.users + '/' + userid + '">Reset W/L</a></tr></td>';
+				}
+				buffer += '</table></div>';
+				this.receiveLine(['raw', buffer]);
+			});
+			return true;
+		}
+
 		}
 		return super.handleSend(line);
 	}
@@ -269,6 +399,71 @@ export class ChatRoom extends PSRoom {
 		this.addUser(username);
 		this.update(null);
 	}
+
+	handleJoinLeave(action: 'join' | 'leave', name: string, silent: boolean) {
+		if (!this.joinLeave) {
+			this.joinLeave = {
+				join: [],
+				leave: [],
+				messageId: 'joinleave-' + String(Date.now()),
+			};
+		}
+		if (!action) return;
+		if (action === 'join') {
+			this.addUser(name);
+		} else if (action === 'leave') {
+			this.removeUser(name);
+		}
+		let allShowjoins = PS.prefs.showjoins || {};
+		let showjoins = allShowjoins[PS.server.id];
+		if (silent && (!showjoins || (!showjoins['global'] && !showjoins[this.id]) || showjoins[this.id] === 0)) {
+			return;
+		}
+		let formattedUser = name;
+		if (action === 'join' && this.joinLeave['leave'].includes(formattedUser)) {
+			this.joinLeave['leave'].splice(this.joinLeave['leave'].indexOf(formattedUser), 1);
+		} else {
+			this.joinLeave[action].push(formattedUser);
+		}
+
+		let message = '';
+		if (this.joinLeave['join'].length) {
+			message += this.formatJoinLeave(this.joinLeave['join'], 'joined');
+		}
+		if (this.joinLeave['leave'].length) {
+			if (this.joinLeave['join'].length) message += '; ';
+			message += this.formatJoinLeave(this.joinLeave['leave'], 'left') + '<br />';
+		}
+		this.receiveLine(['uhtml', this.joinLeave.messageId, `<small style="color: #555555"> ${message} </small>`]);
+	}
+
+	formatJoinLeave(preList: string[], action: 'joined' | 'left') {
+		let message = '';
+		let list: string[] = [];
+		let named: { [key: string]: boolean } = {};
+		for (let item of preList) {
+			if (!named[item]) list.push(item);
+			named[item] = true;
+		}
+		for (let j = 0; j < list.length; j++) {
+			if (j >= 5) {
+				message += `, and ${(list.length - 5)} others`;
+				break;
+			}
+			if (j > 0) {
+				if (j === 1 && list.length === 2) {
+					message += ' and ';
+				} else if (j === list.length - 1) {
+					message += ', and ';
+				} else {
+					message += ', ';
+				}
+			}
+			message += BattleLog.escapeHTML(list[j]);
+		}
+		return message + ' ' + action;
+	}
+
 	override destroy() {
 		if (this.pmTarget) this.connected = false;
 		if (this.battle) {

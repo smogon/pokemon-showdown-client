@@ -766,6 +766,57 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 				PS.join('login' as RoomID);
 			}
 			return true;
+		case 'open':
+		case 'user': {
+			let roomid = `user-${toID(target)}` as RoomID;
+			PS.join(roomid, {
+				args: { username: target },
+			});
+			return true;
+		}
+
+		case 'showjoins': {
+			let showjoins = PS.prefs.showjoins || {};
+			let serverShowjoins = showjoins[PS.server.id] || {};
+			if (target) {
+				let room = toID(target);
+				if (serverShowjoins['global']) {
+					delete serverShowjoins[room];
+				} else {
+					serverShowjoins[room] = 1;
+				}
+				this.receiveLine([`c`, "", `Join/leave messages on room ${room}: ALWAYS ON`]);
+			} else {
+				serverShowjoins = { global: 1 };
+				this.receiveLine([`c`, "", `Join/leave messages: ALWAYS ON`]);
+			}
+			showjoins[PS.server.id] = serverShowjoins;
+			PS.prefs.set("showjoins", showjoins);
+			return true;
+		}
+
+		case 'hidejoins': {
+			let showjoins = PS.prefs.showjoins || {};
+			let serverShowjoins = showjoins[PS.server.id] || {};
+			if (target) {
+				let room = toID(target);
+				if (!serverShowjoins['global']) {
+					delete serverShowjoins[room];
+				} else {
+					serverShowjoins[room] = 0;
+				}
+				this.receiveLine([`c`, "", `Join/leave messages on room ${room}: OFF`]);
+			} else {
+				serverShowjoins = { global: 0 };
+				this.receiveLine([`c`, "", `Join/leave messages: OFF`]);
+
+			}
+			showjoins[PS.server.id] = serverShowjoins;
+			PS.prefs.set('showjoins', showjoins);
+			return true;
+
+		}
+
 		}
 		return false;
 	}
@@ -1138,6 +1189,7 @@ export const PS = new class extends PSModel {
 				this.update();
 				continue;
 			}
+
 			}
 			room?.receiveLine(args);
 		}
