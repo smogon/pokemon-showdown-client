@@ -135,6 +135,34 @@ export class ChatRoom extends PSRoom {
 			this.challenged = null;
 			this.update(null);
 			return false;
+		} case 'ignore': {
+			let ignore = PS.prefs.ignore || {};
+			let serverIgnore = ignore[PS.server.id] || {};
+			if (!target) return true;
+			if (toID(target) === PS.user.userid) {
+				this.receiveLine([`You are not able to ignore yourself.`]);
+			} else if (serverIgnore[toID(target)]) {
+				this.receiveLine([`c`, "", `User '` + target + `' is already on your ignore list. (Moderator messages will not be ignored.)`]);
+			} else {
+				serverIgnore[toID(target)] = 1;
+				this.receiveLine([`c`, "", `User '` + target + `' ignored. (Moderator messages will not be ignored.)`]);
+				ignore[PS.server.id] = serverIgnore;
+				PS.prefs.set("ignore", ignore);
+			}
+			return true;
+		} case 'unignore': {
+			let ignore = PS.prefs.ignore || {};
+			let serverIgnore = ignore[PS.server.id] || {};
+			if (!target) return true;
+			if (!serverIgnore[toID(target)]) {
+				this.receiveLine([`c`, "", `User '` + target + `' isn't on your ignore list.`]);
+			} else {
+				serverIgnore[toID(target)] = 0;
+				this.receiveLine([`c`, "", `User '` + target + `' no longer ignored.`]);
+				ignore[PS.server.id] = serverIgnore;
+				PS.prefs.set("ignore", ignore);
+			}
+			return true;
 		}
 		}
 		return super.handleSend(line);
