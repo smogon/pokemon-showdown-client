@@ -61,6 +61,11 @@ class PSPrefs extends PSStreamModel<string | null> {
 	 */
 	showjoins: { [serverid: string]: { [roomid: string]: 1 | 0 } } | null = null;
 	/**
+	 * List of users whose messages should be ignored. userid table.
+	 * Uses 1 and 0 instead of true/false for JSON packing reasons.
+	 */
+	ignore: { [userid: string]: 1 | 0 } | null = null;
+	/**
 	 * true = one panel, false = two panels, left and right
 	 */
 	onepanel: boolean | 'vertical' = false;
