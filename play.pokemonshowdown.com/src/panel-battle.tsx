@@ -769,7 +769,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 			<p>
 				<span style="float: right"><a
 					onClick={this.handleDownloadReplay}
-					href={`//${Config.routes.replays}/`}
+					href={`//${Config.routes.replays}/download`}
 					class="button replayDownloadButton"
 				>
 					<i class="fa fa-download"></i> Download replay</a>

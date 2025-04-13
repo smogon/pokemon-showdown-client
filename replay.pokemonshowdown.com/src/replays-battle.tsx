@@ -510,7 +510,7 @@ export class BattlePanel extends preact.Component<{ id: string }> {
 				<em>Loading...</em>
 			</h1>}
 			{this.result ? <p>
-				<a class="button" href="#" onClick={this.clickDownload} style={{ float: 'right' }}>
+				<a class="button" href="/download" onClick={this.clickDownload} style={{ float: 'right' }}>
 					<i class="fa fa-download" aria-hidden></i> Download
 				</a>
 				{this.result.uploadtime ? new Date(this.result.uploadtime * 1000).toDateString() : "Unknown upload date"}
