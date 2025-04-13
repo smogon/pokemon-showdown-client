@@ -765,7 +765,6 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 		case 'user': {
 			let roomid = `user-${toID(target)}` as RoomID;
 			PS.join(roomid, {
-				rightPopup: true,
 				args: { username: target },
 			});
 			return true;
