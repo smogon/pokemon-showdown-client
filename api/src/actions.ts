@@ -82,7 +82,7 @@ const redundantFetch = async (targetUrl: string, data: RequestInit, attempts = 0
 	return out;
 };
 
-export const smogonFetch = async <T>(targetUrl: string, method: string, data: { [k: string]: any }) => {
+export const smogonFetch = async (targetUrl: string, method: string, data: { [k: string]: any }) => {
 	const bodyText = JSON.stringify(data);
 	const hash = await signAsync("RSA-SHA1", bodyText, Config.privatekey);
 	return redundantFetch(`https://www.smogon.com/${targetUrl}`, {
@@ -112,7 +112,7 @@ export function checkSuspectVerified(
 			userData.coil = coilNum;
 			break;
 		case 'elo': case 'gxe':
-			if (suspect[k] && rating[k] >= suspect![k]!) {
+			if (suspect[k] && rating[k] >= suspect[k]) {
 				reqsMet++;
 			}
 			userData[k] = rating[k];
@@ -861,7 +861,17 @@ export const actions: { [k: string]: QueryHandler } = {
 			)`WHERE teamid = ${teamid}`;
 			const owns = data?.ownerid === this.user.id;
 			if (!data || (owns ? false : (data.private && (password !== toID(data.private))))) {
-				return { team: null }
+				return { team: null };
+			}
+			if ('views' in data && this.user.id !== data.ownerid) {
+				// we only increment views if it's a full load - since the teams client
+				// only uses getteam with full (which counts). otherwise it's just the
+				// builder loading it, which doesn't count
+				// or it's a rando api call, in which case i also do not care
+				// IMMEDIATE AFTER UPDATE: figure out why calling
+				// .update(teamid, {views: data.views + 1}) crashes
+				await tables.teams.query()`UPDATE teams SET views = views + 1 WHERE teamid = ${teamid}`;
+				data.views += 1;
 			}
 			return data;
 		} catch (e) {
@@ -870,7 +880,7 @@ export const actions: { [k: string]: QueryHandler } = {
 		}
 	},
 	async searchteams(params) {
-		let count = Number(params.count);
+		let count = Number(params.count) || 20;
 		if (!this.user.loggedIn || this.user.id === 'guest') {
 			count = 20; // limit results just to be safe
 		}
@@ -878,23 +888,32 @@ export const actions: { [k: string]: QueryHandler } = {
 		if (count > 200) {
 			throw new ActionError("Cannot search more than 200 teams at a time.");
 		}
+		let appended = false;
 		if (toID(params.format)) {
 			args.append(SQL` format = ${toID(params.format)}`);
+			appended = true;
 		}
 		if (toID(params.owner)) {
-			args.append(SQL` ownerid = ${toID(params.owner)}`);
+			if (appended) args.append(SQL` AND `);
+			args.append(SQL`ownerid = ${toID(params.owner)}`);
+			appended = true;
 		}
 		const gen = Number(params.gen);
 		if (!isNaN(gen)) {
 			if (gen > 0 && gen < 10) throw new ActionError(`Invalid generation: ${gen}`);
-			args.append(SQL` format LIKE 'gen${gen}%'`);
+			if (appended) args.append(SQL` AND `);
+			args.append(SQL`format LIKE ${`gen${gen}%`}`);
+			appended = true;
 		}
+
+		if (appended) args.append(SQL` AND `);
 		args.append(SQL` private IS NULL`);
 
 		return {
 			result: await tables.teams.query(
-				SQL`SELECT * FROM teams WHERE ${args} ORDER BY date DESC LIMIT ${count}`,
+				SQL`SELECT * FROM teams WHERE ${args} ORDER BY date DESC LIMIT ${count}`
 			),
+			count,
 		};
 	},
 	'replays/recent'() {
@@ -1152,7 +1171,7 @@ export const actions: { [k: string]: QueryHandler } = {
 				coil: reqs.coil || null,
 			});
 		}
-		return { success: true, url: (out as any).url};
+		return { success: true, url: (out as any).url };
 	},
 	async 'suspects/edit'(params) {
 		if (this.getIp() !== Config.restartip) {

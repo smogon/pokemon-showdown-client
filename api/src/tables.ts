@@ -142,6 +142,7 @@ export const teams = pgdb.getTable<{
 	format: string,
 	title: string,
 	private: number,
+	views: number,
 }>('teams', 'teamid');
 
 export const suspects = psdb.getTable<Suspect>("suspects", 'formatid');

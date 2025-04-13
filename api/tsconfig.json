@@ -16,7 +16,7 @@
   "types": ["node"],
   "include": [
     "./src/**/*",
-    "./config/**/*",
+    "./config/config*.js",
   ],
   "exclude": ["./.dist/**/*", "./scripts/**/*"],
 }
