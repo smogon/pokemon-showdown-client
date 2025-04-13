@@ -61,6 +61,12 @@ class PSPrefs extends PSStreamModel<string | null> {
 	 */
 	showjoins: { [serverid: string]: { [roomid: string]: 1 | 0 } } | null = null;
 	/**
+	 * List of users whose messages should be ignored. serverid:userid
+	 * table. Uses 1 and 0 instead of true/false for JSON packing
+	 * reasons.
+	 */
+	ignore: { [serverid: string]: { [userid: string]: 1 | 0 } } | null = null;
+	/**
 	 * true = one panel, false = two panels, left and right
 	 */
 	onepanel: boolean | 'vertical' = false;
@@ -761,6 +767,36 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 				PS.join('login' as RoomID);
 			}
 			return true;
+		case 'ignore': {
+			let ignore = PS.prefs.ignore || {};
+			let serverIgnore = ignore[PS.server.id] || {};
+			if (!target) return true;
+			if (toID(target) === PS.user.userid) {
+				this.receiveLine([`You are not able to ignore yourself.`]);
+			} else if (serverIgnore[toID(target)]) {
+				this.receiveLine([`c`, "", `User '` + target + `' is already on your ignore list. (Moderator messages will not be ignored.)`]);
+			} else {
+				serverIgnore[toID(target)] = 1;
+				this.receiveLine([`c`, "", `User '` + target + `' ignored. (Moderator messages will not be ignored.)`]);
+				ignore[PS.server.id] = serverIgnore;
+				PS.prefs.set("ignore", ignore);
+			}
+			return true;
+		}
+		case 'unignore': {
+			let ignore = PS.prefs.ignore || {};
+			let serverIgnore = ignore[PS.server.id] || {};
+			if (!target) return true;
+			if (!serverIgnore[toID(target)]) {
+				this.receiveLine([`c`, "", `User '` + target + `' isn't on your ignore list.`]);
+			} else {
+				serverIgnore[toID(target)] = 0;
+				this.receiveLine([`c`, "", `User '` + target + `' no longer ignored.`]);
+				ignore[PS.server.id] = serverIgnore;
+				PS.prefs.set("ignore", ignore);
+			}
+			return true;
+		}
 		}
 		return false;
 	}

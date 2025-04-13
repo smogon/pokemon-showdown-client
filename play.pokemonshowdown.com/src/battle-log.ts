@@ -17,6 +17,7 @@ import type { Battle } from './battle';
 import type { BattleScene } from './battle-animations';
 import { Dex, Teams, toID, toRoomid, toUserid, type ID } from './battle-dex';
 import { BattleTextParser, type Args, type KWArgs } from './battle-text-parser';
+import { PS } from "./client-main";
 
 // Caja
 declare const html4: any;
@@ -141,7 +142,9 @@ export class BattleLog {
 			if (battle?.ignoreOpponent) {
 				if ('\u2605\u2606'.includes(rank) && toUserid(name) !== app.user.get('userid')) return;
 			}
-			if (window.app?.ignore?.[toUserid(name)] && ' +\u2605\u2606'.includes(rank)) return;
+			let ignore = PS.prefs.ignore || {};
+			let serverIgnore = ignore[PS.server.id] || {};
+			if (serverIgnore[toUserid(name)] && ' +^\u2605\u2606'.includes(rank)) return;
 			let isHighlighted = window.app?.rooms?.[battle!.roomid].getHighlight(message);
 			[divClass, divHTML, noNotify] = this.parseChatMessage(message, name, '', isHighlighted);
 			if (!noNotify && isHighlighted) {
