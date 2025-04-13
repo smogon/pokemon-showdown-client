@@ -801,10 +801,10 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 				} else {
 					serverShowjoins[room] = 0;
 				}
-				this.receiveLine([`c`, "", `Join/leave messages on room ${room}: AUTOMATIC`]);
+				this.receiveLine([`c`, "", `Join/leave messages on room ${room}: OFF`]);
 			} else {
 				serverShowjoins = { global: 0 };
-				this.receiveLine([`c`, "", `Join/leave messages: AUTOMATIC`]);
+				this.receiveLine([`c`, "", `Join/leave messages: OFF`]);
 
 			}
 			showjoins[PS.server.id] = serverShowjoins;
@@ -1186,25 +1186,6 @@ export const PS = new class extends PSModel {
 				continue;
 			}
 
-			case 'j':
-			case 'J': {
-				if (!room) continue;
-				let showjoins = this.prefs.showjoins || {};
-				let serverShowjoins = showjoins[this.server.id] || {};
-				if (!serverShowjoins[room.id] && !serverShowjoins.global) continue;
-				room.receiveLine([`j`, args[1]]);
-				break;
-			}
-
-			case 'l':
-			case 'L': {
-				if (!room) continue;
-				let showjoins = this.prefs.showjoins || {};
-				let serverShowjoins = showjoins[this.server.id] || {};
-				if (!serverShowjoins[room.id] && !serverShowjoins.global) continue;
-				room.receiveLine([`l`, args[1]]);
-				break;
-			}
 			}
 			room?.receiveLine(args);
 		}
