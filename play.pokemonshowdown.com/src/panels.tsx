@@ -110,6 +110,7 @@ export class PSRouter {
 				currentRoomid = possibleRoomid as RoomID;
 			}
 			if (currentRoomid !== null) {
+				if (currentRoomid === PS.room.id) return;
 				PS.join(currentRoomid);
 			}
 		});
