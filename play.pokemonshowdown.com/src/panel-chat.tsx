@@ -137,30 +137,26 @@ export class ChatRoom extends PSRoom {
 			return false;
 		} case 'ignore': {
 			let ignore = PS.prefs.ignore || {};
-			let serverIgnore = ignore[PS.server.id] || {};
 			if (!target) return true;
 			if (toID(target) === PS.user.userid) {
-				this.receiveLine([`You are not able to ignore yourself.`]);
-			} else if (serverIgnore[toID(target)]) {
-				this.receiveLine([`c`, "", `User '` + target + `' is already on your ignore list.` +
+				this.receiveLine(["", `You are not able to ignore yourself.`]);
+			} else if (ignore[toID(target)]) {
+				this.receiveLine(["", `User '` + target + `' is already on your ignore list.` +
 				`(Moderator messages will not be ignored.)`]);
 			} else {
-				serverIgnore[toID(target)] = 1;
-				this.receiveLine([`c`, "", `User '` + target + `' ignored. (Moderator messages will not be ignored.)`]);
-				ignore[PS.server.id] = serverIgnore;
+				ignore[toID(target)] = 1;
+				this.receiveLine(["", `User '` + target + `' ignored. (Moderator messages will not be ignored.)`]);
 				PS.prefs.set("ignore", ignore);
 			}
 			return true;
 		} case 'unignore': {
 			let ignore = PS.prefs.ignore || {};
-			let serverIgnore = ignore[PS.server.id] || {};
 			if (!target) return true;
-			if (!serverIgnore[toID(target)]) {
-				this.receiveLine([`c`, "", `User '` + target + `' isn't on your ignore list.`]);
+			if (!ignore[toID(target)]) {
+				this.receiveLine(["", `User '` + target + `' isn't on your ignore list.`]);
 			} else {
-				serverIgnore[toID(target)] = 0;
-				this.receiveLine([`c`, "", `User '` + target + `' no longer ignored.`]);
-				ignore[PS.server.id] = serverIgnore;
+				ignore[toID(target)] = 0;
+				this.receiveLine(["", `User '` + target + `' no longer ignored.`]);
 				PS.prefs.set("ignore", ignore);
 			}
 			return true;

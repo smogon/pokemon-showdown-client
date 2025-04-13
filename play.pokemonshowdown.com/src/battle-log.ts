@@ -142,9 +142,7 @@ export class BattleLog {
 			if (battle?.ignoreOpponent) {
 				if ('\u2605\u2606'.includes(rank) && toUserid(name) !== app.user.get('userid')) return;
 			}
-			let ignore = PS.prefs.ignore || {};
-			let serverIgnore = ignore[PS.server.id] || {};
-			if (serverIgnore[toUserid(name)] && ' +^\u2605\u2606'.includes(rank)) return;
+			if ((window.app?.ignore?.[toUserid(name)] || PS?.prefs?.ignore?.[toUserid(name)]) && ' +^\u2605\u2606'.includes(rank)) return;
 			let isHighlighted = window.app?.rooms?.[battle!.roomid].getHighlight(message);
 			[divClass, divHTML, noNotify] = this.parseChatMessage(message, name, '', isHighlighted);
 			if (!noNotify && isHighlighted) {
