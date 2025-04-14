@@ -279,6 +279,7 @@ class OptionsPanel extends PSRoomPanel {
 	static readonly id = 'options';
 	static readonly routes = ['options'];
 	static readonly location = 'popup';
+	declare state: { showStatusInput?: boolean, showStatusUpdated?: boolean };
 
 	setTheme = (e: Event) => {
 		const theme = (e.currentTarget as HTMLSelectElement).value as 'light' | 'dark' | 'system';
@@ -300,6 +301,22 @@ class OptionsPanel extends PSRoomPanel {
 		}
 		PS.update();
 	};
+
+	handleShowStatusInput = (ev: Event) => {
+		ev.preventDefault();
+		ev.stopImmediatePropagation();
+		this.setState({ showStatusInput: !this.state.showStatusInput });
+	};
+
+	editStatus = (ev: Event) => {
+		const statusInput = this.base!.querySelector<HTMLInputElement>('input[name=statustext]');
+		if (!statusInput?.value.length) return;
+		PS.rooms['']?.send(`/status ${statusInput?.value || ''}`);
+		this.setState({ showStatusUpdated: true, showStatusInput: false });
+		ev.preventDefault();
+		ev.stopImmediatePropagation();
+	};
+
 	override render() {
 		const room = this.props.room;
 		return <PSPanelWrapper room={room}><div class="pad">
@@ -308,8 +325,24 @@ class OptionsPanel extends PSRoomPanel {
 					class="trainersprite yours" width="40" height="40" style={{ verticalAlign: 'middle' }}
 					src={Dex.resolveAvatar(`${PS.user.avatar}`)}
 				/> {}
-				{PS.user.name}
+				<strong> {PS.user.name} </strong>
 			</p>
+			<p>
+				<button class="button" data-href="avatars"> Avatar..</button>
+			</p>
+
+			{
+				this.state.showStatusInput ?
+					<p>
+						<input name="statustext"></input>
+						<button class="button" onClick={this.editStatus}><i class="fa fa-pencil"></i></button>
+					</p> :
+					<p>
+						<button class="button" onClick={this.handleShowStatusInput} disabled={this.state.showStatusUpdated}>
+							{this.state.showStatusUpdated ? 'Status Updated' : 'Status..'}</button>
+					</p>
+			}
+
 			<hr />
 			<h3>Graphics</h3>
 			<p>
