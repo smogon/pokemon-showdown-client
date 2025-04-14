@@ -340,7 +340,7 @@ export function unpackTeam(buf: string) {
 
 		// happiness
 		if (parts[11]) {
-			let misc = parts[11].split(',', 4);
+			let misc = parts[11].split(',');
 			set.happiness = (misc[0] ? Number(misc[0]) : undefined);
 			set.hpType = misc[1];
 			set.pokeball = misc[2];
