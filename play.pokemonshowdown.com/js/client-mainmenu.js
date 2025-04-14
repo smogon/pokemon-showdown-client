@@ -968,7 +968,7 @@
 			if (bestOf && bestOfValue) {
 				var hasCustomRules = format.includes('@@@');
 				format += hasCustomRules ? ', ' : '@@@';
-				format += 'Best of = ' + bestOfValue;
+				format += '!!Best of = ' + bestOfValue;
 			}
 
 			var teraPreview = $pmWindow.find('input[name=terapreview]').is(':checked');
