@@ -601,6 +601,9 @@ input[type=range]:active::-webkit-slider-thumb {
 .chat small {
 	font-weight: normal;
 	font-size: 8pt;
+}
+.chat strong small, /* <- for old client */
+.chat .groupsymbol {
 	color: #888888;
 }
 .chat.timer {

@@ -16,6 +16,8 @@ import { MiniEdit } from "./miniedit";
 import { PSUtils, toID, type ID } from "./battle-dex";
 import type { Args } from "./battle-text-parser";
 import { PSLoginServer } from "./client-connection";
+import type { BattleRoom } from "./panel-battle";
+import { BattleChoiceBuilder } from "./battle-choices";
 
 declare const formatText: any; // from js/server/chat-formatter.js
 
@@ -68,21 +70,20 @@ export class ChatRoom extends PSRoom {
 			this.setUsers(count, usernames);
 			return;
 
-		case 'join': case 'j': case 'J': {
+		case 'join': case 'j': case 'J':
 			this.addUser(args[1]);
 			this.handleJoinLeave("join", args[1], args[0] === "J");
 			return true;
-		}
 
-		case 'leave': case 'l': case 'L': {
+		case 'leave': case 'l': case 'L':
 			this.removeUser(args[1]);
 			this.handleJoinLeave("leave", args[1], args[0] === "L");
 			return true;
-		}
 
 		case 'name': case 'n': case 'N':
 			this.renameUser(args[1], args[2]);
 			break;
+
 		case 'c':
 			if (`${args[2]} `.startsWith('/challenge ')) {
 				this.updateChallenge(args[1], args[2].slice(11));
@@ -97,9 +98,10 @@ export class ChatRoom extends PSRoom {
 		super.receiveLine(args);
 	}
 	updateTarget(name?: string | null) {
+		const selfWithGroup = `${PS.user.group || ' '}${PS.user.name}`;
 		if (this.id === 'dm-') {
-			this.pmTarget = PS.user.name;
-			this.setUsers(1, [` ${PS.user.name}`]);
+			this.pmTarget = selfWithGroup;
+			this.setUsers(1, [selfWithGroup]);
 			this.title = `Console`;
 		} else if (this.id.startsWith('dm-')) {
 			const id = this.id.slice(3);
@@ -111,79 +113,33 @@ export class ChatRoom extends PSRoom {
 			if (!PS.user.userid) {
 				this.setUsers(1, [nameWithGroup]);
 			} else {
-				this.setUsers(2, [nameWithGroup, ` ${PS.user.name}`]);
+				this.setUsers(2, [nameWithGroup, selfWithGroup]);
 			}
 			this.title = `[DM] ${nameWithGroup.trim()}`;
 		}
 	}
-	/**
-	 * @return true to prevent line from being sent to server
-	 */
-	override handleSend(line: string) {
-		if (!line.startsWith('/') || line.startsWith('//')) return false;
-		const spaceIndex = line.indexOf(' ');
-		const cmd = spaceIndex >= 0 ? line.slice(1, spaceIndex) : line.slice(1);
-		const target = spaceIndex >= 0 ? line.slice(spaceIndex + 1) : '';
-		switch (cmd) {
-		case 'j': case 'join': {
-			const roomid = /[^a-z0-9-]/.test(target) ? toID(target) as any as RoomID : target as RoomID;
-			PS.join(roomid);
-			return true;
-		} case 'part': case 'leave': {
-			const roomid = /[^a-z0-9-]/.test(target) ? toID(target) as any as RoomID : target as RoomID;
-			PS.leave(roomid || this.id);
-			return true;
-		} case 'chall': case 'challenge': case 'closeandchallenge': {
+	override clientCommands = this.parseClientCommands({
+		'chall,challenge,closeandchallenge'(target, cmd) {
 			if (target) {
 				const [targetUser, format] = target.split(',');
 				PS.join(`challenge-${toID(targetUser)}` as RoomID);
 				if (cmd === 'closeandchallenge') PS.leave(this.id);
-				return true;
+				return;
 			}
 			this.openChallenge();
-			return true;
-		} case 'cchall': case 'cancelchallenge': {
+		},
+		'cchall,cancelchallenge'(target) {
 			this.cancelChallenge();
-			return true;
-		} case 'reject': {
+		},
+		'reject'(target) {
 			this.challenged = null;
 			this.update(null);
-			return false;
-		} case 'ignore': {
-			let ignore = PS.prefs.ignore || {};
-			if (!target) return true;
-			if (toID(target) === PS.user.userid) {
-				this.receiveLine(['', `You are not able to ignore yourself.`]);
-			} else if (ignore[toID(target)]) {
-				this.receiveLine(['', `User '${target}' is already on your ignore list. ` +
-				`(Moderator messages will not be ignored.)`]);
-			} else {
-				ignore[toID(target)] = 1;
-				this.receiveLine(['', `User '${target}' ignored. (Moderator messages will not be ignored.)`]);
-				PS.prefs.set("ignore", ignore);
-			}
-			return true;
-		} case 'unignore': {
-			let ignore = PS.prefs.ignore || {};
-			if (!target) return true;
-			if (!ignore[toID(target)]) {
-				this.receiveLine(['', `User '${target}' isn't on your ignore list.`]);
-			} else {
-				ignore[toID(target)] = 0;
-				this.receiveLine(['', `User '${target}' no longer ignored.`]);
-				PS.prefs.set("ignore", ignore);
-			}
-			return true;
-		}
-		case 'clear': {
+		},
+		'clear'() {
 			this.log?.reset();
 			this.update(null);
-			return true;
-		}
-		case 'rank':
-		case 'ranking':
-		case 'rating':
-		case 'ladder': {
+		},
+		'rank,ranking,rating,ladder'(target) {
 			let arg = target;
 			if (!arg) {
 				arg = PS.user.userid;
@@ -192,10 +148,10 @@ export class ChatRoom extends PSRoom {
 				arg += ", " + this.id.split('-')[1];
 			}
 
-			let targets = arg.split(',');
+			const targets = arg.split(',');
 			let formatTargeting = false;
-			let formats: { [key: string]: number } = {};
-			let gens: { [key: string]: number } = {};
+			const formats: { [key: string]: number } = {};
+			const gens: { [key: string]: number } = {};
 			for (let i = 1, len = targets.length; i < len; i++) {
 				targets[i] = $.trim(targets[i]);
 				if (targets[i].length === 4 && targets[i].substr(0, 3) === 'gen') {
@@ -209,24 +165,24 @@ export class ChatRoom extends PSRoom {
 			PSLoginServer.query("ladderget", {
 				user: targets[0],
 			}).then(data => {
-				if (!data || !Array.isArray(data)) return this.receiveLine(['raw', 'Error: corrupted ranking data']);
-				let buffer = '<div class="ladder"><table><tr><td colspan="9">User: <strong>' + toID(targets[0]) + '</strong></td></tr>';
+				if (!data || !Array.isArray(data)) return this.add(`|error|Error: corrupted ranking data`);
+				let buffer = `<div class="ladder"><table><tr><td colspan="9">User: <strong>${toID(targets[0])}</strong></td></tr>`;
 				if (!data.length) {
 					buffer += '<tr><td colspan="9"><em>This user has not played any ladder games yet.</em></td></tr>';
 					buffer += '</table></div>';
-					return this.receiveLine(['raw', buffer]);
+					return this.add(`|html|${buffer}`);
 				}
-				buffer += '<tr><th>Format</th><th><abbr title="Elo rating">Elo</abbr></th><th><abbr title="user\'s percentage chance of winning a random battle (aka GLIXARE)">GXE</abbr></th><th><abbr title="Glicko-1 rating: rating±deviation">Glicko-1</abbr></th><th>COIL</th><th>W</th><th>L</th><th>Total</th>';
+				buffer += '<tr><th>Format</th><th><abbr title="Elo rating">Elo</abbr></th><th><abbr title="user\'s percentage chance of winning a random battle (aka GLIXARE)">GXE</abbr></th><th><abbr title="Glicko-1 rating: rating &#177; deviation">Glicko-1</abbr></th><th>COIL</th><th>W</th><th>L</th><th>Total</th>';
 				let suspect = false;
-				for (let item of data) {
+				for (const item of data) {
 					if ('suspect' in item) suspect = true;
 				}
 				if (suspect) buffer += '<th>Suspect reqs possible?</th>';
 				buffer += '</tr>';
-				let hiddenFormats = [];
-				for (let row of data) {
-					if (!row) return this.receiveLine(['raw', 'Error: corrupted ranking data']);
-					let formatId = toID(row.formatid);
+				const hiddenFormats = [];
+				for (const row of data) {
+					if (!row) return this.add(`|error|Error: corrupted ranking data`);
+					const formatId = toID(row.formatid);
 					if (!formatTargeting ||
 						formats[formatId] ||
 						gens[formatId.slice(0, 4)] ||
@@ -238,37 +194,36 @@ export class ChatRoom extends PSRoom {
 					}
 
 					// Validate all the numerical data
-					let values = [row.elo, row.rpr, row.rprd, row.gxe, row.w, row.l, row.t];
-					for (let value of values) {
-						if (typeof value !== 'number' && typeof value !== 'string' ||
-							isNaN(value as number)) return this.receiveLine(['raw', 'Error: corrupted ranking data']);
+					for (const value of [row.elo, row.rpr, row.rprd, row.gxe, row.w, row.l, row.t]) {
+						if (typeof value !== 'number' && typeof value !== 'string') {
+							return this.add(`|error|Error: corrupted ranking data`);
+						}
 					}
 
-					buffer += `<td> ${BattleLog.escapeFormat(formatId)} </td><td><strong> ${Math.round(row.elo)} </strong></td>'`;
+					buffer += `<td> ${BattleLog.escapeFormat(formatId)} </td><td><strong>${Math.round(row.elo)}</strong></td>`;
 					if (row.rprd > 100) {
 						// High rating deviation. Provisional rating.
 						buffer += `<td>&ndash;</td>`;
-						buffer += `<td><span><em> ${Math.round(row.rpr)} <small> &#177; ${Math.round(row.rprd)} </small></em> <small>(provisional)</small></span></td>`;
+						buffer += `<td><span style="color:#888"><em>${Math.round(row.rpr)} <small> &#177; ${Math.round(row.rprd)} </small></em> <small>(provisional)</small></span></td>`;
 					} else {
-						let gxe = Math.round(row.gxe * 10);
-						buffer += `<td> ${Math.floor(gxe / 10)} <small> ${(gxe % 10)}%</small></td>`;
-						buffer += `<td><em> ${Math.round(row.rpr)} <small> &#177; ${Math.round(row.rprd)}</small></em></td>`;
+						buffer += `<td>${Math.trunc(row.gxe)}<small>.${row.gxe.toFixed(1).slice(-1)}%</small></td>`;
+						buffer += `<td><em>${Math.round(row.rpr)} <small> &#177; ${Math.round(row.rprd)}</small></em></td>`;
 					}
-					let N = parseInt(row.w, 10) + parseInt(row.l, 10) + parseInt(row.t, 10);
-					let COIL_B = undefined;
+					const N = parseInt(row.w, 10) + parseInt(row.l, 10) + parseInt(row.t, 10);
+					const COIL_B = undefined;
 
 					// Uncomment this after LadderRoom logic is implemented
 					// COIL_B = LadderRoom?.COIL_B[formatId];
 
 					if (COIL_B) {
-						buffer += `<td> ${Math.round(40.0 * parseFloat(row.gxe) * 2.0 ** (-COIL_B / N))} </td>`;
+						buffer += `<td>${Math.round(40.0 * parseFloat(row.gxe) * 2.0 ** (-COIL_B / N))}</td>`;
 					} else {
-						buffer += '<td>--</td>';
+						buffer += '<td>&mdash;</td>';
 					}
 					buffer += `<td> ${row.w} </td><td> ${row.l} </td><td> ${N} </td>`;
 					if (suspect) {
 						if (typeof row.suspect === 'undefined') {
-							buffer += '<td>--</td>';
+							buffer += '<td>&mdash;</td>';
 						} else {
 							buffer += '<td>';
 							buffer += (row.suspect ? "Yes" : "No");
@@ -279,27 +234,94 @@ export class ChatRoom extends PSRoom {
 				}
 				if (hiddenFormats.length) {
 					if (hiddenFormats.length === data.length) {
-						buffer += '<tr class="no-matches"><td colspan="8"><em>This user has not played any ladder games that match "' + BattleLog.escapeHTML(Object.keys(gens).concat(Object.keys(formats)).join(', ')) + '".</em></td></tr>';
+						const formatsText = Object.keys(gens).concat(Object.keys(formats)).join(', ');
+						buffer += `<tr class="no-matches"><td colspan="8">` +
+							BattleLog.html`<em>This user has not played any ladder games that match ${formatsText}.</em></td></tr>`;
 					}
-					buffer += `<tr><td colspan="8"><button name="showOtherFormats"> ${hiddenFormats.slice(0, 3).join(', ') + (hiddenFormats.length > 3 ? ' and ' + String(hiddenFormats.length - 3) + ' other formats' : '')} not shown</button></td></tr>'`;
+					const otherFormats = hiddenFormats.slice(0, 3).join(', ') +
+						(hiddenFormats.length > 3 ? ` and ${hiddenFormats.length - 3} other formats` : '');
+					buffer += `<tr><td colspan="8"><button name="showOtherFormats">` +
+						BattleLog.html`${otherFormats} not shown</button></td></tr>`;
 				}
 				let userid = toID(targets[0]);
 				let registered = PS.user.registered;
 				if (registered && PS.user.userid === userid) {
-					buffer += '<tr><td colspan="8" style="text-align:right"><a href="//' + PS.routes.users + '/' + userid + '">Reset W/L</a></tr></td>';
+					buffer += `<tr><td colspan="8" style="text-align:right"><a href="//${PS.routes.users}/${userid}">Reset W/L</a></tr></td>`;
 				}
 				buffer += '</table></div>';
-				this.receiveLine(['raw', buffer]);
+				this.add(`|html|${buffer}`);
 			});
-			return true;
-		}
+		},
 
-		}
-		return super.handleSend(line);
-	}
+		// battle-specific commands
+		// ------------------------
+		'play'() {
+			if (!this.battle) return this.add('|error|You are not in a battle');
+			if (this.battle.atQueueEnd) {
+				this.battle.reset();
+			}
+			this.battle.play();
+			this.update(null);
+		},
+		'pause'() {
+			if (!this.battle) return this.add('|error|You are not in a battle');
+			this.battle.pause();
+			this.update(null);
+		},
+		'ffto,fastfowardto'(target) {
+			if (!this.battle) return this.add('|error|You are not in a battle');
+			let turnNum = Number(target);
+			if (target.startsWith('+') || turnNum < 0) {
+				turnNum += this.battle.turn;
+				if (turnNum < 0) turnNum = 0;
+			} else if (target === 'end') {
+				turnNum = Infinity;
+			}
+			if (isNaN(turnNum)) {
+				this.receiveLine([`error`, `/ffto - Invalid turn number: ${target}`]);
+				return;
+			}
+			this.battle.seekTurn(turnNum);
+			this.update(null);
+		},
+		'switchsides'() {
+			if (!this.battle) return this.add('|error|You are not in a battle');
+			this.battle.switchViewpoint();
+		},
+		'cancel,undo'() {
+			if (!this.battle) return this.send('/cancelchallenge');
+
+			const room = this as any as BattleRoom;
+			if (!room.choices || !room.request) {
+				this.receiveLine([`error`, `/choose - You are not a player in this battle`]);
+				return;
+			}
+			if (room.choices.isDone() || room.choices.isEmpty()) {
+				this.sendDirect('/undo');
+			}
+			room.choices = new BattleChoiceBuilder(room.request);
+			this.update(null);
+		},
+		'move,switch,team,pass,shift,choose'(target, cmd) {
+			if (!this.battle) return this.add('|error|You are not in a battle');
+			const room = this as any as BattleRoom;
+			if (!room.choices) {
+				this.receiveLine([`error`, `/choose - You are not a player in this battle`]);
+				return;
+			}
+			if (cmd !== 'choose') target = `${cmd} ${target}`;
+			const possibleError = room.choices.addChoice(target);
+			if (possibleError) {
+				this.receiveLine([`error`, possibleError]);
+				return;
+			}
+			if (room.choices.isDone()) this.sendDirect(`/choose ${room.choices.toString()}`);
+			this.update(null);
+		},
+	});
 	openChallenge() {
 		if (!this.pmTarget) {
-			this.receiveLine([`error`, `Can only be used in a PM.`]);
+			this.add(`|error|Can only be used in a PM.`);
 			return;
 		}
 		this.challengeMenuOpen = true;
@@ -307,7 +329,7 @@ export class ChatRoom extends PSRoom {
 	}
 	cancelChallenge() {
 		if (!this.pmTarget) {
-			this.receiveLine([`error`, `Can only be used in a PM.`]);
+			this.add(`|error|Can only be used in a PM.`);
 			return;
 		}
 		if (this.challenging) {
@@ -381,18 +403,22 @@ export class ChatRoom extends PSRoom {
 		this.update(null);
 	}
 	addUser(username: string) {
+		if (!username) return;
+
 		const userid = toID(username);
 		if (!(userid in this.users)) this.userCount++;
 		this.users[userid] = username;
 		this.update(null);
 	}
 	removeUser(username: string, noUpdate?: boolean) {
+		if (!username) return;
+
 		const userid = toID(username);
 		if (userid in this.users) {
 			this.userCount--;
 			delete this.users[userid];
+			if (!noUpdate) this.update(null);
 		}
-		if (!noUpdate) this.update(null);
 	}
 	renameUser(username: string, oldUsername: string) {
 		this.removeUser(oldUsername, true);
@@ -401,43 +427,37 @@ export class ChatRoom extends PSRoom {
 	}
 
 	handleJoinLeave(action: 'join' | 'leave', name: string, silent: boolean) {
-		if (!this.joinLeave) {
-			this.joinLeave = {
-				join: [],
-				leave: [],
-				messageId: 'joinleave-' + String(Date.now()),
-			};
-		}
-		if (!action) return;
 		if (action === 'join') {
 			this.addUser(name);
 		} else if (action === 'leave') {
 			this.removeUser(name);
 		}
-		let allShowjoins = PS.prefs.showjoins || {};
-		let showjoins = allShowjoins[PS.server.id];
-		if (silent && (!showjoins || (!showjoins['global'] && !showjoins[this.id]) || showjoins[this.id] === 0)) {
-			return;
-		}
-		let formattedUser = name;
-		if (action === 'join' && this.joinLeave['leave'].includes(formattedUser)) {
-			this.joinLeave['leave'].splice(this.joinLeave['leave'].indexOf(formattedUser), 1);
+		const showjoins = PS.prefs.showjoins?.[PS.server.id];
+		if (!(showjoins?.[this.id] ?? showjoins?.['global'] ?? !silent)) return;
+
+		this.joinLeave ||= {
+			join: [],
+			leave: [],
+			messageId: `joinleave-${Date.now()}`,
+		};
+		if (action === 'join' && this.joinLeave['leave'].includes(name)) {
+			this.joinLeave['leave'].splice(this.joinLeave['leave'].indexOf(name), 1);
+		} else if (action === 'leave' && this.joinLeave['join'].includes(name)) {
+			this.joinLeave['join'].splice(this.joinLeave['join'].indexOf(name), 1);
 		} else {
-			this.joinLeave[action].push(formattedUser);
+			this.joinLeave[action].push(name);
 		}
 
-		let message = '';
-		if (this.joinLeave['join'].length) {
-			message += this.formatJoinLeave(this.joinLeave['join'], 'joined');
-		}
-		if (this.joinLeave['leave'].length) {
-			if (this.joinLeave['join'].length) message += '; ';
-			message += this.formatJoinLeave(this.joinLeave['leave'], 'left') + '<br />';
-		}
-		this.receiveLine(['uhtml', this.joinLeave.messageId, `<small style="color: #555555"> ${message} </small>`]);
+		let message = this.formatJoinLeave(this.joinLeave['join'], 'joined');
+		if (this.joinLeave['join'].length && this.joinLeave['leave'].length) message += '; ';
+		message += this.formatJoinLeave(this.joinLeave['leave'], 'left');
+
+		this.add(`|uhtml|${this.joinLeave.messageId}|<small style="color: #555555">${message}</small>`);
 	}
 
 	formatJoinLeave(preList: string[], action: 'joined' | 'left') {
+		if (!preList.length) return '';
+
 		let message = '';
 		let list: string[] = [];
 		let named: { [key: string]: boolean } = {};
@@ -461,7 +481,7 @@ export class ChatRoom extends PSRoom {
 			}
 			message += BattleLog.escapeHTML(list[j]);
 		}
-		return message + ' ' + action;
+		return `${message} ${action}`;
 	}
 
 	override destroy() {

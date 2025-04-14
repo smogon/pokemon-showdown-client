@@ -297,7 +297,7 @@ export class MainMenuRoom extends PSRoom {
 		}
 		PS.teams.update('format');
 	}
-	handlePM(user1: string, user2: string, message: string) {
+	handlePM(user1: string, user2: string, message?: string) {
 		const userid1 = toID(user1);
 		const userid2 = toID(user2);
 		const pmTarget = PS.user.userid === userid1 ? user2 : user1;
@@ -314,7 +314,7 @@ export class MainMenuRoom extends PSRoom {
 		} else {
 			room.updateTarget(pmTarget);
 		}
-		room.receiveLine([`c`, user1, message]);
+		if (message) room.receiveLine([`c`, user1, message]);
 		PS.update();
 	}
 	handleQueryResponse(id: ID, response: any) {

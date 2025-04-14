@@ -626,6 +626,14 @@ interface PSNotificationState {
 	noAutoDismiss: boolean;
 }
 
+type ClientCommands<RoomT extends PSRoom> = {
+	[command: Lowercase<string>]: (this: RoomT, target: string, cmd: string) => string | boolean | null | void,
+};
+/** The command signature is a lie but TypeScript and string validation amirite? */
+type ParsedClientCommands = {
+	[command: `parsed${string}`]: (this: PSRoom, target: string, cmd: string) => string | boolean | null | void,
+};
+
 /**
  * As a PSStreamModel, PSRoom can emit `Args` to mean "we received a message",
  * and `null` to mean "tell Preact to re-render this room"
@@ -744,38 +752,83 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 		}
 	}
 	/**
-	 * Handles outgoing messages, like `/logout`. Return `true` to prevent
-	 * the line from being sent to servers.
+	 * Used only by commands; messages from the server go directly from
+	 * `PS.receive` to `room.receiveLine`
 	 */
-	handleSend(line: string) {
-		if (!line.startsWith('/') || line.startsWith('//')) return false;
-		const spaceIndex = line.indexOf(' ');
-		const cmd = spaceIndex >= 0 ? line.slice(1, spaceIndex) : line.slice(1);
-		const target = spaceIndex >= 0 ? line.slice(spaceIndex + 1) : '';
-		switch (cmd) {
-		case 'logout':
+	add(line: string) {
+		if (this.type !== 'chat' && this.type !== 'battle') {
+			PS.mainmenu.handlePM(PS.user.userid, PS.user.userid);
+			PS.rooms['dm-' as RoomID]?.receiveLine(BattleTextParser.parseLine(line));
+		} else {
+			this.receiveLine(BattleTextParser.parseLine(line));
+		}
+	}
+	parseClientCommands(commands: ClientCommands<this>) {
+		const parsedCommands: ParsedClientCommands = {};
+		for (const cmd in commands) {
+			const names = cmd.split(',').map(name => name.trim());
+			for (const name of names) {
+				if (name.includes(' ')) throw new Error(`Client command names cannot contain spaces: ${name}`);
+				// good luck convincing TypeScript that these types are compatible
+				parsedCommands[name as 'parsed'] = commands[cmd as 'cmd'] as any;
+			}
+		}
+		return parsedCommands;
+	}
+	globalClientCommands = this.parseClientCommands({
+		'j,join'(target) {
+			const roomid = /[^a-z0-9-]/.test(target) ? toID(target) as any as RoomID : target as RoomID;
+			PS.join(roomid);
+		},
+		'part,leave,close'(target) {
+			const roomid = /[^a-z0-9-]/.test(target) ? toID(target) as any as RoomID : target as RoomID;
+			PS.leave(roomid || this.id);
+		},
+		'logout'() {
 			PS.user.logOut();
-			return true;
-		case 'cancelsearch':
+		},
+		'cancelsearch'() {
 			PS.mainmenu.cancelSearch();
-			return true;
-		case 'nick':
+		},
+		'nick'(target) {
 			if (target) {
 				PS.user.changeName(target);
 			} else {
 				PS.join('login' as RoomID);
 			}
-			return true;
-		case 'open':
-		case 'user': {
+		},
+		'open,user'(target) {
 			let roomid = `user-${toID(target)}` as RoomID;
 			PS.join(roomid, {
 				args: { username: target },
 			});
-			return true;
-		}
-
-		case 'showjoins': {
+		},
+		'ignore'(target) {
+			const ignore = PS.prefs.ignore || {};
+			if (!target) return true;
+			if (toID(target) === PS.user.userid) {
+				this.add(`||You are not able to ignore yourself.`);
+			} else if (ignore[toID(target)]) {
+				this.add(`||User '${target}' is already on your ignore list. ` +
+					`(Moderator messages will not be ignored.)`);
+			} else {
+				ignore[toID(target)] = 1;
+				this.add(`||User '${target}' ignored. (Moderator messages will not be ignored.)`);
+				PS.prefs.set("ignore", ignore);
+			}
+		},
+		'unignore'(target) {
+			const ignore = PS.prefs.ignore || {};
+			if (!target) return true;
+			if (!ignore[toID(target)]) {
+				this.add(`||User '${target}' isn't on your ignore list.`);
+			} else {
+				ignore[toID(target)] = 0;
+				this.add(`||User '${target}' no longer ignored.`);
+				PS.prefs.set("ignore", ignore);
+			}
+		},
+		'showjoins'(target) {
 			let showjoins = PS.prefs.showjoins || {};
 			let serverShowjoins = showjoins[PS.server.id] || {};
 			if (target) {
@@ -785,17 +838,15 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 				} else {
 					serverShowjoins[room] = 1;
 				}
-				this.receiveLine([`c`, "", `Join/leave messages on room ${room}: ALWAYS ON`]);
+				this.add(`||Join/leave messages in room ${room}: ALWAYS ON`);
 			} else {
 				serverShowjoins = { global: 1 };
-				this.receiveLine([`c`, "", `Join/leave messages: ALWAYS ON`]);
+				this.add(`||Join/leave messages: ALWAYS ON`);
 			}
 			showjoins[PS.server.id] = serverShowjoins;
 			PS.prefs.set("showjoins", showjoins);
-			return true;
-		}
-
-		case 'hidejoins': {
+		},
+		'hidejoins'(target) {
 			let showjoins = PS.prefs.showjoins || {};
 			let serverShowjoins = showjoins[PS.server.id] || {};
 			if (target) {
@@ -805,28 +856,41 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 				} else {
 					serverShowjoins[room] = 0;
 				}
-				this.receiveLine([`c`, "", `Join/leave messages on room ${room}: OFF`]);
+				this.add(`||Join/leave messages on room ${room}: OFF`);
 			} else {
 				serverShowjoins = { global: 0 };
-				this.receiveLine([`c`, "", `Join/leave messages: OFF`]);
-
+				this.add(`||Join/leave messages: OFF`);
 			}
 			showjoins[PS.server.id] = serverShowjoins;
 			PS.prefs.set('showjoins', showjoins);
-			return true;
+		},
+	});
+	clientCommands: ParsedClientCommands | null = null;
+	/**
+	 * Handles outgoing messages, like `/logout`. Return `true` to prevent
+	 * the line from being sent to servers.
+	 */
+	handleSend(line: string) {
+		if (!line.startsWith('/') || line.startsWith('//')) return line;
+		const spaceIndex = line.indexOf(' ');
+		const cmd = (spaceIndex >= 0 ? line.slice(1, spaceIndex) : line.slice(1)) as 'parsed';
+		const target = spaceIndex >= 0 ? line.slice(spaceIndex + 1) : '';
 
-		}
+		const cmdHandler = this.globalClientCommands[cmd] || this.clientCommands?.[cmd];
+		if (!cmdHandler) return line;
 
-		}
-		return false;
+		const cmdResult = cmdHandler.call(this, target, cmd);
+		if (cmdResult === true) return line;
+		return cmdResult || null;
 	}
-	send(msg: string) {
+	send(msg: string | null) {
 		if (!msg) return;
-		if (this.handleSend(msg)) return;
+		msg = this.handleSend(msg);
+		if (!msg) return;
 		this.sendDirect(msg);
 	}
 	sendDirect(msg: string) {
-		PS.send(this.id + '|' + msg);
+		PS.send(`${this.id}|${msg}`);
 	}
 	destroy() {
 		if (this.connected) {

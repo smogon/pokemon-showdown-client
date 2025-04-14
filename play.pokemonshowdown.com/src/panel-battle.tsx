@@ -115,7 +115,7 @@ class BattlesPanel extends PSRoomPanel<BattlesRoom> {
 	}
 }
 
-class BattleRoom extends ChatRoom {
+export class BattleRoom extends ChatRoom {
 	override readonly classType = 'battle';
 	declare pmTarget: null;
 	declare challengeMenuOpen: false;
@@ -127,73 +127,6 @@ class BattleRoom extends ChatRoom {
 	side: BattleRequestSideInfo | null = null;
 	request: BattleRequest | null = null;
 	choices: BattleChoiceBuilder | null = null;
-
-	/**
-	 * @return true to prevent line from being sent to server
-	 */
-	override handleSend(line: string) {
-		if (!line.startsWith('/') || line.startsWith('//')) return false;
-		const spaceIndex = line.indexOf(' ');
-		const cmd = spaceIndex >= 0 ? line.slice(1, spaceIndex) : line.slice(1);
-		const target = spaceIndex >= 0 ? line.slice(spaceIndex + 1) : '';
-		switch (cmd) {
-		case 'play': {
-			if (this.battle.atQueueEnd) {
-				this.battle.reset();
-			}
-			this.battle.play();
-			this.update(null);
-			return true;
-		} case 'pause': {
-			this.battle.pause();
-			this.update(null);
-			return true;
-		} case 'ffto': case 'fastfowardto': {
-			let turnNum = Number(target);
-			if (target.startsWith('+') || turnNum < 0) {
-				turnNum += this.battle.turn;
-				if (turnNum < 0) turnNum = 0;
-			} else if (target === 'end') {
-				turnNum = Infinity;
-			}
-			if (isNaN(turnNum)) {
-				this.receiveLine([`error`, `/ffto - Invalid turn number: ${target}`]);
-				return true;
-			}
-			this.battle.seekTurn(turnNum);
-			this.update(null);
-			return true;
-		} case 'switchsides': {
-			this.battle.switchViewpoint();
-			return true;
-		} case 'cancel': case 'undo': {
-			if (!this.choices || !this.request) {
-				this.receiveLine([`error`, `/choose - You are not a player in this battle`]);
-				return true;
-			}
-			if (this.choices.isDone() || this.choices.isEmpty()) {
-				this.sendDirect('/undo');
-			}
-			this.choices = new BattleChoiceBuilder(this.request);
-			this.update(null);
-			return true;
-		} case 'move': case 'switch': case 'team': case 'pass': case 'shift': case 'choose': {
-			if (!this.choices) {
-				this.receiveLine([`error`, `/choose - You are not a player in this battle`]);
-				return true;
-			}
-			const possibleError = this.choices.addChoice(line.slice(cmd === 'choose' ? 8 : 1));
-			if (possibleError) {
-				this.receiveLine([`error`, possibleError]);
-				return true;
-			}
-			if (this.choices.isDone()) this.sendDirect(`/choose ${this.choices.toString()}`);
-			this.update(null);
-			return true;
-		}
-		}
-		return super.handleSend(line);
-	}
 }
 
 class BattleDiv extends preact.Component<{ room: BattleRoom }> {
@@ -799,18 +732,20 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 					<i class="fa fa-step-backward"></i><br />Prev turn
 				</button>}
 			</p>
-			{room.side ?
+			{room.side ? (
 				<p>
-					<button class="button" name="closeAndMainMenu" onClick={() => this.close()}>
+					<button class="button" data-cmd="/close">
 						<strong>Main menu</strong><br /><small>(closes this battle)</small>
 					</button> {}
-					<button
-						class="button" name="cmd" value={`/closeandchallenge ${room.battle.farSide.id},${room.battle.tier}`}
-					>
+					<button class="button" data-cmd={`/closeandchallenge ${room.battle.farSide.id},${room.battle.tier}`}>
 						<strong>Rematch</strong><br /><small>(closes this battle)</small>
 					</button>
-				</p> :
-				<p><button class="button" name="cmd" value="/switchsides"><i class="fa fa-random"></i> Switch viewpoint</button></p>}
+				</p>
+			) : (
+				<p>
+					<button class="button" data-cmd="/switchsides"><i class="fa fa-random"></i> Switch viewpoint</button>
+				</p>
+			)}
 		</div>;
 
 	}
