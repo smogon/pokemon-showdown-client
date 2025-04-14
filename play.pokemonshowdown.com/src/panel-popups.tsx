@@ -532,8 +532,8 @@ class AvatarsPanel extends PSRoomPanel {
 	handleAvatar = (ev: Event) => {
 		let curtarget = ev.currentTarget as HTMLButtonElement;
 		let avatar = curtarget.value;
-		if (window.BattleAvatarNumbers && Object.hasOwn(window.BattleAvatarNumbers, avatar)) {
-			avatar = window.BattleAvatarNumbers[avatar];
+		if (window.BattleAvatarNumbers) {
+			if (window.BattleAvatarNumbers[avatar]) avatar = window.BattleAvatarNumbers[avatar];
 		}
 		PS.rooms['']?.send('/avatar ' + avatar);
 		PS.user.avatar = avatar;
