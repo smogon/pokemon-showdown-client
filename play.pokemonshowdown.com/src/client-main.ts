@@ -60,6 +60,12 @@ class PSPrefs extends PSStreamModel<string | null> {
 	 * reasons.
 	 */
 	showjoins: { [serverid: string]: { [roomid: string]: 1 | 0 } } | null = null;
+
+	/**
+	 * List of rooms to autojoin
+	 * different for each server
+	 */
+	autojoin: { [serverid: string]: string } | null = null;
 	/**
 	 * List of users whose messages should be ignored. userid table.
 	 * Uses 1 and 0 instead of true/false for JSON packing reasons.
@@ -864,6 +870,10 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 			showjoins[PS.server.id] = serverShowjoins;
 			PS.prefs.set('showjoins', showjoins);
 		},
+
+		'autojoin,cmd,crq,query'() {
+			this.add('This is a PS system command; do not use it.');
+		},
 	});
 	clientCommands: ParsedClientCommands | null = null;
 	/**
@@ -1075,6 +1085,17 @@ export const PS = new class extends PSModel {
 				id: 'news' as RoomID,
 				title: "News",
 			}, true);
+		}
+
+		/*
+		* Create rooms before /autojoin is sent to the server
+		*/
+		let autojoin = this.prefs.autojoin;
+		if (autojoin) {
+			let rooms = autojoin[this.server.id] || '';
+			rooms.split(",").forEach(title => {
+				this.addRoom({ id: String(toID(title)) as RoomID, title, connected: true }, true);
+			});
 		}
 
 		this.updateLayout();
@@ -1785,6 +1806,7 @@ export const PS = new class extends PSModel {
 			return;
 		}
 		this.addRoom({ id: roomid, ...options }, noFocus);
+		this.updateAutojoin();
 		this.update();
 	}
 	leave(roomid: RoomID) {
@@ -1793,6 +1815,46 @@ export const PS = new class extends PSModel {
 		if (room) {
 			this.removeRoom(room);
 			this.update();
+			this.updateAutojoin();
 		}
+	}
+
+	updateAutojoin() {
+		if (!PS.server.registered) return;
+		if (!this.prefs.autojoin) this.prefs.autojoin = {};
+		if (!this.prefs.autojoin[this.server.id]) this.prefs.autojoin[this.server.id] = '';
+		let autojoins: string[] = [];
+		let autojoinCount = 0;
+		let rooms = this.rightRoomList;
+		for (let roomid of rooms) {
+			let room = PS.rooms[roomid];
+			if (!room) return;
+			if (room.type !== 'chat') continue;
+			autojoins.push(room.id.includes('-') ? room.id : (room.title || room.id));
+			if (room.id === 'staff' || room.id === 'upperstaff' || (PS.server.id !== 'showdown' && room.id === 'lobby')) continue;
+			autojoinCount++;
+			if (autojoinCount >= 15) break;
+		}
+		let curAutojoin = (this.prefs.autojoin);
+		if (typeof curAutojoin !== 'string') {
+			if (curAutojoin[this.server.id] === autojoins.join(',')) return;
+			if (!autojoins.length) {
+				delete curAutojoin[PS.server.id];
+			} else {
+				curAutojoin[this.server.id] = autojoins.join(',');
+			}
+		} else {
+			if (PS.server.id !== 'showdown') {
+				// Switch to the autojoin object to handle multiple servers
+				curAutojoin = { showdown: curAutojoin };
+				if (!autojoins.length) return;
+				curAutojoin[this.server.id] = autojoins.join(',');
+			} else {
+				if (curAutojoin === autojoins.join(',')) return;
+				curAutojoin[this.server.id] = autojoins.join(',') as never;
+			}
+		}
+		this.prefs.set('autojoin', curAutojoin);
+
 	}
 };
