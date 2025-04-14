@@ -153,6 +153,7 @@ class UserPanel extends PSRoomPanel<UserRoom> {
 		return [<div class="userdetails">
 			{user.avatar !== '[loading]' &&
 				<img
+					{...(room.isSelf ? { 'data-href': 'avatars' } : {})}
 					class={'trainersprite' + (room.isSelf ? ' yours' : '')}
 					src={Dex.resolveAvatar(`${user.avatar || 'unknown'}`)}
 				/>}
