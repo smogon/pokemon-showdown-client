@@ -490,6 +490,68 @@ class LoginPanel extends PSRoomPanel {
 	}
 }
 
+class AvatarsPanel extends PSRoomPanel {
+	static readonly id = 'avatars';
+	static readonly routes = ['avatars'];
+	static readonly location = 'semimodal-popup';
+
+	handleAvatar = (ev: Event) => {
+		let curtarget = ev.currentTarget as HTMLButtonElement;
+		let avatar = curtarget.value;
+		if (window.BattleAvatarNumbers && Object.hasOwn(window.BattleAvatarNumbers, avatar)) {
+			avatar = window.BattleAvatarNumbers[avatar];
+		}
+		PS.rooms['']?.send('/avatar ' + avatar);
+		PS.user.avatar = avatar;
+		ev.preventDefault();
+		this.close();
+	};
+
+	update = () => {
+		this.forceUpdate();
+	};
+
+	override render() {
+		const room = this.props.room;
+		let avatars: number[] = [];
+		let cur = Number(PS.user.avatar);
+
+		for (let i = 1; i <= 293; i++) {
+			if (i === 162 || i === 168) continue;
+			avatars.push(i);
+		}
+
+		return <PSPanelWrapper room={room} width={480}><div class="pad">
+			<label class="optlabel"><strong>Choose an avatar or </strong>
+				<button class="button" onClick={() => this.close()}> Cancel</button>
+			</label>
+			<div class="avatarlist">
+				{avatars.map(i => {
+					const offset = `-${((i - 1) % 16) * 80 + 1}px -${Math.floor((i - 1) / 16) * 80 + 1}px`;
+					const style = {
+						backgroundPosition: offset,
+					};
+					const className = `option pixelated${i === cur ? ' cur' : ''}`;
+
+					return (
+						<button
+							key={i}
+							value={i}
+							style={style}
+							className={className}
+							title={`/avatar ${i}`}
+							onClick={this.handleAvatar}
+						/>
+					);
+				})}
+
+			</div>
+			<div style="clear:left"></div>
+			<p><button class="button" onClick={() => this.close()}>Cancel</button></p>
+		</div></PSPanelWrapper>;
+	}
+}
+
 class PopupPanel extends PSRoomPanel {
 	static readonly id = 'popup';
 	static readonly routes = ['popup-*'];
@@ -511,4 +573,4 @@ class PopupPanel extends PSRoomPanel {
 	}
 }
 
-PS.addRoomType(UserPanel, VolumePanel, OptionsPanel, LoginPanel, PopupPanel);
+PS.addRoomType(UserPanel, VolumePanel, OptionsPanel, LoginPanel, AvatarsPanel, PopupPanel);
