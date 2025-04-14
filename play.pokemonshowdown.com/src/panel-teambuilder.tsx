@@ -23,37 +23,25 @@ class TeambuilderRoom extends PSRoom {
 	curFolder = '';
 	curFolderKeep = '';
 
-	/**
-	 * @return true to prevent line from being sent to server
-	 */
-	override handleSend(line: string) {
-		if (!line.startsWith('/') || line.startsWith('//')) return false;
-		const spaceIndex = line.indexOf(' ');
-		const cmd = spaceIndex >= 0 ? line.slice(1, spaceIndex) : line.slice(1);
-		const target = spaceIndex >= 0 ? line.slice(spaceIndex + 1) : '';
-		switch (cmd) {
-		case 'newteam': {
+	override clientCommands = this.parseClientCommands({
+		'newteam'(target) {
 			if (target === 'bottom') {
 				PS.teams.push(this.createTeam());
 			} else {
 				PS.teams.unshift(this.createTeam());
 			}
 			this.update(null);
-			return true;
-		} case 'deleteteam': {
+		},
+		'deleteteam'(target) {
 			const team = PS.teams.byKey[target];
 			if (team) PS.teams.delete(team);
 			this.update(null);
-			return true;
-		} case 'undeleteteam': {
+		},
+		'undeleteteam'() {
 			PS.teams.undelete();
 			this.update(null);
-			return true;
-		}
-		}
-
-		return super.handleSend(line);
-	}
+		},
+	});
 	override sendDirect(msg: string): void {
 		PS.alert(`Unrecognized command: ${msg}`);
 	}

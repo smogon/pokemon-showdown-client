@@ -189,7 +189,7 @@ class LadderFormatPanel extends PSRoomPanel<LadderFormatRoom> {
 					{row.username}
 				</span></td>
 				<td style={{ textAlign: 'center' }}><strong>{row.elo.toFixed(0)}</strong></td>
-				<td style={{ textAlign: 'center' }}>{row.gxe.toFixed(1)}<small>%</small></td>
+				<td style={{ textAlign: 'center' }}>{Math.trunc(row.gxe)}<small>.{row.gxe.toFixed(1).slice(-1)}%</small></td>
 				<td style={{ textAlign: 'center' }}><em>{row.rpr.toFixed(0)}<small> &plusmn; {row.rprd.toFixed(0)}</small></em></td>
 				{showCOIL && <td style={{ textAlign: 'center' }}>{row.coil?.toFixed(0)}</td>}
 			</tr>)}
