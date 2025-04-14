@@ -117,7 +117,7 @@ function PokemonSet({ set }: { set: Dex.PokemonSet }) {
 		{set.ability ? <>Ability: {set.ability}<br /></> : <></>}
 		{set.level && set.level !== 100 ? <>Level: {set.level}<br /></> : <></>}
 		{set.shiny ? <>Shiny: Yes<br /></> : <></>}
-		{set.teraType ? <>Tera Type: {set.teraType}</> : <></>}
+		{set.teraType ? <>Tera Type: {set.teraType}<br /></> : <></>}
 
 		{set.evs ? <>{Dex.statNames.filter(stat => set.evs![stat]).map((stat, index, arr) => (
 			<>
