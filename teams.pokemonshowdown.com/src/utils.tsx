@@ -346,6 +346,7 @@ export function unpackTeam(buf: string) {
 			set.pokeball = misc[2];
 			set.gigantamax = !!misc[3];
 			set.dynamaxLevel = (misc[4] ? Number(misc[4]) : 10);
+			set.teraType = misc[5];
 		}
 	}
 
