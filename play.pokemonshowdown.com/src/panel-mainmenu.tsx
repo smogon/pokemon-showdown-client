@@ -314,7 +314,7 @@ export class MainMenuRoom extends PSRoom {
 		} else {
 			room.updateTarget(pmTarget);
 		}
-		if (message) room.receiveLine([`c`, user1, message]);
+		if (message) room.receiveLine([`c:`, (Date.now() / 1000).toString(), user1, message]);
 		PS.update();
 	}
 	handleQueryResponse(id: ID, response: any) {

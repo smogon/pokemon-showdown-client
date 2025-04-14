@@ -2,7 +2,7 @@ import preact from "../js/lib/preact";
 import { toID, toRoomid, toUserid, Dex } from "./battle-dex";
 import type { ID } from "./battle-dex-data";
 import { BattleLog } from "./battle-log";
-import { PSRoom, type RoomOptions, PS, type PSLoginState } from "./client-main";
+import { PSRoom, type RoomOptions, PS, type PSLoginState, type TimestampOptions } from "./client-main";
 import { PSRoomPanel, PSPanelWrapper } from "./panels";
 
 /**
@@ -39,7 +39,7 @@ class UserPanel extends PSRoomPanel<UserRoom> {
 		const room = this.props.room;
 		if (!room.userid) return null;
 		const user = PS.mainmenu.userdetailsCache[room.userid] || {
-			userid: room.userid, name: room.name, avatar: '[loading]',
+			userid: room.userid, name: room.name.slice(1), avatar: '[loading]',
 		};
 		if (!user.avatar) {
 			// offline; server doesn't know the actual username
@@ -300,6 +300,14 @@ class OptionsPanel extends PSRoomPanel {
 		}
 		PS.update();
 	};
+	setChatroomTimestamp = (e: Event) => {
+		const timestamp = (e.currentTarget as HTMLSelectElement).value as TimestampOptions;
+		PS.prefs.set('timestamps', { chatrooms: !timestamp ? false : timestamp, pms: PS.prefs.timestamps.pms });
+	};
+	setPMsTimestamp = (e: Event) => {
+		const timestamp = (e.currentTarget as HTMLSelectElement).value as TimestampOptions;
+		PS.prefs.set('timestamps', { chatrooms: PS.prefs.timestamps.chatrooms, pms: !timestamp ? false : timestamp });
+	};
 	override render() {
 		const room = this.props.room;
 		return <PSPanelWrapper room={room}><div class="pad">
@@ -333,6 +341,22 @@ class OptionsPanel extends PSRoomPanel {
 			</p> : <p class="buttonbar" style="text-align: right">
 				<button class="button" data-href="login"><i class="fa fa-pencil"></i> Choose name</button>
 			</p> }
+			<hr />
+			<h3>Chat</h3>
+			<p>
+				<label class="optlabel">Timestamps: <select name="layout" class="button" onChange={this.setChatroomTimestamp}>
+					<option value="" selected={!PS.prefs.timestamps.chatrooms}>Off</option>
+					<option value="minutes" selected={PS.prefs.timestamps.chatrooms === "minutes"}>[HH:MM]</option>
+					<option value="seconds" selected={PS.prefs.timestamps.chatrooms === "seconds"}>[HH:MM:SS]</option>
+				</select></label>
+			</p>
+			<p>
+				<label class="optlabel">Timestamps in PMs: <select name="layout" class="button" onChange={this.setPMsTimestamp}>
+					<option value="" selected={!PS.prefs.timestamps.pms}>Off</option>
+					<option value="minutes" selected={PS.prefs.timestamps.pms === "minutes"}>[HH:MM]</option>
+					<option value="seconds" selected={PS.prefs.timestamps.pms === "seconds"}>[HH:MM:SS]</option>
+				</select></label>
+			</p>
 		</div></PSPanelWrapper>;
 	}
 }

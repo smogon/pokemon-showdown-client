@@ -1110,6 +1110,11 @@ p.or:after {
 .revealed {
 	background-color: #C8FDEA;
 }
+.chat small {
+	font-weight: normal;
+	font-size: 8pt;
+	color: #888888;
+}
 .message-pm {
 	color: #007100;
 }
