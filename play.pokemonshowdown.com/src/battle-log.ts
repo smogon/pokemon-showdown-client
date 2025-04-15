@@ -146,8 +146,8 @@ export class BattleLog {
 			const ignoreList = window.app?.ignore || window.PS?.prefs?.ignore;
 			if (ignoreList?.[toUserid(name)] && ' +^\u2605\u2606'.includes(rank)) return;
 			let timestampHtml = '';
-			if (showTimestamps && timestamp) {
-				const date = !isNaN(timestamp) ? new Date(timestamp * 1000) : new Date();
+			if (showTimestamps) {
+				const date = timestamp && !isNaN(timestamp) ? new Date(timestamp * 1000) : new Date();
 				const components = [date.getHours(), date.getMinutes()];
 				if (showTimestamps === 'seconds') {
 					components.push(date.getSeconds());
