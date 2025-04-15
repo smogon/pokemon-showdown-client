@@ -1835,26 +1835,21 @@ export const PS = new class extends PSModel {
 			autojoinCount++;
 			if (autojoinCount >= 15) break;
 		}
-		let curAutojoin = (this.prefs.autojoin);
-		if (typeof curAutojoin !== 'string') {
-			if (curAutojoin[this.server.id] === autojoins.join(',')) return;
-			if (!autojoins.length) {
-				delete curAutojoin[PS.server.id];
-			} else {
-				curAutojoin[this.server.id] = autojoins.join(',');
-			}
-		} else {
-			if (PS.server.id !== 'showdown') {
-				// Switch to the autojoin object to handle multiple servers
-				curAutojoin = { showdown: curAutojoin };
-				if (!autojoins.length) return;
-				curAutojoin[this.server.id] = autojoins.join(',');
-			} else {
-				if (curAutojoin === autojoins.join(',')) return;
-				curAutojoin[this.server.id] = autojoins.join(',') as never;
-			}
-		}
-		this.prefs.set('autojoin', curAutojoin);
 
+		const thisAutojoin = autojoins.join(',') || undefined;
+		let autojoin = this.prefs.autojoin || undefined;
+		if (this.server.id === 'showdown' && typeof autojoin !== 'object') {
+			// Main server only mode
+			if (autojoin === thisAutojoin) return;
+
+			this.prefs.set('autojoin', thisAutojoin || null);
+		} else {
+			// Multi server mode
+			autojoin = typeof autojoin === 'string' ? { showdown: autojoin } : autojoin || {};
+			if (autojoin[this.server.id] === thisAutojoin) return;
+
+			autojoin[this.server.id] = thisAutojoin || undefined;
+			this.prefs.set('autojoin', autojoin);
+		}
 	}
 };
