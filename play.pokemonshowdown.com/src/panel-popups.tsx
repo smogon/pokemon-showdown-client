@@ -701,4 +701,11 @@ class PopupPanel extends PSRoomPanel {
 	}
 }
 
-PS.addRoomType(UserPanel, VolumePanel, OptionsPanel, LoginPanel, AvatarsPanel, BattleForfeitPanel, ReplacePlayerPanel, PopupPanel);
+PS.addRoomType(UserPanel,
+	VolumePanel,
+	OptionsPanel,
+	LoginPanel,
+	AvatarsPanel,
+	BattleForfeitPanel,
+	ReplacePlayerPanel,
+	PopupPanel);
