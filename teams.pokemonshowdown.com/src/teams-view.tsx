@@ -189,7 +189,7 @@ function PokemonSet({ set }: { set: Dex.PokemonSet }) {
 					break;
 				}
 			} else if (move === 'Revelation Dance') {
-				forcedType = Dex.species.get(set.species).types[0]
+				forcedType = Dex.species.get(set.species).types[0];
 			}
 
 			if (set.ability) {
