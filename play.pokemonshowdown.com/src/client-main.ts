@@ -1827,7 +1827,7 @@ export const PS = new class extends PSModel {
 		for (let roomid of rooms) {
 			let room = PS.rooms[roomid];
 			if (!room) return;
-			if (room.type !== 'chat') continue;
+			if (room.type !== 'chat' || room.pmTarget) continue;
 			autojoins.push(room.id.includes('-') ? room.id : (room.title || room.id));
 			if (room.id === 'staff' || room.id === 'upperstaff' || (PS.server.id !== 'showdown' && room.id === 'lobby')) continue;
 			autojoinCount++;
