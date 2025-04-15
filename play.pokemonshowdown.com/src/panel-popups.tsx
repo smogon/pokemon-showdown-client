@@ -666,7 +666,7 @@ class ReplacePlayerPanel extends PSRoomPanel {
 			<form onSubmit={this.handleReplacePlayer}>
 				<p>Replacement player's name:</p>
 				<p>
-					<input name="newplayer" autofocus></input>
+					<input name="newplayer" class="textbox autofocus" />
 				</p>
 				<p>
 					<button type="submit" class="button"><strong>Replace</strong></button>
