@@ -205,6 +205,20 @@ class PSPrefs extends PSStreamModel<string | null> {
 			(BattleText as any) = BattleTextNotAFD;
 		}
 	}
+	doAutojoin() {
+		let autojoin = PS.prefs.autojoin;
+		if (autojoin) {
+			if (typeof autojoin === 'string') {
+				autojoin = { showdown: autojoin };
+			}
+			let rooms = autojoin[PS.server.id] || '';
+			for (let title of rooms.split(",")) {
+				PS.addRoom({ id: toID(title) as string as RoomID, title, connected: true }, true);
+			};
+			// send even if `rooms` is empty, for server autojoins
+			PS.send(`|/autojoin ${rooms}`);
+		}
+	}
 }
 
 /**********************************************************************
@@ -1087,11 +1101,12 @@ export const PS = new class extends PSModel {
 			}, true);
 		}
 
-		/*
-		* Create rooms before /autojoin is sent to the server
-		*/
+		// Create rooms before /autojoin is sent to the server
 		let autojoin = this.prefs.autojoin;
 		if (autojoin) {
+			if (typeof autojoin === 'string') {
+				autojoin = { showdown: autojoin };
+			}
 			let rooms = autojoin[this.server.id] || '';
 			for (let title of rooms.split(",")) {
 				this.addRoom({ id: toID(title) as unknown as RoomID, title, connected: true }, true);

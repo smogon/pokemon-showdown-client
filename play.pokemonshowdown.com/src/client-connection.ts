@@ -59,14 +59,7 @@ export class PSConnection {
 }
 
 PS.connection = new PSConnection();
-
-let autojoin = PS.prefs.autojoin;
-if (autojoin) {
-	let rooms = typeof autojoin === 'string' ? autojoin : autojoin[PS.server.id] || '';
-	if (rooms.length) {
-		PS.rooms['']?.sendDirect(`/autojoin ${rooms}`);
-	}
-}
+PS.prefs.doAutojoin();
 
 export const PSLoginServer = new class {
 	rawQuery(act: string, data: PostData): Promise<string | null> {
