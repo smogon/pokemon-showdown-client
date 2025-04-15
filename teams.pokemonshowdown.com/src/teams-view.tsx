@@ -150,7 +150,7 @@ function PokemonSet({ set }: { set: Dex.PokemonSet }) {
 				move = `${move}[${hpType}]`;
 			}
 
-			let judgmentType;
+			let judgmentType = null;
 			if (move === 'Judgment' && set.item && Dex.items.get(set.item).onPlate) {
 				judgmentType = Dex.items.get(set.item).onPlate;
 			}
