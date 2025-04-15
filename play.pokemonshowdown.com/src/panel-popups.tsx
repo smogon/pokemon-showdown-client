@@ -663,13 +663,13 @@ class ReplacePlayerPanel extends PSRoomPanel {
 		const room = this.props.room;
 
 		return <PSPanelWrapper room={room} width={480}><div class="pad">
-			<form>
+			<form onSubmit={this.handleReplacePlayer}>
 				<p>Replacement player's name:</p>
 				<p>
 					<input name="newplayer" autofocus></input>
 				</p>
 				<p>
-					<button onClick={this.handleReplacePlayer} class="button"><strong>Replace</strong></button>
+					<button type="submit" class="button"><strong>Replace</strong></button>
 
 					<button type="button" data-cmd="/close" class="button autofocus">
 						Cancel
