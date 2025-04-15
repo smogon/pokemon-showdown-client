@@ -311,8 +311,7 @@ class OptionsPanel extends PSRoomPanel {
 
 	editStatus = (ev: Event) => {
 		const statusInput = this.base!.querySelector<HTMLInputElement>('input[name=statustext]');
-		if (!statusInput?.value.length) return;
-		PS.send(`|/status ${statusInput?.value || ''}`);
+		PS.send(statusInput?.value?.length ? `|/status ${statusInput.value}` : `|/clearstatus`);
 		this.setState({ showStatusUpdated: true, showStatusInput: false });
 		ev.preventDefault();
 		ev.stopImmediatePropagation();
@@ -333,15 +332,15 @@ class OptionsPanel extends PSRoomPanel {
 			</p>
 
 			{this.state.showStatusInput ? (
-					<p>
-						<input name="statustext"></input>
-						<button class="button" onClick={this.editStatus}><i class="fa fa-pencil"></i></button>
-					</p>
-				) : (
-					<p>
-						<button class="button" onClick={this.handleShowStatusInput} disabled={this.state.showStatusUpdated}>
-							{this.state.showStatusUpdated ? 'Status Updated' : 'Status..'}</button>
-					</p>
+				<p>
+					<input name="statustext"></input>
+					<button class="button" onClick={this.editStatus}><i class="fa fa-pencil"></i></button>
+				</p>
+			) : (
+				<p>
+					<button class="button" onClick={this.handleShowStatusInput} disabled={this.state.showStatusUpdated}>
+						{this.state.showStatusUpdated ? 'Status Updated' : 'Status..'}</button>
+				</p>
 			)}
 
 			<hr />
