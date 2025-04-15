@@ -8,10 +8,14 @@ import type { Args } from "./battle-text-parser";
 import type { ChatRoom } from "./panel-chat";
 // we check window.d3 before using it, so d3 doesn't need to be loaded before this file
 import * as d3 from 'd3';
+import { PSPanelWrapper, PSRoomPanel } from "./panels";
 
-interface TournamentTreeBracketNode {
+interface TreeNode {
+	children?: TreeNode[];
+}
+interface TournamentTreeBracketNode extends TreeNode {
 	parent?: TournamentTreeBracketNode;
-	children: TournamentTreeBracketNode[];
+	children?: TournamentTreeBracketNode[];
 	x: number;
 	y: number;
 	state: string;
@@ -19,6 +23,14 @@ interface TournamentTreeBracketNode {
 	room: string;
 	result: string;
 	score: [number, number];
+}
+interface TournamentElimBracketNode extends TournamentTreeBracketNode {
+	parent?: TournamentElimBracketNode;
+	children?: TournamentElimBracketNode[];
+	team1: string;
+	team2: string;
+	highlightLink?: boolean;
+	abbreviated?: boolean;
 }
 interface TournamentTreeBracketData {
 	type: 'tree';
@@ -265,10 +277,11 @@ export class ChatTournament extends PSModel {
 
 				this.info = info;
 				this.updates = {};
+				this.update();
 				break;
 
 			case 'battlestart': {
-				const roomid = toRoomid(data[2]).toLowerCase();
+				const roomid = toRoomid(data[2]);
 				this.tryAdd(`|uhtml|tournament-${roomid}|<div class="tournament-message-battlestart"><a href="${roomid}" class="ilink">Tournament battle between ${BattleLog.escapeHTML(data[0])} and ${BattleLog.escapeHTML(data[1])} started.</a></div>`);
 				break;
 			}
@@ -287,11 +300,17 @@ export class ChatTournament extends PSModel {
 
 			case 'end':
 				let endData = JSON.parse(data.join('|'));
-
-				// todo: show a bracket
-
 				this.info.format = endData.format;
 				this.info.generator = endData.generator;
+				if (endData.bracketData) this.info.bracketData = endData.bracketData;
+
+				if (this.room.log) {
+					const bracketNode = document.createElement('div');
+					bracketNode.style.position = 'relative';
+					this.room.log.addNode(bracketNode);
+					preact.render(<TournamentBracket tour={this} abbreviated />, bracketNode);
+				}
+
 				this.room.add(BattleLog.html`|html|<div class="tournament-message-end-winner">Congratulations to ${ChatTournament.arrayToPhrase(endData.results[0])} for winning the ${this.tournamentName()}!</div>`);
 				if (endData.results[1]) {
 					this.tryAdd(BattleLog.html`|html|<div class="tournament-message-end-runnerup">Runner${endData.results[1].length > 1 ? "s" : ""}-up: ${ChatTournament.arrayToPhrase(endData.results[1])}</div>`);
@@ -301,14 +320,19 @@ export class ChatTournament extends PSModel {
 
 			case 'forceend':
 				this.room.dismissNotification('tournament-create');
-				this.info = {};
 				this.updates = {};
 
 				this.info.isActive = false;
 				this.boxVisible = false;
 
-				if (cmd === 'forceend')
+				if (cmd === 'forceend') {
+					this.info = {}; // not needed; nothing to pop out
 					this.room.add(`|html|<div class="tournament-message-forceend">The tournament was forcibly ended.</div>`);
+				}
+				// clear room's tour, so next tour gets a different tour object
+				//  (and the bracket for this one's pop-out is unaffected)
+				this.room.tour = null;
+				this.update();
 				break;
 
 			case 'error': {
@@ -489,7 +513,7 @@ export class TournamentBox extends preact.Component<{ tour: ChatTournament, left
 				{tour.boxVisible ? <i class="fa fa-caret-up"></i> : <i class="fa fa-caret-down"></i>}
 			</button>
 			<div class={`tournament-box ${tour.boxVisible ? 'active' : ''}`}>
-				<TournamentBracket data={info.bracketData} />
+				<TournamentBracket tour={tour} />
 				{this.renderTournamentTools()}
 			</div>
 		</div>;
@@ -497,14 +521,34 @@ export class TournamentBox extends preact.Component<{ tour: ChatTournament, left
 }
 
 export class TournamentBracket extends preact.Component<{
-	data: TournamentTreeBracketData | TournamentTableBracketData | undefined,
+	tour: ChatTournament, poppedOut?: boolean, abbreviated?: boolean,
 }> {
 	subscription!: PSSubscription;
 	renderTableBracket(data: TournamentTableBracketData) {
 		if (data.tableContents.length === 0)
 			return null;
 
-		return <table class="tournament-bracket-table">
+		if (data.tableHeaders.rows.length > 4 && this.props.abbreviated) {
+			let rows = data.tableHeaders.rows.map((row, i) => ({
+				name: row,
+				score: data.scores[i],
+			}));
+			rows.sort((a, b) => b.score - a.score);
+			rows = rows.slice(0, 4);
+			return <div class="pad"><table class="tournament-bracket-table" style="border-bottom-width:0">
+				{rows.map((row, i) => (
+					<tr>
+						<th>{row.name}</th><td>{row.score}</td>
+						<td class="tournament-bracket-table-cell-null">{i < 3 ? (
+							<i class="fa fa-trophy" style={{ color: ['#d6c939', '#adb2bb', '#ca8530'][i] }}></i>
+						) : null}</td>
+					</tr>
+				))}
+				<tr><th colSpan={2}>...</th><td class="tournament-bracket-table-cell-null"></td></tr>
+			</table></div>;
+		}
+
+		return <div class="pad"><table class="tournament-bracket-table">
 			<tr>
 				<td class="empty"></td>
 				{data.tableHeaders.cols.map(name => <th>{name}</th>)}
@@ -534,7 +578,7 @@ export class TournamentBracket extends preact.Component<{
 				))}
 				<th class="tournament-bracket-row-score">{data.scores[r]}</th>
 			</tr>)}
-		</table>;
+		</table></div>;
 	}
 	dragging: {
 		x: number,
@@ -545,23 +589,24 @@ export class TournamentBracket extends preact.Component<{
 		const canScrollVertically = elem.scrollHeight > elem.clientHeight;
 		const canScrollHorizontally = elem.scrollWidth > elem.clientWidth;
 		if (!canScrollVertically && !canScrollHorizontally) return;
+		if (ev.button) return;
 
 		ev.preventDefault();
 		// in case mouse moves outside the element
 		window.addEventListener('mousemove', this.onMouseMove);
 		window.addEventListener('mouseup', this.onMouseUp);
 		this.dragging = {
-			x: ev.pageX,
-			y: ev.pageY,
+			x: ev.clientX,
+			y: ev.clientY,
 		};
 		elem.style.cursor = 'grabbing';
 	};
 	onMouseMove = (ev: MouseEvent) => {
 		if (!this.dragging) return;
-		const dx = ev.pageX - this.dragging.x;
-		const dy = ev.pageY - this.dragging.y;
-		this.dragging.x = ev.pageX;
-		this.dragging.y = ev.pageY;
+		const dx = ev.clientX - this.dragging.x;
+		const dy = ev.clientY - this.dragging.y;
+		this.dragging.x = ev.clientX;
+		this.dragging.y = ev.clientY;
 		const elem = this.base!;
 		elem.scrollLeft -= dx;
 		elem.scrollTop -= dy;
@@ -591,32 +636,64 @@ export class TournamentBracket extends preact.Component<{
 	override componentDidMount() {
 		this.componentDidUpdate();
 	}
+	popOut = (ev: Event) => {
+		PS.join('tourpopout' as RoomID, {
+			parentElem: ev.currentTarget as HTMLElement,
+			args: { tour: this.props.tour },
+		});
+		ev.stopImmediatePropagation();
+		ev.preventDefault();
+	};
 	render() {
-		const data = this.props.data;
+		const data = this.props.tour.info.bracketData;
 		return <div
-			class="tournament-bracket"
+			class={`tournament-bracket${this.props.poppedOut ? ' tournament-popout-bracket' : ''}`}
 			onMouseDown={this.onMouseDown} onMouseUp={this.onMouseUp} onMouseMove={this.onMouseMove}
 		>
 			{data?.type === 'table' ? this.renderTableBracket(data) :
-			data?.type === 'tree' ? <TournamentTreeBracket data={data} /> :
+			data?.type === 'tree' ? <TournamentTreeBracket data={data} abbreviated={this.props.abbreviated} /> :
 			null}
+			{this.props.poppedOut ?
+				<button class="tournament-close-link button" data-cmd="/close"><i class="fa fa-times"></i> Close</button> :
+				<button class="tournament-popout-link button" onClick={this.popOut}><i class="fa fa-arrows-alt"></i> Pop-out</button>}
 		</div>;
 	}
 }
 export class TournamentTreeBracket extends preact.Component<{
-	data: TournamentTreeBracketData,
+	data: TournamentTreeBracketData, abbreviated?: boolean,
 }> {
 	d3Loaded = true;
-	generateTreeBracket(data: TournamentTreeBracketData) {
+	forEachTreeNode<T extends TreeNode>(node: T, callback: (node: T, depth: number) => void, depth = 0) {
+		callback(node, depth);
+		if (node.children) {
+			for (const child of node.children) {
+				this.forEachTreeNode(child as T, callback, depth + 1);
+			}
+		}
+	}
+	cloneTree<T extends TreeNode>(node: T): T {
+		const clonedNode = { ...node };
+		if (node.children) {
+			clonedNode.children = node.children.map(child => this.cloneTree(child));
+		}
+		return clonedNode;
+	}
+	static nodeSize = {
+		width: 160, height: 30,
+		radius: 5,
+		separationX: 20, separationY: 10,
+		textOffset: -1,
+	};
+	generateTreeBracket(data: TournamentTreeBracketData, abbreviated?: boolean) {
 		const div = document.createElement('div');
 		div.className = 'tournament-bracket-tree';
 
 		if (!data.rootNode) {
 			const users = data.users;
 			if (users?.length) {
-				div.innerHTML = BattleLog.html`<b>${users.length}</b> user${users.length !== 1 ? 's' : ''}:<br />${users.join(", ")}`;
+				div.innerHTML = `<b>${users.length}</b> user${users.length !== 1 ? 's' : ''}:<br />${BattleLog.escapeHTML(users.join(", "))}`;
 			} else {
-				div.innerHTML = BattleLog.html`<b>0</b> users`;
+				div.innerHTML = `<b>0</b> users`;
 			}
 			return div;
 		}
@@ -628,56 +705,91 @@ export class TournamentTreeBracket extends preact.Component<{
 		this.d3Loaded = true;
 
 		let name = PS.user.name;
-		let nodeSize: any = {
-			width: 150, height: 20,
-			radius: 5,
-			separationX: 30, separationY: 15,
-		};
 
-		let nodesByDepth = [];
-		let stack = [{ node: data.rootNode, depth: 0 }];
-		while (stack.length > 0) {
-			let frame = stack.pop()!;
+		// Construct the visual tree from the real tree
 
-			if (!nodesByDepth[frame.depth])
-				nodesByDepth.push(0);
-			++nodesByDepth[frame.depth];
+		const newTree = this.cloneTree(data.rootNode) as TournamentElimBracketNode;
+		if (newTree.team) newTree.highlightLink = true;
+		const highlightName = newTree.team; // if we have a root winner, trace it through double elim brackets
 
-			if (!frame.node.children) frame.node.children = [];
-			for (const child of frame.node.children) {
-				stack.push({ node: child, depth: frame.depth + 1 });
+		this.forEachTreeNode(newTree, (node, depth) => {
+			if (node.children?.length === 2) {
+				node.team1 = node.children[0].team;
+				node.team2 = node.children[1].team;
+				const shouldHaveChildren = node.children.some(child => child.children?.length === 2);
+				if (!shouldHaveChildren) node.children = [];
+				if (depth >= 2 && node.children?.length && abbreviated) {
+					node.children = [];
+					node.abbreviated = true;
+				}
+
+				if (node.highlightLink) {
+					for (const child of node.children) {
+						if (child.team === node.team) {
+							child.highlightLink = true;
+						}
+					}
+				} else if (node.state === 'inprogress' || node.state === 'available' || node.state === 'challenging') {
+					for (const child of node.children) {
+						child.highlightLink = true;
+					}
+				} else if (highlightName) {
+					for (const child of node.children) {
+						if (child.team === highlightName) {
+							child.highlightLink = true;
+						}
+					}
+				}
 			}
-		}
-		let maxDepth = nodesByDepth.length;
-		let maxWidth = 0;
-		for (const nodes of nodesByDepth) {
-			if (nodes > maxWidth)
-				maxWidth = nodes;
-		}
+		});
 
-		nodeSize.realWidth = nodeSize.width + nodeSize.radius * 2;
-		nodeSize.realHeight = nodeSize.height + nodeSize.radius * 2;
-		nodeSize.smallRealHeight = nodeSize.height / 2 + nodeSize.radius * 2;
-		let size = {
-			width: nodeSize.realWidth * maxDepth + nodeSize.separationX * maxDepth,
-			height: nodeSize.realHeight * (maxWidth + 0.5) + nodeSize.separationY * maxWidth,
+		// Calculate dimensions
+
+		let numLeaves = 0;
+		const hasLeafAtDepth: boolean[] = [];
+		this.forEachTreeNode(newTree, (node, depth) => {
+			hasLeafAtDepth[depth] ||= false;
+			if (!node.children?.length) {
+				numLeaves++;
+				hasLeafAtDepth[depth] = true;
+			}
+		});
+
+		const depthsWithLeaves = hasLeafAtDepth.filter(Boolean).length;
+		const breadthCompression = depthsWithLeaves > 2 ? 0.8 : 2;
+		const maxBreadth = numLeaves - (depthsWithLeaves - 1) / breadthCompression;
+		const maxDepth = hasLeafAtDepth.length;
+
+		const nodeSize: any = { ...TournamentTreeBracket.nodeSize };
+		nodeSize.realWidth = nodeSize.width;
+		nodeSize.realHeight = nodeSize.height;
+		nodeSize.smallRealHeight = nodeSize.height / 2;
+		const size = {
+			width: nodeSize.realWidth * maxDepth + nodeSize.separationX * (maxDepth + 1),
+			height: nodeSize.realHeight * (maxBreadth + 0.5) + nodeSize.separationY * maxBreadth,
 		};
 
-		let tree = d3.layout.tree<TournamentTreeBracketNode>()
+		// Make d3 layout the tree
+
+		const tree = d3.layout.tree<TournamentElimBracketNode>()
 			.size([size.height, size.width - nodeSize.realWidth - nodeSize.separationX])
 			.separation(() => 1)
 			.children(node => (
-				node.children.length === 0 ? null! : node.children
+				node.children?.length ? node.children : null!
 			));
-		let nodes = tree.nodes(data.rootNode);
-		let links = tree.links(nodes);
+		const nodes = tree.nodes(newTree);
+		const links = tree.links(nodes);
 
-		let layoutRoot = d3.select(div)
+		// Put the tree in the right place
+
+		const layoutRoot = d3.select(div)
 			.append('svg:svg').attr('width', size.width).attr('height', size.height)
 			.append('svg:g')
-			.attr('transform', `translate(${-(nodeSize.realWidth + nodeSize.separationX) / 2},0)`);
+			.attr('transform', `translate(${-(nodeSize.realWidth) / 2 - 6},0)`);
 
-		let diagonalLink = d3.svg.diagonal()
+		// Style the links between the nodes
+
+		const diagonalLink = d3.svg.diagonal()
 			.source(link => ({
 				x: link.source.x, y: link.source.y + nodeSize.realWidth / 2,
 			}))
@@ -689,92 +801,110 @@ export class TournamentTreeBracket extends preact.Component<{
 			]);
 		layoutRoot.selectAll('path.tournament-bracket-tree-link').data(links).enter()
 			.append('svg:path')
-			.attr('d', diagonalLink as any)
+			.attr('d', diagonalLink)
 			.classed('tournament-bracket-tree-link', true)
 			.classed('tournament-bracket-tree-link-active', link => (
-				link.source.state === 'finished' && link.source.team === link.target.team
+				!!link.target.highlightLink
 			));
 
-		let nodeGroup = layoutRoot.selectAll('g.tournament-bracket-tree-node').data(nodes).enter()
+		// Style the nodes themselves
+
+		const nodeGroup = layoutRoot.selectAll('g.tournament-bracket-tree-node').data(nodes).enter()
 			.append('svg:g').classed('tournament-bracket-tree-node', true).attr('transform', node => (
 				`translate(${size.width - node.y},${node.x})`
 			));
-		nodeGroup.append('svg:rect')
-			.attr('rx', nodeSize.radius)
-			.attr('x', -nodeSize.realWidth / 2).attr('width', nodeSize.realWidth)
-			.each(function (this: EventTarget, node) {
-				let elem = d3.select(this);
-				if (node.children.length === 0)
-					elem.attr('y', -nodeSize.smallRealHeight / 2).attr('height', nodeSize.smallRealHeight);
-				else
-					elem.attr('y', -nodeSize.realHeight / 2).attr('height', nodeSize.realHeight);
-				if (node.team === name) elem.attr('stroke-dasharray', '5,5');
-			});
 		nodeGroup.each(function (this: EventTarget, node) {
 			let elem = d3.select(this);
-			if (node.children.length === 0) {
-				elem.classed('tournament-bracket-tree-node-team', true);
-				elem.append('svg:text').text(node.team || "Unavailable");
-			} else {
-				elem.classed('tournament-bracket-tree-node-match', true);
-				elem.classed('tournament-bracket-tree-node-match-' + node.state, true);
-				if (node.state === 'unavailable')
-					elem.append('svg:text').text("Unavailable");
-				else {
-					let teams = elem.append('svg:text').attr('y', -nodeSize.realHeight / 5)
-						.classed('tournament-bracket-tree-node-match-teams', true);
-					let teamA = teams.append('svg:tspan').classed('tournament-bracket-tree-node-match-team', true)
-						.text(node.children[0].team);
-					teams.append('svg:tspan').text(" vs ");
-					let teamB = teams.append('svg:tspan').classed('tournament-bracket-tree-node-match-team', true)
-						.text(node.children[1].team);
+			const outerElem = elem;
 
-					let score = elem.append('svg:text').attr('y', nodeSize.realHeight / 5);
-					if (node.state === 'available')
-						score.text("Waiting");
-					else if (node.state === 'challenging')
-						score.text("Challenging");
-					else if (node.state === 'inprogress')
-						score.append('svg:a').attr('xlink:href', toRoomid(node.room).toLowerCase()).classed('ilink', true).text("In-progress").on('click', () => {
-							const ev = d3.event as MouseEvent;
-							if (ev.metaKey || ev.ctrlKey) return;
-							ev.preventDefault();
-							ev.stopPropagation();
-							let roomid = (ev.currentTarget as Element).getAttribute('href');
-							PS.join(roomid as RoomID);
-						});
-					else if (node.state === 'finished') {
-						if (node.result === 'win') {
-							teamA.classed('tournament-bracket-tree-node-match-team-win', true);
-							teamB.classed('tournament-bracket-tree-node-match-team-loss', true);
-						} else if (node.result === 'loss') {
-							teamA.classed('tournament-bracket-tree-node-match-team-loss', true);
-							teamB.classed('tournament-bracket-tree-node-match-team-win', true);
-						} else {
-							teamA.classed('tournament-bracket-tree-node-match-team-draw', true);
-							teamB.classed('tournament-bracket-tree-node-match-team-draw', true);
-						}
-
-						elem.classed('tournament-bracket-tree-node-match-result-' + node.result, true);
-						score.text(node.score.join(" - "));
-					}
-				}
+			if (node.abbreviated) {
+				elem.append('svg:text').attr('y', -nodeSize.realHeight / 4 + 4)
+					.attr('x', -nodeSize.realWidth / 2 - 7).classed('tournament-bracket-tree-abbreviated', true)
+					.text('...');
 			}
 
-			if (node.parent?.state === 'finished') {
-				if (node.parent.result === 'draw')
-					elem.classed('tournament-bracket-tree-node-draw', true);
-				else if (node.team === node.parent.team)
-					elem.classed('tournament-bracket-tree-node-win', true);
-				else
-					elem.classed('tournament-bracket-tree-node-loss', true);
+			if (node.state === 'inprogress') {
+				elem = elem.append('svg:a').attr('xlink:href', toRoomid(node.room)).classed('ilink', true)
+					.on('click', () => {
+						const ev = d3.event as MouseEvent;
+						if (ev.metaKey || ev.ctrlKey) return;
+						ev.preventDefault();
+						ev.stopPropagation();
+						const roomid = (ev.currentTarget as Element).getAttribute('href');
+						PS.join(roomid as RoomID);
+					});
+			}
+
+			outerElem.classed('tournament-bracket-tree-node-match', true);
+			outerElem.classed('tournament-bracket-tree-node-match-' + node.state, true);
+
+			if (node.team && !node.team1 && !node.team2) {
+				const rect = elem.append('svg:rect').classed('tournament-bracket-tree-draw', true)
+					.attr('rx', nodeSize.radius)
+					.attr('x', -nodeSize.realWidth / 2).attr('width', nodeSize.realWidth);
+				rect.attr('y', -nodeSize.smallRealHeight / 2).attr('height', nodeSize.smallRealHeight);
+				if (node.team === name) rect.attr('stroke-dasharray', '5,5').attr('stroke-width', 2);
+
+				elem.append('svg:text').classed('tournament-bracket-tree-node-team', true)
+					.classed('tournament-bracket-tree-node-team-draw', true)
+					.text(node.team || '');
+			} else {
+				const rect1 = elem.append('svg:rect')
+					.attr('rx', nodeSize.radius)
+					.attr('x', -nodeSize.realWidth / 2).attr('width', nodeSize.realWidth)
+					.attr('y', -nodeSize.smallRealHeight).attr('height', nodeSize.smallRealHeight);
+				const rect2 = elem.append('svg:rect')
+					.attr('rx', nodeSize.radius)
+					.attr('x', -nodeSize.realWidth / 2).attr('width', nodeSize.realWidth)
+					.attr('y', 0).attr('height', nodeSize.smallRealHeight);
+				if (node.team1 === name) rect1.attr('stroke-dasharray', '5,5').attr('stroke-width', 2);
+				if (node.team2 === name) rect2.attr('stroke-dasharray', '5,5').attr('stroke-width', 2);
+
+				const row1 = elem.append('svg:text').attr('y', -nodeSize.realHeight / 4 + nodeSize.textOffset)
+					.classed('tournament-bracket-tree-node-row1', true);
+				const row2 = elem.append('svg:text').attr('y', nodeSize.realHeight / 4 + nodeSize.textOffset)
+					.classed('tournament-bracket-tree-node-row2', true);
+
+				const team1 = row1.append('svg:tspan').classed('tournament-bracket-tree-team', true)
+					.text(node.team1 || '');
+				const team2 = row2.append('svg:tspan').classed('tournament-bracket-tree-team', true)
+					.text(node.team2 || '');
+
+				if (node.state === 'available') {
+					elem.append('title').text("Waiting");
+				} else if (node.state === 'challenging') {
+					elem.append('title').text("Challenging");
+				} else if (node.state === 'inprogress') {
+					elem.append('title').text("In-progress");
+				} else if (node.state === 'finished') {
+					if (node.result === 'win') {
+						rect1.classed('tournament-bracket-tree-win', true);
+						rect2.classed('tournament-bracket-tree-loss', true);
+						team1.classed('tournament-bracket-tree-team-win', true);
+						team2.classed('tournament-bracket-tree-team-loss', true);
+					} else if (node.result === 'loss') {
+						rect1.classed('tournament-bracket-tree-loss', true);
+						rect2.classed('tournament-bracket-tree-win', true);
+						team1.classed('tournament-bracket-tree-team-loss', true);
+						team2.classed('tournament-bracket-tree-team-win', true);
+					} else {
+						rect1.classed('tournament-bracket-tree-draw', true);
+						rect2.classed('tournament-bracket-tree-draw', true);
+						team1.classed('tournament-bracket-tree-team-draw', true);
+						team2.classed('tournament-bracket-tree-team-draw', true);
+					}
+
+					elem.classed('tournament-bracket-tree-node-match-result-' + node.result, true);
+					row1.append('svg:tspan').text(` (${node.score[0]})`).classed('tournament-bracket-tree-score', true);
+					row2.append('svg:tspan').text(` (${node.score[1]})`).classed('tournament-bracket-tree-score', true);
+				}
 			}
 		});
 
 		return div;
 	};
 	override componentDidMount() {
-		this.base!.appendChild(this.generateTreeBracket(this.props.data));
+		this.base!.appendChild(this.generateTreeBracket(this.props.data, this.props.abbreviated));
 	}
 	override shouldComponentUpdate(props: { data: TournamentTreeBracketData }) {
 		if (props.data === this.props.data && this.d3Loaded) return false;
@@ -782,6 +912,26 @@ export class TournamentTreeBracket extends preact.Component<{
 		return false;
 	}
 	render() {
-		return <div></div>;
+		return <div class="pad"></div>;
 	}
 }
+
+export class TourPopOutPanel extends PSRoomPanel {
+	static readonly id = 'tourpopout';
+	static readonly routes = ['tourpopout'];
+	static readonly location = 'semimodal-popup';
+	static readonly noURL = true;
+	override componentDidMount() {
+		const tour = this.props.room.args?.tour as ChatTournament;
+		if (tour) this.subscribeTo(tour, () => this.forceUpdate());
+	}
+	override render() {
+		const room = this.props.room;
+		const tour = room.args?.tour as ChatTournament;
+		return <PSPanelWrapper room={room} fullSize>
+			{tour && <TournamentBracket tour={tour} poppedOut />}
+		</PSPanelWrapper>;
+	}
+}
+
+PS.addRoomType(TourPopOutPanel);

@@ -718,6 +718,10 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 		this.noURL = options.noURL || false;
 		this.args = options.args || null;
 	}
+	getParent() {
+		if (this.parentRoomid) return PS.rooms[this.parentRoomid] || null;
+		return null;
+	}
 	notify(options: { title: string, body?: string, noAutoDismiss?: boolean, id?: string }) {
 		if (PS.isVisible(this)) return;
 		if (options.noAutoDismiss && !options.id) {
