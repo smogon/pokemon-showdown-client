@@ -332,17 +332,17 @@ class OptionsPanel extends PSRoomPanel {
 				<button class="button" data-href="avatars"> Avatar..</button>
 			</p>
 
-			{
-				this.state.showStatusInput ?
+			{this.state.showStatusInput ? (
 					<p>
 						<input name="statustext"></input>
 						<button class="button" onClick={this.editStatus}><i class="fa fa-pencil"></i></button>
-					</p> :
+					</p>
+				) : (
 					<p>
 						<button class="button" onClick={this.handleShowStatusInput} disabled={this.state.showStatusUpdated}>
 							{this.state.showStatusUpdated ? 'Status Updated' : 'Status..'}</button>
 					</p>
-			}
+			)}
 
 			<hr />
 			<h3>Graphics</h3>
