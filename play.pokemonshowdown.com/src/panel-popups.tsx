@@ -304,11 +304,11 @@ class OptionsPanel extends PSRoomPanel {
 	};
 	setChatroomTimestamp = (e: Event) => {
 		const timestamp = (e.currentTarget as HTMLSelectElement).value as TimestampOptions;
-		PS.prefs.set('timestamps', { chatrooms: !timestamp ? false : timestamp, pms: PS.prefs.timestamps.pms });
+		PS.prefs.set('timestamps', { ...PS.prefs.timestamps, chatrooms: timestamp || undefined });
 	};
 	setPMsTimestamp = (e: Event) => {
 		const timestamp = (e.currentTarget as HTMLSelectElement).value as TimestampOptions;
-		PS.prefs.set('timestamps', { chatrooms: PS.prefs.timestamps.chatrooms, pms: !timestamp ? false : timestamp });
+		PS.prefs.set('timestamps', { ...PS.prefs.timestamps, pms: timestamp || undefined });
 	};
 
 	handleShowStatusInput = (ev: Event) => {

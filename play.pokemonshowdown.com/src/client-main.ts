@@ -28,7 +28,7 @@ declare const BattleTextNotAFD: any;
  * String that contains only lowercase alphanumeric characters.
  */
 export type RoomID = Lowercase<string> & { __isRoomID: true };
-export type TimestampOptions = false | 'minutes' | 'seconds';
+export type TimestampOptions = 'minutes' | 'seconds' | undefined;
 
 const PSPrefsDefaults: { [key: string]: any } = {};
 
@@ -71,7 +71,7 @@ class PSPrefs extends PSStreamModel<string | null> {
 	 * true = one panel, false = two panels, left and right
 	 */
 	onepanel: boolean | 'vertical' = false;
-	timestamps: { chatrooms: TimestampOptions, pms: TimestampOptions } = { chatrooms: false, pms: false };
+	timestamps: { chatrooms?: TimestampOptions, pms?: TimestampOptions } = {};
 
 	mute = false;
 	effectvolume = 50;

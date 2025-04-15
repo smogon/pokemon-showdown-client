@@ -102,7 +102,7 @@ export class BattleLog {
 		});
 		this.addNode(el);
 	}
-	add(args: Args, kwArgs?: KWArgs, preempt?: boolean, showTimestamps: false | 'minutes' | 'seconds' = false) {
+	add(args: Args, kwArgs?: KWArgs, preempt?: boolean, showTimestamps?: 'minutes' | 'seconds') {
 		if (kwArgs?.silent) return;
 		const battle = this.scene?.battle;
 		if (battle?.seeking) {
