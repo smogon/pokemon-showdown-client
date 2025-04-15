@@ -36623,6 +36623,83 @@ export const BattleMoveAnims: AnimTable = {
 			}, 'ballistic', 'fade');
 		},
 	},
+	malignantchain: {
+		anim(scene, [attacker, defender]) {
+			// Swing backward
+			attacker.anim({
+				z: attacker.behind(15),
+				time: 200,
+			}, 'decel');
+			attacker.anim({
+				z: defender.behind(-170),
+				time: 100,
+			}, 'accel');
+			attacker.anim({
+				z: attacker.z,
+				time: 300,
+			}, 'swing');
+
+			// Launch the chain
+			scene.showEffect('shadowball', {
+				x: attacker.x,
+				y: attacker.y,
+				z: attacker.z,
+				scale: 0.5,
+				opacity: 0.5,
+				time: 275,
+			}, {
+				x: defender.x,
+				y: defender.y,
+				z: defender.z,
+				time: 500,
+			}, 'linear', '', { filter: 'hue-rotate(30deg) brightness(1.5)' });
+
+			// Chain expansion
+			for (let i = 0; i < 5; i++) {
+				scene.showEffect('shadowball', {
+					x: defender.x,
+					y: defender.y,
+					z: defender.z,
+					scale: 0.5,
+					opacity: 0.5,
+					time: 550,
+				}, {
+					x: defender.x + 30 * (i - 2),
+					time: 950,
+				}, 'decel', 'fade', { filter: 'hue-rotate(30deg) brightness(1.5)' });
+			}
+
+			// Defender gets squeezed
+			defender.delay(550);
+			defender.anim({
+				xscale: 0.6,
+				time: 200,
+			});
+			defender.delay(200);
+			defender.anim({
+				xscale: 1,
+				time: 150,
+			});
+
+			// Poison particles fly out
+			let x2 = [1, -1, -1, 1];
+			let y2 = [1, 1, -1, -1];
+
+			for (let i = 0; i < 4; i++) {
+				scene.showEffect('poisonwisp', {
+					x: defender.x,
+					y: defender.y,
+					z: defender.z,
+					scale: 0.7,
+					time: 950,
+				}, {
+					x: defender.x + x2[i] * 50,
+					y: defender.y + y2[i] * 38,
+					time: 1100,
+				}, 'ballistic', 'fade', { filter: 'hue-rotate(15deg)' });
+			}
+		},
+	},
 };
 
 // placeholder animations
