@@ -1048,7 +1048,7 @@ export class BattleLog {
 		this.innerElem.appendChild(this.preemptElem.firstChild);
 	}
 
-	static escapeFormat(formatid: string): string {
+	static escapeFormat(formatid = ''): string {
 		let atIndex = formatid.indexOf('@@@');
 		if (atIndex >= 0) {
 			return this.escapeFormat(formatid.slice(0, atIndex)) +
@@ -1062,7 +1062,7 @@ export class BattleLog {
 		}
 		return this.escapeHTML(formatid);
 	}
-	static formatName(formatid: string): string {
+	static formatName(formatid = ''): string {
 		let atIndex = formatid.indexOf('@@@');
 		if (atIndex >= 0) {
 			return this.formatName(formatid.slice(0, atIndex)) +
@@ -1077,7 +1077,8 @@ export class BattleLog {
 		return formatid;
 	}
 
-	static escapeHTML(str: string, jsEscapeToo?: boolean) {
+	static escapeHTML(str: string | number, jsEscapeToo?: boolean) {
+		if (typeof str === 'number') str = `${str}`;
 		if (typeof str !== 'string') return '';
 		str = str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 		if (jsEscapeToo) str = str.replace(/\\/g, '\\\\').replace(/'/g, '\\\'');

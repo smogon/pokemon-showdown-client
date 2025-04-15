@@ -18,6 +18,7 @@ import type { Args } from "./battle-text-parser";
 import { PSLoginServer } from "./client-connection";
 import type { BattleRoom } from "./panel-battle";
 import { BattleChoiceBuilder } from "./battle-choices";
+import { ChatTournament, TournamentBox } from "./panel-chat-tournament";
 
 declare const formatText: any; // from js/server/chat-formatter.js
 
@@ -44,6 +45,7 @@ export class ChatRoom extends PSRoom {
 	/** n.b. this will be null outside of battle rooms */
 	battle: Battle | null = null;
 	log: BattleLog | null = null;
+	tour: ChatTournament | null = null;
 
 	joinLeave: { join: string[], leave: string[], messageId: string } | null = null;
 
@@ -84,6 +86,11 @@ export class ChatRoom extends PSRoom {
 			this.renameUser(args[1], args[2]);
 			break;
 
+		case 'tournament': case 'tournaments':
+			this.tour ||= new ChatTournament(this);
+			this.tour.receiveLine(args);
+			return;
+
 		case 'c':
 			if (`${args[2]} `.startsWith('/challenge ')) {
 				this.updateChallenge(args[1], args[2].slice(11));
@@ -92,6 +99,7 @@ export class ChatRoom extends PSRoom {
 			// falls through
 		case 'c:':
 			this.joinLeave = null;
+			if (this.tour) this.tour.joinLeave = null;
 			this.subtleNotify();
 			break;
 		}
@@ -808,10 +816,10 @@ class ChatPanel extends PSRoomPanel<ChatRoom> {
 		</div> : null;
 
 		return <PSPanelWrapper room={room} focusClick>
-			<div class="tournament-wrapper hasuserlist"></div>
-			<ChatLog class="chat-log" room={this.props.room} left={tinyLayout ? 0 : 146}>
+			<ChatLog class="chat-log" room={this.props.room} left={tinyLayout ? 0 : 146} top={room.tour?.info.isActive ? 30 : 0}>
 				{challengeTo || challengeFrom && [challengeTo, challengeFrom]}
 			</ChatLog>
+			{room.tour && <TournamentBox tour={room.tour} left={tinyLayout ? 0 : 146} />}
 			<ChatTextEntry
 				room={this.props.room} onMessage={this.send} onKey={this.onKey} left={tinyLayout ? 0 : 146} tinyLayout={tinyLayout}
 			/>

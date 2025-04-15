@@ -66,6 +66,7 @@ class PSPrefs extends PSStreamModel<string | null> {
 	 * Uses 1 and 0 instead of true/false for JSON packing reasons.
 	 */
 	ignore: { [userid: string]: 1 | 0 } | null = null;
+	tournaments: 'hide' | 'notify' | null = null;
 	/**
 	 * true = one panel, false = two panels, left and right
 	 */

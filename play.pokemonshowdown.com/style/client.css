@@ -1176,6 +1176,12 @@ a.ilink.yours {
 	font-weight: bold;
 	cursor: pointer;
 }
+.tournament-title:hover {
+	background: rgba(242, 247, 250, 0.85);
+}
+.dark .tournament-title:hover {
+	background: rgba(50, 50, 50, 0.85);
+}
 
 .tournament-status, .tournament-toggle {
 	position: absolute;
