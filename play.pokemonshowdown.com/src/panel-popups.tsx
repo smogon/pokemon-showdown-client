@@ -312,7 +312,7 @@ class OptionsPanel extends PSRoomPanel {
 	editStatus = (ev: Event) => {
 		const statusInput = this.base!.querySelector<HTMLInputElement>('input[name=statustext]');
 		if (!statusInput?.value.length) return;
-		PS.rooms['']?.send(`/status ${statusInput?.value || ''}`);
+		PS.send(`|/status ${statusInput?.value || ''}`);
 		this.setState({ showStatusUpdated: true, showStatusInput: false });
 		ev.preventDefault();
 		ev.stopImmediatePropagation();
