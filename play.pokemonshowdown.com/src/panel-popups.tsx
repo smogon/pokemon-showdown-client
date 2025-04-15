@@ -326,7 +326,7 @@ class OptionsPanel extends PSRoomPanel {
 					class="trainersprite yours" width="40" height="40" style={{ verticalAlign: 'middle' }}
 					src={Dex.resolveAvatar(`${PS.user.avatar}`)}
 				/> {}
-				<strong> {PS.user.name} </strong>
+				<strong>{PS.user.name}</strong>
 			</p>
 			<p>
 				<button class="button" data-href="avatars"> Avatar..</button>
