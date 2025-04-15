@@ -5,7 +5,7 @@ import { Net, PSIcon, getShowdownUsername, unpackTeam } from './utils';
 import { BattleLog } from '../../play.pokemonshowdown.com/src/battle-log';
 import type { PageProps } from './teams';
 import { Dex } from '../../play.pokemonshowdown.com/src/battle-dex';
-import { BattleStatNames } from '../../play.pokemonshowdown.com/src/battle-dex-data';
+import { BattleStatNames, type TypeName } from '../../play.pokemonshowdown.com/src/battle-dex-data';
 
 declare const toID: (str: any) => string;
 declare const BattleAliases: Record<string, string>;
@@ -150,7 +150,7 @@ function PokemonSet({ set }: { set: Dex.PokemonSet }) {
 				move = `${move}[${hpType}]`;
 			}
 
-			let forcedType = null;
+			let forcedType: TypeName | null = null;
 			let item = Dex.items.get(set.item);
 			if (item) {
 				if (move === 'Judgment' && item.onPlate && !item.zMoveType) {
@@ -176,9 +176,7 @@ function PokemonSet({ set }: { set: Dex.PokemonSet }) {
 					forcedType = 'Water';
 					break;
 				}
-			}
-
-			if (move === 'Ivy Cudgel') {
+			} else if (move === 'Ivy Cudgel') {
 				switch (set.species) {
 				case 'Ogerpon-Cornerstone':
 					forcedType = 'Fighting';
@@ -190,6 +188,8 @@ function PokemonSet({ set }: { set: Dex.PokemonSet }) {
 					forcedType = 'Water';
 					break;
 				}
+			} else if (move === 'Revelation Dance') {
+				forcedType = Dex.species.get(set.species).types[0]
 			}
 
 			if (set.ability) {
