@@ -299,14 +299,6 @@ export class PSMain extends preact.Component {
 		super();
 		PS.subscribe(() => this.forceUpdate());
 
-		let autojoin = PS.prefs.autojoin;
-		if (autojoin) {
-			let rooms = typeof autojoin === 'string' ? autojoin : autojoin[PS.server.id] || '';
-			if (rooms.length) {
-				PS.rooms['']?.sendDirect(`/autojoin ${rooms}`);
-			}
-		}
-
 		if (PSMain.isSafari) {
 			// I don't want to prevent users from being able to zoom, but iOS Safari
 			// auto-zooms when focusing textboxes (unless the font size is 16px),
