@@ -14,7 +14,7 @@ import { toID } from "./battle-dex";
 import { BattleLog } from "./battle-log";
 import type { Args } from "./battle-text-parser";
 import { BattleTooltips } from "./battle-tooltips";
-import type { PSStreamModel, PSSubscription } from "./client-core";
+import type { PSModel, PSStreamModel, PSSubscription } from "./client-core";
 import { PS, type PSRoom, type RoomID } from "./client-main";
 import { PSHeader, PSMiniHeader } from "./panel-topbar";
 
@@ -156,7 +156,7 @@ PS.router = new PSRouter();
 
 export class PSRoomPanel<T extends PSRoom = PSRoom> extends preact.Component<{ room: T }> {
 	subscriptions: PSSubscription[] = [];
-	subscribeTo<M>(model: PSStreamModel<M>, callback: (value: M) => void): PSSubscription {
+	subscribeTo<M>(model: PSModel<M> | PSStreamModel<M>, callback: (value: M) => void): PSSubscription {
 		const subscription = model.subscribe(callback);
 		this.subscriptions.push(subscription);
 		return subscription;
@@ -249,6 +249,7 @@ export class PSRoomPanel<T extends PSRoom = PSRoom> extends preact.Component<{ r
 export function PSPanelWrapper(props: {
 	room: PSRoom, children: preact.ComponentChildren,
 	focusClick?: boolean, scrollable?: boolean | 'hidden', width?: number | 'auto',
+	fullSize?: boolean,
 }) {
 	const room = props.room;
 	if (room.location === 'mini-window' && PS.leftPanelWidth !== null) {
@@ -263,7 +264,7 @@ export function PSPanelWrapper(props: {
 		</div>;
 	}
 	if (PS.isPopup(room)) {
-		const style = PSMain.getPopupStyle(room, props.width);
+		const style = PSMain.getPopupStyle(room, props.width, props.fullSize);
 		return <div class="ps-popup" id={`room-${room.id}`} style={style}>
 			{props.children}
 		</div>;
@@ -575,7 +576,10 @@ export class PSMain extends preact.Component {
 
 		return { display: 'none' };
 	}
-	static getPopupStyle(room: PSRoom, width?: number | 'auto'): any {
+	static getPopupStyle(room: PSRoom, width?: number | 'auto', fullSize?: boolean): any {
+		if (fullSize) {
+			return { width: '90%', maxHeight: '90%', maxWidth: 'none', position: 'relative', margin: '5vh auto 0' };
+		}
 		if (room.location === 'modal-popup' || !room.parentElem) {
 			return { maxWidth: width || 480 };
 		}
@@ -666,12 +670,12 @@ export class PSMain extends preact.Component {
 	}
 	renderRoom(room: PSRoom) {
 		const RoomType = PS.roomTypes[room.type];
-		const Panel = RoomType && !room.caughtError ? RoomType : PSRoomPanel;
+		const Panel = RoomType && !room.isPlaceholder && !room.caughtError ? RoomType : PSRoomPanel;
 		return <Panel key={room.id} room={room} />;
 	}
 	renderPopup(room: PSRoom) {
 		const RoomType = PS.roomTypes[room.type];
-		const Panel = RoomType ? RoomType : PSRoomPanel;
+		const Panel = RoomType && !room.isPlaceholder && !room.caughtError ? RoomType : PSRoomPanel;
 		if (room.location === 'popup' && room.parentElem) {
 			return <Panel key={room.id} room={room} />;
 		}
