@@ -1093,9 +1093,9 @@ export const PS = new class extends PSModel {
 		let autojoin = this.prefs.autojoin;
 		if (autojoin) {
 			let rooms = autojoin[this.server.id] || '';
-			rooms.split(",").forEach(title => {
-				this.addRoom({ id: toID(title) as RoomID, title, connected: true }, true);
-			});
+			for (let title of rooms.split(",")) {
+				this.addRoom({ id: toID(title) as unknown as RoomID, title, connected: true }, true);
+			};
 		}
 
 		this.updateLayout();
@@ -1825,7 +1825,7 @@ export const PS = new class extends PSModel {
 		let autojoinCount = 0;
 		let rooms = this.rightRoomList;
 		for (let roomid of rooms) {
-			let room = PS.rooms[roomid];
+			let room = PS.rooms[roomid] as ChatRoom;
 			if (!room) return;
 			if (room.type !== 'chat' || room.pmTarget) continue;
 			autojoins.push(room.id.includes('-') ? room.id : (room.title || room.id));
@@ -1834,8 +1834,8 @@ export const PS = new class extends PSModel {
 			if (autojoinCount >= 15) break;
 		}
 
-		const thisAutojoin = autojoins.join(',') || undefined;
-		let autojoin = this.prefs.autojoin || undefined;
+		const thisAutojoin = autojoins.join(',') || null;
+		let autojoin = this.prefs.autojoin || null;
 		if (this.server.id === 'showdown' && typeof autojoin !== 'object') {
 			// Main server only mode
 			if (autojoin === thisAutojoin) return;
@@ -1846,7 +1846,7 @@ export const PS = new class extends PSModel {
 			autojoin = typeof autojoin === 'string' ? { showdown: autojoin } : autojoin || {};
 			if (autojoin[this.server.id] === thisAutojoin) return;
 
-			autojoin[this.server.id] = thisAutojoin || undefined;
+			autojoin[this.server.id] = thisAutojoin || '';
 			this.prefs.set('autojoin', autojoin);
 		}
 	}
