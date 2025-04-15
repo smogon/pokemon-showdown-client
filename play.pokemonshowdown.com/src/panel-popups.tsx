@@ -590,6 +590,7 @@ class BattleForfeitPanel extends PSRoomPanel {
 	static readonly id = 'forfeit';
 	static readonly routes = ['forfeitbattle'];
 	static readonly location = 'semimodal-popup';
+	static readonly noURL = true;
 
 	handleForfeit = (ev: Event) => {
 		const elem = this.props.room.parentElem;
