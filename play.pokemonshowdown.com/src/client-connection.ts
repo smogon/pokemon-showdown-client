@@ -59,6 +59,7 @@ export class PSConnection {
 }
 
 PS.connection = new PSConnection();
+PS.prefs.doAutojoin();
 
 export const PSLoginServer = new class {
 	rawQuery(act: string, data: PostData): Promise<string | null> {

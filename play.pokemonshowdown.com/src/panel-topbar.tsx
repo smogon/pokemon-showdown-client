@@ -29,6 +29,7 @@ window.addEventListener('drop', e => {
 	// in the tab, which is generally undesirable anyway.
 	e.preventDefault();
 	PS.dragging = null;
+	PS.updateAutojoin();
 });
 window.addEventListener('dragend', e => {
 	e.preventDefault();
