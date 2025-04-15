@@ -644,28 +644,43 @@ class TeamDropdown extends preact.Component<{ format: string }> {
 }
 
 export class TeamForm extends preact.Component<{
-	children: preact.ComponentChildren, class?: string, format?: string, teamFormat?: string,
+	children: preact.ComponentChildren, class?: string, format?: string, teamFormat?: string, hideFormat?: boolean,
 	onSubmit: ((e: Event, format: string, team?: Team) => void) | null,
+	onValidate?: ((e: Event, format: string, team?: Team) => void) | null,
 }> {
-	override state = { format: '[Gen 7] Random Battle' };
-	changeFormat = (e: Event) => {
-		this.setState({ format: (e.target as HTMLButtonElement).value });
+	override state = { format: `[Gen ${Dex.gen}] Random Battle` };
+	changeFormat = (ev: Event) => {
+		this.setState({ format: (ev.target as HTMLButtonElement).value });
 	};
-	submit = (e: Event) => {
-		e.preventDefault();
-		const format = this.base!.querySelector<HTMLButtonElement>('button[name=format]')!.value;
+	submit = (ev: Event) => {
+		ev.preventDefault();
+		const format = this.state.format;
 		const teamKey = this.base!.querySelector<HTMLButtonElement>('button[name=team]')!.value;
 		const team = teamKey ? PS.teams.byKey[teamKey] : undefined;
-		this.props.onSubmit?.(e, format, team);
+		this.props.onSubmit?.(ev, format, team);
+	};
+	handleClick = (ev: Event) => {
+		let target = ev.target as HTMLButtonElement | null;
+		while (target && target !== this.base) {
+			if (target.tagName === 'BUTTON' && target.name === 'validate') {
+				ev.preventDefault();
+				const format = this.state.format;
+				const teamKey = this.base!.querySelector<HTMLButtonElement>('button[name=team]')!.value;
+				const team = teamKey ? PS.teams.byKey[teamKey] : undefined;
+				this.props.onSubmit?.(ev, format, team);
+				return;
+			}
+			target = target.parentNode as HTMLButtonElement | null;
+		}
 	};
 	render() {
-		return <form class={this.props.class} onSubmit={this.submit}>
-			<p>
+		return <form class={this.props.class} onSubmit={this.submit} onClick={this.handleClick}>
+			{!this.props.hideFormat && <p>
 				<label class="label">
 					Format:<br />
 					<FormatDropdown onChange={this.changeFormat} format={this.props.format} />
 				</label>
-			</p>
+			</p>}
 			<p>
 				<label class="label">
 					Team:<br />

@@ -1190,38 +1190,47 @@ pre.textbox.textbox-empty[placeholder]:before {
 	top: 0;
 	left: 0;
 	right: 0;
-	height: 2em;
-	line-height: 2em;
+	height: 30px;
+	line-height: 30px;
 	text-align: center;
 	border-bottom: 1px #aaa solid;
 }
 .tournament-wrapper.active {
 	display: block;
 }
-.tournament-wrapper.active + .chat-log {
-	top: 2.4em;
-}
 
 .tournament-title {
-	font-weight: bold;
+	display: block;
 	cursor: pointer;
+	font: inherit;
+	font-weight: bold;
+	height: 30px;
+	border: 0;
+	padding: 0;
+	background: transparent;
+	width: 100%;
+	text-align: left;
+}
+.tournament-title:hover {
+	background: rgba(242, 247, 250, 0.85);
+}
+.dark .tournament-title:hover {
+	background: rgba(50, 50, 50, 0.85);
+}
+.tournament-title i.fa {
+	float: right;
+	line-height: 30px;
+	padding-right: 5px;
 }
 
-.tournament-status, .tournament-toggle {
-	position: absolute;
-	top: 0;
-	padding: 0 0.5em;
-	font-weight: normal;
-	font-size: 80%;
-	background-color: rgba(242, 247, 250, 0.85);
-	border-right: 1px #aaa solid;
-}
 .tournament-status {
-	left: 0;
-}
-.tournament-toggle {
-	right: 0;
-	border-left: 1px #aaa solid;
+	background: rgba(242, 247, 250, 0.85);
+	border-right: 1px #aaa solid;
+	padding: 0 5px;
+	margin-right: 5px;
+	line-height: 30px;
+	font-weight: normal;
+	display: inline-block;
 }
 
 .tournament-box {
@@ -1234,19 +1243,23 @@ pre.textbox.textbox-empty[placeholder]:before {
 	border-bottom: 1px #aaa solid;
 	border-right: 1px #aaa solid;
 	background-color: rgba(242, 247, 250, 0.85);
-	max-height: 0;
-	overflow: hidden;
-	transition: max-height 0.15s;
-	-webkit-transition: max-height 0.15s;
+	overflow: auto;
+  transform-origin: top;
+	transform: scaleY(0);
 	touch-action: none;
+	transition: transform 0.15s ease-out;
+}
+.tournament-box.active {
+	transform: scaleY(1);
+	transition: transform 0.15s ease-out;
 }
 
 .tournament-bracket {
 	max-height: 200px;
 	padding: 10px;
-	overflow: hidden;
+	overflow: auto;
+	-webkit-overflow-scrolling: touch;
 	font-size: 8pt;
-	touch-action: none;
 }
 .tournament-bracket-overflowing {
 	height: 200px;
@@ -1364,12 +1377,11 @@ pre.textbox.textbox-empty[placeholder]:before {
 }
 
 .tournament-tools {
-	padding: 10px;
-	display: none;
+	padding: 1px 10px;
 	border-top: 1px #aaa solid;
 }
-.tournament-tools.active {
-	display: block;
+.tournament-tools p {
+	margin: 0.5em 0;
 }
 .tournament-team {
 	padding-bottom: 5px;
@@ -1383,32 +1395,6 @@ pre.textbox.textbox-empty[placeholder]:before {
 }
 .tournament-tools .button {
 	font-size: 9pt;
-}
-
-.tournament-join,
-.tournament-leave,
-.tournament-validate {
-	display: none;
-}
-.tournament-join.active,
-.tournament-leave.active,
-.tournament-validate.active {
-	display: inline;
-}
-
-.tournament-nomatches,
-.tournament-challenge,
-.tournament-challengeby,
-.tournament-challenging,
-.tournament-challenged {
-	display: none;
-}
-.tournament-nomatches.active,
-.tournament-challenge.active,
-.tournament-challengeby.active,
-.tournament-challenging.active,
-.tournament-challenged.active {
-	display: block;
 }
 
 .tournament-message-create,
