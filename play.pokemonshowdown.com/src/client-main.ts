@@ -65,7 +65,7 @@ class PSPrefs extends PSStreamModel<string | null> {
 	 * List of rooms to autojoin
 	 * different for each server
 	 */
-	autojoin: { [serverid: string]: string } | null = null;
+	autojoin: { [serverid: string]: string } | string | null = null;
 	/**
 	 * List of users whose messages should be ignored. userid table.
 	 * Uses 1 and 0 instead of true/false for JSON packing reasons.
