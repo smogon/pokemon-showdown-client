@@ -149,8 +149,13 @@ function PokemonSet({ set }: { set: Dex.PokemonSet }) {
 				move = move.slice(0, 13);
 				move = `${move}[${hpType}]`;
 			}
+
+			let judgmentType;
+			if (move === 'Judgment' && set.item && Dex.items.get(set.item).onPlate) {
+				judgmentType = Dex.items.get(set.item).onPlate;
+			}
 			// hide the alt so it doesn't interfere w/ copy/pasting
-			return <>- {move} <PSIcon type={Dex.moves.get(move).type} hideAlt /><br /></>;
+			return <>- {move} <PSIcon type={judgmentType || Dex.moves.get(move).type} hideAlt /><br /></>;
 		}) : <></>}
 
 		{typeof set.happiness === 'number' && set.happiness !== 255 && !isNaN(set.happiness) ?
