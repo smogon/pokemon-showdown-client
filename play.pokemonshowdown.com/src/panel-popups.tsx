@@ -2,7 +2,8 @@ import preact from "../js/lib/preact";
 import { toID, toRoomid, toUserid, Dex } from "./battle-dex";
 import type { ID } from "./battle-dex-data";
 import { BattleLog } from "./battle-log";
-import { PSRoom, type RoomOptions, PS, type PSLoginState } from "./client-main";
+import { PSRoom, type RoomOptions, PS, type PSLoginState, type RoomID } from "./client-main";
+import { type BattleRoom } from "./panel-battle";
 import { PSRoomPanel, PSPanelWrapper } from "./panels";
 
 /**
@@ -585,6 +586,100 @@ class AvatarsPanel extends PSRoomPanel {
 	}
 }
 
+class BattleForfeitPanel extends PSRoomPanel {
+	static readonly id = 'forfeit';
+	static readonly routes = ['forfeitbattle'];
+	static readonly location = 'semimodal-popup';
+
+	handleForfeit = (ev: Event) => {
+		const elem = this.props.room.parentElem;
+		const roomid = (elem as HTMLInputElement)?.value as RoomID || PS.getRoom(elem)?.id || '' as RoomID;
+		const room = PS.rooms[roomid] as BattleRoom;
+
+		const closeAfter = this.base!.querySelector<HTMLInputElement>('input[name=closeroom]')?.checked;
+		room.send("/forfeit");
+		if (closeAfter) PS.leave(room.id);
+		ev.preventDefault();
+		this.close();
+	};
+
+	update = () => {
+		this.forceUpdate();
+	};
+
+	override render() {
+		const room = this.props.room;
+		const elem = room.parentElem;
+		const roomid = (elem as HTMLInputElement)?.value as RoomID || PS.getRoom(elem)?.id || '' as RoomID;
+		const battleRoom = PS.rooms[roomid] as BattleRoom;
+
+		return <PSPanelWrapper room={room} width={480}><div class="pad">
+			<form>
+				<p>Forfeiting makes you lose the battle. Are you sure?</p>
+				<p>
+					<label class="checkbox"><input type="checkbox" name="closeroom" checked={true}></input> Close after
+						forfeiting</label>
+				</p>
+				<p>
+					<button onClick={this.handleForfeit} class="button"><strong>Forfeit</strong></button>
+					<button type="button" value={battleRoom.id} data-href="replaceplayer" class="button">
+						Replace player
+					</button>
+					<button type="button" name="close" data-cmd="/close" class="button autofocus">
+						Cancel
+					</button>
+				</p>
+			</form>
+
+		</div></PSPanelWrapper>;
+	}
+}
+
+class ReplacePlayerPanel extends PSRoomPanel {
+	static readonly id = 'replaceplayer';
+	static readonly routes = ['replaceplayer'];
+	static readonly location = 'semimodal-popup';
+
+	handleReplacePlayer = (ev: Event) => {
+		const elem = this.props.room.parentElem;
+		const roomid = (elem as HTMLInputElement)?.value as RoomID || PS.getRoom(elem)?.id || '' as RoomID;
+		const room = PS.rooms[roomid] as BattleRoom;
+		const newPlayer = this.base?.querySelector<HTMLInputElement>("input[name=newplayer]")?.value;
+		if (!newPlayer?.length) return room.add("|error|Enter player's name");
+		if (room.battle.ended) return room.add("|error|Cannot replace player, battle has already ended.");
+		let playerSlot = room.battle.p1.id === PS.user.userid ? "p1" : "p2";
+		room.send('/leavebattle');
+		room.send(`/addplayer ${newPlayer}, ${playerSlot}`);
+		this.close();
+		ev.preventDefault();
+	};
+
+	update = () => {
+		this.forceUpdate();
+	};
+
+	override render() {
+		const room = this.props.room;
+
+		return <PSPanelWrapper room={room} width={480}><div class="pad">
+			<form>
+				<p>Replacement player's name:</p>
+				<p>
+					<input name="newplayer" autofocus></input>
+				</p>
+				<p>
+					<button onClick={this.handleReplacePlayer} class="button"><strong>Replace</strong></button>
+
+					<button type="button" data-cmd="/close" class="button autofocus">
+						Cancel
+					</button>
+				</p>
+			</form>
+
+		</div></PSPanelWrapper>;
+	}
+}
+
 class PopupPanel extends PSRoomPanel {
 	static readonly id = 'popup';
 	static readonly routes = ['popup-*'];
@@ -606,4 +701,4 @@ class PopupPanel extends PSRoomPanel {
 	}
 }
 
-PS.addRoomType(UserPanel, VolumePanel, OptionsPanel, LoginPanel, AvatarsPanel, PopupPanel);
+PS.addRoomType(UserPanel, VolumePanel, OptionsPanel, LoginPanel, AvatarsPanel, BattleForfeitPanel, ReplacePlayerPanel, PopupPanel);
