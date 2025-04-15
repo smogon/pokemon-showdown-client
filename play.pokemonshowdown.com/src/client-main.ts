@@ -1821,8 +1821,6 @@ export const PS = new class extends PSModel {
 
 	updateAutojoin() {
 		if (!PS.server.registered) return;
-		if (!this.prefs.autojoin) this.prefs.autojoin = {};
-		if (!this.prefs.autojoin[this.server.id]) this.prefs.autojoin[this.server.id] = '';
 		let autojoins: string[] = [];
 		let autojoinCount = 0;
 		let rooms = this.rightRoomList;
