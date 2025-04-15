@@ -581,7 +581,7 @@ class AvatarsPanel extends PSRoomPanel {
 
 			</div>
 			<div style="clear:left"></div>
-			<p><button class="button" onClick={() => this.close()}>Cancel</button></p>
+			<p><button class="button" data-cmd="/close">Cancel</button></p>
 		</div></PSPanelWrapper>;
 	}
 }
