@@ -33,6 +33,10 @@ body {
 	text-align: center;
 }
 
+.grey {
+	color: #888888;
+}
+
 .dark .tabbar a.button,
 .dark .tabbar a.button:hover,
 .dark .header-vertical .tablist a.button,
@@ -1109,11 +1113,6 @@ p.or:after {
 }
 .revealed {
 	background-color: #C8FDEA;
-}
-.chat small {
-	font-weight: normal;
-	font-size: 8pt;
-	color: #888888;
 }
 .message-pm {
 	color: #007100;

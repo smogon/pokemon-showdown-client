@@ -152,7 +152,7 @@ export class BattleLog {
 				if (showTimestamps === 'seconds') {
 					components.push(date.getSeconds());
 				}
-				timestampHtml = `<small>[${components.map(x => x < 10 ? `0${x}` : x).join(':')}] </small>`;
+				timestampHtml = `<small class="grey">[${components.map(x => x < 10 ? `0${x}` : x).join(':')}] </small>`;
 			}
 			let isHighlighted = window.app?.rooms?.[battle!.roomid].getHighlight(message);
 			[divClass, divHTML, noNotify] = this.parseChatMessage(message, name, timestampHtml, isHighlighted);
