@@ -301,7 +301,7 @@ export class PSMain extends preact.Component {
 
 		let autojoin = PS.prefs.autojoin;
 		if (autojoin) {
-			let rooms = autojoin[PS.server.id] || '';
+			let rooms = typeof autojoin === 'string' ? autojoin : autojoin[PS.server.id] || '';
 			if (rooms.length) {
 				PS.rooms['']?.sendDirect(`/autojoin ${rooms}`);
 			}

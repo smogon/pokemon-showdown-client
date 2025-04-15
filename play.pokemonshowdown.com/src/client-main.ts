@@ -65,7 +65,7 @@ class PSPrefs extends PSStreamModel<string | null> {
 	 * List of rooms to autojoin
 	 * different for each server
 	 */
-	autojoin: { [serverid: string]: string } | null = null;
+	autojoin: { [serverid: string]: string } | string | null = null;
 	/**
 	 * List of users whose messages should be ignored. userid table.
 	 * Uses 1 and 0 instead of true/false for JSON packing reasons.
@@ -1093,9 +1093,9 @@ export const PS = new class extends PSModel {
 		let autojoin = this.prefs.autojoin;
 		if (autojoin) {
 			let rooms = autojoin[this.server.id] || '';
-			rooms.split(",").forEach(title => {
-				this.addRoom({ id: String(toID(title)) as RoomID, title, connected: true }, true);
-			});
+			for (let title of rooms.split(",")) {
+				this.addRoom({ id: toID(title) as unknown as RoomID, title, connected: true }, true);
+			};
 		}
 
 		this.updateLayout();
@@ -1821,40 +1821,33 @@ export const PS = new class extends PSModel {
 
 	updateAutojoin() {
 		if (!PS.server.registered) return;
-		if (!this.prefs.autojoin) this.prefs.autojoin = {};
-		if (!this.prefs.autojoin[this.server.id]) this.prefs.autojoin[this.server.id] = '';
 		let autojoins: string[] = [];
 		let autojoinCount = 0;
 		let rooms = this.rightRoomList;
 		for (let roomid of rooms) {
-			let room = PS.rooms[roomid];
+			let room = PS.rooms[roomid] as ChatRoom;
 			if (!room) return;
-			if (room.type !== 'chat') continue;
+			if (room.type !== 'chat' || room.pmTarget) continue;
 			autojoins.push(room.id.includes('-') ? room.id : (room.title || room.id));
 			if (room.id === 'staff' || room.id === 'upperstaff' || (PS.server.id !== 'showdown' && room.id === 'lobby')) continue;
 			autojoinCount++;
 			if (autojoinCount >= 15) break;
 		}
-		let curAutojoin = (this.prefs.autojoin);
-		if (typeof curAutojoin !== 'string') {
-			if (curAutojoin[this.server.id] === autojoins.join(',')) return;
-			if (!autojoins.length) {
-				delete curAutojoin[PS.server.id];
-			} else {
-				curAutojoin[this.server.id] = autojoins.join(',');
-			}
-		} else {
-			if (PS.server.id !== 'showdown') {
-				// Switch to the autojoin object to handle multiple servers
-				curAutojoin = { showdown: curAutojoin };
-				if (!autojoins.length) return;
-				curAutojoin[this.server.id] = autojoins.join(',');
-			} else {
-				if (curAutojoin === autojoins.join(',')) return;
-				curAutojoin[this.server.id] = autojoins.join(',') as never;
-			}
-		}
-		this.prefs.set('autojoin', curAutojoin);
 
+		const thisAutojoin = autojoins.join(',') || null;
+		let autojoin = this.prefs.autojoin || null;
+		if (this.server.id === 'showdown' && typeof autojoin !== 'object') {
+			// Main server only mode
+			if (autojoin === thisAutojoin) return;
+
+			this.prefs.set('autojoin', thisAutojoin || null);
+		} else {
+			// Multi server mode
+			autojoin = typeof autojoin === 'string' ? { showdown: autojoin } : autojoin || {};
+			if (autojoin[this.server.id] === thisAutojoin) return;
+
+			autojoin[this.server.id] = thisAutojoin || '';
+			this.prefs.set('autojoin', autojoin);
+		}
 	}
 };
