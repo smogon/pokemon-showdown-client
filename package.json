@@ -27,6 +27,7 @@
   },
   "devDependencies": {
     "@stylistic/eslint-plugin": "^4.0.1",
+    "@types/d3": "^3.5.53",
     "@types/jquery": "^3.5.3",
     "@types/mocha": "^5.2.6",
     "eslint": "^9.20.1",

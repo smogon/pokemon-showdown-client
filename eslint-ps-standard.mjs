@@ -68,7 +68,7 @@ export const defaultRules = {
 	"@stylistic/max-len": ["warn", {
 		"code": 120, "tabWidth": 0,
 		// DO NOT EDIT DIRECTLY: see bottom of file for source
-		"ignorePattern": "^\\s*(?:\\/\\/ \\s*)?(?:(?:export )?(?:let |const |readonly )?[a-zA-Z0-9_$.]+(?: \\+?=>? )|[a-zA-Z0-9$]+: \\[?|(?:return |throw )?(?:new )?(?:[a-zA-Z0-9$.]+\\()?)?(?:Utils\\.html|(?:this\\.)?(?:room\\.)?tr|\\$\\()?['\"`/]",
+		"ignorePattern": "^\\s*(?:\\/\\/ \\s*)?(?:(?:export )?(?:let |const |readonly )?[a-zA-Z0-9_$.]+(?: \\+?=>? )|[a-zA-Z0-9$]+: \\[?|(?:return |throw )?(?:new )?(?:[a-zA-Z0-9$.]+\\()?)?(?:[A-Za-z0-9.]+|\\$\\()?['\"`/]",
 	}],
 	"prefer-const": ["warn", { "destructuring": "all" }],
 
@@ -422,9 +422,8 @@ SOURCE FOR IGNOREPATTERN (compile with https://regexfree.k55.io/ )
   )?
 
   (
-    Utils\.html
-  |
-    (this\.)?(room\.)?tr
+    # tagged template
+    [A-Za-z0-9\.]+
   |
     \$\(
   )?

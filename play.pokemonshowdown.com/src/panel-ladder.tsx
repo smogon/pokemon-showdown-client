@@ -132,7 +132,7 @@ class LadderFormatPanel extends PSRoomPanel<LadderFormatRoom> {
 
 		const room = this.props.room;
 		return <h3>
-			{BattleLog.formatName(room.format!)} Top
+			{BattleLog.formatName(room.format)} Top
 			{room.searchValue ? ` - '${room.searchValue}'` : " 500"}
 		</h3>;
 	}
