@@ -5,7 +5,7 @@ import { Net, PSIcon, getShowdownUsername, unpackTeam } from './utils';
 import { BattleLog } from '../../play.pokemonshowdown.com/src/battle-log';
 import type { PageProps } from './teams';
 import { Dex } from '../../play.pokemonshowdown.com/src/battle-dex';
-import { BattleStatNames, type TypeName } from '../../play.pokemonshowdown.com/src/battle-dex-data';
+import { BattleStatNames } from '../../play.pokemonshowdown.com/src/battle-dex-data';
 
 declare const toID: (str: any) => string;
 declare const BattleAliases: Record<string, string>;
@@ -150,46 +150,46 @@ function PokemonSet({ set }: { set: Dex.PokemonSet }) {
 				move = `${move}[${hpType}]`;
 			}
 
-			let forcedType: TypeName | null = null;
+			let moveType = Dex.moves.get(move).type;
 			let item = Dex.items.get(set.item);
 			if (item) {
 				if (move === 'Judgment' && item.onPlate && !item.zMoveType) {
-					forcedType = item.onPlate;
+					moveType = item.onPlate;
 				} else if (move === 'Multi-Attack' && item.onMemory) {
-					forcedType = item.onMemory;
+					moveType = item.onMemory;
 				} else if (move === 'Techno Blast' && item.onDrive) {
-					forcedType = item.onDrive;
+					moveType = item.onDrive;
 				} else if (move === 'Natural Gift' && item.naturalGift) {
-					forcedType = item.naturalGift;
+					moveType = item.naturalGift;
 				}
 			}
 
 			if (move === 'Raging Bull') {
 				switch (set.species) {
 				case 'Tauros-Paldea-Combat':
-					forcedType = 'Fighting';
+					moveType = 'Fighting';
 					break;
 				case 'Tauros-Paldea-Blaze':
-					forcedType = 'Fire';
+					moveType = 'Fire';
 					break;
 				case 'Tauros-Paldea-Aqua':
-					forcedType = 'Water';
+					moveType = 'Water';
 					break;
 				}
 			} else if (move === 'Ivy Cudgel') {
 				switch (set.species) {
 				case 'Ogerpon-Cornerstone':
-					forcedType = 'Fighting';
+					moveType = 'Fighting';
 					break;
 				case 'Ogerpon-Hearthflame':
-					forcedType = 'Fire';
+					moveType = 'Fire';
 					break;
 				case 'Ogerpon-Wellspring':
-					forcedType = 'Water';
+					moveType = 'Water';
 					break;
 				}
 			} else if (move === 'Revelation Dance') {
-				forcedType = Dex.species.get(set.species).types[0];
+				moveType = Dex.species.get(set.species).types[0];
 			}
 
 			if (set.ability) {
@@ -198,24 +198,24 @@ function PokemonSet({ set }: { set: Dex.PokemonSet }) {
 				];
 				const allowTypeOverride = !noTypeOverride.includes(move);
 				if (set.ability === 'Normalize') {
-					forcedType = 'Normal';
+					moveType = 'Normal';
 				} else if (allowTypeOverride && Dex.moves.get(move).type === 'Normal') {
 					if (set.ability === 'Aerilate') {
-						forcedType = 'Flying';
+						moveType = 'Flying';
 					} else if (set.ability === 'Galvanize') {
-						forcedType = 'Electric';
+						moveType = 'Electric';
 					} else if (set.ability === 'Pixilate') {
-						forcedType = 'Fairy';
+						moveType = 'Fairy';
 					} else if (set.ability === 'Refrigerate') {
-						forcedType = 'Ice';
+						moveType = 'Ice';
 					}
 				} else if (set.ability === 'Liquid Voice' && Dex.moves.get(move).flags.sound) {
-					forcedType = 'Water';
+					moveType = 'Water';
 				}
 			}
 
 			// hide the alt so it doesn't interfere w/ copy/pasting
-			return <>- {move} <PSIcon type={forcedType || Dex.moves.get(move).type} hideAlt /><br /></>;
+			return <>- {move} <PSIcon type={moveType} hideAlt /><br /></>;
 		}) : <></>}
 
 		{typeof set.happiness === 'number' && set.happiness !== 255 && !isNaN(set.happiness) ?
