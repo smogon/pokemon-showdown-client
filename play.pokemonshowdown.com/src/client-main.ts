@@ -886,7 +886,7 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 		},
 
 		'autojoin,cmd,crq,query'() {
-			this.add('This is a PS system command; do not use it.');
+			this.add(`|error|This is a PS system command; do not use it.`);
 		},
 	});
 	clientCommands: ParsedClientCommands | null = null;
