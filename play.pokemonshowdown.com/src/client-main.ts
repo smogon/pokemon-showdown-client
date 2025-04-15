@@ -1094,7 +1094,7 @@ export const PS = new class extends PSModel {
 		if (autojoin) {
 			let rooms = autojoin[this.server.id] || '';
 			rooms.split(",").forEach(title => {
-				this.addRoom({ id: String(toID(title)) as RoomID, title, connected: true }, true);
+				this.addRoom({ id: toID(title) as RoomID, title, connected: true }, true);
 			});
 		}
 
