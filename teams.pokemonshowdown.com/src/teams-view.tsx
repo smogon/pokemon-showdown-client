@@ -151,8 +151,11 @@ function PokemonSet({ set }: { set: Dex.PokemonSet }) {
 			}
 
 			let judgmentType = null;
-			if (move === 'Judgment' && set.item && Dex.items.get(set.item).onPlate) {
-				judgmentType = Dex.items.get(set.item).onPlate;
+			if (move === 'Judgment' && set.item) {
+				let item = Dex.items.get(set.item);
+				if (item.onPlate && !item.zMoveType) {
+					judgmentType = item.onPlate;
+				}
 			}
 			// hide the alt so it doesn't interfere w/ copy/pasting
 			return <>- {move} <PSIcon type={judgmentType || Dex.moves.get(move).type} hideAlt /><br /></>;
