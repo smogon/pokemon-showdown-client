@@ -154,11 +154,11 @@ export class BattleLog {
 				}
 				timestampHtml = `<small class="gray">[${components.map(x => x < 10 ? `0${x}` : x).join(':')}] </small>`;
 			}
-			let isHighlighted = window.app?.rooms?.[battle!.roomid].getHighlight(message);
+			let isHighlighted = window.app?.rooms?.[battle!.roomid].getHighlight(message) || window.PS?.getHighlight(message);
 			[divClass, divHTML, noNotify] = this.parseChatMessage(message, name, timestampHtml, isHighlighted);
 			if (!noNotify && isHighlighted) {
-				let notifyTitle = "Mentioned by " + name + " in " + battle!.roomid;
-				app.rooms[battle!.roomid].notifyOnce(notifyTitle, "\"" + message + "\"", 'highlight');
+				let notifyTitle = "Mentioned by " + name + " in " + (battle?.roomid || '');
+				window.app?.rooms[battle?.roomid]?.notifyOnce(notifyTitle, "\"" + message + "\"", 'highlight');
 			}
 			break;
 
