@@ -590,68 +590,125 @@
 			}
 		};
 
-		TournamentBox.prototype.generateBracket = function (data) {
+		TournamentBox.prototype.forEachTreeNode = function (node, callback, depth) {
+			if (!depth) depth = 0;
+			callback(node, depth);
+			if (node.children) {
+				for (var i = 0; i < node.children.length; i++) {
+					this.forEachTreeNode(node.children[i], callback, depth + 1);
+				}
+			}
+		};
+
+		TournamentBox.prototype.cloneTree = function (node) {
+			const clonedNode = Object.assign(Object.create(null), node);
+			if (node.children) {
+				clonedNode.children = node.children.map(child => this.cloneTree(child));
+			}
+			return clonedNode;
+		};
+
+		TournamentBox.prototype.nodeSize = {
+			width: 160, height: 30,
+			radius: 5,
+			separationX: 20, separationY: 20,
+			textOffset: -1,
+		};
+
+		TournamentBox.prototype.generateBracket = function (data, abbreviated) {
 			if (data.type === 'tree') {
 				var $div = $('<div class="tournament-bracket-tree"></div>');
 
 				if (!data.rootNode) {
 					if (!('users' in data)) return;
-					var users = data.users.length;
-					if (users) $div.html('<b>' + users + '</b> user' + (users !== 1 ? 's' : '') + ':<br />' + BattleLog.escapeHTML(data.users.join(", ")));
+					var users = data.users;
+					if (users && users.length) {
+						$div.html('<b>' + users.length + '</b> user' + (users.length !== 1 ? 's' : '') + ':<br />' + BattleLog.escapeHTML(users.join(", ")));
+					} else {
+						$div.html('<b>0</b> users');
+					}
 					return $div;
 				}
 
 				var name = app.user.get('name');
-				var nodeSize = {
-					width: 150, height: 20,
-					radius: 5,
-					separationX: 30, separationY: 15
-				};
+				var nodeSize = this.nodeSize;
 
-				var nodesByDepth = [];
-				var stack = [{ node: data.rootNode, depth: 0 }];
-				while (stack.length > 0) {
-					var frame = stack.pop();
+				var newTree = this.cloneTree(data.rootNode);
+				if (newTree.team) newTree.highlightLink = true;
+				var highlightName = newTree.team;
 
-					if (!nodesByDepth[frame.depth])
-						nodesByDepth.push(0);
-					++nodesByDepth[frame.depth];
+				this.forEachTreeNode(newTree, function (node, depth) {
+					if (node.children && node.children.length === 2) {
+						node.team1 = node.children[0].team;
+						node.team2 = node.children[1].team;
+						var shouldHaveChildren = node.children.some(child => child.children?.length === 2);
+						if (!shouldHaveChildren) node.children = [];
+						if (depth >= 2 && node.children && node.children.length && abbreviated) {
+							node.children = [];
+							node.abbreviated = true;
+						}
 
-					if (!frame.node.children) frame.node.children = [];
-					frame.node.children.forEach(function (child) {
-						stack.push({ node: child, depth: frame.depth + 1 });
-					});
-				}
-				var maxDepth = nodesByDepth.length;
-				var maxWidth = 0;
-				nodesByDepth.forEach(function (nodes) {
-					if (nodes > maxWidth)
-						maxWidth = nodes;
+						if (node.highlightLink) {
+							for (var i = 0; i < node.children.length; i++) {
+								var child = node.children[i];
+								if (child.team === node.team) {
+									child.highlightLink = true;
+								}
+							}
+						} else if (node.state === 'inprogress' || node.state === 'available' || node.state === 'challenging') {
+							for (var i = 0; i < node.children.length; i++) {
+								node.children[i].highlightLink = true;
+							}
+						} else if (highlightName) {
+							for (var i = 0; i < node.children.length; i++) {
+								var child = node.children[i];
+								if (child.team === highlightName) {
+									child.highlightLink = true;
+								}
+							}
+						}
+					}
 				});
 
-				nodeSize.realWidth = nodeSize.width + nodeSize.radius * 2;
-				nodeSize.realHeight = nodeSize.height + nodeSize.radius * 2;
-				nodeSize.smallRealHeight = nodeSize.height / 2 + nodeSize.radius * 2;
+				var numLeaves = 0;
+				var hasLeafAtDepth = [];
+				this.forEachTreeNode(newTree, function (node, depth) {
+					hasLeafAtDepth[depth] || (hasLeafAtDepth[depth] = false);
+					if (!node.children || !node.children.length) {
+						numLeaves++;
+						hasLeafAtDepth[depth] = true;
+					}
+				});
+
+				var depthsWithLeaves = hasLeafAtDepth.filter(Boolean).length;
+				var breadthCompression = depthsWithLeaves > 2 ? 0.8 : 2;
+				var maxBreadth = numLeaves - (depthsWithLeaves - 1) / breadthCompression;
+				var maxDepth = hasLeafAtDepth.length;
+
+				var nodeSize = Object.assign(Object.create(null), this.nodeSize);
+				nodeSize.realWidth = nodeSize.width;
+				nodeSize.realHeight = nodeSize.height;
+				nodeSize.smallRealHeight = nodeSize.height / 2;
 				var size = {
-					width: nodeSize.realWidth * maxDepth + nodeSize.separationX * maxDepth,
-					height: nodeSize.realHeight * (maxWidth + 0.5) + nodeSize.separationY * maxWidth
+					width: nodeSize.realWidth * maxDepth + nodeSize.separationX * (maxDepth + 1),
+					height: nodeSize.realHeight * (maxBreadth + 0.5) + nodeSize.separationY * maxBreadth,
 				};
 
 				var tree = d3.layout.tree()
 					.size([size.height, size.width - nodeSize.realWidth - nodeSize.separationX])
 					.separation(function () { return 1; })
 					.children(function (node) {
-						return node.children.length === 0 ? null : node.children;
+						return node.children && node.children.length ? node.children : null;
 					});
-				var nodes = tree.nodes(data.rootNode);
+				var nodes = tree.nodes(newTree);
 				var links = tree.links(nodes);
 
 				var layoutRoot = d3.select($div[0])
 					.append('svg:svg').attr('width', size.width).attr('height', size.height)
 					.append('svg:g')
-					.attr('transform', 'translate(' + (-(nodeSize.realWidth + nodeSize.separationX) / 2) + ',0)');
+					.attr('transform', 'translate(' + (-(nodeSize.realWidth) / 2 - 6) + ',0)');
 
-				var link = d3.svg.diagonal()
+				var diagonalLink = d3.svg.diagonal()
 					.source(function (link) {
 						return { x: link.source.x, y: link.source.y + nodeSize.realWidth / 2 };
 					})
@@ -663,82 +720,102 @@
 					});
 				layoutRoot.selectAll('path.tournament-bracket-tree-link').data(links).enter()
 					.append('svg:path')
-					.attr('d', link)
+					.attr('d', diagonalLink)
 					.classed('tournament-bracket-tree-link', true)
 					.classed('tournament-bracket-tree-link-active', function (link) {
-						return link.source.state === 'finished' && link.source.team === link.target.team;
+						return !!link.target.highlightLink;
 					});
 
 				var nodeGroup = layoutRoot.selectAll('g.tournament-bracket-tree-node').data(nodes).enter()
 					.append('svg:g').classed('tournament-bracket-tree-node', true).attr('transform', function (node) {
 						return 'translate(' + (size.width - node.y) + ',' + node.x + ')';
 					});
-				nodeGroup.append('svg:rect')
-					.attr('rx', nodeSize.radius)
-					.attr('x', -nodeSize.realWidth / 2).attr('width', nodeSize.realWidth)
-					.each(function (node) {
-						var elem = d3.select(this);
-						if (node.children.length === 0)
-							elem.attr('y', -nodeSize.smallRealHeight / 2).attr('height', nodeSize.smallRealHeight);
-						else
-							elem.attr('y', -nodeSize.realHeight / 2).attr('height', nodeSize.realHeight);
-						if (node.team === name) elem.attr('stroke-dasharray', '5,5');
-					});
 				nodeGroup.each(function (node) {
 					var elem = d3.select(this);
-					if (node.children.length === 0) {
-						elem.classed('tournament-bracket-tree-node-team', true);
-						elem.append('svg:text').text(node.team || "Unavailable");
-					} else {
-						elem.classed('tournament-bracket-tree-node-match', true);
-						elem.classed('tournament-bracket-tree-node-match-' + node.state, true);
-						if (node.state === 'unavailable')
-							elem.append('svg:text').text("Unavailable");
-						else {
-							var teams = elem.append('svg:text').attr('y', -nodeSize.realHeight / 5).classed('tournament-bracket-tree-node-match-teams', true);
-							var teamA = teams.append('svg:tspan').classed('tournament-bracket-tree-node-match-team', true).text(node.children[0].team);
-							teams.append('svg:tspan').text(" vs ");
-							var teamB = teams.append('svg:tspan').classed('tournament-bracket-tree-node-match-team', true).text(node.children[1].team);
+					var outerElem = elem;
 
-							var score = elem.append('svg:text').attr('y', nodeSize.realHeight / 5);
-							if (node.state === 'available')
-								score.text("Waiting");
-							else if (node.state === 'challenging')
-								score.text("Challenging");
-							else if (node.state === 'inprogress')
-								score.append('svg:a').attr('xlink:href', app.root + toRoomid(node.room).toLowerCase()).classed('ilink', true).text("In-progress").on('click', function () {
-									var e = d3.event;
-									if (e.cmdKey || e.metaKey || e.ctrlKey) return;
-									e.preventDefault();
-									e.stopPropagation();
-									var roomid = $(e.currentTarget).attr('href').substr(app.root.length);
-									app.tryJoinRoom(roomid);
-								});
-							else if (node.state === 'finished') {
-								if (node.result === 'win') {
-									teamA.classed('tournament-bracket-tree-node-match-team-win', true);
-									teamB.classed('tournament-bracket-tree-node-match-team-loss', true);
-								} else if (node.result === 'loss') {
-									teamA.classed('tournament-bracket-tree-node-match-team-loss', true);
-									teamB.classed('tournament-bracket-tree-node-match-team-win', true);
-								} else {
-									teamA.classed('tournament-bracket-tree-node-match-team-draw', true);
-									teamB.classed('tournament-bracket-tree-node-match-team-draw', true);
-								}
-
-								elem.classed('tournament-bracket-tree-node-match-result-' + node.result, true);
-								score.text(node.score.join(" - "));
-							}
-						}
+					if (node.abbreviated) {
+						elem.append('svg:text').attr('y', -nodeSize.realHeight / 4 + 4)
+							.attr('x', -nodeSize.realWidth / 2 - 7).classed('tournament-bracket-tree-abbreviated', true)
+							.text('...');
 					}
 
-					if (node.parent && node.parent.state === 'finished')
-						if (node.parent.result === 'draw')
-							elem.classed('tournament-bracket-tree-node-draw', true);
-						else if (node.team === node.parent.team)
-							elem.classed('tournament-bracket-tree-node-win', true);
-						else
-							elem.classed('tournament-bracket-tree-node-loss', true);
+					if (node.state === 'inprogress') {
+						elem = elem.append('svg:a').attr('xlink:href', toRoomid(node.room)).classed('ilink', true)
+							.on('click', function () {
+								var ev = d3.event;
+								if (ev.cmdKey || ev.metaKey || ev.ctrlKey) return;
+								ev.preventDefault();
+								ev.stopPropagation();
+								var roomid = $(ev.currentTarget).getAttribute('href');
+								app.tryJoinRoom(roomid);
+							});
+					}
+
+					outerElem.classed('tournament-bracket-tree-node-match', true);
+					outerElem.classed('tournament-bracket-tree-node-match-' + node.state, true);
+
+					if (node.team && !node.team1 && !node.team2) {
+						var rect = elem.append('svg:rect').classed('tournament-bracket-tree-draw', true)
+							.attr('rx', nodeSize.radius)
+							.attr('x', -nodeSize.realWidth / 2).attr('width', nodeSize.realWidth);
+						rect.attr('y', -nodeSize.smallRealHeight / 2).attr('height', node.smallRealHeight);
+						if (node.team === name) rect.attr('stroke-dasharray', '5,5').attr('stroke-width', 2);
+
+						elem.append('svg:text').classed('tournament-bracket-tree-node-team', true)
+							.classed('tournament-bracket-tree-node-team-draw', true)
+							.text(node.team || '');
+					} else {
+						var rect1 = elem.append('svg:rect')
+							.attr('rx', nodeSize.radius)
+							.attr('x', -nodeSize.realWidth / 2).attr('width', nodeSize.realWidth)
+							.attr('y', -nodeSize.smallRealHeight).attr('height', nodeSize.smallRealHeight);
+						var rect2 = elem.append('svg:rect')
+							.attr('rx', nodeSize.radius)
+							.attr('x', -nodeSize.realWidth / 2).attr('width', nodeSize.realWidth)
+							.attr('y', 0).attr('height', nodeSize.smallRealHeight);
+						if (node.team1 === name) rect1.attr('stroke-dasharray', '5,5').attr('stroke-width', 2);
+						if (node.team2 === name) rect2.attr('stroke-dasharray', '5,5').attr('stroke-width', 2);
+
+						var row1 = elem.append('svg:text').attr('y', -nodeSize.realHeight / 4 + nodeSize.textOffset)
+							.classed('tournament-bracket-tree-node-row1', true);
+						var row2 = elem.append('svg:text').attr('y', nodeSize.realHeight / 4 + nodeSize.textOffset)
+							.classed('tournament-bracket-tree-node-row2', true);
+
+						var team1 = row1.append('svg:tspan').classed('tournament-bracket-tree-team', true)
+							.text(node.team1 || '');
+						var team2 = row2.append('svg:tspan').classed('tournament-bracket-tree-team', true)
+							.text(node.team2 || '');
+
+						if (node.state === 'available') {
+							elem.append('title').text("Waiting");
+						} else if (node.state === 'challenging') {
+							elem.append('title').text("Challenging");
+						} else if (node.state === 'inprogress') {
+							elem.append('title').text("In-progress");
+						} else if (node.state === 'finished') {
+							if (node.result === 'win') {
+								rect1.classed('tournament-bracket-tree-win', true);
+								rect2.classed('tournament-bracket-tree-loss', true);
+								team1.classed('tournament-bracket-tree-team-win', true);
+								team2.classed('tournament-bracket-tree-team-loss', true);
+							} else if (node.result === 'loss') {
+								rect1.classed('tournament-bracket-tree-loss', true);
+								rect2.classed('tournament-bracket-tree-win', true);
+								team1.classed('tournament-bracket-tree-team-loss', true);
+								team2.classed('tournament-bracket-tree-team-win', true);
+							} else {
+								rect1.classed('tournament-bracket-tree-draw', true);
+								rect2.classed('tournament-bracket-tree-draw', true);
+								team1.classed('tournament-bracket-tree-team-draw', true);
+								team2.classed('tournament-bracket-tree-team-draw', true);
+							}
+		
+							elem.classed('tournament-bracket-tree-node-match-result-' + node.result, true);
+							row1.append('svg:tspan').text(` (${node.score[0]})`).classed('tournament-bracket-tree-score', true);
+							row2.append('svg:tspan').text(` (${node.score[1]})`).classed('tournament-bracket-tree-score', true);
+						}
+					}
 				});
 
 				return $div;
