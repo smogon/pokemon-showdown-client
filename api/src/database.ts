@@ -294,7 +294,7 @@ export class DatabaseTable<Row, DB extends Database> {
 		// cockroach/pg  do not support limit in update queries so we have to case this
 		return this.updateAll(data)`
 			WHERE "${this.primaryKeyName}" = ${primaryKey}
-			${this.db.type === 'mysql' ? SQL` LIMIT 1` : ''}
+			${this.db.type === 'mysql' ? SQL` LIMIT 1` : SQL``}
 		`;
 	}
 }
