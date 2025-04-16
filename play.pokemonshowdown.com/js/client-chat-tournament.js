@@ -601,7 +601,7 @@
 		};
 
 		TournamentBox.prototype.cloneTree = function (node) {
-			var clonedNode = Object.assign(Object.create(null), node);
+			var clonedNode = Object.assign({}, node);
 			if (node.children) {
 				clonedNode.children = node.children.map(function (child) { return this.cloneTree(child); });
 			}
@@ -685,7 +685,7 @@
 				var maxBreadth = numLeaves - (depthsWithLeaves - 1) / breadthCompression;
 				var maxDepth = hasLeafAtDepth.length;
 
-				var nodeSize = Object.assign(Object.create(null), this.nodeSize);
+				var nodeSize = Object.assign({}, this.nodeSize);
 				nodeSize.realWidth = nodeSize.width;
 				nodeSize.realHeight = nodeSize.height;
 				nodeSize.smallRealHeight = nodeSize.height / 2;
