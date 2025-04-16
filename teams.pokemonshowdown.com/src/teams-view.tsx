@@ -160,7 +160,7 @@ function PokemonSet({ set }: { set: Dex.PokemonSet }) {
 				} else if (move === 'Techno Blast' && item.onDrive) {
 					moveType = item.onDrive;
 				} else if (move === 'Natural Gift' && item.naturalGift) {
-					moveType = item.naturalGift;
+					moveType = item.naturalGift.type;
 				}
 			}
 
