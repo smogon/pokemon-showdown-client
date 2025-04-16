@@ -670,7 +670,7 @@ class ReplacePlayerPanel extends PSRoomPanel {
 				</p>
 				<p>
 					<button type="submit" class="button"><strong>Replace</strong></button> {}
-					<button type="button" data-cmd="/close" class="button autofocus">
+					<button type="button" data-cmd="/close" class="button">
 						Cancel
 					</button>
 				</p>
