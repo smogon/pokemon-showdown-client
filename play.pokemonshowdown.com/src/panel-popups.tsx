@@ -631,7 +631,6 @@ class BattleForfeitPanel extends PSRoomPanel {
 					</button>
 				</p>
 			</form>
-
 		</div></PSPanelWrapper>;
 	}
 }
