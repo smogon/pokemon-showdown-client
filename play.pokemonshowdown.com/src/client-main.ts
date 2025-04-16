@@ -61,6 +61,12 @@ class PSPrefs extends PSStreamModel<string | null> {
 	 * reasons.
 	 */
 	showjoins: { [serverid: string]: { [roomid: string]: 1 | 0 } } | null = null;
+
+	/**
+	 * Comma-separated lists of room titles to autojoin. Single
+	 * string is for Main.
+	 */
+	autojoin: { [serverid: string]: string } | string | null = null;
 	/**
 	 * List of users whose messages should be ignored. userid table.
 	 * Uses 1 and 0 instead of true/false for JSON packing reasons.
@@ -200,6 +206,20 @@ class PSPrefs extends PSStreamModel<string | null> {
 			(BattleText as any) = BattleTextAFD;
 		} else {
 			(BattleText as any) = BattleTextNotAFD;
+		}
+	}
+	doAutojoin() {
+		let autojoin = PS.prefs.autojoin;
+		if (autojoin) {
+			if (typeof autojoin === 'string') {
+				autojoin = { showdown: autojoin };
+			}
+			let rooms = autojoin[PS.server.id] || '';
+			for (let title of rooms.split(",")) {
+				PS.addRoom({ id: toID(title) as string as RoomID, title, connected: true }, true);
+			};
+			// send even if `rooms` is empty, for server autojoins
+			PS.send(`|/autojoin ${rooms}`);
 		}
 	}
 }
@@ -645,6 +665,7 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 	id: RoomID;
 	title = "";
 	type = '';
+	isPlaceholder = false;
 	readonly classType: string = '';
 	location: PSRoomLocation = 'left';
 	closable = true;
@@ -674,6 +695,7 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 	 */
 	hiddenInit = false;
 	parentElem: HTMLElement | null = null;
+	parentRoomid: RoomID | null = null;
 	rightPopup = false;
 
 	notifications: PSNotificationState[] = [];
@@ -693,12 +715,17 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 		if (options.type) this.type = options.type;
 		if (options.location) this.location = options.location;
 		if (options.parentElem) this.parentElem = options.parentElem;
+		if (options.parentRoomid) this.parentRoomid = options.parentRoomid;
 		if (this.location !== 'popup' && this.location !== 'semimodal-popup') this.parentElem = null;
 		if (options.rightPopup) this.rightPopup = true;
 		if (options.connected) this.connected = true;
 		if (options.backlog) this.backlog = options.backlog;
 		this.noURL = options.noURL || false;
 		this.args = options.args || null;
+	}
+	getParent() {
+		if (this.parentRoomid) return PS.rooms[this.parentRoomid] || null;
+		return null;
 	}
 	notify(options: { title: string, body?: string, noAutoDismiss?: boolean, id?: string }) {
 		if (PS.isVisible(this)) return;
@@ -867,6 +894,10 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 			showjoins[PS.server.id] = serverShowjoins;
 			PS.prefs.set('showjoins', showjoins);
 		},
+
+		'autojoin,cmd,crq,query'() {
+			this.add(`|error|This is a PS system command; do not use it.`);
+		},
 	});
 	clientCommands: ParsedClientCommands | null = null;
 	/**
@@ -905,6 +936,10 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 
 class PlaceholderRoom extends PSRoom {
 	override readonly classType = 'placeholder';
+	constructor(options: RoomOptions) {
+		super(options);
+		this.isPlaceholder = true;
+	}
 	override receiveLine(args: Args) {
 		(this.backlog ||= []).push(args);
 	}
@@ -1080,6 +1115,18 @@ export const PS = new class extends PSModel {
 			}, true);
 		}
 
+		// Create rooms before /autojoin is sent to the server
+		let autojoin = this.prefs.autojoin;
+		if (autojoin) {
+			if (typeof autojoin === 'string') {
+				autojoin = { showdown: autojoin };
+			}
+			let rooms = autojoin[this.server.id] || '';
+			for (let title of rooms.split(",")) {
+				this.addRoom({ id: toID(title) as unknown as RoomID, title, connected: true }, true);
+			};
+		}
+
 		this.updateLayout();
 		window.addEventListener('resize', () => {
 			// super.update() skips another updateLayout() call
@@ -1224,6 +1271,7 @@ export const PS = new class extends PSModel {
 					room.connected = true;
 					this.updateRoomTypes();
 				}
+				this.updateAutojoin();
 				this.update();
 				continue;
 			} case 'deinit': {
@@ -1232,6 +1280,7 @@ export const PS = new class extends PSModel {
 					room.connected = false;
 					this.removeRoom(room);
 				}
+				this.updateAutojoin();
 				this.update();
 				continue;
 			} case 'noinit': {
@@ -1364,13 +1413,13 @@ export const PS = new class extends PSModel {
 		let updated = false;
 		for (const roomid in this.rooms) {
 			const room = this.rooms[roomid]!;
-			let type = this.getRoute(roomid as RoomID) || room.type || '';
-			// room IDs with no `-` default to chat, so they can be overridden by more specific routes
-			if (room.type && room.type !== this.routes['*'] && !roomid.includes('-')) {
-				type = room.type;
-			}
-			if (type === room.type || !type) continue;
-			const RoomType = this.roomTypes[type];
+			const typeIsGuessed = room.type === this.routes['*'] && !roomid.includes('-');
+			if (!room.isPlaceholder && !typeIsGuessed) continue;
+
+			let type = (!typeIsGuessed && room.type) || this.getRoute(roomid as RoomID) || room.type || '';
+			if (!room.isPlaceholder && type === room.type) continue;
+
+			const RoomType = type && this.roomTypes[type];
 			if (!RoomType) continue;
 
 			const options: RoomOptions = room;
@@ -1796,6 +1845,38 @@ export const PS = new class extends PSModel {
 		if (room) {
 			this.removeRoom(room);
 			this.update();
+		}
+	}
+
+	updateAutojoin() {
+		if (!PS.server.registered) return;
+		let autojoins: string[] = [];
+		let autojoinCount = 0;
+		let rooms = this.rightRoomList;
+		for (let roomid of rooms) {
+			let room = PS.rooms[roomid] as ChatRoom;
+			if (!room) return;
+			if (room.type !== 'chat' || room.pmTarget) continue;
+			autojoins.push(room.id.includes('-') ? room.id : (room.title || room.id));
+			if (room.id === 'staff' || room.id === 'upperstaff' || (PS.server.id !== 'showdown' && room.id === 'lobby')) continue;
+			autojoinCount++;
+			if (autojoinCount >= 15) break;
+		}
+
+		const thisAutojoin = autojoins.join(',') || null;
+		let autojoin = this.prefs.autojoin || null;
+		if (this.server.id === 'showdown' && typeof autojoin !== 'object') {
+			// Main server only mode
+			if (autojoin === thisAutojoin) return;
+
+			this.prefs.set('autojoin', thisAutojoin || null);
+		} else {
+			// Multi server mode
+			autojoin = typeof autojoin === 'string' ? { showdown: autojoin } : autojoin || {};
+			if (autojoin[this.server.id] === thisAutojoin) return;
+
+			autojoin[this.server.id] = thisAutojoin || '';
+			this.prefs.set('autojoin', autojoin);
 		}
 	}
 };
