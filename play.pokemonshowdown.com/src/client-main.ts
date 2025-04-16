@@ -62,8 +62,8 @@ class PSPrefs extends PSStreamModel<string | null> {
 	showjoins: { [serverid: string]: { [roomid: string]: 1 | 0 } } | null = null;
 
 	/**
-	 * List of rooms to autojoin
-	 * different for each server
+	 * Comma-separated lists of room titles to autojoin. Single
+	 * string is for Main.
 	 */
 	autojoin: { [serverid: string]: string } | string | null = null;
 	/**
@@ -663,6 +663,7 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 	id: RoomID;
 	title = "";
 	type = '';
+	isPlaceholder = false;
 	readonly classType: string = '';
 	location: PSRoomLocation = 'left';
 	closable = true;
@@ -692,6 +693,7 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 	 */
 	hiddenInit = false;
 	parentElem: HTMLElement | null = null;
+	parentRoomid: RoomID | null = null;
 	rightPopup = false;
 
 	notifications: PSNotificationState[] = [];
@@ -711,6 +713,7 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 		if (options.type) this.type = options.type;
 		if (options.location) this.location = options.location;
 		if (options.parentElem) this.parentElem = options.parentElem;
+		if (options.parentRoomid) this.parentRoomid = options.parentRoomid;
 		if (this.location !== 'popup' && this.location !== 'semimodal-popup') this.parentElem = null;
 		if (options.rightPopup) this.rightPopup = true;
 		if (options.connected) this.connected = true;
@@ -931,6 +934,10 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 
 class PlaceholderRoom extends PSRoom {
 	override readonly classType = 'placeholder';
+	constructor(options: RoomOptions) {
+		super(options);
+		this.isPlaceholder = true;
+	}
 	override receiveLine(args: Args) {
 		(this.backlog ||= []).push(args);
 	}
@@ -1402,13 +1409,13 @@ export const PS = new class extends PSModel {
 		let updated = false;
 		for (const roomid in this.rooms) {
 			const room = this.rooms[roomid]!;
-			let type = this.getRoute(roomid as RoomID) || room.type || '';
-			// room IDs with no `-` default to chat, so they can be overridden by more specific routes
-			if (room.type && room.type !== this.routes['*'] && !roomid.includes('-')) {
-				type = room.type;
-			}
-			if (type === room.type || !type) continue;
-			const RoomType = this.roomTypes[type];
+			const typeIsGuessed = room.type === this.routes['*'] && !roomid.includes('-');
+			if (!room.isPlaceholder && !typeIsGuessed) continue;
+
+			let type = (!typeIsGuessed && room.type) || this.getRoute(roomid as RoomID) || room.type || '';
+			if (!room.isPlaceholder && type === room.type) continue;
+
+			const RoomType = type && this.roomTypes[type];
 			if (!RoomType) continue;
 
 			const options: RoomOptions = room;

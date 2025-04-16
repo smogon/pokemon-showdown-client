@@ -9,6 +9,12 @@ $pageTitle = "Intro";
 includeHeader();
 
 ?>
+		<style>
+			img {
+				max-width: 100%;
+				height: auto;
+			}
+		</style>
 		<div class="main">
 			<h1>Introduction to Competitive Pok&eacute;mon</h1>
 
