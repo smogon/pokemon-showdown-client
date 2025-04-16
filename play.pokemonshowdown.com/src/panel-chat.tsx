@@ -691,13 +691,14 @@ export class ChatTextEntry extends preact.Component<{
 	}
 	override render() {
 		const OLD_TEXTBOX = false;
+		const canTalk = PS.user.named || this.props.room.id === 'dm-';
 		return <div
 			class="chat-log-add hasuserlist" onClick={this.focusIfNoSelection} style={{ left: this.props.left || 0 }}
 		>
-			<form class={`chatbox${this.props.tinyLayout ? ' nolabel' : ''}`} style={PS.user.named ? {} : { display: 'none' }}>
+			<form class={`chatbox${this.props.tinyLayout ? ' nolabel' : ''}`} style={canTalk ? {} : { display: 'none' }}>
 				<label style={{ color: BattleLog.usernameColor(PS.user.userid) }}>{PS.user.name}:</label>
 				{OLD_TEXTBOX ? <textarea
-					class={this.props.room.connected && PS.user.named ? 'textbox autofocus' : 'textbox disabled'}
+					class={this.props.room.connected && canTalk ? 'textbox autofocus' : 'textbox disabled'}
 					autofocus
 					rows={1}
 					onInput={this.update}
@@ -705,11 +706,11 @@ export class ChatTextEntry extends preact.Component<{
 					style={{ resize: 'none', width: '100%', height: '16px', padding: '2px 3px 1px 3px' }}
 					placeholder={PS.focusPreview(this.props.room)}
 				/> : <ChatTextBox
-					disabled={!this.props.room.connected || !PS.user.named}
+					disabled={!this.props.room.connected || !canTalk}
 					placeholder={PS.focusPreview(this.props.room)}
 				/>}
 			</form>
-			{!PS.user.named && <button data-href="login" class="button autofocus">
+			{!canTalk && <button data-href="login" class="button autofocus">
 				Choose a name before sending messages
 			</button>}
 		</div>;
