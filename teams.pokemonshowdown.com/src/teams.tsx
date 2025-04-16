@@ -69,5 +69,6 @@ PSRouter.setRoutes({
 	'/': TeamIndex,
 	'/search/?:type/?:val': TeamSearcher,
 	'/search': TeamSearcher,
+	'/browse': TeamSearcher,
 });
 PSRouter.go();

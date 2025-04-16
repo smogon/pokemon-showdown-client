@@ -48,17 +48,21 @@ export class TeamIndex extends preact.Component<PageProps> {
 			return <div class="section" style={{ wordWrap: 'break-word' }}>Loading...</div>;
 		}
 		const teamsByFormat: Record<string, ServerTeam[]> = {};
+		let i = 0;
 		for (const team of this.state.teams) {
 			// this way if a category is empty it doesn't just fill space, since it doesn't
 			// get added unless it exists
 			if (!this.searchMatch(team)) continue;
 			if (!teamsByFormat[team.format]) teamsByFormat[team.format] = [];
 			teamsByFormat[team.format].push(team);
+			i++;
 		}
 		return <div class="section" style={{ wordWrap: 'break-word' }}>
 			<h2>Hi, {this.state.loggedIn || "guest"}!</h2>
+			<label>Upload a new team: </label>
+				<a class="button" href={`//${Config.routes.client}/view-teams-upload`}>Go</a><br /><br />
 			<label>Search all teams:</label> <a class="button" href="/search/">Go</a><br /><br />
-			<label>Search your teams: </label>
+			<label>Search your teams ({i}): </label>
 			<input value={this.state.search || ""} onInput={e => this.onInput(e)} label="Search teams/formats"></input>
 			<hr />
 			{!this.state.teams.length ?
