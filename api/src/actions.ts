@@ -879,6 +879,50 @@ export const actions: { [k: string]: QueryHandler } = {
 			throw new ActionError("Failed to fetch team. Please try again later.");
 		}
 	},
+	async editteam(params) {
+		if (!this.user.loggedIn || this.user.id === 'guest') {
+			throw new ActionError("Must be logged in to edit teams.");
+		}
+		const teamid = Number(params.teamid);
+		if (!teamid || teamid < 0 || isNaN(teamid)) {
+			throw new ActionError(`Invalid team ID: ${params.teamid || "none"}`);
+		}
+		const team = await tables.teams.get(teamid);
+		if (!team) {
+			throw new ActionError("Team not found.");
+		}
+		if (team.ownerid !== this.user.id) {
+			throw new ActionError(`You cannot edit that team, as it is not yours.`);
+		}
+		const edit: Record<string, string | number | null> = {};
+		if ('private' in params) {
+			const priv = Number(params.private);
+			if (![1, 0].includes(priv)) {
+				throw new ActionError(`Invalid privacy setting: ${params.private || "none"}`);
+			}
+			if (priv !== team.private) {
+				if (team.private === 1) {
+					edit.password = null;
+					edit.private = 0;
+				} else {
+					edit.password = Replays.generatePassword(20);
+					edit.private = 1;
+				}
+			}
+		}
+		if ('format' in params) {
+			const f = toID(params.format);
+			if (f.length && toID(team.format) !== f) {
+				edit.format = f;
+			}
+		}
+		if (!Object.keys(edit).length) {
+			return { success: false, team };
+		} else {
+			await tables.teams.update(team.teamid, edit);
+		}
+		return { success: true, team: await tables.teams.get(team.teamid) };
+	},
 	async searchteams(params) {
 		let count = Number(params.count) || 20;
 		if (!this.user.loggedIn || this.user.id === 'guest') {
