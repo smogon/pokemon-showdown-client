@@ -676,7 +676,6 @@ class ReplacePlayerPanel extends PSRoomPanel {
 					</button>
 				</p>
 			</form>
-
 		</div></PSPanelWrapper>;
 	}
 }
