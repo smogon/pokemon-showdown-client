@@ -464,6 +464,7 @@ class PSUser extends PSStreamModel<PSLoginState | null> {
 			this.loggingIn = null;
 			if (data?.curuser?.loggedin) {
 				// success!
+				this.registered = true;
 				this.handleAssertion(name, data.assertion);
 			} else {
 				// wrong password

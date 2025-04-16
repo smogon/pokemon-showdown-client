@@ -2,6 +2,7 @@ import preact from "../js/lib/preact";
 import { toID, toRoomid, toUserid, Dex } from "./battle-dex";
 import type { ID } from "./battle-dex-data";
 import { BattleLog } from "./battle-log";
+import { PSLoginServer } from "./client-connection";
 import { PSRoom, type RoomOptions, PS, type PSLoginState, type RoomID, type TimestampOptions } from "./client-main";
 import { type BattleRoom } from "./panel-battle";
 import { PSRoomPanel, PSPanelWrapper } from "./panels";
@@ -281,6 +282,7 @@ class OptionsPanel extends PSRoomPanel {
 	static readonly id = 'options';
 	static readonly routes = ['options'];
 	static readonly location = 'popup';
+	static readonly noURL = true;
 	declare state: { showStatusInput?: boolean, showStatusUpdated?: boolean };
 
 	setTheme = (e: Event) => {
@@ -379,6 +381,10 @@ class OptionsPanel extends PSRoomPanel {
 						{this.state.showStatusUpdated ? 'Status Updated' : 'Status..'}</button>
 				</p>
 			)}
+
+			{PS.user.named && (PS.user.registered ?
+				<button className="button" data-href="changepassword">Change Password</button> :
+				<button className="button" data-href="register">Register</button>)}
 
 			<hr />
 			<h3>Graphics</h3>
@@ -791,6 +797,225 @@ class ReplacePlayerPanel extends PSRoomPanel {
 	}
 }
 
+class ChangePasswordPanel extends PSRoomPanel {
+	static readonly id = "changepassword";
+	static readonly routes = ["changepassword"];
+	static readonly location = "semimodal-popup";
+	static readonly noURL = true;
+
+	declare state: { errorMsg: string };
+
+	update = () => {
+		this.forceUpdate();
+	};
+
+	handleChangePassword = (ev: Event) => {
+		ev.preventDefault();
+		let oldpassword = this.base?.querySelector<HTMLInputElement>('input[name=oldpassword]')?.value;
+		let password = this.base?.querySelector<HTMLInputElement>('input[name=password]')?.value;
+		let cpassword = this.base?.querySelector<HTMLInputElement>('input[name=cpassword]')?.value;
+		if (!oldpassword?.length ||
+			!password?.length ||
+			!cpassword?.length) return this.setState({ errorMsg: "All fields are required" });
+		if (password !== cpassword) return this.setState({ errorMsg: 'Passwords do not match' });
+		PSLoginServer.query("changepassword", {
+			oldpassword,
+			password,
+			cpassword,
+		}).then(data => {
+			if (data?.actionerror) return this.setState({ errorMsg: data?.actionerror });
+			PS.alert("Your password was successfully changed!");
+
+		}).catch(err => {
+			console.error(err);
+			this.setState({ errorMsg: err.message });
+		});
+
+		this.setState({ errorMsg: '' });
+	};
+
+	override render() {
+		const room = this.props.room;
+
+		return <PSPanelWrapper room={room} width={280}><div class="pad">
+			<form onSubmit={this.handleChangePassword}>
+				{ !!this.state.errorMsg?.length && <p>
+					<b class="message-error"> {this.state.errorMsg}</b>
+				</p> }
+				<p>Change your password:</p>
+				<p>
+					<label class="label">Username:
+						<strong><input
+							type="text"
+							name="username"
+							value={PS.user.name}
+							style="
+						color: inherit;
+						background: transparent;
+						border: 0;
+						font: inherit;
+						font-size: inherit;
+						display: block;
+					"
+							readOnly={true}
+							autocomplete="username"
+						/></strong></label>
+				</p>
+				<p>
+					<label class="label">Old password:
+						<input
+							class="textbox autofocus"
+							type="password"
+							name="oldpassword"
+							autocomplete="current-password"
+						/></label>
+				</p>
+				<p>
+					<label class="label">New password:
+						<input
+							class="textbox"
+							type="password"
+							name="password"
+							autocomplete="new-password"
+						/></label>
+				</p>
+				<p>
+					<label class="label">New password (confirm):
+						<input
+							class="textbox"
+							type="password"
+							name="cpassword"
+							autocomplete="new-password"
+						/></label>
+				</p>
+				<p class="buttonbar">
+					<button type="submit" class="button">
+						<strong>Change password</strong>
+					</button>
+					<button type="button" data-cmd="/close" class="button">Cancel</button>
+				</p>
+			</form>
+
+		</div>
+		</PSPanelWrapper>;
+	}
+}
+
+class RegisterPanel extends PSRoomPanel {
+	static readonly id = "register";
+	static readonly routes = ["register"];
+	static readonly location = "semimodal-popup";
+	static readonly noURL = true;
+	static readonly rightPopup = true;
+
+	declare state: { errorMsg: string };
+
+	update = () => {
+		this.forceUpdate();
+	};
+
+	handleRegisterUser = (ev: Event) => {
+		ev.preventDefault();
+		let captcha = this.base?.querySelector<HTMLInputElement>('input[name=captcha]')?.value;
+		let password = this.base?.querySelector<HTMLInputElement>('input[name=password]')?.value;
+		let cpassword = this.base?.querySelector<HTMLInputElement>('input[name=cpassword]')?.value;
+		if (!captcha?.length ||
+			!password?.length ||
+			!cpassword?.length) return this.setState({ errorMsg: "All fields are required" });
+		if (password !== cpassword) return this.setState({ errorMsg: 'Passwords do not match' });
+		PSLoginServer.query("register", {
+			captcha,
+			password,
+			cpassword,
+			username: PS.user.name,
+			challstr: PS.user.challstr,
+		}).then(data => {
+			console.log(data);
+			if (data?.actionerror) this.setState({ errorMsg: data?.actionerror });
+			let token = data?.assertion;
+			if (data?.curuser?.loggedin) {
+				PS.user.registered = true;
+				let name = data.curuser.username;
+				if (data?.assertion) PS.user.handleAssertion(name, data?.assertion);
+				this.close();
+				PS.alert("You have been successfully registered.");
+			}
+		}).catch(err => {
+			console.error(err);
+			this.setState({ errorMsg: err.message });
+		});
+
+		this.setState({ errorMsg: '' });
+	};
+
+	override render() {
+		const room = this.props.room;
+
+		return <PSPanelWrapper room={room} width={280}><div class="pad">
+			<form onSubmit={this.handleRegisterUser}>
+				{ !!this.state.errorMsg?.length && <p>
+					<b class="message-error"> {this.state.errorMsg}</b>
+				</p> }
+				<p>Register your account:</p>
+				<p>
+					<label class="label">Username:
+						<strong><input
+							type="text"
+							name="name"
+							value={PS.user.name}
+							style="
+						color: inherit;
+						background: transparent;
+						border: 0;
+						font: inherit;
+						font-size: inherit;
+						display: block;
+					"
+							readOnly={true}
+							autocomplete="username"
+						/></strong></label>
+				</p>
+				<p>
+					<label class="label">Password:
+						<input
+							class="textbox autofocus"
+							type="password"
+							name="password"
+							autocomplete="new-password"
+						/></label>
+				</p>
+				<p>
+					<label class="label">Password (confirm):
+						<input
+							class="textbox"
+							type="password"
+							name="cpassword"
+							autocomplete="new-password"
+						/></label>
+				</p>
+				<p>
+					<label class="label"> <img
+						src="https://play.pokemonshowdown.com/sprites/gen5ani/pikachu.gif"
+						alt="An Electric-type mouse that is the mascot of the Pokémon franchise."
+					/></label>
+				</p>
+				<p>
+					<label class="label">What is this pokemon?
+						<input
+							class="textbox" type="text" name="captcha" value=""
+						/></label>
+				</p>
+				<p class="buttonbar">
+					<button type="submit" class="button"><strong>Register</strong></button>
+					<button type="button" data-cmd="/close" class="button">Cancel</button>
+				</p>
+			</form>
+
+		</div>
+		</PSPanelWrapper>;
+	}
+}
+
 class PopupPanel extends PSRoomPanel {
 	static readonly id = 'popup';
 	static readonly routes = ['popup-*'];
@@ -817,6 +1042,8 @@ PS.addRoomType(UserPanel,
 	OptionsPanel,
 	LoginPanel,
 	AvatarsPanel,
+	ChangePasswordPanel,
+	RegisterPanel,
 	BattleForfeitPanel,
 	ReplacePlayerPanel,
 	PopupPanel);
