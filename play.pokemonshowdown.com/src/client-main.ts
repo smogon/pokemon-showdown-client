@@ -366,6 +366,7 @@ class PSUser extends PSStreamModel<PSLoginState | null> {
 	loggingIn: string | null = null;
 	initializing = true;
 	gapiLoaded = false;
+	nameRegExp: RegExp | null = null;
 	setName(fullName: string, named: boolean, avatar: string) {
 		const loggingIn = (!this.named && named);
 		const { name, group } = BattleTextParser.parseNameParts(fullName);
@@ -381,6 +382,7 @@ class PSUser extends PSStreamModel<PSLoginState | null> {
 				if (room.connectWhenLoggedIn) room.connect();
 			}
 		}
+		this.updateRegExp();
 	}
 	validateName(name: string): string {
 		// | , ; are not valid characters in names
@@ -427,6 +429,7 @@ class PSUser extends PSStreamModel<PSLoginState | null> {
 			'getassertion', { userid, challstr: this.challstr }
 		).then(res => {
 			this.handleAssertion(name, res);
+			this.updateRegExp();
 		});
 	}
 	changeNameWithPassword(name: string, password: string, special: PSLoginState = { needsPassword: true }) {
@@ -512,6 +515,24 @@ class PSUser extends PSStreamModel<PSLoginState | null> {
 		this.named = false;
 		this.registered = false;
 		this.update(null);
+	}
+
+	updateRegExp() {
+		if (!this.named) {
+			this.nameRegExp = null;
+		} else {
+			let escaped = this.name.replace(/[^A-Za-z0-9]+$/, '');
+			// we'll use `,` as a sentinel character to mean "any non-alphanumeric char"
+			// unicode characters can be replaced with any non-alphanumeric char
+			for (let i = escaped.length - 1; i > 0; i--) {
+				if (/[^\ -\~]/.test(escaped[i])) {
+					escaped = escaped.slice(0, i) + ',' + escaped.slice(i + 1);
+				}
+			}
+			escaped = escaped.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&");
+			escaped = escaped.replace(/,/g, "[^A-Za-z0-9]?");
+			this.nameRegExp = new RegExp('(?:\\b|(?!\\w))' + escaped + '(?:\\b|\\B(?!\\w))', 'i');
+		}
 	}
 }
 
@@ -1878,5 +1899,33 @@ export const PS = new class extends PSModel {
 			autojoin[this.server.id] = thisAutojoin || '';
 			this.prefs.set('autojoin', autojoin);
 		}
+	}
+
+	getHighlight(message) {
+		if (!this.prefs.noselfhighlight && this.user.nameRegExp) {
+			if (this.user.nameRegExp.test(message)) return true;
+		}
+		/*
+		// TODO!
+		if (!this.highlightRegExp) {
+			try {
+				//this.updateHighlightRegExp(highlights);
+			} catch (e) {
+				// If the expression above is not a regexp, we'll get here.
+				// Don't throw an exception because that would prevent the chat
+				// message from showing up, or, when the lobby is initialising,
+				// it will prevent the initialisation from completing.
+				return false;
+			}
+		}
+		var id = PS.server.id + '#' + this.id;
+		var globalHighlightsRegExp = this.highlightRegExp['global'];
+		var roomHighlightsRegExp = this.highlightRegExp[id];
+
+		return (((globalHighlightsRegExp &&
+		 globalHighlightsRegExp.test(message)) ||
+		  (roomHighlightsRegExp && roomHighlightsRegExp.test(message))));
+		*/
+		return false;
 	}
 };
