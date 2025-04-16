@@ -1113,7 +1113,7 @@ export class Item implements Effect {
 	readonly onMemory: TypeName;
 	readonly onDrive: TypeName;
 	readonly fling: any;
-	readonly naturalGift: any;
+	readonly naturalGift: { basePower: number, type: TypeName };
 	readonly isPokeball: boolean;
 	readonly itemUser?: readonly string[];
 
