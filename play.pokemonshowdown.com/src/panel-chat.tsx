@@ -896,12 +896,12 @@ export class ChatLog extends preact.Component<{
 				const backlog = room.backlog;
 				room.backlog = null;
 				for (const args of backlog) {
-					room.log.add(args);
+					room.log.add(args, undefined, undefined, PS.prefs.timestamps[room.pmTarget ? 'pms' : 'chatrooms']);
 				}
 			}
 			this.subscription = room.subscribe(tokens => {
 				if (!tokens) return;
-				this.props.room.log!.add(tokens);
+				this.props.room.log!.add(tokens, undefined, undefined, PS.prefs.timestamps[room.pmTarget ? 'pms' : 'chatrooms']);
 			});
 		}
 		this.setControlsJSX(this.props.children);
