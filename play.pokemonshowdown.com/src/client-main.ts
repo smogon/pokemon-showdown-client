@@ -55,6 +55,22 @@ class PSPrefs extends PSStreamModel<string | null> {
 	 * null - Enable GIFs only on Chrome 64.
 	 */
 	nogif: boolean | null = null;
+
+	/* Graphics Preferences */
+	noanim: boolean | null = null;
+	bwgfx: boolean | null = null;
+	nopastgens: boolean | null = null;
+
+	/* Chat Preferences */
+	blockPMs: boolean | null = null;
+	blockChallenges: boolean | null = null;
+	inchatpm: boolean | null = null;
+	noselfhighlight: boolean | null = null;
+	temporarynotifications: boolean | null = null;
+	leavePopupRoom: boolean | null = null;
+	refreshprompt: boolean | null = null;
+	language: boolean | null = null;
+
 	/**
 	 * Show "User joined" and "User left" messages. serverid:roomid
 	 * table. Uses 1 and 0 instead of true/false for JSON packing

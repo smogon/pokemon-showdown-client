@@ -36,6 +36,10 @@ export class BattlesRoom extends PSRoom {
 	constructor(options: RoomOptions) {
 		super(options);
 		this.refresh();
+		// If graphics preference is set to use BW sprites
+		if (PS.prefs.bwgfx) {
+			Dex.loadSpriteData('bw');
+		}
 	}
 	setFormat(format: string) {
 		if (format === this.format) return this.refresh();
@@ -299,6 +303,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 			break;
 		}
 		room.battle.add('|' + args.join('|'));
+		if (PS.prefs.noanim) this.props.room.battle.seekTurn(Infinity);
 	}
 	receiveRequest(request: BattleRequest | null) {
 		const room = this.props.room;

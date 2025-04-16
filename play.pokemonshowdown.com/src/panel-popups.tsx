@@ -303,12 +303,12 @@ class OptionsPanel extends PSRoomPanel {
 		}
 		PS.update();
 	};
-	setChatroomTimestamp = (e: Event) => {
-		const timestamp = (e.currentTarget as HTMLSelectElement).value as TimestampOptions;
+	setChatroomTimestamp = (ev: Event) => {
+		const timestamp = (ev.currentTarget as HTMLSelectElement).value as TimestampOptions;
 		PS.prefs.set('timestamps', { ...PS.prefs.timestamps, chatrooms: timestamp || undefined });
 	};
-	setPMsTimestamp = (e: Event) => {
-		const timestamp = (e.currentTarget as HTMLSelectElement).value as TimestampOptions;
+	setPMsTimestamp = (ev: Event) => {
+		const timestamp = (ev.currentTarget as HTMLSelectElement).value as TimestampOptions;
 		PS.prefs.set('timestamps', { ...PS.prefs.timestamps, pms: timestamp || undefined });
 	};
 
@@ -316,6 +316,34 @@ class OptionsPanel extends PSRoomPanel {
 		ev.preventDefault();
 		ev.stopImmediatePropagation();
 		this.setState({ showStatusInput: !this.state.showStatusInput });
+	};
+
+	handleOnChange = (ev: Event) => {
+		let elem = ev.currentTarget as HTMLInputElement;
+		let setting = elem.name;
+		let value = elem.checked;
+		switch (setting) {
+		case 'blockPMs': {
+			PS.prefs.set("blockPMs", value);
+			PS.send(value ? '/blockpms' : '/unblockpms');
+			break;
+		}
+		case 'blockChallenges': {
+			PS.prefs.set("blockChallenges", value);
+			PS.send(value ? '/blockchallenges' : '/unblockchallenges');
+			break;
+		}
+		case 'bwgfx': {
+			PS.prefs.set('bwgfx', value);
+			Dex.loadSpriteData(value || PS.prefs.noanim ? 'bw' : 'xy');
+			break;
+		}
+		case 'noanim':
+		case 'nopastgens':
+		case 'noselfhighlight':
+		case 'inchatpm': PS.prefs.set(setting, value);
+			break;
+		}
 	};
 
 	editStatus = (ev: Event) => {
@@ -368,15 +396,68 @@ class OptionsPanel extends PSRoomPanel {
 					<option value="vertical" selected={PS.prefs.onepanel === 'vertical'}>Vertical tabs</option>
 				</select></label>
 			</p>
-			<hr />
-			{PS.user.named ? <p class="buttonbar" style="text-align: right">
-				<button class="button" data-href="login"><i class="fa fa-pencil"></i> Change name</button> {}
-				<button class="button" data-cmd="/logout"><i class="fa fa-power-off"></i> Log out</button>
-			</p> : <p class="buttonbar" style="text-align: right">
-				<button class="button" data-href="login"><i class="fa fa-pencil"></i> Choose name</button>
-			</p> }
+			<p>
+				<label class="checkbox">
+					<input
+						type="checkbox"
+						name="noanim"
+						onChange={this.handleOnChange}
+						checked={PS.prefs.noanim || false}
+					></input> Disable animations</label>
+			</p>
+			<p>
+				<label class="checkbox">
+					<input
+						type="checkbox"
+						name="bwgfx"
+						onChange={this.handleOnChange}
+						checked={PS.prefs.bwgfx || false}
+					></input>  Use 2D sprites instead of 3D models</label>
+			</p>
+			<p>
+				<label class="checkbox"><input
+					type="checkbox"
+					name="nopastgens"
+					onChange={this.handleOnChange}
+					checked={PS.prefs.nopastgens || false}
+				></input> Use modern sprites for past generations</label>
+			</p>
 			<hr />
 			<h3>Chat</h3>
+			<p>
+				<label class="checkbox">
+					<input type="checkbox" onChange={this.handleOnChange} name="blockPMs" checked={PS.prefs.blockPMs || false}>
+					</input> Block PMs
+				</label>
+			</p>
+			<p>
+				<label class="checkbox">
+					<input
+						type="checkbox"
+						name="blockChallenges"
+						onChange={this.handleOnChange}
+						checked={PS.prefs.blockChallenges || false}
+					>
+					</input> Block Challenges</label>
+			</p>
+			<p>
+				<label class="checkbox">
+					<input
+						type="checkbox"
+						name="inchatpm"
+						onChange={this.handleOnChange}
+						checked={PS.prefs.inchatpm || false}
+					></input> Show PMs in chatrooms</label>
+			</p>
+			<p>
+				<label class="checkbox">
+					<input
+						type="checkbox"
+						name="noselfhighlight"
+						onChange={this.handleOnChange}
+						checked={PS.prefs.noselfhighlight || false}
+					></input> Do Not Highlight when your name is said in chat</label>
+			</p>
 			<p>
 				<label class="optlabel">Timestamps: <select name="layout" class="button" onChange={this.setChatroomTimestamp}>
 					<option value="" selected={!PS.prefs.timestamps.chatrooms}>Off</option>
@@ -391,6 +472,13 @@ class OptionsPanel extends PSRoomPanel {
 					<option value="seconds" selected={PS.prefs.timestamps.pms === "seconds"}>[HH:MM:SS]</option>
 				</select></label>
 			</p>
+			<hr />
+			{PS.user.named ? <p class="buttonbar" style="text-align: right">
+				<button class="button" data-href="login"><i class="fa fa-pencil"></i> Change name</button> {}
+				<button class="button" data-cmd="/logout"><i class="fa fa-power-off"></i> Log out</button>
+			</p> : <p class="buttonbar" style="text-align: right">
+				<button class="button" data-href="login"><i class="fa fa-pencil"></i> Choose name</button>
+			</p> }
 		</div></PSPanelWrapper>;
 	}
 }
