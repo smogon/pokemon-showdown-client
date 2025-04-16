@@ -1258,6 +1258,7 @@ export const PS = new class extends PSModel {
 					room.connected = true;
 					this.updateRoomTypes();
 				}
+				this.updateAutojoin();
 				this.update();
 				continue;
 			} case 'deinit': {
@@ -1266,6 +1267,7 @@ export const PS = new class extends PSModel {
 					room.connected = false;
 					this.removeRoom(room);
 				}
+				this.updateAutojoin();
 				this.update();
 				continue;
 			} case 'noinit': {
@@ -1822,7 +1824,6 @@ export const PS = new class extends PSModel {
 			return;
 		}
 		this.addRoom({ id: roomid, ...options }, noFocus);
-		this.updateAutojoin();
 		this.update();
 	}
 	leave(roomid: RoomID) {
@@ -1831,7 +1832,6 @@ export const PS = new class extends PSModel {
 		if (room) {
 			this.removeRoom(room);
 			this.update();
-			this.updateAutojoin();
 		}
 	}
 
