@@ -603,7 +603,7 @@ input[type=range]:active::-webkit-slider-thumb {
 	font-size: 8pt;
 }
 .chat strong small, /* <- for old client */
-.chat .groupsymbol {
+.groupsymbol, .gray {
 	color: #888888;
 }
 .chat.timer {

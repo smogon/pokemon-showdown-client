@@ -33,10 +33,6 @@ body {
 	text-align: center;
 }
 
-.grey {
-	color: #888888;
-}
-
 .dark .tabbar a.button,
 .dark .tabbar a.button:hover,
 .dark .header-vertical .tablist a.button,
