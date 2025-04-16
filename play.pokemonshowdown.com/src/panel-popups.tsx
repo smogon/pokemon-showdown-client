@@ -640,6 +640,7 @@ class ReplacePlayerPanel extends PSRoomPanel {
 	static readonly id = 'replaceplayer';
 	static readonly routes = ['replaceplayer'];
 	static readonly location = 'semimodal-popup';
+	static readonly noURL = true;
 
 	handleReplacePlayer = (ev: Event) => {
 		const elem = this.props.room.parentElem;
