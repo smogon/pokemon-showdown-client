@@ -603,7 +603,7 @@
 		TournamentBox.prototype.cloneTree = function (node) {
 			var clonedNode = Object.assign(Object.create(null), node);
 			if (node.children) {
-				clonedNode.children = node.children.map(function (child) { this.cloneTree(child) });
+				clonedNode.children = node.children.map(function (child) { return this.cloneTree(child); });
 			}
 			return clonedNode;
 		};
