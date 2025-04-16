@@ -1918,7 +1918,7 @@ export const PS = new class extends PSModel {
 		}
 	}
 
-	getHighlight(message) {
+	getHighlight(message: string) {
 		if (!this.prefs.noselfhighlight && this.user.nameRegExp) {
 			if (this.user.nameRegExp.test(message)) return true;
 		}

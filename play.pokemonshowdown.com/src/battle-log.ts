@@ -158,7 +158,7 @@ export class BattleLog {
 			[divClass, divHTML, noNotify] = this.parseChatMessage(message, name, timestampHtml, isHighlighted);
 			if (!noNotify && isHighlighted) {
 				let notifyTitle = "Mentioned by " + name + " in " + (battle?.roomid || '');
-				window.app?.rooms[battle?.roomid]?.notifyOnce(notifyTitle, "\"" + message + "\"", 'highlight');
+				window.app?.rooms[battle?.roomid || '']?.notifyOnce(notifyTitle, "\"" + message + "\"", 'highlight');
 			}
 			break;
 
