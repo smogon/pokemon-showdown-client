@@ -60,7 +60,7 @@ export class TeamIndex extends preact.Component<PageProps> {
 		return <div class="section" style={{ wordWrap: 'break-word' }}>
 			<h2>Hi, {this.state.loggedIn || "guest"}!</h2>
 			<label>Upload a new team: </label>
-				<a class="button" href={`//${Config.routes.client}/view-teams-upload`}>Go</a><br /><br />
+			<a class="button" href={`//${Config.routes.client}/view-teams-upload`}>Go</a><br /><br />
 			<label>Search all teams:</label> <a class="button" href="/search/">Go</a><br /><br />
 			<label>Search your teams ({i}): </label>
 			<input value={this.state.search || ""} onInput={e => this.onInput(e)} label="Search teams/formats"></input>

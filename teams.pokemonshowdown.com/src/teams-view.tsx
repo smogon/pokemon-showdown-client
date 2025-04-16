@@ -1,11 +1,14 @@
 /** @jsx preact.h */
 /** @jsxFrag preact.Fragment */
 import preact from '../../play.pokemonshowdown.com/js/lib/preact';
-import { Net, PSIcon, unpackTeam } from './utils';
+import { Net, PSIcon, getShowdownUsername, unpackTeam } from './utils';
 import { BattleLog } from '../../play.pokemonshowdown.com/src/battle-log';
 import type { PageProps } from './teams';
 import { Dex } from '../../play.pokemonshowdown.com/src/battle-dex';
 import { BattleStatNames } from '../../play.pokemonshowdown.com/src/battle-dex-data';
+
+declare const toID: (str: any) => string;
+declare const BattleAliases: Record<string, string>;
 
 interface Team {
 	team: string;
@@ -14,6 +17,7 @@ interface Team {
 	ownerid: string;
 	format: string;
 	teamid: string;
+	private: number;
 }
 
 function exportSet(set: Dex.PokemonSet) {
@@ -204,6 +208,10 @@ export class TeamViewer extends preact.Component<PageProps> {
 		copyButtonMsg: false as boolean,
 		displayMode: localStorage.getItem('teamdisplaymode') || null,
 		spriteGen: Number(localStorage.getItem('spritegen')) || 6,
+		manageOpen: false,
+		changesMade: false,
+		teamEdits: null as { format?: string, private?: number } | null,
+		editError: null as null | string,
 	};
 	constructor(props: PageProps) {
 		super(props);
@@ -229,7 +237,7 @@ export class TeamViewer extends preact.Component<PageProps> {
 		const teamData = unpackTeam(team);
 		const is2Col = this.state.displayMode === '2col';
 		const isDark = document.querySelector('html')?.classList[0] === 'dark';
-		const link = this.id + (this.pw ? `-${this.pw}` : '');
+		const link = this.id + (this.state.team.private ? `-${this.state.team.private}` : '');
 
 		return <div class="section" style={{ wordWrap: 'break-word' }}>
 			<small><a href={'//' + Config.routes.teams}><i class="fa fa-arrow-left"></i></a></small>
@@ -240,6 +248,10 @@ export class TeamViewer extends preact.Component<PageProps> {
 			<label>Shortlink: </label><a href={`https://psim.us/t/${link}`}>https://psim.us/t/{link}</a><br />
 			<hr />
 			<div name="manage" style={{ display: 'flex', gap: '5px' }}>
+				{getShowdownUsername() === this.state.team.ownerid && <button
+					class={this.state.manageOpen ? `button notifying` : `button`}
+					onClick={() => this.changeManage()}
+				>Manage</button>}
 				<button
 					class="button"
 					disabled={!this.state.team || this.state.copyButtonMsg}
@@ -256,6 +268,25 @@ export class TeamViewer extends preact.Component<PageProps> {
 				</select>
 			</div>
 			<hr />
+			{this.state.editError && <>
+				<div class="message-error">{this.state.editError}</div>
+				<hr />
+			</>}
+			{this.state.manageOpen && <>
+				<label>Team visibility: </label>
+				<select
+					class="button"
+					value={this.state.teamEdits?.private || this.state.team.private ? 1 : 0}
+					onChange={ev => this.editTeamValue('private', ev)}
+				>
+					{[1, 0].map(n => <option value={n}>{n ? 'private' : 'public'}</option>)}
+				</select><br />
+				<label>Team format: </label><input onInput={ev => this.editTeamValue('format', ev)} />
+				{this.state.changesMade && <>
+					<br /><button class="button notifying" onClick={() => this.commitEdit()}>Save changes</button>
+				</>}
+				<hr />
+			</>}
 			<div
 				name="sets"
 				style={{ display: 'flex', alignItems: 'stretch', flexWrap: 'wrap', rowGap: '1rem', colGap: is2Col ? '2rem' : '' }}
@@ -281,6 +312,10 @@ export class TeamViewer extends preact.Component<PageProps> {
 			return;
 		}
 		this.loadTeamData();
+	}
+
+	changeManage() {
+		this.setState({ manageOpen: !this.state.manageOpen });
 	}
 
 	changeSpriteGen(event: any) {
@@ -339,5 +374,50 @@ export class TeamViewer extends preact.Component<PageProps> {
 		setTimeout(() => {
 			this.setState({ copyButtonMsg: false });
 		}, 1000);
+	}
+
+	editTeamValue(val: 'format' | 'private', { currentTarget }: any) {
+		(this.state.teamEdits ||= {})[val] = currentTarget.value;
+		let changes;
+		if (val === 'format') {
+			let format = toID(currentTarget.value);
+			format = toID(BattleAliases[format]) || format;
+			if (!/^gen\d+/.test(format)) {
+				format = `gen9${format}`;
+			}
+			changes = changes || format !== this.state.team?.format;
+		} else if (val === 'private') {
+			changes = changes || currentTarget.value !== this.state.team?.private;
+		}
+		this.setState({
+			teamEdits: this.state.teamEdits,
+			changesMade: changes,
+		});
+	}
+
+	commitEdit() {
+		if (!this.state.changesMade || !this.state.team) return;
+		void Net('/api/editteam').get({
+			query: { teamid: this.id, ...this.state.teamEdits },
+		}).then(resultText => {
+			if (resultText.startsWith(']')) resultText = resultText.slice(1);
+			let result;
+			try {
+				result = JSON.parse(resultText);
+			} catch {
+				result = { actionerror: "Malformed response received. Try again later." };
+			}
+			if (result.team.private !== this.state.team?.private) {
+				history.pushState({}, '', new URL(
+					location.href.split(this.id)[0] + this.id +
+					(result.team.private ? `-${result.team.private}` : '')
+				));
+			}
+			if (result.actionerror) {
+				this.setState({ editError: result.actionerror, changesMade: false, teamEdits: null });
+			} else {
+				this.setState({ team: result.team, changesMade: false, teamEdits: null });
+			}
+		});
 	}
 }

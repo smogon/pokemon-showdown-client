@@ -377,3 +377,15 @@ export class MiniTeam extends preact.Component<{ team: ServerTeam, fullTeam?: bo
 		</>;
 	}
 }
+
+export function getShowdownUsername() {
+	const vals = document.cookie.split(';');
+	for (let cookie of vals) {
+		const [part, ...rest] = cookie.split('=');
+		const data = decodeURIComponent(rest.join('='));
+		if (toID(part) === 'showdownusername' || toID(part) === 'sid') {
+			return data.split(',')[0];
+		}
+	}
+	return null;
+}
