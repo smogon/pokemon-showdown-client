@@ -542,11 +542,11 @@ class PSUser extends PSStreamModel<PSLoginState | null> {
 			// we'll use `,` as a sentinel character to mean "any non-alphanumeric char"
 			// unicode characters can be replaced with any non-alphanumeric char
 			for (let i = escaped.length - 1; i > 0; i--) {
-				if (/[^\ -\~]/.test(escaped[i])) {
+				if (/[^ -~]/.test(escaped[i])) {
 					escaped = escaped.slice(0, i) + ',' + escaped.slice(i + 1);
 				}
 			}
-			escaped = escaped.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&");
+			escaped = escaped.replace(/[[\]/{}()*+?.\\^$|-]/g, "\\$&");
 			escaped = escaped.replace(/,/g, "[^A-Za-z0-9]?");
 			this.nameRegExp = new RegExp('(?:\\b|(?!\\w))' + escaped + '(?:\\b|\\B(?!\\w))', 'i');
 		}
