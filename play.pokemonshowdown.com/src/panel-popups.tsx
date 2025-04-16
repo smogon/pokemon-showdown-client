@@ -669,8 +669,7 @@ class ReplacePlayerPanel extends PSRoomPanel {
 					<input name="newplayer" class="textbox autofocus" />
 				</p>
 				<p>
-					<button type="submit" class="button"><strong>Replace</strong></button>
-
+					<button type="submit" class="button"><strong>Replace</strong></button> {}
 					<button type="button" data-cmd="/close" class="button autofocus">
 						Cancel
 					</button>
