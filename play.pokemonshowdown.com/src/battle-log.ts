@@ -102,7 +102,7 @@ export class BattleLog {
 		});
 		this.addNode(el);
 	}
-	add(args: Args, kwArgs?: KWArgs, preempt?: boolean) {
+	add(args: Args, kwArgs?: KWArgs, preempt?: boolean, showTimestamps?: 'minutes' | 'seconds') {
 		if (kwArgs?.silent) return;
 		const battle = this.scene?.battle;
 		if (battle?.seeking) {
@@ -129,7 +129,9 @@ export class BattleLog {
 		case 'chat': case 'c': case 'c:':
 			let name;
 			let message;
+			let timestamp = 0;
 			if (args[0] === 'c:') {
+				timestamp = parseInt(args[1]);
 				name = args[2];
 				message = args[3];
 			} else {
@@ -143,8 +145,17 @@ export class BattleLog {
 			}
 			const ignoreList = window.app?.ignore || window.PS?.prefs?.ignore;
 			if (ignoreList?.[toUserid(name)] && ' +^\u2605\u2606'.includes(rank)) return;
+			let timestampHtml = '';
+			if (showTimestamps) {
+				const date = timestamp && !isNaN(timestamp) ? new Date(timestamp * 1000) : new Date();
+				const components = [date.getHours(), date.getMinutes()];
+				if (showTimestamps === 'seconds') {
+					components.push(date.getSeconds());
+				}
+				timestampHtml = `<small class="gray">[${components.map(x => x < 10 ? `0${x}` : x).join(':')}] </small>`;
+			}
 			let isHighlighted = window.app?.rooms?.[battle!.roomid].getHighlight(message);
-			[divClass, divHTML, noNotify] = this.parseChatMessage(message, name, '', isHighlighted);
+			[divClass, divHTML, noNotify] = this.parseChatMessage(message, name, timestampHtml, isHighlighted);
 			if (!noNotify && isHighlighted) {
 				let notifyTitle = "Mentioned by " + name + " in " + battle!.roomid;
 				app.rooms[battle!.roomid].notifyOnce(notifyTitle, "\"" + message + "\"", 'highlight');
