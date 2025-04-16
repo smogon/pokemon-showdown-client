@@ -608,11 +608,11 @@
 			return clonedNode;
 		};
 
-		TournamentBox.prototype.nodeSize = {
+		TournamentBox.nodeSize = {
 			width: 160, height: 30,
 			radius: 5,
 			separationX: 20, separationY: 20,
-			textOffset: -1,
+			textOffset: -1
 		};
 
 		TournamentBox.prototype.generateBracket = function (data, abbreviated) {
@@ -641,7 +641,7 @@
 					if (node.children && node.children.length === 2) {
 						node.team1 = node.children[0].team;
 						node.team2 = node.children[1].team;
-						var shouldHaveChildren = node.children.some(child => child.children?.length === 2);
+						var shouldHaveChildren = node.children.some(function (child) { return child.children && child.children.length === 2; });
 						if (!shouldHaveChildren) node.children = [];
 						if (depth >= 2 && node.children && node.children.length && abbreviated) {
 							node.children = [];
@@ -673,7 +673,7 @@
 				var numLeaves = 0;
 				var hasLeafAtDepth = [];
 				this.forEachTreeNode(newTree, function (node, depth) {
-					hasLeafAtDepth[depth] || (hasLeafAtDepth[depth] = false);
+					if (!hasLeafAtDepth[depth]) hasLeafAtDepth[depth] = false;
 					if (!node.children || !node.children.length) {
 						numLeaves++;
 						hasLeafAtDepth[depth] = true;
@@ -691,7 +691,7 @@
 				nodeSize.smallRealHeight = nodeSize.height / 2;
 				var size = {
 					width: nodeSize.realWidth * maxDepth + nodeSize.separationX * (maxDepth + 1),
-					height: nodeSize.realHeight * (maxBreadth + 0.5) + nodeSize.separationY * maxBreadth,
+					height: nodeSize.realHeight * (maxBreadth + 0.5) + nodeSize.separationY * maxBreadth
 				};
 
 				var tree = d3.layout.tree()
@@ -810,10 +810,10 @@
 								team1.classed('tournament-bracket-tree-team-draw', true);
 								team2.classed('tournament-bracket-tree-team-draw', true);
 							}
-		
+
 							elem.classed('tournament-bracket-tree-node-match-result-' + node.result, true);
-							row1.append('svg:tspan').text(` (${node.score[0]})`).classed('tournament-bracket-tree-score', true);
-							row2.append('svg:tspan').text(` (${node.score[1]})`).classed('tournament-bracket-tree-score', true);
+							row1.append('svg:tspan').text(' (' + node.score[0] + ')').classed('tournament-bracket-tree-score', true);
+							row2.append('svg:tspan').text(' (' + node.score[1] + ')').classed('tournament-bracket-tree-score', true);
 						}
 					}
 				});
