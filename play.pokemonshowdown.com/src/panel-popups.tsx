@@ -932,7 +932,6 @@ class RegisterPanel extends PSRoomPanel {
 		}).then(data => {
 			console.log(data);
 			if (data?.actionerror) this.setState({ errorMsg: data?.actionerror });
-			let token = data?.assertion;
 			if (data?.curuser?.loggedin) {
 				PS.user.registered = true;
 				let name = data.curuser.username;
