@@ -291,7 +291,11 @@ export class DatabaseTable<Row, DB extends Database> {
 	}
 	update(primaryKey: BasicSQLValue, data: PartialOrSQL<Row>) {
 		if (!this.primaryKeyName) throw new Error(`Cannot update() without a single-column primary key`);
-		return this.updateAll(data)`WHERE "${this.primaryKeyName}" = ${primaryKey} LIMIT 1`;
+		// cockroach/pg  do not support limit in update queries so we have to case this
+		return this.updateAll(data)`
+			WHERE "${this.primaryKeyName}" = ${primaryKey}
+			${this.db.type === 'mysql' ? SQL` LIMIT 1` : ''}
+		`;
 	}
 }
 
