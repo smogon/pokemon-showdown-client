@@ -16,6 +16,7 @@ import type { Args } from "./battle-text-parser";
 import { BattleTooltips } from "./battle-tooltips";
 import type { PSModel, PSStreamModel, PSSubscription } from "./client-core";
 import { PS, type PSRoom, type RoomID } from "./client-main";
+import type { BattleRoom } from "./panel-battle";
 import { PSHeader, PSMiniHeader } from "./panel-topbar";
 
 export class PSRouter {
@@ -516,10 +517,17 @@ export class PSMain extends preact.Component {
 	};
 	handleButtonClick(elem: HTMLButtonElement) {
 		switch (elem.name) {
-		case 'closeRoom':
+		case 'closeRoom': {
 			const roomid = elem.value as RoomID || PS.getRoom(elem)?.id || '' as RoomID;
+			const room = PS.rooms[roomid];
+			const battle = (room as BattleRoom).battle;
+			if (room?.type === "battle" && !battle.ended && battle.mySide.id === PS.user.userid) {
+				PS.join("forfeitbattle" as RoomID, { parentElem: elem });
+				return true;
+			}
 			PS.leave(roomid);
 			return true;
+		}
 		case 'joinRoom':
 			PS.join(elem.value as RoomID, {
 				parentElem: elem,
