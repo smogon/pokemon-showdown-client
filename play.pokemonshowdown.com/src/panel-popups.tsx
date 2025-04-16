@@ -622,10 +622,10 @@ class BattleForfeitPanel extends PSRoomPanel {
 						forfeiting</label>
 				</p>
 				<p>
-					<button onClick={this.handleForfeit} class="button"><strong>Forfeit</strong></button>
+					<button onClick={this.handleForfeit} class="button"><strong>Forfeit</strong></button> {}
 					<button type="button" value={battleRoom.id} data-href="replaceplayer" class="button">
 						Replace player
-					</button>
+					</button> {}
 					<button type="button" name="close" data-cmd="/close" class="button autofocus">
 						Cancel
 					</button>
