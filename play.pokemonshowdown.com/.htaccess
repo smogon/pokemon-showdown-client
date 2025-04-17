@@ -108,6 +108,8 @@ RewriteCond %{DOCUMENT_ROOT}/$1 !-d
 RewriteRule ^([A-Za-z0-9][A-Za-z0-9-]*)/$ /$1 [R=301,L]
 
 # Anything that looks like a roomid: connect to the server
+RewriteCond %{HTTP_COOKIE} ^.*preactalpha=1.*$
+RewriteRule ^(|[A-Za-z0-9][A-Za-z0-9-]*)$ ./preactalpha.html [L,E=INDEX_PAGE:1]
 RewriteRule ^$ - [E=INDEX_PAGE:1]
 RewriteRule ^(preactalpha|login|users|(dm|challenge|user|viewuser|ladder)-[a-z0-9-]*)$ ./preactalpha.html [L,E=INDEX_PAGE:1]
 RewriteRule ^([A-Za-z0-9][A-Za-z0-9-]*)$ ./ [L,E=INDEX_PAGE:1]

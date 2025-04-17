@@ -47,7 +47,7 @@ export class BattleTextParser {
 		switch (cmd) {
 		case 'chatmsg': case 'chatmsg-raw': case 'raw': case 'error': case 'html':
 		case 'inactive': case 'inactiveoff': case 'warning':
-		case 'fieldhtml': case 'controlshtml': case 'bigerror':
+		case 'fieldhtml': case 'controlshtml': case 'pagehtml': case 'bigerror':
 		case 'debug': case 'tier': case 'challstr': case 'popup': case '':
 			return [cmd, line.slice(index + 1)];
 		case 'c': case 'chat': case 'uhtml': case 'uhtmlchange': case 'queryresponse': case 'showteam':

@@ -559,12 +559,12 @@ class OptionsPanel extends PSRoomPanel {
 			<p>
 				<img
 					class="trainersprite yours" width="40" height="40" style={{ verticalAlign: 'middle' }}
-					src={Dex.resolveAvatar(`${PS.user.avatar}`)}
+					src={Dex.resolveAvatar(`${PS.user.avatar}`)} data-href="avatars"
 				/> {}
 				<strong>{PS.user.name}</strong>
 			</p>
 			<p>
-				<button class="button" data-href="avatars"> Avatar..</button>
+				<button class="button" data-href="avatars"> Avatar...</button>
 			</p>
 
 			{this.state.showStatusInput ? (
@@ -575,12 +575,12 @@ class OptionsPanel extends PSRoomPanel {
 			) : (
 				<p>
 					<button class="button" onClick={this.handleShowStatusInput} disabled={this.state.showStatusUpdated}>
-						{this.state.showStatusUpdated ? 'Status Updated' : 'Status..'}</button>
+						{this.state.showStatusUpdated ? 'Status Updated' : 'Status...'}</button>
 				</p>
 			)}
 
 			{PS.user.named && (PS.user.registered ?
-				<button className="button" data-href="changepassword">Change Password</button> :
+				<button className="button" data-href="changepassword">Password...</button> :
 				<button className="button" data-href="register">Register</button>)}
 
 			<hr />
@@ -600,65 +600,41 @@ class OptionsPanel extends PSRoomPanel {
 				</select></label>
 			</p>
 			<p>
-				<label class="checkbox">
-					<input
-						type="checkbox" name="noanim"
-						checked={PS.prefs.noanim || false} onChange={this.handleOnChange}
-					/> Disable animations
-				</label>
-			</p>
-			<p>
-				<label class="checkbox">
-					<input
-						type="checkbox"
-						name="bwgfx"
-						onChange={this.handleOnChange}
-						checked={PS.prefs.bwgfx || false}
-					/>  Use 2D sprites instead of 3D models</label>
+				<label class="checkbox"> <input
+					name="noanim" checked={PS.prefs.noanim || false} type="checkbox" onChange={this.handleOnChange}
+				/> Disable animations</label>
 			</p>
 			<p>
 				<label class="checkbox"><input
-					type="checkbox"
-					name="nopastgens"
-					onChange={this.handleOnChange}
-					checked={PS.prefs.nopastgens || false}
+					name="bwgfx" checked={PS.prefs.bwgfx || false} type="checkbox" onChange={this.handleOnChange}
+				/>  Use 2D sprites instead of 3D models</label>
+			</p>
+			<p>
+				<label class="checkbox"><input
+					name="nopastgens" checked={PS.prefs.nopastgens || false} type="checkbox" onChange={this.handleOnChange}
 				/> Use modern sprites for past generations</label>
 			</p>
 			<hr />
 			<h3>Chat</h3>
 			<p>
-				<label class="checkbox">
-					<input type="checkbox" onChange={this.handleOnChange} name="blockPMs" checked={PS.prefs.blockPMs || false}>
-					</input> Block PMs
-				</label>
+				<label class="checkbox"><input
+					name="blockPMs" checked={PS.prefs.blockPMs || false} type="checkbox" onChange={this.handleOnChange}
+				/> Block PMs</label>
 			</p>
 			<p>
-				<label class="checkbox">
-					<input
-						type="checkbox"
-						name="blockChallenges"
-						onChange={this.handleOnChange}
-						checked={PS.prefs.blockChallenges || false}
-					>
-					</input> Block Challenges</label>
+				<label class="checkbox"><input
+					name="blockChallenges" checked={PS.prefs.blockChallenges || false} type="checkbox" onChange={this.handleOnChange}
+				/> Block challenges</label>
 			</p>
 			<p>
-				<label class="checkbox">
-					<input
-						type="checkbox"
-						name="inchatpm"
-						onChange={this.handleOnChange}
-						checked={PS.prefs.inchatpm || false}
-					/> Show PMs in chatrooms</label>
+				<label class="checkbox"><input
+					name="inchatpm" checked={PS.prefs.inchatpm || false} type="checkbox" onChange={this.handleOnChange}
+				/> Show PMs in chatrooms</label>
 			</p>
 			<p>
-				<label class="checkbox">
-					<input
-						type="checkbox"
-						name="noselfhighlight"
-						onChange={this.handleOnChange}
-						checked={PS.prefs.noselfhighlight || false}
-					/> Do Not Highlight when your name is said in chat</label>
+				<label class="checkbox"><input
+					name="noselfhighlight" checked={PS.prefs.noselfhighlight || false} type="checkbox" onChange={this.handleOnChange}
+				/> Do not highlight when your name is said in chat</label>
 			</p>
 			<p>
 				<label class="optlabel">Timestamps: <select name="layout" class="button" onChange={this.setChatroomTimestamp}>
@@ -668,7 +644,7 @@ class OptionsPanel extends PSRoomPanel {
 				</select></label>
 			</p>
 			<p>
-				<label class="optlabel">Timestamps in PMs: <select name="layout" class="button" onChange={this.setPMsTimestamp}>
+				<label class="optlabel">Timestamps in DMs: <select name="layout" class="button" onChange={this.setPMsTimestamp}>
 					<option value="" selected={!PS.prefs.timestamps.pms}>Off</option>
 					<option value="minutes" selected={PS.prefs.timestamps.pms === "minutes"}>[HH:MM]</option>
 					<option value="seconds" selected={PS.prefs.timestamps.pms === "seconds"}>[HH:MM:SS]</option>
@@ -869,7 +845,7 @@ class AvatarsPanel extends PSRoomPanel {
 			avatars.push(i);
 		}
 
-		return <PSPanelWrapper room={room} width={480}><div class="pad">
+		return <PSPanelWrapper room={room} width={1210}><div class="pad">
 			<label class="optlabel"><strong>Choose an avatar or </strong>
 				<button class="button" onClick={() => this.close()}> Cancel</button>
 			</label>
@@ -1129,8 +1105,8 @@ class RegisterPanel extends PSRoomPanel {
 			console.log(data);
 			if (data?.actionerror) this.setState({ errorMsg: data?.actionerror });
 			if (data?.curuser?.loggedin) {
-				PS.user.registered = true;
 				let name = data.curuser.username;
+				PS.user.registered = { name, userid: toID(name) };
 				if (data?.assertion) PS.user.handleAssertion(name, data?.assertion);
 				this.close();
 				PS.alert("You have been successfully registered.");

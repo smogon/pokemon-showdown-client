@@ -376,7 +376,7 @@ class PSUser extends PSStreamModel<PSLoginState | null> {
 	group = '';
 	userid = "" as ID;
 	named = false;
-	registered = false;
+	registered: { name: string, userid: ID } | null = null;
 	avatar = "1";
 	challstr = '';
 	loggingIn: string | null = null;
@@ -464,7 +464,8 @@ class PSUser extends PSStreamModel<PSLoginState | null> {
 			this.loggingIn = null;
 			if (data?.curuser?.loggedin) {
 				// success!
-				this.registered = true;
+				const username = data.curuser.loggedin.username;
+				this.registered = { name: username, userid: toID(username) };
 				this.handleAssertion(name, data.assertion);
 			} else {
 				// wrong password
@@ -530,7 +531,7 @@ class PSUser extends PSStreamModel<PSLoginState | null> {
 		this.group = '';
 		this.userid = "" as ID;
 		this.named = false;
-		this.registered = false;
+		this.registered = null;
 		this.update(null);
 	}
 
@@ -1144,7 +1145,8 @@ export const PS = new class extends PSModel {
 		this.addRoom({
 			id: 'rooms' as RoomID,
 			title: "Rooms",
-		});
+		}, true);
+		this.rightPanel = this.rooms['rooms']!;
 
 		if (this.newsHTML) {
 			this.addRoom({

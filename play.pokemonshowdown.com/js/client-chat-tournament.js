@@ -603,7 +603,8 @@
 		TournamentBox.prototype.cloneTree = function (node) {
 			var clonedNode = Object.assign({}, node);
 			if (node.children) {
-				clonedNode.children = node.children.map(function (child) { return this.cloneTree(child); });
+				var self = this;
+				clonedNode.children = node.children.map(function (child) { return self.cloneTree(child); });
 			}
 			return clonedNode;
 		};
@@ -631,7 +632,6 @@
 				}
 
 				var name = app.user.get('name');
-				var nodeSize = this.nodeSize;
 
 				var newTree = this.cloneTree(data.rootNode);
 				if (newTree.team) newTree.highlightLink = true;
@@ -685,7 +685,7 @@
 				var maxBreadth = numLeaves - (depthsWithLeaves - 1) / breadthCompression;
 				var maxDepth = hasLeafAtDepth.length;
 
-				var nodeSize = Object.assign({}, this.nodeSize);
+				var nodeSize = Object.assign({}, TournamentBox.nodeSize);
 				nodeSize.realWidth = nodeSize.width;
 				nodeSize.realHeight = nodeSize.height;
 				nodeSize.smallRealHeight = nodeSize.height / 2;
@@ -747,7 +747,7 @@
 								if (ev.cmdKey || ev.metaKey || ev.ctrlKey) return;
 								ev.preventDefault();
 								ev.stopPropagation();
-								var roomid = $(ev.currentTarget).getAttribute('href');
+								var roomid = ev.currentTarget.getAttribute('href');
 								app.tryJoinRoom(roomid);
 							});
 					}
@@ -759,7 +759,7 @@
 						var rect = elem.append('svg:rect').classed('tournament-bracket-tree-draw', true)
 							.attr('rx', nodeSize.radius)
 							.attr('x', -nodeSize.realWidth / 2).attr('width', nodeSize.realWidth);
-						rect.attr('y', -nodeSize.smallRealHeight / 2).attr('height', node.smallRealHeight);
+						rect.attr('y', -nodeSize.smallRealHeight / 2).attr('height', nodeSize.smallRealHeight);
 						if (node.team === name) rect.attr('stroke-dasharray', '5,5').attr('stroke-width', 2);
 
 						elem.append('svg:text').classed('tournament-bracket-tree-node-team', true)

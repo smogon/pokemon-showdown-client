@@ -588,7 +588,15 @@ export class PSMain extends preact.Component {
 		if (fullSize) {
 			return { width: '90%', maxHeight: '90%', maxWidth: 'none', position: 'relative', margin: '5vh auto 0' };
 		}
-		if (room.location === 'modal-popup' || !room.parentElem) {
+
+		const source = room.parentElem?.getBoundingClientRect();
+		if (source && !source.width && !source.height && !source.top && !source.left) {
+			// parent elem has been unmounted
+			room.parentElem = null;
+			PS.update();
+		}
+
+		if (room.location === 'modal-popup' || !room.parentElem || !source) {
 			return { maxWidth: width || 480 };
 		}
 		if (!room.width || !room.height) {
@@ -616,7 +624,6 @@ export class PSMain extends preact.Component {
 		const availableWidth = document.documentElement.clientWidth + offsetLeft;
 		const availableHeight = document.documentElement.clientHeight;
 
-		const source = room.parentElem.getBoundingClientRect();
 		const sourceWidth = source.width;
 		const sourceHeight = source.height;
 		const sourceTop = source.top + offsetTop;
