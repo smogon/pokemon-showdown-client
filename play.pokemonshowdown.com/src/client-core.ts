@@ -272,6 +272,7 @@ const PSBackground = new class extends PSStreamModel {
 		} else {
 			this.save(bgUrl);
 		}
+		this.update(bgUrl);
 	}
 	extractMenuColors(bgUrl: string) {
 		const changeCount = this.changeCount;
@@ -361,7 +362,10 @@ PSBackground.subscribe(bgUrl => {
 	let buttonStyleElem = document.getElementById('mainmenubuttoncolors');
 	if (!buttonStyleElem) {
 		if (cssBuf) {
-			buttonStyleElem = new HTMLStyleElement();
+			// Create a <style> element the correct way
+			// Direct construction like `new HTMLStyleElement()` throws an error,
+			// so we use document.createElement instead
+			buttonStyleElem = document.createElement("style");
 			buttonStyleElem.id = 'mainmenubuttoncolors';
 			buttonStyleElem.textContent = cssBuf;
 			document.head.appendChild(buttonStyleElem);
