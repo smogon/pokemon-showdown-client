@@ -282,7 +282,6 @@ class OptionsPanel extends PSRoomPanel {
 	static readonly id = 'options';
 	static readonly routes = ['options'];
 	static readonly location = 'popup';
-	static readonly noURL = true;
 	declare state: { showStatusInput?: boolean, showStatusUpdated?: boolean };
 
 	setTheme = (e: Event) => {
