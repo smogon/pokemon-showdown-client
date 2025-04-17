@@ -543,6 +543,12 @@ class OptionsPanel extends PSRoomPanel {
 			PS.send('/language ' + elem.value);
 			break;
 		}
+		case 'tournaments':{
+			if (elem.value === "hide") PS.prefs.set(setting, elem.value);
+			if (elem.value === "notify") PS.prefs.set(setting, elem.value);
+			if (!elem.value) PS.prefs.set(setting, null);
+			break;
+		}
 		case 'refreshprompt':
 		case 'noanim':
 		case 'nopastgens':
@@ -677,7 +683,13 @@ class OptionsPanel extends PSRoomPanel {
 						<option value="traditionalchinese" selected={PS.prefs.language === "traditionalchinese"}>中文</option>
 					</select></label>
 			</p>
-
+			<p>
+				<label class="optlabel">Tournaments: <select name="tournaments" class="button" onChange={this.handleOnChange}>
+					<option value="notify" selected={PS.prefs.tournaments === "notify"}> Notifications</option>
+					<option selected={!PS.prefs.tournaments}> No notifications</option>
+					<option value="hide" selected={PS.prefs.tournaments === "hide"}> Hide</option>
+				</select></label>
+			</p>
 			<p>
 				<label class="optlabel">Timestamps: <select name="layout" class="button" onChange={this.setChatroomTimestamp}>
 					<option value="" selected={!PS.prefs.timestamps.chatrooms}>Off</option>
