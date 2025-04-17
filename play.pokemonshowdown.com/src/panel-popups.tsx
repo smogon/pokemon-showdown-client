@@ -405,11 +405,10 @@ class OptionsPanel extends PSRoomPanel {
 			<p>
 				<label class="checkbox">
 					<input
-						type="checkbox"
-						name="noanim"
-						onChange={this.handleOnChange}
-						checked={PS.prefs.noanim || false}
-					></input> Disable animations</label>
+						type="checkbox" name="noanim"
+						checked={PS.prefs.noanim || false} onChange={this.handleOnChange}
+					/> Disable animations
+				</label>
 			</p>
 			<p>
 				<label class="checkbox">
