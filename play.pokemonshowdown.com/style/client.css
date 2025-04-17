@@ -1294,6 +1294,9 @@ a.ilink.yours {
 	color: black;
 }
 
+.tournament-bracket-tree {
+	text-align: center;
+}
 .tournament-bracket-tree-link {
 	fill: none;
 	stroke: #aaa;
@@ -1302,43 +1305,59 @@ a.ilink.yours {
 	stroke: #aa0;
 	stroke-width: 3px;
 }
-.tournament-bracket-tree-node > rect {
+.tournament-bracket-tree-abbreviated {
+	fill: #999;
+}
+.tournament-bracket-tree-node rect {
 	/* Note: Due to SVG limitations, dimensions and border radii are in client-chat-tournament.js (nodeSize) */
 	fill: rgba(178, 194, 210, 0.7);
 	stroke: rgba(74, 77, 80, 0.7);
 	color: black;
 }
-.tournament-bracket-tree-node-win > rect {
+.tournament-bracket-tree-node a rect {
+	fill: hsla(219, 93%, 77%, 0.7);
+	stroke: hsla(219, 100%, 25%, 0.7);
+	color: black;
+}
+.tournament-bracket-tree-node a:hover rect {
+	fill: hsla(218, 38%, 82%, 0.7);
+	stroke: hsla(219, 68%, 35%, 0.7);
+	color: black;
+}
+.tournament-bracket-tree-node-match-available rect,
+.tournament-bracket-tree-node-match-challenging rect {
+	fill: hsla(294, 36%, 71%, 0.7);
+	stroke: hsla(294, 68%, 35%, 0.7);
+	color: black;
+}
+.tournament-bracket-tree-node rect.tournament-bracket-tree-win {
 	fill: rgba(128, 196, 128, 0.7);
 	stroke: rgba(0, 128, 0, 0.7);
 	color: black;
 }
-.tournament-bracket-tree-node-draw > rect {
-	fill: rgba(255, 196, 128, 0.7);
-	stroke: rgba(255, 128, 0, 0.7);
+.tournament-bracket-tree-node rect.tournament-bracket-tree-loss,
+.tournament-bracket-tree-node rect.tournament-bracket-tree-draw {
+	fill: hsla(219, 0%, 71%, 0.7);
+	stroke: hsla(219, 0%, 35%, 0.7);
 	color: black;
 }
-.tournament-bracket-tree-node-loss > rect {
-	fill: rgba(255, 128, 128, 0.7);
-	stroke: rgba(255, 0, 0, 0.7);
-	color: black;
-}
-.tournament-bracket-tree-node > text {
-	font-size: 0.8em;
+.tournament-bracket-tree-node text, .tournament-bracket-tree-node {
+	font-size: 8.5pt;
 	text-anchor: middle;
 	dominant-baseline: central;
-}
-.tournament-bracket-tree-node > text > a {
-	fill: #248;
-}
-.tournament-bracket-tree-node > text > a:hover {
-	fill: #68c;
-}
-.tournament-bracket-tree-node-match-team {
 	font-weight: bold;
 }
-.tournament-bracket-tree-node-match-team-draw, .tournament-bracket-tree-node-match-team-loss {
-	fill: #555;
+.tournament-bracket-tree-node a {
+	color: #248;
+}
+.tournament-bracket-tree-node a text, .tournament-bracket-tree-node a:hover text {
+	fill: #248;
+}
+.tournament-bracket-tree-team-win {
+	font-weight: bold;
+}
+.tournament-bracket-tree-team-loss, .tournament-bracket-tree-team-draw, .tournament-bracket-tree-score {
+	font-weight: normal;
 }
 
 .tournament-tools {
