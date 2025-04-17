@@ -371,7 +371,7 @@ class OptionsPanel extends PSRoomPanel {
 
 			{this.state.showStatusInput ? (
 				<p>
-					<input name="statustext"></input>
+					<input name="statustext" />
 					<button class="button" onClick={this.editStatus}><i class="fa fa-pencil"></i></button>
 				</p>
 			) : (
@@ -416,7 +416,7 @@ class OptionsPanel extends PSRoomPanel {
 						name="bwgfx"
 						onChange={this.handleOnChange}
 						checked={PS.prefs.bwgfx || false}
-					></input>  Use 2D sprites instead of 3D models</label>
+					/>  Use 2D sprites instead of 3D models</label>
 			</p>
 			<p>
 				<label class="checkbox"><input
@@ -424,7 +424,7 @@ class OptionsPanel extends PSRoomPanel {
 					name="nopastgens"
 					onChange={this.handleOnChange}
 					checked={PS.prefs.nopastgens || false}
-				></input> Use modern sprites for past generations</label>
+				/> Use modern sprites for past generations</label>
 			</p>
 			<hr />
 			<h3>Chat</h3>
@@ -451,7 +451,7 @@ class OptionsPanel extends PSRoomPanel {
 						name="inchatpm"
 						onChange={this.handleOnChange}
 						checked={PS.prefs.inchatpm || false}
-					></input> Show PMs in chatrooms</label>
+					/> Show PMs in chatrooms</label>
 			</p>
 			<p>
 				<label class="checkbox">
@@ -460,7 +460,7 @@ class OptionsPanel extends PSRoomPanel {
 						name="noselfhighlight"
 						onChange={this.handleOnChange}
 						checked={PS.prefs.noselfhighlight || false}
-					></input> Do Not Highlight when your name is said in chat</label>
+					/> Do Not Highlight when your name is said in chat</label>
 			</p>
 			<p>
 				<label class="optlabel">Timestamps: <select name="layout" class="button" onChange={this.setChatroomTimestamp}>
@@ -734,7 +734,7 @@ class BattleForfeitPanel extends PSRoomPanel {
 			<form>
 				<p>Forfeiting makes you lose the battle. Are you sure?</p>
 				<p>
-					<label class="checkbox"><input type="checkbox" name="closeroom" checked={true}></input> Close after
+					<label class="checkbox"><input type="checkbox" name="closeroom" checked={true} /> Close after
 						forfeiting</label>
 				</p>
 				<p>
