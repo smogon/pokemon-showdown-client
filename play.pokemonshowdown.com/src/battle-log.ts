@@ -159,6 +159,11 @@ export class BattleLog {
 			if (!noNotify && isHighlighted) {
 				let notifyTitle = "Mentioned by " + name + " in " + (battle?.roomid || '');
 				window.app?.rooms[battle?.roomid || '']?.notifyOnce(notifyTitle, "\"" + message + "\"", 'highlight');
+				window.PS?.rooms[battle?.roomid || '']?.notify({
+					title: notifyTitle,
+					body: "\"" + message + "\"",
+					id: 'highlight',
+				});
 			}
 			break;
 
