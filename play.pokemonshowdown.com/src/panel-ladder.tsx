@@ -229,9 +229,7 @@ class LadderListPanel extends PSRoomPanel {
 	static readonly title = 'Ladder';
 
 	override componentDidMount() {
-		this.subscribeTo(PS.teams, () => {
-			this.forceUpdate();
-		});
+		this.subscribeTo(PS.teams);
 	}
 	renderList() {
 		if (!window.BattleFormats) {

@@ -1228,6 +1228,7 @@ pre.textbox.textbox-empty[placeholder]:before {
 	width: 100%;
 	text-align: left;
 	overflow: hidden;
+	white-space: nowrap;
 }
 .tournament-title:hover {
 	background: rgba(242, 247, 250, 0.85);
@@ -1249,6 +1250,7 @@ pre.textbox.textbox-empty[placeholder]:before {
 	line-height: 30px;
 	font-weight: normal;
 	display: inline-block;
+	font-size: 11px;
 }
 
 .tournament-box {
@@ -1375,7 +1377,6 @@ pre.textbox.textbox-empty[placeholder]:before {
 .tournament-bracket-tree-node text, .tournament-bracket-tree-node {
 	font-size: 8.5pt;
 	text-anchor: middle;
-	dominant-baseline: central;
 	font-weight: bold;
 }
 .tournament-bracket-tree-node a {
@@ -2330,105 +2331,4 @@ pre.textbox.textbox-empty[placeholder]:before {
 }
 .dark .chat.mine {
 	background: rgba(255,255,255,0.05);
-}
-
-/* teambuilder */
-
-.dark .folderpane {
-	border-left-color: #484848;
-}
-
-.dark .folderlist .foldersep:before,
-.dark .folderlistafter:before,
-.dark .folderlistbefore:before,
-.dark .folderpane h3,
-.dark .folder .selectFolder,
-.dark .folderhack1,
-.dark .folderhack2 {
-	background: #484848;
-	color: #ddd;
-}
-
-.dark .folder .selectFolder:hover {
-	background: #686868;
-}
-
-.dark .folderpane i {
-	color: #ddd;
-}
-
-.dark .folder .selectFolder.active,
-.dark .folder .selectFolder:active {
-	background: #27333c;
-	color: white;
-}
-
-.dark .folder.cur .selectFolder {
-	background: transparent;
-}
-
-/* teambuilder set */
-
-.dark .utilichart h3, .dark .dexentry h3, .dark .resultheader h3 {
-	background: #636363;
-	color: #F1F1F1;
-	border: 1px solid #A9A9A9;
-	text-shadow: 1px 1px 0 rgb(40, 43, 45);
-	box-shadow: inset 0px 1px 0 rgb(49, 49, 49);
-	border-right: none;
-}
-
-.dark .teambar button {
-	background: #5A6570;
-	color: #F1F1F1;
-	border: 1px solid #AAAAAA;
-}
-
-.dark .teambar button:hover {
-	background: #444C54;
-	color: #F1F1F1;
-	border: 1px solid #AAAAAA;
-}
-
-.dark .teambar button:disabled, .dark .teambar button:disabled:hover, .dark .teambar button:disabled:active {
-		color: #ffffff;
-		background: #2d343a;
-		border-color: #6bacc5;
-		opacity: 1;
-}
-
-.dark .teambuilder-results .result a.hover,
-.dark .teambuilder-results .result a:hover,
-.dark .setmenu button:hover,
-.dark .teamlist button:hover {
-	border-color: #777777;
-	background: rgba(100, 100, 100, 0.5);
-	color: #FFFFFF;
-}
-.dark .teambuilder-results .result a.cur {
-	border-color: #BBBBBB;
-	background: rgba(100, 100, 100, 0.2);
-}
-.dark .teambuilder-results .result a.cur:hover {
-	border-color: #BBBBBB;
-	background: rgba(100, 100, 100, 0.4);
-	color: #FFFFFF;
-}
-
-.dark .setmenu button,
-.dark .teamlist button,
-.dark .folder.cur .selectFolder,
-.dark .utilichart .namecol,
-.dark .utilichart .pokemonnamecol,
-.dark .utilichart .movenamecol {
-	color: #DDD;
-}
-.dark .utilichart .col {
-	color: #DDD;
-}
-.dark .utilichart .cur .col {
-	color: #FFF;
-}
-.dark .utilichart a:hover .col {
-	color: #FFF;
 }

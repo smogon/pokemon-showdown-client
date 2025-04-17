@@ -662,7 +662,7 @@ export class TournamentBracket extends preact.Component<{
 export class TournamentTreeBracket extends preact.Component<{
 	data: TournamentTreeBracketData, abbreviated?: boolean,
 }> {
-	d3Loaded = true;
+	d3Loader: Promise<void> | null = null;
 	forEachTreeNode<T extends TreeNode>(node: T, callback: (node: T, depth: number) => void, depth = 0) {
 		callback(node, depth);
 		if (node.children) {
@@ -678,11 +678,15 @@ export class TournamentTreeBracket extends preact.Component<{
 		}
 		return clonedNode;
 	}
+	/**
+	 * Customize tree size. Height is for a single player, a full node is double that.
+	 */
 	static nodeSize = {
-		width: 160, height: 30,
+		width: 160, height: 15,
 		radius: 5,
 		separationX: 20, separationY: 10,
-		textOffset: -1,
+		// Safari bug: some issue with dominant-baseline. whatever, we can just manually v-align text
+		textOffset: 4,
 	};
 	generateTreeBracket(data: TournamentTreeBracketData, abbreviated?: boolean) {
 		const div = document.createElement('div');
@@ -698,11 +702,13 @@ export class TournamentTreeBracket extends preact.Component<{
 			return div;
 		}
 		if (!window.d3) {
-			this.d3Loaded = false;
 			div.innerHTML = `<b>d3 not loaded yet</b>`;
+			this.d3Loader ||= PS.libsLoaded.then(() => {
+				this.forceUpdate();
+			});
 			return div;
 		}
-		this.d3Loaded = true;
+		this.d3Loader = null;
 
 		let name = PS.user.name;
 
@@ -729,9 +735,14 @@ export class TournamentTreeBracket extends preact.Component<{
 							child.highlightLink = true;
 						}
 					}
-				} else if (node.state === 'inprogress' || node.state === 'available' || node.state === 'challenging') {
+				} else if (
+					node.state === 'inprogress' || node.state === 'available' || node.state === 'challenging' ||
+					node.state === 'unavailable'
+				) {
 					for (const child of node.children) {
-						child.highlightLink = true;
+						if (child.team && !child.team.startsWith('(')) {
+							child.highlightLink = true;
+						}
 					}
 				} else if (highlightName) {
 					for (const child of node.children) {
@@ -755,24 +766,26 @@ export class TournamentTreeBracket extends preact.Component<{
 			}
 		});
 
+		// Setting `breadthCompression` to 0.8 for 3+ depths with leaves is
+		// an extremely approximate guess for how tall a double+ elim tree
+		// should be. The old algorithm also approximated, but its
+		// approximation was arguably worse. This one is basically perfect
+		// for single elim and pretty good for double elim.
 		const depthsWithLeaves = hasLeafAtDepth.filter(Boolean).length;
 		const breadthCompression = depthsWithLeaves > 2 ? 0.8 : 2;
 		const maxBreadth = numLeaves - (depthsWithLeaves - 1) / breadthCompression;
 		const maxDepth = hasLeafAtDepth.length;
 
-		const nodeSize: any = { ...TournamentTreeBracket.nodeSize };
-		nodeSize.realWidth = nodeSize.width;
-		nodeSize.realHeight = nodeSize.height;
-		nodeSize.smallRealHeight = nodeSize.height / 2;
+		const nodeSize = TournamentTreeBracket.nodeSize;
 		const size = {
-			width: nodeSize.realWidth * maxDepth + nodeSize.separationX * (maxDepth + 1),
-			height: nodeSize.realHeight * (maxBreadth + 0.5) + nodeSize.separationY * maxBreadth,
+			width: nodeSize.width * maxDepth + nodeSize.separationX * (maxDepth + 1),
+			height: nodeSize.height * 2 * (maxBreadth + 0.5) + nodeSize.separationY * maxBreadth,
 		};
 
 		// Make d3 layout the tree
 
 		const tree = d3.layout.tree<TournamentElimBracketNode>()
-			.size([size.height, size.width - nodeSize.realWidth - nodeSize.separationX])
+			.size([size.height, size.width - nodeSize.width - nodeSize.separationX])
 			.separation(() => 1)
 			.children(node => (
 				node.children?.length ? node.children : null!
@@ -785,16 +798,16 @@ export class TournamentTreeBracket extends preact.Component<{
 		const layoutRoot = d3.select(div)
 			.append('svg:svg').attr('width', size.width).attr('height', size.height)
 			.append('svg:g')
-			.attr('transform', `translate(${-(nodeSize.realWidth) / 2 - 6},0)`);
+			.attr('transform', `translate(${-(nodeSize.width) / 2 - 6},0)`);
 
 		// Style the links between the nodes
 
 		const diagonalLink = d3.svg.diagonal()
 			.source(link => ({
-				x: link.source.x, y: link.source.y + nodeSize.realWidth / 2,
+				x: link.source.x, y: link.source.y + nodeSize.width / 2,
 			}))
 			.target(link => ({
-				x: link.target.x, y: link.target.y - nodeSize.realWidth / 2,
+				x: link.target.x, y: link.target.y - nodeSize.width / 2,
 			}))
 			.projection(link => [
 				size.width - link.y, link.x,
@@ -818,8 +831,8 @@ export class TournamentTreeBracket extends preact.Component<{
 			const outerElem = elem;
 
 			if (node.abbreviated) {
-				elem.append('svg:text').attr('y', -nodeSize.realHeight / 4 + 4)
-					.attr('x', -nodeSize.realWidth / 2 - 7).classed('tournament-bracket-tree-abbreviated', true)
+				elem.append('svg:text').attr('y', -nodeSize.height / 2 + 4)
+					.attr('x', -nodeSize.width / 2 - 7).classed('tournament-bracket-tree-abbreviated', true)
 					.text('...');
 			}
 
@@ -841,28 +854,29 @@ export class TournamentTreeBracket extends preact.Component<{
 			if (node.team && !node.team1 && !node.team2) {
 				const rect = elem.append('svg:rect').classed('tournament-bracket-tree-draw', true)
 					.attr('rx', nodeSize.radius)
-					.attr('x', -nodeSize.realWidth / 2).attr('width', nodeSize.realWidth);
-				rect.attr('y', -nodeSize.smallRealHeight / 2).attr('height', nodeSize.smallRealHeight);
+					.attr('x', -nodeSize.width / 2).attr('width', nodeSize.width)
+					.attr('y', -nodeSize.height / 2).attr('height', nodeSize.height);
 				if (node.team === name) rect.attr('stroke-dasharray', '5,5').attr('stroke-width', 2);
 
 				elem.append('svg:text').classed('tournament-bracket-tree-node-team', true)
+					.attr('y', nodeSize.textOffset)
 					.classed('tournament-bracket-tree-node-team-draw', true)
 					.text(node.team || '');
 			} else {
 				const rect1 = elem.append('svg:rect')
 					.attr('rx', nodeSize.radius)
-					.attr('x', -nodeSize.realWidth / 2).attr('width', nodeSize.realWidth)
-					.attr('y', -nodeSize.smallRealHeight).attr('height', nodeSize.smallRealHeight);
+					.attr('x', -nodeSize.width / 2).attr('width', nodeSize.width)
+					.attr('y', -nodeSize.height).attr('height', nodeSize.height);
 				const rect2 = elem.append('svg:rect')
 					.attr('rx', nodeSize.radius)
-					.attr('x', -nodeSize.realWidth / 2).attr('width', nodeSize.realWidth)
-					.attr('y', 0).attr('height', nodeSize.smallRealHeight);
+					.attr('x', -nodeSize.width / 2).attr('width', nodeSize.width)
+					.attr('y', 0).attr('height', nodeSize.height);
 				if (node.team1 === name) rect1.attr('stroke-dasharray', '5,5').attr('stroke-width', 2);
 				if (node.team2 === name) rect2.attr('stroke-dasharray', '5,5').attr('stroke-width', 2);
 
-				const row1 = elem.append('svg:text').attr('y', -nodeSize.realHeight / 4 + nodeSize.textOffset)
+				const row1 = elem.append('svg:text').attr('y', -nodeSize.height / 2 + nodeSize.textOffset)
 					.classed('tournament-bracket-tree-node-row1', true);
-				const row2 = elem.append('svg:text').attr('y', nodeSize.realHeight / 4 + nodeSize.textOffset)
+				const row2 = elem.append('svg:text').attr('y', nodeSize.height / 2 + nodeSize.textOffset)
 					.classed('tournament-bracket-tree-node-row2', true);
 
 				const team1 = row1.append('svg:tspan').classed('tournament-bracket-tree-team', true)
@@ -907,7 +921,7 @@ export class TournamentTreeBracket extends preact.Component<{
 		this.base!.appendChild(this.generateTreeBracket(this.props.data, this.props.abbreviated));
 	}
 	override shouldComponentUpdate(props: { data: TournamentTreeBracketData }) {
-		if (props.data === this.props.data && this.d3Loaded) return false;
+		if (props.data === this.props.data && !this.d3Loader) return false;
 		this.base!.replaceChild(this.generateTreeBracket(props.data), this.base!.children[0]);
 		return false;
 	}
@@ -923,7 +937,7 @@ export class TourPopOutPanel extends PSRoomPanel {
 	static readonly noURL = true;
 	override componentDidMount() {
 		const tour = this.props.room.args?.tour as ChatTournament;
-		if (tour) this.subscribeTo(tour, () => this.forceUpdate());
+		if (tour) this.subscribeTo(tour);
 	}
 	override render() {
 		const room = this.props.room;

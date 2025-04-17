@@ -696,6 +696,18 @@ type ParsedClientCommands = {
 	[command: `parsed${string}`]: (this: PSRoom, target: string, cmd: string) => string | boolean | null | void,
 };
 
+export class PSLoadTracker extends Promise<void> {
+	resolver!: (value: void) => void;
+	constructor() {
+		super(resolve => {
+			this.resolver = resolve;
+		});
+	}
+	loaded() {
+		this.resolver();
+	}
+}
+
 /**
  * As a PSStreamModel, PSRoom can emit `Args` to mean "we received a message",
  * and `null` to mean "tell Preact to re-render this room"
@@ -728,11 +740,13 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 	width = 0;
 	height = 0;
 	/**
-	 * popups sometimes initialize hidden, to calculate their position from their
-	 * width/height without flickering. But hidden popups can't be focused, so
-	 * we need to track their focus timing here.
+	 * Preact means that the DOM state lags behind the app state. This means
+	 * rooms frequently have `display: none` at the time we want to focus them.
+	 * And popups sometimes initialize hidden, to calculate their position from
+	 * their width/height without flickering. But hidden HTML elements can't be
+	 * focused, so this is a note-to-self to focus the next time they can be.
 	 */
-	hiddenInit = false;
+	focusNextUpdate = false;
 	parentElem: HTMLElement | null = null;
 	parentRoomid: RoomID | null = null;
 	rightPopup = false;
@@ -1134,6 +1148,8 @@ export const PS = new class extends PSModel {
 
 	newsHTML = document.querySelector('#room-news .mini-window-body')?.innerHTML || '';
 
+	libsLoaded = new PSLoadTracker();
+
 	constructor() {
 		super();
 
@@ -1300,12 +1316,11 @@ export const PS = new class extends PSModel {
 				room = PS.rooms[roomid2];
 				const [, type] = args;
 				if (!room) {
-					this.addRoom({
+					room = this.addRoom({
 						id: roomid2,
 						type,
 						connected: true,
 					}, roomid === 'staff' || roomid === 'upperstaff');
-					room = PS.rooms[roomid2];
 				} else {
 					room.type = type;
 					room.connected = true;
@@ -1471,8 +1486,11 @@ export const PS = new class extends PSModel {
 			if (this.leftPanel === room) this.leftPanel = newRoom;
 			if (this.rightPanel === room) this.rightPanel = newRoom;
 			if (this.panel === room) this.panel = newRoom;
-			if (this.room === room) this.room = newRoom;
 			if (roomid === '') this.mainmenu = newRoom as MainMenuRoom;
+			if (this.room === room) {
+				this.room = newRoom;
+				newRoom.focusNextUpdate = true;
+			}
 
 			updated = true;
 		}
@@ -1490,7 +1508,7 @@ export const PS = new class extends PSModel {
 		}
 		this.closePopupsAbove(room, true);
 		if (!this.isVisible(room)) {
-			room.hiddenInit = true;
+			room.focusNextUpdate = true;
 		}
 		if (PS.isNormalRoom(room)) {
 			if (room.location === 'right' && !this.prefs.onepanel) {
@@ -1574,42 +1592,6 @@ export const PS = new class extends PSModel {
 		}
 		return this.focusRoom(rooms[index + 1]);
 	}
-	focusPreview(room: PSRoom) {
-		if (room !== this.room) return '';
-
-		const verticalBuf = this.verticalFocusPreview();
-		if (verticalBuf) return verticalBuf;
-
-		const isMiniRoom = this.room.location === 'mini-window';
-		const { rooms, index } = this.horizontalNav();
-		if (index === -1) return '';
-
-		let buf = ' ';
-		const leftRoom = this.rooms[rooms[index - 1]];
-		if (leftRoom) buf += `\u2190 ${leftRoom.title}`;
-		buf += (this.arrowKeysUsed || isMiniRoom ? " | " : " (use arrow keys) ");
-		const rightRoom = this.rooms[rooms[index + 1]];
-		if (rightRoom) buf += `${rightRoom.title} \u2192`;
-		return buf;
-	}
-	verticalFocusPreview() {
-		const { rooms, index } = this.verticalNav();
-		if (index === -1) return '';
-
-		const upRoom = this.rooms[rooms[index - 1]];
-		let downRoom = this.rooms[rooms[index + 1]];
-		if (index === rooms.length - 2 && rooms[index + 1] === 'news') downRoom = undefined;
-		if (!upRoom && !downRoom) return '';
-
-		let buf = ' ';
-		// const altLabel = navigator.platform?.startsWith('Mac') ? '⌥' : 'ᴀʟᴛ';
-		const altLabel = navigator.platform?.startsWith('Mac') ? 'ᴏᴘᴛ' : 'ᴀʟᴛ';
-		if (upRoom) buf += `${altLabel}\u2191 ${upRoom.title}`;
-		buf += " | ";
-		if (downRoom) buf += `${altLabel}\u2193 ${downRoom.title}`;
-
-		return buf;
-	}
 	alert(message: string) {
 		this.join(`popup-${this.popups.length}` as RoomID, {
 			args: { message },
@@ -1676,6 +1658,7 @@ export const PS = new class extends PSModel {
 				room.receiveLine(args);
 			}
 		}
+		if (!noFocus) room.focusNextUpdate = true;
 		return room;
 	}
 	hideRightRoom() {
@@ -1809,6 +1792,7 @@ export const PS = new class extends PSModel {
 		}
 	}
 	removeRoom(room: PSRoom) {
+		const wasFocused = this.room === room;
 		room.destroy();
 		delete PS.rooms[room.id];
 
@@ -1848,7 +1832,9 @@ export const PS = new class extends PSModel {
 			PS.room = this.popups.length ? PS.rooms[this.popups[this.popups.length - 1]]! : PS.panel;
 		}
 
-		PS.setFocus(PS.room);
+		if (wasFocused) {
+			this.room.focusNextUpdate = true;
+		}
 	}
 	/** do NOT use this in a while loop: see `closePopupsUntil */
 	closePopup(skipUpdate?: boolean) {
