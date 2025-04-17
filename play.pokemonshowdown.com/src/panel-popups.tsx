@@ -218,25 +218,25 @@ class UserPanel extends PSRoomPanel<UserRoom> {
 class UserOptionsPanel extends PSRoomPanel {
 	static readonly id = 'useroptions';
 	static readonly routes = ['useroptions'];
-	static readonly location = 'semimodal-popup';
+	static readonly location = 'popup';
 	static readonly noURL = true;
-	declare state: { showMuteInput?: boolean,
+	declare state: {
+		showMuteInput?: boolean,
 		showBanInput?: boolean,
 		showConfirm?: boolean,
 		requestSent?: boolean,
-		data?: Record<string, string>, };
+		data?: Record<string, string>,
+	};
 
 	handleMute = (ev: Event) => {
 		this.setState({ showMuteInput: true, showBanInput: false });
 		ev.preventDefault();
 		ev.stopImmediatePropagation();
-
 	};
 	handleBan = (ev: Event) => {
 		this.setState({ showBanInput: true, showMuteInput: false });
 		ev.preventDefault();
 		ev.stopImmediatePropagation();
-
 	};
 
 	handleCancel = (ev: Event) => {
@@ -347,59 +347,61 @@ class UserOptionsPanel extends PSRoomPanel {
 					class="button"
 					data-href={`view-help-request-report-user-${(room.parentElem as HTMLInputElement).value.split(",")[0]}`}
 				>
-					Report</button>
+					Report
+				</button>
 			</p>
 			<p>
-				{this.state.requestSent ? <button class="button disabled"> Sent request </button> :
-				<button onClick={this.handleAddFriend} class="button">
-					Add friend
-				</button>}
+				{this.state.requestSent ? (
+					<button class="button disabled"> Sent request </button>
+				) : (
+					<button onClick={this.handleAddFriend} class="button">
+						Add friend
+					</button>
+				)}
 			</p>
-			{(canMute || canBan) && <hr /> }
+			{(canMute || canBan) && <hr />}
 			{this.state.showConfirm && <p>
 				<small>
-					{this.state.data?.action} {}
-					<b>{this.state.data?.targetUser}</b> {}
-					from <b>{this.state.data?.room}</b> {}
-					for {this.state.data?.duration}?
+					{this.state.data?.action} <b>{this.state.data?.targetUser}</b> {}
+					from <b>{this.state.data?.room}</b> for {this.state.data?.duration}?
 				</small>
 				<p class="buttonbar">
 					<button class="button" onClick={this.handleConfirm}>
-						<i class="fa fa-confirm"></i> Confirm </button> {}
+						<i class="fa fa-confirm"></i> Confirm
+					</button> {}
 					<button class="button" onClick={this.handleCancel}>
-						Cancel </button>
+						Cancel
+					</button>
 				</p>
 			</p>}
 			<p class="buttonbar">
-				{canMute && !this.state.showBanInput && !this.state.showConfirm && (this.state.showMuteInput ? (<div>
-					<label class="inputlabel"> Reason:
-						<input name="mutereason" class="textbox autofocus" placeholder="Mute reason (optional)"></input>
-					</label> {} <br />
-					<button class="button" onClick={this.muteUser} value="7min">For 7 Mins</button> {}
-					<button class="button" onClick={this.muteUser} value="1hr">For 1 Hour</button> {}
-					<button class="button" onClick={this.handleCancel}> Cancel</button>
-				</div>
-
+				{canMute && !this.state.showBanInput && !this.state.showConfirm && (this.state.showMuteInput ? (
+					<div>
+						<label class="inputlabel"> Reason:
+							<input name="mutereason" class="textbox autofocus" placeholder="Mute reason (optional)" />
+						</label> {} <br />
+						<button class="button" onClick={this.muteUser} value="7min">For 7 Mins</button> {}
+						<button class="button" onClick={this.muteUser} value="1hr">For 1 Hour</button> {}
+						<button class="button" onClick={this.handleCancel}> Cancel</button>
+					</div>
 				) : (
-
 					<button class="button" onClick={this.handleMute}>
-						<i class="fa fa-hourglass-half"></i> Mute </button>
-
+						<i class="fa fa-hourglass-half"></i> Mute
+					</button>
 				))} {}
-				{canBan && !this.state.showMuteInput && !this.state.showConfirm && (this.state.showBanInput ? (<div>
-					<label class="inputlabel"> Reason:
-						<input name="banreason" class="textbox autofocus" placeholder="Ban reason (optional)"></input>
-					</label> <br />
-					<button class="button" onClick={this.banUser} value="2d">For 2 Days</button> {}
-					<button class="button" onClick={this.banUser} value="1wk">For 1 Week</button> {}
-					<button class="button" onClick={this.handleCancel}>Cancel</button>
-
-				</div>
+				{canBan && !this.state.showMuteInput && !this.state.showConfirm && (this.state.showBanInput ? (
+					<div>
+						<label class="inputlabel"> Reason:
+							<input name="banreason" class="textbox autofocus" placeholder="Ban reason (optional)" />
+						</label> <br />
+						<button class="button" onClick={this.banUser} value="2d">For 2 Days</button> {}
+						<button class="button" onClick={this.banUser} value="1wk">For 1 Week</button> {}
+						<button class="button" onClick={this.handleCancel}>Cancel</button>
+					</div>
 				) : (
 					<button class="button" onClick={this.handleBan}>
 						<i class="fa fa-gavel"></i> Ban
 					</button>
-
 				))}
 			</p>
 		</div></PSPanelWrapper>;
@@ -1229,7 +1231,8 @@ class PopupPanel extends PSRoomPanel {
 		</div></PSPanelWrapper>;
 	}
 }
-PS.addRoomType(UserPanel,
+PS.addRoomType(
+	UserPanel,
 	UserOptionsPanel,
 	VolumePanel,
 	OptionsPanel,
@@ -1239,4 +1242,5 @@ PS.addRoomType(UserPanel,
 	RegisterPanel,
 	BattleForfeitPanel,
 	ReplacePlayerPanel,
-	PopupPanel);
+	PopupPanel
+);
