@@ -2,6 +2,7 @@ import preact from "../js/lib/preact";
 import { toID, toRoomid, toUserid, Dex } from "./battle-dex";
 import type { ID } from "./battle-dex-data";
 import { BattleLog } from "./battle-log";
+import { PSLoginServer } from "./client-connection";
 import { PSRoom, type RoomOptions, PS, type PSLoginState, type RoomID, type TimestampOptions } from "./client-main";
 import { type BattleRoom } from "./panel-battle";
 import { PSRoomPanel, PSPanelWrapper } from "./panels";
@@ -303,12 +304,12 @@ class OptionsPanel extends PSRoomPanel {
 		}
 		PS.update();
 	};
-	setChatroomTimestamp = (e: Event) => {
-		const timestamp = (e.currentTarget as HTMLSelectElement).value as TimestampOptions;
+	setChatroomTimestamp = (ev: Event) => {
+		const timestamp = (ev.currentTarget as HTMLSelectElement).value as TimestampOptions;
 		PS.prefs.set('timestamps', { ...PS.prefs.timestamps, chatrooms: timestamp || undefined });
 	};
-	setPMsTimestamp = (e: Event) => {
-		const timestamp = (e.currentTarget as HTMLSelectElement).value as TimestampOptions;
+	setPMsTimestamp = (ev: Event) => {
+		const timestamp = (ev.currentTarget as HTMLSelectElement).value as TimestampOptions;
 		PS.prefs.set('timestamps', { ...PS.prefs.timestamps, pms: timestamp || undefined });
 	};
 
@@ -316,6 +317,34 @@ class OptionsPanel extends PSRoomPanel {
 		ev.preventDefault();
 		ev.stopImmediatePropagation();
 		this.setState({ showStatusInput: !this.state.showStatusInput });
+	};
+
+	handleOnChange = (ev: Event) => {
+		let elem = ev.currentTarget as HTMLInputElement;
+		let setting = elem.name;
+		let value = elem.checked;
+		switch (setting) {
+		case 'blockPMs': {
+			PS.prefs.set("blockPMs", value);
+			PS.send(value ? '/blockpms' : '/unblockpms');
+			break;
+		}
+		case 'blockChallenges': {
+			PS.prefs.set("blockChallenges", value);
+			PS.send(value ? '/blockchallenges' : '/unblockchallenges');
+			break;
+		}
+		case 'bwgfx': {
+			PS.prefs.set('bwgfx', value);
+			Dex.loadSpriteData(value || PS.prefs.noanim ? 'bw' : 'xy');
+			break;
+		}
+		case 'noanim':
+		case 'nopastgens':
+		case 'noselfhighlight':
+		case 'inchatpm': PS.prefs.set(setting, value);
+			break;
+		}
 	};
 
 	editStatus = (ev: Event) => {
@@ -342,7 +371,7 @@ class OptionsPanel extends PSRoomPanel {
 
 			{this.state.showStatusInput ? (
 				<p>
-					<input name="statustext"></input>
+					<input name="statustext" />
 					<button class="button" onClick={this.editStatus}><i class="fa fa-pencil"></i></button>
 				</p>
 			) : (
@@ -351,6 +380,10 @@ class OptionsPanel extends PSRoomPanel {
 						{this.state.showStatusUpdated ? 'Status Updated' : 'Status..'}</button>
 				</p>
 			)}
+
+			{PS.user.named && (PS.user.registered ?
+				<button className="button" data-href="changepassword">Change Password</button> :
+				<button className="button" data-href="register">Register</button>)}
 
 			<hr />
 			<h3>Graphics</h3>
@@ -368,15 +401,67 @@ class OptionsPanel extends PSRoomPanel {
 					<option value="vertical" selected={PS.prefs.onepanel === 'vertical'}>Vertical tabs</option>
 				</select></label>
 			</p>
-			<hr />
-			{PS.user.named ? <p class="buttonbar" style="text-align: right">
-				<button class="button" data-href="login"><i class="fa fa-pencil"></i> Change name</button> {}
-				<button class="button" data-cmd="/logout"><i class="fa fa-power-off"></i> Log out</button>
-			</p> : <p class="buttonbar" style="text-align: right">
-				<button class="button" data-href="login"><i class="fa fa-pencil"></i> Choose name</button>
-			</p> }
+			<p>
+				<label class="checkbox">
+					<input
+						type="checkbox" name="noanim"
+						checked={PS.prefs.noanim || false} onChange={this.handleOnChange}
+					/> Disable animations
+				</label>
+			</p>
+			<p>
+				<label class="checkbox">
+					<input
+						type="checkbox"
+						name="bwgfx"
+						onChange={this.handleOnChange}
+						checked={PS.prefs.bwgfx || false}
+					/>  Use 2D sprites instead of 3D models</label>
+			</p>
+			<p>
+				<label class="checkbox"><input
+					type="checkbox"
+					name="nopastgens"
+					onChange={this.handleOnChange}
+					checked={PS.prefs.nopastgens || false}
+				/> Use modern sprites for past generations</label>
+			</p>
 			<hr />
 			<h3>Chat</h3>
+			<p>
+				<label class="checkbox">
+					<input type="checkbox" onChange={this.handleOnChange} name="blockPMs" checked={PS.prefs.blockPMs || false}>
+					</input> Block PMs
+				</label>
+			</p>
+			<p>
+				<label class="checkbox">
+					<input
+						type="checkbox"
+						name="blockChallenges"
+						onChange={this.handleOnChange}
+						checked={PS.prefs.blockChallenges || false}
+					>
+					</input> Block Challenges</label>
+			</p>
+			<p>
+				<label class="checkbox">
+					<input
+						type="checkbox"
+						name="inchatpm"
+						onChange={this.handleOnChange}
+						checked={PS.prefs.inchatpm || false}
+					/> Show PMs in chatrooms</label>
+			</p>
+			<p>
+				<label class="checkbox">
+					<input
+						type="checkbox"
+						name="noselfhighlight"
+						onChange={this.handleOnChange}
+						checked={PS.prefs.noselfhighlight || false}
+					/> Do Not Highlight when your name is said in chat</label>
+			</p>
 			<p>
 				<label class="optlabel">Timestamps: <select name="layout" class="button" onChange={this.setChatroomTimestamp}>
 					<option value="" selected={!PS.prefs.timestamps.chatrooms}>Off</option>
@@ -391,6 +476,13 @@ class OptionsPanel extends PSRoomPanel {
 					<option value="seconds" selected={PS.prefs.timestamps.pms === "seconds"}>[HH:MM:SS]</option>
 				</select></label>
 			</p>
+			<hr />
+			{PS.user.named ? <p class="buttonbar" style="text-align: right">
+				<button class="button" data-href="login"><i class="fa fa-pencil"></i> Change name</button> {}
+				<button class="button" data-cmd="/logout"><i class="fa fa-power-off"></i> Log out</button>
+			</p> : <p class="buttonbar" style="text-align: right">
+				<button class="button" data-href="login"><i class="fa fa-pencil"></i> Choose name</button>
+			</p> }
 		</div></PSPanelWrapper>;
 	}
 }
@@ -642,7 +734,7 @@ class BattleForfeitPanel extends PSRoomPanel {
 			<form>
 				<p>Forfeiting makes you lose the battle. Are you sure?</p>
 				<p>
-					<label class="checkbox"><input type="checkbox" name="closeroom" checked={true}></input> Close after
+					<label class="checkbox"><input type="checkbox" name="closeroom" checked={true} /> Close after
 						forfeiting</label>
 				</p>
 				<p>
@@ -703,6 +795,224 @@ class ReplacePlayerPanel extends PSRoomPanel {
 	}
 }
 
+class ChangePasswordPanel extends PSRoomPanel {
+	static readonly id = "changepassword";
+	static readonly routes = ["changepassword"];
+	static readonly location = "semimodal-popup";
+	static readonly noURL = true;
+
+	declare state: { errorMsg: string };
+
+	update = () => {
+		this.forceUpdate();
+	};
+
+	handleChangePassword = (ev: Event) => {
+		ev.preventDefault();
+		let oldpassword = this.base?.querySelector<HTMLInputElement>('input[name=oldpassword]')?.value;
+		let password = this.base?.querySelector<HTMLInputElement>('input[name=password]')?.value;
+		let cpassword = this.base?.querySelector<HTMLInputElement>('input[name=cpassword]')?.value;
+		if (!oldpassword?.length ||
+			!password?.length ||
+			!cpassword?.length) return this.setState({ errorMsg: "All fields are required" });
+		if (password !== cpassword) return this.setState({ errorMsg: 'Passwords do not match' });
+		PSLoginServer.query("changepassword", {
+			oldpassword,
+			password,
+			cpassword,
+		}).then(data => {
+			if (data?.actionerror) return this.setState({ errorMsg: data?.actionerror });
+			PS.alert("Your password was successfully changed!");
+
+		}).catch(err => {
+			console.error(err);
+			this.setState({ errorMsg: err.message });
+		});
+
+		this.setState({ errorMsg: '' });
+	};
+
+	override render() {
+		const room = this.props.room;
+
+		return <PSPanelWrapper room={room} width={280}><div class="pad">
+			<form onSubmit={this.handleChangePassword}>
+				{ !!this.state.errorMsg?.length && <p>
+					<b class="message-error"> {this.state.errorMsg}</b>
+				</p> }
+				<p>Change your password:</p>
+				<p>
+					<label class="label">Username:
+						<strong><input
+							type="text"
+							name="username"
+							value={PS.user.name}
+							style="
+						color: inherit;
+						background: transparent;
+						border: 0;
+						font: inherit;
+						font-size: inherit;
+						display: block;
+					"
+							readOnly={true}
+							autocomplete="username"
+						/></strong></label>
+				</p>
+				<p>
+					<label class="label">Old password:
+						<input
+							class="textbox autofocus"
+							type="password"
+							name="oldpassword"
+							autocomplete="current-password"
+						/></label>
+				</p>
+				<p>
+					<label class="label">New password:
+						<input
+							class="textbox"
+							type="password"
+							name="password"
+							autocomplete="new-password"
+						/></label>
+				</p>
+				<p>
+					<label class="label">New password (confirm):
+						<input
+							class="textbox"
+							type="password"
+							name="cpassword"
+							autocomplete="new-password"
+						/></label>
+				</p>
+				<p class="buttonbar">
+					<button type="submit" class="button">
+						<strong>Change password</strong>
+					</button>
+					<button type="button" data-cmd="/close" class="button">Cancel</button>
+				</p>
+			</form>
+
+		</div>
+		</PSPanelWrapper>;
+	}
+}
+
+class RegisterPanel extends PSRoomPanel {
+	static readonly id = "register";
+	static readonly routes = ["register"];
+	static readonly location = "semimodal-popup";
+	static readonly noURL = true;
+	static readonly rightPopup = true;
+
+	declare state: { errorMsg: string };
+
+	update = () => {
+		this.forceUpdate();
+	};
+
+	handleRegisterUser = (ev: Event) => {
+		ev.preventDefault();
+		let captcha = this.base?.querySelector<HTMLInputElement>('input[name=captcha]')?.value;
+		let password = this.base?.querySelector<HTMLInputElement>('input[name=password]')?.value;
+		let cpassword = this.base?.querySelector<HTMLInputElement>('input[name=cpassword]')?.value;
+		if (!captcha?.length ||
+			!password?.length ||
+			!cpassword?.length) return this.setState({ errorMsg: "All fields are required" });
+		if (password !== cpassword) return this.setState({ errorMsg: 'Passwords do not match' });
+		PSLoginServer.query("register", {
+			captcha,
+			password,
+			cpassword,
+			username: PS.user.name,
+			challstr: PS.user.challstr,
+		}).then(data => {
+			console.log(data);
+			if (data?.actionerror) this.setState({ errorMsg: data?.actionerror });
+			if (data?.curuser?.loggedin) {
+				PS.user.registered = true;
+				let name = data.curuser.username;
+				if (data?.assertion) PS.user.handleAssertion(name, data?.assertion);
+				this.close();
+				PS.alert("You have been successfully registered.");
+			}
+		}).catch(err => {
+			console.error(err);
+			this.setState({ errorMsg: err.message });
+		});
+
+		this.setState({ errorMsg: '' });
+	};
+
+	override render() {
+		const room = this.props.room;
+
+		return <PSPanelWrapper room={room} width={280}><div class="pad">
+			<form onSubmit={this.handleRegisterUser}>
+				{ !!this.state.errorMsg?.length && <p>
+					<b class="message-error"> {this.state.errorMsg}</b>
+				</p> }
+				<p>Register your account:</p>
+				<p>
+					<label class="label">Username:
+						<strong><input
+							type="text"
+							name="name"
+							value={PS.user.name}
+							style="
+						color: inherit;
+						background: transparent;
+						border: 0;
+						font: inherit;
+						font-size: inherit;
+						display: block;
+					"
+							readOnly={true}
+							autocomplete="username"
+						/></strong></label>
+				</p>
+				<p>
+					<label class="label">Password:
+						<input
+							class="textbox autofocus"
+							type="password"
+							name="password"
+							autocomplete="new-password"
+						/></label>
+				</p>
+				<p>
+					<label class="label">Password (confirm):
+						<input
+							class="textbox"
+							type="password"
+							name="cpassword"
+							autocomplete="new-password"
+						/></label>
+				</p>
+				<p>
+					<label class="label"> <img
+						src="https://play.pokemonshowdown.com/sprites/gen5ani/pikachu.gif"
+						alt="An Electric-type mouse that is the mascot of the Pokémon franchise."
+					/></label>
+				</p>
+				<p>
+					<label class="label">What is this pokemon?
+						<input
+							class="textbox" type="text" name="captcha" value=""
+						/></label>
+				</p>
+				<p class="buttonbar">
+					<button type="submit" class="button"><strong>Register</strong></button>
+					<button type="button" data-cmd="/close" class="button">Cancel</button>
+				</p>
+			</form>
+
+		</div>
+		</PSPanelWrapper>;
+	}
+}
+
 class PopupPanel extends PSRoomPanel {
 	static readonly id = 'popup';
 	static readonly routes = ['popup-*'];
@@ -729,6 +1039,8 @@ PS.addRoomType(UserPanel,
 	OptionsPanel,
 	LoginPanel,
 	AvatarsPanel,
+	ChangePasswordPanel,
+	RegisterPanel,
 	BattleForfeitPanel,
 	ReplacePlayerPanel,
 	PopupPanel);
