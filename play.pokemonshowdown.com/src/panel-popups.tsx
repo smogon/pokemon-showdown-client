@@ -139,7 +139,11 @@ class UserPanel extends PSRoomPanel<UserRoom> {
 				<p class="buttonbar">
 					<button class="button" data-href={`/challenge-${user.userid}`}>Challenge</button> {}
 					<button class="button" data-href={`/dm-${user.userid}`}>Chat</button> {}
-					<button class="button" data-href="/useroptions" value={`${room.userid as string},${room.parentRoomid as string}`}>{'\u2026'}</button>
+					<button
+						class="button"
+						data-href="/useroptions"
+						value={`${room.userid as string},${room.parentRoomid as string}`}
+					>{'\u2026'}</button>
 				</p>
 			));
 			if (isSelf) {
@@ -1225,8 +1229,6 @@ class PopupPanel extends PSRoomPanel {
 		</div></PSPanelWrapper>;
 	}
 }
-
-
 PS.addRoomType(UserPanel,
 	UserOptionsPanel,
 	VolumePanel,
