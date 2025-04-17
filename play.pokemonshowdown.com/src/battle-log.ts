@@ -154,11 +154,16 @@ export class BattleLog {
 				}
 				timestampHtml = `<small class="gray">[${components.map(x => x < 10 ? `0${x}` : x).join(':')}] </small>`;
 			}
-			let isHighlighted = window.app?.rooms?.[battle!.roomid].getHighlight(message);
+			let isHighlighted = window.app?.rooms?.[battle!.roomid].getHighlight(message) || window.PS?.getHighlight(message);
 			[divClass, divHTML, noNotify] = this.parseChatMessage(message, name, timestampHtml, isHighlighted);
 			if (!noNotify && isHighlighted) {
-				let notifyTitle = "Mentioned by " + name + " in " + battle!.roomid;
-				app.rooms[battle!.roomid].notifyOnce(notifyTitle, "\"" + message + "\"", 'highlight');
+				let notifyTitle = "Mentioned by " + name + " in " + (battle?.roomid || '');
+				window.app?.rooms[battle?.roomid || '']?.notifyOnce(notifyTitle, "\"" + message + "\"", 'highlight');
+				window.PS?.rooms[battle?.roomid || '']?.notify({
+					title: notifyTitle,
+					body: "\"" + message + "\"",
+					id: 'highlight',
+				});
 			}
 			break;
 
@@ -234,7 +239,7 @@ export class BattleLog {
 			return;
 
 		case 'pm':
-			divHTML = '<strong>' + BattleLog.escapeHTML(args[1]) + ':</strong> <span class="message-pm"><i style="cursor:pointer" onclick="selectTab(\'lobby\');rooms.lobby.popupOpen(\'' + BattleLog.escapeHTML(args[2], true) + '\')">(Private to ' + BattleLog.escapeHTML(args[3]) + ')</i> ' + BattleLog.parseMessage(args[4]) + '</span>';
+			divHTML = `<strong data-href="user-${BattleLog.escapeHTML(args[1])}"> ${BattleLog.escapeHTML(args[1])}:</strong> <span class="message-pm"><i style="cursor:pointer" data-href="user-${BattleLog.escapeHTML(args[1], true)}">(Private to ${BattleLog.escapeHTML(args[2])})</i> ${BattleLog.parseMessage(args[3])} </span>`;
 			break;
 
 		case 'askreg':

@@ -124,6 +124,8 @@ export class MainMenuRoom extends PSRoom {
 		} case 'pm': {
 			const [, user1, user2, message] = args;
 			this.handlePM(user1, user2, message);
+			let sideRoom = PS.rightPanel as ChatRoom;
+			if (sideRoom?.type === "chat" && PS.prefs.inchatpm) sideRoom?.log?.add(args);
 			return;
 		} case 'formats': {
 			this.parseFormats(args);
