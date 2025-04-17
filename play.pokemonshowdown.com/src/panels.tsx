@@ -308,6 +308,10 @@ export class PSMain extends preact.Component {
 			document.querySelector('meta[name=viewport]')?.setAttribute('content', 'width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0');
 		}
 
+		window.onbeforeunload = (ev: Event) => {
+			return PS.prefs.refreshprompt ? "Are you sure you want to leave?" : null;
+		};
+
 		window.addEventListener('click', e => {
 			let elem = e.target as HTMLElement | null;
 			if (elem?.className === 'ps-overlay') {
@@ -525,7 +529,18 @@ export class PSMain extends preact.Component {
 				PS.join("forfeitbattle" as RoomID, { parentElem: elem });
 				return true;
 			}
+			if (room?.type === "chat" && room.connected && PS.prefs.leavePopupRoom) {
+				PS.join("confirmleaveroom" as RoomID, { parentElem: elem });
+				return true;
+			}
 			PS.leave(roomid);
+			return true;
+		}
+		case 'confirmCloseRoom': {
+			const roomid = elem.value as RoomID || PS.getRoom(elem)?.id || '' as RoomID;
+			const room = PS.rooms[roomid];
+			if (room) PS.leave(roomid);
+			PS.closePopup(true);
 			return true;
 		}
 		case 'joinRoom':

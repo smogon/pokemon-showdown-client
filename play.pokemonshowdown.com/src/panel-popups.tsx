@@ -3,6 +3,7 @@ import { toID, toRoomid, toUserid, Dex } from "./battle-dex";
 import type { ID } from "./battle-dex-data";
 import { BattleLog } from "./battle-log";
 import { PSLoginServer } from "./client-connection";
+import { PSBackground } from "./client-core";
 import { PSRoom, type RoomOptions, PS, type PSLoginState, type RoomID, type TimestampOptions } from "./client-main";
 import { type BattleRoom } from "./panel-battle";
 import type { ChatRoom } from "./panel-chat";
@@ -537,9 +538,16 @@ class OptionsPanel extends PSRoomPanel {
 			Dex.loadSpriteData(value || PS.prefs.noanim ? 'bw' : 'xy');
 			break;
 		}
+		case 'language':{
+			PS.prefs.set(setting, elem.value);
+			PS.send('/language ' + elem.value);
+			break;
+		}
+		case 'refreshprompt':
 		case 'noanim':
 		case 'nopastgens':
 		case 'noselfhighlight':
+		case 'leavePopupRoom':
 		case 'inchatpm': PS.prefs.set(setting, value);
 			break;
 		}
@@ -600,6 +608,12 @@ class OptionsPanel extends PSRoomPanel {
 				</select></label>
 			</p>
 			<p>
+				<label class="optlabel"> Background: <button class="button" data-href="changebackground">
+					Change Background
+				</button>
+				</label>
+			</p>
+			<p>
 				<label class="checkbox"> <input
 					name="noanim" checked={PS.prefs.noanim || false} type="checkbox" onChange={this.handleOnChange}
 				/> Disable animations</label>
@@ -637,6 +651,34 @@ class OptionsPanel extends PSRoomPanel {
 				/> Do not highlight when your name is said in chat</label>
 			</p>
 			<p>
+				<label class="checkbox"><input
+					name="leavePopupRoom" checked={PS.prefs.leavePopupRoom || false} type="checkbox" onChange={this.handleOnChange}
+				/> Confirm before leaving a room</label>
+			</p>
+			<p>
+				<label class="checkbox"><input
+					name="refreshprompt" checked={PS.prefs.refreshprompt || false} type="checkbox" onChange={this.handleOnChange}
+				/> Confirm before refreshing</label>
+			</p>
+			<p>
+				<label class="optlabel"> Language: {}
+					<select name="language" onChange={this.handleOnChange} class="button">
+						<option value="german" selected={PS.prefs.language === "german"}>Deutsch</option>
+						<option value="english" selected={PS.prefs.language === "english"}>English</option>
+						<option value="spanish" selected={PS.prefs.language === "spanish"}>Español</option>
+						<option value="french" selected={PS.prefs.language === "french"}>Français</option>
+						<option value="italian" selected={PS.prefs.language === "italian"}>Italiano</option>
+						<option value="dutch" selected={PS.prefs.language === "dutch"}>Nederlands</option>
+						<option value="portuguese" selected={PS.prefs.language === "portuguese"}>Português</option>
+						<option value="turkish" selected={PS.prefs.language === "turkish"}>Türkçe</option>
+						<option value="hindi" selected={PS.prefs.language === "hindi"}>हिंदी</option>
+						<option value="japanese" selected={PS.prefs.language === "japanese"}>日本語</option>
+						<option value="simplifiedchinese" selected={PS.prefs.language === "simplifiedchinese"}>简体中文</option>
+						<option value="traditionalchinese" selected={PS.prefs.language === "traditionalchinese"}>中文</option>
+					</select></label>
+			</p>
+
+			<p>
 				<label class="optlabel">Timestamps: <select name="layout" class="button" onChange={this.setChatroomTimestamp}>
 					<option value="" selected={!PS.prefs.timestamps.chatrooms}>Off</option>
 					<option value="minutes" selected={PS.prefs.timestamps.chatrooms === "minutes"}>[HH:MM]</option>
@@ -649,6 +691,11 @@ class OptionsPanel extends PSRoomPanel {
 					<option value="minutes" selected={PS.prefs.timestamps.pms === "minutes"}>[HH:MM]</option>
 					<option value="seconds" selected={PS.prefs.timestamps.pms === "seconds"}>[HH:MM:SS]</option>
 				</select></label>
+			</p>
+			<p>
+				<label class="optlabel">Chat preferences: {}
+					<button class="button" data-href="chatformatting"> Text formatting </button>
+				</label>
 			</p>
 			<hr />
 			{PS.user.named ? <p class="buttonbar" style="text-align: right">
@@ -1187,6 +1234,230 @@ class RegisterPanel extends PSRoomPanel {
 	}
 }
 
+class BackgroundListPanel extends PSRoomPanel {
+	static readonly id = 'changebackground';
+	static readonly routes = ['changebackground'];
+	static readonly location = 'semimodal-popup';
+	static readonly noURL = true;
+
+	setBg = (ev: Event) => {
+		let curtarget = ev.currentTarget as HTMLButtonElement;
+		let bg = curtarget.value;
+		console.log(bg);
+		let bgs = ['horizon', 'ocean', 'waterfall', 'shaymin', 'charizards'];
+		if (!bg.length) bg = bgs[Math.floor(Math.random() * 5)];
+		PSBackground.set('', bg);
+		ev.preventDefault();
+		ev.stopImmediatePropagation();
+		this.close();
+	};
+
+	uploadBg = (ev: Event) => {
+		const input = this.base?.querySelector<HTMLInputElement>('input[name=bgfile]');
+		if (!input?.files?.[0]) return;
+
+		const file = input.files[0];
+		const reader = new FileReader();
+
+		reader.onload = () => {
+			const base64Image = reader.result as string;
+			PSBackground.set(base64Image, 'custom', null);
+			this.close();
+		};
+
+		reader.onerror = () => {
+			console.error("Failed to read file.");
+			const status = this.base?.querySelector<HTMLElement>('.bgstatus');
+			if (status) status.textContent = "Failed to load background image.";
+
+			this.close();
+		};
+		reader.readAsDataURL(file);
+		ev.preventDefault();
+		ev.stopImmediatePropagation();
+	};
+
+	update = () => {
+		this.forceUpdate();
+	};
+
+	override render() {
+		const room = this.props.room;
+		return <PSPanelWrapper room={room} width={480}><div class="pad">
+			<p><strong>Default</strong></p>
+			<div class="bglist">
+				<button onClick={this.setBg} value="" class="option cur">
+					<strong
+						style="
+						background: #888888;
+						color: white;
+						padding: 16px 18px;
+						display: block;
+						font-size: 12pt;
+					"
+					>Random</strong>
+				</button>
+			</div>
+			<div style="clear: left"></div>
+			<p><strong>Official</strong></p>
+			<div class="bglist">
+				<button onClick={this.setBg} value="charizards" class="option">
+					<span class="bg" style="background-position: 0 -0px"></span>
+					Charizards
+				</button>
+				<button onClick={this.setBg} value="horizon" class="option">
+					<span class="bg" style="background-position: 0 -90px"></span>
+					Horizon
+				</button>
+				<button onClick={this.setBg} value="waterfall" class="option">
+					<span class="bg" style="background-position: 0 -180px"></span>
+					Waterfall
+				</button>
+				<button onClick={this.setBg} value="ocean" class="option">
+					<span class="bg" style="background-position: 0 -270px"></span>
+					Ocean
+				</button>
+				<button onClick={this.setBg} value="shaymin" class="option">
+					<span class="bg" style="background-position: 0 -360px"></span>
+					Shaymin
+				</button>
+				<button onClick={this.setBg} value="solidblue" class="option">
+					<span class="bg" style="background: #344b6c"></span>Solid blue
+				</button>
+			</div>
+			<div style="clear: left"></div>
+			<p><strong>Custom</strong></p>
+			<p>
+				Drag and drop an image to PS (the background settings don't need to be
+				open), or upload:
+			</p>
+			<p><input type="file" accept="image/*" name="bgfile" /></p>
+			<p class="bgstatus"></p>
+			<p>
+				<button onClick={this.uploadBg} class="button"><strong>Done</strong></button>
+			</p>
+		</div>
+		</PSPanelWrapper>;
+	}
+}
+
+class ChatFormattingPanel extends PSRoomPanel {
+	static readonly id = 'chatformatting';
+	static readonly routes = ['chatformatting'];
+	static readonly location = 'semimodal-popup';
+	static readonly noURL = true;
+
+	handleOnChange = (ev: Event) => {
+		const setting = "hide" + (ev.currentTarget as HTMLInputElement).name;
+		const value = (ev.currentTarget as HTMLInputElement).checked;
+		let curPref = PS.prefs.chatformatting;
+		curPref[setting] = value;
+		PS.prefs.set("chatformatting", curPref);
+		ev.preventDefault();
+		ev.stopImmediatePropagation();
+	};
+
+	override render() {
+		const room = this.props.room;
+		return <PSPanelWrapper room={room} width={480}><div class="pad">
+			<p>Usable formatting:</p>
+			<p>**<strong>bold</strong>** (<kbd>Ctrl</kbd> + <kbd>B</kbd>)</p>
+			<p>__<em>italics</em>__ (<kbd>Ctrl</kbd> + <kbd>I</kbd>)</p>
+			<p>``<code>code formatting</code>`` (<kbd>Ctrl</kbd> + <kbd>`</kbd>)</p>
+			<p>~~<s>strikethrough</s>~~</p>
+			<p>^^<sup>superscript</sup>^^</p>
+			<p>\\<sub>subscript</sub>\\</p>
+			<p>
+				<label class="checkbox">
+					<input
+						onChange={this.handleOnChange}
+						type="checkbox"
+						name="greentext"
+						checked={PS.prefs.chatformatting.hidegreentext}
+					/> Suppress
+					<span class="greentext">&gt;greentext</span>
+				</label>
+			</p>
+			<p>
+				<label class="checkbox">
+					<input
+						onChange={this.handleOnChange}
+						type="checkbox"
+						name="me"
+						checked={PS.prefs.chatformatting.hideme}
+
+					/> Suppress <code>/me</code>
+					<em>action formatting</em></label>
+			</p>
+			<p>
+				<label class="checkbox">
+					<input
+						onChange={this.handleOnChange}
+						type="checkbox"
+						name="spoiler"
+						checked={PS.prefs.chatformatting.hidespoiler}
+					/> Auto-show spoilers:
+					<span class="spoiler">these things</span>
+				</label>
+			</p>
+			<p>
+				<label class="checkbox">
+					<input
+						onChange={this.handleOnChange}
+						type="checkbox"
+						name="links"
+						checked={PS.prefs.chatformatting.hidelinks}
+					/> Make [[clickable links]]
+					unclickable
+				</label>
+			</p>
+			<p>
+				<label class="checkbox">
+					<input
+						onChange={this.handleOnChange}
+						type="checkbox"
+						name="interstice"
+						checked={PS.prefs.chatformatting.hideinterstice}
+					/> Don't warn for
+					untrusted links
+				</label>
+			</p>
+			<p><button data-cmd="/close" class="button">Done</button></p>
+		</div>
+		</PSPanelWrapper>;
+	}
+}
+
+class LeaveRoomPanel extends PSRoomPanel {
+	static readonly id = 'confirmleaveroom';
+	static readonly routes = ['confirmleaveroom'];
+	static readonly location = 'semimodal-popup';
+	static readonly noURL = true;
+
+	override render() {
+		const room = this.props.room;
+		const parentRoomId = (this.props.room.parentElem as HTMLInputElement).value;
+		return <PSPanelWrapper room={room} width={480}><div class="pad">
+			<p> Are you sure you want to exit this room?</p>
+			<p class="buttonbar">
+				<button
+					class="button autofocus"
+					name="confirmCloseRoom"
+					value={parentRoomId}
+				>
+					<strong> Close Room</strong>
+				</button> {}
+				<button
+					class="button"
+					data-cmd="/close"
+				>
+					<strong> Cancel </strong>
+				</button>
+			</p>
+		</div></PSPanelWrapper>;
+	}
+}
+
 class PopupPanel extends PSRoomPanel {
 	static readonly id = 'popup';
 	static readonly routes = ['popup-*'];
@@ -1207,6 +1478,7 @@ class PopupPanel extends PSRoomPanel {
 		</div></PSPanelWrapper>;
 	}
 }
+
 PS.addRoomType(
 	UserPanel,
 	UserOptionsPanel,
@@ -1218,5 +1490,8 @@ PS.addRoomType(
 	RegisterPanel,
 	BattleForfeitPanel,
 	ReplacePlayerPanel,
+	BackgroundListPanel,
+	LeaveRoomPanel,
+	ChatFormattingPanel,
 	PopupPanel
 );
