@@ -129,22 +129,19 @@ class UserPanel extends PSRoomPanel<UserRoom> {
 			buttonbar.push(isSelf ? (
 				<p class="buttonbar">
 					<button class="button" disabled>Challenge</button> {}
-					<button class="button" data-href="/dm-">Chat Self</button>
+					<button class="button" data-href="dm-">Chat Self</button>
 				</p>
 			) : !PS.user.named ? (
 				<p class="buttonbar">
 					<button class="button" disabled>Challenge</button> {}
-					<button class="button" disabled>Chat</button>
+					<button class="button" disabled>Chat</button> {}
+					<button class="button" disabled>{'\u2026'}</button>
 				</p>
 			) : (
 				<p class="buttonbar">
-					<button class="button" data-href={`/challenge-${user.userid}`}>Challenge</button> {}
-					<button class="button" data-href={`/dm-${user.userid}`}>Chat</button> {}
-					<button
-						class="button"
-						data-href="/useroptions"
-						value={`${room.userid as string},${room.parentRoomid as string}`}
-					>{'\u2026'}</button>
+					<button class="button" data-href={`challenge-${user.userid}`}>Challenge</button> {}
+					<button class="button" data-href={`dm-${user.userid}`}>Chat</button> {}
+					<button class="button" data-href={`useroptions-${user.userid}-${room.parentRoomid || ''}`}>{'\u2026'}</button>
 				</p>
 			));
 			if (isSelf) {
@@ -158,13 +155,13 @@ class UserPanel extends PSRoomPanel<UserRoom> {
 			}
 		}
 
+		const avatar = user.avatar !== '[loading]' ? Dex.resolveAvatar(`${user.avatar || 'unknown'}`) : null;
 		return [<div class="userdetails">
-			{user.avatar !== '[loading]' &&
-				<img
-					{...(room.isSelf ? { 'data-href': 'avatars' } : {})}
-					class={'trainersprite' + (room.isSelf ? ' yours' : '')}
-					src={Dex.resolveAvatar(`${user.avatar || 'unknown'}`)}
-				/>}
+			{avatar && (room.isSelf ? (
+				<img src={avatar} class="trainersprite yours" data-href="avatars" />
+			) : (
+				<img src={avatar} class="trainersprite" />
+			))}
 			<strong><a
 				href={`//${Config.routes.users}/${user.userid}`} target="_blank"
 				style={{ color: away ? '#888888' : BattleLog.usernameColor(user.userid) }}
@@ -201,7 +198,7 @@ class UserPanel extends PSRoomPanel<UserRoom> {
 		return <PSPanelWrapper room={room}><div class="pad">
 			{showLookup && <form onSubmit={this.lookup} style={{ minWidth: '278px' }}>
 				<label class="label">
-					Username:
+					Username: {}
 					<input type="search" name="username" class="textbox autofocus" onInput={this.maybeReset} onChange={this.maybeReset} />
 				</label>
 				{!room.userid && <p class="buttonbar">
@@ -218,7 +215,7 @@ class UserPanel extends PSRoomPanel<UserRoom> {
 
 class UserOptionsPanel extends PSRoomPanel {
 	static readonly id = 'useroptions';
-	static readonly routes = ['useroptions'];
+	static readonly routes = ['useroptions-*'];
 	static readonly location = 'popup';
 	static readonly noURL = true;
 	declare state: {
@@ -228,6 +225,12 @@ class UserOptionsPanel extends PSRoomPanel {
 		requestSent?: boolean,
 		data?: Record<string, string>,
 	};
+	getTargets() {
+		const [, targetUser, targetRoomid] = this.props.room.id.split('-');
+		let targetRoom = (PS.rooms[targetRoomid] || null) as ChatRoom | null;
+		if (targetRoom?.type !== 'chat') targetRoom = null;
+		return { targetUser: targetUser as ID, targetRoomid: targetRoomid as RoomID, targetRoom };
+	}
 
 	handleMute = (ev: Event) => {
 		this.setState({ showMuteInput: true, showBanInput: false });
@@ -247,52 +250,42 @@ class UserOptionsPanel extends PSRoomPanel {
 	};
 
 	handleConfirm = (ev: Event) => {
-		let data = this.state.data;
+		const data = this.state.data;
 		if (!data) return;
-		let roomid = toRoomid(data.room);
-		let room = PS.rooms[roomid];
+		const { targetUser, targetRoom } = this.getTargets();
 
 		let cmd = '';
 		if (data.action === "Mute") {
 			cmd += data.duration === "1 hour" ? "/hourmute " : "/mute ";
-			cmd += `${data.targetUser} ${data.reason ? ',' + data.reason : ''}`;
+			cmd += `${targetUser} ${data.reason ? ',' + data.reason : ''}`;
 		} else {
 			cmd += data.duration === "1 week" ? "/weekban " : "/ban ";
-			cmd += `${data.targetUser} ${data.reason ? ',' + data.reason : ''}`;
+			cmd += `${targetUser} ${data.reason ? ',' + data.reason : ''}`;
 		}
-		room?.send(cmd);
+		targetRoom?.send(cmd);
 		this.close();
 	};
 
 	handleAddFriend = (ev: Event) => {
-		let args = (this.props.room?.parentElem as HTMLInputElement).value.split(",");
-		let [targetUser, roomid] = args;
-		PS.rooms[roomid]?.send(`/friend add ${targetUser}`);
+		const { targetUser, targetRoom } = this.getTargets();
+		targetRoom?.send(`/friend add ${targetUser}`);
 		this.setState({ requestSent: true });
 		ev.preventDefault();
 		ev.stopImmediatePropagation();
 	};
 
 	handleIgnore = () => {
-		let args = (this.props.room?.parentElem as HTMLInputElement).value.split(",");
-		let [targetUser, roomid] = args;
-		let room = PS.rooms[roomid];
-		room?.send(`/ignore ${targetUser}`);
+		const { targetUser, targetRoom } = this.getTargets();
+		targetRoom?.send(`/ignore ${targetUser}`);
 		this.close();
 	};
 
 	muteUser = (ev: Event) => {
 		this.setState({ showMuteInput: false });
-		let hrMute = (ev.currentTarget as HTMLButtonElement).value === "1hr";
-		let args = (this.props.room?.parentElem as HTMLInputElement).value.split(",");
-		let [targetUser, roomid] = args;
-		let room = PS.rooms[roomid];
-		if (room?.type !== "chat") return; // should never happen
-		let reason = this.base?.querySelector<HTMLInputElement>("input[name=mutereason]")?.value;
-		let data = {
+		const hrMute = (ev.currentTarget as HTMLButtonElement).value === "1hr";
+		const reason = this.base?.querySelector<HTMLInputElement>("input[name=mutereason]")?.value;
+		const data = {
 			action: 'Mute',
-			targetUser,
-			room: room?.title,
 			reason,
 			duration: hrMute ? "1 hour" : "7 minutes",
 		};
@@ -303,16 +296,10 @@ class UserOptionsPanel extends PSRoomPanel {
 
 	banUser = (ev: Event) => {
 		this.setState({ showBanInput: false });
-		let weekBan = (ev.currentTarget as HTMLButtonElement).value === "1wk";
-		let args = (this.props.room?.parentElem as HTMLInputElement).value.split(",");
-		let [targetUser, roomid] = args;
-		let room = PS.rooms[roomid];
-		if (room?.type !== "chat") return; // should never happen
-		let reason = this.base?.querySelector<HTMLInputElement>("input[name=banreason]")?.value;
-		let data = {
+		const weekBan = (ev.currentTarget as HTMLButtonElement).value === "1wk";
+		const reason = this.base?.querySelector<HTMLInputElement>("input[name=banreason]")?.value;
+		const data = {
 			action: 'Ban',
-			targetUser,
-			room: room?.title,
 			reason,
 			duration: weekBan ? "1 week" : "2 days",
 		};
@@ -321,20 +308,16 @@ class UserOptionsPanel extends PSRoomPanel {
 		ev.stopImmediatePropagation();
 	};
 
-	update = () => {
-		this.forceUpdate();
-	};
-
 	override render() {
 		const room = this.props.room;
-		const parentRoom = PS.rooms[this.props.room.parentRoomid! || ''] as ChatRoom;
 		let canMute = false;
 		let canBan = false;
-		if (parentRoom?.type === "chat") {
-			let banPerms = ["@", "#", "~"];
-			let mutePerms = ["%", ...banPerms];
-			canMute = mutePerms.includes(parentRoom.users[PS.user.userid].charAt(0));
-			canBan = banPerms.includes(parentRoom.users[PS.user.userid].charAt(0));
+		const { targetUser, targetRoom } = this.getTargets();
+		if (targetRoom) {
+			const banPerms = ["@", "#", "~"];
+			const mutePerms = ["%", ...banPerms];
+			canMute = mutePerms.includes(targetRoom.users[PS.user.userid]?.charAt(0));
+			canBan = banPerms.includes(targetRoom.users[PS.user.userid]?.charAt(0));
 		}
 
 		return <PSPanelWrapper room={room} width={280}><div class="pad">
@@ -344,16 +327,15 @@ class UserOptionsPanel extends PSRoomPanel {
 				</button>
 			</p>
 			<p>
-				<button
-					class="button"
-					data-href={`view-help-request-report-user-${(room.parentElem as HTMLInputElement).value.split(",")[0]}`}
-				>
+				<button data-href={`view-help-request-report-user-${targetUser}`} class="button">
 					Report
 				</button>
 			</p>
 			<p>
 				{this.state.requestSent ? (
-					<button class="button disabled"> Sent request </button>
+					<button class="button disabled">
+						Sent request
+					</button>
 				) : (
 					<button onClick={this.handleAddFriend} class="button">
 						Add friend
@@ -378,7 +360,8 @@ class UserOptionsPanel extends PSRoomPanel {
 			<p class="buttonbar">
 				{canMute && !this.state.showBanInput && !this.state.showConfirm && (this.state.showMuteInput ? (
 					<div>
-						<label class="inputlabel"> Reason:
+						<label class="label">
+							Reason: {}
 							<input name="mutereason" class="textbox autofocus" placeholder="Mute reason (optional)" />
 						</label> {} <br />
 						<button class="button" onClick={this.muteUser} value="7min">For 7 Mins</button> {}
@@ -392,9 +375,10 @@ class UserOptionsPanel extends PSRoomPanel {
 				))} {}
 				{canBan && !this.state.showMuteInput && !this.state.showConfirm && (this.state.showBanInput ? (
 					<div>
-						<label class="inputlabel"> Reason:
+						<label class="label">
+							Reason: {}
 							<input name="banreason" class="textbox autofocus" placeholder="Ban reason (optional)" />
-						</label> <br />
+						</label><br />
 						<button class="button" onClick={this.banUser} value="2d">For 2 Days</button> {}
 						<button class="button" onClick={this.banUser} value="1wk">For 1 Week</button> {}
 						<button class="button" onClick={this.handleCancel}>Cancel</button>
@@ -483,6 +467,10 @@ class OptionsPanel extends PSRoomPanel {
 	static readonly location = 'popup';
 	declare state: { showStatusInput?: boolean, showStatusUpdated?: boolean };
 
+	override componentDidMount() {
+		super.componentDidMount();
+		this.subscribeTo(PS.user);
+	}
 	setTheme = (e: Event) => {
 		const theme = (e.currentTarget as HTMLSelectElement).value as 'light' | 'dark' | 'system';
 		PS.prefs.set('theme', theme);
@@ -493,6 +481,7 @@ class OptionsPanel extends PSRoomPanel {
 		switch (layout) {
 		case '':
 			PS.prefs.set('onepanel', null);
+			PS.rightPanel ||= PS.rooms['rooms'] || null;
 			break;
 		case 'onepanel':
 			PS.prefs.set('onepanel', true);
@@ -580,7 +569,7 @@ class OptionsPanel extends PSRoomPanel {
 				</p>
 			)}
 
-			{PS.user.named && (PS.user.registered ?
+			{PS.user.named && (PS.user.registered?.userid === PS.user.userid ?
 				<button className="button" data-href="changepassword">Password...</button> :
 				<button className="button" data-href="register">Register</button>)}
 
@@ -767,7 +756,8 @@ class LoginPanel extends PSRoomPanel {
 				</p>}
 				{loginState?.needsPassword && <p>
 					<i class="fa fa-level-up fa-rotate-90"></i> <strong>if you registered this name:</strong>
-					<label class="label">Password: {}
+					<label class="label">
+						Password: {}
 						<input
 							class="textbox" type={this.state.passwordShown ? 'text' : 'password'} name="password"
 							autocomplete="current-password" style="width:173px"
@@ -960,7 +950,9 @@ class ReplacePlayerPanel extends PSRoomPanel {
 					<input name="newplayer" class="textbox autofocus" />
 				</p>
 				<p>
-					<button type="submit" class="button"><strong>Replace</strong></button> {}
+					<button type="submit" class="button">
+						<strong>Replace</strong>
+					</button> {}
 					<button type="button" data-cmd="/close" class="button">
 						Cancel
 					</button>
@@ -1017,58 +1009,36 @@ class ChangePasswordPanel extends PSRoomPanel {
 				</p> }
 				<p>Change your password:</p>
 				<p>
-					<label class="label">Username:
-						<strong><input
-							type="text"
-							name="username"
-							value={PS.user.name}
-							style="
-						color: inherit;
-						background: transparent;
-						border: 0;
-						font: inherit;
-						font-size: inherit;
-						display: block;
-					"
-							readOnly={true}
-							autocomplete="username"
-						/></strong></label>
+					<label class="label">
+						Username: {}
+						<input name="username" value={PS.user.name} readOnly={true} autocomplete="username" class="textbox disabled" />
+					</label>
 				</p>
 				<p>
-					<label class="label">Old password:
-						<input
-							class="textbox autofocus"
-							type="password"
-							name="oldpassword"
-							autocomplete="current-password"
-						/></label>
+					<label class="label">
+						Old password: {}
+						<input name="oldpassword" type="password" autocomplete="current-password" class="textbox autofocus" />
+					</label>
 				</p>
 				<p>
-					<label class="label">New password:
-						<input
-							class="textbox"
-							type="password"
-							name="password"
-							autocomplete="new-password"
-						/></label>
+					<label class="label">
+						New password: {}
+						<input name="password" type="password" autocomplete="new-password" class="textbox" />
+					</label>
 				</p>
 				<p>
-					<label class="label">New password (confirm):
-						<input
-							class="textbox"
-							type="password"
-							name="cpassword"
-							autocomplete="new-password"
-						/></label>
+					<label class="label">
+						New password (confirm): {}
+						<input name="cpassword" type="password" autocomplete="new-password" class="textbox" />
+					</label>
 				</p>
 				<p class="buttonbar">
 					<button type="submit" class="button">
 						<strong>Change password</strong>
-					</button>
+					</button> {}
 					<button type="button" data-cmd="/close" class="button">Cancel</button>
 				</p>
 			</form>
-
 		</div>
 		</PSPanelWrapper>;
 	}
@@ -1082,10 +1052,6 @@ class RegisterPanel extends PSRoomPanel {
 	static readonly rightPopup = true;
 
 	declare state: { errorMsg: string };
-
-	update = () => {
-		this.forceUpdate();
-	};
 
 	handleRegisterUser = (ev: Event) => {
 		ev.preventDefault();
@@ -1130,55 +1096,37 @@ class RegisterPanel extends PSRoomPanel {
 				</p> }
 				<p>Register your account:</p>
 				<p>
-					<label class="label">Username:
-						<strong><input
-							type="text"
-							name="name"
-							value={PS.user.name}
-							style="
-						color: inherit;
-						background: transparent;
-						border: 0;
-						font: inherit;
-						font-size: inherit;
-						display: block;
-					"
-							readOnly={true}
-							autocomplete="username"
-						/></strong></label>
+					<label class="label">
+						Username: {}
+						<input name="name" value={PS.user.name} readOnly={true} autocomplete="username" class="textbox disabled" />
+					</label>
 				</p>
 				<p>
-					<label class="label">Password:
-						<input
-							class="textbox autofocus"
-							type="password"
-							name="password"
-							autocomplete="new-password"
-						/></label>
+					<label class="label">
+						Password: {}
+						<input name="password" type="password" autocomplete="new-password" class="textbox autofocus" />
+					</label>
 				</p>
 				<p>
-					<label class="label">Password (confirm):
-						<input
-							class="textbox"
-							type="password"
-							name="cpassword"
-							autocomplete="new-password"
-						/></label>
+					<label class="label">
+						Password (confirm): {}
+						<input name="cpassword" type="password" autocomplete="new-password" class="textbox" />
+					</label>
 				</p>
 				<p>
-					<label class="label"> <img
+					<label class="label"><img
 						src="https://play.pokemonshowdown.com/sprites/gen5ani/pikachu.gif"
 						alt="An Electric-type mouse that is the mascot of the Pokémon franchise."
 					/></label>
 				</p>
 				<p>
-					<label class="label">What is this pokemon?
-						<input
-							class="textbox" type="text" name="captcha" value=""
-						/></label>
+					<label class="label">
+						What is this pokemon?{}
+						<input name="captcha" class="textbox" />
+					</label>
 				</p>
 				<p class="buttonbar">
-					<button type="submit" class="button"><strong>Register</strong></button>
+					<button type="submit" class="button"><strong>Register</strong></button> {}
 					<button type="button" data-cmd="/close" class="button">Cancel</button>
 				</p>
 			</form>

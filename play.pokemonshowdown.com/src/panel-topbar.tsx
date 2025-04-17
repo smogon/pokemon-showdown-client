@@ -11,7 +11,7 @@
 
 import preact from "../js/lib/preact";
 import { PS, type PSRoom, type RoomID } from "./client-main";
-import { PSMain } from "./panels";
+import { PSView } from "./panels";
 import type { Battle } from "./battle";
 import { BattleLog } from "./battle-log";
 
@@ -194,7 +194,7 @@ export class PSHeader extends preact.Component<{ style: object }> {
 		</span>;
 	}
 	renderVertical() {
-		return <div id="header" class="header-vertical" style={this.props.style} onClick={PSMain.scrollToHeader}>
+		return <div id="header" class="header-vertical" style={this.props.style} onClick={PSView.scrollToHeader}>
 			<div class="maintabbarbottom"></div>
 			<div class="scrollable-part">
 				<img
@@ -233,7 +233,7 @@ export class PSHeader extends preact.Component<{ style: object }> {
 	}
 	override render() {
 		if (PS.leftPanelWidth === null) {
-			if (!PSMain.textboxFocused) {
+			if (!PSView.textboxFocused) {
 				document.documentElement.classList?.add('scroll-snap-enabled');
 			}
 			return this.renderVertical();
@@ -301,11 +301,11 @@ export class PSMiniHeader extends preact.Component {
 		const menuButton = showMenuButton ? (
 			null
 		) : window.scrollX ? (
-			<button onClick={PSMain.scrollToHeader} class={`mini-header-left ${notifying}`} aria-label="Menu">
+			<button onClick={PSView.scrollToHeader} class={`mini-header-left ${notifying}`} aria-label="Menu">
 				<i class="fa fa-arrow-left"></i>
 			</button>
 		) : (
-			<button onClick={PSMain.scrollToRoom} class="mini-header-left" aria-label="Menu">
+			<button onClick={PSView.scrollToRoom} class="mini-header-left" aria-label="Menu">
 				<i class="fa fa-arrow-right"></i>
 			</button>
 		);
@@ -319,4 +319,4 @@ export class PSMiniHeader extends preact.Component {
 	}
 }
 
-preact.render(<PSMain />, document.body, document.getElementById('ps-frame')!);
+preact.render(<PSView />, document.body, document.getElementById('ps-frame')!);

@@ -24,7 +24,7 @@ export class PSRouter {
 	panelState = '';
 	constructor() {
 		const currentRoomid = location.pathname.slice(1);
-		if (/^[a-z0-9-]+$/.test(currentRoomid)) {
+		if (/^[a-z0-9-]*$/.test(currentRoomid)) {
 			this.subscribeHistory();
 		} else if (location.pathname.endsWith('.html')) {
 			this.subscribeHash();
@@ -96,8 +96,6 @@ export class PSRouter {
 			const currentRoomid = location.hash.slice(1);
 			if (/^[a-z0-9-]+$/.test(currentRoomid)) {
 				PS.join(currentRoomid as RoomID);
-			} else {
-				return;
 			}
 		}
 		PS.subscribeAndRun(() => {
@@ -120,8 +118,6 @@ export class PSRouter {
 		const currentRoomid = location.pathname.slice(1);
 		if (/^[a-z0-9-]+$/.test(currentRoomid)) {
 			PS.join(currentRoomid as RoomID);
-		} else {
-			return;
 		}
 		if (!window.history) return;
 		PS.subscribeAndRun(() => {
@@ -157,13 +153,14 @@ PS.router = new PSRouter();
 
 export class PSRoomPanel<T extends PSRoom = PSRoom> extends preact.Component<{ room: T }> {
 	subscriptions: PSSubscription[] = [];
-	subscribeTo<M>(model: PSModel<M> | PSStreamModel<M>, callback: (value: M) => void): PSSubscription {
+	subscribeTo<M>(
+		model: PSModel<M> | PSStreamModel<M>, callback: (value: M) => void = () => { this.forceUpdate(); }
+	): PSSubscription {
 		const subscription = model.subscribe(callback);
 		this.subscriptions.push(subscription);
 		return subscription;
 	}
 	override componentDidMount() {
-		if (PS.room === this.props.room) this.focus();
 		this.props.room.onParentEvent = (id: string, e?: Event) => {
 			if (id === 'focus') this.focus();
 		};
@@ -171,7 +168,7 @@ export class PSRoomPanel<T extends PSRoom = PSRoom> extends preact.Component<{ r
 			if (!args) this.forceUpdate();
 			else this.receiveLine(args);
 		}));
-		this.updateDimensions();
+		this.componentDidUpdate();
 	}
 	justUpdatedDimensions = false;
 	updateDimensions() {
@@ -194,14 +191,11 @@ export class PSRoomPanel<T extends PSRoom = PSRoom> extends preact.Component<{ r
 	}
 	override componentDidUpdate() {
 		const room = this.props.room;
-		if (this.base && ['popup', 'semimodal-popup'].includes(room.location)) {
-			if (room.width && room.hiddenInit) {
-				room.hiddenInit = false;
-				this.focus();
-			}
-			this.updateDimensions();
-		} else if (this.base && room.hiddenInit) {
-			room.hiddenInit = false;
+		const currentlyHidden = !room.width && room.parentElem && ['popup', 'semimodal-popup'].includes(room.location);
+		this.updateDimensions();
+		if (currentlyHidden) return;
+		if (room.focusNextUpdate) {
+			room.focusNextUpdate = false;
 			this.focus();
 		}
 	}
@@ -259,49 +253,86 @@ export function PSPanelWrapper(props: {
 		}
 		return <div
 			id={`room-${room.id}`} class={'mini-window-contents ps-room-light' + (props.scrollable === true ? ' scrollable' : '')}
-			onClick={props.focusClick ? PSMain.focusIfNoSelection : undefined}
+			onClick={props.focusClick ? PSView.focusIfNoSelection : undefined}
 		>
 			{props.children}
 		</div>;
 	}
 	if (PS.isPopup(room)) {
-		const style = PSMain.getPopupStyle(room, props.width, props.fullSize);
+		const style = PSView.getPopupStyle(room, props.width, props.fullSize);
 		return <div class="ps-popup" id={`room-${room.id}`} style={style}>
 			{props.children}
 		</div>;
 	}
-	const style = PSMain.posStyle(room) as any;
+	const style = PSView.posStyle(room) as any;
 	if (props.scrollable === 'hidden') style.overflow = 'hidden';
 	return <div
 		class={'ps-room' + (room.id === '' ? '' : ' ps-room-light') + (props.scrollable === true ? ' scrollable' : '')}
 		id={`room-${room.id}`}
-		style={style} onClick={props.focusClick ? PSMain.focusIfNoSelection : undefined}
+		style={style} onClick={props.focusClick ? PSView.focusIfNoSelection : undefined}
 	>
 		{room.caughtError ? <div class="broadcast broadcast-red"><pre>{room.caughtError}</pre></div> : props.children}
 	</div>;
 }
 
-export class PSMain extends preact.Component {
+export class PSView extends preact.Component {
 	static readonly isChrome = navigator.userAgent.includes(' Chrome/');
 	static readonly isSafari = !this.isChrome && navigator.userAgent.includes(' Safari/');
+	static readonly isMac = navigator.platform?.startsWith('Mac');
 	static textboxFocused = false;
 	static setTextboxFocused(focused: boolean) {
-		if (!PSMain.isChrome || PS.leftPanelWidth !== null) return;
+		if (!PSView.isChrome || PS.leftPanelWidth !== null) return;
 		// Chrome bug: on Android, it insistently scrolls everything leftmost when scroll snap is enabled
 
 		this.textboxFocused = focused;
 		if (focused) {
 			document.documentElement.classList.remove('scroll-snap-enabled');
-			PSMain.scrollToRoom();
+			PSView.scrollToRoom();
 		} else {
 			document.documentElement.classList.add('scroll-snap-enabled');
 		}
+	}
+	static focusPreview(room: PSRoom) {
+		if (room !== PS.room) return '';
+
+		const verticalBuf = this.verticalFocusPreview();
+		if (verticalBuf) return verticalBuf;
+
+		const isMiniRoom = PS.room.location === 'mini-window';
+		const { rooms, index } = PS.horizontalNav();
+		if (index === -1) return '';
+
+		let buf = ' ';
+		const leftRoom = PS.rooms[rooms[index - 1]];
+		if (leftRoom) buf += `\u2190 ${leftRoom.title}`;
+		buf += (PS.arrowKeysUsed || isMiniRoom ? " | " : " (use arrow keys) ");
+		const rightRoom = PS.rooms[rooms[index + 1]];
+		if (rightRoom) buf += `${rightRoom.title} \u2192`;
+		return buf;
+	}
+	static verticalFocusPreview() {
+		const { rooms, index } = PS.verticalNav();
+		if (index === -1) return '';
+
+		const upRoom = PS.rooms[rooms[index - 1]];
+		let downRoom = PS.rooms[rooms[index + 1]];
+		if (index === rooms.length - 2 && rooms[index + 1] === 'news') downRoom = undefined;
+		if (!upRoom && !downRoom) return '';
+
+		let buf = ' ';
+		// const altLabel = PSMain.isMac ? '⌥' : 'ᴀʟᴛ';
+		const altLabel = PSView.isMac ? 'ᴏᴘᴛ' : 'ᴀʟᴛ';
+		if (upRoom) buf += `${altLabel}\u2191 ${upRoom.title}`;
+		buf += " | ";
+		if (downRoom) buf += `${altLabel}\u2193 ${downRoom.title}`;
+
+		return buf;
 	}
 	constructor() {
 		super();
 		PS.subscribe(() => this.forceUpdate());
 
-		if (PSMain.isSafari) {
+		if (PSView.isSafari) {
 			// I don't want to prevent users from being able to zoom, but iOS Safari
 			// auto-zooms when focusing textboxes (unless the font size is 16px),
 			// and this apparently fixes it while still allowing zooming.
@@ -401,7 +432,7 @@ export class PSMain extends preact.Component {
 				PS.update();
 			}
 			if (clickedRoom && !PS.isPopup(clickedRoom)) {
-				PSMain.scrollToRoom();
+				PSView.scrollToRoom();
 			}
 		});
 
@@ -494,7 +525,7 @@ export class PSMain extends preact.Component {
 	}
 	static scrollToRoom() {
 		if (document.documentElement.scrollWidth > document.documentElement.clientWidth && window.scrollX === 0) {
-			if (PSMain.isSafari && PS.leftPanelWidth === null) {
+			if (PSView.isSafari && PS.leftPanelWidth === null) {
 				// Safari bug: `scrollBy` doesn't actually work when scroll snap is enabled
 				// note: interferes with the `PSMain.textboxFocused` workaround for a Chrome bug
 				document.documentElement.classList.remove('scroll-snap-enabled');
@@ -600,7 +631,7 @@ export class PSMain extends preact.Component {
 			return { maxWidth: width || 480 };
 		}
 		if (!room.width || !room.height) {
-			room.hiddenInit = true;
+			room.focusNextUpdate = true;
 			return {
 				position: 'absolute',
 				visibility: 'hidden',

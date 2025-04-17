@@ -1056,30 +1056,42 @@ export class BattleLog {
 	static escapeFormat(formatid = ''): string {
 		let atIndex = formatid.indexOf('@@@');
 		if (atIndex >= 0) {
-			return this.escapeFormat(formatid.slice(0, atIndex)) +
+			return this.escapeHTML(this.formatName(formatid.slice(0, atIndex))) +
 				'<br />Custom rules: ' + this.escapeHTML(formatid.slice(atIndex + 3));
 		}
-		if (window.BattleFormats && BattleFormats[formatid]) {
-			return this.escapeHTML(BattleFormats[formatid].name);
-		}
-		if (window.NonBattleGames && NonBattleGames[formatid]) {
-			return this.escapeHTML(NonBattleGames[formatid]);
-		}
-		return this.escapeHTML(formatid);
+		return this.escapeHTML(this.formatName(formatid));
 	}
+	/**
+	 * Do not store this output anywhere; it removes the generation number
+	 * for the current gen.
+	 */
 	static formatName(formatid = ''): string {
+		if (!formatid) return '';
+
 		let atIndex = formatid.indexOf('@@@');
 		if (atIndex >= 0) {
 			return this.formatName(formatid.slice(0, atIndex)) +
 				' (Custom rules: ' + this.escapeHTML(formatid.slice(atIndex + 3)) + ')';
 		}
+		if (!formatid.startsWith('gen')) {
+			formatid = `gen6${formatid}`;
+		}
+		let name = formatid;
 		if (window.BattleFormats && BattleFormats[formatid]) {
-			return BattleFormats[formatid].name;
+			name = BattleFormats[formatid].name;
 		}
 		if (window.NonBattleGames && NonBattleGames[formatid]) {
-			return NonBattleGames[formatid];
+			name = NonBattleGames[formatid];
 		}
-		return formatid;
+		if (name.startsWith('gen')) {
+			name = name.replace(/^gen([0-9])/, '[Gen $1] ');
+		}
+		if (name.startsWith(`[Gen ${Dex.gen}] `)) {
+			name = name.slice(`[Gen ${Dex.gen}] `.length);
+		} else if (name.startsWith(`[Gen ${Dex.gen} `)) {
+			name = '[' + name.slice(`[Gen ${Dex.gen} `.length);
+		}
+		return name;
 	}
 
 	static escapeHTML(str: string | number, jsEscapeToo?: boolean) {

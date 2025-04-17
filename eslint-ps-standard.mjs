@@ -174,6 +174,7 @@ export const defaultRules = {
 	"@stylistic/jsx-one-expression-per-line": "off",
 	"@stylistic/jsx-max-props-per-line": "off",
 	"@stylistic/jsx-function-call-newline": "off",
+	"@stylistic/jsx-child-element-spacing": "error",
 	"no-restricted-syntax": ["error",
 		{ selector: "CallExpression[callee.name='Symbol']", message: "Annoying to serialize, just use a string" },
 	],
