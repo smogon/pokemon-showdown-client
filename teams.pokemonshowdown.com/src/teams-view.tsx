@@ -248,7 +248,7 @@ export class TeamViewer extends preact.Component<PageProps> {
 			<label>Shortlink: </label><a href={`https://psim.us/t/${link}`}>https://psim.us/t/{link}</a><br />
 			<hr />
 			<div name="manage" style={{ display: 'flex', gap: '5px' }}>
-				{getShowdownUsername() === this.state.team.ownerid && <button
+				{toID(getShowdownUsername()) === this.state.team.ownerid && <button
 					class={this.state.manageOpen ? `button notifying` : `button`}
 					onClick={() => this.changeManage()}
 				>Manage</button>}
