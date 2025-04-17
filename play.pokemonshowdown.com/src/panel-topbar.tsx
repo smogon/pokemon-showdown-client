@@ -150,10 +150,33 @@ export class PSHeader extends preact.Component<{ style: object }> {
 			{closeButton}
 		</li>;
 	}
+	handleRoomTabOverflow() {
+		if (!PS.rightPanel) return; // TODO handle vertical overflow
+		const avaliableSpace = PS.rightPanel.width - 165; // 165 is the width of the userbar
+		let usedSpace = 0;
+
+		const roomTabs = this.base?.querySelectorAll('ul.siderooms > li');
+		if (!roomTabs) return; // No rooms
+
+		for (const tab of Array.from(roomTabs)) {
+			usedSpace += tab.clientWidth;
+		}
+
+		const overflow = this.base?.querySelector('.overflow');
+		if (usedSpace > avaliableSpace) {
+			overflow?.classList.remove('hidden');
+		} else {
+			overflow?.classList.add('hidden');
+		}
+	}
 	override componentDidMount() {
 		PS.user.subscribe(() => {
 			this.forceUpdate();
 		});
+		this.handleRoomTabOverflow();
+	}
+	override componentDidUpdate() {
+		this.handleRoomTabOverflow();
 	}
 	renderUser() {
 		if (!PS.connected) {
@@ -236,6 +259,11 @@ export class PSHeader extends preact.Component<{ style: object }> {
 				<ul class="siderooms" style={{ float: 'none', marginLeft: Math.max(PS.leftPanelWidth - 52, 0) }}>
 					{PS.rightRoomList.map(roomid => this.renderRoomTab(roomid))}
 				</ul>
+				<div class="overflow hidden" aria-hidden="true">
+					<button name="tablist" class="button" aria-label="More" type="button">
+						<i class="fa fa-caret-down"></i>
+					</button>
+				</div>
 			</div></div>
 			<div class="userbar">
 				{this.renderUser()} {}
