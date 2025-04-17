@@ -1149,7 +1149,6 @@ class RegisterPanel extends PSRoomPanel {
 			username: PS.user.name,
 			challstr: PS.user.challstr,
 		}).then(data => {
-			console.log(data);
 			if (data?.actionerror) this.setState({ errorMsg: data?.actionerror });
 			if (data?.curuser?.loggedin) {
 				let name = data.curuser.username;
@@ -1243,7 +1242,6 @@ class BackgroundListPanel extends PSRoomPanel {
 	setBg = (ev: Event) => {
 		let curtarget = ev.currentTarget as HTMLButtonElement;
 		let bg = curtarget.value;
-		console.log(bg);
 		let bgs = ['horizon', 'ocean', 'waterfall', 'shaymin', 'charizards'];
 		if (!bg.length) bg = bgs[Math.floor(Math.random() * 5)];
 		PSBackground.set('', bg);
