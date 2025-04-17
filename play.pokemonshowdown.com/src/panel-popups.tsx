@@ -5,6 +5,7 @@ import { BattleLog } from "./battle-log";
 import { PSLoginServer } from "./client-connection";
 import { PSRoom, type RoomOptions, PS, type PSLoginState, type RoomID, type TimestampOptions } from "./client-main";
 import { type BattleRoom } from "./panel-battle";
+import type { ChatRoom } from "./panel-chat";
 import { PSRoomPanel, PSPanelWrapper } from "./panels";
 
 /**
@@ -138,7 +139,7 @@ class UserPanel extends PSRoomPanel<UserRoom> {
 				<p class="buttonbar">
 					<button class="button" data-href={`/challenge-${user.userid}`}>Challenge</button> {}
 					<button class="button" data-href={`/dm-${user.userid}`}>Chat</button> {}
-					<button class="button disabled" name="userOptions">{'\u2026'}</button>
+					<button class="button" data-href="/useroptions" value={`${room.userid},${room.parentRoomid}`} >{'\u2026'}</button>
 				</p>
 			));
 			if (isSelf) {
@@ -206,6 +207,197 @@ class UserPanel extends PSRoomPanel<UserRoom> {
 			</form>}
 
 			{this.renderUser()}
+		</div></PSPanelWrapper>;
+	}
+}
+
+class UserOptionsPanel extends PSRoomPanel {
+	static readonly id = 'useroptions';
+	static readonly routes = ['useroptions'];
+	static readonly location = 'semimodal-popup';
+	static readonly noURL = true;
+	declare state: { showMuteInput?: boolean,
+		showBanInput?: boolean,
+		showConfirm?: boolean,
+		requestSent?: boolean,
+		data?: Record<string, string>, };
+
+	handleMute = (ev: Event) => {
+		this.setState({ showMuteInput: true, showBanInput: false });
+		ev.preventDefault();
+		ev.stopImmediatePropagation();
+
+	};
+	handleBan = (ev: Event) => {
+		this.setState({ showBanInput: true, showMuteInput: false });
+		ev.preventDefault();
+		ev.stopImmediatePropagation();
+
+	};
+
+	handleCancel = (ev: Event) => {
+		this.setState({ showBanInput: false, showMuteInput: false, showConfirm: false });
+		ev.preventDefault();
+		ev.stopImmediatePropagation();
+	};
+
+	handleConfirm = (ev: Event) => {
+		let data = this.state.data;
+		if (!data) return;
+		let roomid = toRoomid(data.room);
+		let room = PS.rooms[roomid];
+
+		let cmd = '';
+		if (data.action === "Mute") {
+			cmd += data.duration === "1 hour" ? "/hourmute " : "/mute ";
+			cmd += `${data.targetUser} ${data.reason ? ',' + data.reason : ''}`;
+		} else {
+			cmd += data.duration === "1 week" ? "/weekban " : "/ban ";
+			cmd += `${data.targetUser} ${data.reason ? ',' + data.reason : ''}`;
+		}
+		room?.send(cmd);
+		this.close();
+	};
+
+	handleAddFriend = (ev: Event) => {
+		let args = (this.props.room?.parentElem as HTMLInputElement).value.split(",");
+		let [targetUser, roomid] = args;
+		PS.rooms[roomid]?.send(`/friend add ${targetUser}`);
+		this.setState({ requestSent: true });
+		ev.preventDefault();
+		ev.stopImmediatePropagation();
+	};
+
+	handleIgnore = () => {
+		let args = (this.props.room?.parentElem as HTMLInputElement).value.split(",");
+		let [targetUser, roomid] = args;
+		let room = PS.rooms[roomid];
+		room?.send(`/ignore ${targetUser}`);
+		this.close();
+	};
+
+	muteUser = (ev: Event) => {
+		this.setState({ showMuteInput: false });
+		let hrMute = (ev.currentTarget as HTMLButtonElement).value === "1hr";
+		let args = (this.props.room?.parentElem as HTMLInputElement).value.split(",");
+		let [targetUser, roomid] = args;
+		let room = PS.rooms[roomid];
+		if (room?.type !== "chat") return; // should never happen
+		let reason = this.base?.querySelector<HTMLInputElement>("input[name=mutereason]")?.value;
+		let data = {
+			action: 'Mute',
+			targetUser,
+			room: room?.title,
+			reason,
+			duration: hrMute ? "1 hour" : "7 minutes",
+		};
+		this.setState({ data, showConfirm: true });
+		ev.preventDefault();
+		ev.stopImmediatePropagation();
+	};
+
+	banUser = (ev: Event) => {
+		this.setState({ showBanInput: false });
+		let weekBan = (ev.currentTarget as HTMLButtonElement).value === "1wk";
+		let args = (this.props.room?.parentElem as HTMLInputElement).value.split(",");
+		let [targetUser, roomid] = args;
+		let room = PS.rooms[roomid];
+		if (room?.type !== "chat") return; // should never happen
+		let reason = this.base?.querySelector<HTMLInputElement>("input[name=banreason]")?.value;
+		let data = {
+			action: 'Ban',
+			targetUser,
+			room: room?.title,
+			reason,
+			duration: weekBan ? "1 week" : "2 days",
+		};
+		this.setState({ data, showConfirm: true });
+		ev.preventDefault();
+		ev.stopImmediatePropagation();
+	};
+
+	update = () => {
+		this.forceUpdate();
+	};
+
+	override render() {
+		const room = this.props.room;
+		const parentRoom = PS.rooms[this.props.room.parentRoomid! || ''] as ChatRoom;
+		let canMute = false;
+		let canBan = false;
+		if (parentRoom?.type === "chat") {
+			let banPerms = ["@", "#", "~"];
+			let mutePerms = ["%", ...banPerms];
+			canMute = mutePerms.includes(parentRoom.users[PS.user.userid].charAt(0));
+			canBan = banPerms.includes(parentRoom.users[PS.user.userid].charAt(0));
+		}
+
+		return <PSPanelWrapper room={room} width={280}><div class="pad">
+			<p>
+				<button onClick={this.handleIgnore} class="button">
+					Ignore
+				</button>
+			</p>
+			<p>
+				<button
+					class="button"
+					data-href={`view-help-request-report-user-${(room.parentElem as HTMLInputElement).value.split(",")[0]}`}
+				>
+					Report</button>
+			</p>
+			<p>
+				{this.state.requestSent ? <button class="button disabled"> Sent request </button> :
+				<button onClick={this.handleAddFriend} class="button">
+					Add friend
+				</button>}
+			</p>
+			{(canMute || canBan) && <hr /> }
+			{this.state.showConfirm && <p>
+				<small>
+					{this.state.data?.action} {}
+					<b>{this.state.data?.targetUser}</b> {}
+					from <b>{this.state.data?.room}</b> {}
+					for {this.state.data?.duration}?
+				</small>
+				<p class="buttonbar">
+					<button class="button" onClick={this.handleConfirm}>
+						<i class="fa fa-confirm"></i> Confirm </button> {}
+					<button class="button" onClick={this.handleCancel}>
+						Cancel </button>
+				</p>
+			</p>}
+			<p class="buttonbar">
+				{canMute && !this.state.showBanInput && !this.state.showConfirm && (this.state.showMuteInput ? (<div>
+					<label class="inputlabel"> Reason:
+						<input name="mutereason" class="textbox autofocus" placeholder="Mute reason (optional)"></input>
+					</label> {} <br />
+					<button class="button" onClick={this.muteUser} value="7min">For 7 Mins</button> {}
+					<button class="button" onClick={this.muteUser} value="1hr">For 1 Hour</button> {}
+					<button class="button" onClick={this.handleCancel}> Cancel</button>
+				</div>
+
+				) : (
+
+					<button class="button" onClick={this.handleMute}>
+						<i class="fa fa-hourglass-half"></i> Mute </button>
+
+				))} {}
+				{canBan && !this.state.showMuteInput && !this.state.showConfirm && (this.state.showBanInput ? (<div>
+					<label class="inputlabel"> Reason:
+						<input name="banreason" class="textbox autofocus" placeholder="Ban reason (optional)"></input>
+					</label> <br />
+					<button class="button" onClick={this.banUser} value="2d">For 2 Days</button> {}
+					<button class="button" onClick={this.banUser} value="1wk">For 1 Week</button> {}
+					<button class="button" onClick={this.handleCancel}>Cancel</button>
+
+				</div>
+				) : (
+					<button class="button" onClick={this.handleBan}>
+						<i class="fa fa-gavel"></i> Ban
+					</button>
+
+				))}
+			</p>
 		</div></PSPanelWrapper>;
 	}
 }
@@ -1034,7 +1226,9 @@ class PopupPanel extends PSRoomPanel {
 	}
 }
 
+
 PS.addRoomType(UserPanel,
+	UserOptionsPanel,
 	VolumePanel,
 	OptionsPanel,
 	LoginPanel,
