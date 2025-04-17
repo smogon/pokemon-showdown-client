@@ -55,6 +55,23 @@ pre {
 	word-wrap: break-word;
 }
 
+.construction {
+	background: repeating-linear-gradient(
+		-45deg,
+		#d9ca28,
+		#d9ca28 10px,
+		#292824 10px,
+		#292824 20px
+	);
+	padding: 15px;
+}
+.construction-inner {
+	background: #d9ca28;
+	padding: 5px 10px;
+	font-weight: bold;
+	color: black;
+}
+
 /*********************************************************
  * Header
  *********************************************************/

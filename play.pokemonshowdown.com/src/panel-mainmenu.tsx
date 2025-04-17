@@ -96,9 +96,14 @@ export class MainMenuRoom extends PSRoom {
 			PSLoginServer.query(
 				'upkeep', { challstr }
 			).then(res => {
-				if (!res?.loggedin) {
+				if (!res?.username) {
 					PS.user.initializing = false;
 					return;
+				}
+				// | , ; are not valid characters in names
+				res.username = res.username.replace(/[|,;]+/g, '');
+				if (res.loggedin) {
+					PS.user.registered = { name: res.username, userid: toID(res.username) };
 				}
 				PS.user.handleAssertion(res.username, res.assertion);
 			});
@@ -377,8 +382,37 @@ class NewsPanel extends PSRoomPanel {
 	static readonly routes = ['news'];
 	static readonly title = 'News';
 	static readonly location = 'mini-window';
+	change = (ev: Event) => {
+		const target = ev.currentTarget as HTMLInputElement;
+		if (target.value === '1') {
+			document.cookie = "preactalpha=1; expires=Thu, 1 May 2025 12:00:00 UTC; path=/";
+		} else {
+			document.cookie = "preactalpha=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+		}
+		if (target.value === 'leave') {
+			document.location.href = `/`;
+		}
+	};
 	override render() {
+		const cookieSet = document.cookie.includes('preactalpha=1');
 		return <PSPanelWrapper room={this.props.room} scrollable>
+			<div class="construction"><div class="construction-inner">
+				This is the Preact client alpha test.
+				<form>
+					<label class="checkbox">
+						<input type="radio" name="preactalpha" value="1" onChange={this.change} checked={cookieSet} /> {}
+						Use Preact always
+					</label>
+					<label class="checkbox">
+						<input type="radio" name="preactalpha" value="0" onChange={this.change} checked={!cookieSet} /> {}
+						Use Preact with URL
+					</label>
+					<label class="checkbox">
+						<input type="radio" name="preactalpha" value="leave" onChange={this.change} /> {}
+						Back to the old client
+					</label>
+				</form>
+			</div></div>
 			<div class="mini-window-body" style="max-height:none" dangerouslySetInnerHTML={{ __html: PS.newsHTML }}></div>
 		</PSPanelWrapper>;
 	}
