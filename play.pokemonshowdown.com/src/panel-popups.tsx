@@ -1456,11 +1456,7 @@ class LeaveRoomPanel extends PSRoomPanel {
 		return <PSPanelWrapper room={room} width={480}><div class="pad">
 			<p>Are you sure you want to exit this room?</p>
 			<p class="buttonbar">
-				<button
-					class="button autofocus"
-					name="confirmCloseRoom"
-					value={parentRoomId}
-				>
+				<button data-cmd={`/close ${parentRoomId}`} class="button autofocus">
 					<strong>Close Room</strong>
 				</button> {}
 				<button data-cmd="/close" class="button">
