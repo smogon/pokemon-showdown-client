@@ -668,7 +668,8 @@ class OptionsPanel extends PSRoomPanel {
 				/> Confirm before refreshing</label>
 			</p>
 			<p>
-				<label class="optlabel"> Language: {}
+				<label class="optlabel">
+					Language: {}
 					<select name="language" onChange={this.handleOnChange} class="button">
 						<option value="german" selected={PS.prefs.language === "german"}>Deutsch</option>
 						<option value="english" selected={PS.prefs.language === "english"}>English</option>
@@ -682,7 +683,8 @@ class OptionsPanel extends PSRoomPanel {
 						<option value="japanese" selected={PS.prefs.language === "japanese"}>日本語</option>
 						<option value="simplifiedchinese" selected={PS.prefs.language === "simplifiedchinese"}>简体中文</option>
 						<option value="traditionalchinese" selected={PS.prefs.language === "traditionalchinese"}>中文</option>
-					</select></label>
+					</select>
+				</label>
 			</p>
 			<p>
 				<label class="optlabel">Tournaments: <select name="tournaments" class="button" onChange={this.handleOnChange}>
