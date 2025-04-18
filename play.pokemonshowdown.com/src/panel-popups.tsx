@@ -1468,6 +1468,6 @@ PS.addRoomType(
 	BackgroundListPanel,
 	LeaveRoomPanel,
 	ChatFormattingPanel,
-	PopupPanel
+	PopupPanel,
 	RoomTabListPanel
 );
