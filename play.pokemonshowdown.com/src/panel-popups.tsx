@@ -1218,10 +1218,10 @@ class RoomTabListPanel extends PSRoomPanel {
 	override render() {
 		return <PSPanelWrapper room={this.props.room}><div class="tablist">
 			<ul>
-				{PS.leftRoomList.map(roomid => PSHeader.renderRoomTab(roomid, false))}
+				{PS.leftRoomList.map(roomid => PSHeader.renderRoomTab(roomid))}
 			</ul>
-			<ul class="siderooms">
-				{PS.rightRoomList.map(roomid => PSHeader.renderRoomTab(roomid, false))}
+			<ul>
+				{PS.rightRoomList.map(roomid => PSHeader.renderRoomTab(roomid))}
 			</ul>
 		</div></PSPanelWrapper>;
 	}

@@ -120,7 +120,7 @@ export class PSHeader extends preact.Component<{ style: object }> {
 		}
 		return { icon, title };
 	}
-	static renderRoomTab(id: RoomID, draggable = true) {
+	static renderRoomTab(id: RoomID) {
 		const room = PS.rooms[id];
 		if (!room) return null;
 		const closable = (id === '' || id === 'rooms' ? '' : ' closable');
@@ -141,7 +141,7 @@ export class PSHeader extends preact.Component<{ style: object }> {
 		const ariaLabel = id === 'rooms' ? { "aria-label": "Join chat" } : {};
 		return <li>
 			<a
-				class={className} href={`/${id}`} draggable={draggable}
+				class={className} href={`/${id}`} draggable={true}
 				onDragEnter={this.handleDragEnter} onDragStart={this.handleDragStart}
 				{...ariaLabel}
 			>
