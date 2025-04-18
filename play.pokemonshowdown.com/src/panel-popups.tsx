@@ -1402,8 +1402,8 @@ class ChatFormattingPanel extends PSRoomPanel {
 						name="me"
 						checked={PS.prefs.chatformatting.hideme}
 
-					/> Suppress <code>/me</code>
-					<em>action formatting</em></label>
+					/> Suppress <code>/me</code> <em>action formatting</em>
+				</label>
 			</p>
 			<p>
 				<label class="checkbox">
