@@ -710,8 +710,9 @@ class OptionsPanel extends PSRoomPanel {
 				</select></label>
 			</p>
 			<p>
-				<label class="optlabel">Chat preferences: {}
-					<button class="button" data-href="chatformatting"> Text formatting </button>
+				<label class="optlabel">
+					Chat preferences: {}
+					<button class="button" data-href="chatformatting">Text formatting</button>
 				</label>
 			</p>
 			<hr />
