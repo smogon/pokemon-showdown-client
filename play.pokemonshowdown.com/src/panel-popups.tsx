@@ -680,8 +680,8 @@ class OptionsPanel extends PSRoomPanel {
 			<p>
 				<label class="optlabel">
 					Tournaments: <select name="tournaments" class="button" onChange={this.handleOnChange}>
+						<option value="" selected={!PS.prefs.tournaments}>No notifications</option>
 						<option value="notify" selected={PS.prefs.tournaments === "notify"}>Notifications</option>
-						<option selected={!PS.prefs.tournaments}>No notifications</option>
 						<option value="hide" selected={PS.prefs.tournaments === "hide"}>Hide</option>
 					</select>
 				</label>
