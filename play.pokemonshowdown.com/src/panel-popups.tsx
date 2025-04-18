@@ -1267,23 +1267,23 @@ class BackgroundListPanel extends PSRoomPanel {
 			<p><strong>Official</strong></p>
 			<div class="bglist">
 				<button onClick={this.setBg} value="charizards" class="option">
-					<span class="bg" style="background-position: 0 -0px"></span>
+					<span class="bg" style="background-position: 0 -0px"></span>{' '}
 					Charizards
 				</button>
 				<button onClick={this.setBg} value="horizon" class="option">
-					<span class="bg" style="background-position: 0 -90px"></span>
+					<span class="bg" style="background-position: 0 -90px"></span>{' '}
 					Horizon
 				</button>
 				<button onClick={this.setBg} value="waterfall" class="option">
-					<span class="bg" style="background-position: 0 -180px"></span>
+					<span class="bg" style="background-position: 0 -180px"></span>{' '}
 					Waterfall
 				</button>
 				<button onClick={this.setBg} value="ocean" class="option">
-					<span class="bg" style="background-position: 0 -270px"></span>
+					<span class="bg" style="background-position: 0 -270px"></span>{' '}
 					Ocean
 				</button>
 				<button onClick={this.setBg} value="shaymin" class="option">
-					<span class="bg" style="background-position: 0 -360px"></span>
+					<span class="bg" style="background-position: 0 -360px"></span>{' '}
 					Shaymin
 				</button>
 				<button onClick={this.setBg} value="solidblue" class="option">
@@ -1339,7 +1339,7 @@ class ChatFormattingPanel extends PSRoomPanel {
 						type="checkbox"
 						name="greentext"
 						checked={PS.prefs.chatformatting.hidegreentext}
-					/> Suppress
+					/> Suppress{' '}
 					<span class="greentext">&gt;greentext</span>
 				</label>
 			</p>
@@ -1361,7 +1361,7 @@ class ChatFormattingPanel extends PSRoomPanel {
 						type="checkbox"
 						name="spoiler"
 						checked={PS.prefs.chatformatting.hidespoiler}
-					/> Auto-show spoilers:
+					/> Auto-show spoilers:{' '}
 					<span class="spoiler">these things</span>
 				</label>
 			</p>
