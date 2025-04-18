@@ -16,6 +16,7 @@ import type { ChatRoom } from './panel-chat';
 import type { MainMenuRoom } from './panel-mainmenu';
 import { Dex, toID, type ID } from './battle-dex';
 import { BattleTextParser, type Args } from './battle-text-parser';
+import { type BattleRoom } from './panel-battle';
 
 declare const BattleTextAFD: any;
 declare const BattleTextNotAFD: any;
@@ -55,12 +56,10 @@ class PSPrefs extends PSStreamModel<string | null> {
 	 * null - Enable GIFs only on Chrome 64.
 	 */
 	nogif: boolean | null = null;
-
 	/* Graphics Preferences */
 	noanim: boolean | null = null;
 	bwgfx: boolean | null = null;
 	nopastgens: boolean | null = null;
-
 	/* Chat Preferences */
 	blockPMs: boolean | null = null;
 	blockChallenges: boolean | null = null;
@@ -77,14 +76,14 @@ class PSPrefs extends PSStreamModel<string | null> {
 		hidelinks: false,
 		hideinterstice: true,
 	};
-
 	/**
 	 * Show "User joined" and "User left" messages. serverid:roomid
 	 * table. Uses 1 and 0 instead of true/false for JSON packing
 	 * reasons.
 	 */
 	showjoins: { [serverid: string]: { [roomid: string]: 1 | 0 } } | null = null;
-
+	showdebug: boolean | null = null;
+	showbattles = true;
 	/**
 	 * Comma-separated lists of room titles to autojoin. Single
 	 * string is for Main.
@@ -213,7 +212,7 @@ class PSPrefs extends PSStreamModel<string | null> {
 				}
 			}
 
-			if (Config.server.afd) {
+			if (Config.server?.afd) {
 				mode = true;
 			} else if (this.afd !== undefined) {
 				mode = this.afd;
@@ -978,7 +977,190 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 			showjoins[PS.server.id] = serverShowjoins;
 			PS.prefs.set('showjoins', showjoins);
 		},
-
+		'showdebug'() {
+			PS.prefs.set('showdebug', true);
+			this.add('||Debug battle messages: ON');
+			let onCSS = '.debug {display: block;}';
+			let style = document.querySelector('style[id=debugstyle]');
+			if (style) {
+				style.innerHTML = onCSS;
+			} else {
+				style = document.createElement('style');
+				style.id = "debugstyle";
+				style.innerHTML = onCSS;
+				document.querySelector('head')?.append(style);
+			}
+		},
+		'hidedebug'() {
+			PS.prefs.set('showdebug', true);
+			this.add('||Debug battle messages: OFF');
+			let onCSS = '.debug {display: none;}';
+			let style = document.querySelector('style[id=debugstyle]');
+			if (style) {
+				style.innerHTML = onCSS;
+			} else {
+				style = document.createElement('style');
+				style.id = "debugstyle";
+				style.innerHTML = onCSS;
+				document.querySelector('head')?.append(style);
+			}
+		},
+		'showbattles'() {
+			PS.prefs.set('showbattles', true);
+			this.add('||Battle Messages: ON');
+		},
+		'hidebattles'() {
+			PS.prefs.set('showbattles', false);
+			this.add('||Battle Messages: HIDDEN');
+		},
+		'afd'(target) {
+			if (!target) return this.send('/help afd');
+			let mode = toID(target);
+			if (mode === 'sprites') {
+				PS.prefs.set('afd', 'sprites');
+				PS.prefs.setAFD('sprites');
+				this.add('||April Fools\' Day mode set to SPRITES.');
+			} else if (mode === 'off') {
+				PS.prefs.set('afd', null);
+				PS.prefs.setAFD();
+				this.add('||April Fools\' Day mode set to OFF temporarily.');
+				this.add('||Trying to turn it off permanently? Use /afd never');
+			} else if (mode === 'default') {
+				PS.prefs.setAFD();
+				PS.prefs.set('afd', null);
+				this.add('||April Fools\' Day mode set to DEFAULT (Currently ' + (Dex.afdMode ? 'FULL' : 'OFF') + ').');
+			} else if (mode === 'full') {
+				PS.prefs.set('afd', true);
+				PS.prefs.setAFD(true);
+				this.add('||April Fools\' Day mode set to FULL.');
+			} else if (target === 'never') {
+				PS.prefs.set('afd', false);
+				PS.prefs.setAFD(false);
+				this.add('||April Fools\' Day mode set to NEVER.');
+				if (Config.server?.afd) {
+					this.add('||You\'re using the AFD URL, which will still override this setting and enable AFD mode on refresh.');
+				}
+			} else {
+				if (target) this.add('||AFD option "' + target + '" not recognized');
+				let curMode = PS.prefs.afd as string | boolean;
+				if (curMode === true) curMode = 'FULL';
+				if (curMode === false) curMode = 'NEVER';
+				if (curMode) curMode = curMode.toUpperCase();
+				if (!curMode) curMode = 'DEFAULT (currently ' + (Dex.afdMode ? 'FULL' : 'OFF') + ')';
+				this.add('||AFD is currently set to ' + mode);
+				this.send('/help afd');
+			}
+			for (let roomid in PS.rooms) {
+				let battle = PS.rooms[roomid] && (PS.rooms[roomid] as BattleRoom).battle;
+				if (!battle) continue;
+				battle.resetToCurrentTurn();
+			}
+		},
+		'clearpms'() {
+			let rooms = PS.miniRoomList.filter(roomid => roomid.startsWith('dm-'));
+			if (!rooms.length) return this.add('||You do not have any PM windows open.');
+			for (const roomid of rooms) {
+				PS.leave(roomid);
+			}
+			this.add("||All PM windows cleared and closed.");
+		},
+		'help'(target) {
+			switch (toID(target)) {
+			case 'chal':
+			case 'chall':
+			case 'challenge':
+				this.add('||/challenge - Open a prompt to challenge a user to a battle.');
+				this.add('||/challenge [user] - Challenge the user [user] to a battle.');
+				this.add('||/challenge [user], [format] - Challenge the user [user] to a battle in the specified [format].');
+				this.add('||/challenge [user], [format] @@@ [rules] - Challenge the user [user] to a battle with custom rules.');
+				this.add('||[rules] can be a comma-separated list of: [added rule], ![removed rule], -[banned thing], *[restricted thing], +[unbanned/unrestricted thing]');
+				this.add('||/battlerules - Detailed information on what can go in [rules].');
+				return false;
+			case 'accept':
+				this.add('||/accept - Accept a challenge if only one is pending.');
+				this.add('||/accept [user] - Accept a challenge from the specified user.');
+				return false;
+			case 'reject':
+				this.add('||/reject - Reject a challenge if only one is pending.');
+				this.add('||/reject [user] - Reject a challenge from the specified user.');
+				return false;
+			case 'user':
+			case 'open':
+				this.add('||/user [user] - Open a popup containing the user [user]\'s avatar, name, rank, and chatroom list.');
+				return false;
+			case 'news':
+				this.add('||/news - Opens a popup containing the news.');
+				return false;
+			case 'ignore':
+			case 'unignore':
+				this.add('||/ignore [user] - Ignore all messages from the user [user].');
+				this.add('||/unignore [user] - Remove the user [user] from your ignore list.');
+				this.add('||/ignorelist - List all the users that you currently ignore.');
+				this.add('||/clearignore - Remove all users on your ignore list.');
+				this.add('||Note that staff messages cannot be ignored.');
+				return false;
+			case 'nick':
+				this.add('||/nick [new username] - Change your username.');
+				return false;
+			case 'clear':
+				this.add('||/clear - Clear the room\'s chat log.');
+				return false;
+			case 'showdebug':
+			case 'hidedebug':
+				this.add('||/showdebug - Receive debug messages from battle events.');
+				this.add('||/hidedebug - Ignore debug messages from battle events.');
+				return false;
+			case 'showjoins':
+			case 'hidejoins':
+				this.add('||/showjoins [room] - Receive users\' join/leave messages. Optionally for only specified room.');
+				this.add('||/hidejoins [room] - Ignore users\' join/leave messages. Optionally for only specified room.');
+				return false;
+			case 'showbattles':
+			case 'hidebattles':
+				this.add('||/showbattles - Receive links to new battles in Lobby.');
+				this.add('||/hidebattles - Ignore links to new battles in Lobby.');
+				return false;
+			case 'unpackhidden':
+			case 'packhidden':
+				this.add('||/unpackhidden - Suppress hiding locked or banned users\' chat messages after the fact.');
+				this.add('||/packhidden - Hide locked or banned users\' chat messages after the fact.');
+				this.add('||Hidden messages from a user can be restored by clicking the button underneath their lock/ban reason.');
+				return false;
+			case 'timestamps':
+				this.add('||Set your timestamps preference:');
+				this.add('||/timestamps [all|lobby|pms], [minutes|seconds|off]');
+				this.add('||all - Change all timestamps preferences, lobby - Change only lobby chat preferences, pms - Change only PM preferences.');
+				this.add('||off - Set timestamps off, minutes - Show timestamps of the form [hh:mm], seconds - Show timestamps of the form [hh:mm:ss].');
+				return false;
+			case 'highlight':
+			case 'hl':
+				this.add('||Set up highlights:');
+				this.add('||/highlight add [word 1], [word 2], [...] - Add the provided list of words to your highlight list.');
+				this.add('||/highlight roomadd [word 1], [word 2], [...] - Add the provided list of words to the highlight list of whichever room you used the command in.');
+				this.add('||/highlight list - List all words that currently highlight you.');
+				this.add('||/highlight roomlist - List all words that currently highlight you in whichever room you used the command in.');
+				this.add('||/highlight delete [word 1], [word 2], [...] - Delete the provided list of words from your entire highlight list.');
+				this.add('||/highlight roomdelete [word 1], [word 2], [...] - Delete the provided list of words from the highlight list of whichever room you used the command in.');
+				this.add('||/highlight clear - Clear your global highlight list.');
+				this.add('||/highlight roomclear - Clear the highlight list of whichever room you used the command in.');
+				this.add('||/highlight clearall - Clear your entire highlight list (all rooms and globally).');
+				return false;
+			case 'rank':
+			case 'ranking':
+			case 'rating':
+			case 'ladder':
+				this.add('||/rating - Get your own rating.');
+				this.add('||/rating [username] - Get user [username]\'s rating.');
+				return false;
+			case 'afd':
+				this.add('||/afd full - Enable all April Fools\' Day jokes.');
+				this.add('||/afd sprites - Enable April Fools\' Day sprites.');
+				this.add('||/afd default - Set April Fools\' Day to default (full on April 1st, off otherwise).');
+				this.add('||/afd off - Disable April Fools\' Day jokes until the next refresh, and set /afd default.');
+				this.add('||/afd never - Disable April Fools\' Day jokes permanently.');
+				return false;
+			}
+		},
 		'autojoin,cmd,crq,query'() {
 			this.add(`|error|This is a PS system command; do not use it.`);
 		},
