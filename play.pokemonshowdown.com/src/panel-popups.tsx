@@ -614,9 +614,10 @@ class OptionsPanel extends PSRoomPanel {
 				</select></label>
 			</p>
 			<p>
-				<label class="optlabel"> Background: <button class="button" data-href="changebackground">
-					Change Background
-				</button>
+				<label class="optlabel">
+					Background: <button class="button" data-href="changebackground">
+						Change Background
+					</button>
 				</label>
 			</p>
 			<p>
@@ -667,7 +668,8 @@ class OptionsPanel extends PSRoomPanel {
 				/> Confirm before refreshing</label>
 			</p>
 			<p>
-				<label class="optlabel"> Language: {}
+				<label class="optlabel">
+					Language: {}
 					<select name="language" onChange={this.handleOnChange} class="button">
 						<option value="german" selected={PS.prefs.language === "german"}>Deutsch</option>
 						<option value="english" selected={PS.prefs.language === "english"}>English</option>
@@ -681,14 +683,17 @@ class OptionsPanel extends PSRoomPanel {
 						<option value="japanese" selected={PS.prefs.language === "japanese"}>日本語</option>
 						<option value="simplifiedchinese" selected={PS.prefs.language === "simplifiedchinese"}>简体中文</option>
 						<option value="traditionalchinese" selected={PS.prefs.language === "traditionalchinese"}>中文</option>
-					</select></label>
+					</select>
+				</label>
 			</p>
 			<p>
-				<label class="optlabel">Tournaments: <select name="tournaments" class="button" onChange={this.handleOnChange}>
-					<option value="notify" selected={PS.prefs.tournaments === "notify"}> Notifications</option>
-					<option selected={!PS.prefs.tournaments}> No notifications</option>
-					<option value="hide" selected={PS.prefs.tournaments === "hide"}> Hide</option>
-				</select></label>
+				<label class="optlabel">
+					Tournaments: <select name="tournaments" class="button" onChange={this.handleOnChange}>
+						<option value="notify" selected={PS.prefs.tournaments === "notify"}>Notifications</option>
+						<option selected={!PS.prefs.tournaments}>No notifications</option>
+						<option value="hide" selected={PS.prefs.tournaments === "hide"}>Hide</option>
+					</select>
+				</label>
 			</p>
 			<p>
 				<label class="optlabel">Timestamps: <select name="layout" class="button" onChange={this.setChatroomTimestamp}>
@@ -705,8 +710,9 @@ class OptionsPanel extends PSRoomPanel {
 				</select></label>
 			</p>
 			<p>
-				<label class="optlabel">Chat preferences: {}
-					<button class="button" data-href="chatformatting"> Text formatting </button>
+				<label class="optlabel">
+					Chat preferences: {}
+					<button class="button" data-href="chatformatting">Text formatting</button>
 				</label>
 			</p>
 			<hr />
@@ -1396,8 +1402,8 @@ class ChatFormattingPanel extends PSRoomPanel {
 						name="me"
 						checked={PS.prefs.chatformatting.hideme}
 
-					/> Suppress <code>/me</code>
-					<em>action formatting</em></label>
+					/> Suppress <code>/me</code> <em>action formatting</em>
+				</label>
 			</p>
 			<p>
 				<label class="checkbox">
@@ -1428,8 +1434,7 @@ class ChatFormattingPanel extends PSRoomPanel {
 						type="checkbox"
 						name="interstice"
 						checked={PS.prefs.chatformatting.hideinterstice}
-					/> Don't warn for
-					untrusted links
+					/> Don't warn for untrusted links
 				</label>
 			</p>
 			<p><button data-cmd="/close" class="button">Done</button></p>
@@ -1448,20 +1453,13 @@ class LeaveRoomPanel extends PSRoomPanel {
 		const room = this.props.room;
 		const parentRoomId = (this.props.room.parentElem as HTMLInputElement).value;
 		return <PSPanelWrapper room={room} width={480}><div class="pad">
-			<p> Are you sure you want to exit this room?</p>
+			<p>Are you sure you want to exit this room?</p>
 			<p class="buttonbar">
-				<button
-					class="button autofocus"
-					name="confirmCloseRoom"
-					value={parentRoomId}
-				>
-					<strong> Close Room</strong>
+				<button data-cmd={`/close ${parentRoomId}`} class="button autofocus">
+					<strong>Close Room</strong>
 				</button> {}
-				<button
-					class="button"
-					data-cmd="/close"
-				>
-					<strong> Cancel </strong>
+				<button data-cmd="/close" class="button">
+					<strong>Cancel</strong>
 				</button>
 			</p>
 		</div></PSPanelWrapper>;
