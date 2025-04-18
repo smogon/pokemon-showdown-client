@@ -1454,7 +1454,7 @@ class LeaveRoomPanel extends PSRoomPanel {
 		const room = this.props.room;
 		const parentRoomId = (this.props.room.parentElem as HTMLInputElement).value;
 		return <PSPanelWrapper room={room} width={480}><div class="pad">
-			<p> Are you sure you want to exit this room?</p>
+			<p>Are you sure you want to exit this room?</p>
 			<p class="buttonbar">
 				<button
 					class="button autofocus"
