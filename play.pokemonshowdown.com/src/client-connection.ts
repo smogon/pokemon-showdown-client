@@ -21,7 +21,12 @@ export class PSConnection {
 		const server = PS.server;
 		const port = server.protocol === 'https' ? '' : ':' + server.port;
 		const url = server.protocol + '://' + server.host + port + server.prefix;
-		const socket = this.socket = new SockJS(url, [], { timeout: 5 * 60 * 1000 });
+		try {
+			this.socket = new SockJS(url, [], { timeout: 5 * 60 * 1000 });
+		} catch {
+			this.socket = new WebSocket(url.replace('http', 'ws') + '/websocket');
+		}
+		const socket = this.socket;
 		socket.onopen = () => {
 			console.log('\u2705 (CONNECTED)');
 			this.connected = true;
@@ -43,6 +48,11 @@ export class PSConnection {
 			}
 			this.socket = null;
 			PS.update();
+		};
+		socket.onerror = () => {
+			PS.connected = false;
+			PS.isOffline = true;
+			PS.alert("Connection error.");
 		};
 	}
 	disconnect() {

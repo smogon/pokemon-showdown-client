@@ -60,7 +60,7 @@ export class PSRouter {
 
 		return url as RoomID;
 	}
-	updatePanelState(): { roomid: RoomID, changed: boolean } {
+	updatePanelState(): { roomid: RoomID, changed: boolean, newTitle: string } {
 		let room = PS.room;
 		// some popups don't have URLs and don't generate history
 		// there's definitely a better way to do this but I'm lazy
@@ -78,18 +78,12 @@ export class PSRouter {
 		const panelState = (PS.leftPanelWidth && room === PS.panel ?
 			PS.leftPanel.id + '..' + PS.rightPanel!.id :
 			room.id);
-		if (roomid === this.roomid && panelState === this.panelState) {
-			return { roomid, changed: false };
-		}
+		const newTitle = roomid === '' ? 'Showdown!' : `${room.title} - Showdown!`;
+		const changed = (roomid !== this.roomid);
 
-		if (roomid === '') {
-			document.title = 'Showdown!';
-		} else {
-			document.title = room.title + ' - Showdown!';
-		}
 		this.roomid = roomid;
 		this.panelState = panelState;
-		return { roomid, changed: true };
+		return { roomid, changed, newTitle };
 	}
 	subscribeHash() {
 		if (location.hash) {
@@ -98,9 +92,15 @@ export class PSRouter {
 				PS.join(currentRoomid as RoomID);
 			}
 		}
-		PS.subscribeAndRun(() => {
-			const { roomid, changed } = this.updatePanelState();
+		{
+			const { newTitle } = this.updatePanelState();
+			document.title = newTitle;
+		}
+		PS.subscribe(() => {
+			const { roomid, changed, newTitle } = this.updatePanelState();
 			if (changed) location.hash = roomid ? `#${roomid}` : '';
+			// n.b. must be done after changing hash, so history entry has the old title
+			document.title = newTitle;
 		});
 		window.addEventListener('hashchange', e => {
 			const possibleRoomid = location.hash.slice(1);
@@ -110,6 +110,7 @@ export class PSRouter {
 			}
 			if (currentRoomid !== null) {
 				if (currentRoomid === PS.room.id) return;
+				this.roomid = currentRoomid;
 				PS.join(currentRoomid);
 			}
 		});
@@ -120,13 +121,20 @@ export class PSRouter {
 			PS.join(currentRoomid as RoomID);
 		}
 		if (!window.history) return;
-		PS.subscribeAndRun(() => {
-			const { roomid, changed } = this.updatePanelState();
+		{
+			const { roomid, newTitle } = this.updatePanelState();
+			history.replaceState(this.panelState, '', `/${roomid}`);
+			document.title = newTitle;
+		}
+		PS.subscribe(() => {
+			const { roomid, changed, newTitle } = this.updatePanelState();
 			if (changed) {
 				history.pushState(this.panelState, '', `/${roomid}`);
 			} else {
 				history.replaceState(this.panelState, '', `/${roomid}`);
 			}
+			// n.b. must be done after changing hash, so history entry has the old title
+			document.title = newTitle;
 		});
 		window.addEventListener('popstate', e => {
 			const possibleRoomid = location.pathname.slice(1);
@@ -137,13 +145,14 @@ export class PSRouter {
 			if (typeof e.state === 'string') {
 				const [leftRoomid, rightRoomid] = e.state.split('..') as RoomID[];
 				if (rightRoomid) {
-					PS.join(leftRoomid, { location: 'left' });
-					PS.join(rightRoomid, { location: 'right' });
-				} else {
-					PS.join(leftRoomid);
+					PS.addRoom({ id: leftRoomid, location: 'left' }, true);
+					PS.addRoom({ id: rightRoomid, location: 'right' }, true);
+					PS.leftPanel = PS.rooms[leftRoomid] || PS.leftPanel;
+					PS.rightPanel = PS.rooms[rightRoomid] || PS.rightPanel;
 				}
 			}
 			if (roomid !== null) {
+				this.roomid = roomid;
 				PS.join(roomid);
 			}
 		});
@@ -247,13 +256,11 @@ export function PSPanelWrapper(props: {
 	fullSize?: boolean,
 }) {
 	const room = props.room;
-	if (room.location === 'mini-window' && PS.leftPanelWidth !== null) {
-		if (room.id === 'news') {
-			return <div id={`room-${room.id}`}>{props.children}</div>;
-		}
+	if (room.location === 'mini-window') {
+		const style = props.fullSize ? 'height: auto' : null;
 		return <div
 			id={`room-${room.id}`} class={'mini-window-contents ps-room-light' + (props.scrollable === true ? ' scrollable' : '')}
-			onClick={props.focusClick ? PSView.focusIfNoSelection : undefined}
+			onClick={props.focusClick ? PSView.focusIfNoSelection : undefined} style={style}
 		>
 			{props.children}
 		</div>;
@@ -343,12 +350,12 @@ export class PSView extends preact.Component {
 			return PS.prefs.refreshprompt ? "Are you sure you want to leave?" : null;
 		};
 
-		window.addEventListener('click', e => {
-			let elem = e.target as HTMLElement | null;
+		window.addEventListener('click', ev => {
+			let elem = ev.target as HTMLElement | null;
 			if (elem?.className === 'ps-overlay') {
 				PS.closePopup();
-				e.preventDefault();
-				e.stopImmediatePropagation();
+				ev.preventDefault();
+				ev.stopImmediatePropagation();
 				return;
 			}
 			const clickedRoom = PS.getRoom(elem);
@@ -368,16 +375,24 @@ export class PSView extends preact.Component {
 						rightPopup: elem.className === 'userbutton username',
 						args: { username: name },
 					});
-					e.preventDefault();
-					e.stopImmediatePropagation();
+					ev.preventDefault();
+					ev.stopImmediatePropagation();
 					return;
 				}
 
 				if (elem.tagName === 'A' || elem.getAttribute('data-href')) {
-					const href = elem.getAttribute('data-href') || elem.getAttribute('href');
-					const roomid = PS.router.extractRoomID(href);
+					if (ev.ctrlKey || ev.metaKey || ev.shiftKey) break;
 
-					if (roomid !== null) {
+					const href = elem.getAttribute('data-href') || elem.getAttribute('href');
+					let roomid = PS.router.extractRoomID(href);
+
+					// keep this in sync with .htaccess
+					const shortLinks = /^(rooms?suggestions?|suggestions?|adminrequests?|forgotpassword|bugs?(reports?)?|formatsuggestions|rules?|faq|credits?|privacy|contact|dex|(damage)?calc|insecure|replays?|devdiscord|smogdex|smogcord|forums?|trustworthy-dlc-link)$/;
+					if (roomid === 'appeal' || roomid === 'appeals') roomid = 'view-help-request--appeal' as RoomID;
+					if (roomid === 'report') roomid = 'view-help-request--report' as RoomID;
+					if (roomid === 'requesthelp') roomid = 'view-help-request--other' as RoomID;
+
+					if (roomid !== null && elem.className !== 'no-panel-intercept' && !shortLinks.test(roomid)) {
 						let location = null;
 						if (elem.getAttribute('data-target') === 'replace') {
 							const room = PS.getRoom(elem);
@@ -393,8 +408,8 @@ export class PSView extends preact.Component {
 						if (!PS.isPopup(PS.rooms[roomid])) {
 							PS.closeAllPopups();
 						}
-						e.preventDefault();
-						e.stopImmediatePropagation();
+						ev.preventDefault();
+						ev.stopImmediatePropagation();
 					}
 					return;
 				}
@@ -412,8 +427,8 @@ export class PSView extends preact.Component {
 				}
 				if (elem.tagName === 'BUTTON') {
 					if (this.handleButtonClick(elem as HTMLButtonElement)) {
-						e.preventDefault();
-						e.stopImmediatePropagation();
+						ev.preventDefault();
+						ev.stopImmediatePropagation();
 						return;
 					} else if (!elem.getAttribute('type')) {
 						// the spec says that buttons with no `type` attribute should be
@@ -440,8 +455,8 @@ export class PSView extends preact.Component {
 			}
 		});
 
-		window.addEventListener('keydown', e => {
-			let elem = e.target as HTMLInputElement | null;
+		window.addEventListener('keydown', ev => {
+			let elem = ev.target as HTMLInputElement | null;
 			let isTextInput = false;
 			let isNonEmptyTextInput = false;
 			if (elem) {
@@ -460,49 +475,49 @@ export class PSView extends preact.Component {
 				}
 			}
 			if (!isNonEmptyTextInput) {
-				if (PS.room.onParentEvent?.('keydown', e) === false) {
-					e.stopImmediatePropagation();
-					e.preventDefault();
+				if (PS.room.onParentEvent?.('keydown', ev) === false) {
+					ev.stopImmediatePropagation();
+					ev.preventDefault();
 					return;
 				}
 			}
-			const modifierKey = e.ctrlKey || e.altKey || e.metaKey || e.shiftKey;
-			const altKey = !e.ctrlKey && e.altKey && !e.metaKey && !e.shiftKey;
-			if (altKey && e.keyCode === 38) { // up
+			const modifierKey = ev.ctrlKey || ev.altKey || ev.metaKey || ev.shiftKey;
+			const altKey = !ev.ctrlKey && ev.altKey && !ev.metaKey && !ev.shiftKey;
+			if (altKey && ev.keyCode === 38) { // up
 				PS.arrowKeysUsed = true;
 				PS.focusUpRoom();
-			} else if (altKey && e.keyCode === 40) { // down
+			} else if (altKey && ev.keyCode === 40) { // down
 				PS.arrowKeysUsed = true;
 				PS.focusDownRoom();
 			}
 			if (isNonEmptyTextInput) return;
-			if (altKey && e.keyCode === 37) { // left
+			if (altKey && ev.keyCode === 37) { // left
 				PS.arrowKeysUsed = true;
 				PS.focusLeftRoom();
-			} else if (altKey && e.keyCode === 39) { // right
+			} else if (altKey && ev.keyCode === 39) { // right
 				PS.arrowKeysUsed = true;
 				PS.focusRightRoom();
 			}
 			if (modifierKey) return;
-			if (e.keyCode === 37) { // left
+			if (ev.keyCode === 37) { // left
 				PS.arrowKeysUsed = true;
 				PS.focusLeftRoom();
-			} else if (e.keyCode === 39) { // right
+			} else if (ev.keyCode === 39) { // right
 				PS.arrowKeysUsed = true;
 				PS.focusRightRoom();
-			} else if (e.keyCode === 27) { // escape
+			} else if (ev.keyCode === 27) { // escape
 				// close popups
 				if (PS.popups.length) {
-					e.stopImmediatePropagation();
-					e.preventDefault();
+					ev.stopImmediatePropagation();
+					ev.preventDefault();
 					PS.closePopup();
 					PS.focusRoom(PS.room.id);
 				} else if (PS.room.id === 'rooms') {
 					PS.hideRightRoom();
 				}
-			} else if (e.keyCode === 191 && !isTextInput && PS.room === PS.mainmenu) { // forward slash
-				e.stopImmediatePropagation();
-				e.preventDefault();
+			} else if (ev.keyCode === 191 && !isTextInput && PS.room === PS.mainmenu) { // forward slash
+				ev.stopImmediatePropagation();
+				ev.preventDefault();
 				PS.join('dm---' as RoomID);
 			}
 		});

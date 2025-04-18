@@ -260,6 +260,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 		const scene = battle.scene as BattleScene;
 		room.backlog = null;
 		room.log ||= scene.log;
+		room.log.getHighlight = room.handleHighlight;
 		scene.tooltips.listen($elem.find('.battle-controls-container'));
 		scene.tooltips.listen(scene.log.elem);
 		super.componentDidMount();
@@ -398,7 +399,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 				const move = dex.moves.get(moveData.name);
 				const zMoveData = active.zMoves![i];
 				if (!zMoveData) {
-					return <button disabled>&nbsp;</button>;
+					return <button class="movebutton" disabled>&nbsp;</button>;
 				}
 				const tooltip = `zmove|${moveData.name}|${pokemonIndex}`;
 				return <MoveButton cmd={`/move ${i + 1} zmove`} type={move.type} tooltip={tooltip} moveData={{ pp: 1, maxpp: 1 }}>
