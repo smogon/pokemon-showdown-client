@@ -41,6 +41,10 @@ window.addEventListener('dragover', e => {
 });
 
 export class PSHeader extends preact.Component<{ style: object }> {
+	static toggleMute = (e: Event) => {
+		PS.prefs.set('mute', !PS.prefs.mute);
+		PS.update();
+	};
 	static handleDragEnter = (e: DragEvent) => {
 		console.log('dragenter ' + e.dataTransfer!.dropEffect);
 		e.preventDefault();
@@ -221,7 +225,7 @@ export class PSHeader extends preact.Component<{ style: object }> {
 			<div class="userbar">
 				{this.renderUser()} {}
 				<div style="float:right">
-					<button class="icon button" data-href="volume" title="Sound" aria-label="Sound">
+					<button class="icon button" data-href="volume" title="Sound" aria-label="Sound" onDblClick={PSHeader.toggleMute}>
 						<i class={PS.prefs.mute ? 'fa fa-volume-off' : 'fa fa-volume-up'}></i>
 					</button> {}
 					<button class="icon button" data-href="options" title="Options" aria-label="Options">
@@ -267,7 +271,7 @@ export class PSHeader extends preact.Component<{ style: object }> {
 			</div></div>
 			<div class="userbar">
 				{this.renderUser()} {}
-				<button class="icon button" data-href="volume" title="Sound" aria-label="Sound">
+				<button class="icon button" data-href="volume" title="Sound" aria-label="Sound" onDblClick={PSHeader.toggleMute}>
 					<i class={PS.prefs.mute ? 'fa fa-volume-off' : 'fa fa-volume-up'}></i>
 				</button> {}
 				<button class="icon button" data-href="options" title="Options" aria-label="Options">
