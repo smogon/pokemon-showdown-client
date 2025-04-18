@@ -614,9 +614,10 @@ class OptionsPanel extends PSRoomPanel {
 				</select></label>
 			</p>
 			<p>
-				<label class="optlabel"> Background: <button class="button" data-href="changebackground">
-					Change Background
-				</button>
+				<label class="optlabel">
+					Background: <button class="button" data-href="changebackground">
+						Change Background
+					</button>
 				</label>
 			</p>
 			<p>
