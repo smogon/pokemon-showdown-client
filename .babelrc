@@ -29,7 +29,9 @@
 
 		// ES3
 		"@babel/plugin-transform-member-expression-literals",
-		"@babel/plugin-transform-property-literals"
+		"@babel/plugin-transform-property-literals",
+
+		"@babel/plugin-transform-strict-mode"
 	],
 	"ignore": [
 		"src/globals.d.ts"

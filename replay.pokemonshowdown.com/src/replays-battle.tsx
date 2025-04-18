@@ -422,7 +422,7 @@ export class BattlePanel extends preact.Component<{ id: string }> {
 				</form>
 				<p>
 					<em>Pro tip:</em> You don't need to click "Skip to turn" if you have a keyboard, just start typing
-					the turn number and press <kbd>Enter</kbd>. For more shortcuts, press <kbd>Shift</kbd>+<kbd>/</kbd>
+					the turn number and press <kbd>Enter</kbd>. For more shortcuts, press <kbd>Shift</kbd>+<kbd>/</kbd> {}
 					when a text box isn't focused.
 				</p>
 			</section></div>;

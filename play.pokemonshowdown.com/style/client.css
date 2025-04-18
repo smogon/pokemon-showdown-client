@@ -1006,6 +1006,9 @@ p.or:after {
 .roomlist {
 	max-width: 480px;
 	text-align: left;
+	list-style: none;
+	margin: 0;
+	padding: 0;
 }
 .roomlist .subrooms {
 	font-size: 8pt;
@@ -1344,7 +1347,6 @@ a.ilink.yours {
 .tournament-bracket-tree-node text, .tournament-bracket-tree-node {
 	font-size: 8.5pt;
 	text-anchor: middle;
-	dominant-baseline: central;
 	font-weight: bold;
 }
 .tournament-bracket-tree-node a {
@@ -2131,6 +2133,7 @@ a.ilink.yours {
 	width: 16px;
 	color: #777777;
 }
+.folderpane .text,
 .folderpane h3 {
 	margin: 0;
 	padding: 13px 0 0 0;
@@ -2139,6 +2142,10 @@ a.ilink.yours {
 	background: #d7e3ec;
 	color: black;
 	border-right: 1px solid #888888;
+}
+.folderpane .text {
+	height: 23px;
+	padding: 7px 0 0 7px;
 }
 .folder .selectFolder {
 	display: block;
@@ -2185,6 +2192,7 @@ a.ilink.yours {
 	padding-left: 6px;
 	border-top-left-radius: 3px;
 	border-bottom-left-radius: 3px;
+	text-decoration: none;
 }
 
 /* believe me, there was no other way to do this */
@@ -3215,6 +3223,7 @@ a.ilink.yours {
 .dark .folderlistafter:before,
 .dark .folderlistbefore:before,
 .dark .folderpane h3,
+.dark .folderpane .text,
 .dark .folder .selectFolder,
 .dark .folderhack1,
 .dark .folderhack2 {

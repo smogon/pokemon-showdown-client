@@ -18,6 +18,7 @@
   "dependencies": {
     "@babel/core": "^7.26.10",
     "@babel/plugin-transform-react-jsx": "^7.25.9",
+    "@babel/plugin-transform-strict-mode": "^7.25.9",
     "@babel/preset-env": "^7.26.9",
     "@babel/preset-typescript": "^7.27.0",
     "babel-plugin-remove-import-export": "^1.1.1",

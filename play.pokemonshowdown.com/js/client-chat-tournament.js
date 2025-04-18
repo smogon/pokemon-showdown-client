@@ -612,8 +612,8 @@
 		TournamentBox.nodeSize = {
 			width: 160, height: 30,
 			radius: 5,
-			separationX: 20, separationY: 20,
-			textOffset: -1
+			separationX: 20, separationY: 10,
+			textOffset: 4
 		};
 
 		TournamentBox.prototype.generateBracket = function (data, abbreviated) {
@@ -655,9 +655,15 @@
 									child.highlightLink = true;
 								}
 							}
-						} else if (node.state === 'inprogress' || node.state === 'available' || node.state === 'challenging') {
+						} else if (
+							node.state === 'inprogress' || node.state === 'available' || node.state === 'challenging' ||
+							node.state === 'unavailable'
+						) {
 							for (var i = 0; i < node.children.length; i++) {
-								node.children[i].highlightLink = true;
+								var child = node.children[i];
+								if (child.team && !child.team.startsWith('(')) {
+									child.highlightLink = true;
+								}
 							}
 						} else if (highlightName) {
 							for (var i = 0; i < node.children.length; i++) {
@@ -763,6 +769,7 @@
 						if (node.team === name) rect.attr('stroke-dasharray', '5,5').attr('stroke-width', 2);
 
 						elem.append('svg:text').classed('tournament-bracket-tree-node-team', true)
+							.attr('y', nodeSize.textOffset)
 							.classed('tournament-bracket-tree-node-team-draw', true)
 							.text(node.team || '');
 					} else {

@@ -59,7 +59,7 @@
  * Buttons
  *********************************************************/
 
-button, summary {
+a, button, summary {
 	cursor: pointer;
 	touch-action: manipulation;
 }

@@ -8,7 +8,7 @@
 import preact from "../js/lib/preact";
 import type { PSSubscription } from "./client-core";
 import { PS, PSRoom, type RoomOptions, type RoomID, type Team } from "./client-main";
-import { PSMain, PSPanelWrapper, PSRoomPanel } from "./panels";
+import { PSView, PSPanelWrapper, PSRoomPanel } from "./panels";
 import { TeamForm } from "./panel-mainmenu";
 import { BattleLog } from "./battle-log";
 import type { Battle } from "./battle";
@@ -113,7 +113,8 @@ export class ChatRoom extends PSRoom {
 			this.title = `Console`;
 		} else if (this.id.startsWith('dm-')) {
 			const id = this.id.slice(3);
-			if (!name || toID(name) !== id) name = this.pmTarget || id;
+			if (toID(name) !== id) name = null;
+			name ||= this.pmTarget || id;
 			if (/[A-Za-z0-9]/.test(name.charAt(0))) name = ` ${name}`;
 			const nameWithGroup = name;
 			name = name.slice(1);
@@ -194,7 +195,7 @@ export class ChatRoom extends PSRoom {
 					if (!formatTargeting ||
 						formats[formatId] ||
 						gens[formatId.slice(0, 4)] ||
-						(gens['gen6'] && formatId.substr(0, 3) !== 'gen')) {
+						(gens['gen6'] && !formatId.startsWith('gen'))) {
 						buffer += '<tr>';
 					} else {
 						buffer += '<tr class="hidden">';
@@ -704,10 +705,10 @@ export class ChatTextEntry extends preact.Component<{
 					onInput={this.update}
 					onKeyDown={this.onKeyDown}
 					style={{ resize: 'none', width: '100%', height: '16px', padding: '2px 3px 1px 3px' }}
-					placeholder={PS.focusPreview(this.props.room)}
+					placeholder={PSView.focusPreview(this.props.room)}
 				/> : <ChatTextBox
 					disabled={!this.props.room.connected || !canTalk}
-					placeholder={PS.focusPreview(this.props.room)}
+					placeholder={PSView.focusPreview(this.props.room)}
 				/>}
 			</form>
 			{!canTalk && <button data-href="login" class="button autofocus">
@@ -725,14 +726,14 @@ class ChatTextBox extends preact.Component<{ placeholder: string, disabled?: boo
 		return false;
 	}
 	handleFocus = () => {
-		PSMain.setTextboxFocused(true);
+		PSView.setTextboxFocused(true);
 	};
 	handleBlur = () => {
-		PSMain.setTextboxFocused(false);
+		PSView.setTextboxFocused(false);
 	};
 	override render() {
 		return <pre
-			class={`textbox textbox-empty ${this.props.disabled ? ' disabled' : ''}`} placeholder={this.props.placeholder}
+			class={`textbox textbox-empty ${this.props.disabled ? ' disabled' : ' autofocus'}`} placeholder={this.props.placeholder}
 			onFocus={this.handleFocus} onBlur={this.handleBlur}
 		>{'\n'}</pre>;
 	}
@@ -745,10 +746,10 @@ class ChatPanel extends PSRoomPanel<ChatRoom> {
 	static readonly location = 'right';
 	static readonly icon = <i class="fa fa-comment-o"></i>;
 	override componentDidMount(): void {
+		super.componentDidMount();
 		this.subscribeTo(PS.user, () => {
 			this.props.room.updateTarget();
 		});
-		super.componentDidMount();
 	}
 	send = (text: string) => {
 		this.props.room.send(text);
@@ -818,7 +819,7 @@ class ChatPanel extends PSRoomPanel<ChatRoom> {
 
 		return <PSPanelWrapper room={room} focusClick>
 			<ChatLog class="chat-log" room={this.props.room} left={tinyLayout ? 0 : 146} top={room.tour?.info.isActive ? 30 : 0}>
-				{challengeTo || challengeFrom && [challengeTo, challengeFrom]}
+				{challengeTo}{challengeFrom}
 			</ChatLog>
 			{room.tour && <TournamentBox tour={room.tour} left={tinyLayout ? 0 : 146} />}
 			<ChatTextEntry

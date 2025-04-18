@@ -233,7 +233,7 @@ class TeamPanel extends PSRoomPanel<TeamRoom> {
 					<i class="fa fa-chevron-left"></i> List
 				</button>
 				<label class="label teamname">
-					Team name:
+					Team name:{}
 					<input
 						class="textbox" type="text" value={team.name} onInput={this.rename} onChange={this.rename} onKeyUp={this.rename}
 					/>
