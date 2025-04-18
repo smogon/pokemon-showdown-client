@@ -528,7 +528,7 @@ class OptionsPanel extends PSRoomPanel {
 			Dex.loadSpriteData(value || PS.prefs.noanim ? 'bw' : 'xy');
 			break;
 		}
-		case 'language':{
+		case 'language': {
 			PS.prefs.set(setting, elem.value);
 			PS.send('/language ' + elem.value);
 			break;
