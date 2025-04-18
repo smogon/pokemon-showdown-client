@@ -281,6 +281,12 @@ class UserOptionsPanel extends PSRoomPanel {
 		this.close();
 	};
 
+	handleUnignore = () => {
+		const { targetUser, targetRoom } = this.getTargets();
+		targetRoom?.send(`/unignore ${targetUser}`);
+		this.close();
+	};
+
 	muteUser = (ev: Event) => {
 		this.setState({ showMuteInput: false });
 		const hrMute = (ev.currentTarget as HTMLButtonElement).value === "1hr";
@@ -309,6 +315,12 @@ class UserOptionsPanel extends PSRoomPanel {
 		ev.stopImmediatePropagation();
 	};
 
+	isIgnoringUser = (userid: string) => {
+		const ignoring = PS.prefs.ignore || {};
+		if (ignoring[userid] === 1) return true;
+		return false;
+	};
+
 	override render() {
 		const room = this.props.room;
 		let canMute = false;
@@ -323,9 +335,15 @@ class UserOptionsPanel extends PSRoomPanel {
 
 		return <PSPanelWrapper room={room} width={280}><div class="pad">
 			<p>
-				<button onClick={this.handleIgnore} class="button">
-					Ignore
-				</button>
+				{ this.isIgnoringUser(targetUser) ? (
+					<button onClick={this.handleUnignore} class="button">
+						Unignore
+					</button>
+				) : (
+					<button onClick={this.handleIgnore} class="button">
+						Ignore
+					</button>
+				)}
 			</p>
 			<p>
 				<button data-href={`view-help-request-report-user-${targetUser}`} class="button">

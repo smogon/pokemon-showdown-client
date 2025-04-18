@@ -909,13 +909,37 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 		},
 		'unignore'(target) {
 			const ignore = PS.prefs.ignore || {};
-			if (!target) return true;
+			if (!target) return false;
 			if (!ignore[toID(target)]) {
 				this.add(`||User '${target}' isn't on your ignore list.`);
 			} else {
 				ignore[toID(target)] = 0;
 				this.add(`||User '${target}' no longer ignored.`);
 				PS.prefs.set("ignore", ignore);
+			}
+		},
+		'clearignore'(target) {
+			if (toID(target) !== 'confirm') {
+				this.add("||Are you sure you want to clear your ignore list?");
+				this.add('|html|If you\'re sure, use <code>/clearignore confirm</code>');
+				return false;
+			}
+			let ignoreList = PS.prefs.ignore || {};
+			if (!Object.keys(ignoreList).length) return this.add("You have no ignored users.");
+			PS.prefs.set('ignore', null);
+			this.add("||Your ignore list was cleared.");
+		},
+		'ignorelist'(target) {
+			let ignoreList = Object.keys(PS.prefs.ignore || {});
+			if (ignoreList.length === 0) {
+				this.add('||You are currently not ignoring anyone.');
+			} else {
+				let ignoring: string[] = [];
+				for (const key in PS.prefs.ignore) {
+					if (PS.prefs.ignore[key] === 1) ignoring.push(key);
+				}
+				if (!ignoring.length) return this.add('||You are currently not ignoring anyone.');
+				this.add(`||You are currently ignoring: ${ignoring.join(', ')}`);
 			}
 		},
 		'showjoins'(target) {
