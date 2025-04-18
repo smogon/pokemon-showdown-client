@@ -1461,7 +1461,7 @@ class LeaveRoomPanel extends PSRoomPanel {
 					name="confirmCloseRoom"
 					value={parentRoomId}
 				>
-					<strong> Close Room</strong>
+					<strong>Close Room</strong>
 				</button> {}
 				<button
 					class="button"
