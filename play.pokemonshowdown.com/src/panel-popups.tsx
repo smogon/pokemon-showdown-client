@@ -687,11 +687,13 @@ class OptionsPanel extends PSRoomPanel {
 				</label>
 			</p>
 			<p>
-				<label class="optlabel">Tournaments: <select name="tournaments" class="button" onChange={this.handleOnChange}>
-					<option value="notify" selected={PS.prefs.tournaments === "notify"}> Notifications</option>
-					<option selected={!PS.prefs.tournaments}> No notifications</option>
-					<option value="hide" selected={PS.prefs.tournaments === "hide"}> Hide</option>
-				</select></label>
+				<label class="optlabel">
+					Tournaments: <select name="tournaments" class="button" onChange={this.handleOnChange}>
+						<option value="notify" selected={PS.prefs.tournaments === "notify"}>Notifications</option>
+						<option selected={!PS.prefs.tournaments}>No notifications</option>
+						<option value="hide" selected={PS.prefs.tournaments === "hide"}>Hide</option>
+					</select>
+				</label>
 			</p>
 			<p>
 				<label class="optlabel">Timestamps: <select name="layout" class="button" onChange={this.setChatroomTimestamp}>
