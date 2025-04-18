@@ -536,13 +536,6 @@ export class PSMain extends preact.Component {
 			PS.leave(roomid);
 			return true;
 		}
-		case 'confirmCloseRoom': {
-			const roomid = elem.value as RoomID || PS.getRoom(elem)?.id || '' as RoomID;
-			const room = PS.rooms[roomid];
-			if (room) PS.leave(roomid);
-			PS.closePopup(true);
-			return true;
-		}
 		case 'joinRoom':
 			PS.join(elem.value as RoomID, {
 				parentElem: elem,
