@@ -533,7 +533,7 @@ class OptionsPanel extends PSRoomPanel {
 			PS.send('/language ' + elem.value);
 			break;
 		}
-		case 'tournaments':{
+		case 'tournaments': {
 			if (elem.value === "hide") PS.prefs.set(setting, elem.value);
 			if (elem.value === "notify") PS.prefs.set(setting, elem.value);
 			if (!elem.value) PS.prefs.set(setting, null);
