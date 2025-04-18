@@ -544,7 +544,8 @@ class OptionsPanel extends PSRoomPanel {
 		case 'nopastgens':
 		case 'noselfhighlight':
 		case 'leavePopupRoom':
-		case 'inchatpm': PS.prefs.set(setting, value);
+		case 'inchatpm':
+			PS.prefs.set(setting, value);
 			break;
 		}
 	};
