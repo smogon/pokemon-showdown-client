@@ -277,11 +277,11 @@ export const PSBackground = new class extends PSStreamModel {
 		this.update(bgUrl);
 	}
 	extractMenuColors(bgUrl: string) {
-		// const changeCount = this.changeCount;
+		const changeCount = this.changeCount;
 		// We need the image object to load it on a canvas to detect the main color.
 		const img = new Image();
 		img.onload = () => {
-			// if (changeCount === PSBackground.changeCount) return;
+			if (changeCount !== PSBackground.changeCount) return;
 			// in case ColorThief throws from canvas,
 			// or localStorage throws
 			try {
