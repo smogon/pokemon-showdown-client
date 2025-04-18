@@ -1242,10 +1242,6 @@ class BackgroundListPanel extends PSRoomPanel {
 		ev.stopImmediatePropagation();
 	};
 
-	update = () => {
-		this.forceUpdate();
-	};
-
 	override render() {
 		const room = this.props.room;
 		return <PSPanelWrapper room={room} width={480}><div class="pad">
