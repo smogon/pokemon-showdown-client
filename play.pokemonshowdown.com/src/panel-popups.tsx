@@ -1434,8 +1434,7 @@ class ChatFormattingPanel extends PSRoomPanel {
 						type="checkbox"
 						name="interstice"
 						checked={PS.prefs.chatformatting.hideinterstice}
-					/> Don't warn for
-					untrusted links
+					/> Don't warn for untrusted links
 				</label>
 			</p>
 			<p><button data-cmd="/close" class="button">Done</button></p>
