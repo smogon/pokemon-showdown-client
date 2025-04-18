@@ -274,7 +274,6 @@ export const PSBackground = new class extends PSStreamModel {
 		} else {
 			this.save(bgUrl);
 		}
-		if (bgid === "custom") this.save(bgUrl);
 		this.update(bgUrl);
 	}
 	extractMenuColors(bgUrl: string) {
