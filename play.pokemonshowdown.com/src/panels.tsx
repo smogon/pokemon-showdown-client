@@ -339,6 +339,10 @@ export class PSView extends preact.Component {
 			document.querySelector('meta[name=viewport]')?.setAttribute('content', 'width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0');
 		}
 
+		window.onbeforeunload = (ev: Event) => {
+			return PS.prefs.refreshprompt ? "Are you sure you want to leave?" : null;
+		};
+
 		window.addEventListener('click', e => {
 			let elem = e.target as HTMLElement | null;
 			if (elem?.className === 'ps-overlay') {
@@ -554,6 +558,10 @@ export class PSView extends preact.Component {
 			const battle = (room as BattleRoom).battle;
 			if (room?.type === "battle" && !battle.ended && battle.mySide.id === PS.user.userid) {
 				PS.join("forfeitbattle" as RoomID, { parentElem: elem });
+				return true;
+			}
+			if (room?.type === "chat" && room.connected && PS.prefs.leavePopupRoom) {
+				PS.join("confirmleaveroom" as RoomID, { parentElem: elem });
 				return true;
 			}
 			PS.leave(roomid);

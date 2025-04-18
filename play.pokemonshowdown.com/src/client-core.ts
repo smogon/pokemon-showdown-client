@@ -116,7 +116,7 @@ declare const ColorThief: any;
  *
  * Streams the current URL
  */
-const PSBackground = new class extends PSStreamModel {
+export const PSBackground = new class extends PSStreamModel {
 	id = '';
 	curId = '';
 	attrib: { url: string, title: string, artist: string } | null = null;
@@ -141,6 +141,8 @@ const PSBackground = new class extends PSStreamModel {
 			localStorage.setItem('showdown_bg', this.id);
 		} else if (this.menuColors) {
 			localStorage.setItem('showdown_bg', bgUrl + '\n' + this.id + '\n' + this.menuColors.join('\n'));
+		} else {
+			localStorage.setItem('showdown_bg', bgUrl + '\n' + this.id);
 		}
 	}
 
@@ -279,7 +281,7 @@ const PSBackground = new class extends PSStreamModel {
 		// We need the image object to load it on a canvas to detect the main color.
 		const img = new Image();
 		img.onload = () => {
-			if (changeCount === PSBackground.changeCount) return;
+			if (changeCount !== PSBackground.changeCount) return;
 			// in case ColorThief throws from canvas,
 			// or localStorage throws
 			try {

@@ -69,7 +69,14 @@ class PSPrefs extends PSStreamModel<string | null> {
 	temporarynotifications: boolean | null = null;
 	leavePopupRoom: boolean | null = null;
 	refreshprompt: boolean | null = null;
-	language: boolean | null = null;
+	language = 'english';
+	chatformatting: Record<string, boolean> = {
+		hidegreentext: false,
+		hideme: false,
+		hidespoiler: false,
+		hidelinks: false,
+		hideinterstice: true,
+	};
 
 	/**
 	 * Show "User joined" and "User left" messages. serverid:roomid
