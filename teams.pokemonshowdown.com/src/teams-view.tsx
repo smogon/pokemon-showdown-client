@@ -113,7 +113,7 @@ function exportSet(set: Dex.PokemonSet) {
 }
 
 function PokemonSet({ set }: { set: Dex.PokemonSet }) {
-	return <div>
+	return <article class="psset">
 		{set.name && set.name !== set.species ? <>{set.name} ({set.species})</> : <>{set.species}</>}
 		{set.gender ? <> ({set.gender})</> : <></>}
 		{set.item ? <> @ {set.item} </> : <></>}
@@ -160,7 +160,7 @@ function PokemonSet({ set }: { set: Dex.PokemonSet }) {
 			<>Dynamax Level: {set.dynamaxLevel}<br /></> :
 			<></>}
 		{set.gigantamax ? <>Gigantamax: Yes<br /></> : <></>}
-	</div>;
+	</article>;
 }
 
 class SetBlock extends preact.Component<{
@@ -240,53 +240,55 @@ export class TeamViewer extends preact.Component<PageProps> {
 		const link = this.id + (this.state.team.private ? `-${this.state.team.private}` : '');
 
 		return <div class="section" style={{ wordWrap: 'break-word' }}>
-			<small><a href={'//' + Config.routes.teams}><i class="fa fa-arrow-left"></i></a></small>
-			<h1>{title}</h1>
-			Owner: <strong style={{ color: BattleLog.usernameColor(ownerid as any) }}>{ownerid}</strong><br />
-			Format: {format}<br />
-			Views: {views}<br />
-			<label>Shortlink: </label><a href={`https://psim.us/t/${link}`}>https://psim.us/t/{link}</a><br />
-			<hr />
-			<div name="manage" style={{ display: 'flex', gap: '5px' }}>
-				{toID(getShowdownUsername()) === this.state.team.ownerid && <button
-					class={this.state.manageOpen ? `button notifying` : `button`}
-					onClick={() => this.changeManage()}
-				>Manage</button>}
-				<button
-					class="button"
-					disabled={!this.state.team || this.state.copyButtonMsg}
-					onClick={() => this.copyTeam()}
-				>{this.state.copyButtonMsg ? 'Copied!' : 'Copy team'}</button>
-				<button class="button" onClick={() => this.changeDisplayMode()}>Display: {is2Col ? '2-column' : '1-column'}</button>
-				<button class="button" onClick={() => this.changeColorMode()}>Use {isDark ? 'light' : 'dark'} mode</button>
-				<select
-					onChange={ev => this.changeSpriteGen(ev)}
-					value={this.state.spriteGen}
-					class="button"
-				>
-					{[1, 2, 3, 4, 5, 6].map(num => <option value={num}>Gen {num} Sprites</option>)}
-				</select>
-			</div>
-			<hr />
-			{this.state.editError && <>
-				<div class="message-error">{this.state.editError}</div>
+			<div name="header" className="noselect">
+				<small><a href={'//' + Config.routes.teams}><i class="fa fa-arrow-left"></i></a></small>
+				<h1>{title}</h1>
+				Owner: <strong style={{ color: BattleLog.usernameColor(ownerid as any) }}>{ownerid}</strong><br />
+				Format: {format}<br />
+				Views: {views}<br />
+				<label>Shortlink: </label><a href={`https://psim.us/t/${link}`}>https://psim.us/t/{link}</a><br />
 				<hr />
-			</>}
-			{this.state.manageOpen && <>
-				<label>Team visibility: </label>
-				<select
-					class="button"
-					value={this.state.teamEdits?.private || this.state.team.private ? 1 : 0}
-					onChange={ev => this.editTeamValue('private', ev)}
-				>
-					{[1, 0].map(n => <option value={n}>{n ? 'private' : 'public'}</option>)}
-				</select><br />
-				<label>Team format: </label><input onInput={ev => this.editTeamValue('format', ev)} />
-				{this.state.changesMade && <>
-					<br /><button class="button notifying" onClick={() => this.commitEdit()}>Save changes</button>
+				<div name="manage" style={{ display: 'flex', gap: '5px' }}>
+					{toID(getShowdownUsername()) === this.state.team.ownerid && <button
+						class={this.state.manageOpen ? `button notifying` : `button`}
+						onClick={() => this.changeManage()}
+					>Manage</button>}
+					<button
+						class="button"
+						disabled={!this.state.team || this.state.copyButtonMsg}
+						onClick={() => this.copyTeam()}
+					>{this.state.copyButtonMsg ? 'Copied!' : 'Copy team'}</button>
+					<button class="button" onClick={() => this.changeDisplayMode()}>Display: {is2Col ? '2-column' : '1-column'}</button>
+					<button class="button" onClick={() => this.changeColorMode()}>Use {isDark ? 'light' : 'dark'} mode</button>
+					<select
+						onChange={ev => this.changeSpriteGen(ev)}
+						value={this.state.spriteGen}
+						class="button"
+					>
+						{[1, 2, 3, 4, 5, 6].map(num => <option value={num}>Gen {num} Sprites</option>)}
+					</select>
+				</div>
+				<hr />
+				{this.state.editError && <>
+					<div class="message-error">{this.state.editError}</div>
+					<hr />
 				</>}
-				<hr />
-			</>}
+				{this.state.manageOpen && <>
+					<label>Team visibility: </label>
+					<select
+						class="button"
+						value={this.state.teamEdits?.private || this.state.team.private ? 1 : 0}
+						onChange={ev => this.editTeamValue('private', ev)}
+					>
+						{[1, 0].map(n => <option value={n}>{n ? 'private' : 'public'}</option>)}
+					</select><br />
+					<label>Team format: </label><input onInput={ev => this.editTeamValue('format', ev)} />
+					{this.state.changesMade && <>
+						<br /><button class="button notifying" onClick={() => this.commitEdit()}>Save changes</button>
+					</>}
+					<hr />
+				</>}
+			</div>
 			<div
 				name="sets"
 				style={{ display: 'flex', alignItems: 'stretch', flexWrap: 'wrap', rowGap: '1rem', colGap: is2Col ? '2rem' : '' }}
