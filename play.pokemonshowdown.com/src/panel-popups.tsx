@@ -7,6 +7,7 @@ import { PSRoom, type RoomOptions, PS, type PSLoginState, type RoomID, type Time
 import { type BattleRoom } from "./panel-battle";
 import type { ChatRoom } from "./panel-chat";
 import { PSRoomPanel, PSPanelWrapper } from "./panels";
+import { PSHeader } from "./panel-topbar";
 
 /**
  * User popup
@@ -1207,6 +1208,25 @@ class PopupPanel extends PSRoomPanel {
 		</div></PSPanelWrapper>;
 	}
 }
+
+class RoomTabListPanel extends PSRoomPanel {
+	static readonly id = 'roomtablist';
+	static readonly routes = ['roomtablist'];
+	static readonly location = 'semimodal-popup';
+	static readonly noURL = true;
+
+	override render() {
+		return <PSPanelWrapper room={this.props.room}><div class="tablist">
+			<ul>
+				{PS.leftRoomList.map(roomid => PSHeader.renderRoomTab(roomid))}
+			</ul>
+			<ul>
+				{PS.rightRoomList.map(roomid => PSHeader.renderRoomTab(roomid))}
+			</ul>
+		</div></PSPanelWrapper>;
+	}
+}
+
 PS.addRoomType(
 	UserPanel,
 	UserOptionsPanel,
@@ -1218,5 +1238,6 @@ PS.addRoomType(
 	RegisterPanel,
 	BattleForfeitPanel,
 	ReplacePlayerPanel,
-	PopupPanel
+	PopupPanel,
+	RoomTabListPanel
 );
