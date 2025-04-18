@@ -13,6 +13,9 @@
  * @license AGPLv3
  */
 
+import { PS } from "./client-main";
+declare const ColorThief: any;
+
 /**********************************************************************
  * PS Models
  *********************************************************************/
@@ -107,8 +110,6 @@ export class PSStreamModel<T = string> {
  * Background Model
  *********************************************************************/
 
-declare const ColorThief: any;
-
 /**
  * PS background model. Separate from PSPrefs because unlike prefs,
  * backgrounds can be set separately per server, instead of being
@@ -116,7 +117,7 @@ declare const ColorThief: any;
  *
  * Streams the current URL
  */
-export const PSBackground = new class extends PSStreamModel {
+export const PSBackground = new class extends PSStreamModel<string | null> {
 	id = '';
 	curId = '';
 	attrib: { url: string, title: string, artist: string } | null = null;
@@ -126,13 +127,16 @@ export const PSBackground = new class extends PSStreamModel {
 	constructor() {
 		super();
 		try {
-			let bg = localStorage.getItem('showdown_bg')!.split('\n');
+			let bg = localStorage.getItem('showdown_bg')?.split('\n') || [''];
 			if (bg.length === 1) {
-				this.set('', bg[0]);
+				// id
+				this.load('', bg[0]);
 			} else if (bg.length === 2) {
-				this.set(bg[0], bg[1]);
+				// url, id
+				this.load(bg[0], bg[1]);
 			} else if (bg.length >= 7) {
-				this.set(bg[0], bg[1], bg.slice(2));
+				// url, id, menuColors
+				this.load(bg[0], bg[1], bg.slice(2));
 			}
 		} catch {}
 	}
@@ -145,8 +149,12 @@ export const PSBackground = new class extends PSStreamModel {
 			localStorage.setItem('showdown_bg', bgUrl + '\n' + this.id);
 		}
 	}
+	set(bgUrl: string, bgid: string) {
+		this.load(bgUrl, bgid);
+		this.save(bgUrl);
+	}
 
-	set(bgUrl: string, bgid: string, menuColors: string[] | null = null) {
+	load(bgUrl: string, bgid: string, menuColors: string[] | null = null) {
 		// id
 		this.id = bgid;
 
@@ -154,9 +162,10 @@ export const PSBackground = new class extends PSStreamModel {
 		if (!bgid) {
 			if (location.host === 'smogtours.psim.us') {
 				bgid = 'shaymin';
-			} else if (location.host === Config.routes.client) {
+			} else {
 				const bgs = ['horizon', 'ocean', 'waterfall', 'shaymin', 'charizards'];
 				bgid = bgs[Math.floor(Math.random() * 5)];
+				// if someone clicked the random button, try to roll a different bg than before
 				if (bgid === this.curId) bgid = bgs[Math.floor(Math.random() * 5)];
 			}
 		}
@@ -271,8 +280,6 @@ export const PSBackground = new class extends PSStreamModel {
 		this.menuColors = menuColors;
 		if (!menuColors) {
 			this.extractMenuColors(bgUrl);
-		} else {
-			this.save(bgUrl);
 		}
 		this.update(bgUrl);
 	}
@@ -282,27 +289,38 @@ export const PSBackground = new class extends PSStreamModel {
 		const img = new Image();
 		img.onload = () => {
 			if (changeCount !== PSBackground.changeCount) return;
-			// in case ColorThief throws from canvas,
-			// or localStorage throws
-			try {
-				const colorThief = new ColorThief();
-				const colors = colorThief.getPalette(img, 5);
-
-				let menuColors = [];
-				if (!colors) {
-					menuColors = ['0, 0%', '0, 0%', '0, 0%', '0, 0%', '0, 0%'];
-				} else {
-					for (let i = 0; i < 5; i++) {
-						const color = colors[i];
-						const hs = PSBackground.getHueSat(color[0] / 255, color[1] / 255, color[2] / 255);
-						menuColors.unshift(hs);
-					}
-				}
-				this.menuColors = menuColors;
-				PSBackground.save(bgUrl);
-			} catch {}
+			if (window.ColorThief) {
+				this.extractMenuColorsFromImg(img, bgUrl);
+			} else {
+				PS.libsLoaded.then(() => {
+					if (changeCount !== PSBackground.changeCount) return;
+					this.extractMenuColorsFromImg(img, bgUrl);
+				});
+			}
 		};
 		img.src = bgUrl;
+	}
+	extractMenuColorsFromImg(img: HTMLImageElement, bgUrl: string) {
+		// in case ColorThief throws from canvas,
+		// or localStorage throws
+		try {
+			const colorThief = new ColorThief();
+			const colors = colorThief.getPalette(img, 5);
+
+			let menuColors = [];
+			if (!colors) {
+				menuColors = ['0, 0%', '0, 0%', '0, 0%', '0, 0%', '0, 0%'];
+			} else {
+				for (let i = 0; i < 5; i++) {
+					const color = colors[i];
+					const hs = PSBackground.getHueSat(color[0] / 255, color[1] / 255, color[2] / 255);
+					menuColors.unshift(hs);
+				}
+			}
+			this.menuColors = menuColors;
+			this.update(null);
+			PSBackground.save(bgUrl);
+		} catch {}
 	}
 	getHueSat(r: number, g: number, b: number) {
 		const max = Math.max(r, g, b);

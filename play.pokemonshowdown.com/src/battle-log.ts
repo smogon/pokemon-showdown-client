@@ -52,6 +52,7 @@ export class BattleLog {
 	 * * 1 = player 2: "Red sent out Pikachu!" "Eevee used Tackle!"
 	 */
 	perspective: -1 | 0 | 1 = -1;
+	getHighlight: ((message: string, name: string) => boolean) | null = null;
 	constructor(elem: HTMLDivElement, scene?: BattleScene | null, innerElem?: HTMLDivElement) {
 		this.elem = elem;
 
@@ -154,16 +155,11 @@ export class BattleLog {
 				}
 				timestampHtml = `<small class="gray">[${components.map(x => x < 10 ? `0${x}` : x).join(':')}] </small>`;
 			}
-			let isHighlighted = window.app?.rooms?.[battle!.roomid].getHighlight(message) || window.PS?.getHighlight(message);
+			const isHighlighted = window.app?.rooms?.[battle!.roomid].getHighlight(message) || this.getHighlight?.(message, name);
 			[divClass, divHTML, noNotify] = this.parseChatMessage(message, name, timestampHtml, isHighlighted);
 			if (!noNotify && isHighlighted) {
-				let notifyTitle = "Mentioned by " + name + " in " + (battle?.roomid || '');
+				const notifyTitle = "Mentioned by " + name + " in " + (battle?.roomid || '');
 				window.app?.rooms[battle?.roomid || '']?.notifyOnce(notifyTitle, "\"" + message + "\"", 'highlight');
-				window.PS?.rooms[battle?.roomid || '']?.notify({
-					title: notifyTitle,
-					body: "\"" + message + "\"",
-					id: 'highlight',
-				});
 			}
 			break;
 
@@ -1053,27 +1049,27 @@ export class BattleLog {
 		this.innerElem.appendChild(this.preemptElem.firstChild);
 	}
 
-	static escapeFormat(formatid = ''): string {
+	static escapeFormat(formatid = '', fixGen6?: boolean): string {
 		let atIndex = formatid.indexOf('@@@');
 		if (atIndex >= 0) {
-			return this.escapeHTML(this.formatName(formatid.slice(0, atIndex))) +
+			return this.escapeHTML(this.formatName(formatid.slice(0, atIndex), fixGen6)) +
 				'<br />Custom rules: ' + this.escapeHTML(formatid.slice(atIndex + 3));
 		}
-		return this.escapeHTML(this.formatName(formatid));
+		return this.escapeHTML(this.formatName(formatid, fixGen6));
 	}
 	/**
 	 * Do not store this output anywhere; it removes the generation number
 	 * for the current gen.
 	 */
-	static formatName(formatid = ''): string {
+	static formatName(formatid = '', fixGen6?: boolean): string {
 		if (!formatid) return '';
 
 		let atIndex = formatid.indexOf('@@@');
 		if (atIndex >= 0) {
-			return this.formatName(formatid.slice(0, atIndex)) +
+			return this.formatName(formatid.slice(0, atIndex), fixGen6) +
 				' (Custom rules: ' + this.escapeHTML(formatid.slice(atIndex + 3)) + ')';
 		}
-		if (!formatid.startsWith('gen')) {
+		if (fixGen6 && !formatid.startsWith('gen')) {
 			formatid = `gen6${formatid}`;
 		}
 		let name = formatid;

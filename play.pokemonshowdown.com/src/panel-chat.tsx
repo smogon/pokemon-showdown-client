@@ -91,7 +91,7 @@ export class ChatRoom extends PSRoom {
 			this.tour.receiveLine(args);
 			return;
 
-		case 'c':
+		case 'chat': case 'c':
 			if (`${args[2]} `.startsWith('/challenge ')) {
 				this.updateChallenge(args[1], args[2].slice(11));
 				return;
@@ -127,6 +127,38 @@ export class ChatRoom extends PSRoom {
 			this.title = `[DM] ${nameWithGroup.trim()}`;
 		}
 	}
+	handleHighlight = (message: string, name: string) => {
+		if (!PS.prefs.noselfhighlight && PS.user.nameRegExp?.test(message)) {
+			this.notify({
+				title: `Mentioned by ${name} in ${this.id}`,
+				body: `"${message}"`,
+				id: 'highlight',
+			});
+			return true;
+		}
+		/*
+		// TODO!
+		if (!this.highlightRegExp) {
+			try {
+				//this.updateHighlightRegExp(highlights);
+			} catch (e) {
+				// If the expression above is not a regexp, we'll get here.
+				// Don't throw an exception because that would prevent the chat
+				// message from showing up, or, when the lobby is initialising,
+				// it will prevent the initialisation from completing.
+				return false;
+			}
+		}
+		var id = PS.server.id + '#' + this.id;
+		var globalHighlightsRegExp = this.highlightRegExp['global'];
+		var roomHighlightsRegExp = this.highlightRegExp[id];
+
+		return (((globalHighlightsRegExp &&
+		 globalHighlightsRegExp.test(message)) ||
+		  (roomHighlightsRegExp && roomHighlightsRegExp.test(message))));
+		*/
+		return false;
+	};
 	override clientCommands = this.parseClientCommands({
 		'chall,challenge,closeandchallenge'(target, cmd) {
 			if (target) {
@@ -199,7 +231,7 @@ export class ChatRoom extends PSRoom {
 						buffer += '<tr>';
 					} else {
 						buffer += '<tr class="hidden">';
-						hiddenFormats.push(window.BattleLog.escapeFormat(formatId));
+						hiddenFormats.push(window.BattleLog.escapeFormat(formatId, true));
 					}
 
 					// Validate all the numerical data
@@ -209,7 +241,7 @@ export class ChatRoom extends PSRoom {
 						}
 					}
 
-					buffer += `<td> ${BattleLog.escapeFormat(formatId)} </td><td><strong>${Math.round(row.elo)}</strong></td>`;
+					buffer += `<td> ${BattleLog.escapeFormat(formatId, true)} </td><td><strong>${Math.round(row.elo)}</strong></td>`;
 					if (row.rprd > 100) {
 						// High rating deviation. Provisional rating.
 						buffer += `<td>&ndash;</td>`;
@@ -893,6 +925,7 @@ export class ChatLog extends preact.Component<{
 		}
 		if (!this.props.noSubscription) {
 			room.log ||= new BattleLog(this.base!.firstChild as HTMLDivElement);
+			room.log.getHighlight = room.handleHighlight;
 			if (room.backlog) {
 				const backlog = room.backlog;
 				room.backlog = null;

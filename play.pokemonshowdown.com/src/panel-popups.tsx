@@ -465,7 +465,7 @@ class VolumePanel extends PSRoomPanel {
 class OptionsPanel extends PSRoomPanel {
 	static readonly id = 'options';
 	static readonly routes = ['options'];
-	static readonly location = 'popup';
+	static readonly location = 'semimodal-popup';
 	declare state: { showStatusInput?: boolean, showStatusUpdated?: boolean };
 
 	override componentDidMount() {
@@ -888,10 +888,6 @@ class AvatarsPanel extends PSRoomPanel {
 		this.close();
 	};
 
-	update = () => {
-		this.forceUpdate();
-	};
-
 	override render() {
 		const room = this.props.room;
 		let avatars: number[] = [];
@@ -951,10 +947,6 @@ class BattleForfeitPanel extends PSRoomPanel {
 		this.close();
 	};
 
-	update = () => {
-		this.forceUpdate();
-	};
-
 	override render() {
 		const room = this.props.room;
 		const elem = room.parentElem;
@@ -1002,10 +994,6 @@ class ReplacePlayerPanel extends PSRoomPanel {
 		ev.preventDefault();
 	};
 
-	update = () => {
-		this.forceUpdate();
-	};
-
 	override render() {
 		const room = this.props.room;
 
@@ -1035,10 +1023,6 @@ class ChangePasswordPanel extends PSRoomPanel {
 	static readonly noURL = true;
 
 	declare state: { errorMsg: string };
-
-	update = () => {
-		this.forceUpdate();
-	};
 
 	handleChangePassword = (ev: Event) => {
 		ev.preventDefault();
@@ -1207,18 +1191,19 @@ class BackgroundListPanel extends PSRoomPanel {
 	static readonly location = 'semimodal-popup';
 	static readonly noURL = true;
 
+	declare state: { status?: string };
+
 	setBg = (ev: Event) => {
 		let curtarget = ev.currentTarget as HTMLButtonElement;
 		let bg = curtarget.value;
-		let bgs = ['horizon', 'ocean', 'waterfall', 'shaymin', 'charizards'];
-		if (!bg.length) bg = bgs[Math.floor(Math.random() * 5)];
 		PSBackground.set('', bg);
 		ev.preventDefault();
 		ev.stopImmediatePropagation();
-		this.close();
+		this.forceUpdate();
 	};
 
 	uploadBg = (ev: Event) => {
+		this.setState({ status: undefined });
 		const input = this.base?.querySelector<HTMLInputElement>('input[name=bgfile]');
 		if (!input?.files?.[0]) return;
 
@@ -1227,16 +1212,12 @@ class BackgroundListPanel extends PSRoomPanel {
 
 		reader.onload = () => {
 			const base64Image = reader.result as string;
-			PSBackground.set(base64Image, 'custom', null);
-			this.close();
+			PSBackground.set(base64Image, 'custom');
+			this.forceUpdate();
 		};
 
 		reader.onerror = () => {
-			console.error("Failed to read file.");
-			const status = this.base?.querySelector<HTMLElement>('.bgstatus');
-			if (status) status.textContent = "Failed to load background image.";
-
-			this.close();
+			this.setState({ status: "Failed to load background image." });
 		};
 		reader.readAsDataURL(file);
 		ev.preventDefault();
@@ -1245,10 +1226,11 @@ class BackgroundListPanel extends PSRoomPanel {
 
 	override render() {
 		const room = this.props.room;
+		const option = (val: string) => val === PSBackground.id ? 'option cur' : 'option';
 		return <PSPanelWrapper room={room} width={480}><div class="pad">
 			<p><strong>Default</strong></p>
 			<div class="bglist">
-				<button onClick={this.setBg} value="" class="option cur">
+				<button onClick={this.setBg} value="" class={option('')}>
 					<strong
 						style="
 						background: #888888;
@@ -1263,40 +1245,39 @@ class BackgroundListPanel extends PSRoomPanel {
 			<div style="clear: left"></div>
 			<p><strong>Official</strong></p>
 			<div class="bglist">
-				<button onClick={this.setBg} value="charizards" class="option">
+				<button onClick={this.setBg} value="charizards" class={option('charizards')}>
 					<span class="bg" style="background-position: 0 -0px"></span>{' '}
 					Charizards
 				</button>
-				<button onClick={this.setBg} value="horizon" class="option">
+				<button onClick={this.setBg} value="horizon" class={option('horizon')}>
 					<span class="bg" style="background-position: 0 -90px"></span>{' '}
 					Horizon
 				</button>
-				<button onClick={this.setBg} value="waterfall" class="option">
+				<button onClick={this.setBg} value="waterfall" class={option('waterfall')}>
 					<span class="bg" style="background-position: 0 -180px"></span>{' '}
 					Waterfall
 				</button>
-				<button onClick={this.setBg} value="ocean" class="option">
+				<button onClick={this.setBg} value="ocean" class={option('ocean')}>
 					<span class="bg" style="background-position: 0 -270px"></span>{' '}
 					Ocean
 				</button>
-				<button onClick={this.setBg} value="shaymin" class="option">
+				<button onClick={this.setBg} value="shaymin" class={option('shaymin')}>
 					<span class="bg" style="background-position: 0 -360px"></span>{' '}
 					Shaymin
 				</button>
-				<button onClick={this.setBg} value="solidblue" class="option">
+				<button onClick={this.setBg} value="solidblue" class={option('solidblue')}>
 					<span class="bg" style="background: #344b6c"></span>Solid blue
 				</button>
 			</div>
 			<div style="clear: left"></div>
 			<p><strong>Custom</strong></p>
 			<p>
-				Drag and drop an image to PS (the background settings don't need to be
-				open), or upload:
+				Upload:
 			</p>
-			<p><input type="file" accept="image/*" name="bgfile" /></p>
-			<p class="bgstatus"></p>
+			<p><input type="file" accept="image/*" name="bgfile" onChange={this.uploadBg} /></p>
+			{!!this.state.status && <p class="error">{this.state.status}</p>}
 			<p>
-				<button onClick={this.uploadBg} class="button"><strong>Done</strong></button>
+				<button data-cmd="/close" class="button"><strong>Done</strong></button>
 			</p>
 		</div>
 		</PSPanelWrapper>;
@@ -1439,7 +1420,14 @@ class RoomTabListPanel extends PSRoomPanel {
 	static readonly location = 'semimodal-popup';
 	static readonly noURL = true;
 
+	startingLayout = PS.prefs.onepanel;
+	handleLayoutChange = (ev: Event) => {
+		const checkbox = ev.currentTarget as HTMLInputElement;
+		PS.prefs.onepanel = checkbox.checked ? 'vertical' : this.startingLayout;
+		PS.update();
+	};
 	override render() {
+		const verticalTabs = PS.prefs.onepanel === 'vertical';
 		return <PSPanelWrapper room={this.props.room}><div class="tablist">
 			<ul>
 				{PS.leftRoomList.map(roomid => PSHeader.renderRoomTab(roomid))}
@@ -1447,6 +1435,9 @@ class RoomTabListPanel extends PSRoomPanel {
 			<ul>
 				{PS.rightRoomList.map(roomid => PSHeader.renderRoomTab(roomid))}
 			</ul>
+			<div class="pad"><label class="checkbox"><input
+				type="checkbox" checked={verticalTabs} onChange={this.handleLayoutChange}
+			/> Try vertical tabs</label></div>
 		</div></PSPanelWrapper>;
 	}
 }

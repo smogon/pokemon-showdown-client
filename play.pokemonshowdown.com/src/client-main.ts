@@ -703,16 +703,15 @@ type ParsedClientCommands = {
 	[command: `parsed${string}`]: (this: PSRoom, target: string, cmd: string) => string | boolean | null | void,
 };
 
-export class PSLoadTracker extends Promise<void> {
-	resolver!: (value: void) => void;
-	constructor() {
-		super(resolve => {
-			this.resolver = resolve;
-		});
-	}
-	loaded() {
-		this.resolver();
-	}
+function makeLoadTracker() {
+	let resolver: () => void;
+	const tracker: Promise<void> & { loaded: () => void } = new Promise<void>(resolve => {
+		resolver = resolve;
+	}) as any;
+	tracker.loaded = () => {
+		resolver();
+	};
+	return tracker;
 }
 
 /**
@@ -873,6 +872,19 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 		'part,leave,close'(target) {
 			const roomid = /[^a-z0-9-]/.test(target) ? toID(target) as any as RoomID : target as RoomID;
 			PS.leave(roomid || this.id);
+		},
+		'maximize'(target) {
+			const roomid = /[^a-z0-9-]/.test(target) ? toID(target) as any as RoomID : target as RoomID;
+			const targetRoom = roomid ? PS.rooms[roomid] : this;
+			if (!targetRoom) return this.add(`|error|Room '${roomid}' not found.`);
+			if (PS.isNormalRoom(targetRoom)) {
+				this.add(`|error|'${roomid}' is already maximized.`);
+			} else if (!PS.isPopup(targetRoom)) {
+				PS.moveRoom(targetRoom, 'left', false, 0);
+				PS.update();
+			} else {
+				this.add(`|error|'${roomid}' is a popup and can't be maximized.`);
+			}
 		},
 		'logout'() {
 			PS.user.logOut();
@@ -1155,7 +1167,7 @@ export const PS = new class extends PSModel {
 
 	newsHTML = document.querySelector('#room-news .mini-window-body')?.innerHTML || '';
 
-	libsLoaded = new PSLoadTracker();
+	libsLoaded = makeLoadTracker();
 
 	constructor() {
 		super();
@@ -1452,7 +1464,12 @@ export const PS = new class extends PSModel {
 	}
 	getRouteLocation(roomid: RoomID): PSRoomLocation {
 		// must be hardcoded here to have a different loc while also being a ChatRoom
-		if (roomid.startsWith('dm-')) return 'mini-window';
+		if (roomid.startsWith('dm-')) {
+			if (document.documentElement.clientWidth <= 818) {
+				return 'left';
+			}
+			return 'mini-window';
+		}
 		const routeInfo = this.getRouteInfo(roomid);
 		if (!routeInfo) return 'left';
 		if (routeInfo.startsWith('*')) return routeInfo.slice(1) as PSRoomLocation;
@@ -1713,8 +1730,7 @@ export const PS = new class extends PSModel {
 	}
 	isNormalRoom(room: PSRoom | undefined | null) {
 		if (!room) return false;
-		return room.location === 'left' || room.location === 'right' ||
-			(room.location === 'mini-window' && PS.leftPanelWidth === null);
+		return room.location === 'left' || room.location === 'right';
 	}
 	moveRoom(room: PSRoom, location: PSRoomLocation, background?: boolean, index?: number) {
 		if (room.location === location && index === undefined) {
@@ -1794,7 +1810,6 @@ export const PS = new class extends PSModel {
 			if (location === 'left') this.leftPanel = this.panel = room;
 			if (location === 'right') this.rightPanel = this.panel = room;
 			if (location === 'mini-window') this.leftPanel = this.panel = this.mainmenu;
-			if (location === 'mini-window' && PS.leftPanelWidth === null) this.leftPanel = this.panel = room;
 			this.room = room;
 		}
 	}
@@ -1862,14 +1877,15 @@ export const PS = new class extends PSModel {
 		}
 		if (!skipUpdate) this.update();
 	}
-	join(roomid: RoomID, options?: Partial<RoomOptions> | null, noFocus?: boolean) {
+	/** Focus a room, creating it if it doesn't already exist. */
+	join(roomid: RoomID, options?: Partial<RoomOptions> | null) {
 		// popups are always reopened rather than focused
 		if (PS.rooms[roomid] && !PS.isPopup(PS.rooms[roomid])) {
 			if (this.room.id === roomid) return;
 			this.focusRoom(roomid);
 			return;
 		}
-		this.addRoom({ id: roomid, ...options }, noFocus);
+		this.addRoom({ id: roomid, ...options });
 		this.update();
 	}
 	leave(roomid: RoomID) {
@@ -1911,33 +1927,5 @@ export const PS = new class extends PSModel {
 			autojoin[this.server.id] = thisAutojoin || '';
 			this.prefs.set('autojoin', autojoin);
 		}
-	}
-
-	getHighlight(message: string) {
-		if (!this.prefs.noselfhighlight && this.user.nameRegExp) {
-			if (this.user.nameRegExp.test(message)) return true;
-		}
-		/*
-		// TODO!
-		if (!this.highlightRegExp) {
-			try {
-				//this.updateHighlightRegExp(highlights);
-			} catch (e) {
-				// If the expression above is not a regexp, we'll get here.
-				// Don't throw an exception because that would prevent the chat
-				// message from showing up, or, when the lobby is initialising,
-				// it will prevent the initialisation from completing.
-				return false;
-			}
-		}
-		var id = PS.server.id + '#' + this.id;
-		var globalHighlightsRegExp = this.highlightRegExp['global'];
-		var roomHighlightsRegExp = this.highlightRegExp[id];
-
-		return (((globalHighlightsRegExp &&
-		 globalHighlightsRegExp.test(message)) ||
-		  (roomHighlightsRegExp && roomHighlightsRegExp.test(message))));
-		*/
-		return false;
 	}
 };

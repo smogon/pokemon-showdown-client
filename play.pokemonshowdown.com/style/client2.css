@@ -287,7 +287,7 @@ pre {
 
 .tabbar.maintabbar {
 	margin-left: 52px;
-	margin-right: 165px;
+	margin-right: 180px;
 	overflow: hidden;
 }
 .tabbar.maintabbar.minitabbar {
@@ -402,8 +402,8 @@ pre {
 .tabbar a.cur + .closebutton {
 	top: 2px;
 }
-.header-username,
 .closebutton,
+.maximizebutton,
 .minimizebutton {
 	text-decoration: none;
 	font-size: 14px;
@@ -421,24 +421,22 @@ pre {
 .dark .closebutton:hover {
 	color: #EE7777;
 }
-span.header-username:hover {
-	color: #333333;
-}
 .minimizebutton:hover,
+.maximizebutton:hover,
 .mini-window h3:hover .minimizebutton {
 	color: #333333;
 }
 .dark .minimizebutton:hover,
+.dark .maximizebutton:hover,
 .dark .mini-window h3:hover .minimizebutton {
 	color: #CCCCCC;
 }
-.mini-window h3 .closebutton:hover + .minimizebutton {
-	color: #999999 !important;
-}
-.mini-window h3 span.header-username:hover + .minimizebutton {
+.mini-window h3 .closebutton:hover + button + .minimizebutton,
+.mini-window h3 .maximizebutton:hover + .minimizebutton {
 	color: #999999 !important;
 }
 .closebutton:active,
+.maximizebutton:active,
 .minimizebutton:active {
 	color: #661111;
 }
@@ -454,7 +452,8 @@ span.header-username:hover {
 	padding: 0;
 }
 .tablist ul {
-	padding: 3px 0 4px 5px;
+	padding: 5px 8px;
+	width: 200px;
 }
 .tablist li {
 	clear: both;
@@ -466,7 +465,7 @@ span.header-username:hover {
 	box-shadow: inset 0 0px 2px rgba(255,255,255,1);
 	font-size: 11pt;
 	padding: 4px 28px 4px 6px;
-	width: 120px;
+	width: auto;
 	height: 18px;
 	text-align: left;
 	border-radius: 0;
@@ -486,15 +485,18 @@ span.header-username:hover {
 	border-bottom-left-radius: 5px;
 	border-bottom-right-radius: 5px;
 }
-.header-vertical .tablist li .button {
+.header-vertical .tablist ul {
+	padding: 3px 0 4px 5px;
 	width: auto;
+}
+.header-vertical .tablist li .button {
 	border-top-right-radius: 0;
 	border-bottom-right-radius: 0;
 	border-right-width: 0;
 	margin: 0 1px 0 2px;
 	box-shadow: none;
 }
-.header-vertical .tablist li .button.cur {
+.tablist li .button.cur {
 	margin: 0;
 }
 .tablist .closebutton {
@@ -643,18 +645,20 @@ p.or:after {
  *********************************************************/
 
 .leftmenu {
-	padding: 40px 0 0 0;
-	width: 324px;
+	padding: 25px 0 0 0;
+	width: 300px;
 }
 .rightmenu {
 	position: absolute;
-	top: 40px;
-	right: 25px;
+	top: 25px;
+	right: 0;
+	width: 300px;
 }
 .activitymenu {
+	/* slightly overlaps with leftmenu but less than the margins */
 	position: absolute;
-	left: 325px;
-	top: 40px;
+	left: 295px;
+	top: 25px;
 	min-height: 2px;
 }
 .mainmenu {
@@ -701,8 +705,8 @@ p.or:after {
 }
 
 .mini-window {
-	margin: 0 -12px 12px -10px;
-	width: 292px;
+	margin: 0 0 12px 0;
+	width: 312px;
 }
 .tiny-layout .mini-window {
 	margin: 0 auto 12px;
@@ -711,7 +715,7 @@ p.or:after {
 	background: rgba(248,248,248,.8);
 	color: #777777;
 	margin: 0;
-	padding: 2px 2px 2px 5px;
+	padding: 2px 4px 2px 5px;
 	font-size: 11pt;
 	border: 1px solid #AAAAAA;
 	border-top-left-radius: 5px;
@@ -740,9 +744,10 @@ p.or:after {
 	background: #417589;
 }
 .mini-window h3 .closebutton,
+.mini-window h3 .maximizebutton,
 .mini-window h3 .minimizebutton {
 	float: right;
-	margin: -2px -3px;
+	margin: -2px -5px 0 0;
 	width: 22px;
 	height: 22px;
 }
@@ -836,7 +841,7 @@ p.or:after {
 	padding: 0;
 }
 .tiny-layout .leftmenu {
-	padding-top: 30px;
+	padding-top: 25px;
 }
 .tiny-layout .activitymenu {
 	padding-bottom: 8px;
@@ -856,7 +861,7 @@ p.or:after {
 	display: block;
 	padding: 10px 0;
 	margin: 0 auto 30px auto;
-	max-width: 270px;
+	max-width: 250px;
 	border-radius: 20px;
 
 	background: rgba(0,0,0,.2);
@@ -865,8 +870,8 @@ p.or:after {
 	text-shadow: 0 1px 0 black;
 	text-align: center;
 }
-.menugroup .label {
-	padding: 0 0 0 7px;
+form.menugroup {
+	max-width: 270px;
 }
 
 .mainmessage p,
@@ -953,13 +958,7 @@ p.or:after {
 .button.mainmenu6:hover { background: linear-gradient(to bottom,  hsl(270,40%,62%),  hsl(270,40%,42%)); }
 .button.mainmenu6:active { background: linear-gradient(to bottom,  hsl(270,40%,42%),  hsl(300,40%,58%)); }
 
-.rightmenu {
-	width: 294px;
-}
-.rightmenu .mainmenu.button {
-	width: 180px;
-}
-@media (max-width:895px) {
+@media (max-width:1087px) {
 	.mainmenu {
 		padding-bottom: 1px;
 	}
@@ -968,12 +967,6 @@ p.or:after {
 		top: 0;
 		right: 0;
 		padding-bottom: 51px;
-	}
-	.rightmenu {
-		width: 324px;
-	}
-	.rightmenu .mainmenu.button {
-		width: 200px;
 	}
 }
 
@@ -1940,7 +1933,7 @@ pre.textbox.textbox-empty[placeholder]:before {
  *********************************************************/
 
 .select, .team {
-	width: 256px;
+	width: 246px;
 	height: 32px;
 	padding: 0 5px;
 	font-size: 9pt;
@@ -1975,7 +1968,7 @@ pre.textbox.textbox-empty[placeholder]:before {
 }
 .teamselect .team {
 	margin: -1px 0 0 -6px;
-	width: 236px;
+	width: 226px;
 }
 .teamselect:disabled .team {
 	background: transparent;
@@ -2004,6 +1997,8 @@ pre.textbox.textbox-empty[placeholder]:before {
 .team small {
 	display: block;
 	text-align: center;
+	/* individual pokemon in a team have margin-right -4px so this compensates */
+	margin: 0 -1px 0 -5px;
 }
 .team small span {
 	margin-right: -4px;
@@ -2039,6 +2034,10 @@ pre.textbox.textbox-empty[placeholder]:before {
 	background: rgba(220,220,220,.65);
 	color: #555555;
 	box-shadow: none;
+}
+.select:disabled .team {
+	border-color: #999999;
+	cursor: default;
 }
 .select:disabled:before {
 	color: #AAAAAA;
@@ -2245,9 +2244,9 @@ pre.textbox.textbox-empty[placeholder]:before {
 .dark .ps-popup {
 	background: #0D151E;
 	color: #DDD;
-	border-color: #888;
+	border-color: #34373b;
 
-	box-shadow: 2px 2px 3px rgba(0,0,0,.2);
+	box-shadow: 2px 2px 3px rgba(0,0,0,.5), inset 0.5px 1px 1px rgba(255, 255, 255, 0.5);
 }
 
 .dark .changeform i {
@@ -2288,6 +2287,9 @@ pre.textbox.textbox-empty[placeholder]:before {
 	background: linear-gradient(to bottom, rgba(227, 239, 251, 0.6), rgba(193, 199, 207, 0.6));
 	color: #444444;
 	box-shadow: none;
+}
+.dark .select:disabled .team {
+	border-color: #888888;
 }
 .dark .select:before {
 	color: #000000;

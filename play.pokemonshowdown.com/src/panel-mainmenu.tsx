@@ -7,7 +7,7 @@
 
 import preact from "../js/lib/preact";
 import { PSLoginServer } from "./client-connection";
-import { PS, PSRoom, type RoomID, type Team } from "./client-main";
+import { PS, PSRoom, type RoomID, type RoomOptions, type Team } from "./client-main";
 import { PSPanelWrapper, PSRoomPanel } from "./panels";
 import type { BattlesRoom } from "./panel-battle";
 import type { ChatRoom } from "./panel-chat";
@@ -46,6 +46,18 @@ export class MainMenuRoom extends PSRoom {
 	/** used to track the moment between "search sent" and "server acknowledged search sent" */
 	searchSent = false;
 	search: { searching: string[], games: Record<RoomID, string> | null } = { searching: [], games: null };
+	constructor(options: RoomOptions) {
+		super(options);
+		if (this.backlog) {
+			// these aren't set yet, but a lot of things could go wrong if we don't
+			PS.rooms[''] = this;
+			PS.mainmenu = this;
+			for (const args of this.backlog) {
+				this.receiveLine(args);
+			}
+			this.backlog = null;
+		}
+	}
 	startSearch = (format: string, team?: Team) => {
 		if (this.searchCountdown) {
 			PS.alert("Wait for this countdown to finish first...");
@@ -395,7 +407,7 @@ class NewsPanel extends PSRoomPanel {
 	};
 	override render() {
 		const cookieSet = document.cookie.includes('preactalpha=1');
-		return <PSPanelWrapper room={this.props.room} scrollable>
+		return <PSPanelWrapper room={this.props.room} fullSize scrollable>
 			<div class="construction"><div class="construction-inner">
 				This is the Preact client alpha test.
 				<form>
@@ -413,7 +425,7 @@ class NewsPanel extends PSRoomPanel {
 					</label>
 				</form>
 			</div></div>
-			<div class="mini-window-body" style="max-height:none" dangerouslySetInnerHTML={{ __html: PS.newsHTML }}></div>
+			<div class="readable-bg" dangerouslySetInnerHTML={{ __html: PS.newsHTML }}></div>
 		</PSPanelWrapper>;
 	}
 }
@@ -481,8 +493,6 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
 		}
 	};
 	renderMiniRooms() {
-		if (PS.leftPanelWidth === null) return null;
-
 		return PS.miniRoomList.map(roomid => {
 			const room = PS.rooms[roomid]!;
 			return <div
@@ -490,9 +500,10 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
 				key={roomid} data-roomid={roomid}
 			>
 				<h3 draggable onDragStart={this.handleDragStart} onClick={this.handleClickMinimize}>
-					<button class="closebutton" name="closeRoom" value={roomid} aria-label="Close" tabIndex={-1}>
+					<button class="closebutton" data-cmd="/close" aria-label="Close" tabIndex={-1}>
 						<i class="fa fa-times-circle"></i>
 					</button>
+					<button class="maximizebutton" data-cmd="/maximize" tabIndex={-1}><i class="fa fa-stop-circle"></i></button>
 					<button class="minimizebutton" tabIndex={-1}><i class="fa fa-minus-circle"></i></button>
 					{room.title}
 				</h3>
