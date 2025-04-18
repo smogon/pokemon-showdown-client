@@ -1467,7 +1467,7 @@ class LeaveRoomPanel extends PSRoomPanel {
 					class="button"
 					data-cmd="/close"
 				>
-					<strong> Cancel </strong>
+					<strong>Cancel</strong>
 				</button>
 			</p>
 		</div></PSPanelWrapper>;
