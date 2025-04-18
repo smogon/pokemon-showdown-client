@@ -41,7 +41,7 @@ window.addEventListener('dragover', e => {
 });
 
 export class PSHeader extends preact.Component<{ style: object }> {
-	handleDragEnter = (e: DragEvent) => {
+	static handleDragEnter = (e: DragEvent) => {
 		console.log('dragenter ' + e.dataTransfer!.dropEffect);
 		e.preventDefault();
 		if (!PS.dragging) return; // TODO: handle dragging other things onto roomtabs
@@ -72,7 +72,7 @@ export class PSHeader extends preact.Component<{ style: object }> {
 		// Chrome/Safari/Opera
 		// if (e.dataTransfer) e.dataTransfer.dropEffect = 'move';
 	};
-	handleDragStart = (e: DragEvent) => {
+	static handleDragStart = (e: DragEvent) => {
 		const roomid = PS.router.extractRoomID((e.currentTarget as HTMLAnchorElement).href);
 		if (!roomid) return; // should never happen
 
@@ -120,7 +120,7 @@ export class PSHeader extends preact.Component<{ style: object }> {
 		}
 		return { icon, title };
 	}
-	renderRoomTab(id: RoomID) {
+	static renderRoomTab(id: RoomID, draggable = true) {
 		const room = PS.rooms[id];
 		if (!room) return null;
 		const closable = (id === '' || id === 'rooms' ? '' : ' closable');
@@ -141,7 +141,7 @@ export class PSHeader extends preact.Component<{ style: object }> {
 		const ariaLabel = id === 'rooms' ? { "aria-label": "Join chat" } : {};
 		return <li>
 			<a
-				class={className} href={`/${id}`} draggable={true}
+				class={className} href={`/${id}`} draggable={draggable}
 				onDragEnter={this.handleDragEnter} onDragStart={this.handleDragStart}
 				{...ariaLabel}
 			>
@@ -205,16 +205,16 @@ export class PSHeader extends preact.Component<{ style: object }> {
 				/>
 				<div class="tablist">
 					<ul>
-						{this.renderRoomTab(PS.leftRoomList[0])}
+						{PSHeader.renderRoomTab(PS.leftRoomList[0])}
 					</ul>
 					<ul>
-						{PS.miniRoomList.map(roomid => this.renderRoomTab(roomid))}
+						{PS.miniRoomList.map(roomid => PSHeader.renderRoomTab(roomid))}
 					</ul>
 					<ul>
-						{PS.leftRoomList.slice(1).map(roomid => this.renderRoomTab(roomid))}
+						{PS.leftRoomList.slice(1).map(roomid => PSHeader.renderRoomTab(roomid))}
 					</ul>
 					<ul class="siderooms">
-						{PS.rightRoomList.map(roomid => this.renderRoomTab(roomid))}
+						{PS.rightRoomList.map(roomid => PSHeader.renderRoomTab(roomid))}
 					</ul>
 				</div>
 			</div>
@@ -251,16 +251,16 @@ export class PSHeader extends preact.Component<{ style: object }> {
 			/>
 			<div class="tabbar maintabbar"><div class="inner">
 				<ul>
-					{this.renderRoomTab(PS.leftRoomList[0])}
+					{PSHeader.renderRoomTab(PS.leftRoomList[0])}
 				</ul>
 				<ul>
-					{PS.leftRoomList.slice(1).map(roomid => this.renderRoomTab(roomid))}
+					{PS.leftRoomList.slice(1).map(roomid => PSHeader.renderRoomTab(roomid))}
 				</ul>
 				<ul class="siderooms" style={{ float: 'none', marginLeft: Math.max(PS.leftPanelWidth - 52, 0) }}>
-					{PS.rightRoomList.map(roomid => this.renderRoomTab(roomid))}
+					{PS.rightRoomList.map(roomid => PSHeader.renderRoomTab(roomid))}
 				</ul>
 				<div class="overflow hidden" aria-hidden="true">
-					<button name="tablist" class="button" aria-label="More" type="button">
+					<button name="tablist" class="button" data-href="roomtablist" aria-label="More" type="button">
 						<i class="fa fa-caret-down"></i>
 					</button>
 				</div>
