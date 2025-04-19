@@ -779,6 +779,15 @@ $sprite_credits = [
 	"yukito-hideko.png" => "kyledove",
 	"zinnia-masters.png" => "kyledove",
 	"zirco-unite.png" => "kyledove",
+	"baoba.png" => "kyledove",
+	"bill.png" => "kyledove",
+	"daisy.png" => "kyledove",
+	"harmony.png" => "kyledove",
+	"paxton.png" => "kyledove",
+	"trace.png" => "kyledove",
+	"miku-fairy.png" => "wisteriapurple",
+	"miku-ghost.png" => "Flamibane",
+	"miku-ice.png" => "RADU",
 ];
 
 require_once '../../dirindex/dirindex.php';
