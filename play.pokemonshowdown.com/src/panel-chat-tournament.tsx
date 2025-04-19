@@ -99,10 +99,14 @@ export class ChatTournament extends PSModel {
 		} else {
 			this.joinLeave[action].push(name);
 		}
-
-		let message = ChatTournament.arrayToPhrase(this.joinLeave['join']) + ' joined the tournament';
+		if (!this.joinLeave[action].includes(name)) this.joinLeave[action].push(name);
+		let message = this.joinLeave['join'].length ?
+			ChatTournament.arrayToPhrase(this.joinLeave['join']) + ' joined the tournament' :
+			'';
 		if (this.joinLeave['join'].length && this.joinLeave['leave'].length) message += '; ';
-		message += ChatTournament.arrayToPhrase(this.joinLeave['leave']) + ' left the tournament';
+		message += this.joinLeave['leave'].length ?
+			ChatTournament.arrayToPhrase(this.joinLeave['leave']) + ' left the tournament' :
+			'';
 
 		this.tryAdd(`|uhtml|${this.joinLeave.messageId}|<div class="tournament-message-joinleave">${message}.</div>`);
 	}
