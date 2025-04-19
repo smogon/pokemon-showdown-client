@@ -13,7 +13,7 @@ import { TeamForm } from "./panel-mainmenu";
 import { BattleLog } from "./battle-log";
 import type { Battle } from "./battle";
 import { MiniEdit } from "./miniedit";
-import { PSUtils, toID, type ID } from "./battle-dex";
+import { Dex, PSUtils, toID, type ID } from "./battle-dex";
 import type { Args } from "./battle-text-parser";
 import { PSLoginServer } from "./client-connection";
 import type { BattleRoom } from "./panel-battle";
@@ -48,7 +48,7 @@ export class ChatRoom extends PSRoom {
 	tour: ChatTournament | null = null;
 
 	joinLeave: { join: string[], leave: string[], messageId: string } | null = null;
-
+	userActivity: string[] | null = null;
 	constructor(options: RoomOptions) {
 		super(options);
 		if (options.args?.pmTarget) this.pmTarget = options.args.pmTarget as string;
@@ -99,6 +99,7 @@ export class ChatRoom extends PSRoom {
 			// falls through
 		case 'c:':
 			this.joinLeave = null;
+			this.markUserActive(args[2].trim());
 			if (this.tour) this.tour.joinLeave = null;
 			this.subtleNotify();
 			break;
@@ -427,6 +428,18 @@ export class ChatRoom extends PSRoom {
 		}
 		this.update(null);
 	}
+	markUserActive(userid: string) {
+		if (!this.userActivity) this.userActivity = [];
+		let idx = this.userActivity.indexOf(userid);
+		if (idx !== -1) {
+			this.userActivity.splice(idx, 1);
+		}
+		this.userActivity.push(userid);
+		if (this.userActivity.length > 100) {
+			// Prune the list.
+			this.userActivity.splice(0, 20);
+		}
+	}
 	override sendDirect(line: string) {
 		if (this.pmTarget) {
 			PS.send(`|/pm ${this.pmTarget}, ${line}`);
@@ -546,12 +559,28 @@ export class ChatTextEntry extends preact.Component<{
 	miniedit: MiniEdit | null = null;
 	history: string[] = [];
 	historyIndex = 0;
+	tabComplete: {
+		candidates: string[][],
+		index: number,
+		prefix: string,
+		cursor: string | number | null,
+		reset: () => void,
+	} = {
+			candidates: [],
+			index: 0,
+			prefix: '',
+			cursor: null,
+			reset() {
+				this.cursor = null;
+			},
+		};
 	override componentDidMount() {
 		this.subscription = PS.user.subscribe(() => {
 			this.forceUpdate();
 		});
-		const textbox = this.base!.children[0].children[1] as HTMLElement;
-		if (textbox.tagName === 'TEXTAREA') this.textbox = textbox as HTMLTextAreaElement;
+		const textbox = (this.base!.children[0].children[1] ||
+			this.base!.querySelector('textarea[name=textbox]')) as HTMLElement;
+		if (textbox.tagName === 'TEXTAREA' || textbox.tagName === 'PRE') this.textbox = textbox as HTMLTextAreaElement;
 		this.miniedit = new MiniEdit(textbox, {
 			setContent: text => {
 				textbox.innerHTML = formatText(text, false, false, true) + '\n';
@@ -649,14 +678,18 @@ export class ChatTextEntry extends preact.Component<{
 			return this.toggleFormatChar('*');
 		} else if (ev.keyCode === 192 && cmdKey) { // Ctrl + ` key
 			return this.toggleFormatChar('`');
-		// } else if (e.keyCode === 9 && !e.ctrlKey) { // Tab key
-		// 	const reverse = !!e.shiftKey; // Shift+Tab reverses direction
-		// 	return this.handleTabComplete(this.$chatbox, reverse);
+		} else if (ev.keyCode === 9 && !ev.ctrlKey) { // Tab key
+			const reverse = !!ev.shiftKey; // Shift+Tab reverses direction
+			return this.handleTabComplete(reverse);
 		} else if (ev.keyCode === 38 && !ev.shiftKey && !ev.altKey) { // Up key
 			return this.historyUp();
 		} else if (ev.keyCode === 40 && !ev.shiftKey && !ev.altKey) { // Down key
 			return this.historyDown();
 		} else if (ev.keyCode === 27) { // esc
+			if (this.undoTabComplete()) {
+				ev.preventDefault();
+				ev.stopPropagation();
+			}
 			if (PS.room !== PS.panel) { // only close if in mini-room mode
 				PS.leave(PS.room.id);
 				return true;
@@ -668,6 +701,114 @@ export class ChatTextEntry extends preact.Component<{
 		// 	return true;
 		}
 		return false;
+	}
+	/**
+	 * Taken from the old client — just tweaked a bit to:
+     * - Work with <pre> instead of <textarea>
+     * - Fit the way `room` now handles user info
+	 * TODO - add support for commands tabcomplete
+     */
+	handleTabComplete(reverse: boolean) {
+		// Don't tab complete at the start of the text box.
+		let idx = this.textbox.selectionStart;
+		if (idx === 0) return false;
+		let users = (this.props.room as ChatRoom)?.users || (PS.rooms['lobby'] ? (PS.rooms['lobby'] as ChatRoom).users : {});
+		let text = this.textbox.innerHTML;
+		let prefix = text.substr(0, idx);
+		if (this.tabComplete.cursor !== null && prefix === this.tabComplete.cursor) {
+			// The user is cycling through the candidate names.
+			if (reverse) {
+				this.tabComplete.index--;
+			} else {
+				this.tabComplete.index++;
+			}
+			if (this.tabComplete.index >= this.tabComplete.candidates?.length) this.tabComplete.index = 0;
+			if (this.tabComplete.index < 0) this.tabComplete.index = this.tabComplete.candidates?.length - 1;
+		} else {
+			// This is a new tab completion.
+			// There needs to be non-whitespace to the left of the cursor.
+			// no command prefixes either, we're testing for usernames here.
+			prefix = prefix.trim();
+
+			let m1 = /^([\s\S!/]*?)([A-Za-z0-9][^, \n]*)$/.exec(prefix);
+			let m2 = /^([\s\S!/]*?)([A-Za-z0-9][^, \n]* [^, ]*)$/.exec(prefix);
+			if (!m1 && !m2) return true;
+
+			this.tabComplete.prefix = prefix;
+			let idprefix = (m1 ? toID(m1[2]) : '');
+			let spaceprefix = (m2 ? m2[2].replace(/[^A-Za-z0-9 ]+/g, '').toLowerCase() : '');
+			let candidates: string[][] = []; // array of [candidate userid, prefix length]
+			// don't include command names in autocomplete
+			if (m2 && (m2[0] === '/' || m2[0] === '!')) spaceprefix = '';
+			for (let i in users) {
+				if (spaceprefix && users[i].replace(/[^A-Za-z0-9 ]+/g, '')
+					.toLowerCase()
+					.substr(0, spaceprefix.length) === spaceprefix) {
+					if (m2) candidates.push([i, String(m2[1].length)] as never);
+				} else if (idprefix && i.substr(0, idprefix.length) === idprefix) {
+					if (m1) candidates.push([i, m1[1].length] as never);
+				}
+			}
+			// Sort by most recent to speak in the chat, or, in the case of a tie,
+			// in alphabetical order.
+			candidates.sort((a, b) => {
+				if (a[1] !== b[1]) {
+					// shorter prefix length comes first
+					return Number([1]) - Number(b[1]);
+				}
+				let userActivity = (this.props.room as ChatRoom).userActivity;
+				let aidx = userActivity?.indexOf(a[0]) || -1;
+				let bidx = userActivity?.indexOf(b[0]) || -1;
+				if (aidx !== -1) {
+					if (bidx !== -1) {
+						return bidx - aidx;
+					}
+					return -1; // a comes first
+				} else if (bidx !== -1) {
+					return 1; // b comes first
+				}
+				return (a[0] < b[0]) ? -1 : 1; // alphabetical order
+			});
+			this.tabComplete.candidates = candidates;
+			this.tabComplete.index = 0;
+			if (!candidates.length) {
+				this.tabComplete.cursor = null;
+				return true;
+			}
+		}
+
+		// Substitute in the tab-completed name.
+		let candidate = this.tabComplete.candidates ? this.tabComplete.candidates[this.tabComplete.index] : '';
+		let substituteUserId = candidate[0];
+		let substituteUser = users[substituteUserId] || candidate[1];
+		if (!substituteUser) return true;
+		let name = substituteUser;
+		// Remove rank and busy charaxcters
+		name = Dex.getShortName(name).replace(/^[^a-zA-Z0-9]+|[^a-zA-Z0-9]+$/g, "");
+		let prefixIndex = candidate[1].toString().startsWith('/') ? prefix.lastIndexOf('\n') + 1 : candidate[1];
+		let fullPrefix = this.tabComplete.prefix?.substr(0, prefixIndex as number) + name;
+		this.textbox.innerHTML = (fullPrefix);
+		let pos = fullPrefix.length;
+		// this.textbox.setSelectionRange?.(pos, pos);
+		// Since <pre> elements do not support setSelectionRange (only input/textarea do),
+		// we use the Selection API to manually move the cursor to the end.
+		const range = document.createRange();
+		const selection = window.getSelection();
+		range.selectNodeContents(this.textbox);
+		range.collapse(false); // collapse to the end
+		selection?.removeAllRanges();
+		selection?.addRange(range);
+		this.textbox.focus();
+		this.tabComplete.cursor = pos;
+		return true;
+	}
+	undoTabComplete() {
+		let cursorPosition = this.textbox.selectionEnd;
+		if (!this.tabComplete.cursor ||
+			this.textbox.innerHTML.substr(0, cursorPosition) !== this.tabComplete.cursor) return false;
+		this.textbox.innerHTML = (this.tabComplete.prefix || '' + this.textbox.innerHTML.substr(cursorPosition));
+		this.textbox.selectionEnd = this.tabComplete.prefix?.length;
+		return true;
 	}
 	getSelection() {
 		return this.miniedit ?
@@ -766,7 +907,7 @@ class ChatTextBox extends preact.Component<{ placeholder: string, disabled?: boo
 	override render() {
 		return <pre
 			class={`textbox textbox-empty ${this.props.disabled ? ' disabled' : ' autofocus'}`} placeholder={this.props.placeholder}
-			onFocus={this.handleFocus} onBlur={this.handleBlur}
+			onFocus={this.handleFocus} onBlur={this.handleBlur} name="textbox"
 		>{'\n'}</pre>;
 	}
 }
