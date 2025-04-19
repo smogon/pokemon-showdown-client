@@ -1,50 +1,114 @@
 #!/usr/bin/env node
 
 /**
- * This literally only updates the old replays template.
+ * This script updates the old replays template (wrapper.inc.template.php)
+ * by adding content hashes to static asset URLs for cache busting and
+ * updating paths based on routes.json.
  * It can be removed once replays/manage is ported to New Replays.
  */
 
 const fs = require('fs');
 const crypto = require('crypto');
+const path = require('path'); // Use the 'path' module for safer path manipulation
 
-process.chdir(__dirname + '/../replay.pokemonshowdown.com');
+// Define the base directory for the template and assets relative to this script
+const REPLAY_BASE_DIR = path.join(__dirname, '../replay.pokemonshowdown.com');
+const CONFIG_DIR = path.join(__dirname, '../config'); // Assuming config is a sibling of the replay base dir
+
+let routes = {};
+try {
+	const routesPath = path.join(CONFIG_DIR, 'routes.json');
+	routes = JSON.parse(fs.readFileSync(routesPath, { encoding: 'utf8' }));
+	console.log(`Successfully loaded routes from ${routesPath}`);
+} catch (e) {
+	console.error(`FATAL ERROR: Could not load or parse routes.json from ${path.join(CONFIG_DIR, 'routes.json')}`);
+	console.error(e);
+	process.exit(1); // Exit if routes.json cannot be loaded, as paths won't be correct
+}
+
 
 function updateIndex() {
-	let indexContents = fs.readFileSync('theme/wrapper.inc.template.php', { encoding: 'utf8' });
+	const templatePath = path.join(REPLAY_BASE_DIR, 'theme/wrapper.inc.template.php');
+	let indexContents;
+
+	try {
+		indexContents = fs.readFileSync(templatePath, { encoding: 'utf8' });
+		console.log(`Successfully read template from ${templatePath}`);
+	} catch (e) {
+		console.error(`FATAL ERROR: Could not read template file from ${templatePath}`);
+		console.error(e);
+		process.exit(1); // Exit if the template cannot be read
+	}
 
 	// add hashes to js and css files
-	process.stdout.write("Updating hashes... ");
+	process.stdout.write("Updating hashes and paths... ");
+
+	// Regex to find <script>, <link>, or <img tags with src/href attributes
 	// Check for <script, <link or <img so we don't add useless hashes to <a
-	indexContents = indexContents.replace(
-		/(<script[^>]+?src|<link[^>]+?href|<img[^>]+?src)="\/(.*?)(\?[a-z0-9]*?)?"/g, runReplace
+	const updatedContents = indexContents.replace(
+		/(<script[^>]+?src|<link[^>]+?href|<img[^>]+?src)="\/(.*?)(\?[a-z0-9]*?)?"/g,
+		(match, tagPart, assetPath, existingQuery) => {
+            // Call runReplace logic, passing routes
+			return runReplace(tagPart, assetPath, existingQuery, routes);
+		}
 	);
 	console.log("DONE");
 
 	process.stdout.write("Writing new `wrapper.inc.php` file... ");
-	fs.writeFileSync('theme/wrapper.inc.php', indexContents);
-	console.log("DONE");
-}
-
-function runReplace(a, b, c) {
-	let hash = Math.random(); // just in case creating the hash fails
-	const routes = JSON.parse(fs.readFileSync('../config/routes.json'));
+	const outputPath = path.join(REPLAY_BASE_DIR, 'theme/wrapper.inc.php');
 	try {
-		let filepath = c;
-		if (c.includes('/' + routes.client + '/')) {
-			const filename = c.replace('/' + routes.client + '/', '');
-			filepath = '../' + filename;
-		}
-		const fstr = fs.readFileSync(filepath, { encoding: 'utf8' });
-		hash = crypto.createHash('md5').update(fstr).digest('hex').substr(0, 8);
-	} catch {}
-	c = c.replace('/replay.pokemonshowdown.com/', '/' + routes.replays + '/');
-	c = c.replace('/dex.pokemonshowdown.com/', '/' + routes.dex + '/');
-	c = c.replace('/play.pokemonshowdown.com/', '/' + routes.client + '/');
-	c = c.replace('/pokemonshowdown.com/users/', '/' + routes.users + '/');
-	c = c.replace('/pokemonshowdown.com/', '/' + routes.root + '/');
-
-	return b + '="/' + c + '?' + hash + '"';
+		fs.writeFileSync(outputPath, updatedContents);
+		console.log("DONE");
+	} catch (e) {
+		console.error(`FATAL ERROR: Could not write output file to ${outputPath}`);
+		console.error(e);
+		process.exit(1); // Exit if writing fails
+	}
 }
 
+// This function is called for each match found by the regex
+function runReplace(tagPart, assetPath, existingQuery, routes) {
+	let hash = null; // Initialize hash to null
+    // Construct the full path to the asset file relative to the script
+    // assetPath comes from the regex, often starts with a '/', remove it for path.join
+	const assetFilePath = path.join(__dirname, '../', assetPath); // Assuming assets are relative to the project root, not just replay base dir
+
+	try {
+		// Read the asset file content
+		const fstr = fs.readFileSync(assetFilePath, { encoding: 'utf8' });
+		// Calculate MD5 hash and take the first 8 characters
+		hash = crypto.createHash('md5').update(fstr).digest('hex').substr(0, 8);
+	} catch (e) {
+		// Log a specific warning if hashing fails for this file
+		console.warn(`\nWARNING: Failed to hash file ${assetFilePath}. Skipping hash. Error: ${e.message}`);
+		// hash remains null
+	}
+
+	// Perform path replacements using the loaded routes
+    let updatedAssetPath = assetPath; // Start with the original path
+
+    // Be careful with the order if routes could overlap, most specific first
+	updatedAssetPath = updatedAssetPath.replace('/replay.pokemonshowdown.com/', '/' + routes.replays + '/');
+	updatedAssetPath = updatedAssetPath.replace('/dex.pokemonshowdown.com/', '/' + routes.dex + '/');
+	updatedAssetPath = updatedAssetPath.replace('/play.pokemonshowdown.com/', '/' + routes.client + '/');
+	updatedAssetPath = updatedAssetPath.replace('/pokemonshowdown.com/users/', '/' + routes.users + '/');
+	// This last one might be too broad, ensure it doesn't accidentally replace parts of paths already handled
+    // Consider carefully if this replacement is always desired or if the other routes cover all cases.
+	updatedAssetPath = updatedAssetPath.replace('/pokemonshowdown.com/', '/' + routes.root + '/');
+
+
+	// Construct the final replaced string
+	let finalTag = tagPart + '="/' + updatedAssetPath;
+
+	if (hash) {
+		// Append the hash as a query parameter if hashing was successful
+		finalTag += '?' + hash;
+	} // else: no hash is added if it failed
+
+	finalTag += '"'; // Close the attribute value
+
+	return finalTag;
+}
+
+// Run the main function
 updateIndex();
