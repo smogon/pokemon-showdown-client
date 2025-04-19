@@ -335,7 +335,7 @@ class UserOptionsPanel extends PSRoomPanel {
 
 		return <PSPanelWrapper room={room} width={280}><div class="pad">
 			<p>
-				{ this.isIgnoringUser(targetUser) ? (
+				{this.isIgnoringUser(targetUser) ? (
 					<button onClick={this.handleUnignore} class="button">
 						Unignore
 					</button>
