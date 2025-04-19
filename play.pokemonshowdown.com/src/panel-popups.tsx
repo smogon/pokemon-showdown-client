@@ -346,8 +346,8 @@ class UserOptionsPanel extends PSRoomPanel {
 			{(canMute || canBan) && <hr />}
 			{this.state.showConfirm && <p>
 				<small>
-					{this.state.data?.action} <b>{this.state.data?.targetUser}</b> {}
-					from <b>{this.state.data?.room}</b> for {this.state.data?.duration}?
+					{this.state.data?.action} <b>{targetUser}</b> {}
+					from <b>{targetRoom?.title}</b> for {this.state.data?.duration}?
 				</small>
 				<p class="buttonbar">
 					<button class="button" onClick={this.handleConfirm}>
