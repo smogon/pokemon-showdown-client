@@ -423,7 +423,7 @@
 			Storage.prefs('effectvolume', volume);
 		},
 		getEffectVolume: function () {
-			var volume = Dex.prefs('effectvolume');
+			var volume = Storage.prefs('effectvolume');
 			return typeof volume === 'number' ? volume : 50;
 		},
 		setMusicVolume: function (volume) {
@@ -431,14 +431,14 @@
 			Storage.prefs('musicvolume', volume);
 		},
 		getMusicVolume: function () {
-			var volume = Dex.prefs('musicvolume');
+			var volume = Storage.prefs('musicvolume');
 			return typeof volume === 'number' ? volume : 50;
 		},
 		setNotifVolume: function (volume) {
 			Storage.prefs('notifvolume', volume);
 		},
 		getNotifVolume: function () {
-			var volume = Dex.prefs('notifvolume');
+			var volume = Storage.prefs('notifvolume');
 			return typeof volume === 'number' ? volume : 50;
 		}
 	});
