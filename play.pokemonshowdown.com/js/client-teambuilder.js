@@ -948,10 +948,11 @@
 			if (team.format) filename = '[' + team.format + '] ' + filename;
 			filename = $.trim(filename).replace(/[\\\/]+/g, '') + '.txt';
 			var urlprefix = "data:text/plain;base64,";
-			if (document.location.protocol === 'https:') {
-				// Chrome is dumb and doesn't support data URLs in HTTPS
-				urlprefix = "https://" + Config.routes.client + "/action.php?act=dlteam&team=";
-			}
+			// fixed in modern Chrome versions, and this route is no longer maintained
+			// if (document.location.protocol === 'https:') {
+			// 	// Chrome is dumb and doesn't support data URLs in HTTPS
+			// 	urlprefix = "https://" + Config.routes.client + "/action.php?act=dlteam&team=";
+			// }
 			var contents = Storage.exportTeam(team.team, team.gen).replace(/\n/g, '\r\n');
 			var downloadurl = "text/plain:" + filename + ":" + urlprefix + encodeURIComponent(window.btoa(unescape(encodeURIComponent(contents))));
 			console.log(downloadurl);
