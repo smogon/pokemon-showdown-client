@@ -710,7 +710,10 @@ export class ChatTextEntry extends preact.Component<{
 		// Don't tab complete at the start of the text box.
 		let idx = this.getSelection().start;
 		if (idx === 0) return false;
-		let users = (this.props.room as ChatRoom)?.users || (PS.rooms['lobby'] ? (PS.rooms['lobby'] as ChatRoom).users : {});
+		let users = (this.props.room as ChatRoom)?.users ||
+			(PS.rooms['lobby'] ? (
+				PS.rooms['lobby'] as ChatRoom).users :
+			{});
 		let text = this.miniedit?.getValue() || '';
 		let prefix = text.slice(0, idx);
 		if (this.tabComplete.cursor !== null && prefix === this.tabComplete.cursor) {
