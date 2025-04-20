@@ -349,6 +349,37 @@ export class PSView extends preact.Component {
 			return PS.prefs.refreshprompt ? "Are you sure you want to leave?" : null;
 		};
 
+		window.addEventListener('submit', ev => {
+			let elem = ev.target as HTMLFormElement | null;
+			if (elem?.getAttribute('data-submitsend')) {
+				const elements = elem.querySelectorAll('input[name], select[name], textarea[name], keygen[name], button[value]');
+				const inputs = [];
+				for (const element of Array.from(elements)) {
+					const type = element.getAttribute('type') || "";
+					const checked = element.getAttribute('checked');
+					const name = element.getAttribute('name');
+					const val = (element as any).value;
+					if (type === 'submit') continue;
+					if (type === 'checkbox' && !val) {
+						inputs.push([element.getAttribute('name'), element.getAttribute('checked') ? 'on' : 'off']);
+					} else if (!['checkbox', 'radio'].includes(type) || checked) {
+						inputs.push([name, val]);
+					}
+				}
+				let cmd = elem.getAttribute('data-submitsend')!;
+				for (const entry of inputs) {
+					cmd = cmd.replace('{' + entry[0] + '}', entry[1]);
+				}
+				cmd = cmd.replace(/\{[a-z]+\}/g, '');
+				const room = PS.getRoom(elem) || PS.mainmenu;
+				room.sendDirect(cmd);
+
+				ev.preventDefault();
+				ev.stopImmediatePropagation();
+
+			}
+		});
+
 		window.addEventListener('click', ev => {
 			let elem = ev.target as HTMLElement | null;
 			if (elem?.className === 'ps-overlay') {
