@@ -899,7 +899,7 @@ class ChatTextBox extends preact.Component<{ placeholder: string, disabled?: boo
 	override render() {
 		return <pre
 			class={`textbox textbox-empty ${this.props.disabled ? ' disabled' : ' autofocus'}`} placeholder={this.props.placeholder}
-			onFocus={this.handleFocus} onBlur={this.handleBlur} name="textbox"
+			onFocus={this.handleFocus} onBlur={this.handleBlur}
 		>{'\n'}</pre>;
 	}
 }
