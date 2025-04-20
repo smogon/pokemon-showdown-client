@@ -688,6 +688,7 @@ export class ChatTextEntry extends preact.Component<{
 			if (this.undoTabComplete()) {
 				ev.preventDefault();
 				ev.stopPropagation();
+				return true;
 			}
 			if (PS.room !== PS.panel) { // only close if in mini-room mode
 				PS.leave(PS.room.id);
