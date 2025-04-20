@@ -9,7 +9,7 @@
  * @license AGPLv3
  */
 
-import { type PSConnection, PSLoginServer } from './client-connection';
+import { PSConnection, PSLoginServer } from './client-connection';
 import { PSModel, PSStreamModel } from './client-core';
 import type { PSRoomPanel, PSRouter } from './panels';
 import type { ChatRoom } from './panel-chat';
@@ -737,6 +737,11 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 	 */
 	connected = false;
 	/**
+	 * Was previously connected but is no longer. If we reconnect,
+	 * we'll need to do some special handling.
+	 */
+	previouslyConnected = false;
+	/**
 	 * Can this room even be connected to at all?
 	 * `true` = pass messages from the server to subscribers
 	 * `false` = throw an error if we receive messages from the server
@@ -819,6 +824,13 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 	connect(): void {
 		throw new Error(`This room is not designed to connect to a server room`);
 	}
+	/**
+	 * By default, a reconnected room will receive the init message as a bunch
+	 * of `receiveLine`s as normal. Before that happens, handleReconnect is
+	 * called, and you can return true to stop that behavior. You could also
+	 * prep for a bunch of `receiveLine`s and then not return anything.
+	 */
+	handleReconnect(msg: string): boolean | void {}
 	receiveLine(args: Args): void {
 		switch (args[0]) {
 		case 'title': {
@@ -890,6 +902,29 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 		},
 		'logout'() {
 			PS.user.logOut();
+		},
+		'reconnect'() {
+			if (!PS.isOffline) {
+				return this.add(`|error|You are already connected.`);
+			}
+			PSConnection.connect();
+		},
+		'workoffline'() {
+			if (PS.isOffline) {
+				return this.add(`|error|You are already offline.`);
+			}
+			PS.connection?.disconnect();
+			this.add(`||You are now offline.`);
+		},
+		'connect'() {
+			if (this.connected) {
+				return this.add(`|error|You are already connected.`);
+			}
+			try {
+				this.connect();
+			} catch (err: any) {
+				this.add(`|error|${err.message}`);
+			}
 		},
 		'cancelsearch'() {
 			PS.mainmenu.cancelSearch();
@@ -1370,6 +1405,7 @@ export const PS = new class extends PSModel {
 	 * they're dropped.
 	 */
 	dragging: { type: 'room', roomid: RoomID, foreground?: boolean } | null = null;
+	lastMessageTime = '';
 
 	/** Tracks whether or not to display the "Use arrow keys" hint */
 	arrowKeysUsed = false;
@@ -1553,6 +1589,9 @@ export const PS = new class extends PSModel {
 					room.type = type;
 					room.connected = true;
 					this.updateRoomTypes();
+				}
+				if (room?.previouslyConnected) {
+					if (room.handleReconnect(msg)) return;
 				}
 				this.updateAutojoin();
 				this.update();
