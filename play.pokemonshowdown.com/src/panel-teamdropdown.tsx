@@ -9,6 +9,9 @@ import { PS, type Team } from "./client-main";
 import { PSPanelWrapper, PSRoomPanel } from "./panels";
 import { Dex, toID, type ID } from "./battle-dex";
 import { BattleStatIDs, BattleStatNames } from "./battle-dex-data";
+import { Net } from "./client-connection";
+
+export type FormatResource = { url: string, resources: { resource_name: string, url: string }[] } | null;
 
 export class PSTeambuilder {
 	static packTeam(team: Dex.PokemonSet[]) {
@@ -531,6 +534,20 @@ export class PSTeambuilder {
 		}
 
 		return team;
+	}
+
+	static formatResources = {} as Record<string, FormatResource>;
+
+	static getFormatResources(format: string): Promise<FormatResource> {
+		if (format in this.formatResources) return Promise.resolve(this.formatResources[format]);
+		return Net('https://www.smogon.com/dex/api/formats/by-ps-name/' + format).get()
+			.then(result => {
+				this.formatResources[format] = JSON.parse(result);
+				return this.formatResources[format];
+			}).catch(err => {
+				this.formatResources[format] = null;
+				return this.formatResources[format];
+			});
 	}
 }
 

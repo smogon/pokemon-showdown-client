@@ -14,7 +14,7 @@ import { BattleLog } from "./battle-log";
 import type { Battle } from "./battle";
 import { MiniEdit } from "./miniedit";
 import { Dex, PSUtils, toID, type ID } from "./battle-dex";
-import type { Args } from "./battle-text-parser";
+import { BattleTextParser, type Args } from "./battle-text-parser";
 import { PSLoginServer } from "./client-connection";
 import type { BattleRoom } from "./panel-battle";
 import { BattleChoiceBuilder } from "./battle-choices";
@@ -46,9 +46,12 @@ export class ChatRoom extends PSRoom {
 	battle: Battle | null = null;
 	log: BattleLog | null = null;
 	tour: ChatTournament | null = null;
+	lastMessage: Args | null = null;
 
 	joinLeave: { join: string[], leave: string[], messageId: string } | null = null;
 	userActivity: string[] | null = null;
+	timeOffset = 0;
+
 	constructor(options: RoomOptions) {
 		super(options);
 		if (options.args?.pmTarget) this.pmTarget = options.args.pmTarget as string;
@@ -98,13 +101,57 @@ export class ChatRoom extends PSRoom {
 			}
 			// falls through
 		case 'c:':
+			if (args[0] === 'c:') PS.lastMessageTime = args[1];
+			this.lastMessage = args;
 			this.joinLeave = null;
 			this.markUserActive(args[2].trim());
 			if (this.tour) this.tour.joinLeave = null;
 			this.subtleNotify();
 			break;
+		case ':':
+			this.timeOffset = Math.trunc(Date.now() / 1000) - (parseInt(args[1], 10) || 0);
+			break;
 		}
 		super.receiveLine(args);
+	}
+	override handleReconnect(msg: string): boolean | void {
+		if (this.battle) {
+			this.battle.reset();
+			this.battle.stepQueue = [];
+			return false;
+		} else {
+			let lines = msg.split('\n');
+
+			// cut off starting lines until we get to PS.lastMessage timestamp
+			// then cut off roomintro from the end
+			let cutOffStart = 0;
+			let cutOffEnd = lines.length;
+			const cutOffTime = parseInt(PS.lastMessageTime);
+			const cutOffExactLine = this.lastMessage ? '|' + this.lastMessage?.join('|') : '';
+			let reconnectMessage = '|raw|<div class="infobox">You reconnected.</div>';
+			for (let i = 0; i < lines.length; i++) {
+				if (lines[i] === cutOffExactLine) {
+					cutOffStart = i + 1;
+				} else if (lines[i].startsWith(`|c:|`)) {
+					const time = parseInt(lines[i].split('|')[2] || '');
+					if (time < cutOffTime) cutOffStart = i;
+				}
+				if (lines[i].startsWith('|raw|<div class="infobox"> You joined ')) {
+					reconnectMessage = `|raw|<div class="infobox">You reconnected to ${lines[i].slice(38)}`;
+					cutOffEnd = i;
+					if (!lines[i - 1]) cutOffEnd = i - 1;
+				}
+			}
+			lines = lines.slice(cutOffStart, cutOffEnd);
+
+			if (lines.length) {
+				this.receiveLine([`raw`, `<div class="infobox">You disconnected.</div>`]);
+				for (const line of lines) this.receiveLine(BattleTextParser.parseLine(line));
+				this.receiveLine(BattleTextParser.parseLine(reconnectMessage));
+			}
+			this.update(null);
+			return true;
+		}
 	}
 	updateTarget(name?: string | null) {
 		const selfWithGroup = `${PS.user.group || ' '}${PS.user.name}`;
@@ -161,11 +208,10 @@ export class ChatRoom extends PSRoom {
 		return false;
 	};
 	override clientCommands = this.parseClientCommands({
-		'chall,challenge,closeandchallenge'(target, cmd) {
+		'chall,challenge'(target) {
 			if (target) {
 				const [targetUser, format] = target.split(',');
 				PS.join(`challenge-${toID(targetUser)}` as RoomID);
-				if (cmd === 'closeandchallenge') PS.leave(this.id);
 				return;
 			}
 			this.openChallenge();
@@ -242,7 +288,7 @@ export class ChatRoom extends PSRoom {
 						}
 					}
 
-					buffer += `<td> ${BattleLog.escapeFormat(formatId, true)} </td><td><strong>${Math.round(row.elo)}</strong></td>`;
+					buffer += `<td> ${BattleLog.escapeHTML(BattleLog.formatName(formatId, true))} </td><td><strong>${Math.round(row.elo)}</strong></td>`;
 					if (row.rprd > 100) {
 						// High rating deviation. Provisional rating.
 						buffer += `<td>&ndash;</td>`;
@@ -589,7 +635,7 @@ export class ChatTextEntry extends preact.Component<{
 		});
 		if (this.props.room.args?.initialSlash) {
 			this.props.room.args.initialSlash = false;
-			this.miniedit.setValue('/', { start: 1, end: 1 });
+			this.setValue('/', 1);
 		}
 		if (this.base) this.update();
 	}
@@ -600,10 +646,12 @@ export class ChatTextEntry extends preact.Component<{
 		}
 	}
 	update = () => {
-		// const textbox = this.textbox;
-		// textbox.style.height = `12px`;
-		// const newHeight = Math.min(Math.max(textbox.scrollHeight - 2, 16), 600);
-		// textbox.style.height = `${newHeight}px`;
+		if (!this.miniedit) {
+			const textbox = this.textbox;
+			textbox.style.height = `12px`;
+			const newHeight = Math.min(Math.max(textbox.scrollHeight - 2, 16), 600);
+			textbox.style.height = `${newHeight}px`;
+		}
 	};
 	focusIfNoSelection = (e: Event) => {
 		if ((e.target as HTMLElement).tagName === 'TEXTAREA') return;
@@ -615,7 +663,7 @@ export class ChatTextEntry extends preact.Component<{
 	submit() {
 		this.props.onMessage(this.getValue());
 		this.historyPush(this.getValue());
-		this.setValue('');
+		this.setValue('', 0);
 		this.update();
 		return true;
 	}
@@ -625,34 +673,76 @@ export class ChatTextEntry extends preact.Component<{
 			e.stopImmediatePropagation();
 		}
 	};
+
+	// Direct manipulation functions
 	getValue() {
 		return this.miniedit ? this.miniedit.getValue() : this.textbox.value;
 	}
-	setValue(value: string, selection?: { start: number, end: number }) {
+	setValue(value: string, start: number, end = start) {
 		if (this.miniedit) {
-			this.miniedit.setValue(value, selection);
+			this.miniedit.setValue(value, { start, end });
 		} else {
 			this.textbox.value = value;
-			if (selection) this.textbox.setSelectionRange?.(selection.start, selection.end);
+			this.textbox.setSelectionRange?.(start, end);
 		}
 	}
-	historyUp() {
+	getSelection() {
+		const value = this.getValue();
+		let { start, end } = this.miniedit ?
+			(this.miniedit.getSelection() || { start: value.length, end: value.length }) :
+			{ start: this.textbox.selectionStart, end: this.textbox.selectionEnd };
+		return { value, start, end };
+	}
+	setSelection(start: number, end: number) {
+		if (this.miniedit) {
+			this.miniedit.setSelection({ start, end });
+		} else {
+			this.textbox.setSelectionRange?.(start, end);
+		}
+	}
+	replaceSelection(text: string) {
+		if (this.miniedit) {
+			this.miniedit.replaceSelection(text);
+		} else {
+			const { value, start, end } = this.getSelection();
+			const newSelection = start + text.length;
+			this.setValue(value.slice(0, start) + text + value.slice(end), newSelection);
+		}
+	}
+
+	historyUp(ifSelectionCorrect?: boolean) {
+		if (ifSelectionCorrect) {
+			const { value, start, end } = this.getSelection();
+			if (start !== end) return false; // never traverse history if text is selected
+			if (end !== 0) {
+				if (end < value.length) return false; // only go up at start or end of line
+			}
+		}
+
 		if (this.historyIndex === 0) return false;
 		const line = this.getValue();
 		if (line !== '') this.history[this.historyIndex] = line;
-		this.setValue(this.history[--this.historyIndex]);
+		const newValue = this.history[--this.historyIndex];
+		this.setValue(newValue, newValue.length);
 		return true;
 	}
-	historyDown() {
+	historyDown(ifSelectionCorrect?: boolean) {
+		if (ifSelectionCorrect) {
+			const { value, start, end } = this.getSelection();
+			if (start !== end) return false; // never traverse history if text is selected
+			if (end < value.length) return false; // only go down at end of line
+		}
+
 		const line = this.getValue();
 		if (line !== '') this.history[this.historyIndex] = line;
 		if (this.historyIndex === this.history.length) {
 			if (!line) return false;
-			this.setValue('');
+			this.setValue('', 0);
 		} else if (++this.historyIndex === this.history.length) {
-			this.setValue('');
+			this.setValue('', 0);
 		} else {
-			this.setValue(this.history[this.historyIndex]);
+			const newValue = this.history[this.historyIndex];
+			this.setValue(newValue, newValue.length);
 		}
 		return true;
 	}
@@ -668,8 +758,8 @@ export class ChatTextEntry extends preact.Component<{
 		// const anyModifier = ev.ctrlKey || ev.altKey || ev.metaKey || ev.shiftKey;
 		if (ev.keyCode === 13 && !ev.shiftKey) { // Enter key
 			return this.submit();
-		} else if (ev.keyCode === 13 && this.miniedit) { // enter
-			this.miniedit.replaceSelection('\n');
+		} else if (ev.keyCode === 13) { // enter
+			this.replaceSelection('\n');
 			return true;
 		} else if (ev.keyCode === 73 && cmdKey) { // Ctrl + I key
 			return this.toggleFormatChar('_');
@@ -681,9 +771,9 @@ export class ChatTextEntry extends preact.Component<{
 			const reverse = !!ev.shiftKey; // Shift+Tab reverses direction
 			return this.handleTabComplete(reverse);
 		} else if (ev.keyCode === 38 && !ev.shiftKey && !ev.altKey) { // Up key
-			return this.historyUp();
+			return this.historyUp(true);
 		} else if (ev.keyCode === 40 && !ev.shiftKey && !ev.altKey) { // Down key
-			return this.historyDown();
+			return this.historyDown(true);
 		} else if (ev.keyCode === 27) { // esc
 			if (this.undoTabComplete()) {
 				ev.preventDefault();
@@ -694,10 +784,9 @@ export class ChatTextEntry extends preact.Component<{
 				PS.leave(PS.room.id);
 				return true;
 			}
-		// } else if (app.user.lastPM && (textbox.value === '/reply' || textbox.value === '/r' || textbox.value === '/R') && e.keyCode === 32) { // '/reply ' is being written
-		// 	var val = '/pm ' + app.user.lastPM + ', ';
-		// 	textbox.value = val;
-		// 	textbox.setSelectionRange(val.length, val.length);
+		// } else if (e.keyCode === 32 && PS.user.lastPM && ['/reply', '/r', '/R'].includes(this.getValue())) { // '/reply ' is being written
+		// 	const newValue = `/pm ${PS.user.lastPM}, `;
+		// 	this.setValue(newValue, newValue.length);
 		// 	return true;
 		}
 		return false;
@@ -787,7 +876,7 @@ export class ChatTextEntry extends preact.Component<{
 		name = Dex.getShortName(name).replace(/^[^a-zA-Z0-9]+|[^a-zA-Z0-9]+$/g, "");
 		let prefixIndex = candidate[1].toString().startsWith('/') ? prefix.lastIndexOf('\n') + 1 : candidate[1];
 		let fullPrefix = this.tabComplete.prefix?.substr(0, prefixIndex as number) + name;
-		this.setValue(fullPrefix, { start: fullPrefix.length, end: fullPrefix.length });
+		this.setValue(fullPrefix, fullPrefix.length);
 		this.miniedit?.element.focus();
 		this.tabComplete.cursor = text.length;
 		return true;
@@ -802,21 +891,8 @@ export class ChatTextEntry extends preact.Component<{
 		this.tabComplete.reset();
 		return true;
 	}
-	getSelection() {
-		return this.miniedit ?
-			(this.miniedit.getSelection() || { start: 0, end: 0 }) :
-			{ start: this.textbox.selectionStart, end: this.textbox.selectionEnd };
-	}
-	setSelection(start: number, end: number) {
-		if (this.miniedit) {
-			this.miniedit.setSelection({ start, end });
-		} else {
-			this.textbox.setSelectionRange?.(start, end);
-		}
-	}
 	toggleFormatChar(formatChar: string) {
-		let value = this.getValue();
-		let { start, end } = this.getSelection();
+		let { value, start, end } = this.getSelection();
 
 		// make sure start and end aren't midway through the syntax
 		if (value.charAt(start) === formatChar && value.charAt(start - 1) === formatChar &&
@@ -852,7 +928,7 @@ export class ChatTextEntry extends preact.Component<{
 			end -= 2;
 		}
 
-		this.setValue(value, { start, end });
+		this.setValue(value, start, end);
 		return true;
 	}
 	override render() {
@@ -984,7 +1060,9 @@ class ChatPanel extends PSRoomPanel<ChatRoom> {
 
 		return <PSPanelWrapper room={room} focusClick>
 			<ChatLog class="chat-log" room={this.props.room} left={tinyLayout ? 0 : 146} top={room.tour?.info.isActive ? 30 : 0}>
-				{challengeTo}{challengeFrom}
+				{challengeTo}{challengeFrom}{PS.isOffline && <p class="buttonbar">
+					<button class="button" data-cmd="/reconnect"><i class="fa fa-plug"></i> <strong>Reconnect</strong></button>
+				</p>}
 			</ChatLog>
 			{room.tour && <TournamentBox tour={room.tour} left={tinyLayout ? 0 : 146} />}
 			<ChatTextEntry

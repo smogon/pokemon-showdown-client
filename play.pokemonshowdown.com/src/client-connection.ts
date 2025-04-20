@@ -44,7 +44,9 @@ export class PSConnection {
 			PS.connected = false;
 			PS.isOffline = true;
 			for (const roomid in PS.rooms) {
-				PS.rooms[roomid]!.connected = false;
+				const room = PS.rooms[roomid]!;
+				room.previouslyConnected ||= room.connected;
+				room.connected = false;
 			}
 			this.socket = null;
 			PS.update();
@@ -58,6 +60,8 @@ export class PSConnection {
 	disconnect() {
 		this.socket.close();
 		PS.connection = null;
+		PS.connected = false;
+		PS.isOffline = true;
 	}
 	send(msg: string) {
 		if (!this.connected) {
@@ -66,10 +70,19 @@ export class PSConnection {
 		}
 		this.socket.send(msg);
 	}
+	static connect() {
+		if (PS.connection?.socket) return;
+		PS.isOffline = false;
+		if (!PS.connection) {
+			PS.connection = new PSConnection();
+		} else {
+			PS.connection.connect();
+		}
+		PS.prefs.doAutojoin();
+	}
 }
 
-PS.connection = new PSConnection();
-PS.prefs.doAutojoin();
+PSConnection.connect();
 
 export const PSLoginServer = new class {
 	rawQuery(act: string, data: PostData): Promise<string | null> {

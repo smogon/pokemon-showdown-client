@@ -38,31 +38,28 @@ https://psim.us/dev
 </head><body>
 	<div id="ps-frame">
 		<div id="header" class="header">
-			<img class="logo" src="/pokemonshowdownbeta.png" alt="Pok&eacute;mon Showdown! (beta)" width="146" height="44" /><div class="maintabbarbottom"></div>
+			<div class="maintabbarbottom"></div>
+			<img class="logo" src="https://play.pokemonshowdown.com/favicon-256.png" alt="Pokémon Showdown! (beta)" width="50" height="50">
 		</div>
-		<div class="ps-room scrollable" id="mainmenu"><div class="mainmenuwrapper">
-			<div class="leftmenu">
-				<div class="activitymenu">
-					<div class="mini-window">
-						<h3><button class="closebutton" tabindex="-1" aria-label="Close"><i class="fa fa-times-circle"></i></button><button class="minimizebutton" tabindex="-1" aria-label="Minimize"><i class="fa fa-minus-circle"></i></button>Latest News</h3>
-						<div id="room-news">
-							<div class="mini-window-body">
-								<div class="newsentry"><h4>New updates</h4><p>The Preact alpha test client is very far along!</p><p>Other than the teambuilder, everything else should be ready.</p><p>&mdash;<strong>Zarel</strong> <small class="date">on Apr 9, 2025</small></p></div>
-								<div class="newsentry"><h4>Preact alpha</h4><p>Welcome to the Preact alpha test client!</p><p>Many parts are unimplemented and there may be bugs; we're using this page to test it.</p><p>&mdash;<strong>Zarel</strong> <small class="date">on Oct 16, 2018</small></p></div>
-							</div>
+		<div class="ps-room scrollable" id="room-">
+			<div class="mainmenu-mini-windows">
+				<div class="mini-window" data-roomid="news">
+					<h3 class="mini-window-header"><button class="closebutton" tabindex="-1" aria-label="Close"><i class="fa fa-times-circle"></i></button>News</h3>
+					<div id="room-news" class="mini-window-contents ps-room-light scrollable" style="height: auto;">
+						<div class="readable-bg">
+							<div class="newsentry"><h4>New updates</h4><p>The Preact alpha test client is very far along!</p><p>Other than the teambuilder, everything else should be ready.</p><p>&mdash;<strong>Zarel</strong> <small class="date">on Apr 9, 2025</small></p></div>
+							<div class="newsentry"><h4>Preact alpha</h4><p>Welcome to the Preact alpha test client!</p><p>Many parts are unimplemented and there may be bugs; we're using this page to test it.</p><p>&mdash;<strong>Zarel</strong> <small class="date">on Oct 16, 2018</small></p></div>
 						</div>
 					</div>
 				</div>
-				<div class="mainmenu">
-					<div id="loading-message" class="mainmessage">Loading... <noscript>FAILED<br /><br />Pok&eacute;mon Showdown requires JavaScript.</noscript></div>
-				</div>
 			</div>
-			<div class="rightmenu">
+			<div class="mainmenu">
+				<div id="loading-message" class="mainmessage">Loading... <noscript>FAILED<br /><br />Pok&eacute;mon Showdown requires JavaScript.</noscript></div>
 			</div>
 			<div class="mainmenufooter">
 				<small><a href="//pokemonshowdown.com/" target="_blank"><strong>Pok&eacute;mon Showdown</strong></a> | <a href="http://smogon.com/" target="_blank"><strong>Smogon</strong></a><br><a href="//pokemonshowdown.com/dex/" target="_blank">Pokédex</a> | <a href="//pokemonshowdown.com/replay/" target="_blank">Replays</a> | <a href="//pokemonshowdown.com/rules" target="_blank">Rules</a></small> | <small><a href="//pokemonshowdown.com/forums/" target="_blank">Forum</a></small>
 			</div>
-		</div></div>
+		</div>
 	</div>
 	<script>
 		function linkStyle(url) {
@@ -88,17 +85,17 @@ https://psim.us/dev
 	<script nomodule defer src="/js/lib/sockjs-1.4.0-nwjsfix.min.js?"></script>
 	<script defer src="/js/client-connection.js?"></script>
 
-	<script defer src="/js/lib/html-css-sanitizer-minified.js?"></script>
-	<script defer src="/src/battle-log-misc.js?"></script>
-	<script defer src="/js/server/chat-formatter.js?"></script>
-	<script defer src="/js/battle-log.js?"></script>
-
 	<script defer src="/js/lib/preact.min.js?"></script>
 	<script defer src="/js/panels.js?"></script>
 	<script defer src="/js/panel-mainmenu.js?"></script>
 	<script defer src="/js/panel-rooms.js?"></script>
 	<script defer src="/js/panel-topbar.js?"></script>
 	<!-- at this point, the main view is loaded and usable -->
+
+	<script defer src="/js/lib/html-css-sanitizer-minified.js?"></script>
+	<script defer src="/src/battle-log-misc.js?"></script>
+	<script defer src="/js/server/chat-formatter.js?"></script>
+	<script defer src="/js/battle-log.js?"></script>
 
 	<script defer src="/js/miniedit.js?"></script>
 	<script defer src="/js/panel-chat-tournament.js?"></script>
@@ -113,6 +110,7 @@ https://psim.us/dev
 	<script defer src="/js/lib/jquery-2.2.4.min.js"></script>
 	<script defer src="/data/graphics.js?"></script>
 	<script defer src="/data/text.js?"></script>
+	<script defer src="/data/text-afd.js?"></script>
 	<script defer src="/js/battle-tooltips.js?"></script>
 	<script defer src="/js/battle.js?"></script>
 	<script defer src="/js/battle-choices.js?"></script>
