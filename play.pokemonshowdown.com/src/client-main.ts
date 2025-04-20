@@ -61,6 +61,7 @@ class PSPrefs extends PSStreamModel<string | null> {
 	noanim: boolean | null = null;
 	bwgfx: boolean | null = null;
 	nopastgens: boolean | null = null;
+
 	/* Chat Preferences */
 	blockPMs: boolean | null = null;
 	blockChallenges: boolean | null = null;
