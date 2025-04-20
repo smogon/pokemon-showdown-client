@@ -11,7 +11,6 @@
 
 import preact from "../js/lib/preact";
 import { toID } from "./battle-dex";
-import { BattleLog } from "./battle-log";
 import type { Args } from "./battle-text-parser";
 import { BattleTooltips } from "./battle-tooltips";
 import type { PSModel, PSStreamModel, PSSubscription } from "./client-core";
@@ -253,21 +252,21 @@ export class PSRoomPanel<T extends PSRoom = PSRoom> extends preact.Component<{ r
 export function PSPanelWrapper(props: {
 	room: PSRoom, children: preact.ComponentChildren,
 	focusClick?: boolean, scrollable?: boolean | 'hidden', width?: number | 'auto',
-	fullSize?: boolean,
+	fullSize?: boolean, onDragEnter?: (ev: DragEvent) => void,
 }) {
 	const room = props.room;
 	if (room.location === 'mini-window') {
 		const style = props.fullSize ? 'height: auto' : null;
 		return <div
 			id={`room-${room.id}`} class={'mini-window-contents ps-room-light' + (props.scrollable === true ? ' scrollable' : '')}
-			onClick={props.focusClick ? PSView.focusIfNoSelection : undefined} style={style}
+			onClick={props.focusClick ? PSView.focusIfNoSelection : undefined} style={style} onDragEnter={props.onDragEnter}
 		>
 			{props.children}
 		</div>;
 	}
 	if (PS.isPopup(room)) {
 		const style = PSView.getPopupStyle(room, props.width, props.fullSize);
-		return <div class="ps-popup" id={`room-${room.id}`} style={style}>
+		return <div class="ps-popup" id={`room-${room.id}`} style={style} onDragEnter={props.onDragEnter}>
 			{props.children}
 		</div>;
 	}
@@ -276,7 +275,7 @@ export function PSPanelWrapper(props: {
 	return <div
 		class={'ps-room' + (room.id === '' ? '' : ' ps-room-light') + (props.scrollable === true ? ' scrollable' : '')}
 		id={`room-${room.id}`}
-		style={style} onClick={props.focusClick ? PSView.focusIfNoSelection : undefined}
+		style={style} onClick={props.focusClick ? PSView.focusIfNoSelection : undefined} onDragEnter={props.onDragEnter}
 	>
 		{room.caughtError ? <div class="broadcast broadcast-red"><pre>{room.caughtError}</pre></div> : props.children}
 	</div>;
@@ -417,12 +416,16 @@ export class PSView extends preact.Component {
 					const cmd = elem.getAttribute('data-cmd')!;
 					const room = PS.getRoom(elem) || PS.mainmenu;
 					room.send(cmd);
+					ev.preventDefault();
+					ev.stopImmediatePropagation();
 					return;
 				}
 				if (elem.getAttribute('data-sendraw')) {
 					const cmd = elem.getAttribute('data-sendraw')!;
 					const room = PS.getRoom(elem) || PS.mainmenu;
 					room.sendDirect(cmd);
+					ev.preventDefault();
+					ev.stopImmediatePropagation();
 					return;
 				}
 				if (elem.tagName === 'BUTTON') {
@@ -563,6 +566,7 @@ export class PSView extends preact.Component {
 		if (!room) return;
 
 		if (window.getSelection?.()?.type === 'Range') return;
+		room.autoDismissNotifications();
 		PS.setFocus(room);
 	};
 	handleButtonClick(elem: HTMLButtonElement) {
@@ -767,8 +771,4 @@ export class PSView extends preact.Component {
 			{PS.popups.map(roomid => this.renderPopup(PS.rooms[roomid]!))}
 		</div>;
 	}
-}
-
-export function SanitizedHTML(props: { children: string }) {
-	return <div dangerouslySetInnerHTML={{ __html: BattleLog.sanitizeHTML(props.children) }} />;
 }

@@ -423,16 +423,16 @@ pre {
 }
 .minimizebutton:hover,
 .maximizebutton:hover,
-.mini-window h3:hover .minimizebutton {
+.mini-window-header:hover .minimizebutton {
 	color: #333333;
 }
 .dark .minimizebutton:hover,
 .dark .maximizebutton:hover,
-.dark .mini-window h3:hover .minimizebutton {
+.dark .mini-window-header:hover .minimizebutton {
 	color: #CCCCCC;
 }
-.mini-window h3 .closebutton:hover + button + .minimizebutton,
-.mini-window h3 .maximizebutton:hover + .minimizebutton {
+.mini-window-header .closebutton:hover + button + .minimizebutton,
+.mini-window-header .maximizebutton:hover + .minimizebutton {
 	color: #999999 !important;
 }
 .closebutton:active,
@@ -644,25 +644,86 @@ p.or:after {
  * Main menu
  *********************************************************/
 
-.leftmenu {
-	padding: 25px 0 0 0;
+.mainmenu {
+	position: sticky;
+	top: 0;
+	min-height: 100%;
+}
+
+.mainmenu-left {
+	padding: 25px 0 51px 0;
 	width: 300px;
 }
-.rightmenu {
+.mainmenu-right {
 	position: absolute;
 	top: 25px;
 	right: 0;
 	width: 300px;
 }
-.activitymenu {
+.mainmenu-mini-windows {
 	/* slightly overlaps with leftmenu but less than the margins */
 	position: absolute;
 	left: 295px;
-	top: 25px;
+	top: 0;
+	width: 312px;
 	min-height: 2px;
+	padding: 25px 0 51px 0;
+	z-index: 1;
 }
-.mainmenu {
-	padding: 0 0 51px 0;
+
+.mainmenu-footer {
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	padding: 0 0 15px 20px;
+	color: #BBBBBB;
+	text-shadow: 0 0 3px black, 0 0 3px black, 0 0 3px black;
+}
+.mainmenu-footer blockquote {
+	margin: 0 0 1em 0;
+	padding: 0;
+}
+.mainmenu-footer small {
+	font-size: 9pt;
+}
+.mainmenu-footer small small {
+	font-size: 8pt;
+}
+.mainmenu-footer a {
+	text-decoration: underline;
+	color: #99BBEE;
+}
+.mainmenu-footer a:hover {
+	text-decoration: underline;
+	color: #CCDDFF;
+}
+
+.mainmenu.tiny-layout, .mainmenu-mini-windows.tiny-layout {
+	position: static;
+	left: 0;
+	top: 0;
+	width: auto;
+	min-height: auto;
+}
+.mainmenu-mini-windows.tiny-layout {
+	padding-bottom: 0;
+}
+.tiny-layout .mainmenu-left, .tiny-layout .mainmenu-right {
+	width: auto;
+}
+.tiny-layout .mainmenu-footer {
+	position: static;
+}
+
+@media (max-width:1087px) {
+	.mainmenu-left {
+		padding-bottom: 0;
+	}
+	.mainmenu-right {
+		position: static;
+		top: 0;
+		padding-bottom: 51px;
+	}
 }
 
 .battleform {
@@ -674,84 +735,52 @@ p.or:after {
 	text-align: center;
 }
 
-.mainmenuwrapper {
-	position: relative;
-	min-height: 100%;
-}
-.mainmenufooter {
-	position: absolute;
-	bottom: 15px;
-	left: 20px;
-	color: #BBBBBB;
-	text-shadow: 0 0 3px black, 0 0 3px black, 0 0 3px black;
-}
-.mainmenufooter blockquote {
-	margin: 0 0 1em 0;
-	padding: 0;
-}
-.mainmenufooter small {
-	font-size: 9pt;
-}
-.mainmenufooter small small {
-	font-size: 8pt;
-}
-.mainmenufooter a {
-	text-decoration: underline;
-	color: #99BBEE;
-}
-.mainmenufooter a:hover {
-	text-decoration: underline;
-	color: #CCDDFF;
-}
-
 .mini-window {
-	margin: 0 0 12px 0;
+	margin: 0 auto 12px;
 	width: 312px;
 }
-.tiny-layout .mini-window {
-	margin: 0 auto 12px;
-}
-.mini-window h3 {
+.mini-window-header {
 	background: rgba(248,248,248,.8);
 	color: #777777;
 	margin: 0;
-	padding: 2px 4px 2px 5px;
+	padding: 2px 3px 2px 5px;
 	font-size: 11pt;
 	border: 1px solid #AAAAAA;
 	border-top-left-radius: 5px;
 	border-top-right-radius: 5px;
 	cursor: pointer;
 }
-.mini-window h3:hover {
+.mini-window-header:hover {
 	color: #333333;
 }
-.mini-window.collapsed h3 {
+.mini-window.collapsed .mini-window-header {
 	border-radius: 5px;
 }
-.mini-window h3.pm-notifying {
+.mini-window-header.notifying {
 	border-color: #AA8866;
 	background: #E3C3A3;
 }
-.dark .mini-window h3.pm-notifying {
+.dark .mini-window-header.notifying {
 	background: #417589;
 	color: #BBBBBB;
 }
-.mini-window h3.pm-notifying:hover {
+.mini-window-header.notifying:hover {
 	border-color: #604020;
 	background: #CFAF8F;
 }
-.dark .mini-window h3.pm-notifying:hover {
+.dark .mini-window-header.notifying:hover {
 	background: #417589;
 }
-.mini-window h3 .closebutton,
-.mini-window h3 .maximizebutton,
-.mini-window h3 .minimizebutton {
+.mini-window-header .closebutton,
+.mini-window-header .maximizebutton,
+.mini-window-header .minimizebutton {
 	float: right;
-	margin: -2px -5px 0 0;
+	margin: -2px -4px 0 0;
 	width: 22px;
 	height: 22px;
+	font-size: 16px;
 }
-.mini-window h3 small {
+.mini-window-header small {
 	color: #888888;
 	font-weight: normal;
 	vertical-align: 1px;
@@ -784,25 +813,25 @@ p.or:after {
 .mini-window.collapsed .mini-window-body {
 	display: none;
 }
-.mini-window.focused h3,
+.mini-window.focused .mini-window-header,
 .mini-window.focused .mini-window-contents,
 .mini-window.focused .mini-window-body {
 	border-color: #555555;
 }
-.mini-window.focused h3,
-.mini-window.focused h3:hover {
+.mini-window.focused .mini-window-header,
+.mini-window.focused .mini-window-header:hover {
 	background: #f8f8f8;
 	color: #222222;
 }
-.dark .mini-window h3 {
+.dark .mini-window-header {
 	background: rgba(50,50,50,.8);
 	color: #AAA;
 }
-.dark .mini-window h3:hover {
+.dark .mini-window-header:hover {
 	color: #CCC;
 }
-.dark .mini-window.focused h3,
-.dark .mini-window.focused h3:hover {
+.dark .mini-window.focused .mini-window-header,
+.dark .mini-window.focused .mini-window-header:hover {
 	background: #222;
 	color: #EEE;
 }
@@ -827,24 +856,6 @@ p.or:after {
 }
 .unread {
 	background: rgba(255,240,130,0.33);
-}
-
-.tiny-layout .leftmenu,
-.tiny-layout .rightmenu,
-.tiny-layout .activitymenu {
-	position: static;
-	top: 0;
-	right: 0;
-	left: 0;
-	width: auto;
-	margin: 0;
-	padding: 0;
-}
-.tiny-layout .leftmenu {
-	padding-top: 25px;
-}
-.tiny-layout .activitymenu {
-	padding-bottom: 8px;
 }
 
 .mainmessage {
@@ -957,18 +968,6 @@ form.menugroup {
 .button.mainmenu6 { background: linear-gradient(to bottom,  hsl(270,40%,72%),  hsl(270,40%,52%)); border-color: hsl(270,40%,40%); }
 .button.mainmenu6:hover { background: linear-gradient(to bottom,  hsl(270,40%,62%),  hsl(270,40%,42%)); }
 .button.mainmenu6:active { background: linear-gradient(to bottom,  hsl(270,40%,42%),  hsl(300,40%,58%)); }
-
-@media (max-width:1087px) {
-	.mainmenu {
-		padding-bottom: 1px;
-	}
-	.rightmenu, .tiny-layout .rightmenu {
-		position: static;
-		top: 0;
-		right: 0;
-		padding-bottom: 51px;
-	}
-}
 
 /*********************************************************
  * Ladder
@@ -2300,7 +2299,7 @@ pre.textbox.textbox-empty[placeholder]:before {
 
 /* main menu */
 
-.dark .mini-window.focused h3,
+.dark .mini-window.focused .mini-window-header,
 .dark .mini-window.focused .mini-window-body,
 .dark .mini-window.focused .mini-window-contents {
 	border-color: #CCC;

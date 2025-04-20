@@ -128,6 +128,10 @@ class RoomsPanel extends PSRoomPanel {
 				this.renderRoomList("Search results (acronym)", search.abbr),
 				this.renderRoomList("Possible hidden room", search.hidden),
 			];
+		} else if (PS.isOffline) {
+			roomList = [<div class="roomlist"><h2>Offline</h2></div>];
+		} else if (rooms.userCount === undefined) {
+			roomList = [<div class="roomlist"><h2>Official chat rooms</h2><p><em>Connecting...</em></p></div>];
 		} else {
 			const roomSections = {
 				official: [] as RoomInfo[], chat: [] as RoomInfo[], hidden: [] as RoomInfo[],
@@ -175,7 +179,6 @@ class RoomsPanel extends PSRoomPanel {
 					onInput={this.changeSearch} onKeyDown={this.keyDownSearch}
 				/>
 			</div>
-			{PS.isOffline ? <h2>(offline)</h2> : rooms.userCount === undefined && <h2>Connecting...</h2>}
 			{roomList}
 		</div></PSPanelWrapper>;
 	}

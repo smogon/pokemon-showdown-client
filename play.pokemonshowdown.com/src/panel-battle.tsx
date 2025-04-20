@@ -743,7 +743,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 					<button class="button" data-cmd="/close">
 						<strong>Main menu</strong><br /><small>(closes this battle)</small>
 					</button> {}
-					<button class="button" data-cmd={`/closeandchallenge ${room.battle.farSide.id},${room.battle.tier}`}>
+					<button class="button" data-cmd={`/closeand /challenge ${room.battle.farSide.id},${room.battle.tier}`}>
 						<strong>Rematch</strong><br /><small>(closes this battle)</small>
 					</button>
 				</p>

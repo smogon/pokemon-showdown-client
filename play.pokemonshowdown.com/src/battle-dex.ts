@@ -326,7 +326,7 @@ export const Dex = new class implements ModdedDex {
 
 	prefs(prop: string) {
 		// @ts-expect-error this is what I get for calling it Storage...
-		return window.Storage?.prefs?.(prop) || window.PS?.prefs?.[prop];
+		return window.Storage?.prefs ? window.Storage.prefs(prop) : window.PS?.prefs?.[prop];
 	}
 
 	getShortName(name: string) {

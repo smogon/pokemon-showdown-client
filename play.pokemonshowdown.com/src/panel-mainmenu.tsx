@@ -16,7 +16,7 @@ import type { RoomsRoom } from "./panel-rooms";
 import { TeamBox } from "./panel-teamdropdown";
 import { Dex, toID, type ID } from "./battle-dex";
 import type { Args } from "./battle-text-parser";
-import { BattleLog } from "./battle-log";
+import { BattleLog } from "./battle-log"; // optional
 
 export type RoomInfo = {
 	title: string, desc?: string, userCount?: number, section?: string, privacy?: 'hidden',
@@ -495,11 +495,14 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
 	renderMiniRooms() {
 		return PS.miniRoomList.map(roomid => {
 			const room = PS.rooms[roomid]!;
+			const notifying = room.notifications.length ? ' notifying' : room.isSubtleNotifying ? ' subtle-notifying' : '';
 			return <div
 				class={`mini-window${room.minimized ? ' collapsed' : ''}${room === PS.room ? ' focused' : ''}`}
 				key={roomid} data-roomid={roomid}
 			>
-				<h3 draggable onDragStart={this.handleDragStart} onClick={this.handleClickMinimize}>
+				<h3
+					class={`mini-window-header${notifying}`} draggable onDragStart={this.handleDragStart} onClick={this.handleClickMinimize}
+				>
 					<button class="closebutton" data-cmd="/close" aria-label="Close" tabIndex={-1}>
 						<i class="fa fa-times-circle"></i>
 					</button>
@@ -514,6 +517,7 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
 	renderGames() {
 		if (!PS.mainmenu.search.games) return null;
 
+		// This does not use the word "game" because it includes things like help tickets
 		return <div class="menugroup">
 			<p class="label">You are in:</p>
 			{Object.entries(PS.mainmenu.search.games).map(([roomid, gameName]) => <div>
@@ -575,31 +579,30 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
 	}
 	override render() {
 		const onlineButton = ' button' + (PS.isOffline ? ' disabled' : '');
-		return <PSPanelWrapper room={this.props.room} scrollable>
-			<div class={`mainmenuwrapper${this.props.room.width < 620 ? ' tiny-layout' : ''}`} onDragEnter={this.handleDragEnter}>
-				<div class="leftmenu">
-					<div class="activitymenu">
-						{this.renderMiniRooms()}
+		const tinyLayout = this.props.room.width < 620 ? ' tiny-layout' : '';
+		return <PSPanelWrapper room={this.props.room} scrollable onDragEnter={this.handleDragEnter}>
+			<div class={`mainmenu-mini-windows${tinyLayout}`}>
+				{this.renderMiniRooms()}
+			</div>
+			<div class={`mainmenu${tinyLayout}`}>
+				<div class="mainmenu-left">
+					{this.renderGames()}
+
+					{this.renderSearchButton()}
+
+					<div class="menugroup">
+						<p><button class="mainmenu2 mainmenu button" data-href="teambuilder">Teambuilder</button></p>
+						<p><button class={"mainmenu3 mainmenu" + onlineButton} data-href="ladder">Ladder</button></p>
+						<p><button class={"mainmenu4 mainmenu" + onlineButton} data-href="view-tournaments-all">Tournaments</button></p>
 					</div>
-					<div class="mainmenu">
-						{this.renderGames()}
 
-						{this.renderSearchButton()}
-
-						<div class="menugroup">
-							<p><button class="mainmenu2 mainmenu button" data-href="teambuilder">Teambuilder</button></p>
-							<p><button class={"mainmenu3 mainmenu" + onlineButton} data-href="ladder">Ladder</button></p>
-							<p><button class={"mainmenu4 mainmenu" + onlineButton} data-href="view-tournaments-all">Tournaments</button></p>
-						</div>
-
-						<div class="menugroup">
-							<p><button class={"mainmenu4 mainmenu" + onlineButton} data-href="battles">Watch a battle</button></p>
-							<p><button class={"mainmenu5 mainmenu" + onlineButton} data-href="users">Find a user</button></p>
-							<p><button class={"mainmenu6 mainmenu" + onlineButton} data-href="view-friends-all">Friends</button></p>
-						</div>
+					<div class="menugroup">
+						<p><button class={"mainmenu4 mainmenu" + onlineButton} data-href="battles">Watch a battle</button></p>
+						<p><button class={"mainmenu5 mainmenu" + onlineButton} data-href="users">Find a user</button></p>
+						<p><button class={"mainmenu6 mainmenu" + onlineButton} data-href="view-friends-all">Friends</button></p>
 					</div>
 				</div>
-				<div class="rightmenu" style={{ display: PS.leftPanelWidth ? 'none' : 'block' }}>
+				<div class="mainmenu-right" style={{ display: PS.leftPanelWidth ? 'none' : 'block' }}>
 					<div class="menugroup">
 						<p><button class={"mainmenu1 mainmenu" + onlineButton} data-href="rooms">Chat rooms</button></p>
 						{PS.server.id !== 'showdown' && (
@@ -607,7 +610,7 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
 						)}
 					</div>
 				</div>
-				<div class="mainmenufooter">
+				<div class="mainmenu-footer">
 					<div class="bgcredit"></div>
 					<small>
 						<a href={`//${Config.routes.dex}/`} target="_blank">Pok&eacute;dex</a> | {}
@@ -633,10 +636,14 @@ export class FormatDropdown extends preact.Component<{ format?: string, onChange
 	};
 	render() {
 		if (this.props.format) {
+			let [formatName, customRules] = this.props.format.split('@@@');
+			if (window.BattleLog) formatName = BattleLog.formatName(formatName);
 			return <button
 				name="format" value={this.props.format} class="select formatselect preselected" disabled
-				dangerouslySetInnerHTML={{ __html: BattleLog.escapeFormat(this.props.format) }}
-			></button>;
+			>
+				{formatName}
+				{!!customRules && [<br />, <small>Custom rules: {customRules}</small>]}
+			</button>;
 		}
 		return <button
 			name="format" value={this.format}
