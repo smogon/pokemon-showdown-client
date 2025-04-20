@@ -76,6 +76,7 @@ class PSPrefs extends PSStreamModel<string | null> {
 		hidelinks: false,
 		hideinterstice: true,
 	};
+
 	/**
 	 * Show "User joined" and "User left" messages. serverid:roomid
 	 * table. Uses 1 and 0 instead of true/false for JSON packing
