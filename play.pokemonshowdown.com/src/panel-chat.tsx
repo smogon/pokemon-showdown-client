@@ -776,8 +776,6 @@ export class ChatTextEntry extends preact.Component<{
 			return this.historyDown(true);
 		} else if (ev.keyCode === 27) { // esc
 			if (this.undoTabComplete()) {
-				ev.preventDefault();
-				ev.stopPropagation();
 				return true;
 			}
 			if (PS.room !== PS.panel) { // only close if in mini-room mode
