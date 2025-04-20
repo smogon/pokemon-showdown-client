@@ -702,12 +702,10 @@ export class ChatTextEntry extends preact.Component<{
 		}
 		return false;
 	}
-	/**
-	 * Taken from the old client — just tweaked a bit to:
-     * - Work with <pre> instead of <textarea>
-     * - Fit the way `room` now handles user info
-	 * TODO - add support for commands tabcomplete
-     */
+	// Taken from the old client — just tweaked a bit to:
+	// - Work with <pre> instead of <textarea>
+	// - Fit the way `room` now handles user info
+	// TODO - add support for commands tabcomplete
 	handleTabComplete(reverse: boolean) {
 		// Don't tab complete at the start of the text box.
 		let idx = this.getSelection().start;
