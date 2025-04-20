@@ -256,7 +256,7 @@ class TeamPanel extends PSRoomPanel<TeamRoom> {
 					/>
 				</label>
 				<TeamTextbox team={team} />
-				{info && (info.resources.length || info.url) && (
+				{!!(info && (info.resources.length || info.url)) && (
 					<>
 						<br /><br />
 						<div style={{ paddingLeft: "5px" }}>
