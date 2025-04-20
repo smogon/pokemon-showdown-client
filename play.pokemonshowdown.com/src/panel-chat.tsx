@@ -578,9 +578,8 @@ export class ChatTextEntry extends preact.Component<{
 		this.subscription = PS.user.subscribe(() => {
 			this.forceUpdate();
 		});
-		const textbox = (this.base!.children[0].children[1] ||
-			this.base!.querySelector('textarea[name=textbox]')) as HTMLElement;
-		if (textbox.tagName === 'TEXTAREA' || textbox.tagName === 'PRE') this.textbox = textbox as HTMLTextAreaElement;
+		const textbox = this.base!.children[0].children[1] as HTMLElement;
+		if (textbox.tagName === 'TEXTAREA') this.textbox = textbox as HTMLTextAreaElement;
 		this.miniedit = new MiniEdit(textbox, {
 			setContent: text => {
 				textbox.innerHTML = formatText(text, false, false, true) + '\n';
@@ -710,10 +709,10 @@ export class ChatTextEntry extends preact.Component<{
      */
 	handleTabComplete(reverse: boolean) {
 		// Don't tab complete at the start of the text box.
-		let idx = this.textbox.selectionStart;
+		let idx = this.getSelection().start;
 		if (idx === 0) return false;
 		let users = (this.props.room as ChatRoom)?.users || (PS.rooms['lobby'] ? (PS.rooms['lobby'] as ChatRoom).users : {});
-		let text = this.textbox.innerHTML;
+		let text = this.miniedit?.getValue() || '';
 		let prefix = text.substr(0, idx);
 		if (this.tabComplete.cursor !== null && prefix === this.tabComplete.cursor) {
 			// The user is cycling through the candidate names.
@@ -776,7 +775,6 @@ export class ChatTextEntry extends preact.Component<{
 				return true;
 			}
 		}
-
 		// Substitute in the tab-completed name.
 		let candidate = this.tabComplete.candidates ? this.tabComplete.candidates[this.tabComplete.index] : '';
 		let substituteUserId = candidate[0];
@@ -787,27 +785,21 @@ export class ChatTextEntry extends preact.Component<{
 		name = Dex.getShortName(name).replace(/^[^a-zA-Z0-9]+|[^a-zA-Z0-9]+$/g, "");
 		let prefixIndex = candidate[1].toString().startsWith('/') ? prefix.lastIndexOf('\n') + 1 : candidate[1];
 		let fullPrefix = this.tabComplete.prefix?.substr(0, prefixIndex as number) + name;
-		this.textbox.innerHTML = (fullPrefix);
+		this.miniedit?._setContent(fullPrefix);
 		let pos = fullPrefix.length;
-		// this.textbox.setSelectionRange?.(pos, pos);
-		// Since <pre> elements do not support setSelectionRange (only input/textarea do),
-		// we use the Selection API to manually move the cursor to the end.
-		const range = document.createRange();
-		const selection = window.getSelection();
-		range.selectNodeContents(this.textbox);
-		range.collapse(false); // collapse to the end
-		selection?.removeAllRanges();
-		selection?.addRange(range);
-		this.textbox.focus();
-		this.tabComplete.cursor = pos;
+		this.setSelection(pos, pos);
+		this.miniedit?.element.focus();
+		this.tabComplete.cursor = text.length;
 		return true;
 	}
 	undoTabComplete() {
-		let cursorPosition = this.textbox.selectionEnd;
+		let cursorPosition = this.getSelection().end;
 		if (!this.tabComplete.cursor ||
-			this.textbox.innerHTML.substr(0, cursorPosition) !== this.tabComplete.cursor) return false;
-		this.textbox.innerHTML = (this.tabComplete.prefix || '' + this.textbox.innerHTML.substr(cursorPosition));
-		this.textbox.selectionEnd = this.tabComplete.prefix?.length;
+			this.miniedit?.getValue().substr(0, this.tabComplete.cursor as number).toLowerCase().trim() !==
+			this.tabComplete.prefix?.toLowerCase().trim()) return false;
+		this.miniedit?._setContent(this.tabComplete.prefix || '' + this.textbox.innerHTML.substr(cursorPosition));
+		this.setSelection(this.tabComplete.prefix?.length, this.tabComplete.prefix?.length);
+		this.tabComplete.reset();
 		return true;
 	}
 	getSelection() {
