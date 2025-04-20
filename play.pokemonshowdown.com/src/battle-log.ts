@@ -17,6 +17,7 @@ import type { Battle } from './battle';
 import type { BattleScene } from './battle-animations';
 import { Dex, Teams, toID, toRoomid, toUserid, type ID } from './battle-dex';
 import { BattleTextParser, type Args, type KWArgs } from './battle-text-parser';
+import type { Net } from './client-connection';
 
 // Caja
 declare const html4: any;
@@ -1787,4 +1788,12 @@ export class BattleLog {
 		}
 		return 'data:text/plain;base64,' + encodeURIComponent(btoa(unescape(encodeURIComponent(replayFile))));
 	}
+}
+
+const net = (window.Net as typeof Net | undefined);
+if (net) {
+	net(`/config/colors.json`).get().then(response => {
+		const data = JSON.parse(response);
+		Object.assign(Config.customcolors, data);
+	});
 }
