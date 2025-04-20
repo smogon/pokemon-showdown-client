@@ -205,7 +205,7 @@ class TeamPanel extends PSRoomPanel<TeamRoom> {
 	static readonly Model = TeamRoom;
 	static readonly title = 'Team';
 
-	resources!: FormatResource;
+	resources?: FormatResource;
 
 	constructor(props?: { room: TeamRoom }) {
 		super(props);
