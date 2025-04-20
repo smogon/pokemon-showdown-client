@@ -13,7 +13,7 @@ import preact from "../js/lib/preact";
 import { PS, type PSRoom, type RoomID } from "./client-main";
 import { PSView } from "./panels";
 import type { Battle } from "./battle";
-import { BattleLog } from "./battle-log";
+import { BattleLog } from "./battle-log"; // optional
 
 window.addEventListener('drop', e => {
 	console.log('drop ' + e.dataTransfer!.dropEffect);
@@ -94,7 +94,7 @@ export class PSHeader extends preact.Component<{ style: object }> {
 			if (idChunks.length <= 1) {
 				if (idChunks[0] === 'uploadedreplay') formatName = 'Uploaded Replay';
 			} else {
-				formatName = BattleLog.formatName(idChunks[0]);
+				formatName = window.BattleLog ? BattleLog.formatName(idChunks[0]) : idChunks[0];
 			}
 			if (!title) {
 				let battle = (room as any).battle as Battle | undefined;

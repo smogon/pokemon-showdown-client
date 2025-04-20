@@ -887,6 +887,12 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 			const roomid = /[^a-z0-9-]/.test(target) ? toID(target) as any as RoomID : target as RoomID;
 			PS.leave(roomid || this.id);
 		},
+		'closeand'(target) {
+			// we actually do the close last, because a lot of things stop working
+			// after you delete the room
+			this.send(target);
+			PS.leave(this.id);
+		},
 		'maximize'(target) {
 			const roomid = /[^a-z0-9-]/.test(target) ? toID(target) as any as RoomID : target as RoomID;
 			const targetRoom = roomid ? PS.rooms[roomid] : this;
@@ -1410,7 +1416,7 @@ export const PS = new class extends PSModel {
 	/** Tracks whether or not to display the "Use arrow keys" hint */
 	arrowKeysUsed = false;
 
-	newsHTML = document.querySelector('#room-news .mini-window-body')?.innerHTML || '';
+	newsHTML = document.querySelector('#room-news .readable-bg')?.innerHTML || '';
 
 	libsLoaded = makeLoadTracker();
 

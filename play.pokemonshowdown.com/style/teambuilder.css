@@ -261,6 +261,7 @@
 	padding-left: 100px;
 	box-sizing: border-box;
 	line-height: 20px;
+	resize: none;
 }
 .teaminnertextbox {
 	width: 320px;
