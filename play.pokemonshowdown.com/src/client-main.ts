@@ -56,6 +56,7 @@ class PSPrefs extends PSStreamModel<string | null> {
 	 * null - Enable GIFs only on Chrome 64.
 	 */
 	nogif: boolean | null = null;
+
 	/* Graphics Preferences */
 	noanim: boolean | null = null;
 	bwgfx: boolean | null = null;
