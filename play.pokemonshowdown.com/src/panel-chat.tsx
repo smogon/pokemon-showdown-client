@@ -49,7 +49,8 @@ export class ChatRoom extends PSRoom {
 	lastMessage: Args | null = null;
 
 	joinLeave: { join: string[], leave: string[], messageId: string } | null = null;
-	userActivity: string[] | null = null;
+	/** in order from least to most recent */
+	userActivity: string[] = [];
 	timeOffset = 0;
 
 	constructor(options: RoomOptions) {
@@ -104,7 +105,7 @@ export class ChatRoom extends PSRoom {
 			if (args[0] === 'c:') PS.lastMessageTime = args[1];
 			this.lastMessage = args;
 			this.joinLeave = null;
-			this.markUserActive(args[2].trim());
+			this.markUserActive(args[2]);
 			if (this.tour) this.tour.joinLeave = null;
 			this.subtleNotify();
 			break;
@@ -242,7 +243,7 @@ export class ChatRoom extends PSRoom {
 			const gens: { [key: string]: number } = {};
 			for (let i = 1, len = targets.length; i < len; i++) {
 				targets[i] = $.trim(targets[i]);
-				if (targets[i].length === 4 && targets[i].substr(0, 3) === 'gen') {
+				if (targets[i].length === 4 && targets[i].startsWith('gen')) {
 					gens[targets[i]] = 1;
 				} else {
 					formats[toID(targets[i])] = 1;
@@ -474,15 +475,15 @@ export class ChatRoom extends PSRoom {
 		}
 		this.update(null);
 	}
-	markUserActive(userid: string) {
-		if (!this.userActivity) this.userActivity = [];
-		let idx = this.userActivity.indexOf(userid);
+	markUserActive(name: string) {
+		const userid = toID(name);
+		const idx = this.userActivity.indexOf(userid);
 		if (idx !== -1) {
 			this.userActivity.splice(idx, 1);
 		}
 		this.userActivity.push(userid);
 		if (this.userActivity.length > 100) {
-			// Prune the list.
+			// Prune the list
 			this.userActivity.splice(0, 20);
 		}
 	}
@@ -597,7 +598,7 @@ export class ChatRoom extends PSRoom {
 }
 
 export class ChatTextEntry extends preact.Component<{
-	room: PSRoom, onMessage: (msg: string) => void, onKey: (e: KeyboardEvent) => boolean,
+	room: ChatRoom, onMessage: (msg: string) => void, onKey: (e: KeyboardEvent) => boolean,
 	left?: number, tinyLayout?: boolean,
 }> {
 	subscription: PSSubscription | null = null;
@@ -606,20 +607,13 @@ export class ChatTextEntry extends preact.Component<{
 	history: string[] = [];
 	historyIndex = 0;
 	tabComplete: {
-		candidates: string[][],
-		index: number,
+		candidates: { userid: string, prefixIndex: number }[],
+		candidateIndex: number,
+		/** the text left of the cursor before tab completing */
 		prefix: string,
-		cursor: string | number | null,
-		reset: () => void,
-	} = {
-			candidates: [],
-			index: 0,
-			prefix: '',
-			cursor: null,
-			reset() {
-				this.cursor = null;
-			},
-		};
+		/** the text left of the cursor after tab completing */
+		cursor: string,
+	} | null = null;
 	override componentDidMount() {
 		this.subscription = PS.user.subscribe(() => {
 			this.forceUpdate();
@@ -789,103 +783,100 @@ export class ChatTextEntry extends preact.Component<{
 		}
 		return false;
 	}
-	// Taken from the old client — just tweaked a bit to:
-	// - Work with <pre> instead of <textarea>
-	// - Fit the way `room` now handles user info
 	// TODO - add support for commands tabcomplete
 	handleTabComplete(reverse: boolean) {
 		// Don't tab complete at the start of the text box.
-		let idx = this.getSelection().start;
-		if (idx === 0) return false;
-		let users = (this.props.room as ChatRoom)?.users ||
-			(PS.rooms['lobby'] ? (
-				PS.rooms['lobby'] as ChatRoom).users :
-			{});
-		let text = this.miniedit?.getValue() || '';
-		let prefix = text.slice(0, idx);
-		if (this.tabComplete.cursor !== null && prefix === this.tabComplete.cursor) {
+		let { value, start, end } = this.getSelection();
+		if (start !== end || end === 0) return false;
+
+		const users = this.props.room.users;
+		let prefix = value.slice(0, end);
+		if (this.tabComplete && prefix === this.tabComplete.cursor) {
 			// The user is cycling through the candidate names.
 			if (reverse) {
-				this.tabComplete.index--;
+				this.tabComplete.candidateIndex--;
+				if (this.tabComplete.candidateIndex < 0) {
+					this.tabComplete.candidateIndex = this.tabComplete.candidates.length - 1;
+				}
 			} else {
-				this.tabComplete.index++;
+				this.tabComplete.candidateIndex++;
+				if (this.tabComplete.candidateIndex >= this.tabComplete.candidates.length) {
+					this.tabComplete.candidateIndex = 0;
+				}
 			}
-			if (this.tabComplete.index >= this.tabComplete.candidates?.length) this.tabComplete.index = 0;
-			if (this.tabComplete.index < 0) this.tabComplete.index = this.tabComplete.candidates?.length - 1;
+		} else if (!value || reverse) {
+			// not tab completing - let them focus things
+			return false;
 		} else {
 			// This is a new tab completion.
 			// There needs to be non-whitespace to the left of the cursor.
 			// no command prefixes either, we're testing for usernames here.
 			prefix = prefix.trim();
 
-			let m1 = /^([\s\S!/]*?)([A-Za-z0-9][^, \n]*)$/.exec(prefix);
-			let m2 = /^([\s\S!/]*?)([A-Za-z0-9][^, \n]* [^, ]*)$/.exec(prefix);
-			if (!m1 && !m2) return true;
+			/** match of the closest word left of the cursor */
+			const match1 = /^([\s\S!/]*?)([A-Za-z0-9][^, \n]*)$/.exec(prefix);
+			/** match of the closest two words left of the cursor */
+			const match2 = /^([\s\S!/]*?)([A-Za-z0-9][^, \n]* [^, ]*)$/.exec(prefix);
+			if (!match1 && !match2) return true;
 
-			this.tabComplete.prefix = prefix;
-			let idprefix = (m1 ? toID(m1[2]) : '');
-			let spaceprefix = (m2 ? m2[2].replace(/[^A-Za-z0-9 ]+/g, '').toLowerCase() : '');
-			let candidates: string[][] = []; // array of [candidate userid, prefix length]
-			// don't include command names in autocomplete
-			if (m2 && (m2[0] === '/' || m2[0] === '!')) spaceprefix = '';
-			for (let i in users) {
-				if (spaceprefix && users[i].replace(/[^A-Za-z0-9 ]+/g, '')
+			const idprefix = (match1 ? toID(match1[2]) : '');
+			let spaceprefix = (match2 ? match2[2].replace(/[^A-Za-z0-9 ]+/g, '').toLowerCase() : '');
+			const candidates: { userid: string, prefixIndex: number }[] = [];
+			if (match2 && (match2[0] === '/' || match2[0] === '!')) spaceprefix = '';
+			for (const userid in users) {
+				if (spaceprefix && users[userid].slice(1).replace(/[^A-Za-z0-9 ]+/g, '')
 					.toLowerCase()
-					.substr(0, spaceprefix.length) === spaceprefix) {
-					if (m2) candidates.push([i, String(m2[1].length)] as never);
-				} else if (idprefix && i.substr(0, idprefix.length) === idprefix) {
-					if (m1) candidates.push([i, m1[1].length] as never);
+					.startsWith(spaceprefix)) {
+					if (match2) candidates.push({ userid, prefixIndex: match2[1].length });
+				} else if (idprefix && userid.startsWith(idprefix)) {
+					if (match1) candidates.push({ userid, prefixIndex: match1[1].length });
 				}
 			}
 			// Sort by most recent to speak in the chat, or, in the case of a tie,
 			// in alphabetical order.
+			const userActivity = this.props.room.userActivity;
 			candidates.sort((a, b) => {
-				if (a[1] !== b[1]) {
+				if (a.prefixIndex !== b.prefixIndex) {
 					// shorter prefix length comes first
-					return Number([1]) - Number(b[1]);
+					return a.prefixIndex - b.prefixIndex;
 				}
-				let userActivity = (this.props.room as ChatRoom).userActivity;
-				let aidx = userActivity?.indexOf(a[0]) || -1;
-				let bidx = userActivity?.indexOf(b[0]) || -1;
-				if (aidx !== -1) {
-					if (bidx !== -1) {
-						return bidx - aidx;
-					}
-					return -1; // a comes first
-				} else if (bidx !== -1) {
-					return 1; // b comes first
+				const aIndex = userActivity?.indexOf(a.userid) ?? -1;
+				const bIndex = userActivity?.indexOf(b.userid) ?? -1;
+				if (aIndex !== bIndex) {
+					return bIndex - aIndex; // -1 is fortunately already in the correct order
 				}
-				return (a[0] < b[0]) ? -1 : 1; // alphabetical order
+				return (a.userid < b.userid) ? -1 : 1; // alphabetical order
 			});
-			this.tabComplete.candidates = candidates;
-			this.tabComplete.index = 0;
+
 			if (!candidates.length) {
-				this.tabComplete.cursor = null;
+				this.tabComplete = null;
 				return true;
 			}
+			this.tabComplete = {
+				candidates,
+				candidateIndex: 0,
+				prefix,
+				cursor: prefix,
+			};
 		}
-		// Substitute in the tab-completed name.
-		let candidate = this.tabComplete.candidates ? this.tabComplete.candidates[this.tabComplete.index] : '';
-		let substituteUserId = candidate[0];
-		let substituteUser = users[substituteUserId] || candidate[1];
-		if (!substituteUser) return true;
-		let name = substituteUser;
-		// Remove rank and busy charaxcters
-		name = Dex.getShortName(name).replace(/^[^a-zA-Z0-9]+|[^a-zA-Z0-9]+$/g, "");
-		let prefixIndex = candidate[1].toString().startsWith('/') ? prefix.lastIndexOf('\n') + 1 : candidate[1];
-		let fullPrefix = this.tabComplete.prefix?.substr(0, prefixIndex as number) + name;
-		this.setValue(fullPrefix, fullPrefix.length);
-		this.tabComplete.cursor = text.length;
+		// Substitute in the tab-completed name
+		const candidate = this.tabComplete.candidates[this.tabComplete.candidateIndex];
+		let name = users[candidate.userid];
+		if (!name) return true;
+
+		name = Dex.getShortName(name.slice(1)); // Remove rank and busy characters
+		const cursor = this.tabComplete.prefix.slice(0, candidate.prefixIndex) + name;
+		this.setValue(cursor + value.slice(end), cursor.length);
+		this.tabComplete.cursor = cursor;
 		return true;
 	}
 	undoTabComplete() {
-		let cursorPosition = this.getSelection().end;
-		if (!this.tabComplete.cursor ||
-			this.miniedit?.getValue().substr(0, this.tabComplete.cursor as number).toLowerCase().trim() !==
-			this.tabComplete.prefix?.toLowerCase().trim()) return false;
-		this.miniedit?._setContent(this.tabComplete.prefix || '' + this.textbox.innerHTML.substr(cursorPosition));
-		this.setSelection(this.tabComplete.prefix?.length, this.tabComplete.prefix?.length);
-		this.tabComplete.reset();
+		if (!this.tabComplete) return false;
+		const value = this.getValue();
+		if (!value.startsWith(this.tabComplete.cursor)) return false;
+
+		this.setValue(this.tabComplete.prefix + value.slice(this.tabComplete.cursor.length), this.tabComplete.prefix.length);
+		this.tabComplete = null;
 		return true;
 	}
 	toggleFormatChar(formatChar: string) {
@@ -903,25 +894,25 @@ export class ChatTextEntry extends preact.Component<{
 
 		// wrap in doubled format char
 		const wrap = formatChar + formatChar;
-		value = value.substr(0, start) + wrap + value.substr(start, end - start) + wrap + value.substr(end);
+		value = value.slice(0, start) + wrap + value.slice(start, end) + wrap + value.slice(end);
 		start += 2;
 		end += 2;
 
 		// prevent nesting
 		const nesting = wrap + wrap;
-		if (value.substr(start - 4, 4) === nesting) {
-			value = value.substr(0, start - 4) + value.substr(start);
+		if (value.slice(start - 4, start) === nesting) {
+			value = value.slice(0, start - 4) + value.slice(start);
 			start -= 4;
 			end -= 4;
-		} else if (start !== end && value.substr(start - 2, 4) === nesting) {
-			value = value.substr(0, start - 2) + value.substr(start + 2);
+		} else if (start !== end && value.slice(start - 2, start + 2) === nesting) {
+			value = value.slice(0, start - 2) + value.slice(start + 2);
 			start -= 2;
 			end -= 4;
 		}
-		if (value.substr(end, 4) === nesting) {
-			value = value.substr(0, end) + value.substr(end + 4);
-		} else if (start !== end && value.substr(end - 2, 4) === nesting) {
-			value = value.substr(0, end - 2) + value.substr(end + 2);
+		if (value.slice(end, end + 4) === nesting) {
+			value = value.slice(0, end) + value.slice(end + 4);
+		} else if (start !== end && value.slice(end - 2, end + 2) === nesting) {
+			value = value.slice(0, end - 2) + value.slice(end + 2);
 			end -= 2;
 		}
 
@@ -1105,11 +1096,11 @@ export class ChatUserList extends preact.Component<{
 						{groupSymbol}
 					</em>
 					{group.type === 'leadership' ? (
-						<strong><em style={{ color }}>{name.substr(1)}</em></strong>
+						<strong><em style={{ color }}>{name.slice(1)}</em></strong>
 					) : group.type === 'staff' ? (
-						<strong style={{ color }}>{name.substr(1)}</strong>
+						<strong style={{ color }}>{name.slice(1)}</strong>
 					) : (
-						<span style={{ color }}>{name.substr(1)}</span>
+						<span style={{ color }}>{name.slice(1)}</span>
 					)}
 				</button></li>;
 			})}
