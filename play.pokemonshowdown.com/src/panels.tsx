@@ -365,6 +365,18 @@ export class PSView extends preact.Component {
 					elem.className = 'spoiler';
 				}
 
+				if (elem.className === 'datasearch') {
+					const target = $(elem).closest('[class=datasearch]')[0];
+					const button = target.querySelector('button');
+					const results = target.querySelectorAll<HTMLElement>('[class=datasearch-body]');
+					if (!button || !results || results.length < 2) return;
+					button.innerHTML = button.innerHTML === '[-]' ? '[+]' : '[-]';
+					for (var i = 0; i < results.length; i++) {
+						console.log(results[i]);
+						results[i].style.display = results[i].style.display === 'none' ? 'block' : 'none';
+					}
+				}
+
 				if (` ${elem.className} `.includes(' username ')) {
 					const name = elem.getAttribute('data-name') || elem.innerText;
 					const userid = toID(name);
