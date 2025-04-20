@@ -540,18 +540,14 @@ export class PSTeambuilder {
 
 	static getFormatResources(format: string): Promise<FormatResource> {
 		if (format in this.formatResources) return Promise.resolve(this.formatResources[format]);
-		return new Promise(resolve => {
-			Net('https://www.smogon.com/dex/api/formats/by-ps-name/' + format).get().then(
-				result => {
-					this.formatResources[format] = JSON.parse(result);
-					resolve(this.formatResources[format]);
-				},
-				err => {
-					this.formatResources[format] = null;
-					resolve(this.formatResources[format]);
-				}
-			);
-		});
+		return Net('https://www.smogon.com/dex/api/formats/by-ps-name/' + format).get()
+			.then(result => {
+				this.formatResources[format] = JSON.parse(result);
+				return this.formatResources[format];
+			}).catch(err => {
+				this.formatResources[format] = null;
+				return this.formatResources[format];
+			});
 	}
 }
 
