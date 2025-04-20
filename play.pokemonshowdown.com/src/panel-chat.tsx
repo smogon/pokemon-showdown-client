@@ -787,9 +787,7 @@ export class ChatTextEntry extends preact.Component<{
 		name = Dex.getShortName(name).replace(/^[^a-zA-Z0-9]+|[^a-zA-Z0-9]+$/g, "");
 		let prefixIndex = candidate[1].toString().startsWith('/') ? prefix.lastIndexOf('\n') + 1 : candidate[1];
 		let fullPrefix = this.tabComplete.prefix?.substr(0, prefixIndex as number) + name;
-		this.miniedit?._setContent(fullPrefix);
-		let pos = fullPrefix.length;
-		this.setSelection(pos, pos);
+		this.setValue(fullPrefix, { start: fullPrefix.length, end: fullPrefix.length });
 		this.miniedit?.element.focus();
 		this.tabComplete.cursor = text.length;
 		return true;
