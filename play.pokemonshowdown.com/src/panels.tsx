@@ -371,9 +371,8 @@ export class PSView extends preact.Component {
 					const results = target.querySelectorAll<HTMLElement>('[class=datasearch-body]');
 					if (!button || !results || results.length < 2) return;
 					button.innerHTML = button.innerHTML === '[-]' ? '[+]' : '[-]';
-					for (var i = 0; i < results.length; i++) {
-						console.log(results[i]);
-						results[i].style.display = results[i].style.display === 'none' ? 'block' : 'none';
+					for (const result of results) {
+						result.style.display = result.style.display === 'none' ? 'block' : 'none';
 					}
 				}
 
