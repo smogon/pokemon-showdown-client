@@ -8,7 +8,7 @@
 import preact from "../js/lib/preact";
 import { PS, PSRoom, type Team } from "./client-main";
 import { PSPanelWrapper, PSRoomPanel } from "./panels";
-import { PSTeambuilder } from "./panel-teamdropdown";
+import { PSTeambuilder, type FormatResource } from "./panel-teamdropdown";
 import { Dex, toID, type ID } from "./battle-dex";
 import { DexSearch } from "./battle-dex-search";
 import { PSSearchResults } from "./battle-searchresults";
@@ -205,6 +205,22 @@ class TeamPanel extends PSRoomPanel<TeamRoom> {
 	static readonly Model = TeamRoom;
 	static readonly title = 'Team';
 
+	resources!: FormatResource;
+
+	constructor(props?: { room: TeamRoom }) {
+		super(props);
+		const room = this.props.room;
+		const team = PS.teams.byKey[room.id.slice(5)];
+		if (team) {
+			PSTeambuilder.getFormatResources(team.format).then(resources => {
+				this.resources = resources;
+				this.forceUpdate();
+			});
+		} else {
+			this.resources = null;
+		}
+	}
+
 	rename = (e: Event) => {
 		const textbox = e.currentTarget as HTMLInputElement;
 		const room = this.props.room;
@@ -227,6 +243,7 @@ class TeamPanel extends PSRoomPanel<TeamRoom> {
 		}
 
 		if (!room.team) room.team = team;
+		const info = this.resources;
 		return <PSPanelWrapper room={room} scrollable>
 			<div class="pad">
 				<button class="button" data-href="teambuilder" data-target="replace">
@@ -239,6 +256,23 @@ class TeamPanel extends PSRoomPanel<TeamRoom> {
 					/>
 				</label>
 				<TeamTextbox team={team} />
+				{info && (info.resources.length || info.url) && (
+					<>
+						<br /><br />
+						<div style={{ paddingLeft: "5px" }}>
+							<h3 style={{ fontSize: "12px" }}>Teambuilding resources for this tier:</h3>
+						</div>
+						<ul>
+							{info.resources.map(resource => (
+								<li><p><a href={resource.url} target="_blank">{resource.resource_name}</a></p></li>
+							))}
+						</ul>
+						<div style={{ paddingLeft: "5px" }}>
+							Find {info.resources.length ? 'more ' : ''}
+							helpful resources for this tier on <a href={info.url} target="_blank">the Smogon Dex</a>.
+						</div>
+					</>
+				)}
 			</div>
 		</PSPanelWrapper>;
 	}
