@@ -712,7 +712,7 @@ export class ChatTextEntry extends preact.Component<{
 		if (idx === 0) return false;
 		let users = (this.props.room as ChatRoom)?.users || (PS.rooms['lobby'] ? (PS.rooms['lobby'] as ChatRoom).users : {});
 		let text = this.miniedit?.getValue() || '';
-		let prefix = text.substr(0, idx);
+		let prefix = text.slice(0, idx);
 		if (this.tabComplete.cursor !== null && prefix === this.tabComplete.cursor) {
 			// The user is cycling through the candidate names.
 			if (reverse) {
