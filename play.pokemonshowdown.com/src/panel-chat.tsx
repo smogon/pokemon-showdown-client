@@ -877,7 +877,6 @@ export class ChatTextEntry extends preact.Component<{
 		let prefixIndex = candidate[1].toString().startsWith('/') ? prefix.lastIndexOf('\n') + 1 : candidate[1];
 		let fullPrefix = this.tabComplete.prefix?.substr(0, prefixIndex as number) + name;
 		this.setValue(fullPrefix, fullPrefix.length);
-		this.miniedit?.element.focus();
 		this.tabComplete.cursor = text.length;
 		return true;
 	}
