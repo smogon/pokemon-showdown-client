@@ -77,7 +77,7 @@ export class BattlePanel extends preact.Component<{ id: string }> {
 	override componentDidMount() {
 		this.loadBattle(this.props.id);
 		showAd('LeaderboardBTF');
-		window.onkeydown = this.keyPressed;
+		window.addEventListener('keydown', this.keyPressed);
 	}
 	override componentWillReceiveProps(nextProps: this['props']) {
 		if (this.stripQuery(this.props.id) !== this.stripQuery(nextProps.id)) {
@@ -145,7 +145,7 @@ export class BattlePanel extends preact.Component<{ id: string }> {
 	override componentWillUnmount(): void {
 		this.battle?.destroy();
 		(window as any).battle = null;
-		window.onkeydown = null;
+		window.removeEventListener('keydown', this.keyPressed);
 	}
 	override componentDidUpdate(): void {
 		if (this.autofocusTurnView === 'select') {
@@ -159,17 +159,22 @@ export class BattlePanel extends preact.Component<{ id: string }> {
 			this.autofocusTurnView = null;
 		}
 	}
+	// @ts-expect-error really wish they let me assert that the target is an HTMLElement
 	keyPressed = (e: KeyboardEvent) => {
-		this.lastUsedKeyCode = `${e.keyCode}`;
+		this.lastUsedKeyCode = `${e.code}`;
 		if (e.ctrlKey || e.metaKey || e.altKey) return;
-		if (e.keyCode === 27 && this.turnView) { // Esc
+
+		const target = e.target as HTMLElement;
+		if (target.tagName === 'INPUT' || target.tagName === 'SELECT' || target.tagName === 'TEXTAREA' || target.isContentEditable) return;
+
+		if (e.key === 'Escape' && this.turnView) {
 			this.closeTurn();
 			return;
 		}
-		// @ts-expect-error really wish they let me assert that the target is an HTMLElement
-		if (e.target?.tagName === 'INPUT' || e.target?.tagName === 'SELECT') return;
-		switch (e.keyCode) {
-		case 75: // k
+
+		switch (e.key) {
+		case 'k':
+		case 'K':
 			if (this.battle?.atQueueEnd) {
 				this.replay();
 			} else if (this.battle?.paused) {
@@ -178,22 +183,40 @@ export class BattlePanel extends preact.Component<{ id: string }> {
 				this.pause();
 			}
 			break;
-		case 74: // j
-			if (e.shiftKey) this.firstTurn();
-			else this.prevTurn();
+		case 'j':
+			this.prevTurn();
 			break;
-		case 76: // l
-			if (e.shiftKey) this.lastTurn();
-			else this.nextTurn();
+		case 'J':
+			this.firstTurn();
 			break;
-		case 188: // , (<)
+		case 'l':
+			this.nextTurn();
+			break;
+		case 'L':
+			this.lastTurn();
+			break;
+		case ',':
 			if (e.shiftKey) this.stepSpeed(-1);
 			break;
-		case 190: // . (>)
+		case '.':
 			if (e.shiftKey) this.stepSpeed(1);
 			break;
-		case 191: // / (?)
+		case '/':
+		case '?':
 			if (e.shiftKey) {
+				console.log(
+					'Keyboard Shortcuts:\n' +
+					'k = play/pause\n' +
+					'j = previous turn\n' +
+					'l = next turn\n' +
+					'Shift + j = first turn\n' +
+					'Shift + l = last turn\n' +
+					'm = mute/unmute\n' +
+					'Shift + , (<) = slower\n' +
+					'Shift + . (>) = faster\n' +
+					'0-9 = skip to turn (start typing)\n' +
+					'Shift + / (?) = Show this help'
+				);
 				alert(
 					'k = play/pause\n' +
 					'j = previous turn\n' +
@@ -208,19 +231,17 @@ export class BattlePanel extends preact.Component<{ id: string }> {
 				);
 			}
 			break;
-		case 48: case 49: case 50: case 51: case 52: case 53: case 54: case 55: case 56: case 57: // 0-9
-		case 96: case 97: case 98: case 99: case 100: case 101: case 102: case 103: case 104: case 105: // numpad 0-9
-			this.turnView = String.fromCharCode(e.keyCode - (e.keyCode >= 96 ? 48 : 0));
-			if (this.turnView === '0') this.turnView = '10';
+		case '0': case '1': case '2': case '3': case '4': case '5': case '6': case '7': case '8': case '9':
+			this.turnView = (e.key === '0' && this.turnView === true) ? '10' : e.key;
 			this.autofocusTurnView = 'end';
 			e.preventDefault();
 			this.forceUpdate();
 			break;
-		case 77: // m
+		case 'm':
+		case 'M':
 			this.toggleMute();
 			break;
 		}
-		this.forceUpdate();
 	};
 	play = () => {
 		this.battle?.play();
@@ -246,13 +267,19 @@ export class BattlePanel extends preact.Component<{ id: string }> {
 		this.battle?.seekTurn(Infinity);
 	};
 	goToTurn = (e: Event) => {
-		const turn = this.base?.querySelector<HTMLInputElement>('input[name=turn]')?.value;
-		if (!turn?.trim()) return this.closeTurn(e);
+		e.preventDefault();
+		const turnInput = this.base?.querySelector<HTMLInputElement>('input[name=turn]');
+		const turn = turnInput?.value;
+		if (!turn?.trim()) return this.closeTurn();
 		let turnNum = Number(turn);
 		if (turn === 'e' || turn === 'end' || turn === 'f' || turn === 'finish') turnNum = Infinity;
-		if (isNaN(turnNum) || turnNum < 0) alert("Invalid turn");
+		if (isNaN(turnNum) || turnNum < 0) {
+			alert("Invalid turn number.");
+			if (turnInput) turnInput.value = `${this.battle?.turn || 0}`;
+			return;
+		};
 		this.battle?.seekTurn(turnNum);
-		this.closeTurn(e);
+		this.closeTurn();
 	};
 	switchViewpoint = () => {
 		this.battle?.switchViewpoint();
@@ -261,54 +288,55 @@ export class BattlePanel extends preact.Component<{ id: string }> {
 		} else {
 			PSRouter.replace(this.stripQuery(this.props.id));
 		}
+		this.forceUpdate();
 	};
 	clickDownload = (e: MouseEvent) => {
 		if (!this.battle) {
 			// should never happen
 			alert("Wait for the battle to finish loading before downloading.");
+			e.preventDefault();
 			return;
 		}
 		let filename = (this.battle.tier || 'Battle').replace(/[^A-Za-z0-9]/g, '');
 
 		// ladies and gentlemen, JavaScript dates
 		const timestamp = (this.result?.uploadtime || 0) * 1000;
-		const date = new Date(timestamp);
-		filename += `-${date.getFullYear()}`;
-		filename += `${date.getMonth() >= 9 ? '-' : '-0'}${date.getMonth() + 1}`;
-		filename += `${date.getDate() >= 10 ? '-' : '-0'}${date.getDate()}`;
+		const date = timestamp ? new Date(timestamp) : new Date();
+		const year = date.getFullYear();
+		const month = (date.getMonth() + 1).toString().padStart(2, '0');
+		const day = date.getDate().toString().padStart(2, '0');
+		filename += `-${year}-${month}-${day}`;
 
-		filename += '-' + toID(this.battle.p1.name);
-		filename += '-' + toID(this.battle.p2.name);
+		filename += '-' + toID(this.battle.p1.name || 'player1');
+		filename += '-' + toID(this.battle.p2.name || 'player2');
 
 		const a = e.currentTarget as HTMLAnchorElement;
 		a.href = BattleLog.createReplayFileHref({ battle: this.battle });
 		a.download = filename + '.html';
-
-		e.stopPropagation();
 	};
 	getSpeed() {
 		if (!this.battle) return 'normal';
 		if (this.battle.messageFadeTime <= 40) {
 			return 'hyperfast';
-		} else if (this.battle.messageFadeTime <= 50) {
+		} else if (this.battle.messageFadeTime <= 100) {
 			return 'fast';
-		} else if (this.battle.messageFadeTime >= 500) {
-			return 'slow';
 		} else if (this.battle.messageFadeTime >= 1000) {
 			return 'reallyslow';
+		} else if (this.battle.messageFadeTime >= 500) {
+			return 'slow';
 		}
 		return 'normal';
 	}
-	changeSpeed = (e: Event | { target: HTMLSelectElement }) => {
+	changeSpeed = (e: Event) => {
 		const speed = (e.target as HTMLSelectElement).value;
-		const fadeTable = {
+		const fadeTable: { [key: string]: number } = {
 			hyperfast: 40,
 			fast: 50,
 			normal: 300,
 			slow: 500,
 			reallyslow: 1000,
 		};
-		const delayTable = {
+		const delayTable: { [key: string]: number } = {
 			hyperfast: 1,
 			fast: 1,
 			normal: 1,
@@ -316,47 +344,64 @@ export class BattlePanel extends preact.Component<{ id: string }> {
 			reallyslow: 3000,
 		};
 		if (!this.battle) return;
-		this.battle.messageShownTime = delayTable[speed as 'fast'];
-		this.battle.messageFadeTime = fadeTable[speed as 'fast'];
-		this.battle.scene.updateAcceleration();
+		const speedKey = speed as keyof typeof fadeTable;
+		if (fadeTable[speedKey] !== undefined) {
+			this.battle.messageShownTime = delayTable[speedKey];
+			this.battle.messageFadeTime = fadeTable[speedKey];
+			this.battle.scene.updateAcceleration();
+		}
+		this.forceUpdate();
 	};
 	stepSpeed(delta: number) {
 		const target = this.base?.querySelector<HTMLSelectElement>('select[name=speed]');
-		if (!target) return; // should never happen
+		if (!target) return;
 		const values = ['reallyslow', 'slow', 'normal', 'fast', 'hyperfast'];
-		const newValue = values[values.indexOf(target.value) + delta];
-		if (newValue) {
+		const currentIndex = values.indexOf(target.value);
+		const newIndex = currentIndex + delta;
+		if (newIndex >= 0 && newIndex < values.length) {
+			const newValue = values[newIndex];
 			target.value = newValue;
-			this.changeSpeed({ target });
+			this.changeSpeed({ target } as unknown as Event);
 		}
 	}
 	toggleMute() {
-		this.battle?.setMute(!BattleSound.muted);
+		const currentMute = BattleSound.muted;
+		this.battle?.setMute(!currentMute);
 		this.forceUpdate();
 	}
 	changeSound = (e: Event) => {
-		const muted = (e.target as HTMLSelectElement).value;
-		this.battle?.setMute(muted === 'off');
+		const value = (e.target as HTMLSelectElement).value;
+		const muted = (value === 'off');
+		const musicOff = (value === 'musicoff');
+
+		this.battle?.setMute(muted);
+
 		// Wolfram Alpha says that default volume is 100 e^(-(2 log^2(2))/log(10)) which is around 65.881
-		BattleSound.setBgmVolume(muted === 'musicoff' ? 0 : 65.88125800126558);
+		const DEFAULT_BGM_VOLUME = 65.88125800126558;
+		BattleSound.setBgmVolume((musicOff || muted) ? 0 : DEFAULT_BGM_VOLUME);
+
 		this.forceUpdate();
 	};
+
 	changeVolume = (e: Event) => {
-		const volume = Number((e.target as HTMLSelectElement).value);
+		const volume = Number((e.target as HTMLInputElement).value);
 		BattleSound.setBgmVolume(volume);
 		BattleSound.setEffectVolume(volume);
+
 		this.battle?.setMute(true);
 		this.battle?.setMute(false);
+
 		this.forceUpdate();
 	};
+
 	changeDarkMode = (e: Event) => {
-		const darkmode = (e.target as HTMLSelectElement).value as 'dark';
+		const darkmode = (e.target as HTMLSelectElement).value as ('auto' | 'dark' | 'light');
 		PSReplays.darkMode = darkmode;
 		PSReplays.updateDarkMode();
 		this.forceUpdate();
 	};
 	openTurn = (e: Event) => {
-		this.turnView = `${this.battle?.turn || ''}` || true;
+		this.turnView = `${this.battle?.turn || '0'}`;
 		this.autofocusTurnView = 'select';
 		e.preventDefault();
 		this.forceUpdate();
@@ -383,23 +428,23 @@ export class BattlePanel extends preact.Component<{ id: string }> {
 		// a replay gets deleted or made private after you searched for it
 		// but before you clicked it.
 		return <div class={PSRouter.showingLeft() ? 'mainbar has-sidebar' : 'mainbar'} style={position}>
-			<section class="section" style={{ maxWidth: '200px' }}>
-				<div style={{ textAlign: 'center' }}>
-					<img src="//play.pokemonshowdown.com/sprites/gen5ani/unown-n.gif" alt="" style={{ imageRendering: 'pixelated' }} />
-					<img src="//play.pokemonshowdown.com/sprites/gen5ani/unown-o.gif" alt="" style={{ imageRendering: 'pixelated' }} />
-					<img src="//play.pokemonshowdown.com/sprites/gen5ani/unown-t.gif" alt="" style={{ imageRendering: 'pixelated' }} />
+			<section class="section section-notfound">
+				<div class="notfound-images">
+					<img src="//play.pokemonshowdown.com/sprites/gen5ani/unown-n.gif" alt="Unown N" />
+					<img src="//play.pokemonshowdown.com/sprites/gen5ani/unown-o.gif" alt="Unown O" />
+					<img src="//play.pokemonshowdown.com/sprites/gen5ani/unown-t.gif" alt="Unown T" />
 				</div>
-				<div style={{ textAlign: 'center' }}>
-					<img src="//play.pokemonshowdown.com/sprites/gen5ani/unown-f.gif" alt="" style={{ imageRendering: 'pixelated' }} />
-					<img src="//play.pokemonshowdown.com/sprites/gen5ani/unown-o.gif" alt="" style={{ imageRendering: 'pixelated' }} />
-					<img src="//play.pokemonshowdown.com/sprites/gen5ani/unown-u.gif" alt="" style={{ imageRendering: 'pixelated' }} />
-					<img src="//play.pokemonshowdown.com/sprites/gen5ani/unown-n.gif" alt="" style={{ imageRendering: 'pixelated' }} />
-					<img src="//play.pokemonshowdown.com/sprites/gen5ani/unown-d.gif" alt="" style={{ imageRendering: 'pixelated' }} />
+				<div class="notfound-images">
+					<img src="//play.pokemonshowdown.com/sprites/gen5ani/unown-f.gif" alt="Unown F" />
+					<img src="//play.pokemonshowdown.com/sprites/gen5ani/unown-o.gif" alt="Unown O" />
+					<img src="//play.pokemonshowdown.com/sprites/gen5ani/unown-u.gif" alt="Unown U" />
+					<img src="//play.pokemonshowdown.com/sprites/gen5ani/unown-n.gif" alt="Unown N" />
+					<img src="//play.pokemonshowdown.com/sprites/gen5ani/unown-d.gif" alt="Unown D" />
 				</div>
 			</section><section class="section">
 				<h1>Not Found</h1>
 				<p>
-					The battle you're looking for has expired. Battles expire after 15 minutes of inactivity unless they're saved.
+					The battle you're looking for has expired or could not be found. Battles expire after 15 minutes of inactivity unless they're saved.
 				</p>
 				<p>
 					In the future, remember to click <strong>Upload and share replay</strong> to save a replay permanently.
@@ -412,59 +457,72 @@ export class BattlePanel extends preact.Component<{ id: string }> {
 		const atStart = !this.battle?.started;
 
 		if (this.turnView) {
-			const value = this.turnView === true ? undefined : this.turnView;
-			this.turnView = true;
-			return <div class="replay-controls"><section class="section">
+			const value = typeof this.turnView === 'string' ? this.turnView : (this.battle?.turn || 0).toString();
+			return <div class="replay-controls controls-turnview"><section class="section">
 				<form onSubmit={this.goToTurn}>
-					Turn? <input name="turn" autofocus value={value} inputMode="numeric" class="textbox" size={5} /> {}
+					<label htmlFor="turnInput">Turn:</label> {}
+					<input
+						id="turnInput"
+						name="turn"
+						value={value}
+						onInput={(e) => { this.turnView = (e.target as HTMLInputElement).value; this.forceUpdate(); }}
+						inputMode="numeric"
+						pattern="[0-9]*"
+						class="textbox"
+						size={5} /> {}
 					<button type="submit" class="button"><strong>Go</strong></button> {}
 					<button type="button" class="button" onClick={this.closeTurn}>Cancel</button>
 				</form>
 				<p>
-					<em>Pro tip:</em> You don't need to click "Skip to turn" if you have a keyboard, just start typing
-					the turn number and press <kbd>Enter</kbd>. For more shortcuts, press <kbd>Shift</kbd>+<kbd>/</kbd> {}
-					when a text box isn't focused.
+					<em>Pro tip:</em> You don't need to click the button if you have a keyboard. Just start typing
+					the turn number (or 'end') and press <kbd>Enter</kbd>. For more shortcuts, press <kbd>Shift</kbd>+<kbd>?</kbd> {}
+					when not focused on an input field.
 				</p>
 			</section></div>;
 		}
 
+		let soundValue = 'on';
+		if (BattleSound.muted) {
+			soundValue = 'off';
+		} else if (!BattleSound.bgmVolume) {
+			soundValue = 'musicoff';
+		}
+
 		return <div class="replay-controls">
-			<p>
+			<div class="controls-row">
 				{atEnd && this.battle ? (
-					<button onClick={this.replay} class="button" style={{ width: '5em', marginRight: '3px' }}>
-						<i class="fa fa-undo"></i><br />Replay
+					<button onClick={this.replay} class="button" title="Replay (k)">
+						<i class="fa fa-undo"></i><span class="label">Replay</span>
 					</button>
 				) : !this.battle || this.battle.paused ? (
-					<button onClick={this.play} class="button" disabled={!this.battle} style={{ width: '5em', marginRight: '3px' }}>
-						<i class="fa fa-play"></i><br /><strong>Play</strong>
+					<button onClick={this.play} class="button" disabled={!this.battle} title="Play (k)">
+						<i class="fa fa-play"></i><span class="label"><strong>Play</strong></span>
 					</button>
 				) : (
-					<button onClick={this.pause} class="button" style={{ width: '5em', marginRight: '3px' }}>
-						<i class="fa fa-pause"></i><br /><strong>Pause</strong>
+					<button onClick={this.pause} class="button" title="Pause (k)">
+						<i class="fa fa-pause"></i><span class="label"><strong>Pause</strong></span>
 					</button>
 				)} {}
-				<button class="button button-first" disabled={atStart} onClick={this.firstTurn}>
-					<i class="fa fa-fast-backward"></i><br />First turn
+				<button class="button button-turnnav" disabled={atStart} onClick={this.firstTurn} title="First turn (Shift+J)">
+					<i class="fa fa-fast-backward"></i><span class="label">First</span>
 				</button>
-				<button
-					class="button button-first" disabled={atStart} style={{ marginLeft: '1px', position: 'relative', zIndex: '1' }}
-					onClick={this.prevTurn}
-				>
-					<i class="fa fa-step-backward"></i><br />Prev turn
+				<button class="button button-turnnav" disabled={atStart} onClick={this.prevTurn} title="Previous turn (j)">
+					<i class="fa fa-step-backward"></i><span class="label">Prev</span>
 				</button>
-				<button class="button button-last" disabled={atEnd} style={{ marginRight: '2px' }} onClick={this.nextTurn}>
-					<i class="fa fa-step-forward"></i><br />Skip turn
+				<button class="button button-turnnav" disabled={atEnd} onClick={this.nextTurn} title="Next turn (l)">
+					<i class="fa fa-step-forward"></i><span class="label">Next</span>
 				</button>
-				<button class="button button-last" disabled={atEnd} onClick={this.lastTurn}>
-					<i class="fa fa-fast-forward"></i><br />Skip to end
+				<button class="button button-turnnav" disabled={atEnd} onClick={this.lastTurn} title="Last turn (Shift+L)">
+					<i class="fa fa-fast-forward"></i><span class="label">Last</span>
 				</button> {}
-				<button class="button" onClick={this.openTurn}>
-					<i class="fa fa-repeat"></i> Go to turn...
+				<button class="button" onClick={this.openTurn} title="Go to specific turn (0-9)">
+					<i class="fa fa-repeat"></i><span class="label">Go to turn...</span>
 				</button>
-			</p>
-			<p>
+			</div>
+
+			<div class="controls-row">
 				<label class="optgroup">
-					Speed:<br />
+					Speed <span class="shortcut-hint">(Shift+&lt;/&gt;)</span>:<br />
 					<select name="speed" class="button" onChange={this.changeSpeed} value={this.getSpeed()}>
 						<option value="hyperfast">Hyperfast</option>
 						<option value="fast">Fast</option>
@@ -474,10 +532,10 @@ export class BattlePanel extends preact.Component<{ id: string }> {
 					</select>
 				</label> {}
 				<label class="optgroup">
-					Sound:<br />
+					Sound <span class="shortcut-hint">(m)</span>:<br />
 					<select
 						name="sound" class="button" onChange={this.changeSound}
-						value={BattleSound.muted ? 'off' : BattleSound.bgmVolume ? 'on' : 'musicoff'}
+						value={soundValue}
 					>
 						<option value="on">On</option>
 						<option value="musicoff">Music Off</option>
@@ -486,7 +544,7 @@ export class BattlePanel extends preact.Component<{ id: string }> {
 				</label> {}
 				<label class="optgroup">
 					Dark mode:<br />
-					<select name="darkmode" class="button" onChange={this.changeDarkMode} value={PSReplays.darkMode}>
+					<select name="darkmode" class="button" onChange={this.changeDarkMode} value={PSReplays.darkMode || 'auto'}>
 						<option value="auto">Automatic</option>
 						<option value="dark">Dark</option>
 						<option value="light">Light</option>
@@ -494,53 +552,57 @@ export class BattlePanel extends preact.Component<{ id: string }> {
 				</label> {}
 				<label class="optgroup">
 					Viewpoint:<br />
-					<button onClick={this.switchViewpoint} name="viewpoint" class={this.battle ? 'button' : 'button disabled'}>
-						{(this.battle?.viewpointSwitched ? this.result?.players[1] : this.result?.players[0] || "Player")} {}
+					<button onClick={this.switchViewpoint} name="viewpoint" class={this.battle ? 'button' : 'button disabled'} disabled={!this.battle}>
+						{(this.battle?.viewpointSwitched ? this.result?.players[1] : this.result?.players[0]) || (this.battle?.viewpointSwitched ? 'Player 2' : 'Player 1')} {}
 						<i class="fa fa-random" aria-label="Switch viewpoint"></i>
 					</button>
 				</label> {}
-				<label class="optgroup">
+				<label class="optgroup optgroup-volume">
 					Volume:<br />
-					<input type="range" onInput={this.changeVolume} />
+					<input
+						type="range"
+						min="0"
+						max="100"
+						step="1"
+						value={BattleSound.getEffectVolume?.() ?? 50}
+						onInput={this.changeVolume}
+						aria-label="Volume Control"
+						disabled={soundValue === 'off'}
+					/>
 				</label>
-			</p>
-			{this.result ? <h1>
-				<strong>{this.result.format}</strong>: {this.result.players.join(' vs. ')}
-			</h1> : <h1>
-				<em>Loading...</em>
-			</h1>}
-			{this.result ? <p>
-				<a class="button" href="/download" onClick={this.clickDownload} style={{ float: 'right' }}>
-					<i class="fa fa-download" aria-hidden></i> Download
-				</a>
-				{this.result.uploadtime ? new Date(this.result.uploadtime * 1000).toDateString() : "Unknown upload date"}
-				{this.result.rating ? [` | `, <em>Rating:</em>, ` ${this.result.rating}`] : ''}
-				{/* {} <code>{this.keyCode}</code> */}
-			</p> : <p>&nbsp;</p>}
-			{!PSRouter.showingLeft() && <p>
+			</div>
+
+			<div class="controls-info">
+				{this.result ? <h1>
+					<strong>{this.result.format}</strong>: {this.result.players.join(' vs. ')}
+				</h1> : <h1>
+					<em>Loading...</em>
+				</h1>}
+				{this.result ? <div class="battle-details">
+					<span class="upload-time">
+						{this.result.uploadtime ? new Date(this.result.uploadtime * 1000).toLocaleDateString() : "Unknown upload date"}
+					</span>
+					{this.result.rating ? <span class="rating"> | Rating: {this.result.rating}</span> : ''}
+					{/* {} <code>{this.keyCode}</code> */}
+					<a class="button download-button" href="/download" onClick={this.clickDownload} title="Download replay HTML file">
+						<i class="fa fa-download" aria-hidden="true"></i> Download
+					</a>
+				</div> : <div class="battle-details">&nbsp;</div>}
+			</div>
+
+			{!PSRouter.showingLeft() && <div class="controls-sidebar-toggle">
 				<a href={PSRouter.href(PSRouter.leftLoc)} class="button"><i class="fa fa-caret-left"></i> More replays</a>
-			</p>}
+			</div>}
 		</div>;
 	}
 	override render() {
-		let position: any = {};
+		let position: preact.JSX.CSSProperties = {};
 		if (PSRouter.showingLeft()) {
-			if (PSRouter.stickyRight) {
-				position = { position: 'sticky', top: '0' };
-			} else {
-				position = { position: 'sticky', bottom: '0' };
-			}
+			position = { position: 'sticky', top: '0' };
 		}
 
-		if (this.result === null) return this.renderError(position);
+		if (this.result === null || this.resultError) return this.renderError(position);
 
-		return <div class={PSRouter.showingLeft() ? 'mainbar has-sidebar' : 'mainbar'} style={position}>
-			<div style={{ position: 'relative' }}>
-				<BattleDiv />
-				<BattleLogDiv />
-				{this.renderControls()}
-				<div id="LeaderboardBTF"></div>
-			</div>
-		</div>;
-	}
-}
+		return <div class={PSRouter.showingLeft() ? 'mainbar mainbar-hassidebar' : 'mainbar'} style={position}>
+			<div class="battle-wrapper" style={{ position: 'relative' }}>
+				<BattleDi
