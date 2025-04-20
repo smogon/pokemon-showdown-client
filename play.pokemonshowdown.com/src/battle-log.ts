@@ -1790,9 +1790,8 @@ export class BattleLog {
 	}
 }
 
-const net = window.Net as typeof Net | undefined;
-if (net) {
-	net(`/config/colors.json`).get().then(response => {
+if (window.Net) {
+	Net(`/config/colors.json`).get().then(response => {
 		const data = JSON.parse(response);
 		Object.assign(Config.customcolors, data);
 	}).catch(() => {});
