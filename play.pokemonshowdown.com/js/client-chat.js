@@ -112,6 +112,7 @@
 
 		clickDatasearchResults: function (e) {
 			if ($(e.target)[0].href) return;
+			if (window.getSelection && !window.getSelection().isCollapsed) return;
 			var target = $(e.currentTarget).closest('[class=datasearch]')[0];
 			var button = target.querySelector('button');
 			var results = target.querySelectorAll('[class=datasearch-body]');

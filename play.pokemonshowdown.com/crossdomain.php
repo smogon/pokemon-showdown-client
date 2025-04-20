@@ -98,6 +98,7 @@ header('P3P: CP="NOI CUR ADM DEV COM NAV STA OUR IND"');
 <!DOCTYPE html>
 <meta charset="utf-8" />
 <script src="/js/lib/jquery-2.2.4.min.js"></script>
+<script nomodule src="/js/lib/ps-polyfill.js"></script>
 <body>
 <script>
 

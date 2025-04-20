@@ -90,6 +90,7 @@ export const defaultRules = {
 	"no-extend-native": "error",
 	"no-extra-bind": "warn",
 	"no-extra-label": "warn",
+	"no-constant-condition": "warn",
 	"no-eval": "error",
 	"no-implied-eval": "error",
 	"no-inner-declarations": ["error", "functions"],

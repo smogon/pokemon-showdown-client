@@ -913,7 +913,19 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 			if (!PS.isOffline) {
 				return this.add(`|error|You are already connected.`);
 			}
+			const uptime = Date.now() - PS.startTime;
+			if (uptime > 24 * 60 * 60 * 1000) {
+				PS.confirm(`It's been over a day since you first connected. Please refresh.`, {
+					okButton: 'Refresh',
+				}).then(confirmed => {
+					if (confirmed) this.send(`/refresh`);
+				});
+				return;
+			}
 			PSConnection.connect();
+		},
+		'refresh'() {
+			document.location.reload();
 		},
 		'workoffline'() {
 			if (PS.isOffline) {
@@ -1271,11 +1283,11 @@ class PlaceholderRoom extends PSRoom {
  * PS
  *********************************************************************/
 
-type PSRoomPanelSubclass = (new () => PSRoomPanel) & {
+type PSRoomPanelSubclass<T extends PSRoom = PSRoom> = (new () => PSRoomPanel<T>) & {
 	readonly id: string,
 	readonly routes: string[],
 	/** optional Room class */
-	readonly Model?: typeof PSRoom,
+	readonly Model?: new (options: RoomOptions) => T,
 	readonly location?: PSRoomLocation,
 	/** do not put the roomid into the URL */
 	noURL?: boolean,
@@ -1307,6 +1319,7 @@ export const PS = new class extends PSModel {
 	 * connect.
 	 */
 	isOffline = false;
+	readonly startTime = Date.now();
 
 	router: PSRouter = null!;
 
@@ -1870,17 +1883,27 @@ export const PS = new class extends PSModel {
 		}
 		return this.focusRoom(rooms[index + 1]);
 	}
-	alert(message: string) {
+	alert(message: string, opts: { okButton?: string } = {}) {
 		this.join(`popup-${this.popups.length}` as RoomID, {
-			args: { message },
+			args: { message, ...opts },
 		});
 	}
-	prompt(message: string, defaultValue?: string, opts?: {
-		okButton?: string, type?: 'text' | 'password' | 'number',
-	}): Promise<string | null> {
+	confirm(message: string, opts: { okButton?: string, cancelButton?: string } = {}) {
+		opts.cancelButton ??= 'Cancel';
 		return new Promise(resolve => {
-			const input = prompt(message, defaultValue);
-			resolve(input);
+			this.join(`popup-${this.popups.length}` as RoomID, {
+				args: { message, okValue: true, cancelValue: false, callback: resolve, ...opts },
+			});
+		});
+	}
+	prompt(message: string, defaultValue = '', opts: {
+		okButton?: string, cancelButton?: string, type?: 'text' | 'password' | 'number',
+	} = {}): Promise<string | null> {
+		opts.cancelButton ??= 'Cancel';
+		return new Promise(resolve => {
+			this.join(`popup-${this.popups.length}` as RoomID, {
+				args: { message, value: defaultValue, okValue: true, cancelValue: false, callback: resolve, ...opts },
+			});
 		});
 	}
 	getPMRoom(userid: ID): ChatRoom {

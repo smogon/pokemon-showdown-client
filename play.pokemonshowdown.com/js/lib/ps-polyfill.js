@@ -127,7 +127,7 @@ if (!Object.entries) {
 }
 // ES5
 if (!Object.create) {
-	Object.create = function (proto) {
+	Object.create = function create(proto) {
 		function F() {}
 		F.prototype = proto;
 		return new F();
@@ -140,6 +140,12 @@ if (!Array.prototype.forEach) {
 			callback.call(thisArg, this[i], i, this);
 		}
 	}
+}
+
+if (!Date.now) {
+	Date.now = function now() {
+		return new Date().getTime();
+	};
 }
 
 if (!window.console) {

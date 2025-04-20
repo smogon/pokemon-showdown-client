@@ -983,11 +983,6 @@ class ChatPanel extends PSRoomPanel<ChatRoom> {
 	send = (text: string) => {
 		this.props.room.send(text);
 	};
-	focusIfNoSelection = () => {
-		const selection = window.getSelection()!;
-		if (selection.type === 'Range') return;
-		this.focus();
-	};
 	onKey = (e: KeyboardEvent) => {
 		if (e.keyCode === 33) { // Pg Up key
 			const chatLog = this.base!.getElementsByClassName('chat-log')[0] as HTMLDivElement;

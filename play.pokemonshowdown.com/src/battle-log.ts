@@ -77,7 +77,23 @@ export class BattleLog {
 
 		this.className = elem.className;
 		elem.onscroll = this.onScroll;
+		elem.onclick = this.onClick;
 	}
+	onClick = (ev: Event) => {
+		let target = ev.target as HTMLElement | null;
+		while (target && target !== this.elem) {
+			if (target.tagName === 'SUMMARY') {
+				if (window.getSelection?.()?.type === 'Range') {
+					// by default, selecting text will also expand/collapse details, which
+					// is annoying. this prevents that.
+					ev.preventDefault();
+				} else {
+					setTimeout(this.updateScroll, 0);
+				}
+			}
+			target = target.parentElement;
+		}
+	};
 	onScroll = () => {
 		const distanceFromBottom = this.elem.scrollHeight - this.elem.scrollTop - this.elem.clientHeight;
 		this.atBottom = (distanceFromBottom < 30);
@@ -926,11 +942,11 @@ export class BattleLog {
 			this.elem.scrollTop = this.elem.scrollHeight;
 		}
 	}
-	updateScroll() {
+	updateScroll = () => {
 		if (this.atBottom) {
 			this.elem.scrollTop = this.elem.scrollHeight;
 		}
-	}
+	};
 	addDiv(className: string, innerHTML: string, preempt?: boolean) {
 		const el = document.createElement('div');
 		el.className = className;

@@ -21,6 +21,7 @@
 	bottom: 0;
 	padding: 5px 0 5px 8px;
 	overflow: auto;
+	overscroll-behavior-block: contain;
 }
 @media (max-width:649px) {
 	.folderpane {
