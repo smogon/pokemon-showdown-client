@@ -1409,24 +1409,62 @@ class LeaveRoomPanel extends PSRoomPanel {
 	}
 }
 
-class PopupPanel extends PSRoomPanel {
+class PopupRoom extends PSRoom {
+	returnValue: unknown = this.args?.cancelValue;
+	override destroy() {
+		(this.args?.callback as any)?.(this.returnValue);
+		super.destroy();
+	}
+}
+
+class PopupPanel extends PSRoomPanel<PopupRoom> {
 	static readonly id = 'popup';
 	static readonly routes = ['popup-*'];
 	static readonly location = 'semimodal-popup';
 	static readonly noURL = true;
+	static readonly Model = PopupRoom;
+
+	handleSubmit = (ev: Event) => {
+		ev.preventDefault();
+		ev.stopImmediatePropagation();
+		const room = this.props.room;
+		room.returnValue = room.args?.okValue;
+		const textbox = this.base!.querySelector<HTMLInputElement>('input[name=value]');
+		if (textbox) {
+			room.returnValue = textbox.value;
+		}
+		this.close();
+	};
+	override componentDidMount() {
+		super.componentDidMount();
+		const textbox = this.base!.querySelector<HTMLInputElement>('input[name=value]');
+		if (!textbox) return;
+		textbox.value = this.props.room.args?.value as string || '';
+	}
 
 	override render() {
 		const room = this.props.room;
-		const okButtonLabel = room.args?.okButtonLabel as string || 'OK';
-		return <PSPanelWrapper room={room} width={480}><div class="pad">
+		const okButton = room.args?.okButton as string || 'OK';
+		const cancelButton = room.args?.cancelButton as string | undefined;
+		const otherButtons = room.args?.otherButtons as preact.ComponentChildren;
+		const value = room.args?.value as string | undefined;
+		const type = (room.args?.type || (typeof value === 'string' ? 'text' : null)) as string | null;
+		return <PSPanelWrapper room={room} width={480}><form class="pad" onSubmit={this.handleSubmit}>
 			{room.args?.message && <p
 				style="white-space:pre-wrap;word-wrap:break-word"
 				dangerouslySetInnerHTML={{ __html: BattleLog.parseMessage(room.args.message as string) }}
 			></p>}
+			{!!type && <p><input name="value" type={type} class="textbox autofocus" style="width:100%;box-sizing:border-box" /></p>}
 			<p class="buttonbar">
-				<button class="button autofocus" data-cmd="/close" style="min-width:50px"><strong>{okButtonLabel}</strong></button>
+				<button class={`button${!type ? ' autofocus' : ''}`} type="submit" style="min-width:50px">
+					<strong>{okButton}</strong>
+				</button> {}
+				{otherButtons} {}
+				{!!cancelButton && <button class="button" data-cmd="/close" type="button">
+					{cancelButton}
+				</button>}
 			</p>
-		</div></PSPanelWrapper>;
+		</form></PSPanelWrapper>;
 	}
 }
 
