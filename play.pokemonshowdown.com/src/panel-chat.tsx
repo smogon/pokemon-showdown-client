@@ -14,7 +14,7 @@ import { BattleLog } from "./battle-log";
 import type { Battle } from "./battle";
 import { MiniEdit } from "./miniedit";
 import { PSUtils, toID, type ID } from "./battle-dex";
-import type { Args } from "./battle-text-parser";
+import { BattleTextParser, type Args } from "./battle-text-parser";
 import { PSLoginServer } from "./client-connection";
 import type { BattleRoom } from "./panel-battle";
 import { BattleChoiceBuilder } from "./battle-choices";
@@ -46,8 +46,10 @@ export class ChatRoom extends PSRoom {
 	battle: Battle | null = null;
 	log: BattleLog | null = null;
 	tour: ChatTournament | null = null;
+	lastMessage: Args | null = null;
 
 	joinLeave: { join: string[], leave: string[], messageId: string } | null = null;
+	timeOffset = 0;
 
 	constructor(options: RoomOptions) {
 		super(options);
@@ -98,12 +100,56 @@ export class ChatRoom extends PSRoom {
 			}
 			// falls through
 		case 'c:':
+			if (args[0] === 'c:') PS.lastMessageTime = args[1];
+			this.lastMessage = args;
 			this.joinLeave = null;
 			if (this.tour) this.tour.joinLeave = null;
 			this.subtleNotify();
 			break;
+		case ':':
+			this.timeOffset = Math.trunc(Date.now() / 1000) - (parseInt(args[1], 10) || 0);
+			break;
 		}
 		super.receiveLine(args);
+	}
+	override handleReconnect(msg: string): boolean | void {
+		if (this.battle) {
+			this.battle.reset();
+			this.battle.stepQueue = [];
+			return false;
+		} else {
+			let lines = msg.split('\n');
+
+			// cut off starting lines until we get to PS.lastMessage timestamp
+			// then cut off roomintro from the end
+			let cutOffStart = 0;
+			let cutOffEnd = lines.length;
+			const cutOffTime = parseInt(PS.lastMessageTime);
+			const cutOffExactLine = this.lastMessage ? '|' + this.lastMessage?.join('|') : '';
+			let reconnectMessage = '|raw|<div class="infobox">You reconnected.</div>';
+			for (let i = 0; i < lines.length; i++) {
+				if (lines[i] === cutOffExactLine) {
+					cutOffStart = i + 1;
+				} else if (lines[i].startsWith(`|c:|`)) {
+					const time = parseInt(lines[i].split('|')[2] || '');
+					if (time < cutOffTime) cutOffStart = i;
+				}
+				if (lines[i].startsWith('|raw|<div class="infobox"> You joined ')) {
+					reconnectMessage = `|raw|<div class="infobox">You reconnected to ${lines[i].slice(38)}`;
+					cutOffEnd = i;
+					if (!lines[i - 1]) cutOffEnd = i - 1;
+				}
+			}
+			lines = lines.slice(cutOffStart, cutOffEnd);
+
+			if (lines.length) {
+				this.receiveLine([`raw`, `<div class="infobox">You disconnected.</div>`]);
+				for (const line of lines) this.receiveLine(BattleTextParser.parseLine(line));
+				this.receiveLine(BattleTextParser.parseLine(reconnectMessage));
+			}
+			this.update(null);
+			return true;
+		}
 	}
 	updateTarget(name?: string | null) {
 		const selfWithGroup = `${PS.user.group || ' '}${PS.user.name}`;
@@ -851,7 +897,9 @@ class ChatPanel extends PSRoomPanel<ChatRoom> {
 
 		return <PSPanelWrapper room={room} focusClick>
 			<ChatLog class="chat-log" room={this.props.room} left={tinyLayout ? 0 : 146} top={room.tour?.info.isActive ? 30 : 0}>
-				{challengeTo}{challengeFrom}
+				{challengeTo}{challengeFrom}{PS.isOffline && <p class="buttonbar">
+					<button class="button" data-cmd="/reconnect"><i class="fa fa-plug"></i> <strong>Reconnect</strong></button>
+				</p>}
 			</ChatLog>
 			{room.tour && <TournamentBox tour={room.tour} left={tinyLayout ? 0 : 146} />}
 			<ChatTextEntry
