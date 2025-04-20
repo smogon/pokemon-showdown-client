@@ -16,7 +16,7 @@ import type { ChatRoom } from './panel-chat';
 import type { MainMenuRoom } from './panel-mainmenu';
 import { Dex, toID, type ID } from './battle-dex';
 import { BattleTextParser, type Args } from './battle-text-parser';
-import { type BattleRoom } from './panel-battle';
+import type { BattleRoom } from './panel-battle';
 
 declare const BattleTextAFD: any;
 declare const BattleTextNotAFD: any;
