@@ -13,6 +13,7 @@ import preact from "../js/lib/preact";
 import { toID } from "./battle-dex";
 import type { Args } from "./battle-text-parser";
 import { BattleTooltips } from "./battle-tooltips";
+import { Net } from "./client-connection";
 import type { PSModel, PSStreamModel, PSSubscription } from "./client-core";
 import { PS, type PSRoom, type RoomID } from "./client-main";
 import type { BattleRoom } from "./panel-battle";
@@ -348,6 +349,23 @@ export class PSView extends preact.Component {
 		window.onbeforeunload = (ev: Event) => {
 			return PS.prefs.refreshprompt ? "Are you sure you want to leave?" : null;
 		};
+
+		window.addEventListener('submit', ev => {
+			const elem = ev.target as HTMLFormElement | null;
+			if (elem?.getAttribute('data-submitsend')) {
+				const inputs = Net.formData(elem);
+				let cmd = elem.getAttribute('data-submitsend')!;
+				for (const [name, value] of Object.entries(inputs)) {
+					cmd = cmd.replace(`{${name}}`, value === true ? 'on' : value === false ? 'off' : value);
+				}
+				cmd = cmd.replace(/\{[a-z0-9-]+\}/g, '');
+				const room = PS.getRoom(elem) || PS.mainmenu;
+				room.sendDirect(cmd);
+
+				ev.preventDefault();
+				ev.stopImmediatePropagation();
+			}
+		});
 
 		window.addEventListener('click', ev => {
 			let elem = ev.target as HTMLElement | null;
