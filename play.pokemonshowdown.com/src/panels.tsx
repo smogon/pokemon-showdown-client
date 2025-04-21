@@ -352,16 +352,16 @@ export class PSView extends preact.Component {
 		window.addEventListener('submit', ev => {
 			let elem = ev.target as HTMLFormElement | null;
 			if (elem?.getAttribute('data-submitsend')) {
-				const elements = elem.querySelectorAll('input[name], select[name], textarea[name], keygen[name], button[value]');
+				const elements = elem.querySelectorAll('input[name], select[name], textarea[name], button[value]');
 				const inputs = [];
-				for (const element of Array.from(elements)) {
+				for (const element of elements) {
 					const type = element.getAttribute('type') || "";
-					const checked = element.getAttribute('checked');
-					const name = element.getAttribute('name');
-					const val = (element as any).value;
+					const checked = (element as HTMLInputElement).checked;
+					const name = element.name;
+					const val = (element as HTMLInputElement).value;
 					if (type === 'submit') continue;
 					if (type === 'checkbox' && !val) {
-						inputs.push([element.getAttribute('name'), element.getAttribute('checked') ? 'on' : 'off']);
+						inputs.push([element.getAttribute('name'), checked ? 'on' : 'off']);
 					} else if (!['checkbox', 'radio'].includes(type) || checked) {
 						inputs.push([name, val]);
 					}
