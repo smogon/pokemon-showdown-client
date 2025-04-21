@@ -17,6 +17,7 @@ import type { MainMenuRoom } from './panel-mainmenu';
 import { Dex, toID, type ID } from './battle-dex';
 import { BattleTextParser, type Args } from './battle-text-parser';
 import type { BattleRoom } from './panel-battle';
+import { PSTeambuilder } from './panel-teamdropdown';
 
 declare const BattleTextAFD: any;
 declare const BattleTextNotAFD: any;
@@ -108,6 +109,7 @@ class PSPrefs extends PSStreamModel<string | null> {
 	effectvolume = 50;
 	musicvolume = 50;
 	notifvolume = 50;
+	uploadprivacy = false;
 
 	afd: boolean | 'sprites' = false;
 
@@ -261,6 +263,9 @@ export interface Team {
 	/** The icon cache must be cleared (to `null`) whenever `packedTeam` is modified */
 	iconCache: preact.ComponentChildren;
 	key: string;
+	teamid?: number;
+	loaded?: boolean;
+	private?: string;
 }
 if (!window.BattleFormats) window.BattleFormats = {};
 
@@ -345,7 +350,10 @@ class PSTeams extends PSStreamModel<'team' | 'format'> {
 	}
 	packAll(teams: Team[]) {
 		return teams.map(team => (
-			(team.format ? `${team.format}]` : ``) + (team.folder ? `${team.folder}/` : ``) + team.name + `|` + team.packedTeam
+			(team.teamid ? `${team.teamid}[` : '') +
+			(team.format ? `${team.format}]` : ``) +
+			(team.folder ? `${team.folder}/` : ``) +
+			team.name + `|` + team.packedTeam
 		)).join('\n');
 	}
 	save() {
@@ -359,12 +367,18 @@ class PSTeams extends PSStreamModel<'team' | 'format'> {
 		if (pipeIndex < 0) return null;
 		let bracketIndex = line.indexOf(']');
 		if (bracketIndex > pipeIndex) bracketIndex = -1;
+		let leftBracketIndex = line.indexOf('[');
+		if (leftBracketIndex < 0) leftBracketIndex = 0;
+		const isBox = line.slice(0, bracketIndex).endsWith('-box');
 		let slashIndex = line.lastIndexOf('/', pipeIndex);
 		if (slashIndex < 0) slashIndex = bracketIndex; // line.slice(slashIndex + 1, pipeIndex) will be ''
-		let format = bracketIndex > 0 ? line.slice(0, bracketIndex) : 'gen7';
+		let format = bracketIndex > 0 ? line.slice(
+			(leftBracketIndex ? leftBracketIndex + 1 : 0), isBox ? bracketIndex - 4 : bracketIndex
+		) : 'gen9';
 		if (!format.startsWith('gen')) format = 'gen6' + format;
 		const name = line.slice(slashIndex + 1, pipeIndex);
 		return {
+			teamid: leftBracketIndex > 0 ? Number(line.slice(0, leftBracketIndex)) : undefined,
 			name,
 			format: format as ID,
 			folder: line.slice(bracketIndex + 1, slashIndex > 0 ? slashIndex : bracketIndex + 1),
@@ -372,6 +386,69 @@ class PSTeams extends PSStreamModel<'team' | 'format'> {
 			iconCache: null,
 			key: '',
 		};
+	}
+	loadRemoteTeams() {
+		PSLoginServer.query('getteams', {}).then(data => {
+			if (!data) return;
+			if (data.actionerror) {
+				return PS.alert('Error loading uploaded teams: ' + data.actionerror);
+			}
+			for (const team of data.teams as ((Team & { team: string })[])) {
+				let matched = false;
+				for (const curTeam of this.list) {
+					let match = this.compareTeams(team, curTeam);
+					if (match === true) {
+						// prioritize locally saved teams over remote
+						// as so to not overwrite changes
+						matched = true;
+						break;
+					}
+					if (match === 'rename') {
+						delete curTeam.teamid;
+						if (!team.name.endsWith(' (server version)')) {
+							team.name += ' (server version)';
+						}
+					}
+				}
+				team.loaded = false;
+				if (!matched) {
+					// hack so that it shows up in the format selector list
+					team.folder = '';
+					// team comes down from loginserver as comma-separated list of mons
+					// to save bandwidth
+					let mons = team.team.split(',').map((m: string) => ({ species: m, moves: [] }));
+					team.packedTeam = PSTeambuilder.packTeam(mons);
+					team.iconCache = null;
+					this.push(team);
+				}
+			}
+		});
+	}
+	compareTeams(serverTeam: Team & { team: string }, localTeam: Team) {
+		// if titles match exactly and mons are the same, assume they're the same team
+		// if they don't match, it might be edited, but we'll go ahead and add it to the user's
+		// teambuilder since they may want that old version around. just go ahead and edit the name
+		const mons = serverTeam.team.split(',');
+		let matches = 0;
+		const otherMons = PSTeambuilder.unpackTeam(localTeam.packedTeam);
+		for (const mon of mons) {
+			for (const otherMon of otherMons) {
+				if (toID(otherMon.species) === toID(mon)) {
+					matches++;
+					break;
+				}
+			}
+		}
+		let sanitize = (name: string) => (name || "").replace(/\s+\(server version\)/g, '').trim();
+		const nameMatches = sanitize(serverTeam.name) === sanitize(localTeam.name);
+		if (!(nameMatches && serverTeam.format === localTeam.format)) {
+			return false;
+		}
+		// if it's been edited since, invalidate the team id on this one (count it as new)
+		// and load from server
+		if (mons.length !== otherMons.length || matches !== otherMons.length) return 'rename';
+		if (serverTeam.teamid === localTeam.teamid && localTeam.teamid) return true;
+		return true;
 	}
 }
 

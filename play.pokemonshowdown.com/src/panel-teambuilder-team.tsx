@@ -12,12 +12,13 @@ import { PSTeambuilder, type FormatResource } from "./panel-teamdropdown";
 import { Dex, toID, type ID } from "./battle-dex";
 import { DexSearch } from "./battle-dex-search";
 import { PSSearchResults } from "./battle-searchresults";
+import { PSLoginServer } from "./client-connection";
 
 class TeamRoom extends PSRoom {
 	team: Team | null = null;
 }
 
-class TeamTextbox extends preact.Component<{ team: Team }> {
+class TeamTextbox extends preact.Component<{ team: Team, onUpdateTeam?: () => void }> {
 	setInfo: {
 		species: string,
 		bottomY: number,
@@ -141,6 +142,7 @@ class TeamTextbox extends preact.Component<{ team: Team }> {
 		const sets = PSTeambuilder.importTeam(this.textbox.value);
 		this.props.team.packedTeam = PSTeambuilder.packTeam(sets);
 		this.props.team.iconCache = null;
+		this.props.onUpdateTeam?.();
 		PS.teams.save();
 	}
 	override componentDidMount() {
@@ -216,6 +218,18 @@ class TeamPanel extends PSRoomPanel<TeamRoom> {
 				this.resources = resources;
 				this.forceUpdate();
 			});
+			if (!team.loaded && team.teamid) {
+				PSLoginServer.query('getteam', { teamid: team.teamid }).then(data => {
+					if (!data?.team) {
+						PS.alert(`Failed to load team: ${data?.actionerror || "Error unknown. Try again later."}`);
+						return;
+					}
+					team.loaded = true;
+					team.packedTeam = data.team;
+					PS.teams.save();
+					this.forceUpdate();
+				});
+			}
 		} else {
 			this.resources = null;
 		}
@@ -228,6 +242,35 @@ class TeamPanel extends PSRoomPanel<TeamRoom> {
 		room.team!.name = textbox.value.trim();
 		PS.teams.save();
 	};
+
+	exported = false;
+	uploadTeam = (e: Event) => {
+		const room = this.props.room;
+		const team = PS.teams.byKey[room.id.slice(5)];
+
+		if (!team) return;
+		let cmd = `/teams ${team.teamid ? 'update' : 'save'}`;
+		// teamName, formatid, rawPrivacy, rawTeam
+		const buf = [];
+		if (team.teamid) buf.push(team.teamid);
+		buf.push(team.name, team.format, PS.prefs.uploadprivacy ? 1 : 0);
+		const exported = PSTeambuilder.exportTeam(PSTeambuilder.unpackTeam(team.packedTeam));
+		if (!exported) return PS.alert(`Add a Pokemon to your team before uploading it.`);
+		buf.push(exported);
+		PS.send(`${cmd} ${buf.join(', ')}`);
+		this.exported = true;
+		this.forceUpdate();
+	};
+	teamDidUpdate = () => {
+		this.exported = false;
+		this.forceUpdate();
+	};
+
+	changePrivacyPref = (e: Event) => {
+		PS.prefs.uploadprivacy = !PS.prefs.uploadprivacy;
+		PS.prefs.save();
+	};
+
 	override render() {
 		const room = this.props.room;
 		const team = PS.teams.byKey[room.id.slice(5)];
@@ -255,10 +298,11 @@ class TeamPanel extends PSRoomPanel<TeamRoom> {
 						class="textbox" type="text" value={team.name} onInput={this.rename} onChange={this.rename} onKeyUp={this.rename}
 					/>
 				</label>
-				<TeamTextbox team={team} />
+				{(!!team.teamid && !team.loaded) && <p>Loading team data...</p>}
+				<TeamTextbox team={team} onUpdateTeam={this.teamDidUpdate} />
 				{!!(info && (info.resources.length || info.url)) && (
 					<>
-						<br /><br />
+						<br />
 						<div style={{ paddingLeft: "5px" }}>
 							<h3 style={{ fontSize: "12px" }}>Teambuilding resources for this tier:</h3>
 						</div>
@@ -273,6 +317,20 @@ class TeamPanel extends PSRoomPanel<TeamRoom> {
 						</div>
 					</>
 				)}
+				<br />
+				<button class="button exportbutton" onClick={this.uploadTeam} disabled={this.exported}>
+					<i class="fa fa-upload"></i> Upload to Showdown database (saves across devices)
+				</button>
+				<label>
+					<small>(Private:</small>
+					<input
+						type="checkbox"
+						name="teamprivacy"
+						checked={PS.prefs.uploadprivacy}
+						onChange={this.changePrivacyPref}
+					/>
+					<small>)</small>
+				</label>
 			</div>
 		</PSPanelWrapper>;
 	}
