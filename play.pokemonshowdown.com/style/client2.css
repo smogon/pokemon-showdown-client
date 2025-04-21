@@ -423,11 +423,13 @@ pre {
 }
 .minimizebutton:hover,
 .maximizebutton:hover,
+summary:hover .expandbutton,
 .mini-window-header:hover .minimizebutton {
 	color: #333333;
 }
 .dark .minimizebutton:hover,
 .dark .maximizebutton:hover,
+.dark summary:hover .expandbutton,
 .dark .mini-window-header:hover .minimizebutton {
 	color: #CCCCCC;
 }
@@ -506,7 +508,7 @@ pre {
 	margin-right: 4px;
 	padding: 5px 0 0 0;
 	height: 23px;
-	font-size: 14px;
+	font-size: 16px;
 	width: 24px;
 	text-align: center;
 
@@ -532,6 +534,7 @@ pre {
 .scrollable {
 	overflow: auto;
 	-webkit-overflow-scrolling: touch;
+	overscroll-behavior-block: contain;
 }
 .ps-room.ps-room-light, .ps-room-light {
 	background: rgba(242,247,250,.85);
@@ -554,6 +557,7 @@ pre {
 	overflow: auto;
 	-webkit-overflow-scrolling: touch;
 	z-index: 20;
+	overscroll-behavior-block: contain;
 }
 .ps-popup {
 	position: absolute;
@@ -777,7 +781,7 @@ p.or:after {
 	float: right;
 	margin: -2px -4px 0 0;
 	width: 22px;
-	height: 22px;
+	height: 21px;
 	font-size: 16px;
 }
 .mini-window-header small {
@@ -1090,6 +1094,7 @@ form.menugroup {
 	overflow: auto;
 	overflow-x: hidden;
 	-webkit-overflow-scrolling: touch;
+	overscroll-behavior-block: contain;
 }
 .chat-log, .readable-bg {
 	background: rgba(242,247,250,.5);
@@ -1128,17 +1133,6 @@ form.menugroup {
 .chat-log .inner,
 .pm-log .inner {
 	padding: 24px 8px 6px 8px;
-}
-a.ilink {
-	text-decoration: none;
-	color: #224488;
-}
-a.ilink:hover {
-	text-decoration: underline;
-	color: #6688CC;
-}
-a.ilink.yours {
-	color: #55388B;
 }
 
 .chatbox {
@@ -1256,6 +1250,7 @@ pre.textbox.textbox-empty[placeholder]:before {
 	border-right: 1px #aaa solid;
 	background-color: rgba(242, 247, 250, 0.85);
 	overflow: auto;
+	overscroll-behavior-block: contain;
   transform-origin: top;
 	transform: scaleY(0);
 	touch-action: none;
@@ -1270,6 +1265,7 @@ pre.textbox.textbox-empty[placeholder]:before {
 	max-height: 200px;
 	overflow: auto;
 	-webkit-overflow-scrolling: touch;
+	overscroll-behavior-block: contain;
 	font-size: 8pt;
 }
 

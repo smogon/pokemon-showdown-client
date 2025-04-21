@@ -115,7 +115,7 @@ export const PSLoginServer = new class {
 };
 
 interface PostData {
-	[name: string]: string | number | boolean;
+	[key: string]: string | number | boolean | null | undefined;
 }
 interface NetRequestOptions {
 	method?: 'GET' | 'POST';
@@ -213,7 +213,7 @@ Net.encodeQuery = function (data: string | PostData): string {
 		if (urlencodedData) urlencodedData += '&';
 		let value = data[key];
 		if (value === true) value = 'on';
-		if (value === false) value = '';
+		if (value === false || value === null || value === undefined) value = '';
 		urlencodedData += encodeURIComponent(key) + '=' + encodeURIComponent(value);
 	}
 	return urlencodedData;
@@ -225,7 +225,7 @@ Net.formData = function (form: HTMLFormElement): { [name: string]: string | bool
 	const out: { [name: string]: string | boolean } = {};
 	for (const element of elements) {
 		if (element.type === 'checkbox') {
-			out[element.name] = element.value ? (
+			out[element.name] = element.getAttribute('value') ? (
 				element.checked ? element.value : ''
 			) : (
 				!!element.checked
