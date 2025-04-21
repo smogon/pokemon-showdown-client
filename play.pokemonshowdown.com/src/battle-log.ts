@@ -1310,7 +1310,7 @@ export class BattleLog {
 			str = str.replace(/<a[^>]*>/g, '<u>').replace(/<\/a>/g, '</u>');
 		}
 		if (options.hidespoiler) {
-			str = str.replace(/<span class="spoiler">/g, '<span class="spoiler spoiler-shown">');
+			str = str.replace(/<span class="spoiler">/g, '<span class="spoiler-shown">');
 		}
 		if (options.hidegreentext) {
 			str = str.replace(/<span class="greentext">/g, '<span>');
