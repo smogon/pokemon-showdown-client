@@ -278,10 +278,12 @@ span.header-username:hover {
 	color: #333333;
 }
 .minimizebutton:hover,
+summary:hover .expandbutton,
 .pm-window h3:hover .minimizebutton {
 	color: #333333;
 }
 .dark .minimizebutton:hover,
+.dark summary:hover .expandbutton,
 .dark .pm-window h3:hover .minimizebutton {
 	color: #CCCCCC;
 }
@@ -1105,17 +1107,6 @@ p.or:after {
 .chat-log .inner,
 .pm-log .inner {
 	padding: 4px 8px 6px 8px;
-}
-a.ilink {
-	text-decoration: none;
-	color: #224488;
-}
-a.ilink:hover {
-	text-decoration: underline;
-	color: #6688CC;
-}
-a.ilink.yours {
-	color: #55388B;
 }
 
 .chatbox {
@@ -3204,10 +3195,6 @@ a.ilink.yours {
 }
 .dark .revealed {
 	background: rgba(0,255,200,0.18);
-}
-.dark a.ilink {
-	color: #4488EE;
-	border-color: #526c87;
 }
 .dark .chat.mine {
 	background: rgba(255,255,255,0.08);

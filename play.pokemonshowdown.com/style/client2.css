@@ -423,11 +423,13 @@ pre {
 }
 .minimizebutton:hover,
 .maximizebutton:hover,
+summary:hover .expandbutton,
 .mini-window-header:hover .minimizebutton {
 	color: #333333;
 }
 .dark .minimizebutton:hover,
 .dark .maximizebutton:hover,
+.dark summary:hover .expandbutton,
 .dark .mini-window-header:hover .minimizebutton {
 	color: #CCCCCC;
 }
@@ -1131,17 +1133,6 @@ form.menugroup {
 .chat-log .inner,
 .pm-log .inner {
 	padding: 24px 8px 6px 8px;
-}
-a.ilink {
-	text-decoration: none;
-	color: #224488;
-}
-a.ilink:hover {
-	text-decoration: underline;
-	color: #6688CC;
-}
-a.ilink.yours {
-	color: #55388B;
 }
 
 .chatbox {
