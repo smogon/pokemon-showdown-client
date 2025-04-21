@@ -358,7 +358,7 @@ export class PSView extends preact.Component {
 				for (const [name, value] of Object.entries(inputs)) {
 					cmd = cmd.replace(`{${name}}`, value === true ? 'on' : value === false ? 'off' : value);
 				}
-				cmd = cmd.replace(/\{[a-z]+\}/g, '');
+				cmd = cmd.replace(/\{[a-z0-9-]+\}/g, '');
 				const room = PS.getRoom(elem) || PS.mainmenu;
 				room.sendDirect(cmd);
 
