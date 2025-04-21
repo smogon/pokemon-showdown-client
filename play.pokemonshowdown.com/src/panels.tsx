@@ -356,7 +356,7 @@ export class PSView extends preact.Component {
 				const inputs = Net.formData(elem);
 				let cmd = elem.getAttribute('data-submitsend')!;
 				for (const [name, value] of Object.entries(inputs)) {
-					cmd = cmd.replace(`{${name}}`, typeof value === 'boolean' ? (value ? 'on' : 'off') : value);
+					cmd = cmd.replace(`{${name}}`, value === true ? 'on' : value === false ? 'off' : value);
 				}
 				cmd = cmd.replace(/\{[a-z]+\}/g, '');
 				const room = PS.getRoom(elem) || PS.mainmenu;
