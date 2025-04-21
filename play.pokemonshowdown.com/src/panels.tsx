@@ -13,6 +13,7 @@ import preact from "../js/lib/preact";
 import { toID } from "./battle-dex";
 import type { Args } from "./battle-text-parser";
 import { BattleTooltips } from "./battle-tooltips";
+import { Net } from "./client-connection";
 import type { PSModel, PSStreamModel, PSSubscription } from "./client-core";
 import { PS, type PSRoom, type RoomID } from "./client-main";
 import type { BattleRoom } from "./panel-battle";
@@ -350,25 +351,12 @@ export class PSView extends preact.Component {
 		};
 
 		window.addEventListener('submit', ev => {
-			let elem = ev.target as HTMLFormElement | null;
+			const elem = ev.target as HTMLFormElement | null;
 			if (elem?.getAttribute('data-submitsend')) {
-				const elements = elem.querySelectorAll('input[name], select[name], textarea[name], button[value]');
-				const inputs = [];
-				for (const element of elements) {
-					const type = element.getAttribute('type') || "";
-					const checked = (element as HTMLInputElement).checked;
-					const name = element.name;
-					const val = (element as HTMLInputElement).value;
-					if (type === 'submit') continue;
-					if (type === 'checkbox' && !val) {
-						inputs.push([element.getAttribute('name'), checked ? 'on' : 'off']);
-					} else if (!['checkbox', 'radio'].includes(type) || checked) {
-						inputs.push([name, val]);
-					}
-				}
+				const inputs = Net.formData(elem);
 				let cmd = elem.getAttribute('data-submitsend')!;
-				for (const entry of inputs) {
-					cmd = cmd.replace('{' + entry[0] + '}', entry[1]);
+				for (const [name, value] of Object.entries(inputs)) {
+					cmd = cmd.replace(`{${name}}`, typeof value === 'boolean' ? (value ? 'on' : 'off') : value);
 				}
 				cmd = cmd.replace(/\{[a-z]+\}/g, '');
 				const room = PS.getRoom(elem) || PS.mainmenu;
@@ -376,7 +364,6 @@ export class PSView extends preact.Component {
 
 				ev.preventDefault();
 				ev.stopImmediatePropagation();
-
 			}
 		});
 

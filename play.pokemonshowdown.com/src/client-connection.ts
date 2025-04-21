@@ -115,7 +115,7 @@ export const PSLoginServer = new class {
 };
 
 interface PostData {
-	[key: string]: string | number;
+	[name: string]: string | number | boolean;
 }
 interface NetRequestOptions {
 	method?: 'GET' | 'POST';
@@ -206,12 +206,33 @@ export function Net(uri: string) {
 
 Net.defaultRoute = '';
 
-Net.encodeQuery = function (data: string | PostData) {
+Net.encodeQuery = function (data: string | PostData): string {
 	if (typeof data === 'string') return data;
 	let urlencodedData = '';
 	for (const key in data) {
 		if (urlencodedData) urlencodedData += '&';
-		urlencodedData += encodeURIComponent(key) + '=' + encodeURIComponent((data as any)[key]);
+		let value = data[key];
+		if (value === true) value = 'on';
+		if (value === false) value = '';
+		urlencodedData += encodeURIComponent(key) + '=' + encodeURIComponent(value);
 	}
 	return urlencodedData;
+};
+
+Net.formData = function (form: HTMLFormElement): { [name: string]: string | boolean } {
+	// not technically all `HTMLInputElement`s but who wants to cast all these?
+	const elements = form.querySelectorAll<HTMLInputElement>('input[name], select[name], textarea[name]');
+	const out: { [name: string]: string | boolean } = {};
+	for (const element of elements) {
+		if (element.type === 'checkbox') {
+			out[element.name] = element.value ? (
+				element.checked ? element.value : ''
+			) : (
+				!!element.checked
+			);
+		} else if (element.type !== 'radio' || element.checked) {
+			out[element.name] = element.value;
+		}
+	}
+	return out;
 };
