@@ -6,8 +6,8 @@ import { PSLoginServer } from "./client-connection";
 import { PSBackground } from "./client-core";
 import { PSRoom, type RoomOptions, PS, type PSLoginState, type RoomID, type TimestampOptions } from "./client-main";
 import { type BattleRoom } from "./panel-battle";
-import type { ChatRoom } from "./panel-chat";
-import { PSRoomPanel, PSPanelWrapper } from "./panels";
+import { ChatUserList, type ChatRoom } from "./panel-chat";
+import { PSRoomPanel, PSPanelWrapper, PSView } from "./panels";
 import { PSHeader } from "./panel-topbar";
 
 /**
@@ -408,6 +408,24 @@ class UserOptionsPanel extends PSRoomPanel {
 					</button>
 				))}
 			</p>
+		</div></PSPanelWrapper>;
+	}
+}
+
+class UserListPanel extends PSRoomPanel {
+	static readonly id = 'userlist';
+	static readonly routes = ['userlist'];
+	static readonly location = 'semimodal-popup';
+	static readonly noURL = true;
+	override render() {
+		const room = this.props.room;
+		const parentRoom = room.getParent() as ChatRoom;
+		if (parentRoom.type !== 'chat' && parentRoom.type !== 'battle') {
+			throw new Error(`UserListPanel: ${room.id} is not a chat room`);
+		}
+
+		return <PSPanelWrapper room={room} width={280}><div class="pad">
+			<ChatUserList room={parentRoom} static />
 		</div></PSPanelWrapper>;
 	}
 }
@@ -1181,12 +1199,12 @@ class RegisterPanel extends PSRoomPanel {
 				<p>
 					<label class="label"><img
 						src="https://play.pokemonshowdown.com/sprites/gen5ani/pikachu.gif"
-						alt="An Electric-type mouse that is the mascot of the Pokémon franchise."
+						alt="An Electric-type mouse that is the mascot of the Pok&eacute;mon franchise."
 					/></label>
 				</p>
 				<p>
 					<label class="label">
-						What is this pokemon?{}
+						What is this pokemon? {}
 						<input name="captcha" class="textbox" />
 					</label>
 				</p>
@@ -1262,27 +1280,28 @@ class BackgroundListPanel extends PSRoomPanel {
 			<p><strong>Official</strong></p>
 			<div class="bglist">
 				<button onClick={this.setBg} value="charizards" class={option('charizards')}>
-					<span class="bg" style="background-position: 0 -0px"></span>{' '}
+					<span class="bg" style="background-position: 0 -0px"></span>{}
 					Charizards
 				</button>
 				<button onClick={this.setBg} value="horizon" class={option('horizon')}>
-					<span class="bg" style="background-position: 0 -90px"></span>{' '}
+					<span class="bg" style="background-position: 0 -90px"></span>{}
 					Horizon
 				</button>
 				<button onClick={this.setBg} value="waterfall" class={option('waterfall')}>
-					<span class="bg" style="background-position: 0 -180px"></span>{' '}
+					<span class="bg" style="background-position: 0 -180px"></span>{}
 					Waterfall
 				</button>
 				<button onClick={this.setBg} value="ocean" class={option('ocean')}>
-					<span class="bg" style="background-position: 0 -270px"></span>{' '}
+					<span class="bg" style="background-position: 0 -270px"></span>{}
 					Ocean
 				</button>
 				<button onClick={this.setBg} value="shaymin" class={option('shaymin')}>
-					<span class="bg" style="background-position: 0 -360px"></span>{' '}
+					<span class="bg" style="background-position: 0 -360px"></span>{}
 					Shaymin
 				</button>
 				<button onClick={this.setBg} value="solidblue" class={option('solidblue')}>
-					<span class="bg" style="background: #344b6c"></span>Solid blue
+					<span class="bg" style="background: #344b6c"></span>{}
+					Solid blue
 				</button>
 			</div>
 			<div style="clear: left"></div>
@@ -1318,11 +1337,12 @@ class ChatFormattingPanel extends PSRoomPanel {
 
 	override render() {
 		const room = this.props.room;
+		const ctrl = PSView.isMac ? 'Cmd' : 'Ctrl';
 		return <PSPanelWrapper room={room} width={480}><div class="pad">
 			<p>Usable formatting:</p>
-			<p>**<strong>bold</strong>** (<kbd>Ctrl</kbd> + <kbd>B</kbd>)</p>
-			<p>__<em>italics</em>__ (<kbd>Ctrl</kbd> + <kbd>I</kbd>)</p>
-			<p>``<code>code formatting</code>`` (<kbd>Ctrl</kbd> + <kbd>`</kbd>)</p>
+			<p>**<strong>bold</strong>** (<kbd>{ctrl}</kbd>+<kbd>B</kbd>)</p>
+			<p>__<em>italics</em>__ (<kbd>{ctrl}</kbd>+<kbd>I</kbd>)</p>
+			<p>``<code>code formatting</code>`` (<kbd>Ctrl</kbd>+<kbd>`</kbd>)</p>
 			<p>~~<s>strikethrough</s>~~</p>
 			<p>^^<sup>superscript</sup>^^</p>
 			<p>\\<sub>subscript</sub>\\</p>
@@ -1333,8 +1353,7 @@ class ChatFormattingPanel extends PSRoomPanel {
 						type="checkbox"
 						name="greentext"
 						checked={PS.prefs.chatformatting.hidegreentext}
-					/> Suppress{' '}
-					<span class="greentext">&gt;greentext</span>
+					/> Suppress <span class="greentext">&gt;greentext</span>
 				</label>
 			</p>
 			<p>
@@ -1355,8 +1374,7 @@ class ChatFormattingPanel extends PSRoomPanel {
 						type="checkbox"
 						name="spoiler"
 						checked={PS.prefs.chatformatting.hidespoiler}
-					/> Auto-show spoilers:{' '}
-					<span class="spoiler">these things</span>
+					/> Auto-show spoilers: <span class="spoiler">these things</span>
 				</label>
 			</p>
 			<p>
@@ -1366,8 +1384,7 @@ class ChatFormattingPanel extends PSRoomPanel {
 						type="checkbox"
 						name="links"
 						checked={PS.prefs.chatformatting.hidelinks}
-					/> Make [[clickable links]]
-					unclickable
+					/> Make [[clickable links]] unclickable
 				</label>
 			</p>
 			<p>
@@ -1499,6 +1516,7 @@ class RoomTabListPanel extends PSRoomPanel {
 PS.addRoomType(
 	UserPanel,
 	UserOptionsPanel,
+	UserListPanel,
 	VolumePanel,
 	OptionsPanel,
 	LoginPanel,

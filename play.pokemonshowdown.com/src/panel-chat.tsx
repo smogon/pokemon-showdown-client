@@ -489,7 +489,8 @@ export class ChatRoom extends PSRoom {
 	}
 	override sendDirect(line: string) {
 		if (this.pmTarget) {
-			PS.send(`|/pm ${this.pmTarget}, ${line}`);
+			line = line.split('\n').filter(Boolean).map(row => `/pm ${this.pmTarget!}, ${row}`).join('\n');
+			PS.send(`|${line}`);
 			return;
 		}
 		super.sendDirect(line);
@@ -1057,49 +1058,59 @@ class ChatPanel extends PSRoomPanel<ChatRoom> {
 }
 
 export class ChatUserList extends preact.Component<{
-	room: ChatRoom, left?: number, top?: number, minimized?: boolean,
+	room: ChatRoom, left?: number, top?: number, minimized?: boolean, static?: boolean,
 }> {
-	override state = {
-		expanded: false,
-	};
-	toggleExpanded = () => {
-		this.setState({ expanded: !this.state.expanded });
-	};
 	render() {
 		const room = this.props.room;
 		let userList = Object.entries(room.users) as [ID, string][];
 		PSUtils.sortBy(userList, ([id, name]) => (
 			[PS.server.getGroup(name.charAt(0)).order, !name.endsWith('@!'), id]
 		));
-		return <ul
-			class={'userlist' + (this.props.minimized ? (this.state.expanded ? ' userlist-maximized' : ' userlist-minimized') : '')}
+		const pmTargetid = room.pmTarget ? toID(room.pmTarget) : null;
+		return <div
+			class={'userlist' + (this.props.minimized ? ' userlist-hidden' : this.props.static ? ' userlist-static' : '')}
 			style={{ left: this.props.left || 0, top: this.props.top || 0 }}
 		>
-			<li class="userlist-count" onClick={this.toggleExpanded}><small>{room.userCount} users</small></li>
-			{userList.map(([userid, name]) => {
-				const groupSymbol = name.charAt(0);
-				const group = PS.server.groups[groupSymbol] || { type: 'user', order: 0 };
-				let color;
-				if (name.endsWith('@!')) {
-					name = name.slice(0, -2);
-					color = '#888888';
-				} else {
-					color = BattleLog.usernameColor(userid);
-				}
-				return <li key={userid}><button class="userbutton username">
-					<em class={`group${['leadership', 'staff'].includes(group.type!) ? ' staffgroup' : ''}`}>
-						{groupSymbol}
-					</em>
-					{group.type === 'leadership' ? (
-						<strong><em style={{ color }}>{name.slice(1)}</em></strong>
-					) : group.type === 'staff' ? (
-						<strong style={{ color }}>{name.slice(1)}</strong>
-					) : (
-						<span style={{ color }}>{name.slice(1)}</span>
-					)}
-				</button></li>;
-			})}
-		</ul>;
+			{!this.props.minimized ? (
+				<div class="userlist-count"><small>{room.userCount} users</small></div>
+			) : room.id === 'dm-' ? (
+				<>
+					<button class="button button-middle" data-cmd="/help">Commands</button>
+				</>
+			) : pmTargetid ? (
+				<>
+					<button class="button button-middle" data-cmd="/challenge">Challenge</button>
+					<button class="button button-middle" data-href={`useroptions-${pmTargetid}`}>{'\u2026'}</button>
+				</>
+			) : (
+				<button data-href="userlist" class="button button-middle">{room.userCount} users</button>
+			)}
+			<ul>
+				{userList.map(([userid, name]) => {
+					const groupSymbol = name.charAt(0);
+					const group = PS.server.groups[groupSymbol] || { type: 'user', order: 0 };
+					let color;
+					if (name.endsWith('@!')) {
+						name = name.slice(0, -2);
+						color = '#888888';
+					} else {
+						color = BattleLog.usernameColor(userid);
+					}
+					return <li key={userid}><button class="userbutton username">
+						<em class={`group${['leadership', 'staff'].includes(group.type!) ? ' staffgroup' : ''}`}>
+							{groupSymbol}
+						</em>
+						{group.type === 'leadership' ? (
+							<strong><em style={{ color }}>{name.slice(1)}</em></strong>
+						) : group.type === 'staff' ? (
+							<strong style={{ color }}>{name.slice(1)}</strong>
+						) : (
+							<span style={{ color }}>{name.slice(1)}</span>
+						)}
+					</button></li>;
+				})}
+			</ul>
+		</div>;
 	}
 }
 

@@ -100,7 +100,7 @@ export const defaultRules = {
 	"no-return-assign": "error",
 	"no-self-compare": "error",
 	"no-sequences": "error",
-	"no-shadow": "error",
+	"no-shadow": "warn",
 	"no-template-curly-in-string": "error",
 	"no-throw-literal": "warn",
 	"no-unmodified-loop-condition": "error",

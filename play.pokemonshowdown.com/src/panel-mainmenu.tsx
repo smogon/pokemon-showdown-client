@@ -546,7 +546,10 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
 		if (!PS.user.userid || PS.isOffline) {
 			return <TeamForm class="menugroup" onSubmit={this.submitSearch}>
 				<button class="mainmenu1 mainmenu big button disabled" disabled name="search">
-					<em>{PS.isOffline ? "Disconnected" : "Connecting..."}</em>
+					<em>{PS.isOffline ? [<span class="fa-stack fa-lg">
+						<i class="fa fa-plug fa-flip-horizontal fa-stack-1x"></i>
+						<i class="fa fa-ban fa-stack-2x text-danger"></i>
+					</span>, " Disconnected"] : "Connecting..."}</em>
 				</button>
 				{PS.isOffline && <p class="buttonbar">
 					<button class="button" data-cmd="/reconnect"><i class="fa fa-plug"></i> <strong>Reconnect</strong></button>
@@ -591,22 +594,22 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
 					{this.renderSearchButton()}
 
 					<div class="menugroup">
-						<p><button class="mainmenu2 mainmenu button" data-href="teambuilder">Teambuilder</button></p>
-						<p><button class={"mainmenu3 mainmenu" + onlineButton} data-href="ladder">Ladder</button></p>
-						<p><button class={"mainmenu4 mainmenu" + onlineButton} data-href="view-tournaments-all">Tournaments</button></p>
+						<p><a class="mainmenu2 mainmenu button" href="teambuilder">Teambuilder</a></p>
+						<p><a class={"mainmenu3 mainmenu" + onlineButton} href="ladder">Ladder</a></p>
+						<p><a class={"mainmenu4 mainmenu" + onlineButton} href="view-tournaments-all">Tournaments</a></p>
 					</div>
 
 					<div class="menugroup">
-						<p><button class={"mainmenu4 mainmenu" + onlineButton} data-href="battles">Watch a battle</button></p>
-						<p><button class={"mainmenu5 mainmenu" + onlineButton} data-href="users">Find a user</button></p>
-						<p><button class={"mainmenu6 mainmenu" + onlineButton} data-href="view-friends-all">Friends</button></p>
+						<p><a class={"mainmenu4 mainmenu" + onlineButton} href="battles">Watch a battle</a></p>
+						<p><a class={"mainmenu5 mainmenu" + onlineButton} href="users">Find a user</a></p>
+						<p><a class={"mainmenu6 mainmenu" + onlineButton} href="view-friends-all">Friends</a></p>
 					</div>
 				</div>
 				<div class="mainmenu-right" style={{ display: PS.leftPanelWidth ? 'none' : 'block' }}>
 					<div class="menugroup">
-						<p><button class={"mainmenu1 mainmenu" + onlineButton} data-href="rooms">Chat rooms</button></p>
+						<p><a class={"mainmenu1 mainmenu" + onlineButton} href="rooms">Chat rooms</a></p>
 						{PS.server.id !== 'showdown' && (
-							<p><button class={"mainmenu2 mainmenu" + onlineButton} data-href="lobby">Lobby chat</button></p>
+							<p><a class={"mainmenu2 mainmenu" + onlineButton} href="lobby">Lobby chat</a></p>
 						)}
 					</div>
 				</div>
