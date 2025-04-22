@@ -1227,6 +1227,8 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 				this.add('||/afd off - Disable April Fools\' Day jokes until the next refresh, and set /afd default.');
 				this.add('||/afd never - Disable April Fools\' Day jokes permanently.');
 				return false;
+			default:
+				return true;
 			}
 		},
 		'autojoin,cmd,crq,query'() {

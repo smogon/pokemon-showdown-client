@@ -152,40 +152,27 @@ export class PSHeader extends preact.Component<{ style: object }> {
 			</button>;
 		}
 		const ariaLabel = id === 'rooms' ? { "aria-label": "Join chat" } : {};
-		return <li>
+		return <li class={id === '' ? 'home-li' : ''}>
 			<a
 				class={className} href={`/${id}`} draggable={true} title={hoverTitle || undefined}
 				onDragEnter={this.handleDragEnter} onDragStart={this.handleDragStart}
 				{...ariaLabel}
 			>
-				{icon} <span>{roomTitle}</span>
+				{icon} {roomTitle}
 			</a>
 			{closeButton}
 		</li>;
 	}
-	sideRoomMargin = 0;
 	handleRoomTabOverflow = () => {
 		if (PS.leftPanelWidth === null || !this.base) return;
 
 		const userbarLeft = this.base.querySelector('div.userbar')?.getBoundingClientRect()?.left;
-		const plusTab = this.base.querySelector('a.roomtab[aria-label="Join chat"]');
-		const plusTabRight = plusTab?.getBoundingClientRect()?.right;
+		const plusTabRight = this.base.querySelector('a.roomtab[aria-label="Join chat"]')?.getBoundingClientRect()?.right;
 		const overflow = this.base.querySelector<HTMLElement>('.overflow');
-		const siderooms = this.base.querySelector<HTMLElement>('.siderooms');
 
-		if (!overflow || !userbarLeft || !plusTab || !plusTabRight || !siderooms) return;
+		if (!overflow || !userbarLeft || !plusTabRight) return;
 
-		// this has too much perf impact and bugs... just use vertical tabs
-		// if (PS.leftPanelWidth && Math.abs((userbarLeft - 5) - plusTabRight) > 0.5) {
-		// 	this.sideRoomMargin += (userbarLeft - 5) - plusTabRight;
-		// 	if (this.sideRoomMargin < 0) this.sideRoomMargin = 0;
-		// 	this.sideRoomMargin = Math.min(Math.max(PS.leftPanelWidth - 52, 0), this.sideRoomMargin);
-
-		// 	siderooms.style.marginLeft = `${this.sideRoomMargin}px`;
-		// 	plusTabRight = plusTab.getBoundingClientRect().right;
-		// }
-
-		if (plusTabRight > userbarLeft) {
+		if (plusTabRight > userbarLeft - 3) {
 			overflow.style.display = 'block';
 		} else {
 			overflow.style.display = 'none';
@@ -260,32 +247,31 @@ export class PSHeader extends preact.Component<{ style: object }> {
 		} else {
 			document.documentElement.classList?.remove('scroll-snap-enabled');
 		}
-		this.sideRoomMargin = Math.max(PS.leftPanelWidth - 52, 0);
 
 		return <div id="header" class="header" style={this.props.style}>
 			<div class="maintabbarbottom"></div>
-			<img
-				class="logo"
-				src={`https://${Config.routes.client}/favicon-256.png`}
-				alt="Pokémon Showdown! (beta)"
-				width="50" height="50"
-			/>
-			<div class="tabbar maintabbar"><div class="inner">
-				<ul>
+			<div class="tabbar maintabbar"><div class="inner-1"><div class="inner-2">
+				<ul class="maintabbar-left" style={{ width: `${PS.leftPanelWidth}px` }}>
+					<li>
+						<img
+							class="logo"
+							src={`https://${Config.routes.client}/favicon-256.png`}
+							alt="Pokémon Showdown! (beta)"
+							width="48" height="48"
+						/>
+					</li>
 					{PSHeader.renderRoomTab(PS.leftRoomList[0])}
-				</ul>
-				<ul>
 					{PS.leftRoomList.slice(1).map(roomid => PSHeader.renderRoomTab(roomid))}
 				</ul>
-				<ul class="siderooms" style={{ float: 'none', marginLeft: this.sideRoomMargin }}>
+				<ul class="maintabbar-right">
 					{PS.rightRoomList.map(roomid => PSHeader.renderRoomTab(roomid))}
 				</ul>
-				<div class="overflow">
-					<button name="tablist" class="button" data-href="roomtablist" aria-label="All tabs" type="button">
-						<i class="fa fa-caret-down"></i>
-					</button>
-				</div>
-			</div></div>
+			</div></div></div>
+			<div class="overflow">
+				<button name="tablist" class="button" data-href="roomtablist" aria-label="All tabs" type="button">
+					<i class="fa fa-caret-down"></i>
+				</button>
+			</div>
 			<div class="userbar">
 				{this.renderUser()} {}
 				<button class="icon button" data-href="volume" title="Sound" aria-label="Sound" onDblClick={PSHeader.toggleMute}>

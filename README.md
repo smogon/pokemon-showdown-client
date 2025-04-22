@@ -25,16 +25,17 @@ Browser support
 Pokémon Showdown currently supports, in order of preference:
 
  - Chrome
+ - Chromium browsers (Edge, Vivaldi, Brave, Opera...)
  - Firefox
- - Opera
  - Safari 5+
- - IE11+
+ - IE11+ and Edge
  - Chrome/Firefox/Safari for various mobile devices
+ - any remotely modern browser
 
-Pokémon Showdown is usable, but expect degraded performance and certain features not to work in:
+Pokémon Showdown is usable, but expect degraded performance and certain features not to work in extremely legacy browsers like:
 
- - Safari 4+
- - IE9+
+ - Safari 4
+ - IE9-10
 
 Pokémon Showdown is mostly developed on Chrome, and Chrome or the desktop client is required for certain features like dragging-and-dropping teams from PS to your computer. However, bugs reported on any supported browser will usually be fixed pretty quickly.
 
