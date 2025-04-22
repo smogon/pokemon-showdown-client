@@ -7,8 +7,8 @@
 
 import { PS, type Team } from "./client-main";
 import { PSPanelWrapper, PSRoomPanel } from "./panels";
-import { Dex, toID, type ID } from "./battle-dex";
-import { BattleStatIDs, BattleStatNames } from "./battle-dex-data";
+import { Dex, type ModdedDex, toID, type ID } from "./battle-dex";
+import { BattleNatures, BattleStatIDs, BattleStatNames, type StatNameExceptHP } from "./battle-dex-data";
 import { Net } from "./client-connection";
 
 export type FormatResource = { url: string, resources: { resource_name: string, url: string }[] } | null;
@@ -142,8 +142,9 @@ export class PSTeambuilder {
 			);
 
 			// nature
-			set.nature = parts[5] as Dex.NatureName;
-			if (set.nature as any === 'undefined') set.nature = undefined;
+			const natureid = toID(parts[5]);
+			set.nature = natureid.charAt(0).toUpperCase() + natureid.slice(1) as Dex.NatureName;
+			if (set.nature as any === 'Undefined') set.nature = undefined;
 
 			// evs
 			if (parts[6]) {
@@ -201,7 +202,7 @@ export class PSTeambuilder {
 	 * (Exports end with two spaces so linebreaks are preserved in Markdown;
 	 * I assume mostly for Reddit.)
 	 */
-	static exportSet(set: Dex.PokemonSet) {
+	static exportSet(set: Dex.PokemonSet, dex: ModdedDex = Dex, compat?: boolean) {
 		let text = '';
 
 		// core
@@ -214,43 +215,52 @@ export class PSTeambuilder {
 		if (set.gender === 'F') text += ` (F)`;
 		if (set.item) {
 			text += ` @ ${set.item}`;
+		} else if (!compat && dex.gen > 1) {
+			text += ` @ (No Item)`;
 		}
-		text += `  \n`;
-		if (set.ability) {
-			text += `Ability: ${set.ability}  \n`;
+		text += `\n`;
+		if (set.ability && set.ability !== 'No Ability') {
+			text += `Ability: ${set.ability}\n`;
+		} else if (!compat && dex.gen > 2) {
+			text += `Ability: (No Ability)\n`;
 		}
-		if (set.moves) {
-			for (let move of set.moves) {
-				if (move.substr(0, 13) === 'Hidden Power ') {
-					const hpType = move.slice(13);
-					move = move.slice(0, 13);
-					move = `${move}[${hpType}]`;
+
+		if (!compat) {
+			if (set.moves) {
+				for (let move of set.moves) {
+					if (move.startsWith('Hidden Power ')) {
+						const hpType = move.slice(13);
+						move = move.slice(0, 13);
+						move = `${move}[${hpType}]`;
+					}
+					text += `- ${move || ''}\n`;
 				}
-				if (move) {
-					text += `- ${move}  \n`;
-				}
+			}
+			for (let i = set.moves?.length || 0; i < 4; i++) {
+				text += `- \n`;
 			}
 		}
 
 		// stats
 		let first = true;
-		if (set.evs) {
+		if (set.evs || set.nature) {
+			const nature = BattleNatures[set.nature as 'Serious'];
 			for (const stat of Dex.statNames) {
-				if (!set.evs[stat]) continue;
-				if (first) {
-					text += `EVs: `;
-					first = false;
-				} else {
-					text += ` / `;
-				}
-				text += `${set.evs[stat]} ${BattleStatNames[stat]}`;
+				const plusMinus = nature?.plus === stat ? '+' : nature?.minus === stat ? '-' : '';
+				const ev = set.evs?.[stat] || '';
+				if (ev === '' && !plusMinus) continue;
+				text += first ? `EVs: ` : ` / `;
+				first = false;
+				text += `${ev}${plusMinus} ${BattleStatNames[stat]}`;
 			}
 		}
 		if (!first) {
-			text += `  \n`;
+			text += `\n`;
 		}
-		if (set.nature) {
-			text += `${set.nature} Nature  \n`;
+		if (set.nature && compat) {
+			text += `${set.nature} Nature\n`;
+		} else if (['Hardy', 'Docile', 'Serious', 'Bashful', 'Quirky'].includes(set.nature!)) {
+			text += `${set.nature!} Nature\n`;
 		}
 		first = true;
 		if (set.ivs) {
@@ -266,34 +276,47 @@ export class PSTeambuilder {
 			}
 		}
 		if (!first) {
-			text += `  \n`;
+			text += `\n`;
 		}
 
 		// details
 		if (set.level && set.level !== 100) {
-			text += `Level: ${set.level}  \n`;
+			text += `Level: ${set.level}\n`;
 		}
 		if (set.shiny) {
-			text += `Shiny: Yes  \n`;
+			text += compat ? `Shiny: Yes\n` : `Shiny\n`;
 		}
 		if (typeof set.happiness === 'number' && set.happiness !== 255 && !isNaN(set.happiness)) {
-			text += `Happiness: ${set.happiness}  \n`;
+			text += `Happiness: ${set.happiness}\n`;
 		}
 		if (typeof set.dynamaxLevel === 'number' && set.dynamaxLevel !== 255 && !isNaN(set.dynamaxLevel)) {
-			text += `Dynamax Level: ${set.dynamaxLevel}  \n`;
+			text += `Dynamax Level: ${set.dynamaxLevel}\n`;
 		}
 		if (set.gigantamax) {
-			text += `Gigantamax: Yes  \n`;
+			text += `Gigantamax: Yes\n`;
+		}
+
+		if (set.moves && compat) {
+			for (let move of set.moves) {
+				if (move.startsWith('Hidden Power ')) {
+					const hpType = move.slice(13);
+					move = move.slice(0, 13);
+					move = `${move}[${hpType}]`;
+				}
+				if (move) {
+					text += `- ${move}\n`;
+				}
+			}
 		}
 
 		text += `\n`;
 		return text;
 	}
-	static exportTeam(sets: Dex.PokemonSet[]) {
+	static exportTeam(sets: Dex.PokemonSet[], dex?: ModdedDex) {
 		let text = '';
 		for (const set of sets) {
 			// core
-			text += PSTeambuilder.exportSet(set);
+			text += PSTeambuilder.exportSet(set, dex);
 		}
 		return text;
 	}
@@ -337,7 +360,7 @@ export class PSTeambuilder {
 		} else if (line.startsWith('Ability: ')) {
 			line = line.slice(9);
 			set.ability = line;
-		} else if (line === 'Shiny: Yes') {
+		} else if (line === 'Shiny: Yes' || line === 'Shiny') {
 			set.shiny = true;
 		} else if (line.startsWith('Level: ')) {
 			line = line.slice(7);
@@ -360,14 +383,21 @@ export class PSTeambuilder {
 			line = line.slice(5);
 			let evLines = line.split('/');
 			set.evs = { hp: 0, atk: 0, def: 0, spa: 0, spd: 0, spe: 0 };
+			let plus = '', minus = '';
 			for (let evLine of evLines) {
 				evLine = evLine.trim();
 				let spaceIndex = evLine.indexOf(' ');
 				if (spaceIndex === -1) continue;
 				let statid = BattleStatIDs[evLine.slice(spaceIndex + 1)];
 				if (!statid) continue;
+				if (evLine.charAt(spaceIndex - 1) === '+') plus = statid;
+				if (evLine.charAt(spaceIndex - 1) === '-') minus = statid;
 				let statval = parseInt(evLine.slice(0, spaceIndex), 10);
 				set.evs[statid] = statval;
+			}
+			const nature = this.getNature(plus as StatNameExceptHP, minus as StatNameExceptHP);
+			if (nature !== 'Serious') {
+				set.nature = nature as Dex.NatureName;
 			}
 		} else if (line.startsWith('IVs: ')) {
 			line = line.slice(5);
@@ -407,6 +437,17 @@ export class PSTeambuilder {
 			}
 			set.moves.push(line);
 		}
+	}
+	static getNature(plus: StatNameExceptHP | '', minus: StatNameExceptHP | '') {
+		if (!plus || !minus) {
+			return 'Serious';
+		}
+		for (const i in BattleNatures) {
+			if (BattleNatures[i as 'Serious'].plus === plus && BattleNatures[i as 'Serious'].minus === minus) {
+				return i;
+			}
+		}
+		return 'Serious';
 	}
 	static importTeam(buffer: string): Dex.PokemonSet[] {
 		const lines = buffer.split("\n");
@@ -772,6 +813,7 @@ export interface FormatData {
 
 declare const BattleFormats: { [id: string]: FormatData };
 
+export type SelectType = 'teambuilder' | 'challenge' | 'search';
 class FormatDropdownPanel extends PSRoomPanel {
 	static readonly id = 'formatdropdown';
 	static readonly routes = ['formatdropdown'];
@@ -832,13 +874,15 @@ class FormatDropdownPanel extends PSRoomPanel {
 		 * formats. 'teambuilder' shows teambuilder formats (removing parentheses
 		 * from format names).
 		 */
-		const selectType: 'teambuilder' | 'challenge' | 'search' = (
+		const selectType: SelectType = (
 			room.parentElem.getAttribute('data-selecttype') as any || 'challenge'
 		);
+		const curFormat = toID((room.parentElem as HTMLButtonElement).value);
 
 		const formats = Object.values(BattleFormats).filter(format => {
 			if (selectType === 'challenge' && format.challengeShow === false) return false;
 			if (selectType === 'search' && format.searchShow === false) return false;
+			if (selectType === 'teambuilder' && format.team) return false;
 			return true;
 		});
 
@@ -874,7 +918,7 @@ class FormatDropdownPanel extends PSRoomPanel {
 			{searchBar}
 			{columns.map(column => <ul class="options" onClick={this.click}>
 				{column.map(format => format.id ? (
-					<li><button value={format.name} class="option">
+					<li><button value={format.name} class={`option${curFormat === format.id ? ' cur' : ''}`}>
 						{format.name.replace('[Gen 8 ', '[').replace('[Gen 9] ', '').replace('[Gen 7 ', '[')}
 					</button></li>
 				) : (

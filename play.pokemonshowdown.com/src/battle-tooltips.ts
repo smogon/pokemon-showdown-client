@@ -2528,7 +2528,7 @@ export class BattleTooltips {
 	}
 }
 
-class BattleStatGuesser {
+export class BattleStatGuesser {
 	formatid: ID;
 	dex: ModdedDex;
 	moveCount: any = null;
@@ -2557,8 +2557,8 @@ class BattleStatGuesser {
 		for (let stat in evs) {
 			evs[stat as Dex.StatName] = comboEVs[stat as Dex.StatName] || 0;
 		}
-		let plusStat = comboEVs.plusStat || '';
-		let minusStat = comboEVs.minusStat || '';
+		let plusStat = comboEVs.plusStat || '' as const;
+		let minusStat = comboEVs.minusStat || '' as const;
 		return { role, evs, plusStat, minusStat, moveCount: this.moveCount, hasMove: this.hasMove };
 	}
 	guessRole(set: Dex.PokemonSet) {
@@ -2873,7 +2873,7 @@ class BattleStatGuesser {
 	}
 	guessEVs(
 		set: Dex.PokemonSet, role: string
-	): Partial<Dex.StatsTable> & { plusStat?: Dex.StatName | '', minusStat?: Dex.StatName | '' } {
+	): Partial<Dex.StatsTable> & { plusStat?: Dex.StatNameExceptHP, minusStat?: Dex.StatNameExceptHP } {
 		if (!set) return {};
 		if (role === '?') return {};
 		let species = this.dex.species.get(set.species || set.name!);
@@ -2882,13 +2882,13 @@ class BattleStatGuesser {
 		let hasMove = this.hasMove;
 		let moveCount = this.moveCount;
 
-		let evs: Dex.StatsTable & { plusStat?: Dex.StatName | '', minusStat?: Dex.StatName | '' } = {
+		let evs: Dex.StatsTable & { plusStat?: Dex.StatNameExceptHP, minusStat?: Dex.StatNameExceptHP } = {
 			hp: 0, atk: 0, def: 0, spa: 0, spd: 0, spe: 0,
 		};
-		let plusStat: Dex.StatName | '' = '';
-		let minusStat: Dex.StatName | '' = '';
+		let plusStat: Dex.StatNameExceptHP;
+		let minusStat: Dex.StatNameExceptHP | undefined = undefined;
 
-		let statChart: { [role: string]: [Dex.StatName, Dex.StatName] } = {
+		let statChart: { [role: string]: [Dex.StatNameExceptHP, Dex.StatName] } = {
 			'Bulky Band': ['atk', 'hp'],
 			'Fast Band': ['spe', 'atk'],
 			'Bulky Specs': ['spa', 'hp'],
@@ -3082,7 +3082,7 @@ class BattleStatGuesser {
 			minusStat = 'def';
 		}
 
-		if (plusStat === minusStat) {
+		if (!minusStat || plusStat === minusStat) {
 			minusStat = (plusStat === 'spe' ? 'spd' : 'spe');
 		}
 
@@ -3132,7 +3132,7 @@ class BattleStatGuesser {
 	}
 }
 
-function BattleStatOptimizer(set: Dex.PokemonSet, formatid: ID) {
+export function BattleStatOptimizer(set: Dex.PokemonSet, formatid: ID) {
 	if (!set.evs) return null;
 
 	const dex = Dex.mod(formatid.slice(0, 4) as ID);
@@ -3142,7 +3142,7 @@ function BattleStatOptimizer(set: Dex.PokemonSet, formatid: ID) {
 		formatid.includes('metronomebattle') || formatid.endsWith('norestrictions')
 	);
 	const supportsEVs = !formatid.includes('letsgo');
-	if (!supportsEVs || ignoreEVLimits) return false;
+	if (!supportsEVs || ignoreEVLimits) return null;
 
 	const species = dex.species.get(set.species);
 	const level = set.level || 100;
