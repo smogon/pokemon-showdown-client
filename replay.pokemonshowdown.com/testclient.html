@@ -128,24 +128,32 @@
 
 </div>
 
-<script nomodule src="https://play.pokemonshowdown.com/js/lib/ps-polyfill.js"></script>
-<script src="https://play.pokemonshowdown.com/js/lib/preact.min.js"></script>
+<script>
+	function loadRemoteData(src) {
+		var scriptEl = document.createElement('script');
+		scriptEl.src = src.replace(/.*\/(data|js)\//g, 'https://play.pokemonshowdown.com/$1/');
+		document.head.appendChild(scriptEl);
+	}
+</script>
+
+<script nomodule src="../play.pokemonshowdown.com/js/lib/ps-polyfill.js"></script>
+<script src="../play.pokemonshowdown.com/js/lib/preact.min.js"></script>
 
 <script src="https://play.pokemonshowdown.com/config/config.js"></script>
-<script src="https://play.pokemonshowdown.com/js/lib/jquery-1.11.0.min.js"></script>
-<script src="https://play.pokemonshowdown.com/js/lib/html-sanitizer-minified.js"></script>
-<script src="https://play.pokemonshowdown.com/js/battle-sound.js"></script>
-<script src="https://play.pokemonshowdown.com/js/battledata.js"></script>
-<script src="https://play.pokemonshowdown.com/data/pokedex-mini.js"></script>
-<script src="https://play.pokemonshowdown.com/data/pokedex-mini-bw.js"></script>
-<script src="https://play.pokemonshowdown.com/data/graphics.js"></script>
-<script src="https://play.pokemonshowdown.com/data/pokedex.js"></script>
-<script src="https://play.pokemonshowdown.com/data/moves.js"></script>
-<script src="https://play.pokemonshowdown.com/data/abilities.js"></script>
-<script src="https://play.pokemonshowdown.com/data/items.js"></script>
-<script src="https://play.pokemonshowdown.com/data/teambuilder-tables.js"></script>
-<script src="https://play.pokemonshowdown.com/js/battle-tooltips.js"></script>
-<script src="https://play.pokemonshowdown.com/js/battle.js"></script>
+<script src="../play.pokemonshowdown.com/js/lib/jquery-1.11.0.min.js"></script>
+<script src="../play.pokemonshowdown.com/js/lib/html-sanitizer-minified.js"></script>
+<script src="../play.pokemonshowdown.com/js/battle-sound.js"></script>
+<script src="../play.pokemonshowdown.com/js/battledata.js"></script>
+<script src="../play.pokemonshowdown.com/data/pokedex-mini.js" onerror="loadRemoteData(this.src)"></script>
+<script src="../play.pokemonshowdown.com/data/pokedex-mini-bw.js" onerror="loadRemoteData(this.src)"></script>
+<script src="../play.pokemonshowdown.com/data/graphics.js" onerror="loadRemoteData(this.src)"></script>
+<script src="../play.pokemonshowdown.com/data/pokedex.js" onerror="loadRemoteData(this.src)"></script>
+<script src="../play.pokemonshowdown.com/data/moves.js" onerror="loadRemoteData(this.src)"></script>
+<script src="../play.pokemonshowdown.com/data/abilities.js" onerror="loadRemoteData(this.src)"></script>
+<script src="../play.pokemonshowdown.com/data/items.js" onerror="loadRemoteData(this.src)"></script>
+<script src="../play.pokemonshowdown.com/data/teambuilder-tables.js" onerror="loadRemoteData(this.src)"></script>
+<script src="../play.pokemonshowdown.com/js/battle-tooltips.js"></script>
+<script src="../play.pokemonshowdown.com/js/battle.js"></script>
 
 <script src="js/utils.js"></script>
 <script> Net.defaultRoute = 'https://replay.pokemonshowdown.com'; </script>
