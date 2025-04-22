@@ -13,7 +13,7 @@ import type { BattlesRoom } from "./panel-battle";
 import type { ChatRoom } from "./panel-chat";
 import type { LadderFormatRoom } from "./panel-ladder";
 import type { RoomsRoom } from "./panel-rooms";
-import { TeamBox } from "./panel-teamdropdown";
+import { TeamBox, type SelectType } from "./panel-teamdropdown";
 import { Dex, toID, type ID } from "./battle-dex";
 import type { Args } from "./battle-text-parser";
 import { BattleLog } from "./battle-log"; // optional
@@ -628,7 +628,9 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
 	}
 }
 
-export class FormatDropdown extends preact.Component<{ format?: string, onChange?: JSX.EventHandler<Event> }> {
+export class FormatDropdown extends preact.Component<{
+	format?: string, onChange?: JSX.EventHandler<Event>, placeholder?: string, selectType?: SelectType,
+}> {
 	declare base?: HTMLButtonElement;
 	format = `[Gen ${Dex.gen}] Random Battle`;
 	change = (e: Event) => {
@@ -637,22 +639,28 @@ export class FormatDropdown extends preact.Component<{ format?: string, onChange
 		this.forceUpdate();
 		if (this.props.onChange) this.props.onChange(e);
 	};
+	override componentWillMount() {
+		if (this.props.format !== undefined) {
+			this.format = this.props.format;
+		}
+	}
 	render() {
-		if (this.props.format) {
-			let [formatName, customRules] = this.props.format.split('@@@');
-			if (window.BattleLog) formatName = BattleLog.formatName(formatName);
+		let [formatName, customRules] = this.format.split('@@@');
+		if (window.BattleLog) formatName = BattleLog.formatName(this.format);
+		if (this.props.format && !this.props.onChange) {
 			return <button
-				name="format" value={this.props.format} class="select formatselect preselected" disabled
+				name="format" value={this.format} class="select formatselect preselected" disabled
 			>
 				{formatName}
 				{!!customRules && [<br />, <small>Custom rules: {customRules}</small>]}
 			</button>;
 		}
 		return <button
-			name="format" value={this.format}
+			name="format" value={this.format} data-selecttype={this.props.selectType}
 			class="select formatselect" data-href="/formatdropdown" onChange={this.change}
 		>
-			{this.format}
+			{formatName || (!!this.props.placeholder && <em>{this.props.placeholder}</em>) || null}
+			{!!customRules && [<br />, <small>Custom rules: {customRules}</small>]}
 		</button>;
 	}
 }
