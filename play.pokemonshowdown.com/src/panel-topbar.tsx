@@ -154,9 +154,9 @@ export class PSHeader extends preact.Component<{ style: object }> {
 		const ariaLabel = id === 'rooms' ? { "aria-label": "Join chat" } : {};
 		return <li>
 			<a
-				class={className} href={`/${id}`} title={hoverTitle || undefined}
+				class={className} href={`/${id}`} draggable={true} title={hoverTitle || undefined}
 				onDragEnter={this.handleDragEnter} onDragStart={this.handleDragStart}
-				{...ariaLabel} draggable
+				{...ariaLabel}
 			>
 				{icon} <span>{roomTitle}</span>
 			</a>
