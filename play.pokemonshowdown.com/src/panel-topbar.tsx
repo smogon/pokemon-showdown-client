@@ -129,11 +129,20 @@ export class PSHeader extends preact.Component<{ style: object }> {
 		if (!room) return null;
 		const closable = (id === '' || id === 'rooms' ? '' : ' closable');
 		const cur = PS.isVisible(room) ? ' cur' : '';
-		const notifying = room.notifications.length ? ' notifying' : room.isSubtleNotifying ? ' subtle-notifying' : '';
+		let notifying = '';
+		let hoverTitle = '';
+		const notifications = room.notifications;
+		if (notifications.length) {
+			notifying = room.isSubtleNotifying ? ' subtle-notifying' : ' notifying';
+			for (const notif of notifications) {
+				if (!notif.body) continue;
+				hoverTitle += `${notif.title}\n${notif.body}\n`;
+			}
+		}
 		let className = `roomtab button${notifying}${closable}${cur}`;
 
-		let { icon, title } = PSHeader.roomInfo(room);
-		if (room.type === 'rooms' && PS.leftPanelWidth !== null) title = '';
+		let { icon, title: roomTitle } = PSHeader.roomInfo(room);
+		if (room.type === 'rooms' && PS.leftPanelWidth !== null) roomTitle = '';
 		if (room.type === 'battle') className += ' roomtab-battle';
 
 		let closeButton = null;
@@ -145,11 +154,11 @@ export class PSHeader extends preact.Component<{ style: object }> {
 		const ariaLabel = id === 'rooms' ? { "aria-label": "Join chat" } : {};
 		return <li>
 			<a
-				class={className} href={`/${id}`} draggable={true}
+				class={className} href={`/${id}`} draggable={true} title={hoverTitle || undefined}
 				onDragEnter={this.handleDragEnter} onDragStart={this.handleDragStart}
 				{...ariaLabel}
 			>
-				{icon} <span>{title}</span>
+				{icon} <span>{roomTitle}</span>
 			</a>
 			{closeButton}
 		</li>;
