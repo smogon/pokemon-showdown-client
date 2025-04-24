@@ -131,6 +131,8 @@ export class BattleRoom extends ChatRoom {
 	side: BattleRequestSideInfo | null = null;
 	request: BattleRequest | null = null;
 	choices: BattleChoiceBuilder | null = null;
+	timerInterval: number | undefined;
+	autoTimerActivated: boolean | null = null;
 }
 
 class BattleDiv extends preact.Component<{ room: BattleRoom }> {
@@ -281,6 +283,64 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 			this.battleHeight = 360;
 		}
 	}
+	getTimerHTML(nextTick?: boolean) {
+		let time = 'Timer';
+		let room = this.props.room;
+		if (!room.battle)
+			return `<button name="openTimer" class="button timerbutton">
+			  <i class="fa fa-hourglass-start"></i> Timer
+			</button>`;
+		let timerTicking = (room.battle.kickingInactive &&
+			room.request &&
+			room.request.requestType !== "wait" &&
+			(room.choices && !room.choices.isDone())) ?
+			' timerbutton-on' :
+			'';
+		if (!nextTick) {
+			if (room.timerInterval) {
+				clearInterval(room.timerInterval);
+				room.timerInterval = 0;
+			}
+			console.log(timerTicking);
+			if (!room.timerInterval && timerTicking) room.timerInterval = setInterval(() => {
+				let $timerButtons = document.querySelectorAll('div[name=timerhtml]');
+				if ($timerButtons?.length) {
+					for (const button of $timerButtons) {
+						button.setHTMLUnsafe?.(this.getTimerHTML(true));
+					}
+				} else {
+					clearInterval(room.timerInterval);
+					room.timerInterval = 0;
+				}
+			}, 1000);
+		} else if (typeof room.battle.kickingInactive === 'number' && room.battle.kickingInactive > 1) {
+			room.battle.kickingInactive -= 1;
+			if (room.battle.graceTimeLeft) room.battle.graceTimeLeft -= 1;
+			else if (room.battle.totalTimeLeft) room.battle.totalTimeLeft -= 1;
+		}
+
+		if (room.battle.kickingInactive) {
+			let secondsLeft = room.battle.kickingInactive;
+			if (secondsLeft !== true) {
+				if (secondsLeft <= 10 && timerTicking) {
+					timerTicking = ' timerbutton-critical';
+				}
+				let minutesLeft = Math.floor(secondsLeft / 60);
+				secondsLeft -= minutesLeft * 60;
+				time = `${minutesLeft}:${(secondsLeft < 10 ? '0' : '')}${secondsLeft}`;
+
+				secondsLeft = room.battle.totalTimeLeft;
+				if (secondsLeft) {
+					minutesLeft = Math.floor(secondsLeft / 60);
+					secondsLeft -= minutesLeft * 60;
+					time += ` |  ${minutesLeft}:${(secondsLeft < 10 ? '0' : '')}${secondsLeft} total`;
+				}
+			} else {
+				time = '-:--';
+			}
+		}
+		return `<button name="openTimer" data-href="battletimer" class="button timerbutton ${timerTicking}"><i class="fa fa-hourglass-start"></i>  ${time}  </button>`;
+	};
 	override receiveLine(args: Args) {
 		const room = this.props.room;
 		switch (args[0]) {
@@ -288,6 +348,10 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 			room.battle.seekTurn(Infinity);
 			return;
 		case 'request':
+			if (PS.prefs.autotimer && !room.timerInterval && !room.autoTimerActivated) {
+				this.send('/timer on');
+				room.autoTimerActivated = true;
+			}
 			this.receiveRequest(args[1] ? JSON.parse(args[1]) : null);
 			return;
 		case 'win': case 'tie':
@@ -567,7 +631,6 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 		if (choices.isDone()) {
 			return <div class="controls">
 				<div class="whatdo">
-					<button name="openTimer" class="button disabled timerbutton"><i class="fa fa-hourglass-start"></i> Timer</button>
 					{this.renderOldChoices(request, choices)}
 				</div>
 				<div class="pad">
@@ -595,8 +658,6 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 				const moveName = choices.getChosenMove(choices.current, choices.index()).name;
 				return <div class="controls">
 					<div class="whatdo">
-						<button name="openTimer" class="button disabled timerbutton"><i class="fa fa-hourglass-start"></i> Timer</button>
-						{this.renderOldChoices(request, choices)}
 						{pokemon.name} should use <strong>{moveName}</strong> at where? {}
 					</div>
 					<div class="switchcontrols">
@@ -611,7 +672,6 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 
 			return <div class="controls">
 				<div class="whatdo">
-					<button name="openTimer" class="button disabled timerbutton"><i class="fa fa-hourglass-start"></i> Timer</button>
 					{this.renderOldChoices(request, choices)}
 					What will <strong>{pokemon.name}</strong> do?
 				</div>
@@ -666,7 +726,6 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 			const pokemon = request.side.pokemon[choices.index()];
 			return <div class="controls">
 				<div class="whatdo">
-					<button name="openTimer" class="button disabled timerbutton"><i class="fa fa-hourglass-start"></i> Timer</button>
 					{this.renderOldChoices(request, choices)}
 					What will <strong>{pokemon.name}</strong> do?
 				</div>
@@ -680,7 +739,6 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 		} case 'team': {
 			return <div class="controls">
 				<div class="whatdo">
-					<button name="openTimer" class="button disabled timerbutton"><i class="fa fa-hourglass-start"></i> Timer</button>
 					{choices.alreadySwitchingIn.length > 0 ? (
 						[<button data-cmd="/cancel" class="button"><i class="fa fa-chevron-left"></i> Back</button>,
 							" What about the rest of your team? "]
@@ -788,6 +846,20 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 				</ChatLog>
 				<ChatTextEntry room={room} onMessage={this.send} onKey={this.onKey} left={0} />
 				<ChatUserList room={room} top={this.battleHeight} minimized />
+				<button
+					class="icon button"
+					name="openBattleOptions"
+					title="Options"
+					style={{ position: 'absolute', right: '75px', top: this.battleHeight }} data-href="battleoptions"
+				>
+					Battle Options
+				</button>
+				{(room.battle && !room.battle.ended && room.request && room.battle.mySide.id === PS.user.userid) &&
+					<div
+						name="timerhtml"
+						style={{ position: 'absolute', right: '5px', top: this.battleHeight }}
+						dangerouslySetInnerHTML={{ __html: this.getTimerHTML() }}
+					/>}
 				<div class="battle-controls-container"></div>
 			</PSPanelWrapper>;
 		}
@@ -801,8 +873,18 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 			</ChatLog>
 			<ChatTextEntry room={room} onMessage={this.send} onKey={this.onKey} left={640} />
 			<ChatUserList room={room} left={640} minimized />
+			<button
+				class="icon button"
+				name="openBattleOptions"
+				title="Options"
+				style={{ position: 'absolute', right: '15px' }}
+				data-href="battleoptions"
+			>Battle Options
+			</button>
 			<div class="battle-controls-container">
 				<div class="battle-controls" role="complementary" aria-label="Battle Controls" style="top: 370px;">
+					{(room.battle && !room.battle.ended && room.request && room.battle.mySide.id === PS.user.userid) &&
+						<div name="timerhtml" dangerouslySetInnerHTML={{ __html: this.getTimerHTML() }} style={{ 'marginRight': '5px' }} />}
 					{this.renderControls()}
 				</div>
 			</div>
