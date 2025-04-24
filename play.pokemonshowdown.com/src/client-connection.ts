@@ -44,7 +44,9 @@ export class PSConnection {
 			PS.connected = false;
 			PS.isOffline = true;
 			for (const roomid in PS.rooms) {
-				PS.rooms[roomid]!.connected = false;
+				const room = PS.rooms[roomid]!;
+				room.previouslyConnected ||= room.connected;
+				room.connected = false;
 			}
 			this.socket = null;
 			PS.update();
@@ -58,6 +60,8 @@ export class PSConnection {
 	disconnect() {
 		this.socket.close();
 		PS.connection = null;
+		PS.connected = false;
+		PS.isOffline = true;
 	}
 	send(msg: string) {
 		if (!this.connected) {
@@ -66,10 +70,19 @@ export class PSConnection {
 		}
 		this.socket.send(msg);
 	}
+	static connect() {
+		if (PS.connection?.socket) return;
+		PS.isOffline = false;
+		if (!PS.connection) {
+			PS.connection = new PSConnection();
+		} else {
+			PS.connection.connect();
+		}
+		PS.prefs.doAutojoin();
+	}
 }
 
-PS.connection = new PSConnection();
-PS.prefs.doAutojoin();
+PSConnection.connect();
 
 export const PSLoginServer = new class {
 	rawQuery(act: string, data: PostData): Promise<string | null> {
@@ -102,7 +115,7 @@ export const PSLoginServer = new class {
 };
 
 interface PostData {
-	[key: string]: string | number;
+	[key: string]: string | number | boolean | null | undefined;
 }
 interface NetRequestOptions {
 	method?: 'GET' | 'POST';
@@ -193,12 +206,33 @@ export function Net(uri: string) {
 
 Net.defaultRoute = '';
 
-Net.encodeQuery = function (data: string | PostData) {
+Net.encodeQuery = function (data: string | PostData): string {
 	if (typeof data === 'string') return data;
 	let urlencodedData = '';
 	for (const key in data) {
 		if (urlencodedData) urlencodedData += '&';
-		urlencodedData += encodeURIComponent(key) + '=' + encodeURIComponent((data as any)[key]);
+		let value = data[key];
+		if (value === true) value = 'on';
+		if (value === false || value === null || value === undefined) value = '';
+		urlencodedData += encodeURIComponent(key) + '=' + encodeURIComponent(value);
 	}
 	return urlencodedData;
+};
+
+Net.formData = function (form: HTMLFormElement): { [name: string]: string | boolean } {
+	// not technically all `HTMLInputElement`s but who wants to cast all these?
+	const elements = form.querySelectorAll<HTMLInputElement>('input[name], select[name], textarea[name]');
+	const out: { [name: string]: string | boolean } = {};
+	for (const element of elements) {
+		if (element.type === 'checkbox') {
+			out[element.name] = element.getAttribute('value') ? (
+				element.checked ? element.value : ''
+			) : (
+				!!element.checked
+			);
+		} else if (element.type !== 'radio' || element.checked) {
+			out[element.name] = element.value;
+		}
+	}
+	return out;
 };

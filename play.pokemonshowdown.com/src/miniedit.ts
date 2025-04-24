@@ -71,8 +71,7 @@ export class MiniEdit {
 		return false;
 	}
 
-	setValue(text: string, selection?: MiniEditSelection): void {
-		if (selection === undefined) selection = this.getSelection();
+	setValue(text: string, selection = this.getSelection()): void {
 		this._setContent(text);
 
 		this.setSelection(selection);

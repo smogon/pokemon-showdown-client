@@ -8,9 +8,13 @@
  */
 
 import { PS, PSRoom, type RoomOptions } from "./client-main";
-import { PSPanelWrapper, PSRoomPanel, SanitizedHTML } from "./panels";
+import { PSPanelWrapper, PSRoomPanel } from "./panels";
 import { BattleLog } from "./battle-log";
 import type { Args } from "./battle-text-parser";
+
+export function SanitizedHTML(props: { children: string }) {
+	return <div dangerouslySetInnerHTML={{ __html: BattleLog.sanitizeHTML(props.children) }} />;
+}
 
 class PageRoom extends PSRoom {
 	override readonly classType: string = 'html';

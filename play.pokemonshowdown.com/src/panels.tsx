@@ -11,9 +11,9 @@
 
 import preact from "../js/lib/preact";
 import { toID } from "./battle-dex";
-import { BattleLog } from "./battle-log";
 import type { Args } from "./battle-text-parser";
 import { BattleTooltips } from "./battle-tooltips";
+import { Net } from "./client-connection";
 import type { PSModel, PSStreamModel, PSSubscription } from "./client-core";
 import { PS, type PSRoom, type RoomID } from "./client-main";
 import type { BattleRoom } from "./panel-battle";
@@ -253,21 +253,21 @@ export class PSRoomPanel<T extends PSRoom = PSRoom> extends preact.Component<{ r
 export function PSPanelWrapper(props: {
 	room: PSRoom, children: preact.ComponentChildren,
 	focusClick?: boolean, scrollable?: boolean | 'hidden', width?: number | 'auto',
-	fullSize?: boolean,
+	fullSize?: boolean, onDragEnter?: (ev: DragEvent) => void,
 }) {
 	const room = props.room;
 	if (room.location === 'mini-window') {
 		const style = props.fullSize ? 'height: auto' : null;
 		return <div
 			id={`room-${room.id}`} class={'mini-window-contents ps-room-light' + (props.scrollable === true ? ' scrollable' : '')}
-			onClick={props.focusClick ? PSView.focusIfNoSelection : undefined} style={style}
+			onClick={props.focusClick ? PSView.focusIfNoSelection : undefined} style={style} onDragEnter={props.onDragEnter}
 		>
 			{props.children}
 		</div>;
 	}
 	if (PS.isPopup(room)) {
 		const style = PSView.getPopupStyle(room, props.width, props.fullSize);
-		return <div class="ps-popup" id={`room-${room.id}`} style={style}>
+		return <div class="ps-popup" id={`room-${room.id}`} style={style} onDragEnter={props.onDragEnter}>
 			{props.children}
 		</div>;
 	}
@@ -276,7 +276,7 @@ export function PSPanelWrapper(props: {
 	return <div
 		class={'ps-room' + (room.id === '' ? '' : ' ps-room-light') + (props.scrollable === true ? ' scrollable' : '')}
 		id={`room-${room.id}`}
-		style={style} onClick={props.focusClick ? PSView.focusIfNoSelection : undefined}
+		style={style} onClick={props.focusClick ? PSView.focusIfNoSelection : undefined} onDragEnter={props.onDragEnter}
 	>
 		{room.caughtError ? <div class="broadcast broadcast-red"><pre>{room.caughtError}</pre></div> : props.children}
 	</div>;
@@ -350,6 +350,23 @@ export class PSView extends preact.Component {
 			return PS.prefs.refreshprompt ? "Are you sure you want to leave?" : null;
 		};
 
+		window.addEventListener('submit', ev => {
+			const elem = ev.target as HTMLFormElement | null;
+			if (elem?.getAttribute('data-submitsend')) {
+				const inputs = Net.formData(elem);
+				let cmd = elem.getAttribute('data-submitsend')!;
+				for (const [name, value] of Object.entries(inputs)) {
+					cmd = cmd.replace(`{${name}}`, value === true ? 'on' : value === false ? 'off' : value);
+				}
+				cmd = cmd.replace(/\{[a-z0-9-]+\}/g, '');
+				const room = PS.getRoom(elem) || PS.mainmenu;
+				room.sendDirect(cmd);
+
+				ev.preventDefault();
+				ev.stopImmediatePropagation();
+			}
+		});
+
 		window.addEventListener('click', ev => {
 			let elem = ev.target as HTMLElement | null;
 			if (elem?.className === 'ps-overlay') {
@@ -419,12 +436,16 @@ export class PSView extends preact.Component {
 					// if room is a leaveroom popup, close it
 					if (room.id === "confirmleaveroom") PS.closePopup();
 					room.send(cmd);
+					ev.preventDefault();
+					ev.stopImmediatePropagation();
 					return;
 				}
 				if (elem.getAttribute('data-sendraw')) {
 					const cmd = elem.getAttribute('data-sendraw')!;
 					const room = PS.getRoom(elem) || PS.mainmenu;
 					room.sendDirect(cmd);
+					ev.preventDefault();
+					ev.stopImmediatePropagation();
 					return;
 				}
 				if (elem.tagName === 'BUTTON') {
@@ -565,6 +586,7 @@ export class PSView extends preact.Component {
 		if (!room) return;
 
 		if (window.getSelection?.()?.type === 'Range') return;
+		room.autoDismissNotifications();
 		PS.setFocus(room);
 	};
 	handleButtonClick(elem: HTMLButtonElement) {
@@ -769,8 +791,4 @@ export class PSView extends preact.Component {
 			{PS.popups.map(roomid => this.renderPopup(PS.rooms[roomid]!))}
 		</div>;
 	}
-}
-
-export function SanitizedHTML(props: { children: string }) {
-	return <div dangerouslySetInnerHTML={{ __html: BattleLog.sanitizeHTML(props.children) }} />;
 }

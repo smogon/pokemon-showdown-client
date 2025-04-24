@@ -281,6 +281,12 @@ class UserOptionsPanel extends PSRoomPanel {
 		this.close();
 	};
 
+	handleUnignore = () => {
+		const { targetUser, targetRoom } = this.getTargets();
+		targetRoom?.send(`/unignore ${targetUser}`);
+		this.close();
+	};
+
 	muteUser = (ev: Event) => {
 		this.setState({ showMuteInput: false });
 		const hrMute = (ev.currentTarget as HTMLButtonElement).value === "1hr";
@@ -309,6 +315,12 @@ class UserOptionsPanel extends PSRoomPanel {
 		ev.stopImmediatePropagation();
 	};
 
+	isIgnoringUser = (userid: string) => {
+		const ignoring = PS.prefs.ignore || {};
+		if (ignoring[userid] === 1) return true;
+		return false;
+	};
+
 	override render() {
 		const room = this.props.room;
 		let canMute = false;
@@ -323,9 +335,15 @@ class UserOptionsPanel extends PSRoomPanel {
 
 		return <PSPanelWrapper room={room} width={280}><div class="pad">
 			<p>
-				<button onClick={this.handleIgnore} class="button">
-					Ignore
-				</button>
+				{this.isIgnoringUser(targetUser) ? (
+					<button onClick={this.handleUnignore} class="button">
+						Unignore
+					</button>
+				) : (
+					<button onClick={this.handleIgnore} class="button">
+						Ignore
+					</button>
+				)}
 			</p>
 			<p>
 				<button data-href={`view-help-request-report-user-${targetUser}`} class="button">
@@ -949,23 +967,22 @@ class BattleForfeitPanel extends PSRoomPanel {
 
 	override render() {
 		const room = this.props.room;
-		const elem = room.parentElem;
-		const roomid = (elem as HTMLInputElement)?.value as RoomID || PS.getRoom(elem)?.id || '' as RoomID;
-		const battleRoom = PS.rooms[roomid] as BattleRoom;
+		const battleRoom = room.getParent() as BattleRoom;
 
 		return <PSPanelWrapper room={room} width={480}><div class="pad">
-			<form>
+			<form onSubmit={this.handleForfeit}>
 				<p>Forfeiting makes you lose the battle. Are you sure?</p>
 				<p>
-					<label class="checkbox"><input type="checkbox" name="closeroom" checked={true} /> Close after
-						forfeiting</label>
+					<label class="checkbox"><input
+						type="checkbox" name="closeroom" checked={true}
+					/> Close after forfeiting</label>
 				</p>
 				<p>
-					<button onClick={this.handleForfeit} class="button"><strong>Forfeit</strong></button> {}
-					{!battleRoom.battle.rated && <button type="button" value={battleRoom.id} data-href="replaceplayer" class="button">
+					<button type="submit" class="button"><strong>Forfeit</strong></button> {}
+					{!battleRoom.battle.rated && <button type="button" data-href="replaceplayer" class="button">
 						Replace player
 					</button>} {}
-					<button type="button" name="close" data-cmd="/close" class="button">
+					<button type="button" data-cmd="/close" class="button">
 						Cancel
 					</button>
 				</p>
@@ -981,15 +998,14 @@ class ReplacePlayerPanel extends PSRoomPanel {
 	static readonly noURL = true;
 
 	handleReplacePlayer = (ev: Event) => {
-		const elem = this.props.room.parentElem;
-		const roomid = (elem as HTMLInputElement)?.value as RoomID || PS.getRoom(elem)?.id || '' as RoomID;
-		const room = PS.rooms[roomid] as BattleRoom;
+		const room = this.props.room;
+		const battleRoom = room.getParent()?.getParent() as BattleRoom;
 		const newPlayer = this.base?.querySelector<HTMLInputElement>("input[name=newplayer]")?.value;
-		if (!newPlayer?.length) return room.add("|error|Enter player's name");
-		if (room.battle.ended) return room.add("|error|Cannot replace player, battle has already ended.");
-		let playerSlot = room.battle.p1.id === PS.user.userid ? "p1" : "p2";
-		room.send('/leavebattle');
-		room.send(`/addplayer ${newPlayer}, ${playerSlot}`);
+		if (!newPlayer?.length) return battleRoom.add("|error|Enter player's name");
+		if (battleRoom.battle.ended) return battleRoom.add("|error|Cannot replace player, battle has already ended.");
+		let playerSlot = battleRoom.battle.p1.id === PS.user.userid ? "p1" : "p2";
+		battleRoom.send('/leavebattle');
+		battleRoom.send(`/addplayer ${newPlayer}, ${playerSlot}`);
 		this.close();
 		ev.preventDefault();
 	};
@@ -1382,7 +1398,7 @@ class LeaveRoomPanel extends PSRoomPanel {
 		return <PSPanelWrapper room={room} width={480}><div class="pad">
 			<p>Are you sure you want to exit this room?</p>
 			<p class="buttonbar">
-				<button data-cmd={`/close ${parentRoomId}`} class="button autofocus">
+				<button data-cmd={`/closeand /close ${parentRoomId}`} class="button autofocus">
 					<strong>Close Room</strong>
 				</button> {}
 				<button data-cmd="/close" class="button">
@@ -1393,24 +1409,62 @@ class LeaveRoomPanel extends PSRoomPanel {
 	}
 }
 
-class PopupPanel extends PSRoomPanel {
+class PopupRoom extends PSRoom {
+	returnValue: unknown = this.args?.cancelValue;
+	override destroy() {
+		(this.args?.callback as any)?.(this.returnValue);
+		super.destroy();
+	}
+}
+
+class PopupPanel extends PSRoomPanel<PopupRoom> {
 	static readonly id = 'popup';
 	static readonly routes = ['popup-*'];
 	static readonly location = 'semimodal-popup';
 	static readonly noURL = true;
+	static readonly Model = PopupRoom;
+
+	handleSubmit = (ev: Event) => {
+		ev.preventDefault();
+		ev.stopImmediatePropagation();
+		const room = this.props.room;
+		room.returnValue = room.args?.okValue;
+		const textbox = this.base!.querySelector<HTMLInputElement>('input[name=value]');
+		if (textbox) {
+			room.returnValue = textbox.value;
+		}
+		this.close();
+	};
+	override componentDidMount() {
+		super.componentDidMount();
+		const textbox = this.base!.querySelector<HTMLInputElement>('input[name=value]');
+		if (!textbox) return;
+		textbox.value = this.props.room.args?.value as string || '';
+	}
 
 	override render() {
 		const room = this.props.room;
-		const okButtonLabel = room.args?.okButtonLabel as string || 'OK';
-		return <PSPanelWrapper room={room} width={480}><div class="pad">
+		const okButton = room.args?.okButton as string || 'OK';
+		const cancelButton = room.args?.cancelButton as string | undefined;
+		const otherButtons = room.args?.otherButtons as preact.ComponentChildren;
+		const value = room.args?.value as string | undefined;
+		const type = (room.args?.type || (typeof value === 'string' ? 'text' : null)) as string | null;
+		return <PSPanelWrapper room={room} width={480}><form class="pad" onSubmit={this.handleSubmit}>
 			{room.args?.message && <p
 				style="white-space:pre-wrap;word-wrap:break-word"
 				dangerouslySetInnerHTML={{ __html: BattleLog.parseMessage(room.args.message as string) }}
 			></p>}
+			{!!type && <p><input name="value" type={type} class="textbox autofocus" style="width:100%;box-sizing:border-box" /></p>}
 			<p class="buttonbar">
-				<button class="button autofocus" name="closeRoom" style="min-width:50px"><strong>{okButtonLabel}</strong></button>
+				<button class={`button${!type ? ' autofocus' : ''}`} type="submit" style="min-width:50px">
+					<strong>{okButton}</strong>
+				</button> {}
+				{otherButtons} {}
+				{!!cancelButton && <button class="button" data-cmd="/close" type="button">
+					{cancelButton}
+				</button>}
 			</p>
-		</div></PSPanelWrapper>;
+		</form></PSPanelWrapper>;
 	}
 }
 
