@@ -1375,10 +1375,10 @@
 			// moves
 			if (!set.moves) set.moves = [];
 			buf += '<div class="setcol setcol-moves"><div class="setcell"><label>Moves</label>';
-			buf += '<input type="text" name="move1" class="textbox chartinput" value="' + BattleLog.escapeHTML(set.moves[0]) + '" autocomplete="off" /></div>';
-			buf += '<div class="setcell"><input type="text" name="move2" class="textbox chartinput" value="' + BattleLog.escapeHTML(set.moves[1]) + '" autocomplete="off" /></div>';
-			buf += '<div class="setcell"><input type="text" name="move3" class="textbox chartinput" value="' + BattleLog.escapeHTML(set.moves[2]) + '" autocomplete="off" /></div>';
-			buf += '<div class="setcell"><input type="text" name="move4" class="textbox chartinput" value="' + BattleLog.escapeHTML(set.moves[3]) + '" autocomplete="off" /></div>';
+			for (var i = 0; i <= 3; i++) {
+				if (i > 0) buf += '<div class="setcell">';
+				buf += '<input type="text" name="move' + (i + 1) + '" class="textbox chartinput" value="' + BattleLog.escapeHTML(set.moves[i]) + '" autocomplete="off" /></div>';
+			}
 			buf += '</div>';
 
 			// stats
@@ -2927,6 +2927,19 @@
 				buf += '</div></div>';
 			}
 
+			for (var i = 0; i <= 3; i++) {
+				buf += '<div class="formrow"><label class="formlabel" title="Move ' + (i + 1) + ' PP Ups">Move ' + (i + 1) + ' PP Ups:</label><div>';
+				var defaultPPUps = toID(set.moves[i]) === 'trumpcard' ? 0 : 3;
+				var movePPUps = defaultPPUps;
+				if (set.movePPUps && !isNaN(set.movePPUps[i])) movePPUps = set.movePPUps[i];
+				buf += '<select name="move' + i + 'ppups" class="button">';
+				for (var j = 0; j <= 3; j++) {
+					buf += '<option value="' + j + '" ' + (movePPUps === j ? 'selected' : '') + '>' + j + '</option>';
+				}
+				buf += '</select>';
+				buf += '</div></div>';
+			}
+
 			buf += '</form>';
 			if (species.cosmeticFormes) {
 				buf += '<button class="altform button">Change sprite</button>';
@@ -3007,6 +3020,13 @@
 				set.teraType = teraType;
 			} else {
 				delete set.teraType;
+			}
+
+			// PP Ups
+			for (var i = 0; i <= 3; i++) {
+				if (!set.movePPUps) set.movePPUps = [];
+				var PPUps = this.$chart.find('select[name=move' + i + 'ppups]').val();
+				set.movePPUps[i] = parseInt(PPUps);
 			}
 
 			// update details cell
@@ -3355,6 +3375,7 @@
 				this.unChooseMove(this.curSet.moves[0]);
 				this.curSet.moves[0] = val;
 				this.chooseMove(val);
+				this.setPPUps(val, 0);
 				if (selectNext) this.$('input[name=move2]').select();
 				break;
 			case 'move2':
@@ -3362,6 +3383,7 @@
 				this.unChooseMove(this.curSet.moves[1]);
 				this.curSet.moves[1] = val;
 				this.chooseMove(val);
+				this.setPPUps(val, 1);
 				if (selectNext) this.$('input[name=move3]').select();
 				break;
 			case 'move3':
@@ -3370,6 +3392,7 @@
 				this.unChooseMove(this.curSet.moves[2]);
 				this.curSet.moves[2] = val;
 				this.chooseMove(val);
+				this.setPPUps(val, 2);
 				if (selectNext) this.$('input[name=move4]').select();
 				break;
 			case 'move4':
@@ -3379,6 +3402,7 @@
 				this.unChooseMove(this.curSet.moves[3]);
 				this.curSet.moves[3] = val;
 				this.chooseMove(val);
+				this.setPPUps(val, 3);
 				if (selectNext) {
 					this.stats();
 					this.$('button.setstats').focus();
@@ -3571,6 +3595,15 @@
 			set.nature = '';
 			this.updateSetTop();
 			if (selectNext) this.$(set.item || !this.$('input[name=item]').length ? (this.$('input[name=ability]').length ? 'input[name=ability]' : 'input[name=move1]') : 'input[name=item]').select();
+		},
+		setPPUps: function (move, slot) {
+			var set = this.curSet;
+			if (!set.movePPUps) set.movePPUps = [];
+			if (toID(move) === 'trumpcard') {
+				set.movePPUps[slot] = 0;
+			} else {
+				set.movePPUps[slot] = 3;
+			}
 		},
 
 		/*********************************************************
