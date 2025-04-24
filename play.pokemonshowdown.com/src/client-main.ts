@@ -79,6 +79,13 @@ class PSPrefs extends PSStreamModel<string | null> {
 		hideinterstice: true,
 	};
 
+	/* Battle preferences */
+	ignorenicks: boolean | null = null;
+	ignorespects: boolean | null = null;
+	ignoreopp: boolean | null = null;
+	autotimer: boolean | null = null;
+	rightpanelbattles: boolean | null = null;
+
 	/**
 	 * Show "User joined" and "User left" messages. serverid:roomid
 	 * table. Uses 1 and 0 instead of true/false for JSON packing
@@ -1928,7 +1935,7 @@ export const PS = new class extends PSModel {
 				options.args = { initialSlash: true };
 			}
 		}
-
+		if (options.id.startsWith('battle-') && PS.prefs.rightpanelbattles) options.location = 'right';
 		options.parentRoomid ??= this.getRoom(options.parentElem)?.id;
 		let preexistingRoom = this.rooms[options.id];
 		if (preexistingRoom && this.isPopup(preexistingRoom)) {
