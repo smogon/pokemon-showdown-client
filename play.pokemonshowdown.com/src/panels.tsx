@@ -433,8 +433,6 @@ export class PSView extends preact.Component {
 				if (elem.getAttribute('data-cmd')) {
 					const cmd = elem.getAttribute('data-cmd')!;
 					const room = PS.getRoom(elem) || PS.mainmenu;
-					// if room is a leaveroom popup, close it
-					if (room.id === "confirmleaveroom") PS.closePopup();
 					room.send(cmd);
 					ev.preventDefault();
 					ev.stopImmediatePropagation();
