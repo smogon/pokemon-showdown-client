@@ -731,18 +731,18 @@ class TeamDropdownPanel extends PSRoomPanel {
 					class={'button' + (baseFormat === this.format ? ' disabled' : '')}
 					onClick={this.setFormat} name="format" value={baseFormat}
 				>
-					<i class="fa fa-folder-o"></i> [{baseFormat.slice(0, 4)}] {baseFormat.slice(4)}
+					<i class="fa fa-folder-o" aria-hidden></i> [{baseFormat.slice(0, 4)}] {baseFormat.slice(4)}
 				</button>
 			)} {}
 			<button
 				class={'button' + (baseGen === this.format ? ' disabled' : '')} onClick={this.setFormat} name="format" value={baseGen}
 			>
-				<i class="fa fa-folder-o"></i> [{baseGen}] <em>(uncategorized)</em>
+				<i class="fa fa-folder-o" aria-hidden></i> [{baseGen}] <em>(uncategorized)</em>
 			</button> {}
 			<button
 				class={'button' + (baseGen === this.gen ? ' disabled' : '')} onClick={this.setFormat} name="gen" value={baseGen}
 			>
-				<i class="fa fa-folder-o"></i> [{baseGen}] <em>(all)</em>
+				<i class="fa fa-folder-o" aria-hidden></i> [{baseGen}] <em>(all)</em>
 			</button> {}
 			{hasOtherGens && !this.gen && (
 				<button class="button" onClick={this.setFormat} name="gen" value={baseGen}>Other gens</button>
@@ -753,7 +753,7 @@ class TeamDropdownPanel extends PSRoomPanel {
 			teamList.push(<h2>Other gens</h2>);
 			teamList.push(<p>{genList.sort().map(gen => [
 				<button class={'button' + (gen === this.gen ? ' disabled' : '')} onClick={this.setFormat} name="gen" value={gen}>
-					<i class="fa fa-folder-o"></i> [{gen}] <em>(all)</em>
+					<i class="fa fa-folder-o" aria-hidden></i> [{gen}] <em>(all)</em>
 				</button>,
 				" ",
 			])}</p>);
@@ -763,20 +763,20 @@ class TeamDropdownPanel extends PSRoomPanel {
 		for (let folder in teamBuckets) {
 			if (folder && (this.gen || this.format)) {
 				teamList.push(<h2>
-					<i class="fa fa-folder-open"></i> {folder} + {}
-					<i class="fa fa-folder-open-o"></i> {this.format || this.gen}
+					<i class="fa fa-folder-open" aria-hidden></i> {folder} + {}
+					<i class="fa fa-folder-open-o" aria-hidden></i> {this.format || this.gen}
 				</h2>);
 			} else if (folder) {
 				teamList.push(<h2>
-					<i class="fa fa-folder-open"></i> {folder}
+					<i class="fa fa-folder-open" aria-hidden></i> {folder}
 				</h2>);
 			} else if (this.gen || this.format) {
 				teamList.push(<h2>
-					<i class="fa fa-folder-open-o"></i> {this.format || this.gen}
+					<i class="fa fa-folder-open-o" aria-hidden></i> {this.format || this.gen}
 				</h2>);
 			} else {
 				teamList.push(<h2>
-					<i class="fa fa-folder-open-o"></i> Teams not in any folders
+					<i class="fa fa-folder-open-o" aria-hidden></i> Teams not in any folders
 				</h2>);
 			}
 			teamList.push(<ul class="teamdropdown" onClick={this.click}>

@@ -974,7 +974,7 @@ class ChatPanel extends PSRoomPanel<ChatRoom> {
 	static readonly routes = ['dm-*', 'groupchat-*', '*'];
 	static readonly Model = ChatRoom;
 	static readonly location = 'right';
-	static readonly icon = <i class="fa fa-comment-o"></i>;
+	static readonly icon = <i class="fa fa-comment-o" aria-hidden></i>;
 	override componentDidMount(): void {
 		super.componentDidMount();
 		this.subscribeTo(PS.user, () => {
@@ -1045,7 +1045,7 @@ class ChatPanel extends PSRoomPanel<ChatRoom> {
 		return <PSPanelWrapper room={room} focusClick>
 			<ChatLog class="chat-log" room={this.props.room} left={tinyLayout ? 0 : 146} top={room.tour?.info.isActive ? 30 : 0}>
 				{challengeTo}{challengeFrom}{PS.isOffline && <p class="buttonbar">
-					<button class="button" data-cmd="/reconnect"><i class="fa fa-plug"></i> <strong>Reconnect</strong></button>
+					<button class="button" data-cmd="/reconnect"><i class="fa fa-plug" aria-hidden></i> <strong>Reconnect</strong></button>
 				</p>}
 			</ChatLog>
 			{room.tour && <TournamentBox tour={room.tour} left={tinyLayout ? 0 : 146} />}

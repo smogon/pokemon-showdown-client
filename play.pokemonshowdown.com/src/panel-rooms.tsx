@@ -23,7 +23,7 @@ class RoomsPanel extends PSRoomPanel {
 	static readonly routes = ['rooms'];
 	static readonly Model = RoomsRoom;
 	static readonly location = 'right';
-	static readonly icon = <i class="fa fa-plus rooms-plus"></i>;
+	static readonly icon = <i class="fa fa-plus rooms-plus" aria-hidden></i>;
 	static readonly title = "Chat Rooms";
 	hidden = false;
 	search = '';
@@ -154,7 +154,7 @@ class RoomsPanel extends PSRoomPanel {
 
 		return <PSPanelWrapper room={this.props.room} scrollable><div class="pad">
 			<button class="button" style="float:right;font-size:10pt;margin-top:3px" onClick={this.hide}>
-				<i class="fa fa-caret-right"></i> Hide
+				<i class="fa fa-caret-right" aria-hidden></i> Hide
 			</button>
 			<div class="roomcounters">
 				<a class="button" href="users" title="Find an online user">
@@ -191,13 +191,13 @@ class RoomsPanel extends PSRoomPanel {
 			{sortedRooms.map(roomInfo => <div key={roomInfo.title}>
 				<a href={`/${toID(roomInfo.title)}`} class="blocklink">
 					{roomInfo.userCount !== undefined && <small style="float:right">({roomInfo.userCount} users)</small>}
-					<strong><i class="fa fa-comment-o"></i> {roomInfo.title}<br /></strong>
+					<strong><i class="fa fa-comment-o" aria-hidden></i> {roomInfo.title}<br /></strong>
 					<small>{roomInfo.desc || ''}</small>
 				</a>
 				{roomInfo.subRooms && <div class="subrooms">
-					<i class="fa fa-level-up fa-rotate-90"></i> Subrooms: {}
+					<i class="fa fa-level-up fa-rotate-90" aria-hidden></i> Subrooms: {}
 					{roomInfo.subRooms.map((roomName, i) => [<a href={`/${toID(roomName)}`} class="blocklink">
-						<i class="fa fa-comment-o"></i> <strong>{roomName}</strong>
+						<i class="fa fa-comment-o" aria-hidden></i> <strong>{roomName}</strong>
 					</a>, ' '])}
 				</div>}
 			</div>)}

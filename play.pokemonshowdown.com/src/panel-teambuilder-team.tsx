@@ -645,7 +645,9 @@ class TeamTextbox extends preact.Component<{ team: Team, room: TeamRoom }> {
 				{this.setInfo.length < 6 && [
 					!!this.setInfo.length && <hr style={`top:${this.bottomY() - 18}px`} />,
 					<div style={`top:${this.bottomY() - 3}px ;left:105px;position:absolute`}>
-						<button class="button" onClick={this.addPokemon}><i class="fa fa-plus"></i> Add Pok&eacute;mon</button>
+						<button class="button" onClick={this.addPokemon}>
+							<i class="fa fa-plus" aria-hidden></i> Add Pok&eacute;mon
+						</button>
 					</div>,
 				]}
 				{this.selection?.active && this.selection.offsetY !== null && (
@@ -657,7 +659,9 @@ class TeamTextbox extends preact.Component<{ team: Team, room: TeamRoom }> {
 					class="searchresults" style={{ top: (this.setInfo[this.selection.setIndex]?.bottomY ?? this.bottomY() + 50) - 12 }}
 					onClick={this.handleClick}
 				>
-					<button class="button closesearch" onClick={this.closeMenu}><i class="fa fa-times"></i> Close</button>
+					<button class="button closesearch" onClick={this.closeMenu}>
+						<i class="fa fa-times" aria-hidden></i> Close
+					</button>
 					{this.selection.type === 'stats' ? (
 						<StatForm room={this.props.room} set={this.sets[this.selection.setIndex]} onChange={this.handleSetChange} />
 					) : this.selection.type === 'details' ? (
@@ -711,7 +715,7 @@ class TeamPanel extends PSRoomPanel<TeamRoom> {
 		if (!room.team) {
 			return <PSPanelWrapper room={room}>
 				<a class="button" href="teambuilder" data-target="replace">
-					<i class="fa fa-chevron-left"></i> List
+					<i class="fa fa-chevron-left" aria-hidden></i> List
 				</a>
 				<p class="error">
 					Team doesn't exist
@@ -723,7 +727,7 @@ class TeamPanel extends PSRoomPanel<TeamRoom> {
 		const formatName = BattleLog.formatName(room.team.format);
 		return <PSPanelWrapper room={room} scrollable><div class="pad">
 			<a class="button" href="teambuilder" data-target="replace">
-				<i class="fa fa-chevron-left"></i> List
+				<i class="fa fa-chevron-left" aria-hidden></i> List
 			</a>
 			<div style="float:right"><FormatDropdown
 				format={room.team.format} placeholder="" selectType="teambuilder" onChange={this.handleChangeFormat}
@@ -1147,7 +1151,7 @@ class StatForm extends preact.Component<{
 						/></td>
 						<td><input
 							name={`evslider-${statID}`} value={set.evs?.[statID] ?? defaultEV} min="0" max={maxEV} step={stepEV}
-							type="range" class="evslider" tabIndex={-1} aria-hidden="true" style="width:170px"
+							type="range" class="evslider" tabIndex={-1} aria-hidden style="width:170px"
 							onInput={this.changeEV} onChange={this.changeEV}
 						/></td>
 						<td><input
