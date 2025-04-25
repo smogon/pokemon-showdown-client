@@ -852,7 +852,6 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 				<button
 					class="icon button"
 					name="openBattleOptions"
-					title="Options"
 					style={{ position: 'absolute', right: '75px', top: this.battleHeight }} data-href="battleoptions"
 				>
 					Battle Options
