@@ -847,7 +847,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 				<ChatUserList room={room} top={this.battleHeight} minimized />
 				<button
 					data-href="battleoptions" class="button"
-					style={{ position: 'absolute', right: '75px', top: this.battleHeight }} 
+					style={{ position: 'absolute', right: '75px', top: this.battleHeight }}
 				>
 					Battle Options
 				</button>
