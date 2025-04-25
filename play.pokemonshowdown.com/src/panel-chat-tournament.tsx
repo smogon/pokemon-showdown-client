@@ -473,7 +473,7 @@ export class TournamentBox extends preact.Component<{ tour: ChatTournament, left
 				onSubmit={this.acceptChallenge} onValidate={this.validate}
 			>
 				{(info.isJoined && !info.challenging && !info.challenged && !info.challenges?.length) && (
-					<button name="validate" class="button"><i class="fa fa-check"></i> Validate</button>
+					<button name="validate" class="button"><i class="fa fa-check" aria-hidden></i> Validate</button>
 				)} {}
 				{!!(!info.isStarted && info.isJoined) && (
 					<button data-cmd="/tournament leave" class="button">Leave</button>
@@ -514,7 +514,7 @@ export class TournamentBox extends preact.Component<{ tour: ChatTournament, left
 			<button class="tournament-title" onClick={this.toggleBoxVisibility}>
 				<span class="tournament-status">{info.isStarted ? "In Progress" : "Signups"}</span>
 				{tour.tournamentName()}
-				{tour.boxVisible ? <i class="fa fa-caret-up"></i> : <i class="fa fa-caret-down"></i>}
+				{tour.boxVisible ? <i class="fa fa-caret-up" aria-hidden></i> : <i class="fa fa-caret-down" aria-hidden></i>}
 			</button>
 			<div class={`tournament-box ${tour.boxVisible ? 'active' : ''}`}>
 				<TournamentBracket tour={tour} />
@@ -544,7 +544,7 @@ export class TournamentBracket extends preact.Component<{
 					<tr>
 						<th>{row.name}</th><td>{row.score}</td>
 						<td class="tournament-bracket-table-cell-null">{i < 3 ? (
-							<i class="fa fa-trophy" style={{ color: ['#d6c939', '#adb2bb', '#ca8530'][i] }}></i>
+							<i class="fa fa-trophy" aria-hidden style={{ color: ['#d6c939', '#adb2bb', '#ca8530'][i] }}></i>
 						) : null}</td>
 					</tr>
 				))}
@@ -657,9 +657,15 @@ export class TournamentBracket extends preact.Component<{
 			{data?.type === 'table' ? this.renderTableBracket(data) :
 			data?.type === 'tree' ? <TournamentTreeBracket data={data} abbreviated={this.props.abbreviated} /> :
 			null}
-			{this.props.poppedOut ?
-				<button class="tournament-close-link button" data-cmd="/close"><i class="fa fa-times"></i> Close</button> :
-				<button class="tournament-popout-link button" onClick={this.popOut}><i class="fa fa-arrows-alt"></i> Pop-out</button>}
+			{this.props.poppedOut ? (
+				<button class="tournament-close-link button" data-cmd="/close">
+					<i class="fa fa-times" aria-hidden></i> Close
+				</button>
+			) : (
+				<button class="tournament-popout-link button" onClick={this.popOut}>
+					<i class="fa fa-arrows-alt" aria-hidden></i> Pop-out
+				</button>
+			)}
 		</div>;
 	}
 }

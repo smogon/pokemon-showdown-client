@@ -84,7 +84,7 @@ export class PSHeader extends preact.Component<{ style: object }> {
 	};
 	static roomInfo(room: PSRoom) {
 		const RoomType = PS.roomTypes[room.type];
-		let icon = RoomType?.icon || <i class="fa fa-file-text-o"></i>;
+		let icon = RoomType?.icon || <i class="fa fa-file-text-o" aria-hidden></i>;
 		let title = room.title;
 		switch (room.type) {
 		case 'battle':
@@ -124,7 +124,7 @@ export class PSHeader extends preact.Component<{ style: object }> {
 		}
 		return { icon, title };
 	}
-	static renderRoomTab(id: RoomID) {
+	static renderRoomTab(id: RoomID, noAria?: boolean) {
 		const room = PS.rooms[id];
 		if (!room) return null;
 		const closable = (id === '' || id === 'rooms' ? '' : ' closable');
@@ -148,15 +148,18 @@ export class PSHeader extends preact.Component<{ style: object }> {
 		let closeButton = null;
 		if (closable) {
 			closeButton = <button class="closebutton" name="closeRoom" value={id} aria-label="Close">
-				<i class="fa fa-times-circle"></i>
+				<i class="fa fa-times-circle" aria-hidden></i>
 			</button>;
 		}
-		const ariaLabel = id === 'rooms' ? { "aria-label": "Join chat" } : {};
+		const aria: Record<string, string> = noAria ? {} : {
+			"role": "tab", "id": `roomtab-${id}`, "aria-selected": cur ? "true" : "false",
+		};
+		if (id === 'rooms') aria['aria-label'] = "Join chat";
 		return <li class={id === '' ? 'home-li' : ''}>
 			<a
 				class={className} href={`/${id}`} draggable={true} title={hoverTitle || undefined}
 				onDragEnter={this.handleDragEnter} onDragStart={this.handleDragStart}
-				{...ariaLabel}
+				{...aria}
 			>
 				{icon} {roomTitle}
 			</a>
@@ -204,7 +207,9 @@ export class PSHeader extends preact.Component<{ style: object }> {
 		</span>;
 	}
 	renderVertical() {
-		return <div id="header" class="header-vertical" style={this.props.style} onClick={PSView.scrollToHeader}>
+		return <div
+			id="header" class="header-vertical" style={this.props.style} onClick={PSView.scrollToHeader} role="navigation"
+		>
 			<div class="maintabbarbottom"></div>
 			<div class="scrollable-part">
 				<img
@@ -232,7 +237,7 @@ export class PSHeader extends preact.Component<{ style: object }> {
 						<i class={PS.prefs.mute ? 'fa fa-volume-off' : 'fa fa-volume-up'}></i>
 					</button> {}
 					<button class="icon button" data-href="options" title="Options" aria-label="Options">
-						<i class="fa fa-cog"></i>
+						<i class="fa fa-cog" aria-hidden></i>
 					</button>
 				</div>
 			</div>
@@ -248,7 +253,7 @@ export class PSHeader extends preact.Component<{ style: object }> {
 			document.documentElement.classList?.remove('scroll-snap-enabled');
 		}
 
-		return <div id="header" class="header" style={this.props.style}>
+		return <div id="header" class="header" style={this.props.style} role="navigation">
 			<div class="maintabbarbottom"></div>
 			<div class="tabbar maintabbar"><div class="inner-1"><div class="inner-2">
 				<ul class="maintabbar-left" style={{ width: `${PS.leftPanelWidth}px` }}>
@@ -269,7 +274,7 @@ export class PSHeader extends preact.Component<{ style: object }> {
 			</div></div></div>
 			<div class="overflow">
 				<button name="tablist" class="button" data-href="roomtablist" aria-label="All tabs" type="button">
-					<i class="fa fa-caret-down"></i>
+					<i class="fa fa-caret-down" aria-hidden></i>
 				</button>
 			</div>
 			<div class="userbar">
@@ -278,7 +283,7 @@ export class PSHeader extends preact.Component<{ style: object }> {
 					<i class={PS.prefs.mute ? 'fa fa-volume-off' : 'fa fa-volume-up'}></i>
 				</button> {}
 				<button class="icon button" data-href="options" title="Options" aria-label="Options">
-					<i class="fa fa-cog"></i>
+					<i class="fa fa-cog" aria-hidden></i>
 				</button>
 			</div>
 		</div>;
@@ -309,18 +314,18 @@ export class PSMiniHeader extends preact.Component {
 			null
 		) : window.scrollX ? (
 			<button onClick={PSView.scrollToHeader} class={`mini-header-left ${notifying}`} aria-label="Menu">
-				<i class="fa fa-arrow-left"></i>
+				<i class="fa fa-arrow-left" aria-hidden></i>
 			</button>
 		) : (
 			<button onClick={PSView.scrollToRoom} class="mini-header-left" aria-label="Menu">
-				<i class="fa fa-arrow-right"></i>
+				<i class="fa fa-arrow-right" aria-hidden></i>
 			</button>
 		);
 		return <div class="mini-header" style={{ minWidth: `${minWidth}px` }}>
 			{menuButton}
 			{icon} {title}
 			<button data-href="options" class="mini-header-right" aria-label="Options">
-				{PS.user.named ? <strong style={userColor}>{PS.user.name}</strong> : <i class="fa fa-cog"></i>}
+				{PS.user.named ? <strong style={userColor}>{PS.user.name}</strong> : <i class="fa fa-cog" aria-hidden></i>}
 			</button>
 		</div>;
 	}

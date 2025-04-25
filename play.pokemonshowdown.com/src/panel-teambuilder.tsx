@@ -75,7 +75,7 @@ class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
 	static readonly id = 'teambuilder';
 	static readonly routes = ['teambuilder'];
 	static readonly Model = TeambuilderRoom;
-	static readonly icon = <i class="fa fa-pencil-square-o"></i>;
+	static readonly icon = <i class="fa fa-pencil-square-o" aria-hidden></i>;
 	static readonly title = 'Teambuilder';
 	selectFolder = (e: MouseEvent) => {
 		const room = this.props.room;
@@ -141,7 +141,7 @@ class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
 		let renderedFormatFolders = [
 			<div class="foldersep"></div>,
 			<TeamFolder cur={false} value="+">
-				<i class="fa fa-plus"></i><em>(add format folder)</em>
+				<i class="fa fa-plus" aria-hidden></i><em>(add format folder)</em>
 			</TeamFolder>,
 		];
 
@@ -188,7 +188,7 @@ class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
 			{renderedFolders}
 			<div class="foldersep"></div>
 			<TeamFolder cur={false} value="++">
-				<i class="fa fa-plus"></i><em>(add folder)</em>
+				<i class="fa fa-plus" aria-hidden></i><em>(add folder)</em>
 			</TeamFolder>
 
 			<div class="folderlistafter"></div>
@@ -223,38 +223,38 @@ class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
 			<div class="teampane">
 				{filterFolder ? (
 					<h2>
-						<i class="fa fa-folder-open"></i> {filterFolder} {}
+						<i class="fa fa-folder-open" aria-hidden></i> {filterFolder} {}
 						<button class="button small" style="margin-left:5px" name="renameFolder">
-							<i class="fa fa-pencil"></i> Rename
+							<i class="fa fa-pencil" aria-hidden></i> Rename
 						</button> {}
 						<button class="button small" style="margin-left:5px" name="promptDeleteFolder">
-							<i class="fa fa-times"></i> Remove
+							<i class="fa fa-times" aria-hidden></i> Remove
 						</button>
 					</h2>
 				) : filterFolder === '' ? (
-					<h2><i class="fa fa-folder-open-o"></i> Teams not in any folders</h2>
+					<h2><i class="fa fa-folder-open-o" aria-hidden></i> Teams not in any folders</h2>
 				) : filterFormat ? (
-					<h2><i class="fa fa-folder-open-o"></i> {filterFormat} <small>({teams.length})</small></h2>
+					<h2><i class="fa fa-folder-open-o" aria-hidden></i> {filterFormat} <small>({teams.length})</small></h2>
 				) : (
 					<h2>All Teams <small>({teams.length})</small></h2>
 				)}
 				<p>
-					<button data-cmd="/newteam" class="button big"><i class="fa fa-plus-circle"></i> New Team</button>
+					<button data-cmd="/newteam" class="button big"><i class="fa fa-plus-circle" aria-hidden></i> New Team</button>
 				</p>
 				<ul class="teamlist">
 					{teams.map(team => team ? (
 						<li key={team.key}>
 							<TeamBox team={team} /> {}
-							<button data-cmd={`/deleteteam ${team.key}`}><i class="fa fa-trash"></i> Delete</button>
+							<button data-cmd={`/deleteteam ${team.key}`}><i class="fa fa-trash" aria-hidden></i> Delete</button>
 						</li>
 					) : (
 						<li key="undelete">
-							<button data-cmd="/undeleteteam"><i class="fa fa-undo"></i> Undo delete</button>
+							<button data-cmd="/undeleteteam"><i class="fa fa-undo" aria-hidden></i> Undo delete</button>
 						</li>
 					))}
 				</ul>
 				<p>
-					<button data-cmd="/newteam bottom" class="button"><i class="fa fa-plus-circle"></i> New Team</button>
+					<button data-cmd="/newteam bottom" class="button"><i class="fa fa-plus-circle" aria-hidden></i> New Team</button>
 				</p>
 			</div>
 		</PSPanelWrapper>;

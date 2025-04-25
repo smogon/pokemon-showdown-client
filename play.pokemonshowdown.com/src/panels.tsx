@@ -275,7 +275,7 @@ export function PSPanelWrapper(props: {
 	if (props.scrollable === 'hidden') style.overflow = 'hidden';
 	return <div
 		class={'ps-room' + (room.id === '' ? '' : ' ps-room-light') + (props.scrollable === true ? ' scrollable' : '')}
-		id={`room-${room.id}`}
+		id={`room-${room.id}`} role="tabpanel" aria-labelledby={`roomtab-${room.id}`}
 		style={style} onClick={props.focusClick ? PSView.focusIfNoSelection : undefined} onDragEnter={props.onDragEnter}
 	>
 		{room.caughtError ? <div class="broadcast broadcast-red"><pre>{room.caughtError}</pre></div> : props.children}
@@ -773,7 +773,7 @@ export class PSView extends preact.Component {
 		if (room.location === 'popup' && room.parentElem) {
 			return <Panel key={room.id} room={room} />;
 		}
-		return <div key={room.id} class="ps-overlay" onClick={this.handleClickOverlay}>
+		return <div key={room.id} class="ps-overlay" onClick={this.handleClickOverlay} role="dialog">
 			<Panel room={room} />
 		</div>;
 	}

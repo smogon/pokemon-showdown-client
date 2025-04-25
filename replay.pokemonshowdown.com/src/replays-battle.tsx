@@ -432,34 +432,34 @@ export class BattlePanel extends preact.Component<{ id: string }> {
 			<p>
 				{atEnd && this.battle ? (
 					<button onClick={this.replay} class="button" style={{ width: '5em', marginRight: '3px' }}>
-						<i class="fa fa-undo"></i><br />Replay
+						<i class="fa fa-undo" aria-hidden></i><br />Replay
 					</button>
 				) : !this.battle || this.battle.paused ? (
 					<button onClick={this.play} class="button" disabled={!this.battle} style={{ width: '5em', marginRight: '3px' }}>
-						<i class="fa fa-play"></i><br /><strong>Play</strong>
+						<i class="fa fa-play" aria-hidden></i><br /><strong>Play</strong>
 					</button>
 				) : (
 					<button onClick={this.pause} class="button" style={{ width: '5em', marginRight: '3px' }}>
-						<i class="fa fa-pause"></i><br /><strong>Pause</strong>
+						<i class="fa fa-pause" aria-hidden></i><br /><strong>Pause</strong>
 					</button>
 				)} {}
 				<button class="button button-first" disabled={atStart} onClick={this.firstTurn}>
-					<i class="fa fa-fast-backward"></i><br />First turn
+					<i class="fa fa-fast-backward" aria-hidden></i><br />First turn
 				</button>
 				<button
 					class="button button-first" disabled={atStart} style={{ marginLeft: '1px', position: 'relative', zIndex: '1' }}
 					onClick={this.prevTurn}
 				>
-					<i class="fa fa-step-backward"></i><br />Prev turn
+					<i class="fa fa-step-backward" aria-hidden></i><br />Prev turn
 				</button>
 				<button class="button button-last" disabled={atEnd} style={{ marginRight: '2px' }} onClick={this.nextTurn}>
-					<i class="fa fa-step-forward"></i><br />Skip turn
+					<i class="fa fa-step-forward" aria-hidden></i><br />Skip turn
 				</button>
 				<button class="button button-last" disabled={atEnd} onClick={this.lastTurn}>
-					<i class="fa fa-fast-forward"></i><br />Skip to end
+					<i class="fa fa-fast-forward" aria-hidden></i><br />Skip to end
 				</button> {}
 				<button class="button" onClick={this.openTurn}>
-					<i class="fa fa-repeat"></i> Go to turn...
+					<i class="fa fa-repeat" aria-hidden></i> Go to turn...
 				</button>
 			</p>
 			<p>
@@ -496,7 +496,7 @@ export class BattlePanel extends preact.Component<{ id: string }> {
 					Viewpoint:<br />
 					<button onClick={this.switchViewpoint} name="viewpoint" class={this.battle ? 'button' : 'button disabled'}>
 						{(this.battle?.viewpointSwitched ? this.result?.players[1] : this.result?.players[0] || "Player")} {}
-						<i class="fa fa-random" aria-label="Switch viewpoint"></i>
+						<i class="fa fa-random" aria-hidden aria-label="Switch viewpoint"></i>
 					</button>
 				</label> {}
 				<label class="optgroup">
@@ -518,7 +518,7 @@ export class BattlePanel extends preact.Component<{ id: string }> {
 				{/* {} <code>{this.keyCode}</code> */}
 			</p> : <p>&nbsp;</p>}
 			{!PSRouter.showingLeft() && <p>
-				<a href={PSRouter.href(PSRouter.leftLoc)} class="button"><i class="fa fa-caret-left"></i> More replays</a>
+				<a href={PSRouter.href(PSRouter.leftLoc)} class="button"><i class="fa fa-caret-left" aria-hidden></i> More replays</a>
 			</p>}
 		</div>;
 	}

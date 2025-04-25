@@ -149,8 +149,8 @@ class UserPanel extends PSRoomPanel<UserRoom> {
 				buttonbar.push(
 					<hr />,
 					<p class="buttonbar" style="text-align: right">
-						<button class="button" data-href="login"><i class="fa fa-pencil"></i> Change name</button> {}
-						<button class="button" data-cmd="/logout"><i class="fa fa-power-off"></i> Log out</button>
+						<button class="button" data-href="login"><i class="fa fa-pencil" aria-hidden></i> Change name</button> {}
+						<button class="button" data-cmd="/logout"><i class="fa fa-power-off" aria-hidden></i> Log out</button>
 					</p>
 				);
 			}
@@ -369,7 +369,7 @@ class UserOptionsPanel extends PSRoomPanel {
 				</small>
 				<p class="buttonbar">
 					<button class="button" onClick={this.handleConfirm}>
-						<i class="fa fa-confirm"></i> Confirm
+						<i class="fa fa-confirm" aria-hidden></i> Confirm
 					</button> {}
 					<button class="button" onClick={this.handleCancel}>
 						Cancel
@@ -389,7 +389,7 @@ class UserOptionsPanel extends PSRoomPanel {
 					</div>
 				) : (
 					<button class="button" onClick={this.handleMute}>
-						<i class="fa fa-hourglass-half"></i> Mute
+						<i class="fa fa-hourglass-half" aria-hidden></i> Mute
 					</button>
 				))} {}
 				{canBan && !this.state.showMuteInput && !this.state.showConfirm && (this.state.showBanInput ? (
@@ -404,7 +404,7 @@ class UserOptionsPanel extends PSRoomPanel {
 					</div>
 				) : (
 					<button class="button" onClick={this.handleBan}>
-						<i class="fa fa-gavel"></i> Ban
+						<i class="fa fa-gavel" aria-hidden></i> Ban
 					</button>
 				))}
 			</p>
@@ -611,7 +611,7 @@ class OptionsPanel extends PSRoomPanel {
 			{this.state.showStatusInput ? (
 				<p>
 					<input name="statustext" />
-					<button class="button" onClick={this.editStatus}><i class="fa fa-pencil"></i></button>
+					<button class="button" onClick={this.editStatus}><i class="fa fa-pencil" aria-hidden></i></button>
 				</p>
 			) : (
 				<p>
@@ -744,10 +744,10 @@ class OptionsPanel extends PSRoomPanel {
 			</p>
 			<hr />
 			{PS.user.named ? <p class="buttonbar" style="text-align: right">
-				<button class="button" data-href="login"><i class="fa fa-pencil"></i> Change name</button> {}
-				<button class="button" data-cmd="/logout"><i class="fa fa-power-off"></i> Log out</button>
+				<button class="button" data-href="login"><i class="fa fa-pencil" aria-hidden></i> Change name</button> {}
+				<button class="button" data-cmd="/logout"><i class="fa fa-power-off" aria-hidden></i> Log out</button>
 			</p> : <p class="buttonbar" style="text-align: right">
-				<button class="button" data-href="login"><i class="fa fa-pencil"></i> Choose name</button>
+				<button class="button" data-href="login"><i class="fa fa-pencil" aria-hidden></i> Choose name</button>
 			</p> }
 		</div></PSPanelWrapper>;
 	}
@@ -857,7 +857,7 @@ class LoginPanel extends PSRoomPanel {
 					<small>(Others will be able to see your name change. To change name privately, use "Log out")</small>
 				</p>}
 				{loginState?.needsPassword && <p>
-					<i class="fa fa-level-up fa-rotate-90"></i> <strong>if you registered this name:</strong>
+					<i class="fa fa-level-up fa-rotate-90" aria-hidden></i> <strong>if you registered this name:</strong>
 					<label class="label">
 						Password: {}
 						<input
@@ -867,11 +867,11 @@ class LoginPanel extends PSRoomPanel {
 						<button
 							type="button" onClick={this.handleShowPassword} aria-label="Show password"
 							class="button" style="float:right;margin:-21px 0 10px;padding: 2px 6px"
-						><i class="fa fa-eye"></i></button>
+						><i class="fa fa-eye" aria-hidden></i></button>
 					</label>
 				</p>}
 				{loginState?.needsGoogle && <>
-					<p><i class="fa fa-level-up fa-rotate-90"></i> <strong>if you registered this name:</strong></p>
+					<p><i class="fa fa-level-up fa-rotate-90" aria-hidden></i> <strong>if you registered this name:</strong></p>
 					<p><GooglePasswordBox name={this.getUsername()} /></p>
 				</>}
 				<p class="buttonbar">
@@ -893,7 +893,7 @@ class LoginPanel extends PSRoomPanel {
 				</p>
 				{loginState?.name && <div>
 					<p>
-						<i class="fa fa-level-up fa-rotate-90"></i> <strong>if not:</strong>
+						<i class="fa fa-level-up fa-rotate-90" aria-hidden></i> <strong>if not:</strong>
 					</p>
 					<p style={{ maxWidth: '210px', margin: '0 auto' }}>
 						This is someone else's account. Sorry.
@@ -1501,10 +1501,10 @@ class RoomTabListPanel extends PSRoomPanel {
 		const verticalTabs = PS.prefs.onepanel === 'vertical';
 		return <PSPanelWrapper room={this.props.room}><div class="tablist">
 			<ul>
-				{PS.leftRoomList.map(roomid => PSHeader.renderRoomTab(roomid))}
+				{PS.leftRoomList.map(roomid => PSHeader.renderRoomTab(roomid, true))}
 			</ul>
 			<ul>
-				{PS.rightRoomList.map(roomid => PSHeader.renderRoomTab(roomid))}
+				{PS.rightRoomList.map(roomid => PSHeader.renderRoomTab(roomid, true))}
 			</ul>
 			<div class="pad"><label class="checkbox"><input
 				type="checkbox" checked={verticalTabs} onChange={this.handleLayoutChange}

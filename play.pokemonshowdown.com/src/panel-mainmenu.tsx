@@ -434,7 +434,7 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
 	static readonly id = 'mainmenu';
 	static readonly routes = [''];
 	static readonly Model = MainMenuRoom;
-	static readonly icon = <i class="fa fa-home"></i>;
+	static readonly icon = <i class="fa fa-home" aria-hidden></i>;
 	override focus() {
 		this.base?.querySelector<HTMLButtonElement>('.formatselect')?.focus();
 	}
@@ -504,10 +504,14 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
 					class={`mini-window-header${notifying}`} draggable onDragStart={this.handleDragStart} onClick={this.handleClickMinimize}
 				>
 					<button class="closebutton" data-cmd="/close" aria-label="Close" tabIndex={-1}>
-						<i class="fa fa-times-circle"></i>
+						<i class="fa fa-times-circle" aria-hidden></i>
 					</button>
-					<button class="maximizebutton" data-cmd="/maximize" tabIndex={-1}><i class="fa fa-stop-circle"></i></button>
-					<button class="minimizebutton" tabIndex={-1}><i class="fa fa-minus-circle"></i></button>
+					<button class="maximizebutton" data-cmd="/maximize" tabIndex={-1} aria-label="Maximize">
+						<i class="fa fa-stop-circle" aria-hidden></i>
+					</button>
+					<button class="minimizebutton" tabIndex={-1} aria-label="Expand/Collapse">
+						<i class="fa fa-minus-circle" aria-hidden></i>
+					</button>
 					{room.title}
 				</h3>
 				{this.renderMiniRoom(room)}
@@ -547,12 +551,12 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
 			return <TeamForm class="menugroup" onSubmit={this.submitSearch}>
 				<button class="mainmenu1 mainmenu big button disabled" disabled name="search">
 					<em>{PS.isOffline ? [<span class="fa-stack fa-lg">
-						<i class="fa fa-plug fa-flip-horizontal fa-stack-1x"></i>
-						<i class="fa fa-ban fa-stack-2x text-danger"></i>
+						<i class="fa fa-plug fa-flip-horizontal fa-stack-1x" aria-hidden></i>
+						<i class="fa fa-ban fa-stack-2x text-danger" aria-hidden></i>
 					</span>, " Disconnected"] : "Connecting..."}</em>
 				</button>
 				{PS.isOffline && <p class="buttonbar">
-					<button class="button" data-cmd="/reconnect"><i class="fa fa-plug"></i> <strong>Reconnect</strong></button>
+					<button class="button" data-cmd="/reconnect"><i class="fa fa-plug" aria-hidden></i> <strong>Reconnect</strong></button>
 				</p>}
 			</TeamForm>;
 		}
@@ -560,15 +564,15 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
 		return <TeamForm class="menugroup" onSubmit={this.submitSearch}>
 			{PS.mainmenu.searchCountdown ? (
 				<>
-					<button class="mainmenu1 mainmenu big button disabled" type="submit">
-						<strong><i class="fa fa-refresh fa-spin"></i> Searching in {PS.mainmenu.searchCountdown.countdown}...</strong>
-					</button>
+					<button class="mainmenu1 mainmenu big button disabled" type="submit"><strong>
+						<i class="fa fa-refresh fa-spin" aria-hidden></i> Searching in {PS.mainmenu.searchCountdown.countdown}...
+					</strong></button>
 					<p class="buttonbar"><button class="button" data-cmd="/cancelsearch">Cancel</button></p>
 				</>
 			) : (PS.mainmenu.searchSent || PS.mainmenu.search.searching.length) ? (
 				<>
 					<button class="mainmenu1 mainmenu big button disabled" type="submit">
-						<strong><i class="fa fa-refresh fa-spin"></i> Searching...</strong>
+						<strong><i class="fa fa-refresh fa-spin" aria-hidden></i> Searching...</strong>
 					</button>
 					<p class="buttonbar"><button class="button" data-cmd="/cancelsearch">Cancel</button></p>
 				</>
