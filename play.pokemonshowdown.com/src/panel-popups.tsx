@@ -1612,8 +1612,7 @@ class BattleOptionsPanel extends PSRoomPanel {
 						type="checkbox"
 						onChange={this.handleAllSettings}
 						name="rightpanel" checked={PS.prefs.rightpanelbattles || false}
-					/> Open new battles on
-					the right side
+					/> Open new battles on the right side
 				</label>
 			</p>
 			<p><button data-cmd="/close" class="button">Done</button></p>
