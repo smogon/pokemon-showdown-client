@@ -997,7 +997,7 @@ class BattleForfeitPanel extends PSRoomPanel {
 				</p>
 				<p>
 					<button type="submit" class="button"><strong>Forfeit</strong></button> {}
-					{!battleRoom?.battle?.rated && <button type="button" data-href="replaceplayer" class="button">
+					{!battleRoom.battle.rated && <button type="button" data-href="replaceplayer" class="button">
 						Replace player
 					</button>} {}
 					<button type="button" data-cmd="/close" class="button">
