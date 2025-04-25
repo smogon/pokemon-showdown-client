@@ -878,7 +878,6 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 			<ChatUserList room={room} left={640} minimized />
 			<button
 				class="icon button"
-				name="openBattleOptions"
 				title="Options"
 				style={{ position: 'absolute', right: '15px' }}
 				data-href="battleoptions"
