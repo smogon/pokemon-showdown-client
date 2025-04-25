@@ -1601,8 +1601,7 @@ class BattleOptionsPanel extends PSRoomPanel {
 						type="checkbox"
 						onChange={this.handleAllSettings}
 						name="autotimer" checked={PS.prefs.autotimer || false}
-					/> Automatically start
-					timer
+					/> Automatically start timer
 				</label>
 			</p>
 			<p>
