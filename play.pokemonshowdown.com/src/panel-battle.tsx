@@ -846,9 +846,8 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 				<ChatTextEntry room={room} onMessage={this.send} onKey={this.onKey} left={0} />
 				<ChatUserList room={room} top={this.battleHeight} minimized />
 				<button
-					class="icon button"
-					name="openBattleOptions"
-					style={{ position: 'absolute', right: '75px', top: this.battleHeight }} data-href="battleoptions"
+					data-href="battleoptions" class="button"
+					style={{ position: 'absolute', right: '75px', top: this.battleHeight }} 
 				>
 					Battle Options
 				</button>
