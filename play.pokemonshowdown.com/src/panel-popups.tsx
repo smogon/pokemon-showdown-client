@@ -1583,8 +1583,7 @@ class BattleOptionsPanel extends PSRoomPanel {
 						type="checkbox"
 						onChange={this.handleAllSettings}
 						name="ignorespects" checked={PS.prefs.ignorespects || false}
-					/> Ignore
-					spectators
+					/> Ignore spectators
 				</label>
 			</p>
 			<p>
