@@ -970,7 +970,7 @@ class ChatTextBox extends preact.Component<{ placeholder: string, disabled?: boo
 
 class ChatPanel extends PSRoomPanel<ChatRoom> {
 	static readonly id = 'chat';
-	static readonly routes = ['dm-*', '*'];
+	static readonly routes = ['dm-*', 'groupchat-*', '*'];
 	static readonly Model = ChatRoom;
 	static readonly location = 'right';
 	static readonly icon = <i class="fa fa-comment-o"></i>;
