@@ -112,7 +112,7 @@ export class BattleLog {
 		this.skippedLines = true;
 		const el = document.createElement('div');
 		el.className = 'chat';
-		el.innerHTML = '<button class="button earlier-button"><i class="fa fa-caret-up"></i><br />Earlier messages</button>';
+		el.innerHTML = '<button class="button earlier-button"><i class="fa fa-caret-up" aria-hidden="true"></i><br />Earlier messages</button>';
 		const button = el.getElementsByTagName('button')[0];
 		button?.addEventListener?.('click', e => {
 			e.preventDefault();

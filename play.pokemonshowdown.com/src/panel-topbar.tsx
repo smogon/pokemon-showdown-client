@@ -84,7 +84,7 @@ export class PSHeader extends preact.Component<{ style: object }> {
 	};
 	static roomInfo(room: PSRoom) {
 		const RoomType = PS.roomTypes[room.type];
-		let icon = RoomType?.icon || <i class="fa fa-file-text-o"></i>;
+		let icon = RoomType?.icon || <i class="fa fa-file-text-o" aria-hidden></i>;
 		let title = room.title;
 		switch (room.type) {
 		case 'battle':
@@ -124,7 +124,7 @@ export class PSHeader extends preact.Component<{ style: object }> {
 		}
 		return { icon, title };
 	}
-	static renderRoomTab(id: RoomID) {
+	static renderRoomTab(id: RoomID, noAria?: boolean) {
 		const room = PS.rooms[id];
 		if (!room) return null;
 		const closable = (id === '' || id === 'rooms' ? '' : ' closable');
@@ -148,44 +148,34 @@ export class PSHeader extends preact.Component<{ style: object }> {
 		let closeButton = null;
 		if (closable) {
 			closeButton = <button class="closebutton" name="closeRoom" value={id} aria-label="Close">
-				<i class="fa fa-times-circle"></i>
+				<i class="fa fa-times-circle" aria-hidden></i>
 			</button>;
 		}
-		const ariaLabel = id === 'rooms' ? { "aria-label": "Join chat" } : {};
-		return <li>
+		const aria: Record<string, string> = noAria ? {} : {
+			"role": "tab", "id": `roomtab-${id}`, "aria-selected": cur ? "true" : "false",
+		};
+		if (id === 'rooms') aria['aria-label'] = "Join chat";
+		return <li class={id === '' ? 'home-li' : ''}>
 			<a
 				class={className} href={`/${id}`} draggable={true} title={hoverTitle || undefined}
 				onDragEnter={this.handleDragEnter} onDragStart={this.handleDragStart}
-				{...ariaLabel}
+				{...aria}
 			>
-				{icon} <span>{roomTitle}</span>
+				{icon} {roomTitle}
 			</a>
 			{closeButton}
 		</li>;
 	}
-	sideRoomMargin = 0;
 	handleRoomTabOverflow = () => {
 		if (PS.leftPanelWidth === null || !this.base) return;
 
 		const userbarLeft = this.base.querySelector('div.userbar')?.getBoundingClientRect()?.left;
-		const plusTab = this.base.querySelector('a.roomtab[aria-label="Join chat"]');
-		const plusTabRight = plusTab?.getBoundingClientRect()?.right;
+		const plusTabRight = this.base.querySelector('a.roomtab[aria-label="Join chat"]')?.getBoundingClientRect()?.right;
 		const overflow = this.base.querySelector<HTMLElement>('.overflow');
-		const siderooms = this.base.querySelector<HTMLElement>('.siderooms');
 
-		if (!overflow || !userbarLeft || !plusTab || !plusTabRight || !siderooms) return;
+		if (!overflow || !userbarLeft || !plusTabRight) return;
 
-		// this has too much perf impact and bugs... just use vertical tabs
-		// if (PS.leftPanelWidth && Math.abs((userbarLeft - 5) - plusTabRight) > 0.5) {
-		// 	this.sideRoomMargin += (userbarLeft - 5) - plusTabRight;
-		// 	if (this.sideRoomMargin < 0) this.sideRoomMargin = 0;
-		// 	this.sideRoomMargin = Math.min(Math.max(PS.leftPanelWidth - 52, 0), this.sideRoomMargin);
-
-		// 	siderooms.style.marginLeft = `${this.sideRoomMargin}px`;
-		// 	plusTabRight = plusTab.getBoundingClientRect().right;
-		// }
-
-		if (plusTabRight > userbarLeft) {
+		if (plusTabRight > userbarLeft - 3) {
 			overflow.style.display = 'block';
 		} else {
 			overflow.style.display = 'none';
@@ -217,7 +207,9 @@ export class PSHeader extends preact.Component<{ style: object }> {
 		</span>;
 	}
 	renderVertical() {
-		return <div id="header" class="header-vertical" style={this.props.style} onClick={PSView.scrollToHeader}>
+		return <div
+			id="header" class="header-vertical" style={this.props.style} onClick={PSView.scrollToHeader} role="navigation"
+		>
 			<div class="maintabbarbottom"></div>
 			<div class="scrollable-part">
 				<img
@@ -245,7 +237,7 @@ export class PSHeader extends preact.Component<{ style: object }> {
 						<i class={PS.prefs.mute ? 'fa fa-volume-off' : 'fa fa-volume-up'}></i>
 					</button> {}
 					<button class="icon button" data-href="options" title="Options" aria-label="Options">
-						<i class="fa fa-cog"></i>
+						<i class="fa fa-cog" aria-hidden></i>
 					</button>
 				</div>
 			</div>
@@ -260,39 +252,38 @@ export class PSHeader extends preact.Component<{ style: object }> {
 		} else {
 			document.documentElement.classList?.remove('scroll-snap-enabled');
 		}
-		this.sideRoomMargin = Math.max(PS.leftPanelWidth - 52, 0);
 
-		return <div id="header" class="header" style={this.props.style}>
+		return <div id="header" class="header" style={this.props.style} role="navigation">
 			<div class="maintabbarbottom"></div>
-			<img
-				class="logo"
-				src={`https://${Config.routes.client}/favicon-256.png`}
-				alt="Pokémon Showdown! (beta)"
-				width="50" height="50"
-			/>
-			<div class="tabbar maintabbar"><div class="inner">
-				<ul>
+			<div class="tabbar maintabbar"><div class="inner-1"><div class="inner-2">
+				<ul class="maintabbar-left" style={{ width: `${PS.leftPanelWidth}px` }}>
+					<li>
+						<img
+							class="logo"
+							src={`https://${Config.routes.client}/favicon-256.png`}
+							alt="Pokémon Showdown! (beta)"
+							width="48" height="48"
+						/>
+					</li>
 					{PSHeader.renderRoomTab(PS.leftRoomList[0])}
-				</ul>
-				<ul>
 					{PS.leftRoomList.slice(1).map(roomid => PSHeader.renderRoomTab(roomid))}
 				</ul>
-				<ul class="siderooms" style={{ float: 'none', marginLeft: this.sideRoomMargin }}>
+				<ul class="maintabbar-right">
 					{PS.rightRoomList.map(roomid => PSHeader.renderRoomTab(roomid))}
 				</ul>
-				<div class="overflow">
-					<button name="tablist" class="button" data-href="roomtablist" aria-label="All tabs" type="button">
-						<i class="fa fa-caret-down"></i>
-					</button>
-				</div>
-			</div></div>
+			</div></div></div>
+			<div class="overflow">
+				<button name="tablist" class="button" data-href="roomtablist" aria-label="All tabs" type="button">
+					<i class="fa fa-caret-down" aria-hidden></i>
+				</button>
+			</div>
 			<div class="userbar">
 				{this.renderUser()} {}
 				<button class="icon button" data-href="volume" title="Sound" aria-label="Sound" onDblClick={PSHeader.toggleMute}>
 					<i class={PS.prefs.mute ? 'fa fa-volume-off' : 'fa fa-volume-up'}></i>
 				</button> {}
 				<button class="icon button" data-href="options" title="Options" aria-label="Options">
-					<i class="fa fa-cog"></i>
+					<i class="fa fa-cog" aria-hidden></i>
 				</button>
 			</div>
 		</div>;
@@ -323,18 +314,18 @@ export class PSMiniHeader extends preact.Component {
 			null
 		) : window.scrollX ? (
 			<button onClick={PSView.scrollToHeader} class={`mini-header-left ${notifying}`} aria-label="Menu">
-				<i class="fa fa-arrow-left"></i>
+				<i class="fa fa-arrow-left" aria-hidden></i>
 			</button>
 		) : (
 			<button onClick={PSView.scrollToRoom} class="mini-header-left" aria-label="Menu">
-				<i class="fa fa-arrow-right"></i>
+				<i class="fa fa-arrow-right" aria-hidden></i>
 			</button>
 		);
 		return <div class="mini-header" style={{ minWidth: `${minWidth}px` }}>
 			{menuButton}
 			{icon} {title}
 			<button data-href="options" class="mini-header-right" aria-label="Options">
-				{PS.user.named ? <strong style={userColor}>{PS.user.name}</strong> : <i class="fa fa-cog"></i>}
+				{PS.user.named ? <strong style={userColor}>{PS.user.name}</strong> : <i class="fa fa-cog" aria-hidden></i>}
 			</button>
 		</div>;
 	}

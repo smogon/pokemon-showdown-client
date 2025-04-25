@@ -13,7 +13,7 @@ import type { BattlesRoom } from "./panel-battle";
 import type { ChatRoom } from "./panel-chat";
 import type { LadderFormatRoom } from "./panel-ladder";
 import type { RoomsRoom } from "./panel-rooms";
-import { TeamBox } from "./panel-teamdropdown";
+import { TeamBox, type SelectType } from "./panel-teamdropdown";
 import { Dex, toID, type ID } from "./battle-dex";
 import type { Args } from "./battle-text-parser";
 import { BattleLog } from "./battle-log"; // optional
@@ -434,7 +434,7 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
 	static readonly id = 'mainmenu';
 	static readonly routes = [''];
 	static readonly Model = MainMenuRoom;
-	static readonly icon = <i class="fa fa-home"></i>;
+	static readonly icon = <i class="fa fa-home" aria-hidden></i>;
 	override focus() {
 		this.base?.querySelector<HTMLButtonElement>('.formatselect')?.focus();
 	}
@@ -504,10 +504,14 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
 					class={`mini-window-header${notifying}`} draggable onDragStart={this.handleDragStart} onClick={this.handleClickMinimize}
 				>
 					<button class="closebutton" data-cmd="/close" aria-label="Close" tabIndex={-1}>
-						<i class="fa fa-times-circle"></i>
+						<i class="fa fa-times-circle" aria-hidden></i>
 					</button>
-					<button class="maximizebutton" data-cmd="/maximize" tabIndex={-1}><i class="fa fa-stop-circle"></i></button>
-					<button class="minimizebutton" tabIndex={-1}><i class="fa fa-minus-circle"></i></button>
+					<button class="maximizebutton" data-cmd="/maximize" tabIndex={-1} aria-label="Maximize">
+						<i class="fa fa-stop-circle" aria-hidden></i>
+					</button>
+					<button class="minimizebutton" tabIndex={-1} aria-label="Expand/Collapse">
+						<i class="fa fa-minus-circle" aria-hidden></i>
+					</button>
 					{room.title}
 				</h3>
 				{this.renderMiniRoom(room)}
@@ -546,10 +550,13 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
 		if (!PS.user.userid || PS.isOffline) {
 			return <TeamForm class="menugroup" onSubmit={this.submitSearch}>
 				<button class="mainmenu1 mainmenu big button disabled" disabled name="search">
-					<em>{PS.isOffline ? "Disconnected" : "Connecting..."}</em>
+					<em>{PS.isOffline ? [<span class="fa-stack fa-lg">
+						<i class="fa fa-plug fa-flip-horizontal fa-stack-1x" aria-hidden></i>
+						<i class="fa fa-ban fa-stack-2x text-danger" aria-hidden></i>
+					</span>, " Disconnected"] : "Connecting..."}</em>
 				</button>
 				{PS.isOffline && <p class="buttonbar">
-					<button class="button" data-cmd="/reconnect"><i class="fa fa-plug"></i> <strong>Reconnect</strong></button>
+					<button class="button" data-cmd="/reconnect"><i class="fa fa-plug" aria-hidden></i> <strong>Reconnect</strong></button>
 				</p>}
 			</TeamForm>;
 		}
@@ -557,15 +564,15 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
 		return <TeamForm class="menugroup" onSubmit={this.submitSearch}>
 			{PS.mainmenu.searchCountdown ? (
 				<>
-					<button class="mainmenu1 mainmenu big button disabled" type="submit">
-						<strong><i class="fa fa-refresh fa-spin"></i> Searching in {PS.mainmenu.searchCountdown.countdown}...</strong>
-					</button>
+					<button class="mainmenu1 mainmenu big button disabled" type="submit"><strong>
+						<i class="fa fa-refresh fa-spin" aria-hidden></i> Searching in {PS.mainmenu.searchCountdown.countdown}...
+					</strong></button>
 					<p class="buttonbar"><button class="button" data-cmd="/cancelsearch">Cancel</button></p>
 				</>
 			) : (PS.mainmenu.searchSent || PS.mainmenu.search.searching.length) ? (
 				<>
 					<button class="mainmenu1 mainmenu big button disabled" type="submit">
-						<strong><i class="fa fa-refresh fa-spin"></i> Searching...</strong>
+						<strong><i class="fa fa-refresh fa-spin" aria-hidden></i> Searching...</strong>
 					</button>
 					<p class="buttonbar"><button class="button" data-cmd="/cancelsearch">Cancel</button></p>
 				</>
@@ -591,22 +598,22 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
 					{this.renderSearchButton()}
 
 					<div class="menugroup">
-						<p><button class="mainmenu2 mainmenu button" data-href="teambuilder">Teambuilder</button></p>
-						<p><button class={"mainmenu3 mainmenu" + onlineButton} data-href="ladder">Ladder</button></p>
-						<p><button class={"mainmenu4 mainmenu" + onlineButton} data-href="view-tournaments-all">Tournaments</button></p>
+						<p><a class="mainmenu2 mainmenu button" href="teambuilder">Teambuilder</a></p>
+						<p><a class={"mainmenu3 mainmenu" + onlineButton} href="ladder">Ladder</a></p>
+						<p><a class={"mainmenu4 mainmenu" + onlineButton} href="view-tournaments-all">Tournaments</a></p>
 					</div>
 
 					<div class="menugroup">
-						<p><button class={"mainmenu4 mainmenu" + onlineButton} data-href="battles">Watch a battle</button></p>
-						<p><button class={"mainmenu5 mainmenu" + onlineButton} data-href="users">Find a user</button></p>
-						<p><button class={"mainmenu6 mainmenu" + onlineButton} data-href="view-friends-all">Friends</button></p>
+						<p><a class={"mainmenu4 mainmenu" + onlineButton} href="battles">Watch a battle</a></p>
+						<p><a class={"mainmenu5 mainmenu" + onlineButton} href="users">Find a user</a></p>
+						<p><a class={"mainmenu6 mainmenu" + onlineButton} href="view-friends-all">Friends</a></p>
 					</div>
 				</div>
 				<div class="mainmenu-right" style={{ display: PS.leftPanelWidth ? 'none' : 'block' }}>
 					<div class="menugroup">
-						<p><button class={"mainmenu1 mainmenu" + onlineButton} data-href="rooms">Chat rooms</button></p>
+						<p><a class={"mainmenu1 mainmenu" + onlineButton} href="rooms">Chat rooms</a></p>
 						{PS.server.id !== 'showdown' && (
-							<p><button class={"mainmenu2 mainmenu" + onlineButton} data-href="lobby">Lobby chat</button></p>
+							<p><a class={"mainmenu2 mainmenu" + onlineButton} href="lobby">Lobby chat</a></p>
 						)}
 					</div>
 				</div>
@@ -625,7 +632,9 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
 	}
 }
 
-export class FormatDropdown extends preact.Component<{ format?: string, onChange?: JSX.EventHandler<Event> }> {
+export class FormatDropdown extends preact.Component<{
+	format?: string, onChange?: JSX.EventHandler<Event>, placeholder?: string, selectType?: SelectType,
+}> {
 	declare base?: HTMLButtonElement;
 	format = `[Gen ${Dex.gen}] Random Battle`;
 	change = (e: Event) => {
@@ -634,22 +643,28 @@ export class FormatDropdown extends preact.Component<{ format?: string, onChange
 		this.forceUpdate();
 		if (this.props.onChange) this.props.onChange(e);
 	};
+	override componentWillMount() {
+		if (this.props.format !== undefined) {
+			this.format = this.props.format;
+		}
+	}
 	render() {
-		if (this.props.format) {
-			let [formatName, customRules] = this.props.format.split('@@@');
-			if (window.BattleLog) formatName = BattleLog.formatName(formatName);
+		let [formatName, customRules] = this.format.split('@@@');
+		if (window.BattleLog) formatName = BattleLog.formatName(this.format);
+		if (this.props.format && !this.props.onChange) {
 			return <button
-				name="format" value={this.props.format} class="select formatselect preselected" disabled
+				name="format" value={this.format} class="select formatselect preselected" disabled
 			>
 				{formatName}
 				{!!customRules && [<br />, <small>Custom rules: {customRules}</small>]}
 			</button>;
 		}
 		return <button
-			name="format" value={this.format}
+			name="format" value={this.format} data-selecttype={this.props.selectType}
 			class="select formatselect" data-href="/formatdropdown" onChange={this.change}
 		>
-			{this.format}
+			{formatName || (!!this.props.placeholder && <em>{this.props.placeholder}</em>) || null}
+			{!!customRules && [<br />, <small>Custom rules: {customRules}</small>]}
 		</button>;
 	}
 }

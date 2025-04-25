@@ -141,7 +141,7 @@ console.log(
 
 process.stdout.write("Updating cachebuster and URLs... ");
 
-const URL_REGEX = /(src|href)="(.*?)(\?[a-z0-9]*?)?"/g;
+const URL_REGEX = /(src=|href=|linkStyle\()"(.*?)(\?[a-z0-9]*?)?"/g;
 
 function addCachebuster(_, attr, url, urlQuery) {
 	url = url.replace('/replay.pokemonshowdown.com/', '/' + routes.replays + '/');
@@ -159,7 +159,7 @@ function addCachebuster(_, attr, url, urlQuery) {
 				hash = crypto.createHash('md5').update(fstr).digest('hex').substr(0, 8);
 			} catch {}
 
-			return attr + '="' + url + '?' + hash + '"';
+			return attr + '"' + url + '?' + hash + '"';
 		} else {
 			// TODO: generalize better
 			let hash;
@@ -171,10 +171,10 @@ function addCachebuster(_, attr, url, urlQuery) {
 				} catch {}
 			}
 
-			return attr + '="' + url + '?' + (hash || 'v1') + '"';
+			return attr + '"' + url + '?' + (hash || 'v1') + '"';
 		}
 	} else {
-		return attr + '="' + url + '"';
+		return attr + '"' + url + '"';
 	}
 }
 
