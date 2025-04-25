@@ -198,6 +198,71 @@ function PokemonButton(props: {
 	</button>;
 }
 
+class TimerButton extends preact.Component<{ room: BattleRoom }> {
+	render() {
+		let time = 'Timer';
+		let room = this.props.room;
+		let timerTicking = (room.battle.kickingInactive &&
+			room.request &&
+			room.request.requestType !== "wait" &&
+			(room.choices && !room.choices.isDone())) ?
+			' timerbutton-on' :
+			'';
+		if (room.timerInterval) {
+			clearInterval(room.timerInterval);
+			room.timerInterval = 0;
+		}
+		if (!room.timerInterval && timerTicking) room.timerInterval = setInterval(() => {
+			if (typeof room.battle.kickingInactive === 'number' && room.battle.kickingInactive > 1) {
+				room.battle.kickingInactive -= 1;
+				if (room.battle.graceTimeLeft) room.battle.graceTimeLeft -= 1;
+				else if (room.battle.totalTimeLeft) room.battle.totalTimeLeft -= 1;
+			}
+			this.forceUpdate();
+
+		}, 1000);
+
+		if (room.battle.kickingInactive) {
+			let secondsLeft = room.battle.kickingInactive;
+			if (secondsLeft !== true) {
+				if (secondsLeft <= 10 && timerTicking) {
+					timerTicking = ' timerbutton-critical';
+				}
+				let minutesLeft = Math.floor(secondsLeft / 60);
+				secondsLeft -= minutesLeft * 60;
+				time = `${minutesLeft}:${(secondsLeft < 10 ? '0' : '')}${secondsLeft}`;
+
+				secondsLeft = room.battle.totalTimeLeft;
+				if (secondsLeft) {
+					minutesLeft = Math.floor(secondsLeft / 60);
+					secondsLeft -= minutesLeft * 60;
+					time += ` |  ${minutesLeft}:${(secondsLeft < 10 ? '0' : '')}${secondsLeft} total`;
+				}
+			} else {
+				time = '-:--';
+			}
+		}
+		const isTicking =
+		room.battle.kickingInactive &&
+		room.request?.requestType !== 'wait' &&
+		!room.choices?.isDone();
+
+		let timerClass = 'button';
+		if (room.battle.kickingInactive) {
+			if (typeof room.battle.kickingInactive === 'number' && room.battle.kickingInactive <= 10 && isTicking) {
+				timerClass += ' timerbutton-critical';
+			} else if (isTicking) {
+				timerClass += ' timerbutton-on';
+			}
+		}
+		return (
+			<button style={{ position: "absolute", right: '10px' }} data-href="battletimer" class={timerClass}>
+				<i class="fa fa-hourglass-start"></i> {time}
+			</button>
+		);
+	}
+};
+
 class BattlePanel extends PSRoomPanel<BattleRoom> {
 	static readonly id = 'battle';
 	static readonly routes = ['battle-*'];
@@ -285,60 +350,6 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 			this.battleHeight = 360;
 		}
 	}
-	getTimerHTML(nextTick?: boolean) {
-		let time = 'Timer';
-		let room = this.props.room;
-		let timerTicking = (room.battle.kickingInactive &&
-			room.request &&
-			room.request.requestType !== "wait" &&
-			(room.choices && !room.choices.isDone())) ?
-			' timerbutton-on' :
-			'';
-		if (!nextTick) {
-			if (room.timerInterval) {
-				clearInterval(room.timerInterval);
-				room.timerInterval = 0;
-			}
-			console.log(timerTicking);
-			if (!room.timerInterval && timerTicking) room.timerInterval = setInterval(() => {
-				let $timerButtons = document.querySelectorAll('div[name=timerhtml]');
-				if ($timerButtons?.length) {
-					for (const button of $timerButtons) {
-						button.setHTMLUnsafe?.(this.getTimerHTML(true));
-					}
-				} else {
-					clearInterval(room.timerInterval);
-					room.timerInterval = 0;
-				}
-			}, 1000);
-		} else if (typeof room.battle.kickingInactive === 'number' && room.battle.kickingInactive > 1) {
-			room.battle.kickingInactive -= 1;
-			if (room.battle.graceTimeLeft) room.battle.graceTimeLeft -= 1;
-			else if (room.battle.totalTimeLeft) room.battle.totalTimeLeft -= 1;
-		}
-
-		if (room.battle.kickingInactive) {
-			let secondsLeft = room.battle.kickingInactive;
-			if (secondsLeft !== true) {
-				if (secondsLeft <= 10 && timerTicking) {
-					timerTicking = ' timerbutton-critical';
-				}
-				let minutesLeft = Math.floor(secondsLeft / 60);
-				secondsLeft -= minutesLeft * 60;
-				time = `${minutesLeft}:${(secondsLeft < 10 ? '0' : '')}${secondsLeft}`;
-
-				secondsLeft = room.battle.totalTimeLeft;
-				if (secondsLeft) {
-					minutesLeft = Math.floor(secondsLeft / 60);
-					secondsLeft -= minutesLeft * 60;
-					time += ` |  ${minutesLeft}:${(secondsLeft < 10 ? '0' : '')}${secondsLeft} total`;
-				}
-			} else {
-				time = '-:--';
-			}
-		}
-		return `<button name="openTimer" data-href="battletimer" class="button timerbutton ${timerTicking}"><i class="fa fa-hourglass-start"></i>  ${time}  </button>`;
-	};
 	override receiveLine(args: Args) {
 		const room = this.props.room;
 		switch (args[0]) {
@@ -852,11 +863,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 					Battle Options
 				</button>
 				{(room.battle && !room.battle.ended && room.request && room.battle.mySide.id === PS.user.userid) &&
-					<div
-						name="timerhtml"
-						style={{ position: 'absolute', right: '5px', top: this.battleHeight }}
-						dangerouslySetInnerHTML={{ __html: this.getTimerHTML() }}
-					/>}
+					<TimerButton room={room} />}
 				<div class="battle-controls-container"></div>
 			</PSPanelWrapper>;
 		}
@@ -878,7 +885,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 			<div class="battle-controls-container">
 				<div class="battle-controls" role="complementary" aria-label="Battle Controls" style="top: 370px;">
 					{(room.battle && !room.battle.ended && room.request && room.battle.mySide.id === PS.user.userid) &&
-						<div name="timerhtml" dangerouslySetInnerHTML={{ __html: this.getTimerHTML() }} style={{ 'marginRight': '5px' }} />}
+						<TimerButton room={room} />}
 					{this.renderControls()}
 				</div>
 			</div>
