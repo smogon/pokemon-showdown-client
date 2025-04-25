@@ -288,10 +288,6 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 	getTimerHTML(nextTick?: boolean) {
 		let time = 'Timer';
 		let room = this.props.room;
-		if (!room.battle)
-			return `<button name="openTimer" class="button timerbutton">
-			  <i class="fa fa-hourglass-start"></i> Timer
-			</button>`;
 		let timerTicking = (room.battle.kickingInactive &&
 			room.request &&
 			room.request.requestType !== "wait" &&
