@@ -56,17 +56,19 @@ pre {
 }
 
 .construction {
-	background: repeating-linear-gradient(
+	border: 15px solid transparent;
+	padding: 5px 10px;
+	background: #d9ca28;
+	background-image: linear-gradient(#d9ca28), repeating-linear-gradient(
 		-45deg,
 		#d9ca28,
 		#d9ca28 10px,
 		#292824 10px,
 		#292824 20px
 	);
-	padding: 15px;
-}
-.construction-inner {
-	background: #d9ca28;
+	background-origin: border-box;
+	background-clip: padding-box, border-box;
+
 	padding: 5px 10px;
 	font-weight: bold;
 	color: black;
@@ -1518,6 +1520,60 @@ pre.textbox.textbox-empty[placeholder]:before {
 .userlist li.cur button:hover {
 	background: white;
 	margin: 0 0 0 -1px;
+}
+
+html:not(.native-scrollbars) *::-webkit-scrollbar {
+	-webkit-appearance: none
+}
+html:not(.native-scrollbars) *::-webkit-scrollbar:vertical {
+	width: 16px
+}
+html:not(.native-scrollbars) *::-webkit-scrollbar:horizontal {
+	height: 16px
+}
+html:not(.native-scrollbars) *::-webkit-scrollbar-button,html:not(.native-scrollbars) *::-webkit-scrollbar-corner {
+	display: none
+}
+html:not(.native-scrollbars) *::-webkit-scrollbar-track {
+	background: transparent;
+	border: 1px solid transparent;
+}
+html:not(.native-scrollbars) *::-webkit-scrollbar-track:hover {
+	background: #c5cbce;
+	border-color: #959595;
+}
+html:not(.native-scrollbars) *::-webkit-scrollbar-track:vertical {
+	border-width: 0 0 0 1px;
+}
+html:not(.native-scrollbars) *::-webkit-scrollbar-track:vertical:corner-present {
+	border-width: 0 0 1px 1px;
+	border-radius: 0 0 0 2px;
+}
+html:not(.native-scrollbars) *::-webkit-scrollbar-track:horizontal {
+	border-width: 1px 1px 0 1px;
+	border-radius: 2px 2px 0 0;
+}
+html:not(.native-scrollbars) *::-webkit-scrollbar-thumb {
+	min-height: 2rem;
+	background: #acaeaf;
+	background-clip: padding-box;
+	border: 5px solid transparent;
+	border-radius: 10px;
+}
+html:not(.native-scrollbars) *::-webkit-scrollbar-thumb:hover,html:not(.native-scrollbars) *::-webkit-scrollbar-thumb:active {
+	background-color: #6c6c6f;
+	border-width: 4px;
+}
+
+html.dark:not(.native-scrollbars) *::-webkit-scrollbar-track:hover {
+	background: #24282a;
+	border-color: #000000;
+}
+html.dark:not(.native-scrollbars) *::-webkit-scrollbar-thumb {
+	background: #6c6c6f;
+}
+html.dark:not(.native-scrollbars) *::-webkit-scrollbar-thumb:hover,html.dark:not(.native-scrollbars) *::-webkit-scrollbar-thumb:active {
+	background-color: #949697;
 }
 
 /*********************************************************

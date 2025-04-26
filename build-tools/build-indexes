@@ -658,7 +658,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 
 		const greatItems = [['header', "Popular items"]];
 		const goodItems = [['header', "Items"]];
-		const specificItems = [['header', "Pok&eacute;mon-specific items"]];
+		const specificItems = [['header', "Pok\u00e9mon-specific items"]];
 		const poorItems = [['header', "Usually useless items"]];
 		const badItems = [['header', "Useless items"]];
 		const unreleasedItems = [];

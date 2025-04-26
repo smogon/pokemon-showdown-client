@@ -923,7 +923,7 @@ class AvatarsPanel extends PSRoomPanel {
 
 		return <PSPanelWrapper room={room} width={1210}><div class="pad">
 			<label class="optlabel"><strong>Choose an avatar or </strong>
-				<button class="button" onClick={() => this.close()}> Cancel</button>
+				<button class="button" data-cmd="/close"> Cancel</button>
 			</label>
 			<div class="avatarlist">
 				{avatars.map(([i, avatar]) => (
@@ -1590,6 +1590,12 @@ class PopupPanel extends PSRoomPanel<PopupRoom> {
 		if (!textbox) return;
 		textbox.value = this.props.room.args?.value as string || '';
 	}
+	parseMessage(message: string) {
+		if (message.startsWith('|html|')) {
+			return BattleLog.sanitizeHTML(message.slice(6));
+		}
+		return BattleLog.parseMessage(message);
+	}
 
 	override render() {
 		const room = this.props.room;
@@ -1601,7 +1607,7 @@ class PopupPanel extends PSRoomPanel<PopupRoom> {
 		return <PSPanelWrapper room={room} width={480}><form class="pad" onSubmit={this.handleSubmit}>
 			{room.args?.message && <p
 				style="white-space:pre-wrap;word-wrap:break-word"
-				dangerouslySetInnerHTML={{ __html: BattleLog.parseMessage(room.args.message as string) }}
+				dangerouslySetInnerHTML={{ __html: this.parseMessage(room.args.message as string || '') }}
 			></p>}
 			{!!type && <p><input name="value" type={type} class="textbox autofocus" style="width:100%;box-sizing:border-box" /></p>}
 			<p class="buttonbar">

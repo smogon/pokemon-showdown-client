@@ -129,11 +129,11 @@ export class PSHeader extends preact.Component<{ style: object }> {
 		if (!room) return null;
 		const closable = (id === '' || id === 'rooms' ? '' : ' closable');
 		const cur = PS.isVisible(room) ? ' cur' : '';
-		let notifying = '';
+		let notifying = room.isSubtleNotifying ? ' subtle-notifying' : '';
 		let hoverTitle = '';
 		const notifications = room.notifications;
 		if (notifications.length) {
-			notifying = room.isSubtleNotifying ? ' subtle-notifying' : ' notifying';
+			notifying = ' notifying';
 			for (const notif of notifications) {
 				if (!notif.body) continue;
 				hoverTitle += `${notif.title}\n${notif.body}\n`;
@@ -218,7 +218,7 @@ export class PSHeader extends preact.Component<{ style: object }> {
 					alt="Pokémon Showdown! (beta)"
 					width="50" height="50"
 				/>
-				<div class="tablist">
+				<div class="tablist" role="tablist">
 					<ul>
 						{PSHeader.renderRoomTab(PS.leftRoomList[0])}
 					</ul>
@@ -255,8 +255,8 @@ export class PSHeader extends preact.Component<{ style: object }> {
 
 		return <div id="header" class="header" style={this.props.style} role="navigation">
 			<div class="maintabbarbottom"></div>
-			<div class="tabbar maintabbar"><div class="inner-1"><div class="inner-2">
-				<ul class="maintabbar-left" style={{ width: `${PS.leftPanelWidth}px` }}>
+			<div class="tabbar maintabbar"><div class="inner-1" role={PS.leftPanelWidth ? 'none' : 'tablist'}><div class="inner-2">
+				<ul class="maintabbar-left" style={{ width: `${PS.leftPanelWidth}px` }} role={PS.leftPanelWidth ? 'tablist' : 'none'}>
 					<li>
 						<img
 							class="logo"
@@ -268,7 +268,7 @@ export class PSHeader extends preact.Component<{ style: object }> {
 					{PSHeader.renderRoomTab(PS.leftRoomList[0])}
 					{PS.leftRoomList.slice(1).map(roomid => PSHeader.renderRoomTab(roomid))}
 				</ul>
-				<ul class="maintabbar-right">
+				<ul class="maintabbar-right" role={PS.leftPanelWidth ? 'tablist' : 'none'}>
 					{PS.rightRoomList.map(roomid => PSHeader.renderRoomTab(roomid))}
 				</ul>
 			</div></div></div>

@@ -592,7 +592,7 @@ export class Pokemon implements PokemonDetails, PokemonHealth {
 		if (pokemon.maxhp === 100) return `${pokemon.hp}%`;
 		if (pokemon.maxhp !== 48) return (100 * pokemon.hp / pokemon.maxhp).toFixed(precision) + '%';
 		let range = Pokemon.getPixelRange(pokemon.hp, pokemon.hpcolor);
-		return Pokemon.getFormattedRange(range, precision, '–');
+		return Pokemon.getFormattedRange(range, precision, '\u2013');
 	}
 	destroy() {
 		if (this.sprite) this.sprite.destroy();

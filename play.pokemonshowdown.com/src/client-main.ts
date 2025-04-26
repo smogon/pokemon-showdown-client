@@ -819,6 +819,7 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 	subtleNotify() {
 		if (PS.isVisible(this)) return;
 		this.isSubtleNotifying = true;
+		PS.update();
 	}
 	dismissNotification(id: string) {
 		this.notifications = this.notifications.filter(notification => notification.id !== id);
@@ -1395,26 +1396,6 @@ export const PS = new class extends PSModel {
 	popups: RoomID[] = [];
 
 	/**
-	 * Currently active left room.
-	 *
-	 * In two-panel mode, this will be the visible left panel.
-	 *
-	 * In one-panel mode, this is the visible room only if it is
-	 * `PS.room`. Still tracked when not visible, so we know which
-	 * panels to display if PS is resized to two-panel mode.
-	 */
-	leftPanel: PSRoom = null!;
-	/**
-	 * Currently active right room.
-	 *
-	 * In two-panel mode, this will be the visible right panel.
-	 *
-	 * In one-panel mode, this is the visible room only if it is
-	 * `PS.room`. Still tracked when not visible, so we know which
-	 * panels to display if PS is resized to two-panel mode.
-	 */
-	rightPanel: PSRoom | null = null;
-	/**
 	 * The currently focused room. Should always be the topmost popup
 	 * if it exists. If no popups are open, it should be
 	 * `PS.panel`.
@@ -1425,13 +1406,34 @@ export const PS = new class extends PSModel {
 	 */
 	room: PSRoom = null!;
 	/**
-	 * The currently active panel. Should always be either `PS.leftRoom`
-	 * or `PS.rightRoom`. If no popups are open, should be `PS.room`.
+	 * The currently active panel. Should always be either `PS.leftPanel`
+	 * or `PS.leftPanel`. If no popups are open, should be `PS.room`.
 	 *
 	 * In one-panel mode, determines whether the left or right panel is
-	 * visible. Otherwise, no effect.
+	 * visible. Otherwise, it just tracks which panel will be in focus
+	 * after all popups are closed.
 	 */
 	panel: PSRoom = null!;
+	/**
+	 * Currently active left room.
+	 *
+	 * In two-panel mode, this will be the visible left panel.
+	 *
+	 * In one-panel mode, this is the visible room only if it is
+	 * `PS.panel`. Still tracked when not visible, so we know which
+	 * panels to display if PS is resized to two-panel mode.
+	 */
+	leftPanel: PSRoom = null!;
+	/**
+	 * Currently active right room.
+	 *
+	 * In two-panel mode, this will be the visible right panel.
+	 *
+	 * In one-panel mode, this is the visible room only if it is
+	 * `PS.panel`. Still tracked when not visible, so we know which
+	 * panels to display if PS is resized to two-panel mode.
+	 */
+	rightPanel: PSRoom | null = null;
 	/**
 	 * * 0 = only one panel visible
 	 * * null = vertical nav layout
@@ -1833,13 +1835,12 @@ export const PS = new class extends PSModel {
 			room.focusNextUpdate = true;
 		}
 		if (PS.isNormalRoom(room)) {
-			if (room.location === 'right' && !this.prefs.onepanel) {
-				this.rightPanel = this.panel = room;
+			if (room.location === 'right') {
+				this.rightPanel = room;
 			} else {
-				this.leftPanel = this.panel = room;
+				this.leftPanel = room;
 			}
-			PS.closeAllPopups(true);
-			this.room = room;
+			this.panel = this.room = room;
 		} else { // popup or mini-window
 			if (room.location === 'mini-window') {
 				this.leftPanel = this.panel = PS.mainmenu;

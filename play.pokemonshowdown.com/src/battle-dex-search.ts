@@ -56,7 +56,7 @@ export class DexSearch {
 		article: 9,
 	};
 	static typeName = {
-		pokemon: 'Pok&eacute;mon',
+		pokemon: 'Pok\u00e9mon',
 		type: 'Type',
 		tier: 'Tiers',
 		move: 'Moves',
@@ -460,7 +460,7 @@ export class DexSearch {
 			switch (fType) {
 			case 'type':
 				let type = fId.charAt(0).toUpperCase() + fId.slice(1) as Dex.TypeName;
-				buf.push(['header', `${type}-type Pok&eacute;mon`]);
+				buf.push(['header', `${type}-type Pok\u00e9mon`]);
 				for (let id in BattlePokedex) {
 					if (!BattlePokedex[id].types) continue;
 					if (this.dex.species.get(id).types.includes(type)) {
@@ -470,7 +470,7 @@ export class DexSearch {
 				break;
 			case 'ability':
 				let ability = Dex.abilities.get(fId).name;
-				buf.push(['header', `${ability} Pok&eacute;mon`]);
+				buf.push(['header', `${ability} Pok\u00e9mon`]);
 				for (let id in BattlePokedex) {
 					if (!BattlePokedex[id].abilities) continue;
 					if (Dex.hasAbility(this.dex.species.get(id), ability)) {
