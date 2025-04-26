@@ -1666,6 +1666,9 @@ export class Battle {
 			if (args[0] === '-damage' && nextArgs[0] === '-damage' && kwArgs.from && kwArgs.from === nextKwargs.from) {
 				kwArgs.then = '.';
 			}
+			if (args[0] === '-heal' && nextArgs[0] === '-heal' && kwArgs.from && kwArgs.from === nextKwargs.from) {
+				kwArgs.then = '.';
+			}
 			if (args[0] === '-ability' && (args[2] === 'Intimidate' || args[3] === 'boost')) {
 				kwArgs.then = '.';
 			}
