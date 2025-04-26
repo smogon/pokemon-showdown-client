@@ -835,9 +835,14 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 	override render() {
 		const room = this.props.room;
 		this.updateLayout();
+		const id = `room-${room.id}`;
+		const hardcoreStyle = room.battle?.hardcoreMode ? <style
+			dangerouslySetInnerHTML={{ __html: `#${id} .battle .turn, #${id} .battle-history { display: none !important; }` }}
+		></style> : null;
 
 		if (room.width < 700) {
 			return <PSPanelWrapper room={room} focusClick scrollable="hidden">
+				{hardcoreStyle}
 				<BattleDiv room={room} />
 				<ChatLog
 					class="battle-log hasuserlist" room={room} top={this.battleHeight} noSubscription
@@ -861,6 +866,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 		}
 
 		return <PSPanelWrapper room={room} focusClick scrollable="hidden">
+			{hardcoreStyle}
 			<BattleDiv room={room} />
 			<ChatLog
 				class="battle-log hasuserlist" room={room} left={640} noSubscription

@@ -1418,17 +1418,12 @@ class BattleOptionsPanel extends PSRoomPanel {
 		const room = this.props.room.getParent() as BattleRoom;
 		if (!room?.battle) return this.close();
 		room.battle.setHardcoreMode(mode);
-		document.querySelector('style.hcmode-style')?.remove();
 		if (mode) {
-			const id = `room-${room.id}`;
-			const battleElem = document.querySelector(`div[id=${id}]`);
-			const newStyle = document.createElement('style');
-			newStyle.className = "hcmode-style";
-			newStyle.innerHTML = `#${id} .battle .turn, #${id} .battle-history{display:none !important;}`;
-			battleElem?.prepend(newStyle);
+			room.add(`||Hardcore mode ON: Information not available in-game is now hidden.`);
+		} else {
+			room.add(`||Hardcore mode OFF: Information not available in-game is now shown.`);
 		}
-		if (mode) return room.add(`||Hardcore mode ON: Information not available in-game is now hidden.`);
-		room.add(`||Hardcore mode OFF: Information not available in-game is now shown.`);
+		room.update(null);
 	};
 	handleIgnoreSpectators = (ev: Event | boolean) => {
 		const value = typeof ev === "object" ?
