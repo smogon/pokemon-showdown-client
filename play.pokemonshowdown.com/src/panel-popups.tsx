@@ -1439,20 +1439,14 @@ class BattleOptionsPanel extends PSRoomPanel {
 		room.battle.ignoreSpects = value;
 		room.add(`||Spectators ${room.battle.ignoreSpects ? '' : 'no longer '}ignored.`);
 		const chats = document.querySelectorAll<HTMLElement>('.battle-log .chat');
-		const messages = Array.from(chats).filter(chat => {
+		const displaySetting = room.battle.ignoreSpects ? 'none' : '';
+		for (const chat of chats) {
 			const small = chat.querySelector('small');
-			if (!small) return false;
+			if (!small) continue;
 			const text = small.innerText;
-			return !text.includes('\u2606') && !text.includes('\u2605');
-		});
-		if (!messages.length) return;
-		if (room.battle.ignoreSpects) {
-			for (const msg of messages) {
-				msg.style.display = 'none';
-			}
-		} else {
-			for (const msg of messages) {
-				msg.style.display = '';
+			const isPlayerChat = text.includes('\u2606') || text.includes('\u2605');
+			if (!isPlayerChat) {
+				chat.style.display = displaySetting;
 			}
 		}
 		room.battle.scene.log.updateScroll();
