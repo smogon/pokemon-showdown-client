@@ -276,6 +276,15 @@
 	box-shadow: inset 0px 1px 2px #D2D2D2, 0px 0px 5px #66AADD;
 	background: transparent;
 }
+.teaminnertextbox-stats, .teaminnertextbox-pokemon {
+	width: 420px;
+}
+.teaminnertextbox-item, .teaminnertextbox-ability {
+	width: 270px;
+}
+.teaminnertextbox-move {
+	width: 220px;
+}
 
 .searchresults {
 	background: #f2f2f2;
@@ -285,9 +294,11 @@
 
 	position: absolute;
 	top: 300px;
-	right: -13px;
-	width: 624px;
+	left: -14px;
+	width: 640px;
 	min-height: 150px;
+	overflow: auto;
+	max-height: 80vh;
 }
 .dark .searchresults {
 	background: #282828;
@@ -297,6 +308,7 @@
 	position: absolute;
 	top: 1px;
 	right: 1px;
+	z-index: 1;
 }
 
 .teameditor {
