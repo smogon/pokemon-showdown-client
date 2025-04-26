@@ -973,8 +973,7 @@ class BattleForfeitPanel extends PSRoomPanel {
 
 	override render() {
 		const room = this.props.room;
-		const battleRoomId = (room.parentElem as HTMLInputElement)?.value as RoomID;
-		const battleRoom = PS.rooms[battleRoomId] as BattleRoom;
+		const battleRoom = room.getParent() as BattleRoom;
 
 		return <PSPanelWrapper room={room} width={480}><div class="pad">
 			<p>Forfeiting makes you lose the battle. Are you sure?</p>

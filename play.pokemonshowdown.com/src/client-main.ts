@@ -1564,6 +1564,10 @@ export const PS = new class extends PSModel {
 	}
 	getRoom(elem: HTMLElement | EventTarget | null | undefined, skipClickable?: boolean): PSRoom | null {
 		let curElem: HTMLElement | null = elem as HTMLElement;
+		// might be the close button on the roomtab
+		if ((curElem as HTMLButtonElement)?.name === 'closeRoom' && (curElem as HTMLButtonElement).value) {
+			return PS.rooms[(curElem as HTMLButtonElement).value] || null;
+		}
 		while (curElem) {
 			if (curElem.id.startsWith('room-')) {
 				return PS.rooms[curElem.id.slice(5)] || null;
