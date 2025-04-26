@@ -8,10 +8,10 @@
 import { PS, PSRoom, type Team } from "./client-main";
 import { PSPanelWrapper, PSRoomPanel } from "./panels";
 import { TeamBox, TeamFolder } from "./panel-teamdropdown";
-import { PSUtils, type ID } from "./battle-dex";
+import { Dex, PSUtils, type ID } from "./battle-dex";
 
 class TeambuilderRoom extends PSRoom {
-	readonly DEFAULT_FORMAT = 'gen8' as ID;
+	readonly DEFAULT_FORMAT = `gen${Dex.gen}` as ID;
 
 	/**
 	 * - `""` - all

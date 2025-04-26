@@ -388,9 +388,11 @@ select.button {
 }
 .label strong {
 	font-size: 11pt;
-	display: block;
 }
-.label .textbox {
+.label .textbox,
+.label .button,
+.label strong {
+	margin-top: 2px;
 	display: block;
 }
 .textbox {

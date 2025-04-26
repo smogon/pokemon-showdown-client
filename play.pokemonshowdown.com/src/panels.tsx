@@ -285,8 +285,12 @@ export function PSPanelWrapper(props: {
 }
 
 export class PSView extends preact.Component {
+	static readonly isIOS = [
+		'iPad Simulator', 'iPhone Simulator', 'iPod Simulator', 'iPad', 'iPhone', 'iPod',
+	].includes(navigator.platform);
 	static readonly isChrome = navigator.userAgent.includes(' Chrome/');
 	static readonly isSafari = !this.isChrome && navigator.userAgent.includes(' Safari/');
+	static readonly isFirefox = navigator.userAgent.includes(' Firefox/');
 	static readonly isMac = navigator.platform?.startsWith('Mac');
 	static textboxFocused = false;
 	static setTextboxFocused(focused: boolean) {
@@ -341,7 +345,7 @@ export class PSView extends preact.Component {
 		super();
 		PS.subscribe(() => this.forceUpdate());
 
-		if (PSView.isSafari) {
+		if (PSView.isIOS) {
 			// I don't want to prevent users from being able to zoom, but iOS Safari
 			// auto-zooms when focusing textboxes (unless the font size is 16px),
 			// and this apparently fixes it while still allowing zooming.
@@ -561,7 +565,7 @@ export class PSView extends preact.Component {
 	}
 	static scrollToRoom() {
 		if (document.documentElement.scrollWidth > document.documentElement.clientWidth && window.scrollX === 0) {
-			if (PSView.isSafari && PS.leftPanelWidth === null) {
+			if ((PSView.isIOS || PSView.isFirefox) && PS.leftPanelWidth === null) {
 				// Safari bug: `scrollBy` doesn't actually work when scroll snap is enabled
 				// note: interferes with the `PSMain.textboxFocused` workaround for a Chrome bug
 				document.documentElement.classList.remove('scroll-snap-enabled');

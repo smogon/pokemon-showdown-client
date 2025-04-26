@@ -1537,6 +1537,12 @@ export const PS = new class extends PSModel {
 				width: 570,
 				maxWidth: 640,
 			};
+		case 'team':
+			return {
+				minWidth: 660,
+				width: 660,
+				maxWidth: 660,
+			};
 		case 'battle':
 			return {
 				minWidth: 320,

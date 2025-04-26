@@ -1109,7 +1109,7 @@ export class BattleLog {
 		} else if (name.startsWith(`[Gen ${Dex.gen} `)) {
 			name = '[' + name.slice(`[Gen ${Dex.gen} `.length);
 		}
-		return name;
+		return name || `[Gen ${Dex.gen}]`;
 	}
 
 	static escapeHTML(str: string | number, jsEscapeToo?: boolean) {

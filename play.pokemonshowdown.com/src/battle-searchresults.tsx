@@ -11,7 +11,9 @@ import preact from "../js/lib/preact";
 import { Dex, type ID } from "./battle-dex";
 import type { DexSearch, SearchRow } from "./battle-dex-search";
 
-export class PSSearchResults extends preact.Component<{ search: DexSearch }> {
+export class PSSearchResults extends preact.Component<{
+	search: DexSearch, searchInitial?: ID | null, windowing?: number | null, firstRow?: SearchRow,
+}> {
 	readonly URL_ROOT = `//${Config.routes.dex}/`;
 
 	renderPokemonSortRow() {
@@ -211,7 +213,7 @@ export class PSSearchResults extends preact.Component<{ search: DexSearch }> {
 
 			<span class="col typecol">
 				<img
-					src={`${Dex.resourcePrefix}sprites/types/${move.type}.png`}
+					src={`${Dex.resourcePrefix}sprites/types/${encodeURIComponent(move.type)}.png`}
 					alt={move.type} height="14" width="32" class="pixelated"
 				/>
 				<img
@@ -242,7 +244,10 @@ export class PSSearchResults extends preact.Component<{ search: DexSearch }> {
 			<span class="col namecol">{this.renderName(name, matchStart, matchEnd)}</span>
 
 			<span class="col typecol">
-				<img src={`${Dex.resourcePrefix}sprites/types/${name}.png`} alt={name} height="14" width="32" class="pixelated" />
+				<img
+					src={`${Dex.resourcePrefix}sprites/types/${encodeURIComponent(name)}.png`}
+					alt={name} height="14" width="32" class="pixelated"
+				/>
 			</span>
 
 			{errorMessage}
@@ -373,24 +378,32 @@ export class PSSearchResults extends preact.Component<{ search: DexSearch }> {
 		}
 		return <li>Error: not found</li>;
 	}
+	renderFilters() {
+		const search = this.props.search;
+		return search.filters && <p>
+			Filters: {}
+			{search.filters.map(([type, name]) =>
+				<button class="filter" data-filter={`${type}:${name}`}>
+					{name} <i class="fa fa-times-circle" aria-hidden></i>
+				</button>
+			)}
+			{!search.query && <small style="color: #888">(backspace = delete filter)</small>}
+		</p>;
+	}
 
 	render() {
 		const search = this.props.search;
-		return <ul class="dexlist">
-			{search.filters && <p>
-				Filters: {}
-				{search.filters.map(([type, name]) =>
-					<button class="filter" value={`${type}:${name}`}>
-						${name} <i class="fa fa-times-circle" aria-hidden></i>
-					</button>
-				)}
-				{!search.query && <small style="color: #888">(backspace = delete filter)</small>}
-			</p>}
-			{
-				// TODO: implement windowing
-				// for now, just show first twenty results
-				search.results?.slice(0, 20).map(result => this.renderRow(result))
-			}
+		let results = search.results;
+		let searchInitial: SearchRow | null = null;
+		if (this.props.searchInitial && search.typedSearch) {
+			searchInitial = [search.typedSearch.searchType, this.props.searchInitial];
+		}
+		if (this.props.windowing) results = results?.slice(0, this.props.windowing) || null;
+
+		return <ul class="dexlist" style={`min-height: ${(1 + (search.results?.length || 1)) * 33}px;`}>
+			{this.renderFilters()}
+			{searchInitial && this.renderRow(searchInitial)}
+			{results?.map(result => this.renderRow(result))}
 		</ul>;
 	}
 }

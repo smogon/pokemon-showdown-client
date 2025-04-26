@@ -675,11 +675,11 @@ abstract class BattleTypedSearch<T extends SearchType> {
 	}
 	getResults(filters?: SearchFilter[] | null, sortCol?: string | null, reverseSort?: boolean): SearchRow[] {
 		if (sortCol === 'type') {
-			return [this.sortRow!, ...BattleTypeSearch.prototype.getDefaultResults.call(this)];
+			return [this.sortRow!, ...BattleTypeSearch.prototype.getDefaultResults.call(this, reverseSort)];
 		} else if (sortCol === 'category') {
-			return [this.sortRow!, ...BattleCategorySearch.prototype.getDefaultResults.call(this)];
+			return [this.sortRow!, ...BattleCategorySearch.prototype.getDefaultResults.call(this, reverseSort)];
 		} else if (sortCol === 'ability') {
-			return [this.sortRow!, ...BattleAbilitySearch.prototype.getDefaultResults.call(this)];
+			return [this.sortRow!, ...BattleAbilitySearch.prototype.getDefaultResults.call(this, reverseSort)];
 		}
 
 		if (!this.baseResults) {
@@ -1189,14 +1189,15 @@ class BattleAbilitySearch extends BattleTypedSearch<'ability'> {
 	getTable() {
 		return BattleAbilities;
 	}
-	getDefaultResults(): SearchRow[] {
+	getDefaultResults(reverseSort?: boolean): SearchRow[] {
 		const results: SearchRow[] = [];
 		for (let id in BattleAbilities) {
 			results.push(['ability', id as ID]);
 		}
+		if (reverseSort) results.reverse();
 		return results;
 	}
-	getBaseResults() {
+	getBaseResults(): SearchRow[] {
 		if (!this.species) return this.getDefaultResults();
 		const format = this.format;
 		const isHackmons = (format.includes('hackmons') || format.endsWith('bh'));
@@ -1884,12 +1885,14 @@ class BattleCategorySearch extends BattleTypedSearch<'category'> {
 	getTable() {
 		return { physical: 1, special: 1, status: 1 };
 	}
-	getDefaultResults(): SearchRow[] {
-		return [
+	getDefaultResults(reverseSort?: boolean): SearchRow[] {
+		const results: SearchRow[] = [
 			['category', 'physical' as ID],
 			['category', 'special' as ID],
 			['category', 'status' as ID],
 		];
+		if (reverseSort) results.reverse();
+		return results;
 	}
 	getBaseResults() {
 		return this.getDefaultResults();
@@ -1906,11 +1909,12 @@ class BattleTypeSearch extends BattleTypedSearch<'type'> {
 	getTable() {
 		return window.BattleTypeChart;
 	}
-	getDefaultResults(): SearchRow[] {
+	getDefaultResults(reverseSort?: boolean): SearchRow[] {
 		const results: SearchRow[] = [];
 		for (let id in window.BattleTypeChart) {
 			results.push(['type', id as ID]);
 		}
+		if (reverseSort) results.reverse();
 		return results;
 	}
 	getBaseResults() {
