@@ -1432,20 +1432,15 @@ class BattleOptionsPanel extends PSRoomPanel {
 	static readonly noURL = true;
 
 	handleHardcoreMode = (ev: Event) => {
-		let mode = (ev.currentTarget as HTMLInputElement).checked;
-		let room = this.props.room.getParent() as BattleRoom;
-		if (!room) return this.close();
-		if (!room.battle) return this.close();
-		console.log(room.battle.hardcoreMode);
+		const mode = (ev.currentTarget as HTMLInputElement).checked;
+		const room = this.props.room.getParent() as BattleRoom;
+		if (!room?.battle) return this.close();
 		room.battle.setHardcoreMode(mode);
-		let style = document.querySelector('style.hcmode-style');
-		style?.remove();
-		console.log(mode);
+		document.querySelector('style.hcmode-style')?.remove();
 		if (mode) {
-			let id = `room-${room.id}`;
-			let battleElem = document.querySelector(`div[id=${id}]`);
-			let newStyle = document.createElement('style');
-			console.log(battleElem);
+			const id = `room-${room.id}`;
+			const battleElem = document.querySelector(`div[id=${id}]`);
+			const newStyle = document.createElement('style');
 			newStyle.className = "hcmode-style";
 			newStyle.innerHTML = `#${id} .battle .turn, #${id} .battle-history{display:none !important;}`;
 			battleElem?.prepend(newStyle);
@@ -1454,20 +1449,19 @@ class BattleOptionsPanel extends PSRoomPanel {
 		room.add(`||Hardcore mode OFF: Information not available in-game is now shown.`);
 	};
 	handleIgnoreSpectators = (ev: Event | boolean) => {
-		let value = typeof ev === "object" ?
+		const value = typeof ev === "object" ?
 			(ev.currentTarget as HTMLInputElement).checked :
 			ev;
-		let room = this.props.room.getParent() as BattleRoom;
-		if (!room) return this.close();
-		if (!room.battle) return this.close();
+		const room = this.props.room.getParent() as BattleRoom;
+		if (!room?.battle) return this.close();
 		room.battle.ignoreSpects = value;
-		room.add('||Spectators ' + (room.battle.ignoreSpects ? '' : 'no longer ') + 'ignored.');
-		const chats = document.querySelectorAll('.battle-log .chat');
-		const messages = (Array.from(chats) as HTMLElement[]).filter(chat => {
+		room.add(`||Spectators ${room.battle.ignoreSpects ? '' : 'no longer '}ignored.`);
+		const chats = document.querySelectorAll<HTMLElement>('.battle-log .chat');
+		const messages = Array.from(chats).filter(chat => {
 			const small = chat.querySelector('small');
 			if (!small) return false;
-			const text = small.textContent;
-			return !text?.includes('★') && !text?.includes('☆');
+			const text = small.innerText;
+			return !text.includes('\u2606') && !text.includes('\u2605');
 		});
 		if (!messages.length) return;
 		if (room.battle.ignoreSpects) {
@@ -1479,33 +1473,31 @@ class BattleOptionsPanel extends PSRoomPanel {
 				msg.style.display = '';
 			}
 		}
+		room.battle.scene.log.updateScroll();
 	};
 	handleIgnoreOpponent = (ev: Event | boolean) => {
-		let value = typeof ev === "object" ?
+		const value = typeof ev === "object" ?
 			(ev.currentTarget as HTMLInputElement).checked :
 			ev;
-		let room = this.props.room.getParent() as BattleRoom;
-		if (!room) return this.close();
-		if (!room.battle) return this.close();
+		const room = this.props.room.getParent() as BattleRoom;
+		if (!room?.battle) return this.close();
 		room.battle.ignoreOpponent = value;
 		room.battle.resetToCurrentTurn();
 	};
 	handleIgnoreNicks = (ev: Event | boolean) => {
-		let value = typeof ev === "object" ?
+		const value = typeof ev === "object" ?
 			(ev.currentTarget as HTMLInputElement).checked :
 			ev;
-		let room = this.props.room.getParent() as BattleRoom;
-		if (!room) return this.close();
-		if (!room.battle) return this.close();
+		const room = this.props.room.getParent() as BattleRoom;
+		if (!room?.battle) return this.close();
 		room.battle.ignoreNicks = value;
 		room.battle.resetToCurrentTurn();
 	};
 	handleAllSettings = (ev: Event) => {
-		let setting = (ev.currentTarget as HTMLInputElement).name;
-		let value = (ev.currentTarget as HTMLInputElement).checked;
-		let room = this.props.room.getParent() as BattleRoom;
-		if (!room) return this.close();
-		if (!room.battle) return this.close();
+		const setting = (ev.currentTarget as HTMLInputElement).name;
+		const value = (ev.currentTarget as HTMLInputElement).checked;
+		const room = this.props.room.getParent() as BattleRoom;
+		if (!room?.battle) return this.close();
 		switch (setting) {
 		case 'autotimer': {
 			PS.prefs.set('autotimer', value);
@@ -1544,26 +1536,32 @@ class BattleOptionsPanel extends PSRoomPanel {
 			<p>
 				<label class="checkbox">
 					<input
-						type="checkbox" onChange={this.handleHardcoreMode} checked={battleRoom?.battle?.hardcoreMode}
-					/> Hardcore mode
-					(hide info not shown in-game)</label>
+						checked={battleRoom?.battle?.hardcoreMode}
+						type="checkbox" onChange={this.handleHardcoreMode}
+					/> Hardcore mode (hide info not shown in-game)
+				</label>
 			</p>
 			<p>
 				<label class="checkbox">
 					<input
-						type="checkbox" onChange={this.handleIgnoreSpectators} checked={battleRoom?.battle?.ignoreSpects}
-					/> Ignore spectators</label>
+						checked={battleRoom?.battle?.ignoreSpects}
+						type="checkbox" onChange={this.handleIgnoreSpectators}
+					/> Ignore spectators
+				</label>
 			</p>
 			<p>
 				<label class="checkbox">
 					<input
-						type="checkbox" onChange={this.handleIgnoreOpponent} checked={battleRoom?.battle?.ignoreOpponent}
-					/> Ignore opponent</label>
+						checked={battleRoom?.battle?.ignoreOpponent}
+						type="checkbox" onChange={this.handleIgnoreOpponent}
+					/> Ignore opponent
+				</label>
 			</p>
 			<p>
 				<label class="checkbox">
 					<input
-						type="checkbox" onChange={this.handleIgnoreNicks} checked={battleRoom?.battle?.ignoreNicks}
+						checked={battleRoom?.battle?.ignoreNicks}
+						type="checkbox" onChange={this.handleIgnoreNicks}
 					/> Ignore nicknames
 				</label>
 			</p>
@@ -1571,45 +1569,40 @@ class BattleOptionsPanel extends PSRoomPanel {
 			<p>
 				<label class="checkbox">
 					<input
-						type="checkbox"
-						onChange={this.handleAllSettings}
 						name="ignorenicks" checked={PS.prefs.ignorenicks || false}
+						type="checkbox" onChange={this.handleAllSettings}
 					/> Ignore nicknames
 				</label>
 			</p>
 			<p>
 				<label class="checkbox">
 					<input
-						type="checkbox"
-						onChange={this.handleAllSettings}
 						name="ignorespects" checked={PS.prefs.ignorespects || false}
+						type="checkbox" onChange={this.handleAllSettings}
 					/> Ignore spectators
 				</label>
 			</p>
 			<p>
 				<label class="checkbox">
 					<input
-						type="checkbox"
-						onChange={this.handleAllSettings}
 						name="ignoreopp" checked={PS.prefs.ignoreopp || false}
+						type="checkbox" onChange={this.handleAllSettings}
 					/> Ignore opponent
 				</label>
 			</p>
 			<p>
 				<label class="checkbox">
 					<input
-						type="checkbox"
-						onChange={this.handleAllSettings}
 						name="autotimer" checked={PS.prefs.autotimer || false}
+						type="checkbox" onChange={this.handleAllSettings}
 					/> Automatically start timer
 				</label>
 			</p>
 			<p>
 				<label class="checkbox">
 					<input
-						type="checkbox"
-						onChange={this.handleAllSettings}
 						name="rightpanel" checked={PS.prefs.rightpanelbattles || false}
+						type="checkbox" onChange={this.handleAllSettings}
 					/> Open new battles on the right side
 				</label>
 			</p>

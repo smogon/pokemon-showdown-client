@@ -201,7 +201,7 @@ function PokemonButton(props: {
 class TimerButton extends preact.Component<{ room: BattleRoom }> {
 	render() {
 		let time = 'Timer';
-		let room = this.props.room;
+		const room = this.props.room;
 		let timerTicking = (room.battle.kickingInactive &&
 			room.request &&
 			room.request.requestType !== "wait" &&
@@ -214,9 +214,9 @@ class TimerButton extends preact.Component<{ room: BattleRoom }> {
 		}
 		if (!room.timerInterval && timerTicking) room.timerInterval = setInterval(() => {
 			if (typeof room.battle.kickingInactive === 'number' && room.battle.kickingInactive > 1) {
-				room.battle.kickingInactive -= 1;
-				if (room.battle.graceTimeLeft) room.battle.graceTimeLeft -= 1;
-				else if (room.battle.totalTimeLeft) room.battle.totalTimeLeft -= 1;
+				room.battle.kickingInactive--;
+				if (room.battle.graceTimeLeft) room.battle.graceTimeLeft--;
+				else if (room.battle.totalTimeLeft) room.battle.totalTimeLeft--;
 			}
 			this.forceUpdate();
 		}, 1000);
@@ -240,10 +240,7 @@ class TimerButton extends preact.Component<{ room: BattleRoom }> {
 				time = '-:--';
 			}
 		}
-		const isTicking =
-		room.battle.kickingInactive &&
-		room.request?.requestType !== 'wait' &&
-		!room.choices?.isDone();
+		const isTicking = room.battle.kickingInactive && room.request?.requestType !== 'wait' && !room.choices?.isDone();
 
 		let timerClass = 'button';
 		if (room.battle.kickingInactive) {
@@ -253,11 +250,9 @@ class TimerButton extends preact.Component<{ room: BattleRoom }> {
 				timerClass += ' timerbutton-on';
 			}
 		}
-		return (
-			<button style={{ position: "absolute", right: '10px' }} data-href="battletimer" class={timerClass}>
-				<i class="fa fa-hourglass-start"></i> {time}
-			</button>
-		);
+		return <button style={{ position: "absolute", right: '10px' }} data-href="battletimer" class={timerClass} role="timer">
+			<i class="fa fa-hourglass-start" aria-hidden></i> {time}
+		</button>;
 	}
 };
 
@@ -819,7 +814,6 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 				</p>
 			)}
 		</div>;
-
 	}
 
 	handleDownloadReplay = (e: MouseEvent) => {
