@@ -281,12 +281,16 @@
 	background: #f2f2f2;
 	border: 1px solid #888888;
 	border-radius: 2px;
+	box-shadow: 1px 3px 5px rgba(0, 0, 0, 0.3);
 
 	position: absolute;
 	top: 300px;
 	right: -13px;
 	width: 624px;
 	min-height: 150px;
+}
+.dark .searchresults {
+	background: #282828;
 }
 
 .closesearch {
@@ -378,4 +382,137 @@
 }
 .dark .utilichart a:hover .col {
 	color: #FFF;
+}
+
+/* setstats */
+
+.setdetails, .setstats {
+	display: block;
+	box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	border: 1px solid #AAAAAA;
+	border-radius: 3px;
+	padding: 1px;
+	margin: 2px 2px 1px 1px;
+	font-size: 7pt;
+
+	box-shadow: inset 0px 1px 2px #CCCCCC, 1px 1px 0 rgba(255,255,255,.6);
+	background: #F8FBFD;
+	color: black;
+}
+.setdetails label, .setstats label {
+	cursor: pointer;
+}
+.setdetails:hover, .setstats:hover {
+	border-color: #474747;
+	box-shadow: inset 0px 1px 2px #D2D2D2, 1px 1px 0 rgba(255,255,255,.6);
+	background: #FFFFFF;
+}
+.setdetails:focus-visible, .setstats:focus-visible,
+.dark .setdetails:focus-visible, .dark .setstats:focus-visible {
+	border: 2px solid #004488;
+	margin: 1px 1px 0 0;
+	outline: 0 none;
+}
+.setdetails:active, .setstats:active {
+	box-shadow: inset 0px 2px 2px #AAAAAA;
+	background: #E4E9ED;
+	border: 2px solid #004488;
+	margin: 1px 1px 0 0;
+	outline: 0 none;
+}
+.setdetails {
+	width: 50px;
+	height: 98px;
+	vertical-align: top;
+}
+.setdetails:focus,.setdetails:active {
+	width: 52px;
+	height: 100px;
+}
+.setdetails .detailcell {
+	padding: 2px 4px;
+	display: block;
+	font-size: 9pt;
+	text-align: center;
+}
+.setdetails .detailcell + .detailcell {
+	border-top: 1px solid #CCC;
+}
+.dark .setdetails .detailcell + .detailcell {
+	border-color: #555;
+}
+.setdetails label {
+	float: none;
+	display: block;
+	font-weight: normal;
+	font-size: 7pt;
+	text-align: center;
+	padding: 0;
+}
+.setstats {
+	width: 138px;
+	height: 98px;
+	padding-right: 0;
+}
+.setstats:focus,.setstats:active {
+	width: 140px;
+	height: 100px;
+}
+.statrow {
+	display: block;
+	height: 15px;
+}
+.setstats label {
+	float: left;
+	width: 20px;
+	height: 5px;
+	text-align: right;
+	font-weight: normal;
+	font-size: 7pt;
+	padding: 0;
+}
+.setstats .statgraph {
+	float: left;
+	width: 75px;
+	padding: 0 0 0 3px;
+	height: 5px;
+}
+.setstats .statgraph span {
+	display: block;
+	margin-top: 3px;
+	height: 6px;
+	background: #CCCCCC;
+}
+.setstats em {
+	float: left;
+	font-style: normal;
+	width: 22px;
+	height: 5px;
+	text-align: right;
+}
+.setstats small {
+	float: left;
+	font-size: 7pt;
+}
+.setstats .statrow-head em {
+	color: #555555;
+}
+
+.setstatbar {
+	width: 185px;
+}
+.setstatbar span {
+	margin: 3px 0 0 5px;
+	display: block;
+	height: 12px;
+	border-bottom: 1px solid #AAAAAA;
+	border-right: 1px solid #AAAAAA;
+	background: #CCCCCC;
+}
+
+/* when a placeholder is the default value, it can be confusing when
+you can't delete it by pressing Backspace */
+.default-placeholder:focus::placeholder {
+	color: transparent;
 }

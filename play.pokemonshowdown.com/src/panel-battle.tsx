@@ -58,7 +58,7 @@ class BattlesPanel extends PSRoomPanel<BattlesRoom> {
 	static readonly routes = ['battles'];
 	static readonly Model = BattlesRoom;
 	static readonly location = 'right';
-	static readonly icon = <i class="fa fa-caret-square-o-right"></i>;
+	static readonly icon = <i class="fa fa-caret-square-o-right" aria-hidden></i>;
 	static readonly title = 'Battles';
 	refresh = () => {
 		this.props.room.refresh();
@@ -70,7 +70,7 @@ class BattlesPanel extends PSRoomPanel<BattlesRoom> {
 	renderBattleLink(battle: BattleDesc) {
 		const format = battle.id.split('-')[1];
 		const minEloMessage = typeof battle.minElo === 'number' ? `rated ${battle.minElo}` : battle.minElo;
-		return <div><a href={`/${battle.id}`} class="blocklink">
+		return <div key={battle.id}><a href={`/${battle.id}`} class="blocklink">
 			{minEloMessage && <small style="float:right">({minEloMessage})</small>}
 			<small>[{format}]</small><br />
 			<em class="p1">{battle.p1}</em> <small class="vs">vs.</small> <em class="p2">{battle.p2}</em>
@@ -80,11 +80,13 @@ class BattlesPanel extends PSRoomPanel<BattlesRoom> {
 		const room = this.props.room;
 		return <PSPanelWrapper room={room} scrollable><div class="pad">
 			<button class="button" style="float:right;font-size:10pt;margin-top:3px" name="closeRoom">
-				<i class="fa fa-times"></i> Close
+				<i class="fa fa-times" aria-hidden></i> Close
 			</button>
 			<div class="roomlist">
 				<p>
-					<button class="button" name="refresh" onClick={this.refresh}><i class="fa fa-refresh"></i> Refresh</button> {}
+					<button class="button" name="refresh" onClick={this.refresh}>
+						<i class="fa fa-refresh" aria-hidden></i> Refresh
+					</button> {}
 					<span
 						style={Dex.getPokemonIcon('meloetta-pirouette') + ';display:inline-block;vertical-align:middle'} class="picon"
 						title="Meloetta is PS's mascot! The Pirouette forme is Fighting-type, and represents our battles."
@@ -339,33 +341,33 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 			<p>
 				{atEnd ? (
 					<button class="button disabled" data-cmd="/play" style="min-width:4.5em">
-						<i class="fa fa-play"></i><br />Play
+						<i class="fa fa-play" aria-hidden></i><br />Play
 					</button>
 				) : room.battle.paused ? (
 					<button class="button" data-cmd="/play" style="min-width:4.5em">
-						<i class="fa fa-play"></i><br />Play
+						<i class="fa fa-play" aria-hidden></i><br />Play
 					</button>
 				) : (
 					<button class="button" data-cmd="/pause" style="min-width:4.5em">
-						<i class="fa fa-pause"></i><br />Pause
+						<i class="fa fa-pause" aria-hidden></i><br />Pause
 					</button>
 				)} {}
 				<button class={"button button-first" + (atStart ? " disabled" : "")} data-cmd="/ffto 0" style="margin-right:2px">
-					<i class="fa fa-undo"></i><br />First turn
+					<i class="fa fa-undo" aria-hidden></i><br />First turn
 				</button>
 				<button class={"button button-first" + (atStart ? " disabled" : "")} data-cmd="/ffto -1">
-					<i class="fa fa-step-backward"></i><br />Prev turn
+					<i class="fa fa-step-backward" aria-hidden></i><br />Prev turn
 				</button>
 				<button class={"button button-last" + (atEnd ? " disabled" : "")} data-cmd="/ffto +1" style="margin-right:2px">
-					<i class="fa fa-step-forward"></i><br />Skip turn
+					<i class="fa fa-step-forward" aria-hidden></i><br />Skip turn
 				</button>
 				<button class={"button button-last" + (atEnd ? " disabled" : "")} data-cmd="/ffto end">
-					<i class="fa fa-fast-forward"></i><br />Skip to end
+					<i class="fa fa-fast-forward" aria-hidden></i><br />Skip to end
 				</button>
 			</p>
 			<p>
 				<button class="button" data-cmd="/switchsides">
-					<i class="fa fa-random"></i> Switch viewpoint
+					<i class="fa fa-random" aria-hidden></i> Switch viewpoint
 				</button>
 			</p>
 		</div>;
@@ -506,7 +508,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 		if (choices.isEmpty()) return null;
 
 		let buf: preact.ComponentChild[] = [
-			<button data-cmd="/cancel" class="button"><i class="fa fa-chevron-left"></i> Back</button>, ' ',
+			<button data-cmd="/cancel" class="button"><i class="fa fa-chevron-left" aria-hidden></i> Back</button>, ' ',
 		];
 		if (choices.isDone() && request.noCancel) {
 			buf = ['Waiting for opponent...', <br />];
@@ -567,7 +569,9 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 		if (choices.isDone()) {
 			return <div class="controls">
 				<div class="whatdo">
-					<button name="openTimer" class="button disabled timerbutton"><i class="fa fa-hourglass-start"></i> Timer</button>
+					<button name="openTimer" class="button disabled timerbutton">
+						<i class="fa fa-hourglass-start" aria-hidden></i> Timer
+					</button>
 					{this.renderOldChoices(request, choices)}
 				</div>
 				<div class="pad">
@@ -595,7 +599,9 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 				const moveName = choices.getChosenMove(choices.current, choices.index()).name;
 				return <div class="controls">
 					<div class="whatdo">
-						<button name="openTimer" class="button disabled timerbutton"><i class="fa fa-hourglass-start"></i> Timer</button>
+						<button name="openTimer" class="button disabled timerbutton">
+							<i class="fa fa-hourglass-start" aria-hidden></i> Timer
+						</button>
 						{this.renderOldChoices(request, choices)}
 						{pokemon.name} should use <strong>{moveName}</strong> at where? {}
 					</div>
@@ -611,7 +617,9 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 
 			return <div class="controls">
 				<div class="whatdo">
-					<button name="openTimer" class="button disabled timerbutton"><i class="fa fa-hourglass-start"></i> Timer</button>
+					<button name="openTimer" class="button disabled timerbutton">
+						<i class="fa fa-hourglass-start" aria-hidden></i> Timer
+					</button>
 					{this.renderOldChoices(request, choices)}
 					What will <strong>{pokemon.name}</strong> do?
 				</div>
@@ -666,7 +674,9 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 			const pokemon = request.side.pokemon[choices.index()];
 			return <div class="controls">
 				<div class="whatdo">
-					<button name="openTimer" class="button disabled timerbutton"><i class="fa fa-hourglass-start"></i> Timer</button>
+					<button name="openTimer" class="button disabled timerbutton">
+						<i class="fa fa-hourglass-start" aria-hidden></i> Timer
+					</button>
 					{this.renderOldChoices(request, choices)}
 					What will <strong>{pokemon.name}</strong> do?
 				</div>
@@ -680,9 +690,11 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 		} case 'team': {
 			return <div class="controls">
 				<div class="whatdo">
-					<button name="openTimer" class="button disabled timerbutton"><i class="fa fa-hourglass-start"></i> Timer</button>
+					<button name="openTimer" class="button disabled timerbutton">
+						<i class="fa fa-hourglass-start" aria-hidden></i> Timer
+					</button>
 					{choices.alreadySwitchingIn.length > 0 ? (
-						[<button data-cmd="/cancel" class="button"><i class="fa fa-chevron-left"></i> Back</button>,
+						[<button data-cmd="/cancel" class="button"><i class="fa fa-chevron-left" aria-hidden></i> Back</button>,
 							" What about the rest of your team? "]
 					) : (
 						"How will you start the battle? "
@@ -720,22 +732,22 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 						href={`//${Config.routes.replays}/download`}
 						class="button replayDownloadButton"
 					>
-						<i class="fa fa-download"></i> Download replay</a>
+						<i class="fa fa-download" aria-hidden></i> Download replay</a>
 					<br />
 					<br />
 					<button class="button" data-cmd="/savereplay">
-						<i class="fa fa-upload"></i> Upload and share replay
+						<i class="fa fa-upload" aria-hidden></i> Upload and share replay
 					</button>
 				</span>
 
 				<button class="button" data-cmd="/play" style="min-width:4.5em">
-					<i class="fa fa-undo"></i><br />Replay
+					<i class="fa fa-undo" aria-hidden></i><br />Replay
 				</button> {}
 				{isNotTiny && <button class="button button-first" data-cmd="/ffto 0" style="margin-right:2px">
-					<i class="fa fa-undo"></i><br />First turn
+					<i class="fa fa-undo" aria-hidden></i><br />First turn
 				</button>}
 				{isNotTiny && <button class="button button-first" data-cmd="/ffto -1">
-					<i class="fa fa-step-backward"></i><br />Prev turn
+					<i class="fa fa-step-backward" aria-hidden></i><br />Prev turn
 				</button>}
 			</p>
 			{room.side ? (
@@ -749,7 +761,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 				</p>
 			) : (
 				<p>
-					<button class="button" data-cmd="/switchsides"><i class="fa fa-random"></i> Switch viewpoint</button>
+					<button class="button" data-cmd="/switchsides"><i class="fa fa-random" aria-hidden></i> Switch viewpoint</button>
 				</p>
 			)}
 		</div>;

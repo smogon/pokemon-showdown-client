@@ -275,7 +275,7 @@ export function PSPanelWrapper(props: {
 	if (props.scrollable === 'hidden') style.overflow = 'hidden';
 	return <div
 		class={'ps-room' + (room.id === '' ? '' : ' ps-room-light') + (props.scrollable === true ? ' scrollable' : '')}
-		id={`room-${room.id}`}
+		id={`room-${room.id}`} role="tabpanel" aria-labelledby={`roomtab-${room.id}`}
 		style={style} onClick={props.focusClick ? PSView.focusIfNoSelection : undefined} onDragEnter={props.onDragEnter}
 	>
 		{room.caughtError ? <div class="broadcast broadcast-red"><pre>{room.caughtError}</pre></div> : props.children}
@@ -369,12 +369,6 @@ export class PSView extends preact.Component {
 
 		window.addEventListener('click', ev => {
 			let elem = ev.target as HTMLElement | null;
-			if (elem?.className === 'ps-overlay') {
-				PS.closePopup();
-				ev.preventDefault();
-				ev.stopImmediatePropagation();
-				return;
-			}
 			const clickedRoom = PS.getRoom(elem);
 			while (elem) {
 				if (elem.className === 'spoiler') {
@@ -589,6 +583,15 @@ export class PSView extends preact.Component {
 		room.autoDismissNotifications();
 		PS.setFocus(room);
 	};
+	handleClickOverlay = (ev: MouseEvent) => {
+		// iOS Safari bug, no global click events when tapping
+		// I'm sure it's intentional but it interferes with putting the dismiss feature in window.onclick
+		if ((ev.target as Element)?.className === 'ps-overlay') {
+			PS.closePopup();
+			ev.preventDefault();
+			ev.stopImmediatePropagation();
+		}
+	};
 	handleButtonClick(elem: HTMLButtonElement) {
 		switch (elem.name) {
 		case 'closeRoom': {
@@ -772,7 +775,7 @@ export class PSView extends preact.Component {
 		if (room.location === 'popup' && room.parentElem) {
 			return <Panel key={room.id} room={room} />;
 		}
-		return <div key={room.id} class="ps-overlay">
+		return <div key={room.id} class="ps-overlay" onClick={this.handleClickOverlay} role="dialog">
 			<Panel room={room} />
 		</div>;
 	}

@@ -381,7 +381,7 @@ export class PSSearchResults extends preact.Component<{ search: DexSearch }> {
 				Filters: {}
 				{search.filters.map(([type, name]) =>
 					<button class="filter" value={`${type}:${name}`}>
-						${name} <i class="fa fa-times-circle"></i>
+						${name} <i class="fa fa-times-circle" aria-hidden></i>
 					</button>
 				)}
 				{!search.query && <small style="color: #888">(backspace = delete filter)</small>}
