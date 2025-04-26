@@ -2251,7 +2251,8 @@ p.or:after {
 	color: transparent;
 }
 .teamlist .team.pc-box {
-	height: 139px;
+	min-height: 139px;
+	height: auto;
 }
 
 .teamedit {
