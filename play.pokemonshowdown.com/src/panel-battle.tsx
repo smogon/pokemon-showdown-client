@@ -219,9 +219,7 @@ class TimerButton extends preact.Component<{ room: BattleRoom }> {
 				else if (room.battle.totalTimeLeft) room.battle.totalTimeLeft -= 1;
 			}
 			this.forceUpdate();
-
 		}, 1000);
-
 		if (room.battle.kickingInactive) {
 			let secondsLeft = room.battle.kickingInactive;
 			if (secondsLeft !== true) {
