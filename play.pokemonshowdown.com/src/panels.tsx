@@ -60,7 +60,8 @@ export class PSRouter {
 
 		return url as RoomID;
 	}
-	updatePanelState(): { roomid: RoomID, changed: boolean, newTitle: string } {
+	/** true: roomid changed, false: panelState changed, null: neither changed */
+	updatePanelState(): { roomid: RoomID, changed: boolean | null, newTitle: string } {
 		let room = PS.room;
 		// some popups don't have URLs and don't generate history
 		// there's definitely a better way to do this but I'm lazy
@@ -79,9 +80,10 @@ export class PSRouter {
 			PS.leftPanel.id + '..' + PS.rightPanel!.id :
 			room.id);
 		const newTitle = roomid === '' ? 'Showdown!' : `${room.title} - Showdown!`;
-		const changed = (roomid !== this.roomid);
+		let changed: boolean | null = (roomid !== this.roomid);
 
 		this.roomid = roomid;
+		if (this.panelState === panelState) changed = null;
 		this.panelState = panelState;
 		return { roomid, changed, newTitle };
 	}
@@ -130,7 +132,7 @@ export class PSRouter {
 			const { roomid, changed, newTitle } = this.updatePanelState();
 			if (changed) {
 				history.pushState(this.panelState, '', `/${roomid}`);
-			} else {
+			} else if (changed !== null) {
 				history.replaceState(this.panelState, '', `/${roomid}`);
 			}
 			// n.b. must be done after changing hash, so history entry has the old title
@@ -612,6 +614,20 @@ export class PSView extends preact.Component {
 				parentElem: elem,
 			});
 			return true;
+		case 'copyText':
+			const dummyInput = document.createElement("input");
+			// This is a hack. You can only "select" an input field.
+			//  The trick is to create a short lived input element and destroy it after a copy.
+			// (stolen from the replay code, obviously --mia)
+			dummyInput.id = "dummyInput";
+			dummyInput.value = elem.value || (elem as any).href || "";
+			dummyInput.style.position = 'absolute';
+			elem.appendChild(dummyInput);
+			dummyInput.select();
+			document.execCommand("copy");
+			elem.removeChild(dummyInput);
+			elem.innerText = 'Copied!';
+			return true;
 		case 'send':
 		case 'cmd':
 			const room = PS.getRoom(elem) || PS.mainmenu;
@@ -785,7 +801,7 @@ export class PSView extends preact.Component {
 				rooms.push(this.renderRoom(room));
 			}
 		}
-		return <div class="ps-frame">
+		return <div class="ps-frame" role="none">
 			<PSHeader style={{}} />
 			<PSMiniHeader />
 			{rooms}
