@@ -386,7 +386,7 @@ class PSUser extends PSStreamModel<PSLoginState | null> {
 	userid = "" as ID;
 	named = false;
 	registered: { name: string, userid: ID } | null = null;
-	avatar = "1";
+	avatar = "lucas";
 	challstr = '';
 	loggingIn: string | null = null;
 	initializing = true;
@@ -858,10 +858,12 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 	 * Used only by commands; messages from the server go directly from
 	 * `PS.receive` to `room.receiveLine`
 	 */
-	add(line: string) {
+	add(line: string, ifChat?: boolean) {
 		if (this.type !== 'chat' && this.type !== 'battle') {
-			PS.mainmenu.handlePM(PS.user.userid, PS.user.userid);
-			PS.rooms['dm-' as RoomID]?.receiveLine(BattleTextParser.parseLine(line));
+			if (!ifChat) {
+				PS.mainmenu.handlePM(PS.user.userid, PS.user.userid);
+				PS.rooms['dm-' as RoomID]?.receiveLine(BattleTextParser.parseLine(line));
+			}
 		} else {
 			this.receiveLine(BattleTextParser.parseLine(line));
 		}
@@ -952,6 +954,15 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 				PS.user.changeName(target);
 			} else {
 				PS.join('login' as RoomID);
+			}
+		},
+		'avatar'(target) {
+			const avatar = window.BattleAvatarNumbers?.[toID(target)] || toID(target);
+			PS.user.avatar = avatar;
+			if (this.type !== 'chat' && this.type !== 'battle') {
+				PS.send(`|/avatar ${avatar}`);
+			} else {
+				this.send(`/avatar ${avatar}`);
 			}
 		},
 		'open,user'(target) {

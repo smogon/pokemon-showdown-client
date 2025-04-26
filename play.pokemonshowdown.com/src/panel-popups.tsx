@@ -912,26 +912,13 @@ class AvatarsPanel extends PSRoomPanel {
 	static readonly routes = ['avatars'];
 	static readonly location = 'semimodal-popup';
 
-	handleAvatar = (ev: Event) => {
-		let curtarget = ev.currentTarget as HTMLButtonElement;
-		let avatar = curtarget.value;
-		if (window.BattleAvatarNumbers) {
-			if (window.BattleAvatarNumbers[avatar]) avatar = window.BattleAvatarNumbers[avatar];
-		}
-		PS.rooms['']?.send('/avatar ' + avatar);
-		PS.user.avatar = avatar;
-		ev.preventDefault();
-		this.close();
-	};
-
 	override render() {
 		const room = this.props.room;
-		let avatars: number[] = [];
-		let cur = Number(PS.user.avatar);
 
+		const avatars: [number, string][] = [];
 		for (let i = 1; i <= 293; i++) {
 			if (i === 162 || i === 168) continue;
-			avatars.push(i);
+			avatars.push([i, window.BattleAvatarNumbers?.[i] || `${i}`]);
 		}
 
 		return <PSPanelWrapper room={room} width={1210}><div class="pad">
@@ -939,25 +926,13 @@ class AvatarsPanel extends PSRoomPanel {
 				<button class="button" onClick={() => this.close()}> Cancel</button>
 			</label>
 			<div class="avatarlist">
-				{avatars.map(i => {
-					const offset = `-${((i - 1) % 16) * 80 + 1}px -${Math.floor((i - 1) / 16) * 80 + 1}px`;
-					const style = {
-						backgroundPosition: offset,
-					};
-					const className = `option pixelated${i === cur ? ' cur' : ''}`;
-
-					return (
-						<button
-							key={i}
-							value={i}
-							style={style}
-							className={className}
-							title={`/avatar ${i}`}
-							onClick={this.handleAvatar}
-						/>
-					);
-				})}
-
+				{avatars.map(([i, avatar]) => (
+					<button
+						data-cmd={`/closeand /avatar ${avatar}`} title={`/avatar ${avatar}`}
+						class={`option pixelated${avatar === PS.user.avatar ? ' cur' : ''}`}
+						style={`background-position: -${((i - 1) % 16) * 80 + 1}px -${Math.floor((i - 1) / 16) * 80 + 1}px`}
+					></button>
+				))}
 			</div>
 			<div style="clear:left"></div>
 			<p><button class="button" data-cmd="/close">Cancel</button></p>
