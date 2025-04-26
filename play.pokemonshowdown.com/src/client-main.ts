@@ -900,6 +900,13 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 			this.send(target);
 			PS.leave(this.id);
 		},
+		'inopener,inparent'(target) {
+			// do this command in the popup opener
+			let room = this.getParent();
+			if (room && PS.isPopup(room)) room = room.getParent();
+			// will crash if the parent doesn't exist, which is fine
+			room!.send(target);
+		},
 		'maximize'(target) {
 			const roomid = /[^a-z0-9-]/.test(target) ? toID(target) as any as RoomID : target as RoomID;
 			const targetRoom = roomid ? PS.rooms[roomid] : this;

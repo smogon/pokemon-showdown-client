@@ -133,7 +133,6 @@ export class BattleRoom extends ChatRoom {
 	side: BattleRequestSideInfo | null = null;
 	request: BattleRequest | null = null;
 	choices: BattleChoiceBuilder | null = null;
-	timerInterval: number | undefined;
 	autoTimerActivated: boolean | null = null;
 }
 
@@ -199,58 +198,58 @@ function PokemonButton(props: {
 }
 
 class TimerButton extends preact.Component<{ room: BattleRoom }> {
+	timerInterval: number | null = null;
+	override componentWillUnmount() {
+		if (this.timerInterval) {
+			clearInterval(this.timerInterval);
+			this.timerInterval = null;
+		}
+	}
+	secondsToTime(seconds: number | true) {
+		if (seconds === true) return '-:--';
+		const minutes = Math.floor(seconds / 60);
+		seconds -= minutes * 60;
+		return `${minutes}:${(seconds < 10 ? '0' : '')}${seconds}`;
+	}
 	render() {
 		let time = 'Timer';
 		const room = this.props.room;
-		let timerTicking = (room.battle.kickingInactive &&
-			room.request &&
-			room.request.requestType !== "wait" &&
-			(room.choices && !room.choices.isDone())) ?
-			' timerbutton-on' :
-			'';
-		if (room.timerInterval) {
-			clearInterval(room.timerInterval);
-			room.timerInterval = 0;
+		if (!this.timerInterval && room.battle.kickingInactive) {
+			this.timerInterval = setInterval(() => {
+				if (typeof room.battle.kickingInactive === 'number' && room.battle.kickingInactive > 1) {
+					room.battle.kickingInactive--;
+					if (room.battle.graceTimeLeft) room.battle.graceTimeLeft--;
+					else if (room.battle.totalTimeLeft) room.battle.totalTimeLeft--;
+				}
+				this.forceUpdate();
+			}, 1000);
+		} else if (this.timerInterval && !room.battle.kickingInactive) {
+			clearInterval(this.timerInterval);
+			this.timerInterval = null;
 		}
-		if (!room.timerInterval && timerTicking) room.timerInterval = setInterval(() => {
-			if (typeof room.battle.kickingInactive === 'number' && room.battle.kickingInactive > 1) {
-				room.battle.kickingInactive--;
-				if (room.battle.graceTimeLeft) room.battle.graceTimeLeft--;
-				else if (room.battle.totalTimeLeft) room.battle.totalTimeLeft--;
-			}
-			this.forceUpdate();
-		}, 1000);
+
+		let timerTicking = (room.battle.kickingInactive &&
+			room.request && room.request.requestType !== "wait" && (room.choices && !room.choices.isDone())) ?
+			' timerbutton-on' : '';
+
 		if (room.battle.kickingInactive) {
-			let secondsLeft = room.battle.kickingInactive;
+			const secondsLeft = room.battle.kickingInactive;
+			time = this.secondsToTime(secondsLeft);
 			if (secondsLeft !== true) {
 				if (secondsLeft <= 10 && timerTicking) {
 					timerTicking = ' timerbutton-critical';
 				}
-				let minutesLeft = Math.floor(secondsLeft / 60);
-				secondsLeft -= minutesLeft * 60;
-				time = `${minutesLeft}:${(secondsLeft < 10 ? '0' : '')}${secondsLeft}`;
 
-				secondsLeft = room.battle.totalTimeLeft;
-				if (secondsLeft) {
-					minutesLeft = Math.floor(secondsLeft / 60);
-					secondsLeft -= minutesLeft * 60;
-					time += ` |  ${minutesLeft}:${(secondsLeft < 10 ? '0' : '')}${secondsLeft} total`;
+				if (room.battle.totalTimeLeft) {
+					const totalTime = this.secondsToTime(room.battle.totalTimeLeft);
+					time += ` |  ${totalTime} total`;
 				}
-			} else {
-				time = '-:--';
 			}
 		}
-		const isTicking = room.battle.kickingInactive && room.request?.requestType !== 'wait' && !room.choices?.isDone();
 
-		let timerClass = 'button';
-		if (room.battle.kickingInactive) {
-			if (typeof room.battle.kickingInactive === 'number' && room.battle.kickingInactive <= 10 && isTicking) {
-				timerClass += ' timerbutton-critical';
-			} else if (isTicking) {
-				timerClass += ' timerbutton-on';
-			}
-		}
-		return <button style={{ position: "absolute", right: '10px' }} data-href="battletimer" class={timerClass} role="timer">
+		return <button
+			style={{ position: "absolute", right: '10px' }} data-href="battletimer" class={`button${timerTicking}`} role="timer"
+		>
 			<i class="fa fa-hourglass-start" aria-hidden></i> {time}
 		</button>;
 	}
@@ -350,10 +349,6 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 			room.battle.seekTurn(Infinity);
 			return;
 		case 'request':
-			if (PS.prefs.autotimer && !room.timerInterval && !room.autoTimerActivated) {
-				this.send('/timer on');
-				room.autoTimerActivated = true;
-			}
 			this.receiveRequest(args[1] ? JSON.parse(args[1]) : null);
 			return;
 		case 'win': case 'tie':
@@ -378,6 +373,11 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 			room.request = null;
 			room.choices = null;
 			return;
+		}
+
+		if (PS.prefs.autotimer && !room.battle.kickingInactive && !room.autoTimerActivated) {
+			this.send('/timer on');
+			room.autoTimerActivated = true;
 		}
 
 		BattleChoiceBuilder.fixRequest(request, room.battle);

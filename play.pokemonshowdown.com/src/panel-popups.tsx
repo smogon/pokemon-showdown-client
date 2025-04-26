@@ -971,40 +971,22 @@ class BattleForfeitPanel extends PSRoomPanel {
 	static readonly location = 'semimodal-popup';
 	static readonly noURL = true;
 
-	handleForfeit = (ev: Event) => {
-		const elem = this.props.room.parentElem;
-		const roomid = (elem as HTMLInputElement)?.value as RoomID || PS.getRoom(elem)?.id || '' as RoomID;
-		const room = PS.rooms[roomid] as BattleRoom;
-
-		const closeAfter = this.base!.querySelector<HTMLInputElement>('input[name=closeroom]')?.checked;
-		room.send("/forfeit");
-		if (closeAfter) PS.leave(room.id);
-		ev.preventDefault();
-		this.close();
-	};
-
 	override render() {
 		const room = this.props.room;
 		const battleRoom = room.getParent() as BattleRoom;
 
 		return <PSPanelWrapper room={room} width={480}><div class="pad">
-			<form onSubmit={this.handleForfeit}>
-				<p>Forfeiting makes you lose the battle. Are you sure?</p>
-				<p>
-					<label class="checkbox"><input
-						type="checkbox" name="closeroom" checked={true}
-					/> Close after forfeiting</label>
-				</p>
-				<p>
-					<button type="submit" class="button"><strong>Forfeit</strong></button> {}
-					{!battleRoom.battle.rated && <button type="button" data-href="replaceplayer" class="button">
-						Replace player
-					</button>} {}
-					<button type="button" data-cmd="/close" class="button">
-						Cancel
-					</button>
-				</p>
-			</form>
+			<p>Forfeiting makes you lose the battle. Are you sure?</p>
+			<p>
+				<button data-cmd="/closeand /inopener /closeand /forfeit" class="button"><strong>Forfeit and close</strong></button> {}
+				<button data-cmd="/closeand /inopener /forfeit" class="button">Just forfeit</button> {}
+				{!battleRoom.battle.rated && <button type="button" data-href="replaceplayer" class="button">
+					Replace player
+				</button>} {}
+				<button type="button" data-cmd="/close" class="button">
+					Cancel
+				</button>
+			</p>
 		</div></PSPanelWrapper>;
 	}
 }
@@ -1704,20 +1686,14 @@ class BattleTimerPanel extends PSRoomPanel {
 	static readonly location = 'semimodal-popup';
 	static readonly noURL = true;
 
-	triggerTimer = (ev: Event) => {
-		const room = this.props.room.getParent() as BattleRoom;
-		let value = (ev.currentTarget as HTMLButtonElement).value || '';
-		if (value === "starttimer") room.send("/timer start");
-		if (value === "stoptimer") room.send("/timer stop");
-		this.close();
-	};
-
 	override render() {
 		const room = this.props.room.getParent() as BattleRoom;
 		return <PSPanelWrapper room={this.props.room}><div class="pad">
-			{ room.timerInterval ?
-				<button class="button" value="stoptimer" onClick={this.triggerTimer}> Stop Timer</button> :
-				<button class="button" value="starttimer" onClick={this.triggerTimer}> Start Timer</button>}
+			{room.battle.kickingInactive ? (
+				<button class="button" data-cmd="/closeand /inopener /timer stop">Stop Timer</button>
+			) : (
+				<button class="button" data-cmd="/closeand /inopener /timer start">Start Timer</button>
+			)}
 		</div>
 		</PSPanelWrapper>;
 	}
