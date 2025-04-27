@@ -503,7 +503,7 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
 				<h3
 					class={`mini-window-header${notifying}`} draggable onDragStart={this.handleDragStart} onClick={this.handleClickMinimize}
 				>
-					<button class="closebutton" data-cmd="/close" aria-label="Close" tabIndex={-1}>
+					<button class="closebutton" name="closeRoom" value={roomid} aria-label="Close" tabIndex={-1}>
 						<i class="fa fa-times-circle" aria-hidden></i>
 					</button>
 					<button class="maximizebutton" data-cmd="/maximize" tabIndex={-1} aria-label="Maximize">

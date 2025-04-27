@@ -3507,7 +3507,7 @@ export class Battle {
 				return;
 			} else if (args[1].endsWith(' seconds left.')) {
 				let hasIndex = args[1].indexOf(' has ');
-				let userid = window.app?.user?.get('userid');
+				let userid = window.app?.user?.get('userid') || window.PS?.user.userid;
 				if (toID(args[1].slice(0, hasIndex)) === userid) {
 					this.kickingInactive = parseInt(args[1].slice(hasIndex + 5), 10) || true;
 				}
