@@ -79,6 +79,13 @@ class PSPrefs extends PSStreamModel<string | null> {
 		hideinterstice: true,
 	};
 
+	/* Battle preferences */
+	ignorenicks: boolean | null = null;
+	ignorespects: boolean | null = null;
+	ignoreopp: boolean | null = null;
+	autotimer: boolean | null = null;
+	rightpanelbattles: boolean | null = null;
+
 	/**
 	 * Show "User joined" and "User left" messages. serverid:roomid
 	 * table. Uses 1 and 0 instead of true/false for JSON packing
@@ -386,7 +393,7 @@ class PSUser extends PSStreamModel<PSLoginState | null> {
 	userid = "" as ID;
 	named = false;
 	registered: { name: string, userid: ID } | null = null;
-	avatar = "1";
+	avatar = "lucas";
 	challstr = '';
 	loggingIn: string | null = null;
 	initializing = true;
@@ -858,10 +865,12 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 	 * Used only by commands; messages from the server go directly from
 	 * `PS.receive` to `room.receiveLine`
 	 */
-	add(line: string) {
+	add(line: string, ifChat?: boolean) {
 		if (this.type !== 'chat' && this.type !== 'battle') {
-			PS.mainmenu.handlePM(PS.user.userid, PS.user.userid);
-			PS.rooms['dm-' as RoomID]?.receiveLine(BattleTextParser.parseLine(line));
+			if (!ifChat) {
+				PS.mainmenu.handlePM(PS.user.userid, PS.user.userid);
+				PS.rooms['dm-' as RoomID]?.receiveLine(BattleTextParser.parseLine(line));
+			}
 		} else {
 			this.receiveLine(BattleTextParser.parseLine(line));
 		}
@@ -892,6 +901,13 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 			// after you delete the room
 			this.send(target);
 			PS.leave(this.id);
+		},
+		'inopener,inparent'(target) {
+			// do this command in the popup opener
+			let room = this.getParent();
+			if (room && PS.isPopup(room)) room = room.getParent();
+			// will crash if the parent doesn't exist, which is fine
+			room!.send(target);
 		},
 		'maximize'(target) {
 			const roomid = /[^a-z0-9-]/.test(target) ? toID(target) as any as RoomID : target as RoomID;
@@ -952,6 +968,15 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 				PS.user.changeName(target);
 			} else {
 				PS.join('login' as RoomID);
+			}
+		},
+		'avatar'(target) {
+			const avatar = window.BattleAvatarNumbers?.[toID(target)] || toID(target);
+			PS.user.avatar = avatar;
+			if (this.type !== 'chat' && this.type !== 'battle') {
+				PS.send(`|/avatar ${avatar}`);
+			} else {
+				this.send(`/avatar ${avatar}`);
 			}
 		},
 		'open,user'(target) {
@@ -1550,6 +1575,10 @@ export const PS = new class extends PSModel {
 	}
 	getRoom(elem: HTMLElement | EventTarget | null | undefined, skipClickable?: boolean): PSRoom | null {
 		let curElem: HTMLElement | null = elem as HTMLElement;
+		// might be the close button on the roomtab
+		if ((curElem as HTMLButtonElement)?.name === 'closeRoom' && (curElem as HTMLButtonElement).value) {
+			return PS.rooms[(curElem as HTMLButtonElement).value] || null;
+		}
 		while (curElem) {
 			if (curElem.id.startsWith('room-')) {
 				return PS.rooms[curElem.id.slice(5)] || null;
@@ -1930,7 +1959,7 @@ export const PS = new class extends PSModel {
 				options.args = { initialSlash: true };
 			}
 		}
-
+		if (options.id.startsWith('battle-') && PS.prefs.rightpanelbattles) options.location = 'right';
 		options.parentRoomid ??= this.getRoom(options.parentElem)?.id;
 		let preexistingRoom = this.rooms[options.id];
 		if (preexistingRoom && this.isPopup(preexistingRoom)) {

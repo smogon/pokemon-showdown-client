@@ -107,20 +107,24 @@ compiledFiles += compiler.compileToDir(`replay.pokemonshowdown.com/src`, `replay
 
 compiledFiles += compiler.compileToDir(`teams.pokemonshowdown.com/src`, `teams.pokemonshowdown.com/js`, compileOpts);
 
-compiledFiles += compiler.compileToFile(
-	[
-		'play.pokemonshowdown.com/src/battle-dex.ts',
-		'play.pokemonshowdown.com/src/battle-dex-data.ts',
-		'play.pokemonshowdown.com/src/battle-log.ts',
-		'play.pokemonshowdown.com/src/battle-log-misc.js',
-		'caches/pokemon-showdown/server/chat-formatter.ts',
-		'play.pokemonshowdown.com/data/text.js',
-		'play.pokemonshowdown.com/data/text-afd.js',
-		'play.pokemonshowdown.com/src/battle-text-parser.ts',
-	],
-	'play.pokemonshowdown.com/js/battledata.js',
-	compileOpts
-);
+try {
+	fs.statSync('play.pokemonshowdown.com/data/text.js');
+	// text.js exists, we can compile battledata
+	compiledFiles += compiler.compileToFile(
+		[
+			'play.pokemonshowdown.com/src/battle-dex.ts',
+			'play.pokemonshowdown.com/src/battle-dex-data.ts',
+			'play.pokemonshowdown.com/src/battle-log.ts',
+			'play.pokemonshowdown.com/src/battle-log-misc.js',
+			'caches/pokemon-showdown/server/chat-formatter.ts',
+			'play.pokemonshowdown.com/data/text.js',
+			'play.pokemonshowdown.com/data/text-afd.js',
+			'play.pokemonshowdown.com/src/battle-text-parser.ts',
+		],
+		'play.pokemonshowdown.com/js/battledata.js',
+		compileOpts
+	);
+} catch {}
 
 if (!compileOpts.ignore) {
 	compiledFiles += compiler.compileToFile(
