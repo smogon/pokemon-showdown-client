@@ -229,7 +229,11 @@ class UserOptionsPanel extends PSRoomPanel {
 	getTargets() {
 		const [, targetUser, targetRoomid] = this.props.room.id.split('-');
 		let targetRoom = (PS.rooms[targetRoomid] || null) as ChatRoom | null;
-		if (targetRoom?.type !== 'chat') targetRoom = null;
+		if (targetRoom?.type !== 'chat') {
+			targetRoom = targetRoom?.getParent()?.type === 'chat' ?
+				targetRoom?.getParent() as ChatRoom :
+				null;
+		}
 		return { targetUser: targetUser as ID, targetRoomid: targetRoomid as RoomID, targetRoom };
 	}
 
@@ -269,8 +273,7 @@ class UserOptionsPanel extends PSRoomPanel {
 
 	handleAddFriend = (ev: Event) => {
 		let { targetUser, targetRoom } = this.getTargets();
-		if (!targetRoom) targetRoom = PS.room.getParent()?.getParent()?.getParent() as ChatRoom;
-		targetRoom.send(`/friend add ${targetUser}`);
+		targetRoom?.send(`/friend add ${targetUser}`);
 		this.setState({ requestSent: true });
 		ev.preventDefault();
 		ev.stopImmediatePropagation();
@@ -278,15 +281,13 @@ class UserOptionsPanel extends PSRoomPanel {
 
 	handleIgnore = () => {
 		let { targetUser, targetRoom } = this.getTargets();
-		if (!targetRoom) targetRoom = PS.room.getParent()?.getParent()?.getParent() as ChatRoom;
-		targetRoom.send(`/ignore ${targetUser}`);
+		targetRoom?.send(`/ignore ${targetUser}`);
 		this.close();
 	};
 
 	handleUnignore = () => {
 		let { targetUser, targetRoom } = this.getTargets();
-		if (!targetRoom) targetRoom = PS.room.getParent()?.getParent()?.getParent() as ChatRoom;
-		targetRoom.send(`/unignore ${targetUser}`);
+		targetRoom?.send(`/unignore ${targetUser}`);
 		this.close();
 	};
 
@@ -331,9 +332,8 @@ class UserOptionsPanel extends PSRoomPanel {
 		let { targetUser, targetRoom } = this.getTargets();
 		let canMute = false;
 		let canBan = false;
-		if (!targetRoom) targetRoom = PS.room.getParent()?.getParent()?.getParent() as ChatRoom;
-		canMute = mutePerms.includes(targetRoom.users[PS.user.userid].charAt(0));
-		canBan = banPerms.includes(targetRoom.users[PS.user.userid].charAt(0));
+		canMute = mutePerms.includes(targetRoom?.users[PS.user.userid].charAt(0) || '');
+		canBan = banPerms.includes(targetRoom?.users[PS.user.userid].charAt(0) || '');
 
 		return <PSPanelWrapper room={room} width={280}><div class="pad">
 			<p>
