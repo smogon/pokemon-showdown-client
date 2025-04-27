@@ -946,40 +946,22 @@ class BattleForfeitPanel extends PSRoomPanel {
 	static readonly location = 'semimodal-popup';
 	static readonly noURL = true;
 
-	handleForfeit = (ev: Event) => {
-		const elem = this.props.room.parentElem;
-		const roomid = (elem as HTMLInputElement)?.value as RoomID || PS.getRoom(elem)?.id || '' as RoomID;
-		const room = PS.rooms[roomid] as BattleRoom;
-
-		const closeAfter = this.base!.querySelector<HTMLInputElement>('input[name=closeroom]')?.checked;
-		room.send("/forfeit");
-		if (closeAfter) PS.leave(room.id);
-		ev.preventDefault();
-		this.close();
-	};
-
 	override render() {
 		const room = this.props.room;
 		const battleRoom = room.getParent() as BattleRoom;
 
 		return <PSPanelWrapper room={room} width={480}><div class="pad">
-			<form onSubmit={this.handleForfeit}>
-				<p>Forfeiting makes you lose the battle. Are you sure?</p>
-				<p>
-					<label class="checkbox"><input
-						type="checkbox" name="closeroom" checked={true}
-					/> Close after forfeiting</label>
-				</p>
-				<p>
-					<button type="submit" class="button"><strong>Forfeit</strong></button> {}
-					{!battleRoom.battle.rated && <button type="button" data-href="replaceplayer" class="button">
-						Replace player
-					</button>} {}
-					<button type="button" data-cmd="/close" class="button">
-						Cancel
-					</button>
-				</p>
-			</form>
+			<p>Forfeiting makes you lose the battle. Are you sure?</p>
+			<p>
+				<button data-cmd="/closeand /inopener /closeand /forfeit" class="button"><strong>Forfeit and close</strong></button> {}
+				<button data-cmd="/closeand /inopener /forfeit" class="button">Just forfeit</button> {}
+				{!battleRoom.battle.rated && <button type="button" data-href="replaceplayer" class="button">
+					Replace player
+				</button>} {}
+				<button type="button" data-cmd="/close" class="button">
+					Cancel
+				</button>
+			</p>
 		</div></PSPanelWrapper>;
 	}
 }
@@ -1400,6 +1382,181 @@ class LeaveRoomPanel extends PSRoomPanel {
 		</div></PSPanelWrapper>;
 	}
 }
+class BattleOptionsPanel extends PSRoomPanel {
+	static readonly id = 'battleoptions';
+	static readonly routes = ['battleoptions'];
+	static readonly location = 'semimodal-popup';
+	static readonly noURL = true;
+
+	handleHardcoreMode = (ev: Event) => {
+		const mode = (ev.currentTarget as HTMLInputElement).checked;
+		const room = this.props.room.getParent() as BattleRoom;
+		if (!room?.battle) return this.close();
+		room.battle.setHardcoreMode(mode);
+		if (mode) {
+			room.add(`||Hardcore mode ON: Information not available in-game is now hidden.`);
+		} else {
+			room.add(`||Hardcore mode OFF: Information not available in-game is now shown.`);
+		}
+		room.update(null);
+	};
+	handleIgnoreSpectators = (ev: Event | boolean) => {
+		const value = typeof ev === "object" ?
+			(ev.currentTarget as HTMLInputElement).checked :
+			ev;
+		const room = this.props.room.getParent() as BattleRoom;
+		if (!room?.battle) return this.close();
+		room.battle.ignoreSpects = value;
+		room.add(`||Spectators ${room.battle.ignoreSpects ? '' : 'no longer '}ignored.`);
+		const chats = document.querySelectorAll<HTMLElement>('.battle-log .chat');
+		const displaySetting = room.battle.ignoreSpects ? 'none' : '';
+		for (const chat of chats) {
+			const small = chat.querySelector('small');
+			if (!small) continue;
+			const text = small.innerText;
+			const isPlayerChat = text.includes('\u2606') || text.includes('\u2605');
+			if (!isPlayerChat) {
+				chat.style.display = displaySetting;
+			}
+		}
+		room.battle.scene.log.updateScroll();
+	};
+	handleIgnoreOpponent = (ev: Event | boolean) => {
+		const value = typeof ev === "object" ?
+			(ev.currentTarget as HTMLInputElement).checked :
+			ev;
+		const room = this.props.room.getParent() as BattleRoom;
+		if (!room?.battle) return this.close();
+		room.battle.ignoreOpponent = value;
+		room.battle.resetToCurrentTurn();
+	};
+	handleIgnoreNicks = (ev: Event | boolean) => {
+		const value = typeof ev === "object" ?
+			(ev.currentTarget as HTMLInputElement).checked :
+			ev;
+		const room = this.props.room.getParent() as BattleRoom;
+		if (!room?.battle) return this.close();
+		room.battle.ignoreNicks = value;
+		room.battle.resetToCurrentTurn();
+	};
+	handleAllSettings = (ev: Event) => {
+		const setting = (ev.currentTarget as HTMLInputElement).name;
+		const value = (ev.currentTarget as HTMLInputElement).checked;
+		const room = this.props.room.getParent() as BattleRoom;
+		if (!room?.battle) return this.close();
+		switch (setting) {
+		case 'autotimer': {
+			PS.prefs.set('autotimer', value);
+			if (value) {
+				room.send('/timer on');
+			}
+			break;
+		}
+		case 'ignoreopp': {
+			PS.prefs.set('ignoreopp', value);
+			this.handleIgnoreOpponent(value);
+			break;
+		}
+		case 'ignorespects': {
+			PS.prefs.set('ignorespects', value);
+			this.handleIgnoreSpectators(value);
+			break;
+		}
+		case 'ignorenicks': {
+			PS.prefs.set('ignorenicks', value);
+			this.handleIgnoreNicks(value);
+			break;
+		}
+		case 'rightpanel': {
+			PS.prefs.set('rightpanelbattles', value);
+		}
+		}
+	};
+
+	override render() {
+		const room = this.props.room;
+		const battleRoom = this.props.room.getParent() as BattleRoom;
+
+		return <PSPanelWrapper room={room} width={380}><div class="pad">
+			<p><strong>In this battle</strong></p>
+			<p>
+				<label class="checkbox">
+					<input
+						checked={battleRoom?.battle?.hardcoreMode}
+						type="checkbox" onChange={this.handleHardcoreMode}
+					/> Hardcore mode (hide info not shown in-game)
+				</label>
+			</p>
+			<p>
+				<label class="checkbox">
+					<input
+						checked={battleRoom?.battle?.ignoreSpects}
+						type="checkbox" onChange={this.handleIgnoreSpectators}
+					/> Ignore spectators
+				</label>
+			</p>
+			<p>
+				<label class="checkbox">
+					<input
+						checked={battleRoom?.battle?.ignoreOpponent}
+						type="checkbox" onChange={this.handleIgnoreOpponent}
+					/> Ignore opponent
+				</label>
+			</p>
+			<p>
+				<label class="checkbox">
+					<input
+						checked={battleRoom?.battle?.ignoreNicks}
+						type="checkbox" onChange={this.handleIgnoreNicks}
+					/> Ignore nicknames
+				</label>
+			</p>
+			<p><strong>All battles</strong></p>
+			<p>
+				<label class="checkbox">
+					<input
+						name="ignorenicks" checked={PS.prefs.ignorenicks || false}
+						type="checkbox" onChange={this.handleAllSettings}
+					/> Ignore nicknames
+				</label>
+			</p>
+			<p>
+				<label class="checkbox">
+					<input
+						name="ignorespects" checked={PS.prefs.ignorespects || false}
+						type="checkbox" onChange={this.handleAllSettings}
+					/> Ignore spectators
+				</label>
+			</p>
+			<p>
+				<label class="checkbox">
+					<input
+						name="ignoreopp" checked={PS.prefs.ignoreopp || false}
+						type="checkbox" onChange={this.handleAllSettings}
+					/> Ignore opponent
+				</label>
+			</p>
+			<p>
+				<label class="checkbox">
+					<input
+						name="autotimer" checked={PS.prefs.autotimer || false}
+						type="checkbox" onChange={this.handleAllSettings}
+					/> Automatically start timer
+				</label>
+			</p>
+			<p>
+				<label class="checkbox">
+					<input
+						name="rightpanel" checked={PS.prefs.rightpanelbattles || false}
+						type="checkbox" onChange={this.handleAllSettings}
+					/> Open new battles on the right side
+				</label>
+			</p>
+			<p><button data-cmd="/close" class="button">Done</button></p>
+		</div>
+		</PSPanelWrapper>;
+	}
+}
 
 class PopupRoom extends PSRoom {
 	returnValue: unknown = this.args?.cancelValue;
@@ -1487,6 +1644,24 @@ class RoomTabListPanel extends PSRoomPanel {
 		</div></PSPanelWrapper>;
 	}
 }
+class BattleTimerPanel extends PSRoomPanel {
+	static readonly id = 'battletimer';
+	static readonly routes = ['battletimer'];
+	static readonly location = 'semimodal-popup';
+	static readonly noURL = true;
+
+	override render() {
+		const room = this.props.room.getParent() as BattleRoom;
+		return <PSPanelWrapper room={this.props.room}><div class="pad">
+			{room.battle.kickingInactive ? (
+				<button class="button" data-cmd="/closeand /inopener /timer stop">Stop Timer</button>
+			) : (
+				<button class="button" data-cmd="/closeand /inopener /timer start">Start Timer</button>
+			)}
+		</div>
+		</PSPanelWrapper>;
+	}
+}
 
 PS.addRoomType(
 	UserPanel,
@@ -1504,5 +1679,7 @@ PS.addRoomType(
 	LeaveRoomPanel,
 	ChatFormattingPanel,
 	PopupPanel,
-	RoomTabListPanel
+	RoomTabListPanel,
+	BattleOptionsPanel,
+	BattleTimerPanel
 );

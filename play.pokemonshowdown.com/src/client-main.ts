@@ -79,6 +79,13 @@ class PSPrefs extends PSStreamModel<string | null> {
 		hideinterstice: true,
 	};
 
+	/* Battle preferences */
+	ignorenicks: boolean | null = null;
+	ignorespects: boolean | null = null;
+	ignoreopp: boolean | null = null;
+	autotimer: boolean | null = null;
+	rightpanelbattles: boolean | null = null;
+
 	/**
 	 * Show "User joined" and "User left" messages. serverid:roomid
 	 * table. Uses 1 and 0 instead of true/false for JSON packing
@@ -895,6 +902,13 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 			this.send(target);
 			PS.leave(this.id);
 		},
+		'inopener,inparent'(target) {
+			// do this command in the popup opener
+			let room = this.getParent();
+			if (room && PS.isPopup(room)) room = room.getParent();
+			// will crash if the parent doesn't exist, which is fine
+			room!.send(target);
+		},
 		'maximize'(target) {
 			const roomid = /[^a-z0-9-]/.test(target) ? toID(target) as any as RoomID : target as RoomID;
 			const targetRoom = roomid ? PS.rooms[roomid] : this;
@@ -1561,6 +1575,10 @@ export const PS = new class extends PSModel {
 	}
 	getRoom(elem: HTMLElement | EventTarget | null | undefined, skipClickable?: boolean): PSRoom | null {
 		let curElem: HTMLElement | null = elem as HTMLElement;
+		// might be the close button on the roomtab
+		if ((curElem as HTMLButtonElement)?.name === 'closeRoom' && (curElem as HTMLButtonElement).value) {
+			return PS.rooms[(curElem as HTMLButtonElement).value] || null;
+		}
 		while (curElem) {
 			if (curElem.id.startsWith('room-')) {
 				return PS.rooms[curElem.id.slice(5)] || null;
@@ -1941,7 +1959,7 @@ export const PS = new class extends PSModel {
 				options.args = { initialSlash: true };
 			}
 		}
-
+		if (options.id.startsWith('battle-') && PS.prefs.rightpanelbattles) options.location = 'right';
 		options.parentRoomid ??= this.getRoom(options.parentElem)?.id;
 		let preexistingRoom = this.rooms[options.id];
 		if (preexistingRoom && this.isPopup(preexistingRoom)) {
