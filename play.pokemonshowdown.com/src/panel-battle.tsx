@@ -878,7 +878,8 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 			<button
 				data-href="battleoptions" class="button"
 				style={{ position: 'absolute', right: '15px' }}
-			>Battle Options
+			>
+				Battle Options
 			</button>
 			<div class="battle-controls-container">
 				<div class="battle-controls" role="complementary" aria-label="Battle Controls" style="top: 370px;">
