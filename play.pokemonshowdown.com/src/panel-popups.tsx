@@ -253,8 +253,8 @@ class UserOptionsPanel extends PSRoomPanel {
 	handleConfirm = (ev: Event) => {
 		const data = this.state.data;
 		if (!data) return;
-		const { targetUser, targetRoom } = this.getTargets();
-
+		let { targetUser, targetRoom } = this.getTargets();
+		if (!targetRoom) targetRoom = PS.room.getParent()?.getParent()?.getParent() as ChatRoom;
 		let cmd = '';
 		if (data.action === "Mute") {
 			cmd += data.duration === "1 hour" ? "/hourmute " : "/mute ";
@@ -263,27 +263,30 @@ class UserOptionsPanel extends PSRoomPanel {
 			cmd += data.duration === "1 week" ? "/weekban " : "/ban ";
 			cmd += `${targetUser} ${data.reason ? ',' + data.reason : ''}`;
 		}
-		targetRoom?.send(cmd);
+		targetRoom.send(cmd);
 		this.close();
 	};
 
 	handleAddFriend = (ev: Event) => {
-		const { targetUser, targetRoom } = this.getTargets();
-		targetRoom?.send(`/friend add ${targetUser}`);
+		let { targetUser, targetRoom } = this.getTargets();
+		if (!targetRoom) targetRoom = PS.room.getParent()?.getParent()?.getParent() as ChatRoom;
+		targetRoom.send(`/friend add ${targetUser}`);
 		this.setState({ requestSent: true });
 		ev.preventDefault();
 		ev.stopImmediatePropagation();
 	};
 
 	handleIgnore = () => {
-		const { targetUser, targetRoom } = this.getTargets();
-		targetRoom?.send(`/ignore ${targetUser}`);
+		let { targetUser, targetRoom } = this.getTargets();
+		if (!targetRoom) targetRoom = PS.room.getParent()?.getParent()?.getParent() as ChatRoom;
+		targetRoom.send(`/ignore ${targetUser}`);
 		this.close();
 	};
 
 	handleUnignore = () => {
-		const { targetUser, targetRoom } = this.getTargets();
-		targetRoom?.send(`/unignore ${targetUser}`);
+		let { targetUser, targetRoom } = this.getTargets();
+		if (!targetRoom) targetRoom = PS.room.getParent()?.getParent()?.getParent() as ChatRoom;
+		targetRoom.send(`/unignore ${targetUser}`);
 		this.close();
 	};
 
@@ -323,15 +326,14 @@ class UserOptionsPanel extends PSRoomPanel {
 
 	override render() {
 		const room = this.props.room;
+		const banPerms = ["@", "#", "~"];
+		const mutePerms = ["%", ...banPerms];
+		let { targetUser, targetRoom } = this.getTargets();
 		let canMute = false;
 		let canBan = false;
-		const { targetUser, targetRoom } = this.getTargets();
-		if (targetRoom) {
-			const banPerms = ["@", "#", "~"];
-			const mutePerms = ["%", ...banPerms];
-			canMute = mutePerms.includes(targetRoom.users[PS.user.userid]?.charAt(0));
-			canBan = banPerms.includes(targetRoom.users[PS.user.userid]?.charAt(0));
-		}
+		if (!targetRoom) targetRoom = PS.room.getParent()?.getParent()?.getParent() as ChatRoom;
+		canMute = mutePerms.includes(targetRoom.users[PS.user.userid].charAt(0));
+		canBan = banPerms.includes(targetRoom.users[PS.user.userid].charAt(0));
 
 		return <PSPanelWrapper room={room} width={280}><div class="pad">
 			<p>
