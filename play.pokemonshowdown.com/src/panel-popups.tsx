@@ -229,11 +229,9 @@ class UserOptionsPanel extends PSRoomPanel {
 	getTargets() {
 		const [, targetUser, targetRoomid] = this.props.room.id.split('-');
 		let targetRoom = (PS.rooms[targetRoomid] || null) as ChatRoom | null;
-		if (targetRoom?.type !== 'chat') {
-			targetRoom = targetRoom?.getParent()?.type === 'chat' ?
-				targetRoom?.getParent() as ChatRoom :
-				null;
-		}
+		if (targetRoom?.type !== 'chat') targetRoom = targetRoom?.getParent() as ChatRoom;
+		if (targetRoom?.type !== 'chat') targetRoom = targetRoom?.getParent() as ChatRoom;
+		if (targetRoom?.type !== 'chat') targetRoom = null;
 		return { targetUser: targetUser as ID, targetRoomid: targetRoomid as RoomID, targetRoom };
 	}
 
