@@ -328,8 +328,8 @@ class UserOptionsPanel extends PSRoomPanel {
 		const banPerms = ["@", "#", "~"];
 		const mutePerms = ["%", ...banPerms];
 		const { targetUser, targetRoom } = this.getTargets();
-		canMute = mutePerms.includes(targetRoom?.users[PS.user.userid].charAt(0) || '');
-		canBan = banPerms.includes(targetRoom?.users[PS.user.userid].charAt(0) || '');
+		const canMute = mutePerms.includes(targetRoom?.users[PS.user.userid].charAt(0) || '');
+		const canBan = banPerms.includes(targetRoom?.users[PS.user.userid].charAt(0) || '');
 
 		return <PSPanelWrapper room={room} width={280}><div class="pad">
 			<p>
