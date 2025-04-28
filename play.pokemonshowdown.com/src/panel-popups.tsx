@@ -257,8 +257,8 @@ class UserOptionsPanel extends PSRoomPanel {
 	handleConfirm = (ev: Event) => {
 		const data = this.state.data;
 		if (!data) return;
-		let { targetUser, targetRoom } = this.getTargets();
-		if (!targetRoom) targetRoom = PS.room.getParent()?.getParent()?.getParent() as ChatRoom;
+		const { targetUser, targetRoom } = this.getTargets();
+
 		let cmd = '';
 		if (data.action === "Mute") {
 			cmd += data.duration === "1 hour" ? "/hourmute " : "/mute ";
