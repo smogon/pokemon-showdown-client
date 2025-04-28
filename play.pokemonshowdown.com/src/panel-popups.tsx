@@ -265,7 +265,7 @@ class UserOptionsPanel extends PSRoomPanel {
 			cmd += data.duration === "1 week" ? "/weekban " : "/ban ";
 			cmd += `${targetUser} ${data.reason ? ',' + data.reason : ''}`;
 		}
-		targetRoom.send(cmd);
+		targetRoom?.send(cmd);
 		this.close();
 	};
 
