@@ -270,7 +270,7 @@ class UserOptionsPanel extends PSRoomPanel {
 	};
 
 	handleAddFriend = (ev: Event) => {
-		let { targetUser, targetRoom } = this.getTargets();
+		const { targetUser, targetRoom } = this.getTargets();
 		targetRoom?.send(`/friend add ${targetUser}`);
 		this.setState({ requestSent: true });
 		ev.preventDefault();
