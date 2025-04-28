@@ -284,7 +284,7 @@ class UserOptionsPanel extends PSRoomPanel {
 	};
 
 	handleUnignore = () => {
-		let { targetUser, targetRoom } = this.getTargets();
+		const { targetUser, targetRoom } = this.getTargets();
 		targetRoom?.send(`/unignore ${targetUser}`);
 		this.close();
 	};
