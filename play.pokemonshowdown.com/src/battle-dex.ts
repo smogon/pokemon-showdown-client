@@ -714,6 +714,8 @@ export const Dex = new class implements ModdedDex {
 			spriteData.cryurl += '.mp3';
 		}
 
+		const kyburmonSprites = ['melodyGardevoir', 'blueBlastoise']
+
 		if (animationData[facing + 'f'] && options.gender === 'F') facing += 'f';
 		let allowAnim = !Dex.prefs('noanim') && !Dex.prefs('nogif');
 		if (allowAnim && spriteData.gen >= 6) spriteData.pixelated = false;
@@ -723,6 +725,12 @@ export const Dex = new class implements ModdedDex {
 
 			spriteData.w = animationData[facing].w;
 			spriteData.h = animationData[facing].h;
+			if (kyburmonSprites.includes(name)) {
+				spriteData.url = 'sprites/' + dir + '/' + name + '.gif';
+				spriteData.w *= 0.6;
+				spriteData.h *= 0.6;
+				return spriteData;
+			}
 			spriteData.url += dir + '/' + name + '.gif';
 		} else {
 			// There is no entry or enough data in pokedex-mini.js
@@ -733,6 +741,13 @@ export const Dex = new class implements ModdedDex {
 			// so there are no sprites for it
 			if (spriteData.gen >= 4 && miscData['frontf'] && options.gender === 'F') {
 				name += '-f';
+			}
+
+			if (kyburmonSprites.includes(name)) {
+				spriteData.url = 'sprites/' + dir + '/' + name + '.gif';
+				spriteData.w *= 0.6;
+				spriteData.h *= 0.6;
+				return spriteData;
 			}
 
 			spriteData.url += dir + '/' + name + '.png';
