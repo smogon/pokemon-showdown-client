@@ -714,7 +714,7 @@ export const Dex = new class implements ModdedDex {
 			spriteData.cryurl += '.mp3';
 		}
 
-		const kyburmonSprites = ['melodyGardevoir', 'blueBlastoise']
+		const kyburmonSprites = ['melodygardevoir', 'blueglastoise']
 
 		if (animationData[facing + 'f'] && options.gender === 'F') facing += 'f';
 		let allowAnim = !Dex.prefs('noanim') && !Dex.prefs('nogif');
@@ -843,6 +843,12 @@ export const Dex = new class implements ModdedDex {
 		let id = toID(pokemon.species);
 		let spriteid = pokemon.spriteid;
 		let species = Dex.species.get(pokemon.species);
+		const kyburmonSprites = ['melodygardevoir', 'blueglastoise']
+
+		if (kyburmonSprites.some(item => item === pokemon.species)){
+			spriteid = pokemon.species
+		}
+
 		if (pokemon.species && !spriteid) {
 			spriteid = species.spriteid || toID(pokemon.species);
 		}
