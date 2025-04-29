@@ -845,7 +845,7 @@ export const Dex = new class implements ModdedDex {
 		let species = Dex.species.get(pokemon.species);
 		const kyburmonSprites = ['melodygardevoir', 'blueglastoise']
 
-		if (pokemon.species && !spriteid) {
+		if (pokemon.species && !spriteid && !kyburmonSprites.some(item => item === pokemon.species)) {
 			spriteid = species.spriteid || toID(pokemon.species);
 		}
 		if (species.exists === false) return { spriteDir: 'sprites/gen5', spriteid: '0', x: 10, y: 5 };
