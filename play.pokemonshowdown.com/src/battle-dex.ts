@@ -912,7 +912,8 @@ export const Dex = new class implements ModdedDex {
 		const shiny = (data.shiny ? '-shiny' : '');
 		const isKyburmon = kyburmonSprites.includes(pokemon.species);
 		if (isKyburmon) {
-			spritehtml = `background-image:url(/play.pokemonshowdown.com/${data.spriteDir}${shiny}/${data.spriteid}.png);background-position:${data.x}px ${data.y}px;background-repeat:no-repeat`
+			spritehtml = `background-image:url(/play.pokemonshowdown.com/${data.spriteDir}${shiny}/${data.spriteid}.png);background-position:${data.x}px ${data.y}px;background-repeat:no-repeat';
+			background-size: 90%;`
 		}
 		else {
 			spritehtml = `background-image:url(${Dex.resourcePrefix}${data.spriteDir}${shiny}/${data.spriteid}.png);background-position:${data.x}px ${data.y}px;background-repeat:no-repeat`
