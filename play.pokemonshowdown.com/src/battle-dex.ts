@@ -714,7 +714,7 @@ export const Dex = new class implements ModdedDex {
 			spriteData.cryurl += '.mp3';
 		}
 
-		const kyburmonSprites = ['melodygardevoir', 'blueglastoise']
+		const kyburmonSprites = ['melodygardevoir', 'blueblastoise']
 
 		if (animationData[facing + 'f'] && options.gender === 'F') facing += 'f';
 		let allowAnim = !Dex.prefs('noanim') && !Dex.prefs('nogif');
@@ -845,11 +845,6 @@ export const Dex = new class implements ModdedDex {
 		let species = Dex.species.get(pokemon.species);
 		const kyburmonSprites = ['melodygardevoir', 'blueglastoise']
 
-		if (kyburmonSprites.some(item => item === pokemon.species)){
-			spriteid = pokemon.species
-			console.log(pokemon.species, spriteid )
-		}
-
 		if (pokemon.species && !spriteid) {
 			spriteid = species.spriteid || toID(pokemon.species);
 		}
@@ -894,12 +889,17 @@ export const Dex = new class implements ModdedDex {
 			return spriteData;
 		}
 		spriteData.spriteDir = 'sprites/gen5';
-		if (gen <= 1 && species.gen <= 1) spriteData.spriteDir = 'sprites/gen1';
-		else if (gen <= 2 && species.gen <= 2) spriteData.spriteDir = 'sprites/gen2';
-		else if (gen <= 3 && species.gen <= 3) spriteData.spriteDir = 'sprites/gen3';
-		else if (gen <= 4 && species.gen <= 4) spriteData.spriteDir = 'sprites/gen4';
-		spriteData.x = 10;
-		spriteData.y = 5;
+		if (kyburmonSprites.some(item => item === pokemon.species)){
+			spriteData.spriteid = pokemon.species
+			spriteData.spriteDir = 'sprites/dex'
+		} else {
+			if (gen <= 1 && species.gen <= 1) spriteData.spriteDir = 'sprites/gen1';
+			else if (gen <= 2 && species.gen <= 2) spriteData.spriteDir = 'sprites/gen2';
+			else if (gen <= 3 && species.gen <= 3) spriteData.spriteDir = 'sprites/gen3';
+			else if (gen <= 4 && species.gen <= 4) spriteData.spriteDir = 'sprites/gen4';
+			spriteData.x = 10;
+			spriteData.y = 5;
+		}
 		return spriteData;
 	}
 
