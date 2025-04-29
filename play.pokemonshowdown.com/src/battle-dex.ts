@@ -906,13 +906,17 @@ export const Dex = new class implements ModdedDex {
 
 	getTeambuilderSprite(pokemon: any, gen = 0) {
 		if (!pokemon) return '';
+		let spritehtml = ''
 		const kyburmonSprites = ['Melody-Gardevoir', 'Blue-Blastoise']
 		const data = this.getTeambuilderSpriteData(pokemon, gen);
 		const shiny = (data.shiny ? '-shiny' : '');
 		const isKyburmon = kyburmonSprites.includes(pokemon.species);
-		const baseUrl = isKyburmon ? '/' : 'https://play.pokemonshowdown.com/'
-		const spritehtml = `background-image:url(${baseUrl}${data.spriteDir}${shiny}/${data.spriteid}.png);background-position:${data.x}px ${data.y}px;background-repeat:no-repeat`;
-		
+		if (isKyburmon) {
+			spritehtml = `background-image:url(/playyowhatthefuck.pokemonshowdown.com/${data.spriteDir}${shiny}/${data.spriteid}.png);background-position:${data.x}px ${data.y}px;background-repeat:no-repeat`
+		}
+		else {
+			spritehtml = `background-image:url(${Dex.resourcePrefix}${data.spriteDir}${shiny}/${data.spriteid}.png);background-position:${data.x}px ${data.y}px;background-repeat:no-repeat`
+		} 
 		return spritehtml;
 	}
 
