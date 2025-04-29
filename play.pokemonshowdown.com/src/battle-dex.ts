@@ -847,12 +847,14 @@ export const Dex = new class implements ModdedDex {
 
 		if (kyburmonSprites.some(item => item === pokemon.species)){
 			spriteid = pokemon.species
+			console.log(pokemon.species, spriteid )
 		}
 
 		if (pokemon.species && !spriteid) {
 			spriteid = species.spriteid || toID(pokemon.species);
 		}
 		if (species.exists === false) return { spriteDir: 'sprites/gen5', spriteid: '0', x: 10, y: 5 };
+		
 		if (Dex.afdMode) {
 			return {
 				spriteid,
