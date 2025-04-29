@@ -888,8 +888,7 @@ export const Dex = new class implements ModdedDex {
 			}
 			return spriteData;
 		}
-		spriteData.spriteDir = 'sprites/gen5';
-		if (kyburmonSprites.some(item => item === pokemon.species)){
+		if ( !gen && kyburmonSprites.some(item => item === pokemon.species)){
 			spriteData.spriteid = pokemon.species
 			spriteData.spriteDir = 'sprites/dex'
 		} else {
