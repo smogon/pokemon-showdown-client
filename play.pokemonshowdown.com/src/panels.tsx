@@ -261,7 +261,8 @@ export function PSPanelWrapper(props: {
 	if (room.location === 'mini-window') {
 		const style = props.fullSize ? 'height: auto' : null;
 		return <div
-			id={`room-${room.id}`} class={'mini-window-contents ps-room-light' + (props.scrollable === true ? ' scrollable' : '')}
+			id={`room-${room.id}`}
+			class={`mini-window-contents tiny-layout ps-room-light${props.scrollable === true ? ' scrollable' : ''}`}
 			onClick={props.focusClick ? PSView.focusIfNoSelection : undefined} style={style} onDragEnter={props.onDragEnter}
 		>
 			{props.children}
@@ -275,8 +276,9 @@ export function PSPanelWrapper(props: {
 	}
 	const style = PSView.posStyle(room) as any;
 	if (props.scrollable === 'hidden') style.overflow = 'hidden';
+	const tinyLayout = room.width < 620 ? ' tiny-layout' : '';
 	return <div
-		class={'ps-room' + (room.id === '' ? '' : ' ps-room-light') + (props.scrollable === true ? ' scrollable' : '')}
+		class={`ps-room${room.id === '' ? '' : ' ps-room-light'}${props.scrollable === true ? ' scrollable' : ''}${tinyLayout}`}
 		id={`room-${room.id}`} role="tabpanel" aria-labelledby={`roomtab-${room.id}`}
 		style={style} onClick={props.focusClick ? PSView.focusIfNoSelection : undefined} onDragEnter={props.onDragEnter}
 	>
