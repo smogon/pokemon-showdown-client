@@ -21,6 +21,7 @@
 	bottom: 0;
 	padding: 5px 0 5px 8px;
 	overflow: auto;
+	-webkit-overflow-scrolling: touch;
 	overscroll-behavior-block: contain;
 }
 @media (max-width:649px) {
@@ -187,24 +188,6 @@
 	padding: 0;
 }
 
-
-.teamlist button {
-	background: transparent;
-	border: 1px solid transparent;
-	border-radius: 4px;
-	padding: 2px 5px;
-	margin: 0;
-	font-size: 9pt;
-	font-family: Verdana, sans-serif;
-}
-.teamlist button:hover {
-	border-color: #888888;
-	background: #D5D5D5;
-}
-.teamlist button i {
-	margin-right: 2px;
-}
-
 /* dark */
 
 .dark .folderpane {
@@ -287,7 +270,6 @@
 }
 
 .searchresults {
-	background: #f2f2f2;
 	border: 1px solid #888888;
 	border-radius: 2px;
 	box-shadow: 1px 3px 5px rgba(0, 0, 0, 0.3);
@@ -295,12 +277,15 @@
 	position: absolute;
 	top: 300px;
 	left: -14px;
-	width: 640px;
+	right: -14px;
 	min-height: 150px;
 	overflow: auto;
 	max-height: 80vh;
 }
-.dark .searchresults {
+.searchresults, .team-focus-editor {
+	background: #f2f2f2;
+}
+.dark .searchresults, .dark .team-focus-editor {
 	background: #282828;
 }
 
@@ -312,9 +297,12 @@
 }
 
 .teameditor {
+	padding-bottom: 30px;
+}
+.teameditor-text {
 	position: relative;
 }
-.teameditor .heighttester {
+.teameditor-text .heighttester {
 	position: absolute;
 	top: 0;
 	left: 0;
@@ -323,7 +311,7 @@
 	/* I have no clue what the default <textarea> box-sizing is but "content-box" doesn't mean what you'd think */
 	box-sizing: border-box;
 }
-.teameditor hr {
+.teameditor-text hr {
 	position: absolute;
 	pointer-events: none;
 	left: 10px;
@@ -341,29 +329,8 @@
 	border-right: none;
 }
 
-.dark .teambar button {
-	background: #5A6570;
-	color: #F1F1F1;
-	border: 1px solid #AAAAAA;
-}
-
-.dark .teambar button:hover {
-	background: #444C54;
-	color: #F1F1F1;
-	border: 1px solid #AAAAAA;
-}
-
-.dark .teambar button:disabled, .dark .teambar button:disabled:hover, .dark .teambar button:disabled:active {
-		color: #ffffff;
-		background: #2d343a;
-		border-color: #6bacc5;
-		opacity: 1;
-}
-
 .dark .teambuilder-results .result a.hover,
-.dark .teambuilder-results .result a:hover,
-.dark .setmenu button:hover,
-.dark .teamlist button:hover {
+.dark .teambuilder-results .result a:hover {
 	border-color: #777777;
 	background: rgba(100, 100, 100, 0.5);
 	color: #FFFFFF;
@@ -378,8 +345,6 @@
 	color: #FFFFFF;
 }
 
-.dark .setmenu button,
-.dark .teamlist button,
 .dark .folder.cur .selectFolder,
 .dark .utilichart .namecol,
 .dark .utilichart .pokemonnamecol,
@@ -412,6 +377,9 @@
 	background: #F8FBFD;
 	color: black;
 }
+.tiny-layout .setdetails, .tiny-layout .setstats {
+	display: none;
+}
 .setdetails label, .setstats label {
 	cursor: pointer;
 }
@@ -422,26 +390,26 @@
 }
 .setdetails:focus-visible, .setstats:focus-visible,
 .dark .setdetails:focus-visible, .dark .setstats:focus-visible {
-	border: 2px solid #004488;
-	margin: 1px 1px 0 0;
+	border: 1px solid #004488;
+	/* margin: 1px 1px 0 0; */
 	outline: 0 none;
 }
 .setdetails:active, .setstats:active {
 	box-shadow: inset 0px 2px 2px #AAAAAA;
 	background: #E4E9ED;
-	border: 2px solid #004488;
-	margin: 1px 1px 0 0;
+	border: 1px solid #004488;
+	/* margin: 1px 1px 0 0; */
 	outline: 0 none;
 }
 .setdetails {
-	width: 50px;
+	width: 55px;
 	height: 98px;
 	vertical-align: top;
 }
-.setdetails:focus,.setdetails:active {
+/* .setdetails:focus,.setdetails:active {
 	width: 52px;
 	height: 100px;
-}
+} */
 .setdetails .detailcell {
 	padding: 2px 4px;
 	display: block;
@@ -463,19 +431,19 @@
 	padding: 0;
 }
 .setstats {
-	width: 138px;
+	width: 128px;
 	height: 98px;
 	padding-right: 0;
 }
-.setstats:focus,.setstats:active {
-	width: 140px;
+/* .setstats:focus,.setstats:active {
+	width: 130px;
 	height: 100px;
-}
+} */
 .statrow {
 	display: block;
 	height: 15px;
 }
-.setstats label {
+.statrow label {
 	float: left;
 	width: 20px;
 	height: 5px;
@@ -484,47 +452,222 @@
 	font-size: 7pt;
 	padding: 0;
 }
-.setstats .statgraph {
+.statrow .statgraph {
 	float: left;
 	width: 75px;
 	padding: 0 0 0 3px;
 	height: 5px;
 }
-.setstats .statgraph span {
+.statrow .statgraph span {
 	display: block;
 	margin-top: 3px;
 	height: 6px;
 	background: #CCCCCC;
+	border: 1px solid #888888;
+	border-width: 0 1px 2px 0;
 }
-.setstats em {
+.statrow em {
 	float: left;
+	font-size: 7pt;
 	font-style: normal;
 	width: 22px;
 	height: 5px;
 	text-align: right;
 }
-.setstats small {
+.statrow small {
 	float: left;
 	font-size: 7pt;
 }
-.setstats .statrow-head em {
+.statrow .statrow-head em {
 	color: #555555;
 }
 
 .setstatbar {
 	width: 185px;
 }
+.tiny-layout .setstatbar {
+	display: none;
+}
 .setstatbar span {
 	margin: 3px 0 0 5px;
 	display: block;
 	height: 12px;
-	border-bottom: 1px solid #AAAAAA;
+	border-bottom: 3px solid #AAAAAA;
 	border-right: 1px solid #AAAAAA;
 	background: #CCCCCC;
+}
+.evslider {
+	width: 170px;
+}
+.tiny-layout .evslider {
+	width: 120px;
 }
 
 /* when a placeholder is the default value, it can be confusing when
 you can't delete it by pressing Backspace */
 .default-placeholder:focus::placeholder {
 	color: transparent;
+}
+
+/* button editor */
+
+.set-button {
+	position: relative;
+}
+.set-button table {
+	border: 0;
+	border-spacing: 0;
+	table-layout: fixed;
+	margin: 4px 0;
+	width: 100%;
+}
+.set-button td {
+	padding: 0;
+}
+.border-collapse {
+	/* not usually needed, but set-buttons are width:100% so negative margins don't work on them */
+	/* (there's no box-sizing:margin-box) */
+	margin: -1px 0 0 -1px;
+}
+.set-button .button {
+	display: block;
+	margin: 0;
+	width: 100%;
+	text-align: left;
+	height: 100px;
+	white-space: nowrap;
+	overflow: hidden;
+	padding: 3px;
+}
+.tiny-layout .set-button .button,
+.tiny-layout .set-button .label {
+	font-size: 11px;
+}
+.set-button .label {
+	color: #2f4f6e;
+}
+.dark .set-button .label {
+	color: #a1b0be;
+}
+
+.set-button .set-nickname {
+	position: absolute;
+	height: 35px;
+	width: 100px;
+	top: 5px;
+	left: -5px;
+}
+
+.set-button .sprite {
+	display: block;
+	width: 100%;
+	height: 97px;
+}
+.set-button .sprite-inner {
+	display: block;
+	padding: 68px 0 0 2px;
+	margin-left: 1px;
+	height: 29px;
+	border-bottom-left-radius: 3px;
+	background: linear-gradient(to bottom, transparent 0%, transparent 70%, #d3d3d3 100%);
+}
+.dark .set-button .sprite-inner {
+	background: linear-gradient(to bottom, transparent 0%, transparent 70%, #2b2c31 100%);
+}
+.set-button .detailcell {
+	float: left;
+	height: 50px;
+}
+.set-button .detailcell + .detailcell {
+	border-left: 1px solid #888;
+	margin-left: 20px;
+	padding-left: 3px;
+}
+.tiny-layout .set-button .detailcell + .detailcell {
+	margin-left: 3px;
+}
+.set-button .set-pokemon .button {
+	padding: 0;
+}
+.set-button .set-ability .button, .set-button .set-item .button {
+	height: 40px;
+}
+.set-button .set-details .button {
+	height: 60px;
+}
+.set-button .set-stats, .set-button .set-stats .button {
+	width: 138px;
+}
+.set-button .set-stats .button {
+	padding: 3px;
+}
+.tiny-layout .set-button .set-stats, .tiny-layout .set-button .set-stats .button {
+	width: 40px;
+}
+.tiny-layout .set-button .set-stats label {
+	display: none;
+}
+.tiny-layout .set-button .set-stats .statgraph {
+	transform: scale(0.5);
+	transform-origin: 0 0;
+}
+
+.team-focus-editor {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	overflow: auto;
+	-webkit-overflow-scrolling: touch;
+}
+.picontab {
+	font-size: 10px;
+	padding: 3px 0;
+	width: 80px;
+	height: 52px;
+	overflow: hidden;
+}
+.tiny-layout .picontab {
+	width: 42px;
+}
+@media (min-width: 375px) {
+	.tiny-layout .picontab {
+		width: 52px;
+	}
+}
+.tiny-layout .team-focus-editor .home-li .button {
+	margin-left: 0;
+	border-left: 0;
+	padding: 6px 3px;
+}
+.searchboxwrapper .textbox {
+	width: 100%;
+	font-size: 14px;
+}
+.searchboxwrapper .dexlist-filters {
+	float: left;
+	position: relative;
+	top: -21px;
+	left: 4px;
+	list-style: none;
+}
+.searchboxwrapper .moveslot {
+	float: right;
+	position: relative;
+	top: -21px;
+	right: 4px;
+}
+.wizardsearchresults {
+	position: absolute;
+	top: 236px;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	overflow: auto;
+	-webkit-overflow-scrolling: touch;
+	overscroll-behavior-block: contain;
+}
+.wizardsearchresults .dexlist, .searchresults .dexlist {
+	min-width: 624px;
 }

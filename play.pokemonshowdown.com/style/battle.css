@@ -5,7 +5,7 @@ License: GPLv2
 
 */
 
-@import url(./battle-log.css?v9);
+@import url(./battle-log.css?v9.4);
 
 .battle {
 	position: absolute;
@@ -717,11 +717,13 @@ License: GPLv2
 
 .itemicon {
 	display: inline-block;
+	vertical-align: middle;
 	width: 24px;
 	height: 24px;
 }
 .picon {
 	display: inline-block;
+	vertical-align: middle;
 	width: 40px;
 	height: 30px;
 }

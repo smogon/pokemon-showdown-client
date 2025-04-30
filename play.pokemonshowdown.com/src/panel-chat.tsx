@@ -927,7 +927,7 @@ export class ChatTextEntry extends preact.Component<{
 			class="chat-log-add hasuserlist" onClick={this.focusIfNoSelection} style={{ left: this.props.left || 0 }}
 		>
 			<form class={`chatbox${this.props.tinyLayout ? ' nolabel' : ''}`} style={canTalk ? {} : { display: 'none' }}>
-				<label style={{ color: BattleLog.usernameColor(PS.user.userid) }}>{PS.user.name}:</label>
+				<label style={`color:${BattleLog.usernameColor(PS.user.userid)}`}>{PS.user.name}:</label>
 				{OLD_TEXTBOX ? <textarea
 					class={this.props.room.connected && canTalk ? 'textbox autofocus' : 'textbox disabled'}
 					autofocus
@@ -1101,11 +1101,11 @@ export class ChatUserList extends preact.Component<{
 							{groupSymbol}
 						</em>
 						{group.type === 'leadership' ? (
-							<strong><em style={{ color }}>{name.slice(1)}</em></strong>
+							<strong><em style={`color:${color}`}>{name.slice(1)}</em></strong>
 						) : group.type === 'staff' ? (
-							<strong style={{ color }}>{name.slice(1)}</strong>
+							<strong style={`color:${color} `}>{name.slice(1)}</strong>
 						) : (
-							<span style={{ color }}>{name.slice(1)}</span>
+							<span style={`color:${color}`}>{name.slice(1)}</span>
 						)}
 					</button></li>;
 				})}

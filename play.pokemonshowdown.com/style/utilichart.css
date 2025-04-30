@@ -54,6 +54,11 @@
 .utilichart .result {
 	height: 32px;
 	padding: 1px 0 0 0;
+	contain: strict;
+}
+.message .utilichart .result, .chat .utilichart .result, .notice .utilichart .result {
+	height: auto;
+	contain: none;
 }
 .result p,
 .resultheader p,

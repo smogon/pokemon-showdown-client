@@ -13,7 +13,7 @@
 
 import { Dex, type ModdedDex, toID, type ID } from "./battle-dex";
 
-type SearchType = (
+export type SearchType = (
 	'pokemon' | 'type' | 'tier' | 'move' | 'item' | 'ability' | 'egggroup' | 'category' | 'article'
 );
 
@@ -42,6 +42,7 @@ export class DexSearch {
 	typedSearch: BattleTypedSearch<SearchType> | null = null;
 
 	results: SearchRow[] | null = null;
+	prependResults: SearchRow[] | null = null;
 	exactMatch = false;
 
 	static typeTable = {
@@ -107,6 +108,9 @@ export class DexSearch {
 		this.query = query;
 		if (!query) {
 			this.results = this.typedSearch?.getResults(this.filters, this.sortCol, this.reverseSort) || [];
+			if (!this.filters && !this.sortCol && this.prependResults) {
+				this.results = [...this.prependResults, ...this.results];
+			}
 		} else {
 			this.results = this.textSearch(query);
 		}
@@ -125,13 +129,28 @@ export class DexSearch {
 		if (this.typedSearch) this.dex = this.typedSearch.dex;
 	}
 
-	addFilter(entry: SearchFilter): boolean {
+	capitalizeFirst(str: string) {
+		return str.charAt(0).toUpperCase() + str.slice(1);
+	}
+	addFilter(entry: SearchFilter | SearchRow): boolean {
 		if (!this.typedSearch) return false;
 		let [type] = entry;
 		if (this.typedSearch.searchType === 'pokemon') {
 			if (type === this.sortCol) this.sortCol = null;
 			if (!['type', 'move', 'ability', 'egggroup', 'tier'].includes(type)) return false;
+			if (type === 'type') entry[1] = this.capitalizeFirst(entry[1]);
 			if (type === 'move') entry[1] = toID(entry[1]);
+			if (type === 'ability') entry[1] = this.dex.abilities.get(entry[1]).name;
+			if (type === 'tier') {
+				// very hardcode
+				const tierTable: { [id: string]: string } = {
+					uber: "Uber",
+					caplc: "CAP LC",
+					capnfe: "CAP NFE",
+				};
+				entry[1] = toID(entry[1]);
+				entry[1] = tierTable[entry[1]] || entry[1].toUpperCase();
+			}
 			if (!this.filters) this.filters = [];
 			this.results = null;
 			for (const filter of this.filters) {
@@ -139,14 +158,16 @@ export class DexSearch {
 					return true;
 				}
 			}
-			this.filters.push(entry);
+			this.filters.push(entry.slice(0, 2) as SearchFilter);
 			return true;
 		} else if (this.typedSearch.searchType === 'move') {
 			if (type === this.sortCol) this.sortCol = null;
 			if (!['type', 'category', 'pokemon'].includes(type)) return false;
+			if (type === 'type') entry[1] = this.capitalizeFirst(entry[1]);
+			if (type === 'category') entry[1] = this.capitalizeFirst(entry[1]);
 			if (type === 'pokemon') entry[1] = toID(entry[1]);
 			if (!this.filters) this.filters = [];
-			this.filters.push(entry);
+			this.filters.push(entry.slice(0, 2) as SearchFilter);
 			this.results = null;
 			return true;
 		}

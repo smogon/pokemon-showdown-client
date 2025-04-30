@@ -25,6 +25,9 @@ body {
 	margin: 0;
 	padding: 5px 15px;
 }
+.tiny-layout .pad {
+	padding: 4px 7px;
+}
 .pad p {
 	margin: 9px 0;
 }
@@ -33,20 +36,20 @@ body {
 	text-align: center;
 }
 
-.dark .tabbar a.button,
-.dark .tabbar a.button:hover,
-.dark .header-vertical .tablist a.button,
-.dark .header-vertical .tablist a.button:hover {
+.dark .tabbar .button,
+.dark .tabbar .button:hover,
+.dark .header-vertical .tablist .button,
+.dark .header-vertical .tablist .button:hover {
 	box-shadow: inset 0.5px 1px 1px rgba(255, 255, 255, 0.5);
 }
-.dark .tabbar a.button:active,
-.dark .tabbar a.button.cur,
-.dark .tabbar a.button.cur:hover,
-.dark .tabbar a.button.cur:active,
-.dark .header-vertical .tablist a.button:active,
-.dark .header-vertical .tablist a.button.cur,
-.dark .header-vertical .tablist a.button.cur:hover,
-.dark .header-vertical .tablist a.button.cur:active {
+.dark .tabbar .button:active,
+.dark .tabbar .button.cur,
+.dark .tabbar .button.cur:hover,
+.dark .tabbar .button.cur:active,
+.dark .header-vertical .tablist .button:active,
+.dark .header-vertical .tablist .button.cur,
+.dark .header-vertical .tablist .button.cur:hover,
+.dark .header-vertical .tablist .button.cur:active {
 	box-shadow: none;
 }
 
@@ -59,7 +62,8 @@ pre {
 	border: 15px solid transparent;
 	padding: 5px 10px;
 	background: #d9ca28;
-	background-image: linear-gradient(#d9ca28), repeating-linear-gradient(
+	/* opera doesn't support single-arg linear-gradient */
+	background-image: linear-gradient(#d9ca28, #d9ca28), repeating-linear-gradient(
 		-45deg,
 		#d9ca28,
 		#d9ca28 10px,
@@ -165,7 +169,7 @@ li::marker {
 	margin: 0 -5px;
 }
 
-.mini-header, .maintabbarbottom {
+.mini-header, .maintabbarbottom, .tabbar:after {
 	background: #f8f8f8;
 	border: solid 1px #AAAAAA;
 	color: black;
@@ -266,7 +270,7 @@ li::marker {
 	border-right-width: 1px;
 	margin: 0;
 }
-.dark .mini-header, .dark .maintabbarbottom {
+.dark .mini-header, .dark .maintabbarbottom, .dark .tabbar:after {
 	background: #555555;
 	border-color: #34373b;
 	color: #DDDDDD;
@@ -287,6 +291,18 @@ li::marker {
 	font-size: 10pt;
 
 	line-height: 100%;
+}
+.tabbar:after {
+	content: "";
+	display: block;
+	height: 6px;
+	margin: -1px 0 -1px 0;
+	-webkit-box-shadow: 0 1px 2px rgba(0,0,0,.2);
+	-moz-box-shadow: 0 1px 2px rgba(0,0,0,.2);
+	box-shadow: 0 1px 2px rgba(0,0,0,.2);
+}
+.tabbar.maintabbar:after {
+	display: none;
 }
 .tabbar.maintabbar {
 	/* margin-left: 52px; */
@@ -344,20 +360,22 @@ li::marker {
 	vertical-align: bottom;
 	line-height: normal;
 }
-.tabbar a.button {
+.tabbar .button {
 	display: inline-block; /* to align it with the close button */
-	height: 28px;
-	min-width: 52px;
 	white-space: nowrap;
 
 	position: relative;
-	padding: 3px 2px 3px 2px;
 	margin: 0 -1px 0 0;
 	border-radius: 0;
 	box-shadow: inset 0 -1px 2px rgba(255,255,255,1);
+}
+.maintabbar .button {
+	height: 28px;
+	min-width: 52px;
+	padding: 3px 2px 3px 2px;
 	font-size: 11px;
 }
-.tabbar a.button i {
+.tabbar .button i {
 	display: block;
 	text-align: center;
 	margin: 1px auto 0 auto;
@@ -365,37 +383,37 @@ li::marker {
 	font-size: 14px;
 	height: 14px;
 }
-.tabbar a.button i.rooms-plus {
+.tabbar .button i.rooms-plus {
 	margin: 7px auto -6px auto;
 }
-.tabbar a.button i.text {
+.tabbar .button i.text {
 	font-size: 11px;
 	margin-right: 8px;
 	padding-left: 0;
 	overflow: hidden;
 	font-weight: bold;
 }
-.tabbar a.button i.text + span {
+.tabbar .button i.text + span {
 	margin-right: -6px;
 }
-.tabbar a.button:hover,
-.tablist a.button:hover,
-.tabbar a.button:focus,
-.tablist a.button:focus {
+.tabbar .button:hover,
+.tablist .button:hover,
+.tabbar .button:focus,
+.tablist .button:focus {
 	z-index: 10;
 }
-.tabbar a.button.cur,
-.tabbar a.button.cur:hover {
+.tabbar .button.cur,
+.tabbar .button.cur:hover {
 	box-shadow: none;
 	border-bottom: 0;
 	padding-top: 3px;
 	padding-bottom: 5px;
 }
-.tabbar li:first-child a.button, .tabbar li.home-li a.button, .tabbar li.home-li + li a.button {
+.tabbar li:first-child .button, .tabbar li.home-li .button, .tabbar li.home-li + li .button {
 	border-top-left-radius: 5px;
 	margin-left: 6px;
 }
-.tabbar li:last-child a.button, .tabbar li.home-li a.button {
+.tabbar li:last-child .button, .tabbar li.home-li .button {
 	border-top-right-radius: 5px;
 }
 .tabbar a.closable {
@@ -1522,58 +1540,60 @@ pre.textbox.textbox-empty[placeholder]:before {
 	margin: 0 0 0 -1px;
 }
 
-html:not(.native-scrollbars) *::-webkit-scrollbar {
-	-webkit-appearance: none
-}
-html:not(.native-scrollbars) *::-webkit-scrollbar:vertical {
-	width: 16px
-}
-html:not(.native-scrollbars) *::-webkit-scrollbar:horizontal {
-	height: 16px
-}
-html:not(.native-scrollbars) *::-webkit-scrollbar-button,html:not(.native-scrollbars) *::-webkit-scrollbar-corner {
-	display: none
-}
-html:not(.native-scrollbars) *::-webkit-scrollbar-track {
-	background: transparent;
-	border: 1px solid transparent;
-}
-html:not(.native-scrollbars) *::-webkit-scrollbar-track:hover {
-	background: #c5cbce;
-	border-color: #959595;
-}
-html:not(.native-scrollbars) *::-webkit-scrollbar-track:vertical {
-	border-width: 0 0 0 1px;
-}
-html:not(.native-scrollbars) *::-webkit-scrollbar-track:vertical:corner-present {
-	border-width: 0 0 1px 1px;
-	border-radius: 0 0 0 2px;
-}
-html:not(.native-scrollbars) *::-webkit-scrollbar-track:horizontal {
-	border-width: 1px 1px 0 1px;
-	border-radius: 2px 2px 0 0;
-}
-html:not(.native-scrollbars) *::-webkit-scrollbar-thumb {
-	min-height: 2rem;
-	background: #acaeaf;
-	background-clip: padding-box;
-	border: 5px solid transparent;
-	border-radius: 10px;
-}
-html:not(.native-scrollbars) *::-webkit-scrollbar-thumb:hover,html:not(.native-scrollbars) *::-webkit-scrollbar-thumb:active {
-	background-color: #6c6c6f;
-	border-width: 4px;
-}
+@media (min-width: 500px) {
+	html:not(.native-scrollbars) *::-webkit-scrollbar {
+		-webkit-appearance: none
+	}
+	html:not(.native-scrollbars) *::-webkit-scrollbar:vertical {
+		width: 16px
+	}
+	html:not(.native-scrollbars) *::-webkit-scrollbar:horizontal {
+		height: 16px
+	}
+	html:not(.native-scrollbars) *::-webkit-scrollbar-button,html:not(.native-scrollbars) *::-webkit-scrollbar-corner {
+		display: none
+	}
+	html:not(.native-scrollbars) *::-webkit-scrollbar-track {
+		background: transparent;
+		border: 1px solid transparent;
+	}
+	html:not(.native-scrollbars) *::-webkit-scrollbar-track:hover {
+		background: #c5cbce;
+		border-color: #959595;
+	}
+	html:not(.native-scrollbars) *::-webkit-scrollbar-track:vertical {
+		border-width: 0 0 0 1px;
+	}
+	html:not(.native-scrollbars) *::-webkit-scrollbar-track:vertical:corner-present {
+		border-width: 0 0 1px 1px;
+		border-radius: 0 0 0 2px;
+	}
+	html:not(.native-scrollbars) *::-webkit-scrollbar-track:horizontal {
+		border-width: 1px 1px 0 1px;
+		border-radius: 2px 2px 0 0;
+	}
+	html:not(.native-scrollbars) *::-webkit-scrollbar-thumb {
+		min-height: 2rem;
+		background: #acaeaf;
+		background-clip: padding-box;
+		border: 5px solid transparent;
+		border-radius: 10px;
+	}
+	html:not(.native-scrollbars) *::-webkit-scrollbar-thumb:hover,html:not(.native-scrollbars) *::-webkit-scrollbar-thumb:active {
+		background-color: #6c6c6f;
+		border-width: 4px;
+	}
 
-html.dark:not(.native-scrollbars) *::-webkit-scrollbar-track:hover {
-	background: #24282a;
-	border-color: #000000;
-}
-html.dark:not(.native-scrollbars) *::-webkit-scrollbar-thumb {
-	background: #6c6c6f;
-}
-html.dark:not(.native-scrollbars) *::-webkit-scrollbar-thumb:hover,html.dark:not(.native-scrollbars) *::-webkit-scrollbar-thumb:active {
-	background-color: #949697;
+	html.dark:not(.native-scrollbars) *::-webkit-scrollbar-track:hover {
+		background: #24282a;
+		border-color: #000000;
+	}
+	html.dark:not(.native-scrollbars) *::-webkit-scrollbar-thumb {
+		background: #6c6c6f;
+	}
+	html.dark:not(.native-scrollbars) *::-webkit-scrollbar-thumb:hover,html.dark:not(.native-scrollbars) *::-webkit-scrollbar-thumb:active {
+		background-color: #949697;
+	}
 }
 
 /*********************************************************

@@ -245,11 +245,15 @@ class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
 					{teams.map(team => team ? (
 						<li key={team.key}>
 							<TeamBox team={team} /> {}
-							<button data-cmd={`/deleteteam ${team.key}`}><i class="fa fa-trash" aria-hidden></i> Delete</button>
+							<button data-cmd={`/deleteteam ${team.key}`} class="option">
+								<i class="fa fa-trash" aria-hidden></i> Delete
+							</button>
 						</li>
 					) : (
 						<li key="undelete">
-							<button data-cmd="/undeleteteam"><i class="fa fa-undo" aria-hidden></i> Undo delete</button>
+							<button data-cmd="/undeleteteam" class="option">
+								<i class="fa fa-undo" aria-hidden></i> Undo delete
+							</button>
 						</li>
 					))}
 				</ul>
