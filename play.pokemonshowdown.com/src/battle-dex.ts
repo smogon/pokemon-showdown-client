@@ -714,7 +714,7 @@ export const Dex = new class implements ModdedDex {
 			spriteData.cryurl += '.mp3';
 		}
 
-		const kyburmonSprites = ['Melody-Gardevoir', 'Blue-Blastoise']
+		const kyburmonSprites = ['Melody-Gardevoir', 'Blue-Blastoise', 'Daniel-Machamp']
 
 		if (animationData[facing + 'f'] && options.gender === 'F') facing += 'f';
 		let allowAnim = !Dex.prefs('noanim') && !Dex.prefs('nogif');
@@ -843,7 +843,7 @@ export const Dex = new class implements ModdedDex {
 		let id = toID(pokemon.species);
 		let spriteid = pokemon.spriteid;
 		let species = Dex.species.get(pokemon.species);
-		const kyburmonSprites = ['Melody-Gardevoir', 'Blue-Blastoise']
+		const kyburmonSprites = ['Melody-Gardevoir', 'Blue-Blastoise', 'Daniel-Machamp']
 		const isKyburmon = kyburmonSprites.includes(pokemon.species);
 
 		if (isKyburmon) {
@@ -907,7 +907,7 @@ export const Dex = new class implements ModdedDex {
 	getTeambuilderSprite(pokemon: any, gen = 0) {
 		if (!pokemon) return '';
 		let spritehtml = ''
-		const kyburmonSprites = ['Melody-Gardevoir', 'Blue-Blastoise']
+		const kyburmonSprites = ['Melody-Gardevoir', 'Blue-Blastoise', 'Daniel-Machamp']
 		const data = this.getTeambuilderSpriteData(pokemon, gen);
 		const shiny = (data.shiny ? '-shiny' : '');
 		const isKyburmon = kyburmonSprites.includes(pokemon.species);
