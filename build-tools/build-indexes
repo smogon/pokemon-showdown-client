@@ -412,7 +412,8 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 					let tier = species.tier;
 					const lc = Dex.formats.get(gen + 'lc');
 					const lcBanlist = Dex.formats.getRuleTable(lc);
-					if (!species.nfe || species.prevo || lcBanlist.isBannedSpecies(species)) {
+					const prevoSpecies = Dex.mod(gen).species.get(species.prevo);
+					if (!species.nfe || (prevoSpecies.exists && prevoSpecies.gen <= genNum) || lcBanlist.isBannedSpecies(species)) {
 						tier = 'Illegal';
 					}
 					if (/^([OURNPZ]U(BL)?|Uber|AG)$/g.test(tier) && tier !== 'Illegal') {
