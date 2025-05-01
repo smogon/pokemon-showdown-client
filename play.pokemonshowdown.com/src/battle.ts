@@ -592,7 +592,7 @@ export class Pokemon implements PokemonDetails, PokemonHealth {
 		if (pokemon.maxhp === 100) return `${pokemon.hp}%`;
 		if (pokemon.maxhp !== 48) return (100 * pokemon.hp / pokemon.maxhp).toFixed(precision) + '%';
 		let range = Pokemon.getPixelRange(pokemon.hp, pokemon.hpcolor);
-		return Pokemon.getFormattedRange(range, precision, '–');
+		return Pokemon.getFormattedRange(range, precision, '\u2013');
 	}
 	destroy() {
 		if (this.sprite) this.sprite.destroy();
@@ -1664,6 +1664,9 @@ export class Battle {
 				kwArgs.then = '.';
 			}
 			if (args[0] === '-damage' && nextArgs[0] === '-damage' && kwArgs.from && kwArgs.from === nextKwargs.from) {
+				kwArgs.then = '.';
+			}
+			if (args[0] === '-heal' && nextArgs[0] === '-heal' && kwArgs.from && kwArgs.from === nextKwargs.from) {
 				kwArgs.then = '.';
 			}
 			if (args[0] === '-ability' && (args[2] === 'Intimidate' || args[3] === 'boost')) {

@@ -388,9 +388,11 @@ select.button {
 }
 .label strong {
 	font-size: 11pt;
-	display: block;
 }
-.label .textbox {
+.label .textbox,
+.label .button,
+.label strong {
+	margin-top: 2px;
 	display: block;
 }
 .textbox {
@@ -745,10 +747,11 @@ details.readmore summary, details.details summary {
 details.readmore summary::-webkit-details-marker details.details summary::-webkit-details-marker {
 	display: none;
 }
-details.readmore summary:after {
+details.readmore summary:after, details.readmore summary:hover:has(a:hover):after {
 	content: '[read more]';
 	font-family: Verdana, sans-serif;
 	margin-left: 0.5em;
+	text-decoration: none;
 	color: #888;
 }
 details.readmore summary:hover:after {
@@ -782,7 +785,7 @@ details[open] .details-preview {
 .details summary:hover, .readmore summary:hover {
 	background: rgba(119, 153, 187, 0.15);
 }
-.details summary:hover:has(a:hover) {
+.details summary:hover:has(a:hover), .readmore summary:hover:has(a:hover) {
 	background: transparent;
 }
 .fa.expandbutton, summary:hover:has(a:hover) .fa.expandbutton {

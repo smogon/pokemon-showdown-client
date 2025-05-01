@@ -23,6 +23,8 @@ class TeamRoom extends PSRoom {
 	team!: Team;
 	gen = Dex.gen;
 	dex: ModdedDex = Dex;
+	search = new DexSearch();
+	searchInitial: ID | null = null;
 	constructor(options: RoomOptions) {
 		super(options);
 		const team = PS.teams.byKey[this.id.slice(5)] || null;
@@ -135,9 +137,9 @@ class TeamRoom extends PSRoom {
 		}
 		if (natureOverride) {
 			val *= natureOverride;
-		} else if (BattleNatures[set.nature as "Serious"]?.plus === stat) {
+		} else if (BattleNatures[set.nature!]?.plus === stat) {
 			val *= 1.1;
-		} else if (BattleNatures[set.nature as "Serious"]?.minus === stat) {
+		} else if (BattleNatures[set.nature!]?.minus === stat) {
 			val *= 0.9;
 		}
 		if (!supportsEVs) {
@@ -166,31 +168,44 @@ class TeamTextbox extends preact.Component<{ team: Team, room: TeamRoom }> {
 	sets: Dex.PokemonSet[] = [];
 	textbox: HTMLTextAreaElement = null!;
 	heightTester: HTMLTextAreaElement = null!;
+	compat = false;
+	/** we changed the set but are delaying updates until the selection form is closed */
+	setDirty = false;
+	windowing = true;
 	selection: {
 		setIndex: number,
-		offsetY: number | null,
 		type: SelectionType | null,
+		typeIndex: number,
 		lineRange: [number, number] | null,
-		active: boolean,
 	} | null = null;
-	search = new DexSearch();
-	getYAt(index: number, value: string) {
+	innerFocus: {
+		offsetY: number | null,
+		setIndex: number,
+		type: SelectionType,
+		/** i.e. which move is this */
+		typeIndex: number,
+		range: [number, number],
+		/** if you edit, you'll change the range end, so it needs to be updated with this in mind */
+		rangeEndChar: string,
+	} | null = null;
+	getYAt(index: number, fullLine?: boolean) {
 		if (index < 0) return 10;
-		this.heightTester.value = value.slice(0, index);
+		const newValue = this.textbox.value.slice(0, index);
+		this.heightTester.value = fullLine && !newValue.endsWith('\n') ? newValue + '\n' : newValue;
 		return this.heightTester.scrollHeight;
 	}
-	input = () => this.update();
-	keyUp = () => this.update(true);
+	input = () => this.updateText();
+	keyUp = () => this.updateText(true);
 	click = (ev: MouseEvent | KeyboardEvent) => {
 		if (ev.altKey || ev.ctrlKey || ev.metaKey) return;
 		const oldRange = this.selection?.lineRange;
-		this.update(true, true);
+		this.updateText(true, true);
 		if (this.selection) {
 			// this shouldn't actually update anything, so the reference comparison is enough
 			if (this.selection.lineRange === oldRange) return;
 			if (this.textbox.selectionStart === this.textbox.selectionEnd) {
 				const range = this.getSelectionTypeRange();
-				if (range) this.textbox.setSelectionRange(range.start, range.end);
+				if (range) this.textbox.setSelectionRange(range[0], range[1]);
 			}
 		}
 	};
@@ -203,38 +218,72 @@ class TeamTextbox extends preact.Component<{ team: Team, room: TeamRoom }> {
 			}
 			break;
 		case 9: // tab
-			if (!this.selection?.active) {
-				this.click(ev);
+			if (!this.innerFocus) {
+				if (
+					this.textbox.selectionStart === this.textbox.value.length &&
+					(this.textbox.value.endsWith('\n\n') || !this.textbox.value)
+				) {
+					this.addPokemon();
+				} else {
+					this.click(ev);
+				}
 				ev.stopImmediatePropagation();
 				ev.preventDefault();
 			}
 			break;
+		case 80: // p
+			if (ev.metaKey) {
+				PS.alert(PSTeambuilder.exportTeam(this.sets, this.props.room.dex));
+				ev.stopImmediatePropagation();
+				ev.preventDefault();
+				break;
+			}
 		}
 	};
 	closeMenu = () => {
-		if (this.selection?.active) {
-			this.selection.active = false;
-			this.forceUpdate();
+		if (this.innerFocus) {
+			this.innerFocus = null;
+			if (this.setDirty) {
+				this.updateText();
+			} else {
+				this.forceUpdate();
+			}
 			this.textbox.focus();
 			return true;
 		}
 		return false;
 	};
-	update = (cursorOnly?: boolean, autoSelect?: boolean) => {
+	updateText = (noTextChange?: boolean, autoSelect?: boolean | SelectionType) => {
 		const textbox = this.textbox;
 		const value = textbox.value;
 		const selectionStart = textbox.selectionStart || 0;
 		const selectionEnd = textbox.selectionEnd || 0;
 
-		if (this.selection?.lineRange) {
-			const [start, end] = this.selection.lineRange;
+		if (this.innerFocus) {
+			if (!noTextChange) {
+				let lineEnd = this.textbox.value.indexOf('\n', this.innerFocus.range[0]);
+				if (lineEnd < 0) lineEnd = this.textbox.value.length;
+				const line = this.textbox.value.slice(this.innerFocus.range[0], lineEnd);
+				if (this.innerFocus.rangeEndChar) {
+					const index = line.indexOf(this.innerFocus.rangeEndChar);
+					if (index >= 0) lineEnd = this.innerFocus.range[0] + index;
+				}
+				this.innerFocus.range[1] = lineEnd;
+			}
+			const [start, end] = this.innerFocus.range;
 			if (selectionStart >= start && selectionStart <= end && selectionEnd >= start && selectionEnd <= end) {
-				if (autoSelect && !this.selection.active) {
-					this.selection.active = true;
-					this.forceUpdate();
+				if (!noTextChange) {
+					this.updateSearch();
+					this.setDirty = true;
 				}
 				return;
 			}
+			this.innerFocus = null;
+		}
+
+		if (this.setDirty) {
+			this.setDirty = false;
+			noTextChange = false;
 		}
 
 		this.heightTester.style.width = `${textbox.offsetWidth}px`;
@@ -243,7 +292,7 @@ class TeamTextbox extends preact.Component<{ team: Team, room: TeamRoom }> {
 		/** for the set we're currently parsing */
 		let setIndex: number | null = null;
 		let nextSetIndex = 0;
-		if (!cursorOnly) this.setInfo = [];
+		if (!noTextChange) this.setInfo = [];
 		this.selection = null;
 
 		while (index < value.length) {
@@ -257,12 +306,12 @@ class TeamTextbox extends preact.Component<{ team: Team, room: TeamRoom }> {
 				continue;
 			}
 
-			if (setIndex === null && index && !cursorOnly) {
-				this.setInfo[this.setInfo.length - 1].bottomY = this.getYAt(index - 1, value);
+			if (setIndex === null && index && !noTextChange && this.setInfo.length) {
+				this.setInfo[this.setInfo.length - 1].bottomY = this.getYAt(index - 1);
 			}
 
 			if (setIndex === null) {
-				if (!cursorOnly) {
+				if (!noTextChange) {
 					const atIndex = line.indexOf('@');
 					let species = atIndex >= 0 ? line.slice(0, atIndex).trim() : line.trim();
 					if (species.endsWith(' (M)') || species.endsWith(' (F)')) {
@@ -297,7 +346,8 @@ class TeamTextbox extends preact.Component<{ team: Team, room: TeamRoom }> {
 					type = 'move';
 				} else if (
 					!lcLine || lcLine.startsWith('level:') || lcLine.startsWith('gender:') ||
-					lcLine.startsWith('shiny:')
+					(lcLine + ':').startsWith('shiny:') || (lcLine + ':').startsWith('gigantamax:') ||
+					lcLine.startsWith('tera type:') || lcLine.startsWith('dynamax level:')
 				) {
 					type = 'details';
 				} else if (
@@ -308,29 +358,31 @@ class TeamTextbox extends preact.Component<{ team: Team, room: TeamRoom }> {
 				} else {
 					type = 'pokemon';
 					const atIndex = line.indexOf('@');
-					if (atIndex >= 0 && selectionStart > index + atIndex) {
-						type = 'item';
-						start = index + atIndex + 1;
-					} else {
-						end = index + atIndex;
+					if (atIndex >= 0) {
+						if (selectionStart > index + atIndex) {
+							type = 'item';
+							start = index + atIndex + 1;
+						} else {
+							end = index + atIndex;
+							if (line.charAt(atIndex - 1) === ']' || line.charAt(atIndex - 2) === ']') {
+								type = 'ability';
+							}
+						}
 					}
 				}
 
-				const offsetY = this.getYAt(index - 1, value);
+				if (typeof autoSelect === 'string') autoSelect = autoSelect === type;
 				this.selection = {
-					setIndex, offsetY, type, lineRange: [start, end], active: !!autoSelect,
+					setIndex, type, lineRange: [start, end], typeIndex: 0,
 				};
-				const searchType = type !== 'details' && type !== 'stats' ? type : '';
-				this.search.setType(searchType, this.props.team.format, this.sets[setIndex]);
-				this.search.find('');
-				window.search = this.search;
+				if (autoSelect) this.engageFocus();
 			}
 
 			index = nlIndex + 1;
 		}
-		if (!cursorOnly) {
+		if (!noTextChange) {
 			const end = value.endsWith('\n\n') ? value.length - 1 : value.length;
-			const bottomY = this.getYAt(end, value);
+			const bottomY = this.getYAt(end, true);
 			if (this.setInfo.length) {
 				this.setInfo[this.setInfo.length - 1].bottomY = bottomY;
 			}
@@ -340,16 +392,126 @@ class TeamTextbox extends preact.Component<{ team: Team, room: TeamRoom }> {
 		}
 		this.forceUpdate();
 	};
+	engageFocus(focus?: this['innerFocus']) {
+		if (this.innerFocus) return;
+		const { room } = this.props;
+
+		if (!focus) {
+			if (!this.selection?.type) return;
+
+			const range = this.getSelectionTypeRange();
+			if (!range) return;
+			const { type, setIndex } = this.selection;
+
+			let rangeEndChar = this.textbox.value.charAt(range[1]);
+			if (rangeEndChar === ' ') rangeEndChar += this.textbox.value.charAt(range[1] + 1);
+			focus = {
+				offsetY: this.getYAt(range[0]),
+				setIndex,
+				type,
+				typeIndex: this.selection.typeIndex,
+				range,
+				rangeEndChar,
+			};
+		}
+		this.innerFocus = focus;
+
+		if (focus.type === 'details' || focus.type === 'stats') {
+			this.forceUpdate();
+			return;
+		}
+
+		room.search.setType(focus.type, room.team.format, this.sets[focus.setIndex]);
+		this.textbox.setSelectionRange(focus.range[0], focus.range[1]);
+
+		let value = this.textbox.value.slice(focus.range[0], focus.range[1]);
+		room.searchInitial = null;
+		switch (focus.type) {
+		case 'pokemon':
+			if (room.dex.species.get(value).exists) {
+				room.searchInitial = toID(value);
+				value = '';
+			}
+			break;
+		case 'item':
+			if (toID(value) === 'noitem') value = '';
+			if (room.dex.items.get(value).exists) {
+				room.searchInitial = toID(value);
+				value = '';
+			}
+			break;
+		case 'ability':
+			if (toID(value) === 'selectability') value = '';
+			if (toID(value) === 'noability') value = '';
+			if (room.dex.abilities.get(value).exists) {
+				room.searchInitial = toID(value);
+				value = '';
+			}
+			break;
+		case 'move':
+			if (room.dex.moves.get(value).exists) {
+				room.searchInitial = toID(value);
+				value = '';
+			}
+			break;
+		}
+
+		room.search.find(value);
+		this.windowing = true;
+		this.forceUpdate();
+	}
+	updateSearch() {
+		if (!this.innerFocus) return;
+		const { range } = this.innerFocus;
+		const { room } = this.props;
+		const value = this.textbox.value.slice(range[0], range[1]);
+
+		room.search.find(value);
+		this.windowing = true;
+		this.forceUpdate();
+	}
 	handleClick = (ev: Event) => {
+		const { room } = this.props;
 		let target = ev.target as HTMLElement | null;
 		while (target && target.className !== 'dexlist') {
 			if (target.tagName === 'A') {
 				const entry = target.getAttribute('data-entry');
 				if (entry) {
 					const [type, name] = entry.split('|');
-					this.changeSet(type as SelectionType, name);
+					if (room.search.addFilter([type, name])) {
+						room.search.find('');
+						if (room.search.query) {
+							this.changeSet(this.selection!.type!, '');
+						} else {
+							this.forceUpdate();
+						}
+					} else {
+						this.changeSet(type as SelectionType, name);
+					}
 					ev.preventDefault();
 					ev.stopImmediatePropagation();
+					break;
+				}
+			}
+			if (target.tagName === 'BUTTON') {
+				const filter = target.getAttribute('data-filter');
+				if (filter) {
+					room.search.removeFilter(filter.split(':') as any);
+					room.search.find('');
+					this.forceUpdate();
+					ev.preventDefault();
+					ev.stopPropagation();
+					break;
+				}
+
+				// sort
+				const sort = target.getAttribute('data-sort');
+				if (sort) {
+					room.search.toggleSort(sort);
+					room.search.find('');
+					this.forceUpdate();
+					ev.preventDefault();
+					ev.stopPropagation();
 					break;
 				}
 			}
@@ -357,7 +519,7 @@ class TeamTextbox extends preact.Component<{ team: Team, room: TeamRoom }> {
 			target = target.parentElement;
 		}
 	};
-	getSelectionTypeRange() {
+	getSelectionTypeRange(): [number, number] | null {
 		const selection = this.selection;
 		if (!selection?.lineRange) return null;
 
@@ -395,7 +557,7 @@ class TeamTextbox extends preact.Component<{ team: Team, room: TeamRoom }> {
 				}
 			}
 
-			return { start, end };
+			return [start, end];
 		}
 		case 'item': {
 			// let atIndex = lcLine.lastIndexOf('@');
@@ -404,17 +566,28 @@ class TeamTextbox extends preact.Component<{ team: Team, room: TeamRoom }> {
 			// if (lcLine.charAt(atIndex + 1) === ' ') atIndex++;
 			// return { start: start + atIndex + 1, end };
 			if (lcLine.startsWith(' ')) start++;
-			return { start, end };
+			return [start, end];
 		}
 		case 'ability': {
+			if (lcLine.startsWith('[')) {
+				start++;
+				if (lcLine.endsWith(' ')) {
+					end--;
+					lcLine = lcLine.slice(0, -1);
+				}
+				if (lcLine.endsWith(']')) {
+					end--;
+				}
+				return [start, end];
+			}
 			if (!lcLine.startsWith('ability:')) return null;
 			start += lcLine.startsWith('ability: ') ? 9 : 8;
-			return { start, end };
+			return [start, end];
 		}
 		case 'move': {
 			if (!lcLine.startsWith('-')) return null;
 			start += lcLine.startsWith('- ') ? 2 : 1;
-			return { start, end };
+			return [start, end];
 		}
 		}
 		return null;
@@ -425,50 +598,67 @@ class TeamTextbox extends preact.Component<{ team: Team, room: TeamRoom }> {
 
 		const range = this.getSelectionTypeRange();
 		if (range) {
-			this.replace(name, range.start, range.end);
-			this.update(false, true);
+			this.replace(name, range[0], range[1]);
+			this.updateText(false, true);
 			return;
 		}
 
 		switch (type) {
 		case 'pokemon': {
+			const species = this.props.room.dex.species.get(name);
+			const abilities = Object.values(species.abilities);
 			this.sets[selection.setIndex] ||= {
+				ability: abilities.length === 1 ? abilities[0] : undefined,
 				species: '',
 				moves: [],
 			};
 			this.sets[selection.setIndex].species = name;
 			this.replaceSet(selection.setIndex);
-			this.update(false, true);
+			this.updateText(false, true);
 			break;
 		}
 		case 'ability': {
 			this.sets[selection.setIndex].ability = name;
 			this.replaceSet(selection.setIndex);
-			this.update(false, true);
+			this.updateText(false, true);
 			break;
 		}
 		}
 	}
+	getSetRange(index: number) {
+		const start = this.setInfo[index]?.index ?? this.textbox.value.length;
+		const end = this.setInfo[index + 1]?.index ?? this.textbox.value.length;
+		return [start, end];
+	}
+	changeCompat = (ev: Event) => {
+		const checkbox = ev.currentTarget as HTMLInputElement;
+		this.compat = checkbox.checked;
+		this.sets = PSTeambuilder.importTeam(this.textbox.value);
+		this.textbox.value = PSTeambuilder.exportTeam(this.sets, this.props.room.dex, this.compat);
+		this.updateText();
+	};
 	replaceSet(index: number) {
 		const { room } = this.props;
 		const { team } = room;
 		if (!team) return;
 
-		let newText = PSTeambuilder.exportSet(this.sets[index], room.dex);
-		const start = this.setInfo[index]?.index || this.textbox.value.length;
-		const end = this.setInfo[index + 1]?.index || this.textbox.value.length;
-		if (start === this.textbox.value.length && !this.textbox.value.endsWith('\n\n')) {
+		let newText = PSTeambuilder.exportSet(this.sets[index], room.dex, this.compat);
+		const [start, end] = this.getSetRange(index);
+		if (start && start === this.textbox.value.length && !this.textbox.value.endsWith('\n\n')) {
 			newText = (this.textbox.value.endsWith('\n') ? '\n' : '\n\n') + newText;
 		}
 		this.replace(newText, start, end, start + newText.length);
 		// we won't do a full update but we do need to update where the end is,
 		// for future updates
-		if (this.setInfo[index + 1]) {
-			this.setInfo[index + 1].index = start + newText.length;
+		if (!this.setInfo[index]) {
+			this.updateText();
+		} else {
+			if (this.setInfo[index + 1]) {
+				this.setInfo[index + 1].index = start + newText.length;
+			}
 			// others don't need to be updated;
-			// TODO: a full update next time we focus the textbox
-		} else if (!this.setInfo[index]) {
-			this.update();
+			// we'll do a full update next time we focus the textbox
+			this.setDirty = true;
 		}
 	}
 	replace(text: string, start: number, end: number, selectionStart = start, selectionEnd = start + text.length) {
@@ -490,9 +680,9 @@ class TeamTextbox extends preact.Component<{ team: Team, room: TeamRoom }> {
 		this.heightTester = this.base!.getElementsByClassName('heighttester')[0] as HTMLTextAreaElement;
 
 		this.sets = PSTeambuilder.unpackTeam(this.props.team.packedTeam);
-		const exportedTeam = PSTeambuilder.exportTeam(this.sets, this.props.room.dex);
+		const exportedTeam = PSTeambuilder.exportTeam(this.sets, this.props.room.dex, this.compat);
 		this.textbox.value = exportedTeam;
-		this.update();
+		this.updateText();
 	}
 	override componentWillUnmount() {
 		this.textbox = null!;
@@ -501,32 +691,50 @@ class TeamTextbox extends preact.Component<{ team: Team, room: TeamRoom }> {
 	clickDetails = (ev: Event) => {
 		const target = ev.currentTarget as HTMLButtonElement;
 		const i = parseInt(target.value || '0');
-		if (this.selection?.active && this.selection?.type === target.name) {
-			this.selection.active = false;
+		if (this.innerFocus?.type === target.name) {
+			this.innerFocus = null;
 			this.forceUpdate();
 			return;
 		}
-		this.selection = {
+		this.innerFocus = {
+			offsetY: null,
 			setIndex: i,
-			offsetY: this.setInfo[i].bottomY,
 			type: target.name as SelectionType,
-			lineRange: null,
-			active: true,
+			typeIndex: 0,
+			range: [0, 0],
+			rangeEndChar: '',
 		};
 		this.forceUpdate();
 	};
 	addPokemon = () => {
-		this.selection = {
+		if (!this.textbox.value.endsWith('\n\n')) {
+			this.textbox.value += this.textbox.value.endsWith('\n') ? '\n' : '\n\n';
+		}
+		const end = this.textbox.value.length;
+		this.textbox.setSelectionRange(end, end);
+		this.textbox.focus();
+		this.engageFocus({
+			offsetY: this.getYAt(end, true),
 			setIndex: this.setInfo.length,
-			offsetY: null,
 			type: 'pokemon',
-			lineRange: null,
-			active: true,
-		};
-		this.search.setType('pokemon', this.props.team.format);
-		this.search.find('');
+			typeIndex: 0,
+			range: [end, end],
+			rangeEndChar: '@',
+		});
+	};
+	scrollResults = (ev: Event) => {
+		this.windowing = false;
+		if (PS.leftPanelWidth !== null) {
+			(ev.currentTarget as any).scrollIntoViewIfNeeded?.();
+		}
 		this.forceUpdate();
 	};
+	windowResults() {
+		if (this.windowing) {
+			return Math.ceil(window.innerHeight / 33);
+		}
+		return null;
+	}
 	renderDetails(set: Dex.PokemonSet, i: number) {
 		const { room } = this.props;
 		const { team } = room;
@@ -542,8 +750,11 @@ class TeamTextbox extends preact.Component<{ team: Team, room: TeamRoom }> {
 
 		return <button class="textbox setdetails" name="details" value={i} onClick={this.clickDetails}>
 			<span class="detailcell"><label>Level</label>{set.level || 100}</span>
-			<span class="detailcell"><label>Gender</label>{gender}</span>
 			<span class="detailcell"><label>Shiny</label>{set.shiny ? 'Yes' : 'No'}</span>
+			{room.gen < 9 && <span class="detailcell"><label>Gender</label>{gender}</span>}
+			{room.gen === 9 && <span class="detailcell">
+				<label>Tera</label>{set.teraType || species.forceTeraType || species.types[0]}
+			</span>}
 		</button>;
 	}
 
@@ -610,12 +821,13 @@ class TeamTextbox extends preact.Component<{ team: Team, room: TeamRoom }> {
 				onInput={this.input} onClick={this.click} onKeyUp={this.keyUp} onKeyDown={this.keyDown}
 			/>
 			<textarea
-				class="textbox teamtextbox heighttester" style="visibility:hidden" tabIndex={-1} aria-hidden={true}
+				class="textbox teamtextbox heighttester" style="visibility:hidden;left:-15px" tabIndex={-1} aria-hidden={true}
 			/>
 			<div class="teamoverlays">
 				{this.setInfo.slice(0, -1).map(info =>
 					<hr style={`top:${info.bottomY - 18}px`} />
 				)}
+				{this.setInfo.length < 6 && !!this.setInfo.length && <hr style={`top:${this.bottomY() - 18}px`} />}
 				{this.setInfo.map((info, i) => {
 					if (!info.species) return null;
 					const set = this.sets[i];
@@ -642,32 +854,36 @@ class TeamTextbox extends preact.Component<{ team: Team, room: TeamRoom }> {
 						{this.renderDetails(set, i)}
 					</div>];
 				})}
-				{this.setInfo.length < 6 && [
-					!!this.setInfo.length && <hr style={`top:${this.bottomY() - 18}px`} />,
+				{this.setInfo.length < 6 && !(this.innerFocus && this.innerFocus.setIndex >= this.setInfo.length) && (
 					<div style={`top:${this.bottomY() - 3}px ;left:105px;position:absolute`}>
 						<button class="button" onClick={this.addPokemon}>
 							<i class="fa fa-plus" aria-hidden></i> Add Pok&eacute;mon
 						</button>
-					</div>,
-				]}
-				{this.selection?.active && this.selection.offsetY !== null && (
-					<div class="teaminnertextbox" style={{ top: this.selection.offsetY - 1 }}></div>
+					</div>
+				)}
+				{this.innerFocus?.offsetY != null && (
+					<div
+						class={`teaminnertextbox teaminnertextbox-${this.innerFocus.type}`} style={{ top: this.innerFocus.offsetY - 21 }}
+					></div>
 				)}
 			</div>
-			{this.selection?.active && (
+			<p>
+				<label class="checkbox"><input type="checkbox" name="compat" onChange={this.changeCompat} /> Old export format</label>
+			</p>
+			{this.innerFocus && (
 				<div
-					class="searchresults" style={{ top: (this.setInfo[this.selection.setIndex]?.bottomY ?? this.bottomY() + 50) - 12 }}
-					onClick={this.handleClick}
+					class="searchresults" style={{ top: (this.setInfo[this.innerFocus.setIndex]?.bottomY ?? this.bottomY() + 50) - 12 }}
+					onClick={this.handleClick} onScroll={this.scrollResults}
 				>
 					<button class="button closesearch" onClick={this.closeMenu}>
-						<i class="fa fa-times" aria-hidden></i> Close
+						<kbd>Esc</kbd> <i class="fa fa-times" aria-hidden></i> Close
 					</button>
-					{this.selection.type === 'stats' ? (
-						<StatForm room={this.props.room} set={this.sets[this.selection.setIndex]} onChange={this.handleSetChange} />
-					) : this.selection.type === 'details' ? (
-						<p>Insert details form here</p>
+					{this.innerFocus.type === 'stats' ? (
+						<StatForm room={this.props.room} set={this.sets[this.innerFocus.setIndex]} onChange={this.handleSetChange} />
+					) : this.innerFocus.type === 'details' ? (
+						<DetailsForm room={this.props.room} set={this.sets[this.innerFocus.setIndex]} onChange={this.handleSetChange} />
 					) : (
-						<PSSearchResults search={this.search} />
+						<PSSearchResults search={room.search} searchInitial={room.searchInitial} windowing={this.windowResults()} />
 					)}
 				</div>
 			)}
@@ -892,6 +1108,7 @@ class StatForm extends preact.Component<{
 		set.evs = guess.evs;
 		this.plus = guess.plusStat || null;
 		this.minus = guess.minusStat || null;
+		this.updateNatureFromPlusMinus();
 		this.props.onChange();
 	};
 	handleOptimize = () => {
@@ -1012,17 +1229,22 @@ class StatForm extends preact.Component<{
 		const target = ev.currentTarget as HTMLInputElement;
 		const { set } = this.props;
 		const statID = target.name.split('-')[1] as Dex.StatName;
-		const value = Math.abs(Number(target.value));
-		if (statID === 'hp') {
-			PS.alert("Natures cannot raise or lower HP.");
-			return;
-		}
+		let value = Math.abs(parseInt(target.value));
+
 		if (target.value.includes('+')) {
+			if (statID === 'hp') {
+				PS.alert("Natures cannot raise or lower HP.");
+				return;
+			}
 			this.plus = statID;
 		} else if (this.plus === statID) {
 			this.plus = null;
 		}
 		if (target.value.includes('-')) {
+			if (statID === 'hp') {
+				PS.alert("Natures cannot raise or lower HP.");
+				return;
+			}
 			this.minus = statID;
 		} else if (this.minus === statID) {
 			this.minus = null;
@@ -1033,6 +1255,18 @@ class StatForm extends preact.Component<{
 			set.evs ||= {};
 			set.evs[statID] = value;
 		}
+		if (target.type === 'range') {
+			// enforce limit
+			const maxEv = this.maxEVs();
+			if (maxEv < 6 * 252) {
+				let totalEv = 0;
+				for (const curEv of Object.values(set.evs || {})) totalEv += curEv;
+				if (totalEv > maxEv && totalEv - value <= maxEv) {
+					set.evs![statID] = maxEv - (totalEv - value) - (maxEv % 4);
+				}
+			}
+		}
+
 		this.updateNatureFromPlusMinus();
 		this.props.onChange();
 	};
@@ -1095,6 +1329,12 @@ class StatForm extends preact.Component<{
 		set.ivs = { hp, atk, def, spa, spd, spe };
 		this.props.onChange();
 	};
+	maxEVs() {
+		const { room } = this.props;
+		const team = room.team;
+		const useEVs = !team.format.includes('letsgo');
+		return useEVs ? 510 : Infinity;
+	}
 	override render() {
 		const { room, set } = this.props;
 		const team = room.team;
@@ -1126,7 +1366,20 @@ class StatForm extends preact.Component<{
 			statID, statNames[statID], room.getStat(statID, set),
 		] as const);
 
-		return <div style="font-size:10pt">
+		let remaining = null;
+		const maxEv = this.maxEVs();
+		if (maxEv < 6 * 252) {
+			let totalEv = 0;
+			for (const ev of Object.values(set.evs || {})) totalEv += ev;
+			if (totalEv <= maxEv) {
+				remaining = (totalEv > (maxEv - 2) ? 0 : (maxEv - 2) - totalEv);
+			} else {
+				remaining = maxEv - totalEv;
+			}
+			remaining ||= null;
+		}
+
+		return <div style="font-size:10pt" role="dialog" aria-label="Stats">
 			<div class="resultheader"><h3>EVs, IVs, and Nature</h3></div>
 			<div class="pad">
 				{this.renderSpreadGuesser()}
@@ -1146,7 +1399,7 @@ class StatForm extends preact.Component<{
 						<td class="setstatbar">{this.renderStatbar(stat, statID)}</td>
 						<td><input
 							name={`ev-${statID}`} placeholder={`${defaultEV || ''}`}
-							type="text" inputMode="numeric" class="textbox default-placeholder" size={5}
+							type="text" inputMode="numeric" class="textbox default-placeholder" style="width:40px"
 							onInput={this.changeEV} onChange={this.changeEV}
 						/></td>
 						<td><input
@@ -1155,14 +1408,14 @@ class StatForm extends preact.Component<{
 							onInput={this.changeEV} onChange={this.changeEV}
 						/></td>
 						<td><input
-							name={`iv-${statID}`} min={0} max={useIVs ? 31 : 15} placeholder={useIVs ? '31' : '15'}
+							name={`iv-${statID}`} min={0} max={useIVs ? 31 : 15} placeholder={useIVs ? '31' : '15'} style="width:40px"
 							type="number" class="textbox default-placeholder" onInput={this.changeIV} onChange={this.changeIV}
 						/></td>
 						<td style="text-align:right"><strong>{stat}</strong></td>
 					</tr>)}
 					<tr>
-						<td colSpan={3} style="text-align:right">Remaining:</td>
-						<td style="text-align:center">0</td>
+						<td colSpan={3} style="text-align:right">{remaining !== null ? 'Remaining:' : ''}</td>
+						<td style="text-align:center">{remaining && remaining < 0 ? <b class="message-error">{remaining}</b> : remaining}</td>
 						<td colSpan={3} style="text-align:right">{this.renderIVMenu()}</td>
 					</tr>
 				</table>
@@ -1180,6 +1433,154 @@ class StatForm extends preact.Component<{
 					<small><em>Protip:</em> You can also set natures by typing <kbd>+</kbd> and <kbd>-</kbd> next to a stat.</small>
 				</p>}
 				{room.gen >= 3 && this.renderStatOptimizer()}
+			</div>
+		</div>;
+	}
+}
+
+class DetailsForm extends preact.Component<{
+	room: TeamRoom,
+	set: Dex.PokemonSet,
+	onChange: () => void,
+}> {
+	update(init?: boolean) {
+		const { set } = this.props;
+		const skipID = !init ? this.base!.querySelector<HTMLInputElement>('input:focus')?.name : undefined;
+
+		const nickname = this.base!.querySelector<HTMLInputElement>('input[name="nickname"]');
+		if (nickname && skipID !== 'nickname') nickname.value = set.name || '';
+	}
+	override componentDidMount(): void {
+		this.update(true);
+	}
+	override componentDidUpdate(): void {
+		this.update();
+	}
+	changeNickname = (ev: Event) => {
+		const target = ev.currentTarget as HTMLInputElement;
+		const { set } = this.props;
+		if (target.value) {
+			set.name = target.value.trim();
+		} else {
+			delete set.name;
+		}
+		this.props.onChange();
+	};
+	changeTera = (ev: Event) => {
+		const target = ev.currentTarget as HTMLInputElement;
+		const { set } = this.props;
+		const species = this.props.room.dex.species.get(set.species);
+		if (!target.value || target.value === (species.forceTeraType || species.types[0])) {
+			delete set.teraType;
+		} else {
+			set.teraType = target.value.trim();
+		}
+		this.props.onChange();
+	};
+	render() {
+		const { room, set } = this.props;
+		const species = room.dex.species.get(set.species);
+		return <div style="font-size:10pt" role="dialog" aria-label="Details">
+			<div class="resultheader"><h3>Details</h3></div>
+			<div class="pad">
+				<p><label class="label">Nickname: <input
+					name="nickname" class="textbox default-placeholder" placeholder={species.baseSpecies}
+					onInput={this.changeNickname} onChange={this.changeNickname}
+				/></label></p>
+
+				<p>[insert the rest of the details pane]</p>
+				{/*
+buf += '<div class="formrow"><label class="formlabel">Level:</label><div><input type="number" min="1" max="100" step="1" name="level" value="' + (typeof set.level === 'number' ? set.level : 100) + '" class="textbox inputform numform" /></div></div>';
+
+if (this.curTeam.gen > 1) {
+	buf += '<div class="formrow"><label class="formlabel">Gender:</label><div>';
+	if (species.gender && !isHackmons) {
+		var genderTable = { 'M': "Male", 'F': "Female", 'N': "Genderless" };
+		buf += genderTable[species.gender];
+	} else {
+		buf += '<label class="checkbox inline"><input type="radio" name="gender" value="M"' + (set.gender === 'M' ? ' checked' : '') + ' /> Male</label> ';
+		buf += '<label class="checkbox inline"><input type="radio" name="gender" value="F"' + (set.gender === 'F' ? ' checked' : '') + ' /> Female</label> ';
+		if (!isHackmons) {
+			buf += '<label class="checkbox inline"><input type="radio" name="gender" value="N"' + (!set.gender ? ' checked' : '') + ' /> Random</label>';
+		} else {
+			buf += '<label class="checkbox inline"><input type="radio" name="gender" value="N"' + (set.gender === 'N' ? ' checked' : '') + ' /> Genderless</label>';
+		}
+	}
+	buf += '</div></div>';
+
+	if (isLetsGo) {
+		buf += '<div class="formrow"><label class="formlabel">Happiness:</label><div><input type="number" name="happiness" value="70" class="textbox inputform numform" /></div></div>';
+	} else {
+		if (this.curTeam.gen < 8 || isNatDex)
+			buf += '<div class="formrow"><label class="formlabel">Happiness:</label><div><input type="number" min="0" max="255" step="1" name="happiness" value="' + (typeof set.happiness === 'number' ? set.happiness : 255) + '" class="textbox inputform numform" /></div></div>';
+	}
+
+	buf += '<div class="formrow"><label class="formlabel">Shiny:</label><div>';
+	buf += '<label class="checkbox inline"><input type="radio" name="shiny" value="yes"' + (set.shiny ? ' checked' : '') + ' /> Yes</label> ';
+	buf += '<label class="checkbox inline"><input type="radio" name="shiny" value="no"' + (!set.shiny ? ' checked' : '') + ' /> No</label>';
+	buf += '</div></div>';
+
+	if (this.curTeam.gen === 8 && !isBDSP) {
+		if (!species.cannotDynamax) {
+			buf += '<div class="formrow"><label class="formlabel">Dmax Level:</label><div><input type="number" min="0" max="10" step="1" name="dynamaxlevel" value="' + (typeof set.dynamaxLevel === 'number' ? set.dynamaxLevel : 10) + '" class="textbox inputform numform" /></div></div>';
+		}
+		if (species.canGigantamax || species.forme === 'Gmax') {
+			buf += '<div class="formrow"><label class="formlabel">Gigantamax:</label><div>';
+			if (species.forme === 'Gmax') {
+				buf += 'Yes';
+			} else {
+				buf += '<label class="checkbox inline"><input type="radio" name="gigantamax" value="yes"' + (set.gigantamax ? ' checked' : '') + ' /> Yes</label> ';
+				buf += '<label class="checkbox inline"><input type="radio" name="gigantamax" value="no"' + (!set.gigantamax ? ' checked' : '') + ' /> No</label>';
+			}
+			buf += '</div></div>';
+		}
+	}
+}
+
+if (this.curTeam.gen > 2) {
+	buf += '<div class="formrow" style="display:none"><label class="formlabel">Pokeball:</label><div><select name="pokeball" class="button">';
+	buf += '<option value=""' + (!set.pokeball ? ' selected="selected"' : '') + '></option>'; // unset
+	var balls = this.curTeam.dex.getPokeballs();
+	for (var i = 0; i < balls.length; i++) {
+		buf += '<option value="' + balls[i] + '"' + (set.pokeball === balls[i] ? ' selected="selected"' : '') + '>' + balls[i] + '</option>';
+	}
+	buf += '</select></div></div>';
+}
+
+if (!isLetsGo && (this.curTeam.gen === 7 || isNatDex || (isBDSP && species.baseSpecies === 'Unown'))) {
+	buf += '<div class="formrow"><label class="formlabel" title="Hidden Power Type">Hidden Power:</label><div><select name="hptype" class="button">';
+	buf += '<option value=""' + (!set.hpType ? ' selected="selected"' : '') + '>(automatic type)</option>'; // unset
+	var types = Dex.types.all();
+	for (var i = 0; i < types.length; i++) {
+		if (types[i].HPivs) {
+			buf += '<option value="' + types[i].name + '"' + (set.hpType === types[i].name ? ' selected="selected"' : '') + '>' + types[i].name + '</option>';
+		}
+	}
+	buf += '</select></div></div>';
+}
+
+*/}
+				{room.gen === 9 && <p>
+					<label class="label" title="Tera Type">
+						Tera Type: {}
+						{species.forceTeraType ? (
+							<select name="teratype" class="button cur" disabled><option>{species.forceTeraType}</option></select>
+						) : (
+							<select name="teratype" class="button" onChange={this.changeTera}>
+								{Dex.types.all().map(type => (
+									<option value={type.name} selected={(set.teraType || species.types[0]) === type.name}>
+										{type.name}
+									</option>
+								))}
+							</select>
+						)}
+					</label>
+				</p>}
+				{species.cosmeticFormes && <p>
+					<button class="button">
+						Change sprite
+					</button>
+				</p>}
 			</div>
 		</div>;
 	}

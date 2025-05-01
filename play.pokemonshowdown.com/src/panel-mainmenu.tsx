@@ -408,7 +408,7 @@ class NewsPanel extends PSRoomPanel {
 	override render() {
 		const cookieSet = document.cookie.includes('preactalpha=1');
 		return <PSPanelWrapper room={this.props.room} fullSize scrollable>
-			<div class="construction"><div class="construction-inner">
+			<div class="construction">
 				This is the Preact client alpha test.
 				<form>
 					<label class="checkbox">
@@ -424,7 +424,7 @@ class NewsPanel extends PSRoomPanel {
 						Back to the old client
 					</label>
 				</form>
-			</div></div>
+			</div>
 			<div class="readable-bg" dangerouslySetInnerHTML={{ __html: PS.newsHTML }}></div>
 		</PSPanelWrapper>;
 	}

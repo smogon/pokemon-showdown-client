@@ -317,7 +317,7 @@ export class BattleLog {
 				}
 				return buf;
 			}).join('');
-			divHTML = `<div class="infobox"><details><summary>Open Team Sheet for ${side.name}</summary>${exportedTeam}</details></div>`;
+			divHTML = `<div class="infobox"><details class="details"><summary>Open team sheet for ${side.name}</summary>${exportedTeam}</details></div>`;
 			break;
 		}
 
@@ -1109,7 +1109,7 @@ export class BattleLog {
 		} else if (name.startsWith(`[Gen ${Dex.gen} `)) {
 			name = '[' + name.slice(`[Gen ${Dex.gen} `.length);
 		}
-		return name;
+		return name || `[Gen ${Dex.gen}]`;
 	}
 
 	static escapeHTML(str: string | number, jsEscapeToo?: boolean) {
