@@ -437,6 +437,18 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 					if (species.tier === 'LC') return 'LC';
 					return 'Regular';
 				}
+				if (isRS) {
+					if (species.isNonstandard) {
+						if (species.isNonstandard === 'Unobtainable') return 'Unreleased';
+						return 'Illegal';
+					}
+					if (species.tier === 'Uber') return 'Uber';
+					if (species.nfe) {
+						if (species.prevo.length === 0) return "LC";
+						return "NFE";
+					}
+					return "Regular";
+				}
 				if (isGen9BH) {
 					if ((species.natDexTier === 'Illegal' || species.forme.includes('Totem')) &&
 						!['Floette-Eternal', 'Greninja-Ash', 'Xerneas-Neutral'].includes(species.name)) {
@@ -611,6 +623,9 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 		const tierOrder = (() => {
 			if (isVGC || isGen9BH) {
 				return ["Mythical", "Restricted Legendary", "Regular", "NFE", "LC"];
+			}
+			if (isRS) {
+				return ["Regular", "NFE", "LC", "Uber"];
 			}
 			if (isDoubles && genNum > 4) {
 				return ["DUber", "(DUber)", "DOU", "DBL", "(DOU)", "DUU", "(DUU)", "New", "NFE", "LC"];
