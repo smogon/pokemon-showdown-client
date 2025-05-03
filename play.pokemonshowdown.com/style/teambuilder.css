@@ -115,7 +115,7 @@
 	padding-top: 7px;
 	height: 23px;
 	font-size: 9pt;
-	font-family: Verdana, sans-serif;
+	font-family: Verdana, sans-serif, PGLDings;
 	white-space: nowrap;
 	overflow: hidden;
 	text-align: left;
@@ -195,7 +195,7 @@
 	padding: 2px 5px;
 	margin: 0;
 	font-size: 9pt;
-	font-family: Verdana, sans-serif;
+	font-family: Verdana, sans-serif, PGLDings;
 }
 .teamlist button:hover {
 	border-color: #888888;

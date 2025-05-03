@@ -1,7 +1,10 @@
 /*********************************************************
  * Global
  *********************************************************/
-
+@font-face {
+	font-family: PGLDings;
+	src: url("fonts/PGLDings.woff");
+}
 html, body {
 	margin: 0;
 	padding: 0;
@@ -11,7 +14,7 @@ html, body {
 body {
 	color: white;
 	font-size: 11pt;
-	font-family: Verdana, Helvetica, Arial, sans-serif;
+	font-family: Verdana, Helvetica, Arial, sans-serif, PGLDings;
 
 	/* see https://pokemonshowdown.com/credits */
 	background: #344b6c url(../fx/client-bg-charizards.jpg) no-repeat left center fixed;
@@ -39,7 +42,7 @@ body {
 
 select {
 	font-size: 9pt;
-	font-family: Verdana, Helvetica, Arial, sans-serif;
+	font-family: Verdana, Helvetica, Arial, sans-serif, PGLDings;
 }
 
 .dark .tabbar a.button,
@@ -513,7 +516,7 @@ p.or:after {
 	padding: 0 5px;
 	font-size: 9pt;
 	text-align: left;
-	font-family: Verdana, Helvetica, Arial, sans-serif;
+	font-family: Verdana, Helvetica, Arial, sans-serif, PGLDings;
 	cursor: pointer;
 
 	border-radius: 4px;
@@ -1135,7 +1138,7 @@ p.or:after {
 	width: 100%;
 	resize: none;
 	font-size: 9pt;
-	font-family: Verdana, Helvetica, Arial, sans-serif;
+	font-family: Verdana, Helvetica, Arial, sans-serif, PGLDings;
 	overflow-x: hidden;
 	overflow-wrap: break-word;
 }
@@ -1440,7 +1443,7 @@ p.or:after {
 }
 .pm-buttonbar button {
 	float: left;
-	font: 8pt Verdana, sans-serif;
+	font: 8pt Verdana, sans-serif, PGLDings;
 	height: 21px;
 	background: #EEF2F5;
 	color: black;
@@ -1488,7 +1491,7 @@ p.or:after {
 }
 .userlist li {
 	height: 20px;
-	font: 10pt Verdana, sans-serif;
+	font: 10pt Verdana, sans-serif, PGLDings;
 	white-space: nowrap;
 }
 .userlist li em.group {
@@ -1513,7 +1516,7 @@ p.or:after {
 	height: 20px;
 	width: 100%;
 	white-space: nowrap;
-	font: 9pt Verdana, sans-serif;
+	font: 9pt Verdana, sans-serif, PGLDings;
 	text-align: left;
 }
 /* Remove Firefox's magic padding */
@@ -1726,7 +1729,7 @@ p.or:after {
 	width: 102px;
 	min-height: 30px;
 	margin-right: 4px;
-	font: 9pt Verdana, sans-serif;
+	font: 9pt Verdana, sans-serif, PGLDings;
 	padding: 5px 5px 5px 0;
 	white-space: pre;
 	overflow: hidden;
@@ -1815,7 +1818,7 @@ p.or:after {
 	width: 155px;
 	margin-right: 4px;
 	height: 40px;
-	font: 10pt/100% Verdana, sans-serif;
+	font: 10pt/100% Verdana, sans-serif, PGLDings;
 	position: relative;
 	padding:  6px 4px 0 4px;
 }
@@ -2150,7 +2153,7 @@ p.or:after {
 	padding-top: 7px;
 	height: 23px;
 	font-size: 9pt;
-	font-family: Verdana, sans-serif;
+	font-family: Verdana, sans-serif, PGLDings;
 	white-space: nowrap;
 	overflow: hidden;
 	text-align: left;
@@ -2296,7 +2299,7 @@ p.or:after {
 	width: 88px;
 	white-space: pre;
 	font-size: 8pt;
-	font-family: Verdana, Arial, sans-serif;
+	font-family: Verdana, Arial, sans-serif, PGLDings;
 	overflow: hidden;
 }
 .teambar button span {
@@ -2368,7 +2371,7 @@ p.or:after {
 	padding: 2px 5px;
 	margin: 0;
 	font-size: 9pt;
-	font-family: Verdana, sans-serif;
+	font-family: Verdana, sans-serif, PGLDings;
 }
 .setmenu button:hover,
 .teamlist button:hover {
