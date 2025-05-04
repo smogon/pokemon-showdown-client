@@ -111,7 +111,7 @@ RewriteRule ^([A-Za-z0-9][A-Za-z0-9-]*)/$ /$1 [R=301,L]
 RewriteCond %{HTTP_COOKIE} ^.*preactalpha=1.*$
 RewriteRule ^(|[A-Za-z0-9][A-Za-z0-9-]*)$ ./preactalpha.html [L,E=INDEX_PAGE:1]
 RewriteRule ^$ - [E=INDEX_PAGE:1]
-RewriteRule ^(preactalpha|login|users|(dm|challenge|user|viewuser|ladder)-[a-z0-9-]*)$ ./preactalpha.html [L,E=INDEX_PAGE:1]
+RewriteRule ^(preactalpha|dev|development|login|users|(dm|challenge|user|viewuser|ladder)-[a-z0-9-]*)$ ./preactalpha.html [L,E=INDEX_PAGE:1]
 RewriteRule ^([A-Za-z0-9][A-Za-z0-9-]*)$ ./ [L,E=INDEX_PAGE:1]
 
 # RewriteRule ^crossprotocol\.html$ - [E=CROSSPROTOCOL:1]

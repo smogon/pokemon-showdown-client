@@ -76,12 +76,15 @@ export class MainMenuRoom extends PSRoom {
 			clearTimeout(this.searchCountdown.timer);
 			this.searchCountdown = null;
 			this.update(null);
+			return true;
 		}
 		if (this.searchSent) {
 			this.searchSent = false;
 			PS.send('|/cancelsearch');
 			this.update(null);
+			return true;
 		}
+		return false;
 	};
 	doSearchCountdown = () => {
 		if (!this.searchCountdown) return; // ??? race???
@@ -480,10 +483,10 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
 		return <Panel key={room.id} room={room} />;
 	}
 	handleClickMinimize = (e: MouseEvent) => {
-		if ((e.target as HTMLInputElement)?.name === 'closeRoom') {
+		if ((e.target as Element)?.getAttribute('data-cmd')) {
 			return;
 		}
-		if (((e.target as any)?.parentNode as HTMLInputElement)?.name === 'closeRoom') {
+		if (((e.target as Element)?.parentNode as Element)?.getAttribute('data-cmd')) {
 			return;
 		}
 		const room = PS.getRoom(e.currentTarget);
@@ -503,7 +506,7 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
 				<h3
 					class={`mini-window-header${notifying}`} draggable onDragStart={this.handleDragStart} onClick={this.handleClickMinimize}
 				>
-					<button class="closebutton" name="closeRoom" value={roomid} aria-label="Close" tabIndex={-1}>
+					<button class="closebutton" data-cmd="/close" aria-label="Close" tabIndex={-1}>
 						<i class="fa fa-times-circle" aria-hidden></i>
 					</button>
 					<button class="maximizebutton" data-cmd="/maximize" tabIndex={-1} aria-label="Maximize">
