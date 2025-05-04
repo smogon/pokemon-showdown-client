@@ -259,8 +259,8 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 	static readonly id = 'battle';
 	static readonly routes = ['battle-*'];
 	static readonly Model = BattleRoom;
-	send = (text: string) => {
-		this.props.room.send(text);
+	send = (text: string, elem?: HTMLElement) => {
+		this.props.room.send(text, elem);
 	};
 	focusIfNoSelection = () => {
 		if (window.getSelection?.()?.type === 'Range') return;

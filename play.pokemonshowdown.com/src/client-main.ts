@@ -705,11 +705,15 @@ interface PSNotificationState {
 }
 
 type ClientCommands<RoomT extends PSRoom> = {
-	[command: Lowercase<string>]: (this: RoomT, target: string, cmd: string) => string | boolean | null | void,
+	[command: Lowercase<string>]: (
+		this: RoomT, target: string, cmd: string, element: HTMLElement | null
+	) => string | boolean | null | void,
 };
 /** The command signature is a lie but TypeScript and string validation amirite? */
 type ParsedClientCommands = {
-	[command: `parsed${string}`]: (this: PSRoom, target: string, cmd: string) => string | boolean | null | void,
+	[command: `parsed${string}`]: (
+		this: PSRoom, target: string, cmd: string, element: HTMLElement | null
+	) => string | boolean | null | void,
 };
 
 function makeLoadTracker() {
@@ -876,6 +880,13 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 			this.receiveLine(BattleTextParser.parseLine(line));
 		}
 	}
+	errorReply(message: string, element = this.currentElement) {
+		if (element?.tagName === 'BUTTON') {
+			PS.alert(message, { parentElem: element });
+		} else {
+			this.add(`|error|${message}`);
+		}
+	}
 	parseClientCommands(commands: ClientCommands<this>) {
 		const parsedCommands: ParsedClientCommands = {};
 		for (const cmd in commands) {
@@ -889,13 +900,25 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 		return parsedCommands;
 	}
 	globalClientCommands = this.parseClientCommands({
-		'j,join'(target) {
+		'j,join'(target, cmd, elem) {
 			const roomid = /[^a-z0-9-]/.test(target) ? toID(target) as any as RoomID : target as RoomID;
-			PS.join(roomid);
+			PS.join(roomid, { parentElem: elem });
 		},
-		'part,leave,close'(target) {
-			const roomid = /[^a-z0-9-]/.test(target) ? toID(target) as any as RoomID : target as RoomID;
-			PS.leave(roomid || this.id);
+		'part,leave,close'(target, cmd, elem) {
+			const roomid = (/[^a-z0-9-]/.test(target) ? toID(target) as any as RoomID : target as RoomID) || this.id;
+			const room = PS.rooms[roomid];
+			const battle = (room as BattleRoom)?.battle;
+
+			if (room?.type === "battle" && !battle.ended && battle.mySide.id === PS.user.userid) {
+				PS.join("forfeitbattle" as RoomID, { parentElem: elem });
+				return true;
+			}
+			if (room?.type === "chat" && room.connected && PS.prefs.leavePopupRoom) {
+				PS.join("confirmleaveroom" as RoomID, { parentElem: elem });
+				return true;
+			}
+
+			PS.leave(roomid);
 		},
 		'closeand'(target) {
 			// we actually do the close last, because a lot of things stop working
@@ -962,13 +985,17 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 			}
 		},
 		'cancelsearch'() {
-			PS.mainmenu.cancelSearch();
+			if (PS.mainmenu.cancelSearch()) {
+				this.add(`||Search cancelled.`, true);
+			} else {
+				this.add(`|error|You're not currently searching.`, true);
+			}
 		},
-		'nick'(target) {
+		'nick'(target, cmd, element) {
+			const noNameChange = PS.user.userid === toID(target);
+			if (!noNameChange) PS.join('login' as RoomID, { parentElem: element });
 			if (target) {
 				PS.user.changeName(target);
-			} else {
-				PS.join('login' as RoomID);
 			}
 		},
 		'avatar'(target) {
@@ -1262,11 +1289,12 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 		},
 	});
 	clientCommands: ParsedClientCommands | null = null;
+	currentElement: HTMLElement | null = null;
 	/**
 	 * Handles outgoing messages, like `/logout`. Return `true` to prevent
 	 * the line from being sent to servers.
 	 */
-	handleSend(line: string) {
+	handleSend(line: string, element = this.currentElement) {
 		if (!line.startsWith('/') || line.startsWith('//')) return line;
 		const spaceIndex = line.indexOf(' ');
 		const cmd = (spaceIndex >= 0 ? line.slice(1, spaceIndex) : line.slice(1)) as 'parsed';
@@ -1275,13 +1303,16 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 		const cmdHandler = this.globalClientCommands[cmd] || this.clientCommands?.[cmd];
 		if (!cmdHandler) return line;
 
-		const cmdResult = cmdHandler.call(this, target, cmd);
+		const previousElement = this.currentElement;
+		this.currentElement = element;
+		const cmdResult = cmdHandler.call(this, target, cmd, element);
+		this.currentElement = previousElement;
 		if (cmdResult === true) return line;
 		return cmdResult || null;
 	}
-	send(msg: string | null) {
+	send(msg: string | null, element?: HTMLElement) {
 		if (!msg) return;
-		msg = this.handleSend(msg);
+		msg = this.handleSend(msg, element);
 		if (!msg) return;
 		this.sendDirect(msg);
 	}
@@ -1921,9 +1952,10 @@ export const PS = new class extends PSModel {
 		}
 		return this.focusRoom(rooms[index + 1]);
 	}
-	alert(message: string, opts: { okButton?: string } = {}) {
+	alert(message: string, opts: { okButton?: string, parentElem?: HTMLElement } = {}) {
 		this.join(`popup-${this.popups.length}` as RoomID, {
-			args: { message, ...opts },
+			args: { message, ...opts, parentElem: null },
+			parentElem: opts.parentElem,
 		});
 	}
 	confirm(message: string, opts: { okButton?: string, cancelButton?: string } = {}) {
@@ -2166,7 +2198,8 @@ export const PS = new class extends PSModel {
 
 		if (this.popups.length && room.id === this.popups[this.popups.length - 1]) {
 			this.popups.pop();
-			PS.room = this.popups.length ? PS.rooms[this.popups[this.popups.length - 1]]! : PS.panel;
+			PS.room = this.popups.length ? PS.rooms[this.popups[this.popups.length - 1]]! :
+				PS.rooms[room.parentRoomid ?? PS.panel.id] || PS.panel;
 		}
 
 		if (wasFocused) {
