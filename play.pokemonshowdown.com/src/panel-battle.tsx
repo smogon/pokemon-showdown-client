@@ -599,8 +599,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 				<em class="movewarning">You're <strong>trapped</strong> and cannot switch!<br /></em>)}
 
 		{request.side.pokemon.map((serverPokemon, i) => {
-			const cantSwitch = maybeTrapped ||
-				trapped ||
+			const cantSwitch = trapped ||
 				i < numActive ||
 				choices.alreadySwitchingIn.includes(i + 1) ||
 				serverPokemon.fainted;
