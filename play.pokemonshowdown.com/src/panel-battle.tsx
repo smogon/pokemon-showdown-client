@@ -596,7 +596,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 		return (<div> {(trapped || maybeTrapped) &&
 			(maybeTrapped ?
 				<em class="movewarning">You <strong>might</strong> be trapped, so you won't be able to cancel a switch! <br /></em> :
-				<em class="movewarning">You <strong>are</strong> trapped and cannot switch! <br /></em>)}
+				<em class="movewarning">You're <strong>trapped</strong> and cannot switch!<br /></em>)}
 
 		{request.side.pokemon.map((serverPokemon, i) => {
 			const cantSwitch = maybeTrapped ||
