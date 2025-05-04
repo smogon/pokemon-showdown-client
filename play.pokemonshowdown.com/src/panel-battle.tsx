@@ -152,23 +152,39 @@ class BattleDiv extends preact.Component<{ room: BattleRoom }> {
 }
 
 function MoveButton(props: {
-	children: string, cmd: string, moveData: { pp: number, maxpp: number }, type: Dex.TypeName, tooltip: string,
+	children: string,
+	cmd: string,
+	moveData: { pp: number, maxpp: number, disabled?: boolean },
+	type: Dex.TypeName,
+	tooltip: string,
 }) {
 	return <button
-		data-cmd={props.cmd} class={`movebutton type-${props.type} has-tooltip`} data-tooltip={props.tooltip}
+		data-cmd={props.cmd}
+		class={`movebutton type-${props.type} has-tooltip`}
+		data-tooltip={props.tooltip}
+		disabled={props.moveData.disabled}
 	>
 		{props.children}<br />
 		<small class="type">{props.type}</small> <small class="pp">{props.moveData.pp}/{props.moveData.maxpp}</small>&nbsp;
 	</button>;
 }
 function PokemonButton(props: {
-	pokemon: Pokemon | ServerPokemon | null, cmd: string, noHPBar?: boolean, disabled?: boolean | 'fade', tooltip: string,
+	pokemon: Pokemon | ServerPokemon | null,
+	cmd: string,
+	noHPBar?: boolean,
+	trapped?: boolean,
+	disabled?: boolean | 'fade',
+	tooltip: string,
 }) {
 	const pokemon = props.pokemon;
 	if (!pokemon) {
 		return <button
-			data-cmd={props.cmd} class={`${props.disabled ? 'disabled ' : ''}has-tooltip`}
-			style={{ opacity: props.disabled === 'fade' ? 0.5 : 1 }} data-tooltip={props.tooltip}
+			data-href={props.trapped ? 'popup-cantswitch' : null}
+			data-message={props.trapped ? 'You are trapped and cannot switch' : null}
+			data-cmd={props.disabled ? null : props.cmd}
+			class={`${props.disabled ? 'disabled ' : ''}has-tooltip`}
+			style={{ opacity: props.disabled === 'fade' ? 0.5 : 1 }}
+			data-tooltip={props.tooltip}
 		>
 			(empty slot)
 		</button>;
@@ -182,8 +198,12 @@ function PokemonButton(props: {
 	}
 
 	return <button
-		data-cmd={props.cmd} class={`${props.disabled ? 'disabled ' : ''}has-tooltip`}
-		style={{ opacity: props.disabled === 'fade' ? 0.5 : 1 }} data-tooltip={props.tooltip}
+		data-href={props.trapped ? 'popup-cantswitch' : null}
+		data-message={props.trapped ? 'You are trapped and cannot switch' : null}
+		data-cmd={props.trapped ? null : props.cmd}
+		class={`${props.disabled ? 'disabled ' : ''}has-tooltip`}
+		style={{ opacity: props.disabled === 'fade' ? 0.5 : 1 }}
+		data-tooltip={props.tooltip}
 	>
 		<span class="picon" style={Dex.getPokemonIcon(pokemon)}></span>
 		{pokemon.name}
@@ -359,7 +379,11 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 			return;
 		case 'error':
 			if (args[1].startsWith('[Invalid choice]') && room.request) {
+				let oldChoices: string[] = [];
+				// theres probably a better way to do this?
+				if (room.choices?.choices.includes('testfight')) oldChoices.push('testfight');
 				room.choices = new BattleChoiceBuilder(room.request);
+				if (oldChoices) room.choices.choices = [...oldChoices];
 				room.update(null);
 			}
 			break;
@@ -367,6 +391,15 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 		room.battle.add('|' + args.join('|'));
 		if (PS.prefs.noanim) this.props.room.battle.seekTurn(Infinity);
 	}
+	chooseFight = () => {
+		let room = this.props.room;
+		if (!room?.choices) return;
+		if (!room.choices.isDone()) {
+			room.choices.choices.push('testfight');
+			room?.sendDirect('/choose testfight|' + String(room.request?.rqid));
+			this.forceUpdate();
+		}
+	};
 	receiveRequest(request: BattleRequest | null) {
 		const room = this.props.room;
 		if (!request) {
@@ -440,21 +473,37 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 		const dex = this.props.room.battle.dex;
 		const pokemonIndex = choices.index();
 		const active = choices.currentMoveRequest();
+		const maybeDisabled = active?.maybeDisabled;
+		const maybeLocked = active?.maybeLocked;
 		if (!active) return <div class="message-error">Invalid pokemon</div>;
 
 		if (choices.current.max || (active.maxMoves && !active.canDynamax)) {
 			if (!active.maxMoves) {
 				return <div class="message-error">Maxed with no max moves</div>;
 			}
-			return active.moves.map((moveData, i) => {
-				const move = dex.moves.get(moveData.name);
-				const maxMoveData = active.maxMoves![i];
-				const gmaxTooltip = maxMoveData.id.startsWith('gmax') ? `|${maxMoveData.id}` : ``;
-				const tooltip = `maxmove|${moveData.name}|${pokemonIndex}${gmaxTooltip}`;
-				return <MoveButton cmd={`/move ${i + 1} max`} type={move.type} tooltip={tooltip} moveData={moveData}>
-					{maxMoveData.name}
-				</MoveButton>;
-			});
+			return (<div>
+				{maybeDisabled &&
+					<em class="movewarning">
+						You <strong>might</strong> have some moves disabled, so you won't be able to cancel an attack!
+					</em>}
+				{maybeLocked &&
+					<em class="movewarning">
+						You <strong>might</strong> be locked into a move. <button
+							class="button"
+							onClick={this.chooseFight}
+						>Try Fight button</button> (prevents switching if you\'re locked)
+					</em>}
+				<br />
+				{active.moves.map((moveData, i) => {
+					const move = dex.moves.get(moveData.name);
+					const maxMoveData = active.maxMoves![i];
+					const gmaxTooltip = maxMoveData.id.startsWith('gmax') ? `|${maxMoveData.id}` : ``;
+					const tooltip = `maxmove|${moveData.name}|${pokemonIndex}${gmaxTooltip}`;
+					return <MoveButton cmd={`/move ${i + 1} max`} type={move.type} tooltip={tooltip} moveData={moveData}>
+						{maxMoveData.name}
+					</MoveButton>;
+				})}
+			</div>);
 		}
 
 		if (choices.current.z) {
@@ -475,13 +524,28 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 		}
 
 		const special = choices.moveSpecial(choices.current);
-		return active.moves.map((moveData, i) => {
-			const move = dex.moves.get(moveData.name);
-			const tooltip = `move|${moveData.name}|${pokemonIndex}`;
-			return <MoveButton cmd={`/move ${i + 1}${special}`} type={move.type} tooltip={tooltip} moveData={moveData}>
-				{move.name}
-			</MoveButton>;
-		});
+		return <div>
+			{maybeDisabled &&
+				<em class="movewarning">
+					You <strong>might</strong> have some moves disabled, so you won't be able to cancel an attack!
+				</em>}
+			{maybeLocked &&
+				<em class="movewarning">
+					You <strong>might</strong> be locked into a move. <button
+						class="button"
+						onClick={this.chooseFight}
+					>
+						Try Fight button</button> (prevents switching if you\'re locked)
+				</em>}
+			<br />
+			{active.moves.map((moveData, i) => {
+				const move = dex.moves.get(moveData.name);
+				const tooltip = `move|${moveData.name}|${pokemonIndex}`;
+				return <MoveButton cmd={`/move ${i + 1}${special}`} type={move.type} tooltip={tooltip} moveData={moveData}>
+					{move.name}
+				</MoveButton>;
+			})}
+		</div>;
 	}
 	renderMoveTargetControls(request: BattleMoveRequest, choices: BattleChoiceBuilder) {
 		const battle = this.props.room.battle;
@@ -526,15 +590,29 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 	}
 	renderSwitchControls(request: BattleMoveRequest | BattleSwitchRequest, choices: BattleChoiceBuilder) {
 		const numActive = choices.requestLength();
-
+		const maybeTrapped = choices.currentMoveRequest()?.maybeTrapped;
 		const trapped = choices.currentMoveRequest()?.trapped;
 
-		return request.side.pokemon.map((serverPokemon, i) => {
-			const cantSwitch = trapped || i < numActive || choices.alreadySwitchingIn.includes(i + 1) || serverPokemon.fainted;
+		return (<div> {(trapped || maybeTrapped) &&
+			(maybeTrapped ?
+				<em class="movewarning">You <strong>might</strong> be trapped, so you won't be able to cancel a switch! <br /></em> :
+				<em class="movewarning">You <strong>are</strong> trapped and cannot switch! <br /></em>)}
+
+		{request.side.pokemon.map((serverPokemon, i) => {
+			const cantSwitch = maybeTrapped ||
+				trapped ||
+				i < numActive ||
+				choices.alreadySwitchingIn.includes(i + 1) ||
+				serverPokemon.fainted;
 			return <PokemonButton
-				pokemon={serverPokemon} cmd={`/switch ${i + 1}`} disabled={cantSwitch} tooltip={`switchpokemon|${i}`}
+				pokemon={serverPokemon}
+				cmd={`/switch ${i + 1}`}
+				disabled={cantSwitch}
+				tooltip={`switchpokemon|${i}`}
+				trapped={trapped || false}
 			/>;
-		});
+		})}
+		</div>);
 	}
 	renderTeamControls(request: | BattleTeamRequest, choices: BattleChoiceBuilder) {
 		return request.side.pokemon.map((serverPokemon, i) => {
@@ -583,6 +661,10 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 		const battle = this.props.room.battle;
 		for (let i = 0; i < choices.choices.length; i++) {
 			const choiceString = choices.choices[i];
+			if (choiceString === "testfight") {
+				buf.push(`${request.side.pokemon[i].name} is locked into a move.`);
+				return buf;
+			}
 			const choice = choices.parseChoice(choiceString);
 			if (!choice) continue;
 			const pokemon = request.side.pokemon[i];

@@ -50,6 +50,8 @@ export interface BattleRequestActivePokemon {
 	canTerastallize?: string;
 	trapped?: boolean;
 	maybeTrapped?: boolean;
+	maybeDisabled?: boolean;
+	maybeLocked?: boolean;
 }
 
 export interface BattleMoveRequest {
