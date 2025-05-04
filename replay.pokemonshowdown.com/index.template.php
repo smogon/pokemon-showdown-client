@@ -265,9 +265,9 @@ https://replay.pokemonshowdown.com/gen7randomdoublesbattle-865046831.log
 <script defer src="//play.pokemonshowdown.com/js/battle-tooltips.js?a7"></script>
 <script defer src="//play.pokemonshowdown.com/js/battle.js?a7"></script>
 
-<script defer src="js/utils.js?"></script>
-<script defer src="js/replays-battle.js?"></script>
-<script defer src="js/replays-index.js?"></script>
+<script defer src="/js/utils.js?"></script>
+<script defer src="/js/replays-battle.js?"></script>
+<script defer src="/js/replays-index.js?"></script>
 
 <?php
 
@@ -294,4 +294,4 @@ if ($replay) {
 
 ?>
 
-<script defer src="js/replays.js?"></script>
+<script defer src="/js/replays.js?"></script>
