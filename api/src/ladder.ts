@@ -8,12 +8,19 @@
 import { toID, time } from './utils';
 import { ladder } from './tables';
 
-/** length of a rating period in days */
+/** length of a rating period in days (used for Glicko and Elo decay).
+ *  Glickman recommends 5-10 games per rating period */
 const RP_LENGTH_DAYS = 1;
 /** length of a rating period in seconds */
 const RP_LENGTH = 24 * 60 * 60 * RP_LENGTH_DAYS;
 /** time in UTC rating periods roll over, in seconds (9am UTC, or 4am Chicago Time) */
 const RP_OFFSET = 9 * 60 * 60;
+
+const GLICKO_RD_MAX = 130.0;
+const GLICKO_RD_MIN = 25.0;
+
+// this solves for going from min RD to max RD in 365 days
+const GLICKO_C = Math.sqrt((GLICKO_RD_MAX ** 2 - GLICKO_RD_MIN ** 2) / (365.0 / RP_LENGTH_DAYS));
 
 export interface LadderEntry {
 	entryid: number;
@@ -362,9 +369,6 @@ export class GlickoPlayer {
 	rd: number;
 
 	readonly piSquared = Math.PI ** 2;
-	readonly RDmax = 130.0;
-	readonly RDmin = 25.0;
-	c: number;
 	readonly q = 0.00575646273;
 	m: MatchElement[] = [];
 
@@ -372,7 +376,6 @@ export class GlickoPlayer {
 		// Step 1
 		this.rating = rating;
 		this.rd = rd;
-		this.c = Math.sqrt((this.RDmax * this.RDmax - this.RDmin * this.RDmin) / (365.0 / RP_LENGTH_DAYS));
 	}
 
 	addWin(otherPlayer: GlickoPlayer) {
@@ -407,9 +410,9 @@ export class GlickoPlayer {
 
 		// Follow along the steps using: http://www.glicko.net/glicko/glicko.pdf
 
-		let RD = Math.sqrt((this.rd * this.rd) + (this.c * this.c));
-		if (RD > this.RDmax) {
-			RD = this.RDmax;
+		let RD = Math.sqrt((this.rd ** 2) + (GLICKO_C ** 2));
+		if (RD > GLICKO_RD_MAX) {
+			RD = GLICKO_RD_MAX;
 		}
 		if (m.length === 0) {
 			return { R: this.rating, RD };
@@ -429,21 +432,21 @@ export class GlickoPlayer {
 		d2 = 1.0 / this.q / this.q / d2;
 
 		RD = 1.0 / Math.sqrt(1.0 / (RD * RD) + 1.0 / d2);
-		const R = this.rating + this.q * (RD * RD) * A;
+		const R = this.rating + this.q * (RD ** 2) * A;
 
-		if (RD > this.RDmax) {
-			RD = this.RDmax;
+		if (RD > GLICKO_RD_MAX) {
+			RD = GLICKO_RD_MAX;
 		}
 
-		if (RD < this.RDmin) {
-			RD = this.RDmin;
+		if (RD < GLICKO_RD_MIN) {
+			RD = GLICKO_RD_MIN;
 		}
 
 		return { R, RD };
 	}
 
 	g(RD: number) {
-		return 1.0 / Math.sqrt(1.0 + 3.0 * this.q * this.q * RD * RD / this.piSquared);
+		return 1.0 / Math.sqrt(1.0 + 3.0 * (this.q ** 2) * (RD ** 2) / this.piSquared);
 	}
 
 	E(R: number, rJ: number, rdJ: number) {
