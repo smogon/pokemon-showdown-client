@@ -20,22 +20,39 @@ export interface LadderEntry {
 	formatid: string;
 	userid: string;
 	username: string;
+	/** wins */
 	w: number;
+	/** losses */
 	l: number;
+	/** ties */
 	t: number;
+	/** estimate of your win chance against a random ladder player */
 	gxe: number;
+	/** Glicko-1 rating */
 	r: number;
+	/** Glicko-1 rating deviation */
 	rd: number;
+	/** @deprecated when we used Glicko-2, this was volatility (currently unused) */
 	sigma: number;
+	/** last updated (to track rating decay) */
 	rptime: number;
+	/** estimated Glicko rating for next rating period */
 	rpr: number;
+	/** estimated Glicko rating deviation for next rating period */
 	rprd: number;
+	/** @deprecated when we used Glicko-2, this was volatility next period (currently unused) */
 	rpsigma: number;
+	/** games played since last rating period, for Glicko-1 updates */
 	rpdata: string;
+	/** Elo. ours starts/floors at 1000 with a scaling K factor */
 	elo: number;
+	/** @deprecated unused, intended as futureproofing (look, we used MySQL...) */
 	col1: number;
+	/** Elo before last rating period update */
 	oldelo: number;
+	/** when did this user first play this ladder? */
 	first_played: number;
+	/** when did this user most recently play this ladder? */
 	last_played: number;
 }
 
