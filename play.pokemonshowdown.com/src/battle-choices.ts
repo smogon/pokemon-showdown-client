@@ -220,6 +220,9 @@ export class BattleChoiceBuilder {
 			this.current.max = false;
 			this.current.tera = false;
 		} else if (choice.choiceType === 'switch' || choice.choiceType === 'team') {
+			if (this.currentMoveRequest()?.trapped) {
+				return "You are trapped and cannot switch out";
+			}
 			if (this.alreadySwitchingIn.includes(choice.targetPokemon)) {
 				if (choice.choiceType === 'switch') {
 					return "You've already chosen to switch that Pokémon in";

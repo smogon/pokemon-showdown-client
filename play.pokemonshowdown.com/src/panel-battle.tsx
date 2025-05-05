@@ -169,22 +169,13 @@ function MoveButton(props: {
 	</button>;
 }
 function PokemonButton(props: {
-	pokemon: Pokemon | ServerPokemon | null,
-	cmd: string,
-	noHPBar?: boolean,
-	trapped?: boolean,
-	disabled?: boolean | 'fade',
-	tooltip: string,
+	pokemon: Pokemon | ServerPokemon | null, cmd: string, noHPBar?: boolean, disabled?: boolean | 'fade', tooltip: string,
 }) {
 	const pokemon = props.pokemon;
 	if (!pokemon) {
 		return <button
-			data-href={props.trapped ? 'popup-cantswitch' : null}
-			data-message={props.trapped ? 'You are trapped and cannot switch' : null}
-			data-cmd={props.disabled ? null : props.cmd}
-			class={`${props.disabled ? 'disabled ' : ''}has-tooltip`}
-			style={{ opacity: props.disabled === 'fade' ? 0.5 : 1 }}
-			data-tooltip={props.tooltip}
+			data-cmd={props.cmd} class={`${props.disabled ? 'disabled ' : ''}has-tooltip`}
+			style={{ opacity: props.disabled === 'fade' ? 0.5 : 1 }} data-tooltip={props.tooltip}
 		>
 			(empty slot)
 		</button>;
@@ -198,12 +189,8 @@ function PokemonButton(props: {
 	}
 
 	return <button
-		data-href={props.trapped ? 'popup-cantswitch' : null}
-		data-message={props.trapped ? 'You are trapped and cannot switch' : null}
-		data-cmd={props.trapped ? null : props.cmd}
-		class={`${props.disabled ? 'disabled ' : ''}has-tooltip`}
-		style={{ opacity: props.disabled === 'fade' ? 0.5 : 1 }}
-		data-tooltip={props.tooltip}
+		data-cmd={props.cmd} class={`${props.disabled ? 'disabled ' : ''}has-tooltip`}
+		style={{ opacity: props.disabled === 'fade' ? 0.5 : 1 }} data-tooltip={props.tooltip}
 	>
 		<span class="picon" style={Dex.getPokemonIcon(pokemon)}></span>
 		{pokemon.name}
@@ -604,11 +591,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 				choices.alreadySwitchingIn.includes(i + 1) ||
 				serverPokemon.fainted;
 			return <PokemonButton
-				pokemon={serverPokemon}
-				cmd={`/switch ${i + 1}`}
-				disabled={cantSwitch}
-				tooltip={`switchpokemon|${i}`}
-				trapped={trapped || false}
+				pokemon={serverPokemon} cmd={`/switch ${i + 1}`} disabled={cantSwitch} tooltip={`switchpokemon|${i}`}
 			/>;
 		})}
 		</div>);

@@ -401,7 +401,7 @@ export class ChatRoom extends PSRoom {
 			if (cmd !== 'choose') target = `${cmd} ${target}`;
 			const possibleError = room.choices.addChoice(target);
 			if (possibleError) {
-				this.receiveLine([`error`, possibleError]);
+				this.errorReply(possibleError);
 				return;
 			}
 			if (room.choices.isDone()) this.sendDirect(`/choose ${room.choices.toString()}`);
