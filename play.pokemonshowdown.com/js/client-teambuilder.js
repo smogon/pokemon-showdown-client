@@ -1620,6 +1620,7 @@
 			e.currentTarget.value = set.name = name;
 			this.save();
 		},
+		
 		// clipboard
 		clipboard: [],
 		clipboardCount: function () {
