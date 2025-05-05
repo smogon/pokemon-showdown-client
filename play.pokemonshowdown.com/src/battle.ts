@@ -1101,7 +1101,7 @@ export class Battle {
 	teamPreviewCount = 0;
 	speciesClause = false;
 	tier = '';
-	gameType: 'singles' | 'doubles' | 'triples' | 'multi' | 'freeforall' = 'singles';
+	gameType: 'singles' | 'doubles' | 'triples' | 'multi' | 'freeforall' | 'rotation' = 'singles';
 	compatMode = true;
 	rated: string | boolean = false;
 	rules: { [ruleName: string]: 1 | undefined } = {};

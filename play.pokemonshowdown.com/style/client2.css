@@ -2014,6 +2014,7 @@ pre.textbox.textbox-empty[placeholder]:before {
 	font-size: 9pt;
 	text-align: left;
 	font-family: Verdana, Helvetica, Arial, sans-serif;
+	text-decoration: none;
 	white-space: nowrap;
 	cursor: pointer;
 

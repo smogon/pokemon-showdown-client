@@ -8,7 +8,7 @@
 import preact from "../js/lib/preact";
 import { PSLoginServer } from "./client-connection";
 import { PS, PSRoom, type RoomID, type RoomOptions, type Team } from "./client-main";
-import { PSPanelWrapper, PSRoomPanel } from "./panels";
+import { PSIcon, PSPanelWrapper, PSRoomPanel } from "./panels";
 import type { BattlesRoom } from "./panel-battle";
 import type { ChatRoom } from "./panel-chat";
 import type { LadderFormatRoom } from "./panel-ladder";
@@ -653,7 +653,7 @@ export class FormatDropdown extends preact.Component<{
 	}
 	render() {
 		let [formatName, customRules] = this.format.split('@@@');
-		if (window.BattleLog) formatName = BattleLog.formatName(this.format);
+		if (window.BattleLog) formatName = BattleLog.formatName(formatName);
 		if (this.props.format && !this.props.onChange) {
 			return <button
 				name="format" value={this.format} class="select formatselect preselected" disabled
@@ -694,12 +694,12 @@ class TeamDropdown extends preact.Component<{ format: string }> {
 				<div class="team">
 					<strong>Random team</strong>
 					<small>
-						<span class="picon" style={Dex.getPokemonIcon(null)}></span>
-						<span class="picon" style={Dex.getPokemonIcon(null)}></span>
-						<span class="picon" style={Dex.getPokemonIcon(null)}></span>
-						<span class="picon" style={Dex.getPokemonIcon(null)}></span>
-						<span class="picon" style={Dex.getPokemonIcon(null)}></span>
-						<span class="picon" style={Dex.getPokemonIcon(null)}></span>
+						<PSIcon pokemon={null} />
+						<PSIcon pokemon={null} />
+						<PSIcon pokemon={null} />
+						<PSIcon pokemon={null} />
+						<PSIcon pokemon={null} />
+						<PSIcon pokemon={null} />
 					</small>
 				</div>
 			</button>;

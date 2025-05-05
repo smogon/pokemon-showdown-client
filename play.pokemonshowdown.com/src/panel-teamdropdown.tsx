@@ -9,9 +9,6 @@ import { PS, type Team } from "./client-main";
 import { PSPanelWrapper, PSRoomPanel } from "./panels";
 import { Dex, type ModdedDex, toID, type ID } from "./battle-dex";
 import { BattleNatures, BattleStatIDs, BattleStatNames, type StatNameExceptHP } from "./battle-dex-data";
-import { Net } from "./client-connection";
-
-export type FormatResource = { url: string, resources: { resource_name: string, url: string }[] } | null;
 
 export class PSTeambuilder {
 	static packTeam(team: Dex.PokemonSet[]) {
@@ -302,16 +299,17 @@ export class PSTeambuilder {
 			text += `Tera Type: ${set.teraType}\n`;
 		}
 
-		if (set.moves && compat) {
-			for (let move of set.moves) {
+		if (compat) {
+			for (let move of set.moves || []) {
 				if (move.startsWith('Hidden Power ')) {
 					const hpType = move.slice(13);
 					move = move.slice(0, 13);
 					move = compat ? `${move}[${hpType}]` : `${move}${hpType}`;
 				}
-				if (move) {
-					text += `- ${move}\n`;
-				}
+				text += `- ${move}\n`;
+			}
+			for (let i = set.moves?.length || 0; i < 4; i++) {
+				text += `- \n`;
 			}
 		}
 
@@ -586,20 +584,6 @@ export class PSTeambuilder {
 
 		return team;
 	}
-
-	static formatResources = {} as Record<string, FormatResource>;
-
-	static getFormatResources(format: string): Promise<FormatResource> {
-		if (format in this.formatResources) return Promise.resolve(this.formatResources[format]);
-		return Net('https://www.smogon.com/dex/api/formats/by-ps-name/' + format).get()
-			.then(result => {
-				this.formatResources[format] = JSON.parse(result);
-				return this.formatResources[format];
-			}).catch(err => {
-				this.formatResources[format] = null;
-				return this.formatResources[format];
-			});
-	}
 }
 
 export function TeamFolder(props: { cur?: boolean, value: string, children: preact.ComponentChildren }) {
@@ -626,6 +610,7 @@ export function TeamBox(props: { team: Team | null, noLink?: boolean, button?: b
 				icons = <em>(empty team)</em>;
 			} else {
 				icons = PSTeambuilder.packedTeamNames(team.packedTeam).map(species =>
+					// can't use PSIcon, weird interaction with iconCache
 					<span class="picon" style={Dex.getPokemonIcon(species)}></span>
 				);
 			}
@@ -648,9 +633,14 @@ export function TeamBox(props: { team: Team | null, noLink?: boolean, button?: b
 			{contents}
 		</button>;
 	}
-	return <div data-href={props.noLink ? '' : `/team-${team ? team.key : ''}`} class="team" draggable>
+	if (props.noLink) {
+		return <div class="team">
+			{contents}
+		</div>;
+	}
+	return <a href={`team-${team ? team.key : ''}`} class="team" draggable>
 		{contents}
-	</div>;
+	</a>;
 }
 
 /**

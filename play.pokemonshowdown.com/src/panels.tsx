@@ -10,12 +10,14 @@
  */
 
 import preact from "../js/lib/preact";
-import { toID } from "./battle-dex";
+import type { Pokemon, ServerPokemon } from "./battle";
+import { Dex, toID } from "./battle-dex";
 import type { Args } from "./battle-text-parser";
 import { BattleTooltips } from "./battle-tooltips";
 import { Net } from "./client-connection";
 import type { PSModel, PSStreamModel, PSSubscription } from "./client-core";
 import { PS, type PSRoom, type RoomID } from "./client-main";
+import type { ChatRoom } from "./panel-chat";
 import { PSHeader, PSMiniHeader } from "./panel-topbar";
 
 export class PSRouter {
@@ -609,6 +611,27 @@ export class PSView extends preact.Component {
 				parentElem: elem,
 			});
 			return true;
+		case 'register':
+			PS.join('register' as RoomID, {
+				parentElem: elem,
+			});
+			return true;
+		case 'showOtherFormats': {
+			// TODO: refactor to a command after we drop support for the old client
+			const table = elem.closest('table');
+			const room = PS.getRoom(elem);
+			if (table) {
+				for (const row of table.querySelectorAll<HTMLElement>('tr.hidden')) {
+					row.style.display = 'table-row';
+				}
+				for (const row of table.querySelectorAll<HTMLElement>('tr.no-matches')) {
+					row.style.display = 'none';
+				}
+				elem.closest('tr')!.style.display = 'none';
+				(room as ChatRoom).log?.updateScroll();
+			}
+			return true;
+		}
 		case 'copyText':
 			const dummyInput = document.createElement("input");
 			// This is a hack. You can only "select" an input field.
@@ -803,4 +826,44 @@ export class PSView extends preact.Component {
 			{PS.popups.map(roomid => this.renderPopup(PS.rooms[roomid]!))}
 		</div>;
 	}
+}
+
+export function PSIcon(
+	props: { pokemon: string | Pokemon | ServerPokemon | Dex.PokemonSet | null } |
+		{ item: string } | { type: string, b?: boolean } | { category: string }
+) {
+	if ('pokemon' in props) {
+		return <span class="picon" style={Dex.getPokemonIcon(props.pokemon)} />;
+	}
+	if ('item' in props) {
+		return <span class="itemicon" style={Dex.getItemIcon(props.item)} />;
+	}
+	if ('type' in props) {
+		let type = Dex.types.get(props.type).name;
+		if (!type) type = '???';
+		let sanitizedType = type.replace(/\?/g, '%3f');
+		return <img
+			src={`${Dex.resourcePrefix}sprites/types/${sanitizedType}.png`} alt={type}
+			height="14" width="32" class={`pixelated${props.b ? ' b' : ''}`}
+		/>;
+	}
+	if ('category' in props) {
+		const categoryID = toID(props.category);
+		let sanitizedCategory = '';
+		switch (categoryID) {
+		case 'physical':
+		case 'special':
+		case 'status':
+			sanitizedCategory = categoryID.charAt(0).toUpperCase() + categoryID.slice(1);
+			break;
+		default:
+			sanitizedCategory = 'undefined';
+			break;
+		}
+		return <img
+			src={`${Dex.resourcePrefix}sprites/categories/${sanitizedCategory}.png`} alt={sanitizedCategory}
+			height="14" width="32" class="pixelated"
+		/>;
+	}
+	return null!;
 }

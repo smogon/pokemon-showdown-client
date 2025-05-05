@@ -156,7 +156,7 @@ export class BattleTooltips {
 	// tooltips
 	// Touch delay, pressing finger more than that time will cause the tooltip to open.
 	// Shorter time will cause the button to click
-	static LONG_TAP_DELAY = 350; // ms
+	static LONG_TAP_DELAY = 1000; // ms
 	static longTapTimeout = 0;
 	static elem: HTMLDivElement | null = null;
 	static parentElem: HTMLElement | null = null;
@@ -243,7 +243,8 @@ export class BattleTooltips {
 		if (BattleTooltips.isLocked) BattleTooltips.hideTooltip();
 		const target = e.currentTarget as HTMLElement;
 		this.showTooltip(target);
-		let factor = (e.type === 'mousedown' && target.tagName === 'BUTTON' ? 2 : 1);
+		// let factor = (e.type === 'mousedown' && target.tagName === 'BUTTON' ? 2 : 1);
+		const factor = 1;
 
 		BattleTooltips.longTapTimeout = setTimeout(() => {
 			BattleTooltips.longTapTimeout = 0;
@@ -787,10 +788,6 @@ export class BattleTooltips {
 	 *
 	 * isActive is true if hovering over a pokemon in the battlefield,
 	 * and false if hovering over a pokemon in the Switch menu.
-	 *
-	 * @param clientPokemon
-	 * @param serverPokemon
-	 * @param isActive
 	 */
 	showPokemonTooltip(
 		clientPokemon: Pokemon | null, serverPokemon?: ServerPokemon | null, isActive?: boolean, illusionIndex?: number
