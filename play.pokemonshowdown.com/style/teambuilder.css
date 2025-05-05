@@ -298,6 +298,7 @@
 
 .teameditor {
 	padding-bottom: 30px;
+	max-width: 660px;
 }
 .teameditor-text {
 	position: relative;
@@ -553,9 +554,12 @@ you can't delete it by pressing Backspace */
 .set-button .set-nickname {
 	position: absolute;
 	height: 35px;
-	width: 100px;
+	width: 120px;
 	top: 5px;
 	left: -5px;
+}
+.tiny-layout .set-button .set-nickname {
+	width: 90px;
 }
 
 .set-button .sprite {
@@ -621,18 +625,28 @@ you can't delete it by pressing Backspace */
 	overflow: auto;
 	-webkit-overflow-scrolling: touch;
 }
-.picontab {
-	font-size: 10px;
-	padding: 3px 0;
+.team-focus-editor .tabbar {
+	overflow: auto;
+	white-space: nowrap;
+}
+.tabbar .button.picontab {
 	width: 80px;
 	height: 52px;
 	overflow: hidden;
+	height: 46px;
+	padding: 0;
+	font-size: 10px;
+	box-sizing: border-box;
 }
-.tiny-layout .picontab {
+.tabbar .button.picontab.cur {
+	height: 47px;
+	padding: 0 0 2px;
+}
+.tiny-layout .tabbar .button.picontab {
 	width: 42px;
 }
 @media (min-width: 375px) {
-	.tiny-layout .picontab {
+	.tiny-layout .tabbar .button.picontab {
 		width: 52px;
 	}
 }
@@ -660,7 +674,7 @@ you can't delete it by pressing Backspace */
 }
 .wizardsearchresults {
 	position: absolute;
-	top: 236px;
+	top: 230px;
 	left: 0;
 	right: 0;
 	bottom: 0;

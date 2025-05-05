@@ -1533,13 +1533,14 @@ class StatForm extends preact.Component<{
 			if (statID === 'spd' && editor.gen === 1) return null;
 
 			const stat = editor.getStat(statID, set);
-			const ev = set.evs?.[statID] ?? defaultEV;
+			let ev: number | string = set.evs?.[statID] ?? defaultEV;
 			let width = stat * 75 / 504;
 			if (statID === 'hp') width = stat * 75 / 704;
 			if (width > 75) width = 75;
 			let hue = Math.floor(stat * 180 / 714);
 			if (hue > 360) hue = 360;
 			const statName = editor.gen === 1 && statID === 'spa' ? 'Spc' : BattleStatNames[statID];
+			if (evs && !ev && !set.evs && statID === 'hp') ev = 'EVs';
 			return <span class="statrow">
 				<label>{statName}</label> {}
 				<span class="statgraph">
@@ -1807,30 +1808,13 @@ class StatForm extends preact.Component<{
 		const statID = target.name.split('-')[1] as Dex.StatName;
 		let value = Math.abs(parseInt(target.value));
 
-		if (target.value.includes('+')) {
-			if (statID === 'hp') {
-				alert("Natures cannot raise or lower HP.");
-				return;
-			}
-			this.plus = statID;
-		} else if (this.plus === statID) {
-			this.plus = null;
-		}
-		if (target.value.includes('-')) {
-			if (statID === 'hp') {
-				alert("Natures cannot raise or lower HP.");
-				return;
-			}
-			this.minus = statID;
-		} else if (this.minus === statID) {
-			this.minus = null;
-		}
 		if (isNaN(value)) {
 			if (set.evs) delete set.evs[statID];
 		} else {
 			set.evs ||= {};
 			set.evs[statID] = value;
 		}
+
 		if (target.type === 'range') {
 			// enforce limit
 			const maxEv = this.maxEVs();
@@ -1841,9 +1825,28 @@ class StatForm extends preact.Component<{
 					set.evs![statID] = maxEv - (totalEv - value) - (maxEv % 4);
 				}
 			}
+		} else {
+			if (target.value.includes('+')) {
+				if (statID === 'hp') {
+					alert("Natures cannot raise or lower HP.");
+					return;
+				}
+				this.plus = statID;
+			} else if (this.plus === statID) {
+				this.plus = null;
+			}
+			if (target.value.includes('-')) {
+				if (statID === 'hp') {
+					alert("Natures cannot raise or lower HP.");
+					return;
+				}
+				this.minus = statID;
+			} else if (this.minus === statID) {
+				this.minus = null;
+			}
+			this.updateNatureFromPlusMinus();
 		}
 
-		this.updateNatureFromPlusMinus();
 		this.props.onChange();
 	};
 	updateNatureFromPlusMinus = () => {

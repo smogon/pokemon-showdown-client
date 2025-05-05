@@ -7,7 +7,7 @@
 
 import preact from "../js/lib/preact";
 import { PS, PSRoom, type RoomOptions, type RoomID } from "./client-main";
-import { PSPanelWrapper, PSRoomPanel } from "./panels";
+import { PSIcon, PSPanelWrapper, PSRoomPanel } from "./panels";
 import { ChatLog, ChatRoom, ChatTextEntry, ChatUserList } from "./panel-chat";
 import { FormatDropdown } from "./panel-mainmenu";
 import { Battle, type Pokemon, type ServerPokemon } from "./battle";
@@ -187,7 +187,7 @@ function PokemonButton(props: {
 		data-cmd={props.cmd} class={`${props.disabled ? 'disabled ' : ''}has-tooltip`}
 		style={{ opacity: props.disabled === 'fade' ? 0.5 : 1 }} data-tooltip={props.tooltip}
 	>
-		<span class="picon" style={Dex.getPokemonIcon(pokemon)}></span>
+		<PSIcon pokemon={pokemon} />
 		{pokemon.name}
 		{
 			!props.noHPBar && !pokemon.fainted &&
@@ -541,7 +541,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 	}
 	renderMoveTargetControls(request: BattleMoveRequest, choices: BattleChoiceBuilder) {
 		const battle = this.props.room.battle;
-		const moveTarget = choices.getChosenMove(choices.current, choices.index()).target;
+		const moveTarget = choices.currentMove()?.target;
 		const moveChoice = choices.stringChoice(choices.current);
 
 		const userSlot = choices.index();
@@ -634,7 +634,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 	}
 	renderOldChoices(request: BattleRequest, choices: BattleChoiceBuilder) {
 		if (!choices) return null; // should not happen
-		if (request.requestType !== 'move' && request.requestType !== 'switch') return;
+		if (request.requestType !== 'move' && request.requestType !== 'switch' && request.requestType !== 'team') return;
 		if (choices.isEmpty()) return null;
 
 		let buf: preact.ComponentChild[] = [
@@ -653,7 +653,12 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 				buf.push(`${request.side.pokemon[i].name} is locked into a move.`);
 				return buf;
 			}
-			const choice = choices.parseChoice(choiceString);
+			let choice;
+			try {
+				choice = choices.parseChoice(choiceString, i);
+			} catch (err: any) {
+				buf.push(<span class="message-error">{err.message}</span>);
+			}
 			if (!choice) continue;
 			const pokemon = request.side.pokemon[i];
 			const active = request.requestType === 'move' ? request.active[i] : null;
@@ -665,7 +670,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 				if (choice.ultra) buf.push(<strong>Ultra</strong>, ` Burst and `);
 				if (choice.tera) buf.push(`Terastallize (`, <strong>{active?.canTerastallize || '???'}</strong>, `) and `);
 				if (choice.max && active?.canDynamax) buf.push(active?.canGigantamax ? `Gigantamax and ` : `Dynamax and `);
-				buf.push(`use `, <strong>{choices.getChosenMove(choice, i).name}</strong>);
+				buf.push(`use `, <strong>{choices.currentMove(choice, i)?.name}</strong>);
 				if (choice.targetLoc > 0) {
 					const target = battle.farSide.active[choice.targetLoc - 1];
 					if (!target) {
@@ -686,6 +691,9 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 				buf.push(`${pokemon.name} will switch to `, <strong>{target.name}</strong>);
 			} else if (choice.choiceType === 'shift') {
 				buf.push(`${pokemon.name} will `, <strong>shift</strong>, ` to the center`);
+			} else if (choice.choiceType === 'team') {
+				const target = request.side.pokemon[choice.targetPokemon - 1];
+				buf.push(`You picked `, <strong>{target.name}</strong>);
 			}
 			buf.push(<br />);
 		}
@@ -718,7 +726,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 			const pokemon = request.side.pokemon[index];
 
 			if (choices.current.move) {
-				const moveName = choices.getChosenMove(choices.current, choices.index()).name;
+				const moveName = choices.currentMove()?.name;
 				return <div class="controls">
 					<div class="whatdo">
 						{this.renderOldChoices(request, choices)}

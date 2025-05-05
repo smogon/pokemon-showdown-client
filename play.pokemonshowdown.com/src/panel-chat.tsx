@@ -403,6 +403,10 @@ export class ChatRoom extends PSRoom {
 				return;
 			}
 			if (cmd !== 'choose') target = `${cmd} ${target}`;
+			if (target === 'choose auto' || target === 'choose default') {
+				this.sendDirect('/choose default');
+				return;
+			}
 			const possibleError = room.choices.addChoice(target);
 			if (possibleError) {
 				this.errorReply(possibleError);

@@ -999,12 +999,14 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 			}
 		},
 		'avatar'(target) {
-			const avatar = window.BattleAvatarNumbers?.[toID(target)] || toID(target);
+			target = target.toLowerCase();
+			if (/[^a-z0-9-]/.test(target)) target = toID(target);
+			const avatar = window.BattleAvatarNumbers?.[target] || target;
 			PS.user.avatar = avatar;
 			if (this.type !== 'chat' && this.type !== 'battle') {
 				PS.send(`|/avatar ${avatar}`);
 			} else {
-				this.send(`/avatar ${avatar}`);
+				this.sendDirect(`/avatar ${avatar}`);
 			}
 		},
 		'open,user'(target) {
@@ -1184,6 +1186,9 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 				PS.leave(roomid);
 			}
 			this.add("||All PM windows cleared and closed.");
+		},
+		'senddirect'(target) {
+			this.sendDirect(target);
 		},
 		'help'(target) {
 			switch (toID(target)) {
