@@ -13,7 +13,7 @@
 
 import { Dex, type ModdedDex, toID, type ID } from "./battle-dex";
 
-type SearchType = (
+export type SearchType = (
 	'pokemon' | 'type' | 'tier' | 'move' | 'item' | 'ability' | 'egggroup' | 'category' | 'article'
 );
 
@@ -42,6 +42,7 @@ export class DexSearch {
 	typedSearch: BattleTypedSearch<SearchType> | null = null;
 
 	results: SearchRow[] | null = null;
+	prependResults: SearchRow[] | null = null;
 	exactMatch = false;
 
 	static typeTable = {
@@ -107,6 +108,9 @@ export class DexSearch {
 		this.query = query;
 		if (!query) {
 			this.results = this.typedSearch?.getResults(this.filters, this.sortCol, this.reverseSort) || [];
+			if (!this.filters && !this.sortCol && this.prependResults) {
+				this.results = [...this.prependResults, ...this.results];
+			}
 		} else {
 			this.results = this.textSearch(query);
 		}
@@ -125,13 +129,28 @@ export class DexSearch {
 		if (this.typedSearch) this.dex = this.typedSearch.dex;
 	}
 
-	addFilter(entry: SearchFilter): boolean {
+	capitalizeFirst(str: string) {
+		return str.charAt(0).toUpperCase() + str.slice(1);
+	}
+	addFilter(entry: SearchFilter | SearchRow): boolean {
 		if (!this.typedSearch) return false;
 		let [type] = entry;
 		if (this.typedSearch.searchType === 'pokemon') {
 			if (type === this.sortCol) this.sortCol = null;
 			if (!['type', 'move', 'ability', 'egggroup', 'tier'].includes(type)) return false;
+			if (type === 'type') entry[1] = this.capitalizeFirst(entry[1]);
 			if (type === 'move') entry[1] = toID(entry[1]);
+			if (type === 'ability') entry[1] = this.dex.abilities.get(entry[1]).name;
+			if (type === 'tier') {
+				// very hardcode
+				const tierTable: { [id: string]: string } = {
+					uber: "Uber",
+					caplc: "CAP LC",
+					capnfe: "CAP NFE",
+				};
+				entry[1] = toID(entry[1]);
+				entry[1] = tierTable[entry[1]] || entry[1].toUpperCase();
+			}
 			if (!this.filters) this.filters = [];
 			this.results = null;
 			for (const filter of this.filters) {
@@ -139,14 +158,16 @@ export class DexSearch {
 					return true;
 				}
 			}
-			this.filters.push(entry);
+			this.filters.push(entry.slice(0, 2) as SearchFilter);
 			return true;
 		} else if (this.typedSearch.searchType === 'move') {
 			if (type === this.sortCol) this.sortCol = null;
 			if (!['type', 'category', 'pokemon'].includes(type)) return false;
+			if (type === 'type') entry[1] = this.capitalizeFirst(entry[1]);
+			if (type === 'category') entry[1] = this.capitalizeFirst(entry[1]);
 			if (type === 'pokemon') entry[1] = toID(entry[1]);
 			if (!this.filters) this.filters = [];
-			this.filters.push(entry);
+			this.filters.push(entry.slice(0, 2) as SearchFilter);
 			this.results = null;
 			return true;
 		}
@@ -551,7 +572,7 @@ abstract class BattleTypedSearch<T extends SearchType> {
 	 */
 	set: Dex.PokemonSet | null = null;
 
-	protected formatType: 'doubles' | 'bdsp' | 'bdspdoubles' | 'bw1' | 'letsgo' | 'metronome' | 'natdex' | 'nfe' |
+	protected formatType: 'doubles' | 'bdsp' | 'bdspdoubles' | 'rs' | 'bw1' | 'letsgo' | 'metronome' | 'natdex' | 'nfe' |
 		'ssdlc1' | 'ssdlc1doubles' | 'predlc' | 'predlcdoubles' | 'predlcnatdex' | 'svdlc1' | 'svdlc1doubles' |
 		'svdlc1natdex' | 'stadium' | 'lc' | null = null;
 
@@ -633,6 +654,10 @@ abstract class BattleTypedSearch<T extends SearchType> {
 		if (format.includes('bw1')) {
 			this.formatType = 'bw1';
 			this.dex = Dex.mod('gen5bw1' as ID);
+		}
+		if (format.includes('adv200')) {
+			this.formatType = 'rs';
+			this.dex = Dex.mod('gen3rs' as ID);
 		}
 		if (format === 'partnersincrime') this.formatType = 'doubles';
 		if (format.startsWith('ffa') || format === 'freeforall') this.formatType = 'doubles';
@@ -755,6 +780,7 @@ abstract class BattleTypedSearch<T extends SearchType> {
 		if (this.formatType?.startsWith('bdsp')) table = table['gen8bdsp'];
 		if (this.formatType === 'letsgo') table = table['gen7letsgo'];
 		if (this.formatType === 'bw1') table = table['gen5bw1'];
+		if (this.formatType === 'rs') table = table['gen3rs'];
 		if (speciesid in table.learnsets) return speciesid;
 		const species = this.dex.species.get(speciesid);
 		if (!species.exists) return '' as ID;
@@ -823,6 +849,7 @@ abstract class BattleTypedSearch<T extends SearchType> {
 			if (this.formatType?.startsWith('bdsp')) table = table['gen8bdsp'];
 			if (this.formatType === 'letsgo') table = table['gen7letsgo'];
 			if (this.formatType === 'bw1') table = table['gen5bw1'];
+			if (this.formatType === 'rs') table = table['gen3rs'];
 			let learnset = table.learnsets[learnsetid];
 			const eggMovesOnly = this.eggMovesOnly(learnsetid, speciesid);
 			if (learnset && (moveid in learnset) && (!this.format.startsWith('tradebacks') ? learnset[moveid].includes(genChar) :
@@ -846,6 +873,7 @@ abstract class BattleTypedSearch<T extends SearchType> {
 			this.formatType === 'bdsp' ? 'gen8bdsp' :
 			this.formatType === 'bdspdoubles' ? 'gen8bdspdoubles' :
 			this.formatType === 'bw1' ? 'gen5bw1' :
+			this.formatType === 'rs' ? 'gen3rs' :
 			this.formatType === 'nfe' ? `gen${gen}nfe` :
 			this.formatType === 'lc' ? `gen${gen}lc` :
 			this.formatType === 'ssdlc1' ? 'gen8dlc1' :
@@ -981,6 +1009,8 @@ class BattlePokemonSearch extends BattleTypedSearch<'pokemon'> {
 			table = table['gen7letsgo'];
 		} else if (this.formatType === 'bw1') {
 			table = table['gen5bw1'];
+		} else if (this.formatType === 'rs') {
+			table = table['gen3rs'];
 		} else if (this.formatType === 'natdex') {
 			table = table[`gen${dex.gen}natdex`];
 		} else if (this.formatType === 'metronome') {
@@ -1072,6 +1102,8 @@ class BattlePokemonSearch extends BattleTypedSearch<'pokemon'> {
 		else if (format === 'doublesnu') tierSet = tierSet.slice(slices.DNU || slices.DUU);
 		else if (this.formatType?.startsWith('bdsp') || this.formatType === 'letsgo' || this.formatType === 'stadium') {
 			tierSet = tierSet.slice(slices.Uber);
+		} else if (this.formatType === 'rs') {
+			tierSet = tierSet.slice(slices.Regular);
 		} else if (!isDoublesOrBS) {
 			tierSet = [
 				...tierSet.slice(slices.OU, slices.UU),
@@ -1283,6 +1315,8 @@ class BattleItemSearch extends BattleTypedSearch<'item'> {
 			table = table['gen8bdsp'];
 		} else if (this.formatType === 'bw1') {
 			table = table['gen5bw1'];
+		} else if (this.formatType === 'rs') {
+			table = table['gen3rs'];
 		} else if (this.formatType === 'natdex') {
 			table = table[`gen${this.dex.gen}natdex`];
 		} else if (this.formatType?.endsWith('doubles')) { // no natdex/bdsp doubles support
@@ -1662,6 +1696,7 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 		if (this.formatType?.startsWith('bdsp')) lsetTable = lsetTable['gen8bdsp'];
 		if (this.formatType === 'letsgo') lsetTable = lsetTable['gen7letsgo'];
 		if (this.formatType === 'bw1') lsetTable = lsetTable['gen5bw1'];
+		if (this.formatType === 'rs') lsetTable = lsetTable['gen3rs'];
 		if (this.formatType?.startsWith('ssdlc1')) lsetTable = lsetTable['gen8dlc1'];
 		if (this.formatType?.startsWith('predlc')) lsetTable = lsetTable['gen9predlc'];
 		if (this.formatType?.startsWith('svdlc1')) lsetTable = lsetTable['gen9dlc1'];

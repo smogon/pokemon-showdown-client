@@ -599,7 +599,7 @@ export class ChatRoom extends PSRoom {
 }
 
 export class ChatTextEntry extends preact.Component<{
-	room: ChatRoom, onMessage: (msg: string) => void, onKey: (e: KeyboardEvent) => boolean,
+	room: ChatRoom, onMessage: (msg: string, elem: HTMLElement) => void, onKey: (e: KeyboardEvent) => boolean,
 	left?: number, tinyLayout?: boolean,
 }> {
 	subscription: PSSubscription | null = null;
@@ -656,7 +656,7 @@ export class ChatTextEntry extends preact.Component<{
 		elem.focus();
 	};
 	submit() {
-		this.props.onMessage(this.getValue());
+		this.props.onMessage(this.getValue(), this.miniedit?.element || this.textbox);
 		this.historyPush(this.getValue());
 		this.setValue('', 0);
 		this.update();
@@ -927,7 +927,7 @@ export class ChatTextEntry extends preact.Component<{
 			class="chat-log-add hasuserlist" onClick={this.focusIfNoSelection} style={{ left: this.props.left || 0 }}
 		>
 			<form class={`chatbox${this.props.tinyLayout ? ' nolabel' : ''}`} style={canTalk ? {} : { display: 'none' }}>
-				<label style={{ color: BattleLog.usernameColor(PS.user.userid) }}>{PS.user.name}:</label>
+				<label style={`color:${BattleLog.usernameColor(PS.user.userid)}`}>{PS.user.name}:</label>
 				{OLD_TEXTBOX ? <textarea
 					class={this.props.room.connected && canTalk ? 'textbox autofocus' : 'textbox disabled'}
 					autofocus
@@ -981,8 +981,8 @@ class ChatPanel extends PSRoomPanel<ChatRoom> {
 			this.props.room.updateTarget();
 		});
 	}
-	send = (text: string) => {
-		this.props.room.send(text);
+	send = (text: string, elem: HTMLElement) => {
+		this.props.room.send(text, elem);
 	};
 	onKey = (e: KeyboardEvent) => {
 		if (e.keyCode === 33) { // Pg Up key
@@ -1101,11 +1101,11 @@ export class ChatUserList extends preact.Component<{
 							{groupSymbol}
 						</em>
 						{group.type === 'leadership' ? (
-							<strong><em style={{ color }}>{name.slice(1)}</em></strong>
+							<strong><em style={`color:${color}`}>{name.slice(1)}</em></strong>
 						) : group.type === 'staff' ? (
-							<strong style={{ color }}>{name.slice(1)}</strong>
+							<strong style={`color:${color} `}>{name.slice(1)}</strong>
 						) : (
-							<span style={{ color }}>{name.slice(1)}</span>
+							<span style={`color:${color}`}>{name.slice(1)}</span>
 						)}
 					</button></li>;
 				})}
@@ -1183,7 +1183,7 @@ export class ChatLog extends preact.Component<{
 	}
 	render() {
 		return <div><div
-			class={this.props.class} role="log"
+			class={this.props.class} role="log" aria-label="Chat log"
 			style={{ left: this.props.left || 0, top: this.props.top || 0 }}
 		></div></div>;
 	}

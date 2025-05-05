@@ -165,7 +165,7 @@ class UserPanel extends PSRoomPanel<UserRoom> {
 			))}
 			<strong><a
 				href={`//${Config.routes.users}/${user.userid}`} target="_blank"
-				style={{ color: away ? '#888888' : BattleLog.usernameColor(user.userid) }}
+				style={`color: ${away ? '#888888' : BattleLog.usernameColor(user.userid)}`}
 			>
 				{user.name}
 			</a></strong><br />
@@ -846,7 +846,7 @@ class LoginPanel extends PSRoomPanel {
 			<form onSubmit={this.handleSubmit}>
 				{loginState?.error && <p class="error">{loginState.error}</p>}
 				<p><label class="label">
-					Username: <small class="preview" style={{ color: BattleLog.usernameColor(toID(this.getUsername())) }}>(color)</small>
+					Username: <small class="preview" style={`color:${BattleLog.usernameColor(toID(this.getUsername()))}`}>(color)</small>
 					<input
 						class="textbox" type="text" name="username"
 						onInput={this.update} onChange={this.update} autocomplete="username"
