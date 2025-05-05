@@ -465,6 +465,7 @@ p.or:after {
 	padding: 0;
 	list-style: none;
 	font-size: 8pt;
+	font-family: Verdana, Geneva, Tahoma, sans-serif, PGLDings;
 }
 .popupmenu h3 {
 	margin: 5px 0 0 -2px;
@@ -491,6 +492,16 @@ p.or:after {
 
 .popupmenu .option {
 	width: 204px;
+}
+.popupmenu .dingbat-button {
+	font-family: PGLDings;
+	border: transparent;
+	background-color: transparent;
+}
+.dingbat-button:hover{
+	border-color: #888888;
+	background-color: #D5D5D5;
+	color: black;
 }
 .popupmenu i {
 	display: inline-block;

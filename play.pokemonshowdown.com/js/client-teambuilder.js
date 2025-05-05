@@ -1293,7 +1293,7 @@
 				buf += '</li>';
 				return buf;
 			}
-			buf += '<div class="setmenu"><button name="copySet"><i class="fa fa-files-o"></i>Copy</button> <button name="importSet"><i class="fa fa-upload"></i>Import/Export</button> <button name="moveSet"><i class="fa fa-arrows"></i>Move</button> <button name="deleteSet"><i class="fa fa-trash"></i>Delete</button></div>';
+			buf += '<div class="setmenu"><button name="dingbats">&#xe082;</button> <button name="copySet"><i class="fa fa-files-o"></i>Copy</button> <button name="importSet"><i class="fa fa-upload"></i>Import/Export</button> <button name="moveSet"><i class="fa fa-arrows"></i>Move</button> <button name="deleteSet"><i class="fa fa-trash"></i>Delete</button></div>';
 			buf += '<div class="setchart-nickname">';
 			buf += '<label>Nickname</label><input type="text" name="nickname" class="textbox" value="' + BattleLog.escapeHTML(set.name || '') + '" placeholder="' + BattleLog.escapeHTML(species.baseSpecies) + '" />';
 			buf += '</div>';
@@ -1620,7 +1620,6 @@
 			e.currentTarget.value = set.name = name;
 			this.save();
 		},
-
 		// clipboard
 		clipboard: [],
 		clipboardCount: function () {
@@ -1746,6 +1745,20 @@
 			i = +($(button).closest('li').attr('value'));
 			this.clipboardAdd($.extend(true, {}, this.curSetList[i]));
 			button.blur();
+		},
+		dingbats: function(i, button){
+			i = +($(button).closest('li').attr('value'));
+			app.addPopup(DingbatPopup, {
+				i: i,
+				team: this.curSetList
+			});
+		},
+		addDingbat: function (dingbat, i) {
+			//var i = +$(e.currentTarget).closest('li').attr('value');
+			var set = this.curSetList[i];
+			//var name = $.trim(e.currentTarget.value).replace(/\|/g, '');
+			set.name += dingbat;
+			this.save();
 		},
 		wasViewingPokemon: false,
 		importSet: function (i, button) {
@@ -3680,7 +3693,59 @@
 			}
 		}
 	});
+	const dingbats_halfwidth = [
+		"&#xe095;","&#xe096;","&#xe097;","&#xe098;",
+		"&#xe099;","&#xe090;","&#xe091;","&#xe092;",
+		"&#xe093;","&#xe094;","&#xe09a;",
+		"\n",
+		"&#xe09b;","&#xe09c;","&#xe09d;","&#xe09e;",
+		"&#xe09f;","&#xe0a0;","&#xe0a1;","&#xe0a2;",
+		"&#xe0a5;","&#xe0a3;","&#xe0a4;",	
+		"\n",
+		"&#xe08e;","&#xe08f;"
+	];
+	const dingbats_fullwidth = [
+		"&#x25CE;", "&#x25CB;", "&#x25A1;", "&#x25B3;", "&#x25C7;",
+		"&#x2660;", "&#x2663;", "&#x2665;", "&#x2666;", "&#x2605;", "&#x266A;", 
+		"\n",
+		"&#x2600;", "&#x2601;", "&#x2602;", "&#x2603;",
+		"&#xE081;", "&#xE082;", "&#xE083;", "&#xE084;", "&#xE087;", "&#xE085;", "&#xE086;",
+		"\n",
+		"&#x2642;","&#x2640;"
+	];
+	var DingbatPopup = exports.DingbatPopup = Popup.extend({
+		initialize: function (data) {
+			this.i = data.i;
+			this.team = data.team;
 
+			var buf = '<ul name="dingbats" class="popupmenu"><li>';
+			for (var i=0; i<dingbats_halfwidth.length; i++) {
+
+				if (dingbats_halfwidth[i] == '\n'){
+					buf +='</li><li>'
+				} else {
+					buf += `<button name="insertDingbat" class="dingbat-button" halfwidth=${dingbats_halfwidth[i]} fullwidth=${dingbats_fullwidth[i]} value=${dingbats_halfwidth[i]}>${dingbats_halfwidth[i]}</button>`;
+				}
+			}
+			buf += '</li><input type="checkbox" name="wideCheckbox"></input>Wide</ul>';
+			this.$el.html(buf);
+			this.$el.find("input[name=wideCheckbox]").change(
+				(e)=>{
+					const width=e.currentTarget.checked?"fullwidth":"halfwidth";
+					this.$el.find("button[name=insertDingbat]").each((_,elem)=>{
+						elem.value=elem.innerHTML=elem.getAttribute(width);
+					});
+				}
+			);
+
+			
+		},
+		insertDingbat: function (value) {
+			this.team[this.i].name+=value;
+			app.rooms['teambuilder'].save();
+			app.rooms['teambuilder'].update();
+		}
+	});
 	var DeleteFolderPopup = this.DeleteFolderPopup = Popup.extend({
 		type: 'semimodal',
 		initialize: function (data) {
