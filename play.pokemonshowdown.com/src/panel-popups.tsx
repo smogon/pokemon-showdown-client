@@ -1604,10 +1604,11 @@ class PopupPanel extends PSRoomPanel<PopupRoom> {
 		const otherButtons = room.args?.otherButtons as preact.ComponentChildren;
 		const value = room.args?.value as string | undefined;
 		const type = (room.args?.type || (typeof value === 'string' ? 'text' : null)) as string | null;
+		const message = room.args?.message;
 		return <PSPanelWrapper room={room} width={480}><form class="pad" onSubmit={this.handleSubmit}>
-			{room.args?.message && <p
+			{message && <p
 				style="white-space:pre-wrap;word-wrap:break-word"
-				dangerouslySetInnerHTML={{ __html: this.parseMessage(room.args.message as string || '') }}
+				dangerouslySetInnerHTML={{ __html: this.parseMessage(message as string || '') }}
 			></p>}
 			{!!type && <p><input name="value" type={type} class="textbox autofocus" style="width:100%;box-sizing:border-box" /></p>}
 			<p class="buttonbar">
