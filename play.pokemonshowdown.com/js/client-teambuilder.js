@@ -3713,7 +3713,6 @@
 
 			var buf = '<ul name="dingbats" class="popupmenu"><li>';
 			for (var i=0; i<dingbats_halfwidth.length; i++) {
-
 				if (dingbats_halfwidth[i] == '\n'){
 					buf +='</li><li>'
 				} else {
@@ -3724,17 +3723,15 @@
 			this.$el.html(buf);
 			this.$el.find("input[name=wideCheckbox]").change(
 				(e)=>{
-					const width=e.currentTarget.checked?"fullwidth":"halfwidth";
+					const width = e.currentTarget.checked?"fullwidth":"halfwidth";
 					this.$el.find("button[name=insertDingbat]").each((_,elem)=>{
-						elem.value=elem.innerHTML=elem.getAttribute(width);
+						elem.value = elem.innerHTML = elem.getAttribute(width);
 					});
 				}
 			);
-
-			
 		},
 		insertDingbat: function (value) {
-			this.team[this.i].name+=value;
+			this.team[this.i].name += value;
 			app.rooms['teambuilder'].save();
 			app.rooms['teambuilder'].update();
 		}
