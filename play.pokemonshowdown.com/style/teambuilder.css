@@ -116,7 +116,7 @@
 	padding-top: 7px;
 	height: 23px;
 	font-size: 9pt;
-	font-family: Verdana, sans-serif, PGLDings;
+	font-family: Verdana, PGLDings, sans-serif;
 	white-space: nowrap;
 	overflow: hidden;
 	text-align: left;
