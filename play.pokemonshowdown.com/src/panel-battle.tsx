@@ -640,7 +640,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 		let buf: preact.ComponentChild[] = [
 			<button data-cmd="/cancel" class="button"><i class="fa fa-chevron-left" aria-hidden></i> Back</button>, ' ',
 		];
-		if (choices.isDone() && request.noCancel) {
+		if (choices.isDone() && choices.noCancel) {
 			buf = ['Waiting for opponent...', <br />];
 		} else if (choices.isDone() && choices.choices.length <= 1) {
 			buf = [];
@@ -706,7 +706,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 					{this.renderOldChoices(request, choices)}
 				</div>
 				<div class="pad">
-					{request.noCancel ? null : <button data-cmd="/cancel" class="button">Cancel</button>}
+					{choices.noCancel ? null : <button data-cmd="/cancel" class="button">Cancel</button>}
 				</div>
 				{this.renderTeamList()}
 			</div>;

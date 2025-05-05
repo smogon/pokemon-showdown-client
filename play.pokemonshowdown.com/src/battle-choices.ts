@@ -119,6 +119,7 @@ type BattleChoice = BattleMoveChoice | BattleSwitchChoice | BattleMiscChoice;
  */
 export class BattleChoiceBuilder {
 	request: BattleRequest;
+	noCancel: boolean;
 	/** Completed choices in string form */
 	choices: string[] = [];
 	/** Currently active partial move choice - not used for other choices, which don't have partial states */
@@ -143,6 +144,7 @@ export class BattleChoiceBuilder {
 
 	constructor(request: BattleRequest) {
 		this.request = request;
+		this.noCancel = request.noCancel || request.requestType === 'wait';
 		this.fillPasses();
 	}
 
@@ -210,6 +212,9 @@ export class BattleChoiceBuilder {
 					return null;
 				}
 			}
+			if (this.currentMoveRequest()?.maybeDisabled) {
+				this.noCancel = true;
+			}
 			if (choice.mega || choice.megax || choice.megay) this.alreadyMega = true;
 			if (choice.z) this.alreadyZ = true;
 			if (choice.max) this.alreadyMax = true;
@@ -238,7 +243,15 @@ export class BattleChoiceBuilder {
 				}
 				return "Unexpected bug, please report this";
 			}
+			if (this.currentMoveRequest()?.maybeTrapped) {
+				this.noCancel = true;
+			}
 			this.alreadySwitchingIn.push(choice.targetPokemon);
+		} else if (choice.choiceType === 'testfight') {
+			if (this.request.requestType !== 'move') {
+				return "You can only use testfight in a move request";
+			}
+			this.noCancel = true;
 		} else if (choice.choiceType === 'shift') {
 			if (this.index() === 1) {
 				return "Only Pokémon not already in the center can shift to the center";
