@@ -361,11 +361,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 			return;
 		case 'error':
 			if (args[1].startsWith('[Invalid choice]') && room.request) {
-				let oldChoices: string[] = [];
-				// theres probably a better way to do this?
-				if (room.choices?.choices.includes('testfight')) oldChoices.push('testfight');
 				room.choices = new BattleChoiceBuilder(room.request);
-				if (oldChoices) room.choices.choices = [...oldChoices];
 				room.update(null);
 			}
 			break;
