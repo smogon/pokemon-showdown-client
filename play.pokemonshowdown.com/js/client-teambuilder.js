@@ -3716,7 +3716,11 @@
 				if (dingbats_halfwidth[i] == '\n'){
 					buf +='</li><li>'
 				} else {
-					buf += `<button name="insertDingbat" class="dingbat-button" halfwidth=${dingbats_halfwidth[i]} fullwidth=${dingbats_fullwidth[i]} value=${dingbats_halfwidth[i]}>${dingbats_halfwidth[i]}</button>`;
+					buf += '<button name="insertDingbat" class="dingbat-button" ';
+					buf += `halfwidth=${dingbats_halfwidth[i]} `;
+					buf += `fullwidth=${dingbats_fullwidth[i]} `;
+					buf += `value=${dingbats_halfwidth[i]}`;
+					buf += `>${dingbats_halfwidth[i]}</button>`;
 				}
 			}
 			buf += '</li><input type="checkbox" name="wideCheckbox"></input>Wide</ul>';
