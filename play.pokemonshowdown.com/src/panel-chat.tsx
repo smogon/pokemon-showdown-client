@@ -386,6 +386,7 @@ export class ChatRoom extends PSRoom {
 				return;
 			}
 			if (room.choices.isDone() || room.choices.isEmpty()) {
+				// we _could_ check choices.noCancel, but the server will check anyway
 				this.sendDirect('/undo');
 			}
 			room.choices = new BattleChoiceBuilder(room.request);
