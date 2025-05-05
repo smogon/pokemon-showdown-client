@@ -589,26 +589,27 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 			}),
 		];
 	}
-	renderSwitchControls(request: BattleMoveRequest | BattleSwitchRequest, choices: BattleChoiceBuilder) {
+	renderSwitchMenu(
+		request: BattleMoveRequest | BattleSwitchRequest, choices: BattleChoiceBuilder, ignoreTrapping?: boolean
+	) {
 		const numActive = choices.requestLength();
-		const maybeTrapped = choices.currentMoveRequest()?.maybeTrapped;
-		const trapped = choices.currentMoveRequest()?.trapped;
+		const maybeTrapped = !ignoreTrapping && choices.currentMoveRequest()?.maybeTrapped;
+		const trapped = !ignoreTrapping && !maybeTrapped && choices.currentMoveRequest()?.trapped;
 
-		return (<div> {(trapped || maybeTrapped) &&
-			(maybeTrapped ?
-				<em class="movewarning">You <strong>might</strong> be trapped, so you won't be able to cancel a switch! <br /></em> :
-				<em class="movewarning">You're <strong>trapped</strong> and cannot switch!<br /></em>)}
-
-		{request.side.pokemon.map((serverPokemon, i) => {
-			const cantSwitch = trapped ||
-				i < numActive ||
-				choices.alreadySwitchingIn.includes(i + 1) ||
-				serverPokemon.fainted;
-			return <PokemonButton
-				pokemon={serverPokemon} cmd={`/switch ${i + 1}`} disabled={cantSwitch} tooltip={`switchpokemon|${i}`}
-			/>;
-		})}
-		</div>);
+		return <div class="switchmenu">
+			{maybeTrapped && <em class="movewarning">
+				You <strong>might</strong> be trapped, so you won't be able to cancel a switch!<br />
+			</em>}
+			{trapped && <em class="movewarning">
+				You're <strong>trapped</strong> and cannot switch!<br />
+			</em>}
+			{request.side.pokemon.map((serverPokemon, i) => {
+				const cantSwitch = trapped || i < numActive || choices.alreadySwitchingIn.includes(i + 1) || serverPokemon.fainted;
+				return <PokemonButton
+					pokemon={serverPokemon} cmd={`/switch ${i + 1}`} disabled={cantSwitch} tooltip={`switchpokemon|${i}`}
+				/>;
+			})}
+		</div>;
 	}
 	renderTeamControls(request: | BattleTeamRequest, choices: BattleChoiceBuilder) {
 		return request.side.pokemon.map((serverPokemon, i) => {
@@ -757,9 +758,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 						<button data-cmd="/shift">Move to center</button>,
 					]}
 					<h3 class="switchselect">Switch</h3>
-					<div class="switchmenu">
-						{this.renderSwitchControls(request, choices)}
-					</div>
+					{this.renderSwitchMenu(request, choices)}
 				</div>
 			</div>;
 		} case 'switch': {
@@ -771,9 +770,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 				</div>
 				<div class="switchcontrols">
 					<h3 class="switchselect">Switch</h3>
-					<div class="switchmenu">
-						{this.renderSwitchControls(request, choices)}
-					</div>
+					{this.renderSwitchMenu(request, choices, true)}
 				</div>
 			</div>;
 		} case 'team': {
