@@ -39,6 +39,7 @@ export interface BattleRequestActivePokemon {
 		name: string,
 		id: ID,
 		target: Dex.MoveTarget,
+		disabled?: false,
 	} | null)[];
 	/** also true if the pokemon can Gigantamax */
 	canDynamax?: boolean;
@@ -50,6 +51,8 @@ export interface BattleRequestActivePokemon {
 	canTerastallize?: string;
 	trapped?: boolean;
 	maybeTrapped?: boolean;
+	maybeDisabled?: boolean;
+	maybeLocked?: boolean;
 }
 
 export interface BattleMoveRequest {
@@ -98,15 +101,15 @@ interface BattleMoveChoice {
 	// gen 9
 	tera: boolean;
 }
-interface BattleShiftChoice {
-	choiceType: 'shift';
-}
 interface BattleSwitchChoice {
 	choiceType: 'switch' | 'team';
 	/** 1-based pokemon */
 	targetPokemon: number;
 }
-type BattleChoice = BattleMoveChoice | BattleShiftChoice | BattleSwitchChoice;
+interface BattleMiscChoice {
+	choiceType: 'shift' | 'testfight';
+}
+type BattleChoice = BattleMoveChoice | BattleSwitchChoice | BattleMiscChoice;
 
 /**
  * Tracks a partial choice, allowing you to build it up one step at a time,
@@ -116,6 +119,7 @@ type BattleChoice = BattleMoveChoice | BattleShiftChoice | BattleSwitchChoice;
  */
 export class BattleChoiceBuilder {
 	request: BattleRequest;
+	noCancel: boolean;
 	/** Completed choices in string form */
 	choices: string[] = [];
 	/** Currently active partial move choice - not used for other choices, which don't have partial states */
@@ -140,6 +144,7 @@ export class BattleChoiceBuilder {
 
 	constructor(request: BattleRequest) {
 		this.request = request;
+		this.noCancel = request.noCancel || request.requestType === 'wait';
 		this.fillPasses();
 	}
 
@@ -194,6 +199,8 @@ export class BattleChoiceBuilder {
 		if (!choice) {
 			return "You do not need to manually choose to pass; the client handles it for you automatically";
 		}
+		/** only the last choice can be uncancelable */
+		const isLastChoice = this.choices.length + 1 >= this.requestLength();
 		if (choice.choiceType === 'move') {
 			if (!choice.targetLoc && this.requestLength() > 1) {
 				const choosableTargets = ['normal', 'any', 'adjacentAlly', 'adjacentAllyOrSelf', 'adjacentFoe'];
@@ -207,6 +214,9 @@ export class BattleChoiceBuilder {
 					return null;
 				}
 			}
+			if (this.currentMoveRequest()?.maybeDisabled && isLastChoice) {
+				this.noCancel = true;
+			}
 			if (choice.mega || choice.megax || choice.megay) this.alreadyMega = true;
 			if (choice.z) this.alreadyZ = true;
 			if (choice.max) this.alreadyMax = true;
@@ -218,6 +228,9 @@ export class BattleChoiceBuilder {
 			this.current.max = false;
 			this.current.tera = false;
 		} else if (choice.choiceType === 'switch' || choice.choiceType === 'team') {
+			if (this.currentMoveRequest()?.trapped) {
+				return "You are trapped and cannot switch out";
+			}
 			if (this.alreadySwitchingIn.includes(choice.targetPokemon)) {
 				if (choice.choiceType === 'switch') {
 					return "You've already chosen to switch that Pokémon in";
@@ -232,7 +245,14 @@ export class BattleChoiceBuilder {
 				}
 				return "Unexpected bug, please report this";
 			}
+			if (this.currentMoveRequest()?.maybeTrapped && isLastChoice) {
+				this.noCancel = true;
+			}
 			this.alreadySwitchingIn.push(choice.targetPokemon);
+		} else if (choice.choiceType === 'testfight') {
+			if (isLastChoice) {
+				this.noCancel = true;
+			}
 		} else if (choice.choiceType === 'shift') {
 			if (this.index() === 1) {
 				return "Only Pokémon not already in the center can shift to the center";
@@ -276,6 +296,17 @@ export class BattleChoiceBuilder {
 		return activePokemon.moves[moveIndex];
 	}
 
+	currentMoveList(current: { max?: boolean, z?: boolean } = this.current) {
+		const moveRequest = this.currentMoveRequest();
+		if (!moveRequest) return null;
+		if (current.max || (moveRequest.maxMoves && !moveRequest.canDynamax)) {
+			return moveRequest.maxMoves || null;
+		}
+		if (current.z) {
+			return moveRequest.zMoves || null;
+		}
+		return moveRequest.moves;
+	}
 	/**
 	 * Parses a choice from string form to BattleChoice form
 	 */
@@ -285,7 +316,12 @@ export class BattleChoiceBuilder {
 
 		const index = this.choices.length;
 
-		if (choice === 'shift') return { choiceType: 'shift' };
+		if (choice === 'shift' || choice === 'testfight') {
+			if (request.requestType !== 'move') {
+				throw new Error(`You must switch in a Pokémon, not move.`);
+			}
+			return { choiceType: choice };
+		}
 
 		if (choice.startsWith('move ')) {
 			if (request.requestType !== 'move') {
@@ -349,6 +385,10 @@ export class BattleChoiceBuilder {
 			if (/^[0-9]+$/.test(choice)) {
 				// Parse a one-based move index.
 				current.move = parseInt(choice, 10);
+				const move = this.currentMoveList()?.[current.move - 1];
+				if (!move || move.disabled) {
+					throw new Error(`Move ${move?.name ?? current.move} is disabled`);
+				}
 			} else {
 				// Parse a move ID.
 				// Move names are also allowed, but may cause ambiguity (see client issue #167).
@@ -358,6 +398,9 @@ export class BattleChoiceBuilder {
 				for (let i = 0; i < moveRequest.moves.length; i++) {
 					if (moveid === moveRequest.moves[i].id) {
 						current.move = i + 1;
+						if (moveRequest.moves[i].disabled) {
+							throw new Error(`Move "${moveRequest.moves[i].name}" is disabled`);
+						}
 						break;
 					}
 				}
@@ -374,6 +417,9 @@ export class BattleChoiceBuilder {
 				if (!current.move && moveRequest.maxMoves) {
 					for (let i = 0; i < moveRequest.maxMoves.length; i++) {
 						if (moveid === moveRequest.maxMoves[i].id) {
+							if (moveRequest.maxMoves[i].disabled) {
+								throw new Error(`Move "${moveRequest.maxMoves[i].name}" is disabled`);
+							}
 							current.move = i + 1;
 							current.max = true;
 							break;
@@ -456,7 +502,8 @@ export class BattleChoiceBuilder {
 		case 'team':
 			return `${choice.choiceType} ${choice.targetPokemon}`;
 		case 'shift':
-			return `shift`;
+		case 'testfight':
+			return choice.choiceType;
 		}
 	}
 	moveSpecial(choice: BattleMoveChoice) {

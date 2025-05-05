@@ -14,8 +14,8 @@ import { Battle, type Pokemon, type ServerPokemon } from "./battle";
 import { BattleScene } from "./battle-animations";
 import { Dex, toID } from "./battle-dex";
 import {
-	BattleChoiceBuilder, type BattleMoveRequest, type BattleRequest, type BattleRequestSideInfo,
-	type BattleSwitchRequest, type BattleTeamRequest,
+	BattleChoiceBuilder, type BattleRequestActivePokemon, type BattleRequestSideInfo,
+	type BattleRequest, type BattleMoveRequest, type BattleSwitchRequest, type BattleTeamRequest,
 } from "./battle-choices";
 import type { Args } from "./battle-text-parser";
 
@@ -152,10 +152,12 @@ class BattleDiv extends preact.Component<{ room: BattleRoom }> {
 }
 
 function MoveButton(props: {
-	children: string, cmd: string, moveData: { pp: number, maxpp: number }, type: Dex.TypeName, tooltip: string,
+	cmd: string, type: Dex.TypeName, tooltip: string, moveData: { pp: number, maxpp: number, disabled?: boolean },
+	children: string,
 }) {
 	return <button
-		data-cmd={props.cmd} class={`movebutton type-${props.type} has-tooltip`} data-tooltip={props.tooltip}
+		data-cmd={props.cmd} data-tooltip={props.tooltip}
+		class={`movebutton type-${props.type} has-tooltip${props.moveData.disabled ? ' disabled' : ''}`}
 	>
 		{props.children}<br />
 		<small class="type">{props.type}</small> <small class="pp">{props.moveData.pp}/{props.moveData.maxpp}</small>&nbsp;
@@ -436,11 +438,65 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 			</p>
 		</div>;
 	}
-	renderMoveControls(request: BattleMoveRequest, choices: BattleChoiceBuilder) {
+	renderMoveMenu(choices: BattleChoiceBuilder) {
+		const moveRequest = choices.currentMoveRequest()!;
+
+		const canDynamax = moveRequest.canDynamax && !choices.alreadyMax;
+		const canMegaEvo = moveRequest.canMegaEvo && !choices.alreadyMega;
+		const canMegaEvoX = moveRequest.canMegaEvoX && !choices.alreadyMega;
+		const canMegaEvoY = moveRequest.canMegaEvoY && !choices.alreadyMega;
+		const canZMove = moveRequest.zMoves && !choices.alreadyZ;
+		const canUltraBurst = moveRequest.canUltraBurst;
+		const canTerastallize = moveRequest.canTerastallize;
+
+		const maybeDisabled = moveRequest.maybeDisabled;
+		const maybeLocked = moveRequest.maybeLocked;
+
+		return <div class="movemenu">
+			{maybeDisabled && <p><em class="movewarning">
+				You <strong>might</strong> have some moves disabled, so you won't be able to cancel an attack!
+			</em></p>}
+			{maybeLocked && <p><em class="movewarning">
+				You <strong>might</strong> be locked into a move. {}
+				<button class="button" data-cmd="/choose testfight">Try Fight button</button> {}
+				(prevents switching if you're locked)
+			</em></p>}
+			{this.renderMoveControls(moveRequest, choices)}
+			<div class="megaevo-box">
+				{canDynamax && <label class={`megaevo${choices.current.max ? ' cur' : ''}`}>
+					<input type="checkbox" name="max" checked={choices.current.max} onChange={this.toggleBoostedMove} /> {}
+					{moveRequest.canGigantamax ? 'Gigantamax' : 'Dynamax'}
+				</label>}
+				{canMegaEvo && <label class={`megaevo${choices.current.mega ? ' cur' : ''}`}>
+					<input type="checkbox" name="mega" checked={choices.current.mega} onChange={this.toggleBoostedMove} /> {}
+					Mega Evolution
+				</label>}
+				{canMegaEvoX && <label class={`megaevo${choices.current.mega ? ' cur' : ''}`}>
+					<input type="checkbox" name="megax" checked={choices.current.megax} onChange={this.toggleBoostedMove} /> {}
+					Mega Evolution X
+				</label>}
+				{canMegaEvoY && <label class={`megaevo${choices.current.mega ? ' cur' : ''}`}>
+					<input type="checkbox" name="megay" checked={choices.current.megay} onChange={this.toggleBoostedMove} /> {}
+					Mega Evolution Y
+				</label>}
+				{canUltraBurst && <label class={`megaevo${choices.current.ultra ? ' cur' : ''}`}>
+					<input type="checkbox" name="ultra" checked={choices.current.ultra} onChange={this.toggleBoostedMove} /> {}
+					Ultra Burst
+				</label>}
+				{canZMove && <label class={`megaevo${choices.current.z ? ' cur' : ''}`}>
+					<input type="checkbox" name="z" checked={choices.current.z} onChange={this.toggleBoostedMove} /> {}
+					Z-Power
+				</label>}
+				{canTerastallize && <label class={`megaevo${choices.current.tera ? ' cur' : ''}`}>
+					<input type="checkbox" name="tera" checked={choices.current.tera} onChange={this.toggleBoostedMove} /> {}
+					Terastallize<br /><span dangerouslySetInnerHTML={{ __html: Dex.getTypeIcon(canTerastallize) }} />
+				</label>}
+			</div>
+		</div>;
+	}
+	renderMoveControls(active: BattleRequestActivePokemon, choices: BattleChoiceBuilder) {
 		const dex = this.props.room.battle.dex;
 		const pokemonIndex = choices.index();
-		const active = choices.currentMoveRequest();
-		if (!active) return <div class="message-error">Invalid pokemon</div>;
 
 		if (choices.current.max || (active.maxMoves && !active.canDynamax)) {
 			if (!active.maxMoves) {
@@ -524,17 +580,27 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 			}),
 		];
 	}
-	renderSwitchControls(request: BattleMoveRequest | BattleSwitchRequest, choices: BattleChoiceBuilder) {
+	renderSwitchMenu(
+		request: BattleMoveRequest | BattleSwitchRequest, choices: BattleChoiceBuilder, ignoreTrapping?: boolean
+	) {
 		const numActive = choices.requestLength();
+		const maybeTrapped = !ignoreTrapping && choices.currentMoveRequest()?.maybeTrapped;
+		const trapped = !ignoreTrapping && !maybeTrapped && choices.currentMoveRequest()?.trapped;
 
-		const trapped = choices.currentMoveRequest()?.trapped;
-
-		return request.side.pokemon.map((serverPokemon, i) => {
-			const cantSwitch = trapped || i < numActive || choices.alreadySwitchingIn.includes(i + 1) || serverPokemon.fainted;
-			return <PokemonButton
-				pokemon={serverPokemon} cmd={`/switch ${i + 1}`} disabled={cantSwitch} tooltip={`switchpokemon|${i}`}
-			/>;
-		});
+		return <div class="switchmenu">
+			{maybeTrapped && <em class="movewarning">
+				You <strong>might</strong> be trapped, so you won't be able to cancel a switch!<br />
+			</em>}
+			{trapped && <em class="movewarning">
+				You're <strong>trapped</strong> and cannot switch!<br />
+			</em>}
+			{request.side.pokemon.map((serverPokemon, i) => {
+				const cantSwitch = trapped || i < numActive || choices.alreadySwitchingIn.includes(i + 1) || serverPokemon.fainted;
+				return <PokemonButton
+					pokemon={serverPokemon} cmd={`/switch ${i + 1}`} disabled={cantSwitch} tooltip={`switchpokemon|${i}`}
+				/>;
+			})}
+		</div>;
 	}
 	renderTeamControls(request: | BattleTeamRequest, choices: BattleChoiceBuilder) {
 		return request.side.pokemon.map((serverPokemon, i) => {
@@ -574,7 +640,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 		let buf: preact.ComponentChild[] = [
 			<button data-cmd="/cancel" class="button"><i class="fa fa-chevron-left" aria-hidden></i> Back</button>, ' ',
 		];
-		if (choices.isDone() && request.noCancel) {
+		if (choices.isDone() && choices.noCancel) {
 			buf = ['Waiting for opponent...', <br />];
 		} else if (choices.isDone() && choices.choices.length <= 1) {
 			buf = [];
@@ -583,6 +649,10 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 		const battle = this.props.room.battle;
 		for (let i = 0; i < choices.choices.length; i++) {
 			const choiceString = choices.choices[i];
+			if (choiceString === "testfight") {
+				buf.push(`${request.side.pokemon[i].name} is locked into a move.`);
+				return buf;
+			}
 			const choice = choices.parseChoice(choiceString);
 			if (!choice) continue;
 			const pokemon = request.side.pokemon[i];
@@ -636,7 +706,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 					{this.renderOldChoices(request, choices)}
 				</div>
 				<div class="pad">
-					{request.noCancel ? null : <button data-cmd="/cancel" class="button">Cancel</button>}
+					{choices.noCancel ? null : <button data-cmd="/cancel" class="button">Cancel</button>}
 				</div>
 				{this.renderTeamList()}
 			</div>;
@@ -646,15 +716,6 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 		case 'move': {
 			const index = choices.index();
 			const pokemon = request.side.pokemon[index];
-			const moveRequest = choices.currentMoveRequest()!;
-
-			const canDynamax = moveRequest.canDynamax && !choices.alreadyMax;
-			const canMegaEvo = moveRequest.canMegaEvo && !choices.alreadyMega;
-			const canMegaEvoX = moveRequest.canMegaEvoX && !choices.alreadyMega;
-			const canMegaEvoY = moveRequest.canMegaEvoY && !choices.alreadyMega;
-			const canZMove = moveRequest.zMoves && !choices.alreadyZ;
-			const canUltraBurst = moveRequest.canUltraBurst;
-			const canTerastallize = moveRequest.canTerastallize;
 
 			if (choices.current.move) {
 				const moveName = choices.getChosenMove(choices.current, choices.index()).name;
@@ -680,39 +741,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 				</div>
 				<div class="movecontrols">
 					<h3 class="moveselect">Attack</h3>
-					<div class="movemenu">
-						{this.renderMoveControls(request, choices)}
-						<div class="megaevo-box">
-							{canDynamax && <label class={`megaevo${choices.current.max ? ' cur' : ''}`}>
-								<input type="checkbox" name="max" checked={choices.current.max} onChange={this.toggleBoostedMove} /> {}
-								{moveRequest.canGigantamax ? 'Gigantamax' : 'Dynamax'}
-							</label>}
-							{canMegaEvo && <label class={`megaevo${choices.current.mega ? ' cur' : ''}`}>
-								<input type="checkbox" name="mega" checked={choices.current.mega} onChange={this.toggleBoostedMove} /> {}
-								Mega Evolution
-							</label>}
-							{canMegaEvoX && <label class={`megaevo${choices.current.mega ? ' cur' : ''}`}>
-								<input type="checkbox" name="megax" checked={choices.current.megax} onChange={this.toggleBoostedMove} /> {}
-								Mega Evolution X
-							</label>}
-							{canMegaEvoY && <label class={`megaevo${choices.current.mega ? ' cur' : ''}`}>
-								<input type="checkbox" name="megay" checked={choices.current.megay} onChange={this.toggleBoostedMove} /> {}
-								Mega Evolution Y
-							</label>}
-							{canUltraBurst && <label class={`megaevo${choices.current.ultra ? ' cur' : ''}`}>
-								<input type="checkbox" name="ultra" checked={choices.current.ultra} onChange={this.toggleBoostedMove} /> {}
-								Ultra Burst
-							</label>}
-							{canZMove && <label class={`megaevo${choices.current.z ? ' cur' : ''}`}>
-								<input type="checkbox" name="z" checked={choices.current.z} onChange={this.toggleBoostedMove} /> {}
-								Z-Power
-							</label>}
-							{canTerastallize && <label class={`megaevo${choices.current.tera ? ' cur' : ''}`}>
-								<input type="checkbox" name="tera" checked={choices.current.tera} onChange={this.toggleBoostedMove} /> {}
-								Terastallize<br /><span dangerouslySetInnerHTML={{ __html: Dex.getTypeIcon(canTerastallize) }} />
-							</label>}
-						</div>
-					</div>
+					{this.renderMoveMenu(choices)}
 				</div>
 				<div class="switchcontrols">
 					{canShift && [
@@ -720,9 +749,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 						<button data-cmd="/shift">Move to center</button>,
 					]}
 					<h3 class="switchselect">Switch</h3>
-					<div class="switchmenu">
-						{this.renderSwitchControls(request, choices)}
-					</div>
+					{this.renderSwitchMenu(request, choices)}
 				</div>
 			</div>;
 		} case 'switch': {
@@ -734,9 +761,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 				</div>
 				<div class="switchcontrols">
 					<h3 class="switchselect">Switch</h3>
-					<div class="switchmenu">
-						{this.renderSwitchControls(request, choices)}
-					</div>
+					{this.renderSwitchMenu(request, choices, true)}
 				</div>
 			</div>;
 		} case 'team': {

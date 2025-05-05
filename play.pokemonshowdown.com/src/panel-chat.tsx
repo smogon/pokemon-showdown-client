@@ -386,6 +386,7 @@ export class ChatRoom extends PSRoom {
 				return;
 			}
 			if (room.choices.isDone() || room.choices.isEmpty()) {
+				// we _could_ check choices.noCancel, but the server will check anyway
 				this.sendDirect('/undo');
 			}
 			room.choices = new BattleChoiceBuilder(room.request);
@@ -401,7 +402,7 @@ export class ChatRoom extends PSRoom {
 			if (cmd !== 'choose') target = `${cmd} ${target}`;
 			const possibleError = room.choices.addChoice(target);
 			if (possibleError) {
-				this.receiveLine([`error`, possibleError]);
+				this.errorReply(possibleError);
 				return;
 			}
 			if (room.choices.isDone()) this.sendDirect(`/choose ${room.choices.toString()}`);
