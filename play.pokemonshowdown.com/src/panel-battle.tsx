@@ -518,11 +518,9 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 				</em>}
 			{maybeLocked &&
 				<em class="movewarning">
-					You <strong>might</strong> be locked into a move. <button
-						class="button"
-						onClick={this.chooseFight}
-					>
-						Try Fight button</button> (prevents switching if you\'re locked)
+					You <strong>might</strong> be locked into a move. {}
+					<button class="button" onClick={this.chooseFight}>Try Fight button</button> {}
+					(prevents switching if you're locked)
 				</em>}
 			<br />
 			{active.moves.map((moveData, i) => {
