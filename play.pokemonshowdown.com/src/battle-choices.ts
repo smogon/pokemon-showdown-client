@@ -199,6 +199,8 @@ export class BattleChoiceBuilder {
 		if (!choice) {
 			return "You do not need to manually choose to pass; the client handles it for you automatically";
 		}
+		/** only the last choice can be uncancelable */
+		const isLastChoice = this.choices.length + 1 >= this.requestLength();
 		if (choice.choiceType === 'move') {
 			if (!choice.targetLoc && this.requestLength() > 1) {
 				const choosableTargets = ['normal', 'any', 'adjacentAlly', 'adjacentAllyOrSelf', 'adjacentFoe'];
@@ -212,7 +214,7 @@ export class BattleChoiceBuilder {
 					return null;
 				}
 			}
-			if (this.currentMoveRequest()?.maybeDisabled) {
+			if (this.currentMoveRequest()?.maybeDisabled && isLastChoice) {
 				this.noCancel = true;
 			}
 			if (choice.mega || choice.megax || choice.megay) this.alreadyMega = true;
@@ -243,15 +245,14 @@ export class BattleChoiceBuilder {
 				}
 				return "Unexpected bug, please report this";
 			}
-			if (this.currentMoveRequest()?.maybeTrapped) {
+			if (this.currentMoveRequest()?.maybeTrapped && isLastChoice) {
 				this.noCancel = true;
 			}
 			this.alreadySwitchingIn.push(choice.targetPokemon);
 		} else if (choice.choiceType === 'testfight') {
-			if (this.request.requestType !== 'move') {
-				return "You can only use testfight in a move request";
+			if (isLastChoice) {
+				this.noCancel = true;
 			}
-			this.noCancel = true;
 		} else if (choice.choiceType === 'shift') {
 			if (this.index() === 1) {
 				return "Only Pokémon not already in the center can shift to the center";
@@ -315,8 +316,12 @@ export class BattleChoiceBuilder {
 
 		const index = this.choices.length;
 
-		if (choice === 'shift') return { choiceType: 'shift' };
-		if (choice === 'testfight') return { choiceType: 'testfight' };
+		if (choice === 'shift' || choice === 'testfight') {
+			if (request.requestType !== 'move') {
+				throw new Error(`You must switch in a Pokémon, not move.`);
+			}
+			return { choiceType: choice };
+		}
 
 		if (choice.startsWith('move ')) {
 			if (request.requestType !== 'move') {
