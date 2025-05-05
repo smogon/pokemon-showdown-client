@@ -14,8 +14,8 @@ import { Battle, type Pokemon, type ServerPokemon } from "./battle";
 import { BattleScene } from "./battle-animations";
 import { Dex, toID } from "./battle-dex";
 import {
-	BattleChoiceBuilder, type BattleMoveRequest, type BattleRequest, type BattleRequestSideInfo,
-	type BattleSwitchRequest, type BattleTeamRequest,
+	BattleChoiceBuilder, type BattleRequestActivePokemon, type BattleRequestSideInfo,
+	type BattleRequest, type BattleMoveRequest, type BattleSwitchRequest, type BattleTeamRequest,
 } from "./battle-choices";
 import type { Args } from "./battle-text-parser";
 
@@ -378,15 +378,6 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 		room.battle.add('|' + args.join('|'));
 		if (PS.prefs.noanim) this.props.room.battle.seekTurn(Infinity);
 	}
-	chooseFight = () => {
-		let room = this.props.room;
-		if (!room?.choices) return;
-		if (!room.choices.isDone()) {
-			room.choices.choices.push('testfight');
-			room?.sendDirect('/choose testfight|' + String(room.request?.rqid));
-			this.forceUpdate();
-		}
-	};
 	receiveRequest(request: BattleRequest | null) {
 		const room = this.props.room;
 		if (!request) {
@@ -456,41 +447,79 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 			</p>
 		</div>;
 	}
-	renderMoveControls(request: BattleMoveRequest, choices: BattleChoiceBuilder) {
+	renderMoveMenu(choices: BattleChoiceBuilder) {
+		const moveRequest = choices.currentMoveRequest()!;
+
+		const canDynamax = moveRequest.canDynamax && !choices.alreadyMax;
+		const canMegaEvo = moveRequest.canMegaEvo && !choices.alreadyMega;
+		const canMegaEvoX = moveRequest.canMegaEvoX && !choices.alreadyMega;
+		const canMegaEvoY = moveRequest.canMegaEvoY && !choices.alreadyMega;
+		const canZMove = moveRequest.zMoves && !choices.alreadyZ;
+		const canUltraBurst = moveRequest.canUltraBurst;
+		const canTerastallize = moveRequest.canTerastallize;
+
+		const maybeDisabled = moveRequest.maybeDisabled;
+		const maybeLocked = moveRequest.maybeLocked;
+
+		return <div class="movemenu">
+			{maybeDisabled && <p><em class="movewarning">
+				You <strong>might</strong> have some moves disabled, so you won't be able to cancel an attack!
+			</em></p>}
+			{maybeLocked && <p><em class="movewarning">
+				You <strong>might</strong> be locked into a move. {}
+				<button class="button" data-cmd="/choose testfight">Try Fight button</button> {}
+				(prevents switching if you're locked)
+			</em></p>}
+			{this.renderMoveControls(moveRequest, choices)}
+			<div class="megaevo-box">
+				{canDynamax && <label class={`megaevo${choices.current.max ? ' cur' : ''}`}>
+					<input type="checkbox" name="max" checked={choices.current.max} onChange={this.toggleBoostedMove} /> {}
+					{moveRequest.canGigantamax ? 'Gigantamax' : 'Dynamax'}
+				</label>}
+				{canMegaEvo && <label class={`megaevo${choices.current.mega ? ' cur' : ''}`}>
+					<input type="checkbox" name="mega" checked={choices.current.mega} onChange={this.toggleBoostedMove} /> {}
+					Mega Evolution
+				</label>}
+				{canMegaEvoX && <label class={`megaevo${choices.current.mega ? ' cur' : ''}`}>
+					<input type="checkbox" name="megax" checked={choices.current.megax} onChange={this.toggleBoostedMove} /> {}
+					Mega Evolution X
+				</label>}
+				{canMegaEvoY && <label class={`megaevo${choices.current.mega ? ' cur' : ''}`}>
+					<input type="checkbox" name="megay" checked={choices.current.megay} onChange={this.toggleBoostedMove} /> {}
+					Mega Evolution Y
+				</label>}
+				{canUltraBurst && <label class={`megaevo${choices.current.ultra ? ' cur' : ''}`}>
+					<input type="checkbox" name="ultra" checked={choices.current.ultra} onChange={this.toggleBoostedMove} /> {}
+					Ultra Burst
+				</label>}
+				{canZMove && <label class={`megaevo${choices.current.z ? ' cur' : ''}`}>
+					<input type="checkbox" name="z" checked={choices.current.z} onChange={this.toggleBoostedMove} /> {}
+					Z-Power
+				</label>}
+				{canTerastallize && <label class={`megaevo${choices.current.tera ? ' cur' : ''}`}>
+					<input type="checkbox" name="tera" checked={choices.current.tera} onChange={this.toggleBoostedMove} /> {}
+					Terastallize<br /><span dangerouslySetInnerHTML={{ __html: Dex.getTypeIcon(canTerastallize) }} />
+				</label>}
+			</div>
+		</div>;
+	}
+	renderMoveControls(active: BattleRequestActivePokemon, choices: BattleChoiceBuilder) {
 		const dex = this.props.room.battle.dex;
 		const pokemonIndex = choices.index();
-		const active = choices.currentMoveRequest();
-		const maybeDisabled = active?.maybeDisabled;
-		const maybeLocked = active?.maybeLocked;
-		if (!active) return <div class="message-error">Invalid pokemon</div>;
 
 		if (choices.current.max || (active.maxMoves && !active.canDynamax)) {
 			if (!active.maxMoves) {
 				return <div class="message-error">Maxed with no max moves</div>;
 			}
-			return (<div>
-				{maybeDisabled &&
-					<em class="movewarning">
-						You <strong>might</strong> have some moves disabled, so you won't be able to cancel an attack!
-					</em>}
-				{maybeLocked &&
-					<em class="movewarning">
-						You <strong>might</strong> be locked into a move. <button
-							class="button"
-							onClick={this.chooseFight}
-						>Try Fight button</button> (prevents switching if you\'re locked)
-					</em>}
-				<br />
-				{active.moves.map((moveData, i) => {
-					const move = dex.moves.get(moveData.name);
-					const maxMoveData = active.maxMoves![i];
-					const gmaxTooltip = maxMoveData.id.startsWith('gmax') ? `|${maxMoveData.id}` : ``;
-					const tooltip = `maxmove|${moveData.name}|${pokemonIndex}${gmaxTooltip}`;
-					return <MoveButton cmd={`/move ${i + 1} max`} type={move.type} tooltip={tooltip} moveData={moveData}>
-						{maxMoveData.name}
-					</MoveButton>;
-				})}
-			</div>);
+			return active.moves.map((moveData, i) => {
+				const move = dex.moves.get(moveData.name);
+				const maxMoveData = active.maxMoves![i];
+				const gmaxTooltip = maxMoveData.id.startsWith('gmax') ? `|${maxMoveData.id}` : ``;
+				const tooltip = `maxmove|${moveData.name}|${pokemonIndex}${gmaxTooltip}`;
+				return <MoveButton cmd={`/move ${i + 1} max`} type={move.type} tooltip={tooltip} moveData={moveData}>
+					{maxMoveData.name}
+				</MoveButton>;
+			});
 		}
 
 		if (choices.current.z) {
@@ -511,26 +540,13 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 		}
 
 		const special = choices.moveSpecial(choices.current);
-		return <div>
-			{maybeDisabled &&
-				<em class="movewarning">
-					You <strong>might</strong> have some moves disabled, so you won't be able to cancel an attack!
-				</em>}
-			{maybeLocked &&
-				<em class="movewarning">
-					You <strong>might</strong> be locked into a move. {}
-					<button class="button" onClick={this.chooseFight}>Try Fight button</button> {}
-					(prevents switching if you're locked)
-				</em>}
-			<br />
-			{active.moves.map((moveData, i) => {
-				const move = dex.moves.get(moveData.name);
-				const tooltip = `move|${moveData.name}|${pokemonIndex}`;
-				return <MoveButton cmd={`/move ${i + 1}${special}`} type={move.type} tooltip={tooltip} moveData={moveData}>
-					{move.name}
-				</MoveButton>;
-			})}
-		</div>;
+		return active.moves.map((moveData, i) => {
+			const move = dex.moves.get(moveData.name);
+			const tooltip = `move|${moveData.name}|${pokemonIndex}`;
+			return <MoveButton cmd={`/move ${i + 1}${special}`} type={move.type} tooltip={tooltip} moveData={moveData}>
+				{move.name}
+			</MoveButton>;
+		});
 	}
 	renderMoveTargetControls(request: BattleMoveRequest, choices: BattleChoiceBuilder) {
 		const battle = this.props.room.battle;
@@ -708,15 +724,6 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 		case 'move': {
 			const index = choices.index();
 			const pokemon = request.side.pokemon[index];
-			const moveRequest = choices.currentMoveRequest()!;
-
-			const canDynamax = moveRequest.canDynamax && !choices.alreadyMax;
-			const canMegaEvo = moveRequest.canMegaEvo && !choices.alreadyMega;
-			const canMegaEvoX = moveRequest.canMegaEvoX && !choices.alreadyMega;
-			const canMegaEvoY = moveRequest.canMegaEvoY && !choices.alreadyMega;
-			const canZMove = moveRequest.zMoves && !choices.alreadyZ;
-			const canUltraBurst = moveRequest.canUltraBurst;
-			const canTerastallize = moveRequest.canTerastallize;
 
 			if (choices.current.move) {
 				const moveName = choices.getChosenMove(choices.current, choices.index()).name;
@@ -742,39 +749,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 				</div>
 				<div class="movecontrols">
 					<h3 class="moveselect">Attack</h3>
-					<div class="movemenu">
-						{this.renderMoveControls(request, choices)}
-						<div class="megaevo-box">
-							{canDynamax && <label class={`megaevo${choices.current.max ? ' cur' : ''}`}>
-								<input type="checkbox" name="max" checked={choices.current.max} onChange={this.toggleBoostedMove} /> {}
-								{moveRequest.canGigantamax ? 'Gigantamax' : 'Dynamax'}
-							</label>}
-							{canMegaEvo && <label class={`megaevo${choices.current.mega ? ' cur' : ''}`}>
-								<input type="checkbox" name="mega" checked={choices.current.mega} onChange={this.toggleBoostedMove} /> {}
-								Mega Evolution
-							</label>}
-							{canMegaEvoX && <label class={`megaevo${choices.current.mega ? ' cur' : ''}`}>
-								<input type="checkbox" name="megax" checked={choices.current.megax} onChange={this.toggleBoostedMove} /> {}
-								Mega Evolution X
-							</label>}
-							{canMegaEvoY && <label class={`megaevo${choices.current.mega ? ' cur' : ''}`}>
-								<input type="checkbox" name="megay" checked={choices.current.megay} onChange={this.toggleBoostedMove} /> {}
-								Mega Evolution Y
-							</label>}
-							{canUltraBurst && <label class={`megaevo${choices.current.ultra ? ' cur' : ''}`}>
-								<input type="checkbox" name="ultra" checked={choices.current.ultra} onChange={this.toggleBoostedMove} /> {}
-								Ultra Burst
-							</label>}
-							{canZMove && <label class={`megaevo${choices.current.z ? ' cur' : ''}`}>
-								<input type="checkbox" name="z" checked={choices.current.z} onChange={this.toggleBoostedMove} /> {}
-								Z-Power
-							</label>}
-							{canTerastallize && <label class={`megaevo${choices.current.tera ? ' cur' : ''}`}>
-								<input type="checkbox" name="tera" checked={choices.current.tera} onChange={this.toggleBoostedMove} /> {}
-								Terastallize<br /><span dangerouslySetInnerHTML={{ __html: Dex.getTypeIcon(canTerastallize) }} />
-							</label>}
-						</div>
-					</div>
+					{this.renderMoveMenu(choices)}
 				</div>
 				<div class="switchcontrols">
 					{canShift && [

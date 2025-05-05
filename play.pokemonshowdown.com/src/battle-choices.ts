@@ -100,15 +100,15 @@ interface BattleMoveChoice {
 	// gen 9
 	tera: boolean;
 }
-interface BattleShiftChoice {
-	choiceType: 'shift';
-}
 interface BattleSwitchChoice {
 	choiceType: 'switch' | 'team';
 	/** 1-based pokemon */
 	targetPokemon: number;
 }
-type BattleChoice = BattleMoveChoice | BattleShiftChoice | BattleSwitchChoice;
+interface BattleMiscChoice {
+	choiceType: 'shift' | 'testfight';
+}
+type BattleChoice = BattleMoveChoice | BattleSwitchChoice | BattleMiscChoice;
 
 /**
  * Tracks a partial choice, allowing you to build it up one step at a time,
@@ -291,6 +291,7 @@ export class BattleChoiceBuilder {
 		const index = this.choices.length;
 
 		if (choice === 'shift') return { choiceType: 'shift' };
+		if (choice === 'testfight') return { choiceType: 'testfight' };
 
 		if (choice.startsWith('move ')) {
 			if (request.requestType !== 'move') {
@@ -461,7 +462,8 @@ export class BattleChoiceBuilder {
 		case 'team':
 			return `${choice.choiceType} ${choice.targetPokemon}`;
 		case 'shift':
-			return `shift`;
+		case 'testfight':
+			return choice.choiceType;
 		}
 	}
 	moveSpecial(choice: BattleMoveChoice) {
