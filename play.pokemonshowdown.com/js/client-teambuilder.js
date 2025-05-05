@@ -1753,13 +1753,6 @@
 				team: this.curSetList
 			});
 		},
-		addDingbat: function (dingbat, i) {
-			//var i = +$(e.currentTarget).closest('li').attr('value');
-			var set = this.curSetList[i];
-			//var name = $.trim(e.currentTarget.value).replace(/\|/g, '');
-			set.name += dingbat;
-			this.save();
-		},
 		wasViewingPokemon: false,
 		importSet: function (i, button) {
 			i = +($(button).closest('li').attr('value'));
@@ -3693,28 +3686,28 @@
 			}
 		}
 	});
-	const dingbats_halfwidth = [
-		"&#xe095;","&#xe096;","&#xe097;","&#xe098;",
-		"&#xe099;","&#xe090;","&#xe091;","&#xe092;",
-		"&#xe093;","&#xe094;","&#xe09a;",
-		"\n",
-		"&#xe09b;","&#xe09c;","&#xe09d;","&#xe09e;",
-		"&#xe09f;","&#xe0a0;","&#xe0a1;","&#xe0a2;",
-		"&#xe0a5;","&#xe0a3;","&#xe0a4;",	
-		"\n",
-		"&#xe08e;","&#xe08f;"
-	];
-	const dingbats_fullwidth = [
-		"&#x25CE;", "&#x25CB;", "&#x25A1;", "&#x25B3;", "&#x25C7;",
-		"&#x2660;", "&#x2663;", "&#x2665;", "&#x2666;", "&#x2605;", "&#x266A;", 
-		"\n",
-		"&#x2600;", "&#x2601;", "&#x2602;", "&#x2603;",
-		"&#xE081;", "&#xE082;", "&#xE083;", "&#xE084;", "&#xE087;", "&#xE085;", "&#xE086;",
-		"\n",
-		"&#x2642;","&#x2640;"
-	];
 	var DingbatPopup = exports.DingbatPopup = Popup.extend({
 		initialize: function (data) {
+			const dingbats_halfwidth = [
+				"&#xe095;","&#xe096;","&#xe097;","&#xe098;",
+				"&#xe099;","&#xe090;","&#xe091;","&#xe092;",
+				"&#xe093;","&#xe094;","&#xe09a;",
+				"\n",
+				"&#xe09b;","&#xe09c;","&#xe09d;","&#xe09e;",
+				"&#xe09f;","&#xe0a0;","&#xe0a1;","&#xe0a2;",
+				"&#xe0a5;","&#xe0a3;","&#xe0a4;",	
+				"\n",
+				"&#xe08e;","&#xe08f;"
+			];
+			const dingbats_fullwidth = [
+				"&#x25CE;", "&#x25CB;", "&#x25A1;", "&#x25B3;", "&#x25C7;",
+				"&#x2660;", "&#x2663;", "&#x2665;", "&#x2666;", "&#x2605;", "&#x266A;", 
+				"\n",
+				"&#x2600;", "&#x2601;", "&#x2602;", "&#x2603;",
+				"&#xE081;", "&#xE082;", "&#xE083;", "&#xE084;", "&#xE087;", "&#xE085;", "&#xE086;",
+				"\n",
+				"&#x2642;","&#x2640;"
+			];
 			this.i = data.i;
 			this.team = data.team;
 
