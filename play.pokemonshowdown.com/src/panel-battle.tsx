@@ -152,17 +152,12 @@ class BattleDiv extends preact.Component<{ room: BattleRoom }> {
 }
 
 function MoveButton(props: {
+	cmd: string, type: Dex.TypeName, tooltip: string, moveData: { pp: number, maxpp: number, disabled?: boolean },
 	children: string,
-	cmd: string,
-	moveData: { pp: number, maxpp: number, disabled?: boolean },
-	type: Dex.TypeName,
-	tooltip: string,
 }) {
 	return <button
-		data-cmd={props.cmd}
-		class={`movebutton type-${props.type} has-tooltip`}
-		data-tooltip={props.tooltip}
-		disabled={props.moveData.disabled}
+		data-cmd={props.cmd} data-tooltip={props.tooltip}
+		class={`movebutton type-${props.type} has-tooltip${props.moveData.disabled ? ' disabled' : ''}`}
 	>
 		{props.children}<br />
 		<small class="type">{props.type}</small> <small class="pp">{props.moveData.pp}/{props.moveData.maxpp}</small>&nbsp;

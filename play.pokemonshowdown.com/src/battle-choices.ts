@@ -39,6 +39,7 @@ export interface BattleRequestActivePokemon {
 		name: string,
 		id: ID,
 		target: Dex.MoveTarget,
+		disabled?: false,
 	} | null)[];
 	/** also true if the pokemon can Gigantamax */
 	canDynamax?: boolean;
@@ -281,6 +282,17 @@ export class BattleChoiceBuilder {
 		return activePokemon.moves[moveIndex];
 	}
 
+	currentMoveList(current: { max?: boolean, z?: boolean } = this.current) {
+		const moveRequest = this.currentMoveRequest();
+		if (!moveRequest) return null;
+		if (current.max || (moveRequest.maxMoves && !moveRequest.canDynamax)) {
+			return moveRequest.maxMoves || null;
+		}
+		if (current.z) {
+			return moveRequest.zMoves || null;
+		}
+		return moveRequest.moves;
+	}
 	/**
 	 * Parses a choice from string form to BattleChoice form
 	 */
@@ -355,6 +367,10 @@ export class BattleChoiceBuilder {
 			if (/^[0-9]+$/.test(choice)) {
 				// Parse a one-based move index.
 				current.move = parseInt(choice, 10);
+				const move = this.currentMoveList()?.[current.move - 1];
+				if (!move || move.disabled) {
+					throw new Error(`Move ${move?.name ?? current.move} is disabled`);
+				}
 			} else {
 				// Parse a move ID.
 				// Move names are also allowed, but may cause ambiguity (see client issue #167).
@@ -364,6 +380,9 @@ export class BattleChoiceBuilder {
 				for (let i = 0; i < moveRequest.moves.length; i++) {
 					if (moveid === moveRequest.moves[i].id) {
 						current.move = i + 1;
+						if (moveRequest.moves[i].disabled) {
+							throw new Error(`Move "${moveRequest.moves[i].name}" is disabled`);
+						}
 						break;
 					}
 				}
@@ -380,6 +399,9 @@ export class BattleChoiceBuilder {
 				if (!current.move && moveRequest.maxMoves) {
 					for (let i = 0; i < moveRequest.maxMoves.length; i++) {
 						if (moveid === moveRequest.maxMoves[i].id) {
+							if (moveRequest.maxMoves[i].disabled) {
+								throw new Error(`Move "${moveRequest.maxMoves[i].name}" is disabled`);
+							}
 							current.move = i + 1;
 							current.max = true;
 							break;
