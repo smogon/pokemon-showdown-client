@@ -330,13 +330,13 @@ class UserOptionsPanel extends PSRoomPanel {
 
 	lockUser = (ev: Event) => {
 		this.setState({ showLockInput: false });
-		const weekBan = (ev.currentTarget as HTMLButtonElement).value === "1wk";
+		const weekLock = (ev.currentTarget as HTMLButtonElement).value === "1wk";
 		const isNamelock = (ev.currentTarget as HTMLButtonElement).value === "nmlk";
 		const reason = this.base?.querySelector<HTMLInputElement>("input[name=lockreason]")?.value;
 		const data = {
 			action: isNamelock ? 'Namelock' : 'Lock',
 			reason,
-			duration: weekBan ? "1 week" : "2 days",
+			duration: weekLock ? "1 week" : "2 days",
 		};
 		this.setState({ data, showConfirm: true });
 		ev.preventDefault();
