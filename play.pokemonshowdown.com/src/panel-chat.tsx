@@ -131,6 +131,9 @@ export class ChatRoom extends PSRoom {
 			const cutOffExactLine = this.lastMessage ? '|' + this.lastMessage?.join('|') : '';
 			let reconnectMessage = '|raw|<div class="infobox">You reconnected.</div>';
 			for (let i = 0; i < lines.length; i++) {
+				if (lines[i].startsWith('|users|')) {
+					this.add(lines[i]);
+				}
 				if (lines[i] === cutOffExactLine) {
 					cutOffStart = i + 1;
 				} else if (lines[i].startsWith(`|c:|`)) {
