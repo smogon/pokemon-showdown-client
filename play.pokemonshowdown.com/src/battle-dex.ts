@@ -45,6 +45,11 @@ export declare namespace Dex {
 	export type GenderName = DexData.GenderName;
 	export type NatureName = DexData.NatureName;
 	export type MoveTarget = DexData.MoveTarget;
+	export type REGULAR = 0;
+	export type WEAK = 1;
+	export type RESIST = 2;
+	export type IMMUNE = 3;
+	export type WeaknessType = REGULAR | WEAK | RESIST | IMMUNE;
 	export type StatsTable = { hp: number, atk: number, def: number, spa: number, spd: number, spe: number };
 	/**
 	 * Dex.PokemonSet can be sparse, in which case that entry should be
@@ -248,6 +253,11 @@ export const Dex = new class implements ModdedDex {
 	readonly gen = 9;
 	readonly modid = 'gen9' as ID;
 	readonly cache = null!;
+
+	readonly REGULAR = 0;
+	readonly WEAK = 1;
+	readonly RESIST = 2;
+	readonly IMMUNE = 3;
 
 	readonly statNames: readonly Dex.StatName[] = ['hp', 'atk', 'def', 'spa', 'spd', 'spe'];
 	readonly statNamesExceptHP: readonly Dex.StatNameExceptHP[] = ['atk', 'def', 'spa', 'spd', 'spe'];
@@ -512,6 +522,7 @@ export const Dex = new class implements ModdedDex {
 
 	types = {
 		allCache: null as Type[] | null,
+		namesCache: null as Dex.TypeName[] | null,
 		get: (type: any): Type => {
 			if (!type || typeof type === 'string') {
 				const id = toID(type) as string;
@@ -534,6 +545,13 @@ export const Dex = new class implements ModdedDex {
 			}
 			if (types.length) this.types.allCache = types;
 			return types;
+		},
+		names: (): readonly Dex.TypeName[] => {
+			if (this.types.namesCache) return this.types.namesCache;
+			const names = this.types.all().map(type => type.name as Dex.TypeName);
+			names.splice(names.indexOf('Stellar'), 1);
+			if (names.length) this.types.namesCache = names;
+			return names;
 		},
 		isName: (name: string | null): boolean => {
 			const id = toID(name);
@@ -1092,7 +1110,20 @@ export class ModdedDex {
 	};
 
 	types = {
-		get: (name: string): Dex.Effect => {
+		namesCache: null as readonly Dex.TypeName[] | null,
+		names: (): readonly Dex.TypeName[] => {
+			if (this.types.namesCache) return this.types.namesCache;
+			const names = Dex.types.names();
+			if (!names.length) return [];
+			const curNames = [...names];
+			// if (this.gen < 9) curNames.splice(curNames.indexOf('Stellar'), 1);
+			if (this.gen < 6) curNames.splice(curNames.indexOf('Fairy'), 1);
+			if (this.gen < 2) curNames.splice(curNames.indexOf('Dark'), 1);
+			if (this.gen < 2) curNames.splice(curNames.indexOf('Steel'), 1);
+			this.types.namesCache = curNames;
+			return curNames;
+		},
+		get: (name: string): Dex.Type => {
 			const id = toID(name);
 			name = id.substr(0, 1).toUpperCase() + id.substr(1);
 
