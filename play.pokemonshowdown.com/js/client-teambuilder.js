@@ -3709,9 +3709,10 @@
 				"\n",
 				"&#x2642;","&#x2640;"
 			];
+
 			this.i = data.i;
 			this.team = data.team;
-
+			
 			var buf = '<ul name="dingbats" class="popupmenu"><li>';
 			for (var i = 0; i < dingbats_halfwidth.length; i++) {
 				if (dingbats_halfwidth[i] == '\n') {
@@ -3726,6 +3727,7 @@
 			}
 			buf += '</li><input type="checkbox" name="wideCheckbox"></input>Wide</ul>';
 			this.$el.html(buf);
+			
 			var $el = this.$el;
 			this.$el.find("input[name=wideCheckbox]").change(
 				function (e) {
