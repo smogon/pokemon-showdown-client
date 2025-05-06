@@ -3703,7 +3703,7 @@
 			var dingbats_fullwidth = [
 				"&#x25CE;", "&#x25CB;", "&#x25A1;", "&#x25B3;",
 				"&#x25C7;", "&#x2660;", "&#x2663;", "&#x2665;",
-				"&#x2666;", "&#x2605;", "&#x266A;", 
+				"&#x2666;", "&#x2605;", "&#x266A;",
 				"\n",
 				"&#x2600;", "&#x2601;", "&#x2602;", "&#x2603;",
 				"&#xE081;", "&#xE082;", "&#xE083;", "&#xE084;",
@@ -3717,11 +3717,11 @@
 			
 			var buf = '<ul name="dingbats" class="popupmenu"><li>';
 			for (var i = 0; i < dingbats_halfwidth.length; i++) {
-				if (dingbats_halfwidth[i] == '\n') {
-					buf += '</li><li>'
+				if (dingbats_halfwidth[i] === '\n') {
+					buf += '</li><li>';
 				} else {
 					buf += '<button name="insertDingbat" class="dingbat-button"';
-					buf += " halfwidth=" + dingbats_halfwidth[i] 
+					buf += " halfwidth=" + dingbats_halfwidth[i];
 					buf += " fullwidth=" + dingbats_fullwidth[i];
 					buf += " value=" + dingbats_halfwidth[i];
 					buf += ">" + dingbats_halfwidth[i] + "</button>";
@@ -3733,7 +3733,7 @@
 			var $el = this.$el;
 			this.$el.find("input[name=wideCheckbox]").change(
 				function (e) {
-					var width = e.currentTarget.checked?"fullwidth":"halfwidth";
+					var width = e.currentTarget.checked ? "fullwidth" : "halfwidth";
 					$el.find("button[name=insertDingbat]").each(function (_, elem) {
 						elem.value = elem.innerHTML = elem.getAttribute(width);
 					});
