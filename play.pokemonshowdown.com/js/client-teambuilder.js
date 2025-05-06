@@ -1747,7 +1747,7 @@
 			this.clipboardAdd($.extend(true, {}, this.curSetList[i]));
 			button.blur();
 		},
-		dingbats: function(i, button){
+		dingbats: function (i, button) {
 			i = +($(button).closest('li').attr('value'));
 			app.addPopup(DingbatPopup, {
 				i: i,
@@ -3714,7 +3714,7 @@
 
 			this.i = data.i;
 			this.team = data.team;
-			
+
 			var buf = '<ul name="dingbats" class="popupmenu"><li>';
 			for (var i = 0; i < dingbats_halfwidth.length; i++) {
 				if (dingbats_halfwidth[i] === '\n') {
