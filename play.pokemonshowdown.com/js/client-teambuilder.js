@@ -3715,7 +3715,7 @@
 			var buf = '<ul name="dingbats" class="popupmenu"><li>';
 			for (var i = 0; i < dingbats_halfwidth.length; i++) {
 				if (dingbats_halfwidth[i] == '\n'){
-					buf +='</li><li>'
+					buf += '</li><li>'
 				} else {
 					buf += '<button name="insertDingbat" class="dingbat-button"';
 					buf += " halfwidth=" + dingbats_halfwidth[i] 
