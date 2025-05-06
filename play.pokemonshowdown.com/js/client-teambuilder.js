@@ -3726,10 +3726,11 @@
 			}
 			buf += '</li><input type="checkbox" name="wideCheckbox"></input>Wide</ul>';
 			this.$el.html(buf);
+			var el=this.$el;
 			this.$el.find("input[name=wideCheckbox]").change(
-				(e)=>{
+				function (e) {
 					var width = e.currentTarget.checked?"fullwidth":"halfwidth";
-					this.$el.find("button[name=insertDingbat]").each((_,elem)=>{
+					el.find("button[name=insertDingbat]").each(function (_,elem) {
 						elem.value = elem.innerHTML = elem.getAttribute(width);
 					});
 				}
