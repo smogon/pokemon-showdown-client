@@ -176,9 +176,36 @@ export class ChatRoom extends PSRoom {
 			this.title = `[DM] ${nameWithGroup.trim()}`;
 		}
 	}
-	handleHighlight = (message: string, name: string) => {
-		if (!PS.prefs.noselfhighlight && PS.user.nameRegExp?.test(message)) {
-			this.notify({
+	handleHighlight = (args: Args) => {
+		let name;
+		let message;
+		let msgTime = 0;
+		if (args[0] === 'c:') {
+			msgTime = parseInt(args[1]);
+			name = args[2];
+			message = args[3];
+		} else {
+			name = args[1];
+			message = args[2];
+		}
+		let lastMessageDates = Dex.prefs('logtimes') || (PS.prefs.set('logtimes', {}), Dex.prefs('logtimes'));
+		if (!lastMessageDates[PS.server.id]) lastMessageDates[PS.server.id] = {};
+		let lastMessageDate = lastMessageDates[PS.server.id][this.id] || 0;
+		// because the time offset to the server can vary slightly, subtract it to not have it affect comparisons between dates
+		let serverMsgTime = msgTime - (this.timeOffset || 0);
+		let mayNotify = serverMsgTime > lastMessageDate && name !== PS.user.userid;
+
+		if (PS.isVisible(this)) {
+			this.lastMessage = null;
+			lastMessageDates[PS.server.id][this.id] = serverMsgTime;
+			PS.prefs.save();
+		} else {
+			// To be saved on focus
+			let lastMessageTime = parseInt(this.lastMessage?.[1] || '0');
+			if (lastMessageTime < serverMsgTime) this.lastMessage = args;
+		}
+		if (PS.getHighlight(message, this.id)) {
+			if (mayNotify) this.notify({
 				title: `Mentioned by ${name} in ${this.id}`,
 				body: `"${message}"`,
 				id: 'highlight',
@@ -186,6 +213,7 @@ export class ChatRoom extends PSRoom {
 			return true;
 		}
 		/*
+		// i moved the following logic to ``PS.getHighlight``
 		// TODO!
 		if (!this.highlightRegExp) {
 			try {

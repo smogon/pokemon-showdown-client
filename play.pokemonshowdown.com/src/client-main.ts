@@ -78,6 +78,7 @@ class PSPrefs extends PSStreamModel<string | null> {
 		hidelinks: false,
 		hideinterstice: true,
 	};
+	nounlink: boolean | null = null;
 
 	/* Battle preferences */
 	ignorenicks: boolean | null = null;
@@ -117,6 +118,9 @@ class PSPrefs extends PSStreamModel<string | null> {
 	notifvolume = 50;
 
 	afd: boolean | 'sprites' = false;
+
+	highlights: Record<string, string[]> | null = null;
+	logtimes: Record<string, { [roomid: RoomID]: number }> | null = null;
 
 	// PREFS END HERE
 
@@ -822,6 +826,14 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 		PS.update();
 	}
 	dismissNotification(id: string) {
+		let room = PS.rooms[this.id] as ChatRoom;
+		if (room.lastMessage) {
+			// Mark chat messages as read to avoid double-notifying on reload
+			let lastMessageDates = PS.prefs.logtimes || {};
+			if (!lastMessageDates[PS.server.id]) lastMessageDates[PS.server.id] = {};
+			lastMessageDates[PS.server.id][room.id] = parseInt(room.lastMessage[1]);
+			PS.prefs.save();
+		}
 		this.notifications = this.notifications.filter(notification => notification.id !== id);
 		PS.update();
 	}
@@ -1158,7 +1170,100 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 			}
 			this.add("||All PM windows cleared and closed.");
 		},
-		'help'(target) {
+		'unpackhidden'() {
+			PS.prefs.set('nounlink', true);
+			this.add('||Locked/banned users\' chat messages: ON');
+		},
+		'packhidden'() {
+			PS.prefs.set('nounlink', false);
+			this.add('||Locked/banned users\' chat messages: HIDDEN');
+		},
+		'hl,highlight'(target) {
+			let highlights = PS.prefs.highlights || {};
+			if (target.includes(' ')) {
+				let targets = target.split(' ');
+				let subCmd = targets[0];
+				targets = targets.slice(1).join(' ').match(/([^,]+?({\d*,\d*})?)+/g) as string[];
+				// trim the targets to be safe
+				for (let i = 0, len = targets.length; i < len; i++) {
+					targets[i] = targets[i].replace(/\n/g, '').trim();
+				}
+				switch (subCmd) {
+				case 'add': case 'roomadd': {
+					let key = subCmd === 'roomadd' ? (PS.server.id + '#' + this.id) : 'global';
+					let highlightList = highlights[key] || [];
+					for (let i = 0, len = targets.length; i < len; i++) {
+						if (!targets[i]) continue;
+						if (/[\\^$*+?()|{}[\]]/.test(targets[i])) {
+							// Catch any errors thrown by newly added regular expressions so they don't break the entire highlight list
+							try {
+								new RegExp(targets[i]);
+							} catch (e: any) {
+								return this.add(`|error|${(e.message.substr(0, 28) === 'Invalid regular expression: ' ? e.message : 'Invalid regular expression: /' + targets[i] + '/: ' + e.message)}`);
+							}
+						}
+						if (highlightList.includes(targets[i])) {
+							return this.add(`|error|${targets[i]} is already on your highlights list.`);
+						}
+					}
+					highlights[key] = highlightList.concat(targets);
+					this.add(`||Now highlighting on ${(key === 'global' ? "(everywhere): " : "(in " + key + "): ")} ${highlights[key].join(', ')}`);
+					// We update the regex
+					PS.updateHighlightRegExp(highlights);
+					break;
+				}
+				case 'delete': case 'roomdelete': {
+					let key = subCmd === 'roomdelete' ? (PS.server.id + '#' + this.id) : 'global';
+					let highlightList = highlights[key] || [];
+					let newHls: string[] = [];
+					for (let i = 0, len = highlightList.length; i < len; i++) {
+						if (!targets.includes(highlightList[i])) {
+							newHls.push(highlightList[i]);
+						}
+					}
+					highlights[key] = newHls;
+					this.add(`||Now highlighting on ${(key === 'global' ? "(everywhere): " : "(in " + key + "): ")} ${highlights[key].join(', ')}`);
+					// We update the regex
+					PS.updateHighlightRegExp(highlights);
+					break;
+				}
+				default:
+					// Wrong command
+					this.add('|error|Invalid /highlight command.');
+					this.handleSend('/help highlight'); // show help
+					return false;
+				}
+				PS.prefs.set('highlights', highlights);
+			} else {
+				if (['clear', 'roomclear', 'clearall'].includes(target)) {
+					let key = (target === 'roomclear' ? (PS.server.id + '#' + this.id) : (target === 'clearall' ? '' : 'global'));
+					if (key) {
+						highlights[key] = [];
+						this.add(`||All highlights (${(key === 'global' ? "everywhere" : "in " + key)}) cleared.`);
+						PS.updateHighlightRegExp(highlights);
+					} else {
+						PS.prefs.set('highlights', null);
+						this.add("||All highlights (in all rooms and globally) cleared.");
+						PS.updateHighlightRegExp({});
+					}
+				} else if (['show', 'list', 'roomshow', 'roomlist'].includes(target)) {
+					// Shows a list of the current highlighting words
+					let key = target.startsWith('room') ? (PS.server.id + '#' + this.id) : 'global';
+					if (highlights[key] && highlights[key].length > 0) {
+						this.add(`||Current highlight list ${(key === 'global' ? "(everywhere): " : "(in " + key + "): ")}${highlights[key].join(", ")}`);
+					} else {
+						this.add(`||Your highlight list${(key === 'global' ? '' : ' in ' + key)} is empty.`);
+					}
+				} else {
+					// Wrong command
+					this.add('|error|Invalid /highlight command.');
+					this.handleSend('/help highlight'); // show help
+					return false;
+				}
+			}
+			return false;
+		},
+		'h,help'(target) {
 			switch (toID(target)) {
 			case 'chal':
 			case 'chall':
@@ -1461,6 +1566,8 @@ export const PS = new class extends PSModel {
 	newsHTML = document.querySelector('#room-news .readable-bg')?.innerHTML || '';
 
 	libsLoaded = makeLoadTracker();
+
+	highlightRegExp: Record<string, RegExp | null> | null = null;
 
 	constructor() {
 		super();
@@ -2241,6 +2348,46 @@ export const PS = new class extends PSModel {
 
 			autojoin[this.server.id] = thisAutojoin || '';
 			this.prefs.set('autojoin', autojoin);
+		}
+	}
+	getHighlight(message: string, roomid: string) {
+		let highlights = this.prefs.highlights || {};
+		if (Array.isArray(highlights)) {
+			highlights = { global: highlights };
+			// Migrate from the old highlight system
+			this.prefs.set('highlights', highlights);
+		}
+		if (!this.prefs.noselfhighlight && this.user.nameRegExp) {
+			if (this.user.nameRegExp?.test(message)) return true;
+		}
+		if (!this.highlightRegExp) {
+			try {
+				this.updateHighlightRegExp(highlights);
+			} catch (e) {
+				// If the expression above is not a regexp, we'll get here.
+				// Don't throw an exception because that would prevent the chat
+				// message from showing up, or, when the lobby is initialising,
+				// it will prevent the initialisation from completing.
+				return false;
+			}
+		}
+		const id = this.server.id + '#' + roomid;
+		const globalHighlightsRegExp = this.highlightRegExp?.['global'];
+		const roomHighlightsRegExp = this.highlightRegExp?.[id];
+		return (((globalHighlightsRegExp?.test(message)) || (roomHighlightsRegExp?.test(message))));
+	}
+	updateHighlightRegExp(highlights: Record<string, string[]>) {
+		// Enforce boundary for match sides, if a letter on match side is
+		// a word character. For example, regular expression "a" matches
+		// "a", but not "abc", while regular expression "!" matches
+		// "!" and "!abc".
+		this.highlightRegExp = {};
+		for (let i in highlights) {
+			if (!highlights[i].length) {
+				this.highlightRegExp[i] = null;
+				continue;
+			}
+			this.highlightRegExp[i] = new RegExp('(?:\\b|(?!\\w))(?:' + highlights[i].join('|') + ')(?:\\b|(?!\\w))', 'i');
 		}
 	}
 };
