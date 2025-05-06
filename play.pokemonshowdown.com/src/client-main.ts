@@ -2368,7 +2368,7 @@ export const PS = new class extends PSModel {
 		if (!this.highlightRegExp) {
 			try {
 				this.updateHighlightRegExp(highlights);
-			} catch (e) {
+			} catch {
 				// If the expression above is not a regexp, we'll get here.
 				// Don't throw an exception because that would prevent the chat
 				// message from showing up, or, when the lobby is initialising,
