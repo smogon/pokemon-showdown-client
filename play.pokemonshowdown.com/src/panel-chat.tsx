@@ -47,6 +47,7 @@ export class ChatRoom extends PSRoom {
 	log: BattleLog | null = null;
 	tour: ChatTournament | null = null;
 	lastMessage: Args | null = null;
+	lastMessageTime: number | null = null;
 
 	joinLeave: { join: string[], leave: string[], messageId: string } | null = null;
 	/** in order from least to most recent */
@@ -194,15 +195,14 @@ export class ChatRoom extends PSRoom {
 		// because the time offset to the server can vary slightly, subtract it to not have it affect comparisons between dates
 		let serverMsgTime = msgTime - (this.timeOffset || 0);
 		let mayNotify = serverMsgTime > lastMessageDate && name !== PS.user.userid;
-
 		if (PS.isVisible(this)) {
-			this.lastMessage = null;
+			this.lastMessageTime = null;
 			lastMessageDates[PS.server.id][this.id] = serverMsgTime;
-			PS.prefs.save();
+			PS.prefs.set('logtimes', lastMessageDates);
 		} else {
 			// To be saved on focus
-			let lastMessageTime = parseInt(this.lastMessage?.[1] || '0');
-			if (lastMessageTime < serverMsgTime) this.lastMessage = args;
+			let lastMessageTime = this.lastMessageTime || 0;
+			if (lastMessageTime < serverMsgTime) this.lastMessageTime = serverMsgTime;
 		}
 		if (PS.getHighlight(message, this.id)) {
 			if (mayNotify) this.notify({

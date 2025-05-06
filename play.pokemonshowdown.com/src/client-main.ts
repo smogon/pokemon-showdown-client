@@ -826,18 +826,18 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 		PS.update();
 	}
 	dismissNotification(id: string) {
-		let room = PS.rooms[this.id] as ChatRoom;
-		if (room.lastMessage) {
-			// Mark chat messages as read to avoid double-notifying on reload
-			let lastMessageDates = PS.prefs.logtimes || {};
-			if (!lastMessageDates[PS.server.id]) lastMessageDates[PS.server.id] = {};
-			lastMessageDates[PS.server.id][room.id] = parseInt(room.lastMessage[1]);
-			PS.prefs.save();
-		}
 		this.notifications = this.notifications.filter(notification => notification.id !== id);
 		PS.update();
 	}
 	autoDismissNotifications() {
+		let room = PS.rooms[this.id] as ChatRoom;
+		if (room.lastMessageTime) {
+			// Mark chat messages as read to avoid double-notifying on reload
+			let lastMessageDates = PS.prefs.logtimes || {};
+			if (!lastMessageDates[PS.server.id]) lastMessageDates[PS.server.id] = {};
+			lastMessageDates[PS.server.id][room.id] = room.lastMessageTime || 0;
+			PS.prefs.set('logtimes', lastMessageDates);
+		}
 		this.notifications = this.notifications.filter(notification => notification.noAutoDismiss);
 		this.isSubtleNotifying = false;
 	}
@@ -914,6 +914,11 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 			// after you delete the room
 			this.send(target);
 			PS.leave(this.id);
+		},
+		'receivepopup'(target) {
+			PS.join(`popup-message` as RoomID, {
+				args: { message: target },
+			});
 		},
 		'inopener,inparent'(target) {
 			// do this command in the popup opener
