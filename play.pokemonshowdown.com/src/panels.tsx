@@ -16,7 +16,6 @@ import { BattleTooltips } from "./battle-tooltips";
 import { Net } from "./client-connection";
 import type { PSModel, PSStreamModel, PSSubscription } from "./client-core";
 import { PS, type PSRoom, type RoomID } from "./client-main";
-import type { BattleRoom } from "./panel-battle";
 import { PSHeader, PSMiniHeader } from "./panel-topbar";
 
 export class PSRouter {
@@ -435,7 +434,7 @@ export class PSView extends preact.Component {
 				if (elem.getAttribute('data-cmd')) {
 					const cmd = elem.getAttribute('data-cmd')!;
 					const room = PS.getRoom(elem) || PS.mainmenu;
-					room.send(cmd);
+					room.send(cmd, elem);
 					ev.preventDefault();
 					ev.stopImmediatePropagation();
 					return;
@@ -506,28 +505,12 @@ export class PSView extends preact.Component {
 			}
 			const modifierKey = ev.ctrlKey || ev.altKey || ev.metaKey || ev.shiftKey;
 			const altKey = !ev.ctrlKey && ev.altKey && !ev.metaKey && !ev.shiftKey;
-			if (altKey && ev.keyCode === 38) { // up
+			if (altKey && ev.keyCode === 38) { // alt + up
 				PS.arrowKeysUsed = true;
 				PS.focusUpRoom();
-			} else if (altKey && ev.keyCode === 40) { // down
+			} else if (altKey && ev.keyCode === 40) { // alt + down
 				PS.arrowKeysUsed = true;
 				PS.focusDownRoom();
-			}
-			if (isNonEmptyTextInput) return;
-			if (altKey && ev.keyCode === 37) { // left
-				PS.arrowKeysUsed = true;
-				PS.focusLeftRoom();
-			} else if (altKey && ev.keyCode === 39) { // right
-				PS.arrowKeysUsed = true;
-				PS.focusRightRoom();
-			}
-			if (modifierKey) return;
-			if (ev.keyCode === 37) { // left
-				PS.arrowKeysUsed = true;
-				PS.focusLeftRoom();
-			} else if (ev.keyCode === 39) { // right
-				PS.arrowKeysUsed = true;
-				PS.focusRightRoom();
 			} else if (ev.keyCode === 27) { // escape
 				// close popups
 				if (PS.popups.length) {
@@ -538,6 +521,22 @@ export class PSView extends preact.Component {
 				} else if (PS.room.id === 'rooms') {
 					PS.hideRightRoom();
 				}
+			}
+			if (isNonEmptyTextInput) return;
+			if (altKey && ev.keyCode === 37) { // alt + left
+				PS.arrowKeysUsed = true;
+				PS.focusLeftRoom();
+			} else if (altKey && ev.keyCode === 39) { // alt + right
+				PS.arrowKeysUsed = true;
+				PS.focusRightRoom();
+			}
+			if (modifierKey) return;
+			if (ev.keyCode === 37) { // left
+				PS.arrowKeysUsed = true;
+				PS.focusLeftRoom();
+			} else if (ev.keyCode === 39) { // right
+				PS.arrowKeysUsed = true;
+				PS.focusRightRoom();
 			} else if (ev.keyCode === 191 && !isTextInput && PS.room === PS.mainmenu) { // forward slash
 				ev.stopImmediatePropagation();
 				ev.preventDefault();
@@ -602,17 +601,7 @@ export class PSView extends preact.Component {
 		switch (elem.name) {
 		case 'closeRoom': {
 			const roomid = elem.value as RoomID || PS.getRoom(elem)?.id || '' as RoomID;
-			const room = PS.rooms[roomid];
-			const battle = (room as BattleRoom).battle;
-			if (room?.type === "battle" && !battle.ended && battle.mySide.id === PS.user.userid) {
-				PS.join("forfeitbattle" as RoomID, { parentElem: elem });
-				return true;
-			}
-			if (room?.type === "chat" && room.connected && PS.prefs.leavePopupRoom) {
-				PS.join("confirmleaveroom" as RoomID, { parentElem: elem });
-				return true;
-			}
-			PS.leave(roomid);
+			PS.rooms[roomid]?.send('/close', elem);
 			return true;
 		}
 		case 'joinRoom':
