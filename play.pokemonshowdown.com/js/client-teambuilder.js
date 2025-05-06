@@ -3689,7 +3689,7 @@
 	});
 	var DingbatPopup = exports.DingbatPopup = Popup.extend({
 		initialize: function (data) {
-			let dingbats_halfwidth = [
+			var dingbats_halfwidth = [
 				"&#xe095;","&#xe096;","&#xe097;","&#xe098;",
 				"&#xe099;","&#xe090;","&#xe091;","&#xe092;",
 				"&#xe093;","&#xe094;","&#xe09a;",
@@ -3700,7 +3700,7 @@
 				"\n",
 				"&#xe08e;","&#xe08f;"
 			];
-			let dingbats_fullwidth = [
+			var dingbats_fullwidth = [
 				"&#x25CE;", "&#x25CB;", "&#x25A1;", "&#x25B3;", "&#x25C7;",
 				"&#x2660;", "&#x2663;", "&#x2665;", "&#x2666;", "&#x2605;", "&#x266A;", 
 				"\n",
@@ -3728,7 +3728,7 @@
 			this.$el.html(buf);
 			this.$el.find("input[name=wideCheckbox]").change(
 				(e)=>{
-					let width = e.currentTarget.checked?"fullwidth":"halfwidth";
+					var width = e.currentTarget.checked?"fullwidth":"halfwidth";
 					this.$el.find("button[name=insertDingbat]").each((_,elem)=>{
 						elem.value = elem.innerHTML = elem.getAttribute(width);
 					});
