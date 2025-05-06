@@ -3713,7 +3713,7 @@
 			this.team = data.team;
 
 			var buf = '<ul name="dingbats" class="popupmenu"><li>';
-			for (var i=0; i<dingbats_halfwidth.length; i++) {
+			for (var i = 0; i < dingbats_halfwidth.length; i++) {
 				if (dingbats_halfwidth[i] == '\n'){
 					buf +='</li><li>'
 				} else {
