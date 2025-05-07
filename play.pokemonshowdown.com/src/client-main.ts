@@ -939,9 +939,7 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 			PS.leave(this.id);
 		},
 		'receivepopup'(target) {
-			PS.join(`popup-message` as RoomID, {
-				args: { message: target },
-			});
+			PS.alert(target);
 		},
 		'inopener,inparent'(target) {
 			// do this command in the popup opener
