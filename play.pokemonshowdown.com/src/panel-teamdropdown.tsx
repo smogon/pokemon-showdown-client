@@ -561,7 +561,7 @@ export class PSTeambuilder {
 		return teams;
 	}
 
-	static packedTeamNames(buf: string) {
+	static packedTeamSpecies(buf: string) {
 		if (!buf) return [];
 
 		const team = [];
@@ -609,7 +609,7 @@ export function TeamBox(props: { team: Team | null, noLink?: boolean, button?: b
 			if (!team.packedTeam) {
 				icons = <em>(empty team)</em>;
 			} else {
-				icons = PSTeambuilder.packedTeamNames(team.packedTeam).map(species =>
+				icons = PSTeambuilder.packedTeamSpecies(team.packedTeam).map(species =>
 					// can't use PSIcon, weird interaction with iconCache
 					<span class="picon" style={Dex.getPokemonIcon(species)}></span>
 				);

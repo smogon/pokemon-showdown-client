@@ -96,13 +96,13 @@ class TeamPanel extends PSRoomPanel<TeamRoom> {
 		room.save();
 	};
 
-	exported = false;
+	uploaded = false;
 	uploadTeam = (ev: Event) => {
 		const room = this.props.room;
 		const team = PS.teams.byKey[room.id.slice(5)];
-
 		if (!team) return;
-		let cmd = `/teams ${team.teamid ? 'update' : 'save'}`;
+
+		const cmd = team.teamid ? 'update' : 'save';
 		// teamName, formatid, rawPrivacy, rawTeam
 		const buf = [];
 		if (team.teamid) buf.push(team.teamid);
@@ -110,12 +110,13 @@ class TeamPanel extends PSRoomPanel<TeamRoom> {
 		const exported = PSTeambuilder.exportTeam(PSTeambuilder.unpackTeam(team.packedTeam));
 		if (!exported) return PS.alert(`Add a Pokemon to your team before uploading it.`);
 		buf.push(exported);
-		PS.send(`${cmd} ${buf.join(', ')}`);
-		this.exported = true;
+		PS.send(`||/teams ${cmd} ${buf.join(', ')}`);
+		this.uploaded = true;
 		this.forceUpdate();
 	};
 
 	changePrivacyPref = (ev: Event) => {
+		this.uploaded = false;
 		PS.prefs.uploadprivacy = !(ev.currentTarget as HTMLInputElement).checked;
 		PS.prefs.save();
 	};
@@ -129,7 +130,7 @@ class TeamPanel extends PSRoomPanel<TeamRoom> {
 	};
 	save = () => {
 		this.props.room.save();
-		this.exported = false;
+		this.uploaded = false;
 		this.forceUpdate();
 	};
 
@@ -184,9 +185,15 @@ class TeamPanel extends PSRoomPanel<TeamRoom> {
 						type="checkbox" onChange={this.changePrivacyPref}
 					/> Public
 				</label>
-				<button class="button exportbutton" onClick={this.uploadTeam} disabled={this.exported}>
-					<i class="fa fa-upload"></i> Save to my account (use on other devices)
-				</button>
+				{this.uploaded ? (
+					<button class="button exportbutton" disabled>
+						<i class="fa fa-check"></i> Saved to your account
+					</button>
+				) : (
+					<button class="button exportbutton" onClick={this.uploadTeam}>
+						<i class="fa fa-upload"></i> Save to my account (use on other devices)
+					</button>
+				)}
 			</p>
 		</div></PSPanelWrapper>;
 	}

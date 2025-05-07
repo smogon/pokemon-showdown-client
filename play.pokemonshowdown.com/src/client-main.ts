@@ -399,7 +399,7 @@ class PSTeams extends PSStreamModel<'team' | 'format'> {
 		};
 	}
 	loadRemoteTeams() {
-		PSLoginServer.query('getteams', {}).then(data => {
+		PSLoginServer.query('getteams').then(data => {
 			if (!data) return;
 			if (data.actionerror) {
 				return PS.alert('Error loading uploaded teams: ' + data.actionerror);
@@ -436,6 +436,9 @@ class PSTeams extends PSStreamModel<'team' | 'format'> {
 		});
 	}
 	compareTeams(serverTeam: Team & { team: string }, localTeam: Team) {
+		// TODO: decide if we want this
+		// if (serverTeam.teamid === localTeam.teamid && localTeam.teamid) return true;
+
 		// if titles match exactly and mons are the same, assume they're the same team
 		// if they don't match, it might be edited, but we'll go ahead and add it to the user's
 		// teambuilder since they may want that old version around. just go ahead and edit the name
@@ -447,9 +450,8 @@ class PSTeams extends PSStreamModel<'team' | 'format'> {
 		// if it's been edited since, invalidate the team id on this one (count it as new)
 		// and load from server
 		const mons = serverTeam.team.split(',').map(toID).sort().join(',');
-		const otherMons = PSTeambuilder.unpackTeam(localTeam.packedTeam).map(p => toID(p.species)).sort().join(',');
+		const otherMons = PSTeambuilder.packedTeamSpecies(localTeam.packedTeam).map(toID).sort().join(',');
 		if (mons !== otherMons) return 'rename';
-		if (serverTeam.teamid === localTeam.teamid && localTeam.teamid) return true;
 		return true;
 	}
 }
