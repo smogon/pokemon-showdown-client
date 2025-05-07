@@ -131,7 +131,13 @@ export class PSHeader extends preact.Component<{ style: object }> {
 		const cur = PS.isVisible(room) ? ' cur' : '';
 		let notifying = room.isSubtleNotifying ? ' subtle-notifying' : '';
 		let hoverTitle = '';
-		const notifications = room.notifications;
+		let notifications = room.notifications;
+		if (id === '') {
+			for (const roomid of PS.miniRoomList) {
+				const miniNotifications = PS.rooms[roomid]?.notifications;
+				if (miniNotifications?.length) notifications = [...notifications, ...miniNotifications];
+			}
+		}
 		if (notifications.length) {
 			notifying = ' notifying';
 			for (const notif of notifications) {

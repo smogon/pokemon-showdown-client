@@ -304,6 +304,70 @@ class TeamEditorState extends PSModel {
 		this.sets = PSTeambuilder.importTeam(value);
 		this.save();
 	}
+	getTypeWeakness(type: Dex.TypeName, attackType: Dex.TypeName): 0 | 0.5 | 1 | 2 {
+		const weaknessType = this.dex.types.get(type).damageTaken?.[attackType];
+		if (weaknessType === Dex.IMMUNE) return 0;
+		if (weaknessType === Dex.RESIST) return 0.5;
+		if (weaknessType === Dex.WEAK) return 2;
+		return 1;
+	}
+	getWeakness(types: readonly Dex.TypeName[], abilityid: ID, attackType: Dex.TypeName): number {
+		if (attackType === 'Ground' && abilityid === 'levitate') return 0;
+		if (attackType === 'Water' && abilityid === 'dryskin') return 0;
+		if (attackType === 'Fire' && abilityid === 'flashfire') return 0;
+		if (attackType === 'Electric' && abilityid === 'lightningrod' && this.gen >= 5) return 0;
+		if (attackType === 'Grass' && abilityid === 'sapsipper') return 0;
+		if (attackType === 'Electric' && abilityid === 'motordrive') return 0;
+		if (attackType === 'Water' && abilityid === 'stormdrain' && this.gen >= 5) return 0;
+		if (attackType === 'Electric' && abilityid === 'voltabsorb') return 0;
+		if (attackType === 'Water' && abilityid === 'waterabsorb') return 0;
+		if (attackType === 'Ground' && abilityid === 'eartheater') return 0;
+		if (attackType === 'Fire' && abilityid === 'wellbakedbody') return 0;
+
+		if (abilityid === 'wonderguard') {
+			for (const type of types) {
+				if (this.getTypeWeakness(type, attackType) <= 1) return 0;
+			}
+		}
+
+		let factor = 1;
+		for (const type of types) {
+			factor *= this.getTypeWeakness(type, attackType);
+		}
+		return factor;
+	}
+	pokemonDefensiveCoverage(set: Dex.PokemonSet) {
+		const coverage: Record<string, number> = {};
+		const species = this.dex.species.get(set.species);
+		const abilityid = toID(set.ability);
+		for (const type of this.dex.types.names()) {
+			coverage[type] = this.getWeakness(species.types, abilityid, type);
+		}
+		return coverage as Record<Dex.TypeName, number>;
+	}
+	teamDefensiveCoverage() {
+		const counters: Record<Dex.TypeName, Record<'resists' | 'neutrals' | 'weaknesses', number>> = {} as any;
+		for (const type of this.dex.types.names()) {
+			counters[type] = {
+				resists: 0,
+				neutrals: 0,
+				weaknesses: 0,
+			};
+		}
+		for (const set of this.sets) {
+			const coverage = this.pokemonDefensiveCoverage(set);
+			for (const [type, value] of Object.entries(coverage) as [Dex.TypeName, number][]) {
+				if (value < 1) {
+					counters[type].resists++;
+				} else if (value === 1) {
+					counters[type].neutrals++;
+				} else {
+					counters[type].weaknesses++;
+				}
+			}
+		}
+		return counters;
+	}
 	save() {
 		this.team.packedTeam = PSTeambuilder.packTeam(this.sets);
 		this.team.iconCache = null;
@@ -987,75 +1051,86 @@ class TeamTextbox extends preact.Component<{ editor: TeamEditorState, onChange?:
 	bottomY() {
 		return this.setInfo[this.setInfo.length - 1]?.bottomY ?? 8;
 	}
+	copyAll = () => {
+		this.textbox.select();
+		document.execCommand('copy');
+	};
 	render() {
 		const editor = this.props.editor;
 		const statsDetailsOffset = editor.gen >= 3 ? 18 : -1;
-		return <div class="teameditor-text">
-			<textarea
-				class="textbox teamtextbox" style={`padding-left:${editor.narrow ? '50px' : '100px'}`}
-				onInput={this.input} onClick={this.click} onKeyUp={this.keyUp} onKeyDown={this.keyDown}
-			/>
-			<textarea
-				class="textbox teamtextbox heighttester" tabIndex={-1} aria-hidden
-				style={`padding-left:${editor.narrow ? '50px' : '100px'};visibility:hidden;left:-15px`}
-			/>
-			<div class="teamoverlays">
-				{this.setInfo.slice(0, -1).map(info =>
-					<hr style={`top:${info.bottomY - 18}px;pointer-events:none`} />
-				)}
-				{this.setInfo.length < 6 && !!this.setInfo.length && <hr style={`top:${this.bottomY() - 18}px`} />}
-				{this.setInfo.map((info, i) => {
-					if (!info.species) return null;
-					const set = editor.sets[i];
-					const prevOffset = i === 0 ? 8 : this.setInfo[i - 1].bottomY;
-					const species = editor.dex.species.get(info.species);
-					const num = Dex.getPokemonIconNum(species.id);
-					if (!num) return null;
-
-					const top = Math.floor(num / 12) * 30;
-					const left = (num % 12) * 40;
-					const iconStyle = `background:transparent url(${Dex.resourcePrefix}sprites/pokemonicons-sheet.png) no-repeat scroll -${left}px -${top}px`;
-
-					const itemStyle = set.item && Dex.getItemIcon(editor.dex.items.get(set.item));
-
-					if (editor.narrow) {
-						return <div style={`top:${prevOffset + 1}px;left:5px;position:absolute;text-align:center;pointer-events:none`}>
-							<div><span class="picon" style={iconStyle}></span></div>
-							{species.types.map(type => <div>{TeamEditor.renderTypeIcon(type)}</div>)}
-							<div><span class="itemicon" style={itemStyle}></span></div>
-						</div>;
-					}
-					return [<div
-						style={
-							`top:${prevOffset - 7}px;left:0;position:absolute;text-align:right;` +
-							`width:94px;padding:103px 5px 0 0;min-height:24px;pointer-events:none;` +
-							Dex.getTeambuilderSprite(set, editor.gen)
-						}
-					>
-						<div>{species.types.map(type => TeamEditor.renderTypeIcon(type))}<span class="itemicon" style={itemStyle}></span></div>
-					</div>, <div style={`top:${prevOffset + statsDetailsOffset}px;right:9px;position:absolute`}>
-						{this.renderStats(set, i)}
-					</div>, <div style={`top:${prevOffset + statsDetailsOffset}px;right:145px;position:absolute`}>
-						{this.renderDetails(set, i)}
-					</div>];
-				})}
-				{this.setInfo.length < 6 && !(this.innerFocus && this.innerFocus.setIndex >= this.setInfo.length) && (
-					<div style={`top:${this.bottomY() - 3}px;left:${editor.narrow ? 55 : 105}px;position:absolute`}>
-						<button class="button" onClick={this.addPokemon}>
-							<i class="fa fa-plus" aria-hidden></i> Add Pok&eacute;mon
-						</button>
-					</div>
-				)}
-				{this.innerFocus?.offsetY != null && (
-					<div
-						class={`teaminnertextbox teaminnertextbox-${this.innerFocus.type}`}
-						style={`top:${this.innerFocus.offsetY - 21}px;left:${editor.narrow ? 46 : 96}px;`}
-					></div>
-				)}
-			</div>
+		return <div>
 			<p>
-				<label class="checkbox"><input type="checkbox" name="compat" onChange={this.changeCompat} /> Old export format</label>
+				<button class="button" onClick={this.copyAll}>
+					<i class="fa fa-copy" aria-hidden></i> Copy
+				</button> {}
+				<label class="checkbox" style="display:inline-block">
+					<input type="checkbox" name="compat" onChange={this.changeCompat} /> Old export format
+				</label>
 			</p>
+			<div class="teameditor-text">
+				<textarea
+					class="textbox teamtextbox" style={`padding-left:${editor.narrow ? '50px' : '100px'}`}
+					onInput={this.input} onClick={this.click} onKeyUp={this.keyUp} onKeyDown={this.keyDown}
+				/>
+				<textarea
+					class="textbox teamtextbox heighttester" tabIndex={-1} aria-hidden
+					style={`padding-left:${editor.narrow ? '50px' : '100px'};visibility:hidden;left:-15px`}
+				/>
+				<div class="teamoverlays">
+					{this.setInfo.slice(0, -1).map(info =>
+						<hr style={`top:${info.bottomY - 18}px;pointer-events:none`} />
+					)}
+					{this.setInfo.length < 6 && !!this.setInfo.length && <hr style={`top:${this.bottomY() - 18}px`} />}
+					{this.setInfo.map((info, i) => {
+						if (!info.species) return null;
+						const set = editor.sets[i];
+						const prevOffset = i === 0 ? 8 : this.setInfo[i - 1].bottomY;
+						const species = editor.dex.species.get(info.species);
+						const num = Dex.getPokemonIconNum(species.id);
+						if (!num) return null;
+
+						const top = Math.floor(num / 12) * 30;
+						const left = (num % 12) * 40;
+						const iconStyle = `background:transparent url(${Dex.resourcePrefix}sprites/pokemonicons-sheet.png) no-repeat scroll -${left}px -${top}px`;
+
+						const itemStyle = set.item && Dex.getItemIcon(editor.dex.items.get(set.item));
+
+						if (editor.narrow) {
+							return <div style={`top:${prevOffset + 1}px;left:5px;position:absolute;text-align:center;pointer-events:none`}>
+								<div><span class="picon" style={iconStyle}></span></div>
+								{species.types.map(type => <div>{TeamEditor.renderTypeIcon(type)}</div>)}
+								<div><span class="itemicon" style={itemStyle}></span></div>
+							</div>;
+						}
+						return [<div
+							style={
+								`top:${prevOffset - 7}px;left:0;position:absolute;text-align:right;` +
+								`width:94px;padding:103px 5px 0 0;min-height:24px;pointer-events:none;` +
+								Dex.getTeambuilderSprite(set, editor.gen)
+							}
+						>
+							<div>{species.types.map(type => TeamEditor.renderTypeIcon(type))}<span class="itemicon" style={itemStyle}></span></div>
+						</div>, <div style={`top:${prevOffset + statsDetailsOffset}px;right:9px;position:absolute`}>
+							{this.renderStats(set, i)}
+						</div>, <div style={`top:${prevOffset + statsDetailsOffset}px;right:145px;position:absolute`}>
+							{this.renderDetails(set, i)}
+						</div>];
+					})}
+					{this.setInfo.length < 6 && !(this.innerFocus && this.innerFocus.setIndex >= this.setInfo.length) && (
+						<div style={`top:${this.bottomY() - 3}px;left:${editor.narrow ? 55 : 105}px;position:absolute`}>
+							<button class="button" onClick={this.addPokemon}>
+								<i class="fa fa-plus" aria-hidden></i> Add Pok&eacute;mon
+							</button>
+						</div>
+					)}
+					{this.innerFocus?.offsetY != null && (
+						<div
+							class={`teaminnertextbox teaminnertextbox-${this.innerFocus.type}`}
+							style={`top:${this.innerFocus.offsetY - 21}px;left:${editor.narrow ? 46 : 96}px;`}
+						></div>
+					)}
+				</div>
+			</div>
 			{this.innerFocus && (
 				<div
 					class="searchresults"
@@ -1499,6 +1574,32 @@ class TeamWizard extends preact.Component<{
 			)}
 		</div>;
 	}
+	renderDefensiveCoverage() {
+		const { editor } = this.props;
+		const counters = editor.teamDefensiveCoverage();
+		const good = [], medium = [], bad = [];
+		const renderTypeDefensive = (type: Dex.TypeName) => (
+			<><strong>{type}</strong>: {counters[type].weaknesses} weaknesses, {counters[type].resists} resists</>
+		);
+		for (const [type, counter] of Object.entries(counters)) {
+			if (counter.resists > 0) {
+				good.push(renderTypeDefensive(type as Dex.TypeName), <br />);
+			} else if (counter.weaknesses <= 0) {
+				medium.push(renderTypeDefensive(type as Dex.TypeName), <br />);
+			} else {
+				bad.push(renderTypeDefensive(type as Dex.TypeName), <br />);
+			}
+		}
+		bad.pop();
+		return <details class="readmore">
+			<summary>
+				<h3>Defensive coverage</h3>
+				{bad}
+			</summary>
+			{medium}
+			{good}
+		</details>;
+	}
 	override render() {
 		const { editor } = this.props;
 		if (this.innerFocus) return this.renderInnerFocus();
@@ -1517,6 +1618,7 @@ class TeamWizard extends preact.Component<{
 			{editor.sets.length < 6 && <p><button class="button" onClick={this.setFocus} value={`pokemon|${editor.sets.length}`}>
 				<i class="fa fa-plus" aria-hidden></i> Add Pok&eacute;mon
 			</button></p>}
+			{this.renderDefensiveCoverage()}
 		</div>;
 	}
 }
@@ -1533,13 +1635,14 @@ class StatForm extends preact.Component<{
 			if (statID === 'spd' && editor.gen === 1) return null;
 
 			const stat = editor.getStat(statID, set);
-			const ev = set.evs?.[statID] ?? defaultEV;
+			let ev: number | string = set.evs?.[statID] ?? defaultEV;
 			let width = stat * 75 / 504;
 			if (statID === 'hp') width = stat * 75 / 704;
 			if (width > 75) width = 75;
 			let hue = Math.floor(stat * 180 / 714);
 			if (hue > 360) hue = 360;
 			const statName = editor.gen === 1 && statID === 'spa' ? 'Spc' : BattleStatNames[statID];
+			if (evs && !ev && !set.evs && statID === 'hp') ev = 'EVs';
 			return <span class="statrow">
 				<label>{statName}</label> {}
 				<span class="statgraph">
@@ -1807,30 +1910,13 @@ class StatForm extends preact.Component<{
 		const statID = target.name.split('-')[1] as Dex.StatName;
 		let value = Math.abs(parseInt(target.value));
 
-		if (target.value.includes('+')) {
-			if (statID === 'hp') {
-				alert("Natures cannot raise or lower HP.");
-				return;
-			}
-			this.plus = statID;
-		} else if (this.plus === statID) {
-			this.plus = null;
-		}
-		if (target.value.includes('-')) {
-			if (statID === 'hp') {
-				alert("Natures cannot raise or lower HP.");
-				return;
-			}
-			this.minus = statID;
-		} else if (this.minus === statID) {
-			this.minus = null;
-		}
 		if (isNaN(value)) {
 			if (set.evs) delete set.evs[statID];
 		} else {
 			set.evs ||= {};
 			set.evs[statID] = value;
 		}
+
 		if (target.type === 'range') {
 			// enforce limit
 			const maxEv = this.maxEVs();
@@ -1841,9 +1927,28 @@ class StatForm extends preact.Component<{
 					set.evs![statID] = maxEv - (totalEv - value) - (maxEv % 4);
 				}
 			}
+		} else {
+			if (target.value.includes('+')) {
+				if (statID === 'hp') {
+					alert("Natures cannot raise or lower HP.");
+					return;
+				}
+				this.plus = statID;
+			} else if (this.plus === statID) {
+				this.plus = null;
+			}
+			if (target.value.includes('-')) {
+				if (statID === 'hp') {
+					alert("Natures cannot raise or lower HP.");
+					return;
+				}
+				this.minus = statID;
+			} else if (this.minus === statID) {
+				this.minus = null;
+			}
+			this.updateNatureFromPlusMinus();
 		}
 
-		this.updateNatureFromPlusMinus();
 		this.props.onChange();
 	};
 	updateNatureFromPlusMinus = () => {

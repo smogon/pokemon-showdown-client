@@ -7,11 +7,11 @@
 
 import { PS, PSRoom, type RoomOptions, type Team } from "./client-main";
 import { PSPanelWrapper, PSRoomPanel } from "./panels";
-import { PSTeambuilder, type FormatResource } from "./panel-teamdropdown";
 import { toID } from "./battle-dex";
 import { BattleLog } from "./battle-log";
 import { FormatDropdown } from "./panel-mainmenu";
 import { TeamEditor } from "./battle-team-editor";
+import { Net } from "./client-connection";
 
 class TeamRoom extends PSRoom {
 	/** Doesn't _literally_ always exist, but does in basically all code
@@ -38,6 +38,7 @@ class TeamRoom extends PSRoom {
 	}
 }
 
+export type FormatResource = { url: string, resources: { resource_name: string, url: string }[] } | null;
 class TeamPanel extends PSRoomPanel<TeamRoom> {
 	static readonly id = 'team';
 	static readonly routes = ['team-*'];
@@ -50,13 +51,27 @@ class TeamPanel extends PSRoomPanel<TeamRoom> {
 		super(props);
 		const room = this.props.room;
 		if (room.team) {
-			PSTeambuilder.getFormatResources(room.team.format).then(resources => {
+			TeamPanel.getFormatResources(room.team.format).then(resources => {
 				this.resources = resources;
 				this.forceUpdate();
 			});
 		} else {
 			this.resources = null;
 		}
+	}
+
+	static formatResources = {} as Record<string, FormatResource>;
+
+	static getFormatResources(format: string): Promise<FormatResource> {
+		if (format in this.formatResources) return Promise.resolve(this.formatResources[format]);
+		return Net('https://www.smogon.com/dex/api/formats/by-ps-name/' + format).get()
+			.then(result => {
+				this.formatResources[format] = JSON.parse(result);
+				return this.formatResources[format];
+			}).catch(err => {
+				this.formatResources[format] = null;
+				return this.formatResources[format];
+			});
 	}
 
 	handleRename = (ev: Event) => {
