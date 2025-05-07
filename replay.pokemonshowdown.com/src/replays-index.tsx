@@ -29,7 +29,7 @@ function ReplayLink(props: {
 
 	return <a href={PSRouter.href(url)} class="blocklink">
 		<small>{replay.format}{replay.rating ? ` (Rating: ${replay.rating})` : ''}<br /></small>
-		{!!replay.private && <i class="fa fa-lock"></i>} {}
+		{!!replay.private && <i class="fa fa-lock" aria-hidden></i>} {}
 		<strong>{replay.players[0]}</strong> vs. <strong>{replay.players[1]}</strong>
 		{props.children && <small><br />
 			{props.children}
@@ -212,7 +212,7 @@ export class SearchPanel extends preact.Component<{ id: string }> {
 				<form onSubmit={this.submitForm}>
 					<p>
 						<label>
-							Username:<br />
+							Username: <small class="gray">(separate multiple usernames by commas)</small><br />
 							<input type="search" class="textbox" name="user" placeholder="(blank = any user)" size={20} /> {}
 							{this.loggedInUser &&
 								<button type="button" class="button" onClick={this.searchLoggedIn}>{this.loggedInUser}'s replays</button>}
@@ -241,11 +241,15 @@ export class SearchPanel extends preact.Component<{ id: string }> {
 						</a>
 					</p>}
 					{activelySearching && this.page > 1 && <p class="pagelink">
-						<a href={this.modLink({ page: -1 })} class="button"><i class="fa fa-caret-up"></i><br />Page {this.page - 1}</a>
+						<a href={this.modLink({ page: -1 })} class="button">
+							<i class="fa fa-caret-up" aria-hidden></i><br />Page {this.page - 1}
+						</a>
 					</p>}
 					{activelySearching && searchResults}
 					{activelySearching && (this.results?.length || 0) > 50 && <p class="pagelink">
-						<a href={this.modLink({ page: 1 })} class="button">Page {this.page + 1}<br /><i class="fa fa-caret-down"></i></a>
+						<a href={this.modLink({ page: 1 })} class="button">
+							Page {this.page + 1}<br /><i class="fa fa-caret-down" aria-hidden></i>
+						</a>
 					</p>}
 				</form>
 			</section>

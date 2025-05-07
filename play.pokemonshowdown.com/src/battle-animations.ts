@@ -242,7 +242,7 @@ export class BattleScene implements BattleSceneStub {
 		this.stopAnimation();
 		this.updateBgm();
 		if (!this.battle.started) {
-			this.$frame.append('<div class="playbutton"><button name="play" class="button"><i class="fa fa-play"></i> Play</button><br /><br /><button name="play-muted" class="startsoundchooser button" style="font-size:10pt">Play (sound off)</button></div>');
+			this.$frame.append('<div class="playbutton"><button name="play" class="button"><i class="fa fa-play" aria-hidden="true"></i> Play</button><br /><br /><button name="play-muted" class="startsoundchooser button" style="font-size:10pt">Play (sound off)</button></div>');
 			this.$frame.find('div.playbutton button[name=play-muted]').click(() => {
 				this.setMute(true);
 				this.battle.play();

@@ -592,7 +592,7 @@ export class Pokemon implements PokemonDetails, PokemonHealth {
 		if (pokemon.maxhp === 100) return `${pokemon.hp}%`;
 		if (pokemon.maxhp !== 48) return (100 * pokemon.hp / pokemon.maxhp).toFixed(precision) + '%';
 		let range = Pokemon.getPixelRange(pokemon.hp, pokemon.hpcolor);
-		return Pokemon.getFormattedRange(range, precision, '–');
+		return Pokemon.getFormattedRange(range, precision, '\u2013');
 	}
 	destroy() {
 		if (this.sprite) this.sprite.destroy();
@@ -1101,7 +1101,7 @@ export class Battle {
 	teamPreviewCount = 0;
 	speciesClause = false;
 	tier = '';
-	gameType: 'singles' | 'doubles' | 'triples' | 'multi' | 'freeforall' = 'singles';
+	gameType: 'singles' | 'doubles' | 'triples' | 'multi' | 'freeforall' | 'rotation' = 'singles';
 	compatMode = true;
 	rated: string | boolean = false;
 	rules: { [ruleName: string]: 1 | undefined } = {};
@@ -1664,6 +1664,9 @@ export class Battle {
 				kwArgs.then = '.';
 			}
 			if (args[0] === '-damage' && nextArgs[0] === '-damage' && kwArgs.from && kwArgs.from === nextKwargs.from) {
+				kwArgs.then = '.';
+			}
+			if (args[0] === '-heal' && nextArgs[0] === '-heal' && kwArgs.from && kwArgs.from === nextKwargs.from) {
 				kwArgs.then = '.';
 			}
 			if (args[0] === '-ability' && (args[2] === 'Intimidate' || args[3] === 'boost')) {
@@ -3507,7 +3510,7 @@ export class Battle {
 				return;
 			} else if (args[1].endsWith(' seconds left.')) {
 				let hasIndex = args[1].indexOf(' has ');
-				let userid = window.app?.user?.get('userid');
+				let userid = window.app?.user?.get('userid') || window.PS?.user.userid;
 				if (toID(args[1].slice(0, hasIndex)) === userid) {
 					this.kickingInactive = parseInt(args[1].slice(hasIndex + 5), 10) || true;
 				}

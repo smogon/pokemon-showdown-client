@@ -17,6 +17,7 @@ import type { Battle } from './battle';
 import type { BattleScene } from './battle-animations';
 import { Dex, Teams, toID, toRoomid, toUserid, type ID } from './battle-dex';
 import { BattleTextParser, type Args, type KWArgs } from './battle-text-parser';
+import { Net } from './client-connection'; // optional
 
 // Caja
 declare const html4: any;
@@ -52,7 +53,7 @@ export class BattleLog {
 	 * * 1 = player 2: "Red sent out Pikachu!" "Eevee used Tackle!"
 	 */
 	perspective: -1 | 0 | 1 = -1;
-	getHighlight: ((message: string, name: string) => boolean) | null = null;
+	getHighlight: ((line: Args) => boolean) | null = null;
 	constructor(elem: HTMLDivElement, scene?: BattleScene | null, innerElem?: HTMLDivElement) {
 		this.elem = elem;
 
@@ -76,7 +77,23 @@ export class BattleLog {
 
 		this.className = elem.className;
 		elem.onscroll = this.onScroll;
+		elem.onclick = this.onClick;
 	}
+	onClick = (ev: Event) => {
+		let target = ev.target as HTMLElement | null;
+		while (target && target !== this.elem) {
+			if (target.tagName === 'SUMMARY') {
+				if (window.getSelection?.()?.type === 'Range') {
+					// by default, selecting text will also expand/collapse details, which
+					// is annoying. this prevents that.
+					ev.preventDefault();
+				} else {
+					setTimeout(this.updateScroll, 0);
+				}
+			}
+			target = target.parentElement;
+		}
+	};
 	onScroll = () => {
 		const distanceFromBottom = this.elem.scrollHeight - this.elem.scrollTop - this.elem.clientHeight;
 		this.atBottom = (distanceFromBottom < 30);
@@ -95,7 +112,7 @@ export class BattleLog {
 		this.skippedLines = true;
 		const el = document.createElement('div');
 		el.className = 'chat';
-		el.innerHTML = '<button class="button earlier-button"><i class="fa fa-caret-up"></i><br />Earlier messages</button>';
+		el.innerHTML = '<button class="button earlier-button"><i class="fa fa-caret-up" aria-hidden="true"></i><br />Earlier messages</button>';
 		const button = el.getElementsByTagName('button')[0];
 		button?.addEventListener?.('click', e => {
 			e.preventDefault();
@@ -142,7 +159,12 @@ export class BattleLog {
 			let rank = name.charAt(0);
 			if (battle?.ignoreSpects && ' +'.includes(rank)) return;
 			if (battle?.ignoreOpponent) {
-				if ('\u2605\u2606'.includes(rank) && toUserid(name) !== app.user.get('userid')) return;
+				if (
+					'\u2605\u2606'.includes(rank) &&
+					toUserid(name) !== (window.app?.user?.get('userid') || window.PS?.user?.userid)
+				) {
+					return;
+				}
 			}
 			const ignoreList = window.app?.ignore || window.PS?.prefs?.ignore;
 			if (ignoreList?.[toUserid(name)] && ' +^\u2605\u2606'.includes(rank)) return;
@@ -155,7 +177,7 @@ export class BattleLog {
 				}
 				timestampHtml = `<small class="gray">[${components.map(x => x < 10 ? `0${x}` : x).join(':')}] </small>`;
 			}
-			const isHighlighted = window.app?.rooms?.[battle!.roomid].getHighlight(message) || this.getHighlight?.(message, name);
+			const isHighlighted = window.app?.rooms?.[battle!.roomid].getHighlight(message) || this.getHighlight?.(args);
 			[divClass, divHTML, noNotify] = this.parseChatMessage(message, name, timestampHtml, isHighlighted);
 			if (!noNotify && isHighlighted) {
 				const notifyTitle = "Mentioned by " + name + " in " + (battle?.roomid || '');
@@ -244,6 +266,7 @@ export class BattleLog {
 
 		case 'unlink': {
 			// |unlink| is deprecated in favor of |hidelines|
+			if (window.PS.prefs.nounlink) return;
 			const user = toID(args[2]) || toID(args[1]);
 			this.unlinkChatFrom(user);
 			if (args[2]) {
@@ -254,6 +277,7 @@ export class BattleLog {
 		}
 
 		case 'hidelines': {
+			if (window.PS.prefs.nounlink) return;
 			const user = toID(args[2]);
 			this.unlinkChatFrom(user);
 			if (args[1] !== 'unlink') {
@@ -295,7 +319,7 @@ export class BattleLog {
 				}
 				return buf;
 			}).join('');
-			divHTML = `<div class="infobox"><details><summary>Open Team Sheet for ${side.name}</summary>${exportedTeam}</details></div>`;
+			divHTML = `<div class="infobox"><details class="details"><summary>Open team sheet for ${side.name}</summary>${exportedTeam}</details></div>`;
 			break;
 		}
 
@@ -925,11 +949,11 @@ export class BattleLog {
 			this.elem.scrollTop = this.elem.scrollHeight;
 		}
 	}
-	updateScroll() {
+	updateScroll = () => {
 		if (this.atBottom) {
 			this.elem.scrollTop = this.elem.scrollHeight;
 		}
-	}
+	};
 	addDiv(className: string, innerHTML: string, preempt?: boolean) {
 		const el = document.createElement('div');
 		el.className = className;
@@ -1087,7 +1111,7 @@ export class BattleLog {
 		} else if (name.startsWith(`[Gen ${Dex.gen} `)) {
 			name = '[' + name.slice(`[Gen ${Dex.gen} `.length);
 		}
-		return name;
+		return name || `[Gen ${Dex.gen}]`;
 	}
 
 	static escapeHTML(str: string | number, jsEscapeToo?: boolean) {
@@ -1309,7 +1333,7 @@ export class BattleLog {
 			str = str.replace(/<a[^>]*>/g, '<u>').replace(/<\/a>/g, '</u>');
 		}
 		if (options.hidespoiler) {
-			str = str.replace(/<span class="spoiler">/g, '<span class="spoiler spoiler-shown">');
+			str = str.replace(/<span class="spoiler">/g, '<span class="spoiler-shown">');
 		}
 		if (options.hidegreentext) {
 			str = str.replace(/<span class="greentext">/g, '<span>');
@@ -1783,4 +1807,11 @@ export class BattleLog {
 		}
 		return 'data:text/plain;base64,' + encodeURIComponent(btoa(unescape(encodeURIComponent(replayFile))));
 	}
+}
+
+if (window.Net) {
+	Net(`/config/colors.json`).get().then(response => {
+		const data = JSON.parse(response);
+		Object.assign(Config.customcolors, data);
+	}).catch(() => {});
 }

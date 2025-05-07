@@ -25,6 +25,9 @@ body {
 	margin: 0;
 	padding: 5px 15px;
 }
+.tiny-layout .pad {
+	padding: 4px 7px;
+}
 .pad p {
 	margin: 9px 0;
 }
@@ -33,20 +36,20 @@ body {
 	text-align: center;
 }
 
-.dark .tabbar a.button,
-.dark .tabbar a.button:hover,
-.dark .header-vertical .tablist a.button,
-.dark .header-vertical .tablist a.button:hover {
+.dark .tabbar .button,
+.dark .tabbar .button:hover,
+.dark .header-vertical .tablist .button,
+.dark .header-vertical .tablist .button:hover {
 	box-shadow: inset 0.5px 1px 1px rgba(255, 255, 255, 0.5);
 }
-.dark .tabbar a.button:active,
-.dark .tabbar a.button.cur,
-.dark .tabbar a.button.cur:hover,
-.dark .tabbar a.button.cur:active,
-.dark .header-vertical .tablist a.button:active,
-.dark .header-vertical .tablist a.button.cur,
-.dark .header-vertical .tablist a.button.cur:hover,
-.dark .header-vertical .tablist a.button.cur:active {
+.dark .tabbar .button:active,
+.dark .tabbar .button.cur,
+.dark .tabbar .button.cur:hover,
+.dark .tabbar .button.cur:active,
+.dark .header-vertical .tablist .button:active,
+.dark .header-vertical .tablist .button.cur,
+.dark .header-vertical .tablist .button.cur:hover,
+.dark .header-vertical .tablist .button.cur:active {
 	box-shadow: none;
 }
 
@@ -56,20 +59,30 @@ pre {
 }
 
 .construction {
-	background: repeating-linear-gradient(
+	border: 15px solid transparent;
+	padding: 5px 10px;
+	background: #d9ca28;
+	/* opera doesn't support single-arg linear-gradient */
+	background-image: linear-gradient(#d9ca28, #d9ca28), repeating-linear-gradient(
 		-45deg,
 		#d9ca28,
 		#d9ca28 10px,
 		#292824 10px,
 		#292824 20px
 	);
-	padding: 15px;
-}
-.construction-inner {
-	background: #d9ca28;
+	background-origin: border-box;
+	background-clip: padding-box, border-box;
+
 	padding: 5px 10px;
 	font-weight: bold;
 	color: black;
+}
+
+ul {
+	padding-left: 1.5em;
+}
+li::marker {
+	color: #888;
 }
 
 /*********************************************************
@@ -96,7 +109,7 @@ pre {
 	padding: 0;
 }
 .header .logo {
-	float: left;
+	display: block;
 	margin: 0;
 }
 .header-vertical {
@@ -116,7 +129,6 @@ pre {
 	position: absolute;
 	top: 12px;
 	right: 12px;
-	font-weight: bold;
 }
 .header-vertical .userbar {
 	right: auto;
@@ -127,6 +139,7 @@ pre {
 	word-wrap: break-word;
 }
 .userbar .username {
+	font-weight: bold;
 	color: black;
 	text-shadow: 1px 1px 0 #f8f8f8, 1px -1px 0 #f8f8f8, -1px 1px 0 #f8f8f8, -1px -1px 0 #f8f8f8;
 }
@@ -156,26 +169,7 @@ pre {
 	margin: 0 -5px;
 }
 
-.tabbar {
-	position: absolute;
-	bottom: 1px;
-	left: 0;
-	right: 0;
-
-	display: block;
-	list-style: none;
-	margin: 0;
-	padding: 2px 0 0 0;
-	height: 37px;
-	text-align: left;
-
-	color: white;
-	text-shadow: 0 1px 0 black;
-	font-size: 10pt;
-
-	line-height: 100%;
-}
-.mini-header, .maintabbarbottom {
+.mini-header, .maintabbarbottom, .tabbar:after {
 	background: #f8f8f8;
 	border: solid 1px #AAAAAA;
 	color: black;
@@ -186,7 +180,7 @@ pre {
 	position: absolute;
 	left: 0;
 	right: 0;
-	bottom: -6px;
+	top: 49px;
 	height: 6px;
 	border-left-width: 0;
 	border-right-width: 0;
@@ -276,7 +270,7 @@ pre {
 	border-right-width: 1px;
 	margin: 0;
 }
-.dark .mini-header, .dark .maintabbarbottom {
+.dark .mini-header, .dark .maintabbarbottom, .dark .tabbar:after {
 	background: #555555;
 	border-color: #34373b;
 	color: #DDDDDD;
@@ -285,24 +279,54 @@ pre {
 	border-bottom-color: #5A5A5A;
 }
 
+.tabbar {
+	display: block;
+	list-style: none;
+	margin: 0;
+	padding: 2px 0 0 0;
+	text-align: left;
+
+	color: white;
+	text-shadow: 0 1px 0 black;
+	font-size: 10pt;
+
+	line-height: 100%;
+}
+.tabbar:after {
+	content: "";
+	display: block;
+	height: 6px;
+	margin: -1px 0 -1px 0;
+	-webkit-box-shadow: 0 1px 2px rgba(0,0,0,.2);
+	-moz-box-shadow: 0 1px 2px rgba(0,0,0,.2);
+	box-shadow: 0 1px 2px rgba(0,0,0,.2);
+}
+.tabbar.maintabbar:after {
+	display: none;
+}
 .tabbar.maintabbar {
-	margin-left: 52px;
+	/* margin-left: 52px; */
+	padding: 0;
 	margin-right: 180px;
 	overflow: hidden;
+	white-space: nowrap;
 }
-.tabbar.maintabbar.minitabbar {
-	margin-left: 0;
+.maintabbar .inner-1 {
+	display: table; /* ;) */
+	width: 100%;
+	height: 49px;
+	line-height: 49px;
 }
-.maintabbar .inner {
-	width: 400%; /* make sure overflows go right and not down */
+.maintabbar .inner-2 {
+	display: table-row;
 }
-.maintabbar .overflow {
+.header .overflow {
 	position: absolute;
 	bottom: 0;
-	right: 0;
+	right: 180px;
 	z-index: 12;
 }
-.maintabbar .overflow .button {
+.header .overflow .button {
 	height: 37px;
 	width: 32px;
 	font-size: 12pt;
@@ -315,33 +339,43 @@ pre {
 	content: "\f0e6";
 }
 
-.tabbar li,
 .tabbar ul {
 	display: block;
-	float: left;
 
 	list-style: none;
 	margin: 0;
 	padding: 0;
 }
-.tabbar a.button {
+.tabbar .maintabbar-left, .tabbar .maintabbar-right {
+	display: table-cell;
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+.tabbar .maintabbar-right {
+	padding-right: 1px;
+}
+.tabbar li {
 	display: inline-block;
-	height: 28px;
-	min-width: 52px;
+	vertical-align: bottom;
+	line-height: normal;
+}
+.tabbar .button {
+	display: inline-block; /* to align it with the close button */
 	white-space: nowrap;
 
 	position: relative;
-	padding: 3px 2px 3px 2px;
 	margin: 0 -1px 0 0;
-	top: 1px;
 	border-radius: 0;
 	box-shadow: inset 0 -1px 2px rgba(255,255,255,1);
+}
+.maintabbar .button {
+	height: 28px;
+	min-width: 52px;
+	padding: 3px 2px 3px 2px;
 	font-size: 11px;
 }
-.tabbar a.button.cur {
-	box-shadow: none;
-}
-.tabbar a.button i {
+.tabbar .button i {
 	display: block;
 	text-align: center;
 	margin: 1px auto 0 auto;
@@ -349,41 +383,37 @@ pre {
 	font-size: 14px;
 	height: 14px;
 }
-.tabbar a.button i.rooms-plus {
+.tabbar .button i.rooms-plus {
 	margin: 7px auto -6px auto;
 }
-.tabbar a.button span {
-	display: block;
-	overflow: hidden;
-}
-.tabbar a.button i.text {
+.tabbar .button i.text {
 	font-size: 11px;
 	margin-right: 8px;
 	padding-left: 0;
 	overflow: hidden;
 	font-weight: bold;
 }
-.tabbar a.button i.text + span {
+.tabbar .button i.text + span {
 	margin-right: -6px;
 }
-.tabbar a.button:hover,
-.tablist a.button:hover,
-.tabbar a.button:focus,
-.tablist a.button:focus {
+.tabbar .button:hover,
+.tablist .button:hover,
+.tabbar .button:focus,
+.tablist .button:focus {
 	z-index: 10;
 }
-.tabbar a.button.cur,
-.tabbar a.button.cur:hover {
+.tabbar .button.cur,
+.tabbar .button.cur:hover {
+	box-shadow: none;
 	border-bottom: 0;
 	padding-top: 3px;
 	padding-bottom: 5px;
-	top: 0px;
 }
-.tabbar li:first-child a.button {
+.tabbar li:first-child .button, .tabbar li.home-li .button, .tabbar li.home-li + li .button {
 	border-top-left-radius: 5px;
 	margin-left: 6px;
 }
-.tabbar li:last-child a.button {
+.tabbar li:last-child .button, .tabbar li.home-li .button {
 	border-top-right-radius: 5px;
 }
 .tabbar a.closable {
@@ -423,11 +453,13 @@ pre {
 }
 .minimizebutton:hover,
 .maximizebutton:hover,
+summary:hover .expandbutton,
 .mini-window-header:hover .minimizebutton {
 	color: #333333;
 }
 .dark .minimizebutton:hover,
 .dark .maximizebutton:hover,
+.dark summary:hover .expandbutton,
 .dark .mini-window-header:hover .minimizebutton {
 	color: #CCCCCC;
 }
@@ -506,7 +538,7 @@ pre {
 	margin-right: 4px;
 	padding: 5px 0 0 0;
 	height: 23px;
-	font-size: 14px;
+	font-size: 16px;
 	width: 24px;
 	text-align: center;
 
@@ -532,6 +564,7 @@ pre {
 .scrollable {
 	overflow: auto;
 	-webkit-overflow-scrolling: touch;
+	overscroll-behavior-block: contain;
 }
 .ps-room.ps-room-light, .ps-room-light {
 	background: rgba(242,247,250,.85);
@@ -554,6 +587,7 @@ pre {
 	overflow: auto;
 	-webkit-overflow-scrolling: touch;
 	z-index: 20;
+	overscroll-behavior-block: contain;
 }
 .ps-popup {
 	position: absolute;
@@ -777,7 +811,7 @@ p.or:after {
 	float: right;
 	margin: -2px -4px 0 0;
 	width: 22px;
-	height: 22px;
+	height: 21px;
 	font-size: 16px;
 }
 .mini-window-header small {
@@ -1012,17 +1046,17 @@ form.menugroup {
 		margin: 38px 0 15px 0;
 	}
 }
-.roomcounters button {
+.roomcounters .button {
 	margin: 0 auto;
-	width: 120px;
-	height: 60px;
-	padding: 3px 8px;
+	width: 118px;
+	height: 52px;
+	padding: 6px 0 0 0;
 	text-align: center;
 	vertical-align: middle;
 	font-size: 10pt;
 	position: relative;
 }
-.roomcounters button strong {
+.roomcounters .button strong {
 	display: block;
 	font-size: 18pt;
 	font-weight: normal;
@@ -1036,7 +1070,7 @@ form.menugroup {
 	bottom: -5px;
 	background: url(https://play.pokemonshowdown.com/sprites/gen5/meloetta.png) center no-repeat;
 }
-.roomcounters button:hover .usercount {
+.roomcounters .button:hover .usercount {
 	background: url(https://play.pokemonshowdown.com/sprites/gen5ani/meloetta.gif) center no-repeat;
 }
 .roomcounters .battlecount {
@@ -1048,7 +1082,7 @@ form.menugroup {
 	bottom: -10px;
 	background: url(https://play.pokemonshowdown.com/sprites/gen5/meloetta-pirouette.png) center no-repeat;
 }
-.roomcounters button:hover .battlecount {
+.roomcounters .button:hover .battlecount {
 	background: url(https://play.pokemonshowdown.com/sprites/gen5ani/meloetta-pirouette.gif) center no-repeat;
 }
 
@@ -1090,6 +1124,7 @@ form.menugroup {
 	overflow: auto;
 	overflow-x: hidden;
 	-webkit-overflow-scrolling: touch;
+	overscroll-behavior-block: contain;
 }
 .chat-log, .readable-bg {
 	background: rgba(242,247,250,.5);
@@ -1128,17 +1163,6 @@ form.menugroup {
 .chat-log .inner,
 .pm-log .inner {
 	padding: 24px 8px 6px 8px;
-}
-a.ilink {
-	text-decoration: none;
-	color: #224488;
-}
-a.ilink:hover {
-	text-decoration: underline;
-	color: #6688CC;
-}
-a.ilink.yours {
-	color: #55388B;
 }
 
 .chatbox {
@@ -1256,6 +1280,7 @@ pre.textbox.textbox-empty[placeholder]:before {
 	border-right: 1px #aaa solid;
 	background-color: rgba(242, 247, 250, 0.85);
 	overflow: auto;
+	overscroll-behavior-block: contain;
   transform-origin: top;
 	transform: scaleY(0);
 	touch-action: none;
@@ -1270,6 +1295,7 @@ pre.textbox.textbox-empty[placeholder]:before {
 	max-height: 200px;
 	overflow: auto;
 	-webkit-overflow-scrolling: touch;
+	overscroll-behavior-block: contain;
 	font-size: 8pt;
 }
 
@@ -1433,37 +1459,29 @@ pre.textbox.textbox-empty[placeholder]:before {
 	overflow: auto;
 	-webkit-overflow-scrolling: touch;
 }
-.userlist-count, .userlist .userlist-count {
+.userlist-hidden {
+	width: auto;
+	border-right: 0; 
+	bottom: auto;
+	overflow: visible;
+}
+.userlist-hidden .button.button-middle {
+	margin: -1px -1px 0 0;
+}
+.userlist-static {
+	position: static;
+	border-right: 0;
+}
+.userlist-count {
 	text-align: center;
 	padding: 2px 0;
-}
-.userlist-minimized {
-	height: 21px;
-	bottom: auto;
-	overflow: hidden;
-	background: #EEF2F5;
-	border-bottom: 1px solid #AAAAAA;
-}
-.userlist-maximized {
-	height: auto;
-	bottom: 0;
-	overflow: auto;
-	background: #EEF2F5;
-}
-.userlist-minimized .userlist-count,
-.userlist-maximized .userlist-count {
-	cursor: pointer;
-}
-.userlist-minimized .userlist-count:hover,
-.userlist-maximized .userlist-count:hover {
-	background: #DEE4EA;
 }
 .chat-log.hasuserlist,
 .chat-log-add.hasuserlist,
 .tournament-wrapper.hasuserlist {
 	left: 146px;
 }
-.userlist,
+.userlist ul,
 .userlist li {
 	display: block;
 	list-style-type: none;
@@ -1471,8 +1489,10 @@ pre.textbox.textbox-empty[placeholder]:before {
 	padding: 0;
 	text-align: left;
 }
+.userlist-hidden ul {
+	display: none;
+}
 .userlist li {
-	height: 19px;
 	font: 10pt Verdana, sans-serif;
 	white-space: nowrap;
 }
@@ -1495,7 +1515,7 @@ pre.textbox.textbox-empty[placeholder]:before {
 	border: 0;
 	padding: 1px 0;
 	margin: 0;
-	height: 19px;
+	height: 21px;
 	width: 100%;
 	white-space: nowrap;
 	font: 9pt Verdana, sans-serif;
@@ -1518,6 +1538,62 @@ pre.textbox.textbox-empty[placeholder]:before {
 .userlist li.cur button:hover {
 	background: white;
 	margin: 0 0 0 -1px;
+}
+
+@media (min-width: 500px) {
+	html:not(.native-scrollbars) *::-webkit-scrollbar {
+		-webkit-appearance: none
+	}
+	html:not(.native-scrollbars) *::-webkit-scrollbar:vertical {
+		width: 16px
+	}
+	html:not(.native-scrollbars) *::-webkit-scrollbar:horizontal {
+		height: 16px
+	}
+	html:not(.native-scrollbars) *::-webkit-scrollbar-button,html:not(.native-scrollbars) *::-webkit-scrollbar-corner {
+		display: none
+	}
+	html:not(.native-scrollbars) *::-webkit-scrollbar-track {
+		background: transparent;
+		border: 1px solid transparent;
+	}
+	html:not(.native-scrollbars) *::-webkit-scrollbar-track:hover {
+		background: #c5cbce;
+		border-color: #959595;
+	}
+	html:not(.native-scrollbars) *::-webkit-scrollbar-track:vertical {
+		border-width: 0 0 0 1px;
+	}
+	html:not(.native-scrollbars) *::-webkit-scrollbar-track:vertical:corner-present {
+		border-width: 0 0 1px 1px;
+		border-radius: 0 0 0 2px;
+	}
+	html:not(.native-scrollbars) *::-webkit-scrollbar-track:horizontal {
+		border-width: 1px 1px 0 1px;
+		border-radius: 2px 2px 0 0;
+	}
+	html:not(.native-scrollbars) *::-webkit-scrollbar-thumb {
+		min-height: 2rem;
+		background: #acaeaf;
+		background-clip: padding-box;
+		border: 5px solid transparent;
+		border-radius: 10px;
+	}
+	html:not(.native-scrollbars) *::-webkit-scrollbar-thumb:hover,html:not(.native-scrollbars) *::-webkit-scrollbar-thumb:active {
+		background-color: #6c6c6f;
+		border-width: 4px;
+	}
+
+	html.dark:not(.native-scrollbars) *::-webkit-scrollbar-track:hover {
+		background: #24282a;
+		border-color: #000000;
+	}
+	html.dark:not(.native-scrollbars) *::-webkit-scrollbar-thumb {
+		background: #6c6c6f;
+	}
+	html.dark:not(.native-scrollbars) *::-webkit-scrollbar-thumb:hover,html.dark:not(.native-scrollbars) *::-webkit-scrollbar-thumb:active {
+		background-color: #949697;
+	}
 }
 
 /*********************************************************
@@ -1938,6 +2014,7 @@ pre.textbox.textbox-empty[placeholder]:before {
 	font-size: 9pt;
 	text-align: left;
 	font-family: Verdana, Helvetica, Arial, sans-serif;
+	text-decoration: none;
 	white-space: nowrap;
 	cursor: pointer;
 

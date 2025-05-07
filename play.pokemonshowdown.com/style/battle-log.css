@@ -2,12 +2,68 @@
  * Links
  *********************************************************/
 
-.dark a {
-	color: #4488EE;
+a, .ilink {
+	color: #224488;
 }
-/* will annoyingly need to be overridden a lot; lowest specificity possible */
-.dark :visited {
+a:where(:hover) {
+	color: #608ede;
+}
+a:where(:visited), .ilink.yours {
+	color: #772266;
+}
+a:where(:visited:hover), .ilink.yours:hover {
+	color: #ac4998;
+}
+.dark a, .dark .ilink, .dark summary:hover:has(a:hover) span.ilink {
+	color: #81AAF2;
+}
+.dark a:where(:hover) {
+	color: #CCDDFF;
+}
+.dark a:where(:visited), .dark .ilink.yours {
 	color: #AA81F2;
+}
+.dark a:where(:visited:hover), .dark .ilink.yours:hover {
+	color: #c2a4f6;
+}
+/* make button ilinks look like links */
+button.ilink {
+	border: 0;
+	background: transparent;
+	padding: 0;
+	margin: 0;
+	outline: 0;
+	font: inherit;
+}
+
+/* basically a normal link but with no underline when not hovered, for when underlines are too spammy */ 
+.ilink, summary:hover:has(a:hover) span.ilink {
+	text-decoration: none;
+	color: #224488;
+}
+.ilink:hover, summary:hover span.ilink {
+	text-decoration: underline;
+	color: #6688CC;
+}
+summary:hover span.ilink {
+	text-decoration: underline;
+	color: #6688CC;
+}
+
+.subtle, .dark .subtle {
+	text-decoration: none;
+	color: inherit;
+	border: 0;
+	background: transparent;
+	padding: 0;
+	margin: 0;
+}
+button.subtle {
+	font: inherit;
+}
+.subtle:hover {
+	text-decoration: underline;
+	color: #6688CC;
 }
 
 .blocklink {
@@ -181,7 +237,7 @@ select.button {
 
 .dark .button {
 	background: #2b2c31;
-	background: linear-gradient(to bottom, #4e525a, #2b2c31);
+	background: linear-gradient(to bottom, #393d46, #2b2c31);
 	box-shadow: 0.5px 1px 2px rgba(255, 255, 255, 0.45), inset 0.5px 1px 1px rgba(255, 255, 255, 0.5);
 	border-color: #34373b;
 	text-shadow: none;
@@ -332,9 +388,11 @@ select.button {
 }
 .label strong {
 	font-size: 11pt;
-	display: block;
 }
-.label .textbox {
+.label .textbox,
+.label .button,
+.label strong {
+	margin-top: 2px;
 	display: block;
 }
 .textbox {
@@ -370,6 +428,9 @@ pre.textbox {
 .textbox.disabled, .textbox:disabled {
 	background: #CCCCCC;
 	color: #555555;
+}
+.textbox::-webkit-search-cancel-button {
+	cursor: pointer;
 }
 .dark .textbox {
 	border-color: #6b7178;
@@ -457,6 +518,8 @@ input[type=range] {
 	cursor: pointer;
 	height: 18px;
 	background: transparent;
+	/* no clue why this isn't the default... */
+	touch-action: none;
 }
 input[type=range]::-webkit-slider-runnable-track {
 	width: 300px;
@@ -505,48 +568,50 @@ input[type=range]:active::-webkit-slider-thumb {
 	box-shadow: inset 0px 1px 1px #DDD;
 }
 
-/** stolen from devdocs.io */
-.dark:not(.native-scrollbars) *::-webkit-scrollbar {
-	-webkit-appearance: none
-}
-.dark:not(.native-scrollbars) *::-webkit-scrollbar:vertical {
-	width: 16px
-}
-.dark:not(.native-scrollbars) *::-webkit-scrollbar:horizontal {
-	height: 16px
-}
-.dark:not(.native-scrollbars) *::-webkit-scrollbar-button,.dark:not(.native-scrollbars) *::-webkit-scrollbar-corner {
-	display: none
-}
-.dark:not(.native-scrollbars) *::-webkit-scrollbar-track {
-	background: transparent;
-	border: 1px solid transparent;
-}
-.dark:not(.native-scrollbars) *::-webkit-scrollbar-track:hover {
-	background: #24282a;
-	border-color: #000000;
-}
-.dark:not(.native-scrollbars) *::-webkit-scrollbar-track:vertical {
-	border-width: 0 0 0 1px;
-}
-.dark:not(.native-scrollbars) *::-webkit-scrollbar-track:vertical:corner-present {
-	border-width: 0 0 1px 1px;
-	border-radius: 0 0 0 2px;
-}
-.dark:not(.native-scrollbars) *::-webkit-scrollbar-track:horizontal {
-	border-width: 1px 1px 0 1px;
-	border-radius: 2px 2px 0 0;
-}
-.dark:not(.native-scrollbars) *::-webkit-scrollbar-thumb {
-	min-height: 2rem;
-	background: #6c6c6f;
-	background-clip: padding-box;
-	border: 5px solid transparent;
-	border-radius: 10px;
-}
-.dark:not(.native-scrollbars) *::-webkit-scrollbar-thumb:hover,.dark:not(.native-scrollbars) *::-webkit-scrollbar-thumb:active {
-	background-color: #949697;
-	border-width: 4px;
+@media (min-width: 500px) {
+	/** stolen from devdocs.io */
+	.dark:not(.native-scrollbars) *::-webkit-scrollbar {
+		-webkit-appearance: none
+	}
+	.dark:not(.native-scrollbars) *::-webkit-scrollbar:vertical {
+		width: 16px
+	}
+	.dark:not(.native-scrollbars) *::-webkit-scrollbar:horizontal {
+		height: 16px
+	}
+	.dark:not(.native-scrollbars) *::-webkit-scrollbar-button,.dark:not(.native-scrollbars) *::-webkit-scrollbar-corner {
+		display: none
+	}
+	.dark:not(.native-scrollbars) *::-webkit-scrollbar-track {
+		background: transparent;
+		border: 1px solid transparent;
+	}
+	.dark:not(.native-scrollbars) *::-webkit-scrollbar-track:hover {
+		background: #24282a;
+		border-color: #000000;
+	}
+	.dark:not(.native-scrollbars) *::-webkit-scrollbar-track:vertical {
+		border-width: 0 0 0 1px;
+	}
+	.dark:not(.native-scrollbars) *::-webkit-scrollbar-track:vertical:corner-present {
+		border-width: 0 0 1px 1px;
+		border-radius: 0 0 0 2px;
+	}
+	.dark:not(.native-scrollbars) *::-webkit-scrollbar-track:horizontal {
+		border-width: 1px 1px 0 1px;
+		border-radius: 2px 2px 0 0;
+	}
+	.dark:not(.native-scrollbars) *::-webkit-scrollbar-thumb {
+		min-height: 2rem;
+		background: #6c6c6f;
+		background-clip: padding-box;
+		border: 5px solid transparent;
+		border-radius: 10px;
+	}
+	.dark:not(.native-scrollbars) *::-webkit-scrollbar-thumb:hover,.dark:not(.native-scrollbars) *::-webkit-scrollbar-thumb:active {
+		background-color: #949697;
+		border-width: 4px;
+	}
 }
 
 /*********************************************************
@@ -682,17 +747,18 @@ kbd {
 details.readmore {
 	position: relative;
 }
-details.readmore summary {
+details.readmore summary, details.details summary {
 	display: block;
 	list-style: none;
 }
-details.readmore summary::-webkit-details-marker {
-	display:none;
+details.readmore summary::-webkit-details-marker details.details summary::-webkit-details-marker {
+	display: none;
 }
-details.readmore summary:after {
+details.readmore summary:after, details.readmore summary:hover:has(a:hover):after {
 	content: '[read more]';
 	font-family: Verdana, sans-serif;
 	margin-left: 0.5em;
+	text-decoration: none;
 	color: #888;
 }
 details.readmore summary:hover:after {
@@ -704,15 +770,64 @@ details.readmore[open] summary:after {
 }
 details.readmore[open] summary:hover:before {
 	position: absolute;
-	top: 0;
-	right: 0;
-	content: '[-]';
-	font-family: Verdana, sans-serif;
-	color: #68B;
+	top: 2px;
+	right: 2px;
+
+	content: "\f056";
+	display: block;
+	font: normal normal normal 16px / 1 FontAwesome;
+	text-rendering: auto;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+	color: #999;
 }
 details.readmore.code {
 	display: table;
 	min-width: 80px;
+}
+details[open] .details-preview {
+	display: none;
+}
+
+.details summary:hover, .readmore summary:hover {
+	background: rgba(119, 153, 187, 0.15);
+}
+.details summary:hover:has(a:hover), .readmore summary:hover:has(a:hover) {
+	background: transparent;
+}
+.fa.expandbutton, summary:hover:has(a:hover) .fa.expandbutton {
+	font-size: 16px;
+	width: 9px;
+	text-align: right;
+	color: #999;
+}
+details[open] .expandbutton.fa-plus-circle:before {
+	content: "\f056";
+}
+details[open] .expandbutton.fa-caret-right:before {
+	content: "\f0d7";
+}
+.details summary:before {
+	width: 9px;
+	text-align: right;
+
+	content: "\f0da";
+	margin-right: 5px;
+	display: inline-block;
+	font: normal normal normal 16px / 1 FontAwesome;
+	text-rendering: auto;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+	color: #999;
+}
+.details[open] summary:before {
+	content: "\f0d7";
+}
+.details summary:hover:before {
+	color: #333333;
+}
+.dark .details summary:hover:before {
+	color: #CCCCCC;
 }
 
 .greentext {
@@ -766,11 +881,14 @@ details.readmore.code {
 .message-announce a,
 .broadcast-green a,
 .broadcast-blue a,
-.broadcast-red a,
-.dark .message-announce a,
-.dark .broadcast-green a,
-.dark .broadcast-blue a,
-.dark .broadcast-red a {
+.broadcast-red a {
+	/* Readable link colour */
+	color: #CCDDFF;
+}
+.message-announce a:hover,
+.broadcast-green a:hover,
+.broadcast-blue a:hover,
+.broadcast-red a:hover {
 	/* Readable link colour */
 	color: #DDEEFF;
 }
@@ -793,7 +911,7 @@ details.readmore.code {
 	overflow-x: auto;
 }
 .dark .infobox {
-	border-color: #506070;
+	border-color: #627d97;
 }
 .infobox-limited {
 	max-height: 200px;
@@ -839,30 +957,6 @@ details.readmore.code {
 .message-overflow::before {
 	font-size:9pt;
 	content: '...';
-}
-a.subtle, .dark a.subtle {
-	text-decoration: none;
-	color: inherit;
-}
-a.subtle:hover {
-	text-decoration: underline;
-	color: #6688CC;
-}
-button.subtle {
-	border: 0;
-	background: transparent;
-	padding: 0;
-	margin: 0;
-	color: #224466;
-	outline: 0;
-	font-size: 9pt;
-	font-family: Verdana, sans-serif;
-}
-.dark button.subtle {
-	color: #7598BD;
-}
-button.subtle:hover {
-	text-decoration: underline;
 }
 
 /*********************************************************

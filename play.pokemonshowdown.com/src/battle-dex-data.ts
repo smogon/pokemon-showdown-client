@@ -1597,7 +1597,7 @@ export class Species implements Effect {
 }
 
 export interface Type extends Effect {
-	damageTaken?: AnyObject;
+	damageTaken?: Record<Dex.TypeName, Dex.WeaknessType>;
 	HPivs?: Partial<Dex.StatsTable>;
 	HPdvs?: Partial<Dex.StatsTable>;
 }

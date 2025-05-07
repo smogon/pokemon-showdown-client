@@ -7,15 +7,15 @@
 
 import preact from "../js/lib/preact";
 import { PS, PSRoom, type RoomOptions, type RoomID } from "./client-main";
-import { PSPanelWrapper, PSRoomPanel } from "./panels";
+import { PSIcon, PSPanelWrapper, PSRoomPanel } from "./panels";
 import { ChatLog, ChatRoom, ChatTextEntry, ChatUserList } from "./panel-chat";
 import { FormatDropdown } from "./panel-mainmenu";
 import { Battle, type Pokemon, type ServerPokemon } from "./battle";
 import { BattleScene } from "./battle-animations";
 import { Dex, toID } from "./battle-dex";
 import {
-	BattleChoiceBuilder, type BattleMoveRequest, type BattleRequest, type BattleRequestSideInfo,
-	type BattleSwitchRequest, type BattleTeamRequest,
+	BattleChoiceBuilder, type BattleRequestActivePokemon, type BattleRequestSideInfo,
+	type BattleRequest, type BattleMoveRequest, type BattleSwitchRequest, type BattleTeamRequest,
 } from "./battle-choices";
 import type { Args } from "./battle-text-parser";
 
@@ -58,7 +58,7 @@ class BattlesPanel extends PSRoomPanel<BattlesRoom> {
 	static readonly routes = ['battles'];
 	static readonly Model = BattlesRoom;
 	static readonly location = 'right';
-	static readonly icon = <i class="fa fa-caret-square-o-right"></i>;
+	static readonly icon = <i class="fa fa-caret-square-o-right" aria-hidden></i>;
 	static readonly title = 'Battles';
 	refresh = () => {
 		this.props.room.refresh();
@@ -70,7 +70,7 @@ class BattlesPanel extends PSRoomPanel<BattlesRoom> {
 	renderBattleLink(battle: BattleDesc) {
 		const format = battle.id.split('-')[1];
 		const minEloMessage = typeof battle.minElo === 'number' ? `rated ${battle.minElo}` : battle.minElo;
-		return <div><a href={`/${battle.id}`} class="blocklink">
+		return <div key={battle.id}><a href={`/${battle.id}`} class="blocklink">
 			{minEloMessage && <small style="float:right">({minEloMessage})</small>}
 			<small>[{format}]</small><br />
 			<em class="p1">{battle.p1}</em> <small class="vs">vs.</small> <em class="p2">{battle.p2}</em>
@@ -80,11 +80,13 @@ class BattlesPanel extends PSRoomPanel<BattlesRoom> {
 		const room = this.props.room;
 		return <PSPanelWrapper room={room} scrollable><div class="pad">
 			<button class="button" style="float:right;font-size:10pt;margin-top:3px" name="closeRoom">
-				<i class="fa fa-times"></i> Close
+				<i class="fa fa-times" aria-hidden></i> Close
 			</button>
 			<div class="roomlist">
 				<p>
-					<button class="button" name="refresh" onClick={this.refresh}><i class="fa fa-refresh"></i> Refresh</button> {}
+					<button class="button" name="refresh" onClick={this.refresh}>
+						<i class="fa fa-refresh" aria-hidden></i> Refresh
+					</button> {}
 					<span
 						style={Dex.getPokemonIcon('meloetta-pirouette') + ';display:inline-block;vertical-align:middle'} class="picon"
 						title="Meloetta is PS's mascot! The Pirouette forme is Fighting-type, and represents our battles."
@@ -131,6 +133,7 @@ export class BattleRoom extends ChatRoom {
 	side: BattleRequestSideInfo | null = null;
 	request: BattleRequest | null = null;
 	choices: BattleChoiceBuilder | null = null;
+	autoTimerActivated: boolean | null = null;
 }
 
 class BattleDiv extends preact.Component<{ room: BattleRoom }> {
@@ -149,10 +152,12 @@ class BattleDiv extends preact.Component<{ room: BattleRoom }> {
 }
 
 function MoveButton(props: {
-	children: string, cmd: string, moveData: { pp: number, maxpp: number }, type: Dex.TypeName, tooltip: string,
+	cmd: string, type: Dex.TypeName, tooltip: string, moveData: { pp: number, maxpp: number, disabled?: boolean },
+	children: string,
 }) {
 	return <button
-		data-cmd={props.cmd} class={`movebutton type-${props.type} has-tooltip`} data-tooltip={props.tooltip}
+		data-cmd={props.cmd} data-tooltip={props.tooltip}
+		class={`movebutton type-${props.type} has-tooltip${props.moveData.disabled ? ' disabled' : ''}`}
 	>
 		{props.children}<br />
 		<small class="type">{props.type}</small> <small class="pp">{props.moveData.pp}/{props.moveData.maxpp}</small>&nbsp;
@@ -182,7 +187,7 @@ function PokemonButton(props: {
 		data-cmd={props.cmd} class={`${props.disabled ? 'disabled ' : ''}has-tooltip`}
 		style={{ opacity: props.disabled === 'fade' ? 0.5 : 1 }} data-tooltip={props.tooltip}
 	>
-		<span class="picon" style={Dex.getPokemonIcon(pokemon)}></span>
+		<PSIcon pokemon={pokemon} />
 		{pokemon.name}
 		{
 			!props.noHPBar && !pokemon.fainted &&
@@ -194,12 +199,70 @@ function PokemonButton(props: {
 	</button>;
 }
 
+class TimerButton extends preact.Component<{ room: BattleRoom }> {
+	timerInterval: number | null = null;
+	override componentWillUnmount() {
+		if (this.timerInterval) {
+			clearInterval(this.timerInterval);
+			this.timerInterval = null;
+		}
+	}
+	secondsToTime(seconds: number | true) {
+		if (seconds === true) return '-:--';
+		const minutes = Math.floor(seconds / 60);
+		seconds -= minutes * 60;
+		return `${minutes}:${(seconds < 10 ? '0' : '')}${seconds}`;
+	}
+	render() {
+		let time = 'Timer';
+		const room = this.props.room;
+		if (!this.timerInterval && room.battle.kickingInactive) {
+			this.timerInterval = setInterval(() => {
+				if (typeof room.battle.kickingInactive === 'number' && room.battle.kickingInactive > 1) {
+					room.battle.kickingInactive--;
+					if (room.battle.graceTimeLeft) room.battle.graceTimeLeft--;
+					else if (room.battle.totalTimeLeft) room.battle.totalTimeLeft--;
+				}
+				this.forceUpdate();
+			}, 1000);
+		} else if (this.timerInterval && !room.battle.kickingInactive) {
+			clearInterval(this.timerInterval);
+			this.timerInterval = null;
+		}
+
+		let timerTicking = (room.battle.kickingInactive &&
+			room.request && room.request.requestType !== "wait" && (room.choices && !room.choices.isDone())) ?
+			' timerbutton-on' : '';
+
+		if (room.battle.kickingInactive) {
+			const secondsLeft = room.battle.kickingInactive;
+			time = this.secondsToTime(secondsLeft);
+			if (secondsLeft !== true) {
+				if (secondsLeft <= 10 && timerTicking) {
+					timerTicking = ' timerbutton-critical';
+				}
+
+				if (room.battle.totalTimeLeft) {
+					const totalTime = this.secondsToTime(room.battle.totalTimeLeft);
+					time += ` |  ${totalTime} total`;
+				}
+			}
+		}
+
+		return <button
+			style={{ position: "absolute", right: '10px' }} data-href="battletimer" class={`button${timerTicking}`} role="timer"
+		>
+			<i class="fa fa-hourglass-start" aria-hidden></i> {time}
+		</button>;
+	}
+};
+
 class BattlePanel extends PSRoomPanel<BattleRoom> {
 	static readonly id = 'battle';
 	static readonly routes = ['battle-*'];
 	static readonly Model = BattleRoom;
-	send = (text: string) => {
-		this.props.room.send(text);
+	send = (text: string, elem?: HTMLElement) => {
+		this.props.room.send(text, elem);
 	};
 	focusIfNoSelection = () => {
 		if (window.getSelection?.()?.type === 'Range') return;
@@ -314,6 +377,11 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 			return;
 		}
 
+		if (PS.prefs.autotimer && !room.battle.kickingInactive && !room.autoTimerActivated) {
+			this.send('/timer on');
+			room.autoTimerActivated = true;
+		}
+
 		BattleChoiceBuilder.fixRequest(request, room.battle);
 
 		if (request.side) {
@@ -339,42 +407,96 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 			<p>
 				{atEnd ? (
 					<button class="button disabled" data-cmd="/play" style="min-width:4.5em">
-						<i class="fa fa-play"></i><br />Play
+						<i class="fa fa-play" aria-hidden></i><br />Play
 					</button>
 				) : room.battle.paused ? (
 					<button class="button" data-cmd="/play" style="min-width:4.5em">
-						<i class="fa fa-play"></i><br />Play
+						<i class="fa fa-play" aria-hidden></i><br />Play
 					</button>
 				) : (
 					<button class="button" data-cmd="/pause" style="min-width:4.5em">
-						<i class="fa fa-pause"></i><br />Pause
+						<i class="fa fa-pause" aria-hidden></i><br />Pause
 					</button>
 				)} {}
 				<button class={"button button-first" + (atStart ? " disabled" : "")} data-cmd="/ffto 0" style="margin-right:2px">
-					<i class="fa fa-undo"></i><br />First turn
+					<i class="fa fa-undo" aria-hidden></i><br />First turn
 				</button>
 				<button class={"button button-first" + (atStart ? " disabled" : "")} data-cmd="/ffto -1">
-					<i class="fa fa-step-backward"></i><br />Prev turn
+					<i class="fa fa-step-backward" aria-hidden></i><br />Prev turn
 				</button>
 				<button class={"button button-last" + (atEnd ? " disabled" : "")} data-cmd="/ffto +1" style="margin-right:2px">
-					<i class="fa fa-step-forward"></i><br />Skip turn
+					<i class="fa fa-step-forward" aria-hidden></i><br />Skip turn
 				</button>
 				<button class={"button button-last" + (atEnd ? " disabled" : "")} data-cmd="/ffto end">
-					<i class="fa fa-fast-forward"></i><br />Skip to end
+					<i class="fa fa-fast-forward" aria-hidden></i><br />Skip to end
 				</button>
 			</p>
 			<p>
 				<button class="button" data-cmd="/switchsides">
-					<i class="fa fa-random"></i> Switch viewpoint
+					<i class="fa fa-random" aria-hidden></i> Switch viewpoint
 				</button>
 			</p>
 		</div>;
 	}
-	renderMoveControls(request: BattleMoveRequest, choices: BattleChoiceBuilder) {
+	renderMoveMenu(choices: BattleChoiceBuilder) {
+		const moveRequest = choices.currentMoveRequest()!;
+
+		const canDynamax = moveRequest.canDynamax && !choices.alreadyMax;
+		const canMegaEvo = moveRequest.canMegaEvo && !choices.alreadyMega;
+		const canMegaEvoX = moveRequest.canMegaEvoX && !choices.alreadyMega;
+		const canMegaEvoY = moveRequest.canMegaEvoY && !choices.alreadyMega;
+		const canZMove = moveRequest.zMoves && !choices.alreadyZ;
+		const canUltraBurst = moveRequest.canUltraBurst;
+		const canTerastallize = moveRequest.canTerastallize;
+
+		const maybeDisabled = moveRequest.maybeDisabled;
+		const maybeLocked = moveRequest.maybeLocked;
+
+		return <div class="movemenu">
+			{maybeDisabled && <p><em class="movewarning">
+				You <strong>might</strong> have some moves disabled, so you won't be able to cancel an attack!
+			</em></p>}
+			{maybeLocked && <p><em class="movewarning">
+				You <strong>might</strong> be locked into a move. {}
+				<button class="button" data-cmd="/choose testfight">Try Fight button</button> {}
+				(prevents switching if you're locked)
+			</em></p>}
+			{this.renderMoveControls(moveRequest, choices)}
+			<div class="megaevo-box">
+				{canDynamax && <label class={`megaevo${choices.current.max ? ' cur' : ''}`}>
+					<input type="checkbox" name="max" checked={choices.current.max} onChange={this.toggleBoostedMove} /> {}
+					{moveRequest.canGigantamax ? 'Gigantamax' : 'Dynamax'}
+				</label>}
+				{canMegaEvo && <label class={`megaevo${choices.current.mega ? ' cur' : ''}`}>
+					<input type="checkbox" name="mega" checked={choices.current.mega} onChange={this.toggleBoostedMove} /> {}
+					Mega Evolution
+				</label>}
+				{canMegaEvoX && <label class={`megaevo${choices.current.mega ? ' cur' : ''}`}>
+					<input type="checkbox" name="megax" checked={choices.current.megax} onChange={this.toggleBoostedMove} /> {}
+					Mega Evolution X
+				</label>}
+				{canMegaEvoY && <label class={`megaevo${choices.current.mega ? ' cur' : ''}`}>
+					<input type="checkbox" name="megay" checked={choices.current.megay} onChange={this.toggleBoostedMove} /> {}
+					Mega Evolution Y
+				</label>}
+				{canUltraBurst && <label class={`megaevo${choices.current.ultra ? ' cur' : ''}`}>
+					<input type="checkbox" name="ultra" checked={choices.current.ultra} onChange={this.toggleBoostedMove} /> {}
+					Ultra Burst
+				</label>}
+				{canZMove && <label class={`megaevo${choices.current.z ? ' cur' : ''}`}>
+					<input type="checkbox" name="z" checked={choices.current.z} onChange={this.toggleBoostedMove} /> {}
+					Z-Power
+				</label>}
+				{canTerastallize && <label class={`megaevo${choices.current.tera ? ' cur' : ''}`}>
+					<input type="checkbox" name="tera" checked={choices.current.tera} onChange={this.toggleBoostedMove} /> {}
+					Terastallize<br /><span dangerouslySetInnerHTML={{ __html: Dex.getTypeIcon(canTerastallize) }} />
+				</label>}
+			</div>
+		</div>;
+	}
+	renderMoveControls(active: BattleRequestActivePokemon, choices: BattleChoiceBuilder) {
 		const dex = this.props.room.battle.dex;
 		const pokemonIndex = choices.index();
-		const active = choices.currentMoveRequest();
-		if (!active) return <div class="message-error">Invalid pokemon</div>;
 
 		if (choices.current.max || (active.maxMoves && !active.canDynamax)) {
 			if (!active.maxMoves) {
@@ -419,7 +541,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 	}
 	renderMoveTargetControls(request: BattleMoveRequest, choices: BattleChoiceBuilder) {
 		const battle = this.props.room.battle;
-		const moveTarget = choices.getChosenMove(choices.current, choices.index()).target;
+		const moveTarget = choices.currentMove()?.target;
 		const moveChoice = choices.stringChoice(choices.current);
 
 		const userSlot = choices.index();
@@ -458,17 +580,27 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 			}),
 		];
 	}
-	renderSwitchControls(request: BattleMoveRequest | BattleSwitchRequest, choices: BattleChoiceBuilder) {
+	renderSwitchMenu(
+		request: BattleMoveRequest | BattleSwitchRequest, choices: BattleChoiceBuilder, ignoreTrapping?: boolean
+	) {
 		const numActive = choices.requestLength();
+		const maybeTrapped = !ignoreTrapping && choices.currentMoveRequest()?.maybeTrapped;
+		const trapped = !ignoreTrapping && !maybeTrapped && choices.currentMoveRequest()?.trapped;
 
-		const trapped = choices.currentMoveRequest()?.trapped;
-
-		return request.side.pokemon.map((serverPokemon, i) => {
-			const cantSwitch = trapped || i < numActive || choices.alreadySwitchingIn.includes(i + 1) || serverPokemon.fainted;
-			return <PokemonButton
-				pokemon={serverPokemon} cmd={`/switch ${i + 1}`} disabled={cantSwitch} tooltip={`switchpokemon|${i}`}
-			/>;
-		});
+		return <div class="switchmenu">
+			{maybeTrapped && <em class="movewarning">
+				You <strong>might</strong> be trapped, so you won't be able to cancel a switch!<br />
+			</em>}
+			{trapped && <em class="movewarning">
+				You're <strong>trapped</strong> and cannot switch!<br />
+			</em>}
+			{request.side.pokemon.map((serverPokemon, i) => {
+				const cantSwitch = trapped || i < numActive || choices.alreadySwitchingIn.includes(i + 1) || serverPokemon.fainted;
+				return <PokemonButton
+					pokemon={serverPokemon} cmd={`/switch ${i + 1}`} disabled={cantSwitch} tooltip={`switchpokemon|${i}`}
+				/>;
+			})}
+		</div>;
 	}
 	renderTeamControls(request: | BattleTeamRequest, choices: BattleChoiceBuilder) {
 		return request.side.pokemon.map((serverPokemon, i) => {
@@ -502,13 +634,13 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 	}
 	renderOldChoices(request: BattleRequest, choices: BattleChoiceBuilder) {
 		if (!choices) return null; // should not happen
-		if (request.requestType !== 'move' && request.requestType !== 'switch') return;
+		if (request.requestType !== 'move' && request.requestType !== 'switch' && request.requestType !== 'team') return;
 		if (choices.isEmpty()) return null;
 
 		let buf: preact.ComponentChild[] = [
-			<button data-cmd="/cancel" class="button"><i class="fa fa-chevron-left"></i> Back</button>, ' ',
+			<button data-cmd="/cancel" class="button"><i class="fa fa-chevron-left" aria-hidden></i> Back</button>, ' ',
 		];
-		if (choices.isDone() && request.noCancel) {
+		if (choices.isDone() && choices.noCancel) {
 			buf = ['Waiting for opponent...', <br />];
 		} else if (choices.isDone() && choices.choices.length <= 1) {
 			buf = [];
@@ -517,7 +649,16 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 		const battle = this.props.room.battle;
 		for (let i = 0; i < choices.choices.length; i++) {
 			const choiceString = choices.choices[i];
-			const choice = choices.parseChoice(choiceString);
+			if (choiceString === "testfight") {
+				buf.push(`${request.side.pokemon[i].name} is locked into a move.`);
+				return buf;
+			}
+			let choice;
+			try {
+				choice = choices.parseChoice(choiceString, i);
+			} catch (err: any) {
+				buf.push(<span class="message-error">{err.message}</span>);
+			}
 			if (!choice) continue;
 			const pokemon = request.side.pokemon[i];
 			const active = request.requestType === 'move' ? request.active[i] : null;
@@ -529,7 +670,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 				if (choice.ultra) buf.push(<strong>Ultra</strong>, ` Burst and `);
 				if (choice.tera) buf.push(`Terastallize (`, <strong>{active?.canTerastallize || '???'}</strong>, `) and `);
 				if (choice.max && active?.canDynamax) buf.push(active?.canGigantamax ? `Gigantamax and ` : `Dynamax and `);
-				buf.push(`use `, <strong>{choices.getChosenMove(choice, i).name}</strong>);
+				buf.push(`use `, <strong>{choices.currentMove(choice, i)?.name}</strong>);
 				if (choice.targetLoc > 0) {
 					const target = battle.farSide.active[choice.targetLoc - 1];
 					if (!target) {
@@ -550,6 +691,9 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 				buf.push(`${pokemon.name} will switch to `, <strong>{target.name}</strong>);
 			} else if (choice.choiceType === 'shift') {
 				buf.push(`${pokemon.name} will `, <strong>shift</strong>, ` to the center`);
+			} else if (choice.choiceType === 'team') {
+				const target = request.side.pokemon[choice.targetPokemon - 1];
+				buf.push(`You picked `, <strong>{target.name}</strong>);
 			}
 			buf.push(<br />);
 		}
@@ -567,11 +711,10 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 		if (choices.isDone()) {
 			return <div class="controls">
 				<div class="whatdo">
-					<button name="openTimer" class="button disabled timerbutton"><i class="fa fa-hourglass-start"></i> Timer</button>
 					{this.renderOldChoices(request, choices)}
 				</div>
 				<div class="pad">
-					{request.noCancel ? null : <button data-cmd="/cancel" class="button">Cancel</button>}
+					{choices.noCancel ? null : <button data-cmd="/cancel" class="button">Cancel</button>}
 				</div>
 				{this.renderTeamList()}
 			</div>;
@@ -581,21 +724,11 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 		case 'move': {
 			const index = choices.index();
 			const pokemon = request.side.pokemon[index];
-			const moveRequest = choices.currentMoveRequest()!;
-
-			const canDynamax = moveRequest.canDynamax && !choices.alreadyMax;
-			const canMegaEvo = moveRequest.canMegaEvo && !choices.alreadyMega;
-			const canMegaEvoX = moveRequest.canMegaEvoX && !choices.alreadyMega;
-			const canMegaEvoY = moveRequest.canMegaEvoY && !choices.alreadyMega;
-			const canZMove = moveRequest.zMoves && !choices.alreadyZ;
-			const canUltraBurst = moveRequest.canUltraBurst;
-			const canTerastallize = moveRequest.canTerastallize;
 
 			if (choices.current.move) {
-				const moveName = choices.getChosenMove(choices.current, choices.index()).name;
+				const moveName = choices.currentMove()?.name;
 				return <div class="controls">
 					<div class="whatdo">
-						<button name="openTimer" class="button disabled timerbutton"><i class="fa fa-hourglass-start"></i> Timer</button>
 						{this.renderOldChoices(request, choices)}
 						{pokemon.name} should use <strong>{moveName}</strong> at where? {}
 					</div>
@@ -611,45 +744,12 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 
 			return <div class="controls">
 				<div class="whatdo">
-					<button name="openTimer" class="button disabled timerbutton"><i class="fa fa-hourglass-start"></i> Timer</button>
 					{this.renderOldChoices(request, choices)}
 					What will <strong>{pokemon.name}</strong> do?
 				</div>
 				<div class="movecontrols">
 					<h3 class="moveselect">Attack</h3>
-					<div class="movemenu">
-						{this.renderMoveControls(request, choices)}
-						<div class="megaevo-box">
-							{canDynamax && <label class={`megaevo${choices.current.max ? ' cur' : ''}`}>
-								<input type="checkbox" name="max" checked={choices.current.max} onChange={this.toggleBoostedMove} /> {}
-								{moveRequest.canGigantamax ? 'Gigantamax' : 'Dynamax'}
-							</label>}
-							{canMegaEvo && <label class={`megaevo${choices.current.mega ? ' cur' : ''}`}>
-								<input type="checkbox" name="mega" checked={choices.current.mega} onChange={this.toggleBoostedMove} /> {}
-								Mega Evolution
-							</label>}
-							{canMegaEvoX && <label class={`megaevo${choices.current.mega ? ' cur' : ''}`}>
-								<input type="checkbox" name="megax" checked={choices.current.megax} onChange={this.toggleBoostedMove} /> {}
-								Mega Evolution X
-							</label>}
-							{canMegaEvoY && <label class={`megaevo${choices.current.mega ? ' cur' : ''}`}>
-								<input type="checkbox" name="megay" checked={choices.current.megay} onChange={this.toggleBoostedMove} /> {}
-								Mega Evolution Y
-							</label>}
-							{canUltraBurst && <label class={`megaevo${choices.current.ultra ? ' cur' : ''}`}>
-								<input type="checkbox" name="ultra" checked={choices.current.ultra} onChange={this.toggleBoostedMove} /> {}
-								Ultra Burst
-							</label>}
-							{canZMove && <label class={`megaevo${choices.current.z ? ' cur' : ''}`}>
-								<input type="checkbox" name="z" checked={choices.current.z} onChange={this.toggleBoostedMove} /> {}
-								Z-Power
-							</label>}
-							{canTerastallize && <label class={`megaevo${choices.current.tera ? ' cur' : ''}`}>
-								<input type="checkbox" name="tera" checked={choices.current.tera} onChange={this.toggleBoostedMove} /> {}
-								Terastallize<br /><span dangerouslySetInnerHTML={{ __html: Dex.getTypeIcon(canTerastallize) }} />
-							</label>}
-						</div>
-					</div>
+					{this.renderMoveMenu(choices)}
 				</div>
 				<div class="switchcontrols">
 					{canShift && [
@@ -657,32 +757,26 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 						<button data-cmd="/shift">Move to center</button>,
 					]}
 					<h3 class="switchselect">Switch</h3>
-					<div class="switchmenu">
-						{this.renderSwitchControls(request, choices)}
-					</div>
+					{this.renderSwitchMenu(request, choices)}
 				</div>
 			</div>;
 		} case 'switch': {
 			const pokemon = request.side.pokemon[choices.index()];
 			return <div class="controls">
 				<div class="whatdo">
-					<button name="openTimer" class="button disabled timerbutton"><i class="fa fa-hourglass-start"></i> Timer</button>
 					{this.renderOldChoices(request, choices)}
 					What will <strong>{pokemon.name}</strong> do?
 				</div>
 				<div class="switchcontrols">
 					<h3 class="switchselect">Switch</h3>
-					<div class="switchmenu">
-						{this.renderSwitchControls(request, choices)}
-					</div>
+					{this.renderSwitchMenu(request, choices, true)}
 				</div>
 			</div>;
 		} case 'team': {
 			return <div class="controls">
 				<div class="whatdo">
-					<button name="openTimer" class="button disabled timerbutton"><i class="fa fa-hourglass-start"></i> Timer</button>
 					{choices.alreadySwitchingIn.length > 0 ? (
-						[<button data-cmd="/cancel" class="button"><i class="fa fa-chevron-left"></i> Back</button>,
+						[<button data-cmd="/cancel" class="button"><i class="fa fa-chevron-left" aria-hidden></i> Back</button>,
 							" What about the rest of your team? "]
 					) : (
 						"How will you start the battle? "
@@ -720,22 +814,22 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 						href={`//${Config.routes.replays}/download`}
 						class="button replayDownloadButton"
 					>
-						<i class="fa fa-download"></i> Download replay</a>
+						<i class="fa fa-download" aria-hidden></i> Download replay</a>
 					<br />
 					<br />
 					<button class="button" data-cmd="/savereplay">
-						<i class="fa fa-upload"></i> Upload and share replay
+						<i class="fa fa-upload" aria-hidden></i> Upload and share replay
 					</button>
 				</span>
 
 				<button class="button" data-cmd="/play" style="min-width:4.5em">
-					<i class="fa fa-undo"></i><br />Replay
+					<i class="fa fa-undo" aria-hidden></i><br />Replay
 				</button> {}
 				{isNotTiny && <button class="button button-first" data-cmd="/ffto 0" style="margin-right:2px">
-					<i class="fa fa-undo"></i><br />First turn
+					<i class="fa fa-undo" aria-hidden></i><br />First turn
 				</button>}
 				{isNotTiny && <button class="button button-first" data-cmd="/ffto -1">
-					<i class="fa fa-step-backward"></i><br />Prev turn
+					<i class="fa fa-step-backward" aria-hidden></i><br />Prev turn
 				</button>}
 			</p>
 			{room.side ? (
@@ -749,11 +843,10 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 				</p>
 			) : (
 				<p>
-					<button class="button" data-cmd="/switchsides"><i class="fa fa-random"></i> Switch viewpoint</button>
+					<button class="button" data-cmd="/switchsides"><i class="fa fa-random" aria-hidden></i> Switch viewpoint</button>
 				</p>
 			)}
 		</div>;
-
 	}
 
 	handleDownloadReplay = (e: MouseEvent) => {
@@ -775,9 +868,14 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 	override render() {
 		const room = this.props.room;
 		this.updateLayout();
+		const id = `room-${room.id}`;
+		const hardcoreStyle = room.battle?.hardcoreMode ? <style
+			dangerouslySetInnerHTML={{ __html: `#${id} .battle .turn, #${id} .battle-history { display: none !important; }` }}
+		></style> : null;
 
 		if (room.width < 700) {
 			return <PSPanelWrapper room={room} focusClick scrollable="hidden">
+				{hardcoreStyle}
 				<BattleDiv room={room} />
 				<ChatLog
 					class="battle-log hasuserlist" room={room} top={this.battleHeight} noSubscription
@@ -788,11 +886,20 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 				</ChatLog>
 				<ChatTextEntry room={room} onMessage={this.send} onKey={this.onKey} left={0} />
 				<ChatUserList room={room} top={this.battleHeight} minimized />
+				<button
+					data-href="battleoptions" class="button"
+					style={{ position: 'absolute', right: '75px', top: this.battleHeight }}
+				>
+					Battle Options
+				</button>
+				{(room.battle && !room.battle.ended && room.request && room.battle.mySide.id === PS.user.userid) &&
+					<TimerButton room={room} />}
 				<div class="battle-controls-container"></div>
 			</PSPanelWrapper>;
 		}
 
 		return <PSPanelWrapper room={room} focusClick scrollable="hidden">
+			{hardcoreStyle}
 			<BattleDiv room={room} />
 			<ChatLog
 				class="battle-log hasuserlist" room={room} left={640} noSubscription
@@ -801,8 +908,16 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 			</ChatLog>
 			<ChatTextEntry room={room} onMessage={this.send} onKey={this.onKey} left={640} />
 			<ChatUserList room={room} left={640} minimized />
+			<button
+				data-href="battleoptions" class="button"
+				style={{ position: 'absolute', right: '15px' }}
+			>
+				Battle Options
+			</button>
 			<div class="battle-controls-container">
 				<div class="battle-controls" role="complementary" aria-label="Battle Controls" style="top: 370px;">
+					{(room.battle && !room.battle.ended && room.request && room.battle.mySide.id === PS.user.userid) &&
+						<TimerButton room={room} />}
 					{this.renderControls()}
 				</div>
 			</div>

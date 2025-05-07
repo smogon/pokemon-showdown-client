@@ -12,7 +12,7 @@
 import { PSConnection, PSLoginServer } from './client-connection';
 import { PSModel, PSStreamModel } from './client-core';
 import type { PSRoomPanel, PSRouter } from './panels';
-import type { ChatRoom } from './panel-chat';
+import { ChatRoom } from './panel-chat';
 import type { MainMenuRoom } from './panel-mainmenu';
 import { Dex, toID, type ID } from './battle-dex';
 import { BattleTextParser, type Args } from './battle-text-parser';
@@ -79,6 +79,14 @@ class PSPrefs extends PSStreamModel<string | null> {
 		hidelinks: false,
 		hideinterstice: true,
 	};
+	nounlink: boolean | null = null;
+
+	/* Battle preferences */
+	ignorenicks: boolean | null = null;
+	ignorespects: boolean | null = null;
+	ignoreopp: boolean | null = null;
+	autotimer: boolean | null = null;
+	rightpanelbattles: boolean | null = null;
 
 	/**
 	 * Show "User joined" and "User left" messages. serverid:roomid
@@ -112,6 +120,9 @@ class PSPrefs extends PSStreamModel<string | null> {
 	uploadprivacy = false;
 
 	afd: boolean | 'sprites' = false;
+
+	highlights: Record<string, string[]> | null = null;
+	logtimes: Record<string, { [roomid: RoomID]: number }> | null = null;
 
 	// PREFS END HERE
 
@@ -463,7 +474,7 @@ class PSUser extends PSStreamModel<PSLoginState | null> {
 	userid = "" as ID;
 	named = false;
 	registered: { name: string, userid: ID } | null = null;
-	avatar = "1";
+	avatar = "lucas";
 	challstr = '';
 	loggingIn: string | null = null;
 	initializing = true;
@@ -775,11 +786,15 @@ interface PSNotificationState {
 }
 
 type ClientCommands<RoomT extends PSRoom> = {
-	[command: Lowercase<string>]: (this: RoomT, target: string, cmd: string) => string | boolean | null | void,
+	[command: Lowercase<string>]: (
+		this: RoomT, target: string, cmd: string, element: HTMLElement | null
+	) => string | boolean | null | void,
 };
 /** The command signature is a lie but TypeScript and string validation amirite? */
 type ParsedClientCommands = {
-	[command: `parsed${string}`]: (this: PSRoom, target: string, cmd: string) => string | boolean | null | void,
+	[command: `parsed${string}`]: (
+		this: PSRoom, target: string, cmd: string, element: HTMLElement | null
+	) => string | boolean | null | void,
 };
 
 function makeLoadTracker() {
@@ -889,12 +904,21 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 	subtleNotify() {
 		if (PS.isVisible(this)) return;
 		this.isSubtleNotifying = true;
+		PS.update();
 	}
 	dismissNotification(id: string) {
 		this.notifications = this.notifications.filter(notification => notification.id !== id);
 		PS.update();
 	}
 	autoDismissNotifications() {
+		let room = PS.rooms[this.id] as ChatRoom;
+		if (room.lastMessageTime) {
+			// Mark chat messages as read to avoid double-notifying on reload
+			let lastMessageDates = PS.prefs.logtimes || {};
+			if (!lastMessageDates[PS.server.id]) lastMessageDates[PS.server.id] = {};
+			lastMessageDates[PS.server.id][room.id] = room.lastMessageTime || 0;
+			PS.prefs.set('logtimes', lastMessageDates);
+		}
 		this.notifications = this.notifications.filter(notification => notification.noAutoDismiss);
 		this.isSubtleNotifying = false;
 	}
@@ -935,12 +959,21 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 	 * Used only by commands; messages from the server go directly from
 	 * `PS.receive` to `room.receiveLine`
 	 */
-	add(line: string) {
+	add(line: string, ifChat?: boolean) {
 		if (this.type !== 'chat' && this.type !== 'battle') {
-			PS.mainmenu.handlePM(PS.user.userid, PS.user.userid);
-			PS.rooms['dm-' as RoomID]?.receiveLine(BattleTextParser.parseLine(line));
+			if (!ifChat) {
+				PS.mainmenu.handlePM(PS.user.userid, PS.user.userid);
+				PS.rooms['dm-' as RoomID]?.receiveLine(BattleTextParser.parseLine(line));
+			}
 		} else {
 			this.receiveLine(BattleTextParser.parseLine(line));
+		}
+	}
+	errorReply(message: string, element = this.currentElement) {
+		if (element?.tagName === 'BUTTON') {
+			PS.alert(message, { parentElem: element });
+		} else {
+			this.add(`|error|${message}`);
 		}
 	}
 	parseClientCommands(commands: ClientCommands<this>) {
@@ -956,19 +989,41 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 		return parsedCommands;
 	}
 	globalClientCommands = this.parseClientCommands({
-		'j,join'(target) {
+		'j,join'(target, cmd, elem) {
 			const roomid = /[^a-z0-9-]/.test(target) ? toID(target) as any as RoomID : target as RoomID;
-			PS.join(roomid);
+			PS.join(roomid, { parentElem: elem });
 		},
-		'part,leave,close'(target) {
-			const roomid = /[^a-z0-9-]/.test(target) ? toID(target) as any as RoomID : target as RoomID;
-			PS.leave(roomid || this.id);
+		'part,leave,close'(target, cmd, elem) {
+			const roomid = (/[^a-z0-9-]/.test(target) ? toID(target) as any as RoomID : target as RoomID) || this.id;
+			const room = PS.rooms[roomid];
+			const battle = (room as BattleRoom)?.battle;
+
+			if (room?.type === "battle" && !battle.ended && battle.mySide.id === PS.user.userid) {
+				PS.join("forfeitbattle" as RoomID, { parentElem: elem });
+				return true;
+			}
+			if (room?.type === "chat" && room.connected && PS.prefs.leavePopupRoom) {
+				PS.join("confirmleaveroom" as RoomID, { parentElem: elem });
+				return true;
+			}
+
+			PS.leave(roomid);
 		},
 		'closeand'(target) {
 			// we actually do the close last, because a lot of things stop working
 			// after you delete the room
 			this.send(target);
 			PS.leave(this.id);
+		},
+		'receivepopup'(target) {
+			PS.alert(target);
+		},
+		'inopener,inparent'(target) {
+			// do this command in the popup opener
+			let room = this.getParent();
+			if (room && PS.isPopup(room)) room = room.getParent();
+			// will crash if the parent doesn't exist, which is fine
+			room!.send(target);
 		},
 		'maximize'(target) {
 			const roomid = /[^a-z0-9-]/.test(target) ? toID(target) as any as RoomID : target as RoomID;
@@ -990,7 +1045,19 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 			if (!PS.isOffline) {
 				return this.add(`|error|You are already connected.`);
 			}
+			const uptime = Date.now() - PS.startTime;
+			if (uptime > 24 * 60 * 60 * 1000) {
+				PS.confirm(`It's been over a day since you first connected. Please refresh.`, {
+					okButton: 'Refresh',
+				}).then(confirmed => {
+					if (confirmed) this.send(`/refresh`);
+				});
+				return;
+			}
 			PSConnection.connect();
+		},
+		'refresh'() {
+			document.location.reload();
 		},
 		'workoffline'() {
 			if (PS.isOffline) {
@@ -1010,13 +1077,28 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 			}
 		},
 		'cancelsearch'() {
-			PS.mainmenu.cancelSearch();
+			if (PS.mainmenu.cancelSearch()) {
+				this.add(`||Search cancelled.`, true);
+			} else {
+				this.add(`|error|You're not currently searching.`, true);
+			}
 		},
-		'nick'(target) {
+		'nick'(target, cmd, element) {
+			const noNameChange = PS.user.userid === toID(target);
+			if (!noNameChange) PS.join('login' as RoomID, { parentElem: element });
 			if (target) {
 				PS.user.changeName(target);
+			}
+		},
+		'avatar'(target) {
+			target = target.toLowerCase();
+			if (/[^a-z0-9-]/.test(target)) target = toID(target);
+			const avatar = window.BattleAvatarNumbers?.[target] || target;
+			PS.user.avatar = avatar;
+			if (this.type !== 'chat' && this.type !== 'battle') {
+				PS.send(`|/avatar ${avatar}`);
 			} else {
-				PS.join('login' as RoomID);
+				this.sendDirect(`/avatar ${avatar}`);
 			}
 		},
 		'open,user'(target) {
@@ -1197,7 +1279,103 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 			}
 			this.add("||All PM windows cleared and closed.");
 		},
-		'help'(target) {
+		'unpackhidden'() {
+			PS.prefs.set('nounlink', true);
+			this.add('||Locked/banned users\' chat messages: ON');
+		},
+		'packhidden'() {
+			PS.prefs.set('nounlink', false);
+			this.add('||Locked/banned users\' chat messages: HIDDEN');
+		},
+		'hl,highlight'(target) {
+			let highlights = PS.prefs.highlights || {};
+			if (target.includes(' ')) {
+				let targets = target.split(' ');
+				let subCmd = targets[0];
+				targets = targets.slice(1).join(' ').match(/([^,]+?({\d*,\d*})?)+/g) as string[];
+				// trim the targets to be safe
+				for (let i = 0, len = targets.length; i < len; i++) {
+					targets[i] = targets[i].replace(/\n/g, '').trim();
+				}
+				switch (subCmd) {
+				case 'add': case 'roomadd': {
+					let key = subCmd === 'roomadd' ? (PS.server.id + '#' + this.id) : 'global';
+					let highlightList = highlights[key] || [];
+					for (let i = 0, len = targets.length; i < len; i++) {
+						if (!targets[i]) continue;
+						if (/[\\^$*+?()|{}[\]]/.test(targets[i])) {
+							// Catch any errors thrown by newly added regular expressions so they don't break the entire highlight list
+							try {
+								new RegExp(targets[i]);
+							} catch (e: any) {
+								return this.add(`|error|${(e.message.substr(0, 28) === 'Invalid regular expression: ' ? e.message : 'Invalid regular expression: /' + targets[i] + '/: ' + e.message)}`);
+							}
+						}
+						if (highlightList.includes(targets[i])) {
+							return this.add(`|error|${targets[i]} is already on your highlights list.`);
+						}
+					}
+					highlights[key] = highlightList.concat(targets);
+					this.add(`||Now highlighting on ${(key === 'global' ? "(everywhere): " : "(in " + key + "): ")} ${highlights[key].join(', ')}`);
+					// We update the regex
+					ChatRoom.updateHighlightRegExp(highlights);
+					break;
+				}
+				case 'delete': case 'roomdelete': {
+					let key = subCmd === 'roomdelete' ? (PS.server.id + '#' + this.id) : 'global';
+					let highlightList = highlights[key] || [];
+					let newHls: string[] = [];
+					for (let i = 0, len = highlightList.length; i < len; i++) {
+						if (!targets.includes(highlightList[i])) {
+							newHls.push(highlightList[i]);
+						}
+					}
+					highlights[key] = newHls;
+					this.add(`||Now highlighting on ${(key === 'global' ? "(everywhere): " : "(in " + key + "): ")} ${highlights[key].join(', ')}`);
+					// We update the regex
+					ChatRoom.updateHighlightRegExp(highlights);
+					break;
+				}
+				default:
+					// Wrong command
+					this.add('|error|Invalid /highlight command.');
+					this.handleSend('/help highlight'); // show help
+					return false;
+				}
+				PS.prefs.set('highlights', highlights);
+			} else {
+				if (['clear', 'roomclear', 'clearall'].includes(target)) {
+					let key = (target === 'roomclear' ? (PS.server.id + '#' + this.id) : (target === 'clearall' ? '' : 'global'));
+					if (key) {
+						highlights[key] = [];
+						this.add(`||All highlights (${(key === 'global' ? "everywhere" : "in " + key)}) cleared.`);
+						ChatRoom.updateHighlightRegExp(highlights);
+					} else {
+						PS.prefs.set('highlights', null);
+						this.add("||All highlights (in all rooms and globally) cleared.");
+						ChatRoom.updateHighlightRegExp({});
+					}
+				} else if (['show', 'list', 'roomshow', 'roomlist'].includes(target)) {
+					// Shows a list of the current highlighting words
+					let key = target.startsWith('room') ? (PS.server.id + '#' + this.id) : 'global';
+					if (highlights[key] && highlights[key].length > 0) {
+						this.add(`||Current highlight list ${(key === 'global' ? "(everywhere): " : "(in " + key + "): ")}${highlights[key].join(", ")}`);
+					} else {
+						this.add(`||Your highlight list${(key === 'global' ? '' : ' in ' + key)} is empty.`);
+					}
+				} else {
+					// Wrong command
+					this.add('|error|Invalid /highlight command.');
+					this.handleSend('/help highlight'); // show help
+					return false;
+				}
+			}
+			return false;
+		},
+		'senddirect'(target) {
+			this.sendDirect(target);
+		},
+		'h,help'(target) {
 			switch (toID(target)) {
 			case 'chal':
 			case 'chall':
@@ -1292,6 +1470,8 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 				this.add('||/afd off - Disable April Fools\' Day jokes until the next refresh, and set /afd default.');
 				this.add('||/afd never - Disable April Fools\' Day jokes permanently.');
 				return false;
+			default:
+				return true;
 			}
 		},
 		'autojoin,cmd,crq,query'() {
@@ -1299,11 +1479,12 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 		},
 	});
 	clientCommands: ParsedClientCommands | null = null;
+	currentElement: HTMLElement | null = null;
 	/**
 	 * Handles outgoing messages, like `/logout`. Return `true` to prevent
 	 * the line from being sent to servers.
 	 */
-	handleSend(line: string) {
+	handleSend(line: string, element = this.currentElement) {
 		if (!line.startsWith('/') || line.startsWith('//')) return line;
 		const spaceIndex = line.indexOf(' ');
 		const cmd = (spaceIndex >= 0 ? line.slice(1, spaceIndex) : line.slice(1)) as 'parsed';
@@ -1312,13 +1493,16 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 		const cmdHandler = this.globalClientCommands[cmd] || this.clientCommands?.[cmd];
 		if (!cmdHandler) return line;
 
-		const cmdResult = cmdHandler.call(this, target, cmd);
+		const previousElement = this.currentElement;
+		this.currentElement = element;
+		const cmdResult = cmdHandler.call(this, target, cmd, element);
+		this.currentElement = previousElement;
 		if (cmdResult === true) return line;
 		return cmdResult || null;
 	}
-	send(msg: string | null) {
+	send(msg: string | null, element?: HTMLElement) {
 		if (!msg) return;
-		msg = this.handleSend(msg);
+		msg = this.handleSend(msg, element);
 		if (!msg) return;
 		this.sendDirect(msg);
 	}
@@ -1348,11 +1532,11 @@ class PlaceholderRoom extends PSRoom {
  * PS
  *********************************************************************/
 
-type PSRoomPanelSubclass = (new () => PSRoomPanel) & {
+type PSRoomPanelSubclass<T extends PSRoom = PSRoom> = (new () => PSRoomPanel<T>) & {
 	readonly id: string,
 	readonly routes: string[],
 	/** optional Room class */
-	readonly Model?: typeof PSRoom,
+	readonly Model?: new (options: RoomOptions) => T,
 	readonly location?: PSRoomLocation,
 	/** do not put the roomid into the URL */
 	noURL?: boolean,
@@ -1384,6 +1568,7 @@ export const PS = new class extends PSModel {
 	 * connect.
 	 */
 	isOffline = false;
+	readonly startTime = Date.now();
 
 	router: PSRouter = null!;
 
@@ -1432,26 +1617,6 @@ export const PS = new class extends PSModel {
 	popups: RoomID[] = [];
 
 	/**
-	 * Currently active left room.
-	 *
-	 * In two-panel mode, this will be the visible left panel.
-	 *
-	 * In one-panel mode, this is the visible room only if it is
-	 * `PS.room`. Still tracked when not visible, so we know which
-	 * panels to display if PS is resized to two-panel mode.
-	 */
-	leftPanel: PSRoom = null!;
-	/**
-	 * Currently active right room.
-	 *
-	 * In two-panel mode, this will be the visible right panel.
-	 *
-	 * In one-panel mode, this is the visible room only if it is
-	 * `PS.room`. Still tracked when not visible, so we know which
-	 * panels to display if PS is resized to two-panel mode.
-	 */
-	rightPanel: PSRoom | null = null;
-	/**
 	 * The currently focused room. Should always be the topmost popup
 	 * if it exists. If no popups are open, it should be
 	 * `PS.panel`.
@@ -1462,13 +1627,34 @@ export const PS = new class extends PSModel {
 	 */
 	room: PSRoom = null!;
 	/**
-	 * The currently active panel. Should always be either `PS.leftRoom`
-	 * or `PS.rightRoom`. If no popups are open, should be `PS.room`.
+	 * The currently active panel. Should always be either `PS.leftPanel`
+	 * or `PS.leftPanel`. If no popups are open, should be `PS.room`.
 	 *
 	 * In one-panel mode, determines whether the left or right panel is
-	 * visible. Otherwise, no effect.
+	 * visible. Otherwise, it just tracks which panel will be in focus
+	 * after all popups are closed.
 	 */
 	panel: PSRoom = null!;
+	/**
+	 * Currently active left room.
+	 *
+	 * In two-panel mode, this will be the visible left panel.
+	 *
+	 * In one-panel mode, this is the visible room only if it is
+	 * `PS.panel`. Still tracked when not visible, so we know which
+	 * panels to display if PS is resized to two-panel mode.
+	 */
+	leftPanel: PSRoom = null!;
+	/**
+	 * Currently active right room.
+	 *
+	 * In two-panel mode, this will be the visible right panel.
+	 *
+	 * In one-panel mode, this is the visible room only if it is
+	 * `PS.panel`. Still tracked when not visible, so we know which
+	 * panels to display if PS is resized to two-panel mode.
+	 */
+	rightPanel: PSRoom | null = null;
 	/**
 	 * * 0 = only one panel visible
 	 * * null = vertical nav layout
@@ -1572,6 +1758,12 @@ export const PS = new class extends PSModel {
 				width: 570,
 				maxWidth: 640,
 			};
+		case 'team':
+			return {
+				minWidth: 660,
+				width: 660,
+				maxWidth: 660,
+			};
 		case 'battle':
 			return {
 				minWidth: 320,
@@ -1612,6 +1804,10 @@ export const PS = new class extends PSModel {
 	}
 	getRoom(elem: HTMLElement | EventTarget | null | undefined, skipClickable?: boolean): PSRoom | null {
 		let curElem: HTMLElement | null = elem as HTMLElement;
+		// might be the close button on the roomtab
+		if ((curElem as HTMLButtonElement)?.name === 'closeRoom' && (curElem as HTMLButtonElement).value) {
+			return PS.rooms[(curElem as HTMLButtonElement).value] || null;
+		}
 		while (curElem) {
 			if (curElem.id.startsWith('room-')) {
 				return PS.rooms[curElem.id.slice(5)] || null;
@@ -1866,13 +2062,12 @@ export const PS = new class extends PSModel {
 			room.focusNextUpdate = true;
 		}
 		if (PS.isNormalRoom(room)) {
-			if (room.location === 'right' && !this.prefs.onepanel) {
-				this.rightPanel = this.panel = room;
+			if (room.location === 'right') {
+				this.rightPanel = room;
 			} else {
-				this.leftPanel = this.panel = room;
+				this.leftPanel = room;
 			}
-			PS.closeAllPopups(true);
-			this.room = room;
+			this.panel = this.room = room;
 		} else { // popup or mini-window
 			if (room.location === 'mini-window') {
 				this.leftPanel = this.panel = PS.mainmenu;
@@ -1947,17 +2142,28 @@ export const PS = new class extends PSModel {
 		}
 		return this.focusRoom(rooms[index + 1]);
 	}
-	alert(message: string) {
+	alert(message: string, opts: { okButton?: string, parentElem?: HTMLElement } = {}) {
 		this.join(`popup-${this.popups.length}` as RoomID, {
-			args: { message },
+			args: { message, ...opts, parentElem: null },
+			parentElem: opts.parentElem,
 		});
 	}
-	prompt(message: string, defaultValue?: string, opts?: {
-		okButton?: string, type?: 'text' | 'password' | 'number',
-	}): Promise<string | null> {
+	confirm(message: string, opts: { okButton?: string, cancelButton?: string } = {}) {
+		opts.cancelButton ??= 'Cancel';
 		return new Promise(resolve => {
-			const input = prompt(message, defaultValue);
-			resolve(input);
+			this.join(`popup-${this.popups.length}` as RoomID, {
+				args: { message, okValue: true, cancelValue: false, callback: resolve, ...opts },
+			});
+		});
+	}
+	prompt(message: string, defaultValue = '', opts: {
+		okButton?: string, cancelButton?: string, type?: 'text' | 'password' | 'number',
+	} = {}): Promise<string | null> {
+		opts.cancelButton ??= 'Cancel';
+		return new Promise(resolve => {
+			this.join(`popup-${this.popups.length}` as RoomID, {
+				args: { message, value: defaultValue, okValue: true, cancelValue: false, callback: resolve, ...opts },
+			});
 		});
 	}
 	getPMRoom(userid: ID): ChatRoom {
@@ -1982,7 +2188,7 @@ export const PS = new class extends PSModel {
 				options.args = { initialSlash: true };
 			}
 		}
-
+		if (options.id.startsWith('battle-') && PS.prefs.rightpanelbattles) options.location = 'right';
 		options.parentRoomid ??= this.getRoom(options.parentElem)?.id;
 		let preexistingRoom = this.rooms[options.id];
 		if (preexistingRoom && this.isPopup(preexistingRoom)) {
@@ -2182,7 +2388,8 @@ export const PS = new class extends PSModel {
 
 		if (this.popups.length && room.id === this.popups[this.popups.length - 1]) {
 			this.popups.pop();
-			PS.room = this.popups.length ? PS.rooms[this.popups[this.popups.length - 1]]! : PS.panel;
+			PS.room = this.popups.length ? PS.rooms[this.popups[this.popups.length - 1]]! :
+				PS.rooms[room.parentRoomid ?? PS.panel.id] || PS.panel;
 		}
 
 		if (wasFocused) {

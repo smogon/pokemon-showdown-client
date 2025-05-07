@@ -47,11 +47,13 @@ export class ChatRoom extends PSRoom {
 	log: BattleLog | null = null;
 	tour: ChatTournament | null = null;
 	lastMessage: Args | null = null;
+	lastMessageTime: number | null = null;
 
 	joinLeave: { join: string[], leave: string[], messageId: string } | null = null;
 	/** in order from least to most recent */
 	userActivity: string[] = [];
 	timeOffset = 0;
+	static highlightRegExp: Record<string, RegExp | null> | null = null;
 
 	constructor(options: RoomOptions) {
 		super(options);
@@ -131,6 +133,9 @@ export class ChatRoom extends PSRoom {
 			const cutOffExactLine = this.lastMessage ? '|' + this.lastMessage?.join('|') : '';
 			let reconnectMessage = '|raw|<div class="infobox">You reconnected.</div>';
 			for (let i = 0; i < lines.length; i++) {
+				if (lines[i].startsWith('|users|')) {
+					this.add(lines[i]);
+				}
 				if (lines[i] === cutOffExactLine) {
 					cutOffStart = i + 1;
 				} else if (lines[i].startsWith(`|c:|`)) {
@@ -176,21 +181,20 @@ export class ChatRoom extends PSRoom {
 			this.title = `[DM] ${nameWithGroup.trim()}`;
 		}
 	}
-	handleHighlight = (message: string, name: string) => {
-		if (!PS.prefs.noselfhighlight && PS.user.nameRegExp?.test(message)) {
-			this.notify({
-				title: `Mentioned by ${name} in ${this.id}`,
-				body: `"${message}"`,
-				id: 'highlight',
-			});
-			return true;
+	static getHighlight(message: string, roomid: string) {
+		let highlights = PS.prefs.highlights || {};
+		if (Array.isArray(highlights)) {
+			highlights = { global: highlights };
+			// Migrate from the old highlight system
+			PS.prefs.set('highlights', highlights);
 		}
-		/*
-		// TODO!
+		if (!PS.prefs.noselfhighlight && PS.user.nameRegExp) {
+			if (PS.user.nameRegExp?.test(message)) return true;
+		}
 		if (!this.highlightRegExp) {
 			try {
-				//this.updateHighlightRegExp(highlights);
-			} catch (e) {
+				this.updateHighlightRegExp(highlights);
+			} catch {
 				// If the expression above is not a regexp, we'll get here.
 				// Don't throw an exception because that would prevent the chat
 				// message from showing up, or, when the lobby is initialising,
@@ -198,14 +202,60 @@ export class ChatRoom extends PSRoom {
 				return false;
 			}
 		}
-		var id = PS.server.id + '#' + this.id;
-		var globalHighlightsRegExp = this.highlightRegExp['global'];
-		var roomHighlightsRegExp = this.highlightRegExp[id];
-
-		return (((globalHighlightsRegExp &&
-		 globalHighlightsRegExp.test(message)) ||
-		  (roomHighlightsRegExp && roomHighlightsRegExp.test(message))));
-		*/
+		const id = PS.server.id + '#' + roomid;
+		const globalHighlightsRegExp = this.highlightRegExp?.['global'];
+		const roomHighlightsRegExp = this.highlightRegExp?.[id];
+		return (((globalHighlightsRegExp?.test(message)) || (roomHighlightsRegExp?.test(message))));
+	}
+	static updateHighlightRegExp(highlights: Record<string, string[]>) {
+		// Enforce boundary for match sides, if a letter on match side is
+		// a word character. For example, regular expression "a" matches
+		// "a", but not "abc", while regular expression "!" matches
+		// "!" and "!abc".
+		this.highlightRegExp = {};
+		for (let i in highlights) {
+			if (!highlights[i].length) {
+				this.highlightRegExp[i] = null;
+				continue;
+			}
+			this.highlightRegExp[i] = new RegExp('(?:\\b|(?!\\w))(?:' + highlights[i].join('|') + ')(?:\\b|(?!\\w))', 'i');
+		}
+	}
+	handleHighlight = (args: Args) => {
+		let name;
+		let message;
+		let msgTime = 0;
+		if (args[0] === 'c:') {
+			msgTime = parseInt(args[1]);
+			name = args[2];
+			message = args[3];
+		} else {
+			name = args[1];
+			message = args[2];
+		}
+		let lastMessageDates = Dex.prefs('logtimes') || (PS.prefs.set('logtimes', {}), Dex.prefs('logtimes'));
+		if (!lastMessageDates[PS.server.id]) lastMessageDates[PS.server.id] = {};
+		let lastMessageDate = lastMessageDates[PS.server.id][this.id] || 0;
+		// because the time offset to the server can vary slightly, subtract it to not have it affect comparisons between dates
+		let serverMsgTime = msgTime - (this.timeOffset || 0);
+		let mayNotify = serverMsgTime > lastMessageDate && name !== PS.user.userid;
+		if (PS.isVisible(this)) {
+			this.lastMessageTime = null;
+			lastMessageDates[PS.server.id][this.id] = serverMsgTime;
+			PS.prefs.set('logtimes', lastMessageDates);
+		} else {
+			// To be saved on focus
+			let lastMessageTime = this.lastMessageTime || 0;
+			if (lastMessageTime < serverMsgTime) this.lastMessageTime = serverMsgTime;
+		}
+		if (ChatRoom.getHighlight(message, this.id)) {
+			if (mayNotify) this.notify({
+				title: `Mentioned by ${name} in ${this.id}`,
+				body: `"${message}"`,
+				id: 'highlight',
+			});
+			return true;
+		}
 		return false;
 	};
 	override clientCommands = this.parseClientCommands({
@@ -386,6 +436,7 @@ export class ChatRoom extends PSRoom {
 				return;
 			}
 			if (room.choices.isDone() || room.choices.isEmpty()) {
+				// we _could_ check choices.noCancel, but the server will check anyway
 				this.sendDirect('/undo');
 			}
 			room.choices = new BattleChoiceBuilder(room.request);
@@ -399,9 +450,13 @@ export class ChatRoom extends PSRoom {
 				return;
 			}
 			if (cmd !== 'choose') target = `${cmd} ${target}`;
+			if (target === 'choose auto' || target === 'choose default') {
+				this.sendDirect('/choose default');
+				return;
+			}
 			const possibleError = room.choices.addChoice(target);
 			if (possibleError) {
-				this.receiveLine([`error`, possibleError]);
+				this.errorReply(possibleError);
 				return;
 			}
 			if (room.choices.isDone()) this.sendDirect(`/choose ${room.choices.toString()}`);
@@ -489,7 +544,8 @@ export class ChatRoom extends PSRoom {
 	}
 	override sendDirect(line: string) {
 		if (this.pmTarget) {
-			PS.send(`|/pm ${this.pmTarget}, ${line}`);
+			line = line.split('\n').filter(Boolean).map(row => `/pm ${this.pmTarget!}, ${row}`).join('\n');
+			PS.send(`|${line}`);
 			return;
 		}
 		super.sendDirect(line);
@@ -598,7 +654,7 @@ export class ChatRoom extends PSRoom {
 }
 
 export class ChatTextEntry extends preact.Component<{
-	room: ChatRoom, onMessage: (msg: string) => void, onKey: (e: KeyboardEvent) => boolean,
+	room: ChatRoom, onMessage: (msg: string, elem: HTMLElement) => void, onKey: (e: KeyboardEvent) => boolean,
 	left?: number, tinyLayout?: boolean,
 }> {
 	subscription: PSSubscription | null = null;
@@ -655,7 +711,7 @@ export class ChatTextEntry extends preact.Component<{
 		elem.focus();
 	};
 	submit() {
-		this.props.onMessage(this.getValue());
+		this.props.onMessage(this.getValue(), this.miniedit?.element || this.textbox);
 		this.historyPush(this.getValue());
 		this.setValue('', 0);
 		this.update();
@@ -926,7 +982,7 @@ export class ChatTextEntry extends preact.Component<{
 			class="chat-log-add hasuserlist" onClick={this.focusIfNoSelection} style={{ left: this.props.left || 0 }}
 		>
 			<form class={`chatbox${this.props.tinyLayout ? ' nolabel' : ''}`} style={canTalk ? {} : { display: 'none' }}>
-				<label style={{ color: BattleLog.usernameColor(PS.user.userid) }}>{PS.user.name}:</label>
+				<label style={`color:${BattleLog.usernameColor(PS.user.userid)}`}>{PS.user.name}:</label>
 				{OLD_TEXTBOX ? <textarea
 					class={this.props.room.connected && canTalk ? 'textbox autofocus' : 'textbox disabled'}
 					autofocus
@@ -970,23 +1026,18 @@ class ChatTextBox extends preact.Component<{ placeholder: string, disabled?: boo
 
 class ChatPanel extends PSRoomPanel<ChatRoom> {
 	static readonly id = 'chat';
-	static readonly routes = ['dm-*', '*'];
+	static readonly routes = ['dm-*', 'groupchat-*', '*'];
 	static readonly Model = ChatRoom;
 	static readonly location = 'right';
-	static readonly icon = <i class="fa fa-comment-o"></i>;
+	static readonly icon = <i class="fa fa-comment-o" aria-hidden></i>;
 	override componentDidMount(): void {
 		super.componentDidMount();
 		this.subscribeTo(PS.user, () => {
 			this.props.room.updateTarget();
 		});
 	}
-	send = (text: string) => {
-		this.props.room.send(text);
-	};
-	focusIfNoSelection = () => {
-		const selection = window.getSelection()!;
-		if (selection.type === 'Range') return;
-		this.focus();
+	send = (text: string, elem: HTMLElement) => {
+		this.props.room.send(text, elem);
 	};
 	onKey = (e: KeyboardEvent) => {
 		if (e.keyCode === 33) { // Pg Up key
@@ -1049,7 +1100,7 @@ class ChatPanel extends PSRoomPanel<ChatRoom> {
 		return <PSPanelWrapper room={room} focusClick>
 			<ChatLog class="chat-log" room={this.props.room} left={tinyLayout ? 0 : 146} top={room.tour?.info.isActive ? 30 : 0}>
 				{challengeTo}{challengeFrom}{PS.isOffline && <p class="buttonbar">
-					<button class="button" data-cmd="/reconnect"><i class="fa fa-plug"></i> <strong>Reconnect</strong></button>
+					<button class="button" data-cmd="/reconnect"><i class="fa fa-plug" aria-hidden></i> <strong>Reconnect</strong></button>
 				</p>}
 			</ChatLog>
 			{room.tour && <TournamentBox tour={room.tour} left={tinyLayout ? 0 : 146} />}
@@ -1062,49 +1113,59 @@ class ChatPanel extends PSRoomPanel<ChatRoom> {
 }
 
 export class ChatUserList extends preact.Component<{
-	room: ChatRoom, left?: number, top?: number, minimized?: boolean,
+	room: ChatRoom, left?: number, top?: number, minimized?: boolean, static?: boolean,
 }> {
-	override state = {
-		expanded: false,
-	};
-	toggleExpanded = () => {
-		this.setState({ expanded: !this.state.expanded });
-	};
 	render() {
 		const room = this.props.room;
 		let userList = Object.entries(room.users) as [ID, string][];
 		PSUtils.sortBy(userList, ([id, name]) => (
 			[PS.server.getGroup(name.charAt(0)).order, !name.endsWith('@!'), id]
 		));
-		return <ul
-			class={'userlist' + (this.props.minimized ? (this.state.expanded ? ' userlist-maximized' : ' userlist-minimized') : '')}
+		const pmTargetid = room.pmTarget ? toID(room.pmTarget) : null;
+		return <div
+			class={'userlist' + (this.props.minimized ? ' userlist-hidden' : this.props.static ? ' userlist-static' : '')}
 			style={{ left: this.props.left || 0, top: this.props.top || 0 }}
 		>
-			<li class="userlist-count" onClick={this.toggleExpanded}><small>{room.userCount} users</small></li>
-			{userList.map(([userid, name]) => {
-				const groupSymbol = name.charAt(0);
-				const group = PS.server.groups[groupSymbol] || { type: 'user', order: 0 };
-				let color;
-				if (name.endsWith('@!')) {
-					name = name.slice(0, -2);
-					color = '#888888';
-				} else {
-					color = BattleLog.usernameColor(userid);
-				}
-				return <li key={userid}><button class="userbutton username">
-					<em class={`group${['leadership', 'staff'].includes(group.type!) ? ' staffgroup' : ''}`}>
-						{groupSymbol}
-					</em>
-					{group.type === 'leadership' ? (
-						<strong><em style={{ color }}>{name.slice(1)}</em></strong>
-					) : group.type === 'staff' ? (
-						<strong style={{ color }}>{name.slice(1)}</strong>
-					) : (
-						<span style={{ color }}>{name.slice(1)}</span>
-					)}
-				</button></li>;
-			})}
-		</ul>;
+			{!this.props.minimized ? (
+				<div class="userlist-count"><small>{room.userCount} users</small></div>
+			) : room.id === 'dm-' ? (
+				<>
+					<button class="button button-middle" data-cmd="/help">Commands</button>
+				</>
+			) : pmTargetid ? (
+				<>
+					<button class="button button-middle" data-cmd="/challenge">Challenge</button>
+					<button class="button button-middle" data-href={`useroptions-${pmTargetid}`}>{'\u2026'}</button>
+				</>
+			) : (
+				<button data-href="userlist" class="button button-middle">{room.userCount} users</button>
+			)}
+			<ul>
+				{userList.map(([userid, name]) => {
+					const groupSymbol = name.charAt(0);
+					const group = PS.server.groups[groupSymbol] || { type: 'user', order: 0 };
+					let color;
+					if (name.endsWith('@!')) {
+						name = name.slice(0, -2);
+						color = '#888888';
+					} else {
+						color = BattleLog.usernameColor(userid);
+					}
+					return <li key={userid}><button class="userbutton username">
+						<em class={`group${['leadership', 'staff'].includes(group.type!) ? ' staffgroup' : ''}`}>
+							{groupSymbol}
+						</em>
+						{group.type === 'leadership' ? (
+							<strong><em style={`color:${color}`}>{name.slice(1)}</em></strong>
+						) : group.type === 'staff' ? (
+							<strong style={`color:${color} `}>{name.slice(1)}</strong>
+						) : (
+							<span style={`color:${color}`}>{name.slice(1)}</span>
+						)}
+					</button></li>;
+				})}
+			</ul>
+		</div>;
 	}
 }
 
@@ -1177,7 +1238,7 @@ export class ChatLog extends preact.Component<{
 	}
 	render() {
 		return <div><div
-			class={this.props.class} role="log"
+			class={this.props.class} role="log" aria-label="Chat log"
 			style={{ left: this.props.left || 0, top: this.props.top || 0 }}
 		></div></div>;
 	}

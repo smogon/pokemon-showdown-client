@@ -25,6 +25,7 @@ npm-debug.log
 /play.pokemonshowdown.com/js/battle*.js
 /play.pokemonshowdown.com/js/panel*.js
 /play.pokemonshowdown.com/js/replay-embed.js
+/play.pokemonshowdown.com/js/client-endload.js
 /play.pokemonshowdown.com/js/client-main.js
 /play.pokemonshowdown.com/js/client-core.js
 /play.pokemonshowdown.com/js/client-connection.js
