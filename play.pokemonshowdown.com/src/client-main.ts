@@ -12,7 +12,7 @@
 import { PSConnection, PSLoginServer } from './client-connection';
 import { PSModel, PSStreamModel } from './client-core';
 import type { PSRoomPanel, PSRouter } from './panels';
-import type { ChatRoom } from './panel-chat';
+import { ChatRoom } from './panel-chat';
 import type { MainMenuRoom } from './panel-mainmenu';
 import { Dex, toID, type ID } from './battle-dex';
 import { BattleTextParser, type Args } from './battle-text-parser';
@@ -1214,7 +1214,7 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 					highlights[key] = highlightList.concat(targets);
 					this.add(`||Now highlighting on ${(key === 'global' ? "(everywhere): " : "(in " + key + "): ")} ${highlights[key].join(', ')}`);
 					// We update the regex
-					PS.updateHighlightRegExp(highlights);
+					ChatRoom.updateHighlightRegExp(highlights);
 					break;
 				}
 				case 'delete': case 'roomdelete': {
@@ -1229,7 +1229,7 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 					highlights[key] = newHls;
 					this.add(`||Now highlighting on ${(key === 'global' ? "(everywhere): " : "(in " + key + "): ")} ${highlights[key].join(', ')}`);
 					// We update the regex
-					PS.updateHighlightRegExp(highlights);
+					ChatRoom.updateHighlightRegExp(highlights);
 					break;
 				}
 				default:
@@ -1245,11 +1245,11 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 					if (key) {
 						highlights[key] = [];
 						this.add(`||All highlights (${(key === 'global' ? "everywhere" : "in " + key)}) cleared.`);
-						PS.updateHighlightRegExp(highlights);
+						ChatRoom.updateHighlightRegExp(highlights);
 					} else {
 						PS.prefs.set('highlights', null);
 						this.add("||All highlights (in all rooms and globally) cleared.");
-						PS.updateHighlightRegExp({});
+						ChatRoom.updateHighlightRegExp({});
 					}
 				} else if (['show', 'list', 'roomshow', 'roomlist'].includes(target)) {
 					// Shows a list of the current highlighting words
