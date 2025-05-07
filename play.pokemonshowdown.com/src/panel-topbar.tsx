@@ -131,7 +131,13 @@ export class PSHeader extends preact.Component<{ style: object }> {
 		const cur = PS.isVisible(room) ? ' cur' : '';
 		let notifying = room.isSubtleNotifying ? ' subtle-notifying' : '';
 		let hoverTitle = '';
-		const notifications = room.notifications;
+		let notifications = room.notifications;
+		if (id === '') {
+			for (const roomid of PS.miniRoomList) {
+				const miniNotifications = PS.rooms[roomid]?.notifications;
+				if (miniNotifications?.length) notifications = [...notifications, ...miniNotifications];
+			}
+		}
 		if (notifications.length) {
 			notifying = ' notifying';
 			for (const notif of notifications) {
@@ -201,7 +207,7 @@ export class PSHeader extends preact.Component<{ style: object }> {
 		if (!PS.user.named) {
 			return <a class="button" href="login">Choose name</a>;
 		}
-		const userColor = window.BattleLog && { color: BattleLog.usernameColor(PS.user.userid) };
+		const userColor = window.BattleLog && `color:${BattleLog.usernameColor(PS.user.userid)}`;
 		return <span class="username" style={userColor}>
 			<span class="usernametext">{PS.user.name}</span>
 		</span>;
@@ -305,7 +311,7 @@ export class PSMiniHeader extends preact.Component {
 
 		const minWidth = Math.min(500, Math.max(320, document.body.offsetWidth - 9));
 		const { icon, title } = PSHeader.roomInfo(PS.panel);
-		const userColor = window.BattleLog && { color: BattleLog.usernameColor(PS.user.userid) };
+		const userColor = window.BattleLog && `color:${BattleLog.usernameColor(PS.user.userid)}`;
 		const showMenuButton = document.documentElement.offsetWidth >= document.documentElement.scrollWidth;
 		const notifying = (
 			showMenuButton && !window.scrollX && Object.values(PS.rooms).some(room => room!.notifications.length)

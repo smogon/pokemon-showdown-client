@@ -39,11 +39,20 @@ Pokémon Showdown is usable, but expect degraded performance and certain feature
 
 Pokémon Showdown is mostly developed on Chrome, and Chrome or the desktop client is required for certain features like dragging-and-dropping teams from PS to your computer. However, bugs reported on any supported browser will usually be fixed pretty quickly.
 
-Testing
+New client
 ------------------------------------------------------------------------
 
-Client testing now requires a build step! Install the latest Node.js (we
-require v14 or later) and Git, and run `node build` (on Windows) or `./build`
+Development is proceeding on the new Preact client! The live version is
+available at https://play.pokemonshowdown.com/preactalpha
+
+You can contribute to it yourself using the same process as before, just
+use `testclient-beta.html` rather than `testclient.html`.
+
+Testing (the old client)
+------------------------------------------------------------------------
+
+Client testing requires a build step! Install the latest Node.js (we
+require v20 or later) and Git, and run `node build` (on Windows) or `./build`
 (on other OSes) to build.
 
 You can make and test client changes simply by building after each change,

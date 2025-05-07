@@ -9,9 +9,6 @@ import { PS, type Team } from "./client-main";
 import { PSPanelWrapper, PSRoomPanel } from "./panels";
 import { Dex, type ModdedDex, toID, type ID } from "./battle-dex";
 import { BattleNatures, BattleStatIDs, BattleStatNames, type StatNameExceptHP } from "./battle-dex-data";
-import { Net } from "./client-connection";
-
-export type FormatResource = { url: string, resources: { resource_name: string, url: string }[] } | null;
 
 export class PSTeambuilder {
 	static packTeam(team: Dex.PokemonSet[]) {
@@ -120,16 +117,16 @@ export class PSTeambuilder {
 			team.push(set);
 
 			// name
-			set.name = parts[0];
+			const species = Dex.species.get(parts[1] || parts[0]);
+			set.name = parts[1] ? parts[0] : species.baseSpecies;
 
 			// species
-			set.species = Dex.species.get(parts[1]).name || set.name;
+			set.species = species.name;
 
 			// item
 			set.item = Dex.items.get(parts[2]).name;
 
 			// ability
-			const species = Dex.species.get(set.species);
 			set.ability =
 				parts[3] === '-' ? '' :
 				(species.baseSpecies === 'Zygarde' && parts[3] === 'H') ? 'Power Construct' :
@@ -302,16 +299,17 @@ export class PSTeambuilder {
 			text += `Tera Type: ${set.teraType}\n`;
 		}
 
-		if (set.moves && compat) {
-			for (let move of set.moves) {
+		if (compat) {
+			for (let move of set.moves || []) {
 				if (move.startsWith('Hidden Power ')) {
 					const hpType = move.slice(13);
 					move = move.slice(0, 13);
 					move = compat ? `${move}[${hpType}]` : `${move}${hpType}`;
 				}
-				if (move) {
-					text += `- ${move}\n`;
-				}
+				text += `- ${move}\n`;
+			}
+			for (let i = set.moves?.length || 0; i < 4; i++) {
+				text += `- \n`;
 			}
 		}
 
@@ -586,20 +584,6 @@ export class PSTeambuilder {
 
 		return team;
 	}
-
-	static formatResources = {} as Record<string, FormatResource>;
-
-	static getFormatResources(format: string): Promise<FormatResource> {
-		if (format in this.formatResources) return Promise.resolve(this.formatResources[format]);
-		return Net('https://www.smogon.com/dex/api/formats/by-ps-name/' + format).get()
-			.then(result => {
-				this.formatResources[format] = JSON.parse(result);
-				return this.formatResources[format];
-			}).catch(err => {
-				this.formatResources[format] = null;
-				return this.formatResources[format];
-			});
-	}
 }
 
 export function TeamFolder(props: { cur?: boolean, value: string, children: preact.ComponentChildren }) {
@@ -626,6 +610,7 @@ export function TeamBox(props: { team: Team | null, noLink?: boolean, button?: b
 				icons = <em>(empty team)</em>;
 			} else {
 				icons = PSTeambuilder.packedTeamNames(team.packedTeam).map(species =>
+					// can't use PSIcon, weird interaction with iconCache
 					<span class="picon" style={Dex.getPokemonIcon(species)}></span>
 				);
 			}
@@ -648,9 +633,14 @@ export function TeamBox(props: { team: Team | null, noLink?: boolean, button?: b
 			{contents}
 		</button>;
 	}
-	return <div data-href={props.noLink ? '' : `/team-${team ? team.key : ''}`} class="team" draggable>
+	if (props.noLink) {
+		return <div class="team">
+			{contents}
+		</div>;
+	}
+	return <a href={`team-${team ? team.key : ''}`} class="team" draggable>
 		{contents}
-	</div>;
+	</a>;
 }
 
 /**
@@ -829,7 +819,7 @@ class FormatDropdownPanel extends PSRoomPanel {
 	static readonly routes = ['formatdropdown'];
 	static readonly location = 'semimodal-popup';
 	static readonly noURL = true;
-	gen = '';
+	gen = '' as ID;
 	format: string | null = null;
 	search = '';
 	click = (e: MouseEvent) => {
@@ -851,16 +841,9 @@ class FormatDropdownPanel extends PSRoomPanel {
 	};
 	toggleGen = (ev: Event) => {
 		const target = ev.currentTarget as HTMLButtonElement;
-		this.gen = this.gen === target.value ? '' : target.value;
+		this.gen = this.gen === target.value ? '' as ID : target.value as ID;
 		this.forceUpdate();
 	};
-	override componentWillUnmount(): void {
-		const { room } = this.props;
-		super.componentWillUnmount();
-		if (this.gen && room.parentElem?.getAttribute('data-selecttype') === 'teambuilder') {
-			this.chooseParentValue(this.gen);
-		}
-	}
 	override render() {
 		const room = this.props.room;
 		if (!room.parentElem) {
@@ -920,7 +903,7 @@ class FormatDropdownPanel extends PSRoomPanel {
 
 		let curSection = '';
 		let curColumnNum = 0;
-		let curColumn: (FormatData | { id: null, section: string })[] = [];
+		let curColumn: ({ id: ID, name: string, section: string } | { id: null, section: string })[] = [];
 		const columns = [curColumn];
 		const searchID = toID(this.search);
 		for (const format of formats) {
@@ -944,6 +927,13 @@ class FormatDropdownPanel extends PSRoomPanel {
 			}
 			curColumn.push(format);
 		}
+		if (this.gen && selectType === 'teambuilder') {
+			columns[0].unshift({
+				id: this.gen,
+				name: `[Gen ${this.gen.slice(3)}]`,
+				section: 'No Format',
+			});
+		}
 
 		const width = Math.max(columns.length, 2.1) * 225 + 30;
 		const noResults = curColumn.length === 0;
@@ -954,6 +944,7 @@ class FormatDropdownPanel extends PSRoomPanel {
 				{column.map(format => format.id ? (
 					<li><button value={format.name} class={`option${curFormat === format.id ? ' cur' : ''}`}>
 						{format.name.replace('[Gen 8 ', '[').replace('[Gen 9] ', '').replace('[Gen 7 ', '[')}
+						{format.section === 'No Format' && <em> (uncategorized)</em>}
 					</button></li>
 				) : (
 					<li><h3>
