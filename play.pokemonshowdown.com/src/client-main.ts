@@ -439,17 +439,6 @@ class PSTeams extends PSStreamModel<'team' | 'format'> {
 		// if titles match exactly and mons are the same, assume they're the same team
 		// if they don't match, it might be edited, but we'll go ahead and add it to the user's
 		// teambuilder since they may want that old version around. just go ahead and edit the name
-		const mons = serverTeam.team.split(',');
-		let matches = 0;
-		const otherMons = PSTeambuilder.unpackTeam(localTeam.packedTeam);
-		for (const mon of mons) {
-			for (const otherMon of otherMons) {
-				if (toID(otherMon.species) === toID(mon)) {
-					matches++;
-					break;
-				}
-			}
-		}
 		let sanitize = (name: string) => (name || "").replace(/\s+\(server version\)/g, '').trim();
 		const nameMatches = sanitize(serverTeam.name) === sanitize(localTeam.name);
 		if (!(nameMatches && serverTeam.format === localTeam.format)) {
@@ -457,7 +446,9 @@ class PSTeams extends PSStreamModel<'team' | 'format'> {
 		}
 		// if it's been edited since, invalidate the team id on this one (count it as new)
 		// and load from server
-		if (mons.length !== otherMons.length || matches !== otherMons.length) return 'rename';
+		const mons = serverTeam.team.split(',').map(toID).sort().join(',');
+		const otherMons = PSTeambuilder.unpackTeam(localTeam.packedTeam).map(p => toID(p.species)).sort().join(',');
+		if (mons !== otherMons) return 'rename';
 		if (serverTeam.teamid === localTeam.teamid && localTeam.teamid) return true;
 		return true;
 	}
