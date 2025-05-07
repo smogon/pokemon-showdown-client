@@ -10,13 +10,14 @@
  */
 
 import preact from "../js/lib/preact";
-import { toID } from "./battle-dex";
+import type { Pokemon, ServerPokemon } from "./battle";
+import { Dex, toID } from "./battle-dex";
 import type { Args } from "./battle-text-parser";
 import { BattleTooltips } from "./battle-tooltips";
 import { Net } from "./client-connection";
 import type { PSModel, PSStreamModel, PSSubscription } from "./client-core";
 import { PS, type PSRoom, type RoomID } from "./client-main";
-import type { BattleRoom } from "./panel-battle";
+import type { ChatRoom } from "./panel-chat";
 import { PSHeader, PSMiniHeader } from "./panel-topbar";
 
 export class PSRouter {
@@ -261,7 +262,8 @@ export function PSPanelWrapper(props: {
 	if (room.location === 'mini-window') {
 		const style = props.fullSize ? 'height: auto' : null;
 		return <div
-			id={`room-${room.id}`} class={'mini-window-contents ps-room-light' + (props.scrollable === true ? ' scrollable' : '')}
+			id={`room-${room.id}`}
+			class={`mini-window-contents tiny-layout ps-room-light${props.scrollable === true ? ' scrollable' : ''}`}
 			onClick={props.focusClick ? PSView.focusIfNoSelection : undefined} style={style} onDragEnter={props.onDragEnter}
 		>
 			{props.children}
@@ -275,8 +277,9 @@ export function PSPanelWrapper(props: {
 	}
 	const style = PSView.posStyle(room) as any;
 	if (props.scrollable === 'hidden') style.overflow = 'hidden';
+	const tinyLayout = room.width < 620 ? ' tiny-layout' : '';
 	return <div
-		class={'ps-room' + (room.id === '' ? '' : ' ps-room-light') + (props.scrollable === true ? ' scrollable' : '')}
+		class={`ps-room${room.id === '' ? '' : ' ps-room-light'}${props.scrollable === true ? ' scrollable' : ''}${tinyLayout}`}
 		id={`room-${room.id}`} role="tabpanel" aria-labelledby={`roomtab-${room.id}`}
 		style={style} onClick={props.focusClick ? PSView.focusIfNoSelection : undefined} onDragEnter={props.onDragEnter}
 	>
@@ -433,7 +436,7 @@ export class PSView extends preact.Component {
 				if (elem.getAttribute('data-cmd')) {
 					const cmd = elem.getAttribute('data-cmd')!;
 					const room = PS.getRoom(elem) || PS.mainmenu;
-					room.send(cmd);
+					room.send(cmd, elem);
 					ev.preventDefault();
 					ev.stopImmediatePropagation();
 					return;
@@ -504,28 +507,12 @@ export class PSView extends preact.Component {
 			}
 			const modifierKey = ev.ctrlKey || ev.altKey || ev.metaKey || ev.shiftKey;
 			const altKey = !ev.ctrlKey && ev.altKey && !ev.metaKey && !ev.shiftKey;
-			if (altKey && ev.keyCode === 38) { // up
+			if (altKey && ev.keyCode === 38) { // alt + up
 				PS.arrowKeysUsed = true;
 				PS.focusUpRoom();
-			} else if (altKey && ev.keyCode === 40) { // down
+			} else if (altKey && ev.keyCode === 40) { // alt + down
 				PS.arrowKeysUsed = true;
 				PS.focusDownRoom();
-			}
-			if (isNonEmptyTextInput) return;
-			if (altKey && ev.keyCode === 37) { // left
-				PS.arrowKeysUsed = true;
-				PS.focusLeftRoom();
-			} else if (altKey && ev.keyCode === 39) { // right
-				PS.arrowKeysUsed = true;
-				PS.focusRightRoom();
-			}
-			if (modifierKey) return;
-			if (ev.keyCode === 37) { // left
-				PS.arrowKeysUsed = true;
-				PS.focusLeftRoom();
-			} else if (ev.keyCode === 39) { // right
-				PS.arrowKeysUsed = true;
-				PS.focusRightRoom();
 			} else if (ev.keyCode === 27) { // escape
 				// close popups
 				if (PS.popups.length) {
@@ -536,6 +523,22 @@ export class PSView extends preact.Component {
 				} else if (PS.room.id === 'rooms') {
 					PS.hideRightRoom();
 				}
+			}
+			if (isNonEmptyTextInput) return;
+			if (altKey && ev.keyCode === 37) { // alt + left
+				PS.arrowKeysUsed = true;
+				PS.focusLeftRoom();
+			} else if (altKey && ev.keyCode === 39) { // alt + right
+				PS.arrowKeysUsed = true;
+				PS.focusRightRoom();
+			}
+			if (modifierKey) return;
+			if (ev.keyCode === 37) { // left
+				PS.arrowKeysUsed = true;
+				PS.focusLeftRoom();
+			} else if (ev.keyCode === 39) { // right
+				PS.arrowKeysUsed = true;
+				PS.focusRightRoom();
 			} else if (ev.keyCode === 191 && !isTextInput && PS.room === PS.mainmenu) { // forward slash
 				ev.stopImmediatePropagation();
 				ev.preventDefault();
@@ -600,17 +603,7 @@ export class PSView extends preact.Component {
 		switch (elem.name) {
 		case 'closeRoom': {
 			const roomid = elem.value as RoomID || PS.getRoom(elem)?.id || '' as RoomID;
-			const room = PS.rooms[roomid];
-			const battle = (room as BattleRoom).battle;
-			if (room?.type === "battle" && !battle.ended && battle.mySide.id === PS.user.userid) {
-				PS.join("forfeitbattle" as RoomID, { parentElem: elem });
-				return true;
-			}
-			if (room?.type === "chat" && room.connected && PS.prefs.leavePopupRoom) {
-				PS.join("confirmleaveroom" as RoomID, { parentElem: elem });
-				return true;
-			}
-			PS.leave(roomid);
+			PS.rooms[roomid]?.send('/close', elem);
 			return true;
 		}
 		case 'joinRoom':
@@ -618,6 +611,27 @@ export class PSView extends preact.Component {
 				parentElem: elem,
 			});
 			return true;
+		case 'register':
+			PS.join('register' as RoomID, {
+				parentElem: elem,
+			});
+			return true;
+		case 'showOtherFormats': {
+			// TODO: refactor to a command after we drop support for the old client
+			const table = elem.closest('table');
+			const room = PS.getRoom(elem);
+			if (table) {
+				for (const row of table.querySelectorAll<HTMLElement>('tr.hidden')) {
+					row.style.display = 'table-row';
+				}
+				for (const row of table.querySelectorAll<HTMLElement>('tr.no-matches')) {
+					row.style.display = 'none';
+				}
+				elem.closest('tr')!.style.display = 'none';
+				(room as ChatRoom).log?.updateScroll();
+			}
+			return true;
+		}
 		case 'copyText':
 			const dummyInput = document.createElement("input");
 			// This is a hack. You can only "select" an input field.
@@ -812,4 +826,44 @@ export class PSView extends preact.Component {
 			{PS.popups.map(roomid => this.renderPopup(PS.rooms[roomid]!))}
 		</div>;
 	}
+}
+
+export function PSIcon(
+	props: { pokemon: string | Pokemon | ServerPokemon | Dex.PokemonSet | null } |
+		{ item: string } | { type: string, b?: boolean } | { category: string }
+) {
+	if ('pokemon' in props) {
+		return <span class="picon" style={Dex.getPokemonIcon(props.pokemon)} />;
+	}
+	if ('item' in props) {
+		return <span class="itemicon" style={Dex.getItemIcon(props.item)} />;
+	}
+	if ('type' in props) {
+		let type = Dex.types.get(props.type).name;
+		if (!type) type = '???';
+		let sanitizedType = type.replace(/\?/g, '%3f');
+		return <img
+			src={`${Dex.resourcePrefix}sprites/types/${sanitizedType}.png`} alt={type}
+			height="14" width="32" class={`pixelated${props.b ? ' b' : ''}`}
+		/>;
+	}
+	if ('category' in props) {
+		const categoryID = toID(props.category);
+		let sanitizedCategory = '';
+		switch (categoryID) {
+		case 'physical':
+		case 'special':
+		case 'status':
+			sanitizedCategory = categoryID.charAt(0).toUpperCase() + categoryID.slice(1);
+			break;
+		default:
+			sanitizedCategory = 'undefined';
+			break;
+		}
+		return <img
+			src={`${Dex.resourcePrefix}sprites/categories/${sanitizedCategory}.png`} alt={sanitizedCategory}
+			height="14" width="32" class="pixelated"
+		/>;
+	}
+	return null!;
 }

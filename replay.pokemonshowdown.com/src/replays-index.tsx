@@ -212,7 +212,7 @@ export class SearchPanel extends preact.Component<{ id: string }> {
 				<form onSubmit={this.submitForm}>
 					<p>
 						<label>
-							Username:<br />
+							Username: <small class="gray">(separate multiple usernames by commas)</small><br />
 							<input type="search" class="textbox" name="user" placeholder="(blank = any user)" size={20} /> {}
 							{this.loggedInUser &&
 								<button type="button" class="button" onClick={this.searchLoggedIn}>{this.loggedInUser}'s replays</button>}

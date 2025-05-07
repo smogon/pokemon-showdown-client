@@ -8,7 +8,7 @@
 import preact from "../js/lib/preact";
 import { PSLoginServer } from "./client-connection";
 import { PS, PSRoom, type RoomID, type RoomOptions, type Team } from "./client-main";
-import { PSPanelWrapper, PSRoomPanel } from "./panels";
+import { PSIcon, PSPanelWrapper, PSRoomPanel } from "./panels";
 import type { BattlesRoom } from "./panel-battle";
 import type { ChatRoom } from "./panel-chat";
 import type { LadderFormatRoom } from "./panel-ladder";
@@ -76,12 +76,15 @@ export class MainMenuRoom extends PSRoom {
 			clearTimeout(this.searchCountdown.timer);
 			this.searchCountdown = null;
 			this.update(null);
+			return true;
 		}
 		if (this.searchSent) {
 			this.searchSent = false;
 			PS.send('|/cancelsearch');
 			this.update(null);
+			return true;
 		}
+		return false;
 	};
 	doSearchCountdown = () => {
 		if (!this.searchCountdown) return; // ??? race???
@@ -397,7 +400,7 @@ class NewsPanel extends PSRoomPanel {
 	change = (ev: Event) => {
 		const target = ev.currentTarget as HTMLInputElement;
 		if (target.value === '1') {
-			document.cookie = "preactalpha=1; expires=Thu, 1 May 2025 12:00:00 UTC; path=/";
+			document.cookie = "preactalpha=1; expires=Thu, 1 Jun 2025 12:00:00 UTC; path=/";
 		} else {
 			document.cookie = "preactalpha=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
 		}
@@ -480,10 +483,10 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
 		return <Panel key={room.id} room={room} />;
 	}
 	handleClickMinimize = (e: MouseEvent) => {
-		if ((e.target as HTMLInputElement)?.name === 'closeRoom') {
+		if ((e.target as Element)?.getAttribute('data-cmd')) {
 			return;
 		}
-		if (((e.target as any)?.parentNode as HTMLInputElement)?.name === 'closeRoom') {
+		if (((e.target as Element)?.parentNode as Element)?.getAttribute('data-cmd')) {
 			return;
 		}
 		const room = PS.getRoom(e.currentTarget);
@@ -503,7 +506,7 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
 				<h3
 					class={`mini-window-header${notifying}`} draggable onDragStart={this.handleDragStart} onClick={this.handleClickMinimize}
 				>
-					<button class="closebutton" name="closeRoom" value={roomid} aria-label="Close" tabIndex={-1}>
+					<button class="closebutton" data-cmd="/close" aria-label="Close" tabIndex={-1}>
 						<i class="fa fa-times-circle" aria-hidden></i>
 					</button>
 					<button class="maximizebutton" data-cmd="/maximize" tabIndex={-1} aria-label="Maximize">
@@ -650,7 +653,7 @@ export class FormatDropdown extends preact.Component<{
 	}
 	render() {
 		let [formatName, customRules] = this.format.split('@@@');
-		if (window.BattleLog) formatName = BattleLog.formatName(this.format);
+		if (window.BattleLog) formatName = BattleLog.formatName(formatName);
 		if (this.props.format && !this.props.onChange) {
 			return <button
 				name="format" value={this.format} class="select formatselect preselected" disabled
@@ -691,12 +694,12 @@ class TeamDropdown extends preact.Component<{ format: string }> {
 				<div class="team">
 					<strong>Random team</strong>
 					<small>
-						<span class="picon" style={Dex.getPokemonIcon(null)}></span>
-						<span class="picon" style={Dex.getPokemonIcon(null)}></span>
-						<span class="picon" style={Dex.getPokemonIcon(null)}></span>
-						<span class="picon" style={Dex.getPokemonIcon(null)}></span>
-						<span class="picon" style={Dex.getPokemonIcon(null)}></span>
-						<span class="picon" style={Dex.getPokemonIcon(null)}></span>
+						<PSIcon pokemon={null} />
+						<PSIcon pokemon={null} />
+						<PSIcon pokemon={null} />
+						<PSIcon pokemon={null} />
+						<PSIcon pokemon={null} />
+						<PSIcon pokemon={null} />
 					</small>
 				</div>
 			</button>;
