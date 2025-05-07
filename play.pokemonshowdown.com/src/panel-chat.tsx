@@ -53,6 +53,7 @@ export class ChatRoom extends PSRoom {
 	/** in order from least to most recent */
 	userActivity: string[] = [];
 	timeOffset = 0;
+	static highlightRegExp: Record<string, RegExp | null> | null = null;
 
 	constructor(options: RoomOptions) {
 		super(options);
@@ -177,6 +178,46 @@ export class ChatRoom extends PSRoom {
 			this.title = `[DM] ${nameWithGroup.trim()}`;
 		}
 	}
+	static getHighlight(message: string, roomid: string) {
+		let highlights = PS.prefs.highlights || {};
+		if (Array.isArray(highlights)) {
+			highlights = { global: highlights };
+			// Migrate from the old highlight system
+			PS.prefs.set('highlights', highlights);
+		}
+		if (!PS.prefs.noselfhighlight && PS.user.nameRegExp) {
+			if (PS.user.nameRegExp?.test(message)) return true;
+		}
+		if (!this.highlightRegExp) {
+			try {
+				this.updateHighlightRegExp(highlights);
+			} catch {
+				// If the expression above is not a regexp, we'll get here.
+				// Don't throw an exception because that would prevent the chat
+				// message from showing up, or, when the lobby is initialising,
+				// it will prevent the initialisation from completing.
+				return false;
+			}
+		}
+		const id = PS.server.id + '#' + roomid;
+		const globalHighlightsRegExp = this.highlightRegExp?.['global'];
+		const roomHighlightsRegExp = this.highlightRegExp?.[id];
+		return (((globalHighlightsRegExp?.test(message)) || (roomHighlightsRegExp?.test(message))));
+	}
+	static updateHighlightRegExp(highlights: Record<string, string[]>) {
+		// Enforce boundary for match sides, if a letter on match side is
+		// a word character. For example, regular expression "a" matches
+		// "a", but not "abc", while regular expression "!" matches
+		// "!" and "!abc".
+		this.highlightRegExp = {};
+		for (let i in highlights) {
+			if (!highlights[i].length) {
+				this.highlightRegExp[i] = null;
+				continue;
+			}
+			this.highlightRegExp[i] = new RegExp('(?:\\b|(?!\\w))(?:' + highlights[i].join('|') + ')(?:\\b|(?!\\w))', 'i');
+		}
+	}
 	handleHighlight = (args: Args) => {
 		let name;
 		let message;
@@ -204,7 +245,7 @@ export class ChatRoom extends PSRoom {
 			let lastMessageTime = this.lastMessageTime || 0;
 			if (lastMessageTime < serverMsgTime) this.lastMessageTime = serverMsgTime;
 		}
-		if (PS.getHighlight(message, this.id)) {
+		if (ChatRoom.getHighlight(message, this.id)) {
 			if (mayNotify) this.notify({
 				title: `Mentioned by ${name} in ${this.id}`,
 				body: `"${message}"`,
@@ -212,28 +253,6 @@ export class ChatRoom extends PSRoom {
 			});
 			return true;
 		}
-		/*
-		// i moved the following logic to ``PS.getHighlight``
-		// TODO!
-		if (!this.highlightRegExp) {
-			try {
-				//this.updateHighlightRegExp(highlights);
-			} catch (e) {
-				// If the expression above is not a regexp, we'll get here.
-				// Don't throw an exception because that would prevent the chat
-				// message from showing up, or, when the lobby is initialising,
-				// it will prevent the initialisation from completing.
-				return false;
-			}
-		}
-		var id = PS.server.id + '#' + this.id;
-		var globalHighlightsRegExp = this.highlightRegExp['global'];
-		var roomHighlightsRegExp = this.highlightRegExp[id];
-
-		return (((globalHighlightsRegExp &&
-		 globalHighlightsRegExp.test(message)) ||
-		  (roomHighlightsRegExp && roomHighlightsRegExp.test(message))));
-		*/
 		return false;
 	};
 	override clientCommands = this.parseClientCommands({

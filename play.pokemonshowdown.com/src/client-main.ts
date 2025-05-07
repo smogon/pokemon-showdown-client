@@ -1572,8 +1572,6 @@ export const PS = new class extends PSModel {
 
 	libsLoaded = makeLoadTracker();
 
-	highlightRegExp: Record<string, RegExp | null> | null = null;
-
 	constructor() {
 		super();
 
@@ -2353,46 +2351,6 @@ export const PS = new class extends PSModel {
 
 			autojoin[this.server.id] = thisAutojoin || '';
 			this.prefs.set('autojoin', autojoin);
-		}
-	}
-	getHighlight(message: string, roomid: string) {
-		let highlights = this.prefs.highlights || {};
-		if (Array.isArray(highlights)) {
-			highlights = { global: highlights };
-			// Migrate from the old highlight system
-			this.prefs.set('highlights', highlights);
-		}
-		if (!this.prefs.noselfhighlight && this.user.nameRegExp) {
-			if (this.user.nameRegExp?.test(message)) return true;
-		}
-		if (!this.highlightRegExp) {
-			try {
-				this.updateHighlightRegExp(highlights);
-			} catch {
-				// If the expression above is not a regexp, we'll get here.
-				// Don't throw an exception because that would prevent the chat
-				// message from showing up, or, when the lobby is initialising,
-				// it will prevent the initialisation from completing.
-				return false;
-			}
-		}
-		const id = this.server.id + '#' + roomid;
-		const globalHighlightsRegExp = this.highlightRegExp?.['global'];
-		const roomHighlightsRegExp = this.highlightRegExp?.[id];
-		return (((globalHighlightsRegExp?.test(message)) || (roomHighlightsRegExp?.test(message))));
-	}
-	updateHighlightRegExp(highlights: Record<string, string[]>) {
-		// Enforce boundary for match sides, if a letter on match side is
-		// a word character. For example, regular expression "a" matches
-		// "a", but not "abc", while regular expression "!" matches
-		// "!" and "!abc".
-		this.highlightRegExp = {};
-		for (let i in highlights) {
-			if (!highlights[i].length) {
-				this.highlightRegExp[i] = null;
-				continue;
-			}
-			this.highlightRegExp[i] = new RegExp('(?:\\b|(?!\\w))(?:' + highlights[i].join('|') + ')(?:\\b|(?!\\w))', 'i');
 		}
 	}
 };
