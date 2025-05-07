@@ -97,7 +97,7 @@ class TeamPanel extends PSRoomPanel<TeamRoom> {
 	};
 
 	exported = false;
-	uploadTeam = (e: Event) => {
+	uploadTeam = (ev: Event) => {
 		const room = this.props.room;
 		const team = PS.teams.byKey[room.id.slice(5)];
 
@@ -115,8 +115,8 @@ class TeamPanel extends PSRoomPanel<TeamRoom> {
 		this.forceUpdate();
 	};
 
-	changePrivacyPref = (e: Event) => {
-		PS.prefs.uploadprivacy = !PS.prefs.uploadprivacy;
+	changePrivacyPref = (ev: Event) => {
+		PS.prefs.uploadprivacy = !(ev.currentTarget as HTMLInputElement).checked;
 		PS.prefs.save();
 	};
 	handleChangeFormat = (ev: Event) => {
@@ -177,20 +177,17 @@ class TeamPanel extends PSRoomPanel<TeamRoom> {
 					</p>
 				</div>
 			)}
-			<br />
-			<button class="button exportbutton" onClick={this.uploadTeam} disabled={this.exported}>
-				<i class="fa fa-upload"></i> Upload to Showdown database (saves across devices)
-			</button>
-			<label class="checkbox" style="display: inline-block">
-				<small>(Private:</small>
-				<input
-					type="checkbox"
-					name="teamprivacy"
-					checked={PS.prefs.uploadprivacy}
-					onChange={this.changePrivacyPref}
-				/>
-				<small>)</small>
-			</label>
+			<p>
+				<label class="checkbox" style="display: inline-block">
+					<input
+						name="teamprivacy" checked={!PS.prefs.uploadprivacy}
+						type="checkbox" onChange={this.changePrivacyPref}
+					/> Public
+				</label>
+				<button class="button exportbutton" onClick={this.uploadTeam} disabled={this.exported}>
+					<i class="fa fa-upload"></i> Save to my account (use on other devices)
+				</button>
+			</p>
 		</div></PSPanelWrapper>;
 	}
 }
