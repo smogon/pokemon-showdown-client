@@ -9,7 +9,7 @@
 import preact from "../js/lib/preact";
 import { type Team } from "./client-main";
 import { PSTeambuilder } from "./panel-teamdropdown";
-import { Dex, type ModdedDex, toID, type ID } from "./battle-dex";
+import { Dex, type ModdedDex, toID, type ID, PSUtils } from "./battle-dex";
 import { DexSearch, type SearchRow, type SearchType } from "./battle-dex-search";
 import { PSSearchResults } from "./battle-searchresults";
 import { BattleNatures, BattleStatNames, type StatName } from "./battle-dex-data";
@@ -346,9 +346,11 @@ class TeamEditorState extends PSModel {
 		return coverage as Record<Dex.TypeName, number>;
 	}
 	teamDefensiveCoverage() {
-		const counters: Record<Dex.TypeName, Record<'resists' | 'neutrals' | 'weaknesses', number>> = {} as any;
+		type Counter = { type: Dex.TypeName, resists: number, neutrals: number, weaknesses: number };
+		const counters: Record<Dex.TypeName, Counter> = {} as any;
 		for (const type of this.dex.types.names()) {
 			counters[type] = {
+				type,
 				resists: 0,
 				neutrals: 0,
 				weaknesses: 0,
@@ -1130,28 +1132,28 @@ class TeamTextbox extends preact.Component<{ editor: TeamEditorState, onChange?:
 						></div>
 					)}
 				</div>
+				{this.innerFocus && (
+					<div
+						class="searchresults"
+						style={`top:${(this.setInfo[this.innerFocus.setIndex]?.bottomY ?? this.bottomY() + 50) - 12}px`}
+						onScroll={this.scrollResults}
+					>
+						<button class="button closesearch" onClick={this.closeMenu}>
+							{!editor.narrow && <kbd>Esc</kbd>} <i class="fa fa-times" aria-hidden></i> Close
+						</button>
+						{this.innerFocus.type === 'stats' ? (
+							<StatForm editor={editor} set={this.editor.sets[this.innerFocus.setIndex]} onChange={this.handleSetChange} />
+						) : this.innerFocus.type === 'details' ? (
+							<DetailsForm editor={editor} set={this.editor.sets[this.innerFocus.setIndex]} onChange={this.handleSetChange} />
+						) : (
+							<PSSearchResults
+								search={editor.search} resultIndex={editor.searchIndex}
+								windowing={this.windowResults()} onSelect={this.selectResult}
+							/>
+						)}
+					</div>
+				)}
 			</div>
-			{this.innerFocus && (
-				<div
-					class="searchresults"
-					style={`top:${(this.setInfo[this.innerFocus.setIndex]?.bottomY ?? this.bottomY() + 50) - 12}px`}
-					onScroll={this.scrollResults}
-				>
-					<button class="button closesearch" onClick={this.closeMenu}>
-						{!editor.narrow && <kbd>Esc</kbd>} <i class="fa fa-times" aria-hidden></i> Close
-					</button>
-					{this.innerFocus.type === 'stats' ? (
-						<StatForm editor={editor} set={this.editor.sets[this.innerFocus.setIndex]} onChange={this.handleSetChange} />
-					) : this.innerFocus.type === 'details' ? (
-						<DetailsForm editor={editor} set={this.editor.sets[this.innerFocus.setIndex]} onChange={this.handleSetChange} />
-					) : (
-						<PSSearchResults
-							search={editor.search} resultIndex={editor.searchIndex}
-							windowing={this.windowResults()} onSelect={this.selectResult}
-						/>
-					)}
-				</div>
-			)}
 		</div>;
 	}
 }
@@ -1246,6 +1248,7 @@ class TeamWizard extends preact.Component<{
 			</div>;
 		}
 		while (set.moves.length < 4) set.moves.push('');
+		const overfull = set.moves.length > 4 ? ' overfull' : '';
 
 		const editor = this.props.editor;
 		const species = editor.dex.species.get(set.species);
@@ -1285,10 +1288,11 @@ class TeamWizard extends preact.Component<{
 						</button>
 					</div></td>
 					<td rowSpan={2} class="set-moves"><div class="border-collapse">
-						<button class={`button button-middle${cur('move')}`} onClick={this.setFocus} value={`move|${i}`}>
+						<button class={`button button-middle${cur('move')}${overfull}`} onClick={this.setFocus} value={`move|${i}`}>
 							<strong class="label">Moves</strong> {}
-							{set.moves.map(move => <div>
-								{!editor.narrow && <small class="gray">&bull;</small>}{move || (editor.narrow && '-')}
+							{set.moves.map((move, mi) => <div>
+								{!editor.narrow && <small class="gray">&bull;</small>}
+								{mi >= 4 ? <span class="message-error">{move || (editor.narrow && '-') || ''}</span> : move || (editor.narrow && '-')}
 							</div>)}
 							{!set.moves.length && <em>(no moves)</em>}
 						</button>
@@ -1369,9 +1373,18 @@ class TeamWizard extends preact.Component<{
 				if (slot) {
 					// intentional; we're _removing_ from the slot
 					const i = parseInt(slot) - 1;
-					if (set.moves[i]) set.moves[i] = '';
-					if (i === set.moves.length - 1) {
-						while (!set.moves[set.moves.length - 1]) set.moves.pop();
+					if (set.moves[i]) {
+						set.moves[i] = '';
+						// remove empty slots at the end
+						if (i === set.moves.length - 1) {
+							while (set.moves.length > 4 && !set.moves[set.moves.length - 1]) {
+								set.moves.pop();
+							}
+						}
+						// if we have more than 4 moves, move the last move into the newly-cleared slot
+						if (set.moves.length > 4 && i < set.moves.length - 1) {
+							set.moves[i] = set.moves.pop()!;
+						}
 					}
 				} else if (set.moves.includes(name)) {
 					set.moves.splice(set.moves.indexOf(name), 1);
@@ -1576,28 +1589,32 @@ class TeamWizard extends preact.Component<{
 	}
 	renderDefensiveCoverage() {
 		const { editor } = this.props;
-		const counters = editor.teamDefensiveCoverage();
+		const counters = Object.values(editor.teamDefensiveCoverage());
+		PSUtils.sortBy(counters, counter => [counter.resists, -counter.weaknesses]);
 		const good = [], medium = [], bad = [];
-		const renderTypeDefensive = (type: Dex.TypeName) => (
-			<><strong>{type}</strong>: {counters[type].weaknesses} weaknesses, {counters[type].resists} resists</>
+		const renderTypeDefensive = (counter: typeof counters[number]) => (
+			<tr>
+				<th>{counter.type}</th>
+				<td>{counter.resists} <small>resist{counter.resists === 1 ? '' : 's'}</small></td>
+				<td>{counter.weaknesses} <small>weakness{counter.weaknesses === 1 ? '' : 'es'}</small></td>
+			</tr>
 		);
-		for (const [type, counter] of Object.entries(counters)) {
+		for (const counter of counters) {
 			if (counter.resists > 0) {
-				good.push(renderTypeDefensive(type as Dex.TypeName), <br />);
+				good.push(renderTypeDefensive(counter));
 			} else if (counter.weaknesses <= 0) {
-				medium.push(renderTypeDefensive(type as Dex.TypeName), <br />);
+				medium.push(renderTypeDefensive(counter));
 			} else {
-				bad.push(renderTypeDefensive(type as Dex.TypeName), <br />);
+				bad.push(renderTypeDefensive(counter));
 			}
 		}
 		bad.pop();
-		return <details class="readmore">
+		return <details class="details" style="margin-top:1em">
 			<summary>
-				<h3>Defensive coverage</h3>
-				{bad}
+				<strong>Defensive coverage</strong>
+				<table class="details-preview table">{bad}</table><span class="details-preview ilink"><small>See all</small></span>
 			</summary>
-			{medium}
-			{good}
+			<table class="table">{bad}{medium}{good}</table>
 		</details>;
 	}
 	override render() {
