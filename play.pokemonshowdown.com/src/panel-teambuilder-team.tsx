@@ -181,7 +181,7 @@ class TeamPanel extends PSRoomPanel<TeamRoom> {
 			<button class="button exportbutton" onClick={this.uploadTeam} disabled={this.exported}>
 				<i class="fa fa-upload"></i> Upload to Showdown database (saves across devices)
 			</button>
-			<label>
+			<label class="checkbox" style="display: inline-block">
 				<small>(Private:</small>
 				<input
 					type="checkbox"
