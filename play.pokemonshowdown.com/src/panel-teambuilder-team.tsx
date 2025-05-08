@@ -17,16 +17,24 @@ class TeamRoom extends PSRoom {
 	/** Doesn't _literally_ always exist, but does in basically all code
 	 * and constantly checking for its existence is legitimately annoying... */
 	team!: Team;
+	uploaded = false;
 	constructor(options: RoomOptions) {
 		super(options);
 		const team = PS.teams.byKey[this.id.slice(5)] || null;
 		this.team = team!;
 		this.title = `[Team] ${this.team?.name || 'Error'}`;
 		if (team) this.setFormat(team.format);
+		this.uploaded = !!team?.uploaded;
+		this.load();
 	}
 	setFormat(format: string) {
 		const team = this.team;
 		team.format = toID(format);
+	}
+	load() {
+		PS.teams.loadTeam(this.team, true)?.then(() => {
+			this.update(null);
+		});
 	}
 	save() {
 		PS.teams.save();
@@ -81,6 +89,35 @@ class TeamPanel extends PSRoomPanel<TeamRoom> {
 		room.team.name = textbox.value.trim();
 		room.save();
 	};
+
+	uploadTeam = (ev: Event) => {
+		const room = this.props.room;
+		const team = PS.teams.byKey[room.id.slice(5)];
+		if (!team) return;
+
+		const cmd = team.uploaded ? 'update' : 'save';
+		// teamName, formatid, rawPrivacy, rawTeam
+		const buf = [];
+		if (team.uploaded) {
+			buf.push(team.uploaded.teamid);
+		} else if (team.teamid) {
+			return PS.alert(`This team is for a different account. Please log into the correct account to update it.`);
+		}
+		buf.push(team.name, team.format, PS.prefs.uploadprivacy ? 1 : 0);
+		const exported = team.packedTeam;
+		if (!exported) return PS.alert(`Add a Pokemon to your team before uploading it.`);
+		buf.push(exported);
+		PS.teams.uploading = team;
+		PS.send(`|/teams ${cmd} ${buf.join(', ')}`);
+		room.uploaded = true;
+		this.forceUpdate();
+	};
+
+	changePrivacyPref = (ev: Event) => {
+		this.props.room.uploaded = false;
+		PS.prefs.uploadprivacy = !(ev.currentTarget as HTMLInputElement).checked;
+		PS.prefs.save();
+	};
 	handleChangeFormat = (ev: Event) => {
 		const dropdown = ev.currentTarget as HTMLButtonElement;
 		const room = this.props.room;
@@ -91,6 +128,8 @@ class TeamPanel extends PSRoomPanel<TeamRoom> {
 	};
 	save = () => {
 		this.props.room.save();
+		this.props.room.uploaded = false;
+		this.forceUpdate();
 	};
 
 	override render() {
@@ -137,6 +176,23 @@ class TeamPanel extends PSRoomPanel<TeamRoom> {
 					</p>
 				</div>
 			)}
+			<p>
+				<label class="checkbox" style="display: inline-block">
+					<input
+						name="teamprivacy" checked={!PS.prefs.uploadprivacy}
+						type="checkbox" onChange={this.changePrivacyPref}
+					/> Public
+				</label>
+				{room.uploaded ? (
+					<button class="button exportbutton" disabled>
+						<i class="fa fa-check"></i> Saved to your account
+					</button>
+				) : (
+					<button class="button exportbutton" onClick={this.uploadTeam}>
+						<i class="fa fa-upload"></i> Save to my account (use on other devices)
+					</button>
+				)}
+			</p>
 		</div></PSPanelWrapper>;
 	}
 }

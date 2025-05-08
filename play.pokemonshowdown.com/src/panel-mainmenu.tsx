@@ -128,6 +128,7 @@ export class MainMenuRoom extends PSRoom {
 			const named = namedCode === '1';
 			if (named) PS.user.initializing = false;
 			PS.user.setName(fullName, named, avatar);
+			PS.teams.loadRemoteTeams();
 			return;
 		} case 'updatechallenges': {
 			const [, challengesBuf] = args;
@@ -388,6 +389,14 @@ export class MainMenuRoom extends PSRoom {
 				}
 			}
 			break;
+		case 'teamupload':
+			if (PS.teams.uploading) {
+				PS.teams.uploading.uploaded = {
+					teamid: response.teamid,
+					notLoaded: false,
+					private: response.private,
+				};
+			}
 		}
 	}
 }
@@ -727,22 +736,20 @@ export class TeamForm extends preact.Component<{
 	changeFormat = (ev: Event) => {
 		this.setState({ format: (ev.target as HTMLButtonElement).value });
 	};
-	submit = (ev: Event) => {
+	submit = (ev: Event, validate?: 'validate') => {
 		ev.preventDefault();
 		const format = this.state.format;
 		const teamKey = this.base!.querySelector<HTMLButtonElement>('button[name=team]')!.value;
 		const team = teamKey ? PS.teams.byKey[teamKey] : undefined;
-		this.props.onSubmit?.(ev, format, team);
+		PS.teams.loadTeam(team).then(() => {
+			(validate === 'validate' ? this.props.onValidate : this.props.onSubmit)?.(ev, format, team);
+		});
 	};
 	handleClick = (ev: Event) => {
 		let target = ev.target as HTMLButtonElement | null;
 		while (target && target !== this.base) {
 			if (target.tagName === 'BUTTON' && target.name === 'validate') {
-				ev.preventDefault();
-				const format = this.state.format;
-				const teamKey = this.base!.querySelector<HTMLButtonElement>('button[name=team]')!.value;
-				const team = teamKey ? PS.teams.byKey[teamKey] : undefined;
-				this.props.onSubmit?.(ev, format, team);
+				this.submit(ev, 'validate');
 				return;
 			}
 			target = target.parentNode as HTMLButtonElement | null;
