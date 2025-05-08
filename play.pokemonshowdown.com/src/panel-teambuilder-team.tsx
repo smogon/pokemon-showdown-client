@@ -99,7 +99,11 @@ class TeamPanel extends PSRoomPanel<TeamRoom> {
 		const cmd = team.uploaded ? 'update' : 'save';
 		// teamName, formatid, rawPrivacy, rawTeam
 		const buf = [];
-		if (team.uploaded) buf.push(team.uploaded.teamid);
+		if (team.uploaded) {
+			buf.push(team.uploaded.teamid);
+		} else if (team.teamid) {
+			return PS.alert(`This team is for a different account. Please log into the correct account to update it.`);
+		}
 		buf.push(team.name, team.format, PS.prefs.uploadprivacy ? 1 : 0);
 		const exported = PSTeambuilder.exportTeam(PSTeambuilder.unpackTeam(team.packedTeam));
 		if (!exported) return PS.alert(`Add a Pokemon to your team before uploading it.`);

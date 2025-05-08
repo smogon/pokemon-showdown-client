@@ -275,6 +275,8 @@ export interface Team {
 	/** The icon cache must be cleared (to `null`) whenever `packedTeam` is modified */
 	iconCache: preact.ComponentChildren;
 	key: string;
+	/** `uploaded` will only exist if you're logged into the correct account. otherwise teamid is still tracked */
+	teamid?: number;
 	uploaded?: {
 		teamid: number,
 		notLoaded: boolean | Promise<void>,
@@ -374,7 +376,7 @@ class PSTeams extends PSStreamModel<'team' | 'format'> {
 	}
 	packAll(teams: Team[]) {
 		return teams.map(team => (
-			(team.uploaded ? `${team.uploaded.teamid}[` : '') +
+			(team.teamid ? `${team.teamid}[` : '') +
 			(team.format ? `${team.format}]` : ``) +
 			(team.folder ? `${team.folder}/` : ``) +
 			team.name + `|` + team.packedTeam
@@ -401,9 +403,7 @@ class PSTeams extends PSStreamModel<'team' | 'format'> {
 		) : 'gen9';
 		if (!format.startsWith('gen')) format = 'gen6' + format;
 		const name = line.slice(slashIndex + 1, pipeIndex);
-		const uploaded = leftBracketIndex > 0 ? {
-			teamid: Number(line.slice(0, leftBracketIndex)), notLoaded: true,
-		} : undefined;
+		const teamid = leftBracketIndex > 0 ? Number(line.slice(0, leftBracketIndex)) : undefined;
 		return {
 			name,
 			format: format as ID,
@@ -411,7 +411,7 @@ class PSTeams extends PSStreamModel<'team' | 'format'> {
 			packedTeam: line.slice(pipeIndex + 1),
 			iconCache: null,
 			key: '',
-			uploaded,
+			teamid,
 		};
 	}
 	loadRemoteTeams() {
@@ -424,20 +424,22 @@ class PSTeams extends PSStreamModel<'team' | 'format'> {
 
 			// find exact teamid matches
 			for (const localTeam of this.list) {
-				if (localTeam.uploaded) {
-					const team = teams[localTeam.uploaded.teamid];
+				if (localTeam.teamid) {
+					const team = teams[localTeam.teamid];
 					if (!team) {
-						localTeam.uploaded = undefined;
 						continue;
 					}
 					const compare = this.compareTeams(team, localTeam);
 					if (compare !== true) {
 						if (!localTeam.name.endsWith(' (local version)')) localTeam.name += ' (local version)';
-						localTeam.uploaded = undefined;
 						continue;
 					}
-					localTeam.uploaded.private = team.private;
-					delete teams[localTeam.uploaded.teamid];
+					localTeam.uploaded = {
+						teamid: team.teamid,
+						notLoaded: true,
+						private: team.private,
+					};
+					delete teams[localTeam.teamid];
 				}
 			}
 
@@ -445,7 +447,7 @@ class PSTeams extends PSStreamModel<'team' | 'format'> {
 			for (const team of Object.values(teams)) {
 				let matched = false;
 				for (const localTeam of this.list) {
-					if (localTeam.uploaded) continue;
+					if (localTeam.teamid) continue;
 
 					const compare = this.compareTeams(team, localTeam);
 					if (compare === 'rename') {

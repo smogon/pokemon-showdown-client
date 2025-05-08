@@ -728,20 +728,20 @@ export class TeamForm extends preact.Component<{
 	changeFormat = (ev: Event) => {
 		this.setState({ format: (ev.target as HTMLButtonElement).value });
 	};
-	submit = (ev: Event) => {
+	submit = (ev: Event, validate?: 'validate') => {
 		ev.preventDefault();
 		const format = this.state.format;
 		const teamKey = this.base!.querySelector<HTMLButtonElement>('button[name=team]')!.value;
 		const team = teamKey ? PS.teams.byKey[teamKey] : undefined;
 		PS.teams.loadTeam(team).then(() => {
-			this.props.onSubmit?.(ev, format, team);
+			(validate === 'validate' ? this.props.onValidate : this.props.onSubmit)?.(ev, format, team);
 		});
 	};
 	handleClick = (ev: Event) => {
 		let target = ev.target as HTMLButtonElement | null;
 		while (target && target !== this.base) {
 			if (target.tagName === 'BUTTON' && target.name === 'validate') {
-				this.submit(ev);
+				this.submit(ev, 'validate');
 				return;
 			}
 			target = target.parentNode as HTMLButtonElement | null;
