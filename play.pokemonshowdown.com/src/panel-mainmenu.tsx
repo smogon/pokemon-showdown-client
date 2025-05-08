@@ -389,6 +389,14 @@ export class MainMenuRoom extends PSRoom {
 				}
 			}
 			break;
+		case 'teamupload':
+			if (PS.teams.uploading) {
+				PS.teams.uploading.uploaded = {
+					teamid: response.teamid,
+					notLoaded: false,
+					private: response.private,
+				};
+			}
 		}
 	}
 }

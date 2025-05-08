@@ -12,12 +12,12 @@ import { BattleLog } from "./battle-log";
 import { FormatDropdown } from "./panel-mainmenu";
 import { TeamEditor } from "./battle-team-editor";
 import { Net } from "./client-connection";
-import { PSTeambuilder } from "./panel-teamdropdown";
 
 class TeamRoom extends PSRoom {
 	/** Doesn't _literally_ always exist, but does in basically all code
 	 * and constantly checking for its existence is legitimately annoying... */
 	team!: Team;
+	uploaded = false;
 	constructor(options: RoomOptions) {
 		super(options);
 		const team = PS.teams.byKey[this.id.slice(5)] || null;
@@ -31,7 +31,6 @@ class TeamRoom extends PSRoom {
 		const team = this.team;
 		team.format = toID(format);
 	}
-	uploaded = false;
 	load() {
 		PS.teams.loadTeam(this.team, true)?.then(() => {
 			this.update(null);
@@ -105,10 +104,11 @@ class TeamPanel extends PSRoomPanel<TeamRoom> {
 			return PS.alert(`This team is for a different account. Please log into the correct account to update it.`);
 		}
 		buf.push(team.name, team.format, PS.prefs.uploadprivacy ? 1 : 0);
-		const exported = PSTeambuilder.exportTeam(PSTeambuilder.unpackTeam(team.packedTeam));
+		const exported = team.packedTeam;
 		if (!exported) return PS.alert(`Add a Pokemon to your team before uploading it.`);
 		buf.push(exported);
-		PS.send(`||/teams ${cmd} ${buf.join(', ')}`);
+		PS.teams.uploading = team;
+		PS.send(`|/teams ${cmd} ${buf.join(', ')}`);
 		room.uploaded = true;
 		this.forceUpdate();
 	};

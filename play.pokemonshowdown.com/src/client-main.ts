@@ -304,6 +304,7 @@ class PSTeams extends PSStreamModel<'team' | 'format'> {
 	list: Team[] = [];
 	byKey: { [key: string]: Team | undefined } = {};
 	deletedTeams: [Team, number][] = [];
+	uploading: Team | null = null;
 	constructor() {
 		super();
 		try {
@@ -421,6 +422,9 @@ class PSTeams extends PSStreamModel<'team' | 'format'> {
 				return PS.alert('Error loading uploaded teams: ' + data.actionerror);
 			}
 			const teams: { [key: string]: UploadedTeam } = {};
+			for (const team of data.teams) {
+				teams[team.teamid] = team;
+			}
 
 			// find exact teamid matches
 			for (const localTeam of this.list) {
@@ -456,6 +460,7 @@ class PSTeams extends PSStreamModel<'team' | 'format'> {
 						// prioritize locally saved teams over remote
 						// as so to not overwrite changes
 						matched = true;
+						localTeam.teamid = team.teamid;
 						localTeam.uploaded = {
 							teamid: team.teamid,
 							notLoaded: true,
