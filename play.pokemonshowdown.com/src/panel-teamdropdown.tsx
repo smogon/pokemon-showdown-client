@@ -181,7 +181,7 @@ export class PSTeambuilder {
 			if (parts[9]) set.shiny = true;
 
 			// level
-			if (parts[10]) set.level = parseInt(parts[9], 10);
+			if (parts[10]) set.level = parseInt(parts[10], 10);
 
 			// happiness
 			if (parts[11]) {

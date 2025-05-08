@@ -2175,9 +2175,83 @@ class DetailsForm extends preact.Component<{
 		}
 		this.props.onChange();
 	};
+	changeLevel = (ev: Event) => {
+		const target = ev.currentTarget as HTMLInputElement;
+		const { set } = this.props;
+		if (target.value) {
+			set.level = parseInt(target.value.trim());
+		} else {
+			delete set.level;
+		}
+		this.props.onChange();
+	};
+	changeGender = (ev: Event) => {
+		const target = ev.currentTarget as HTMLInputElement;
+		const { set } = this.props;
+		if (target.value) {
+			set.gender = target.value.trim();
+		} else {
+			delete set.gender;
+		}
+		this.props.onChange();
+	};
+	changeHappiness = (ev: Event) => {
+		const target = ev.currentTarget as HTMLInputElement;
+		const { set } = this.props;
+		if (target.value) {
+			set.happiness = parseInt(target.value.trim());
+		} else {
+			delete set.happiness;
+		}
+		this.props.onChange();
+	};
+	changeShiny = (ev: Event) => {
+		const target = ev.currentTarget as HTMLInputElement;
+		const { set } = this.props;
+		if (target.value) {
+			set.shiny = true;
+		} else {
+			delete set.shiny;
+		}
+		this.props.onChange();
+	};
+	changeDynamaxLevel = (ev: Event) => {
+		const target = ev.currentTarget as HTMLInputElement;
+		const { set } = this.props;
+		if (target.value) {
+			set.dynamaxLevel = parseInt(target.value.trim());
+		} else {
+			delete set.dynamaxLevel;
+		}
+		this.props.onChange();
+	};
+	changeGigantamax = (ev: Event) => {
+		const target = ev.currentTarget as HTMLInputElement;
+		const { set } = this.props;
+		if (target.value) {
+			set.gigantamax = true;
+		} else {
+			delete set.gigantamax;
+		}
+		this.props.onChange();
+	};
+	changeHPType = (ev: Event) => {
+		const target = ev.currentTarget as HTMLInputElement;
+		const { set } = this.props;
+		if (target.value) {
+			set.hpType = target.value;
+		} else {
+			delete set.hpType;
+		}
+		this.props.onChange();
+	};
 	render() {
 		const { editor, set } = this.props;
 		const species = editor.dex.species.get(set.species);
+		const isLetsGo = editor.format.includes('letsgo');
+		const isNatDex = editor.format.includes('nationaldex') || editor.format.includes('natdex');
+		const isBDSP = editor.format.includes('bdsp');
+		const genderTable = { 'M': "Male", 'F': "Female", 'N': "Genderless" };
 		return <div style="font-size:10pt" role="dialog" aria-label="Details">
 			<div class="resultheader"><h3>Details</h3></div>
 			<div class="pad">
@@ -2185,79 +2259,67 @@ class DetailsForm extends preact.Component<{
 					name="nickname" class="textbox default-placeholder" placeholder={species.baseSpecies}
 					onInput={this.changeNickname} onChange={this.changeNickname}
 				/></label></p>
-
-				<p>[insert the rest of the details pane]</p>
-				{/*
-buf += '<div class="formrow"><label class="formlabel">Level:</label><div><input type="number" min="1" max="100" step="1" name="level" value="' + (typeof set.level === 'number' ? set.level : 100) + '" class="textbox inputform numform" /></div></div>';
-
-if (this.curTeam.gen > 1) {
-	buf += '<div class="formrow"><label class="formlabel">Gender:</label><div>';
-	if (species.gender && !isHackmons) {
-		var genderTable = { 'M': "Male", 'F': "Female", 'N': "Genderless" };
-		buf += genderTable[species.gender];
-	} else {
-		buf += '<label class="checkbox inline"><input type="radio" name="gender" value="M"' + (set.gender === 'M' ? ' checked' : '') + ' /> Male</label> ';
-		buf += '<label class="checkbox inline"><input type="radio" name="gender" value="F"' + (set.gender === 'F' ? ' checked' : '') + ' /> Female</label> ';
-		if (!isHackmons) {
-			buf += '<label class="checkbox inline"><input type="radio" name="gender" value="N"' + (!set.gender ? ' checked' : '') + ' /> Random</label>';
-		} else {
-			buf += '<label class="checkbox inline"><input type="radio" name="gender" value="N"' + (set.gender === 'N' ? ' checked' : '') + ' /> Genderless</label>';
-		}
-	}
-	buf += '</div></div>';
-
-	if (isLetsGo) {
-		buf += '<div class="formrow"><label class="formlabel">Happiness:</label><div><input type="number" name="happiness" value="70" class="textbox inputform numform" /></div></div>';
-	} else {
-		if (this.curTeam.gen < 8 || isNatDex)
-			buf += '<div class="formrow"><label class="formlabel">Happiness:</label><div><input type="number" min="0" max="255" step="1" name="happiness" value="' + (typeof set.happiness === 'number' ? set.happiness : 255) + '" class="textbox inputform numform" /></div></div>';
-	}
-
-	buf += '<div class="formrow"><label class="formlabel">Shiny:</label><div>';
-	buf += '<label class="checkbox inline"><input type="radio" name="shiny" value="yes"' + (set.shiny ? ' checked' : '') + ' /> Yes</label> ';
-	buf += '<label class="checkbox inline"><input type="radio" name="shiny" value="no"' + (!set.shiny ? ' checked' : '') + ' /> No</label>';
-	buf += '</div></div>';
-
-	if (this.curTeam.gen === 8 && !isBDSP) {
-		if (!species.cannotDynamax) {
-			buf += '<div class="formrow"><label class="formlabel">Dmax Level:</label><div><input type="number" min="0" max="10" step="1" name="dynamaxlevel" value="' + (typeof set.dynamaxLevel === 'number' ? set.dynamaxLevel : 10) + '" class="textbox inputform numform" /></div></div>';
-		}
-		if (species.canGigantamax || species.forme === 'Gmax') {
-			buf += '<div class="formrow"><label class="formlabel">Gigantamax:</label><div>';
-			if (species.forme === 'Gmax') {
-				buf += 'Yes';
-			} else {
-				buf += '<label class="checkbox inline"><input type="radio" name="gigantamax" value="yes"' + (set.gigantamax ? ' checked' : '') + ' /> Yes</label> ';
-				buf += '<label class="checkbox inline"><input type="radio" name="gigantamax" value="no"' + (!set.gigantamax ? ' checked' : '') + ' /> No</label>';
-			}
-			buf += '</div></div>';
-		}
-	}
-}
-
-if (this.curTeam.gen > 2) {
-	buf += '<div class="formrow" style="display:none"><label class="formlabel">Pokeball:</label><div><select name="pokeball" class="button">';
-	buf += '<option value=""' + (!set.pokeball ? ' selected="selected"' : '') + '></option>'; // unset
-	var balls = this.curTeam.dex.getPokeballs();
-	for (var i = 0; i < balls.length; i++) {
-		buf += '<option value="' + balls[i] + '"' + (set.pokeball === balls[i] ? ' selected="selected"' : '') + '>' + balls[i] + '</option>';
-	}
-	buf += '</select></div></div>';
-}
-
-if (!isLetsGo && (this.curTeam.gen === 7 || isNatDex || (isBDSP && species.baseSpecies === 'Unown'))) {
-	buf += '<div class="formrow"><label class="formlabel" title="Hidden Power Type">Hidden Power:</label><div><select name="hptype" class="button">';
-	buf += '<option value=""' + (!set.hpType ? ' selected="selected"' : '') + '>(automatic type)</option>'; // unset
-	var types = Dex.types.all();
-	for (var i = 0; i < types.length; i++) {
-		if (types[i].HPivs) {
-			buf += '<option value="' + types[i].name + '"' + (set.hpType === types[i].name ? ' selected="selected"' : '') + '>' + types[i].name + '</option>';
-		}
-	}
-	buf += '</select></div></div>';
-}
-
-*/}
+				<p><label class="label">Level: <input
+					type="number" min="1" max="100" step="1" name="level" class="textbox inputform numform" value={set.level || 100}
+					onInput={this.changeLevel} onChange={this.changeLevel}
+				/></label></p>
+				{editor.gen > 1 && (<>
+					<p><label class="label">Gender: {species.gender ? genderTable[species.gender] : <p><label><input
+						type="radio" name="gender" value="M" checked={set.gender === 'M'}
+						onInput={this.changeGender} onChange={this.changeGender}
+					/>Male</label><label><input
+						type="radio" name="gender" value="F" checked={set.gender === 'F'}
+						onInput={this.changeGender} onChange={this.changeGender}
+					/>Female</label><label><input
+						type="radio" name="gender" value="N" checked={!set.gender || set.gender === 'N'}
+						onInput={this.changeGender} onChange={this.changeGender}
+					/>Random</label></p>}</label></p>
+					{isLetsGo ?
+						(<p><label class="label">Happiness: <input
+							type="number" name="happiness" class="textbox inputform numform" value="70"
+							onInput={this.changeHappiness} onChange={this.changeHappiness}
+						/></label></p>) : (editor.gen < 8 || isNatDex) &&
+							<p><label class="label">Happiness: <input
+								type="number" min="0" max="255" step="1" name="happiness" class="textbox inputform numform" value={set.happiness || 255}
+								onInput={this.changeHappiness} onChange={this.changeHappiness}
+							/></label></p>}
+					<p><label class="label">Shiny: <label><input
+						type="radio" name="shiny" value="true" checked={set.shiny}
+						onInput={this.changeShiny} onChange={this.changeShiny}
+					/>Yes</label><label><input
+						type="radio" name="shiny" value="" checked={!set.shiny}
+						onInput={this.changeShiny} onChange={this.changeShiny}
+					/>No</label></label></p>
+				</>
+				)}
+				{editor.gen === 8 && !isBDSP && (
+					<>{!species.cannotDynamax &&
+						(<p><label class="label">Dynamax Level: <input
+							type="number" min="0" max="10" step="1" name="dynamaxlevel" class="textbox inputform numform"
+							value={set.dynamaxLevel || 10} onInput={this.changeDynamaxLevel} onChange={this.changeDynamaxLevel}
+						/></label></p>)}
+					{species.canGigantamax ?
+						(<p><label class="label">Gigantamax: <label><input
+							type="radio" name="gigantamax" value="true" checked={set.gigantamax}
+							onInput={this.changeGigantamax}
+							onChange={this.changeGigantamax}
+						/>Yes</label><label> <input
+							type="radio" name="gigantamax" value="" checked={!set.gigantamax}
+							onInput={this.changeGigantamax} onChange={this.changeGigantamax}
+						/>No</label></label></p>
+						) : species.forme === 'Gmax' && (
+							<p><label class="label">Gigantamax: Yes</label></p>
+						)}
+					</>
+				)}
+				{!isLetsGo && (editor.gen === 7 || isNatDex || (isBDSP && species.baseSpecies === 'Unown')) &&
+					<p><label class="label">Hidden Power Type: <select name="hptype" class="button" onChange={this.changeHPType}>
+						{Dex.types.all().map(type => (
+							type.HPivs && <option value={type.name} selected={set.hpType === type.name}>
+								{type.name}
+							</option>
+						))}
+					</select></label></p>}
 				{editor.gen === 9 && <p>
 					<label class="label" title="Tera Type">
 						Tera Type: {}
