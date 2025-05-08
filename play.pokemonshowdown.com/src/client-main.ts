@@ -17,6 +17,7 @@ import type { MainMenuRoom } from './panel-mainmenu';
 import { Dex, toID, type ID } from './battle-dex';
 import { BattleTextParser, type Args } from './battle-text-parser';
 import type { BattleRoom } from './panel-battle';
+import { PSTeambuilder } from './panel-teamdropdown';
 
 declare const BattleTextAFD: any;
 declare const BattleTextNotAFD: any;
@@ -116,6 +117,7 @@ class PSPrefs extends PSStreamModel<string | null> {
 	effectvolume = 50;
 	musicvolume = 50;
 	notifvolume = 50;
+	uploadprivacy = false;
 
 	afd: boolean | 'sprites' = false;
 
@@ -267,11 +269,29 @@ class PSPrefs extends PSStreamModel<string | null> {
 export interface Team {
 	name: string;
 	format: ID;
-	packedTeam: string;
 	folder: string;
+	/** note that this can be wrong if .uploaded?.loaded === false */
+	packedTeam: string;
 	/** The icon cache must be cleared (to `null`) whenever `packedTeam` is modified */
 	iconCache: preact.ComponentChildren;
 	key: string;
+	/** `uploaded` will only exist if you're logged into the correct account. otherwise teamid is still tracked */
+	teamid?: number;
+	uploaded?: {
+		teamid: number,
+		notLoaded: boolean | Promise<void>,
+		/** password, if private. null = public, undefined = unknown, not loaded yet */
+		private?: string | null,
+	};
+}
+interface UploadedTeam {
+	name: string;
+	teamid: number;
+	format: ID;
+	/** comma-separated list of species, for generating the icon cache */
+	team: string;
+	/** password, if private */
+	private?: string | null;
 }
 if (!window.BattleFormats) window.BattleFormats = {};
 
@@ -284,6 +304,7 @@ class PSTeams extends PSStreamModel<'team' | 'format'> {
 	list: Team[] = [];
 	byKey: { [key: string]: Team | undefined } = {};
 	deletedTeams: [Team, number][] = [];
+	uploading: Team | null = null;
 	constructor() {
 		super();
 		try {
@@ -356,7 +377,10 @@ class PSTeams extends PSStreamModel<'team' | 'format'> {
 	}
 	packAll(teams: Team[]) {
 		return teams.map(team => (
-			(team.format ? `${team.format}]` : ``) + (team.folder ? `${team.folder}/` : ``) + team.name + `|` + team.packedTeam
+			(team.teamid ? `${team.teamid}[` : '') +
+			(team.format ? `${team.format}]` : ``) +
+			(team.folder ? `${team.folder}/` : ``) +
+			team.name + `|` + team.packedTeam
 		)).join('\n');
 	}
 	save() {
@@ -366,15 +390,21 @@ class PSTeams extends PSStreamModel<'team' | 'format'> {
 		this.update('team');
 	}
 	unpackLine(line: string): Team | null {
-		let pipeIndex = line.indexOf('|');
+		const pipeIndex = line.indexOf('|');
 		if (pipeIndex < 0) return null;
 		let bracketIndex = line.indexOf(']');
 		if (bracketIndex > pipeIndex) bracketIndex = -1;
+		let leftBracketIndex = line.indexOf('[');
+		if (leftBracketIndex < 0) leftBracketIndex = 0;
+		const isBox = line.slice(0, bracketIndex).endsWith('-box');
 		let slashIndex = line.lastIndexOf('/', pipeIndex);
 		if (slashIndex < 0) slashIndex = bracketIndex; // line.slice(slashIndex + 1, pipeIndex) will be ''
-		let format = bracketIndex > 0 ? line.slice(0, bracketIndex) : 'gen7';
+		let format = bracketIndex > 0 ? line.slice(
+			(leftBracketIndex ? leftBracketIndex + 1 : 0), isBox ? bracketIndex - 4 : bracketIndex
+		) : 'gen9';
 		if (!format.startsWith('gen')) format = 'gen6' + format;
 		const name = line.slice(slashIndex + 1, pipeIndex);
+		const teamid = leftBracketIndex > 0 ? Number(line.slice(0, leftBracketIndex)) : undefined;
 		return {
 			name,
 			format: format as ID,
@@ -382,7 +412,121 @@ class PSTeams extends PSStreamModel<'team' | 'format'> {
 			packedTeam: line.slice(pipeIndex + 1),
 			iconCache: null,
 			key: '',
+			teamid,
 		};
+	}
+	loadRemoteTeams() {
+		PSLoginServer.query('getteams').then(data => {
+			if (!data) return;
+			if (data.actionerror) {
+				return PS.alert('Error loading uploaded teams: ' + data.actionerror);
+			}
+			const teams: { [key: string]: UploadedTeam } = {};
+			for (const team of data.teams) {
+				teams[team.teamid] = team;
+			}
+
+			// find exact teamid matches
+			for (const localTeam of this.list) {
+				if (localTeam.teamid) {
+					const team = teams[localTeam.teamid];
+					if (!team) {
+						continue;
+					}
+					const compare = this.compareTeams(team, localTeam);
+					if (compare !== true) {
+						if (!localTeam.name.endsWith(' (local version)')) localTeam.name += ' (local version)';
+						continue;
+					}
+					localTeam.uploaded = {
+						teamid: team.teamid,
+						notLoaded: true,
+						private: team.private,
+					};
+					delete teams[localTeam.teamid];
+				}
+			}
+
+			// do best-guess matches for teams that don't have a local team with matching teamid
+			for (const team of Object.values(teams)) {
+				let matched = false;
+				for (const localTeam of this.list) {
+					if (localTeam.teamid) continue;
+
+					const compare = this.compareTeams(team, localTeam);
+					if (compare === 'rename') {
+						if (!localTeam.name.endsWith(' (local version)')) localTeam.name += ' (local version)';
+					} else if (compare) {
+						// prioritize locally saved teams over remote
+						// as so to not overwrite changes
+						matched = true;
+						localTeam.teamid = team.teamid;
+						localTeam.uploaded = {
+							teamid: team.teamid,
+							notLoaded: true,
+							private: team.private,
+						};
+						break;
+					}
+				}
+				if (!matched) {
+					const mons = team.team.split(',').map((m: string) => ({ species: m, moves: [] }));
+					const newTeam: Team = {
+						name: team.name,
+						format: team.format,
+						folder: '',
+						packedTeam: PSTeambuilder.packTeam(mons),
+						iconCache: null,
+						key: this.getKey(team.name),
+						uploaded: {
+							teamid: team.teamid,
+							notLoaded: true,
+							private: team.private,
+						},
+					};
+					this.push(newTeam);
+				}
+			}
+		});
+	}
+	loadTeam(team: Team | undefined | null, ifNeeded: true): void | Promise<void>;
+	loadTeam(team: Team | undefined | null): Promise<void>;
+	loadTeam(team: Team | undefined | null, ifNeeded?: boolean): void | Promise<void> {
+		if (!team) return ifNeeded ? undefined : Promise.resolve();
+		if (!team.uploaded?.notLoaded) return ifNeeded ? undefined : Promise.resolve();
+		if (team.uploaded.notLoaded !== true) return team.uploaded.notLoaded;
+
+		return (team.uploaded.notLoaded = PSLoginServer.query('getteam', {
+			teamid: team.uploaded.teamid,
+		}).then(data => {
+			if (!team.uploaded) return;
+			if (!data?.team) {
+				PS.alert(`Failed to load team: ${data?.actionerror || "Error unknown. Try again later."}`);
+				return;
+			}
+			team.uploaded.notLoaded = false;
+			team.packedTeam = data.team;
+			PS.teams.save();
+		}));
+	}
+	compareTeams(serverTeam: UploadedTeam, localTeam: Team) {
+		// TODO: decide if we want this
+		// if (serverTeam.teamid === localTeam.teamid && localTeam.teamid) return true;
+
+		// if titles match exactly and mons are the same, assume they're the same team
+		// if they don't match, it might be edited, but we'll go ahead and add it to the user's
+		// teambuilder since they may want that old version around. just go ahead and edit the name
+		let sanitize = (name: string) => (name || "").replace(/\s+\(server version\)/g, '').trim();
+		const nameMatches = sanitize(serverTeam.name) === sanitize(localTeam.name);
+		if (!(nameMatches && serverTeam.format === localTeam.format)) {
+			return false;
+		}
+		// if it's been edited since, invalidate the team id on this one (count it as new)
+		// and load from server
+		const mons = serverTeam.team.split(',').map(toID).sort().join(',');
+		const otherMons = PSTeambuilder.packedTeamSpecies(localTeam.packedTeam).map(toID).sort().join(',');
+		if (mons !== otherMons) return 'rename';
+		return true;
 	}
 }
 

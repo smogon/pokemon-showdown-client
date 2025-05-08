@@ -561,7 +561,7 @@ export class PSTeambuilder {
 		return teams;
 	}
 
-	static packedTeamNames(buf: string) {
+	static packedTeamSpecies(buf: string) {
 		if (!buf) return [];
 
 		const team = [];
@@ -604,25 +604,21 @@ export function TeamBox(props: { team: Team | null, noLink?: boolean, button?: b
 	const team = props.team;
 	let contents;
 	if (team) {
-		let icons = team.iconCache;
-		if (!icons) {
-			if (!team.packedTeam) {
-				icons = <em>(empty team)</em>;
-			} else {
-				icons = PSTeambuilder.packedTeamNames(team.packedTeam).map(pokemon =>
-					// can't use <PSIcon>, weird interaction with iconCache
-					// don't try this at home; I'm a trained professional
-					PSIcon({ pokemon })
-				);
-			}
-			team.iconCache = icons;
-		}
+		team.iconCache ||= team.packedTeam ? (
+			PSTeambuilder.packedTeamSpecies(team.packedTeam).map(
+				// can't use <PSIcon>, weird interaction with iconCache
+				// don't try this at home; I'm a trained professional
+				pokemon => PSIcon({ pokemon })
+			)
+		) : (
+			<em>(empty team)</em>
+		);
 		let format = team.format as string;
 		if (format.startsWith('gen8')) format = format.slice(4);
 		format = (format ? `[${format}] ` : ``) + (team.folder ? `${team.folder}/` : ``);
 		contents = [
 			<strong>{format && <span>{format}</span>}{team.name}</strong>,
-			<small>{icons}</small>,
+			<small>{team.iconCache}</small>,
 		];
 	} else {
 		contents = [
@@ -680,6 +676,7 @@ class TeamDropdownPanel extends PSRoomPanel {
 		}
 		if (!target) return;
 
+		PS.teams.loadTeam(PS.teams.byKey[target.value], true);
 		this.chooseParentValue(target.value);
 	};
 	override render() {
