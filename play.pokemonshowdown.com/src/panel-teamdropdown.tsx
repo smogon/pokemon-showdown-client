@@ -201,7 +201,7 @@ export class PSTeambuilder {
 	 * (Exports end with two spaces so linebreaks are preserved in Markdown;
 	 * I assume mostly for Reddit.)
 	 */
-	static exportSet(set: Dex.PokemonSet, dex: ModdedDex = Dex, compat?: boolean) {
+	static exportSet(set: Dex.PokemonSet, dex: ModdedDex = Dex, newFormat?: boolean) {
 		let text = '';
 
 		// core
@@ -212,11 +212,11 @@ export class PSTeambuilder {
 		}
 		if (set.gender === 'M') text += ` (M)`;
 		if (set.gender === 'F') text += ` (F)`;
-		if (compat && set.item) {
+		if (!newFormat && set.item) {
 			text += ` @ ${set.item}`;
 		}
 		text += `\n`;
-		if ((set.item || set.ability || dex.gen >= 2) && !compat) {
+		if ((set.item || set.ability || dex.gen >= 2) && newFormat) {
 			if (set.ability || dex.gen >= 3) text += `[${set.ability || '(select ability)'}]`;
 			if (set.item || dex.gen >= 2) text += ` @ ${set.item || "(no item)"}`;
 			text += `\n`;
@@ -224,7 +224,7 @@ export class PSTeambuilder {
 			text += `Ability: ${set.ability}\n`;
 		}
 
-		if (!compat) {
+		if (newFormat) {
 			if (set.moves) {
 				for (let move of set.moves) {
 					if (move.startsWith('Hidden Power ')) {
@@ -245,7 +245,7 @@ export class PSTeambuilder {
 		if (set.evs || set.nature) {
 			const nature = BattleNatures[set.nature as 'Serious'];
 			for (const stat of Dex.statNames) {
-				const plusMinus = compat ? '' : nature?.plus === stat ? '+' : nature?.minus === stat ? '-' : '';
+				const plusMinus = !newFormat ? '' : nature?.plus === stat ? '+' : nature?.minus === stat ? '-' : '';
 				const ev = set.evs?.[stat] || '';
 				if (ev === '' && !plusMinus) continue;
 				text += first ? `EVs: ` : ` / `;
@@ -254,10 +254,10 @@ export class PSTeambuilder {
 			}
 		}
 		if (!first) {
-			if (set.nature && !compat) text += ` (${set.nature})`;
+			if (set.nature && newFormat) text += ` (${set.nature})`;
 			text += `\n`;
 		}
-		if (set.nature && compat) {
+		if (set.nature && !newFormat) {
 			text += `${set.nature} Nature\n`;
 		} else if (['Hardy', 'Docile', 'Serious', 'Bashful', 'Quirky'].includes(set.nature!)) {
 			text += `${set.nature!} Nature\n`;
@@ -284,7 +284,7 @@ export class PSTeambuilder {
 			text += `Level: ${set.level}\n`;
 		}
 		if (set.shiny) {
-			text += compat ? `Shiny: Yes\n` : `Shiny\n`;
+			text += !newFormat ? `Shiny: Yes\n` : `Shiny\n`;
 		}
 		if (typeof set.happiness === 'number' && set.happiness !== 255 && !isNaN(set.happiness)) {
 			text += `Happiness: ${set.happiness}\n`;
@@ -293,18 +293,18 @@ export class PSTeambuilder {
 			text += `Dynamax Level: ${set.dynamaxLevel}\n`;
 		}
 		if (set.gigantamax) {
-			text += compat ? `Gigantamax: Yes\n` : `Gigantamax\n`;
+			text += !newFormat ? `Gigantamax: Yes\n` : `Gigantamax\n`;
 		}
 		if (set.teraType) {
 			text += `Tera Type: ${set.teraType}\n`;
 		}
 
-		if (compat) {
+		if (!newFormat) {
 			for (let move of set.moves || []) {
 				if (move.startsWith('Hidden Power ')) {
 					const hpType = move.slice(13);
 					move = move.slice(0, 13);
-					move = compat ? `${move}[${hpType}]` : `${move}${hpType}`;
+					move = !newFormat ? `${move}[${hpType}]` : `${move}${hpType}`;
 				}
 				text += `- ${move}\n`;
 			}
@@ -316,13 +316,18 @@ export class PSTeambuilder {
 		text += `\n`;
 		return text;
 	}
-	static exportTeam(sets: Dex.PokemonSet[], dex?: ModdedDex, compat?: boolean) {
+	static exportTeam(sets: Dex.PokemonSet[], dex?: ModdedDex, newFormat?: boolean) {
 		let text = '';
 		for (const set of sets) {
 			// core
-			text += PSTeambuilder.exportSet(set, dex, compat);
+			text += PSTeambuilder.exportSet(set, dex, newFormat);
 		}
 		return text;
+	}
+	static exportPackedTeam(team: Team, newFormat?: boolean) {
+		const sets = PSTeambuilder.unpackTeam(team.packedTeam);
+		const dex = Dex.forFormat(team.format);
+		return PSTeambuilder.exportTeam(sets, dex, newFormat);
 	}
 	static splitPrefix(buffer: string, delimiter: string, prefixOffset = 0): [string, string] {
 		const delimIndex = buffer.indexOf(delimiter);
@@ -523,6 +528,7 @@ export class PSTeambuilder {
 					folder: '',
 					key: '',
 					iconCache: '',
+					isBox: false,
 				};
 				sets = [];
 
@@ -584,20 +590,37 @@ export class PSTeambuilder {
 
 		return team;
 	}
-}
+	static draggedTeam: Team | null = null;
+	static dragStart(ev: DragEvent) {
+		const href = (ev.currentTarget as HTMLAnchorElement)?.getAttribute('href');
+		const team = href ? PS.teams.byKey[href.slice(5)] : null;
+		if (!team) return;
 
-export function TeamFolder(props: { cur?: boolean, value: string, children: preact.ComponentChildren }) {
-	// folders are <div>s rather than <button>s because in theory it has
-	// less weird interactions with HTML5 drag-and-drop
-	if (props.cur) {
-		return <div class="folder cur"><div class="folderhack3">
-			<div class="folderhack1"></div><div class="folderhack2"></div>
-			<div class="selectFolder" data-value={props.value}>{props.children}</div>
-		</div></div>;
+		const dataTransfer = ev.dataTransfer;
+		if (dataTransfer) {
+			dataTransfer.effectAllowed = 'copyMove';
+			dataTransfer.setData("text/plain", "[Team] " + team.name);
+			let filename = team.name;
+			if (team.format) filename = '[' + team.format + '] ' + filename;
+			filename = $.trim(filename).replace(/[\\/]+/g, '') + '.txt';
+			const urlprefix = "data:text/plain;base64,";
+			const contents = PSTeambuilder.exportPackedTeam(team).replace(/\n/g, '\r\n');
+			const downloadurl = "text/plain:" + filename + ":" + urlprefix + encodeURIComponent(window.btoa(unescape(encodeURIComponent(contents))));
+			console.log(downloadurl);
+			dataTransfer.setData("DownloadURL", downloadurl);
+		}
+
+		PS.dragging = { type: 'team', team, folder: null };
+		// app.draggingRoom = this.id;
+		// app.draggingLoc = parseInt(e.currentTarget.dataset.value, 10);
+		// var elOffset = $(e.currentTarget).offset();
+		// app.draggingOffsetX = e.originalEvent.pageX - elOffset.left;
+		// app.draggingOffsetY = e.originalEvent.pageY - elOffset.top;
+		// this.finalOffset = null;
+		// setTimeout(function () {
+		// 	$(e.currentTarget).parent().addClass('dragging');
+		// }, 0);
 	}
-	return <div class="folder">
-		<div class="selectFolder" data-value={props.value}>{props.children}</div>
-	</div>;
 }
 
 export function TeamBox(props: { team: Team | null, noLink?: boolean, button?: boolean }) {
@@ -611,13 +634,13 @@ export function TeamBox(props: { team: Team | null, noLink?: boolean, button?: b
 				pokemon => PSIcon({ pokemon })
 			)
 		) : (
-			<em>(empty team)</em>
+			<em>(empty {team.isBox ? 'box' : 'team'})</em>
 		);
 		let format = team.format as string;
-		if (format.startsWith('gen8')) format = format.slice(4);
+		if (format.startsWith(`gen${Dex.gen}`)) format = format.slice(4);
 		format = (format ? `[${format}] ` : ``) + (team.folder ? `${team.folder}/` : ``);
 		contents = [
-			<strong>{format && <span>{format}</span>}{team.name}</strong>,
+			<strong>{team.isBox && <i class="fa fa-archive"></i>} {format && <span>{format}</span>}{team.name}</strong>,
 			<small>{team.iconCache}</small>,
 		];
 	} else {
@@ -625,17 +648,18 @@ export function TeamBox(props: { team: Team | null, noLink?: boolean, button?: b
 			<em>Select a team</em>,
 		];
 	}
+	const className = `team${team?.isBox ? ' pc-box' : ''}`;
 	if (props.button) {
-		return <button class="team" value={team ? team.key : ''}>
+		return <button class={className} value={team ? team.key : ''}>
 			{contents}
 		</button>;
 	}
 	if (props.noLink) {
-		return <div class="team">
+		return <div class={className}>
 			{contents}
 		</div>;
 	}
-	return <a href={`team-${team ? team.key : ''}`} class="team" draggable>
+	return <a href={`team-${team ? team.key : ''}`} class={className} draggable onDragStart={PSTeambuilder.dragStart}>
 		{contents}
 	</a>;
 }

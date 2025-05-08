@@ -362,6 +362,9 @@ select.button {
 	padding: 2px 6px 2px 2px;
 	border-radius: 4px;
 }
+.checkbox img {
+	vertical-align: middle;
+}
 .checkbox.inline {
 	display: inline-block;
 }
@@ -386,14 +389,19 @@ select.button {
 	background: #383838;
 	color: white;
 }
-.label strong {
+.label strong,
+.label .labeled {
 	font-size: 11pt;
 }
 .label .textbox,
 .label .button,
-.label strong {
+.label strong,
+.label .labeled {
 	margin-top: 2px;
 	display: block;
+}
+.label .labeled {
+	font-weight: normal;
 }
 .textbox {
 	border: 1px solid #AAAAAA;
@@ -744,9 +752,6 @@ kbd {
 	border-color: #CCC #BBB #AAA;
 }
 
-details.readmore {
-	position: relative;
-}
 details.readmore summary, details.details summary {
 	display: block;
 	list-style: none;
@@ -768,10 +773,9 @@ details.readmore summary:hover:after {
 details.readmore[open] summary:after {
 	content: '';
 }
-details.readmore[open] summary:hover:before {
-	position: absolute;
-	top: 2px;
-	right: 2px;
+details.readmore[open] summary:before {
+	float: right;
+	visibility: hidden;
 
 	content: "\f056";
 	display: block;
@@ -780,6 +784,9 @@ details.readmore[open] summary:hover:before {
 	-webkit-font-smoothing: antialiased;
 	-moz-osx-font-smoothing: grayscale;
 	color: #999;
+}
+details.readmore[open] summary:hover:before {
+	visibility: visible;
 }
 details.readmore.code {
 	display: table;

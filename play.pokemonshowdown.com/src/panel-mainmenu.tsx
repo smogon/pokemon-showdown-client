@@ -468,7 +468,7 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
 	handleDragEnter = (e: DragEvent) => {
 		// console.log('dragenter ' + e.dataTransfer!.dropEffect);
 		e.preventDefault();
-		if (!PS.dragging) return; // TODO: handle dragging other things onto roomtabs
+		if (PS.dragging?.type !== 'room') return;
 		const draggingRoom = PS.dragging.roomid;
 		if (draggingRoom === null) return;
 

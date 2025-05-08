@@ -276,6 +276,7 @@ export interface Team {
 	iconCache: preact.ComponentChildren;
 	key: string;
 	/** `uploaded` will only exist if you're logged into the correct account. otherwise teamid is still tracked */
+	isBox: boolean;
 	teamid?: number;
 	uploaded?: {
 		teamid: number,
@@ -378,7 +379,7 @@ class PSTeams extends PSStreamModel<'team' | 'format'> {
 	packAll(teams: Team[]) {
 		return teams.map(team => (
 			(team.teamid ? `${team.teamid}[` : '') +
-			(team.format ? `${team.format}]` : ``) +
+			(team.format || team.isBox ? `${team.format || ''}${team.isBox ? '-box' : ''}]` : ``) +
 			(team.folder ? `${team.folder}/` : ``) +
 			team.name + `|` + team.packedTeam
 		)).join('\n');
@@ -412,6 +413,7 @@ class PSTeams extends PSStreamModel<'team' | 'format'> {
 			packedTeam: line.slice(pipeIndex + 1),
 			iconCache: null,
 			key: '',
+			isBox,
 			teamid,
 		};
 	}
@@ -477,6 +479,7 @@ class PSTeams extends PSStreamModel<'team' | 'format'> {
 						folder: '',
 						packedTeam: PSTeambuilder.packTeam(mons),
 						iconCache: null,
+						isBox: false,
 						key: this.getKey(team.name),
 						uploaded: {
 							teamid: team.teamid,
@@ -1740,7 +1743,9 @@ export const PS = new class extends PSModel {
 	 * for security reasons it's impossible to know what they are until
 	 * they're dropped.
 	 */
-	dragging: { type: 'room', roomid: RoomID, foreground?: boolean } | null = null;
+	dragging: { type: 'room', roomid: RoomID, foreground?: boolean } |
+		{ type: 'team', team: Team, folder: string | null } |
+		null = null;
 	lastMessageTime = '';
 
 	/** Tracks whether or not to display the "Use arrow keys" hint */
@@ -2224,12 +2229,13 @@ export const PS = new class extends PSModel {
 		});
 	}
 	prompt(message: string, defaultValue = '', opts: {
-		okButton?: string, cancelButton?: string, type?: 'text' | 'password' | 'number',
+		okButton?: string, cancelButton?: string, type?: 'text' | 'password' | 'number', parentElem?: HTMLElement,
 	} = {}): Promise<string | null> {
 		opts.cancelButton ??= 'Cancel';
 		return new Promise(resolve => {
 			this.join(`popup-${this.popups.length}` as RoomID, {
-				args: { message, value: defaultValue, okValue: true, cancelValue: false, callback: resolve, ...opts },
+				args: { message, value: defaultValue, okValue: true, cancelValue: false, callback: resolve, ...opts, parentElem: null },
+				parentElem: opts.parentElem,
 			});
 		});
 	}
