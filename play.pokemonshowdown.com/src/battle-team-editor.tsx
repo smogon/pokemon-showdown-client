@@ -2282,8 +2282,7 @@ class DetailsForm extends preact.Component<{
 							<p><label class="label">Happiness: <input
 								type="number" min="0" max="255" step="1" name="happiness" class="textbox inputform numform" value={set.happiness || 255}
 								onInput={this.changeHappiness} onChange={this.changeHappiness}
-							/></label></p>
-					}
+							/></label></p>}
 					<p><label class="label">Shiny: <label><input
 						type="radio" name="shiny" value="true" checked={set.shiny}
 						onInput={this.changeShiny} onChange={this.changeShiny}
@@ -2309,8 +2308,9 @@ class DetailsForm extends preact.Component<{
 							onInput={this.changeGigantamax} onChange={this.changeGigantamax}
 						/>No</label></label></p>
 						) : species.forme === 'Gmax' && (
-					<p><label class="label">Gigantamax: Yes</label></p>
-				)}</>
+							<p><label class="label">Gigantamax: Yes</label></p>
+						)}
+					</>
 				)}
 				{!isLetsGo && (editor.gen === 7 || isNatDex || (isBDSP && species.baseSpecies === 'Unown')) &&
 					<p><label class="label">Hidden Power Type: <select name="hptype" class="button" onChange={this.changeHPType}>
@@ -2319,8 +2319,7 @@ class DetailsForm extends preact.Component<{
 								{type.name}
 							</option>
 						))}
-					</select></label></p>
-				}
+					</select></label></p>}
 				{editor.gen === 9 && <p>
 					<label class="label" title="Tera Type">
 						Tera Type: {}
