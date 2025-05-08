@@ -11,7 +11,7 @@ import { toID } from "./battle-dex";
 import { BattleLog } from "./battle-log";
 import { FormatDropdown } from "./panel-mainmenu";
 import { TeamEditor } from "./battle-team-editor";
-import { Net, PSLoginServer } from "./client-connection";
+import { Net } from "./client-connection";
 import { PSTeambuilder } from "./panel-teamdropdown";
 
 class TeamRoom extends PSRoom {
@@ -24,10 +24,18 @@ class TeamRoom extends PSRoom {
 		this.team = team!;
 		this.title = `[Team] ${this.team?.name || 'Error'}`;
 		if (team) this.setFormat(team.format);
+		this.uploaded = !!team?.uploaded;
+		this.load();
 	}
 	setFormat(format: string) {
 		const team = this.team;
 		team.format = toID(format);
+	}
+	uploaded = false;
+	load() {
+		PS.teams.loadTeam(this.team, true)?.then(() => {
+			this.update(null);
+		});
 	}
 	save() {
 		PS.teams.save();
@@ -56,19 +64,6 @@ class TeamPanel extends PSRoomPanel<TeamRoom> {
 				this.resources = resources;
 				this.forceUpdate();
 			});
-			const team = room.team;
-			if (!team.loaded && team.teamid) {
-				PSLoginServer.query('getteam', { teamid: team.teamid }).then(data => {
-					if (!data?.team) {
-						PS.alert(`Failed to load team: ${data?.actionerror || "Error unknown. Try again later."}`);
-						return;
-					}
-					team.loaded = true;
-					team.packedTeam = data.team;
-					PS.teams.save();
-					this.forceUpdate();
-				});
-			}
 		} else {
 			this.resources = null;
 		}
@@ -96,27 +91,26 @@ class TeamPanel extends PSRoomPanel<TeamRoom> {
 		room.save();
 	};
 
-	uploaded = false;
 	uploadTeam = (ev: Event) => {
 		const room = this.props.room;
 		const team = PS.teams.byKey[room.id.slice(5)];
 		if (!team) return;
 
-		const cmd = team.teamid ? 'update' : 'save';
+		const cmd = team.uploaded ? 'update' : 'save';
 		// teamName, formatid, rawPrivacy, rawTeam
 		const buf = [];
-		if (team.teamid) buf.push(team.teamid);
+		if (team.uploaded) buf.push(team.uploaded.teamid);
 		buf.push(team.name, team.format, PS.prefs.uploadprivacy ? 1 : 0);
 		const exported = PSTeambuilder.exportTeam(PSTeambuilder.unpackTeam(team.packedTeam));
 		if (!exported) return PS.alert(`Add a Pokemon to your team before uploading it.`);
 		buf.push(exported);
 		PS.send(`||/teams ${cmd} ${buf.join(', ')}`);
-		this.uploaded = true;
+		room.uploaded = true;
 		this.forceUpdate();
 	};
 
 	changePrivacyPref = (ev: Event) => {
-		this.uploaded = false;
+		this.props.room.uploaded = false;
 		PS.prefs.uploadprivacy = !(ev.currentTarget as HTMLInputElement).checked;
 		PS.prefs.save();
 	};
@@ -130,7 +124,7 @@ class TeamPanel extends PSRoomPanel<TeamRoom> {
 	};
 	save = () => {
 		this.props.room.save();
-		this.uploaded = false;
+		this.props.room.uploaded = false;
 		this.forceUpdate();
 	};
 
@@ -185,7 +179,7 @@ class TeamPanel extends PSRoomPanel<TeamRoom> {
 						type="checkbox" onChange={this.changePrivacyPref}
 					/> Public
 				</label>
-				{this.uploaded ? (
+				{room.uploaded ? (
 					<button class="button exportbutton" disabled>
 						<i class="fa fa-check"></i> Saved to your account
 					</button>

@@ -269,14 +269,27 @@ class PSPrefs extends PSStreamModel<string | null> {
 export interface Team {
 	name: string;
 	format: ID;
-	packedTeam: string;
 	folder: string;
+	/** note that this can be wrong if .uploaded?.loaded === false */
+	packedTeam: string;
 	/** The icon cache must be cleared (to `null`) whenever `packedTeam` is modified */
 	iconCache: preact.ComponentChildren;
 	key: string;
-	teamid?: number;
-	loaded?: boolean;
-	private?: string;
+	uploaded?: {
+		teamid: number,
+		notLoaded: boolean | Promise<void>,
+		/** password, if private. null = public, undefined = unknown, not loaded yet */
+		private?: string | null,
+	};
+}
+interface UploadedTeam {
+	name: string;
+	teamid: number;
+	format: ID;
+	/** comma-separated list of species, for generating the icon cache */
+	team: string;
+	/** password, if private */
+	private?: string | null;
 }
 if (!window.BattleFormats) window.BattleFormats = {};
 
@@ -361,7 +374,7 @@ class PSTeams extends PSStreamModel<'team' | 'format'> {
 	}
 	packAll(teams: Team[]) {
 		return teams.map(team => (
-			(team.teamid ? `${team.teamid}[` : '') +
+			(team.uploaded ? `${team.uploaded.teamid}[` : '') +
 			(team.format ? `${team.format}]` : ``) +
 			(team.folder ? `${team.folder}/` : ``) +
 			team.name + `|` + team.packedTeam
@@ -374,7 +387,7 @@ class PSTeams extends PSStreamModel<'team' | 'format'> {
 		this.update('team');
 	}
 	unpackLine(line: string): Team | null {
-		let pipeIndex = line.indexOf('|');
+		const pipeIndex = line.indexOf('|');
 		if (pipeIndex < 0) return null;
 		let bracketIndex = line.indexOf(']');
 		if (bracketIndex > pipeIndex) bracketIndex = -1;
@@ -388,14 +401,17 @@ class PSTeams extends PSStreamModel<'team' | 'format'> {
 		) : 'gen9';
 		if (!format.startsWith('gen')) format = 'gen6' + format;
 		const name = line.slice(slashIndex + 1, pipeIndex);
+		const uploaded = leftBracketIndex > 0 ? {
+			teamid: Number(line.slice(0, leftBracketIndex)), notLoaded: true,
+		} : undefined;
 		return {
-			teamid: leftBracketIndex > 0 ? Number(line.slice(0, leftBracketIndex)) : undefined,
 			name,
 			format: format as ID,
 			folder: line.slice(bracketIndex + 1, slashIndex > 0 ? slashIndex : bracketIndex + 1),
 			packedTeam: line.slice(pipeIndex + 1),
 			iconCache: null,
 			key: '',
+			uploaded,
 		};
 	}
 	loadRemoteTeams() {
@@ -404,38 +420,89 @@ class PSTeams extends PSStreamModel<'team' | 'format'> {
 			if (data.actionerror) {
 				return PS.alert('Error loading uploaded teams: ' + data.actionerror);
 			}
-			for (const team of data.teams as ((Team & { team: string })[])) {
+			const teams: { [key: string]: UploadedTeam } = {};
+
+			// find exact teamid matches
+			for (const localTeam of this.list) {
+				if (localTeam.uploaded) {
+					const team = teams[localTeam.uploaded.teamid];
+					if (!team) {
+						localTeam.uploaded = undefined;
+						continue;
+					}
+					const compare = this.compareTeams(team, localTeam);
+					if (compare !== true) {
+						if (!localTeam.name.endsWith(' (local version)')) localTeam.name += ' (local version)';
+						localTeam.uploaded = undefined;
+						continue;
+					}
+					localTeam.uploaded.private = team.private;
+					delete teams[localTeam.uploaded.teamid];
+				}
+			}
+
+			// do best-guess matches for teams that don't have a local team with matching teamid
+			for (const team of Object.values(teams)) {
 				let matched = false;
-				for (const curTeam of this.list) {
-					let match = this.compareTeams(team, curTeam);
-					if (match === true) {
+				for (const localTeam of this.list) {
+					if (localTeam.uploaded) continue;
+
+					const compare = this.compareTeams(team, localTeam);
+					if (compare === 'rename') {
+						if (!localTeam.name.endsWith(' (local version)')) localTeam.name += ' (local version)';
+					} else if (compare) {
 						// prioritize locally saved teams over remote
 						// as so to not overwrite changes
 						matched = true;
+						localTeam.uploaded = {
+							teamid: team.teamid,
+							notLoaded: true,
+							private: team.private,
+						};
 						break;
 					}
-					if (match === 'rename') {
-						delete curTeam.teamid;
-						if (!team.name.endsWith(' (server version)')) {
-							team.name += ' (server version)';
-						}
-					}
 				}
-				team.loaded = false;
 				if (!matched) {
-					// hack so that it shows up in the format selector list
-					team.folder = '';
-					// team comes down from loginserver as comma-separated list of mons
-					// to save bandwidth
-					let mons = team.team.split(',').map((m: string) => ({ species: m, moves: [] }));
-					team.packedTeam = PSTeambuilder.packTeam(mons);
-					team.iconCache = null;
-					this.push(team);
+					const mons = team.team.split(',').map((m: string) => ({ species: m, moves: [] }));
+					const newTeam: Team = {
+						name: team.name,
+						format: team.format,
+						folder: '',
+						packedTeam: PSTeambuilder.packTeam(mons),
+						iconCache: null,
+						key: this.getKey(team.name),
+						uploaded: {
+							teamid: team.teamid,
+							notLoaded: true,
+							private: team.private,
+						},
+					};
+					this.push(newTeam);
 				}
 			}
 		});
 	}
-	compareTeams(serverTeam: Team & { team: string }, localTeam: Team) {
+	loadTeam(team: Team | undefined | null, ifNeeded: true): void | Promise<void>;
+	loadTeam(team: Team | undefined | null): Promise<void>;
+	loadTeam(team: Team | undefined | null, ifNeeded?: boolean): void | Promise<void> {
+		if (!team) return ifNeeded ? undefined : Promise.resolve();
+		if (!team.uploaded?.notLoaded) return ifNeeded ? undefined : Promise.resolve();
+		if (team.uploaded.notLoaded !== true) return team.uploaded.notLoaded;
+
+		return (team.uploaded.notLoaded = PSLoginServer.query('getteam', {
+			teamid: team.uploaded.teamid,
+		}).then(data => {
+			if (!team.uploaded) return;
+			if (!data?.team) {
+				PS.alert(`Failed to load team: ${data?.actionerror || "Error unknown. Try again later."}`);
+				return;
+			}
+			team.uploaded.notLoaded = false;
+			team.packedTeam = data.team;
+			PS.teams.save();
+		}));
+	}
+	compareTeams(serverTeam: UploadedTeam, localTeam: Team) {
 		// TODO: decide if we want this
 		// if (serverTeam.teamid === localTeam.teamid && localTeam.teamid) return true;
 

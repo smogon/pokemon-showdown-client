@@ -733,7 +733,9 @@ export class TeamForm extends preact.Component<{
 		const format = this.state.format;
 		const teamKey = this.base!.querySelector<HTMLButtonElement>('button[name=team]')!.value;
 		const team = teamKey ? PS.teams.byKey[teamKey] : undefined;
-		this.props.onSubmit?.(ev, format, team);
+		PS.teams.loadTeam(team).then(() => {
+			this.props.onSubmit?.(ev, format, team);
+		});
 	};
 	handleClick = (ev: Event) => {
 		let target = ev.target as HTMLButtonElement | null;
@@ -743,7 +745,9 @@ export class TeamForm extends preact.Component<{
 				const format = this.state.format;
 				const teamKey = this.base!.querySelector<HTMLButtonElement>('button[name=team]')!.value;
 				const team = teamKey ? PS.teams.byKey[teamKey] : undefined;
-				this.props.onSubmit?.(ev, format, team);
+				PS.teams.loadTeam(team).then(() => {
+					this.props.onSubmit?.(ev, format, team);
+				});
 				return;
 			}
 			target = target.parentNode as HTMLButtonElement | null;
