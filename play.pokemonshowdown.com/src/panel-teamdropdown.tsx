@@ -6,7 +6,7 @@
  */
 
 import { PS, type Team } from "./client-main";
-import { PSPanelWrapper, PSRoomPanel } from "./panels";
+import { PSIcon, PSPanelWrapper, PSRoomPanel } from "./panels";
 import { Dex, type ModdedDex, toID, type ID } from "./battle-dex";
 import { BattleNatures, BattleStatIDs, BattleStatNames, type StatNameExceptHP } from "./battle-dex-data";
 
@@ -604,24 +604,21 @@ export function TeamBox(props: { team: Team | null, noLink?: boolean, button?: b
 	const team = props.team;
 	let contents;
 	if (team) {
-		let icons = team.iconCache;
-		if (!icons) {
-			if (!team.packedTeam) {
-				icons = <em>(empty team)</em>;
-			} else {
-				icons = PSTeambuilder.packedTeamSpecies(team.packedTeam).map(species =>
-					// can't use PSIcon, weird interaction with iconCache
-					<span class="picon" style={Dex.getPokemonIcon(species)}></span>
-				);
-			}
-			team.iconCache = icons;
-		}
+		team.iconCache ||= team.packedTeam ? (
+			PSTeambuilder.packedTeamSpecies(team.packedTeam).map(
+				// can't use <PSIcon>, weird interaction with iconCache
+				// don't try this at home; I'm a trained professional
+				pokemon => PSIcon({ pokemon })
+			)
+		) : (
+			<em>(empty team)</em>
+		);
 		let format = team.format as string;
 		if (format.startsWith('gen8')) format = format.slice(4);
 		format = (format ? `[${format}] ` : ``) + (team.folder ? `${team.folder}/` : ``);
 		contents = [
 			<strong>{format && <span>{format}</span>}{team.name}</strong>,
-			<small>{icons}</small>,
+			<small>{team.iconCache}</small>,
 		];
 	} else {
 		contents = [

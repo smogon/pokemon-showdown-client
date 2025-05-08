@@ -596,6 +596,12 @@ you can't delete it by pressing Backspace */
 .set-button .set-ability .button, .set-button .set-item .button {
 	height: 40px;
 }
+.set-button .set-moves .button {
+	line-height: 18px;
+}
+.set-button .set-moves .button.overfull {
+	line-height: normal;
+}
 .set-button .set-details .button {
 	height: 60px;
 }
@@ -626,7 +632,8 @@ you can't delete it by pressing Backspace */
 	-webkit-overflow-scrolling: touch;
 }
 .team-focus-editor .tabbar {
-	overflow: auto;
+	/* note to self: make this scrollable later */
+	/* overflow: auto; */
 	white-space: nowrap;
 }
 .tabbar .button.picontab {
