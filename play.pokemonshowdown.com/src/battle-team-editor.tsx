@@ -2265,13 +2265,13 @@ class DetailsForm extends preact.Component<{
 				/></label></p>
 				{editor.gen > 1 && (<>
 					<p><label class="label">Gender: {species.gender ? genderTable[species.gender] : <p><label><input
-						type="radio" name="gender" value="M" checked={set.gender === 'M'} 
+						type="radio" name="gender" value="M" checked={set.gender === 'M'}
 						onInput={this.changeGender} onChange={this.changeGender}
 					/>Male</label><label><input
-						type="radio" name="gender" value="F" checked={set.gender === 'F'} 
+						type="radio" name="gender" value="F" checked={set.gender === 'F'}
 						onInput={this.changeGender} onChange={this.changeGender}
 					/>Female</label><label><input
-						type="radio" name="gender" value="N" checked={!set.gender || set.gender === 'N'} 
+						type="radio" name="gender" value="N" checked={!set.gender || set.gender === 'N'}
 						onInput={this.changeGender} onChange={this.changeGender}
 					/>Random</label></p>}</label></p>
 					{isLetsGo ?
@@ -2279,25 +2279,25 @@ class DetailsForm extends preact.Component<{
 							type="number" name="happiness" class="textbox inputform numform" value="70"
 							onInput={this.changeHappiness} onChange={this.changeHappiness}
 						/></label></p>) : (editor.gen < 8 || isNatDex) &&
-						<p><label class="label">Happiness: <input
-							type="number" min="0" max="255" step="1" name="happiness" class="textbox inputform numform" value={set.happiness || 255}
-							onInput={this.changeHappiness} onChange={this.changeHappiness}
-						/></label></p>
+							<p><label class="label">Happiness: <input
+								type="number" min="0" max="255" step="1" name="happiness" class="textbox inputform numform" value={set.happiness || 255}
+								onInput={this.changeHappiness} onChange={this.changeHappiness}
+							/></label></p>
 					}
 					<p><label class="label">Shiny: <label><input
-						type="radio" name="shiny" value="true" checked={set.shiny} 
+						type="radio" name="shiny" value="true" checked={set.shiny}
 						onInput={this.changeShiny} onChange={this.changeShiny}
 					/>Yes</label><label><input
-						type="radio" name="shiny" value="" checked={!set.shiny} 
+						type="radio" name="shiny" value="" checked={!set.shiny}
 						onInput={this.changeShiny} onChange={this.changeShiny}
 					/>No</label></label></p>
-					</>
+				</>
 				)}
 				{editor.gen === 8 && !isBDSP && (
-					<>{!species.cannotDynamax && 
+					<>{!species.cannotDynamax &&
 						(<p><label class="label">Dynamax Level: <input
-							type="number" min="0" max="10" step="1" name="dynamaxlevel" class="textbox inputform numform" value={set.dynamaxLevel || 10}
-							onInput={this.changeDynamaxLevel} onChange={this.changeDynamaxLevel}
+							type="number" min="0" max="10" step="1" name="dynamaxlevel" class="textbox inputform numform"
+							value={set.dynamaxLevel || 10} onInput={this.changeDynamaxLevel} onChange={this.changeDynamaxLevel}
 						/></label></p>)}
 					{species.canGigantamax ?
 						(<p><label class="label">Gigantamax: <label><input
@@ -2309,10 +2309,10 @@ class DetailsForm extends preact.Component<{
 							onInput={this.changeGigantamax} onChange={this.changeGigantamax}
 						/>No</label></label></p>
 						) : species.forme === 'Gmax' && (
-						<p><label class="label">Gigantamax: Yes</label></p>
-					)}</>
+					<p><label class="label">Gigantamax: Yes</label></p>
+				)}</>
 				)}
-				{!isLetsGo && (editor.gen === 7 || isNatDex || (isBDSP && species.baseSpecies === 'Unown')) && 
+				{!isLetsGo && (editor.gen === 7 || isNatDex || (isBDSP && species.baseSpecies === 'Unown')) &&
 					<p><label class="label">Hidden Power Type: <select name="hptype" class="button" onChange={this.changeHPType}>
 						{Dex.types.all().map(type => (
 							type.HPivs && <option value={type.name} selected={set.hpType === type.name}>
