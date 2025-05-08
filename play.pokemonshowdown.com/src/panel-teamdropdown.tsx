@@ -6,7 +6,7 @@
  */
 
 import { PS, type Team } from "./client-main";
-import { PSPanelWrapper, PSRoomPanel } from "./panels";
+import { PSIcon, PSPanelWrapper, PSRoomPanel } from "./panels";
 import { Dex, type ModdedDex, toID, type ID } from "./battle-dex";
 import { BattleNatures, BattleStatIDs, BattleStatNames, type StatNameExceptHP } from "./battle-dex-data";
 
@@ -609,9 +609,10 @@ export function TeamBox(props: { team: Team | null, noLink?: boolean, button?: b
 			if (!team.packedTeam) {
 				icons = <em>(empty team)</em>;
 			} else {
-				icons = PSTeambuilder.packedTeamNames(team.packedTeam).map(species =>
-					// can't use PSIcon, weird interaction with iconCache
-					<span class="picon" style={Dex.getPokemonIcon(species)}></span>
+				icons = PSTeambuilder.packedTeamNames(team.packedTeam).map(pokemon =>
+					// can't use <PSIcon>, weird interaction with iconCache
+					// don't try this at home; I'm a trained professional
+					PSIcon({ pokemon })
 				);
 			}
 			team.iconCache = icons;
