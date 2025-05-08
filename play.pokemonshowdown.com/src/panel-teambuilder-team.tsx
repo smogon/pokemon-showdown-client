@@ -18,6 +18,15 @@ class TeamRoom extends PSRoom {
 	 * and constantly checking for its existence is legitimately annoying... */
 	team!: Team;
 	uploaded = false;
+	override clientCommands = this.parseClientCommands({
+		'validate'(target) {
+			if (this.team.format.length <= 4) {
+				return this.errorReply(`You must select a format first.`);
+			}
+			this.send(`/utm ${this.team.packedTeam}`);
+			this.send(`/vtm ${this.team.format}`);
+		},
+	});
 	constructor(options: RoomOptions) {
 		super(options);
 		const team = PS.teams.byKey[this.id.slice(5)] || null;
@@ -53,18 +62,13 @@ class TeamPanel extends PSRoomPanel<TeamRoom> {
 	static readonly Model = TeamRoom;
 	static readonly title = 'Team';
 
-	resources?: FormatResource;
-
 	constructor(props?: { room: TeamRoom }) {
 		super(props);
 		const room = this.props.room;
 		if (room.team) {
-			TeamPanel.getFormatResources(room.team.format).then(resources => {
-				this.resources = resources;
+			TeamPanel.getFormatResources(room.team.format).then(() => {
 				this.forceUpdate();
 			});
-		} else {
-			this.resources = null;
 		}
 	}
 
@@ -117,6 +121,7 @@ class TeamPanel extends PSRoomPanel<TeamRoom> {
 		this.props.room.uploaded = false;
 		PS.prefs.uploadprivacy = !(ev.currentTarget as HTMLInputElement).checked;
 		PS.prefs.save();
+		this.forceUpdate();
 	};
 	handleChangeFormat = (ev: Event) => {
 		const dropdown = ev.currentTarget as HTMLButtonElement;
@@ -125,6 +130,9 @@ class TeamPanel extends PSRoomPanel<TeamRoom> {
 		room.setFormat(dropdown.value);
 		room.save();
 		this.forceUpdate();
+		TeamPanel.getFormatResources(room.team.format).then(() => {
+			this.forceUpdate();
+		});
 	};
 	save = () => {
 		this.props.room.save();
@@ -134,7 +142,8 @@ class TeamPanel extends PSRoomPanel<TeamRoom> {
 
 	override render() {
 		const room = this.props.room;
-		if (!room.team) {
+		const team = room.team;
+		if (!team) {
 			return <PSPanelWrapper room={room}>
 				<a class="button" href="teambuilder" data-target="replace">
 					<i class="fa fa-chevron-left" aria-hidden></i> List
@@ -145,27 +154,70 @@ class TeamPanel extends PSRoomPanel<TeamRoom> {
 			</PSPanelWrapper>;
 		}
 
-		const info = this.resources;
-		const formatName = BattleLog.formatName(room.team.format);
+		const info = TeamPanel.formatResources[team.format];
+		const formatName = BattleLog.formatName(team.format);
 		return <PSPanelWrapper room={room} scrollable><div class="pad">
 			<a class="button" href="teambuilder" data-target="replace">
 				<i class="fa fa-chevron-left" aria-hidden></i> Teams
-			</a>
+			</a> {}
+			{team.uploaded?.private ? (
+				<button class="button cur" disabled>
+					<i class="fa fa-cloud"></i> Account
+				</button>
+			) : team.uploaded ? (
+				<button class="button cur" disabled>
+					<i class="fa fa-globe"></i> Account (public)
+				</button>
+			) : team.teamid ? (
+				<button class="button cur" disabled>
+					<i class="fa fa-plug"></i> Disconnected (wrong account?)
+				</button>
+			) : (
+				<button class="button cur" disabled>
+					<i class="fa fa-laptop"></i> Local
+				</button>
+			)}
 			<div style="float:right"><FormatDropdown
-				format={room.team.format} placeholder="" selectType="teambuilder" onChange={this.handleChangeFormat}
+				format={team.format} placeholder="" selectType="teambuilder" onChange={this.handleChangeFormat}
 			/></div>
 			<label class="label teamname">
 				Team name:{}
 				<input
-					class="textbox" type="text" value={room.team.name}
+					class="textbox" type="text" value={team.name}
 					onInput={this.handleRename} onChange={this.handleRename} onKeyUp={this.handleRename}
 				/>
 			</label>
-			<TeamEditor team={room.team} onChange={this.save} />
+			<TeamEditor team={team} onChange={this.save} readonly={!!team.teamid && !team.uploaded}>
+				{!!(team.packedTeam && team.format.length > 4) && <p>
+					<button data-cmd="/validate" class="button"><i class="fa fa-check"></i> Validate</button>
+				</p>}
+				{team.uploaded?.private === null && <p>
+					<small>Share URL:</small> {}
+					<input type="text" class="textbox" value={`https://psim.us/t/${team.uploaded.teamid}`} readOnly size={24} />
+				</p>}
+				{!!(team.packedTeam || team.uploaded) && <p>
+					<label class="checkbox inline">
+						<input
+							name="teamprivacy" checked={!PS.prefs.uploadprivacy}
+							type="checkbox" onChange={this.changePrivacyPref}
+						/> Public
+					</label>
+					{room.uploaded ? (
+						<button class="button exportbutton" disabled>
+							<i class="fa fa-check"></i> Saved to your account
+						</button>
+					) : (
+						<button class="button exportbutton" onClick={this.uploadTeam}>
+							<i class="fa fa-upload"></i> Save to my account {}
+							({PS.prefs.uploadprivacy ? 'use on other devices' : 'share and make searchable'})
+						</button>
+					)}
+				</p>}
+			</TeamEditor>
 			{!!(info && (info.resources.length || info.url)) && (
-				<div style={{ paddingLeft: "5px" }}>
-					<h3 style={{ fontSize: "12px" }}>Teambuilding resources for {formatName}:</h3>
-					<ul>
+				<details class="details" open>
+					<summary><strong>Teambuilding resources for {formatName}</strong></summary>
+					<div style="margin-left:5px"><ul>
 						{info.resources.map(resource => (
 							<li><p><a href={resource.url} target="_blank">{resource.resource_name}</a></p></li>
 						))}
@@ -173,26 +225,9 @@ class TeamPanel extends PSRoomPanel<TeamRoom> {
 					<p>
 						Find {info.resources.length ? 'more ' : ''}
 						helpful resources for {formatName} on <a href={info.url} target="_blank">the Smogon Dex</a>.
-					</p>
-				</div>
+					</p></div>
+				</details>
 			)}
-			<p>
-				<label class="checkbox" style="display: inline-block">
-					<input
-						name="teamprivacy" checked={!PS.prefs.uploadprivacy}
-						type="checkbox" onChange={this.changePrivacyPref}
-					/> Public
-				</label>
-				{room.uploaded ? (
-					<button class="button exportbutton" disabled>
-						<i class="fa fa-check"></i> Saved to your account
-					</button>
-				) : (
-					<button class="button exportbutton" onClick={this.uploadTeam}>
-						<i class="fa fa-upload"></i> Save to my account (use on other devices)
-					</button>
-				)}
-			</p>
 		</div></PSPanelWrapper>;
 	}
 }

@@ -31,10 +31,6 @@ window.addEventListener('drop', e => {
 	PS.dragging = null;
 	PS.updateAutojoin();
 });
-window.addEventListener('dragend', e => {
-	e.preventDefault();
-	PS.dragging = null;
-});
 window.addEventListener('dragover', e => {
 	// this prevents the bounce-back animation
 	e.preventDefault();
@@ -46,9 +42,9 @@ export class PSHeader extends preact.Component<{ style: object }> {
 		PS.update();
 	};
 	static handleDragEnter = (e: DragEvent) => {
-		console.log('dragenter ' + e.dataTransfer!.dropEffect);
+		// console.log('dragenter ' + e.dataTransfer!.dropEffect);
 		e.preventDefault();
-		if (!PS.dragging) return; // TODO: handle dragging other things onto roomtabs
+		if (PS.dragging?.type !== 'room') return;
 		/** the element being passed over */
 		const target = e.currentTarget as HTMLAnchorElement;
 
@@ -161,7 +157,7 @@ export class PSHeader extends preact.Component<{ style: object }> {
 			"role": "tab", "id": `roomtab-${id}`, "aria-selected": cur ? "true" : "false",
 		};
 		if (id === 'rooms') aria['aria-label'] = "Join chat";
-		return <li class={id === '' ? 'home-li' : ''}>
+		return <li class={id === '' ? 'home-li' : ''} key={id}>
 			<a
 				class={className} href={`/${id}`} draggable={true} title={hoverTitle || undefined}
 				onDragEnter={this.handleDragEnter} onDragStart={this.handleDragStart}

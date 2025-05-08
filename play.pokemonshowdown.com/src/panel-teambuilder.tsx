@@ -7,8 +7,8 @@
 
 import { PS, PSRoom, type Team } from "./client-main";
 import { PSPanelWrapper, PSRoomPanel } from "./panels";
-import { TeamBox, TeamFolder } from "./panel-teamdropdown";
-import { Dex, PSUtils, type ID } from "./battle-dex";
+import { TeamBox } from "./panel-teamdropdown";
+import { Dex, PSUtils, toID, type ID } from "./battle-dex";
 
 class TeambuilderRoom extends PSRoom {
 	readonly DEFAULT_FORMAT = `gen${Dex.gen}` as ID;
@@ -25,10 +25,11 @@ class TeambuilderRoom extends PSRoom {
 
 	override clientCommands = this.parseClientCommands({
 		'newteam'(target) {
-			if (target === 'bottom') {
-				PS.teams.push(this.createTeam());
+			const isBox = ` ${target} `.includes(' box ');
+			if (` ${target} `.includes(' bottom ')) {
+				PS.teams.push(this.createTeam(null, isBox));
 			} else {
-				PS.teams.unshift(this.createTeam());
+				PS.teams.unshift(this.createTeam(null, isBox));
 			}
 			this.update(null);
 		},
@@ -46,7 +47,7 @@ class TeambuilderRoom extends PSRoom {
 		PS.alert(`Unrecognized command: ${msg}`);
 	}
 
-	createTeam(copyFrom?: Team): Team {
+	createTeam(copyFrom?: Team | null, isBox = false): Team {
 		if (copyFrom) {
 			return {
 				name: `Copy of ${copyFrom.name}`,
@@ -54,17 +55,19 @@ class TeambuilderRoom extends PSRoom {
 				folder: copyFrom.folder,
 				packedTeam: copyFrom.packedTeam,
 				iconCache: null,
+				isBox: copyFrom.isBox,
 				key: '',
 			};
 		} else {
 			const format = this.curFolder && !this.curFolder.endsWith('/') ? this.curFolder as ID : this.DEFAULT_FORMAT;
 			const folder = this.curFolder.endsWith('/') ? this.curFolder.slice(0, -1) : '';
 			return {
-				name: `Untitled ${PS.teams.list.length + 1}`,
+				name: `${isBox ? "Box" : "Untitled"} ${PS.teams.list.length + 1}`,
 				format,
 				folder,
 				packedTeam: '',
 				iconCache: null,
+				isBox,
 				key: '',
 			};
 		}
@@ -82,21 +85,138 @@ class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
 		let elem = e.target as HTMLElement | null;
 		let folder: string | null = null;
 		while (elem) {
+			if (elem.getAttribute('data-href')) {
+				return;
+			}
 			if (elem.className === 'selectFolder') {
 				folder = elem.getAttribute('data-value') || '';
 				break;
-			} else if (elem.className === 'folderlist') {
+			}
+			if (elem.className === 'folderlist') {
 				return;
 			}
 			elem = elem.parentElement;
 		}
 		if (folder === null) return;
-		room.curFolderKeep = folder;
-		room.curFolder = folder;
 		e.preventDefault();
 		e.stopImmediatePropagation();
+		if (folder === '++') {
+			PS.prompt("Folder name?", '', { parentElem: elem!, okButton: "Create" }).then(name => {
+				if (!name) return;
+				room.curFolderKeep = `${name}/`;
+				room.curFolder = `${name}/`;
+				this.forceUpdate();
+			});
+			return;
+		}
+		room.curFolder = folder;
 		this.forceUpdate();
 	};
+	addFormatFolder = (ev: Event) => {
+		const room = this.props.room;
+		const button = ev.currentTarget as HTMLButtonElement;
+		const folder = toID(button.value);
+		room.curFolderKeep = folder;
+		room.curFolder = folder;
+		button.value = '';
+		this.forceUpdate();
+	};
+	dragEnterTeam = (ev: DragEvent) => {
+		if (PS.dragging?.type !== 'team') return;
+		const value = (ev.currentTarget as HTMLElement)?.getAttribute('data-teamkey');
+		const team = value ? PS.teams.byKey[value] : null;
+		if (!team || team === PS.dragging.team) return;
+		const iDragged = PS.teams.list.indexOf(PS.dragging.team);
+		const iOver = PS.teams.list.indexOf(team);
+		if (iDragged < 0 || iOver < 0) return; // shouldn't happen
+
+		PS.teams.list.splice(iDragged, 1);
+		// by coincidence, splicing into iOver works in both directions
+		// before: Dragged goes before Over, splice at i
+		// after: Dragged goes after Over, splice at i - 1 + 1
+		PS.teams.list.splice(iOver, 0, PS.dragging.team);
+		this.forceUpdate();
+	};
+	dragEnterFolder = (ev: DragEvent) => {
+		const value = (ev.currentTarget as HTMLElement)?.getAttribute('data-value') || null;
+		if (value === null || PS.dragging?.type !== 'team') return;
+		if (value === '++' || value === '') return;
+
+		PS.dragging.folder = value;
+		this.forceUpdate();
+	};
+	dragLeaveFolder = (ev: DragEvent) => {
+		const value = (ev.currentTarget as HTMLElement)?.getAttribute('data-value') || null;
+		if (value === null || PS.dragging?.type !== 'team') return;
+		if (value === '++' || value === '') return;
+
+		if (PS.dragging.folder === value) PS.dragging.folder = null;
+		this.forceUpdate();
+	};
+	dropFolder = (ev: DragEvent) => {
+		const value = (ev.currentTarget as HTMLElement)?.getAttribute('data-value') || null;
+		if (value === null || PS.dragging?.type !== 'team') return;
+		if (value === '++' || value === '') return;
+
+		PS.dragging.folder = null;
+		if (value.endsWith('/')) {
+			PS.dragging.team.folder = value.slice(0, -1);
+		} else {
+			PS.dragging.team.format = value as ID;
+		}
+		PS.teams.save();
+		this.forceUpdate();
+	};
+	renderFolder(value: string) {
+		const { room } = this.props;
+		const cur = room.curFolder === value;
+		let children;
+		const folderOpenIcon = cur ? 'fa-folder-open' : 'fa-folder';
+		if (value.endsWith('/')) {
+			// folder
+			children = [
+				<i class={`fa ${folderOpenIcon}${value === '/' ? '-o' : ''}`}></i>,
+				value.slice(0, -1) || '(uncategorized)',
+			];
+		} else if (value === '') {
+			children = [
+				<em>(all)</em>,
+			];
+		} else if (value === '++') {
+			children = [
+				<i class="fa fa-plus" aria-hidden></i>,
+				<em>(add folder)</em>,
+			];
+		} else {
+			children = [
+				<i class={`fa ${folderOpenIcon}-o`}></i>,
+				value.slice(4) || '(uncategorized)',
+			];
+		}
+
+		// folders were <div>s rather than <button>s because in theory it has
+		// less weird interactions with HTML5 drag-and-drop (looking at Firefox)
+		// modern browsers don't seem to have these bugs, so we're going to make
+		// them buttons for now
+		const active = (PS.dragging as any)?.folder === value ? ' active' : '';
+		if (cur) {
+			return <div
+				class="folder cur" data-value={value}
+				onDragEnter={this.dragEnterFolder} onDragLeave={this.dragLeaveFolder} onDrop={this.dropFolder}
+			>
+				<div class="folderhack3">
+					<div class="folderhack1"></div><div class="folderhack2"></div>
+					<button class={`selectFolder${active}`} data-value={value}>{children}</button>
+				</div>
+			</div>;
+		}
+		return <div
+			class="folder" data-value={value}
+			onDragEnter={this.dragEnterFolder} onDragLeave={this.dragLeaveFolder} onDrop={this.dropFolder}
+		>
+			<button class={`selectFolder${active}`} data-value={value}>{children}</button>
+		</div>;
+	}
 	renderFolderList() {
 		const room = this.props.room;
 		// The folder list isn't actually saved anywhere:
@@ -124,6 +244,12 @@ class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
 				folderTable[format] = 1;
 			}
 		}
+		if (room.curFolderKeep.endsWith('/') || room.curFolder.endsWith('/')) {
+			if (!('/' in folderTable)) {
+				folders.push('/');
+				folderTable['/'] = 1;
+			}
+		}
 		if (!(room.curFolderKeep in folderTable)) {
 			folderTable[room.curFolderKeep] = 1;
 			folders.push(room.curFolderKeep);
@@ -140,13 +266,17 @@ class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
 
 		let renderedFormatFolders = [
 			<div class="foldersep"></div>,
-			<TeamFolder cur={false} value="+">
+			<div class="folder"><button
+				name="format" value="" data-selecttype="teambuilder"
+				class="selectFolder" data-href="/formatdropdown" onChange={this.addFormatFolder}
+			>
 				<i class="fa fa-plus" aria-hidden></i><em>(add format folder)</em>
-			</TeamFolder>,
+			</button></div>,
 		];
 
 		let renderedFolders: preact.ComponentChild[] = [];
 
+		/** 0 = folder, 1-9 = format generation */
 		let gen = -1;
 		for (let format of folders) {
 			const newGen = format.endsWith('/') ? 0 : parseInt(format.charAt(3), 10);
@@ -161,35 +291,17 @@ class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
 					renderedFolders.push(<div class="folder"><h3>Gen {gen}</h3></div>);
 				}
 			}
-			const folderOpenIcon = room.curFolder === format ? 'fa-folder-open' : 'fa-folder';
-			if (gen === 0) {
-				renderedFolders.push(<TeamFolder cur={room.curFolder === format} value={format}>
-					<i
-						class={`fa ${folderOpenIcon}${format === '/' ? '-o' : ''}`}
-					></i>
-					{format.slice(0, -1) || '(uncategorized)'}
-				</TeamFolder>);
-				continue;
-			}
-
-			renderedFolders.push(<TeamFolder cur={room.curFolder === format} value={format}>
-				<i class={`fa ${folderOpenIcon}-o`}></i>
-				{format.slice(4) || '(uncategorized)'}
-			</TeamFolder>);
+			renderedFolders.push(this.renderFolder(format));
 		}
 		renderedFolders.push(...renderedFormatFolders);
 
 		return <div class="folderlist" onClick={this.selectFolder}>
 			<div class="folderlistbefore"></div>
 
-			<TeamFolder cur={!room.curFolder} value="">
-				<em>(all)</em>
-			</TeamFolder>
+			{this.renderFolder('')}
 			{renderedFolders}
 			<div class="foldersep"></div>
-			<TeamFolder cur={false} value="++">
-				<i class="fa fa-plus" aria-hidden></i><em>(add folder)</em>
-			</TeamFolder>
+			{this.renderFolder('++')}
 
 			<div class="folderlistafter"></div>
 		</div>;
@@ -239,15 +351,25 @@ class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
 					<h2>All Teams <small>({teams.length})</small></h2>
 				)}
 				<p>
-					<button data-cmd="/newteam" class="button big"><i class="fa fa-plus-circle" aria-hidden></i> New Team</button>
+					<button data-cmd="/newteam" class="button big"><i class="fa fa-plus-circle" aria-hidden></i> New Team</button> {}
+					<button data-cmd="/newteam box" class="button"><i class="fa fa-archive" aria-hidden></i> New Box</button>
 				</p>
 				<ul class="teamlist">
 					{teams.map(team => team ? (
-						<li key={team.key}>
+						<li key={team.key} onDragEnter={this.dragEnterTeam} data-teamkey={team.key}>
 							<TeamBox team={team} /> {}
 							<button data-cmd={`/deleteteam ${team.key}`} class="option">
 								<i class="fa fa-trash" aria-hidden></i> Delete
-							</button>
+							</button> {}
+							{team.uploaded?.private ? (
+								<i class="fa fa-cloud gray"></i>
+							) : team.uploaded ? (
+								<i class="fa fa-globe gray"></i>
+							) : team.teamid ? (
+								<i class="fa fa-plug gray"></i>
+							) : (
+								null
+							)}
 						</li>
 					) : (
 						<li key="undelete">
@@ -258,7 +380,8 @@ class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
 					))}
 				</ul>
 				<p>
-					<button data-cmd="/newteam bottom" class="button"><i class="fa fa-plus-circle" aria-hidden></i> New Team</button>
+					<button data-cmd="/newteam bottom" class="button"><i class="fa fa-plus-circle" aria-hidden></i> New Team</button> {}
+					<button data-cmd="/newteam box bottom" class="button"><i class="fa fa-archive" aria-hidden></i> New Box</button>
 				</p>
 			</div>
 		</PSPanelWrapper>;
