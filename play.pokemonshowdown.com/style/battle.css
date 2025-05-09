@@ -809,32 +809,32 @@ License: GPLv2
 	box-sizing: border-box;
 }
 
-.tooltip-locking .tooltip::after, .tooltip-locking .tooltip::after {
+.tooltip-locking-click .tooltip::before, .tooltip-locking-click .tooltip::after,
+.tooltip-locking-tap .tooltip::before, .tooltip-locking-tap .tooltip::after {
 	content: "";
 	position: absolute;
-	bottom: -2px;
-	left: -2px;
 	border: 2px solid transparent;
 	box-sizing: border-box;
 	border-radius: 5px;
-	animation-name: tooltip-locking-top-left;
 	animation-duration: 500ms;
 	animation-fill-mode: forwards;
 	animation-delay: 75ms;
 }
 
-.tooltip-locking .tooltip::before, .tooltip-locking .tooltip::before {
-	content: "";
-	position: absolute;
+.tooltip-locking-click .tooltip::after, .tooltip-locking-click .tooltip::before {
+	animation-duration: 700ms;
+}
+
+.tooltip-locking-click .tooltip::after, .tooltip-locking-tap .tooltip::after {
+	bottom: -2px;
+	left: -2px;
+	animation-name: tooltip-locking-top-left;
+}
+
+.tooltip-locking-click .tooltip::before, .tooltip-locking-tap .tooltip::before {
 	top: -2px;
 	right: -2px;
-	border: 2px solid transparent;
-	box-sizing: border-box;
-	border-radius: 5px;
 	animation-name: tooltip-locking-bottom-right;
-	animation-duration: 500ms;
-	animation-fill-mode: forwards;
-	animation-delay: 75ms;
 }
 
 @keyframes tooltip-locking-top-left {
