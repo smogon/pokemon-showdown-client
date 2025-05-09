@@ -964,7 +964,8 @@ class TeamTextbox extends preact.Component<{ editor: TeamEditorState, onChange?:
 		case 'pokemon': {
 			const species = this.editor.dex.species.get(name);
 			const abilities = Object.values(species.abilities);
-			const requiredItem = !(this.editor.format.includes('hackmons') || this.editor.format.endsWith('bh')) && species.requiredItems.length === 1;
+			const requiredItem = !(this.editor.format.includes('hackmons') || this.editor.format.endsWith('bh')) &&
+				species.requiredItems.length === 1;
 			this.editor.sets[focus.setIndex] ||= {
 				ability: abilities.length === 1 ? abilities[0] : undefined,
 				item: requiredItem ? species.requiredItems[0] : undefined,
