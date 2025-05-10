@@ -765,14 +765,14 @@ class BattleTooltips {
 			if (this.battle.gen === 1 && !toID(this.battle.tier).includes('stadium') &&
 				['recover', 'softboiled', 'rest'].includes(move.id)) {
 				const hpValues = [];
-				let hp = serverPokemon.maxhp - 255;
-				if (hp > 0 && serverPokemon.hp % 256 !== 0) {
+				const hp = serverPokemon.maxhp - 255;
+				if (hp % 256 > 0) {
 					hpValues.push(hp);
 					if (hp - 256 > 0) {
 						hpValues.push(hp - 256);
 					}
 				}
-				if (hpValues.length) text += `<p>Will fail if HP is ${hpValues.join(' or ')}</p>`;
+				if (hpValues.length) text += `<p>Will fail if current HP is ${hpValues.join(' or ')}</p>`;
 			}
 		}
 		return text;
