@@ -38,6 +38,8 @@ class TeamEditorState extends PSModel {
 	isLetsGo = false;
 	isNatDex = false;
 	isBDSP = false;
+	formeLegality: 'normal' | 'hackmons' | 'custom' = 'normal';
+	abilityLegality: 'normal' | 'hackmons' = 'normal';
 	defaultLevel = 100;
 	readonly: boolean;
 	constructor(team: Team, readonly = false) {
@@ -60,6 +62,20 @@ class TeamEditorState extends PSModel {
 		this.isLetsGo = formatid.includes('letsgo');
 		this.isNatDex = formatid.includes('nationaldex') || formatid.includes('natdex');
 		this.isBDSP = formatid.includes('bdsp');
+		if (formatid.includes('almostanyability') || formatid.includes('aaa')) {
+			this.abilityLegality = 'hackmons';
+		} else {
+			this.abilityLegality = 'normal';
+		}
+		if (formatid.includes('hackmons') || formatid.includes('bh')) {
+			this.formeLegality = 'hackmons';
+			this.abilityLegality = 'hackmons';
+		} else if (formatid.includes('metronome') || formatid.includes('customgame')) {
+			this.formeLegality = 'custom';
+			this.abilityLegality = 'hackmons';
+		} else {
+			this.formeLegality = 'normal';
+		}
 
 		this.defaultLevel = 100;
 		if (
@@ -424,6 +440,42 @@ class TeamEditorState extends PSModel {
 			}
 		}
 		return counters;
+	}
+	getDefaultAbility(set: Dex.PokemonSet) {
+		if (this.gen < 3 || this.isLetsGo || this.formeLegality === 'custom') return set.ability;
+		const species = this.dex.species.get(set.species);
+		if (this.formeLegality === 'hackmons') {
+			// TODO: support gen 9 hackmons forme legality more completely than this
+			if (this.gen < 9 || species.baseSpecies !== 'Xerneas') return set.ability;
+			// falls through to final return statement
+		} else if (this.abilityLegality === 'hackmons') {
+			if (!species.battleOnly) return set.ability;
+			if (species.requiredItems.length || species.baseSpecies === 'Meloetta') return set.ability;
+			// battle only species only ever have one ability
+			// if they don't have a required item and aren't Meloetta, they change formes with that ability
+			// so it's forced, even in AAA
+			return species.abilities[0];
+		}
+		const abilities = Object.values(species.abilities);
+		if (abilities.length === 1) return abilities[0];
+		if (set.ability && abilities.includes(set.ability)) return set.ability;
+		return undefined;
+	}
+	getDefaultItem(set: Dex.PokemonSet, defaultToNoItem?: boolean) {
+		const species = this.dex.species.get(set.species);
+		let items = species.requiredItems;
+		if (this.gen !== 7 && !this.isNatDex) {
+			// Require plates on Arceus when Z crystals don't exist
+			items = items.filter(i => !i.endsWith('ium Z'));
+		}
+		if (items.length === 1) {
+			if (this.formeLegality === 'normal' ||
+				this.formeLegality === 'hackmons' && this.gen === 9 && species.battleOnly &&
+				!species.isMega && !species.isPrimal && species.name !== 'Necrozma-Ultra') {
+				return items[0];
+			}
+		}
+		return defaultToNoItem ? undefined : set.item;
 	}
 	save() {
 		this.team.packedTeam = PSTeambuilder.packTeam(this.sets);
@@ -962,17 +1014,17 @@ class TeamTextbox extends preact.Component<{ editor: TeamEditorState, onChange?:
 
 		switch (type) {
 		case 'pokemon': {
-			const species = this.editor.dex.species.get(name);
-			const abilities = Object.values(species.abilities);
-			const requiredItem = !(this.editor.format.includes('hackmons') || this.editor.format.endsWith('bh')) &&
-				species.requiredItems.length === 1;
-			this.editor.sets[focus.setIndex] ||= {
-				ability: abilities.length === 1 ? abilities[0] : undefined,
-				item: requiredItem ? species.requiredItems[0] : undefined,
+			const set = this.editor.sets[focus.setIndex] ||= {
 				species: '',
 				moves: [],
 			};
-			this.editor.sets[focus.setIndex].species = name;
+			// If this is a change made to an existing set, this function will have already returned above
+			// so there should never be an old item or ability to replace or fall back on
+			// but just in case...
+			const oldRequiredItem = set.item && this.editor.getDefaultItem(set, true);
+			set.species = name;
+			set.ability = this.editor.getDefaultAbility(set);
+			set.item = this.editor.getDefaultItem(set, oldRequiredItem === set.item);
 			this.replaceSet(focus.setIndex);
 			this.updateText(false, true);
 			break;
@@ -1494,13 +1546,10 @@ class TeamWizard extends preact.Component<{
 			const set = (editor.sets[setIndex] ||= { species: '', moves: [] });
 			switch (type) {
 			case 'pokemon':
+				const oldRequiredItem = set.item && editor.getDefaultItem(set, true);
 				set.species = name;
-				const species = editor.dex.species.get(name);
-				if (!(editor.format.includes('hackmons') || editor.format.endsWith('bh')) && species.requiredItems.length === 1) {
-					set.item = species.requiredItems[0];
-				}
-				const abilities = Object.values(species.abilities);
-				if (abilities.length === 1) set.ability = abilities[0];
+				set.ability = editor.getDefaultAbility(set);
+				set.item = editor.getDefaultItem(set, oldRequiredItem === set.item);
 				this.changeFocus({
 					setIndex,
 					type: reverse ? 'details' : 'ability',
