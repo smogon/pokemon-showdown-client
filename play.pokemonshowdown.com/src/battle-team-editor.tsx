@@ -964,8 +964,11 @@ class TeamTextbox extends preact.Component<{ editor: TeamEditorState, onChange?:
 		case 'pokemon': {
 			const species = this.editor.dex.species.get(name);
 			const abilities = Object.values(species.abilities);
+			const requiredItem = !(this.editor.format.includes('hackmons') || this.editor.format.endsWith('bh')) &&
+				species.requiredItems.length === 1;
 			this.editor.sets[focus.setIndex] ||= {
 				ability: abilities.length === 1 ? abilities[0] : undefined,
+				item: requiredItem ? species.requiredItems[0] : undefined,
 				species: '',
 				moves: [],
 			};
@@ -1492,6 +1495,12 @@ class TeamWizard extends preact.Component<{
 			switch (type) {
 			case 'pokemon':
 				set.species = name;
+				const species = editor.dex.species.get(name);
+				if (!(editor.format.includes('hackmons') || editor.format.endsWith('bh')) && species.requiredItems.length === 1) {
+					set.item = species.requiredItems[0];
+				}
+				const abilities = Object.values(species.abilities);
+				if (abilities.length === 1) set.ability = abilities[0];
 				this.changeFocus({
 					setIndex,
 					type: reverse ? 'details' : 'ability',
