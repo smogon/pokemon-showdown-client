@@ -763,7 +763,7 @@ class BattleTooltips {
 			}
 			// RBY healing move glitch
 			if (this.battle.gen === 1 && !toID(this.battle.tier).includes('stadium') &&
-					['recover', 'softboiled', 'rest'].includes(move.id)) {
+				['recover', 'softboiled', 'rest'].includes(move.id)) {
 				const hpValues = [];
 				let hp = serverPokemon.maxhp - 255;
 				if (hp > 0 && serverPokemon.hp % 256 !== 0) {
