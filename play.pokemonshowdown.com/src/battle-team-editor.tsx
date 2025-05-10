@@ -1547,6 +1547,7 @@ class TeamWizard extends preact.Component<{
 			switch (type) {
 			case 'pokemon':
 				const oldRequiredItem = set.item && editor.getDefaultItem(set, true);
+				if (set.name === set.species) delete set.name;
 				set.species = name;
 				set.ability = editor.getDefaultAbility(set);
 				set.item = editor.getDefaultItem(set, oldRequiredItem === set.item);
