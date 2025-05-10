@@ -541,10 +541,13 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 	}
 	renderMoveTargetControls(request: BattleMoveRequest, choices: BattleChoiceBuilder) {
 		const battle = this.props.room.battle;
-		const moveTarget = choices.currentMove()?.target;
+		let moveTarget = choices.currentMove()?.target;
+		if ((moveTarget === 'adjacentAlly' || moveTarget === 'adjacentFoe') && battle.gameType === 'freeforall') {
+			moveTarget = 'normal';
+		}
 		const moveChoice = choices.stringChoice(choices.current);
 
-		const userSlot = choices.index();
+		const userSlot = choices.index() + Math.floor(battle.mySide.n / 2) * battle.pokemonControlled;
 		const userSlotCross = battle.farSide.active.length - 1 - userSlot;
 
 		return [
