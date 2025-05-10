@@ -772,7 +772,7 @@ class BattleTooltips {
 						hpValues.push(hp - 256);
 					}
 				}
-				if (hpValues.length) text += `<p>Will fail if HP is ${hpValues.join(', ')}</p>`;
+				if (hpValues.length) text += `<p>Will fail if HP is ${hpValues.join(' or ')}</p>`;
 			}
 		}
 		return text;
