@@ -360,20 +360,31 @@ export class BattleLog {
 			break;
 
 		case 'turn':
+			const goToTurnButton = document.createElement('button');
 			const h2elem = document.createElement('h2');
+			goToTurnButton.className = 'subtle';
 			h2elem.className = 'battle-history';
 			let turnMessage;
+			let turnNumber: number;
 			if (this.battleParser) {
 				turnMessage = this.battleParser.parseArgs(args, {}).trim();
 				if (!turnMessage.startsWith('==') || !turnMessage.endsWith('==')) {
 					throw new Error("Turn message must be a heading.");
 				}
 				turnMessage = turnMessage.slice(2, -2).trim();
+				turnNumber = parseInt(turnMessage.split(' ')[1].trim());
 				this.battleParser.curLineSection = 'break';
 			} else {
 				turnMessage = `Turn ${args[1]}`;
+				turnNumber = parseInt(args[1]);
 			}
-			h2elem.innerHTML = BattleLog.escapeHTML(turnMessage);
+			goToTurnButton?.addEventListener?.('click', e => {
+				e.preventDefault();
+				this.scene?.battle.seekTurn(turnNumber);
+			});
+			goToTurnButton.innerHTML = BattleLog.escapeHTML(turnMessage);
+			h2elem.appendChild(goToTurnButton);
+
 			this.addSpacer();
 			this.addNode(h2elem);
 			break;
