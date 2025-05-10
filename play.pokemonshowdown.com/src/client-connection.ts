@@ -14,6 +14,8 @@ export class PSConnection {
 	socket: any = null;
 	connected = false;
 	queue = [] as string[];
+	private reconnectWorker: Worker | null = null;
+
 	constructor() {
 		this.connect();
 	}
@@ -33,6 +35,11 @@ export class PSConnection {
 			PS.connected = true;
 			for (const msg of this.queue) socket.send(msg);
 			this.queue = [];
+			if (this.reconnectWorker) {
+				this.reconnectWorker.postMessage('stop');
+				this.reconnectWorker.terminate();
+				this.reconnectWorker = null;
+			}
 			PS.update();
 		};
 		socket.onmessage = (e: MessageEvent) => {
@@ -49,6 +56,18 @@ export class PSConnection {
 				room.connected = false;
 			}
 			this.socket = null;
+			if (!this.reconnectWorker) {
+				this.reconnectWorker = new Worker('/js/reconnect-worker.js');
+				PS.room?.add('||Attempting to reconnect...');
+				this.reconnectWorker.onmessage = e => {
+					if (e.data === 'reconnect-check' && !this.connected) {
+						console.log('Worker-triggered reconnect...');
+						console.log('sending /reconnect command');
+						PS.room?.send('/reconnect');
+					}
+				};
+				this.reconnectWorker.postMessage('start');
+			}
 			PS.update();
 		};
 		socket.onerror = () => {
@@ -59,7 +78,7 @@ export class PSConnection {
 	}
 	disconnect() {
 		this.socket.close();
-		PS.connection = null;
+		// PS.connection = null;
 		PS.connected = false;
 		PS.isOffline = true;
 	}
