@@ -1744,7 +1744,8 @@ export const PS = new class extends PSModel {
 	 * they're dropped.
 	 */
 	dragging: { type: 'room', roomid: RoomID, foreground?: boolean } |
-		{ type: 'team', team: Team, folder: string | null } |
+		{ type: 'team', team: Team | number, folder: string | null } |
+		{ type: '?' } | // just a note not to try to figure out what type the dragged thing is
 		null = null;
 	lastMessageTime = '';
 

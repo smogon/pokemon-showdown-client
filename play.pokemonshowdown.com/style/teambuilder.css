@@ -530,6 +530,7 @@ you can't delete it by pressing Backspace */
 
 .set-button {
 	position: relative;
+	max-width: 660px;
 }
 .set-button table {
 	border: 0;

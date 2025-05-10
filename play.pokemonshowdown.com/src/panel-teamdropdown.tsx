@@ -683,10 +683,12 @@ class TeamDropdownPanel extends PSRoomPanel {
 			return true;
 		});
 	}
-	setFormat = (e: MouseEvent) => {
-		const target = e.currentTarget as HTMLButtonElement;
+	setFormat = (ev: MouseEvent) => {
+		const target = ev.currentTarget as HTMLButtonElement;
 		this.format = (target.name === 'format' && target.value) || '';
 		this.gen = (target.name === 'gen' && target.value) || '';
+		ev.preventDefault();
+		ev.stopImmediatePropagation();
 		this.forceUpdate();
 	};
 	click = (e: MouseEvent) => {
