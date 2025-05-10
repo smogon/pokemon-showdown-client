@@ -79,7 +79,7 @@ class TeamEditorState extends PSModel {
 		this.search.prependResults = null;
 		if (type === 'move') {
 			this.search.prependResults = this.getSearchMoves(set);
-			if (value && this.search.prependResults.some(row => row[1] === toID(value))) {
+			if (value && this.search.prependResults.some(row => row[1].split('_')[2] === toID(value))) {
 				value = '';
 			}
 		} else if (value) {
