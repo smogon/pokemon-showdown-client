@@ -87,6 +87,10 @@ class PSPrefs extends PSStreamModel<string | null> {
 	ignoreopp: boolean | null = null;
 	autotimer: boolean | null = null;
 	rightpanelbattles: boolean | null = null;
+	disallowspectators: boolean | null = null;
+	starredformats: { [formatid: string]: boolean | null } | null = null;
+	disallowspectators: boolean | null = null;
+	starredformats: { [formatid: string]: boolean | null } | null = null;
 
 	/**
 	 * Show "User joined" and "User left" messages. serverid:roomid
@@ -1149,6 +1153,41 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 			} else {
 				this.add(`|error|You're not currently searching.`, true);
 			}
+		},
+		'disallowspectators'(target) {
+			if (target === 'off') {
+				PS.prefs.set('disallowspectators', false);
+				return false;
+			}
+			PS.prefs.set('disallowspectators', true);
+		},
+		'star'(target) {
+			const id = toID(target);
+			if (!window.BattleFormats[id]) {
+				this.add(`|error|Format ${id} does not exist`);
+				return false;
+			}
+			let starred = PS.prefs.starredformats || {};
+			starred[id] = true;
+			PS.prefs.set('starredformats',starred);
+			this.add(`||Added format ${id} to favourites`);
+			this.update(null);
+		},
+		'unstar'(target) {
+			const id = toID(target);
+			if (!window.BattleFormats[id]) {
+				this.add(`|error| Format ${id} does not exist`);
+				return false;
+			}
+			let starred = PS.prefs.starredformats || {};
+			if (!starred[id]) {
+				this.add(`|error|${id} is not in your favourites!`);
+				return false;
+			}
+			delete starred[id];
+			PS.prefs.set('starredformats', starred);
+			this.add(`||Removed format ${id} from favourites`);
+			this.update(null);
 		},
 		'nick'(target, cmd, element) {
 			const noNameChange = PS.user.userid === toID(target);
