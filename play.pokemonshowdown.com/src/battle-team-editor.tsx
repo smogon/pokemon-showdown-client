@@ -1498,8 +1498,6 @@ class TeamWizard extends preact.Component<{
 				const species = editor.dex.species.get(name);
 				if (!(editor.format.includes('hackmons') || editor.format.endsWith('bh')) && species.requiredItems.length === 1) {
 					set.item = species.requiredItems[0];
-				} else {
-					set.item = '';
 				}
 				const abilities = Object.values(species.abilities);
 				if (abilities.length === 1) set.ability = abilities[0];
