@@ -391,12 +391,32 @@ export class MainMenuRoom extends PSRoom {
 			break;
 		case 'teamupload':
 			if (PS.teams.uploading) {
-				PS.teams.uploading.uploaded = {
+				const team = PS.teams.uploading;
+				team.uploaded = {
 					teamid: response.teamid,
 					notLoaded: false,
 					private: response.private,
 				};
+				PS.rooms[`team-${team.key}`]?.update(null);
+				PS.rooms.teambuilder?.update(null);
+				PS.teams.uploading = null;
 			}
+			break;
+		case 'teamupdate':
+			for (const team of PS.teams.list) {
+				if (team.teamid === response.teamid) {
+					team.uploaded = {
+						teamid: response.teamid,
+						notLoaded: false,
+						private: response.private,
+					};
+					PS.rooms[`team-${team.key}`]?.update(null);
+					PS.rooms.teambuilder?.update(null);
+					PS.teams.uploading = null;
+					break;
+				}
+			}
+			break;
 		}
 	}
 }
