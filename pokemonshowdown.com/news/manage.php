@@ -70,7 +70,7 @@ includeHeader();
 		$summary = str_replace("[b]", '<strong>', $summary);
 		$summary = str_replace("[/b]", '</strong>', $summary);
 		$summary = preg_replace('/\[psicon (pokemon|item|type|category)="([^\]]+)"\]/', '<psicon $1="$2" />', $summary);
-		$summary = preg_replace('/\[psicon (pokemon|item|type|category)=([^\]]+)\]/', '<psicon $1="$2" />', $summary);
+		$title = preg_replace('/\[psicon (pokemon|item|type|category)=([^\]]+)\]/', '<psicon $1="$2" />', $title);
 		$summary = '<p>'.$summary.'</p>';
 
 		$newsCache[$topic_id]['summary_html'] = $summary;

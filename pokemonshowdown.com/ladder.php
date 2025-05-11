@@ -28,14 +28,14 @@ $formats = array(
 	'gen9pu' => 'PU',
 	'gen9lc' => 'Little Cup',
 	'gen9monotype' => 'Monotype',
-	'gen9bssregh' => 'Battle Stadium Singles Regulation H',
+	'gen9bssregi' => 'Battle Stadium Singles Regulation I',
 	'gen9anythinggoes' => 'Anything Goes',
 	'gen9zu' => 'ZeroUsed',
 	'gen91v1' => '1v1',
 	'gen9cap' => 'CAP',
 	'gen9randomdoublesbattle' => 'Random Doubles Battle',
 	'gen9doublesou' => 'Doubles OU',
-	'gen9vgc2024regh' => 'VGC 2024 Regulation H',
+	'gen9vgc2025regi' => 'VGC 2025 Regulation I',
 	'gen9almostanyability' => 'Almost Any Ability',
 	'gen9balancedhackmons' => 'Balanced Hackmons',
 	'gen9godlygift' => 'Godly Gift',
@@ -54,6 +54,16 @@ $formats = array(
 $format = $formatid;
 if (isset($formats[$formatid])) $format = $formats[$formatid];
 $ladder = null;
+
+$coil_B = null;
+try {
+	if ($formatid) {
+		$coil_vals = json_decode(file_get_contents('../config/coil.json'), true);
+		if (isset($coil_vals[$formatid])) {
+			$coil_B = $coil_vals[$formatid];
+		}
+	}
+} catch (Exception $e) {}
 
 if (isset($_REQUEST['json'])) {
 	header('Content-Type: application/json');
@@ -77,6 +87,10 @@ if (isset($_REQUEST['json'])) {
 		$row['rprd'] = floatval($row['rprd']);
 		$row['rpsigma'] = floatval($row['rpsigma']);
 		$row['elo'] = floatval($row['elo']);
+		if ($coil_B !== null) {
+			$N = $row['w'] + $row['l'] + $row['t'];
+			$row['coil'] = $N ? 40 * $row['gxe'] * pow(2.0, -$coil_B / $N) : 0;
+		}
 	}
 	echo json_encode([
 		'formatid' => $formatid,
@@ -123,14 +137,14 @@ if (!$formatid) {
 			<li><a data-target="push" class="button nav-first" href="/ladder/gen91v1">1v1</a></li>
 			<li><a data-target="push" class="button" href="/ladder/gen9anythinggoes">Anything Goes</a></li>
 			<li><a data-target="push" class="button" href="/ladder/gen9zu">ZeroUsed</a></li>
-			<li><a data-target="push" class="button" href="/ladder/gen9bssregh">Battle Stadium Singles Regulation H</a></li>
+			<li><a data-target="push" class="button" href="/ladder/gen9bssregi">Battle Stadium Singles Regulation I</a></li>
 			<li><a data-target="push" class="button nav-last" href="/ladder/gen9cap">CAP</a></li>
 		</ul>
 		<ul class="laddernav">
 			<li><a data-target="push" class="button nav-first" href="/ladder/gen9randomdoublesbattle">Random Doubles Battle</a></li>
 			<li><a data-target="push" class="button" href="/ladder/gen9doublesou">Doubles OU</a></li>
-			<li><a data-target="push" class="button" href="/ladder/gen9vgc2024regh">VGC 2024 Regulation H</a></li>
-			<li><a data-target="push" class="button nav-last" href="/ladder/gen9vgc2024reghbo3">VGC 2024 Regulation H (Bo3)</a></li>
+			<li><a data-target="push" class="button" href="/ladder/gen9vgc2025regi">VGC 2025 Regulation I</a></li>
+			<li><a data-target="push" class="button nav-last" href="/ladder/gen9vgc2025regibo3">VGC 2025 Regulation I (Bo3)</a></li>
 		</ul>
 		<ul class="laddernav">
 			<li><a data-target="push" class="button nav-first" href="/ladder/gen9almostanyability">Almost Any Ability</a></li>
@@ -213,10 +227,6 @@ if (!$formatid) {
 			</tr>
 <?php
 	$toplist = $ladder->getTop();
-	$coil_vals = array();
-	try {
-		$coil_vals = json_decode(file_get_contents('../config/coil.json'), true);
-	} catch (Exception $e) {}
 	$i=0;
 
 	if (!count($toplist)) {
@@ -248,9 +258,9 @@ if (!$formatid) {
 
 <td>
 <?php
-			if (isset($coil_vals[$formatid])) {
+			if ($coil_B !== null) {
 				$N=$row['w']+$row['l']+$row['t'];
-				echo number_format($N ? 40*$row['gxe']*pow(2.0,-$coil_vals[$formatid]/$N) : 0,1,'.','');
+				echo number_format($N ? 40*$row['gxe']*pow(2.0,-$coil_B/$N) : 0,1,'.','');
 			} else echo '--';
 ?></td>
 

@@ -13,6 +13,9 @@
  * @license AGPLv3
  */
 
+import { PS } from "./client-main";
+declare const ColorThief: any;
+
 /**********************************************************************
  * PS Models
  *********************************************************************/
@@ -20,74 +23,78 @@
 
 const PSURL = `${document.location.protocol !== 'http:' ? 'https:' : ''}//${Config.routes.client}/`;
 
-export class PSSubscription {
-	observable: PSModel | PSStreamModel<any>;
-	listener: (value?: any) => void;
-	constructor(observable: PSModel | PSStreamModel<any>, listener: (value?: any) => void) {
+export class PSSubscription<T = any> {
+	observable: PSModel<T> | PSStreamModel<T>;
+	listener: (value: T) => void;
+	constructor(observable: PSModel<T> | PSStreamModel<T>, listener: (value: T) => void) {
 		this.observable = observable;
 		this.listener = listener;
 	}
 	unsubscribe() {
-		const index = this.observable.subscriptions.indexOf(this);
+		const index = this.observable.subscriptions.indexOf(this as any);
 		if (index >= 0) this.observable.subscriptions.splice(index, 1);
 	}
 }
 
 /**
- * PS Models roughly implement the Observable spec. Not the entire
- * spec - just the parts we use. PSModel just notifies subscribers of
- * updates - a simple model for React.
+ * PS Models roughly implement the Observable spec. By default,
+ * PSModel notifies listeners when the model is updated. With a
+ * value, PSModel can also stream data out.
+ *
+ * Note that unlike React's usual paradigm, PS Models are not
+ * immutable.
  */
-export class PSModel {
-	subscriptions = [] as PSSubscription[];
-	subscribe(listener: () => void) {
-		const subscription = new PSSubscription(this, listener);
+export class PSModel<T = null> {
+	subscriptions: PSSubscription<T>[] = [];
+	subscribe(listener: (value: T) => void) {
+		const subscription = new PSSubscription<T>(this, listener);
 		this.subscriptions.push(subscription);
 		return subscription;
 	}
-	subscribeAndRun(listener: () => void) {
+	subscribeAndRun(listener: (value: T) => void, value?: T) {
 		const subscription = this.subscribe(listener);
-		subscription.listener();
+		subscription.listener(value!);
 		return subscription;
 	}
-	update() {
+	update(this: PSModel): void;
+	update(value: T): void;
+	update(value?: T) {
 		for (const subscription of this.subscriptions) {
-			subscription.listener();
+			subscription.listener(value!);
 		}
 	}
 }
 
 /**
- * PS Models roughly implement the Observable spec. PSStreamModel
- * streams some data out. This is very not-React, which generally
- * expects the DOM to be a pure function of state. Instead PSModels
- * which hold state, PSStreamModels give state directly to views,
- * so that the model doesn't need to hold a redundant copy of state.
+ * @see PSModel
+ *
+ * The main difference is that StreamModel keeps a backlog,
+ * so events generated before something subscribes are not
+ * lost. Nullish values are not kept in the backlog.
  */
 export class PSStreamModel<T = string> {
-	subscriptions = [] as PSSubscription[];
-	updates = [] as T[];
+	subscriptions: PSSubscription<T>[] = [];
+	backlog: NonNullable<T>[] | null = [];
 	subscribe(listener: (value: T) => void) {
-		// TypeScript bug
-		const subscription: PSSubscription = new PSSubscription(this, listener);
+		const subscription: PSSubscription<T> = new PSSubscription<T>(this, listener);
 		this.subscriptions.push(subscription);
-		if (this.updates.length) {
-			for (const update of this.updates) {
+		if (this.backlog) {
+			for (const update of this.backlog) {
 				subscription.listener(update);
 			}
-			this.updates = [];
+			this.backlog = null;
 		}
 		return subscription;
 	}
-	subscribeAndRun(listener: (value: T) => void) {
+	subscribeAndRun(listener: (value: T) => void, value: T = null!) {
 		const subscription = this.subscribe(listener);
-		subscription.listener(null);
+		subscription.listener(value);
 		return subscription;
 	}
 	update(value: T) {
-		if (!this.subscriptions.length) {
+		if (!this.subscriptions.length && value !== null && value !== undefined) {
 			// save updates for later
-			this.updates.push(value);
+			(this.backlog ||= []).push(value);
 		}
 		for (const subscription of this.subscriptions) {
 			subscription.listener(value);
@@ -103,8 +110,6 @@ export class PSStreamModel<T = string> {
  * Background Model
  *********************************************************************/
 
-declare const ColorThief: any;
-
 /**
  * PS background model. Separate from PSPrefs because unlike prefs,
  * backgrounds can be set separately per server, instead of being
@@ -112,7 +117,7 @@ declare const ColorThief: any;
  *
  * Streams the current URL
  */
-const PSBackground = new class extends PSStreamModel {
+export const PSBackground = new class extends PSStreamModel<string | null> {
 	id = '';
 	curId = '';
 	attrib: { url: string, title: string, artist: string } | null = null;
@@ -122,13 +127,16 @@ const PSBackground = new class extends PSStreamModel {
 	constructor() {
 		super();
 		try {
-			let bg = localStorage.getItem('showdown_bg')!.split('\n');
+			let bg = localStorage.getItem('showdown_bg')?.split('\n') || [''];
 			if (bg.length === 1) {
-				this.set('', bg[0]);
+				// id
+				this.load('', bg[0]);
 			} else if (bg.length === 2) {
-				this.set(bg[0], bg[1]);
+				// url, id
+				this.load(bg[0], bg[1]);
 			} else if (bg.length >= 7) {
-				this.set(bg[0], bg[1], bg.slice(2));
+				// url, id, menuColors
+				this.load(bg[0], bg[1], bg.slice(2));
 			}
 		} catch {}
 	}
@@ -137,10 +145,16 @@ const PSBackground = new class extends PSStreamModel {
 			localStorage.setItem('showdown_bg', this.id);
 		} else if (this.menuColors) {
 			localStorage.setItem('showdown_bg', bgUrl + '\n' + this.id + '\n' + this.menuColors.join('\n'));
+		} else {
+			localStorage.setItem('showdown_bg', bgUrl + '\n' + this.id);
 		}
 	}
+	set(bgUrl: string, bgid: string) {
+		this.load(bgUrl, bgid);
+		this.save(bgUrl);
+	}
 
-	set(bgUrl: string, bgid: string, menuColors: string[] | null = null) {
+	load(bgUrl: string, bgid: string, menuColors: string[] | null = null) {
 		// id
 		this.id = bgid;
 
@@ -148,9 +162,10 @@ const PSBackground = new class extends PSStreamModel {
 		if (!bgid) {
 			if (location.host === 'smogtours.psim.us') {
 				bgid = 'shaymin';
-			} else if (location.host === Config.routes.client) {
+			} else {
 				const bgs = ['horizon', 'ocean', 'waterfall', 'shaymin', 'charizards'];
 				bgid = bgs[Math.floor(Math.random() * 5)];
+				// if someone clicked the random button, try to roll a different bg than before
 				if (bgid === this.curId) bgid = bgs[Math.floor(Math.random() * 5)];
 			}
 		}
@@ -265,37 +280,47 @@ const PSBackground = new class extends PSStreamModel {
 		this.menuColors = menuColors;
 		if (!menuColors) {
 			this.extractMenuColors(bgUrl);
-		} else {
-			this.save(bgUrl);
 		}
+		this.update(bgUrl);
 	}
 	extractMenuColors(bgUrl: string) {
 		const changeCount = this.changeCount;
 		// We need the image object to load it on a canvas to detect the main color.
 		const img = new Image();
 		img.onload = () => {
-			if (changeCount === PSBackground.changeCount) return;
-			// in case ColorThief throws from canvas,
-			// or localStorage throws
-			try {
-				const colorThief = new ColorThief();
-				const colors = colorThief.getPalette(img, 5);
-
-				let menuColors = [];
-				if (!colors) {
-					menuColors = ['0, 0%', '0, 0%', '0, 0%', '0, 0%', '0, 0%'];
-				} else {
-					for (let i = 0; i < 5; i++) {
-						const color = colors[i];
-						const hs = PSBackground.getHueSat(color[0] / 255, color[1] / 255, color[2] / 255);
-						menuColors.unshift(hs);
-					}
-				}
-				this.menuColors = menuColors;
-				PSBackground.save(bgUrl);
-			} catch {}
+			if (changeCount !== PSBackground.changeCount) return;
+			if (window.ColorThief) {
+				this.extractMenuColorsFromImg(img, bgUrl);
+			} else {
+				PS.libsLoaded.then(() => {
+					if (changeCount !== PSBackground.changeCount) return;
+					this.extractMenuColorsFromImg(img, bgUrl);
+				});
+			}
 		};
 		img.src = bgUrl;
+	}
+	extractMenuColorsFromImg(img: HTMLImageElement, bgUrl: string) {
+		// in case ColorThief throws from canvas,
+		// or localStorage throws
+		try {
+			const colorThief = new ColorThief();
+			const colors = colorThief.getPalette(img, 5);
+
+			let menuColors = [];
+			if (!colors) {
+				menuColors = ['0, 0%', '0, 0%', '0, 0%', '0, 0%', '0, 0%'];
+			} else {
+				for (let i = 0; i < 5; i++) {
+					const color = colors[i];
+					const hs = PSBackground.getHueSat(color[0] / 255, color[1] / 255, color[2] / 255);
+					menuColors.unshift(hs);
+				}
+			}
+			this.menuColors = menuColors;
+			this.update(null);
+			PSBackground.save(bgUrl);
+		} catch {}
 	}
 	getHueSat(r: number, g: number, b: number) {
 		const max = Math.max(r, g, b);
@@ -357,7 +382,10 @@ PSBackground.subscribe(bgUrl => {
 	let buttonStyleElem = document.getElementById('mainmenubuttoncolors');
 	if (!buttonStyleElem) {
 		if (cssBuf) {
-			buttonStyleElem = new HTMLStyleElement();
+			// Create a <style> element the correct way
+			// Direct construction like `new HTMLStyleElement()` throws an error,
+			// so we use document.createElement instead
+			buttonStyleElem = document.createElement("style");
 			buttonStyleElem.id = 'mainmenubuttoncolors';
 			buttonStyleElem.textContent = cssBuf;
 			document.head.appendChild(buttonStyleElem);

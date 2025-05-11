@@ -160,6 +160,7 @@ export class BattleScene implements BattleSceneStub {
 
 		this.$sprites = [$('<div></div>'), $('<div></div>')];
 		this.$spritesFront = [$('<div></div>'), $('<div></div>')];
+		this.sideConditions = [{}, {}];
 
 		this.$sprite.append(this.$sprites[1]);
 		this.$sprite.append(this.$spritesFront[1]);
@@ -241,7 +242,7 @@ export class BattleScene implements BattleSceneStub {
 		this.stopAnimation();
 		this.updateBgm();
 		if (!this.battle.started) {
-			this.$frame.append('<div class="playbutton"><button name="play" class="button"><i class="fa fa-play"></i> Play</button><br /><br /><button name="play-muted" class="startsoundchooser button" style="font-size:10pt">Play (sound off)</button></div>');
+			this.$frame.append('<div class="playbutton"><button name="play" class="button"><i class="fa fa-play" aria-hidden="true"></i> Play</button><br /><br /><button name="play-muted" class="startsoundchooser button" style="font-size:10pt">Play (sound off)</button></div>');
 			this.$frame.find('div.playbutton button[name=play-muted]').click(() => {
 				this.setMute(true);
 				this.battle.play();
@@ -568,14 +569,17 @@ export class BattleScene implements BattleSceneStub {
 		this.gen = gen;
 		this.activeCount = this.battle.nearSide?.active.length || 1;
 
-		const isSPL = (typeof this.battle.rated === 'string' && this.battle.rated.startsWith("Smogon Premier League"));
+		const rated = this.battle.rated;
 		let bg: string;
-		if (isSPL) {
+		if (typeof rated === 'string' && rated.startsWith("Smogon Premier League")) {
 			if (gen <= 1) bg = 'fx/bg-gen1-spl.png';
 			else if (gen <= 2) bg = 'fx/bg-gen2-spl.png';
 			else if (gen <= 3) bg = 'fx/bg-gen3-spl.png';
 			else if (gen <= 4) bg = 'fx/bg-gen4-spl.png';
 			else bg = 'fx/bg-spl.png';
+			this.setBgm(-101);
+		} else if (typeof rated === 'string' && rated.startsWith('National Pokemon Association')) {
+			bg = 'fx/bg-npa.png';
 			this.setBgm(-101);
 		} else {
 			if (gen <= 1) bg = 'fx/bg-gen1.png?';

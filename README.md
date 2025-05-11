@@ -25,24 +25,34 @@ Browser support
 Pokémon Showdown currently supports, in order of preference:
 
  - Chrome
+ - Chromium browsers (Edge, Vivaldi, Brave, Opera...)
  - Firefox
- - Opera
  - Safari 5+
- - IE11+
+ - IE11+ and Edge
  - Chrome/Firefox/Safari for various mobile devices
+ - any remotely modern browser
 
-Pokémon Showdown is usable, but expect degraded performance and certain features not to work in:
+Pokémon Showdown is usable, but expect degraded performance and certain features not to work in extremely legacy browsers like:
 
- - Safari 4+
- - IE9+
+ - Safari 4
+ - IE9-10
 
 Pokémon Showdown is mostly developed on Chrome, and Chrome or the desktop client is required for certain features like dragging-and-dropping teams from PS to your computer. However, bugs reported on any supported browser will usually be fixed pretty quickly.
 
-Testing
+New client
 ------------------------------------------------------------------------
 
-Client testing now requires a build step! Install the latest Node.js (we
-require v14 or later) and Git, and run `node build` (on Windows) or `./build`
+Development is proceeding on the new Preact client! The live version is
+available at https://play.pokemonshowdown.com/preactalpha
+
+You can contribute to it yourself using the same process as before, just
+use `testclient-beta.html` rather than `testclient.html`.
+
+Testing (the old client)
+------------------------------------------------------------------------
+
+Client testing requires a build step! Install the latest Node.js (we
+require v20 or later) and Git, and run `node build` (on Windows) or `./build`
 (on other OSes) to build.
 
 You can make and test client changes simply by building after each change,
@@ -62,12 +72,13 @@ contents:
     const POKEMON_SHOWDOWN_TESTCLIENT_KEY = 'sid';
 
 Replace `sid` with the contents of your actual PS `sid` cookie. You can quickly
-access this on Chrome through the URL bar:
+grab it from:
 
-![image](https://user-images.githubusercontent.com/551184/53414680-def43480-3994-11e9-89d0-c06098c23fa0.png)
-![image](https://user-images.githubusercontent.com/551184/53414760-119e2d00-3995-11e9-80f8-ecd17467310a.png)
+> https://play.pokemonshowdown.com/testclient-key.php
 
-(This is the only supported method of logging in on the beta Preact client.)
+Make sure to put it in `config/` and not `play.pokemonshowdown.com/config/`.
+
+(This is the only supported method of logging in on the beta Preact testclient.)
 
   [5]: https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS
 

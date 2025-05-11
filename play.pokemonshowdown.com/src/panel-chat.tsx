@@ -8,14 +8,27 @@
 import preact from "../js/lib/preact";
 import type { PSSubscription } from "./client-core";
 import { PS, PSRoom, type RoomOptions, type RoomID, type Team } from "./client-main";
-import { PSPanelWrapper, PSRoomPanel } from "./panels";
+import { PSView, PSPanelWrapper, PSRoomPanel } from "./panels";
 import { TeamForm } from "./panel-mainmenu";
 import { BattleLog } from "./battle-log";
 import type { Battle } from "./battle";
 import { MiniEdit } from "./miniedit";
-import { PSUtils, toID, type ID } from "./battle-dex";
+import { Dex, PSUtils, toID, type ID } from "./battle-dex";
+import { BattleTextParser, type Args } from "./battle-text-parser";
+import { PSLoginServer } from "./client-connection";
+import type { BattleRoom } from "./panel-battle";
+import { BattleChoiceBuilder } from "./battle-choices";
+import { ChatTournament, TournamentBox } from "./panel-chat-tournament";
 
 declare const formatText: any; // from js/server/chat-formatter.js
+
+type Challenge = {
+	formatName: string,
+	teamFormat: string,
+	message?: string,
+	acceptButtonLabel?: string,
+	rejectButtonLabel?: string,
+};
 
 export class ChatRoom extends PSRoom {
 	override readonly classType: 'chat' | 'battle' = 'chat';
@@ -26,79 +39,433 @@ export class ChatRoom extends PSRoom {
 	// PM-only properties
 	pmTarget: string | null = null;
 	challengeMenuOpen = false;
-	challengingFormat: string | null = null;
-	challengedFormat: string | null = null;
+	initialSlash = false;
+	challenging: Challenge | null = null;
+	challenged: Challenge | null = null;
+	/** n.b. this will be null outside of battle rooms */
+	battle: Battle | null = null;
+	log: BattleLog | null = null;
+	tour: ChatTournament | null = null;
+	lastMessage: Args | null = null;
+	lastMessageTime: number | null = null;
+
+	joinLeave: { join: string[], leave: string[], messageId: string } | null = null;
+	/** in order from least to most recent */
+	userActivity: string[] = [];
+	timeOffset = 0;
+	static highlightRegExp: Record<string, RegExp | null> | null = null;
 
 	constructor(options: RoomOptions) {
 		super(options);
-		if (options.pmTarget) this.pmTarget = options.pmTarget as string;
-		if (options.challengeMenuOpen) this.challengeMenuOpen = true;
-		this.updateTarget(true);
+		if (options.args?.pmTarget) this.pmTarget = options.args.pmTarget as string;
+		if (options.args?.challengeMenuOpen) this.challengeMenuOpen = true;
+		if (options.args?.initialSlash) this.initialSlash = true;
+		this.updateTarget(this.pmTarget);
 		this.connect();
 	}
 	override connect() {
 		if (!this.connected) {
-			if (!this.pmTarget) PS.send(`|/join ${this.id}`);
+			if (this.pmTarget === null) PS.send(`|/join ${this.id}`);
 			this.connected = true;
 			this.connectWhenLoggedIn = false;
 		}
 	}
-	updateTarget(force?: boolean) {
-		if (this.id.startsWith('pm-')) {
-			const [id1, id2] = this.id.slice(3).split('-');
-			if (id1 === PS.user.userid && toID(this.pmTarget) !== id2) {
-				this.pmTarget = id2;
-			} else if (id2 === PS.user.userid && toID(this.pmTarget) !== id1) {
-				this.pmTarget = id1;
-			} else if (!force) {
+	override receiveLine(args: Args) {
+		switch (args[0]) {
+		case 'users':
+			const usernames = args[1].split(',');
+			const count = parseInt(usernames.shift()!, 10);
+			this.setUsers(count, usernames);
+			return;
+
+		case 'join': case 'j': case 'J':
+			this.addUser(args[1]);
+			this.handleJoinLeave("join", args[1], args[0] === "J");
+			return true;
+
+		case 'leave': case 'l': case 'L':
+			this.removeUser(args[1]);
+			this.handleJoinLeave("leave", args[1], args[0] === "L");
+			return true;
+
+		case 'name': case 'n': case 'N':
+			this.renameUser(args[1], args[2]);
+			break;
+
+		case 'tournament': case 'tournaments':
+			this.tour ||= new ChatTournament(this);
+			this.tour.receiveLine(args);
+			return;
+
+		case 'chat': case 'c':
+			if (`${args[2]} `.startsWith('/challenge ')) {
+				this.updateChallenge(args[1], args[2].slice(11));
 				return;
-			} else {
-				this.pmTarget = id1;
 			}
-			if (!this.userCount) {
-				this.setUsers(2, [` ${id1}`, ` ${id2}`]);
+			// falls through
+		case 'c:':
+			if (args[0] === 'c:') PS.lastMessageTime = args[1];
+			this.lastMessage = args;
+			this.joinLeave = null;
+			this.markUserActive(args[2]);
+			if (this.tour) this.tour.joinLeave = null;
+			this.subtleNotify();
+			break;
+		case ':':
+			this.timeOffset = Math.trunc(Date.now() / 1000) - (parseInt(args[1], 10) || 0);
+			break;
+		}
+		super.receiveLine(args);
+	}
+	override handleReconnect(msg: string): boolean | void {
+		if (this.battle) {
+			this.battle.reset();
+			this.battle.stepQueue = [];
+			return false;
+		} else {
+			let lines = msg.split('\n');
+
+			// cut off starting lines until we get to PS.lastMessage timestamp
+			// then cut off roomintro from the end
+			let cutOffStart = 0;
+			let cutOffEnd = lines.length;
+			const cutOffTime = parseInt(PS.lastMessageTime);
+			const cutOffExactLine = this.lastMessage ? '|' + this.lastMessage?.join('|') : '';
+			let reconnectMessage = '|raw|<div class="infobox">You reconnected.</div>';
+			for (let i = 0; i < lines.length; i++) {
+				if (lines[i].startsWith('|users|')) {
+					this.add(lines[i]);
+				}
+				if (lines[i] === cutOffExactLine) {
+					cutOffStart = i + 1;
+				} else if (lines[i].startsWith(`|c:|`)) {
+					const time = parseInt(lines[i].split('|')[2] || '');
+					if (time < cutOffTime) cutOffStart = i;
+				}
+				if (lines[i].startsWith('|raw|<div class="infobox"> You joined ')) {
+					reconnectMessage = `|raw|<div class="infobox">You reconnected to ${lines[i].slice(38)}`;
+					cutOffEnd = i;
+					if (!lines[i - 1]) cutOffEnd = i - 1;
+				}
 			}
-			this.title = `[PM] ${this.pmTarget}`;
+			lines = lines.slice(cutOffStart, cutOffEnd);
+
+			if (lines.length) {
+				this.receiveLine([`raw`, `<div class="infobox">You disconnected.</div>`]);
+				for (const line of lines) this.receiveLine(BattleTextParser.parseLine(line));
+				this.receiveLine(BattleTextParser.parseLine(reconnectMessage));
+			}
+			this.update(null);
+			return true;
 		}
 	}
-	/**
-	 * @return true to prevent line from being sent to server
-	 */
-	override handleMessage(line: string) {
-		if (!line.startsWith('/') || line.startsWith('//')) return false;
-		const spaceIndex = line.indexOf(' ');
-		const cmd = spaceIndex >= 0 ? line.slice(1, spaceIndex) : line.slice(1);
-		const target = spaceIndex >= 0 ? line.slice(spaceIndex + 1) : '';
-		switch (cmd) {
-		case 'j': case 'join': {
-			const roomid = /[^a-z0-9-]/.test(target) ? toID(target) as any as RoomID : target as RoomID;
-			PS.join(roomid);
+	updateTarget(name?: string | null) {
+		const selfWithGroup = `${PS.user.group || ' '}${PS.user.name}`;
+		if (this.id === 'dm-') {
+			this.pmTarget = selfWithGroup;
+			this.setUsers(1, [selfWithGroup]);
+			this.title = `Console`;
+		} else if (this.id.startsWith('dm-')) {
+			const id = this.id.slice(3);
+			if (toID(name) !== id) name = null;
+			name ||= this.pmTarget || id;
+			if (/[A-Za-z0-9]/.test(name.charAt(0))) name = ` ${name}`;
+			const nameWithGroup = name;
+			name = name.slice(1);
+			this.pmTarget = name;
+			if (!PS.user.userid) {
+				this.setUsers(1, [nameWithGroup]);
+			} else {
+				this.setUsers(2, [nameWithGroup, selfWithGroup]);
+			}
+			this.title = `[DM] ${nameWithGroup.trim()}`;
+		}
+	}
+	static getHighlight(message: string, roomid: string) {
+		let highlights = PS.prefs.highlights || {};
+		if (Array.isArray(highlights)) {
+			highlights = { global: highlights };
+			// Migrate from the old highlight system
+			PS.prefs.set('highlights', highlights);
+		}
+		if (!PS.prefs.noselfhighlight && PS.user.nameRegExp) {
+			if (PS.user.nameRegExp?.test(message)) return true;
+		}
+		if (!this.highlightRegExp) {
+			try {
+				this.updateHighlightRegExp(highlights);
+			} catch {
+				// If the expression above is not a regexp, we'll get here.
+				// Don't throw an exception because that would prevent the chat
+				// message from showing up, or, when the lobby is initialising,
+				// it will prevent the initialisation from completing.
+				return false;
+			}
+		}
+		const id = PS.server.id + '#' + roomid;
+		const globalHighlightsRegExp = this.highlightRegExp?.['global'];
+		const roomHighlightsRegExp = this.highlightRegExp?.[id];
+		return (((globalHighlightsRegExp?.test(message)) || (roomHighlightsRegExp?.test(message))));
+	}
+	static updateHighlightRegExp(highlights: Record<string, string[]>) {
+		// Enforce boundary for match sides, if a letter on match side is
+		// a word character. For example, regular expression "a" matches
+		// "a", but not "abc", while regular expression "!" matches
+		// "!" and "!abc".
+		this.highlightRegExp = {};
+		for (let i in highlights) {
+			if (!highlights[i].length) {
+				this.highlightRegExp[i] = null;
+				continue;
+			}
+			this.highlightRegExp[i] = new RegExp('(?:\\b|(?!\\w))(?:' + highlights[i].join('|') + ')(?:\\b|(?!\\w))', 'i');
+		}
+	}
+	handleHighlight = (args: Args) => {
+		let name;
+		let message;
+		let msgTime = 0;
+		if (args[0] === 'c:') {
+			msgTime = parseInt(args[1]);
+			name = args[2];
+			message = args[3];
+		} else {
+			name = args[1];
+			message = args[2];
+		}
+		let lastMessageDates = Dex.prefs('logtimes') || (PS.prefs.set('logtimes', {}), Dex.prefs('logtimes'));
+		if (!lastMessageDates[PS.server.id]) lastMessageDates[PS.server.id] = {};
+		let lastMessageDate = lastMessageDates[PS.server.id][this.id] || 0;
+		// because the time offset to the server can vary slightly, subtract it to not have it affect comparisons between dates
+		let serverMsgTime = msgTime - (this.timeOffset || 0);
+		let mayNotify = serverMsgTime > lastMessageDate && name !== PS.user.userid;
+		if (PS.isVisible(this)) {
+			this.lastMessageTime = null;
+			lastMessageDates[PS.server.id][this.id] = serverMsgTime;
+			PS.prefs.set('logtimes', lastMessageDates);
+		} else {
+			// To be saved on focus
+			let lastMessageTime = this.lastMessageTime || 0;
+			if (lastMessageTime < serverMsgTime) this.lastMessageTime = serverMsgTime;
+		}
+		if (ChatRoom.getHighlight(message, this.id)) {
+			if (mayNotify) this.notify({
+				title: `Mentioned by ${name} in ${this.id}`,
+				body: `"${message}"`,
+				id: 'highlight',
+			});
 			return true;
-		} case 'part': case 'leave': {
-			const roomid = /[^a-z0-9-]/.test(target) ? toID(target) as any as RoomID : target as RoomID;
-			PS.leave(roomid || this.id);
-			return true;
-		} case 'chall': case 'challenge': {
+		}
+		return false;
+	};
+	override clientCommands = this.parseClientCommands({
+		'chall,challenge'(target) {
 			if (target) {
-				PS.join(`challenge-${toID(target)}` as RoomID);
-				return true;
+				const [targetUser, format] = target.split(',');
+				PS.join(`challenge-${toID(targetUser)}` as RoomID);
+				return;
 			}
 			this.openChallenge();
-			return true;
-		} case 'cchall': case 'cancelchallenge': {
+		},
+		'cchall,cancelchallenge'(target) {
 			this.cancelChallenge();
-			return true;
-		} case 'reject': {
-			this.challengedFormat = null;
+		},
+		'reject'(target) {
+			this.challenged = null;
 			this.update(null);
-			return false;
-		}
-		}
-		return super.handleMessage(line);
-	}
+		},
+		'clear'() {
+			this.log?.reset();
+			this.update(null);
+		},
+		'rank,ranking,rating,ladder'(target) {
+			let arg = target;
+			if (!arg) {
+				arg = PS.user.userid;
+			}
+			if (this.battle && !arg.includes(',')) {
+				arg += ", " + this.id.split('-')[1];
+			}
+
+			const targets = arg.split(',');
+			let formatTargeting = false;
+			const formats: { [key: string]: number } = {};
+			const gens: { [key: string]: number } = {};
+			for (let i = 1, len = targets.length; i < len; i++) {
+				targets[i] = $.trim(targets[i]);
+				if (targets[i].length === 4 && targets[i].startsWith('gen')) {
+					gens[targets[i]] = 1;
+				} else {
+					formats[toID(targets[i])] = 1;
+				}
+				formatTargeting = true;
+			}
+
+			PSLoginServer.query("ladderget", {
+				user: targets[0],
+			}).then(data => {
+				if (!data || !Array.isArray(data)) return this.add(`|error|Error: corrupted ranking data`);
+				let buffer = `<div class="ladder"><table><tr><td colspan="9">User: <strong>${toID(targets[0])}</strong></td></tr>`;
+				if (!data.length) {
+					buffer += '<tr><td colspan="9"><em>This user has not played any ladder games yet.</em></td></tr>';
+					buffer += '</table></div>';
+					return this.add(`|html|${buffer}`);
+				}
+				buffer += '<tr><th>Format</th><th><abbr title="Elo rating">Elo</abbr></th><th><abbr title="user\'s percentage chance of winning a random battle (aka GLIXARE)">GXE</abbr></th><th><abbr title="Glicko-1 rating: rating &#177; deviation">Glicko-1</abbr></th><th>COIL</th><th>W</th><th>L</th><th>Total</th>';
+				let suspect = false;
+				for (const item of data) {
+					if ('suspect' in item) suspect = true;
+				}
+				if (suspect) buffer += '<th>Suspect reqs possible?</th>';
+				buffer += '</tr>';
+				const hiddenFormats = [];
+				for (const row of data) {
+					if (!row) return this.add(`|error|Error: corrupted ranking data`);
+					const formatId = toID(row.formatid);
+					if (!formatTargeting ||
+						formats[formatId] ||
+						gens[formatId.slice(0, 4)] ||
+						(gens['gen6'] && !formatId.startsWith('gen'))) {
+						buffer += '<tr>';
+					} else {
+						buffer += '<tr class="hidden">';
+						hiddenFormats.push(window.BattleLog.escapeFormat(formatId, true));
+					}
+
+					// Validate all the numerical data
+					for (const value of [row.elo, row.rpr, row.rprd, row.gxe, row.w, row.l, row.t]) {
+						if (typeof value !== 'number' && typeof value !== 'string') {
+							return this.add(`|error|Error: corrupted ranking data`);
+						}
+					}
+
+					buffer += `<td> ${BattleLog.escapeHTML(BattleLog.formatName(formatId, true))} </td><td><strong>${Math.round(row.elo)}</strong></td>`;
+					if (row.rprd > 100) {
+						// High rating deviation. Provisional rating.
+						buffer += `<td>&ndash;</td>`;
+						buffer += `<td><span style="color:#888"><em>${Math.round(row.rpr)} <small> &#177; ${Math.round(row.rprd)} </small></em> <small>(provisional)</small></span></td>`;
+					} else {
+						buffer += `<td>${Math.trunc(row.gxe)}<small>.${row.gxe.toFixed(1).slice(-1)}%</small></td>`;
+						buffer += `<td><em>${Math.round(row.rpr)} <small> &#177; ${Math.round(row.rprd)}</small></em></td>`;
+					}
+					const N = parseInt(row.w, 10) + parseInt(row.l, 10) + parseInt(row.t, 10);
+					const COIL_B = undefined;
+
+					// Uncomment this after LadderRoom logic is implemented
+					// COIL_B = LadderRoom?.COIL_B[formatId];
+
+					if (COIL_B) {
+						buffer += `<td>${Math.round(40.0 * parseFloat(row.gxe) * 2.0 ** (-COIL_B / N))}</td>`;
+					} else {
+						buffer += '<td>&mdash;</td>';
+					}
+					buffer += `<td> ${row.w} </td><td> ${row.l} </td><td> ${N} </td>`;
+					if (suspect) {
+						if (typeof row.suspect === 'undefined') {
+							buffer += '<td>&mdash;</td>';
+						} else {
+							buffer += '<td>';
+							buffer += (row.suspect ? "Yes" : "No");
+							buffer += '</td>';
+						}
+					}
+					buffer += '</tr>';
+				}
+				if (hiddenFormats.length) {
+					if (hiddenFormats.length === data.length) {
+						const formatsText = Object.keys(gens).concat(Object.keys(formats)).join(', ');
+						buffer += `<tr class="no-matches"><td colspan="8">` +
+							BattleLog.html`<em>This user has not played any ladder games that match ${formatsText}.</em></td></tr>`;
+					}
+					const otherFormats = hiddenFormats.slice(0, 3).join(', ') +
+						(hiddenFormats.length > 3 ? ` and ${hiddenFormats.length - 3} other formats` : '');
+					buffer += `<tr><td colspan="8"><button name="showOtherFormats">` +
+						BattleLog.html`${otherFormats} not shown</button></td></tr>`;
+				}
+				let userid = toID(targets[0]);
+				let registered = PS.user.registered;
+				if (registered && PS.user.userid === userid) {
+					buffer += `<tr><td colspan="8" style="text-align:right"><a href="//${PS.routes.users}/${userid}">Reset W/L</a></tr></td>`;
+				}
+				buffer += '</table></div>';
+				this.add(`|html|${buffer}`);
+			});
+		},
+
+		// battle-specific commands
+		// ------------------------
+		'play'() {
+			if (!this.battle) return this.add('|error|You are not in a battle');
+			if (this.battle.atQueueEnd) {
+				this.battle.reset();
+			}
+			this.battle.play();
+			this.update(null);
+		},
+		'pause'() {
+			if (!this.battle) return this.add('|error|You are not in a battle');
+			this.battle.pause();
+			this.update(null);
+		},
+		'ffto,fastfowardto'(target) {
+			if (!this.battle) return this.add('|error|You are not in a battle');
+			let turnNum = Number(target);
+			if (target.startsWith('+') || turnNum < 0) {
+				turnNum += this.battle.turn;
+				if (turnNum < 0) turnNum = 0;
+			} else if (target === 'end') {
+				turnNum = Infinity;
+			}
+			if (isNaN(turnNum)) {
+				this.receiveLine([`error`, `/ffto - Invalid turn number: ${target}`]);
+				return;
+			}
+			this.battle.seekTurn(turnNum);
+			this.update(null);
+		},
+		'switchsides'() {
+			if (!this.battle) return this.add('|error|You are not in a battle');
+			this.battle.switchViewpoint();
+		},
+		'cancel,undo'() {
+			if (!this.battle) return this.send('/cancelchallenge');
+
+			const room = this as any as BattleRoom;
+			if (!room.choices || !room.request) {
+				this.receiveLine([`error`, `/choose - You are not a player in this battle`]);
+				return;
+			}
+			if (room.choices.isDone() || room.choices.isEmpty()) {
+				// we _could_ check choices.noCancel, but the server will check anyway
+				this.sendDirect('/undo');
+			}
+			room.choices = new BattleChoiceBuilder(room.request);
+			this.update(null);
+		},
+		'move,switch,team,pass,shift,choose'(target, cmd) {
+			if (!this.battle) return this.add('|error|You are not in a battle');
+			const room = this as any as BattleRoom;
+			if (!room.choices) {
+				this.receiveLine([`error`, `/choose - You are not a player in this battle`]);
+				return;
+			}
+			if (cmd !== 'choose') target = `${cmd} ${target}`;
+			if (target === 'choose auto' || target === 'choose default') {
+				this.sendDirect('/choose default');
+				return;
+			}
+			const possibleError = room.choices.addChoice(target);
+			if (possibleError) {
+				this.errorReply(possibleError);
+				return;
+			}
+			if (room.choices.isDone()) this.sendDirect(`/choose ${room.choices.toString()}`);
+			this.update(null);
+		},
+	});
 	openChallenge() {
 		if (!this.pmTarget) {
-			this.receiveLine([`error`, `Can only be used in a PM.`]);
+			this.add(`|error|Can only be used in a PM.`);
 			return;
 		}
 		this.challengeMenuOpen = true;
@@ -106,27 +473,82 @@ export class ChatRoom extends PSRoom {
 	}
 	cancelChallenge() {
 		if (!this.pmTarget) {
-			this.receiveLine([`error`, `Can only be used in a PM.`]);
+			this.add(`|error|Can only be used in a PM.`);
 			return;
 		}
-		if (this.challengingFormat) {
-			this.send('/cancelchallenge', true);
-			this.challengingFormat = null;
+		if (this.challenging) {
+			this.sendDirect('/cancelchallenge');
+			this.challenging = null;
 			this.challengeMenuOpen = true;
 		} else {
 			this.challengeMenuOpen = false;
 		}
 		this.update(null);
 	}
-	override send(line: string, direct?: boolean) {
-		this.updateTarget();
-		if (!direct && !line) return;
-		if (!direct && this.handleMessage(line)) return;
+	parseChallenge(challengeString: string | null): Challenge | null {
+		if (!challengeString) return null;
+
+		let splitChallenge = challengeString.split('|');
+
+		const challenge = {
+			formatName: splitChallenge[0],
+			teamFormat: splitChallenge[1] ?? splitChallenge[0],
+			message: splitChallenge[2],
+			acceptButtonLabel: splitChallenge[3],
+			rejectButtonLabel: splitChallenge[4],
+		};
+		if (!challenge.formatName && !challenge.message) {
+			return null;
+		}
+		return challenge;
+	}
+	updateChallenge(name: string, challengeString: string) {
+		const challenge = this.parseChallenge(challengeString);
+		const userid = toID(name);
+
+		if (userid === PS.user.userid) {
+			if (!challenge && !this.challenging) {
+				// this is also used for canceling challenges
+				this.challenged = null;
+			}
+			// we are sending the challenge
+			this.challenging = challenge;
+		} else {
+			if (!challenge && !this.challenged) {
+				// this is also used for rejecting challenges
+				this.challenging = null;
+			}
+			this.challenged = challenge;
+			if (challenge) {
+				this.notify({
+					title: `Challenge from ${name}`,
+					body: `Format: ${BattleLog.formatName(challenge.formatName)}`,
+					id: 'challenge',
+				});
+				// app.playNotificationSound();
+			}
+		}
+		this.update(null);
+	}
+	markUserActive(name: string) {
+		const userid = toID(name);
+		const idx = this.userActivity.indexOf(userid);
+		if (idx !== -1) {
+			this.userActivity.splice(idx, 1);
+		}
+		this.userActivity.push(userid);
+		if (this.userActivity.length > 100) {
+			// Prune the list
+			this.userActivity.splice(0, 20);
+		}
+	}
+	override sendDirect(line: string) {
 		if (this.pmTarget) {
-			PS.send(`|/pm ${this.pmTarget}, ${line}`);
+			line = line.split('\n').filter(Boolean).map(row => `/pm ${this.pmTarget!}, ${row}`).join('\n');
+			PS.send(`|${line}`);
 			return;
 		}
-		super.send(line, true);
+		super.sendDirect(line);
 	}
 	setUsers(count: number, usernames: string[]) {
 		this.userCount = count;
@@ -138,39 +560,116 @@ export class ChatRoom extends PSRoom {
 		this.update(null);
 	}
 	addUser(username: string) {
+		if (!username) return;
+
 		const userid = toID(username);
 		if (!(userid in this.users)) this.userCount++;
 		this.users[userid] = username;
 		this.update(null);
 	}
 	removeUser(username: string, noUpdate?: boolean) {
+		if (!username) return;
+
 		const userid = toID(username);
 		if (userid in this.users) {
 			this.userCount--;
 			delete this.users[userid];
+			if (!noUpdate) this.update(null);
 		}
-		if (!noUpdate) this.update(null);
 	}
 	renameUser(username: string, oldUsername: string) {
 		this.removeUser(oldUsername, true);
 		this.addUser(username);
 		this.update(null);
 	}
+
+	handleJoinLeave(action: 'join' | 'leave', name: string, silent: boolean) {
+		if (action === 'join') {
+			this.addUser(name);
+		} else if (action === 'leave') {
+			this.removeUser(name);
+		}
+		const showjoins = PS.prefs.showjoins?.[PS.server.id];
+		if (!(showjoins?.[this.id] ?? showjoins?.['global'] ?? !silent)) return;
+
+		this.joinLeave ||= {
+			join: [],
+			leave: [],
+			messageId: `joinleave-${Date.now()}`,
+		};
+		if (action === 'join' && this.joinLeave['leave'].includes(name)) {
+			this.joinLeave['leave'].splice(this.joinLeave['leave'].indexOf(name), 1);
+		} else if (action === 'leave' && this.joinLeave['join'].includes(name)) {
+			this.joinLeave['join'].splice(this.joinLeave['join'].indexOf(name), 1);
+		} else {
+			this.joinLeave[action].push(name);
+		}
+
+		let message = this.formatJoinLeave(this.joinLeave['join'], 'joined');
+		if (this.joinLeave['join'].length && this.joinLeave['leave'].length) message += '; ';
+		message += this.formatJoinLeave(this.joinLeave['leave'], 'left');
+
+		this.add(`|uhtml|${this.joinLeave.messageId}|<small style="color: #555555">${message}</small>`);
+	}
+
+	formatJoinLeave(preList: string[], action: 'joined' | 'left') {
+		if (!preList.length) return '';
+
+		let message = '';
+		let list: string[] = [];
+		let named: { [key: string]: boolean } = {};
+		for (let item of preList) {
+			if (!named[item]) list.push(item);
+			named[item] = true;
+		}
+		for (let j = 0; j < list.length; j++) {
+			if (j >= 5) {
+				message += `, and ${(list.length - 5)} others`;
+				break;
+			}
+			if (j > 0) {
+				if (j === 1 && list.length === 2) {
+					message += ' and ';
+				} else if (j === list.length - 1) {
+					message += ', and ';
+				} else {
+					message += ', ';
+				}
+			}
+			message += BattleLog.escapeHTML(list[j]);
+		}
+		return `${message} ${action}`;
+	}
+
 	override destroy() {
 		if (this.pmTarget) this.connected = false;
+		if (this.battle) {
+			// since battle is defined here, we might as well deallocate it here
+			this.battle.destroy();
+		} else {
+			this.log?.destroy();
+		}
 		super.destroy();
 	}
 }
 
 export class ChatTextEntry extends preact.Component<{
-	room: PSRoom, onMessage: (msg: string) => void, onKey: (e: KeyboardEvent) => boolean,
-	left?: number,
+	room: ChatRoom, onMessage: (msg: string, elem: HTMLElement) => void, onKey: (e: KeyboardEvent) => boolean,
+	left?: number, tinyLayout?: boolean,
 }> {
 	subscription: PSSubscription | null = null;
 	textbox: HTMLTextAreaElement = null!;
 	miniedit: MiniEdit | null = null;
 	history: string[] = [];
 	historyIndex = 0;
+	tabComplete: {
+		candidates: { userid: string, prefixIndex: number }[],
+		candidateIndex: number,
+		/** the text left of the cursor before tab completing */
+		prefix: string,
+		/** the text left of the cursor after tab completing */
+		cursor: string,
+	} | null = null;
 	override componentDidMount() {
 		this.subscription = PS.user.subscribe(() => {
 			this.forceUpdate();
@@ -180,9 +679,14 @@ export class ChatTextEntry extends preact.Component<{
 		this.miniedit = new MiniEdit(textbox, {
 			setContent: text => {
 				textbox.innerHTML = formatText(text, false, false, true) + '\n';
+				textbox.classList?.toggle('textbox-empty', !text);
 			},
 			onKeyDown: this.onKeyDown,
 		});
+		if (this.props.room.args?.initialSlash) {
+			this.props.room.args.initialSlash = false;
+			this.setValue('/', 1);
+		}
 		if (this.base) this.update();
 	}
 	override componentWillUnmount() {
@@ -192,10 +696,12 @@ export class ChatTextEntry extends preact.Component<{
 		}
 	}
 	update = () => {
-		// const textbox = this.textbox;
-		// textbox.style.height = `12px`;
-		// const newHeight = Math.min(Math.max(textbox.scrollHeight - 2, 16), 600);
-		// textbox.style.height = `${newHeight}px`;
+		if (!this.miniedit) {
+			const textbox = this.textbox;
+			textbox.style.height = `12px`;
+			const newHeight = Math.min(Math.max(textbox.scrollHeight - 2, 16), 600);
+			textbox.style.height = `${newHeight}px`;
+		}
 	};
 	focusIfNoSelection = (e: Event) => {
 		if ((e.target as HTMLElement).tagName === 'TEXTAREA') return;
@@ -205,9 +711,9 @@ export class ChatTextEntry extends preact.Component<{
 		elem.focus();
 	};
 	submit() {
-		this.props.onMessage(this.getValue());
+		this.props.onMessage(this.getValue(), this.miniedit?.element || this.textbox);
 		this.historyPush(this.getValue());
-		this.setValue('');
+		this.setValue('', 0);
 		this.update();
 		return true;
 	}
@@ -217,34 +723,76 @@ export class ChatTextEntry extends preact.Component<{
 			e.stopImmediatePropagation();
 		}
 	};
+
+	// Direct manipulation functions
 	getValue() {
 		return this.miniedit ? this.miniedit.getValue() : this.textbox.value;
 	}
-	setValue(value: string, selection?: { start: number, end: number }) {
+	setValue(value: string, start: number, end = start) {
 		if (this.miniedit) {
-			this.miniedit.setValue(value, selection);
+			this.miniedit.setValue(value, { start, end });
 		} else {
 			this.textbox.value = value;
-			if (selection) this.textbox.setSelectionRange?.(selection.start, selection.end);
+			this.textbox.setSelectionRange?.(start, end);
 		}
 	}
-	historyUp() {
+	getSelection() {
+		const value = this.getValue();
+		let { start, end } = this.miniedit ?
+			(this.miniedit.getSelection() || { start: value.length, end: value.length }) :
+			{ start: this.textbox.selectionStart, end: this.textbox.selectionEnd };
+		return { value, start, end };
+	}
+	setSelection(start: number, end: number) {
+		if (this.miniedit) {
+			this.miniedit.setSelection({ start, end });
+		} else {
+			this.textbox.setSelectionRange?.(start, end);
+		}
+	}
+	replaceSelection(text: string) {
+		if (this.miniedit) {
+			this.miniedit.replaceSelection(text);
+		} else {
+			const { value, start, end } = this.getSelection();
+			const newSelection = start + text.length;
+			this.setValue(value.slice(0, start) + text + value.slice(end), newSelection);
+		}
+	}
+
+	historyUp(ifSelectionCorrect?: boolean) {
+		if (ifSelectionCorrect) {
+			const { value, start, end } = this.getSelection();
+			if (start !== end) return false; // never traverse history if text is selected
+			if (end !== 0) {
+				if (end < value.length) return false; // only go up at start or end of line
+			}
+		}
+
 		if (this.historyIndex === 0) return false;
 		const line = this.getValue();
 		if (line !== '') this.history[this.historyIndex] = line;
-		this.setValue(this.history[--this.historyIndex]);
+		const newValue = this.history[--this.historyIndex];
+		this.setValue(newValue, newValue.length);
 		return true;
 	}
-	historyDown() {
+	historyDown(ifSelectionCorrect?: boolean) {
+		if (ifSelectionCorrect) {
+			const { value, start, end } = this.getSelection();
+			if (start !== end) return false; // never traverse history if text is selected
+			if (end < value.length) return false; // only go down at end of line
+		}
+
 		const line = this.getValue();
 		if (line !== '') this.history[this.historyIndex] = line;
 		if (this.historyIndex === this.history.length) {
 			if (!line) return false;
-			this.setValue('');
+			this.setValue('', 0);
 		} else if (++this.historyIndex === this.history.length) {
-			this.setValue('');
+			this.setValue('', 0);
 		} else {
-			this.setValue(this.history[this.historyIndex]);
+			const newValue = this.history[this.historyIndex];
+			this.setValue(newValue, newValue.length);
 		}
 		return true;
 	}
@@ -260,8 +808,8 @@ export class ChatTextEntry extends preact.Component<{
 		// const anyModifier = ev.ctrlKey || ev.altKey || ev.metaKey || ev.shiftKey;
 		if (ev.keyCode === 13 && !ev.shiftKey) { // Enter key
 			return this.submit();
-		} else if (ev.keyCode === 13 && this.miniedit) { // enter
-			this.miniedit.replaceSelection('\n');
+		} else if (ev.keyCode === 13) { // enter
+			this.replaceSelection('\n');
 			return true;
 		} else if (ev.keyCode === 73 && cmdKey) { // Ctrl + I key
 			return this.toggleFormatChar('_');
@@ -269,36 +817,126 @@ export class ChatTextEntry extends preact.Component<{
 			return this.toggleFormatChar('*');
 		} else if (ev.keyCode === 192 && cmdKey) { // Ctrl + ` key
 			return this.toggleFormatChar('`');
-		// } else if (e.keyCode === 9 && !e.ctrlKey) { // Tab key
-		// 	const reverse = !!e.shiftKey; // Shift+Tab reverses direction
-		// 	return this.handleTabComplete(this.$chatbox, reverse);
+		} else if (ev.keyCode === 9 && !ev.ctrlKey) { // Tab key
+			const reverse = !!ev.shiftKey; // Shift+Tab reverses direction
+			return this.handleTabComplete(reverse);
 		} else if (ev.keyCode === 38 && !ev.shiftKey && !ev.altKey) { // Up key
-			return this.historyUp();
+			return this.historyUp(true);
 		} else if (ev.keyCode === 40 && !ev.shiftKey && !ev.altKey) { // Down key
-			return this.historyDown();
-		// } else if (app.user.lastPM && (textbox.value === '/reply' || textbox.value === '/r' || textbox.value === '/R') && e.keyCode === 32) { // '/reply ' is being written
-		// 	var val = '/pm ' + app.user.lastPM + ', ';
-		// 	textbox.value = val;
-		// 	textbox.setSelectionRange(val.length, val.length);
+			return this.historyDown(true);
+		} else if (ev.keyCode === 27) { // esc
+			if (this.undoTabComplete()) {
+				return true;
+			}
+			if (PS.room !== PS.panel) { // only close if in mini-room mode
+				PS.leave(PS.room.id);
+				return true;
+			}
+		// } else if (e.keyCode === 32 && PS.user.lastPM && ['/reply', '/r', '/R'].includes(this.getValue())) { // '/reply ' is being written
+		// 	const newValue = `/pm ${PS.user.lastPM}, `;
+		// 	this.setValue(newValue, newValue.length);
 		// 	return true;
 		}
 		return false;
 	}
-	getSelection() {
-		return this.miniedit ?
-			(this.miniedit.getSelection() || { start: 0, end: 0 }) :
-			{ start: this.textbox.selectionStart, end: this.textbox.selectionEnd };
-	}
-	setSelection(start: number, end: number) {
-		if (this.miniedit) {
-			this.miniedit.setSelection({ start, end });
+	// TODO - add support for commands tabcomplete
+	handleTabComplete(reverse: boolean) {
+		// Don't tab complete at the start of the text box.
+		let { value, start, end } = this.getSelection();
+		if (start !== end || end === 0) return false;
+
+		const users = this.props.room.users;
+		let prefix = value.slice(0, end);
+		if (this.tabComplete && prefix === this.tabComplete.cursor) {
+			// The user is cycling through the candidate names.
+			if (reverse) {
+				this.tabComplete.candidateIndex--;
+				if (this.tabComplete.candidateIndex < 0) {
+					this.tabComplete.candidateIndex = this.tabComplete.candidates.length - 1;
+				}
+			} else {
+				this.tabComplete.candidateIndex++;
+				if (this.tabComplete.candidateIndex >= this.tabComplete.candidates.length) {
+					this.tabComplete.candidateIndex = 0;
+				}
+			}
+		} else if (!value || reverse) {
+			// not tab completing - let them focus things
+			return false;
 		} else {
-			this.textbox.setSelectionRange?.(start, end);
+			// This is a new tab completion.
+			// There needs to be non-whitespace to the left of the cursor.
+			// no command prefixes either, we're testing for usernames here.
+			prefix = prefix.trim();
+
+			/** match of the closest word left of the cursor */
+			const match1 = /^([\s\S!/]*?)([A-Za-z0-9][^, \n]*)$/.exec(prefix);
+			/** match of the closest two words left of the cursor */
+			const match2 = /^([\s\S!/]*?)([A-Za-z0-9][^, \n]* [^, ]*)$/.exec(prefix);
+			if (!match1 && !match2) return true;
+
+			const idprefix = (match1 ? toID(match1[2]) : '');
+			let spaceprefix = (match2 ? match2[2].replace(/[^A-Za-z0-9 ]+/g, '').toLowerCase() : '');
+			const candidates: { userid: string, prefixIndex: number }[] = [];
+			if (match2 && (match2[0] === '/' || match2[0] === '!')) spaceprefix = '';
+			for (const userid in users) {
+				if (spaceprefix && users[userid].slice(1).replace(/[^A-Za-z0-9 ]+/g, '')
+					.toLowerCase()
+					.startsWith(spaceprefix)) {
+					if (match2) candidates.push({ userid, prefixIndex: match2[1].length });
+				} else if (idprefix && userid.startsWith(idprefix)) {
+					if (match1) candidates.push({ userid, prefixIndex: match1[1].length });
+				}
+			}
+			// Sort by most recent to speak in the chat, or, in the case of a tie,
+			// in alphabetical order.
+			const userActivity = this.props.room.userActivity;
+			candidates.sort((a, b) => {
+				if (a.prefixIndex !== b.prefixIndex) {
+					// shorter prefix length comes first
+					return a.prefixIndex - b.prefixIndex;
+				}
+				const aIndex = userActivity?.indexOf(a.userid) ?? -1;
+				const bIndex = userActivity?.indexOf(b.userid) ?? -1;
+				if (aIndex !== bIndex) {
+					return bIndex - aIndex; // -1 is fortunately already in the correct order
+				}
+				return (a.userid < b.userid) ? -1 : 1; // alphabetical order
+			});
+
+			if (!candidates.length) {
+				this.tabComplete = null;
+				return true;
+			}
+			this.tabComplete = {
+				candidates,
+				candidateIndex: 0,
+				prefix,
+				cursor: prefix,
+			};
 		}
+		// Substitute in the tab-completed name
+		const candidate = this.tabComplete.candidates[this.tabComplete.candidateIndex];
+		let name = users[candidate.userid];
+		if (!name) return true;
+
+		name = Dex.getShortName(name.slice(1)); // Remove rank and busy characters
+		const cursor = this.tabComplete.prefix.slice(0, candidate.prefixIndex) + name;
+		this.setValue(cursor + value.slice(end), cursor.length);
+		this.tabComplete.cursor = cursor;
+		return true;
+	}
+	undoTabComplete() {
+		if (!this.tabComplete) return false;
+		const value = this.getValue();
+		if (!value.startsWith(this.tabComplete.cursor)) return false;
+
+		this.setValue(this.tabComplete.prefix + value.slice(this.tabComplete.cursor.length), this.tabComplete.prefix.length);
+		this.tabComplete = null;
+		return true;
 	}
 	toggleFormatChar(formatChar: string) {
-		let value = this.getValue();
-		let { start, end } = this.getSelection();
+		let { value, start, end } = this.getSelection();
 
 		// make sure start and end aren't midway through the syntax
 		if (value.charAt(start) === formatChar && value.charAt(start - 1) === formatChar &&
@@ -312,82 +950,94 @@ export class ChatTextEntry extends preact.Component<{
 
 		// wrap in doubled format char
 		const wrap = formatChar + formatChar;
-		value = value.substr(0, start) + wrap + value.substr(start, end - start) + wrap + value.substr(end);
+		value = value.slice(0, start) + wrap + value.slice(start, end) + wrap + value.slice(end);
 		start += 2;
 		end += 2;
 
 		// prevent nesting
 		const nesting = wrap + wrap;
-		if (value.substr(start - 4, 4) === nesting) {
-			value = value.substr(0, start - 4) + value.substr(start);
+		if (value.slice(start - 4, start) === nesting) {
+			value = value.slice(0, start - 4) + value.slice(start);
 			start -= 4;
 			end -= 4;
-		} else if (start !== end && value.substr(start - 2, 4) === nesting) {
-			value = value.substr(0, start - 2) + value.substr(start + 2);
+		} else if (start !== end && value.slice(start - 2, start + 2) === nesting) {
+			value = value.slice(0, start - 2) + value.slice(start + 2);
 			start -= 2;
 			end -= 4;
 		}
-		if (value.substr(end, 4) === nesting) {
-			value = value.substr(0, end) + value.substr(end + 4);
-		} else if (start !== end && value.substr(end - 2, 4) === nesting) {
-			value = value.substr(0, end - 2) + value.substr(end + 2);
+		if (value.slice(end, end + 4) === nesting) {
+			value = value.slice(0, end) + value.slice(end + 4);
+		} else if (start !== end && value.slice(end - 2, end + 2) === nesting) {
+			value = value.slice(0, end - 2) + value.slice(end + 2);
 			end -= 2;
 		}
 
-		this.setValue(value, { start, end });
+		this.setValue(value, start, end);
 		return true;
 	}
 	override render() {
 		const OLD_TEXTBOX = false;
+		const canTalk = PS.user.named || this.props.room.id === 'dm-';
 		return <div
 			class="chat-log-add hasuserlist" onClick={this.focusIfNoSelection} style={{ left: this.props.left || 0 }}
 		>
-			<form class="chatbox">
-				<label style={{ color: BattleLog.usernameColor(PS.user.userid) }}>{PS.user.name}:</label>
+			<form class={`chatbox${this.props.tinyLayout ? ' nolabel' : ''}`} style={canTalk ? {} : { display: 'none' }}>
+				<label style={`color:${BattleLog.usernameColor(PS.user.userid)}`}>{PS.user.name}:</label>
 				{OLD_TEXTBOX ? <textarea
-					class={this.props.room.connected ? 'textbox' : 'textbox disabled'}
+					class={this.props.room.connected && canTalk ? 'textbox autofocus' : 'textbox disabled'}
 					autofocus
 					rows={1}
 					onInput={this.update}
 					onKeyDown={this.onKeyDown}
 					style={{ resize: 'none', width: '100%', height: '16px', padding: '2px 3px 1px 3px' }}
-					placeholder={PS.focusPreview(this.props.room)}
+					placeholder={PSView.focusPreview(this.props.room)}
 				/> : <ChatTextBox
-					class={this.props.room.connected ? 'textbox' : 'textbox disabled'}
-					placeholder={PS.focusPreview(this.props.room)}
+					disabled={!this.props.room.connected || !canTalk}
+					placeholder={PSView.focusPreview(this.props.room)}
 				/>}
 			</form>
+			{!canTalk && <button data-href="login" class="button autofocus">
+				Choose a name before sending messages
+			</button>}
 		</div>;
 	}
 }
 
-class ChatTextBox extends preact.Component<{ placeholder: string, class: string }> {
-	override shouldComponentUpdate() {
+class ChatTextBox extends preact.Component<{ placeholder: string, disabled?: boolean }> {
+	override shouldComponentUpdate(nextProps: any) {
+		this.base!.setAttribute("placeholder", nextProps.placeholder);
+		this.base!.classList?.toggle('disabled', !!nextProps.disabled);
+		this.base!.classList?.toggle('autofocus', !nextProps.disabled);
 		return false;
 	}
+	handleFocus = () => {
+		PSView.setTextboxFocused(true);
+	};
+	handleBlur = () => {
+		PSView.setTextboxFocused(false);
+	};
 	override render() {
-		return <pre class={this.props.class} placeholder={this.props.placeholder}>{'\n'}</pre>;
+		return <pre
+			class={`textbox textbox-empty ${this.props.disabled ? ' disabled' : ' autofocus'}`} placeholder={this.props.placeholder}
+			onFocus={this.handleFocus} onBlur={this.handleBlur}
+		>{'\n'}</pre>;
 	}
 }
 
 class ChatPanel extends PSRoomPanel<ChatRoom> {
-	send = (text: string) => {
-		this.props.room.send(text);
-	};
-	override focus() {
-		// Called synchronously after a forceUpdate, so before the DOM has
-		// been updated to make the panel visible. The order isn't
-		// important for textboxes, which can be focused while inside a
-		// `display: none` element, but contentEditable boxes are pickier.
-		// Waiting for a 0 timeout turns out to be enough.
-		setTimeout(() => {
-			this.base!.querySelector<HTMLElement>('textarea, pre.textbox')!.focus();
-		}, 0);
+	static readonly id = 'chat';
+	static readonly routes = ['dm-*', 'groupchat-*', '*'];
+	static readonly Model = ChatRoom;
+	static readonly location = 'right';
+	static readonly icon = <i class="fa fa-comment-o" aria-hidden></i>;
+	override componentDidMount(): void {
+		super.componentDidMount();
+		this.subscribeTo(PS.user, () => {
+			this.props.room.updateTarget();
+		});
 	}
-	focusIfNoSelection = () => {
-		const selection = window.getSelection()!;
-		if (selection.type === 'Range') return;
-		this.focus();
+	send = (text: string, elem: HTMLElement) => {
+		this.props.room.send(text, elem);
 	};
 	onKey = (e: KeyboardEvent) => {
 		if (e.keyCode === 33) { // Pg Up key
@@ -408,7 +1058,10 @@ class ChatPanel extends PSRoomPanel<ChatRoom> {
 		PS.send(`|/utm ${packedTeam}`);
 		PS.send(`|/challenge ${room.pmTarget}, ${format}`);
 		room.challengeMenuOpen = false;
-		room.challengingFormat = format;
+		room.challenging = {
+			formatName: format,
+			teamFormat: format,
+		};
 		room.update(null);
 	};
 	acceptChallenge = (e: Event, format: string, team?: Team) => {
@@ -417,177 +1070,178 @@ class ChatPanel extends PSRoomPanel<ChatRoom> {
 		if (!room.pmTarget) throw new Error("Not a PM room");
 		PS.send(`|/utm ${packedTeam}`);
 		this.props.room.send(`/accept`);
-		room.challengedFormat = null;
+		room.challenged = null;
 		room.update(null);
 	};
 	override render() {
 		const room = this.props.room;
 		const tinyLayout = room.width < 450;
 
-		const challengeTo = room.challengingFormat ? <div class="challenge">
-			<TeamForm format={room.challengingFormat} onSubmit={null}>
-				<button name="cmd" value="/cancelchallenge" class="button">Cancel</button>
+		const challengeTo = room.challenging ? <div class="challenge">
+			<p>Waiting for {room.pmTarget}...</p>
+			<TeamForm format={room.challenging.formatName} teamFormat={room.challenging.teamFormat} onSubmit={null}>
+				<button data-cmd="/cancelchallenge" class="button">Cancel</button>
 			</TeamForm>
 		</div> : room.challengeMenuOpen ? <div class="challenge">
 			<TeamForm onSubmit={this.makeChallenge}>
 				<button type="submit" class="button"><strong>Challenge</strong></button> {}
-				<button name="cmd" value="/cancelchallenge" class="button">Cancel</button>
+				<button data-cmd="/cancelchallenge" class="button">Cancel</button>
 			</TeamForm>
 		</div> : null;
 
-		const challengeFrom = room.challengedFormat ? <div class="challenge">
-			<TeamForm format={room.challengedFormat} onSubmit={this.acceptChallenge}>
-				<button type="submit" class="button"><strong>Accept</strong></button> {}
-				<button name="cmd" value="/reject" class="button">Reject</button>
+		const challengeFrom = room.challenged ? <div class="challenge">
+			{!!room.challenged.message && <p>{room.challenged.message}</p>}
+			<TeamForm format={room.challenged.formatName} teamFormat={room.challenged.teamFormat} onSubmit={this.acceptChallenge}>
+				<button type="submit" class="button"><strong>{room.challenged.acceptButtonLabel || 'Accept'}</strong></button> {}
+				<button data-cmd="/reject" class="button">{room.challenged.rejectButtonLabel || 'Reject'}</button>
 			</TeamForm>
 		</div> : null;
 
-		return <PSPanelWrapper room={room}>
-			<div class="tournament-wrapper hasuserlist"></div>
-			<ChatLog class="chat-log" room={this.props.room} onClick={this.focusIfNoSelection} left={tinyLayout ? 0 : 146}>
-				{challengeTo || challengeFrom && [challengeTo, challengeFrom]}
+		return <PSPanelWrapper room={room} focusClick>
+			<ChatLog class="chat-log" room={this.props.room} left={tinyLayout ? 0 : 146} top={room.tour?.info.isActive ? 30 : 0}>
+				{challengeTo}{challengeFrom}{PS.isOffline && <p class="buttonbar">
+					<button class="button" data-cmd="/reconnect"><i class="fa fa-plug" aria-hidden></i> <strong>Reconnect</strong></button>
+				</p>}
 			</ChatLog>
-			<ChatTextEntry room={this.props.room} onMessage={this.send} onKey={this.onKey} left={tinyLayout ? 0 : 146} />
+			{room.tour && <TournamentBox tour={room.tour} left={tinyLayout ? 0 : 146} />}
+			<ChatTextEntry
+				room={this.props.room} onMessage={this.send} onKey={this.onKey} left={tinyLayout ? 0 : 146} tinyLayout={tinyLayout}
+			/>
 			<ChatUserList room={this.props.room} minimized={tinyLayout} />
 		</PSPanelWrapper>;
 	}
 }
 
-export class ChatUserList extends preact.Component<{ room: ChatRoom, left?: number, minimized?: boolean }> {
-	subscription: PSSubscription | null = null;
-	override state = {
-		expanded: false,
-	};
-	toggleExpanded = () => {
-		this.setState({ expanded: !this.state.expanded });
-	};
-	override componentDidMount() {
-		this.subscription = this.props.room.subscribe(msg => {
-			if (!msg) this.forceUpdate();
-		});
-	}
-	override componentWillUnmount() {
-		if (this.subscription) this.subscription.unsubscribe();
-	}
+export class ChatUserList extends preact.Component<{
+	room: ChatRoom, left?: number, top?: number, minimized?: boolean, static?: boolean,
+}> {
 	render() {
 		const room = this.props.room;
 		let userList = Object.entries(room.users) as [ID, string][];
 		PSUtils.sortBy(userList, ([id, name]) => (
 			[PS.server.getGroup(name.charAt(0)).order, !name.endsWith('@!'), id]
 		));
-		return <ul
-			class={'userlist' + (this.props.minimized ? (this.state.expanded ? ' userlist-maximized' : ' userlist-minimized') : '')}
-			style={{ left: this.props.left || 0 }}
+		const pmTargetid = room.pmTarget ? toID(room.pmTarget) : null;
+		return <div
+			class={'userlist' + (this.props.minimized ? ' userlist-hidden' : this.props.static ? ' userlist-static' : '')}
+			style={{ left: this.props.left || 0, top: this.props.top || 0 }}
 		>
-			<li class="userlist-count" onClick={this.toggleExpanded}><small>{room.userCount} users</small></li>
-			{userList.map(([userid, name]) => {
-				const groupSymbol = name.charAt(0);
-				const group = PS.server.groups[groupSymbol] || { type: 'user', order: 0 };
-				let color;
-				if (name.endsWith('@!')) {
-					name = name.slice(0, -2);
-					color = '#888888';
-				} else {
-					color = BattleLog.usernameColor(userid);
-				}
-				return <li key={userid}><button class="userbutton username" data-name={name}>
-					<em class={`group${['leadership', 'staff'].includes(group.type!) ? ' staffgroup' : ''}`}>
-						{groupSymbol}
-					</em>
-					{group.type === 'leadership' ? (
-						<strong><em style={{ color }}>{name.substr(1)}</em></strong>
-					) : group.type === 'staff' ? (
-						<strong style={{ color }}>{name.substr(1)}</strong>
-					) : (
-						<span style={{ color }}>{name.substr(1)}</span>
-					)}
-				</button></li>;
-			})}
-		</ul>;
+			{!this.props.minimized ? (
+				<div class="userlist-count"><small>{room.userCount} users</small></div>
+			) : room.id === 'dm-' ? (
+				<>
+					<button class="button button-middle" data-cmd="/help">Commands</button>
+				</>
+			) : pmTargetid ? (
+				<>
+					<button class="button button-middle" data-cmd="/challenge">Challenge</button>
+					<button class="button button-middle" data-href={`useroptions-${pmTargetid}`}>{'\u2026'}</button>
+				</>
+			) : (
+				<button data-href="userlist" class="button button-middle">{room.userCount} users</button>
+			)}
+			<ul>
+				{userList.map(([userid, name]) => {
+					const groupSymbol = name.charAt(0);
+					const group = PS.server.groups[groupSymbol] || { type: 'user', order: 0 };
+					let color;
+					if (name.endsWith('@!')) {
+						name = name.slice(0, -2);
+						color = '#888888';
+					} else {
+						color = BattleLog.usernameColor(userid);
+					}
+					return <li key={userid}><button class="userbutton username">
+						<em class={`group${['leadership', 'staff'].includes(group.type!) ? ' staffgroup' : ''}`}>
+							{groupSymbol}
+						</em>
+						{group.type === 'leadership' ? (
+							<strong><em style={`color:${color}`}>{name.slice(1)}</em></strong>
+						) : group.type === 'staff' ? (
+							<strong style={`color:${color} `}>{name.slice(1)}</strong>
+						) : (
+							<span style={`color:${color}`}>{name.slice(1)}</span>
+						)}
+					</button></li>;
+				})}
+			</ul>
+		</div>;
 	}
 }
 
 export class ChatLog extends preact.Component<{
-	class: string, room: ChatRoom, onClick?: (e: Event) => void, children?: preact.ComponentChildren,
+	class: string, room: ChatRoom, children?: preact.ComponentChildren,
 	left?: number, top?: number, noSubscription?: boolean,
 }> {
-	log: BattleLog | null = null;
 	subscription: PSSubscription | null = null;
 	override componentDidMount() {
-		if (!this.props.noSubscription) {
-			this.log = new BattleLog(this.base! as HTMLDivElement);
+		const room = this.props.room;
+		if (room.log) {
+			const elem = room.log.elem;
+			this.base!.replaceChild(elem, this.base!.firstChild!);
+			elem.className = this.props.class;
+			elem.style.left = `${this.props.left || 0}px`;
+			elem.style.top = `${this.props.top || 0}px`;
 		}
-		this.subscription = this.props.room.subscribe(tokens => {
-			if (!tokens) return;
-			switch (tokens[0]) {
-			case 'users':
-				const usernames = tokens[1].split(',');
-				const count = parseInt(usernames.shift()!, 10);
-				this.props.room.setUsers(count, usernames);
-				return;
-			case 'join': case 'j': case 'J':
-				this.props.room.addUser(tokens[1]);
-				break;
-			case 'leave': case 'l': case 'L':
-				this.props.room.removeUser(tokens[1]);
-				break;
-			case 'name': case 'n': case 'N':
-				this.props.room.renameUser(tokens[1], tokens[2]);
-				break;
+		if (!this.props.noSubscription) {
+			room.log ||= new BattleLog(this.base!.firstChild as HTMLDivElement);
+			room.log.getHighlight = room.handleHighlight;
+			if (room.backlog) {
+				const backlog = room.backlog;
+				room.backlog = null;
+				for (const args of backlog) {
+					room.log.add(args, undefined, undefined, PS.prefs.timestamps[room.pmTarget ? 'pms' : 'chatrooms']);
+				}
 			}
-			if (!this.props.noSubscription) this.log!.add(tokens);
-		});
+			this.subscription = room.subscribe(tokens => {
+				if (!tokens) return;
+				this.props.room.log!.add(tokens, undefined, undefined, PS.prefs.timestamps[room.pmTarget ? 'pms' : 'chatrooms']);
+			});
+		}
 		this.setControlsJSX(this.props.children);
 	}
 	override componentWillUnmount() {
-		if (this.subscription) this.subscription.unsubscribe();
+		this.subscription?.unsubscribe();
 	}
 	override shouldComponentUpdate(props: typeof ChatLog.prototype.props) {
+		const elem = this.base!.firstChild as HTMLDivElement;
 		if (props.class !== this.props.class) {
-			this.base!.className = props.class;
+			elem.className = props.class;
 		}
-		if (props.left !== this.props.left) this.base!.style.left = `${props.left || 0}px`;
-		if (props.top !== this.props.top) this.base!.style.top = `${props.top || 0}px`;
+		if (props.left !== this.props.left) elem.style.left = `${props.left || 0}px`;
+		if (props.top !== this.props.top) elem.style.top = `${props.top || 0}px`;
 		this.setControlsJSX(props.children);
 		this.updateScroll();
 		return false;
 	}
 	setControlsJSX(jsx: preact.ComponentChildren | undefined) {
-		const children = this.base!.children;
+		const elem = this.base!.firstChild as HTMLDivElement;
+		const children = elem.children;
 		let controlsElem = children[children.length - 1] as HTMLDivElement | undefined;
 		if (controlsElem && controlsElem.className !== 'controls') controlsElem = undefined;
 		if (!jsx) {
 			if (!controlsElem) return;
-			preact.render(null, this.base!, controlsElem);
+			preact.render(null, elem, controlsElem);
 			this.updateScroll();
 			return;
 		}
 		if (!controlsElem) {
 			controlsElem = document.createElement('div');
 			controlsElem.className = 'controls';
-			this.base!.appendChild(controlsElem);
+			elem.appendChild(controlsElem);
 		}
-		preact.render(<div class="controls">{jsx}</div>, this.base!, controlsElem);
+		preact.render(<div class="controls">{jsx}</div>, elem, controlsElem);
 		this.updateScroll();
 	}
 	updateScroll() {
-		if (this.log) {
-			this.log.updateScroll();
-		} else if (this.props.room.battle) {
-			this.log = (this.props.room.battle as Battle).scene.log;
-			this.log.updateScroll();
-		}
+		this.props.room.log?.updateScroll();
 	}
 	render() {
-		return <div
-			class={this.props.class} role="log" onClick={this.props.onClick}
+		return <div><div
+			class={this.props.class} role="log" aria-label="Chat log"
 			style={{ left: this.props.left || 0, top: this.props.top || 0 }}
-		></div>;
+		></div></div>;
 	}
 }
 
-PS.roomTypes['chat'] = {
-	Model: ChatRoom,
-	Component: ChatPanel,
-};
-PS.updateRoomTypes();
+PS.addRoomType(ChatPanel);

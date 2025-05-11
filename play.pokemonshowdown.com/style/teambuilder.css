@@ -21,6 +21,8 @@
 	bottom: 0;
 	padding: 5px 0 5px 8px;
 	overflow: auto;
+	-webkit-overflow-scrolling: touch;
+	overscroll-behavior-block: contain;
 }
 @media (max-width:649px) {
 	.folderpane {
@@ -88,6 +90,7 @@
 	width: 16px;
 	color: #777777;
 }
+.folderpane .text,
 .folderpane h3 {
 	margin: 0;
 	padding: 13px 0 0 0;
@@ -97,16 +100,19 @@
 	color: black;
 	border-right: 1px solid #888888;
 }
+.folderpane .text {
+	height: 23px;
+	padding: 7px 0 0 7px;
+}
 .folder .selectFolder {
 	display: block;
-	padding: 0 0 0 7px;
+	padding: 7px 0 0 7px;
 	border: 0;
 	border-right: 1px solid #888888;
 	background: #d7e3ec;
 	color: black;
 	width: auto;
 	max-width: 146px; /* I have no idea why this is required and width doesn't work */
-	padding-top: 7px;
 	height: 23px;
 	font-size: 9pt;
 	font-family: Verdana, sans-serif;
@@ -116,6 +122,12 @@
 	cursor: pointer;
 	user-select: none;
 	-webkit-user-select: none;
+}
+.folder button.selectFolder {
+	height: 30px;
+	padding: 0 0 0 7px;
+	width: 100%;
+	max-width: none;
 }
 .folder .selectFolder:hover {
 	background: #c7d3dc;
@@ -142,6 +154,14 @@
 	padding-left: 6px;
 	border-top-left-radius: 3px;
 	border-bottom-left-radius: 3px;
+}
+.folder.cur button.selectFolder,
+.folder.cur button.selectFolder:hover,
+.folder.cur button.selectFolder:active {
+	height: 30px;
+	padding: 0 0 0 6px;
+	width: 100%;
+	max-width: none;
 }
 
 /* believe me, there was no other way to do this */
@@ -181,24 +201,41 @@
 	padding: 0;
 }
 
+/* dark */
 
-.teamlist button {
+.dark .folderpane {
+	border-left-color: #484848;
+}
+
+.dark .folderlist .foldersep:before,
+.dark .folderlistafter:before,
+.dark .folderlistbefore:before,
+.dark .folderpane h3,
+.dark .folderpane .text,
+.dark .folder .selectFolder,
+.dark .folderhack1,
+.dark .folderhack2 {
+	background: #484848;
+	color: #ddd;
+}
+
+.dark .folder .selectFolder:hover {
+	background: #686868;
+}
+
+.dark .folderpane i {
+	color: #ddd;
+}
+
+.dark .folder .selectFolder.active,
+.dark .folder .selectFolder:active {
+	background: #27333c;
+	color: white;
+}
+
+.dark .folder.cur .selectFolder {
 	background: transparent;
-	border: 1px solid transparent;
-	border-radius: 4px;
-	padding: 2px 5px;
-	margin: 0;
-	font-size: 9pt;
-	font-family: Verdana, sans-serif;
 }
-.teamlist button:hover {
-	border-color: #888888;
-	background: #D5D5D5;
-}
-.teamlist button i {
-	margin-right: 2px;
-}
-
 
 /*********************************************************
  * Teambuilder editor
@@ -221,6 +258,7 @@
 	padding-left: 100px;
 	box-sizing: border-box;
 	line-height: 20px;
+	resize: none;
 }
 .teaminnertextbox {
 	width: 320px;
@@ -234,29 +272,54 @@
 	box-shadow: inset 0px 1px 2px #D2D2D2, 0px 0px 5px #66AADD;
 	background: transparent;
 }
+.teaminnertextbox-stats, .teaminnertextbox-pokemon {
+	width: 420px;
+}
+.teaminnertextbox-item, .teaminnertextbox-ability {
+	width: 270px;
+}
+.teaminnertextbox-move {
+	width: 220px;
+}
 
 .searchresults {
-	background: #f2f2f2;
 	border: 1px solid #888888;
 	border-radius: 2px;
+	box-shadow: 1px 3px 5px rgba(0, 0, 0, 0.3);
 
 	position: absolute;
 	top: 300px;
-	right: -13px;
-	width: 624px;
+	left: -14px;
+	right: -14px;
 	min-height: 150px;
+	overflow: auto;
+	max-height: 80vh;
+}
+.searchresults, .team-focus-editor {
+	background: #f2f2f2;
+}
+.dark .searchresults, .dark .team-focus-editor {
+	background: #282828;
 }
 
 .closesearch {
 	position: absolute;
 	top: 1px;
 	right: 1px;
+	z-index: 1;
+}
+
+.teameditor .details {
+	margin: 3px 0 12px;
 }
 
 .teameditor {
+	max-width: 660px;
+}
+.teameditor-text {
 	position: relative;
 }
-.teameditor .heighttester {
+.teameditor-text .heighttester {
 	position: absolute;
 	top: 0;
 	left: 0;
@@ -265,9 +328,394 @@
 	/* I have no clue what the default <textarea> box-sizing is but "content-box" doesn't mean what you'd think */
 	box-sizing: border-box;
 }
-.teameditor hr {
+.teameditor-text hr {
 	position: absolute;
 	pointer-events: none;
 	left: 10px;
 	right: 10px;
+}
+
+/* teambuilder set */
+
+.dark .utilichart h3, .dark .dexentry h3, .dark .resultheader h3 {
+	background: #636363;
+	color: #F1F1F1;
+	border: 1px solid #A9A9A9;
+	text-shadow: 1px 1px 0 rgb(40, 43, 45);
+	box-shadow: inset 0px 1px 0 rgb(49, 49, 49);
+	border-right: none;
+}
+
+.dark .teambuilder-results .result a.hover,
+.dark .teambuilder-results .result a:hover {
+	border-color: #777777;
+	background: rgba(100, 100, 100, 0.5);
+	color: #FFFFFF;
+}
+.dark .teambuilder-results .result a.cur {
+	border-color: #BBBBBB;
+	background: rgba(100, 100, 100, 0.2);
+}
+.dark .teambuilder-results .result a.cur:hover {
+	border-color: #BBBBBB;
+	background: rgba(100, 100, 100, 0.4);
+	color: #FFFFFF;
+}
+
+.dark .folder.cur .selectFolder,
+.dark .utilichart .namecol,
+.dark .utilichart .pokemonnamecol,
+.dark .utilichart .movenamecol {
+	color: #DDD;
+}
+.dark .utilichart .col {
+	color: #DDD;
+}
+.dark .utilichart .cur .col {
+	color: #FFF;
+}
+.dark .utilichart a:hover .col {
+	color: #FFF;
+}
+
+/* setstats */
+
+.setdetails, .setstats {
+	display: block;
+	box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	border: 1px solid #AAAAAA;
+	border-radius: 3px;
+	padding: 1px;
+	margin: 2px 2px 1px 1px;
+	font-size: 7pt;
+
+	box-shadow: inset 0px 1px 2px #CCCCCC, 1px 1px 0 rgba(255,255,255,.6);
+	background: #F8FBFD;
+	color: black;
+}
+.tiny-layout .setdetails, .tiny-layout .setstats {
+	display: none;
+}
+.setdetails label, .setstats label {
+	cursor: pointer;
+}
+.setdetails:hover, .setstats:hover {
+	border-color: #474747;
+	box-shadow: inset 0px 1px 2px #D2D2D2, 1px 1px 0 rgba(255,255,255,.6);
+	background: #FFFFFF;
+}
+.setdetails:focus-visible, .setstats:focus-visible,
+.dark .setdetails:focus-visible, .dark .setstats:focus-visible {
+	border: 1px solid #004488;
+	/* margin: 1px 1px 0 0; */
+	outline: 0 none;
+}
+.setdetails:active, .setstats:active {
+	box-shadow: inset 0px 2px 2px #AAAAAA;
+	background: #E4E9ED;
+	border: 1px solid #004488;
+	/* margin: 1px 1px 0 0; */
+	outline: 0 none;
+}
+.setdetails {
+	width: 55px;
+	height: 98px;
+	vertical-align: top;
+}
+/* .setdetails:focus,.setdetails:active {
+	width: 52px;
+	height: 100px;
+} */
+.setdetails .detailcell {
+	padding: 2px 4px;
+	display: block;
+	font-size: 9pt;
+	text-align: center;
+}
+.setdetails .detailcell + .detailcell {
+	border-top: 1px solid #CCC;
+}
+.dark .setdetails .detailcell + .detailcell {
+	border-color: #555;
+}
+.setdetails label {
+	float: none;
+	display: block;
+	font-weight: normal;
+	font-size: 7pt;
+	text-align: center;
+	padding: 0;
+}
+.setstats {
+	width: 128px;
+	height: 98px;
+	padding-right: 0;
+}
+/* .setstats:focus,.setstats:active {
+	width: 130px;
+	height: 100px;
+} */
+.statrow {
+	display: block;
+	height: 15px;
+}
+.statrow label {
+	float: left;
+	width: 20px;
+	height: 5px;
+	text-align: right;
+	font-weight: normal;
+	font-size: 7pt;
+	padding: 0;
+}
+.statrow .statgraph {
+	float: left;
+	width: 75px;
+	padding: 0 0 0 3px;
+	height: 5px;
+}
+.statrow .statgraph span {
+	display: block;
+	margin-top: 3px;
+	height: 6px;
+	background: #CCCCCC;
+	border: 1px solid #888888;
+	border-width: 0 1px 2px 0;
+}
+.statrow em {
+	float: left;
+	font-size: 7pt;
+	font-style: normal;
+	width: 22px;
+	height: 5px;
+	text-align: right;
+}
+.statrow small {
+	float: left;
+	font-size: 7pt;
+}
+.statrow .statrow-head em {
+	color: #555555;
+}
+
+.setstatbar {
+	width: 185px;
+}
+.tiny-layout .setstatbar {
+	display: none;
+}
+.setstatbar span {
+	margin: 3px 0 0 5px;
+	display: block;
+	height: 12px;
+	border-bottom: 3px solid #AAAAAA;
+	border-right: 1px solid #AAAAAA;
+	background: #CCCCCC;
+}
+.evslider {
+	width: 170px;
+}
+.tiny-layout .evslider {
+	width: 120px;
+}
+
+/* when a placeholder is the default value, it can be confusing when
+you can't delete it by pressing Backspace */
+.default-placeholder:focus::placeholder {
+	color: transparent;
+}
+
+/* button editor */
+
+.set-button {
+	position: relative;
+}
+.set-button table {
+	border: 0;
+	border-spacing: 0;
+	table-layout: fixed;
+	margin: 4px 0;
+	width: 100%;
+}
+.set-button td {
+	padding: 0;
+}
+.border-collapse {
+	/* not usually needed, but set-buttons are width:100% so negative margins don't work on them */
+	/* (there's no box-sizing:margin-box) */
+	margin: -1px 0 0 -1px;
+}
+.set-button .button {
+	display: block;
+	margin: 0;
+	width: 100%;
+	text-align: left;
+	height: 100px;
+	white-space: nowrap;
+	overflow: hidden;
+	padding: 3px;
+}
+.tiny-layout .set-button .button,
+.tiny-layout .set-button .label {
+	font-size: 11px;
+}
+.set-button .label {
+	color: #2f4f6e;
+}
+.dark .set-button .label {
+	color: #a1b0be;
+}
+
+.set-button .set-nickname {
+	position: absolute;
+	height: 35px;
+	width: 120px;
+	top: 5px;
+	left: -5px;
+}
+.tiny-layout .set-button .set-nickname {
+	width: 90px;
+}
+
+.set-button .sprite {
+	display: block;
+	width: 100%;
+	height: 97px;
+}
+.set-button .sprite-inner {
+	display: block;
+	padding: 68px 0 0 2px;
+	margin-left: 1px;
+	height: 29px;
+	border-bottom-left-radius: 3px;
+	background: linear-gradient(to bottom, transparent 0%, transparent 70%, #d3d3d3 100%);
+}
+.set-button .cur .sprite-inner {
+	background: linear-gradient(to bottom, transparent 0%, transparent 70%, #f8f8f8 100%);
+}
+.dark .set-button .sprite-inner {
+	background: linear-gradient(to bottom, transparent 0%, transparent 70%, #2b2c31 100%);
+}
+.dark .set-button .cur .sprite-inner {
+	background: linear-gradient(to bottom, transparent 0%, transparent 70%, #555555 100%);
+}
+.set-button .detailcell {
+	float: left;
+	height: 50px;
+}
+.dark .set-button .button-first.cur,
+.dark .set-button .button-middle.cur,
+.dark .set-button .button-last.cur {
+	box-shadow: none;
+}
+.set-button .detailcell + .detailcell {
+	border-left: 1px solid #888;
+	margin-left: 20px;
+	padding-left: 3px;
+}
+.tiny-layout .set-button .detailcell + .detailcell {
+	margin-left: 3px;
+}
+.set-button .set-pokemon .button {
+	padding: 0;
+}
+.set-button .set-ability .button, .set-button .set-item .button {
+	height: 40px;
+}
+.set-button .set-moves .button {
+	line-height: 18px;
+}
+.set-button .set-moves .button.overfull {
+	line-height: normal;
+}
+.set-button .set-details .button {
+	height: 61px;
+}
+.set-button .set-stats, .set-button .set-stats .button {
+	width: 138px;
+}
+.set-button .set-stats .button {
+	padding: 3px;
+}
+.tiny-layout .set-button .set-stats, .tiny-layout .set-button .set-stats .button {
+	width: 40px;
+}
+.tiny-layout .set-button .set-stats label {
+	display: none;
+}
+.tiny-layout .set-button .set-stats .statgraph {
+	transform: scale(0.5);
+	transform-origin: 0 0;
+}
+
+.team-focus-editor {
+	position: absolute;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	overflow: auto;
+	-webkit-overflow-scrolling: touch;
+}
+.team-focus-editor .tabbar {
+	/* note to self: make this scrollable later */
+	/* overflow: auto; */
+	white-space: nowrap;
+}
+.tabbar .button.picontab {
+	width: 80px;
+	height: 52px;
+	overflow: hidden;
+	height: 46px;
+	padding: 0;
+	font-size: 10px;
+	box-sizing: border-box;
+}
+.tabbar .button.picontab.cur {
+	height: 47px;
+	padding: 0 0 2px;
+}
+.tiny-layout .tabbar .button.picontab {
+	width: 42px;
+}
+@media (min-width: 375px) {
+	.tiny-layout .tabbar .button.picontab {
+		width: 52px;
+	}
+}
+.tiny-layout .team-focus-editor .home-li .button {
+	margin-left: 0;
+	border-left: 0;
+	padding: 6px 3px;
+}
+.searchboxwrapper .textbox {
+	width: 100%;
+	font-size: 14px;
+}
+.searchboxwrapper .dexlist-filters {
+	float: left;
+	position: relative;
+	top: -21px;
+	left: 4px;
+	list-style: none;
+}
+.searchboxwrapper .moveslot {
+	float: right;
+	position: relative;
+	top: -21px;
+	right: 4px;
+}
+.wizardsearchresults {
+	position: absolute;
+	top: 230px;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	overflow: auto;
+	-webkit-overflow-scrolling: touch;
+	overscroll-behavior-block: contain;
+}
+.wizardsearchresults .dexlist, .searchresults .dexlist {
+	min-width: 624px;
 }

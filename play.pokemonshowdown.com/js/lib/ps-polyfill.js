@@ -38,6 +38,22 @@ if (!Array.prototype.map) {
 		return newArray;
 	};
 }
+if (!Array.prototype.every) {
+	Array.prototype.every = function every(callback, thisArg) {
+		for (var i = 0; i < this.length; i++) {
+			if (!callback.call(thisArg, this[i], i, this)) return false;
+		}
+		return true;
+	};
+}
+if (!Array.prototype.some) {
+	Array.prototype.some = function some(callback, thisArg) {
+		for (var i = 0; i < this.length; i++) {
+			if (callback.call(thisArg, this[i], i, this)) return true;
+		}
+		return false;
+	};
+}
 if (!Array.prototype.filter) {
 	Array.prototype.filter = function filter(callback, thisArg) {
 		var newArray = [];
@@ -127,7 +143,7 @@ if (!Object.entries) {
 }
 // ES5
 if (!Object.create) {
-	Object.create = function (proto) {
+	Object.create = function create(proto) {
 		function F() {}
 		F.prototype = proto;
 		return new F();
@@ -140,6 +156,12 @@ if (!Array.prototype.forEach) {
 			callback.call(thisArg, this[i], i, this);
 		}
 	}
+}
+
+if (!Date.now) {
+	Date.now = function now() {
+		return new Date().getTime();
+	};
 }
 
 if (!window.console) {

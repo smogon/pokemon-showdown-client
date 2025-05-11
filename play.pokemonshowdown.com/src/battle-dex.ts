@@ -45,6 +45,11 @@ export declare namespace Dex {
 	export type GenderName = DexData.GenderName;
 	export type NatureName = DexData.NatureName;
 	export type MoveTarget = DexData.MoveTarget;
+	export type REGULAR = 0;
+	export type WEAK = 1;
+	export type RESIST = 2;
+	export type IMMUNE = 3;
+	export type WeaknessType = REGULAR | WEAK | RESIST | IMMUNE;
 	export type StatsTable = { hp: number, atk: number, def: number, spa: number, spd: number, spe: number };
 	/**
 	 * Dex.PokemonSet can be sparse, in which case that entry should be
@@ -249,6 +254,11 @@ export const Dex = new class implements ModdedDex {
 	readonly modid = 'gen9' as ID;
 	readonly cache = null!;
 
+	readonly REGULAR = 0;
+	readonly WEAK = 1;
+	readonly RESIST = 2;
+	readonly IMMUNE = 3;
+
 	readonly statNames: readonly Dex.StatName[] = ['hp', 'atk', 'def', 'spa', 'spd', 'spe'];
 	readonly statNamesExceptHP: readonly Dex.StatNameExceptHP[] = ['atk', 'def', 'spa', 'spd', 'spe'];
 
@@ -268,6 +278,14 @@ export const Dex = new class implements ModdedDex {
 	loadedSpriteData = { xy: 1, bw: 0 };
 	moddedDexes: { [mod: string]: ModdedDex } = {};
 
+	/**
+	 * April Fools' Day setting:
+	 * * `true` = FULL, all jokes on
+	 * * `'sprites'` = SPRITES, only sprites and taunts
+	 * * `false | null | undefined` = OFF
+	 */
+	afdMode?: boolean | 'sprites';
+
 	mod(modid: ID): ModdedDex {
 		if (modid === 'gen9') return this;
 		if (!window.BattleTeambuilderTable) return this;
@@ -280,6 +298,24 @@ export const Dex = new class implements ModdedDex {
 	forGen(gen: number) {
 		if (!gen) return this;
 		return this.mod(`gen${gen}` as ID);
+	}
+	formatGen(format: string) {
+		const formatid = toID(format);
+		if (!formatid) return Dex.gen;
+		if (!formatid.startsWith('gen')) return 6;
+		return parseInt(formatid.charAt(3)) || Dex.gen;
+	}
+	forFormat(format: string) {
+		let dex = Dex.forGen(Dex.formatGen(format));
+
+		const formatid = toID(format).slice(4);
+		if (dex.gen === 7 && formatid.includes('letsgo')) {
+			dex = Dex.mod('gen7letsgo' as ID);
+		}
+		if (dex.gen === 8 && formatid.includes('bdsp')) {
+			dex = Dex.mod('gen8bdsp' as ID);
+		}
+		return dex;
 	}
 
 	resolveAvatar(avatar: string): string {
@@ -318,7 +354,7 @@ export const Dex = new class implements ModdedDex {
 
 	prefs(prop: string) {
 		// @ts-expect-error this is what I get for calling it Storage...
-		return window.Storage?.prefs?.(prop);
+		return window.Storage?.prefs ? window.Storage.prefs(prop) : window.PS?.prefs?.[prop];
 	}
 
 	getShortName(name: string) {
@@ -471,6 +507,12 @@ export const Dex = new class implements ModdedDex {
 				if (!data.tier && data.baseSpecies && toID(data.baseSpecies) !== id) {
 					data.tier = this.species.get(data.baseSpecies).tier;
 				}
+				data.nfe = data.id === 'dipplin' || !!(data as Species).evos?.some(evo => {
+					const evoSpecies = this.species.get(evo);
+					return !evoSpecies.isNonstandard || evoSpecies.isNonstandard === data.isNonstandard ||
+						// Pokemon with Hisui evolutions
+						evoSpecies.isNonstandard === "Unobtainable";
+				});
 				species = new Species(id, name, data);
 				window.BattlePokedex[id] = species;
 			}
@@ -498,6 +540,7 @@ export const Dex = new class implements ModdedDex {
 
 	types = {
 		allCache: null as Type[] | null,
+		namesCache: null as Dex.TypeName[] | null,
 		get: (type: any): Type => {
 			if (!type || typeof type === 'string') {
 				const id = toID(type) as string;
@@ -520,6 +563,13 @@ export const Dex = new class implements ModdedDex {
 			}
 			if (types.length) this.types.allCache = types;
 			return types;
+		},
+		names: (): readonly Dex.TypeName[] => {
+			if (this.types.namesCache) return this.types.namesCache;
+			const names = this.types.all().map(type => type.name as Dex.TypeName);
+			names.splice(names.indexOf('Stellar'), 1);
+			if (names.length) this.types.namesCache = names;
+			return names;
 		},
 		isName: (name: string | null): boolean => {
 			const id = toID(name);
@@ -676,7 +726,7 @@ export const Dex = new class implements ModdedDex {
 		if (options.shiny && mechanicsGen > 1) dir += '-shiny';
 
 		// April Fool's 2014
-		if (Dex.prefs('afd') !== false && (window.Config?.server?.afd || Dex.prefs('afd') || options.afd)) {
+		if (Dex.afdMode || options.afd) {
 			// Explicit false check above means AFD will be off if the user disables it - no matter what
 			dir = 'afd' + dir;
 			spriteData.url += dir + '/' + name + '.png';
@@ -817,8 +867,8 @@ export const Dex = new class implements ModdedDex {
 		if (pokemon.species && !spriteid) {
 			spriteid = species.spriteid || toID(pokemon.species);
 		}
-		if (!species.exists) return { spriteDir: 'sprites/gen5', spriteid: '0', x: 10, y: 5 };
-		if (window.Config?.server?.afd || Dex.prefs('afd')) {
+		if (species.exists === false) return { spriteDir: 'sprites/gen5', spriteid: '0', x: 10, y: 5 };
+		if (Dex.afdMode) {
 			return {
 				spriteid,
 				spriteDir: 'sprites/afd',
@@ -1064,6 +1114,12 @@ export class ModdedDex {
 				data.tier = this.species.get(data.baseSpecies).tier;
 			}
 			if (data.gen > this.gen) data.tier = 'Illegal';
+			data.nfe = data.id === 'dipplin' || !!data.evos?.some(evo => {
+				const evoSpecies = this.species.get(evo);
+				return !evoSpecies.isNonstandard || evoSpecies.isNonstandard === data.isNonstandard ||
+					// Pokemon with Hisui evolutions
+					evoSpecies.isNonstandard === "Unobtainable";
+			});
 
 			const species = new Species(id, name, data);
 			this.cache.Species[id] = species;
@@ -1072,7 +1128,20 @@ export class ModdedDex {
 	};
 
 	types = {
-		get: (name: string): Dex.Effect => {
+		namesCache: null as readonly Dex.TypeName[] | null,
+		names: (): readonly Dex.TypeName[] => {
+			if (this.types.namesCache) return this.types.namesCache;
+			const names = Dex.types.names();
+			if (!names.length) return [];
+			const curNames = [...names];
+			// if (this.gen < 9) curNames.splice(curNames.indexOf('Stellar'), 1);
+			if (this.gen < 6) curNames.splice(curNames.indexOf('Fairy'), 1);
+			if (this.gen < 2) curNames.splice(curNames.indexOf('Dark'), 1);
+			if (this.gen < 2) curNames.splice(curNames.indexOf('Steel'), 1);
+			this.types.namesCache = curNames;
+			return curNames;
+		},
+		get: (name: string): Dex.Type => {
 			const id = toID(name);
 			name = id.substr(0, 1).toUpperCase() + id.substr(1);
 

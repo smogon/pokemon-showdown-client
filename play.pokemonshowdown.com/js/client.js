@@ -420,7 +420,8 @@ function toId() {
 			// 		type: 'modal'
 			// 	});
 			} else {
-				if (document.location.hostname === Config.routes.client || Config.testclient) {
+				var hostname = document.location.hostname;
+				if (hostname === Config.routes.client || Config.testclient || hostname.startsWith(Config.defaultserver.id + '-')) {
 					this.addRoom('rooms', null, true);
 				} else {
 					this.addRoom('lobby', null, true);
@@ -734,9 +735,43 @@ function toId() {
 		 */
 		initializeConnection: function () {
 			Storage.whenPrefsLoaded(function () {
-				// if (Config.server.id !== 'smogtours') Config.server.afd = true;
+				app.setAFD();
 				app.connect();
 			});
+		},
+		setAFD: function (mode) {
+			if (mode === undefined) {
+				// init
+				if (typeof BattleTextAFD !== 'undefined') {
+					for (var id in BattleTextNotAFD) {
+						if (!BattleTextAFD[id]) {
+							BattleTextAFD[id] = BattleTextNotAFD[id];
+						} else {
+							var combined = {};
+							Object.assign(combined, BattleTextNotAFD[id]);
+							Object.assign(combined, BattleTextAFD[id]);
+							BattleTextAFD[id] = combined;
+						}
+					}
+				}
+
+				if (Config.server.afd) {
+					mode = true;
+				} else if (Dex.prefs('afd') !== undefined) {
+					mode = Dex.prefs('afd');
+				} else {
+					// uncomment on April Fools' Day
+					// mode = true;
+				}
+			}
+
+			Dex.afdMode = mode;
+
+			if (mode === true) {
+				BattleText = BattleTextAFD;
+			} else {
+				BattleText = BattleTextNotAFD;
+			}
 		},
 		/**
 		 * This function establishes the actual connection to the sim server.
@@ -1503,9 +1538,13 @@ function toId() {
 				) && this.className !== 'no-panel-intercept') {
 					if (!e.cmdKey && !e.metaKey && !e.ctrlKey) {
 						var target = this.pathname.substr(1);
-						var shortLinks = /^(rooms?suggestions?|suggestions?|adminrequests?|bugs?|bugreports?|rules?|faq|credits?|news|privacy|contact|dex|insecure|replays?|forgotpassword|devdiscord)$/;
+
+						// keep this in sync with .htaccess
+						var shortLinks = /^(rooms?suggestions?|suggestions?|adminrequests?|forgotpassword|bugs?(reports?)?|formatsuggestions|rules?|faq|credits?|news|privacy|contact|dex|(damage)?calc|insecure|replays?|devdiscord|smogdex|smogcord|forums?|trustworthy\-dlc\-link)$/;
 						if (target === 'appeal' || target === 'appeals') target = 'view-help-request--appeal';
 						if (target === 'report') target = 'view-help-request--report';
+						if (target === 'requesthelp') target = 'view-help-request--other';
+
 						if (isReplayLink) {
 							if (!target || target === 'search') {
 								target = '.';
@@ -2650,13 +2689,13 @@ function toId() {
 	});
 
 	Config.groups = Config.groups || {
-		'~': {
-			name: "Administrator (~)",
+		'#': {
+			name: "Room Owner (#)",
 			type: 'leadership',
 			order: 10001
 		},
-		'#': {
-			name: "Room Owner (#)",
+		'~': {
+			name: "Administrator (~)",
 			type: 'leadership',
 			order: 10002
 		},
@@ -3038,7 +3077,7 @@ function toId() {
 				'<p><b>2.</b> Follow US laws (PS is based in the US). No porn (minors use PS), don\'t distribute pirated material, and don\'t slander others.</p>' +
 				'<p><b>3.</b>&nbsp;No sex. Don\'t discuss anything sexually explicit, not even in private messages, not even if you\'re both adults.</p>' +
 				'<p><b>4.</b>&nbsp;No cheating. Don\'t exploit bugs to gain an unfair advantage. Don\'t game the system (by intentionally losing against yourself or a friend in a ladder match, by timerstalling, etc). Don\'t impersonate staff if you\'re not.</p>' +
-				'<p><b>5.</b> Moderators have discretion to punish any behaviour they deem inappropriate, whether or not it\'s on this list. If you disagree with a moderator ruling, appeal to an administrator (a user with &amp; next to their name) or <a href=\'https://pokemonshowdown.com/appeal\'>Discipline Appeals</a>.</p>' +
+				'<p><b>5.</b> Moderators have discretion to punish any behaviour they deem inappropriate, whether or not it\'s on this list. If you disagree with a moderator ruling, appeal to an administrator (a user with ~ next to their name) or <a href=\'https://pokemonshowdown.com/appeal\'>Discipline Appeals</a>.</p>' +
 				'<p>(Note: The First Amendment does not apply to PS, since PS is not a government organization.)</p>' +
 				'<p><b>Chat</b></p>' +
 				'<p><b>1.</b> Do not spam, flame, or troll. This includes advertising, raiding, asking questions with one-word answers in the lobby, and flooding the chat such as by copy/pasting logs in the lobby.</p>' +
@@ -3050,7 +3089,7 @@ function toId() {
 			if (!warning) {
 				buf += '<p><b>Usernames</b></p>' +
 					'<p>Your username can be chosen and changed at any time. Keep in mind:</p>' +
-					'<p><b>1.</b> Usernames may not impersonate a recognized user (a user with %, @, #, or &amp; next to their name) or a famous person/organization that uses PS or is associated with Pokémon.</p>' +
+					'<p><b>1.</b> Usernames may not impersonate a recognized user (a user with %, @, #, or ~ next to their name) or a famous person/organization that uses PS or is associated with Pokémon.</p>' +
 					'<p><b>2.</b> Usernames may not be derogatory or insulting in nature, to an individual or group (insulting yourself is okay as long as it\'s not too serious).</p>' +
 					'<p><b>3.</b> Usernames may not directly reference sexual activity, or be excessively disgusting.</p>' +
 					'<p>This policy is less restrictive than that of many places, so you might see some "borderline" nicknames that might not be accepted elsewhere. You might consider it unfair that they are allowed to keep their nickname. The fact remains that their nickname follows the above rules, and if you were asked to choose a new name, yours does not.</p>';

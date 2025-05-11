@@ -105,6 +105,8 @@ export default configure([
 			'play.pokemonshowdown.com/src/*.tsx',
 			'replay.pokemonshowdown.com/src/*.ts',
 			'replay.pokemonshowdown.com/src/*.tsx',
+			'teams.pokemonshowdown.com/src/*.ts',
+			'teams.pokemonshowdown.com/src/*.tsx',
 		],
 		extends: [configs.es3ts],
 		languageOptions: {

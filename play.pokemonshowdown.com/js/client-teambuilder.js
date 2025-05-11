@@ -948,10 +948,11 @@
 			if (team.format) filename = '[' + team.format + '] ' + filename;
 			filename = $.trim(filename).replace(/[\\\/]+/g, '') + '.txt';
 			var urlprefix = "data:text/plain;base64,";
-			if (document.location.protocol === 'https:') {
-				// Chrome is dumb and doesn't support data URLs in HTTPS
-				urlprefix = "https://" + Config.routes.client + "/action.php?act=dlteam&team=";
-			}
+			// fixed in modern Chrome versions, and this route is no longer maintained
+			// if (document.location.protocol === 'https:') {
+			// 	// Chrome is dumb and doesn't support data URLs in HTTPS
+			// 	urlprefix = "https://" + Config.routes.client + "/action.php?act=dlteam&team=";
+			// }
 			var contents = Storage.exportTeam(team.team, team.gen).replace(/\n/g, '\r\n');
 			var downloadurl = "text/plain:" + filename + ":" + urlprefix + encodeURIComponent(window.btoa(unescape(encodeURIComponent(contents))));
 			console.log(downloadurl);
@@ -1840,7 +1841,7 @@
 			var $userSetDiv = this.$('.teambuilder-pokemon-import .teambuilder-import-user-sets');
 			$userSetDiv.empty();
 
-			if (smogonFormatSets) {
+			if (smogonFormatSets && smogonFormatSets['dex']) {
 				var smogonSets = $.extend({}, smogonFormatSets['dex'][species], (smogonFormatSets['stats'] || {})[species]);
 				$smogonSetDiv.text('Sample sets: ');
 				for (var set in smogonSets) {
@@ -3704,8 +3705,8 @@
 
 			var gen = Math.max(this.room.curTeam.gen, species.gen);
 			var dir = gen > 5 ? 'dex' : 'gen' + gen;
-			if (Dex.prefs('nopastgens')) gen = 'dex';
-			if (Dex.prefs('bwgfx') && dir === 'dex') gen = 'gen5';
+			if (Dex.prefs('nopastgens')) dir = 'dex';
+			if ((Dex.prefs('bwgfx') && dir === 'dex') || species.gen >= 8) dir = 'gen5';
 			spriteDir += dir;
 			if (dir === 'dex') {
 				spriteSize = 120;

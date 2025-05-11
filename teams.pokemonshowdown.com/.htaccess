@@ -1,0 +1,7 @@
+RewriteEngine on
+RewriteRule ^api(/.*)?$ http://localhost:9000/api$1 [P,L]
+
+RewriteRule ^([A-Za-z0-9-/]+)$ index.html [L,QSA]
+
+DirectoryIndex index.php index.html /dirindex/dirindex.php
+ErrorDocument 404 /dirindex/404.html

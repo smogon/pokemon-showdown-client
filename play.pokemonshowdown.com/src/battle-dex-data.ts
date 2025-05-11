@@ -1113,7 +1113,7 @@ export class Item implements Effect {
 	readonly onMemory: TypeName;
 	readonly onDrive: TypeName;
 	readonly fling: any;
-	readonly naturalGift: any;
+	readonly naturalGift: { basePower: number, type: TypeName };
 	readonly isPokeball: boolean;
 	readonly itemUser?: readonly string[];
 
@@ -1496,6 +1496,7 @@ export class Species implements Effect {
 	readonly evoMove: string;
 	readonly evoItem: string;
 	readonly evoCondition: string;
+	readonly nfe: boolean;
 	readonly requiredItems: readonly string[];
 	readonly tier: string;
 	readonly isTotem: boolean;
@@ -1550,6 +1551,7 @@ export class Species implements Effect {
 		this.evoMove = data.evoMove || '';
 		this.evoItem = data.evoItem || '';
 		this.evoCondition = data.evoCondition || '';
+		this.nfe = data.nfe || false;
 		this.requiredItems = data.requiredItems || (data.requiredItem ? [data.requiredItem] : []);
 		this.tier = data.tier || '';
 
@@ -1595,7 +1597,7 @@ export class Species implements Effect {
 }
 
 export interface Type extends Effect {
-	damageTaken?: AnyObject;
+	damageTaken?: Record<Dex.TypeName, Dex.WeaknessType>;
 	HPivs?: Partial<Dex.StatsTable>;
 	HPdvs?: Partial<Dex.StatsTable>;
 }

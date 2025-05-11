@@ -63,11 +63,11 @@ $formats = array(
 	'gen9pu' => 'PU',
 	'gen9lc' => 'Little Cup',
 	'gen9monotype' => 'Monotype',
-	'gen9bssregh' => 'Battle Stadium Singles Regulation H',
+	'gen9bssregi' => 'Battle Stadium Singles Regulation I',
 	'gen9cap' => 'CAP',
 	'gen9randomdoublesbattle' => 'Random Doubles Battle',
 	'gen9doublesou' => 'Doubles OU',
-	'gen9vgc2024regh' => 'VGC 2024 Regulation H',
+	'gen9vgc2025regi' => 'VGC 2025 Regulation I',
 	'gen9almostanyability' => 'Almost Any Ability',
 	'gen9balancedhackmons' => 'Balanced Hackmons',
 	'gen9godlygift' => 'Godly Gift',
@@ -138,12 +138,27 @@ if (isset($_REQUEST['json'])) {
 	$ladder = new NTBBLadder('');
 	$ladder->getAllRatings($user);
 	$ratings = [];
+
+	$coil_vals = null;
+	try {
+		$coil_vals = json_decode(file_get_contents('../config/coil.json'), true);
+	} catch (Exception $e) {}
+
 	foreach ($user['ratings'] as $rating) {
+		$coil = null;
+		if (isset($coil_vals[$rating['formatid']])) {
+			$coil_B = $coil_vals[$rating['formatid']];
+			$N = $rating['w'] + $rating['l'] + $rating['t'];
+			$coil = $N ? 40 * $rating['gxe'] * pow(2.0, -$coil_B / $N) : 0;
+		}
 		$ratings[$rating['formatid']] = [
 			'elo' => $rating['elo'],
 			'gxe' => $rating['gxe'],
 			'rpr' => $rating['rpr'],
 			'rprd' => $rating['rprd'],
+			'w' => $rating['w'],
+			'l' => $rating['l'],
+			'coil' => $coil,
 		];
 	}
 	echo json_encode([

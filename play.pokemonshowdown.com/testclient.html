@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html>
 	<head>
 		<meta charset="UTF-8" />
@@ -16,7 +16,7 @@
 		<script>
 			function loadRemoteData(src) {
 				var scriptEl = document.createElement('script');
-				scriptEl.src = src.replace(/.*\/?data\//g, 'https://play.pokemonshowdown.com/data/');
+				scriptEl.src = src.replace(/.*\/(data|js)\//g, 'https://play.pokemonshowdown.com/$1/');
 				document.head.appendChild(scriptEl);
 			}
 			Config.testclient = true;
@@ -86,12 +86,12 @@
 
 		<!-- fallback for if you've never done a full build -->
 		<script src="js/server/chat-formatter.js" onerror="loadRemoteData(this.src)"></script>
-		<script src="js/battledata.js" onerror="alert('You must build the client with `node build` before using testclient.html')"></script>
+		<script src="js/battledata.js" onerror="loadRemoteData(this.src)"></script>
 		<script src="data/text.js" onerror="loadRemoteData(this.src)"></script>
 		<script src="data/pokedex-mini.js" onerror="loadRemoteData(this.src)"></script>
 		<script src="data/pokedex-mini-bw.js" onerror="loadRemoteData(this.src)"></script>
 		<script src="data/typechart.js" onerror="loadRemoteData(this.src)"></script>
-		<script src="js/battle.js"></script>
+		<script src="js/battle.js" onerror="alert('You must build the client with `node build` before using testclient.html')"></script>
 		<script src="js/lib/sockjs-1.4.0-nwjsfix.min.js"></script>
 		<script src="js/lib/color-thief.min.js"></script>
 

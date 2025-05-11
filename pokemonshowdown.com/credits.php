@@ -61,7 +61,7 @@ includeHeader();
 				<li><p><strong>Kris Johnson</strong> [dhelmise] <small>&ndash; Development, Art (battle animations)</small></p></li>
 				<li><p><strong>Leonard Craft III</strong> [DaWoblefet] <small>&ndash; Research (game mechanics)</small></p></li>
 				<li><p><strong>Mathieu Dias-Martins</strong> [Marty] <small>&ndash; Research (game mechanics), Development</small></p></li>
-				<li><p><strong>Mia A.</strong> [Hecate] <small>&ndash; Development</small></p></li>
+				<li><p><strong>Mia H.</strong> [Hecate] <small>&ndash; Development</small></p></li>
 			</ul>
 
 			<h2><span>Retired Staff</span></h2>
@@ -100,7 +100,7 @@ includeHeader();
 				<li><p><a href="http://sailorwanda.deviantart.com/" target="_blank" class="subtle"><strong>Catherine D.</strong> [SailorCosmos, Matryoshkat]</a> <small>&ndash; Art (battle animations)</small></p></li>
 				<li><p><strong>Cody Thompson</strong> [Rising_Dusk] <small>&ndash; Development</small></p></li>
 				<li><p>[<strong>Enigami</strong>] <small>&ndash; Development</small></p></li>
-				<li><p>[<strong>Hisuian Zoroark, HiZo</strong>] <small>&ndash; Development</small></p></li>
+				<li><p>[<strong>Hisuian Zoroark</strong>, HiZo] <small>&ndash; Development</small></p></li>
 				<li><p>[<strong>Honko</strong>] <small>&ndash; Development (damage calculator)</small></p></li>
 				<li><p><strong>Ian Clail</strong> [Layell] <small>&ndash; Art (battle graphics, sprites)</small></p></li>
 				<li><p><strong>Jacob McLemore</strong> <small>&ndash; Development</small></p></li>
@@ -110,6 +110,7 @@ includeHeader();
 				<li><p><a href="http://leparagon.deviantart.com/" target="_blank" class="subtle">[<strong>leparagon</strong>]</a> <small>&ndash; Art (sprites, minisprite resizing)</small></p></li>
 				<li><p>[<strong>livid washed</strong>] <small>&ndash; Development</small></p></li>
 				<li><p><strong>Luke Harmon-Vellotti</strong> [moo, CheeseMuffin] <small>&ndash; Development</small></p></li>
+				<li><p><a href="https://mayurhiwale.me/" target="_blank" class="subtle"><strong>Mayur H.</strong> [Aurastic]</a> <small>&ndash; Development (client)</small></p></li>
 				<li><p><strong>Parth Mane</strong> [PartMan] <small>&ndash; Development</small></p></li>
 				<li><p>[<strong>Plague von Karma</strong>] <small>&ndash; Development (Gen 1), Research</small></p></li>
 				<li><p><strong>Russell Jones</strong> [SadisticMystic] <small>&ndash; Research (game mechanics)</small></p></li>

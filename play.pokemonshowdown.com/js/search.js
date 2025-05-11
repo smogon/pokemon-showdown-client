@@ -343,8 +343,8 @@
 		buf += '</span> ';
 
 		// abilities
-		if (gen >= 3) {
-			var abilities = Dex.forGen(gen).species.get(id).abilities;
+		if (gen >= 3 && !(this.engine && this.engine.dex.modid === 'gen7letsgo')) {
+			var abilities = pokemon.abilities;
 			if (gen >= 5) {
 				if (abilities['1']) {
 					buf += '<span class="col twoabilitycol">' + abilities['0'] + '<br />' +

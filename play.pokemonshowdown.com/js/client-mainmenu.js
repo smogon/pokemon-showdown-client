@@ -18,6 +18,7 @@
 			'focus textarea': 'onFocusPM',
 			'blur textarea': 'onBlurPM',
 			'click .spoiler': 'clickSpoiler',
+			'click .datasearch': 'clickDatasearchResults',
 			'click button.formatselect': 'selectFormat',
 			'click button.teamselect': 'selectTeam',
 			'click button[name=partnersubmit]': 'selectTeammate'
@@ -657,6 +658,19 @@
 		},
 		clickSpoiler: function (e) {
 			$(e.currentTarget).toggleClass('spoiler-shown');
+		},
+
+		clickDatasearchResults: function (e) {
+			if ($(e.target)[0].href) return;
+			if (window.getSelection && !window.getSelection().isCollapsed) return;
+			var target = $(e.currentTarget).closest('[class=datasearch]')[0];
+			var button = target.querySelector('button');
+			var results = target.querySelectorAll('[class=datasearch-body]');
+			if (!button || !results || results.length < 2) return;
+			button.innerHTML = button.innerHTML === '[-]' ? '[+]' : '[-]';
+			for (var i = 0; i < results.length; i++) {
+				results[i].style.display = results[i].style.display === 'none' ? 'block' : 'none';
+			}
 		},
 
 		// support for buttons that can be sent by the server:
@@ -1326,11 +1340,6 @@
 					bufs[curBuf] += BattleLog.escapeHTML(curSection) + '</strong></summary>';
 				}
 				var formatName = BattleLog.escapeFormat(format.id);
-				if (formatName.charAt(0) !== '[') formatName = '[Gen 6] ' + formatName;
-				formatName = formatName.replace('[Gen 9] ', '');
-				formatName = formatName.replace('[Gen 9 ', '[');
-				formatName = formatName.replace('[Gen 8 ', '[');
-				formatName = formatName.replace('[Gen 7 ', '[');
 				bufs[curBuf] += (
 					'<li><button name="selectFormat" value="' + i +
 					'" class="option' + (curFormat === i ? ' cur' : '') + '">' + formatName +

@@ -5,7 +5,7 @@
 
 <title>Pok&eacute;mon Showdown! battle simulator</title>
 
-<link rel="stylesheet" href="/style/global.css?v14" />
+<link rel="stylesheet" href="/style/global.css?v16" />
 
 <?php
 include_once __DIR__ . '/../config/config.inc.php';
@@ -88,9 +88,9 @@ include_once __DIR__ . '/../config/ads-landing.inc.php';
 		<div class="nav-wrapper"><ul class="nav">
 			<li><a class="button nav-first cur" href="/"><img src="/images/pokemonshowdownbeta.png" srcset="/images/pokemonshowdownbeta.png 1x, /images/pokemonshowdownbeta@2x.png 2x" alt="Pok&eacute;mon Showdown" width="146" height="44" /> Home</a></li>
 			<li><a class="button" href="/dex/">Pok&eacute;dex</a></li>
-			<li><a class="button" href="//replay.pokemonshowdown.com/">Replays</a></li>
-			<li><a class="button" href="/ladder/">Ladder</a></li>
-			<li><a class="button nav-last" href="/forums/">Forum</a></li>
+			<li><a class="button" href="//replay.pokemonshowdown.com/">Replay</a></li>
+			<li><a class="button purplebutton" href="//smogon.com/dex/" target="_blank">Strategy</a></li>
+			<li><a class="button nav-last purplebutton" href="//smogon.com/forums/" target="_blank">Forum</a></li>
 			<li><a class="button greenbutton nav-first nav-last" href="//play.pokemonshowdown.com/">Play</a></li>
 		</ul></div>
 	</header>
@@ -237,11 +237,11 @@ if (navigator && navigator.mozApps && navigator.mozApps.install) {
 }
 if (BrowserDetect.OS === 'Mac') {
 	// document.getElementById('play-online').style.display = 'none';
-	document.getElementById('mac-install').style.display = 'block';
+	// document.getElementById('mac-install').style.display = 'block';
 	// document.getElementById('install-after').innerHTML = '<p style="text-align:center;color:#777;margin:-10px 0 -0px 0"><small><em>or</em></small></p><p class="subtle" style="text-align:center"><a href="//play.pokemonshowdown.com/" class="button" style="padding:9px 24px"><strong>Play online</strong></a></p>';
 } else if (BrowserDetect.OS === 'Windows') {
 	// document.getElementById('play-online').style.display = 'none';
-	document.getElementById('win-install').style.display = 'block';
+	// document.getElementById('win-install').style.display = 'block';
 	// document.getElementById('install-after').innerHTML = '<p style="text-align:center;color:#777;margin:-10px 0 -0px 0"><small><em>or</em></small></p><p class="subtle" style="text-align:center"><a href="//play.pokemonshowdown.com/" class="button" style="padding:9px 24px"><strong>Play online</strong></a></p>';
 }
 
@@ -311,13 +311,10 @@ if (BrowserDetect.OS === 'Mac') {
 	margin-left: 260px;
 }
 @media (max-width:600px) {
-	.section-servers {
+	.section-servers, .section-news {
 		float: none;
 		width: auto;
-		margin: 20px auto;
-	}
-	.section-news {
-		margin-left: 0;
+		margin: 20px 10px;
 	}
 }
 
