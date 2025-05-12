@@ -560,7 +560,7 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
 		}
 
 		if (!PS.user.userid || PS.isOffline) {
-			return <TeamForm class="menugroup" onSubmit={this.submitSearch}>
+			return <TeamForm class="menugroup" onSubmit={this.submitSearch} selectType="search">
 				<button class="mainmenu1 mainmenu big button disabled" disabled name="search">
 					<em>{PS.isOffline ? [<span class="fa-stack fa-lg">
 						<i class="fa fa-plug fa-flip-horizontal fa-stack-1x" aria-hidden></i>
