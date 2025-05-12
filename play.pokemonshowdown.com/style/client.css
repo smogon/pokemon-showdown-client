@@ -3,7 +3,9 @@
  *********************************************************/
 @font-face {
 	font-family: PGLDings;
-	src: url("fonts/PGLDings.woff2");
+	src: url("fonts/PGLDings.woff2") format('woff2'),
+		url("fonts/PGLDings.woff") format('woff'),
+		url("fonts/PGLDings.ttf") format('ttf');
 }
 html, body {
 	margin: 0;
