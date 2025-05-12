@@ -835,7 +835,7 @@ export interface FormatData {
 
 declare const BattleFormats: { [id: string]: FormatData };
 
-export type SelectType = 'teambuilder' | 'challenge' | 'search';
+export type SelectType = 'teambuilder' | 'challenge' | 'search' | 'tournament';
 class FormatDropdownPanel extends PSRoomPanel {
 	static readonly id = 'formatdropdown';
 	static readonly routes = ['formatdropdown'];
@@ -919,6 +919,7 @@ class FormatDropdownPanel extends PSRoomPanel {
 		const formats = Object.values(BattleFormats).filter(format => {
 			if (selectType === 'challenge' && format.challengeShow === false) return false;
 			if (selectType === 'search' && format.searchShow === false) return false;
+			if (selectType === 'tournament' && format.tournamentShow === false) return false;
 			if (selectType === 'teambuilder' && format.team) return false;
 			return true;
 		});
