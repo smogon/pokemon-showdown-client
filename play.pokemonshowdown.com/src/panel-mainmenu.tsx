@@ -573,7 +573,7 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
 			</TeamForm>;
 		}
 
-		return <TeamForm class="menugroup" onSubmit={this.submitSearch}>
+		return <TeamForm class="menugroup" onSubmit={this.submitSearch} selectType="search">
 			{PS.mainmenu.searchCountdown ? (
 				<>
 					<button class="mainmenu1 mainmenu big button disabled" type="submit"><strong>
@@ -728,7 +728,8 @@ class TeamDropdown extends preact.Component<{ format: string }> {
 }
 
 export class TeamForm extends preact.Component<{
-	children: preact.ComponentChildren, class?: string, format?: string, teamFormat?: string, hideFormat?: boolean,
+	children: preact.ComponentChildren,
+	class?: string, format?: string, teamFormat?: string, hideFormat?: boolean, selectType?: SelectType,
 	onSubmit: ((e: Event, format: string, team?: Team) => void) | null,
 	onValidate?: ((e: Event, format: string, team?: Team) => void) | null,
 }> {
@@ -760,7 +761,7 @@ export class TeamForm extends preact.Component<{
 			{!this.props.hideFormat && <p>
 				<label class="label">
 					Format:<br />
-					<FormatDropdown onChange={this.changeFormat} format={this.props.format} />
+					<FormatDropdown onChange={this.changeFormat} format={this.props.format} selectType={this.props.selectType} />
 				</label>
 			</p>}
 			<p>
