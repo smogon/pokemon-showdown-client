@@ -164,6 +164,14 @@ class TeamEditorState extends PSModel {
 		}
 		return this.getResultValue(result);
 	}
+	changeSpecies(set: Dex.PokemonSet, speciesName: string) {
+		const species = this.dex.species.get(speciesName);
+		if (set.item === this.getDefaultItem(set.species)) set.item = undefined;
+		if (set.name === set.species.split('-')[0]) delete set.name;
+		set.species = species.name;
+		set.ability = this.getDefaultAbility(set);
+		set.item = this.getDefaultItem(species.name) ?? set.item;
+	}
 	deleteSet(index: number) {
 		if (this.sets.length <= index) return;
 		this.deletedSet = {
@@ -461,8 +469,8 @@ class TeamEditorState extends PSModel {
 		if (set.ability && abilities.includes(set.ability)) return set.ability;
 		return undefined;
 	}
-	getDefaultItem(set: Dex.PokemonSet, defaultToNoItem?: boolean) {
-		const species = this.dex.species.get(set.species);
+	getDefaultItem(speciesName: string) {
+		const species = this.dex.species.get(speciesName);
 		let items = species.requiredItems;
 		if (this.gen !== 7 && !this.isNatDex) {
 			// Require plates on Arceus when Z crystals don't exist
@@ -475,7 +483,7 @@ class TeamEditorState extends PSModel {
 				return items[0];
 			}
 		}
-		return defaultToNoItem ? undefined : set.item;
+		return undefined;
 	}
 	save() {
 		this.team.packedTeam = PSTeambuilder.packTeam(this.sets);
@@ -1006,7 +1014,7 @@ class TeamTextbox extends preact.Component<{ editor: TeamEditorState, onChange?:
 		const focus = this.innerFocus;
 		if (!focus) return;
 
-		if (type === focus.type && (this.editor.sets[focus.setIndex] || !name)) {
+		if (type === focus.type && type !== 'pokemon') {
 			this.replace(name, focus.range[0], focus.range[1]);
 			this.updateText(false, true);
 			return;
@@ -1018,13 +1026,7 @@ class TeamTextbox extends preact.Component<{ editor: TeamEditorState, onChange?:
 				species: '',
 				moves: [],
 			};
-			// If this is a change made to an existing set, this function will have already returned above
-			// so there should never be an old item or ability to replace or fall back on
-			// but just in case...
-			const oldRequiredItem = set.item && this.editor.getDefaultItem(set, true);
-			set.species = name;
-			set.ability = this.editor.getDefaultAbility(set);
-			set.item = this.editor.getDefaultItem(set, oldRequiredItem === set.item);
+			this.editor.changeSpecies(set, name);
 			this.replaceSet(focus.setIndex);
 			this.updateText(false, true);
 			break;
@@ -1504,7 +1506,7 @@ class TeamWizard extends preact.Component<{
 					<td class="set-ability"><div class="border-collapse">
 						<button class={`button button-middle${cur('ability')}`} onClick={this.setFocus} value={`ability|${i}`}>
 							<strong class="label">Ability</strong> {}
-							{set.ability || <em>(no ability)</em>}
+							{set.ability || (editor.gen >= 3 ? <em>(choose ability)</em> : <em>(no ability)</em>)}
 						</button>
 					</div></td>
 					<td class="set-item"><div class="border-collapse">
@@ -1546,11 +1548,7 @@ class TeamWizard extends preact.Component<{
 			const set = (editor.sets[setIndex] ||= { species: '', moves: [] });
 			switch (type) {
 			case 'pokemon':
-				const oldRequiredItem = set.item && editor.getDefaultItem(set, true);
-				if (set.name === set.species.split('-')[0]) delete set.name;
-				set.species = name;
-				set.ability = editor.getDefaultAbility(set);
-				set.item = editor.getDefaultItem(set, oldRequiredItem === set.item);
+				editor.changeSpecies(set, name);
 				this.changeFocus({
 					setIndex,
 					type: reverse ? 'details' : 'ability',
