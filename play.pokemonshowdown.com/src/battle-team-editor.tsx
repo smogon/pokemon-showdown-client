@@ -38,6 +38,8 @@ class TeamEditorState extends PSModel {
 	isLetsGo = false;
 	isNatDex = false;
 	isBDSP = false;
+	formeLegality: 'normal' | 'hackmons' | 'custom' = 'normal';
+	abilityLegality: 'normal' | 'hackmons' = 'normal';
 	defaultLevel = 100;
 	readonly: boolean;
 	constructor(team: Team, readonly = false) {
@@ -60,6 +62,20 @@ class TeamEditorState extends PSModel {
 		this.isLetsGo = formatid.includes('letsgo');
 		this.isNatDex = formatid.includes('nationaldex') || formatid.includes('natdex');
 		this.isBDSP = formatid.includes('bdsp');
+		if (formatid.includes('almostanyability') || formatid.includes('aaa')) {
+			this.abilityLegality = 'hackmons';
+		} else {
+			this.abilityLegality = 'normal';
+		}
+		if (formatid.includes('hackmons') || formatid.includes('bh')) {
+			this.formeLegality = 'hackmons';
+			this.abilityLegality = 'hackmons';
+		} else if (formatid.includes('metronome') || formatid.includes('customgame')) {
+			this.formeLegality = 'custom';
+			this.abilityLegality = 'hackmons';
+		} else {
+			this.formeLegality = 'normal';
+		}
 
 		this.defaultLevel = 100;
 		if (
@@ -147,6 +163,14 @@ class TeamEditorState extends PSModel {
 			return null;
 		}
 		return this.getResultValue(result);
+	}
+	changeSpecies(set: Dex.PokemonSet, speciesName: string) {
+		const species = this.dex.species.get(speciesName);
+		if (set.item === this.getDefaultItem(set.species)) set.item = undefined;
+		if (set.name === set.species.split('-')[0]) delete set.name;
+		set.species = species.name;
+		set.ability = this.getDefaultAbility(set);
+		set.item = this.getDefaultItem(species.name) ?? set.item;
 	}
 	deleteSet(index: number) {
 		if (this.sets.length <= index) return;
@@ -424,6 +448,42 @@ class TeamEditorState extends PSModel {
 			}
 		}
 		return counters;
+	}
+	getDefaultAbility(set: Dex.PokemonSet) {
+		if (this.gen < 3 || this.isLetsGo || this.formeLegality === 'custom') return set.ability;
+		const species = this.dex.species.get(set.species);
+		if (this.formeLegality === 'hackmons') {
+			// TODO: support gen 9 hackmons forme legality more completely than this
+			if (this.gen < 9 || species.baseSpecies !== 'Xerneas') return set.ability;
+			// falls through to final return statement
+		} else if (this.abilityLegality === 'hackmons') {
+			if (!species.battleOnly) return set.ability;
+			if (species.requiredItems.length || species.baseSpecies === 'Meloetta') return set.ability;
+			// battle only species only ever have one ability
+			// if they don't have a required item and aren't Meloetta, they change formes with that ability
+			// so it's forced, even in AAA
+			return species.abilities[0];
+		}
+		const abilities = Object.values(species.abilities);
+		if (abilities.length === 1) return abilities[0];
+		if (set.ability && abilities.includes(set.ability)) return set.ability;
+		return undefined;
+	}
+	getDefaultItem(speciesName: string) {
+		const species = this.dex.species.get(speciesName);
+		let items = species.requiredItems;
+		if (this.gen !== 7 && !this.isNatDex) {
+			// Require plates on Arceus when Z crystals don't exist
+			items = items.filter(i => !i.endsWith('ium Z'));
+		}
+		if (items.length === 1) {
+			if (this.formeLegality === 'normal' ||
+				this.formeLegality === 'hackmons' && this.gen === 9 && species.battleOnly &&
+				!species.isMega && !species.isPrimal && species.name !== 'Necrozma-Ultra') {
+				return items[0];
+			}
+		}
+		return undefined;
 	}
 	save() {
 		this.team.packedTeam = PSTeambuilder.packTeam(this.sets);
@@ -954,7 +1014,7 @@ class TeamTextbox extends preact.Component<{ editor: TeamEditorState, onChange?:
 		const focus = this.innerFocus;
 		if (!focus) return;
 
-		if (type === focus.type && (this.editor.sets[focus.setIndex] || !name)) {
+		if (type === focus.type && type !== 'pokemon') {
 			this.replace(name, focus.range[0], focus.range[1]);
 			this.updateText(false, true);
 			return;
@@ -962,14 +1022,11 @@ class TeamTextbox extends preact.Component<{ editor: TeamEditorState, onChange?:
 
 		switch (type) {
 		case 'pokemon': {
-			const species = this.editor.dex.species.get(name);
-			const abilities = Object.values(species.abilities);
-			this.editor.sets[focus.setIndex] ||= {
-				ability: abilities.length === 1 ? abilities[0] : undefined,
+			const set = this.editor.sets[focus.setIndex] ||= {
 				species: '',
 				moves: [],
 			};
-			this.editor.sets[focus.setIndex].species = name;
+			this.editor.changeSpecies(set, name);
 			this.replaceSet(focus.setIndex);
 			this.updateText(false, true);
 			break;
@@ -1449,7 +1506,7 @@ class TeamWizard extends preact.Component<{
 					<td class="set-ability"><div class="border-collapse">
 						<button class={`button button-middle${cur('ability')}`} onClick={this.setFocus} value={`ability|${i}`}>
 							<strong class="label">Ability</strong> {}
-							{set.ability || <em>(no ability)</em>}
+							{set.ability || (editor.gen >= 3 ? <em>(choose ability)</em> : <em>(no ability)</em>)}
 						</button>
 					</div></td>
 					<td class="set-item"><div class="border-collapse">
@@ -1491,7 +1548,7 @@ class TeamWizard extends preact.Component<{
 			const set = (editor.sets[setIndex] ||= { species: '', moves: [] });
 			switch (type) {
 			case 'pokemon':
-				set.species = name;
+				editor.changeSpecies(set, name);
 				this.changeFocus({
 					setIndex,
 					type: reverse ? 'details' : 'ability',
