@@ -266,7 +266,7 @@ export class BattleLog {
 
 		case 'unlink': {
 			// |unlink| is deprecated in favor of |hidelines|
-			if (window.PS.prefs.nounlink) return;
+			if (window.PS?.prefs?.nounlink || window.Dex?.prefs?.nounlink) return;
 			const user = toID(args[2]) || toID(args[1]);
 			this.unlinkChatFrom(user);
 			if (args[2]) {
@@ -277,7 +277,7 @@ export class BattleLog {
 		}
 
 		case 'hidelines': {
-			if (window.PS.prefs.nounlink) return;
+			if (window.PS?.prefs?.nounlink || window.Dex?.prefs?.nounlink) return;
 			const user = toID(args[2]);
 			this.unlinkChatFrom(user);
 			if (args[1] !== 'unlink') {
