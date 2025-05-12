@@ -772,7 +772,9 @@ class BattleTooltips {
 						hpValues.push(hp - 256);
 					}
 				}
-				if (hpValues.length) text += `<p>Will fail if current HP is ${hpValues.join(' or ')}</p>`;
+				let failMessage = hpValues.length ? `Will fail if current HP is ${hpValues.join(' or ')}.` : '';
+				if (hpValues.includes(serverPokemon.hp) failMessage = `<strong class="message-error">${failMessage}</strong>`;
+				if (failMessage) text += `<p>${failMessage}</p>;
 			}
 		}
 		return text;
