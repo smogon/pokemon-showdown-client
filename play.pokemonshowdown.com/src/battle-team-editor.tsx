@@ -2510,12 +2510,12 @@ class DetailsForm extends preact.Component<{
 				{editor.gen === 9 && <p>
 					<label class="label" title="Tera Type">
 						Tera Type: {}
-						{species.requiredTeraType ? (
+						{species.requiredTeraType && editor.formeLegality === 'normal' ? (
 							<select name="teratype" class="button cur" disabled><option>{species.requiredTeraType}</option></select>
 						) : (
 							<select name="teratype" class="button" onChange={this.changeTera}>
 								{Dex.types.all().map(type => (
-									<option value={type.name} selected={(set.teraType || species.types[0]) === type.name}>
+									<option value={type.name} selected={(set.teraType || species.requiredTeraType || species.types[0]) === type.name}>
 										{type.name}
 									</option>
 								))}
