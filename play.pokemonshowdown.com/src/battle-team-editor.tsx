@@ -1296,7 +1296,7 @@ class TeamTextbox extends preact.Component<{ editor: TeamEditorState, onChange?:
 			</span>
 			{editor.gen === 9 ? (
 				<span class="detailcell">
-					<label>Tera</label>{TeamEditor.renderTypeIcon(set.teraType || species.forceTeraType || species.types[0])}
+					<label>Tera</label>{TeamEditor.renderTypeIcon(set.teraType || species.requiredTeraType || species.types[0])}
 				</span>
 			) : editor.hpTypeMatters(set) ? (
 				<span class="detailcell">
@@ -1590,7 +1590,7 @@ class TeamWizard extends preact.Component<{
 							</span>}
 							{editor.gen === 9 && <span class="detailcell">
 								<strong class="label">Tera</strong> {}
-								{TeamEditor.renderTypeIcon(set.teraType || species.forceTeraType || species.types[0])}
+								{TeamEditor.renderTypeIcon(set.teraType || species.requiredTeraType || species.types[0])}
 							</span>}
 							{editor.hpTypeMatters(set) && <span class="detailcell">
 								<strong class="label">H.P.</strong> {}
@@ -2464,7 +2464,7 @@ class DetailsForm extends preact.Component<{
 		const target = ev.currentTarget as HTMLInputElement;
 		const { editor, set } = this.props;
 		const species = editor.dex.species.get(set.species);
-		if (!target.value || target.value === (species.forceTeraType || species.types[0])) {
+		if (!target.value || target.value === (species.requiredTeraType || species.types[0])) {
 			delete set.teraType;
 		} else {
 			set.teraType = target.value.trim();
@@ -2638,12 +2638,12 @@ class DetailsForm extends preact.Component<{
 				{editor.gen === 9 && <p>
 					<label class="label" title="Tera Type">
 						Tera Type: {}
-						{species.forceTeraType ? (
-							<select name="teratype" class="button cur" disabled><option>{species.forceTeraType}</option></select>
+						{species.requiredTeraType && editor.formeLegality === 'normal' ? (
+							<select name="teratype" class="button cur" disabled><option>{species.requiredTeraType}</option></select>
 						) : (
 							<select name="teratype" class="button" onChange={this.changeTera}>
 								{Dex.types.all().map(type => (
-									<option value={type.name} selected={(set.teraType || species.types[0]) === type.name}>
+									<option value={type.name} selected={(set.teraType || species.requiredTeraType || species.types[0]) === type.name}>
 										{type.name}
 									</option>
 								))}

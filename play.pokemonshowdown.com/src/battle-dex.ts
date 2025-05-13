@@ -1344,7 +1344,7 @@ export const Teams = new class {
 			}
 			if (gen === 9) {
 				const species = Dex.species.get(curSet.species);
-				text += `Tera Type: ${species.forceTeraType || curSet.teraType || species.types[0]}  \n`;
+				text += `Tera Type: ${curSet.teraType || species.requiredTeraType || species.types[0]}  \n`;
 			}
 			if (!hidestats) {
 				let first = true;
