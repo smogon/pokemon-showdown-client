@@ -574,7 +574,7 @@
 			var canUltraBurst = curActive.canUltraBurst || switchables[pos].canUltraBurst;
 			var canDynamax = curActive.canDynamax || switchables[pos].canDynamax;
 			var maxMoves = curActive.maxMoves || switchables[pos].maxMoves;
-			var gigantamax = curActive.gigantamax;
+			var gigantamax = curActive.maxMoves.gigantamax;
 			var canTerastallize = curActive.canTerastallize || switchables[pos].canTerastallize;
 			if (canZMove && typeof canZMove[0] === 'string') {
 				canZMove = _.map(canZMove, function (move) {
@@ -706,10 +706,10 @@
 								// when possible, use Z move to decide type, for cases like Z-Hidden Power
 								var baseMove = this.battle.dex.moves.get(curActive.moves[i].move);
 								// might not exist, such as for Z status moves - fall back on base move to determine type then
-								var specialMove = gigantamax || this.battle.dex.moves.get(specialMoves[i].move);
-								var moveType = this.tooltips.getMoveType(specialMove.exists && !specialMove.isMax ? specialMove : baseMove, typeValueTracker, specialMove.isMax ? gigantamax || switchables[pos].gigantamax || true : undefined)[0];
-								if (specialMove.isMax && specialMove.name !== 'Max Guard' && !specialMove.id.startsWith('gmax')) {
-									specialMove = this.tooltips.getMaxMoveFromType(moveType);
+								var specialMove = this.battle.dex.moves.get(specialMoves[i].move);
+								var moveType = this.tooltips.getMoveType(specialMove.exists && !specialMove.isMax ? specialMove : baseMove, typeValueTracker, specialMove.isMax ? gigantamax || true : undefined)[0];
+								if (specialMove.isMax && specialMove.name !== 'Max Guard') {
+									specialMove = this.tooltips.getMaxMoveFromType(moveType, gigantamax);
 								}
 								var tooltipArgs = classType + 'move|' + baseMove.id + '|' + pos;
 								if (specialMove.id.startsWith('gmax')) tooltipArgs += '|' + specialMove.id;
