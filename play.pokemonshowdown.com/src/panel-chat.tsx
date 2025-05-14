@@ -1221,7 +1221,7 @@ export class ChatLog extends preact.Component<{
 		if (controlsElem && controlsElem.className !== 'controls') controlsElem = undefined;
 		if (!jsx) {
 			if (!controlsElem) return;
-			preact.render(null, elem, controlsElem);
+			elem.removeChild(controlsElem);
 			this.updateScroll();
 			return;
 		}
@@ -1230,7 +1230,9 @@ export class ChatLog extends preact.Component<{
 			controlsElem.className = 'controls';
 			elem.appendChild(controlsElem);
 		}
-		preact.render(<div class="controls">{jsx}</div>, elem, controlsElem);
+		// for some reason, the replaceNode feature isn't working?
+		if (controlsElem.children[0]) controlsElem.removeChild(controlsElem.children[0]);
+		preact.render(<div>{jsx}</div>, controlsElem);
 		this.updateScroll();
 	}
 	updateScroll() {
