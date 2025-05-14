@@ -43,7 +43,8 @@ export interface BattleRequestActivePokemon {
 	} | null)[];
 	/** also true if the pokemon can Gigantamax */
 	canDynamax?: boolean;
-	canGigantamax?: boolean;
+	/** if the pokemon can Gigantamax, a string containing the full name of its G-max move */
+	gigantamax?: string;
 	canMegaEvo?: boolean;
 	canMegaEvoX?: boolean;
 	canMegaEvoY?: boolean;
@@ -593,7 +594,7 @@ export class BattleChoiceBuilder {
 				}
 				if (active.maxMoves) {
 					if (active.maxMoves.maxMoves) {
-						active.canGigantamax = active.maxMoves.gigantamax;
+						active.gigantamax = active.maxMoves.gigantamax;
 						active.maxMoves = active.maxMoves.maxMoves;
 					}
 					for (const move of active.maxMoves) {

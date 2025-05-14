@@ -12,7 +12,7 @@ import { ChatLog, ChatRoom, ChatTextEntry, ChatUserList } from "./panel-chat";
 import { FormatDropdown } from "./panel-mainmenu";
 import { Battle, type Pokemon, type ServerPokemon } from "./battle";
 import { BattleScene } from "./battle-animations";
-import { Dex, toID } from "./battle-dex";
+import { Dex, toID, type ID } from "./battle-dex";
 import {
 	BattleChoiceBuilder, type BattleRequestActivePokemon, type BattleRequestSideInfo,
 	type BattleRequest, type BattleMoveRequest, type BattleSwitchRequest, type BattleTeamRequest,
@@ -468,7 +468,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 			<div class="megaevo-box">
 				{canDynamax && <label class={`megaevo${choices.current.max ? ' cur' : ''}`}>
 					<input type="checkbox" name="max" checked={choices.current.max} onChange={this.toggleBoostedMove} /> {}
-					{moveRequest.canGigantamax ? 'Gigantamax' : 'Dynamax'}
+					{moveRequest.gigantamax ? 'Gigantamax' : 'Dynamax'}
 				</label>}
 				{canMegaEvo && <label class={`megaevo${choices.current.mega ? ' cur' : ''}`}>
 					<input type="checkbox" name="mega" checked={choices.current.mega} onChange={this.toggleBoostedMove} /> {}
@@ -510,13 +510,16 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 			if (!active.maxMoves) {
 				return <div class="message-error">Maxed with no max moves</div>;
 			}
+			const gmax = active.gigantamax && dex.moves.get(active.gigantamax);
 			return active.moves.map((moveData, i) => {
 				const move = dex.moves.get(moveData.name);
-				const maxMoveData = active.maxMoves![i];
-				const gmax = maxMoveData.id.startsWith('gmax') ? dex.moves.get(maxMoveData.id) : null;
-				const gmaxTooltip = gmax ? `|${maxMoveData.id}` : ``;
-				const tooltip = `maxmove|${moveData.name}|${pokemonIndex}${gmaxTooltip}`;
 				const moveType = tooltips.getMoveType(move, valueTracker, gmax || true)[0];
+				let maxMoveData: { name: string, id: ID } = active.maxMoves![i];
+				if (maxMoveData.name !== 'Max Guard') {
+					maxMoveData = tooltips.getMaxMoveFromType(moveType, gmax);
+				}
+				const gmaxTooltip = maxMoveData.id.startsWith('gmax') ? `|${maxMoveData.id}` : ``;
+				const tooltip = `maxmove|${moveData.name}|${pokemonIndex}${gmaxTooltip}`;
 				return <MoveButton cmd={`/move ${i + 1} max`} type={moveType} tooltip={tooltip} moveData={moveData}>
 					{maxMoveData.name}
 				</MoveButton>;
@@ -685,7 +688,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 				if (choice.megay) buf.push(<strong>Mega</strong>, ` Evolve (Y) and `);
 				if (choice.ultra) buf.push(<strong>Ultra</strong>, ` Burst and `);
 				if (choice.tera) buf.push(`Terastallize (`, <strong>{active?.canTerastallize || '???'}</strong>, `) and `);
-				if (choice.max && active?.canDynamax) buf.push(active?.canGigantamax ? `Gigantamax and ` : `Dynamax and `);
+				if (choice.max && active?.canDynamax) buf.push(active?.gigantamax ? `Gigantamax and ` : `Dynamax and `);
 				buf.push(`use `, <strong>{choices.currentMove(choice, i)?.name}</strong>);
 				if (choice.targetLoc > 0) {
 					const target = battle.farSide.active[choice.targetLoc - 1];

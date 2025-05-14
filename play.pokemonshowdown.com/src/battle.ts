@@ -1013,8 +1013,6 @@ export interface ServerPokemon extends PokemonDetails, PokemonHealth {
 	item: string;
 	/** currently an ID, will revise to name */
 	pokeball: string;
-	/** false if the pokemon cannot gigantamax, otherwise a string containing the full name of its G-max move */
-	gigantamax: string | false;
 	/** always the Tera Type of the Pokemon, regardless of whether it is terastallized or not */
 	teraType: string;
 	/** falsy if the pokemon is not terastallized, otherwise it is the Tera Type of the Pokemon */
