@@ -574,7 +574,7 @@
 			var canUltraBurst = curActive.canUltraBurst || switchables[pos].canUltraBurst;
 			var canDynamax = curActive.canDynamax || switchables[pos].canDynamax;
 			var maxMoves = curActive.maxMoves || switchables[pos].maxMoves;
-			var gigantamax = curActive.maxMoves.gigantamax;
+			var gigantamax = curActive.maxMoves && curActive.maxMoves.gigantamax;
 			var canTerastallize = curActive.canTerastallize || switchables[pos].canTerastallize;
 			if (canZMove && typeof canZMove[0] === 'string') {
 				canZMove = _.map(canZMove, function (move) {
