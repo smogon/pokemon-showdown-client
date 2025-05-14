@@ -470,9 +470,9 @@ class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
 					{teams.map(team => team ? (
 						<li key={team.key} onDragEnter={this.dragEnterTeam} data-teamkey={team.key}>
 							<TeamBox team={team} /> {}
-							<button data-cmd={`/deleteteam ${team.key}`} class="option">
+							{!team.uploaded && <button data-cmd={`/deleteteam ${team.key}`} class="option">
 								<i class="fa fa-trash" aria-hidden></i> Delete
-							</button> {}
+							</button>} {}
 							{team.uploaded?.private ? (
 								<i class="fa fa-cloud gray"></i>
 							) : team.uploaded ? (

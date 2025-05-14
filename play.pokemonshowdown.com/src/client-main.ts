@@ -284,6 +284,8 @@ export interface Team {
 		/** password, if private. null = public, undefined = unknown, not loaded yet */
 		private?: string | null,
 	};
+	/** team at the point it was last uploaded. outside of `uploaded` so it can track loading state */
+	uploadedPackedTeam?: string;
 }
 interface UploadedTeam {
 	name: string;
@@ -435,14 +437,9 @@ class PSTeams extends PSStreamModel<'team' | 'format'> {
 					if (!team) {
 						continue;
 					}
-					const compare = this.compareTeams(team, localTeam);
-					if (compare !== true) {
-						if (!localTeam.name.endsWith(' (local version)')) localTeam.name += ' (local version)';
-						continue;
-					}
 					localTeam.uploaded = {
 						teamid: team.teamid,
-						notLoaded: true,
+						notLoaded: false,
 						private: team.private,
 					};
 					delete teams[localTeam.teamid];
@@ -465,7 +462,7 @@ class PSTeams extends PSStreamModel<'team' | 'format'> {
 						localTeam.teamid = team.teamid;
 						localTeam.uploaded = {
 							teamid: team.teamid,
-							notLoaded: true,
+							notLoaded: false,
 							private: team.private,
 						};
 						break;
@@ -495,10 +492,10 @@ class PSTeams extends PSStreamModel<'team' | 'format'> {
 	loadTeam(team: Team | undefined | null, ifNeeded: true): void | Promise<void>;
 	loadTeam(team: Team | undefined | null): Promise<void>;
 	loadTeam(team: Team | undefined | null, ifNeeded?: boolean): void | Promise<void> {
-		if (!team) return ifNeeded ? undefined : Promise.resolve();
-		if (!team.uploaded?.notLoaded) return ifNeeded ? undefined : Promise.resolve();
-		if (team.uploaded.notLoaded !== true) return team.uploaded.notLoaded;
+		if (!team?.uploaded || team.uploadedPackedTeam) return ifNeeded ? undefined : Promise.resolve();
+		if (team.uploaded.notLoaded && team.uploaded.notLoaded !== true) return team.uploaded.notLoaded;
 
+		const notLoaded = team.uploaded.notLoaded;
 		return (team.uploaded.notLoaded = PSLoginServer.query('getteam', {
 			teamid: team.uploaded.teamid,
 		}).then(data => {
@@ -508,8 +505,11 @@ class PSTeams extends PSStreamModel<'team' | 'format'> {
 				return;
 			}
 			team.uploaded.notLoaded = false;
-			team.packedTeam = data.team;
-			PS.teams.save();
+			team.uploadedPackedTeam = data.team;
+			if (notLoaded) {
+				team.packedTeam = data.team;
+				PS.teams.save();
+			}
 		}));
 	}
 	compareTeams(serverTeam: UploadedTeam, localTeam: Team) {

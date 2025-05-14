@@ -296,7 +296,7 @@ li::marker {
 	content: "";
 	display: block;
 	height: 6px;
-	margin: -1px 0 -1px 0;
+	margin: -1px 0 0 0;
 	-webkit-box-shadow: 0 1px 2px rgba(0,0,0,.2);
 	-moz-box-shadow: 0 1px 2px rgba(0,0,0,.2);
 	box-shadow: 0 1px 2px rgba(0,0,0,.2);
@@ -1993,6 +1993,7 @@ pre.textbox.textbox-empty[placeholder]:before {
 
 .switchmenu button.disabled,
 .switchmenu button:disabled,
+.movebutton.disabled,
 .movebutton:disabled {
 	cursor: default;
 	background: #F3F3F3 !important;
@@ -2080,6 +2081,7 @@ pre.textbox.textbox-empty[placeholder]:before {
 	text-align: center;
 	/* individual pokemon in a team have margin-right -4px so this compensates */
 	margin: 0 -1px 0 -5px;
+	white-space: normal;
 }
 .team small span {
 	margin-right: -4px;
