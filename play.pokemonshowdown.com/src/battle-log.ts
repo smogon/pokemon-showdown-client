@@ -371,12 +371,25 @@ export class BattleLog {
 				turnMessage = `Turn ${args[1]}`;
 				turnNumber = parseInt(args[1]);
 			}
-			goToTurnButton?.addEventListener?.('click', e => {
-				e.preventDefault();
-				this.scene?.battle.seekTurn(turnNumber);
-			});
-			goToTurnButton.innerHTML = BattleLog.escapeHTML(turnMessage);
-			h2elem.appendChild(goToTurnButton);
+			let userId: string | undefined = undefined;
+			if (window.app?.user?.get) {
+				userId = window.app.user.get('userid');
+			}
+			if (!this.scene?.battle.isReplay && userId && [
+				this.scene?.battle.p1.id,
+				this.scene?.battle.p2.id,
+				this.scene?.battle.p3?.id,
+				this.scene?.battle.p4?.id,
+			].includes(userId)) {
+				h2elem.innerHTML = BattleLog.escapeHTML(turnMessage);
+			} else {
+				goToTurnButton.addEventListener('click', e => {
+					e.preventDefault();
+					this.scene?.battle.seekTurn(turnNumber);
+				});
+				goToTurnButton.innerHTML = BattleLog.escapeHTML(turnMessage);
+				h2elem.appendChild(goToTurnButton);
+			}
 
 			this.addSpacer();
 			this.addNode(h2elem);
