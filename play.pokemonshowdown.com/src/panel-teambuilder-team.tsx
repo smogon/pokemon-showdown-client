@@ -86,6 +86,7 @@ class TeamPanel extends PSRoomPanel<TeamRoom> {
 			});
 	}
 
+	formatDropdownRef?: FormatDropdown = undefined;
 	handleRename = (ev: Event) => {
 		const textbox = ev.currentTarget as HTMLInputElement;
 		const room = this.props.room;
@@ -178,7 +179,8 @@ class TeamPanel extends PSRoomPanel<TeamRoom> {
 				</button>
 			)}
 			<div style="float:right"><FormatDropdown
-				format={team.format} placeholder="" selectType="teambuilder" onChange={this.handleChangeFormat}
+				ref={el => { this.formatDropdownRef = el }} format={team.format}
+				placeholder="" selectType="teambuilder" onChange={this.handleChangeFormat}
 			/></div>
 			<label class="label teamname">
 				Team name:{}
@@ -187,7 +189,10 @@ class TeamPanel extends PSRoomPanel<TeamRoom> {
 					onInput={this.handleRename} onChange={this.handleRename} onKeyUp={this.handleRename}
 				/>
 			</label>
-			<TeamEditor team={team} onChange={this.save} readonly={!!team.teamid && !team.uploaded}>
+			<TeamEditor 
+        team={team} onChange={this.save} readonly={!!team.teamid && !team.uploaded} 
+        formatDropdownRef={this.formatDropdownRef}
+      >
 				{!!(team.packedTeam && team.format.length > 4) && <p>
 					<button data-cmd="/validate" class="button"><i class="fa fa-check"></i> Validate</button>
 				</p>}

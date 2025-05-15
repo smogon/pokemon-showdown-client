@@ -15,6 +15,7 @@ import { PSSearchResults } from "./battle-searchresults";
 import { BattleNatures, BattleStatNames, type StatName } from "./battle-dex-data";
 import { BattleStatGuesser, BattleStatOptimizer } from "./battle-tooltips";
 import { PSModel } from "./client-core";
+import type { FormatDropdown } from "./panel-mainmenu";
 
 type SelectionType = 'pokemon' | 'ability' | 'item' | 'move' | 'stats' | 'details';
 
@@ -493,7 +494,7 @@ class TeamEditorState extends PSModel {
 
 export class TeamEditor extends preact.Component<{
 	team: Team, narrow?: boolean, onChange?: () => void, readonly?: boolean,
-	children?: preact.ComponentChildren,
+	formatDropdownRef?: FormatDropdown, children?: preact.ComponentChildren,
 }> {
 	buttons = true;
 	editor!: TeamEditorState;
@@ -571,7 +572,7 @@ export class TeamEditor extends preact.Component<{
 			{this.buttons ? (
 				<TeamWizard editor={this.editor} onChange={this.props.onChange} />
 			) : (
-				<TeamTextbox editor={this.editor} onChange={this.props.onChange} />
+				<TeamTextbox editor={this.editor} onChange={this.props.onChange} formatDropdownRef={this.props.formatDropdownRef} />
 			)}
 			{this.props.children}
 			<div class="team-resources">
@@ -582,7 +583,10 @@ export class TeamEditor extends preact.Component<{
 	}
 }
 
-class TeamTextbox extends preact.Component<{ editor: TeamEditorState, onChange?: () => void }> {
+class TeamTextbox extends preact.Component<{
+	editor: TeamEditorState, onChange?: () => void,
+	formatDropdownRef?: FormatDropdown,
+}> {
 	editor!: TeamEditorState;
 	setInfo: {
 		species: string,
@@ -1164,6 +1168,27 @@ class TeamTextbox extends preact.Component<{ editor: TeamEditorState, onChange?:
 		}
 		return null;
 	}
+	onLinkImport = async (ev: Event) => {
+		ev.preventDefault();
+		const url =
+      new FormData(ev.currentTarget as HTMLFormElement)
+      	.get("link_input") as string;
+		if (!url || url === "") return;
+		const resp = await fetch(url + "/json");
+		const json = await resp.json();
+		this.textbox.value = json["paste"];
+		this.updateText();
+		const notes = json["notes"] as string;
+		const startIdx = notes.indexOf("Format: ");
+		if (startIdx === 0) {
+			const formatid = toID(notes.slice(8));
+			if (!BattleFormats[formatid]) return;
+			this.editor.setFormat(formatid);
+			if (this.props.formatDropdownRef == null) return;
+			this.props.formatDropdownRef.format = formatid;
+			this.props.formatDropdownRef?.forceUpdate();
+		}
+	};
 	renderDetails(set: Dex.PokemonSet, i: number) {
 		const editor = this.editor;
 		const species = editor.dex.species.get(set.species);
@@ -1299,6 +1324,11 @@ class TeamTextbox extends preact.Component<{ editor: TeamEditorState, onChange?:
 							style={`top:${this.innerFocus.offsetY - 21}px;left:${editor.narrow ? 46 : 96}px;`}
 						></div>
 					)}
+					<form style="padding-top: 5px; padding-bottom: 5px" onSubmit={this.onLinkImport}>
+						Import from link
+						<input class="textbox" name="link_input" style="width: 300px; margin-right: 10px; margin-left: 10px;" />
+            <button type="submit">Import</button>
+					</form>
 				</div>
 				{this.innerFocus && (
 					<div
