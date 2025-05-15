@@ -42,11 +42,10 @@ class TeamEditorState extends PSModel {
 	formeLegality: 'normal' | 'hackmons' | 'custom' = 'normal';
 	abilityLegality: 'normal' | 'hackmons' = 'normal';
 	defaultLevel = 100;
-	readonly: boolean;
-	constructor(team: Team, readonly = false) {
+	readonly = false;
+	constructor(team: Team) {
 		super();
 		this.team = team;
-		this.readonly = readonly;
 		this.sets = PSTeambuilder.unpackTeam(team.packedTeam);
 		this.setFormat(team.format);
 		window.search = this.search;
@@ -214,7 +213,7 @@ class TeamEditorState extends PSModel {
 			this.searchIndex--;
 		}
 	}
-	getResultValue(result: SearchRow) {
+	getResultValue(result: SearchRow): string {
 		switch (result[0]) {
 		case 'pokemon':
 			return this.dex.species.get(result[1]).name;
@@ -232,17 +231,19 @@ class TeamEditorState extends PSModel {
 			return result[1];
 		}
 	}
-	canAdd() {
+	canAdd(): boolean {
 		return this.sets.length < 6 || this.team.isBox;
 	}
 	getHPType(set: Dex.PokemonSet): Dex.TypeName {
 		if (set.hpType) return set.hpType as Dex.TypeName;
-		if (!set.ivs) return this.getHPMove(set) || 'Dark';
+		const hpMove = set.ivs ? null : this.getHPMove(set);
+		if (hpMove) return hpMove;
 
 		const hpTypes = [
 			'Fighting', 'Flying', 'Poison', 'Ground', 'Rock', 'Bug', 'Ghost', 'Steel', 'Fire', 'Water', 'Grass', 'Electric', 'Psychic', 'Ice', 'Dragon', 'Dark',
 		] as const;
 		if (this.gen <= 2) {
+			if (!set.ivs) return 'Dark';
 			// const hpDV = Math.floor(set.ivs.hp / 2);
 			const atkDV = Math.floor(set.ivs.atk / 2);
 			const defDV = Math.floor(set.ivs.def / 2);
@@ -255,19 +256,20 @@ class TeamEditorState extends PSModel {
 			// }
 			return hpTypes[4 * (atkDV % 4) + (defDV % 4)];
 		} else {
+			const ivs = set.ivs || this.defaultIVs(set);
 			let hpTypeX = 0;
 			let i = 1;
 			// n.b. this is not our usual order (Spe and SpD are flipped)
 			const statOrder = ['hp', 'atk', 'def', 'spe', 'spa', 'spd'] as const;
 			for (const s of statOrder) {
-				if (set.ivs[s] === undefined) set.ivs[s] = 31;
-				hpTypeX += i * (set.ivs[s] % 2);
+				if (ivs[s] === undefined) ivs[s] = 31;
+				hpTypeX += i * (ivs[s] % 2);
 				i *= 2;
 			}
 			return hpTypes[Math.floor(hpTypeX * 15 / 63)];
 		}
 	};
-	hpTypeMatters(set: Dex.PokemonSet) {
+	hpTypeMatters(set: Dex.PokemonSet): boolean {
 		if (this.gen < 2) return false;
 		if (this.gen > 7) return false;
 		for (const move of set.moves) {
@@ -288,6 +290,101 @@ class TeamEditorState extends PSModel {
 			}
 		}
 		return null;
+	}
+	getIVs(set: Dex.PokemonSet) {
+		const ivs = this.defaultIVs(set);
+		if (set.ivs) Object.assign(ivs, set.ivs);
+		return ivs;
+	}
+	defaultIVs(set: Dex.PokemonSet, noGuess = !!set.ivs): Record<Dex.StatName, number> {
+		const useIVs = this.gen > 2;
+		const defaultIVs = { hp: 31, atk: 31, def: 31, spa: 31, spd: 31, spe: 31 };
+		if (!useIVs) {
+			for (const stat of Dex.statNames) defaultIVs[stat] = 15;
+		}
+		if (noGuess) return defaultIVs;
+
+		const hpType = this.getHPMove(set);
+		const hpModulo = (useIVs ? 2 : 4);
+		const { minAtk, minSpe } = this.prefersMinStats(set);
+		if (minAtk) defaultIVs['atk'] = 0;
+		if (minSpe) defaultIVs['spe'] = 0;
+
+		if (!useIVs) {
+			const hpDVs = hpType ? this.dex.types.get(hpType).HPdvs : null;
+			if (hpDVs) {
+				for (const stat in hpDVs) defaultIVs[stat as Dex.StatName] = hpDVs[stat as Dex.StatName]!;
+			}
+		} else {
+			const hpIVs = hpType ? this.dex.types.get(hpType).HPivs : null;
+			if (hpIVs) {
+				if (this.canHyperTrain(set)) {
+					if (minSpe) defaultIVs['spe'] = hpIVs['spe'] ?? 31;
+					if (minAtk) defaultIVs['atk'] = hpIVs['atk'] ?? 31;
+				} else {
+					for (const stat in hpIVs) defaultIVs[stat as Dex.StatName] = hpIVs[stat as Dex.StatName]!;
+				}
+			}
+		}
+
+		if (hpType) {
+			if (minSpe) defaultIVs['spe'] %= hpModulo;
+			if (minAtk) defaultIVs['atk'] %= hpModulo;
+		}
+		if (minAtk && useIVs) {
+			// min Atk
+			if (['Gouging Fire', 'Iron Boulder', 'Iron Crown', 'Raging Bolt'].includes(set.species)) {
+				// only available with 20 Atk IVs
+				defaultIVs['atk'] = 20;
+			} else if (set.species.startsWith('Terapagos')) {
+				// only available with 15 Atk IVs
+				defaultIVs['atk'] = 15;
+			}
+		}
+		return defaultIVs;
+	}
+	defaultHappiness(set: Dex.PokemonSet) {
+		if (set.moves.includes('Return')) return 255;
+		if (set.moves.includes('Frustration')) return 0;
+		return undefined;
+	}
+	prefersMinStats(set: Dex.PokemonSet) {
+		let minSpe = !set.evs?.spe && set.moves.includes('Gyro Ball');
+		let minAtk = !set.evs?.atk;
+
+		// only available through an event with 31 Spe IVs
+		if (set.species.startsWith('Terapagos')) minSpe = false;
+
+		if (this.format === 'gen7hiddentype') return { minAtk, minSpe };
+		if (this.format.includes('1v1')) return { minAtk, minSpe };
+
+		// only available through an event with 31 Atk IVs
+		if (set.ability === 'Battle Bond' || ['Koraidon', 'Miraidon'].includes(set.species)) {
+			minAtk = false;
+			return { minAtk, minSpe };
+		}
+		if (!set.moves.length) minAtk = false;
+		for (const moveName of set.moves) {
+			if (!moveName) continue;
+			const move = this.dex.moves.get(moveName);
+			if (move.id === 'transform') {
+				const hasMoveBesidesTransform = set.moves.length > 1;
+				if (!hasMoveBesidesTransform) minAtk = false;
+			} else if (
+				move.category === 'Physical' && !move.damage && !move.ohko &&
+				!['foulplay', 'endeavor', 'counter', 'bodypress', 'seismictoss', 'bide', 'metalburst', 'superfang'].includes(move.id) &&
+				!(this.gen < 8 && move.id === 'rapidspin')
+			) {
+				minAtk = false;
+			} else if (
+				['metronome', 'assist', 'copycat', 'mefirst', 'photongeyser', 'shellsidearm', 'terablast'].includes(move.id) ||
+				(this.gen === 5 && move.id === 'naturepower')
+			) {
+				minAtk = false;
+			}
+		}
+
+		return { minAtk, minSpe };
 	}
 	getNickname(set: Dex.PokemonSet) {
 		return set.name || this.dex.species.get(set.species).baseSpecies || '';
@@ -337,7 +434,7 @@ class TeamEditorState extends PSModel {
 			return null;
 		}
 	}
-	getStat(stat: StatName, set: Dex.PokemonSet, evOverride?: number, natureOverride?: number) {
+	getStat(stat: StatName, set: Dex.PokemonSet, ivOverride: number, evOverride?: number, natureOverride?: number) {
 		const team = this.team;
 
 		const supportsEVs = !team.format.includes('letsgo');
@@ -351,8 +448,7 @@ class TeamEditorState extends PSModel {
 		const level = set.level || this.defaultLevel;
 
 		const baseStat = species.baseStats[stat];
-		let iv = set.ivs?.[stat] ?? 31;
-		if (this.gen <= 2) iv &= 30;
+		const iv = ivOverride;
 		const ev = evOverride ?? set.evs?.[stat] ?? (this.gen > 2 ? 0 : 252);
 
 		if (stat === 'hp') {
@@ -554,7 +650,8 @@ export class TeamEditor extends preact.Component<{
 		</details>;
 	}
 	override render() {
-		this.editor ||= new TeamEditorState(this.props.team, this.props.readonly);
+		this.editor ||= new TeamEditorState(this.props.team);
+		this.editor.readonly = !!this.props.readonly;
 		this.editor.narrow = this.props.narrow ?? document.body.offsetWidth < 500;
 		if (this.props.team.format !== this.editor.format) {
 			this.editor.setFormat(this.props.team.format);
@@ -623,19 +720,27 @@ class TeamTextbox extends preact.Component<{
 	}
 	input = () => this.updateText();
 	keyUp = () => this.updateText(true);
-	click = (ev: MouseEvent | KeyboardEvent) => {
-		if (ev.altKey || ev.ctrlKey || ev.metaKey) return;
+	contextMenu = (ev: MouseEvent) => {
+		if (!ev.shiftKey) {
+			if (this.closeMenu() || this.openInnerFocus()) {
+				ev.preventDefault();
+				ev.stopImmediatePropagation();
+			}
+		}
+	};
+	openInnerFocus() {
 		const oldRange = this.selection?.lineRange;
 		this.updateText(true, true);
 		if (this.selection) {
 			// this shouldn't actually update anything, so the reference comparison is enough
-			if (this.selection.lineRange === oldRange) return;
+			if (this.selection.lineRange === oldRange) return !!this.innerFocus;
 			if (this.textbox.selectionStart === this.textbox.selectionEnd) {
 				const range = this.getSelectionTypeRange();
 				if (range) this.textbox.setSelectionRange(range[0], range[1]);
 			}
 		}
-	};
+		return !!this.innerFocus;
+	}
 	keyDown = (ev: KeyboardEvent) => {
 		const editor = this.editor;
 		switch (ev.keyCode) {
@@ -683,6 +788,7 @@ class TeamTextbox extends preact.Component<{
 		case 9: // tab
 		case 13: // enter
 			if (ev.keyCode === 13 && ev.shiftKey) return;
+			if (ev.altKey || ev.metaKey) return;
 			if (!this.innerFocus) {
 				if (
 					this.textbox.selectionStart === this.textbox.value.length &&
@@ -690,7 +796,7 @@ class TeamTextbox extends preact.Component<{
 				) {
 					this.addPokemon();
 				} else {
-					this.click(ev);
+					this.openInnerFocus();
 				}
 				ev.stopImmediatePropagation();
 				ev.preventDefault();
@@ -1044,8 +1150,14 @@ class TeamTextbox extends preact.Component<{
 		}
 	}
 	getSetRange(index: number) {
-		const start = this.setInfo[index]?.index ?? this.textbox.value.length;
-		const end = this.setInfo[index + 1]?.index ?? this.textbox.value.length;
+		if (!this.setInfo[index]) {
+			if (this.innerFocus?.setIndex === index) {
+				return this.innerFocus.range;
+			}
+			return [this.textbox.value.length, this.textbox.value.length];
+		}
+		const start = this.setInfo[index].index;
+		const end = this.setInfo[index + 1].index;
 		return [start, end];
 	}
 	changeCompat = (ev: Event) => {
@@ -1209,7 +1321,7 @@ class TeamTextbox extends preact.Component<{
 			</span>
 			{editor.gen === 9 ? (
 				<span class="detailcell">
-					<label>Tera</label>{TeamEditor.renderTypeIcon(set.teraType || species.forceTeraType || species.types[0])}
+					<label>Tera</label>{TeamEditor.renderTypeIcon(set.teraType || species.requiredTeraType || species.types[0])}
 				</span>
 			) : editor.hpTypeMatters(set) ? (
 				<span class="detailcell">
@@ -1264,7 +1376,7 @@ class TeamTextbox extends preact.Component<{
 			<div class="teameditor-text">
 				<textarea
 					class="textbox teamtextbox" style={`padding-left:${editor.narrow ? '50px' : '100px'}`}
-					onInput={this.input} onClick={this.click} onKeyUp={this.keyUp} onKeyDown={this.keyDown}
+					onInput={this.input} onContextMenu={this.contextMenu} onKeyUp={this.keyUp} onKeyDown={this.keyDown}
 					readOnly={editor.readonly}
 				/>
 				<textarea
@@ -1508,7 +1620,7 @@ class TeamWizard extends preact.Component<{
 							</span>}
 							{editor.gen === 9 && <span class="detailcell">
 								<strong class="label">Tera</strong> {}
-								{TeamEditor.renderTypeIcon(set.teraType || species.forceTeraType || species.types[0])}
+								{TeamEditor.renderTypeIcon(set.teraType || species.requiredTeraType || species.types[0])}
 							</span>}
 							{editor.hpTypeMatters(set) && <span class="detailcell">
 								<strong class="label">H.P.</strong> {}
@@ -1846,10 +1958,11 @@ class StatForm extends preact.Component<{
 	static renderStatGraph(set: Dex.PokemonSet, editor: TeamEditorState, evs?: boolean) {
 		// const supportsEVs = !team.format.includes('letsgo');
 		const defaultEV = (editor.gen > 2 ? 0 : 252);
+		const ivs = editor.getIVs(set);
 		return Dex.statNames.map(statID => {
 			if (statID === 'spd' && editor.gen === 1) return null;
 
-			const stat = editor.getStat(statID, set);
+			const stat = editor.getStat(statID, set, ivs[statID]);
 			let ev: number | string = set.evs?.[statID] ?? defaultEV;
 			let width = stat * 75 / 504;
 			if (statID === 'hp') width = stat * 75 / 704;
@@ -1879,9 +1992,12 @@ class StatForm extends preact.Component<{
 
 		const hpType = editor.getHPMove(set);
 		const hpIVdata = hpType && !editor.canHyperTrain(set) && editor.getHPIVs(hpType) || null;
+		const autoSpread = set.ivs && editor.defaultIVs(set, false);
+		const autoSpreadValue = autoSpread && Object.values(autoSpread).join('/');
 		if (!hpIVdata) {
 			return <select name="ivspread" class="button" onChange={this.changeIVSpread}>
 				<option value="" selected>IV spreads</option>
+				{autoSpreadValue && <option value="auto">Auto ({autoSpreadValue})</option>}
 				<optgroup label="min Atk">
 					<option value="31/0/31/31/31/31">31/0/31/31/31/31</option>
 				</optgroup>
@@ -1901,6 +2017,7 @@ class StatForm extends preact.Component<{
 
 		return <select name="ivspread" class="button" onChange={this.changeIVSpread}>
 			<option value="" selected>Hidden Power {hpType} IVs</option>
+			{autoSpreadValue && <option value="auto">Auto ({autoSpreadValue})</option>}
 			<optgroup label="min Atk">
 				{hpIVs.map(ivs => {
 					const spread = ivs.map((iv, i) => (i === 1 ? minStat : 30) + iv).join('/');
@@ -2198,7 +2315,12 @@ class StatForm extends preact.Component<{
 		const statID = target.name.split('-')[1] as StatName;
 		const value = this.dvToIv(target.value);
 		if (value === null) {
-			if (set.ivs) delete set.ivs[statID];
+			if (set.ivs) {
+				delete set.ivs[statID];
+				if (Object.values(set.ivs).every(iv => iv === undefined)) {
+					set.ivs = undefined;
+				}
+			}
 		} else {
 			set.ivs ||= { hp: 31, atk: 31, def: 31, spa: 31, spd: 31, spe: 31 };
 			set.ivs[statID] = value;
@@ -2221,8 +2343,12 @@ class StatForm extends preact.Component<{
 		const { set } = this.props;
 		if (!target.value) return;
 
-		const [hp, atk, def, spa, spd, spe] = target.value.split('/').map(Number);
-		set.ivs = { hp, atk, def, spa, spd, spe };
+		if (target.value === 'auto') {
+			set.ivs = undefined;
+		} else {
+			const [hp, atk, def, spa, spd, spe] = target.value.split('/').map(Number);
+			set.ivs = { hp, atk, def, spa, spd, spe };
+		}
 		this.props.onChange();
 	};
 	maxEVs() {
@@ -2257,8 +2383,9 @@ class StatForm extends preact.Component<{
 		};
 		if (editor.gen === 1) statNames.spa = 'Special';
 
+		const ivs = editor.getIVs(set);
 		const stats = Dex.statNames.filter(statID => editor.gen > 1 || statID !== 'spd').map(statID => [
-			statID, statNames[statID], editor.getStat(statID, set),
+			statID, statNames[statID], editor.getStat(statID, set, ivs[statID]),
 		] as const);
 
 		let remaining = null;
@@ -2273,6 +2400,7 @@ class StatForm extends preact.Component<{
 			}
 			remaining ||= null;
 		}
+		const defaultIVs = editor.defaultIVs(set);
 
 		return <div style="font-size:10pt" role="dialog" aria-label="Stats">
 			<div class="resultheader"><h3>EVs, IVs, and Nature</h3></div>
@@ -2303,7 +2431,7 @@ class StatForm extends preact.Component<{
 							onInput={this.changeEV} onChange={this.changeEV}
 						/></td>
 						<td><input
-							name={`iv-${statID}`} min={0} max={useIVs ? 31 : 15} placeholder={useIVs ? '31' : '15'} style="width:40px"
+							name={`iv-${statID}`} min={0} max={useIVs ? 31 : 15} placeholder={`${defaultIVs[statID]}`} style="width:40px"
 							type="number" class="textbox default-placeholder" onInput={this.changeIV} onChange={this.changeIV}
 						/></td>
 						<td style="text-align:right"><strong>{stat}</strong></td>
@@ -2326,7 +2454,7 @@ class StatForm extends preact.Component<{
 					</select>
 				</p>}
 				{editor.gen >= 3 && <p>
-					<small><em>Protip:</em> You can also set natures by typing <kbd>+</kbd> and <kbd>-</kbd> next to a stat.</small>
+					<small><em>Protip:</em> You can also set natures by typing <kbd>+</kbd> and <kbd>-</kbd> in the EV box.</small>
 				</p>}
 				{editor.gen >= 3 && this.renderStatOptimizer()}
 			</div>
@@ -2366,7 +2494,7 @@ class DetailsForm extends preact.Component<{
 		const target = ev.currentTarget as HTMLInputElement;
 		const { editor, set } = this.props;
 		const species = editor.dex.species.get(set.species);
-		if (!target.value || target.value === (species.forceTeraType || species.types[0])) {
+		if (!target.value || target.value === (species.requiredTeraType || species.types[0])) {
 			delete set.teraType;
 		} else {
 			set.teraType = target.value.trim();
@@ -2540,12 +2668,12 @@ class DetailsForm extends preact.Component<{
 				{editor.gen === 9 && <p>
 					<label class="label" title="Tera Type">
 						Tera Type: {}
-						{species.forceTeraType ? (
-							<select name="teratype" class="button cur" disabled><option>{species.forceTeraType}</option></select>
+						{species.requiredTeraType && editor.formeLegality === 'normal' ? (
+							<select name="teratype" class="button cur" disabled><option>{species.requiredTeraType}</option></select>
 						) : (
 							<select name="teratype" class="button" onChange={this.changeTera}>
 								{Dex.types.all().map(type => (
-									<option value={type.name} selected={(set.teraType || species.types[0]) === type.name}>
+									<option value={type.name} selected={(set.teraType || species.requiredTeraType || species.types[0]) === type.name}>
 										{type.name}
 									</option>
 								))}
