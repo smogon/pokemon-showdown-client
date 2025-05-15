@@ -89,17 +89,18 @@ class RoomsPanel extends PSRoomPanel {
 	};
 	updateRoomList(search?: string) {
 		if (search) search = toID(search);
+		const forceNoAutocomplete = this.search.endsWith('-');
 		if (search || this.search) {
 			if (search === undefined || search === this.search) return;
 			this.search = search;
 			this.roomListFocusIndex = this.search ? 0 : -1;
 		}
-		this.roomList = this.getRoomList();
+		this.roomList = this.getRoomList(forceNoAutocomplete);
 		for (const [, rooms] of this.roomList) {
 			rooms.sort((a, b) => (b.userCount || 0) - (a.userCount || 0));
 		}
 	}
-	getRoomList(): RoomsSection[] {
+	getRoomList(forceNoAutocomplete?: boolean): RoomsSection[] {
 		const searchid = toID(this.search);
 
 		if (!searchid) {
@@ -153,7 +154,7 @@ class RoomsPanel extends PSRoomPanel {
 			[["Possible secret room", [{ title: this.search, desc: "(Private room?)" }]]] : [];
 
 		const autoFill = this.lastKeyCode !== 127 && this.lastKeyCode >= 32;
-		if (autoFill) {
+		if (autoFill && !forceNoAutocomplete) {
 			results.sort((a, b) => (b.userCount || 0) - (a.userCount || 0));
 			const firstTitle = (results[0] || hidden[0][1][0]).title;
 			let firstTitleOffset = 0;
