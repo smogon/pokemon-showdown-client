@@ -888,7 +888,7 @@ class FormatDropdownPanel extends PSRoomPanel {
 		const curGen = (gen: string) => this.gen === gen ? ' cur' : '';
 		const searchBar = <div style="margin-bottom: 0.5em">
 			<input
-				type="search" name="search" placeholder="Search formats" class="textbox autofocus"
+				type="search" name="search" placeholder="Search formats" class="textbox autofocus" autocomplete="off"
 				onInput={this.updateSearch} onChange={this.updateSearch}
 			/> {}
 			<button onClick={this.toggleGen} value="gen9" class={`button button-first${curGen('gen9')}`}>Gen 9</button>
