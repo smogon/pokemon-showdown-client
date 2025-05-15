@@ -1072,7 +1072,7 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 
 			if (room?.type === "battle" && !battle.ended && battle.mySide.id === PS.user.userid) {
 				PS.join("forfeitbattle" as RoomID, { parentElem: elem });
-				return false;
+				return;
 			}
 			if (room?.type === "chat" && room.connected && PS.prefs.leavePopupRoom && !target) {
 				PS.join("confirmleaveroom" as RoomID, { parentElem: elem });
