@@ -88,7 +88,7 @@ class PSPrefs extends PSStreamModel<string | null> {
 	autotimer: boolean | null = null;
 	rightpanelbattles: boolean | null = null;
 	disallowspectators: boolean | null = null;
-	starredformats: { [formatid: string]: boolean | null } | null = null;
+	starredformats: { [formatid: string]: true | undefined } | null = null;
 
 	/**
 	 * Show "User joined" and "User left" messages. serverid:roomid
