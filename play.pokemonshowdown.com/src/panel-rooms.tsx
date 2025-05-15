@@ -18,6 +18,7 @@ export class RoomsRoom extends PSRoom {
 	}
 }
 
+type RoomsSection = [string, RoomInfo[]];
 class RoomsPanel extends PSRoomPanel {
 	static readonly id = 'rooms';
 	static readonly routes = ['rooms'];
@@ -29,8 +30,10 @@ class RoomsPanel extends PSRoomPanel {
 	search = '';
 	section = '';
 	lastKeyCode = 0;
-	focusedIndex = 0;
-	focusedRoomId = '';
+	roomListFocusIndex = -1;
+	roomListFocusTitle = '';
+	roomList: RoomsSection[] = [];
+	roomListLength = 0;
 	override componentDidMount() {
 		super.componentDidMount();
 		this.subscriptions.push(PS.user.subscribe(update => {
@@ -39,57 +42,93 @@ class RoomsPanel extends PSRoomPanel {
 	}
 	override componentDidUpdate() {
 		const el = this.base?.querySelector('a.blocklink.cur');
-		if (!this.focusedIndex) return;
+		if (!this.roomListFocusIndex) return;
 		el?.scrollIntoView({ behavior: 'auto', block: 'center' });
 	}
-	hide = (e: Event) => {
-		e.stopImmediatePropagation();
+	hide = (ev: Event) => {
+		ev.stopImmediatePropagation();
 		PS.hideRightRoom();
 	};
-	changeSearch = (e: Event) => {
-		const target = e.currentTarget as HTMLInputElement;
+	changeSearch = (ev: Event) => {
+		const target = ev.currentTarget as HTMLInputElement;
 		if (target.selectionStart !== target.selectionEnd) return;
-		this.search = target.value;
-		this.focusedIndex = 1;
+		this.updateRoomList(target.value);
 		this.forceUpdate();
 	};
-	changeSection = (e: Event) => {
-		const target = e.currentTarget as HTMLSelectElement;
+	changeSection = (ev: Event) => {
+		const target = ev.currentTarget as HTMLSelectElement;
 		this.section = target.value;
 		this.forceUpdate();
 	};
-	handleOnBlur = (e: Event) => {
-		this.focusedIndex = 0;
-		this.focusedRoomId = '';
+	handleOnBlur = (ev: Event) => {
+		this.roomListFocusIndex = -1;
+		this.roomListFocusTitle = '';
 		this.forceUpdate();
 	};
-	keyDownSearch = (e: KeyboardEvent) => {
-		this.lastKeyCode = e.keyCode;
-		if (e.keyCode === 38) {
-			// go up
-			this.focusedIndex = Math.max(0, this.focusedIndex - 1);
+	keyDownSearch = (ev: KeyboardEvent) => {
+		this.lastKeyCode = ev.keyCode;
+		if (ev.shiftKey || ev.ctrlKey || ev.altKey || ev.metaKey) return;
+		if (ev.keyCode === 38) { // up
+			this.roomListFocusIndex = Math.max(this.roomListFocusIndex - 1, this.search ? 0 : -1);
+			if (this.roomListFocusIndex === -1) {
+				this.roomListFocusTitle = '';
+			}
 			this.forceUpdate();
-		} else if (e.keyCode === 40) {
-			// go down
-			this.focusedIndex++;
+			ev.preventDefault();
+		} else if (ev.keyCode === 40) { // down
+			this.roomListFocusIndex = Math.min(this.roomListFocusIndex + 1, this.roomListLength - 1);
 			this.forceUpdate();
+			ev.preventDefault();
 		}
-		if (e.keyCode === 13) {
-			const target = e.currentTarget as HTMLInputElement;
-			let value = this.focusedRoomId?.length ? this.focusedRoomId : target.value;
+		if (ev.keyCode === 13) { // enter
+			const target = ev.currentTarget as HTMLInputElement;
+			let value = this.roomListFocusTitle || target.value;
 			const arrowIndex = value.indexOf(' \u21d2 ');
 			if (arrowIndex >= 0) value = value.slice(arrowIndex + 3);
 			if (!/^[a-z0-9-]$/.test(value)) value = toID(value);
-			e.preventDefault();
-			e.stopImmediatePropagation();
+			ev.preventDefault();
+			ev.stopImmediatePropagation();
 			target.value = '';
-			this.focusedRoomId = '';
+			this.roomListFocusTitle = '';
 
 			PS.join(value as RoomID);
 		}
 	};
-	runSearch() {
+	updateRoomList(search?: string) {
+		if (search) search = toID(search);
+		if (search || this.search) {
+			if (search === undefined || search === this.search) return;
+			this.search = search;
+			this.roomListFocusIndex = this.search ? 0 : -1;
+		}
+		this.roomList = this.getRoomList();
+		for (const [, rooms] of this.roomList) {
+			rooms.sort((a, b) => (b.userCount || 0) - (a.userCount || 0));
+		}
+	}
+	getRoomList(): RoomsSection[] {
 		const searchid = toID(this.search);
+
+		if (!searchid) {
+			const roomsCache = PS.mainmenu.roomsCache;
+			const officialRooms = [], chatRooms = [], hiddenRooms = [];
+			for (const room of roomsCache.chat || []) {
+				if (room.section !== this.section && this.section !== '') continue;
+				if (room.privacy === 'hidden') {
+					hiddenRooms.push(room);
+				} else if (room.section === 'Official') {
+					officialRooms.push(room);
+				} else {
+					chatRooms.push(room);
+				}
+			}
+			return [
+				["Official chat rooms", officialRooms],
+				["Chat rooms", chatRooms],
+				["Hidden rooms", hiddenRooms],
+			];
+		}
+
 		let exactMatch = false;
 
 		const rooms = PS.mainmenu.roomsCache;
@@ -99,29 +138,31 @@ class RoomsPanel extends PSRoomPanel {
 			for (const title of room.subRooms) {
 				roomList.push({
 					title,
-					desc: `Subroom of ${room.title}`,
+					desc: `(Subroom of ${room.title})`,
 				});
 			}
 		}
 
-		let start = roomList.filter(room => {
+		let results = roomList.filter(room => {
 			const titleid = toID(room.title);
 			if (titleid === searchid) exactMatch = true;
 			return titleid.startsWith(searchid) ||
 				toID(room.title.replace(/^The /, '')).startsWith(searchid);
 		});
-		roomList = roomList.filter(room => !start.includes(room));
+		roomList = roomList.filter(room => !results.includes(room));
 
-		let abbr = roomList.filter(room =>
+		results = results.concat(roomList.filter(room =>
 			toID(room.title.toLowerCase().replace(/\b([a-z0-9])[a-z0-9]*\b/g, '$1')).startsWith(searchid) ||
 			room.title.replace(/[^A-Z0-9]+/g, '').toLowerCase().startsWith(searchid)
-		);
+		));
 
-		const hidden = !exactMatch ? [{ title: this.search, desc: "(Private room?)" }] : [];
+		const hidden: RoomsSection[] = !exactMatch ?
+			[["Possible secret room", [{ title: this.search, desc: "(Private room?)" }]]] : [];
 
 		const autoFill = this.lastKeyCode !== 127 && this.lastKeyCode >= 32;
 		if (autoFill) {
-			const firstTitle = (start[0] || abbr[0] || hidden[0]).title;
+			results.sort((a, b) => (b.userCount || 0) - (a.userCount || 0));
+			const firstTitle = (results[0] || hidden[0][1][0]).title;
 			let firstTitleOffset = 0;
 			while (
 				searchid !== toID(firstTitle.slice(0, firstTitleOffset)) &&
@@ -137,9 +178,12 @@ class RoomsPanel extends PSRoomPanel {
 			const searchElem = this.base!.querySelector<HTMLInputElement>('input[type=search]')!;
 			searchElem.value = oldSearch + autoFillValue;
 			searchElem.setSelectionRange(oldSearch.length, oldSearch.length + autoFillValue.length);
+			this.search += '-';
+
+			return [["Search results", results], ...hidden];
 		}
 
-		return { start, abbr, hidden };
+		return [...hidden, ["Search results", results]];
 	}
 	override render() {
 		if (this.hidden && PS.isVisible(this.props.room)) this.hidden = false;
@@ -147,38 +191,7 @@ class RoomsPanel extends PSRoomPanel {
 			return <PSPanelWrapper room={this.props.room} scrollable>{null}</PSPanelWrapper>;
 		}
 		const rooms = PS.mainmenu.roomsCache;
-		let roomList;
-		if (this.search) {
-			const search = this.runSearch();
-			roomList = [
-				this.renderRoomList("Search results", search.start, 0),
-				this.renderRoomList("Search results (acronym)", search.abbr, search.start.length),
-				this.renderRoomList("Possible hidden rooms", search.hidden, (search.start.length + search.abbr.length)),
-			];
-		} else if (PS.isOffline) {
-			roomList = [<div class="roomlist"><h2>Offline</h2></div>];
-		} else if (rooms.userCount === undefined) {
-			roomList = [<div class="roomlist"><h2>Official chat rooms</h2><p><em>Connecting...</em></p></div>];
-		} else {
-			const roomSections = {
-				official: [] as RoomInfo[], chat: [] as RoomInfo[], hidden: [] as RoomInfo[],
-			};
-			for (const room of rooms.chat || []) {
-				if (room.section !== this.section && this.section !== '') continue;
-				if (room.privacy === 'hidden') {
-					roomSections.hidden.push(room);
-				} else if (room.section === 'Official') {
-					roomSections.official.push(room);
-				} else {
-					roomSections.chat.push(room);
-				}
-			}
-			roomList = [
-				this.renderRoomList("Official chat rooms", roomSections.official, 0),
-				this.renderRoomList("Chat rooms", roomSections.chat, roomSections.official.length),
-				this.renderRoomList("Hidden rooms", roomSections.hidden, (roomSections.official.length + roomSections.chat.length)),
-			];
-		}
+		this.updateRoomList();
 
 		return <PSPanelWrapper room={this.props.room} scrollable><div class="pad">
 			<button class="button" style="float:right;font-size:10pt;margin-top:3px" onClick={this.hide}>
@@ -210,35 +223,57 @@ class RoomsPanel extends PSRoomPanel {
 				<br /><br />
 				<input
 					type="search" name="roomsearch" class="textbox autofocus" style="width: 100%; max-width: 480px"
-					placeholder="Join or search for rooms"
+					placeholder="Join or search for rooms" autocomplete="off"
 					onInput={this.changeSearch} onKeyDown={this.keyDownSearch} onBlur={this.handleOnBlur}
 				/>
 			</div>
-			{roomList}
+			{this.renderRoomList()}
 		</div></PSPanelWrapper>;
 	}
-	renderRoomList(title: string, rooms?: RoomInfo[], indexStart = 0) {
-		if (!rooms?.length) return null;
+	renderRoomList() {
+		const roomsCache = PS.mainmenu.roomsCache;
+		if (roomsCache.userCount === undefined) {
+			return <div class="roomlist"><h2>Official chat rooms</h2><p><em>Connecting...</em></p></div>;
+		}
+		if (this.search) {
+			// do nothing
+		} else if (PS.isOffline) {
+			return <div class="roomlist"><h2>Offline</h2></div>;
+		} else if (roomsCache.userCount === undefined) {
+			return <div class="roomlist"><h2>Official chat rooms</h2><p><em>Connecting...</em></p></div>;
+		}
+
 		// Descending order
-		const sortedRooms = rooms.sort((a, b) => (b.userCount || 0) - (a.userCount || 0));
-		let index = this.focusedIndex > indexStart ? this.focusedIndex - (indexStart) : 0;
-		if (index) this.focusedRoomId = sortedRooms[index - 1]?.title;
-		return <div class="roomlist">
-			<h2>{title}</h2>
-			{sortedRooms.map((roomInfo, i) => <div key={roomInfo.title}>
-				<a href={`/${toID(roomInfo.title)}`} class={`blocklink${(i + 1) === index ? " cur" : ''}`}>
-					{roomInfo.userCount !== undefined && <small style="float:right">({roomInfo.userCount} users)</small>}
-					<strong><i class="fa fa-comment-o" aria-hidden></i> {roomInfo.title}<br /></strong>
-					<small>{roomInfo.desc || ''}</small>
-				</a>
-				{roomInfo.subRooms && <div class="subrooms">
-					<i class="fa fa-level-up fa-rotate-90" aria-hidden></i> Subrooms: {}
-					{roomInfo.subRooms.map(roomName => [<a href={`/${toID(roomName)}`} class="blocklink">
-						<i class="fa fa-comment-o" aria-hidden></i> <strong>{roomName}</strong>
-					</a>, ' '])}
-				</div>}
-			</div>)}
-		</div>;
+		let nextOffset = 0;
+		return this.roomList.map(([title, rooms]) => {
+			if (!rooms.length) return null;
+
+			const sortedRooms = rooms.sort((a, b) => (b.userCount || 0) - (a.userCount || 0));
+			const offset = nextOffset;
+			nextOffset += sortedRooms.length;
+			this.roomListLength = nextOffset;
+
+			const index = this.roomListFocusIndex >= offset && this.roomListFocusIndex < nextOffset ?
+				this.roomListFocusIndex - offset : -1;
+			if (index >= 0) this.roomListFocusTitle = sortedRooms[index].title;
+
+			return <div class="roomlist">
+				<h2>{title}</h2>
+				{sortedRooms.map((roomInfo, i) => <div key={roomInfo.title}>
+					<a href={`/${toID(roomInfo.title)}`} class={`blocklink${i === index ? " cur" : ''}`}>
+						{roomInfo.userCount !== undefined && <small style="float:right">({roomInfo.userCount} users)</small>}
+						<strong><i class="fa fa-comment-o" aria-hidden></i> {roomInfo.title}<br /></strong>
+						<small>{roomInfo.desc || ''}</small>
+					</a>
+					{roomInfo.subRooms && <div class="subrooms">
+						<i class="fa fa-level-up fa-rotate-90" aria-hidden></i> Subrooms: {}
+						{roomInfo.subRooms.map(roomName => [<a href={`/${toID(roomName)}`} class="blocklink">
+							<i class="fa fa-comment-o" aria-hidden></i> <strong>{roomName}</strong>
+						</a>, ' '])}
+					</div>}
+				</div>)}
+			</div>;
+		});
 	}
 }
 
