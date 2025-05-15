@@ -106,14 +106,13 @@
 }
 .folder .selectFolder {
 	display: block;
-	padding: 0 0 0 7px;
+	padding: 7px 0 0 7px;
 	border: 0;
 	border-right: 1px solid #888888;
 	background: #d7e3ec;
 	color: black;
 	width: auto;
 	max-width: 146px; /* I have no idea why this is required and width doesn't work */
-	padding-top: 7px;
 	height: 23px;
 	font-size: 9pt;
 	font-family: Verdana, sans-serif;
@@ -123,6 +122,12 @@
 	cursor: pointer;
 	user-select: none;
 	-webkit-user-select: none;
+}
+.folder button.selectFolder {
+	height: 30px;
+	padding: 0 0 0 7px;
+	width: 100%;
+	max-width: none;
 }
 .folder .selectFolder:hover {
 	background: #c7d3dc;
@@ -149,6 +154,14 @@
 	padding-left: 6px;
 	border-top-left-radius: 3px;
 	border-bottom-left-radius: 3px;
+}
+.folder.cur button.selectFolder,
+.folder.cur button.selectFolder:hover,
+.folder.cur button.selectFolder:active {
+	height: 30px;
+	padding: 0 0 0 6px;
+	width: 100%;
+	max-width: none;
 }
 
 /* believe me, there was no other way to do this */
@@ -296,8 +309,11 @@
 	z-index: 1;
 }
 
+.teameditor .details {
+	margin: 3px 0 12px;
+}
+
 .teameditor {
-	padding-bottom: 30px;
 	max-width: 660px;
 }
 .teameditor-text {
@@ -514,6 +530,7 @@ you can't delete it by pressing Backspace */
 
 .set-button {
 	position: relative;
+	max-width: 660px;
 }
 .set-button table {
 	border: 0;
@@ -575,12 +592,23 @@ you can't delete it by pressing Backspace */
 	border-bottom-left-radius: 3px;
 	background: linear-gradient(to bottom, transparent 0%, transparent 70%, #d3d3d3 100%);
 }
+.set-button .cur .sprite-inner {
+	background: linear-gradient(to bottom, transparent 0%, transparent 70%, #f8f8f8 100%);
+}
 .dark .set-button .sprite-inner {
 	background: linear-gradient(to bottom, transparent 0%, transparent 70%, #2b2c31 100%);
+}
+.dark .set-button .cur .sprite-inner {
+	background: linear-gradient(to bottom, transparent 0%, transparent 70%, #555555 100%);
 }
 .set-button .detailcell {
 	float: left;
 	height: 50px;
+}
+.dark .set-button .button-first.cur,
+.dark .set-button .button-middle.cur,
+.dark .set-button .button-last.cur {
+	box-shadow: none;
 }
 .set-button .detailcell + .detailcell {
 	border-left: 1px solid #888;
@@ -603,7 +631,7 @@ you can't delete it by pressing Backspace */
 	line-height: normal;
 }
 .set-button .set-details .button {
-	height: 60px;
+	height: 61px;
 }
 .set-button .set-stats, .set-button .set-stats .button {
 	width: 138px;

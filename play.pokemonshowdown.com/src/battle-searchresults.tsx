@@ -145,24 +145,19 @@ export class PSSearchResults extends preact.Component<{
 			];
 		}
 
-		let output: preact.ComponentChild[];
-		if (tagStart && matchStart >= tagStart) {
-			output = [name];
-		} else {
-			output = [
-				name.slice(0, matchStart),
-				<b>{name.slice(matchStart, matchEnd)}</b>,
-				name.slice(matchEnd, tagStart || name.length),
-			];
-			if (!tagStart) return output;
-		}
+		let output: preact.ComponentChild[] = [
+			name.slice(0, matchStart),
+			<b>{name.slice(matchStart, matchEnd)}</b>,
+			name.slice(matchEnd, tagStart || name.length),
+		];
+		if (!tagStart) return output;
 
 		if (matchEnd && matchEnd > tagStart) {
 			if (matchStart < tagStart) {
 				matchStart = tagStart;
 			}
 			output.push(
-				<small>{name.slice(tagStart, matchStart)}<b>{name.slice(matchStart, matchEnd)}</b>{name.slice(matchEnd)}</small>
+				<small>{name.slice(matchEnd)}</small>
 			);
 		} else {
 			output.push(<small>{name.slice(tagStart)}</small>);

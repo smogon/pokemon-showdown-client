@@ -299,6 +299,24 @@ export const Dex = new class implements ModdedDex {
 		if (!gen) return this;
 		return this.mod(`gen${gen}` as ID);
 	}
+	formatGen(format: string) {
+		const formatid = toID(format);
+		if (!formatid) return Dex.gen;
+		if (!formatid.startsWith('gen')) return 6;
+		return parseInt(formatid.charAt(3)) || Dex.gen;
+	}
+	forFormat(format: string) {
+		let dex = Dex.forGen(Dex.formatGen(format));
+
+		const formatid = toID(format).slice(4);
+		if (dex.gen === 7 && formatid.includes('letsgo')) {
+			dex = Dex.mod('gen7letsgo' as ID);
+		}
+		if (dex.gen === 8 && formatid.includes('bdsp')) {
+			dex = Dex.mod('gen8bdsp' as ID);
+		}
+		return dex;
+	}
 
 	resolveAvatar(avatar: string): string {
 		if (window.BattleAvatarNumbers && avatar in BattleAvatarNumbers) {
@@ -1326,7 +1344,7 @@ export const Teams = new class {
 			}
 			if (gen === 9) {
 				const species = Dex.species.get(curSet.species);
-				text += `Tera Type: ${species.forceTeraType || curSet.teraType || species.types[0]}  \n`;
+				text += `Tera Type: ${curSet.teraType || species.requiredTeraType || species.types[0]}  \n`;
 			}
 			if (!hidestats) {
 				let first = true;

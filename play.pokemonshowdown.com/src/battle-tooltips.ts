@@ -15,7 +15,7 @@ import { BattleLog } from "./battle-log";
 import { Move, BattleNatures } from "./battle-dex-data";
 import { BattleTextParser } from "./battle-text-parser";
 
-class ModifiableValue {
+export class ModifiableValue {
 	value = 0;
 	maxValue = 0;
 	comment: string[];
@@ -774,6 +774,29 @@ export class BattleTooltips {
 			}
 			if (move.flags.wind) {
 				text += `<p class="movetag">&#x2713; Wind <small>(activates Wind Power and Wind Rider)</small></p>`;
+			}
+			// RBY healing move glitch
+			if (this.battle.gen === 1 && !toID(this.battle.tier).includes('stadium') &&
+				['recover', 'softboiled', 'rest'].includes(move.id)) {
+				const hpValues = [];
+				// glitches at HP values equal to `maxHP + 1 % 256` unless they are `0 % 256`
+				const hp = serverPokemon.maxhp - 255;
+				if (hp > 0 && hp % 256 !== 0) {
+					hpValues.push(hp);
+					if (hp - 256 > 0) {
+						hpValues.push(hp - 256);
+					}
+				}
+				let failMessage = hpValues.length ? `Fails if current HP is ${hpValues.join(' or ')}.` : '';
+				if (hpValues.includes(serverPokemon.hp)) failMessage = `<strong class="message-error">${failMessage}</strong>`;
+				if (failMessage) text += `<p>${failMessage}</p>`;
+			}
+			if (this.battle.gen === 1 && !toID(this.battle.tier).includes('stadium') &&
+				move.id === 'substitute') {
+				const selfKO = serverPokemon.maxhp % 4 === 0 ? serverPokemon.maxhp / 4 : null;
+				let failMessage = selfKO ? `KOs yourself if current HP is exactly ${selfKO}.` : '';
+				if (selfKO === serverPokemon.hp) failMessage = `<strong class="message-error">${failMessage}</strong>`;
+				if (failMessage) text += `<p>${failMessage}</p>`;
 			}
 		}
 		return text;
