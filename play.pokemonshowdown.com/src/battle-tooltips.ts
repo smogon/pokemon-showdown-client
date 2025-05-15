@@ -165,13 +165,13 @@ export class BattleTooltips {
 	static isPressed = false;
 
 	static hideTooltip() {
-		if (!BattleTooltips.elem) return;
 		BattleTooltips.cancelLongTap();
+		if (!BattleTooltips.elem) return;
 		BattleTooltips.elem.parentNode!.removeChild(BattleTooltips.elem);
 		BattleTooltips.elem = null;
 		BattleTooltips.parentElem = null;
 		BattleTooltips.isLocked = false;
-		$('#tooltipwrapper').removeClass('tooltip-locked');
+		$('#tooltipwrapper').removeClass('tooltip-locked tooltip-locking-click tooltip-locking-tap');
 	}
 
 	static cancelLongTap() {
@@ -179,6 +179,7 @@ export class BattleTooltips {
 			clearTimeout(BattleTooltips.longTapTimeout);
 			BattleTooltips.longTapTimeout = 0;
 		}
+		$('#tooltipwrapper').removeClass('tooltip-locking-click tooltip-locking-tap');
 	}
 
 	lockTooltip() {
@@ -188,6 +189,7 @@ export class BattleTooltips {
 				$(BattleTooltips.parentElem!).removeClass('pressed');
 				BattleTooltips.isPressed = false;
 			}
+			// $('#tooltipwrapper').removeClass('tooltip-locking');
 			$('#tooltipwrapper').addClass('tooltip-locked');
 		}
 	}
@@ -250,6 +252,11 @@ export class BattleTooltips {
 			BattleTooltips.longTapTimeout = 0;
 			this.lockTooltip();
 		}, isClick ? BattleTooltips.LONG_CLICK_DELAY : BattleTooltips.LONG_TAP_DELAY);
+		if (isClick) {
+			$('#tooltipwrapper').addClass('tooltip-locking-click');
+		} else {
+			$('#tooltipwrapper').addClass('tooltip-locking-tap');
+		}
 	};
 
 	showTooltipEvent = (e: Event) => {
