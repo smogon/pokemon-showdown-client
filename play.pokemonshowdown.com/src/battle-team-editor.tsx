@@ -15,6 +15,7 @@ import { PSSearchResults } from "./battle-searchresults";
 import { BattleNatures, BattleStatNames, type StatName } from "./battle-dex-data";
 import { BattleStatGuesser, BattleStatOptimizer } from "./battle-tooltips";
 import { PSModel } from "./client-core";
+import { Net } from "./client-connection";
 
 type SelectionType = 'pokemon' | 'ability' | 'item' | 'move' | 'stats' | 'details';
 
@@ -48,6 +49,10 @@ class TeamEditorState extends PSModel {
 		this.sets = PSTeambuilder.unpackTeam(team.packedTeam);
 		this.setFormat(team.format);
 		window.search = this.search;
+	}
+	setReadonly(readonly: boolean) {
+		if (!readonly && this.readonly) this.sets = PSTeambuilder.unpackTeam(this.team.packedTeam);
+		this.readonly = readonly;
 	}
 	setFormat(format: string) {
 		const team = this.team;
@@ -499,6 +504,9 @@ class TeamEditorState extends PSModel {
 		if (attackType === 'Ground' && abilityid === 'eartheater') return 0;
 		if (attackType === 'Fire' && abilityid === 'wellbakedbody') return 0;
 
+		if (attackType === 'Fire' && abilityid === 'primordialsea') return 0;
+		if (attackType === 'Water' && abilityid === 'desolateland') return 0;
+
 		if (abilityid === 'wonderguard') {
 			for (const type of types) {
 				if (this.getTypeWeakness(type, attackType) <= 1) return 0;
@@ -506,6 +514,14 @@ class TeamEditorState extends PSModel {
 		}
 
 		let factor = 1;
+		if ((attackType === 'Fire' || attackType === 'Ice') && abilityid === 'thickfat') factor *= 0.5;
+		if (attackType === 'Fire' && abilityid === 'waterbubble') factor *= 0.5;
+		if (attackType === 'Fire' && abilityid === 'heatproof') factor *= 0.5;
+		if (attackType === 'Ghost' && abilityid === 'purifyingsalt') factor *= 0.5;
+		if (attackType === 'Fire' && abilityid === 'fluffy') factor *= 2;
+		if ((attackType === 'Electric' || attackType === 'Rock' || attackType === 'Ice') && abilityid === 'deltastream') {
+			factor *= 0.5;
+		}
 		for (const type of types) {
 			factor *= this.getTypeWeakness(type, attackType);
 		}
@@ -650,7 +666,7 @@ export class TeamEditor extends preact.Component<{
 	}
 	override render() {
 		this.editor ||= new TeamEditorState(this.props.team);
-		this.editor.readonly = !!this.props.readonly;
+		this.editor.setReadonly(!!this.props.readonly);
 		this.editor.narrow = this.props.narrow ?? document.body.offsetWidth < 500;
 		if (this.props.team.format !== this.editor.format) {
 			this.editor.setFormat(this.props.team.format);
@@ -714,7 +730,10 @@ class TeamTextbox extends preact.Component<{editor: TeamEditorState, onChange?: 
 		this.heightTester.value = fullLine && !newValue.endsWith('\n') ? newValue + '\n' : newValue;
 		return this.heightTester.scrollHeight;
 	}
-	input = () => this.updateText();
+	input = () => {
+		this.updateText();
+		this.save();
+	};
 	keyUp = () => this.updateText(true);
 	contextMenu = (ev: MouseEvent) => {
 		if (!ev.shiftKey) {
@@ -786,13 +805,15 @@ class TeamTextbox extends preact.Component<{editor: TeamEditorState, onChange?: 
 			if (ev.keyCode === 13 && ev.shiftKey) return;
 			if (ev.altKey || ev.metaKey) return;
 			if (!this.innerFocus) {
-				if (
+				if (this.maybeReplaceLine()) {
+					// do nothing else
+				} else if (
 					this.textbox.selectionStart === this.textbox.value.length &&
 					(this.textbox.value.endsWith('\n\n') || !this.textbox.value)
 				) {
 					this.addPokemon();
-				} else {
-					this.openInnerFocus();
+				} else if (!this.openInnerFocus()) {
+					break;
 				}
 				ev.stopImmediatePropagation();
 				ev.preventDefault();
@@ -820,6 +841,24 @@ class TeamTextbox extends preact.Component<{editor: TeamEditorState, onChange?: 
 			}
 		}
 	};
+	maybeReplaceLine = () => {
+		if (this.textbox.selectionStart !== this.textbox.selectionEnd) return;
+		const current = this.textbox.selectionEnd;
+		const lineStart = this.textbox.value.lastIndexOf('\n', current) + 1;
+		const value = this.textbox.value.slice(lineStart, current);
+
+		const pokepaste = /^https?:\/\/pokepast.es\/([a-z0-9]+)(?:\/.*)?$/.exec(value)?.[1];
+		if (pokepaste) {
+			Net(`https://pokepast.es/${pokepaste}/json`).get().then(json => {
+				const paste = JSON.parse(json);
+				// make sure it's still there:
+				const valueIndex = this.textbox.value.indexOf(value);
+				this.replace(paste.paste.replace(/\r\n/g, '\n'), valueIndex, valueIndex + value.length);
+			});
+			return true;
+		}
+		return false;
+	};
 	getInnerFocusValue() {
 		if (!this.innerFocus) return '';
 		return this.textbox.value.slice(this.innerFocus.range[0], this.innerFocus.range[1]);
@@ -840,6 +879,7 @@ class TeamTextbox extends preact.Component<{editor: TeamEditorState, onChange?: 
 			this.clearInnerFocus();
 			if (this.setDirty) {
 				this.updateText();
+				this.save();
 			} else {
 				this.forceUpdate();
 			}
@@ -986,7 +1026,6 @@ class TeamTextbox extends preact.Component<{editor: TeamEditorState, onChange?: 
 			}
 
 			textbox.style.height = `${bottomY + 100}px`;
-			this.save();
 		}
 		this.forceUpdate();
 	};
@@ -1180,6 +1219,7 @@ class TeamTextbox extends preact.Component<{editor: TeamEditorState, onChange?: 
 		// for future updates
 		if (!this.setInfo[index]) {
 			this.updateText();
+			this.save();
 		} else {
 			if (this.setInfo[index + 1]) {
 				this.setInfo[index + 1].index = start + newText.length;
@@ -1370,7 +1410,7 @@ class TeamTextbox extends preact.Component<{editor: TeamEditorState, onChange?: 
 				<textarea
 					class="textbox teamtextbox" style={`padding-left:${editor.narrow ? '50px' : '100px'}`}
 					onInput={this.input} onContextMenu={this.contextMenu} onKeyUp={this.keyUp} onKeyDown={this.keyDown}
-					readOnly={editor.readonly}
+					readOnly={editor.readonly} onChange={this.maybeReplaceLine}
 				/>
 				<textarea
 					class="textbox teamtextbox heighttester" tabIndex={-1} aria-hidden
@@ -1899,7 +1939,7 @@ class TeamWizard extends preact.Component<{
 					<i class="fa fa-plus"></i>
 				</button></li>}
 			</ul>
-			<div class="pad">{this.renderButton(set, setIndex)}</div>
+			<div class="pad" style="padding-top:0">{this.renderButton(set, setIndex)}</div>
 			{type === 'stats' ? (
 				<StatForm editor={editor} set={set!} onChange={this.handleSetChange} />
 			) : type === 'details' ? (
