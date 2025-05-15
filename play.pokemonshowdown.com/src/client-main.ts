@@ -1174,7 +1174,7 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 		'unstar'(target) {
 			const id = toID(target);
 			if (!window.BattleFormats[id] && !/^gen[1-9]$/.test(id)) {
-				this.add(`|error| Format ${id} does not exist`);
+				this.errorReply(`Format ${id} does not exist`);
 				return;
 			}
 			let starred = PS.prefs.starredformats || {};
