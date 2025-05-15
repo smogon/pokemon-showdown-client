@@ -30,8 +30,8 @@ class RoomsPanel extends PSRoomPanel {
 	search = '';
 	section = '';
 	lastKeyCode = 0;
-	roomListFocusIndex = -1;
 	roomList: RoomsSection[] = [];
+	roomListFocusIndex = -1;
 	roomListLength = 0;
 	override componentDidMount() {
 		super.componentDidMount();
