@@ -1179,7 +1179,7 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 			}
 			let starred = PS.prefs.starredformats || {};
 			if (!starred[id]) {
-				this.add(`|error|${id} is not in your favourites!`);
+				this.errorReply(`${id} is not in your favourites!`);
 				return;
 			}
 			delete starred[id];
