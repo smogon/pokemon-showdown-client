@@ -696,8 +696,7 @@ export class FormatDropdown extends preact.Component<{
 	onChange?: JSX.EventHandler<Event>,
 }> {
 	declare base?: HTMLButtonElement;
-	format = `[Gen ${Dex.gen}] Random Battle`;
-	defaultFormatInitialized = false;
+	format = '';
 	change = (e: Event) => {
 		if (!this.base) return;
 		this.format = this.base.value;
@@ -710,7 +709,7 @@ export class FormatDropdown extends preact.Component<{
 		}
 	}
 	render() {
-		if (this.props.defaultFormat && !this.props.format) this.format = this.props.defaultFormat;
+		this.format ||= this.props.format || this.props.defaultFormat || '';
 		let [formatName, customRules] = this.format.split('@@@');
 		if (window.BattleLog) formatName = BattleLog.formatName(formatName);
 		if (this.props.format || PS.mainmenu.searchSent) {
@@ -783,14 +782,13 @@ export class TeamForm extends preact.Component<{
 	onSubmit: ((e: Event, format: string, team?: Team) => void) | null,
 	onValidate?: ((e: Event, format: string, team?: Team) => void) | null,
 }> {
-	override state = { format: `[Gen ${Dex.gen}] Random Battle` };
-	defaultFormatInitialized = false;
+	format = '';
 	changeFormat = (ev: Event) => {
 		this.setState({ format: (ev.target as HTMLButtonElement).value });
 	};
 	submit = (ev: Event, validate?: 'validate') => {
 		ev.preventDefault();
-		const format = this.state.format;
+		const format = this.format;
 		const teamKey = this.base!.querySelector<HTMLButtonElement>('button[name=team]')!.value;
 		const team = teamKey ? PS.teams.byKey[teamKey] : undefined;
 		PS.teams.loadTeam(team).then(() => {
@@ -812,16 +810,15 @@ export class TeamForm extends preact.Component<{
 			const starredPrefs = PS.prefs.starredformats || {};
 			// .reverse() because the newest starred format should be the default one
 			const starred = Object.keys(starredPrefs).filter(id => starredPrefs[id] === true).reverse();
-			if (starred.length && !this.defaultFormatInitialized) {
+			if (!this.format) {
+				this.format = `gen${Dex.gen}randombattle`;
 				for (let id of starred) {
 					let format = window.BattleFormats[id];
 					if (!format) continue;
 					if (this.props.selectType === 'challenge' && format?.challengeShow === false) continue;
 					if (this.props.selectType === 'search' && format?.searchShow === false) continue;
 					if (this.props.selectType === 'teambuilder' && format?.team) continue;
-					this.setState({ format: id });
-					this.forceUpdate();
-					this.defaultFormatInitialized = true;
+					this.format = id;
 					break;
 				}
 			}
@@ -831,7 +828,7 @@ export class TeamForm extends preact.Component<{
 				<label class="label">
 					Format:<br />
 					<FormatDropdown
-						selectType={this.props.selectType} format={this.props.format} defaultFormat={this.state.format}
+						selectType={this.props.selectType} format={this.props.format} defaultFormat={this.format}
 						onChange={this.changeFormat}
 					/>
 				</label>
@@ -839,7 +836,7 @@ export class TeamForm extends preact.Component<{
 			<p>
 				<label class="label">
 					Team:<br />
-					<TeamDropdown format={this.props.teamFormat || this.state.format} />
+					<TeamDropdown format={this.props.teamFormat || this.format} />
 				</label>
 			</p>
 			<p>{this.props.children}</p>
