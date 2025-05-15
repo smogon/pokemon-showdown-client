@@ -858,6 +858,7 @@ interface PSNotificationState {
 }
 
 type ClientCommands<RoomT extends PSRoom> = {
+	/** return true to send the original command on to the server, or a string to send that command */
 	[command: Lowercase<string>]: (
 		this: RoomT, target: string, cmd: string, element: HTMLElement | null
 	) => string | boolean | null | void,
@@ -1156,17 +1157,13 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 			}
 		},
 		'disallowspectators'(target) {
-			if (target === 'off') {
-				PS.prefs.set('disallowspectators', false);
-				return false;
-			}
-			PS.prefs.set('disallowspectators', true);
+			PS.prefs.set('disallowspectators', target !== 'off');
 		},
 		'star'(target) {
 			const id = toID(target);
 			if (!window.BattleFormats[id] && !/^gen[1-9]$/.test(id)) {
 				this.add(`|error|Format ${id} does not exist`);
-				return false;
+				return;
 			}
 			let starred = PS.prefs.starredformats || {};
 			starred[id] = true;
@@ -1178,12 +1175,12 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 			const id = toID(target);
 			if (!window.BattleFormats[id] && !/^gen[1-9]$/.test(id)) {
 				this.add(`|error| Format ${id} does not exist`);
-				return false;
+				return;
 			}
 			let starred = PS.prefs.starredformats || {};
 			if (!starred[id]) {
 				this.add(`|error|${id} is not in your favourites!`);
-				return false;
+				return;
 			}
 			delete starred[id];
 			PS.prefs.set('starredformats', starred);
@@ -1447,7 +1444,7 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 					// Wrong command
 					this.add('|error|Invalid /highlight command.');
 					this.handleSend('/help highlight'); // show help
-					return false;
+					return;
 				}
 				PS.prefs.set('highlights', highlights);
 			} else {
@@ -1474,10 +1471,8 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 					// Wrong command
 					this.add('|error|Invalid /highlight command.');
 					this.handleSend('/help highlight'); // show help
-					return false;
 				}
 			}
-			return false;
 		},
 		'senddirect'(target) {
 			this.sendDirect(target);
@@ -1493,22 +1488,22 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 				this.add('||/challenge [user], [format] @@@ [rules] - Challenge the user [user] to a battle with custom rules.');
 				this.add('||[rules] can be a comma-separated list of: [added rule], ![removed rule], -[banned thing], *[restricted thing], +[unbanned/unrestricted thing]');
 				this.add('||/battlerules - Detailed information on what can go in [rules].');
-				return false;
+				return;
 			case 'accept':
 				this.add('||/accept - Accept a challenge if only one is pending.');
 				this.add('||/accept [user] - Accept a challenge from the specified user.');
-				return false;
+				return;
 			case 'reject':
 				this.add('||/reject - Reject a challenge if only one is pending.');
 				this.add('||/reject [user] - Reject a challenge from the specified user.');
-				return false;
+				return;
 			case 'user':
 			case 'open':
 				this.add('||/user [user] - Open a popup containing the user [user]\'s avatar, name, rank, and chatroom list.');
-				return false;
+				return;
 			case 'news':
 				this.add('||/news - Opens a popup containing the news.');
-				return false;
+				return;
 			case 'ignore':
 			case 'unignore':
 				this.add('||/ignore [user] - Ignore all messages from the user [user].');
@@ -1516,40 +1511,40 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 				this.add('||/ignorelist - List all the users that you currently ignore.');
 				this.add('||/clearignore - Remove all users on your ignore list.');
 				this.add('||Note that staff messages cannot be ignored.');
-				return false;
+				return;
 			case 'nick':
 				this.add('||/nick [new username] - Change your username.');
-				return false;
+				return;
 			case 'clear':
 				this.add('||/clear - Clear the room\'s chat log.');
-				return false;
+				return;
 			case 'showdebug':
 			case 'hidedebug':
 				this.add('||/showdebug - Receive debug messages from battle events.');
 				this.add('||/hidedebug - Ignore debug messages from battle events.');
-				return false;
+				return;
 			case 'showjoins':
 			case 'hidejoins':
 				this.add('||/showjoins [room] - Receive users\' join/leave messages. Optionally for only specified room.');
 				this.add('||/hidejoins [room] - Ignore users\' join/leave messages. Optionally for only specified room.');
-				return false;
+				return;
 			case 'showbattles':
 			case 'hidebattles':
 				this.add('||/showbattles - Receive links to new battles in Lobby.');
 				this.add('||/hidebattles - Ignore links to new battles in Lobby.');
-				return false;
+				return;
 			case 'unpackhidden':
 			case 'packhidden':
 				this.add('||/unpackhidden - Suppress hiding locked or banned users\' chat messages after the fact.');
 				this.add('||/packhidden - Hide locked or banned users\' chat messages after the fact.');
 				this.add('||Hidden messages from a user can be restored by clicking the button underneath their lock/ban reason.');
-				return false;
+				return;
 			case 'timestamps':
 				this.add('||Set your timestamps preference:');
 				this.add('||/timestamps [all|lobby|pms], [minutes|seconds|off]');
 				this.add('||all - Change all timestamps preferences, lobby - Change only lobby chat preferences, pms - Change only PM preferences.');
 				this.add('||off - Set timestamps off, minutes - Show timestamps of the form [hh:mm], seconds - Show timestamps of the form [hh:mm:ss].');
-				return false;
+				return;
 			case 'highlight':
 			case 'hl':
 				this.add('||Set up highlights:');
@@ -1562,21 +1557,21 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 				this.add('||/highlight clear - Clear your global highlight list.');
 				this.add('||/highlight roomclear - Clear the highlight list of whichever room you used the command in.');
 				this.add('||/highlight clearall - Clear your entire highlight list (all rooms and globally).');
-				return false;
+				return;
 			case 'rank':
 			case 'ranking':
 			case 'rating':
 			case 'ladder':
 				this.add('||/rating - Get your own rating.');
 				this.add('||/rating [username] - Get user [username]\'s rating.');
-				return false;
+				return;
 			case 'afd':
 				this.add('||/afd full - Enable all April Fools\' Day jokes.');
 				this.add('||/afd sprites - Enable April Fools\' Day sprites.');
 				this.add('||/afd default - Set April Fools\' Day to default (full on April 1st, off otherwise).');
 				this.add('||/afd off - Disable April Fools\' Day jokes until the next refresh, and set /afd default.');
 				this.add('||/afd never - Disable April Fools\' Day jokes permanently.');
-				return false;
+				return;
 			default:
 				return true;
 			}
