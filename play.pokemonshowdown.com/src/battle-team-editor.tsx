@@ -695,8 +695,8 @@ export class TeamEditor extends preact.Component<{
 	}
 }
 
-class TeamTextbox extends preact.Component<{editor: TeamEditorState, onChange?: () => void}> {
-  static EMPTY_PROMISE = Promise.resolve(null);
+class TeamTextbox extends preact.Component<{ editor: TeamEditorState, onChange?: () => void }> {
+	static EMPTY_PROMISE = Promise.resolve(null);
 	editor!: TeamEditorState;
 	setInfo: {
 		species: string,
@@ -731,35 +731,9 @@ class TeamTextbox extends preact.Component<{editor: TeamEditorState, onChange?: 
 		this.heightTester.value = fullLine && !newValue.endsWith('\n') ? newValue + '\n' : newValue;
 		return this.heightTester.scrollHeight;
 	}
-  handleLinkImport(): Promise<any> {
-    let url = this.textbox.value;
-    if (!/^https?:\/\/pokepast\.es\/.*/.test(url)) {
-      return TeamTextbox.EMPTY_PROMISE;
-    }
-    if (!url.endsWith("/json")) url += "/json";
-    return fetch(url)
-      .then(resp => resp.json())
-      .then(json => { 
-        this.textbox.value = json["paste"];
-        const notes = json["notes"] as string;
-        if (notes.startsWith("Format: ")) {
-          const formatid = toID(notes.slice(8));
-          if (BattleFormats[formatid]) {
-            this.editor.setFormat(formatid);
-          }
-        }
-        const title = json["title"] as string;
-        if (title && !title.startsWith('Untitled')) {
-          this.editor.team.name = title.replace(/[\|\\\/]/g, '');
-        }
-      })
-  };
 	input = () => {
-    this.handleLinkImport()
-      .then(() => {
-        this.updateText();
-        this.save();
-      })
+		this.updateText();
+		this.save();
 	};
 	keyUp = () => this.updateText(true);
 	contextMenu = (ev: MouseEvent) => {
@@ -881,6 +855,17 @@ class TeamTextbox extends preact.Component<{editor: TeamEditorState, onChange?: 
 				// make sure it's still there:
 				const valueIndex = this.textbox.value.indexOf(value);
 				this.replace(paste.paste.replace(/\r\n/g, '\n'), valueIndex, valueIndex + value.length);
+        const notes = paste["notes"] as string;
+				if (notes.startsWith("Format: ")) {
+					const formatid = toID(notes.slice(8));
+					if (BattleFormats[formatid]) {
+						this.editor.setFormat(formatid);
+					}
+				}
+				const title = paste["title"] as string;
+				if (title && !title.startsWith('Untitled')) {
+					this.editor.team.name = title.replace(/[\|\\\/]/g, '');
+				}
 			});
 			return true;
 		}
@@ -1343,9 +1328,7 @@ class TeamTextbox extends preact.Component<{editor: TeamEditorState, onChange?: 
 		}
 		return null;
 	}
-	onLinkImport = (url: string) => {
-    
-	};
+
 	renderDetails(set: Dex.PokemonSet, i: number) {
 		const editor = this.editor;
 		const species = editor.dex.species.get(set.species);
@@ -1423,7 +1406,7 @@ class TeamTextbox extends preact.Component<{editor: TeamEditorState, onChange?: 
 					class="textbox teamtextbox" style={`padding-left:${editor.narrow ? '50px' : '100px'}`}
 					onInput={this.input} onContextMenu={this.contextMenu} onKeyUp={this.keyUp} onKeyDown={this.keyDown}
 					readOnly={editor.readonly} onChange={this.maybeReplaceLine}
-          placeholder="Enter team or pokepaste link"
+					placeholder="Paste exported teams, pokepaste URLs, or JSON here"
 				/>
 				<textarea
 					class="textbox teamtextbox heighttester" tabIndex={-1} aria-hidden
