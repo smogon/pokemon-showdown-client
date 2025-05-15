@@ -86,13 +86,13 @@ button.subtle {
 .blocklink small {
 	font-size: 8pt;
 }
-.blocklink:hover {
+.blocklink:hover, .blocklink.cur {
 	border-color: #778899;
 	background: #E5EAED;
 	color: #224466;
 	text-decoration: none;
 }
-.blocklink:active {
+.blocklink:active, .blocklink.cur {
 	background: #d6dfe4;
 }
 .dark .blocklink {
@@ -102,12 +102,12 @@ button.subtle {
 	background: rgba(30, 40, 50, .5);
 	color: #7799BB;
 }
-.dark .blocklink:hover {
+.dark .blocklink:hover, .dark .blocklink.cur {
 	border-color: #AACCEE;
 	background: rgba(30, 40, 50, 1);
 	color: #AACCEE;
 }
-.dark .blocklink:active {
+.dark .blocklink:active, .dark .blocklink.cur {
 	background: rgb(40, 52, 63);
 }
 
