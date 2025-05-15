@@ -40,7 +40,7 @@ class RoomsPanel extends PSRoomPanel {
 	override componentDidUpdate() {
 		const el = this.base?.querySelector('a.blocklink.cur');
 		if (!this.focusedIndex) return;
-		el?.scrollIntoViewIfNeeded({ behavior: 'auto', block: 'nearest' });
+		el?.scrollIntoView({ behavior: 'auto', block: 'center' });
 	}
 	hide = (e: Event) => {
 		e.stopImmediatePropagation();
