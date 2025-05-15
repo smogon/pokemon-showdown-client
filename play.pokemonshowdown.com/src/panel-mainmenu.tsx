@@ -606,29 +606,20 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
 		}
 
 		return <TeamForm
-			class="menugroup"
-			format={PS.mainmenu.searchCountdown?.format}
-			selectType="search"
-			onSubmit={this.submitSearch}
+			class="menugroup" format={PS.mainmenu.searchCountdown?.format} selectType="search" onSubmit={this.submitSearch}
 		>
 			<p style="display:inline-flex;">
 				<label class="checkbox">
 					<input
-						type="checkbox"
-						onChange={this.handleDisallowSpects}
-						name="private"
-						checked={PS.prefs.disallowspectators || undefined}
+						name="private" checked={PS.prefs.disallowspectators || undefined}
+						type="checkbox" onChange={this.handleDisallowSpects}
 					/>
 					<abbr title="You can still invite spectators by giving them the URL or using the /invite command">
 						Don't allow spectators</abbr>
 				</label>
-				<button
-					class="icon button"
-					data-href="battleoptions"
-					name="battleSettings"
-					title="Options"
-					aria-label="Options"
-				><i class="fa fa-cog"></i></button>
+				<button class="icon button" data-href="battleoptions" title="Options" aria-label="Options">
+					<i class="fa fa-cog"></i>
+				</button>
 			</p>
 			{PS.mainmenu.searchCountdown ? (
 				<>
@@ -701,11 +692,8 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
 }
 
 export class FormatDropdown extends preact.Component<{
-	format?: string,
-	defaultFormat?: string,
+	selectType?: SelectType, format?: string, defaultFormat?: string, placeholder?: string,
 	onChange?: JSX.EventHandler<Event>,
-	placeholder?: string,
-	selectType?: SelectType,
 }> {
 	declare base?: HTMLButtonElement;
 	format = `[Gen ${Dex.gen}] Random Battle`;
@@ -843,10 +831,8 @@ export class TeamForm extends preact.Component<{
 				<label class="label">
 					Format:<br />
 					<FormatDropdown
+						selectType={this.props.selectType} format={this.props.format} defaultFormat={this.state.format}
 						onChange={this.changeFormat}
-						defaultFormat={this.state.format}
-						selectType={this.props.selectType}
-						format={this.props.format}
 					/>
 				</label>
 			</p>}
