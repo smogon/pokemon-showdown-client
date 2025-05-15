@@ -296,6 +296,7 @@ export class PSView extends preact.Component {
 	static readonly isFirefox = navigator.userAgent.includes(' Firefox/');
 	static readonly isMac = navigator.platform?.startsWith('Mac');
 	static textboxFocused = false;
+	static dragend: ((ev: DragEvent) => void) | null = null;
 	static setTextboxFocused(focused: boolean) {
 		if (!PSView.isChrome || PS.leftPanelWidth !== null) return;
 		// Chrome bug: on Android, it insistently scrolls everything leftmost when scroll snap is enabled
@@ -544,6 +545,11 @@ export class PSView extends preact.Component {
 				ev.preventDefault();
 				PS.join('dm---' as RoomID);
 			}
+		});
+
+		window.addEventListener('dragend', ev => {
+			PS.dragging = null;
+			ev.preventDefault();
 		});
 
 		const colorSchemeQuery = window.matchMedia?.('(prefers-color-scheme: dark)');

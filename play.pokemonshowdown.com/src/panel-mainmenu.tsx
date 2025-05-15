@@ -391,12 +391,32 @@ export class MainMenuRoom extends PSRoom {
 			break;
 		case 'teamupload':
 			if (PS.teams.uploading) {
-				PS.teams.uploading.uploaded = {
+				const team = PS.teams.uploading;
+				team.uploaded = {
 					teamid: response.teamid,
 					notLoaded: false,
 					private: response.private,
 				};
+				PS.rooms[`team-${team.key}`]?.update(null);
+				PS.rooms.teambuilder?.update(null);
+				PS.teams.uploading = null;
 			}
+			break;
+		case 'teamupdate':
+			for (const team of PS.teams.list) {
+				if (team.teamid === response.teamid) {
+					team.uploaded = {
+						teamid: response.teamid,
+						notLoaded: false,
+						private: response.private,
+					};
+					PS.rooms[`team-${team.key}`]?.update(null);
+					PS.rooms.teambuilder?.update(null);
+					PS.teams.uploading = null;
+					break;
+				}
+			}
+			break;
 		}
 	}
 }
@@ -468,7 +488,7 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
 	handleDragEnter = (e: DragEvent) => {
 		// console.log('dragenter ' + e.dataTransfer!.dropEffect);
 		e.preventDefault();
-		if (!PS.dragging) return; // TODO: handle dragging other things onto roomtabs
+		if (PS.dragging?.type !== 'room') return;
 		const draggingRoom = PS.dragging.roomid;
 		if (draggingRoom === null) return;
 
@@ -560,7 +580,7 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
 		}
 
 		if (!PS.user.userid || PS.isOffline) {
-			return <TeamForm class="menugroup" onSubmit={this.submitSearch}>
+			return <TeamForm class="menugroup" onSubmit={this.submitSearch} selectType="search">
 				<button class="mainmenu1 mainmenu big button disabled" disabled name="search">
 					<em>{PS.isOffline ? [<span class="fa-stack fa-lg">
 						<i class="fa fa-plug fa-flip-horizontal fa-stack-1x" aria-hidden></i>
@@ -573,7 +593,7 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
 			</TeamForm>;
 		}
 
-		return <TeamForm class="menugroup" onSubmit={this.submitSearch}>
+		return <TeamForm class="menugroup" onSubmit={this.submitSearch} selectType="search">
 			{PS.mainmenu.searchCountdown ? (
 				<>
 					<button class="mainmenu1 mainmenu big button disabled" type="submit"><strong>
@@ -728,7 +748,8 @@ class TeamDropdown extends preact.Component<{ format: string }> {
 }
 
 export class TeamForm extends preact.Component<{
-	children: preact.ComponentChildren, class?: string, format?: string, teamFormat?: string, hideFormat?: boolean,
+	children: preact.ComponentChildren,
+	class?: string, format?: string, teamFormat?: string, hideFormat?: boolean, selectType?: SelectType,
 	onSubmit: ((e: Event, format: string, team?: Team) => void) | null,
 	onValidate?: ((e: Event, format: string, team?: Team) => void) | null,
 }> {
@@ -760,7 +781,7 @@ export class TeamForm extends preact.Component<{
 			{!this.props.hideFormat && <p>
 				<label class="label">
 					Format:<br />
-					<FormatDropdown onChange={this.changeFormat} format={this.props.format} />
+					<FormatDropdown onChange={this.changeFormat} format={this.props.format} selectType={this.props.selectType} />
 				</label>
 			</p>}
 			<p>
