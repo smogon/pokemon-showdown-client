@@ -27,12 +27,26 @@ class RoomsPanel extends PSRoomPanel {
 	static readonly title = "Chat Rooms";
 	hidden = false;
 	search = '';
+	section = '';
 	lastKeyCode = 0;
+	focusedIndex = 0;
+	focusedRoomId = '';
 	override componentDidMount() {
 		super.componentDidMount();
 		this.subscriptions.push(PS.user.subscribe(update => {
 			if (!update && PS.user.named) PS.send(`|/cmd rooms`);
 		}));
+	}
+	override componentDidUpdate() {
+		const el = this.base?.querySelector('div#focused-room');
+		if (!this.focusedIndex) return;
+		if (el) {
+			const rect = el.getBoundingClientRect();
+			const padding = 40;
+			if (rect.top < padding || rect.bottom > window.innerHeight - padding) {
+				el.scrollIntoView({ behavior: 'auto', block: 'nearest' });
+			}
+		}
 	}
 	hide = (e: Event) => {
 		e.stopImmediatePropagation();
@@ -42,20 +56,41 @@ class RoomsPanel extends PSRoomPanel {
 		const target = e.currentTarget as HTMLInputElement;
 		if (target.selectionStart !== target.selectionEnd) return;
 		this.search = target.value;
+		this.focusedIndex = 1;
+		this.forceUpdate();
+	};
+	changeSection = (e: Event) => {
+		const target = e.currentTarget as HTMLSelectElement;
+		this.section = target.value;
+		this.forceUpdate();
+	};
+	handleOnBlur = (e: Event) => {
+		this.focusedIndex = 0;
+		this.focusedRoomId = '';
 		this.forceUpdate();
 	};
 	keyDownSearch = (e: KeyboardEvent) => {
 		this.lastKeyCode = e.keyCode;
+		if (e.keyCode === 38) {
+			// go up
+			this.focusedIndex = Math.max(0, this.focusedIndex - 1);
+			this.forceUpdate();
+		} else if (e.keyCode === 40) {
+			// go down
+			this.focusedIndex++;
+			this.forceUpdate();
+			if (this.focusedIndex < 5) e.preventDefault();
+		}
 		if (e.keyCode === 13) {
 			const target = e.currentTarget as HTMLInputElement;
-			let value = target.value;
+			let value = this.focusedRoomId?.length ? this.focusedRoomId : target.value;
 			const arrowIndex = value.indexOf(' \u21d2 ');
 			if (arrowIndex >= 0) value = value.slice(arrowIndex + 3);
 			if (!/^[a-z0-9-]$/.test(value)) value = toID(value);
-
 			e.preventDefault();
 			e.stopImmediatePropagation();
 			target.value = '';
+			this.focusedRoomId = '';
 
 			PS.join(value as RoomID);
 		}
@@ -119,14 +154,13 @@ class RoomsPanel extends PSRoomPanel {
 			return <PSPanelWrapper room={this.props.room} scrollable>{null}</PSPanelWrapper>;
 		}
 		const rooms = PS.mainmenu.roomsCache;
-
 		let roomList;
 		if (this.search) {
 			const search = this.runSearch();
 			roomList = [
-				this.renderRoomList("Search results", search.start),
-				this.renderRoomList("Search results (acronym)", search.abbr),
-				this.renderRoomList("Possible hidden room", search.hidden),
+				this.renderRoomList("Search results", search.start, 0),
+				this.renderRoomList("Search results (acronym)", search.abbr, search.start.length),
+				this.renderRoomList("Possible hidden rooms", search.hidden, (search.start.length + search.abbr.length)),
 			];
 		} else if (PS.isOffline) {
 			roomList = [<div class="roomlist"><h2>Offline</h2></div>];
@@ -137,6 +171,7 @@ class RoomsPanel extends PSRoomPanel {
 				official: [] as RoomInfo[], chat: [] as RoomInfo[], hidden: [] as RoomInfo[],
 			};
 			for (const room of rooms.chat || []) {
+				if (room.section !== this.section && this.section !== '') continue;
 				if (room.privacy === 'hidden') {
 					roomSections.hidden.push(room);
 				} else if (room.section === 'Official') {
@@ -146,9 +181,9 @@ class RoomsPanel extends PSRoomPanel {
 				}
 			}
 			roomList = [
-				this.renderRoomList("Official chat rooms", roomSections.official),
-				this.renderRoomList("Chat rooms", roomSections.chat),
-				this.renderRoomList("Hidden rooms", roomSections.hidden),
+				this.renderRoomList("Official chat rooms", roomSections.official, 0),
+				this.renderRoomList("Chat rooms", roomSections.chat, roomSections.official.length),
+				this.renderRoomList("Hidden rooms", roomSections.hidden, (roomSections.official.length + roomSections.chat.length)),
 			];
 		}
 
@@ -173,30 +208,40 @@ class RoomsPanel extends PSRoomPanel {
 				</a>
 			</div>
 			<div>
+				<select name="sections" class="button" onChange={this.changeSection}>
+					<option value="">(All rooms)</option>
+					{rooms.sectionTitles?.map(title => {
+						return <option value={title}> {title} </option>;
+					})}
+				</select>
+				<br /><br />
 				<input
 					type="search" name="roomsearch" class="textbox autofocus" style="width: 100%; max-width: 480px"
 					placeholder="Join or search for rooms"
-					onInput={this.changeSearch} onKeyDown={this.keyDownSearch}
+					onInput={this.changeSearch} onKeyDown={this.keyDownSearch} onBlur={this.handleOnBlur}
 				/>
 			</div>
 			{roomList}
 		</div></PSPanelWrapper>;
 	}
-	renderRoomList(title: string, rooms?: RoomInfo[]) {
+	renderRoomList(title: string, rooms?: RoomInfo[], indexStart = 0) {
 		if (!rooms?.length) return null;
+		const hoverStyle = `border-color: #AACCEE;background: rgba(30, 40, 50, 1);color: #AACCEE;`;
 		// Descending order
 		const sortedRooms = rooms.sort((a, b) => (b.userCount || 0) - (a.userCount || 0));
+		let index = this.focusedIndex > indexStart ? this.focusedIndex - (indexStart) : 0;
+		if (index) this.focusedRoomId = sortedRooms[index - 1]?.title;
 		return <div class="roomlist">
 			<h2>{title}</h2>
-			{sortedRooms.map(roomInfo => <div key={roomInfo.title}>
-				<a href={`/${toID(roomInfo.title)}`} class="blocklink">
+			{sortedRooms.map((roomInfo, i) => <div id={(i + 1) === index ? "focused-room" : ''} key={roomInfo.title}>
+				<a style={(i + 1) === index ? hoverStyle : ''} href={`/${toID(roomInfo.title)}`} class="blocklink">
 					{roomInfo.userCount !== undefined && <small style="float:right">({roomInfo.userCount} users)</small>}
 					<strong><i class="fa fa-comment-o" aria-hidden></i> {roomInfo.title}<br /></strong>
 					<small>{roomInfo.desc || ''}</small>
 				</a>
 				{roomInfo.subRooms && <div class="subrooms">
 					<i class="fa fa-level-up fa-rotate-90" aria-hidden></i> Subrooms: {}
-					{roomInfo.subRooms.map((roomName, i) => [<a href={`/${toID(roomName)}`} class="blocklink">
+					{roomInfo.subRooms.map(roomName => [<a href={`/${toID(roomName)}`} class="blocklink">
 						<i class="fa fa-comment-o" aria-hidden></i> <strong>{roomName}</strong>
 					</a>, ' '])}
 				</div>}
