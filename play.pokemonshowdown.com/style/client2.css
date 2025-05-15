@@ -2014,6 +2014,7 @@ pre.textbox.textbox-empty[placeholder]:before {
 	font-size: 9pt;
 	text-align: left;
 	font-family: Verdana, Helvetica, Arial, sans-serif;
+	text-decoration: none;
 	white-space: nowrap;
 	cursor: pointer;
 
@@ -2031,6 +2032,10 @@ pre.textbox.textbox-empty[placeholder]:before {
 	height: 49px;
 	overflow: hidden;
 }
+.team.pc-box {
+	min-height: 74px;
+	height: auto;
+}
 .team:focus {
 	outline: 0 none;
 	border: 1px solid #004488;
@@ -2045,7 +2050,8 @@ pre.textbox.textbox-empty[placeholder]:before {
 	margin: -1px 0 0 -6px;
 	width: 226px;
 }
-.teamselect:disabled .team {
+.select:disabled .team, .select:disabled:hover .team, .select:disabled:active .team,
+.dark .select:disabled .team, .dark .select:disabled:hover .team, .dark .select:disabled:active .team {
 	background: transparent;
 	box-shadow: none;
 }
@@ -2078,16 +2084,16 @@ pre.textbox.textbox-empty[placeholder]:before {
 .team small span {
 	margin-right: -4px;
 }
-.select:hover, .team.team-hover, button.team:hover {
+.select:hover, .select:hover .team, a.team:hover, button.team:hover {
 	border-color: #555555;
 	background: #FFFFFF;
 	background: linear-gradient(to bottom,  #dce4ec,  #c6d3e0);
 }
-.select:active, .team:active, button.team:active {
+.select:active, .select:active .team, a.team:active, button.team:active {
 	border-color: #777777;
 	background: #DDDDDD;
 	box-shadow: none;
-	background: linear-gradient(to bottom,  #d1dce6,  #e7edf2);
+	background: linear-gradient(to bottom,  #bbc4cd,  #e7edf2);
 }
 .select:before {
 	position: absolute;
@@ -2110,7 +2116,7 @@ pre.textbox.textbox-empty[placeholder]:before {
 	color: #555555;
 	box-shadow: none;
 }
-.select:disabled .team {
+.select:disabled .team, .select:disabled:hover .team, .select:disabled:active .team {
 	border-color: #999999;
 	cursor: default;
 }
@@ -2346,16 +2352,16 @@ pre.textbox.textbox-empty[placeholder]:before {
 	background: linear-gradient(to bottom, rgba(227, 239, 251, 0.85), rgba(118, 128, 140, 0.85));
 	color: black;
 }
-.dark .select:hover, .dark .team.team-hover, .dark button.team:hover {
+.dark .select:hover, .dark .select:hover .team, .dark a.team:hover, .dark button.team:hover {
 	border-color: #000000;
 	background: #FFFFFF;
 	color: black;
 	background: linear-gradient(to bottom, rgba(255, 255, 255, 0.85), rgba(161, 175, 189, 0.85));
 }
-.dark .select:active, .dark .team:active, .dark button.team:active {
+.dark .select:active, .dark .select:active .team, .dark a.team:active, .dark button.team:active {
 	border-color: #000000;
 	box-shadow: none;
-	background: linear-gradient(to bottom, rgba(161, 175, 189, 0.85), rgba(255, 255, 255, 0.85));
+	background: linear-gradient(to bottom, rgba(141, 153, 165, 0.85), rgba(255, 255, 255, 0.85));
 }
 .dark .select:disabled {
 	border-color: #888888;
@@ -2363,7 +2369,7 @@ pre.textbox.textbox-empty[placeholder]:before {
 	color: #444444;
 	box-shadow: none;
 }
-.dark .select:disabled .team {
+.dark .select:disabled .team, .dark .select:disabled:hover .team, .dark .select:disabled:active .team {
 	border-color: #888888;
 }
 .dark .select:before {

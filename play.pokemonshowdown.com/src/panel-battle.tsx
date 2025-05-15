@@ -7,17 +7,18 @@
 
 import preact from "../js/lib/preact";
 import { PS, PSRoom, type RoomOptions, type RoomID } from "./client-main";
-import { PSPanelWrapper, PSRoomPanel } from "./panels";
+import { PSIcon, PSPanelWrapper, PSRoomPanel } from "./panels";
 import { ChatLog, ChatRoom, ChatTextEntry, ChatUserList } from "./panel-chat";
 import { FormatDropdown } from "./panel-mainmenu";
 import { Battle, type Pokemon, type ServerPokemon } from "./battle";
 import { BattleScene } from "./battle-animations";
-import { Dex, toID } from "./battle-dex";
+import { Dex, toID, type ID } from "./battle-dex";
 import {
 	BattleChoiceBuilder, type BattleRequestActivePokemon, type BattleRequestSideInfo,
 	type BattleRequest, type BattleMoveRequest, type BattleSwitchRequest, type BattleTeamRequest,
 } from "./battle-choices";
 import type { Args } from "./battle-text-parser";
+import { ModifiableValue } from "./battle-tooltips";
 
 type BattleDesc = {
 	id: RoomID,
@@ -152,15 +153,16 @@ class BattleDiv extends preact.Component<{ room: BattleRoom }> {
 }
 
 function MoveButton(props: {
-	cmd: string, type: Dex.TypeName, tooltip: string, moveData: { pp: number, maxpp: number, disabled?: boolean },
+	cmd: string, type: Dex.TypeName, tooltip: string, moveData: { pp?: number, maxpp?: number, disabled?: boolean },
 	children: string,
 }) {
+	const pp = props.moveData.maxpp ? `${props.moveData.pp!}/${props.moveData.maxpp}` : '&ndash;';
 	return <button
 		data-cmd={props.cmd} data-tooltip={props.tooltip}
 		class={`movebutton type-${props.type} has-tooltip${props.moveData.disabled ? ' disabled' : ''}`}
 	>
 		{props.children}<br />
-		<small class="type">{props.type}</small> <small class="pp">{props.moveData.pp}/{props.moveData.maxpp}</small>&nbsp;
+		<small class="type">{props.type}</small> <small class="pp">{pp}</small>&nbsp;
 	</button>;
 }
 function PokemonButton(props: {
@@ -187,7 +189,7 @@ function PokemonButton(props: {
 		data-cmd={props.cmd} class={`${props.disabled ? 'disabled ' : ''}has-tooltip`}
 		style={{ opacity: props.disabled === 'fade' ? 0.5 : 1 }} data-tooltip={props.tooltip}
 	>
-		<span class="picon" style={Dex.getPokemonIcon(pokemon)}></span>
+		<PSIcon pokemon={pokemon} />
 		{pokemon.name}
 		{
 			!props.noHPBar && !pokemon.fainted &&
@@ -261,6 +263,8 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 	static readonly id = 'battle';
 	static readonly routes = ['battle-*'];
 	static readonly Model = BattleRoom;
+	/** last displayed team. will not show the most recent request until the last one is gone. */
+	team: ServerPokemon[] | null = null;
 	send = (text: string, elem?: HTMLElement) => {
 		this.props.room.send(text, elem);
 	};
@@ -465,7 +469,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 			<div class="megaevo-box">
 				{canDynamax && <label class={`megaevo${choices.current.max ? ' cur' : ''}`}>
 					<input type="checkbox" name="max" checked={choices.current.max} onChange={this.toggleBoostedMove} /> {}
-					{moveRequest.canGigantamax ? 'Gigantamax' : 'Dynamax'}
+					{moveRequest.gigantamax ? 'Gigantamax' : 'Dynamax'}
 				</label>}
 				{canMegaEvo && <label class={`megaevo${choices.current.mega ? ' cur' : ''}`}>
 					<input type="checkbox" name="mega" checked={choices.current.mega} onChange={this.toggleBoostedMove} /> {}
@@ -495,19 +499,29 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 		</div>;
 	}
 	renderMoveControls(active: BattleRequestActivePokemon, choices: BattleChoiceBuilder) {
-		const dex = this.props.room.battle.dex;
+		const battle = this.props.room.battle;
+		const dex = battle.dex;
 		const pokemonIndex = choices.index();
+		const activeIndex = battle.mySide.n > 1 ? pokemonIndex + battle.pokemonControlled : pokemonIndex;
+		const serverPokemon = choices.request.side!.pokemon[pokemonIndex];
+		const valueTracker = new ModifiableValue(battle, battle.nearSide.active[activeIndex]!, serverPokemon);
+		const tooltips = (battle.scene as BattleScene).tooltips;
 
 		if (choices.current.max || (active.maxMoves && !active.canDynamax)) {
 			if (!active.maxMoves) {
 				return <div class="message-error">Maxed with no max moves</div>;
 			}
+			const gmax = active.gigantamax && dex.moves.get(active.gigantamax);
 			return active.moves.map((moveData, i) => {
 				const move = dex.moves.get(moveData.name);
-				const maxMoveData = active.maxMoves![i];
+				const moveType = tooltips.getMoveType(move, valueTracker, gmax || true)[0];
+				let maxMoveData: { name: string, id: ID } = active.maxMoves![i];
+				if (maxMoveData.name !== 'Max Guard') {
+					maxMoveData = tooltips.getMaxMoveFromType(moveType, gmax);
+				}
 				const gmaxTooltip = maxMoveData.id.startsWith('gmax') ? `|${maxMoveData.id}` : ``;
 				const tooltip = `maxmove|${moveData.name}|${pokemonIndex}${gmaxTooltip}`;
-				return <MoveButton cmd={`/move ${i + 1} max`} type={move.type} tooltip={tooltip} moveData={moveData}>
+				return <MoveButton cmd={`/move ${i + 1} max`} type={moveType} tooltip={tooltip} moveData={moveData}>
 					{maxMoveData.name}
 				</MoveButton>;
 			});
@@ -518,13 +532,15 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 				return <div class="message-error">No Z moves</div>;
 			}
 			return active.moves.map((moveData, i) => {
-				const move = dex.moves.get(moveData.name);
 				const zMoveData = active.zMoves![i];
 				if (!zMoveData) {
 					return <button class="movebutton" disabled>&nbsp;</button>;
 				}
+				const specialMove = dex.moves.get(zMoveData.name);
+				const move = specialMove.exists ? specialMove : dex.moves.get(moveData.name);
+				const moveType = tooltips.getMoveType(move, valueTracker)[0];
 				const tooltip = `zmove|${moveData.name}|${pokemonIndex}`;
-				return <MoveButton cmd={`/move ${i + 1} zmove`} type={move.type} tooltip={tooltip} moveData={{ pp: 1, maxpp: 1 }}>
+				return <MoveButton cmd={`/move ${i + 1} zmove`} type={moveType} tooltip={tooltip} moveData={{ pp: 1, maxpp: 1 }}>
 					{zMoveData.name}
 				</MoveButton>;
 			});
@@ -533,18 +549,22 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 		const special = choices.moveSpecial(choices.current);
 		return active.moves.map((moveData, i) => {
 			const move = dex.moves.get(moveData.name);
+			const moveType = tooltips.getMoveType(move, valueTracker)[0];
 			const tooltip = `move|${moveData.name}|${pokemonIndex}`;
-			return <MoveButton cmd={`/move ${i + 1}${special}`} type={move.type} tooltip={tooltip} moveData={moveData}>
+			return <MoveButton cmd={`/move ${i + 1}${special}`} type={moveType} tooltip={tooltip} moveData={moveData}>
 				{move.name}
 			</MoveButton>;
 		});
 	}
 	renderMoveTargetControls(request: BattleMoveRequest, choices: BattleChoiceBuilder) {
 		const battle = this.props.room.battle;
-		const moveTarget = choices.getChosenMove(choices.current, choices.index()).target;
+		let moveTarget = choices.currentMove()?.target;
+		if ((moveTarget === 'adjacentAlly' || moveTarget === 'adjacentFoe') && battle.gameType === 'freeforall') {
+			moveTarget = 'normal';
+		}
 		const moveChoice = choices.stringChoice(choices.current);
 
-		const userSlot = choices.index();
+		const userSlot = choices.index() + Math.floor(battle.mySide.n / 2) * battle.pokemonControlled;
 		const userSlotCross = battle.farSide.active.length - 1 - userSlot;
 
 		return [
@@ -611,7 +631,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 		});
 	}
 	renderTeamList() {
-		const team = this.props.room.battle.myPokemon;
+		const team = this.team;
 		if (!team) return;
 		return <div class="switchcontrols">
 			<h3 class="switchselect">Team</h3>
@@ -634,7 +654,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 	}
 	renderOldChoices(request: BattleRequest, choices: BattleChoiceBuilder) {
 		if (!choices) return null; // should not happen
-		if (request.requestType !== 'move' && request.requestType !== 'switch') return;
+		if (request.requestType !== 'move' && request.requestType !== 'switch' && request.requestType !== 'team') return;
 		if (choices.isEmpty()) return null;
 
 		let buf: preact.ComponentChild[] = [
@@ -653,7 +673,12 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 				buf.push(`${request.side.pokemon[i].name} is locked into a move.`);
 				return buf;
 			}
-			const choice = choices.parseChoice(choiceString);
+			let choice;
+			try {
+				choice = choices.parseChoice(choiceString, i);
+			} catch (err: any) {
+				buf.push(<span class="message-error">{err.message}</span>);
+			}
 			if (!choice) continue;
 			const pokemon = request.side.pokemon[i];
 			const active = request.requestType === 'move' ? request.active[i] : null;
@@ -664,8 +689,8 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 				if (choice.megay) buf.push(<strong>Mega</strong>, ` Evolve (Y) and `);
 				if (choice.ultra) buf.push(<strong>Ultra</strong>, ` Burst and `);
 				if (choice.tera) buf.push(`Terastallize (`, <strong>{active?.canTerastallize || '???'}</strong>, `) and `);
-				if (choice.max && active?.canDynamax) buf.push(active?.canGigantamax ? `Gigantamax and ` : `Dynamax and `);
-				buf.push(`use `, <strong>{choices.getChosenMove(choice, i).name}</strong>);
+				if (choice.max && active?.canDynamax) buf.push(active?.gigantamax ? `Gigantamax and ` : `Dynamax and `);
+				buf.push(`use `, <strong>{choices.currentMove(choice, i)?.name}</strong>);
 				if (choice.targetLoc > 0) {
 					const target = battle.farSide.active[choice.targetLoc - 1];
 					if (!target) {
@@ -686,13 +711,27 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 				buf.push(`${pokemon.name} will switch to `, <strong>{target.name}</strong>);
 			} else if (choice.choiceType === 'shift') {
 				buf.push(`${pokemon.name} will `, <strong>shift</strong>, ` to the center`);
+			} else if (choice.choiceType === 'team') {
+				const target = request.side.pokemon[choice.targetPokemon - 1];
+				buf.push(`You picked `, <strong>{target.name}</strong>);
 			}
 			buf.push(<br />);
 		}
 		return buf;
 	}
+	renderPlayerWaitingControls() {
+		return <div class="controls">
+			<div class="whatdo">
+				<button class="button" data-cmd="/ffto end">Skip animation <i class="fa fa-fast-forward" aria-hidden></i></button>
+			</div>
+			{this.renderTeamList()}
+		</div>;
+	}
 	renderPlayerControls(request: BattleRequest) {
 		const room = this.props.room;
+		const atEnd = room.battle.atQueueEnd;
+		if (!atEnd) return this.renderPlayerWaitingControls();
+
 		let choices = room.choices;
 		if (!choices) return 'Error: Missing BattleChoiceBuilder';
 		if (choices.request !== request) {
@@ -711,14 +750,17 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 				{this.renderTeamList()}
 			</div>;
 		}
-		if (request.side) room.battle.myPokemon = request.side.pokemon;
+		if (request.side) {
+			room.battle.myPokemon = request.side.pokemon;
+			this.team = request.side.pokemon;
+		}
 		switch (request.requestType) {
 		case 'move': {
 			const index = choices.index();
 			const pokemon = request.side.pokemon[index];
 
 			if (choices.current.move) {
-				const moveName = choices.getChosenMove(choices.current, choices.index()).name;
+				const moveName = choices.currentMove()?.name;
 				return <div class="controls">
 					<div class="whatdo">
 						{this.renderOldChoices(request, choices)}

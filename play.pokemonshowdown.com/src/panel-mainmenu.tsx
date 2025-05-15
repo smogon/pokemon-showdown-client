@@ -8,7 +8,7 @@
 import preact from "../js/lib/preact";
 import { PSLoginServer } from "./client-connection";
 import { PS, PSRoom, type RoomID, type RoomOptions, type Team } from "./client-main";
-import { PSPanelWrapper, PSRoomPanel } from "./panels";
+import { PSIcon, PSPanelWrapper, PSRoomPanel } from "./panels";
 import type { BattlesRoom } from "./panel-battle";
 import type { ChatRoom } from "./panel-chat";
 import type { LadderFormatRoom } from "./panel-ladder";
@@ -128,6 +128,7 @@ export class MainMenuRoom extends PSRoom {
 			const named = namedCode === '1';
 			if (named) PS.user.initializing = false;
 			PS.user.setName(fullName, named, avatar);
+			PS.teams.loadRemoteTeams();
 			return;
 		} case 'updatechallenges': {
 			const [, challengesBuf] = args;
@@ -388,6 +389,34 @@ export class MainMenuRoom extends PSRoom {
 				}
 			}
 			break;
+		case 'teamupload':
+			if (PS.teams.uploading) {
+				const team = PS.teams.uploading;
+				team.uploaded = {
+					teamid: response.teamid,
+					notLoaded: false,
+					private: response.private,
+				};
+				PS.rooms[`team-${team.key}`]?.update(null);
+				PS.rooms.teambuilder?.update(null);
+				PS.teams.uploading = null;
+			}
+			break;
+		case 'teamupdate':
+			for (const team of PS.teams.list) {
+				if (team.teamid === response.teamid) {
+					team.uploaded = {
+						teamid: response.teamid,
+						notLoaded: false,
+						private: response.private,
+					};
+					PS.rooms[`team-${team.key}`]?.update(null);
+					PS.rooms.teambuilder?.update(null);
+					PS.teams.uploading = null;
+					break;
+				}
+			}
+			break;
 		}
 	}
 }
@@ -459,7 +488,7 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
 	handleDragEnter = (e: DragEvent) => {
 		// console.log('dragenter ' + e.dataTransfer!.dropEffect);
 		e.preventDefault();
-		if (!PS.dragging) return; // TODO: handle dragging other things onto roomtabs
+		if (PS.dragging?.type !== 'room') return;
 		const draggingRoom = PS.dragging.roomid;
 		if (draggingRoom === null) return;
 
@@ -551,7 +580,7 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
 		}
 
 		if (!PS.user.userid || PS.isOffline) {
-			return <TeamForm class="menugroup" onSubmit={this.submitSearch}>
+			return <TeamForm class="menugroup" onSubmit={this.submitSearch} selectType="search">
 				<button class="mainmenu1 mainmenu big button disabled" disabled name="search">
 					<em>{PS.isOffline ? [<span class="fa-stack fa-lg">
 						<i class="fa fa-plug fa-flip-horizontal fa-stack-1x" aria-hidden></i>
@@ -566,7 +595,7 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
 			</TeamForm>;
 		}
 
-		return <TeamForm class="menugroup" onSubmit={this.submitSearch}>
+		return <TeamForm class="menugroup" onSubmit={this.submitSearch} selectType="search">
 			{PS.mainmenu.searchCountdown ? (
 				<>
 					<button class="mainmenu1 mainmenu big button disabled" type="submit"><strong>
@@ -655,7 +684,7 @@ export class FormatDropdown extends preact.Component<{
 	}
 	render() {
 		let [formatName, customRules] = this.format.split('@@@');
-		if (window.BattleLog) formatName = BattleLog.formatName(this.format);
+		if (window.BattleLog) formatName = BattleLog.formatName(formatName);
 		if (this.props.format && !this.props.onChange) {
 			return <button
 				name="format" value={this.format} class="select formatselect preselected" disabled
@@ -696,12 +725,12 @@ class TeamDropdown extends preact.Component<{ format: string }> {
 				<div class="team">
 					<strong>Random team</strong>
 					<small>
-						<span class="picon" style={Dex.getPokemonIcon(null)}></span>
-						<span class="picon" style={Dex.getPokemonIcon(null)}></span>
-						<span class="picon" style={Dex.getPokemonIcon(null)}></span>
-						<span class="picon" style={Dex.getPokemonIcon(null)}></span>
-						<span class="picon" style={Dex.getPokemonIcon(null)}></span>
-						<span class="picon" style={Dex.getPokemonIcon(null)}></span>
+						<PSIcon pokemon={null} />
+						<PSIcon pokemon={null} />
+						<PSIcon pokemon={null} />
+						<PSIcon pokemon={null} />
+						<PSIcon pokemon={null} />
+						<PSIcon pokemon={null} />
 					</small>
 				</div>
 			</button>;
@@ -721,7 +750,8 @@ class TeamDropdown extends preact.Component<{ format: string }> {
 }
 
 export class TeamForm extends preact.Component<{
-	children: preact.ComponentChildren, class?: string, format?: string, teamFormat?: string, hideFormat?: boolean,
+	children: preact.ComponentChildren,
+	class?: string, format?: string, teamFormat?: string, hideFormat?: boolean, selectType?: SelectType,
 	onSubmit: ((e: Event, format: string, team?: Team) => void) | null,
 	onValidate?: ((e: Event, format: string, team?: Team) => void) | null,
 }> {
@@ -729,22 +759,20 @@ export class TeamForm extends preact.Component<{
 	changeFormat = (ev: Event) => {
 		this.setState({ format: (ev.target as HTMLButtonElement).value });
 	};
-	submit = (ev: Event) => {
+	submit = (ev: Event, validate?: 'validate') => {
 		ev.preventDefault();
 		const format = this.state.format;
 		const teamKey = this.base!.querySelector<HTMLButtonElement>('button[name=team]')!.value;
 		const team = teamKey ? PS.teams.byKey[teamKey] : undefined;
-		this.props.onSubmit?.(ev, format, team);
+		PS.teams.loadTeam(team).then(() => {
+			(validate === 'validate' ? this.props.onValidate : this.props.onSubmit)?.(ev, format, team);
+		});
 	};
 	handleClick = (ev: Event) => {
 		let target = ev.target as HTMLButtonElement | null;
 		while (target && target !== this.base) {
 			if (target.tagName === 'BUTTON' && target.name === 'validate') {
-				ev.preventDefault();
-				const format = this.state.format;
-				const teamKey = this.base!.querySelector<HTMLButtonElement>('button[name=team]')!.value;
-				const team = teamKey ? PS.teams.byKey[teamKey] : undefined;
-				this.props.onSubmit?.(ev, format, team);
+				this.submit(ev, 'validate');
 				return;
 			}
 			target = target.parentNode as HTMLButtonElement | null;
@@ -755,7 +783,7 @@ export class TeamForm extends preact.Component<{
 			{!this.props.hideFormat && <p>
 				<label class="label">
 					Format:<br />
-					<FormatDropdown onChange={this.changeFormat} format={this.props.format} />
+					<FormatDropdown onChange={this.changeFormat} format={this.props.format} selectType={this.props.selectType} />
 				</label>
 			</p>}
 			<p>

@@ -9,7 +9,7 @@
 import preact from "../js/lib/preact";
 import { type Team } from "./client-main";
 import { PSTeambuilder } from "./panel-teamdropdown";
-import { Dex, type ModdedDex, toID, type ID } from "./battle-dex";
+import { Dex, type ModdedDex, toID, type ID, PSUtils } from "./battle-dex";
 import { DexSearch, type SearchRow, type SearchType } from "./battle-dex-search";
 import { PSSearchResults } from "./battle-searchresults";
 import { BattleNatures, BattleStatNames, type StatName } from "./battle-dex-data";
@@ -35,6 +35,13 @@ class TeamEditorState extends PSModel {
 	selectionTypeOrder: readonly SelectionType[] = [
 		'pokemon', 'ability', 'item', 'move', 'stats', 'details',
 	];
+	isLetsGo = false;
+	isNatDex = false;
+	isBDSP = false;
+	formeLegality: 'normal' | 'hackmons' | 'custom' = 'normal';
+	abilityLegality: 'normal' | 'hackmons' = 'normal';
+	defaultLevel = 100;
+	readonly = false;
 	constructor(team: Team) {
 		super();
 		this.team = team;
@@ -44,15 +51,40 @@ class TeamEditorState extends PSModel {
 	}
 	setFormat(format: string) {
 		const team = this.team;
-		this.format = toID(format);
-		team.format = this.format;
-		this.gen = this.getGen(team.format);
-		this.dex = Dex.forGen(this.gen);
-		if (team.format.includes('letsgo')) {
-			this.dex = Dex.mod('gen7letsgo' as ID);
+		const formatid = toID(format);
+		this.format = formatid;
+		team.format = formatid;
+		this.dex = Dex.forFormat(formatid);
+		this.gen = this.dex.gen;
+
+		format = toID(format).slice(4);
+		this.isLetsGo = formatid.includes('letsgo');
+		this.isNatDex = formatid.includes('nationaldex') || formatid.includes('natdex');
+		this.isBDSP = formatid.includes('bdsp');
+		if (formatid.includes('almostanyability') || formatid.includes('aaa')) {
+			this.abilityLegality = 'hackmons';
+		} else {
+			this.abilityLegality = 'normal';
 		}
-		if (team.format.includes('bdsp')) {
-			this.dex = Dex.mod('gen8bdsp' as ID);
+		if (formatid.includes('hackmons') || formatid.includes('bh')) {
+			this.formeLegality = 'hackmons';
+			this.abilityLegality = 'hackmons';
+		} else if (formatid.includes('metronome') || formatid.includes('customgame')) {
+			this.formeLegality = 'custom';
+			this.abilityLegality = 'hackmons';
+		} else {
+			this.formeLegality = 'normal';
+		}
+
+		this.defaultLevel = 100;
+		if (
+			formatid.includes('vgc') || formatid.includes('bss') || formatid.includes('ultrasinnohclassic') ||
+			formatid.includes('battlespot') || formatid.includes('battlestadium') || formatid.includes('battlefestival')
+		) {
+			this.defaultLevel = 50;
+		}
+		if (formatid.includes('lc')) {
+			this.defaultLevel = 5;
 		}
 	}
 	setSearchType(type: SearchType, i: number, value?: string) {
@@ -62,7 +94,7 @@ class TeamEditorState extends PSModel {
 		this.search.prependResults = null;
 		if (type === 'move') {
 			this.search.prependResults = this.getSearchMoves(set);
-			if (value && this.search.prependResults.some(row => row[1] === toID(value))) {
+			if (value && this.search.prependResults.some(row => row[1].split('_')[2] === toID(value))) {
 				value = '';
 			}
 		} else if (value) {
@@ -131,6 +163,14 @@ class TeamEditorState extends PSModel {
 		}
 		return this.getResultValue(result);
 	}
+	changeSpecies(set: Dex.PokemonSet, speciesName: string) {
+		const species = this.dex.species.get(speciesName);
+		if (set.item === this.getDefaultItem(set.species)) set.item = undefined;
+		if (set.name === set.species.split('-')[0]) delete set.name;
+		set.species = species.name;
+		set.ability = this.getDefaultAbility(set);
+		set.item = this.getDefaultItem(species.name) ?? set.item;
+	}
 	deleteSet(index: number) {
 		if (this.sets.length <= index) return;
 		this.deletedSet = {
@@ -172,7 +212,7 @@ class TeamEditorState extends PSModel {
 			this.searchIndex--;
 		}
 	}
-	getResultValue(result: SearchRow) {
+	getResultValue(result: SearchRow): string {
 		switch (result[0]) {
 		case 'pokemon':
 			return this.dex.species.get(result[1]).name;
@@ -190,21 +230,160 @@ class TeamEditorState extends PSModel {
 			return result[1];
 		}
 	}
-	getGen(format: ID) {
-		if (!format) return Dex.gen;
-		if (!format.startsWith('gen')) return 6;
-		return parseInt(format.charAt(3)) || Dex.gen;
+	canAdd(): boolean {
+		return this.sets.length < 6 || this.team.isBox;
 	}
-	getHPType(set: Dex.PokemonSet): ID {
+	getHPType(set: Dex.PokemonSet): Dex.TypeName {
+		if (set.hpType) return set.hpType as Dex.TypeName;
+		const hpMove = set.ivs ? null : this.getHPMove(set);
+		if (hpMove) return hpMove;
+
+		const hpTypes = [
+			'Fighting', 'Flying', 'Poison', 'Ground', 'Rock', 'Bug', 'Ghost', 'Steel', 'Fire', 'Water', 'Grass', 'Electric', 'Psychic', 'Ice', 'Dragon', 'Dark',
+		] as const;
+		if (this.gen <= 2) {
+			if (!set.ivs) return 'Dark';
+			// const hpDV = Math.floor(set.ivs.hp / 2);
+			const atkDV = Math.floor(set.ivs.atk / 2);
+			const defDV = Math.floor(set.ivs.def / 2);
+			// const speDV = Math.floor(set.ivs.spe / 2);
+			// const spcDV = Math.floor(set.ivs.spa / 2);
+			// const expectedHpDV = (atkDV % 2) * 8 + (defDV % 2) * 4 + (speDV % 2) * 2 + (spcDV % 2);
+			// if (expectedHpDV !== hpDV) {
+			// 	set.ivs.hp = expectedHpDV * 2;
+			// 	if (set.ivs.hp === 30) set.ivs.hp = 31;
+			// }
+			return hpTypes[4 * (atkDV % 4) + (defDV % 4)];
+		} else {
+			const ivs = set.ivs || this.defaultIVs(set);
+			let hpTypeX = 0;
+			let i = 1;
+			// n.b. this is not our usual order (Spe and SpD are flipped)
+			const statOrder = ['hp', 'atk', 'def', 'spe', 'spa', 'spd'] as const;
+			for (const s of statOrder) {
+				if (ivs[s] === undefined) ivs[s] = 31;
+				hpTypeX += i * (ivs[s] % 2);
+				i *= 2;
+			}
+			return hpTypes[Math.floor(hpTypeX * 15 / 63)];
+		}
+	};
+	hpTypeMatters(set: Dex.PokemonSet): boolean {
+		if (this.gen < 2) return false;
+		if (this.gen > 7) return false;
+		for (const move of set.moves) {
+			const moveid = toID(move);
+			if (moveid.startsWith('hiddenpower')) return true;
+			if (moveid === 'transform') return true;
+		}
+		if (toID(set.ability) === 'imposter') return true;
+		return false;
+	}
+	getHPMove(set: Dex.PokemonSet): Dex.TypeName | null {
 		if (set.moves) {
 			for (const move of set.moves) {
 				const moveid = toID(move);
 				if (moveid.startsWith('hiddenpower')) {
-					return moveid.slice(11) as ID;
+					return moveid.charAt(11).toUpperCase() + moveid.slice(12) as Dex.TypeName;
 				}
 			}
 		}
-		return '' as ID;
+		return null;
+	}
+	getIVs(set: Dex.PokemonSet) {
+		const ivs = this.defaultIVs(set);
+		if (set.ivs) Object.assign(ivs, set.ivs);
+		return ivs;
+	}
+	defaultIVs(set: Dex.PokemonSet, noGuess = !!set.ivs): Record<Dex.StatName, number> {
+		const useIVs = this.gen > 2;
+		const defaultIVs = { hp: 31, atk: 31, def: 31, spa: 31, spd: 31, spe: 31 };
+		if (!useIVs) {
+			for (const stat of Dex.statNames) defaultIVs[stat] = 15;
+		}
+		if (noGuess) return defaultIVs;
+
+		const hpType = this.getHPMove(set);
+		const hpModulo = (useIVs ? 2 : 4);
+		const { minAtk, minSpe } = this.prefersMinStats(set);
+		if (minAtk) defaultIVs['atk'] = 0;
+		if (minSpe) defaultIVs['spe'] = 0;
+
+		if (!useIVs) {
+			const hpDVs = hpType ? this.dex.types.get(hpType).HPdvs : null;
+			if (hpDVs) {
+				for (const stat in hpDVs) defaultIVs[stat as Dex.StatName] = hpDVs[stat as Dex.StatName]!;
+			}
+		} else {
+			const hpIVs = hpType ? this.dex.types.get(hpType).HPivs : null;
+			if (hpIVs) {
+				if (this.canHyperTrain(set)) {
+					if (minSpe) defaultIVs['spe'] = hpIVs['spe'] ?? 31;
+					if (minAtk) defaultIVs['atk'] = hpIVs['atk'] ?? 31;
+				} else {
+					for (const stat in hpIVs) defaultIVs[stat as Dex.StatName] = hpIVs[stat as Dex.StatName]!;
+				}
+			}
+		}
+
+		if (hpType) {
+			if (minSpe) defaultIVs['spe'] %= hpModulo;
+			if (minAtk) defaultIVs['atk'] %= hpModulo;
+		}
+		if (minAtk && useIVs) {
+			// min Atk
+			if (['Gouging Fire', 'Iron Boulder', 'Iron Crown', 'Raging Bolt'].includes(set.species)) {
+				// only available with 20 Atk IVs
+				defaultIVs['atk'] = 20;
+			} else if (set.species.startsWith('Terapagos')) {
+				// only available with 15 Atk IVs
+				defaultIVs['atk'] = 15;
+			}
+		}
+		return defaultIVs;
+	}
+	defaultHappiness(set: Dex.PokemonSet) {
+		if (set.moves.includes('Return')) return 255;
+		if (set.moves.includes('Frustration')) return 0;
+		return undefined;
+	}
+	prefersMinStats(set: Dex.PokemonSet) {
+		let minSpe = !set.evs?.spe && set.moves.includes('Gyro Ball');
+		let minAtk = !set.evs?.atk;
+
+		// only available through an event with 31 Spe IVs
+		if (set.species.startsWith('Terapagos')) minSpe = false;
+
+		if (this.format === 'gen7hiddentype') return { minAtk, minSpe };
+		if (this.format.includes('1v1')) return { minAtk, minSpe };
+
+		// only available through an event with 31 Atk IVs
+		if (set.ability === 'Battle Bond' || ['Koraidon', 'Miraidon'].includes(set.species)) {
+			minAtk = false;
+			return { minAtk, minSpe };
+		}
+		if (!set.moves.length) minAtk = false;
+		for (const moveName of set.moves) {
+			if (!moveName) continue;
+			const move = this.dex.moves.get(moveName);
+			if (move.id === 'transform') {
+				const hasMoveBesidesTransform = set.moves.length > 1;
+				if (!hasMoveBesidesTransform) minAtk = false;
+			} else if (
+				move.category === 'Physical' && !move.damage && !move.ohko &&
+				!['foulplay', 'endeavor', 'counter', 'bodypress', 'seismictoss', 'bide', 'metalburst', 'superfang'].includes(move.id) &&
+				!(this.gen < 8 && move.id === 'rapidspin')
+			) {
+				minAtk = false;
+			} else if (
+				['metronome', 'assist', 'copycat', 'mefirst', 'photongeyser', 'shellsidearm', 'terablast'].includes(move.id) ||
+				(this.gen === 5 && move.id === 'naturepower')
+			) {
+				minAtk = false;
+			}
+		}
+
+		return { minAtk, minSpe };
 	}
 	getNickname(set: Dex.PokemonSet) {
 		return set.name || this.dex.species.get(set.species).baseSpecies || '';
@@ -212,52 +391,49 @@ class TeamEditorState extends PSModel {
 	canHyperTrain(set: Dex.PokemonSet) {
 		let format: string = this.format;
 		if (this.gen < 7 || format === 'gen7hiddentype') return false;
-		if (!set.level || set.level === 100) return true;
-		if (format.startsWith('gen')) format = format.slice(4);
-		if (format.startsWith('battlespot') || format.startsWith('vgc') || format === 'ultrasinnohclassic') {
-			if (set.level === 50) return true;
-		}
+		if ((set.level || this.defaultLevel) === 100) return true;
+		if ((set.level || this.defaultLevel) >= 50 && this.defaultLevel === 50) return true;
 		return false;
 	}
-	getHPIVs(hpType: ID) {
+	getHPIVs(hpType: Dex.TypeName | null) {
 		switch (hpType) {
-		case 'dark':
+		case 'Dark':
 			return ['111111'];
-		case 'dragon':
+		case 'Dragon':
 			return ['011111', '101111', '110111'];
-		case 'ice':
+		case 'Ice':
 			return ['010111', '100111', '111110'];
-		case 'psychic':
+		case 'Psychic':
 			return ['011110', '101110', '110110'];
-		case 'electric':
+		case 'Electric':
 			return ['010110', '100110', '111011'];
-		case 'grass':
+		case 'Grass':
 			return ['011011', '101011', '110011'];
-		case 'water':
+		case 'Water':
 			return ['100011', '111010'];
-		case 'fire':
+		case 'Fire':
 			return ['101010', '110010'];
-		case 'steel':
+		case 'Steel':
 			return ['100010', '111101'];
-		case 'ghost':
+		case 'Ghost':
 			return ['101101', '110101'];
-		case 'bug':
+		case 'Bug':
 			return ['100101', '111100', '101100'];
-		case 'rock':
+		case 'Rock':
 			return ['001100', '110100', '100100'];
-		case 'ground':
+		case 'Ground':
 			return ['000100', '111001', '101001'];
-		case 'poison':
+		case 'Poison':
 			return ['001001', '110001', '100001'];
-		case 'flying':
+		case 'Flying':
 			return ['000001', '111000', '101000'];
-		case 'fighting':
+		case 'Fighting':
 			return ['001000', '110000', '100000'];
 		default:
 			return null;
 		}
 	}
-	getStat(stat: StatName, set: Dex.PokemonSet, evOverride?: number, natureOverride?: number) {
+	getStat(stat: StatName, set: Dex.PokemonSet, ivOverride: number, evOverride?: number, natureOverride?: number) {
 		const team = this.team;
 
 		const supportsEVs = !team.format.includes('letsgo');
@@ -268,11 +444,10 @@ class TeamEditorState extends PSModel {
 		const species = this.dex.species.get(set.species);
 		if (!species.exists) return 0;
 
-		const level = set.level || 100;
+		const level = set.level || this.defaultLevel;
 
 		const baseStat = species.baseStats[stat];
-		let iv = set.ivs?.[stat] ?? 31;
-		if (this.gen <= 2) iv &= 30;
+		const iv = ivOverride;
 		const ev = evOverride ?? set.evs?.[stat] ?? (this.gen > 2 ? 0 : 252);
 
 		if (stat === 'hp') {
@@ -298,11 +473,113 @@ class TeamEditorState extends PSModel {
 		return Math.trunc(val);
 	}
 	export(compat?: boolean) {
-		return PSTeambuilder.exportTeam(this.sets, this.dex, compat);
+		return PSTeambuilder.exportTeam(this.sets, this.dex, !compat);
 	}
 	import(value: string) {
 		this.sets = PSTeambuilder.importTeam(value);
 		this.save();
+	}
+	getTypeWeakness(type: Dex.TypeName, attackType: Dex.TypeName): 0 | 0.5 | 1 | 2 {
+		const weaknessType = this.dex.types.get(type).damageTaken?.[attackType];
+		if (weaknessType === Dex.IMMUNE) return 0;
+		if (weaknessType === Dex.RESIST) return 0.5;
+		if (weaknessType === Dex.WEAK) return 2;
+		return 1;
+	}
+	getWeakness(types: readonly Dex.TypeName[], abilityid: ID, attackType: Dex.TypeName): number {
+		if (attackType === 'Ground' && abilityid === 'levitate') return 0;
+		if (attackType === 'Water' && abilityid === 'dryskin') return 0;
+		if (attackType === 'Fire' && abilityid === 'flashfire') return 0;
+		if (attackType === 'Electric' && abilityid === 'lightningrod' && this.gen >= 5) return 0;
+		if (attackType === 'Grass' && abilityid === 'sapsipper') return 0;
+		if (attackType === 'Electric' && abilityid === 'motordrive') return 0;
+		if (attackType === 'Water' && abilityid === 'stormdrain' && this.gen >= 5) return 0;
+		if (attackType === 'Electric' && abilityid === 'voltabsorb') return 0;
+		if (attackType === 'Water' && abilityid === 'waterabsorb') return 0;
+		if (attackType === 'Ground' && abilityid === 'eartheater') return 0;
+		if (attackType === 'Fire' && abilityid === 'wellbakedbody') return 0;
+
+		if (abilityid === 'wonderguard') {
+			for (const type of types) {
+				if (this.getTypeWeakness(type, attackType) <= 1) return 0;
+			}
+		}
+
+		let factor = 1;
+		for (const type of types) {
+			factor *= this.getTypeWeakness(type, attackType);
+		}
+		return factor;
+	}
+	pokemonDefensiveCoverage(set: Dex.PokemonSet) {
+		const coverage: Record<string, number> = {};
+		const species = this.dex.species.get(set.species);
+		const abilityid = toID(set.ability);
+		for (const type of this.dex.types.names()) {
+			coverage[type] = this.getWeakness(species.types, abilityid, type);
+		}
+		return coverage as Record<Dex.TypeName, number>;
+	}
+	teamDefensiveCoverage() {
+		type Counter = { type: Dex.TypeName, resists: number, neutrals: number, weaknesses: number };
+		const counters: Record<Dex.TypeName, Counter> = {} as any;
+		for (const type of this.dex.types.names()) {
+			counters[type] = {
+				type,
+				resists: 0,
+				neutrals: 0,
+				weaknesses: 0,
+			};
+		}
+		for (const set of this.sets) {
+			const coverage = this.pokemonDefensiveCoverage(set);
+			for (const [type, value] of Object.entries(coverage) as [Dex.TypeName, number][]) {
+				if (value < 1) {
+					counters[type].resists++;
+				} else if (value === 1) {
+					counters[type].neutrals++;
+				} else {
+					counters[type].weaknesses++;
+				}
+			}
+		}
+		return counters;
+	}
+	getDefaultAbility(set: Dex.PokemonSet) {
+		if (this.gen < 3 || this.isLetsGo || this.formeLegality === 'custom') return set.ability;
+		const species = this.dex.species.get(set.species);
+		if (this.formeLegality === 'hackmons') {
+			// TODO: support gen 9 hackmons forme legality more completely than this
+			if (this.gen < 9 || species.baseSpecies !== 'Xerneas') return set.ability;
+			// falls through to final return statement
+		} else if (this.abilityLegality === 'hackmons') {
+			if (!species.battleOnly) return set.ability;
+			if (species.requiredItems.length || species.baseSpecies === 'Meloetta') return set.ability;
+			// battle only species only ever have one ability
+			// if they don't have a required item and aren't Meloetta, they change formes with that ability
+			// so it's forced, even in AAA
+			return species.abilities[0];
+		}
+		const abilities = Object.values(species.abilities);
+		if (abilities.length === 1) return abilities[0];
+		if (set.ability && abilities.includes(set.ability)) return set.ability;
+		return undefined;
+	}
+	getDefaultItem(speciesName: string) {
+		const species = this.dex.species.get(speciesName);
+		let items = species.requiredItems;
+		if (this.gen !== 7 && !this.isNatDex) {
+			// Require plates on Arceus when Z crystals don't exist
+			items = items.filter(i => !i.endsWith('ium Z'));
+		}
+		if (items.length === 1) {
+			if (this.formeLegality === 'normal' ||
+				this.formeLegality === 'hackmons' && this.gen === 9 && species.battleOnly &&
+				!species.isMega && !species.isPrimal && species.name !== 'Necrozma-Ultra') {
+				return items[0];
+			}
+		}
+		return undefined;
 	}
 	save() {
 		this.team.packedTeam = PSTeambuilder.packTeam(this.sets);
@@ -310,7 +587,10 @@ class TeamEditorState extends PSModel {
 	}
 }
 
-export class TeamEditor extends preact.Component<{ team: Team, narrow?: boolean, onChange?: () => void }> {
+export class TeamEditor extends preact.Component<{
+	team: Team, narrow?: boolean, onChange?: () => void, readonly?: boolean,
+	children?: preact.ComponentChildren,
+}> {
 	buttons = true;
 	editor!: TeamEditorState;
 	setButtons = (ev: Event) => {
@@ -333,8 +613,44 @@ export class TeamEditor extends preact.Component<{ team: Team, narrow?: boolean,
 	static probablyMobile() {
 		return document.body.offsetWidth < 500;
 	}
+	renderDefensiveCoverage() {
+		const { editor } = this;
+		if (editor.team.isBox) return null;
+		if (!editor.sets.length) return null;
+
+		const counters = Object.values(editor.teamDefensiveCoverage());
+		PSUtils.sortBy(counters, counter => [counter.resists, -counter.weaknesses]);
+		const good = [], medium = [], bad = [];
+		const renderTypeDefensive = (counter: typeof counters[number]) => (
+			<tr>
+				<th>{counter.type}</th>
+				<td>{counter.resists} <small class="gray">resist</small></td>
+				<td>{counter.weaknesses} <small class="gray">weak</small></td>
+			</tr>
+		);
+		for (const counter of counters) {
+			if (counter.resists > 0) {
+				good.push(renderTypeDefensive(counter));
+			} else if (counter.weaknesses <= 0) {
+				medium.push(renderTypeDefensive(counter));
+			} else {
+				bad.push(renderTypeDefensive(counter));
+			}
+		}
+		return <details class="details">
+			<summary>
+				<strong>Defensive coverage</strong>
+				<table class="details-preview table">
+					{bad}
+					<tr><td colSpan={3}><span class="details-preview ilink"><small>See all</small></span></td></tr>
+				</table>
+			</summary>
+			<table class="table">{bad}{medium}{good}</table>
+		</details>;
+	}
 	override render() {
 		this.editor ||= new TeamEditorState(this.props.team);
+		this.editor.readonly = !!this.props.readonly;
 		this.editor.narrow = this.props.narrow ?? document.body.offsetWidth < 500;
 		if (this.props.team.format !== this.editor.format) {
 			this.editor.setFormat(this.props.team.format);
@@ -354,6 +670,11 @@ export class TeamEditor extends preact.Component<{ team: Team, narrow?: boolean,
 			) : (
 				<TeamTextbox editor={this.editor} onChange={this.props.onChange} />
 			)}
+			{this.props.children}
+			<div class="team-resources">
+				<br /><hr /><br />
+				{this.renderDefensiveCoverage()}
+			</div>
 		</div>;
 	}
 }
@@ -395,19 +716,27 @@ class TeamTextbox extends preact.Component<{ editor: TeamEditorState, onChange?:
 	}
 	input = () => this.updateText();
 	keyUp = () => this.updateText(true);
-	click = (ev: MouseEvent | KeyboardEvent) => {
-		if (ev.altKey || ev.ctrlKey || ev.metaKey) return;
+	contextMenu = (ev: MouseEvent) => {
+		if (!ev.shiftKey) {
+			if (this.closeMenu() || this.openInnerFocus()) {
+				ev.preventDefault();
+				ev.stopImmediatePropagation();
+			}
+		}
+	};
+	openInnerFocus() {
 		const oldRange = this.selection?.lineRange;
 		this.updateText(true, true);
 		if (this.selection) {
 			// this shouldn't actually update anything, so the reference comparison is enough
-			if (this.selection.lineRange === oldRange) return;
+			if (this.selection.lineRange === oldRange) return !!this.innerFocus;
 			if (this.textbox.selectionStart === this.textbox.selectionEnd) {
 				const range = this.getSelectionTypeRange();
 				if (range) this.textbox.setSelectionRange(range[0], range[1]);
 			}
 		}
-	};
+		return !!this.innerFocus;
+	}
 	keyDown = (ev: KeyboardEvent) => {
 		const editor = this.editor;
 		switch (ev.keyCode) {
@@ -455,6 +784,7 @@ class TeamTextbox extends preact.Component<{ editor: TeamEditorState, onChange?:
 		case 9: // tab
 		case 13: // enter
 			if (ev.keyCode === 13 && ev.shiftKey) return;
+			if (ev.altKey || ev.metaKey) return;
 			if (!this.innerFocus) {
 				if (
 					this.textbox.selectionStart === this.textbox.value.length &&
@@ -462,7 +792,7 @@ class TeamTextbox extends preact.Component<{ editor: TeamEditorState, onChange?:
 				) {
 					this.addPokemon();
 				} else {
-					this.click(ev);
+					this.openInnerFocus();
 				}
 				ev.stopImmediatePropagation();
 				ev.preventDefault();
@@ -663,6 +993,7 @@ class TeamTextbox extends preact.Component<{ editor: TeamEditorState, onChange?:
 	engageFocus(focus?: this['innerFocus']) {
 		if (this.innerFocus) return;
 		const editor = this.editor;
+		if (editor.readonly) return;
 
 		if (!focus) {
 			if (!this.selection?.type) return;
@@ -789,7 +1120,7 @@ class TeamTextbox extends preact.Component<{ editor: TeamEditorState, onChange?:
 		const focus = this.innerFocus;
 		if (!focus) return;
 
-		if (type === focus.type && (this.editor.sets[focus.setIndex] || !name)) {
+		if (type === focus.type && type !== 'pokemon') {
 			this.replace(name, focus.range[0], focus.range[1]);
 			this.updateText(false, true);
 			return;
@@ -797,14 +1128,11 @@ class TeamTextbox extends preact.Component<{ editor: TeamEditorState, onChange?:
 
 		switch (type) {
 		case 'pokemon': {
-			const species = this.editor.dex.species.get(name);
-			const abilities = Object.values(species.abilities);
-			this.editor.sets[focus.setIndex] ||= {
-				ability: abilities.length === 1 ? abilities[0] : undefined,
+			const set = this.editor.sets[focus.setIndex] ||= {
 				species: '',
 				moves: [],
 			};
-			this.editor.sets[focus.setIndex].species = name;
+			this.editor.changeSpecies(set, name);
 			this.replaceSet(focus.setIndex);
 			this.updateText(false, true);
 			break;
@@ -818,8 +1146,14 @@ class TeamTextbox extends preact.Component<{ editor: TeamEditorState, onChange?:
 		}
 	}
 	getSetRange(index: number) {
-		const start = this.setInfo[index]?.index ?? this.textbox.value.length;
-		const end = this.setInfo[index + 1]?.index ?? this.textbox.value.length;
+		if (!this.setInfo[index]) {
+			if (this.innerFocus?.setIndex === index) {
+				return this.innerFocus.range;
+			}
+			return [this.textbox.value.length, this.textbox.value.length];
+		}
+		const start = this.setInfo[index].index;
+		const end = this.setInfo[index + 1].index;
 		return [start, end];
 	}
 	changeCompat = (ev: Event) => {
@@ -836,7 +1170,7 @@ class TeamTextbox extends preact.Component<{ editor: TeamEditorState, onChange?:
 		const { team } = editor;
 		if (!team) return;
 
-		let newText = PSTeambuilder.exportSet(editor.sets[index], editor.dex, this.compat);
+		let newText = PSTeambuilder.exportSet(editor.sets[index], editor.dex, !this.compat);
 		const [start, end] = this.getSetRange(index);
 		if (start && start === this.textbox.value.length && !this.textbox.value.endsWith('\n\n')) {
 			newText = (this.textbox.value.endsWith('\n') ? '\n' : '\n\n') + newText;
@@ -898,15 +1232,14 @@ class TeamTextbox extends preact.Component<{ editor: TeamEditorState, onChange?:
 			this.forceUpdate();
 			return;
 		}
-		this.innerFocus = {
+		this.engageFocus({
 			offsetY: null,
 			setIndex: i,
 			type: target.name as SelectionType,
 			typeIndex: 0,
 			range: [0, 0],
 			rangeEndChar: '',
-		};
-		this.forceUpdate();
+		});
 	};
 	addPokemon = () => {
 		if (!this.textbox.value.endsWith('\n\n')) {
@@ -956,17 +1289,24 @@ class TeamTextbox extends preact.Component<{ editor: TeamEditorState, onChange?:
 
 		return <button class="textbox setdetails" name="details" value={i} onClick={this.clickDetails}>
 			<span class="detailcell">
-				<label>Level</label>{set.level || 100}
+				<label>Level</label>{set.level || editor.defaultLevel}
 			</span>
 			<span class="detailcell">
 				<label>Shiny</label>{set.shiny ? 'Yes' : 'No'}
 			</span>
-			{editor.gen < 9 && <span class="detailcell">
-				<label>Gender</label>{gender}
-			</span>}
-			{editor.gen === 9 && <span class="detailcell">
-				<label>Tera</label>{TeamEditor.renderTypeIcon(set.teraType || species.forceTeraType || species.types[0])}
-			</span>}
+			{editor.gen === 9 ? (
+				<span class="detailcell">
+					<label>Tera</label>{TeamEditor.renderTypeIcon(set.teraType || species.requiredTeraType || species.types[0])}
+				</span>
+			) : editor.hpTypeMatters(set) ? (
+				<span class="detailcell">
+					<label>H. Power</label>{TeamEditor.renderTypeIcon(editor.getHPType(set))}
+				</span>
+			) : (
+				<span class="detailcell">
+					<label>Gender</label>{gender}
+				</span>
+			)}
 		</button>;
 	}
 
@@ -987,96 +1327,113 @@ class TeamTextbox extends preact.Component<{ editor: TeamEditorState, onChange?:
 	bottomY() {
 		return this.setInfo[this.setInfo.length - 1]?.bottomY ?? 8;
 	}
+	copyAll = (ev: Event) => {
+		this.textbox.select();
+		document.execCommand('copy');
+		const button = ev?.currentTarget as HTMLButtonElement;
+		if (button) {
+			button.innerHTML = '<i class="fa fa-check"></i> Copied';
+			button.className += ' cur';
+		}
+	};
 	render() {
 		const editor = this.props.editor;
 		const statsDetailsOffset = editor.gen >= 3 ? 18 : -1;
-		return <div class="teameditor-text">
-			<textarea
-				class="textbox teamtextbox" style={`padding-left:${editor.narrow ? '50px' : '100px'}`}
-				onInput={this.input} onClick={this.click} onKeyUp={this.keyUp} onKeyDown={this.keyDown}
-			/>
-			<textarea
-				class="textbox teamtextbox heighttester" tabIndex={-1} aria-hidden
-				style={`padding-left:${editor.narrow ? '50px' : '100px'};visibility:hidden;left:-15px`}
-			/>
-			<div class="teamoverlays">
-				{this.setInfo.slice(0, -1).map(info =>
-					<hr style={`top:${info.bottomY - 18}px;pointer-events:none`} />
-				)}
-				{this.setInfo.length < 6 && !!this.setInfo.length && <hr style={`top:${this.bottomY() - 18}px`} />}
-				{this.setInfo.map((info, i) => {
-					if (!info.species) return null;
-					const set = editor.sets[i];
-					const prevOffset = i === 0 ? 8 : this.setInfo[i - 1].bottomY;
-					const species = editor.dex.species.get(info.species);
-					const num = Dex.getPokemonIconNum(species.id);
-					if (!num) return null;
-
-					const top = Math.floor(num / 12) * 30;
-					const left = (num % 12) * 40;
-					const iconStyle = `background:transparent url(${Dex.resourcePrefix}sprites/pokemonicons-sheet.png) no-repeat scroll -${left}px -${top}px`;
-
-					const itemStyle = set.item && Dex.getItemIcon(editor.dex.items.get(set.item));
-
-					if (editor.narrow) {
-						return <div style={`top:${prevOffset + 1}px;left:5px;position:absolute;text-align:center;pointer-events:none`}>
-							<div><span class="picon" style={iconStyle}></span></div>
-							{species.types.map(type => <div>{TeamEditor.renderTypeIcon(type)}</div>)}
-							<div><span class="itemicon" style={itemStyle}></span></div>
-						</div>;
-					}
-					return [<div
-						style={
-							`top:${prevOffset - 7}px;left:0;position:absolute;text-align:right;` +
-							`width:94px;padding:103px 5px 0 0;min-height:24px;pointer-events:none;` +
-							Dex.getTeambuilderSprite(set, editor.gen)
-						}
-					>
-						<div>{species.types.map(type => TeamEditor.renderTypeIcon(type))}<span class="itemicon" style={itemStyle}></span></div>
-					</div>, <div style={`top:${prevOffset + statsDetailsOffset}px;right:9px;position:absolute`}>
-						{this.renderStats(set, i)}
-					</div>, <div style={`top:${prevOffset + statsDetailsOffset}px;right:145px;position:absolute`}>
-						{this.renderDetails(set, i)}
-					</div>];
-				})}
-				{this.setInfo.length < 6 && !(this.innerFocus && this.innerFocus.setIndex >= this.setInfo.length) && (
-					<div style={`top:${this.bottomY() - 3}px;left:${editor.narrow ? 55 : 105}px;position:absolute`}>
-						<button class="button" onClick={this.addPokemon}>
-							<i class="fa fa-plus" aria-hidden></i> Add Pok&eacute;mon
-						</button>
-					</div>
-				)}
-				{this.innerFocus?.offsetY != null && (
-					<div
-						class={`teaminnertextbox teaminnertextbox-${this.innerFocus.type}`}
-						style={`top:${this.innerFocus.offsetY - 21}px;left:${editor.narrow ? 46 : 96}px;`}
-					></div>
-				)}
-			</div>
+		return <div>
 			<p>
-				<label class="checkbox"><input type="checkbox" name="compat" onChange={this.changeCompat} /> Old export format</label>
+				<button class="button" onClick={this.copyAll}>
+					<i class="fa fa-copy" aria-hidden></i> Copy
+				</button> {}
+				<label class="checkbox inline">
+					<input type="checkbox" name="compat" onChange={this.changeCompat} /> Old export format
+				</label>
 			</p>
-			{this.innerFocus && (
-				<div
-					class="searchresults"
-					style={`top:${(this.setInfo[this.innerFocus.setIndex]?.bottomY ?? this.bottomY() + 50) - 12}px`}
-					onScroll={this.scrollResults}
-				>
-					<button class="button closesearch" onClick={this.closeMenu}>
-						{!editor.narrow && <kbd>Esc</kbd>} <i class="fa fa-times" aria-hidden></i> Close
-					</button>
-					{this.innerFocus.type === 'stats' ? (
-						<StatForm editor={editor} set={this.editor.sets[this.innerFocus.setIndex]} onChange={this.handleSetChange} />
-					) : this.innerFocus.type === 'details' ? (
-						<DetailsForm editor={editor} set={this.editor.sets[this.innerFocus.setIndex]} onChange={this.handleSetChange} />
-					) : (
-						<PSSearchResults
-							search={editor.search} resultIndex={editor.searchIndex}
-							windowing={this.windowResults()} onSelect={this.selectResult}
-						/>
+			<div class="teameditor-text">
+				<textarea
+					class="textbox teamtextbox" style={`padding-left:${editor.narrow ? '50px' : '100px'}`}
+					onInput={this.input} onContextMenu={this.contextMenu} onKeyUp={this.keyUp} onKeyDown={this.keyDown}
+					readOnly={editor.readonly}
+				/>
+				<textarea
+					class="textbox teamtextbox heighttester" tabIndex={-1} aria-hidden
+					style={`padding-left:${editor.narrow ? '50px' : '100px'};visibility:hidden;left:-15px`}
+				/>
+				<div class="teamoverlays">
+					{this.setInfo.slice(0, -1).map(info =>
+						<hr style={`top:${info.bottomY - 18}px;pointer-events:none`} />
+					)}
+					{editor.canAdd() && !!this.setInfo.length && <hr style={`top:${this.bottomY() - 18}px`} />}
+					{this.setInfo.map((info, i) => {
+						if (!info.species) return null;
+						const set = editor.sets[i];
+						const prevOffset = i === 0 ? 8 : this.setInfo[i - 1].bottomY;
+						const species = editor.dex.species.get(info.species);
+						const num = Dex.getPokemonIconNum(species.id);
+						if (!num) return null;
+
+						const top = Math.floor(num / 12) * 30;
+						const left = (num % 12) * 40;
+						const iconStyle = `background:transparent url(${Dex.resourcePrefix}sprites/pokemonicons-sheet.png) no-repeat scroll -${left}px -${top}px`;
+
+						const itemStyle = set.item && Dex.getItemIcon(editor.dex.items.get(set.item));
+
+						if (editor.narrow) {
+							return <div style={`top:${prevOffset + 1}px;left:5px;position:absolute;text-align:center;pointer-events:none`}>
+								<div><span class="picon" style={iconStyle}></span></div>
+								{species.types.map(type => <div>{TeamEditor.renderTypeIcon(type)}</div>)}
+								<div><span class="itemicon" style={itemStyle}></span></div>
+							</div>;
+						}
+						return [<div
+							style={
+								`top:${prevOffset - 7}px;left:0;position:absolute;text-align:right;` +
+								`width:94px;padding:103px 5px 0 0;min-height:24px;pointer-events:none;` +
+								Dex.getTeambuilderSprite(set, editor.gen)
+							}
+						>
+							<div>{species.types.map(type => TeamEditor.renderTypeIcon(type))}<span class="itemicon" style={itemStyle}></span></div>
+						</div>, <div style={`top:${prevOffset + statsDetailsOffset}px;right:9px;position:absolute`}>
+							{this.renderStats(set, i)}
+						</div>, <div style={`top:${prevOffset + statsDetailsOffset}px;right:145px;position:absolute`}>
+							{this.renderDetails(set, i)}
+						</div>];
+					})}
+					{editor.canAdd() && !(this.innerFocus && this.innerFocus.setIndex >= this.setInfo.length) && (
+						<div style={`top:${this.bottomY() - 3}px;left:${editor.narrow ? 55 : 105}px;position:absolute`}>
+							<button class="button" onClick={this.addPokemon}>
+								<i class="fa fa-plus" aria-hidden></i> Add Pok&eacute;mon
+							</button>
+						</div>
+					)}
+					{this.innerFocus?.offsetY != null && (
+						<div
+							class={`teaminnertextbox teaminnertextbox-${this.innerFocus.type}`}
+							style={`top:${this.innerFocus.offsetY - 21}px;left:${editor.narrow ? 46 : 96}px;`}
+						></div>
 					)}
 				</div>
-			)}
+				{this.innerFocus && (
+					<div
+						class="searchresults"
+						style={`top:${(this.setInfo[this.innerFocus.setIndex]?.bottomY ?? this.bottomY() + 50) - 12}px`}
+						onScroll={this.scrollResults}
+					>
+						<button class="button closesearch" onClick={this.closeMenu}>
+							{!editor.narrow && <kbd>Esc</kbd>} <i class="fa fa-times" aria-hidden></i> Close
+						</button>
+						{this.innerFocus.type === 'stats' ? (
+							<StatForm editor={editor} set={this.editor.sets[this.innerFocus.setIndex]} onChange={this.handleSetChange} />
+						) : this.innerFocus.type === 'details' ? (
+							<DetailsForm editor={editor} set={this.editor.sets[this.innerFocus.setIndex]} onChange={this.handleSetChange} />
+						) : (
+							<PSSearchResults
+								search={editor.search} resultIndex={editor.searchIndex}
+								windowing={this.windowResults()} onSelect={this.selectResult}
+							/>
+						)}
+					</div>
+				)}
+			</div>
 		</div>;
 	}
 }
@@ -1092,6 +1449,7 @@ class TeamWizard extends preact.Component<{
 	setSearchBox: string | null = null;
 	windowing = true;
 	setFocus = (ev: Event) => {
+		if (this.props.editor.readonly) return;
 		const target = ev.currentTarget as HTMLButtonElement;
 		const [rawType, i] = target.value.split('|');
 		const setIndex = parseInt(i);
@@ -1110,12 +1468,25 @@ class TeamWizard extends preact.Component<{
 		const i = parseInt(target.value);
 		const editor = this.props.editor;
 		editor.deleteSet(i);
+		if (this.innerFocus) {
+			this.changeFocus({
+				setIndex: editor.sets.length,
+				type: 'pokemon',
+			});
+		}
 		this.handleSetChange();
 		ev.preventDefault();
 	};
 	undeleteSet = (ev: Event) => {
 		const editor = this.props.editor;
+		const setIndex = editor.deletedSet?.index;
 		editor.undeleteSet();
+		if (this.innerFocus && setIndex !== undefined) {
+			this.changeFocus({
+				setIndex,
+				type: 'pokemon',
+			});
+		}
 		this.handleSetChange();
 		ev.preventDefault();
 	};
@@ -1142,17 +1513,21 @@ class TeamWizard extends preact.Component<{
 		this.forceUpdate();
 	}
 	renderButton(set: Dex.PokemonSet | undefined, i: number) {
-		const sprite = Dex.getTeambuilderSprite(set, this.props.editor.gen);
-		const cur = (t: SelectionType) => this.innerFocus?.type === t && this.innerFocus.setIndex === i ? ' cur' : '';
+		const editor = this.props.editor;
+		const sprite = Dex.getTeambuilderSprite(set, editor.gen);
 		if (!set) {
 			return <div class="set-button">
 				<div style="text-align:right">
-					<button class="option" style="visibility:hidden"><i class="fa fa-trash" aria-hidden></i> Delete</button>
+					{editor.deletedSet ? (
+						<button onClick={this.undeleteSet} class="option"><i class="fa fa-undo" aria-hidden></i> Undo delete</button>
+					) : (
+						<button class="option" style="visibility:hidden"><i class="fa fa-trash" aria-hidden></i> Delete</button>
+					)}
 				</div>
 				<table>
 					<tr>
 						<td rowSpan={2} class="set-pokemon"><div class="border-collapse">
-							<button class={`button button-first${cur('pokemon')}`} onClick={this.setFocus} value={`pokemon|${i}`}>
+							<button class="button button-first cur" onClick={this.setFocus} value={`pokemon|${i}`}>
 								<span class="sprite" style={sprite}><span class="sprite-inner">
 									<strong class="label">Pokemon</strong> {}
 									<em>(choose species)</em>
@@ -1171,12 +1546,17 @@ class TeamWizard extends preact.Component<{
 			</div>;
 		}
 		while (set.moves.length < 4) set.moves.push('');
+		const overfull = set.moves.length > 4 ? ' overfull' : '';
 
-		const editor = this.props.editor;
+		const cur = (t: SelectionType) => (
+			editor.readonly || (this.innerFocus?.type === t && this.innerFocus.setIndex === i) ? ' cur' : ''
+		);
 		const species = editor.dex.species.get(set.species);
 		return <div class="set-button">
 			<div style="text-align:right">
-				<button class="option" onClick={this.deleteSet} value={i}><i class="fa fa-trash" aria-hidden></i> Delete</button>
+				<button class="option" onClick={this.deleteSet} value={i} style={editor.readonly ? "visibility:hidden" : ""}>
+					<i class="fa fa-trash" aria-hidden></i> Delete
+				</button>
 			</div>
 			<table>
 				<tr>
@@ -1196,24 +1576,34 @@ class TeamWizard extends preact.Component<{
 							</span>
 							<span class="detailcell">
 								<strong class="label">Level</strong> {}
-								{set.level || 100}
-								{editor.narrow && set.shiny && <><br /><b>Shiny</b></>}
+								{set.level || editor.defaultLevel}
+								{editor.narrow && set.shiny && <><br /><img src="/sprites/misc/shiny.png" width={22} height={22} alt="Shiny" /></>}
+								{!editor.narrow && set.gender && set.gender !== 'N' && <>
+									<br /><img
+										src={`/fx/gender-${set.gender.toLowerCase()}.png`} alt={set.gender} width="7" height="10" class="pixelated"
+									/>
+								</>}
 							</span>
 							{!editor.narrow && <span class="detailcell">
 								<strong class="label">Shiny</strong> {}
-								{set.shiny ? 'Yes' : 'No'}
+								{set.shiny ? <img src="/sprites/misc/shiny.png" width={22} height={22} alt="Yes" /> : '\u2014'}
 							</span>}
 							{editor.gen === 9 && <span class="detailcell">
 								<strong class="label">Tera</strong> {}
-								{TeamEditor.renderTypeIcon(set.teraType || species.forceTeraType || species.types[0])}
+								{TeamEditor.renderTypeIcon(set.teraType || species.requiredTeraType || species.types[0])}
+							</span>}
+							{editor.hpTypeMatters(set) && <span class="detailcell">
+								<strong class="label">H.P.</strong> {}
+								{TeamEditor.renderTypeIcon(editor.getHPType(set))}
 							</span>}
 						</button>
 					</div></td>
 					<td rowSpan={2} class="set-moves"><div class="border-collapse">
-						<button class={`button button-middle${cur('move')}`} onClick={this.setFocus} value={`move|${i}`}>
+						<button class={`button button-middle${cur('move')}${overfull}`} onClick={this.setFocus} value={`move|${i}`}>
 							<strong class="label">Moves</strong> {}
-							{set.moves.map(move => <div>
-								{!editor.narrow && <small class="gray">&bull;</small>}{move || (editor.narrow && '-')}
+							{set.moves.map((move, mi) => <div>
+								{!editor.narrow && <small class="gray">&bull;</small>}
+								{mi >= 4 ? <span class="message-error">{move || (editor.narrow && '-') || ''}</span> : move || (editor.narrow && '-')}
 							</div>)}
 							{!set.moves.length && <em>(no moves)</em>}
 						</button>
@@ -1228,7 +1618,7 @@ class TeamWizard extends preact.Component<{
 					<td class="set-ability"><div class="border-collapse">
 						<button class={`button button-middle${cur('ability')}`} onClick={this.setFocus} value={`ability|${i}`}>
 							<strong class="label">Ability</strong> {}
-							{set.ability || <em>(no ability)</em>}
+							{set.ability || (editor.gen >= 3 ? <em>(choose ability)</em> : <em>(no ability)</em>)}
 						</button>
 					</div></td>
 					<td class="set-item"><div class="border-collapse">
@@ -1270,7 +1660,7 @@ class TeamWizard extends preact.Component<{
 			const set = (editor.sets[setIndex] ||= { species: '', moves: [] });
 			switch (type) {
 			case 'pokemon':
-				set.species = name;
+				editor.changeSpecies(set, name);
 				this.changeFocus({
 					setIndex,
 					type: reverse ? 'details' : 'ability',
@@ -1294,9 +1684,18 @@ class TeamWizard extends preact.Component<{
 				if (slot) {
 					// intentional; we're _removing_ from the slot
 					const i = parseInt(slot) - 1;
-					if (set.moves[i]) set.moves[i] = '';
-					if (i === set.moves.length - 1) {
-						while (!set.moves[set.moves.length - 1]) set.moves.pop();
+					if (set.moves[i]) {
+						set.moves[i] = '';
+						// remove empty slots at the end
+						if (i === set.moves.length - 1) {
+							while (set.moves.length > 4 && !set.moves[set.moves.length - 1]) {
+								set.moves.pop();
+							}
+						}
+						// if we have more than 4 moves, move the last move into the newly-cleared slot
+						if (set.moves.length > 4 && i < set.moves.length - 1) {
+							set.moves[i] = set.moves.pop()!;
+						}
 					}
 				} else if (set.moves.includes(name)) {
 					set.moves.splice(set.moves.indexOf(name), 1);
@@ -1471,7 +1870,7 @@ class TeamWizard extends preact.Component<{
 					<span class="picon" style={Dex.getPokemonIcon(curSet)}></span><br />
 					{editor.getNickname(curSet)}
 				</button></li>)}
-				{editor.sets.length < 6 && <li><button
+				{editor.canAdd() && <li><button
 					class={`button picontab${cur(editor.sets.length)}`} onClick={this.setFocus} value={`pokemon|${editor.sets.length}`}
 				>
 					<i class="fa fa-plus"></i>
@@ -1514,7 +1913,7 @@ class TeamWizard extends preact.Component<{
 				this.renderButton(set, i),
 			])}
 			{deletedSet(editor.sets.length)}
-			{editor.sets.length < 6 && <p><button class="button" onClick={this.setFocus} value={`pokemon|${editor.sets.length}`}>
+			{editor.canAdd() && <p><button class="button big" onClick={this.setFocus} value={`pokemon|${editor.sets.length}`}>
 				<i class="fa fa-plus" aria-hidden></i> Add Pok&eacute;mon
 			</button></p>}
 		</div>;
@@ -1529,17 +1928,19 @@ class StatForm extends preact.Component<{
 	static renderStatGraph(set: Dex.PokemonSet, editor: TeamEditorState, evs?: boolean) {
 		// const supportsEVs = !team.format.includes('letsgo');
 		const defaultEV = (editor.gen > 2 ? 0 : 252);
+		const ivs = editor.getIVs(set);
 		return Dex.statNames.map(statID => {
 			if (statID === 'spd' && editor.gen === 1) return null;
 
-			const stat = editor.getStat(statID, set);
-			const ev = set.evs?.[statID] ?? defaultEV;
+			const stat = editor.getStat(statID, set, ivs[statID]);
+			let ev: number | string = set.evs?.[statID] ?? defaultEV;
 			let width = stat * 75 / 504;
 			if (statID === 'hp') width = stat * 75 / 704;
 			if (width > 75) width = 75;
 			let hue = Math.floor(stat * 180 / 714);
 			if (hue > 360) hue = 360;
 			const statName = editor.gen === 1 && statID === 'spa' ? 'Spc' : BattleStatNames[statID];
+			if (evs && !ev && !set.evs && statID === 'hp') ev = 'EVs';
 			return <span class="statrow">
 				<label>{statName}</label> {}
 				<span class="statgraph">
@@ -1559,11 +1960,14 @@ class StatForm extends preact.Component<{
 		const { editor, set } = this.props;
 		if (editor.gen <= 2) return null;
 
-		const hpType = editor.getHPType(set);
+		const hpType = editor.getHPMove(set);
 		const hpIVdata = hpType && !editor.canHyperTrain(set) && editor.getHPIVs(hpType) || null;
+		const autoSpread = set.ivs && editor.defaultIVs(set, false);
+		const autoSpreadValue = autoSpread && Object.values(autoSpread).join('/');
 		if (!hpIVdata) {
 			return <select name="ivspread" class="button" onChange={this.changeIVSpread}>
 				<option value="" selected>IV spreads</option>
+				{autoSpreadValue && <option value="auto">Auto ({autoSpreadValue})</option>}
 				<optgroup label="min Atk">
 					<option value="31/0/31/31/31/31">31/0/31/31/31/31</option>
 				</optgroup>
@@ -1582,7 +1986,8 @@ class StatForm extends preact.Component<{
 		const hpIVs = hpIVdata.map(ivs => ivs.split('').map(iv => parseInt(iv)));
 
 		return <select name="ivspread" class="button" onChange={this.changeIVSpread}>
-			<option value="" selected>Hidden Power {hpType.charAt(0).toUpperCase() + hpType.slice(1)} IVs</option>
+			<option value="" selected>Hidden Power {hpType} IVs</option>
+			{autoSpreadValue && <option value="auto">Auto ({autoSpreadValue})</option>}
 			<optgroup label="min Atk">
 				{hpIVs.map(ivs => {
 					const spread = ivs.map((iv, i) => (i === 1 ? minStat : 30) + iv).join('/');
@@ -1807,30 +2212,13 @@ class StatForm extends preact.Component<{
 		const statID = target.name.split('-')[1] as Dex.StatName;
 		let value = Math.abs(parseInt(target.value));
 
-		if (target.value.includes('+')) {
-			if (statID === 'hp') {
-				alert("Natures cannot raise or lower HP.");
-				return;
-			}
-			this.plus = statID;
-		} else if (this.plus === statID) {
-			this.plus = null;
-		}
-		if (target.value.includes('-')) {
-			if (statID === 'hp') {
-				alert("Natures cannot raise or lower HP.");
-				return;
-			}
-			this.minus = statID;
-		} else if (this.minus === statID) {
-			this.minus = null;
-		}
 		if (isNaN(value)) {
 			if (set.evs) delete set.evs[statID];
 		} else {
 			set.evs ||= {};
 			set.evs[statID] = value;
 		}
+
 		if (target.type === 'range') {
 			// enforce limit
 			const maxEv = this.maxEVs();
@@ -1841,9 +2229,28 @@ class StatForm extends preact.Component<{
 					set.evs![statID] = maxEv - (totalEv - value) - (maxEv % 4);
 				}
 			}
+		} else {
+			if (target.value.includes('+')) {
+				if (statID === 'hp') {
+					alert("Natures cannot raise or lower HP.");
+					return;
+				}
+				this.plus = statID;
+			} else if (this.plus === statID) {
+				this.plus = null;
+			}
+			if (target.value.includes('-')) {
+				if (statID === 'hp') {
+					alert("Natures cannot raise or lower HP.");
+					return;
+				}
+				this.minus = statID;
+			} else if (this.minus === statID) {
+				this.minus = null;
+			}
+			this.updateNatureFromPlusMinus();
 		}
 
-		this.updateNatureFromPlusMinus();
 		this.props.onChange();
 	};
 	updateNatureFromPlusMinus = () => {
@@ -1878,7 +2285,12 @@ class StatForm extends preact.Component<{
 		const statID = target.name.split('-')[1] as StatName;
 		const value = this.dvToIv(target.value);
 		if (value === null) {
-			if (set.ivs) delete set.ivs[statID];
+			if (set.ivs) {
+				delete set.ivs[statID];
+				if (Object.values(set.ivs).every(iv => iv === undefined)) {
+					set.ivs = undefined;
+				}
+			}
 		} else {
 			set.ivs ||= { hp: 31, atk: 31, def: 31, spa: 31, spd: 31, spe: 31 };
 			set.ivs[statID] = value;
@@ -1901,8 +2313,12 @@ class StatForm extends preact.Component<{
 		const { set } = this.props;
 		if (!target.value) return;
 
-		const [hp, atk, def, spa, spd, spe] = target.value.split('/').map(Number);
-		set.ivs = { hp, atk, def, spa, spd, spe };
+		if (target.value === 'auto') {
+			set.ivs = undefined;
+		} else {
+			const [hp, atk, def, spa, spd, spe] = target.value.split('/').map(Number);
+			set.ivs = { hp, atk, def, spa, spd, spe };
+		}
 		this.props.onChange();
 	};
 	maxEVs() {
@@ -1937,8 +2353,9 @@ class StatForm extends preact.Component<{
 		};
 		if (editor.gen === 1) statNames.spa = 'Special';
 
+		const ivs = editor.getIVs(set);
 		const stats = Dex.statNames.filter(statID => editor.gen > 1 || statID !== 'spd').map(statID => [
-			statID, statNames[statID], editor.getStat(statID, set),
+			statID, statNames[statID], editor.getStat(statID, set, ivs[statID]),
 		] as const);
 
 		let remaining = null;
@@ -1953,6 +2370,7 @@ class StatForm extends preact.Component<{
 			}
 			remaining ||= null;
 		}
+		const defaultIVs = editor.defaultIVs(set);
 
 		return <div style="font-size:10pt" role="dialog" aria-label="Stats">
 			<div class="resultheader"><h3>EVs, IVs, and Nature</h3></div>
@@ -1983,7 +2401,7 @@ class StatForm extends preact.Component<{
 							onInput={this.changeEV} onChange={this.changeEV}
 						/></td>
 						<td><input
-							name={`iv-${statID}`} min={0} max={useIVs ? 31 : 15} placeholder={useIVs ? '31' : '15'} style="width:40px"
+							name={`iv-${statID}`} min={0} max={useIVs ? 31 : 15} placeholder={`${defaultIVs[statID]}`} style="width:40px"
 							type="number" class="textbox default-placeholder" onInput={this.changeIV} onChange={this.changeIV}
 						/></td>
 						<td style="text-align:right"><strong>{stat}</strong></td>
@@ -2006,7 +2424,7 @@ class StatForm extends preact.Component<{
 					</select>
 				</p>}
 				{editor.gen >= 3 && <p>
-					<small><em>Protip:</em> You can also set natures by typing <kbd>+</kbd> and <kbd>-</kbd> next to a stat.</small>
+					<small><em>Protip:</em> You can also set natures by typing <kbd>+</kbd> and <kbd>-</kbd> in the EV box.</small>
 				</p>}
 				{editor.gen >= 3 && this.renderStatOptimizer()}
 			</div>
@@ -2046,13 +2464,91 @@ class DetailsForm extends preact.Component<{
 		const target = ev.currentTarget as HTMLInputElement;
 		const { editor, set } = this.props;
 		const species = editor.dex.species.get(set.species);
-		if (!target.value || target.value === (species.forceTeraType || species.types[0])) {
+		if (!target.value || target.value === (species.requiredTeraType || species.types[0])) {
 			delete set.teraType;
 		} else {
 			set.teraType = target.value.trim();
 		}
 		this.props.onChange();
 	};
+	changeLevel = (ev: Event) => {
+		const target = ev.currentTarget as HTMLInputElement;
+		const { set } = this.props;
+		if (target.value) {
+			set.level = parseInt(target.value.trim());
+		} else {
+			delete set.level;
+		}
+		this.props.onChange();
+	};
+	changeGender = (ev: Event) => {
+		const target = ev.currentTarget as HTMLInputElement;
+		const { set } = this.props;
+		if (target.value) {
+			set.gender = target.value.trim();
+		} else {
+			delete set.gender;
+		}
+		this.props.onChange();
+	};
+	changeHappiness = (ev: Event) => {
+		const target = ev.currentTarget as HTMLInputElement;
+		const { set } = this.props;
+		if (target.value) {
+			set.happiness = parseInt(target.value.trim());
+		} else {
+			delete set.happiness;
+		}
+		this.props.onChange();
+	};
+	changeShiny = (ev: Event) => {
+		const target = ev.currentTarget as HTMLInputElement;
+		const { set } = this.props;
+		if (target.value) {
+			set.shiny = true;
+		} else {
+			delete set.shiny;
+		}
+		this.props.onChange();
+	};
+	changeDynamaxLevel = (ev: Event) => {
+		const target = ev.currentTarget as HTMLInputElement;
+		const { set } = this.props;
+		if (target.value) {
+			set.dynamaxLevel = parseInt(target.value.trim());
+		} else {
+			delete set.dynamaxLevel;
+		}
+		this.props.onChange();
+	};
+	changeGigantamax = (ev: Event) => {
+		const target = ev.currentTarget as HTMLInputElement;
+		const { set } = this.props;
+		if (target.checked) {
+			set.gigantamax = true;
+		} else {
+			delete set.gigantamax;
+		}
+		this.props.onChange();
+	};
+	changeHPType = (ev: Event) => {
+		const target = ev.currentTarget as HTMLInputElement;
+		const { set } = this.props;
+		if (target.value) {
+			set.hpType = target.value;
+		} else {
+			delete set.hpType;
+		}
+		this.props.onChange();
+	};
+	renderGender(gender: Dex.GenderName) {
+		const genderTable = { 'M': "Male", 'F': "Female" };
+		if (gender === 'N') return 'Unknown';
+		return <>
+			<img src={`/fx/gender-${gender.toLowerCase()}.png`} alt="" width="7" height="10" class="pixelated" /> {}
+			{genderTable[gender]}
+		</>;
+	}
 	render() {
 		const { editor, set } = this.props;
 		const species = editor.dex.species.get(set.species);
@@ -2063,88 +2559,91 @@ class DetailsForm extends preact.Component<{
 					name="nickname" class="textbox default-placeholder" placeholder={species.baseSpecies}
 					onInput={this.changeNickname} onChange={this.changeNickname}
 				/></label></p>
-
-				<p>[insert the rest of the details pane]</p>
-				{/*
-buf += '<div class="formrow"><label class="formlabel">Level:</label><div><input type="number" min="1" max="100" step="1" name="level" value="' + (typeof set.level === 'number' ? set.level : 100) + '" class="textbox inputform numform" /></div></div>';
-
-if (this.curTeam.gen > 1) {
-	buf += '<div class="formrow"><label class="formlabel">Gender:</label><div>';
-	if (species.gender && !isHackmons) {
-		var genderTable = { 'M': "Male", 'F': "Female", 'N': "Genderless" };
-		buf += genderTable[species.gender];
-	} else {
-		buf += '<label class="checkbox inline"><input type="radio" name="gender" value="M"' + (set.gender === 'M' ? ' checked' : '') + ' /> Male</label> ';
-		buf += '<label class="checkbox inline"><input type="radio" name="gender" value="F"' + (set.gender === 'F' ? ' checked' : '') + ' /> Female</label> ';
-		if (!isHackmons) {
-			buf += '<label class="checkbox inline"><input type="radio" name="gender" value="N"' + (!set.gender ? ' checked' : '') + ' /> Random</label>';
-		} else {
-			buf += '<label class="checkbox inline"><input type="radio" name="gender" value="N"' + (set.gender === 'N' ? ' checked' : '') + ' /> Genderless</label>';
-		}
-	}
-	buf += '</div></div>';
-
-	if (isLetsGo) {
-		buf += '<div class="formrow"><label class="formlabel">Happiness:</label><div><input type="number" name="happiness" value="70" class="textbox inputform numform" /></div></div>';
-	} else {
-		if (this.curTeam.gen < 8 || isNatDex)
-			buf += '<div class="formrow"><label class="formlabel">Happiness:</label><div><input type="number" min="0" max="255" step="1" name="happiness" value="' + (typeof set.happiness === 'number' ? set.happiness : 255) + '" class="textbox inputform numform" /></div></div>';
-	}
-
-	buf += '<div class="formrow"><label class="formlabel">Shiny:</label><div>';
-	buf += '<label class="checkbox inline"><input type="radio" name="shiny" value="yes"' + (set.shiny ? ' checked' : '') + ' /> Yes</label> ';
-	buf += '<label class="checkbox inline"><input type="radio" name="shiny" value="no"' + (!set.shiny ? ' checked' : '') + ' /> No</label>';
-	buf += '</div></div>';
-
-	if (this.curTeam.gen === 8 && !isBDSP) {
-		if (!species.cannotDynamax) {
-			buf += '<div class="formrow"><label class="formlabel">Dmax Level:</label><div><input type="number" min="0" max="10" step="1" name="dynamaxlevel" value="' + (typeof set.dynamaxLevel === 'number' ? set.dynamaxLevel : 10) + '" class="textbox inputform numform" /></div></div>';
-		}
-		if (species.canGigantamax || species.forme === 'Gmax') {
-			buf += '<div class="formrow"><label class="formlabel">Gigantamax:</label><div>';
-			if (species.forme === 'Gmax') {
-				buf += 'Yes';
-			} else {
-				buf += '<label class="checkbox inline"><input type="radio" name="gigantamax" value="yes"' + (set.gigantamax ? ' checked' : '') + ' /> Yes</label> ';
-				buf += '<label class="checkbox inline"><input type="radio" name="gigantamax" value="no"' + (!set.gigantamax ? ' checked' : '') + ' /> No</label>';
-			}
-			buf += '</div></div>';
-		}
-	}
-}
-
-if (this.curTeam.gen > 2) {
-	buf += '<div class="formrow" style="display:none"><label class="formlabel">Pokeball:</label><div><select name="pokeball" class="button">';
-	buf += '<option value=""' + (!set.pokeball ? ' selected="selected"' : '') + '></option>'; // unset
-	var balls = this.curTeam.dex.getPokeballs();
-	for (var i = 0; i < balls.length; i++) {
-		buf += '<option value="' + balls[i] + '"' + (set.pokeball === balls[i] ? ' selected="selected"' : '') + '>' + balls[i] + '</option>';
-	}
-	buf += '</select></div></div>';
-}
-
-if (!isLetsGo && (this.curTeam.gen === 7 || isNatDex || (isBDSP && species.baseSpecies === 'Unown'))) {
-	buf += '<div class="formrow"><label class="formlabel" title="Hidden Power Type">Hidden Power:</label><div><select name="hptype" class="button">';
-	buf += '<option value=""' + (!set.hpType ? ' selected="selected"' : '') + '>(automatic type)</option>'; // unset
-	var types = Dex.types.all();
-	for (var i = 0; i < types.length; i++) {
-		if (types[i].HPivs) {
-			buf += '<option value="' + types[i].name + '"' + (set.hpType === types[i].name ? ' selected="selected"' : '') + '>' + types[i].name + '</option>';
-		}
-	}
-	buf += '</select></div></div>';
-}
-
-*/}
+				<p><label class="label">Level: <input
+					value={set.level ?? ''} placeholder={`${editor.defaultLevel}`}
+					type="number" min="1" max="100" step="1" name="level" class="textbox inputform numform default-placeholder"
+					onInput={this.changeLevel} onChange={this.changeLevel}
+				/></label><small>(You probably want to change the team's levels by changing the format, not here)</small></p>
+				{editor.gen > 1 && (<>
+					<p><div class="label">Shiny: <div class="labeled">
+						<label class="checkbox inline"><input
+							type="radio" name="shiny" value="true" checked={set.shiny}
+							onInput={this.changeShiny} onChange={this.changeShiny}
+						/> <img src="/sprites/misc/shiny.png" width={22} height={22} alt="Shiny" /> Yes</label>
+						<label class="checkbox inline"><input
+							type="radio" name="shiny" value="" checked={!set.shiny}
+							onInput={this.changeShiny} onChange={this.changeShiny}
+						/> No</label>
+					</div></div></p>
+					<p><div class="label">Gender: {species.gender ? (
+						<strong>{this.renderGender(species.gender)}</strong>
+					) : (
+						<div class="labeled">
+							<label class="checkbox inline"><input
+								type="radio" name="gender" value="M" checked={set.gender === 'M'}
+								onInput={this.changeGender} onChange={this.changeGender}
+							/> {this.renderGender('M')}</label>
+							<label class="checkbox inline"><input
+								type="radio" name="gender" value="F" checked={set.gender === 'F'}
+								onInput={this.changeGender} onChange={this.changeGender}
+							/> {this.renderGender('F')}</label>
+							<label class="checkbox inline"><input
+								type="radio" name="gender" value="" checked={!set.gender || set.gender === 'N'}
+								onInput={this.changeGender} onChange={this.changeGender}
+							/> Random</label>
+						</div>
+					)}</div></p>
+					{editor.isLetsGo ? (
+						<p><label class="label">Happiness: <input
+							type="number" name="happiness" value="" placeholder="70"
+							class="textbox inputform numform default-placeholder"
+							onInput={this.changeHappiness} onChange={this.changeHappiness}
+						/></label></p>
+					) : (editor.gen < 8 || editor.isNatDex) && (
+						<p><label class="label">Happiness: <input
+							type="number" min="0" max="255" step="1" name="happiness"
+							value={set.happiness ?? ''} placeholder="255" class="textbox inputform numform default-placeholder"
+							onInput={this.changeHappiness} onChange={this.changeHappiness}
+						/></label></p>
+					)}
+				</>
+				)}
+				{editor.gen === 8 && !editor.isBDSP && !species.cannotDynamax && (
+					<p>
+						<label class="label" style="display:inline">Dynamax Level: <input
+							type="number" min="0" max="10" step="1" name="dynamaxlevel" class="textbox inputform numform default-placeholder"
+							value={set.dynamaxLevel ?? ''} placeholder="10" onInput={this.changeDynamaxLevel} onChange={this.changeDynamaxLevel}
+						/></label> {}
+						{species.canGigantamax ? (
+							<label class="checkbox inline"><input
+								type="checkbox" name="gigantamax" value="true" checked={set.gigantamax}
+								onInput={this.changeGigantamax} onChange={this.changeGigantamax}
+							/> Gigantamax</label>
+						) : species.forme === 'Gmax' && (
+							<label class="checkbox inline"><input
+								type="checkbox" checked disabled
+							/> Gigantamax</label>
+						)}
+					</p>
+				)}
+				{((!editor.isLetsGo && editor.gen === 7) || editor.isNatDex || species.baseSpecies === 'Unown') && <p>
+					<label class="label">Hidden Power Type: <select name="hptype" class="button" onChange={this.changeHPType}>
+						{Dex.types.all().map(type => (
+							type.HPivs && <option value={type.name} selected={editor.getHPType(set) === type.name}>
+								{type.name}
+							</option>
+						))}
+					</select></label>
+				</p>}
 				{editor.gen === 9 && <p>
 					<label class="label" title="Tera Type">
 						Tera Type: {}
-						{species.forceTeraType ? (
-							<select name="teratype" class="button cur" disabled><option>{species.forceTeraType}</option></select>
+						{species.requiredTeraType && editor.formeLegality === 'normal' ? (
+							<select name="teratype" class="button cur" disabled><option>{species.requiredTeraType}</option></select>
 						) : (
 							<select name="teratype" class="button" onChange={this.changeTera}>
 								{Dex.types.all().map(type => (
-									<option value={type.name} selected={(set.teraType || species.types[0]) === type.name}>
+									<option value={type.name} selected={(set.teraType || species.requiredTeraType || species.types[0]) === type.name}>
 										{type.name}
 									</option>
 								))}

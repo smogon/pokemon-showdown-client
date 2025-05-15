@@ -124,7 +124,7 @@ export const PSLoginServer = new class {
 			() => null
 		);
 	}
-	query(act: string, data: PostData): Promise<{ [k: string]: any } | null> {
+	query(act: string, data: PostData = {}): Promise<{ [k: string]: any } | null> {
 		return this.rawQuery(act, data).then(
 			res => res ? JSON.parse(res.slice(1)) : null
 		).catch(
