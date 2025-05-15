@@ -15,7 +15,6 @@ import { PSSearchResults } from "./battle-searchresults";
 import { BattleNatures, BattleStatNames, type StatName } from "./battle-dex-data";
 import { BattleStatGuesser, BattleStatOptimizer } from "./battle-tooltips";
 import { PSModel } from "./client-core";
-import type { FormatDropdown } from "./panel-mainmenu";
 
 type SelectionType = 'pokemon' | 'ability' | 'item' | 'move' | 'stats' | 'details';
 
@@ -590,7 +589,7 @@ class TeamEditorState extends PSModel {
 
 export class TeamEditor extends preact.Component<{
 	team: Team, narrow?: boolean, onChange?: () => void, readonly?: boolean,
-	formatDropdownRef?: FormatDropdown, children?: preact.ComponentChildren,
+	children?: preact.ComponentChildren,
 }> {
 	buttons = true;
 	editor!: TeamEditorState;
@@ -669,7 +668,7 @@ export class TeamEditor extends preact.Component<{
 			{this.buttons ? (
 				<TeamWizard editor={this.editor} onChange={this.props.onChange} />
 			) : (
-				<TeamTextbox editor={this.editor} onChange={this.props.onChange} formatDropdownRef={this.props.formatDropdownRef} />
+				<TeamTextbox editor={this.editor} onChange={this.props.onChange} />
 			)}
 			{this.props.children}
 			<div class="team-resources">
@@ -680,10 +679,7 @@ export class TeamEditor extends preact.Component<{
 	}
 }
 
-class TeamTextbox extends preact.Component<{
-	editor: TeamEditorState, onChange?: () => void,
-	formatDropdownRef?: FormatDropdown,
-}> {
+class TeamTextbox extends preact.Component<{editor: TeamEditorState, onChange?: () => void}> {
 	editor!: TeamEditorState;
 	setInfo: {
 		species: string,
@@ -1296,9 +1292,6 @@ class TeamTextbox extends preact.Component<{
 			const formatid = toID(notes.slice(8));
 			if (!BattleFormats[formatid]) return;
 			this.editor.setFormat(formatid);
-			if (this.props.formatDropdownRef == null) return;
-			this.props.formatDropdownRef.format = formatid;
-			this.props.formatDropdownRef?.forceUpdate();
 		}
 	};
 	renderDetails(set: Dex.PokemonSet, i: number) {
