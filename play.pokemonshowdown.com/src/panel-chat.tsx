@@ -1074,11 +1074,7 @@ class ChatPanel extends PSRoomPanel<ChatRoom> {
 		room.challenged = null;
 		room.update(null);
 	};
-	handleDisallowSpects = (e: Event) => {
-		const checked = (e.currentTarget as HTMLInputElement).checked;
-		PS.prefs.set('disallowspectators', checked);
-		PS.mainmenu.disallowSpectators = checked;
-	};
+
 	override render() {
 		const room = this.props.room;
 		const tinyLayout = room.width < 450;
