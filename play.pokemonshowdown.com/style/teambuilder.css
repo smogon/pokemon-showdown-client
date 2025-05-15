@@ -260,6 +260,9 @@
 	line-height: 20px;
 	resize: none;
 }
+.teamtextbox::placeholder {
+  transform: translateY(20px) translateX(5px);
+}
 .teaminnertextbox {
 	width: 320px;
 	height: 18px;

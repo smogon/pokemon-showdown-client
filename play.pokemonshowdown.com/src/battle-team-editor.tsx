@@ -696,6 +696,7 @@ export class TeamEditor extends preact.Component<{
 }
 
 class TeamTextbox extends preact.Component<{editor: TeamEditorState, onChange?: () => void}> {
+  static EMPTY_PROMISE = Promise.resolve(null);
 	editor!: TeamEditorState;
 	setInfo: {
 		species: string,
@@ -730,9 +731,35 @@ class TeamTextbox extends preact.Component<{editor: TeamEditorState, onChange?: 
 		this.heightTester.value = fullLine && !newValue.endsWith('\n') ? newValue + '\n' : newValue;
 		return this.heightTester.scrollHeight;
 	}
+  handleLinkImport(): Promise<any> {
+    let url = this.textbox.value;
+    if (!/^https?:\/\/pokepast\.es\/.*/.test(url)) {
+      return TeamTextbox.EMPTY_PROMISE;
+    }
+    if (!url.endsWith("/json")) url += "/json";
+    return fetch(url)
+      .then(resp => resp.json())
+      .then(json => { 
+        this.textbox.value = json["paste"];
+        const notes = json["notes"] as string;
+        if (notes.startsWith("Format: ")) {
+          const formatid = toID(notes.slice(8));
+          if (BattleFormats[formatid]) {
+            this.editor.setFormat(formatid);
+          }
+        }
+        const title = json["title"] as string;
+        if (title && !title.startsWith('Untitled')) {
+          this.editor.team.name = title.replace(/[\|\\\/]/g, '');
+        }
+      })
+  };
 	input = () => {
-		this.updateText();
-		this.save();
+    this.handleLinkImport()
+      .then(() => {
+        this.updateText();
+        this.save();
+      })
 	};
 	keyUp = () => this.updateText(true);
 	contextMenu = (ev: MouseEvent) => {
@@ -1316,23 +1343,8 @@ class TeamTextbox extends preact.Component<{editor: TeamEditorState, onChange?: 
 		}
 		return null;
 	}
-	onLinkImport = async (ev: Event) => {
-		ev.preventDefault();
-		const url =
-      new FormData(ev.currentTarget as HTMLFormElement)
-      	.get("link_input") as string;
-		if (!url || url === "") return;
-		const resp = await fetch(url + "/json");
-		const json = await resp.json();
-		this.textbox.value = json["paste"];
-		this.updateText();
-		const notes = json["notes"] as string;
-		const startIdx = notes.indexOf("Format: ");
-		if (startIdx === 0) {
-			const formatid = toID(notes.slice(8));
-			if (!BattleFormats[formatid]) return;
-			this.editor.setFormat(formatid);
-		}
+	onLinkImport = (url: string) => {
+    
 	};
 	renderDetails(set: Dex.PokemonSet, i: number) {
 		const editor = this.editor;
@@ -1411,6 +1423,7 @@ class TeamTextbox extends preact.Component<{editor: TeamEditorState, onChange?: 
 					class="textbox teamtextbox" style={`padding-left:${editor.narrow ? '50px' : '100px'}`}
 					onInput={this.input} onContextMenu={this.contextMenu} onKeyUp={this.keyUp} onKeyDown={this.keyDown}
 					readOnly={editor.readonly} onChange={this.maybeReplaceLine}
+          placeholder="Enter team or pokepaste link"
 				/>
 				<textarea
 					class="textbox teamtextbox heighttester" tabIndex={-1} aria-hidden
@@ -1469,11 +1482,6 @@ class TeamTextbox extends preact.Component<{editor: TeamEditorState, onChange?: 
 							style={`top:${this.innerFocus.offsetY - 21}px;left:${editor.narrow ? 46 : 96}px;`}
 						></div>
 					)}
-					<form style="padding-top: 5px; padding-bottom: 5px" onSubmit={this.onLinkImport}>
-						Import from link
-						<input class="textbox" name="link_input" style="width: 300px; margin-right: 10px; margin-left: 10px;" />
-            <button type="submit">Import</button>
-					</form>
 				</div>
 				{this.innerFocus && (
 					<div

@@ -1422,6 +1422,7 @@
 					url: url,
 					success: function (data) {
 						if (/^https?:\/\/pokepast\.es\/.*\/json\s*$/.test(url)) {
+              hi/
 
 							var notes = data.notes.split('\n');
 							if (notes[0].startsWith('Format: ')) {
