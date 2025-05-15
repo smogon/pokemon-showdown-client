@@ -73,7 +73,6 @@ class RoomsPanel extends PSRoomPanel {
 			// go down
 			this.focusedIndex++;
 			this.forceUpdate();
-			if (this.focusedIndex < 5) e.preventDefault();
 		}
 		if (e.keyCode === 13) {
 			const target = e.currentTarget as HTMLInputElement;
