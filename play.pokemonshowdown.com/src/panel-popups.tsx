@@ -1500,13 +1500,12 @@ class BattleOptionsPanel extends PSRoomPanel {
 		const setting = (ev.currentTarget as HTMLInputElement).name;
 		const value = (ev.currentTarget as HTMLInputElement).checked;
 		const room = this.getBattleRoom();
-		if (!room) return this.close();
 
 		switch (setting) {
 		case 'autotimer': {
 			PS.prefs.set('autotimer', value);
 			if (value) {
-				room.send('/timer on');
+				room?.send('/timer on');
 			}
 			break;
 		}
