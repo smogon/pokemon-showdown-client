@@ -1090,18 +1090,10 @@ class ChatPanel extends PSRoomPanel<ChatRoom> {
 			</TeamForm>
 		</div> : room.challengeMenuOpen ? <div class="challenge">
 			<TeamForm onSubmit={this.makeChallenge}>
-				<p>
-					<label class="checkbox">
-						<input
-							type="checkbox"
-							onChange={this.handleDisallowSpects}
-							name="private" checked={PS.prefs.disallowspectators || undefined}
-						/>
-						<abbr title="You can still invite spectators by giving them the URL or using the /invite command">
-							Don't allow spectators</abbr>
-					</label>
-				</p>
 				<button type="submit" class="button"><strong>Challenge</strong></button> {}
+				<button class="button option" data-href="battleoptions" title="Options" aria-label="Options">
+					Battle Options
+				</button> {}
 				<button data-cmd="/cancelchallenge" class="button">Cancel</button>
 			</TeamForm>
 		</div> : null;

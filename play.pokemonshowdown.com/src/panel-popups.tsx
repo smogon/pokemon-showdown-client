@@ -1526,6 +1526,12 @@ class BattleOptionsPanel extends PSRoomPanel {
 		}
 		case 'rightpanel': {
 			PS.prefs.set('rightpanelbattles', value);
+			break;
+		}
+		case 'disallowspectators': {
+			PS.prefs.set('disallowspectators', value);
+			PS.mainmenu.disallowSpectators = value;
+			break;
 		}
 		}
 	};
@@ -1575,6 +1581,14 @@ class BattleOptionsPanel extends PSRoomPanel {
 				</p>
 			</>}
 			<p><strong>All battles</strong></p>
+			<p>
+				<label class="checkbox">
+					<input
+						name="disallowspectators" checked={PS.prefs.disallowspectators || false}
+						type="checkbox" onChange={this.handleAllSettings}
+					/> Disallow spectators
+				</label>
+			</p>
 			<p>
 				<label class="checkbox">
 					<input

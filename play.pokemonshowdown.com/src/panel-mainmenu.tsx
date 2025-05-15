@@ -531,11 +531,6 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
 			this.forceUpdate();
 		}
 	};
-	handleDisallowSpects = (e: Event) => {
-		const checked = (e.currentTarget as HTMLInputElement).checked;
-		PS.prefs.set('disallowspectators', checked);
-		PS.mainmenu.disallowSpectators = checked;
-	};
 	renderMiniRooms() {
 		return PS.miniRoomList.map(roomid => {
 			const room = PS.rooms[roomid]!;
@@ -608,19 +603,10 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
 		return <TeamForm
 			class="menugroup" format={PS.mainmenu.searchCountdown?.format} selectType="search" onSubmit={this.submitSearch}
 		>
-			<p style="display:inline-flex;">
-				<label class="checkbox">
-					<input
-						name="private" checked={PS.prefs.disallowspectators || undefined}
-						type="checkbox" onChange={this.handleDisallowSpects}
-					/>
-					<abbr title="You can still invite spectators by giving them the URL or using the /invite command">
-						Don't allow spectators</abbr>
-				</label>
-				<button class="icon button" data-href="battleoptions" title="Options" aria-label="Options">
-					<i class="fa fa-cog"></i>
-				</button>
-			</p>
+			<p>
+				<button class="ilink" data-href="battleoptions" title="Options" aria-label="Options">
+					Battle Options
+				</button></p>
 			{PS.mainmenu.searchCountdown ? (
 				<>
 					<button class="mainmenu1 mainmenu big button disabled" type="submit"><strong>
