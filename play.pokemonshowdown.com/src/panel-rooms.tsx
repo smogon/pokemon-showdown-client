@@ -38,7 +38,7 @@ class RoomsPanel extends PSRoomPanel {
 		}));
 	}
 	override componentDidUpdate() {
-		const el = this.base?.querySelector('div#focused-room');
+		const el = this.base?.querySelector('a.blocklink.cur');
 		if (!this.focusedIndex) return;
 		if (el) {
 			const rect = el.getBoundingClientRect();
@@ -233,8 +233,12 @@ class RoomsPanel extends PSRoomPanel {
 		if (index) this.focusedRoomId = sortedRooms[index - 1]?.title;
 		return <div class="roomlist">
 			<h2>{title}</h2>
-			{sortedRooms.map((roomInfo, i) => <div id={(i + 1) === index ? "focused-room" : ''} key={roomInfo.title}>
-				<a style={(i + 1) === index ? hoverStyle : ''} href={`/${toID(roomInfo.title)}`} class="blocklink">
+			{sortedRooms.map((roomInfo, i) => <div key={roomInfo.title}>
+				<a
+					style={(i + 1) === index ? hoverStyle : ''}
+					href={`/${toID(roomInfo.title)}`}
+					class={`blocklink${(i + 1) === index ? " cur" : ''}`}
+				>
 					{roomInfo.userCount !== undefined && <small style="float:right">({roomInfo.userCount} users)</small>}
 					<strong><i class="fa fa-comment-o" aria-hidden></i> {roomInfo.title}<br /></strong>
 					<small>{roomInfo.desc || ''}</small>
