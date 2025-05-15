@@ -105,7 +105,7 @@ export class MainMenuRoom extends PSRoom {
 	};
 	doSearch = (search: NonNullable<typeof this.searchCountdown>) => {
 		this.searchSent = true;
-		let privacy = this.adjustPrivacy();
+		const privacy = this.adjustPrivacy();
 		PS.send(`|/utm ${search.packedTeam}`);
 		PS.send(`|${privacy}/search ${search.format}`);
 	};
