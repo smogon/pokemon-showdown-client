@@ -31,7 +31,6 @@ class RoomsPanel extends PSRoomPanel {
 	section = '';
 	lastKeyCode = 0;
 	roomListFocusIndex = -1;
-	roomListFocusTitle = '';
 	roomList: RoomsSection[] = [];
 	roomListLength = 0;
 	override componentDidMount() {
@@ -62,7 +61,6 @@ class RoomsPanel extends PSRoomPanel {
 	};
 	handleOnBlur = (ev: Event) => {
 		this.roomListFocusIndex = -1;
-		this.roomListFocusTitle = '';
 		this.forceUpdate();
 	};
 	keyDownSearch = (ev: KeyboardEvent) => {
@@ -70,26 +68,21 @@ class RoomsPanel extends PSRoomPanel {
 		if (ev.shiftKey || ev.ctrlKey || ev.altKey || ev.metaKey) return;
 		if (ev.keyCode === 38) { // up
 			this.roomListFocusIndex = Math.max(this.roomListFocusIndex - 1, this.search ? 0 : -1);
-			if (this.roomListFocusIndex === -1) {
-				this.roomListFocusTitle = '';
-			}
 			this.forceUpdate();
 			ev.preventDefault();
 		} else if (ev.keyCode === 40) { // down
 			this.roomListFocusIndex = Math.min(this.roomListFocusIndex + 1, this.roomListLength - 1);
 			this.forceUpdate();
 			ev.preventDefault();
-		}
-		if (ev.keyCode === 13) { // enter
+		} else if (ev.keyCode === 13) { // enter
 			const target = ev.currentTarget as HTMLInputElement;
-			let value = this.roomListFocusTitle || target.value;
+			let value = this.getRoomListFocusTitle() || target.value;
 			const arrowIndex = value.indexOf(' \u21d2 ');
 			if (arrowIndex >= 0) value = value.slice(arrowIndex + 3);
 			if (!/^[a-z0-9-]$/.test(value)) value = toID(value);
 			ev.preventDefault();
 			ev.stopImmediatePropagation();
 			target.value = '';
-			this.roomListFocusTitle = '';
 
 			PS.join(value as RoomID);
 		}
@@ -176,9 +169,11 @@ class RoomsPanel extends PSRoomPanel {
 			}
 			const oldSearch = this.search;
 			const searchElem = this.base!.querySelector<HTMLInputElement>('input[type=search]')!;
-			searchElem.value = oldSearch + autoFillValue;
-			searchElem.setSelectionRange(oldSearch.length, oldSearch.length + autoFillValue.length);
-			this.search += '-';
+			if (autoFillValue) {
+				searchElem.value = oldSearch + autoFillValue;
+				searchElem.setSelectionRange(oldSearch.length, oldSearch.length + autoFillValue.length);
+				this.search += '-';
+			}
 
 			return [["Search results", results], ...hidden];
 		}
@@ -230,6 +225,9 @@ class RoomsPanel extends PSRoomPanel {
 			{this.renderRoomList()}
 		</div></PSPanelWrapper>;
 	}
+	getRoomListFocusTitle(): string | undefined {
+		return this.roomList.map(([, rooms]) => rooms).reduce((a, b) => a.concat(b))[this.roomListFocusIndex]?.title;
+	}
 	renderRoomList() {
 		const roomsCache = PS.mainmenu.roomsCache;
 		if (roomsCache.userCount === undefined) {
@@ -255,7 +253,6 @@ class RoomsPanel extends PSRoomPanel {
 
 			const index = this.roomListFocusIndex >= offset && this.roomListFocusIndex < nextOffset ?
 				this.roomListFocusIndex - offset : -1;
-			if (index >= 0) this.roomListFocusTitle = sortedRooms[index].title;
 
 			return <div class="roomlist">
 				<h2>{title}</h2>
