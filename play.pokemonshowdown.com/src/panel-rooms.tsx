@@ -219,7 +219,6 @@ class RoomsPanel extends PSRoomPanel {
 	}
 	renderRoomList(title: string, rooms?: RoomInfo[], indexStart = 0) {
 		if (!rooms?.length) return null;
-		const hoverStyle = `border-color: #AACCEE;background: rgba(30, 40, 50, 1);color: #AACCEE;`;
 		// Descending order
 		const sortedRooms = rooms.sort((a, b) => (b.userCount || 0) - (a.userCount || 0));
 		let index = this.focusedIndex > indexStart ? this.focusedIndex - (indexStart) : 0;
@@ -227,11 +226,7 @@ class RoomsPanel extends PSRoomPanel {
 		return <div class="roomlist">
 			<h2>{title}</h2>
 			{sortedRooms.map((roomInfo, i) => <div key={roomInfo.title}>
-				<a
-					style={(i + 1) === index ? hoverStyle : ''}
-					href={`/${toID(roomInfo.title)}`}
-					class={`blocklink${(i + 1) === index ? " cur" : ''}`}
-				>
+				<a href={`/${toID(roomInfo.title)}`} class={`blocklink${(i + 1) === index ? " cur" : ''}`}>
 					{roomInfo.userCount !== undefined && <small style="float:right">({roomInfo.userCount} users)</small>}
 					<strong><i class="fa fa-comment-o" aria-hidden></i> {roomInfo.title}<br /></strong>
 					<small>{roomInfo.desc || ''}</small>
