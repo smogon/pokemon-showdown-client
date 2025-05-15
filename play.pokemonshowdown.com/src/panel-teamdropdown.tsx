@@ -972,7 +972,18 @@ class FormatDropdownPanel extends PSRoomPanel {
 			{columns.map(column => (
 				<ul class="options" onClick={this.click}>
 					{!starredDone && starred?.map((id, i) => {
-						let format = BattleFormats[id];
+						if (this.gen && !id.startsWith(this.gen)) return null;
+						let format = BattleFormats[id] as FormatData | undefined;
+						if (/^gen[1-9]$/.test(id)) {
+							format ||= {
+								id: id as ID,
+								name: `[Gen ${id.slice(3)}]`,
+								section: 'No Format',
+								challengeShow: false,
+								searchShow: false,
+							} as any;
+						}
+						if (!format) return null;
 						if (i === starred.length - 1) starredDone = true;
 						if (selectType === 'challenge' && format.challengeShow === false) return null;
 						if (selectType === 'search' && format.searchShow === false) return null;
@@ -980,30 +991,23 @@ class FormatDropdownPanel extends PSRoomPanel {
 						return <li><button value={format.name} class={`option${curFormat === format.id ? ' cur' : ''}`}>
 							{format.name.replace('[Gen 8 ', '[').replace('[Gen 9] ', '').replace('[Gen 7 ', '[')}
 							{format.section === 'No Format' && <em> (uncategorized)</em>}
-							<i
-								class="fa fa-star"
-								data-cmd={`/unstar ${format.id}`}
-								style="float: right; color: #FFD700; text-shadow: 0 0 1px #000;"
-							></i></button></li>;
+							<i class="star fa fa-star cur" data-cmd={`/unstar ${format.id}`}></i>
+						</button></li>;
 					})}
 					{column.map(format => {
 						// do not include starred formats
 						if (starred.includes(format.id || '')) return '';
 						if (format.id) {
-							return (<li><button
+							return <li><button
 								value={format.name}
 								class={`option${curFormat === format.id ? ' cur' : ''}`}
 							>
 								{format.name.replace('[Gen 8 ', '[').replace('[Gen 9] ', '').replace('[Gen 7 ', '[')}
 								{format.section === 'No Format' && <em> (uncategorized)</em>}
-								<i
-									class="fa fa-star subtle"
-									data-cmd={`/star ${format.id}`}
-									style="float: right;"
-								></i></button></li>
-							);
+								<i class="star fa fa-star-o" data-cmd={`/star ${format.id}`}></i>
+							</button></li>;
 						} else {
-							return (<li><h3>{format.section}</h3></li>);
+							return <li><h3>{format.section}</h3></li>;
 						}
 					})}
 				</ul>
