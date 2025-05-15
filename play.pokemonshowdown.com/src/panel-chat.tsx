@@ -1056,7 +1056,7 @@ class ChatPanel extends PSRoomPanel<ChatRoom> {
 		const packedTeam = team ? team.packedTeam : '';
 		if (!room.pmTarget) throw new Error("Not a PM room");
 		PS.send(`|/utm ${packedTeam}`);
-		PS.send(`|/challenge ${room.pmTarget}, ${format}`);
+		PS.send(`|${privacy}/challenge ${room.pmTarget}, ${format}`);
 		room.challengeMenuOpen = false;
 		room.challenging = {
 			formatName: format,
@@ -1072,6 +1072,11 @@ class ChatPanel extends PSRoomPanel<ChatRoom> {
 		this.props.room.send(`/accept`);
 		room.challenged = null;
 		room.update(null);
+	};
+	handleDisallowSpects = (e: Event) => {
+		const checked = (e.currentTarget as HTMLInputElement).checked;
+		PS.prefs.set('disallowspectators', checked);
+		PS.mainmenu.disallowSpectators = checked;
 	};
 	override render() {
 		const room = this.props.room;

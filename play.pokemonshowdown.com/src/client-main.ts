@@ -89,8 +89,6 @@ class PSPrefs extends PSStreamModel<string | null> {
 	rightpanelbattles: boolean | null = null;
 	disallowspectators: boolean | null = null;
 	starredformats: { [formatid: string]: boolean | null } | null = null;
-	disallowspectators: boolean | null = null;
-	starredformats: { [formatid: string]: boolean | null } | null = null;
 
 	/**
 	 * Show "User joined" and "User left" messages. serverid:roomid
@@ -1169,7 +1167,7 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 			}
 			let starred = PS.prefs.starredformats || {};
 			starred[id] = true;
-			PS.prefs.set('starredformats',starred);
+			PS.prefs.set('starredformats', starred);
 			this.add(`||Added format ${id} to favourites`);
 			this.update(null);
 		},
