@@ -823,6 +823,7 @@ class FormatDropdownPanel extends PSRoomPanel {
 	click = (e: MouseEvent) => {
 		let curTarget = e.target as HTMLElement | null;
 		let target;
+		if (curTarget?.tagName === 'I') return;
 		while (curTarget && curTarget !== e.currentTarget) {
 			if (curTarget.tagName === 'BUTTON') {
 				target = curTarget as HTMLButtonElement;
@@ -891,7 +892,6 @@ class FormatDropdownPanel extends PSRoomPanel {
 			room.parentElem.getAttribute('data-selecttype') as any || 'challenge'
 		);
 		const curFormat = toID((room.parentElem as HTMLButtonElement).value);
-
 		const formats = Object.values(BattleFormats).filter(format => {
 			if (selectType === 'challenge' && format.challengeShow === false) return false;
 			if (selectType === 'search' && format.searchShow === false) return false;
@@ -935,21 +935,52 @@ class FormatDropdownPanel extends PSRoomPanel {
 
 		const width = Math.max(columns.length, 2.1) * 225 + 30;
 		const noResults = curColumn.length === 0;
+		const starredPrefs = PS.prefs.starredformats || {};
+		// reverse because the newest starred format should be the default
+		const starred = Object.keys(starredPrefs).filter(id => starredPrefs[id] === true).reverse();
+		let starredDone = false;
 
 		return <PSPanelWrapper room={room} width={width}><div class="pad">
 			{searchBar}
-			{columns.map(column => <ul class="options" onClick={this.click}>
-				{column.map(format => format.id ? (
-					<li><button value={format.name} class={`option${curFormat === format.id ? ' cur' : ''}`}>
-						{format.name.replace('[Gen 8 ', '[').replace('[Gen 9] ', '').replace('[Gen 7 ', '[')}
-						{format.section === 'No Format' && <em> (uncategorized)</em>}
-					</button></li>
-				) : (
-					<li><h3>
-						{format.section}
-					</h3></li>
-				))}
-			</ul>)}
+			{columns.map(column => (
+				<ul class="options" onClick={this.click}>
+					{!starredDone && starred?.map((id, i) => {
+						let format = BattleFormats[id];
+						if (i === starred.length - 1) starredDone = true;
+						if (selectType === 'challenge' && format.challengeShow === false) return null;
+						if (selectType === 'search' && format.searchShow === false) return null;
+						if (selectType === 'teambuilder' && format.team) return null;
+						return <li><button value={format.name} class={`option${curFormat === format.id ? ' cur' : ''}`}>
+							{format.name.replace('[Gen 8 ', '[').replace('[Gen 9] ', '').replace('[Gen 7 ', '[')}
+							{format.section === 'No Format' && <em> (uncategorized)</em>}
+							<i
+								class="fa fa-star"
+								data-cmd={`/unstar ${format.id}`}
+								style="float: right; color: #FFD700; text-shadow: 0 0 1px #000;"
+							></i></button></li>;
+					})}
+					{column.map(format => {
+						// do not include starred formats
+						if (starred.includes(format.id || '')) return '';
+						if (format.id) {
+							return (<li><button
+								value={format.name}
+								class={`option${curFormat === format.id ? ' cur' : ''}`}
+							>
+								{format.name.replace('[Gen 8 ', '[').replace('[Gen 9] ', '').replace('[Gen 7 ', '[')}
+								{format.section === 'No Format' && <em> (uncategorized)</em>}
+								<i
+									class="fa fa-star subtle"
+									data-cmd={`/star ${format.id}`}
+									style="float: right;"
+								></i></button></li>
+							);
+						} else {
+							return (<li><h3>{format.section}</h3></li>);
+						}
+					})}
+				</ul>
+			))}
 			{noResults && <p>
 				<em>No formats{!!searchID && ` matching "${searchID}"`} found</em>
 			</p>}

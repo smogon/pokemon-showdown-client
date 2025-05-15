@@ -1529,41 +1529,42 @@ class BattleOptionsPanel extends PSRoomPanel {
 	override render() {
 		const room = this.props.room;
 		const battleRoom = this.props.room.getParent() as BattleRoom;
+		const isGlobalSettings = (this.props.room.parentElem as HTMLButtonElement).name === 'battleSettings';
 
 		return <PSPanelWrapper room={room} width={380}><div class="pad">
-			<p><strong>In this battle</strong></p>
-			<p>
-				<label class="checkbox">
-					<input
-						checked={battleRoom?.battle?.hardcoreMode}
-						type="checkbox" onChange={this.handleHardcoreMode}
-					/> Hardcore mode (hide info not shown in-game)
-				</label>
-			</p>
-			<p>
-				<label class="checkbox">
-					<input
-						checked={battleRoom?.battle?.ignoreSpects}
-						type="checkbox" onChange={this.handleIgnoreSpectators}
-					/> Ignore spectators
-				</label>
-			</p>
-			<p>
-				<label class="checkbox">
-					<input
-						checked={battleRoom?.battle?.ignoreOpponent}
-						type="checkbox" onChange={this.handleIgnoreOpponent}
-					/> Ignore opponent
-				</label>
-			</p>
-			<p>
-				<label class="checkbox">
-					<input
-						checked={battleRoom?.battle?.ignoreNicks}
-						type="checkbox" onChange={this.handleIgnoreNicks}
-					/> Ignore nicknames
-				</label>
-			</p>
+			{ !isGlobalSettings && <><p><strong>In this battle</strong></p>
+				<p>
+					<label class="checkbox">
+						<input
+							checked={battleRoom?.battle?.hardcoreMode}
+							type="checkbox" onChange={this.handleHardcoreMode}
+						/> Hardcore mode (hide info not shown in-game)
+					</label>
+				</p>
+				<p>
+					<label class="checkbox">
+						<input
+							checked={battleRoom?.battle?.ignoreSpects}
+							type="checkbox" onChange={this.handleIgnoreSpectators}
+						/> Ignore spectators
+					</label>
+				</p>
+				<p>
+					<label class="checkbox">
+						<input
+							checked={battleRoom?.battle?.ignoreOpponent}
+							type="checkbox" onChange={this.handleIgnoreOpponent}
+						/> Ignore opponent
+					</label>
+				</p>
+				<p>
+					<label class="checkbox">
+						<input
+							checked={battleRoom?.battle?.ignoreNicks}
+							type="checkbox" onChange={this.handleIgnoreNicks}
+						/> Ignore nicknames
+					</label>
+				</p></>}
 			<p><strong>All battles</strong></p>
 			<p>
 				<label class="checkbox">

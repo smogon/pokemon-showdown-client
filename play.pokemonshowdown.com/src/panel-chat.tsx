@@ -1054,6 +1054,7 @@ class ChatPanel extends PSRoomPanel<ChatRoom> {
 	makeChallenge = (e: Event, format: string, team?: Team) => {
 		const room = this.props.room;
 		const packedTeam = team ? team.packedTeam : '';
+		const privacy = PS.mainmenu.adjustPrivacy();
 		if (!room.pmTarget) throw new Error("Not a PM room");
 		PS.send(`|/utm ${packedTeam}`);
 		PS.send(`|${privacy}/challenge ${room.pmTarget}, ${format}`);
@@ -1089,6 +1090,17 @@ class ChatPanel extends PSRoomPanel<ChatRoom> {
 			</TeamForm>
 		</div> : room.challengeMenuOpen ? <div class="challenge">
 			<TeamForm onSubmit={this.makeChallenge}>
+				<p>
+					<label class="checkbox">
+						<input
+							type="checkbox"
+							onChange={this.handleDisallowSpects}
+							name="private" checked={PS.prefs.disallowspectators || undefined}
+						/>
+						<abbr title="You can still invite spectators by giving them the URL or using the /invite command">
+							Don't allow spectators</abbr>
+					</label>
+				</p>
 				<button type="submit" class="button"><strong>Challenge</strong></button> {}
 				<button data-cmd="/cancelchallenge" class="button">Cancel</button>
 			</TeamForm>

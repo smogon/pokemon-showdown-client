@@ -46,6 +46,7 @@ export class MainMenuRoom extends PSRoom {
 	/** used to track the moment between "search sent" and "server acknowledged search sent" */
 	searchSent = false;
 	search: { searching: string[], games: Record<RoomID, string> | null } = { searching: [], games: null };
+	disallowSpectators: boolean | null = PS.prefs.disallowspectators;
 	constructor(options: RoomOptions) {
 		super(options);
 		if (this.backlog) {
@@ -57,6 +58,11 @@ export class MainMenuRoom extends PSRoom {
 			}
 			this.backlog = null;
 		}
+	}
+	adjustPrivacy() {
+		PS.prefs.set('disallowspectators', this.disallowSpectators);
+		if (this.disallowSpectators) return '/noreply /hidenext \n';
+		return '';
 	}
 	startSearch = (format: string, team?: Team) => {
 		if (this.searchCountdown) {
@@ -78,7 +84,7 @@ export class MainMenuRoom extends PSRoom {
 			this.update(null);
 			return true;
 		}
-		if (this.searchSent) {
+		if (this.searchSent || this.search.searching?.length) {
 			this.searchSent = false;
 			PS.send('|/cancelsearch');
 			this.update(null);
@@ -99,8 +105,9 @@ export class MainMenuRoom extends PSRoom {
 	};
 	doSearch = (search: NonNullable<typeof this.searchCountdown>) => {
 		this.searchSent = true;
+		let privacy = this.adjustPrivacy();
 		PS.send(`|/utm ${search.packedTeam}`);
-		PS.send(`|/search ${search.format}`);
+		PS.send(`|${privacy}/search ${search.format}`);
 	};
 	override receiveLine(args: Args) {
 		const [cmd] = args;
@@ -504,6 +511,11 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
 			this.forceUpdate();
 		}
 	};
+	handleDisallowSpects = (e: Event) => {
+		const checked = (e.currentTarget as HTMLInputElement).checked;
+		PS.prefs.set('disallowspectators', checked);
+		PS.mainmenu.disallowSpectators = checked;
+	};
 	renderMiniRooms() {
 		return PS.miniRoomList.map(roomid => {
 			const room = PS.rooms[roomid]!;
@@ -560,7 +572,7 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
 		}
 
 		if (!PS.user.userid || PS.isOffline) {
-			return <TeamForm class="menugroup" onSubmit={this.submitSearch}>
+			return <TeamForm class="menugroup" selectType="search" onSubmit={this.submitSearch}>
 				<button class="mainmenu1 mainmenu big button disabled" disabled name="search">
 					<em>{PS.isOffline ? [<span class="fa-stack fa-lg">
 						<i class="fa fa-plug fa-flip-horizontal fa-stack-1x" aria-hidden></i>
@@ -573,7 +585,31 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
 			</TeamForm>;
 		}
 
-		return <TeamForm class="menugroup" onSubmit={this.submitSearch}>
+		return <TeamForm
+			class="menugroup"
+			format={PS.mainmenu.searchCountdown?.format}
+			selectType="search"
+			onSubmit={this.submitSearch}
+		>
+			<p style="display:inline-flex;">
+				<label class="checkbox">
+					<input
+						type="checkbox"
+						onChange={this.handleDisallowSpects}
+						name="private"
+						checked={PS.prefs.disallowspectators || undefined}
+					/>
+					<abbr title="You can still invite spectators by giving them the URL or using the /invite command">
+						Don't allow spectators</abbr>
+				</label>
+				<button
+					class="icon button"
+					data-href="battleoptions"
+					name="battleSettings"
+					title="Options"
+					aria-label="Options"
+				><i class="fa fa-cog"></i></button>
+			</p>
 			{PS.mainmenu.searchCountdown ? (
 				<>
 					<button class="mainmenu1 mainmenu big button disabled" type="submit"><strong>
@@ -645,10 +681,15 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
 }
 
 export class FormatDropdown extends preact.Component<{
-	format?: string, onChange?: JSX.EventHandler<Event>, placeholder?: string, selectType?: SelectType,
+	format?: string,
+	defaultFormat?: string,
+	onChange?: JSX.EventHandler<Event>,
+	placeholder?: string,
+	selectType?: SelectType,
 }> {
 	declare base?: HTMLButtonElement;
 	format = `[Gen ${Dex.gen}] Random Battle`;
+	defaultFormatInitialized = false;
 	change = (e: Event) => {
 		if (!this.base) return;
 		this.format = this.base.value;
@@ -661,9 +702,10 @@ export class FormatDropdown extends preact.Component<{
 		}
 	}
 	render() {
+		if (this.props.defaultFormat && !this.props.format) this.format = this.props.defaultFormat;
 		let [formatName, customRules] = this.format.split('@@@');
 		if (window.BattleLog) formatName = BattleLog.formatName(formatName);
-		if (this.props.format && !this.props.onChange) {
+		if (this.props.format || PS.mainmenu.searchSent) {
 			return <button
 				name="format" value={this.format} class="select formatselect preselected" disabled
 			>
@@ -728,11 +770,17 @@ class TeamDropdown extends preact.Component<{ format: string }> {
 }
 
 export class TeamForm extends preact.Component<{
-	children: preact.ComponentChildren, class?: string, format?: string, teamFormat?: string, hideFormat?: boolean,
+	children: preact.ComponentChildren,
+	class?: string,
+	format?: string,
+	teamFormat?: string,
+	hideFormat?: boolean,
+	selectType?: SelectType,
 	onSubmit: ((e: Event, format: string, team?: Team) => void) | null,
 	onValidate?: ((e: Event, format: string, team?: Team) => void) | null,
 }> {
 	override state = { format: `[Gen ${Dex.gen}] Random Battle` };
+	defaultFormatInitialized = false;
 	changeFormat = (ev: Event) => {
 		this.setState({ format: (ev.target as HTMLButtonElement).value });
 	};
@@ -756,11 +804,34 @@ export class TeamForm extends preact.Component<{
 		}
 	};
 	render() {
+		if (window.BattleFormats) {
+			const starredPrefs = PS.prefs.starredformats || {};
+			// .reverse() because the newest starred format should be the default one
+			const starred = Object.keys(starredPrefs).filter(id => starredPrefs[id] === true).reverse();
+			if (starred.length && !this.defaultFormatInitialized) {
+				for (let id of starred) {
+					let format = window.BattleFormats[id];
+					if (!format) continue;
+					if (this.props.selectType === 'challenge' && format?.challengeShow === false) continue;
+					if (this.props.selectType === 'search' && format?.searchShow === false) continue;
+					if (this.props.selectType === 'teambuilder' && format?.team) continue;
+					this.setState({ format: id });
+					this.forceUpdate();
+					this.defaultFormatInitialized = true;
+					break;
+				}
+			}
+		}
 		return <form class={this.props.class} onSubmit={this.submit} onClick={this.handleClick}>
 			{!this.props.hideFormat && <p>
 				<label class="label">
 					Format:<br />
-					<FormatDropdown onChange={this.changeFormat} format={this.props.format} />
+					<FormatDropdown
+						onChange={this.changeFormat}
+						defaultFormat={this.state.format}
+						selectType={this.props.selectType}
+						format={this.props.format}
+					/>
 				</label>
 			</p>}
 			<p>
