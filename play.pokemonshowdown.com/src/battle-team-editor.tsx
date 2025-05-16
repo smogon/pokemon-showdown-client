@@ -21,6 +21,7 @@ type SelectionType = 'pokemon' | 'ability' | 'item' | 'move' | 'stats' | 'detail
 
 class TeamEditorState extends PSModel {
 	team: Team;
+	isLinkFetching = false;
 	sets: Dex.PokemonSet[] = [];
 	gen = Dex.gen;
 	dex: ModdedDex = Dex;
@@ -850,11 +851,17 @@ class TeamTextbox extends preact.Component<{ editor: TeamEditorState, onChange?:
 
 		const pokepaste = /^https?:\/\/pokepast.es\/([a-z0-9]+)(?:\/.*)?$/.exec(value)?.[1];
 		if (pokepaste) {
+			this.editor.isLinkFetching = true;
 			Net(`https://pokepast.es/${pokepaste}/json`).get().then(json => {
 				const paste = JSON.parse(json);
-				// make sure it's still there:
-				const valueIndex = this.textbox.value.indexOf(value);
-				this.replace(paste.paste.replace(/\r\n/g, '\n'), valueIndex, valueIndex + value.length);
+				const pasteTxt = paste.paste.replace(/\r\n/g, '\n');
+				if (this.textbox) {
+					// make sure it's still there:
+					const valueIndex = this.textbox.value.indexOf(value);
+					this.replace(paste.paste.replace(/\r\n/g, '\n'), valueIndex, valueIndex + value.length);
+				} else {
+					this.editor.import(pasteTxt);
+				}
 				const notes = paste["notes"] as string;
 				if (notes.startsWith("Format: ")) {
 					const formatid = toID(notes.slice(8));
@@ -866,6 +873,7 @@ class TeamTextbox extends preact.Component<{ editor: TeamEditorState, onChange?:
 				if (title && !title.startsWith('Untitled')) {
 					this.editor.team.name = title.replace(/[|\\/]/g, '');
 				}
+				this.editor.isLinkFetching = false;
 			});
 			return true;
 		}
@@ -1955,6 +1963,9 @@ class TeamWizard extends preact.Component<{
 	override render() {
 		const { editor } = this.props;
 		if (this.innerFocus) return this.renderInnerFocus();
+		if (editor.isLinkFetching) {
+			return <div class="teameditor">Fetching Paste...</div>;
+		}
 
 		const deletedSet = (i: number) => editor.deletedSet?.index === i ? <p style="text-align:right">
 			<button class="button" onClick={this.undeleteSet}>
