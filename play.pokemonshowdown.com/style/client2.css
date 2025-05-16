@@ -641,15 +641,28 @@ p.or:after {
 
 .options {
 	margin: -2px 0 -1px 0;
-	padding: 0;
+	padding: 0 2px;
 	list-style: none;
 	font-size: 8pt;
 	float: left;
 }
 .options .option {
 	display: block;
-	width: 224px;
+	width: 220px;
 	box-sizing: border-box;
+}
+.options .star {
+	float: right;
+}
+.options .star {
+	color: #888;
+}
+.options .star:hover {
+	color: #1ea1c8;
+}
+.options .star.cur {
+	color: #FFD700;
+	text-shadow: 0 0 1px #000;
 }
 .options h3 {
 	margin: 5px 0 0 -2px;

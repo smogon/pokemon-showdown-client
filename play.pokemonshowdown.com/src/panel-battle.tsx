@@ -954,7 +954,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 					data-href="battleoptions" class="button"
 					style={{ position: 'absolute', right: '75px', top: this.battleHeight }}
 				>
-					Battle Options
+					Battle options
 				</button>
 				{(room.battle && !room.battle.ended && room.request && room.battle.mySide.id === PS.user.userid) &&
 					<TimerButton room={room} />}
@@ -976,7 +976,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 				data-href="battleoptions" class="button"
 				style={{ position: 'absolute', right: '15px' }}
 			>
-				Battle Options
+				Battle options
 			</button>
 			<div class="battle-controls-container">
 				<div class="battle-controls" role="complementary" aria-label="Battle Controls" style="top: 370px;">
