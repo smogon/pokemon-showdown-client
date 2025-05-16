@@ -911,9 +911,9 @@ class TeamTextbox extends preact.Component<{ editor: TeamEditorState, onChange?:
 					this.updateSearch();
 					this.setDirty = true;
 				}
-        if (selectionStart === 0 && selectionEnd === 0) {
-          this.clearInnerFocus();
-        }
+				if (selectionStart === 0 && selectionEnd === 0) {
+					this.clearInnerFocus();
+				}
 				return;
 			}
 			this.clearInnerFocus();
@@ -1068,10 +1068,10 @@ class TeamTextbox extends preact.Component<{ editor: TeamEditorState, onChange?:
 		this.textbox.setSelectionRange(focus.range[0], focus.range[1]);
 		this.forceUpdate();
 	}
-  overrideFocus(focus: this['innerFocus']) {
-    this.innerFocus = null;
-    this.engageFocus(focus);
-  }
+	overrideFocus(focus: this['innerFocus']) {
+		this.innerFocus = null;
+		this.engageFocus(focus);
+	}
 	updateSearch() {
 		if (!this.innerFocus) return;
 		const { range } = this.innerFocus;
@@ -1413,7 +1413,7 @@ class TeamTextbox extends preact.Component<{ editor: TeamEditorState, onChange?:
 					{this.setInfo.map((info, i) => {
 						if (!info.species) return null;
 						const set = editor.sets[i];
-            if (!set) return null;
+						if (!set) return null;
 						const prevOffset = i === 0 ? 8 : this.setInfo[i - 1].bottomY;
 						const species = editor.dex.species.get(info.species);
 						const num = Dex.getPokemonIconNum(species.id);
