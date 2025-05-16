@@ -1087,8 +1087,8 @@ class ChatPanel extends PSRoomPanel<ChatRoom> {
 		</div> : room.challengeMenuOpen ? <div class="challenge">
 			<TeamForm onSubmit={this.makeChallenge}>
 				<button type="submit" class="button"><strong>Challenge</strong></button> {}
-				<button class="button option" data-href="battleoptions" title="Options" aria-label="Options">
-					Battle Options
+				<button class="button" data-href="battleoptions" title="Options" aria-label="Options">
+					Battle options
 				</button> {}
 				<button data-cmd="/cancelchallenge" class="button">Cancel</button>
 			</TeamForm>
