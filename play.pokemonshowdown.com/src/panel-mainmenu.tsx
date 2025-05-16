@@ -604,7 +604,7 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
 			class="menugroup" format={PS.mainmenu.searchCountdown?.format} selectType="search" onSubmit={this.submitSearch}
 		>
 			<p>
-				<button class="button" data-href="battleoptions" title="Options" aria-label="Options">
+				<button class="button small" data-href="battleoptions" title="Options" aria-label="Options">
 					Battle options <i class="fa fa-caret-down"></i>
 				</button></p>
 			{PS.mainmenu.searchCountdown ? (
