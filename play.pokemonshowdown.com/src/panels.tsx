@@ -106,6 +106,8 @@ export class PSRouter {
 			document.title = newTitle;
 		});
 		window.addEventListener('hashchange', e => {
+			// really dumb hack, but it's not like back/forward has ever been very reliable
+			if (PS.popups.length && PS.rooms[PS.popups[PS.popups.length - 1]]?.noURL) return;
 			const possibleRoomid = location.hash.slice(1);
 			let currentRoomid: RoomID | null = null;
 			if (/^[a-z0-9-]*$/.test(possibleRoomid)) {
@@ -121,7 +123,9 @@ export class PSRouter {
 	subscribeHistory() {
 		const currentRoomid = location.pathname.slice(1);
 		if (/^[a-z0-9-]+$/.test(currentRoomid)) {
-			PS.join(currentRoomid as RoomID);
+			if (currentRoomid !== 'preactalpha' && currentRoomid !== 'preactbeta') {
+				PS.join(currentRoomid as RoomID);
+			}
 		}
 		if (!window.history) return;
 		{
