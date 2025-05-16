@@ -855,7 +855,7 @@ class TeamTextbox extends preact.Component<{ editor: TeamEditorState, onChange?:
 				// make sure it's still there:
 				const valueIndex = this.textbox.value.indexOf(value);
 				this.replace(paste.paste.replace(/\r\n/g, '\n'), valueIndex, valueIndex + value.length);
-        const notes = paste["notes"] as string;
+				const notes = paste["notes"] as string;
 				if (notes.startsWith("Format: ")) {
 					const formatid = toID(notes.slice(8));
 					if (BattleFormats[formatid]) {
@@ -864,7 +864,7 @@ class TeamTextbox extends preact.Component<{ editor: TeamEditorState, onChange?:
 				}
 				const title = paste["title"] as string;
 				if (title && !title.startsWith('Untitled')) {
-					this.editor.team.name = title.replace(/[\|\\\/]/g, '');
+					this.editor.team.name = title.replace(/[|\\/]/g, '');
 				}
 			});
 			return true;
