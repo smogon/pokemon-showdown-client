@@ -1586,7 +1586,7 @@ class BattleOptionsPanel extends PSRoomPanel {
 					<input
 						name="disallowspectators" checked={PS.prefs.disallowspectators || false}
 						type="checkbox" onChange={this.handleAllSettings}
-					/> Invite only (hide from spectators)
+					/> <abbr title="You can still invite spectators by giving them the URL or using the /invite command">Invite only (hide from spectators)</abbr>
 				</label>
 			</p>
 			<p>

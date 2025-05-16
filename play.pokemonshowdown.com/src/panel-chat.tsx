@@ -1086,9 +1086,10 @@ class ChatPanel extends PSRoomPanel<ChatRoom> {
 			</TeamForm>
 		</div> : room.challengeMenuOpen ? <div class="challenge">
 			<TeamForm onSubmit={this.makeChallenge}>
-				<button type="submit" class="button"><strong>Challenge</strong></button> {}
-				<button class="button" data-href="battleoptions" title="Options" aria-label="Options">
-					Battle options
+				<button type="submit" class="button button-first">
+					<strong>Challenge</strong>
+				</button><button data-href="battleoptions" class="button button-last" aria-label="Battle options">
+					<i class="fa fa-caret-down" aria-hidden></i>
 				</button> {}
 				<button data-cmd="/cancelchallenge" class="button">Cancel</button>
 			</TeamForm>
@@ -1097,7 +1098,12 @@ class ChatPanel extends PSRoomPanel<ChatRoom> {
 		const challengeFrom = room.challenged ? <div class="challenge">
 			{!!room.challenged.message && <p>{room.challenged.message}</p>}
 			<TeamForm format={room.challenged.formatName} teamFormat={room.challenged.teamFormat} onSubmit={this.acceptChallenge}>
-				<button type="submit" class="button"><strong>{room.challenged.acceptButtonLabel || 'Accept'}</strong></button> {}
+				<button type="submit" class={room.challenged.formatName ? `button button-first` : `button`}>
+					<strong>{room.challenged.acceptButtonLabel || 'Accept'}</strong>
+				</button>
+				{room.challenged.formatName && <button data-href="battleoptions" class="button button-last" aria-label="Battle options">
+					<i class="fa fa-caret-down" aria-hidden></i>
+				</button>} {}
 				<button data-cmd="/reject" class="button">{room.challenged.rejectButtonLabel || 'Reject'}</button>
 			</TeamForm>
 		</div> : null;
