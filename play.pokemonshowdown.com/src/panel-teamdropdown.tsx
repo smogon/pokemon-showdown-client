@@ -7,327 +7,14 @@
 
 import { PS, type Team } from "./client-main";
 import { PSIcon, PSPanelWrapper, PSRoomPanel } from "./panels";
-import { Dex, type ModdedDex, toID, type ID } from "./battle-dex";
-import { BattleNatures, BattleStatIDs, BattleStatNames, type StatNameExceptHP } from "./battle-dex-data";
+import { Dex, toID, type ID, Teams } from "./battle-dex";
+import { BattleNatures, BattleStatIDs, type StatNameExceptHP } from "./battle-dex-data";
 
 export class PSTeambuilder {
-	static packTeam(team: Dex.PokemonSet[]) {
-		let buf = '';
-		if (!team) return '';
-
-		for (const set of team) {
-			let hasHP = '';
-			if (buf) buf += ']';
-
-			// name
-			buf += set.name || set.species;
-
-			// species
-			let id = toID(set.species);
-			buf += `|${toID(set.name || set.species) === id ? '' : id}`;
-
-			// item
-			buf += `|${toID(set.item)}`;
-
-			// ability
-			id = toID(set.ability);
-			buf += `|${id || '-'}`;
-
-			// moves
-			buf += '|';
-			if (set.moves) {
-				for (let j = 0; j < set.moves.length; j++) {
-					let moveid = toID(set.moves[j]);
-					if (j && !moveid) continue;
-					buf += `${j ? ',' : ''}${moveid}`;
-					if (moveid.substr(0, 11) === 'hiddenpower' && moveid.length > 11) {
-						hasHP = moveid.slice(11);
-					}
-				}
-			}
-
-			// nature
-			buf += `|${set.nature || ''}`;
-
-			// evs
-			if (set.evs) {
-				buf += `|${set.evs['hp'] || ''},${set.evs['atk'] || ''},${set.evs['def'] || ''},` +
-					`${set.evs['spa'] || ''},${set.evs['spd'] || ''},${set.evs['spe'] || ''}`;
-			} else {
-				buf += '|';
-			}
-
-			// gender
-			buf += `|${set.gender || ''}`;
-
-			// ivs
-			if (set.ivs) {
-				buf += `|${set.ivs['hp'] === 31 ? '' : set.ivs['hp']},${set.ivs['atk'] === 31 ? '' : set.ivs['atk']},` +
-					`${set.ivs['def'] === 31 ? '' : set.ivs['def']},${set.ivs['spa'] === 31 ? '' : set.ivs['spa']},` +
-					`${set.ivs['spd'] === 31 ? '' : set.ivs['spd']},${set.ivs['spe'] === 31 ? '' : set.ivs['spe']}`;
-			} else {
-				buf += '|';
-			}
-
-			// shiny
-			if (set.shiny) {
-				buf += '|S';
-			} else {
-				buf += '|';
-			}
-
-			// level
-			if (set.level) {
-				buf += `|${set.level}`;
-			} else {
-				buf += '|';
-			}
-
-			// happiness
-			if (set.happiness !== undefined) {
-				buf += `|${set.happiness}`;
-			} else {
-				buf += '|';
-			}
-
-			if (
-				set.pokeball || (set.hpType && toID(set.hpType) !== hasHP) || set.gigantamax ||
-				(set.dynamaxLevel !== undefined && set.dynamaxLevel !== 10) || set.teraType
-			) {
-				buf += `,${set.hpType || ''}`;
-				buf += `,${toID(set.pokeball)}`;
-				buf += `,${set.gigantamax ? 'G' : ''}`;
-				buf += `,${set.dynamaxLevel !== undefined && set.dynamaxLevel !== 10 ? set.dynamaxLevel : ''}`;
-				buf += `,${set.teraType || ''}`;
-			}
-		}
-
-		return buf;
-	}
-
-	static unpackTeam(buf: string) {
-		if (!buf) return [];
-
-		let team: Dex.PokemonSet[] = [];
-
-		for (const setBuf of buf.split(`]`)) {
-			const parts = setBuf.split(`|`);
-			if (parts.length < 11) continue;
-			let set: Dex.PokemonSet = { species: '', moves: [] };
-			team.push(set);
-
-			// name
-			const species = Dex.species.get(parts[1] || parts[0]);
-			set.name = parts[1] ? parts[0] : species.baseSpecies;
-
-			// species
-			set.species = species.name;
-
-			// item
-			set.item = Dex.items.get(parts[2]).name;
-
-			// ability
-			set.ability =
-				parts[3] === '-' ? '' :
-				(species.baseSpecies === 'Zygarde' && parts[3] === 'H') ? 'Power Construct' :
-				['', '0', '1', 'H', 'S'].includes(parts[3]) ?
-					species.abilities[parts[3] as '0' || '0'] || (parts[3] === '' ? '' : '!!!ERROR!!!') :
-					Dex.abilities.get(parts[3]).name;
-
-			// moves
-			set.moves = parts[4].split(',').map(moveid =>
-				Dex.moves.get(moveid).name
-			);
-
-			// nature
-			const natureid = toID(parts[5]);
-			set.nature = natureid.charAt(0).toUpperCase() + natureid.slice(1) as Dex.NatureName;
-			if (set.nature as any === 'Undefined') set.nature = undefined;
-
-			// evs
-			if (parts[6]) {
-				if (parts[6].length > 5) {
-					const evs = parts[6].split(',');
-					set.evs = {
-						hp: Number(evs[0]) || 0,
-						atk: Number(evs[1]) || 0,
-						def: Number(evs[2]) || 0,
-						spa: Number(evs[3]) || 0,
-						spd: Number(evs[4]) || 0,
-						spe: Number(evs[5]) || 0,
-					};
-				} else if (parts[6] === '0') {
-					set.evs = { hp: 0, atk: 0, def: 0, spa: 0, spd: 0, spe: 0 };
-				}
-			}
-
-			// gender
-			if (parts[7]) set.gender = parts[7];
-
-			// ivs
-			if (parts[8]) {
-				const ivs = parts[8].split(',');
-				set.ivs = {
-					hp: ivs[0] === '' ? 31 : Number(ivs[0]),
-					atk: ivs[1] === '' ? 31 : Number(ivs[1]),
-					def: ivs[2] === '' ? 31 : Number(ivs[2]),
-					spa: ivs[3] === '' ? 31 : Number(ivs[3]),
-					spd: ivs[4] === '' ? 31 : Number(ivs[4]),
-					spe: ivs[5] === '' ? 31 : Number(ivs[5]),
-				};
-			}
-
-			// shiny
-			if (parts[9]) set.shiny = true;
-
-			// level
-			if (parts[10]) set.level = parseInt(parts[10], 10);
-
-			// happiness
-			if (parts[11]) {
-				const misc = parts[11].split(',', 6);
-				set.happiness = (misc[0] ? Number(misc[0]) : undefined);
-				set.hpType = misc[1];
-				set.pokeball = misc[2];
-				set.gigantamax = !!misc[3];
-				set.dynamaxLevel = (misc[4] ? Number(misc[4]) : undefined);
-				set.teraType = misc[5];
-			}
-		}
-
-		return team;
-	}
-	/**
-	 * (Exports end with two spaces so linebreaks are preserved in Markdown;
-	 * I assume mostly for Reddit.)
-	 */
-	static exportSet(set: Dex.PokemonSet, dex: ModdedDex = Dex, newFormat?: boolean) {
-		let text = '';
-
-		// core
-		if (set.name && set.name !== set.species) {
-			text += `${set.name} (${set.species})`;
-		} else {
-			text += `${set.species}`;
-		}
-		if (set.gender === 'M') text += ` (M)`;
-		if (set.gender === 'F') text += ` (F)`;
-		if (!newFormat && set.item) {
-			text += ` @ ${set.item}`;
-		}
-		text += `\n`;
-		if ((set.item || set.ability || dex.gen >= 2) && newFormat) {
-			if (set.ability || dex.gen >= 3) text += `[${set.ability || '(select ability)'}]`;
-			if (set.item || dex.gen >= 2) text += ` @ ${set.item || "(no item)"}`;
-			text += `\n`;
-		} else if (set.ability && set.ability !== 'No Ability') {
-			text += `Ability: ${set.ability}\n`;
-		}
-
-		if (newFormat) {
-			if (set.moves) {
-				for (let move of set.moves) {
-					if (move.startsWith('Hidden Power ')) {
-						const hpType = move.slice(13);
-						move = move.slice(0, 13);
-						move = `${move}[${hpType}]`;
-					}
-					text += `- ${move || ''}\n`;
-				}
-			}
-			for (let i = set.moves?.length || 0; i < 4; i++) {
-				text += `- \n`;
-			}
-		}
-
-		// stats
-		let first = true;
-		if (set.evs || set.nature) {
-			const nature = BattleNatures[set.nature as 'Serious'];
-			for (const stat of Dex.statNames) {
-				const plusMinus = !newFormat ? '' : nature?.plus === stat ? '+' : nature?.minus === stat ? '-' : '';
-				const ev = set.evs?.[stat] || '';
-				if (ev === '' && !plusMinus) continue;
-				text += first ? `EVs: ` : ` / `;
-				first = false;
-				text += `${ev}${plusMinus} ${BattleStatNames[stat]}`;
-			}
-		}
-		if (!first) {
-			if (set.nature && newFormat) text += ` (${set.nature})`;
-			text += `\n`;
-		}
-		if (set.nature && !newFormat) {
-			text += `${set.nature} Nature\n`;
-		} else if (['Hardy', 'Docile', 'Serious', 'Bashful', 'Quirky'].includes(set.nature!)) {
-			text += `${set.nature!} Nature\n`;
-		}
-		first = true;
-		if (set.ivs) {
-			for (const stat of Dex.statNames) {
-				if (set.ivs[stat] === undefined || isNaN(set.ivs[stat]) || set.ivs[stat] === 31) continue;
-				if (first) {
-					text += `IVs: `;
-					first = false;
-				} else {
-					text += ` / `;
-				}
-				text += `${set.ivs[stat]} ${BattleStatNames[stat]}`;
-			}
-		}
-		if (!first) {
-			text += `\n`;
-		}
-
-		// details
-		if (set.level && set.level !== 100) {
-			text += `Level: ${set.level}\n`;
-		}
-		if (set.shiny) {
-			text += !newFormat ? `Shiny: Yes\n` : `Shiny\n`;
-		}
-		if (typeof set.happiness === 'number' && set.happiness !== 255 && !isNaN(set.happiness)) {
-			text += `Happiness: ${set.happiness}\n`;
-		}
-		if (typeof set.dynamaxLevel === 'number' && set.dynamaxLevel !== 255 && !isNaN(set.dynamaxLevel)) {
-			text += `Dynamax Level: ${set.dynamaxLevel}\n`;
-		}
-		if (set.gigantamax) {
-			text += !newFormat ? `Gigantamax: Yes\n` : `Gigantamax\n`;
-		}
-		if (set.teraType) {
-			text += `Tera Type: ${set.teraType}\n`;
-		}
-
-		if (!newFormat) {
-			for (let move of set.moves || []) {
-				if (move.startsWith('Hidden Power ')) {
-					const hpType = move.slice(13);
-					move = move.slice(0, 13);
-					move = !newFormat ? `${move}[${hpType}]` : `${move}${hpType}`;
-				}
-				text += `- ${move}\n`;
-			}
-			for (let i = set.moves?.length || 0; i < 4; i++) {
-				text += `- \n`;
-			}
-		}
-
-		text += `\n`;
-		return text;
-	}
-	static exportTeam(sets: Dex.PokemonSet[], dex?: ModdedDex, newFormat?: boolean) {
-		let text = '';
-		for (const set of sets) {
-			// core
-			text += PSTeambuilder.exportSet(set, dex, newFormat);
-		}
-		return text;
-	}
 	static exportPackedTeam(team: Team, newFormat?: boolean) {
-		const sets = PSTeambuilder.unpackTeam(team.packedTeam);
+		const sets = Teams.unpack(team.packedTeam);
 		const dex = Dex.forFormat(team.format);
-		return PSTeambuilder.exportTeam(sets, dex, newFormat);
+		return Teams.export(sets, dex, newFormat);
 	}
 	static splitPrefix(buffer: string, delimiter: string, prefixOffset = 0): [string, string] {
 		const delimIndex = buffer.indexOf(delimiter);
@@ -472,7 +159,7 @@ export class PSTeambuilder {
 		while (lines.length && !lines[lines.length - 1]) lines.pop();
 
 		if (lines.length === 1 && lines[0].includes('|')) {
-			return this.unpackTeam(lines[0]);
+			return Teams.unpack(lines[0]);
 		}
 		for (let line of lines) {
 			line = line.trim();
@@ -484,7 +171,7 @@ export class PSTeambuilder {
 				// packed format
 				const team = PS.teams.unpackLine(line);
 				if (!team) continue;
-				return this.unpackTeam(team.packedTeam);
+				return Teams.unpack(team.packedTeam);
 			} else if (!curSet) {
 				curSet = {
 					name: '', species: '', gender: '',
@@ -517,7 +204,7 @@ export class PSTeambuilder {
 			} else if (line.startsWith('===')) {
 				if (curTeam) {
 					// not the first team, store the previous team
-					curTeam.packedTeam = this.packTeam(sets!);
+					curTeam.packedTeam = Teams.pack(sets);
 					teams.push(curTeam);
 				}
 
@@ -541,7 +228,7 @@ export class PSTeambuilder {
 			} else if (line.includes('|')) {
 				if (curTeam) {
 					// not the first team, store the previous team
-					curTeam.packedTeam = this.packTeam(sets!);
+					curTeam.packedTeam = Teams.pack(sets);
 					teams.push(curTeam);
 				}
 				curTeam = null;
@@ -561,35 +248,12 @@ export class PSTeambuilder {
 			}
 		}
 		if (curTeam) {
-			curTeam.packedTeam = this.packTeam(sets!);
+			curTeam.packedTeam = Teams.pack(sets);
 			teams.push(curTeam);
 		}
 		return teams;
 	}
 
-	static packedTeamSpecies(buf: string) {
-		if (!buf) return [];
-
-		const team = [];
-		let i = 0;
-
-		while (true) {
-			const name = buf.slice(i, buf.indexOf('|', i));
-			i = buf.indexOf('|', i) + 1;
-
-			team.push(buf.slice(i, buf.indexOf('|', i)) || name);
-
-			for (let k = 0; k < 9; k++) {
-				i = buf.indexOf('|', i) + 1;
-			}
-
-			i = buf.indexOf(']', i) + 1;
-
-			if (i < 1) break;
-		}
-
-		return team;
-	}
 	static draggedTeam: Team | null = null;
 	static dragStart(ev: DragEvent) {
 		const href = (ev.currentTarget as HTMLAnchorElement)?.getAttribute('href');
@@ -628,7 +292,7 @@ export function TeamBox(props: { team: Team | null, noLink?: boolean, button?: b
 	let contents;
 	if (team) {
 		team.iconCache ||= team.packedTeam ? (
-			PSTeambuilder.packedTeamSpecies(team.packedTeam).map(
+			Teams.unpackSpeciesOnly(team.packedTeam).map(
 				// can't use <PSIcon>, weird interaction with iconCache
 				// don't try this at home; I'm a trained professional
 				pokemon => PSIcon({ pokemon })
