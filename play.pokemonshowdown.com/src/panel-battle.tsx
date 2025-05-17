@@ -403,7 +403,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 		const pp = props.moveData.maxpp ? `${props.moveData.pp!}/${props.moveData.maxpp}` : '\u2014';
 		return <button
 			data-cmd={props.cmd} data-tooltip={props.tooltip}
-			class={`movebutton type-${props.type} has-tooltip${props.moveData.disabled ? ' disabled' : ''}`}
+			class={`movebutton has-tooltip ${props.moveData.disabled ? 'disabled' : `type-${props.type}`}`}
 		>
 			{props.name}<br />
 			<small class="type">{props.type}</small> <small class="pp">{pp}</small>&nbsp;
