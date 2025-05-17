@@ -1587,7 +1587,7 @@ class BattleOptionsPanel extends PSRoomPanel {
 					<input
 						name="disallowspectators" checked={PS.prefs.disallowspectators || false}
 						type="checkbox" onChange={this.handleAllSettings}
-					/> <abbr title="You can still invite spectators by giving them the URL or using the /invite command">Invite only (hide from spectators)</abbr>
+					/> <abbr title="You can still invite spectators by giving them the URL or using the /invite command">Invite only (hide from Battles list)</abbr>
 				</label>
 			</p>
 			<p>
@@ -1595,7 +1595,7 @@ class BattleOptionsPanel extends PSRoomPanel {
 					<input
 						name="ignorenicks" checked={PS.prefs.ignorenicks || false}
 						type="checkbox" onChange={this.handleAllSettings}
-					/> Ignore nicknames
+					/> Ignore Pok&eacute;mon nicknames
 				</label>
 			</p>
 			<p>
@@ -1622,17 +1622,19 @@ class BattleOptionsPanel extends PSRoomPanel {
 					/> Automatically start timer
 				</label>
 			</p>
-			<p>
+			{!PS.prefs.onepanel && document.body.offsetWidth >= 800 && <p>
 				<label class="checkbox">
 					<input
 						name="rightpanel" checked={PS.prefs.rightpanelbattles || false}
 						type="checkbox" onChange={this.handleAllSettings}
-					/> Open new battles on the right side
+					/> Open new battles in the right-side panel
 				</label>
-			</p>
+			</p>}
 			<p class="buttonbar">
 				<button data-cmd="/close" class="button">Done</button> {}
-				{battleRoom && <button data-cmd="/closeand /inopener /offertie" class="button" disabled={!canOfferTie}>Offer Tie</button>}
+				{battleRoom && <button data-cmd="/closeand /inopener /offertie" class="button" disabled={!canOfferTie}>
+					Offer Tie
+				</button>}
 			</p>
 		</div>
 		</PSPanelWrapper>;

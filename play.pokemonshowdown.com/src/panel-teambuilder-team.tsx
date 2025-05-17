@@ -135,9 +135,28 @@ class TeamPanel extends PSRoomPanel<TeamRoom> {
 		this.props.room.save();
 		this.forceUpdate();
 	};
-
+	renderResources() {
+		const { room } = this.props;
+		const team = room.team;
+		const info = TeamPanel.formatResources[team.format];
+		const formatName = BattleLog.formatName(team.format);
+		return (info && (info.resources.length || info.url)) ? (
+			<details class="details" open>
+				<summary><strong>Teambuilding resources for {formatName}</strong></summary>
+				<div style="margin-left:5px"><ul>
+					{info.resources.map(resource => (
+						<li><p><a href={resource.url} target="_blank">{resource.resource_name}</a></p></li>
+					))}
+				</ul>
+				<p>
+					Find {info.resources.length ? 'more ' : ''}
+					helpful resources for {formatName} on <a href={info.url} target="_blank">the Smogon Dex</a>.
+				</p></div>
+			</details>
+		) : null;
+	}
 	override render() {
-		const room = this.props.room;
+		const { room } = this.props;
 		const team = room.team;
 		if (!team) {
 			return <PSPanelWrapper room={room}>
@@ -150,8 +169,6 @@ class TeamPanel extends PSRoomPanel<TeamRoom> {
 			</PSPanelWrapper>;
 		}
 
-		const info = TeamPanel.formatResources[team.format];
-		const formatName = BattleLog.formatName(team.format);
 		const unsaved = team.uploaded ? team.uploadedPackedTeam !== team.packedTeam : false;
 		return <PSPanelWrapper room={room} scrollable><div class="pad">
 			<a class="button" href="teambuilder" data-target="replace">
@@ -189,7 +206,9 @@ class TeamPanel extends PSRoomPanel<TeamRoom> {
 					onInput={this.handleRename} onChange={this.handleRename} onKeyUp={this.handleRename}
 				/>
 			</label>
-			<TeamEditor team={team} onChange={this.save} readonly={!!team.teamid && !team.uploadedPackedTeam}>
+			<TeamEditor
+				team={team} onChange={this.save} readonly={!!team.teamid && !team.uploadedPackedTeam} resources={this.renderResources()}
+			>
 				{!!(team.packedTeam && team.format.length > 4) && <p>
 					<button data-cmd="/validate" class="button"><i class="fa fa-check"></i> Validate</button>
 				</p>}
@@ -215,26 +234,12 @@ class TeamPanel extends PSRoomPanel<TeamRoom> {
 							/> Public
 						</label>
 						<button class="button exportbutton" onClick={this.uploadTeam}>
-							<i class="fa fa-upload"></i> Upload for shareable URL {}
-							{PS.prefs.uploadprivacy ? '' : '(and make searchable)'}
+							<i class="fa fa-upload"></i> Upload for
+							{PS.prefs.uploadprivacy ? ' shareable URL' : ' shareable/searchable URL'}
 						</button>
 					</> : null}
 				</p>}
 			</TeamEditor>
-			{!!(info && (info.resources.length || info.url)) && (
-				<details class="details" open>
-					<summary><strong>Teambuilding resources for {formatName}</strong></summary>
-					<div style="margin-left:5px"><ul>
-						{info.resources.map(resource => (
-							<li><p><a href={resource.url} target="_blank">{resource.resource_name}</a></p></li>
-						))}
-					</ul>
-					<p>
-						Find {info.resources.length ? 'more ' : ''}
-						helpful resources for {formatName} on <a href={info.url} target="_blank">the Smogon Dex</a>.
-					</p></div>
-				</details>
-			)}
 		</div></PSPanelWrapper>;
 	}
 }
