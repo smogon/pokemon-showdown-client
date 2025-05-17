@@ -7,8 +7,9 @@
 
 import { PS, type Team } from "./client-main";
 import { PSIcon, PSPanelWrapper, PSRoomPanel } from "./panels";
-import { Dex, toID, type ID, Teams } from "./battle-dex";
+import { Dex, toID, type ID } from "./battle-dex";
 import { BattleNatures, BattleStatIDs, type StatNameExceptHP } from "./battle-dex-data";
+import { Teams } from "./battle-teams";
 
 export class PSTeambuilder {
 	static exportPackedTeam(team: Team, newFormat?: boolean) {
