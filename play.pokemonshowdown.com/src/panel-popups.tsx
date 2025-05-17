@@ -1543,7 +1543,8 @@ class BattleOptionsPanel extends PSRoomPanel {
 	override render() {
 		const room = this.props.room;
 		const battleRoom = this.getBattleRoom();
-
+		const isPlayer = !!battleRoom?.battle.myPokemon;
+		const canOfferTie = battleRoom && ((battleRoom.battle.turn >= 100 && isPlayer) || PS.user.group === '~');
 		return <PSPanelWrapper room={room} width={380}><div class="pad">
 			{battleRoom && <>
 				<p><strong>In this battle</strong></p>
@@ -1629,7 +1630,12 @@ class BattleOptionsPanel extends PSRoomPanel {
 					/> Open new battles in the right-side panel
 				</label>
 			</p>}
-			<p><button data-cmd="/close" class="button">Done</button></p>
+			<p class="buttonbar">
+				<button data-cmd="/close" class="button">Done</button> {}
+				{battleRoom && <button data-cmd="/closeand /inopener /offertie" class="button" disabled={!canOfferTie}>
+					Offer Tie
+				</button>}
+			</p>
 		</div>
 		</PSPanelWrapper>;
 	}
