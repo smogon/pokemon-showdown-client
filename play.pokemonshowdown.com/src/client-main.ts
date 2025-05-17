@@ -17,7 +17,7 @@ import type { MainMenuRoom } from './panel-mainmenu';
 import { Dex, toID, type ID } from './battle-dex';
 import { BattleTextParser, type Args } from './battle-text-parser';
 import type { BattleRoom } from './panel-battle';
-import { PSTeambuilder } from './panel-teamdropdown';
+import { Teams } from './battle-teams';
 
 declare const BattleTextAFD: any;
 declare const BattleTextNotAFD: any;
@@ -242,10 +242,12 @@ class PSPrefs extends PSStreamModel<string | null> {
 
 		Dex.afdMode = mode;
 
-		if (mode === true) {
-			(BattleText as any) = BattleTextAFD;
-		} else {
-			(BattleText as any) = BattleTextNotAFD;
+		if (typeof BattleTextAFD !== 'undefined') {
+			if (mode === true) {
+				(BattleText as any) = BattleTextAFD;
+			} else {
+				(BattleText as any) = BattleTextNotAFD;
+			}
 		}
 	}
 	doAutojoin() {
@@ -476,7 +478,7 @@ class PSTeams extends PSStreamModel<'team' | 'format'> {
 						name: team.name,
 						format: team.format,
 						folder: '',
-						packedTeam: PSTeambuilder.packTeam(mons),
+						packedTeam: Teams.pack(mons),
 						iconCache: null,
 						isBox: false,
 						key: this.getKey(team.name),
@@ -529,7 +531,7 @@ class PSTeams extends PSStreamModel<'team' | 'format'> {
 		// if it's been edited since, invalidate the team id on this one (count it as new)
 		// and load from server
 		const mons = serverTeam.team.split(',').map(toID).sort().join(',');
-		const otherMons = PSTeambuilder.packedTeamSpecies(localTeam.packedTeam).map(toID).sort().join(',');
+		const otherMons = Teams.unpackSpeciesOnly(localTeam.packedTeam).map(toID).sort().join(',');
 		if (mons !== otherMons) return 'rename';
 		return true;
 	}
@@ -737,6 +739,7 @@ class PSServer {
 	id = Config.defaultserver.id;
 	host = Config.defaultserver.host;
 	port = Config.defaultserver.port;
+	httpport = Config.defaultserver.httpport;
 	altport = Config.defaultserver.altport;
 	registered = Config.defaultserver.registered;
 	prefix = '/showdown';
@@ -870,7 +873,7 @@ type ParsedClientCommands = {
 	) => string | boolean | null | void,
 };
 
-function makeLoadTracker() {
+export function makeLoadTracker() {
 	let resolver: () => void;
 	const tracker: Promise<void> & { loaded: () => void } = new Promise<void>(resolve => {
 		resolver = resolve;

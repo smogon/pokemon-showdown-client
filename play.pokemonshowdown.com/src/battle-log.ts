@@ -15,7 +15,8 @@
 
 import type { Battle } from './battle';
 import type { BattleScene } from './battle-animations';
-import { Dex, Teams, toID, toRoomid, toUserid, type ID } from './battle-dex';
+import { Dex, toID, toRoomid, toUserid, type ID } from './battle-dex';
+import { Teams } from './battle-teams';
 import { BattleTextParser, type Args, type KWArgs } from './battle-text-parser';
 import { Net } from './client-connection'; // optional
 
@@ -306,7 +307,7 @@ export class BattleLog {
 			if (!team.length) return;
 			const side = battle.getSide(args[1]);
 			const exportedTeam = team.map(set => {
-				let buf = Teams.export([set], battle.gen).replace(/\n/g, '<br />');
+				let buf = Teams.export([set], battle.dex).replace(/\n/g, '<br />');
 				if (set.name && set.name !== set.species) {
 					buf = buf.replace(set.name, BattleLog.sanitizeHTML(
 						`<span class="picon" style="${Dex.getPokemonIcon(set.species)}"></span><br />${set.name}`));

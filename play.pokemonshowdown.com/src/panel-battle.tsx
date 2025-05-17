@@ -95,7 +95,7 @@ class BattlesPanel extends PSRoomPanel<BattlesRoom> {
 				</p>
 
 				<p>
-					<label class="label">Format:</label><FormatDropdown onChange={this.changeFormat} />
+					<label class="label">Format:</label><FormatDropdown onChange={this.changeFormat} placeholder="(All formats)" />
 				</p>
 				{/* <label>
 					Minimum Elo: <select name="elofilter">

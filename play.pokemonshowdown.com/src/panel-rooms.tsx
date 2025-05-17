@@ -83,13 +83,14 @@ class RoomsPanel extends PSRoomPanel {
 			ev.preventDefault();
 			ev.stopImmediatePropagation();
 			target.value = '';
+			this.updateRoomList('');
 
 			PS.join(value as RoomID);
 		}
 	};
 	updateRoomList(search?: string) {
 		if (search) search = toID(search);
-		const forceNoAutocomplete = this.search.endsWith('-');
+		const forceNoAutocomplete = this.search === `${search || ''}-`;
 		if (search || this.search) {
 			if (search === undefined || search === this.search) return;
 			this.search = search;

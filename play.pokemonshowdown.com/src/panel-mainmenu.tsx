@@ -448,7 +448,7 @@ class NewsPanel extends PSRoomPanel {
 		const cookieSet = document.cookie.includes('preactalpha=1');
 		return <PSPanelWrapper room={this.props.room} fullSize scrollable>
 			<div class="construction">
-				This is the Preact client alpha test.
+				This is the Preact client beta test.
 				<form>
 					<label class="checkbox">
 						<input type="radio" name="preactalpha" value="1" onChange={this.change} checked={cookieSet} /> {}
@@ -463,6 +463,7 @@ class NewsPanel extends PSRoomPanel {
 						Back to the old client
 					</label>
 				</form>
+				Provide feedback in <a href="development" style="color:black">the Dev chatroom</a>.
 			</div>
 			<div class="readable-bg" dangerouslySetInnerHTML={{ __html: PS.newsHTML }}></div>
 		</PSPanelWrapper>;
@@ -770,7 +771,7 @@ export class TeamForm extends preact.Component<{
 }> {
 	format = '';
 	changeFormat = (ev: Event) => {
-		this.setState({ format: (ev.target as HTMLButtonElement).value });
+		this.format = (ev.target as HTMLButtonElement).value;
 	};
 	submit = (ev: Event, validate?: 'validate') => {
 		ev.preventDefault();
