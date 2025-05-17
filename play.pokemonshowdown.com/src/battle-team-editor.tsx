@@ -1044,7 +1044,7 @@ class TeamTextbox extends preact.Component<{ editor: TeamEditorState, onChange?:
 		this.forceUpdate();
 	};
 	engageFocus(focus?: this['innerFocus']) {
-		if (this.innerFocus) return;
+		if (this.innerFocus && !focus) return;
 		const editor = this.editor;
 		if (editor.readonly) return;
 
@@ -1420,6 +1420,7 @@ class TeamTextbox extends preact.Component<{ editor: TeamEditorState, onChange?:
 					{this.setInfo.map((info, i) => {
 						if (!info.species) return null;
 						const set = editor.sets[i];
+						if (!set) return null;
 						const prevOffset = i === 0 ? 8 : this.setInfo[i - 1].bottomY;
 						const species = editor.dex.species.get(info.species);
 						const num = Dex.getPokemonIconNum(species.id);
