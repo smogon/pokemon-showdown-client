@@ -14,9 +14,10 @@ import { PSModel, PSStreamModel } from './client-core';
 import type { PSRoomPanel, PSRouter } from './panels';
 import { ChatRoom } from './panel-chat';
 import type { MainMenuRoom } from './panel-mainmenu';
-import { Dex, Teams, toID, type ID } from './battle-dex';
+import { Dex, toID, type ID } from './battle-dex';
 import { BattleTextParser, type Args } from './battle-text-parser';
 import type { BattleRoom } from './panel-battle';
+import { Teams } from './battle-teams';
 
 declare const BattleTextAFD: any;
 declare const BattleTextNotAFD: any;
