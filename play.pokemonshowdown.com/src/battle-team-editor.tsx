@@ -740,6 +740,7 @@ class TeamTextbox extends preact.Component<{ editor: TeamEditorState, onChange?:
 	} | null = null;
 	getYAt(index: number, fullLine?: boolean) {
 		if (index < 0) return 10;
+		if (index === 0) return 31;
 		const newValue = this.textbox.value.slice(0, index);
 		this.heightTester.value = fullLine && !newValue.endsWith('\n') ? newValue + '\n' : newValue;
 		return this.heightTester.scrollHeight;
@@ -1296,10 +1297,10 @@ class TeamTextbox extends preact.Component<{ editor: TeamEditorState, onChange?:
 		});
 	};
 	addPokemon = () => {
-		if (!this.textbox.value.endsWith('\n\n')) {
+		if (this.textbox.value && !this.textbox.value.endsWith('\n\n')) {
 			this.textbox.value += this.textbox.value.endsWith('\n') ? '\n' : '\n\n';
 		}
-		const end = this.textbox.value.length;
+		const end = this.textbox.value === '\n\n' ? 0 : this.textbox.value.length;
 		this.textbox.setSelectionRange(end, end);
 		this.textbox.focus();
 		this.engageFocus({
@@ -1628,16 +1629,18 @@ class TeamWizard extends preact.Component<{
 							<span class="detailcell">
 								<strong class="label">Level</strong> {}
 								{set.level || editor.defaultLevel}
-								{editor.narrow && set.shiny && <><br /><img src="/sprites/misc/shiny.png" width={22} height={22} alt="Shiny" /></>}
+								{editor.narrow && set.shiny && <><br />
+									<img src={`${Dex.resourcePrefix}sprites/misc/shiny.png`} width={22} height={22} alt="Shiny" />
+								</>}
 								{!editor.narrow && set.gender && set.gender !== 'N' && <>
 									<br /><img
-										src={`/fx/gender-${set.gender.toLowerCase()}.png`} alt={set.gender} width="7" height="10" class="pixelated"
+										src={`${Dex.fxPrefix}gender-${set.gender.toLowerCase()}.png`} alt={set.gender} width="7" height="10" class="pixelated"
 									/>
 								</>}
 							</span>
 							{!editor.narrow && <span class="detailcell">
 								<strong class="label">Shiny</strong> {}
-								{set.shiny ? <img src="/sprites/misc/shiny.png" width={22} height={22} alt="Yes" /> : '\u2014'}
+								{set.shiny ? <img src={`${Dex.resourcePrefix}sprites/misc/shiny.png`} width={22} height={22} alt="Yes" /> : '\u2014'}
 							</span>}
 							{editor.gen === 9 && <span class="detailcell">
 								<strong class="label">Tera</strong> {}
@@ -2596,7 +2599,7 @@ class DetailsForm extends preact.Component<{
 		const genderTable = { 'M': "Male", 'F': "Female" };
 		if (gender === 'N') return 'Unknown';
 		return <>
-			<img src={`/fx/gender-${gender.toLowerCase()}.png`} alt="" width="7" height="10" class="pixelated" /> {}
+			<img src={`${Dex.fxPrefix}gender-${gender.toLowerCase()}.png`} alt="" width="7" height="10" class="pixelated" /> {}
 			{genderTable[gender]}
 		</>;
 	}
@@ -2621,7 +2624,7 @@ class DetailsForm extends preact.Component<{
 						<label class="checkbox inline"><input
 							type="radio" name="shiny" value="true" checked={set.shiny}
 							onInput={this.changeShiny} onChange={this.changeShiny}
-						/> <img src="/sprites/misc/shiny.png" width={22} height={22} alt="Shiny" /> Yes</label>
+						/> <img src={`${Dex.resourcePrefix}sprites/misc/shiny.png`} width={22} height={22} alt="Shiny" /> Yes</label>
 						<label class="checkbox inline"><input
 							type="radio" name="shiny" value="" checked={!set.shiny}
 							onInput={this.changeShiny} onChange={this.changeShiny}

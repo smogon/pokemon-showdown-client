@@ -32,8 +32,11 @@ type Challenge = {
 
 export class ChatRoom extends PSRoom {
 	override readonly classType: 'chat' | 'battle' = 'chat';
+	/** note: includes offline users! use onlineUsers if you need onlineUsers */
 	users: { [userid: string]: string } = {};
+	/** not equal to onlineUsers.length because guests exist */
 	userCount = 0;
+	onlineUsers: [ID, string][] = [];
 	override readonly canConnect = true;
 
 	// PM-only properties
@@ -51,7 +54,7 @@ export class ChatRoom extends PSRoom {
 
 	joinLeave: { join: string[], leave: string[], messageId: string } | null = null;
 	/** in order from least to most recent */
-	userActivity: string[] = [];
+	userActivity: ID[] = [];
 	timeOffset = 0;
 	static highlightRegExp: Record<string, RegExp | null> | null = null;
 
@@ -533,6 +536,7 @@ export class ChatRoom extends PSRoom {
 	markUserActive(name: string) {
 		const userid = toID(name);
 		const idx = this.userActivity.indexOf(userid);
+		this.users[userid] = name;
 		if (idx !== -1) {
 			this.userActivity.splice(idx, 1);
 		}
@@ -552,28 +556,43 @@ export class ChatRoom extends PSRoom {
 	}
 	setUsers(count: number, usernames: string[]) {
 		this.userCount = count;
-		this.users = {};
+		this.onlineUsers = [];
 		for (const username of usernames) {
 			const userid = toID(username);
 			this.users[userid] = username;
+			this.onlineUsers.push([userid, username]);
 		}
+		this.sortOnlineUsers();
 		this.update(null);
+	}
+	sortOnlineUsers() {
+		PSUtils.sortBy(this.onlineUsers, ([id, name]) => (
+			[PS.server.getGroup(name.charAt(0)).order, !name.endsWith('@!'), id]
+		));
 	}
 	addUser(username: string) {
 		if (!username) return;
 
 		const userid = toID(username);
-		if (!(userid in this.users)) this.userCount++;
 		this.users[userid] = username;
+		const index = this.onlineUsers.findIndex(([curUserid]) => curUserid === userid);
+		if (index >= 0) {
+			this.onlineUsers[index] = [userid, username];
+		} else {
+			this.userCount++;
+			this.onlineUsers.push([userid, username]);
+			this.sortOnlineUsers();
+		}
 		this.update(null);
 	}
 	removeUser(username: string, noUpdate?: boolean) {
 		if (!username) return;
 
 		const userid = toID(username);
-		if (userid in this.users) {
+		const index = this.onlineUsers.findIndex(([curUserid]) => curUserid === userid);
+		if (index >= 0) {
 			this.userCount--;
-			delete this.users[userid];
+			this.onlineUsers.splice(index, 1);
 			if (!noUpdate) this.update(null);
 		}
 	}
@@ -896,8 +915,8 @@ export class ChatTextEntry extends preact.Component<{
 					// shorter prefix length comes first
 					return a.prefixIndex - b.prefixIndex;
 				}
-				const aIndex = userActivity?.indexOf(a.userid) ?? -1;
-				const bIndex = userActivity?.indexOf(b.userid) ?? -1;
+				const aIndex = userActivity?.indexOf(a.userid as ID) ?? -1;
+				const bIndex = userActivity?.indexOf(b.userid as ID) ?? -1;
 				if (aIndex !== bIndex) {
 					return bIndex - aIndex; // -1 is fortunately already in the correct order
 				}
@@ -1128,10 +1147,6 @@ export class ChatUserList extends preact.Component<{
 }> {
 	render() {
 		const room = this.props.room;
-		let userList = Object.entries(room.users) as [ID, string][];
-		PSUtils.sortBy(userList, ([id, name]) => (
-			[PS.server.getGroup(name.charAt(0)).order, !name.endsWith('@!'), id]
-		));
 		const pmTargetid = room.pmTarget ? toID(room.pmTarget) : null;
 		return <div
 			class={'userlist' + (this.props.minimized ? ' userlist-hidden' : this.props.static ? ' userlist-static' : '')}
@@ -1152,7 +1167,7 @@ export class ChatUserList extends preact.Component<{
 				<button data-href="userlist" class="button button-middle">{room.userCount} users</button>
 			)}
 			<ul>
-				{userList.map(([userid, name]) => {
+				{room.onlineUsers.map(([userid, name]) => {
 					const groupSymbol = name.charAt(0);
 					const group = PS.server.groups[groupSymbol] || { type: 'user', order: 0 };
 					let color;

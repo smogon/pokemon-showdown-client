@@ -64,8 +64,8 @@ export const Teams = new class {
 			buf += (set.name || set.species);
 
 			// species
-			const id = this.packName(set.species || set.name);
-			buf += `|${this.packName(set.name || set.species) === id ? '' : id}`;
+			const speciesid = this.packName(set.species || set.name);
+			buf += `|${this.packName(set.name || set.species) === speciesid ? '' : speciesid}`;
 
 			// item
 			buf += `|${this.packName(set.item)}`;
@@ -162,12 +162,14 @@ export const Teams = new class {
 
 			// name
 			j = buf.indexOf('|', i);
-			set.name = buf.substring(i, j);
+			const name = buf.substring(i, j);
 			i = j + 1;
 
 			// species
 			j = buf.indexOf('|', i);
-			set.species = Dex.species.get(buf.substring(i, j)).name || set.name;
+			const species = Dex.species.get(buf.substring(i, j) || name);
+			set.species = species.name;
+			if (species.baseSpecies !== name) set.name = name;
 			i = j + 1;
 
 			// item
@@ -178,7 +180,6 @@ export const Teams = new class {
 			// ability
 			j = buf.indexOf('|', i);
 			const ability = Dex.abilities.get(buf.substring(i, j)).name;
-			const species = Dex.species.get(set.species);
 			set.ability = (species.abilities &&
 				['', '0', '1', 'H', 'S'].includes(ability) ? species.abilities[ability as '0' || '0'] : ability);
 			i = j + 1;
