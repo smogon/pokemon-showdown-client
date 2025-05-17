@@ -21,7 +21,6 @@ type SelectionType = 'pokemon' | 'ability' | 'item' | 'move' | 'stats' | 'detail
 
 class TeamEditorState extends PSModel {
 	team: Team;
-	isLinkFetching = false;
 	sets: Dex.PokemonSet[] = [];
 	gen = Dex.gen;
 	dex: ModdedDex = Dex;
@@ -606,6 +605,7 @@ class TeamEditorState extends PSModel {
 
 export class TeamEditor extends preact.Component<{
 	team: Team, narrow?: boolean, onChange?: () => void, readonly?: boolean,
+	fetching: boolean, setFetching: (val: boolean) => void,
 	children?: preact.ComponentChildren,
 }> {
 	buttons = true;
@@ -683,9 +683,9 @@ export class TeamEditor extends preact.Component<{
 				</button></li>
 			</ul>
 			{this.buttons ? (
-				<TeamWizard editor={this.editor} onChange={this.props.onChange} />
+				<TeamWizard editor={this.editor} fetching={this.props.fetching} onChange={this.props.onChange} />
 			) : (
-				<TeamTextbox editor={this.editor} onChange={this.props.onChange} />
+				<TeamTextbox editor={this.editor} setFetching={this.props.setFetching} onChange={this.props.onChange} />
 			)}
 			{this.props.children}
 			<div class="team-resources">
@@ -696,7 +696,11 @@ export class TeamEditor extends preact.Component<{
 	}
 }
 
-class TeamTextbox extends preact.Component<{ editor: TeamEditorState, onChange?: () => void }> {
+class TeamTextbox extends preact.Component<{
+	editor: TeamEditorState,
+	setFetching: (fetching: boolean) => void,
+	onChange?: () => void,
+}> {
 	static EMPTY_PROMISE = Promise.resolve(null);
 	editor!: TeamEditorState;
 	setInfo: {
@@ -851,7 +855,7 @@ class TeamTextbox extends preact.Component<{ editor: TeamEditorState, onChange?:
 
 		const pokepaste = /^https?:\/\/pokepast.es\/([a-z0-9]+)(?:\/.*)?$/.exec(value)?.[1];
 		if (pokepaste) {
-			this.editor.isLinkFetching = true;
+			this.props.setFetching(true);
 			Net(`https://pokepast.es/${pokepaste}/json`).get().then(json => {
 				const paste = JSON.parse(json);
 				const pasteTxt = paste.paste.replace(/\r\n/g, '\n');
@@ -873,7 +877,7 @@ class TeamTextbox extends preact.Component<{ editor: TeamEditorState, onChange?:
 				if (title && !title.startsWith('Untitled')) {
 					this.editor.team.name = title.replace(/[|\\/]/g, '');
 				}
-				this.editor.isLinkFetching = false;
+				this.props.setFetching(false);
 			});
 			return true;
 		}
@@ -1501,7 +1505,7 @@ class TeamTextbox extends preact.Component<{ editor: TeamEditorState, onChange?:
 }
 
 class TeamWizard extends preact.Component<{
-	editor: TeamEditorState, onChange?: () => void,
+	editor: TeamEditorState, fetching: boolean, onChange?: () => void,
 }> {
 	innerFocus: {
 		setIndex: number,
@@ -1961,9 +1965,9 @@ class TeamWizard extends preact.Component<{
 		</div>;
 	}
 	override render() {
-		const { editor } = this.props;
+		const { editor, fetching: isFetching } = this.props;
 		if (this.innerFocus) return this.renderInnerFocus();
-		if (editor.isLinkFetching) {
+		if (isFetching) {
 			return <div class="teameditor">Fetching Paste...</div>;
 		}
 
