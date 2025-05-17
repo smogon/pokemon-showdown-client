@@ -1543,8 +1543,12 @@ class BattleOptionsPanel extends PSRoomPanel {
 	override render() {
 		const room = this.props.room;
 		const battleRoom = this.getBattleRoom();
-		const isPlayer = ['\u2606', '\u2605'].includes(battleRoom!.users[PS.user.userid]?.charAt(0));
-		const canOfferTie = (battleRoom!.battle.turn >= 100 && isPlayer) || PS.user.group === '~';
+		let isPlayer = false;
+		let canOfferTie = false;
+		if (battleRoom) {
+			isPlayer = ['\u2606', '\u2605'].includes(battleRoom.users[PS.user.userid]?.charAt(0));
+			canOfferTie = (battleRoom.battle.turn >= 100 && isPlayer) || PS.user.group === '~';
+		}
 		return <PSPanelWrapper room={room} width={380}><div class="pad">
 			{battleRoom && <>
 				<p><strong>In this battle</strong></p>
