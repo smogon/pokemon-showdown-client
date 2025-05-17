@@ -925,9 +925,6 @@ class TeamTextbox extends preact.Component<{ editor: TeamEditorState, onChange?:
 					this.updateSearch();
 					this.setDirty = true;
 				}
-				if (selectionStart === 0 && selectionEnd === 0) {
-					this.clearInnerFocus();
-				}
 				return;
 			}
 			this.clearInnerFocus();
