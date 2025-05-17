@@ -611,6 +611,7 @@ class TeamEditorState extends PSModel {
 
 export class TeamEditor extends preact.Component<{
 	team: Team, narrow?: boolean, onChange?: () => void, readonly?: boolean,
+	fetching: boolean, setFetching: (val: boolean) => void,
 	children?: preact.ComponentChildren, resources?: preact.ComponentChildren,
 }> {
 	wizard = true;
@@ -695,9 +696,9 @@ export class TeamEditor extends preact.Component<{
 				</button></li>
 			</ul>
 			{this.wizard ? (
-				<TeamWizard editor={this.editor} onChange={this.props.onChange} onChangeView={this.update} />
+				<TeamWizard editor={this.editor} fetching={this.props.fetching} onChange={this.props.onChange} onChangeView={this.update} />
 			) : (
-				<TeamTextbox editor={this.editor} onChange={this.props.onChange} />
+				<TeamTextbox editor={this.editor} setFetching={this.props.setFetching} onChange={this.props.onChange} />
 			)}
 			{this.props.children}
 			<div class="team-resources">
@@ -709,7 +710,12 @@ export class TeamEditor extends preact.Component<{
 	}
 }
 
-class TeamTextbox extends preact.Component<{ editor: TeamEditorState, onChange?: () => void }> {
+class TeamTextbox extends preact.Component<{
+	editor: TeamEditorState,
+	setFetching: (fetching: boolean) => void,
+	onChange?: () => void,
+}> {
+	static EMPTY_PROMISE = Promise.resolve(null);
 	editor!: TeamEditorState;
 	setInfo: {
 		species: string,
@@ -863,11 +869,29 @@ class TeamTextbox extends preact.Component<{ editor: TeamEditorState, onChange?:
 
 		const pokepaste = /^https?:\/\/pokepast.es\/([a-z0-9]+)(?:\/.*)?$/.exec(value)?.[1];
 		if (pokepaste) {
+			this.props.setFetching(true);
 			Net(`https://pokepast.es/${pokepaste}/json`).get().then(json => {
 				const paste = JSON.parse(json);
-				// make sure it's still there:
-				const valueIndex = this.textbox.value.indexOf(value);
-				this.replace(paste.paste.replace(/\r\n/g, '\n'), valueIndex, valueIndex + value.length);
+				const pasteTxt = paste.paste.replace(/\r\n/g, '\n');
+				if (this.textbox) {
+					// make sure it's still there:
+					const valueIndex = this.textbox.value.indexOf(value);
+					this.replace(paste.paste.replace(/\r\n/g, '\n'), valueIndex, valueIndex + value.length);
+				} else {
+					this.editor.import(pasteTxt);
+				}
+				const notes = paste["notes"] as string;
+				if (notes.startsWith("Format: ")) {
+					const formatid = toID(notes.slice(8));
+					if (BattleFormats[formatid]) {
+						this.editor.setFormat(formatid);
+					}
+				}
+				const title = paste["title"] as string;
+				if (title && !title.startsWith('Untitled')) {
+					this.editor.team.name = title.replace(/[|\\/]/g, '');
+				}
+				this.props.setFetching(false);
 			});
 			return true;
 		}
@@ -1330,6 +1354,7 @@ class TeamTextbox extends preact.Component<{ editor: TeamEditorState, onChange?:
 		}
 		return null;
 	}
+
 	renderDetails(set: Dex.PokemonSet, i: number) {
 		const editor = this.editor;
 		const species = editor.dex.species.get(set.species);
@@ -1407,6 +1432,7 @@ class TeamTextbox extends preact.Component<{ editor: TeamEditorState, onChange?:
 					class="textbox teamtextbox" style={`padding-left:${editor.narrow ? '50px' : '100px'}`}
 					onInput={this.input} onContextMenu={this.contextMenu} onKeyUp={this.keyUp} onKeyDown={this.keyDown}
 					readOnly={editor.readonly} onChange={this.maybeReplaceLine}
+					placeholder="Paste exported teams, pokepaste URLs, or JSON here"
 				/>
 				<textarea
 					class="textbox teamtextbox heighttester" tabIndex={-1} aria-hidden
@@ -1494,7 +1520,7 @@ class TeamTextbox extends preact.Component<{ editor: TeamEditorState, onChange?:
 }
 
 class TeamWizard extends preact.Component<{
-	editor: TeamEditorState, onChange?: () => void, onChangeView: () => void,
+	editor: TeamEditorState, fetching: boolean, onChange?: () => void, onChangeView: () => void,
 }> {
 	setSearchBox: string | null = null;
 	windowing = true;
@@ -1950,8 +1976,11 @@ class TeamWizard extends preact.Component<{
 		</div>;
 	}
 	override render() {
-		const { editor } = this.props;
+		const { editor, fetching: isFetching } = this.props;
 		if (editor.innerFocus) return this.renderInnerFocus();
+		if (isFetching) {
+			return <div class="teameditor">Fetching Paste...</div>;
+		}
 
 		const deletedSet = (i: number) => editor.deletedSet?.index === i ? <p style="text-align:right">
 			<button class="button" onClick={this.undeleteSet}>
