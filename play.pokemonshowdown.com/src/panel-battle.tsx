@@ -361,7 +361,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 		return <div class="controls">
 			<p>
 				{atEnd ? (
-					<button class="button disabled" data-cmd="/play" style="min-width:4.5em">
+					<button class="button disabled" aria-disabled data-cmd="/play" style="min-width:4.5em">
 						<i class="fa fa-play" aria-hidden></i><br />Play
 					</button>
 				) : room.battle.paused ? (
@@ -404,6 +404,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 		return <button
 			data-cmd={props.cmd} data-tooltip={props.tooltip}
 			class={`movebutton has-tooltip ${props.moveData.disabled ? 'disabled' : `type-${props.type}`}`}
+			aria-disabled={props.moveData.disabled}
 		>
 			{props.name}<br />
 			<small class="type">{props.type}</small> <small class="pp">{pp}</small>&nbsp;
@@ -416,7 +417,8 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 		if (!pokemon) {
 			return <button
 				data-cmd={props.cmd} class={`${props.disabled ? 'disabled ' : ''}has-tooltip`}
-				style={{ opacity: props.disabled === 'fade' ? 0.5 : 1 }} data-tooltip={props.tooltip}
+				aria-disabled={props.disabled}
+				style={props.disabled === 'fade' ? 'opacity: 0.5' : ''} data-tooltip={props.tooltip}
 			>
 				(empty slot)
 			</button>;
@@ -431,7 +433,8 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 
 		return <button
 			data-cmd={props.cmd} class={`${props.disabled ? 'disabled ' : ''}has-tooltip`}
-			style={{ opacity: props.disabled === 'fade' ? 0.5 : 1 }} data-tooltip={props.tooltip}
+			aria-disabled={props.disabled}
+			style={props.disabled === 'fade' ? 'opacity: 0.5' : ''} data-tooltip={props.tooltip}
 		>
 			{PSIcon({ pokemon })}
 			{pokemon.name}
