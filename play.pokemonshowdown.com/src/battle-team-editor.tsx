@@ -1033,7 +1033,7 @@ class TeamTextbox extends preact.Component<{ editor: TeamEditorState, onChange?:
 		this.forceUpdate();
 	};
 	engageFocus(focus?: this['innerFocus']) {
-		if (this.innerFocus) return;
+		if (this.innerFocus && !focus) return;
 		const editor = this.editor;
 		if (editor.readonly) return;
 
@@ -1067,10 +1067,6 @@ class TeamTextbox extends preact.Component<{ editor: TeamEditorState, onChange?:
 		this.resetScroll();
 		this.textbox.setSelectionRange(focus.range[0], focus.range[1]);
 		this.forceUpdate();
-	}
-	overrideFocus(focus: this['innerFocus']) {
-		this.innerFocus = null;
-		this.engageFocus(focus);
 	}
 	updateSearch() {
 		if (!this.innerFocus) return;
@@ -1279,7 +1275,7 @@ class TeamTextbox extends preact.Component<{ editor: TeamEditorState, onChange?:
 			this.forceUpdate();
 			return;
 		}
-		this.overrideFocus({
+		this.engageFocus({
 			offsetY: null,
 			setIndex: i,
 			type: target.name as SelectionType,
