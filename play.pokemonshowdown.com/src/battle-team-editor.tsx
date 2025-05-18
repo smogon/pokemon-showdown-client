@@ -2483,8 +2483,7 @@ class StatForm extends preact.Component<{
 	}
 }
 class DingbatKeyboard extends preact.Component<{
-	set: Dex.PokemonSet,
-	onChange: () => void,
+	onClickDingbat: (ev: MouseEvent) => void,
 }> {
 	override state = {
 		isWide: false,
@@ -2521,16 +2520,6 @@ class DingbatKeyboard extends preact.Component<{
 			{ isWide: (ev.target as HTMLInputElement).checked }
 		);
 	};
-	onClickDingbat = (ev: Event) => {
-		const target = ev.currentTarget as HTMLButtonElement;
-		const ding = target.value;
-		if (this.props.set.name) {
-			this.props.set.name += ding;
-		} else {
-			this.props.set.name = ding;
-		}
-		this.props.onChange();
-	};
 
 	override render() {
 		const dingbats = this.state.isWide ?
@@ -2540,7 +2529,7 @@ class DingbatKeyboard extends preact.Component<{
 			arr => {
 				return (<li>
 					{arr.map(ding =>
-						<button class="dingbat-button" onClick={this.onClickDingbat} value={ding}>
+						<button class="dingbat-button" onClick={this.props.onClickDingbat} value={ding}>
 							{ding}
 						</button>
 					)}
@@ -2673,6 +2662,19 @@ class DetailsForm extends preact.Component<{
 	onToggleKeyboard = () => {
 		this.setState({ dingbatKeyboardVisible: !this.state.dingbatKeyboardVisible });
 	};
+	onClickDingbat = (ev: Event) => {
+		const target = ev.currentTarget as HTMLButtonElement;
+		const ding = target.value;
+		const nickname = this.base!.querySelector<HTMLInputElement>('input[name="nickname"]');
+		if (!nickname) return;
+
+		nickname.focus();
+		document.execCommand('insertText', false, ding);
+
+		const { set } = this.props;
+		set.name = nickname.value.trim();
+		this.props.onChange();
+	};
 	renderGender(gender: Dex.GenderName) {
 		const genderTable = { 'M': "Male", 'F': "Female" };
 		if (gender === 'N') return 'Unknown';
@@ -2700,7 +2702,7 @@ class DetailsForm extends preact.Component<{
 						>&#xe082;</button>
 					</div>
 				</p>
-				{this.state.dingbatKeyboardVisible && <DingbatKeyboard set={set} onChange={this.props.onChange} />}
+				{this.state.dingbatKeyboardVisible && <DingbatKeyboard onClickDingbat={this.onClickDingbat} />}
 				<p><label class="label">Level: <input
 					name="level" value={set.level ?? ''} placeholder={`${editor.defaultLevel}`}
 					type="number" inputMode="numeric" min="1" max="100" step="1"
