@@ -2540,20 +2540,16 @@ class DingbatKeyboard extends preact.Component<{
 			arr => {
 				return (<li>
 					{arr.map(ding =>
-						<button
-							class="dingbat-button"
-							onClick={this.onClickDingbat}
-							value={ding}
-						>{ding}</button>
+						<button class="dingbat-button" onClick={this.onClickDingbat} value={ding}>
+							{ding}
+						</button>
 					)}
 				</li>);
 			}
 		);
 		return (
-			<ul
-				class="dingbat-keyboard"
-			>
-				{ dingbats_elements }
+			<ul class="dingbat-keyboard">
+				{dingbats_elements}
 				<li><input
 					type="checkbox" name="wideCheckbox"
 					onChange={this.onWideCheckboxChange}
@@ -2693,7 +2689,7 @@ class DetailsForm extends preact.Component<{
 			<div class="pad">
 				<p>
 					<label class="label">Nickname: </label>
-					<div style={{ block: "inline" }}>
+					<div class="labeled">
 						<input
 							name="nickname" class="textbox default-placeholder" placeholder={species.baseSpecies}
 							onInput={this.changeNickname} onChange={this.changeNickname}
