@@ -2459,4 +2459,5 @@ pre.textbox.textbox-empty[placeholder]:before {
 	width: fit-content;
 	block-size: fitContent;
 	padding-right: 2em;
+	padding-top: 0.5em;
 }

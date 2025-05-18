@@ -2665,10 +2665,19 @@ class DetailsForm extends preact.Component<{
 		return <div style="font-size:10pt" role="dialog" aria-label="Details">
 			<div class="resultheader"><h3>Details</h3></div>
 			<div class="pad">
-				<p><label class="label">Nickname: <input
-					name="nickname" class="textbox default-placeholder" placeholder={species.baseSpecies}
-					onInput={this.changeNickname} onChange={this.changeNickname}
-				/></label></p>
+				<p>
+					<label class="label" >Nickname: </label>
+					<div style={{block:"inline"}}>
+					<input
+						name="nickname" class="textbox default-placeholder" placeholder={species.baseSpecies}
+						onInput={this.changeNickname} onChange={this.changeNickname}
+					/>
+					<button onClick={()=>{
+						this.setState({dingbatKeyboardVisible: !this.state.dingbatKeyboardVisible});
+					}} class="button">&#xe082;</button>
+					</div>
+				</p>
+				{this.state.dingbatKeyboardVisible&&<DingbatKeyboard set={set} onchange={this.props.onChange}/>}
 				<p><label class="label">Level: <input
 					name="level" value={set.level ?? ''} placeholder={`${editor.defaultLevel}`}
 					type="number" inputMode="numeric" min="1" max="100" step="1"
