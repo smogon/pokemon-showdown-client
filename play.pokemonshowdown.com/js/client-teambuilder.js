@@ -3722,7 +3722,7 @@
 					buf += ">" + dingbats_halfwidth[i] + "</button>";
 				}
 			}
-			buf += '</li><input type="checkbox" name="wideCheckbox"></input>Wide</ul>';
+			buf += '</li><li><label><input type="checkbox" name="wideCheckbox"></input>Wide</label></li></ul>';
 			this.$el.html(buf);
 
 			var $el = this.$el;
