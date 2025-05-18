@@ -102,11 +102,6 @@ class TeamPanel extends PSRoomPanel<TeamRoom> {
 			});
 	}
 
-	fetching = false;
-	setFetching = (val: boolean) => {
-		this.fetching = val;
-		this.forceUpdate();
-	};
 	handleRename = (ev: Event) => {
 		const textbox = ev.currentTarget as HTMLInputElement;
 		const room = this.props.room;
@@ -114,10 +109,12 @@ class TeamPanel extends PSRoomPanel<TeamRoom> {
 		room.team.name = textbox.value.trim();
 		room.save();
 	};
+
 	uploadTeam = (ev: Event) => {
 		const room = this.props.room;
 		room.upload(room.team.uploaded ? !!room.team.uploaded.private : PS.prefs.uploadprivacy);
 	};
+
 	changePrivacyPref = (ev: Event) => {
 		PS.prefs.uploadprivacy = !(ev.currentTarget as HTMLInputElement).checked;
 		PS.prefs.save();
@@ -126,6 +123,7 @@ class TeamPanel extends PSRoomPanel<TeamRoom> {
 	handleChangeFormat = (ev: Event) => {
 		const dropdown = ev.currentTarget as HTMLButtonElement;
 		const room = this.props.room;
+
 		room.setFormat(dropdown.value);
 		room.save();
 		this.forceUpdate();
@@ -210,7 +208,6 @@ class TeamPanel extends PSRoomPanel<TeamRoom> {
 			</label>
 			<TeamEditor
 				team={team} onChange={this.save} readonly={!!team.teamid && !team.uploadedPackedTeam} resources={this.renderResources()}
-				fetching={this.fetching} setFetching={this.setFetching}
 			>
 				{!!(team.packedTeam && team.format.length > 4) && <p>
 					<button data-cmd="/validate" class="button"><i class="fa fa-check"></i> Validate</button>

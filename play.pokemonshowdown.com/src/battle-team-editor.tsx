@@ -49,6 +49,7 @@ class TeamEditorState extends PSModel {
 	abilityLegality: 'normal' | 'hackmons' = 'normal';
 	defaultLevel = 100;
 	readonly = false;
+	fetching = false;
 	constructor(team: Team) {
 		super();
 		this.team = team;
@@ -611,7 +612,6 @@ class TeamEditorState extends PSModel {
 
 export class TeamEditor extends preact.Component<{
 	team: Team, narrow?: boolean, onChange?: () => void, readonly?: boolean,
-	fetching: boolean, setFetching: (val: boolean) => void,
 	children?: preact.ComponentChildren, resources?: preact.ComponentChildren,
 }> {
 	wizard = true;
@@ -674,16 +674,21 @@ export class TeamEditor extends preact.Component<{
 	update = () => {
 		this.forceUpdate();
 	};
+	setFetching = (fetching: boolean) => {
+		this.editor.fetching = fetching;
+		this.forceUpdate();
+	};
 	override render() {
 		this.editor ||= new TeamEditorState(this.props.team);
-		this.editor.setReadonly(!!this.props.readonly);
-		this.editor.narrow = this.props.narrow ?? document.body.offsetWidth < 500;
-		if (this.props.team.format !== this.editor.format) {
-			this.editor.setFormat(this.props.team.format);
+		const editor = this.editor;
+		editor.setReadonly(!!this.props.readonly);
+		editor.narrow = this.props.narrow ?? document.body.offsetWidth < 500;
+		if (this.props.team.format !== editor.format) {
+			editor.setFormat(this.props.team.format);
 		}
 
-		if (this.editor.innerFocus) {
-			return <TeamWizard editor={this.editor} onChange={this.props.onChange} onChangeView={this.update} />;
+		if (editor.innerFocus) {
+			return <TeamWizard editor={editor} onChange={this.props.onChange} onChangeView={this.update} />;
 		}
 
 		return <div class="teameditor">
@@ -696,9 +701,9 @@ export class TeamEditor extends preact.Component<{
 				</button></li>
 			</ul>
 			{this.wizard ? (
-				<TeamWizard editor={this.editor} fetching={this.props.fetching} onChange={this.props.onChange} onChangeView={this.update} />
+				<TeamWizard editor={editor} onChange={this.props.onChange} onChangeView={this.update} />
 			) : (
-				<TeamTextbox editor={this.editor} setFetching={this.props.setFetching} onChange={this.props.onChange} />
+				<TeamTextbox editor={editor} setFetching={this.setFetching} onChange={this.props.onChange} />
 			)}
 			{this.props.children}
 			<div class="team-resources">
@@ -1520,7 +1525,7 @@ class TeamTextbox extends preact.Component<{
 }
 
 class TeamWizard extends preact.Component<{
-	editor: TeamEditorState, fetching: boolean, onChange?: () => void, onChangeView: () => void,
+	editor: TeamEditorState, onChange?: () => void, onChangeView: () => void,
 }> {
 	setSearchBox: string | null = null;
 	windowing = true;
@@ -1976,9 +1981,9 @@ class TeamWizard extends preact.Component<{
 		</div>;
 	}
 	override render() {
-		const { editor, fetching: isFetching } = this.props;
+		const { editor } = this.props;
 		if (editor.innerFocus) return this.renderInnerFocus();
-		if (isFetching) {
+		if (editor.fetching) {
 			return <div class="teameditor">Fetching Paste...</div>;
 		}
 
