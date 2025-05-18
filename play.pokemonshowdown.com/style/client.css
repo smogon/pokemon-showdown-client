@@ -499,11 +499,13 @@ p.or:after {
 	font-family: PGLDings;
 	border: transparent;
 	background-color: transparent;
+	font-size: 1em;
+	width: 2em;
 }
 .dingbat-button:hover {
-	border-color: #888888;
 	background-color: #D5D5D5;
-	color: black;
+	border: solid 1px;
+	border-color: #888888;
 }
 .popupmenu i {
 	display: inline-block;

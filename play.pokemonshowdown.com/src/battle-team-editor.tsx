@@ -2013,12 +2013,71 @@ class StatForm extends preact.Component<{
 		</div>;
 	}
 }
+class DingbatKeyboard extends preact.Component<{
+	set: Dex.PokemonSet,
+	onchange : ()=>void
+}>{
 
+	declare state : {
+		isWide:boolean
+	};
+	
+	static dingbats_halfwidth = [
+		["\ue095", "\ue096", "\ue097", "\ue098",
+		 "\ue099", "\ue090", "\ue091", "\ue092",
+		 "\ue093", "\ue094", "\ue09a"],
+		["\ue09b", "\ue09c", "\ue09d", "\ue09e",
+		 "\ue09f", "\ue0a0", "\ue0a1", "\ue0a2",
+		 "\ue0a5", "\ue0a3", "\ue0a4"],
+		["\ue08e", "\ue08f"]
+	];
+	static dingbats_fullwidth = [
+		["\u25CE", "\u25CB", "\u25A1", "\u25B3",
+		 "\u25C7", "\u2660", "\u2663", "\u2665",
+		 "\u2666", "\u2605", "\u266A"],
+		["\u2600", "\u2601", "\u2602", "\u2603",
+		 "\uE081", "\uE082", "\uE083", "\uE084",
+		 "\uE087", "\uE085", "\uE086"],
+		["\u2642", "\u2640"]
+	];
+ 
+	override render() {
+		const dingbats = this.state.isWide
+			? DingbatKeyboard.dingbats_fullwidth
+			: DingbatKeyboard.dingbats_halfwidth;
+		const dingbats_elements = dingbats.map(
+			arr=>{
+				return (<li>{arr.map(ding=><button class="dingbat-button"
+				onClick={()=>{
+					if (this.props.set.name) {
+						this.props.set.name += ding;
+					} else {
+						this.props.set.name = ding;
+					}
+					this.props.onchange();
+				}}>{ding}</button>)}</li>);
+			}
+		);
+		return (<ul class="dingbat-keyboard">
+			{dingbats_elements}
+			<li><input type="checkbox" name="wideCheckbox"
+			onChange={e=>this.setState({isWide: (e.target as HTMLInputElement).checked})}/> Wide</li>
+			</ul>);
+		
+	}
+}
 class DetailsForm extends preact.Component<{
 	editor: TeamEditorState,
 	set: Dex.PokemonSet,
 	onChange: () => void,
 }> {
+	declare state : {
+		dingbatKeyboardVisible:boolean
+	};
+	constructor(){
+		super();
+		this.setState({dingbatKeyboardVisible: false});
+	}
 	update(init?: boolean) {
 		const { set } = this.props;
 		const skipID = !init ? this.base!.querySelector<HTMLInputElement>('input:focus')?.name : undefined;
@@ -2059,11 +2118,19 @@ class DetailsForm extends preact.Component<{
 		return <div style="font-size:10pt" role="dialog" aria-label="Details">
 			<div class="resultheader"><h3>Details</h3></div>
 			<div class="pad">
-				<p><label class="label">Nickname: <input
+				<p><label class="label" >Nickname: </label>
+				<div style={{block:"inline"}}>
+				<input
 					name="nickname" class="textbox default-placeholder" placeholder={species.baseSpecies}
 					onInput={this.changeNickname} onChange={this.changeNickname}
-				/></label></p>
+				/>
+				<button onClick={()=>{
+					this.setState({dingbatKeyboardVisible: !this.state.dingbatKeyboardVisible});
+				}} class="button">&#xe082;</button>
+				</div>
+				</p>
 
+				{this.state.dingbatKeyboardVisible&&<DingbatKeyboard set={set} onchange={this.props.onChange}/>}
 				<p>[insert the rest of the details pane]</p>
 				{/*
 buf += '<div class="formrow"><label class="formlabel">Level:</label><div><input type="number" min="1" max="100" step="1" name="level" value="' + (typeof set.level === 'number' ? set.level : 100) + '" class="textbox inputform numform" /></div></div>';
