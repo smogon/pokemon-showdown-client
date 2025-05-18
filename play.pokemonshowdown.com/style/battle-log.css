@@ -351,10 +351,6 @@ select.button {
 .value {
 	float: right;
 }
-.inputLabel {
-  font-family: Verdana, Helvetica, Arial, sans-serif;
-	font-size: 10pt;
-}
 .checkbox {
 	background: transparent;
 	color: inherit;
