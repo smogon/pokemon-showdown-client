@@ -886,6 +886,15 @@ export const Dex = new class implements ModdedDex {
 		if (pokemon.shiny) spriteData.shiny = true;
 		if (Dex.prefs('nopastgens')) gen = 6;
 		if (Dex.prefs('bwgfx') && gen > 5) gen = 5;
+		let homeExists = (!species.isNonstandard || !['CAP', 'Custom'].includes(species.isNonstandard) ||
+			species.id === "xerneasneutral") && ![
+				// TODO check which forms are missing
+				"eeveestarter", "floetteeternal", "missingno", "pichuspikyeared", "pikachubelle", "pikachucosplay", "pikachulibre", "pikachuphd", "pikachupopstar", "pikachurockstar", "poltchageistartisan", "polteageistantique", "sinistchamasterpiece", "sinisteaantique", "toxtricitylowkeygmax",
+			].includes(species.id);
+		if ((!gen || gen >= 8 || (gen == 7 && this.modid === 'gen7letsgo')) && homeExists) {
+			spriteData.spriteDir = 'sprites/home';
+			return spriteData;
+		}
 		let xydexExists = (!species.isNonstandard || species.isNonstandard === 'Past' || species.isNonstandard === 'CAP') || [
 			"pikachustarter", "eeveestarter", "meltan", "melmetal", "pokestarufo", "pokestarufo2", "pokestarbrycenman", "pokestarmt", "pokestarmt2", "pokestargiant", "pokestarhumanoid", "pokestarmonster", "pokestarf00", "pokestarf002", "pokestarspirit",
 		].includes(species.id);
