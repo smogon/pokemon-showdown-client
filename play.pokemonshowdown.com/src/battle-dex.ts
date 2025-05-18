@@ -20,10 +20,11 @@
 
 import { Pokemon, type ServerPokemon } from "./battle";
 import {
-	BattleAvatarNumbers, BattleBaseSpeciesChart, BattlePokemonIconIndexes, BattlePokemonIconIndexesLeft, BattleStatNames,
+	BattleAvatarNumbers, BattleBaseSpeciesChart, BattlePokemonIconIndexes, BattlePokemonIconIndexesLeft,
 	Ability, Item, Move, Species, PureEffect, type ID, type Type,
 } from "./battle-dex-data";
 import type * as DexData from "./battle-dex-data";
+import type { Teams } from "./battle-teams";
 
 export declare namespace Dex {
 	/* eslint-disable @typescript-eslint/no-shadow */
@@ -45,46 +46,13 @@ export declare namespace Dex {
 	export type GenderName = DexData.GenderName;
 	export type NatureName = DexData.NatureName;
 	export type MoveTarget = DexData.MoveTarget;
+	export type REGULAR = 0;
+	export type WEAK = 1;
+	export type RESIST = 2;
+	export type IMMUNE = 3;
+	export type WeaknessType = REGULAR | WEAK | RESIST | IMMUNE;
 	export type StatsTable = { hp: number, atk: number, def: number, spa: number, spd: number, spe: number };
-	/**
-	 * Dex.PokemonSet can be sparse, in which case that entry should be
-	 * inferred from the rest of the set, according to sensible
-	 * defaults.
-	 */
-	export interface PokemonSet {
-		/** Defaults to species name (not including forme), like in games */
-		name?: string;
-		species: string;
-		/** Defaults to no item */
-		item?: string;
-		/** Defaults to no ability (error in Gen 3+) */
-		ability?: string;
-		moves: string[];
-		/** Defaults to no nature (error in Gen 3+) */
-		nature?: NatureName;
-		/** Defaults to random legal gender, NOT subject to gender ratios */
-		gender?: string;
-		/** Defaults to flat 252's (200's/0's in Let's Go) (error in gen 3+) */
-		evs?: Partial<Dex.StatsTable>;
-		/** Defaults to whatever makes sense - flat 31's unless you have Gyro Ball etc */
-		ivs?: Dex.StatsTable;
-		/** Defaults as you'd expect (100 normally, 50 in VGC-likes, 5 in LC) */
-		level?: number;
-		/** Defaults to no (error if shiny event) */
-		shiny?: boolean;
-		/** Defaults to 255 unless you have Frustration, in which case 0 */
-		happiness?: number;
-		/** Defaults to event required ball, otherwise Poké Ball */
-		pokeball?: string;
-		/** Defaults to the type of your Hidden Power in Moves, otherwise Dark */
-		hpType?: string;
-		/** Defaults to 10 */
-		dynamaxLevel?: number;
-		/** Defaults to no (can only be yes for certain Pokemon) */
-		gigantamax?: boolean;
-		/** Defaults to the primary type */
-		teraType?: string;
-	}
+	export type PokemonSet = Teams.PokemonSet;
 }
 export type { ID };
 
@@ -249,6 +217,11 @@ export const Dex = new class implements ModdedDex {
 	readonly modid = 'gen9' as ID;
 	readonly cache = null!;
 
+	readonly REGULAR = 0;
+	readonly WEAK = 1;
+	readonly RESIST = 2;
+	readonly IMMUNE = 3;
+
 	readonly statNames: readonly Dex.StatName[] = ['hp', 'atk', 'def', 'spa', 'spd', 'spe'];
 	readonly statNamesExceptHP: readonly Dex.StatNameExceptHP[] = ['atk', 'def', 'spa', 'spd', 'spe'];
 
@@ -288,6 +261,24 @@ export const Dex = new class implements ModdedDex {
 	forGen(gen: number) {
 		if (!gen) return this;
 		return this.mod(`gen${gen}` as ID);
+	}
+	formatGen(format: string) {
+		const formatid = toID(format);
+		if (!formatid) return Dex.gen;
+		if (!formatid.startsWith('gen')) return 6;
+		return parseInt(formatid.charAt(3)) || Dex.gen;
+	}
+	forFormat(format: string) {
+		let dex = Dex.forGen(Dex.formatGen(format));
+
+		const formatid = toID(format).slice(4);
+		if (dex.gen === 7 && formatid.includes('letsgo')) {
+			dex = Dex.mod('gen7letsgo' as ID);
+		}
+		if (dex.gen === 8 && formatid.includes('bdsp')) {
+			dex = Dex.mod('gen8bdsp' as ID);
+		}
+		return dex;
 	}
 
 	resolveAvatar(avatar: string): string {
@@ -512,6 +503,7 @@ export const Dex = new class implements ModdedDex {
 
 	types = {
 		allCache: null as Type[] | null,
+		namesCache: null as Dex.TypeName[] | null,
 		get: (type: any): Type => {
 			if (!type || typeof type === 'string') {
 				const id = toID(type) as string;
@@ -534,6 +526,13 @@ export const Dex = new class implements ModdedDex {
 			}
 			if (types.length) this.types.allCache = types;
 			return types;
+		},
+		names: (): readonly Dex.TypeName[] => {
+			if (this.types.namesCache) return this.types.namesCache;
+			const names = this.types.all().map(type => type.name as Dex.TypeName);
+			names.splice(names.indexOf('Stellar'), 1);
+			if (names.length) this.types.namesCache = names;
+			return names;
 		},
 		isName: (name: string | null): boolean => {
 			const id = toID(name);
@@ -1092,7 +1091,20 @@ export class ModdedDex {
 	};
 
 	types = {
-		get: (name: string): Dex.Effect => {
+		namesCache: null as readonly Dex.TypeName[] | null,
+		names: (): readonly Dex.TypeName[] => {
+			if (this.types.namesCache) return this.types.namesCache;
+			const names = Dex.types.names();
+			if (!names.length) return [];
+			const curNames = [...names];
+			// if (this.gen < 9) curNames.splice(curNames.indexOf('Stellar'), 1);
+			if (this.gen < 6) curNames.splice(curNames.indexOf('Fairy'), 1);
+			if (this.gen < 2) curNames.splice(curNames.indexOf('Dark'), 1);
+			if (this.gen < 2) curNames.splice(curNames.indexOf('Steel'), 1);
+			this.types.namesCache = curNames;
+			return curNames;
+		},
+		get: (name: string): Dex.Type => {
 			const id = toID(name);
 			name = id.substr(0, 1).toUpperCase() + id.substr(1);
 
@@ -1129,257 +1141,6 @@ export class ModdedDex {
 		return this.pokeballs;
 	}
 }
-
-export const Teams = new class {
-	unpack(buf: string) {
-		if (!buf) return [];
-
-		const team = [];
-		let i = 0;
-		let j = 0;
-
-		while (true) {
-			const set: Dex.PokemonSet = {} as any;
-			team.push(set);
-
-			// name
-			j = buf.indexOf('|', i);
-			set.name = buf.substring(i, j);
-			i = j + 1;
-
-			// species
-			j = buf.indexOf('|', i);
-			set.species = Dex.species.get(buf.substring(i, j)).name || set.name;
-			i = j + 1;
-
-			// item
-			j = buf.indexOf('|', i);
-			set.item = Dex.items.get(buf.substring(i, j)).name;
-			i = j + 1;
-
-			// ability
-			j = buf.indexOf('|', i);
-			const ability = Dex.abilities.get(buf.substring(i, j)).name;
-			const species = Dex.species.get(set.species);
-			set.ability = (species.abilities &&
-				['', '0', '1', 'H', 'S'].includes(ability) ? species.abilities[ability as '0' || '0'] : ability);
-			i = j + 1;
-
-			// moves
-			j = buf.indexOf('|', i);
-			set.moves = buf.substring(i, j).split(',').map(
-				moveid => Dex.moves.get(moveid).name
-			);
-			i = j + 1;
-
-			// nature
-			j = buf.indexOf('|', i);
-			set.nature = buf.substring(i, j) as Dex.NatureName;
-			if (set.nature as any === 'undefined') delete set.nature;
-			i = j + 1;
-
-			// evs
-			j = buf.indexOf('|', i);
-			if (j !== i) {
-				const evstring = buf.substring(i, j);
-				if (evstring.length > 5) {
-					const evs = evstring.split(',');
-					set.evs = {
-						hp: Number(evs[0]) || 0,
-						atk: Number(evs[1]) || 0,
-						def: Number(evs[2]) || 0,
-						spa: Number(evs[3]) || 0,
-						spd: Number(evs[4]) || 0,
-						spe: Number(evs[5]) || 0,
-					};
-				} else if (evstring === '0') {
-					set.evs = { hp: 0, atk: 0, def: 0, spa: 0, spd: 0, spe: 0 };
-				}
-			}
-			i = j + 1;
-
-			// gender
-			j = buf.indexOf('|', i);
-			if (i !== j) set.gender = buf.substring(i, j);
-			i = j + 1;
-
-			// ivs
-			j = buf.indexOf('|', i);
-			if (j !== i) {
-				const ivs = buf.substring(i, j).split(',');
-				set.ivs = {
-					hp: ivs[0] === '' ? 31 : Number(ivs[0]),
-					atk: ivs[1] === '' ? 31 : Number(ivs[1]),
-					def: ivs[2] === '' ? 31 : Number(ivs[2]),
-					spa: ivs[3] === '' ? 31 : Number(ivs[3]),
-					spd: ivs[4] === '' ? 31 : Number(ivs[4]),
-					spe: ivs[5] === '' ? 31 : Number(ivs[5]),
-				};
-			}
-			i = j + 1;
-
-			// shiny
-			j = buf.indexOf('|', i);
-			if (i !== j) set.shiny = true;
-			i = j + 1;
-
-			// level
-			j = buf.indexOf('|', i);
-			if (i !== j) set.level = parseInt(buf.substring(i, j), 10);
-			i = j + 1;
-
-			// happiness
-			j = buf.indexOf(']', i);
-			let misc;
-			if (j < 0) {
-				if (i < buf.length) misc = buf.substring(i).split(',', 6);
-			} else {
-				if (i !== j) misc = buf.substring(i, j).split(',', 6);
-			}
-			if (misc) {
-				set.happiness = (misc[0] ? Number(misc[0]) : 255);
-				set.hpType = misc[1];
-				set.pokeball = misc[2];
-				set.gigantamax = !!misc[3];
-				set.dynamaxLevel = (misc[4] ? Number(misc[4]) : 10);
-				set.teraType = misc[5];
-			}
-			if (j < 0) break;
-			i = j + 1;
-		}
-
-		return team;
-	}
-	export(team: Dex.PokemonSet[] | string, gen: number, hidestats = false) {
-		if (!team) return '';
-		if (typeof team === 'string') {
-			if (team.includes('\n')) return team;
-			team = this.unpack(team);
-		}
-		let text = '';
-		for (const curSet of team) {
-			if (curSet.name && curSet.name !== curSet.species) {
-				text += `${curSet.name} (${curSet.species})`;
-			} else {
-				text += `${curSet.species}`;
-			}
-			if (curSet.gender === 'M') text += ' (M)';
-			if (curSet.gender === 'F') text += ' (F)';
-			if (curSet.item) {
-				text += ` @ ${curSet.item}`;
-			}
-			text += "  \n";
-			if (curSet.ability) {
-				text += `Ability: ${curSet.ability}  \n`;
-			}
-			if (curSet.level && curSet.level !== 100) {
-				text += `Level: ${curSet.level}  \n`;
-			}
-			if (curSet.shiny) {
-				text += 'Shiny: Yes  \n';
-			}
-			if (typeof curSet.happiness === 'number' && curSet.happiness !== 255 && !isNaN(curSet.happiness)) {
-				text += `Happiness: ${curSet.happiness}  \n`;
-			}
-			if (curSet.pokeball) {
-				text += `Pokeball: ${curSet.pokeball}  \n`;
-			}
-			if (curSet.hpType) {
-				text += `Hidden Power: ${curSet.hpType}  \n`;
-			}
-			if (typeof curSet.dynamaxLevel === 'number' && curSet.dynamaxLevel !== 10 && !isNaN(curSet.dynamaxLevel)) {
-				text += `Dynamax Level: ${curSet.dynamaxLevel}  \n`;
-			}
-			if (curSet.gigantamax) {
-				text += 'Gigantamax: Yes  \n';
-			}
-			if (gen === 9) {
-				const species = Dex.species.get(curSet.species);
-				text += `Tera Type: ${species.forceTeraType || curSet.teraType || species.types[0]}  \n`;
-			}
-			if (!hidestats) {
-				let first = true;
-				if (curSet.evs) {
-					let j: Dex.StatName;
-					for (j in BattleStatNames) {
-						if (!curSet.evs[j]) continue;
-						if (first) {
-							text += 'EVs: ';
-							first = false;
-						} else {
-							text += ' / ';
-						}
-						text += `${curSet.evs[j]!} ${BattleStatNames[j]}`;
-					}
-				}
-				if (!first) {
-					text += "  \n";
-				}
-				if (curSet.nature) {
-					text += `${curSet.nature} Nature  \n`;
-				}
-				first = true;
-				if (curSet.ivs) {
-					let defaultIvs = true;
-					let hpType = '';
-					for (const move of curSet.moves) {
-						if (move.substr(0, 13) === 'Hidden Power ' && move.substr(0, 14) !== 'Hidden Power [') {
-							hpType = move.substr(13);
-							if (!Dex.types.isName(hpType)) {
-								alert(move + " is not a valid Hidden Power type.");
-								continue;
-							}
-							let stat: Dex.StatName;
-							for (stat in BattleStatNames) {
-								if ((curSet.ivs[stat] === undefined ? 31 : curSet.ivs[stat]) !== (Dex.types.get(hpType).HPivs?.[stat] || 31)) {
-									defaultIvs = false;
-									break;
-								}
-							}
-						}
-					}
-					if (defaultIvs && !hpType) {
-						let stat: Dex.StatName;
-						for (stat in BattleStatNames) {
-							if (curSet.ivs[stat] !== 31 && curSet.ivs[stat] !== undefined) {
-								defaultIvs = false;
-								break;
-							}
-						}
-					}
-					if (!defaultIvs) {
-						let stat: Dex.StatName;
-						for (stat in BattleStatNames) {
-							if (typeof curSet.ivs[stat] === 'undefined' || isNaN(curSet.ivs[stat]) || curSet.ivs[stat] === 31) continue;
-							if (first) {
-								text += 'IVs: ';
-								first = false;
-							} else {
-								text += ' / ';
-							}
-							text += `${curSet.ivs[stat]} ${BattleStatNames[stat]}`;
-						}
-					}
-				}
-				if (!first) {
-					text += "  \n";
-				}
-			}
-			if (curSet.moves) {
-				for (let move of curSet.moves) {
-					if (move.startsWith('Hidden Power ')) {
-						move = `${move.slice(0, 13)}[${move.slice(13)}]`;
-					}
-					if (move) {
-						text += `- ${move}  \n`;
-					}
-				}
-			}
-			text += "\n";
-		}
-		return text;
-	}
-};
 
 if (typeof require === 'function') {
 	// in Node

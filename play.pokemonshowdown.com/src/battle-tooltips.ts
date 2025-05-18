@@ -15,7 +15,7 @@ import { BattleLog } from "./battle-log";
 import { Move, BattleNatures } from "./battle-dex-data";
 import { BattleTextParser } from "./battle-text-parser";
 
-class ModifiableValue {
+export class ModifiableValue {
 	value = 0;
 	maxValue = 0;
 	comment: string[];
@@ -156,7 +156,8 @@ export class BattleTooltips {
 	// tooltips
 	// Touch delay, pressing finger more than that time will cause the tooltip to open.
 	// Shorter time will cause the button to click
-	static LONG_TAP_DELAY = 350; // ms
+	static LONG_TAP_DELAY = 500; // ms
+	static LONG_CLICK_DELAY = 700; // ms
 	static longTapTimeout = 0;
 	static elem: HTMLDivElement | null = null;
 	static parentElem: HTMLElement | null = null;
@@ -243,12 +244,12 @@ export class BattleTooltips {
 		if (BattleTooltips.isLocked) BattleTooltips.hideTooltip();
 		const target = e.currentTarget as HTMLElement;
 		this.showTooltip(target);
-		let factor = (e.type === 'mousedown' && target.tagName === 'BUTTON' ? 2 : 1);
+		const isClick = (e.type === 'mousedown' && target.tagName === 'BUTTON');
 
 		BattleTooltips.longTapTimeout = setTimeout(() => {
 			BattleTooltips.longTapTimeout = 0;
 			this.lockTooltip();
-		}, BattleTooltips.LONG_TAP_DELAY * factor);
+		}, isClick ? BattleTooltips.LONG_CLICK_DELAY : BattleTooltips.LONG_TAP_DELAY);
 	};
 
 	showTooltipEvent = (e: Event) => {
@@ -774,6 +775,29 @@ export class BattleTooltips {
 			if (move.flags.wind) {
 				text += `<p class="movetag">&#x2713; Wind <small>(activates Wind Power and Wind Rider)</small></p>`;
 			}
+			// RBY healing move glitch
+			if (this.battle.gen === 1 && !toID(this.battle.tier).includes('stadium') &&
+				['recover', 'softboiled', 'rest'].includes(move.id)) {
+				const hpValues = [];
+				// glitches at HP values equal to `maxHP + 1 % 256` unless they are `0 % 256`
+				const hp = serverPokemon.maxhp - 255;
+				if (hp > 0 && hp % 256 !== 0) {
+					hpValues.push(hp);
+					if (hp - 256 > 0) {
+						hpValues.push(hp - 256);
+					}
+				}
+				let failMessage = hpValues.length ? `Fails if current HP is ${hpValues.join(' or ')}.` : '';
+				if (hpValues.includes(serverPokemon.hp)) failMessage = `<strong class="message-error">${failMessage}</strong>`;
+				if (failMessage) text += `<p>${failMessage}</p>`;
+			}
+			if (this.battle.gen === 1 && !toID(this.battle.tier).includes('stadium') &&
+				move.id === 'substitute') {
+				const selfKO = serverPokemon.maxhp % 4 === 0 ? serverPokemon.maxhp / 4 : null;
+				let failMessage = selfKO ? `KOs yourself if current HP is exactly ${selfKO}.` : '';
+				if (selfKO === serverPokemon.hp) failMessage = `<strong class="message-error">${failMessage}</strong>`;
+				if (failMessage) text += `<p>${failMessage}</p>`;
+			}
 		}
 		return text;
 	}
@@ -787,10 +811,6 @@ export class BattleTooltips {
 	 *
 	 * isActive is true if hovering over a pokemon in the battlefield,
 	 * and false if hovering over a pokemon in the Switch menu.
-	 *
-	 * @param clientPokemon
-	 * @param serverPokemon
-	 * @param isActive
 	 */
 	showPokemonTooltip(
 		clientPokemon: Pokemon | null, serverPokemon?: ServerPokemon | null, isActive?: boolean, illusionIndex?: number

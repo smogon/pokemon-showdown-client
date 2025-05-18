@@ -47,11 +47,13 @@ export class ChatRoom extends PSRoom {
 	log: BattleLog | null = null;
 	tour: ChatTournament | null = null;
 	lastMessage: Args | null = null;
+	lastMessageTime: number | null = null;
 
 	joinLeave: { join: string[], leave: string[], messageId: string } | null = null;
 	/** in order from least to most recent */
 	userActivity: string[] = [];
 	timeOffset = 0;
+	static highlightRegExp: Record<string, RegExp | null> | null = null;
 
 	constructor(options: RoomOptions) {
 		super(options);
@@ -131,6 +133,9 @@ export class ChatRoom extends PSRoom {
 			const cutOffExactLine = this.lastMessage ? '|' + this.lastMessage?.join('|') : '';
 			let reconnectMessage = '|raw|<div class="infobox">You reconnected.</div>';
 			for (let i = 0; i < lines.length; i++) {
+				if (lines[i].startsWith('|users|')) {
+					this.add(lines[i]);
+				}
 				if (lines[i] === cutOffExactLine) {
 					cutOffStart = i + 1;
 				} else if (lines[i].startsWith(`|c:|`)) {
@@ -176,21 +181,20 @@ export class ChatRoom extends PSRoom {
 			this.title = `[DM] ${nameWithGroup.trim()}`;
 		}
 	}
-	handleHighlight = (message: string, name: string) => {
-		if (!PS.prefs.noselfhighlight && PS.user.nameRegExp?.test(message)) {
-			this.notify({
-				title: `Mentioned by ${name} in ${this.id}`,
-				body: `"${message}"`,
-				id: 'highlight',
-			});
-			return true;
+	static getHighlight(message: string, roomid: string) {
+		let highlights = PS.prefs.highlights || {};
+		if (Array.isArray(highlights)) {
+			highlights = { global: highlights };
+			// Migrate from the old highlight system
+			PS.prefs.set('highlights', highlights);
 		}
-		/*
-		// TODO!
+		if (!PS.prefs.noselfhighlight && PS.user.nameRegExp) {
+			if (PS.user.nameRegExp?.test(message)) return true;
+		}
 		if (!this.highlightRegExp) {
 			try {
-				//this.updateHighlightRegExp(highlights);
-			} catch (e) {
+				this.updateHighlightRegExp(highlights);
+			} catch {
 				// If the expression above is not a regexp, we'll get here.
 				// Don't throw an exception because that would prevent the chat
 				// message from showing up, or, when the lobby is initialising,
@@ -198,14 +202,60 @@ export class ChatRoom extends PSRoom {
 				return false;
 			}
 		}
-		var id = PS.server.id + '#' + this.id;
-		var globalHighlightsRegExp = this.highlightRegExp['global'];
-		var roomHighlightsRegExp = this.highlightRegExp[id];
-
-		return (((globalHighlightsRegExp &&
-		 globalHighlightsRegExp.test(message)) ||
-		  (roomHighlightsRegExp && roomHighlightsRegExp.test(message))));
-		*/
+		const id = PS.server.id + '#' + roomid;
+		const globalHighlightsRegExp = this.highlightRegExp?.['global'];
+		const roomHighlightsRegExp = this.highlightRegExp?.[id];
+		return (((globalHighlightsRegExp?.test(message)) || (roomHighlightsRegExp?.test(message))));
+	}
+	static updateHighlightRegExp(highlights: Record<string, string[]>) {
+		// Enforce boundary for match sides, if a letter on match side is
+		// a word character. For example, regular expression "a" matches
+		// "a", but not "abc", while regular expression "!" matches
+		// "!" and "!abc".
+		this.highlightRegExp = {};
+		for (let i in highlights) {
+			if (!highlights[i].length) {
+				this.highlightRegExp[i] = null;
+				continue;
+			}
+			this.highlightRegExp[i] = new RegExp('(?:\\b|(?!\\w))(?:' + highlights[i].join('|') + ')(?:\\b|(?!\\w))', 'i');
+		}
+	}
+	handleHighlight = (args: Args) => {
+		let name;
+		let message;
+		let msgTime = 0;
+		if (args[0] === 'c:') {
+			msgTime = parseInt(args[1]);
+			name = args[2];
+			message = args[3];
+		} else {
+			name = args[1];
+			message = args[2];
+		}
+		let lastMessageDates = Dex.prefs('logtimes') || (PS.prefs.set('logtimes', {}), Dex.prefs('logtimes'));
+		if (!lastMessageDates[PS.server.id]) lastMessageDates[PS.server.id] = {};
+		let lastMessageDate = lastMessageDates[PS.server.id][this.id] || 0;
+		// because the time offset to the server can vary slightly, subtract it to not have it affect comparisons between dates
+		let serverMsgTime = msgTime - (this.timeOffset || 0);
+		let mayNotify = serverMsgTime > lastMessageDate && name !== PS.user.userid;
+		if (PS.isVisible(this)) {
+			this.lastMessageTime = null;
+			lastMessageDates[PS.server.id][this.id] = serverMsgTime;
+			PS.prefs.set('logtimes', lastMessageDates);
+		} else {
+			// To be saved on focus
+			let lastMessageTime = this.lastMessageTime || 0;
+			if (lastMessageTime < serverMsgTime) this.lastMessageTime = serverMsgTime;
+		}
+		if (ChatRoom.getHighlight(message, this.id)) {
+			if (mayNotify) this.notify({
+				title: `Mentioned by ${name} in ${this.id}`,
+				body: `"${message}"`,
+				id: 'highlight',
+			});
+			return true;
+		}
 		return false;
 	};
 	override clientCommands = this.parseClientCommands({
@@ -400,6 +450,10 @@ export class ChatRoom extends PSRoom {
 				return;
 			}
 			if (cmd !== 'choose') target = `${cmd} ${target}`;
+			if (target === 'choose auto' || target === 'choose default') {
+				this.sendDirect('/choose default');
+				return;
+			}
 			const possibleError = room.choices.addChoice(target);
 			if (possibleError) {
 				this.errorReply(possibleError);
@@ -1000,9 +1054,10 @@ class ChatPanel extends PSRoomPanel<ChatRoom> {
 	makeChallenge = (e: Event, format: string, team?: Team) => {
 		const room = this.props.room;
 		const packedTeam = team ? team.packedTeam : '';
+		const privacy = PS.mainmenu.adjustPrivacy();
 		if (!room.pmTarget) throw new Error("Not a PM room");
 		PS.send(`|/utm ${packedTeam}`);
-		PS.send(`|/challenge ${room.pmTarget}, ${format}`);
+		PS.send(`|${privacy}/challenge ${room.pmTarget}, ${format}`);
 		room.challengeMenuOpen = false;
 		room.challenging = {
 			formatName: format,
@@ -1019,6 +1074,7 @@ class ChatPanel extends PSRoomPanel<ChatRoom> {
 		room.challenged = null;
 		room.update(null);
 	};
+
 	override render() {
 		const room = this.props.room;
 		const tinyLayout = room.width < 450;
@@ -1030,7 +1086,11 @@ class ChatPanel extends PSRoomPanel<ChatRoom> {
 			</TeamForm>
 		</div> : room.challengeMenuOpen ? <div class="challenge">
 			<TeamForm onSubmit={this.makeChallenge}>
-				<button type="submit" class="button"><strong>Challenge</strong></button> {}
+				<button type="submit" class="button button-first">
+					<strong>Challenge</strong>
+				</button><button data-href="battleoptions" class="button button-last" aria-label="Battle options">
+					<i class="fa fa-caret-down" aria-hidden></i>
+				</button> {}
 				<button data-cmd="/cancelchallenge" class="button">Cancel</button>
 			</TeamForm>
 		</div> : null;
@@ -1038,7 +1098,12 @@ class ChatPanel extends PSRoomPanel<ChatRoom> {
 		const challengeFrom = room.challenged ? <div class="challenge">
 			{!!room.challenged.message && <p>{room.challenged.message}</p>}
 			<TeamForm format={room.challenged.formatName} teamFormat={room.challenged.teamFormat} onSubmit={this.acceptChallenge}>
-				<button type="submit" class="button"><strong>{room.challenged.acceptButtonLabel || 'Accept'}</strong></button> {}
+				<button type="submit" class={room.challenged.formatName ? `button button-first` : `button`}>
+					<strong>{room.challenged.acceptButtonLabel || 'Accept'}</strong>
+				</button>
+				{room.challenged.formatName && <button data-href="battleoptions" class="button button-last" aria-label="Battle options">
+					<i class="fa fa-caret-down" aria-hidden></i>
+				</button>} {}
 				<button data-cmd="/reject" class="button">{room.challenged.rejectButtonLabel || 'Reject'}</button>
 			</TeamForm>
 		</div> : null;
@@ -1167,7 +1232,7 @@ export class ChatLog extends preact.Component<{
 		if (controlsElem && controlsElem.className !== 'controls') controlsElem = undefined;
 		if (!jsx) {
 			if (!controlsElem) return;
-			preact.render(null, elem, controlsElem);
+			elem.removeChild(controlsElem);
 			this.updateScroll();
 			return;
 		}
@@ -1176,7 +1241,9 @@ export class ChatLog extends preact.Component<{
 			controlsElem.className = 'controls';
 			elem.appendChild(controlsElem);
 		}
-		preact.render(<div class="controls">{jsx}</div>, elem, controlsElem);
+		// for some reason, the replaceNode feature isn't working?
+		if (controlsElem.children[0]) controlsElem.removeChild(controlsElem.children[0]);
+		preact.render(<div>{jsx}</div>, controlsElem);
 		this.updateScroll();
 	}
 	updateScroll() {
