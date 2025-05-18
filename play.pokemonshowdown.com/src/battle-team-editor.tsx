@@ -674,10 +674,6 @@ export class TeamEditor extends preact.Component<{
 	update = () => {
 		this.forceUpdate();
 	};
-	setFetching = (fetching: boolean) => {
-		this.editor.fetching = fetching;
-		this.forceUpdate();
-	};
 	override render() {
 		this.editor ||= new TeamEditorState(this.props.team);
 		const editor = this.editor;
