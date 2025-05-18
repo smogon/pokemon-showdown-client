@@ -1433,7 +1433,7 @@ class TeamTextbox extends preact.Component<{
 					class="textbox teamtextbox" style={`padding-left:${editor.narrow ? '50px' : '100px'}`}
 					onInput={this.input} onContextMenu={this.contextMenu} onKeyUp={this.keyUp} onKeyDown={this.keyDown}
 					readOnly={editor.readonly} onChange={this.maybeReplaceLine}
-					placeholder="Paste exported teams, pokepaste URLs, or JSON here"
+					placeholder=" Paste exported teams, pokepaste URLs, or JSON here"
 				/>
 				<textarea
 					class="textbox teamtextbox heighttester" tabIndex={-1} aria-hidden

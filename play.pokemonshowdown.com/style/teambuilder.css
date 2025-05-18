@@ -261,7 +261,7 @@
 	resize: none;
 }
 .teamtextbox::placeholder {
-  transform: translateY(20px) translateX(5px);
+  transform: translateY(20px);
 }
 .teaminnertextbox {
 	width: 320px;
