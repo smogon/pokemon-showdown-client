@@ -2484,11 +2484,10 @@ class StatForm extends preact.Component<{
 }
 class DingbatKeyboard extends preact.Component<{
 	set: Dex.PokemonSet,
-	onchange: () => void,
+	onChange: () => void,
 }> {
-
-	declare state: {
-		isWide: boolean,
+	override state = {
+		isWide: false,
 	};
 
 	static dingbats_halfwidth = [
@@ -2517,6 +2516,21 @@ class DingbatKeyboard extends preact.Component<{
 		],
 		["\u2642", "\u2640"],
 	];
+	onWideCheckboxChange = (ev: Event) => {
+		this.setState(
+			{ isWide: (ev.target as HTMLInputElement).checked }
+		);
+	};
+	onClickDingbat = (ev: Event) => {
+		const target = ev.currentTarget as HTMLButtonElement;
+		const ding = target.value;
+		if (this.props.set.name) {
+			this.props.set.name += ding;
+		} else {
+			this.props.set.name = ding;
+		}
+		this.props.onChange();
+	};
 
 	override render() {
 		const dingbats = this.state.isWide ?
@@ -2528,14 +2542,8 @@ class DingbatKeyboard extends preact.Component<{
 					{arr.map(ding =>
 						<button
 							class="dingbat-button"
-							onClick={() => {
-								if (this.props.set.name) {
-									this.props.set.name += ding;
-								} else {
-									this.props.set.name = ding;
-								}
-								this.props.onchange();
-							}}
+							onClick={this.onClickDingbat}
+							value={ding}
 						>{ding}</button>
 					)}
 				</li>);
@@ -2548,11 +2556,7 @@ class DingbatKeyboard extends preact.Component<{
 				{ dingbats_elements }
 				<li><input
 					type="checkbox" name="wideCheckbox"
-					onChange={
-						e => this.setState(
-							{ isWide: (e.target as HTMLInputElement).checked }
-						)
-					}
+					onChange={this.onWideCheckboxChange}
 				/>Wide</li>
 			</ul>
 		);
@@ -2563,13 +2567,9 @@ class DetailsForm extends preact.Component<{
 	set: Dex.PokemonSet,
 	onChange: () => void,
 }> {
-	declare state: {
-		dingbatKeyboardVisible: boolean,
+	override state = {
+		dingbatKeyboardVisible: false,
 	};
-	constructor() {
-		super();
-		this.setState({ dingbatKeyboardVisible: false });
-	}
 	update(init?: boolean) {
 		const { set } = this.props;
 		const skipID = !init ? this.base!.querySelector<HTMLInputElement>('input:focus')?.name : undefined;
@@ -2674,6 +2674,9 @@ class DetailsForm extends preact.Component<{
 		}
 		this.props.onChange();
 	};
+	onToggleKeyboard = () => {
+		this.setState({ dingbatKeyboardVisible: !this.state.dingbatKeyboardVisible });
+	};
 	renderGender(gender: Dex.GenderName) {
 		const genderTable = { 'M': "Male", 'F': "Female" };
 		if (gender === 'N') return 'Unknown';
@@ -2696,15 +2699,12 @@ class DetailsForm extends preact.Component<{
 							onInput={this.changeNickname} onChange={this.changeNickname}
 						/>
 						<button
-							onClick={() => {
-								this.setState({ dingbatKeyboardVisible: !this.state.dingbatKeyboardVisible });
-							}}
+							onClick={this.onToggleKeyboard}
 							class="button"
 						>&#xe082;</button>
 					</div>
 				</p>
-				{ this.state.dingbatKeyboardVisible && <DingbatKeyboard set={set} onchange={this.props.onChange} /> }
-
+				{this.state.dingbatKeyboardVisible && <DingbatKeyboard set={set} onChange={this.props.onChange} />}
 				<p><label class="label">Level: <input
 					name="level" value={set.level ?? ''} placeholder={`${editor.defaultLevel}`}
 					type="number" inputMode="numeric" min="1" max="100" step="1"
