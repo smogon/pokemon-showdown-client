@@ -688,7 +688,7 @@ export class TeamEditor extends preact.Component<{
 		}
 
 		if (editor.innerFocus) {
-			return <TeamWizard editor={editor} onChange={this.props.onChange} onChangeView={this.update} />;
+			return <TeamWizard editor={editor} onChange={this.props.onChange} onUpdate={this.update} />;
 		}
 
 		return <div class="teameditor">
@@ -701,9 +701,9 @@ export class TeamEditor extends preact.Component<{
 				</button></li>
 			</ul>
 			{this.wizard ? (
-				<TeamWizard editor={editor} onChange={this.props.onChange} onChangeView={this.update} />
+				<TeamWizard editor={editor} onChange={this.props.onChange} onUpdate={this.update} />
 			) : (
-				<TeamTextbox editor={editor} setFetching={this.setFetching} onChange={this.props.onChange} />
+				<TeamTextbox editor={editor} onChange={this.props.onChange} onUpdate={this.update} />
 			)}
 			{this.props.children}
 			<div class="team-resources">
@@ -717,8 +717,7 @@ export class TeamEditor extends preact.Component<{
 
 class TeamTextbox extends preact.Component<{
 	editor: TeamEditorState,
-	setFetching: (fetching: boolean) => void,
-	onChange?: () => void,
+	onChange?: () => void, onUpdate?: () => void,
 }> {
 	static EMPTY_PROMISE = Promise.resolve(null);
 	editor!: TeamEditorState;
@@ -874,7 +873,7 @@ class TeamTextbox extends preact.Component<{
 
 		const pokepaste = /^https?:\/\/pokepast.es\/([a-z0-9]+)(?:\/.*)?$/.exec(value)?.[1];
 		if (pokepaste) {
-			this.props.setFetching(true);
+			this.editor.fetching = true;
 			Net(`https://pokepast.es/${pokepaste}/json`).get().then(json => {
 				const paste = JSON.parse(json);
 				const pasteTxt = paste.paste.replace(/\r\n/g, '\n');
@@ -896,7 +895,8 @@ class TeamTextbox extends preact.Component<{
 				if (title && !title.startsWith('Untitled')) {
 					this.editor.team.name = title.replace(/[|\\/]/g, '');
 				}
-				this.props.setFetching(false);
+				this.editor.fetching = false;
+				this.props.onUpdate?.();
 			});
 			return true;
 		}
@@ -1525,7 +1525,7 @@ class TeamTextbox extends preact.Component<{
 }
 
 class TeamWizard extends preact.Component<{
-	editor: TeamEditorState, onChange?: () => void, onChangeView: () => void,
+	editor: TeamEditorState, onChange?: () => void, onUpdate: () => void,
 }> {
 	setSearchBox: string | null = null;
 	windowing = true;
@@ -1576,7 +1576,7 @@ class TeamWizard extends preact.Component<{
 		const { editor } = this.props;
 		editor.innerFocus = focus;
 		if (!focus) {
-			this.props.onChangeView();
+			this.props.onUpdate();
 			return;
 		}
 
@@ -1592,7 +1592,7 @@ class TeamWizard extends preact.Component<{
 			this.resetScroll();
 			this.setSearchBox = value || '';
 		}
-		this.props.onChangeView();
+		this.props.onUpdate();
 	}
 	renderSet(set: Dex.PokemonSet | undefined, i: number) {
 		const { editor } = this.props;
