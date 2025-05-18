@@ -2444,20 +2444,5 @@ pre.textbox.textbox-empty[placeholder]:before {
 	font-size: 1em;
 	width: 2em;
 	font-family: PGLDings;
-}
-.dingbat-button:hover {
-	border: solid 1px;
-	border-color: #888888;
-	background-color: #D5D5D5;
-}
-.dingbat-keyboard {
-	font-family: PGLDings;
-	list-style-type: none;
-	border-color: #888888;
-	border: 1px solid;
-	background-color: #D5D5D5;
-	width: fit-content;
-	block-size: fitContent;
-	padding-right: 2em;
-	padding-top: 0.5em;
+	padding: 5px 0 1px;
 }

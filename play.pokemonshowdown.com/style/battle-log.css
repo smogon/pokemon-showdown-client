@@ -134,6 +134,7 @@ button:disabled {
 	border-radius: 5px;
 	font-family: Verdana, PGLDings, Helvetica, Arial, sans-serif;
 	display: inline-block;
+	vertical-align: middle;
 
 	/* default colors */
 	color: #222222;
@@ -413,6 +414,7 @@ select.button {
 	box-shadow: inset 0px 1px 2px #CCCCCC, 1px 1px 0 rgba(255,255,255,.6);
 	background: #F8FBFD;
 	color: black;
+	vertical-align: middle;
 }
 pre.textbox {
 	white-space: pre-wrap;

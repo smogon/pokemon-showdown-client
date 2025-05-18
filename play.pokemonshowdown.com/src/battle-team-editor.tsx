@@ -2527,23 +2527,22 @@ class DingbatKeyboard extends preact.Component<{
 			DingbatKeyboard.dingbats_halfwidth;
 		const dingbats_elements = dingbats.map(
 			arr => {
-				return (<li>
+				return (<div>
 					{arr.map(ding =>
-						<button class="dingbat-button" onClick={this.props.onClickDingbat} value={ding}>
+						<button class="button dingbat-button" onClick={this.props.onClickDingbat} value={ding}>
 							{ding}
 						</button>
 					)}
-				</li>);
+				</div>);
 			}
 		);
 		return (
-			<ul class="dingbat-keyboard">
+			<div class="infobox">
 				{dingbats_elements}
-				<li><input
-					type="checkbox" name="wideCheckbox"
-					onChange={this.onWideCheckboxChange}
-				/>Wide</li>
-			</ul>
+				<div><label class="checkbox"><input
+					type="checkbox" name="wide" onChange={this.onWideCheckboxChange}
+				/> Wide</label></div>
+			</div>
 		);
 	}
 }
@@ -2695,11 +2694,10 @@ class DetailsForm extends preact.Component<{
 						<input
 							name="nickname" class="textbox default-placeholder" placeholder={species.baseSpecies}
 							onInput={this.changeNickname} onChange={this.changeNickname}
-						/>
+						/> {}
 						<button
-							onClick={this.onToggleKeyboard}
-							class="button"
-						>&#xe082;</button>
+							onClick={this.onToggleKeyboard} class={`button dingbat-button${this.state.dingbatKeyboardVisible ? ' cur' : ''}`}
+						>&#xE082;</button>
 					</div>
 				</p>
 				{this.state.dingbatKeyboardVisible && <DingbatKeyboard onClickDingbat={this.onClickDingbat} />}
