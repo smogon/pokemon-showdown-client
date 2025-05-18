@@ -883,9 +883,7 @@ class TeamTextbox extends preact.Component<{
 				const notes = paste["notes"] as string;
 				if (notes.startsWith("Format: ")) {
 					const formatid = toID(notes.slice(8));
-					if (BattleFormats[formatid]) {
-						this.editor.setFormat(formatid);
-					}
+					this.editor.setFormat(formatid);
 				}
 				const title = paste["title"] as string;
 				if (title && !title.startsWith('Untitled')) {
