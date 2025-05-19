@@ -14,7 +14,7 @@ export class RoomsRoom extends PSRoom {
 	override readonly classType: string = 'rooms';
 	constructor(options: RoomOptions) {
 		super(options);
-		PS.send(`|/cmd rooms`);
+		PS.send(`/cmd rooms`);
 	}
 }
 
@@ -36,7 +36,7 @@ class RoomsPanel extends PSRoomPanel {
 	override componentDidMount() {
 		super.componentDidMount();
 		this.subscriptions.push(PS.user.subscribe(update => {
-			if (!update && PS.user.named) PS.send(`|/cmd rooms`);
+			if (!update && PS.user.named) PS.send(`/cmd rooms`);
 		}));
 	}
 	override componentDidUpdate() {

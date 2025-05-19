@@ -37,7 +37,7 @@ class PageRoom extends PSRoom {
 	}
 	override connect() {
 		if (!this.connected && !PagePanel.clientRooms.hasOwnProperty(this.id.split('-')[1])) {
-			PS.send(`|/join ${this.id}`);
+			PS.send(`/join ${this.id}`);
 			this.connected = true;
 			this.connectWhenLoggedIn = false;
 		}

@@ -293,7 +293,7 @@ class PSPrefs extends PSStreamModel<string | null> {
 				PS.addRoom({ id: toID(title) as string as RoomID, title, connected: true }, true);
 			};
 			// send even if `rooms` is empty, for server autojoins
-			PS.send(`|/autojoin ${rooms}`);
+			PS.send(`/autojoin ${rooms}`);
 		}
 	}
 }
@@ -638,7 +638,7 @@ class PSUser extends PSStreamModel<PSLoginState | null> {
 		}
 
 		if (userid === this.userid) {
-			PS.send(`|/trn ${name}`);
+			PS.send(`/trn ${name}`);
 			this.update({ success: true });
 			return;
 		}
@@ -718,7 +718,7 @@ class PSUser extends PSStreamModel<PSLoginState | null> {
 		} else if (assertion.includes('\n') || !assertion) {
 			PS.alert("Something is interfering with our connection to the login server.");
 		} else {
-			PS.send(`|/trn ${name},0,${assertion}`);
+			PS.send(`/trn ${name},0,${assertion}`);
 			this.update({ success: true });
 		}
 	}
@@ -726,7 +726,7 @@ class PSUser extends PSStreamModel<PSLoginState | null> {
 		PSLoginServer.query(
 			'logout', { userid: this.userid }
 		);
-		PS.send('|/logout');
+		PS.send(`/logout`);
 		PS.connection?.disconnect();
 
 		PS.alert("You have been logged out and disconnected.\n\nIf you wanted to change your name while staying connected, use the 'Change Name' button or the '/nick' command.");
@@ -877,7 +877,7 @@ export interface RoomOptions {
 	parentRoomid?: RoomID | null;
 	/** Opens the popup to the right of its parent, instead of the default above/below (for userlists) */
 	rightPopup?: boolean;
-	connected?: boolean;
+	connected?: 'autoreconnect' | 'client-only' | 'expired' | boolean;
 	/** @see {PSRoomPanelSubclass#noURL} */
 	noURL?: boolean;
 	args?: Record<string, unknown> | null;
@@ -929,18 +929,18 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 	location: PSRoomLocation = 'left';
 	closable = true;
 	/**
-	 * Whether the room is connected to the server. This mostly tracks
-	 * "should we send /leave if the user closes the room?"
+	 * Whether the room is connected to the server. This is _eager_,
+	 * we set it to `true` when we send `/join`, not when the server
+	 * tells us we're connected. That's because it tracks whether we
+	 * still need to send `/join` or `/leave`.
 	 *
-	 * In particular, this is `true` after sending `/join`, and `false`
-	 * after sending `/leave`, even before the server responds.
+	 * Only connected to server when `=== true`. String options mean
+	 * the room isn't connected to the game server but to something
+	 * else.
+	 *
+	 * `true` for DMs for historical reasons (TODO: fix)
 	 */
-	connected = false;
-	/**
-	 * Was previously connected but is no longer. If we reconnect,
-	 * we'll need to do some special handling.
-	 */
-	previouslyConnected = false;
+	connected: 'autoreconnect' | 'client-only' | 'expired' | boolean = false;
 	/**
 	 * Can this room even be connected to at all?
 	 * `true` = pass messages from the server to subscribers
@@ -984,7 +984,7 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 		if (options.parentRoomid) this.parentRoomid = options.parentRoomid;
 		if (this.location !== 'popup' && this.location !== 'semimodal-popup') this.parentElem = null;
 		if (options.rightPopup) this.rightPopup = true;
-		if (options.connected) this.connected = true;
+		if (options.connected) this.connected = options.connected;
 		if (options.backlog) this.backlog = options.backlog;
 		this.noURL = options.noURL || false;
 		this.args = options.args || null;
@@ -1098,6 +1098,7 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 	}
 	globalClientCommands = this.parseClientCommands({
 		'j,join'(target, cmd, elem) {
+			target = PS.router.extractRoomID(target) || target;
 			const roomid = /[^a-z0-9-]/.test(target) ? toID(target) as any as RoomID : target as RoomID;
 			PS.join(roomid, { parentElem: elem });
 		},
@@ -1110,7 +1111,7 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 				PS.join("forfeitbattle" as RoomID, { parentElem: elem });
 				return;
 			}
-			if (room?.type === "chat" && room.connected && PS.prefs.leavePopupRoom && !target) {
+			if (room?.type === "chat" && room.connected === true && PS.prefs.leavePopupRoom && !target) {
 				PS.join("confirmleaveroom" as RoomID, { parentElem: elem });
 				return;
 			}
@@ -1136,14 +1137,14 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 		'maximize'(target) {
 			const roomid = /[^a-z0-9-]/.test(target) ? toID(target) as any as RoomID : target as RoomID;
 			const targetRoom = roomid ? PS.rooms[roomid] : this;
-			if (!targetRoom) return this.add(`|error|Room '${roomid}' not found.`);
+			if (!targetRoom) return this.errorReply(`Room '${roomid}' not found.`);
 			if (PS.isNormalRoom(targetRoom)) {
-				this.add(`|error|'${roomid}' is already maximized.`);
+				this.errorReply(`'${roomid}' is already maximized.`);
 			} else if (!PS.isPopup(targetRoom)) {
 				PS.moveRoom(targetRoom, 'left', false, 0);
 				PS.update();
 			} else {
-				this.add(`|error|'${roomid}' is a popup and can't be maximized.`);
+				this.errorReply(`'${roomid}' is a popup and can't be maximized.`);
 			}
 		},
 		'logout'() {
@@ -1175,20 +1176,20 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 			this.add(`||You are now offline.`);
 		},
 		'connect'() {
-			if (this.connected) {
-				return this.add(`|error|You are already connected.`);
+			if (this.connected && this.connected !== 'autoreconnect') {
+				return this.errorReply(`You are already connected.`);
 			}
 			try {
 				this.connect();
 			} catch (err: any) {
-				this.add(`|error|${err.message}`);
+				this.errorReply(err.message);
 			}
 		},
 		'cancelsearch'() {
 			if (PS.mainmenu.cancelSearch()) {
 				this.add(`||Search cancelled.`, true);
 			} else {
-				this.add(`|error|You're not currently searching.`, true);
+				this.errorReply(`You're not currently searching.`);
 			}
 		},
 		'disallowspectators'(target) {
@@ -1235,7 +1236,7 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 			const avatar = window.BattleAvatarNumbers?.[target] || target;
 			PS.user.avatar = avatar;
 			if (this.type !== 'chat' && this.type !== 'battle') {
-				PS.send(`|/avatar ${avatar}`);
+				PS.send(`/avatar ${avatar}`);
 			} else {
 				this.sendDirect(`/avatar ${avatar}`);
 			}
@@ -1477,7 +1478,7 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 				}
 				default:
 					// Wrong command
-					this.add('|error|Invalid /highlight command.');
+					this.errorReply('Invalid /highlight command.');
 					this.handleSend('/help highlight'); // show help
 					return;
 				}
@@ -1504,7 +1505,7 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 					}
 				} else {
 					// Wrong command
-					this.add('|error|Invalid /highlight command.');
+					this.errorReply('Invalid /highlight command.');
 					this.handleSend('/help highlight'); // show help
 				}
 			}
@@ -1612,7 +1613,7 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 			}
 		},
 		'autojoin,cmd,crq,query'() {
-			this.add(`|error|This is a PS system command; do not use it.`);
+			this.errorReply(`This is a PS system command; do not use it.`);
 		},
 	});
 	clientCommands: ParsedClientCommands | null = null;
@@ -1644,10 +1645,10 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 		this.sendDirect(msg);
 	}
 	sendDirect(msg: string) {
-		PS.send(`${this.id}|${msg}`);
+		PS.send(msg, this.id);
 	}
 	destroy() {
-		if (this.connected) {
+		if (this.connected === true) {
 			this.sendDirect('/noreply /leave');
 			this.connected = false;
 		}
@@ -1853,7 +1854,7 @@ export const PS = new class extends PSModel {
 			let rooms = autojoin[this.server.id] || '';
 			for (let title of rooms.split(",")) {
 				this.addRoom({ id: toID(title) as unknown as RoomID, title, connected: true }, true);
-			};
+			}
 		}
 
 		this.updateLayout();
@@ -2009,7 +2010,7 @@ export const PS = new class extends PSModel {
 					room.connected = true;
 					this.updateRoomTypes();
 				}
-				if (room?.previouslyConnected) {
+				if (room?.connected === 'autoreconnect') {
 					if (room.handleReconnect(msg)) return;
 				}
 				this.updateAutojoin();
@@ -2036,7 +2037,7 @@ export const PS = new class extends PSModel {
 					} else if (args[1] === 'nonexistent') {
 						// sometimes we assume a room is a chatroom when it's not
 						// when that happens, just ignore this error
-						if (room.type === 'chat') room.receiveLine(['bigerror', 'Room does not exist']);
+						if (room.type === 'chat' || room.type === 'battle') room.receiveLine(args);
 					} else if (args[1] === 'rename') {
 						room.connected = true;
 						room.title = args[3] || room.title;
@@ -2052,16 +2053,14 @@ export const PS = new class extends PSModel {
 		}
 		room?.update(isInit ? [`initdone`] : null);
 	}
-	send(fullMsg: string) {
-		const pipeIndex = fullMsg.indexOf('|');
-		const roomid = fullMsg.slice(0, pipeIndex) as RoomID;
-		const msg = fullMsg.slice(pipeIndex + 1);
-		console.log('\u25b6\ufe0f ' + (roomid ? '[' + roomid + '] ' : '') + '%c' + msg, "color: #776677");
+	send(msg: string, roomid?: RoomID) {
+		const bracketRoomid = roomid ? `[${roomid}] ` : '';
+		console.log(`\u25b6\ufe0f ${bracketRoomid}%c${msg}`, "color: #776677");
 		if (!this.connection) {
 			PS.alert(`You are not connected and cannot send ${msg}.`);
 			return;
 		}
-		this.connection.send(fullMsg);
+		this.connection.send(`${roomid || ''}|${msg}`);
 	}
 	isVisible(room: PSRoom) {
 		if (!this.leftPanelWidth) {
@@ -2282,7 +2281,7 @@ export const PS = new class extends PSModel {
 		}
 		return this.focusRoom(rooms[index + 1]);
 	}
-	alert(message: string, opts: { okButton?: string, parentElem?: HTMLElement } = {}) {
+	alert(message: string, opts: { okButton?: string, parentElem?: HTMLElement, width?: number } = {}) {
 		this.join(`popup-${this.popups.length}` as RoomID, {
 			args: { message, ...opts, parentElem: null },
 			parentElem: opts.parentElem,
@@ -2331,10 +2330,11 @@ export const PS = new class extends PSModel {
 		}
 		if (options.id.startsWith('battle-') && PS.prefs.rightpanelbattles) options.location = 'right';
 		options.parentRoomid ??= this.getRoom(options.parentElem)?.id;
+		const parentRoom = options.parentRoomid ? this.rooms[options.parentRoomid] : null;
 		let preexistingRoom = this.rooms[options.id];
 		if (preexistingRoom && this.isPopup(preexistingRoom)) {
 			const sameOpener = (preexistingRoom.parentElem === options.parentElem);
-			this.closePopupsAbove(this.rooms[options.parentRoomid!], true);
+			this.closePopupsAbove(parentRoom, true);
 			if (sameOpener) return;
 			preexistingRoom = this.rooms[options.id];
 		}
@@ -2348,7 +2348,7 @@ export const PS = new class extends PSModel {
 			return preexistingRoom;
 		}
 		if (!noFocus) {
-			this.closePopupsAbove(this.rooms[options.parentRoomid!], true);
+			this.closePopupsAbove(parentRoom, true);
 		}
 		const room = this.createRoom(options);
 		this.rooms[room.id] = room;
