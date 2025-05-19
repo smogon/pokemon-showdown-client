@@ -889,7 +889,7 @@ export const Dex = new class implements ModdedDex {
 		let homeExists = (!species.isNonstandard || !['CAP', 'Custom'].includes(species.isNonstandard) ||
 			species.id === "xerneasneutral") && ![
 			// TODO check which forms are missing
-			"eeveestarter", "floetteeternal", "pichuspikyeared", "pikachubelle", "pikachucosplay", "pikachulibre", "pikachuphd", "pikachupopstar", "pikachurockstar", "poltchageistartisan", "polteageistantique", "sinistchamasterpiece", "sinisteaantique", "toxtricitylowkeygmax",
+			"floetteeternal", "pichuspikyeared", "pikachubelle", "pikachucosplay", "pikachulibre", "pikachuphd", "pikachupopstar", "pikachurockstar",
 		].includes(species.id);
 		if ((!gen || gen >= 8 || (gen === 7 && this.modid === 'gen7letsgo')) && homeExists) {
 			spriteData.spriteDir = 'sprites/home';
