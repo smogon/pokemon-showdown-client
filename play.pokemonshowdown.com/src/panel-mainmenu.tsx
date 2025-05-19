@@ -46,6 +46,7 @@ export class MainMenuRoom extends PSRoom {
 	/** used to track the moment between "search sent" and "server acknowledged search sent" */
 	searchSent = false;
 	search: { searching: string[], games: Record<RoomID, string> | null } = { searching: [], games: null };
+	disallowSpectators: boolean | null = PS.prefs.disallowspectators;
 	constructor(options: RoomOptions) {
 		super(options);
 		if (this.backlog) {
@@ -57,6 +58,11 @@ export class MainMenuRoom extends PSRoom {
 			}
 			this.backlog = null;
 		}
+	}
+	adjustPrivacy() {
+		PS.prefs.set('disallowspectators', this.disallowSpectators);
+		if (this.disallowSpectators) return '/noreply /hidenext \n';
+		return '';
 	}
 	startSearch = (format: string, team?: Team) => {
 		if (this.searchCountdown) {
@@ -78,7 +84,7 @@ export class MainMenuRoom extends PSRoom {
 			this.update(null);
 			return true;
 		}
-		if (this.searchSent) {
+		if (this.searchSent || this.search.searching?.length) {
 			this.searchSent = false;
 			PS.send('|/cancelsearch');
 			this.update(null);
@@ -99,8 +105,9 @@ export class MainMenuRoom extends PSRoom {
 	};
 	doSearch = (search: NonNullable<typeof this.searchCountdown>) => {
 		this.searchSent = true;
+		const privacy = this.adjustPrivacy();
 		PS.send(`|/utm ${search.packedTeam}`);
-		PS.send(`|/search ${search.format}`);
+		PS.send(`|${privacy}/search ${search.format}`);
 	};
 	override receiveLine(args: Args) {
 		const [cmd] = args;
@@ -595,7 +602,13 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
 			</TeamForm>;
 		}
 
-		return <TeamForm class="menugroup" onSubmit={this.submitSearch} selectType="search">
+		return <TeamForm
+			class="menugroup" format={PS.mainmenu.searchCountdown?.format} selectType="search" onSubmit={this.submitSearch}
+		>
+			<p>
+				<button class="button small" data-href="battleoptions" title="Options" aria-label="Options">
+					Battle options <i class="fa fa-caret-down"></i>
+				</button></p>
 			{PS.mainmenu.searchCountdown ? (
 				<>
 					<button class="mainmenu1 mainmenu big button disabled" type="submit"><strong>
@@ -667,10 +680,11 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
 }
 
 export class FormatDropdown extends preact.Component<{
-	format?: string, onChange?: JSX.EventHandler<Event>, placeholder?: string, selectType?: SelectType,
+	selectType?: SelectType, format?: string, defaultFormat?: string, placeholder?: string,
+	onChange?: JSX.EventHandler<Event>,
 }> {
 	declare base?: HTMLButtonElement;
-	format = `[Gen ${Dex.gen}] Random Battle`;
+	format = '';
 	change = (e: Event) => {
 		if (!this.base) return;
 		this.format = this.base.value;
@@ -683,9 +697,10 @@ export class FormatDropdown extends preact.Component<{
 		}
 	}
 	render() {
+		this.format ||= this.props.format || this.props.defaultFormat || '';
 		let [formatName, customRules] = this.format.split('@@@');
 		if (window.BattleLog) formatName = BattleLog.formatName(formatName);
-		if (this.props.format && !this.props.onChange) {
+		if (this.props.format || PS.mainmenu.searchSent) {
 			return <button
 				name="format" value={this.format} class="select formatselect preselected" disabled
 			>
@@ -755,13 +770,13 @@ export class TeamForm extends preact.Component<{
 	onSubmit: ((e: Event, format: string, team?: Team) => void) | null,
 	onValidate?: ((e: Event, format: string, team?: Team) => void) | null,
 }> {
-	override state = { format: `[Gen ${Dex.gen}] Random Battle` };
+	format = '';
 	changeFormat = (ev: Event) => {
 		this.setState({ format: (ev.target as HTMLButtonElement).value });
 	};
 	submit = (ev: Event, validate?: 'validate') => {
 		ev.preventDefault();
-		const format = this.state.format;
+		const format = this.format;
 		const teamKey = this.base!.querySelector<HTMLButtonElement>('button[name=team]')!.value;
 		const team = teamKey ? PS.teams.byKey[teamKey] : undefined;
 		PS.teams.loadTeam(team).then(() => {
@@ -779,17 +794,37 @@ export class TeamForm extends preact.Component<{
 		}
 	};
 	render() {
+		if (window.BattleFormats) {
+			const starredPrefs = PS.prefs.starredformats || {};
+			// .reverse() because the newest starred format should be the default one
+			const starred = Object.keys(starredPrefs).filter(id => starredPrefs[id] === true).reverse();
+			if (!this.format) {
+				this.format = `gen${Dex.gen}randombattle`;
+				for (let id of starred) {
+					let format = window.BattleFormats[id];
+					if (!format) continue;
+					if (this.props.selectType === 'challenge' && format?.challengeShow === false) continue;
+					if (this.props.selectType === 'search' && format?.searchShow === false) continue;
+					if (this.props.selectType === 'teambuilder' && format?.team) continue;
+					this.format = id;
+					break;
+				}
+			}
+		}
 		return <form class={this.props.class} onSubmit={this.submit} onClick={this.handleClick}>
 			{!this.props.hideFormat && <p>
 				<label class="label">
 					Format:<br />
-					<FormatDropdown onChange={this.changeFormat} format={this.props.format} selectType={this.props.selectType} />
+					<FormatDropdown
+						selectType={this.props.selectType} format={this.props.format} defaultFormat={this.format}
+						onChange={this.changeFormat}
+					/>
 				</label>
 			</p>}
 			<p>
 				<label class="label">
 					Team:<br />
-					<TeamDropdown format={this.props.teamFormat || this.state.format} />
+					<TeamDropdown format={this.props.teamFormat || this.format} />
 				</label>
 			</p>
 			<p>{this.props.children}</p>

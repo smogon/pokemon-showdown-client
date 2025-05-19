@@ -152,55 +152,6 @@ class BattleDiv extends preact.Component<{ room: BattleRoom }> {
 	}
 }
 
-function MoveButton(props: {
-	cmd: string, type: Dex.TypeName, tooltip: string, moveData: { pp?: number, maxpp?: number, disabled?: boolean },
-	children: string,
-}) {
-	const pp = props.moveData.maxpp ? `${props.moveData.pp!}/${props.moveData.maxpp}` : '&ndash;';
-	return <button
-		data-cmd={props.cmd} data-tooltip={props.tooltip}
-		class={`movebutton type-${props.type} has-tooltip${props.moveData.disabled ? ' disabled' : ''}`}
-	>
-		{props.children}<br />
-		<small class="type">{props.type}</small> <small class="pp">{pp}</small>&nbsp;
-	</button>;
-}
-function PokemonButton(props: {
-	pokemon: Pokemon | ServerPokemon | null, cmd: string, noHPBar?: boolean, disabled?: boolean | 'fade', tooltip: string,
-}) {
-	const pokemon = props.pokemon;
-	if (!pokemon) {
-		return <button
-			data-cmd={props.cmd} class={`${props.disabled ? 'disabled ' : ''}has-tooltip`}
-			style={{ opacity: props.disabled === 'fade' ? 0.5 : 1 }} data-tooltip={props.tooltip}
-		>
-			(empty slot)
-		</button>;
-	}
-
-	let hpColorClass;
-	switch (BattleScene.getHPColor(pokemon)) {
-	case 'y': hpColorClass = 'hpbar hpbar-yellow'; break;
-	case 'r': hpColorClass = 'hpbar hpbar-red'; break;
-	default: hpColorClass = 'hpbar'; break;
-	}
-
-	return <button
-		data-cmd={props.cmd} class={`${props.disabled ? 'disabled ' : ''}has-tooltip`}
-		style={{ opacity: props.disabled === 'fade' ? 0.5 : 1 }} data-tooltip={props.tooltip}
-	>
-		<PSIcon pokemon={pokemon} />
-		{pokemon.name}
-		{
-			!props.noHPBar && !pokemon.fainted &&
-			<span class={hpColorClass}>
-				<span style={{ width: Math.round(pokemon.hp * 92 / pokemon.maxhp) || 1 }}></span>
-			</span>
-		}
-		{!props.noHPBar && pokemon.status && <span class={`status ${pokemon.status}`}></span>}
-	</button>;
-}
-
 class TimerButton extends preact.Component<{ room: BattleRoom }> {
 	timerInterval: number | null = null;
 	override componentWillUnmount() {
@@ -442,6 +393,57 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 			</p>
 		</div>;
 	}
+	renderMoveButton(props: {
+		name: string,
+		cmd: string, type: Dex.TypeName, tooltip: string, moveData: { pp?: number, maxpp?: number, disabled?: boolean },
+	} | null) {
+		if (!props) {
+			return <button class="movebutton" disabled>&nbsp;</button>;
+		}
+		const pp = props.moveData.maxpp ? `${props.moveData.pp!}/${props.moveData.maxpp}` : '\u2014';
+		return <button
+			data-cmd={props.cmd} data-tooltip={props.tooltip}
+			class={`movebutton type-${props.type} has-tooltip${props.moveData.disabled ? ' disabled' : ''}`}
+		>
+			{props.name}<br />
+			<small class="type">{props.type}</small> <small class="pp">{pp}</small>&nbsp;
+		</button>;
+	}
+	renderPokemonButton(props: {
+		pokemon: Pokemon | ServerPokemon | null, cmd: string, noHPBar?: boolean, disabled?: boolean | 'fade', tooltip: string,
+	}) {
+		const pokemon = props.pokemon;
+		if (!pokemon) {
+			return <button
+				data-cmd={props.cmd} class={`${props.disabled ? 'disabled ' : ''}has-tooltip`}
+				style={{ opacity: props.disabled === 'fade' ? 0.5 : 1 }} data-tooltip={props.tooltip}
+			>
+				(empty slot)
+			</button>;
+		}
+
+		let hpColorClass;
+		switch (BattleScene.getHPColor(pokemon)) {
+		case 'y': hpColorClass = 'hpbar hpbar-yellow'; break;
+		case 'r': hpColorClass = 'hpbar hpbar-red'; break;
+		default: hpColorClass = 'hpbar'; break;
+		}
+
+		return <button
+			data-cmd={props.cmd} class={`${props.disabled ? 'disabled ' : ''}has-tooltip`}
+			style={{ opacity: props.disabled === 'fade' ? 0.5 : 1 }} data-tooltip={props.tooltip}
+		>
+			{PSIcon({ pokemon })}
+			{pokemon.name}
+			{
+				!props.noHPBar && !pokemon.fainted &&
+				<span class={hpColorClass}>
+					<span style={{ width: Math.round(pokemon.hp * 92 / pokemon.maxhp) || 1 }}></span>
+				</span>
+			}
+			{!props.noHPBar && pokemon.status && <span class={`status ${pokemon.status}`}></span>}
+		</button>;
+	}
 	renderMoveMenu(choices: BattleChoiceBuilder) {
 		const moveRequest = choices.currentMoveRequest()!;
 
@@ -521,9 +523,13 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 				}
 				const gmaxTooltip = maxMoveData.id.startsWith('gmax') ? `|${maxMoveData.id}` : ``;
 				const tooltip = `maxmove|${moveData.name}|${pokemonIndex}${gmaxTooltip}`;
-				return <MoveButton cmd={`/move ${i + 1} max`} type={moveType} tooltip={tooltip} moveData={moveData}>
-					{maxMoveData.name}
-				</MoveButton>;
+				return this.renderMoveButton({
+					name: maxMoveData.name,
+					cmd: `/move ${i + 1} max`,
+					type: moveType,
+					tooltip,
+					moveData,
+				});
 			});
 		}
 
@@ -534,15 +540,19 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 			return active.moves.map((moveData, i) => {
 				const zMoveData = active.zMoves![i];
 				if (!zMoveData) {
-					return <button class="movebutton" disabled>&nbsp;</button>;
+					return this.renderMoveButton(null);
 				}
 				const specialMove = dex.moves.get(zMoveData.name);
 				const move = specialMove.exists ? specialMove : dex.moves.get(moveData.name);
 				const moveType = tooltips.getMoveType(move, valueTracker)[0];
 				const tooltip = `zmove|${moveData.name}|${pokemonIndex}`;
-				return <MoveButton cmd={`/move ${i + 1} zmove`} type={moveType} tooltip={tooltip} moveData={{ pp: 1, maxpp: 1 }}>
-					{zMoveData.name}
-				</MoveButton>;
+				return this.renderMoveButton({
+					name: zMoveData.name,
+					cmd: `/move ${i + 1} zmove`,
+					type: moveType,
+					tooltip,
+					moveData: { pp: 1, maxpp: 1 },
+				});
 			});
 		}
 
@@ -551,9 +561,13 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 			const move = dex.moves.get(moveData.name);
 			const moveType = tooltips.getMoveType(move, valueTracker)[0];
 			const tooltip = `move|${moveData.name}|${pokemonIndex}`;
-			return <MoveButton cmd={`/move ${i + 1}${special}`} type={moveType} tooltip={tooltip} moveData={moveData}>
-				{move.name}
-			</MoveButton>;
+			return this.renderMoveButton({
+				name: move.name,
+				cmd: `/move ${i + 1}${special}`,
+				type: moveType,
+				tooltip,
+				moveData,
+			});
 		});
 	}
 	renderMoveTargetControls(request: BattleMoveRequest, choices: BattleChoiceBuilder) {
@@ -577,10 +591,12 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 				}
 
 				if (pokemon?.fainted) pokemon = null;
-				return <PokemonButton
-					pokemon={pokemon}
-					cmd={disabled ? `` : `/${moveChoice} +${i + 1}`} disabled={disabled && 'fade'} tooltip={`activepokemon|1|${i}`}
-				/>;
+				return this.renderPokemonButton({
+					pokemon,
+					cmd: disabled ? `` : `/${moveChoice} +${i + 1}`,
+					disabled: disabled && 'fade',
+					tooltip: `activepokemon|1|${i}`,
+				});
 			}).reverse(),
 			<div style="clear: left"></div>,
 			battle.nearSide.active.map((pokemon, i) => {
@@ -593,10 +609,12 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 				if (moveTarget !== 'adjacentAllyOrSelf' && userSlot === i) disabled = true;
 
 				if (pokemon?.fainted) pokemon = null;
-				return <PokemonButton
-					pokemon={pokemon}
-					cmd={disabled ? `` : `/${moveChoice} -${i + 1}`} disabled={disabled && 'fade'} tooltip={`activepokemon|0|${i}`}
-				/>;
+				return this.renderPokemonButton({
+					pokemon,
+					cmd: disabled ? `` : `/${moveChoice} -${i + 1}`,
+					disabled: disabled && 'fade',
+					tooltip: `activepokemon|0|${i}`,
+				});
 			}),
 		];
 	}
@@ -616,18 +634,24 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 			</em>}
 			{request.side.pokemon.map((serverPokemon, i) => {
 				const cantSwitch = trapped || i < numActive || choices.alreadySwitchingIn.includes(i + 1) || serverPokemon.fainted;
-				return <PokemonButton
-					pokemon={serverPokemon} cmd={`/switch ${i + 1}`} disabled={cantSwitch} tooltip={`switchpokemon|${i}`}
-				/>;
+				return this.renderPokemonButton({
+					pokemon: serverPokemon,
+					cmd: `/switch ${i + 1}`,
+					disabled: cantSwitch,
+					tooltip: `switchpokemon|${i}`,
+				});
 			})}
 		</div>;
 	}
-	renderTeamControls(request: | BattleTeamRequest, choices: BattleChoiceBuilder) {
+	renderTeamPreviewChooser(request: | BattleTeamRequest, choices: BattleChoiceBuilder) {
 		return request.side.pokemon.map((serverPokemon, i) => {
 			const cantSwitch = choices.alreadySwitchingIn.includes(i + 1);
-			return <PokemonButton
-				pokemon={serverPokemon} cmd={`/switch ${i + 1}`} noHPBar disabled={cantSwitch && 'fade'} tooltip={`switchpokemon|${i}`}
-			/>;
+			return this.renderPokemonButton({
+				pokemon: serverPokemon,
+				cmd: `/switch ${i + 1}`,
+				disabled: cantSwitch && 'fade',
+				tooltip: `switchpokemon|${i}`,
+			});
 		});
 	}
 	renderTeamList() {
@@ -637,9 +661,12 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 			<h3 class="switchselect">Team</h3>
 			<div class="switchmenu">
 				{team.map((serverPokemon, i) => {
-					return <PokemonButton
-						pokemon={serverPokemon} cmd="" noHPBar disabled tooltip={`switchpokemon|${i}`}
-					/>;
+					return this.renderPokemonButton({
+						pokemon: serverPokemon,
+						cmd: "",
+						disabled: true,
+						tooltip: `switchpokemon|${i}`,
+					});
 				})}
 			</div>
 		</div>;
@@ -647,9 +674,12 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 	renderChosenTeam(request: BattleTeamRequest, choices: BattleChoiceBuilder) {
 		return choices.alreadySwitchingIn.map(slot => {
 			const serverPokemon = request.side.pokemon[slot - 1];
-			return <PokemonButton
-				pokemon={serverPokemon} cmd={`/switch ${slot}`} disabled tooltip={`switchpokemon|${slot - 1}`}
-			/>;
+			return this.renderPokemonButton({
+				pokemon: serverPokemon,
+				cmd: `/switch ${slot}`,
+				disabled: true,
+				tooltip: `switchpokemon|${slot - 1}`,
+			});
 		});
 	}
 	renderOldChoices(request: BattleRequest, choices: BattleChoiceBuilder) {
@@ -821,7 +851,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 						Choose {choices.alreadySwitchingIn.length <= 0 ? `lead` : `slot ${choices.alreadySwitchingIn.length + 1}`}
 					</h3>
 					<div class="switchmenu">
-						{this.renderTeamControls(request, choices)}
+						{this.renderTeamPreviewChooser(request, choices)}
 						<div style="clear:left"></div>
 					</div>
 				</div>
@@ -924,7 +954,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 					data-href="battleoptions" class="button"
 					style={{ position: 'absolute', right: '75px', top: this.battleHeight }}
 				>
-					Battle Options
+					Battle options
 				</button>
 				{(room.battle && !room.battle.ended && room.request && room.battle.mySide.id === PS.user.userid) &&
 					<TimerButton room={room} />}
@@ -946,7 +976,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 				data-href="battleoptions" class="button"
 				style={{ position: 'absolute', right: '15px' }}
 			>
-				Battle Options
+				Battle options
 			</button>
 			<div class="battle-controls-container">
 				<div class="battle-controls" role="complementary" aria-label="Battle Controls" style="top: 370px;">

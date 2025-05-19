@@ -849,6 +849,7 @@ class FormatDropdownPanel extends PSRoomPanel {
 	click = (e: MouseEvent) => {
 		let curTarget = e.target as HTMLElement | null;
 		let target;
+		if (curTarget?.tagName === 'I') return;
 		while (curTarget && curTarget !== e.currentTarget) {
 			if (curTarget.tagName === 'BUTTON') {
 				target = curTarget as HTMLButtonElement;
@@ -888,7 +889,7 @@ class FormatDropdownPanel extends PSRoomPanel {
 		const curGen = (gen: string) => this.gen === gen ? ' cur' : '';
 		const searchBar = <div style="margin-bottom: 0.5em">
 			<input
-				type="search" name="search" placeholder="Search formats" class="textbox autofocus"
+				type="search" name="search" placeholder="Search formats" class="textbox autofocus" autocomplete="off"
 				onInput={this.updateSearch} onChange={this.updateSearch}
 			/> {}
 			<button onClick={this.toggleGen} value="gen9" class={`button button-first${curGen('gen9')}`}>Gen 9</button>
@@ -917,7 +918,6 @@ class FormatDropdownPanel extends PSRoomPanel {
 			room.parentElem.getAttribute('data-selecttype') as any || 'challenge'
 		);
 		const curFormat = toID((room.parentElem as HTMLButtonElement).value);
-
 		const formats = Object.values(BattleFormats).filter(format => {
 			if (selectType === 'challenge' && format.challengeShow === false) return false;
 			if (selectType === 'search' && format.searchShow === false) return false;
@@ -962,21 +962,56 @@ class FormatDropdownPanel extends PSRoomPanel {
 
 		const width = Math.max(columns.length, 2.1) * 225 + 30;
 		const noResults = curColumn.length === 0;
+		const starredPrefs = PS.prefs.starredformats || {};
+		// reverse because the newest starred format should be the default
+		const starred = Object.keys(starredPrefs).filter(id => starredPrefs[id] === true).reverse();
+		let starredDone = false;
 
 		return <PSPanelWrapper room={room} width={width}><div class="pad">
 			{searchBar}
-			{columns.map(column => <ul class="options" onClick={this.click}>
-				{column.map(format => format.id ? (
-					<li><button value={format.name} class={`option${curFormat === format.id ? ' cur' : ''}`}>
-						{format.name.replace('[Gen 8 ', '[').replace('[Gen 9] ', '').replace('[Gen 7 ', '[')}
-						{format.section === 'No Format' && <em> (uncategorized)</em>}
-					</button></li>
-				) : (
-					<li><h3>
-						{format.section}
-					</h3></li>
-				))}
-			</ul>)}
+			{columns.map(column => (
+				<ul class="options" onClick={this.click}>
+					{!starredDone && starred?.map((id, i) => {
+						if (this.gen && !id.startsWith(this.gen)) return null;
+						let format = BattleFormats[id] as FormatData | undefined;
+						if (/^gen[1-9]$/.test(id)) {
+							format ||= {
+								id: id as ID,
+								name: `[Gen ${id.slice(3)}]`,
+								section: 'No Format',
+								challengeShow: false,
+								searchShow: false,
+							} as any;
+						}
+						if (!format) return null;
+						if (i === starred.length - 1) starredDone = true;
+						if (selectType === 'challenge' && format.challengeShow === false) return null;
+						if (selectType === 'search' && format.searchShow === false) return null;
+						if (selectType === 'teambuilder' && format.team) return null;
+						return <li><button value={format.name} class={`option${curFormat === format.id ? ' cur' : ''}`}>
+							{format.name.replace('[Gen 8 ', '[').replace('[Gen 9] ', '').replace('[Gen 7 ', '[')}
+							{format.section === 'No Format' && <em> (uncategorized)</em>}
+							<i class="star fa fa-star cur" data-cmd={`/unstar ${format.id}`}></i>
+						</button></li>;
+					})}
+					{column.map(format => {
+						// do not include starred formats
+						if (starred.includes(format.id || '')) return '';
+						if (format.id) {
+							return <li><button
+								value={format.name}
+								class={`option${curFormat === format.id ? ' cur' : ''}`}
+							>
+								{format.name.replace('[Gen 8 ', '[').replace('[Gen 9] ', '').replace('[Gen 7 ', '[')}
+								{format.section === 'No Format' && <em> (uncategorized)</em>}
+								<i class="star fa fa-star-o" data-cmd={`/star ${format.id}`}></i>
+							</button></li>;
+						} else {
+							return <li><h3>{format.section}</h3></li>;
+						}
+					})}
+				</ul>
+			))}
 			{noResults && <p>
 				<em>No formats{!!searchID && ` matching "${searchID}"`} found</em>
 			</p>}
