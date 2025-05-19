@@ -20,7 +20,7 @@ export class PSConnection {
 	private worker: Worker | null = null;
 
 	constructor() {
-    const loading = PSStorage.init();
+		const loading = PSStorage.init();
 		if (loading) {
 			loading.then(() => {
 				this.initConnection();
