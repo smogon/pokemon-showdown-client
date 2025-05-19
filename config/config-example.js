@@ -1,3 +1,4 @@
+/** @type {import('../play.pokemonshowdown.com/src/client-main').PSConfig} */
 var Config = Config || {};
 
 /* version */ Config.version = "0";

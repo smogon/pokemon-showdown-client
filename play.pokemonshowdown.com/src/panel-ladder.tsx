@@ -7,7 +7,7 @@
  * @license MIT
  */
 
-import { PS, PSRoom } from "./client-main";
+import { Config, PS, PSRoom } from "./client-main";
 import { Net } from "./client-connection";
 import { PSPanelWrapper, PSRoomPanel } from "./panels";
 import { BattleLog } from "./battle-log";

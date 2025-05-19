@@ -4,7 +4,9 @@ import type { ID } from "./battle-dex-data";
 import { BattleLog } from "./battle-log";
 import { PSLoginServer } from "./client-connection";
 import { PSBackground } from "./client-core";
-import { PSRoom, type RoomOptions, PS, type PSLoginState, type RoomID, type TimestampOptions } from "./client-main";
+import {
+	PS, PSRoom, Config, type RoomOptions, type PSLoginState, type RoomID, type TimestampOptions,
+} from "./client-main";
 import { type BattleRoom } from "./panel-battle";
 import { ChatUserList, type ChatRoom } from "./panel-chat";
 import { PSRoomPanel, PSPanelWrapper, PSView } from "./panels";

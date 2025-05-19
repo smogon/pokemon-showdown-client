@@ -6,6 +6,7 @@ import { BattleLog } from '../../play.pokemonshowdown.com/src/battle-log';
 import type { PageProps } from './teams';
 import { Dex } from '../../play.pokemonshowdown.com/src/battle-dex';
 import { BattleStatNames } from '../../play.pokemonshowdown.com/src/battle-dex-data';
+import { Config } from '../../play.pokemonshowdown.com/src/client-main';
 
 declare const toID: (str: any) => string;
 declare const BattleAliases: Record<string, string>;

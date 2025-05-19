@@ -23,6 +23,38 @@ declare const BattleTextAFD: any;
 declare const BattleTextNotAFD: any;
 
 /**********************************************************************
+ * Config
+ *********************************************************************/
+
+export interface ServerInfo {
+	id: ID;
+	protocol: string;
+	host: string;
+	port: number;
+	httpport?: number;
+	altport?: number;
+	prefix: string;
+	afd?: boolean;
+	registered?: boolean;
+}
+export interface PSConfig {
+	server: ServerInfo;
+	defaultserver: ServerInfo;
+	routes: {
+		root: string,
+		client: string,
+		dex: string,
+		replays: string,
+		users: string,
+		teams: string,
+	};
+	customcolors: Record<string, string>;
+	whitelist?: string[];
+	testclient?: boolean;
+}
+export declare const Config: PSConfig;
+
+/**********************************************************************
  * Prefs
  *********************************************************************/
 

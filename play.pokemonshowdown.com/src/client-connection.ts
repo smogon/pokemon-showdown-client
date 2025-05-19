@@ -5,7 +5,7 @@
  * @license MIT
  */
 
-import { PS } from "./client-main";
+import { Config, PS } from "./client-main";
 
 declare const SockJS: any;
 declare const POKEMON_SHOWDOWN_TESTCLIENT_KEY: string | undefined;
@@ -26,8 +26,8 @@ export class PSConnection {
 	}
 	connect() {
 		const server = PS.server;
-		const port = server.protocol === 'https' ? ':' + server.port : ':' + server.httpport;
-		const url = server.protocol + '://' + server.host + port + server.prefix;
+		const port = server.protocol === 'https' ? `:${server.port}` : `:${server.httpport || server.port}`;
+		const url = `${server.protocol}://${server.host}${port}${server.prefix}`;
 		try {
 			this.socket = new SockJS(url, [], { timeout: 5 * 60 * 1000 });
 		} catch {

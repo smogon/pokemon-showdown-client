@@ -25,6 +25,7 @@ import {
 } from "./battle-dex-data";
 import type * as DexData from "./battle-dex-data";
 import type { Teams } from "./battle-teams";
+import { Config } from "./client-main";
 
 export declare namespace Dex {
 	/* eslint-disable @typescript-eslint/no-shadow */
@@ -290,9 +291,9 @@ export const Dex = new class implements ModdedDex {
 		}
 		if (avatar.includes('.') && window.Config?.server?.registered) {
 			// custom avatar served by the server
-			let protocol = (Config.server.port === 443) ? 'https' : 'http';
-			return protocol + '://' + Config.server.host + ':' + Config.server.port +
-				'/avatars/' + encodeURIComponent(avatar).replace(/%3F/g, '?');
+			const protocol = (Config.server.port === 443) ? 'https' : 'http';
+			const server = `${protocol}://${Config.server.host}:${Config.server.port}`;
+			return `${server}/avatars/${encodeURIComponent(avatar).replace(/%3F/g, '?')}`;
 		}
 		return Dex.resourcePrefix + 'sprites/trainers/' + Dex.sanitizeName(avatar || 'unknown') + '.png';
 	}
@@ -888,7 +889,7 @@ export const Dex = new class implements ModdedDex {
 
 	getItemIcon(item: any) {
 		let num = 0;
-		if (typeof item === 'string' && exports.BattleItems) item = exports.BattleItems[toID(item)];
+		if (typeof item === 'string' && window.BattleItems) item = window.BattleItems[toID(item)];
 		if (item?.spritenum) num = item.spritenum;
 
 		let top = Math.floor(num / 16) * 24;
@@ -922,8 +923,8 @@ export const Dex = new class implements ModdedDex {
 	getPokeballs() {
 		if (this.pokeballs) return this.pokeballs;
 		this.pokeballs = [];
-		if (!window.BattleItems) window.BattleItems = {};
-		for (const data of Object.values<AnyObject>(window.BattleItems)) {
+		window.BattleItems ||= {};
+		for (const data of Object.values(BattleItems)) {
 			if (!data.isPokeball) continue;
 			this.pokeballs.push(data.name);
 		}
@@ -944,7 +945,7 @@ export class ModdedDex {
 	pokeballs: string[] | null = null;
 	constructor(modid: ID) {
 		this.modid = modid;
-		const gen = parseInt(modid.substr(3, 1), 10);
+		const gen = parseInt(modid.charAt(3), 10);
 		if (!modid.startsWith('gen') || !gen) throw new Error("Unsupported modid");
 		this.gen = gen;
 	}
@@ -1132,8 +1133,8 @@ export class ModdedDex {
 	getPokeballs() {
 		if (this.pokeballs) return this.pokeballs;
 		this.pokeballs = [];
-		if (!window.BattleItems) window.BattleItems = {};
-		for (const data of Object.values<AnyObject>(window.BattleItems)) {
+		window.BattleItems ||= {};
+		for (const data of Object.values(BattleItems)) {
 			if (data.gen && data.gen > this.gen) continue;
 			if (!data.isPokeball) continue;
 			this.pokeballs.push(data.name);

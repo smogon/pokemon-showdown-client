@@ -13,7 +13,7 @@
  * @license AGPLv3
  */
 
-import { PS } from "./client-main";
+import { Config, PS } from "./client-main";
 declare const ColorThief: any;
 
 /**********************************************************************
