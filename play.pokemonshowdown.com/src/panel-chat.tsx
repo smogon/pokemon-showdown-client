@@ -110,7 +110,7 @@ export class ChatRoom extends PSRoom {
 			if (args[0] === 'c:') PS.lastMessageTime = args[1];
 			this.lastMessage = args;
 			this.joinLeave = null;
-			this.markUserActive(args[1]);
+			this.markUserActive(args[args[0] === 'c:' ? 2 : 1]);
 			if (this.tour) this.tour.joinLeave = null;
 			this.subtleNotify();
 			break;
