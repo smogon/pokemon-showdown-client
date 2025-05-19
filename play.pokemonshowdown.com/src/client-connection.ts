@@ -48,7 +48,7 @@ export class PSConnection {
 				const { type, data } = event.data;
 				switch (type) {
 				case 'connected':
-					console.log('✅ (CONNECTED via worker)');
+					console.log('\u2705 (CONNECTED via worker)');
 					this.connected = true;
 					PS.connected = true;
 					this.queue.forEach(msg => worker.postMessage({ type: 'send', data: msg }));
@@ -99,7 +99,7 @@ export class PSConnection {
 		const socket = this.socket;
 
 		socket.onopen = () => {
-			console.log('✅ (CONNECTED)');
+			console.log('\u2705 (CONNECTED)');
 			this.connected = true;
 			PS.connected = true;
 			this.reconnectDelay = 1000;
@@ -113,13 +113,12 @@ export class PSConnection {
 		};
 
 		socket.onclose = () => {
-			console.log('❌ (DISCONNECTED)');
+			console.log('\u274C (DISCONNECTED)');
 			this.handleDisconnect();
 			if (this.shouldReconnect) this.retryConnection();
 		};
 
 		socket.onerror = () => {
-			console.log('⚠️ (ERROR)');
 			PS.connected = false;
 			PS.isOffline = true;
 			PS.alert("Connection error.");
