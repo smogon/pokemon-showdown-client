@@ -10,7 +10,7 @@
  */
 
 import preact from "../js/lib/preact";
-import { PS, type PSRoom, type RoomID } from "./client-main";
+import { Config, PS, type PSRoom, type RoomID } from "./client-main";
 import { PSView } from "./panels";
 import type { Battle } from "./battle";
 import { BattleLog } from "./battle-log"; // optional

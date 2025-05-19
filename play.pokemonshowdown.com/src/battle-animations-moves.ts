@@ -10,6 +10,7 @@
  */
 
 import { type AnimTable, BattleOtherAnims } from './battle-animations';
+import { Config } from './client-main';
 
 export const BattleMoveAnims: AnimTable = {
 	taunt: {
