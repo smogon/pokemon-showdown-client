@@ -11,13 +11,13 @@ declare const SockJS: any;
 declare const POKEMON_SHOWDOWN_TESTCLIENT_KEY: string | undefined;
 
 export class PSConnection {
-	socket: WebSocket | SockJS | null = null;
+	socket: any = null;
 	connected = false;
 	queue: string[] = [];
 	private reconnectDelay = 1000;
 	private reconnectCap = 15000;
 	private shouldReconnect = true;
-	private worker: Worker | null = null; // store worker instance
+	private worker: Worker | null = null;
 
 	constructor() {
 		this.initConnection();
@@ -53,6 +53,7 @@ export class PSConnection {
 					break;
 				case 'disconnected':
 					this.handleDisconnect();
+					if (this.shouldReconnect) this.retryConnection();
 					break;
 				case 'error':
 					console.warn('Worker connection error');
@@ -69,7 +70,7 @@ export class PSConnection {
 			};
 
 			return true;
-		} catch (error) {
+		} catch {
 			console.warn('Worker connection failed, falling back to regular connection.');
 			this.worker = null;
 			return false;
@@ -77,7 +78,7 @@ export class PSConnection {
 	}
 
 	connect() {
-		this.worker = null; // ensure worker isn't used
+		this.worker = null; // ensure worker isn't used. we can keep
 		const server = PS.server;
 		const port = server.protocol === 'https' ? '' : ':' + server.port;
 		const url = server.protocol + '://' + server.host + port + server.prefix;
@@ -133,10 +134,11 @@ export class PSConnection {
 	}
 
 	private retryConnection() {
-		console.log(`🔄 Reconnecting in ${this.reconnectDelay / 1000}s...`);
+		console.log(`Reconnecting in ${this.reconnectDelay / 1000}s...`);
+		PS.room.add(`||You are disconnected. Attempting to reconnect in ${this.reconnectDelay / 1000}s`);
 		setTimeout(() => {
 			if (!this.connected && this.shouldReconnect) {
-				PS.room?.send('/reconnect');
+				PSConnection.connect(); // or PS.send('/reconnect') ?
 				this.reconnectDelay = Math.min(this.reconnectDelay * 2, this.reconnectCap);
 			}
 		}, this.reconnectDelay);
@@ -155,7 +157,7 @@ export class PSConnection {
 	reconnectTest() {
 		this.socket?.close();
 		this.worker?.postMessage({ type: 'disconnect' });
-		// this.worker = null;
+		this.worker = null;
 		PS.connected = false;
 		PS.isOffline = true;
 	}

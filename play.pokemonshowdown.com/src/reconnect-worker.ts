@@ -9,7 +9,6 @@ interface ServerInfo {
 
 let socket: WebSocket | null = null;
 let serverInfo: ServerInfo;
-let retryCount = 0;
 let reconnectTimeout: ReturnType<typeof setTimeout> | null = null;
 let queue: string[] = [];
 
@@ -44,9 +43,7 @@ function connectToServer() {
 	}
 	if (socket) {
 		socket.onopen = () => {
-			retryCount = 0;
 			postMessage({ type: 'connected' });
-
 			for (const msg of queue) socket?.send(msg);
 			queue = [];
 		};
@@ -57,27 +54,14 @@ function connectToServer() {
 
 		socket.onclose = () => {
 			postMessage({ type: 'disconnected' });
-			scheduleReconnect();
+			// scheduleReconnect();
 		};
 
 		socket.onerror = () => {
 			postMessage({ type: 'error' });
-			socket?.close(); // trigger reconnect on error
+			socket?.close();
 		};
 		return;
 	}
 	return postMessage({ type: 'error' });
-}
-
-function scheduleReconnect() {
-	retryCount++;
-	const delay = retryCount === 1 ? 0 : Math.min(30000, 1000 * 2 ** (retryCount - 1)); // max 30s
-
-	if (reconnectTimeout) clearTimeout(reconnectTimeout);
-
-	reconnectTimeout = setTimeout(() => {
-		window.PS?.room.send('/reconnect');
-	}, delay);
-
-	postMessage({ type: 'reconnecting', in: delay });
 }
