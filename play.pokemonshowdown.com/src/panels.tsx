@@ -41,6 +41,18 @@ export class PSRouter {
 			} else if (url.startsWith('https://')) {
 				url = url.slice(8);
 			}
+			if (url.startsWith('psim.us/t/')) {
+				url = `viewteam-${url.slice(10)}`;
+			}
+			if (url.startsWith('teams.pokemonshowdown.com/view/') && /[0-9]/.test(url.charAt(31))) {
+				url = `viewteam-${url.slice(31)}`;
+			}
+			if (url.startsWith('psim.us/r/')) {
+				url = `battle-${url.slice(10)}`;
+			}
+			if (url.startsWith('replay.pokemonshowdown.com/') && /[a-z]/.test(url.charAt(27))) {
+				url = `battle-${url.slice(27)}`;
+			}
 			if (url.startsWith(document.location.host)) {
 				url = url.slice(document.location.host.length);
 			} else if (PS.server.id === 'showdown' && url.startsWith('play.pokemonshowdown.com')) {
@@ -59,6 +71,10 @@ export class PSRouter {
 		const redirects = /^(appeals?|rooms?suggestions?|suggestions?|adminrequests?|bugs?|bugreports?|rules?|faq|credits?|privacy|contact|dex|insecure)$/;
 		if (redirects.test(url)) return null;
 
+		if (url.startsWith('view-teams-view-')) {
+			const teamid = url.slice(16);
+			url = `viewteam-${teamid}` as RoomID;
+		}
 		return url as RoomID;
 	}
 	/** true: roomid changed, false: panelState changed, null: neither changed */
