@@ -17,7 +17,7 @@ import type { MainMenuRoom } from './panel-mainmenu';
 import { Dex, toID, type ID } from './battle-dex';
 import { BattleTextParser, type Args } from './battle-text-parser';
 import type { BattleRoom } from './panel-battle';
-import { PSTeambuilder } from './panel-teamdropdown';
+import { Teams } from './battle-teams';
 
 declare const BattleTextAFD: any;
 declare const BattleTextNotAFD: any;
@@ -87,6 +87,8 @@ class PSPrefs extends PSStreamModel<string | null> {
 	ignoreopp: boolean | null = null;
 	autotimer: boolean | null = null;
 	rightpanelbattles: boolean | null = null;
+	disallowspectators: boolean | null = null;
+	starredformats: { [formatid: string]: true | undefined } | null = null;
 
 	/**
 	 * Show "User joined" and "User left" messages. serverid:roomid
@@ -240,10 +242,12 @@ class PSPrefs extends PSStreamModel<string | null> {
 
 		Dex.afdMode = mode;
 
-		if (mode === true) {
-			(BattleText as any) = BattleTextAFD;
-		} else {
-			(BattleText as any) = BattleTextNotAFD;
+		if (typeof BattleTextAFD !== 'undefined') {
+			if (mode === true) {
+				(BattleText as any) = BattleTextAFD;
+			} else {
+				(BattleText as any) = BattleTextNotAFD;
+			}
 		}
 	}
 	doAutojoin() {
@@ -284,6 +288,8 @@ export interface Team {
 		/** password, if private. null = public, undefined = unknown, not loaded yet */
 		private?: string | null,
 	};
+	/** team at the point it was last uploaded. outside of `uploaded` so it can track loading state */
+	uploadedPackedTeam?: string;
 }
 interface UploadedTeam {
 	name: string;
@@ -435,14 +441,9 @@ class PSTeams extends PSStreamModel<'team' | 'format'> {
 					if (!team) {
 						continue;
 					}
-					const compare = this.compareTeams(team, localTeam);
-					if (compare !== true) {
-						if (!localTeam.name.endsWith(' (local version)')) localTeam.name += ' (local version)';
-						continue;
-					}
 					localTeam.uploaded = {
 						teamid: team.teamid,
-						notLoaded: true,
+						notLoaded: false,
 						private: team.private,
 					};
 					delete teams[localTeam.teamid];
@@ -465,7 +466,7 @@ class PSTeams extends PSStreamModel<'team' | 'format'> {
 						localTeam.teamid = team.teamid;
 						localTeam.uploaded = {
 							teamid: team.teamid,
-							notLoaded: true,
+							notLoaded: false,
 							private: team.private,
 						};
 						break;
@@ -477,7 +478,7 @@ class PSTeams extends PSStreamModel<'team' | 'format'> {
 						name: team.name,
 						format: team.format,
 						folder: '',
-						packedTeam: PSTeambuilder.packTeam(mons),
+						packedTeam: Teams.pack(mons),
 						iconCache: null,
 						isBox: false,
 						key: this.getKey(team.name),
@@ -495,10 +496,10 @@ class PSTeams extends PSStreamModel<'team' | 'format'> {
 	loadTeam(team: Team | undefined | null, ifNeeded: true): void | Promise<void>;
 	loadTeam(team: Team | undefined | null): Promise<void>;
 	loadTeam(team: Team | undefined | null, ifNeeded?: boolean): void | Promise<void> {
-		if (!team) return ifNeeded ? undefined : Promise.resolve();
-		if (!team.uploaded?.notLoaded) return ifNeeded ? undefined : Promise.resolve();
-		if (team.uploaded.notLoaded !== true) return team.uploaded.notLoaded;
+		if (!team?.uploaded || team.uploadedPackedTeam) return ifNeeded ? undefined : Promise.resolve();
+		if (team.uploaded.notLoaded && team.uploaded.notLoaded !== true) return team.uploaded.notLoaded;
 
+		const notLoaded = team.uploaded.notLoaded;
 		return (team.uploaded.notLoaded = PSLoginServer.query('getteam', {
 			teamid: team.uploaded.teamid,
 		}).then(data => {
@@ -508,8 +509,11 @@ class PSTeams extends PSStreamModel<'team' | 'format'> {
 				return;
 			}
 			team.uploaded.notLoaded = false;
-			team.packedTeam = data.team;
-			PS.teams.save();
+			team.uploadedPackedTeam = data.team;
+			if (notLoaded) {
+				team.packedTeam = data.team;
+				PS.teams.save();
+			}
 		}));
 	}
 	compareTeams(serverTeam: UploadedTeam, localTeam: Team) {
@@ -527,7 +531,7 @@ class PSTeams extends PSStreamModel<'team' | 'format'> {
 		// if it's been edited since, invalidate the team id on this one (count it as new)
 		// and load from server
 		const mons = serverTeam.team.split(',').map(toID).sort().join(',');
-		const otherMons = PSTeambuilder.packedTeamSpecies(localTeam.packedTeam).map(toID).sort().join(',');
+		const otherMons = Teams.unpackSpeciesOnly(localTeam.packedTeam).map(toID).sort().join(',');
 		if (mons !== otherMons) return 'rename';
 		return true;
 	}
@@ -735,6 +739,7 @@ class PSServer {
 	id = Config.defaultserver.id;
 	host = Config.defaultserver.host;
 	port = Config.defaultserver.port;
+	httpport = Config.defaultserver.httpport;
 	altport = Config.defaultserver.altport;
 	registered = Config.defaultserver.registered;
 	prefix = '/showdown';
@@ -856,6 +861,7 @@ interface PSNotificationState {
 }
 
 type ClientCommands<RoomT extends PSRoom> = {
+	/** return true to send the original command on to the server, or a string to send that command */
 	[command: Lowercase<string>]: (
 		this: RoomT, target: string, cmd: string, element: HTMLElement | null
 	) => string | boolean | null | void,
@@ -867,7 +873,7 @@ type ParsedClientCommands = {
 	) => string | boolean | null | void,
 };
 
-function makeLoadTracker() {
+export function makeLoadTracker() {
 	let resolver: () => void;
 	const tracker: Promise<void> & { loaded: () => void } = new Promise<void>(resolve => {
 		resolver = resolve;
@@ -1070,11 +1076,11 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 
 			if (room?.type === "battle" && !battle.ended && battle.mySide.id === PS.user.userid) {
 				PS.join("forfeitbattle" as RoomID, { parentElem: elem });
-				return true;
+				return;
 			}
-			if (room?.type === "chat" && room.connected && PS.prefs.leavePopupRoom) {
+			if (room?.type === "chat" && room.connected && PS.prefs.leavePopupRoom && !target) {
 				PS.join("confirmleaveroom" as RoomID, { parentElem: elem });
-				return true;
+				return;
 			}
 
 			PS.leave(roomid);
@@ -1152,6 +1158,37 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 			} else {
 				this.add(`|error|You're not currently searching.`, true);
 			}
+		},
+		'disallowspectators'(target) {
+			PS.prefs.set('disallowspectators', target !== 'off');
+		},
+		'star'(target) {
+			const id = toID(target);
+			if (!window.BattleFormats[id] && !/^gen[1-9]$/.test(id)) {
+				this.errorReply(`Format ${id} does not exist`);
+				return;
+			}
+			let starred = PS.prefs.starredformats || {};
+			starred[id] = true;
+			PS.prefs.set('starredformats', starred);
+			this.add(`||Added format ${id} to favourites`);
+			this.update(null);
+		},
+		'unstar'(target) {
+			const id = toID(target);
+			if (!window.BattleFormats[id] && !/^gen[1-9]$/.test(id)) {
+				this.errorReply(`Format ${id} does not exist`);
+				return;
+			}
+			let starred = PS.prefs.starredformats || {};
+			if (!starred[id]) {
+				this.errorReply(`${id} is not in your favourites!`);
+				return;
+			}
+			delete starred[id];
+			PS.prefs.set('starredformats', starred);
+			this.add(`||Removed format ${id} from favourites`);
+			this.update(null);
 		},
 		'nick'(target, cmd, element) {
 			const noNameChange = PS.user.userid === toID(target);
@@ -1410,7 +1447,7 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 					// Wrong command
 					this.add('|error|Invalid /highlight command.');
 					this.handleSend('/help highlight'); // show help
-					return false;
+					return;
 				}
 				PS.prefs.set('highlights', highlights);
 			} else {
@@ -1437,10 +1474,8 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 					// Wrong command
 					this.add('|error|Invalid /highlight command.');
 					this.handleSend('/help highlight'); // show help
-					return false;
 				}
 			}
-			return false;
 		},
 		'senddirect'(target) {
 			this.sendDirect(target);
@@ -1456,22 +1491,22 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 				this.add('||/challenge [user], [format] @@@ [rules] - Challenge the user [user] to a battle with custom rules.');
 				this.add('||[rules] can be a comma-separated list of: [added rule], ![removed rule], -[banned thing], *[restricted thing], +[unbanned/unrestricted thing]');
 				this.add('||/battlerules - Detailed information on what can go in [rules].');
-				return false;
+				return;
 			case 'accept':
 				this.add('||/accept - Accept a challenge if only one is pending.');
 				this.add('||/accept [user] - Accept a challenge from the specified user.');
-				return false;
+				return;
 			case 'reject':
 				this.add('||/reject - Reject a challenge if only one is pending.');
 				this.add('||/reject [user] - Reject a challenge from the specified user.');
-				return false;
+				return;
 			case 'user':
 			case 'open':
 				this.add('||/user [user] - Open a popup containing the user [user]\'s avatar, name, rank, and chatroom list.');
-				return false;
+				return;
 			case 'news':
 				this.add('||/news - Opens a popup containing the news.');
-				return false;
+				return;
 			case 'ignore':
 			case 'unignore':
 				this.add('||/ignore [user] - Ignore all messages from the user [user].');
@@ -1479,40 +1514,40 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 				this.add('||/ignorelist - List all the users that you currently ignore.');
 				this.add('||/clearignore - Remove all users on your ignore list.');
 				this.add('||Note that staff messages cannot be ignored.');
-				return false;
+				return;
 			case 'nick':
 				this.add('||/nick [new username] - Change your username.');
-				return false;
+				return;
 			case 'clear':
 				this.add('||/clear - Clear the room\'s chat log.');
-				return false;
+				return;
 			case 'showdebug':
 			case 'hidedebug':
 				this.add('||/showdebug - Receive debug messages from battle events.');
 				this.add('||/hidedebug - Ignore debug messages from battle events.');
-				return false;
+				return;
 			case 'showjoins':
 			case 'hidejoins':
 				this.add('||/showjoins [room] - Receive users\' join/leave messages. Optionally for only specified room.');
 				this.add('||/hidejoins [room] - Ignore users\' join/leave messages. Optionally for only specified room.');
-				return false;
+				return;
 			case 'showbattles':
 			case 'hidebattles':
 				this.add('||/showbattles - Receive links to new battles in Lobby.');
 				this.add('||/hidebattles - Ignore links to new battles in Lobby.');
-				return false;
+				return;
 			case 'unpackhidden':
 			case 'packhidden':
 				this.add('||/unpackhidden - Suppress hiding locked or banned users\' chat messages after the fact.');
 				this.add('||/packhidden - Hide locked or banned users\' chat messages after the fact.');
 				this.add('||Hidden messages from a user can be restored by clicking the button underneath their lock/ban reason.');
-				return false;
+				return;
 			case 'timestamps':
 				this.add('||Set your timestamps preference:');
 				this.add('||/timestamps [all|lobby|pms], [minutes|seconds|off]');
 				this.add('||all - Change all timestamps preferences, lobby - Change only lobby chat preferences, pms - Change only PM preferences.');
 				this.add('||off - Set timestamps off, minutes - Show timestamps of the form [hh:mm], seconds - Show timestamps of the form [hh:mm:ss].');
-				return false;
+				return;
 			case 'highlight':
 			case 'hl':
 				this.add('||Set up highlights:');
@@ -1525,21 +1560,21 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 				this.add('||/highlight clear - Clear your global highlight list.');
 				this.add('||/highlight roomclear - Clear the highlight list of whichever room you used the command in.');
 				this.add('||/highlight clearall - Clear your entire highlight list (all rooms and globally).');
-				return false;
+				return;
 			case 'rank':
 			case 'ranking':
 			case 'rating':
 			case 'ladder':
 				this.add('||/rating - Get your own rating.');
 				this.add('||/rating [username] - Get user [username]\'s rating.');
-				return false;
+				return;
 			case 'afd':
 				this.add('||/afd full - Enable all April Fools\' Day jokes.');
 				this.add('||/afd sprites - Enable April Fools\' Day sprites.');
 				this.add('||/afd default - Set April Fools\' Day to default (full on April 1st, off otherwise).');
 				this.add('||/afd off - Disable April Fools\' Day jokes until the next refresh, and set /afd default.');
 				this.add('||/afd never - Disable April Fools\' Day jokes permanently.');
-				return false;
+				return;
 			default:
 				return true;
 			}

@@ -9,6 +9,7 @@ import { PS, PSRoom, type Team } from "./client-main";
 import { PSPanelWrapper, PSRoomPanel } from "./panels";
 import { PSTeambuilder, TeamBox } from "./panel-teamdropdown";
 import { Dex, PSUtils, toID, type ID } from "./battle-dex";
+import { Teams } from "./battle-teams";
 
 class TeambuilderRoom extends PSRoom {
 	readonly DEFAULT_FORMAT = `gen${Dex.gen}` as ID;
@@ -220,7 +221,7 @@ class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
 				name,
 				format: format as ID,
 				folder: '',
-				packedTeam: PSTeambuilder.packTeam(sets),
+				packedTeam: Teams.pack(sets),
 				iconCache: null,
 				key: '',
 				isBox,
@@ -470,9 +471,9 @@ class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
 					{teams.map(team => team ? (
 						<li key={team.key} onDragEnter={this.dragEnterTeam} data-teamkey={team.key}>
 							<TeamBox team={team} /> {}
-							<button data-cmd={`/deleteteam ${team.key}`} class="option">
+							{!team.uploaded && <button data-cmd={`/deleteteam ${team.key}`} class="option">
 								<i class="fa fa-trash" aria-hidden></i> Delete
-							</button> {}
+							</button>} {}
 							{team.uploaded?.private ? (
 								<i class="fa fa-cloud gray"></i>
 							) : team.uploaded ? (

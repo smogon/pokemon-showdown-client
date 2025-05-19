@@ -260,6 +260,9 @@
 	line-height: 20px;
 	resize: none;
 }
+.teamtextbox::placeholder {
+  transform: translateY(20px);
+}
 .teaminnertextbox {
 	width: 320px;
 	height: 18px;
@@ -536,7 +539,7 @@ you can't delete it by pressing Backspace */
 	border: 0;
 	border-spacing: 0;
 	table-layout: fixed;
-	margin: 4px 0;
+	margin: 1px 0;
 	width: 100%;
 }
 .set-button td {
@@ -570,10 +573,11 @@ you can't delete it by pressing Backspace */
 
 .set-button .set-nickname {
 	position: absolute;
-	height: 35px;
+	height: 32px;
 	width: 120px;
 	top: 5px;
 	left: -5px;
+	padding: 0 3px;
 }
 .tiny-layout .set-button .set-nickname {
 	width: 90px;
@@ -661,8 +665,9 @@ you can't delete it by pressing Backspace */
 }
 .team-focus-editor .tabbar {
 	/* note to self: make this scrollable later */
-	/* overflow: auto; */
+	overflow: auto;
 	white-space: nowrap;
+	min-height: 59px;
 }
 .tabbar .button.picontab {
 	width: 80px;

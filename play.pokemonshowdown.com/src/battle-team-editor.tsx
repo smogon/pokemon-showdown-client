@@ -10,11 +10,13 @@ import preact from "../js/lib/preact";
 import { type Team } from "./client-main";
 import { PSTeambuilder } from "./panel-teamdropdown";
 import { Dex, type ModdedDex, toID, type ID, PSUtils } from "./battle-dex";
+import { Teams } from './battle-teams';
 import { DexSearch, type SearchRow, type SearchType } from "./battle-dex-search";
 import { PSSearchResults } from "./battle-searchresults";
 import { BattleNatures, BattleStatNames, type StatName } from "./battle-dex-data";
 import { BattleStatGuesser, BattleStatOptimizer } from "./battle-tooltips";
 import { PSModel } from "./client-core";
+import { Net } from "./client-connection";
 
 type SelectionType = 'pokemon' | 'ability' | 'item' | 'move' | 'stats' | 'details';
 
@@ -35,6 +37,11 @@ class TeamEditorState extends PSModel {
 	selectionTypeOrder: readonly SelectionType[] = [
 		'pokemon', 'ability', 'item', 'move', 'stats', 'details',
 	];
+	innerFocus: {
+		setIndex: number,
+		type: SelectionType,
+		typeIndex?: number,
+	} | null = null;
 	isLetsGo = false;
 	isNatDex = false;
 	isBDSP = false;
@@ -42,12 +49,17 @@ class TeamEditorState extends PSModel {
 	abilityLegality: 'normal' | 'hackmons' = 'normal';
 	defaultLevel = 100;
 	readonly = false;
+	fetching = false;
 	constructor(team: Team) {
 		super();
 		this.team = team;
-		this.sets = PSTeambuilder.unpackTeam(team.packedTeam);
+		this.sets = Teams.unpack(team.packedTeam);
 		this.setFormat(team.format);
 		window.search = this.search;
+	}
+	setReadonly(readonly: boolean) {
+		if (!readonly && this.readonly) this.sets = Teams.unpack(this.team.packedTeam);
+		this.readonly = readonly;
 	}
 	setFormat(format: string) {
 		const team = this.team;
@@ -473,7 +485,7 @@ class TeamEditorState extends PSModel {
 		return Math.trunc(val);
 	}
 	export(compat?: boolean) {
-		return PSTeambuilder.exportTeam(this.sets, this.dex, !compat);
+		return Teams.export(this.sets, this.dex, !compat);
 	}
 	import(value: string) {
 		this.sets = PSTeambuilder.importTeam(value);
@@ -499,6 +511,9 @@ class TeamEditorState extends PSModel {
 		if (attackType === 'Ground' && abilityid === 'eartheater') return 0;
 		if (attackType === 'Fire' && abilityid === 'wellbakedbody') return 0;
 
+		if (attackType === 'Fire' && abilityid === 'primordialsea') return 0;
+		if (attackType === 'Water' && abilityid === 'desolateland') return 0;
+
 		if (abilityid === 'wonderguard') {
 			for (const type of types) {
 				if (this.getTypeWeakness(type, attackType) <= 1) return 0;
@@ -506,6 +521,14 @@ class TeamEditorState extends PSModel {
 		}
 
 		let factor = 1;
+		if ((attackType === 'Fire' || attackType === 'Ice') && abilityid === 'thickfat') factor *= 0.5;
+		if (attackType === 'Fire' && abilityid === 'waterbubble') factor *= 0.5;
+		if (attackType === 'Fire' && abilityid === 'heatproof') factor *= 0.5;
+		if (attackType === 'Ghost' && abilityid === 'purifyingsalt') factor *= 0.5;
+		if (attackType === 'Fire' && abilityid === 'fluffy') factor *= 2;
+		if ((attackType === 'Electric' || attackType === 'Rock' || attackType === 'Ice') && abilityid === 'deltastream') {
+			factor *= 0.5;
+		}
 		for (const type of types) {
 			factor *= this.getTypeWeakness(type, attackType);
 		}
@@ -582,21 +605,21 @@ class TeamEditorState extends PSModel {
 		return undefined;
 	}
 	save() {
-		this.team.packedTeam = PSTeambuilder.packTeam(this.sets);
+		this.team.packedTeam = Teams.pack(this.sets);
 		this.team.iconCache = null;
 	}
 }
 
 export class TeamEditor extends preact.Component<{
 	team: Team, narrow?: boolean, onChange?: () => void, readonly?: boolean,
-	children?: preact.ComponentChildren,
+	children?: preact.ComponentChildren, resources?: preact.ComponentChildren,
 }> {
-	buttons = true;
+	wizard = true;
 	editor!: TeamEditorState;
-	setButtons = (ev: Event) => {
+	setTab = (ev: Event) => {
 		const target = ev.currentTarget as HTMLButtonElement;
-		const buttons = target.value === 'buttons';
-		this.buttons = buttons;
+		const wizard = target.value === 'wizard';
+		this.wizard = wizard;
 		this.forceUpdate();
 	};
 	static renderTypeIcon(type: string | null, b?: boolean) { // b is just for utilichart.js
@@ -648,38 +671,51 @@ export class TeamEditor extends preact.Component<{
 			<table class="table">{bad}{medium}{good}</table>
 		</details>;
 	}
+	update = () => {
+		this.forceUpdate();
+	};
 	override render() {
 		this.editor ||= new TeamEditorState(this.props.team);
-		this.editor.readonly = !!this.props.readonly;
-		this.editor.narrow = this.props.narrow ?? document.body.offsetWidth < 500;
-		if (this.props.team.format !== this.editor.format) {
-			this.editor.setFormat(this.props.team.format);
+		const editor = this.editor;
+		editor.setReadonly(!!this.props.readonly);
+		editor.narrow = this.props.narrow ?? document.body.offsetWidth < 500;
+		if (this.props.team.format !== editor.format) {
+			editor.setFormat(this.props.team.format);
+		}
+
+		if (editor.innerFocus) {
+			return <TeamWizard editor={editor} onChange={this.props.onChange} onUpdate={this.update} />;
 		}
 
 		return <div class="teameditor">
 			<ul class="tabbar">
-				<li><button onClick={this.setButtons} value="buttons" class={`button${this.buttons ? ' cur' : ''}`}>
+				<li><button onClick={this.setTab} value="wizard" class={`button${this.wizard ? ' cur' : ''}`}>
 					Wizard
 				</button></li>
-				<li><button onClick={this.setButtons} class={`button${!this.buttons ? ' cur' : ''}`}>
+				<li><button onClick={this.setTab} value="import" class={`button${!this.wizard ? ' cur' : ''}`}>
 					Import/Export
 				</button></li>
 			</ul>
-			{this.buttons ? (
-				<TeamWizard editor={this.editor} onChange={this.props.onChange} />
+			{this.wizard ? (
+				<TeamWizard editor={editor} onChange={this.props.onChange} onUpdate={this.update} />
 			) : (
-				<TeamTextbox editor={this.editor} onChange={this.props.onChange} />
+				<TeamTextbox editor={editor} onChange={this.props.onChange} onUpdate={this.update} />
 			)}
 			{this.props.children}
 			<div class="team-resources">
 				<br /><hr /><br />
 				{this.renderDefensiveCoverage()}
+				{this.props.resources}
 			</div>
 		</div>;
 	}
 }
 
-class TeamTextbox extends preact.Component<{ editor: TeamEditorState, onChange?: () => void }> {
+class TeamTextbox extends preact.Component<{
+	editor: TeamEditorState,
+	onChange?: () => void, onUpdate?: () => void,
+}> {
+	static EMPTY_PROMISE = Promise.resolve(null);
 	editor!: TeamEditorState;
 	setInfo: {
 		species: string,
@@ -710,11 +746,15 @@ class TeamTextbox extends preact.Component<{ editor: TeamEditorState, onChange?:
 	} | null = null;
 	getYAt(index: number, fullLine?: boolean) {
 		if (index < 0) return 10;
+		if (index === 0) return 31;
 		const newValue = this.textbox.value.slice(0, index);
 		this.heightTester.value = fullLine && !newValue.endsWith('\n') ? newValue + '\n' : newValue;
 		return this.heightTester.scrollHeight;
 	}
-	input = () => this.updateText();
+	input = () => {
+		this.updateText();
+		this.save();
+	};
 	keyUp = () => this.updateText(true);
 	contextMenu = (ev: MouseEvent) => {
 		if (!ev.shiftKey) {
@@ -786,13 +826,15 @@ class TeamTextbox extends preact.Component<{ editor: TeamEditorState, onChange?:
 			if (ev.keyCode === 13 && ev.shiftKey) return;
 			if (ev.altKey || ev.metaKey) return;
 			if (!this.innerFocus) {
-				if (
+				if (this.maybeReplaceLine()) {
+					// do nothing else
+				} else if (
 					this.textbox.selectionStart === this.textbox.value.length &&
 					(this.textbox.value.endsWith('\n\n') || !this.textbox.value)
 				) {
 					this.addPokemon();
-				} else {
-					this.openInnerFocus();
+				} else if (!this.openInnerFocus()) {
+					break;
 				}
 				ev.stopImmediatePropagation();
 				ev.preventDefault();
@@ -820,6 +862,41 @@ class TeamTextbox extends preact.Component<{ editor: TeamEditorState, onChange?:
 			}
 		}
 	};
+	maybeReplaceLine = () => {
+		if (this.textbox.selectionStart !== this.textbox.selectionEnd) return;
+		const current = this.textbox.selectionEnd;
+		const lineStart = this.textbox.value.lastIndexOf('\n', current) + 1;
+		const value = this.textbox.value.slice(lineStart, current);
+
+		const pokepaste = /^https?:\/\/pokepast.es\/([a-z0-9]+)(?:\/.*)?$/.exec(value)?.[1];
+		if (pokepaste) {
+			this.editor.fetching = true;
+			Net(`https://pokepast.es/${pokepaste}/json`).get().then(json => {
+				const paste = JSON.parse(json);
+				const pasteTxt = paste.paste.replace(/\r\n/g, '\n');
+				if (this.textbox) {
+					// make sure it's still there:
+					const valueIndex = this.textbox.value.indexOf(value);
+					this.replace(paste.paste.replace(/\r\n/g, '\n'), valueIndex, valueIndex + value.length);
+				} else {
+					this.editor.import(pasteTxt);
+				}
+				const notes = paste["notes"] as string;
+				if (notes.startsWith("Format: ")) {
+					const formatid = toID(notes.slice(8));
+					this.editor.setFormat(formatid);
+				}
+				const title = paste["title"] as string;
+				if (title && !title.startsWith('Untitled')) {
+					this.editor.team.name = title.replace(/[|\\/]/g, '');
+				}
+				this.editor.fetching = false;
+				this.props.onUpdate?.();
+			});
+			return true;
+		}
+		return false;
+	};
 	getInnerFocusValue() {
 		if (!this.innerFocus) return '';
 		return this.textbox.value.slice(this.innerFocus.range[0], this.innerFocus.range[1]);
@@ -840,6 +917,7 @@ class TeamTextbox extends preact.Component<{ editor: TeamEditorState, onChange?:
 			this.clearInnerFocus();
 			if (this.setDirty) {
 				this.updateText();
+				this.save();
 			} else {
 				this.forceUpdate();
 			}
@@ -986,12 +1064,11 @@ class TeamTextbox extends preact.Component<{ editor: TeamEditorState, onChange?:
 			}
 
 			textbox.style.height = `${bottomY + 100}px`;
-			this.save();
 		}
 		this.forceUpdate();
 	};
 	engageFocus(focus?: this['innerFocus']) {
-		if (this.innerFocus) return;
+		if (this.innerFocus && !focus) return;
 		const editor = this.editor;
 		if (editor.readonly) return;
 
@@ -1170,7 +1247,7 @@ class TeamTextbox extends preact.Component<{ editor: TeamEditorState, onChange?:
 		const { team } = editor;
 		if (!team) return;
 
-		let newText = PSTeambuilder.exportSet(editor.sets[index], editor.dex, !this.compat);
+		let newText = Teams.exportSet(editor.sets[index], editor.dex, !this.compat);
 		const [start, end] = this.getSetRange(index);
 		if (start && start === this.textbox.value.length && !this.textbox.value.endsWith('\n\n')) {
 			newText = (this.textbox.value.endsWith('\n') ? '\n' : '\n\n') + newText;
@@ -1180,6 +1257,7 @@ class TeamTextbox extends preact.Component<{ editor: TeamEditorState, onChange?:
 		// for future updates
 		if (!this.setInfo[index]) {
 			this.updateText();
+			this.save();
 		} else {
 			if (this.setInfo[index + 1]) {
 				this.setInfo[index + 1].index = start + newText.length;
@@ -1242,10 +1320,10 @@ class TeamTextbox extends preact.Component<{ editor: TeamEditorState, onChange?:
 		});
 	};
 	addPokemon = () => {
-		if (!this.textbox.value.endsWith('\n\n')) {
+		if (this.textbox.value && !this.textbox.value.endsWith('\n\n')) {
 			this.textbox.value += this.textbox.value.endsWith('\n') ? '\n' : '\n\n';
 		}
-		const end = this.textbox.value.length;
+		const end = this.textbox.value === '\n\n' ? 0 : this.textbox.value.length;
 		this.textbox.setSelectionRange(end, end);
 		this.textbox.focus();
 		this.engageFocus({
@@ -1276,6 +1354,7 @@ class TeamTextbox extends preact.Component<{ editor: TeamEditorState, onChange?:
 		}
 		return null;
 	}
+
 	renderDetails(set: Dex.PokemonSet, i: number) {
 		const editor = this.editor;
 		const species = editor.dex.species.get(set.species);
@@ -1352,7 +1431,8 @@ class TeamTextbox extends preact.Component<{ editor: TeamEditorState, onChange?:
 				<textarea
 					class="textbox teamtextbox" style={`padding-left:${editor.narrow ? '50px' : '100px'}`}
 					onInput={this.input} onContextMenu={this.contextMenu} onKeyUp={this.keyUp} onKeyDown={this.keyDown}
-					readOnly={editor.readonly}
+					readOnly={editor.readonly} onChange={this.maybeReplaceLine}
+					placeholder=" Paste exported teams, pokepaste URLs, or JSON here"
 				/>
 				<textarea
 					class="textbox teamtextbox heighttester" tabIndex={-1} aria-hidden
@@ -1366,6 +1446,7 @@ class TeamTextbox extends preact.Component<{ editor: TeamEditorState, onChange?:
 					{this.setInfo.map((info, i) => {
 						if (!info.species) return null;
 						const set = editor.sets[i];
+						if (!set) return null;
 						const prevOffset = i === 0 ? 8 : this.setInfo[i - 1].bottomY;
 						const species = editor.dex.species.get(info.species);
 						const num = Dex.getPokemonIconNum(species.id);
@@ -1439,22 +1520,18 @@ class TeamTextbox extends preact.Component<{ editor: TeamEditorState, onChange?:
 }
 
 class TeamWizard extends preact.Component<{
-	editor: TeamEditorState, onChange?: () => void,
+	editor: TeamEditorState, onChange?: () => void, onUpdate: () => void,
 }> {
-	innerFocus: {
-		setIndex: number,
-		type: SelectionType,
-		typeIndex?: number,
-	} | null = null;
 	setSearchBox: string | null = null;
 	windowing = true;
 	setFocus = (ev: Event) => {
-		if (this.props.editor.readonly) return;
+		const { editor } = this.props;
+		if (editor.readonly) return;
 		const target = ev.currentTarget as HTMLButtonElement;
-		const [rawType, i] = target.value.split('|');
+		const [rawType, i] = (target.value || '').split('|');
 		const setIndex = parseInt(i);
 		const type = rawType as SelectionType;
-		if (!target.value || this.innerFocus && this.innerFocus.setIndex === setIndex && this.innerFocus.type === type) {
+		if (!target.value || editor.innerFocus && editor.innerFocus.setIndex === setIndex && editor.innerFocus.type === type) {
 			this.changeFocus(null);
 			return;
 		}
@@ -1466,9 +1543,9 @@ class TeamWizard extends preact.Component<{
 	deleteSet = (ev: Event) => {
 		const target = ev.currentTarget as HTMLButtonElement;
 		const i = parseInt(target.value);
-		const editor = this.props.editor;
+		const { editor } = this.props;
 		editor.deleteSet(i);
-		if (this.innerFocus) {
+		if (editor.innerFocus) {
 			this.changeFocus({
 				setIndex: editor.sets.length,
 				type: 'pokemon',
@@ -1478,10 +1555,10 @@ class TeamWizard extends preact.Component<{
 		ev.preventDefault();
 	};
 	undeleteSet = (ev: Event) => {
-		const editor = this.props.editor;
+		const { editor } = this.props;
 		const setIndex = editor.deletedSet?.index;
 		editor.undeleteSet();
-		if (this.innerFocus && setIndex !== undefined) {
+		if (editor.innerFocus && setIndex !== undefined) {
 			this.changeFocus({
 				setIndex,
 				type: 'pokemon',
@@ -1490,14 +1567,14 @@ class TeamWizard extends preact.Component<{
 		this.handleSetChange();
 		ev.preventDefault();
 	};
-	changeFocus(focus: this['innerFocus']) {
-		this.innerFocus = focus;
+	changeFocus(focus: TeamEditorState['innerFocus']) {
+		const { editor } = this.props;
+		editor.innerFocus = focus;
 		if (!focus) {
-			this.forceUpdate();
+			this.props.onUpdate();
 			return;
 		}
 
-		const editor = this.props.editor;
 		const set = editor.sets[focus.setIndex];
 		if (focus.type === 'details') {
 			this.setSearchBox = set.name || '';
@@ -1510,10 +1587,10 @@ class TeamWizard extends preact.Component<{
 			this.resetScroll();
 			this.setSearchBox = value || '';
 		}
-		this.forceUpdate();
+		this.props.onUpdate();
 	}
-	renderButton(set: Dex.PokemonSet | undefined, i: number) {
-		const editor = this.props.editor;
+	renderSet(set: Dex.PokemonSet | undefined, i: number) {
+		const { editor } = this.props;
 		const sprite = Dex.getTeambuilderSprite(set, editor.gen);
 		if (!set) {
 			return <div class="set-button">
@@ -1549,7 +1626,7 @@ class TeamWizard extends preact.Component<{
 		const overfull = set.moves.length > 4 ? ' overfull' : '';
 
 		const cur = (t: SelectionType) => (
-			editor.readonly || (this.innerFocus?.type === t && this.innerFocus.setIndex === i) ? ' cur' : ''
+			editor.readonly || (editor.innerFocus?.type === t && editor.innerFocus.setIndex === i) ? ' cur' : ''
 		);
 		const species = editor.dex.species.get(set.species);
 		return <div class="set-button">
@@ -1577,16 +1654,18 @@ class TeamWizard extends preact.Component<{
 							<span class="detailcell">
 								<strong class="label">Level</strong> {}
 								{set.level || editor.defaultLevel}
-								{editor.narrow && set.shiny && <><br /><img src="/sprites/misc/shiny.png" width={22} height={22} alt="Shiny" /></>}
+								{editor.narrow && set.shiny && <><br />
+									<img src={`${Dex.resourcePrefix}sprites/misc/shiny.png`} width={22} height={22} alt="Shiny" />
+								</>}
 								{!editor.narrow && set.gender && set.gender !== 'N' && <>
 									<br /><img
-										src={`/fx/gender-${set.gender.toLowerCase()}.png`} alt={set.gender} width="7" height="10" class="pixelated"
+										src={`${Dex.fxPrefix}gender-${set.gender.toLowerCase()}.png`} alt={set.gender} width="7" height="10" class="pixelated"
 									/>
 								</>}
 							</span>
 							{!editor.narrow && <span class="detailcell">
 								<strong class="label">Shiny</strong> {}
-								{set.shiny ? <img src="/sprites/misc/shiny.png" width={22} height={22} alt="Yes" /> : '\u2014'}
+								{set.shiny ? <img src={`${Dex.resourcePrefix}sprites/misc/shiny.png`} width={22} height={22} alt="Yes" /> : '\u2014'}
 							</span>}
 							{editor.gen === 9 && <span class="detailcell">
 								<strong class="label">Tera</strong> {}
@@ -1649,14 +1728,14 @@ class TeamWizard extends preact.Component<{
 		}
 	}
 	selectResult = (type: string, name: string, slot?: string, reverse?: boolean) => {
-		const editor = this.props.editor;
+		const { editor } = this.props;
 		this.clearSearchBox();
 		if (!type) {
 			editor.setSearchValue('');
 			this.resetScroll();
 			this.forceUpdate();
 		} else {
-			const setIndex = this.innerFocus!.setIndex;
+			const setIndex = editor.innerFocus!.setIndex;
 			const set = (editor.sets[setIndex] ||= { species: '', moves: [] });
 			switch (type) {
 			case 'pokemon':
@@ -1754,7 +1833,7 @@ class TeamWizard extends preact.Component<{
 	};
 	keyDownSearch = (ev: KeyboardEvent) => {
 		const searchBox = ev.currentTarget as HTMLInputElement;
-		const editor = this.props.editor;
+		const { editor } = this.props;
 		switch (ev.keyCode) {
 		case 8: // backspace
 			if (searchBox.selectionStart === 0 && searchBox.selectionEnd === 0) {
@@ -1793,16 +1872,16 @@ class TeamWizard extends preact.Component<{
 		case 13: // enter
 		case 9: // tab
 			const value = editor.selectSearchValue();
-			if (this.innerFocus?.type !== 'move') searchBox.value = value || '';
+			if (editor.innerFocus?.type !== 'move') searchBox.value = value || '';
 			if (value !== null) {
-				if (ev.keyCode === 9 && this.innerFocus?.type === 'move') {
+				if (ev.keyCode === 9 && editor.innerFocus?.type === 'move') {
 					this.changeFocus({
-						setIndex: this.innerFocus.setIndex,
+						setIndex: editor.innerFocus.setIndex,
 						type: ev.shiftKey ? 'item' : 'stats',
 					});
 				} else {
 					const [name, moveSlot] = value.split('|');
-					this.selectResult(this.innerFocus?.type || '', name, moveSlot, ev.keyCode === 9 && ev.shiftKey);
+					this.selectResult(editor.innerFocus?.type || '', name, moveSlot, ev.keyCode === 9 && ev.shiftKey);
 				}
 			} else {
 				this.clearSearchBox();
@@ -1854,9 +1933,9 @@ class TeamWizard extends preact.Component<{
 		}
 	}
 	renderInnerFocus() {
-		if (!this.innerFocus) return null;
 		const { editor } = this.props;
-		const { type, setIndex } = this.innerFocus;
+		if (!editor.innerFocus) return null;
+		const { type, setIndex } = editor.innerFocus;
 		const set = this.props.editor.sets[setIndex] as Dex.PokemonSet | undefined;
 		const cur = (i: number) => setIndex === i ? ' cur' : '';
 		return <div class="team-focus-editor">
@@ -1876,7 +1955,7 @@ class TeamWizard extends preact.Component<{
 					<i class="fa fa-plus"></i>
 				</button></li>}
 			</ul>
-			<div class="pad">{this.renderButton(set, setIndex)}</div>
+			<div class="pad" style="padding-top:0">{this.renderSet(set, setIndex)}</div>
 			{type === 'stats' ? (
 				<StatForm editor={editor} set={set!} onChange={this.handleSetChange} />
 			) : type === 'details' ? (
@@ -1900,7 +1979,10 @@ class TeamWizard extends preact.Component<{
 	}
 	override render() {
 		const { editor } = this.props;
-		if (this.innerFocus) return this.renderInnerFocus();
+		if (editor.innerFocus) return this.renderInnerFocus();
+		if (editor.fetching) {
+			return <div class="teameditor">Fetching Paste...</div>;
+		}
 
 		const deletedSet = (i: number) => editor.deletedSet?.index === i ? <p style="text-align:right">
 			<button class="button" onClick={this.undeleteSet}>
@@ -1910,7 +1992,7 @@ class TeamWizard extends preact.Component<{
 		return <div class="teameditor">
 			{editor.sets.map((set, i) => [
 				deletedSet(i),
-				this.renderButton(set, i),
+				this.renderSet(set, i),
 			])}
 			{deletedSet(editor.sets.length)}
 			{editor.canAdd() && <p><button class="button big" onClick={this.setFocus} value={`pokemon|${editor.sets.length}`}>
@@ -2402,7 +2484,7 @@ class StatForm extends preact.Component<{
 						/></td>
 						<td><input
 							name={`iv-${statID}`} min={0} max={useIVs ? 31 : 15} placeholder={`${defaultIVs[statID]}`} style="width:40px"
-							type="number" class="textbox default-placeholder" onInput={this.changeIV} onChange={this.changeIV}
+							type="number" inputMode="numeric" class="textbox default-placeholder" onInput={this.changeIV} onChange={this.changeIV}
 						/></td>
 						<td style="text-align:right"><strong>{stat}</strong></td>
 					</tr>)}
@@ -2545,7 +2627,7 @@ class DetailsForm extends preact.Component<{
 		const genderTable = { 'M': "Male", 'F': "Female" };
 		if (gender === 'N') return 'Unknown';
 		return <>
-			<img src={`/fx/gender-${gender.toLowerCase()}.png`} alt="" width="7" height="10" class="pixelated" /> {}
+			<img src={`${Dex.fxPrefix}gender-${gender.toLowerCase()}.png`} alt="" width="7" height="10" class="pixelated" /> {}
 			{genderTable[gender]}
 		</>;
 	}
@@ -2560,8 +2642,9 @@ class DetailsForm extends preact.Component<{
 					onInput={this.changeNickname} onChange={this.changeNickname}
 				/></label></p>
 				<p><label class="label">Level: <input
-					value={set.level ?? ''} placeholder={`${editor.defaultLevel}`}
-					type="number" min="1" max="100" step="1" name="level" class="textbox inputform numform default-placeholder"
+					name="level" value={set.level ?? ''} placeholder={`${editor.defaultLevel}`}
+					type="number" inputMode="numeric" min="1" max="100" step="1"
+					class="textbox inputform numform default-placeholder" style="width: 50px"
 					onInput={this.changeLevel} onChange={this.changeLevel}
 				/></label><small>(You probably want to change the team's levels by changing the format, not here)</small></p>
 				{editor.gen > 1 && (<>
@@ -2569,7 +2652,7 @@ class DetailsForm extends preact.Component<{
 						<label class="checkbox inline"><input
 							type="radio" name="shiny" value="true" checked={set.shiny}
 							onInput={this.changeShiny} onChange={this.changeShiny}
-						/> <img src="/sprites/misc/shiny.png" width={22} height={22} alt="Shiny" /> Yes</label>
+						/> <img src={`${Dex.resourcePrefix}sprites/misc/shiny.png`} width={22} height={22} alt="Shiny" /> Yes</label>
 						<label class="checkbox inline"><input
 							type="radio" name="shiny" value="" checked={!set.shiny}
 							onInput={this.changeShiny} onChange={this.changeShiny}
@@ -2595,14 +2678,16 @@ class DetailsForm extends preact.Component<{
 					)}</div></p>
 					{editor.isLetsGo ? (
 						<p><label class="label">Happiness: <input
-							type="number" name="happiness" value="" placeholder="70"
-							class="textbox inputform numform default-placeholder"
+							name="happiness" value="" placeholder="70"
+							type="number" inputMode="numeric"
+							class="textbox inputform numform default-placeholder" style="width: 50px"
 							onInput={this.changeHappiness} onChange={this.changeHappiness}
 						/></label></p>
 					) : (editor.gen < 8 || editor.isNatDex) && (
 						<p><label class="label">Happiness: <input
-							type="number" min="0" max="255" step="1" name="happiness"
-							value={set.happiness ?? ''} placeholder="255" class="textbox inputform numform default-placeholder"
+							name="happiness" value={set.happiness ?? ''} placeholder="255"
+							type="number" inputMode="numeric" min="0" max="255" step="1"
+							class="textbox inputform numform default-placeholder" style="width: 50px"
 							onInput={this.changeHappiness} onChange={this.changeHappiness}
 						/></label></p>
 					)}
@@ -2611,8 +2696,9 @@ class DetailsForm extends preact.Component<{
 				{editor.gen === 8 && !editor.isBDSP && !species.cannotDynamax && (
 					<p>
 						<label class="label" style="display:inline">Dynamax Level: <input
-							type="number" min="0" max="10" step="1" name="dynamaxlevel" class="textbox inputform numform default-placeholder"
-							value={set.dynamaxLevel ?? ''} placeholder="10" onInput={this.changeDynamaxLevel} onChange={this.changeDynamaxLevel}
+							name="dynamaxlevel" value={set.dynamaxLevel ?? ''} placeholder="10"
+							type="number" inputMode="numeric" min="0" max="10" step="1" class="textbox inputform numform default-placeholder"
+							onInput={this.changeDynamaxLevel} onChange={this.changeDynamaxLevel}
 						/></label> {}
 						{species.canGigantamax ? (
 							<label class="checkbox inline"><input
