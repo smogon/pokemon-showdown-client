@@ -118,7 +118,7 @@ export class ChatTournament extends PSModel {
 	}
 	receiveLine(args: Args) {
 		const data = args.slice(2);
-		const notify = PS.prefs.tournaments === 'notify' || PS.prefs.tournaments === 'joined' && this.info.isJoined;
+		const notify = PS.prefs.tournaments === 'notify' || this.info.isJoined;
 		let cmd = args[1].toLowerCase();
 		if (args[0] === 'tournaments') {
 			switch (cmd) {
