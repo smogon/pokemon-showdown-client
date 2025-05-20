@@ -1423,7 +1423,9 @@ class LeaveRoomPanel extends PSRoomPanel {
 
 	override render() {
 		const room = this.props.room;
-		const parentRoomId = (this.props.room.parentElem as HTMLInputElement).value;
+		// for some reason `parentElem` is null when trying to close room from `roomtablist` popup
+		// hence we use `parentRoomId` in that case
+		const parentRoomId = (this.props.room.parentElem as HTMLInputElement)?.value || room.parentRoomid;
 		return <PSPanelWrapper room={room} width={480}><div class="pad">
 			<p>Are you sure you want to exit this room?</p>
 			<p class="buttonbar">

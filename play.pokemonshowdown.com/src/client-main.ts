@@ -1105,16 +1105,16 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 			const roomid = (/[^a-z0-9-]/.test(target) ? toID(target) as any as RoomID : target as RoomID) || this.id;
 			const room = PS.rooms[roomid];
 			const battle = (room as BattleRoom)?.battle;
+			const openPopupFor = ["chat", "roomtablist"];
 
 			if (room?.type === "battle" && !battle.ended && battle.mySide.id === PS.user.userid) {
 				PS.join("forfeitbattle" as RoomID, { parentElem: elem });
 				return;
 			}
-			if (room?.type === "chat" && room.connected && PS.prefs.leavePopupRoom && !target) {
+			if (openPopupFor.includes(room?.type || '') && room?.connected && PS.prefs.leavePopupRoom && !target) {
 				PS.join("confirmleaveroom" as RoomID, { parentElem: elem });
 				return;
 			}
-
 			PS.leave(roomid);
 		},
 		'closeand'(target) {
