@@ -931,6 +931,11 @@ p.or:after {
 form.menugroup {
 	max-width: 270px;
 }
+.menugroup .label {
+	text-align: left;
+	width: 246px;
+	margin: 0 auto;
+}
 
 .mainmessage p,
 .menugroup p {
@@ -2014,7 +2019,8 @@ pre.textbox.textbox-empty[placeholder]:before {
 	-webkit-box-shadow: none !important;
 	-moz-box-shadow: none !important;
 	box-shadow: none !important;
-	color: #777777 !important;
+	color: #707070 !important;
+	opacity: 0.75;
 }
 
 /*********************************************************

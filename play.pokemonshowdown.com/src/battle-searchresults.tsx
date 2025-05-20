@@ -10,6 +10,7 @@
 import preact from "../js/lib/preact";
 import { Dex, toID, type ID } from "./battle-dex";
 import type { DexSearch, SearchRow, SearchType } from "./battle-dex-search";
+import { Config } from "./client-main";
 
 export class PSSearchResults extends preact.Component<{
 	search: DexSearch, windowing?: number | null, hideFilters?: boolean, firstRow?: SearchRow,
