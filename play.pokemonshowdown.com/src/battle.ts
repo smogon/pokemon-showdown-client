@@ -2474,9 +2474,7 @@ export class Battle {
 			poke.details = args[2];
 			poke.searchid = args[1].substr(0, 2) + args[1].substr(args[1].indexOf(':')) + '|' + args[2];
 
-			if (!kwArgs.silent) {
-				this.scene.animTransform(poke, true, true);
-			}
+			this.scene.animTransform(poke, true, true);
 			this.log(args, kwArgs);
 			break;
 		}
