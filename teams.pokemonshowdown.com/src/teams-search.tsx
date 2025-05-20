@@ -3,6 +3,7 @@
 import preact from '../../play.pokemonshowdown.com/js/lib/preact';
 import { Net, type ServerTeam, MiniTeam } from './utils';
 import type { PageProps } from './teams';
+import { Config } from '../../play.pokemonshowdown.com/src/client-main';
 
 declare const toID: (val: any) => string;
 declare const BattleAliases: Record<string, string>;

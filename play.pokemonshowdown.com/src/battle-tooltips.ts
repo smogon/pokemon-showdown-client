@@ -15,7 +15,7 @@ import { BattleLog } from "./battle-log";
 import { Move, BattleNatures } from "./battle-dex-data";
 import { BattleTextParser } from "./battle-text-parser";
 
-class ModifiableValue {
+export class ModifiableValue {
 	value = 0;
 	maxValue = 0;
 	comment: string[];
@@ -165,13 +165,13 @@ export class BattleTooltips {
 	static isPressed = false;
 
 	static hideTooltip() {
-		if (!BattleTooltips.elem) return;
 		BattleTooltips.cancelLongTap();
+		if (!BattleTooltips.elem) return;
 		BattleTooltips.elem.parentNode!.removeChild(BattleTooltips.elem);
 		BattleTooltips.elem = null;
 		BattleTooltips.parentElem = null;
 		BattleTooltips.isLocked = false;
-		$('#tooltipwrapper').removeClass('tooltip-locked');
+		$('#tooltipwrapper').removeClass('tooltip-locked tooltip-locking-click tooltip-locking-tap');
 	}
 
 	static cancelLongTap() {
@@ -179,6 +179,7 @@ export class BattleTooltips {
 			clearTimeout(BattleTooltips.longTapTimeout);
 			BattleTooltips.longTapTimeout = 0;
 		}
+		$('#tooltipwrapper').removeClass('tooltip-locking-click tooltip-locking-tap');
 	}
 
 	lockTooltip() {
@@ -188,6 +189,7 @@ export class BattleTooltips {
 				$(BattleTooltips.parentElem!).removeClass('pressed');
 				BattleTooltips.isPressed = false;
 			}
+			// $('#tooltipwrapper').removeClass('tooltip-locking');
 			$('#tooltipwrapper').addClass('tooltip-locked');
 		}
 	}
@@ -250,6 +252,11 @@ export class BattleTooltips {
 			BattleTooltips.longTapTimeout = 0;
 			this.lockTooltip();
 		}, isClick ? BattleTooltips.LONG_CLICK_DELAY : BattleTooltips.LONG_TAP_DELAY);
+		if (isClick) {
+			$('#tooltipwrapper').addClass('tooltip-locking-click');
+		} else {
+			$('#tooltipwrapper').addClass('tooltip-locking-tap');
+		}
 	};
 
 	showTooltipEvent = (e: Event) => {
@@ -774,6 +781,29 @@ export class BattleTooltips {
 			}
 			if (move.flags.wind) {
 				text += `<p class="movetag">&#x2713; Wind <small>(activates Wind Power and Wind Rider)</small></p>`;
+			}
+			// RBY healing move glitch
+			if (this.battle.gen === 1 && !toID(this.battle.tier).includes('stadium') &&
+				['recover', 'softboiled', 'rest'].includes(move.id)) {
+				const hpValues = [];
+				// glitches at HP values equal to `maxHP + 1 % 256` unless they are `0 % 256`
+				const hp = serverPokemon.maxhp - 255;
+				if (hp > 0 && hp % 256 !== 0) {
+					hpValues.push(hp);
+					if (hp - 256 > 0) {
+						hpValues.push(hp - 256);
+					}
+				}
+				let failMessage = hpValues.length ? `Fails if current HP is ${hpValues.join(' or ')}.` : '';
+				if (hpValues.includes(serverPokemon.hp)) failMessage = `<strong class="message-error">${failMessage}</strong>`;
+				if (failMessage) text += `<p>${failMessage}</p>`;
+			}
+			if (this.battle.gen === 1 && !toID(this.battle.tier).includes('stadium') &&
+				move.id === 'substitute') {
+				const selfKO = serverPokemon.maxhp % 4 === 0 ? serverPokemon.maxhp / 4 : null;
+				let failMessage = selfKO ? `KOs yourself if current HP is exactly ${selfKO}.` : '';
+				if (selfKO === serverPokemon.hp) failMessage = `<strong class="message-error">${failMessage}</strong>`;
+				if (failMessage) text += `<p>${failMessage}</p>`;
 			}
 		}
 		return text;

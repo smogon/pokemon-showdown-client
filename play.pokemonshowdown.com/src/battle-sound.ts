@@ -1,4 +1,4 @@
-import { PS } from "./client-main";
+import { Config, PS } from "./client-main";
 
 export class BattleBGM {
 	/**
@@ -116,7 +116,7 @@ export const BattleSound = new class {
 		if (this.soundCache[url]) return this.soundCache[url];
 		try {
 			const sound = document.createElement('audio');
-			sound.src = 'https://' + Config.routes.client + '/' + url;
+			sound.src = `https://${Config.routes.client}/${url}`;
 			sound.volume = this.effectVolume / 100;
 			this.soundCache[url] = sound;
 			return sound;

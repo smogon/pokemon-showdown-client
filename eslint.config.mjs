@@ -6,7 +6,7 @@ export default configure([
 	{
 		ignores: [
 			'caches/**',
-			'play.pokemonshowdown.com/config/config-test.js',
+			'play.pokemonshowdown.com/config/*',
 			'play.pokemonshowdown.com/src/battle-log-misc.js',
 			'play.pokemonshowdown.com/js/replay-embed.js',
 		],

@@ -1232,6 +1232,7 @@ export class Move implements Effect {
 	readonly pressureTarget: MoveTarget;
 	readonly flags: Readonly<MoveFlags>;
 	readonly critRatio: number;
+	readonly damage?: number | 'level' | false | null;
 
 	readonly desc: string;
 	readonly shortDesc: string;
@@ -1273,6 +1274,7 @@ export class Move implements Effect {
 		this.pressureTarget = data.pressureTarget || this.target;
 		this.flags = data.flags || {};
 		this.critRatio = data.critRatio === 0 ? 0 : (data.critRatio || 1);
+		this.damage = data.damage;
 
 		// TODO: move to text.js
 		this.desc = data.desc;
@@ -1504,7 +1506,7 @@ export class Species implements Effect {
 	readonly isPrimal: boolean;
 	readonly canGigantamax: boolean;
 	readonly cannotDynamax: boolean;
-	readonly forceTeraType: TypeName;
+	readonly requiredTeraType: TypeName;
 	readonly battleOnly: string | string[] | undefined;
 	readonly isNonstandard: string | null;
 	readonly unreleasedHidden: boolean | 'Past';
@@ -1561,7 +1563,7 @@ export class Species implements Effect {
 		this.isPrimal = !!(this.forme && this.formeid === '-primal');
 		this.canGigantamax = !!data.canGigantamax;
 		this.cannotDynamax = !!data.cannotDynamax;
-		this.forceTeraType = data.forceTeraType || '';
+		this.requiredTeraType = data.requiredTeraType || '';
 		this.battleOnly = data.battleOnly || (this.isMega ? this.baseSpecies : undefined);
 		this.isNonstandard = data.isNonstandard || null;
 		this.unreleasedHidden = data.unreleasedHidden || false;
