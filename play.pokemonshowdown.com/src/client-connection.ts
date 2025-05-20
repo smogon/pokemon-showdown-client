@@ -43,7 +43,7 @@ export class PSConnection {
 			PS.confirm(`It's been over a day since you first connected. Please refresh.`, {
 				okButton: 'Refresh',
 			}).then(confirmed => {
-				if (confirmed) this.send(`/refresh`);
+				if (confirmed) PS.room?.send(`/refresh`);
 			});
 			return false;
 		}
