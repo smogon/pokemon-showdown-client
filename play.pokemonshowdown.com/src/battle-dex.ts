@@ -854,7 +854,6 @@ export const Dex = new class implements ModdedDex {
 		if (Dex.prefs('bwgfx') && gen > 5) gen = 5;
 		let homeExists = (!species.isNonstandard || !['CAP', 'Custom'].includes(species.isNonstandard) ||
 			species.id === "xerneasneutral") && ![
-			// TODO check which forms are missing
 			"floetteeternal", "pichuspikyeared", "pikachubelle", "pikachucosplay", "pikachulibre", "pikachuphd", "pikachupopstar", "pikachurockstar",
 		].includes(species.id);
 		if ((!gen || gen >= 8 || modid === 'gen7letsgo') && homeExists) {
