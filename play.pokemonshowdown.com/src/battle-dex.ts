@@ -894,6 +894,8 @@ export const Dex = new class implements ModdedDex {
 		].includes(species.id);
 		if ((!gen || gen >= 8 || (gen === 7 && this.modid === 'gen7letsgo')) && homeExists) {
 			spriteData.spriteDir = 'sprites/home';
+			spriteData.x = 0;
+			spriteData.y = 0;
 			spriteData.h = 100;
 			return spriteData;
 		}
