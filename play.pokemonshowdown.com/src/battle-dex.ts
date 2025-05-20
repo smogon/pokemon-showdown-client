@@ -861,7 +861,8 @@ export const Dex = new class implements ModdedDex {
 		return `background:transparent url(${Dex.resourcePrefix}sprites/pokemonicons-sheet.png?v18) no-repeat scroll -${left}px -${top}px${fainted}`;
 	}
 
-	getTeambuilderSpriteData(pokemon: any, gen = 0): TeambuilderSpriteData {
+	getTeambuilderSpriteData(pokemon: any, modid?: string): TeambuilderSpriteData {
+		let gen = modid ? Dex.mod(toID(modid)).gen : 0;
 		let id = toID(pokemon.species);
 		let spriteid = pokemon.spriteid;
 		let species = Dex.species.get(pokemon.species);
@@ -892,7 +893,7 @@ export const Dex = new class implements ModdedDex {
 			// TODO check which forms are missing
 			"floetteeternal", "pichuspikyeared", "pikachubelle", "pikachucosplay", "pikachulibre", "pikachuphd", "pikachupopstar", "pikachurockstar",
 		].includes(species.id);
-		if ((!gen || gen >= 8 || (gen === 7 && this.modid === 'gen7letsgo')) && homeExists) {
+		if ((!gen || gen >= 8 || modid === 'gen7letsgo') && homeExists) {
 			spriteData.spriteDir = 'sprites/home';
 			spriteData.x = 0;
 			spriteData.y = 0;
@@ -929,9 +930,9 @@ export const Dex = new class implements ModdedDex {
 		return spriteData;
 	}
 
-	getTeambuilderSprite(pokemon: any, gen = 0) {
+	getTeambuilderSprite(pokemon: any, modid?: string) {
 		if (!pokemon) return '';
-		const data = this.getTeambuilderSpriteData(pokemon, gen);
+		const data = this.getTeambuilderSpriteData(pokemon, modid);
 		const shiny = (data.shiny ? '-shiny' : '');
 		const resize = (data.h ? `background-size:${data.h}px` : '');
 		return `background-image:url(${Dex.resourcePrefix}${data.spriteDir}${shiny}/${data.spriteid}.png);background-position:${data.x}px ${data.y}px;background-repeat:no-repeat;${resize}`;

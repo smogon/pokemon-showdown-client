@@ -1219,7 +1219,7 @@ class TeamTextbox extends preact.Component<{ editor: TeamEditorState, onChange?:
 							style={
 								`top:${prevOffset - 7}px;left:0;position:absolute;text-align:right;` +
 								`width:94px;padding:103px 5px 0 0;min-height:24px;pointer-events:none;` +
-								Dex.getTeambuilderSprite(set, editor.gen)
+								Dex.getTeambuilderSprite(set, editor.dex.modid)
 							}
 						>
 							<div>{species.types.map(type => TeamEditor.renderTypeIcon(type))}<span class="itemicon" style={itemStyle}></span></div>
@@ -1345,7 +1345,7 @@ class TeamWizard extends preact.Component<{
 	}
 	renderButton(set: Dex.PokemonSet | undefined, i: number) {
 		const editor = this.props.editor;
-		const sprite = Dex.getTeambuilderSprite(set, editor.gen);
+		const sprite = Dex.getTeambuilderSprite(set, editor.dex.modid);
 		if (!set) {
 			return <div class="set-button">
 				<div style="text-align:right">
