@@ -27,7 +27,7 @@ self.onmessage = (event: MessageEvent) => {
 function connectToServer() {
 	if (!serverInfo) return;
 
-	const port = serverInfo.protocol === 'https' ? '' : ':' + serverInfo.port;
+	const port = serverInfo.protocol === 'https' ? '' : `:${serverInfo.port}`;
 	const url = serverInfo.protocol + '://' + serverInfo.host + port + serverInfo.prefix;
 
 	try {

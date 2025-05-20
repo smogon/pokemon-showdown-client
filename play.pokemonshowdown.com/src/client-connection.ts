@@ -100,7 +100,7 @@ export class PSConnection {
 	connect() {
 		if (this.worker) return; // ensure worker isn't used. we can keep
 		const server = PS.server;
-		const port = server.protocol === 'https' ? ':' + server.port : ':' + server.httpport;
+		const port = server.protocol === 'https' ? `:${server.port}` : `:${server.httpport!}`;
 		const url = server.protocol + '://' + server.host + port + server.prefix;
 
 		try {
