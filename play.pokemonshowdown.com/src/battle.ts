@@ -2472,7 +2472,7 @@ export class Battle {
 			poke.ability = poke.baseAbility = (species.abilities ? species.abilities['0'] : '');
 
 			poke.details = args[2];
-			poke.searchid = args[1].substr(0, 2) + args[1].substr(3) + '|' + args[2];
+			poke.searchid = args[1].substr(0, 2) + args[1].substr(args[1].indexOf(':')) + '|' + args[2];
 
 			if (!kwArgs.silent) {
 				this.scene.animTransform(poke, true, true);
