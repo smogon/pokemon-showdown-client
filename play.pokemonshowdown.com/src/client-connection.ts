@@ -37,6 +37,19 @@ export class PSConnection {
 		}
 	}
 
+	canReconnect() {
+		const uptime = Date.now() - PS.startTime;
+		if (uptime > 24 * 60 * 60 * 1000) {
+			PS.confirm(`It's been over a day since you first connected. Please refresh.`, {
+				okButton: 'Refresh',
+			}).then(confirmed => {
+				if (confirmed) this.send(`/refresh`);
+			});
+			return false;
+		}
+		return this.shouldReconnect;
+	}
+
 	tryConnectInWorker(): boolean {
 		try {
 			const worker = new Worker('/js/reconnect-worker.js');
@@ -60,7 +73,7 @@ export class PSConnection {
 					break;
 				case 'disconnected':
 					this.handleDisconnect();
-					if (this.shouldReconnect) this.retryConnection();
+					if (this.canReconnect()) this.retryConnection();
 					break;
 				case 'error':
 					console.warn('Worker connection error');
@@ -85,7 +98,7 @@ export class PSConnection {
 	}
 
 	connect() {
-		this.worker = null; // ensure worker isn't used. we can keep
+		if (this.worker) return; // ensure worker isn't used. we can keep
 		const server = PS.server;
 		const port = server.protocol === 'https' ? ':' + server.port : ':' + server.httpport;
 		const url = server.protocol + '://' + server.host + port + server.prefix;
@@ -115,14 +128,14 @@ export class PSConnection {
 		socket.onclose = () => {
 			console.log('\u274C (DISCONNECTED)');
 			this.handleDisconnect();
-			if (this.shouldReconnect) this.retryConnection();
+			if (this.canReconnect()) this.retryConnection();
 		};
 
 		socket.onerror = () => {
 			PS.connected = false;
 			PS.isOffline = true;
 			PS.alert("Connection error.");
-			if (this.shouldReconnect) this.retryConnection();
+			if (this.canReconnect()) this.retryConnection();
 		};
 	}
 
@@ -143,7 +156,7 @@ export class PSConnection {
 		console.log(`Reconnecting in ${this.reconnectDelay / 1000}s...`);
 		PS.room.add(`||You are disconnected. Attempting to reconnect in ${this.reconnectDelay / 1000}s`);
 		setTimeout(() => {
-			if (!this.connected && this.shouldReconnect) {
+			if (!this.connected && this.canReconnect()) {
 				PSConnection.connect(); // or PS.send('/reconnect') ?
 				this.reconnectDelay = Math.min(this.reconnectDelay * 2, this.reconnectCap);
 			}
@@ -196,7 +209,7 @@ export class PSStorage {
 	static frame: WindowProxy | null = null;
 	static requests: Record<string, (data: any) => void> | null = null;
 	static requestCount = 0;
-	static readonly origin = 'https://' + Config.routes.client;
+	static readonly origin = 'https://' + window.Config.routes.client;
 	static loader?: () => void;
 	static loaded: Promise<void> | boolean = false;
 	static init(): void | Promise<void> {
@@ -204,11 +217,11 @@ export class PSStorage {
 			if (this.loaded === true) return;
 			return this.loaded;
 		}
-		if (Config.testclient) {
+		if (window.Config.testclient) {
 			return;
 		} else if (location.protocol + '//' + location.hostname === PSStorage.origin) {
 			// Same origin, everything can be kept as default
-			Config.server ||= Config.defaultserver;
+			window.Config.server ||= window.Config.defaultserver;
 			return;
 		}
 
@@ -221,18 +234,18 @@ export class PSStorage {
 
 		window.addEventListener('message', this.onMessage);
 
-		if (document.location.hostname !== Config.routes.client) {
+		if (document.location.hostname !== window.Config.routes.client) {
 			const iframe = document.createElement('iframe');
-			iframe.src = 'https://' + Config.routes.client + '/crossdomain.php?host=' +
+			iframe.src = 'https://' + window.Config.routes.client + '/crossdomain.php?host=' +
 				encodeURIComponent(document.location.hostname) +
 				'&path=' + encodeURIComponent(document.location.pathname.substr(1)) +
 				'&protocol=' + encodeURIComponent(document.location.protocol);
 			iframe.style.display = 'none';
 			document.body.appendChild(iframe);
 		} else {
-			Config.server ||= Config.defaultserver;
+			window.Config.server ||= window.Config.defaultserver;
 			$(
-				'<iframe src="https://' + Config.routes.client + '/crossprotocol.html?v1.2" style="display: none;"></iframe>'
+				'<iframe src="https://' + window.Config.routes.client + '/crossprotocol.html?v1.2" style="display: none;"></iframe>'
 			).appendTo('body');
 			setTimeout(() => {
 				// HTTPS may be blocked
@@ -254,14 +267,16 @@ export class PSStorage {
 		// console.log(`top recv: ${data}`);
 		switch (data.charAt(0)) {
 		case 'c':
-			Config.server = JSON.parse(data.substr(1));
-			if (Config.server.registered && Config.server.id !== 'showdown' && Config.server.id !== 'smogtours') {
+			window.Config.server = JSON.parse(data.substr(1));
+			if (window.Config.server.registered &&
+				window.Config.server.id !== 'showdown' &&
+				window.Config.server.id !== 'smogtours') {
 				const link = document.createElement('link');
 				link.rel = 'stylesheet';
-				link.href = '//' + Config.routes.client + '/customcss.php?server=' + encodeURIComponent(Config.server.id);
+				link.href = '//' + window.Config.routes.client + '/customcss.php?server=' + encodeURIComponent(window.Config.server.id);
 				document.head.appendChild(link);
 			}
-			Object.assign(PS.server, Config.server);
+			Object.assign(PS.server, window.Config.server);
 			break;
 		case 'p':
 			const newData = JSON.parse(data.substr(1));
@@ -293,7 +308,7 @@ export class PSStorage {
 
 				// in Safari, cross-origin local storage is apparently treated as session
 				// storage, so mirror the storage in the current origin just in case
-				if (document.location.hostname === Config.routes.client) {
+				if (document.location.hostname === window.Config.routes.client) {
 					try {
 						localStorage.setItem('showdown_teams_local', packedTeams);
 					} catch {}
@@ -371,7 +386,7 @@ export const PSLoginServer = new class {
 		data.act = act;
 		let url = '/~~' + PS.server.id + '/action.php';
 		if (location.pathname.endsWith('.html')) {
-			url = 'https://' + Config.routes.client + url;
+			url = 'https://' + window.Config.routes.client + url;
 			if (typeof POKEMON_SHOWDOWN_TESTCLIENT_KEY === 'string') {
 				data.sid = POKEMON_SHOWDOWN_TESTCLIENT_KEY.replace(/%2C/g, ',');
 			}

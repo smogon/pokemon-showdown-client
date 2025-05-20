@@ -1,11 +1,5 @@
 declare const SockJS: any;
-
-interface ServerInfo {
-	protocol: string;
-	host: string;
-	port: string;
-	prefix: string;
-}
+import type { ServerInfo } from "./client-main";
 
 let socket: WebSocket | null = null;
 let serverInfo: ServerInfo;
