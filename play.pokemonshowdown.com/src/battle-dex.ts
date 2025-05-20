@@ -860,7 +860,7 @@ export const Dex = new class implements ModdedDex {
 			spriteData.spriteDir = 'sprites/home';
 			spriteData.x = 0;
 			spriteData.y = 0;
-			spriteData.h = 100;
+			spriteData.h = 96;
 			return spriteData;
 		}
 		let xydexExists = (!species.isNonstandard || species.isNonstandard === 'Past' || species.isNonstandard === 'CAP') || [
