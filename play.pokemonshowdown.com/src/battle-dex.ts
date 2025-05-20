@@ -239,6 +239,7 @@ export interface SpriteData {
 export interface TeambuilderSpriteData {
 	x: number;
 	y: number;
+	h?: number;
 	spriteDir: string;
 	spriteid: string;
 	shiny?: boolean;
@@ -893,6 +894,7 @@ export const Dex = new class implements ModdedDex {
 		].includes(species.id);
 		if ((!gen || gen >= 8 || (gen === 7 && this.modid === 'gen7letsgo')) && homeExists) {
 			spriteData.spriteDir = 'sprites/home';
+			spriteData.h = 100;
 			return spriteData;
 		}
 		let xydexExists = (!species.isNonstandard || species.isNonstandard === 'Past' || species.isNonstandard === 'CAP') || [
@@ -929,7 +931,8 @@ export const Dex = new class implements ModdedDex {
 		if (!pokemon) return '';
 		const data = this.getTeambuilderSpriteData(pokemon, gen);
 		const shiny = (data.shiny ? '-shiny' : '');
-		return `background-image:url(${Dex.resourcePrefix}${data.spriteDir}${shiny}/${data.spriteid}.png);background-position:${data.x}px ${data.y}px;background-repeat:no-repeat`;
+		const resize = (data.h ? `background-size:${data.h}px` : '');
+		return `background-image:url(${Dex.resourcePrefix}${data.spriteDir}${shiny}/${data.spriteid}.png);background-position:${data.x}px ${data.y}px;background-repeat:no-repeat;${resize}`;
 	}
 
 	getItemIcon(item: any) {
