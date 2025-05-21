@@ -90,6 +90,12 @@ export class Pokemon implements PokemonDetails, PokemonHealth {
 	moves: string[] = [];
 	ability = '';
 	baseAbility = '';
+	/**
+	 * The original ability of the Pokemon.
+	 * If false, it means the Pokemon has permanently transformed
+	 * and its original ability is still unknown.
+	 */
+	setAbility: string | false = '';
 	item = '';
 	itemEffect = '';
 	prevItem = '';
@@ -358,11 +364,18 @@ export class Pokemon implements PokemonDetails, PokemonHealth {
 		}
 		this.moveTrack.push([moveName, pp]);
 	}
+	rememberBaseAbility(baseAbility: string) {
+		baseAbility = Dex.abilities.get(baseAbility).name;
+		this.baseAbility = baseAbility;
+		if (this.setAbility !== false) {
+			this.setAbility = baseAbility;
+		}
+	}
 	rememberAbility(ability: string, isNotBase?: boolean) {
 		ability = Dex.abilities.get(ability).name;
 		this.ability = ability;
 		if (!this.baseAbility && !isNotBase) {
-			this.baseAbility = ability;
+			this.rememberBaseAbility(ability);
 		}
 	}
 	getBoost(boostStat: Dex.BoostStatName) {
@@ -2438,7 +2451,7 @@ export class Battle {
 			poke.ability = '(suppressed)';
 
 			if (ability.id) {
-				if (!poke.baseAbility) poke.baseAbility = ability.name;
+				if (!poke.baseAbility) poke.rememberBaseAbility(ability.name);
 			}
 			this.log(args, kwArgs);
 			break;
@@ -2469,7 +2482,15 @@ export class Battle {
 			}
 
 			poke.speciesForme = newSpeciesForme;
-			poke.ability = poke.baseAbility = (species.abilities ? species.abilities['0'] : '');
+			if (kwArgs.silent) {
+				// fainted forme regression
+				if (poke.setAbility === false) poke.setAbility = '';
+				poke.baseAbility = poke.setAbility;
+			} else {
+				if (!poke.setAbility) poke.setAbility = false;
+				poke.baseAbility = (species.abilities ? species.abilities['0'] : '');
+			}
+			poke.ability = poke.baseAbility;
 
 			poke.details = args[2];
 			poke.searchid = args[1].substr(0, 2) + args[1].substr(args[1].indexOf(':')) + '|' + args[2];
@@ -2974,11 +2995,11 @@ export class Battle {
 				let targetability = Dex.sanitizeName(kwArgs.ability2) || poke.ability;
 				if (pokeability) {
 					poke.ability = pokeability;
-					if (!target!.baseAbility) target!.baseAbility = pokeability;
+					if (!target!.baseAbility) target!.rememberBaseAbility(pokeability);
 				}
 				if (targetability) {
 					target!.ability = targetability;
-					if (!poke.baseAbility) poke.baseAbility = targetability;
+					if (!poke.baseAbility) poke.rememberBaseAbility(targetability);
 				}
 				if (poke.side !== target!.side) {
 					this.activateAbility(poke, pokeability, true);
