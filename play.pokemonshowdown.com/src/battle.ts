@@ -2484,7 +2484,7 @@ export class Battle {
 			poke.speciesForme = newSpeciesForme;
 			if (kwArgs.silent) {
 				// fainted forme regression
-				if (poke.setAbility === false) poke.setAbility = '';
+				if (!poke.setAbility) poke.setAbility = '';
 				poke.baseAbility = poke.setAbility;
 			} else {
 				if (!poke.setAbility) poke.setAbility = false;
