@@ -825,8 +825,8 @@ export const Dex = new class implements ModdedDex {
 		return `background:transparent url(${Dex.resourcePrefix}sprites/pokemonicons-sheet.png?v18) no-repeat scroll -${left}px -${top}px${fainted}`;
 	}
 
-	getTeambuilderSpriteData(pokemon: any, modid?: string): TeambuilderSpriteData {
-		let gen = modid ? Dex.mod(toID(modid)).gen : 0;
+	getTeambuilderSpriteData(pokemon: any, dex: ModdedDex = Dex): TeambuilderSpriteData {
+		let gen = dex.gen;
 		let id = toID(pokemon.species);
 		let spriteid = pokemon.spriteid;
 		let species = Dex.species.get(pokemon.species);
@@ -856,7 +856,7 @@ export const Dex = new class implements ModdedDex {
 			species.id === "xerneasneutral") && ![
 			"floetteeternal", "pichuspikyeared", "pikachubelle", "pikachucosplay", "pikachulibre", "pikachuphd", "pikachupopstar", "pikachurockstar",
 		].includes(species.id);
-		if ((!gen || gen >= 8 || modid === 'gen7letsgo') && homeExists) {
+		if ((gen >= 8 || dex.modid === 'gen7letsgo') && homeExists) {
 			spriteData.spriteDir = 'sprites/home';
 			spriteData.x = 8;
 			spriteData.y = 0;
@@ -867,7 +867,7 @@ export const Dex = new class implements ModdedDex {
 			"pikachustarter", "eeveestarter", "meltan", "melmetal", "pokestarufo", "pokestarufo2", "pokestarbrycenman", "pokestarmt", "pokestarmt2", "pokestargiant", "pokestarhumanoid", "pokestarmonster", "pokestarf00", "pokestarf002", "pokestarspirit",
 		].includes(species.id);
 		if (species.gen >= 8 && species.isNonstandard !== 'CAP') xydexExists = false;
-		if ((!gen || gen >= 6) && xydexExists) {
+		if (gen >= 6 && xydexExists) {
 			if (species.gen >= 7) {
 				spriteData.x = -6;
 				spriteData.y = -7;
@@ -893,9 +893,9 @@ export const Dex = new class implements ModdedDex {
 		return spriteData;
 	}
 
-	getTeambuilderSprite(pokemon: any, modid?: string) {
+	getTeambuilderSprite(pokemon: any, dex?: ModdedDex) {
 		if (!pokemon) return '';
-		const data = this.getTeambuilderSpriteData(pokemon, modid);
+		const data = this.getTeambuilderSpriteData(pokemon, dex);
 		const shiny = (data.shiny ? '-shiny' : '');
 		const resize = (data.h ? `background-size:${data.h}px` : '');
 		return `background-image:url(${Dex.resourcePrefix}${data.spriteDir}${shiny}/${data.spriteid}.png);background-position:${data.x}px ${data.y}px;background-repeat:no-repeat;${resize}`;
