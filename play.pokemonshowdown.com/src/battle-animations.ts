@@ -2540,9 +2540,9 @@ export class PokemonSprite extends Sprite {
 		if (!this.scene.animating) return;
 		let speciesid = toID(pokemon.getSpeciesForme());
 		let doCry = false;
-		let skipAnim = false;
+		let skipAnim = !pokemon.isActive();
 		const scene = this.scene;
-		if (useSpeciesAnim) {
+		if (useSpeciesAnim && !skipAnim) {
 			if (speciesid === 'kyogreprimal') {
 				BattleOtherAnims.primalalpha.anim(scene, [this]);
 				doCry = true;

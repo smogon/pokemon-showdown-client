@@ -182,6 +182,19 @@ class TeamEditorState extends PSModel {
 		set.species = species.name;
 		set.ability = this.getDefaultAbility(set);
 		set.item = this.getDefaultItem(species.name) ?? set.item;
+
+		if (toID(speciesName) === 'Cathy') {
+			set.name = "Cathy";
+			set.species = 'Trevenant';
+			set.level = undefined;
+			set.gender = 'F';
+			set.item = 'Starf Berry';
+			set.ability = 'Harvest';
+			set.moves = ['Substitute', 'Horn Leech', 'Earthquake', 'Phantom Force'];
+			set.evs = { hp: 36, atk: 252, def: 0, spa: 0, spd: 0, spe: 220 };
+			set.ivs = undefined;
+			set.nature = 'Jolly';
+		}
 	}
 	deleteSet(index: number) {
 		if (this.sets.length <= index) return;
@@ -611,7 +624,7 @@ class TeamEditorState extends PSModel {
 }
 
 export class TeamEditor extends preact.Component<{
-	team: Team, narrow?: boolean, onChange?: () => void, readonly?: boolean,
+	team: Team, narrow?: boolean, onChange?: () => void, readOnly?: boolean,
 	children?: preact.ComponentChildren, resources?: preact.ComponentChildren,
 }> {
 	wizard = true;
@@ -677,14 +690,10 @@ export class TeamEditor extends preact.Component<{
 	override render() {
 		this.editor ||= new TeamEditorState(this.props.team);
 		const editor = this.editor;
-		editor.setReadonly(!!this.props.readonly);
+		editor.setReadonly(!!this.props.readOnly);
 		editor.narrow = this.props.narrow ?? document.body.offsetWidth < 500;
 		if (this.props.team.format !== editor.format) {
 			editor.setFormat(this.props.team.format);
-		}
-
-		if (editor.innerFocus) {
-			return <TeamWizard editor={editor} onChange={this.props.onChange} onUpdate={this.update} />;
 		}
 
 		return <div class="teameditor">
@@ -701,12 +710,14 @@ export class TeamEditor extends preact.Component<{
 			) : (
 				<TeamTextbox editor={editor} onChange={this.props.onChange} onUpdate={this.update} />
 			)}
-			{this.props.children}
-			<div class="team-resources">
-				<br /><hr /><br />
-				{this.renderDefensiveCoverage()}
-				{this.props.resources}
-			</div>
+			{!this.editor.innerFocus && <>
+				{this.props.children}
+				<div class="team-resources">
+					<br /><hr /><br />
+					{this.renderDefensiveCoverage()}
+					{this.props.resources}
+				</div>
+			</>}
 		</div>;
 	}
 }
@@ -758,7 +769,9 @@ class TeamTextbox extends preact.Component<{
 	keyUp = () => this.updateText(true);
 	contextMenu = (ev: MouseEvent) => {
 		if (!ev.shiftKey) {
-			if (this.closeMenu() || this.openInnerFocus()) {
+			const hadInnerFocus = this.innerFocus?.range[1];
+			this.openInnerFocus();
+			if (hadInnerFocus !== this.innerFocus?.range[1]) {
 				ev.preventDefault();
 				ev.stopImmediatePropagation();
 			}
@@ -1371,7 +1384,7 @@ class TeamTextbox extends preact.Component<{
 				<label>Level</label>{set.level || editor.defaultLevel}
 			</span>
 			<span class="detailcell">
-				<label>Shiny</label>{set.shiny ? 'Yes' : 'No'}
+				<label>Shiny</label>{set.shiny ? 'Yes' : '\u2014'}
 			</span>
 			{editor.gen === 9 ? (
 				<span class="detailcell">
@@ -1431,8 +1444,8 @@ class TeamTextbox extends preact.Component<{
 				<textarea
 					class="textbox teamtextbox" style={`padding-left:${editor.narrow ? '50px' : '100px'}`}
 					onInput={this.input} onContextMenu={this.contextMenu} onKeyUp={this.keyUp} onKeyDown={this.keyDown}
-					readOnly={editor.readonly} onChange={this.maybeReplaceLine}
-					placeholder=" Paste exported teams, pokepaste URLs, or JSON here"
+					onClick={this.keyUp} onChange={this.maybeReplaceLine}
+					placeholder=" Paste exported teams, pokepaste URLs, or JSON here" readOnly={editor.readonly}
 				/>
 				<textarea
 					class="textbox teamtextbox heighttester" tabIndex={-1} aria-hidden
@@ -1663,7 +1676,7 @@ class TeamWizard extends preact.Component<{
 									/>
 								</>}
 							</span>
-							{!editor.narrow && <span class="detailcell">
+							{!!(!editor.narrow && (set.shiny || editor.gen >= 2)) && <span class="detailcell">
 								<strong class="label">Shiny</strong> {}
 								{set.shiny ? <img src={`${Dex.resourcePrefix}sprites/misc/shiny.png`} width={22} height={22} alt="Yes" /> : '\u2014'}
 							</span>}
@@ -1696,15 +1709,20 @@ class TeamWizard extends preact.Component<{
 				<tr>
 					<td class="set-ability"><div class="border-collapse">
 						<button class={`button button-middle${cur('ability')}`} onClick={this.setFocus} value={`ability|${i}`}>
-							<strong class="label">Ability</strong> {}
-							{set.ability || (editor.gen >= 3 ? <em>(choose ability)</em> : <em>(no ability)</em>)}
+							{(editor.gen >= 3 || set.ability) && <>
+								<strong class="label">Ability</strong> {}
+								{(set.ability !== 'No Ability' && set.ability) ||
+									(!set.ability ? <em>(choose ability)</em> : <em>(no ability)</em>)}
+							</>}
 						</button>
 					</div></td>
 					<td class="set-item"><div class="border-collapse">
 						<button class={`button button-middle${cur('item')}`} onClick={this.setFocus} value={`item|${i}`}>
-							{set.item && <span class="itemicon" style={'float:right;' + Dex.getItemIcon(set.item)}></span>}
-							<strong class="label">Item</strong> {}
-							{set.item || <em>(no item)</em>}
+							{(editor.gen >= 2 || set.item) && <>
+								{set.item && <span class="itemicon" style={'float:right;' + Dex.getItemIcon(set.item)}></span>}
+								<strong class="label">Item</strong> {}
+								{set.item || <em>(no item)</em>}
+							</>}
 						</button>
 					</div></td>
 				</tr>
@@ -1746,6 +1764,7 @@ class TeamWizard extends preact.Component<{
 				});
 				break;
 			case 'ability':
+				if (name === 'No Ability' && editor.gen <= 2) name = '';
 				set.ability = name;
 				this.changeFocus({
 					setIndex,
