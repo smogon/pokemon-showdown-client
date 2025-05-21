@@ -3714,7 +3714,7 @@
 				var spriteSize = data.spriteDir === 'sprites/dex' ? 120 : 96;
 				maxSpriteSize = Math.max(maxSpriteSize, spriteSize);
 				var spriteDim = 'width: ' + spriteSize + 'px; height: ' + spriteSize + 'px;';
-				var resize = (data.h ? 'background-size ' + data.h + 'px;' : '');
+				var resize = (data.h ? 'background-size:' + data.h + 'px;' : '');
 				buf += '<button name="setForm" value="' + form + '" style="';
 				buf += 'background-image: url(' + Dex.resourcePrefix + data.spriteDir + '/' + spriteid + '.png); ' + spriteDim + resize + '" class="option';
 				buf += (form === (species.forme || '') ? ' cur' : '') + '"></button>';
