@@ -827,11 +827,16 @@ export const Dex = new class implements ModdedDex {
 
 	getTeambuilderSpriteData(pokemon: any, dex: ModdedDex = Dex): TeambuilderSpriteData {
 		let gen = dex.gen;
-		let id = toID(pokemon.species);
-		let spriteid = pokemon.spriteid;
-		let species = Dex.species.get(pokemon.species);
-		if (pokemon.species && !spriteid) {
-			spriteid = species.spriteid || toID(pokemon.species);
+		let id = toID(pokemon.species || pokemon);
+		let species = Dex.species.get(id);
+		let spriteid: string;
+		if (typeof pokemon === 'string') {
+			spriteid = species.spriteid || id;
+		} else {
+			spriteid = pokemon.spriteid;
+			if (pokemon.species && !spriteid) {
+				spriteid = species.spriteid || id;
+			}
 		}
 		if (species.exists === false) return { spriteDir: 'sprites/gen5', spriteid: '0', x: 10, y: 5 };
 		if (Dex.afdMode) {
