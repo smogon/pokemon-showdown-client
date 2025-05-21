@@ -857,9 +857,9 @@ export const Dex = new class implements ModdedDex {
 			"floetteeternal", "pichuspikyeared", "pikachubelle", "pikachucosplay", "pikachulibre", "pikachuphd", "pikachupopstar", "pikachurockstar",
 		].includes(species.id);
 		if ((gen >= 8 || dex.modid === 'gen7letsgo') && homeExists) {
-			spriteData.spriteDir = 'sprites/home';
+			spriteData.spriteDir = 'sprites/home-centered';
 			spriteData.x = 8;
-			spriteData.y = 0;
+			spriteData.y = 10;
 			spriteData.h = 96;
 			return spriteData;
 		}
