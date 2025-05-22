@@ -261,6 +261,7 @@
 	resize: none;
 }
 .teamtextbox::placeholder {
+	/* Firefox doesn't support transform, padding-top, margin-top, _or_ top... */
 	line-height: 60px;
 }
 .teaminnertextbox {
