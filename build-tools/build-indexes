@@ -425,13 +425,15 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 				if (ubersUU.exists && Dex.formats.getRuleTable(ubersUU).isBannedSpecies(species)) {
 					ubersUUBans[species.id] = 1;
 				}
-				const ndDoubles = Dex.formats.get(gen + 'nationaldexdoubles');
-				if (ndDoubles.exists && Dex.formats.getRuleTable(ndDoubles).isBannedSpecies(species)) {
-					ndDoublesBans[species.id] = 1;
-				}
 				const nd35Pokes = Dex.formats.get(gen + 'nationaldex35pokes');
 				if (nd35Pokes.exists && !Dex.formats.getRuleTable(nd35Pokes).isBannedSpecies(species)) {
 					thirtyfivePokes[species.id] = 1;
+				}
+			}
+			if (genNum >= 8) {
+				const ndDoubles = Dex.formats.get(gen + 'nationaldexdoubles');
+				if (ndDoubles.exists && Dex.formats.getRuleTable(ndDoubles).isBannedSpecies(species)) {
+					ndDoublesBans[species.id] = 1;
 				}
 			}
 			if (genNum >= 5) {
