@@ -903,7 +903,7 @@ export const Dex = new class implements ModdedDex {
 		const data = this.getTeambuilderSpriteData(pokemon, dex);
 		const shiny = (data.shiny ? '-shiny' : '');
 		const resize = (data.h ? `background-size:${data.h}px` : '');
-		return `background-image:url(${Dex.resourcePrefix}${data.spriteDir}${shiny}/${data.spriteid}.png);background-position:${data.x}px ${data.y}px;background-repeat:no-repeat;${resize}`;
+		return `background-image:url(${Dex.resourcePrefix}${data.spriteDir}${shiny}/${data.spriteid}.png);background-position:${data.x + xOffset}px ${data.y + yOffset}px;background-repeat:no-repeat;${resize}`;
 	}
 
 	getItemIcon(item: any) {
