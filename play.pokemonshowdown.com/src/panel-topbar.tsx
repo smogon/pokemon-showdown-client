@@ -11,7 +11,7 @@
 
 import preact from "../js/lib/preact";
 import { Config, PS, type PSRoom, type RoomID } from "./client-main";
-import { PSView } from "./panels";
+import { NARROW_MODE_HEADER_WIDTH, PSView, VERTICAL_HEADER_WIDTH } from "./panels";
 import type { Battle } from "./battle";
 import { BattleLog } from "./battle-log"; // optional
 
@@ -36,7 +36,7 @@ window.addEventListener('dragover', e => {
 	e.preventDefault();
 });
 
-export class PSHeader extends preact.Component<{ style: object }> {
+export class PSHeader extends preact.Component {
 	static toggleMute = (e: Event) => {
 		PS.prefs.set('mute', !PS.prefs.mute);
 		PS.update();
@@ -168,8 +168,31 @@ export class PSHeader extends preact.Component<{ style: object }> {
 			{closeButton}
 		</li>;
 	}
-	handleRoomTabOverflow = () => {
-		if (PS.leftPanelWidth === null || !this.base) return;
+	handleResize = () => {
+		if (!this.base) return;
+
+		if (PS.leftPanelWidth === null) {
+			const width = document.documentElement.clientWidth;
+			const oldNarrowMode = PSView.narrowMode;
+			PSView.narrowMode = width <= 700;
+			PSView.verticalHeaderWidth = PSView.narrowMode ? NARROW_MODE_HEADER_WIDTH : VERTICAL_HEADER_WIDTH;
+			document.documentElement.style.width = PSView.narrowMode ? `${width + NARROW_MODE_HEADER_WIDTH}px` : 'auto';
+			if (oldNarrowMode !== PSView.narrowMode) {
+				if (PSView.narrowMode) {
+					if (!PSView.textboxFocused) {
+						document.documentElement.classList?.add('scroll-snap-enabled');
+					}
+				} else {
+					document.documentElement.classList?.remove('scroll-snap-enabled');
+				}
+				PS.update();
+			}
+			return;
+		}
+		if (PSView.narrowMode) {
+			document.documentElement.classList?.remove('scroll-snap-enabled');
+			PSView.narrowMode = false;
+		}
 
 		const userbarLeft = this.base.querySelector('div.userbar')?.getBoundingClientRect()?.left;
 		const plusTabRight = this.base.querySelector('a.roomtab[aria-label="Join chat"]')?.getBoundingClientRect()?.right;
@@ -187,11 +210,11 @@ export class PSHeader extends preact.Component<{ style: object }> {
 		PS.user.subscribe(() => {
 			this.forceUpdate();
 		});
-		window.addEventListener('resize', this.handleRoomTabOverflow);
-		this.handleRoomTabOverflow();
+		window.addEventListener('resize', this.handleResize);
+		this.handleResize();
 	}
 	override componentDidUpdate() {
-		this.handleRoomTabOverflow();
+		this.handleResize();
 	}
 	renderUser() {
 		if (!PS.connected) {
@@ -210,7 +233,8 @@ export class PSHeader extends preact.Component<{ style: object }> {
 	}
 	renderVertical() {
 		return <div
-			id="header" class="header-vertical" style={this.props.style} onClick={PSView.scrollToHeader} role="navigation"
+			id="header" class="header-vertical" role="navigation"
+			style={`width:${PSView.verticalHeaderWidth - 7}px`} onClick={PSView.scrollToHeader}
 		>
 			<div class="maintabbarbottom"></div>
 			<div class="scrollable-part">
@@ -232,6 +256,7 @@ export class PSHeader extends preact.Component<{ style: object }> {
 					</ul>
 				</div>
 			</div>
+			{null /* overflow */}
 			<div class="userbar">
 				{this.renderUser()} {}
 				<div style="float:right">
@@ -247,15 +272,9 @@ export class PSHeader extends preact.Component<{ style: object }> {
 	}
 	override render() {
 		if (PS.leftPanelWidth === null) {
-			if (!PSView.textboxFocused) {
-				document.documentElement.classList?.add('scroll-snap-enabled');
-			}
 			return this.renderVertical();
-		} else {
-			document.documentElement.classList?.remove('scroll-snap-enabled');
 		}
-
-		return <div id="header" class="header" style={this.props.style} role="navigation">
+		return <div id="header" class="header" role="navigation">
 			<div class="maintabbarbottom"></div>
 			<div class="tabbar maintabbar"><div class="inner-1" role={PS.leftPanelWidth ? 'none' : 'tablist'}><div class="inner-2">
 				<ul class="maintabbar-left" style={{ width: `${PS.leftPanelWidth}px` }} role={PS.leftPanelWidth ? 'tablist' : 'none'}>
@@ -305,25 +324,24 @@ export class PSMiniHeader extends preact.Component {
 	override render() {
 		if (PS.leftPanelWidth !== null) return null;
 
-		const minWidth = Math.min(500, Math.max(320, document.body.offsetWidth - 9));
 		const { icon, title } = PSHeader.roomInfo(PS.panel);
 		const userColor = window.BattleLog && `color:${BattleLog.usernameColor(PS.user.userid)}`;
-		const showMenuButton = document.documentElement.offsetWidth >= document.documentElement.scrollWidth;
+		const showMenuButton = PSView.narrowMode;
 		const notifying = (
-			showMenuButton && !window.scrollX && Object.values(PS.rooms).some(room => room!.notifications.length)
+			!showMenuButton && !window.scrollX && Object.values(PS.rooms).some(room => room!.notifications.length)
 		) ? ' notifying' : '';
-		const menuButton = showMenuButton ? (
+		const menuButton = !showMenuButton ? (
 			null
 		) : window.scrollX ? (
 			<button onClick={PSView.scrollToHeader} class={`mini-header-left ${notifying}`} aria-label="Menu">
-				<i class="fa fa-arrow-left" aria-hidden></i>
+				<i class="fa fa-bars" aria-hidden></i>
 			</button>
 		) : (
 			<button onClick={PSView.scrollToRoom} class="mini-header-left" aria-label="Menu">
 				<i class="fa fa-arrow-right" aria-hidden></i>
 			</button>
 		);
-		return <div class="mini-header" style={{ minWidth: `${minWidth}px` }}>
+		return <div class="mini-header" style={`left:${PSView.verticalHeaderWidth + (PSView.narrowMode ? 0 : -1)}px;`}>
 			{menuButton}
 			{icon} {title}
 			<button data-href="options" class="mini-header-right" aria-label="Options">
