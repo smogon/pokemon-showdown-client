@@ -898,7 +898,7 @@ export const Dex = new class implements ModdedDex {
 		return spriteData;
 	}
 
-	getTeambuilderSprite(pokemon: any, dex?: ModdedDex) {
+	getTeambuilderSprite(pokemon: any, dex?: ModdedDex, xOffset = 0, yOffset = 0) {
 		if (!pokemon) return '';
 		const data = this.getTeambuilderSpriteData(pokemon, dex);
 		const shiny = (data.shiny ? '-shiny' : '');
