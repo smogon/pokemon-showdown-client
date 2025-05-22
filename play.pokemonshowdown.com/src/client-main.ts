@@ -2073,7 +2073,7 @@ export const PS = new class extends PSModel {
 	}
 	calculateLeftPanelWidth() {
 		const available = document.body.offsetWidth;
-		if (available < 800 || this.prefs.onepanel === 'vertical') {
+		if (document.documentElement.clientWidth < 800 || this.prefs.onepanel === 'vertical') {
 			return null;
 		}
 		// If we don't have both a left room and a right room, obviously
