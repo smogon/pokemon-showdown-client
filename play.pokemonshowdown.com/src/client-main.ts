@@ -2348,7 +2348,15 @@ export const PS = new class extends PSModel {
 			return preexistingRoom;
 		}
 		if (!noFocus) {
-			this.closePopupsAbove(parentRoom, true);
+			let parentPopup = parentRoom;
+			if ((options.parentElem as HTMLButtonElement)?.name === 'closeRoom') {
+				// we want to close all popups above the parent element.
+				// This is usually the parent room, the close button in a roomtablist's
+				// parent room is the linked room rather than the roomtablist popup,
+				// which needs to be corrected here.
+				parentPopup = PS.rooms['roomtablist'] || parentPopup;
+			}
+			this.closePopupsAbove(parentPopup, true);
 		}
 		const room = this.createRoom(options);
 		this.rooms[room.id] = room;

@@ -1423,15 +1423,16 @@ class LeaveRoomPanel extends PSRoomPanel {
 
 	override render() {
 		const room = this.props.room;
-		const parentRoomId = (this.props.room.parentElem as HTMLInputElement).value;
+		const parentRoomid = room.parentRoomid!;
+
 		return <PSPanelWrapper room={room} width={480}><div class="pad">
-			<p>Are you sure you want to exit this room?</p>
+			<p>Close <code>{parentRoomid || "ERROR"}</code>?</p>
 			<p class="buttonbar">
-				<button data-cmd={`/closeand /close ${parentRoomId}`} class="button autofocus">
+				<button data-cmd={`/closeand /close ${parentRoomid}`} class="button autofocus">
 					<strong>Close Room</strong>
 				</button> {}
 				<button data-cmd="/close" class="button">
-					<strong>Cancel</strong>
+					Cancel
 				</button>
 			</p>
 		</div></PSPanelWrapper>;
