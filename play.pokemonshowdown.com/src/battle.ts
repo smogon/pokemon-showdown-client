@@ -367,7 +367,7 @@ export class Pokemon implements PokemonDetails, PokemonHealth {
 	rememberBaseAbility(baseAbility: string) {
 		baseAbility = Dex.abilities.get(baseAbility).name;
 		this.baseAbility = baseAbility;
-		if (this.setAbility !== false) {
+		if (this.setAbility === '') {
 			this.setAbility = baseAbility;
 		}
 	}
