@@ -625,7 +625,7 @@ class OptionsPanel extends PSRoomPanel {
 			break;
 		}
 		case 'tournaments': {
-			PS.prefs.set(setting, elem.value as 'notify' | 'hide' | 'off');
+			PS.prefs.set(setting, !elem.value.length ? null : elem.value);
 			break;
 		}
 		case 'refreshprompt':
@@ -769,8 +769,8 @@ class OptionsPanel extends PSRoomPanel {
 			<p>
 				<label class="optlabel">
 					Tournaments: <select name="tournaments" class="button" onChange={this.handleOnChange}>
-						<option value="off" selected={PS.prefs.tournaments === "off"}>No notifications</option>
-						<option value="notify" selected={!PS.prefs.tournaments || PS.prefs.tournaments === "notify"}>Notifications</option>
+						<option value="" selected={!PS.prefs.tournaments}>Notify when joined</option>
+						<option value="notify" selected={PS.prefs.tournaments === "notify"}>Always notify</option>
 						<option value="hide" selected={PS.prefs.tournaments === "hide"}>Hide</option>
 					</select>
 				</label>

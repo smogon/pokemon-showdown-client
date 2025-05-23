@@ -140,7 +140,7 @@ class PSPrefs extends PSStreamModel<string | null> {
 	 * Uses 1 and 0 instead of true/false for JSON packing reasons.
 	 */
 	ignore: { [userid: string]: 1 | 0 } | null = null;
-	tournaments: 'hide' | 'notify' | 'off' = 'notify'; // on by default
+	tournaments: string | null = null; // null - notifies on joined tours
 	/**
 	 * true = one panel, false = two panels, left and right
 	 */
