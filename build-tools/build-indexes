@@ -20,6 +20,7 @@ child_process.execSync('npm run build', { cwd: 'caches/pokemon-showdown' });
 console.log("DONE");
 
 const Dex = require('../caches/pokemon-showdown/dist/sim/dex').Dex;
+const CompoundWordNames = require('../caches/pokemon-showdown/dist/data/aliases').CompoundWordNames;
 const toID = Dex.toID;
 process.stdout.write("Loading gen 6 data... ");
 Dex.includeData();
@@ -81,134 +82,45 @@ function requireNoCache(pathSpec) {
 	index.push('pokemon article');
 	index.push('moves article');
 
+	const compoundTable = new Map(CompoundWordNames.map(word => [toID(word), word]));
 	// generate aliases
 	function generateAlias(id, name, type) {
-		let offset = name.lastIndexOf(' ');
-		if (offset < 0) offset = name.lastIndexOf('-');
-		if (name.endsWith('-Mega-X') || name.endsWith('-Mega-Y')) {
+		name = compoundTable.get(id) || name;
+		if (type === 'pokemon' && !compoundTable.has(id)) {
+			const species = Dex.species.get(id);
+			const baseid = toID(species.baseSpecies);
+			if (baseid !== id) {
+				name = (compoundTable.get(baseid) || species.baseSpecies) + ' ' + species.forme;
+			}
+		}
+		if (name.endsWith(' Mega-X') || name.endsWith(' Mega-Y')) {
 			index.push('mega' + toID(name.slice(0, -7) + name.slice(-1)) + ' ' + type + ' ' + id + ' 0');
 			index.push('m' + toID(name.slice(0, -7) + name.slice(-1)) + ' ' + type + ' ' + id + ' 0');
 			index.push('mega' + toID(name.slice(-1)) + ' ' + type + ' ' + id + ' ' + toID(name.slice(0, -7)).length);
-			return;
-		}
-		if (name.endsWith('-Mega')) {
+		} else if (name.endsWith(' Mega')) {
 			index.push('mega' + toID(name.slice(0, -5)) + ' ' + type + ' ' + id + ' 0');
 			index.push('m' + toID(name.slice(0, -5)) + ' ' + type + ' ' + id + ' 0');
-			return;
-		}
-		if (name.endsWith('-Alola')) {
+		} else if (name.endsWith(' Alola')) {
 			index.push('alolan' + toID(name.slice(0, -6)) + ' ' + type + ' ' + id + ' 0');
-			return;
+		} else if (name.endsWith(' Galar')) {
+			index.push('galarian' + toID(name.slice(0, -6)) + ' ' + type + ' ' + id + ' 0');
+		} else if (name.endsWith(' Hisui')) {
+			index.push('hisuian' + toID(name.slice(0, -6)) + ' ' + type + ' ' + id + ' 0');
 		}
-		const oldOffset = offset;
-		if (name === 'Alakazam') offset = 5;
-		if (name === 'Arctovish') offset = 5;
-		if (name === 'Arctozolt') offset = 5;
-		if (name === 'Articuno') offset = 5;
-		if (name === 'Breloom') offset = 3;
-		if (name === 'Bronzong') offset = 4;
-		if (name === 'Celebi') offset = 4;
-		if (name === 'Charizard') offset = 5;
-		if (name === 'Donphan') offset = 3;
-		if (name === 'Dracovish') offset = 5;
-		if (name === 'Dracozolt') offset = 5;
-		if (name === 'Dragapult') offset = 5;
-		if (name === 'Dusclops') offset = 3;
-		if (name === 'Electabuzz') offset = 6;
-		if (name === 'Exeggutor') offset = 2;
-		if (name === 'Garchomp') offset = 3;
-		if (name === 'Hariyama') offset = 4;
-		if (name === 'Magearna') offset = 2;
-		if (name === 'Magnezone') offset = 5;
-		if (name === 'Mamoswine') offset = 4;
-		if (name === 'Moltres') offset = 3;
-		if (name === 'Nidoking') offset = 4;
-		if (name === 'Nidoqueen') offset = 4;
-		if (name === 'Nidorina') offset = 4;
-		if (name === 'Nidorino') offset = 4;
-		if (name === 'Regice') offset = 3;
-		if (name === 'Regidrago') offset = 4;
-		if (name === 'Regieleki') offset = 4;
-		if (name === 'Regigigas') offset = 4;
-		if (name === 'Regirock') offset = 4;
-		if (name === 'Registeel') offset = 4;
-		if (name === 'Slowbro') offset = 4;
-		if (name === 'Slowking') offset = 4;
-		if (name === 'Starmie') offset = 4;
-		if (name === 'Tyranitar') offset = 6;
-		if (name === 'Zapdos') offset = 3;
-
-		if (name === 'Acupressure') offset = 3;
-		if (name === 'Aromatherapy') offset = 5;
-		if (name === 'Boomburst') offset = 4;
-		if (name === 'Crabhammer') offset = 4;
-		if (name === 'Discharge') offset = 3;
-		if (name === 'Earthquake') offset = 5;
-		if (name === 'Extrasensory') offset = 5;
-		if (name === 'Flamethrower') offset = 5;
-		if (name === 'Headbutt') offset = 4;
-		if (name === 'Moonblast') offset = 4;
-		if (name === 'Moonlight') offset = 4;
-		if (name === 'Overheat') offset = 4;
-		if (name === 'Outrage') offset = 3;
-		if (name === 'Octazooka') offset = 4;
-		if (name === 'Payback') offset = 3;
-		if (name === 'Psyshock') offset = 3;
-		if (name === 'Psywave') offset = 3;
-		if (name === 'Rototiller') offset = 4;
-		if (name === 'Rollout') offset = 4;
-		if (name === 'Safeguard') offset = 4;
-		if (name === 'Sandstorm') offset = 4;
-		if (name === 'Smokescreen') offset = 5;
-		if (name === 'Stockpile') offset = 5;
-		if (name === 'Steamroller') offset = 5;
-		if (name === 'Superpower') offset = 5;
-		if (name === 'Supersonic') offset = 5;
-		if (name === 'Synchronoise') offset = 7;
-		if (name === 'Tailwind') offset = 4;
-		if (name === 'Telekinesis') offset = 4;
-		if (name === 'Teleport') offset = 4;
-		if (name === 'Thunderbolt') offset = 7;
-		if (name === 'Twineedle') offset = 3;
-		if (name === 'Uproar') offset = 2;
-		if (name === 'Venoshock') offset = 4;
-		if (name === 'Whirlpool') offset = 5;
-		if (name === 'Whirlwind') offset = 5;
-		let acronym;
-		if (oldOffset < 0 && offset > 0) {
-			acronym = toID(name.charAt(0) + name.slice(offset));
-		}
-		if (offset < 0) return;
-		index.push('' + toID(name.slice(offset)) + ' ' + type + ' ' + id + ' ' + toID(name.slice(0, offset)).length);
-		if (name.startsWith('Hidden Power ')) {
-			acronym = 'hp' + toID(name.substr(13));
-			index.push('' + acronym + ' ' + type + ' ' + id + ' 0');
-		} else if (name === 'Hidden Power') {
-			index.push('hp ' + type + ' ' + id + ' 0');
-		} else if (name.includes(' ')) {
-			acronym = toID(name.split(' ').map((x, i) => i !== 0 ? x : x.charAt(0)).join(''));
-		} else if (name.includes('-') && name.charAt(1) !== '-') {
-			acronym = toID(name.split('-').map((x, i) => i !== 0 ? x : x.charAt(0)).join(''));
-		}
-		if (acronym) {
-			index.push('' + acronym + ' ' + type + ' ' + id + ' 0');
-		}
-		if (name === 'High Jump Kick') {
-			index.push('hjkick ' + type + ' ' + id + ' 0');
-		} else if (name === 'Wake-Up Slap') {
-			index.push('wuslap ' + type + ' ' + id + ' 0');
-			index.push('wupslap ' + type + ' ' + id + ' 0');
-		} else if (name === 'Zen Headbutt') {
-			index.push('zhbutt ' + type + ' ' + id + ' 0');
-		} else if (name === 'Articuno') {
-			index.push('cuno ' + type + ' ' + id + ' 4');
+		const fullSplit = name.split(/ |-/).map(toID);
+		if (fullSplit.length < 2) return;
+		const fullAcronym = fullSplit.map(x => x.charAt(0)).join('') + fullSplit.at(-1).slice(1);
+		index.push('' + fullAcronym + ' ' + type + ' ' + id + ' 0');
+		for (let i = 1; i < fullSplit.length; i++) {
+			index.push('' + fullSplit.slice(i).join('') + ' ' + type + ' ' + id + ' ' + fullSplit.slice(0, i).join('').length);
 		}
 
-		let i2 = name.lastIndexOf(' ', offset - 1);
-		if (i2 < 0) i2 = name.lastIndexOf('-', offset - 1);
-		if (name === 'Zen Headbutt') i2 = 8;
-		if (i2 >= 0) {
-			index.push('' + toID(name.slice(i2)) + ' ' + type + ' ' + id + ' ' + toID(name.slice(0, i2)).length);
+		const spaceSplit = name.split(' ').map(toID);
+		if (spaceSplit.length !== fullSplit.length) {
+			const spaceAcronym = spaceSplit.map(x => x.charAt(0)).join('') + spaceSplit.at(-1).slice(1);
+			if (spaceAcronym !== fullAcronym) {
+				index.push('' + spaceAcronym + ' ' + type + ' ' + id + ' 0');
+			}
 		}
 	}
 	for (const id in Dex.data.Pokedex) {
@@ -226,6 +138,24 @@ function requireNoCache(pathSpec) {
 	for (const id in Dex.data.Abilities) {
 		const name = Dex.data.Abilities[id].name;
 		generateAlias(id, name, 'ability');
+	}
+
+	// hardcode ultra beasts
+	const ultraBeasts = {
+		ub01symbiont: "nihilego",
+		ub02absorption: "buzzwole",
+		ub02beauty: "pheromosa",
+		ub03lightning: "xurkitree",
+		ub04blade: "kartana",
+		ub04blaster: "celesteela",
+		ub05glutton: "guzzlord",
+		ubburst: "blacephalon",
+		ubassembly: "stakataka",
+		ubadhesive: "poipole",
+		ubstinger: "naganadel",
+	};
+	for (const [ubCode, id] of Object.entries(ultraBeasts)) {
+		index.push(`${ubCode} pokemon ${id} 0`);
 	}
 
 	index.sort();
@@ -495,13 +425,15 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 				if (ubersUU.exists && Dex.formats.getRuleTable(ubersUU).isBannedSpecies(species)) {
 					ubersUUBans[species.id] = 1;
 				}
-				const ndDoubles = Dex.formats.get(gen + 'nationaldexdoubles');
-				if (ndDoubles.exists && Dex.formats.getRuleTable(ndDoubles).isBannedSpecies(species)) {
-					ndDoublesBans[species.id] = 1;
-				}
 				const nd35Pokes = Dex.formats.get(gen + 'nationaldex35pokes');
 				if (nd35Pokes.exists && !Dex.formats.getRuleTable(nd35Pokes).isBannedSpecies(species)) {
 					thirtyfivePokes[species.id] = 1;
+				}
+			}
+			if (genNum >= 8) {
+				const ndDoubles = Dex.formats.get(gen + 'nationaldexdoubles');
+				if (ndDoubles.exists && Dex.formats.getRuleTable(ndDoubles).isBannedSpecies(species)) {
+					ndDoublesBans[species.id] = 1;
 				}
 			}
 			if (genNum >= 5) {

@@ -86,7 +86,7 @@ export class MainMenuRoom extends PSRoom {
 		}
 		if (this.searchSent || this.search.searching?.length) {
 			this.searchSent = false;
-			PS.send('|/cancelsearch');
+			PS.send(`/cancelsearch`);
 			this.update(null);
 			return true;
 		}
@@ -106,8 +106,8 @@ export class MainMenuRoom extends PSRoom {
 	doSearch = (search: NonNullable<typeof this.searchCountdown>) => {
 		this.searchSent = true;
 		const privacy = this.adjustPrivacy();
-		PS.send(`|/utm ${search.packedTeam}`);
-		PS.send(`|${privacy}/search ${search.format}`);
+		PS.send(`/utm ${search.packedTeam}`);
+		PS.send(`${privacy}/search ${search.format}`);
 	};
 	override receiveLine(args: Args) {
 		const [cmd] = args;

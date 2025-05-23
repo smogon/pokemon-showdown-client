@@ -19,6 +19,7 @@ import {
 } from "./battle-choices";
 import type { Args } from "./battle-text-parser";
 import { ModifiableValue } from "./battle-tooltips";
+import { Net } from "./client-connection";
 
 type BattleDesc = {
 	id: RoomID,
@@ -50,7 +51,7 @@ export class BattlesRoom extends PSRoom {
 		this.refresh();
 	}
 	refresh() {
-		PS.send(`|/cmd roomlist ${toID(this.format)}`);
+		PS.send(`/cmd roomlist ${toID(this.format)}`);
 	}
 }
 
@@ -135,6 +136,24 @@ export class BattleRoom extends ChatRoom {
 	request: BattleRequest | null = null;
 	choices: BattleChoiceBuilder | null = null;
 	autoTimerActivated: boolean | null = null;
+
+	loadReplay() {
+		const replayid = this.id.slice(7);
+		Net(`https://replay.pokemonshowdown.com/${replayid}.json`).get().catch().then(data => {
+			try {
+				const replay = JSON.parse(data);
+				this.title = `[${replay.format}] ${replay.players.join(' vs. ')}`;
+				this.battle.stepQueue = replay.log.split('\n');
+				this.battle.atQueueEnd = false;
+				this.battle.pause();
+				this.battle.seekTurn(0);
+				this.connected = 'client-only';
+				this.update(null);
+			} catch {
+				this.receiveLine(['error', 'Battle not found']);
+			}
+		});
+	}
 }
 
 class BattleDiv extends preact.Component<{ room: BattleRoom }> {

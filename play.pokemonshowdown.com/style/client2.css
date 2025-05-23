@@ -7,6 +7,11 @@
 	padding: 0;
 	height: 100%;
 	overflow: visible;
+	overscroll-behavior-x: contain;
+}
+html {
+	scrollbar-width: none;
+	position: relative;
 }
 body {
 	color: white;
@@ -96,7 +101,7 @@ li::marker {
 	scroll-snap-align: start;
 }
 .scroll-snap-enabled .mini-header {
-	scroll-snap-align: end;
+	scroll-snap-align: start;
 }
 
 .header {
@@ -117,7 +122,7 @@ li::marker {
 	top: 0;
 	left: 0;
 	bottom: 0;
-	width: 193px;
+	width: 243px;
 	padding-right: 7px;
 	background: rgba(255,255,255,.3);
 }
@@ -135,7 +140,7 @@ li::marker {
 	top: auto;
 	left: 12px;
 	bottom: 12px;
-	width: 170px;
+	right: 17px;
 	word-wrap: break-word;
 }
 .userbar .username {
@@ -191,12 +196,12 @@ li::marker {
 }
 .mini-header {
 	position: absolute;
-	left: 199px;
+	left: 249px;
 	right: 0;
 	top: 0;
 	padding: 0;
-	height: 24px;
-	line-height: 24px;
+	height: 29px;
+	line-height: 29px;
 	border-left: 0;
 	border-right: 0;
 	border-top: 0;
@@ -229,7 +234,7 @@ li::marker {
 	border: 0;
 	border: 1px solid #777;
 	border-width: 0 0 0 1px;
-	padding: 0 6px;
+	padding: 0 9px;
 }
 .mini-header-left {
 	float: left;

@@ -129,6 +129,16 @@ export class PSConnection {
 			console.log('\u274C (DISCONNECTED)');
 			this.handleDisconnect();
 			if (this.canReconnect()) this.retryConnection();
+			console.log('\u2705 (DISCONNECTED)');
+			this.connected = false;
+			PS.connected = false;
+			PS.isOffline = true;
+			for (const roomid in PS.rooms) {
+				const room = PS.rooms[roomid]!;
+				if (room.connected === true) room.connected = 'autoreconnect';
+			}
+			this.socket = null;
+			PS.update();
 		};
 
 		socket.onerror = () => {
