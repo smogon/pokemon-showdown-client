@@ -1626,7 +1626,7 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 		if (!line.startsWith('/') || line.startsWith('//')) return line;
 		const spaceIndex = line.indexOf(' ');
 		const cmd = (spaceIndex >= 0 ? line.slice(1, spaceIndex) : line.slice(1)) as 'parsed';
-		const target = spaceIndex >= 0 ? line.slice(spaceIndex + 1) : '';
+		const target = spaceIndex >= 0 ? line.slice(spaceIndex + 1).trim() : '';
 
 		const cmdHandler = this.globalClientCommands[cmd] || this.clientCommands?.[cmd];
 		if (!cmdHandler) return line;
