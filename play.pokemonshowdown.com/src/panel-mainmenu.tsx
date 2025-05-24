@@ -796,7 +796,7 @@ export class TeamForm extends preact.Component<{
 		}
 	};
 	render() {
-		this.format = toID(PS.prefs.lastselectedformat?.[this.props.selectType!] || `gen${Dex.gen}randombattle`);
+		this.format ||= toID(PS.prefs.lastselectedformat?.[this.props.selectType!] || `gen${Dex.gen}randombattle`);
 		return <form class={this.props.class} onSubmit={this.submit} onClick={this.handleClick}>
 			{!this.props.hideFormat && <p>
 				<label class="label">
