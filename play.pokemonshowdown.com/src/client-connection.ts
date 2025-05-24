@@ -5,7 +5,7 @@
  * @license MIT
  */
 
-import { PS } from "./client-main";
+import { Config, PS } from "./client-main";
 
 declare const SockJS: any;
 declare const POKEMON_SHOWDOWN_TESTCLIENT_KEY: string | undefined;
@@ -218,7 +218,7 @@ export class PSStorage {
 	static frame: WindowProxy | null = null;
 	static requests: Record<string, (data: any) => void> | null = null;
 	static requestCount = 0;
-	static readonly origin = 'https://' + window.Config.routes.client;
+	static readonly origin = `https://${Config.routes.client}`;
 	static loader?: () => void;
 	static loaded: Promise<void> | boolean = false;
 	static init(): void | Promise<void> {
@@ -226,11 +226,11 @@ export class PSStorage {
 			if (this.loaded === true) return;
 			return this.loaded;
 		}
-		if (window.Config.testclient) {
+		if (Config.testclient) {
 			return;
-		} else if (location.protocol + '//' + location.hostname === PSStorage.origin) {
+		} else if (`${location.protocol}//${location.hostname}` === PSStorage.origin) {
 			// Same origin, everything can be kept as default
-			window.Config.server ||= window.Config.defaultserver;
+			Config.server ||= Config.defaultserver;
 			return;
 		}
 
@@ -243,18 +243,18 @@ export class PSStorage {
 
 		window.addEventListener('message', this.onMessage);
 
-		if (document.location.hostname !== window.Config.routes.client) {
+		if (document.location.hostname !== Config.routes.client) {
 			const iframe = document.createElement('iframe');
-			iframe.src = 'https://' + window.Config.routes.client + '/crossdomain.php?host=' +
+			iframe.src = 'https://' + Config.routes.client + '/crossdomain.php?host=' +
 				encodeURIComponent(document.location.hostname) +
 				'&path=' + encodeURIComponent(document.location.pathname.substr(1)) +
 				'&protocol=' + encodeURIComponent(document.location.protocol);
 			iframe.style.display = 'none';
 			document.body.appendChild(iframe);
 		} else {
-			window.Config.server ||= window.Config.defaultserver;
+			Config.server ||= Config.defaultserver;
 			$(
-				'<iframe src="https://' + window.Config.routes.client + '/crossprotocol.html?v1.2" style="display: none;"></iframe>'
+				`<iframe src="https://${Config.routes.client}/crossprotocol.html?v1.2" style="display: none;"></iframe>`
 			).appendTo('body');
 			setTimeout(() => {
 				// HTTPS may be blocked
@@ -276,16 +276,16 @@ export class PSStorage {
 		// console.log(`top recv: ${data}`);
 		switch (data.charAt(0)) {
 		case 'c':
-			window.Config.server = JSON.parse(data.substr(1));
-			if (window.Config.server.registered &&
-				window.Config.server.id !== 'showdown' &&
-				window.Config.server.id !== 'smogtours') {
+			Config.server = JSON.parse(data.substr(1));
+			if (Config.server.registered &&
+				Config.server.id !== 'showdown' &&
+				Config.server.id !== 'smogtours') {
 				const link = document.createElement('link');
 				link.rel = 'stylesheet';
-				link.href = '//' + window.Config.routes.client + '/customcss.php?server=' + encodeURIComponent(window.Config.server.id);
+				link.href = `//${Config.routes.client}/customcss.php?server=${encodeURIComponent(Config.server.id)}`;
 				document.head.appendChild(link);
 			}
-			Object.assign(PS.server, window.Config.server);
+			Object.assign(PS.server, Config.server);
 			break;
 		case 'p':
 			const newData = JSON.parse(data.substr(1));
@@ -317,7 +317,7 @@ export class PSStorage {
 
 				// in Safari, cross-origin local storage is apparently treated as session
 				// storage, so mirror the storage in the current origin just in case
-				if (document.location.hostname === window.Config.routes.client) {
+				if (document.location.hostname === Config.routes.client) {
 					try {
 						localStorage.setItem('showdown_teams_local', packedTeams);
 					} catch {}
@@ -395,7 +395,7 @@ export const PSLoginServer = new class {
 		data.act = act;
 		let url = '/~~' + PS.server.id + '/action.php';
 		if (location.pathname.endsWith('.html')) {
-			url = 'https://' + window.Config.routes.client + url;
+			url = 'https://' + Config.routes.client + url;
 			if (typeof POKEMON_SHOWDOWN_TESTCLIENT_KEY === 'string') {
 				data.sid = POKEMON_SHOWDOWN_TESTCLIENT_KEY.replace(/%2C/g, ',');
 			}
