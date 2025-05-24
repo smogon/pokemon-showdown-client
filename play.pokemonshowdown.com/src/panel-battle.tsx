@@ -366,7 +366,24 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 
 		room.request = request;
 		room.choices = new BattleChoiceBuilder(request);
+		this.notifyRequest();
 		room.update(null);
+	}
+	notifyRequest() {
+		const room = this.props.room;
+		let oName = room.battle.farSide.name;
+		if (oName) oName = " against " + oName;
+		switch (room.request?.requestType) {
+		case 'move':
+			room.notify({ title: "Your move!", body: "Move in your battle" + oName });
+			break;
+		case 'switch':
+			room.notify({ title: "Your switch!", body: "Switch in your battle" + oName });
+			break;
+		case 'team':
+			room.notify({ title: "Team preview!", body: "Choose your team order in your battle" + oName });
+			break;
+		}
 	}
 	renderControls() {
 		const room = this.props.room;
