@@ -1008,6 +1008,9 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 						this.dismissNotification(options.id!);
 						PS.focusRoom(this.id);
 					};
+					if (PS.prefs.temporarynotifications) {
+						setTimeout(() => { desktopNotification?.close(); }, 5000);
+					}
 				}
 			} else if (window.macgap) {
 				window.macgap.growl.notify({
