@@ -121,6 +121,7 @@ class PSPrefs extends PSStreamModel<string | null> {
 	rightpanelbattles: boolean | null = null;
 	disallowspectators: boolean | null = null;
 	starredformats: { [formatid: string]: true | undefined } | null = null;
+	lastselectedformat: { [selecttype: string]: string | undefined } | null = null;
 
 	/**
 	 * Show "User joined" and "User left" messages. serverid:roomid
