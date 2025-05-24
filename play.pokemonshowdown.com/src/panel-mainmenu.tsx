@@ -596,7 +596,9 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
 					</span>, " Disconnected"] : "Connecting..."}</em>
 				</button>
 				{PS.isOffline && <p class="buttonbar">
-					<button class="button" data-cmd="/reconnect"><i class="fa fa-plug" aria-hidden></i> <strong>Reconnect</strong></button>
+					<button class="button" data-cmd="/reconnect">
+						<i class="fa fa-plug" aria-hidden></i> <strong>Reconnect Now</strong>
+					</button>
 				</p>}
 			</TeamForm>;
 		}
