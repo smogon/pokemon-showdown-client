@@ -625,7 +625,7 @@ class OptionsPanel extends PSRoomPanel {
 			break;
 		}
 		case 'tournaments': {
-			PS.prefs.set(setting, !elem.value.length ? null : elem.value);
+			PS.prefs.set(setting, !elem.value ? null : elem.value as 'hide' | 'notify');
 			break;
 		}
 		case 'refreshprompt':
