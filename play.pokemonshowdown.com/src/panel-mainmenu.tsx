@@ -772,6 +772,9 @@ export class TeamForm extends preact.Component<{
 	format = '';
 	changeFormat = (ev: Event) => {
 		this.format = (ev.target as HTMLButtonElement).value;
+		let lastSelectedFormat = PS.prefs.lastselectedformat || {};
+		if (this.props.selectType !== "tournament") lastSelectedFormat[this.props.selectType!] = this.format;
+		PS.prefs.set('lastselectedformat', lastSelectedFormat);
 	};
 	submit = (ev: Event, validate?: 'validate') => {
 		ev.preventDefault();
@@ -793,23 +796,7 @@ export class TeamForm extends preact.Component<{
 		}
 	};
 	render() {
-		if (window.BattleFormats) {
-			const starredPrefs = PS.prefs.starredformats || {};
-			// .reverse() because the newest starred format should be the default one
-			const starred = Object.keys(starredPrefs).filter(id => starredPrefs[id] === true).reverse();
-			if (!this.format) {
-				this.format = `gen${Dex.gen}randombattle`;
-				for (let id of starred) {
-					let format = window.BattleFormats[id];
-					if (!format) continue;
-					if (this.props.selectType === 'challenge' && format?.challengeShow === false) continue;
-					if (this.props.selectType === 'search' && format?.searchShow === false) continue;
-					if (this.props.selectType === 'teambuilder' && format?.team) continue;
-					this.format = id;
-					break;
-				}
-			}
-		}
+		this.format = toID(PS.prefs.lastselectedformat?.[this.props.selectType!] || `gen${Dex.gen}randombattle`);
 		return <form class={this.props.class} onSubmit={this.submit} onClick={this.handleClick}>
 			{!this.props.hideFormat && <p>
 				<label class="label">
