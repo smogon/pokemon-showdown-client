@@ -156,8 +156,7 @@ export class PSConnection {
 		this.socket = null;
 		for (const roomid in PS.rooms) {
 			const room = PS.rooms[roomid]!;
-			room.previouslyConnected ||= room.connected;
-			room.connected = false;
+			if (room.connected === true) room.connected = 'autoreconnect';
 		}
 		PS.update();
 	}
