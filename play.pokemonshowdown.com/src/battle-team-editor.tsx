@@ -1126,8 +1126,11 @@ class TeamTextbox extends preact.Component<{
 		this.resetScroll();
 		this.forceUpdate();
 	}
-	selectResult = (type: string, name: string, moveSlot?: string) => {
-		if (!type) {
+	selectResult = (type: string | null, name: string, moveSlot?: string) => {
+		if (type === null) {
+			this.resetScroll();
+			this.forceUpdate();
+		} else if (!type) {
 			this.changeSet(this.innerFocus!.type, '');
 		} else {
 			this.changeSet(type as SelectionType, name, moveSlot);
@@ -1745,10 +1748,13 @@ class TeamWizard extends preact.Component<{
 			if (!TeamEditor.probablyMobile()) searchBox.focus();
 		}
 	}
-	selectResult = (type: string, name: string, slot?: string, reverse?: boolean) => {
+	selectResult = (type: string | null, name: string, slot?: string, reverse?: boolean) => {
 		const { editor } = this.props;
 		this.clearSearchBox();
-		if (!type) {
+		if (type === null) {
+			this.resetScroll();
+			this.forceUpdate();
+		} if (!type) {
 			editor.setSearchValue('');
 			this.resetScroll();
 			this.forceUpdate();

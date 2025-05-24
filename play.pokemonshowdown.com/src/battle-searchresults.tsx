@@ -15,8 +15,9 @@ import { Config } from "./client-main";
 export class PSSearchResults extends preact.Component<{
 	search: DexSearch, windowing?: number | null, hideFilters?: boolean, firstRow?: SearchRow,
 	resultIndex?: number,
-	/** type = '' means a filter was selected */
-	onSelect?: (type: SearchType | '', name: string, moveSlot?: string) => void,
+	/** type = '' means a filter was selected,
+	  * null means a sort was selected (clear not needed) */
+	onSelect?: (type: SearchType | '' | null, name: string, moveSlot?: string) => void,
 }> {
 	readonly URL_ROOT = `//${Config.routes.dex}/`;
 	speciesId: ID = '' as ID;
@@ -453,9 +454,9 @@ export class PSSearchResults extends preact.Component<{
 				if (filter) {
 					search.removeFilter(filter.split(':') as any);
 					search.find('');
-					this.forceUpdate();
 					ev.preventDefault();
 					ev.stopPropagation();
+					this.props.onSelect?.(null, '');
 					break;
 				}
 
@@ -464,9 +465,9 @@ export class PSSearchResults extends preact.Component<{
 				if (sort) {
 					search.toggleSort(sort);
 					search.find('');
-					this.forceUpdate();
 					ev.preventDefault();
 					ev.stopPropagation();
+					this.props.onSelect?.(null, '');
 					break;
 				}
 			}

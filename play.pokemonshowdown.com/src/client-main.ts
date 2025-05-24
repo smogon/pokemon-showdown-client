@@ -2350,9 +2350,10 @@ export const PS = new class extends PSModel {
 		if (!noFocus) {
 			let parentPopup = parentRoom;
 			if ((options.parentElem as HTMLButtonElement)?.name === 'closeRoom') {
-				// we want to close all popups above the parent element.
-				// This is usually the parent room, the close button in a roomtablist's
-				// parent room is the linked room rather than the roomtablist popup,
+				// We want to close all popups above the parent element.
+				// This is usually the parent room, but if we're clicking Close
+				// in the overflow tablist, the close button's parent room is
+				// the tab rather than the overflow tablist popup,
 				// which needs to be corrected here.
 				parentPopup = PS.rooms['roomtablist'] || parentPopup;
 			}
