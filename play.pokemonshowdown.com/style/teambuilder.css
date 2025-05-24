@@ -115,7 +115,7 @@
 	max-width: 146px; /* I have no idea why this is required and width doesn't work */
 	height: 23px;
 	font-size: 9pt;
-	font-family: Verdana, sans-serif;
+	font-family: Verdana, PGLDings, sans-serif;
 	white-space: nowrap;
 	overflow: hidden;
 	text-align: left;
