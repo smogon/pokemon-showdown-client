@@ -1169,7 +1169,9 @@ class ChatPanel extends PSRoomPanel<ChatRoom> {
 		return <PSPanelWrapper room={room} focusClick>
 			<ChatLog class="chat-log" room={this.props.room} left={tinyLayout ? 0 : 146} top={room.tour?.info.isActive ? 30 : 0}>
 				{challengeTo}{challengeFrom}{PS.isOffline && <p class="buttonbar">
-					<button class="button" data-cmd="/reconnect"><i class="fa fa-plug" aria-hidden></i> <strong>Reconnect</strong></button>
+					<button class="button" data-cmd="/reconnect">
+						<i class="fa fa-plug" aria-hidden></i> <strong>Reconnect Now</strong>
+					</button>
 				</p>}
 			</ChatLog>
 			{room.tour && <TournamentBox tour={room.tour} left={tinyLayout ? 0 : 146} />}
