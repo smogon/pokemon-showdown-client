@@ -471,7 +471,6 @@ export class TournamentBox extends preact.Component<{ tour: ChatTournament, left
 			<TeamForm
 				format={info.format} teamFormat={info.teambuilderFormat} hideFormat
 				onSubmit={this.acceptChallenge} onValidate={this.validate}
-				selectType="tournament"
 			>
 				{(info.isJoined && !info.challenging && !info.challenged && !info.challenges?.length) && (
 					<button name="validate" class="button"><i class="fa fa-check" aria-hidden></i> Validate</button>
