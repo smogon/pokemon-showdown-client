@@ -1652,7 +1652,7 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 	}
 	destroy() {
 		if (this.connected === true) {
-			this.sendDirect('/noreply /leave ' + this.id);
+			this.sendDirect(`/noreply /leave ${this.id}`);
 			this.connected = false;
 		}
 	}
