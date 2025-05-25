@@ -125,7 +125,15 @@ export class ChatRoom extends PSRoom {
 			this.joinLeave = null;
 			this.markUserActive(args[args[0] === 'c:' ? 2 : 1]);
 			if (this.tour) this.tour.joinLeave = null;
-			this.subtleNotify();
+			if (this.id.startsWith("dm-")) {
+				const fromUser = args[args[0] === 'c:' ? 2 : 1];
+				const message = args[args[0] === 'c:' ? 3 : 2];
+				const options = {
+					title: `[DM] ${fromUser}`,
+					body: message,
+				};
+				this.notify(options);
+			} else { this.subtleNotify(); }
 			break;
 		case ':':
 			this.timeOffset = Math.trunc(Date.now() / 1000) - (parseInt(args[1], 10) || 0);
@@ -1110,6 +1118,7 @@ class ChatPanel extends PSRoomPanel<ChatRoom> {
 		return false;
 	};
 	makeChallenge = (e: Event, format: string, team?: Team) => {
+		PS.requestNotifications();
 		const room = this.props.room;
 		const packedTeam = team ? team.packedTeam : '';
 		const privacy = PS.mainmenu.adjustPrivacy();

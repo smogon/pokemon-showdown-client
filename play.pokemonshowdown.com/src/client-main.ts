@@ -2363,7 +2363,6 @@ export const PS = new class extends PSModel {
 				options.args = { initialSlash: true };
 			}
 		}
-		if (options.id.startsWith('battle-')) this.requestNotifications();
 		if (options.id.startsWith('battle-') && PS.prefs.rightpanelbattles) options.location = 'right';
 		options.parentRoomid ??= this.getRoom(options.parentElem)?.id;
 		const parentRoom = options.parentRoomid ? this.rooms[options.parentRoomid] : null;

@@ -2441,3 +2441,19 @@ pre.textbox.textbox-empty[placeholder]:before {
 .dark .chat.mine {
 	background: rgba(255,255,255,0.05);
 }
+
+.notification-badge {
+	position: absolute;
+	top: 2px;
+	left: 13px;
+	width: 15px;
+	height: 15px;
+	background-color: red;
+	color: white;
+	font-size: 9px;
+	font-weight: bold;
+	line-height: 14px;
+	text-align: center;
+	border-radius: 50%;
+	z-index: 1;
+  }
