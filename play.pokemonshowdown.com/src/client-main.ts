@@ -2659,7 +2659,7 @@ export const PS = new class extends PSModel {
 				// requestPermission API, which works to request permissions for
 				// the new Notification spec anyway.
 				window.webkitNotifications.requestPermission();
-			} else if (window.Notification && Notification.requestPermission) {
+			} else if (window.Notification) {
 				Notification.requestPermission(permission => {});
 			}
 		} catch {}
