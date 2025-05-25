@@ -127,9 +127,10 @@ export class ChatRoom extends PSRoom {
 			if (this.tour) this.tour.joinLeave = null;
 			if (this.id.startsWith("dm-")) {
 				const fromUser = args[args[0] === 'c:' ? 2 : 1];
+				if (toID(fromUser) === PS.user.userid) break;
 				const message = args[args[0] === 'c:' ? 3 : 2];
 				const options = {
-					title: `[DM] ${fromUser}`,
+					title: `${this.title}`,
 					body: message,
 				};
 				this.notify(options);
