@@ -1039,11 +1039,9 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 		const index = this.notifications.findIndex(n => n.id === id);
 		if (index !== -1) {
 			const { notification } = this.notifications[index];
-			if (notification) {
-				try {
-					notification.close();
-				} catch {}
-			}
+			try {
+				notification?.close();
+			} catch {}
 			this.notifications.splice(index, 1);
 		}
 		PS.update();
