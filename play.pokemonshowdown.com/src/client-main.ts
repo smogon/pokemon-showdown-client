@@ -1885,7 +1885,7 @@ export const PS = new class extends PSModel {
 			}
 		}
 
-		// for safari
+		// for old versions of Safari
 		if (!window.Notification && window.webkitNotification) {
 			window.Notification = window.webkitNotification;
 		}
