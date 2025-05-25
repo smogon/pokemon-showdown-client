@@ -1012,11 +1012,6 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 						setTimeout(() => { desktopNotification?.close(); }, 5000);
 					}
 				}
-			} else if (window.macgap) {
-				window.macgap.growl.notify({
-					title: options.title,
-					content: options.body,
-				});
 			}
 		}
 		if (PS.isVisible(this)) return;
