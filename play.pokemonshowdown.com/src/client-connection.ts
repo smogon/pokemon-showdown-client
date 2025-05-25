@@ -31,10 +31,7 @@ export class PSConnection {
 	}
 
 	initConnection() {
-		const workerConnected = this.tryConnectInWorker();
-		if (!workerConnected) {
-			this.connect();
-		}
+		if (!this.tryConnectInWorker()) this.directConnect();
 	}
 
 	canReconnect() {
@@ -51,6 +48,8 @@ export class PSConnection {
 	}
 
 	tryConnectInWorker(): boolean {
+		if (this.socket) return false; // must be one or the other
+
 		try {
 			const worker = new Worker('/js/reconnect-worker.js');
 			this.worker = worker;
@@ -78,7 +77,7 @@ export class PSConnection {
 				case 'error':
 					console.warn('Worker connection error');
 					this.worker = null;
-					this.connect(); // fallback
+					this.directConnect(); // fallback
 					break;
 				}
 			};
@@ -86,7 +85,7 @@ export class PSConnection {
 			worker.onerror = (e: ErrorEvent) => {
 				console.warn('Worker connection error:', e);
 				this.worker = null;
-				this.connect(); // fallback
+				this.directConnect(); // fallback
 			};
 
 			return true;
@@ -97,11 +96,12 @@ export class PSConnection {
 		}
 	}
 
-	connect() {
-		if (this.worker) return; // ensure worker isn't used. we can keep
+	directConnect() {
+		if (this.worker) return; // must be one or the other
+
 		const server = PS.server;
 		const port = server.protocol === 'https' ? `:${server.port}` : `:${server.httpport!}`;
-		const url = server.protocol + '://' + server.host + port + server.prefix;
+		const url = `${server.protocol}://${server.host}${port}${server.prefix}`;
 
 		try {
 			this.socket = new SockJS(url, [], { timeout: 5 * 60 * 1000 });
@@ -208,7 +208,7 @@ export class PSConnection {
 		if (!PS.connection) {
 			PS.connection = new PSConnection();
 		} else {
-			PS.connection.connect();
+			PS.connection.directConnect();
 		}
 		PS.prefs.doAutojoin();
 	}
@@ -277,9 +277,7 @@ export class PSStorage {
 		switch (data.charAt(0)) {
 		case 'c':
 			Config.server = JSON.parse(data.substr(1));
-			if (Config.server.registered &&
-				Config.server.id !== 'showdown' &&
-				Config.server.id !== 'smogtours') {
+			if (Config.server.registered && Config.server.id !== 'showdown' && Config.server.id !== 'smogtours') {
 				const link = document.createElement('link');
 				link.rel = 'stylesheet';
 				link.href = `//${Config.routes.client}/customcss.php?server=${encodeURIComponent(Config.server.id)}`;
