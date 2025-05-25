@@ -2660,7 +2660,7 @@ export const PS = new class extends PSModel {
 				// the new Notification spec anyway.
 				window.webkitNotifications.requestPermission();
 			} else if (window.Notification) {
-				Notification.requestPermission(permission => {});
+				Notification.requestPermission?.(permission => {});
 			}
 		} catch {}
 	}
