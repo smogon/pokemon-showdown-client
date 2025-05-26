@@ -102,6 +102,7 @@ includeHeader();
 				<li><p><strong>Ben Frengley</strong> [TalkTakesTime] <small>&ndash; Development</small></p></li>
 				<li><p><a href="http://sailorwanda.deviantart.com/" target="_blank" class="subtle"><strong>Catherine D.</strong> [SailorCosmos, Matryoshkat]</a> <small>&ndash; Art (battle animations)</small></p></li>
 				<li><p><strong>Cody Thompson</strong> [Rising_Dusk] <small>&ndash; Development</small></p></li>
+				<li><p>[<strong>dot Comfey</strong>] <small>&ndash; Development (validator)</small></p></li>
 				<li><p>[<strong>Enigami</strong>] <small>&ndash; Development (Gen 1), Research (game mechanics)</small></p></li>
 				<li><p>[<strong>HiZo</strong>] <small>&ndash; Development (battle simulation)</small></p></li>
 				<li><p>[<strong>Honko</strong>] <small>&ndash; Development (damage calculator)</small></p></li>
@@ -118,7 +119,7 @@ includeHeader();
 				<li><p><strong>Russell Jones</strong> [SadisticMystic] <small>&ndash; Research (game mechanics)</small></p></li>
 				<li><p>[<strong>Shellnuts</strong>] <small>&ndash; Development (Gen 1)</small></p></li>
 				<li><p><a href="https://spandamn.github.io/" target="_blank" class="subtle"><strong>Spandan Punwatkar</strong> [Spandan]</a> <small>&ndash; Development</small></p></li>
-				<li><p>[<strong>Tb0lt</strong>] <small>&ndash; Development (damage calculator), Art (battle animations)</small></p></li>
+				<li><p><strong>Shriansh Chari</strong> [Tb0lt] <small>&ndash; Development (damage calculator), Art (battle animations)</small></p></li>
 				<li><p><strong>Theo Delhay</strong> [Distrib] <small>&ndash; Development</small></p></li>
 			</ul>
 
