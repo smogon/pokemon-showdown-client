@@ -143,7 +143,7 @@ export class BattleLog {
 		let divClass = 'chat';
 		let divHTML = '';
 		let noNotify: boolean | undefined;
-		if (!['join', 'j', 'leave', 'l', 'turn'].includes(args[0])) this.joinLeave = null;
+		if (!['join', 'j', 'leave', 'l'].includes(args[0])) this.joinLeave = null;
 		if (!['name', 'n'].includes(args[0])) this.lastRename = null;
 		switch (args[0]) {
 		case 'chat': case 'c': case 'c:':
@@ -1211,7 +1211,7 @@ export class BattleLog {
 	static prefs(name: string) {
 		// @ts-expect-error optional, for old client
 		if (window.Storage?.prefs) return Storage.prefs(name);
-		// @ts-expect-error optional, for Preact client
+		// @ts-expect-error optional, for client rewrite
 		if (window.PS) return PS.prefs[name];
 		// may be neither, for e.g. Replays
 		return undefined;

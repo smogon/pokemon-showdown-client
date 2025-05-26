@@ -448,15 +448,15 @@ class NewsPanel extends PSRoomPanel {
 		const cookieSet = document.cookie.includes('preactalpha=1');
 		return <PSPanelWrapper room={this.props.room} fullSize scrollable>
 			<div class="construction">
-				This is the Preact client beta test.
+				This is the client rewrite beta test.
 				<form>
 					<label class="checkbox">
 						<input type="radio" name="preactalpha" value="1" onChange={this.change} checked={cookieSet} /> {}
-						Use Preact always
+						Use Rewrite always
 					</label>
 					<label class="checkbox">
 						<input type="radio" name="preactalpha" value="0" onChange={this.change} checked={!cookieSet} /> {}
-						Use Preact with URL
+						Use Rewrite with URL
 					</label>
 					<label class="checkbox">
 						<input type="radio" name="preactalpha" value="leave" onChange={this.change} /> {}
@@ -597,8 +597,9 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
 				</button>
 				{PS.isOffline && <p class="buttonbar">
 					<button class="button" data-cmd="/reconnect">
-						<i class="fa fa-plug" aria-hidden></i> <strong>Reconnect Now</strong>
-					</button>
+						<i class="fa fa-plug" aria-hidden></i> <strong>Reconnect</strong>
+					</button> {}
+					{PS.connection?.reconnectTimer && <small>(Autoreconnect in {Math.round(PS.connection.reconnectDelay / 1000)}s)</small>}
 				</p>}
 			</TeamForm>;
 		}

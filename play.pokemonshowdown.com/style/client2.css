@@ -839,11 +839,14 @@ p.or:after {
 }
 .mini-window .mini-window-contents {
 	position: relative;
-	height: 300px;
+	height: 500px;
 	border: 1px solid #AAAAAA;
 	border-top: 0;
 	border-bottom-left-radius: 5px;
 	border-bottom-right-radius: 5px;
+}
+.mini-window .mini-window-contents.mini-window-flex {
+	height: auto;
 }
 .mini-window-body {
 	min-height: 100px;
@@ -1161,6 +1164,13 @@ form.menugroup {
 	min-height: 36px;
 	padding: 3px 4px 0 4px;
 	border-top: 1px solid #AAAAAA;
+}
+.mini-window-flex .chat-log, .mini-window-flex .chat-log-add {
+	position: static;
+}
+.mini-window-flex .chat-log {
+	min-height: 80px;
+	max-height: 300px;
 }
 .debug {
 	display: none;

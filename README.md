@@ -42,8 +42,8 @@ Pokémon Showdown is mostly developed on Chrome, and Chrome or the desktop clien
 New client
 ------------------------------------------------------------------------
 
-Development is proceeding on the new Preact client! The live version is
-available at https://play.pokemonshowdown.com/preactalpha
+Development is proceeding on the client rewrite! The live version is
+available at https://play.pokemonshowdown.com/beta
 
 You can contribute to it yourself using the same process as before, just
 use `testclient-beta.html` rather than `testclient.html`.

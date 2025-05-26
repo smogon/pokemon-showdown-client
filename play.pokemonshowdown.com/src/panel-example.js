@@ -1,7 +1,7 @@
 /**
  * Example Panel
  *
- * An example of how to make a panel for the Preact client in vanilla JS.
+ * An example of how to make a panel for the client rewrite in vanilla JS.
  *
  * For how to create one in TSX, see `panel-example.tsx`. For JSX, just
  * use the TSX and remove the type annotations.
