@@ -999,6 +999,7 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 		if (!document.hasFocus()) {
 			if (window.Notification) {
 				desktopNotification = new Notification(options.title, { body: options.body });
+				PS.playNotificationSound();
 				if (desktopNotification) {
 					desktopNotification.onclose = () => {
 						this.dismissNotification(options.id!);
@@ -2662,5 +2663,10 @@ export const PS = new class extends PSModel {
 				Notification.requestPermission?.(permission => {});
 			}
 		} catch {}
+	}
+	playNotificationSound() {
+		if (window.BattleSound && !this.prefs.mute) {
+			window.BattleSound.playSound('audio/notification.wav', this.prefs.notifvolume);
+		}
 	}
 };
