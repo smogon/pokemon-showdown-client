@@ -142,7 +142,7 @@ export class PSRouter {
 	subscribeHistory() {
 		const currentRoomid = location.pathname.slice(1);
 		if (/^[a-z0-9-]+$/.test(currentRoomid)) {
-			if (currentRoomid !== 'preactalpha' && currentRoomid !== 'preactbeta') {
+			if (currentRoomid !== 'preactalpha' && currentRoomid !== 'preactbeta' && currentRoomid !== 'beta') {
 				PS.join(currentRoomid as RoomID);
 			}
 		}
@@ -282,11 +282,11 @@ export function PSPanelWrapper(props: {
 }) {
 	const room = props.room;
 	if (room.location === 'mini-window') {
-		const style = props.fullSize ? 'height: auto' : null;
+		const size = props.fullSize ? ' mini-window-flex' : '';
 		return <div
 			id={`room-${room.id}`}
-			class={`mini-window-contents tiny-layout ps-room-light${props.scrollable === true ? ' scrollable' : ''}`}
-			onClick={props.focusClick ? PSView.focusIfNoSelection : undefined} style={style} onDragEnter={props.onDragEnter}
+			class={`mini-window-contents tiny-layout ps-room-light${props.scrollable === true ? ' scrollable' : ''}${size}`}
+			onClick={props.focusClick ? PSView.focusIfNoSelection : undefined} onDragEnter={props.onDragEnter}
 		>
 			{props.children}
 		</div>;

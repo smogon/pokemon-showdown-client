@@ -2010,11 +2010,14 @@ export const PS = new class extends PSModel {
 					}, roomid === 'staff' || roomid === 'upperstaff');
 				} else {
 					room.type = type;
-					room.connected = true;
 					this.updateRoomTypes();
 				}
-				if (room?.connected === 'autoreconnect') {
-					if (room.handleReconnect(msg)) return;
+				if (room) {
+					if (room.connected === 'autoreconnect') {
+						room.connected = true;
+						if (room.handleReconnect(msg)) return;
+					}
+					room.connected = true;
 				}
 				this.updateAutojoin();
 				this.update();

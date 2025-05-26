@@ -51,8 +51,8 @@ function connectToServer() {
 			// scheduleReconnect();
 		};
 
-		socket.onerror = () => {
-			postMessage({ type: 'error' });
+		socket.onerror = (err: Event) => {
+			postMessage({ type: 'error', err });
 			socket?.close();
 		};
 		return;

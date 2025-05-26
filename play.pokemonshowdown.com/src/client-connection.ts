@@ -11,12 +11,13 @@ declare const SockJS: any;
 declare const POKEMON_SHOWDOWN_TESTCLIENT_KEY: string | undefined;
 
 export class PSConnection {
-	socket: any = null;
+	socket: WebSocket | null = null;
 	connected = false;
 	queue: string[] = [];
-	private reconnectDelay = 1000;
+	reconnectDelay = 1000;
 	private reconnectCap = 15000;
 	private shouldReconnect = true;
+	reconnectTimer: ReturnType<typeof setTimeout> | null = null;
 	private worker: Worker | null = null;
 
 	constructor() {
@@ -72,7 +73,6 @@ export class PSConnection {
 					break;
 				case 'disconnected':
 					this.handleDisconnect();
-					if (this.canReconnect()) this.retryConnection();
 					break;
 				case 'error':
 					console.warn('Worker connection error');
@@ -109,7 +109,7 @@ export class PSConnection {
 			this.socket = new WebSocket(url.replace('http', 'ws') + '/websocket');
 		}
 
-		const socket = this.socket;
+		const socket = this.socket!;
 
 		socket.onopen = () => {
 			console.log('\u2705 (CONNECTED)');
@@ -121,14 +121,13 @@ export class PSConnection {
 			PS.update();
 		};
 
-		socket.onmessage = (e: MessageEvent) => {
-			PS.receive('' + e.data);
+		socket.onmessage = (ev: MessageEvent) => {
+			PS.receive('' + ev.data);
 		};
 
 		socket.onclose = () => {
 			console.log('\u274C (DISCONNECTED)');
 			this.handleDisconnect();
-			if (this.canReconnect()) this.retryConnection();
 			console.log('\u2705 (DISCONNECTED)');
 			this.connected = false;
 			PS.connected = false;
@@ -141,11 +140,12 @@ export class PSConnection {
 			PS.update();
 		};
 
-		socket.onerror = () => {
+		socket.onerror = (ev: Event) => {
 			PS.connected = false;
 			PS.isOffline = true;
-			PS.alert("Connection error.");
-			if (this.canReconnect()) this.retryConnection();
+			PS.alert(`Connection error: ${ev as any}`);
+			this.retryConnection();
+			PS.update();
 		};
 	}
 
@@ -158,15 +158,16 @@ export class PSConnection {
 			const room = PS.rooms[roomid]!;
 			if (room.connected === true) room.connected = 'autoreconnect';
 		}
+		this.retryConnection();
 		PS.update();
 	}
 
 	private retryConnection() {
-		console.log(`Reconnecting in ${this.reconnectDelay / 1000}s...`);
-		PS.room.add(`||You are disconnected. Attempting to reconnect in ${this.reconnectDelay / 1000}s`);
-		setTimeout(() => {
+		if (!this.canReconnect()) return;
+		this.reconnectTimer = setTimeout(() => {
+			this.reconnectTimer = null;
 			if (!this.connected && this.canReconnect()) {
-				PSConnection.connect(); // or PS.send('/reconnect') ?
+				PS.send('/reconnect');
 				this.reconnectDelay = Math.min(this.reconnectDelay * 2, this.reconnectCap);
 			}
 		}, this.reconnectDelay);
