@@ -167,8 +167,8 @@ export class PSConnection {
 
 	private retryConnection() {
 		if (!this.canReconnect()) return;
+		if (this.reconnectTimer) return;
 		this.reconnectTimer = setTimeout(() => {
-			clearTimeout(this.reconnectTimer!);
 			this.reconnectTimer = null;
 			if (!this.connected && this.canReconnect()) {
 				PS.room.send('/reconnect');
