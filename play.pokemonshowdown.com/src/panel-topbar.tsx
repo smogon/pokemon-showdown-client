@@ -338,7 +338,7 @@ export class PSMiniHeader extends preact.Component {
 			null
 		) : window.scrollX ? (
 			<button onClick={PSView.scrollToHeader} class={`mini-header-left ${notifying}`} aria-label="Menu">
-				{ !!notificationsCount && <div class="notification-badge" name="notification-badge"> {notificationsCount} </div>}
+				{!!notificationsCount && <div class="notification-badge">{notificationsCount}</div>}
 				<i class="fa fa-bars" aria-hidden></i>
 			</button>
 		) : (
