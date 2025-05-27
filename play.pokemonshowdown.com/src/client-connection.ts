@@ -143,7 +143,8 @@ export class PSConnection {
 		socket.onerror = (ev: Event) => {
 			PS.connected = false;
 			PS.isOffline = true;
-			PS.alert(`Connection error: ${ev as any}`);
+			// no useful info to print from the event
+			PS.alert(`Connection error`);
 			this.retryConnection();
 			PS.update();
 		};
