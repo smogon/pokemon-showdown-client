@@ -323,6 +323,7 @@ export class PSMiniHeader extends preact.Component {
 	};
 	override render() {
 		if (PS.leftPanelWidth !== null) return null;
+
 		let notificationsCount = 0;
 		for (const roomid of PS.leftRoomList) {
 			const miniNotifications = PS.rooms[roomid]?.notifications;
