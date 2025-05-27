@@ -171,7 +171,7 @@ export class PSConnection {
 		this.reconnectTimer = setTimeout(() => {
 			this.reconnectTimer = null;
 			if (!this.connected && this.canReconnect()) {
-				PS.room.send('/reconnect');
+				PS.mainmenu.send('/reconnect');
 				this.reconnectDelay = Math.min(this.reconnectDelay * 2, this.reconnectCap);
 			}
 		}, this.reconnectDelay);
