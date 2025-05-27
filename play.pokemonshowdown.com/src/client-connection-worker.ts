@@ -52,7 +52,7 @@ function connectToServer() {
 		};
 
 		socket.onerror = (err: Event) => {
-			postMessage({ type: 'error', err });
+			postMessage({ type: 'error', data: (err as any).message || 'Unknown error' });
 			socket?.close();
 		};
 		return;

@@ -52,7 +52,7 @@ export class PSConnection {
 		if (this.socket) return false; // must be one or the other
 
 		try {
-			const worker = new Worker('/js/reconnect-worker.js');
+			const worker = new Worker('/js/client-connection-worker.js');
 			this.worker = worker;
 
 			worker.postMessage({ type: 'connect', server: PS.server });
@@ -75,9 +75,11 @@ export class PSConnection {
 					this.handleDisconnect();
 					break;
 				case 'error':
-					console.warn('Worker connection error');
+					console.warn(`Worker connection error: ${data}`);
 					this.worker = null;
-					this.directConnect(); // fallback
+					// onerror can occur on abrupt disconnects or fatal errors.
+					// handleDisconnect ensures proper cleanup and also attemps to reconnect.
+					this.handleDisconnect(); // fallback
 					break;
 				}
 			};
@@ -166,9 +168,10 @@ export class PSConnection {
 	private retryConnection() {
 		if (!this.canReconnect()) return;
 		this.reconnectTimer = setTimeout(() => {
+			clearTimeout(this.reconnectTimer!);
 			this.reconnectTimer = null;
 			if (!this.connected && this.canReconnect()) {
-				PS.send('/reconnect');
+				PS.room.send('/reconnect');
 				this.reconnectDelay = Math.min(this.reconnectDelay * 2, this.reconnectCap);
 			}
 		}, this.reconnectDelay);
