@@ -1295,10 +1295,10 @@
 			}
 			buf += '<div class="setmenu"> <button name="copySet"><i class="fa fa-files-o"></i>Copy</button> <button name="importSet"><i class="fa fa-upload"></i>Import/Export</button> <button name="moveSet"><i class="fa fa-arrows"></i>Move</button> <button name="deleteSet"><i class="fa fa-trash"></i>Delete</button></div>';
 			buf += '<div class="setchart-nickname">';
-			buf += '<div style="display:flex; flex-direction:right;">';
+			buf += '<div>';
 			buf += '<label>Nickname</label>';
-			buf += '<button name="dingbats" style="font-family:PGLDings; font-size:9px; right:0px;">&#xe082;</button></div>';
 			buf += '<input type="text" name="nickname" class="textbox" value="' + BattleLog.escapeHTML(set.name || '') + '" placeholder="' + BattleLog.escapeHTML(species.baseSpecies) + '" />';
+			buf += '<button name="dingbats" class="button" style="font-family:PGLDings;font-size:12px;position: absolute;left: 88px;top: 2px;padding: 4px 4px 0;">&#xe082;</button></div>';
 			buf += '</div>';
 			buf += '<div class="setchart" style="' + Dex.getTeambuilderSprite(set, this.curTeam.gen) + ';">';
 
