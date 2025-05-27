@@ -134,7 +134,9 @@ export class ChatRoom extends PSRoom {
 					body: message,
 				};
 				this.notify(options);
-			} else { this.subtleNotify(); }
+			} else {
+				this.subtleNotify();
+			}
 			break;
 		case ':':
 			this.timeOffset = Math.trunc(Date.now() / 1000) - (parseInt(args[1], 10) || 0);
