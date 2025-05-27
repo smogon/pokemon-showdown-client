@@ -997,9 +997,9 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 	notify(options: { title: string, body?: string, noAutoDismiss?: boolean, id?: string }) {
 		let desktopNotification: Notification | null = null;
 		if (!document.hasFocus()) {
+			PS.playNotificationSound();
 			if (window.Notification) {
 				desktopNotification = new Notification(options.title, { body: options.body });
-				PS.playNotificationSound();
 				if (desktopNotification) {
 					desktopNotification.onclose = () => {
 						this.dismissNotification(options.id!);
