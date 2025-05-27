@@ -2640,6 +2640,7 @@ export const PS = new class extends PSModel {
 		if (this.server.id === 'showdown' && typeof autojoin !== 'object') {
 			// Main server only mode
 			if (autojoin === thisAutojoin) return;
+
 			this.prefs.set('autojoin', thisAutojoin || null);
 		} else {
 			// Multi server mode
