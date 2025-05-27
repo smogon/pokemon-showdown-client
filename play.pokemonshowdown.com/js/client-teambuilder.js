@@ -3718,14 +3718,14 @@
 				if (dingbats_halfwidth[i] === '\n') {
 					buf += '</li><li>';
 				} else {
-					buf += '<button name="insertDingbat" class="dingbat-button"';
+					buf += '<button name="insertDingbat" class="dingbat-button option"';
 					buf += " halfwidth=" + dingbats_halfwidth[i];
 					buf += " fullwidth=" + dingbats_fullwidth[i];
 					buf += " value=" + dingbats_halfwidth[i];
 					buf += ">" + dingbats_halfwidth[i] + "</button>";
 				}
 			}
-			buf += '</li><li><label><input type="checkbox" name="wideCheckbox"></input>Wide</label></li></ul>';
+			buf += '</li><li><label class="checkbox"><input type="checkbox" name="wideCheckbox" /> Wide</label></li></ul>';
 			this.$el.html(buf);
 
 			var $el = this.$el;

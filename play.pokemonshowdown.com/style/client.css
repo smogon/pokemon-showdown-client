@@ -497,10 +497,9 @@ p.or:after {
 }
 .popupmenu .dingbat-button {
 	font-family: PGLDings;
-	border: transparent;
-	background-color: transparent;
-	font-size: 1em;
-	width: 2em;
+	width: 22px;
+	padding: 2px 0;
+	text-align: center;
 }
 .dingbat-button:hover {
 	background-color: #D5D5D5;
