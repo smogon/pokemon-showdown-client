@@ -49,6 +49,7 @@ class TeamEditorState extends PSModel {
 	abilityLegality: 'normal' | 'hackmons' = 'normal';
 	defaultLevel = 100;
 	readonly = false;
+	fetching = false;
 	constructor(team: Team) {
 		super();
 		this.team = team;
@@ -675,14 +676,15 @@ export class TeamEditor extends preact.Component<{
 	};
 	override render() {
 		this.editor ||= new TeamEditorState(this.props.team);
-		this.editor.setReadonly(!!this.props.readonly);
-		this.editor.narrow = this.props.narrow ?? document.body.offsetWidth < 500;
-		if (this.props.team.format !== this.editor.format) {
-			this.editor.setFormat(this.props.team.format);
+		const editor = this.editor;
+		editor.setReadonly(!!this.props.readonly);
+		editor.narrow = this.props.narrow ?? document.body.offsetWidth < 500;
+		if (this.props.team.format !== editor.format) {
+			editor.setFormat(this.props.team.format);
 		}
 
-		if (this.editor.innerFocus) {
-			return <TeamWizard editor={this.editor} onChange={this.props.onChange} onChangeView={this.update} />;
+		if (editor.innerFocus) {
+			return <TeamWizard editor={editor} onChange={this.props.onChange} onUpdate={this.update} />;
 		}
 
 		return <div class="teameditor">
@@ -695,9 +697,9 @@ export class TeamEditor extends preact.Component<{
 				</button></li>
 			</ul>
 			{this.wizard ? (
-				<TeamWizard editor={this.editor} onChange={this.props.onChange} onChangeView={this.update} />
+				<TeamWizard editor={editor} onChange={this.props.onChange} onUpdate={this.update} />
 			) : (
-				<TeamTextbox editor={this.editor} onChange={this.props.onChange} />
+				<TeamTextbox editor={editor} onChange={this.props.onChange} onUpdate={this.update} />
 			)}
 			{this.props.children}
 			<div class="team-resources">
@@ -709,7 +711,11 @@ export class TeamEditor extends preact.Component<{
 	}
 }
 
-class TeamTextbox extends preact.Component<{ editor: TeamEditorState, onChange?: () => void }> {
+class TeamTextbox extends preact.Component<{
+	editor: TeamEditorState,
+	onChange?: () => void, onUpdate?: () => void,
+}> {
+	static EMPTY_PROMISE = Promise.resolve(null);
 	editor!: TeamEditorState;
 	setInfo: {
 		species: string,
@@ -740,6 +746,7 @@ class TeamTextbox extends preact.Component<{ editor: TeamEditorState, onChange?:
 	} | null = null;
 	getYAt(index: number, fullLine?: boolean) {
 		if (index < 0) return 10;
+		if (index === 0) return 31;
 		const newValue = this.textbox.value.slice(0, index);
 		this.heightTester.value = fullLine && !newValue.endsWith('\n') ? newValue + '\n' : newValue;
 		return this.heightTester.scrollHeight;
@@ -863,11 +870,28 @@ class TeamTextbox extends preact.Component<{ editor: TeamEditorState, onChange?:
 
 		const pokepaste = /^https?:\/\/pokepast.es\/([a-z0-9]+)(?:\/.*)?$/.exec(value)?.[1];
 		if (pokepaste) {
+			this.editor.fetching = true;
 			Net(`https://pokepast.es/${pokepaste}/json`).get().then(json => {
 				const paste = JSON.parse(json);
-				// make sure it's still there:
-				const valueIndex = this.textbox.value.indexOf(value);
-				this.replace(paste.paste.replace(/\r\n/g, '\n'), valueIndex, valueIndex + value.length);
+				const pasteTxt = paste.paste.replace(/\r\n/g, '\n');
+				if (this.textbox) {
+					// make sure it's still there:
+					const valueIndex = this.textbox.value.indexOf(value);
+					this.replace(paste.paste.replace(/\r\n/g, '\n'), valueIndex, valueIndex + value.length);
+				} else {
+					this.editor.import(pasteTxt);
+				}
+				const notes = paste["notes"] as string;
+				if (notes.startsWith("Format: ")) {
+					const formatid = toID(notes.slice(8));
+					this.editor.setFormat(formatid);
+				}
+				const title = paste["title"] as string;
+				if (title && !title.startsWith('Untitled')) {
+					this.editor.team.name = title.replace(/[|\\/]/g, '');
+				}
+				this.editor.fetching = false;
+				this.props.onUpdate?.();
 			});
 			return true;
 		}
@@ -1296,10 +1320,10 @@ class TeamTextbox extends preact.Component<{ editor: TeamEditorState, onChange?:
 		});
 	};
 	addPokemon = () => {
-		if (!this.textbox.value.endsWith('\n\n')) {
+		if (this.textbox.value && !this.textbox.value.endsWith('\n\n')) {
 			this.textbox.value += this.textbox.value.endsWith('\n') ? '\n' : '\n\n';
 		}
-		const end = this.textbox.value.length;
+		const end = this.textbox.value === '\n\n' ? 0 : this.textbox.value.length;
 		this.textbox.setSelectionRange(end, end);
 		this.textbox.focus();
 		this.engageFocus({
@@ -1330,6 +1354,7 @@ class TeamTextbox extends preact.Component<{ editor: TeamEditorState, onChange?:
 		}
 		return null;
 	}
+
 	renderDetails(set: Dex.PokemonSet, i: number) {
 		const editor = this.editor;
 		const species = editor.dex.species.get(set.species);
@@ -1407,6 +1432,7 @@ class TeamTextbox extends preact.Component<{ editor: TeamEditorState, onChange?:
 					class="textbox teamtextbox" style={`padding-left:${editor.narrow ? '50px' : '100px'}`}
 					onInput={this.input} onContextMenu={this.contextMenu} onKeyUp={this.keyUp} onKeyDown={this.keyDown}
 					readOnly={editor.readonly} onChange={this.maybeReplaceLine}
+					placeholder=" Paste exported teams, pokepaste URLs, or JSON here"
 				/>
 				<textarea
 					class="textbox teamtextbox heighttester" tabIndex={-1} aria-hidden
@@ -1494,7 +1520,7 @@ class TeamTextbox extends preact.Component<{ editor: TeamEditorState, onChange?:
 }
 
 class TeamWizard extends preact.Component<{
-	editor: TeamEditorState, onChange?: () => void, onChangeView: () => void,
+	editor: TeamEditorState, onChange?: () => void, onUpdate: () => void,
 }> {
 	setSearchBox: string | null = null;
 	windowing = true;
@@ -1545,7 +1571,7 @@ class TeamWizard extends preact.Component<{
 		const { editor } = this.props;
 		editor.innerFocus = focus;
 		if (!focus) {
-			this.props.onChangeView();
+			this.props.onUpdate();
 			return;
 		}
 
@@ -1561,7 +1587,7 @@ class TeamWizard extends preact.Component<{
 			this.resetScroll();
 			this.setSearchBox = value || '';
 		}
-		this.props.onChangeView();
+		this.props.onUpdate();
 	}
 	renderSet(set: Dex.PokemonSet | undefined, i: number) {
 		const { editor } = this.props;
@@ -1628,16 +1654,18 @@ class TeamWizard extends preact.Component<{
 							<span class="detailcell">
 								<strong class="label">Level</strong> {}
 								{set.level || editor.defaultLevel}
-								{editor.narrow && set.shiny && <><br /><img src="/sprites/misc/shiny.png" width={22} height={22} alt="Shiny" /></>}
+								{editor.narrow && set.shiny && <><br />
+									<img src={`${Dex.resourcePrefix}sprites/misc/shiny.png`} width={22} height={22} alt="Shiny" />
+								</>}
 								{!editor.narrow && set.gender && set.gender !== 'N' && <>
 									<br /><img
-										src={`/fx/gender-${set.gender.toLowerCase()}.png`} alt={set.gender} width="7" height="10" class="pixelated"
+										src={`${Dex.fxPrefix}gender-${set.gender.toLowerCase()}.png`} alt={set.gender} width="7" height="10" class="pixelated"
 									/>
 								</>}
 							</span>
 							{!editor.narrow && <span class="detailcell">
 								<strong class="label">Shiny</strong> {}
-								{set.shiny ? <img src="/sprites/misc/shiny.png" width={22} height={22} alt="Yes" /> : '\u2014'}
+								{set.shiny ? <img src={`${Dex.resourcePrefix}sprites/misc/shiny.png`} width={22} height={22} alt="Yes" /> : '\u2014'}
 							</span>}
 							{editor.gen === 9 && <span class="detailcell">
 								<strong class="label">Tera</strong> {}
@@ -1952,6 +1980,9 @@ class TeamWizard extends preact.Component<{
 	override render() {
 		const { editor } = this.props;
 		if (editor.innerFocus) return this.renderInnerFocus();
+		if (editor.fetching) {
+			return <div class="teameditor">Fetching Paste...</div>;
+		}
 
 		const deletedSet = (i: number) => editor.deletedSet?.index === i ? <p style="text-align:right">
 			<button class="button" onClick={this.undeleteSet}>
@@ -2678,7 +2709,7 @@ class DetailsForm extends preact.Component<{
 		const genderTable = { 'M': "Male", 'F': "Female" };
 		if (gender === 'N') return 'Unknown';
 		return <>
-			<img src={`/fx/gender-${gender.toLowerCase()}.png`} alt="" width="7" height="10" class="pixelated" /> {}
+			<img src={`${Dex.fxPrefix}gender-${gender.toLowerCase()}.png`} alt="" width="7" height="10" class="pixelated" /> {}
 			{genderTable[gender]}
 		</>;
 	}
@@ -2712,7 +2743,7 @@ class DetailsForm extends preact.Component<{
 						<label class="checkbox inline"><input
 							type="radio" name="shiny" value="true" checked={set.shiny}
 							onInput={this.changeShiny} onChange={this.changeShiny}
-						/> <img src="/sprites/misc/shiny.png" width={22} height={22} alt="Shiny" /> Yes</label>
+						/> <img src={`${Dex.resourcePrefix}sprites/misc/shiny.png`} width={22} height={22} alt="Shiny" /> Yes</label>
 						<label class="checkbox inline"><input
 							type="radio" name="shiny" value="" checked={!set.shiny}
 							onInput={this.changeShiny} onChange={this.changeShiny}

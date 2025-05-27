@@ -1,7 +1,7 @@
 /*
 
 License: GPLv2
-  <http://www.gnu.org/licenses/gpl-2.0.html>
+	<http://www.gnu.org/licenses/gpl-2.0.html>
 
 */
 
@@ -803,4 +803,96 @@ License: GPLv2
 #tooltipwrapper.tooltip-locked .tooltip {
 	border: 2px solid #444444;
 	background: #DEDEDE;
+}
+#tooltipwrapper .tooltip-locking .tooltip {
+	position: absolute;
+	box-sizing: border-box;
+}
+
+.tooltip-locking-click .tooltip::before, .tooltip-locking-click .tooltip::after,
+.tooltip-locking-tap .tooltip::before, .tooltip-locking-tap .tooltip::after {
+	content: "";
+	position: absolute;
+	border: 2px solid transparent;
+	box-sizing: border-box;
+	border-radius: 5px;
+	animation-duration: 500ms;
+	animation-fill-mode: forwards;
+	animation-delay: 75ms;
+}
+
+.tooltip-locking-click .tooltip::after, .tooltip-locking-click .tooltip::before {
+	animation-duration: 700ms;
+}
+
+.tooltip-locking-click .tooltip::after, .tooltip-locking-tap .tooltip::after {
+	bottom: -2px;
+	left: -2px;
+	animation-name: tooltip-locking-top-left;
+}
+
+.tooltip-locking-click .tooltip::before, .tooltip-locking-tap .tooltip::before {
+	top: -2px;
+	right: -2px;
+	animation-name: tooltip-locking-bottom-right;
+}
+
+@keyframes tooltip-locking-top-left {
+	0% {
+		width: 0;
+		height: 0;
+		border-left: 2px solid #444444;
+	}
+	25% {
+		width: 0;
+		height: calc(100% + 4px);
+		border-left: 2px solid #444444;
+		border-top: 2px solid #444444;
+	}
+	50% {
+		width: calc(100% + 4px);
+		height: calc(100% + 4px);
+		border-left: 2px solid #444444;
+		border-top: 2px solid #444444;
+	}
+	
+	100% {
+		width: calc(100% + 4px);
+		height: calc(100% + 4px);
+		border-left: 2px solid #444444;
+		border-top: 2px solid #444444;
+	}
+}
+
+@keyframes tooltip-locking-bottom-right {
+	0% {
+		width: 0;
+		height: 0;
+		opacity: 0;
+	}
+	
+	50% {
+		width: 0;
+		height: 0;
+		border: 0;
+		border-right: 2px solid #444444;
+		opacity: 0;
+	}
+	50.1% {
+		opacity: 1;
+	}
+	75% {
+		width: 0;
+		height: calc(100% + 4px);
+		border: 2px solid transparent;
+		border-right: 2px solid #444444;
+		border-bottom: 2px solid #444444;
+	}
+	
+	100% {
+		height: calc(100% + 4px);
+		width: calc(100% + 4px);
+		border-right: 2px solid #444444;
+		border-bottom: 2px solid #444444;
+	}
 }

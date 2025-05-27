@@ -19,6 +19,7 @@ import { Dex, toID, toRoomid, toUserid, type ID } from './battle-dex';
 import { Teams } from './battle-teams';
 import { BattleTextParser, type Args, type KWArgs } from './battle-text-parser';
 import { Net } from './client-connection'; // optional
+import { Config } from './client-main';
 
 // Caja
 declare const html4: any;
@@ -298,7 +299,7 @@ export class BattleLog {
 			const body = args[2];
 			const roomid = this.scene?.battle.roomid;
 			if (!roomid) break;
-			app.rooms[roomid].notifyOnce(title, body, 'highlight');
+			window.app?.rooms[roomid].notifyOnce(title, body, 'highlight');
 			break;
 
 		case 'showteam': {
@@ -1344,7 +1345,7 @@ export class BattleLog {
 	}
 
 	static interstice = (() => {
-		const whitelist: string[] = Config.whitelist;
+		const whitelist = Config.whitelist || [];
 		const patterns = whitelist.map(entry => new RegExp(
 			`^(https?:)?//([A-Za-z0-9-]*\\.)?${entry.replace(/\./g, '\\.')}(/.*)?`, 'i'
 		));

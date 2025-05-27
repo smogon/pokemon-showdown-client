@@ -2024,7 +2024,8 @@ pre.textbox.textbox-empty[placeholder]:before {
 	-webkit-box-shadow: none !important;
 	-moz-box-shadow: none !important;
 	box-shadow: none !important;
-	color: #777777 !important;
+	color: #707070 !important;
+	opacity: 0.75;
 }
 
 /*********************************************************
