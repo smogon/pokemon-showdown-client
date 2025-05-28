@@ -1494,7 +1494,7 @@ pre.textbox.textbox-empty[placeholder]:before {
 }
 .userlist-hidden {
 	width: auto;
-	border-right: 0; 
+	border-right: 0;
 	bottom: auto;
 	overflow: visible;
 }
@@ -2450,4 +2450,19 @@ pre.textbox.textbox-empty[placeholder]:before {
 }
 .dark .chat.mine {
 	background: rgba(255,255,255,0.05);
+}
+
+.notification-badge {
+	position: absolute;
+	top: 2px;
+	left: 13px;
+	width: 15px;
+	height: 15px;
+	background: #e9790d;
+	color: white;
+	font-size: 9px;
+	font-weight: bold;
+	line-height: 14px;
+	text-align: center;
+	border-radius: 50%;
 }

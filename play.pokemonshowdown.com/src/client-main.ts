@@ -899,6 +899,7 @@ interface PSNotificationState {
 	id: string;
 	/** normally: automatically dismiss the notification when viewing the room; set this to require manual dismissing */
 	noAutoDismiss: boolean;
+	notification?: Notification | null;
 }
 
 type ClientCommands<RoomT extends PSRoom> = {
@@ -1003,7 +1004,24 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 		return null;
 	}
 	notify(options: { title: string, body?: string, noAutoDismiss?: boolean, id?: string }) {
-		if (PS.isVisible(this)) return;
+		let desktopNotification: Notification | null = null;
+		const roomIsFocused = document.hasFocus?.() && PS.isVisible(this);
+		if (roomIsFocused && !options.noAutoDismiss) return;
+		if (!roomIsFocused) {
+			PS.playNotificationSound();
+			try {
+				desktopNotification = new Notification(options.title, { body: options.body });
+				if (desktopNotification) {
+					desktopNotification.onclick = () => {
+						window.focus();
+						PS.focusRoom(this.id);
+					};
+					if (PS.prefs.temporarynotifications) {
+						setTimeout(() => { desktopNotification?.close(); }, 5000);
+					}
+				}
+			} catch {}
+		}
 		if (options.noAutoDismiss && !options.id) {
 			throw new Error(`Must specify id for manual dismissing`);
 		}
@@ -1015,6 +1033,7 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 			body: options.body,
 			id: options.id || '',
 			noAutoDismiss: options.noAutoDismiss || false,
+			notification: desktopNotification,
 		});
 		PS.update();
 	}
@@ -1024,7 +1043,13 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 		PS.update();
 	}
 	dismissNotification(id: string) {
-		this.notifications = this.notifications.filter(notification => notification.id !== id);
+		const index = this.notifications.findIndex(n => n.id === id);
+		if (index !== -1) {
+			try {
+				this.notifications[index].notification?.close();
+			} catch {}
+			this.notifications.splice(index, 1);
+		}
 		PS.update();
 	}
 	autoDismissNotifications() {
@@ -1866,6 +1891,11 @@ export const PS = new class extends PSModel {
 			}
 		}
 
+		// for old versions of Safari
+		if (window.webkitNotification) {
+			window.Notification ||= window.webkitNotification;
+		}
+
 		this.updateLayout();
 		window.addEventListener('resize', () => {
 			// super.update() skips another updateLayout() call
@@ -2331,10 +2361,12 @@ export const PS = new class extends PSModel {
 	addRoom(options: RoomOptions, noFocus = false) {
 		// support hardcoded PM room-IDs
 		if (options.id.startsWith('challenge-')) {
+			this.requestNotifications();
 			options.id = `dm-${options.id.slice(10)}` as RoomID;
 			options.args = { challengeMenuOpen: true };
 		}
 		if (options.id.startsWith('dm-')) {
+			this.requestNotifications();
 			if (options.id.length >= 5 && options.id.endsWith('--')) {
 				options.id = options.id.slice(0, -2) as RoomID;
 				options.args = { initialSlash: true };
@@ -2626,6 +2658,25 @@ export const PS = new class extends PSModel {
 
 			autojoin[this.server.id] = thisAutojoin || '';
 			this.prefs.set('autojoin', autojoin);
+		}
+	}
+	requestNotifications() {
+		try {
+			if (window.webkitNotifications?.requestPermission) {
+				// Notification.requestPermission crashes Chrome 23:
+				//   https://code.google.com/p/chromium/issues/detail?id=139594
+				// In lieu of a way to detect Chrome 23, we'll just use the old
+				// requestPermission API, which works to request permissions for
+				// the new Notification spec anyway.
+				window.webkitNotifications.requestPermission();
+			} else if (window.Notification) {
+				Notification.requestPermission?.(permission => {});
+			}
+		} catch {}
+	}
+	playNotificationSound() {
+		if (window.BattleSound && !this.prefs.mute) {
+			window.BattleSound.playSound('audio/notification.wav', this.prefs.notifvolume);
 		}
 	}
 };

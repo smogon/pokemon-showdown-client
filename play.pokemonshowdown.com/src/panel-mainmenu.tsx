@@ -65,6 +65,7 @@ export class MainMenuRoom extends PSRoom {
 		return '';
 	}
 	startSearch = (format: string, team?: Team) => {
+		PS.requestNotifications();
 		if (this.searchCountdown) {
 			PS.alert("Wait for this countdown to finish first...");
 			return;

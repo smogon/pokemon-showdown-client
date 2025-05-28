@@ -1304,7 +1304,7 @@ export class BattleLog {
 			this.changeUhtml(parts[0], htmlSrc, cmd === 'uhtml');
 			return ['', ''];
 		case 'raw':
-			return ['chat', BattleLog.sanitizeHTML(target)];
+			return ['chat', BattleLog.sanitizeHTML(target), true];
 		case 'nonotify':
 			return ['chat', BattleLog.sanitizeHTML(target), true];
 		default:
