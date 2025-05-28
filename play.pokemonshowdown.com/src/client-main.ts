@@ -997,7 +997,7 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 	notify(options: { title: string, body?: string, noAutoDismiss?: boolean, id?: string }) {
 		let desktopNotification: Notification | null = null;
 		const roomIsFocused = document.hasFocus?.() && PS.isVisible(this);
-		if (!roomIsFocused && !options.noAutoDismiss) return;
+		if (roomIsFocused && !options.noAutoDismiss) return;
 		if (!roomIsFocused) {
 			PS.playNotificationSound();
 			try {
