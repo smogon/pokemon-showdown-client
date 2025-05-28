@@ -996,9 +996,11 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 	}
 	notify(options: { title: string, body?: string, noAutoDismiss?: boolean, id?: string }) {
 		let desktopNotification: Notification | null = null;
-		if (!document.hasFocus()) {
+		const roomIsFocused = document.hasFocus?.() && PS.isVisible(this);
+		if (!roomIsFocused && !options.noAutoDismiss) return;
+		if (!roomIsFocused) {
 			PS.playNotificationSound();
-			if (window.Notification) {
+			try {
 				desktopNotification = new Notification(options.title, { body: options.body });
 				if (desktopNotification) {
 					desktopNotification.onclick = () => {
@@ -1009,9 +1011,8 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 						setTimeout(() => { desktopNotification?.close(); }, 5000);
 					}
 				}
-			}
+			} catch {}
 		}
-		if (PS.isVisible(this)) return;
 		if (options.noAutoDismiss && !options.id) {
 			throw new Error(`Must specify id for manual dismissing`);
 		}
@@ -1035,9 +1036,8 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 	dismissNotification(id: string) {
 		const index = this.notifications.findIndex(n => n.id === id);
 		if (index !== -1) {
-			const { notification } = this.notifications[index];
 			try {
-				notification?.close();
+				this.notifications[index].notification?.close();
 			} catch {}
 			this.notifications.splice(index, 1);
 		}
