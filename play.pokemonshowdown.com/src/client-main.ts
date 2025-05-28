@@ -1001,12 +1001,8 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 			if (window.Notification) {
 				desktopNotification = new Notification(options.title, { body: options.body });
 				if (desktopNotification) {
-					desktopNotification.onclose = () => {
-						this.dismissNotification(options.id!);
-					};
 					desktopNotification.onclick = () => {
 						window.focus();
-						this.dismissNotification(options.id!);
 						PS.focusRoom(this.id);
 					};
 					if (PS.prefs.temporarynotifications) {
