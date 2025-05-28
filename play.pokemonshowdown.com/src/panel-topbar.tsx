@@ -324,6 +324,11 @@ export class PSMiniHeader extends preact.Component {
 	override render() {
 		if (PS.leftPanelWidth !== null) return null;
 
+		let notificationsCount = 0;
+		for (const roomid of PS.leftRoomList) {
+			const miniNotifications = PS.rooms[roomid]?.notifications;
+			if (miniNotifications?.length) notificationsCount++;
+		}
 		const { icon, title } = PSHeader.roomInfo(PS.panel);
 		const userColor = window.BattleLog && `color:${BattleLog.usernameColor(PS.user.userid)}`;
 		const showMenuButton = PSView.narrowMode;
@@ -334,6 +339,7 @@ export class PSMiniHeader extends preact.Component {
 			null
 		) : window.scrollX ? (
 			<button onClick={PSView.scrollToHeader} class={`mini-header-left ${notifying}`} aria-label="Menu">
+				{!!notificationsCount && <div class="notification-badge">{notificationsCount}</div>}
 				<i class="fa fa-bars" aria-hidden></i>
 			</button>
 		) : (
