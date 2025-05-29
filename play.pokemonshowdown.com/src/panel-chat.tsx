@@ -274,15 +274,7 @@ export class ChatRoom extends PSRoom {
 			let lastMessageTime = this.lastMessageTime || 0;
 			if (lastMessageTime < serverMsgTime) this.lastMessageTime = serverMsgTime;
 		}
-		if (ChatRoom.getHighlight(message, this.id)) {
-			if (mayNotify) this.notify({
-				title: `Mentioned by ${name} in ${this.id}`,
-				body: `"${message}"`,
-				id: 'highlight',
-			});
-			return true;
-		}
-		return false;
+		return !!(ChatRoom.getHighlight(message, this.id) && mayNotify);
 	};
 	override clientCommands = this.parseClientCommands({
 		'chall,challenge'(target) {
