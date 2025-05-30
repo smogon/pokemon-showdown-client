@@ -217,7 +217,7 @@ export class PSHeader extends preact.Component {
 		this.handleResize();
 	}
 	renderUser() {
-		if (!PS.connected) {
+		if (!PS.connection?.connected) {
 			return <button class="button" disabled><em>Offline</em></button>;
 		}
 		if (PS.user.initializing) {

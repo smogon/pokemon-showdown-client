@@ -56,8 +56,8 @@ require v20 or later) and Git, and run `node build` (on Windows) or `./build`
 (on other OSes) to build.
 
 You can make and test client changes simply by building after each change,
-and opening `testclient.html`. This will allow you to test changes to the
-client without setting up your own login server.
+and opening `play.pokemonshowdown.com/testclient.html`. This will allow you
+to test changes to the client without setting up your own login server.
 
 ### Test keys
 
@@ -78,7 +78,7 @@ grab it from:
 
 Make sure to put it in `config/` and not `play.pokemonshowdown.com/config/`.
 
-(This is the only supported method of logging in on the beta Preact testclient.)
+(This is the only supported method of logging in on the beta testclient.)
 
   [5]: https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS
 
