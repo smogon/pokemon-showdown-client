@@ -183,7 +183,16 @@ export class BattleLog {
 			[divClass, divHTML, noNotify] = this.parseChatMessage(message, name, timestampHtml, isHighlighted);
 			if (!noNotify && isHighlighted) {
 				const notifyTitle = "Mentioned by " + name + " in " + (battle?.roomid || '');
-				window.app?.rooms[battle?.roomid || '']?.notifyOnce(notifyTitle, "\"" + message + "\"", 'highlight');
+				if (window.PS) {
+					const room = window.PS.rooms[battle?.roomid || ''];
+					room.notify({
+						title: notifyTitle,
+						body: `"${message}"`,
+						id: 'highlight',
+					});
+				} else {
+					window.app?.rooms[battle?.roomid || '']?.notifyOnce(notifyTitle, "\"" + message + "\"", 'highlight');
+				}
 			}
 			break;
 
