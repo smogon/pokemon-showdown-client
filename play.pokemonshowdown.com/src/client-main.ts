@@ -1042,13 +1042,16 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 		this.isSubtleNotifying = true;
 		PS.update();
 	}
+	dismissNotificationAt(i: number) {
+		try {
+			this.notifications[i].notification?.close();
+		} catch {}
+		this.notifications.splice(i, 1);
+	}
 	dismissNotification(id: string) {
 		const index = this.notifications.findIndex(n => n.id === id);
 		if (index !== -1) {
-			try {
-				this.notifications[index].notification?.close();
-			} catch {}
-			this.notifications.splice(index, 1);
+			this.dismissNotificationAt(index);
 		}
 		PS.update();
 	}
@@ -1061,7 +1064,11 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 			lastMessageDates[PS.server.id][room.id] = room.lastMessageTime || 0;
 			PS.prefs.set('logtimes', lastMessageDates);
 		}
-		this.notifications = this.notifications.filter(notification => notification.noAutoDismiss);
+		for (let i = this.notifications.length - 1; i >= 0; i--) {
+			if (!this.notifications[i].noAutoDismiss) {
+				this.dismissNotificationAt(i);
+			}
+		}
 		this.isSubtleNotifying = false;
 	}
 	connect(): void {
@@ -1184,10 +1191,22 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 		'logout'() {
 			PS.user.logOut();
 		},
-		'reconnect'() {
-			if (!PS.isOffline) {
-				return this.add(`|error|You are already connected.`);
+		'reconnect,connect'() {
+			if (this.connected && this.connected !== 'autoreconnect') {
+				return this.errorReply(`You are already connected.`);
 			}
+
+			if (!PS.isOffline) {
+				// connect to room
+				try {
+					this.connect();
+				} catch (err: any) {
+					this.errorReply(err.message);
+				}
+				return;
+			}
+
+			// connect to server
 			const uptime = Date.now() - PS.startTime;
 			if (uptime > 24 * 60 * 60 * 1000) {
 				PS.confirm(`It's been over a day since you first connected. Please refresh.`, {
@@ -1207,17 +1226,6 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 				return this.add(`|error|You are already offline.`);
 			}
 			PS.connection?.disconnect();
-			this.add(`||You are now offline.`);
-		},
-		'connect'() {
-			if (this.connected && this.connected !== 'autoreconnect') {
-				return this.errorReply(`You are already connected.`);
-			}
-			try {
-				this.connect();
-			} catch (err: any) {
-				this.errorReply(err.message);
-			}
 		},
 		'cancelsearch'() {
 			if (PS.mainmenu.cancelSearch()) {
@@ -1730,7 +1738,6 @@ export const PS = new class extends PSModel {
 	user = new PSUser();
 	server = new PSServer();
 	connection: PSConnection | null = null;
-	connected = false;
 	/**
 	 * While PS is technically disconnected while it's trying to connect,
 	 * it still shows UI like it's connected, so you can click buttons
