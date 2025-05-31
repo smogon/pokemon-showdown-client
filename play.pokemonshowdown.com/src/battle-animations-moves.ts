@@ -36711,7 +36711,7 @@ export const BattleMoveAnims: AnimTable = {
 					z: attacker.z,
 					scale: 0,
 					opacity: 0.6,
-					time: 150 * i
+					time: 150 * i,
 				}, {
 					z: attacker.behind(-50),
 					scale: 2,
@@ -36771,8 +36771,8 @@ export const BattleMoveAnims: AnimTable = {
 				opacity: 1,
 				time: 1300,
 			}, 'linear');
-		}
-	}
+		},
+	},
 };
 
 // placeholder animations
