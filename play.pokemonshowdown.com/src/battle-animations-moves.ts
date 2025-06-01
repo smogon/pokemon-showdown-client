@@ -36701,6 +36701,92 @@ export const BattleMoveAnims: AnimTable = {
 			}
 		},
 	},
+	hardpress: {
+		anim(scene, [attacker, defender]) {
+			scene.showEffect('mistball', {
+				x: defender.leftof(-60),
+				y: defender.y,
+				z: defender.z,
+				scale: 0.6,
+				time: 0,
+			}, {
+				time: 400,
+			}, 'accel', 'fade', { filter: 'saturate(0)' });
+			scene.showEffect('mistball', {
+				x: defender.leftof(60),
+				y: defender.y,
+				z: defender.z,
+				scale: 0.6,
+				time: 200,
+			}, {
+				time: 400,
+			}, 'accel', 'fade', { filter: 'saturate(0)' });
+
+			scene.showEffect('mistball', {
+				x: defender.leftof(-60),
+				y: defender.y,
+				z: defender.z,
+				scale: 0.6,
+				time: 400,
+			}, {
+				x: defender.leftof(-30),
+				time: 600,
+			}, 'accel', 'fade', { filter: 'saturate(0)' });
+			scene.showEffect('mistball', {
+				x: defender.leftof(60),
+				y: defender.y,
+				z: defender.z,
+				scale: 0.6,
+				time: 400,
+			}, {
+				x: defender.leftof(30),
+				time: 600,
+			}, 'accel', 'fade', { filter: 'saturate(0)' });
+
+			scene.showEffect('mistball', {
+				x: defender.leftof(-30),
+				y: defender.y,
+				z: defender.z,
+				scale: 0.6,
+				time: 600,
+			}, {
+				time: 800,
+			}, 'linear', 'fade', { filter: 'saturate(0)' });
+			scene.showEffect('mistball', {
+				x: defender.leftof(30),
+				y: defender.y,
+				z: defender.z,
+				scale: 0.6,
+				time: 600,
+			}, {
+				time: 800,
+			}, 'linear', 'fade', { filter: 'saturate(0)' });
+
+			attacker.delay(400);
+			attacker.anim({
+				x: defender.x,
+				y: defender.y,
+				z: defender.behind(-5),
+				time: 200,
+			}, 'accel');
+			attacker.anim({
+				time: 500,
+			}, 'ballistic2Back');
+
+			defender.delay(400);
+			defender.anim({
+				xscale: 0.6,
+				yscale: 1.3,
+				time: 200,
+			});
+			defender.delay(200);
+			defender.anim({
+				xscale: 1,
+				yscale: 1,
+				time: 150,
+			});
+		},
+	},
 };
 
 // placeholder animations
