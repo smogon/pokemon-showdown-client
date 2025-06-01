@@ -36736,7 +36736,7 @@ export const BattleMoveAnims: AnimTable = {
 					y: attacker.y,
 					z: attacker.z,
 					scale: 0,
-					opacity: 0.3,
+					opacity: 0.5,
 					time: 150 * i,
 				}, {
 					z: attacker.behind(-50),
