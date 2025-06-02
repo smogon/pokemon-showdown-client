@@ -36701,6 +36701,78 @@ export const BattleMoveAnims: AnimTable = {
 			}
 		},
 	},
+	dragoncheer: {
+		anim(scene, [attacker, defender]) {
+			// Attacker cheers
+			for (let i = 0; i < 3; i++) {
+				scene.showEffect('shadowball', {
+					x: attacker.x,
+					y: attacker.y,
+					z: attacker.z,
+					scale: 0,
+					opacity: 0.6,
+					time: 150 * i,
+				}, {
+					z: attacker.behind(-50),
+					scale: 2,
+					opacity: 0,
+					time: 400 + 200 * i,
+				}, 'linear');
+				scene.showEffect('wisp', {
+					x: attacker.x,
+					y: attacker.y,
+					z: attacker.z,
+					scale: 0,
+					opacity: 0.7,
+					time: 150 * i,
+				}, {
+					z: attacker.behind(-50),
+					scale: 5,
+					opacity: 0,
+					time: 400 + 200 * i,
+				}, 'linear');
+				scene.showEffect('poisonwisp', {
+					x: attacker.x,
+					y: attacker.y,
+					z: attacker.z,
+					scale: 0,
+					opacity: 0.5,
+					time: 150 * i,
+				}, {
+					z: attacker.behind(-50),
+					scale: 2,
+					opacity: 0,
+					time: 400 + 200 * i,
+				}, 'linear');
+			}
+
+			// Defender focuses
+			scene.showEffect('wisp', {
+				x: defender.x,
+				y: defender.y,
+				z: defender.z,
+				scale: 2,
+				opacity: 0.2,
+				time: 800,
+			}, {
+				scale: 0,
+				opacity: 1,
+				time: 1100,
+			}, 'linear');
+			scene.showEffect('wisp', {
+				x: defender.x,
+				y: defender.y,
+				z: defender.z,
+				scale: 2,
+				opacity: 0.2,
+				time: 1000,
+			}, {
+				scale: 0,
+				opacity: 1,
+				time: 1300,
+			}, 'linear');
+		},
+	},
 };
 
 // placeholder animations
