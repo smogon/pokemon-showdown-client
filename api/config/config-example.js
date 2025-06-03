@@ -134,6 +134,13 @@ exports.crashguardemail = null;
 exports.ssl = null;
 
 /**
+ * Address to bind to.
+ *   Leaving it as `undefined` will result in binding to `0.0.0.0`.
+ * @type {undefined | string}
+ */
+exports.bindaddress = undefined;
+
+/**
  * Port to listen on.
  * @type {number}
  */

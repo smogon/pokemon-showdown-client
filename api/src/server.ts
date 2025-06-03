@@ -324,15 +324,17 @@ export const SimServers = new class SimServersT {
 export class Server {
 	server: http.Server;
 	httpsServer: https.Server | null;
+	host: string;
 	port: number;
 	awaitingEnd?: () => void;
 	closing?: Promise<void>;
 	activeRequests = 0;
-	constructor(port = (Config.port || 8000)) {
+	constructor(port = (Config.port || 8000), host = (Config.bindaddress || "0.0.0.0")) {
+		this.host = host;
 		this.port = port;
 
 		this.server = http.createServer((req, res) => void this.handle(req, res));
-		this.server.listen(port);
+		this.server.listen(port, host);
 		this.httpsServer = null;
 		if (Config.ssl) {
 			this.httpsServer = https.createServer(Config.ssl, (req, res) => void this.handle(req, res));
