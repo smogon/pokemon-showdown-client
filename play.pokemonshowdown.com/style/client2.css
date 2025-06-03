@@ -566,6 +566,9 @@ summary:hover .expandbutton,
 	border-left: 1px solid #AAAAAA;
 	margin-left: -1px;
 }
+.dark .ps-room {
+	border-color: #34373b;
+}
 .scrollable {
 	overflow: auto;
 	-webkit-overflow-scrolling: touch;
@@ -1028,35 +1031,6 @@ form.menugroup {
 .button.mainmenu6 { background: linear-gradient(to bottom,  hsl(270,40%,72%),  hsl(270,40%,52%)); border-color: hsl(270,40%,40%); }
 .button.mainmenu6:hover { background: linear-gradient(to bottom,  hsl(270,40%,62%),  hsl(270,40%,42%)); }
 .button.mainmenu6:active { background: linear-gradient(to bottom,  hsl(270,40%,42%),  hsl(300,40%,58%)); }
-
-/*********************************************************
- * Ladder
- *********************************************************/
-
-.table-header {
-	position: relative;
-	position: sticky;
-	top: 0;
-}
-.ladder table, .ladder td, .ladder th,
-.table, .table td, .table th {
-	border-collapse: collapse;
-	border: 1px solid #BBBBBB;
-}
-.ladder td, .ladder th,
-.table td, .table th {
-	padding: 3px 5px;
-}
-.ladder th, .table th {
-	text-align: left;
-	font-size: 9pt;
-	background: #EEEEEE;
-	color: #111111;
-}
-
-.hidden {
-	display: none;
-}
 
 /*********************************************************
  * Room list
