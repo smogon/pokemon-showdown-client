@@ -505,6 +505,7 @@ export class PSView extends preact.Component {
 			}
 			if (PS.room !== clickedRoom) {
 				if (clickedRoom) PS.room = clickedRoom;
+				PS.room.autoDismissNotifications();
 				PS.closePopupsAbove(clickedRoom);
 				PS.update();
 			}
