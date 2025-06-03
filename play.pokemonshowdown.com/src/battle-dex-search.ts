@@ -1150,6 +1150,12 @@ class BattlePokemonSearch extends BattleTypedSearch<'pokemon'> {
 				return true;
 			});
 		}
+		if (format === 'pu' && dex.gen === 4 && table.gen4puBans) {
+			tierSet = tierSet.filter(([type, id]) => {
+				if (id in table.gen4puBans) return false;
+				return true;
+			});
+		}
 
 		// Filter out Gmax Pokemon from standard tier selection
 		if (!(/^(battlestadium|vgc|doublesubers)/g.test(format) || (format === 'doubles' && this.formatType === 'natdex'))) {
