@@ -36945,6 +36945,24 @@ export const BattleMoveAnims: AnimTable = {
 			}, 'linear');
 		},
 	},
+	upperhand: {
+		anim(scene, [attacker, defender]) {
+			let chopDirection = defender.isFrontSprite ? 'leftchop' : 'rightchop';
+
+			BattleOtherAnims.fastattack.anim(scene, [attacker, defender]);
+			scene.showEffect(chopDirection, {
+				x: defender.leftof(20),
+				y: defender.y + 10,
+				z: defender.behind(10),
+				scale: 0.6,
+				opacity: 1,
+				time: 300,
+			}, {
+				opacity: 0.5,
+				time: 400,
+			}, 'linear', 'fade');
+		},
+	},
 };
 
 // placeholder animations
