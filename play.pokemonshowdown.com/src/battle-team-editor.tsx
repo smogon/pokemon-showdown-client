@@ -693,6 +693,7 @@ export class TeamEditor extends preact.Component<{
 	override render() {
 		this.editor ||= new TeamEditorState(this.props.team);
 		const editor = this.editor;
+		window.editor = editor; // debug
 		editor.setReadonly(!!this.props.readOnly);
 		editor.narrow = this.props.narrow ?? document.body.offsetWidth < 500;
 		if (this.props.team.format !== editor.format) {

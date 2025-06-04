@@ -260,7 +260,9 @@ export class ChatRoom extends PSRoom {
 			message = args[2];
 		}
 		if (toID(name) === PS.user.userid) return false;
-		if (message.startsWith(`/raw `)) return false;
+		if (message.startsWith(`/raw `) || message.startsWith(`/uhtml`) || message.startsWith(`/uhtmlchange`)) {
+			return false;
+		}
 
 		const lastMessageDates = Dex.prefs('logtimes') || (PS.prefs.set('logtimes', {}), Dex.prefs('logtimes'));
 		if (!lastMessageDates[PS.server.id]) lastMessageDates[PS.server.id] = {};

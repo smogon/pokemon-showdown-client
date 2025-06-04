@@ -2067,7 +2067,7 @@ export const PS = new class extends PSModel {
 				continue;
 			} case 'deinit': {
 				room = PS.rooms[roomid2];
-				if (room) {
+				if (room && room.connected !== 'expired') {
 					room.connected = false;
 					this.removeRoom(room);
 				}
@@ -2589,8 +2589,15 @@ export const PS = new class extends PSModel {
 
 		if (this.popups.length && room.id === this.popups[this.popups.length - 1]) {
 			this.popups.pop();
-			PS.room = this.popups.length ? PS.rooms[this.popups[this.popups.length - 1]]! :
-				PS.rooms[room.parentRoomid ?? PS.panel.id] || PS.panel;
+			if (this.popups.length) {
+				// focus topmost popup
+				PS.room = PS.rooms[this.popups[this.popups.length - 1]]!;
+			} else {
+				// if popup parent is a mini-window, focus popup parent
+				PS.room = PS.rooms[room.parentRoomid ?? PS.panel.id] || PS.panel;
+				// otherwise focus current panel
+				if (PS.room.location !== 'mini-window' || PS.panel !== PS.mainmenu) PS.room = PS.panel;
+			}
 		}
 
 		if (wasFocused) {
