@@ -36785,8 +36785,8 @@ export const BattleMoveAnims: AnimTable = {
 				yscale: 1,
 				time: 150,
 			});
-    },
-  },
+		},
+	},
 	dragoncheer: {
 		anim(scene, [attacker, defender]) {
 			// Attacker cheers
