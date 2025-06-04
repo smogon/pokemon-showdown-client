@@ -203,6 +203,7 @@ export interface SpriteData {
 export interface TeambuilderSpriteData {
 	x: number;
 	y: number;
+	h?: number;
 	spriteDir: string;
 	spriteid: string;
 	shiny?: boolean;
@@ -824,12 +825,18 @@ export const Dex = new class implements ModdedDex {
 		return `background:transparent url(${Dex.resourcePrefix}sprites/pokemonicons-sheet.png?v18) no-repeat scroll -${left}px -${top}px${fainted}`;
 	}
 
-	getTeambuilderSpriteData(pokemon: any, gen = 0): TeambuilderSpriteData {
-		let id = toID(pokemon.species);
-		let spriteid = pokemon.spriteid;
-		let species = Dex.species.get(pokemon.species);
-		if (pokemon.species && !spriteid) {
-			spriteid = species.spriteid || toID(pokemon.species);
+	getTeambuilderSpriteData(pokemon: any, dex: ModdedDex = Dex): TeambuilderSpriteData {
+		let gen = dex.gen;
+		let id = toID(pokemon.species || pokemon);
+		let species = Dex.species.get(id);
+		let spriteid: string;
+		if (typeof pokemon === 'string') {
+			spriteid = species.spriteid || id;
+		} else {
+			spriteid = pokemon.spriteid;
+			if (pokemon.species && !spriteid) {
+				spriteid = species.spriteid || id;
+			}
 		}
 		if (species.exists === false) return { spriteDir: 'sprites/gen5', spriteid: '0', x: 10, y: 5 };
 		if (Dex.afdMode) {
@@ -848,13 +855,24 @@ export const Dex = new class implements ModdedDex {
 			y: -3,
 		};
 		if (pokemon.shiny) spriteData.shiny = true;
-		if (Dex.prefs('nopastgens')) gen = 6;
+		if (Dex.prefs('nopastgens')) gen = 9;
 		if (Dex.prefs('bwgfx') && gen > 5) gen = 5;
+		let homeExists = (!species.isNonstandard || !['CAP', 'Custom'].includes(species.isNonstandard) ||
+			species.id === "xerneasneutral") && ![
+			"floetteeternal", "pichuspikyeared", "pikachubelle", "pikachucosplay", "pikachulibre", "pikachuphd", "pikachupopstar", "pikachurockstar",
+		].includes(species.id);
+		if ((gen >= 8 || dex.modid === 'gen7letsgo') && homeExists) {
+			spriteData.spriteDir = 'sprites/home-centered';
+			spriteData.x = 8;
+			spriteData.y = 10;
+			spriteData.h = 96;
+			return spriteData;
+		}
 		let xydexExists = (!species.isNonstandard || species.isNonstandard === 'Past' || species.isNonstandard === 'CAP') || [
 			"pikachustarter", "eeveestarter", "meltan", "melmetal", "pokestarufo", "pokestarufo2", "pokestarbrycenman", "pokestarmt", "pokestarmt2", "pokestargiant", "pokestarhumanoid", "pokestarmonster", "pokestarf00", "pokestarf002", "pokestarspirit",
 		].includes(species.id);
 		if (species.gen >= 8 && species.isNonstandard !== 'CAP') xydexExists = false;
-		if ((!gen || gen >= 6) && xydexExists) {
+		if (gen >= 6 && xydexExists) {
 			if (species.gen >= 7) {
 				spriteData.x = -6;
 				spriteData.y = -7;
@@ -880,11 +898,12 @@ export const Dex = new class implements ModdedDex {
 		return spriteData;
 	}
 
-	getTeambuilderSprite(pokemon: any, gen = 0) {
+	getTeambuilderSprite(pokemon: any, dex?: ModdedDex, xOffset = 0, yOffset = 0) {
 		if (!pokemon) return '';
-		const data = this.getTeambuilderSpriteData(pokemon, gen);
+		const data = this.getTeambuilderSpriteData(pokemon, dex);
 		const shiny = (data.shiny ? '-shiny' : '');
-		return `background-image:url(${Dex.resourcePrefix}${data.spriteDir}${shiny}/${data.spriteid}.png);background-position:${data.x}px ${data.y}px;background-repeat:no-repeat`;
+		const resize = (data.h ? `background-size:${data.h}px` : '');
+		return `background-image:url(${Dex.resourcePrefix}${data.spriteDir}${shiny}/${data.spriteid}.png);background-position:${data.x + xOffset}px ${data.y + yOffset}px;background-repeat:no-repeat;${resize}`;
 	}
 
 	getItemIcon(item: any) {

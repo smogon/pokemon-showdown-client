@@ -42,8 +42,8 @@ Pokémon Showdown is mostly developed on Chrome, and Chrome or the desktop clien
 New client
 ------------------------------------------------------------------------
 
-Development is proceeding on the new Preact client! The live version is
-available at https://play.pokemonshowdown.com/preactalpha
+Development is proceeding on the client rewrite! The live version is
+available at https://play.pokemonshowdown.com/beta
 
 You can contribute to it yourself using the same process as before, just
 use `testclient-beta.html` rather than `testclient.html`.
@@ -56,8 +56,8 @@ require v20 or later) and Git, and run `node build` (on Windows) or `./build`
 (on other OSes) to build.
 
 You can make and test client changes simply by building after each change,
-and opening `testclient.html`. This will allow you to test changes to the
-client without setting up your own login server.
+and opening `play.pokemonshowdown.com/testclient.html`. This will allow you
+to test changes to the client without setting up your own login server.
 
 ### Test keys
 
@@ -78,7 +78,7 @@ grab it from:
 
 Make sure to put it in `config/` and not `play.pokemonshowdown.com/config/`.
 
-(This is the only supported method of logging in on the beta Preact testclient.)
+(This is the only supported method of logging in on the beta testclient.)
 
   [5]: https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS
 

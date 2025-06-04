@@ -7,6 +7,11 @@
 	padding: 0;
 	height: 100%;
 	overflow: visible;
+	overscroll-behavior-x: contain;
+}
+html {
+	scrollbar-width: none;
+	position: relative;
 }
 body {
 	color: white;
@@ -96,7 +101,7 @@ li::marker {
 	scroll-snap-align: start;
 }
 .scroll-snap-enabled .mini-header {
-	scroll-snap-align: end;
+	scroll-snap-align: start;
 }
 
 .header {
@@ -117,7 +122,7 @@ li::marker {
 	top: 0;
 	left: 0;
 	bottom: 0;
-	width: 193px;
+	width: 243px;
 	padding-right: 7px;
 	background: rgba(255,255,255,.3);
 }
@@ -135,7 +140,7 @@ li::marker {
 	top: auto;
 	left: 12px;
 	bottom: 12px;
-	width: 170px;
+	right: 17px;
 	word-wrap: break-word;
 }
 .userbar .username {
@@ -191,12 +196,12 @@ li::marker {
 }
 .mini-header {
 	position: absolute;
-	left: 199px;
+	left: 249px;
 	right: 0;
 	top: 0;
 	padding: 0;
-	height: 24px;
-	line-height: 24px;
+	height: 29px;
+	line-height: 29px;
 	border-left: 0;
 	border-right: 0;
 	border-top: 0;
@@ -229,7 +234,7 @@ li::marker {
 	border: 0;
 	border: 1px solid #777;
 	border-width: 0 0 0 1px;
-	padding: 0 6px;
+	padding: 0 9px;
 }
 .mini-header-left {
 	float: left;
@@ -561,6 +566,9 @@ summary:hover .expandbutton,
 	border-left: 1px solid #AAAAAA;
 	margin-left: -1px;
 }
+.dark .ps-room {
+	border-color: #34373b;
+}
 .scrollable {
 	overflow: auto;
 	-webkit-overflow-scrolling: touch;
@@ -834,11 +842,14 @@ p.or:after {
 }
 .mini-window .mini-window-contents {
 	position: relative;
-	height: 300px;
+	height: 500px;
 	border: 1px solid #AAAAAA;
 	border-top: 0;
 	border-bottom-left-radius: 5px;
 	border-bottom-right-radius: 5px;
+}
+.mini-window .mini-window-contents.mini-window-flex {
+	height: auto;
 }
 .mini-window-body {
 	min-height: 100px;
@@ -1022,35 +1033,6 @@ form.menugroup {
 .button.mainmenu6:active { background: linear-gradient(to bottom,  hsl(270,40%,42%),  hsl(300,40%,58%)); }
 
 /*********************************************************
- * Ladder
- *********************************************************/
-
-.table-header {
-	position: relative;
-	position: sticky;
-	top: 0;
-}
-.ladder table, .ladder td, .ladder th,
-.table, .table td, .table th {
-	border-collapse: collapse;
-	border: 1px solid #BBBBBB;
-}
-.ladder td, .ladder th,
-.table td, .table th {
-	padding: 3px 5px;
-}
-.ladder th, .table th {
-	text-align: left;
-	font-size: 9pt;
-	background: #EEEEEE;
-	color: #111111;
-}
-
-.hidden {
-	display: none;
-}
-
-/*********************************************************
  * Room list
  *********************************************************/
 
@@ -1156,6 +1138,13 @@ form.menugroup {
 	min-height: 36px;
 	padding: 3px 4px 0 4px;
 	border-top: 1px solid #AAAAAA;
+}
+.mini-window-flex .chat-log, .mini-window-flex .chat-log-add {
+	position: static;
+}
+.mini-window-flex .chat-log {
+	min-height: 80px;
+	max-height: 300px;
 }
 .debug {
 	display: none;
@@ -1479,7 +1468,7 @@ pre.textbox.textbox-empty[placeholder]:before {
 }
 .userlist-hidden {
 	width: auto;
-	border-right: 0; 
+	border-right: 0;
 	bottom: auto;
 	overflow: visible;
 }
@@ -2435,4 +2424,19 @@ pre.textbox.textbox-empty[placeholder]:before {
 }
 .dark .chat.mine {
 	background: rgba(255,255,255,0.05);
+}
+
+.notification-badge {
+	position: absolute;
+	top: 2px;
+	left: 13px;
+	width: 15px;
+	height: 15px;
+	background: #e9790d;
+	color: white;
+	font-size: 9px;
+	font-weight: bold;
+	line-height: 14px;
+	text-align: center;
+	border-radius: 50%;
 }

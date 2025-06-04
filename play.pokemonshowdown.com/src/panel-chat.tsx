@@ -125,7 +125,17 @@ export class ChatRoom extends PSRoom {
 			this.joinLeave = null;
 			this.markUserActive(args[args[0] === 'c:' ? 2 : 1]);
 			if (this.tour) this.tour.joinLeave = null;
-			this.subtleNotify();
+			if (this.id.startsWith("dm-")) {
+				const fromUser = args[args[0] === 'c:' ? 2 : 1];
+				if (toID(fromUser) === PS.user.userid) break;
+				const message = args[args[0] === 'c:' ? 3 : 2];
+				this.notify({
+					title: `${this.title}`,
+					body: message,
+				});
+			} else {
+				this.subtleNotify();
+			}
 			break;
 		case ':':
 			this.timeOffset = Math.trunc(Date.now() / 1000) - (parseInt(args[1], 10) || 0);
@@ -240,31 +250,34 @@ export class ChatRoom extends PSRoom {
 	handleHighlight = (args: Args) => {
 		let name;
 		let message;
-		let msgTime = 0;
+		let serverTime = 0;
 		if (args[0] === 'c:') {
-			msgTime = parseInt(args[1]);
+			serverTime = parseInt(args[1]);
 			name = args[2];
 			message = args[3];
 		} else {
 			name = args[1];
 			message = args[2];
 		}
-		let lastMessageDates = Dex.prefs('logtimes') || (PS.prefs.set('logtimes', {}), Dex.prefs('logtimes'));
+		if (toID(name) === PS.user.userid) return false;
+		if (message.startsWith(`/raw `)) return false;
+
+		const lastMessageDates = Dex.prefs('logtimes') || (PS.prefs.set('logtimes', {}), Dex.prefs('logtimes'));
 		if (!lastMessageDates[PS.server.id]) lastMessageDates[PS.server.id] = {};
-		let lastMessageDate = lastMessageDates[PS.server.id][this.id] || 0;
+		const lastMessageDate = lastMessageDates[PS.server.id][this.id] || 0;
 		// because the time offset to the server can vary slightly, subtract it to not have it affect comparisons between dates
-		let serverMsgTime = msgTime - (this.timeOffset || 0);
-		let mayNotify = serverMsgTime > lastMessageDate && name !== PS.user.userid;
+		const time = serverTime - (this.timeOffset || 0);
 		if (PS.isVisible(this)) {
 			this.lastMessageTime = null;
-			lastMessageDates[PS.server.id][this.id] = serverMsgTime;
+			lastMessageDates[PS.server.id][this.id] = time;
 			PS.prefs.set('logtimes', lastMessageDates);
 		} else {
 			// To be saved on focus
-			let lastMessageTime = this.lastMessageTime || 0;
-			if (lastMessageTime < serverMsgTime) this.lastMessageTime = serverMsgTime;
+			const lastMessageTime = this.lastMessageTime || 0;
+			if (lastMessageTime < time) this.lastMessageTime = time;
 		}
 		if (ChatRoom.getHighlight(message, this.id)) {
+			const mayNotify = time > lastMessageDate;
 			if (mayNotify) this.notify({
 				title: `Mentioned by ${name} in ${this.id}`,
 				body: `"${message}"`,
@@ -1110,6 +1123,7 @@ class ChatPanel extends PSRoomPanel<ChatRoom> {
 		return false;
 	};
 	makeChallenge = (e: Event, format: string, team?: Team) => {
+		PS.requestNotifications();
 		const room = this.props.room;
 		const packedTeam = team ? team.packedTeam : '';
 		const privacy = PS.mainmenu.adjustPrivacy();
@@ -1166,10 +1180,13 @@ class ChatPanel extends PSRoomPanel<ChatRoom> {
 			</TeamForm>
 		</div> : null;
 
-		return <PSPanelWrapper room={room} focusClick>
+		return <PSPanelWrapper room={room} focusClick fullSize>
 			<ChatLog class="chat-log" room={this.props.room} left={tinyLayout ? 0 : 146} top={room.tour?.info.isActive ? 30 : 0}>
 				{challengeTo}{challengeFrom}{PS.isOffline && <p class="buttonbar">
-					<button class="button" data-cmd="/reconnect"><i class="fa fa-plug" aria-hidden></i> <strong>Reconnect</strong></button>
+					<button class="button" data-cmd="/reconnect">
+						<i class="fa fa-plug" aria-hidden></i> <strong>Reconnect</strong>
+					</button> {}
+					{PS.connection?.reconnectTimer && <small>(Autoreconnect in {Math.round(PS.connection.reconnectDelay / 1000)}s)</small>}
 				</p>}
 			</ChatLog>
 			{room.tour && <TournamentBox tour={room.tour} left={tinyLayout ? 0 : 146} />}

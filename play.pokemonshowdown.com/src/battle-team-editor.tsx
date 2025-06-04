@@ -1126,8 +1126,11 @@ class TeamTextbox extends preact.Component<{
 		this.resetScroll();
 		this.forceUpdate();
 	}
-	selectResult = (type: string, name: string, moveSlot?: string) => {
-		if (!type) {
+	selectResult = (type: string | null, name: string, moveSlot?: string) => {
+		if (type === null) {
+			this.resetScroll();
+			this.forceUpdate();
+		} else if (!type) {
 			this.changeSet(this.innerFocus!.type, '');
 		} else {
 			this.changeSet(type as SelectionType, name, moveSlot);
@@ -1482,7 +1485,7 @@ class TeamTextbox extends preact.Component<{
 							style={
 								`top:${prevOffset - 7}px;left:0;position:absolute;text-align:right;` +
 								`width:94px;padding:103px 5px 0 0;min-height:24px;pointer-events:none;` +
-								Dex.getTeambuilderSprite(set, editor.gen)
+								Dex.getTeambuilderSprite(set, editor.dex)
 							}
 						>
 							<div>{species.types.map(type => TeamEditor.renderTypeIcon(type))}<span class="itemicon" style={itemStyle}></span></div>
@@ -1604,7 +1607,7 @@ class TeamWizard extends preact.Component<{
 	}
 	renderSet(set: Dex.PokemonSet | undefined, i: number) {
 		const { editor } = this.props;
-		const sprite = Dex.getTeambuilderSprite(set, editor.gen);
+		const sprite = Dex.getTeambuilderSprite(set, editor.dex);
 		if (!set) {
 			return <div class="set-button">
 				<div style="text-align:right">
@@ -1745,10 +1748,13 @@ class TeamWizard extends preact.Component<{
 			if (!TeamEditor.probablyMobile()) searchBox.focus();
 		}
 	}
-	selectResult = (type: string, name: string, slot?: string, reverse?: boolean) => {
+	selectResult = (type: string | null, name: string, slot?: string, reverse?: boolean) => {
 		const { editor } = this.props;
 		this.clearSearchBox();
-		if (!type) {
+		if (type === null) {
+			this.resetScroll();
+			this.forceUpdate();
+		} if (!type) {
 			editor.setSearchValue('');
 			this.resetScroll();
 			this.forceUpdate();

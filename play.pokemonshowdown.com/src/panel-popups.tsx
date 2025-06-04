@@ -625,9 +625,7 @@ class OptionsPanel extends PSRoomPanel {
 			break;
 		}
 		case 'tournaments': {
-			if (elem.value === "hide") PS.prefs.set(setting, elem.value);
-			if (elem.value === "notify") PS.prefs.set(setting, elem.value);
-			if (!elem.value) PS.prefs.set(setting, null);
+			PS.prefs.set(setting, !elem.value ? null : elem.value as 'hide' | 'notify');
 			break;
 		}
 		case 'refreshprompt':
@@ -771,8 +769,8 @@ class OptionsPanel extends PSRoomPanel {
 			<p>
 				<label class="optlabel">
 					Tournaments: <select name="tournaments" class="button" onChange={this.handleOnChange}>
-						<option value="" selected={!PS.prefs.tournaments}>No notifications</option>
-						<option value="notify" selected={PS.prefs.tournaments === "notify"}>Notifications</option>
+						<option value="" selected={!PS.prefs.tournaments}>Notify when joined</option>
+						<option value="notify" selected={PS.prefs.tournaments === "notify"}>Always notify</option>
 						<option value="hide" selected={PS.prefs.tournaments === "hide"}>Hide</option>
 					</select>
 				</label>
@@ -1423,15 +1421,16 @@ class LeaveRoomPanel extends PSRoomPanel {
 
 	override render() {
 		const room = this.props.room;
-		const parentRoomId = (this.props.room.parentElem as HTMLInputElement).value;
+		const parentRoomid = room.parentRoomid!;
+
 		return <PSPanelWrapper room={room} width={480}><div class="pad">
-			<p>Are you sure you want to exit this room?</p>
+			<p>Close <code>{parentRoomid || "ERROR"}</code>?</p>
 			<p class="buttonbar">
-				<button data-cmd={`/closeand /close ${parentRoomId}`} class="button autofocus">
+				<button data-cmd={`/closeand /close ${parentRoomid}`} class="button autofocus">
 					<strong>Close Room</strong>
 				</button> {}
 				<button data-cmd="/close" class="button">
-					<strong>Cancel</strong>
+					Cancel
 				</button>
 			</p>
 		</div></PSPanelWrapper>;

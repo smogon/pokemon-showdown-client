@@ -11,44 +11,131 @@ declare const SockJS: any;
 declare const POKEMON_SHOWDOWN_TESTCLIENT_KEY: string | undefined;
 
 export class PSConnection {
-	socket: any = null;
+	socket: WebSocket | null = null;
 	connected = false;
-	queue = [] as string[];
+	queue: string[] = [];
+	reconnectDelay = 1000;
+	private reconnectCap = 15000;
+	private shouldReconnect = true;
+	reconnectTimer: ReturnType<typeof setTimeout> | null = null;
+	private worker: Worker | null = null;
+
 	constructor() {
 		const loading = PSStorage.init();
 		if (loading) {
 			loading.then(() => {
-				this.connect();
+				this.initConnection();
 			});
 		} else {
-			this.connect();
+			this.initConnection();
 		}
 	}
-	connect() {
+
+	initConnection() {
+		if (!this.tryConnectInWorker()) this.directConnect();
+	}
+
+	canReconnect() {
+		const uptime = Date.now() - PS.startTime;
+		if (uptime > 24 * 60 * 60 * 1000) {
+			PS.confirm(`It's been over a day since you first connected. Please refresh.`, {
+				okButton: 'Refresh',
+			}).then(confirmed => {
+				if (confirmed) PS.room?.send(`/refresh`);
+			});
+			return false;
+		}
+		return this.shouldReconnect;
+	}
+
+	tryConnectInWorker(): boolean {
+		if (this.socket) return false; // must be one or the other
+		if (this.connected) return true;
+
+		if (this.worker) {
+			this.worker.postMessage({ type: 'connect', server: PS.server });
+			return true;
+		}
+
+		try {
+			const worker = new Worker('/js/client-connection-worker.js');
+			this.worker = worker;
+
+			worker.postMessage({ type: 'connect', server: PS.server });
+
+			worker.onmessage = event => {
+				const { type, data } = event.data;
+				switch (type) {
+				case 'connected':
+					console.log('\u2705 (CONNECTED via worker)');
+					this.connected = true;
+					this.queue.forEach(msg => worker.postMessage({ type: 'send', data: msg }));
+					this.queue = [];
+					PS.update();
+					break;
+				case 'message':
+					PS.receive(data);
+					break;
+				case 'disconnected':
+					this.handleDisconnect();
+					break;
+				case 'error':
+					console.warn(`Worker connection error: ${data}`);
+					this.worker = null;
+					// onerror can occur on abrupt disconnects or fatal errors.
+					// handleDisconnect ensures proper cleanup and also attemps to reconnect.
+					this.handleDisconnect(); // fallback
+					break;
+				}
+			};
+
+			worker.onerror = (ev: ErrorEvent) => {
+				console.warn('Worker connection error:', ev);
+				this.worker = null;
+				this.directConnect(); // fallback
+			};
+
+			return true;
+		} catch {
+			console.warn('Worker connection failed, falling back to regular connection.');
+			this.worker = null;
+			return false;
+		}
+	}
+
+	directConnect() {
+		if (this.worker) return; // must be one or the other
+
 		const server = PS.server;
-		const port = server.protocol === 'https' ? `:${server.port}` : `:${server.httpport || server.port}`;
+		const port = server.protocol === 'https' ? `:${server.port}` : `:${server.httpport!}`;
 		const url = `${server.protocol}://${server.host}${port}${server.prefix}`;
+
 		try {
 			this.socket = new SockJS(url, [], { timeout: 5 * 60 * 1000 });
 		} catch {
 			this.socket = new WebSocket(url.replace('http', 'ws') + '/websocket');
 		}
-		const socket = this.socket;
+
+		const socket = this.socket!;
+
 		socket.onopen = () => {
 			console.log('\u2705 (CONNECTED)');
 			this.connected = true;
-			PS.connected = true;
-			for (const msg of this.queue) socket.send(msg);
+			this.reconnectDelay = 1000;
+			this.queue.forEach(msg => socket.send(msg));
 			this.queue = [];
 			PS.update();
 		};
-		socket.onmessage = (e: MessageEvent) => {
-			PS.receive('' + e.data);
+
+		socket.onmessage = (ev: MessageEvent) => {
+			PS.receive('' + ev.data);
 		};
+
 		socket.onclose = () => {
+			console.log('\u274C (DISCONNECTED)');
+			this.handleDisconnect();
 			console.log('\u2705 (DISCONNECTED)');
 			this.connected = false;
-			PS.connected = false;
 			PS.isOffline = true;
 			for (const roomid in PS.rooms) {
 				const room = PS.rooms[roomid]!;
@@ -57,32 +144,74 @@ export class PSConnection {
 			this.socket = null;
 			PS.update();
 		};
-		socket.onerror = () => {
-			PS.connected = false;
+
+		socket.onerror = (ev: Event) => {
 			PS.isOffline = true;
-			PS.alert("Connection error.");
+			// no useful info to print from the event
+			this.retryConnection();
+			PS.update();
 		};
 	}
-	disconnect() {
-		this.socket.close();
-		PS.connection = null;
-		PS.connected = false;
+
+	private handleDisconnect() {
+		this.connected = false;
 		PS.isOffline = true;
+		this.socket = null;
+		for (const roomid in PS.rooms) {
+			const room = PS.rooms[roomid]!;
+			if (room.connected === true) room.connected = 'autoreconnect';
+		}
+		this.retryConnection();
+		PS.update();
 	}
+
+	private retryConnection() {
+		if (!this.canReconnect()) return;
+		if (this.reconnectTimer) return;
+
+		this.reconnectTimer = setTimeout(() => {
+			this.reconnectTimer = null;
+			if (!this.connected && this.canReconnect()) {
+				PS.mainmenu.send('/reconnect');
+				this.reconnectDelay = Math.min(this.reconnectDelay * 2, this.reconnectCap);
+			}
+			PS.update();
+		}, this.reconnectDelay);
+	}
+
+	disconnect() {
+		this.shouldReconnect = false;
+		this.socket?.close();
+		this.worker?.terminate();
+		this.worker = null;
+		this.handleDisconnect();
+		PS.update();
+	}
+	reconnect() {
+		if (this.connected) return;
+		if (this.worker && this.tryConnectInWorker()) return;
+		this.directConnect();
+	}
+
 	send(msg: string) {
 		if (!this.connected) {
 			this.queue.push(msg);
 			return;
 		}
-		this.socket.send(msg);
+		if (this.worker) {
+			this.worker.postMessage({ type: 'send', data: msg });
+		} else if (this.socket) {
+			this.socket.send(msg);
+		}
 	}
+
 	static connect() {
 		if (PS.connection?.socket) return;
 		PS.isOffline = false;
 		if (!PS.connection) {
 			PS.connection = new PSConnection();
 		} else {
-			PS.connection.connect();
+			PS.connection.reconnect();
 		}
 		PS.prefs.doAutojoin();
 	}
@@ -92,7 +221,7 @@ export class PSStorage {
 	static frame: WindowProxy | null = null;
 	static requests: Record<string, (data: any) => void> | null = null;
 	static requestCount = 0;
-	static readonly origin = 'https://' + Config.routes.client;
+	static readonly origin = `https://${Config.routes.client}`;
 	static loader?: () => void;
 	static loaded: Promise<void> | boolean = false;
 	static init(): void | Promise<void> {
@@ -102,7 +231,7 @@ export class PSStorage {
 		}
 		if (Config.testclient) {
 			return;
-		} else if (location.protocol + '//' + location.hostname === PSStorage.origin) {
+		} else if (`${location.protocol}//${location.hostname}` === PSStorage.origin) {
 			// Same origin, everything can be kept as default
 			Config.server ||= Config.defaultserver;
 			return;
@@ -128,7 +257,7 @@ export class PSStorage {
 		} else {
 			Config.server ||= Config.defaultserver;
 			$(
-				'<iframe src="https://' + Config.routes.client + '/crossprotocol.html?v1.2" style="display: none;"></iframe>'
+				`<iframe src="https://${Config.routes.client}/crossprotocol.html?v1.2" style="display: none;"></iframe>`
 			).appendTo('body');
 			setTimeout(() => {
 				// HTTPS may be blocked
@@ -154,7 +283,7 @@ export class PSStorage {
 			if (Config.server.registered && Config.server.id !== 'showdown' && Config.server.id !== 'smogtours') {
 				const link = document.createElement('link');
 				link.rel = 'stylesheet';
-				link.href = '//' + Config.routes.client + '/customcss.php?server=' + encodeURIComponent(Config.server.id);
+				link.href = `//${Config.routes.client}/customcss.php?server=${encodeURIComponent(Config.server.id)}`;
 				document.head.appendChild(link);
 			}
 			Object.assign(PS.server, Config.server);

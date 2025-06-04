@@ -20,6 +20,9 @@ import { PS, type PSRoom, type RoomID } from "./client-main";
 import type { ChatRoom } from "./panel-chat";
 import { PSHeader, PSMiniHeader } from "./panel-topbar";
 
+export const VERTICAL_HEADER_WIDTH = 240;
+export const NARROW_MODE_HEADER_WIDTH = 280;
+
 export class PSRouter {
 	roomid = '' as RoomID;
 	panelState = '';
@@ -139,7 +142,7 @@ export class PSRouter {
 	subscribeHistory() {
 		const currentRoomid = location.pathname.slice(1);
 		if (/^[a-z0-9-]+$/.test(currentRoomid)) {
-			if (currentRoomid !== 'preactalpha' && currentRoomid !== 'preactbeta') {
+			if (currentRoomid !== 'preactalpha' && currentRoomid !== 'preactbeta' && currentRoomid !== 'beta') {
 				PS.join(currentRoomid as RoomID);
 			}
 		}
@@ -259,8 +262,7 @@ export class PSRoomPanel<T extends PSRoom = PSRoom> extends preact.Component<{ r
 		PS.closePopup();
 	}
 	focus() {
-		// mobile probably
-		if (document.body.offsetWidth < 500) return;
+		if (PSView.hasTapped) return;
 
 		const autofocus = this.base?.querySelector<HTMLElement>('.autofocus');
 		autofocus?.focus();
@@ -280,11 +282,11 @@ export function PSPanelWrapper(props: {
 }) {
 	const room = props.room;
 	if (room.location === 'mini-window') {
-		const style = props.fullSize ? 'height: auto' : null;
+		const size = props.fullSize ? ' mini-window-flex' : '';
 		return <div
 			id={`room-${room.id}`}
-			class={`mini-window-contents tiny-layout ps-room-light${props.scrollable === true ? ' scrollable' : ''}`}
-			onClick={props.focusClick ? PSView.focusIfNoSelection : undefined} style={style} onDragEnter={props.onDragEnter}
+			class={`mini-window-contents tiny-layout ps-room-light${props.scrollable === true ? ' scrollable' : ''}${size}`}
+			onClick={props.focusClick ? PSView.focusIfNoSelection : undefined} onDragEnter={props.onDragEnter}
 		>
 			{props.children}
 		</div>;
@@ -317,8 +319,14 @@ export class PSView extends preact.Component {
 	static readonly isMac = navigator.platform?.startsWith('Mac');
 	static textboxFocused = false;
 	static dragend: ((ev: DragEvent) => void) | null = null;
+	/** was the last click event a tap? heristic for mobile/desktop */
+	static hasTapped = false;
+	/** mode where the tabbar is opened rather than always being there */
+	static narrowMode = false;
+	static verticalHeaderWidth = VERTICAL_HEADER_WIDTH;
 	static setTextboxFocused(focused: boolean) {
-		if (!PSView.isChrome || PS.leftPanelWidth !== null) return;
+		if (!PSView.narrowMode) return;
+		if (!PSView.isChrome && !PSView.isSafari) return;
 		// Chrome bug: on Android, it insistently scrolls everything leftmost when scroll snap is enabled
 
 		this.textboxFocused = focused;
@@ -369,7 +377,7 @@ export class PSView extends preact.Component {
 		super();
 		PS.subscribe(() => this.forceUpdate());
 
-		if (PSView.isIOS) {
+		if (PSView.isSafari) {
 			// I don't want to prevent users from being able to zoom, but iOS Safari
 			// auto-zooms when focusing textboxes (unless the font size is 16px),
 			// and this apparently fixes it while still allowing zooming.
@@ -395,6 +403,11 @@ export class PSView extends preact.Component {
 				ev.preventDefault();
 				ev.stopImmediatePropagation();
 			}
+		});
+
+		window.addEventListener('pointerdown', ev => {
+			// can't be part of the click event because Safari pretends the pointer is a mouse
+			PSView.hasTapped = ev.pointerType === 'touch' || ev.pointerType === 'pen';
 		});
 
 		window.addEventListener('click', ev => {
@@ -492,6 +505,7 @@ export class PSView extends preact.Component {
 			}
 			if (PS.room !== clickedRoom) {
 				if (clickedRoom) PS.room = clickedRoom;
+				PS.room.autoDismissNotifications();
 				PS.closePopupsAbove(clickedRoom);
 				PS.update();
 			}
@@ -588,23 +602,32 @@ export class PSView extends preact.Component {
 		});
 	}
 	static scrollToHeader() {
-		if (window.scrollX > 0) {
-			window.scrollTo({ left: 0 });
+		if (PSView.narrowMode && window.scrollX > 0) {
+			if (PSView.isSafari || PSView.isFirefox) {
+				// Safari bug: `scrollBy` doesn't actually work when scroll snap is enabled
+				// note: interferes with the `PSView.textboxFocused` workaround for a Chrome bug
+				document.documentElement.classList.remove('scroll-snap-enabled');
+				window.scrollTo(0, 0);
+				setTimeout(() => {
+					if (!PSView.textboxFocused) document.documentElement.classList.add('scroll-snap-enabled');
+				}, 1);
+			} else {
+				window.scrollTo(0, 0);
+			}
 		}
 	}
 	static scrollToRoom() {
-		if (document.documentElement.scrollWidth > document.documentElement.clientWidth && window.scrollX === 0) {
-			if ((PSView.isIOS || PSView.isFirefox) && PS.leftPanelWidth === null) {
+		if (PSView.narrowMode && window.scrollX === 0) {
+			if (PSView.isSafari || PSView.isFirefox) {
 				// Safari bug: `scrollBy` doesn't actually work when scroll snap is enabled
-				// note: interferes with the `PSMain.textboxFocused` workaround for a Chrome bug
+				// note: interferes with the `PSView.textboxFocused` workaround for a Chrome bug
 				document.documentElement.classList.remove('scroll-snap-enabled');
-				window.scrollBy(400, 0);
+				window.scrollTo(NARROW_MODE_HEADER_WIDTH, 0);
 				setTimeout(() => {
-					document.documentElement.classList.add('scroll-snap-enabled');
-				}, 0);
+					if (!PSView.textboxFocused) document.documentElement.classList.add('scroll-snap-enabled');
+				}, 1);
 			} else {
-				// intentionally around twice as big as necessary
-				window.scrollBy(400, 0);
+				window.scrollTo(NARROW_MODE_HEADER_WIDTH, 0);
 			}
 		}
 	}
@@ -709,8 +732,8 @@ export class PSView extends preact.Component {
 		if (PS.leftPanelWidth === null) {
 			// vertical mode
 			if (room === PS.panel) {
-				const minWidth = Math.min(500, Math.max(320, document.body.offsetWidth - 9));
-				return { top: '25px', left: '200px', minWidth: `${minWidth}px` };
+				// const minWidth = Math.min(500, Math.max(320, document.body.offsetWidth - 9));
+				return { top: '30px', left: `${PSView.verticalHeaderWidth}px`, minWidth: `none` };
 			}
 		} else if (PS.leftPanelWidth === 0) {
 			// one panel visible
@@ -799,12 +822,12 @@ export class PSView extends preact.Component {
 			if (availableHeight > sourceTop + sourceHeight + height + 5 &&
 				(sourceTop + sourceHeight < availableHeight * 2 / 3 || sourceTop + sourceHeight + 200 < availableHeight)) {
 				style.top = sourceTop + sourceHeight;
-			} else if (height + 5 <= sourceTop) {
+			} else if (height + 30 <= sourceTop) {
 				style.bottom = Math.max(availableHeight - sourceTop, 0);
-			} else if (height + 10 < availableHeight) {
+			} else if (height + 35 < availableHeight) {
 				style.bottom = 5;
 			} else {
-				style.top = 0;
+				style.top = 25;
 			}
 
 			const availableAlignedWidth = availableWidth - sourceLeft;
@@ -846,7 +869,7 @@ export class PSView extends preact.Component {
 			}
 		}
 		return <div class="ps-frame" role="none">
-			<PSHeader style={{}} />
+			<PSHeader />
 			<PSMiniHeader />
 			{rooms}
 			{PS.popups.map(roomid => this.renderPopup(PS.rooms[roomid]!))}
