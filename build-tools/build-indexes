@@ -302,6 +302,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 		const monotypeBans = {};
 		const nonstandardMoves = [];
 		const gen5zuBans = {};
+		const gen4puBans = {};
 		for (const id of pokemon) {
 			const species = Dex.mod(gen).species.get(id);
 			const baseSpecies = Dex.mod(gen).species.get(species.baseSpecies);
@@ -448,6 +449,12 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 					monotypeBans[species.id] = 1;
 				}
 			}
+			if (genNum === 4) {
+				const gen4pu = Dex.formats.get(gen + 'pu');
+				if (gen4pu.exists && Dex.formats.getRuleTable(gen4pu).isBannedSpecies(species)) {
+					gen4puBans[species.id] = 1;
+				}
+			}
 		}
 
 		nonstandardMoves.push(...Object.keys(Dex.data.Moves).filter(id => {
@@ -539,6 +546,9 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			BattleTeambuilderTable[gen] = {};
 			if (genNum === 5) {
 				BattleTeambuilderTable[gen].gen5zuBans = gen5zuBans;
+			}
+			if (genNum === 4) {
+				BattleTeambuilderTable[gen].gen4puBans = gen4puBans;
 			}
 			BattleTeambuilderTable[gen].overrideTier = overrideTier;
 			BattleTeambuilderTable[gen].tiers = tiers;

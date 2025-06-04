@@ -183,16 +183,7 @@ export class BattleLog {
 			[divClass, divHTML, noNotify] = this.parseChatMessage(message, name, timestampHtml, isHighlighted);
 			if (!noNotify && isHighlighted) {
 				const notifyTitle = "Mentioned by " + name + " in " + (battle?.roomid || '');
-				if (window.PS) {
-					const room = window.PS.rooms[battle?.roomid || ''];
-					room.notify({
-						title: notifyTitle,
-						body: `"${message}"`,
-						id: 'highlight',
-					});
-				} else {
-					window.app?.rooms[battle?.roomid || '']?.notifyOnce(notifyTitle, "\"" + message + "\"", 'highlight');
-				}
+				window.app?.rooms[battle?.roomid || '']?.notifyOnce(notifyTitle, "\"" + message + "\"", 'highlight');
 			}
 			break;
 
@@ -1238,9 +1229,9 @@ export class BattleLog {
 		}
 		const colorStyle = ` style="color:${BattleLog.usernameColor(toID(name))}"`;
 		const clickableName = `<small class="groupsymbol">${BattleLog.escapeHTML(group)}</small><span class="username">${BattleLog.escapeHTML(name)}</span>`;
-		let hlClass = isHighlighted ? ' highlighted' : '';
-		let isMine = (window.app?.user?.get('name') === name) || (window.PS?.user.name === name);
-		let mineClass = isMine ? ' mine' : '';
+		const isMine = (window.app?.user?.get('name') === name) || (window.PS?.user.name === name);
+		const hlClass = isHighlighted ? ' highlighted' : '';
+		const mineClass = isMine ? ' mine' : '';
 
 		let cmd = '';
 		let target = '';
