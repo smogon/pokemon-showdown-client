@@ -251,6 +251,9 @@ class TeamEditorState extends PSModel {
 				return this.dex.moves.get(moveid).name + '|' + slot;
 			}
 			return this.dex.moves.get(result[1]).name;
+		case 'html':
+		case 'header':
+			return '';
 		default:
 			return result[1];
 		}
