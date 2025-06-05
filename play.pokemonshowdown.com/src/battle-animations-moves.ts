@@ -36770,20 +36770,20 @@ export const BattleMoveAnims: AnimTable = {
 				y: defender.y,
 				z: defender.z,
 				scale: 0.6,
-				time: 600,
+				time: 450,
 			}, {
 				x: defender.leftof(-30),
-				time: 800,
+				time: 650,
 			}, 'accel', 'fade', { filter: 'saturate(0)' });
 			scene.showEffect('mistball', {
 				x: defender.leftof(60),
 				y: defender.y,
 				z: defender.z,
 				scale: 0.6,
-				time: 600,
+				time: 450,
 			}, {
 				x: defender.leftof(30),
-				time: 800,
+				time: 650,
 			}, 'accel', 'fade', { filter: 'saturate(0)' });
 
 			scene.showEffect('mistball', {
@@ -36791,21 +36791,21 @@ export const BattleMoveAnims: AnimTable = {
 				y: defender.y,
 				z: defender.z,
 				scale: 0.6,
-				time: 800,
+				time: 650,
 			}, {
-				time: 1000,
+				time: 850,
 			}, 'linear', 'fade', { filter: 'saturate(0)' });
 			scene.showEffect('mistball', {
 				x: defender.leftof(30),
 				y: defender.y,
 				z: defender.z,
 				scale: 0.6,
-				time: 800,
+				time: 650,
 			}, {
-				time: 1000,
+				time: 850,
 			}, 'linear', 'fade', { filter: 'saturate(0)' });
 
-			attacker.delay(600);
+			attacker.delay(450);
 			attacker.anim({
 				x: defender.x,
 				y: defender.y,
@@ -36816,7 +36816,7 @@ export const BattleMoveAnims: AnimTable = {
 				time: 500,
 			}, 'ballistic2Back');
 
-			defender.delay(600);
+			defender.delay(450);
 			defender.anim({
 				xscale: 0.6,
 				yscale: 1.3,
