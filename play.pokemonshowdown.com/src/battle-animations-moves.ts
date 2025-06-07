@@ -4107,6 +4107,49 @@ export const BattleMoveAnims: AnimTable = {
 			}, 'linear', 'explode');
 		},
 	},
+	takeheart: {
+		anim(scene, [attacker]) {
+			scene.backgroundEffect('#000000', 700, 0.2);
+			scene.showEffect('rainbow', {
+				x: attacker.x,
+				y: attacker.y,
+				z: attacker.z,
+				scale: 2,
+				opacity: 1,
+				time: 0,
+			}, {
+				scale: 0.5,
+				opacity: 0,
+				time: 450,
+			}, 'decel');
+
+			scene.showEffect('mistball', {
+				x: attacker.x,
+				y: attacker.y,
+				z: attacker.z,
+				scale: 2,
+				opacity: 0.2,
+				time: 0,
+			}, {
+				scale: 1,
+				opacity: 0.5,
+				time: 450,
+			}, 'linear', 'explode');
+
+			scene.showEffect('mistball', {
+				x: attacker.x,
+				y: attacker.y,
+				z: attacker.z,
+				scale: 0,
+				opacity: 0.8,
+				time: 450,
+			}, {
+				scale: 2,
+				opacity: 0,
+				time: 850,
+			}, 'decel');
+		},
+	},
 	trick: {
 		anim(scene, [attacker, defender]) {
 			scene.showEffect('pokeball', {
