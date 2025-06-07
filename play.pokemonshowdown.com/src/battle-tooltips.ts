@@ -1497,15 +1497,14 @@ export class BattleTooltips {
 	getSpeedRange(pokemon: Pokemon): [number, number] {
 		const tr = Math.trunc || Math.floor;
 		const species = pokemon.getSpecies();
-		let battle = this.battle;
-		let rules = battle.rules;
+		const rules = this.battle.rules;
 		let baseSpe = species.baseStats.spe;
 		// Priority: 3
 		// src: pokemon-showdown/data/rulesets.ts
 		if (this.battle.tier.includes('Godly Gift') && this.battle.gen === 9 && pokemon === pokemon.side.pokemon[5]) {
 			// only update the last pokemon
 			const god = pokemon.side.pokemon.find(set => {
-				let godSpecies = Dex.species.get(set.speciesForme);
+				const godSpecies = Dex.species.get(set.speciesForme);
 				const isBanned = ["uber", "ag"].includes(godSpecies.tier.toLowerCase());
 				return isBanned;
 			}) || pokemon.side.pokemon[0];
@@ -1616,16 +1615,16 @@ export class BattleTooltips {
 			if (baseSpe < 1) baseSpe = 1;
 			if (baseSpe > 255) baseSpe = 255;
 		}
-		let level = pokemon.volatiles.transform?.[4] || pokemon.level;
-		let tier = this.battle.tier;
-		let gen = this.battle.gen;
-		let isCGT = tier.includes('Computer-Generated Teams');
-		let isRandomBattle = tier.includes('Random Battle') ||
+		const level = pokemon.volatiles.transform?.[4] || pokemon.level;
+		const tier = this.battle.tier;
+		const gen = this.battle.gen;
+		const isCGT = tier.includes('Computer-Generated Teams');
+		const isRandomBattle = tier.includes('Random Battle') ||
 			(tier.includes('Random') && tier.includes('Battle') && gen >= 6) || isCGT;
 
-		let minNature = (isRandomBattle || gen < 3) ? 1 : 0.9;
-		let maxNature = (isRandomBattle || gen < 3) ? 1 : 1.1;
-		let maxIv = (gen < 3) ? 30 : 31;
+		const minNature = (isRandomBattle || gen < 3) ? 1 : 0.9;
+		const maxNature = (isRandomBattle || gen < 3) ? 1 : 1.1;
+		const maxIv = (gen < 3) ? 30 : 31;
 
 		let min;
 		let max;
