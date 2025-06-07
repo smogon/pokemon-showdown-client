@@ -36744,6 +36744,135 @@ export const BattleMoveAnims: AnimTable = {
 			}
 		},
 	},
+	hardpress: {
+		anim(scene, [attacker, defender]) {
+			scene.showEffect('mistball', {
+				x: defender.leftof(-60),
+				y: defender.y + 20,
+				z: defender.z,
+				scale: 0.6,
+				time: 0,
+			}, {
+				y: defender.y,
+				time: 200,
+			}, 'accel', 'fade', { filter: 'saturate(0)' });
+			scene.showEffect('mistball', {
+				x: defender.leftof(-60),
+				y: defender.y,
+				z: defender.z,
+				scale: 0.6,
+				time: 200,
+			}, {
+				time: 400,
+			}, 'accel', 'fade', { filter: 'saturate(0)' });
+			scene.showEffect('mistball', {
+				x: defender.leftof(60),
+				y: defender.y + 20,
+				z: defender.z,
+				scale: 0.6,
+				time: 200,
+			}, {
+				y: defender.y,
+				time: 400,
+			}, 'accel', 'fade', { filter: 'saturate(0)' });
+
+			let xPos = [1, 0, -1, 0];
+			let zPos = [0, 1, 0, -1];
+			for (let i = 0; i < 4; i++) {
+				scene.showEffect('mudwisp', {
+					x: defender.leftof(-60),
+					y: defender.y - 15,
+					z: defender.z,
+					scale: 0.5,
+					opacity: 0.6,
+					time: 200,
+				}, {
+					x: defender.leftof(-60) + 15 * xPos[i],
+					z: defender.z + 20 * zPos[i],
+					scale: 0.2,
+					time: 400,
+				}, 'ballistic2Under', 'fade');
+
+				scene.showEffect('mudwisp', {
+					x: defender.leftof(60),
+					y: defender.y - 15,
+					z: defender.z,
+					scale: 0.5,
+					opacity: 0.6,
+					time: 400,
+				}, {
+					x: defender.leftof(60) + 15 * xPos[i],
+					z: defender.z + 20 * zPos[i],
+					scale: 0.2,
+					time: 600,
+				}, 'ballistic2Under', 'fade');
+			}
+
+			scene.showEffect('mistball', {
+				x: defender.leftof(-60),
+				y: defender.y,
+				z: defender.z,
+				scale: 0.6,
+				time: 450,
+			}, {
+				x: defender.leftof(-30),
+				time: 650,
+			}, 'accel', 'fade', { filter: 'saturate(0)' });
+			scene.showEffect('mistball', {
+				x: defender.leftof(60),
+				y: defender.y,
+				z: defender.z,
+				scale: 0.6,
+				time: 450,
+			}, {
+				x: defender.leftof(30),
+				time: 650,
+			}, 'accel', 'fade', { filter: 'saturate(0)' });
+
+			scene.showEffect('mistball', {
+				x: defender.leftof(-30),
+				y: defender.y,
+				z: defender.z,
+				scale: 0.6,
+				time: 650,
+			}, {
+				time: 850,
+			}, 'linear', 'fade', { filter: 'saturate(0)' });
+			scene.showEffect('mistball', {
+				x: defender.leftof(30),
+				y: defender.y,
+				z: defender.z,
+				scale: 0.6,
+				time: 650,
+			}, {
+				time: 850,
+			}, 'linear', 'fade', { filter: 'saturate(0)' });
+
+			attacker.delay(450);
+			attacker.anim({
+				x: defender.x,
+				y: defender.y,
+				z: defender.behind(-5),
+				time: 200,
+			}, 'accel');
+			attacker.anim({
+				time: 500,
+			}, 'ballistic2Back');
+
+			defender.delay(450);
+			defender.anim({
+				xscale: 0.6,
+				yscale: 1.3,
+				time: 200,
+			});
+			defender.delay(200);
+			defender.anim({
+				xscale: 1,
+				yscale: 1,
+				time: 150,
+			});
+		},
+	},
 	dragoncheer: {
 		anim(scene, [attacker, defender]) {
 			// Attacker cheers
