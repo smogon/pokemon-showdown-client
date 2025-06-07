@@ -1494,33 +1494,122 @@ export class BattleTooltips {
 	/**
 	 * Calculates possible Speed stat range of an opponent
 	 */
-	getSpeedRange(pokemon: Pokemon): [number, number] {
-		const tr = Math.trunc || Math.floor;
+	getSpeedRange(pokemon: Pokemon): [number, number] { const tr = Math.trunc || Math.floor;
 		const species = pokemon.getSpecies();
-		let rules = this.battle.rules;
+		let battle = this.battle;
+		let rules = battle.rules;
 		let baseSpe = species.baseStats.spe;
-		if (rules['Scalemons Mod']) {
+		// Priority: 3
+		// src: pokemon-showdown/data/rulesets.ts
+		if (this.battle.tier.includes('Godly Gift') && this.battle.gen == 9 && pokemon === pokemon.side.pokemon[5]) { // only update the last pokemon
+			const god = pokemon.side.pokemon.find(set => { let godSpecies = Dex.species.get(set.speciesForme);
+				const isNatDex = 'standardnatdex' in rules;
+				const isBanned = ["uber","ag"].includes(godSpecies.tier.toLowerCase());
+				return isBanned;
+			}) || pokemon.side.pokemon[0];
+			// awkward workaround around zacian-crowned, mega ray and friends
+			baseSpe = Dex.species.get(god.getSpecies().baseSpecies).baseStats.spe
+		}
+		// Priority: 2
+		if (rules['Flipped Mod']) { 
+			baseSpe = species.baseStats.hp;
+			if (baseSpe < 1) baseSpe = 1;
+			if (baseSpe > 255) baseSpe = 255;
+		}
+		if (rules['350 Cup Mod'] && species.bst <= 350) { 
+			baseSpe *= 2;
+			if (baseSpe < 1) baseSpe = 1;
+			if (baseSpe > 255) baseSpe = 255;
+		}
+		// Priority: 1 
+		if (rules['Scalemons Mod']) { 
 			const bstWithoutHp = species.bst - species.baseStats.hp;
 			const scale = 600 - species.baseStats.hp;
 			baseSpe = tr(baseSpe * scale / bstWithoutHp);
 			if (baseSpe < 1) baseSpe = 1;
 			if (baseSpe > 255) baseSpe = 255;
 		}
-		if (rules['Frantic Fusions Mod']) {
+		if (rules['Frantic Fusions Mod']) { 
 			const fusionSpecies = this.battle.dex.species.get(pokemon.name);
-			if (fusionSpecies.exists && fusionSpecies.name !== species.name) {
+			if (fusionSpecies.exists && fusionSpecies.name !== species.name) { 
 				baseSpe += tr(fusionSpecies.baseStats.spe / 4);
 				if (baseSpe < 1) baseSpe = 1;
 				if (baseSpe > 255) baseSpe = 255;
 			}
 		}
-		if (rules['Flipped Mod']) {
-			baseSpe = species.baseStats.hp;
-			if (baseSpe < 1) baseSpe = 1;
-			if (baseSpe > 255) baseSpe = 255;
+		// Priority: 0
+		if (this.battle.tier.includes("Mix and Mega") && this.battle.gen == 9) { 
+			const megaDelta = { 'Abomasite': { 'sp': -30, 'skip': ['Abomasnow-Mega']},
+			'Absolite': { 'sp': 40, 'skip': ['Absol-Mega']},
+			'Aerodactylite': { 'sp': 20, 'skip': ['Aerodactyl-Mega']},
+			'Aggronite': { 'sp': 0, 'skip': ['Aggron-Mega']},
+			'Alakazite': { 'sp': 30, 'skip': ['Alakazam-Mega']},
+			'Altarianite': { 'sp': 0, 'skip': ['Altaria-Mega']},
+			'Ampharosite': { 'sp': -10, 'skip': ['Ampharos-Mega']},
+			'Audinite': { 'sp': 0, 'skip': ['Audino-Mega']},
+			'Banettite': { 'sp': 10, 'skip': ['Banette-Mega']},
+			'Beedrillite': { 'sp': 70, 'skip': ['Beedrill-Mega']},
+			'Blastoisinite': { 'sp': 0, 'skip': ['Blastoise-Mega']},
+			'Blazikenite': { 'sp': 20, 'skip': ['Blaziken-Mega']},
+			'Blue Orb': { 'sp': 0, 'skip': ['Kyogre-Primal']},
+			'Cameruptite': { 'sp': -20, 'skip': ['Camerupt-Mega']},
+			'Charizardite X': { 'sp': 0, 'skip': ['Charizard-Mega-X']},
+			'Charizardite Y': { 'sp': 0, 'skip': ['Charizard-Mega-Y']},
+			'Diancite': { 'sp': 60, 'skip': ['Diancie-Mega']},
+			'Galladite': { 'sp': 30, 'skip': ['Gallade-Mega']},
+			'Garchompite': { 'sp': -10, 'skip': ['Garchomp-Mega']},
+			'Gardevoirite': { 'sp': 20, 'skip': ['Gardevoir-Mega']},
+			'Gengarite': { 'sp': 20, 'skip': ['Gengar-Mega']},
+			'Glalitite': { 'sp': 20, 'skip': ['Glalie-Mega']},
+			'Gyaradosite': { 'sp': 0, 'skip': ['Gyarados-Mega']},
+			'Heracronite': { 'sp': -10, 'skip': ['Heracross-Mega']},
+			'Houndoominite': { 'sp': 20, 'skip': ['Houndoom-Mega']},
+			'Kangaskhanite': { 'sp': 20, 'skip': ['Kangaskhan-Mega']},
+			'Latiasite': { 'sp': 0, 'skip': ['Latias-Mega']},
+			'Latiosite': { 'sp': 0, 'skip': ['Latios-Mega']},
+			'Lopunnite': { 'sp': 30, 'skip': ['Lopunny-Mega']},
+			'Lucarionite': { 'sp': 22, 'skip': ['Lucario-Mega']},
+			'Manectite': { 'sp': 30, 'skip': ['Manectric-Mega']},
+			'Mawilite': { 'sp': 0, 'skip': ['Mawile-Mega']},
+			'Medichamite': { 'sp': 20, 'skip': ['Medicham-Mega']},
+			'Metagrossite': { 'sp': 40, 'skip': ['Metagross-Mega']},
+			'Mewtwonite X': { 'sp': 0, 'skip': ['Mewtwo-Mega-X']},
+			'Mewtwonite Y': {'sp': 10, 'skip': ['Mewtwo-Mega-Y']},
+			'Pidgeotite': { 'sp': 20, 'skip': ['Pidgeot-Mega']},
+			'Pinsirite': { 'sp': 20, 'skip': ['Pinsir-Mega']},
+			'Red Orb': { 'sp': 0, 'skip': ['Groudon-Primal']},
+			'Sablenite': { 'sp': -30, 'skip': ['Sableye-Mega']},
+			'Salamencite': { 'sp': 20, 'skip': ['Salamence-Mega']},
+			'Sceptilite': { 'sp': 25, 'skip': ['Sceptile-Mega']},
+			'Scizorite': { 'sp': 10, 'skip': ['Scizor-Mega']},
+			'Sharpedonite': { 'sp': 10, 'skip': ['Sharpedo-Mega']},
+			'Slowbronite': { 'sp': 0, 'skip': ['Slowbro-Mega']},
+			'Steelixite': { 'sp': 0, 'skip': ['Steelix-Mega']},
+			'Swampertite': { 'sp': 10, 'skip': ['Swampert-Mega']},
+			'Tyranitarite': { 'sp': 10, 'skip': ['Tyranitar-Mega']},
+			'Venusaurite': { 'sp': 0, 'skip': ['Venusaur-Mega']},
+			'Rusted Sword': { 'sp': 10, 'skip': ['Zacian-Crowned']},
+			'Rusted Shield': { 'sp': -10, 'skip': ['Zamazenta-Crowned']},
+			'Adamant Crystal': { 'sp': 0, 'skip': ['Dialga-Origin']},
+			'Griseous Core': {'sp': 0, 'skip': ['Giratina-Origin']},
+			'Lustrous Globe': {'sp': 20, 'skip': ['Palkia-Origin']},
+			'Vile Vial': { 'sp': 37, 'skip': ['Venomicon-Epilogue']},
+			'Hearthflame Mask': { 'sp': 0, 'skip': ['Ogerpon-Hearthflame', 'Ogerpon-Hearthflame-Tera']},
+			'Wellspring Mask': { 'sp': 0, 'skip': ['Ogerpon-Wellspring', 'Ogerpon-Wellspring-Tera']},
+			'Cornerstone Mask': { 'sp': 0, 'skip': ['Ogerpon-Cornerstone', 'Ogerpon-Cornerstone-Tera']},
+			};
+			const stone = pokemon.item;
+			if (!(megaDelta[stone]?.skip.includes(pokemon.speciesForme))) {
+				baseSpe += megaDelta[stone]?.sp || 0;
+				if (baseSpe < 1) baseSpe = 1;
+				if (baseSpe > 255) baseSpe = 255;
+
+			}
 		}
-		if (rules['350 Cup Mod'] && species.bst <= 350) {
-			baseSpe *= 2;
+		if (rules['Tier Shift Mod'] && this.battle.gen == 9) { 
+			const boosts = {'uu': 15,'rubl': 15,'ru': 20,'nubl': 20,'nu': 25,
+							'publ': 25,'pu': 30,'zubl': 30,'zu': 30,'nfe': 30,'lc': 30,};
+			baseSpe += boosts[species.tier.toLowerCase()] ?? 0;
 			if (baseSpe < 1) baseSpe = 1;
 			if (baseSpe > 255) baseSpe = 255;
 		}
@@ -1537,13 +1626,11 @@ export class BattleTooltips {
 
 		let min;
 		let max;
-		if (tier.includes("Let's Go")) {
-			min = tr(tr(tr(2 * baseSpe * level / 100 + 5) * minNature) * tr((70 / 255 / 10 + 1) * 100) / 100);
+		if (tier.includes("Let's Go")) { min = tr(tr(tr(2 * baseSpe * level / 100 + 5) * minNature) * tr((70 / 255 / 10 + 1) * 100) / 100);
 			max = tr(tr(tr((2 * baseSpe + maxIv) * level / 100 + 5) * maxNature) * tr((70 / 255 / 10 + 1) * 100) / 100);
 			if (tier.includes('No Restrictions')) max += 200;
 			else if (tier.includes('Random')) max += 20;
-		} else {
-			let maxIvEvOffset = maxIv + ((isRandomBattle && gen >= 3) ? 21 : 63);
+		} else { let maxIvEvOffset = maxIv + ((isRandomBattle && gen >= 3) ? 21 : 63);
 			max = tr(tr((2 * baseSpe + maxIvEvOffset) * level / 100 + 5) * maxNature);
 			min = isCGT ? max : tr(tr(2 * baseSpe * level / 100 + 5) * minNature);
 		}
