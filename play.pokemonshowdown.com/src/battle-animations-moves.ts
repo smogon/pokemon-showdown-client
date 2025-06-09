@@ -8846,11 +8846,11 @@ export const BattleMoveAnims: AnimTable = {
 				x: defender.x,
 				y: defender.y,
 				z: defender.z,
-				scale: 0.7,
+				scale: 0,
 				opacity: 1,
 				time: 1375,
 			}, {
-				scale: 1,
+				scale: 2,
 				opacity: 0,
 				time: 1850,
 			}, 'decel');
