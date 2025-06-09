@@ -8668,6 +8668,205 @@ export const BattleMoveAnims: AnimTable = {
 			}, 'swing');
 		},
 	},
+	ragefist: {
+		anim(scene, [attacker, defender]) {
+
+			scene.backgroundEffect('#000000', 900, 0.3);
+			scene.showEffect('angry', {
+				x: attacker.x + 20,
+				y: attacker.y + 20,
+				z: attacker.z,
+				scale: 0.5,
+				opacity: 0.6,
+				time: 0,
+			}, {
+				scale: 1.2,
+				opacity: 1,
+				time: 350,
+			}, 'ballistic2Under', 'fade');
+
+			scene.showEffect('angry', {
+				x: attacker.x - 20,
+				y: attacker.y + 10,
+				z: attacker.z,
+				scale: 0.5,
+				opacity: 0.6,
+				time: 100,
+			}, {
+				scale: 1.2,
+				opacity: 1,
+				time: 550,
+			}, 'ballistic2Under', 'fade');
+
+			scene.showEffect('angry', {
+				x: attacker.x,
+				y: attacker.y + 40,
+				z: attacker.z,
+				scale: 0.5,
+				opacity: 0.6,
+				time: 250,
+			}, {
+				scale: 1.2,
+				opacity: 1,
+				time: 700,
+			}, 'ballistic2Under', 'fade');
+
+			scene.showEffect('shadowball', {
+				x: attacker.x,
+				y: attacker.y,
+				z: attacker.z,
+				scale: 0,
+				opacity: 0.8,
+				time: 150,
+			}, {
+				scale: 2,
+				opacity: 0,
+				time: 1300,
+			}, 'decel');
+
+			scene.showEffect('shadowball', {
+				x: attacker.x + 100,
+				y: attacker.y + 60,
+				z: attacker.z,
+				scale: 0.5,
+				opacity: 0.7,
+				time: 100,
+			}, {
+				x: attacker.x,
+				y: attacker.y,
+				scale: 0.3,
+				opacity: 0,
+				time: 600,
+			}, 'decel');
+
+			scene.showEffect('shadowball', {
+				x: attacker.x - 90,
+				y: attacker.y + 30,
+				z: attacker.z,
+				scale: 0.7,
+				opacity: 0.6,
+				time: 200,
+			}, {
+				x: attacker.x,
+				y: attacker.y,
+				scale: 0.4,
+				opacity: 0,
+				time: 675,
+			}, 'decel');
+
+			scene.showEffect('shadowball', {
+				x: attacker.x + 70,
+				y: attacker.y - 40,
+				z: attacker.z,
+				scale: 0.6,
+				opacity: 0.6,
+				time: 300,
+			}, {
+				x: attacker.x,
+				y: attacker.y,
+				scale: 0.3,
+				opacity: 0,
+				time: 750,
+			}, 'decel');
+
+			scene.showEffect('shadowball', {
+				x: attacker.x - 80,
+				y: attacker.y - 30,
+				z: attacker.z,
+				scale: 0.6,
+				opacity: 0.6,
+				time: 400,
+			}, {
+				x: attacker.x,
+				y: attacker.y,
+				scale: 0.3,
+				opacity: 0,
+				time: 800,
+			}, 'decel');
+
+			scene.showEffect('shadowball', {
+				x: attacker.x,
+				y: attacker.y,
+				z: attacker.z,
+				scale: 2,
+				opacity: 0.2,
+				time: 300,
+			}, {
+				scale: 1,
+				opacity: 0.5,
+				time: 800,
+			}, 'linear', 'explode');
+
+			scene.showEffect('shadowball', {
+				x: attacker.x,
+				y: attacker.y,
+				z: attacker.z,
+				scale: 0,
+				opacity: 0.8,
+				time: 750,
+			}, {
+				scale: 2,
+				opacity: 0,
+				time: 1050,
+			}, 'decel');
+
+			scene.backgroundEffect('#000000', 400, 0);
+			attacker.delay(1100);
+			attacker.anim({
+				x: defender.x,
+				y: defender.y,
+				z: defender.behind(-20),
+				opacity: 0,
+				time: 275,
+			}, 'linear');
+
+			attacker.anim({
+				time: 275,
+			}, 'linear');
+
+			attacker.anim({
+				opacity: 1,
+				time: 525,
+			}, 'linear');
+
+			scene.showEffect('shadowball', {
+				x: defender.x,
+				y: defender.y,
+				z: defender.z,
+				scale: 0,
+				opacity: 0.8,
+				time: 1375,
+			}, {
+				scale: 2,
+				opacity: 0,
+				time: 1950,
+			}, 'decel');
+
+			scene.showEffect('fist', {
+				x: defender.x,
+				y: defender.y,
+				z: defender.z,
+				scale: 0.7,
+				opacity: 1,
+				time: 1375,
+			}, {
+				scale: 1,
+				opacity: 0,
+				time: 1850,
+			}, 'decel');
+
+			defender.delay(1370);
+			defender.anim({
+				x: defender.leftof(15),
+				y: defender.y,
+				z: defender.behind(20),
+				time: 50,
+			}, 'swing');
+			defender.anim({
+				time: 500,
+			}, 'swing');
+		},
+	},
 	focuspunch: {
 		anim(scene, [attacker, defender]) {
 			scene.backgroundEffect('#000000', 700, 0.2);
@@ -37315,7 +37514,6 @@ BattleMoveAnims['lunarblessing'] = { anim: BattleMoveAnims['moonlight'].anim };
 BattleMoveAnims['mountaingale'] = { anim: BattleMoveAnims['powergem'].anim };
 BattleMoveAnims['pounce'] = { anim: BattleMoveAnims['bodyslam'].anim };
 BattleMoveAnims['powershift'] = { anim: BattleMoveAnims['skillswap'].anim };
-BattleMoveAnims['ragefist'] = { anim: BattleMoveAnims['shadowpunch'].anim };
 BattleMoveAnims['ragingbull'] = { anim: BattleMoveAnims['gigaimpact'].anim };
 BattleMoveAnims['shedtail'] = { anim: BattleMoveAnims['substitute'].anim };
 BattleMoveAnims['shelter'] = { anim: BattleMoveAnims['withdraw'].anim };
