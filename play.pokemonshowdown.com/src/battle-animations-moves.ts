@@ -3866,7 +3866,7 @@ export const BattleMoveAnims: AnimTable = {
 					y: defender.y + 130,
 					opacity: 0,
 					time: 1400,
-				}, 'accel', 'fade');		
+				}, 'accel', 'fade');
 			}
 		},
 	},
