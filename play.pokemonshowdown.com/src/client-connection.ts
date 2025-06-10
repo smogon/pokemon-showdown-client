@@ -19,6 +19,7 @@ export class PSConnection {
 	private shouldReconnect = true;
 	reconnectTimer: ReturnType<typeof setTimeout> | null = null;
 	private worker: Worker | null = null;
+	battleRoomsToRejoin: string[] = [];
 
 	constructor() {
 		const loading = PSStorage.init();
@@ -157,9 +158,15 @@ export class PSConnection {
 		this.connected = false;
 		PS.isOffline = true;
 		this.socket = null;
+		this.battleRoomsToRejoin = [];
 		for (const roomid in PS.rooms) {
 			const room = PS.rooms[roomid]!;
-			if (room.connected === true) room.connected = 'autoreconnect';
+			if (room.connected === true) {
+				room.connected = 'autoreconnect';
+				if (room.type === 'battle' && roomid.startsWith('battle-')) {
+					this.battleRoomsToRejoin.push(roomid);
+				}
+			}
 		}
 		this.retryConnection();
 		PS.update();

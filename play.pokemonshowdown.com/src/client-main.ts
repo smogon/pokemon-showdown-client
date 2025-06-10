@@ -304,6 +304,14 @@ class PSPrefs extends PSStreamModel<string | null> {
 			// send even if `rooms` is empty, for server autojoins
 			PS.send(cmd);
 		}
+		
+		if (PS.connection?.battleRoomsToRejoin?.length) {
+			const battleRooms = PS.connection.battleRoomsToRejoin;
+			PS.connection.battleRoomsToRejoin = [];
+			for (const roomid of battleRooms) {
+				PS.send(`/j ${roomid}`);
+			}
+		}
 	}
 }
 
