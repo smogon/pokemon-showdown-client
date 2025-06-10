@@ -307,8 +307,8 @@ class PSPrefs extends PSStreamModel<string | null> {
 
 		for (const roomid in PS.rooms) {
 			const room = PS.rooms[roomid]!;
-			if (room.connected === 'autoreconnect' && room.type === 'battle' && roomid.startsWith('battle-')) {
-				PS.send(`/j ${roomid}`);
+			if (room.type === 'battle') {
+				room.connect();
 			}
 		}
 	}
