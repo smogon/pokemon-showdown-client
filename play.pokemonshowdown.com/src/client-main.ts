@@ -1722,6 +1722,7 @@ type PSRoomPanelSubclass<T extends PSRoom = PSRoom> = (new () => PSRoomPanel<T>)
 	noURL?: boolean,
 	icon?: preact.ComponentChildren,
 	title?: string,
+	handleDrop?: (ev: DragEvent) => boolean | void,
 };
 
 /**
@@ -1845,16 +1846,17 @@ export const PS = new class extends PSModel {
 
 	/**
 	 * The drag-and-drop API is incredibly dumb and doesn't let us know
-	 * what's being dragged until the `drop` event, so we track it here.
+	 * what's being dragged until the `drop` event, so we track what we
+	 * do know here.
 	 *
-	 * Note that `PS.dragging` will be null if the drag was initiated
-	 * outside PS (e.g. dragging a team from File Explorer to PS), and
-	 * for security reasons it's impossible to know what they are until
-	 * they're dropped.
+	 * Note that `PS.dragging` will sometimes have type `?` if the drag
+	 * was initiated outside PS (e.g. dragging a team from File Explorer
+	 * to PS), and for security reasons it's impossible to know what
+	 * they are until they're dropped.
 	 */
 	dragging: { type: 'room', roomid: RoomID, foreground?: boolean } |
 		{ type: 'team', team: Team | number, folder: string | null } |
-		{ type: '?' } | // just a note not to try to figure out what type the dragged thing is
+		{ type: '?' } | // browser preventing us from knowing what's being dragged
 		null = null;
 	lastMessageTime = '';
 

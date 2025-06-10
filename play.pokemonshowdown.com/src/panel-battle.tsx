@@ -233,6 +233,47 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 	static readonly id = 'battle';
 	static readonly routes = ['battle-*'];
 	static readonly Model = BattleRoom;
+	static handleDrop(ev: DragEvent) {
+		const file = ev.dataTransfer?.files?.[0];
+		if (file?.type === 'text/html') {
+			let roomNum = 1;
+			for (; roomNum < 100; roomNum++) {
+				if (!PS.rooms[`battle-uploadedreplay-${roomNum}`]) break;
+			}
+			file.text().then(html => {
+				const titleStart = html.indexOf('<title>');
+				const titleEnd = html.indexOf('</title>');
+				let title = 'Uploaded Replay';
+				if (titleStart >= 0 && titleEnd > titleStart) {
+					title = html.slice(titleStart + 7, titleEnd - 1);
+					const colonIndex = title.indexOf(':');
+					const hyphenIndex = title.lastIndexOf('-');
+					if (hyphenIndex > colonIndex + 2) {
+						title = title.substring(colonIndex + 2, hyphenIndex - 1);
+					} else {
+						title = title.substring(colonIndex + 2);
+					}
+				}
+				const index1 = html.indexOf('<script type="text/plain" class="battle-log-data">');
+				const index2 = html.indexOf('<script type="text/plain" class="log">');
+				if (index1 < 0 && index2 < 0) {
+					PS.alert("Unrecognized HTML file: Only replay files are supported.");
+					return;
+				}
+				if (index1 >= 0) {
+					html = html.slice(index1 + 50);
+				} else if (index2 >= 0) {
+					html = html.slice(index2 + 38);
+				}
+				const index3 = html.indexOf('</script>');
+				html = html.slice(0, index3);
+				html = html.replace(/\\\//g, '/');
+				PS.receive(`>battle-uploadedreplay-${roomNum}\n|init|battle\n|title|${title}\n${html}`);
+				PS.receive(`>battle-uploadedreplay-${roomNum}\n|expire|Uploaded replay`);
+			});
+			return true;
+		}
+	}
 	/** last displayed team. will not show the most recent request until the last one is gone. */
 	team: ServerPokemon[] | null = null;
 	send = (text: string, elem?: HTMLElement) => {
