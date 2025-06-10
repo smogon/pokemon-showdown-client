@@ -36953,9 +36953,31 @@ export const BattleMoveAnims: AnimTable = {
 			scene.showEffect(chopDirection, {
 				x: defender.leftof(20),
 				y: defender.y + 10,
+				z: defender.behind(-15),
+				scale: 0.5,
+				opacity: 0.5,
+				time: 0,
+			}, {
+				time: 200,
+			}, 'linear', 'fade')
+			scene.showEffect(chopDirection, {
+				x: defender.leftof(20),
+				y: defender.y + 10,
+				z: defender.behind(-15),
+				scale: 0.5,
+				opacity: 0.5,
+				time: 200,
+			}, {
 				z: defender.behind(10),
-				scale: 0.6,
-				opacity: 1,
+				opacity: 0.8,
+				time: 300,
+			}, 'decel', 'fade')
+			scene.showEffect(chopDirection, {
+				x: defender.leftof(20),
+				y: defender.y + 10,
+				z: defender.behind(10),
+				scale: 0.5,
+				opacity: 0.8,
 				time: 300,
 			}, {
 				opacity: 0.5,
