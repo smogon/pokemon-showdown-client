@@ -3862,7 +3862,7 @@ export const BattleMoveAnims: AnimTable = {
 				y: attacker.y + 130,
 				opacity: 0,
 				time: 1400,
-			}, 'accel', 'fade');		
+			}, 'accel', 'fade');
 			attacker.delay(500);
 			BattleOtherAnims.shake.anim(scene, [attacker]);
 		},
