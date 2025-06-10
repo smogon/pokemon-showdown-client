@@ -3745,6 +3745,128 @@ export const BattleMoveAnims: AnimTable = {
 			}, 'accel', 'fade');
 		},
 	},
+	lunarblessing: {
+		anim(scene, [attacker]) {
+			scene.backgroundEffect(`url('https://${Config.routes.client}/fx/bg-space.jpg')`, 900, 0.6);
+			scene.showEffect('moon', {
+				x: attacker.x,
+				y: attacker.y + 150,
+				z: attacker.z,
+				scale: 1,
+				opacity: 0,
+				time: 75,
+			}, {
+				opacity: 0.8,
+				time: 1000,
+			}, 'accel', 'fade');
+
+			scene.showEffect('poisonwisp', {
+				x: attacker.x,
+				y: attacker.y,
+				z: attacker.z,
+				scale: 0.3,
+				opacity: 1,
+				time: 100,
+			}, {
+				scale: 2,
+				opacity: 0.3,
+				time: 1100,
+			}, 'decel', 'fade');
+
+			scene.showEffect('poisonwisp', {
+				x: attacker.x,
+				y: attacker.y,
+				z: attacker.z,
+				scale: 0.4,
+				opacity: 1,
+				time: 100,
+			}, {
+				scale: 1.8,
+				opacity: 0.3,
+				time: 1000,
+			}, 'decel', 'fade');
+
+			scene.showEffect('iceball', {
+				x: attacker.x,
+				y: attacker.y,
+				z: attacker.z,
+				scale: 1.5,
+				opacity: 0.2,
+				time: 0,
+			}, {
+				scale: 1,
+				opacity: 0.5,
+				time: 350,
+			}, 'linear', 'explode');
+
+			scene.showEffect('iceball', {
+				x: attacker.x,
+				y: attacker.y,
+				z: attacker.z,
+				scale: 0,
+				opacity: 0.6,
+				time: 0,
+			}, {
+				scale: 1.8,
+				opacity: 0,
+				time: 600,
+			}, 'decel', 'fade');
+
+			scene.showEffect('mistball', {
+				x: attacker.x,
+				y: attacker.y,
+				z: attacker.z + 1,
+				scale: 0,
+				opacity: 0.7,
+				time: 300,
+			}, {
+				scale: 2.9,
+				opacity: 0,
+				time: 1200,
+			}, 'decel', 'fade');
+
+			scene.showEffect('shine', {
+				x: attacker.x + 30,
+				y: attacker.y - 50,
+				z: attacker.z + 2,
+				scale: 0.3,
+				opacity: 0.7,
+				time: 400,
+			}, {
+				y: attacker.y + 130,
+				opacity: 0,
+				time: 1000,
+			}, 'accel', 'fade');
+
+			scene.showEffect('shine', {
+				x: attacker.x - 30,
+				y: attacker.y - 60,
+				z: attacker.z + 2,
+				scale: 0.25,
+				opacity: 0.7,
+				time: 600,
+			}, {
+				y: attacker.y + 130,
+				opacity: 0,
+				time: 1200,
+			}, 'accel', 'fade');
+
+			scene.showEffect('shine', {
+				x: attacker.x,
+				y: attacker.y - 70,
+				z: attacker.z + 2,
+				scale: 0.2,
+				opacity: 0.7,
+				time: 800,
+			}, {
+				y: attacker.y + 130,
+				opacity: 0,
+				time: 1400,
+			}, 'accel', 'fade');		
+			attacker.delay(500);
+			BattleOtherAnims.shake.anim(scene, [attacker]);
+		},
+	},
 	cosmicpower: {
 		anim(scene, [attacker]) {
 			scene.backgroundEffect(`url('https://${Config.routes.client}/fx/bg-space.jpg')`, 600, 0.6);
@@ -37311,7 +37433,6 @@ BattleMoveAnims['hyperdrill'] = { anim: BattleMoveAnims['drillrun'].anim };
 BattleMoveAnims['kowtowcleave'] = { anim: BattleMoveAnims['nightslash'].anim };
 BattleMoveAnims['lastrespects'] = { anim: BattleMoveAnims['memento'].anim };
 BattleMoveAnims['luminacrash'] = { anim: BattleMoveAnims['esperwing'].anim };
-BattleMoveAnims['lunarblessing'] = { anim: BattleMoveAnims['moonlight'].anim };
 BattleMoveAnims['mountaingale'] = { anim: BattleMoveAnims['powergem'].anim };
 BattleMoveAnims['pounce'] = { anim: BattleMoveAnims['bodyslam'].anim };
 BattleMoveAnims['powershift'] = { anim: BattleMoveAnims['skillswap'].anim };
