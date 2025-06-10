@@ -67,7 +67,7 @@ export class ChatRoom extends PSRoom {
 		this.connect();
 	}
 	override connect() {
-		if (!this.connected) {
+		if (!this.connected || this.connected === 'autoreconnect') {
 			if (this.pmTarget === null) PS.send(`/join ${this.id}`);
 			this.connected = true;
 			this.connectWhenLoggedIn = false;
