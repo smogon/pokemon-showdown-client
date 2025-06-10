@@ -143,7 +143,6 @@ export class BattleLog {
 		let divClass = 'chat';
 		let divHTML = '';
 		let noNotify: boolean | undefined;
-		if (!['join', 'j', 'leave', 'l', 'turn'].includes(args[0])) this.joinLeave = null;
 		if (!['name', 'n'].includes(args[0])) this.lastRename = null;
 		switch (args[0]) {
 		case 'chat': case 'c': case 'c:':
@@ -332,9 +331,13 @@ export class BattleLog {
 
 		default:
 			this.addBattleMessage(args, kwArgs);
+			this.joinLeave = null;
 			return;
 		}
-		if (divHTML) this.addDiv(divClass, divHTML, preempt);
+		if (divHTML) {
+			this.addDiv(divClass, divHTML, preempt);
+			this.joinLeave = null;
+		}
 	}
 	addBattleMessage(args: Args, kwArgs?: KWArgs) {
 		switch (args[0]) {
@@ -1211,7 +1214,7 @@ export class BattleLog {
 	static prefs(name: string) {
 		// @ts-expect-error optional, for old client
 		if (window.Storage?.prefs) return Storage.prefs(name);
-		// @ts-expect-error optional, for Preact client
+		// @ts-expect-error optional, for client rewrite
 		if (window.PS) return PS.prefs[name];
 		// may be neither, for e.g. Replays
 		return undefined;
@@ -1229,9 +1232,9 @@ export class BattleLog {
 		}
 		const colorStyle = ` style="color:${BattleLog.usernameColor(toID(name))}"`;
 		const clickableName = `<small class="groupsymbol">${BattleLog.escapeHTML(group)}</small><span class="username">${BattleLog.escapeHTML(name)}</span>`;
-		let hlClass = isHighlighted ? ' highlighted' : '';
-		let isMine = (window.app?.user?.get('name') === name) || (window.PS?.user.name === name);
-		let mineClass = isMine ? ' mine' : '';
+		const isMine = (window.app?.user?.get('name') === name) || (window.PS?.user.name === name);
+		const hlClass = isHighlighted ? ' highlighted' : '';
+		const mineClass = isMine ? ' mine' : '';
 
 		let cmd = '';
 		let target = '';
@@ -1304,7 +1307,7 @@ export class BattleLog {
 			this.changeUhtml(parts[0], htmlSrc, cmd === 'uhtml');
 			return ['', ''];
 		case 'raw':
-			return ['chat', BattleLog.sanitizeHTML(target)];
+			return ['chat', BattleLog.sanitizeHTML(target), true];
 		case 'nonotify':
 			return ['chat', BattleLog.sanitizeHTML(target), true];
 		default:

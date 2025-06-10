@@ -37,6 +37,7 @@
 	height: 100%;
 	width: 154px;
 	display: table;
+	table-layout: fixed;
 	margin: 0;
 	padding: 0;
 	border: 0;
@@ -261,7 +262,8 @@
 	resize: none;
 }
 .teamtextbox::placeholder {
-  transform: translateY(20px);
+	/* Firefox doesn't support transform, padding-top, margin-top, _or_ top... */
+	line-height: 60px;
 }
 .teaminnertextbox {
 	width: 320px;

@@ -65,6 +65,7 @@ export class MainMenuRoom extends PSRoom {
 		return '';
 	}
 	startSearch = (format: string, team?: Team) => {
+		PS.requestNotifications();
 		if (this.searchCountdown) {
 			PS.alert("Wait for this countdown to finish first...");
 			return;
@@ -86,7 +87,7 @@ export class MainMenuRoom extends PSRoom {
 		}
 		if (this.searchSent || this.search.searching?.length) {
 			this.searchSent = false;
-			PS.send('|/cancelsearch');
+			PS.send(`/cancelsearch`);
 			this.update(null);
 			return true;
 		}
@@ -106,8 +107,8 @@ export class MainMenuRoom extends PSRoom {
 	doSearch = (search: NonNullable<typeof this.searchCountdown>) => {
 		this.searchSent = true;
 		const privacy = this.adjustPrivacy();
-		PS.send(`|/utm ${search.packedTeam}`);
-		PS.send(`|${privacy}/search ${search.format}`);
+		PS.send(`/utm ${search.packedTeam}`);
+		PS.send(`${privacy}/search ${search.format}`);
 	};
 	override receiveLine(args: Args) {
 		const [cmd] = args;
@@ -436,7 +437,7 @@ class NewsPanel extends PSRoomPanel {
 	change = (ev: Event) => {
 		const target = ev.currentTarget as HTMLInputElement;
 		if (target.value === '1') {
-			document.cookie = "preactalpha=1; expires=Thu, 1 Jun 2025 12:00:00 UTC; path=/";
+			document.cookie = "preactalpha=1; expires=Thu, 1 Jul 2025 12:00:00 UTC; path=/";
 		} else {
 			document.cookie = "preactalpha=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
 		}
@@ -448,15 +449,15 @@ class NewsPanel extends PSRoomPanel {
 		const cookieSet = document.cookie.includes('preactalpha=1');
 		return <PSPanelWrapper room={this.props.room} fullSize scrollable>
 			<div class="construction">
-				This is the Preact client beta test.
+				This is the client rewrite beta test.
 				<form>
 					<label class="checkbox">
 						<input type="radio" name="preactalpha" value="1" onChange={this.change} checked={cookieSet} /> {}
-						Use Preact always
+						Use Rewrite always
 					</label>
 					<label class="checkbox">
 						<input type="radio" name="preactalpha" value="0" onChange={this.change} checked={!cookieSet} /> {}
-						Use Preact with URL
+						Use Rewrite with URL
 					</label>
 					<label class="checkbox">
 						<input type="radio" name="preactalpha" value="leave" onChange={this.change} /> {}
@@ -596,7 +597,10 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
 					</span>, " Disconnected"] : "Connecting..."}</em>
 				</button>
 				{PS.isOffline && <p class="buttonbar">
-					<button class="button" data-cmd="/reconnect"><i class="fa fa-plug" aria-hidden></i> <strong>Reconnect</strong></button>
+					<button class="button" data-cmd="/reconnect">
+						<i class="fa fa-plug" aria-hidden></i> <strong>Reconnect</strong>
+					</button> {}
+					{PS.connection?.reconnectTimer && <small>(Autoreconnect in {Math.round(PS.connection.reconnectDelay / 1000)}s)</small>}
 				</p>}
 			</TeamForm>;
 		}

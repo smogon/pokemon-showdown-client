@@ -951,7 +951,7 @@ function toId() {
 		},
 		submitSend: function (e) {
 			// Most of the code relating to this is nightmarish because of some dumb choices
-			// made when writing the original Backbone code. At least in the Preact client, event
+			// made when writing the original Backbone code. At least in the client rewrite, event
 			// handling is a lot more straightforward because it doesn't rely on Backbone's event
 			// dispatch system.
 			var target = e.currentTarget;

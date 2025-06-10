@@ -19,6 +19,7 @@ import {
 } from "./battle-choices";
 import type { Args } from "./battle-text-parser";
 import { ModifiableValue } from "./battle-tooltips";
+import { Net } from "./client-connection";
 
 type BattleDesc = {
 	id: RoomID,
@@ -50,7 +51,7 @@ export class BattlesRoom extends PSRoom {
 		this.refresh();
 	}
 	refresh() {
-		PS.send(`|/cmd roomlist ${toID(this.format)}`);
+		PS.send(`/cmd roomlist ${toID(this.format)}`);
 	}
 }
 
@@ -135,6 +136,24 @@ export class BattleRoom extends ChatRoom {
 	request: BattleRequest | null = null;
 	choices: BattleChoiceBuilder | null = null;
 	autoTimerActivated: boolean | null = null;
+
+	loadReplay() {
+		const replayid = this.id.slice(7);
+		Net(`https://replay.pokemonshowdown.com/${replayid}.json`).get().catch().then(data => {
+			try {
+				const replay = JSON.parse(data);
+				this.title = `[${replay.format}] ${replay.players.join(' vs. ')}`;
+				this.battle.stepQueue = replay.log.split('\n');
+				this.battle.atQueueEnd = false;
+				this.battle.pause();
+				this.battle.seekTurn(0);
+				this.connected = 'client-only';
+				this.update(null);
+			} catch {
+				this.receiveLine(['error', 'Battle not found']);
+			}
+		});
+	}
 }
 
 class BattleDiv extends preact.Component<{ room: BattleRoom }> {
@@ -214,6 +233,47 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 	static readonly id = 'battle';
 	static readonly routes = ['battle-*'];
 	static readonly Model = BattleRoom;
+	static handleDrop(ev: DragEvent) {
+		const file = ev.dataTransfer?.files?.[0];
+		if (file?.type === 'text/html') {
+			let roomNum = 1;
+			for (; roomNum < 100; roomNum++) {
+				if (!PS.rooms[`battle-uploadedreplay-${roomNum}`]) break;
+			}
+			file.text().then(html => {
+				const titleStart = html.indexOf('<title>');
+				const titleEnd = html.indexOf('</title>');
+				let title = 'Uploaded Replay';
+				if (titleStart >= 0 && titleEnd > titleStart) {
+					title = html.slice(titleStart + 7, titleEnd - 1);
+					const colonIndex = title.indexOf(':');
+					const hyphenIndex = title.lastIndexOf('-');
+					if (hyphenIndex > colonIndex + 2) {
+						title = title.substring(colonIndex + 2, hyphenIndex - 1);
+					} else {
+						title = title.substring(colonIndex + 2);
+					}
+				}
+				const index1 = html.indexOf('<script type="text/plain" class="battle-log-data">');
+				const index2 = html.indexOf('<script type="text/plain" class="log">');
+				if (index1 < 0 && index2 < 0) {
+					PS.alert("Unrecognized HTML file: Only replay files are supported.");
+					return;
+				}
+				if (index1 >= 0) {
+					html = html.slice(index1 + 50);
+				} else if (index2 >= 0) {
+					html = html.slice(index2 + 38);
+				}
+				const index3 = html.indexOf('</script>');
+				html = html.slice(0, index3);
+				html = html.replace(/\\\//g, '/');
+				PS.receive(`>battle-uploadedreplay-${roomNum}\n|init|battle\n|title|${title}\n${html}`);
+				PS.receive(`>battle-uploadedreplay-${roomNum}\n|expire|Uploaded replay`);
+			});
+			return true;
+		}
+	}
 	/** last displayed team. will not show the most recent request until the last one is gone. */
 	team: ServerPokemon[] | null = null;
 	send = (text: string, elem?: HTMLElement) => {
@@ -347,7 +407,24 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 
 		room.request = request;
 		room.choices = new BattleChoiceBuilder(request);
+		this.notifyRequest();
 		room.update(null);
+	}
+	notifyRequest() {
+		const room = this.props.room;
+		let oName = room.battle.farSide.name;
+		if (oName) oName = " against " + oName;
+		switch (room.request?.requestType) {
+		case 'move':
+			room.notify({ title: "Your move!", body: "Move in your battle" + oName });
+			break;
+		case 'switch':
+			room.notify({ title: "Your switch!", body: "Switch in your battle" + oName });
+			break;
+		case 'team':
+			room.notify({ title: "Team preview!", body: "Choose your team order in your battle" + oName });
+			break;
+		}
 	}
 	renderControls() {
 		const room = this.props.room;

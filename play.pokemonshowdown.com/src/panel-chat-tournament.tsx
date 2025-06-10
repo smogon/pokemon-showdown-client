@@ -118,7 +118,7 @@ export class ChatTournament extends PSModel {
 	}
 	receiveLine(args: Args) {
 		const data = args.slice(2);
-		const notify = !PS.prefs.tournaments || PS.prefs.tournaments === 'notify';
+		const notify = PS.prefs.tournaments === 'notify' || (!PS.prefs.tournaments && this.info.isJoined);
 		let cmd = args[1].toLowerCase();
 		if (args[0] === 'tournaments') {
 			switch (cmd) {
@@ -432,7 +432,7 @@ export class TournamentBox extends preact.Component<{ tour: ChatTournament, left
 		const tour = this.props.tour;
 		const room = tour.room;
 		const packedTeam = team ? team.packedTeam : '';
-		PS.send(`|/utm ${packedTeam}`);
+		PS.send(`/utm ${packedTeam}`);
 		if (tour.info.challenged) {
 			room.send(`/tournament acceptchallenge`);
 		} else if (tour.info.challenges?.length) {
@@ -444,7 +444,7 @@ export class TournamentBox extends preact.Component<{ tour: ChatTournament, left
 	validate = (ev: Event, format: string, team?: Team) => {
 		const room = this.props.tour.room;
 		const packedTeam = team ? team.packedTeam : '';
-		PS.send(`|/utm ${packedTeam}`);
+		PS.send(`/utm ${packedTeam}`);
 		room.send(`/tournament vtm`);
 		room.update(null);
 	};

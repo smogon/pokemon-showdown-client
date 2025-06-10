@@ -155,6 +155,7 @@ export const Teams = new class {
 		const team = [];
 		let i = 0;
 		let j = 0;
+		let lastI = 0;
 
 		while (true) {
 			const set: Teams.PokemonSet = {} as any;
@@ -256,15 +257,16 @@ export const Teams = new class {
 				if (i !== j) misc = buf.substring(i, j).split(',', 6);
 			}
 			if (misc) {
-				set.happiness = (misc[0] ? Number(misc[0]) : 255);
-				set.hpType = misc[1];
-				set.pokeball = misc[2];
-				set.gigantamax = !!misc[3];
-				set.dynamaxLevel = (misc[4] ? Number(misc[4]) : 10);
-				set.teraType = misc[5];
+				set.happiness = (misc[0] ? Number(misc[0]) : undefined);
+				set.hpType = misc[1] || undefined;
+				set.pokeball = misc[2] || undefined;
+				set.gigantamax = !!misc[3] || undefined;
+				set.dynamaxLevel = (misc[4] ? Number(misc[4]) : undefined);
+				set.teraType = misc[5] || undefined;
 			}
-			if (j < 0) break;
 			i = j + 1;
+			if (j < 0 || i <= lastI) break;
+			lastI = i;
 		}
 
 		return team;
@@ -274,6 +276,7 @@ export const Teams = new class {
 
 		const team = [];
 		let i = 0;
+		let lastI = 0;
 
 		while (true) {
 			const name = buf.slice(i, buf.indexOf('|', i));
@@ -287,7 +290,8 @@ export const Teams = new class {
 
 			i = buf.indexOf(']', i) + 1;
 
-			if (i < 1) break;
+			if (i < 1 || i <= lastI) break;
+			lastI = i;
 		}
 
 		return team;
