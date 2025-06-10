@@ -8674,10 +8674,10 @@ export const BattleMoveAnims: AnimTable = {
 			scene.backgroundEffect('#000000', 900, 0.3);
 			scene.showEffect('angry', {
 				x: attacker.x + 20,
-				y: attacker.y + 20,
+				y: attacker.y + 10,
 				z: attacker.z,
 				scale: 0.5,
-				opacity: 0.6,
+				opacity: 0.7,
 				time: 0,
 			}, {
 				scale: 1.2,
@@ -8687,10 +8687,10 @@ export const BattleMoveAnims: AnimTable = {
 
 			scene.showEffect('angry', {
 				x: attacker.x - 20,
-				y: attacker.y + 10,
+				y: attacker.y,
 				z: attacker.z,
 				scale: 0.5,
-				opacity: 0.6,
+				opacity: 0.7,
 				time: 100,
 			}, {
 				scale: 1.2,
@@ -8700,10 +8700,10 @@ export const BattleMoveAnims: AnimTable = {
 
 			scene.showEffect('angry', {
 				x: attacker.x,
-				y: attacker.y + 40,
+				y: attacker.y + 30,
 				z: attacker.z,
 				scale: 0.5,
-				opacity: 0.6,
+				opacity: 0.7,
 				time: 250,
 			}, {
 				scale: 1.2,
