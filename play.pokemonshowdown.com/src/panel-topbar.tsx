@@ -15,22 +15,6 @@ import { NARROW_MODE_HEADER_WIDTH, PSView, VERTICAL_HEADER_WIDTH } from "./panel
 import type { Battle } from "./battle";
 import { BattleLog } from "./battle-log"; // optional
 
-window.addEventListener('drop', e => {
-	console.log('drop ' + e.dataTransfer!.dropEffect);
-	const target = e.target as HTMLElement;
-	if ((target as HTMLInputElement).type?.startsWith("text")) {
-		PS.dragging = null;
-		return; // Ignore text fields
-	}
-
-	// The default team drop action for Firefox is to open the team as a
-	// URL, which needs to be prevented.
-	// The default file drop action for most browsers is to open the file
-	// in the tab, which is generally undesirable anyway.
-	e.preventDefault();
-	PS.dragging = null;
-	PS.updateAutojoin();
-});
 window.addEventListener('dragover', e => {
 	// this prevents the bounce-back animation
 	e.preventDefault();

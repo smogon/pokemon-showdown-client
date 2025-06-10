@@ -1234,44 +1234,101 @@ class BackgroundListPanel extends PSRoomPanel {
 	static readonly routes = ['changebackground'];
 	static readonly location = 'semimodal-popup';
 	static readonly noURL = true;
+	static handleDrop(ev: DragEvent) {
+		const files = ev.dataTransfer?.files;
+		if (files?.[0]?.type?.startsWith('image/')) {
+			// It's an image file, try to set it as a background
+			BackgroundListPanel.handleUploadedFiles(files);
+			return true;
+		}
+	}
 
-	declare state: { status?: string };
+	declare state: { status?: string, bgUrl?: string };
 
 	setBg = (ev: Event) => {
 		let curtarget = ev.currentTarget as HTMLButtonElement;
 		let bg = curtarget.value;
-		PSBackground.set('', bg);
+		if (bg === 'custom') {
+			PSBackground.set(this.props.room.args?.bgUrl as string || '', 'custom');
+			this.close();
+		} else {
+			PSBackground.set('', bg);
+		}
 		ev.preventDefault();
 		ev.stopImmediatePropagation();
 		this.forceUpdate();
 	};
 
-	uploadBg = (ev: Event) => {
-		this.setState({ status: undefined });
-		const input = this.base?.querySelector<HTMLInputElement>('input[name=bgfile]');
-		if (!input?.files?.[0]) return;
+	static handleUploadedFiles(files: FileList | null | undefined, skipConfirm?: boolean) {
+		if (!files?.[0]) return;
 
-		const file = input.files[0];
+		const file = files[0];
 		const reader = new FileReader();
 
 		reader.onload = () => {
-			const base64Image = reader.result as string;
-			PSBackground.set(base64Image, 'custom');
-			this.forceUpdate();
+			const bgUrl = reader.result as string;
+			if (bgUrl.length > 4200000) {
+				PS.join('changebackground' as RoomID, {
+					args: { error: `Image is too large and can't be saved. It should be under 3.5MB or so.` },
+				});
+				return;
+			}
+			if (skipConfirm) {
+				PSBackground.set(bgUrl, 'custom');
+			} else {
+				PS.join('changebackground' as RoomID, {
+					args: { bgUrl },
+				});
+			}
+			PS.rooms['changebackground']?.update(null);
 		};
 
 		reader.onerror = () => {
-			this.setState({ status: "Failed to load background image." });
+			PS.join('changebackground' as RoomID, {
+				args: { error: "Failed to load background image." },
+			});
 		};
 		reader.readAsDataURL(file);
+	}
+
+	uploadBg = (ev: Event) => {
+		this.setState({ status: undefined });
+		const input = this.base?.querySelector<HTMLInputElement>('input[name=bgfile]');
+		BackgroundListPanel.handleUploadedFiles(input?.files, true);
 		ev.preventDefault();
 		ev.stopImmediatePropagation();
 	};
 
+	renderUpload() {
+		const room = this.props.room;
+		if (room.args?.error) {
+			return <PSPanelWrapper room={room} width={480}><div class="pad">
+				<p class="error">{room.args.error}</p>
+				<p class="buttonbar">
+					<button data-cmd="/close" class="button"><strong>Done</strong></button>
+				</p>
+			</div></PSPanelWrapper>;
+		}
+
+		if (room.args?.bgUrl) {
+			return <PSPanelWrapper room={room} width={480}><div class="pad">
+				<p>
+					<img src={room.args.bgUrl as string} style="display:block;margin:auto;max-width:90%;max-height:500px" />
+				</p>
+				<p class="buttonbar">
+					<button onClick={this.setBg} value="custom" class="button"><strong>Set as background</strong></button> {}
+					<button data-cmd="/close" class="button">Cancel</button>
+				</p>
+			</div></PSPanelWrapper>;
+		}
+
+		return null;
+	}
+
 	override render() {
 		const room = this.props.room;
 		const option = (val: string) => val === PSBackground.id ? 'option cur' : 'option';
-		return <PSPanelWrapper room={room} width={480}><div class="pad">
+		return this.renderUpload() || <PSPanelWrapper room={room} width={480}><div class="pad">
 			<p><strong>Default</strong></p>
 			<div class="bglist">
 				<button onClick={this.setBg} value="" class={option('')}>
@@ -1321,7 +1378,7 @@ class BackgroundListPanel extends PSRoomPanel {
 			</p>
 			<p><input type="file" accept="image/*" name="bgfile" onChange={this.uploadBg} /></p>
 			{!!this.state.status && <p class="error">{this.state.status}</p>}
-			<p>
+			<p class="buttonbar">
 				<button data-cmd="/close" class="button"><strong>Done</strong></button>
 			</p>
 		</div>

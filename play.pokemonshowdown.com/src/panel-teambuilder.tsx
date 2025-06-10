@@ -5,7 +5,7 @@
  * @license AGPLv3
  */
 
-import { PS, PSRoom, type Team } from "./client-main";
+import { PS, PSRoom, type RoomID, type Team } from "./client-main";
 import { PSPanelWrapper, PSRoomPanel } from "./panels";
 import { PSTeambuilder, TeamBox } from "./panel-teamdropdown";
 import { Dex, PSUtils, toID, type ID } from "./battle-dex";
@@ -186,14 +186,14 @@ class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
 		if (PS.dragging.folder === value) PS.dragging.folder = null;
 		this.forceUpdate();
 	};
-	extractDraggedTeam(ev: DragEvent): Promise<Team | null> {
+	static extractDraggedTeam(ev: DragEvent): Promise<Team | null> | null {
 		const file = ev.dataTransfer?.files?.[0];
-		if (!file) return Promise.resolve(null);
+		if (!file) return null;
 
 		let name = file.name;
 		if (name.slice(-4).toLowerCase() !== '.txt') {
-			PS.alert(`Your file "${file.name}" is not a valid team. Team files are ".txt" files.`);
-			return Promise.resolve(null);
+			// PS.alert(`Your file "${file.name}" is not a valid team. Team files are ".txt" files.`);
+			return null;
 		}
 		name = name.slice(0, -4);
 
@@ -215,7 +215,7 @@ class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
 					format = format.slice(0, -4);
 					isBox = true;
 				}
-				name = $.trim(name.substr(bracketIndex + 1));
+				name = name.slice(bracketIndex + 1).trim();
 			}
 			return {
 				name,
@@ -228,10 +228,10 @@ class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
 			} satisfies Team;
 		});
 	}
-	addDraggedTeam(ev: DragEvent, folder?: string) {
+	static addDraggedTeam(ev: DragEvent, folder?: string) {
 		let index: number = (PS.dragging as any)?.team;
 		if (typeof index !== 'number') index = 0;
-		this.extractDraggedTeam(ev).then(team => {
+		return this.extractDraggedTeam(ev)?.then(team => {
 			if (!team) {
 				return;
 			}
@@ -244,7 +244,8 @@ class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
 			PS.teams.list.pop();
 			PS.teams.list.splice(index, 0, team);
 			PS.teams.save();
-			this.forceUpdate();
+			PS.join('teambuilder' as RoomID);
+			PS.update();
 		});
 	}
 	dropFolder = (ev: DragEvent) => {
@@ -256,7 +257,8 @@ class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
 		let team = PS.dragging.team;
 
 		if (typeof team === 'number') {
-			return this.addDraggedTeam(ev, value);
+			TeambuilderPanel.addDraggedTeam(ev, value);
+			return;
 		}
 
 		if (value.endsWith('/')) {
@@ -268,14 +270,9 @@ class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
 		ev.stopImmediatePropagation();
 		this.forceUpdate();
 	};
-	dropPanel = (ev: DragEvent) => {
-		if (PS.dragging?.type !== 'team') return;
-		let team = PS.dragging.team;
-
-		if (typeof team === 'number') {
-			return this.addDraggedTeam(ev, this.props.room.curFolder);
-		}
-	};
+	static handleDrop(ev: DragEvent) {
+		return !!this.addDraggedTeam(ev, (PS.rooms['teambuilder'] as TeambuilderRoom)?.curFolder);
+	}
 	renderFolder(value: string) {
 		const { room } = this.props;
 		const cur = room.curFolder === value;
@@ -445,7 +442,7 @@ class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
 			<div class="folderpane">
 				{this.renderFolderList()}
 			</div>
-			<div class="teampane" onDrop={this.dropPanel}>
+			<div class="teampane">
 				{filterFolder ? (
 					<h2>
 						<i class="fa fa-folder-open" aria-hidden></i> {filterFolder} {}

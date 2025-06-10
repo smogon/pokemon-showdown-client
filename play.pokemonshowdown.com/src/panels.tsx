@@ -586,6 +586,43 @@ export class PSView extends preact.Component {
 			ev.preventDefault();
 		});
 
+		window.addEventListener('drop', ev => {
+			console.log(`drop: ${ev.dataTransfer?.dropEffect as any}`);
+			const target = ev.target as HTMLElement;
+			if (PS.dragging?.type === 'room') {
+				if ((target as HTMLInputElement).type?.startsWith("text")) {
+					PS.dragging = null;
+					return; // Rooms dragged into text fields become URLs
+				}
+				PS.updateAutojoin();
+				ev.preventDefault();
+				PS.dragging = null;
+				return;
+			}
+			if (!PS.dragging || PS.dragging.type === '?') {
+				// dragging text
+				if (!ev.dataTransfer?.files.length) return;
+			}
+
+			// The default file drop action for Firefox is to open the file as a
+			// URL, which needs to be prevented.
+			// The default file drop action for most browsers is to open the file
+			// in the tab, which is generally undesirable anyway.
+			ev.preventDefault();
+
+			for (const Panel of Object.values(PS.roomTypes)) {
+				if (Panel!.handleDrop?.(ev)) {
+					PS.dragging = null;
+					return;
+				}
+			}
+			PS.alert(
+				`Sorry, we don't know what to do with that file.\n\nSupported file types:\n` +
+				`- images (to set your background)\n- downloaded replay files\n- team files`
+			);
+			PS.dragging = null;
+		});
+
 		const colorSchemeQuery = window.matchMedia?.('(prefers-color-scheme: dark)');
 		if (colorSchemeQuery?.media !== 'not all') {
 			colorSchemeQuery.addEventListener('change', cs => {
