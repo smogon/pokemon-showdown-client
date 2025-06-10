@@ -305,10 +305,9 @@ class PSPrefs extends PSStreamModel<string | null> {
 			PS.send(cmd);
 		}
 
-		if (PS.connection?.battleRoomsToRejoin?.length) {
-			const battleRooms = PS.connection.battleRoomsToRejoin;
-			PS.connection.battleRoomsToRejoin = [];
-			for (const roomid of battleRooms) {
+		for (const roomid in PS.rooms) {
+			const room = PS.rooms[roomid]!;
+			if (room.connected === 'autoreconnect' && room.type === 'battle' && roomid.startsWith('battle-')) {
 				PS.send(`/j ${roomid}`);
 			}
 		}
