@@ -36959,7 +36959,7 @@ export const BattleMoveAnims: AnimTable = {
 				time: 0,
 			}, {
 				time: 200,
-			}, 'linear', 'fade')
+			}, 'linear', 'fade');
 			scene.showEffect(chopDirection, {
 				x: defender.leftof(20),
 				y: defender.y + 10,
@@ -36971,7 +36971,7 @@ export const BattleMoveAnims: AnimTable = {
 				z: defender.behind(10),
 				opacity: 0.8,
 				time: 300,
-			}, 'decel', 'fade')
+			}, 'decel', 'fade');
 			scene.showEffect(chopDirection, {
 				x: defender.leftof(20),
 				y: defender.y + 10,
