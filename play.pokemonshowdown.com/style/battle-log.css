@@ -132,7 +132,7 @@ button:disabled {
 	-moz-box-shadow: 0 1px 2px rgba(0,0,0,.2), inset 0 -1px 2px rgba(255,255,255,1);
 	box-shadow: 0 1px 2px rgba(0,0,0,.2), inset 0 -1px 2px rgba(255,255,255,1);
 	border-radius: 5px;
-	font-family: Verdana, PGLDings, Helvetica, Arial, sans-serif;
+	font-family: PGLDings, Verdana, Helvetica, Arial, sans-serif;
 	display: inline-block;
 	vertical-align: middle;
 
@@ -356,7 +356,7 @@ select.button {
 	background: transparent;
 	color: inherit;
 	border: 0 none;
-	font-family: Verdana, PGLDings, Helvetica, Arial, sans-serif;
+	font-family: PGLDings, Verdana, Helvetica, Arial, sans-serif;
 	font-size: 10pt;
 	display: block;
 	cursor: pointer;
@@ -408,7 +408,7 @@ select.button {
 	border: 1px solid #AAAAAA;
 	border-radius: 3px;
 	padding: 2px 3px;
-	font-family: Verdana, PGLDings, Helvetica, Arial, sans-serif;
+	font-family: PGLDings, Verdana, Helvetica, Arial, sans-serif;
 	font-size: 9pt;
 
 	box-shadow: inset 0px 1px 2px #CCCCCC, 1px 1px 0 rgba(255,255,255,.6);
@@ -478,7 +478,7 @@ pre.textbox {
 	padding: 2px 5px;
 	margin: 0;
 	font-size: 9pt;
-	font-family: Verdana, PGLDings, sans-serif;
+	font-family: PGLDings, Verdana, sans-serif;
 	text-align: left;
 	overflow: hidden;
 }
@@ -518,7 +518,7 @@ hr {
 
 select {
 	font-size: 9pt;
-	font-family: Verdana, PGLDings, Helvetica, Arial, sans-serif;
+	font-family: PGLDings, Verdana, Helvetica, Arial, sans-serif;
 }
 
 input[type=range] {
@@ -663,7 +663,7 @@ input[type=range]:active::-webkit-slider-thumb {
 	border: 1px solid #AAAAAA;
 	background: #E0E7EA;
 	border-left: 0; border-right: 0;
-	font-family: Verdana, PGLDings, sans-serif;
+	font-family: PGLDings, Verdana, sans-serif;
 	font-size: 13pt;
 }
 .dark .message-log h2 {
@@ -792,7 +792,7 @@ details.readmore summary::-webkit-details-marker details.details summary::-webki
 }
 details.readmore summary:after, details.readmore summary:hover:has(a:hover):after {
 	content: '[read more]';
-	font-family: Verdana, PGLDings, sans-serif;
+	font-family: PGLDings, Verdana, sans-serif;
 	margin-left: 0.5em;
 	text-decoration: none;
 	color: #888;

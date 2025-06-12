@@ -3,9 +3,17 @@
  *********************************************************/
 @font-face {
 	font-family: PGLDings;
-	src: url("fonts/PGLDings.woff2") format('woff2'),
+	src: 
+		url("fonts/PGLDings.woff2") format('woff2'),
 		url("fonts/PGLDings.woff") format('woff'),
 		url("fonts/PGLDings.ttf") format('ttf');
+	unicode-range:
+		U+2600, U+2601, U+2602, U+2603,
+		U+2605, U+2642, U+2640, U+2660,
+		U+2663, U+2665, U+2666, U+266A,
+		U+25A1, U+25B3, U+25C7, U+25CE,
+		U+25CB, U+E081-E0A5;
+	font-display: auto;
 }
 html, body {
 	margin: 0;
