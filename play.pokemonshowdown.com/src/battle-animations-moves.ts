@@ -2897,6 +2897,58 @@ export const BattleMoveAnims: AnimTable = {
 			}, 'ballistic2Under', 'fade');
 		},
 	},
+	slackoff: {
+		anim(scene, [attacker]) {
+			attacker.anim({
+				yscale: 0.8,
+				time: 150,
+			}, 'ease');
+			attacker.delay(150);
+			attacker.anim({
+				yscale: 1,
+				time: 550,
+			}, 'ease');
+			
+			scene.showEffect('iceball', {
+				x: attacker.x + 10,
+				y: attacker.y + 10,
+				z: attacker.z,
+				scale: 0.18,
+				opacity: 0,
+				time: 0,
+			}, {
+				y: attacker.y + 80,
+				opacity: 0.6,
+				time: 700,
+			}, 'linear', 'fade', { filter: 'brightness(1.5)' });
+
+			scene.showEffect('iceball', {
+				x: attacker.x,
+				y: attacker.y - 5,
+				z: attacker.z,
+				scale: 0.22,
+				opacity: 0,
+				time: 200,
+			}, {
+				y: attacker.y + 90,
+				opacity: 0.5,
+				time: 900,
+			}, 'linear', 'fade', { filter: 'brightness(1.5)' });
+
+			scene.showEffect('iceball', {
+				x: attacker.x + 2,
+				y: attacker.y,
+				z: attacker.z,
+				scale: 0.15,
+				opacity: 0,
+				time: 400,
+			}, {
+				y: attacker.y + 85,
+				opacity: 0.55,
+				time: 1100,
+			}, 'linear', 'fade', { filter: 'brightness(1.5)' });
+		},
+	},
 	howl: {
 		anim: BattleOtherAnims.selfstatus.anim,
 	},
