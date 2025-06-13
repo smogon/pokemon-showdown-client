@@ -3745,6 +3745,131 @@ export const BattleMoveAnims: AnimTable = {
 			}, 'accel', 'fade');
 		},
 	},
+	lunarblessing: {
+		anim(scene, [attacker, ...defenders]) {
+			for (const defender of defenders) {
+				scene.backgroundEffect(`url('https://${Config.routes.client}/fx/bg-space.jpg')`, 900, 0.6);
+				scene.showEffect('moon', {
+					x: attacker.x,
+					y: attacker.y + 150,
+					z: attacker.z,
+					scale: 1,
+					opacity: 0,
+					time: 75,
+				}, {
+					opacity: 0.8,
+					time: 1000,
+				}, 'accel', 'fade');
+
+				defender.delay(500);
+				BattleOtherAnims.shake.anim(scene, [defender]);
+
+				scene.showEffect('poisonwisp', {
+					x: defender.x,
+					y: defender.y,
+					z: defender.z,
+					scale: 0.3,
+					opacity: 1,
+					time: 100,
+				}, {
+					scale: 1.5,
+					opacity: 0.3,
+					time: 1100,
+				}, 'decel', 'fade');
+
+				scene.showEffect('poisonwisp', {
+					x: defender.x,
+					y: defender.y,
+					z: defender.z,
+					scale: 0.4,
+					opacity: 1,
+					time: 100,
+				}, {
+					scale: 1.3,
+					opacity: 0.3,
+					time: 1000,
+				}, 'decel', 'fade');
+
+				scene.showEffect('iceball', {
+					x: defender.x,
+					y: defender.y,
+					z: defender.z,
+					scale: 1,
+					opacity: 0.2,
+					time: 0,
+				}, {
+					scale: 0.7,
+					opacity: 0.5,
+					time: 350,
+				}, 'linear', 'explode');
+
+				scene.showEffect('iceball', {
+					x: defender.x,
+					y: defender.y,
+					z: defender.z,
+					scale: 0,
+					opacity: 0.6,
+					time: 0,
+				}, {
+					scale: 1.1,
+					opacity: 0,
+					time: 600,
+				}, 'decel', 'fade');
+
+				scene.showEffect('mistball', {
+					x: defender.x,
+					y: defender.y,
+					z: defender.z + 1,
+					scale: 0,
+					opacity: 0.7,
+					time: 300,
+				}, {
+					scale: 1.5,
+					opacity: 0,
+					time: 1200,
+				}, 'decel', 'fade');
+
+				scene.showEffect('shine', {
+					x: defender.x + 30,
+					y: defender.y - 50,
+					z: defender.z + 2,
+					scale: 0.3,
+					opacity: 0.6,
+					time: 400,
+				}, {
+					y: defender.y + 130,
+					opacity: 0,
+					time: 1000,
+				}, 'accel', 'fade');
+
+				scene.showEffect('shine', {
+					x: defender.x - 30,
+					y: defender.y - 60,
+					z: defender.z + 2,
+					scale: 0.25,
+					opacity: 0.6,
+					time: 600,
+				}, {
+					y: defender.y + 130,
+					opacity: 0,
+					time: 1200,
+				}, 'accel', 'fade');
+
+				scene.showEffect('shine', {
+					x: defender.x,
+					y: defender.y - 70,
+					z: defender.z + 2,
+					scale: 0.2,
+					opacity: 0.6,
+					time: 800,
+				}, {
+					y: defender.y + 130,
+					opacity: 0,
+					time: 1400,
+				}, 'accel', 'fade');
+			}
+		},
+	},
 	cosmicpower: {
 		anim(scene, [attacker]) {
 			scene.backgroundEffect(`url('https://${Config.routes.client}/fx/bg-space.jpg')`, 600, 0.6);
@@ -37351,7 +37476,6 @@ BattleMoveAnims['hyperdrill'] = { anim: BattleMoveAnims['drillrun'].anim };
 BattleMoveAnims['kowtowcleave'] = { anim: BattleMoveAnims['nightslash'].anim };
 BattleMoveAnims['lastrespects'] = { anim: BattleMoveAnims['memento'].anim };
 BattleMoveAnims['luminacrash'] = { anim: BattleMoveAnims['esperwing'].anim };
-BattleMoveAnims['lunarblessing'] = { anim: BattleMoveAnims['moonlight'].anim };
 BattleMoveAnims['mountaingale'] = { anim: BattleMoveAnims['powergem'].anim };
 BattleMoveAnims['pounce'] = { anim: BattleMoveAnims['bodyslam'].anim };
 BattleMoveAnims['powershift'] = { anim: BattleMoveAnims['skillswap'].anim };
