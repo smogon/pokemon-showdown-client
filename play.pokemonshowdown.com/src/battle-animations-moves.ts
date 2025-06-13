@@ -2908,7 +2908,7 @@ export const BattleMoveAnims: AnimTable = {
 				yscale: 1,
 				time: 550,
 			}, 'ease');
-			
+
 			scene.showEffect('iceball', {
 				x: attacker.x + 10,
 				y: attacker.y + 10,
