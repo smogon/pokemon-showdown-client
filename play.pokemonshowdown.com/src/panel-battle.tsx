@@ -238,7 +238,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 		if (file?.type === 'text/html') {
 			let roomNum = 1;
 			for (; roomNum < 100; roomNum++) {
-				if (!PS.rooms[`battle-uploadedreplay-${roomNum}`]) break;
+				if (!PS.rooms[`battle-uploaded-${roomNum}`]) break;
 			}
 			file.text().then(html => {
 				const titleStart = html.indexOf('<title>');
@@ -268,8 +268,14 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 				const index3 = html.indexOf('</script>');
 				html = html.slice(0, index3);
 				html = html.replace(/\\\//g, '/');
-				PS.receive(`>battle-uploadedreplay-${roomNum}\n|init|battle\n|title|${title}\n${html}`);
-				PS.receive(`>battle-uploadedreplay-${roomNum}\n|expire|Uploaded replay`);
+
+				PS.join(`battle-uploaded-${roomNum}` as RoomID);
+				const room = PS.rooms[`battle-uploaded-${roomNum}`] as BattleRoom;
+				if (!room) return;
+
+				room.title = title;
+				room.connected = 'client-only';
+				PS.receive(`>battle-uploaded-${roomNum}\n${html}`);
 			});
 			return true;
 		}
