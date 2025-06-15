@@ -251,6 +251,9 @@ class TeamEditorState extends PSModel {
 				return this.dex.moves.get(moveid).name + '|' + slot;
 			}
 			return this.dex.moves.get(result[1]).name;
+		case 'html':
+		case 'header':
+			return '';
 		default:
 			return result[1];
 		}
@@ -690,6 +693,7 @@ export class TeamEditor extends preact.Component<{
 	override render() {
 		this.editor ||= new TeamEditorState(this.props.team);
 		const editor = this.editor;
+		window.editor = editor; // debug
 		editor.setReadonly(!!this.props.readOnly);
 		editor.narrow = this.props.narrow ?? document.body.offsetWidth < 500;
 		if (this.props.team.format !== editor.format) {

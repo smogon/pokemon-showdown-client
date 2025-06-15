@@ -129,7 +129,8 @@ export class PSTeambuilder {
 			if (line.startsWith('Move:')) line = line.slice(4);
 			line = line.slice(line.charAt(1) === ' ' ? 2 : 1);
 			if (line.startsWith('Hidden Power [')) {
-				const hpType = line.slice(14, -1) as Dex.TypeName;
+				let hpType = line.slice(14, line.indexOf(']')) as Dex.TypeName;
+				if (hpType.includes(']') || hpType.includes('[')) hpType = '' as any;
 				line = 'Hidden Power ' + hpType;
 				set.hpType = hpType;
 			}

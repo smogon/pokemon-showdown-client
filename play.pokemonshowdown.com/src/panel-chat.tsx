@@ -67,7 +67,7 @@ export class ChatRoom extends PSRoom {
 		this.connect();
 	}
 	override connect() {
-		if (!this.connected) {
+		if (!this.connected || this.connected === 'autoreconnect') {
 			if (this.pmTarget === null) PS.send(`/join ${this.id}`);
 			this.connected = true;
 			this.connectWhenLoggedIn = false;
@@ -260,7 +260,9 @@ export class ChatRoom extends PSRoom {
 			message = args[2];
 		}
 		if (toID(name) === PS.user.userid) return false;
-		if (message.startsWith(`/raw `)) return false;
+		if (message.startsWith(`/raw `) || message.startsWith(`/uhtml`) || message.startsWith(`/uhtmlchange`)) {
+			return false;
+		}
 
 		const lastMessageDates = Dex.prefs('logtimes') || (PS.prefs.set('logtimes', {}), Dex.prefs('logtimes'));
 		if (!lastMessageDates[PS.server.id]) lastMessageDates[PS.server.id] = {};

@@ -850,8 +850,6 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 				} else if (item.name.endsWith(" Gem") && item.name !== "Normal Gem") {
 					if (genNum >= 6) {
 						unreleasedItems.push(id);
-					} else if (item.name === "Flying Gem") {
-						greatItems.push(id);
 					} else {
 						goodItems.push(id);
 					}
