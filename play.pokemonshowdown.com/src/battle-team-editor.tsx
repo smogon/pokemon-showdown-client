@@ -7,7 +7,7 @@
  */
 
 import preact from "../js/lib/preact";
-import { type Team } from "./client-main";
+import { PS, type RoomID, type Team } from "./client-main";
 import { PSTeambuilder } from "./panel-teamdropdown";
 import { Dex, type ModdedDex, toID, type ID, PSUtils } from "./battle-dex";
 import { Teams } from './battle-teams';
@@ -2767,11 +2767,30 @@ class DetailsForm extends preact.Component<{
 					</label>
 				</p>}
 				{species.cosmeticFormes && <p>
-					<button class="button">
+					<button class="button" onClick={this.openChangeSprite}>
 						Change sprite
 					</button>
 				</p>}
 			</div>
 		</div>;
 	}
+
+	openChangeSprite = (ev: Event) => {
+		ev.preventDefault();
+		ev.stopImmediatePropagation();
+
+		const { editor, set } = this.props;
+		const teamKey = editor.team.key;
+		const setIndex = editor.sets.indexOf(set);
+		if (!teamKey || setIndex < 0) return;
+
+		// Open alt-form semimodal popup – purely client-side
+		const roomid = (`altform-${Date.now()}`) as RoomID;
+		PS.join(roomid, {
+			args: { teamKey, setIndex, setRef: set },
+			location: 'semimodal-popup',
+			connected: 'client-only',
+			noURL: true,
+		});
+	};
 }
