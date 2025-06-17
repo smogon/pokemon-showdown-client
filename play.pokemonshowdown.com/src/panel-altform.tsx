@@ -1,5 +1,5 @@
 import { Dex, toID } from "./battle-dex";
-import { PS, type RoomID, type PSRoom } from "./client-main";
+import { PS, type RoomID } from "./client-main";
 import { Teams } from "./battle-teams";
 import { PSRoomPanel, PSPanelWrapper } from "./panels";
 
