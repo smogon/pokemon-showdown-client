@@ -82,7 +82,6 @@ class AltFormPanel extends PSRoomPanel {
 		const baseId = toID(species.baseSpecies);
 		const forms = species.cosmeticFormes?.length ? [baseId, ...species.cosmeticFormes.map(toID)] : [baseId];
 
-		// Determine maximum sprite size (same logic as legacy: dex vs home)
 		let maxSpriteSize = 96;
 		const renderButton = (formId: string) => {
 			const formeIdPart = formId === baseId ? '' : formId.slice(baseId.length);
