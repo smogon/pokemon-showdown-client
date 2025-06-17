@@ -315,12 +315,12 @@ export class BattleTooltips {
 				let index = 1;
 				for (const otherPokemon of side.pokemon) {
 					if (otherPokemon.getBaseSpecies().baseSpecies === species) {
-						buf += this.showPokemonTooltip(otherPokemon, null, false, index);
+						buf += this.showPokemonTooltip(otherPokemon, null, false, index,side);
 						index++;
 					}
 				}
 			} else {
-				buf = this.showPokemonTooltip(pokemon);
+				buf = this.showPokemonTooltip(pokemon,null,false,null,side);
 			}
 			break;
 		}
@@ -344,7 +344,7 @@ export class BattleTooltips {
 				serverPokemon = this.battle.myAllyPokemon[pokemonIndex];
 			}
 			if (!pokemon) return false;
-			buf = this.showPokemonTooltip(pokemon, serverPokemon, true);
+			buf = this.showPokemonTooltip(pokemon, serverPokemon, true,null,side);
 			break;
 		}
 		case 'switchpokemon': { // switchpokemon|POKEMON
@@ -358,7 +358,7 @@ export class BattleTooltips {
 				if (pokemon && pokemon.side === side.ally) pokemon = null;
 			} */
 			let serverPokemon = this.battle.myPokemon![activeIndex];
-			buf = this.showPokemonTooltip(pokemon, serverPokemon);
+			buf = this.showPokemonTooltip(pokemon, serverPokemon,false,null,this.battle.mySide);
 			break;
 		}
 		case 'allypokemon': { // allypokemon|POKEMON
@@ -820,21 +820,26 @@ export class BattleTooltips {
 	 * and false if hovering over a pokemon in the Switch menu.
 	 */
 	showPokemonTooltip(
-		clientPokemon: Pokemon | null, serverPokemon?: ServerPokemon | null, isActive?: boolean, illusionIndex?: number
+		clientPokemon: Pokemon | null, serverPokemon?: ServerPokemon | null, isActive?: boolean, illusionIndex?: number|null, pokemonSide?: any | null,
 	) {
+		
 		const pokemon = clientPokemon || serverPokemon!;
+		
 		let text = '';
 		let genderBuf = '';
 		const gender = pokemon.gender;
 		if (gender === 'M' || gender === 'F') {
 			genderBuf = ` <img src="${Dex.fxPrefix}gender-${gender.toLowerCase()}.png" alt="${gender}" width="7" height="10" class="pixelated" /> `;
 		}
-
-		let name = BattleLog.escapeHTML(pokemon.name);
-		if (pokemon.speciesForme !== pokemon.name) {
+		//
+		
+		let name = pokemonSide !== this.battle.mySide && (this.battle.ignoreOpponent || this.battle.ignoreNicks) ? pokemon.speciesForme : BattleLog.escapeHTML(pokemon.name);
+		
+		if (pokemon.speciesForme !== name){
 			name += ` <small>(${BattleLog.escapeHTML(pokemon.speciesForme)})</small>`;
-		}
+		} 
 
+		//
 		let levelBuf = (pokemon.level !== 100 ? ` <small>L${pokemon.level}</small>` : ``);
 		if (!illusionIndex || illusionIndex === 1) {
 			text += `<h2>${name}${genderBuf}${illusionIndex ? '' : levelBuf}<br />`;
