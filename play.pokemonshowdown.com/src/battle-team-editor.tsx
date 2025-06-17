@@ -2784,7 +2784,6 @@ class DetailsForm extends preact.Component<{
 		const setIndex = editor.sets.indexOf(set);
 		if (!teamKey || setIndex < 0) return;
 
-		// Open alt-form semimodal popup – purely client-side
 		const roomid = (`altform-${Date.now()}`) as RoomID;
 		PS.join(roomid, {
 			args: { teamKey, setIndex, setRef: set },
