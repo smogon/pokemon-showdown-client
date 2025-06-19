@@ -2766,12 +2766,41 @@ class DetailsForm extends preact.Component<{
 						)}
 					</label>
 				</p>}
-				{species.cosmeticFormes && <p>
-					<button class="button">
-						Change sprite
-					</button>
-				</p>}
+				{species.cosmeticFormes && <div>
+					<p><strong>Form:</strong></p>
+					<div style="display:flex;flex-wrap:wrap;gap:6px;max-width:400px;">
+						{(() => {
+							const baseId = toID(species.baseSpecies);
+							const forms = species.cosmeticFormes?.length ? [baseId, ...species.cosmeticFormes.map(toID)] : [baseId];
+							return forms.map(id => {
+								const sp = editor.dex.species.get(id);
+								const iconStyle = Dex.getPokemonIcon({ species: sp.name } as Dex.PokemonSet);
+								const isCur = toID(set.species) === id;
+								return <button
+									value={id}
+									class={`button piconbtn${isCur ? ' cur' : ''}`}
+									style={{ padding: '2px' }}
+									onClick={this.selectSprite}
+								>
+									<span class="picon" style={iconStyle}></span>
+									<br />{sp.forme || sp.baseForme || sp.baseSpecies}
+								</button>;
+							});
+						})()}
+					</div>
+				</div>}
 			</div>
 		</div>;
 	}
+
+	selectSprite = (ev: Event) => {
+		const target = ev.currentTarget as HTMLButtonElement;
+		const formId = target.value;
+		const { editor, set } = this.props;
+		const species = editor.dex.species.get(formId);
+		if (!species.exists) return;
+		editor.changeSpecies(set, species.name);
+		this.props.onChange();
+		this.forceUpdate();
+	};
 }
