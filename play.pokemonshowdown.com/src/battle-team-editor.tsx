@@ -7,7 +7,7 @@
  */
 
 import preact from "../js/lib/preact";
-import { PS, type RoomID, type Team } from "./client-main";
+import {type Team } from "./client-main";
 import { PSTeambuilder } from "./panel-teamdropdown";
 import { Dex, type ModdedDex, toID, type ID, PSUtils } from "./battle-dex";
 import { Teams } from './battle-teams';
@@ -714,14 +714,14 @@ export class TeamEditor extends preact.Component<{
 			) : (
 				<TeamTextbox editor={editor} onChange={this.props.onChange} onUpdate={this.update} />
 			)}
-			{!this.editor.innerFocus && <>
+			{!this.editor.innerFocus && <preact.Fragment>
 				{this.props.children}
 				<div class="team-resources">
 					<br /><hr /><br />
 					{this.renderDefensiveCoverage()}
 					{this.props.resources}
 				</div>
-			</>}
+			</preact.Fragment>}
 		</div>;
 	}
 }
@@ -1674,14 +1674,14 @@ class TeamWizard extends preact.Component<{
 							<span class="detailcell">
 								<strong class="label">Level</strong> {}
 								{set.level || editor.defaultLevel}
-								{editor.narrow && set.shiny && <><br />
+								{editor.narrow && set.shiny && <preact.Fragment><br />
 									<img src={`${Dex.resourcePrefix}sprites/misc/shiny.png`} width={22} height={22} alt="Shiny" />
-								</>}
-								{!editor.narrow && set.gender && set.gender !== 'N' && <>
+								</preact.Fragment>}
+								{!editor.narrow && set.gender && set.gender !== 'N' && <preact.Fragment>
 									<br /><img
 										src={`${Dex.fxPrefix}gender-${set.gender.toLowerCase()}.png`} alt={set.gender} width="7" height="10" class="pixelated"
 									/>
-								</>}
+								</preact.Fragment>}
 							</span>
 							{!!(!editor.narrow && (set.shiny || editor.gen >= 2)) && <span class="detailcell">
 								<strong class="label">Shiny</strong> {}
@@ -1716,20 +1716,20 @@ class TeamWizard extends preact.Component<{
 				<tr>
 					<td class="set-ability"><div class="border-collapse">
 						<button class={`button button-middle${cur('ability')}`} onClick={this.setFocus} value={`ability|${i}`}>
-							{(editor.gen >= 3 || set.ability) && <>
+							{(editor.gen >= 3 || set.ability) && <preact.Fragment>
 								<strong class="label">Ability</strong> {}
 								{(set.ability !== 'No Ability' && set.ability) ||
 									(!set.ability ? <em>(choose ability)</em> : <em>(no ability)</em>)}
-							</>}
+							</preact.Fragment>}
 						</button>
 					</div></td>
 					<td class="set-item"><div class="border-collapse">
 						<button class={`button button-middle${cur('item')}`} onClick={this.setFocus} value={`item|${i}`}>
-							{(editor.gen >= 2 || set.item) && <>
+							{(editor.gen >= 2 || set.item) && <preact.Fragment>
 								{set.item && <span class="itemicon" style={'float:right;' + Dex.getItemIcon(set.item)}></span>}
 								<strong class="label">Item</strong> {}
 								{set.item || <em>(no item)</em>}
-							</>}
+							</preact.Fragment>}
 						</button>
 					</div></td>
 				</tr>
@@ -2548,6 +2548,8 @@ class DetailsForm extends preact.Component<{
 	set: Dex.PokemonSet,
 	onChange: () => void,
 }> {
+	/** Flag to show the sprite selection UI instead of detail fields */
+	selectingSprite = false;
 	update(init?: boolean) {
 		const { set } = this.props;
 		const skipID = !init ? this.base!.querySelector<HTMLInputElement>('input:focus')?.name : undefined;
@@ -2655,10 +2657,10 @@ class DetailsForm extends preact.Component<{
 	renderGender(gender: Dex.GenderName) {
 		const genderTable = { 'M': "Male", 'F': "Female" };
 		if (gender === 'N') return 'Unknown';
-		return <>
-			<img src={`${Dex.fxPrefix}gender-${gender.toLowerCase()}.png`} alt="" width="7" height="10" class="pixelated" /> {}
+		return <span>
+			<img src={`${Dex.fxPrefix}gender-${gender.toLowerCase()}.png`} alt="" width="7" height="10" class="pixelated" /> {' '}
 			{genderTable[gender]}
-		</>;
+		</span>;
 	}
 	render() {
 		const { editor, set } = this.props;
@@ -2676,7 +2678,7 @@ class DetailsForm extends preact.Component<{
 					class="textbox inputform numform default-placeholder" style="width: 50px"
 					onInput={this.changeLevel} onChange={this.changeLevel}
 				/></label><small>(You probably want to change the team's levels by changing the format, not here)</small></p>
-				{editor.gen > 1 && (<>
+				{editor.gen > 1 && (<preact.Fragment>
 					<p><div class="label">Shiny: <div class="labeled">
 						<label class="checkbox inline"><input
 							type="radio" name="shiny" value="true" checked={set.shiny}
@@ -2720,7 +2722,7 @@ class DetailsForm extends preact.Component<{
 							onInput={this.changeHappiness} onChange={this.changeHappiness}
 						/></label></p>
 					)}
-				</>
+				</preact.Fragment>
 				)}
 				{editor.gen === 8 && !editor.isBDSP && !species.cannotDynamax && (
 					<p>
@@ -2766,11 +2768,38 @@ class DetailsForm extends preact.Component<{
 						)}
 					</label>
 				</p>}
-				{species.cosmeticFormes && <p>
-					<button class="button" onClick={this.openChangeSprite}>
-						Change sprite
-					</button>
-				</p>}
+				{this.selectingSprite ? (
+					<div>
+						<p><button class="button" onClick={this.openChangeSprite}>Cancel</button></p>
+						<p><strong>Select a form:</strong></p>
+						<div style="display:flex;flex-wrap:wrap;gap:6px;max-width:400px;">
+							{(() => {
+								const baseId = toID(species.baseSpecies);
+								const forms = species.cosmeticFormes?.length ? [baseId, ...species.cosmeticFormes.map(toID)] : [baseId];
+								return forms.map(id => {
+									const sp = editor.dex.species.get(id);
+									const iconStyle = Dex.getPokemonIcon({species: sp.name} as Dex.PokemonSet);
+									const isCur = toID(set.species) === id;
+									return <button
+										value={id}
+										class={`button piconbtn${isCur ? ' cur' : ''}`}
+										style={`padding:2px`}
+										onClick={this.selectSprite}
+									>
+										<span class="picon" style={iconStyle}></span>
+										<br />{sp.forme || sp.baseSpecies}
+									</button>;
+								});
+							})()}
+						</div>
+					</div>
+				) : (
+					species.cosmeticFormes && <p>
+						<button class="button" onClick={this.openChangeSprite}>
+							Change sprite
+						</button>
+					</p>
+				)}
 			</div>
 		</div>;
 	}
@@ -2778,18 +2807,20 @@ class DetailsForm extends preact.Component<{
 	openChangeSprite = (ev: Event) => {
 		ev.preventDefault();
 		ev.stopImmediatePropagation();
+		if (!this.props.set || !this.props.editor) return;
+		this.selectingSprite = !this.selectingSprite;
+		this.forceUpdate();
+	};
 
+	selectSprite = (ev: Event) => {
+		const target = ev.currentTarget as HTMLButtonElement;
+		const formId = target.value;
 		const { editor, set } = this.props;
-		const teamKey = editor.team.key;
-		const setIndex = editor.sets.indexOf(set);
-		if (!teamKey || setIndex < 0) return;
-
-		const roomid = (`altform-${Date.now()}`) as RoomID;
-		PS.join(roomid, {
-			args: { teamKey, setIndex, setRef: set },
-			location: 'semimodal-popup',
-			connected: 'client-only',
-			noURL: true,
-		});
+		const species = editor.dex.species.get(formId);
+		if (!species.exists) return;
+		editor.changeSpecies(set, species.name);
+		this.selectingSprite = false;
+		this.props.onChange();
+		this.forceUpdate();
 	};
 }
