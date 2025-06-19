@@ -714,14 +714,14 @@ export class TeamEditor extends preact.Component<{
 			) : (
 				<TeamTextbox editor={editor} onChange={this.props.onChange} onUpdate={this.update} />
 			)}
-			{!this.editor.innerFocus && <preact.Fragment>
+			{!this.editor.innerFocus && <>
 				{this.props.children}
 				<div class="team-resources">
 					<br /><hr /><br />
 					{this.renderDefensiveCoverage()}
 					{this.props.resources}
 				</div>
-			</preact.Fragment>}
+			</>}
 		</div>;
 	}
 }
@@ -1674,14 +1674,14 @@ class TeamWizard extends preact.Component<{
 							<span class="detailcell">
 								<strong class="label">Level</strong> {}
 								{set.level || editor.defaultLevel}
-								{editor.narrow && set.shiny && <preact.Fragment><br />
+								{editor.narrow && set.shiny && <><br />
 									<img src={`${Dex.resourcePrefix}sprites/misc/shiny.png`} width={22} height={22} alt="Shiny" />
-								</preact.Fragment>}
-								{!editor.narrow && set.gender && set.gender !== 'N' && <preact.Fragment>
+								</>}
+								{!editor.narrow && set.gender && set.gender !== 'N' && <>
 									<br /><img
 										src={`${Dex.fxPrefix}gender-${set.gender.toLowerCase()}.png`} alt={set.gender} width="7" height="10" class="pixelated"
 									/>
-								</preact.Fragment>}
+								</>}
 							</span>
 							{!!(!editor.narrow && (set.shiny || editor.gen >= 2)) && <span class="detailcell">
 								<strong class="label">Shiny</strong> {}
@@ -1716,20 +1716,20 @@ class TeamWizard extends preact.Component<{
 				<tr>
 					<td class="set-ability"><div class="border-collapse">
 						<button class={`button button-middle${cur('ability')}`} onClick={this.setFocus} value={`ability|${i}`}>
-							{(editor.gen >= 3 || set.ability) && <preact.Fragment>
+							{(editor.gen >= 3 || set.ability) && <>
 								<strong class="label">Ability</strong> {}
 								{(set.ability !== 'No Ability' && set.ability) ||
 									(!set.ability ? <em>(choose ability)</em> : <em>(no ability)</em>)}
-							</preact.Fragment>}
+							</>}
 						</button>
 					</div></td>
 					<td class="set-item"><div class="border-collapse">
 						<button class={`button button-middle${cur('item')}`} onClick={this.setFocus} value={`item|${i}`}>
-							{(editor.gen >= 2 || set.item) && <preact.Fragment>
+							{(editor.gen >= 2 || set.item) && <>
 								{set.item && <span class="itemicon" style={'float:right;' + Dex.getItemIcon(set.item)}></span>}
 								<strong class="label">Item</strong> {}
 								{set.item || <em>(no item)</em>}
-							</preact.Fragment>}
+							</>}
 						</button>
 					</div></td>
 				</tr>
@@ -2678,7 +2678,7 @@ class DetailsForm extends preact.Component<{
 					class="textbox inputform numform default-placeholder" style="width: 50px"
 					onInput={this.changeLevel} onChange={this.changeLevel}
 				/></label><small>(You probably want to change the team's levels by changing the format, not here)</small></p>
-				{editor.gen > 1 && (<preact.Fragment>
+				{editor.gen > 1 && (<>
 					<p><div class="label">Shiny: <div class="labeled">
 						<label class="checkbox inline"><input
 							type="radio" name="shiny" value="true" checked={set.shiny}
@@ -2722,7 +2722,7 @@ class DetailsForm extends preact.Component<{
 							onInput={this.changeHappiness} onChange={this.changeHappiness}
 						/></label></p>
 					)}
-				</preact.Fragment>
+				</>
 				)}
 				{editor.gen === 8 && !editor.isBDSP && !species.cannotDynamax && (
 					<p>
