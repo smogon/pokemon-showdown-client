@@ -2793,13 +2793,6 @@ class DetailsForm extends preact.Component<{
 		</div>;
 	}
 
-	openChangeSprite = (ev: Event) => {
-		ev.preventDefault();
-		ev.stopImmediatePropagation();
-		if (!this.props.set || !this.props.editor) return;
-		this.forceUpdate();
-	};
-
 	selectSprite = (ev: Event) => {
 		const target = ev.currentTarget as HTMLButtonElement;
 		const formId = target.value;
