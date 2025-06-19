@@ -2783,7 +2783,7 @@ class DetailsForm extends preact.Component<{
 									return <button
 										value={id}
 										class={`button piconbtn${isCur ? ' cur' : ''}`}
-										style={`padding:2px`}
+										style={{ padding: '2px' }}
 										onClick={this.selectSprite}
 									>
 										<span class="picon" style={iconStyle}></span>
