@@ -2656,10 +2656,10 @@ class DetailsForm extends preact.Component<{
 	renderGender(gender: Dex.GenderName) {
 		const genderTable = { 'M': "Male", 'F': "Female" };
 		if (gender === 'N') return 'Unknown';
-		return <span>
-			<img src={`${Dex.fxPrefix}gender-${gender.toLowerCase()}.png`} alt="" width="7" height="10" class="pixelated" /> {' '}
+		return <>
+			<img src={`${Dex.fxPrefix}gender-${gender.toLowerCase()}.png`} alt="" width="7" height="10" class="pixelated" /> {}
 			{genderTable[gender]}
-		</span>;
+		</>;
 	}
 	render() {
 		const { editor, set } = this.props;
