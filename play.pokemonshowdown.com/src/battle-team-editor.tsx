@@ -2778,7 +2778,7 @@ class DetailsForm extends preact.Component<{
 								const forms = species.cosmeticFormes?.length ? [baseId, ...species.cosmeticFormes.map(toID)] : [baseId];
 								return forms.map(id => {
 									const sp = editor.dex.species.get(id);
-									const iconStyle = Dex.getPokemonIcon({species: sp.name} as Dex.PokemonSet);
+									const iconStyle = Dex.getPokemonIcon({ species: sp.name } as Dex.PokemonSet);
 									const isCur = toID(set.species) === id;
 									return <button
 										value={id}
