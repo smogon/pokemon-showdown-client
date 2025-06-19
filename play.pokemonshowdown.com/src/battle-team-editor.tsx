@@ -2548,7 +2548,6 @@ class DetailsForm extends preact.Component<{
 	set: Dex.PokemonSet,
 	onChange: () => void,
 }> {
-	selectingSprite = false;
 	update(init?: boolean) {
 		const { set } = this.props;
 		const skipID = !init ? this.base!.querySelector<HTMLInputElement>('input:focus')?.name : undefined;
@@ -2767,38 +2766,29 @@ class DetailsForm extends preact.Component<{
 						)}
 					</label>
 				</p>}
-				{this.selectingSprite ? (
-					<div>
-						<p><button class="button" onClick={this.openChangeSprite}>Cancel</button></p>
-						<p><strong>Select a form:</strong></p>
-						<div style="display:flex;flex-wrap:wrap;gap:6px;max-width:400px;">
-							{(() => {
-								const baseId = toID(species.baseSpecies);
-								const forms = species.cosmeticFormes?.length ? [baseId, ...species.cosmeticFormes.map(toID)] : [baseId];
-								return forms.map(id => {
-									const sp = editor.dex.species.get(id);
-									const iconStyle = Dex.getPokemonIcon({ species: sp.name } as Dex.PokemonSet);
-									const isCur = toID(set.species) === id;
-									return <button
-										value={id}
-										class={`button piconbtn${isCur ? ' cur' : ''}`}
-										style={{ padding: '2px' }}
-										onClick={this.selectSprite}
-									>
-										<span class="picon" style={iconStyle}></span>
-										<br />{sp.forme || sp.baseSpecies}
-									</button>;
-								});
-							})()}
-						</div>
+				{species.cosmeticFormes && <div>
+					<p><strong>Select a form:</strong></p>
+					<div style="display:flex;flex-wrap:wrap;gap:6px;max-width:400px;">
+						{(() => {
+							const baseId = toID(species.baseSpecies);
+							const forms = species.cosmeticFormes?.length ? [baseId, ...species.cosmeticFormes.map(toID)] : [baseId];
+							return forms.map(id => {
+								const sp = editor.dex.species.get(id);
+								const iconStyle = Dex.getPokemonIcon({ species: sp.name } as Dex.PokemonSet);
+								const isCur = toID(set.species) === id;
+								return <button
+									value={id}
+									class={`button piconbtn${isCur ? ' cur' : ''}`}
+									style={{ padding: '2px' }}
+									onClick={this.selectSprite}
+								>
+									<span class="picon" style={iconStyle}></span>
+									<br />{sp.forme || sp.baseSpecies}
+								</button>;
+							});
+						})()}
 					</div>
-				) : (
-					species.cosmeticFormes && <p>
-						<button class="button" onClick={this.openChangeSprite}>
-							Change sprite
-						</button>
-					</p>
-				)}
+				</div>}
 			</div>
 		</div>;
 	}
@@ -2807,7 +2797,6 @@ class DetailsForm extends preact.Component<{
 		ev.preventDefault();
 		ev.stopImmediatePropagation();
 		if (!this.props.set || !this.props.editor) return;
-		this.selectingSprite = !this.selectingSprite;
 		this.forceUpdate();
 	};
 
@@ -2818,7 +2807,6 @@ class DetailsForm extends preact.Component<{
 		const species = editor.dex.species.get(formId);
 		if (!species.exists) return;
 		editor.changeSpecies(set, species.name);
-		this.selectingSprite = false;
 		this.props.onChange();
 		this.forceUpdate();
 	};
