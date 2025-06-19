@@ -2548,7 +2548,6 @@ class DetailsForm extends preact.Component<{
 	set: Dex.PokemonSet,
 	onChange: () => void,
 }> {
-	/** Flag to show the sprite selection UI instead of detail fields */
 	selectingSprite = false;
 	update(init?: boolean) {
 		const { set } = this.props;
