@@ -2783,7 +2783,7 @@ class DetailsForm extends preact.Component<{
 									onClick={this.selectSprite}
 								>
 									<span class="picon" style={iconStyle}></span>
-									<br />{sp.forme || sp.baseSpecies}
+									<br />{sp.forme || sp.baseForme || sp.baseSpecies}
 								</button>;
 							});
 						})()}
