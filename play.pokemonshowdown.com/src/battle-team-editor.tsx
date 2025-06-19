@@ -7,7 +7,7 @@
  */
 
 import preact from "../js/lib/preact";
-import {type Team } from "./client-main";
+import { type Team } from "./client-main";
 import { PSTeambuilder } from "./panel-teamdropdown";
 import { Dex, type ModdedDex, toID, type ID, PSUtils } from "./battle-dex";
 import { Teams } from './battle-teams';
