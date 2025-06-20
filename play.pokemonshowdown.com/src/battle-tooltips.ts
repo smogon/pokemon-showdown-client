@@ -883,7 +883,7 @@ export class BattleTooltips {
 				exacthp = ` <small>(${pokemon.hp}/${pokemon.maxhp} pixels)</small>`;
 			}
 			const status = pokemon.status ? ` <span class="status ${pokemon.status}">${pokemon.status.toUpperCase()}</span>` : '';
-			text += `<p><small>HP:</small> ${Pokemon.getHPText(pokemon, this.battle.reportExactHP)}${exacthp}${status}`;
+			text += `<p><small>HP:</small> ${Pokemon.getHPText(pokemon, this.battle.reportExactHP, 1, this.battle.gen)}${exacthp}${status}`;
 			if (clientPokemon) {
 				if (pokemon.status === 'tox') {
 					if (pokemon.ability === 'Poison Heal' || pokemon.ability === 'Magic Guard') {
