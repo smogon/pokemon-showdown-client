@@ -34,6 +34,7 @@ import { BattleScene, PokemonSprite, BattleStatusAnims } from './battle-animatio
 import { Dex, toID, toUserid, type ID, type ModdedDex } from './battle-dex';
 import { BattleTextParser, type Args, type KWArgs, type SideID } from './battle-text-parser';
 import { Teams } from './battle-teams';
+import { type BattleRequest } from './battle-choices';
 declare const app: { user: AnyObject, rooms: AnyObject, ignore?: AnyObject } | undefined;
 
 /** [id, element?, ...misc] */
