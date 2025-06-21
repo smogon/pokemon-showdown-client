@@ -30,7 +30,7 @@
 // import $ from 'jquery';
 import { BattleSceneStub } from './battle-scene-stub';
 import { BattleLog } from './battle-log';
-import { BattleScene, type PokemonSprite, BattleStatusAnims } from './battle-animations';
+import { BattleScene, PokemonSprite, BattleStatusAnims } from './battle-animations';
 import { Dex, toID, toUserid, type ID, type ModdedDex } from './battle-dex';
 import { BattleTextParser, type Args, type KWArgs, type SideID } from './battle-text-parser';
 import { Teams } from './battle-teams';
@@ -1342,6 +1342,21 @@ export class Battle {
 		}
 
 		this.resetToCurrentTurn();
+	}
+
+	updateWithRequest(request: BattleRequest) {
+		if (request.side) {
+			for (const serverPokemon of request.side.pokemon) {
+				const pokemon = this.getPokemon(serverPokemon.ident);
+				if (!pokemon) continue;
+				if (serverPokemon.ability) {
+					pokemon.ability = Dex.abilities.get(pokemon.ability).name;
+				}
+				if (serverPokemon.item) {
+					pokemon.item = Dex.items.get(pokemon.item).name;
+				}
+			}
+		}
 	}
 
 	//
