@@ -108,6 +108,7 @@ var yourOrigin = <?php echo json_encode($protocol . '//' . $host) ?>;
 var myOrigin = 'https://<?php echo $psconfig['routes']['client'] ?>';
 
 if (config.host) {
+	config.host = config.host.replace(/^localhost-([0-9]+)$/, 'localhost--$1');
 	if (!config.host.includes('.')) {
 		// parse
 		config.host = config.host.replace(/\b----\b/g, '::').replace(/---/g, '=').replace(/--/g, ':').replace(/-/g, '.').replace(/=/g, '-');
