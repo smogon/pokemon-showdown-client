@@ -153,18 +153,20 @@ export class Pokemon implements PokemonDetails, PokemonHealth {
 
 		if (pixels === 0) return [0, 0];
 		if (pixels === 1) return [0 + epsilon, 2 / 48 - epsilon];
-		if (pixels === 9) {
-			if (color === 'y') { // ratio is > 0.2
-				return [0.2 + epsilon, 10 / 48 - epsilon];
-			} else { // ratio is <= 0.2
-				return [9 / 48, 0.2];
+		if (color) {
+			if (pixels === 9) {
+				if (color === 'y') { // ratio is > 0.2
+					return [0.2 + epsilon, 10 / 48 - epsilon];
+				} else { // ratio is <= 0.2
+					return [9 / 48, 0.2];
+				}
 			}
-		}
-		if (pixels === 24) {
-			if (color === 'g') { // ratio is > 0.5
-				return [0.5 + epsilon, 25 / 48 - epsilon];
-			} else { // ratio is exactly 0.5
-				return [0.5, 0.5];
+			if (pixels === 24) {
+				if (color === 'g') { // ratio is > 0.5
+					return [0.5 + epsilon, 25 / 48 - epsilon];
+				} else { // ratio is exactly 0.5
+					return [0.5, 0.5];
+				}
 			}
 		}
 		if (pixels === 48) return [1, 1];
@@ -3240,7 +3242,7 @@ export class Battle {
 			output.maxhp = parseFloat(maxhp);
 			if (output.hp > output.maxhp) output.hp = output.maxhp;
 			const colorchar = maxhp.slice(-1);
-			if (colorchar === 'y' || colorchar === 'g') {
+			if (colorchar === 'r' || colorchar === 'y' || colorchar === 'g') {
 				output.hpcolor = colorchar;
 			}
 		} else if (!isNaN(parseFloat(hp))) {
