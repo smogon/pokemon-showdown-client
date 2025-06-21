@@ -157,14 +157,14 @@ export class Pokemon implements PokemonDetails, PokemonHealth {
 			if (pixels === 9) {
 				if (color === 'y') { // ratio is > 0.2
 					return [0.2 + epsilon, 10 / 48 - epsilon];
-				} else { // ratio is <= 0.2
+				} else if (color === 'r') { // ratio is <= 0.2
 					return [9 / 48, 0.2];
 				}
 			}
 			if (pixels === 24) {
 				if (color === 'g') { // ratio is > 0.5
 					return [0.5 + epsilon, 25 / 48 - epsilon];
-				} else { // ratio is exactly 0.5
+				} else if (color === 'y') { // ratio is exactly 0.5
 					return [0.5, 0.5];
 				}
 			}
