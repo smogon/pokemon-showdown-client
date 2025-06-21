@@ -18,13 +18,12 @@ RewriteEngine on
 
 RewriteCond %{HTTP:X-Forwarded-Proto} ^http$
 RewriteCond %{HTTP_HOST} ^play\.pokemonshowdown\.com$ [NC]
-RewriteCond %{QUERY_STRING} !^insecure [NC]
 RewriteRule ^([A-Za-z0-9-]*)$ https://play.pokemonshowdown.com/$1 [R=307,NE,L]
 
 RewriteCond %{HTTP:X-Forwarded-Proto} ^https$
 RewriteCond %{HTTP_HOST} ^play\.pokemonshowdown\.com$ [NC]
 RewriteCond %{QUERY_STRING} ^insecure [NC]
-RewriteRule ^([A-Za-z0-9-]*)$ http://play.pokemonshowdown.com/$1 [R=307,NE,L]
+RewriteRule ^([A-Za-z0-9-]*)$ http://insecure.psim.us/$1 [R=307,NE,L]
 
 # redirects (keep in sync with client.js)
 RewriteRule ^appeals?\/?$ https://play.pokemonshowdown.com/view-help-request--appeal [R=302,L]
