@@ -148,25 +148,23 @@ export class Pokemon implements PokemonDetails, PokemonHealth {
 		}
 		return 'hpbar';
 	}
-	static getPixelRange(pixels: number, color: HPColor | '', gen?: number): [number, number] {
+	static getPixelRange(pixels: number, color: HPColor | ''): [number, number] {
 		let epsilon = 0.5 / 714;
 
 		if (pixels === 0) return [0, 0];
 		if (pixels === 1) return [0 + epsilon, 2 / 48 - epsilon];
-		if (!gen || gen >= 5) {
-			if (pixels === 9) {
-				if (color === 'y') { // ratio is > 0.2
-					return [0.2 + epsilon, 10 / 48 - epsilon];
-				} else { // ratio is <= 0.2
-					return [9 / 48, 0.2];
-				}
+		if (pixels === 9) {
+			if (color === 'y') { // ratio is > 0.2
+				return [0.2 + epsilon, 10 / 48 - epsilon];
+			} else { // ratio is <= 0.2
+				return [9 / 48, 0.2];
 			}
-			if (pixels === 24) {
-				if (color === 'g') { // ratio is > 0.5
-					return [0.5 + epsilon, 25 / 48 - epsilon];
-				} else { // ratio is exactly 0.5
-					return [0.5, 0.5];
-				}
+		}
+		if (pixels === 24) {
+			if (color === 'g') { // ratio is > 0.5
+				return [0.5 + epsilon, 25 / 48 - epsilon];
+			} else { // ratio is exactly 0.5
+				return [0.5, 0.5];
 			}
 		}
 		if (pixels === 48) return [1, 1];
@@ -203,8 +201,8 @@ export class Pokemon implements PokemonDetails, PokemonHealth {
 			return [damage[2] / 100, damage[2] / 100];
 		}
 		// pixel damage
-		let oldrange = Pokemon.getPixelRange(damage[3], damage[4], this.side.battle.gen);
-		let newrange = Pokemon.getPixelRange(damage[3] + damage[0], this.hpcolor, this.side.battle.gen);
+		let oldrange = Pokemon.getPixelRange(damage[3], damage[4]);
+		let newrange = Pokemon.getPixelRange(damage[3] + damage[0], this.hpcolor);
 		if (damage[0] === 0) {
 			// no change in displayed pixel width
 			return [0, newrange[1] - newrange[0]];
@@ -577,7 +575,7 @@ export class Pokemon implements PokemonDetails, PokemonHealth {
 			// Draw the health bar to the middle of the range.
 			// This affects the width of the visual health bar *only*; it
 			// does not affect the ranges displayed in any way.
-			let range = Pokemon.getPixelRange(this.hp, this.hpcolor, this.side.battle.gen);
+			let range = Pokemon.getPixelRange(this.hp, this.hpcolor);
 			let ratio = (range[0] + range[1]) / 2;
 			return Math.round(maxWidth * ratio) || 1;
 		}
@@ -588,13 +586,13 @@ export class Pokemon implements PokemonDetails, PokemonHealth {
 		return percentage * maxWidth / 100;
 	}
 	getHPText(precision = 1) {
-		return Pokemon.getHPText(this, this.side.battle.reportExactHP, precision, this.side.battle.gen);
+		return Pokemon.getHPText(this, this.side.battle.reportExactHP, precision);
 	}
-	static getHPText(pokemon: PokemonHealth, exactHP: boolean, precision = 1, gen?: number) {
+	static getHPText(pokemon: PokemonHealth, exactHP: boolean, precision = 1) {
 		if (exactHP) return `${pokemon.hp}/${pokemon.maxhp}`;
 		if (pokemon.maxhp === 100) return `${pokemon.hp}%`;
 		if (pokemon.maxhp !== 48) return (100 * pokemon.hp / pokemon.maxhp).toFixed(precision) + '%';
-		let range = Pokemon.getPixelRange(pokemon.hp, pokemon.hpcolor, gen);
+		let range = Pokemon.getPixelRange(pokemon.hp, pokemon.hpcolor);
 		return Pokemon.getFormattedRange(range, precision, '\u2013');
 	}
 	destroy() {
