@@ -96,6 +96,7 @@ export class Pokemon implements PokemonDetails, PokemonHealth {
 	prevItemEffect = '';
 	terastallized = '';
 	teraType = '';
+	hasEverTerastallized = false;
 
 	boosts: { [stat: string]: number } = {};
 	status: Dex.StatusName | 'tox' | '' | '???' = '';
@@ -878,8 +879,10 @@ export class Side {
 			pokemon.statusData = { ...oldpokemon.statusData };
 			if (oldpokemon.terastallized) {
 				pokemon.terastallized = oldpokemon.terastallized;
+				pokemon.hasEverTerastallized = oldpokemon.hasEverTerastallized;
 				pokemon.teraType = oldpokemon.terastallized;
 				oldpokemon.terastallized = '';
+				oldpokemon.hasEverTerastallized = false;
 				oldpokemon.teraType = '';
 			}
 			// we don't know anything about the illusioned pokemon except that it's not fainted
@@ -982,6 +985,7 @@ export interface PokemonDetails {
 	gender: Dex.GenderName | '';
 	ident: string;
 	terastallized: string;
+	hasEverTerastallized: boolean;
 	searchid: string;
 }
 export interface PokemonHealth {
@@ -2546,6 +2550,7 @@ export class Battle {
 			poke.removeVolatile('typeadd' as ID);
 			poke.teraType = type;
 			poke.terastallized = type;
+			poke.hasEverTerastallized = true;
 			poke.details += `, tera:${type}`;
 			poke.searchid += `, tera:${type}`;
 			if (poke.speciesForme.startsWith("Morpeko")) {
