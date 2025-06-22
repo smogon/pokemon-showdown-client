@@ -1349,7 +1349,8 @@ export class Battle {
 		if (!request.side) return;
 		if (request.side) {
 			const side = this.getSide(request.side.id);
-			for (const [i, activePokemon] of side.active.entries()) {
+			for (let i = 0; i < request.side.pokemon.length; i++) {
+				const activePokemon = side.active[i];
 				if (!activePokemon) continue;
 				const serverPokemon = request.side.pokemon[i];
 				if (!serverPokemon) continue;
