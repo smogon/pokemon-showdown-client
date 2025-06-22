@@ -1346,16 +1346,15 @@ export class Battle {
 	}
 
 	updateWithRequest(request: BattleRequest) {
+		if (!request.side) return;
 		if (request.side) {
-			for (const serverPokemon of request.side.pokemon) {
-				const pokemon = this.getPokemon(serverPokemon.ident);
-				if (!pokemon) continue;
-				if (serverPokemon.ability) {
-					pokemon.ability = Dex.abilities.get(pokemon.ability).name;
-				}
-				if (serverPokemon.item) {
-					pokemon.item = Dex.items.get(pokemon.item).name;
-				}
+			const side = this.getSide(request.side.id);
+			for (const [i, activePokemon] of side.active.entries()) {
+				if (!activePokemon) continue;
+				const serverPokemon = request.side.pokemon[i];
+				if (!serverPokemon) continue;
+				if (serverPokemon.ability) activePokemon.ability = serverPokemon.ability;
+				if (serverPokemon.item) activePokemon.item = serverPokemon.item;
 			}
 		}
 	}
