@@ -1351,11 +1351,11 @@ export class Battle {
 			const side = this.getSide(request.side.id);
 			for (let i = 0; i < request.side.pokemon.length; i++) {
 				const activePokemon = side.active[i];
-				if (!activePokemon) continue;
 				const serverPokemon = request.side.pokemon[i];
-				if (!serverPokemon) continue;
-				if (serverPokemon.ability) activePokemon.ability = serverPokemon.ability;
-				if (serverPokemon.item) activePokemon.item = serverPokemon.item;
+				if (!activePokemon || !serverPokemon) continue;
+				if (serverPokemon.baseAbility) activePokemon.baseAbility = Dex.abilities.get(serverPokemon.baseAbility).name;
+				if (serverPokemon.ability) activePokemon.ability = Dex.abilities.get(serverPokemon.ability).name;
+				if (serverPokemon.item) activePokemon.item = Dex.items.get(serverPokemon.item).name;
 			}
 		}
 	}
