@@ -7,7 +7,7 @@
  */
 
 import preact from "../js/lib/preact";
-import { type Team } from "./client-main";
+import { type Team, Config } from "./client-main";
 import { PSTeambuilder } from "./panel-teamdropdown";
 import { Dex, type ModdedDex, toID, type ID, PSUtils } from "./battle-dex";
 import { Teams } from './battle-teams';
@@ -135,6 +135,38 @@ class TeamEditorState extends PSModel {
 				break;
 			}
 		}
+
+		if (type === 'ability') {
+			const sp = set?.species || '';
+			const fmt = this.format;
+			const showRows = (rows: SearchRow[]) => {
+				let pre = this.search.prependResults || [];
+				pre = pre.filter(r => r[0] !== 'sampleset' &&
+					!(r[0] === 'header' && r[1] === 'Sample sets') &&
+					!(r[0] === 'html' && (r[1] as string).includes('sample sets')));
+				if (rows.length) {
+					pre.unshift(['header', 'Sample sets'], ...rows);
+				} else {
+					const msg = /^gen\d+$/.test(fmt) ? 'Select a format to get sample sets' : 'No sample sets for this species.';
+					pre.unshift(['header', 'Sample sets'], ['html', msg]);
+				}
+				this.search.prependResults = pre;
+			};
+			if (sp) {
+				const cached = this.buildSampleSetRows(fmt, sp);
+				showRows(cached);
+				if (!cached.length) {
+					this.fetchSmogonSets(fmt).then(() => {
+						showRows(this.buildSampleSetRows(fmt, sp));
+						this.search.results = null;
+						this.search.find(this.search.query);
+					});
+				}
+			} else {
+				showRows([]);
+			}
+		}
+
 		if (type === 'item') (this.search.prependResults ||= []).push(['item', '' as ID]);
 		this.search.find(value || '');
 		this.searchIndex = this.search.results?.[0]?.[0] === 'header' ? 1 : 0;
@@ -623,6 +655,25 @@ class TeamEditorState extends PSModel {
 	save() {
 		this.team.packedTeam = Teams.pack(this.sets);
 		this.team.iconCache = null;
+	}
+
+	static _smogonSets: Record<string, any> = {};
+	async fetchSmogonSets(formatid: string) {
+		if (formatid in TeamEditorState._smogonSets) return TeamEditorState._smogonSets[formatid];
+		try {
+			const res = await fetch(`https://${Config.routes.client}/data/sets/${formatid}.json`);
+			TeamEditorState._smogonSets[formatid] = await res.json();
+		} catch {
+			TeamEditorState._smogonSets[formatid] = false;
+		}
+		return TeamEditorState._smogonSets[formatid];
+	}
+	buildSampleSetRows(formatid: string, species: string): SearchRow[] {
+		const d = TeamEditorState._smogonSets[formatid];
+		if (!d || !d.dex) return [];
+		const sid = toID(species);
+		const all = { ...(d.dex[sid] || {}), ...(d.stats?.[sid] || {}) };
+		return Object.keys(all).map(n => ['sampleset', n as ID]);
 	}
 }
 
@@ -1826,6 +1877,19 @@ class TeamWizard extends preact.Component<{
 					}
 					editor.updateSearchMoves(set);
 				}
+				break;
+			case 'sampleset':
+				const formatid = editor.format;
+				const cache: any = (TeamEditorState as any)._smogonSets || {};
+				const data = cache[formatid];
+				if (data) {
+					const speciesSets = { ...(data['dex']?.[toID(set.species)] || {}), ...(data['stats']?.[toID(set.species)] || {}) };
+					const sampleSet = speciesSets[name];
+					if (sampleSet) {
+						Object.assign(set, sampleSet);
+					}
+				}
+				this.changeFocus({ setIndex, type: 'item' });
 				break;
 			}
 			editor.save();

@@ -14,7 +14,7 @@
 import { Dex, type ModdedDex, toID, type ID } from "./battle-dex";
 
 export type SearchType = (
-	'pokemon' | 'type' | 'tier' | 'move' | 'item' | 'ability' | 'egggroup' | 'category' | 'article'
+	'pokemon' | 'type' | 'tier' | 'move' | 'item' | 'ability' | 'egggroup' | 'category' | 'article' | 'sampleset'
 );
 
 export type SearchRow = (
@@ -55,6 +55,7 @@ export class DexSearch {
 		egggroup: 7,
 		category: 8,
 		article: 9,
+		sampleset: 10,
 	};
 	static typeName = {
 		pokemon: 'Pok\u00e9mon',
@@ -66,6 +67,7 @@ export class DexSearch {
 		egggroup: 'Egg group',
 		category: 'Category',
 		article: 'Article',
+		sampleset: 'Sample sets',
 	};
 	firstPokemonColumn: 'Tier' | 'Number' = 'Number';
 
