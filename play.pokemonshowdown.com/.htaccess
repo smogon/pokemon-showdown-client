@@ -18,8 +18,12 @@ RewriteEngine on
 
 RewriteCond %{HTTP:X-Forwarded-Proto} ^http$
 RewriteCond %{HTTP_HOST} ^play\.pokemonshowdown\.com$ [NC]
-RewriteCond %{QUERY_STRING} !^insecure [NC]
 RewriteRule ^([A-Za-z0-9-]*)$ https://play.pokemonshowdown.com/$1 [R=307,NE,L]
+
+RewriteCond %{HTTP:X-Forwarded-Proto} ^https$
+RewriteCond %{HTTP_HOST} ^play\.pokemonshowdown\.com$ [NC]
+RewriteCond %{QUERY_STRING} ^insecure [NC]
+RewriteRule ^([A-Za-z0-9-]*)$ http://insecure.psim.us/$1 [R=307,NE,L]
 
 # redirects (keep in sync with client.js)
 RewriteRule ^appeals?\/?$ https://play.pokemonshowdown.com/view-help-request--appeal [R=302,L]
@@ -100,7 +104,7 @@ RewriteCond %{HTTP_HOST} ^play\.pokemonshowdown\.com$ [NC]
 RewriteRule ^battle-([a-z0-9]+)$ https://replay.pokemonshowdown.com/$1 [R=302,L]
 
 # TODO: fix bug where you can't join lobby directly
-RewriteRule ^lobby/?$ / [R=301,L]
+RewriteRule ^lobby/?$ / [R=302,L]
 
 # roomid with a slash after it: remove the slash, unless the roomid
 # is also an actual directory
@@ -143,8 +147,7 @@ RewriteCond %{QUERY_STRING} !output=html
 RewriteRule ^ladder\.php$ https://pokemonshowdown.com/ladder/ [R=301,L]
 
 RewriteRule ^~~([^:/]*)(:[0-9]*)?/action\.php$ action.php?serverid=$1 [L,QSA]
-RewriteRule ^~~([^:/]*)(/.*)?$ http://$1.psim.us$2 [R=301,L]
-RewriteRule ^~~([^:/]*):([0-9]*)(/.*)?$ http://$1-$2.psim.us$3 [R=301,L]
+RewriteRule ^~~([^/]*)(?:/(.*))?$ redirect-server.php?host=$1&roomid=$2 [L,QSA]
 
 RewriteRule ^backup/ - [F]
 RewriteRule ^\.git/ - [F]

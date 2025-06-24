@@ -16,25 +16,26 @@ if (preg_match('/^([a-z0-9-_\.]*?)\.psim\.us$/', $host, $m)) {
 
 $protocol = @$_REQUEST['protocol'] ?? 'http:';
 $portType = ($protocol === 'http:' ? 'port' : 'httpsport');
-if ($protocol === 'https:') $config['https'] = true;
 
 if ($config['host'] !== 'showdown') {
 	include_once __DIR__ . '/../config/servers.inc.php';
 
-	$hyphenpos = strrpos($config['host'], '-');
-	if ($hyphenpos) {
-		$postfix = substr($config['host'], $hyphenpos + 1);
-		if ($postfix === 'afd') {
-			$config['afd'] = true;
-			$config['host'] = substr($config['host'], 0, $hyphenpos);
-		} else if (ctype_digit($postfix)) {
-			$config['port'] = intval(substr($config['host'], $hyphenpos + 1));
-			$config['host'] = substr($config['host'], 0, $hyphenpos);
-		}
+	if ($protocol === 'https:') $config['https'] = true;
+	if (str_ends_with($config['host'], '.insecure')) {
+		$config['https'] = false;
+		$config['host'] = substr($config['host'], 0, -9);
+	}
+	if (str_ends_with($config['host'], '-afd')) {
+		$config['afd'] = true;
+		$config['host'] = substr($config['host'], 0, -4);
+	}
+	if (str_starts_with($config['host'], 'localhost')) {
+		$config['https'] = false;
 	}
 
 	$config['id'] = $config['host'];
 	if (isset($PokemonServers[$config['host']])) {
+		if ($protocol === 'https:') $config['https'] = true;
 		$server =& $PokemonServers[$config['host']];
 		if (@$server['banned']) {
 			$config['banned'] = true;
@@ -102,10 +103,22 @@ header('P3P: CP="NOI CUR ADM DEV COM NAV STA OUR IND"');
 <body>
 <script>
 
-var configHost = <?php echo json_encode($config['host']) ?>;
-var config = <?php echo json_encode(json_encode($config)) ?>;
+var config = <?php echo json_encode($config) ?>;
 var yourOrigin = <?php echo json_encode($protocol . '//' . $host) ?>;
 var myOrigin = 'https://<?php echo $psconfig['routes']['client'] ?>';
+
+if (config.host) {
+	config.host = config.host.replace(/^localhost-([0-9]+)$/, 'localhost--$1');
+	if (!config.host.includes('.')) {
+		// parse
+		config.host = config.host.replace(/\b----\b/g, '::').replace(/---/g, '=').replace(/--/g, ':').replace(/-/g, '.').replace(/=/g, '-');
+	}
+	var result = /^(.*):([0-9]+)$/.exec(config.host);
+	if (result) {
+		config.host = result[1];
+		config.port = parseInt(result[2]);
+	}
+}
 
 function postReply (message) {
 	if (window.parent.postMessage === postReply) return;
@@ -156,7 +169,7 @@ function messageHandler(e) {
 // a[1 = localStorage success, 0 = localstorage failed] (guaranteed to be last)
 
 window.addEventListener('message', messageHandler);
-if (configHost !== 'showdown') postReply('c' + config);
+if (config.host !== 'showdown') postReply('c' + JSON.stringify(config));
 var storageAvailable = false;
 try {
 	var testVal = '' + Date.now();
