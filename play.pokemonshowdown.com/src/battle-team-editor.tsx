@@ -18,7 +18,7 @@ import { BattleStatGuesser, BattleStatOptimizer } from "./battle-tooltips";
 import { PSModel } from "./client-core";
 import { Net } from "./client-connection";
 
-type SelectionType = 'pokemon' | 'ability' | 'item' | 'move' | 'stats' | 'details';
+type SelectionType = 'pokemon' | 'ability' | 'item' | 'move' | 'stats' | 'details' | 'sampleset';
 
 class TeamEditorState extends PSModel {
 	team: Team;
@@ -147,7 +147,15 @@ class TeamEditorState extends PSModel {
 				if (rows.length) {
 					pre.unshift(['header', 'Sample sets'], ...rows);
 				} else {
-					const msg = /^gen\d+$/.test(fmt) ? 'Select a format to get sample sets' : 'No sample sets for this species.';
+					const hasTriedFetching = TeamEditorState._smogonSets.hasOwnProperty(fmt);
+					let msg: string;
+					if (!hasTriedFetching) {
+						msg = 'Loading sample sets…';
+					} else if (TeamEditorState._smogonSets[fmt] === false) {
+						msg = 'Failed to load sample sets.';
+					} else {
+						msg = /^gen\d+$/.test(fmt) ? 'Select a format to get sample sets' : 'No sample sets for this species.';
+					}
 					pre.unshift(['header', 'Sample sets'], ['html', msg]);
 				}
 				this.search.prependResults = pre;
@@ -658,21 +666,36 @@ class TeamEditorState extends PSModel {
 	}
 
 	static _smogonSets: Record<string, any> = {};
-	async fetchSmogonSets(formatid: string) {
-		if (formatid in TeamEditorState._smogonSets) return TeamEditorState._smogonSets[formatid];
-		try {
-			const res = await fetch(`https://${Config.routes.client}/data/sets/${formatid}.json`);
-			TeamEditorState._smogonSets[formatid] = await res.json();
-		} catch {
-			TeamEditorState._smogonSets[formatid] = false;
+	static _smogonSetPromises: Record<string, Promise<any>> = {};
+	fetchSmogonSets(formatid: string) {
+		if (formatid in TeamEditorState._smogonSets) {
+			return Promise.resolve(TeamEditorState._smogonSets[formatid]);
 		}
-		return TeamEditorState._smogonSets[formatid];
+		if (!(formatid in TeamEditorState._smogonSetPromises)) {
+			TeamEditorState._smogonSetPromises[formatid] = fetch(
+				`https://${Config.routes.client}/data/sets/${formatid}.json`
+			).then(r => r.json())
+				.then(data => {
+					TeamEditorState._smogonSets[formatid] = data;
+					return data;
+				})
+				.catch(err => {
+					TeamEditorState._smogonSets[formatid] = false;
+					return false;
+				});
+		}
+		return TeamEditorState._smogonSetPromises[formatid];
 	}
 	buildSampleSetRows(formatid: string, species: string): SearchRow[] {
 		const d = TeamEditorState._smogonSets[formatid];
-		if (!d || !d.dex) return [];
+		if (!d?.dex) return [];
 		const sid = toID(species);
-		const all = { ...(d.dex[sid] || {}), ...(d.stats?.[sid] || {}) };
+		const all = {
+			...(d.dex[species] || {}),
+			...(d.dex[sid] || {}),
+			...(d.stats?.[species] || {}),
+			...(d.stats?.[sid] || {}),
+		};
 		return Object.keys(all).map(n => ['sampleset', n as ID]);
 	}
 }
@@ -1291,6 +1314,21 @@ class TeamTextbox extends preact.Component<{
 			this.updateText(false, true);
 			break;
 		}
+		case 'sampleset': {
+			const cur = this.editor.sets[focus.setIndex];
+			if (!cur?.species) break;
+			const data = TeamEditorState._smogonSets?.[this.editor.format];
+			const sid = toID(cur.species);
+			const setTemplate = data?.dex?.[cur.species]?.[name] ?? data?.dex?.[sid]?.[name] ??
+				data?.stats?.[cur.species]?.[name] ?? data?.stats?.[sid]?.[name];
+			if (!setTemplate) break;
+			// shallow clone to avoid mutating template
+			const applied: Partial<Dex.PokemonSet> = JSON.parse(JSON.stringify(setTemplate));
+			Object.assign(cur, applied);
+			this.replaceSet(focus.setIndex);
+			this.updateText(false, true);
+			break;
+		}
 		}
 	}
 	getSetRange(index: number) {
@@ -1878,19 +1916,19 @@ class TeamWizard extends preact.Component<{
 					editor.updateSearchMoves(set);
 				}
 				break;
-			case 'sampleset':
+			case 'sampleset': {
 				const formatid = editor.format;
-				const cache: any = (TeamEditorState as any)._smogonSets || {};
-				const data = cache[formatid];
+				const data: any = (TeamEditorState as any)._smogonSets?.[formatid];
 				if (data) {
-					const speciesSets = { ...(data['dex']?.[toID(set.species)] || {}), ...(data['stats']?.[toID(set.species)] || {}) };
-					const sampleSet = speciesSets[name];
-					if (sampleSet) {
-						Object.assign(set, sampleSet);
-					}
+					const sid = toID(set.species);
+					const sampleSet =
+						data.dex?.[set.species]?.[name] ?? data.dex?.[sid]?.[name] ??
+						data.stats?.[set.species]?.[name] ?? data.stats?.[sid]?.[name];
+					if (sampleSet) Object.assign(set, JSON.parse(JSON.stringify(sampleSet)));
 				}
 				this.changeFocus({ setIndex, type: 'item' });
 				break;
+			}
 			}
 			editor.save();
 			this.props.onChange?.();
