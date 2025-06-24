@@ -413,7 +413,17 @@ export class PSSearchResults extends preact.Component<{
 		case 'article':
 			return this.renderArticleRow(id, matchStart, matchEnd, errorMessage);
 		case 'sampleset':
-			return <li class="result"><a href="#" data-entry={`sampleset|${id}`} style="color:#000;text-decoration:none">{id}</a></li>;
+			return (
+				<li class="result">
+					<a
+						href="#"
+						data-entry={`sampleset|${id}`}
+						style="color:#000;text-decoration:none"
+					>
+						{id}
+					</a>
+				</li>
+			);
 		}
 		return <li>Error: not found</li>;
 	}

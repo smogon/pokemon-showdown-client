@@ -143,7 +143,7 @@ class TeamEditorState extends PSModel {
 				let pre = this.search.prependResults || [];
 				pre = pre.filter(r => r[0] !== 'sampleset' &&
 					!(r[0] === 'header' && r[1] === 'Sample sets') &&
-					!(r[0] === 'html' && (r[1] as string).includes('sample sets')));
+					!(r[0] === 'html' && r[1].includes('sample sets')));
 				if (rows.length) {
 					pre.unshift(['header', 'Sample sets'], ...rows);
 				} else {
