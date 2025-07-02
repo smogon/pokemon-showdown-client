@@ -1127,6 +1127,7 @@ export const actions: { [k: string]: QueryHandler } = {
 	},
 	// sent by ps server
 	async 'smogon/validate'(params) {
+		await this.requireMainServer();
 		if (this.getIp() !== Config.restartip) {
 			throw new ActionError("Access denied.");
 		}
@@ -1169,6 +1170,7 @@ export const actions: { [k: string]: QueryHandler } = {
 	},
 
 	async 'suspects/add'(params) {
+		await this.requireMainServer();
 		if (this.getIp() !== Config.restartip) {
 			throw new ActionError("Access denied.");
 		}
@@ -1218,6 +1220,7 @@ export const actions: { [k: string]: QueryHandler } = {
 		return { success: true, url: (out as any).url };
 	},
 	async 'suspects/edit'(params) {
+		await this.requireMainServer();
 		if (this.getIp() !== Config.restartip) {
 			throw new ActionError("Access denied.");
 		}
@@ -1253,6 +1256,7 @@ export const actions: { [k: string]: QueryHandler } = {
 		return { success: true };
 	},
 	async 'suspects/end'(params) {
+		await this.requireMainServer();
 		if (this.getIp() !== Config.restartip) {
 			throw new ActionError("Access denied.");
 		}
@@ -1268,6 +1272,7 @@ export const actions: { [k: string]: QueryHandler } = {
 		return { success: true };
 	},
 	async 'suspects/verify'(params) {
+		await this.requireMainServer();
 		if (this.getIp() !== Config.restartip) {
 			throw new ActionError("Access denied.");
 		}
