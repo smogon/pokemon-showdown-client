@@ -706,7 +706,10 @@ abstract class BattleTypedSearch<T extends SearchType> {
 			this.formatType = 'lc';
 			format = 'lc' as ID;
 		}
-		if (format.endsWith('draft')) format = format.slice(0, -5) as ID;
+		if (format.endsWith('draft')) {
+			format = format.slice(0, -5) as ID;
+			if (!format) format = 'anythinggoes' as ID;
+		}
 		this.format = format;
 
 		this.species = '' as ID;
