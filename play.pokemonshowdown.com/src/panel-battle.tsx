@@ -34,6 +34,7 @@ export class BattlesRoom extends PSRoom {
 	override readonly classType = 'battles';
 	/** null means still loading */
 	format = '';
+	filters = '';
 	battles: BattleDesc[] | null = null;
 	constructor(options: RoomOptions) {
 		super(options);
@@ -51,7 +52,7 @@ export class BattlesRoom extends PSRoom {
 		this.refresh();
 	}
 	refresh() {
-		PS.send(`/cmd roomlist ${toID(this.format)}`);
+		PS.send(`/cmd roomlist ${toID(this.format)}, ${this.filters}`);
 	}
 }
 
@@ -68,6 +69,13 @@ class BattlesPanel extends PSRoomPanel<BattlesRoom> {
 	changeFormat = (e: Event) => {
 		const value = (e.target as HTMLButtonElement).value;
 		this.props.room.setFormat(value);
+	};
+	applyFilters = (e: Event) => {
+		e.preventDefault();
+		const minElo = this.base?.querySelector<HTMLInputElement>(`select[name=elofilter]`)?.value;
+		const searchPrefix = this.base?.querySelector<HTMLInputElement>(`input[name=prefixsearch]`)?.value;
+		this.props.room.filters = `${minElo || ''},${searchPrefix || ''}`;
+		this.refresh();
 	};
 	renderBattleLink(battle: BattleDesc) {
 		const format = battle.id.split('-')[1];
@@ -98,25 +106,28 @@ class BattlesPanel extends PSRoomPanel<BattlesRoom> {
 				<p>
 					<label class="label">Format:</label><FormatDropdown onChange={this.changeFormat} placeholder="(All formats)" />
 				</p>
-				{/* <label>
-					Minimum Elo: <select name="elofilter">
+				<label>
+					Minimum Elo: <select name="elofilter" onChange={this.applyFilters}>
 						<option value="none">None</option><option value="1100">1100</option><option value="1300">1300</option>
 						<option value="1500">1500</option><option value="1700">1700</option><option value="1900">1900</option>
 					</select>
 				</label>
 
-				<form class="search">
+				<form class="search" onSubmit={this.applyFilters}>
 					<p>
-						<input type="text" name="prefixsearch" class="textbox" placeholder="Username prefix"/>
+						<input type="text" name="prefixsearch" class="textbox" placeholder="Username prefix" />
 						<button type="submit" class="button">Search</button>
 					</p>
-				</form> */}
+				</form>
 				<div class="list">{!room.battles ? (
 					<p>Loading...</p>
 				) : !room.battles.length ? (
 					<p>No battles are going on</p>
-				) : (
-					room.battles.map(battle => this.renderBattleLink(battle))
+				) : (<>
+					<p>{room.battles.length === 100 ?
+						`100+` : room.battles.length} {room.battles.length > 1 ? `battles` : `battle`}</p>
+					{room.battles.map(battle => this.renderBattleLink(battle))}
+				</>
 				)}</div>
 			</div>
 		</div></PSPanelWrapper>;
