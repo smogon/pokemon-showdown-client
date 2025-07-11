@@ -644,12 +644,14 @@ export class ChatRoom extends PSRoom {
 			leave: [],
 			messageId: `joinleave-${Date.now()}`,
 		};
-		if (action === 'join' && this.joinLeave['leave'].includes(name)) {
-			this.joinLeave['leave'].splice(this.joinLeave['leave'].indexOf(name), 1);
-		} else if (action === 'leave' && this.joinLeave['join'].includes(name)) {
-			this.joinLeave['join'].splice(this.joinLeave['join'].indexOf(name), 1);
+		const user = BattleTextParser.parseNameParts(name);
+		const formattedName = user.group + user.name;
+		if (action === 'join' && this.joinLeave['leave'].includes(formattedName)) {
+			this.joinLeave['leave'].splice(this.joinLeave['leave'].indexOf(formattedName), 1);
+		} else if (action === 'leave' && this.joinLeave['join'].includes(formattedName)) {
+			this.joinLeave['join'].splice(this.joinLeave['join'].indexOf(formattedName), 1);
 		} else {
-			this.joinLeave[action].push(name);
+			this.joinLeave[action].push(formattedName);
 		}
 
 		let message = this.formatJoinLeave(this.joinLeave['join'], 'joined');
