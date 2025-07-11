@@ -37309,6 +37309,101 @@ export const BattleMoveAnims: AnimTable = {
 			}, 'linear', 'fade');
 		},
 	},
+	revivalblessing: {
+		anim(scene, [attacker]) {
+			scene.backgroundEffect('#000000', 1000, 0.5);
+
+			BattleOtherAnims.shake.anim(scene, [attacker]);
+			scene.showEffect('shine', {
+				x: attacker.x + 40,
+				y: attacker.y - 40,
+				z: attacker.z,
+				scale: 0.3,
+				opacity: 0.7,
+				time: 0,
+			}, {
+				y: attacker.y + 60,
+				opacity: 0,
+				time: 400,
+			}, 'accel');
+			scene.showEffect('shine', {
+				x: attacker.x - 40,
+				y: attacker.y - 40,
+				z: attacker.z,
+				scale: 0.3,
+				opacity: 0.7,
+				time: 200,
+			}, {
+				y: attacker.y + 60,
+				opacity: 0,
+				time: 600,
+			}, 'accel');
+			scene.showEffect('shine', {
+				x: attacker.x,
+				y: attacker.y - 40,
+				z: attacker.z,
+				scale: 0.3,
+				opacity: 0.7,
+				time: 400,
+			}, {
+				y: attacker.y + 60,
+				opacity: 0,
+				time: 800,
+			}, 'accel');
+
+			let xf = [1, -1, -1, 1];
+			let yf = [1, 1, -1, -1];
+			let xf2 = [1, 0, -1, 0];
+			let yf2 = [0, 1, 0, -1];
+			for (let i = 0; i < 4; i++) {
+				scene.showEffect('wisp', {
+					x: attacker.x + 50 * xf[i],
+					y: attacker.y + 50 * yf[i],
+					z: attacker.z,
+					scale: 0.3,
+					opacity: 0.8,
+					time: 0,
+				}, {
+					x: attacker.x,
+					y: attacker.y,
+					z: attacker.z,
+					scale: 0.5,
+					opacity: 0.5,
+					time: 800,
+				}, 'linear', 'fade');
+				scene.showEffect('wisp', {
+					x: attacker.x + 70 * xf2[i],
+					y: attacker.y + 70 * yf2[i],
+					z: attacker.z,
+					scale: 0.3,
+					opacity: 0.8,
+					time: 0,
+				}, {
+					x: attacker.x,
+					y: attacker.y,
+					z: attacker.z,
+					scale: 0.5,
+					opacity: 0.5,
+					time: 800,
+				}, 'linear', 'fade');
+			}
+
+			scene.showEffect('iceball', {
+				x: attacker.x,
+				y: attacker.y,
+				z: attacker.z,
+				xscale: 0.4,
+				yscale: 0.2,
+				opacity: 0.6,
+				time: 800,
+			}, {
+				xscale: 2.4,
+				yscale: 1,
+				opacity: 0,
+				time: 1000,
+			}, 'decel', 'fade');
+		},
+	},
 };
 
 // placeholder animations
