@@ -1524,7 +1524,7 @@ export class Battle {
 				) {
 					// Hardcode for moves without a target in singles
 					foeTargets.push(pokemon.side.foe.active[0]);
-				} else if (['all', 'allAdjacent', 'allAdjacentFoes', 'foeSide'].includes(moveTarget)) {
+				} else if (['all', 'allAdjacent', 'allAdjacentFoes', 'field', 'foeSide'].includes(moveTarget)) {
 					for (const active of this.getAllActive()) {
 						if (active === pokemon) continue;
 						// Pressure affects allies in gen 3 and 4

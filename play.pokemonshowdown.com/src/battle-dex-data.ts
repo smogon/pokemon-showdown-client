@@ -1212,7 +1212,7 @@ export interface MoveFlags {
 export type MoveTarget = 'normal' | 'any' | 'adjacentAlly' | 'adjacentFoe' | 'adjacentAllyOrSelf' | // single-target
 	'self' | 'randomNormal' | // single-target, automatic
 	'allAdjacent' | 'allAdjacentFoes' | // spread
-	'allySide' | 'foeSide' | 'all'; // side and field
+	'allySide' | 'foeSide' | 'all' | 'field'; // side and field
 
 export class Move implements Effect {
 	// effect
