@@ -179,7 +179,7 @@ function PokemonSet({ set }: { set: Dex.PokemonSet }) {
 			} else if (move === 'Ivy Cudgel') {
 				switch (set.species) {
 				case 'Ogerpon-Cornerstone':
-					moveType = 'Fighting';
+					moveType = 'Rock';
 					break;
 				case 'Ogerpon-Hearthflame':
 					moveType = 'Fire';
