@@ -2656,7 +2656,7 @@ export const PS = new class extends PSModel {
 		if (!PS.server.registered) return;
 		let autojoins: string[] = [];
 		let autojoinCount = 0;
-		let rooms = this.rightRoomList;
+		let rooms = [...this.rightRoomList, ...this.leftRoomList, ...this.miniRoomList];
 		for (let roomid of rooms) {
 			let room = PS.rooms[roomid] as ChatRoom;
 			if (!room) return;
