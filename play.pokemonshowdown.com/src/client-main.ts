@@ -1694,7 +1694,6 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 		this.sendDirect(msg);
 	}
 	sendDirect(msg: string) {
-		if (this.connected === 'expired') return this.add(`This room has expired (you can't chat in it anymore)`);
 		PS.send(msg, this.id);
 	}
 	destroy() {
