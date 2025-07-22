@@ -32,7 +32,7 @@ Storage.bg = {
 	changeCount: 0,
 	// futureproofing in case we ever add more?
 	// because doing this once was annoying
-	MENU_BUTTONS: 6,
+	MENU_BUTTONS: 7,
 	set: function (bgUrl, bgid, noSave) {
 		if (!this.load(bgUrl, bgid)) {
 			this.extractMenuColors(bgUrl, bgid, noSave);

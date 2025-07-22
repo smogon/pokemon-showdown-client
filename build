@@ -49,6 +49,9 @@ case 'minidex':
 case 'sprites':
 	execSync(`node ./build-tools/build-minidex`, options);
 	break;
+case 'commands':
+	execSync(`node ./build-tools/build-commands`, options);
+	break;
 case 'replays':
 	execSync(`node ./build-tools/build-replays`, options);
 	process.exit();
@@ -68,6 +71,9 @@ execSync(`node ./build-tools/update` + full, options);
 
 if (full) {
 	try {
+		execSync(`node ./build-tools/build-commands`, options);
 		execSync(`node ./build-tools/build-replays`, options);
-	} catch (e) {}
+	} catch (e) {
+		console.error(e);
+	}
 }

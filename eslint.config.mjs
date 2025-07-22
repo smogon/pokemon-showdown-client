@@ -49,7 +49,7 @@ export default configure([
 				"BattleOtherAnims": false, "BattlePokedex": false, "BattlePokemonSprites": false, "BattlePokemonSpritesBW": false, "BattleSearchCountIndex": false, "BattleSearchIndex": false, "BattleArticleTitles": false,
 				"BattleSearchIndexOffset": false, "BattleSearchIndexType": false, "BattleStatIDs": false, "BattleStatNames": false, "BattleStatusAnims": false, "BattleStatuses": false, "BattleTeambuilderTable": false,
 				"ModifiableValue": false, "BattleStatGuesser": false, "BattleStatOptimizer": false, "BattleText": true, "BattleTextAFD": false, "BattleTextNotAFD": false,
-				"BattleTextParser": false,
+				"BattleTextParser": false, "BattleChatCommands": false,
 
 				// Generic global variables
 				"Config": false, "BattleSearch": false, "Storage": false, "Dex": false, "DexSearch": false,
@@ -57,7 +57,7 @@ export default configure([
 				"ChatHistory": false, "Topbar": false, "UserList": false,
 
 				// Rooms
-				"Room": false, "BattleRoom": false, "ChatRoom": false, "ConsoleRoom": false, "HTMLRoom": false, "LadderRoom": false, "MainMenuRoom": false, "RoomsRoom": false, "BattlesRoom": false, "TeambuilderRoom": false,
+				"Room": false, "BattleRoom": false, "ChatRoom": false, "ConsoleRoom": false, "HTMLRoom": false, "LadderRoom": false, "MainMenuRoom": false, "RoomsRoom": false, "BattlesRoom": false, "TeambuilderRoom": false, "ResourceRoom": false,
 
 				// Tons of popups
 				"Popup": false, "ForfeitPopup": false, "BracketPopup": false, "LoginPasswordPopup": false, "UserPopup": false, "UserOptionsPopup": false, "UserOptions": false, "TeamPopup": false,
