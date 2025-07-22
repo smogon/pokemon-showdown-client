@@ -727,3 +727,57 @@ you can't delete it by pressing Backspace */
 .wizardsearchresults .dexlist, .searchresults .dexlist {
 	min-width: 624px;
 }
+
+.sample-sets {
+	background: #f8f9fa;
+	border: 1px solid #dee2e6;
+	border-radius: 6px;
+	margin: 5px 15px 12px 15px;
+	padding: 12px;
+}
+
+.sample-sets + .searchboxwrapper + .wizardsearchresults {
+	top: 335px;
+}
+
+.sample-sets h3 {
+	margin: 0 0 10px 0;
+	color: #495057;
+	font-size: 13px;
+	font-weight: 600;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+}
+
+.sample-sets-buttons {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 8px;
+}
+
+.sample-set-button {
+	background: linear-gradient(to bottom, #ffffff, #f8f9fa);
+	border: 1px solid #ced4da;
+	padding: 8px 16px;
+	border-radius: 4px;
+	cursor: pointer;
+	font-size: 12px;
+	font-weight: 500;
+	color: #495057;
+	transition: all 0.2s ease;
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.sample-set-button:hover {
+	background: linear-gradient(to bottom, #e9ecef, #dee2e6);
+	border-color: #adb5bd;
+	transform: translateY(-1px);
+	box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.sample-set-button:active {
+	background: #dee2e6;
+	border-color: #6c757d;
+	transform: translateY(0);
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}

@@ -18,7 +18,7 @@ import { BattleStatGuesser, BattleStatOptimizer } from "./battle-tooltips";
 import { PSModel } from "./client-core";
 import { Net } from "./client-connection";
 
-type SelectionType = 'pokemon' | 'ability' | 'item' | 'move' | 'stats' | 'details' | 'sampleset';
+type SelectionType = 'pokemon' | 'ability' | 'item' | 'move' | 'stats' | 'details';
 
 class TeamEditorState extends PSModel {
 	team: Team;
@@ -50,6 +50,7 @@ class TeamEditorState extends PSModel {
 	defaultLevel = 100;
 	readonly = false;
 	fetching = false;
+	sampleSets: string[] = [];
 	constructor(team: Team) {
 		super();
 		this.team = team;
@@ -139,39 +140,17 @@ class TeamEditorState extends PSModel {
 		if (type === 'ability') {
 			const sp = set?.species || '';
 			const fmt = this.format;
-			const showRows = (rows: SearchRow[]) => {
-				let pre = this.search.prependResults || [];
-				pre = pre.filter(r => r[0] !== 'sampleset' &&
-					!(r[0] === 'header' && r[1] === 'Sample sets') &&
-					!(r[0] === 'html' && r[1].includes('sample sets')));
-				if (rows.length) {
-					pre.unshift(['header', 'Sample sets'], ...rows);
-				} else {
-					const hasTriedFetching = TeamEditorState._smogonSets.hasOwnProperty(fmt);
-					let msg: string;
-					if (!hasTriedFetching) {
-						msg = 'Loading sample sets…';
-					} else if (TeamEditorState._smogonSets[fmt] === false) {
-						msg = 'Failed to load sample sets.';
-					} else {
-						msg = /^gen\d+$/.test(fmt) ? 'Select a format to get sample sets' : 'No sample sets for this species.';
-					}
-					pre.unshift(['header', 'Sample sets'], ['html', msg]);
-				}
-				this.search.prependResults = pre;
-			};
 			if (sp) {
-				const cached = this.buildSampleSetRows(fmt, sp);
-				showRows(cached);
+				const cached = this.buildSampleSetNames(fmt, sp);
+				this.sampleSets = cached;
 				if (!cached.length) {
 					this.fetchSmogonSets(fmt).then(() => {
-						showRows(this.buildSampleSetRows(fmt, sp));
-						this.search.results = null;
-						this.search.find(this.search.query);
+						this.sampleSets = this.buildSampleSetNames(fmt, sp);
+						this.update();
 					});
 				}
 			} else {
-				showRows([]);
+				this.sampleSets = [];
 			}
 		}
 
@@ -686,7 +665,7 @@ class TeamEditorState extends PSModel {
 		}
 		return TeamEditorState._smogonSetPromises[formatid];
 	}
-	buildSampleSetRows(formatid: string, species: string): SearchRow[] {
+	buildSampleSetNames(formatid: string, species: string): string[] {
 		const d = TeamEditorState._smogonSets[formatid];
 		if (!d?.dex) return [];
 		const sid = toID(species);
@@ -696,7 +675,7 @@ class TeamEditorState extends PSModel {
 			...(d.stats?.[species] || {}),
 			...(d.stats?.[sid] || {}),
 		};
-		return Object.keys(all).map(n => ['sampleset', n as ID]);
+		return Object.keys(all);
 	}
 }
 
@@ -1314,21 +1293,7 @@ class TeamTextbox extends preact.Component<{
 			this.updateText(false, true);
 			break;
 		}
-		case 'sampleset': {
-			const cur = this.editor.sets[focus.setIndex];
-			if (!cur?.species) break;
-			const data = TeamEditorState._smogonSets?.[this.editor.format];
-			const sid = toID(cur.species);
-			const setTemplate = data?.dex?.[cur.species]?.[name] ?? data?.dex?.[sid]?.[name] ??
-				data?.stats?.[cur.species]?.[name] ?? data?.stats?.[sid]?.[name];
-			if (!setTemplate) break;
-			// shallow clone to avoid mutating template
-			const applied: Partial<Dex.PokemonSet> = JSON.parse(JSON.stringify(setTemplate));
-			Object.assign(cur, applied);
-			this.replaceSet(focus.setIndex);
-			this.updateText(false, true);
-			break;
-		}
+
 		}
 	}
 	getSetRange(index: number) {
@@ -1916,24 +1881,31 @@ class TeamWizard extends preact.Component<{
 					editor.updateSearchMoves(set);
 				}
 				break;
-			case 'sampleset': {
-				const formatid = editor.format;
-				const data: any = (TeamEditorState as any)._smogonSets?.[formatid];
-				if (data) {
-					const sid = toID(set.species);
-					const sampleSet =
-						data.dex?.[set.species]?.[name] ?? data.dex?.[sid]?.[name] ??
-						data.stats?.[set.species]?.[name] ?? data.stats?.[sid]?.[name];
-					if (sampleSet) Object.assign(set, JSON.parse(JSON.stringify(sampleSet)));
-				}
-				this.changeFocus({ setIndex, type: 'item' });
-				break;
-			}
+
 			}
 			editor.save();
 			this.props.onChange?.();
 			this.forceUpdate();
 		}
+	};
+	loadSampleSet = (setName: string) => {
+		const { editor } = this.props;
+		const setIndex = editor.innerFocus!.setIndex;
+		const set = editor.sets[setIndex];
+		if (!set?.species) return;
+		
+		const data = TeamEditorState._smogonSets?.[editor.format];
+		const sid = toID(set.species);
+		const setTemplate = data?.dex?.[set.species]?.[setName] ?? data?.dex?.[sid]?.[setName] ??
+			data?.stats?.[set.species]?.[setName] ?? data?.stats?.[sid]?.[setName];
+		if (!setTemplate) return;
+		
+		const applied: Partial<Dex.PokemonSet> = JSON.parse(JSON.stringify(setTemplate));
+		Object.assign(set, applied);
+		
+		editor.save();
+		this.props.onUpdate?.();
+		this.forceUpdate();
 	};
 	updateSearch = (ev: Event) => {
 		const searchBox = ev.currentTarget as HTMLInputElement;
@@ -2093,6 +2065,18 @@ class TeamWizard extends preact.Component<{
 				<DetailsForm editor={editor} set={set!} onChange={this.handleSetChange} />
 			) : (
 				<div>
+					{type === 'ability' && editor.sampleSets.length > 0 && (
+						<div class="sample-sets">
+							<h3>Sample Sets</h3>
+							<div class="sample-sets-buttons">
+								{editor.sampleSets.map(setName => (
+									<button class="sample-set-button button" onClick={() => this.loadSampleSet(setName)}>
+										{setName}
+									</button>
+								))}
+							</div>
+						</div>
+					)}
 					<div class="searchboxwrapper pad" onClick={this.handleClickFilters}>
 						<input
 							type="search" name="value" class="textbox" placeholder="Search or filter"
