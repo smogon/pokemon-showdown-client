@@ -1293,7 +1293,7 @@ class TeamTextbox extends preact.Component<{
 			this.updateText(false, true);
 			break;
 		}
-	}
+		}
 	}
 	getSetRange(index: number) {
 		if (!this.setInfo[index]) {
