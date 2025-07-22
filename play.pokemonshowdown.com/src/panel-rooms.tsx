@@ -106,11 +106,15 @@ class RoomsPanel extends PSRoomPanel {
 
 		if (!searchid) {
 			const roomsCache = PS.mainmenu.roomsCache;
-			const officialRooms = [], chatRooms = [], hiddenRooms = [];
+			let spotLightLabel = '';
+			const officialRooms = [], chatRooms = [], hiddenRooms = [], spotLightRooms = [];
 			for (const room of roomsCache.chat || []) {
 				if (room.section !== this.section && this.section !== '') continue;
 				if (room.privacy === 'hidden') {
 					hiddenRooms.push(room);
+				} else if (room.spotlight) {
+					spotLightLabel = room.spotlight;
+					spotLightRooms.push(room);
 				} else if (room.section === 'Official') {
 					officialRooms.push(room);
 				} else {
@@ -119,6 +123,7 @@ class RoomsPanel extends PSRoomPanel {
 			}
 			return [
 				["Official chat rooms", officialRooms],
+				[spotLightLabel, spotLightRooms],
 				["Chat rooms", chatRooms],
 				["Hidden rooms", hiddenRooms],
 			];
