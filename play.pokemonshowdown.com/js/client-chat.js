@@ -2068,6 +2068,115 @@
 		}
 	});
 
+	this.ResourceRoom = HTMLRoom.extend({
+		events: { 'keydown [name=search]': 'searchCommands' },
+		type: 'resources',
+		title: 'Help',
+		search: '',
+		searchCommands: function (e) {
+			this.search = toID($(e.currentTarget).val());
+			this.update();
+		},
+
+		initialize: function () {
+			this.$el.addClass('ps-room-light').addClass('scrollable');
+			var buf = '<div class="pad">';
+			buf += '<h2>PS! Informational Resources</h2><hr />';
+			buf += 'PS! is a wide and varied site, with more facets than can be covered here easily.<br />';
+			buf += 'While this page chiefly documents the ever-shifting set of commands available to PS! users, here are some useful resources for newcomers:<br />';
+			buf += '- <a href="https://www.smogon.com/forums/threads/3676132/">Beginner\'s Guide to Pok&eacute;mon Showdown</a><br />';
+			buf += '- <a href="https://www.smogon.com/dp/articles/intro_comp_pokemon">An introduction to competitive Pok&eacute;mon</a><br />';
+			buf += '- <a href="https://www.smogon.com/sm/articles/sm_tiers">What do \'OU\', \'UU\', etc mean?</a><br />';
+			buf += '- <a href="https://www.smogon.com/dex/ss/formats/">What are the rules for each format?</a><br />';
+			buf += '- <a href="https://www.smogon.com/ss/articles/clauses">What is \'Sleep Clause\' and other clauses?</a><br />';
+			buf += '- <a href="https://www.smogon.com/articles/getting-started">Next Steps for Competitive Battling</a><br />';
+			buf += '- <button class="button" name="send" value="/report">Report a user</button><br />';
+			buf += '- <button class="button" name="send" value="/join help">Join the Help room for live help</button>';
+			buf += '<hr /><strong>Commands:</strong><br />';
+			buf += 'Within any of the chats, and in private messages, it is possible to type in commands (messages beginning with <code>/</code>) in order to perform a particular action. ';
+			buf += 'A great number of these commands exist, with some only available to certain users. ';
+			buf += 'For instance, you can broadcast commands to others with the <code>!</code> command prefix, but only when you\'re a player in a battle or a Voice (+) user. ';
+			buf += 'For more information on ranks, type <code>/groups</code> in any chat. You can also use the "chat self" button on your username in the top right if you need a place to send these commands ';
+			buf += 'without joining a room.<br /><br />';
+
+			buf += '<details class="readmore"><summary>Here\'s a list of the most useful commands for the average Pokemon Showdown experience:</summary>';
+			buf += '<p>COMMANDS: /report, /msg, /reply, /logout, /challenge, /search, /rating, /whois, /user, /join, /leave, /userauth, /roomauth</p>';
+			buf += '<p>BATTLE ROOM COMMANDS: /savereplay, /hideroom, /inviteonly, /invite, /timer, /forfeit</p>';
+			buf += '<p>OPTION COMMANDS: /nick, /avatar, /ignore, /status, /away, /busy, /back, /timestamps, /highlight, /showjoins, /hidejoins, /blockchallenges, /blockpms</p>';
+			buf += '<p>INFORMATIONAL/RESOURCE COMMANDS: /groups, /faq, /rules, /intro, /formatshelp, /othermetas, /analysis, /punishments, /calc, /git, /cap, /roomhelp, /roomfaq (replace / with ! to broadcast. Broadcasting requires: + % @ # ~)</p>';
+			buf += '<p>DATA COMMANDS: /data, /dexsearch, /movesearch, /itemsearch, /learn, /statcalc, /effectiveness, /weakness, /coverage, /randommove, /randompokemon (replace / with ! to broadcast. Broadcasting requires: + % @ # ~)</p>';
+			buf += '<p>For an overview of room commands, use /roomhelp</p>';
+			buf += '<p>For details of a specific command, you can use the command <code>/help [command]</code>, for example <code>/help data</code>.</p>';
+			buf += '</details><br />';
+
+			buf += 'A complete list of commands available to regular users is provided below. Use <code>/help [commandname]</code> for more in-depth information on how to use them.';
+			buf += '<hr />';
+			buf += '<label for="search">Search/filter commands:</label> ';
+			buf += '<input name="search" placeholder="search" style="width: 25%" value="' + this.search + '" /><br />';
+			buf += '<span name="cmdbuffer">' + this.getCommandList() + '</span>';
+			this.$el.html(buf);
+		},
+		update: function () {
+			this.$el.find('[name="cmdbuffer"]').html(this.getCommandList());
+		},
+		getCommandList: function () {
+			var buf = '';
+			var search = this.search;
+			var keys = Object.keys(BattleChatCommands).sort(function (a, b) {
+				// pin info to the top ALWAYS
+				if (b.endsWith('info')) return 2;
+				// prefer default commands near the top, more generally useful
+				if (b.includes('chat-commands')) return 1;
+				var aCount = BattleChatCommands[a].filter(function (x) {
+					return toID(x).includes(search);
+				}).length;
+				var bCount = BattleChatCommands[b].filter(function (x) {
+					return toID(x).includes(search);
+				}).length;
+
+				return (bCount - aCount) || a.localeCompare(b);
+			}).filter(function (plugin) {
+				return !(plugin.endsWith('admin'));
+			});
+
+			for (var i = 0; i < keys.length; i++) {
+				var pluginName = keys[i];
+				var cmdTable = BattleChatCommands[pluginName];
+				if (!cmdTable.length) continue;
+				if (pluginName.startsWith('chat-plugins')) {
+					pluginName = 'Chat plugin: ' + pluginName.split('/').slice(1).join('/');
+				} else if (pluginName.startsWith('chat-commands')) {
+					pluginName = 'Core commands: ' + pluginName.split('/').slice(1).join('/'); ;
+				}
+				var matchedCmds = [];
+				for (var j = 0; j < cmdTable.length; j++) {
+					if (this.search.length && !toID(cmdTable[j]).includes(this.search)) {
+						continue;
+					}
+					matchedCmds.push('<li>' + cmdTable[j] + '</li>');
+				}
+				var open = ((
+					this.search.length && matchedCmds.length) || pluginName.includes('Core')
+				) ? ' open' : '';
+				var empty = this.search.length && !matchedCmds.length;
+
+				if (!empty) buf += '<details class="readmore" ' + open + '><summary>';
+				buf += '<strong>' + pluginName + '</strong>';
+				if (!empty) {
+					buf += '</summary><ul>';
+					buf += matchedCmds.join('');
+					buf += '</ul></details>';
+				} else {
+					buf += '<br /><br />';
+				}
+				buf += '<br />';
+			}
+			return buf;
+		},
+		join: function () {},
+		leave: function () {}
+	});
+
 }).call(this, jQuery);
 
 function ChatHistory() {

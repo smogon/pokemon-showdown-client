@@ -1691,6 +1691,7 @@ function toId() {
 				'ladder': LadderRoom,
 				'lobby': ChatRoom,
 				'staff': ChatRoom,
+				'resources': ResourceRoom,
 				'constructor': ChatRoom
 			};
 			var typeTable = {
@@ -1727,7 +1728,7 @@ function toId() {
 				if (this.curSideRoom === oldRoom) this.curSideRoom = room;
 				if (this.sideRoom === oldRoom) this.sideRoom = room;
 			}
-			if (['', 'teambuilder', 'ladder', 'rooms'].indexOf(room.id) < 0) {
+			if (['', 'teambuilder', 'ladder', 'rooms', 'resources'].indexOf(room.id) < 0) {
 				if (room.isSideRoom) {
 					this.sideRoomList.push(room);
 				} else {

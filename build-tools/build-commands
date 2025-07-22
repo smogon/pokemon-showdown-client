@@ -1,0 +1,75 @@
+#!/usr/bin/env node
+/**
+ * Builds out a cache of commands from the server & their help commands
+ */
+
+const fs = require('fs');
+
+console.log('Building `data/commands.json` index...');
+
+const noop = () => null;
+Object.assign(globalThis, {
+	Config: { routes: { root: '' } },
+	Monitor: { crashlog: noop },
+	Punishments: { addRoomPunishmentType: noop },
+	Rooms: {
+		rooms: new Map(),
+		search: noop,
+		get: noop,
+		RoomGame: class {},
+		RoomGamePlayer: class {},
+		SimpleRoomGame: class {},
+	},
+	toID: str => ("" + str).toLowerCase().replace(/[^a-z0-9]/ig, ''),
+});
+
+const { Chat } = require('../caches/pokemon-showdown/dist/server/chat');
+
+// yes, these have to be done separately, yes it sucks
+Object.assign(globalThis, {
+	Tournaments: require('../caches/pokemon-showdown/dist/server/tournaments'),
+	Chat,
+	Dex: { includeData: noop },
+});
+
+Chat.commands = Object.create(null);
+Chat.pages = Object.create(null);
+Chat.loadPluginDirectory("dist/server/chat-commands");
+Chat.loadPlugin(globalThis.Tournaments, "tournaments");
+Chat.loadPluginDirectory("dist/server/chat-plugins");
+
+const recurseCommands = (table = Chat.commands, namespace = '', results = {}) => {
+	for (const cmd in table) {
+		const handler = table[cmd];
+		if (!handler || ['string', 'boolean'].includes(typeof handler) || cmd === 'aliases') {
+			continue;
+		}
+		const fullCmd = (namespace + ' ' + cmd).trim();
+		if (Array.isArray(handler)) {
+			/** handler = Chat.parseCommand(`/${fullCmd.replace('help', '')}`).handler;
+			if (handler.requiredPermission) continue;
+			results.push(fullCmd); */
+			continue;
+		}
+		if (typeof handler === 'object') {
+			recurseCommands(handler, (namespace + " " + cmd).trim(), results);
+			continue;
+		}
+		const pKey = handler.plugin.split('/server/')[1];
+		if (!results[pKey]) {
+			results[pKey] = [];
+		}
+		if (!results[pKey].includes(fullCmd) && !handler.requiredPermission) {
+			results[pKey].push(fullCmd);
+		}
+	}
+	return results;
+};
+
+fs.writeFileSync(
+	'play.pokemonshowdown.com/data/commands.js',
+	`exports.BattleChatCommands = ${JSON.stringify(recurseCommands())}`
+);
+
+console.log('DONE');
+process.exit(0);
