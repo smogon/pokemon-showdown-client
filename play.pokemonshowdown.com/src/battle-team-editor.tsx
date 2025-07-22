@@ -1277,23 +1277,22 @@ class TeamTextbox extends preact.Component<{
 		}
 
 		switch (type) {
-		case 'pokemon': {
-			const set = this.editor.sets[focus.setIndex] ||= {
-				species: '',
-				moves: [],
-			};
-			this.editor.changeSpecies(set, name);
-			this.replaceSet(focus.setIndex);
-			this.updateText(false, true);
-			break;
-		}
-		case 'ability': {
-			this.editor.sets[focus.setIndex].ability = name;
-			this.replaceSet(focus.setIndex);
-			this.updateText(false, true);
-			break;
-		}
-
+			case 'pokemon': {
+				const set = this.editor.sets[focus.setIndex] ||= {
+					species: '',
+					moves: [],
+				};
+				this.editor.changeSpecies(set, name);
+				this.replaceSet(focus.setIndex);
+				this.updateText(false, true);
+				break;
+			}
+			case 'ability': {
+				this.editor.sets[focus.setIndex].ability = name;
+				this.replaceSet(focus.setIndex);
+				this.updateText(false, true);
+				break;
+			}
 		}
 	}
 	getSetRange(index: number) {
@@ -1881,7 +1880,6 @@ class TeamWizard extends preact.Component<{
 					editor.updateSearchMoves(set);
 				}
 				break;
-
 			}
 			editor.save();
 			this.props.onChange?.();
