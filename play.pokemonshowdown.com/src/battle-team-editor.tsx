@@ -1893,16 +1893,16 @@ class TeamWizard extends preact.Component<{
 		const setIndex = editor.innerFocus!.setIndex;
 		const set = editor.sets[setIndex];
 		if (!set?.species) return;
-		
+
 		const data = TeamEditorState._smogonSets?.[editor.format];
 		const sid = toID(set.species);
 		const setTemplate = data?.dex?.[set.species]?.[setName] ?? data?.dex?.[sid]?.[setName] ??
 			data?.stats?.[set.species]?.[setName] ?? data?.stats?.[sid]?.[setName];
 		if (!setTemplate) return;
-		
+
 		const applied: Partial<Dex.PokemonSet> = JSON.parse(JSON.stringify(setTemplate));
 		Object.assign(set, applied);
-		
+
 		editor.save();
 		this.props.onUpdate?.();
 		this.forceUpdate();
