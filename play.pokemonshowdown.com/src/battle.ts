@@ -1135,6 +1135,9 @@ export class Battle {
 	 * paused, not just waiting for the opponent to make a move.
 	 */
 	paused: boolean;
+	realtime = false;
+	timeWait: number | null = null;
+	timerCount = 0;
 
 	constructor(options: {
 		$frame?: JQuery,
@@ -3393,6 +3396,32 @@ export class Battle {
 	}
 	runMajor(args: Args, kwArgs: KWArgs, preempt?: boolean) {
 		switch (args[0]) {
+		case 't:': {
+			if (this.realtime && this.timerCount) {
+				if (this.timeWait) {
+					setTimeout(() => {
+						this.timeWait = null;
+						this.nextStep();
+					}, this.timeWait);
+					return true;
+				}
+				const curStep = this.stepQueue.indexOf(`|t:|${args[1]}`);
+				const curTime = Number(args[1]);
+
+				const extractTime = (line: string) => Number(line.split('|')[2]);
+				const nextStep = this.stepQueue.findIndex((line, index) => {
+					if (index < curStep) return false;
+					const parts = line.split('|');
+					return parts[1] === 't:' && extractTime(line) > curTime;
+				});
+				if (nextStep > -1) {
+					const nextTime = extractTime(this.stepQueue[nextStep]);
+					this.timeWait = (nextTime - curTime) * 1000;
+				}
+			}
+			this.timerCount++;
+			break;
+		}
 		case 'start': {
 			this.nearSide.active[0] = null;
 			this.farSide.active[0] = null;
@@ -3793,14 +3822,18 @@ export class Battle {
 			if (args[0].startsWith('-') || args[0] === 'detailschange') {
 				this.runMinor(args, kwArgs, nextArgs, nextKwargs);
 			} else {
-				this.runMajor(args, kwArgs, preempt);
+				if (this.runMajor(args, kwArgs, preempt)) {
+					return true;
+				}
 			}
 		} else {
 			try {
 				if (args[0].startsWith('-') || args[0] === 'detailschange') {
 					this.runMinor(args, kwArgs, nextArgs, nextKwargs);
 				} else {
-					this.runMajor(args, kwArgs, preempt);
+					if (this.runMajor(args, kwArgs, preempt)) {
+						return true;
+					}
 				}
 			} catch (err: any) {
 				this.log(['majorerror', 'Error parsing: ' + str + ' (' + err + ')']);
@@ -3923,7 +3956,9 @@ export class Battle {
 				return;
 			}
 
-			this.run(this.stepQueue[this.currentStep]);
+			if (this.run(this.stepQueue[this.currentStep])) {
+				break;
+			}
 			this.currentStep++;
 			if (this.waitForAnimations === true) {
 				animations = this.scene.finishAnimations();
