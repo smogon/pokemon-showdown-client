@@ -855,13 +855,14 @@ export const Dex = new class implements ModdedDex {
 			y: -3,
 		};
 		if (pokemon.shiny) spriteData.shiny = true;
+		if (dex.modid === 'gen7letsgo') gen = 8;
 		if (Dex.prefs('nopastgens')) gen = 9;
 		if (Dex.prefs('bwgfx') && gen > 5) gen = 5;
 		let homeExists = (!species.isNonstandard || !['CAP', 'Custom'].includes(species.isNonstandard) ||
 			species.id === "xerneasneutral") && ![
 			"floetteeternal", "pichuspikyeared", "pikachubelle", "pikachucosplay", "pikachulibre", "pikachuphd", "pikachupopstar", "pikachurockstar",
 		].includes(species.id);
-		if ((gen >= 8 || dex.modid === 'gen7letsgo') && homeExists) {
+		if (gen >= 8 && homeExists) {
 			spriteData.spriteDir = 'sprites/home-centered';
 			spriteData.x = 8;
 			spriteData.y = 10;
