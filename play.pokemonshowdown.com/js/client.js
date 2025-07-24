@@ -987,8 +987,8 @@ function toId() {
 					team.privacy = data.privacy;
 					team.team = data.team;
 					team.loaded = true;
-					Storage.saveTeams();
 					callback(team);
+					Storage.saveTeams();
 					var entry = app.loadingTeamQueue.shift();
 					if (entry) {
 						app.loadTeam(entry[0], entry[1]);
