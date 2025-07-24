@@ -115,36 +115,36 @@ function exportSet(set: Dex.PokemonSet) {
 
 function PokemonSet({ set }: { set: Dex.PokemonSet }) {
 	return <article class="psset">
-		{set.name && set.name !== set.species ? <>{set.name} ({set.species})</> : <>{set.species}</>}
-		{set.gender ? <> ({set.gender})</> : <></>}
-		{set.item ? <> @ {set.item} </> : <></>}
+		{set.name && set.name !== set.species ? <>{set.name} ({set.species})</> : set.species}
+		{set.gender}
+		{set.item && <> @ {set.item}</>}
 		<br />
-		{set.ability ? <>Ability: {set.ability}<br /></> : <></>}
-		{set.level && set.level !== 100 ? <>Level: {set.level}<br /></> : <></>}
-		{set.shiny ? <>Shiny: Yes<br /></> : <></>}
-		{set.teraType ? <>Tera Type: {set.teraType}<br /></> : <></>}
+		{set.ability && <>Ability: {set.ability}<br /></>}
+		{(set.level && set.level !== 100) && <>Level: {set.level}<br /></>}
+		{set.shiny && <>Shiny: Yes<br /></>}
+		{set.teraType && <>Tera Type: {set.teraType}<br /></>}
 
-		{set.evs ? <>{Dex.statNames.filter(stat => set.evs![stat]).map((stat, index, arr) => (
+		{set.evs && <>{Dex.statNames.filter(stat => set.evs![stat]).map((stat, index, arr) => (
 			<>
-				{index === 0 ? 'EVs: ' : ''}
+				{index === 0 && 'EVs: '}
 				{set.evs![stat]} {BattleStatNames[stat]}
-				{index !== (arr.length - 1) ? ' / ' : ''}
+				{index !== (arr.length - 1) && ' / '}
 			</>
-		))}<br /></> : <></>}
+		))}<br /></>}
 
-		{set.nature ? <>{set.nature} Nature<br /></> : <></>}
+		{set.nature && <>{set.nature} Nature<br /></>}
 
-		{set.ivs ? <>{Dex.statNames
+		{set.ivs && <>{Dex.statNames
 			.filter(stat => !(set.ivs![stat] === undefined || isNaN(set.ivs![stat]) || set.ivs![stat] === 31))
 			.map((stat, index, arr) =>
 				<>
-					{index === 0 ? 'IVs: ' : ''}
+					{index === 0 && 'IVs: '}
 					{set.ivs![stat]} {BattleStatNames[stat]}
 					{index !== (arr.length - 1) ? ' / ' : ''}
 				</>
-			)}<br /></> : <></>}
+			)}<br /></>}
 
-		{set.moves ? set.moves.map(move => {
+		{set.moves?.map(move => {
 			if (move.substr(0, 13) === 'Hidden Power ') {
 				const hpType = move.slice(13);
 				move = move.slice(0, 13);
@@ -152,15 +152,13 @@ function PokemonSet({ set }: { set: Dex.PokemonSet }) {
 			}
 			// hide the alt so it doesn't interfere w/ copy/pasting
 			return <>- {move} <PSIcon type={Dex.moves.get(move).type} hideAlt /><br /></>;
-		}) : <></>}
+		})}
 
-		{typeof set.happiness === 'number' && set.happiness !== 255 && !isNaN(set.happiness) ?
-			<>Happiness: {set.happiness}<br /></> :
-			<></>}
-		{typeof set.dynamaxLevel === 'number' && set.dynamaxLevel !== 10 && !isNaN(set.dynamaxLevel) ?
-			<>Dynamax Level: {set.dynamaxLevel}<br /></> :
-			<></>}
-		{set.gigantamax ? <>Gigantamax: Yes<br /></> : <></>}
+		{(typeof set.happiness === 'number' && set.happiness !== 255 && !isNaN(set.happiness)) &&
+			<>Happiness: {set.happiness}<br /></>}
+		{(typeof set.dynamaxLevel === 'number' && set.dynamaxLevel !== 10 && !isNaN(set.dynamaxLevel)) &&
+			<>Dynamax Level: {set.dynamaxLevel}<br /></>}
+		{set.gigantamax && <>Gigantamax: Yes<br /></>}
 	</article>;
 }
 
@@ -173,7 +171,7 @@ class SetBlock extends preact.Component<{
 		const spriteData = Dex.getSpriteData(
 			Dex.species.get(set.species),
 			true,
-			{ gen, shiny: set.shiny, gender: set.gender as 'F' }
+			{ gen, shiny: set.shiny, gender: set.gender as Dex.GenderName }
 		);
 		let forceResize = 110;
 		if (matchMedia("(max-width: 450px)").matches && this.props.mode === '2col') {
@@ -191,7 +189,7 @@ class SetBlock extends preact.Component<{
 					width={spriteData.w}
 					height={spriteData.h}
 				/>
-				{set.item ? <PSIcon item={set.item} /> : <></>}
+				{set.item && <PSIcon item={set.item} />}
 			</div>
 			<div style={{ flex: "0 0 80%", textAlign: 'left' }}>
 				<PokemonSet set={set} />
@@ -231,7 +229,7 @@ export class TeamViewer extends preact.Component<PageProps> {
 				typeof this.state.team === 'undefined' ?
 					'Loading...' :
 					<>
-						<h2 class="message-error">Team not found.</h2><br />
+						<h2 class="message-error">Team not found.</h2>
 						<em>Either it doesn't exist or it's password protected. Check the link?</em>
 					</>
 			}</div>;
