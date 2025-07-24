@@ -119,10 +119,26 @@ function exportSet(set: Dex.PokemonSet) {
 	return out;
 }
 
+function isOMNickname(nickname?: string) {
+	if (!nickname) return;
+	// allow nicknames named after other mons/types/abilities/items - to support those OMs
+	if (Dex.species.get(nickname).exists) {
+		// I have a Forretress named Cathy and having it renamed to Trevenant (Forretress) is annoying
+		if (toID(nickname) === 'cathy') return 'cathy';
+		return Dex.species.get(nickname).name;
+	} else if (Dex.items.get(nickname).exists) {
+		return Dex.items.get(nickname).name;
+	} else if (Dex.abilities.get(nickname).exists) {
+		return Dex.abilities.get(nickname).name;
+	} else if (Dex.types.get(nickname).exists) {
+		return Dex.types.get(nickname).name;
+	}
+}
+
 function PokemonSet({ set }: { set: Dex.PokemonSet }) {
-	// {set.name && set.name !== set.species ? <>{set.name} ({set.species})</> : <>{set.species}</>}
+	const omName = isOMNickname(set.name);
 	return <article class="psset">
-		<>{set.species}</>
+		{omName && omName !== set.species ? <>{omName} ({set.species})</> : <>{set.species}</>}
 		{set.gender ? <> ({set.gender})</> : <></>}
 		{set.item ? <> @ {set.item} </> : <></>}
 		<br />
