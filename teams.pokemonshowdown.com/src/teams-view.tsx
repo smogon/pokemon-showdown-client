@@ -424,7 +424,7 @@ export class TeamViewer extends preact.Component<PageProps> {
 						`Error while deleting team. Please try again later.`
 				);
 				if (result.success) {
-					location.replace('');
+					location.replace('../');
 				}
 			}
 		});
