@@ -1,7 +1,7 @@
 /** @jsx preact.h */
 /** @jsxFrag preact.Fragment */
 import preact from '../../play.pokemonshowdown.com/js/lib/preact';
-import { Net, type ServerTeam, MiniTeam } from './utils';
+import { Net, type ServerTeam, MiniTeam, query } from './utils';
 import type { PageProps } from './teams';
 import { Config } from '../../play.pokemonshowdown.com/src/client-main';
 
@@ -84,16 +84,9 @@ export class TeamSearcher extends preact.Component<PageProps> {
 		for (const k in this.state.search) {
 			if (!this.state.search[k]) delete this.state.search[k];
 		}
-		void Net('/api/searchteams').get({
+		void query('searchteams', {
 			query: { ...this.state.search, format, count: this.state.curCount },
-		}).then(resultText => {
-			if (resultText.startsWith(']')) resultText = resultText.slice(1);
-			let result;
-			try {
-				result = JSON.parse(resultText);
-			} catch {
-				result = { actionerror: "Malformed response received. Try again later." };
-			}
+		}).then(result => {
 			this.setState({ ...result, loading: false });
 		});
 	}

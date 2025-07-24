@@ -111,11 +111,11 @@ Net.encodeQuery = function (data: string | PostData) {
 	}
 	return urlencodedData;
 };
-Net.decodeQuery = function (query: string): { [key: string]: string } {
+Net.decodeQuery = function (queryData: string): { [key: string]: string } {
 	let out: { [key: string]: string } = {};
-	const questionIndex = query.indexOf('?');
-	if (questionIndex >= 0) query = query.slice(questionIndex + 1);
-	for (const queryPart of query.split('&')) {
+	const questionIndex = queryData.indexOf('?');
+	if (questionIndex >= 0) queryData = queryData.slice(questionIndex + 1);
+	for (const queryPart of queryData.split('&')) {
 		const [key, value] = queryPart.split('=');
 		out[decodeURIComponent(key)] = decodeURIComponent(value || '');
 	}
@@ -388,4 +388,17 @@ export function getShowdownUsername() {
 		}
 	}
 	return null;
+}
+
+export function query(act: string, opts?: NetRequestOptions) {
+	return Net('/api/' + act).get(opts).then(resultText => {
+		if (resultText.startsWith(']')) resultText = resultText.slice(1);
+		let result;
+		try {
+			result = JSON.parse(resultText);
+		} catch {
+			result = { actionerror: "Malformed response received. Try again later." };
+		}
+		return result;
+	});
 }
