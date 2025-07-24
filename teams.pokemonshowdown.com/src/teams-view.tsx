@@ -11,6 +11,12 @@ import { Config } from '../../play.pokemonshowdown.com/src/client-main';
 declare const toID: (str: any) => string;
 declare const BattleAliases: Record<string, string>;
 
+const MODES: Record<string, { width: number, colGap: string }> = {
+	'1col': { width: 100, colGap: '' },
+	'2col': { width: 50, colGap: '2rem' },
+	'3col': { width: 33, colGap: '2rem' },
+};
+
 interface Team {
 	team: string;
 	title: string;
@@ -221,6 +227,10 @@ export class TeamViewer extends preact.Component<PageProps> {
 		this.id = props.args.id;
 
 		this.checkTeamID();
+		if (this.state.displayMode === 'default') {
+			this.state.displayMode = '1col';
+			localStorage.setItem('teamdisplaymode', this.state.displayMode);
+		}
 	}
 	render() {
 		if (this.state.error) {
@@ -238,7 +248,9 @@ export class TeamViewer extends preact.Component<PageProps> {
 		}
 		const { team, title, ownerid, format, views } = this.state.team;
 		const teamData = unpackTeam(team);
-		const is2Col = this.state.displayMode === '2col';
+		const modeName = (this.state.displayMode?.charAt(0) || '1') + '-column';
+		const mode = MODES[this.state.displayMode || '1col'];
+
 		const isDark = document.querySelector('html')?.classList[0] === 'dark';
 		const link = this.id + (this.state.team.private ? `-${this.state.team.private}` : '');
 		const loggedin = toID(getShowdownUsername());
@@ -262,7 +274,7 @@ export class TeamViewer extends preact.Component<PageProps> {
 						disabled={!this.state.team || this.state.copyButtonMsg}
 						onClick={() => this.copyTeam()}
 					>{this.state.copyButtonMsg ? 'Copied!' : 'Copy team'}</button>
-					<button class="button" onClick={() => this.changeDisplayMode()}>Display: {is2Col ? '2-column' : '1-column'}</button>
+					<button class="button" onClick={() => this.changeDisplayMode()}>Display: {modeName}</button>
 					<button class="button" onClick={() => this.changeColorMode()}>Use {isDark ? 'light' : 'dark'} mode</button>
 					<select
 						onChange={ev => this.changeSpriteGen(ev)}
@@ -301,11 +313,17 @@ export class TeamViewer extends preact.Component<PageProps> {
 			</div>
 			<div
 				name="sets"
-				style={{ display: 'flex', alignItems: 'stretch', flexWrap: 'wrap', rowGap: '1rem', colGap: is2Col ? '2rem' : '' }}
+				style={{
+					display: 'flex',
+					alignItems: 'stretch',
+					flexWrap: 'wrap',
+					rowGap: '1rem',
+					colGap: mode.colGap,
+				}}
 			>
 				{teamData.map(
 					set => (
-						<div style={{ flex: `0 0 ${is2Col ? 50 : 100}%` }}>
+						<div style={{ flex: `0 0 ${mode.width}%` }}>
 							<span style={{ display: 'flex' }}>
 								<SetBlock set={set} gen={this.state.spriteGen} mode={this.state.displayMode} />
 							</span>
@@ -336,11 +354,12 @@ export class TeamViewer extends preact.Component<PageProps> {
 	}
 
 	changeDisplayMode() {
-		if (this.state.displayMode === '2col') {
-			this.state.displayMode = 'default';
-		} else {
-			this.state.displayMode = '2col';
+		const keys = Object.keys(MODES);
+		let next = keys.indexOf(this.state.displayMode || '1col') + 1;
+		if (!keys[next]) {
+			next = 0;
 		}
+		this.state.displayMode = keys[next];
 		localStorage.setItem('teamdisplaymode', this.state.displayMode);
 		this.setState({ displayMode: this.state.displayMode });
 	}

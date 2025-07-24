@@ -1,7 +1,7 @@
 /** @jsx preact.h */
 /** @jsxFrag preact.Fragment */
 import preact from '../../play.pokemonshowdown.com/js/lib/preact';
-import { Net, type ServerTeam, MiniTeam, query } from './utils';
+import { type ServerTeam, MiniTeam, query } from './utils';
 import type { PageProps } from './teams';
 import { Config } from '../../play.pokemonshowdown.com/src/client-main';
 
