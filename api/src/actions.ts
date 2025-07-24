@@ -112,7 +112,7 @@ export function checkSuspectVerified(
 			userData.coil = coilNum;
 			break;
 		case 'elo': case 'gxe':
-			if (suspect[k] && rating[k] >= suspect[k]) {
+			if (suspect[k] && rating[k] >= suspect[k]!) {
 				reqsMet++;
 			}
 			userData[k] = rating[k];
@@ -137,6 +137,14 @@ export function checkSuspectVerified(
 		return true;
 	}
 	return false;
+}
+
+function exportTeam(team: string) {
+	if (!Config.pspath) return team;
+	const { Teams } = require(Config.pspath);
+	const teamData = Teams.unpack(team);
+	if (!teamData) return team;
+	return Teams.export(teamData);
 }
 
 export const actions: { [k: string]: QueryHandler } = {
@@ -849,7 +857,7 @@ export const actions: { [k: string]: QueryHandler } = {
 		return { loggedIn: this.user.id, teams };
 	},
 	async getteam(params) {
-		let { teamid, password, full } = params;
+		let { teamid, password, full, raw } = params;
 		teamid = toID(teamid);
 		password = toID(password);
 		if (!teamid) {
@@ -873,6 +881,7 @@ export const actions: { [k: string]: QueryHandler } = {
 				await tables.teams.query()`UPDATE teams SET views = views + 1 WHERE teamid = ${teamid}`;
 				data.views += 1;
 			}
+			if (raw) data.team = exportTeam(data.team) || data.team;
 			return data;
 		} catch (e) {
 			Server.crashlog(e, 'a teams database request', params);
@@ -900,13 +909,11 @@ export const actions: { [k: string]: QueryHandler } = {
 			if (![1, 0].includes(priv)) {
 				throw new ActionError(`Invalid privacy setting: ${params.private || "none"}`);
 			}
-			if (priv !== team.private) {
-				if (team.private === 1) {
-					edit.password = null;
-					edit.private = 0;
+			if (Boolean(priv) !== !!team.private) {
+				if (priv === 1) {
+					edit.private = Replays.generatePassword(20);
 				} else {
-					edit.password = Replays.generatePassword(20);
-					edit.private = 1;
+					edit.private = null;
 				}
 			}
 		}
@@ -922,6 +929,35 @@ export const actions: { [k: string]: QueryHandler } = {
 			await tables.teams.update(team.teamid, edit);
 		}
 		return { success: true, team: await tables.teams.get(team.teamid) };
+	},
+	async copyteam(params) {
+		let { teamid, password } = params;
+		if (!this.user.loggedIn) {
+			throw new ActionError("Must be logged in to copy teams.");
+		}
+		teamid = toID(teamid);
+		password = toID(password);
+		if (!teamid) {
+			throw new ActionError("Invalid team ID");
+		}
+		const data = await tables.teams.selectOne(
+			SQL`team, private, ownerid, format, title`
+		)`WHERE teamid = ${teamid}`;
+		const owns = data?.ownerid === this.user.id;
+		if (!data || (owns ? false : (data.private && (password !== toID(data.private))))) {
+			throw new ActionError("Access denied");
+		}
+		const newPw = Replays.generatePassword(20);
+		const result = await tables.teams.query()`INSERT INTO teams (${{
+			team: data.team,
+			private: newPw,
+			format: data.format,
+			title: `Copy of '${data.title}' by ${data.ownerid}`,
+			views: 0,
+			ownerid: this.user.id,
+			date: new Date().toISOString(),
+		}}) RETURNING *;`;
+		return { teamid: `${result[0].teamid}-${newPw}` };
 	},
 	async searchteams(params) {
 		let count = Number(params.count) || 20;

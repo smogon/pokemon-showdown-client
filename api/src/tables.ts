@@ -141,7 +141,7 @@ export const teams = pgdb.getTable<{
 	team: string,
 	format: string,
 	title: string,
-	private: number,
+	private: string,
 	views: number,
 }>('teams', 'teamid');
 
