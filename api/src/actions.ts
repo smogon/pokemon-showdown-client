@@ -930,6 +930,28 @@ export const actions: { [k: string]: QueryHandler } = {
 		}
 		return { success: true, team: await tables.teams.get(team.teamid) };
 	},
+	async deleteteam(params) {
+		if (!this.user.loggedIn || this.user.id === 'guest') {
+			throw new ActionError("Must be logged in to edit teams.");
+		}
+		const teamid = Number(params.teamid);
+		if (!teamid || teamid < 0 || isNaN(teamid)) {
+			throw new ActionError(`Invalid team ID: ${params.teamid || "none"}`);
+		}
+		const team = await tables.teams.get(teamid);
+		if (!team) {
+			throw new ActionError("Team not found.");
+		}
+		if (team.ownerid !== this.user.id) {
+			throw new ActionError(`You cannot delete that team, as it is not yours.`);
+		}
+		try {
+			await tables.teams.delete(teamid);
+			return {success: true};
+		} catch {
+			return {success: false};
+		}
+	},
 	async copyteam(params) {
 		let { teamid, password } = params;
 		if (!this.user.loggedIn) {
