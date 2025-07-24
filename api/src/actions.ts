@@ -945,12 +945,8 @@ export const actions: { [k: string]: QueryHandler } = {
 		if (team.ownerid !== this.user.id) {
 			throw new ActionError(`You cannot delete that team, as it is not yours.`);
 		}
-		try {
-			await tables.teams.delete(teamid);
-			return {success: true};
-		} catch {
-			return {success: false};
-		}
+		await tables.teams.deleteAll()`WHERE teamid = ${teamid}`;
+		return { success: true };
 	},
 	async copyteam(params) {
 		let { teamid, password } = params;
