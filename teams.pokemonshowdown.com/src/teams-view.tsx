@@ -120,8 +120,9 @@ function exportSet(set: Dex.PokemonSet) {
 }
 
 function PokemonSet({ set }: { set: Dex.PokemonSet }) {
+	// {set.name && set.name !== set.species ? <>{set.name} ({set.species})</> : <>{set.species}</>}
 	return <article class="psset">
-		{set.name && set.name !== set.species ? <>{set.name} ({set.species})</> : <>{set.species}</>}
+		<>{set.species}</>
 		{set.gender ? <> ({set.gender})</> : <></>}
 		{set.item ? <> @ {set.item} </> : <></>}
 		<br />
