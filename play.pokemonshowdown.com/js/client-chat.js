@@ -1070,6 +1070,10 @@
 				});
 				return false;
 
+			case 'resources':
+				app.joinRoom('resources');
+				return false;
+
 			case 'buttonmute':
 				if (this.checkBroadcast(cmd, text)) return false;
 				var self = this;
