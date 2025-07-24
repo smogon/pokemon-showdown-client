@@ -308,6 +308,8 @@ export class TeamViewer extends preact.Component<PageProps> {
 					{this.state.changesMade && <>
 						<br /><button class="button notifying" onClick={() => this.commitEdit()}>Save changes</button>
 					</>}
+					<br />
+					<button class="button" onClick={() => this.runDelete()}>Delete team</button>
 					<hr />
 				</>}
 			</div>
@@ -387,6 +389,27 @@ export class TeamViewer extends preact.Component<PageProps> {
 			}
 		}).catch(e => {
 			this.setState({ error: `HTTP${e.code}: ${e.message}` });
+		});
+	}
+
+	runDelete() {
+		const conf = toID(prompt("Do you really want to delete this team? Type 'yes' to confirm."));
+		if (conf !== 'yes') {
+			return;
+		}
+		void query('deleteteam', { query: { teamid: this.id } }).then(result => {
+			if (result.actionerror) {
+				alert(`Error deleting team: ${result.actionerror}`);
+			} else {
+				alert(
+					result.success ?
+						`Team successfully deleted.` :
+						`Error while deleting team. Please try again later.`
+				);
+				if (result.success) {
+					location.replace('');
+				}
+			}
 		});
 	}
 
