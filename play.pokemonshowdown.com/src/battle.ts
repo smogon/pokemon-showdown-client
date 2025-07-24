@@ -3397,7 +3397,7 @@ export class Battle {
 	runMajor(args: Args, kwArgs: KWArgs, preempt?: boolean) {
 		switch (args[0]) {
 		case 't:': {
-			if (this.realtime && this.timerCount) {
+			if (this.realtime && this.timerCount && !this.seeking) {
 				if (this.timeWait) {
 					setTimeout(() => {
 						this.timeWait = null;
