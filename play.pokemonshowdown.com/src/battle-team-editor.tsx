@@ -7,7 +7,7 @@
  */
 
 import preact from "../js/lib/preact";
-import { type Team } from "./client-main";
+import { type Team, Config } from "./client-main";
 import { PSTeambuilder } from "./panel-teamdropdown";
 import { Dex, type ModdedDex, toID, type ID, PSUtils } from "./battle-dex";
 import { Teams } from './battle-teams';
@@ -50,6 +50,7 @@ class TeamEditorState extends PSModel {
 	defaultLevel = 100;
 	readonly = false;
 	fetching = false;
+	sampleSets: string[] = [];
 	constructor(team: Team) {
 		super();
 		this.team = team;
@@ -135,6 +136,24 @@ class TeamEditorState extends PSModel {
 				break;
 			}
 		}
+
+		if (type === 'ability') {
+			const sp = set?.species || '';
+			const fmt = this.format;
+			if (sp) {
+				const cached = this.buildSampleSetNames(fmt, sp);
+				this.sampleSets = cached;
+				if (!cached.length) {
+					this.fetchSmogonSets(fmt).then(() => {
+						this.sampleSets = this.buildSampleSetNames(fmt, sp);
+						this.update();
+					});
+				}
+			} else {
+				this.sampleSets = [];
+			}
+		}
+
 		if (type === 'item') (this.search.prependResults ||= []).push(['item', '' as ID]);
 		this.search.find(value || '');
 		this.searchIndex = this.search.results?.[0]?.[0] === 'header' ? 1 : 0;
@@ -623,6 +642,40 @@ class TeamEditorState extends PSModel {
 	save() {
 		this.team.packedTeam = Teams.pack(this.sets);
 		this.team.iconCache = null;
+	}
+
+	static _smogonSets: Record<string, any> = {};
+	static _smogonSetPromises: Record<string, Promise<any>> = {};
+	fetchSmogonSets(formatid: string) {
+		if (formatid in TeamEditorState._smogonSets) {
+			return Promise.resolve(TeamEditorState._smogonSets[formatid]);
+		}
+		if (!(formatid in TeamEditorState._smogonSetPromises)) {
+			TeamEditorState._smogonSetPromises[formatid] = fetch(
+				`https://${Config.routes.client}/data/sets/${formatid}.json`
+			).then(r => r.json())
+				.then(data => {
+					TeamEditorState._smogonSets[formatid] = data;
+					return data;
+				})
+				.catch(err => {
+					TeamEditorState._smogonSets[formatid] = false;
+					return false;
+				});
+		}
+		return TeamEditorState._smogonSetPromises[formatid];
+	}
+	buildSampleSetNames(formatid: string, species: string): string[] {
+		const d = TeamEditorState._smogonSets[formatid];
+		if (!d?.dex) return [];
+		const sid = toID(species);
+		const all = {
+			...(d.dex[species] || {}),
+			...(d.dex[sid] || {}),
+			...(d.stats?.[species] || {}),
+			...(d.stats?.[sid] || {}),
+		};
+		return Object.keys(all);
 	}
 }
 
@@ -1833,6 +1886,25 @@ class TeamWizard extends preact.Component<{
 			this.forceUpdate();
 		}
 	};
+	loadSampleSet = (setName: string) => {
+		const { editor } = this.props;
+		const setIndex = editor.innerFocus!.setIndex;
+		const set = editor.sets[setIndex];
+		if (!set?.species) return;
+
+		const data = TeamEditorState._smogonSets?.[editor.format];
+		const sid = toID(set.species);
+		const setTemplate = data?.dex?.[set.species]?.[setName] ?? data?.dex?.[sid]?.[setName] ??
+			data?.stats?.[set.species]?.[setName] ?? data?.stats?.[sid]?.[setName];
+		if (!setTemplate) return;
+
+		const applied: Partial<Dex.PokemonSet> = JSON.parse(JSON.stringify(setTemplate));
+		Object.assign(set, applied);
+
+		editor.save();
+		this.props.onUpdate?.();
+		this.forceUpdate();
+	};
 	updateSearch = (ev: Event) => {
 		const searchBox = ev.currentTarget as HTMLInputElement;
 		this.props.editor.setSearchValue(searchBox.value);
@@ -1991,6 +2063,18 @@ class TeamWizard extends preact.Component<{
 				<DetailsForm editor={editor} set={set!} onChange={this.handleSetChange} />
 			) : (
 				<div>
+					{type === 'ability' && editor.sampleSets.length > 0 && (
+						<div class="sample-sets">
+							<h3>Sample Sets</h3>
+							<div class="sample-sets-buttons">
+								{editor.sampleSets.map(setName => (
+									<button class="sample-set-button button" onClick={() => this.loadSampleSet(setName)}>
+										{setName}
+									</button>
+								))}
+							</div>
+						</div>
+					)}
 					<div class="searchboxwrapper pad" onClick={this.handleClickFilters}>
 						<input
 							type="search" name="value" class="textbox" placeholder="Search or filter"
