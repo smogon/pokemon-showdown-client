@@ -21856,6 +21856,7 @@ export const BattleMoveAnims: AnimTable = {
 	},
 	makeitrain: {
 		anim(scene, [attacker, ...defenders]) {
+			scene.backgroundEffect('#000000', 1300, 0.2);
 			for (const defender of defenders) {
 				scene.showEffect('electroball', {
 					x: attacker.x,
@@ -21868,50 +21869,58 @@ export const BattleMoveAnims: AnimTable = {
 					opacity: 1,
 				}, 'accel', 'explode');
 
-				for (let i = 1; i <= 3; i++) {
-					scene.showEffect('electroball', {
-						x: attacker.x - 10,
-						y: attacker.y + 25,
-						z: attacker.z,
-						scale: 0.1,
-						opacity: 1,
-						time: 500 * i,
-					}, {
-						x: defender.x,
-						y: defender.y,
-						z: defender.z,
-						opacity: 0,
-						time: 500 * i + 100,
-					}, 'decel');
+				for (let i = 1; i <= 8; i++) {
+
+					const hitPos = (-1) ** i * (32 - i * 8);
+
 					scene.showEffect('electroball', {
 						x: attacker.x,
 						y: attacker.y,
 						z: attacker.z,
-						scale: 0.1,
-						opacity: 1,
-						time: 600 * i,
+						scale: 0.2,
+						opacity: 0.7,
+						time: 75 * i + 500,
 					}, {
-						x: defender.x,
-						y: defender.y,
+						x: defender.x + hitPos,
+						y: defender.y - hitPos,
 						z: defender.z,
-						opacity: 0,
-						time: 600 * i + 100,
-					}, 'accel');
-					scene.showEffect('electroball', {
-						x: attacker.x + 10,
-						y: attacker.y - 25,
-						z: attacker.z,
-						scale: 0.1,
-						opacity: 1,
-						time: 700 * i,
+						scale: 0.4,
+						opacity: 0.4,
+						time: 75 * i + 700,
+					}, 'decel', 'explode');
+
+					scene.showEffect('shine', {
+						x: defender.x + hitPos,
+						y: defender.y - hitPos,
+						z: defender.z,
+						scale: 0.5,
+						opacity: 0.8,
+						time: 75 * i + 700,
 					}, {
-						x: defender.x,
-						y: defender.y,
-						z: defender.z,
 						opacity: 0,
-						time: 700 * i + 100,
-					}, 'accel');
+						time: 75 * i + 800,
+					}, 'accel', 'fade');
 				}
+
+				defender.delay(700);
+
+				for (let i = 1; i <= 3; i++) {
+					defender.anim({
+						z: defender.behind(5),
+						time: 75,
+					}, 'swing');
+					defender.anim({
+						time: 75,
+					}, 'swing');
+				}
+
+				defender.anim({
+					z: defender.behind(10),
+					time: 100,
+				}, 'swing');
+				defender.anim({
+					time: 150,
+				}, 'swing');
 			}
 		},
 	},
