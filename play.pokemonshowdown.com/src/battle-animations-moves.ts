@@ -21672,7 +21672,7 @@ export const BattleMoveAnims: AnimTable = {
 
 				for (let i = 1; i <= 8; i++) {
 
-					const hitPos = (-1) ** i * (32 - i*8);
+					const hitPos = (-1) ** i * (32 - i * 8);
 
 					scene.showEffect('electroball', {
 						x: attacker.x,
@@ -21680,14 +21680,14 @@ export const BattleMoveAnims: AnimTable = {
 						z: attacker.z,
 						scale: 0.2,
 						opacity: 0.7,
-						time: 75*i + 500,
+						time: 75 * i + 500,
 					}, {
 						x: defender.x + hitPos,
 						y: defender.y - hitPos,
 						z: defender.z,
 						scale: 0.4,
 						opacity: 0.4,
-						time: 75*i + 700,
+						time: 75 * i + 700,
 					}, 'decel', 'explode');
 
 					scene.showEffect('shine', {
@@ -21699,7 +21699,7 @@ export const BattleMoveAnims: AnimTable = {
 						time: 75*i + 700,
 					}, {
 						opacity: 0,
-						time: 75*i + 800,
+						time: 75 * i + 800,
 					}, 'accel', 'fade');
 				}
 
