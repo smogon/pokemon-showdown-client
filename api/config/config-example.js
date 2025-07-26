@@ -204,3 +204,8 @@ exports.getuserips = null;
  * Index of suspect tests active
  */
 exports.suspectpath = null;
+
+/**
+ * @type {string | null}
+ */
+exports.smogonpublickey = null;

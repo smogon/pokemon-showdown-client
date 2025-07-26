@@ -61,6 +61,21 @@ function loadData(path: string | null) {
 	}
 }
 
+const verify = (
+	{ data, signature, algo, key }: {
+		data: string, signature: string, algo: string, key: string,
+	}
+) => {
+	const verifier = crypto.createVerify(algo);
+	verifier.update(data);
+	let success = false;
+	try {
+		success = verifier.verify(key, signature, 'hex');
+	} catch {}
+
+	return success;
+};
+
 export let coil: Record<string, number> = loadData(Config.coilpath);
 
 if (Config.coilpath) {
@@ -1194,14 +1209,22 @@ export const actions: { [k: string]: QueryHandler } = {
 		};
 	},
 	async 'smogon/assoc-ips'(params) {
-		if (!Config.smogonip || this.getIp() !== Config.smogonip) {
-			throw new ActionError("Access denied.");
+		const signature = params.hash;
+		if (!params.data || !signature) {
+			throw new ActionError("Access denied");
 		}
+		const key = Config.smogonpublickey;
+		if (!key) throw new ActionError("Smogon key not set.");
+
+		const verified = verify({
+			data: params.data, signature, algo: 'RSA-SHA1', key,
+		});
+		if (!verified) throw new ActionError("Data not verified, access denied");
 		// smogon prefers not having to use this, and since we've verified
 		// it IS from smogon, we can skip this
 		this.useDispatchPrefix = false;
 
-		const userid = toID(params.userid);
+		const userid = toID(params.data);
 		if (!userid) throw new ActionError("Invalid userid provided.");
 		const userData = await tables.users.get(userid);
 		const times = new TimeSorter();
