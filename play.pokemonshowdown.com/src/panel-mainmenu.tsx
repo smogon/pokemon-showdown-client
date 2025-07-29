@@ -781,8 +781,15 @@ export class TeamForm extends preact.Component<{
 	submit = (ev: Event, validate?: 'validate') => {
 		ev.preventDefault();
 		const format = this.format;
-		const teamKey = this.base!.querySelector<HTMLButtonElement>('button[name=team]')!.value;
+		const teamElement = this.base!.querySelector<HTMLButtonElement>('button[name=team]');
+		const teamKey = teamElement!.value;
 		const team = teamKey ? PS.teams.byKey[teamKey] : undefined;
+		if (!window.BattleFormats[toID(format)]?.team && !team) {
+			PS.alert('You need to go into the Teambuilder and build a team for this format.', {
+				parentElem: teamElement!,
+			});
+			return;
+		}
 		PS.teams.loadTeam(team).then(() => {
 			(validate === 'validate' ? this.props.onValidate : this.props.onSubmit)?.(ev, format, team);
 		});
