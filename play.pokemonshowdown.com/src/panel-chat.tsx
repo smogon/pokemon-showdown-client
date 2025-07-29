@@ -1137,6 +1137,13 @@ class ChatPanel extends PSRoomPanel<ChatRoom> {
 		return false;
 	};
 	makeChallenge = (e: Event, format: string, team?: Team) => {
+		if (!PS.mainmenu.canChallenge) {
+			const elem = e.target as HTMLElement;
+			PS.alert(`Please wait 10 seconds before challenging again.`, {
+				parentElem: elem,
+			});
+			return;
+		};
 		PS.requestNotifications();
 		const room = this.props.room;
 		const packedTeam = team ? team.packedTeam : '';
@@ -1149,6 +1156,10 @@ class ChatPanel extends PSRoomPanel<ChatRoom> {
 			formatName: format,
 			teamFormat: format,
 		};
+		PS.mainmenu.canChallenge = false;
+		setTimeout(() => {
+			PS.mainmenu.canChallenge = true;
+		}, 10 * 1000);
 		room.update(null);
 	};
 	acceptChallenge = (e: Event, format: string, team?: Team) => {
