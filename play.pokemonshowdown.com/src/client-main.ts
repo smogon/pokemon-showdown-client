@@ -1155,7 +1155,7 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 			const room = PS.rooms[roomid];
 			const battle = (room as BattleRoom)?.battle;
 
-			if (room?.type === "battle" && !battle.ended && battle.mySide.id === PS.user.userid) {
+			if (room?.type === "battle" && !battle.ended && battle.mySide.id === PS.user.userid && !battle.isReplay) {
 				PS.join("forfeitbattle" as RoomID, { parentElem: elem });
 				return;
 			}
