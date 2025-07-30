@@ -998,6 +998,7 @@ export interface ServerPokemon extends PokemonDetails, PokemonHealth {
 	details: string;
 	condition: string;
 	active: boolean;
+	reviving: boolean;
 	/** unboosted stats */
 	stats: {
 		atk: number,
