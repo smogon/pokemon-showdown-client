@@ -722,7 +722,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 		const numActive = choices.requestLength();
 		const maybeTrapped = !ignoreTrapping && choices.currentMoveRequest()?.maybeTrapped;
 		const trapped = !ignoreTrapping && !maybeTrapped && choices.currentMoveRequest()?.trapped;
-		let isReviving = battle.myPokemon!.some(p => p.reviving);
+		const isReviving = battle.myPokemon!.some(p => p.reviving);
 
 		return <div class="switchmenu">
 			{maybeTrapped && <em class="movewarning">
