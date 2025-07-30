@@ -718,9 +718,11 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 	renderSwitchMenu(
 		request: BattleMoveRequest | BattleSwitchRequest, choices: BattleChoiceBuilder, ignoreTrapping?: boolean
 	) {
+		const battle = this.props.room.battle;
 		const numActive = choices.requestLength();
 		const maybeTrapped = !ignoreTrapping && choices.currentMoveRequest()?.maybeTrapped;
 		const trapped = !ignoreTrapping && !maybeTrapped && choices.currentMoveRequest()?.trapped;
+		const isReviving = battle.myPokemon!.some(p => p.reviving);
 
 		return <div class="switchmenu">
 			{maybeTrapped && <em class="movewarning">
@@ -729,8 +731,12 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 			{trapped && <em class="movewarning">
 				You're <strong>trapped</strong> and cannot switch!<br />
 			</em>}
+			{isReviving && <em class="movewarning">
+				Choose a pokemon to revive!<br />
+			</em>}
 			{request.side.pokemon.map((serverPokemon, i) => {
-				const cantSwitch = trapped || i < numActive || choices.alreadySwitchingIn.includes(i + 1) || serverPokemon.fainted;
+				let cantSwitch = trapped || i < numActive || choices.alreadySwitchingIn.includes(i + 1) || serverPokemon.fainted;
+				if (isReviving) cantSwitch = !serverPokemon.fainted;
 				return this.renderPokemonButton({
 					pokemon: serverPokemon,
 					cmd: `/switch ${i + 1}`,
