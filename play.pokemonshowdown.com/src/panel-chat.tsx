@@ -438,6 +438,7 @@ export class ChatRoom extends PSRoom {
 		'play'() {
 			if (!this.battle) return this.add('|error|You are not in a battle');
 			if (this.battle.atQueueEnd) {
+				if (this.battle.ended) this.battle.isReplay = true;
 				this.battle.reset();
 			}
 			this.battle.play();
