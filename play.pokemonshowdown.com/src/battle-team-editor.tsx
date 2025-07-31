@@ -20,6 +20,13 @@ import { Net } from "./client-connection";
 
 type SelectionType = 'pokemon' | 'ability' | 'item' | 'move' | 'stats' | 'details';
 
+type SampleSets = {
+	[speciesName: string]: {
+		[setName: string]: Dex.PokemonSet,
+	},
+};
+type SampleSetsTable = { dex?: SampleSets, stats?: SampleSets };
+
 class TeamEditorState extends PSModel {
 	team: Team;
 	sets: Dex.PokemonSet[] = [];
@@ -50,7 +57,6 @@ class TeamEditorState extends PSModel {
 	defaultLevel = 100;
 	readonly = false;
 	fetching = false;
-	sampleSets: string[] = [];
 	constructor(team: Team) {
 		super();
 		this.team = team;
@@ -134,23 +140,6 @@ class TeamEditorState extends PSModel {
 					value = '';
 				}
 				break;
-			}
-		}
-
-		if (type === 'ability') {
-			const sp = set?.species || '';
-			const fmt = this.format;
-			if (sp) {
-				const cached = this.buildSampleSetNames(fmt, sp);
-				this.sampleSets = cached;
-				if (!cached.length) {
-					this.fetchSmogonSets(fmt).then(() => {
-						this.sampleSets = this.buildSampleSetNames(fmt, sp);
-						this.update();
-					});
-				}
-			} else {
-				this.sampleSets = [];
 			}
 		}
 
@@ -644,32 +633,45 @@ class TeamEditorState extends PSModel {
 		this.team.iconCache = null;
 	}
 
-	static _smogonSets: Record<string, any> = {};
-	static _smogonSetPromises: Record<string, Promise<any>> = {};
-	fetchSmogonSets(formatid: string) {
-		if (formatid in TeamEditorState._smogonSets) {
-			return Promise.resolve(TeamEditorState._smogonSets[formatid]);
+	/** undefined: loading, null: unavailable */
+	static sampleSets: { [formatid: string]: SampleSetsTable | null } = {};
+	// not static for complicated reasons. either way leads to an obscure
+	// race condition if fetchSampleSets is called simultaneously from
+	// different TeamEditorState instances, but this way just means two
+	// network requests rather than the UI getting out of sync.
+	_sampleSetPromises: Record<string, Promise<void>> = {};
+	fetchSampleSets(formatid: ID) {
+		if (formatid in TeamEditorState.sampleSets) return;
+		if (formatid.length <= 4) {
+			TeamEditorState.sampleSets[formatid] = null;
+			return;
 		}
-		if (!(formatid in TeamEditorState._smogonSetPromises)) {
-			TeamEditorState._smogonSetPromises[formatid] = Net(
+		if (!(formatid in this._sampleSetPromises)) {
+			this._sampleSetPromises[formatid] = Net(
 				`https://${Config.routes.client}/data/sets/${formatid}.json`
-			).get().then(data => {
-				TeamEditorState._smogonSets[formatid] = JSON.stringify(data);
+			).get().then(json => {
+				const data = JSON.parse(json);
+				TeamEditorState.sampleSets[formatid] = data;
+				this.update();
 			}).catch(() => {
-				TeamEditorState._smogonSets[formatid] = false;
+				TeamEditorState.sampleSets[formatid] = null;
 			});
 		}
-		return TeamEditorState._smogonSetPromises[formatid];
 	}
-	buildSampleSetNames(formatid: string, species: string): string[] {
-		const d = TeamEditorState._smogonSets[formatid];
+	/** returns null if sample sets aren't done loading */
+	getSampleSets(set: Dex.PokemonSet): string[] | null {
+		const d = TeamEditorState.sampleSets[this.format];
+		if (d === undefined) {
+			this.fetchSampleSets(this.format);
+			return null;
+		}
 		if (!d?.dex) return [];
-		const sid = toID(species);
+		const speciesid = toID(set.species);
 		const all = {
-			...(d.dex[species] || {}),
-			...(d.dex[sid] || {}),
-			...(d.stats?.[species] || {}),
-			...(d.stats?.[sid] || {}),
+			...d.dex[set.species],
+			...d.dex[speciesid],
+			...d.stats?.[set.species],
+			...d.stats?.[speciesid],
 		};
 		return Object.keys(all);
 	}
@@ -740,7 +742,12 @@ export class TeamEditor extends preact.Component<{
 		this.forceUpdate();
 	};
 	override render() {
-		this.editor ||= new TeamEditorState(this.props.team);
+		if (!this.editor) {
+			this.editor = new TeamEditorState(this.props.team);
+			this.editor.subscribe(() => {
+				this.forceUpdate();
+			});
+		}
 		const editor = this.editor;
 		window.editor = editor; // debug
 		editor.setReadonly(!!this.props.readOnly);
@@ -1888,7 +1895,7 @@ class TeamWizard extends preact.Component<{
 		const set = editor.sets[setIndex];
 		if (!set?.species) return;
 
-		const data = TeamEditorState._smogonSets?.[editor.format];
+		const data = TeamEditorState.sampleSets?.[editor.format];
 		const sid = toID(set.species);
 		const setTemplate = data?.dex?.[set.species]?.[setName] ?? data?.dex?.[sid]?.[setName] ??
 			data?.stats?.[set.species]?.[setName] ?? data?.stats?.[sid]?.[setName];
@@ -2035,6 +2042,7 @@ class TeamWizard extends preact.Component<{
 		const { type, setIndex } = editor.innerFocus;
 		const set = this.props.editor.sets[setIndex] as Dex.PokemonSet | undefined;
 		const cur = (i: number) => setIndex === i ? ' cur' : '';
+		const sampleSets = type === 'ability' ? editor.getSampleSets(set!) : [];
 		return <div class="team-focus-editor">
 			<ul class="tabbar">
 				<li class="home-li"><button class="button" onClick={this.setFocus}>
@@ -2059,16 +2067,20 @@ class TeamWizard extends preact.Component<{
 				<DetailsForm editor={editor} set={set!} onChange={this.handleSetChange} />
 			) : (
 				<div>
-					{type === 'ability' && editor.sampleSets.length > 0 && (
+					{sampleSets?.length !== 0 && (
 						<div class="sample-sets">
 							<h3>Sample Sets</h3>
-							<div class="sample-sets-buttons">
-								{editor.sampleSets.map(setName => (
-									<button class="sample-set-button button" onClick={() => this.loadSampleSet(setName)}>
-										{setName}
-									</button>
-								))}
-							</div>
+							{sampleSets ? (
+								<div class="sample-sets-buttons">
+									{sampleSets.map(setName => (
+										<button class="sample-set-button button" onClick={() => this.loadSampleSet(setName)}>
+											{setName}
+										</button>
+									))}
+								</div>
+							) : (
+								<div>Loading...</div>
+							)}
 						</div>
 					)}
 					<div class="searchboxwrapper pad" onClick={this.handleClickFilters}>
