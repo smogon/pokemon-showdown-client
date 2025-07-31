@@ -1094,8 +1094,14 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 			this.title = args[1];
 			PS.update();
 			break;
+		} case 'notify': {
+			const [, title, body, toHighlight] = args;
+			if (toHighlight && !ChatRoom.getHighlight(toHighlight, this.id)) break;
+			this.notify({ title, body });
+			break;
 		} case 'tempnotify': {
 			const [, id, title, body, toHighlight] = args;
+			if (toHighlight && !ChatRoom.getHighlight(toHighlight, this.id)) break;
 			this.notify({ title, body, id });
 			break;
 		} case 'tempnotifyoff': {
