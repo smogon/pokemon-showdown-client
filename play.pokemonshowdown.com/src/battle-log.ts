@@ -1144,9 +1144,7 @@ export class BattleLog {
 		return str.replace(/&quot;/g, '"').replace(/&gt;/g, '>').replace(/&lt;/g, '<').replace(/&amp;/g, '&');
 	}
 
-	static colorCache: { [userid: string]: string } = {
-		hecate: "black; text-shadow: 0 0 6px white",
-	};
+	static colorCache: { [userid: string]: string } = {};
 
 	/** @deprecated */
 	static hashColor(name: ID) {
