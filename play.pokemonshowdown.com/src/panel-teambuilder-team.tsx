@@ -42,13 +42,6 @@ class TeamRoom extends PSRoom {
 	}
 	load() {
 		PS.teams.loadTeam(this.team, true)?.then(() => {
-			const team = this.team;
-			if (team.uploadedPackedTeam && team.uploadedPackedTeam !== team.packedTeam) {
-				if (this.stripNicknames(team.packedTeam) === team.uploadedPackedTeam) {
-					// Team matches but nicknames were stripped; treat as unmodified
-					team.uploadedPackedTeam = team.packedTeam;
-				}
-			}
 			this.update(null);
 		});
 	}

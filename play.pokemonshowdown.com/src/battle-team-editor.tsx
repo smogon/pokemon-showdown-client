@@ -30,6 +30,7 @@ type SampleSetsTable = { dex?: SampleSets, stats?: SampleSets };
 class TeamEditorState extends PSModel {
 	team: Team;
 	sets: Dex.PokemonSet[] = [];
+	lastPackedTeam = '';
 	gen = Dex.gen;
 	dex: ModdedDex = Dex;
 	deletedSet: {
@@ -60,12 +61,15 @@ class TeamEditorState extends PSModel {
 	constructor(team: Team) {
 		super();
 		this.team = team;
-		this.sets = Teams.unpack(team.packedTeam);
+		this.updateTeam(false);
 		this.setFormat(team.format);
 		window.search = this.search;
 	}
-	setReadonly(readonly: boolean) {
-		if (!readonly && this.readonly) this.sets = Teams.unpack(this.team.packedTeam);
+	updateTeam(readonly: boolean) {
+		if (this.lastPackedTeam !== this.team.packedTeam) {
+			this.sets = Teams.unpack(this.team.packedTeam);
+			this.lastPackedTeam = this.team.packedTeam;
+		}
 		this.readonly = readonly;
 	}
 	setFormat(format: string) {
@@ -630,6 +634,7 @@ class TeamEditorState extends PSModel {
 	}
 	save() {
 		this.team.packedTeam = Teams.pack(this.sets);
+		this.lastPackedTeam = this.team.packedTeam;
 		this.team.iconCache = null;
 	}
 
@@ -750,7 +755,7 @@ export class TeamEditor extends preact.Component<{
 		}
 		const editor = this.editor;
 		window.editor = editor; // debug
-		editor.setReadonly(!!this.props.readOnly);
+		editor.updateTeam(!!this.props.readOnly);
 		editor.narrow = this.props.narrow ?? document.body.offsetWidth < 500;
 		if (this.props.team.format !== editor.format) {
 			editor.setFormat(this.props.team.format);
