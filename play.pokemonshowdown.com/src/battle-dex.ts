@@ -654,6 +654,7 @@ export const Dex = new class implements ModdedDex {
 			spriteData.cryurl = 'audio/cries/' + baseSpeciesid;
 			let formeid = species.formeid;
 			if (species.isMega || formeid && (
+				formeid === '-bloodmoon' ||
 				formeid === '-crowned' ||
 				formeid === '-eternal' ||
 				formeid === '-eternamax' ||
