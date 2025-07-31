@@ -651,17 +651,13 @@ class TeamEditorState extends PSModel {
 			return Promise.resolve(TeamEditorState._smogonSets[formatid]);
 		}
 		if (!(formatid in TeamEditorState._smogonSetPromises)) {
-			TeamEditorState._smogonSetPromises[formatid] = fetch(
+			TeamEditorState._smogonSetPromises[formatid] = Net(
 				`https://${Config.routes.client}/data/sets/${formatid}.json`
-			).then(r => r.json())
-				.then(data => {
-					TeamEditorState._smogonSets[formatid] = data;
-					return data;
-				})
-				.catch(err => {
-					TeamEditorState._smogonSets[formatid] = false;
-					return false;
-				});
+			).get().then(data => {
+				TeamEditorState._smogonSets[formatid] = JSON.stringify(data);
+			}).catch(() => {
+				TeamEditorState._smogonSets[formatid] = false;
+			});
 		}
 		return TeamEditorState._smogonSetPromises[formatid];
 	}
