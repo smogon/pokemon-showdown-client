@@ -340,7 +340,8 @@ export class MainMenuRoom extends PSRoom {
 			PS.addRoom({
 				id: roomid,
 				args: { pmTarget },
-			}, true);
+				autofocus: false,
+			});
 			room = PS.rooms[roomid] as ChatRoom;
 		} else {
 			room.updateTarget(pmTarget);
@@ -437,7 +438,7 @@ class NewsPanel extends PSRoomPanel {
 	change = (ev: Event) => {
 		const target = ev.currentTarget as HTMLInputElement;
 		if (target.value === '1') {
-			document.cookie = "preactalpha=1; expires=Thu, 1 Aug 2025 12:00:00 UTC; path=/";
+			document.cookie = "preactalpha=1; expires=Thu, 1 Sep 2025 12:00:00 UTC; path=/";
 		} else {
 			document.cookie = "preactalpha=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
 		}

@@ -171,8 +171,8 @@ export class PSRouter {
 			if (typeof e.state === 'string') {
 				const [leftRoomid, rightRoomid] = e.state.split('..') as RoomID[];
 				if (rightRoomid) {
-					PS.addRoom({ id: leftRoomid, location: 'left' }, true);
-					PS.addRoom({ id: rightRoomid, location: 'right' }, true);
+					PS.addRoom({ id: leftRoomid, location: 'left', autofocus: false });
+					PS.addRoom({ id: rightRoomid, location: 'right', autofocus: false });
 					PS.leftPanel = PS.rooms[leftRoomid] || PS.leftPanel;
 					PS.rightPanel = PS.rooms[rightRoomid] || PS.rightPanel;
 				}
