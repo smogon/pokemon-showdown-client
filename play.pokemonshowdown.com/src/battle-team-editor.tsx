@@ -7,7 +7,7 @@
  */
 
 import preact from "../js/lib/preact";
-import { type Team } from "./client-main";
+import { type Team, Config } from "./client-main";
 import { PSTeambuilder } from "./panel-teamdropdown";
 import { Dex, type ModdedDex, toID, type ID, PSUtils } from "./battle-dex";
 import { Teams } from './battle-teams';
@@ -19,6 +19,13 @@ import { PSModel } from "./client-core";
 import { Net } from "./client-connection";
 
 type SelectionType = 'pokemon' | 'ability' | 'item' | 'move' | 'stats' | 'details';
+
+type SampleSets = {
+	[speciesName: string]: {
+		[setName: string]: Dex.PokemonSet,
+	},
+};
+type SampleSetsTable = { dex?: SampleSets, stats?: SampleSets };
 
 class TeamEditorState extends PSModel {
 	team: Team;
@@ -135,6 +142,7 @@ class TeamEditorState extends PSModel {
 				break;
 			}
 		}
+
 		if (type === 'item') (this.search.prependResults ||= []).push(['item', '' as ID]);
 		this.search.find(value || '');
 		this.searchIndex = this.search.results?.[0]?.[0] === 'header' ? 1 : 0;
@@ -624,6 +632,49 @@ class TeamEditorState extends PSModel {
 		this.team.packedTeam = Teams.pack(this.sets);
 		this.team.iconCache = null;
 	}
+
+	/** undefined: loading, null: unavailable */
+	static sampleSets: { [formatid: string]: SampleSetsTable | null } = {};
+	// not static for complicated reasons. either way leads to an obscure
+	// race condition if fetchSampleSets is called simultaneously from
+	// different TeamEditorState instances, but this way just means two
+	// network requests rather than the UI getting out of sync.
+	_sampleSetPromises: Record<string, Promise<void>> = {};
+	fetchSampleSets(formatid: ID) {
+		if (formatid in TeamEditorState.sampleSets) return;
+		if (formatid.length <= 4) {
+			TeamEditorState.sampleSets[formatid] = null;
+			return;
+		}
+		if (!(formatid in this._sampleSetPromises)) {
+			this._sampleSetPromises[formatid] = Net(
+				`https://${Config.routes.client}/data/sets/${formatid}.json`
+			).get().then(json => {
+				const data = JSON.parse(json);
+				TeamEditorState.sampleSets[formatid] = data;
+				this.update();
+			}).catch(() => {
+				TeamEditorState.sampleSets[formatid] = null;
+			});
+		}
+	}
+	/** returns null if sample sets aren't done loading */
+	getSampleSets(set: Dex.PokemonSet): string[] | null {
+		const d = TeamEditorState.sampleSets[this.format];
+		if (d === undefined) {
+			this.fetchSampleSets(this.format);
+			return null;
+		}
+		if (!d?.dex) return [];
+		const speciesid = toID(set.species);
+		const all = {
+			...d.dex[set.species],
+			...d.dex[speciesid],
+			...d.stats?.[set.species],
+			...d.stats?.[speciesid],
+		};
+		return Object.keys(all);
+	}
 }
 
 export class TeamEditor extends preact.Component<{
@@ -691,7 +742,12 @@ export class TeamEditor extends preact.Component<{
 		this.forceUpdate();
 	};
 	override render() {
-		this.editor ||= new TeamEditorState(this.props.team);
+		if (!this.editor) {
+			this.editor = new TeamEditorState(this.props.team);
+			this.editor.subscribe(() => {
+				this.forceUpdate();
+			});
+		}
 		const editor = this.editor;
 		window.editor = editor; // debug
 		editor.setReadonly(!!this.props.readOnly);
@@ -1833,6 +1889,25 @@ class TeamWizard extends preact.Component<{
 			this.forceUpdate();
 		}
 	};
+	loadSampleSet = (setName: string) => {
+		const { editor } = this.props;
+		const setIndex = editor.innerFocus!.setIndex;
+		const set = editor.sets[setIndex];
+		if (!set?.species) return;
+
+		const data = TeamEditorState.sampleSets?.[editor.format];
+		const sid = toID(set.species);
+		const setTemplate = data?.dex?.[set.species]?.[setName] ?? data?.dex?.[sid]?.[setName] ??
+			data?.stats?.[set.species]?.[setName] ?? data?.stats?.[sid]?.[setName];
+		if (!setTemplate) return;
+
+		const applied: Partial<Dex.PokemonSet> = JSON.parse(JSON.stringify(setTemplate));
+		Object.assign(set, applied);
+
+		editor.save();
+		this.props.onUpdate?.();
+		this.forceUpdate();
+	};
 	updateSearch = (ev: Event) => {
 		const searchBox = ev.currentTarget as HTMLInputElement;
 		this.props.editor.setSearchValue(searchBox.value);
@@ -1967,6 +2042,7 @@ class TeamWizard extends preact.Component<{
 		const { type, setIndex } = editor.innerFocus;
 		const set = this.props.editor.sets[setIndex] as Dex.PokemonSet | undefined;
 		const cur = (i: number) => setIndex === i ? ' cur' : '';
+		const sampleSets = type === 'ability' ? editor.getSampleSets(set!) : [];
 		return <div class="team-focus-editor">
 			<ul class="tabbar">
 				<li class="home-li"><button class="button" onClick={this.setFocus}>
@@ -1998,10 +2074,28 @@ class TeamWizard extends preact.Component<{
 						/>
 						{PSSearchResults.renderFilters(editor.search)}
 					</div>
-					<div class="wizardsearchresults" onScroll={this.scrollResults}><PSSearchResults
-						search={editor.search} hideFilters resultIndex={editor.searchIndex}
-						onSelect={this.selectResult} windowing={this.windowResults()}
-					/></div>
+					<div class="wizardsearchresults" onScroll={this.scrollResults}>
+						<PSSearchResults
+							search={editor.search} hideFilters resultIndex={editor.searchIndex}
+							onSelect={this.selectResult} windowing={this.windowResults()}
+						/>
+						{sampleSets?.length !== 0 && (
+							<div class="sample-sets">
+								<h3>Sample sets</h3>
+								{sampleSets ? (
+									<div>
+										{sampleSets.map(setName => <>
+											<button class="button" onClick={() => this.loadSampleSet(setName)}>
+												{setName}
+											</button> {}
+										</>)}
+									</div>
+								) : (
+									<div>Loading...</div>
+								)}
+							</div>
+						)}
+					</div>
 				</div>
 			)}
 		</div>;
