@@ -2067,22 +2067,6 @@ class TeamWizard extends preact.Component<{
 				<DetailsForm editor={editor} set={set!} onChange={this.handleSetChange} />
 			) : (
 				<div>
-					{sampleSets?.length !== 0 && (
-						<div class="sample-sets">
-							<h3>Sample Sets</h3>
-							{sampleSets ? (
-								<div class="sample-sets-buttons">
-									{sampleSets.map(setName => (
-										<button class="sample-set-button button" onClick={() => this.loadSampleSet(setName)}>
-											{setName}
-										</button>
-									))}
-								</div>
-							) : (
-								<div>Loading...</div>
-							)}
-						</div>
-					)}
 					<div class="searchboxwrapper pad" onClick={this.handleClickFilters}>
 						<input
 							type="search" name="value" class="textbox" placeholder="Search or filter"
@@ -2090,10 +2074,28 @@ class TeamWizard extends preact.Component<{
 						/>
 						{PSSearchResults.renderFilters(editor.search)}
 					</div>
-					<div class="wizardsearchresults" onScroll={this.scrollResults}><PSSearchResults
-						search={editor.search} hideFilters resultIndex={editor.searchIndex}
-						onSelect={this.selectResult} windowing={this.windowResults()}
-					/></div>
+					<div class="wizardsearchresults" onScroll={this.scrollResults}>
+						<PSSearchResults
+							search={editor.search} hideFilters resultIndex={editor.searchIndex}
+							onSelect={this.selectResult} windowing={this.windowResults()}
+						/>
+						{sampleSets?.length !== 0 && (
+							<div class="sample-sets">
+								<h3>Sample sets</h3>
+								{sampleSets ? (
+									<div>
+										{sampleSets.map(setName => <>
+											<button class="button" onClick={() => this.loadSampleSet(setName)}>
+												{setName}
+											</button> {}
+										</>)}
+									</div>
+								) : (
+									<div>Loading...</div>
+								)}
+							</div>
+						)}
+					</div>
 				</div>
 			)}
 		</div>;
