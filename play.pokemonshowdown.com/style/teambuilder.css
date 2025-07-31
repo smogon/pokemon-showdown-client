@@ -727,3 +727,13 @@ you can't delete it by pressing Backspace */
 .wizardsearchresults .dexlist, .searchresults .dexlist {
 	min-width: 624px;
 }
+
+.sample-sets {
+	border: 1px solid #888;
+	border-radius: 6px;
+	margin: 5px 15px 12px 15px;
+	padding: 12px;
+}
+.sample-sets h3 {
+	margin: 0 0 10px;
+}
