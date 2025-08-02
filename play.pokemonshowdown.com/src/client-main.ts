@@ -2649,6 +2649,7 @@ export const PS = new class extends PSModel {
 		this.closePopupsAbove(null, skipUpdate);
 	}
 	closePopupsAbove(room: PSRoom | null | undefined, skipUpdate?: boolean) {
+		if (!this.popups.length) return;
 		// a while-loop may be simpler, but the loop invariant is very hard to prove
 		// and any bugs (opening a popup while leaving a room) could lead to an infinite loop
 		// a for-loop doesn't have that problem

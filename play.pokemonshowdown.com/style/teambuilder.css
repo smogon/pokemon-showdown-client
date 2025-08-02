@@ -537,6 +537,9 @@ you can't delete it by pressing Backspace */
 	position: relative;
 	max-width: 660px;
 }
+.set-button.cur {
+	opacity: 0.5;
+}
 .set-button table {
 	border: 0;
 	border-spacing: 0;
