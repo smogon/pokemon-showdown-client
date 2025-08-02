@@ -47,6 +47,7 @@ export class MainMenuRoom extends PSRoom {
 	searchSent = false;
 	search: { searching: string[], games: Record<RoomID, string> | null } = { searching: [], games: null };
 	disallowSpectators: boolean | null = PS.prefs.disallowspectators;
+	canChallenge = true;
 	constructor(options: RoomOptions) {
 		super(options);
 		if (this.backlog) {
