@@ -849,8 +849,8 @@ export class BattleTooltips {
 
 			let types = serverPokemon?.terastallized ? [serverPokemon.teraType] : this.getPokemonTypes(pokemon);
 			let knownPokemon = serverPokemon || clientPokemon!;
-
-			if (pokemon.terastallized) {
+			
+			if (pokemon.terastallized || (pokemon.hasEverTerastallized && !isActive)) {
 				text += `<small>(Terastallized)</small><br />`;
 			} else if (clientPokemon?.volatiles.typechange || clientPokemon?.volatiles.typeadd) {
 				text += `<small>(Type changed)</small><br />`;
