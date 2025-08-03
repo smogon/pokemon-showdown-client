@@ -168,6 +168,7 @@ class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
 		// before: Dragged goes before Over, splice at i
 		// after: Dragged goes after Over, splice at i - 1 + 1
 		PS.teams.list.splice(iOver, 0, draggedTeam);
+		PS.teams.save();
 		this.forceUpdate();
 	};
 	dragEnterFolder = (ev: DragEvent) => {
