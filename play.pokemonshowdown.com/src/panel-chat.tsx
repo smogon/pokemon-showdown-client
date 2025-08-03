@@ -314,6 +314,7 @@ export class ChatRoom extends PSRoom {
 		'reject'(target) {
 			this.challenged = null;
 			this.update(null);
+			this.sendDirect(`/reject ${this.pmTarget!}`);
 		},
 		'clear'() {
 			this.log?.reset();

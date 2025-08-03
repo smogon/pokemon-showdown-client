@@ -774,7 +774,7 @@ export class TeamForm extends preact.Component<{
 	onSubmit: ((e: Event, format: string, team?: Team) => void) | null,
 	onValidate?: ((e: Event, format: string, team?: Team) => void) | null,
 }> {
-	format = '';
+	format = this.props.format || '';
 	changeFormat = (ev: Event) => {
 		this.format = (ev.target as HTMLButtonElement).value;
 	};
