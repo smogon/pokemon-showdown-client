@@ -675,6 +675,33 @@ class TeamEditorState extends PSModel {
 		};
 		return Object.keys(all);
 	}
+	/** returns null if no boxes exist, empty array if no sets for this species */
+	getUserSets(set: Dex.PokemonSet): { [setName: string]: Dex.PokemonSet } | null {
+		const userSets: { [species: string]: { [setName: string]: Dex.PokemonSet } } = {};
+		let hasBoxes = false;
+
+		for (const team of (window.PS as any).teams.list) {
+			if (team.format !== this.format || !team.isBox) continue;
+			hasBoxes = true;
+			
+			const setList = Teams.unpack(team.packedTeam);
+			const duplicateNameIndices: Record<string, number> = {};
+			
+			for (const boxSet of setList) {
+				let name = boxSet.name || boxSet.species;
+				if (duplicateNameIndices[name]) {
+					name += ` ${duplicateNameIndices[name]}`;
+				}
+				duplicateNameIndices[name] = (duplicateNameIndices[name] || 0) + 1;
+				
+				userSets[boxSet.species] ??= {};
+				userSets[boxSet.species][name] = boxSet;
+			}
+		}
+
+		if (!hasBoxes) return null;
+		return userSets[set.species] || {};
+	}
 }
 
 export class TeamEditor extends preact.Component<{
@@ -1902,6 +1929,25 @@ class TeamWizard extends preact.Component<{
 		if (!setTemplate) return;
 
 		const applied: Partial<Dex.PokemonSet> = JSON.parse(JSON.stringify(setTemplate));
+		Object.assign(set, applied);
+
+		editor.save();
+		this.props.onUpdate?.();
+		this.forceUpdate();
+	};
+	loadUserSet = (setName: string) => {
+		const { editor } = this.props;
+		const setIndex = editor.innerFocus!.setIndex;
+		const set = editor.sets[setIndex];
+		if (!set?.species) return;
+
+		const userSets = editor.getUserSets(set);
+		const setTemplate = userSets?.[setName];
+		if (!setTemplate) return;
+
+		const applied: Partial<Dex.PokemonSet> = JSON.parse(JSON.stringify(setTemplate));
+		// Don't preserve the original name, let the user keep their current nickname
+		delete applied.name;
 		Object.assign(set, applied);
 
 		editor.save();
