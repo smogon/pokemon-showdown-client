@@ -1137,8 +1137,10 @@ class ChatPanel extends PSRoomPanel<ChatRoom> {
 		return false;
 	};
 	makeChallenge = (e: Event, format: string, team?: Team) => {
-		if (!PS.mainmenu.canChallenge) {
-			const elem = e.target as HTMLElement;
+		const elem = e.target as HTMLElement;
+		const now = Date.now();
+		const lastChallenged = PS.mainmenu.lastChallenged || 0;
+		if (now - lastChallenged < 10_000) {
 			PS.alert(`Please wait 10 seconds before challenging again.`, {
 				parentElem: elem,
 			});
@@ -1156,10 +1158,7 @@ class ChatPanel extends PSRoomPanel<ChatRoom> {
 			formatName: format,
 			teamFormat: format,
 		};
-		PS.mainmenu.canChallenge = false;
-		setTimeout(() => {
-			PS.mainmenu.canChallenge = true;
-		}, 10 * 1000);
+		PS.mainmenu.lastChallenged = now;
 		room.update(null);
 	};
 	acceptChallenge = (e: Event, format: string, team?: Team) => {
