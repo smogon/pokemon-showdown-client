@@ -680,20 +680,20 @@ class TeamEditorState extends PSModel {
 		const userSets: { [species: string]: { [setName: string]: Dex.PokemonSet } } = {};
 		let hasBoxes = false;
 
-		for (const team of (window.PS as any).teams.list) {
+		for (const team of window.PS.teams.list) {
 			if (team.format !== this.format || !team.isBox) continue;
 			hasBoxes = true;
-			
+
 			const setList = Teams.unpack(team.packedTeam);
 			const duplicateNameIndices: Record<string, number> = {};
-			
+
 			for (const boxSet of setList) {
 				let name = boxSet.name || boxSet.species;
 				if (duplicateNameIndices[name]) {
 					name += ` ${duplicateNameIndices[name]}`;
 				}
 				duplicateNameIndices[name] = (duplicateNameIndices[name] || 0) + 1;
-				
+
 				userSets[boxSet.species] ??= {};
 				userSets[boxSet.species][name] = boxSet;
 			}
@@ -1946,7 +1946,6 @@ class TeamWizard extends preact.Component<{
 		if (!setTemplate) return;
 
 		const applied: Partial<Dex.PokemonSet> = JSON.parse(JSON.stringify(setTemplate));
-		// Don't preserve the original name, let the user keep their current nickname
 		delete applied.name;
 		Object.assign(set, applied);
 
@@ -2089,6 +2088,7 @@ class TeamWizard extends preact.Component<{
 		const set = this.props.editor.sets[setIndex] as Dex.PokemonSet | undefined;
 		const cur = (i: number) => setIndex === i ? ' cur' : '';
 		const sampleSets = type === 'ability' ? editor.getSampleSets(set!) : [];
+		const userSets = type === 'ability' && set ? editor.getUserSets(set) : null;
 		return <div class="team-focus-editor">
 			<ul class="tabbar">
 				<li class="home-li"><button class="button" onClick={this.setFocus}>
@@ -2138,6 +2138,22 @@ class TeamWizard extends preact.Component<{
 									</div>
 								) : (
 									<div>Loading...</div>
+								)}
+							</div>
+						)}
+						{userSets !== null && (
+							<div class="sample-sets">
+								<h3>Box sets</h3>
+								{Object.keys(userSets).length > 0 ? (
+									<div>
+										{Object.keys(userSets).map(setName => <>
+											<button class="button" onClick={() => this.loadUserSet(setName)}>
+												{setName}
+											</button> {}
+										</>)}
+									</div>
+								) : (
+									<div>No {set?.species} sets found in boxes</div>
 								)}
 							</div>
 						)}
