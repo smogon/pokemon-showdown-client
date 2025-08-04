@@ -27,11 +27,20 @@ class PSDatabase {
 				$this->db = new PDO(
 					"mysql:dbname={$this->database};host={$this->server};charset={$this->charset}",
 					$this->username,
-					$this->password
+					$this->password,
+					[PDO::ATTR_PERSISTENT => true]
 				);
 				$this->db->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
-			} catch (Exception $e) {
+				$this->db->exec("SET SESSION wait_timeout = 7200");
+			} catch (PDOException $e) {
+				if (strpos($e->getMessage(), '1040') !== false || strpos($e->getMessage(), 'Too many connections') !== false) {
+					http_response_code(503);
+					header('Content-Type: text/plain');
+					die("Database temporarily unavailable due to high load. Please try again in a few minutes.");
+				}
 				// hide passwords and stuff from stacktrace
+				throw new ErrorException($e->getMessage());
+			} catch (Exception $e) {
 				throw new ErrorException($e->getMessage());
 			}
 		}
