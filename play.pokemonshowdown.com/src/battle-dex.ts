@@ -714,7 +714,7 @@ export const Dex = new class implements ModdedDex {
 				animationArray.push([BattlePokemonSprites[speciesid], '']);
 			}
 			if ((spriteData.gen > 5 || baseDir === 'gen5') && window.BattlePokemonSpritesBW) {
-				animationArray.push([BattlePokemonSpritesBW[speciesid], "gen5"]);
+				animationArray.push([BattlePokemonSpritesBW[speciesid], 'gen5']);
 			}
 			for (const [animationData, animDir] of animationArray) {
 				if (animationData[facing + 'f'] && options.gender === 'F') facing += 'f';
