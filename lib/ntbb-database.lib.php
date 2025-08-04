@@ -31,6 +31,7 @@ class PSDatabase {
 					[PDO::ATTR_PERSISTENT => true]
 				);
 				$this->db->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
+				$this->db->exec("SET SESSION wait_timeout = 7200");
 			} catch (PDOException $e) {
 				if (strpos($e->getMessage(), '1040') !== false || strpos($e->getMessage(), 'Too many connections') !== false) {
 					http_response_code(503);
