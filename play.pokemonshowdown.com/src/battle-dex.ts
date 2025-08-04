@@ -708,18 +708,18 @@ export const Dex = new class implements ModdedDex {
 		}
 
 		let animatedSprite = false;
-		if (!Dex.prefs('noanim') && !Dex.prefs('nogif')) {
+		if (!Dex.prefs('noanim') && !Dex.prefs('nogif') && spriteData.gen >= 5) {
 			const animationArray: [AnyObject, string][] = [];
 			if (baseDir === '' && window.BattlePokemonSprites) {
 				animationArray.push([BattlePokemonSprites[speciesid], '']);
 			}
-			if ((spriteData.gen > 5 || baseDir === 'gen5') && window.BattlePokemonSpritesBW) {
-				animationArray.push([BattlePokemonSpritesBW[speciesid], "gen5"]);
+			if (window.BattlePokemonSpritesBW) {
+				animationArray.push([BattlePokemonSpritesBW[speciesid], 'gen5']);
 			}
 			for (const [animationData, animDir] of animationArray) {
 				if (animationData[facing + 'f'] && options.gender === 'F') facing += 'f';
+				if (!animationData[facing]) continue;
 				if (facing.endsWith('f')) name += '-f';
-				if (!animationData[facing] || spriteData.gen < 5) continue;
 				if (spriteData.gen >= 6) spriteData.pixelated = false;
 				dir = animDir + 'ani' + dir;
 				spriteData.w = animationData[facing].w;
