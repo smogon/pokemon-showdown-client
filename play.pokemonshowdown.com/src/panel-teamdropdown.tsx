@@ -289,7 +289,12 @@ export class PSTeambuilder {
 	}
 }
 
-export function TeamBox(props: { team: Team | null, noLink?: boolean, button?: boolean }) {
+export function TeamBox(props: { 
+  team: Team | null, 
+  noLink?: boolean, 
+  button?: boolean,
+  onClick?: () => void 
+}) {
 	const team = props.team;
 	let contents;
 	if (team) {
@@ -325,7 +330,7 @@ export function TeamBox(props: { team: Team | null, noLink?: boolean, button?: b
 			{contents}
 		</div>;
 	}
-	return <a href={`team-${team ? team.key : ''}`} class={className} draggable onDragStart={PSTeambuilder.dragStart}>
+	return <a href={`team-${team ? team.key : ''}`} class={className} draggable onDragStart={PSTeambuilder.dragStart} onClick={props.onClick}>
 		{contents}
 	</a>;
 }
