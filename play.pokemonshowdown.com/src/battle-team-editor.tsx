@@ -680,11 +680,9 @@ class TeamEditorState extends PSModel {
 	getUserSets(set: Dex.PokemonSet): { [setName: string]: Dex.PokemonSet } | null {
 		if (!this.userSetsCache[this.format]) {
 			const userSets: { [species: string]: { [setName: string]: Dex.PokemonSet } } = {};
-			let hasBoxes = false;
 
 			for (const team of window.PS?.teams.list || []) {
 				if (team.format !== this.format || !team.isBox) continue;
-				hasBoxes = true;
 
 				const setList = Teams.unpack(team.packedTeam);
 				const duplicateNameIndices: Record<string, number> = {};
@@ -701,11 +699,7 @@ class TeamEditorState extends PSModel {
 				}
 			}
 
-			if (!hasBoxes) {
-				this.userSetsCache[this.format] = {};
-			} else {
-				this.userSetsCache[this.format] = userSets;
-			}
+			this.userSetsCache[this.format] = userSets;
 		}
 
 		const cachedSets = this.userSetsCache[this.format];
