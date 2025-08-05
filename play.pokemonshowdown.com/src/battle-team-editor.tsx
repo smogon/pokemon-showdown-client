@@ -680,7 +680,7 @@ class TeamEditorState extends PSModel {
 		const userSets: { [species: string]: { [setName: string]: Dex.PokemonSet } } = {};
 		let hasBoxes = false;
 
-		for (const team of window.PS.teams.list) {
+		for (const team of window.PS?.teams.list || []) {
 			if (team.format !== this.format || !team.isBox) continue;
 			hasBoxes = true;
 
