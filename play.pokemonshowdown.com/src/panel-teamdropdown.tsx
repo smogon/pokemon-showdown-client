@@ -331,11 +331,8 @@ export function TeamBox(props: {
 		</div>;
 	}
 	return <a
-		href={`team-${team ? team.key : ''}`}
-		class={className}
-		draggable
-		onDragStart={PSTeambuilder.dragStart}
-		onClick={props.onClick}
+		href={`team-${team ? team.key : ''}`} class={className} draggable
+		onDragStart={PSTeambuilder.dragStart} onClick={props.onClick}
 	>
 		{contents}
 	</a>;

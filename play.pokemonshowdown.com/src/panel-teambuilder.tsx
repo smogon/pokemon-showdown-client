@@ -493,9 +493,9 @@ class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
 					></input>
 				</p>
 				<ul class="teamlist">
-					{teams.filter(this.props.room.satisfiesSearchQ).map(team => team ? (
+					{teams.filter(room.satisfiesSearchQ).map(team => team ? (
 						<li key={team.key} onDragEnter={this.dragEnterTeam} data-teamkey={team.key}>
-							<TeamBox team={team} onClick={this.props.room.clearSearchQueries} /> {}
+							<TeamBox team={team} onClick={room.clearSearchQueries} /> {}
 							{!team.uploaded && <button data-cmd={`/deleteteam ${team.key}`} class="option">
 								<i class="fa fa-trash" aria-hidden></i> Delete
 							</button>} {}
