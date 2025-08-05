@@ -83,11 +83,9 @@ class TeambuilderRoom extends PSRoom {
     }
   }
   clearSearchQueries = () => {
-    console.log("runnin2")
     this.curSearchQueries = []
   }
   satisfiesSearchQ = (team: Team | null) => {
-    console.log("runnin")
     if (!team) return false
     if (this.curSearchQueries.length === 0) return true
     const sets = team.packedTeam.split("]")
