@@ -57,6 +57,7 @@ class TeamEditorState extends PSModel {
 	defaultLevel = 100;
 	readonly = false;
 	fetching = false;
+	private userSetsCache: Record<ID, { [species: string]: { [setName: string]: Dex.PokemonSet } }> = {};
 	constructor(team: Team) {
 		super();
 		this.team = team;
@@ -677,30 +678,39 @@ class TeamEditorState extends PSModel {
 	}
 	/** returns null if no boxes exist, empty array if no sets for this species */
 	getUserSets(set: Dex.PokemonSet): { [setName: string]: Dex.PokemonSet } | null {
-		const userSets: { [species: string]: { [setName: string]: Dex.PokemonSet } } = {};
-		let hasBoxes = false;
+		if (!this.userSetsCache[this.format]) {
+			const userSets: { [species: string]: { [setName: string]: Dex.PokemonSet } } = {};
+			let hasBoxes = false;
 
-		for (const team of window.PS?.teams.list || []) {
-			if (team.format !== this.format || !team.isBox) continue;
-			hasBoxes = true;
+			for (const team of window.PS?.teams.list || []) {
+				if (team.format !== this.format || !team.isBox) continue;
+				hasBoxes = true;
 
-			const setList = Teams.unpack(team.packedTeam);
-			const duplicateNameIndices: Record<string, number> = {};
+				const setList = Teams.unpack(team.packedTeam);
+				const duplicateNameIndices: Record<string, number> = {};
 
-			for (const boxSet of setList) {
-				let name = boxSet.name || boxSet.species;
-				if (duplicateNameIndices[name]) {
-					name += ` ${duplicateNameIndices[name]}`;
+				for (const boxSet of setList) {
+					let name = boxSet.name || boxSet.species;
+					if (duplicateNameIndices[name]) {
+						name += ` ${duplicateNameIndices[name]}`;
+					}
+					duplicateNameIndices[name] = (duplicateNameIndices[name] || 0) + 1;
+
+					userSets[boxSet.species] ??= {};
+					userSets[boxSet.species][name] = boxSet;
 				}
-				duplicateNameIndices[name] = (duplicateNameIndices[name] || 0) + 1;
+			}
 
-				userSets[boxSet.species] ??= {};
-				userSets[boxSet.species][name] = boxSet;
+			if (!hasBoxes) {
+				this.userSetsCache[this.format] = {};
+			} else {
+				this.userSetsCache[this.format] = userSets;
 			}
 		}
 
-		if (!hasBoxes) return null;
-		return userSets[set.species] || {};
+		const cachedSets = this.userSetsCache[this.format];
+		if (Object.keys(cachedSets).length === 0) return null;
+		return cachedSets[set.species] || {};
 	}
 }
 
@@ -1935,6 +1945,10 @@ class TeamWizard extends preact.Component<{
 		this.props.onUpdate?.();
 		this.forceUpdate();
 	};
+	handleLoadUserSet = (ev: Event) => {
+		const setName = (ev.target as HTMLButtonElement).value;
+		this.loadUserSet(setName);
+	};
 	loadUserSet = (setName: string) => {
 		const { editor } = this.props;
 		const setIndex = editor.innerFocus!.setIndex;
@@ -2147,7 +2161,7 @@ class TeamWizard extends preact.Component<{
 								{Object.keys(userSets).length > 0 ? (
 									<div>
 										{Object.keys(userSets).map(setName => <>
-											<button class="button" onClick={() => this.loadUserSet(setName)}>
+											<button class="button" value={setName} onClick={this.handleLoadUserSet}>
 												{setName}
 											</button> {}
 										</>)}
