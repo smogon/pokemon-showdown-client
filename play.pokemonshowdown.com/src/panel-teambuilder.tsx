@@ -23,7 +23,7 @@ class TeambuilderRoom extends PSRoom {
 	 */
 	curFolder = '';
 	curFolderKeep = '';
-  curSearchQueries: string[] = [];
+	curSearchQueries: string[] = [];
 
 	override clientCommands = this.parseClientCommands({
 		'newteam'(target) {
@@ -74,24 +74,24 @@ class TeambuilderRoom extends PSRoom {
 			};
 		}
 	}
-  handleSearch = (ev: KeyboardEvent) => {
-    const value = (ev.target as HTMLInputElement)?.value?.trim()
-    if (value === '' || value == null) {
-      this.curSearchQueries = []
-    } else {
-      this.curSearchQueries = value.split(",").map(q => q.trim().toLowerCase())
-    }
-  }
-  clearSearchQueries = () => {
-    this.curSearchQueries = []
-  }
-  satisfiesSearchQ = (team: Team | null) => {
-    if (!team) return false
-    if (this.curSearchQueries.length === 0) return true
-    const sets = team.packedTeam.split("]")
-    const pokemon = sets.map(set => set.slice(0, set.indexOf("||")).toLowerCase())
-    return pokemon.some(mon => this.curSearchQueries.includes(mon))
-  } 
+	handleSearch = (ev: KeyboardEvent) => {
+		const value = (ev.target as HTMLInputElement)?.value?.trim();
+		if (value === '' || value == null) {
+			this.curSearchQueries = [];
+		} else {
+			this.curSearchQueries = value.split(",").map(q => q.trim().toLowerCase());
+		}
+	};
+	clearSearchQueries = () => {
+		this.curSearchQueries = [];
+	};
+	satisfiesSearchQ = (team: Team | null) => {
+		if (!team) return false;
+		if (this.curSearchQueries.length === 0) return true;
+		const sets = team.packedTeam.split("]");
+		const pokemon = sets.map(set => set.slice(0, set.indexOf("||")).toLowerCase());
+		return pokemon.some(mon => this.curSearchQueries.includes(mon));
+	};
 }
 
 class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
@@ -482,15 +482,15 @@ class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
 				<p>
 					<button data-cmd="/newteam" class="button big"><i class="fa fa-plus-circle" aria-hidden></i> New Team</button> {}
 					<button data-cmd="/newteam box" class="button"><i class="fa fa-archive" aria-hidden></i> New Box</button>
-          <input 
-            placeholder="Filter by pokemon" 
-            style="margin-left:5px;"
-            value={this.props.room.curSearchQueries.join(",")}
-            onKeyUp={ev => {
-              this.props.room.handleSearch(ev)
-              this.forceUpdate()
-            }} 
-          ></input>
+					<input
+						placeholder="Filter by pokemon"
+						style="margin-left:5px;"
+						value={this.props.room.curSearchQueries.join(",")}
+						onKeyUp={ev => {
+							this.props.room.handleSearch(ev);
+							this.forceUpdate();
+						}}
+					></input>
 				</p>
 				<ul class="teamlist">
 					{teams.filter(this.props.room.satisfiesSearchQ).map(team => team ? (
