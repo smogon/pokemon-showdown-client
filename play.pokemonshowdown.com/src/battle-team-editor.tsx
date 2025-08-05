@@ -2088,7 +2088,7 @@ class TeamWizard extends preact.Component<{
 		const set = this.props.editor.sets[setIndex] as Dex.PokemonSet | undefined;
 		const cur = (i: number) => setIndex === i ? ' cur' : '';
 		const sampleSets = type === 'ability' ? editor.getSampleSets(set!) : [];
-		const userSets = type === 'ability' && set ? editor.getUserSets(set) : null;
+		const userSets = type === 'ability' ? editor.getUserSets(set!) : null;
 		return <div class="team-focus-editor">
 			<ul class="tabbar">
 				<li class="home-li"><button class="button" onClick={this.setFocus}>
