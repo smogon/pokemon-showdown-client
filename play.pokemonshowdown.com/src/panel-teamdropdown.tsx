@@ -308,7 +308,7 @@ export function TeamBox(props: {
 			<em>(empty {team.isBox ? 'box' : 'team'})</em>
 		);
 		let format = team.format as string;
-		if (format.startsWith(`gen${Dex.gen}`)) format = format.slice(4);
+		if (format.startsWith(Dex.modid)) format = format.slice(4);
 		format = (format ? `[${format}] ` : ``) + (team.folder ? `${team.folder}/` : ``);
 		contents = [
 			<strong>{team.isBox && <i class="fa fa-archive"></i>} {format && <span>{format}</span>}{team.name}</strong>,
