@@ -71,6 +71,7 @@ class TeamEditorState extends PSModel {
 	defaultLevel = 100;
 	readonly = false;
 	fetching = false;
+	private userSetsCache: Record<ID, { [species: string]: { [setName: string]: Dex.PokemonSet } }> = {};
 	constructor(team: Team) {
 		super();
 		this.team = team;
@@ -765,6 +766,36 @@ class TeamEditorState extends PSModel {
 			...d.stats?.[speciesid],
 		};
 		return Object.keys(all);
+	}
+	/** returns null if no boxes exist, empty array if no sets for this species */
+	getUserSets(set: Dex.PokemonSet): { [setName: string]: Dex.PokemonSet } | null {
+		if (!this.userSetsCache[this.format]) {
+			const userSets: { [species: string]: { [setName: string]: Dex.PokemonSet } } = {};
+
+			for (const team of window.PS?.teams.list || []) {
+				if (team.format !== this.format || !team.isBox) continue;
+
+				const setList = Teams.unpack(team.packedTeam);
+				const duplicateNameIndices: Record<string, number> = {};
+
+				for (const boxSet of setList) {
+					let name = boxSet.name || boxSet.species;
+					if (duplicateNameIndices[name]) {
+						name += ` ${duplicateNameIndices[name]}`;
+					}
+					duplicateNameIndices[name] = (duplicateNameIndices[name] || 0) + 1;
+
+					userSets[boxSet.species] ??= {};
+					userSets[boxSet.species][name] = boxSet;
+				}
+			}
+
+			this.userSetsCache[this.format] = userSets;
+		}
+
+		const cachedSets = this.userSetsCache[this.format];
+		if (Object.keys(cachedSets).length === 0) return null;
+		return cachedSets[set.species] || {};
 	}
 }
 
@@ -2061,6 +2092,28 @@ class TeamWizard extends preact.Component<{
 		this.props.onUpdate?.();
 		this.forceUpdate();
 	};
+	handleLoadUserSet = (ev: Event) => {
+		const setName = (ev.target as HTMLButtonElement).value;
+		this.loadUserSet(setName);
+	};
+	loadUserSet = (setName: string) => {
+		const { editor } = this.props;
+		const setIndex = editor.innerFocus!.setIndex;
+		const set = editor.sets[setIndex];
+		if (!set?.species) return;
+
+		const userSets = editor.getUserSets(set);
+		const setTemplate = userSets?.[setName];
+		if (!setTemplate) return;
+
+		const applied: Partial<Dex.PokemonSet> = JSON.parse(JSON.stringify(setTemplate));
+		delete applied.name;
+		Object.assign(set, applied);
+
+		editor.save();
+		this.props.onUpdate?.();
+		this.forceUpdate();
+	};
 	updateSearch = (ev: Event) => {
 		const searchBox = ev.currentTarget as HTMLInputElement;
 		this.props.editor.setSearchValue(searchBox.value);
@@ -2196,6 +2249,7 @@ class TeamWizard extends preact.Component<{
 		const set = this.props.editor.sets[setIndex] as Dex.PokemonSet | undefined;
 		const cur = (i: number) => setIndex === i ? ' cur' : '';
 		const sampleSets = type === 'ability' ? editor.getSampleSets(set!) : [];
+		const userSets = type === 'ability' ? editor.getUserSets(set!) : null;
 		return <div class="team-focus-editor">
 			<ul class="tabbar">
 				<li class="home-li"><button class="button" onClick={this.setFocus}>
@@ -2245,6 +2299,22 @@ class TeamWizard extends preact.Component<{
 									</div>
 								) : (
 									<div>Loading...</div>
+								)}
+							</div>
+						)}
+						{userSets !== null && (
+							<div class="sample-sets">
+								<h3>Box sets</h3>
+								{Object.keys(userSets).length > 0 ? (
+									<div>
+										{Object.keys(userSets).map(setName => <>
+											<button class="button" value={setName} onClick={this.handleLoadUserSet}>
+												{setName}
+											</button> {}
+										</>)}
+									</div>
+								) : (
+									<div>No {set!.species} sets found in boxes</div>
 								)}
 							</div>
 						)}
