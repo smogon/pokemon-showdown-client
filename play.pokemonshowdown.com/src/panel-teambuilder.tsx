@@ -487,10 +487,8 @@ class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
 					<button data-cmd="/newteam" class="button big"><i class="fa fa-plus-circle" aria-hidden></i> New Team</button> {}
 					<button data-cmd="/newteam box" class="button"><i class="fa fa-archive" aria-hidden></i> New Box</button>
 					<input
-						placeholder="Filter by pokemon"
-						style="margin-left:5px;"
-						value={this.props.room.curSearchQueries.join(",")}
-						onKeyUp={this.updateSearch}
+						type="search" class="textbox" placeholder="Filter by pokemon" style="margin-left:5px;"
+						value={this.props.room.curSearchQueries.join(",")} onKeyUp={this.updateSearch}
 					></input>
 				</p>
 				<ul class="teamlist">
