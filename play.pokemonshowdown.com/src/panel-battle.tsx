@@ -201,6 +201,7 @@ class TimerButton extends preact.Component<{ room: BattleRoom }> {
 		const room = this.props.room;
 		if (!this.timerInterval && room.battle.kickingInactive) {
 			this.timerInterval = setInterval(() => {
+				if (room.choices?.isDone()) return;
 				if (typeof room.battle.kickingInactive === 'number' && room.battle.kickingInactive > 1) {
 					room.battle.kickingInactive--;
 					if (room.battle.graceTimeLeft) room.battle.graceTimeLeft--;
@@ -412,6 +413,9 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 		if (PS.prefs.autotimer && !room.battle.kickingInactive && !room.autoTimerActivated) {
 			this.send('/timer on');
 			room.autoTimerActivated = true;
+		}
+		if (PS.prefs.autoopenteamsheets) {
+			this.send('/acceptopenteamsheets');
 		}
 
 		BattleChoiceBuilder.fixRequest(request, room.battle);
