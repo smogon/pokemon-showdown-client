@@ -23,7 +23,7 @@ class TeambuilderRoom extends PSRoom {
 	 */
 	curFolder = '';
 	curFolderKeep = '';
-	curSearchQueries: string[] = [];
+	searchTerms: string[] = [];
 
 	override clientCommands = this.parseClientCommands({
 		'newteam'(target) {
@@ -74,18 +74,18 @@ class TeambuilderRoom extends PSRoom {
 			};
 		}
 	}
-	handleSearch = (value: string) => {
+	updateSearch = (value: string) => {
 		if (!value) {
-			this.curSearchQueries = [];
+			this.searchTerms = [];
 		} else {
-			this.curSearchQueries = value.split(",").map(q => q.trim().toLowerCase());
+			this.searchTerms = value.split(",").map(q => q.trim().toLowerCase());
 		}
 	};
-	satisfiesSearchQ = (team: Team | null) => {
+	matchesSearch = (team: Team | null) => {
 		if (!team) return false;
-		if (this.curSearchQueries.length === 0) return true;
+		if (this.searchTerms.length === 0) return true;
 		const normalized = team.packedTeam.toLowerCase();
-		return this.curSearchQueries.every(term => normalized.includes(term));
+		return this.searchTerms.every(term => normalized.includes(term));
 	};
 }
 
@@ -289,12 +289,14 @@ class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
 	}
 	updateSearch = (ev: KeyboardEvent) => {
 		const target = ev.currentTarget as HTMLInputElement;
-		this.props.room.handleSearch(target.value);
+		this.props.room.updateSearch(target.value);
 		this.forceUpdate();
 	};
 	clearSearch = () => {
-		this.base!.querySelector<HTMLInputElement>('input[type="search"]')!.value = '';
-		this.props.room.handleSearch('');
+		const target = this.base!.querySelector<HTMLInputElement>('input[type="search"]');
+		if (!target) return;
+		target.value = '';
+		this.props.room.updateSearch('');
 	};
 	renderFolder(value: string) {
 		const { room } = this.props;
@@ -461,7 +463,7 @@ class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
 			}
 		}
 
-		const filteredTeams = teams.filter(room.satisfiesSearchQ);
+		const filteredTeams = teams.filter(room.matchesSearch);
 
 		return <PSPanelWrapper room={room}>
 			<div class="folderpane">
@@ -497,7 +499,7 @@ class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
 					{!teams.length ? (
 						<li><em>you have no teams lol</em></li>
 					) : !filteredTeams.length ? (
-						<li><em>you have no teams matching <code>{room.curSearchQueries.join(", ")}</code></em></li>
+						<li><em>you have no teams matching <code>{room.searchTerms.join(", ")}</code></em></li>
 					) : filteredTeams.map(team => team ? (
 						<li key={team.key} onDragEnter={this.dragEnterTeam} data-teamkey={team.key}>
 							<TeamBox team={team} onClick={this.clearSearch} /> {}
