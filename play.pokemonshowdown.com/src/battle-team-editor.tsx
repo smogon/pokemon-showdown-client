@@ -2161,7 +2161,7 @@ class TeamWizard extends preact.Component<{
 										</>)}
 									</div>
 								) : (
-									<div>No {set?.species} sets found in boxes</div>
+									<div>No {set!.species} sets found in boxes</div>
 								)}
 							</div>
 						)}
