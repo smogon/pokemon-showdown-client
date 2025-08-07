@@ -74,16 +74,12 @@ class TeambuilderRoom extends PSRoom {
 			};
 		}
 	}
-	handleSearch = (ev: KeyboardEvent) => {
-		const value = (ev.target as HTMLInputElement)?.value?.trim();
-		if (value === '' || value == null) {
+	handleSearch = (value: string) => {
+		if (!value) {
 			this.curSearchQueries = [];
 		} else {
 			this.curSearchQueries = value.split(",").map(q => q.trim().toLowerCase());
 		}
-	};
-	clearSearchQueries = () => {
-		this.curSearchQueries = [];
 	};
 	satisfiesSearchQ = (team: Team | null) => {
 		if (!team) return false;
@@ -292,8 +288,13 @@ class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
 		return !!this.addDraggedTeam(ev, (PS.rooms['teambuilder'] as TeambuilderRoom)?.curFolder);
 	}
 	updateSearch = (ev: KeyboardEvent) => {
-		this.props.room.handleSearch(ev);
+		const target = ev.currentTarget as HTMLInputElement;
+		this.props.room.handleSearch(target.value);
 		this.forceUpdate();
+	};
+	clearSearch = () => {
+		this.base!.querySelector<HTMLInputElement>('input[type="search"]')!.value = '';
+		this.props.room.handleSearch('');
 	};
 	renderFolder(value: string) {
 		const { room } = this.props;
@@ -488,8 +489,8 @@ class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
 					<button data-cmd="/newteam" class="button big"><i class="fa fa-plus-circle" aria-hidden></i> New Team</button> {}
 					<button data-cmd="/newteam box" class="button"><i class="fa fa-archive" aria-hidden></i> New Box</button>
 					<input
-						type="search" class="textbox" placeholder="Search teams" style="margin-left:5px;"
-						value={this.props.room.curSearchQueries.join(",")} onKeyUp={this.updateSearch}
+						type="search" class="textbox" placeholder="Search teams"
+						style="margin-left:5px;" onKeyUp={this.updateSearch}
 					></input>
 				</p>
 				<ul class="teamlist">
@@ -499,7 +500,7 @@ class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
 						<li><em>you have no teams matching <code>{room.curSearchQueries.join(", ")}</code></em></li>
 					) : filteredTeams.map(team => team ? (
 						<li key={team.key} onDragEnter={this.dragEnterTeam} data-teamkey={team.key}>
-							<TeamBox team={team} onClick={room.clearSearchQueries} /> {}
+							<TeamBox team={team} onClick={this.clearSearch} /> {}
 							{!team.uploaded && <button data-cmd={`/deleteteam ${team.key}`} class="option">
 								<i class="fa fa-trash" aria-hidden></i> Delete
 							</button>} {}
