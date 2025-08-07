@@ -88,9 +88,8 @@ class TeambuilderRoom extends PSRoom {
 	satisfiesSearchQ = (team: Team | null) => {
 		if (!team) return false;
 		if (this.curSearchQueries.length === 0) return true;
-		const sets = team.packedTeam.split("]");
-		const pokemon = sets.map(set => set.slice(0, set.indexOf("||")).toLowerCase());
-		return pokemon.some(mon => this.curSearchQueries.includes(mon));
+		const normalized = team.packedTeam.toLowerCase();
+		return this.curSearchQueries.some(term => normalized.includes(term));
 	};
 }
 
@@ -487,7 +486,7 @@ class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
 					<button data-cmd="/newteam" class="button big"><i class="fa fa-plus-circle" aria-hidden></i> New Team</button> {}
 					<button data-cmd="/newteam box" class="button"><i class="fa fa-archive" aria-hidden></i> New Box</button>
 					<input
-						type="search" class="textbox" placeholder="Filter by pokemon" style="margin-left:5px;"
+						type="search" class="textbox" placeholder="Search teams" style="margin-left:5px;"
 						value={this.props.room.curSearchQueries.join(",")} onKeyUp={this.updateSearch}
 					></input>
 				</p>
