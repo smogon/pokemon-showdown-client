@@ -10,9 +10,10 @@ import { PSPanelWrapper, PSRoomPanel } from "./panels";
 import { PSTeambuilder, TeamBox } from "./panel-teamdropdown";
 import { Dex, PSUtils, toID, type ID } from "./battle-dex";
 import { Teams } from "./battle-teams";
+import { BattleLog } from "./battle-log";
 
 class TeambuilderRoom extends PSRoom {
-	readonly DEFAULT_FORMAT = `gen${Dex.gen}` as ID;
+	readonly DEFAULT_FORMAT = Dex.modid;
 
 	/**
 	 * - `""` - all
@@ -453,13 +454,16 @@ class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
 
 		let filterFolder: string | null = null;
 		let filterFormat: string | null = null;
+		let teamTerm = 'team';
 		if (room.curFolder) {
 			if (room.curFolder.endsWith('/')) {
 				filterFolder = room.curFolder.slice(0, -1);
 				teams = teams.filter(team => !team || team.folder === filterFolder);
+				teamTerm = 'team in folder';
 			} else {
 				filterFormat = room.curFolder;
 				teams = teams.filter(team => !team || team.format === filterFormat);
+				if (filterFormat !== Dex.modid) teamTerm = BattleLog.formatName(filterFormat) + ' team';
 			}
 		}
 
@@ -488,8 +492,12 @@ class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
 					<h2>All Teams <small>({teams.length})</small></h2>
 				)}
 				<p>
-					<button data-cmd="/newteam" class="button big"><i class="fa fa-plus-circle" aria-hidden></i> New Team</button> {}
-					<button data-cmd="/newteam box" class="button"><i class="fa fa-archive" aria-hidden></i> New Box</button>
+					<button data-cmd="/newteam" class="button big">
+						<i class="fa fa-plus-circle" aria-hidden></i> New {teamTerm}
+					</button> {}
+					<button data-cmd="/newteam box" class="button">
+						<i class="fa fa-archive" aria-hidden></i> New box
+					</button>
 					<input
 						type="search" class="textbox" placeholder="Search teams"
 						style="margin-left:5px;" onKeyUp={this.updateSearch}
@@ -529,8 +537,12 @@ class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
 					))}
 				</ul>
 				<p>
-					<button data-cmd="/newteam bottom" class="button"><i class="fa fa-plus-circle" aria-hidden></i> New Team</button> {}
-					<button data-cmd="/newteam box bottom" class="button"><i class="fa fa-archive" aria-hidden></i> New Box</button>
+					<button data-cmd="/newteam bottom" class="button">
+						<i class="fa fa-plus-circle" aria-hidden></i> New {teamTerm}
+					</button> {}
+					<button data-cmd="/newteam box bottom" class="button">
+						<i class="fa fa-archive" aria-hidden></i> New box
+					</button>
 				</p>
 			</div>
 		</PSPanelWrapper>;
