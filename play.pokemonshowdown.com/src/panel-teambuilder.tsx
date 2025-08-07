@@ -89,7 +89,7 @@ class TeambuilderRoom extends PSRoom {
 		if (!team) return false;
 		if (this.curSearchQueries.length === 0) return true;
 		const normalized = team.packedTeam.toLowerCase();
-		return this.curSearchQueries.some(term => normalized.includes(term));
+		return this.curSearchQueries.every(term => normalized.includes(term));
 	};
 }
 
