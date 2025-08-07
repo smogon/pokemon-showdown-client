@@ -460,6 +460,8 @@ class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
 			}
 		}
 
+		const filteredTeams = teams.filter(room.satisfiesSearchQ);
+
 		return <PSPanelWrapper room={room}>
 			<div class="folderpane">
 				{this.renderFolderList()}
@@ -491,7 +493,11 @@ class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
 					></input>
 				</p>
 				<ul class="teamlist">
-					{teams.filter(room.satisfiesSearchQ).map(team => team ? (
+					{!teams.length ? (
+						<li><em>you have no teams lol</em></li>
+					) : !filteredTeams.length ? (
+						<li><em>you have no teams matching <code>{room.curSearchQueries.join(", ")}</code></em></li>
+					) : filteredTeams.map(team => team ? (
 						<li key={team.key} onDragEnter={this.dragEnterTeam} data-teamkey={team.key}>
 							<TeamBox team={team} onClick={room.clearSearchQueries} /> {}
 							{!team.uploaded && <button data-cmd={`/deleteteam ${team.key}`} class="option">
