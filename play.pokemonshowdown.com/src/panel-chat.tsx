@@ -1145,7 +1145,7 @@ class ChatPanel extends PSRoomPanel<ChatRoom> {
 				parentElem: elem,
 			});
 			return;
-		};
+		}
 		PS.requestNotifications();
 		const room = this.props.room;
 		const packedTeam = team ? team.packedTeam : '';
