@@ -1140,8 +1140,8 @@ class ChatPanel extends PSRoomPanel<ChatRoom> {
 		const elem = e.target as HTMLElement;
 		const now = Date.now();
 		const lastChallenged = PS.mainmenu.lastChallenged || 0;
-		if (now - lastChallenged < 10_000) {
-			PS.alert(`Please wait 10 seconds before challenging again.`, {
+		if (now - lastChallenged < 5_000) {
+			PS.alert(`Please wait 5 seconds before challenging again.`, {
 				parentElem: elem,
 			});
 			return;
