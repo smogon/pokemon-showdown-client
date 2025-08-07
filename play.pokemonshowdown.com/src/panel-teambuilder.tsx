@@ -292,6 +292,10 @@ class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
 	static handleDrop(ev: DragEvent) {
 		return !!this.addDraggedTeam(ev, (PS.rooms['teambuilder'] as TeambuilderRoom)?.curFolder);
 	}
+	updateSearch = (ev: KeyboardEvent) => {
+		this.props.room.handleSearch(ev);
+		this.forceUpdate();
+	};
 	renderFolder(value: string) {
 		const { room } = this.props;
 		const cur = room.curFolder === value;
@@ -486,10 +490,7 @@ class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
 						placeholder="Filter by pokemon"
 						style="margin-left:5px;"
 						value={this.props.room.curSearchQueries.join(",")}
-						onKeyUp={ev => {
-							this.props.room.handleSearch(ev);
-							this.forceUpdate();
-						}}
+						onKeyUp={this.updateSearch}
 					></input>
 				</p>
 				<ul class="teamlist">
