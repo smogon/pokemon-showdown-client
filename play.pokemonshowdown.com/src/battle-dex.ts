@@ -710,8 +710,7 @@ export const Dex = new class implements ModdedDex {
 		}
 
 		const possibleSprites: AnyObject[] = [];
-		for (const possibleFacing of ['back', 'front']) {
-			if (facing === 'front' && possibleFacing === 'back') continue;
+		for (const possibleFacing of facing === 'front' ? ['front'] : ['back', 'front']) {
 			const mirror = facing === 'back' && possibleFacing === 'front';
 			if (!Dex.prefs('noanim') && !Dex.prefs('nogif') && spriteData.gen >= 5) {
 				if (baseDir === '' && window.BattlePokemonSprites) {
