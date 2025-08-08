@@ -198,6 +198,7 @@ export interface SpriteData {
 	isFrontSprite?: boolean;
 	cryurl?: string;
 	shiny?: boolean;
+	mirror?: boolean;
 }
 
 export interface TeambuilderSpriteData {
@@ -604,6 +605,7 @@ export const Dex = new class implements ModdedDex {
 			isFrontSprite: false,
 			cryurl: '',
 			shiny: options.shiny,
+			mirror: false,
 		};
 		let name = species.spriteid;
 		let dir;
@@ -707,41 +709,56 @@ export const Dex = new class implements ModdedDex {
 			spriteData.cryurl += '.mp3';
 		}
 
-		let animatedSprite = false;
-		if (!Dex.prefs('noanim') && !Dex.prefs('nogif') && spriteData.gen >= 5) {
-			const animationArray: [AnyObject, string][] = [];
-			if (baseDir === '' && window.BattlePokemonSprites) {
-				animationArray.push([BattlePokemonSprites[speciesid], '']);
+		const possibleSprites: AnyObject[] = [];
+		for (const possibleFacing of ['back']) {
+			if (facing === 'front' && possibleFacing === 'back') continue;
+			const mirror = facing === 'back' && possibleFacing === 'front';
+			if (!Dex.prefs('noanim') && !Dex.prefs('nogif') && spriteData.gen >= 5) {
+				if (baseDir === '' && window.BattlePokemonSprites && !mirror) {
+					possibleSprites.push({
+						spriteData: BattlePokemonSprites[speciesid],
+						dir: 'ani',
+						facing: possibleFacing,
+					});
+				}
+				if (window.BattlePokemonSpritesBW) {
+					possibleSprites.push({
+						spriteData: BattlePokemonSpritesBW[speciesid],
+						dir: 'gen5ani',
+						facing: possibleFacing,
+						mirror,
+					});
+				}
 			}
-			if (window.BattlePokemonSpritesBW) {
-				animationArray.push([BattlePokemonSpritesBW[speciesid], 'gen5']);
-			}
-			for (const [animationData, animDir] of animationArray) {
-				if (!animationData) continue;
-				if (animationData[facing + 'f'] && options.gender === 'F') facing += 'f';
-				if (!animationData[facing]) continue;
-				if (facing.endsWith('f')) name += '-f';
-				if (spriteData.gen >= 6) spriteData.pixelated = false;
-				dir = animDir + 'ani' + dir;
-				spriteData.w = animationData[facing].w;
-				spriteData.h = animationData[facing].h;
-				spriteData.url += dir + '/' + name + '.gif';
-				animatedSprite = true;
-				break;
-			}
+			possibleSprites.push({
+				spriteData: miscData,
+				dir: baseDir || 'gen5',
+				facing: possibleFacing,
+				mirror,
+				fallback: possibleFacing === 'front',
+			});
 		}
-		if (!animatedSprite) {
-			// There is no entry or enough data in pokedex-mini.js
-			// Handle these in case-by-case basis; either using BW sprites or matching the played gen.
-			dir = (baseDir || 'gen5') + dir;
-
+		for (const possibleSprite of possibleSprites) {
+			if (!possibleSprite) continue;
+			const animated = possibleSprite.dir.endsWith('ani');
+			facing = possibleSprite.facing;
 			// Gender differences don't exist prior to Gen 4,
 			// so there are no sprites for it
-			if (spriteData.gen >= 4 && miscData['frontf'] && options.gender === 'F') {
-				name += '-f';
+			if (spriteData.gen >= 4 && possibleSprite.spriteData[facing + 'f'] && options.gender === 'F') facing += 'f';
+			if (!possibleSprite.spriteData[facing] && !possibleSprite.fallback) continue;
+			if (facing.endsWith('f')) name += '-f';
+			if (possibleSprite.mirror) {
+				dir = dir.slice(5); // remove -back
+				spriteData.mirror = true;
 			}
-
-			spriteData.url += dir + '/' + name + '.png';
+			dir = possibleSprite.dir + dir;
+			if (animated) {
+				if (spriteData.gen >= 6) spriteData.pixelated = false;
+				spriteData.w = possibleSprite.spriteData[facing].w;
+				spriteData.h = possibleSprite.spriteData[facing].h;
+			}
+			spriteData.url += dir + '/' + name + (animated ? '.gif' : '.png');
+			break;
 		}
 
 		if (!options.noScale) {
