@@ -782,7 +782,7 @@ export class TeamForm extends preact.Component<{
 	};
 	submit = (ev: Event, validate?: 'validate') => {
 		ev.preventDefault();
-		const format = this.format;
+		const format = this.props.format || this.format;
 		const teamElement = this.base!.querySelector<HTMLButtonElement>('button[name=team]');
 		const teamKey = teamElement!.value;
 		const team = teamKey ? PS.teams.byKey[teamKey] : undefined;
