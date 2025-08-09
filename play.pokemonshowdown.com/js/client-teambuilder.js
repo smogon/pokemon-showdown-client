@@ -1169,7 +1169,7 @@
 						if (format && format.slice(0, 3) !== 'gen') format = 'gen6' + format;
 						if (format && format.endsWith('-box')) {
 							format = format.slice(0, -4);
-							capacity = 24;
+							capacity = 50;
 						}
 						name = $.trim(name.substr(bracketIndex + 1));
 					}
