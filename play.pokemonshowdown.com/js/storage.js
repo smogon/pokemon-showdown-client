@@ -920,6 +920,11 @@ Storage.fastUnpackTeam = function (buf) {
 		j = buf.indexOf('|', i);
 		set.nature = buf.substring(i, j);
 		if (set.nature === 'undefined') set.nature = undefined;
+		if (set.nature) {
+			// BattleNatures is case sensitive, so if we don't do this
+			// sometimes stuff breaks. goody.
+			set.nature = set.nature.charAt(0).toUpperCase() + set.nature.slice(1);
+		}
 		i = j + 1;
 
 		// evs
@@ -1038,6 +1043,11 @@ Storage.unpackTeam = function (buf) {
 		j = buf.indexOf('|', i);
 		set.nature = buf.substring(i, j);
 		if (set.nature === 'undefined') set.nature = undefined;
+		if (set.nature) {
+			// BattleNatures is case sensitive, so if we don't do this
+			// sometimes stuff breaks. goody.
+			set.nature = set.nature.charAt(0).toUpperCase() + set.nature.slice(1);
+		}
 		i = j + 1;
 
 		// evs
