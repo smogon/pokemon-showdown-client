@@ -830,8 +830,9 @@ export class BattleTooltips {
 			genderBuf = ` <img src="${Dex.fxPrefix}gender-${gender.toLowerCase()}.png" alt="${gender}" width="7" height="10" class="pixelated" /> `;
 		}
 
-		let name = BattleLog.escapeHTML(pokemon.name);
-		if (pokemon.speciesForme !== pokemon.name) {
+		let ignoreNicks = this.battle.ignoreNicks || this.battle.ignoreOpponent;
+		let name = BattleLog.escapeHTML(ignoreNicks ? pokemon.speciesForme : pokemon.name);
+		if (!ignoreNicks && pokemon.speciesForme !== pokemon.name) {
 			name += ` <small>(${BattleLog.escapeHTML(pokemon.speciesForme)})</small>`;
 		}
 
