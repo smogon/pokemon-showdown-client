@@ -120,6 +120,7 @@ export class PSHeader extends preact.Component {
 		let notifying = room.isSubtleNotifying ? ' subtle-notifying' : '';
 		let hoverTitle = '';
 		let notifications = room.notifications;
+		const roomsettings = PS.prefs.roomsettings?.[PS.server.id]?.[id] || {};
 		if (id === '') {
 			for (const roomid of PS.miniRoomList) {
 				const miniNotifications = PS.rooms[roomid]?.notifications;
@@ -136,6 +137,7 @@ export class PSHeader extends preact.Component {
 		let className = `roomtab button${notifying}${closable}${cur}`;
 
 		let { icon, title: roomTitle } = PSHeader.roomInfo(room);
+		if (roomsettings.muteroom) icon = <i class="fa fa-bell-slash-o" aria-hidden></i>;
 		if (room.type === 'rooms' && PS.leftPanelWidth !== null) roomTitle = '';
 		if (room.type === 'battle') className += ' roomtab-battle';
 
@@ -155,7 +157,8 @@ export class PSHeader extends preact.Component {
 				onDragEnter={this.handleDragEnter} onDragStart={this.handleDragStart}
 				{...aria}
 			>
-				{icon} {roomTitle}
+				{icon}
+				{roomTitle}
 			</a>
 			{closeButton}
 		</li>;

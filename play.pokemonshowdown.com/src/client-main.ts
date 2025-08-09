@@ -1056,6 +1056,8 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 	}
 	subtleNotify() {
 		if (PS.isVisible(this)) return;
+		const roomsettings = PS.prefs.roomsettings?.[PS.server.id]?.[this.id];
+		if (roomsettings?.newmessages === false) return;
 		this.isSubtleNotifying = true;
 		PS.update();
 	}
@@ -1603,16 +1605,20 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 				return;
 			}
 			const settings = roomsettings[serverId][this.id] || {};
-			settings[name] = value === 'on';
-			roomsettings[serverId][this.id] = settings;
-			PS.prefs.set('roomsettings', roomsettings);
-
 			if (name === 'muteroom') {
+				settings.highlight = value !== 'on';
+				settings.newmessages = value !== 'on';
+				settings.tournamentping = value !== 'on';
+				settings[name] = value === 'on';
+				roomsettings[serverId][this.id] = settings;
 				this.receiveLine(['', `Mute ${this.title} room: ${value === 'on' ? 'ON' : 'OFF'}`]);
 			} else {
+				settings[name] = value === 'on';
+				roomsettings[serverId][this.id] = settings;
 				this.receiveLine(['',
 					`Indicate ${nameRaw} in ${this.title} room: ${value === 'on' ? 'ON' : 'OFF'}`]);
 			}
+			PS.prefs.set('roomsettings', roomsettings);
 		},
 		'h,help'(target) {
 			switch (toID(target)) {
