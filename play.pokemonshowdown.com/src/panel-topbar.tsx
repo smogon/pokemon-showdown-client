@@ -62,6 +62,14 @@ export class PSHeader extends preact.Component {
 
 		PS.dragging = { type: 'room', roomid };
 	};
+	static handleRightClick = (e: Event) => {
+		e.preventDefault();
+		const roomid = PS.router.extractRoomID((e.currentTarget as HTMLAnchorElement).href);
+		PS.join('roomsettings' as RoomID, {
+			parentElem: e.currentTarget as HTMLAnchorElement,
+			parentRoomid: roomid,
+		});
+	};
 	static roomInfo(room: PSRoom) {
 		const RoomType = PS.roomTypes[room.type];
 		let icon = RoomType?.icon || <i class="fa fa-file-text-o" aria-hidden></i>;
@@ -143,7 +151,7 @@ export class PSHeader extends preact.Component {
 		if (id === 'rooms') aria['aria-label'] = "Join chat";
 		return <li class={id === '' ? 'home-li' : ''} key={id}>
 			<a
-				class={className} href={`/${id}`} draggable={true} title={hoverTitle || undefined}
+				class={className} href={`/${id}`} onContextMenu={this.handleRightClick} draggable={true} title={hoverTitle || undefined}
 				onDragEnter={this.handleDragEnter} onDragStart={this.handleDragStart}
 				{...aria}
 			>
