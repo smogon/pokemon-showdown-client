@@ -309,7 +309,8 @@ export class PSMiniHeader extends preact.Component {
 		if (PS.leftPanelWidth !== null) return null;
 
 		let notificationsCount = 0;
-		for (const roomid of PS.leftRoomList) {
+		const notificationRooms = [...PS.leftRoomList, ...PS.rightRoomList];
+		for (const roomid of notificationRooms) {
 			const miniNotifications = PS.rooms[roomid]?.notifications;
 			if (miniNotifications?.length) notificationsCount++;
 		}
