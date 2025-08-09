@@ -1698,6 +1698,78 @@ class BattleOptionsPanel extends PSRoomPanel {
 		</PSPanelWrapper>;
 	}
 }
+class RoomSettingsPanel extends PSRoomPanel {
+	static readonly id = 'roomsettings';
+	static readonly routes = ['roomsettings'];
+	static readonly location = 'semimodal-popup';
+	static readonly noURL = true;
+	declare state: { isRoomMuted?: boolean };
+
+	handleAllSettings = (ev: Event) => {
+		const setting = (ev.currentTarget as HTMLInputElement).name;
+		let value = (ev.currentTarget as HTMLInputElement).checked ? 'on' : 'off';
+		const parentElem = this.props.room.parentElem as HTMLAnchorElement;
+		const roomid = PS.router.extractRoomID(parentElem.href)!;
+		const room = PS.rooms[roomid];
+		if (setting === 'Mute Room') {
+			this.setState({ isRoomMuted: value === 'on' });
+		}
+		room?.send(`/settings ${setting}, ${value}`);
+	};
+
+	override render() {
+		const room = this.props.room;
+		const parentElem = this.props.room.parentElem as HTMLAnchorElement;
+		const parentRoomid = PS.router.extractRoomID(parentElem.href)!;
+		const parentRoom = PS.rooms[parentRoomid];
+		const settingsExists = PS.prefs.roomsettings?.[PS.server.id]?.[parentRoomid];
+		const settings = settingsExists || {
+			highlight: !PS.prefs.noselfhighlight,
+			tournamentping: PS.prefs.tournaments !== 'hide',
+		};
+
+		return <PSPanelWrapper room={room} width={380}><div class="pad">
+			<p><strong>{parentRoom?.title} room settings</strong></p>
+			<p>
+				<label class="checkbox">
+					<input
+						name="New Messages" checked={settings.newmessages !== false}
+						type="checkbox" onChange={this.handleAllSettings} disabled={this.state.isRoomMuted || settings.muteroom}
+					/> Indicate new messages
+				</label>
+			</p>
+			<p>
+				<label class="checkbox">
+					<input
+						name="Highlight" checked={settings.highlight === true}
+						type="checkbox" onChange={this.handleAllSettings} disabled={this.state.isRoomMuted || settings.muteroom}
+					/> Indicate name pings
+				</label>
+			</p>
+			<p>
+				<label class="checkbox">
+					<input
+						name="Tournament Ping" checked={settings.tournamentping === true}
+						type="checkbox" onChange={this.handleAllSettings} disabled={this.state.isRoomMuted || settings.muteroom}
+					/> Ping on tournaments
+				</label>
+			</p>
+			<p>
+				<label class="checkbox">
+					<input
+						name="Mute Room" checked={settings.muteroom === true}
+						type="checkbox" onChange={this.handleAllSettings}
+					/> Mute room
+				</label>
+			</p>
+			<p class="buttonbar">
+				<button data-cmd="/close" class="button">Done</button> {}
+				<button data-cmd="/closeand /inparent /settings reset" class="button">Reset to default</button> {}
+			</p>
+		</div>
+		</PSPanelWrapper>;
+	}
+}
 
 class PopupRoom extends PSRoom {
 	returnValue: unknown = this.args?.cancelValue;
@@ -1930,5 +2002,6 @@ PS.addRoomType(
 	RoomTabListPanel,
 	BattleOptionsPanel,
 	BattleTimerPanel,
-	RulesPanel
+	RulesPanel,
+	RoomSettingsPanel
 );
