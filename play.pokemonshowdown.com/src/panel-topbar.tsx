@@ -62,6 +62,14 @@ export class PSHeader extends preact.Component {
 
 		PS.dragging = { type: 'room', roomid };
 	};
+	static handleRightClick = (e: Event) => {
+		e.preventDefault();
+		const roomid = PS.router.extractRoomID((e.currentTarget as HTMLAnchorElement).href);
+		PS.join('roomsettings' as RoomID, {
+			parentElem: e.currentTarget as HTMLAnchorElement,
+			parentRoomid: roomid,
+		});
+	};
 	static roomInfo(room: PSRoom) {
 		const RoomType = PS.roomTypes[room.type];
 		let icon = RoomType?.icon || <i class="fa fa-file-text-o" aria-hidden></i>;
@@ -112,6 +120,7 @@ export class PSHeader extends preact.Component {
 		let notifying = room.isSubtleNotifying ? ' subtle-notifying' : '';
 		let hoverTitle = '';
 		let notifications = room.notifications;
+		const roomsettings = PS.prefs.roomsettings?.[PS.server.id]?.[id] || {};
 		if (id === '') {
 			for (const roomid of PS.miniRoomList) {
 				const miniNotifications = PS.rooms[roomid]?.notifications;
@@ -128,6 +137,7 @@ export class PSHeader extends preact.Component {
 		let className = `roomtab button${notifying}${closable}${cur}`;
 
 		let { icon, title: roomTitle } = PSHeader.roomInfo(room);
+		if (roomsettings.muteroom) icon = <i class="fa fa-bell-slash-o" aria-hidden></i>;
 		if (room.type === 'rooms' && PS.leftPanelWidth !== null) roomTitle = '';
 		if (room.type === 'battle') className += ' roomtab-battle';
 
@@ -143,11 +153,12 @@ export class PSHeader extends preact.Component {
 		if (id === 'rooms') aria['aria-label'] = "Join chat";
 		return <li class={id === '' ? 'home-li' : ''} key={id}>
 			<a
-				class={className} href={`/${id}`} draggable={true} title={hoverTitle || undefined}
+				class={className} href={`/${id}`} onContextMenu={this.handleRightClick} draggable={true} title={hoverTitle || undefined}
 				onDragEnter={this.handleDragEnter} onDragStart={this.handleDragStart}
 				{...aria}
 			>
-				{icon} {roomTitle}
+				{icon}
+				{roomTitle}
 			</a>
 			{closeButton}
 		</li>;
