@@ -633,6 +633,9 @@ you can't delete it by pressing Backspace */
 .set-button .set-ability .button, .set-button .set-item .button {
 	height: 40px;
 }
+.set-item .itemicon {
+	float: right;
+}
 .set-button .set-moves .button {
 	line-height: 18px;
 }

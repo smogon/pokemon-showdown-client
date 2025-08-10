@@ -811,17 +811,6 @@ export class TeamEditor extends preact.Component<{
 		this.wizard = wizard;
 		this.forceUpdate();
 	};
-	static renderTypeIcon(type: string | null, b?: boolean) { // b is just for utilichart.js
-		if (!type) return null;
-
-		type = Dex.types.get(type).name;
-		if (!type) type = '???';
-		let sanitizedType = type.replace(/\?/g, '%3f');
-		return <img
-			src={`${Dex.resourcePrefix}sprites/types/${sanitizedType}.png`} alt={type}
-			height="14" width="32" class={`pixelated${b ? ' b' : ''}`} style="vertical-align:middle"
-		/>;
-	}
 	static probablyMobile() {
 		return document.body.offsetWidth < 500;
 	}
@@ -1599,11 +1588,11 @@ class TeamTextbox extends preact.Component<{
 			</span>
 			{editor.gen === 9 ? (
 				<span class="detailcell">
-					<label>Tera</label>{TeamEditor.renderTypeIcon(set.teraType || species.requiredTeraType || species.types[0])}
+					<label>Tera</label><PSIcon type={set.teraType || species.requiredTeraType || species.types[0]} />
 				</span>
 			) : editor.hpTypeMatters(set) ? (
 				<span class="detailcell">
-					<label>H. Power</label>{TeamEditor.renderTypeIcon(editor.getHPType(set))}
+					<label>H. Power</label><PSIcon type={editor.getHPType(set)} />
 				</span>
 			) : (
 				<span class="detailcell">
@@ -1676,17 +1665,11 @@ class TeamTextbox extends preact.Component<{
 						const num = Dex.getPokemonIconNum(species.id);
 						if (!num) return null;
 
-						const top = Math.floor(num / 12) * 30;
-						const left = (num % 12) * 40;
-						const iconStyle = `background:transparent url(${Dex.resourcePrefix}sprites/pokemonicons-sheet.png) no-repeat scroll -${left}px -${top}px`;
-
-						const itemStyle = set.item && Dex.getItemIcon(editor.dex.items.get(set.item));
-
 						if (editor.narrow) {
 							return <div style={`top:${prevOffset + 1}px;left:5px;position:absolute;text-align:center;pointer-events:none`}>
-								<div><span class="picon" style={iconStyle}></span></div>
-								{species.types.map(type => <div>{TeamEditor.renderTypeIcon(type)}</div>)}
-								<div><span class="itemicon" style={itemStyle}></span></div>
+								<div><PSIcon pokemon={species.id} /></div>
+								{species.types.map(type => <div><PSIcon type={type} /></div>)}
+								<div><PSIcon item={set.item || null} /></div>
 							</div>;
 						}
 						return [<div
@@ -1696,7 +1679,7 @@ class TeamTextbox extends preact.Component<{
 								Dex.getTeambuilderSprite(set, editor.dex)
 							}
 						>
-							<div>{species.types.map(type => TeamEditor.renderTypeIcon(type))}<span class="itemicon" style={itemStyle}></span></div>
+							<div>{species.types.map(type => <PSIcon type={type} />)}<PSIcon item={set.item || null} /></div>
 						</div>, <div style={`top:${prevOffset + statsDetailsOffset}px;right:9px;position:absolute`}>
 							{this.renderStats(set, i)}
 						</div>, <div style={`top:${prevOffset + statsDetailsOffset}px;right:145px;position:absolute`}>
@@ -1909,7 +1892,7 @@ class TeamWizard extends preact.Component<{
 						<button class={`button button-middle${cur('details')}`} onClick={this.setFocus} value={`details|${i}`}>
 							<span class="detailcell">
 								<strong class="label">Types</strong> {}
-								{species.types.map(type => <div>{TeamEditor.renderTypeIcon(type)}</div>)}
+								{species.types.map(type => <div><PSIcon type={type} /></div>)}
 							</span>
 							<span class="detailcell">
 								<strong class="label">Level</strong> {}
@@ -1929,11 +1912,11 @@ class TeamWizard extends preact.Component<{
 							</span>}
 							{editor.gen === 9 && <span class="detailcell">
 								<strong class="label">Tera</strong> {}
-								{TeamEditor.renderTypeIcon(set.teraType || species.requiredTeraType || species.types[0])}
+								<PSIcon type={set.teraType || species.requiredTeraType || species.types[0]} />
 							</span>}
 							{editor.hpTypeMatters(set) && <span class="detailcell">
 								<strong class="label">H.P.</strong> {}
-								{TeamEditor.renderTypeIcon(editor.getHPType(set))}
+								<PSIcon type={editor.getHPType(set)} />
 							</span>}
 						</button>
 					</div></td>
@@ -1966,7 +1949,7 @@ class TeamWizard extends preact.Component<{
 					<td class="set-item"><div class="border-collapse">
 						<button class={`button button-middle${cur('item')}`} onClick={this.setFocus} value={`item|${i}`}>
 							{(editor.gen >= 2 || set.item) && <>
-								{set.item && <span class="itemicon" style={'float:right;' + Dex.getItemIcon(set.item)}></span>}
+								{set.item && <PSIcon item={set.item} />}
 								<strong class="label">Item</strong> {}
 								{set.item || <em>(no item)</em>}
 							</>}
@@ -2258,7 +2241,7 @@ class TeamWizard extends preact.Component<{
 				{editor.sets.map((curSet, i) => <li><button
 					class={`button picontab${cur(i)}`} onClick={this.setFocus} value={`${type}|${i}`}
 				>
-					<span class="picon" style={Dex.getPokemonIcon(curSet)}></span><br />
+					<PSIcon pokemon={curSet} /><br />
 					{editor.getNickname(curSet)}
 				</button></li>)}
 				{editor.canAdd() && <li><button
@@ -3106,15 +3089,12 @@ class DetailsForm extends preact.Component<{
 							const forms = species.cosmeticFormes?.length ? [baseId, ...species.cosmeticFormes.map(toID)] : [baseId];
 							return forms.map(id => {
 								const sp = editor.dex.species.get(id);
-								const iconStyle = Dex.getPokemonIcon({ species: sp.name } as Dex.PokemonSet);
 								const isCur = toID(set.species) === id;
 								return <button
-									value={id}
-									class={`button piconbtn${isCur ? ' cur' : ''}`}
-									style={{ padding: '2px' }}
-									onClick={this.selectSprite}
+									value={id} class={`button piconbtn${isCur ? ' cur' : ''}`}
+									style={{ padding: '2px' }} onClick={this.selectSprite}
 								>
-									<span class="picon" style={iconStyle}></span>
+									<PSIcon pokemon={{ species: sp.name } as Dex.PokemonSet} />
 									<br />{sp.forme || sp.baseForme || sp.baseSpecies}
 								</button>;
 							});
