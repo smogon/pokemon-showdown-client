@@ -916,7 +916,7 @@ export class PSView extends preact.Component {
 
 export function PSIcon(
 	props: { pokemon: string | Pokemon | ServerPokemon | Dex.PokemonSet | null } |
-		{ item: string } | { type: string, b?: boolean } | { category: string }
+		{ item: string | null } | { type: string, b?: boolean } | { category: string }
 ) {
 	if ('pokemon' in props) {
 		return <span class="picon" style={Dex.getPokemonIcon(props.pokemon)} />;
@@ -930,7 +930,7 @@ export function PSIcon(
 		let sanitizedType = type.replace(/\?/g, '%3f');
 		return <img
 			src={`${Dex.resourcePrefix}sprites/types/${sanitizedType}.png`} alt={type}
-			height="14" width="32" class={`pixelated${props.b ? ' b' : ''}`}
+			height="14" width="32" class={`pixelated${props.b ? ' b' : ''}`} style="vertical-align:middle"
 		/>;
 	}
 	if ('category' in props) {
@@ -948,7 +948,7 @@ export function PSIcon(
 		}
 		return <img
 			src={`${Dex.resourcePrefix}sprites/categories/${sanitizedCategory}.png`} alt={sanitizedCategory}
-			height="14" width="32" class="pixelated"
+			height="14" width="32" class="pixelated" style="vertical-align:middle"
 		/>;
 	}
 	return null!;

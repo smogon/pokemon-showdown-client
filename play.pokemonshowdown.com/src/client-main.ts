@@ -159,7 +159,7 @@ class PSPrefs extends PSStreamModel<string | null> {
 	afd: boolean | 'sprites' = false;
 
 	highlights: Record<string, string[]> | null = null;
-	logtimes: Record<string, { [roomid: RoomID]: number }> | null = null;
+	logtimes: { [serverid: ID]: { [roomid: RoomID]: number } } | null = null;
 
 	// PREFS END HERE
 
