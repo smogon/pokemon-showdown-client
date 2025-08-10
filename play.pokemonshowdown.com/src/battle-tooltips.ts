@@ -834,6 +834,7 @@ export class BattleTooltips {
 		if (pokemon.speciesForme !== pokemon.name) {
 			name += ` <small>(${BattleLog.escapeHTML(pokemon.speciesForme)})</small>`;
 		}
+		if (this.battle.ignoreNicks) name = `${BattleLog.escapeHTML(pokemon.speciesForme)}`;
 
 		let levelBuf = (pokemon.level !== 100 ? ` <small>L${pokemon.level}</small>` : ``);
 		if (!illusionIndex || illusionIndex === 1) {
