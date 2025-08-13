@@ -2390,31 +2390,20 @@ export class Battle {
 		case '-ability': {
 			let poke = this.getPokemon(args[1])!;
 			let ability = Dex.abilities.get(args[2]);
+			let oldAbility = Dex.abilities.get(args[3]);
 			let effect = Dex.getEffect(kwArgs.from);
 			let ofpoke = this.getPokemon(kwArgs.of);
 			poke.rememberAbility(ability.name, effect.id && !kwArgs.fail);
 
 			if (kwArgs.silent) {
 				// do nothing
+			} else if (oldAbility.id) {
+				this.activateAbility(poke, oldAbility.name);
+				this.scene.wait(500);
+				this.activateAbility(poke, ability.name, true);
+				ofpoke!.rememberAbility(ability.name);
 			} else if (effect.id) {
 				switch (effect.id) {
-				case 'trace':
-					this.activateAbility(poke, "Trace");
-					this.scene.wait(500);
-					this.activateAbility(poke, ability.name, true);
-					ofpoke!.rememberAbility(ability.name);
-					break;
-				case 'powerofalchemy':
-				case 'receiver':
-					this.activateAbility(poke, effect.name);
-					this.scene.wait(500);
-					this.activateAbility(poke, ability.name, true);
-					ofpoke!.rememberAbility(ability.name);
-					break;
-				case 'roleplay':
-					this.activateAbility(poke, ability.name, true);
-					ofpoke!.rememberAbility(ability.name);
-					break;
 				case 'desolateland':
 				case 'primordialsea':
 				case 'deltastream':
