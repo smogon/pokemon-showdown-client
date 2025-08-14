@@ -169,7 +169,6 @@ class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
 
 		const iOver = PS.teams.list.indexOf(team);
 		if (typeof draggedTeam === 'number') {
-			if (iOver >= draggedTeam) (PS.dragging as any).team = iOver + 1;
 			(PS.dragging as any).team = iOver;
 			this.forceUpdate();
 			return;
@@ -178,12 +177,11 @@ class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
 		const iDragged = PS.teams.list.indexOf(draggedTeam);
 		if (iDragged < 0 || iOver < 0) return; // shouldn't happen
 
-		PS.teams.list.splice(iDragged, 1);
-		// by coincidence, splicing into iOver works in both directions
-		// before: Dragged goes before Over, splice at i
-		// after: Dragged goes after Over, splice at i - 1 + 1
-		PS.teams.list.splice(iOver, 0, draggedTeam);
-		this.forceUpdate();
+		if (iDragged !== iOver) {
+			PS.teams.list.splice(iDragged, 1);
+			PS.teams.list.splice(iOver, 0, draggedTeam);
+			this.forceUpdate();
+		}
 	};
 	dragEnterFolder = (ev: DragEvent) => {
 		const value = (ev.currentTarget as HTMLElement)?.getAttribute('data-value') || null;
@@ -206,13 +204,27 @@ class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
 		if (!file) return null;
 
 		let name = file.name;
-		if (name.slice(-4).toLowerCase() !== '.txt') {
-			// PS.alert(`Your file "${file.name}" is not a valid team. Team files are ".txt" files.`);
-			return null;
-		}
-		name = name.slice(0, -4);
+		if (name.slice(-4).toLowerCase() === '.txt') name = name.slice(0, -4);
 
-		return file.text?.()?.then(result => {
+		const readText = (): Promise<string> => {
+			const textFn = (file as any).text as (() => Promise<string>) | undefined;
+			if (typeof textFn === 'function') return textFn.call(file);
+			return new Promise<string>((resolve, reject) => {
+				const reader = new FileReader();
+				reader.onload = () => {
+					const res = reader.result;
+					resolve(typeof res === 'string' ? res : '');
+				};
+				reader.onerror = () => reject(reader.error || new Error('Failed to read file'));
+				try {
+					reader.readAsText(file);
+				} catch (err) {
+					reject(err instanceof Error ? err : new Error(String(err)));
+				}
+			});
+		};
+
+		return readText().then(result => {
 			let sets;
 			try {
 				sets = PSTeambuilder.importTeam(result);
@@ -286,6 +298,15 @@ class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
 		this.forceUpdate();
 	};
 	static handleDrop(ev: DragEvent) {
+		if (PS.dragging?.type === 'team') {
+			if (typeof PS.dragging.team !== 'number') {
+				PS.teams.save();
+			}
+			return true;
+		}
+		if (!ev.dataTransfer?.files?.length) return false;
+		const file = ev.dataTransfer.files[0];
+		if (!file) return false;
 		return !!this.addDraggedTeam(ev, (PS.rooms['teambuilder'] as TeambuilderRoom)?.curFolder);
 	}
 	updateSearch = (ev: KeyboardEvent) => {
@@ -509,7 +530,7 @@ class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
 					) : !filteredTeams.length ? (
 						<li><em>you have no teams matching <code>{room.searchTerms.join(", ")}</code></em></li>
 					) : filteredTeams.map(team => team ? (
-						<li key={team.key} onDragEnter={this.dragEnterTeam} data-teamkey={team.key}>
+						<li key={team.key} onDragEnter={this.dragEnterTeam} onDragOver={ev => ev.preventDefault()} data-teamkey={team.key}>
 							<TeamBox team={team} onClick={this.clearSearch} /> {}
 							{!team.uploaded && <button data-cmd={`/deleteteam ${team.key}`} class="option">
 								<i class="fa fa-trash" aria-hidden></i> Delete

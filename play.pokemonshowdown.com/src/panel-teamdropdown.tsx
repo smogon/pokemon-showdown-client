@@ -287,6 +287,15 @@ export class PSTeambuilder {
 		// 	$(e.currentTarget).parent().addClass('dragging');
 		// }, 0);
 	}
+	static dragEnd(_ev: DragEvent) {
+		if (PS.dragging?.type === 'team') {
+			if (typeof PS.dragging.team !== 'number') {
+				PS.teams.save();
+			}
+		}
+		PS.dragging = null;
+		PS.update();
+	}
 }
 
 export function TeamBox(props: {
@@ -332,7 +341,7 @@ export function TeamBox(props: {
 	}
 	return <a
 		href={`team-${team ? team.key : ''}`} class={className} draggable
-		onDragStart={PSTeambuilder.dragStart} onClick={props.onClick}
+		onDragStart={PSTeambuilder.dragStart} onDragEnd={PSTeambuilder.dragEnd} onClick={props.onClick}
 	>
 		{contents}
 	</a>;
