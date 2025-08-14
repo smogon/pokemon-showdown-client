@@ -616,7 +616,6 @@ export class PSView extends preact.Component {
 					return;
 				}
 			}
-			if (PS.dragging?.type === 'team') return;
 			PS.alert(
 				`Sorry, we don't know what to do with that file.\n\nSupported file types:\n` +
 				`- images (to set your background)\n- downloaded replay files\n- team files`
