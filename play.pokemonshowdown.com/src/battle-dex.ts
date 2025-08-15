@@ -863,8 +863,7 @@ export const Dex = new class implements ModdedDex {
 		if (dex.modid === 'gen7letsgo') gen = 8;
 		if (Dex.prefs('nopastgens')) gen = 9;
 		if (Dex.prefs('bwgfx') && gen > 5) gen = 5;
-		let homeExists = (!species.isNonstandard || !['CAP', 'Custom'].includes(species.isNonstandard) ||
-			species.id === "xerneasneutral") && ![
+		let homeExists = (!species.isNonstandard || !['CAP', 'Custom'].includes(species.isNonstandard)) && ![
 			"floetteeternal", "pichuspikyeared", "pikachubelle", "pikachucosplay", "pikachulibre", "pikachuphd", "pikachupopstar", "pikachurockstar",
 		].includes(species.id);
 		if (gen >= 8 && homeExists) {
