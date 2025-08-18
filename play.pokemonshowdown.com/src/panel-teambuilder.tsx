@@ -7,10 +7,46 @@
 
 import { PS, PSRoom, type RoomID, type Team } from "./client-main";
 import { PSPanelWrapper, PSRoomPanel } from "./panels";
-import { PSTeambuilder, TeamBox } from "./panel-teamdropdown";
+import { TeamBox } from "./panel-teamdropdown";
 import { Dex, PSUtils, toID, type ID } from "./battle-dex";
 import { Teams } from "./battle-teams";
 import { BattleLog } from "./battle-log";
+import preact from "../js/lib/preact";
+
+class PSTextarea extends preact.Component<{ initialValue?: string, name?: string }> {
+	updateSize = () => {
+		const textbox = this.base!.querySelector('textarea')!;
+		const textboxTest = this.base!.querySelector<HTMLTextAreaElement>('textarea.heighttester')!;
+		textboxTest.style.width = `${textbox.offsetWidth}px`;
+		textboxTest.value = textbox.value;
+		textbox.setAttribute('data-changed', textbox.value === this.props.initialValue ? '' : '1');
+		const newHeight = Math.max(textboxTest.scrollHeight + 40, 50);
+		textbox.style.height = `${newHeight}px`;
+	};
+	override componentDidMount(): void {
+		const textbox = this.base!.querySelector('textarea')!;
+		if (this.props.initialValue) {
+			textbox.value = this.props.initialValue;
+		}
+		this.updateSize();
+		window.addEventListener('resize', this.updateSize);
+	}
+	override componentWillUnmount(): void {
+		window.removeEventListener('resize', this.updateSize);
+	}
+	override render() {
+		return <div style="position:relative">
+			<textarea
+				name={this.props.name} class="textbox" onInput={this.updateSize} onKeyUp={this.updateSize}
+				style="box-sizing:border-box;width:100%;resize:none"
+			/>
+			<div><textarea
+				class="textbox heighttester"
+				style="box-sizing:border-box;resize:none;height:50px;visibility:hidden;position:absolute;left:-200px"
+			/></div>
+		</div>;
+	}
+}
 
 class TeambuilderRoom extends PSRoom {
 	readonly DEFAULT_FORMAT = Dex.modid;
@@ -25,6 +61,8 @@ class TeambuilderRoom extends PSRoom {
 	curFolder = '';
 	curFolderKeep = '';
 	searchTerms: string[] = [];
+	exportMode = false;
+	exportCode: string | null = null;
 
 	override clientCommands = this.parseClientCommands({
 		'newteam'(target) {
@@ -45,11 +83,20 @@ class TeambuilderRoom extends PSRoom {
 			PS.teams.undelete();
 			this.update(null);
 		},
+		'backup'() {
+			this.setExportMode(!this.exportMode);
+			this.update(null);
+		},
 	});
 	override sendDirect(msg: string): void {
 		PS.alert(`Unrecognized command: ${msg}`);
 	}
 
+	setExportMode(exportMode: boolean) {
+		if (exportMode === this.exportMode) return;
+		this.exportMode = exportMode;
+		this.exportCode = null;
+	}
 	createTeam(copyFrom?: Team | null, isBox = false): Team {
 		if (copyFrom) {
 			return {
@@ -82,8 +129,7 @@ class TeambuilderRoom extends PSRoom {
 			this.searchTerms = value.split(",").map(q => q.trim().toLowerCase());
 		}
 	};
-	matchesSearch = (team: Team | null) => {
-		if (!team) return false;
+	matchesSearch = (team: Team) => {
 		if (this.searchTerms.length === 0) return true;
 		const normalized = team.packedTeam.toLowerCase();
 		return this.searchTerms.every(term => normalized.includes(term));
@@ -215,7 +261,7 @@ class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
 		return file.text?.()?.then(result => {
 			let sets;
 			try {
-				sets = PSTeambuilder.importTeam(result);
+				sets = Teams.import(result);
 			} catch {
 				PS.alert(`Your file "${file.name}" is not a valid team.`);
 				return null;
@@ -349,6 +395,9 @@ class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
 			<button class={`selectFolder${active}`} data-value={value}>{children}</button>
 		</div>;
 	}
+	saveExport = (e: MouseEvent) => {
+		alert("Unimplemented");
+	};
 	renderFolderList() {
 		const room = this.props.room;
 		// The folder list isn't actually saved anywhere:
@@ -438,11 +487,30 @@ class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
 			<div class="folderlistafter"></div>
 		</div>;
 	}
+	visibleTeams(teams?: Team[]): Team[];
+	visibleTeams(teams: (Team | null)[]): (Team | null)[];
+	visibleTeams(teams: (Team | null)[] = PS.teams.list): (Team | null)[] {
+		const { room } = this.props;
 
-	override render() {
+		if (room.curFolder) {
+			if (room.curFolder.endsWith('/')) {
+				const filterFolder = room.curFolder.slice(0, -1);
+				teams = teams.filter(team => !team || team.folder === filterFolder);
+			} else {
+				const filterFormat = room.curFolder;
+				teams = teams.filter(team => !team || team.format === filterFormat);
+			}
+		}
+		if (!room.searchTerms.length) return teams;
+
+		const filteredTeams = teams.filter(team => !team || room.matchesSearch(team));
+		return filteredTeams;
+	}
+
+	renderTeamPane() {
 		const room = this.props.room;
-		let teams: (Team | null)[] = PS.teams.list.slice();
 
+		let teams: (Team | null)[] = PS.teams.list.slice();
 		let isDragging = false;
 		if (PS.dragging?.type === 'team' && typeof PS.dragging.team === 'number') {
 			teams.splice(PS.dragging.team, 0, null);
@@ -458,93 +526,118 @@ class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
 		if (room.curFolder) {
 			if (room.curFolder.endsWith('/')) {
 				filterFolder = room.curFolder.slice(0, -1);
-				teams = teams.filter(team => !team || team.folder === filterFolder);
 				teamTerm = 'team in folder';
 			} else {
 				filterFormat = room.curFolder;
-				teams = teams.filter(team => !team || team.format === filterFormat);
 				if (filterFormat !== Dex.modid) teamTerm = BattleLog.formatName(filterFormat) + ' team';
 			}
 		}
 
-		const filteredTeams = teams.filter(room.matchesSearch);
+		const filteredTeams = this.visibleTeams(teams);
+
+		if (room.exportMode) {
+			return <div class="teampane">
+				<p>
+					<button data-cmd="/backup" class="button">
+						<i class="fa fa-caret-left" aria-hidden></i> Back
+					</button> {}
+					<button onClick={this.saveExport} class="button" disabled>
+						<i class="fa fa-save" aria-hidden></i> Save (unimplemented)
+					</button>
+				</p>
+				<PSTextarea
+					name="import" initialValue={(room.exportCode ??= PS.teams.packAll(filteredTeams.filter(Boolean) as Team[]))}
+				/>
+			</div>;
+		}
+
+		return <div class="teampane">
+			{filterFolder ? (
+				<h2>
+					<i class="fa fa-folder-open" aria-hidden></i> {filterFolder} {}
+					<button class="button small" style="margin-left:5px" name="renameFolder">
+						<i class="fa fa-pencil" aria-hidden></i> Rename
+					</button> {}
+					<button class="button small" style="margin-left:5px" name="promptDeleteFolder">
+						<i class="fa fa-times" aria-hidden></i> Remove
+					</button>
+				</h2>
+			) : filterFolder === '' ? (
+				<h2><i class="fa fa-folder-open-o" aria-hidden></i> Teams not in any folders</h2>
+			) : filterFormat ? (
+				<h2><i class="fa fa-folder-open-o" aria-hidden></i> {filterFormat} <small>({teams.length})</small></h2>
+			) : (
+				<h2>All Teams <small>({teams.length})</small></h2>
+			)}
+			<p>
+				<button data-cmd="/newteam" class="button big">
+					<i class="fa fa-plus-circle" aria-hidden></i> New {teamTerm}
+				</button> {}
+				<button data-cmd="/newteam box" class="button">
+					<i class="fa fa-archive" aria-hidden></i> New box
+				</button>
+				<input
+					type="search" class="textbox" placeholder="Search teams"
+					style="margin-left:5px;" onKeyUp={this.updateSearch}
+				></input>
+			</p>
+			<ul class="teamlist">
+				{!teams.length ? (
+					<li><em>you have no teams lol</em></li>
+				) : !filteredTeams.length ? (
+					<li><em>you have no teams matching <code>{room.searchTerms.join(", ")}</code></em></li>
+				) : filteredTeams.map(team => team ? (
+					<li key={team.key} onDragEnter={this.dragEnterTeam} data-teamkey={team.key}>
+						<TeamBox team={team} onClick={this.clearSearch} /> {}
+						{!team.uploaded && <button data-cmd={`/deleteteam ${team.key}`} class="option">
+							<i class="fa fa-trash" aria-hidden></i> Delete
+						</button>} {}
+						{team.uploaded?.private ? (
+							<i class="fa fa-cloud gray"></i>
+						) : team.uploaded ? (
+							<i class="fa fa-globe gray"></i>
+						) : team.teamid ? (
+							<i class="fa fa-plug gray"></i>
+						) : (
+							null
+						)}
+					</li>
+				) : isDragging ? (
+					<li key="dragging">
+						<div class="team"></div>
+					</li>
+				) : (
+					<li key="undelete">
+						<button data-cmd="/undeleteteam" class="option">
+							<i class="fa fa-undo" aria-hidden></i> Undo delete
+						</button>
+					</li>
+				))}
+			</ul>
+			<p>
+				<button data-cmd="/newteam bottom" class="button">
+					<i class="fa fa-plus-circle" aria-hidden></i> New {teamTerm}
+				</button> {}
+				<button data-cmd="/newteam box bottom" class="button">
+					<i class="fa fa-archive" aria-hidden></i> New box
+				</button>
+			</p>
+			<p>
+				<button data-cmd="/backup" class="button">
+					<i class="fa fa-file-code-o" aria-hidden></i> Backup
+					{room.searchTerms.length ? ' search results' : room.curFolder ? ' folder' : ''}
+				</button>
+			</p>
+		</div>;
+	}
+	override render() {
+		const room = this.props.room;
 
 		return <PSPanelWrapper room={room}>
 			<div class="folderpane">
 				{this.renderFolderList()}
 			</div>
-			<div class="teampane">
-				{filterFolder ? (
-					<h2>
-						<i class="fa fa-folder-open" aria-hidden></i> {filterFolder} {}
-						<button class="button small" style="margin-left:5px" name="renameFolder">
-							<i class="fa fa-pencil" aria-hidden></i> Rename
-						</button> {}
-						<button class="button small" style="margin-left:5px" name="promptDeleteFolder">
-							<i class="fa fa-times" aria-hidden></i> Remove
-						</button>
-					</h2>
-				) : filterFolder === '' ? (
-					<h2><i class="fa fa-folder-open-o" aria-hidden></i> Teams not in any folders</h2>
-				) : filterFormat ? (
-					<h2><i class="fa fa-folder-open-o" aria-hidden></i> {filterFormat} <small>({teams.length})</small></h2>
-				) : (
-					<h2>All Teams <small>({teams.length})</small></h2>
-				)}
-				<p>
-					<button data-cmd="/newteam" class="button big">
-						<i class="fa fa-plus-circle" aria-hidden></i> New {teamTerm}
-					</button> {}
-					<button data-cmd="/newteam box" class="button">
-						<i class="fa fa-archive" aria-hidden></i> New box
-					</button>
-					<input
-						type="search" class="textbox" placeholder="Search teams"
-						style="margin-left:5px;" onKeyUp={this.updateSearch}
-					></input>
-				</p>
-				<ul class="teamlist">
-					{!teams.length ? (
-						<li><em>you have no teams lol</em></li>
-					) : !filteredTeams.length ? (
-						<li><em>you have no teams matching <code>{room.searchTerms.join(", ")}</code></em></li>
-					) : filteredTeams.map(team => team ? (
-						<li key={team.key} onDragEnter={this.dragEnterTeam} data-teamkey={team.key}>
-							<TeamBox team={team} onClick={this.clearSearch} /> {}
-							{!team.uploaded && <button data-cmd={`/deleteteam ${team.key}`} class="option">
-								<i class="fa fa-trash" aria-hidden></i> Delete
-							</button>} {}
-							{team.uploaded?.private ? (
-								<i class="fa fa-cloud gray"></i>
-							) : team.uploaded ? (
-								<i class="fa fa-globe gray"></i>
-							) : team.teamid ? (
-								<i class="fa fa-plug gray"></i>
-							) : (
-								null
-							)}
-						</li>
-					) : isDragging ? (
-						<li key="dragging">
-							<div class="team"></div>
-						</li>
-					) : (
-						<li key="undelete">
-							<button data-cmd="/undeleteteam" class="option">
-								<i class="fa fa-undo" aria-hidden></i> Undo delete
-							</button>
-						</li>
-					))}
-				</ul>
-				<p>
-					<button data-cmd="/newteam bottom" class="button">
-						<i class="fa fa-plus-circle" aria-hidden></i> New {teamTerm}
-					</button> {}
-					<button data-cmd="/newteam box bottom" class="button">
-						<i class="fa fa-archive" aria-hidden></i> New box
-					</button>
-				</p>
-			</div>
+			{this.renderTeamPane()}
 		</PSPanelWrapper>;
 	}
 }
