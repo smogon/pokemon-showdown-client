@@ -8,7 +8,6 @@
 import { PS, type Team } from "./client-main";
 import { PSIcon, PSPanelWrapper, PSRoomPanel } from "./panels";
 import { Dex, toID, type ID } from "./battle-dex";
-import { BattleNatures, BattleStatIDs, type StatNameExceptHP } from "./battle-dex-data";
 import { Teams } from "./battle-teams";
 
 export class PSTeambuilder {
@@ -26,166 +25,6 @@ export class PSTeambuilder {
 		const delimIndex = buffer.lastIndexOf(delimiter);
 		if (delimIndex < 0) return [buffer, ''];
 		return [buffer.slice(0, delimIndex), buffer.slice(delimIndex + delimiter.length)];
-	}
-	static parseExportedTeamLine(line: string, isFirstLine: boolean, set: Dex.PokemonSet) {
-		if (isFirstLine || line.startsWith('[')) {
-			let item;
-			[line, item] = line.split('@');
-			line = line.trim();
-			item = item?.trim();
-			if (item) {
-				set.item = item;
-				if (toID(set.item) === 'noitem') set.item = '';
-			}
-			if (line.endsWith(' (M)')) {
-				set.gender = 'M';
-				line = line.slice(0, -4);
-			}
-			if (line.endsWith(' (F)')) {
-				set.gender = 'F';
-				line = line.slice(0, -4);
-			}
-			if (line.startsWith('[') && line.endsWith(']')) {
-				// the ending `]` is necessary to establish this as ability
-				// (rather than nickname starting with `[`)
-				set.ability = line.slice(1, -1);
-				if (toID(set.ability) === 'selectability') {
-					set.ability = '';
-				}
-			} else if (line) {
-				const parenIndex = line.lastIndexOf(' (');
-				if (line.endsWith(')') && parenIndex !== -1) {
-					set.species = Dex.species.get(line.slice(parenIndex + 2, -1)).name;
-					set.name = line.slice(0, parenIndex);
-				} else {
-					set.species = Dex.species.get(line).name;
-					set.name = '';
-				}
-			}
-		} else if (line.startsWith('Trait: ')) {
-			set.ability = line.slice(7);
-		} else if (line.startsWith('Ability: ')) {
-			set.ability = line.slice(9);
-		} else if (line.startsWith('Item: ')) {
-			set.item = line.slice(6);
-		} else if (line.startsWith('Nickname: ')) {
-			set.name = line.slice(10);
-		} else if (line.startsWith('Species: ')) {
-			set.species = line.slice(9);
-		} else if (line === 'Shiny: Yes' || line === 'Shiny') {
-			set.shiny = true;
-		} else if (line.startsWith('Level: ')) {
-			set.level = +line.slice(7);
-		} else if (line.startsWith('Happiness: ')) {
-			set.happiness = +line.slice(11);
-		} else if (line.startsWith('Pokeball: ')) {
-			set.pokeball = line.slice(10);
-		} else if (line.startsWith('Hidden Power: ')) {
-			set.hpType = line.slice(14);
-		} else if (line.startsWith('Dynamax Level: ')) {
-			set.dynamaxLevel = +line.slice(15);
-		} else if (line === 'Gigantamax: Yes' || line === 'Gigantamax') {
-			set.gigantamax = true;
-		} else if (line.startsWith('Tera Type: ')) {
-			set.teraType = line.slice(11);
-		} else if (line.startsWith('EVs: ')) {
-			const evLines = line.slice(5).split('(')[0].split('/');
-			set.evs = { hp: 0, atk: 0, def: 0, spa: 0, spd: 0, spe: 0 };
-			let plus = '', minus = '';
-			for (let evLine of evLines) {
-				evLine = evLine.trim();
-				const spaceIndex = evLine.indexOf(' ');
-				if (spaceIndex === -1) continue;
-				const statid = BattleStatIDs[evLine.slice(spaceIndex + 1)];
-				if (!statid) continue;
-				if (evLine.charAt(spaceIndex - 1) === '+') plus = statid;
-				if (evLine.charAt(spaceIndex - 1) === '-') minus = statid;
-				set.evs[statid] = parseInt(evLine.slice(0, spaceIndex), 10) || 0;
-			}
-			const nature = this.getNature(plus as StatNameExceptHP, minus as StatNameExceptHP);
-			if (nature !== 'Serious') {
-				set.nature = nature as Dex.NatureName;
-			}
-		} else if (line.startsWith('IVs: ')) {
-			const ivLines = line.slice(5).split(' / ');
-			set.ivs = { hp: 31, atk: 31, def: 31, spa: 31, spd: 31, spe: 31 };
-			for (let ivLine of ivLines) {
-				ivLine = ivLine.trim();
-				const spaceIndex = ivLine.indexOf(' ');
-				if (spaceIndex === -1) continue;
-				const statid = BattleStatIDs[ivLine.slice(spaceIndex + 1)];
-				if (!statid) continue;
-				let statval = parseInt(ivLine.slice(0, spaceIndex), 10);
-				if (isNaN(statval)) statval = 31;
-				set.ivs[statid] = statval;
-			}
-		} else if (/^[A-Za-z]+ (N|n)ature/.exec(line)) {
-			let natureIndex = line.indexOf(' Nature');
-			if (natureIndex === -1) natureIndex = line.indexOf(' nature');
-			if (natureIndex === -1) return;
-			line = line.slice(0, natureIndex);
-			if (line !== 'undefined') set.nature = line as Dex.NatureName;
-		} else if (line.startsWith('-') || line.startsWith('~') || line.startsWith('Move:')) {
-			if (line.startsWith('Move:')) line = line.slice(4);
-			line = line.slice(line.charAt(1) === ' ' ? 2 : 1);
-			if (line.startsWith('Hidden Power [')) {
-				let hpType = line.slice(14, line.indexOf(']')) as Dex.TypeName;
-				if (hpType.includes(']') || hpType.includes('[')) hpType = '' as any;
-				line = 'Hidden Power ' + hpType;
-				set.hpType = hpType;
-			}
-			if (line === 'Frustration' && set.happiness === undefined) {
-				set.happiness = 0;
-			}
-			set.moves.push(line);
-		}
-	}
-	static getNature(plus: StatNameExceptHP | '', minus: StatNameExceptHP | '') {
-		if (!plus || !minus) {
-			return 'Serious';
-		}
-		for (const i in BattleNatures) {
-			if (BattleNatures[i as 'Serious'].plus === plus && BattleNatures[i as 'Serious'].minus === minus) {
-				return i;
-			}
-		}
-		return 'Serious';
-	}
-	static importTeam(buffer: string): Dex.PokemonSet[] {
-		const lines = buffer.split("\n");
-
-		const sets: Dex.PokemonSet[] = [];
-		let curSet: Dex.PokemonSet | null = null;
-
-		while (lines.length && !lines[0]) lines.shift();
-		while (lines.length && !lines[lines.length - 1]) lines.pop();
-
-		if (lines.length === 1 && lines[0].includes('|')) {
-			return Teams.unpack(lines[0]);
-		}
-		for (let line of lines) {
-			line = line.trim();
-			if (line === '' || line === '---') {
-				curSet = null;
-			} else if (line.startsWith('===')) {
-				// team backup format; ignore
-			} else if (line.includes('|')) {
-				// packed format
-				const team = PS.teams.unpackLine(line);
-				if (!team) continue;
-				return Teams.unpack(team.packedTeam);
-			} else if (!curSet) {
-				curSet = {
-					name: '', species: '', gender: '',
-					moves: [],
-				};
-				sets.push(curSet);
-				this.parseExportedTeamLine(line, true, curSet);
-			} else {
-				this.parseExportedTeamLine(line, false, curSet);
-			}
-		}
-		return sets;
 	}
 	static importTeamBackup(buffer: string): Team[] {
 		const teams: Team[] = [];
@@ -244,9 +83,9 @@ export class PSTeambuilder {
 					moves: [],
 				};
 				sets.push(curSet);
-				this.parseExportedTeamLine(line, true, curSet);
+				Teams.parseExportedTeamLine(line, true, curSet);
 			} else {
-				this.parseExportedTeamLine(line, false, curSet);
+				Teams.parseExportedTeamLine(line, false, curSet);
 			}
 		}
 		if (curTeam) {

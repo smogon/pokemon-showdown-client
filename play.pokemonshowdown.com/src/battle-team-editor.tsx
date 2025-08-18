@@ -8,7 +8,6 @@
 
 import preact from "../js/lib/preact";
 import { type Team, Config } from "./client-main";
-import { PSTeambuilder } from "./panel-teamdropdown";
 import { Dex, type ModdedDex, toID, type ID, PSUtils } from "./battle-dex";
 import { Teams } from './battle-teams';
 import { DexSearch, type SearchRow, type SearchType } from "./battle-dex-search";
@@ -603,7 +602,7 @@ class TeamEditorState extends PSModel {
 		return Teams.export(this.sets, this.dex, !compat);
 	}
 	import(value: string) {
-		this.sets = PSTeambuilder.importTeam(value);
+		this.sets = Teams.import(value);
 		this.save();
 	}
 	getTypeWeakness(type: Dex.TypeName, attackType: Dex.TypeName): 0 | 0.5 | 1 | 2 {
@@ -2681,16 +2680,7 @@ class StatForm extends preact.Component<{
 	};
 	updateNatureFromPlusMinus = () => {
 		const { set } = this.props;
-		if (!this.plus || !this.minus) {
-			delete set.nature;
-		} else {
-			for (const i in BattleNatures) {
-				if (BattleNatures[i as Dex.NatureName].plus === this.plus && BattleNatures[i as Dex.NatureName].minus === this.minus) {
-					set.nature = i as Dex.NatureName;
-					break;
-				}
-			}
-		}
+		set.nature = Teams.getNatureFromPlusMinus(this.plus, this.minus) || undefined;
 	};
 	/** Converts DV/IV in a textbox to the value in set. */
 	dvToIv(dvOrIvString?: string): number | null {
