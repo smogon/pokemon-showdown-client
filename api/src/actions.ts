@@ -744,14 +744,18 @@ export const actions: { [k: string]: QueryHandler } = {
 				await tables.oauthTokens.delete(existing.id);
 				return { success: false };
 			} else {
-				return { success: existing.id };
+				return { success: existing.id, user: this.user.id };
 			}
 		}
 		const id = crypto.randomBytes(16).toString('hex');
 		await tables.oauthTokens.insert({
 			id, owner: this.user.id, client: clientInfo.id, time: Date.now(),
 		});
-		return { success: id, expires: Date.now() + OAUTH_TOKEN_TIME };
+		return {
+			success: id,
+			expires: Date.now() + OAUTH_TOKEN_TIME,
+			user: this.user.id,
+		};
 	},
 
 	async 'oauth/api/refreshtoken'(params) {

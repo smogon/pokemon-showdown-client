@@ -87,7 +87,7 @@
 					});
 				}
 				var redirect = new URL(params.get('redirect_uri'));
-				redirect.search = new URLSearchParams({assertion: data.data, token: token});
+				redirect.search = new URLSearchParams({assertion: data.data, token: token, user: data.user});
 				location.replace(redirect);
 			}));
 		}

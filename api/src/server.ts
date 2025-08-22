@@ -213,7 +213,7 @@ export class ActionContext {
 		// account for shit like ::ffff:127.0.0.1
 		const num = IPTools.ipToNumber(ip) || 0;
 		return (
-			ip === '::ffff:127.0.0.1' ||
+			ip === '::ffff:127.0.0.1' || ip === '127.0.0.1' ||
 			Config.trustedproxies.some(f => IPTools.checkPattern(f, ip)) ||
 			IPTools.privateRelayIPs.some(f => f.minIP <= num && num <= f.maxIP)
 		);
