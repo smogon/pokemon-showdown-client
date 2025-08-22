@@ -115,7 +115,8 @@ export function checkSuspectVerified(
 	const userData: Partial<{ elo: number, gxe: number, coil: number }> = {};
 	const reqKeys = ['elo', 'coil', 'gxe'] as const;
 	for (const k of reqKeys) {
-		if (!suspect[k]) continue;
+		const val = suspect[k];
+		if (!val) continue;
 		reqCount++;
 		switch (k) {
 		case 'coil':
@@ -127,7 +128,7 @@ export function checkSuspectVerified(
 			userData.coil = coilNum;
 			break;
 		case 'elo': case 'gxe':
-			if (suspect[k] && rating[k] >= suspect[k]!) {
+			if (rating[k] >= val) {
 				reqsMet++;
 			}
 			userData[k] = rating[k];

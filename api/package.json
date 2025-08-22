@@ -8,10 +8,10 @@
     "lint": "eslint --cache --max-warnings 0",
     "build": "npx tsc",
     "run": "npx tsc && node .dist/src/",
-    "start": "npx tsc && npx pm2 start config/pm2.js",
+    "start": "npx tsc && npx pm2 start loginserver",
     "test": "npm run lint && npx tsc",
-    "reload": "npx tsc && npx pm2 reload config/pm2.js",
-    "stop": "npx pm2 stop config/pm2.js"
+    "reload": "npx tsc && npx pm2 reload loginserver",
+    "stop": "npx pm2 stop loginserver"
   },
   "dependencies": {
     "bcrypt": "^5.0.1",
