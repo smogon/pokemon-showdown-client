@@ -2401,7 +2401,7 @@ export class Battle {
 				this.activateAbility(poke, oldAbility.name);
 				this.scene.wait(500);
 				this.activateAbility(poke, ability.name, true);
-				ofpoke!.rememberAbility(ability.name);
+				ofpoke?.rememberAbility(ability.name);
 			} else if (effect.id) {
 				switch (effect.id) {
 				case 'desolateland':
