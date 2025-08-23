@@ -386,7 +386,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 						!['Floette-Eternal', 'Greninja-Ash'].includes(species.name)) {
 						return 'Illegal';
 					}
-					if ((species.name === 'Xerneas-Active' || species.battleOnly || species.forme === 'Eternamax') &&
+					if ((spspecies.battleOnly || species.forme === 'Eternamax') &&
 						!(species.isMega || species.isPrimal || ['Greninja-Ash', 'Necrozma-Ultra'].includes(species.name))) {
 						return 'Illegal';
 					}
@@ -409,9 +409,9 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			overrideTier[species.id] = speciesTier;
 			if (species.forme) {
 				if (
-					[
+					species.name === 'Xerneas' || [
 						'Aegislash', 'Castform', 'Cherrim', 'Cramorant', 'Eiscue', 'Meloetta', 'Mimikyu', 'Minior', 'Morpeko', 'Ramnarok', 'Wishiwashi',
-					].includes(species.baseSpecies) || species.name === 'Xerneas' || species.forme.includes('Totem') || species.forme.includes('Zen') ||
+					].includes(species.baseSpecies) || species.forme.includes('Totem') || species.forme.includes('Zen') ||
 					(species.baseSpecies === 'Ogerpon' && species.forme.includes('Tera'))
 				) {
 					continue;
