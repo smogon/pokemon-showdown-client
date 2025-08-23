@@ -383,10 +383,10 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 				}
 				if (isGen9BH) {
 					if ((species.natDexTier === 'Illegal' || species.forme.includes('Totem')) &&
-						!['Floette-Eternal', 'Greninja-Ash', 'Xerneas-Neutral'].includes(species.name)) {
+						!['Floette-Eternal', 'Greninja-Ash'].includes(species.name)) {
 						return 'Illegal';
 					}
-					if ((species.name === 'Xerneas' || species.battleOnly || species.forme === 'Eternamax') &&
+					if ((species.name === 'Xerneas-Active' || species.battleOnly || species.forme === 'Eternamax') &&
 						!(species.isMega || species.isPrimal || ['Greninja-Ash', 'Necrozma-Ultra'].includes(species.name))) {
 						return 'Illegal';
 					}
@@ -410,8 +410,8 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			if (species.forme) {
 				if (
 					[
-						'Aegislash', 'Castform', 'Cherrim', 'Cramorant', 'Eiscue', 'Meloetta', 'Mimikyu', 'Minior', 'Morpeko', 'Ramnarok', 'Wishiwashi', 'Xerneas',
-					].includes(species.baseSpecies) || species.forme.includes('Totem') || species.forme.includes('Zen') ||
+						'Aegislash', 'Castform', 'Cherrim', 'Cramorant', 'Eiscue', 'Meloetta', 'Mimikyu', 'Minior', 'Morpeko', 'Ramnarok', 'Wishiwashi',
+					].includes(species.baseSpecies) || species.name === 'Xerneas' || species.forme.includes('Totem') || species.forme.includes('Zen') ||
 					(species.baseSpecies === 'Ogerpon' && species.forme.includes('Tera'))
 				) {
 					continue;
