@@ -386,7 +386,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 						!['Floette-Eternal', 'Greninja-Ash'].includes(species.name)) {
 						return 'Illegal';
 					}
-					if ((spspecies.battleOnly || species.forme === 'Eternamax') &&
+					if ((species.battleOnly || species.forme === 'Eternamax') &&
 						!(species.isMega || species.isPrimal || ['Greninja-Ash', 'Necrozma-Ultra'].includes(species.name))) {
 						return 'Illegal';
 					}
