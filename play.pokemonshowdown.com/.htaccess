@@ -53,6 +53,7 @@ RewriteRule ^devdiscord\/?$ https://discord.com/invite/D8QwhsH [R=302,L]
 RewriteRule ^smogcord\/?$ https://discord.gg/smogon [R=302,L]
 RewriteRule ^smogdex\/?$ https://smogon.com/dex/ [R=302,L]
 RewriteRule ^forums?\/?$ https://smogon.com/forums/ [R=302,L]
+RewriteRule ^replays?\/?$ https://replay.pokemonshowdown.com/ [R=302,L]
 RewriteRule ^trustworthy\-dlc\-link\/?$ https://www.youtube.com/watch?v=dQw4w9WgXcQ [R=302,L]
 
 # teams shortlinks
@@ -90,8 +91,6 @@ RewriteRule ^sprites\/gen4dp-2-back(.*)?$ sprites/gen4-back$1 [L,QSA]
 # FRLG only added new sprites for Kanto Pokemon
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteRule ^sprites\/gen3frlg(.*)?$ sprites/gen3$1 [L,QSA]
-
-RewriteRule ^replays?\/?$ https://replay.pokemonshowdown.com/ [R=302,L]
 
 RewriteCond %{HTTP_HOST} ^www\.play\.pokemonshowdown\.com$ [NC]
 RewriteRule ^(.*) https://play.pokemonshowdown.com/$1 [R=301,L]
