@@ -33,7 +33,7 @@ import IPTools from './ip-tools';
  * Adding `]` to the beginning makes sure that the output is a syntax
  * error in JS, so treating it as a JS file will simply crash and fail.
  */
-const DISPATCH_PREFIX = ']';
+export const DISPATCH_PREFIX = ']';
 
 /**
  * Throw this to end a request with an `actionerror` message.

@@ -11,7 +11,7 @@ import * as url from 'url';
 import { Config } from './config-loader';
 import { Ladder, type LadderEntry } from './ladder';
 import { Replays } from './replays';
-import { ActionError, type QueryHandler, Server } from './server';
+import { ActionError, type QueryHandler, Server, DISPATCH_PREFIX} from './server';
 import { Session } from './user';
 import {
 	toID, updateserver, bash, time, escapeHTML, signAsync, TimeSorter,
@@ -1037,6 +1037,12 @@ export const actions: { [k: string]: QueryHandler } = {
 	'replays/recent'() {
 		this.allowCORS();
 		return Replays.recent();
+	},
+	'replays/check-login'(params) {
+		return (
+			DISPATCH_PREFIX + `${this.user.id},` +
+			`${Config.sysops.includes(this.user.id) ? 1 : ''}`
+		);
 	},
 	async 'replays/search'(params) {
 		this.allowCORS();
