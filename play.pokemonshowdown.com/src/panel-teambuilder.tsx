@@ -7,7 +7,7 @@
 
 import { PS, PSRoom, type RoomID, type Team } from "./client-main";
 import { PSPanelWrapper, PSRoomPanel } from "./panels";
-import { TeamBox } from "./panel-teamdropdown";
+import { PSTeambuilder, TeamBox } from "./panel-teamdropdown";
 import { Dex, PSUtils, toID, type ID } from "./battle-dex";
 import { Teams } from "./battle-teams";
 import { BattleLog } from "./battle-log";
@@ -61,7 +61,7 @@ class TeambuilderRoom extends PSRoom {
 	curFolder = '';
 	curFolderKeep = '';
 	searchTerms: string[] = [];
-	exportMode = false;
+	exportMode: boolean | 'partial' = false;
 	exportCode: string | null = null;
 
 	override clientCommands = this.parseClientCommands({
@@ -93,8 +93,11 @@ class TeambuilderRoom extends PSRoom {
 	}
 
 	setExportMode(exportMode: boolean) {
-		if (exportMode === this.exportMode) return;
-		this.exportMode = exportMode;
+		const partial = this.searchTerms.length || this.curFolder ? 'partial' : true;
+		const newExportMode = exportMode ? partial : false;
+
+		if (newExportMode === this.exportMode) return;
+		this.exportMode = newExportMode;
 		this.exportCode = null;
 	}
 	createTeam(copyFrom?: Team | null, isBox = false): Team {
@@ -396,7 +399,22 @@ class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
 		</div>;
 	}
 	saveExport = (e: MouseEvent) => {
-		alert("Unimplemented");
+		const value = this.base!.querySelector<HTMLTextAreaElement>('textarea[name="import"]')?.value;
+		if (!value) return alert('Textarea not found');
+		if (this.props.room.exportMode !== true) return alert('Wrong export mode');
+
+		const teams = PSTeambuilder.importTeamBackup(value);
+		// const visibleTeams = this.visibleTeams();
+		// alert(`${teams.length} teams imported, ${visibleTeams.length} teams visible now`);
+		PS.teams.list = [];
+		PS.teams.byKey = {};
+		for (const team of teams) PS.teams.push(team);
+		// TODO: say what changed
+
+		const room = this.props.room;
+		room.exportMode = false;
+		PS.teams.update('team');
+		room.update(null);
 	};
 	renderFolderList() {
 		const room = this.props.room;
@@ -541,9 +559,12 @@ class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
 					<button data-cmd="/backup" class="button">
 						<i class="fa fa-caret-left" aria-hidden></i> Back
 					</button> {}
-					<button onClick={this.saveExport} class="button" disabled>
-						<i class="fa fa-save" aria-hidden></i> Save (unimplemented)
-					</button>
+					{room.exportMode !== true && <button class="button" disabled>
+						<i class="fa fa-save" aria-hidden></i> Save (not allowed for partial exports)
+					</button>}
+					{room.exportMode === true && <button onClick={this.saveExport} class="button">
+						<i class="fa fa-save" aria-hidden></i> Save changes
+					</button>}
 				</p>
 				<PSTextarea
 					name="import" initialValue={(room.exportCode ??= PS.teams.packAll(filteredTeams.filter(Boolean) as Team[]))}
