@@ -49,7 +49,7 @@ export class SearchPanel extends preact.Component<{ id: string }> {
 	loggedInUserIsSysop = false;
 	sort = 'date';
 	override componentDidMount() {
-		if (!Net.defaultRoute) Net(`/check-login.php`).get().then(result => {
+		if (!Net.defaultRoute) Net(`/api/replays/check-login`).get().then(result => {
 			if (!result.startsWith(']')) return;
 			const [userid, sysop] = result.slice(1).split(',');
 			this.loggedInUser = userid;
