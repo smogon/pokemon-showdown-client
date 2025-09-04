@@ -37413,6 +37413,508 @@ export const BattleMoveAnims: AnimTable = {
 			}, 'decel', 'fade');
 		},
 	},
+	blazingtorque: {
+		anim(scene, [attacker, defender]) {
+			// rev up once in place, then flash twice more on the way there, and finally explode on contact
+			const size = [2, 3];
+			const opct = [0.3, 0.6];
+			const tick = 120;
+			const stepX = (defender.x - attacker.x) / 10;
+			const stepY = (defender.y - attacker.y) / 10;
+			const stepZ = (defender.z - attacker.z) / 10;
+			const tallerBy = 35;
+			const projectileSprite = 'fireball';
+			const projectileSpeed = 10;
+			// mimic attacker's acceleration; 1 + 2 + 3 + 4 = 10
+			const steps = [0, 0, 0, 1, 3, 6, 10, 12.5];
+			let ball: JQuery, wisp: JQuery;
+			for (let i = 0; i < 7; i++) {
+				let offset1 = steps[i];
+				let offset2 = steps[i + 1];
+
+				const ballArgs: Parameters<typeof scene['showEffect']> = ['flareball', {
+					x: attacker.x + offset1 * stepX,
+					y: attacker.y + offset1 * stepY + tallerBy,
+					z: attacker.z + offset1 * stepZ,
+					scale: size[i % 2],
+					opacity: opct[i % 2],
+					time: i * tick,
+				}, {
+					x: attacker.x + offset2 * stepX,
+					y: attacker.y + offset2 * stepY + tallerBy,
+					z: attacker.z + offset2 * stepZ,
+					scale: size[(i + 1) % 2],
+					opacity: opct[(i + 1) % 2],
+					time: (i + 1) * tick,
+				}, 'swing', i === 6 ? 'explode' : 'gone', { filter: 'hue-rotate(-12deg)' }];
+				ball = ball! ? scene.animateEffect(ball, ...ballArgs) : scene.showEffect(...ballArgs);
+
+				const wispArgs: Parameters<typeof scene['showEffect']> = ['wisp', {
+					x: attacker.x + offset1 * stepX,
+					y: attacker.y + offset1 * stepY + tallerBy,
+					z: attacker.z + offset1 * stepZ,
+					scale: size[i % 2],
+					opacity: opct[(i + 1) % 2],
+					time: i * tick,
+				}, {
+					x: attacker.x + offset2 * stepX,
+					y: attacker.y + offset2 * stepY + tallerBy,
+					z: attacker.z + offset2 * stepZ,
+					scale: size[(i + 1) % 2],
+					opacity: opct[i % 2],
+					time: (i + 1) * tick,
+				}, 'swing', i === 6 ? 'explode' : 'gone'];
+				wisp = wisp! ? scene.animateEffect(wisp, ...wispArgs) : scene.showEffect(...wispArgs);
+
+				scene.showEffect(projectileSprite, {
+					x: attacker.x + offset1 * stepX + projectileSpeed * ((i % 2) ? 2 : -2),
+					y: attacker.y + offset1 * stepY,
+					z: attacker.z + offset1 * stepZ,
+					opacity: 0.5,
+					time: i * tick,
+				}, {
+					x: attacker.x + offset1 * stepX + projectileSpeed * ((i % 2) ? 3 : -3),
+					y: attacker.y + offset1 * stepY - projectileSpeed,
+					z: attacker.behind(projectileSpeed) + offset1 * stepZ,
+					time: (i + 1) * tick,
+				}, 'ballistic', 'fade');
+				scene.showEffect(projectileSprite, {
+					x: attacker.x + offset1 * stepX + projectileSpeed * (((i + 1) % 2) ? 2 : -2),
+					y: attacker.y + offset1 * stepY,
+					z: attacker.z + offset1 * stepZ,
+					opacity: 0.5,
+					time: i * tick,
+				}, {
+					x: attacker.x + offset1 * stepX + projectileSpeed * (((i + 1) % 2) ? 3 : -3),
+					y: attacker.y + offset1 * stepY - projectileSpeed,
+					z: attacker.behind(projectileSpeed) + offset1 * stepZ,
+					time: (i + 1) * tick,
+				}, 'ballistic', 'fade');
+			}
+
+			// attacker movement
+			attacker.delay(tick * 2);
+			attacker.anim({
+				x: attacker.x + stepX * 4,
+				y: attacker.y + stepY * 4,
+				z: attacker.z + stepZ * 4,
+				time: tick * 7 / 3,
+			}, 'accel');
+			attacker.anim({
+				time: tick * 7 / 3 + 100,
+			}, 'ballistic2Back');
+			defender.delay(tick * 6 - 20);
+			defender.anim({
+				z: defender.behind(20),
+				time: 100,
+			}, 'swing');
+			defender.anim({
+				time: 300,
+			}, 'swing');
+		},
+	},
+	combattorque: {
+		anim(scene, [attacker, defender]) {
+			// rev up once in place, then flash twice more on the way there, and finally explode on contact
+			const size = [2, 3];
+			const opct = [0.3, 0.6];
+			const tick = 120;
+			const stepX = (defender.x - attacker.x) / 10;
+			const stepY = (defender.y - attacker.y) / 10;
+			const stepZ = (defender.z - attacker.z) / 10;
+			const tallerBy = 35;
+			const projectileSprite = 'fireball';
+			const projectileSpeed = 10;
+			// mimic attacker's acceleration; 1 + 2 + 3 + 4 = 10
+			const steps = [0, 0, 0, 1, 3, 6, 10, 12.5];
+			let ball: JQuery, wisp: JQuery;
+			for (let i = 0; i < 7; i++) {
+				let offset1 = steps[i];
+				let offset2 = steps[i + 1];
+
+				const ballArgs: Parameters<typeof scene['showEffect']> = ['flareball', {
+					x: attacker.x + offset1 * stepX,
+					y: attacker.y + offset1 * stepY + tallerBy,
+					z: attacker.z + offset1 * stepZ,
+					scale: size[i % 2],
+					opacity: opct[i % 2],
+					time: i * tick,
+				}, {
+					x: attacker.x + offset2 * stepX,
+					y: attacker.y + offset2 * stepY + tallerBy,
+					z: attacker.z + offset2 * stepZ,
+					scale: size[(i + 1) % 2],
+					opacity: opct[(i + 1) % 2],
+					time: (i + 1) * tick,
+				}, 'swing', i === 6 ? 'explode' : 'gone', { filter: 'brightness(1.5)' }];
+				ball = ball! ? scene.animateEffect(ball, ...ballArgs) : scene.showEffect(...ballArgs);
+
+				const wispArgs: Parameters<typeof scene['showEffect']> = ['waterwisp', {
+					x: attacker.x + offset1 * stepX,
+					y: attacker.y + offset1 * stepY + tallerBy,
+					z: attacker.z + offset1 * stepZ,
+					scale: size[i % 2],
+					opacity: opct[(i + 1) % 2] * 0.75,
+					time: i * tick,
+				}, {
+					x: attacker.x + offset2 * stepX,
+					y: attacker.y + offset2 * stepY + tallerBy,
+					z: attacker.z + offset2 * stepZ,
+					scale: size[(i + 1) % 2],
+					opacity: opct[i % 2] * 0.75,
+					time: (i + 1) * tick,
+				}, 'swing', i === 6 ? 'explode' : 'gone'];
+				wisp = wisp! ? scene.animateEffect(wisp, ...wispArgs) : scene.showEffect(...wispArgs);
+
+				scene.showEffect(projectileSprite, {
+					x: attacker.x + offset1 * stepX + projectileSpeed * ((i % 2) ? 2 : -2),
+					y: attacker.y + offset1 * stepY,
+					z: attacker.z + offset1 * stepZ,
+					opacity: 0.5,
+					time: i * tick,
+				}, {
+					x: attacker.x + offset1 * stepX + projectileSpeed * ((i % 2) ? 3 : -3),
+					y: attacker.y + offset1 * stepY - projectileSpeed,
+					z: attacker.behind(projectileSpeed) + offset1 * stepZ,
+					time: (i + 1) * tick,
+				}, 'ballistic', 'fade', { filter: 'brightness(1.5) hue-rotate(15deg)' });
+				scene.showEffect(projectileSprite, {
+					x: attacker.x + offset1 * stepX + projectileSpeed * (((i + 1) % 2) ? 2 : -2),
+					y: attacker.y + offset1 * stepY,
+					z: attacker.z + offset1 * stepZ,
+					opacity: 0.5,
+					time: i * tick,
+				}, {
+					x: attacker.x + offset1 * stepX + projectileSpeed * (((i + 1) % 2) ? 3 : -3),
+					y: attacker.y + offset1 * stepY - projectileSpeed,
+					z: attacker.behind(projectileSpeed) + offset1 * stepZ,
+					time: (i + 1) * tick,
+				}, 'ballistic', 'fade', { filter: 'brightness(1.5) hue-rotate(15deg)' });
+			}
+
+			// attacker movement
+			attacker.delay(tick * 2);
+			attacker.anim({
+				x: attacker.x + stepX * 4,
+				y: attacker.y + stepY * 4,
+				z: attacker.z + stepZ * 4,
+				time: tick * 7 / 3,
+			}, 'accel');
+			attacker.anim({
+				time: tick * 7 / 3 + 100,
+			}, 'ballistic2Back');
+			defender.delay(tick * 6 - 20);
+			defender.anim({
+				z: defender.behind(20),
+				time: 100,
+			}, 'swing');
+			defender.anim({
+				time: 300,
+			}, 'swing');
+		},
+	},
+	magicaltorque: {
+		anim(scene, [attacker, defender]) {
+			// rev up once in place, then flash twice more on the way there, and finally explode on contact
+			const size = [2, 3];
+			const opct = [0.3, 0.6];
+			const tick = 120;
+			const stepX = (defender.x - attacker.x) / 10;
+			const stepY = (defender.y - attacker.y) / 10;
+			const stepZ = (defender.z - attacker.z) / 10;
+			const tallerBy = 35;
+			const projectileSprite = 'shine';
+			const projectileSpeed = 10;
+			// mimic attacker's acceleration; 1 + 2 + 3 + 4 = 10
+			const steps = [0, 0, 0, 1, 3, 6, 10, 12.5];
+			let ball: JQuery, wisp: JQuery;
+			for (let i = 0; i < 7; i++) {
+				let offset1 = steps[i];
+				let offset2 = steps[i + 1];
+
+				const ballArgs: Parameters<typeof scene['showEffect']> = [i < 6 ? 'iceball' : 'mistball', {
+					x: attacker.x + offset1 * stepX,
+					y: attacker.y + offset1 * stepY + tallerBy,
+					z: attacker.z + offset1 * stepZ,
+					scale: size[i % 2],
+					opacity: opct[i % 2],
+					time: i * tick,
+				}, {
+					x: attacker.x + offset2 * stepX,
+					y: attacker.y + offset2 * stepY + tallerBy,
+					z: attacker.z + offset2 * stepZ,
+					scale: size[(i + 1) % 2],
+					opacity: opct[(i + 1) % 2],
+					time: (i + 1) * tick,
+				}, 'swing', ...(i === 6 ? ['explode'] : ['gone', { filter: 'saturate(300%)' }]) as [string, JQuery.PlainObject]];
+				ball = ball! ? scene.animateEffect(ball, ...ballArgs) : scene.showEffect(...ballArgs);
+
+				const wispArgs: Parameters<typeof scene['showEffect']> = ['wisp', {
+					x: attacker.x + offset1 * stepX,
+					y: attacker.y + offset1 * stepY + tallerBy,
+					z: attacker.z + offset1 * stepZ,
+					scale: size[i % 2],
+					opacity: opct[(i + 1) % 2],
+					time: i * tick,
+				}, {
+					x: attacker.x + offset2 * stepX,
+					y: attacker.y + offset2 * stepY + tallerBy,
+					z: attacker.z + offset2 * stepZ,
+					scale: size[(i + 1) % 2],
+					opacity: opct[i % 2],
+					time: (i + 1) * tick,
+				}, 'swing', i === 6 ? 'explode' : 'gone'];
+				wisp = wisp! ? scene.animateEffect(wisp, ...wispArgs) : scene.showEffect(...wispArgs);
+
+				scene.showEffect(projectileSprite, {
+					x: attacker.x + offset1 * stepX + projectileSpeed * ((i % 2) ? 2 : -2),
+					y: attacker.y + offset1 * stepY,
+					z: attacker.z + offset1 * stepZ,
+					scale: 0.5,
+					opacity: 0.5,
+					time: i * tick,
+				}, {
+					x: attacker.x + offset1 * stepX + projectileSpeed * ((i % 2) ? 3 : -3),
+					y: attacker.y + offset1 * stepY - projectileSpeed,
+					z: attacker.behind(projectileSpeed) + offset1 * stepZ,
+					time: (i + 1) * tick,
+				}, 'ballistic', 'fade', { filter: 'hue-rotate(90deg) saturate(300%)' });
+				scene.showEffect(projectileSprite, {
+					x: attacker.x + offset1 * stepX + projectileSpeed * (((i + 1) % 2) ? 2 : -2),
+					y: attacker.y + offset1 * stepY,
+					z: attacker.z + offset1 * stepZ,
+					scale: 0.5,
+					opacity: 0.5,
+					time: i * tick,
+				}, {
+					x: attacker.x + offset1 * stepX + projectileSpeed * (((i + 1) % 2) ? 3 : -3),
+					y: attacker.y + offset1 * stepY - projectileSpeed,
+					z: attacker.behind(projectileSpeed) + offset1 * stepZ,
+					time: (i + 1) * tick,
+				}, 'ballistic', 'fade', { filter: 'hue-rotate(90deg) saturate(300%)' });
+			}
+
+			// attacker movement
+			attacker.delay(tick * 2);
+			attacker.anim({
+				x: attacker.x + stepX * 4,
+				y: attacker.y + stepY * 4,
+				z: attacker.z + stepZ * 4,
+				time: tick * 7 / 3,
+			}, 'accel');
+			attacker.anim({
+				time: tick * 7 / 3 + 100,
+			}, 'ballistic2Back');
+			defender.delay(tick * 6 - 20);
+			defender.anim({
+				z: defender.behind(20),
+				time: 100,
+			}, 'swing');
+			defender.anim({
+				time: 300,
+			}, 'swing');
+		},
+	},
+	noxioustorque: {
+		anim(scene, [attacker, defender]) {
+			// rev up once in place, then flash twice more on the way there, and finally explode on contact
+			const size = [2, 3];
+			const opct = [0.3, 0.6];
+			const tick = 120;
+			const stepX = (defender.x - attacker.x) / 10;
+			const stepY = (defender.y - attacker.y) / 10;
+			const stepZ = (defender.z - attacker.z) / 10;
+			const tallerBy = 35;
+			const projectileSprite = 'bluefireball';
+			const projectileSpeed = 10;
+			// mimic attacker's acceleration; 1 + 2 + 3 + 4 = 10
+			const steps = [0, 0, 0, 1, 3, 6, 10, 12.5];
+			let ball: JQuery, wisp: JQuery;
+			for (let i = 0; i < 7; i++) {
+				let offset1 = steps[i];
+				let offset2 = steps[i + 1];
+
+				const ballArgs: Parameters<typeof scene['showEffect']> = ['mistball', {
+					x: attacker.x + offset1 * stepX,
+					y: attacker.y + offset1 * stepY + tallerBy,
+					z: attacker.z + offset1 * stepZ,
+					scale: size[i % 2],
+					opacity: opct[i % 2],
+					time: i * tick,
+				}, {
+					x: attacker.x + offset2 * stepX,
+					y: attacker.y + offset2 * stepY + tallerBy,
+					z: attacker.z + offset2 * stepZ,
+					scale: size[(i + 1) % 2],
+					opacity: opct[(i + 1) % 2],
+					time: (i + 1) * tick,
+				}, 'swing', i === 6 ? 'explode' : ''];
+				ball = ball! ? scene.animateEffect(ball, ...ballArgs) : scene.showEffect(...ballArgs);
+
+				const wispArgs: Parameters<typeof scene['showEffect']> = ['waterwisp', {
+					x: attacker.x + offset1 * stepX,
+					y: attacker.y + offset1 * stepY + tallerBy,
+					z: attacker.z + offset1 * stepZ,
+					scale: size[i % 2],
+					opacity: opct[(i + 1) % 2],
+					time: i * tick,
+				}, {
+					x: attacker.x + offset2 * stepX,
+					y: attacker.y + offset2 * stepY + tallerBy,
+					z: attacker.z + offset2 * stepZ,
+					scale: size[(i + 1) % 2],
+					opacity: opct[i % 2],
+					time: (i + 1) * tick,
+				}, 'swing', i === 6 ? 'explode' : '', { filter: 'brightness(1.5)' }];
+				wisp = wisp! ? scene.animateEffect(wisp, ...wispArgs) : scene.showEffect(...wispArgs);
+
+				scene.showEffect(projectileSprite, {
+					x: attacker.x + offset1 * stepX + projectileSpeed * ((i % 2) ? 2 : -2),
+					y: attacker.y + offset1 * stepY,
+					z: attacker.z + offset1 * stepZ,
+					opacity: 0.5,
+					time: i * tick,
+				}, {
+					x: attacker.x + offset1 * stepX + projectileSpeed * ((i % 2) ? 3 : -3),
+					y: attacker.y + offset1 * stepY - projectileSpeed,
+					z: attacker.behind(projectileSpeed) + offset1 * stepZ,
+					time: (i + 1) * tick,
+				}, 'ballistic', 'fade');
+				scene.showEffect(projectileSprite, {
+					x: attacker.x + offset1 * stepX + projectileSpeed * (((i + 1) % 2) ? 2 : -2),
+					y: attacker.y + offset1 * stepY,
+					z: attacker.z + offset1 * stepZ,
+					opacity: 0.5,
+					time: i * tick,
+				}, {
+					x: attacker.x + offset1 * stepX + projectileSpeed * (((i + 1) % 2) ? 3 : -3),
+					y: attacker.y + offset1 * stepY - projectileSpeed,
+					z: attacker.behind(projectileSpeed) + offset1 * stepZ,
+					time: (i + 1) * tick,
+				}, 'ballistic', 'fade');
+			}
+
+			// attacker movement
+			attacker.delay(tick * 2);
+			attacker.anim({
+				x: attacker.x + stepX * 4,
+				y: attacker.y + stepY * 4,
+				z: attacker.z + stepZ * 4,
+				time: tick * 7 / 3,
+			}, 'accel');
+			attacker.anim({
+				time: tick * 7 / 3 + 100,
+			}, 'ballistic2Back');
+			defender.delay(tick * 6 - 20);
+			defender.anim({
+				z: defender.behind(20),
+				time: 100,
+			}, 'swing');
+			defender.anim({
+				time: 300,
+			}, 'swing');
+		},
+	},
+	wickedtorque: {
+		anim(scene, [attacker, defender]) {
+			// rev up once in place, then flash twice more on the way there, and finally explode on contact
+			const size = [2, 3];
+			const opct = [0.3, 0.6];
+			const tick = 120;
+			const stepX = (defender.x - attacker.x) / 10;
+			const stepY = (defender.y - attacker.y) / 10;
+			const stepZ = (defender.z - attacker.z) / 10;
+			const tallerBy = 35;
+			const projectileSprite = 'fireball';
+			const projectileSpeed = 10;
+			// mimic attacker's acceleration; 1 + 2 + 3 + 4 = 10
+			const steps = [0, 0, 0, 1, 3, 6, 10, 12.5];
+
+			let ball: JQuery, wisp: JQuery;
+			for (let i = 0; i < 7; i++) {
+				let offset1 = steps[i];
+				let offset2 = steps[i + 1];
+
+				const ballArgs: Parameters<typeof scene['showEffect']> = ['flareball', {
+					x: attacker.x + offset1 * stepX,
+					y: attacker.y + offset1 * stepY + tallerBy,
+					z: attacker.z + offset1 * stepZ,
+					scale: size[i % 2],
+					opacity: opct[i % 2] * 1.5,
+					time: 0,
+				}, {
+					x: attacker.x + offset2 * stepX,
+					y: attacker.y + offset2 * stepY + tallerBy,
+					z: attacker.z + offset2 * stepZ,
+					scale: size[(i + 1) % 2],
+					opacity: opct[(i + 1) % 2] * 1.5,
+					time: tick,
+				}, 'swing', i === 6 ? 'explode' : '', { filter: 'hue-rotate(-45deg)' }];
+				ball = ball! ? scene.animateEffect(ball, ...ballArgs) : scene.showEffect(...ballArgs);
+
+				const wispArgs: Parameters<typeof scene['showEffect']> = ['blackwisp', {
+					x: attacker.x + offset1 * stepX,
+					y: attacker.y + offset1 * stepY + tallerBy,
+					z: attacker.z + offset1 * stepZ,
+					scale: size[i % 2],
+					opacity: 0.5,
+					time: 0,
+				}, {
+					x: attacker.x + offset2 * stepX,
+					y: attacker.y + offset2 * stepY + tallerBy,
+					z: attacker.z + offset2 * stepZ,
+					scale: size[(i + 1) % 2],
+					time: tick,
+				}, 'swing', i === 6 ? 'explode' : ''];
+				wisp = wisp! ? scene.animateEffect(wisp, ...wispArgs) : scene.showEffect(...wispArgs);
+
+				scene.showEffect(projectileSprite, {
+					x: attacker.x + offset1 * stepX + projectileSpeed * ((i % 2) ? 2 : -2),
+					y: attacker.y + offset1 * stepY,
+					z: attacker.z + offset1 * stepZ,
+					opacity: 0.5,
+					time: i * tick,
+				}, {
+					x: attacker.x + offset1 * stepX + projectileSpeed * ((i % 2) ? 3 : -3),
+					y: attacker.y + offset1 * stepY - projectileSpeed,
+					z: attacker.behind(projectileSpeed) + offset1 * stepZ,
+					time: (i + 1) * tick,
+				}, 'ballistic', 'fade', { filter: 'hue-rotate(-45deg)' });
+				scene.showEffect(projectileSprite, {
+					x: attacker.x + offset1 * stepX + projectileSpeed * (((i + 1) % 2) ? 2 : -2),
+					y: attacker.y + offset1 * stepY,
+					z: attacker.z + offset1 * stepZ,
+					opacity: 0.5,
+					time: i * tick,
+				}, {
+					x: attacker.x + offset1 * stepX + projectileSpeed * (((i + 1) % 2) ? 3 : -3),
+					y: attacker.y + offset1 * stepY - projectileSpeed,
+					z: attacker.behind(projectileSpeed) + offset1 * stepZ,
+					time: (i + 1) * tick,
+				}, 'ballistic', 'fade', { filter: 'hue-rotate(-45deg)' });
+			}
+
+			// attacker movement
+			attacker.delay(tick * 2);
+			attacker.anim({
+				x: attacker.x + stepX * 4,
+				y: attacker.y + stepY * 4,
+				z: attacker.z + stepZ * 4,
+				time: tick * 7 / 3,
+			}, 'accel');
+			attacker.anim({
+				time: tick * 7 / 3 + 100,
+			}, 'ballistic2Back');
+			defender.delay(tick * 6 - 20);
+			defender.anim({
+				z: defender.behind(20),
+				time: 100,
+			}, 'swing');
+			defender.anim({
+				time: 300,
+			}, 'swing');
+		},
+	},
 };
 
 // placeholder animations
