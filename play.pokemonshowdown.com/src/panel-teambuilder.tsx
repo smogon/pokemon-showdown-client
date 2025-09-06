@@ -13,7 +13,7 @@ import { Teams } from "./battle-teams";
 import { BattleLog } from "./battle-log";
 import preact from "../js/lib/preact";
 
-function BackupButton({ room }: { room: TeambuilderRoom }) {
+function BackupTeamsButton({ room }: { room: TeambuilderRoom }) {
     return (
         <button data-cmd="/backup" class="button">
             <i class="fa fa-file-code-o" aria-hidden></i> Backup
@@ -600,7 +600,7 @@ class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
 				<h2>All Teams <small>({teams.length})</small></h2>
 			)}
 			<p>
-				<BackupButton room={room} />
+				<BackupTeamsButton room={room} />
 			</p>
 			<p>
 				<button data-cmd="/newteam" class="button big">
@@ -656,7 +656,7 @@ class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
 				</button>
 			</p>
 			<p>
-				<BackupButton room={room} />
+				<BackupTeamsButton room={room} />
 			</p>
 		</div>;
 	}
