@@ -394,7 +394,7 @@ class TeamEditorState extends PSModel {
 		if (this.format.includes('1v1')) return { minAtk, minSpe };
 
 		// only available through an event with 31 Atk IVs
-		if (set.ability === 'Battle Bond' || ['Koraidon', 'Miraidon'].includes(set.species)) {
+		if (set.ability === 'Battle Bond' || ['Koraidon', 'Miraidon', 'Gimmighoul-Roaming'].includes(set.species)) {
 			minAtk = false;
 			return { minAtk, minSpe };
 		}
