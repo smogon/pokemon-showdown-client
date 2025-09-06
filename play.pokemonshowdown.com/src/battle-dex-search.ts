@@ -648,15 +648,9 @@ abstract class BattleTypedSearch<T extends SearchType> {
 		}
 		if (format === 'vgc2020') {
 			this.formatType = 'ssdlc1doubles';
-			this.isDoubles = true;
 		}
-		if (format === 'vgc2023regulationd') {
-			this.formatType = 'predlcdoubles';
-			this.isDoubles = true;
-		}
-		if (format === 'vgc2023regulatione') {
-			this.formatType = 'svdlc1doubles';
-			this.isDoubles = true;
+		if (format.startsWith('vgc2023')) {
+			this.formatType = format.endsWith('rege') ? 'svdlc1doubles' : 'predlcdoubles';
 		}
 		if (format.includes('bdsp')) {
 			if (format.includes('doubles')) {
@@ -1092,9 +1086,16 @@ class BattlePokemonSearch extends BattleTypedSearch<'pokemon'> {
 				tierSet = tierSet.slice(slices.Regular);
 			}
 
+			// Remove DLC Pokemon from Pre-DLC formats
+			if (this.formatType?.includes('dlc')) {
+				tierSet = tierSet.filter(([type, id]) => {
+					return !['Unreleased', 'Illegal'].includes(this.getTier(this.dex.species.get(id)));
+				});
+			}
+
 			if (format.endsWith('regh')) {
 				tierSet = tierSet.filter(([type, id]) => {
-					const tags = Dex.species.get(Dex.species.get(id).baseSpecies).tags;
+					const tags = this.dex.species.get(this.dex.species.get(id).baseSpecies).tags;
 					return !tags.includes('Sub-Legendary') && !tags.includes('Paradox') &&
 						// The game does not classify these as Paradox Pokemon (Booster Energy can be knocked off)
 						!['gougingfire', 'ironboulder', 'ironcrown', 'ragingbolt'].includes(id);
