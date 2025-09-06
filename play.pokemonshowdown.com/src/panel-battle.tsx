@@ -824,7 +824,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 				if (choice.tera) buf.push(`Terastallize (`, <strong>{active?.canTerastallize || '???'}</strong>, `) and `);
 				if (choice.max && active?.canDynamax) buf.push(active?.gigantamax ? `Gigantamax and ` : `Dynamax and `);
 				buf.push(`use `, <strong>{choices.currentMove(choice, i)?.name}</strong>);
-				if (choice.targetLoc > 0) {
+				if (choice.targetLoc > 0 || battle.gameType === 'freeforall') {
 					const target = battle.farSide.active[choice.targetLoc - 1];
 					if (!target) {
 						buf.push(` at slot ${choice.targetLoc}`);
