@@ -98,8 +98,10 @@ class BattlesPanel extends PSRoomPanel<BattlesRoom> {
 						<i class="fa fa-refresh" aria-hidden></i> Refresh
 					</button> {}
 					<span
-						style={Dex.getPokemonIcon('meloetta-pirouette') + ';display:inline-block;vertical-align:middle'} class="picon"
-						title="Meloetta is PS's mascot! The Pirouette forme is Fighting-type, and represents our battles."
+						// style={Dex.getPokemonIcon('meloetta-pirouette') + ';display:inline-block;vertical-align:middle'} class="picon"
+						// title="Meloetta is PS's mascot! The Pirouette forme is Fighting-type, and represents our battles."
+						style={Dex.getPokemonIcon('malamar') + ';display:inline-block;vertical-align:middle'} class="picon"
+						title="Malamar is PS's mascot! Its favorite move, Superpower, is Fighting-type, and represents our battles."
 					></span>
 				</p>
 
