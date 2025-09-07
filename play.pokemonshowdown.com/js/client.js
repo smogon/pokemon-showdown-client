@@ -695,12 +695,12 @@ function toId() {
 			Storage.whenAppLoaded.load(this);
 
 			// load custom colors from loginserver
-			$.get('/config/colors.json', {}, function (data) {
+			$.get('/config/colors.json?' + Math.random(), {}, function (data) {
 				Object.assign(Config.customcolors, data);
 			});
 
 			// get coil values too
-			$.get('/config/coil.json', {}, function (data) {
+			$.get('/config/coil.json?' + Math.random(), {}, function (data) {
 				Object.assign(LadderRoom.COIL_B, data);
 			});
 

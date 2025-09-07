@@ -1813,7 +1813,7 @@ export class BattleLog {
 }
 
 if (window.Net) {
-	Net(`/config/colors.json`).get().then(response => {
+	Net(`/config/colors.json?${Math.random()}`).get().then(response => {
 		const data = JSON.parse(response);
 		Object.assign(Config.customcolors, data);
 	}).catch(() => {});
