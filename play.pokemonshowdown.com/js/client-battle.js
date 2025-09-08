@@ -759,7 +759,11 @@
 					moveMenu += '<em class="movewarning">You <strong>might</strong> have some moves disabled, so you won\'t be able to cancel an attack!</em>';
 				}
 				if (curActive.maybeLocked) {
-					moveMenu += '<em class="movewarning">You <strong>might</strong> be locked into a move. <button class="button" name="chooseFight">Try Fight button</button> (prevents switching if you\'re locked)</em>';
+					if (this.battle.gen === 1) {
+						moveMenu += '<em class="movewarning">You <strong>might</strong> be locked into a move. <button class="button" name="chooseFight">Try Fight button</button> (prevents switching if you\'re locked)</em>';
+					} else {
+						moveMenu += '<em class="movewarning">All your moves <strong>might</strong> be imprisoned. <button class="button" name="chooseFight">Try Fight button</button> (prevents cancelling if you Struggle)</em>';
+					}
 				}
 				moveMenu += '<div style="clear:left"></div>';
 
