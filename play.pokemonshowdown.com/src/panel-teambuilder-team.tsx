@@ -107,11 +107,6 @@ class TeamPanel extends PSRoomPanel<TeamRoom> {
 
 	static formatResources = {} as Record<string, FormatResource>;
 
-	static handleDrop = (e: Event) => {
-		PS.teams.save();
-		return true;
-	};
-
 	static getFormatResources(format: string): Promise<FormatResource> {
 		if (format in this.formatResources) return Promise.resolve(this.formatResources[format]);
 		return Net('https://www.smogon.com/dex/api/formats/by-ps-name/' + format).get()
