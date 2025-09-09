@@ -467,8 +467,7 @@ export class ChatRoom extends PSRoom {
 			this.update(null);
 		},
 		'switchsides'() {
-			if (!this.battle) return this.add('|error|You are not in a battle');
-			this.battle.switchViewpoint();
+			this.battle?.switchViewpoint();
 		},
 		'cancel,undo'() {
 			if (!this.battle) return this.send('/cancelchallenge');

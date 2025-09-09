@@ -1633,6 +1633,10 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 				this.add('||/showbattles - Receive links to new battles in Lobby.');
 				this.add('||/hidebattles - Ignore links to new battles in Lobby.');
 				return;
+			case 'ffto':
+			case 'fastforwardto':
+				this.add('||/ffto [turn] - Resets current battle to the given turn number');
+				return;
 			case 'unpackhidden':
 			case 'packhidden':
 				this.add('||/unpackhidden - Suppress hiding locked or banned users\' chat messages after the fact.');
