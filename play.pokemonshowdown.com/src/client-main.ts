@@ -1922,7 +1922,7 @@ export const PS = new class extends PSModel {
 			}
 			let rooms = autojoin[this.server.id] || '';
 			for (let title of rooms.split(",")) {
-				this.addRoom({ id: toID(title) as unknown as RoomID, title, connected: true, autofocus: false });
+				this.addRoom({ id: toID(title) as unknown as RoomID, title, connected: false, autofocus: false });
 			}
 		}
 
@@ -2691,7 +2691,7 @@ export const PS = new class extends PSModel {
 		for (let roomid of rooms) {
 			let room = PS.rooms[roomid] as ChatRoom;
 			if (!room) return;
-			if (room.type !== 'chat' || room.pmTarget) continue;
+			if (room.type !== 'chat' || room.pmTarget || !room.connected) continue;
 			autojoins.push(room.id.includes('-') ? room.id : (room.title || room.id));
 			if (room.id === 'staff' || room.id === 'upperstaff' || (PS.server.id !== 'showdown' && room.id === 'lobby')) continue;
 			autojoinCount++;
