@@ -14,6 +14,7 @@ import { Config, PS, type PSRoom, type RoomID } from "./client-main";
 import { NARROW_MODE_HEADER_WIDTH, PSView, VERTICAL_HEADER_WIDTH } from "./panels";
 import type { Battle } from "./battle";
 import { BattleLog } from "./battle-log"; // optional
+import { toRoomid } from "./battle-dex";
 
 window.addEventListener('dragover', e => {
 	// this prevents the bounce-back animation
@@ -65,7 +66,7 @@ export class PSHeader extends preact.Component {
 	static handleRightClick = (e: Event) => {
 		e.preventDefault();
 		const roomid = PS.router.extractRoomID((e.currentTarget as HTMLAnchorElement).href);
-		PS.join('roomsettings' as RoomID, {
+		PS.join(`roomsettings-${roomid!}` as RoomID, {
 			parentElem: e.currentTarget as HTMLAnchorElement,
 			parentRoomid: roomid,
 		});
@@ -157,8 +158,7 @@ export class PSHeader extends preact.Component {
 				onDragEnter={this.handleDragEnter} onDragStart={this.handleDragStart}
 				{...aria}
 			>
-				{icon}
-				{roomTitle}
+				{icon} {roomTitle}
 			</a>
 			{closeButton}
 		</li>;
@@ -325,6 +325,7 @@ export class PSMiniHeader extends preact.Component {
 			if (miniNotifications?.length) notificationsCount++;
 		}
 		const { icon, title } = PSHeader.roomInfo(PS.panel);
+		const roomid = toRoomid(title);
 		const userColor = window.BattleLog && `color:${BattleLog.usernameColor(PS.user.userid)}`;
 		const showMenuButton = PSView.narrowMode;
 		const notifying = (
@@ -348,6 +349,10 @@ export class PSMiniHeader extends preact.Component {
 			<button data-href="options" class="mini-header-right" aria-label="Options">
 				{PS.user.named ? <strong style={userColor}>{PS.user.name}</strong> : <i class="fa fa-cog" aria-hidden></i>}
 			</button>
+			{PS.rooms[roomid]?.type === 'chat' &&
+				<button class="mini-header-right" data-href={`roomsettings-${roomid}`} aria-label="Room Settings">
+					<i class="fa fa-gear" aria-hidden></i>
+				</button>}
 		</div>;
 	}
 }

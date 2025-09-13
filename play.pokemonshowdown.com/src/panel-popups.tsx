@@ -1700,7 +1700,7 @@ class BattleOptionsPanel extends PSRoomPanel {
 }
 class RoomSettingsPanel extends PSRoomPanel {
 	static readonly id = 'roomsettings';
-	static readonly routes = ['roomsettings'];
+	static readonly routes = ['roomsettings-*'];
 	static readonly location = 'semimodal-popup';
 	static readonly noURL = true;
 	declare state: { isRoomMuted?: boolean };
@@ -1708,9 +1708,13 @@ class RoomSettingsPanel extends PSRoomPanel {
 	handleAllSettings = (ev: Event) => {
 		const setting = (ev.currentTarget as HTMLInputElement).name;
 		let value = (ev.currentTarget as HTMLInputElement).checked ? 'on' : 'off';
-		const parentElem = this.props.room.parentElem as HTMLAnchorElement;
-		const roomid = PS.router.extractRoomID(parentElem.href)!;
+		const [, roomid] = this.props.room.id.split('-');
 		const room = PS.rooms[roomid];
+		if (setting === 'reset') {
+			room?.send('/settings reset');
+			this.close();
+			return;
+		}
 		if (setting === 'Mute Room') {
 			this.setState({ isRoomMuted: value === 'on' });
 		}
@@ -1718,17 +1722,15 @@ class RoomSettingsPanel extends PSRoomPanel {
 	};
 
 	override render() {
-		const room = this.props.room;
-		const parentElem = this.props.room.parentElem as HTMLAnchorElement;
-		const parentRoomid = PS.router.extractRoomID(parentElem.href)!;
-		const parentRoom = PS.rooms[parentRoomid];
-		const settingsExists = PS.prefs.roomsettings?.[PS.server.id]?.[parentRoomid];
+		const [, targetRoomid] = this.props.room.id.split('-');
+		const parentRoom = PS.rooms[targetRoomid];
+		const settingsExists = PS.prefs.roomsettings?.[PS.server.id]?.[targetRoomid as RoomID];
 		const settings = settingsExists || {
 			highlight: !PS.prefs.noselfhighlight,
 			tournamentping: PS.prefs.tournaments !== 'hide',
 		};
 
-		return <PSPanelWrapper room={room} width={380}><div class="pad">
+		return <PSPanelWrapper room={this.props.room} width={380}><div class="pad">
 			<p><strong>{parentRoom?.title} room settings</strong></p>
 			<p>
 				<label class="checkbox">
@@ -1764,7 +1766,7 @@ class RoomSettingsPanel extends PSRoomPanel {
 			</p>
 			<p class="buttonbar">
 				<button data-cmd="/close" class="button">Done</button> {}
-				<button data-cmd="/closeand /inparent /settings reset" class="button">Reset to default</button> {}
+				<button onClick={this.handleAllSettings} name="reset" class="button">Reset to default</button> {}
 			</p>
 		</div>
 		</PSPanelWrapper>;
