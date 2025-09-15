@@ -86,7 +86,7 @@ include_once __DIR__ . '/../config/ads-landing.inc.php';
 
 	<header>
 		<div class="nav-wrapper"><ul class="nav">
-			<li><a class="button nav-first cur" href="/"><img src="/images/pokemonshowdownbeta.png" srcset="/images/pokemonshowdownbeta.png 1x, /images/pokemonshowdownbeta@2x.png 2x" alt="Pok&eacute;mon Showdown" width="146" height="44" /> Home</a></li>
+			<li><a class="button nav-first cur" href="/"><img src="/images/malamarshowdown.png" srcset="/images/malamarshowdown.png 1x, /images/malamarshowdown@2x.png 2x" alt="Pok&eacute;mon Showdown" width="146" height="44" /> Home</a></li>
 			<li><a class="button" href="/dex/">Pok&eacute;dex</a></li>
 			<li><a class="button" href="//replay.pokemonshowdown.com/">Replay</a></li>
 			<li><a class="button purplebutton" href="//smogon.com/dex/" target="_blank">Strategy</a></li>
