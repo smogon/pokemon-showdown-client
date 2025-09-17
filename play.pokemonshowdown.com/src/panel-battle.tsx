@@ -253,7 +253,7 @@ class TimerButton extends preact.Component<{ room: BattleRoom }, { timeDisplay: 
 		if (!isActive) return '';
 
 		const secondsLeft = room.battle.kickingInactive;
-		if (secondsLeft !== true && secondsLeft <= 10) {
+		if (typeof secondsLeft === 'number' && secondsLeft <= 10) {
 			return ' timerbutton-critical';
 		}
 
