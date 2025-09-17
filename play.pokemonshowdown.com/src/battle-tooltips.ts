@@ -830,9 +830,10 @@ export class BattleTooltips {
 			genderBuf = ` <img src="${Dex.fxPrefix}gender-${gender.toLowerCase()}.png" alt="${gender}" width="7" height="10" class="pixelated" /> `;
 		}
 
-		let ignoreNicks = this.battle.ignoreNicks || this.battle.ignoreOpponent;
-		let name = BattleLog.escapeHTML(ignoreNicks ? pokemon.speciesForme : pokemon.name);
-		if (!ignoreNicks && pokemon.speciesForme !== pokemon.name) {
+		const ignoreNicks = this.battle.ignoreNicks || this.battle.ignoreOpponent;
+		const nickname = ignoreNicks ? Dex.species.get(pokemon.speciesForme).baseSpecies : pokemon.name;
+		let name = BattleLog.escapeHTML(nickname);
+		if (pokemon.speciesForme !== nickname) {
 			name += ` <small>(${BattleLog.escapeHTML(pokemon.speciesForme)})</small>`;
 		}
 
