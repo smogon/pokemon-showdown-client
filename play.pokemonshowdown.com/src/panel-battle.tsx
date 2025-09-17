@@ -184,22 +184,25 @@ class BattleDiv extends preact.Component<{ room: BattleRoom }> {
 	}
 }
 
-class TimerButton extends preact.Component<{ room: BattleRoom }> {
+class TimerButton extends preact.Component<{ room: BattleRoom }, { timeDisplay: string, timerTicking: string }> {
 	timerInterval: number | null = null;
+
 	override componentWillUnmount() {
 		if (this.timerInterval) {
 			clearInterval(this.timerInterval);
 			this.timerInterval = null;
 		}
 	}
-	secondsToTime(seconds: number | true) {
-		if (seconds === true) return '-:--';
-		const minutes = Math.floor(seconds / 60);
-		seconds -= minutes * 60;
-		return `${minutes}:${(seconds < 10 ? '0' : '')}${seconds}`;
+
+	override componentDidMount() {
+		this.updateTimer();
 	}
-	render() {
-		let time = 'Timer';
+
+	override componentDidUpdate() {
+		this.updateTimer();
+	}
+
+	updateTimer() {
 		const room = this.props.room;
 		if (!this.timerInterval && room.battle.kickingInactive) {
 			this.timerInterval = setInterval(() => {
@@ -208,36 +211,63 @@ class TimerButton extends preact.Component<{ room: BattleRoom }> {
 					if (room.battle.graceTimeLeft) room.battle.graceTimeLeft--;
 					else if (room.battle.totalTimeLeft) room.battle.totalTimeLeft--;
 				}
-				this.forceUpdate();
+				this.setState({
+					timeDisplay: this.calculateTimeDisplay(),
+					timerTicking: this.calculateTimerTicking(),
+				});
 			}, 1000);
 		} else if (this.timerInterval && !room.battle.kickingInactive) {
 			clearInterval(this.timerInterval);
 			this.timerInterval = null;
 		}
+	}
 
-		let timerTicking = (room.battle.kickingInactive &&
-			room.request && room.request.requestType !== "wait" && (room.choices && !room.choices.isDone())) ?
-			' timerbutton-on' : '';
+	secondsToTime(seconds: number | true) {
+		if (seconds === true) return '-:--';
+		const minutes = Math.floor(seconds / 60);
+		seconds -= minutes * 60;
+		return `${minutes}:${(seconds < 10 ? '0' : '')}${seconds}`;
+	}
 
-		if (room.battle.kickingInactive) {
-			const secondsLeft = room.battle.kickingInactive;
-			time = this.secondsToTime(secondsLeft);
-			if (secondsLeft !== true) {
-				if (secondsLeft <= 10 && timerTicking) {
-					timerTicking = ' timerbutton-critical';
-				}
+	calculateTimeDisplay() {
+		const room = this.props.room;
+		if (!room.battle.kickingInactive) return 'Timer';
 
-				if (room.battle.totalTimeLeft) {
-					const totalTime = this.secondsToTime(room.battle.totalTimeLeft);
-					time += ` |  ${totalTime} total`;
-				}
-			}
+		const secondsLeft = room.battle.kickingInactive;
+		let time = this.secondsToTime(secondsLeft);
+
+		if (secondsLeft !== true && room.battle.totalTimeLeft) {
+			const totalTime = this.secondsToTime(room.battle.totalTimeLeft);
+			time += ` |  ${totalTime} total`;
 		}
+
+		return time;
+	}
+
+	calculateTimerTicking() {
+		const room = this.props.room;
+		const isActive = room.battle.kickingInactive &&
+			room.request && room.request.requestType !== "wait" &&
+			(room.choices && !room.choices.isDone());
+
+		if (!isActive) return '';
+
+		const secondsLeft = room.battle.kickingInactive;
+		if (secondsLeft !== true && secondsLeft <= 10) {
+			return ' timerbutton-critical';
+		}
+
+		return ' timerbutton-on';
+	}
+
+	override render() {
+		const timeDisplay = this.state?.timeDisplay || this.calculateTimeDisplay();
+		const timerTicking = this.state?.timerTicking || this.calculateTimerTicking();
 
 		return <button
 			style={{ position: "absolute", right: '10px' }} data-href="battletimer" class={`button${timerTicking}`} role="timer"
 		>
-			<i class="fa fa-hourglass-start" aria-hidden></i> {time}
+			<i class="fa fa-hourglass-start" aria-hidden></i> {timeDisplay}
 		</button>;
 	}
 };
