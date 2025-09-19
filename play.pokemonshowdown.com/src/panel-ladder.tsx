@@ -186,7 +186,7 @@ class LadderFormatPanel extends PSRoomPanel<LadderFormatRoom> {
 		} else if (!room.ladderData) {
 			return null;
 		}
-		
+
 		const showCOIL = room.ladderData?.toplist[0]?.coil !== undefined;
 		const processedData = processLadderData(room.ladderData.toplist);
 
@@ -205,15 +205,15 @@ class LadderFormatPanel extends PSRoomPanel<LadderFormatRoom> {
 			</tr>
 			{processedData.map((row, i) => <tr key={row.userid}>
 				<td style={LADDER_STYLES.textAlignRight}>
-					{row._cached.isTopThree && <i 
-						class="fa fa-trophy" 
-						aria-hidden 
+					{row._cached.isTopThree && <i
+						class="fa fa-trophy"
+						aria-hidden
 						style={{ color: row._cached.trophyColor }}
 					></i>} {i + 1}
 				</td>
 				<td>
 					<span
-						class="username no-interact" 
+						class="username no-interact"
 						style={{ fontWeight: row._cached.fontWeight, color: row._cached.usernameColor }}
 					>
 						{row.username}
