@@ -1228,6 +1228,58 @@ class ChatPanel extends PSRoomPanel<ChatRoom> {
 	}
 }
 
+class UserItem extends preact.Component<{ userid: ID, name: string }> {
+	override render() {
+		const { userid, name } = this.props;
+		const groupSymbol = name.charAt(0);
+		const group = PS.server.groups[groupSymbol] || { type: 'user', order: 0 };
+		let color;
+		let displayName = name;
+
+		if (name.endsWith('@!')) {
+			displayName = name.slice(0, -2);
+			color = '#888888';
+		} else {
+			color = BattleLog.usernameColor(userid);
+		}
+
+		return <li key={userid}><button class="userbutton username">
+			<em class={`group${['leadership', 'staff'].includes(group.type!) ? ' staffgroup' : ''}`}>
+				{groupSymbol}
+			</em>
+			{group.type === 'leadership' ? (
+				<strong><em style={`color:${color}`}>{displayName.slice(1)}</em></strong>
+			) : group.type === 'staff' ? (
+				<strong style={`color:${color} `}>{displayName.slice(1)}</strong>
+			) : (
+				<span style={`color:${color}`}>{displayName.slice(1)}</span>
+			)}
+		</button></li>;
+	}
+}
+
+class VirtualUserList extends preact.Component<{
+	users: [ID, string][], minimized: boolean,
+}> {
+	override render() {
+		const { users, minimized } = this.props;
+
+		if (minimized) {
+			return null;
+		}
+
+		if (!users.length) {
+			return <li><small style="color: #888;">No users</small></li>;
+		}
+
+		return <>
+			{users.map(([userid, name]) =>
+				<UserItem key={userid} userid={userid} name={name} />
+			)}
+		</>;
+	}
+}
+
 export class ChatUserList extends preact.Component<{
 	room: ChatRoom, left?: number, top?: number, minimized?: boolean, static?: boolean,
 }> {
@@ -1253,29 +1305,10 @@ export class ChatUserList extends preact.Component<{
 				<button data-href="userlist" class="button button-middle">{room.userCount} users</button>
 			)}
 			<ul>
-				{room.onlineUsers.map(([userid, name]) => {
-					const groupSymbol = name.charAt(0);
-					const group = PS.server.groups[groupSymbol] || { type: 'user', order: 0 };
-					let color;
-					if (name.endsWith('@!')) {
-						name = name.slice(0, -2);
-						color = '#888888';
-					} else {
-						color = BattleLog.usernameColor(userid);
-					}
-					return <li key={userid}><button class="userbutton username">
-						<em class={`group${['leadership', 'staff'].includes(group.type!) ? ' staffgroup' : ''}`}>
-							{groupSymbol}
-						</em>
-						{group.type === 'leadership' ? (
-							<strong><em style={`color:${color}`}>{name.slice(1)}</em></strong>
-						) : group.type === 'staff' ? (
-							<strong style={`color:${color} `}>{name.slice(1)}</strong>
-						) : (
-							<span style={`color:${color}`}>{name.slice(1)}</span>
-						)}
-					</button></li>;
-				})}
+				<VirtualUserList
+					users={room.onlineUsers}
+					minimized={this.props.minimized || false}
+				/>
 			</ul>
 		</div>;
 	}
@@ -1286,6 +1319,7 @@ export class ChatLog extends preact.Component<{
 	left?: number, top?: number, noSubscription?: boolean,
 }> {
 	subscription: PSSubscription | null = null;
+	scrollUpdateFrameId: number | null = null;
 	override componentDidMount() {
 		const room = this.props.room;
 		if (room.log) {
@@ -1314,6 +1348,10 @@ export class ChatLog extends preact.Component<{
 	}
 	override componentWillUnmount() {
 		this.subscription?.unsubscribe();
+		if (this.scrollUpdateFrameId !== null) {
+			cancelAnimationFrame(this.scrollUpdateFrameId);
+			this.scrollUpdateFrameId = null;
+		}
 	}
 	override shouldComponentUpdate(props: typeof ChatLog.prototype.props) {
 		const elem = this.base!.firstChild as HTMLDivElement;
@@ -1348,7 +1386,12 @@ export class ChatLog extends preact.Component<{
 		this.updateScroll();
 	}
 	updateScroll() {
-		this.props.room.log?.updateScroll();
+		if (this.scrollUpdateFrameId === null) {
+			this.scrollUpdateFrameId = requestAnimationFrame(() => {
+				this.props.room.log?.updateScroll();
+				this.scrollUpdateFrameId = null;
+			});
+		}
 	}
 	render() {
 		return <div><div
