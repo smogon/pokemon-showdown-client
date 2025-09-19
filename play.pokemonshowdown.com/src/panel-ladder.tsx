@@ -37,6 +37,30 @@ type LadderData = {
 	}[],
 };
 
+const LADDER_STYLES = {
+	textAlignCenter: { textAlign: 'center' },
+	textAlignRight: { textAlign: 'right' },
+	trophyColors: ['#d6c939', '#adb2bb', '#ca8530'],
+};
+
+function processLadderData(toplist: LadderData['toplist']) {
+	return toplist.map((row, index) => ({
+		...row,
+		_cached: {
+			elo: row.elo.toFixed(0),
+			gxeWhole: Math.trunc(row.gxe),
+			gxeFraction: row.gxe.toFixed(1).slice(-1),
+			rpr: row.rpr.toFixed(0),
+			rprd: row.rprd.toFixed(0),
+			coil: row.coil?.toFixed(0),
+			usernameColor: BattleLog.usernameColor(row.userid),
+			fontWeight: index < 10 ? 'bold' : 'normal',
+			isTopThree: index < 3,
+			trophyColor: index < 3 ? LADDER_STYLES.trophyColors[index] : null,
+		},
+	}));
+}
+
 export class LadderFormatRoom extends PSRoom {
 	override readonly classType: string = 'ladder';
 	readonly format?: string = this.id.split('-')[1];
@@ -162,38 +186,49 @@ class LadderFormatPanel extends PSRoomPanel<LadderFormatRoom> {
 		} else if (!room.ladderData) {
 			return null;
 		}
+		
 		const showCOIL = room.ladderData?.toplist[0]?.coil !== undefined;
+		const processedData = processLadderData(room.ladderData.toplist);
 
 		return <table class="table readable-bg">
 			<tr class="table-header">
 				<th></th>
 				<th>Name</th>
-				<th style={{ textAlign: 'center' }}><abbr title="Elo rating">Elo</abbr></th>
-				<th style={{ textAlign: 'center' }}>
+				<th style={LADDER_STYLES.textAlignCenter}><abbr title="Elo rating">Elo</abbr></th>
+				<th style={LADDER_STYLES.textAlignCenter}>
 					<abbr title="user's percentage chance of winning a random battle (Glicko X-Act Estimate)">GXE</abbr>
 				</th>
-				<th style={{ textAlign: 'center' }}>
+				<th style={LADDER_STYLES.textAlignCenter}>
 					<abbr title="Glicko-1 rating system: rating&plusmn;deviation (provisional if deviation>100)">Glicko-1</abbr>
 				</th>
-				{showCOIL && <th style={{ textAlign: 'center' }}>COIL</th>}
+				{showCOIL && <th style={LADDER_STYLES.textAlignCenter}>COIL</th>}
 			</tr>
-			{room.ladderData.toplist.map((row, i) => <tr>
-				<td style={{ textAlign: 'right' }}>
-					{i < 3 && <i class="fa fa-trophy" aria-hidden style={{ color: ['#d6c939', '#adb2bb', '#ca8530'][i] }}></i>} {i + 1}
+			{processedData.map((row, i) => <tr key={row.userid}>
+				<td style={LADDER_STYLES.textAlignRight}>
+					{row._cached.isTopThree && <i 
+						class="fa fa-trophy" 
+						aria-hidden 
+						style={{ color: row._cached.trophyColor }}
+					></i>} {i + 1}
 				</td>
-				<td><span
-					class="username no-interact" style={{
-						fontWeight: i < 10 ? 'bold' : 'normal', color: BattleLog.usernameColor(row.userid),
-					}}
-				>
-					{row.username}
-				</span></td>
-				<td style={{ textAlign: 'center' }}><strong>{row.elo.toFixed(0)}</strong></td>
-				<td style={{ textAlign: 'center' }}>{Math.trunc(row.gxe)}<small>.{row.gxe.toFixed(1).slice(-1)}%</small></td>
-				<td style={{ textAlign: 'center' }}><em>{row.rpr.toFixed(0)}<small> &plusmn; {row.rprd.toFixed(0)}</small></em></td>
-				{showCOIL && <td style={{ textAlign: 'center' }}>{row.coil?.toFixed(0)}</td>}
+				<td>
+					<span
+						class="username no-interact" 
+						style={{ fontWeight: row._cached.fontWeight, color: row._cached.usernameColor }}
+					>
+						{row.username}
+					</span>
+				</td>
+				<td style={LADDER_STYLES.textAlignCenter}><strong>{row._cached.elo}</strong></td>
+				<td style={LADDER_STYLES.textAlignCenter}>
+					{row._cached.gxeWhole}<small>.{row._cached.gxeFraction}%</small>
+				</td>
+				<td style={LADDER_STYLES.textAlignCenter}>
+					<em>{row._cached.rpr}<small> &plusmn; {row._cached.rprd}</small></em>
+				</td>
+				{showCOIL && <td style={LADDER_STYLES.textAlignCenter}>{row._cached.coil}</td>}
 			</tr>)}
-			{!room.ladderData.toplist.length && <tr><td colSpan={5}>
+			{!processedData.length && <tr><td colSpan={5}>
 				<em>No one has played any ranked games yet.</em>
 			</td></tr>}
 		</table>;
