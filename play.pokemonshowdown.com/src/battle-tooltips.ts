@@ -1496,62 +1496,90 @@ export class BattleTooltips {
 	/**
 	 * Calculates possible Speed stat range of an opponent
 	 */
-	getSpeedRange(pokemon: Pokemon): [number, number] {
-		const tr = Math.trunc || Math.floor;
+	getSpeedRange(pokemon: Pokemon): [number, number] { const tr = Math.trunc || Math.floor;
 		const species = pokemon.getSpecies();
-		let rules = this.battle.rules;
+		const battle = this.battle;
+		const rules = battle.rules;
 		let baseSpe = species.baseStats.spe;
-		if (rules['Scalemons Mod']) {
+		// Priority: 3
+		// src: pokemon-showdown/data/rulesets.ts
+		if (battle.tier.includes('Godly Gift') && battle.gen == 9 && pokemon === pokemon.side.pokemon[5]) { // only update the last pokemon
+			const god = pokemon.side.pokemon.find(set => { 
+				const godSpecies = Dex.species.get(set.speciesForme);
+				const isNatDex = 'standardnatdex' in rules;
+				const isBanned = ["uber","ag"].includes(godSpecies.tier.toLowerCase());
+				return isBanned;
+			}) || pokemon.side.pokemon[0];
+			// workaround around zacian-crowned, mega ray and friends
+			baseSpe = Dex.species.get(god.getSpecies().baseSpecies).baseStats.spe
+		}
+		// Priority: 2
+		if (rules['Flipped Mod']) { baseSpe = species.baseStats.hp;
+			if (baseSpe < 1) baseSpe = 1;
+			if (baseSpe > 255) baseSpe = 255;
+		}
+		if (rules['350 Cup Mod'] && species.bst <= 350) { baseSpe *= 2;
+			if (baseSpe < 1) baseSpe = 1;
+			if (baseSpe > 255) baseSpe = 255;
+		}
+		// Priority: 1 
+		if (rules['Scalemons Mod']) { 
 			const bstWithoutHp = species.bst - species.baseStats.hp;
 			const scale = 600 - species.baseStats.hp;
 			baseSpe = tr(baseSpe * scale / bstWithoutHp);
 			if (baseSpe < 1) baseSpe = 1;
 			if (baseSpe > 255) baseSpe = 255;
 		}
-		if (rules['Frantic Fusions Mod']) {
-			const fusionSpecies = this.battle.dex.species.get(pokemon.name);
-			if (fusionSpecies.exists && fusionSpecies.name !== species.name) {
+		if (rules['Frantic Fusions Mod']) { 
+			const fusionSpecies = battle.dex.species.get(pokemon.name);
+			if (fusionSpecies.exists && fusionSpecies.name !== species.name) { 
 				baseSpe += tr(fusionSpecies.baseStats.spe / 4);
 				if (baseSpe < 1) baseSpe = 1;
 				if (baseSpe > 255) baseSpe = 255;
 			}
 		}
-		if (rules['Flipped Mod']) {
-			baseSpe = species.baseStats.hp;
+		// Priority: 0
+		if (battle.tier.includes("Mix and Mega") && battle.gen == 9) { 
+			const stone = Dex.items.get(pokemon.item);
+			if (stone.megaEvolves && pokemon.speciesForme != stone.megaStone) {
+				baseSpe += Dex.species.get(stone.megaStone).baseStats.spe - Dex.species.get(stone.megaEvolves).baseStats.spe;
+				if (baseSpe < 1) baseSpe = 1;
+				if (baseSpe > 255) baseSpe = 255;
+			}
+		}
+		if (rules['Tier Shift Mod']) {
+			let boosts: {ID: number};
+			if (battle.gen == 9) boosts = {uu: 15,rubl: 15,ru: 20,nubl: 20,nu: 25, publ: 25,pu: 30,zubl: 30,zu: 30,nfe: 30,lc: 30};
+			else boosts = {uu: 10,rubl: 10,ru: 20,nubl: 20,nu: 30, publ: 30,pu: 40,zubl: 40,zu: 40,nfe: 40,lc: 40};
+			baseSpe += boosts[toID(species.tier)] ?? 0;
 			if (baseSpe < 1) baseSpe = 1;
 			if (baseSpe > 255) baseSpe = 255;
 		}
-		if (rules['350 Cup Mod'] && species.bst <= 350) {
-			baseSpe *= 2;
-			if (baseSpe < 1) baseSpe = 1;
-			if (baseSpe > 255) baseSpe = 255;
-		}
-		let level = pokemon.volatiles.transform?.[4] || pokemon.level;
-		let tier = this.battle.tier;
-		let gen = this.battle.gen;
-		let isCGT = tier.includes('Computer-Generated Teams');
-		let isRandomBattle = tier.includes('Random Battle') ||
+		const level = pokemon.volatiles.transform?.[4] || pokemon.level;
+		const tier = battle.tier;
+		const gen = battle.gen;
+		const isCGT = tier.includes('Computer-Generated Teams');
+		const isRandomBattle = tier.includes('Random Battle') ||
 			(tier.includes('Random') && tier.includes('Battle') && gen >= 6) || isCGT;
 
-		let minNature = (isRandomBattle || gen < 3) ? 1 : 0.9;
-		let maxNature = (isRandomBattle || gen < 3) ? 1 : 1.1;
-		let maxIv = (gen < 3) ? 30 : 31;
+		const minNature = (isRandomBattle || gen < 3) ? 1 : 0.9;
+		const maxNature = (isRandomBattle || gen < 3) ? 1 : 1.1;
+		const maxIv = (gen < 3) ? 30 : 31;
 
 		let min;
 		let max;
-		if (tier.includes("Let's Go")) {
+		if (tier.includes("Let's Go")) { 
 			min = tr(tr(tr(2 * baseSpe * level / 100 + 5) * minNature) * tr((70 / 255 / 10 + 1) * 100) / 100);
 			max = tr(tr(tr((2 * baseSpe + maxIv) * level / 100 + 5) * maxNature) * tr((70 / 255 / 10 + 1) * 100) / 100);
 			if (tier.includes('No Restrictions')) max += 200;
 			else if (tier.includes('Random')) max += 20;
-		} else {
+		} else { 
 			let maxIvEvOffset = maxIv + ((isRandomBattle && gen >= 3) ? 21 : 63);
 			max = tr(tr((2 * baseSpe + maxIvEvOffset) * level / 100 + 5) * maxNature);
 			min = isCGT ? max : tr(tr(2 * baseSpe * level / 100 + 5) * minNature);
 		}
 		return [min, max];
 	}
-
 	/**
 	 * Gets the proper current type for moves with a variable type.
 	 */
