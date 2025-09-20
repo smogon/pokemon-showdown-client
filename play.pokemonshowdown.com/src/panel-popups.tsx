@@ -1591,6 +1591,13 @@ class BattleOptionsPanel extends PSRoomPanel {
 			PS.mainmenu.disallowSpectators = value;
 			break;
 		}
+		case 'auto-ots': {
+			PS.prefs.set('autoopenteamsheets', value);
+			if (value) {
+				room?.send('/acceptopenteamsheets');
+			}
+			break;
+		}
 		}
 	};
 	getBattleRoom() {
@@ -1678,6 +1685,14 @@ class BattleOptionsPanel extends PSRoomPanel {
 						name="autotimer" checked={PS.prefs.autotimer || false}
 						type="checkbox" onChange={this.handleAllSettings}
 					/> Automatically start timer
+				</label>
+			</p>
+			<p>
+				<label class="checkbox">
+					<input
+						name="auto-ots" checked={PS.prefs.autoopenteamsheets || false}
+						type="checkbox" onChange={this.handleAllSettings}
+					/> Auto-request open team sheets(VGC only)
 				</label>
 			</p>
 			{!PS.prefs.onepanel && document.body.offsetWidth >= 800 && <p>
