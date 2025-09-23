@@ -199,7 +199,7 @@ function PokemonSet({ set }: { set: Dex.PokemonSet }) {
 				const allowTypeOverride = !noTypeOverride.includes(move);
 				if (set.ability === 'Normalize') {
 					moveType = 'Normal';
-				} else if (allowTypeOverride && Dex.moves.get(move).type === 'Normal') {
+				} else if (allowTypeOverride && moveType === 'Normal') {
 					if (set.ability === 'Aerilate') {
 						moveType = 'Flying';
 					} else if (set.ability === 'Galvanize') {
