@@ -6,7 +6,7 @@ Staff are represented by the symbols next to their names and appear at the top o
 
 ### What's the difference between room staff and global staff?
 
-Room staff have permissions tied specifically to the room they were promoted in, whereas global staff have increased permissions across the server. Room staff can only perform moderation duties within their rooms, whereas global staff have the ability to globally lock or ban users and thus should be sought instead of room staff for PM or battle abuse. Global staff may also hold higher positions as room staff. Global staff can be identified by the "Global" indicator when clicking on their username. You can also refer to the [staff list](https://www.smogon.com/sim/staff_list) to see all Global Staff members. 
+Room staff have permissions tied specifically to the room they were promoted in, whereas global staff have increased permissions across the server. Room staff can only perform moderation duties within their rooms, whereas global staff have the ability to globally lock or ban users and thus should be sought instead of room staff for PM or battle abuse. Global staff may also hold higher positions as room staff. Global staff can be identified by the "Global" indicator when clicking on their username. You can also refer to the [staff list](https://www.smogon.com/forums/threads/pok%C3%A9mon-showdown-forum-rules-resources-read-here-first.3570628/#post-10715136) to see all Global Staff members. 
 
 ### What is the difference between the ranks?
 
