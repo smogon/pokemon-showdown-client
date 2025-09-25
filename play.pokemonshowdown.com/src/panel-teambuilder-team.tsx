@@ -14,6 +14,43 @@ import { Net, PSLoginServer } from "./client-connection";
 import { Teams } from "./battle-teams";
 import { CopyableURLBox } from "./panel-chat";
 
+// Placeholder for the structure of a Pokemon object after unpacking by Teams.unpack.
+// This interface defines the minimum properties needed for BSP calculation.
+interface UnpackedPokemon {
+    species: string;
+    // Other properties like name, moves, etc., would also be present.
+}
+
+/**
+ * Calculates the Base Stat Product (BSP) for a given Pokémon species.
+ * Assumes `PS.BattleDex` is available and can provide species data with baseStats.
+ *
+ * The formula for BSP is: HP * Atk * Def * SpA * SpD * Spe.
+ *
+ * @param speciesId The ID of the Pokémon species.
+ * @returns The calculated BSP, or null if species data is not found or incomplete.
+ */
+const calculateSpeciesBSP = (speciesId: ID): number | null => {
+    // We assume PS.BattleDex is a global object provided by the client-main or similar,
+    // and it has a method to get species data.
+    // An example structure for speciesData from PS.BattleDex.getSpecies:
+    // { baseStats: { hp: 100, atk: 100, def: 100, spa: 100, spd: 100, spe: 100 } }
+    const speciesData = PS.BattleDex.getSpecies(speciesId);
+    if (!speciesData || !speciesData.baseStats) {
+        return null; // Species data not found or incomplete.
+    }
+    const { hp, atk, def, spa, spd, spe } = speciesData.baseStats;
+
+    // Ensure all base stats are valid numbers before multiplication to prevent NaN results.
+    if (typeof hp !== 'number' || typeof atk !== 'number' || typeof def !== 'number' ||
+        typeof spa !== 'number' || typeof spd !== 'number' || typeof spe !== 'number') {
+        console.warn(`Invalid base stats for species ID: ${speciesId}. Cannot calculate BSP.`);
+        return null;
+    }
+
+    return hp * atk * def * spa * spd * spe;
+};
+
 class TeamRoom extends PSRoom {
 	/** Doesn't _literally_ always exist, but does in basically all code
 	 * and constantly checking for its existence is legitimately annoying... */
@@ -214,6 +251,17 @@ class TeamPanel extends PSRoomPanel<TeamRoom> {
 		}
 
 		const unsaved = team.uploaded && team.uploadedPackedTeam ? team.uploadedPackedTeam !== team.packedTeam : false;
+
+		// --- BSP Calculation Demonstration (for TeamPanel) ---
+		let teamBSPs: (number | null)[] = [];
+		if (team.packedTeam) {
+			const unpackedTeam: UnpackedPokemon[] = Teams.unpack(team.packedTeam);
+			for (const pokemon of unpackedTeam) {
+				teamBSPs.push(calculateSpeciesBSP(toID(pokemon.species)));
+			}
+		}
+		// --- End BSP Calculation Demonstration ---
+
 		return <PSPanelWrapper room={room} scrollable><div class="pad">
 			<a class="button" href="teambuilder" data-target="replace">
 				<i class="fa fa-chevron-left" aria-hidden></i> Teams
@@ -250,12 +298,26 @@ class TeamPanel extends PSRoomPanel<TeamRoom> {
 					onInput={this.handleRename} onChange={this.handleRename} onKeyUp={this.handleRename}
 				/>
 			</label>
+			{/*
+				The BSP for each Pokémon in the team has been calculated in `teamBSPs`.
+				Ideally, the `TeamEditor` component would be updated to accept and display
+				this information alongside each Pokémon's details.
+				For example, TeamEditor could iterate through the unpacked team and call
+				`calculateSpeciesBSP` internally for each Pokémon, or `teamBSPs` could be
+				passed as a new prop to `TeamEditor` and then displayed.
+				As `TeamEditor`'s source is not provided, this comment indicates the point
+				of calculation and suggested display.
+			*/}
 			<TeamEditor
 				team={team} onChange={this.save} readOnly={!!team.teamid && !team.uploadedPackedTeam} resources={this.renderResources()}
 			>
 				{!!(team.packedTeam && team.format.length > 4) && <p>
 					<button data-cmd="/validate" class="button"><i class="fa fa-check"></i> Validate</button>
 				</p>}
+				{/* Example of displaying team-wide BSP info (e.g., for the first Pokemon) */}
+				{teamBSPs.length > 0 && teamBSPs[0] !== null &&
+					<p><small>BSP for first Pokémon: <strong>{teamBSPs[0]}</strong></small></p>
+				}
 				{!!(team.packedTeam || team.uploaded) && <p class="infobox" style="padding: 5px 8px">
 					{team.uploadedPackedTeam && !team.uploaded ? <>
 						Uploading...
@@ -357,6 +419,16 @@ class ViewTeamPanel extends PSRoomPanel {
 			</PSPanelWrapper>;
 		}
 
+		// --- BSP Calculation Demonstration (for ViewTeamPanel) ---
+		let teamBSPs: (number | null)[] = [];
+		if (team.packedTeam) {
+			const unpackedTeam: UnpackedPokemon[] = Teams.unpack(team.packedTeam);
+			for (const pokemon of unpackedTeam) {
+				teamBSPs.push(calculateSpeciesBSP(toID(pokemon.species)));
+			}
+		}
+		// --- End BSP Calculation Demonstration ---
+
 		return <PSPanelWrapper room={room} scrollable><div class="pad">
 			<h1>{team.name || "Untitled team"}</h1>
 			<CopyableURLBox
@@ -366,6 +438,13 @@ class ViewTeamPanel extends PSRoomPanel {
 			<p>Format: <strong>{teamData.format}</strong></p>
 			<p>Views: <strong>{teamData.views}</strong></p>
 			{team.key && <p><a class="button" href={`team-${team.key}`}>Edit</a></p>}
+			{/*
+				Similar to TeamPanel, the BSP for each Pokémon has been calculated in `teamBSPs`.
+				The `TeamEditor` component would be the ideal place to display this per Pokémon.
+			*/}
+			{teamBSPs.length > 0 && teamBSPs[0] !== null &&
+				<p><small>BSP for first Pokémon: <strong>{teamBSPs[0]}</strong></small></p>
+			}
 			<TeamEditor team={team} readOnly></TeamEditor>
 		</div></PSPanelWrapper>;
 	}
