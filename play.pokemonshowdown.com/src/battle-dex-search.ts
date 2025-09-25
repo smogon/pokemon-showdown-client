@@ -7,7 +7,7 @@
  * Dependencies: battledata, search-index
  * Optional dependencies: pokedex, moves, items, abilities
  *
- * @author Guangcong Luo <guangcongluo@gmail.com>
+ * @author Guangcong Luo <guangcongluo@gmail.hcom>
  * @license MIT
  */
 
@@ -902,7 +902,6 @@ abstract class BattleTypedSearch<T extends SearchType> {
 			this.formatType === 'svdlc1' ? 'gen9dlc1' :
 			this.formatType === 'svdlc1doubles' ? 'gen9dlc1doubles' :
 			this.formatType === 'svdlc1natdex' ? 'gen9dlc1natdex' :
-			this.formatType === 'natdex' ? `gen${gen}natdex` :
 			this.formatType === 'stadium' ? `gen${gen}stadium${gen > 1 ? gen : ''}` :
 			`gen${gen}`;
 		if (table?.[tableKey]) {
@@ -1238,7 +1237,23 @@ class BattlePokemonSearch extends BattleTypedSearch<'pokemon'> {
 				}
 				return (bst2 - bst1) * sortOrder;
 			});
-		} else if (sortCol === 'name') {
+		} else if (sortCol === 'bsp') { // Added BSP sorting
+			return results.sort(([rowType1, id1], [rowType2, id2]) => {
+				const base1 = this.dex.species.get(id1).baseStats;
+				const base2 = this.dex.species.get(id2).baseStats;
+				let bsp1 = base1.hp * base1.atk * base1.def * base1.spa * base1.spd * base1.spe;
+				let bsp2 = base2.hp * base2.atk * base2.def * base2.spa * base2.spd * base2.spe;
+				// In Gen 1, SpD did not exist and was treated as Def for calculations.
+				// If you want to handle Gen 1 specifically for BSP, you might adjust here.
+				// For simplicity, we'll use 1 for SpD if it's not present (or 0 if it's truly 0).
+				if (this.dex.gen === 1) {
+					bsp1 = base1.hp * base1.atk * base1.def * base1.spa * base1.spe * 1; // Assuming SpD is 1 for product
+					bsp2 = base2.hp * base2.atk * base2.def * base2.spa * base2.spe * 1;
+				}
+				return (bsp2 - bsp1) * sortOrder;
+			});
+		}
+		else if (sortCol === 'name') {
 			return results.sort(([rowType1, id1], [rowType2, id2]) => {
 				const name1 = id1;
 				const name2 = id2;
