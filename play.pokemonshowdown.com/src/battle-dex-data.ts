@@ -1152,7 +1152,7 @@ export class Item implements Effect {
 			} else if (this.num >= 537) {
 				this.gen = 5;
 			} else if (this.num >= 377) {
-				this = 4;
+				this.gen = 4;
 			} else {
 				this.gen = 3;
 			}
