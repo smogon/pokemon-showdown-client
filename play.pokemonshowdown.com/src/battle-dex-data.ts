@@ -1152,7 +1152,7 @@ export class Item implements Effect {
 			} else if (this.num >= 537) {
 				this.gen = 5;
 			} else if (this.num >= 377) {
-				this.gen = 4;
+				this = 4;
 			} else {
 				this.gen = 3;
 			}
@@ -1480,6 +1480,7 @@ export class Species implements Effect {
 		hp: number, atk: number, def: number, spa: number, spd: number, spe: number,
 	}>;
 	readonly bst: number;
+	readonly bsp: number; // Added BSP property
 	readonly weightkg: number;
 
 	// flavor data
@@ -1538,6 +1539,9 @@ export class Species implements Effect {
 		this.baseStats = data.baseStats || { hp: 0, atk: 0, def: 0, spa: 0, spd: 0, spe: 0 };
 		this.bst = this.baseStats.hp + this.baseStats.atk + this.baseStats.def +
 			this.baseStats.spa + this.baseStats.spd + this.baseStats.spe;
+		// Calculate BSP (HP * Atk * Def * SpA * SpD * Spe)
+		this.bsp = this.baseStats.hp * this.baseStats.atk * this.baseStats.def *
+			this.baseStats.spa * this.baseStats.spd * this.baseStats.spe;
 		this.weightkg = data.weightkg || 0;
 
 		this.heightm = data.heightm || 0;
