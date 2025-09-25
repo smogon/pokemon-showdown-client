@@ -13,6 +13,38 @@ import { Teams } from "./battle-teams";
 import { BattleLog } from "./battle-log";
 import preact from "../js/lib/preact";
 
+// Assuming Dex.species.get(speciesId) returns an object with baseStats
+// This interface is for demonstration purposes, to clarify the expected structure
+// of species data that the calculateBSP function expects.
+interface SpeciesWithBaseStats {
+    baseStats: {
+        hp: number;
+        atk: number;
+        def: number;
+        spa: number;
+        spd: number;
+        spe: number;
+    };
+    // ... other species properties from Dex ...
+}
+
+/**
+ * Calculates the Base Stat Product (BSP) for a given Pokemon species.
+ * BSP = HP * Atk * Def * SpA * SpD * Spe
+ *
+ * @param speciesId The ID of the Pokemon species.
+ * @returns The Base Stat Product, or 0 if the species is not found or lacks base stats.
+ */
+function calculateBSP(speciesId: ID): number {
+    const species = Dex.species.get(speciesId) as SpeciesWithBaseStats | undefined;
+    if (!species || !species.baseStats) {
+        // console.warn(`Could not find species or base stats for ${speciesId}.`);
+        return 0;
+    }
+    const stats = species.baseStats;
+    return stats.hp * stats.atk * stats.def * stats.spa * stats.spd * stats.spe;
+}
+
 class PSTextarea extends preact.Component<{ initialValue?: string, name?: string }> {
 	updateSize = () => {
 		const textbox = this.base!.querySelector('textarea')!;
