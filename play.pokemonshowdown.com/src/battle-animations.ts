@@ -273,6 +273,20 @@ export class BattleScene implements BattleSceneStub {
 		transition: string, after?: string, additionalCss?: JQuery.PlainObject
 	) {
 		if (typeof effect === 'string') effect = BattleEffects[effect];
+
+		let $effect = $(`<img src="${effect.url!}" style="display:block;position:absolute" />`);
+		this.$fx.append($effect);
+		if (additionalCss) $effect.css(additionalCss);
+		$effect = this.$fx.children().last();
+
+		return this.animateEffect($effect, effect, start, end, transition, after);
+	}
+	animateEffect(
+		$effect: JQuery, effect: string | SpriteData, start: ScenePos, end: ScenePos,
+		transition: string, after?: string, additionalCss?: JQuery.PlainObject
+	) {
+		if (typeof effect === 'string') effect = BattleEffects[effect];
+
 		if (!start.time) start.time = 0;
 		if (!end.time) end.time = start.time + 500;
 		start.time += this.timeOffset;
@@ -285,16 +299,13 @@ export class BattleScene implements BattleSceneStub {
 		let startpos = this.pos(start, effect);
 		let endpos = this.posT(end, effect, transition, start);
 
-		let $effect = $(`<img src="${effect.url!}" style="display:block;position:absolute" />`);
-		this.$fx.append($effect);
-		if (additionalCss) $effect.css(additionalCss);
-		$effect = this.$fx.children().last();
-
 		if (start.time) {
 			$effect.css({ ...startpos, opacity: 0 });
 			$effect.delay(start.time).animate({
 				opacity: startpos.opacity,
 			}, 1);
+		} else if ($effect.queue().length) {
+			$effect.animate(startpos, 0);
 		} else {
 			$effect.css(startpos);
 		}
@@ -313,6 +324,8 @@ export class BattleScene implements BattleSceneStub {
 			$effect.animate(endendpos, 200);
 		}
 		this.waitFor($effect);
+
+		return $effect;
 	}
 	backgroundEffect(bg: string, duration: number, opacity = 1, delay = 0) {
 		let $effect = $('<div class="background"></div>');
