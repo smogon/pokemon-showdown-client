@@ -1,4 +1,3 @@
-```typescript
 /**
  * Pokemon Showdown Tooltips
  *
@@ -149,11 +148,9 @@ export class ModifiableValue {
 
 export class BattleTooltips {
 	battle: Battle;
-	statGuesser: BattleStatGuesser; // Add statGuesser instance
 
 	constructor(battle: Battle) {
 		this.battle = battle;
-		this.statGuesser = new BattleStatGuesser(battle.format); // Initialize statGuesser
 	}
 
 	// tooltips
@@ -641,44 +638,9 @@ export class BattleTooltips {
 		text += Dex.getTypeIcon(moveType);
 		text += ` ${Dex.getCategoryIcon(category)}</h2>`;
 
-		const isRandomizedMeta = this.battle.tier.includes('Random Battle') || this.battle.tier.includes('Randomized');
-		let attackerBSP = 0;
-		if (pokemon.speciesForme) { // Ensure speciesForme exists before getting species
-			const attackerSpecies = this.battle.dex.species.get(pokemon.speciesForme);
-			attackerBSP = this.statGuesser.calculateBSP(attackerSpecies);
-		}
-
-		let targetBSP = 0;
-		let activeTarget = foeActive[0] || foeActive[1] || foeActive[2];
-		if (activeTarget && activeTarget.speciesForme) { // Ensure speciesForme exists for target
-			const targetSpecies = this.battle.dex.species.get(activeTarget.speciesForme);
-			targetBSP = this.statGuesser.calculateBSP(targetSpecies);
-		}
-
-		let bspAdvantage: 'attacker' | 'defender' | 'none' = 'none';
-		let bspEffectText = '';
-
-		if (isRandomizedMeta && attackerBSP && targetBSP) {
-			const isTrickRoom = this.battle.hasPseudoWeather('Trick Room');
-			if ((!isTrickRoom && attackerBSP > targetBSP) || (isTrickRoom && attackerBSP < targetBSP)) {
-				bspAdvantage = 'attacker';
-				value.modify(2, 'higher BSP (Randomized Meta)');
-				// The ModifiableValue for accuracy should be set to 0 (can't miss)
-				// The getMoveAccuracy call later will overwrite this if not handled.
-				// For now, let's just make a note in the text and ensure accuracy display reflects "can't miss" if needed.
-				bspEffectText = `<p class="movetag"><strong>BSP Effect (Randomized Meta):</strong> Deals 2&times; damage, ignores accuracy checks, type matchups, stat stage/evasion changes, abilities, charging turns, move drawbacks, and guarantees secondary effects.</p>`;
-			} else if ((!isTrickRoom && attackerBSP < targetBSP) || (isTrickRoom && attackerBSP > targetBSP)) {
-				bspAdvantage = 'defender';
-				value.modify(0.5, 'lower BSP (Randomized Meta)');
-				bspEffectText = `<p class="movetag"><strong>BSP Effect (Randomized Meta):</strong> Deals 0.5&times; damage.</p>`;
-			}
-			text += bspEffectText;
-		}
-
 		// Check if there are more than one active Pokémon to check for multiple possible BPs.
 		let showingMultipleBasePowers = false;
-		// If BSP already modified damage, we don't need to calculate multiple BPs as the override is absolute.
-		if (category !== 'Status' && foeActive.length > 1 && bspAdvantage === 'none') {
+		if (category !== 'Status' && foeActive.length > 1) {
 			// We check if there is a difference in base powers to note it.
 			// Otherwise, it is just shown as in singles.
 			// The trick is that we need to calculate it first for each Pokémon to see if it changes.
@@ -688,11 +650,8 @@ export class BattleTooltips {
 			let basePowers = [];
 			for (const active of foeActive) {
 				if (!active) continue;
-				// Create a temporary ModifiableValue to get the individual base power without cumulative effects
-				const tempValue = new ModifiableValue(this.battle, pokemon, serverPokemon);
-				tempValue.reset(move.basePower);
-				const bp = this.getMoveBasePower(move, moveType, tempValue, active);
-				basePower = `${bp}`;
+				value = this.getMoveBasePower(move, moveType, value, active);
+				basePower = `${value}`;
 				if (prevBasePower === null) prevBasePower = basePower;
 				if (prevBasePower !== basePower) difference = true;
 				basePowers.push(`Base power vs ${active.name}: ${basePower}`);
@@ -704,13 +663,38 @@ export class BattleTooltips {
 			// Falls through to not to repeat code on showing the base power.
 		}
 		if (!showingMultipleBasePowers && category !== 'Status') {
+			let activeTarget = foeActive[0] || foeActive[1] || foeActive[2];
 			value = this.getMoveBasePower(move, moveType, value, activeTarget);
 			text += `<p>Base power: ${value}</p>`;
 		}
 
+		let activeTarget = foeActive[0] || foeActive[1] || foeActive[2]; // Default target for accuracy
 		let accuracy = this.getMoveAccuracy(move, value, activeTarget);
-		if (bspAdvantage === 'attacker') {
-			accuracy.set(0, 'higher BSP (Randomized Meta)'); // Override accuracy to 'can't miss'
+
+		// Deal with Nature Power special case, indicating which move it calls.
+		if (move.id === 'naturepower') {
+			let calls;
+			if (this.battle.gen > 5) {
+				if (this.battle.hasPseudoWeather('Electric Terrain')) {
+					calls = 'Thunderbolt';
+				} else if (this.battle.hasPseudoWeather('Grassy Terrain')) {
+					calls = 'Energy Ball';
+				} else if (this.battle.hasPseudoWeather('Misty Terrain')) {
+					calls = 'Moonblast';
+				} else if (this.battle.hasPseudoWeather('Psychic Terrain')) {
+					calls = 'Psychic';
+				} else {
+					calls = 'Tri Attack';
+				}
+			} else if (this.battle.gen > 3) {
+				// In gens 4 and 5 it calls Earthquake.
+				calls = 'Earthquake';
+			} else {
+				// In gen 3 it calls Swift, so it retains its normal typing.
+				calls = 'Swift';
+			}
+			let calledMove = this.battle.dex.moves.get(calls);
+			text += `Calls ${Dex.getTypeIcon(this.getMoveType(calledMove, value)[0])} ${calledMove.name}`;
 		}
 
 		text += `<p>Accuracy: ${accuracy}</p>`;
@@ -921,6 +905,18 @@ export class BattleTooltips {
 			text += '</p>';
 		}
 
+		// Display Base Stat Product
+		const speciesData = this.battle.dex.species.get(pokemon.speciesForme);
+		const bsp = BattleTooltips.calculateBaseStatProduct(speciesData);
+
+		if (bsp > 0) {
+			if (this.isRandomizedMeta()) {
+				text += `<p class="tooltip-section"><strong>Base Stat Product (BSP):</strong> ${bsp}</p>`;
+			} else {
+				text += `<p class="tooltip-section"><strong>Hidden Base Stat Product (BSP):</strong> ${bsp}</p>`;
+			}
+		}
+
 		const supportsAbilities = this.battle.gen > 2 && !this.battle.tier.includes("Let's Go");
 
 		let abilityText = '';
@@ -968,22 +964,6 @@ export class BattleTooltips {
 		}
 
 		text += this.renderStats(clientPokemon, serverPokemon, !isActive);
-
-		// BSP display
-		const species = this.battle.dex.species.get(pokemon.speciesForme);
-		if (species.exists) {
-			const bsp = this.statGuesser.calculateBSP(species);
-			const isRandomizedMeta = this.battle.tier.includes('Random Battle') || this.battle.tier.includes('Randomized');
-			text += `<p class="tooltip-section"><strong>Base Stat Product (BSP):</strong> ${bsp}<br />`;
-			if (isRandomizedMeta) {
-				const isTrickRoom = this.battle.hasPseudoWeather('Trick Room');
-				text += `(Randomized metas: BSP Determines turn order, Higher BSP (lower BSP if Trick Room) goes first, deals 2&times; damage, and ignores accuracy checks/type matchups, stat stage/evasion changes, abilities, charging turns, move drawbacks, and guarantees secondary effects. Lower BSP (higher BSP if Trick Room) goes last and deals 0.5&times; damage.)`;
-			} else {
-				text += `(Non-randomized metas: Hidden stat)`;
-			}
-			text += `</p>`;
-		}
-
 
 		if (serverPokemon && !isActive) {
 			// move list
@@ -1785,10 +1765,28 @@ export class BattleTooltips {
 	}
 
 	// Gets the current accuracy for a move.
-	getMoveAccuracy(move: Dex.Move, value: ModifiableValue, target?: Pokemon) {
+	getMoveAccuracy(move: Dex.Move, value: ModifiableValue, target?: Pokemon | null) {
 		value.reset(move.accuracy === true ? 0 : move.accuracy, true);
 
 		let pokemon = value.pokemon;
+		// Apply BSP accuracy bypass for randomized metas
+		if (this.isRandomizedMeta() && pokemon && target) {
+			const attackerSpecies = this.battle.dex.species.get(pokemon.speciesForme);
+			const targetSpecies = this.battle.dex.species.get(target.speciesForme);
+
+			const attackerBSP = BattleTooltips.calculateBaseStatProduct(attackerSpecies);
+			const targetBSP = BattleTooltips.calculateBaseStatProduct(targetSpecies);
+
+			if (attackerBSP > 0 && targetBSP > 0) {
+				const isTrickRoom = this.battle.hasPseudoWeather('Trick Room');
+				if ((attackerBSP > targetBSP && !isTrickRoom) || (attackerBSP < targetBSP && isTrickRoom)) {
+					// Higher BSP (or lower if Trick Room) goes first and ignores accuracy checks
+					value.set(0, "superior BSP bypasses accuracy checks (Randomized meta)"); // 0 for ModifiableValue means "can't miss"
+					return value; // Exit early as accuracy is guaranteed
+				}
+			}
+		}
+
 		// Sure-hit accuracy
 		if (move.id === 'toxic' && this.battle.gen >= 6 && this.pokemonHasType(pokemon, 'Poison')) {
 			value.set(0, "Poison type");
@@ -1939,6 +1937,33 @@ export class BattleTooltips {
 
 		value.reset(move.basePower);
 
+		// Apply BSP modifiers for randomized metas
+		if (this.isRandomizedMeta() && target && pokemon) {
+			const attackerSpecies = this.battle.dex.species.get(pokemon.speciesForme);
+			const targetSpecies = this.battle.dex.species.get(target.speciesForme);
+
+			const attackerBSP = BattleTooltips.calculateBaseStatProduct(attackerSpecies);
+			const targetBSP = BattleTooltips.calculateBaseStatProduct(targetSpecies);
+
+			if (attackerBSP > 0 && targetBSP > 0) {
+				const isTrickRoom = this.battle.hasPseudoWeather('Trick Room');
+				let bspModifier = 1;
+				let bspComment = "";
+
+				if ((attackerBSP > targetBSP && !isTrickRoom) || (attackerBSP < targetBSP && isTrickRoom)) {
+					bspModifier = 2; // Higher BSP (or lower if Trick Room)
+					bspComment = " (2x from superior BSP)";
+				} else if ((attackerBSP < targetBSP && !isTrickRoom) || (attackerBSP > targetBSP && isTrickRoom)) {
+					bspModifier = 0.5; // Lower BSP (or higher if Trick Room)
+					bspComment = " (0.5x from inferior BSP)";
+				}
+
+				if (bspModifier !== 1) {
+					value.modify(bspModifier, `Base Stat Product${bspComment}`);
+				}
+			}
+		}
+
 		if (move.id === 'acrobatics') {
 			if (!serverPokemon.item) {
 				value.modify(2, "Acrobatics + no item");
@@ -1965,7 +1990,7 @@ export class BattleTooltips {
 		if (move.id === 'facade' && !['', 'slp', 'frz'].includes(pokemon.status)) {
 			value.modify(2, 'Facade + status');
 		}
-		if (move.id === 'flail' || move.id === 'reversal') {
+		if (['flail', 'reversal'].includes(move.id)) {
 			let multiplier;
 			let ratios;
 			if (this.battle.gen > 4) {
@@ -2588,6 +2613,28 @@ export class BattleTooltips {
 		}
 		return text;
 	}
+
+	/**
+	 * Calculates the Base Stat Product (BSP) for a given species.
+	 * BSP = HP * Atk * Def * SpA * SpD * Spe
+	 * @param species The Dex.Species object for the Pokémon.
+	 * @returns The calculated BSP, or 0 if the species is invalid.
+	 */
+	static calculateBaseStatProduct(species: Dex.Species): number {
+		if (!species || !species.exists) return 0;
+		const stats = species.baseStats;
+		return stats.hp * stats.atk * stats.def * stats.spa * stats.spd * stats.spe;
+	}
+
+	/**
+	 * Checks if the current battle is in a randomized meta format.
+	 * This is typically indicated by "Random Battle" or "Challenge Cup" in the tier name.
+	 * @returns True if it's a randomized meta, false otherwise.
+	 */
+	isRandomizedMeta(): boolean {
+		const tierId = toID(this.battle.tier);
+		return tierId.includes('random') || tierId.includes('challengecup');
+	}
 }
 
 export class BattleStatGuesser {
@@ -3138,14 +3185,28 @@ export class BattleStatGuesser {
 			minusStat = 'atk';
 		} else if (stats.def > stats.spe && stats.spd > stats.spe && !evs['spe']) {
 			minusStat = 'spe';
-		} else if (stats.def > stats.spd) {
-			minusStat = 'spd';
 		} else {
-			minusStat = 'def';
+			minusStat = (plusStat === 'spe' ? 'spd' : 'spe'); // Fallback if no clear minus stat, try to avoid conflicting with plusStat
 		}
 
 		if (!minusStat || plusStat === minusStat) {
-			minusStat = (plusStat === 'spe' ? 'spd' : 'spe');
+			// If minusStat is still undecided or conflicts with plusStat, choose a default non-conflicting stat
+			const availableStats: Dex.StatNameExceptHP[] = ['atk', 'def', 'spa', 'spd', 'spe'];
+			const nonConflictingStats = availableStats.filter(s => s !== plusStat);
+			// Prioritize minimizing an offensive stat if no attacking moves of that type are present
+			if (plusStat !== 'spa' && (!moveCount['SpecialAttack'] || moveCount['SpecialAttack'] < moveCount['PhysicalAttack'])) {
+				minusStat = 'spa';
+			} else if (plusStat !== 'atk' && (!moveCount['PhysicalAttack'] || moveCount['PhysicalAttack'] < moveCount['SpecialAttack'])) {
+				minusStat = 'atk';
+			} else if (plusStat !== 'def') {
+				minusStat = 'def';
+			} else if (plusStat !== 'spd') {
+				minusStat = 'spd';
+			} else if (plusStat !== 'spe') {
+				minusStat = 'spe';
+			} else {
+				minusStat = nonConflictingStats[0] || 'atk'; // Last resort
+			}
 		}
 
 		evs.plusStat = plusStat;
@@ -3191,21 +3252,6 @@ export class BattleStatGuesser {
 			val = ~~(val) * friendshipValue / 100 + (this.supportsAVs ? ev : 0);
 		}
 		return ~~(val);
-	}
-
-	/**
-	 * Calculates the Base Stat Product (BSP) for a given Pokémon species.
-	 * BSP is calculated as Base HP * Base Atk * Base Def * Base SpA * Base SpD * Base Spe.
-	 * @param species The Dex.Species object for the Pokémon.
-	 * @returns The calculated Base Stat Product.
-	 */
-	calculateBSP(species: Dex.Species): number {
-		if (!species || !species.exists) return 0;
-		const { hp, atk, def, spa, spd, spe } = species.baseStats;
-		// Use Math.max(1, stat) to prevent zero base stats from making the entire product zero.
-		// Although typically base stats are at least 1.
-		return Math.max(1, hp) * Math.max(1, atk) * Math.max(1, def) *
-			   Math.max(1, spa) * Math.max(1, spd) * Math.max(1, spe);
 	}
 }
 
@@ -3323,7 +3369,6 @@ export function BattleStatOptimizer(set: Dex.PokemonSet, formatid: ID) {
 			newSpread.evs[bestPlus] = bestPlusMinEVs!;
 			newSpread.evs[bestMinus] = bestMinusMinEVs!;
 			if (origNature.plus && origNature.plus !== bestPlus && origNature.plus !== bestMinus) {
-				newSpread.evs[origNature.plus] = getMinEVs(origNature.plus.plus && origNature.plus !== bestPlus && origNature.plus !== bestMinus) {
 				newSpread.evs[origNature.plus] = getMinEVs(origNature.plus, newSpread);
 			}
 			if (origNature.minus && origNature.minus !== bestPlus && origNature.minus !== bestMinus) {
