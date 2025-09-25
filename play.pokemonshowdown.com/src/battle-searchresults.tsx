@@ -41,6 +41,8 @@ export class PSSearchResults extends preact.Component<{
 			<button class={`sortcol statsortcol${sortCol === 'spd' ? ' cur' : ''}`} data-sort="spd">SpD</button>
 			<button class={`sortcol statsortcol${sortCol === 'spe' ? ' cur' : ''}`} data-sort="spe">Spe</button>
 			<button class={`sortcol statsortcol${sortCol === 'bst' ? ' cur' : ''}`} data-sort="bst">BST</button>
+			{/* Added BSP sort option */}
+			<button class={`sortcol statsortcol${sortCol === 'bsp' ? ' cur' : ''}`} data-sort="bsp">BSP</button>
 		</div></li>;
 	}
 
@@ -67,6 +69,17 @@ export class PSSearchResults extends preact.Component<{
 		let bst = 0;
 		for (const stat of Object.values(stats)) bst += stat;
 		if (search.dex.gen < 2) bst -= stats['spd'];
+
+		// Calculate BSP (Battle Stat Product)
+		let bsp = 0;
+		if (search.dex.gen < 2) { // Gen 1: HP * Atk * Def * Special * Spe
+			// In Gen 1, Special Attack and Special Defense are combined into 'Special'.
+			// Assuming 'stats.spa' holds the 'Special' stat for Gen 1.
+			bsp = stats.hp * stats.atk * stats.def * stats.spa * stats.spe;
+		} else { // Gen 2+: HP * Atk * Def * SpA * SpD * Spe
+			bsp = stats.hp * stats.atk * stats.def * stats.spa * stats.spd * stats.spe;
+		}
+
 
 		if (errorMessage) {
 			return <li class="result"><a
@@ -133,6 +146,8 @@ export class PSSearchResults extends preact.Component<{
 				{search.dex.gen < 2 && <span class="col statcol"><em>Spc</em><br />{stats.spa}</span>}
 				<span class="col statcol"><em>Spe</em><br />{stats.spe}</span>
 				<span class="col bstcol"><em>BST<br />{bst}</em></span>
+				{/* Added BSP display */}
+				<span class="col bspcol"><em>BSP<br />{bsp}</em></span>
 			</a>
 		</li>;
 	}
