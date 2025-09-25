@@ -7,7 +7,7 @@
  * Dependencies: battledata, search-index
  * Optional dependencies: pokedex, moves, items, abilities
  *
- * @author Guangcong Luo <guangcongluo@gmail.hcom>
+ * @author Guangcong Luo <guangcongluo@gmail.com>
  * @license MIT
  */
 
