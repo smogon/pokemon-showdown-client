@@ -1061,7 +1061,7 @@ form.menugroup {
 	font-size: 18pt;
 	font-weight: normal;
 }
-/* .roomcounters .usercount {
+ .roomcounters .usercount {
 	display: block;
 	width: 49px;
 	height: 63px;
@@ -1084,31 +1084,7 @@ form.menugroup {
 }
 .roomcounters .button:hover .battlecount {
 	background: url(https://play.pokemonshowdown.com/sprites/gen5ani/meloetta-pirouette.gif) center no-repeat;
-} */
-.roomcounters .usercount {
-	display: block;
-	width: 96px;
-	height: 96px;
-	position: absolute;
-	left: -60px;
-	bottom: -20px;
-	background: url(https://play.pokemonshowdown.com/sprites/gen5/malamar.png) center no-repeat;
-}
-.roomcounters button:hover .usercount {
-	background: url(https://play.pokemonshowdown.com/sprites/gen5ani/malamar.gif) center no-repeat;
-}
-.roomcounters .battlecount {
-	display: block;
-	width: 96px;
-	height: 96px;
-	position: absolute;
-	right: -63px;
-	bottom: -20px;
-	background: url(https://play.pokemonshowdown.com/sprites/gen5/malamar.png) center no-repeat;
-}
-.roomcounters button:hover .battlecount {
-	background: url(https://play.pokemonshowdown.com/sprites/gen5ani/malamar.gif) center no-repeat;
-}
+} 
 
 .roomlist {
 	max-width: 480px;
