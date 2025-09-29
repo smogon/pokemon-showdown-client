@@ -290,6 +290,8 @@ export class ChatRoom extends PSRoom {
 		}
 		if (ChatRoom.getHighlight(message, this.id)) {
 			const mayNotify = time > lastMessageDate;
+			const roomsettings = PS.prefs.roomsettings?.[PS.server.id]?.[this.id];
+			if (roomsettings?.highlight === false) return true;
 			if (mayNotify) this.notify({
 				title: `Mentioned by ${name} in ${this.id}`,
 				body: `"${message}"`,
