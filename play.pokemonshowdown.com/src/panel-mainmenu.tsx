@@ -623,7 +623,7 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
 				</>
 			) : (PS.mainmenu.searchSent || PS.mainmenu.search.searching.length) ? (
 				<>
-					<button class="mainmenu1 mainmenu big button disabled" type="submit">
+					<button class="mainmenu1 mainmenu big button disabled">
 						<strong><i class="fa fa-refresh fa-spin" aria-hidden></i> Searching...</strong>
 					</button>
 					<p class="buttonbar"><button class="button" data-cmd="/cancelsearch">Cancel</button></p>
