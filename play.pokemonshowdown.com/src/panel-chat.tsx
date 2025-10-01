@@ -913,10 +913,21 @@ export class ChatTextEntry extends preact.Component<{
 				PS.leave(PS.room.id);
 				return true;
 			}
-		// } else if (e.keyCode === 32 && PS.user.lastPM && ['/reply', '/r', '/R'].includes(this.getValue())) { // '/reply ' is being written
-		// 	const newValue = `/pm ${PS.user.lastPM}, `;
-		// 	this.setValue(newValue, newValue.length);
-		// 	return true;
+			// } else if (e.keyCode === 32 && PS.user.lastPM && ['/reply', '/r', '/R'].includes(this.getValue())) { // '/reply ' is being written
+			// 	const newValue = `/pm ${PS.user.lastPM}, `;
+			// 	this.setValue(newValue, newValue.length);
+			// 	return true;
+		} else if (ev.shiftKey && ev.keyCode === 37) {
+			const toIndex = PS.rightRoomList.indexOf(PS.room.id) - 1;
+			PS.moveRoom(PS.room, 'right', false, toIndex);
+			PS.update();
+			return true;
+		} else if (ev.shiftKey && ev.keyCode === 39) {
+			let toIndex = PS.rightRoomList.indexOf(PS.room.id) + 1;
+			if (toIndex >= PS.rightRoomList.length - 1) toIndex = 0;
+			PS.moveRoom(PS.room, 'right', false, toIndex);
+			PS.update();
+			return true;
 		}
 		return false;
 	}
