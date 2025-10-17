@@ -7,7 +7,7 @@
  */
 
 import preact from "../js/lib/preact";
-import { type Team, Config } from "./client-main";
+import { type Team, Config, PS } from "./client-main";
 import { Dex, type ModdedDex, toID, type ID, PSUtils } from "./battle-dex";
 import { Teams } from './battle-teams';
 import { DexSearch, type SearchRow, type SearchType } from "./battle-dex-search";
@@ -27,13 +27,14 @@ type SampleSets = {
 };
 type SampleSetsTable = { dex?: SampleSets, stats?: SampleSets };
 
-class TeamEditorState extends PSModel {
+export class TeamEditorState extends PSModel {
 	static clipboard: {
 		teams: {
 			[teamKey: string]: {
 				team: Team,
 				sets: { [index: number]: Dex.PokemonSet },
-				/** whether to delete the team itself when moving it */
+				/** was the team added from the team list rather than the team editor's set list?
+				  * (if yes, delete the team itself when moving it) */
 				entire: boolean,
 			},
 		} | null,
@@ -250,6 +251,7 @@ class TeamEditorState extends PSModel {
 
 		if (TeamEditorState.clipboard.teams[this.team.key].sets[index] === this.sets[index]) {
 			// remove
+			TeamEditorState.clipboard.teams[this.team.key].entire = false;
 			delete TeamEditorState.clipboard.teams[this.team.key].sets[index];
 			if (!Object.keys(TeamEditorState.clipboard.teams[this.team.key].sets).length) {
 				delete TeamEditorState.clipboard.teams[this.team.key];
@@ -263,6 +265,33 @@ class TeamEditorState extends PSModel {
 			return;
 		}
 		TeamEditorState.clipboard.teams[this.team.key].sets[index] = this.sets[index];
+	}
+	static copyTeam(team: Team) {
+		TeamEditorState.clipboard ||= {
+			teams: {},
+			otherSets: null,
+			readonly: false,
+		};
+		TeamEditorState.clipboard.teams ||= {};
+
+		if (TeamEditorState.clipboard.teams[team.key]) {
+			// remove
+			delete TeamEditorState.clipboard.teams[team.key];
+			if (!Object.keys(TeamEditorState.clipboard.teams).length) {
+				TeamEditorState.clipboard.teams = null;
+				if (!TeamEditorState.clipboard.otherSets) {
+					TeamEditorState.clipboard = null;
+				}
+			}
+			return;
+		}
+		TeamEditorState.clipboard.teams[team.key] ||= {
+			team, sets: {}, entire: true,
+		};
+		const sets = Teams.unpack(team.packedTeam);
+		for (let i = 0; i < sets.length; i++) {
+			TeamEditorState.clipboard.teams[team.key].sets[i] = sets[i];
+		}
 	}
 	pasteSet(index: number, isMove?: boolean) {
 		if (!TeamEditorState.clipboard) return;
@@ -305,6 +334,73 @@ class TeamEditorState extends PSModel {
 			this.sets.splice(index, 0, newSet);
 			index++;
 		}
+		TeamEditorState.clipboard = null;
+	}
+	static pasteTeam(index: number, isMove?: boolean, folder = '') {
+		if (!TeamEditorState.clipboard) return;
+
+		if (isMove) {
+			if (TeamEditorState.clipboard.readonly) return;
+
+			const indexesToRemove: number[] = [];
+			for (const key in TeamEditorState.clipboard.teams) {
+				if (TeamEditorState.clipboard.teams[key].entire) {
+					const team = TeamEditorState.clipboard.teams[key].team;
+					const i = PS.teams.list.indexOf(team);
+					if (i >= 0) indexesToRemove.push(i);
+				}
+			}
+			// descending order, so splices won't affect future indices
+			indexesToRemove.sort((a, b) => -(a - b));
+			for (const i of indexesToRemove) {
+				PS.teams.list.splice(i, 1);
+				if (i < index) index--;
+			}
+		}
+
+		const teams: Team[] = [];
+
+		const sets: Teams.PokemonSet[] = [];
+		for (const key in TeamEditorState.clipboard.teams) {
+			const clipboardTeam = TeamEditorState.clipboard.teams[key];
+			if (clipboardTeam.entire) {
+				if (isMove) {
+					teams.push(clipboardTeam.team);
+					clipboardTeam.team.folder = folder;
+				} else {
+					const team: Team = {
+						name: `${clipboardTeam.team.name} (copy)`,
+						format: clipboardTeam.team.format,
+						folder,
+						packedTeam: clipboardTeam.team.packedTeam,
+						isBox: clipboardTeam.team.isBox,
+						iconCache: null,
+						key: '',
+					};
+					teams.push(team);
+				}
+			} else {
+				for (const set of Object.values(clipboardTeam.sets)) {
+					sets.push(set);
+				}
+			}
+		}
+		sets.push(...TeamEditorState.clipboard.otherSets || []);
+		if (sets.length) {
+			const team: Team = {
+				name: `Pasted Team`,
+				format: Dex.modid,
+				folder,
+				packedTeam: Teams.pack(sets),
+				isBox: false,
+				iconCache: null,
+				key: '',
+			};
+			teams.push(team);
+		}
+
+		PS.teams.spliceIn(index, teams);
+
 		TeamEditorState.clipboard = null;
 	}
 	ignoreRows = ['header', 'sortpokemon', 'sortmove', 'html'];
@@ -796,6 +892,37 @@ class TeamEditorState extends PSModel {
 		if (Object.keys(cachedSets).length === 0) return null;
 		return cachedSets[set.species] || {};
 	}
+
+	static renderClipboard(cancelClipboard: () => void) {
+		if (!TeamEditorState.clipboard) return null;
+
+		const renderSet = (set: Dex.PokemonSet) => <div class="set">
+			<small>
+				<PSIcon pokemon={set} /> {set.name || set.species}
+				{set.ability && ` [${set.ability}]`}{set.item && ` @ ${set.item}`}
+				{} - {set.moves.join(' / ') || '(No moves)'}
+			</small>
+		</div>;
+		const renderTeam = (team: Team, sets: Dex.PokemonSet[]) => <div class="set"><small>
+			<strong>{team.name}</strong><br />
+			{sets.map(set => <PSIcon pokemon={set} />)}
+		</small></div>;
+
+		return <div class="infobox">
+			Clipboard
+			{Object.values(TeamEditorState.clipboard.teams || {})?.map(clipboardTeam => (
+				clipboardTeam.entire ? (
+					renderTeam(clipboardTeam.team, Object.values(clipboardTeam.sets))
+				) : (
+					Object.values(clipboardTeam.sets).map(set => renderSet(set))
+				)
+			))}
+			{TeamEditorState.clipboard.otherSets?.map(set => renderSet(set))}
+			<button class="button" onClick={cancelClipboard}>
+				<i class="fa fa-times" aria-hidden></i> Cancel
+			</button>
+		</div>;
+	}
 }
 
 export class TeamEditor extends preact.Component<{
@@ -855,27 +982,6 @@ export class TeamEditor extends preact.Component<{
 	update = () => {
 		this.forceUpdate();
 	};
-	renderClipboard() {
-		if (!TeamEditorState.clipboard) return null;
-
-		const renderSet = (set: Dex.PokemonSet) => <div class="set">
-			<small>
-				<PSIcon pokemon={set} /> {set.name || set.species}
-				{set.ability && ` [${set.ability}]`}{set.item && ` @ ${set.item}`}
-				{} - {set.moves.join(' / ') || '(No moves)'}
-			</small>
-		</div>;
-		return <div class="infobox">
-			Clipboard
-			{Object.values(TeamEditorState.clipboard.teams || {})?.map(clipboardTeam => (
-				Object.values(clipboardTeam.sets).map(set => renderSet(set))
-			))}
-			{TeamEditorState.clipboard.otherSets?.map(set => renderSet(set))}
-			<button class="button" onClick={this.cancelClipboard}>
-				<i class="fa fa-times" aria-hidden></i> Cancel
-			</button>
-		</div>;
-	}
 	override render() {
 		if (!this.editor) {
 			this.editor = new TeamEditorState(this.props.team);
@@ -900,7 +1006,7 @@ export class TeamEditor extends preact.Component<{
 					Import/Export
 				</button></li>
 			</ul>
-			{this.renderClipboard()}
+			{TeamEditorState.renderClipboard(this.cancelClipboard)}
 			{this.wizard ? (
 				<TeamWizard editor={editor} onChange={this.props.onChange} onUpdate={this.update} />
 			) : (
@@ -1867,7 +1973,7 @@ class TeamWizard extends preact.Component<{
 			<div style="text-align:right">
 				<button class="option" onClick={this.copySet} value={i}>
 					<i class="fa fa-copy" aria-hidden></i> {
-						isCur ? "Remove from clipboard" :
+						isCur ? "Deselect" :
 						TeamEditorState.clipboard ? "Add to clipboard" :
 						editor.readonly ? "Copy" :
 						"Copy/Move"
