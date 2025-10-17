@@ -196,6 +196,9 @@
 	margin: 3px 0;
 	padding: 0;
 }
+.teamlist li.cur .team {
+	opacity: 0.5;
+}
 .teamdropdown li {
 	display: inline-block;
 	margin: 3px;

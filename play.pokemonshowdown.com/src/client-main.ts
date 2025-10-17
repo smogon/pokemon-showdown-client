@@ -432,6 +432,13 @@ class PSTeams extends PSStreamModel<'team' | 'format'> {
 		if (this.byKey[team.key]) team.key = this.getKey(team.name);
 		this.byKey[team.key] = team;
 	}
+	spliceIn(index: number, teams: Team[]) {
+		for (const team of teams) {
+			team.key ||= this.getKey(team.name);
+			this.byKey[team.key] = team;
+		}
+		this.list.splice(index, 0, ...teams);
+	}
 	unpackOldBuffer(buffer: string) {
 		PS.alert(`Your team storage format is too old for PS. You'll need to upgrade it at https://${Config.routes.client}/recoverteams.html`);
 		this.list = [];
