@@ -303,7 +303,14 @@ export class ChatRoom extends PSRoom {
 		'chall,challenge'(target) {
 			if (target) {
 				const [targetUser, format] = target.split(',');
-				PS.join(`challenge-${toID(targetUser)}` as RoomID);
+				const callback = (data: any) => {
+					PS.mainmenu.listeners.userdetails = null;
+					if (data.rooms === false) return this.errorReply('This player does not exist or is not online.');
+					PS.join(`challenge-${toID(targetUser)}` as RoomID, { args: { format: format.trim() } });
+				};
+				// alternate approach, old client uses app.on('response:userdetails')
+				PS.mainmenu.listeners.userdetails = callback;
+				PS.send(`/cmd userdetails ${targetUser}`);
 				return;
 			}
 			this.openChallenge();
@@ -548,6 +555,7 @@ export class ChatRoom extends PSRoom {
 	updateChallenge(name: string, challengeString: string) {
 		const challenge = this.parseChallenge(challengeString);
 		const userid = toID(name);
+		if (this.args?.format) this.args.format = null;
 
 		if (userid === PS.user.userid) {
 			if (!challenge && !this.challenging) {
@@ -1184,7 +1192,7 @@ class ChatPanel extends PSRoomPanel<ChatRoom> {
 				<button data-cmd="/cancelchallenge" class="button">Cancel</button>
 			</TeamForm>
 		</div> : room.challengeMenuOpen ? <div class="challenge">
-			<TeamForm onSubmit={this.makeChallenge}>
+			<TeamForm onSubmit={this.makeChallenge} format={room.args?.format as string || undefined}>
 				<button type="submit" class="button button-first">
 					<strong>Challenge</strong>
 				</button><button data-href="battleoptions" class="button button-last" aria-label="Battle options">
@@ -1196,7 +1204,10 @@ class ChatPanel extends PSRoomPanel<ChatRoom> {
 
 		const challengeFrom = room.challenged ? <div class="challenge">
 			{!!room.challenged.message && <p>{room.challenged.message}</p>}
-			<TeamForm format={room.challenged.formatName} teamFormat={room.challenged.teamFormat} onSubmit={this.acceptChallenge}>
+			<TeamForm
+				format={room.challenged.formatName} teamFormat={room.challenged.teamFormat} onSubmit={this.acceptChallenge}
+				disableFormatDropdown={true}
+			>
 				<button type="submit" class={room.challenged.formatName ? `button button-first` : `button`}>
 					<strong>{room.challenged.acceptButtonLabel || 'Accept'}</strong>
 				</button>

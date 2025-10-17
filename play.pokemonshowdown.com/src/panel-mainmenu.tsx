@@ -25,6 +25,7 @@ export type RoomInfo = {
 
 export class MainMenuRoom extends PSRoom {
 	override readonly classType: string = 'mainmenu';
+	listeners: Record<string, ((response: any) => void) | null> = {};
 	userdetailsCache: {
 		[userid: string]: {
 			userid: ID,
@@ -428,6 +429,8 @@ export class MainMenuRoom extends PSRoom {
 			}
 			break;
 		}
+		const callback = this.listeners[id];
+		callback?.(response);
 	}
 }
 
@@ -687,7 +690,7 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
 
 export class FormatDropdown extends preact.Component<{
 	selectType?: SelectType, format?: string, defaultFormat?: string, placeholder?: string,
-	onChange?: JSX.EventHandler<Event>,
+	onChange?: JSX.EventHandler<Event>, disabled?: boolean,
 }> {
 	declare base?: HTMLButtonElement;
 	format = '';
@@ -706,7 +709,7 @@ export class FormatDropdown extends preact.Component<{
 		this.format ||= this.props.format || this.props.defaultFormat || '';
 		let [formatName, customRules] = this.format.split('@@@');
 		if (window.BattleLog) formatName = BattleLog.formatName(formatName);
-		if (this.props.format || PS.mainmenu.searchSent) {
+		if (this.props.disabled || PS.mainmenu.searchSent) {
 			return <button
 				name="format" value={this.format} class="select formatselect preselected" disabled
 			>
@@ -775,6 +778,7 @@ export class TeamForm extends preact.Component<{
 	class?: string, format?: string, teamFormat?: string, hideFormat?: boolean, selectType?: SelectType,
 	onSubmit: ((e: Event, format: string, team?: Team) => void) | null,
 	onValidate?: ((e: Event, format: string, team?: Team) => void) | null,
+	disableFormatDropdown?: boolean,
 }> {
 	format = '';
 	changeFormat = (ev: Event) => {
@@ -830,7 +834,7 @@ export class TeamForm extends preact.Component<{
 					Format:<br />
 					<FormatDropdown
 						selectType={this.props.selectType} format={this.props.format} defaultFormat={this.format}
-						onChange={this.changeFormat}
+						onChange={this.changeFormat} disabled={!!this.props.disableFormatDropdown}
 					/>
 				</label>
 			</p>}
