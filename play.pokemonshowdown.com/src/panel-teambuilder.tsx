@@ -231,7 +231,7 @@ class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
 		e.preventDefault();
 		e.stopImmediatePropagation();
 		if (folder === '++') {
-			PS.prompt("Folder name?", { parentElem: elem!, okButton: "Create" }).then(name => {
+			PS.prompt("Folder name?", { parentElem: elem, okButton: "Create" }).then(name => {
 				name = (name || '').trim();
 				if (!name) return;
 
