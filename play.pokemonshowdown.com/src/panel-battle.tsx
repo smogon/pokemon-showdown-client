@@ -483,6 +483,9 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 			<p>
 				<button class="button" data-cmd="/switchsides">
 					<i class="fa fa-random" aria-hidden></i> Switch viewpoint
+				</button> {}
+				<button class="button" data-cmd="/ffto">
+					<i class="fa fa-random" aria-hidden></i> Go to turn
 				</button>
 			</p>
 		</div>;
@@ -1010,7 +1013,10 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 				</p>
 			) : (
 				<p>
-					<button class="button" data-cmd="/switchsides"><i class="fa fa-random" aria-hidden></i> Switch viewpoint</button>
+					<button class="button" data-cmd="/switchsides"><i class="fa fa-random" aria-hidden></i> Switch viewpoint</button> {}
+					<button class="button" data-cmd="/ffto">
+						<i class="fa fa-random" aria-hidden></i> Go to turn
+					</button>
 				</p>
 			)}
 		</div>;

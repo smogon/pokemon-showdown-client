@@ -1745,7 +1745,9 @@ class PopupPanel extends PSRoomPanel<PopupRoom> {
 		const cancelButton = room.args?.cancelButton as string | undefined;
 		const otherButtons = room.args?.otherButtons as preact.ComponentChildren;
 		const value = room.args?.value as string | undefined;
-		const type = (room.args?.type || (typeof value === 'string' ? 'text' : null)) as string | null;
+		let type = (room.args?.type || (typeof value === 'string' ? 'text' : null)) as string | null;
+		const inputMode = type === 'numeric' ? 'numeric' : undefined;
+		if (type === 'numeric') type = 'text';
 		const message = room.args?.message;
 		return <PSPanelWrapper room={room} width={room.args?.width as number || 480}>
 			<form class="pad" onSubmit={this.handleSubmit}>
@@ -1753,7 +1755,9 @@ class PopupPanel extends PSRoomPanel<PopupRoom> {
 					style="white-space:pre-wrap;word-wrap:break-word"
 					dangerouslySetInnerHTML={{ __html: this.parseMessage(message as string || '') }}
 				></p>}
-				{!!type && <p><input name="value" type={type} class="textbox autofocus" style="width:100%;box-sizing:border-box" /></p>}
+				{!!type && <p><input
+					name="value" type={type} inputMode={inputMode} class="textbox autofocus" style="width:100%;box-sizing:border-box"
+				/></p>}
 				<p class="buttonbar">
 					<button class={`button${!type ? ' autofocus' : ''}`} type="submit" style="min-width:50px">
 						<strong>{okButton}</strong>

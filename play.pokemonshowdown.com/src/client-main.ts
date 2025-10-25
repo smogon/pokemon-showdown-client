@@ -1634,6 +1634,14 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 				this.add('||/showbattles - Receive links to new battles in Lobby.');
 				this.add('||/hidebattles - Ignore links to new battles in Lobby.');
 				return;
+			case 'ffto':
+			case 'fastforwardto':
+				this.add('||/ffto [turn] - Skip to turn [turn] in the current battle.');
+				this.add('||/ffto +[turn] - Skip forward [turn] turns.');
+				this.add('||/ffto -[turn] - Skip backward [turn] turns.');
+				this.add('||/ffto 0 - Skip to the start of the battle.');
+				this.add('||/ffto end - Skip to the end of the battle.');
+				return;
 			case 'unpackhidden':
 			case 'packhidden':
 				this.add('||/unpackhidden - Suppress hiding locked or banned users\' chat messages after the fact.');
@@ -2382,8 +2390,8 @@ export const PS = new class extends PSModel {
 		});
 	}
 	prompt(message: string, opts: {
-		defaultValue?: string, okButton?: string, cancelButton?: string, type?: 'text' | 'password' | 'number',
-		otherButtons?: preact.ComponentChildren, parentElem?: HTMLElement,
+		defaultValue?: string, okButton?: string, cancelButton?: string, type?: 'text' | 'password' | 'number' | 'numeric',
+		otherButtons?: preact.ComponentChildren, parentElem?: HTMLElement | null,
 	} = {}): Promise<string | null> {
 		opts.cancelButton ??= 'Cancel';
 		return new Promise(resolve => {
