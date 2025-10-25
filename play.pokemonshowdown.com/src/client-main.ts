@@ -18,6 +18,7 @@ import { Dex, toID, type ID } from './battle-dex';
 import { BattleTextParser, type Args } from './battle-text-parser';
 import type { BattleRoom } from './panel-battle';
 import { Teams } from './battle-teams';
+import type preact from '../js/lib/preact';
 
 declare const BattleTextAFD: any;
 declare const BattleTextNotAFD: any;
@@ -2376,21 +2377,29 @@ export const PS = new class extends PSModel {
 			parentElem: opts.parentElem,
 		});
 	}
-	confirm(message: string, opts: { okButton?: string, cancelButton?: string } = {}) {
+	confirm(message: string, opts: {
+		okButton?: string, cancelButton?: string,
+		otherButtons?: preact.ComponentChildren, parentElem?: HTMLElement,
+	} = {}) {
 		opts.cancelButton ??= 'Cancel';
 		return new Promise(resolve => {
 			this.join(`popup-${this.popups.length}` as RoomID, {
-				args: { message, okValue: true, cancelValue: false, callback: resolve, ...opts },
+				args: { message, okValue: true, cancelValue: false, callback: resolve, ...opts, parentElem: null },
+				parentElem: opts.parentElem,
 			});
 		});
 	}
-	prompt(message: string, defaultValue = '', opts: {
-		okButton?: string, cancelButton?: string, type?: 'text' | 'password' | 'number' | 'numeric', parentElem?: HTMLElement,
+	prompt(message: string, opts: {
+		defaultValue?: string, okButton?: string, cancelButton?: string, type?: 'text' | 'password' | 'number' | 'numeric',
+		otherButtons?: preact.ComponentChildren, parentElem?: HTMLElement,
 	} = {}): Promise<string | null> {
 		opts.cancelButton ??= 'Cancel';
 		return new Promise(resolve => {
 			this.join(`popup-${this.popups.length}` as RoomID, {
-				args: { message, value: defaultValue, okValue: true, cancelValue: false, callback: resolve, ...opts, parentElem: null },
+				args: {
+					message, value: opts.defaultValue || '',
+					okValue: true, cancelValue: false, callback: resolve, ...opts, parentElem: null,
+				},
 				parentElem: opts.parentElem,
 			});
 		});
