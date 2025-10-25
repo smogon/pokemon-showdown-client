@@ -1635,7 +1635,11 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 				return;
 			case 'ffto':
 			case 'fastforwardto':
-				this.add('||/ffto [turn] - Resets current battle to the given turn number');
+				this.add('||/ffto [turn] - Skip to turn [turn] in the current battle.');
+				this.add('||/ffto +[turn] - Skip forward [turn] turns.');
+				this.add('||/ffto -[turn] - Skip backward [turn] turns.');
+				this.add('||/ffto 0 - Skip to the start of the battle.');
+				this.add('||/ffto end - Skip to the end of the battle.');
 				return;
 			case 'unpackhidden':
 			case 'packhidden':
@@ -1706,7 +1710,7 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 		if (cmdResult === true) return line;
 		return cmdResult || null;
 	}
-	send(msg: string | null, element?: HTMLElement) {
+	send(msg: string | null, element?: HTMLElement | null) {
 		if (!msg) return;
 		msg = this.handleSend(msg, element);
 		if (!msg) return;
@@ -2381,7 +2385,7 @@ export const PS = new class extends PSModel {
 		});
 	}
 	prompt(message: string, defaultValue = '', opts: {
-		okButton?: string, cancelButton?: string, type?: 'text' | 'password' | 'number', parentElem?: HTMLElement,
+		okButton?: string, cancelButton?: string, type?: 'text' | 'password' | 'number' | 'numeric', parentElem?: HTMLElement,
 	} = {}): Promise<string | null> {
 		opts.cancelButton ??= 'Cancel';
 		return new Promise(resolve => {

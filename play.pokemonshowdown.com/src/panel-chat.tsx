@@ -450,8 +450,19 @@ export class ChatRoom extends PSRoom {
 			this.battle.pause();
 			this.update(null);
 		},
-		'ffto,fastfowardto'(target) {
+		'ffto,fastfowardto'(target, cmd, elem) {
 			if (!this.battle) return this.add('|error|You are not in a battle');
+			if (!target) {
+				PS.prompt("Turn number?", `${this.battle.turn}`, {
+					type: 'numeric',
+					parentElem: elem || undefined,
+					okButton: 'Go',
+				}).then(turnNum => {
+					if (turnNum?.trim()) this.send(`/ffto ${turnNum}`, elem);
+				});
+				return;
+			}
+
 			let turnNum = Number(target);
 			if (target.startsWith('+') || turnNum < 0) {
 				turnNum += this.battle.turn;
@@ -460,7 +471,7 @@ export class ChatRoom extends PSRoom {
 				turnNum = Infinity;
 			}
 			if (isNaN(turnNum)) {
-				this.receiveLine([`error`, `/ffto - Invalid turn number: ${target}`]);
+				this.errorReply(`Invalid turn number: ${target}`);
 				return;
 			}
 			this.battle.seekTurn(turnNum);
