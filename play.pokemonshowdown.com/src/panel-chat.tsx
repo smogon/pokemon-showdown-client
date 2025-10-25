@@ -450,16 +450,16 @@ export class ChatRoom extends PSRoom {
 			this.battle.pause();
 			this.update(null);
 		},
-		'ffto,fastfowardto'(target, cmd, elem) {
+		'ffto,fastfowardto'(target, cmd, parentElem) {
 			if (!this.battle) return this.add('|error|You are not in a battle');
 			if (!target) {
 				PS.prompt("Turn number?", {
 					defaultValue: `${this.battle.turn}`,
 					type: 'numeric',
-					parentElem: elem || undefined,
 					okButton: 'Go',
+					parentElem,
 				}).then(turnNum => {
-					if (turnNum?.trim()) this.send(`/ffto ${turnNum}`, elem);
+					if (turnNum?.trim()) this.send(`/ffto ${turnNum}`, parentElem);
 				});
 				return;
 			}
