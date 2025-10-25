@@ -303,14 +303,10 @@ export class ChatRoom extends PSRoom {
 		'chall,challenge'(target) {
 			if (target) {
 				const [targetUser, format] = target.split(',');
-				const callback = (data: any) => {
-					PS.mainmenu.listeners.userdetails = null;
+				PS.mainmenu.makeQuery('userdetails', targetUser).then(data => {
 					if (data.rooms === false) return this.errorReply('This player does not exist or is not online.');
 					PS.join(`challenge-${toID(targetUser)}` as RoomID, { args: { format: format.trim() } });
-				};
-				// alternate approach, old client uses app.on('response:userdetails')
-				PS.mainmenu.listeners.userdetails = callback;
-				PS.send(`/cmd userdetails ${targetUser}`);
+				});
 				return;
 			}
 			this.openChallenge();

@@ -25,7 +25,7 @@ export type RoomInfo = {
 
 export class MainMenuRoom extends PSRoom {
 	override readonly classType: string = 'mainmenu';
-	listeners: Record<string, ((response: any) => void) | null> = {};
+	listeners: Record<string, ((response: any) => void)[] | null> = {};
 	userdetailsCache: {
 		[userid: string]: {
 			userid: ID,
@@ -351,10 +351,29 @@ export class MainMenuRoom extends PSRoom {
 		if (message) room.receiveLine([`c`, user1, message]);
 		PS.update();
 	}
+	/**
+	 * Client-to-server query. Handles `/crq` aka `/cmd`.
+	 *
+	 * Most queries are still handled hardcoded, so this is only for certain
+	 * special queries that need a Promise.
+	 */
+	makeQuery(id: string, param?: string) {
+		let fullid = id;
+		if (param) fullid += ` ${toID(param)}`;
+		return new Promise<any>(resolve => {
+			if (!this.listeners[fullid]) {
+				this.listeners[fullid] = [];
+				PS.send(`/cmd ${id} ${param || ''}`);
+			}
+			this.listeners[fullid]!.push(resolve);
+		});
+	}
 	handleQueryResponse(id: ID, response: any) {
+		let fullid: string = id;
 		switch (id) {
 		case 'userdetails':
 			let userid = response.userid;
+			fullid += ` ${userid}`;
 			let userdetails = this.userdetailsCache[userid];
 			if (!userdetails) {
 				this.userdetailsCache[userid] = response;
@@ -429,8 +448,8 @@ export class MainMenuRoom extends PSRoom {
 			}
 			break;
 		}
-		const callback = this.listeners[id];
-		callback?.(response);
+		for (const callback of this.listeners[fullid] || []) callback(response);
+		delete this.listeners[fullid];
 	}
 }
 
