@@ -1061,7 +1061,7 @@ form.menugroup {
 	font-size: 18pt;
 	font-weight: normal;
 }
- .roomcounters .usercount {
+.roomcounters .usercount {
 	display: block;
 	width: 49px;
 	height: 63px;
@@ -1084,7 +1084,7 @@ form.menugroup {
 }
 .roomcounters .button:hover .battlecount {
 	background: url(https://play.pokemonshowdown.com/sprites/gen5ani/meloetta-pirouette.gif) center no-repeat;
-} 
+}
 
 .roomlist {
 	max-width: 480px;
