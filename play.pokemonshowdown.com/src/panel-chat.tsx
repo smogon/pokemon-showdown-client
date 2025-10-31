@@ -1192,13 +1192,17 @@ class ChatPanel extends PSRoomPanel<ChatRoom> {
 		const room = this.props.room;
 		const tinyLayout = room.width < 450;
 
+		const defaultFormat = room.args?.format as string | undefined;
+		if (defaultFormat?.startsWith('!!')) {
+			room.args!.format = undefined;
+		}
 		const challengeTo = room.challenging ? <div class="challenge">
 			<p>Waiting for {room.pmTarget}...</p>
 			<TeamForm format={room.challenging.formatName} teamFormat={room.challenging.teamFormat} onSubmit={null}>
 				<button data-cmd="/cancelchallenge" class="button">Cancel</button>
 			</TeamForm>
 		</div> : room.challengeMenuOpen ? <div class="challenge">
-			<TeamForm onSubmit={this.makeChallenge} defaultFormat={room.args?.format as string}>
+			<TeamForm onSubmit={this.makeChallenge} defaultFormat={defaultFormat}>
 				<button type="submit" class="button button-first">
 					<strong>Challenge</strong>
 				</button><button data-href="battleoptions" class="button button-last" aria-label="Battle options">

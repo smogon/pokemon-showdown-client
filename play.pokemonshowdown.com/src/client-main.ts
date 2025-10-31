@@ -2440,6 +2440,9 @@ export const PS = new class extends PSModel {
 		if (preexistingRoom) {
 			if (options.args?.format) {
 				preexistingRoom.args = options.args;
+				if ((preexistingRoom as ChatRoom).challengeMenuOpen) {
+					options.args.format = `!!${options.args.format as string}`;
+				}
 			}
 			if (options.autofocus) {
 				if (options.args?.challengeMenuOpen) {

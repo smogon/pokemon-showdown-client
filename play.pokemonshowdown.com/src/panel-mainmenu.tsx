@@ -724,13 +724,8 @@ export class FormatDropdown extends preact.Component<{
 		this.forceUpdate();
 		if (this.props.onChange) this.props.onChange(e);
 	};
-	override componentWillMount() {
-		if (this.props.format !== undefined) {
-			this.format = this.props.format;
-		}
-	}
 	render() {
-		this.format ||= this.props.format || this.props.defaultFormat || '';
+		this.format = this.props.format || this.format || this.props.defaultFormat || '';
 		let [formatName, customRules] = this.format.split('@@@');
 		if (window.BattleLog) formatName = BattleLog.formatName(formatName);
 		if (this.props.format && !this.props.onChange) {
@@ -855,6 +850,11 @@ export class TeamForm extends preact.Component<{
 					break;
 				}
 			}
+		}
+		if (this.props.defaultFormat?.startsWith('!!')) {
+			// The !! means that it overrides any current format, and will only be
+			// sent as a prop once
+			this.format = this.props.defaultFormat.slice(2);
 		}
 		if (this.props.format) this.format = this.props.format;
 
