@@ -65,10 +65,13 @@ export class MainMenuRoom extends PSRoom {
 		if (this.disallowSpectators) return '/noreply /hidenext \n';
 		return '';
 	}
-	startSearch = (format: string, team?: Team) => {
+	startSearch = (format: string, team?: Team, parentElem?: HTMLElement | null) => {
 		PS.requestNotifications();
 		if (this.searchCountdown) {
-			PS.alert("Wait for this countdown to finish first...");
+			PS.alert("Wait for this countdown to finish first...", { parentElem });
+			return;
+		} else if (this.search.searching.includes(format)) {
+			PS.alert(`You're already searching for a ${BattleLog.formatName(format)} battle...`, { parentElem });
 			return;
 		}
 		this.searchCountdown = {
@@ -488,7 +491,7 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
 			});
 			return;
 		}
-		PS.mainmenu.startSearch(format, team);
+		PS.mainmenu.startSearch(format, team, ev.target as HTMLElement);
 	};
 	handleDragStart = (e: DragEvent) => {
 		const room = PS.getRoom(e.currentTarget);
