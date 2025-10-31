@@ -286,6 +286,10 @@ export class PSStorage {
 				link.href = `//${Config.routes.client}/customcss.php?server=${encodeURIComponent(Config.server.id)}`;
 				document.head.appendChild(link);
 			}
+			if ((Config.server as any).https === false) {
+				Config.server.protocol = 'http';
+				Config.server.httpport = Config.server.port;
+			}
 			Object.assign(PS.server, Config.server);
 			break;
 		case 'p':
