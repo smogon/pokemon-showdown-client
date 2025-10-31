@@ -2378,7 +2378,7 @@ export const PS = new class extends PSModel {
 		}
 		return this.focusRoom(rooms[index + 1]);
 	}
-	alert(message: string, opts: { okButton?: string, parentElem?: HTMLElement, width?: number } = {}) {
+	alert(message: string, opts: { okButton?: string, parentElem?: HTMLElement | null, width?: number } = {}) {
 		this.join(`popup-${this.popups.length}` as RoomID, {
 			args: { message, ...opts, parentElem: null },
 			parentElem: opts.parentElem,
