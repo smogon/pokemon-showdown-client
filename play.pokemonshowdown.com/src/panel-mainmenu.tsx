@@ -45,7 +45,7 @@ export class MainMenuRoom extends PSRoom {
 	} = {};
 	searchCountdown: { format: string, packedTeam: string, countdown: number, timer: number } | null = null;
 	/** used to track the moment between "search sent" and "server acknowledged search sent" */
-	searchSent = false;
+	searchSent: string | null = null;
 	search: { searching: string[], games: Record<RoomID, string> | null } = { searching: [], games: null };
 	disallowSpectators: boolean | null = PS.prefs.disallowspectators;
 	lastChallenged: number | null = null;
@@ -80,6 +80,10 @@ export class MainMenuRoom extends PSRoom {
 		};
 		this.update(null);
 	};
+	searchingFormat() {
+		return this.searchCountdown?.format || this.searchSent ||
+			this.search.searching?.[this.search.searching.length - 1] || null;
+	}
 	cancelSearch = () => {
 		if (this.searchCountdown) {
 			clearTimeout(this.searchCountdown.timer);
@@ -88,7 +92,7 @@ export class MainMenuRoom extends PSRoom {
 			return true;
 		}
 		if (this.searchSent || this.search.searching?.length) {
-			this.searchSent = false;
+			this.searchSent = null;
 			PS.send(`/cancelsearch`);
 			this.update(null);
 			return true;
@@ -107,7 +111,7 @@ export class MainMenuRoom extends PSRoom {
 		this.update(null);
 	};
 	doSearch = (search: NonNullable<typeof this.searchCountdown>) => {
-		this.searchSent = true;
+		this.searchSent = search.format;
 		const privacy = this.adjustPrivacy();
 		PS.send(`/utm ${search.packedTeam}`);
 		PS.send(`${privacy}/search ${search.format}`);
@@ -196,7 +200,7 @@ export class MainMenuRoom extends PSRoom {
 	}
 	receiveSearch(dataBuf: string) {
 		let json;
-		this.searchSent = false;
+		this.searchSent = null;
 		try {
 			json = JSON.parse(dataBuf);
 		} catch {}
@@ -630,7 +634,8 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
 		}
 
 		return <TeamForm
-			class="menugroup" format={PS.mainmenu.searchCountdown?.format} selectType="search" onSubmit={this.submitSearch}
+			class="menugroup" format={PS.mainmenu.searchingFormat() || undefined}
+			selectType="search" onSubmit={this.submitSearch}
 		>
 			<p>
 				<button class="button small" data-href="battleoptions" title="Options" aria-label="Options">
@@ -643,7 +648,7 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
 					</strong></button>
 					<p class="buttonbar"><button class="button" data-cmd="/cancelsearch">Cancel</button></p>
 				</>
-			) : (PS.mainmenu.searchSent || PS.mainmenu.search.searching.length) ? (
+			) : PS.mainmenu.searchingFormat() ? (
 				<>
 					<button class="mainmenu1 mainmenu big button disabled" type="submit">
 						<strong><i class="fa fa-refresh fa-spin" aria-hidden></i> Searching...</strong>
@@ -709,7 +714,7 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
 
 export class FormatDropdown extends preact.Component<{
 	selectType?: SelectType, format?: string, defaultFormat?: string, placeholder?: string,
-	onChange?: JSX.EventHandler<Event>, disabled?: boolean,
+	onChange?: JSX.EventHandler<Event>,
 }> {
 	declare base?: HTMLButtonElement;
 	format = '';
@@ -728,7 +733,9 @@ export class FormatDropdown extends preact.Component<{
 		this.format ||= this.props.format || this.props.defaultFormat || '';
 		let [formatName, customRules] = this.format.split('@@@');
 		if (window.BattleLog) formatName = BattleLog.formatName(formatName);
-		if (this.props.disabled || PS.mainmenu.searchSent) {
+		if (this.props.format && !this.props.onChange) {
+			// There's intentionally no `disabled` prop. If this is out of sync
+			// with the `format` and `onChange` props, that's a bug.
 			return <button
 				name="format" value={this.format} class="select formatselect preselected" disabled
 			>
@@ -795,9 +802,9 @@ class TeamDropdown extends preact.Component<{ format: string }> {
 export class TeamForm extends preact.Component<{
 	children: preact.ComponentChildren,
 	class?: string, format?: string, teamFormat?: string, hideFormat?: boolean, selectType?: SelectType,
+	defaultFormat?: string,
 	onSubmit: ((e: Event, format: string, team?: Team) => void) | null,
 	onValidate?: ((e: Event, format: string, team?: Team) => void) | null,
-	disableFormatDropdown?: boolean,
 }> {
 	format = '';
 	changeFormat = (ev: Event) => {
@@ -831,11 +838,13 @@ export class TeamForm extends preact.Component<{
 	};
 	render() {
 		if (window.BattleFormats) {
-			const starredPrefs = PS.prefs.starredformats || {};
-			// .reverse() because the newest starred format should be the default one
-			const starred = Object.keys(starredPrefs).filter(id => starredPrefs[id] === true).reverse();
+			this.format ||= this.props.defaultFormat || '';
 			if (!this.format) {
 				this.format = `gen${Dex.gen}randombattle`;
+
+				const starredPrefs = PS.prefs.starredformats || {};
+				// .reverse() because the newest starred format should be the default one
+				const starred = Object.keys(starredPrefs).filter(id => starredPrefs[id] === true).reverse();
 				for (let id of starred) {
 					let format = window.BattleFormats[id];
 					if (!format) continue;
@@ -847,13 +856,15 @@ export class TeamForm extends preact.Component<{
 				}
 			}
 		}
+		if (this.props.format) this.format = this.props.format;
+
 		return <form class={this.props.class} onSubmit={this.submit} onClick={this.handleClick}>
 			{!this.props.hideFormat && <p>
 				<label class="label">
 					Format:<br />
 					<FormatDropdown
-						selectType={this.props.selectType} format={this.props.format} defaultFormat={this.format}
-						onChange={this.changeFormat} disabled={!!this.props.disableFormatDropdown}
+						selectType={this.props.selectType} format={this.format}
+						onChange={this.props.format ? undefined : this.changeFormat}
 					/>
 				</label>
 			</p>}
