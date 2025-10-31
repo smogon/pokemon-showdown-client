@@ -303,8 +303,8 @@ export class ChatRoom extends PSRoom {
 		'chall,challenge'(target) {
 			if (target) {
 				let [targetUser, format] = target.split(',');
-				if (this.pmTarget && format === undefined) {
-					format = targetUser;
+				if (this.pmTarget && (format === undefined || targetUser.includes('@@@'))) {
+					format = target;
 					targetUser = this.pmTarget;
 				}
 				format = (format || '').trim();
