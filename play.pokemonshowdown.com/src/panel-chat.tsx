@@ -302,11 +302,21 @@ export class ChatRoom extends PSRoom {
 	override clientCommands = this.parseClientCommands({
 		'chall,challenge'(target) {
 			if (target) {
-				const [targetUser, format] = target.split(',');
+				let [targetUser, format] = target.split(',');
+				if (this.pmTarget && format === undefined) {
+					format = targetUser;
+					targetUser = this.pmTarget;
+				}
+				format = (format || '').trim();
+				if (!format.startsWith('gen')) format = `${Dex.modid}${format}`;
 				PS.mainmenu.makeQuery('userdetails', targetUser).then(data => {
 					if (data.rooms === false) return this.errorReply('This player does not exist or is not online.');
-					PS.join(`challenge-${toID(targetUser)}` as RoomID, { args: { format: format.trim() } });
+					PS.join(`challenge-${toID(targetUser)}` as RoomID, { args: { format } });
 				});
+				return;
+			}
+			if (this.challengeMenuOpen) {
+				this.cancelChallenge();
 				return;
 			}
 			this.openChallenge();
