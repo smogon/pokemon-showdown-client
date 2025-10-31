@@ -25,6 +25,7 @@ export type RoomInfo = {
 
 export class MainMenuRoom extends PSRoom {
 	override readonly classType: string = 'mainmenu';
+	listeners: Record<string, ((response: any) => void)[] | null> = {};
 	userdetailsCache: {
 		[userid: string]: {
 			userid: ID,
@@ -44,7 +45,7 @@ export class MainMenuRoom extends PSRoom {
 	} = {};
 	searchCountdown: { format: string, packedTeam: string, countdown: number, timer: number } | null = null;
 	/** used to track the moment between "search sent" and "server acknowledged search sent" */
-	searchSent = false;
+	searchSent: string | null = null;
 	search: { searching: string[], games: Record<RoomID, string> | null } = { searching: [], games: null };
 	disallowSpectators: boolean | null = PS.prefs.disallowspectators;
 	lastChallenged: number | null = null;
@@ -82,6 +83,10 @@ export class MainMenuRoom extends PSRoom {
 		};
 		this.update(null);
 	};
+	searchingFormat() {
+		return this.searchCountdown?.format || this.searchSent ||
+			this.search.searching?.[this.search.searching.length - 1] || null;
+	}
 	cancelSearch = () => {
 		if (this.searchCountdown) {
 			clearTimeout(this.searchCountdown.timer);
@@ -90,7 +95,7 @@ export class MainMenuRoom extends PSRoom {
 			return true;
 		}
 		if (this.searchSent || this.search.searching?.length) {
-			this.searchSent = false;
+			this.searchSent = null;
 			PS.send(`/cancelsearch`);
 			this.update(null);
 			return true;
@@ -109,7 +114,7 @@ export class MainMenuRoom extends PSRoom {
 		this.update(null);
 	};
 	doSearch = (search: NonNullable<typeof this.searchCountdown>) => {
-		this.searchSent = true;
+		this.searchSent = search.format;
 		const privacy = this.adjustPrivacy();
 		PS.send(`/utm ${search.packedTeam}`);
 		PS.send(`${privacy}/search ${search.format}`);
@@ -198,7 +203,7 @@ export class MainMenuRoom extends PSRoom {
 	}
 	receiveSearch(dataBuf: string) {
 		let json;
-		this.searchSent = false;
+		this.searchSent = null;
 		try {
 			json = JSON.parse(dataBuf);
 		} catch {}
@@ -353,10 +358,29 @@ export class MainMenuRoom extends PSRoom {
 		if (message) room.receiveLine([`c`, user1, message]);
 		PS.update();
 	}
+	/**
+	 * Client-to-server query. Handles `/crq` aka `/cmd`.
+	 *
+	 * Most queries are still handled hardcoded, so this is only for certain
+	 * special queries that need a Promise.
+	 */
+	makeQuery(id: string, param?: string) {
+		let fullid = id;
+		if (param) fullid += ` ${toID(param)}`;
+		return new Promise<any>(resolve => {
+			if (!this.listeners[fullid]) {
+				this.listeners[fullid] = [];
+				PS.send(`/cmd ${id} ${param || ''}`);
+			}
+			this.listeners[fullid]!.push(resolve);
+		});
+	}
 	handleQueryResponse(id: ID, response: any) {
+		let fullid: string = id;
 		switch (id) {
 		case 'userdetails':
 			let userid = response.userid;
+			fullid += ` ${userid}`;
 			let userdetails = this.userdetailsCache[userid];
 			if (!userdetails) {
 				this.userdetailsCache[userid] = response;
@@ -431,6 +455,8 @@ export class MainMenuRoom extends PSRoom {
 			}
 			break;
 		}
+		for (const callback of this.listeners[fullid] || []) callback(response);
+		delete this.listeners[fullid];
 	}
 }
 
@@ -611,7 +637,8 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
 		}
 
 		return <TeamForm
-			class="menugroup" format={PS.mainmenu.searchCountdown?.format} selectType="search" onSubmit={this.submitSearch}
+			class="menugroup" format={PS.mainmenu.searchingFormat() || undefined}
+			selectType="search" onSubmit={this.submitSearch}
 		>
 			<p>
 				<button class="button small" data-href="battleoptions" title="Options" aria-label="Options">
@@ -624,7 +651,7 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
 					</strong></button>
 					<p class="buttonbar"><button class="button" data-cmd="/cancelsearch">Cancel</button></p>
 				</>
-			) : (PS.mainmenu.searchSent || PS.mainmenu.search.searching.length) ? (
+			) : PS.mainmenu.searchingFormat() ? (
 				<>
 					<button class="mainmenu1 mainmenu big button disabled" type="submit">
 						<strong><i class="fa fa-refresh fa-spin" aria-hidden></i> Searching...</strong>
@@ -700,16 +727,13 @@ export class FormatDropdown extends preact.Component<{
 		this.forceUpdate();
 		if (this.props.onChange) this.props.onChange(e);
 	};
-	override componentWillMount() {
-		if (this.props.format !== undefined) {
-			this.format = this.props.format;
-		}
-	}
 	render() {
-		this.format ||= this.props.format || this.props.defaultFormat || '';
+		this.format = this.props.format || this.format || this.props.defaultFormat || '';
 		let [formatName, customRules] = this.format.split('@@@');
 		if (window.BattleLog) formatName = BattleLog.formatName(formatName);
-		if (this.props.format || PS.mainmenu.searchSent) {
+		if (this.props.format && !this.props.onChange) {
+			// There's intentionally no `disabled` prop. If this is out of sync
+			// with the `format` and `onChange` props, that's a bug.
 			return <button
 				name="format" value={this.format} class="select formatselect preselected" disabled
 			>
@@ -776,6 +800,7 @@ class TeamDropdown extends preact.Component<{ format: string }> {
 export class TeamForm extends preact.Component<{
 	children: preact.ComponentChildren,
 	class?: string, format?: string, teamFormat?: string, hideFormat?: boolean, selectType?: SelectType,
+	defaultFormat?: string,
 	onSubmit: ((e: Event, format: string, team?: Team) => void) | null,
 	onValidate?: ((e: Event, format: string, team?: Team) => void) | null,
 }> {
@@ -789,7 +814,7 @@ export class TeamForm extends preact.Component<{
 		const teamElement = this.base!.querySelector<HTMLButtonElement>('button[name=team]');
 		const teamKey = teamElement!.value;
 		const team = teamKey ? PS.teams.byKey[teamKey] : undefined;
-		if (!window.BattleFormats[toID(format)]?.team && !team) {
+		if (!window.BattleFormats[PS.teams.teambuilderFormat(format)]?.team && !team) {
 			PS.alert('You need to go into the Teambuilder and build a team for this format.', {
 				parentElem: teamElement!,
 			});
@@ -811,11 +836,13 @@ export class TeamForm extends preact.Component<{
 	};
 	render() {
 		if (window.BattleFormats) {
-			const starredPrefs = PS.prefs.starredformats || {};
-			// .reverse() because the newest starred format should be the default one
-			const starred = Object.keys(starredPrefs).filter(id => starredPrefs[id] === true).reverse();
+			this.format ||= this.props.defaultFormat || '';
 			if (!this.format) {
 				this.format = `gen${Dex.gen}randombattle`;
+
+				const starredPrefs = PS.prefs.starredformats || {};
+				// .reverse() because the newest starred format should be the default one
+				const starred = Object.keys(starredPrefs).filter(id => starredPrefs[id] === true).reverse();
 				for (let id of starred) {
 					let format = window.BattleFormats[id];
 					if (!format) continue;
@@ -827,13 +854,20 @@ export class TeamForm extends preact.Component<{
 				}
 			}
 		}
+		if (this.props.defaultFormat?.startsWith('!!')) {
+			// The !! means that it overrides any current format, and will only be
+			// sent as a prop once
+			this.format = this.props.defaultFormat.slice(2);
+		}
+		if (this.props.format) this.format = this.props.format;
+
 		return <form class={this.props.class} onSubmit={this.submit} onClick={this.handleClick}>
 			{!this.props.hideFormat && <p>
 				<label class="label">
 					Format:<br />
 					<FormatDropdown
-						selectType={this.props.selectType} format={this.props.format} defaultFormat={this.format}
-						onChange={this.changeFormat}
+						selectType={this.props.selectType} format={this.format}
+						onChange={this.props.format ? undefined : this.changeFormat}
 					/>
 				</label>
 			</p>}
