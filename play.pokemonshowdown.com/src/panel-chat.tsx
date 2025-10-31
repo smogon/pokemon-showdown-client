@@ -302,8 +302,21 @@ export class ChatRoom extends PSRoom {
 	override clientCommands = this.parseClientCommands({
 		'chall,challenge'(target) {
 			if (target) {
-				const [targetUser, format] = target.split(',');
-				PS.join(`challenge-${toID(targetUser)}` as RoomID);
+				let [targetUser, format] = target.split(',');
+				if (this.pmTarget && (format === undefined || targetUser.includes('@@@'))) {
+					format = target;
+					targetUser = this.pmTarget;
+				}
+				format = (format || '').trim();
+				if (!format.startsWith('gen')) format = `${Dex.modid}${format}`;
+				PS.mainmenu.makeQuery('userdetails', targetUser).then(data => {
+					if (data.rooms === false) return this.errorReply('This player does not exist or is not online.');
+					PS.join(`challenge-${toID(targetUser)}` as RoomID, { args: { format } });
+				});
+				return;
+			}
+			if (this.challengeMenuOpen) {
+				this.cancelChallenge();
 				return;
 			}
 			this.openChallenge();
@@ -560,6 +573,7 @@ export class ChatRoom extends PSRoom {
 	updateChallenge(name: string, challengeString: string) {
 		const challenge = this.parseChallenge(challengeString);
 		const userid = toID(name);
+		if (this.args?.format) this.args.format = null;
 
 		if (userid === PS.user.userid) {
 			if (!challenge && !this.challenging) {
@@ -1190,13 +1204,17 @@ class ChatPanel extends PSRoomPanel<ChatRoom> {
 		const room = this.props.room;
 		const tinyLayout = room.width < 450;
 
+		const defaultFormat = room.args?.format as string | undefined;
+		if (defaultFormat?.startsWith('!!')) {
+			room.args!.format = undefined;
+		}
 		const challengeTo = room.challenging ? <div class="challenge">
 			<p>Waiting for {room.pmTarget}...</p>
 			<TeamForm format={room.challenging.formatName} teamFormat={room.challenging.teamFormat} onSubmit={null}>
 				<button data-cmd="/cancelchallenge" class="button">Cancel</button>
 			</TeamForm>
 		</div> : room.challengeMenuOpen ? <div class="challenge">
-			<TeamForm onSubmit={this.makeChallenge}>
+			<TeamForm onSubmit={this.makeChallenge} defaultFormat={defaultFormat}>
 				<button type="submit" class="button button-first">
 					<strong>Challenge</strong>
 				</button><button data-href="battleoptions" class="button button-last" aria-label="Battle options">
