@@ -68,18 +68,18 @@ export class PSHeader extends preact.Component {
 		let title = room.title;
 		switch (room.type) {
 		case 'battle':
-			let idChunks = room.id.slice(7).split('-');
+			const idChunks = room.id.split('-');
 			let formatName;
 			// TODO: relocate to room implementation
-			if (idChunks.length <= 1) {
-				if (idChunks[0] === 'uploadedreplay') formatName = 'Uploaded Replay';
+			if (idChunks.length <= 2) {
+				if (idChunks[1] === 'uploadedreplay') formatName = 'Uploaded Replay';
 			} else {
-				formatName = window.BattleLog ? BattleLog.formatName(idChunks[0]) : idChunks[0];
+				formatName = window.BattleLog ? BattleLog.formatName(idChunks[1]) : idChunks[1];
 			}
 			if (!title) {
-				let battle = (room as any).battle as Battle | undefined;
-				let p1 = battle?.p1?.name || '';
-				let p2 = battle?.p2?.name || '';
+				const battle = (room as any).battle as Battle | undefined;
+				const p1 = battle?.p1?.name || '';
+				const p2 = battle?.p2?.name || '';
 				if (p1 && p2) {
 					title = `${p1} v. ${p2}`;
 				} else if (p1 || p2) {

@@ -242,7 +242,7 @@ class TimerButton extends preact.Component<{ room: BattleRoom }> {
 
 class BattlePanel extends PSRoomPanel<BattleRoom> {
 	static readonly id = 'battle';
-	static readonly routes = ['battle-*'];
+	static readonly routes = ['battle-*', 'game-*'];
 	static readonly Model = BattleRoom;
 	static handleDrop(ev: DragEvent) {
 		const file = ev.dataTransfer?.files?.[0];
