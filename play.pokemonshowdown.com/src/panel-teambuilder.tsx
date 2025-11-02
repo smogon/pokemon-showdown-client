@@ -73,11 +73,15 @@ class TeambuilderRoom extends PSRoom {
 			} else {
 				PS.teams.unshift(this.createTeam(null, isBox));
 			}
+			PS.teams.save();
 			this.update(null);
 		},
 		'deleteteam'(target) {
 			const team = PS.teams.byKey[target];
-			if (team) PS.teams.delete(team);
+			if (!team) return this.errorReply(`Team not found: ${target}`);
+
+			PS.teams.delete(team);
+			PS.teams.save();
 			this.update(null);
 		},
 		'copyteam'(target) {
@@ -96,12 +100,14 @@ class TeambuilderRoom extends PSRoom {
 			const index = team ? PS.teams.list.indexOf(team) : PS.teams.list.length;
 			const folder = this.curFolder?.endsWith('/') ? this.curFolder.slice(0, -1) : '';
 			TeamEditorState.pasteTeam(index, cmd === 'moveteamabove', folder);
+			PS.teams.save();
 
 			PS.update();
 			this.update(null);
 		},
 		'undeleteteam'() {
 			PS.teams.undelete();
+			PS.teams.save();
 			this.update(null);
 		},
 		'backup'() {
@@ -421,6 +427,9 @@ class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
 		this.forceUpdate();
 	};
 	static handleDrop(ev: DragEvent) {
+		if (PS.dragging?.type === 'team' && typeof PS.dragging?.team === 'object') {
+			PS.teams.save();
+		}
 		return !!this.addDraggedTeam(ev, (PS.rooms['teambuilder'] as TeambuilderRoom)?.curFolder);
 	}
 	updateSearch = (ev: KeyboardEvent) => {
@@ -499,7 +508,7 @@ class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
 
 		const room = this.props.room;
 		room.exportMode = false;
-		PS.teams.update('team');
+		PS.teams.save();
 		room.update(null);
 	};
 	renameFolder = (ev: MouseEvent) => {
