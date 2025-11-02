@@ -175,6 +175,7 @@ export class PSHeader extends preact.Component {
 		}
 		if (PSView.narrowMode) {
 			document.documentElement.classList?.remove('scroll-snap-enabled');
+			document.documentElement.style.width = 'auto';
 			PSView.narrowMode = false;
 		}
 

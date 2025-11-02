@@ -62,9 +62,16 @@ export class PSTeambuilder {
 
 				line = line.slice(3, -3).trim();
 				[curTeam.format, line] = this.splitPrefix(line, ']', 1) as [ID, string];
-				if (!curTeam.format) curTeam.format = 'gen8' as ID;
-				else if (!curTeam.format.startsWith('gen')) curTeam.format = `gen6${curTeam.format}` as ID;
+				if (!curTeam.format) {
+					curTeam.format = 'gen8' as ID;
+				} else if (curTeam.format.endsWith('-box')) {
+					curTeam.format = curTeam.format.slice(0, -4) as ID;
+					curTeam.isBox = true;
+				}
+				if (curTeam.format.startsWith('[')) curTeam.format = curTeam.format.slice(1) as ID;
+				if (!curTeam.format.startsWith('gen')) curTeam.format = `gen6${curTeam.format}` as ID;
 
+				line = line.trim();
 				[curTeam.folder, curTeam.name] = this.splitPrefix(line, '/');
 			} else if (line.includes('|')) {
 				if (curTeam) {

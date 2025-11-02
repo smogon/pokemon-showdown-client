@@ -128,8 +128,8 @@ export class PSSearchResults extends preact.Component<{
 				<span class="col statcol"><em>HP</em><br />{stats.hp}</span>
 				<span class="col statcol"><em>Atk</em><br />{stats.atk}</span>
 				<span class="col statcol"><em>Def</em><br />{stats.def}</span>
-				{search.dex.gen > 2 && <span class="col statcol"><em>SpA</em><br />{stats.spa}</span>}
-				{search.dex.gen > 2 && <span class="col statcol"><em>SpD</em><br />{stats.spd}</span>}
+				{search.dex.gen >= 2 && <span class="col statcol"><em>SpA</em><br />{stats.spa}</span>}
+				{search.dex.gen >= 2 && <span class="col statcol"><em>SpD</em><br />{stats.spd}</span>}
 				{search.dex.gen < 2 && <span class="col statcol"><em>Spc</em><br />{stats.spa}</span>}
 				<span class="col statcol"><em>Spe</em><br />{stats.spe}</span>
 				<span class="col bstcol"><em>BST<br />{bst}</em></span>

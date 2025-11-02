@@ -314,6 +314,7 @@ export class TeamEditorState extends PSModel {
 						const sets = Teams.unpack(team.packedTeam);
 						sets.splice(source, 1);
 						team.packedTeam = Teams.pack(sets);
+						team.iconCache = null;
 					}
 				}
 			}
@@ -335,6 +336,7 @@ export class TeamEditorState extends PSModel {
 			index++;
 		}
 		TeamEditorState.clipboard = null;
+		this.save();
 	}
 	static pasteTeam(index: number, isMove?: boolean, folder = '') {
 		if (!TeamEditorState.clipboard) return;
@@ -656,9 +658,7 @@ export class TeamEditorState extends PSModel {
 		}
 	}
 	getStat(stat: StatName, set: Dex.PokemonSet, ivOverride: number, evOverride?: number, natureOverride?: number) {
-		const team = this.team;
-
-		const supportsEVs = !team.format.includes('letsgo');
+		const supportsEVs = !this.isLetsGo;
 		const supportsAVs = !supportsEVs;
 
 		// do this after setting set.evs because it's assumed to exist
@@ -1195,6 +1195,7 @@ class TeamTextbox extends preact.Component<{
 					this.replace(paste.paste.replace(/\r\n/g, '\n'), valueIndex, valueIndex + value.length);
 				} else {
 					this.editor.import(pasteTxt);
+					this.props.onChange?.();
 				}
 				const notes = paste["notes"] as string;
 				if (notes.startsWith("Format: ")) {
@@ -2457,14 +2458,13 @@ class StatForm extends preact.Component<{
 	onChange: () => void,
 }> {
 	static renderStatGraph(set: Dex.PokemonSet, editor: TeamEditorState, evs?: boolean) {
-		// const supportsEVs = !team.format.includes('letsgo');
 		const defaultEV = (editor.gen > 2 ? 0 : 252);
 		const ivs = editor.getIVs(set);
 		return Dex.statNames.map(statID => {
 			if (statID === 'spd' && editor.gen === 1) return null;
 
 			const stat = editor.getStat(statID, set, ivs[statID]);
-			let ev: number | string = set.evs?.[statID] ?? defaultEV;
+			let ev: number | string = set.evs ? (set.evs[statID] || 0) : defaultEV;
 			let width = stat * 75 / 504;
 			if (statID === 'hp') width = stat * 75 / 704;
 			if (width > 75) width = 75;
@@ -2746,7 +2746,11 @@ class StatForm extends preact.Component<{
 		if (isNaN(value)) {
 			if (set.evs) delete set.evs[statID];
 		} else {
-			set.evs ||= {};
+			if (this.maxEVs() < 6 * 252 || this.props.editor.isLetsGo) {
+				set.evs ||= {};
+			} else {
+				set.evs ||= { hp: 252, atk: 252, def: 252, spa: 252, spd: 252, spe: 252 };
+			}
 			set.evs[statID] = value;
 		}
 
@@ -2844,20 +2848,19 @@ class StatForm extends preact.Component<{
 		this.props.onChange();
 	};
 	maxEVs() {
-		const team = this.props.editor.team;
-		const useEVs = !team.format.includes('letsgo');
+		const editor = this.props.editor;
+		const useEVs = !editor.isLetsGo && editor.gen >= 3;
 		return useEVs ? 510 : Infinity;
 	}
 	override render() {
 		const { editor, set } = this.props;
-		const team = editor.team;
 		const species = editor.dex.species.get(set.species);
 
 		const baseStats = species.baseStats;
 
 		const nature = BattleNatures[set.nature || 'Serious'];
 
-		const useEVs = !team.format.includes('letsgo');
+		const useEVs = !editor.isLetsGo;
 		// const useAVs = !useEVs && team.format.endsWith('norestrictions');
 		const maxEV = useEVs ? 252 : 200;
 		const stepEV = useEVs ? 4 : 1;
@@ -2881,14 +2884,14 @@ class StatForm extends preact.Component<{
 		] as const);
 
 		let remaining = null;
-		const maxEv = this.maxEVs();
-		if (maxEv < 6 * 252) {
+		const maxEVs = this.maxEVs();
+		if (maxEVs < 6 * 252) {
 			let totalEv = 0;
 			for (const ev of Object.values(set.evs || {})) totalEv += ev;
-			if (totalEv <= maxEv) {
-				remaining = (totalEv > (maxEv - 2) ? 0 : (maxEv - 2) - totalEv);
+			if (totalEv <= maxEVs) {
+				remaining = (totalEv > (maxEVs - 2) ? 0 : (maxEVs - 2) - totalEv);
 			} else {
-				remaining = maxEv - totalEv;
+				remaining = maxEVs - totalEv;
 			}
 			remaining ||= null;
 		}
