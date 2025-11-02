@@ -1228,56 +1228,33 @@ class ChatPanel extends PSRoomPanel<ChatRoom> {
 	}
 }
 
-class UserItem extends preact.Component<{ userid: ID, name: string }> {
-	override render() {
-		const { userid, name } = this.props;
-		const groupSymbol = name.charAt(0);
-		const group = PS.server.groups[groupSymbol] || { type: 'user', order: 0 };
-		let color;
-		let displayName = name;
+function renderUserListItem(userid: ID, rawName: string) {
+	const groupSymbol = rawName.charAt(0);
+	const group = PS.server.groups[groupSymbol] || { type: 'user', order: 0 };
+	let color;
+	let displayName = rawName;
 
-		if (name.endsWith('@!')) {
-			displayName = name.slice(0, -2);
-			color = '#888888';
-		} else {
-			color = BattleLog.usernameColor(userid);
-		}
-
-		return <li key={userid}><button class="userbutton username">
-			<em class={`group${['leadership', 'staff'].includes(group.type!) ? ' staffgroup' : ''}`}>
-				{groupSymbol}
-			</em>
-			{group.type === 'leadership' ? (
-				<strong><em style={`color:${color}`}>{displayName.slice(1)}</em></strong>
-			) : group.type === 'staff' ? (
-				<strong style={`color:${color} `}>{displayName.slice(1)}</strong>
-			) : (
-				<span style={`color:${color}`}>{displayName.slice(1)}</span>
-			)}
-		</button></li>;
+	if (rawName.endsWith('@!')) {
+		displayName = rawName.slice(0, -2);
+		color = '#888888';
+	} else {
+		color = BattleLog.usernameColor(userid);
 	}
-}
 
-class VirtualUserList extends preact.Component<{
-	users: [ID, string][], minimized: boolean,
-}> {
-	override render() {
-		const { users, minimized } = this.props;
-
-		if (minimized) {
-			return null;
-		}
-
-		if (!users.length) {
-			return <li><small style="color: #888;">No users</small></li>;
-		}
-
-		return <>
-			{users.map(([userid, name]) =>
-				<UserItem key={userid} userid={userid} name={name} />
-			)}
-		</>;
-	}
+	const display = displayName.slice(1);
+	const staffClass = ['leadership', 'staff'].includes(group.type!) ? ' staffgroup' : '';
+	return <li key={userid}><button class="userbutton username">
+		<em class={`group${staffClass}`}>
+			{groupSymbol}
+		</em>
+		{group.type === 'leadership' ? (
+			<strong><em style={`color:${color}`}>{display}</em></strong>
+		) : group.type === 'staff' ? (
+			<strong style={`color:${color} `}>{display}</strong>
+		) : (
+			<span style={`color:${color}`}>{display}</span>
+		)}
+	</button></li>;
 }
 
 export class ChatUserList extends preact.Component<{
@@ -1285,12 +1262,13 @@ export class ChatUserList extends preact.Component<{
 }> {
 	render() {
 		const room = this.props.room;
+		const minimized = this.props.minimized || false;
 		const pmTargetid = room.pmTarget ? toID(room.pmTarget) : null;
 		return <div
-			class={'userlist' + (this.props.minimized ? ' userlist-hidden' : this.props.static ? ' userlist-static' : '')}
+			class={'userlist' + (minimized ? ' userlist-hidden' : this.props.static ? ' userlist-static' : '')}
 			style={{ left: this.props.left || 0, top: this.props.top || 0 }}
 		>
-			{!this.props.minimized ? (
+			{!minimized ? (
 				<div class="userlist-count"><small>{room.userCount} users</small></div>
 			) : room.id === 'dm-' ? (
 				<>
@@ -1305,12 +1283,16 @@ export class ChatUserList extends preact.Component<{
 				<button data-href="userlist" class="button button-middle">{room.userCount} users</button>
 			)}
 			<ul>
-				<VirtualUserList
-					users={room.onlineUsers}
-					minimized={this.props.minimized || false}
-				/>
+				{minimized ? null : this.renderUsers(room.onlineUsers)}
 			</ul>
 		</div>;
+	}
+
+	private renderUsers(users: [ID, string][]) {
+		if (!users.length) {
+			return <li><small style="color: #888;">No users</small></li>;
+		}
+		return users.map(([userid, name]) => renderUserListItem(userid, name));
 	}
 }
 
