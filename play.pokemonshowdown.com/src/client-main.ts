@@ -2744,6 +2744,15 @@ export const PS = new class extends PSModel {
 			this.prefs.set('autojoin', autojoin);
 		}
 	}
+	getNotificationsCount() {
+		let count = 0;
+		const notificationRooms = [...PS.leftRoomList, ...PS.rightRoomList, ...PS.miniRoomList];
+		for (const roomid of notificationRooms) {
+			const miniNotifications = PS.rooms[roomid]?.notifications;
+			if (miniNotifications?.length) count++;
+		}
+		return count;
+	}
 	requestNotifications() {
 		try {
 			if (window.webkitNotifications?.requestPermission) {
