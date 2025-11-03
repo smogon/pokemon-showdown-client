@@ -918,10 +918,11 @@ export class ChatTextEntry extends preact.Component<{
 		// 	this.setValue(newValue, newValue.length);
 		// 	return true;
 		} else if (ev.shiftKey && ev.keyCode === 37) {
-			const currLoc = PS.room.location;
-			let newLoc = currLoc;
+			if (PS.prefs.onepanel === 'vertical' || this.getValue().length > 0) return;
+			const curLoc = PS.room.location;
+			let newLoc = curLoc;
 			let newIndex: number | null = null;
-			switch (currLoc) {
+			switch (curLoc) {
 			case 'right': {
 				newIndex = PS.rightRoomList.indexOf(PS.room.id) - 1;
 				if (newIndex < 0) {
@@ -954,10 +955,11 @@ export class ChatTextEntry extends preact.Component<{
 			}
 			return true;
 		} else if (ev.shiftKey && ev.keyCode === 39) {
-			const currLoc = PS.room.location;
-			let newLoc = currLoc;
+			if (PS.prefs.onepanel === 'vertical' || this.getValue().length > 0) return;
+			const curLoc = PS.room.location;
+			let newLoc = curLoc;
 			let newIndex: number | null = null;
-			switch (currLoc) {
+			switch (curLoc) {
 			case 'right': {
 				newIndex = PS.rightRoomList.indexOf(PS.room.id) + 1;
 				if (newIndex >= PS.rightRoomList.length - 1) {
@@ -990,6 +992,18 @@ export class ChatTextEntry extends preact.Component<{
 				PS.update();
 			}
 			return true;
+		} else if (ev.shiftKey && ev.keyCode === 38) {
+			if (PS.prefs.onepanel !== 'vertical' || this.getValue().length > 0) return;
+			let newIndex = PS.rightRoomList.indexOf(PS.room.id) - 1;
+			if (newIndex < 0) newIndex = PS.rightRoomList.length - 1;
+			PS.moveRoom(PS.room, 'right', false, newIndex);
+			PS.update();
+		} else if (ev.shiftKey && ev.keyCode === 40) {
+			if (PS.prefs.onepanel !== 'vertical' || this.getValue().length > 0) return;
+			let newIndex = PS.rightRoomList.indexOf(PS.room.id) + 1;
+			if (newIndex >= PS.rightRoomList.length - 1) newIndex = 0;
+			PS.moveRoom(PS.room, 'right', false, newIndex);
+			PS.update();
 		}
 		return false;
 	}
