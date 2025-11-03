@@ -155,7 +155,7 @@ export class PSHeader extends preact.Component {
 	static updateFavicon() {
 		const favicon = document.querySelector('#dynamic-favicon');
 		if (favicon instanceof HTMLLinkElement) {
-			favicon.href = `${Dex.resourcePrefix}/${PS.isNotifying ? 'favicon-notify.ico' : 'favicon.ico'}`;
+			favicon.href = `${window.Dex.resourcePrefix}/${PS.isNotifying ? 'favicon-notify.ico' : 'favicon.ico'}`;
 			favicon.dataset.on = PS.isNotifying ? '1' : '';
 		}
 	}
