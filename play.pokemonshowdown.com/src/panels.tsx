@@ -623,6 +623,11 @@ export class PSView extends preact.Component {
 			PS.dragging = null;
 		});
 
+		window.addEventListener('focus', () => {
+			PS.isNotifying = false;
+			PSHeader.updateFavicon();
+		});
+
 		const colorSchemeQuery = window.matchMedia?.('(prefers-color-scheme: dark)');
 		if (colorSchemeQuery?.media !== 'not all') {
 			colorSchemeQuery.addEventListener('change', cs => {

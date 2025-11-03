@@ -152,6 +152,13 @@ export class PSHeader extends preact.Component {
 			{closeButton}
 		</li>;
 	}
+	static updateFavicon() {
+		const favicon = document.querySelector('#dynamic-favicon');
+		if (favicon instanceof HTMLLinkElement) {
+			favicon.href = `${Dex.resourcePrefix}/${PS.isNotifying ? 'favicon-notify.ico' : 'favicon.ico'}`;
+			favicon.dataset.on = PS.isNotifying ? '1' : '';
+		}
+	}
 	handleResize = () => {
 		if (!this.base) return;
 
@@ -307,13 +314,7 @@ export class PSMiniHeader extends preact.Component {
 	};
 	override render() {
 		if (PS.leftPanelWidth !== null) return null;
-
-		let notificationsCount = 0;
-		const notificationRooms = [...PS.leftRoomList, ...PS.rightRoomList];
-		for (const roomid of notificationRooms) {
-			const miniNotifications = PS.rooms[roomid]?.notifications;
-			if (miniNotifications?.length) notificationsCount++;
-		}
+		const notificationsCount = PS.getNotificationsCount();
 		const { icon, title } = PSHeader.roomInfo(PS.panel);
 		const userColor = window.BattleLog && `color:${BattleLog.usernameColor(PS.user.userid)}`;
 		const showMenuButton = PSView.narrowMode;
