@@ -1506,6 +1506,12 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 			PS.prefs.set('nounlink', false);
 			this.add('||Locked/banned users\' chat messages: HIDDEN');
 		},
+		'whatsnew'() {
+			const success = PSHeader.clickCounter.click();
+			if (success) {
+				PS.join('patchnotes' as RoomID);
+			}
+		},
 		'hl,highlight'(target) {
 			let highlights = PS.prefs.highlights || {};
 			if (target.includes(' ')) {

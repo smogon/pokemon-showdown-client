@@ -21,6 +21,29 @@ window.addEventListener('dragover', e => {
 });
 
 export class PSHeader extends preact.Component {
+	static clickCounter = {
+		count: 0,
+		lastClick: 0,
+		maxGap: 500,
+		click() {
+			const now = Date.now();
+
+			if (now - this.lastClick > this.maxGap) {
+				this.count = 1;
+			} else {
+				this.count++;
+			}
+
+			this.lastClick = now;
+
+			if (this.count === 10) {
+				console.log('🎉 10 consecutive clicks detected!');
+				this.count = 0;
+				return true;
+			}
+			return false;
+		},
+	};
 	static toggleMute = (e: Event) => {
 		PS.prefs.set('mute', !PS.prefs.mute);
 		PS.update();
@@ -234,6 +257,7 @@ export class PSHeader extends preact.Component {
 					src={`https://${Config.routes.client}/favicon-256.png`}
 					alt="Pokémon Showdown! (beta)"
 					width="50" height="50"
+					data-cmd="/whatsnew"
 				/>
 				<div class="tablist" role="tablist">
 					<ul>
@@ -275,6 +299,7 @@ export class PSHeader extends preact.Component {
 							src={`https://${Config.routes.client}/favicon-256.png`}
 							alt="Pokémon Showdown! (beta)"
 							width="48" height="48"
+							data-cmd="/whatsnew"
 						/>
 					</li>
 					{PSHeader.renderRoomTab(PS.leftRoomList[0])}
