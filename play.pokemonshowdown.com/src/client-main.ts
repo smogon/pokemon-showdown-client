@@ -162,6 +162,11 @@ class PSPrefs extends PSStreamModel<string | null> {
 	highlights: Record<string, string[]> | null = null;
 	logtimes: { [serverid: ID]: { [roomid: RoomID]: number } } | null = null;
 
+	/* Room preferences */
+	roomsettings: { [serverid: string]: {
+		[roomid: RoomID]: Record<string, boolean> | null,
+	}, } | null = null;
+
 	// PREFS END HERE
 
 	storageEngine: 'localStorage' | 'iframeLocalStorage' | '' = '';
@@ -1059,6 +1064,8 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 	}
 	subtleNotify() {
 		if (PS.isVisible(this)) return;
+		const roomsettings = PS.prefs.roomsettings?.[PS.server.id]?.[this.id];
+		if (roomsettings?.newmessages === false) return;
 		const room = PS.rooms[this.id] as ChatRoom;
 		const lastSeenTimestamp = PS.prefs.logtimes?.[PS.server.id]?.[this.id] || 0;
 		const lastMessageTime = +(room.lastMessage?.[1] || 0);
@@ -1584,6 +1591,46 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 		},
 		'senddirect'(target) {
 			this.sendDirect(target);
+		},
+		/* this is for room-specific highlight settings
+		 /roomsettings is already a server-side command hence /settings
+		 */
+		'settings'(target) {
+			if (!target) return this.send('/help settings');
+
+			const [nameRaw, valueRaw] = target.split(',');
+			const name = toID(nameRaw);
+			const value = toID(valueRaw);
+			const validSettings = ['newmessages', 'highlight', 'tournamentping', 'muteroom', 'reset'];
+			const isReset = toID(target) === 'reset';
+			if (!isReset && (!name || !value || !validSettings.includes(name))) {
+				return this.send('/help settings');
+			}
+
+			const serverId = PS.server.id;
+			const roomsettings = PS.prefs.roomsettings || {};
+			if (!roomsettings[serverId]) roomsettings[serverId] = {};
+			if (isReset) {
+				roomsettings[serverId][this.id] = null;
+				PS.prefs.set('roomsettings', roomsettings);
+				this.receiveLine(['', 'Room settings set to use global settings']);
+				return;
+			}
+			const settings = roomsettings[serverId][this.id] || {};
+			if (name === 'muteroom') {
+				settings.highlight = value !== 'on';
+				settings.newmessages = value !== 'on';
+				settings.tournamentping = value !== 'on';
+				settings[name] = value === 'on';
+				roomsettings[serverId][this.id] = settings;
+				this.receiveLine(['', `Mute ${this.title} room: ${value === 'on' ? 'ON' : 'OFF'}`]);
+			} else {
+				settings[name] = value === 'on';
+				roomsettings[serverId][this.id] = settings;
+				this.receiveLine(['',
+					`Indicate ${nameRaw} in ${this.title} room: ${value === 'on' ? 'ON' : 'OFF'}`]);
+			}
+			PS.prefs.set('roomsettings', roomsettings);
 		},
 		'h,help'(target) {
 			switch (toID(target)) {
