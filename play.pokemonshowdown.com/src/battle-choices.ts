@@ -291,6 +291,8 @@ export class BattleChoiceBuilder {
 			}
 			break;
 		case 'switch':
+			if (this.request.side?.pokemon!.some(p => p.reviving)) return;
+
 			const noMoreSwitchChoices = this.noMoreSwitchChoices();
 			while (this.choices.length < request.forceSwitch.length) {
 				if (!request.forceSwitch[this.choices.length] || noMoreSwitchChoices) {
@@ -482,11 +484,11 @@ export class BattleChoiceBuilder {
 				}
 				current.targetPokemon = match;
 			}
-			if (!isTeamPreview && current.targetPokemon - 1 < this.requestLength()) {
-				throw new Error(`That Pokémon is already in battle!`);
-			}
 			const target = request.side.pokemon[current.targetPokemon - 1];
 			const isReviving = this.request.side?.pokemon!.some(p => p.reviving);
+			if (!isTeamPreview && !isReviving && current.targetPokemon - 1 < this.requestLength()) {
+				throw new Error(`That Pokémon is already in battle!`);
+			}
 			if (!target) {
 				throw new Error(`Couldn't find Pokémon "${choice}" to switch to!`);
 			}
