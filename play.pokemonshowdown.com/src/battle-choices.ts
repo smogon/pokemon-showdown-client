@@ -192,7 +192,7 @@ export class BattleChoiceBuilder {
 		return this.request.active[index];
 	}
 	noMoreSwitchChoices() {
-		if (this.request.requestType !== 'switch') return false;
+		if (this.request.requestType !== 'switch' || this.request.side?.pokemon.some(p => p.reviving)) return false;
 		for (let i = this.requestLength(); i < this.request.side.pokemon.length; i++) {
 			const pokemon = this.request.side.pokemon[i];
 			if (!pokemon.fainted && !this.alreadySwitchingIn.includes(i + 1)) {
@@ -291,8 +291,6 @@ export class BattleChoiceBuilder {
 			}
 			break;
 		case 'switch':
-			if (request.side?.pokemon.some(p => p.reviving)) return;
-
 			const noMoreSwitchChoices = this.noMoreSwitchChoices();
 			while (this.choices.length < request.forceSwitch.length) {
 				if (!request.forceSwitch[this.choices.length] || noMoreSwitchChoices) {
