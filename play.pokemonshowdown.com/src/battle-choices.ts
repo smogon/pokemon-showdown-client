@@ -291,7 +291,7 @@ export class BattleChoiceBuilder {
 			}
 			break;
 		case 'switch':
-			if (request.side?.pokemon!.some(p => p.reviving)) return;
+			if (request.side?.pokemon.some(p => p.reviving)) return;
 
 			const noMoreSwitchChoices = this.noMoreSwitchChoices();
 			while (this.choices.length < request.forceSwitch.length) {
