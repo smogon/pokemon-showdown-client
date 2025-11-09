@@ -584,12 +584,13 @@ export class ChatRoom extends PSRoom {
 				// this is also used for rejecting challenges
 				this.challenged = null;
 				this.challengedSent = false;
+			} else {
+				this.challengeMenuOpen = false;
+				PS.mainmenu.lastChallenged = Date.now();
 			}
 			// we are sending the challenge
 			this.challenging = challenge;
 			this.challengingSent = false;
-			this.challengeMenuOpen = false;
-			PS.mainmenu.lastChallenged = Date.now();
 		} else {
 			if (!challenge && !this.challenged) {
 				// this is also used for canceling challenges
