@@ -308,7 +308,7 @@ export class ChatRoom extends PSRoom {
 					targetUser = this.pmTarget;
 				}
 				format = (format || '').trim();
-				if (!format.startsWith('gen')) format = `${Dex.modid}${format}`;
+				if (!toID(format).startsWith('gen')) format = `${Dex.modid}${format}`;
 				PS.mainmenu.makeQuery('userdetails', targetUser).then(data => {
 					if (data.rooms === false) return this.errorReply('This player does not exist or is not online.');
 					PS.join(`challenge-${toID(targetUser)}` as RoomID, { args: { format } });
