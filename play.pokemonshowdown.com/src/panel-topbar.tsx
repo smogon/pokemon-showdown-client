@@ -37,7 +37,6 @@ export class PSHeader extends preact.Component {
 			this.lastClick = now;
 
 			if (this.count === 10) {
-				console.log('🎉 10 consecutive clicks detected!');
 				this.count = 0;
 				return true;
 			}
