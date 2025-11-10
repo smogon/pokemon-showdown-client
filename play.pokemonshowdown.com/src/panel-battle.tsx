@@ -455,7 +455,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 		return <div class="controls">
 			<p>
 				{atEnd ? (
-					<button class="button disabled" aria-disabled data-cmd="/play" style="min-width:4.5em">
+					<button class="button disabled" aria-disabled style="min-width:4.5em">
 						<i class="fa fa-play" aria-hidden></i><br />Play
 					</button>
 				) : room.battle.paused ? (
