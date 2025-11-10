@@ -1062,8 +1062,7 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 		const room = PS.rooms[this.id] as ChatRoom;
 		const lastSeenTimestamp = PS.prefs.logtimes?.[PS.server.id]?.[this.id] || 0;
 		const lastMessageTime = +(room.lastMessage?.[1] || 0);
-		if ((lastMessageTime - room.timeOffset) <= lastSeenTimestamp) return;
-		this.isSubtleNotifying = true;
+		this.isSubtleNotifying = !((lastMessageTime + room.timeOffset) <= lastSeenTimestamp);
 		PS.update();
 	}
 	dismissNotificationAt(i: number) {
