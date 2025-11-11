@@ -1197,7 +1197,6 @@ class ChatPanel extends PSRoomPanel<ChatRoom> {
 		if (!room.pmTarget) throw new Error("Not a PM room");
 		PS.send(`/utm ${packedTeam}`);
 		this.props.room.send(`/accept`);
-		// room.challenged = null;
 		room.challengedSent = true;
 		room.update(null);
 	};
@@ -1222,7 +1221,7 @@ class ChatPanel extends PSRoomPanel<ChatRoom> {
 				<button data-cmd="/cancelchallenge" class="button">Cancel</button>
 			</TeamForm>
 		</div> : room.challengeMenuOpen ? <div class="challenge">
-			<TeamForm onSubmit={this.makeChallenge}>
+			<TeamForm onSubmit={this.makeChallenge} defaultFormat={defaultFormat}>
 				<button type="submit" class="button button-first">
 					<strong>Challenge</strong>
 				</button><button data-href="battleoptions" class="button button-last" aria-label="Battle options">
