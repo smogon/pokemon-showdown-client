@@ -574,8 +574,9 @@ export class ChatRoom extends PSRoom {
 		const challenge = this.parseChallenge(challengeString);
 		const userid = toID(name);
 		if (this.args?.format) this.args.format = null;
-
-		if (userid === PS.user.userid) {
+		if (challenge?.formatName.startsWith('/')) {
+			this.challenged = null;
+		} else if (userid === PS.user.userid) {
 			if (!challenge && !this.challenging) {
 				// this is also used for canceling challenges
 				this.challenged = null;
@@ -1196,7 +1197,7 @@ class ChatPanel extends PSRoomPanel<ChatRoom> {
 		if (!room.pmTarget) throw new Error("Not a PM room");
 		PS.send(`/utm ${packedTeam}`);
 		this.props.room.send(`/accept`);
-		room.challenged = null;
+		// room.challenged = null;
 		room.update(null);
 	};
 

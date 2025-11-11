@@ -66,6 +66,16 @@ export class MainMenuRoom extends PSRoom {
 		if (this.disallowSpectators) return '/noreply /hidenext \n';
 		return '';
 	}
+	resetPending() {
+		for (let id of PS.miniRoomList) {
+			const room = PS.rooms[id] as ChatRoom;
+			if (room.openChallenge) {
+				room.challenging = null;
+				room.openChallenge();
+			}
+		}
+		this.cancelSearch();
+	}
 	startSearch = (format: string, team?: Team, parentElem?: HTMLElement | null) => {
 		PS.requestNotifications();
 		if (this.searchCountdown) {
@@ -171,6 +181,7 @@ export class MainMenuRoom extends PSRoom {
 		} case 'popup': {
 			const [, message] = args;
 			PS.alert(message.replace(/\|\|/g, '\n'));
+			this.resetPending();
 			return;
 		}
 		}
