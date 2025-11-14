@@ -170,6 +170,14 @@ export class MainMenuRoom extends PSRoom {
 			return;
 		} case 'popup': {
 			const [, message] = args;
+			this.searchSent = null;
+			for (const roomid in PS.rooms) {
+				const room = PS.rooms[roomid] as ChatRoom;
+				if (room.classType === 'chat') {
+					room.challengedSent = false;
+					room.challengingSent = false;
+				}
+			}
 			PS.alert(message.replace(/\|\|/g, '\n'));
 			return;
 		}
