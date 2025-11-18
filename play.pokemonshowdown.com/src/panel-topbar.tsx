@@ -62,6 +62,75 @@ export class PSHeader extends preact.Component {
 
 		PS.dragging = { type: 'room', roomid };
 	};
+
+	// Touch event handlers for mobile drag-and-drop
+	static touchStartX = 0;
+	static touchStartY = 0;
+	static touchDragging = false;
+	static touchDragThreshold = 10; // pixels to move before considering it a drag
+
+	static handleTouchStart = (e: TouchEvent) => {
+		const target = e.currentTarget as HTMLAnchorElement;
+		const roomid = PS.router.extractRoomID(target.href);
+		if (!roomid) return;
+
+		// Store initial touch position
+		PSHeader.touchStartX = e.touches[0].clientX;
+		PSHeader.touchStartY = e.touches[0].clientY;
+		PSHeader.touchDragging = false;
+
+		// Set up dragging state (but don't commit yet until movement threshold is met)
+		PS.dragging = { type: 'room', roomid };
+	};
+
+	static handleTouchMove = (e: TouchEvent) => {
+		if (!PS.dragging || PS.dragging.type !== 'room') return;
+
+		const touch = e.touches[0];
+		const deltaX = Math.abs(touch.clientX - PSHeader.touchStartX);
+		const deltaY = Math.abs(touch.clientY - PSHeader.touchStartY);
+
+		// Check if we've moved past the threshold
+		if (!PSHeader.touchDragging && (deltaX > PSHeader.touchDragThreshold || deltaY > PSHeader.touchDragThreshold)) {
+			PSHeader.touchDragging = true;
+			// Prevent default scrolling when dragging starts
+			e.preventDefault();
+		}
+
+		if (!PSHeader.touchDragging) return;
+
+		e.preventDefault(); // Prevent scrolling while dragging
+
+		// Find the element at the touch position
+		const elementAtPoint = document.elementFromPoint(touch.clientX, touch.clientY);
+		if (!elementAtPoint) return;
+
+		// Find the closest room tab anchor
+		const targetAnchor = elementAtPoint.closest<HTMLAnchorElement>('a.roomtab');
+		if (!targetAnchor) return;
+
+		const draggingRoom = PS.dragging.roomid;
+		const draggedOverRoom = PS.router.extractRoomID(targetAnchor.href);
+
+		if (!draggedOverRoom || draggingRoom === draggedOverRoom) return;
+
+		// Use the same logic as handleDragEnter
+		const leftIndex = PS.leftRoomList.indexOf(draggedOverRoom);
+		if (leftIndex >= 0) {
+			PS.dragOnto(PS.rooms[draggingRoom]!, 'left', leftIndex);
+		} else {
+			const rightIndex = PS.rightRoomList.indexOf(draggedOverRoom);
+			if (rightIndex >= 0) {
+				PS.dragOnto(PS.rooms[draggingRoom]!, 'right', rightIndex);
+			}
+		}
+	};
+
+	static handleTouchEnd = (e: TouchEvent) => {
+		PSHeader.touchDragging = false;
+		PS.dragging = null;
+	};
+
 	static roomInfo(room: PSRoom) {
 		const RoomType = PS.roomTypes[room.type];
 		let icon = RoomType?.icon || <i class="fa fa-file-text-o" aria-hidden></i>;
@@ -145,6 +214,7 @@ export class PSHeader extends preact.Component {
 			<a
 				class={className} href={`/${id}`} draggable={true} title={hoverTitle || undefined}
 				onDragEnter={this.handleDragEnter} onDragStart={this.handleDragStart}
+				onTouchStart={this.handleTouchStart} onTouchMove={this.handleTouchMove} onTouchEnd={this.handleTouchEnd}
 				{...aria}
 			>
 				{icon} {roomTitle}
