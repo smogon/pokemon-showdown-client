@@ -644,6 +644,8 @@ export class ChatRoom extends PSRoom {
 		const index = this.onlineUsers.findIndex(([curUserid]) => curUserid === userid);
 		if (index >= 0) {
 			this.onlineUsers[index] = [userid, username];
+			// Re-sort in case the idle state (@!) changed
+			this.sortOnlineUsers();
 		} else {
 			this.userCount++;
 			this.onlineUsers.push([userid, username]);
@@ -669,11 +671,6 @@ export class ChatRoom extends PSRoom {
 	}
 
 	handleJoinLeave(action: 'join' | 'leave', name: string, silent: boolean) {
-		if (action === 'join') {
-			this.addUser(name);
-		} else if (action === 'leave') {
-			this.removeUser(name);
-		}
 		const showjoins = PS.prefs.showjoins?.[PS.server.id];
 		if (!(showjoins?.[this.id] ?? showjoins?.['global'] ?? !silent)) return;
 
