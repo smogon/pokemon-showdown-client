@@ -139,10 +139,15 @@ export class ChatRoom extends PSRoom {
 				const fromUser = args[args[0] === 'c:' ? 2 : 1];
 				if (toID(fromUser) === PS.user.userid) break;
 				const message = args[args[0] === 'c:' ? 3 : 2];
-				this.notify({
-					title: `${this.title}`,
-					body: message,
-				});
+				const isChallengeAcceptance =
+					message.includes(' accepted the challenge') &&
+					message.includes('starting battle-');
+				if (!isChallengeAcceptance) {
+					this.notify({
+						title: `${this.title}`,
+						body: message,
+					});
+				}
 			} else {
 				this.subtleNotify();
 			}
@@ -303,6 +308,8 @@ export class ChatRoom extends PSRoom {
 		'chall,challenge'(target) {
 			if (target) {
 				let [targetUser, format] = target.split(',');
+				// In PM rooms, autofill the username if only format is provided
+				// or if the target includes custom rules (@@@)
 				if (this.pmTarget && (format === undefined || targetUser.includes('@@@'))) {
 					format = target;
 					targetUser = this.pmTarget;
