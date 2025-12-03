@@ -2633,6 +2633,7 @@ class StatForm extends preact.Component<{
 		set.evs = optimized.evs;
 		this.plus = optimized.plus || null;
 		this.minus = optimized.minus || null;
+		this.updateNatureFromPlusMinus();
 		this.props.onChange();
 	};
 	renderSpreadGuesser() {
