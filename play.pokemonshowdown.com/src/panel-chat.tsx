@@ -44,11 +44,9 @@ export class ChatRoom extends PSRoom {
 	challengeMenuOpen = false;
 	initialSlash = false;
 	challenging: Challenge | null = null;
-	/** True during the period between challenge send and server acknowledgement. */
-	challengingSent = false;
+	/** True after challenge send/accept before server acknowledgement */
+	teamSent = false;
 	challenged: Challenge | null = null;
-	/** True during the period between challenge accept and server acknowledgement. */
-	challengedSent = false;
 	/** n.b. this will be null outside of battle rooms */
 	battle: Battle | null = null;
 	log: BattleLog | null = null;
@@ -326,7 +324,7 @@ export class ChatRoom extends PSRoom {
 		},
 		'reject'(target) {
 			this.challenged = null;
-			this.challengedSent = false;
+			this.teamSent = false;
 			this.update(null);
 			this.sendDirect(`/reject ${target}`);
 		},
@@ -545,13 +543,13 @@ export class ChatRoom extends PSRoom {
 			this.add(`|error|Can only be used in a PM.`);
 			return;
 		}
-		if (this.challengingSent || this.challenging) {
+		if (this.teamSent || this.challenging) {
 			this.sendDirect('/cancelchallenge');
 		} else {
 			this.challengeMenuOpen = false;
 		}
 		this.challenging = null;
-		this.challengingSent = false;
+		this.teamSent = false;
 		this.update(null);
 	}
 	parseChallenge(challengeString: string | null): Challenge | null {
@@ -578,24 +576,21 @@ export class ChatRoom extends PSRoom {
 
 		// Protocol documentation: https://github.com/smogon/pokemon-showdown-client/pull/1799
 
+		this.teamSent = false;
 		if (!challenge) {
-			// rejected or canceled.
+			// rejected or canceled. maybe also accepted?
 			// (when we reject, we are sender; when we cancel, we are not)
 			this.challenged = null;
-			this.challengedSent = false;
 			this.challenging = null;
-			this.challengingSent = false;
 		} else {
 			if (userid === PS.user.userid) {
 				// we are `SENDER`
 				this.challenging = challenge;
-				this.challengingSent = false;
 				this.challengeMenuOpen = false;
 				PS.mainmenu.lastChallenged = Date.now();
 			} else {
 				// we are `RECEIVER`
 				this.challenged = challenge;
-				this.challengedSent = false;
 				this.notify({
 					title: `Challenge from ${name}`,
 					body: `Format: ${BattleLog.formatName(challenge.formatName)}`,
@@ -1188,7 +1183,7 @@ class ChatPanel extends PSRoomPanel<ChatRoom> {
 		if (!room.pmTarget) throw new Error("Not a PM room");
 		PS.send(`/utm ${packedTeam}`);
 		PS.send(`${privacy}/challenge ${room.pmTarget}, ${format}`);
-		room.challengingSent = true;
+		room.teamSent = true;
 		room.update(null);
 	};
 	acceptChallenge = (e: Event, format: string, team?: Team) => {
@@ -1197,7 +1192,7 @@ class ChatPanel extends PSRoomPanel<ChatRoom> {
 		if (!room.pmTarget) throw new Error("Not a PM room");
 		PS.send(`/utm ${packedTeam}`);
 		this.props.room.send(`/accept`);
-		room.challengedSent = true;
+		room.teamSent = true;
 		room.update(null);
 	};
 
@@ -1210,37 +1205,38 @@ class ChatPanel extends PSRoomPanel<ChatRoom> {
 			room.args!.format = undefined;
 		}
 
-		const challengeTo = room.challengingSent ? <div class="challenge">
-			<p>Checking...</p>
-			<TeamForm onSubmit={null}>
-				<button data-cmd="/cancelchallenge" class="button">Cancel</button>
-			</TeamForm>
-		</div> : room.challenging ? <div class="challenge">
+		const challengeTo = room.challenging ? <div class="challenge">
 			<p>Waiting for {room.pmTarget}...</p>
 			<TeamForm format={room.challenging.formatName} teamFormat={room.challenging.teamFormat} onSubmit={null}>
 				<button data-cmd="/cancelchallenge" class="button">Cancel</button>
 			</TeamForm>
 		</div> : room.challengeMenuOpen ? <div class="challenge">
 			<TeamForm onSubmit={this.makeChallenge} defaultFormat={defaultFormat}>
-				<button type="submit" class="button button-first">
+				{room.teamSent && <button class="button" disabled>
+					Challenging...
+				</button>}
+				{!room.teamSent && <button type="submit" class="button button-first">
 					<strong>Challenge</strong>
-				</button><button data-href="battleoptions" class="button button-last" aria-label="Battle options">
+				</button>}
+				{!room.teamSent && <button data-href="battleoptions" class="button button-last" aria-label="Battle options">
 					<i class="fa fa-caret-down" aria-hidden></i>
-				</button> {}
+				</button>} {}
 				<button data-cmd="/cancelchallenge" class="button">Cancel</button>
 			</TeamForm>
 		</div> : null;
 
-		const challengeFrom = room.challengedSent ? <div class="challenge">
-			<p>Checking...</p>
-			<TeamForm onSubmit={null}><></></TeamForm>
-		</div> : room.challenged ? <div class="challenge">
+		const challengeFrom = room.challenged ? <div class="challenge">
 			{!!room.challenged.message && <p>{room.challenged.message}</p>}
 			<TeamForm format={room.challenged.formatName} teamFormat={room.challenged.teamFormat} onSubmit={this.acceptChallenge}>
-				<button type="submit" class={room.challenged.formatName ? `button button-first` : `button`}>
+				{room.teamSent && <button class="button" disabled>
+					Accepting...
+				</button>}
+				{!room.teamSent && <button type="submit" class={room.challenged.formatName ? `button button-first` : `button`}>
 					<strong>{room.challenged.acceptButtonLabel || 'Accept'}</strong>
-				</button>
-				{room.challenged.formatName && <button data-href="battleoptions" class="button button-last" aria-label="Battle options">
+				</button>}
+				{!room.teamSent && room.challenged.formatName && <button
+					data-href="battleoptions" class="button button-last" aria-label="Battle options"
+				>
 					<i class="fa fa-caret-down" aria-hidden></i>
 				</button>} {}
 				<button data-cmd="/reject" class="button">{room.challenged.rejectButtonLabel || 'Reject'}</button>

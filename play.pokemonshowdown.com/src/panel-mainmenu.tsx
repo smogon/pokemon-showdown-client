@@ -173,9 +173,8 @@ export class MainMenuRoom extends PSRoom {
 			this.searchSent = null;
 			for (const roomid in PS.rooms) {
 				const room = PS.rooms[roomid] as ChatRoom;
-				if (room.classType === 'chat') {
-					room.challengedSent = false;
-					room.challengingSent = false;
+				if (room.teamSent) {
+					room.teamSent = false;
 				}
 			}
 			PS.alert(message.replace(/\|\|/g, '\n'));
