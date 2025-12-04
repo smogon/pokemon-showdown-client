@@ -317,6 +317,10 @@ export class ChatRoom extends PSRoom {
 				});
 				return;
 			}
+			if (this.challengeMenuOpen) {
+				this.cancelChallenge();
+				return;
+			}
 			this.openChallenge();
 		},
 		'cchall,cancelchallenge'(target) {
