@@ -586,6 +586,7 @@ export class ChatRoom extends PSRoom {
 		if (!challenge) {
 			// rejected or canceled.
 			// plausibly due to a server bug, SENDER may be wrong in this case
+			// (when we reject, we are SENDER; when we cancel, we are not)
 			this.challenged = null;
 			this.challenging = null;
 		} else if (userid === PS.user.userid) {
