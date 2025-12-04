@@ -582,23 +582,25 @@ export class ChatRoom extends PSRoom {
 		this.teamSent = null;
 
 		// Protocol documentation: https://github.com/smogon/pokemon-showdown-client/pull/1799
-		if (userid === PS.user.userid) {
-			// we are `SENDER`
+
+		if (!challenge) {
+			// rejected or canceled.
+			// plausibly due to a server bug, SENDER may be wrong in this case
+			this.challenged = null;
+			this.challenging = null;
+		} else if (userid === PS.user.userid) {
+			// we are SENDER
 			this.challenging = challenge;
-			if (challenge) {
-				this.challengeMenuOpen = false;
-				PS.mainmenu.lastChallenged = Date.now();
-			}
+			this.challengeMenuOpen = false;
+			PS.mainmenu.lastChallenged = Date.now();
 		} else {
-			// we are `RECEIVER`
+			// we are RECEIVER
 			this.challenged = challenge;
-			if (challenge) {
-				this.notify({
-					title: `${name} wants to battle!`,
-					body: `Format: ${BattleLog.formatName(challenge.formatName)}`,
-					id: 'challenge',
-				});
-			}
+			this.notify({
+				title: `Challenge from ${name}`,
+				body: `Format: ${BattleLog.formatName(challenge.formatName)}`,
+				id: 'challenge',
+			});
 		}
 		this.update(null);
 	}
