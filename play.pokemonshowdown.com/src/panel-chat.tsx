@@ -45,7 +45,7 @@ export class ChatRoom extends PSRoom {
 	initialSlash = false;
 	challenging: Challenge | null = null;
 	/** True after challenge send/accept before server acknowledgement */
-	teamSent = false;
+	teamSent: string | null = null;
 	challenged: Challenge | null = null;
 	/** n.b. this will be null outside of battle rooms */
 	battle: Battle | null = null;
@@ -324,7 +324,7 @@ export class ChatRoom extends PSRoom {
 		},
 		'reject'(target) {
 			this.challenged = null;
-			this.teamSent = false;
+			this.teamSent = null;
 			this.update(null);
 			this.sendDirect(`/reject ${target}`);
 		},
@@ -549,7 +549,7 @@ export class ChatRoom extends PSRoom {
 			this.challengeMenuOpen = false;
 		}
 		this.challenging = null;
-		this.teamSent = false;
+		this.teamSent = null;
 		this.update(null);
 	}
 	parseChallenge(challengeString: string | null): Challenge | null {
@@ -576,7 +576,7 @@ export class ChatRoom extends PSRoom {
 
 		// Protocol documentation: https://github.com/smogon/pokemon-showdown-client/pull/1799
 
-		this.teamSent = false;
+		this.teamSent = null;
 		if (!challenge) {
 			// rejected or canceled. maybe also accepted?
 			// (when we reject, we are sender; when we cancel, we are not)
@@ -1183,7 +1183,7 @@ class ChatPanel extends PSRoomPanel<ChatRoom> {
 		if (!room.pmTarget) throw new Error("Not a PM room");
 		PS.send(`/utm ${packedTeam}`);
 		PS.send(`${privacy}/challenge ${room.pmTarget}, ${format}`);
-		room.teamSent = true;
+		room.teamSent = format || '-';
 		room.update(null);
 	};
 	acceptChallenge = (e: Event, format: string, team?: Team) => {
@@ -1192,7 +1192,7 @@ class ChatPanel extends PSRoomPanel<ChatRoom> {
 		if (!room.pmTarget) throw new Error("Not a PM room");
 		PS.send(`/utm ${packedTeam}`);
 		this.props.room.send(`/accept`);
-		room.teamSent = true;
+		room.teamSent = format || '-';
 		room.update(null);
 	};
 

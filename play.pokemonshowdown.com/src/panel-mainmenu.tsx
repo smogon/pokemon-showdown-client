@@ -45,7 +45,7 @@ export class MainMenuRoom extends PSRoom {
 	} = {};
 	searchCountdown: { format: string, packedTeam: string, countdown: number, timer: number } | null = null;
 	/** used to track the moment between "search sent" and "server acknowledged search sent" */
-	searchSent: string | null = null;
+	teamSent: string | null = null;
 	search: { searching: string[], games: Record<RoomID, string> | null } = { searching: [], games: null };
 	disallowSpectators: boolean | null = PS.prefs.disallowspectators;
 	lastChallenged: number | null = null;
@@ -84,7 +84,7 @@ export class MainMenuRoom extends PSRoom {
 		this.update(null);
 	};
 	searchingFormat() {
-		return this.searchCountdown?.format || this.searchSent ||
+		return this.searchCountdown?.format || this.teamSent ||
 			this.search.searching?.[this.search.searching.length - 1] || null;
 	}
 	cancelSearch = () => {
@@ -94,8 +94,8 @@ export class MainMenuRoom extends PSRoom {
 			this.update(null);
 			return true;
 		}
-		if (this.searchSent || this.search.searching?.length) {
-			this.searchSent = null;
+		if (this.teamSent || this.search.searching?.length) {
+			this.teamSent = null;
 			PS.send(`/cancelsearch`);
 			this.update(null);
 			return true;
@@ -114,7 +114,7 @@ export class MainMenuRoom extends PSRoom {
 		this.update(null);
 	};
 	doSearch = (search: NonNullable<typeof this.searchCountdown>) => {
-		this.searchSent = search.format;
+		this.teamSent = search.format;
 		const privacy = this.adjustPrivacy();
 		PS.send(`/utm ${search.packedTeam}`);
 		PS.send(`${privacy}/search ${search.format}`);
@@ -170,11 +170,11 @@ export class MainMenuRoom extends PSRoom {
 			return;
 		} case 'popup': {
 			const [, message] = args;
-			this.searchSent = null;
 			for (const roomid in PS.rooms) {
-				const room = PS.rooms[roomid] as ChatRoom;
+				const room = PS.rooms[roomid] as ChatRoom | MainMenuRoom;
 				if (room.teamSent) {
-					room.teamSent = false;
+					room.teamSent = null;
+					room.update(null);
 				}
 			}
 			PS.alert(message.replace(/\|\|/g, '\n'));
@@ -210,7 +210,7 @@ export class MainMenuRoom extends PSRoom {
 	}
 	receiveSearch(dataBuf: string) {
 		let json;
-		this.searchSent = null;
+		this.teamSent = null;
 		try {
 			json = JSON.parse(dataBuf);
 		} catch {}
