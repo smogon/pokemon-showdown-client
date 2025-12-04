@@ -943,6 +943,93 @@ export class ChatTextEntry extends preact.Component<{
 		// 	const newValue = `/pm ${PS.user.lastPM}, `;
 		// 	this.setValue(newValue, newValue.length);
 		// 	return true;
+		} else if (ev.shiftKey && ev.keyCode === 37) {
+			if (PS.prefs.onepanel === 'vertical' || this.getValue().length > 0) return;
+			const curLoc = PS.room.location;
+			let newLoc = curLoc;
+			let newIndex: number | null = null;
+			switch (curLoc) {
+			case 'right': {
+				newIndex = PS.rightRoomList.indexOf(PS.room.id) - 1;
+				if (newIndex < 0) {
+					newLoc = 'left';
+					newIndex = PS.leftRoomList.length + 1;
+				}
+				break;
+			}
+			case 'left': {
+				newIndex = PS.leftRoomList.indexOf(PS.room.id) - 1;
+				// newIndex <= 0 because MainMenu is always at 0 index
+				if (newIndex <= 0) {
+					newLoc = 'mini-window';
+					newIndex = PS.miniRoomList.length + 1;
+				}
+				break;
+			}
+			case 'mini-window': {
+				newIndex = PS.miniRoomList.indexOf(PS.room.id) - 1;
+				if (newIndex < 0) {
+					newLoc = 'right';
+					newIndex = PS.rightRoomList.length + 1;
+				}
+				break;
+			}
+			}
+			if (newIndex !== null) {
+				PS.moveRoom(PS.room, newLoc, false, newIndex);
+				PS.update();
+			}
+			return true;
+		} else if (ev.shiftKey && ev.keyCode === 39) {
+			if (PS.prefs.onepanel === 'vertical' || this.getValue().length > 0) return;
+			const curLoc = PS.room.location;
+			let newLoc = curLoc;
+			let newIndex: number | null = null;
+			switch (curLoc) {
+			case 'right': {
+				newIndex = PS.rightRoomList.indexOf(PS.room.id) + 1;
+				if (newIndex >= PS.rightRoomList.length - 1) {
+					// newIndex = 1 because NewsPanel is at 0
+					newLoc = 'mini-window';
+					newIndex = 1;
+				}
+				break;
+			}
+			case 'left': {
+				newIndex = PS.leftRoomList.indexOf(PS.room.id) + 1;
+				if (newIndex >= PS.leftRoomList.length) {
+					newLoc = 'right';
+					newIndex = 0;
+				}
+				break;
+			}
+			case 'mini-window': {
+				newIndex = PS.miniRoomList.indexOf(PS.room.id) + 1;
+				if (newIndex >= PS.miniRoomList.length) {
+					newLoc = 'left';
+					// newIndex = 1 because MainMenu is at 0
+					newIndex = 1;
+				}
+				break;
+			}
+			}
+			if (newIndex !== null) {
+				PS.moveRoom(PS.room, newLoc, false, newIndex);
+				PS.update();
+			}
+			return true;
+		} else if (ev.shiftKey && ev.keyCode === 38) {
+			if (PS.prefs.onepanel !== 'vertical' || this.getValue().length > 0) return;
+			let newIndex = PS.rightRoomList.indexOf(PS.room.id) - 1;
+			if (newIndex < 0) newIndex = PS.rightRoomList.length - 1;
+			PS.moveRoom(PS.room, 'right', false, newIndex);
+			PS.update();
+		} else if (ev.shiftKey && ev.keyCode === 40) {
+			if (PS.prefs.onepanel !== 'vertical' || this.getValue().length > 0) return;
+			let newIndex = PS.rightRoomList.indexOf(PS.room.id) + 1;
+			if (newIndex >= PS.rightRoomList.length - 1) newIndex = 0;
+			PS.moveRoom(PS.room, 'right', false, newIndex);
+			PS.update();
 		}
 		return false;
 	}
