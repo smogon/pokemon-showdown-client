@@ -68,8 +68,12 @@ export class ChatRoom extends PSRoom {
 	}
 	override connect() {
 		if (!this.connected || this.connected === 'autoreconnect') {
-			if (this.pmTarget === null) PS.send(`/join ${this.id}`);
-			this.connected = true;
+			if (this.pmTarget === null) {
+				PS.send(`/join ${this.id}`);
+				this.connected = true;
+			} else {
+				this.connected = 'client-only';
+			}
 			this.connectWhenLoggedIn = false;
 		}
 	}
@@ -729,7 +733,6 @@ export class ChatRoom extends PSRoom {
 	}
 
 	override destroy() {
-		if (this.pmTarget) this.connected = false;
 		if (this.battle) {
 			// since battle is defined here, we might as well deallocate it here
 			this.battle.destroy();
@@ -1172,19 +1175,21 @@ export class ChatTextEntry extends preact.Component<{
 	override render() {
 		const { room } = this.props;
 		const OLD_TEXTBOX = false;
-		const canTalk = PS.user.named || room.id === 'dm-';
 		if (room.connected === 'client-only' && room.id.startsWith('battle-')) {
 			return <div
 				class="chat-log-add hasuserlist" onClick={this.focusIfNoSelection} style={{ left: this.props.left || 0 }}
 			><CopyableURLBox url={`https://psim.us/r/${room.id.slice(7)}`} /></div>;
 		}
+
+		const canTalk = PS.user.named || room.id === 'dm-';
+		const connected = room.connected === true || room.connected === 'client-only';
 		return <div
 			class="chat-log-add hasuserlist" onClick={this.focusIfNoSelection} style={{ left: this.props.left || 0 }}
 		>
 			<form class={`chatbox${this.props.tinyLayout ? ' nolabel' : ''}`} style={canTalk ? {} : { display: 'none' }}>
 				<label style={`color:${BattleLog.usernameColor(PS.user.userid)}`}>{PS.user.name}:</label>
 				{OLD_TEXTBOX ? <textarea
-					class={room.connected === true && canTalk ? 'textbox autofocus' : 'textbox disabled'}
+					class={connected && canTalk ? 'textbox autofocus' : 'textbox disabled'}
 					autofocus
 					rows={1}
 					onInput={this.update}
@@ -1192,7 +1197,7 @@ export class ChatTextEntry extends preact.Component<{
 					style={{ resize: 'none', width: '100%', height: '16px', padding: '2px 3px 1px 3px' }}
 					placeholder={PSView.focusPreview(room)}
 				/> : <ChatTextBox
-					disabled={room.connected !== true || !canTalk}
+					disabled={!connected || !canTalk}
 					placeholder={PSView.focusPreview(room)}
 				/>}
 			</form>
