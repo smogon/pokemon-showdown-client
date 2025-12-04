@@ -970,7 +970,7 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 	 * the room isn't connected to the game server but to something
 	 * else.
 	 *
-	 * `true` for DMs for historical reasons (TODO: fix)
+	 * 'client-only' for DMs
 	 */
 	connected: 'autoreconnect' | 'client-only' | 'expired' | boolean = false;
 	/**
