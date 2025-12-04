@@ -543,8 +543,10 @@ export class ChatRoom extends PSRoom {
 			this.add(`|error|Can only be used in a PM.`);
 			return;
 		}
-		if (this.teamSent || this.challenging) {
+		if ((this.teamSent && this.challengeMenuOpen) || this.challenging) {
 			this.sendDirect('/cancelchallenge');
+			this.challenging = null;
+			this.challengeMenuOpen = true;
 		} else {
 			this.challengeMenuOpen = false;
 		}
@@ -573,26 +575,22 @@ export class ChatRoom extends PSRoom {
 		const challenge = this.parseChallenge(challengeString);
 		const userid = toID(name);
 		if (this.args?.format) this.args.format = null;
+		this.teamSent = null;
 
 		// Protocol documentation: https://github.com/smogon/pokemon-showdown-client/pull/1799
-
-		this.teamSent = null;
-		if (!challenge) {
-			// rejected or canceled. maybe also accepted?
-			// (when we reject, we are sender; when we cancel, we are not)
-			this.challenged = null;
-			this.challenging = null;
-		} else {
-			if (userid === PS.user.userid) {
-				// we are `SENDER`
-				this.challenging = challenge;
+		if (userid === PS.user.userid) {
+			// we are `SENDER`
+			this.challenging = challenge;
+			if (challenge) {
 				this.challengeMenuOpen = false;
 				PS.mainmenu.lastChallenged = Date.now();
-			} else {
-				// we are `RECEIVER`
-				this.challenged = challenge;
+			}
+		} else {
+			// we are `RECEIVER`
+			this.challenged = challenge;
+			if (challenge) {
 				this.notify({
-					title: `Challenge from ${name}`,
+					title: `${name} wants to battle!`,
 					body: `Format: ${BattleLog.formatName(challenge.formatName)}`,
 					id: 'challenge',
 				});
