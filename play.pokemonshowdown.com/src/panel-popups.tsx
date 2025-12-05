@@ -54,8 +54,7 @@ class UserPanel extends PSRoomPanel<UserRoom> {
 		}
 		const hideInteraction = room.id.startsWith('viewuser-');
 
-		const parentRoomId = this.props.room.parentRoomid;
-		const parentRoom = PS.rooms[parentRoomId!] as ChatRoom;
+		const parentRoom = room.getParent() as ChatRoom | null;
 		const name = parentRoom?.users?.[user.userid] || room.name;
 		const group = PS.server.getGroup(name);
 		let groupName: preact.ComponentChild = group.name || null;
