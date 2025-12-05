@@ -54,9 +54,7 @@ class UserPanel extends PSRoomPanel<UserRoom> {
 		}
 		const hideInteraction = room.id.startsWith('viewuser-');
 
-		const parentRoom = room.getParent() as ChatRoom | null;
-		const name = parentRoom?.users?.[user.userid] || room.name;
-		const group = PS.server.getGroup(name);
+		const group = PS.server.getGroup(room.name);
 		let groupName: preact.ComponentChild = group.name || null;
 		if (group.type === 'punishment') {
 			groupName = <span style="color:#777777">{groupName}</span>;

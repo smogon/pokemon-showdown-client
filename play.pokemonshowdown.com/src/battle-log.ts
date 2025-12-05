@@ -1226,10 +1226,10 @@ export class BattleLog {
 		if (!/[A-Za-z0-9]/.test(name.charAt(0))) {
 			// Backwards compatibility
 			group = name.charAt(0);
-			name = name.substr(1);
+			name = name.slice(1);
 		}
 		const colorStyle = ` style="color:${BattleLog.usernameColor(toID(name))}"`;
-		const clickableName = `<small class="groupsymbol">${BattleLog.escapeHTML(group)}</small><span class="username">${BattleLog.escapeHTML(name)}</span>`;
+		const clickableName = `<span class="username"><small class="groupsymbol">${BattleLog.escapeHTML(group)}</small>${BattleLog.escapeHTML(name)}</span>`;
 		const isMine = (window.app?.user?.get('name') === name) || (window.PS?.user.name === name);
 		const hlClass = isHighlighted ? ' highlighted' : '';
 		const mineClass = isMine ? ' mine' : '';
