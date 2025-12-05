@@ -44,6 +44,8 @@ export class ChatRoom extends PSRoom {
 	challengeMenuOpen = false;
 	initialSlash = false;
 	challenging: Challenge | null = null;
+	/** True after challenge send/accept before server acknowledgement */
+	teamSent: string | null = null;
 	challenged: Challenge | null = null;
 	/** n.b. this will be null outside of battle rooms */
 	battle: Battle | null = null;
@@ -330,6 +332,7 @@ export class ChatRoom extends PSRoom {
 		},
 		'reject'(target) {
 			this.challenged = null;
+			this.teamSent = null;
 			this.update(null);
 			this.sendDirect(`/reject ${target}`);
 		},
@@ -548,13 +551,15 @@ export class ChatRoom extends PSRoom {
 			this.add(`|error|Can only be used in a PM.`);
 			return;
 		}
-		if (this.challenging) {
+		if ((this.teamSent && this.challengeMenuOpen) || this.challenging) {
 			this.sendDirect('/cancelchallenge');
 			this.challenging = null;
 			this.challengeMenuOpen = true;
 		} else {
 			this.challengeMenuOpen = false;
 		}
+		this.challenging = null;
+		this.teamSent = null;
 		this.update(null);
 	}
 	parseChallenge(challengeString: string | null): Challenge | null {
@@ -578,28 +583,29 @@ export class ChatRoom extends PSRoom {
 		const challenge = this.parseChallenge(challengeString);
 		const userid = toID(name);
 		if (this.args?.format) this.args.format = null;
+		this.teamSent = null;
 
-		if (userid === PS.user.userid) {
-			if (!challenge && !this.challenging) {
-				// this is also used for canceling challenges
-				this.challenged = null;
-			}
-			// we are sending the challenge
+		// Protocol documentation: https://github.com/smogon/pokemon-showdown-client/pull/1799
+
+		if (!challenge) {
+			// rejected or canceled.
+			// plausibly due to a server bug, SENDER may be wrong in this case
+			// (when we reject, we are SENDER; when we cancel, we are not)
+			this.challenged = null;
+			this.challenging = null;
+		} else if (userid === PS.user.userid) {
+			// we are SENDER
 			this.challenging = challenge;
+			this.challengeMenuOpen = false;
+			PS.mainmenu.lastChallenged = Date.now();
 		} else {
-			if (!challenge && !this.challenged) {
-				// this is also used for rejecting challenges
-				this.challenging = null;
-			}
+			// we are RECEIVER
 			this.challenged = challenge;
-			if (challenge) {
-				this.notify({
-					title: `Challenge from ${name}`,
-					body: `Format: ${BattleLog.formatName(challenge.formatName)}`,
-					id: 'challenge',
-				});
-				// app.playNotificationSound();
-			}
+			this.notify({
+				title: `Challenge from ${name}`,
+				body: `Format: ${BattleLog.formatName(challenge.formatName)}`,
+				id: 'challenge',
+			});
 		}
 		this.update(null);
 	}
@@ -1274,12 +1280,7 @@ class ChatPanel extends PSRoomPanel<ChatRoom> {
 		if (!room.pmTarget) throw new Error("Not a PM room");
 		PS.send(`/utm ${packedTeam}`);
 		PS.send(`${privacy}/challenge ${room.pmTarget}, ${format}`);
-		room.challengeMenuOpen = false;
-		room.challenging = {
-			formatName: format,
-			teamFormat: format,
-		};
-		PS.mainmenu.lastChallenged = now;
+		room.teamSent = format || '-';
 		room.update(null);
 	};
 	acceptChallenge = (e: Event, format: string, team?: Team) => {
@@ -1288,7 +1289,7 @@ class ChatPanel extends PSRoomPanel<ChatRoom> {
 		if (!room.pmTarget) throw new Error("Not a PM room");
 		PS.send(`/utm ${packedTeam}`);
 		this.props.room.send(`/accept`);
-		room.challenged = null;
+		room.teamSent = format || '-';
 		room.update(null);
 	};
 
@@ -1300,18 +1301,24 @@ class ChatPanel extends PSRoomPanel<ChatRoom> {
 		if (defaultFormat?.startsWith('!!')) {
 			room.args!.format = undefined;
 		}
-		const challengeTo = room.challenging ? <div class="challenge">
+
+		const challengeSent = room.teamSent && !room.challenged;
+		const challengeTo = room.challenging ? <div class="challenge outgoing">
 			<p>Waiting for {room.pmTarget}...</p>
 			<TeamForm format={room.challenging.formatName} teamFormat={room.challenging.teamFormat} onSubmit={null}>
 				<button data-cmd="/cancelchallenge" class="button">Cancel</button>
 			</TeamForm>
-		</div> : room.challengeMenuOpen ? <div class="challenge">
+		</div> : room.challengeMenuOpen ? <div class="challenge outgoing">
 			<TeamForm onSubmit={this.makeChallenge} defaultFormat={defaultFormat}>
-				<button type="submit" class="button button-first">
+				{challengeSent && <button class="button" disabled>
+					Challenging...
+				</button>}
+				{!challengeSent && <button type="submit" class="button button-first" disabled={!!room.challenged}>
 					<strong>Challenge</strong>
-				</button><button data-href="battleoptions" class="button button-last" aria-label="Battle options">
+				</button>}
+				{!challengeSent && <button data-href="battleoptions" class="button button-last" aria-label="Battle options">
 					<i class="fa fa-caret-down" aria-hidden></i>
-				</button> {}
+				</button>} {}
 				<button data-cmd="/cancelchallenge" class="button">Cancel</button>
 			</TeamForm>
 		</div> : null;
@@ -1319,10 +1326,15 @@ class ChatPanel extends PSRoomPanel<ChatRoom> {
 		const challengeFrom = room.challenged ? <div class="challenge">
 			{!!room.challenged.message && <p>{room.challenged.message}</p>}
 			<TeamForm format={room.challenged.formatName} teamFormat={room.challenged.teamFormat} onSubmit={this.acceptChallenge}>
-				<button type="submit" class={room.challenged.formatName ? `button button-first` : `button`}>
+				{room.teamSent && <button class="button" disabled>
+					Accepting...
+				</button>}
+				{!room.teamSent && <button type="submit" class={room.challenged.formatName ? `button button-first` : `button`}>
 					<strong>{room.challenged.acceptButtonLabel || 'Accept'}</strong>
-				</button>
-				{room.challenged.formatName && <button data-href="battleoptions" class="button button-last" aria-label="Battle options">
+				</button>}
+				{!room.teamSent && room.challenged.formatName && <button
+					data-href="battleoptions" class="button button-last" aria-label="Battle options"
+				>
 					<i class="fa fa-caret-down" aria-hidden></i>
 				</button>} {}
 				<button data-cmd="/reject" class="button">{room.challenged.rejectButtonLabel || 'Reject'}</button>
