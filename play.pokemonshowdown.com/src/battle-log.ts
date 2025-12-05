@@ -118,7 +118,7 @@ export class BattleLog {
 		const button = el.getElementsByTagName('button')[0];
 		button?.addEventListener?.('click', e => {
 			e.preventDefault();
-			this.scene?.battle.seekTurn(this.scene.battle.turn - 100);
+			this.scene?.battle.seekBy(-100);
 		});
 		this.addNode(el);
 	}
