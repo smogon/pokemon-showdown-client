@@ -486,7 +486,7 @@ export class ChatRoom extends PSRoom {
 
 			let turnNum = Number(target);
 			if (target.startsWith('+') || turnNum < 0) {
-				turnNum += this.battle.turn;
+				turnNum += this.battle.seeking ?? this.battle.turn;
 				if (turnNum < 0) turnNum = 0;
 			} else if (target === 'end') {
 				turnNum = Infinity;
