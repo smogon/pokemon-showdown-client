@@ -1086,6 +1086,17 @@ export class BattleLog {
 		}
 		return this.escapeHTML(this.formatName(formatid, fixGen6));
 	}
+	static formatId(format: string): ID {
+		const atIndex = format.indexOf('@@@');
+		if (atIndex >= 0) {
+			format = toID(format.slice(0, atIndex)) + format.slice(atIndex).trim();
+		} else {
+			format = toID(format);
+		}
+		if (!format) return '' as ID;
+		if (!format.startsWith('gen')) format = `${Dex.modid}${format}`;
+		return format as ID;
+	}
 	/**
 	 * Do not store this output anywhere; it removes the generation number
 	 * for the current gen.
