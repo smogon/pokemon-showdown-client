@@ -201,6 +201,7 @@ class TimerButton extends preact.Component<{ room: BattleRoom }> {
 		const room = this.props.room;
 		if (!this.timerInterval && room.battle.kickingInactive) {
 			this.timerInterval = setInterval(() => {
+				if (room.choices?.isDone()) return;
 				if (typeof room.battle.kickingInactive === 'number' && room.battle.kickingInactive > 1) {
 					room.battle.kickingInactive--;
 					if (room.battle.graceTimeLeft) room.battle.graceTimeLeft--;
