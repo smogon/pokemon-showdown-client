@@ -1210,20 +1210,21 @@ class ChatPanel extends PSRoomPanel<ChatRoom> {
 			room.args!.format = undefined;
 		}
 
-		const challengeTo = room.challenging ? <div class="challenge">
+		const challengeSent = room.teamSent && !room.challenged;
+		const challengeTo = room.challenging ? <div class="challenge outgoing">
 			<p>Waiting for {room.pmTarget}...</p>
 			<TeamForm format={room.challenging.formatName} teamFormat={room.challenging.teamFormat} onSubmit={null}>
 				<button data-cmd="/cancelchallenge" class="button">Cancel</button>
 			</TeamForm>
-		</div> : room.challengeMenuOpen ? <div class="challenge">
+		</div> : room.challengeMenuOpen ? <div class="challenge outgoing">
 			<TeamForm onSubmit={this.makeChallenge} defaultFormat={defaultFormat}>
-				{room.teamSent && <button class="button" disabled>
+				{challengeSent && <button class="button" disabled>
 					Challenging...
 				</button>}
-				{!room.teamSent && <button type="submit" class="button button-first">
+				{!challengeSent && <button type="submit" class="button button-first" disabled={!!room.challenged}>
 					<strong>Challenge</strong>
 				</button>}
-				{!room.teamSent && <button data-href="battleoptions" class="button button-last" aria-label="Battle options">
+				{!challengeSent && <button data-href="battleoptions" class="button button-last" aria-label="Battle options">
 					<i class="fa fa-caret-down" aria-hidden></i>
 				</button>} {}
 				<button data-cmd="/cancelchallenge" class="button">Cancel</button>
