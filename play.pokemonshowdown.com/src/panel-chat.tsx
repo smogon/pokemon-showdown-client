@@ -140,19 +140,21 @@ export class ChatRoom extends PSRoom {
 				const fromUser = args[args[0] === 'c:' ? 2 : 1];
 				if (toID(fromUser) === PS.user.userid) break;
 				const message = args[args[0] === 'c:' ? 3 : 2];
-				const nonotify = this.log?.parseChatMessage(message, name, args[1])?.[2];
-				let textContent = message;
-				if (/^\/(log|raw|html)\b/.test(message)) {
-					textContent = message
-						.split(' ')
-						.slice(1)
-						.join(' ')
-						.replace(/<[^>]*?>/g, '');
+				const noNotify = this.log?.parseChatMessage(message, name, args[1])?.[2];
+				if (!noNotify) {
+					let textContent = message;
+					if (/^\/(log|raw|html)\b/.test(message)) {
+						textContent = message
+							.split(' ')
+							.slice(1)
+							.join(' ')
+							.replace(/<[^>]*?>/g, '');
+					}
+					this.notify({
+						title: `${this.title}`,
+						body: textContent,
+					});
 				}
-				if (!nonotify) this.notify({
-					title: `${this.title}`,
-					body: textContent,
-				});
 			} else {
 				this.subtleNotify();
 			}
