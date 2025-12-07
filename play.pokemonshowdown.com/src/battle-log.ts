@@ -1295,7 +1295,7 @@ export class BattleLog {
 		case 'data-move':
 			return ['chat message-error', '[outdated code no longer supported]'];
 		case 'text':
-			return ['chat', BattleLog.parseMessage(target)];
+			return ['chat', BattleLog.parseMessage(target), true];
 		case 'error':
 			return ['chat message-error', formatText(target, true)];
 		case 'html':

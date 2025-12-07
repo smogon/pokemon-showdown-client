@@ -139,16 +139,25 @@ export class ChatRoom extends PSRoom {
 			if (args[0] === 'c:') PS.lastMessageTime = args[1];
 			this.lastMessage = args;
 			this.joinLeave = null;
-			this.markUserActive(args[args[0] === 'c:' ? 2 : 1]);
+			const name = args[args[0] === 'c:' ? 2 : 1];
+			this.markUserActive(name);
 			if (this.tour) this.tour.joinLeave = null;
 			if (this.id.startsWith("dm-")) {
 				const fromUser = args[args[0] === 'c:' ? 2 : 1];
 				if (toID(fromUser) === PS.user.userid) break;
 				const message = args[args[0] === 'c:' ? 3 : 2];
-				this.notify({
-					title: `${this.title}`,
-					body: message,
-				});
+				const noNotify = this.log?.parseChatMessage(message, name, args[1])?.[2];
+				if (!noNotify) {
+					let textContent = message;
+					if (/^\/(log|raw|html|uhtml|uhtmlchange) /.test(message)) {
+						textContent = message.split(' ').slice(1).join(' ')
+							.replace(/<[^>]*?>/g, '');
+					}
+					this.notify({
+						title: `${this.title}`,
+						body: textContent,
+					});
+				}
 			} else {
 				this.subtleNotify();
 			}
