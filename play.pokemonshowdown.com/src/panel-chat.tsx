@@ -144,10 +144,7 @@ export class ChatRoom extends PSRoom {
 				if (!noNotify) {
 					let textContent = message;
 					if (/^\/(log|raw|html)\b/.test(message)) {
-						textContent = message
-							.split(' ')
-							.slice(1)
-							.join(' ')
+						textContent = message.split(' ').slice(1).join(' ')
 							.replace(/<[^>]*?>/g, '');
 					}
 					this.notify({
