@@ -503,6 +503,13 @@ export class BattlePanel extends preact.Component<{ id: string }> {
 					Volume:<br />
 					<input type="range" onInput={this.changeVolume} />
 				</label>
+				<label class="optgroup">
+					Nickname Visibility:<br />
+					<select name="speed" class="button" onChange={this.changeSpeed} value={this.getSpeed()}>
+						<option value="on">On</option>
+						<option value="off">Off</option>
+					</select>
+				</label> {}
 			</p>
 			{this.result ? <h1>
 				<strong>{this.result.format}</strong>: {this.result.players.join(' vs. ')}
