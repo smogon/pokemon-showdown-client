@@ -143,11 +143,8 @@ export class ChatRoom extends PSRoom {
 				const noNotify = this.log?.parseChatMessage(message, name, args[1])?.[2];
 				if (!noNotify) {
 					let textContent = message;
-					if (/^\/(log|raw|html|uhtml|uhtmlchange)\b/.test(message)) {
-						textContent = message
-							.split(' ')
-							.slice(1)
-							.join(' ')
+					if (/^\/(log|raw|html) /.test(message)) {
+						textContent = message.split(' ').slice(1).join(' ')
 							.replace(/<[^>]*?>/g, '');
 					}
 					this.notify({
