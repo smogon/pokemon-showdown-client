@@ -1370,17 +1370,47 @@ class ChatPanel extends PSRoomPanel<ChatRoom> {
 	}
 }
 
+function renderUserListItem(userid: ID, rawName: string) {
+	const groupSymbol = rawName.charAt(0);
+	const group = PS.server.groups[groupSymbol] || { type: 'user', order: 0 };
+	let color;
+	let displayName = rawName;
+
+	if (rawName.endsWith('@!')) {
+		displayName = rawName.slice(0, -2);
+		color = '#888888';
+	} else {
+		color = BattleLog.usernameColor(userid);
+	}
+
+	const display = displayName.slice(1);
+	const staffClass = ['leadership', 'staff'].includes(group.type!) ? ' staffgroup' : '';
+	return <li key={userid}><button class="userbutton username">
+		<em class={`group${staffClass}`}>
+			{groupSymbol}
+		</em>
+		{group.type === 'leadership' ? (
+			<strong><em style={`color:${color}`}>{display}</em></strong>
+		) : group.type === 'staff' ? (
+			<strong style={`color:${color} `}>{display}</strong>
+		) : (
+			<span style={`color:${color}`}>{display}</span>
+		)}
+	</button></li>;
+}
+
 export class ChatUserList extends preact.Component<{
 	room: ChatRoom, left?: number, top?: number, minimized?: boolean, static?: boolean,
 }> {
 	render() {
 		const room = this.props.room;
+		const minimized = this.props.minimized || false;
 		const pmTargetid = room.pmTarget ? toID(room.pmTarget) : null;
 		return <div
-			class={'userlist' + (this.props.minimized ? ' userlist-hidden' : this.props.static ? ' userlist-static' : '')}
+			class={'userlist' + (minimized ? ' userlist-hidden' : this.props.static ? ' userlist-static' : '')}
 			style={{ left: this.props.left || 0, top: this.props.top || 0 }}
 		>
-			{!this.props.minimized ? (
+			{!minimized ? (
 				<div class="userlist-count"><small>{room.userCount} users</small></div>
 			) : room.id === 'dm-' ? (
 				<>
@@ -1395,31 +1425,16 @@ export class ChatUserList extends preact.Component<{
 				<button data-href="userlist" class="button button-middle">{room.userCount} users</button>
 			)}
 			<ul>
-				{room.onlineUsers.map(([userid, name]) => {
-					const groupSymbol = name.charAt(0);
-					const group = PS.server.groups[groupSymbol] || { type: 'user', order: 0 };
-					let color;
-					if (name.endsWith('@!')) {
-						name = name.slice(0, -2);
-						color = '#888888';
-					} else {
-						color = BattleLog.usernameColor(userid);
-					}
-					return <li key={userid}><button class="userbutton username">
-						<em class={`group${['leadership', 'staff'].includes(group.type!) ? ' staffgroup' : ''}`}>
-							{groupSymbol}
-						</em>
-						{group.type === 'leadership' ? (
-							<strong><em style={`color:${color}`}>{name.slice(1)}</em></strong>
-						) : group.type === 'staff' ? (
-							<strong style={`color:${color} `}>{name.slice(1)}</strong>
-						) : (
-							<span style={`color:${color}`}>{name.slice(1)}</span>
-						)}
-					</button></li>;
-				})}
+				{minimized ? null : this.renderUsers(room.onlineUsers)}
 			</ul>
 		</div>;
+	}
+
+	private renderUsers(users: [ID, string][]) {
+		if (!users.length) {
+			return <li><small style="color: #888;">No users</small></li>;
+		}
+		return users.map(([userid, name]) => renderUserListItem(userid, name));
 	}
 }
 
@@ -1428,6 +1443,7 @@ export class ChatLog extends preact.Component<{
 	left?: number, top?: number, noSubscription?: boolean,
 }> {
 	subscription: PSSubscription | null = null;
+	scrollUpdateFrameId: number | null = null;
 	override componentDidMount() {
 		const room = this.props.room;
 		if (room.log) {
@@ -1456,6 +1472,10 @@ export class ChatLog extends preact.Component<{
 	}
 	override componentWillUnmount() {
 		this.subscription?.unsubscribe();
+		if (this.scrollUpdateFrameId !== null) {
+			cancelAnimationFrame(this.scrollUpdateFrameId);
+			this.scrollUpdateFrameId = null;
+		}
 	}
 	override shouldComponentUpdate(props: typeof ChatLog.prototype.props) {
 		const elem = this.base!.firstChild as HTMLDivElement;
@@ -1490,7 +1510,12 @@ export class ChatLog extends preact.Component<{
 		this.updateScroll();
 	}
 	updateScroll() {
-		this.props.room.log?.updateScroll();
+		if (this.scrollUpdateFrameId === null) {
+			this.scrollUpdateFrameId = requestAnimationFrame(() => {
+				this.props.room.log?.updateScroll();
+				this.scrollUpdateFrameId = null;
+			});
+		}
 	}
 	render() {
 		return <div><div
