@@ -173,6 +173,9 @@
 		},
 		teamDuplicateFormatChange: function (ev) {
 			var value = typeof ev === 'object' ? ev.currentTarget.value : ev;
+			// Save using old client Storage.prefs
+			Storage.prefs('teamDuplicateNameFormat', value);
+			// Also try new client if available
 			if (typeof PS !== 'undefined' && PS.prefs) {
 				PS.prefs.set('teamDuplicateNameFormat', value);
 			}
@@ -193,6 +196,8 @@
 					var esc = base.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 					var max = 0;
 					for (var i = 0; i < teams.length; i++) {
+						// Skip the current team to avoid incrementing when just switching formats
+						if (this.curTeam && teams[i] === this.curTeam) continue;
 						var tname = teams[i].name || '';
 						var re = new RegExp('^' + esc + '\\s*\\((?:v\\.\\s*)?(\\d+)\\)$');
 						var m = tname.match(re);
@@ -906,7 +911,8 @@
 			var newTeam;
 			if (orig) {
 				// naming preference: allow users to choose how duplicated teams are named
-				var dupFormat = typeof PS !== 'undefined' && PS.prefs && PS.prefs.teamDuplicateNameFormat ? PS.prefs.teamDuplicateNameFormat : 'copy';
+				var dupFormat = Storage.prefs('teamDuplicateNameFormat') || 
+					(typeof PS !== 'undefined' && PS.prefs && PS.prefs.teamDuplicateNameFormat ? PS.prefs.teamDuplicateNameFormat : 'copy');
 				var newName;
 				if (dupFormat === 'copy') {
 					newName = 'Copy of ' + orig.name;
@@ -1292,8 +1298,9 @@
 				buf += '<div class="teamedit"><textarea class="textbox" rows="17">' + BattleLog.escapeHTML(Storage.exportTeam(this.curSetList, this.curTeam.gen)) + '</textarea></div>';
 			} else {
 				buf = '<div class="pad"><button name="back" class="button"><i class="fa fa-chevron-left"></i> List</button> ';
-				// Duplicate-name preference selector (persisted via PS.prefs.teamDuplicateNameFormat)
-				var curDupFormat = typeof PS !== 'undefined' && PS.prefs && PS.prefs.teamDuplicateNameFormat ? PS.prefs.teamDuplicateNameFormat : 'copy';
+				// Duplicate-name preference selector (persisted via Storage.prefs)
+				var curDupFormat = Storage.prefs('teamDuplicateNameFormat') || 
+					(typeof PS !== 'undefined' && PS.prefs && PS.prefs.teamDuplicateNameFormat ? PS.prefs.teamDuplicateNameFormat : 'copy');
 				buf += '<label style="margin-left:8px; margin-right:6px; font-weight:600;">Duplicate name:</label>';
 				buf += '<select name="teamDuplicateFormat">' +
 					'<option value="copy"' + (curDupFormat === 'copy' ? ' selected' : '') + '>Copy of NAME</option>' +
