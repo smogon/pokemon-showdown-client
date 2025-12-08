@@ -212,6 +212,15 @@
 				var $input = this.$('.teamnameedit');
 				if ($input && $input.length) {
 					$input.val(previewName);
+					// persist the previewed name to the team model so it is kept when
+					// switching back to the list view. This ensures the All teams list
+					// shows the chosen duplicate-name format immediately.
+					try {
+						if (this.curTeam) {
+							this.curTeam.name = previewName;
+							this.save();
+						}
+					} catch (e) {}
 				}
 			} catch (err) {
 				// fail silently
@@ -922,6 +931,8 @@
 						newName = base + ' (' + next + ')';
 					}
 				}
+				// Debug: show what format was chosen and what name will be used.
+				if (typeof console !== 'undefined' && console.log) console.log('[teambuilder] duplicate format=', dupFormat, 'newName=', newName);
 				newTeam = {
 					name: newName,
 					format: orig.format,
