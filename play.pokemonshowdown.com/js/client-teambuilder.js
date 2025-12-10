@@ -90,7 +90,7 @@
 			'click .teambuilder-clipboard-data .result': 'clipboardResultSelect',
 			'click .teambuilder-clipboard-data': 'clipboardExpand',
 			'blur .teambuilder-clipboard-data': 'clipboardShrink'
-			,'change select[name=teamDuplicateFormat]': 'teamDuplicateFormatChange'
+            
 		},
 		dispatchClick: function (e) {
 			e.preventDefault();
@@ -171,66 +171,7 @@
 		privacyChange: function (ev) {
 			Storage.prefs('uploadprivacy', ev.currentTarget.checked);
 		},
-		teamDuplicateFormatChange: function (ev) {
-			var value = typeof ev === 'object' ? ev.currentTarget.value : ev;
-			// Save using old client Storage.prefs
-			Storage.prefs('teamDuplicateNameFormat', value);
-			// Also try new client if available
-			if (typeof PS !== 'undefined' && PS.prefs) {
-				PS.prefs.set('teamDuplicateNameFormat', value);
-			}
-			// also update the team name textbox to preview the chosen format
-			try {
-				var baseName = (this.curTeam && this.curTeam.name) ? this.curTeam.name : null;
-				if (!baseName) return;
-				// compute preview name similar to createTeam logic
-				var previewName = '';
-				// derive a raw base name by stripping an existing leading "Copy of "
-				// and trailing numeric parenthesis like " (v. 3)" or " (3)"
-				var raw = baseName.replace(/^\s*Copy of\s+/i, '').replace(/\s*\((?:v\.\s*)?\d+\)$/, '');
-				if (value === 'copy') {
-					previewName = 'Copy of ' + raw;
-				} else {
-					var base = raw;
-					// escape for regex
-					var esc = base.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-					var max = 0;
-					for (var i = 0; i < teams.length; i++) {
-						// Skip the current team to avoid incrementing when just switching formats
-						if (this.curTeam && teams[i] === this.curTeam) continue;
-						var tname = teams[i].name || '';
-						var re = new RegExp('^' + esc + '\\s*\\((?:v\\.\\s*)?(\\d+)\\)$');
-						var m = tname.match(re);
-						if (m) {
-							var num = parseInt(m[1], 10);
-							if (!isNaN(num) && num > max) max = num;
-						}
-					}
-					var next = max + 1;
-					if (value === 'paren-v-number') {
-						previewName = base + ' (v. ' + next + ')';
-					} else {
-						previewName = base + ' (' + next + ')';
-					}
-				}
-				// set the textbox value (don't trigger change handlers)
-				var $input = this.$('.teamnameedit');
-				if ($input && $input.length) {
-					$input.val(previewName);
-					// persist the previewed name to the team model so it is kept when
-					// switching back to the list view. This ensures the All teams list
-					// shows the chosen duplicate-name format immediately.
-					try {
-						if (this.curTeam) {
-							this.curTeam.name = previewName;
-							this.save();
-						}
-					} catch (e) {}
-				}
-			} catch (err) {
-				// fail silently
-			}
-		},
+
 
 		loadTeam: function () {
 			if (this.loadingTeam) return false;
@@ -910,35 +851,24 @@
 		createTeam: function (orig, isBox) {
 			var newTeam;
 			if (orig) {
-				// naming preference: allow users to choose how duplicated teams are named
-				var dupFormat = Storage.prefs('teamDuplicateNameFormat') || 
-					(typeof PS !== 'undefined' && PS.prefs && PS.prefs.teamDuplicateNameFormat ? PS.prefs.teamDuplicateNameFormat : 'copy');
-				var newName;
-				if (dupFormat === 'copy') {
-					newName = 'Copy of ' + orig.name;
-				} else {
-					// strip existing trailing numeric parenthesis like " (v. 3)" or " (3)"
-					var base = orig.name.replace(/\s*\((?:v\.\s*)?\d+\)$/, '');
-					// find highest existing index among teams with same base name
-					var max = 0;
-					for (var ii = 0; ii < teams.length; ii++) {
-						var tname = teams[ii].name || '';
-						var re = new RegExp('^' + base.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\s*\\((?:v\\.\\s*)?(\\d+)\\)$');
-						var m = tname.match(re);
-						if (m) {
-							var num = parseInt(m[1], 10);
-							if (!isNaN(num) && num > max) max = num;
-						}
-					}
-					var next = max + 1;
-					if (dupFormat === 'paren-v-number') {
-						newName = base + ' (v. ' + next + ')';
-					} else {
-						newName = base + ' (' + next + ')';
+				// Always use the paren-number format when duplicating: NAME (n)
+				var base = orig.name.replace(/\s*\((?:v\.\s*)?\d+\)$/, '');
+				// find highest existing index among teams with same base name
+				var max = 0;
+				var esc = base.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+				for (var ii = 0; ii < teams.length; ii++) {
+					var tname = teams[ii].name || '';
+					var re = new RegExp('^' + esc + '\\s*\\((?:v\\.\\s*)?(\\d+)\\)$');
+					var m = tname.match(re);
+					if (m) {
+						var num = parseInt(m[1], 10);
+						if (!isNaN(num) && num > max) max = num;
 					}
 				}
-				// Debug: show what format was chosen and what name will be used.
-				if (typeof console !== 'undefined' && console.log) console.log('[teambuilder] duplicate format=', dupFormat, 'newName=', newName);
+				var next = max + 1;
+				var newName = base + ' (' + next + ')';
+				// Debug: show what name will be used.
+				if (typeof console !== 'undefined' && console.log) console.log('[teambuilder] duplicate newName=', newName);
 				newTeam = {
 					name: newName,
 					format: orig.format,
@@ -1298,15 +1228,7 @@
 				buf += '<div class="teamedit"><textarea class="textbox" rows="17">' + BattleLog.escapeHTML(Storage.exportTeam(this.curSetList, this.curTeam.gen)) + '</textarea></div>';
 			} else {
 				buf = '<div class="pad"><button name="back" class="button"><i class="fa fa-chevron-left"></i> List</button> ';
-				// Duplicate-name preference selector (persisted via Storage.prefs)
-				var curDupFormat = Storage.prefs('teamDuplicateNameFormat') || 
-					(typeof PS !== 'undefined' && PS.prefs && PS.prefs.teamDuplicateNameFormat ? PS.prefs.teamDuplicateNameFormat : 'copy');
-				buf += '<label style="margin-left:8px; margin-right:6px; font-weight:600;">Duplicate name:</label>';
-				buf += '<select name="teamDuplicateFormat">' +
-					'<option value="copy"' + (curDupFormat === 'copy' ? ' selected' : '') + '>Copy of NAME</option>' +
-					'<option value="paren-number"' + (curDupFormat === 'paren-number' ? ' selected' : '') + '>NAME (n)</option>' +
-					'<option value="paren-v-number"' + (curDupFormat === 'paren-v-number' ? ' selected' : '') + '>NAME (v. n)</option>' +
-				'</select> ';
+				// Team name input
 				buf += '<input class="textbox teamnameedit" type="text" class="teamnameedit" size="30" value="' + BattleLog.escapeHTML(this.curTeam.name) + '" /> ';
 				buf += '<button name="import" class="button"><i class="fa fa-upload"></i> Import/Export</button> ';
 				buf += '<div class="teamchartbox">';
