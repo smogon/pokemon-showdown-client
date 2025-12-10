@@ -414,6 +414,10 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 			this.send('/timer on');
 			room.autoTimerActivated = true;
 		}
+		const formatName = room.battle.id.split("-")[1]?.toLowerCase();
+		if (PS.prefs.autoopenteamsheets && formatName?.includes("vgc")) {
+			this.send('/acceptopenteamsheets');
+		}
 
 		BattleChoiceBuilder.fixRequest(request, room.battle);
 
