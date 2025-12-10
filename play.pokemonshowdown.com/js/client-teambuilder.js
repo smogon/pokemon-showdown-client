@@ -90,7 +90,6 @@
 			'click .teambuilder-clipboard-data .result': 'clipboardResultSelect',
 			'click .teambuilder-clipboard-data': 'clipboardExpand',
 			'blur .teambuilder-clipboard-data': 'clipboardShrink'
-            
 		},
 		dispatchClick: function (e) {
 			e.preventDefault();
@@ -171,7 +170,6 @@
 		privacyChange: function (ev) {
 			Storage.prefs('uploadprivacy', ev.currentTarget.checked);
 		},
-
 
 		loadTeam: function () {
 			if (this.loadingTeam) return false;
