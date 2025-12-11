@@ -742,9 +742,8 @@ abstract class BattleTypedSearch<T extends SearchType> {
 			}
 			this.baseIllegalResults = [];
 			this.illegalReasons = {};
-
 			for (const id in this.getTable()) {
-				if (!(id in legalityFilter)) {
+				if (!(id in legalityFilter) && this.format !== 'customgame') {
 					this.baseIllegalResults.push([this.searchType, id as ID]);
 					this.illegalReasons[id] = 'Illegal';
 				}
