@@ -293,8 +293,6 @@ class UserOptionsPanel extends PSRoomPanel {
 
 	handleIgnore = () => {
 		const { targetUser, targetRoom } = this.getTargets();
-		console.log("test");
-		console.log(targetRoom);
 		targetRoom?.send(`/ignore ${targetUser}`);
 		this.close();
 	};
