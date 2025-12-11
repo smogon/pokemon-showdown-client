@@ -139,6 +139,149 @@ class Replays {
 		$username = strtr($username, "ABCDEFGHIJKLMNOPQRSTUVWXYZ", "abcdefghijklmnopqrstuvwxyz");
 		return preg_replace('/[^A-Za-z0-9]+/','',$username);
 	}
+
+	// Favorites functionality
+	function addFavorite($userid, $replayid) {
+		if (!$this->db) {
+			$this->init();
+		}
+		if (!$userid || !$replayid) return false;
+
+		$userid = $this->userid($userid);
+		$addtime = time();
+
+		try {
+			$res = $this->db->prepare("INSERT INTO ntbb_replay_favorites (userid, replayid, addtime) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE addtime = ?");
+			$res->execute([$userid, $replayid, $addtime, $addtime]);
+			return true;
+		} catch (PDOException $e) {
+			return false;
+		}
+	}
+
+	function removeFavorite($userid, $replayid) {
+		if (!$this->db) {
+			$this->init();
+		}
+		if (!$userid || !$replayid) return false;
+
+		$userid = $this->userid($userid);
+
+		try {
+			$res = $this->db->prepare("DELETE FROM ntbb_replay_favorites WHERE userid = ? AND replayid = ? LIMIT 1");
+			$res->execute([$userid, $replayid]);
+			return true;
+		} catch (PDOException $e) {
+			return false;
+		}
+	}
+
+	function isFavorited($userid, $replayid) {
+		if (!$this->db) {
+			$this->init();
+		}
+		if (!$userid || !$replayid) return false;
+
+		$userid = $this->userid($userid);
+
+		try {
+			$res = $this->db->prepare("SELECT 1 FROM ntbb_replay_favorites WHERE userid = ? AND replayid = ? LIMIT 1");
+			$res->execute([$userid, $replayid]);
+			return (bool)$res->fetch();
+		} catch (PDOException $e) {
+			return false;
+		}
+	}
+
+	function getFavorites($userid, $viewerUserid = null, $page = 1) {
+		if (!$this->db) {
+			$this->init();
+		}
+		if (!$userid) return [];
+
+		$userid = $this->userid($userid);
+		$viewerUserid = $viewerUserid ? $this->userid($viewerUserid) : null;
+		$isOwner = ($userid === $viewerUserid);
+
+		try {
+			// Get favorites with replay data
+			$limit = 51; // One extra to check if there's more
+			$offset = ($page - 1) * 50;
+
+			if ($isOwner) {
+				// Owner sees all their favorites including private ones
+				$res = $this->db->prepare("
+					SELECT r.id, r.format, r.players, r.uploadtime, r.rating, r.private, r.password, f.addtime
+					FROM ntbb_replay_favorites f
+					JOIN replays r ON f.replayid = r.id
+					WHERE f.userid = ? AND r.private != 3
+					ORDER BY f.addtime DESC
+					LIMIT ? OFFSET ?
+				");
+				$res->execute([$userid, $limit, $offset]);
+			} else {
+				// Others only see public favorites
+				$res = $this->db->prepare("
+					SELECT r.id, r.format, r.players, r.uploadtime, r.rating, r.private, r.password, f.addtime
+					FROM ntbb_replay_favorites f
+					JOIN replays r ON f.replayid = r.id
+					WHERE f.userid = ? AND r.private = 0
+					ORDER BY f.addtime DESC
+					LIMIT ? OFFSET ?
+				");
+				$res->execute([$userid, $limit, $offset]);
+			}
+
+			$favorites = [];
+			while ($row = $res->fetch()) {
+				$row['players'] = explode(',', $row['players']);
+				foreach ($row['players'] as &$player) {
+					if ($player[0] === '!') $player = substr($player, 1);
+				}
+				$favorites[] = $row;
+			}
+
+			return $favorites;
+		} catch (PDOException $e) {
+			return [];
+		}
+	}
+
+	function getFavoritesCount($userid, $viewerUserid = null) {
+		if (!$this->db) {
+			$this->init();
+		}
+		if (!$userid) return 0;
+
+		$userid = $this->userid($userid);
+		$viewerUserid = $viewerUserid ? $this->userid($viewerUserid) : null;
+		$isOwner = ($userid === $viewerUserid);
+
+		try {
+			if ($isOwner) {
+				$res = $this->db->prepare("
+					SELECT COUNT(*) as count
+					FROM ntbb_replay_favorites f
+					JOIN replays r ON f.replayid = r.id
+					WHERE f.userid = ? AND r.private != 3
+				");
+				$res->execute([$userid]);
+			} else {
+				$res = $this->db->prepare("
+					SELECT COUNT(*) as count
+					FROM ntbb_replay_favorites f
+					JOIN replays r ON f.replayid = r.id
+					WHERE f.userid = ? AND r.private = 0
+				");
+				$res->execute([$userid]);
+			}
+
+			$result = $res->fetch();
+			return $result ? (int)$result['count'] : 0;
+		} catch (PDOException $e) {
+			return 0;
+		}
+	}
 }
 
 $GLOBALS['Replays'] = new Replays($config_replay_database);

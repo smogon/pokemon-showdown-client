@@ -209,6 +209,11 @@ export class SearchPanel extends preact.Component<{ id: string }> {
 		return <div class={PSRouter.showingRight() ? 'sidebar' : ''}>
 			<section class="section first-section">
 				<h1>Search replays</h1>
+				{this.loggedInUser && <p style={{ textAlign: 'center', marginBottom: '10px' }}>
+					<a href={PSRouter.href('favorites')} class="button">
+						<i class="fa fa-star" aria-hidden></i> My Favorites
+					</a>
+				</p>}
 				<form onSubmit={this.submitForm}>
 					<p>
 						<label>
@@ -377,5 +382,267 @@ class FeaturedReplays extends preact.Component {
 				</ReplayLink></li>}
 			</ul>
 		</section>;
+	}
+}
+
+export class FavoritesPanel extends preact.Component<{ id: string }> {
+	results: ReplayResult[] | null = null;
+	resultError: string | null = null;
+	userid: string = '';
+	page = 1;
+	loggedInUser: string | null = null;
+	addReplayUrl: string = '';
+	addingReplay = false;
+	addError: string | null = null;
+
+	override componentDidMount() {
+		if (!Net.defaultRoute) Net(`/api/replays/check-login`).get().then(result => {
+			if (!result.startsWith(']')) return;
+			const [userid] = result.slice(1).split(',');
+			this.loggedInUser = userid;
+			this.forceUpdate();
+		});
+		this.updateFavorites(Net.decodeQuery(this.props.id));
+	}
+
+	override componentDidUpdate(previousProps: this['props']) {
+		if (this.props.id === previousProps.id) return;
+		const query = Net.decodeQuery(this.props.id);
+		this.updateFavorites(query);
+	}
+
+	updateFavorites(query: { [k: string]: string }) {
+		const userid = query.user || '';
+		const page = parseInt(query.page || '1');
+		this.loadFavorites(userid, page);
+	}
+
+	loadFavorites(userid: string, page = 1) {
+		if (!userid) {
+			// Default to logged in user's favorites
+			if (this.loggedInUser) {
+				userid = this.loggedInUser;
+			} else {
+				this.resultError = "Please log in to view favorites";
+				this.forceUpdate();
+				return;
+			}
+		}
+
+		this.userid = userid;
+		this.page = page;
+		this.results = null;
+		this.resultError = null;
+
+		PSRouter.replace('favorites' + (userid !== this.loggedInUser ? `?user=${userid}` : '') + 
+			(page > 1 ? `${userid !== this.loggedInUser ? '&' : '?'}page=${page}` : ''));
+
+		this.forceUpdate();
+
+		Net(`/api/replays/favorites-list`).get({
+			query: {
+				userid: this.userid,
+				page,
+			},
+		}).then(response => {
+			if (this.userid !== userid) return;
+			this.parseResponse(response);
+			this.forceUpdate();
+		}).catch(error => {
+			if (this.userid !== userid) return;
+			this.resultError = '' + error;
+			this.forceUpdate();
+		});
+	}
+
+	parseResponse(response: string) {
+		this.results = null;
+		this.resultError = null;
+
+		if (!response.startsWith(']')) {
+			this.resultError = `Unrecognized response: ${response}`;
+			return;
+		}
+		response = response.slice(1);
+
+		const results = JSON.parse(response);
+		if (!Array.isArray(results)) {
+			this.resultError = results.actionerror || results.error || `Unrecognized response: ${response}`;
+			return;
+		}
+		this.results = results;
+	}
+
+	addFavorite = (e: Event) => {
+		e.preventDefault();
+		if (!this.loggedInUser) {
+			this.addError = "Please log in to add favorites";
+			this.forceUpdate();
+			return;
+		}
+
+		const url = this.addReplayUrl.trim();
+		if (!url) {
+			this.addError = "Please enter a replay URL or ID";
+			this.forceUpdate();
+			return;
+		}
+
+		// Extract replay ID from URL or use as-is if already an ID
+		let replayid = url;
+		const match = url.match(/replay\.pokemonshowdown\.com\/([a-z0-9]+-[0-9]+)/);
+		if (match) {
+			replayid = match[1];
+		} else {
+			// Remove -password suffix if present
+			replayid = replayid.replace(/-[a-z0-9]+pw$/i, '');
+		}
+
+		// Validate format
+		if (!/^[a-z0-9]+-[0-9]+$/.test(replayid)) {
+			this.addError = "Invalid replay ID format";
+			this.forceUpdate();
+			return;
+		}
+
+		this.addingReplay = true;
+		this.addError = null;
+		this.forceUpdate();
+
+		Net(`/api/replays/favorites-add`).post({
+			body: { replayid },
+		}).then(response => {
+			this.addingReplay = false;
+			const result = JSON.parse(response);
+			if (result.error) {
+				this.addError = result.error;
+			} else {
+				this.addReplayUrl = '';
+				this.addError = null;
+				// Reload favorites
+				this.loadFavorites(this.userid, 1);
+			}
+			this.forceUpdate();
+		}).catch(error => {
+			this.addingReplay = false;
+			this.addError = '' + error;
+			this.forceUpdate();
+		});
+	};
+
+	removeFavorite = (replayid: string) => (e: Event) => {
+		e.preventDefault();
+		if (!this.loggedInUser) return;
+
+		if (!confirm('Remove this replay from your favorites?')) return;
+
+		Net(`/api/replays/favorites-remove`).post({
+			body: { replayid },
+		}).then(response => {
+			const result = JSON.parse(response);
+			if (!result.error) {
+				// Reload favorites
+				this.loadFavorites(this.userid, this.page);
+			}
+		}).catch(error => {
+			alert('Failed to remove favorite: ' + error);
+		});
+	};
+
+	modLink(overrides: { page?: number }) {
+		const newPage = (overrides.page !== undefined ? this.page + overrides.page : 1);
+		return PSRouter.href('favorites' + 
+			(this.userid !== this.loggedInUser ? `?user=${this.userid}` : '') + 
+			(newPage > 1 ? `${this.userid !== this.loggedInUser ? '&' : '?'}page=${newPage}` : ''));
+	}
+
+	changeUser = (e: Event) => {
+		e.preventDefault();
+		const input = this.base!.querySelector<HTMLInputElement>('input[name=user]');
+		if (input) {
+			const userid = toID(input.value);
+			if (userid) {
+				this.loadFavorites(userid, 1);
+			}
+		}
+	};
+
+	override render() {
+		const hasNextPageLink = (this.results?.length || 0) > 50;
+		const results = hasNextPageLink ? this.results!.slice(0, 50) : this.results;
+		const isOwnFavorites = this.userid === this.loggedInUser;
+
+		return <div class={PSRouter.showingRight() ? 'sidebar' : ''}>
+			<section class="section first-section">
+				<h1>Favorite replays{this.userid && this.userid !== this.loggedInUser ? ` - ${this.userid}` : ''}</h1>
+
+				{isOwnFavorites && this.loggedInUser && <form onSubmit={this.addFavorite}>
+					<p>
+						<label>
+							Add replay to favorites:<br />
+							<input 
+								type="text" 
+								class="textbox" 
+								placeholder="Replay URL or ID (e.g., gen8ou-123456789)" 
+								size={40}
+								value={this.addReplayUrl}
+								onInput={(e: any) => { this.addReplayUrl = e.target.value; this.forceUpdate(); }}
+								disabled={this.addingReplay}
+							/>
+						</label> {}
+						<button type="submit" class="button" disabled={this.addingReplay}>
+							<i class="fa fa-star" aria-hidden></i> {this.addingReplay ? 'Adding...' : 'Add Favorite'}
+						</button>
+					</p>
+					{this.addError && <p class="message-error"><strong>{this.addError}</strong></p>}
+				</form>}
+
+				{!isOwnFavorites && <form onSubmit={this.changeUser}>
+					<p>
+						<label>
+							View favorites for user:<br />
+							<input type="text" class="textbox" name="user" placeholder="Username" size={20} />
+						</label> {}
+						<button type="submit" class="button">View</button>
+					</p>
+				</form>}
+
+				{this.page > 1 && <p class="pagelink">
+					<a href={this.modLink({ page: -1 })} class="button">
+						<i class="fa fa-caret-up" aria-hidden></i><br />Page {this.page - 1}
+					</a>
+				</p>}
+
+				<ul class="linklist">
+					{(this.resultError && <li>
+						<strong class="message-error">{this.resultError}</strong>
+					</li>) ||
+					(!results && <li>
+						<em>Loading...</em>
+					</li>) ||
+					(results?.length === 0 && <li>
+						<em>{isOwnFavorites ? 'No favorites yet. Add some replays above!' : 'This user has no public favorites.'}</em>
+					</li>) ||
+					(results?.map(result => <li>
+						<ReplayLink replay={result}>
+							{isOwnFavorites && <button 
+								class="button" 
+								style={{ float: 'right', padding: '2px 8px', marginTop: '2px' }}
+								onClick={this.removeFavorite(result.id)}
+								title="Remove from favorites"
+							>
+								<i class="fa fa-trash" aria-hidden></i>
+							</button>}
+						</ReplayLink>
+					</li>))}
+				</ul>
+
+				{hasNextPageLink && <p class="pagelink">
+					<a href={this.modLink({ page: 1 })} class="button">
+						Page {this.page + 1}<br /><i class="fa fa-caret-down" aria-hidden></i>
+					</a>
+				</p>}
+			</section>
+		</div>;
 	}
 }

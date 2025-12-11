@@ -74,16 +74,75 @@ export class BattlePanel extends preact.Component<{ id: string }> {
 	lastUsedKeyCode = '0';
 	turnView: boolean | string = false;
 	autofocusTurnView: 'select' | 'end' | null = null;
+	loggedInUser: string | null = null;
+	isFavorited: boolean = false;
+	favoritePending: boolean = false;
 	override componentDidMount() {
 		this.loadBattle(this.props.id);
 		showAd('LeaderboardBTF');
 		window.onkeydown = this.keyPressed;
+		// Check login status
+		if (!Net.defaultRoute) Net(`/api/replays/check-login`).get().then(result => {
+			if (!result.startsWith(']')) return;
+			const [userid] = result.slice(1).split(',');
+			this.loggedInUser = userid;
+			if (userid) {
+				this.checkFavoriteStatus();
+			}
+			this.forceUpdate();
+		});
 	}
 	override componentWillReceiveProps(nextProps: this['props']) {
 		if (this.stripQuery(this.props.id) !== this.stripQuery(nextProps.id)) {
 			this.loadBattle(nextProps.id);
+			if (this.loggedInUser) {
+				this.checkFavoriteStatus();
+			}
 		}
 	}
+	checkFavoriteStatus() {
+		const replayid = this.stripQuery(this.props.id);
+		Net(`/api/replays/favorites-check`).get({
+			query: { replayid },
+		}).then(response => {
+			const result = JSON.parse(response);
+			this.isFavorited = result.favorited || false;
+			this.forceUpdate();
+		}).catch(() => {
+			this.isFavorited = false;
+		});
+	}
+	toggleFavorite = (e: Event) => {
+		e.preventDefault();
+		if (!this.loggedInUser) {
+			alert('Please log in to add favorites');
+			return;
+		}
+		if (this.favoritePending) return;
+
+		this.favoritePending = true;
+		this.forceUpdate();
+
+		const replayid = this.stripQuery(this.props.id);
+		const endpoint = this.isFavorited ? 'favorites-remove' : 'favorites-add';
+
+		Net(`/api/replays/${endpoint}`).post({
+			body: { replayid },
+		}).then(response => {
+			const result = JSON.parse(response);
+			if (result.error) {
+				alert('Error: ' + result.error);
+			} else {
+				this.isFavorited = !this.isFavorited;
+			}
+			this.favoritePending = false;
+			this.forceUpdate();
+		}).catch(error => {
+			alert('Failed to update favorite: ' + error);
+			this.favoritePending = false;
+			this.forceUpdate();
+		});
+	};
 	stripQuery(id: string) {
 		return id.includes('?') ? id.slice(0, id.indexOf('?')) : id;
 	}
@@ -513,6 +572,16 @@ export class BattlePanel extends preact.Component<{ id: string }> {
 				<a class="button" href="/download" onClick={this.clickDownload} style={{ float: 'right' }}>
 					<i class="fa fa-download" aria-hidden></i> Download
 				</a>
+				{this.loggedInUser && <button 
+					class="button" 
+					onClick={this.toggleFavorite} 
+					disabled={this.favoritePending}
+					style={{ float: 'right', marginRight: '5px' }}
+					title={this.isFavorited ? 'Remove from favorites' : 'Add to favorites'}
+				>
+					<i class={this.isFavorited ? 'fa fa-star' : 'fa fa-star-o'} aria-hidden></i> {}
+					{this.isFavorited ? 'Favorited' : 'Favorite'}
+				</button>}
 				{this.result.uploadtime ? new Date(this.result.uploadtime * 1000).toDateString() : "Unknown upload date"}
 				{this.result.rating ? [` | `, <em>Rating:</em>, ` ${this.result.rating}`] : ''}
 				{/* {} <code>{this.keyCode}</code> */}

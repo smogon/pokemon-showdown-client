@@ -2,7 +2,7 @@
 import preact from '../../play.pokemonshowdown.com/js/lib/preact';
 import { Net, PSModel } from './utils';
 import { BattlePanel } from './replays-battle';
-import { SearchPanel } from './replays-index';
+import { SearchPanel, FavoritesPanel } from './replays-index';
 declare const Config: any;
 
 export const PSRouter = new class extends PSModel {
@@ -59,7 +59,7 @@ export const PSRouter = new class extends PSModel {
 		if (!href.startsWith(this.baseLoc) && href + '#' !== this.baseLoc) return false;
 
 		const loc = href.slice(this.baseLoc.length);
-		if (!loc || loc.startsWith('?')) {
+		if (!loc || loc.startsWith('?') || loc.startsWith('favorites')) {
 			this.leftLoc = loc;
 			if (this.forceSinglePanel) {
 				this.rightLoc = null;
@@ -126,10 +126,13 @@ export class PSReplays extends preact.Component {
 	override render() {
 		const position = PSRouter.showingLeft() && PSRouter.showingRight() && !PSRouter.stickyRight ?
 			{ display: 'flex', flexDirection: 'column', justifyContent: 'flex-end' } : {};
+		const leftLoc = PSRouter.leftLoc || '';
+		const isFavorites = leftLoc.startsWith('favorites');
 		return <div
 			class={'bar-wrapper' + (PSRouter.showingLeft() && PSRouter.showingRight() ? ' has-sidebar' : '')} style={position}
 		>
-			{PSRouter.showingLeft() && <SearchPanel id={PSRouter.leftLoc!} />}
+			{PSRouter.showingLeft() && !isFavorites && <SearchPanel id={leftLoc} />}
+			{PSRouter.showingLeft() && isFavorites && <FavoritesPanel id={leftLoc} />}
 			{PSRouter.showingRight() && <BattlePanel id={PSRouter.rightLoc!} />}
 			<div style={{ clear: 'both' }}></div>
 		</div>;
