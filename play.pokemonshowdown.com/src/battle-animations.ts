@@ -1138,7 +1138,6 @@ export class BattleScene implements BattleSceneStub {
 				y += side.isFar ? 14 : -20;
 			}
 		}
-		console.log('[ANIM] About to enter switch for id:', id);
 
 		switch (id) {
 		case 'auroraveil':
