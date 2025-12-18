@@ -1354,10 +1354,6 @@ class BackgroundListPanel extends PSRoomPanel {
 					<span class="bg" style="background-position: 0 -90px"></span>{}
 					Horizon
 				</button>
-				<button onClick={this.setBg} value="waterfall" class={option('waterfall')}>
-					<span class="bg" style="background-position: 0 -180px"></span>{}
-					Waterfall
-				</button>
 				<button onClick={this.setBg} value="ocean" class={option('ocean')}>
 					<span class="bg" style="background-position: 0 -270px"></span>{}
 					Ocean

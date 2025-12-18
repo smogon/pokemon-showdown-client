@@ -159,14 +159,14 @@ export const PSBackground = new class extends PSStreamModel<string | null> {
 		this.id = bgid;
 
 		// curid
-		if (!bgid) {
+		if (!bgid || bgid === 'waterfall') {
 			if (location.host === 'smogtours.psim.us') {
 				bgid = 'shaymin';
 			} else {
-				const bgs = ['horizon', 'ocean', 'waterfall', 'shaymin', 'charizards'];
-				bgid = bgs[Math.floor(Math.random() * 5)];
+				const bgs = ['horizon', 'ocean', 'shaymin', 'charizards'];
+				bgid = bgs[Math.floor(Math.random() * bgs.length)];
 				// if someone clicked the random button, try to roll a different bg than before
-				if (bgid === this.curId) bgid = bgs[Math.floor(Math.random() * 5)];
+				if (bgid === this.curId) bgid = bgs[Math.floor(Math.random() * bgs.length)];
 			}
 		}
 		this.curId = bgid;
@@ -212,21 +212,6 @@ export const PSBackground = new class extends PSStreamModel<string | null> {
 				url: 'https://quanyails.deviantart.com/art/Sunrise-Ocean-402667154',
 				title: 'Sunrise Ocean',
 				artist: 'Quanyails',
-			};
-			break;
-		case 'waterfall':
-			menuColors = [
-				"119.31034482758622,37.66233766233767%",
-				"184.36363636363635,23.012552301255226%",
-				"108.92307692307692,37.14285714285714%",
-				"70.34482758620689,20.567375886524818%",
-				"98.39999999999998,36.76470588235296%",
-				"140,38.18181818181818%",
-			];
-			attrib = {
-				url: 'https://x.com/Yilxaevum',
-				title: 'Irie',
-				artist: 'Samuel Teo',
 			};
 			break;
 		case 'shaymin':
