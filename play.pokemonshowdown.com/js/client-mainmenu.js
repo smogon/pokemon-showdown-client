@@ -1444,7 +1444,7 @@
 					label.style.display = BattleFormats[format].partner ? '' : 'none';
 				});
 			}
-			$form.find('button[name=format]').val(format).html(BattleLog.escapeFormat(format) || '(Select a format)');;
+			$form.find('button[name=format]').val(format).html(BattleLog.escapeFormat(format) || '(Select a format)');
 
 			this.close();
 		}
