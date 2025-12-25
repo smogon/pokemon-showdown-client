@@ -1404,7 +1404,7 @@
 		},
 		selectFormat: function (format) {
 			var $form = this.$form.length ? this.$form : this.sourceEl.closest('form');
-			
+
 			if (this.onselect) {
 				this.onselect(format);
 			} else if (app.rooms[''].curFormat !== format) {
