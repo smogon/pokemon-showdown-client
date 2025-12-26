@@ -1280,7 +1280,8 @@
 			if (!this.search) this.search = "";
 			this.onselect = data.onselect;
 			this.selectType = data.selectType;
-			if (!this.selectType) this.selectType = (this.sourceEl.closest('form').data('search') ? 'search' : 'challenge');
+			this.$form = this.sourceEl.closest('form');
+			if (!this.selectType) this.selectType = (this.$form.data('search') ? 'search' : 'challenge');
 
 			var html = '<p><ul class="popupmenu"><li><input name="search" placeholder="Search formats" value="' + this.search + '" class="textbox autofocus" autocomplete="off" />';
 			html += '</li></ul></p><span name="formats">';
@@ -1402,17 +1403,19 @@
 			return true;
 		},
 		selectFormat: function (format) {
+			var $form = this.$form.length ? this.$form : this.sourceEl.closest('form');
+
 			if (this.onselect) {
 				this.onselect(format);
 			} else if (app.rooms[''].curFormat !== format) {
 				app.rooms[''].curFormat = format;
 				app.rooms[''].curTeamIndex = -1;
-				var $teamButton = this.sourceEl.closest('form').find('button[name=team]');
+				var $teamButton = $form.find('button[name=team]');
 				if ($teamButton.length) $teamButton.replaceWith(app.rooms[''].renderTeams(format));
 
-				var $bestOfCheckbox = this.sourceEl.closest('form').find('input[name=bestof]');
-				var $bestOfValueInput = this.sourceEl.closest('form').find('input[name=bestofvalue]');
-				if ($bestOfCheckbox && $bestOfValueInput) {
+				var $bestOfCheckbox = $form.find('input[name=bestof]');
+				var $bestOfValueInput = $form.find('input[name=bestofvalue]');
+				if ($bestOfCheckbox.length && $bestOfValueInput.length) {
 					var $parentTag = $bestOfCheckbox.parent().parent();
 					var bestOfDefault = BattleFormats[format] && BattleFormats[format].bestOfDefault;
 					if (bestOfDefault) {
@@ -1424,8 +1427,8 @@
 					}
 				}
 
-				var $teraPreviewCheckbox = this.sourceEl.closest('form').find('input[name=terapreview]');
-				if ($teraPreviewCheckbox) {
+				var $teraPreviewCheckbox = $form.find('input[name=terapreview]');
+				if ($teraPreviewCheckbox.length) {
 					var $parentTag = $teraPreviewCheckbox.parent().parent();
 					var teraPreviewDefault = BattleFormats[format] && BattleFormats[format].teraPreviewDefault;
 					if (teraPreviewDefault) {
@@ -1441,7 +1444,7 @@
 					label.style.display = BattleFormats[format].partner ? '' : 'none';
 				});
 			}
-			this.sourceEl.val(format).html(BattleLog.escapeFormat(format) || '(Select a format)');
+			$form.find('button[name=format]').val(format).html(BattleLog.escapeFormat(format) || '(Select a format)');
 
 			this.close();
 		}
