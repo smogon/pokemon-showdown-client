@@ -118,7 +118,7 @@ export class BattleLog {
 		const button = el.getElementsByTagName('button')[0];
 		button?.addEventListener?.('click', e => {
 			e.preventDefault();
-			this.scene?.battle.seekTurn(this.scene.battle.turn - 100);
+			this.scene?.battle.seekBy(-100);
 		});
 		this.addNode(el);
 	}
@@ -1086,6 +1086,17 @@ export class BattleLog {
 		}
 		return this.escapeHTML(this.formatName(formatid, fixGen6));
 	}
+	static formatId(format: string): ID {
+		const atIndex = format.indexOf('@@@');
+		if (atIndex >= 0) {
+			format = toID(format.slice(0, atIndex)) + format.slice(atIndex).trim();
+		} else {
+			format = toID(format);
+		}
+		if (!format) return '' as ID;
+		if (!format.startsWith('gen')) format = `${Dex.modid}${format}`;
+		return format as ID;
+	}
 	/**
 	 * Do not store this output anywhere; it removes the generation number
 	 * for the current gen.
@@ -1226,10 +1237,10 @@ export class BattleLog {
 		if (!/[A-Za-z0-9]/.test(name.charAt(0))) {
 			// Backwards compatibility
 			group = name.charAt(0);
-			name = name.substr(1);
+			name = name.slice(1);
 		}
 		const colorStyle = ` style="color:${BattleLog.usernameColor(toID(name))}"`;
-		const clickableName = `<small class="groupsymbol">${BattleLog.escapeHTML(group)}</small><span class="username">${BattleLog.escapeHTML(name)}</span>`;
+		const clickableName = `<span class="username"><small class="groupsymbol">${BattleLog.escapeHTML(group)}</small>${BattleLog.escapeHTML(name)}</span>`;
 		const isMine = (window.app?.user?.get('name') === name) || (window.PS?.user.name === name);
 		const hlClass = isHighlighted ? ' highlighted' : '';
 		const mineClass = isMine ? ' mine' : '';
@@ -1284,7 +1295,7 @@ export class BattleLog {
 		case 'data-move':
 			return ['chat message-error', '[outdated code no longer supported]'];
 		case 'text':
-			return ['chat', BattleLog.parseMessage(target)];
+			return ['chat', BattleLog.parseMessage(target), true];
 		case 'error':
 			return ['chat message-error', formatText(target, true)];
 		case 'html':
