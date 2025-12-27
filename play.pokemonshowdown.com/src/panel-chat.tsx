@@ -176,24 +176,22 @@ export class ChatRoom extends PSRoom {
 		} else {
 			let lines = msg.split('\n');
 
-			// cut off starting lines until we get to PS.lastMessage timestamp
-			// then cut off roomintro from the end
 			let cutOffStart = 0;
 			let cutOffEnd = lines.length;
 			const cutOffTime = parseInt(PS.lastMessageTime);
 			const cutOffExactLine = this.lastMessage ? '|' + this.lastMessage?.join('|') : '';
 			let reconnectMessage = '|raw|<div class="infobox">You reconnected.</div>';
+			let hasJoinMessage = false;
 			for (let i = 0; i < lines.length; i++) {
 				if (lines[i].startsWith('|users|')) {
 					this.add(lines[i]);
-				}
-				if (lines[i] === cutOffExactLine) {
 					cutOffStart = i + 1;
 				} else if (lines[i].startsWith(`|c:|`)) {
 					const time = parseInt(lines[i].split('|')[2] || '');
-					if (time < cutOffTime) cutOffStart = i;
+					if (time <= cutOffTime) cutOffStart = i + 1;
 				}
 				if (lines[i].startsWith('|raw|<div class="infobox"> You joined ')) {
+					hasJoinMessage = true;
 					reconnectMessage = `|raw|<div class="infobox">You reconnected to ${lines[i].slice(38)}`;
 					cutOffEnd = i;
 					if (!lines[i - 1]) cutOffEnd = i - 1;
@@ -201,10 +199,14 @@ export class ChatRoom extends PSRoom {
 			}
 			lines = lines.slice(cutOffStart, cutOffEnd);
 
-			if (lines.length) {
-				this.receiveLine([`raw`, `<div class="infobox">You disconnected.</div>`]);
-				for (const line of lines) this.receiveLine(BattleTextParser.parseLine(line));
-				this.receiveLine(BattleTextParser.parseLine(reconnectMessage));
+			if (lines.length || hasJoinMessage) {
+				if (lines.length) {
+					this.receiveLine([`raw`, `<div class="infobox">You disconnected.</div>`]);
+					for (const line of lines) this.receiveLine(BattleTextParser.parseLine(line));
+				}
+				if (hasJoinMessage) {
+					this.receiveLine(BattleTextParser.parseLine(reconnectMessage));
+				}
 			}
 			this.update(null);
 			return true;
