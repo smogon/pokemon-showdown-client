@@ -49,3 +49,7 @@ npm-debug.log
 /teams.pokemonshowdown.com/caches/
 /teams.pokemonshowdown.com/index.html
 /teams.pokemonshowdown.com/ads.txt
+
+# auto-generated trainer avatars manifest
+/play.pokemonshowdown.com/src/trainer-avatars.ts
+/play.pokemonshowdown.com/js/trainer-avatars.js

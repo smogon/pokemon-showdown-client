@@ -88,3 +88,29 @@ We have polyfills for:
 These polyfills are optimized for speed, not spec-compliance. As long as you don't write very nonstandard code, you won't have a problem.
 
 `Array#includes` is put directly on the `Array` prototype, so you can't use `for-in` on Arrays. Fortunately, TypeScript will complain if you try.
+
+Trainer Avatars
+---------------
+
+The trainer avatar manifest is auto-generated from the sprite files.
+
+**Source location:** `play.pokemonshowdown.com/sprites/trainers/index.php`
+
+**To regenerate the manifest:**
+```bash
+node build-tools/build-trainers
+```
+
+This generates:
+- `play.pokemonshowdown.com/src/trainer-avatars.ts` - TypeScript data file with all avatar metadata
+- `play.pokemonshowdown.com/data/trainers-manifest.json` - JSON manifest (not committed)
+
+The generated TypeScript file contains:
+- `TrainerAvatarData` interface - type for avatar entries
+- `TrainerAvatarManifest` - metadata about the manifest (count, dimensions)
+- `TrainerAvatars` - array of all available avatars
+
+**Adding new avatars:**
+1. Add the sprite PNG to `sprites/trainers/`
+2. Add artist credit to `sprites/trainers/index.php`
+3. Run `node build-tools/build-trainers`

@@ -2265,6 +2265,26 @@ pre.textbox.textbox-empty[placeholder]:before {
 	background-color: #F1F4F9;
 	box-shadow: 1px 1px 1px #D5D5D5;
 }
+.avatarlist button.extra-avatar {
+	background: transparent no-repeat center center;
+	background-size: contain;
+}
+.avatar-controls {
+	margin-bottom: 8px;
+}
+.avatar-help {
+	margin-bottom: 8px;
+	color: #555555;
+}
+.avatar-help code {
+	background: #f0f0f0;
+	padding: 2px 4px;
+	border-radius: 2px;
+}
+.avatar-pagination {
+	margin-bottom: 8px;
+	text-align: center;
+}
 
 .volume {
 	min-height: 34px;
