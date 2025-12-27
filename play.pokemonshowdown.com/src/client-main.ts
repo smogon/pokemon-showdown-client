@@ -608,6 +608,7 @@ class PSUser extends PSStreamModel<PSLoginState | null> {
 	group = '';
 	userid = "" as ID;
 	named = false;
+	away = false;
 	registered: { name: string, userid: ID } | null = null;
 	avatar = "lucas";
 	challstr = '';
@@ -623,6 +624,7 @@ class PSUser extends PSStreamModel<PSLoginState | null> {
 		this.userid = toID(name);
 		this.named = named;
 		this.avatar = avatar;
+		this.away = fullName.endsWith('@!');
 		this.update(null);
 		if (loggingIn) {
 			for (const roomid in PS.rooms) {
@@ -968,7 +970,7 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 	 * the room isn't connected to the game server but to something
 	 * else.
 	 *
-	 * `true` for DMs for historical reasons (TODO: fix)
+	 * 'client-only' for DMs
 	 */
 	connected: 'autoreconnect' | 'client-only' | 'expired' | boolean = false;
 	/**
