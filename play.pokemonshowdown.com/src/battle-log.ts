@@ -55,7 +55,7 @@ export class BattleLog {
 	 * * 1 = player 2: "Red sent out Pikachu!" "Eevee used Tackle!"
 	 */
 	perspective: -1 | 0 | 1 = -1;
-	getHighlight: ((line: Args) => boolean) | null = null;
+	getHighlight: ((line: Args, isHistory?: boolean) => boolean) | null = null;
 	constructor(elem: HTMLDivElement, scene?: BattleScene | null, innerElem?: HTMLDivElement) {
 		this.elem = elem;
 
@@ -122,7 +122,7 @@ export class BattleLog {
 		});
 		this.addNode(el);
 	}
-	add(args: Args, kwArgs?: KWArgs, preempt?: boolean, showTimestamps?: 'minutes' | 'seconds') {
+	add(args: Args, kwArgs?: KWArgs, preempt?: boolean, showTimestamps?: 'minutes' | 'seconds', isHistory?: boolean) {
 		if (kwArgs?.silent) return;
 		const battle = this.scene?.battle;
 		if (battle?.seeking) {
@@ -178,7 +178,7 @@ export class BattleLog {
 				}
 				timestampHtml = `<small class="gray">[${components.map(x => x < 10 ? `0${x}` : x).join(':')}] </small>`;
 			}
-			const isHighlighted = window.app?.rooms?.[battle!.roomid].getHighlight(message) || this.getHighlight?.(args);
+			const isHighlighted = window.app?.rooms?.[battle!.roomid].getHighlight(message) || this.getHighlight?.(args, isHistory);
 			[divClass, divHTML, noNotify] = this.parseChatMessage(message, name, timestampHtml, isHighlighted);
 			if (!noNotify && isHighlighted) {
 				const notifyTitle = "Mentioned by " + name + " in " + (battle?.roomid || '');
