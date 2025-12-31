@@ -348,6 +348,40 @@ export class ChatRoom extends PSRoom {
 			this.log?.reset();
 			this.update(null);
 		},
+		'togglemessages'(target) {
+			if (this.pmTarget ||
+				this.type !== 'chat') return this.errorReply('This command can only be used in proper chat rooms.');
+			if (this.log) {
+				const userid = toID(target);
+				const classStart = 'revealed chat chatmessage-' + userid;
+				const nodes: HTMLElement[] = [];
+				let isHidden = true;
+				for (const node of this.log.innerElem.childNodes as any as HTMLElement[]) {
+					if (node.className && (node.className + ' ').startsWith(classStart)) {
+						nodes.push(node);
+					}
+				}
+				if (this.log.preemptElem) {
+					for (const node of this.log.preemptElem.childNodes as any as HTMLElement[]) {
+						if (node.className && (node.className + ' ').startsWith(classStart)) {
+							nodes.push(node);
+						}
+					}
+				}
+				isHidden = nodes[0].style.display === 'none';
+				nodes.every(node => {
+					node.style.display = isHidden ? '' : 'none';
+					return true;
+				});
+				isHidden = !isHidden;
+				const toggleButtons = this.log.innerElem.querySelectorAll(`button[name="toggleMessages"][value="${userid}"]`);
+				for (const button of toggleButtons) {
+					button.innerHTML = isHidden ?
+						`<small>(${nodes.length} line${nodes.length > 1 ? 's' : ''} from ${userid} hidden)</small>` :
+						`<small>(Hide ${nodes.length} line${nodes.length > 1 ? 's' : ''} from ${userid})</small>`;
+				}
+			}
+		},
 		'rank,ranking,rating,ladder'(target) {
 			let arg = target;
 			if (!arg) {
