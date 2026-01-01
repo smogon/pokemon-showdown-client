@@ -3211,18 +3211,18 @@
 				val = (id in BattlePokedex ? this.curTeam.dex.species.get(e.currentTarget.value).name : '');
 				break;
 			case 'ability':
-				if (id in BattleItems && format && format.endsWith("dualwielding")) {
+				if (id in BattleItems && format && (format.endsWith("dualwielding") || format.endsWith("biomechmons"))) {
 					val = BattleItems[id].name;
-				} else if (id in BattleMovedex && format && format.endsWith("trademarked")) {
+				} else if (id in BattleMovedex && format && (format.endsWith("trademarked") || format.endsWith("biomechmons"))) {
 					val = BattleMovedex[id].name;
 				} else {
 					val = (id in BattleAbilities ? BattleAbilities[id].name : '');
 				}
 				break;
 			case 'item':
-				if (id in BattleMovedex && format && format.endsWith("fortemons")) {
+				if (id in BattleMovedex && format && (format.endsWith("fortemons") || format.endsWith("biomechmons"))) {
 					val = BattleMovedex[id].name;
-				} else if (id in BattleAbilities && format && format.endsWith("multibility")) {
+				} else if (id in BattleAbilities && format && (format.endsWith("multibility") || format.endsWith("biomechmons"))) {
 					val = BattleAbilities[id].name;
 				} else {
 					val = (id in BattleItems ? BattleItems[id].name : '');
@@ -3231,6 +3231,10 @@
 			case 'move1': case 'move2': case 'move3': case 'move4':
 				if (id in BattlePokedex && format && format.endsWith("pokemoves")) {
 					val = BattlePokedex[id].name;
+				} else if (id in BattleAbilities && format && format.endsWith("biomechmons")) {
+					val = BattleAbilities[id].name;
+				} else if (id in BattleItems && format && format.endsWith("biomechmons")) {
+					val = BattleItems[id].name;
 				} else {
 					val = (id in BattleMovedex ? BattleMovedex[id].name : '');
 				}
