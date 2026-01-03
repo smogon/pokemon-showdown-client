@@ -245,6 +245,8 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 	static readonly id = 'battle';
 	static readonly routes = ['battle-*', 'game-*'];
 	static readonly Model = BattleRoom;
+	private controlsMode: 'move' | 'switch' | null = null;
+	private overlayMode = false;
 	static handleDrop(ev: DragEvent) {
 		const file = ev.dataTransfer?.files?.[0];
 		if (file?.type === 'text/html') {
@@ -364,17 +366,27 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 		battle.subscribe(() => this.forceUpdate());
 	}
 	battleHeight = 360;
+	controlTop = 370;
 	updateLayout() {
 		if (!this.base) return;
 		const room = this.props.room;
+		this.overlayMode = (window.innerHeight <= 570 && window.innerWidth >= 440);
+		if (!this.overlayMode) this.controlsMode = null;
 		const width = this.base.offsetWidth;
+		const classList = this.base.classList;
+		if (classList) {
+			classList.toggle('small-layout', !!width && width < 830);
+			classList.toggle('tiny-layout', !!width && width < 640);
+		}
 		if (width && width < 640) {
 			const scale = (width / 640);
 			room.battle?.scene.$frame!.css('transform', `scale(${scale})`);
 			this.battleHeight = Math.round(360 * scale);
+			this.controlTop = Math.round(360 * scale) + 10;
 		} else {
 			room.battle?.scene.$frame!.css('transform', 'none');
 			this.battleHeight = 360;
+			this.controlTop = 370;
 		}
 	}
 	override receiveLine(args: Args) {
@@ -895,6 +907,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 		case 'move': {
 			const index = choices.index();
 			const pokemon = request.side.pokemon[index];
+			if (this.overlayMode && this.controlsMode === null) this.controlsMode = null;
 
 			if (choices.current.move) {
 				const moveName = choices.currentMove()?.name;
@@ -912,23 +925,38 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 			}
 
 			const canShift = room.battle.gameType === 'triples' && index !== 1;
+			const showMoves = !this.overlayMode || this.controlsMode === 'move';
+			const showSwitches = !this.overlayMode || this.controlsMode === 'switch';
+			const overlayClass = (this.overlayMode && this.controlsMode) ? ` ${this.controlsMode}-controls` : '';
 
-			return <div class="controls">
+			return <div class={`controls${overlayClass}`}>
 				<div class="whatdo">
 					{this.renderOldChoices(request, choices)}
 					What will <strong>{pokemon.name}</strong> do?
 				</div>
 				<div class="movecontrols">
-					<h3 class="moveselect">Attack</h3>
-					{this.renderMoveMenu(choices)}
+					<button
+						type="button"
+						class="moveselect"
+						onClick={() => { this.controlsMode = 'move'; this.forceUpdate(); }}
+					>
+						Attack
+					</button>
+					{showMoves && this.renderMoveMenu(choices)}
 				</div>
 				<div class="switchcontrols">
 					{canShift && [
 						<h3 class="shiftselect">Shift</h3>,
 						<button data-cmd="/shift">Move to center</button>,
 					]}
-					<h3 class="switchselect">Switch</h3>
-					{this.renderSwitchMenu(request, choices)}
+					<button
+						type="button"
+						class="switchselect"
+						onClick={() => { this.controlsMode = 'switch'; this.forceUpdate(); }}
+					>
+						Switch
+					</button>
+					{showSwitches && this.renderSwitchMenu(request, choices)}
 				</div>
 			</div>;
 		} case 'switch': {
@@ -1051,12 +1079,18 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 			return <PSPanelWrapper room={room} focusClick scrollable="hidden">
 				{hardcoreStyle}
 				<BattleDiv room={room} />
-				<ChatLog
-					class="battle-log hasuserlist" room={room} top={this.battleHeight} noSubscription
-				>
-					<div class="battle-controls" role="complementary" aria-label="Battle Controls">
+				<div class="battle-controls-container">
+					<div
+						class="battle-controls"
+						role="complementary"
+						aria-label="Battle Controls"
+						style={`top: ${this.controlTop}px;`}
+					>
 						{this.renderControls()}
 					</div>
+				</div>
+				<ChatLog class="battle-log hasuserlist" room={room} top={this.battleHeight} noSubscription>
+					{}
 				</ChatLog>
 				<ChatTextEntry room={room} onMessage={this.send} onKey={this.onKey} left={0} />
 				<ChatUserList room={room} top={this.battleHeight} minimized />
@@ -1089,7 +1123,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 				Battle options
 			</button>
 			<div class="battle-controls-container">
-				<div class="battle-controls" role="complementary" aria-label="Battle Controls" style="top: 370px;">
+				<div class="battle-controls" role="complementary" aria-label="Battle Controls" style={`top: ${this.controlTop}px;`}>
 					{(room.battle && !room.battle.ended && room.request && room.battle.mySide.id === PS.user.userid) &&
 						<TimerButton room={room} />}
 					{this.renderControls()}
