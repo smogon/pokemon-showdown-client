@@ -148,6 +148,34 @@ export class BattleRoom extends ChatRoom {
 	choices: BattleChoiceBuilder | null = null;
 	autoTimerActivated: boolean | null = null;
 
+	override receiveLine(args: Args) {
+		switch (args[0]) {
+		case 'users':
+			const usernames = args[1].split(',');
+			const count = parseInt(usernames.shift()!, 10);
+			this.setUsers(count, usernames);
+			return;
+		case 'join': case 'j': case 'J':
+			this.addUser(args[1]);
+			break;
+		case 'leave': case 'l': case 'L':
+			this.removeUser(args[1]);
+			break;
+		case 'name': case 'n': case 'N':
+			this.renameUser(args[1], args[2]);
+			break;
+		case 'noinit':
+			this.loadReplay();
+			return;
+		}
+		// Route to battle or backlog
+		if (this.battle) {
+			this.update(args);
+		} else {
+			(this.backlog ||= []).push(args);
+		}
+	}
+
 	loadReplay() {
 		const replayid = this.id.slice(7);
 		Net(`https://replay.pokemonshowdown.com/${replayid}.json`).get().catch().then(data => {
