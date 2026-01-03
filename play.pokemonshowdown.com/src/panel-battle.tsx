@@ -925,8 +925,9 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 			}
 
 			const canShift = room.battle.gameType === 'triples' && index !== 1;
-			const showMoves = !this.overlayMode || this.controlsMode === 'move';
-			const showSwitches = !this.overlayMode || this.controlsMode === 'switch';
+			const useOverlayToggles = this.overlayMode;
+			const showMoves = !useOverlayToggles || this.controlsMode === 'move';
+			const showSwitches = !useOverlayToggles || this.controlsMode === 'switch';
 			const overlayClass = (this.overlayMode && this.controlsMode) ? ` ${this.controlsMode}-controls` : '';
 
 			return <div class={`controls${overlayClass}`}>
@@ -935,13 +936,15 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 					What will <strong>{pokemon.name}</strong> do?
 				</div>
 				<div class="movecontrols">
-					<button
-						type="button"
-						class="moveselect"
-						onClick={() => { this.controlsMode = 'move'; this.forceUpdate(); }}
-					>
-						Attack
-					</button>
+					{useOverlayToggles ? (
+						<button
+							type="button"
+							class="moveselect"
+							onClick={() => { this.controlsMode = 'move'; this.forceUpdate(); }}
+						>
+							Attack
+						</button>
+					) : <h3 class="moveselect">Attack</h3>}
 					{showMoves && this.renderMoveMenu(choices)}
 				</div>
 				<div class="switchcontrols">
@@ -949,13 +952,15 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 						<h3 class="shiftselect">Shift</h3>,
 						<button data-cmd="/shift">Move to center</button>,
 					]}
-					<button
-						type="button"
-						class="switchselect"
-						onClick={() => { this.controlsMode = 'switch'; this.forceUpdate(); }}
-					>
-						Switch
-					</button>
+					{useOverlayToggles ? (
+						<button
+							type="button"
+							class="switchselect"
+							onClick={() => { this.controlsMode = 'switch'; this.forceUpdate(); }}
+						>
+							Switch
+						</button>
+					) : <h3 class="switchselect">Switch</h3>}
 					{showSwitches && this.renderSwitchMenu(request, choices)}
 				</div>
 			</div>;
