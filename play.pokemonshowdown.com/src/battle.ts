@@ -2473,7 +2473,11 @@ export class Battle {
 			let species = this.dex.species.get(newSpeciesForme);
 			if (nextArgs) {
 				if (nextArgs[0] === '-mega') {
-					species = this.dex.species.get(this.dex.items.get(nextArgs[3]).megaStone);
+					const item = this.dex.items.get(nextArgs[3]);
+					if (item.megaStone) {
+						const index = Object.values(item.megaStone).indexOf(species.name);
+						if (index >= 0) species = this.dex.species.get(Object.keys(item.megaStone)[index]);
+					}
 				} else if (nextArgs[0] === '-primal' && nextArgs.length > 2) {
 					if (nextArgs[2] === 'Red Orb') species = this.dex.species.get('Groudon-Primal');
 					if (nextArgs[2] === 'Blue Orb') species = this.dex.species.get('Kyogre-Primal');
