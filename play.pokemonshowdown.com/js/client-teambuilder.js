@@ -1521,8 +1521,8 @@
 					}
 					if (this.curTeam.gen >= 6) {
 						var item = dex.items.get(set.item);
-						if (item.megaEvolves && item.megaEvolves[species.baseSpecies]) {
-							species = dex.species.get(item.megaEvolves[species.baseSpecies]);
+						if (item.megaStone && item.megaStone[species.baseSpecies]) {
+							species = dex.species.get(item.megaStone[species.baseSpecies]);
 							typeTable = typeTable.filter(function (type) {
 								return species.types.includes(type);
 							});
