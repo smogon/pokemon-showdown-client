@@ -564,9 +564,19 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 				You <strong>might</strong> have some moves disabled, so you won't be able to cancel an attack!
 			</em></p>}
 			{maybeLocked && <p><em class="movewarning">
-				You <strong>might</strong> be locked into a move. {}
-				<button class="button" data-cmd="/choose testfight">Try Fight button</button> {}
-				(prevents switching if you're locked)
+				{this.props.room.battle.gen === 1 ? (
+					<>
+						You <strong>might</strong> be locked into a move. {}
+						<button class="button" data-cmd="/choose testfight">Try Fight button</button> {}
+						(prevents switching if you're locked)
+					</>
+				) : (
+					<>
+						All your moves <strong>might</strong> be imprisoned. {}
+						<button className="button" data-cmd="/choose testfight">Try Fight button</button> {}
+						(prevents cancelling if you Struggle)
+					</>
+				)}
 			</em></p>}
 			{this.renderMoveControls(moveRequest, choices)}
 			<div class="megaevo-box">
