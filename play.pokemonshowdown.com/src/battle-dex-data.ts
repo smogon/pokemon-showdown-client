@@ -1154,8 +1154,7 @@ export class Item implements Effect {
 	readonly desc: string;
 	readonly shortDesc: string;
 
-	readonly megaStone: string;
-	readonly megaEvolves: string;
+	readonly megaStone: { [megaEvolves: string]: string };
 	readonly zMove: string | true | null;
 	readonly zMoveType: TypeName | '';
 	readonly zMoveFrom: string;
@@ -1181,8 +1180,7 @@ export class Item implements Effect {
 		this.desc = data.desc || data.shortDesc || '';
 		this.shortDesc = data.shortDesc || this.desc;
 
-		this.megaStone = data.megaStone || '';
-		this.megaEvolves = data.megaEvolves || '';
+		this.megaStone = data.megaStone || null;
 		this.zMove = data.zMove || null;
 		this.zMoveType = data.zMoveType || '';
 		this.zMoveFrom = data.zMoveFrom || '';

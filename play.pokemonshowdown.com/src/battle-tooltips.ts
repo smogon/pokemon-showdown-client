@@ -2620,7 +2620,7 @@ export class BattleStatGuesser {
 		let abilityid = toID(set.ability);
 
 		let species = this.dex.species.get(set.species || set.name!);
-		if (item.megaEvolves === species.name) species = this.dex.species.get(item.megaStone);
+		if (item.megaStone?.[species.name]) species = this.dex.species.get(item.megaStone[species.name]);
 		if (!species.exists) return '?';
 		let stats = species.baseStats;
 
