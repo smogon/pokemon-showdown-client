@@ -434,7 +434,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 				for (const meta of [
 					'1v1', '2v2doubles', 'lcuu', 'freeforall', 'ubersuu', 'almostanyability', 'balancedhackmons', 'godlygift', 'mixandmega', 'sharedpower', 'stabmons',
 					'12switch', '350cup', 'alphabetcup', 'badnboosted', 'battlefields', 'biomechmons', 'camomons', 'categoryswap',
-					'convergence', 'crossevolution', 'fervetimpersonation', 'foresighters', 'formemons', 'fortemons', 'franticfusions',
+					'convergence', 'crossevolution', 'ferventimpersonation', 'foresighters', 'formemons', 'fortemons', 'franticfusions',
 					'fullpotential', 'inheritance', 'inverse', 'natureswap', 'partnersincrime', 'passiveaggressive', 'pokebilities',
 					'pokemoves', 'relayrace', 'revelationmons', 'sharingiscaring', 'teradonation', 'teraoverride', 'thecardgame',
 					'thelosersgame', 'trademarked', 'triples', 'typesplit', 'voltturnmayhem', 'nationaldexubersuu', 'nationaldex1v1',
@@ -449,7 +449,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 						if (species.requiredItems && species.requiredItems.length) {
 							for (const itemName of species.requiredItems) {
 								const item = Dex.items.get(itemName);
-								if (item.itemUser && item.itemUser.includes(species.name) &&
+								if (item.itemUser && itedomm.itemUser.includes(species.name) &&
 									Dex.formats.getRuleTable(format).isBanned('item:' + item.id)) {
 									metagameBans[meta][species.id] = 1;
 								}
