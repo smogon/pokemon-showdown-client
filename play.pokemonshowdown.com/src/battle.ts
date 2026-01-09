@@ -2471,12 +2471,15 @@ export class Battle {
 				newSpeciesForme = args[2].substr(0, commaIndex);
 			}
 			let species = this.dex.species.get(newSpeciesForme);
+
 			if (nextArgs) {
+				// Handle abilities in Mix and Mega
 				if (nextArgs[0] === '-mega') {
 					const item = this.dex.items.get(nextArgs[3]);
 					if (item.megaStone) {
-						const index = Object.values(item.megaStone).indexOf(species.name);
-						if (index >= 0) species = this.dex.species.get(Object.keys(item.megaStone)[index]);
+						let index = Object.values(item.megaStone).indexOf(species.name);
+						if (index < 0) index = 0;
+						species = this.dex.species.get(Object.values(item.megaStone)[index]);
 					}
 				} else if (nextArgs[0] === '-primal' && nextArgs.length > 2) {
 					if (nextArgs[2] === 'Red Orb') species = this.dex.species.get('Groudon-Primal');
