@@ -433,6 +433,11 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			if (genNum === 9) {
 				for (const meta of [
 					'ubersuu', 'almostanyability', 'balancedhackmons', 'godlygift', 'mixandmega', 'sharedpower', 'stabmons',
+					'350cup', 'alphabetcup', 'badnboosted', 'battlefields', 'biomechmons', 'camomons', 'category swap',
+					'convergence', 'crossevolution', 'ferventimpersonation', 'foresighters', 'formemons', 'fortemons',
+					'franticfusions', 'fullpotential', 'inheritance', 'inverse', 'natureswap', 'passiveaggressive',
+					'pokebilities', 'pokemoves', 'relayrace', 'revelationmons', 'sharingiscaring', 'teradonation',
+					'teraoverride', 'thecardgame', 'thelosersgame', 'tiershift', 'trademarked', 'typesplit',
 				]) {
 					const format = Dex.formats.get(gen + meta);
 					if (format.exists && Dex.formats.getRuleTable(format).isBannedSpecies(species)) {
@@ -447,7 +452,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 				}
 			}
 			if (genNum >= 8) {
-				for (const meta of ['nationaldexdoubles', 'nationaldexmonotype']) {
+				for (const meta of ['nationaldexdoubles', 'nationaldexmonotype',]) {
 					const format = Dex.formats.get(gen + meta);
 					if (format.exists && Dex.formats.getRuleTable(format).isBannedSpecies(species)) {
 						if (!metagameBans[meta]) metagameBans[meta] = {};

@@ -1156,13 +1156,26 @@ class BattlePokemonSearch extends BattleTypedSearch<'pokemon'> {
 			];
 		}
 		const customBanlists = [
-			'ubersuu', 'almostanyability', 'balancedhackmons', 'godlygift', 'mixandmega', 'sharedpower', 'stabmons',
+			'ubersuu', 'almostanyability', 'balancedhackmons', 'godlygift', 'mixandmega', 'sharedpower', 'stabmons', 
+			'350cup', 'alphabetcup', 'badnboosted', 'battlefields', 'biomechmons', 'camomons', 'category swap', 'convergence', 
+			'crossevolution', 'ferventimpersonation', 'foresighters', 'formemons', 'fortemons', 'franticfusions', 'fullpotential',
+			'inheritance', 'inverse', 'natureswap', 'passiveaggressive', 'pokebilities', 'pokemoves', 'relayrace', 'revelationmons',
+			'sharingiscaring', 'teradonation', 'teraoverride', 'thecardgame', 'thelosersgame', 'tiershift', 'trademarked', 'typesplit',
 		];
 		if (customBanlists.includes(format) && table.metagameBans?.[format]) {
 			tierSet = tierSet.filter(([type, id]) => {
 				if (id in table.metagameBans[format]) return false;
 				if ('miraidon' in table.metagameBans[format] && 'calyrexshadow' in table.metagameBans[format] &&
 					type === 'header' && id === 'AG') return false;
+				const ubers = [
+					'annihilape', 'arceus', 'archaludon', 'baxcalibur', 'calyrexice', 'chiyu', 'chienpao', 'deoxys', 'dialga',
+					'dialgaorigin', 'espathra', 'eternatus', 'fluttermane', 'giratina', 'giratinaorigin', 'gougingfire', 'groudon',
+					'hooh', 'ironbundle', 'koraidon', 'kyogre', 'kyuremblack', 'kyuremwhite', 'landorus', 'lugia', 'lunala', 'magearna',
+					'mewtwo', 'necrozmadawnwings', 'necrozmaduskmane', 'ogerponhearthflame', 'palafin', 'palkia', 'palkiaorigin', 
+					'rayquaza', 'regieleki', 'reshiram', 'roaringmoon', 'shayminsky', 'sneasler', 'solgaleo', 'spectrier', 'terapagos',
+					'ursalunabloodmoon', 'urshifu', 'urshifurapidstrike', 'volcarona', 'zacian', 'zamazentacrowned', 'zekrom'
+				];
+				if (ubers.every(uber => uber in table.metagameBans[format] && type === 'header' && id === 'Uber')) return false;	
 				return true;
 			});
 		}
