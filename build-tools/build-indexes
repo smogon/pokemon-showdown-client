@@ -430,13 +430,41 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			if (!tierTable[speciesTier]) tierTable[speciesTier] = [];
 			tierTable[speciesTier].push(id);
 
-			if (genNum === 9) {
+			if (genNum >= 6) {
 				for (const meta of [
-					'ubersuu', 'almostanyability', 'balancedhackmons', 'godlygift', 'mixandmega', 'sharedpower', 'stabmons',
+					'1v1', '2v2doubles', 'lcuu', 'freeforall', 'ubersuu', 'almostanyability', 'balancedhackmons', 'godlygift', 'mixandmega', 'sharedpower', 'stabmons',
+					'12switch', '350cup', 'alphabetcup', 'badnboosted', 'battlefields', 'biomechmons', 'camomons', 'categoryswap',
+					'convergence', 'crossevolution', 'fervetimpersonation', 'foresighters', 'formemons', 'fortemons', 'franticfusions',
+					'fullpotential', 'inheritance', 'inverse', 'natureswap', 'partnersincrime', 'passiveaggressive', 'pokebilities',
+					'pokemoves', 'relayrace', 'revelationmons', 'sharingiscaring', 'teradonation', 'teraoverride', 'thecardgame',
+					'thelosersgame', 'trademarked', 'triples', 'typesplit', 'voltturnmayhem', 'nationaldexubersuu', 'nationaldex1v1',
+					'nationaldexaaa', 'nationaldexbh', 'nationaldexgodlygift', 'nationaldexstabmons', 'tiershift',
 				]) {
 					const format = Dex.formats.get(gen + meta);
 					if (format.exists && Dex.formats.getRuleTable(format).isBannedSpecies(species)) {
 						if (!metagameBans[meta]) metagameBans[meta] = {};
+						if (Dex.formats.getRuleTable(format).has('megarayquazaclause')) {
+							metagameBans[meta]['megarayquazaclause'] = 1;
+						}
+						if (species.requiredItems && species.requiredItems.length) {
+							for (const itemName of species.requiredItems) {
+								const item = Dex.items.get(itemName);
+								if (item.itemUser && item.itemUser.includes(species.name) &&
+									Dex.formats.getRuleTable(format).isBanned('item:' + item.id)) {
+									metagameBans[meta][species.id] = 1;
+								}
+								if (item.megaStone && Object.values(item.megaStone).includes(species.name) &&
+									Dex.formats.getRuleTable(format).isBanned('item:' + item.id)) {
+									metagameBans[meta][species.id] = 1;
+								}
+							}
+						}
+						if (species.requiredAbility) {
+							const ability = Dex.items.get(species.requiredAbility);
+							if (Dex.formats.getRuleTable(format).isBanned('ability:' + ability.id)) {
+								metagameBans[meta][species.id] = 1;
+							}
+						}
 						metagameBans[meta][species.id] = 1;
 					}
 				}
@@ -507,6 +535,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			BattleTeambuilderTable[gen + 'lc'] = {};
 			BattleTeambuilderTable[gen + 'lc'].tiers = tiers;
 			BattleTeambuilderTable[gen + 'lc'].overrideTier = overrideTier;
+			BattleTeambuilderTable[gen + 'lc'].metagameBans = metagameBans;
 			BattleTeambuilderTable[gen + 'lc'].formatSlices = formatSlices;
 		} else if (isLetsGo) {
 			BattleTeambuilderTable['gen7letsgo'] = {};
@@ -531,6 +560,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			BattleTeambuilderTable[gen + 'doubles'].tiers = tiers;
 			BattleTeambuilderTable[gen + 'doubles'].items = items;
 			BattleTeambuilderTable[gen + 'doubles'].overrideTier = overrideTier;
+			BattleTeambuilderTable[gen + 'doubles'].metagameBans = metagameBans;
 			BattleTeambuilderTable[gen + 'doubles'].formatSlices = formatSlices;
 		} else if (isGen9BH) {
 			BattleTeambuilderTable['bh'] = {};
