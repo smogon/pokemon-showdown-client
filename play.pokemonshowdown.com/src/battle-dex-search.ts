@@ -1155,28 +1155,38 @@ class BattlePokemonSearch extends BattleTypedSearch<'pokemon'> {
 				...tierSet.slice(slices.DUU),
 			];
 		}
-		if (format === 'ubersuu' && table.ubersUUBans) {
+		const customBanlists = [
+			'ubersuu', 'almostanyability', 'balancedhackmons', 'godlygift', 'mixandmega', 'sharedpower', 'stabmons',
+		];
+		if (customBanlists.includes(format) && table.metagameBans?.[format]) {
 			tierSet = tierSet.filter(([type, id]) => {
-				if (id in table.ubersUUBans) return false;
+				if (id in table.metagameBans[format]) return false;
+				if ('miraidon' in table.metagameBans[format] && 'calyrexshadow' in table.metagameBans[format] &&
+					type === 'header' && id === 'AG') return false;
 				return true;
 			});
 		}
-		if (format === 'doubles' && this.formatType === 'natdex' && table.ndDoublesBans) {
-			tierSet = tierSet.filter(([type, id]) => {
-				if (id in table.ndDoublesBans) return false;
-				return true;
-			});
+		if (dex.gen >= 8) {
+			if ((format === 'doubles' || format === 'monotype') && this.formatType === 'natdex' && table.metagameBans?.[format]) {
+				tierSet = tierSet.filter(([type, id]) => {
+					if (id in table.metagameBans[format]) return false;
+					if ('miraidon' in table.metagameBans[format] && 'calyrexshadow' in table.metagameBans[format] &&
+						type === 'header' && id === 'AG') return false;
+					return true;
+				});
+			}
 		}
-		if (format === '35pokes' && table.thirtyfivePokes) {
+		if (format === '35pokes' && table.metagameBans?.nationaldex35pokes) {
 			tierSet = tierSet.filter(([type, id]) => {
-				if (id in table.thirtyfivePokes) return true;
+				if (id in table.metagameBans.nationaldex35pokes) return true;
 				return false;
 			});
 		}
 		if (dex.gen >= 5) {
-			if ((format === 'monotype' || format.startsWith('monothreat')) && table.monotypeBans) {
+			if (this.formatType !== 'natdex' &&
+				(format === 'monotype' || format.startsWith('monothreat')) && table.metagameBans?.monotype) {
 				tierSet = tierSet.filter(([type, id]) => {
-					if (id in table.monotypeBans) return false;
+					if (id in table.metagameBans.monotype) return false;
 					return true;
 				});
 			}
