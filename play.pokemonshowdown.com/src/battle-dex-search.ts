@@ -1176,14 +1176,63 @@ class BattlePokemonSearch extends BattleTypedSearch<'pokemon'> {
 						'calyrexshadow' in table.metagameBans[format] &&
 						type === 'header' && id === 'AG'
 					) return false;
+					const gen9ubers = [
+					'annihilape', 'arceus', 'arceusbug', 'arceusdark', 'arceusdragon', 'arceuselectric', 'arceusfairy',
+					'arceusfighting', 'arceusfire', 'arceusflying', 'arceusghost', 'arceusgrass', 'arceusground', 'arceusice',
+					'arceuspoison', 'arceuspsychic', 'arceusrock', 'arceussteel', 'arceuswater', 'archaludon', 'baxcalibur',
+					'calyrexice', 'chiyu', 'chienpao', 'deoxys', 'dialga', 'dialgaorigin', 'espathra', 'eternatus', 'fluttermane',
+					'giratina', 'giratinaorigin', 'gougingfire', 'groudon',	'hooh', 'ironbundle', 'koraidon', 'kyogre', 'kyuremblack',
+					'kyuremwhite', 'landorus', 'lugia', 'lunala', 'magearna', 'mewtwo', 'necrozmadawnwings', 'necrozmaduskmane',
+					'ogerponhearthflame', 'palafin', 'palkia', 'palkiaorigin', 'rayquaza', 'regieleki', 'reshiram', 'roaringmoon', 
+					'shayminsky', 'sneasler', 'solgaleo', 'spectrier', 'terapagos', 'ursalunabloodmoon', 'urshifu', 'urshifurapidstrike',
+					'volcarona', 'zacian', 'zaciancrowned', 'zamazentacrowned', 'zekrom',
+					];
+					if (!this.formatType && dex.gen === 9 && gen9ubers.every(uber => uber in table.metagameBans[format] 
+						&& type === 'header' && id === 'Uber')
+					) return false;	
 					if (!this.formatType && dex.gen === 8 &&
 						'zacian' in table.metagameBans[format] &&
 						'zaciancrowned' in table.metagameBans[format] &&
 						type === 'header' && id === 'AG'
 					) return false;
+					const gen8ubers = [
+					'calyrexice', 'calyrexshadow', 'cinderace', 'darmanitangalar', 'dialga', 'dracovish', 'eternatus', 'genesect',
+					'giratina', 'giratinaorigin', 'groudon', 'hooh', 'kyogre', 'kyurem', 'kyuremblack', 'kyuremwhite', 'landorus',
+					'lugia', 'lunala', 'magearna', 'marshadow', 'mewtwo', 'naganadel', 'necrozmaduskmane', 'necrozmadawnwings',
+					'palkia', 'pheromosa', 'rayquaza', 'reshiram', 'solgaleo', 'spectrier', 'urshifu', 'xerneas', 'yveltal',
+					'zamazenta', 'zamazentacrowned', 'zekrom', 'zygarde',
+					];
+					if (!this.formatType && dex.gen === 8 && gen8ubers.every(uber => uber in table.metagameBans[format] 
+						&& type === 'header' && id === 'Uber')
+					) return false;
 					if ((dex.gen === 7 || dex.gen === 6) &&
 						(id === 'AG' || id === 'rayquazamega') &&
 						'megarayquazaclause' in table.metagameBans[format]
+					) return false;
+					const gen7ubers = [
+					'aegislash', 'arceus', 'arceusbug', 'arceusdark', 'arceusdragon', 'arceuselectric', 'arceusfairy',
+					'arceusfighting', 'arceusfire', 'arceusflying', 'arceusghost', 'arceusgrass', 'arceusground', 'arceusice',
+					'arceuspoison', 'arceuspsychic', 'arceusrock', 'arceussteel', 'arceuswater', 'blaziken', 'darkrai',
+					'deoxys', 'deoxysattack', 'deoxysdefense', 'deoxysspeed', 'dialga', 'genesect', 'giratina', 'giratinaorigin',
+					'groudon', 'hooh', 'kyogre', 'kyuremwhite', 'landorus', 'lugia', 'lunala', 'marshadow', 'mewtwo', 'naganadel',
+					'necrozmadawnwings', 'necrozmaduskmane', 'palkia', 'pheromosa', 'rayquaza', 'reshiram', 'shayminsky',
+					'solgaleo', 'xerneas', 'yveltal', 'zekrom', 'zygarde', 'gengarmega', 'kangaskhanmega', 'lucariomega',
+					'metagrossmega', 'necrozmaultra', 'salamencemega',
+					];
+					if (!this.formatType && dex.gen === 7 && gen7ubers.every(uber => uber in table.metagameBans[format] 
+						&& type === 'header' && id === 'Uber')
+					) return false;
+					const gen6ubers = [
+					'aegislash', 'arceus', 'arceusbug', 'arceusdark', 'arceusdragon', 'arceuselectric', 'arceusfairy',
+					'arceusfighting', 'arceusfire', 'arceusflying', 'arceusghost', 'arceusgrass', 'arceusground', 'arceusice',
+					'arceuspoison', 'arceuspsychic', 'arceusrock', 'arceussteel', 'arceuswater', 'blaziken', 'darkrai',
+					'deoxys', 'deoxysattack', 'deoxysdefense', 'deoxysspeed', 'dialga', 'genesect', 'giratina', 'giratinaorigin',
+					'greninja', 'groudon', 'hooh', 'hoopaunbound', 'kyogre', 'kyuremwhite', 'landorus', 'lugia', 'mewtwo',
+					'palkia', 'rayquaza', 'reshiram', 'shayminsky', 'xerneas', 'yveltal', 'zekrom', 'gengarmega', 'kangaskhanmega',
+					'lucariomega', 'mawilemega', 'sableyemega', 'salamencemega',
+					];
+					if (!this.formatType && dex.gen === 6 && gen6ubers.every(uber => uber in table.metagameBans[format] 
+						&& type === 'header' && id === 'Uber')
 					) return false;
 					return true;
 				});
