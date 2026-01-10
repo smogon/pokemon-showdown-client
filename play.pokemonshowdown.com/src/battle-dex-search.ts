@@ -1178,10 +1178,10 @@ class BattlePokemonSearch extends BattleTypedSearch<'pokemon'> {
 					return true;
 				});
 			}
-			tierSet = tierSet.filter(([type],i) =>{
-				if(type=== 'pokemon') return true;
-				if (i < tierSet.length-1 && tierSet[i+1][0] === 'pokemon') return true;
-				return false;
+			tierSet = tierSet.filter(([type], i) => {
+				if (type === 'header' && i < tierSet.length - 1 && tierSet[i + 1][0] === 'header')
+					return false;
+				return true;
 			});
 			if ((format === 'doubles' || format === 'monotype') && this.formatType === 'natdex' && table.metagameBans?.[format]) {
 				tierSet = tierSet.filter(([type, id]) => {
