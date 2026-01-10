@@ -19,7 +19,7 @@ License: GPLv2
 	height: 360px;
 	overflow: hidden;
 
-	font-family: Verdana, sans-serif;
+	font-family: PGLDings, Verdana, sans-serif;
 	font-size: 10pt;
 }
 .backdrop {
@@ -52,7 +52,7 @@ License: GPLv2
 	left: 640px;
 	right: -1px;
 
-	font-family: Verdana, sans-serif;
+	font-family: PGLDings, Verdana, sans-serif;
 	font-size: 10pt;
 }
 .battle-log {
@@ -66,7 +66,7 @@ License: GPLv2
 	right: -1px;
 	height: 360px;
 
-	font-family: Verdana, sans-serif;
+	font-family: PGLDings, Verdana, sans-serif;
 	font-size: 10pt;
 
 	overflow: auto;
@@ -646,7 +646,7 @@ License: GPLv2
 	background: transparent;
 	padding: 2px 4px;
 	font-size: 9pt;
-	font-family: Verdana, sans-serif;
+	font-family: PGLDings, Verdana, sans-serif;
 	border-radius: 3px;
 	cursor: pointer;
 }

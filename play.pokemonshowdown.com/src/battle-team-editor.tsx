@@ -2957,12 +2957,78 @@ class StatForm extends preact.Component<{
 		</div>;
 	}
 }
+class DingbatKeyboard extends preact.Component<{
+	onClickDingbat: (ev: MouseEvent) => void,
+}> {
+	override state = {
+		isWide: false,
+	};
 
+	static dingbats_halfwidth = [
+		[
+			"\ue095", "\ue096", "\ue097", "\ue098",
+			"\ue099", "\ue090", "\ue091", "\ue092",
+			"\ue093", "\ue094", "\ue09a",
+		],
+		[
+			"\ue09b", "\ue09c", "\ue09d", "\ue09e",
+			"\ue09f", "\ue0a0", "\ue0a1", "\ue0a2",
+			"\ue0a5", "\ue0a3", "\ue0a4",
+		],
+		["\ue08e", "\ue08f"],
+	];
+	static dingbats_fullwidth = [
+		[
+			"\u25CE", "\u25CB", "\u25A1", "\u25B3",
+			"\u25C7", "\u2660", "\u2663", "\u2665",
+			"\u2666", "\u2605", "\u266A",
+		],
+		[
+			"\u2600", "\u2601", "\u2602", "\u2603",
+			"\uE081", "\uE082", "\uE083", "\uE084",
+			"\uE087", "\uE085", "\uE086",
+		],
+		["\u2642", "\u2640"],
+	];
+	onWideCheckboxChange = (ev: Event) => {
+		this.setState(
+			{ isWide: (ev.target as HTMLInputElement).checked }
+		);
+	};
+
+	override render() {
+		const dingbats = this.state.isWide ?
+			DingbatKeyboard.dingbats_fullwidth :
+			DingbatKeyboard.dingbats_halfwidth;
+		const dingbats_elements = dingbats.map(
+			arr => {
+				return (<div>
+					{arr.map(ding =>
+						<button class="button dingbat-button" onClick={this.props.onClickDingbat} value={ding}>
+							{ding}
+						</button>
+					)}
+				</div>);
+			}
+		);
+		return (
+			<div class="infobox">
+				{dingbats_elements}
+				<div><label class="checkbox"><input
+					type="checkbox" name="wide" onChange={this.onWideCheckboxChange}
+				/> Wide</label></div>
+			</div>
+		);
+	}
+}
 class DetailsForm extends preact.Component<{
 	editor: TeamEditorState,
 	set: Dex.PokemonSet,
 	onChange: () => void,
 }> {
+	override state = {
+		dingbatKeyboardVisible: false,
+	};
 	update(init?: boolean) {
 		const { set } = this.props;
 		const skipID = !init ? this.base!.querySelector<HTMLInputElement>('input:focus')?.name : undefined;
@@ -3067,6 +3133,22 @@ class DetailsForm extends preact.Component<{
 		}
 		this.props.onChange();
 	};
+	onToggleKeyboard = () => {
+		this.setState({ dingbatKeyboardVisible: !this.state.dingbatKeyboardVisible });
+	};
+	onClickDingbat = (ev: Event) => {
+		const target = ev.currentTarget as HTMLButtonElement;
+		const ding = target.value;
+		const nickname = this.base!.querySelector<HTMLInputElement>('input[name="nickname"]');
+		if (!nickname) return;
+
+		nickname.focus();
+		document.execCommand('insertText', false, ding);
+
+		const { set } = this.props;
+		set.name = nickname.value.trim();
+		this.props.onChange();
+	};
 	renderGender(gender: Dex.GenderName) {
 		const genderTable = { 'M': "Male", 'F': "Female" };
 		if (gender === 'N') return 'Unknown';
@@ -3081,10 +3163,19 @@ class DetailsForm extends preact.Component<{
 		return <div style="font-size:10pt" role="dialog" aria-label="Details">
 			<div class="resultheader"><h3>Details</h3></div>
 			<div class="pad">
-				<p><label class="label">Nickname: <input
-					name="nickname" class="textbox default-placeholder" placeholder={species.baseSpecies}
-					onInput={this.changeNickname} onChange={this.changeNickname}
-				/></label></p>
+				<p>
+					<label class="label">Nickname: </label>
+					<div class="labeled">
+						<input
+							name="nickname" class="textbox default-placeholder" placeholder={species.baseSpecies}
+							onInput={this.changeNickname} onChange={this.changeNickname}
+						/> {}
+						<button
+							onClick={this.onToggleKeyboard} class={`button dingbat-button${this.state.dingbatKeyboardVisible ? ' cur' : ''}`}
+						>&#xE082;</button>
+					</div>
+				</p>
+				{this.state.dingbatKeyboardVisible && <DingbatKeyboard onClickDingbat={this.onClickDingbat} />}
 				<p><label class="label">Level: <input
 					name="level" value={set.level ?? ''} placeholder={`${editor.defaultLevel}`}
 					type="number" inputMode="numeric" min="1" max="100" step="1"

@@ -1299,9 +1299,12 @@
 				buf += '</li>';
 				return buf;
 			}
-			buf += '<div class="setmenu"><button name="copySet"><i class="fa fa-files-o"></i>Copy</button> <button name="importSet"><i class="fa fa-upload"></i>Import/Export</button> <button name="moveSet"><i class="fa fa-arrows"></i>Move</button> <button name="deleteSet"><i class="fa fa-trash"></i>Delete</button></div>';
+			buf += '<div class="setmenu"> <button name="copySet"><i class="fa fa-files-o"></i>Copy</button> <button name="importSet"><i class="fa fa-upload"></i>Import/Export</button> <button name="moveSet"><i class="fa fa-arrows"></i>Move</button> <button name="deleteSet"><i class="fa fa-trash"></i>Delete</button></div>';
 			buf += '<div class="setchart-nickname">';
-			buf += '<label>Nickname</label><input type="text" name="nickname" class="textbox" value="' + BattleLog.escapeHTML(set.name || '') + '" placeholder="' + BattleLog.escapeHTML(species.baseSpecies) + '" />';
+			buf += '<div>';
+			buf += '<label>Nickname</label>';
+			buf += '<input type="text" name="nickname" class="textbox" value="' + BattleLog.escapeHTML(set.name || '') + '" placeholder="' + BattleLog.escapeHTML(species.baseSpecies) + '" />';
+			buf += '<button name="dingbats" class="button" style="font-family:PGLDings;font-size:12px;position: absolute;left: 88px;top: 2px;padding: 4px 4px 0;">&#xe082;</button></div>';
 			buf += '</div>';
 			buf += '<div class="setchart" style="' + Dex.getTeambuilderSprite(set, this.curTeam.dex) + ';">';
 
@@ -1754,6 +1757,13 @@
 			i = +($(button).closest('li').attr('value'));
 			this.clipboardAdd($.extend(true, {}, this.curSetList[i]));
 			button.blur();
+		},
+		dingbats: function (i, button) {
+			i = +($(button).closest('li').attr('value'));
+			app.addPopup(DingbatPopup, {
+				i: i,
+				team: this.curSetList
+			});
 		},
 		wasViewingPokemon: false,
 		importSet: function (i, button) {
@@ -3687,7 +3697,65 @@
 			}
 		}
 	});
+	var DingbatPopup = exports.DingbatPopup = Popup.extend({
+		initialize: function (data) {
+			var dingbats_halfwidth = [
+				"&#xe095;", "&#xe096;", "&#xe097;", "&#xe098;",
+				"&#xe099;", "&#xe090;", "&#xe091;", "&#xe092;",
+				"&#xe093;", "&#xe094;", "&#xe09a;",
+				"\n",
+				"&#xe09b;", "&#xe09c;", "&#xe09d;", "&#xe09e;",
+				"&#xe09f;", "&#xe0a0;", "&#xe0a1;", "&#xe0a2;",
+				"&#xe0a5;", "&#xe0a3;", "&#xe0a4;",
+				"\n",
+				"&#xe08e;", "&#xe08f;"
+			];
+			var dingbats_fullwidth = [
+				"&#x25CE;", "&#x25CB;", "&#x25A1;", "&#x25B3;",
+				"&#x25C7;", "&#x2660;", "&#x2663;", "&#x2665;",
+				"&#x2666;", "&#x2605;", "&#x266A;",
+				"\n",
+				"&#x2600;", "&#x2601;", "&#x2602;", "&#x2603;",
+				"&#xE081;", "&#xE082;", "&#xE083;", "&#xE084;",
+				"&#xE087;", "&#xE085;", "&#xE086;",
+				"\n",
+				"&#x2642;", "&#x2640;"
+			];
 
+			this.i = data.i;
+			this.team = data.team;
+
+			var buf = '<ul name="dingbats" class="popupmenu"><li>';
+			for (var i = 0; i < dingbats_halfwidth.length; i++) {
+				if (dingbats_halfwidth[i] === '\n') {
+					buf += '</li><li>';
+				} else {
+					buf += '<button name="insertDingbat" class="dingbat-button option"';
+					buf += " halfwidth=" + dingbats_halfwidth[i];
+					buf += " fullwidth=" + dingbats_fullwidth[i];
+					buf += " value=" + dingbats_halfwidth[i];
+					buf += ">" + dingbats_halfwidth[i] + "</button>";
+				}
+			}
+			buf += '</li><li><label class="checkbox"><input type="checkbox" name="wideCheckbox" /> Wide</label></li></ul>';
+			this.$el.html(buf);
+
+			var $el = this.$el;
+			this.$el.find("input[name=wideCheckbox]").change(
+				function (e) {
+					var width = e.currentTarget.checked ? "fullwidth" : "halfwidth";
+					$el.find("button[name=insertDingbat]").each(function (_, elem) {
+						elem.value = elem.innerHTML = elem.getAttribute(width);
+					});
+				}
+			);
+		},
+		insertDingbat: function (value) {
+			this.team[this.i].name += value;
+			app.rooms['teambuilder'].save();
+			app.rooms['teambuilder'].update();
+		}
+	});
 	var DeleteFolderPopup = this.DeleteFolderPopup = Popup.extend({
 		type: 'semimodal',
 		initialize: function (data) {
