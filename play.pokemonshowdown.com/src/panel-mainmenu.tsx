@@ -177,7 +177,7 @@ export class MainMenuRoom extends PSRoom {
 					room.update(null);
 				}
 			}
-			PS.alert(message.replace(/\|\|/g, '\n'));
+			PS.alert(message.replace(/^(\|modal\||\|html\||\|wide\|)/, "").replace(/\|\|/g, '\n'));
 			return;
 		}
 		}
