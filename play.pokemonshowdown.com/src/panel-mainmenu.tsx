@@ -132,10 +132,13 @@ export class MainMenuRoom extends PSRoom {
 					PS.user.initializing = false;
 					return;
 				}
-				// | , ; are not valid characters in names
 				res.username = res.username.replace(/[|,;]+/g, '');
 				if (res.loggedin) {
 					PS.user.registered = { name: res.username, userid: toID(res.username) };
+				}
+				if (PS.user.named && PS.user.userid !== toID(res.username)) {
+					PS.user.initializing = false;
+					return;
 				}
 				PS.user.handleAssertion(res.username, res.assertion);
 			});
