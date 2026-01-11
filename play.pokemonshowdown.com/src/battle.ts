@@ -1150,6 +1150,7 @@ export class Battle {
 		autoresize?: boolean,
 	} = {}) {
 		this.id = options.id || '';
+		this.roomid = options.id || '';
 
 		if (options.$frame && options.$logFrame) {
 			this.scene = new BattleScene(this, options.$frame, options.$logFrame);
@@ -3546,55 +3547,19 @@ export class Battle {
 			this.log(args, undefined, preempt);
 			break;
 		}
-		case 'join': case 'j': case 'J': {
-			if (this.roomid) {
-				let room = app!.rooms[this.roomid];
-				let user = BattleTextParser.parseNameParts(args[1]);
-				let userid = toUserid(user.name);
-				if (!room.users[userid]) room.userCount.users++;
-				room.users[userid] = user;
-				room.userList.add(userid);
-				room.userList.updateUserCount();
-				room.userList.updateNoUsersOnline();
-			}
+		case 'join': case 'j': case 'J':
+		case 'leave': case 'l': case 'L':
+			// User list management is handled by ChatRoom.receiveLine
+			// Here we just log the message to the battle log
 			this.log(args, undefined, preempt);
 			break;
-		}
-		case 'leave': case 'l': case 'L': {
-			if (this.roomid) {
-				let room = app!.rooms[this.roomid];
-				let user = args[1];
-				let userid = toUserid(user);
-				if (room.users[userid]) room.userCount.users--;
-				delete room.users[userid];
-				room.userList.remove(userid);
-				room.userList.updateUserCount();
-				room.userList.updateNoUsersOnline();
-			}
-			this.log(args, undefined, preempt);
-			break;
-		}
-		case 'name': case 'n': case 'N': {
-			if (this.roomid) {
-				let room = app!.rooms[this.roomid];
-				let user = BattleTextParser.parseNameParts(args[1]);
-				let oldid = args[2];
-				if (toUserid(oldid) === app!.user.get('userid')) {
-					app!.user.set({
-						away: user.away,
-						status: user.status,
-					});
-				}
-				let userid = toUserid(user.name);
-				room.users[userid] = user;
-				room.userList.remove(oldid);
-				room.userList.add(userid);
-			}
+		case 'name': case 'n': case 'N':
+			// User list management is handled by ChatRoom.receiveLine
+			// Here we just log the message to the battle log
 			if (!this.ignoreSpects) {
 				this.log(args, undefined, preempt);
 			}
 			break;
-		}
 		case 'player': {
 			let side = this.getSide(args[1]);
 			side.setName(args[2]);
