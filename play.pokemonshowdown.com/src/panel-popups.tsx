@@ -11,6 +11,7 @@ import { type BattleRoom } from "./panel-battle";
 import { ChatUserList, type ChatRoom } from "./panel-chat";
 import { PSRoomPanel, PSPanelWrapper, PSView } from "./panels";
 import { PSHeader } from "./panel-topbar";
+import { TrainerAvatars, TrainerAvatarManifest, type TrainerAvatarData } from "./trainer-avatars";
 
 /**
  * User popup
@@ -960,33 +961,127 @@ class LoginPanel extends PSRoomPanel {
 	}
 }
 
+const AVATARS_PER_PAGE = 120;
+
 class AvatarsPanel extends PSRoomPanel {
 	static readonly id = 'avatars';
 	static readonly routes = ['avatars'];
 	static readonly location = 'semimodal-popup';
 
-	override render() {
-		const room = this.props.room;
+	search = '';
+	page = 0;
+	category: 'all' | 'default' | 'extra' = 'all';
 
-		const avatars: [number, string][] = [];
-		for (let i = 1; i <= 293; i++) {
-			if (i === 162 || i === 168) continue;
-			avatars.push([i, window.BattleAvatarNumbers?.[i] || `${i}`]);
+	handleSearch = (ev: Event) => {
+		const input = ev.currentTarget as HTMLInputElement;
+		this.search = input.value.toLowerCase();
+		this.page = 0;
+		this.forceUpdate();
+	};
+
+	handleCategoryChange = (ev: Event) => {
+		const select = ev.currentTarget as HTMLSelectElement;
+		this.category = select.value as any;
+		this.page = 0;
+		this.forceUpdate();
+	};
+
+	handlePageChange = (delta: number) => {
+		this.page = Math.max(0, this.page + delta);
+		this.forceUpdate();
+	};
+
+	getFilteredAvatars(): TrainerAvatarData[] {
+		let avatars = TrainerAvatars;
+
+		if (this.category !== 'all') {
+			avatars = avatars.filter(a => a.category === this.category);
 		}
 
+		if (this.search) {
+			avatars = avatars.filter(a => a.id.includes(this.search));
+		}
+
+		return avatars;
+	}
+
+	renderAvatar(avatar: TrainerAvatarData) {
+		const isCurrent = avatar.id === PS.user.avatar;
+
+		if (avatar.sheet && avatar.x !== undefined && avatar.y !== undefined) {
+			return <button
+				key={avatar.id}
+				data-cmd={`/closeand /avatar ${avatar.id}`}
+				title={`/avatar ${avatar.id}`}
+				class={`option pixelated${isCurrent ? ' cur' : ''}`}
+				style={`background-position: -${avatar.x + 1}px -${avatar.y + 1}px`}
+			></button>;
+		}
+
+		return <button
+			key={avatar.id}
+			data-cmd={`/closeand /avatar ${avatar.id}`}
+			title={`/avatar ${avatar.id}`}
+			class={`option extra-avatar${isCurrent ? ' cur' : ''}`}
+			style={`background-image: url(${Dex.resourcePrefix}sprites/trainers/${avatar.id}.png)`}
+		></button>;
+	}
+
+	override render() {
+		const room = this.props.room;
+		const filteredAvatars = this.getFilteredAvatars();
+		const totalPages = Math.ceil(filteredAvatars.length / AVATARS_PER_PAGE);
+		const page = Math.min(this.page, Math.max(0, totalPages - 1));
+		const startIdx = page * AVATARS_PER_PAGE;
+		const pageAvatars = filteredAvatars.slice(startIdx, startIdx + AVATARS_PER_PAGE);
+
 		return <PSPanelWrapper room={room} width={1210}><div class="pad">
-			<label class="optlabel"><strong>Choose an avatar or </strong>
-				<button class="button" data-cmd="/close"> Cancel</button>
-			</label>
-			<div class="avatarlist">
-				{avatars.map(([i, avatar]) => (
-					<button
-						data-cmd={`/closeand /avatar ${avatar}`} title={`/avatar ${avatar}`}
-						class={`option pixelated${avatar === PS.user.avatar ? ' cur' : ''}`}
-						style={`background-position: -${((i - 1) % 16) * 80 + 1}px -${Math.floor((i - 1) / 16) * 80 + 1}px`}
-					></button>
-				))}
+			<div class="avatar-controls">
+				<label class="optlabel"><strong>Choose an avatar</strong></label>
+				<input
+					type="search"
+					class="textbox"
+					placeholder="Search avatars..."
+					value={this.search}
+					onInput={this.handleSearch}
+					style="width: 200px; margin: 0 8px"
+				/>
+				<select class="button" onChange={this.handleCategoryChange} value={this.category}>
+					<option value="all">All ({TrainerAvatarManifest.count})</option>
+					<option value="default">Default ({TrainerAvatarManifest.defaultCount})</option>
+					<option value="extra">Extra ({TrainerAvatarManifest.extraCount})</option>
+				</select>
+				<button class="button" data-cmd="/close" style="margin-left: 8px">Cancel</button>
 			</div>
+
+			<div class="avatar-help">
+				<small>
+					Use <code>/avatar [name]</code> in chat to change your avatar. {}
+					Use <code>/avatars</code> to open this panel. {}
+					<a href={`//${Config.routes.client}/sprites/trainers/`} target="_blank">View all trainer sprites</a>
+				</small>
+			</div>
+
+			{totalPages > 1 && <div class="avatar-pagination">
+				<button
+					class="button"
+					onClick={() => this.handlePageChange(-1)}
+					disabled={page === 0}
+				>← Prev</button>
+				<span style="margin: 0 12px">
+					Page {page + 1} of {totalPages} ({filteredAvatars.length} avatars)
+				</span>
+				<button
+					class="button"
+					onClick={() => this.handlePageChange(1)}
+					disabled={page >= totalPages - 1}
+				>Next →</button>
+			</div>}
+
+			<div class="avatarlist">
+				{pageAvatars.map(avatar => this.renderAvatar(avatar))}
+			</div>
+
 			<div style="clear:left"></div>
 			<p><button class="button" data-cmd="/close">Cancel</button></p>
 		</div></PSPanelWrapper>;
