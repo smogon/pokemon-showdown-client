@@ -22,6 +22,22 @@ import { ChatTournament, TournamentBox } from "./panel-chat-tournament";
 
 declare const formatText: any; // from js/server/chat-formatter.js
 
+export function shouldNotifyHighlight({
+	isHistory,
+	authorUserid,
+	currentUserid,
+	highlightMatches,
+}: {
+	isHistory: boolean,
+	authorUserid: ID,
+	currentUserid: ID,
+	highlightMatches: boolean,
+}): boolean {
+	if (authorUserid === currentUserid) return false;
+	if (isHistory) return false;
+	return highlightMatches;
+}
+
 type Challenge = {
 	formatName: string,
 	teamFormat: string,
@@ -272,7 +288,7 @@ export class ChatRoom extends PSRoom {
 			this.highlightRegExp[i] = new RegExp('(?:\\b|(?!\\w))(?:' + highlights[i].join('|') + ')(?:\\b|(?!\\w))', 'i');
 		}
 	}
-	handleHighlight = (args: Args) => {
+	handleHighlight = (args: Args, isHistory?: boolean) => {
 		let name;
 		let message;
 		let serverTime = 0;
@@ -284,10 +300,23 @@ export class ChatRoom extends PSRoom {
 			name = args[1];
 			message = args[2];
 		}
-		if (toID(name) === PS.user.userid) return false;
 		if (message.startsWith(`/raw `) || message.startsWith(`/uhtml`) || message.startsWith(`/uhtmlchange`)) {
 			return false;
 		}
+
+		// check highlight match
+		const highlightMatches = !!ChatRoom.getHighlight(message, this.id);
+		if (!highlightMatches) return false;
+
+		const shouldNotify = shouldNotifyHighlight({
+			isHistory: !!isHistory,
+			authorUserid: toID(name),
+			currentUserid: PS.user.userid,
+			highlightMatches,
+		});
+
+		// history: return true for css but skip notify
+		if (!shouldNotify) return highlightMatches;
 
 		const lastMessageDates = Dex.prefs('logtimes') || (PS.prefs.set('logtimes', {}), Dex.prefs('logtimes'));
 		if (!lastMessageDates[PS.server.id]) lastMessageDates[PS.server.id] = {};
@@ -303,16 +332,13 @@ export class ChatRoom extends PSRoom {
 			const lastMessageTime = this.lastMessageTime || 0;
 			if (lastMessageTime < time) this.lastMessageTime = time;
 		}
-		if (ChatRoom.getHighlight(message, this.id)) {
-			const mayNotify = time > lastMessageDate;
-			if (mayNotify) this.notify({
-				title: `Mentioned by ${name} in ${this.id}`,
-				body: `"${message}"`,
-				id: 'highlight',
-			});
-			return true;
-		}
-		return false;
+		const mayNotify = time > lastMessageDate;
+		if (mayNotify) this.notify({
+			title: `Mentioned by ${name} in ${this.id}`,
+			body: `"${message}"`,
+			id: 'highlight',
+		});
+		return true;
 	};
 	override clientCommands = this.parseClientCommands({
 		'chall,challenge'(target) {
@@ -1444,7 +1470,7 @@ export class ChatLog extends preact.Component<{
 				const backlog = room.backlog;
 				room.backlog = null;
 				for (const args of backlog) {
-					room.log.add(args, undefined, undefined, PS.prefs.timestamps[room.pmTarget ? 'pms' : 'chatrooms']);
+					room.log.add(args, undefined, undefined, PS.prefs.timestamps[room.pmTarget ? 'pms' : 'chatrooms'], true);
 				}
 			}
 			this.subscription = room.subscribe(tokens => {
