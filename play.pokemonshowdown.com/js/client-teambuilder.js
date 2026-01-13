@@ -3463,7 +3463,7 @@
 			// only available through an event with 31 Spe IVs
 			if (set.species.startsWith('Terapagos')) minSpe = false;
 
-			const preferMaxAtkFormats = ['1v1', 'categoryswap', 'partnersincrime', 'typesplit'];
+			var preferMaxAtkFormats = ['1v1', 'categoryswap', 'partnersincrime', 'typesplit'];
 			if (preferMaxAtkFormats.some(f => this.curTeam.includes(f))) return;
 			if (this.curTeam.format === 'gen7hiddentype') return;
 
