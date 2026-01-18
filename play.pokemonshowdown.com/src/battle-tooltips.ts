@@ -3187,7 +3187,7 @@ export function BattleStatOptimizer(set: Dex.PokemonSet, formatid: ID) {
 		return ~~(val);
 	};
 
-	const origNature = BattleNatures[set.nature || 'Serious'];
+	const origNature = BattleNatures[set.nature] ?? BattleNatures['Serious'];
 	const origStats = {
 		// no need to calculate hp
 		atk: getStat('atk', set.evs.atk || 0, origNature),
