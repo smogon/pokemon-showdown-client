@@ -169,6 +169,68 @@ export class BattleChoiceBuilder {
 		return true;
 	}
 
+	/** Undo the last choice made - works for moves, switches, and team preview */
+	undoLastChoice() {
+		// If we're in the middle of selecting a move target, clear that first
+		if (this.current.move) {
+			this.current = {
+				choiceType: 'move',
+				move: 0,
+				targetLoc: 0,
+				mega: false,
+				megax: false,
+				megay: false,
+				ultra: false,
+				z: false,
+				max: false,
+				tera: false,
+			};
+			return true;
+		}
+		
+		// If there are no completed choices, nothing to undo
+		if (this.choices.length === 0) return false;
+		
+		// Get the last choice before removing it
+		const lastChoiceString = this.choices[this.choices.length - 1];
+		
+		// Parse to get the details
+		let choice: BattleChoice | null;
+		try {
+			choice = this.parseChoice(lastChoiceString, this.choices.length - 1);
+		} catch (err) {
+			return false;
+		}
+		
+		if (!choice) return false;
+		
+		// Remove from choices array
+		this.choices.pop();
+		
+		// Handle specific choice types
+		if (choice.choiceType === 'team' || choice.choiceType === 'switch') {
+			// Remove from alreadySwitchingIn
+			const index = this.alreadySwitchingIn.indexOf(choice.targetPokemon);
+			if (index > -1) {
+				this.alreadySwitchingIn.splice(index, 1);
+			}
+		} else if (choice.choiceType === 'move') {
+			// Reset mega/z/max/tera flags if this was the move that set them
+			if (choice.mega || choice.megax || choice.megay) this.alreadyMega = false;
+			if (choice.z) this.alreadyZ = false;
+			if (choice.max) this.alreadyMax = false;
+			if (choice.tera) this.alreadyTera = false;
+		}
+		
+		// Fill passes for any remaining slots
+		this.fillPasses();
+		
+		// Reset noCancel since we're no longer at the last choice
+		this.noCancel = this.request.noCancel || this.request.requestType === 'wait';
+		
+		return true;
+	}
+
 	/** Index of the current Pokémon to make choices for */
 	index(): number {
 		return this.choices.length;
