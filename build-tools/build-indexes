@@ -447,11 +447,11 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 					let banned = ruleTable.isBannedSpecies(species);
 					if (!banned) {
 						const requiredItems = species.requiredItems;
-						if (requiredItems?.length) {
+						if (requiredItems && requiredItems.length) {
 							for (const itemName of requiredItems) {
 								const item = Dex.items.get(itemName);
-								if ((item.itemUser && item.itemUser.includes(species.name) ||
-									item.megaStone && Object.values(item.megaStone).includes(species.name)
+								if (((item.itemUser && item.itemUser.includes(species.name)) ||
+									(item.megaStone && Object.values(item.megaStone).includes(species.name))
 								) && ruleTable.isBanned('item:' + item.id)) {
 									banned = true;
 									break;
