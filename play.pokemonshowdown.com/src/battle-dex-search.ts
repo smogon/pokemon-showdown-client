@@ -1155,13 +1155,14 @@ class BattlePokemonSearch extends BattleTypedSearch<'pokemon'> {
 			];
 		}
 		const customBanlists = [
-			'1v1', '2v2doubles', 'lcuu', 'freeforall', 'ubersuu', 'almostanyability', 'balancedhackmons', 'godlygift', 'mixandmega',
-			'sharedpower', 'stabmons', '12switch', '350cup', 'alphabetcup', 'badnboosted', 'battlefields', 'biomechmons', 'camomons',
-			'categoryswap', 'convergence', 'crossevolution', 'fervetimpersonation', 'foresighters', 'formemons', 'fortemons',
-			'franticfusions', 'fullpotential', 'inheritance', 'inverse', 'natureswap', 'partnersincrime', 'passiveaggressive',
-			'pokebilities', 'pokemoves', 'relayrace', 'revelationmons', 'sharingiscaring', 'teradonation', 'teraoverride', 'thecardgame',
-			'thelosersgame', 'trademarked', 'triples', 'typesplit', 'voltturnmayhem', 'nationaldexubersuu', 'nationaldex1v1',
-			'nationaldexaaa', 'nationaldexbh', 'nationaldexgodlygift', 'nationaldexstabmons', 'tiershift',
+			'1v1', '2v2doubles', 'lcuu', 'freeforall', 'ubersuu', 'almostanyability', 'balancedhackmons', 'godlygift', 'mixandmega', 'sharedpower', 'stabmons',
+			'12switch', '350cup', 'alphabetcup', 'badnboosted', 'battlefields', 'biomechmons', 'camomons', 'categoryswap', 'categoryswap',
+			'convergence', 'crossevolution', 'categoryswap', 'ferventimpersonation', 'foresighters', 'formemons', 'fortemons', 'franticfusions',
+			'fullpotential', 'inheritance', 'inverse', 'natureswap', 'partnersincrime', 'passiveaggressive', 'pokebilities',
+			'pokemoves', 'relayrace', 'revelationmons', 'sharingiscaring', 'teradonation', 'teraoverride', 'thecardgame',
+			'thelosersgame', 'trademarked', 'triples', 'typesplit', 'voltturnmayhem',
+			'aaa', 'bh', // natdex abbreviations
+			'tiershift',
 		];
 		if (dex.gen >= 6) {
 			if (customBanlists.includes(format) && table.metagameBans?.[format]) {

@@ -433,8 +433,8 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			if (genNum >= 6) {
 				for (const meta of [
 					'1v1', '2v2doubles', 'lcuu', 'freeforall', 'ubersuu', 'almostanyability', 'balancedhackmons', 'godlygift', 'mixandmega', 'sharedpower', 'stabmons',
-					'12switch', '350cup', 'alphabetcup', 'badnboosted', 'battlefields', 'biomechmons', 'camomons', 'categoryswap',
-					'convergence', 'crossevolution', 'ferventimpersonation', 'foresighters', 'formemons', 'fortemons', 'franticfusions',
+					'12switch', '350cup', 'alphabetcup', 'badnboosted', 'battlefields', 'biomechmons', 'camomons', 'categoryswap', 'categoryswap',
+					'convergence', 'crossevolution', 'categoryswap', 'ferventimpersonation', 'foresighters', 'formemons', 'fortemons', 'franticfusions',
 					'fullpotential', 'inheritance', 'inverse', 'natureswap', 'partnersincrime', 'passiveaggressive', 'pokebilities',
 					'pokemoves', 'relayrace', 'revelationmons', 'sharingiscaring', 'teradonation', 'teraoverride', 'thecardgame',
 					'thelosersgame', 'trademarked', 'triples', 'typesplit', 'voltturnmayhem',
