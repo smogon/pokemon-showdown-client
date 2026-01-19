@@ -1179,8 +1179,7 @@ class BattlePokemonSearch extends BattleTypedSearch<'pokemon'> {
 				});
 			}
 			tierSet = tierSet.filter(([type], i) => {
-				if (type === 'header' && i < tierSet.length - 1 && tierSet[i + 1][0] === 'header')
-					return false;
+				if (type === 'header' && i < tierSet.length - 1 && tierSet[i + 1][0] === 'header') return false;
 				return true;
 			});
 			if ((format === 'doubles' || format === 'monotype') && this.formatType === 'natdex' && table.metagameBans?.[format]) {
