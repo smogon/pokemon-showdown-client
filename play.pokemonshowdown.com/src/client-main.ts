@@ -2166,6 +2166,9 @@ export const PS = new class extends PSModel {
 				}
 				this.update();
 				continue;
+			} case 'nametaken': {
+				PS.join('login' as RoomID, { args: { error: `Someone is already using the name ${args[1]}.` } });
+				break;
 			}
 
 			}
