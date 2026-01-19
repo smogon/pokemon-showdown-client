@@ -1164,13 +1164,12 @@ class BattlePokemonSearch extends BattleTypedSearch<'pokemon'> {
 			'nationaldexaaa', 'nationaldexbh', 'nationaldexgodlygift', 'nationaldexstabmons', 'tiershift',
 		];
 		if (dex.gen >= 6) {
-			if (
-				(customBanlists.includes(format) && table.metagameBans?.[format]) ||
-				(this.formatType === 'natdex' && customBanlists.includes('nationaldex' + format) &&
-					table.metagameBans?.['nationaldex' + format])) {
+			// fixme this should be unneeded, as there is no risk of natdex tiers overwriting regular tiers in build-indexes
+			// eslint-disable-next-line @typescript-eslint/no-shadow
+			const format = this.formatType === 'natdex' ? 'nationaldex' + this.format : this.format;
+			if (customBanlists.includes(format) && table.metagameBans?.[format]) {
 				tierSet = tierSet.filter(([type, id]) => {
 					if (id in table.metagameBans[format]) return false;
-					if (this.formatType === 'natdex' && id in table.metagameBans['nationaldex' + format]) return false;
 					if (!this.formatType && dex.gen === 9 &&
 						'miraidon' in table.metagameBans[format] &&
 						'calyrexshadow' in table.metagameBans[format] &&
