@@ -147,7 +147,8 @@ export class ChatRoom extends PSRoom {
 				if (toID(fromUser) === PS.user.userid) break;
 				const message = args[args[0] === 'c:' ? 3 : 2];
 				const noNotify = this.log?.parseChatMessage(message, name, args[1])?.[2];
-				if (!noNotify) {
+				const isIgnored = PS.prefs.ignore?.[toID(fromUser)];
+				if (!noNotify && !isIgnored) {
 					let textContent = message;
 					if (/^\/(log|raw|html|uhtml|uhtmlchange) /.test(message)) {
 						textContent = message.split(' ').slice(1).join(' ')
