@@ -208,12 +208,15 @@ export class PSConnection {
 	static connect() {
 		if (PS.connection?.socket) return;
 		PS.isOffline = false;
+		const isReconnecting = !!PS.connection;
 		if (!PS.connection) {
 			PS.connection = new PSConnection();
 		} else {
 			PS.connection.reconnect();
 		}
-		PS.prefs.doAutojoin();
+		if (!isReconnecting) {
+			PS.prefs.doAutojoin();
+		}
 	}
 }
 
