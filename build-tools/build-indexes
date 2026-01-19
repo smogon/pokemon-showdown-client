@@ -437,32 +437,37 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 					'convergence', 'crossevolution', 'ferventimpersonation', 'foresighters', 'formemons', 'fortemons', 'franticfusions',
 					'fullpotential', 'inheritance', 'inverse', 'natureswap', 'partnersincrime', 'passiveaggressive', 'pokebilities',
 					'pokemoves', 'relayrace', 'revelationmons', 'sharingiscaring', 'teradonation', 'teraoverride', 'thecardgame',
-					'thelosersgame', 'trademarked', 'triples', 'typesplit', 'voltturnmayhem', 'nationaldexubersuu', 'nationaldex1v1',
-					'nationaldexaaa', 'nationaldexbh', 'nationaldexgodlygift', 'nationaldexstabmons', 'tiershift',
+					'thelosersgame', 'trademarked', 'triples', 'typesplit', 'voltturnmayhem',
+					'aaa', 'bh', // natdex abbreviations
+					'tiershift',
 				]) {
-					const format = Dex.formats.get(gen + meta);
-					if (format.exists && Dex.formats.getRuleTable(format).isBannedSpecies(species)) {
-						if (!metagameBans[meta]) metagameBans[meta] = {};
-						if (Dex.formats.getRuleTable(format).has('megarayquazaclause')) {
-							metagameBans[meta]['megarayquazaclause'] = 1;
-						}
-						if (species.requiredItems && species.requiredItems.length) {
-							for (const itemName of species.requiredItems) {
+					const format = Dex.formats.get(`${gen}${isNatDex ? 'nationaldex' : ''}${meta}`);
+					if (!format.exists) continue;
+					const ruleTable = Dex.formats.getRuleTable(format);
+					let banned = ruleTable.isBannedSpecies(species);
+					if (!banned) {
+						const requiredItems = species.requiredItems;
+						if (requiredItems?.length) {
+							for (const itemName of requiredItems) {
 								const item = Dex.items.get(itemName);
-								if (item.itemUser && item.itemUser.includes(species.name) &&
-									Dex.formats.getRuleTable(format).isBanned('item:' + item.id)) {
-									metagameBans[meta][species.id] = 1;
-								}
-								if (item.megaStone && Object.values(item.megaStone).includes(species.name) &&
-									Dex.formats.getRuleTable(format).isBanned('item:' + item.id)) {
-									metagameBans[meta][species.id] = 1;
+								if ((item.itemUser && item.itemUser.includes(species.name) ||
+									item.megaStone && Object.values(item.megaStone).includes(species.name)
+								) && ruleTable.isBanned('item:' + item.id)) {
+									banned = true;
+									break;
 								}
 							}
 						}
-						if (species.requiredAbility) {
-							const ability = Dex.items.get(species.requiredAbility);
-							if (Dex.formats.getRuleTable(format).isBanned('ability:' + ability.id)) {
-								metagameBans[meta][species.id] = 1;
+					}
+					if (!banned && species.requiredAbility) {
+						const ability = Dex.abilities.get(species.requiredAbility);
+						banned = ruleTable.isBanned('ability:' + ability.id);
+					}
+					if (banned) {
+						if (!metagameBans[meta]) {
+							metagameBans[meta] = {};
+							if (ruleTable.has('megarayquazaclause')) {
+								metagameBans[meta]['megarayquazaclause'] = 1;
 							}
 						}
 						metagameBans[meta][species.id] = 1;
