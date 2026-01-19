@@ -1171,16 +1171,6 @@ class BattlePokemonSearch extends BattleTypedSearch<'pokemon'> {
 				tierSet = tierSet.filter(([type, id]) => {
 					if (id in table.metagameBans[format]) return false;
 					if (this.formatType === 'natdex' && id in table.metagameBans['nationaldex' + format]) return false;
-					if (!this.formatType && dex.gen === 9 &&
-						'miraidon' in table.metagameBans[format] &&
-						'calyrexshadow' in table.metagameBans[format] &&
-						type === 'header' && id === 'AG'
-					) return false;
-					if (!this.formatType && dex.gen === 8 &&
-						'zacian' in table.metagameBans[format] &&
-						'zaciancrowned' in table.metagameBans[format] &&
-						type === 'header' && id === 'AG'
-					) return false;
 					if ((dex.gen === 7 || dex.gen === 6) &&
 						(id === 'AG' || id === 'rayquazamega') &&
 						'megarayquazaclause' in table.metagameBans[format]
@@ -1188,6 +1178,10 @@ class BattlePokemonSearch extends BattleTypedSearch<'pokemon'> {
 					return true;
 				});
 			}
+			tierSet = tierSet.filter(([type], i) => {
+				if (type === 'header' && i < tierSet.length - 1 && tierSet[i + 1][0] === 'header') return false;
+				return true;
+			});
 			if ((format === 'doubles' || format === 'monotype') && this.formatType === 'natdex' && table.metagameBans?.[format]) {
 				tierSet = tierSet.filter(([type, id]) => {
 					if (id in table.metagameBans[format]) return false;
