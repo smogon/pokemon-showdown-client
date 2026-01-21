@@ -2600,7 +2600,8 @@ class StatForm extends preact.Component<{
 		} else if (
 			format === 'ou' || format === 'uu' || format === 'ru' || format === 'nu' || format === 'pu' ||
 			format === 'lc' || format === 'monotype' || format === 'mixandmega' || format === 'nfe' ||
-			format === 'nationaldex' || format === 'stabmons' || format === '1v1' || format === 'almostanyability'
+			format === 'nationaldex' || format === 'stabmons' || format === '1v1' || format === 'almostanyability' ||
+			format === 'draft'
 		) {
 			smogdexid += '/' + format;
 		} else if (format === 'balancedhackmons') {
