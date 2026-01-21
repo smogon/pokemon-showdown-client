@@ -192,7 +192,7 @@ export class BattleChoiceBuilder {
 		return this.request.active[index];
 	}
 	noMoreSwitchChoices() {
-		if (this.request.requestType !== 'switch') return false;
+		if (this.request.requestType !== 'switch' || this.request.side?.pokemon.some(p => p.reviving)) return false;
 		for (let i = this.requestLength(); i < this.request.side.pokemon.length; i++) {
 			const pokemon = this.request.side.pokemon[i];
 			if (!pokemon.fainted && !this.alreadySwitchingIn.includes(i + 1)) {
@@ -482,11 +482,11 @@ export class BattleChoiceBuilder {
 				}
 				current.targetPokemon = match;
 			}
-			if (!isTeamPreview && current.targetPokemon - 1 < this.requestLength()) {
+			const isReviving = this.request.side?.pokemon!.some(p => p.reviving);
+			if (!isTeamPreview && !isReviving && current.targetPokemon - 1 < this.requestLength()) {
 				throw new Error(`That Pokémon is already in battle!`);
 			}
 			const target = request.side.pokemon[current.targetPokemon - 1];
-			const isReviving = this.request.side?.pokemon!.some(p => p.reviving);
 			if (!target) {
 				throw new Error(`Couldn't find Pokémon "${choice}" to switch to!`);
 			}
