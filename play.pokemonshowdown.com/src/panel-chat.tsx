@@ -183,6 +183,8 @@ export class ChatRoom extends PSRoom {
 			const cutOffTime = parseInt(PS.lastMessageTime);
 			const cutOffExactLine = this.lastMessage ? '|' + this.lastMessage?.join('|') : '';
 			let reconnectMessage = '|raw|<div class="infobox">You reconnected.</div>';
+			let hasReconnectMessage = false;
+
 			for (let i = 0; i < lines.length; i++) {
 				if (lines[i].startsWith('|users|')) {
 					this.add(lines[i]);
@@ -197,14 +199,19 @@ export class ChatRoom extends PSRoom {
 					reconnectMessage = `|raw|<div class="infobox">You reconnected to ${lines[i].slice(38)}`;
 					cutOffEnd = i;
 					if (!lines[i - 1]) cutOffEnd = i - 1;
+					hasReconnectMessage = true;
 				}
 			}
 			lines = lines.slice(cutOffStart, cutOffEnd);
 
 			if (lines.length) {
-				this.receiveLine([`raw`, `<div class="infobox">You disconnected.</div>`]);
+				if (cutOffStart > 0) {
+					this.receiveLine([`raw`, `<div class="infobox">You disconnected.</div>`]);
+				}
 				for (const line of lines) this.receiveLine(BattleTextParser.parseLine(line));
-				this.receiveLine(BattleTextParser.parseLine(reconnectMessage));
+				if (hasReconnectMessage) {
+					this.receiveLine(BattleTextParser.parseLine(reconnectMessage));
+				}
 			}
 			this.update(null);
 			return true;
