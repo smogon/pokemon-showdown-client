@@ -881,7 +881,7 @@ export class BattleScene implements BattleSceneStub {
 				textBuf += pokemon.speciesForme;
 				let url = spriteData.url;
 				// if (this.paused) url.replace('/xyani', '/xy').replace('.gif', '.png');
-				buf += `<img src="${url}" width="${spriteData.w}" height="${spriteData.h}" style="position:absolute;top:${Math.floor(y - spriteData.h / 2)}px;left:${Math.floor(x - spriteData.w / 2)}px" />`;
+				buf += `<img src="${url}" width="${spriteData.w}" height="${spriteData.h}" style="position:absolute;top:${Math.floor(y - spriteData.h / 2)}px;left:${Math.floor(x - spriteData.w / 2)}px${spriteData.mirror ? ';transform: scaleX(-1)' : ''}" />`;
 				buf2 += `<div style="position:absolute;top:${y + 45}px;left:${x - 40}px;width:80px;font-size:10px;text-align:center;color:#FFF;">`;
 				const gender = pokemon.gender;
 				if (gender === 'M' || gender === 'F') {
@@ -1752,7 +1752,7 @@ export class Sprite {
 		if (spriteData) {
 			sp = spriteData;
 			let rawHTML = sp.rawHTML ||
-				`<img src="${sp.url!}" style="display:none;position:absolute"${sp.pixelated ? ' class="pixelated"' : ''} />`;
+				`<img src="${sp.url!}" style="display:none;position:absolute${sp.mirror ? ';transform: scaleX(-1)' : ''}"${sp.pixelated ? ' class="pixelated"' : ''} />`;
 			this.$el = $(rawHTML);
 		} else {
 			sp = {
@@ -2148,7 +2148,7 @@ export class PokemonSprite extends Sprite {
 		if (this.$el) {
 			this.$el.stop(true, false);
 			this.$el.remove();
-			const $newEl = $(`<img src="${this.sp.url!}" style="display:none;position:absolute"${this.sp.pixelated ? ' class="pixelated"' : ''} />`);
+			const $newEl = $(`<img src="${this.sp.url!}" style="display:none;position:absolute${this.sp.mirror ? ';transform: scaleX(-1)' : ''}"${this.sp.pixelated ? ' class="pixelated"' : ''} />`);
 			this.$el = $newEl;
 		}
 
@@ -2585,7 +2585,7 @@ export class PokemonSprite extends Sprite {
 			}
 		}
 		// Constructing here gives us 300ms extra time to preload the new sprite
-		let $newEl = $('<img src="' + sp.url + '" style="display:block;opacity:0;position:absolute"' + (sp.pixelated ? ' class="pixelated"' : '') + ' />');
+		let $newEl = $('<img src="' + sp.url + `" style="display:block;opacity:0;position:absolute${this.sp.mirror ? ';transform: scaleX(-1)' : ''}"` + (sp.pixelated ? ' class="pixelated"' : '') + ' />');
 		$newEl.css(this.scene.pos({
 			x: this.x,
 			y: this.y,
