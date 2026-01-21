@@ -173,8 +173,73 @@ function PokemonSet({ set }: { set: Dex.PokemonSet }) {
 				move = move.slice(0, 13);
 				move = `${move}[${hpType}]`;
 			}
+
+			let moveType = Dex.moves.get(move).type;
+			let item = Dex.items.get(set.item);
+			if (item) {
+				if (move === 'Judgment' && item.onPlate && !item.zMoveType) {
+					moveType = item.onPlate;
+				} else if (move === 'Multi-Attack' && item.onMemory) {
+					moveType = item.onMemory;
+				} else if (move === 'Techno Blast' && item.onDrive) {
+					moveType = item.onDrive;
+				} else if (move === 'Natural Gift' && item.naturalGift) {
+					moveType = item.naturalGift.type;
+				}
+			}
+
+			if (move === 'Raging Bull') {
+				switch (set.species) {
+				case 'Tauros-Paldea-Combat':
+					moveType = 'Fighting';
+					break;
+				case 'Tauros-Paldea-Blaze':
+					moveType = 'Fire';
+					break;
+				case 'Tauros-Paldea-Aqua':
+					moveType = 'Water';
+					break;
+				}
+			} else if (move === 'Ivy Cudgel') {
+				switch (set.species) {
+				case 'Ogerpon-Cornerstone':
+					moveType = 'Rock';
+					break;
+				case 'Ogerpon-Hearthflame':
+					moveType = 'Fire';
+					break;
+				case 'Ogerpon-Wellspring':
+					moveType = 'Water';
+					break;
+				}
+			} else if (move === 'Revelation Dance') {
+				moveType = Dex.species.get(set.species).types[0];
+			}
+
+			if (set.ability) {
+				const noTypeOverride = [
+					'Judgment', 'Multi Attack', 'Natural Gift', 'Revelation Dance', 'Techno Blast', 'Terrain Pulse', 'Weather Ball',
+				];
+				const allowTypeOverride = !noTypeOverride.includes(move);
+				if (set.ability === 'Normalize') {
+					moveType = 'Normal';
+				} else if (allowTypeOverride && moveType === 'Normal') {
+					if (set.ability === 'Aerilate') {
+						moveType = 'Flying';
+					} else if (set.ability === 'Galvanize') {
+						moveType = 'Electric';
+					} else if (set.ability === 'Pixilate') {
+						moveType = 'Fairy';
+					} else if (set.ability === 'Refrigerate') {
+						moveType = 'Ice';
+					}
+				} else if (set.ability === 'Liquid Voice' && Dex.moves.get(move).flags.sound) {
+					moveType = 'Water';
+				}
+			}
+
 			// hide the alt so it doesn't interfere w/ copy/pasting
-			return <>- {move} <PSIcon type={Dex.moves.get(move).type} hideAlt /><br /></>;
+			return <>- {move} <PSIcon type={moveType} hideAlt /><br /></>;
 		}) : <></>}
 
 		{typeof set.happiness === 'number' && set.happiness !== 255 && !isNaN(set.happiness) ?
