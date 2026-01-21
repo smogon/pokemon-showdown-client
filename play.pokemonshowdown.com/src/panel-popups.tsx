@@ -1912,6 +1912,102 @@ class RulesPanel extends PSRoomPanel<PopupRoom> {
 	}
 }
 
+class PatchNotesPanel extends PSRoomPanel<PopupRoom> {
+	static readonly id = 'patchnotes';
+	static readonly routes = ['patchnotes'];
+	static readonly location = 'semimodal-popup';
+	static readonly noURL = true;
+	static readonly Model = PopupRoom;
+
+	getRandomPatchNotes() {
+		const allTitles = [
+			"Patch Notes (because chaos needs documentation)",
+			"Patch Notes: Now with 30% fewer bugs (No promises)",
+			"Patch Notes — We Swear It’s Better This Time",
+			"Patch Notes: Definitely Didn’t Break Anything Else",
+			"Patch Notes: Technically “Improvements”",
+			"Patch Notes — Version: “It Works on My Machine”",
+			"Patch Notes (We Fixed Things You Didn’t Know Were Broken)",
+			"Patch Notes: Stability? Never Heard of It.",
+			"Patch Notes — Slightly More Functional Than Yesterday",
+			"Patch Notes: The Bugs Strike Back",
+			"Patch Notes (A Love Letter to Debugging)",
+			"Patch Notes: Powered by Caffeine and Regret",
+			"Patch Notes — “Trust Me Bro” Edition",
+		];
+		const allNotes = [
+			"Fixed a bug where clicking really hard didn’t make things load faster.",
+			"Improved stability by removing one line of code we didn’t understand.",
+			"Added a 'quantum uncertainty' mode — the UI may or may not respond.",
+			"Performance improved by at least 0.0001% (scientifically proven).",
+			"Added new AI: 'Emotionally Unstable Bot' — it forfeits if you’re mean.",
+			"Pokémon now occasionally question the meaning of their existence mid-battle.",
+			"Critical hits are now determined by your karma.",
+			"Fixed a bug where RNG was too fair.",
+			"Improved matchmaking: you’ll now face someone just as tilted as you.",
+			"Added experimental 'Therapist Mode': the game listens, you vent.",
+			"The app now looks 30% faster, even if it isn’t.",
+			"Chat filters now detect sarcasm with 4% accuracy.",
+			"Fixed a bug where players were sometimes right on the internet.",
+			"Improved mod tools: moderators can now sense chaos before it happens.",
+			"Backend now powered by pure friendship and caffeine.",
+			"Optimized the code to run slightly worse, but with more confidence.",
+			"Fixed an issue where the bug fix introduced more bugs.",
+			"Added 'Are you sure?' dialog. It doesn’t do anything, but feels safe.",
+			"Reduced load times by moving progress bar faster.",
+			"Replaced all semicolons with good vibes.",
+			"New setting: 'Developer Tears Mode' — enhances realism.",
+			"You can now press any key to feel like you’re helping.",
+			"Made UI 15% shinier for improved morale.",
+			"Bug reports are now automatically forwarded to the void.",
+			"Buffed RNG. It’s now personal.",
+			"Lucario’s aura now glows brighter when you lie.",
+			"Fixed crash where Trainer couldn’t accept defeat gracefully.",
+			"Buffed memes. Nerfed logic.",
+			"New mechanic: 'Disconnect Immunity' — doesn’t exist, but sounds nice.",
+			"Fixed an issue where players believed in fair matchups.",
+			"Nerfed stall strategies. (You’re welcome.)",
+			"Fixed an exploit where players had hope during battles.",
+			"Blissey now charges for therapy sessions.",
+			"Togekiss’s Air Slash now comes with a free rage quit.",
+			"Increased Confusion duration — the devs thought it was funny.",
+			"Garchomp’s Sand Veil now works indoors, somehow.",
+			"Rebalanced RNG: it now hates everyone equally.",
+			"Pikachu’s Thunderbolt now powered by real electricity bills.",
+			"Machamp now flexes every 3 turns automatically.",
+			"Buffed Magikarp’s Splash — it now causes mild emotional distress.",
+			"Nerfed Toxic stall teams. We’re doing this for humanity.",
+			"Alakazam now needs a PhD to understand its own Special Attack stat.",
+			"Zoroark’s Illusion now also fools itself sometimes.",
+			"Fixed a bug where Ditto copied your emotional damage too.",
+			"Gengar now giggles 20% more menacingly.",
+			"Nerfed RNG. It was getting too self-aware.",
+			"Charizard finally acknowledged that it’s not a Dragon-type. Therapy helped.",
+		];
+
+		const title = allTitles.sort(() => 0.5 - Math.random())[0];
+		const notes = allNotes.sort(() => 0.5 - Math.random()).slice(0, 12);
+		return { title, notes };
+	}
+
+	override render() {
+		const room = this.props.room;
+		const patchNotesData = this.getRandomPatchNotes();
+		return <PSPanelWrapper room={room} width={room.args?.width as number || 780}>
+			<div class="pad">
+				<h2>{patchNotesData.title}</h2>
+
+				{patchNotesData.notes
+					.map((note, i) => <p><b>{i + 1}.</b> {note}</p>)}
+				<p class="buttonbar"><button
+					name="close"
+					data-cmd="/close" class="button autofocus"
+				> Close</button></p>
+			</div>
+		</PSPanelWrapper>;
+	}
+}
+
 PS.addRoomType(
 	UserPanel,
 	UserOptionsPanel,
@@ -1931,5 +2027,6 @@ PS.addRoomType(
 	RoomTabListPanel,
 	BattleOptionsPanel,
 	BattleTimerPanel,
-	RulesPanel
+	RulesPanel,
+	PatchNotesPanel
 );

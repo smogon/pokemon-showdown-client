@@ -19,6 +19,7 @@ import { BattleTextParser, type Args } from './battle-text-parser';
 import type { BattleRoom } from './panel-battle';
 import { Teams } from './battle-teams';
 import type preact from '../js/lib/preact';
+import { PSHeader } from './panel-topbar';
 
 declare const BattleTextAFD: any;
 declare const BattleTextNotAFD: any;
@@ -1043,6 +1044,11 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 					}
 				}
 			} catch {}
+			// extra check because the roomIsFocused is not accurate for some reason
+			if (document.visibilityState !== 'visible') {
+				PS.isNotifying = true;
+				PSHeader.updateFavicon();
+			}
 		}
 		if (options.noAutoDismiss && !options.id) {
 			throw new Error(`Must specify id for manual dismissing`);
@@ -1072,6 +1078,7 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 			this.notifications[i].notification?.close();
 		} catch {}
 		this.notifications.splice(i, 1);
+		PSHeader.updateFavicon();
 	}
 	dismissNotification(id: string) {
 		const index = this.notifications.findIndex(n => n.id === id);
@@ -1500,6 +1507,12 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 			PS.prefs.set('nounlink', false);
 			this.add('||Locked/banned users\' chat messages: HIDDEN');
 		},
+		'whatsnew'() {
+			const success = PSHeader.clickCounter.click();
+			if (success) {
+				PS.join('patchnotes' as RoomID);
+			}
+		},
 		'hl,highlight'(target) {
 			let highlights = PS.prefs.highlights || {};
 			if (target.includes(' ')) {
@@ -1925,6 +1938,8 @@ export const PS = new class extends PSModel {
 
 	/** Tracks whether or not to display the "Use arrow keys" hint */
 	arrowKeysUsed = false;
+
+	isNotifying = false;
 
 	newsHTML = document.querySelector('#room-news .readable-bg')?.innerHTML || '';
 
@@ -2766,6 +2781,15 @@ export const PS = new class extends PSModel {
 			autojoin[this.server.id] = thisAutojoin || '';
 			this.prefs.set('autojoin', autojoin);
 		}
+	}
+	getNotificationsCount() {
+		let count = 0;
+		const notificationRooms = [...PS.leftRoomList, ...PS.rightRoomList, ...PS.miniRoomList];
+		for (const roomid of notificationRooms) {
+			const miniNotifications = PS.rooms[roomid]?.notifications;
+			if (miniNotifications?.length) count++;
+		}
+		return count;
 	}
 	requestNotifications() {
 		try {
