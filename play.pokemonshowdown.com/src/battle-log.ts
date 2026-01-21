@@ -1015,6 +1015,7 @@ export class BattleLog {
 	hideChatFrom(userid: ID, showRevealButton = true, lineCount = 0) {
 		const classStart = 'chat chatmessage-' + userid + ' ';
 		let nodes: HTMLElement[] = [];
+		const lastChild = this.innerElem.lastChild;
 		for (const node of this.innerElem.childNodes as any as HTMLElement[]) {
 			if (node.className && (node.className + ' ').startsWith(classStart)) {
 				nodes.push(node);
@@ -1033,15 +1034,15 @@ export class BattleLog {
 			node.style.display = 'none';
 			node.className = 'revealed ' + node.className;
 		}
-		if (!nodes.length || !showRevealButton) return;
+		if (!nodes.length || !showRevealButton || !lastChild) return;
 		const button = document.createElement('button');
 		button.name = 'toggleMessages';
+		button.setAttribute('data-cmd', '/togglemessages ' + userid);
 		button.value = userid;
 		button.className = 'subtle';
 		button.innerHTML = `<small>(${nodes.length} line${nodes.length > 1 ? 's' : ''} from ${userid} hidden)</small>`;
-		const lastNode = nodes[nodes.length - 1];
-		lastNode.appendChild(document.createTextNode(' '));
-		lastNode.appendChild(button);
+		lastChild.appendChild(document.createTextNode(' '));
+		lastChild.appendChild(button);
 	}
 
 	static unlinkNodeList(nodeList: ArrayLike<HTMLElement>, classStart: string) {
