@@ -1412,9 +1412,9 @@ class BattleItemSearch extends BattleTypedSearch<'item'> {
 		return table.itemSet;
 	}
 	getBaseResults(): SearchRow[] {
-		if (!this.species) return this.getDefaultResults();
-		const speciesName = this.dex.species.get(this.species).name;
 		const results = this.getDefaultResults();
+		if (!this.species) return results;
+		const species = this.dex.species.get(this.species);
 		const speciesSpecific: SearchRow[] = [];
 		const abilitySpecific: SearchRow[] = [];
 		const abilityItem = {
@@ -1424,15 +1424,24 @@ class BattleItemSearch extends BattleTypedSearch<'item'> {
 			// toxicboost: 'toxicorb',
 			// flareboost: 'flameorb',
 		}[toID(this.set?.ability) as string];
-		for (const row of results) {
+		for (let i = results.length - 1; i > 0; i--) {
+			const row = results[i];
 			if (row[0] !== 'item') continue;
-			const item = this.dex.items.get(row[1]);
-			if (item.itemUser?.includes(speciesName)) speciesSpecific.push(row);
-			if (abilityItem === item.id) abilitySpecific.push(row);
+			const id = row[1];
+			let item = this.dex.items.get(id);
+			if (!item.exists || item.isNonstandard) {
+				if (item.isNonstandard !== "Past" || this.formatType !== 'natdex') {
+					results.splice(i, 1);
+					continue;
+				}
+			}
+			if (item.itemUser?.includes(species.name)) {
+				speciesSpecific.push(row);
+			}
 		}
 		if (speciesSpecific.length) {
 			return [
-				['header', "Specific to " + speciesName],
+				['header', "Specific to " + species.name],
 				...speciesSpecific,
 				...results,
 			];
