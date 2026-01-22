@@ -1414,7 +1414,7 @@ class BattleItemSearch extends BattleTypedSearch<'item'> {
 	getBaseResults(): SearchRow[] {
 		const results = this.getDefaultResults();
 		if (!this.species) return results;
-		const species = this.dex.species.get(this.species);
+		const speciesName = this.dex.species.get(this.species).name;
 		const speciesSpecific: SearchRow[] = [];
 		const abilitySpecific: SearchRow[] = [];
 		const abilityItem = {
@@ -1427,21 +1427,13 @@ class BattleItemSearch extends BattleTypedSearch<'item'> {
 		for (let i = results.length - 1; i > 0; i--) {
 			const row = results[i];
 			if (row[0] !== 'item') continue;
-			const id = row[1];
-			let item = this.dex.items.get(id);
-			if (!item.exists || item.isNonstandard) {
-				if (item.isNonstandard !== "Past" || this.formatType !== 'natdex') {
-					results.splice(i, 1);
-					continue;
-				}
-			}
-			if (item.itemUser?.includes(species.name)) {
-				speciesSpecific.push(row);
-			}
+			const item = this.dex.items.get(row[1]);
+			if (item.itemUser?.includes(speciesName)) speciesSpecific.push(row);
+			if (abilityItem === item.id) abilitySpecific.push(row);
 		}
 		if (speciesSpecific.length) {
 			return [
-				['header', "Specific to " + species.name],
+				['header', "Specific to " + speciesName],
 				...speciesSpecific,
 				...results,
 			];
