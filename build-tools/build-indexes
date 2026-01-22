@@ -715,12 +715,12 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			case 0:
 				badItems.push(id);
 				break;
-			case -1: //Ability to hardcode user-specific items just in case an OM or something needs it
+			case -1: // Ability to hardcode user-specific items just in case an OM or something needs it
 				specificItems.push(id);
 				break;
 			default:
 				if (
-					item.name.startsWith("TR") || item.name.endsWith(" Ball") || item.name.endsWith(" Fossil") || 
+					item.name.startsWith("TR") || item.name.endsWith(" Ball") || item.name.endsWith(" Fossil") ||
 					item.name.startsWith("Fossilized ") || item.name.endsWith(" Sweet") || item.name.endsWith(" Apple")
 				) {
 					badItems.push(id);
