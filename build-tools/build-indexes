@@ -678,8 +678,6 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 		const specificItems = [['header', "Pok\u00e9mon-specific items"]];
 		const poorItems = [['header', "Usually useless items"]];
 		const badItems = [['header', "Useless items"]];
-		const unreleasedItems = [];
-		if (genNum === 6) unreleasedItems.push(['header', "Unreleased"]);
 		for (const id of itemList) {
 			const item = Dex.mod(gen).items.get(id);
 			if (item.gen > genNum) {
@@ -724,12 +722,6 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 					item.name.startsWith("Fossilized ") || item.name.endsWith(" Sweet") || item.name.endsWith(" Apple")
 				) {
 					badItems.push(id);
-				} else if (item.name.endsWith(" Gem") && item.name !== "Normal Gem") {
-					if (genNum >= 6) {
-						unreleasedItems.push(id);
-					} else {
-						goodItems.push(id);
-					}
 				} else if (item.itemUser) {
 					specificItems.push(id);
 				} else if (item.megaStone) {
@@ -744,7 +736,6 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 		items.push(...specificItems);
 		items.push(...poorItems);
 		items.push(...badItems);
-		items.push(...unreleasedItems);
 	}
 
 	//
