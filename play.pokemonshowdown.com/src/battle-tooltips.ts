@@ -2685,7 +2685,7 @@ export class BattleStatGuesser {
 				if (move.id === 'knockoff') {
 					moveCount['Support']++;
 				}
-				if (['scald', 'voltswitch', 'uturn', 'flipturn', 'knockoff'].includes(move.id)) {
+				if (['scald', 'voltswitch', 'uturn', 'flipturn'].includes(move.id)) {
 					moveCount[move.category] -= 0.2;
 				}
 			}
@@ -3104,6 +3104,8 @@ export class BattleStatGuesser {
 		} else if (moveCount['PhysicalAttack'] < 1 && !evs['atk']) {
 			minusStat = 'atk';
 		} else if (stats.def > stats.spe && stats.spd > stats.spe && !evs['spe']) {
+			minusStat = 'spe';
+		} else if (moveCount['PhysicalAttack'] === 1 && moveCount['SpecialAttack'] === 1) {
 			minusStat = 'spe';
 		} else if (stats.def > stats.spd) {
 			minusStat = 'spd';
