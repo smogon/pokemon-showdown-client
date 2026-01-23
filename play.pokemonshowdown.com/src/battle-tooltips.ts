@@ -2685,7 +2685,7 @@ export class BattleStatGuesser {
 				if (move.id === 'knockoff') {
 					moveCount['Support']++;
 				}
-				if (['scald', 'voltswitch', 'uturn', 'flipturn'].includes(move.id)) {
+				if (['scald', 'voltswitch', 'uturn', 'flipturn', 'knockoff'].includes(move.id)) {
 					moveCount[move.category] -= 0.2;
 				}
 			}
