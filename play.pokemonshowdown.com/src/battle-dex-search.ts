@@ -1412,9 +1412,9 @@ class BattleItemSearch extends BattleTypedSearch<'item'> {
 		return table.itemSet;
 	}
 	getBaseResults(): SearchRow[] {
-		const results = this.getDefaultResults();
-		if (!this.species) return results;
+		if (!this.species) return this.getDefaultResults();
 		const speciesName = this.dex.species.get(this.species).name;
+		const results = this.getDefaultResults();
 		const speciesSpecific: SearchRow[] = [];
 		const abilitySpecific: SearchRow[] = [];
 		const abilityItem = {
@@ -1424,8 +1424,7 @@ class BattleItemSearch extends BattleTypedSearch<'item'> {
 			// toxicboost: 'toxicorb',
 			// flareboost: 'flameorb',
 		}[toID(this.set?.ability) as string];
-		for (let i = results.length - 1; i > 0; i--) {
-			const row = results[i];
+		for (const row of results) {
 			if (row[0] !== 'item') continue;
 			const item = this.dex.items.get(row[1]);
 			if (item.itemUser?.includes(speciesName)) speciesSpecific.push(row);
