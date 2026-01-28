@@ -24,7 +24,7 @@ Smogon's official formats are based primarily on [their tier system][1], where l
 
 Smogon's Other Metagames formats, on the other hand, is the home for creative user-suggested formats. Rules changes for them can be freely discussed in Smogon's [Other Metagames forum][3].
 
-  [3]: https://www.smogon.com/forums/forums/other-metagames.531/
+  [3]: https://www.smogon.com/forums/forums/other-metagames.733/
 
 For Random Battles, the [Gen 9 Random Battles sets thread][4] and [past gen Random Battles sets thread][5] are good places to suggest changes.
 
@@ -34,4 +34,4 @@ For Random Battles, the [Gen 9 Random Battles sets thread][4] and [past gen Rand
 
 If you have an idea for a new Other Metagames format, the guide to submit is here:
 
-https://www.smogon.com/forums/threads/other-metagames-rules-general-information.3656519/#post-8296313
+https://www.smogon.com/forums/posts/9374053/

@@ -22,7 +22,7 @@ https://github.com/smogon/Pokemon-Showdown/blob/master/sim/prng.ts
 
 And there are many pages documenting this is the same random number generator used on the Switch or 3DS:
 
-https://bulbapedia.bulbagarden.net/wiki/Pseudorandom_number_generation_in_Pokémon
+https://bulbapedia.bulbagarden.net/wiki/Pseudorandom_number_generation
 
 And many pages documenting that this is a completely normal RNG to use:
 

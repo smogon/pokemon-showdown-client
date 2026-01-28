@@ -24,7 +24,7 @@ Los formatos oficiales de Smogon se basan principalmente en [su sistema de tiers
 
 Por otro lado, los formatos de Other Metagames de Smogon son el hogar de formatos creativos sugeridos por los usuarios. El cambio de sus reglas puede ser discutido con libertad en el [foro de Other Metagames][3] de Smogon.
 
-  [3]: https://www.smogon.com/forums/forums/other-metagames.531/
+  [3]: https://www.smogon.com/forums/forums/other-metagames.733/
 
 Para Random Battles, el [thread de sets de Gen 8 Random Battles][4] y [el thread de sets de generaciones antiguas de Random Battles][5] son un buen lugar para sugerir cambios.
 
@@ -34,4 +34,4 @@ Para Random Battles, el [thread de sets de Gen 8 Random Battles][4] y [el thread
 
 Si tienes alguna idea para un nuevo formato de Other Metagames, la guía para presentarlo se encuentra aquí:
 
-https://www.smogon.com/forums/threads/other-metagames-rules-general-information.3656519/#post-8296313
+https://www.smogon.com/forums/posts/9374053/

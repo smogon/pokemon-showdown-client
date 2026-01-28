@@ -28,4 +28,4 @@ Mini-FAQ:
 > Learn about [requesting a password reset](https://www.smogon.com/forums/threads/names-passwords-rooms-and-servers-contacting-upper-staff.3538721/).
 > 
 > **Found a bug?**  
-> You probably didn't, but if you're sure you did, [Bug Reports](/bugreports).
+> You probably didn't, but if you're sure you did, [Bug Reports](https://www.smogon.com/forums/forums/ps-bug-reports.876/).
