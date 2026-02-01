@@ -1270,8 +1270,8 @@
 				// avoiding that decision for now because it requires either an ugly hack
 				// or an overhaul of BattleFormats.
 				this.open = Storage.prefs('openformats') || {
-					"S/V Singles": true, "S/V Doubles": true, "Unofficial Metagames": true, "National Dex": true, "OM of the Month": true,
-					"Other Metagames": true, "Randomized Format Spotlight": true, "RoA Spotlight": true,
+					"S/V Singles": true, "S/V Doubles": true, "Unofficial Metagames": true, "National Dex": true, "Ladder Spotlight": true,
+					"Other Metagames": true,
 					// For AFD
 					"Random Meta of the Decade": true
 				};

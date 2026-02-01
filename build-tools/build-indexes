@@ -430,15 +430,15 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			if (!tierTable[speciesTier]) tierTable[speciesTier] = [];
 			tierTable[speciesTier].push(id);
 
-			if (genNum >= 6) {
+			if (genNum >= 5) {
 				for (const meta of [
 					'1v1', '2v2doubles', 'lcuu', 'freeforall', 'ubersuu', 'almostanyability', 'balancedhackmons', 'godlygift', 'mixandmega', 'sharedpower', 'stabmons',
 					'12switch', '350cup', 'alphabetcup', 'badnboosted', 'battlefields', 'biomechmons', 'camomons', 'categoryswap', 'categoryswap',
 					'convergence', 'crossevolution', 'categoryswap', 'ferventimpersonation', 'foresighters', 'formemons', 'fortemons', 'franticfusions',
 					'fullpotential', 'inheritance', 'inverse', 'natureswap', 'partnersincrime', 'passiveaggressive', 'pokebilities',
 					'pokemoves', 'relayrace', 'revelationmons', 'sharingiscaring', 'teradonation', 'teraoverride', 'thecardgame',
-					'thelosersgame', 'trademarked', 'triples', 'typesplit', 'voltturnmayhem',
-					'aaa', 'bh', // natdex abbreviations
+					'thelosersgame', 'trademarked', 'triples', 'typesplit', 'voltturnmayhem', 'flipped', 'monotype',
+					'aaa', 'bh', 'doubles', // natdex abbreviations
 					'tiershift',
 				]) {
 					const format = Dex.formats.get(`${gen}${isNatDex ? 'nationaldex' : ''}${meta}`);
@@ -479,26 +479,12 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 					metagameBans['nationaldex35pokes'][species.id] = 1;
 				}
 			}
-			if (genNum >= 8) {
-				for (const meta of ['nationaldexdoubles', 'nationaldexmonotype']) {
-					const format = Dex.formats.get(gen + meta);
-					if (format.exists && Dex.formats.getRuleTable(format).isBannedSpecies(species)) {
-						if (!metagameBans[meta]) metagameBans[meta] = {};
-						metagameBans[meta][species.id] = 1;
-					}
-				}
-			}
 			if (genNum >= 5) {
 				if (genNum === 5) {
 					const gen5zu = Dex.formats.get(gen + 'zu');
 					if (gen5zu.exists && Dex.formats.getRuleTable(gen5zu).isBannedSpecies(species)) {
 						gen5zuBans[species.id] = 1;
 					}
-				}
-				const mono = Dex.formats.get(gen + 'monotype');
-				if (mono.exists && Dex.formats.getRuleTable(mono).isBannedSpecies(species)) {
-					if (!metagameBans['monotype']) metagameBans['monotype'] = {};
-					metagameBans['monotype'][species.id] = 1;
 				}
 			}
 			if (genNum === 4) {
