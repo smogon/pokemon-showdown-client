@@ -2401,26 +2401,26 @@ export const PS = new class extends PSModel {
 		}
 		return this.focusRoom(rooms[index + 1]);
 	}
-	focusLeftUnreadRoom() {
-		const { rooms, index } = this.horizontalNav();
-		if (index === -1) return;
+	focusUnreadRoom(direction: 'left' | 'right') {
+	const { rooms, index } = this.horizontalNav();
+	if (index === -1) return;
 
-		let unreadRooms: RoomID[] = rooms.filter((room) => PS.rooms[room]?.isSubtleNotifying && rooms.indexOf(room) < index);
-		
-		if (unreadRooms.length > 0) { 
-			return this.focusRoom(unreadRooms[unreadRooms.length-1]);
-		} return;
-	}
-	focusRightUnreadRoom() {
-		const { rooms, index } = this.horizontalNav();
-		if (index === -1) return;
-		
-		let unreadRooms: RoomID[] = rooms.filter((room) => PS.rooms[room]?.isSubtleNotifying && rooms.indexOf(room) > index);
+	const unreadRooms = rooms.filter((room, i) =>
+		PS.rooms[room]?.isSubtleNotifying &&
+		(direction === 'left' ? i < index : i > index)
+	);
 
-		if (unreadRooms.length > 0) { 
-			return this.focusRoom(unreadRooms[0]);
-		} return;
-	}
+	if (!unreadRooms.length) return;
+
+	const target =
+		direction === 'left'
+			? unreadRooms[unreadRooms.length - 1]
+			: unreadRooms[0];
+		console.log("Target = " + target);
+		console.log("Unread Rooms = " + unreadRooms);
+
+	return this.focusRoom(target);
+}
 	alert(message: string, opts: { okButton?: string, parentElem?: HTMLElement | null, width?: number } = {}) {
 		this.join(`popup-${this.popups.length}` as RoomID, {
 			args: { message, ...opts, parentElem: null },
