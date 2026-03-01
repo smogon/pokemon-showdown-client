@@ -821,12 +821,14 @@ export class TeamForm extends preact.Component<{
 	onValidate?: ((e: Event, format: string, team?: Team) => void) | null,
 }> {
 	format = '';
+	teraPreview = false;
+	bestOf = false;
 	changeFormat = (ev: Event) => {
 		this.format = (ev.target as HTMLButtonElement).value;
 	};
 	submit = (ev: Event, validate?: 'validate') => {
 		ev.preventDefault();
-		const format = this.format;
+		let format = this.format;
 		const teamElement = this.base!.querySelector<HTMLButtonElement>('button[name=team]');
 		const teamKey = teamElement!.value;
 		const team = teamKey ? PS.teams.byKey[teamKey] : undefined;
@@ -836,9 +838,24 @@ export class TeamForm extends preact.Component<{
 			});
 			return;
 		}
+		if (this.teraPreview) {
+			const hasCustomRules = format.includes('@@@');
+			format = `${format}${hasCustomRules ? ', Tera Type Preview' : '@@@ Tera Type Preview'}`;
+		}
+		if (this.bestOf) {
+			const hasCustomRules = format.includes('@@@');
+			const value = this.base?.querySelector<HTMLInputElement>('input[name=bestofvalue]')?.value;
+			format = `${format}${hasCustomRules ? `, Best of = ${value!}` : `@@@ Best of = ${value!}`}`;
+		}
 		PS.teams.loadTeam(team).then(() => {
 			(validate === 'validate' ? this.props.onValidate : this.props.onSubmit)?.(ev, format, team);
 		});
+	};
+	toggleCustomRule = (ev: Event) => {
+		const checked = (ev.target as HTMLInputElement)?.checked;
+		const rule = (ev.target as HTMLInputElement)?.name;
+		if (rule === 'terapreview') this.teraPreview = checked;
+		if (rule === 'bestof') this.bestOf = checked;
 	};
 	handleClick = (ev: Event) => {
 		let target = ev.target as HTMLButtonElement | null;
@@ -851,6 +868,7 @@ export class TeamForm extends preact.Component<{
 		}
 	};
 	render() {
+		const formatId = toID(this.format.split('@@@')[0]);
 		if (window.BattleFormats) {
 			this.format ||= this.props.defaultFormat || '';
 			if (!this.format) {
@@ -876,7 +894,6 @@ export class TeamForm extends preact.Component<{
 			this.format = this.props.defaultFormat.slice(2);
 		}
 		if (this.props.format) this.format = this.props.format;
-
 		return <form class={this.props.class} onSubmit={this.submit} onClick={this.handleClick}>
 			{!this.props.hideFormat && <p>
 				<label class="label">
@@ -893,6 +910,19 @@ export class TeamForm extends preact.Component<{
 					<TeamDropdown format={this.props.teamFormat || this.format} />
 				</label>
 			</p>
+			{this.props.selectType === 'challenge' &&
+				window.BattleFormats[formatId]?.teraPreviewDefault && <p>
+				<label class="checkbox">
+					<input type="checkbox" name="terapreview" onChange={this.toggleCustomRule} />
+					<abbr title="Start a battle with Tera Type Preview">Tera Type Preview</abbr></label></p>}
+			{this.props.selectType === 'challenge' &&
+				window.BattleFormats[formatId]?.bestOfDefault && <p>
+				<label class="checkbox"><input type="checkbox" name="bestof" onChange={this.toggleCustomRule} />
+					<abbr title="Start a team-locked best-of-n series">
+						Best-of-<input
+							name="bestofvalue" type="number" min="3" max="9" step="2" value="3" style="width: 28px; vertical-align: initial;"
+						/>
+					</abbr></label></p>}
 			<p>{this.props.children}</p>
 		</form>;
 	}
