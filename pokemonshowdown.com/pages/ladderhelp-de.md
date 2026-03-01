@@ -19,8 +19,7 @@ Dein Rating startet bei 1000.
 Unser Elo-System benutzt zur Durchführung K-scaling. Der Faktor K lautet:
 
 * K = 50 falls die Elo zwischen 1100 – 1299 liegt
-* K = 40 falls die Elo zwischen 1300 – 1599 liegt
-* K = 32 falls die Elo 1600 oder höher beträgt
+* K = 40 falls die Elo 1300 oder höher beträgt
 
 Wir haben einen so genannten rating floor von 1000 (wenn dein Rating unter 1000 fallen würde, bleibt es bei 1000). So wird verhindert, dass man neue Accounts erstellen muss, um das eigene Rating "wiederherzustellen". 
 

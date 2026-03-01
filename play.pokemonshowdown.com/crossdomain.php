@@ -14,27 +14,28 @@ if (preg_match('/^([a-z0-9-_\.]*?)\.psim\.us$/', $host, $m)) {
 	die; // not authorised
 }
 
-$protocol = @$_REQUEST['protocol'] ?? 'http:';
+$protocol = @$_REQUEST['protocol'] === 'https:' ? 'https:' : 'http:';
 $portType = ($protocol === 'http:' ? 'port' : 'httpsport');
-if ($protocol === 'https:') $config['https'] = true;
 
 if ($config['host'] !== 'showdown') {
 	include_once __DIR__ . '/../config/servers.inc.php';
 
-	$hyphenpos = strrpos($config['host'], '-');
-	if ($hyphenpos) {
-		$postfix = substr($config['host'], $hyphenpos + 1);
-		if ($postfix === 'afd') {
-			$config['afd'] = true;
-			$config['host'] = substr($config['host'], 0, $hyphenpos);
-		} else if (ctype_digit($postfix)) {
-			$config['port'] = intval(substr($config['host'], $hyphenpos + 1));
-			$config['host'] = substr($config['host'], 0, $hyphenpos);
-		}
+	if ($protocol === 'https:') $config['https'] = true;
+	if (str_ends_with($config['host'], '.insecure')) {
+		$config['https'] = false;
+		$config['host'] = substr($config['host'], 0, -9);
+	}
+	if (str_ends_with($config['host'], '-afd')) {
+		$config['afd'] = true;
+		$config['host'] = substr($config['host'], 0, -4);
+	}
+	if (str_starts_with($config['host'], 'localhost')) {
+		$config['https'] = false;
 	}
 
 	$config['id'] = $config['host'];
 	if (isset($PokemonServers[$config['host']])) {
+		if ($protocol === 'https:') $config['https'] = true;
 		$server =& $PokemonServers[$config['host']];
 		if (@$server['banned']) {
 			$config['banned'] = true;
@@ -98,13 +99,26 @@ header('P3P: CP="NOI CUR ADM DEV COM NAV STA OUR IND"');
 <!DOCTYPE html>
 <meta charset="utf-8" />
 <script src="/js/lib/jquery-2.2.4.min.js"></script>
+<script nomodule src="/js/lib/ps-polyfill.js"></script>
 <body>
 <script>
 
-var configHost = <?php echo json_encode($config['host']) ?>;
-var config = <?php echo json_encode(json_encode($config)) ?>;
+var config = <?php echo json_encode($config) ?>;
 var yourOrigin = <?php echo json_encode($protocol . '//' . $host) ?>;
 var myOrigin = 'https://<?php echo $psconfig['routes']['client'] ?>';
+
+if (config.host) {
+	config.host = config.host.replace(/^localhost-([0-9]+)$/, 'localhost--$1');
+	if (!config.host.includes('.')) {
+		// parse
+		config.host = config.host.replace(/\b----\b/g, '::').replace(/---/g, '=').replace(/--/g, ':').replace(/-/g, '.').replace(/=/g, '-');
+	}
+	var result = /^(.*):([0-9]+)$/.exec(config.host);
+	if (result) {
+		config.host = result[1];
+		config.port = parseInt(result[2]);
+	}
+}
 
 function postReply (message) {
 	if (window.parent.postMessage === postReply) return;
@@ -113,6 +127,7 @@ function postReply (message) {
 function messageHandler(e) {
 	if (e.origin !== yourOrigin) return;
 	var data = e.data;
+	// console.log('recv: ' + data);
 
 	// data's first char:
 	// T: store teams
@@ -147,16 +162,22 @@ function messageHandler(e) {
 	}
 }
 
+// Things we send:
+// c[config]
+// p[prefs]
+// t[teams]
+// a[1 = localStorage success, 0 = localstorage failed] (guaranteed to be last)
+
 window.addEventListener('message', messageHandler);
-if (configHost !== 'showdown') postReply('c' + config);
+if (config.host !== 'showdown') postReply('c' + JSON.stringify(config));
 var storageAvailable = false;
 try {
 	var testVal = '' + Date.now();
 	localStorage.setItem('showdown_allow3p', testVal);
 	if (localStorage.getItem('showdown_allow3p') === testVal) {
-		postReply('a1');
 		postReply('p' + localStorage.getItem('showdown_prefs'));
 		postReply('t' + localStorage.getItem('showdown_teams'));
+		postReply('a1');
 		storageAvailable = true;
 	}
 } catch (err) {}

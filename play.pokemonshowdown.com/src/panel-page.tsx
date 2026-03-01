@@ -7,12 +7,21 @@
  * @license MIT
  */
 
-class PageRoom extends PSRoom {
-	readonly classType: string = 'html';
-	readonly page?: string = this.id.split("-")[1];
-	readonly canConnect = true;
+import { PS, PSRoom, type RoomOptions } from "./client-main";
+import { PSPanelWrapper, PSRoomPanel } from "./panels";
+import { BattleLog } from "./battle-log";
+import type { Args } from "./battle-text-parser";
 
-	loading: boolean = true;
+export function SanitizedHTML(props: { children: string }) {
+	return <div dangerouslySetInnerHTML={{ __html: BattleLog.sanitizeHTML(props.children) }} />;
+}
+
+class PageRoom extends PSRoom {
+	override readonly classType: string = 'html';
+	readonly page?: string = this.id.split("-")[1];
+	override readonly canConnect = true;
+
+	loading = true;
 	htmlData?: string;
 
 	setHTMLData = (htmlData?: string) => {
@@ -24,22 +33,22 @@ class PageRoom extends PSRoom {
 	constructor(options: RoomOptions) {
 		super(options);
 		this.connect();
+		this.title = this.id.split('-')[1];
 	}
-	connect() {
-		if (!this.connected) {
-			PS.send(`|/join ${this.id}`);
+	override connect() {
+		if (!this.connected && !PagePanel.clientRooms.hasOwnProperty(this.id.split('-')[1])) {
+			PS.send(`/join ${this.id}`);
 			this.connected = true;
 			this.connectWhenLoggedIn = false;
 		}
 	}
 }
 
-function PageLadderHelp(props: {room: PageRoom}) {
-	const {room} = props;
+function PageLadderHelp() {
 	return <div class="ladder pad">
 		<p>
-			<button name="selectFormat" data-href="ladder" data-target="replace">
-				<i class="fa fa-chevron-left"></i> Format List
+			<button class="button" data-href="/ladder" data-target="replace">
+				<i class="fa fa-chevron-left" aria-hidden></i> Format List
 			</button>
 		</p>
 		<h3>How the ladder works</h3>
@@ -56,8 +65,17 @@ function PageLadderHelp(props: {room: PageRoom}) {
 			your win chance against an average ladder player.
 		</p>
 		<p>
-			<strong>Glicko-1</strong> is a different rating system. It has
-			rating and deviation values.
+			<strong>Glicko-1</strong> is {}
+			<a href="https://en.wikipedia.org/wiki/Glicko_rating_system">another rating system</a>.
+			It has rating and deviation values.
+		</p>
+		<p>
+			<strong>COIL</strong> (Converging Order Invariant Ladder) is
+			used for suspect tests. The more games you play, the closer
+			it will get to your GXE &times; 4000. How fast it reaches
+			GXE &times; 4000 depends on {}
+			<a href="https://www.smogon.com/forums/threads/reintroducing-coil.3747719/" target="_blank">a custom B value</a> {}
+			which is different for each suspect test.
 		</p>
 		<p>
 			Note that win/loss should not be used to estimate skill, since
@@ -69,13 +87,16 @@ function PageLadderHelp(props: {room: PageRoom}) {
 }
 
 class PagePanel extends PSRoomPanel<PageRoom> {
-	clientRooms: {[key: string]: JSX.Element} = {'ladderhelp': <PageLadderHelp room={this.props.room}/>};
+	static readonly id = 'html';
+	static readonly routes = ['view-*'];
+	static readonly Model = PageRoom;
+	static clientRooms: { [key: string]: JSX.Element } = { 'ladderhelp': <PageLadderHelp /> };
 
 	/**
 	 * @return true to prevent line from being sent to server
 	 */
-	receiveLine(args: Args) {
-		const {room} = this.props;
+	override receiveLine(args: Args) {
+		const { room } = this.props;
 		switch (args[0]) {
 		case 'title':
 			room.title = args[1];
@@ -83,7 +104,7 @@ class PagePanel extends PSRoomPanel<PageRoom> {
 			return true;
 		case 'tempnotify': {
 			const [, id, title, body] = args;
-			room.notify({title, body, id});
+			room.notify({ title, body, id });
 			return true;
 		}
 		case 'tempnotifyoff': {
@@ -96,7 +117,7 @@ class PagePanel extends PSRoomPanel<PageRoom> {
 			const selectedElement = pageHTMLContainer?.querySelector(args[1]);
 			if (!selectedElement) return;
 			selectedElement.innerHTML = BattleLog.sanitizeHTML(args.slice(2).join('|'));
-			room.isSubtleNotifying = true;
+			room.subtleNotify();
 			return true;
 		case 'noinit':
 			if (args[1] === 'namerequired') {
@@ -105,14 +126,15 @@ class PagePanel extends PSRoomPanel<PageRoom> {
 			return true;
 		case 'pagehtml':
 			room.setHTMLData(args[1]);
+			room.subtleNotify();
 			return true;
 		}
 	}
-	render() {
-		const {room} = this.props;
+	override render() {
+		const { room } = this.props;
 		let renderPage;
-		if (room.page !== undefined && this.clientRooms[room.page]) {
-			renderPage = this.clientRooms[room.page];
+		if (room.page !== undefined && PagePanel.clientRooms[room.page]) {
+			renderPage = PagePanel.clientRooms[room.page];
 		} else {
 			if (room.loading) {
 				renderPage = <p>Loading...</p>;
@@ -128,8 +150,4 @@ class PagePanel extends PSRoomPanel<PageRoom> {
 	}
 }
 
-PS.roomTypes['html'] = {
-	Model: PageRoom,
-	Component: PagePanel,
-};
-PS.updateRoomTypes();
+PS.addRoomType(PagePanel);

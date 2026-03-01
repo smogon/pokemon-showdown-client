@@ -15,7 +15,7 @@ Storage.initialize = function () {
 Storage.safeJSON = function (callback) {
 	return function (data) {
 		if (data.length < 1) return;
-		if (data[0] == ']') data = data.substr(1);
+		if (data[0] === ']') data = data.substr(1);
 		return callback(JSON.parse(data));
 	};
 };
@@ -32,7 +32,7 @@ Storage.bg = {
 	changeCount: 0,
 	// futureproofing in case we ever add more?
 	// because doing this once was annoying
-	MENU_BUTTONS: 6,
+	MENU_BUTTONS: 7,
 	set: function (bgUrl, bgid, noSave) {
 		if (!this.load(bgUrl, bgid)) {
 			this.extractMenuColors(bgUrl, bgid, noSave);
@@ -55,8 +55,9 @@ Storage.bg = {
 		if (!bgid) {
 			if (location.host === 'smogtours.psim.us') {
 				bgid = 'shaymin';
-			} else if (location.host === Config.routes.client) {
-				bgid = ['horizon', 'ocean', 'waterfall', 'shaymin', 'charizards', 'psday'][Math.floor(Math.random() * 6)];
+			} else if (location.host === Config.routes.client || bgid === 'waterfall') {
+				var bgs = ['horizon', 'ocean', 'shaymin', 'charizards', 'psday'];
+				bgid = bgs[Math.floor(Math.random() * bgs.length)];
 			} else {
 				$(document.body).css({
 					background: '',
@@ -97,17 +98,13 @@ Storage.bg = {
 				hues = ["82.8169014084507,34.63414634146342%", "216.16438356164383,29.55465587044534%", "212.92682926829266,59.42028985507245%", "209.18918918918916,57.51295336787566%", "199.2857142857143,48.275862068965495%", "213.11999999999998,55.06607929515419%"];
 				attrib = '<a href="https://quanyails.deviantart.com/art/Sunrise-Ocean-402667154" target="_blank" class="subtle">"Sunrise Ocean" <small>background by Quanyails</small></a>';
 				break;
-			case 'waterfall':
-				hues = ["119.31034482758622,37.66233766233767%", "184.36363636363635,23.012552301255226%", "108.92307692307692,37.14285714285714%", "70.34482758620689,20.567375886524818%", "98.39999999999998,36.76470588235296%", "140,38.18181818181818%"];
-				attrib = '<a href="https://yilx.deviantart.com/art/Irie-372292729" target="_blank" class="subtle">"Irie" <small>background by Samuel Teo</small></a>';
-				break;
 			case 'shaymin':
 				hues = ["39.000000000000064,21.7391304347826%", "170.00000000000003,2.380952380952378%", "157.5,11.88118811881188%", "174.78260869565216,12.041884816753928%", "185.00000000000003,12.76595744680851%", "20,5.660377358490567%"];
 				attrib = '<a href="http://cargocollective.com/bluep" target="_blank" class="subtle">"Shaymin" <small>background by Daniel Kong</small></a>';
 				break;
 			case 'charizards':
 				hues = ["37.159090909090914,74.57627118644066%", "10.874999999999998,70.79646017699115%", "179.51612903225808,52.10084033613446%", "20.833333333333336,36.73469387755102%", "192.3076923076923,80.41237113402063%", "210,29.629629629629633%"];
-				attrib = '<a href="https://seiryuuden.deviantart.com/art/The-Ultimate-Mega-Showdown-Charizards-414587079" target="_blank" class="subtle">"Charizards" <small>background by Jessica Valencia</small></a>';
+				attrib = '<a href="https://lit.link/en/seiryuuden" target="_blank" class="subtle">"Charizards" <small>background by Jessica Valencia</small></a>';
 				break;
 			case 'psday':
 				hues = ["24.705882352941174,25.37313432835821%", "260.4651162790697,59.44700460829492%", "165.3191489361702,46.07843137254901%", "16.363636363636367,42.63565891472869%", "259.04761904761904,34.05405405405405%", "24.705882352941174,25.37313432835821%"];
@@ -183,16 +180,15 @@ Storage.bg = {
 		var l = (max + min) / 2;
 		if (max === min) {
 			return '0, 0%';
-		} else {
-			var d = max - min;
-			s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
-			switch (max) {
-			case r: h = (g - b) / d + (g < b ? 6 : 0); break;
-			case g: h = (b - r) / d + 2; break;
-			case b: h = (r - g) / d + 4; break;
-			}
-			h /= 6;
 		}
+		var d = max - min;
+		s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+		switch (max) {
+		case r: h = (g - b) / d + (g < b ? 6 : 0); break;
+		case g: h = (b - r) / d + 2; break;
+		case b: h = (r - g) / d + 4; break;
+		}
+		h /= 6;
 		return '' + (h * 360) + ',' + (s * 100) + '%';
 	}
 };
@@ -304,7 +300,7 @@ var updatePrefs = function () {
 	var oldShowjoins = Storage.prefs('showjoins');
 	if (oldShowjoins !== undefined && typeof oldShowjoins !== 'object') {
 		var showjoins = {};
-		var serverShowjoins = {global: (oldShowjoins ? 1 : 0)};
+		var serverShowjoins = { global: (oldShowjoins ? 1 : 0) };
 		var showroomjoins = Storage.prefs('showroomjoins');
 		for (var roomid in showroomjoins) {
 			serverShowjoins[roomid] = (showroomjoins[roomid] ? 1 : 0);
@@ -538,7 +534,7 @@ Storage.initTestClient = function () {
 				data.sid = sid;
 				get(uri, data, callback, type);
 			} else {
-				app.addPopup(ProxyPopup, {uri: uri, callback: callback});
+				app.addPopup(ProxyPopup, { uri: uri, callback: callback });
 			}
 		};
 		var post = $.post;
@@ -546,7 +542,7 @@ Storage.initTestClient = function () {
 			if (type === 'html') {
 				uri += '&testclient';
 			}
-			if (uri[0] === '/') { //relative URI
+			if (uri[0] === '/') { // relative URI
 				uri = Dex.resourcePrefix + uri.substr(1);
 			}
 
@@ -560,7 +556,7 @@ Storage.initTestClient = function () {
 					src += '<input type=hidden name="' + i + '" value="' + BattleLog.escapeHTML(data[i]) + '">';
 				}
 				src += '<input type=submit value="Please click this button first."></form></body></html>';
-				app.addPopup(ProxyPopup, {uri: "data:text/html;charset=UTF-8," + encodeURIComponent(src), callback: callback});
+				app.addPopup(ProxyPopup, { uri: "data:text/html;charset=UTF-8," + encodeURIComponent(src), callback: callback });
 			}
 		};
 		Storage.whenPrefsLoaded.load();
@@ -622,7 +618,7 @@ Storage.compareTeams = function (serverTeam, localTeam) {
 };
 
 Storage.loadRemoteTeams = function (after) {
-	$.get(app.user.getActionPHP(), {act: 'getteams'}, Storage.safeJSON(function (data) {
+	$.get(app.user.getActionPHP(), { act: 'getteams' }, Storage.safeJSON(function (data) {
 		if (data.actionerror) {
 			return app.addPopupMessage('Error loading uploaded teams: ' + data.actionerror);
 		}
@@ -652,7 +648,7 @@ Storage.loadRemoteTeams = function (after) {
 				// team comes down from loginserver as comma-separated list of mons
 				// to save bandwidth
 				var mons = team.team.split(',').map(function (mon) {
-					return {species: mon};
+					return { species: mon };
 				});
 				team.team = Storage.packTeam(mons);
 				Storage.teams.unshift(team);
@@ -854,7 +850,7 @@ Storage.packTeam = function (team) {
 		}
 
 		// level
-		if (set.level && set.level != 100) {
+		if (set.level && set.level !== 100) {
 			buf += '|' + set.level;
 		} else {
 			buf += '|';
@@ -896,7 +892,8 @@ Storage.fastUnpackTeam = function (buf) {
 
 		// species
 		j = buf.indexOf('|', i);
-		set.species = buf.substring(i, j) || set.name;
+		var species = Dex.species.get(buf.substring(i, j) || set.name);
+		set.species = species.name;
 		i = j + 1;
 
 		// item
@@ -907,7 +904,6 @@ Storage.fastUnpackTeam = function (buf) {
 		// ability
 		j = buf.indexOf('|', i);
 		var ability = buf.substring(i, j);
-		var species = Dex.species.get(set.species);
 		if (species.baseSpecies === 'Zygarde' && ability === 'H') ability = 'Power Construct';
 		set.ability = (species.abilities && ['', '0', '1', 'H', 'S'].includes(ability) ? species.abilities[ability] || '!!!ERROR!!!' : ability);
 		i = j + 1;
@@ -921,6 +917,11 @@ Storage.fastUnpackTeam = function (buf) {
 		j = buf.indexOf('|', i);
 		set.nature = buf.substring(i, j);
 		if (set.nature === 'undefined') set.nature = undefined;
+		if (set.nature) {
+			// BattleNatures is case sensitive, so if we don't do this
+			// sometimes stuff breaks. goody.
+			set.nature = set.nature.charAt(0).toUpperCase() + set.nature.slice(1);
+		}
 		i = j + 1;
 
 		// evs
@@ -938,7 +939,7 @@ Storage.fastUnpackTeam = function (buf) {
 					spe: Number(evs[5]) || 0
 				};
 			} else if (evstring === '0') {
-				set.evs = {hp: 0, atk: 0, def: 0, spa: 0, spd: 0, spe: 0};
+				set.evs = { hp: 0, atk: 0, def: 0, spa: 0, spd: 0, spe: 0 };
 			}
 		}
 		i = j + 1;
@@ -1013,7 +1014,8 @@ Storage.unpackTeam = function (buf) {
 
 		// species
 		j = buf.indexOf('|', i);
-		set.species = Dex.species.get(buf.substring(i, j)).name || set.name;
+		var species = Dex.species.get(buf.substring(i, j) || set.name);
+		set.species = species.name;
 		i = j + 1;
 
 		// item
@@ -1024,8 +1026,7 @@ Storage.unpackTeam = function (buf) {
 		// ability
 		j = buf.indexOf('|', i);
 		var ability = Dex.abilities.get(buf.substring(i, j)).name;
-		var species = Dex.species.get(set.species);
-		set.ability = (species.abilities && ability in {'':1, 0:1, 1:1, H:1} ? species.abilities[ability || '0'] : ability);
+		set.ability = (species.abilities && ability in { '': 1, 0: 1, 1: 1, H: 1 } ? species.abilities[ability || '0'] : ability);
 		i = j + 1;
 
 		// moves
@@ -1039,6 +1040,11 @@ Storage.unpackTeam = function (buf) {
 		j = buf.indexOf('|', i);
 		set.nature = buf.substring(i, j);
 		if (set.nature === 'undefined') set.nature = undefined;
+		if (set.nature) {
+			// BattleNatures is case sensitive, so if we don't do this
+			// sometimes stuff breaks. goody.
+			set.nature = set.nature.charAt(0).toUpperCase() + set.nature.slice(1);
+		}
 		i = j + 1;
 
 		// evs
@@ -1056,7 +1062,7 @@ Storage.unpackTeam = function (buf) {
 					spe: Number(evs[5]) || 0
 				};
 			} else if (evstring === '0') {
-				set.evs = {hp: 0, atk: 0, def: 0, spa: 0, spd: 0, spe: 0};
+				set.evs = { hp: 0, atk: 0, def: 0, spa: 0, spd: 0, spe: 0 };
 			}
 		}
 		i = j + 1;
@@ -1107,7 +1113,7 @@ Storage.unpackTeam = function (buf) {
 			set.dynamaxLevel = (misc[4] ? Number(misc[4]) : 10);
 			set.teraType = misc[5];
 		}
-		if (j < 0) break;
+		if (j < 0 || buf.indexOf('|', j) < 0) break;
 		i = j + 1;
 	}
 
@@ -1239,7 +1245,7 @@ Storage.importTeam = function (buffer, teams) {
 			curSet = null;
 			teams.push(Storage.unpackLine(line));
 		} else if (!curSet) {
-			curSet = {name: '', species: '', gender: ''};
+			curSet = { name: '', species: '', gender: '' };
 			team.push(curSet);
 			var atIndex = line.lastIndexOf(' @ ');
 			if (atIndex !== -1) {
@@ -1296,7 +1302,7 @@ Storage.importTeam = function (buffer, teams) {
 		} else if (line.substr(0, 5) === 'EVs: ') {
 			line = line.substr(5);
 			var evLines = line.split('/');
-			curSet.evs = {hp: 0, atk: 0, def: 0, spa: 0, spd: 0, spe: 0};
+			curSet.evs = { hp: 0, atk: 0, def: 0, spa: 0, spd: 0, spe: 0 };
 			for (var j = 0; j < evLines.length; j++) {
 				var evLine = $.trim(evLines[j]);
 				var spaceIndex = evLine.indexOf(' ');
@@ -1309,7 +1315,7 @@ Storage.importTeam = function (buffer, teams) {
 		} else if (line.substr(0, 5) === 'IVs: ') {
 			line = line.substr(5);
 			var ivLines = line.split(' / ');
-			curSet.ivs = {hp: 31, atk: 31, def: 31, spa: 31, spd: 31, spe: 31};
+			curSet.ivs = { hp: 31, atk: 31, def: 31, spa: 31, spd: 31, spe: 31 };
 			for (var j = 0; j < ivLines.length; j++) {
 				var ivLine = ivLines[j];
 				var spaceIndex = ivLine.indexOf(' ');
@@ -1397,7 +1403,7 @@ Storage.exportTeam = function (team, gen, hidestats) {
 		if (curSet.ability) {
 			text += 'Ability: ' + curSet.ability + "  \n";
 		}
-		if (curSet.level && curSet.level != 100) {
+		if (curSet.level && curSet.level !== 100) {
 			text += 'Level: ' + curSet.level + "  \n";
 		}
 		if (curSet.shiny) {
@@ -1420,7 +1426,7 @@ Storage.exportTeam = function (team, gen, hidestats) {
 		}
 		if (gen === 9) {
 			var species = Dex.species.get(curSet.species);
-			text += 'Tera Type: ' + (species.forceTeraType || curSet.teraType || species.types[0]) + "  \n";
+			text += 'Tera Type: ' + (curSet.teraType || species.requiredTeraType || species.types[0]) + "  \n";
 		}
 		if (!hidestats) {
 			var first = true;
@@ -1472,7 +1478,7 @@ Storage.exportTeam = function (team, gen, hidestats) {
 				}
 				if (!defaultIvs) {
 					for (var stat in BattleStatNames) {
-						if (typeof curSet.ivs[stat] === 'undefined' || isNaN(curSet.ivs[stat]) || curSet.ivs[stat] == 31) continue;
+						if (typeof curSet.ivs[stat] === 'undefined' || isNaN(curSet.ivs[stat]) || curSet.ivs[stat] === 31) continue;
 						if (first) {
 							text += 'IVs: ';
 							first = false;
@@ -1509,7 +1515,7 @@ Storage.initDirectory = function () {
 	var self = this;
 
 	var dir = process.env.HOME || process.env.USERPROFILE || process.env.HOMEPATH;
-	if (!(dir.charAt(dir.length - 1) in {'/': 1, '\\': 1})) dir += '/';
+	if (!(dir.charAt(dir.length - 1) in { '/': 1, '\\': 1 })) dir += '/';
 	fs.stat(dir + 'Documents', function (err, stats) {
 		if (err || !stats.isDirectory()) {
 			fs.stat(dir + 'My Documents', function (err, stats) {
@@ -1860,7 +1866,7 @@ Storage.nwLogChat = function (roomid, line) {
 	var timestamp = '[' + hours + ':' + minutes + '] ';
 
 	if (!this.chatLogStreams[roomid]) {
-		this.chatLogStreams[roomid] = fs.createWriteStream(this.dir + 'Logs/' + chatLogFdMonth + '/' + roomid + '.txt', {flags: 'a'});
+		this.chatLogStreams[roomid] = fs.createWriteStream(this.dir + 'Logs/' + chatLogFdMonth + '/' + roomid + '.txt', { flags: 'a' });
 		this.chatLogStreams[roomid].write('\n\n\nLog starting ' + now + '\n\n');
 	}
 	this.chatLogStreams[roomid].write(timestamp + line + '\n');

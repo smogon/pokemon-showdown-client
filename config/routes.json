@@ -3,5 +3,6 @@
     "client": "play.pokemonshowdown.com",
     "dex": "dex.pokemonshowdown.com",
     "replays": "replay.pokemonshowdown.com",
-    "users": "pokemonshowdown.com/users"
+    "users": "pokemonshowdown.com/users",
+    "teams": "teams.pokemonshowdown.com"
 }

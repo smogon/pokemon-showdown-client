@@ -20,7 +20,7 @@ export class HttpError extends Error {
 		this.body = body;
 		try {
 			(Error as any).captureStackTrace(this, HttpError);
-		} catch (err) {}
+		} catch {}
 	}
 }
 export class NetRequest {
@@ -87,8 +87,13 @@ export class NetRequest {
 }
 
 export function Net(uri: string) {
+	if (uri.startsWith('/') && !uri.startsWith('//') && Net.defaultRoute) uri = Net.defaultRoute + uri;
+	if (uri.startsWith('//') && document.location.protocol === 'file:') uri = 'https:' + uri;
 	return new NetRequest(uri);
 }
+
+/** Prepends URLs starting with `/` with this string. Used by testclient. */
+Net.defaultRoute = '';
 
 Net.encodeQuery = function (data: string | PostData) {
 	if (typeof data === 'string') return data;
@@ -100,8 +105,8 @@ Net.encodeQuery = function (data: string | PostData) {
 	}
 	return urlencodedData;
 };
-Net.decodeQuery = function (query: string): {[key: string]: string} {
-	let out = {};
+Net.decodeQuery = function (query: string): { [key: string]: string } {
+	let out: { [key: string]: string } = {};
 	const questionIndex = query.indexOf('?');
 	if (questionIndex >= 0) query = query.slice(questionIndex + 1);
 	for (const queryPart of query.split('&')) {

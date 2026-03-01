@@ -49,8 +49,11 @@ case 'minidex':
 case 'sprites':
 	execSync(`node ./build-tools/build-minidex`, options);
 	break;
+case 'commands':
+	execSync(`node ./build-tools/build-commands`, options);
+	break;
 case 'replays':
-	execSync(`node ./replays/build`, options);
+	execSync(`node ./build-tools/build-replays`, options);
 	process.exit();
 	break;
 case 'test-only':
@@ -68,7 +71,9 @@ execSync(`node ./build-tools/update` + full, options);
 
 if (full) {
 	try {
-		fs.statSync('./replays/build');
-		execSync(`node ./replays/build`, options);
-	} catch (e) {}
+		execSync(`node ./build-tools/build-commands`, options);
+		execSync(`node ./build-tools/build-replays`, options);
+	} catch (e) {
+		console.error(e);
+	}
 }

@@ -3,8 +3,12 @@ RewriteRule ^api(/.*)?$ http://localhost:9000/api$1 [P,L]
 
 RewriteRule ^search\.json$ /api/replays/search.json [L,QSA]
 RewriteRule ^recent\.json$ /api/replays/search.json [L,QSA]
+RewriteRule ^download$ download.html [L,QSA]
 RewriteRule ^([A-Za-z0-9-]+)$ index.php?name=$1 [L,QSA]
 RewriteRule ^([A-Za-z0-9-]+)/manage$ replay-manage.php?name=$1&manage [L,QSA]
 RewriteRule ^([A-Za-z0-9-]+)\.log$ replay.log.php?name=$1 [L,QSA]
 RewriteRule ^([A-Za-z0-9-]+)\.inputlog$ replay.log.php?inputlog&name=$1 [L,QSA]
 RewriteRule ^([A-Za-z0-9-]+)\.json$ replay.log.php?json&name=$1 [L,QSA]
+
+DirectoryIndex index.php index.html /dirindex/dirindex.php
+ErrorDocument 404 /dirindex/404.html

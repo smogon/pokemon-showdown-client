@@ -22,9 +22,9 @@ Pokémon Showdown uses Google Analytics and Google AdSense, which collect referr
 
 Google has [a page that lets you opt out of AdSense-related tracking](https://www.google.com/settings/ads/onweb/).
 
-## Ads from Enthusiast Gaming
+## Ads from Playwire
 
-We show advertisements from Enthusiast Gaming. See [Enthusiast Gaming's privacy policy](https://www.enthusiastgaming.com/privacy-policy/).
+We show advertisements from Playwire. All or partial advertising on this Website or App is managed by Playwire LLC. If Playwire publisher advertising services are used, Playwire LLC may collect and use certain aggregated and anonymized data for advertising purposes. To learn more about the types of data collected, how data is used and your choices as a user, please visit [https://www.playwire.com/privacy-policy](https://www.playwire.com/privacy-policy).
 
 ## Logging
 

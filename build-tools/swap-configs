@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+cd "$(dirname "$0")"
+cd ..
+cp config/config.js config/config.js.old
+cp config/head-custom.html config/head-custom.html.old

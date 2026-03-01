@@ -27,7 +27,7 @@ var ReplaySidebarPanel = Panels.StaticPanel.extend({
 		if (!page) page = 2;
 		var user = elem.dataset.user;
 		var format = elem.dataset.format;
-		var private = !!elem.dataset.private;
+		var priv = !!elem.dataset.private;
 		var self = this;
 		elem.innerHTML = 'Loading...<br /><i class="fa fa-caret-down"></i>'
 		$.get('/search', Object.assign({
@@ -35,7 +35,7 @@ var ReplaySidebarPanel = Panels.StaticPanel.extend({
 			format: format,
 			page: page,
 			output: 'html'
-		}, private ? {private: 1} : {}), function (data) {
+		}, priv ? {private: 1} : {}), function (data) {
 			self.$('ul.linklist').append(data);
 			// var $nextOffset = self.$('input.offset');
 			// var val = $nextOffset.val();
@@ -208,7 +208,7 @@ var ReplayPanel = Panels.StaticPanel.extend({
 		this.battle.skipTurn();
 	},
 	rewind: function() {
-		this.battle.seekTurn(this.battle.turn - 1);
+		this.battle.seekBy(-1);
 	},
 	ffto: function() {
 		var turn = prompt('Turn?');

@@ -119,3 +119,6 @@ RewriteCond %{REQUEST_FILENAME} !-f
 RewriteRule ^(apple-touch-icon-precomposed\.png)$ - [R=404,L]
 
 </IfModule>
+
+DirectoryIndex index.php index.html /dirindex/dirindex.php
+ErrorDocument 404 /dirindex/404.html

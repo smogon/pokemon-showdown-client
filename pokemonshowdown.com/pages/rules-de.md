@@ -32,7 +32,7 @@
 
 Du kannst deinen Nutzernamen jederzeit wählen oder ändern. Melde dich einfach ab und mit einem neuen Nutzernamen wieder an, wenn du ihn ändern möchtest. Doch bitte beachte:
 
-1. **Namen dürfen keine Staff-Mitglieder** (Nutzer mit `%`, `@`, `#` oder `&` vor ihrem Namen) **oder berühmte Persönlichkeiten/Organisationen imitieren**, die PS benutzen oder mit Pokémon in Verbindung gebracht werden.
+1. **Namen dürfen keine Staff-Mitglieder** (Nutzer mit `%`, `@`, `#` oder `~` vor ihrem Namen) **oder berühmte Persönlichkeiten/Organisationen imitieren**, die PS benutzen oder mit Pokémon in Verbindung gebracht werden.
 
 2. **Namen dürfen keine Personen oder Gruppen beleidigen** (sich selbst zu beleidigen ist erlaubt, sofern es nicht zu ernst ist).
 

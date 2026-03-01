@@ -58,7 +58,7 @@ Only Global Drivers and higher (`%`, `@`, and `&`), contributors to PS! (e.g. pr
 
 ### How do I make a room?
 
-If you want to request a private room you have to request one in the Room/Server Requests [here](https://www.smogon.com/forums/threads/names-passwords-rooms-and-servers-contacting-upper-staff.3538721/)! Before posting, please read the requirements! You must to be Global Voice or Driver or higher in a public room.
+If you want to request a private room you have to request one in the Room/Server Requests [here](https://www.smogon.com/forums/threads/names-passwords-rooms-and-servers-contacting-upper-staff.3538721/)! Before posting, please read the requirements! You must be Global Voice or Driver or higher in a public room.
 **DO NOT REQUEST A ROOM IF YOU DO NOT MEET THE REQUIREMENTS!**
 
 ### How can I open 2 rooms at once?
