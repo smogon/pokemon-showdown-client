@@ -431,7 +431,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			tierTable[speciesTier].push(id);
 
 			if (genNum >= 5) {
-				for (const meta of [
+				for (const meta of (isVGC && genNum === 9 ? ['4v4doublesuu'] : [
 					'1v1', '2v2doubles', 'lcuu', 'freeforall', 'ubersuu', 'almostanyability', 'balancedhackmons', 'godlygift', 'mixandmega', 'sharedpower', 'stabmons',
 					'12switch', '350cup', 'alphabetcup', 'badnboosted', 'battlefields', 'biomechmons', 'camomons', 'categoryswap', 'categoryswap',
 					'convergence', 'crossevolution', 'categoryswap', 'ferventimpersonation', 'foresighters', 'formemons', 'fortemons', 'franticfusions',
@@ -439,8 +439,8 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 					'pokemoves', 'relayrace', 'revelationmons', 'sharingiscaring', 'teradonation', 'teraoverride', 'thecardgame',
 					'thelosersgame', 'trademarked', 'triples', 'typesplit', 'voltturnmayhem', 'flipped', 'monotype',
 					'aaa', 'bh', 'doubles', // natdex abbreviations
-					'tiershift',
-				]) {
+					'tiershift', 'linked'
+				])) {
 					const format = Dex.formats.get(`${gen}${isNatDex ? 'nationaldex' : ''}${meta}`);
 					if (!format.exists) continue;
 					const ruleTable = Dex.formats.getRuleTable(format);
@@ -546,6 +546,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			BattleTeambuilderTable[gen + 'vgc'] = {};
 			BattleTeambuilderTable[gen + 'vgc'].tiers = tiers;
 			BattleTeambuilderTable[gen + 'vgc'].formatSlices = formatSlices;
+			if (genNum === 9) BattleTeambuilderTable[gen + 'vgc'].metagameBans = metagameBans;
 		} else if (isDoubles) {
 			BattleTeambuilderTable[gen + 'doubles'] = {};
 			BattleTeambuilderTable[gen + 'doubles'].tiers = tiers;
