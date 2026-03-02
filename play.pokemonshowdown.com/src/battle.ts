@@ -441,8 +441,8 @@ export class Pokemon implements PokemonDetails, PokemonHealth {
 	 * copyAll = 'shedtail' means Shed Tail
 	 */
 	copyVolatileFrom(pokemon: Pokemon, copySource?: | 'shedtail' | boolean) {
-		this.boosts = pokemon.boosts;
-		this.volatiles = pokemon.volatiles;
+		this.boosts = { ...pokemon.boosts };
+		this.volatiles = { ...pokemon.volatiles };
 		// this.lastMove = pokemon.lastMove; // I think
 		if (!copySource) {
 			const volatilesToRemove = [
@@ -467,8 +467,7 @@ export class Pokemon implements PokemonDetails, PokemonHealth {
 		delete this.volatiles['formechange'];
 
 		pokemon.boosts = {};
-		pokemon.volatiles = {};
-		pokemon.side.battle.scene.removeTransform(pokemon);
+		pokemon.clearVolatiles();
 		pokemon.statusStage = 0;
 	}
 	copyTypesFrom(pokemon: Pokemon, preterastallized = false) {
