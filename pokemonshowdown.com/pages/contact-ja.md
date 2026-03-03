@@ -28,4 +28,4 @@ Helpチャットルームでは、ほとんどの問題を解決できます。�
 > [Name / Password Resets](https://www.smogon.com/forums/threads/names-passwords-rooms-and-servers-contacting-upper-staff.3538721/#post-6227626)をご覧ください。
 > 
 > **バグを見つけました。**  
-> それが既知でないバグである場合は、[Bug Reports](/bugreports)をご覧ください。
+> それが既知でないバグである場合は、[Bug Reports](https://www.smogon.com/forums/forums/ps-bug-reports.876/)をご覧ください。
