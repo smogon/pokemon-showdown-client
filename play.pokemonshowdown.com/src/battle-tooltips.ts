@@ -3105,6 +3105,8 @@ export class BattleStatGuesser {
 			minusStat = 'atk';
 		} else if (stats.def > stats.spe && stats.spd > stats.spe && !evs['spe']) {
 			minusStat = 'spe';
+		} else if (moveCount['PhysicalAttack'] === 1 && moveCount['SpecialAttack'] === 1) {
+			minusStat = 'spe';
 		} else if (stats.def > stats.spd) {
 			minusStat = 'spd';
 		} else {
