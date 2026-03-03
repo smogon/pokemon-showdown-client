@@ -714,6 +714,12 @@ export class Side {
 		case 'luckychant':
 			this.sideConditions[condition] = [effect.name, 1, 5, 0];
 			break;
+		case 'futuresight':
+			this.sideConditions[condition] = ['Future Sight', 1, 3, 0];
+			break;
+		case 'doomdesire':
+			this.sideConditions[condition] = ['Doom Desire', 1, 3, 0];
+			break;
 		case 'stealthrock':
 		case 'spikes':
 		case 'toxicspikes':
@@ -2737,8 +2743,17 @@ export class Battle {
 			case 'reflect':
 				this.scene.resultAnim(poke, 'Reflect', 'good');
 				break;
+			case 'futuresight':
+				poke.side.addSideCondition(effect, false);
+				this.scene.updateWeather();
+				break;
+			case 'doomdesire':
+				poke.side.addSideCondition(effect, false);
+				this.scene.updateWeather();
+				break;
 			}
-			if (!(effect.id === 'typechange' && poke.terastallized)) {
+			if (!(effect.id === 'typechange' && poke.terastallized) && 
+			    effect.id !== 'futuresight' && effect.id !== 'doomdesire') {
 				poke.addVolatile(effect.id);
 			}
 			this.scene.updateStatbar(poke);
@@ -2837,9 +2852,13 @@ export class Battle {
 					if (effect.effectType === 'Move') {
 						if (effect.name === 'Doom Desire') {
 							this.scene.runOtherAnim('doomdesirehit' as ID, [poke]);
+							poke.side.foe.removeSideCondition('Doom Desire');
+							this.scene.updateWeather();
 						}
 						if (effect.name === 'Future Sight') {
 							this.scene.runOtherAnim('futuresighthit' as ID, [poke]);
+							poke.side.foe.removeSideCondition('Future Sight');
+							this.scene.updateWeather();
 						}
 					}
 				}
@@ -3055,18 +3074,19 @@ export class Battle {
 			this.log(args, kwArgs);
 			break;
 		}
-		case '-sidestart': {
-			let side = this.getSide(args[1]);
-			let effect = Dex.getEffect(args[2]);
-			side.addSideCondition(effect, !!kwArgs.persistent);
-
-			switch (effect.id) {
+	case '-sidestart': {
+		let side = this.getSide(args[1]);
+		let effect = Dex.getEffect(args[2]);
+		side.addSideCondition(effect, !!kwArgs.persistent);			
+		switch (effect.id) {
 			case 'tailwind':
 			case 'auroraveil':
 			case 'reflect':
 			case 'lightscreen':
 			case 'safeguard':
 			case 'mist':
+			case 'futuresight':
+			case 'doomdesire':
 			case 'gmaxwildfire':
 			case 'gmaxvolcalith':
 			case 'gmaxvinelash':

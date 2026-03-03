@@ -560,6 +560,18 @@ License: GPLv2
 	display: none;
 	position: absolute;
 }
+.sidecondition-futuresight { /* In case we want to implement screens for FS/DD */
+	background: #BB66DD;
+	border: 1px solid #8844AA;
+	display: none;
+	position: absolute;
+}
+.sidecondition-doomdesire {
+	background: #CCCCCC;
+	border: 1px solid #999999;
+	display: none;
+	position: absolute;
+}
 .turnstatus-protect {
 	background: #DD88DD;
 	border: 1px solid #AA66AA;
