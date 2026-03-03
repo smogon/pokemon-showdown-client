@@ -1563,6 +1563,14 @@ class BattleOptionsPanel extends PSRoomPanel {
 			}
 			break;
 		}
+		case 'autohardcore': {
+			PS.prefs.set('autohardcore', value);
+			if (room?.battle) {
+				room.battle.setHardcoreMode(value);
+				room.update(null);
+			}
+			break;
+		}
 		case 'ignoreopp': {
 			PS.prefs.set('ignoreopp', value);
 			this.handleIgnoreOpponent(value);
@@ -1674,6 +1682,14 @@ class BattleOptionsPanel extends PSRoomPanel {
 						name="autotimer" checked={PS.prefs.autotimer || false}
 						type="checkbox" onChange={this.handleAllSettings}
 					/> Automatically start timer
+				</label>
+			</p>
+			<p>
+				<label class="checkbox">
+					<input
+						name="autohardcore" checked={PS.prefs.autohardcore || false}
+						type="checkbox" onChange={this.handleAllSettings}
+					/> Automatically enable hardcore mode
 				</label>
 			</p>
 			{!PS.prefs.onepanel && document.body.offsetWidth >= 800 && <p>
