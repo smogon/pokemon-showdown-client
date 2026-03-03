@@ -1886,6 +1886,91 @@ pre.textbox.textbox-empty[placeholder]:before {
 	background: #009AA4;
 }
 
+@media (max-height:570px) and (min-width: 440px) {
+	/*
+	 * Black move/switch menu for low-res screens (parity with client1)
+	 */
+	.controls {
+		position: absolute;
+		bottom: 10px;
+		left: 0;
+		right: 0;
+		width: auto;
+		background: #444444;
+		background: rgba(40,40,40,.85);
+		color: #FFFFFF;
+		padding: 4px 8px;
+	}
+	.battle-controls .whatdo {
+		color: #FFFFFF;
+		padding-bottom: 50px;
+	}
+	.battle-controls .whatdo small.weak {
+		color: #DDDD55;
+		border-color: #DDDD55;
+	}
+	.battle-controls .whatdo small.critical {
+		color: #FF7766;
+		border-color: #FF7766;
+	}
+	.battle-controls .movecontrols, .battle-controls .shiftcontrols, .battle-controls .switchcontrols {
+		max-width: 640px;
+	}
+	.movemenu {
+		display: none;
+		padding: 0 75px 0 85px;
+	}
+	.allyparty,
+	.switchmenu {
+		display: none;
+		max-width: 325px;
+		padding: 0 75px 0 85px;
+		margin: 0 0 0 auto;
+	}
+	.moveselect {
+		position: absolute;
+		left: 20px;
+		bottom: 20px;
+	}
+	.allyTeam,
+	.switchselect {
+		position: absolute;
+		right: 20px;
+		bottom: 20px;
+	}
+	.shiftselect {
+		position: absolute;
+		right: 150px;
+		bottom: 20px;
+	}
+	.moveselect button, .switchselect button, .shiftselect button {
+		padding: 4px 8px;
+		border-radius: 6px;
+		background: #E5E5E5;
+	}
+	.megaevo-box {
+		text-align: left;
+	}
+	.battle-controls .move-controls .whatdo,
+	.battle-controls .switch-controls .whatdo {
+		padding-bottom: 5px;
+	}
+	.move-controls .movemenu,
+	.switch-controls .switchmenu {
+		display: block;
+		margin-right: 0;
+	}
+	.move-controls .moveselect button,
+	.switch-controls .switchselect button,
+	.shiftselect button {
+		background: #BBBBBB;
+	}
+	.controls .timer {
+		float: right;
+		margin-top: -25px;
+	}
+}
+
 .movebutton {
 	float: left;
 	display: block;
