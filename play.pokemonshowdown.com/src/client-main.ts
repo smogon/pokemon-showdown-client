@@ -2129,7 +2129,12 @@ export const PS = new class extends PSModel {
 				if (room) {
 					if (room.connected === 'autoreconnect') {
 						room.connected = true;
-						if (room.handleReconnect(msg)) return;
+						const handleReconnectResult = room.handleReconnect(msg);
+						if (handleReconnectResult) {
+							this.updateAutojoin();
+							this.update();
+							continue;
+						}
 					}
 					room.connected = true;
 				}
