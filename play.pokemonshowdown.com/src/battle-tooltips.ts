@@ -33,7 +33,7 @@ export class ModifiableValue {
 		this.serverPokemon = serverPokemon;
 
 		this.itemName = this.battle.dex.items.get(serverPokemon.item).name;
-		const ability = serverPokemon.ability || pokemon?.ability || serverPokemon.baseAbility;
+		const ability = pokemon?.ability || serverPokemon.ability || serverPokemon.baseAbility;
 		this.abilityName = this.battle.dex.abilities.get(ability).name;
 		this.weatherName = this.battle.dex.moves.get(battle.weather).exists ?
 			this.battle.dex.moves.get(battle.weather).name : this.battle.dex.abilities.get(battle.weather).name;
