@@ -21,6 +21,28 @@ window.addEventListener('dragover', e => {
 });
 
 export class PSHeader extends preact.Component {
+	static clickCounter = {
+		count: 0,
+		lastClick: 0,
+		maxGap: 500,
+		click() {
+			const now = Date.now();
+
+			if (now - this.lastClick > this.maxGap) {
+				this.count = 1;
+			} else {
+				this.count++;
+			}
+
+			this.lastClick = now;
+
+			if (this.count === 10) {
+				this.count = 0;
+				return true;
+			}
+			return false;
+		},
+	};
 	static toggleMute = (e: Event) => {
 		PS.prefs.set('mute', !PS.prefs.mute);
 		PS.update();
@@ -152,6 +174,13 @@ export class PSHeader extends preact.Component {
 			{closeButton}
 		</li>;
 	}
+	static updateFavicon() {
+		const favicon = document.querySelector('#dynamic-favicon');
+		if (favicon instanceof HTMLLinkElement) {
+			favicon.href = `${window.Dex.resourcePrefix}/${PS.isNotifying ? 'favicon-notify.ico' : 'favicon.ico'}`;
+			favicon.dataset.on = PS.isNotifying ? '1' : '';
+		}
+	}
 	handleResize = () => {
 		if (!this.base) return;
 
@@ -228,6 +257,7 @@ export class PSHeader extends preact.Component {
 					src={`https://${Config.routes.client}/favicon-256.png`}
 					alt="Pokémon Showdown! (beta)"
 					width="50" height="50"
+					data-cmd="/whatsnew"
 				/>
 				<div class="tablist" role="tablist">
 					<ul>
@@ -269,6 +299,7 @@ export class PSHeader extends preact.Component {
 							src={`https://${Config.routes.client}/favicon-256.png`}
 							alt="Pokémon Showdown! (beta)"
 							width="48" height="48"
+							data-cmd="/whatsnew"
 						/>
 					</li>
 					{PSHeader.renderRoomTab(PS.leftRoomList[0])}
@@ -308,13 +339,7 @@ export class PSMiniHeader extends preact.Component {
 	};
 	override render() {
 		if (PS.leftPanelWidth !== null) return null;
-
-		let notificationsCount = 0;
-		const notificationRooms = [...PS.leftRoomList, ...PS.rightRoomList];
-		for (const roomid of notificationRooms) {
-			const miniNotifications = PS.rooms[roomid]?.notifications;
-			if (miniNotifications?.length) notificationsCount++;
-		}
+		const notificationsCount = PS.getNotificationsCount();
 		const { icon, title } = PSHeader.roomInfo(PS.panel);
 		const userColor = window.BattleLog && `color:${PS.user.away ? '#888' : BattleLog.usernameColor(PS.user.userid)}`;
 		const showMenuButton = PSView.narrowMode;
