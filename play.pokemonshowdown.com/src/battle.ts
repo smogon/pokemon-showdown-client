@@ -34,6 +34,7 @@ import { BattleScene, type PokemonSprite, BattleStatusAnims } from './battle-ani
 import { Dex, toID, toUserid, type ID, type ModdedDex } from './battle-dex';
 import { BattleTextParser, type Args, type KWArgs, type SideID } from './battle-text-parser';
 import { Teams } from './battle-teams';
+import { type BattleRequest } from './battle-choices';
 declare const app: { user: AnyObject, rooms: AnyObject, ignore?: AnyObject } | undefined;
 
 /** [id, element?, ...misc] */
@@ -1345,6 +1346,21 @@ export class Battle {
 		}
 
 		this.resetToCurrentTurn();
+	}
+
+	updateWithRequest(request: BattleRequest) {
+		if (!request.side) return;
+		if (request.side) {
+			const side = this.getSide(request.side.id);
+			for (let i = 0; i < request.side.pokemon.length; i++) {
+				const activePokemon = side.active[i];
+				const serverPokemon = request.side.pokemon[i];
+				if (!activePokemon || !serverPokemon) continue;
+				if (serverPokemon.baseAbility) activePokemon.baseAbility = Dex.abilities.get(serverPokemon.baseAbility).name;
+				if (serverPokemon.ability) activePokemon.ability = Dex.abilities.get(serverPokemon.ability).name;
+				if (serverPokemon.item) activePokemon.item = Dex.items.get(serverPokemon.item).name;
+			}
+		}
 	}
 
 	//

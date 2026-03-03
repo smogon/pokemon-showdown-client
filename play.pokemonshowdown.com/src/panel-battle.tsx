@@ -417,6 +417,8 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 
 		BattleChoiceBuilder.fixRequest(request, room.battle);
 
+		room.battle.updateWithRequest(request);
+
 		if (request.side) {
 			room.battle.myPokemon = request.side.pokemon;
 			room.battle.setViewpoint(request.side.id);
