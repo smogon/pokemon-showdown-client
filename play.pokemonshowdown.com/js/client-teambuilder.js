@@ -849,8 +849,26 @@
 		createTeam: function (orig, isBox) {
 			var newTeam;
 			if (orig) {
+				// Always use the paren-number format when duplicating: NAME (n)
+				var base = orig.name.replace(/\s*\((?:v\.\s*)?\d+\)$/, '');
+				// find highest existing index among teams with same base name
+				var max = 0;
+				var esc = base.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+				for (var ii = 0; ii < teams.length; ii++) {
+					var tname = teams[ii].name || '';
+					var re = new RegExp('^' + esc + '\\s*\\((?:v\\.\\s*)?(\\d+)\\)$');
+					var m = tname.match(re);
+					if (m) {
+						var num = parseInt(m[1], 10);
+						if (!isNaN(num) && num > max) max = num;
+					}
+				}
+				var next = max + 1;
+				var newName = base + ' (' + next + ')';
+				// Debug: show what name will be used.
+				if (typeof console !== 'undefined' && console.log) console.log('[teambuilder] duplicate newName=', newName);
 				newTeam = {
-					name: 'Copy of ' + orig.name,
+					name: newName,
 					format: orig.format,
 					team: orig.team,
 					capacity: orig.capacity,
@@ -1208,6 +1226,7 @@
 				buf += '<div class="teamedit"><textarea class="textbox" rows="17">' + BattleLog.escapeHTML(Storage.exportTeam(this.curSetList, this.curTeam.gen)) + '</textarea></div>';
 			} else {
 				buf = '<div class="pad"><button name="back" class="button"><i class="fa fa-chevron-left"></i> List</button> ';
+				// Team name input
 				buf += '<input class="textbox teamnameedit" type="text" class="teamnameedit" size="30" value="' + BattleLog.escapeHTML(this.curTeam.name) + '" /> ';
 				buf += '<button name="import" class="button"><i class="fa fa-upload"></i> Import/Export</button> ';
 				buf += '<div class="teamchartbox">';
