@@ -870,8 +870,10 @@ export class BattleTooltips {
 			text += `<p class="tooltip-section"><strong>Possible Illusion #${illusionIndex}</strong>${levelBuf}</p>`;
 		}
 
-		if (pokemon.fainted) {
-			text += '<p><small>HP:</small> (fainted)</p>';
+		if (pokemon.fainted && pokemon.maxhp === 100) {
+			text += `<p><small>HP:</small> (fainted)</p>`;
+		} else if (pokemon.fainted) {
+			text += `<p><small>HP:</small> 0/${pokemon.maxhp}</p>`;
 		} else if (this.battle.hardcoreMode) {
 			if (serverPokemon) {
 				const status = pokemon.status ? ` <span class="status ${pokemon.status}">${pokemon.status.toUpperCase()}</span>` : '';
