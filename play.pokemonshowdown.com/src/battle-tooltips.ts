@@ -610,6 +610,7 @@ export class BattleTooltips {
 				});
 				categoryDiff = false;
 			}
+			[moveType, category] = this.getMoveType(move, value, gmaxMove);
 		} else if (isZOrMax === 'maxmove') {
 			if (move.category === 'Status') {
 				move = this.battle.dex.moves.get('Max Guard');
