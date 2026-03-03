@@ -64,6 +64,11 @@ class TeamRoom extends PSRoom {
 		team.uploadedPackedTeam = exported;
 		this.update(null);
 	}
+	cancelUpload() {
+		PS.teams.uploading = null;
+		this.team.uploadedPackedTeam = undefined;
+		this.update(null);
+	}
 	stripNicknames(packedTeam: string) {
 		const team = Teams.unpack(packedTeam);
 		for (const pokemon of team) {
