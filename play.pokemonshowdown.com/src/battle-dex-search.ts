@@ -442,7 +442,7 @@ export class DexSearch {
 				}
 			}
 
-			// don't match duplicate aliases
+			// don't add duplicate results
 			if (id in seenInBuf[typeIndex]) continue;
 			seenInBuf[typeIndex][id] = true;
 
