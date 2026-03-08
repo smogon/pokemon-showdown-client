@@ -807,6 +807,22 @@ $sprite_credits = [
 	"morty-masters3.png" => "kyledove",
 	"selene-masters2.png" => "kyledove",
 	"shauntal-masters.png" => "kyledove",
+	"jacinthe.png" => "Brumirage",
+	"rainbowrocketgrunt.png" => "Brumirage",
+	"rainbowrocketgruntf.png" => "Brumirage",
+	"ansha.png" => "kyledove",
+	"ansha-cook.png" => "kyledove",
+	"canari.png" => "kyledove",
+	"corbeau.png" => "kyledove",
+	"grisham.png" => "kyledove",
+	"gwynn.png" => "kyledove",
+	"ivor.png" => "kyledove",
+	"lebanne.png" => "kyledove",
+	"phillipe.png" => "kyledove",
+	"sbcmember.png" => "kyledove",
+	"tarragon.png" => "kyledove",
+	"taunie.png" => "kyledove",
+	"urbain.png" => "kyledove",
 ];
 
 require_once '../../dirindex/dirindex.php';
