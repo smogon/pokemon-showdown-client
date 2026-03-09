@@ -321,6 +321,7 @@ export class DexSearch {
 		// Notes:
 		// - if we have a searchType, that searchType's buffer will be on top
 		let bufs: SearchRow[][] = [[], [], [], [], [], [], [], [], [], []];
+		let seenInBuf: Record<string, boolean>[] = bufs.map(() => Object.create(null));
 		let topbufIndex = -1;
 
 		let count = 0;
@@ -441,9 +442,9 @@ export class DexSearch {
 				}
 			}
 
-			// don't match duplicate aliases
-			let curBufLength = (passType === 'alias' && bufs[typeIndex].length);
-			if (curBufLength && bufs[typeIndex][curBufLength - 1][1] === id) continue;
+			// don't add duplicate results
+			if (id in seenInBuf[typeIndex]) continue;
+			seenInBuf[typeIndex][id] = true;
 
 			bufs[typeIndex].push([type, id, matchStart, matchEnd]);
 
