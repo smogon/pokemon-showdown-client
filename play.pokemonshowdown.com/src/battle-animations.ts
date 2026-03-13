@@ -2856,7 +2856,16 @@ export class PokemonSprite extends Sprite {
 		}
 
 		for (let i in pokemon.volatiles) {
-			status += PokemonSprite.getEffectTag(i);
+			const tc = pokemon.volatileTurnCounts;
+			if (i === 'encore' && tc?.encore !== undefined && tc.encore >= 0) {
+				status += `<span class="bad">${`Encore: ${tc.encore}`.replace(/ /g, '&nbsp;')}</span> `;
+			} else if (i === 'taunt' && tc?.taunt !== undefined && tc.taunt >= 0) {
+				status += `<span class="bad">${`Taunt: ${tc.taunt}`.replace(/ /g, '&nbsp;')}</span> `;
+			} else if (i === 'disable' && tc?.disable !== undefined && tc.disable >= 0) {
+				status += `<span class="bad">${`Disable: ${tc.disable}`.replace(/ /g, '&nbsp;')}</span> `;
+			} else {
+				status += PokemonSprite.getEffectTag(i);
+			}
 		}
 		for (let i in pokemon.turnstatuses) {
 			if (i === 'roost' && !pokemon.getTypeList().includes('Flying')) continue;

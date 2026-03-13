@@ -101,6 +101,8 @@ export class Pokemon implements PokemonDetails, PokemonHealth {
 	status: Dex.StatusName | 'tox' | '' | '???' = '';
 	statusStage = 0;
 	volatiles: { [effectid: string]: EffectState } = {};
+	/** Turn counter for encore/taunt/disable */
+	volatileTurnCounts: { encore?: number, taunt?: number, disable?: number } = {};
 	turnstatuses: { [effectid: string]: EffectState } = {};
 	movestatuses: { [effectid: string]: EffectState } = {};
 	lastMove = '';
@@ -284,6 +286,9 @@ export class Pokemon implements PokemonDetails, PokemonHealth {
 		this.side.battle.scene.removeEffect(this, volatile);
 		if (!this.hasVolatile(volatile)) return;
 		delete this.volatiles[volatile];
+		if (volatile === 'encore') delete this.volatileTurnCounts.encore;
+		else if (volatile === 'taunt') delete this.volatileTurnCounts.taunt;
+		else if (volatile === 'disable') delete this.volatileTurnCounts.disable;
 	}
 	addVolatile(volatile: ID, ...args: any[]) {
 		if (this.hasVolatile(volatile) && !args.length) return;
@@ -336,6 +341,7 @@ export class Pokemon implements PokemonDetails, PokemonHealth {
 	}
 	clearVolatiles() {
 		this.volatiles = {};
+		this.volatileTurnCounts = {};
 		this.clearTurnstatuses();
 		this.clearMovestatuses();
 		this.side.battle.scene.clearEffects(this);
@@ -446,7 +452,7 @@ export class Pokemon implements PokemonDetails, PokemonHealth {
 		// this.lastMove = pokemon.lastMove; // I think
 		if (!copySource) {
 			const volatilesToRemove = [
-				'airballoon', 'attract', 'autotomize', 'disable', 'encore', 'foresight', 'gmaxchistrike', 'imprison', 'laserfocus', 'mimic', 'miracleeye', 'nightmare', 'saltcure', 'smackdown', 'stockpile1', 'stockpile2', 'stockpile3', 'syrupbomb', 'torment', 'typeadd', 'typechange', 'yawn',
+				'airballoon', 'attract', 'autotomize', 'disable', 'encore', 'foresight', 'gmaxchistrike', 'imprison', 'laserfocus', 'mimic', 'miracleeye', 'nightmare', 'saltcure', 'smackdown', 'stockpile1', 'stockpile2', 'stockpile3', 'syrupbomb', 'taunt', 'torment', 'typeadd', 'typechange', 'yawn',
 			];
 			for (const statName of Dex.statNamesExceptHP) {
 				volatilesToRemove.push('protosynthesis' + statName);
@@ -468,6 +474,7 @@ export class Pokemon implements PokemonDetails, PokemonHealth {
 
 		pokemon.boosts = {};
 		pokemon.volatiles = {};
+		pokemon.volatileTurnCounts = {};
 		pokemon.side.battle.scene.removeTransform(pokemon);
 		pokemon.statusStage = 0;
 	}
@@ -1076,6 +1083,8 @@ export class Battle {
 	ended = false;
 	isReplay = false;
 	usesUpkeep = false;
+	/** Idents of Pokemon who have moved this turn (for encore/taunt/disable skip logic) */
+	movedThisTurn: Set<string> = new Set();
 	weather = '' as ID;
 	pseudoWeather = [] as WeatherState[];
 	weatherTimeLeft = 0;
@@ -1497,9 +1506,21 @@ export class Battle {
 			if (poke) {
 				if (poke.status === 'tox') poke.statusData.toxicTurns++;
 				poke.clearTurnstatuses();
+				if (poke.volatileTurnCounts.encore !== undefined && poke.volatileTurnCounts.encore > 1) {
+					poke.volatileTurnCounts.encore--;
+				}
+				if (poke.volatileTurnCounts.taunt !== undefined && poke.volatileTurnCounts.taunt > 1) {
+					poke.volatileTurnCounts.taunt--;
+				}
+				if (poke.volatileTurnCounts.disable !== undefined && poke.volatileTurnCounts.disable > 1) {
+					poke.volatileTurnCounts.disable--;
+				}
 			}
 		}
 		this.scene.updateWeather();
+		for (const poke of [...this.nearSide.active, ...this.farSide.active]) {
+			if (poke) this.scene.updateStatbar(poke);
+		}
 	}
 	useMove(pokemon: Pokemon, move: Dex.Move, target: Pokemon | null, kwArgs: KWArgs) {
 		let fromeffect = Dex.getEffect(kwArgs.from);
@@ -2637,14 +2658,14 @@ export class Battle {
 			case 'yawn':
 				this.scene.resultAnim(poke, 'Drowsy', 'slp');
 				break;
-			case 'taunt':
-				this.scene.resultAnim(poke, 'Taunted', 'bad');
-				break;
 			case 'imprison':
 				this.scene.resultAnim(poke, 'Imprisoning', 'good');
 				break;
 			case 'disable':
-				this.scene.resultAnim(poke, 'Disabled', 'bad');
+				if (this.gen >= 3) {
+					poke.volatileTurnCounts.disable = this.movedThisTurn.has(poke.ident) ? 5 : 4;
+				}
+				if (!kwArgs.silent) this.scene.resultAnim(poke, 'Disabled', 'bad');
 				break;
 			case 'embargo':
 				this.scene.resultAnim(poke, 'Embargo', 'bad');
@@ -2683,9 +2704,18 @@ export class Battle {
 			case 'perish3':
 				if (!kwArgs.silent) this.scene.resultAnim(poke, 'Perish in 3', 'bad');
 				break;
-			case 'encore':
-				this.scene.resultAnim(poke, 'Encored', 'bad');
+			case 'encore': {
+				const base = this.gen === 4 ? 2 : 3;
+				poke.volatileTurnCounts.encore = this.movedThisTurn.has(poke.ident) ? base + 1 : base;
+				if (!kwArgs.silent) this.scene.resultAnim(poke, 'Encored', 'bad');
 				break;
+			}
+			case 'taunt': {
+				const base = (this.gen === 3 || this.gen === 4) ? 2 : 3;
+				poke.volatileTurnCounts.taunt = this.movedThisTurn.has(poke.ident) ? base + 1 : base;
+				if (!kwArgs.silent) this.scene.resultAnim(poke, 'Taunted', 'bad');
+				break;
+			}
 			case 'bide':
 				this.scene.resultAnim(poke, 'Bide', 'good');
 				break;
@@ -3419,6 +3449,7 @@ export class Battle {
 		}
 		case 'upkeep': {
 			this.usesUpkeep = true;
+			this.movedThisTurn = new Set();
 			this.updateTurnCounters();
 			// Prevents getSwitchedPokemon from skipping over a Pokemon that switched out mid turn (e.g. U-turn)
 			for (const side of this.sides) {
@@ -3725,6 +3756,7 @@ export class Battle {
 			this.endLastTurn();
 			this.resetTurnsSinceMoved();
 			let poke = this.getPokemon(args[1])!;
+			this.movedThisTurn.add(poke.ident);
 			let move = Dex.moves.get(args[2]);
 			if (this.checkActive(poke)) return;
 			let poke2 = this.getPokemon(args[3]);
