@@ -1084,7 +1084,7 @@ export class Battle {
 	isReplay = false;
 	usesUpkeep = false;
 	/** Idents of Pokemon who have moved this turn (for encore/taunt/disable skip logic) */
-	movedThisTurn: Set<string> = new Set();
+	movedThisTurn: { [ident: string]: true } = {};
 	weather = '' as ID;
 	pseudoWeather = [] as WeatherState[];
 	weatherTimeLeft = 0;
@@ -2663,7 +2663,7 @@ export class Battle {
 				break;
 			case 'disable':
 				if (this.gen >= 3) {
-					poke.volatileTurnCounts.disable = this.movedThisTurn.has(poke.ident) ? 5 : 4;
+					poke.volatileTurnCounts.disable = poke.ident in this.movedThisTurn ? 5 : 4;
 				}
 				if (!kwArgs.silent) this.scene.resultAnim(poke, 'Disabled', 'bad');
 				break;
@@ -2706,13 +2706,13 @@ export class Battle {
 				break;
 			case 'encore': {
 				const base = this.gen === 4 ? 2 : 3;
-				poke.volatileTurnCounts.encore = this.movedThisTurn.has(poke.ident) ? base + 1 : base;
+				poke.volatileTurnCounts.encore = poke.ident in this.movedThisTurn ? base + 1 : base;
 				if (!kwArgs.silent) this.scene.resultAnim(poke, 'Encored', 'bad');
 				break;
 			}
 			case 'taunt': {
 				const base = (this.gen === 3 || this.gen === 4) ? 2 : 3;
-				poke.volatileTurnCounts.taunt = this.movedThisTurn.has(poke.ident) ? base + 1 : base;
+				poke.volatileTurnCounts.taunt = poke.ident in this.movedThisTurn ? base + 1 : base;
 				if (!kwArgs.silent) this.scene.resultAnim(poke, 'Taunted', 'bad');
 				break;
 			}
@@ -3449,7 +3449,7 @@ export class Battle {
 		}
 		case 'upkeep': {
 			this.usesUpkeep = true;
-			this.movedThisTurn = new Set();
+			this.movedThisTurn = {};
 			this.updateTurnCounters();
 			// Prevents getSwitchedPokemon from skipping over a Pokemon that switched out mid turn (e.g. U-turn)
 			for (const side of this.sides) {
@@ -3756,7 +3756,7 @@ export class Battle {
 			this.endLastTurn();
 			this.resetTurnsSinceMoved();
 			let poke = this.getPokemon(args[1])!;
-			this.movedThisTurn.add(poke.ident);
+			this.movedThisTurn[poke.ident] = true;
 			let move = Dex.moves.get(args[2]);
 			if (this.checkActive(poke)) return;
 			let poke2 = this.getPokemon(args[3]);
