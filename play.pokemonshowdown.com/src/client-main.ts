@@ -2401,6 +2401,26 @@ export const PS = new class extends PSModel {
 		}
 		return this.focusRoom(rooms[index + 1]);
 	}
+	focusUnreadRoom(direction: 'left' | 'right') {
+		const { rooms, index } = this.horizontalNav();
+		if (index === -1) return;
+
+		const unreadRooms = rooms.filter((room, i) =>
+			PS.rooms[room]?.isSubtleNotifying &&
+			(direction === 'left' ? i < index : i > index)
+		);
+
+		if (!unreadRooms.length) return;
+
+		const target =
+			direction === 'left'
+				? unreadRooms[unreadRooms.length - 1]
+				: unreadRooms[0];
+			console.log("Target = " + target);
+			console.log("Unread Rooms = " + unreadRooms);
+
+		return this.focusRoom(target);
+	}
 	alert(message: string, opts: { okButton?: string, parentElem?: HTMLElement | null, width?: number } = {}) {
 		this.join(`popup-${this.popups.length}` as RoomID, {
 			args: { message, ...opts, parentElem: null },
