@@ -50,10 +50,10 @@ class ResourcePanel extends PSRoomPanel<ResourceRoom> {
 						<a href="https://www.smogon.com/sm/articles/sm_tiers">What do 'OU', 'UU', etc mean?</a>
 					</li>
 					<li>
-						<a href="https://www.smogon.com/dex/ss/formats/">What are the rules for each format?</a>
+						<a href="https://www.smogon.com/dex/sv/formats/">What are the rules for each format?</a>
 					</li>
 					<li>
-						<a href="https://www.smogon.com/ss/articles/clauses">What is 'Sleep Clause' and other clauses?</a>
+						<a href="https://www.smogon.com/sv/articles/clauses">What is 'Sleep Clause' and other clauses?</a>
 					</li>
 					<li>
 						<a href="https://www.smogon.com/articles/getting-started">Next Steps for Competitive Battling</a>
