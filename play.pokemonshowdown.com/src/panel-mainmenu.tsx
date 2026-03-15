@@ -176,6 +176,7 @@ export class MainMenuRoom extends PSRoom {
 					room.teamSent = null;
 					room.update(null);
 				}
+				if (room.type === 'team') (room as any).cancelUpload();
 			}
 			PS.alert(message.replace(/\|\|/g, '\n'));
 			return;
