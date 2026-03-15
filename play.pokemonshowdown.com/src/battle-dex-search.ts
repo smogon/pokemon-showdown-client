@@ -435,6 +435,13 @@ export class DexSearch {
 					bufs[0] = [['header', DexSearch.typeName[type]]];
 				}
 				if (!(id in illegal)) typeIndex = 0;
+				// Move illegal pokemon to the bottom of the results
+				if (id in illegal && searchTypeIndex === 1) {
+					typeIndex = 8;
+					if (!bufs[typeIndex].length) {
+						bufs[typeIndex] = [['header', "Illegal Pok\u00e9mon"]];
+					}
+				}
 			} else {
 				if (!bufs[typeIndex].length) {
 					bufs[typeIndex] = [['header', DexSearch.typeName[type]]];
