@@ -2745,8 +2745,8 @@ export class Battle {
 				this.scene.updateWeather();
 				break;
 			}
-			if (!(effect.id === 'typechange' && poke.terastallized) && 
-			    effect.id !== 'futuresight' && effect.id !== 'doomdesire') {
+			if (!(effect.id === 'typechange' && poke.terastallized) &&
+				effect.id !== 'futuresight' && effect.id !== 'doomdesire') {
 				poke.addVolatile(effect.id);
 			}
 			this.scene.updateStatbar(poke);
