@@ -702,6 +702,11 @@ export class PSView extends preact.Component {
 				parentElem: elem,
 			});
 			return true;
+		case 'openOptions':
+			PS.join('options' as RoomID, {
+				parentElem: elem,
+			});
+			return true;
 		case 'showOtherFormats': {
 			// TODO: refactor to a command after we drop support for the old client
 			const table = elem.closest('table');
