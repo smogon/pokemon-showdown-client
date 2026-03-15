@@ -972,6 +972,14 @@ export class BattleTooltips {
 				text += `${moveName}<br />`;
 			}
 			text += '</p>';
+		} else if (this.battle.hardcoreMode && clientPokemon?.side.openTeamSheet && clientPokemon.moveTrack.length) {
+			// move list (open team sheet, no PP usage shown)
+			text += `<p class="tooltip-section">`;
+			for (const [moveName] of clientPokemon.moveTrack) {
+				const move = this.battle.dex.moves.get(moveName);
+				text += `&#8226; ${move.name}<br />`;
+			}
+			text += `</p>`;
 		} else if (!this.battle.hardcoreMode && clientPokemon?.moveTrack.length) {
 			// move list (guessed)
 			text += `<p class="tooltip-section">`;
