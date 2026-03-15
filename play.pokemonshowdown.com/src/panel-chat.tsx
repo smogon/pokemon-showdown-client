@@ -503,6 +503,10 @@ export class ChatRoom extends PSRoom {
 				this.errorReply(`Invalid turn number: ${target}`);
 				return;
 			}
+			if (this.battle.hardcoreMode) {
+				this.errorReply(`Turn navigation is disabled in hardcore mode.`);
+				return;
+			}
 			this.battle.seekTurn(turnNum);
 			this.update(null);
 		},
