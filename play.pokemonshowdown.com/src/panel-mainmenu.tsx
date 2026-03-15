@@ -819,11 +819,11 @@ export class TeamForm extends preact.Component<{
 		ev.preventDefault();
 		const format = this.format;
 		// in tournaments, format is the custom name & teamFormat is the original format.
-		const teambuilderFormat = this.props.teamFormat;
+		const teambuilderFormat = this.props.teamFormat || PS.teams.teambuilderFormat(format);
 		const teamElement = this.base!.querySelector<HTMLButtonElement>('button[name=team]');
 		const teamKey = teamElement!.value;
 		const team = teamKey ? PS.teams.byKey[teamKey] : undefined;
-		if (!window.BattleFormats[teambuilderFormat || PS.teams.teambuilderFormat(format)]?.team && !team) {
+		if (!window.BattleFormats[teambuilderFormat]?.team && !team) {
 			PS.alert('You need to go into the Teambuilder and build a team for this format.', {
 				parentElem: teamElement!,
 			});
