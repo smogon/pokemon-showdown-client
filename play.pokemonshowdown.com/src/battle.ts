@@ -3067,11 +3067,12 @@ export class Battle {
 			this.log(args, kwArgs);
 			break;
 		}
-	case '-sidestart': {
-		let side = this.getSide(args[1]);
-		let effect = Dex.getEffect(args[2]);
-		side.addSideCondition(effect, !!kwArgs.persistent);			
-		switch (effect.id) {
+		case '-sidestart': {
+			let side = this.getSide(args[1]);
+			let effect = Dex.getEffect(args[2]);
+			side.addSideCondition(effect, !!kwArgs.persistent);			
+
+			switch (effect.id) {
 			case 'tailwind':
 			case 'auroraveil':
 			case 'reflect':
