@@ -154,6 +154,10 @@
 
 			i++;
 		}
+
+		// misbehaving ad
+		buf = buf.replace(/>Download</g, '>Down<!-- -->load<');
+
 		if (!this.renderedIndex) {
 			this.el.innerHTML = '<ul class="utilichart" style="height:' + (resultSet.length * 33) + 'px">' + buf + (!this.renderingDone ? '<li class="result more"><p><button class="button big">More</button></p></li>' : '') + '</ul>';
 			this.moreVisible = true;
