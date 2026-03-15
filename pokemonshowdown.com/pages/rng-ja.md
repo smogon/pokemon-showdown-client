@@ -18,7 +18,7 @@ Pokémon Showdownでは、Switchや3DSで発売されている実際のポケモ
 
 また、これがSwitchや3DSで使われているのと同じ乱数生成器であることを記録したページもたくさんあります。
 
-[Pesudorandom number generation in Pokémon - Bulbapedia](https://bulbapedia.bulbagarden.net/wiki/Pseudorandom_number_generation_in_Pokémon)
+[Pesudorandom number generation in Pokémon - Bulbapedia](https://bulbapedia.bulbagarden.net/wiki/Pseudorandom_number_generation)
 
 そして、これが完全に正常なRNGの使用であることを示す多くのページがあります。
 

@@ -24,7 +24,7 @@ Smogonの公式フォーマットは、主に[Tierシステム][1]に基づい�
 
 一方、SmogonのOther Metagamesフォーマットは、ユーザーが提案するクリエイティブなフォーマットのホームです。これらのフォーマットのルール変更は、[SmogonのOther Metagamesフォーラム][3]で議論することができます。
 
-  [3]: https://www.smogon.com/forums/forums/other-metagames.531/
+  [3]: https://www.smogon.com/forums/forums/other-metagames.733/
 
 Random Battleについては、[Gen8 Random Battles sets スレッド][4]や[Past gens Random Battles sets スレッド][5]で変更を提案してください。
 
@@ -34,4 +34,4 @@ Random Battleについては、[Gen8 Random Battles sets スレッド][4]や[Pas
 
 もしOther Metagamesについての提案がある場合は、下の投稿をよく読んだ上で具体的に提案をしてください。
 
-[How to submit a Metagame](https://www.smogon.com/forums/threads/other-metagames-rules-general-information.3656519/#post-8296313)
+[How to submit a Metagame](https://www.smogon.com/forums/posts/9374053/)
