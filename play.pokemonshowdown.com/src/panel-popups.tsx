@@ -1,5 +1,5 @@
 import preact from "../js/lib/preact";
-import { toID, toRoomid, toUserid, Dex } from "./battle-dex";
+import { toID, toRoomid, toUserid, Dex, PSUtils } from "./battle-dex";
 import type { ID } from "./battle-dex-data";
 import { BattleLog } from "./battle-log";
 import { PSLoginServer } from "./client-connection";
@@ -230,8 +230,7 @@ class UserOptionsPanel extends PSRoomPanel {
 		data?: Record<string, string>,
 	};
 	getTargets() {
-		const [, targetUser, ...rest] = this.props.room.id.split('-');
-		const targetRoomid = rest.join('-');
+		const [, targetUser, targetRoomid] = PSUtils.splitFirst(this.props.room.id, '-', 2);
 		let targetRoom = (PS.rooms[targetRoomid] || null) as ChatRoom | null;
 		if (targetRoom?.type !== 'chat') targetRoom = targetRoom?.getParent() as ChatRoom;
 		if (targetRoom?.type !== 'chat') targetRoom = targetRoom?.getParent() as ChatRoom;
