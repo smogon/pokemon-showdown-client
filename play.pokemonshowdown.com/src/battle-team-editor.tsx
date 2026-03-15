@@ -578,8 +578,12 @@ export class TeamEditorState extends PSModel {
 		// only available through an event with 31 Spe IVs
 		if (set.species.startsWith('Terapagos')) minSpe = false;
 
+		const preferMaxAtkFormats = ['1v1', 'categoryswap', 'partnersincrime', 'typesplit'];
+		if (preferMaxAtkFormats.some(f => this.format.includes(f))) {
+			minAtk = false;
+			return { minAtk, minSpe };
+		}
 		if (this.format === 'gen7hiddentype') return { minAtk, minSpe };
-		if (this.format.includes('1v1')) return { minAtk, minSpe };
 
 		// only available through an event with 31 Atk IVs
 		if (set.ability === 'Battle Bond' || ['Koraidon', 'Miraidon', 'Gimmighoul-Roaming'].includes(set.species)) {

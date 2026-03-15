@@ -627,6 +627,7 @@ export class Side {
 	active = [null] as (Pokemon | null)[];
 	lastPokemon = null as Pokemon | null;
 	pokemon = [] as Pokemon[];
+	openTeamSheet = false;
 
 	sideConditions: {
 		[id: string]: [effectName: string, levels: number, minDuration: number, maxDuration: number],
@@ -2471,9 +2472,16 @@ export class Battle {
 				newSpeciesForme = args[2].substr(0, commaIndex);
 			}
 			let species = this.dex.species.get(newSpeciesForme);
+
 			if (nextArgs) {
+				// Handle abilities in Mix and Mega
 				if (nextArgs[0] === '-mega') {
-					species = this.dex.species.get(this.dex.items.get(nextArgs[3]).megaStone);
+					const item = this.dex.items.get(nextArgs[3]);
+					if (item.megaStone) {
+						let index = Object.values(item.megaStone).indexOf(species.name);
+						if (index < 0) index = 0;
+						species = this.dex.species.get(Object.values(item.megaStone)[index]);
+					}
 				} else if (nextArgs[0] === '-primal' && nextArgs.length > 2) {
 					if (nextArgs[2] === 'Red Orb') species = this.dex.species.get('Groudon-Primal');
 					if (nextArgs[2] === 'Blue Orb') species = this.dex.species.get('Kyogre-Primal');
@@ -3656,6 +3664,7 @@ export class Battle {
 			const team = Teams.unpack(args[2]);
 			if (!team.length) return;
 			const side = this.getSide(args[1]);
+			side.openTeamSheet = true;
 			side.clearPokemon();
 			for (const set of team) {
 				const details = set.species + (!set.level || set.level === 100 ? '' : `, L${set.level}`) +

@@ -37438,14 +37438,14 @@ export const BattleMoveAnims: AnimTable = {
 					z: attacker.z + offset1 * stepZ,
 					scale: size[i % 2],
 					opacity: opct[i % 2],
-					time: i * tick,
+					time: 0,
 				}, {
 					x: attacker.x + offset2 * stepX,
 					y: attacker.y + offset2 * stepY + tallerBy,
 					z: attacker.z + offset2 * stepZ,
 					scale: size[(i + 1) % 2],
 					opacity: opct[(i + 1) % 2],
-					time: (i + 1) * tick,
+					time: tick,
 				}, 'swing', i === 6 ? 'explode' : 'gone', { filter: 'hue-rotate(-12deg)' }];
 				ball = ball! ? scene.animateEffect(ball, ...ballArgs) : scene.showEffect(...ballArgs);
 
@@ -37455,14 +37455,14 @@ export const BattleMoveAnims: AnimTable = {
 					z: attacker.z + offset1 * stepZ,
 					scale: size[i % 2],
 					opacity: opct[(i + 1) % 2],
-					time: i * tick,
+					time: 0,
 				}, {
 					x: attacker.x + offset2 * stepX,
 					y: attacker.y + offset2 * stepY + tallerBy,
 					z: attacker.z + offset2 * stepZ,
 					scale: size[(i + 1) % 2],
 					opacity: opct[i % 2],
-					time: (i + 1) * tick,
+					time: tick,
 				}, 'swing', i === 6 ? 'explode' : 'gone'];
 				wisp = wisp! ? scene.animateEffect(wisp, ...wispArgs) : scene.showEffect(...wispArgs);
 
@@ -37538,14 +37538,14 @@ export const BattleMoveAnims: AnimTable = {
 					z: attacker.z + offset1 * stepZ,
 					scale: size[i % 2],
 					opacity: opct[i % 2],
-					time: i * tick,
+					time: 0,
 				}, {
 					x: attacker.x + offset2 * stepX,
 					y: attacker.y + offset2 * stepY + tallerBy,
 					z: attacker.z + offset2 * stepZ,
 					scale: size[(i + 1) % 2],
 					opacity: opct[(i + 1) % 2],
-					time: (i + 1) * tick,
+					time: tick,
 				}, 'swing', i === 6 ? 'explode' : 'gone', { filter: 'brightness(1.5)' }];
 				ball = ball! ? scene.animateEffect(ball, ...ballArgs) : scene.showEffect(...ballArgs);
 
@@ -37555,14 +37555,14 @@ export const BattleMoveAnims: AnimTable = {
 					z: attacker.z + offset1 * stepZ,
 					scale: size[i % 2],
 					opacity: opct[(i + 1) % 2] * 0.75,
-					time: i * tick,
+					time: 0,
 				}, {
 					x: attacker.x + offset2 * stepX,
 					y: attacker.y + offset2 * stepY + tallerBy,
 					z: attacker.z + offset2 * stepZ,
 					scale: size[(i + 1) % 2],
 					opacity: opct[i % 2] * 0.75,
-					time: (i + 1) * tick,
+					time: tick,
 				}, 'swing', i === 6 ? 'explode' : 'gone'];
 				wisp = wisp! ? scene.animateEffect(wisp, ...wispArgs) : scene.showEffect(...wispArgs);
 
@@ -37638,14 +37638,14 @@ export const BattleMoveAnims: AnimTable = {
 					z: attacker.z + offset1 * stepZ,
 					scale: size[i % 2],
 					opacity: opct[i % 2],
-					time: i * tick,
+					time: 0,
 				}, {
 					x: attacker.x + offset2 * stepX,
 					y: attacker.y + offset2 * stepY + tallerBy,
 					z: attacker.z + offset2 * stepZ,
 					scale: size[(i + 1) % 2],
 					opacity: opct[(i + 1) % 2],
-					time: (i + 1) * tick,
+					time: tick,
 				}, 'swing', ...(i === 6 ? ['explode'] : ['gone', { filter: 'saturate(300%)' }]) as [string, JQuery.PlainObject]];
 				ball = ball! ? scene.animateEffect(ball, ...ballArgs) : scene.showEffect(...ballArgs);
 
@@ -37655,14 +37655,14 @@ export const BattleMoveAnims: AnimTable = {
 					z: attacker.z + offset1 * stepZ,
 					scale: size[i % 2],
 					opacity: opct[(i + 1) % 2],
-					time: i * tick,
+					time: 0,
 				}, {
 					x: attacker.x + offset2 * stepX,
 					y: attacker.y + offset2 * stepY + tallerBy,
 					z: attacker.z + offset2 * stepZ,
 					scale: size[(i + 1) % 2],
 					opacity: opct[i % 2],
-					time: (i + 1) * tick,
+					time: tick,
 				}, 'swing', i === 6 ? 'explode' : 'gone'];
 				wisp = wisp! ? scene.animateEffect(wisp, ...wispArgs) : scene.showEffect(...wispArgs);
 
@@ -37740,14 +37740,14 @@ export const BattleMoveAnims: AnimTable = {
 					z: attacker.z + offset1 * stepZ,
 					scale: size[i % 2],
 					opacity: opct[i % 2],
-					time: i * tick,
+					time: 0,
 				}, {
 					x: attacker.x + offset2 * stepX,
 					y: attacker.y + offset2 * stepY + tallerBy,
 					z: attacker.z + offset2 * stepZ,
 					scale: size[(i + 1) % 2],
 					opacity: opct[(i + 1) % 2],
-					time: (i + 1) * tick,
+					time: tick,
 				}, 'swing', i === 6 ? 'explode' : ''];
 				ball = ball! ? scene.animateEffect(ball, ...ballArgs) : scene.showEffect(...ballArgs);
 
@@ -37757,14 +37757,14 @@ export const BattleMoveAnims: AnimTable = {
 					z: attacker.z + offset1 * stepZ,
 					scale: size[i % 2],
 					opacity: opct[(i + 1) % 2],
-					time: i * tick,
+					time: 0,
 				}, {
 					x: attacker.x + offset2 * stepX,
 					y: attacker.y + offset2 * stepY + tallerBy,
 					z: attacker.z + offset2 * stepZ,
 					scale: size[(i + 1) % 2],
 					opacity: opct[i % 2],
-					time: (i + 1) * tick,
+					time: tick,
 				}, 'swing', i === 6 ? 'explode' : '', { filter: 'brightness(1.5)' }];
 				wisp = wisp! ? scene.animateEffect(wisp, ...wispArgs) : scene.showEffect(...wispArgs);
 
@@ -37913,6 +37913,135 @@ export const BattleMoveAnims: AnimTable = {
 			defender.anim({
 				time: 300,
 			}, 'swing');
+		},
+	},
+	tachyoncutter: {
+		anim(scene, [attacker, defender]) {
+			defender.delay(400);
+			defender.anim({
+				z: defender.behind(15),
+				time: 100,
+			}, 'swing');
+			defender.anim({
+				time: 200,
+			}, 'swing');
+			defender.anim({
+				z: defender.behind(20),
+				time: 100,
+			}, 'swing');
+			defender.anim({
+				time: 200,
+			}, 'swing');
+
+			scene.showEffect('waterwisp', {
+				x: attacker.leftof(-10),
+				y: attacker.y - 10,
+				z: attacker.z,
+				scale: 0.7,
+				opacity: 1,
+			}, {
+				y: attacker.y + 10,
+				scale: 1.4,
+				opacity: 0.2,
+				time: 300,
+			}, 'decel', 'fade');
+
+			scene.showEffect('sword', {
+				x: attacker.leftof(-10),
+				y: attacker.y - 10,
+				z: attacker.z,
+				scale: 0.5,
+				opacity: 1,
+			}, {
+				y: attacker.y + 10,
+				scale: 1,
+				opacity: 0.4,
+				time: 300,
+			}, 'decel', 'fade');
+
+			scene.showEffect('waterwisp', {
+				x: defender.x,
+				y: defender.y,
+				z: defender.z,
+				time: 500,
+				xscale: 1.2,
+				yscale: 0.4,
+				opacity: 0.8,
+			}, {
+				time: 720,
+				xscale: 1.4,
+				yscale: 0.6,
+				opacity: 0,
+			}, 'accel', 'explode', { rotate: '45deg' });
+
+			scene.showEffect('waterwisp', {
+				x: defender.x,
+				y: defender.y,
+				z: defender.z,
+				time: 730,
+				xscale: 1.2,
+				yscale: 0.4,
+				opacity: 0.8,
+			}, {
+				time: 930,
+				xscale: 1.4,
+				yscale: 0.6,
+				opacity: 0.4,
+			}, 'accel', 'explode', { rotate: '45deg' });
+
+			scene.showEffect('waterwisp', {
+				x: defender.x,
+				y: defender.y,
+				z: defender.z,
+				time: 730,
+				xscale: 1.2,
+				yscale: 0.4,
+				opacity: 0.8,
+			}, {
+				time: 930,
+				xscale: 1.4,
+				yscale: 0.6,
+				opacity: 0.4,
+			}, 'accel', 'explode', { rotate: '-45deg' });
+
+			scene.showEffect('leftslash', {
+				x: defender.x,
+				y: defender.y,
+				z: defender.z,
+				scale: 1.5,
+				opacity: 0.6,
+				time: 500,
+			}, {
+				scale: 2,
+				opacity: 0,
+				time: 720,
+			}, 'accel', 'fade', { filter: 'brightness(5)' });
+
+			scene.showEffect('leftslash', {
+				x: defender.x,
+				y: defender.y,
+				z: defender.z,
+				scale: 1.5,
+				opacity: 0.6,
+				time: 730,
+			}, {
+				scale: 2,
+				opacity: 0,
+				time: 930,
+			}, 'accel', 'fade', { filter: 'brightness(5)' });
+
+			scene.showEffect('rightslash', {
+				x: defender.x,
+				y: defender.y,
+				z: defender.z,
+				scale: 1.5,
+				opacity: 0.6,
+				time: 730,
+			}, {
+				scale: 2,
+				opacity: 0,
+				time: 930,
+			}, 'accel', 'fade', { filter: 'brightness(5)' });
 		},
 	},
 };

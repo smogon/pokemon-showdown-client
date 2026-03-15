@@ -503,6 +503,10 @@ export class ChatRoom extends PSRoom {
 				this.errorReply(`Invalid turn number: ${target}`);
 				return;
 			}
+			if (this.battle.hardcoreMode) {
+				this.errorReply(`Turn navigation is disabled in hardcore mode.`);
+				return;
+			}
 			this.battle.seekTurn(turnNum);
 			this.update(null);
 		},
@@ -1313,11 +1317,14 @@ class ChatPanel extends PSRoomPanel<ChatRoom> {
 		const challengeSent = room.teamSent && !room.challenged;
 		const challengeTo = room.challenging ? <div class="challenge outgoing">
 			<p>Waiting for {room.pmTarget}...</p>
-			<TeamForm format={room.challenging.formatName} teamFormat={room.challenging.teamFormat} onSubmit={null}>
+			<TeamForm
+				format={room.challenging.formatName} teamFormat={room.challenging.teamFormat}
+				onSubmit={null} selectType="challenge"
+			>
 				<button data-cmd="/cancelchallenge" class="button">Cancel</button>
 			</TeamForm>
 		</div> : room.challengeMenuOpen ? <div class="challenge outgoing">
-			<TeamForm onSubmit={this.makeChallenge} defaultFormat={defaultFormat}>
+			<TeamForm onSubmit={this.makeChallenge} defaultFormat={defaultFormat} selectType="challenge">
 				{challengeSent && <button class="button" disabled>
 					Challenging...
 				</button>}
@@ -1333,7 +1340,10 @@ class ChatPanel extends PSRoomPanel<ChatRoom> {
 
 		const challengeFrom = room.challenged ? <div class="challenge">
 			{!!room.challenged.message && <p>{room.challenged.message}</p>}
-			<TeamForm format={room.challenged.formatName} teamFormat={room.challenged.teamFormat} onSubmit={this.acceptChallenge}>
+			<TeamForm
+				format={room.challenged.formatName} teamFormat={room.challenged.teamFormat}
+				onSubmit={this.acceptChallenge} selectType="challenge"
+			>
 				{room.teamSent && <button class="button" disabled>
 					Accepting...
 				</button>}
