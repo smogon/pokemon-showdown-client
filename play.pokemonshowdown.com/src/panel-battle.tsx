@@ -425,6 +425,9 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 			room.battle.setViewpoint(request.side.id);
 			room.side = request.side;
 		}
+		if (request.ally) {
+			room.battle.myAllyPokemon = request.ally.pokemon;
+		}
 
 		room.request = request;
 		room.choices = new BattleChoiceBuilder(request);
@@ -751,6 +754,14 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 					cmd: `/switch ${i + 1}`,
 					disabled: cantSwitch,
 					tooltip: `switchpokemon|${i}`,
+				});
+			})}
+			{request.ally?.pokemon?.map((serverPokemon, i) => {
+				return this.renderPokemonButton({
+					pokemon: serverPokemon,
+					cmd: `/switch notMine`,
+					disabled: true,
+					tooltip: `allypokemon|${i}`,
 				});
 			})}
 		</div>;
