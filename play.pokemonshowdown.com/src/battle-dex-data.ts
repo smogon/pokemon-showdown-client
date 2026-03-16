@@ -379,7 +379,7 @@ export const BattlePokemonIconIndexes: { [id: string]: number } = {
 	wooperpaldea: 1032 + 227,
 	oinkolognef: 1032 + 228,
 	palafinhero: 1032 + 229,
-	mausholdfour: 1032 + 230,
+	mausholdthree: 1032 + 230,
 	tatsugiridroopy: 1032 + 231,
 	tatsugiristretchy: 1032 + 232,
 	squawkabillyblue: 1032 + 233,
