@@ -1521,7 +1521,7 @@ export class Battle {
 			let moveName = move.name;
 			if (!callerMoveForPressure) {
 				const previousLine = this.stepQueue[this.currentStep - 1];
-				const zPower = previousLine.startsWith('|-zpower')
+				const zPower = previousLine.startsWith('|-zpower');
 				if (move.isZ && zPower) {
 					pokemon.item = move.isZ;
 					let item = Dex.items.get(move.isZ);
