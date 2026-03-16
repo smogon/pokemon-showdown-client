@@ -929,7 +929,7 @@ export class ChatTextEntry extends preact.Component<{
 	}
 	handleKey(ev: KeyboardEvent) {
 		const cmdKey = ((ev.metaKey ? 1 : 0) + (ev.ctrlKey ? 1 : 0) === 1) && !ev.altKey && !ev.shiftKey;
-		const altKey = ev.altKey
+		const altKey = ev.altKey;
 		// const anyModifier = ev.ctrlKey || ev.altKey || ev.metaKey || ev.shiftKey;
 		if (ev.keyCode === 13 && !ev.shiftKey) { // Enter key
 			return this.submit();
