@@ -2412,10 +2412,7 @@ export const PS = new class extends PSModel {
 
 		if (!unreadRooms.length) return;
 
-		const target =
-			direction === 'left'
-				? unreadRooms[unreadRooms.length - 1]
-				: unreadRooms[0];
+		const target = direction === 'left' ? unreadRooms[unreadRooms.length - 1] : unreadRooms[0];
 			console.log("Target = " + target);
 			console.log("Unread Rooms = " + unreadRooms);
 
