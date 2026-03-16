@@ -934,6 +934,7 @@ export class ChatTextEntry extends preact.Component<{
 	}
 	handleKey(ev: KeyboardEvent) {
 		const cmdKey = ((ev.metaKey ? 1 : 0) + (ev.ctrlKey ? 1 : 0) === 1) && !ev.altKey && !ev.shiftKey;
+		const altKey = ev.altKey;
 		// const anyModifier = ev.ctrlKey || ev.altKey || ev.metaKey || ev.shiftKey;
 		if (ev.keyCode === 13 && !ev.shiftKey) { // Enter key
 			return this.submit();
@@ -965,7 +966,7 @@ export class ChatTextEntry extends preact.Component<{
 		// 	const newValue = `/pm ${PS.user.lastPM}, `;
 		// 	this.setValue(newValue, newValue.length);
 		// 	return true;
-		} else if (ev.shiftKey && ev.keyCode === 37) {
+		} else if (ev.shiftKey && ev.keyCode === 37 && !altKey) {
 			if (PS.prefs.onepanel === 'vertical' || this.getValue().length > 0) return;
 			const curLoc = PS.room.location;
 			let newLoc = curLoc;
@@ -1002,7 +1003,7 @@ export class ChatTextEntry extends preact.Component<{
 				PS.update();
 			}
 			return true;
-		} else if (ev.shiftKey && ev.keyCode === 39) {
+		} else if (ev.shiftKey && ev.keyCode === 39 && !altKey) {
 			if (PS.prefs.onepanel === 'vertical' || this.getValue().length > 0) return;
 			const curLoc = PS.room.location;
 			let newLoc = curLoc;
