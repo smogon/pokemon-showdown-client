@@ -1928,6 +1928,7 @@ export const PS = new class extends PSModel {
 	arrowKeysUsed = false;
 
 	newsHTML = document.querySelector('#room-news .readable-bg')?.innerHTML || '';
+	newsId = document.getElementById('room-news')?.getAttribute('data-newsid') || null;
 
 	libsLoaded = makeLoadTracker();
 
