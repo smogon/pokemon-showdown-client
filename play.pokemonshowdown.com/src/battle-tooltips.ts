@@ -1483,7 +1483,7 @@ export class BattleTooltips {
 			if (typeof ppUsed === 'number') {
 				return `${bullet} ${move.name} <small>(${maxpp - ppUsed}/${maxpp})</small>`;
 			} else {
-				return `${bullet} ${move.name} <small>(between ${maxpp - ppUsed[0]}/${maxpp} and ${maxpp - ppUsed[1]}/${maxpp})</small>`;
+				return `${bullet} ${move.name} <small>(${maxpp - ppUsed[0]}/${maxpp} to ${maxpp - ppUsed[1]}/${maxpp})</small>`;
 			}
 		}
 		return `${bullet} ${move.name} ${showKnown ? ' <small>(revealed)</small>' : ''}`;
