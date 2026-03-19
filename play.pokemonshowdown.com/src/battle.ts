@@ -435,16 +435,11 @@ export class Pokemon implements PokemonDetails, PokemonHealth {
 		this.statusData.toxicTurns = 0;
 		if (this.side.battle.gen === 5) this.statusData.sleepTurns = 0;
 	}
-	/**
-	 * copyAll = false means Baton Pass,
-	 * copyAll = true means Illusion breaking
-	 * copyAll = 'shedtail' means Shed Tail
-	 */
-	copyVolatileFrom(pokemon: Pokemon, copySource?: | 'shedtail' | boolean) {
+	copyVolatileFrom(pokemon: Pokemon, copySource: 'batonpass' | 'shedtail' | 'illusion') {
 		this.boosts = pokemon.boosts;
 		this.volatiles = pokemon.volatiles;
 		// this.lastMove = pokemon.lastMove; // I think
-		if (!copySource) {
+		if (copySource === 'batonpass') {
 			const volatilesToRemove = [
 				'airballoon', 'attract', 'autotomize', 'disable', 'encore', 'foresight', 'gmaxchistrike', 'imprison', 'laserfocus', 'mimic', 'miracleeye', 'nightmare', 'saltcure', 'smackdown', 'stockpile1', 'stockpile2', 'stockpile3', 'syrupbomb', 'torment', 'typeadd', 'typechange', 'yawn',
 			];
@@ -456,13 +451,8 @@ export class Pokemon implements PokemonDetails, PokemonHealth {
 				delete this.volatiles[volatile];
 			}
 		}
-		if (copySource === 'shedtail') {
-			for (let i in this.volatiles) {
-				if (i === 'substitute') continue;
-				delete this.volatiles[i];
-			}
-			this.boosts = {};
-		}
+		// Shed Tail doesn't need special handling because the source already has
+		// its volatiles except Substitute cleared in switchOut.
 		delete this.volatiles['transform'];
 		delete this.volatiles['formechange'];
 
@@ -598,7 +588,7 @@ export class Pokemon implements PokemonDetails, PokemonHealth {
 		return Pokemon.getFormattedRange(range, precision, '\u2013');
 	}
 	destroy() {
-		if (this.sprite) this.sprite.destroy();
+		this.sprite?.destroy();
 		this.sprite = null!;
 		this.side = null!;
 	}
@@ -849,9 +839,9 @@ export class Side {
 		this.battle.lastMove = 'switch-in';
 		const effect = Dex.getEffect(kwArgs.from);
 		if (['batonpass', 'zbatonpass', 'shedtail'].includes(effect.id)) {
-			pokemon.copyVolatileFrom(this.lastPokemon!, effect.id === 'shedtail' ? 'shedtail' : false);
+			pokemon.copyVolatileFrom(this.lastPokemon!, effect.id === 'shedtail' ? 'shedtail' : 'batonpass');
 		} else if (this.battle.tier.includes(`Relay Race`) && !effect.id) {
-			if (this.lastPokemon && !this.lastPokemon.fainted) pokemon.copyVolatileFrom(this.lastPokemon, false);
+			if (this.lastPokemon && !this.lastPokemon.fainted) pokemon.copyVolatileFrom(this.lastPokemon, 'batonpass');
 		}
 
 		this.battle.scene.animSummon(pokemon, slot);
@@ -883,7 +873,7 @@ export class Side {
 			pokemon.maxhp = oldpokemon.maxhp;
 			pokemon.hpcolor = oldpokemon.hpcolor;
 			pokemon.status = oldpokemon.status;
-			pokemon.copyVolatileFrom(oldpokemon, true);
+			pokemon.copyVolatileFrom(oldpokemon, 'illusion');
 			pokemon.statusData = { ...oldpokemon.statusData };
 			if (oldpokemon.terastallized) {
 				pokemon.terastallized = oldpokemon.terastallized;
@@ -907,9 +897,13 @@ export class Side {
 	}
 	switchOut(pokemon: Pokemon, kwArgs: KWArgs, slot = pokemon.slot) {
 		const effect = Dex.getEffect(kwArgs.from);
-		if (!['batonpass', 'zbatonpass', 'shedtail'].includes(effect.id) &&
+		if (!['batonpass', 'zbatonpass'].includes(effect.id) &&
 			!(this.battle.tier.includes(`Relay Race`) && !effect.id)) {
 			pokemon.clearVolatile();
+			if (effect.id === 'shedtail') {
+				pokemon.volatiles = { substitute: ['substitute' as ID] };
+				pokemon.sprite?.animSub(true);
+			}
 		} else {
 			pokemon.removeVolatile('transform' as ID);
 			pokemon.removeVolatile('formechange' as ID);
