@@ -8,7 +8,7 @@
  * @license MIT
  */
 
-import { Pokemon, type Battle, type ServerPokemon } from "./battle";
+import { Pokemon, type Battle, type PPState, type ServerPokemon } from "./battle";
 import { Dex, type ModdedDex, toID, type ID } from "./battle-dex";
 import type { BattleScene } from "./battle-animations";
 import { BattleLog } from "./battle-log";
@@ -993,8 +993,8 @@ export class BattleTooltips {
 			}).length > 4) {
 				text += `(More than 4 moves is usually a sign of Illusion Zoroark/Zorua.) `;
 			}
-			if (this.battle.gen === 3) {
-				text += `(Pressure is not visible in Gen 3, so in certain situations, more PP may have been lost than shown here.) `;
+			if (this.battle.gen === 3 && clientPokemon.moveTrack.some(([_, pp]) => typeof pp !== 'number')) {
+				text += `(Pressure is not visible in Gen 3, so in certain situations, the exact amount of PP used may be unknown.) `;
 			}
 			if (this.pokemonHasClones(clientPokemon)) {
 				text += `(Your opponent has two indistinguishable Pokémon, making it impossible for you to tell which one has which moves/ability/item.) `;
@@ -1472,7 +1472,7 @@ export class BattleTooltips {
 		return buf;
 	}
 
-	getPPUseText(moveTrackRow: [string, number], showKnown?: boolean) {
+	getPPUseText(moveTrackRow: [string, PPState], showKnown?: boolean) {
 		let [moveName, ppUsed] = moveTrackRow;
 		let move;
 		let maxpp;
@@ -1490,7 +1490,11 @@ export class BattleTooltips {
 			return `${bullet} ${move.name} <small>(0/${maxpp})</small>`;
 		}
 		if (ppUsed || moveName.startsWith('*')) {
-			return `${bullet} ${move.name} <small>(${maxpp - ppUsed}/${maxpp})</small>`;
+			if (typeof ppUsed === 'number') {
+				return `${bullet} ${move.name} <small>(${maxpp - ppUsed}/${maxpp})</small>`;
+			} else {
+				return `${bullet} ${move.name} <small>(${maxpp - ppUsed[0]}/${maxpp} to ${maxpp - ppUsed[1]}/${maxpp})</small>`;
+			}
 		}
 		return `${bullet} ${move.name} ${showKnown ? ' <small>(revealed)</small>' : ''}`;
 	}
@@ -1988,7 +1992,8 @@ export class BattleTooltips {
 			value.set(20 + 20 * boostCount);
 		}
 		if (move.id === 'trumpcard') {
-			const ppLeft = 5 - this.ppUsed(move, pokemon);
+			const pp = this.ppUsed(move, pokemon);
+			const ppLeft = 5 - (typeof pp === 'number' ? pp : pp[1]);
 			let basePower = 40;
 			if (ppLeft === 1) basePower = 200;
 			else if (ppLeft === 2) basePower = 80;
