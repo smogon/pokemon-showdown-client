@@ -14,8 +14,9 @@ This is a repository for most of the client code for Pokémon Showdown.
 
 This is what runs `play.pokemonshowdown.com`.
 
-**WARNING: You probably want the [Pokémon Showdown server][4]**, if you're
-setting up a server.
+> [!WARNING]
+> **You probably want the [Pokémon Showdown server][4]**, if you're
+> setting up a server.
 
   [4]: https://github.com/Zarel/Pokemon-Showdown
 
@@ -88,11 +89,12 @@ You can connect to an arbitrary server by navigating to
 `testclient.html?~~host:port`. For example, to connect to a server running
 locally on port 8000, you can navigate to `testclient.html?~~localhost:8000`.
 
-**NOTE**: Certain browsers will convert `'?'` to `'%3F'` when reading files off
-of the local filesystem. As a workaround, try using a different browser or
-serving the files locally first (ie. run `npx http-server` from the
-directory this README is in, then navigate in your browser to
-`http://localhost:8080/testclient.html?~~localhost:8000`).
+> [!NOTE]
+> Certain browsers will convert `'?'` to `'%3F'` when reading files off
+> of the local filesystem. As a workaround, try using a different browser or
+> serving the files locally first (ie. run `npx http-server` from the
+> directory this README is in, then navigate in your browser to
+> `http://localhost:8080/testclient.html?~~localhost:8000`).
 
 ### Limitations
 
@@ -107,13 +109,14 @@ Everything else can be tested.
 Warning
 ------------------------------------------------------------------------
 
-This repository is not "batteries included". It does NOT include instructions
-to run a full Pokémon Showdown login server, and we will not provide them.
-Please do not ask for help on this; you will be turned away.
-
-If you make a mistake hosting a login server, your users' passwords can get
-stolen, so we do not want anyone to host a login server unless they can
-figure out how to do it without help.
+> [!CAUTION]
+> This repository is not "batteries included". It does NOT include instructions
+> to run a full Pokémon Showdown login server, and we will not provide them.
+> Please do not ask for help on this; you will be turned away.
+> 
+> If you make a mistake hosting a login server, your users' passwords can get
+> stolen, so we do not want anyone to host a login server unless they can
+> figure out how to do it without help.
 
 It also doesn't include several resource files (namely, the `/audio/` and
 `/sprites/` directories) for size reasons.
@@ -133,4 +136,5 @@ If you're doing _anything_ else other than forking, _especially_ if you want to 
 
   [6]: http://www.gnu.org/licenses/agpl-3.0.html
 
-**WARNING:** This is **NOT** the same license as Pokémon Showdown's server.
+> [!WARNING]
+> This is **NOT** the same license as Pokémon Showdown's server.
