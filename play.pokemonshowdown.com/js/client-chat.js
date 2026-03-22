@@ -1242,19 +1242,6 @@
 					this.add('all - Change all timestamps preferences, lobby - Change only lobby chat preferences, pms - Change only PM preferences.');
 					this.add('off - Set timestamps off, minutes - Show timestamps of the form [hh:mm], seconds - Show timestamps of the form [hh:mm:ss].');
 					return false;
-				case 'highlight':
-				case 'hl':
-					this.add('Set up highlights:');
-					this.add('/highlight add [word 1], [word 2], [...] - Add the provided list of words to your highlight list.');
-					this.add('/highlight roomadd [word 1], [word 2], [...] - Add the provided list of words to the highlight list of whichever room you used the command in.');
-					this.add('/highlight list - List all words that currently highlight you.');
-					this.add('/highlight roomlist - List all words that currently highlight you in whichever room you used the command in.');
-					this.add('/highlight delete [word 1], [word 2], [...] - Delete the provided list of words from your entire highlight list.');
-					this.add('/highlight roomdelete [word 1], [word 2], [...] - Delete the provided list of words from the highlight list of whichever room you used the command in.');
-					this.add('/highlight clear - Clear your global highlight list.');
-					this.add('/highlight roomclear - Clear the highlight list of whichever room you used the command in.');
-					this.add('/highlight clearall - Clear your entire highlight list (all rooms and globally).');
-					return false;
 				case 'rank':
 				case 'ranking':
 				case 'rating':
