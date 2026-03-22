@@ -119,6 +119,7 @@ class PSPrefs extends PSStreamModel<string | null> {
 	ignorespects: boolean | null = null;
 	ignoreopp: boolean | null = null;
 	autotimer: boolean | null = null;
+	autohardcore: boolean | null = null;
 	rightpanelbattles: boolean | null = null;
 	disallowspectators: boolean | null = null;
 	starredformats: { [formatid: string]: true | undefined } | null = null;
@@ -1176,10 +1177,10 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 		},
 		'part,leave,close'(target, cmd, elem) {
 			const roomid = (/[^a-z0-9-]/.test(target) ? toID(target) as any as RoomID : target as RoomID) || this.id;
-			const room = PS.rooms[roomid];
-			const battle = (room as BattleRoom)?.battle;
+			const room = PS.rooms[roomid] as BattleRoom;
+			const battle = room?.battle;
 
-			if (room?.type === "battle" && !battle.ended && battle.mySide.id === PS.user.userid && !battle.isReplay) {
+			if (room?.type === "battle" && !battle.ended && room.users[PS.user.userid]?.startsWith('☆') && !battle.isReplay) {
 				PS.join("forfeitbattle" as RoomID, { parentElem: elem });
 				return;
 			}
@@ -1927,6 +1928,7 @@ export const PS = new class extends PSModel {
 	arrowKeysUsed = false;
 
 	newsHTML = document.querySelector('#room-news .readable-bg')?.innerHTML || '';
+	newsId = document.getElementById('room-news')?.getAttribute('data-newsid') || null;
 
 	libsLoaded = makeLoadTracker();
 
@@ -2166,6 +2168,9 @@ export const PS = new class extends PSModel {
 				}
 				this.update();
 				continue;
+			} case 'nametaken': {
+				PS.join('login' as RoomID, { args: { error: `Someone is already using the name ${args[1]}.` } });
+				break;
 			}
 
 			}
@@ -2400,6 +2405,21 @@ export const PS = new class extends PSModel {
 			return this.focusRoom(rooms[0]);
 		}
 		return this.focusRoom(rooms[index + 1]);
+	}
+	focusUnreadRoom(direction: 'left' | 'right') {
+		const { rooms, index } = this.horizontalNav();
+		if (index === -1) return;
+
+		const unreadRooms = rooms.filter((room, i) =>
+			PS.rooms[room]?.isSubtleNotifying &&
+			(direction === 'left' ? i < index : i > index)
+		);
+
+		if (!unreadRooms.length) return;
+
+		const target = direction === 'left' ? unreadRooms[unreadRooms.length - 1] : unreadRooms[0];
+
+		return this.focusRoom(target);
 	}
 	alert(message: string, opts: { okButton?: string, parentElem?: HTMLElement | null, width?: number } = {}) {
 		this.join(`popup-${this.popups.length}` as RoomID, {

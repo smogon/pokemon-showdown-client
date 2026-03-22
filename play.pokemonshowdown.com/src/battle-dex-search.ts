@@ -321,6 +321,7 @@ export class DexSearch {
 		// Notes:
 		// - if we have a searchType, that searchType's buffer will be on top
 		let bufs: SearchRow[][] = [[], [], [], [], [], [], [], [], [], []];
+		let seenInBuf: Record<string, boolean>[] = bufs.map(() => Object.create(null));
 		let topbufIndex = -1;
 
 		let count = 0;
@@ -435,15 +436,22 @@ export class DexSearch {
 					bufs[0] = [['header', DexSearch.typeName[type]]];
 				}
 				if (!(id in illegal)) typeIndex = 0;
+				// Move illegal pokemon to the bottom of the results
+				if (id in illegal && searchTypeIndex === 1) {
+					typeIndex = 8;
+					if (!bufs[typeIndex].length) {
+						bufs[typeIndex] = [['header', "Illegal Pok\u00e9mon"]];
+					}
+				}
 			} else {
 				if (!bufs[typeIndex].length) {
 					bufs[typeIndex] = [['header', DexSearch.typeName[type]]];
 				}
 			}
 
-			// don't match duplicate aliases
-			let curBufLength = (passType === 'alias' && bufs[typeIndex].length);
-			if (curBufLength && bufs[typeIndex][curBufLength - 1][1] === id) continue;
+			// don't add duplicate results
+			if (id in seenInBuf[typeIndex]) continue;
+			seenInBuf[typeIndex][id] = true;
 
 			bufs[typeIndex].push([type, id, matchStart, matchEnd]);
 
@@ -1003,7 +1011,7 @@ class BattlePokemonSearch extends BattleTypedSearch<'pokemon'> {
 		const format = this.format;
 		if (!format) return this.getDefaultResults();
 		const isVGCOrBS = format.startsWith('battlespot') || format.startsWith('bss') ||
-			format.startsWith('battlestadium') || format.startsWith('vgc');
+			format.startsWith('battlestadium') || format.startsWith('vgc') || format === '4v4doublesuu';
 		const isHackmons = format.includes('hackmons') || format.endsWith('bh');
 		let isDoublesOrBS = isVGCOrBS || this.formatType?.includes('doubles');
 		const dex = this.dex;
@@ -1092,7 +1100,7 @@ class BattlePokemonSearch extends BattleTypedSearch<'pokemon'> {
 				format === 'vgc2010' || format === 'vgc2016' || format.startsWith('vgc2019') ||
 				format === 'vgc2022' || format.endsWith('regg') || format.endsWith('regi')
 			) {
-				tierSet = tierSet.slice(slices["Restricted Legendary"]);
+				tierSet = tierSet.slice(slices["Restricted"]);
 			} else {
 				tierSet = tierSet.slice(slices.Regular);
 			}
@@ -1155,22 +1163,19 @@ class BattlePokemonSearch extends BattleTypedSearch<'pokemon'> {
 			];
 		}
 		const customBanlists = [
-			'1v1', '2v2doubles', 'lcuu', 'freeforall', 'ubersuu', 'almostanyability', 'balancedhackmons', 'godlygift', 'mixandmega',
-			'sharedpower', 'stabmons', '12switch', '350cup', 'alphabetcup', 'badnboosted', 'battlefields', 'biomechmons', 'camomons',
-			'categoryswap', 'convergence', 'crossevolution', 'fervetimpersonation', 'foresighters', 'formemons', 'fortemons',
-			'franticfusions', 'fullpotential', 'inheritance', 'inverse', 'natureswap', 'partnersincrime', 'passiveaggressive',
-			'pokebilities', 'pokemoves', 'relayrace', 'revelationmons', 'sharingiscaring', 'teradonation', 'teraoverride', 'thecardgame',
-			'thelosersgame', 'trademarked', 'triples', 'typesplit', 'voltturnmayhem', 'nationaldexubersuu', 'nationaldex1v1',
-			'nationaldexaaa', 'nationaldexbh', 'nationaldexgodlygift', 'nationaldexstabmons', 'tiershift',
+			'1v1', '2v2doubles', 'lcuu', 'freeforall', 'ubersuu', 'almostanyability', 'balancedhackmons', 'godlygift', 'mixandmega', 'sharedpower', 'stabmons',
+			'12switch', '350cup', 'alphabetcup', 'badnboosted', 'battlefields', 'biomechmons', 'camomons', 'categoryswap', 'categoryswap',
+			'convergence', 'crossevolution', 'categoryswap', 'ferventimpersonation', 'foresighters', 'formemons', 'fortemons', 'franticfusions',
+			'fullpotential', 'inheritance', 'inverse', 'natureswap', 'partnersincrime', 'passiveaggressive', 'pokebilities',
+			'pokemoves', 'relayrace', 'revelationmons', 'sharingiscaring', 'teradonation', 'teraoverride', 'thecardgame',
+			'thelosersgame', 'trademarked', 'triples', 'typesplit', 'voltturnmayhem', 'flipped', 'monotype', 'stabmonsmixandmega',
+			'aaa', 'bh', 'doubles', // natdex abbreviations
+			'tiershift', 'linked', '4v4doublesuu',
 		];
 		if (dex.gen >= 6) {
-			if (
-				(customBanlists.includes(format) && table.metagameBans?.[format]) ||
-				(this.formatType === 'natdex' && customBanlists.includes('nationaldex' + format) &&
-					table.metagameBans?.['nationaldex' + format])) {
+			if (customBanlists.includes(format) && table.metagameBans?.[format]) {
 				tierSet = tierSet.filter(([type, id]) => {
 					if (id in table.metagameBans[format]) return false;
-					if (this.formatType === 'natdex' && id in table.metagameBans['nationaldex' + format]) return false;
 					if (!this.formatType && dex.gen === 9 &&
 						'miraidon' in table.metagameBans[format] &&
 						'calyrexshadow' in table.metagameBans[format] &&

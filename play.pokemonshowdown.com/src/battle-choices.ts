@@ -20,6 +20,11 @@ export interface BattleRequestSideInfo {
 	id: 'p1' | 'p2' | 'p3' | 'p4';
 	pokemon: ServerPokemon[];
 }
+export interface BattleRequestAllyInfo {
+	id: string;
+	name: string;
+	pokemon: ServerPokemon[];
+}
 export interface BattleRequestActivePokemon {
 	moves: {
 		name: string,
@@ -60,6 +65,7 @@ export interface BattleMoveRequest {
 	requestType: 'move';
 	rqid: number;
 	side: BattleRequestSideInfo;
+	ally?: BattleRequestAllyInfo;
 	active: (BattleRequestActivePokemon | null)[];
 	noCancel?: boolean;
 	targetable?: boolean;
@@ -67,6 +73,7 @@ export interface BattleMoveRequest {
 export interface BattleSwitchRequest {
 	requestType: 'switch';
 	rqid: number;
+	ally?: BattleRequestAllyInfo;
 	side: BattleRequestSideInfo;
 	forceSwitch: boolean[];
 	noCancel?: boolean;
@@ -75,6 +82,7 @@ export interface BattleTeamRequest {
 	requestType: 'team';
 	rqid: number;
 	side: BattleRequestSideInfo;
+	ally?: BattleRequestAllyInfo;
 	maxTeamSize?: number;
 	maxChosenTeamSize?: number;
 	chosenTeamSize?: number;
@@ -84,6 +92,7 @@ export interface BattleWaitRequest {
 	requestType: 'wait';
 	rqid: number;
 	side: undefined;
+	ally: undefined;
 	noCancel?: boolean;
 }
 export type BattleRequest = BattleMoveRequest | BattleSwitchRequest | BattleTeamRequest | BattleWaitRequest;
@@ -449,6 +458,7 @@ export class BattleChoiceBuilder {
 				choiceType: isTeamPreview ? 'team' : 'switch',
 				targetPokemon: 0,
 			};
+			if (choice === 'notMine') throw new Error(`You cannot decide for your partner!`);
 			if (/^[0-9]+$/.test(choice)) {
 				// Parse a one-based move index.
 				current.targetPokemon = parseInt(choice, 10);
@@ -558,6 +568,12 @@ export class BattleChoiceBuilder {
 		if (request.requestType === 'wait') request.noCancel = true;
 		if (request.side) {
 			for (const serverPokemon of request.side.pokemon) {
+				battle.parseDetails(serverPokemon.ident.substr(4), serverPokemon.ident, serverPokemon.details, serverPokemon);
+				battle.parseHealth(serverPokemon.condition, serverPokemon);
+			}
+		}
+		if (request.ally) {
+			for (const serverPokemon of request.ally.pokemon) {
 				battle.parseDetails(serverPokemon.ident.substr(4), serverPokemon.ident, serverPokemon.details, serverPokemon);
 				battle.parseHealth(serverPokemon.condition, serverPokemon);
 			}

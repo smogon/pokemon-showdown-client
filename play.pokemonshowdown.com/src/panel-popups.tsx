@@ -1,5 +1,5 @@
 import preact from "../js/lib/preact";
-import { toID, toRoomid, toUserid, Dex } from "./battle-dex";
+import { toID, toRoomid, toUserid, Dex, PSUtils } from "./battle-dex";
 import type { ID } from "./battle-dex-data";
 import { BattleLog } from "./battle-log";
 import { PSLoginServer } from "./client-connection";
@@ -230,7 +230,7 @@ class UserOptionsPanel extends PSRoomPanel {
 		data?: Record<string, string>,
 	};
 	getTargets() {
-		const [, targetUser, targetRoomid] = this.props.room.id.split('-');
+		const [, targetUser, targetRoomid] = PSUtils.splitFirst(this.props.room.id, '-', 2);
 		let targetRoom = (PS.rooms[targetRoomid] || null) as ChatRoom | null;
 		if (targetRoom?.type !== 'chat') targetRoom = targetRoom?.getParent() as ChatRoom;
 		if (targetRoom?.type !== 'chat') targetRoom = targetRoom?.getParent() as ChatRoom;
@@ -1563,6 +1563,14 @@ class BattleOptionsPanel extends PSRoomPanel {
 			}
 			break;
 		}
+		case 'autohardcore': {
+			PS.prefs.set('autohardcore', value);
+			if (room?.battle) {
+				room.battle.setHardcoreMode(value);
+				room.update(null);
+			}
+			break;
+		}
 		case 'ignoreopp': {
 			PS.prefs.set('ignoreopp', value);
 			this.handleIgnoreOpponent(value);
@@ -1674,6 +1682,14 @@ class BattleOptionsPanel extends PSRoomPanel {
 						name="autotimer" checked={PS.prefs.autotimer || false}
 						type="checkbox" onChange={this.handleAllSettings}
 					/> Automatically start timer
+				</label>
+			</p>
+			<p>
+				<label class="checkbox">
+					<input
+						name="autohardcore" checked={PS.prefs.autohardcore || false}
+						type="checkbox" onChange={this.handleAllSettings}
+					/> Automatically enable hardcore mode
 				</label>
 			</p>
 			{!PS.prefs.onepanel && document.body.offsetWidth >= 800 && <p>

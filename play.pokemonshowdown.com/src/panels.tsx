@@ -542,6 +542,13 @@ export class PSView extends preact.Component {
 			}
 			const modifierKey = ev.ctrlKey || ev.altKey || ev.metaKey || ev.shiftKey;
 			const altKey = !ev.ctrlKey && ev.altKey && !ev.metaKey && !ev.shiftKey;
+			if (ev.altKey && ev.shiftKey && ev.keyCode === 37) { // alt + shift + left
+				PS.arrowKeysUsed = true;
+				PS.focusUnreadRoom('left');
+			} else if (ev.altKey && ev.shiftKey && ev.keyCode === 39) { // alt + shift + right
+				PS.arrowKeysUsed = true;
+				PS.focusUnreadRoom('right');
+			}
 			if (altKey && ev.keyCode === 38) { // alt + up
 				PS.arrowKeysUsed = true;
 				PS.focusUpRoom();
@@ -699,6 +706,11 @@ export class PSView extends preact.Component {
 			return true;
 		case 'register':
 			PS.join('register' as RoomID, {
+				parentElem: elem,
+			});
+			return true;
+		case 'openOptions':
+			PS.join('options' as RoomID, {
 				parentElem: elem,
 			});
 			return true;

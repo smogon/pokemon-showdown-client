@@ -8,7 +8,7 @@
  * @license MIT
  */
 
-import { Pokemon, type Battle, type ServerPokemon } from "./battle";
+import { Pokemon, type Battle, type PPState, type ServerPokemon } from "./battle";
 import { Dex, type ModdedDex, toID, type ID } from "./battle-dex";
 import type { BattleScene } from "./battle-animations";
 import { BattleLog } from "./battle-log";
@@ -870,8 +870,10 @@ export class BattleTooltips {
 			text += `<p class="tooltip-section"><strong>Possible Illusion #${illusionIndex}</strong>${levelBuf}</p>`;
 		}
 
-		if (pokemon.fainted) {
-			text += '<p><small>HP:</small> (fainted)</p>';
+		if (pokemon.fainted && pokemon.maxhp === 100) {
+			text += `<p><small>HP:</small> (fainted)</p>`;
+		} else if (pokemon.fainted) {
+			text += `<p><small>HP:</small> <span class="gray">0/${pokemon.maxhp} (fainted)</span></p>`;
 		} else if (this.battle.hardcoreMode) {
 			if (serverPokemon) {
 				const status = pokemon.status ? ` <span class="status ${pokemon.status}">${pokemon.status.toUpperCase()}</span>` : '';
@@ -970,6 +972,14 @@ export class BattleTooltips {
 				text += `${moveName}<br />`;
 			}
 			text += '</p>';
+		} else if (this.battle.hardcoreMode && clientPokemon?.side.openTeamSheet && clientPokemon.moveTrack.length) {
+			// move list (open team sheet, no PP usage shown)
+			text += `<p class="tooltip-section">`;
+			for (const [moveName] of clientPokemon.moveTrack) {
+				const move = this.battle.dex.moves.get(moveName);
+				text += `&#8226; ${move.name}<br />`;
+			}
+			text += `</p>`;
 		} else if (!this.battle.hardcoreMode && clientPokemon?.moveTrack.length) {
 			// move list (guessed)
 			text += `<p class="tooltip-section">`;
@@ -983,8 +993,8 @@ export class BattleTooltips {
 			}).length > 4) {
 				text += `(More than 4 moves is usually a sign of Illusion Zoroark/Zorua.) `;
 			}
-			if (this.battle.gen === 3) {
-				text += `(Pressure is not visible in Gen 3, so in certain situations, more PP may have been lost than shown here.) `;
+			if (this.battle.gen === 3 && clientPokemon.moveTrack.some(([_, pp]) => typeof pp !== 'number')) {
+				text += `(Pressure is not visible in Gen 3, so in certain situations, the exact amount of PP used may be unknown.) `;
 			}
 			if (this.pokemonHasClones(clientPokemon)) {
 				text += `(Your opponent has two indistinguishable Pokémon, making it impossible for you to tell which one has which moves/ability/item.) `;
@@ -1462,7 +1472,7 @@ export class BattleTooltips {
 		return buf;
 	}
 
-	getPPUseText(moveTrackRow: [string, number], showKnown?: boolean) {
+	getPPUseText(moveTrackRow: [string, PPState], showKnown?: boolean) {
 		let [moveName, ppUsed] = moveTrackRow;
 		let move;
 		let maxpp;
@@ -1480,7 +1490,11 @@ export class BattleTooltips {
 			return `${bullet} ${move.name} <small>(0/${maxpp})</small>`;
 		}
 		if (ppUsed || moveName.startsWith('*')) {
-			return `${bullet} ${move.name} <small>(${maxpp - ppUsed}/${maxpp})</small>`;
+			if (typeof ppUsed === 'number') {
+				return `${bullet} ${move.name} <small>(${maxpp - ppUsed}/${maxpp})</small>`;
+			} else {
+				return `${bullet} ${move.name} <small>(${maxpp - ppUsed[0]}/${maxpp} to ${maxpp - ppUsed[1]}/${maxpp})</small>`;
+			}
 		}
 		return `${bullet} ${move.name} ${showKnown ? ' <small>(revealed)</small>' : ''}`;
 	}
@@ -1978,7 +1992,8 @@ export class BattleTooltips {
 			value.set(20 + 20 * boostCount);
 		}
 		if (move.id === 'trumpcard') {
-			const ppLeft = 5 - this.ppUsed(move, pokemon);
+			const pp = this.ppUsed(move, pokemon);
+			const ppLeft = 5 - (typeof pp === 'number' ? pp : pp[1]);
 			let basePower = 40;
 			if (ppLeft === 1) basePower = 200;
 			else if (ppLeft === 2) basePower = 80;
@@ -2635,6 +2650,7 @@ export class BattleStatGuesser {
 
 		for (let i = 0, len = set.moves.length; i < len; i++) {
 			let move = this.dex.moves.get(set.moves[i]);
+			if (!move.exists) continue;
 			hasMove[move.id] = 1;
 			if (move.category === 'Status') {
 				if (['batonpass', 'healingwish', 'lunardance'].includes(move.id)) {
@@ -3187,7 +3203,7 @@ export function BattleStatOptimizer(set: Dex.PokemonSet, formatid: ID) {
 		return ~~(val);
 	};
 
-	const origNature = BattleNatures[set.nature || 'Serious'];
+	const origNature = BattleNatures[set.nature!] ?? BattleNatures['Serious'];
 	const origStats = {
 		// no need to calculate hp
 		atk: getStat('atk', set.evs.atk || 0, origNature),

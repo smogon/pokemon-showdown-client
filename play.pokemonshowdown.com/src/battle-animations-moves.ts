@@ -37915,6 +37915,135 @@ export const BattleMoveAnims: AnimTable = {
 			}, 'swing');
 		},
 	},
+	tachyoncutter: {
+		anim(scene, [attacker, defender]) {
+			defender.delay(400);
+			defender.anim({
+				z: defender.behind(15),
+				time: 100,
+			}, 'swing');
+			defender.anim({
+				time: 200,
+			}, 'swing');
+			defender.anim({
+				z: defender.behind(20),
+				time: 100,
+			}, 'swing');
+			defender.anim({
+				time: 200,
+			}, 'swing');
+
+			scene.showEffect('waterwisp', {
+				x: attacker.leftof(-10),
+				y: attacker.y - 10,
+				z: attacker.z,
+				scale: 0.7,
+				opacity: 1,
+			}, {
+				y: attacker.y + 10,
+				scale: 1.4,
+				opacity: 0.2,
+				time: 300,
+			}, 'decel', 'fade');
+
+			scene.showEffect('sword', {
+				x: attacker.leftof(-10),
+				y: attacker.y - 10,
+				z: attacker.z,
+				scale: 0.5,
+				opacity: 1,
+			}, {
+				y: attacker.y + 10,
+				scale: 1,
+				opacity: 0.4,
+				time: 300,
+			}, 'decel', 'fade');
+
+			scene.showEffect('waterwisp', {
+				x: defender.x,
+				y: defender.y,
+				z: defender.z,
+				time: 500,
+				xscale: 1.2,
+				yscale: 0.4,
+				opacity: 0.8,
+			}, {
+				time: 720,
+				xscale: 1.4,
+				yscale: 0.6,
+				opacity: 0,
+			}, 'accel', 'explode', { rotate: '45deg' });
+
+			scene.showEffect('waterwisp', {
+				x: defender.x,
+				y: defender.y,
+				z: defender.z,
+				time: 730,
+				xscale: 1.2,
+				yscale: 0.4,
+				opacity: 0.8,
+			}, {
+				time: 930,
+				xscale: 1.4,
+				yscale: 0.6,
+				opacity: 0.4,
+			}, 'accel', 'explode', { rotate: '45deg' });
+
+			scene.showEffect('waterwisp', {
+				x: defender.x,
+				y: defender.y,
+				z: defender.z,
+				time: 730,
+				xscale: 1.2,
+				yscale: 0.4,
+				opacity: 0.8,
+			}, {
+				time: 930,
+				xscale: 1.4,
+				yscale: 0.6,
+				opacity: 0.4,
+			}, 'accel', 'explode', { rotate: '-45deg' });
+
+			scene.showEffect('leftslash', {
+				x: defender.x,
+				y: defender.y,
+				z: defender.z,
+				scale: 1.5,
+				opacity: 0.6,
+				time: 500,
+			}, {
+				scale: 2,
+				opacity: 0,
+				time: 720,
+			}, 'accel', 'fade', { filter: 'brightness(5)' });
+
+			scene.showEffect('leftslash', {
+				x: defender.x,
+				y: defender.y,
+				z: defender.z,
+				scale: 1.5,
+				opacity: 0.6,
+				time: 730,
+			}, {
+				scale: 2,
+				opacity: 0,
+				time: 930,
+			}, 'accel', 'fade', { filter: 'brightness(5)' });
+
+			scene.showEffect('rightslash', {
+				x: defender.x,
+				y: defender.y,
+				z: defender.z,
+				scale: 1.5,
+				opacity: 0.6,
+				time: 730,
+			}, {
+				scale: 2,
+				opacity: 0,
+				time: 930,
+			}, 'accel', 'fade', { filter: 'brightness(5)' });
+		},
+	},
 };
 
 // placeholder animations
