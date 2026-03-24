@@ -1,0 +1,216 @@
+<!doctype html>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Battle Stats - Pokemon Showdown</title>
+<link rel="shortcut icon" href="/favicon.ico" />
+<link rel="stylesheet" href="/style/battle.css" />
+<link rel="stylesheet" href="/style/client.css" />
+<link rel="stylesheet" href="/style/utilichart.css" />
+<link rel="stylesheet" href="/style/font-awesome.css" />
+<style>
+	#stats-room {
+		color: #101522;
+	}
+	#stats-room .stats-shell {
+		max-width: none;
+		margin: 0;
+		text-align: left;
+		background: #f3f6fb;
+		border: 1px solid #cad4e0;
+		color: #101522;
+		text-shadow: none;
+	}
+	.dark #stats-room {
+		color: #d6deec;
+	}
+	.dark #stats-room .stats-shell {
+		background: #1d2531;
+		border-color: #3a4759;
+		color: #d6deec;
+	}
+	#stats-room .stats-controls {
+		max-width: none;
+		margin: 0 0 12px 0;
+		padding: 10px 12px;
+		background: #e7edf5;
+		border: 1px solid #c6d2df;
+		border-radius: 8px;
+		text-align: left;
+		text-shadow: none;
+	}
+	.dark #stats-room .stats-controls {
+		background: #2a3342;
+		border-color: #3f4f64;
+	}
+	#stats-room .stats-controls .button {
+		width: auto;
+		min-width: 140px;
+	}
+	#stats-room .stats-category {
+		margin: 16px 0;
+		border: 1px solid #cad4e0;
+		border-radius: 8px;
+		background: #ffffff;
+		padding: 12px 16px;
+	}
+	.dark #stats-room .stats-category {
+		background: #212a37;
+		border-color: #3a4759;
+	}
+	#stats-room .stats-category-title {
+		display: flex;
+		align-items: center;
+		gap: 8px;
+		margin-top: 4px;
+	}
+	#stats-room .stats-metrics {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+		gap: 10px;
+		margin: 10px 0 14px;
+	}
+	#stats-room .stats-metric {
+		background: #f7f9fc;
+		border: 1px solid #d7e0ea;
+		border-radius: 6px;
+		padding: 8px 10px;
+	}
+	.dark #stats-room .stats-metric {
+		background: #2a3444;
+		border-color: #44546a;
+	}
+	#stats-room .stats-metric span {
+		display: block;
+		font-size: 10px;
+		text-transform: uppercase;
+		color: #5c6a7a;
+		letter-spacing: 0.4px;
+	}
+	.dark #stats-room .stats-metric span {
+		color: #9fb0c8;
+	}
+	#stats-room .stats-metric strong {
+		display: block;
+		font-size: 14px;
+		margin-top: 4px;
+	}
+	#stats-room .stats-section {
+		background: #f7f9fc;
+		border: 1px solid #d7e0ea;
+		border-radius: 6px;
+		padding: 8px 10px;
+		margin-bottom: 12px;
+	}
+	.dark #stats-room .stats-section {
+		background: #2a3444;
+		border-color: #44546a;
+	}
+	#stats-room .stats-core-list {
+		margin: 0;
+		padding-left: 22px;
+	}
+	#stats-room .stats-core-list li {
+		margin: 4px 0;
+	}
+	#stats-room .stats-sortbutton {
+		width: 100%;
+		min-width: 0;
+		font-size: 10px;
+		padding: 3px 4px;
+	}
+	#stats-room .stats-moncell {
+		display: inline-flex;
+		align-items: center;
+		gap: 6px;
+	}
+	#stats-room .stats-monicon {
+		display: inline-block;
+		width: 40px;
+		height: 30px;
+		vertical-align: middle;
+	}
+	#stats-room .stats-monicon-fallback {
+		object-fit: contain;
+		image-rendering: pixelated;
+	}
+	#stats-room #stats-content {
+		max-width: none;
+	}
+	#stats-room #stats-content .ladder {
+		max-width: none;
+	}
+</style>
+
+<div class="ps-room scrollable" id="stats-room" style="padding: 12px">
+	<div class="mainmenuwrapper" style="width: 100%; max-width: none; margin: 0">
+		<div class="leftmenu" style="float: none; width: 100%; max-width: none">
+			<div class="mainmenu" style="width: 100%; max-width: none; margin: 0">
+				<div
+					class="menugroup readable-bg stats-shell"
+					style="
+						width: 100%;
+						box-sizing: border-box;
+						padding: 12px 16px;
+						border-radius: 8px;
+					"
+				>
+					<p>
+						<a class="button" href="/" target="_self"
+							><i class="fa fa-chevron-left" aria-hidden="true"></i>
+							Home</a
+						>
+					</p>
+					<h2>Relumi Battle Statistics</h2>
+					<p>Live aggregate data for Relumi ladder formats.</p>
+
+					<div
+						class="menugroup stats-controls"
+						style="
+							display: flex;
+							gap: 12px;
+							flex-wrap: wrap;
+							align-items: end;
+						"
+					>
+						<p>
+							<label class="label"
+								>Format<br />
+								<select id="format-select" class="button">
+									<option value="all">All</option>
+									<option value="gen8relumirandombattle">
+										Random Singles
+									</option>
+									<option value="gen8relumirandomdoublesbattle">
+										Random Doubles
+									</option>
+									<option value="gen8relumisingles">Singles</option>
+									<option value="gen8relumidoubles">Doubles</option>
+								</select>
+							</label>
+						</p>
+						<p>
+							<label class="label"
+								>Range<br />
+								<select id="range-select" class="button">
+									<option value="7d">Last 7 days</option>
+									<option value="30d" selected>Last 30 days</option>
+									<option value="all">All time</option>
+								</select>
+							</label>
+						</p>
+						<p>
+							<button id="refresh-button" class="button">
+								<i class="fa fa-refresh" aria-hidden="true"></i> Refresh
+							</button>
+						</p>
+					</div>
+
+					<div id="stats-state" class="message-info">Loading stats...</div>
+					<div id="stats-content" style="width: 100%"></div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script src="/js/stats-site.js"></script>
