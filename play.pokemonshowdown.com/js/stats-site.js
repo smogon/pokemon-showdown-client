@@ -60,11 +60,47 @@
 		return format + "|" + range;
 	}
 
+	function normalizeApiBase(base) {
+		if (!base) return "";
+		var trimmed = ("" + base).trim();
+		if (!trimmed) return "";
+		trimmed = trimmed.replace(/\/+$/, "");
+		if (/\/api\/battlestats$/i.test(trimmed)) return trimmed;
+		return trimmed + "/api/battlestats";
+	}
+
+	function getConfiguredApiBases() {
+		var configured = [];
+		var queryApi = "";
+		try {
+			queryApi =
+				new URLSearchParams(window.location.search).get("api") || "";
+		} catch (e) {}
+		if (queryApi) configured.push(queryApi);
+
+		try {
+			if (window.BATTLE_STATS_API_BASE) {
+				configured.push(window.BATTLE_STATS_API_BASE);
+			}
+		} catch (e) {}
+
+		try {
+			var stored = localStorage.getItem("battle_stats_api_base") || "";
+			if (stored) configured.push(stored);
+		} catch (e) {}
+
+		return configured.map(normalizeApiBase).filter(Boolean);
+	}
+
 	function getApiBases() {
-		var bases = ["/api/battlestats"];
+		var bases = [];
 		var host = window.location.hostname;
 		var protocol = window.location.protocol;
 		var port = window.location.port;
+
+		bases.push.apply(bases, getConfiguredApiBases());
+		bases.push("/api/battlestats");
+		bases.push(protocol + "//" + host + "/api/battlestats");
 
 		if (port !== "8000") {
 			bases.push(protocol + "//" + host + ":8000/api/battlestats");
@@ -80,6 +116,12 @@
 				protocol +
 					"//" +
 					host.replace(/^play\./, "server.") +
+					"/api/battlestats",
+			);
+			bases.push(
+				protocol +
+					"//" +
+					host.replace(/^play\./, "sim.") +
 					"/api/battlestats",
 			);
 		}
