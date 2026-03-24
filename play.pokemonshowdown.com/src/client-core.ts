@@ -22,6 +22,8 @@ declare const ColorThief: any;
 // PS's model classes are defined here
 
 const PSURL = `${document.location.protocol !== 'http:' ? 'https:' : ''}//${Config.routes.client}/`;
+const RELUMI_BACKGROUND_ID = 'relumi';
+const RELUMI_BACKGROUND_URL = `${PSURL}fx/client-bg-relumi.png`;
 
 export class PSSubscription<T = any> {
 	observable: PSModel<T> | PSStreamModel<T>;
@@ -155,25 +157,12 @@ export const PSBackground = new class extends PSStreamModel<string | null> {
 	}
 
 	load(bgUrl: string, bgid: string, menuColors: string[] | null = null) {
-		// id
+		// Relumi custom client: force one background across all modes and saved settings.
+		bgid = RELUMI_BACKGROUND_ID;
+		bgUrl = RELUMI_BACKGROUND_URL;
+		menuColors = null;
 		this.id = bgid;
-
-		// curid
-		if (!bgid || bgid === 'waterfall') {
-			if (location.host === 'smogtours.psim.us') {
-				bgid = 'shaymin';
-			} else {
-				const bgs = ['horizon', 'ocean', 'shaymin', 'charizards'];
-				bgid = bgs[Math.floor(Math.random() * bgs.length)];
-				// if someone clicked the random button, try to roll a different bg than before
-				if (bgid === this.curId) bgid = bgs[Math.floor(Math.random() * bgs.length)];
-			}
-		}
 		this.curId = bgid;
-
-		if (!bgUrl) {
-			bgUrl = (bgid === 'solidblue' ? '#344b6c' : PSURL + 'fx/client-bg-' + bgid + '.jpg');
-		}
 
 		// April Fool's 2016 - Digimon theme
 		// bgid = 'digimon';

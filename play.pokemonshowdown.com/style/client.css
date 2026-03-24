@@ -2,7 +2,8 @@
  * Global
  *********************************************************/
 
-html, body {
+html,
+body {
 	margin: 0;
 	padding: 0;
 	height: 100%;
@@ -14,7 +15,8 @@ body {
 	font-family: Verdana, Helvetica, Arial, sans-serif;
 
 	/* see https://pokemonshowdown.com/credits */
-	background: #344b6c url(../fx/client-bg-charizards.jpg) no-repeat left center fixed;
+	background: #344b6c url(../fx/client-bg-relumi.png) no-repeat left center
+		fixed;
 	-webkit-background-size: cover;
 	-moz-background-size: cover;
 	-o-background-size: cover;
@@ -54,7 +56,7 @@ select {
 }
 .dark .maintabbarbottom {
 	background: #555555;
-	border-color: #5A5A5A;
+	border-color: #5a5a5a;
 	border-top-color: #34373b;
 }
 
@@ -84,14 +86,18 @@ select {
 }
 .userbar .username {
 	color: black;
-	text-shadow: 1px 1px 0 #f8f8f8, 1px -1px 0 #f8f8f8, -1px 1px 0 #f8f8f8, -1px -1px 0 #f8f8f8;
+	text-shadow:
+		1px 1px 0 #f8f8f8,
+		1px -1px 0 #f8f8f8,
+		-1px 1px 0 #f8f8f8,
+		-1px -1px 0 #f8f8f8;
 }
 .username {
 	cursor: pointer;
 }
 @media (max-width: 500px) {
 	.usernametext {
-		display: none
+		display: none;
 	}
 }
 .userbar button.icon {
@@ -133,13 +139,13 @@ select {
 	bottom: -6px;
 	height: 6px;
 	background: #f8f8f8;
-	border: solid 1px #AAAAAA;
+	border: solid 1px #aaaaaa;
 	border-left: 0;
 	border-right: 0;
 	margin: -1px 0 0 0;
-	-webkit-box-shadow: 0 1px 2px rgba(0,0,0,.2);
-	-moz-box-shadow: 0 1px 2px rgba(0,0,0,.2);
-	box-shadow: 0 1px 2px rgba(0,0,0,.2);
+	-webkit-box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+	-moz-box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 .tabbar.maintabbar {
 	margin-left: 144px;
@@ -191,7 +197,7 @@ select {
 	margin: 0 -1px 0 0;
 	top: 1px;
 	border-radius: 0;
-	box-shadow: inset 0 -1px 2px rgba(255,255,255,1);
+	box-shadow: inset 0 -1px 2px rgba(255, 255, 255, 1);
 	font-size: 11px;
 }
 .tabbar a.button.cur {
@@ -269,10 +275,10 @@ select {
 	cursor: pointer;
 }
 .closebutton:hover {
-	color: #BB2222;
+	color: #bb2222;
 }
 .dark .closebutton:hover {
-	color: #EE7777;
+	color: #ee7777;
 }
 span.header-username:hover {
 	color: #333333;
@@ -285,7 +291,7 @@ summary:hover .expandbutton,
 .dark .minimizebutton:hover,
 .dark summary:hover .expandbutton,
 .dark .pm-window h3:hover .minimizebutton {
-	color: #CCCCCC;
+	color: #cccccc;
 }
 .pm-window h3 .closebutton:hover + .minimizebutton {
 	color: #999999 !important;
@@ -302,7 +308,8 @@ summary:hover .expandbutton,
 	content: "\f055";
 }
 
-.tablist li, .tablist ul {
+.tablist li,
+.tablist ul {
 	/** tablist is the menu that's displayed when the window is too wide for all the tabs */
 	list-style: none;
 	margin: 0;
@@ -317,7 +324,7 @@ summary:hover .expandbutton,
 }
 .tablist .button {
 	position: relative;
-	box-shadow: inset 0 0px 2px rgba(255,255,255,1);
+	box-shadow: inset 0 0px 2px rgba(255, 255, 255, 1);
 	font-size: 11pt;
 	padding: 4px 28px 4px 6px;
 	width: 120px;
@@ -357,10 +364,10 @@ summary:hover .expandbutton,
 	margin-right: 3px;
 }
 .tablist i.text::before {
-	content: '[';
+	content: "[";
 }
 .tablist i.text::after {
-	content: ']';
+	content: "]";
 }
 
 /*********************************************************
@@ -375,7 +382,7 @@ summary:hover .expandbutton,
 	right: 0;
 	bottom: 0;
 
-	border-left: 1px solid #AAAAAA;
+	border-left: 1px solid #aaaaaa;
 	margin-left: -1px;
 }
 .scrollable {
@@ -383,11 +390,11 @@ summary:hover .expandbutton,
 	-webkit-overflow-scrolling: touch;
 }
 .ps-room.ps-room-light {
-	background: rgba(242,247,250,.85);
+	background: rgba(242, 247, 250, 0.85);
 	color: black;
 }
 .ps-room.ps-room-opaque {
-	background: #EEF2F5;
+	background: #eef2f5;
 	color: black;
 }
 
@@ -397,8 +404,8 @@ summary:hover .expandbutton,
 	left: 0;
 	right: 0;
 	bottom: 0;
-	background: #CCCCCC;
-	background: rgba(212, 212, 212, .5);
+	background: #cccccc;
+	background: rgba(212, 212, 212, 0.5);
 
 	overflow: auto;
 	-webkit-overflow-scrolling: touch;
@@ -406,15 +413,21 @@ summary:hover .expandbutton,
 }
 .ps-popup {
 	position: absolute;
-	top: auto; right: auto; left: auto; bottom: auto;
+	top: auto;
+	right: auto;
+	left: auto;
+	bottom: auto;
 	text-align: left;
-	background: #E1E8E8;
+	background: #e1e8e8;
 	color: black;
 	border: 1px solid #999999;
 	padding: 2px 10px;
 
 	border-radius: 6px;
-	box-shadow: inset 1px 1px 0 #ffffff, inset -1px -1px 0 #DDDDDD, 2px 2px 3px rgba(0,0,0,.2);
+	box-shadow:
+		inset 1px 1px 0 #ffffff,
+		inset -1px -1px 0 #dddddd,
+		2px 2px 3px rgba(0, 0, 0, 0.2);
 	z-index: 20;
 }
 .ps-overlay .ps-popup {
@@ -454,7 +467,7 @@ p.or:after {
 }
 .ps-popup p.error {
 	font-weight: bold;
-	color: #EE4422;
+	color: #ee4422;
 }
 
 .popupmenu {
@@ -472,15 +485,16 @@ p.or:after {
 .popupmenu li:first-child h3 {
 	margin-top: 0;
 }
-@media (max-height:590px) {
+@media (max-height: 590px) {
 	.popupmenu h3 {
 		margin-top: 2px;
 	}
-	.popupmenu, popupmenu li {
+	.popupmenu,
+	popupmenu li {
 		margin: -3px 0 -2px 0;
 	}
 }
-@media (max-height:518px) {
+@media (max-height: 518px) {
 	.popupmenu h3 {
 		margin-top: 1px;
 	}
@@ -499,7 +513,7 @@ p.or:after {
 	filter: alpha(opacity=25);
 }
 .popupmenu i.subtle:hover {
-	opacity: 1.0;
+	opacity: 1;
 	filter: alpha(opacity=100);
 }
 
@@ -507,7 +521,8 @@ p.or:after {
 	margin: 2px auto 5px;
 	width: 184px;
 }
-.select, .team {
+.select,
+.team {
 	width: 230px;
 	height: 32px;
 	padding: 0 5px;
@@ -518,16 +533,18 @@ p.or:after {
 
 	border-radius: 4px;
 	border: 1px solid #888888;
-	background: #EEEEEE;
-	box-shadow: inset 0 1px 0 #FFFFFF;
-	background: linear-gradient(to bottom,  #edf2f8,  #d7e3ec);
+	background: #eeeeee;
+	box-shadow: inset 0 1px 0 #ffffff;
+	background: linear-gradient(to bottom, #edf2f8, #d7e3ec);
 	color: black;
 	box-sizing: border-box;
 }
 .team:focus {
 	outline: 0 none;
 	border: 1px solid #004488;
-	box-shadow: inset 0px 1px 2px #D2D2D2, 0px 0px 5px #2266AA;
+	box-shadow:
+		inset 0px 1px 2px #d2d2d2,
+		0px 0px 5px #2266aa;
 }
 .select.teamselect {
 	height: 50px;
@@ -553,16 +570,18 @@ p.or:after {
 .teamselect small .picon {
 	margin: 0 -3px;
 }
-.select:hover, .team.team-hover {
+.select:hover,
+.team.team-hover {
 	border-color: #555555;
-	background: #FFFFFF;
-	background: linear-gradient(to bottom,  #dce4ec,  #c6d3e0);
+	background: #ffffff;
+	background: linear-gradient(to bottom, #dce4ec, #c6d3e0);
 }
-.select:active, .team:active {
+.select:active,
+.team:active {
 	border-color: #777777;
-	background: #DDDDDD;
+	background: #dddddd;
 	box-shadow: none;
-	background: linear-gradient(to bottom,  #d1dce6,  #e7edf2);
+	background: linear-gradient(to bottom, #d1dce6, #e7edf2);
 }
 .select:after {
 	float: right;
@@ -574,12 +593,12 @@ p.or:after {
 }
 .select:disabled {
 	border-color: #999999;
-	background: rgba(220,220,220,.65);
+	background: rgba(220, 220, 220, 0.65);
 	color: #555555;
 	box-shadow: none;
 }
 .select:disabled:after {
-	color: #AAAAAA;
+	color: #aaaaaa;
 }
 .select:disabled small {
 	opacity: 0.7;
@@ -628,8 +647,11 @@ p.or:after {
 	position: absolute;
 	bottom: 15px;
 	left: 20px;
-	color: #BBBBBB;
-	text-shadow: 0 0 3px black, 0 0 3px black, 0 0 3px black;
+	color: #bbbbbb;
+	text-shadow:
+		0 0 3px black,
+		0 0 3px black,
+		0 0 3px black;
 }
 .mainmenufooter blockquote {
 	margin: 0 0 1em 0;
@@ -643,11 +665,11 @@ p.or:after {
 }
 .mainmenufooter a {
 	text-decoration: underline;
-	color: #99BBEE;
+	color: #99bbee;
 }
 .mainmenufooter a:hover {
 	text-decoration: underline;
-	color: #CCDDFF;
+	color: #ccddff;
 }
 
 .pmbox {
@@ -662,12 +684,12 @@ p.or:after {
 	margin: 0 0 12px 0;
 }
 .pm-window h3 {
-	background: rgba(248,248,248,.8);
+	background: rgba(248, 248, 248, 0.8);
 	color: #777777;
 	margin: 0;
 	padding: 2px 4px 2px 5px;
 	font-size: 11pt;
-	border: 1px solid #AAAAAA;
+	border: 1px solid #aaaaaa;
 	border-top-left-radius: 5px;
 	border-top-right-radius: 5px;
 	cursor: pointer;
@@ -679,16 +701,16 @@ p.or:after {
 	border-radius: 5px;
 }
 .pm-window h3.pm-notifying {
-	border-color: #AA8866;
-	background: #E3C3A3;
+	border-color: #aa8866;
+	background: #e3c3a3;
 }
 .dark .pm-window h3.pm-notifying {
 	background: #417589;
-	color: #BBBBBB;
+	color: #bbbbbb;
 }
 .pm-window h3.pm-notifying:hover {
 	border-color: #604020;
-	background: #CFAF8F;
+	background: #cfaf8f;
 }
 .dark .pm-window h3.pm-notifying:hover {
 	background: #417589;
@@ -708,9 +730,9 @@ p.or:after {
 .pm-log {
 	min-height: 100px;
 	max-height: 300px;
-	background: rgba(242,247,250,.925);
+	background: rgba(242, 247, 250, 0.925);
 	color: black;
-	border: 1px solid #AAAAAA;
+	border: 1px solid #aaaaaa;
 	border-top: 0;
 	border-bottom: 0;
 
@@ -723,10 +745,10 @@ p.or:after {
 }
 .pm-log-add {
 	color: black;
-	border: 1px solid #AAAAAA;
+	border: 1px solid #aaaaaa;
 	border-bottom-left-radius: 5px;
 	border-bottom-right-radius: 5px;
-	background: rgba(242,247,250,.85);
+	background: rgba(242, 247, 250, 0.85);
 }
 .pm-window.collapsed .pm-log,
 .pm-window.collapsed .pm-log-add {
@@ -743,16 +765,16 @@ p.or:after {
 	color: #222222;
 }
 .dark .pm-window h3 {
-	background: rgba(50,50,50,.8);
-	color: #AAA;
+	background: rgba(50, 50, 50, 0.8);
+	color: #aaa;
 }
 .dark .pm-window h3:hover {
-	color: #CCC;
+	color: #ccc;
 }
 .dark .pm-window.focused h3,
 .dark .pm-window.focused h3:hover {
 	background: #222;
-	color: #EEE;
+	color: #eee;
 }
 .challenge {
 	margin-top: -1px;
@@ -767,10 +789,10 @@ p.or:after {
 .newsentry {
 	font-size: 9pt;
 	padding: 1px 10px;
-	border-bottom: 1px solid #AAAAAA;
+	border-bottom: 1px solid #aaaaaa;
 }
 .unread {
-	background: rgba(255,240,130,0.33);
+	background: rgba(255, 240, 130, 0.33);
 }
 
 .tiny-layout .leftmenu,
@@ -798,7 +820,7 @@ p.or:after {
 	max-width: 400px;
 	border-radius: 20px;
 
-	background: rgba(201, 207, 219, .8);
+	background: rgba(201, 207, 219, 0.8);
 	color: black;
 }
 .menugroup {
@@ -808,7 +830,7 @@ p.or:after {
 	max-width: 270px;
 	border-radius: 20px;
 
-	background: rgba(0,0,0,.2);
+	background: rgba(0, 0, 0, 0.2);
 	color: white;
 	text-shadow: 0 1px 0 black;
 	text-align: center;
@@ -827,16 +849,22 @@ p.or:after {
 
 	width: 200px;
 
-	text-shadow: 0 -1px 0 hsl(210,40%,10%);
-	box-shadow: 0 1px 2px rgba(0,0,0,.2), inset 0 1px 1px rgba(255,255,255,.8);
+	text-shadow: 0 -1px 0 hsl(210, 40%, 10%);
+	box-shadow:
+		0 1px 2px rgba(0, 0, 0, 0.2),
+		inset 0 1px 1px rgba(255, 255, 255, 0.8);
 
 	/* default colors */
-	color: #FFFFFF;
-	border: solid 1px #AAAAAA;
-	background: #779EC5;
-	background: hsl(210,40%,62%);
-	background: linear-gradient(to bottom,  hsl(210,40%,72%),  hsl(210,40%,52%));
-	border-color: hsl(210,40%,40%);
+	color: #ffffff;
+	border: solid 1px #aaaaaa;
+	background: #779ec5;
+	background: hsl(210, 40%, 62%);
+	background: linear-gradient(
+		to bottom,
+		hsl(210, 40%, 72%),
+		hsl(210, 40%, 52%)
+	);
+	border-color: hsl(210, 40%, 40%);
 }
 .menugroup .button.big {
 	width: 230px;
@@ -849,54 +877,143 @@ p.or:after {
 	font-size: 9pt;
 }
 .menugroup .button:hover {
-	background: #5485B6;
-	background: hsl(210,40%,52%);
-	background: linear-gradient(to bottom,  hsl(210,40%,62%),  hsl(210,40%,42%));
-	border-color: hsl(210,40%,21%);
+	background: #5485b6;
+	background: hsl(210, 40%, 52%);
+	background: linear-gradient(
+		to bottom,
+		hsl(210, 40%, 62%),
+		hsl(210, 40%, 42%)
+	);
+	border-color: hsl(210, 40%, 21%);
 }
 .menugroup .button:active {
-	box-shadow: 0 1px 2px rgba(0,0,0,.2), inset 0 -1px 1px rgba(255,255,255,.3), inset 0 1px 1px rgba(0,0,0,.4);
-	background: #406B96;
-	background: hsl(210,40%,42%);
-	background: linear-gradient(to bottom,  hsl(210,40%,42%),  hsl(210,40%,58%));
-	border-color: hsl(210,40%,21%);
+	box-shadow:
+		0 1px 2px rgba(0, 0, 0, 0.2),
+		inset 0 -1px 1px rgba(255, 255, 255, 0.3),
+		inset 0 1px 1px rgba(0, 0, 0, 0.4);
+	background: #406b96;
+	background: hsl(210, 40%, 42%);
+	background: linear-gradient(
+		to bottom,
+		hsl(210, 40%, 42%),
+		hsl(210, 40%, 58%)
+	);
+	border-color: hsl(210, 40%, 21%);
 }
 .menugroup .button.disabled,
 .menugroup .button.disabled:hover,
 .menugroup .button.disabled:active {
 	cursor: default;
-	background: #EEEEEE;
-	border-color: #CCCCCC;
+	background: #eeeeee;
+	border-color: #cccccc;
 	border-style: solid;
 	border-width: 1px;
 	color: #999999;
 	text-shadow: none;
-	box-shadow: 0 1px 2px rgba(0,0,0,.1);
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
-.button.mainmenu1 { background: linear-gradient(to bottom,  hsl(5,40%,72%),  hsl(5,40%,52%)); border-color: hsl(5,40%,40%); }
-.button.mainmenu1:hover { background: linear-gradient(to bottom,  hsl(5,40%,62%),  hsl(5,40%,42%)); }
-.button.mainmenu1:active { background: linear-gradient(to bottom,  hsl(5,40%,42%),  hsl(5,40%,58%)); }
+.button.mainmenu1 {
+	background: linear-gradient(to bottom, hsl(5, 40%, 72%), hsl(5, 40%, 52%));
+	border-color: hsl(5, 40%, 40%);
+}
+.button.mainmenu1:hover {
+	background: linear-gradient(to bottom, hsl(5, 40%, 62%), hsl(5, 40%, 42%));
+}
+.button.mainmenu1:active {
+	background: linear-gradient(to bottom, hsl(5, 40%, 42%), hsl(5, 40%, 58%));
+}
 
-.button.mainmenu2 { background: linear-gradient(to bottom,  hsl(30,40%,72%),  hsl(30,40%,52%)); border-color: hsl(30,40%,40%); }
-.button.mainmenu2:hover { background: linear-gradient(to bottom,  hsl(30,40%,62%),  hsl(30,40%,42%)); }
-.button.mainmenu2:active { background: linear-gradient(to bottom,  hsl(30,40%,42%),  hsl(30,40%,58%)); }
+.button.mainmenu2 {
+	background: linear-gradient(to bottom, hsl(30, 40%, 72%), hsl(30, 40%, 52%));
+	border-color: hsl(30, 40%, 40%);
+}
+.button.mainmenu2:hover {
+	background: linear-gradient(to bottom, hsl(30, 40%, 62%), hsl(30, 40%, 42%));
+}
+.button.mainmenu2:active {
+	background: linear-gradient(to bottom, hsl(30, 40%, 42%), hsl(30, 40%, 58%));
+}
 
-.button.mainmenu3 { background: linear-gradient(to bottom,  hsl(60,40%,72%),  hsl(60,40%,52%)); border-color: hsl(60,40%,40%); }
-.button.mainmenu3:hover { background: linear-gradient(to bottom,  hsl(60,40%,62%),  hsl(60,40%,42%)); }
-.button.mainmenu3:active { background: linear-gradient(to bottom,  hsl(60,40%,42%),  hsl(60,40%,58%)); }
+.button.mainmenu3 {
+	background: linear-gradient(to bottom, hsl(60, 40%, 72%), hsl(60, 40%, 52%));
+	border-color: hsl(60, 40%, 40%);
+}
+.button.mainmenu3:hover {
+	background: linear-gradient(to bottom, hsl(60, 40%, 62%), hsl(60, 40%, 42%));
+}
+.button.mainmenu3:active {
+	background: linear-gradient(to bottom, hsl(60, 40%, 42%), hsl(60, 40%, 58%));
+}
 
-.button.mainmenu4 { background: linear-gradient(to bottom,  hsl(130,40%,72%),  hsl(130,40%,52%)); border-color: hsl(130,40%,40%); }
-.button.mainmenu4:hover { background: linear-gradient(to bottom,  hsl(130,40%,62%),  hsl(130,40%,42%)); }
-.button.mainmenu4:active { background: linear-gradient(to bottom,  hsl(130,40%,42%),  hsl(130,40%,58%)); }
+.button.mainmenu4 {
+	background: linear-gradient(
+		to bottom,
+		hsl(130, 40%, 72%),
+		hsl(130, 40%, 52%)
+	);
+	border-color: hsl(130, 40%, 40%);
+}
+.button.mainmenu4:hover {
+	background: linear-gradient(
+		to bottom,
+		hsl(130, 40%, 62%),
+		hsl(130, 40%, 42%)
+	);
+}
+.button.mainmenu4:active {
+	background: linear-gradient(
+		to bottom,
+		hsl(130, 40%, 42%),
+		hsl(130, 40%, 58%)
+	);
+}
 
-.button.mainmenu5 { background: linear-gradient(to bottom,  hsl(210,40%,72%),  hsl(210,40%,52%)); border-color: hsl(210,40%,40%); }
-.button.mainmenu5:hover { background: linear-gradient(to bottom,  hsl(210,40%,62%),  hsl(210,40%,42%)); }
-.button.mainmenu5:active { background: linear-gradient(to bottom,  hsl(210,40%,42%),  hsl(210,40%,58%)); }
+.button.mainmenu5 {
+	background: linear-gradient(
+		to bottom,
+		hsl(210, 40%, 72%),
+		hsl(210, 40%, 52%)
+	);
+	border-color: hsl(210, 40%, 40%);
+}
+.button.mainmenu5:hover {
+	background: linear-gradient(
+		to bottom,
+		hsl(210, 40%, 62%),
+		hsl(210, 40%, 42%)
+	);
+}
+.button.mainmenu5:active {
+	background: linear-gradient(
+		to bottom,
+		hsl(210, 40%, 42%),
+		hsl(210, 40%, 58%)
+	);
+}
 
-.button.mainmenu6 { background: linear-gradient(to bottom,  hsl(270,40%,72%),  hsl(270,40%,52%)); border-color: hsl(270,40%,40%); }
-.button.mainmenu6:hover { background: linear-gradient(to bottom,  hsl(270,40%,62%),  hsl(270,40%,42%)); }
-.button.mainmenu6:active { background: linear-gradient(to bottom,  hsl(270,40%,42%),  hsl(300,40%,58%)); }
+.button.mainmenu6 {
+	background: linear-gradient(
+		to bottom,
+		hsl(270, 40%, 72%),
+		hsl(270, 40%, 52%)
+	);
+	border-color: hsl(270, 40%, 40%);
+}
+.button.mainmenu6:hover {
+	background: linear-gradient(
+		to bottom,
+		hsl(270, 40%, 62%),
+		hsl(270, 40%, 42%)
+	);
+}
+.button.mainmenu6:active {
+	background: linear-gradient(
+		to bottom,
+		hsl(270, 40%, 42%),
+		hsl(300, 40%, 58%)
+	);
+}
 
 .rightmenu {
 	width: 294px;
@@ -904,11 +1021,12 @@ p.or:after {
 .rightmenu .menugroup .button {
 	width: 180px;
 }
-@media (max-width:895px) {
+@media (max-width: 895px) {
 	.mainmenu {
 		padding-bottom: 1px;
 	}
-	.rightmenu, .tiny-layout .rightmenu {
+	.rightmenu,
+	.tiny-layout .rightmenu {
 		position: static;
 		top: 0;
 		right: 0;
@@ -926,17 +1044,20 @@ p.or:after {
  * Ladder
  *********************************************************/
 
-.ladder table, .ladder td, .ladder th {
+.ladder table,
+.ladder td,
+.ladder th {
 	border-collapse: collapse;
-	border: 1px solid #BBBBBB;
+	border: 1px solid #bbbbbb;
 }
-.ladder td, .ladder th {
+.ladder td,
+.ladder th {
 	padding: 3px 5px;
 }
 .ladder th {
 	text-align: left;
 	font-size: 9pt;
-	background: #EEEEEE;
+	background: #eeeeee;
 	color: #111111;
 }
 .ladder span {
@@ -987,10 +1108,12 @@ p.or:after {
 	position: absolute;
 	left: -30px;
 	bottom: -5px;
-	background: url(https://play.pokemonshowdown.com/sprites/gen5/meloetta.png) center no-repeat;
+	background: url(https://play.pokemonshowdown.com/sprites/gen5/meloetta.png)
+		center no-repeat;
 }
 .roomcounters button:hover .usercount {
-	background: url(https://play.pokemonshowdown.com/sprites/gen5ani/meloetta.gif) center no-repeat;
+	background: url(https://play.pokemonshowdown.com/sprites/gen5ani/meloetta.gif)
+		center no-repeat;
 }
 .roomcounters .battlecount {
 	display: block;
@@ -999,11 +1122,13 @@ p.or:after {
 	position: absolute;
 	right: -30px;
 	bottom: -10px;
-	background: url(https://play.pokemonshowdown.com/sprites/gen5/meloetta-pirouette.png) center no-repeat;
+	background: url(https://play.pokemonshowdown.com/sprites/gen5/meloetta-pirouette.png)
+		center no-repeat;
 }
 .roomcounters button:hover .battlecount {
-	background: url(https://play.pokemonshowdown.com/sprites/gen5ani/meloetta-pirouette.gif) center no-repeat;
-} 
+	background: url(https://play.pokemonshowdown.com/sprites/gen5ani/meloetta-pirouette.gif)
+		center no-repeat;
+}
 
 .roomlist {
 	max-width: 480px;
@@ -1038,7 +1163,7 @@ p.or:after {
 	right: 0;
 	bottom: 40px;
 	font-size: 10pt;
-	background: rgba(242,247,250,.5);
+	background: rgba(242, 247, 250, 0.5);
 	color: black;
 
 	overflow: auto;
@@ -1053,7 +1178,7 @@ p.or:after {
 	right: 0;
 	min-height: 36px;
 	padding: 3px 4px 0 4px;
-	border-top: 1px solid #AAAAAA;
+	border-top: 1px solid #aaaaaa;
 }
 .chat-log .notice,
 .chat-log .chat,
@@ -1078,7 +1203,7 @@ p.or:after {
 	color: #888888;
 }
 .chat .message-announce small {
-    color: #def;
+	color: #def;
 }
 .chat.timer {
 	color: #992222;
@@ -1087,7 +1212,7 @@ p.or:after {
 	display: none;
 }
 .highlighted {
-	background: rgba(255,200,80,0.33);
+	background: rgba(255, 200, 80, 0.33);
 }
 .chat.highlighted {
 	margin-left: -8px;
@@ -1096,7 +1221,7 @@ p.or:after {
 	padding-right: 8px;
 }
 .revealed {
-	background-color: #C8FDEA;
+	background-color: #c8fdea;
 }
 .message-pm {
 	color: #007100;
@@ -1177,7 +1302,8 @@ p.or:after {
 	background: rgba(50, 50, 50, 0.85);
 }
 
-.tournament-status, .tournament-toggle {
+.tournament-status,
+.tournament-toggle {
 	position: absolute;
 	top: 0;
 	padding: 0 0.5em;
@@ -1228,7 +1354,6 @@ p.or:after {
 	touch-action: none;
 }
 
-
 .tournament-popout-link {
 	position: absolute;
 	bottom: 0.5em;
@@ -1247,7 +1372,7 @@ p.or:after {
 	font-size: 8pt;
 	text-align: center;
 }
-.tournament-popout-bracket > *[class^='tournament-bracket-'] {
+.tournament-popout-bracket > *[class^="tournament-bracket-"] {
 	position: absolute;
 	right: 0;
 	top: 0;
@@ -1264,7 +1389,8 @@ p.or:after {
 	border-bottom: 1px #aaa solid;
 	border-collapse: collapse;
 }
-.tournament-bracket-table td, .tournament-bracket-table th {
+.tournament-bracket-table td,
+.tournament-bracket-table th {
 	border: 1px #aaa solid;
 	padding: 5px;
 }
@@ -1335,7 +1461,8 @@ p.or:after {
 	stroke: hsla(219, 0%, 35%, 0.7);
 	color: black;
 }
-.tournament-bracket-tree-node text, .tournament-bracket-tree-node {
+.tournament-bracket-tree-node text,
+.tournament-bracket-tree-node {
 	font-size: 8.5pt;
 	text-anchor: middle;
 	font-weight: bold;
@@ -1343,13 +1470,16 @@ p.or:after {
 .tournament-bracket-tree-node a {
 	color: #248;
 }
-.tournament-bracket-tree-node a text, .tournament-bracket-tree-node a:hover text {
+.tournament-bracket-tree-node a text,
+.tournament-bracket-tree-node a:hover text {
 	fill: #248;
 }
 .tournament-bracket-tree-team-win {
 	font-weight: bold;
 }
-.tournament-bracket-tree-team-loss, .tournament-bracket-tree-team-draw, .tournament-bracket-tree-score {
+.tournament-bracket-tree-team-loss,
+.tournament-bracket-tree-team-draw,
+.tournament-bracket-tree-score {
 	font-weight: normal;
 }
 
@@ -1430,7 +1560,7 @@ p.or:after {
 	bottom: 0;
 	width: 145px;
 	height: auto;
-	border-right: 1px solid #AAAAAA;
+	border-right: 1px solid #aaaaaa;
 
 	overflow: auto;
 	-webkit-overflow-scrolling: touch;
@@ -1440,29 +1570,36 @@ p.or:after {
 }
 .pm-buttonbar button {
 	float: left;
-	font: 8pt Verdana, sans-serif;
+	font:
+		8pt Verdana,
+		sans-serif;
 	height: 21px;
-	background: #EEF2F5;
+	background: #eef2f5;
 	color: black;
 	border: 0;
-	border-right: 1px solid #AAAAAA;
-	border-bottom: 1px solid #AAAAAA;
+	border-right: 1px solid #aaaaaa;
+	border-bottom: 1px solid #aaaaaa;
 }
-.dark .userlist, .dark .pm-buttonbar button, .dark .chat-log-add, .dark .pm-window h3, .dark .pm-log, .dark .newsentry {
-	border-color: #5A5A5A;
+.dark .userlist,
+.dark .pm-buttonbar button,
+.dark .chat-log-add,
+.dark .pm-window h3,
+.dark .pm-log,
+.dark .newsentry {
+	border-color: #5a5a5a;
 }
 .userlist-minimized {
 	height: 21px;
 	bottom: auto;
 	overflow: hidden;
-	background: #EEF2F5;
-	border-bottom: 1px solid #AAAAAA;
+	background: #eef2f5;
+	border-bottom: 1px solid #aaaaaa;
 }
 .userlist-maximized {
 	height: auto;
 	bottom: 0;
 	overflow: auto;
-	background: #EEF2F5;
+	background: #eef2f5;
 }
 .userlist-minimized .userlist-count,
 .userlist-maximized .userlist-count {
@@ -1471,7 +1608,7 @@ p.or:after {
 .userlist-minimized .userlist-count:hover,
 .userlist-maximized .userlist-count:hover,
 .pm-buttonbar button:hover {
-	background: #DEE4EA;
+	background: #dee4ea;
 }
 .chat-log.hasuserlist,
 .chat-log-add.hasuserlist,
@@ -1488,13 +1625,15 @@ p.or:after {
 }
 .userlist li {
 	height: 20px;
-	font: 10pt Verdana, sans-serif;
+	font:
+		10pt Verdana,
+		sans-serif;
 	white-space: nowrap;
 }
 .userlist li em.group {
 	font-style: normal;
 	font-size: 8pt;
-	color: #AAAAAA;
+	color: #aaaaaa;
 	display: block;
 	float: left;
 	text-align: center;
@@ -1513,7 +1652,9 @@ p.or:after {
 	height: 20px;
 	width: 100%;
 	white-space: nowrap;
-	font: 9pt Verdana, sans-serif;
+	font:
+		9pt Verdana,
+		sans-serif;
 	text-align: left;
 }
 /* Remove Firefox's magic padding */
@@ -1588,14 +1729,14 @@ p.or:after {
 	top: 370px;
 	left: 0;
 	width: 640px;
-	background: #EEF2F5;
+	background: #eef2f5;
 }
 .ps-room .ally-pokemon {
 	position: absolute;
 	top: 280px;
 	left: 0;
 	width: 640px;
-	background: #EEF2F5;
+	background: #eef2f5;
 }
 .battle-chat-toggle {
 	display: none;
@@ -1605,7 +1746,9 @@ p.or:after {
 	right: 0;
 	width: auto;
 }
-.tiny-layout .movecontrols, .tiny-layout .shiftcontrols, .tiny-layout .switchcontrols {
+.tiny-layout .movecontrols,
+.tiny-layout .shiftcontrols,
+.tiny-layout .switchcontrols {
 	max-width: 330px;
 	margin: 0 auto;
 }
@@ -1624,21 +1767,21 @@ p.or:after {
 .timerbutton-critical:hover {
 	color: #ffffff;
 	font-weight: bold;
-	border-color: #BB2222;
-	background: #BB2222;
+	border-color: #bb2222;
+	background: #bb2222;
 	text-shadow: none;
 }
 .dark .timerbutton-on,
 .dark .timerbutton-on:hover {
-	color: #EE6666;
-	border-color: #EE6666;
+	color: #ee6666;
+	border-color: #ee6666;
 }
 .dark .timerbutton-critical,
 .dark .timerbutton-critical:hover {
 	color: #ffffff;
 	font-weight: bold;
-	border-color: #BB2222;
-	background: #BB2222;
+	border-color: #bb2222;
+	background: #bb2222;
 	text-shadow: none;
 }
 
@@ -1658,12 +1801,12 @@ p.or:after {
 	border-radius: 4px;
 }
 .battle-controls .whatdo small.weak {
-	color: #AAAA22;
-	border-color: #AAAA22;
+	color: #aaaa22;
+	border-color: #aaaa22;
 }
 .battle-controls .whatdo small.critical {
-	color: #EE4433;
-	border-color: #EE4433;
+	color: #ee4433;
+	border-color: #ee4433;
 }
 .small-layout .battle-userlist,
 .small-layout .battle-log,
@@ -1678,7 +1821,7 @@ p.or:after {
 	font-size: 14px;
 	padding: 3px 6px;
 }
-.small-layout .battle-chat-toggle[name=showChat] {
+.small-layout .battle-chat-toggle[name="showChat"] {
 	left: auto;
 	right: 6px;
 }
@@ -1726,7 +1869,9 @@ p.or:after {
 	width: 102px;
 	min-height: 30px;
 	margin-right: 4px;
-	font: 9pt Verdana, sans-serif;
+	font:
+		9pt Verdana,
+		sans-serif;
 	padding: 5px 5px 5px 0;
 	white-space: pre;
 	overflow: hidden;
@@ -1742,12 +1887,14 @@ p.or:after {
 .switchmenu button .hpbar {
 	position: absolute;
 	display: block;
-	border: 1px solid #AAA;
-	background: #EEE;
+	border: 1px solid #aaa;
+	background: #eee;
 	height: 2px;
-	bottom: 2px; left: 4px; right: 2px;
+	bottom: 2px;
+	left: 4px;
+	right: 2px;
 	border-radius: 2px;
-	opacity: .8;
+	opacity: 0.8;
 }
 
 /* The declaration order of these three hpbar* classes is significant. */
@@ -1756,8 +1903,8 @@ p.or:after {
 .switchmenu button .hpbar span {
 	display: block;
 	height: 1px;
-	background: #0A6;
-	border-top: 1px solid #3C0;
+	background: #0a6;
+	border-top: 1px solid #3c0;
 	border-radius: 1px;
 }
 
@@ -1785,8 +1932,8 @@ p.or:after {
 	height: 5px;
 	padding: 0;
 	border-radius: 2px;
-	border: 1px solid #C2C2C2;
-	opacity: 1.0;
+	border: 1px solid #c2c2c2;
+	opacity: 1;
 }
 .status {
 	color: white;
@@ -1794,19 +1941,20 @@ p.or:after {
 	padding: 0 2px;
 }
 .status.brn {
-	background: #EE5533;
+	background: #ee5533;
 }
-.status.psn, .status.tox {
-	background: #A4009A;
+.status.psn,
+.status.tox {
+	background: #a4009a;
 }
 .status.par {
-	background: #9AA400;
+	background: #9aa400;
 }
 .status.slp {
-	background: #AA77AA;
+	background: #aa77aa;
 }
 .status.frz {
-	background: #009AA4;
+	background: #009aa4;
 }
 
 .movebutton {
@@ -1815,9 +1963,11 @@ p.or:after {
 	width: 155px;
 	margin-right: 4px;
 	height: 40px;
-	font: 10pt/100% Verdana, sans-serif;
+	font:
+		10pt/100% Verdana,
+		sans-serif;
 	position: relative;
-	padding:  6px 4px 0 4px;
+	padding: 6px 4px 0 4px;
 }
 .movebutton small {
 	color: #777777;
@@ -1846,7 +1996,7 @@ p.or:after {
 	text-align: center;
 
 	cursor: pointer;
-	border: 1px solid #BBB;
+	border: 1px solid #bbb;
 	border-radius: 3px;
 	color: #333;
 	background: transparent;
@@ -1855,23 +2005,28 @@ p.or:after {
 }
 .megaevo:hover {
 	border-color: #888;
-	background: #E5E5E5;
+	background: #e5e5e5;
 	color: black;
 }
 .dark .megaevo {
-	color: #EEE;
+	color: #eee;
 	border-color: #888;
 }
 .dark .megaevo:hover {
-	color: #FFF;
+	color: #fff;
 	background: #333;
-	border-color: #BBB;
+	border-color: #bbb;
 }
 .megaevo:has(:checked),
 .dark .megaevo:has(:checked) {
-	text-shadow: -1px -1px 0 #FFF, 1px 1px 0 #FFF, -1px 1px 0 #FFF, 1px -1px 0 #FFF;
+	text-shadow:
+		-1px -1px 0 #fff,
+		1px 1px 0 #fff,
+		-1px 1px 0 #fff,
+		1px -1px 0 #fff;
 	color: black;
-  background-image: linear-gradient(120deg,
+	background-image: linear-gradient(
+		120deg,
 		hsl(0, 100%, 75%) 0%,
 		hsl(36, 100%, 75%) 10%,
 		hsl(64, 100%, 75%) 20%,
@@ -1905,22 +2060,24 @@ p.or:after {
 	outline: none;
 	text-align: center;
 	text-decoration: none;
-	text-shadow: 0 1px 0 rgba(255,255,255,.4);
+	text-shadow: 0 1px 0 rgba(255, 255, 255, 0.4);
 	border-radius: 5px;
 	margin-top: 4px;
-	box-shadow: 0 1px 2px rgba(0,0,0,.2), inset 0 -1px 2px rgba(255,255,255,1);
+	box-shadow:
+		0 1px 2px rgba(0, 0, 0, 0.2),
+		inset 0 -1px 2px rgba(255, 255, 255, 1);
 
 	/* default colors */
 	color: #000000;
-	border: solid 1px #AAAAAA;
+	border: solid 1px #aaaaaa;
 	background: #e3e3e3;
-	background: linear-gradient(to bottom,  #f6f6f6,  #e3e3e3);
+	background: linear-gradient(to bottom, #f6f6f6, #e3e3e3);
 }
 .allyparty button:hover,
 .switchmenu button:hover,
 .movebutton:hover {
 	background: #cfcfcf;
-	background: linear-gradient(to bottom,  #f2f2f2,  #cfcfcf);
+	background: linear-gradient(to bottom, #f2f2f2, #cfcfcf);
 	border-color: #606060;
 }
 .allyparty button:active,
@@ -1928,7 +2085,7 @@ p.or:after {
 .movebutton:active,
 .switchmenu button.pressed,
 .movebutton.pressed {
-	background: linear-gradient(to bottom,  #cfcfcf,  #f2f2f2);
+	background: linear-gradient(to bottom, #cfcfcf, #f2f2f2);
 }
 
 .allyparty button.disabled,
@@ -1937,15 +2094,15 @@ p.or:after {
 .switchmenu button:disabled,
 .movebutton:disabled {
 	cursor: default;
-	background: #F3F3F3 !important;
-	border-color: #CCCCCC !important;
+	background: #f3f3f3 !important;
+	border-color: #cccccc !important;
 	-webkit-box-shadow: none !important;
 	-moz-box-shadow: none !important;
 	box-shadow: none !important;
 	color: #777777 !important;
 }
 
-@media (max-height:570px) and (min-width: 440px) {
+@media (max-height: 570px) and (min-width: 440px) {
 	/*
 	 * This is the black move/switch menu for low-res screens
 	 */
@@ -1957,22 +2114,24 @@ p.or:after {
 		right: 0;
 		width: auto;
 		background: #444444;
-		background: rgba(40,40,40,.85);
-		color: #FFFFFF;
+		background: rgba(40, 40, 40, 0.85);
+		color: #ffffff;
 		padding: 4px 8px;
 	}
 	.battle-controls .whatdo {
-		color: #FFFFFF;
+		color: #ffffff;
 	}
 	.battle-controls .whatdo small.weak {
-		color: #DDDD55;
-		border-color: #DDDD55;
+		color: #dddd55;
+		border-color: #dddd55;
 	}
 	.battle-controls .whatdo small.critical {
-		color: #FF7766;
-		border-color: #FF7766;
+		color: #ff7766;
+		border-color: #ff7766;
 	}
-	.battle-controls .movecontrols, .battle-controls .shiftcontrols, .battle-controls .switchcontrols {
+	.battle-controls .movecontrols,
+	.battle-controls .shiftcontrols,
+	.battle-controls .switchcontrols {
 		max-width: 640px;
 	}
 	.movemenu {
@@ -2002,10 +2161,12 @@ p.or:after {
 		right: 150px;
 		bottom: 20px;
 	}
-	.moveselect button, .switchselect button, .shiftselect button {
+	.moveselect button,
+	.switchselect button,
+	.shiftselect button {
 		padding: 4px 8px;
 		border-radius: 6px;
-		background: #E5E5E5;
+		background: #e5e5e5;
 	}
 	.megaevo-box {
 		text-align: left;
@@ -2026,7 +2187,7 @@ p.or:after {
 	.move-controls .moveselect button,
 	.switch-controls .switchselect button,
 	.shiftselect button {
-		background: #BBBBBB;
+		background: #bbbbbb;
 	}
 	.controls .timer {
 		float: right;
@@ -2058,7 +2219,7 @@ p.or:after {
 	padding: 5px 0 5px 8px;
 	overflow: auto;
 }
-@media (max-width:649px) {
+@media (max-width: 649px) {
 	.folderpane {
 		display: none;
 	}
@@ -2091,7 +2252,7 @@ p.or:after {
 	height: 15px;
 	background: #d7e3ec;
 	border-right: 1px solid #888888;
-	content: '';
+	content: "";
 }
 .folderlistafter {
 	display: table-row;
@@ -2106,7 +2267,7 @@ p.or:after {
 	padding: 0;
 	border: 0;
 	height: 12px;
-	content: '';
+	content: "";
 }
 .folderlistafter:before,
 .folderlistbefore:before {
@@ -2116,7 +2277,7 @@ p.or:after {
 	padding: 0;
 	border: 0;
 	border-right: 1px solid #888888;
-	content: '';
+	content: "";
 }
 
 .folderpane i {
@@ -2195,7 +2356,7 @@ p.or:after {
 	width: 1px;
 	height: 1px;
 	background: #d7e3ec;
-	content: '';
+	content: "";
 }
 .folderhack1 {
 	top: 0;
@@ -2286,9 +2447,9 @@ p.or:after {
 }
 .teambar button {
 	display: block;
-	background: #F3F3F3;
+	background: #f3f3f3;
 	color: black;
-	border: 1px solid #AAAAAA;
+	border: 1px solid #aaaaaa;
 	padding: 0;
 	margin: -1px 2px 0 0;
 	height: 44px;
@@ -2303,20 +2464,20 @@ p.or:after {
 	margin: -2px auto;
 }
 .teambar button:hover {
-	background: #DCDCDC;
+	background: #dcdcdc;
 	border-color: #757575;
 }
 .teambar button:active {
-	background: #CCCCCC;
+	background: #cccccc;
 	border-color: #373737;
 }
 .teambar button:disabled,
 .teambar button:disabled:hover,
 .teambar button:disabled:active {
 	color: #000000;
-	background: #FCFCFC;
-	border-color: #AAAAAA;
-	opacity: .5;
+	background: #fcfcfc;
+	border-color: #aaaaaa;
+	opacity: 0.5;
 	cursor: default;
 }
 .teambar .picon {
@@ -2373,7 +2534,7 @@ p.or:after {
 .setmenu button:hover,
 .teamlist button:hover {
 	border-color: #888888;
-	background: #D5D5D5;
+	background: #d5d5d5;
 }
 .setmenu button i,
 .teamlist button i {
@@ -2390,23 +2551,23 @@ p.or:after {
 	left: -4px;
 	top: 5px;
 	border: 1px solid #999999;
-	background: #CBD6E1;
+	background: #cbd6e1;
 	border-radius: 5px;
 	padding: 1px 0 0 0;
 	width: 110px;
 
-	box-shadow: inset 1px 1px 0 rgba(255,255,255,.6);
+	box-shadow: inset 1px 1px 0 rgba(255, 255, 255, 0.6);
 }
 .setchart {
 	border: 1px solid #999999;
-	background: #DAE5F0 no-repeat scroll 10px 5px none;
+	background: #dae5f0 no-repeat scroll 10px 5px none;
 	border-radius: 5px;
 	padding: 2px 0 0 3px;
 	height: 127px;
 	width: 626px;
 	margin-top: 8px;
 
-	box-shadow: inset 1px 1px 0 rgba(255,255,255,.6);
+	box-shadow: inset 1px 1px 0 rgba(255, 255, 255, 0.6);
 }
 .setcol {
 	height: 127px;
@@ -2441,7 +2602,7 @@ p.or:after {
 .setcell-typeicons {
 	margin-top: 4px;
 	margin-right: 4px;
-	float:  right;
+	float: right;
 }
 .setcell-typeicons img {
 	margin-left: 1px;
@@ -2468,7 +2629,11 @@ p.or:after {
 	padding-left: 2px;
 }
 .setcol-icon label {
-	text-shadow: #DAE5F0 1px 1px 0, #DAE5F0 1px -1px 0, #DAE5F0 -1px 1px 0, #DAE5F0 -1px -1px 0;
+	text-shadow:
+		#dae5f0 1px 1px 0,
+		#dae5f0 1px -1px 0,
+		#dae5f0 -1px 1px 0,
+		#dae5f0 -1px -1px 0;
 }
 .setchart-nickname label {
 	font-size: 7pt;
@@ -2480,37 +2645,47 @@ p.or:after {
 .setcol-stats {
 	width: 142px;
 }
-.setdetails, .setstats {
+.setdetails,
+.setstats {
 	display: block;
 	box-sizing: border-box;
 	-moz-box-sizing: border-box;
-	border: 1px solid #AAAAAA;
+	border: 1px solid #aaaaaa;
 	border-radius: 3px;
 	padding: 1px;
 	margin: 2px 2px 1px 1px;
 	font-size: 7pt;
 
-	box-shadow: inset 0px 1px 2px #CCCCCC, 1px 1px 0 rgba(255,255,255,.6);
-	background: #F8FBFD;
+	box-shadow:
+		inset 0px 1px 2px #cccccc,
+		1px 1px 0 rgba(255, 255, 255, 0.6);
+	background: #f8fbfd;
 	color: black;
 }
-.setdetails label, .setstats label {
+.setdetails label,
+.setstats label {
 	cursor: pointer;
 }
-.setdetails:hover, .setstats:hover {
+.setdetails:hover,
+.setstats:hover {
 	border-color: #474747;
-	box-shadow: inset 0px 1px 2px #D2D2D2, 1px 1px 0 rgba(255,255,255,.6);
-	background: #FFFFFF;
+	box-shadow:
+		inset 0px 1px 2px #d2d2d2,
+		1px 1px 0 rgba(255, 255, 255, 0.6);
+	background: #ffffff;
 }
-.setdetails:focus, .setstats:focus,
-.dark .setdetails:focus, .dark .setstats:focus {
+.setdetails:focus,
+.setstats:focus,
+.dark .setdetails:focus,
+.dark .setstats:focus {
 	border: 2px solid #004488;
 	margin: 1px 1px 0 0;
 	outline: 0 none;
 }
-.setdetails:active, .setstats:active {
-	box-shadow: inset 0px 2px 2px #AAAAAA;
-	background: #E4E9ED;
+.setdetails:active,
+.setstats:active {
+	box-shadow: inset 0px 2px 2px #aaaaaa;
+	background: #e4e9ed;
 	border: 2px solid #004488;
 	margin: 1px 1px 0 0;
 	outline: 0 none;
@@ -2519,12 +2694,13 @@ p.or:after {
 	width: 230px;
 	height: 34px;
 }
-.setdetails:focus,.setdetails:active {
+.setdetails:focus,
+.setdetails:active {
 	width: 232px;
 	height: 36px;
 }
 .setdetails .detailcell {
-	border-left: 1px solid #CCCCCC;
+	border-left: 1px solid #cccccc;
 	padding: 2px 4px;
 	display: block;
 	float: left;
@@ -2547,7 +2723,8 @@ p.or:after {
 	height: 108px;
 	padding-right: 0;
 }
-.setstats:focus,.setstats:active {
+.setstats:focus,
+.setstats:active {
 	width: 140px;
 	height: 110px;
 }
@@ -2574,7 +2751,7 @@ p.or:after {
 	display: block;
 	margin-top: 3px;
 	height: 6px;
-	background: #CCCCCC;
+	background: #cccccc;
 }
 .setstats em {
 	float: left;
@@ -2615,8 +2792,8 @@ p.or:after {
 	height: 20px;
 }
 .setchart input.incomplete {
-	color: #CC3311;
-	border-color: #CC3311;
+	color: #cc3311;
+	border-color: #cc3311;
 }
 .setchart .setcell-details input {
 	width: 216px;
@@ -2640,7 +2817,7 @@ p.or:after {
 	position: relative;
 	margin: auto;
 
-	border: 1px solid #FFAA00;
+	border: 1px solid #ffaa00;
 	border-radius: 5px;
 }
 .teambuilder-clipboard-title {
@@ -2661,11 +2838,31 @@ p.or:after {
 
 	border: 1px solid #999999;
 	border-radius: 5px;
-	background-image: linear-gradient(to bottom, rgb(218,229,240) 10%, rgb(203,214,225) 55%);
-	background-image: -o-linear-gradient(top, rgb(218,229,240) 10%, rgb(203,214,225) 55%);
-	background-image: -moz-linear-gradient(top, rgb(218,229,240) 10%, rgb(203,214,225) 55%);
-	background-image: -webkit-linear-gradient(top, rgb(218,229,240) 10%, rgb(203,214,225) 55%);
-	background-image: -ms-linear-gradient(top, rgb(218,229,240) 10%, rgb(203,214,225) 55%);
+	background-image: linear-gradient(
+		to bottom,
+		rgb(218, 229, 240) 10%,
+		rgb(203, 214, 225) 55%
+	);
+	background-image: -o-linear-gradient(
+		top,
+		rgb(218, 229, 240) 10%,
+		rgb(203, 214, 225) 55%
+	);
+	background-image: -moz-linear-gradient(
+		top,
+		rgb(218, 229, 240) 10%,
+		rgb(203, 214, 225) 55%
+	);
+	background-image: -webkit-linear-gradient(
+		top,
+		rgb(218, 229, 240) 10%,
+		rgb(203, 214, 225) 55%
+	);
+	background-image: -ms-linear-gradient(
+		top,
+		rgb(218, 229, 240) 10%,
+		rgb(203, 214, 225) 55%
+	);
 	outline: none;
 
 	position: absolute;
@@ -2677,7 +2874,7 @@ p.or:after {
 	color: #000000;
 }
 .teambuilder-clipboard-data:hover {
-	border: 1px solid #BBBBBB;
+	border: 1px solid #bbbbbb;
 }
 .teambuilder-clipboard-data .result {
 	height: 32px;
@@ -2742,28 +2939,28 @@ p.or:after {
 	overflow-y: scroll;
 	-webkit-overflow-scrolling: touch;
 }
-@media (max-height:410px) {
+@media (max-height: 410px) {
 	.teambuilder-results {
 		bottom: auto;
 		overflow-y: visible;
-		background: #EEF2F5;
+		background: #eef2f5;
 		color: black;
 	}
 	.dark .teambuilder-results {
-		background: #0E1215;
-		color: #DDD;
+		background: #0e1215;
+		color: #ddd;
 	}
 }
-@media (max-width:639px) {
+@media (max-width: 639px) {
 	.teambuilder-results {
 		bottom: auto;
 		overflow-y: visible;
-		background: #EEF2F5;
+		background: #eef2f5;
 		color: black;
 	}
 	.dark .teambuilder-results {
-		background: #0E1215;
-		color: #DDD;
+		background: #0e1215;
+		color: #ddd;
 	}
 }
 
@@ -2773,7 +2970,7 @@ p.or:after {
 	left: 0;
 	bottom: 0;
 	right: 0;
-	border-top: 1px solid #AAAAAA;
+	border-top: 1px solid #aaaaaa;
 
 	overflow: auto;
 	-webkit-overflow-scrolling: touch;
@@ -2805,13 +3002,13 @@ p.or:after {
 }
 .teambuilder-results .result a:hover,
 .teambuilder-results .result a.hover {
-	border-color: #D8D8D8;
-	background: #F8F8F8;
+	border-color: #d8d8d8;
+	background: #f8f8f8;
 }
 .teambuilder-results .result a.cur:hover,
 .teambuilder-results .result a.cur.hover {
 	border-color: #555555;
-	background: #F8F8F8;
+	background: #f8f8f8;
 }
 
 .teambuilder-results .resultheader h3 {
@@ -2875,9 +3072,9 @@ p.or:after {
 	margin: 3px 0 0 5px;
 	display: block;
 	height: 8px;
-	border-bottom: 1px solid #AAAAAA;
-	border-right: 1px solid #AAAAAA;
-	background: #CCCCCC;
+	border-bottom: 1px solid #aaaaaa;
+	border-right: 1px solid #aaaaaa;
+	background: #cccccc;
 }
 .statform .evcol,
 .statform .ivcol {
@@ -2896,7 +3093,7 @@ p.or:after {
 	margin: 0 auto;
 }
 .statform .totalev b {
-	color: #DD2222;
+	color: #dd2222;
 }
 .statform .totalev em {
 	font-style: normal;
@@ -2927,18 +3124,17 @@ p.or:after {
 	border: 1px solid #569;
 	border-radius: 2px;
 	color: #569;
-	background: rgba(255,255,255,.5);
-	box-shadow: 0 1px 2px rgba(0,0,0,.2);
+	background: rgba(255, 255, 255, 0.5);
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
 }
 .changeform i:hover {
-	color: #DAE5F0;
+	color: #dae5f0;
 	background: #569;
 }
 .altform {
 	margin-left: 10px;
 	margin-top: 4px;
 }
-
 
 /*********************************************************
  * Popups
@@ -3003,7 +3199,9 @@ p.or:after {
 .avatarlist button {
 	width: 80px;
 	height: 80px;
-	background: transparent url(https://play.pokemonshowdown.com/sprites/trainers-sheet.png) no-repeat scroll 0px 0px;
+	background: transparent
+		url(https://play.pokemonshowdown.com/sprites/trainers-sheet.png) no-repeat
+		scroll 0px 0px;
 }
 .bglist button span {
 	display: block;
@@ -3043,7 +3241,7 @@ p.or:after {
  *********************************************************/
 
 .dark .header {
-	background: rgba(0,0,0,.30);
+	background: rgba(0, 0, 0, 0.3);
 }
 
 .dark .ps-room.ps-room-light,
@@ -3051,31 +3249,31 @@ p.or:after {
 .dark .tournament-status,
 .dark .tournament-toggle,
 .dark .pm-log-add {
-	background: rgba(0,0,0,.70);
-	color: #DDD;
-	border-color: #5A5A5A;
+	background: rgba(0, 0, 0, 0.7);
+	color: #ddd;
+	border-color: #5a5a5a;
 }
 
 .dark .pm-log {
-	background: rgba(0,0,0,.85);
-	color: #DDD;
+	background: rgba(0, 0, 0, 0.85);
+	color: #ddd;
 	backdrop-filter: blur(4px);
 }
 
 .dark .userlist-maximized {
 	background: #333333;
-	color: #DDD;
+	color: #ddd;
 }
 .dark .ps-room.ps-room-opaque,
 .dark .battle-log-add,
 .dark .battle-controls {
 	background: #444444;
-	color: #DDD;
+	color: #ddd;
 }
 .dark .userlist-minimized,
 .dark .pm-buttonbar button {
 	background: #444444;
-	color: #4488EE;
+	color: #4488ee;
 }
 .dark .userlist-minimized .userlist-count:hover,
 .dark .userlist-maximized .userlist-count:hover,
@@ -3084,76 +3282,101 @@ p.or:after {
 }
 
 .dark .moveselect button {
-	color: #AA6644;
+	color: #aa6644;
 }
 .dark .switchselect button {
-	color: #6677AA;
+	color: #6677aa;
 }
 .dark .whatdo {
 	color: #999999;
 }
 
 .dark .chat-log {
-	background: rgba(0,0,0,.5);
-	color: #DDD;
+	background: rgba(0, 0, 0, 0.5);
+	color: #ddd;
 	backdrop-filter: blur(4px);
 }
 
 .dark .userbar .username {
-	color: #DDD;
-	text-shadow: 1px 1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, -1px -1px 0 #000;
+	color: #ddd;
+	text-shadow:
+		1px 1px 0 #000,
+		1px -1px 0 #000,
+		-1px 1px 0 #000,
+		-1px -1px 0 #000;
 }
 
 /* popups */
 
 .dark .ps-popup {
-	background: #0D151E;
-	color: #DDD;
+	background: #0d151e;
+	color: #ddd;
 	border-color: #34373b;
 
-	box-shadow: 2px 2px 3px rgba(0,0,0,.5), inset 0.5px 1px 1px rgba(255, 255, 255, 0.5);
+	box-shadow:
+		2px 2px 3px rgba(0, 0, 0, 0.5),
+		inset 0.5px 1px 1px rgba(255, 255, 255, 0.5);
 }
 
 .dark .usergroup {
-	color: #BBB;
+	color: #bbb;
 }
 
 .dark .changeform i {
 	border-color: #bbb;
 	color: #bbb;
-	background: rgba(0,0,0,.5);
+	background: rgba(0, 0, 0, 0.5);
 }
 .dark .changeform i:hover {
-	border-color: #EEE;
-	color: #EEE;
+	border-color: #eee;
+	color: #eee;
 }
 
 .dark .ps-overlay {
-	background: rgba(40, 40, 40, .5);
+	background: rgba(40, 40, 40, 0.5);
 }
 
 /* semi-generic */
 
-.dark .select, .dark .team {
+.dark .select,
+.dark .team {
 	border-color: #000000;
 	box-shadow: none;
-	background: linear-gradient(to bottom, rgba(227, 239, 251, 0.85), rgba(118, 128, 140, 0.85));
+	background: linear-gradient(
+		to bottom,
+		rgba(227, 239, 251, 0.85),
+		rgba(118, 128, 140, 0.85)
+	);
 	color: black;
 }
-.dark .select:hover, .dark .team.team-hover {
+.dark .select:hover,
+.dark .team.team-hover {
 	border-color: #000000;
-	background: #FFFFFF;
+	background: #ffffff;
 	color: black;
-	background: linear-gradient(to bottom, rgba(255, 255, 255, 0.85), rgba(161, 175, 189, 0.85));
+	background: linear-gradient(
+		to bottom,
+		rgba(255, 255, 255, 0.85),
+		rgba(161, 175, 189, 0.85)
+	);
 }
-.dark .select:active, .dark .team:active {
+.dark .select:active,
+.dark .team:active {
 	border-color: #000000;
 	box-shadow: none;
-	background: linear-gradient(to bottom, rgba(161, 175, 189, 0.85), rgba(255, 255, 255, 0.85));
+	background: linear-gradient(
+		to bottom,
+		rgba(161, 175, 189, 0.85),
+		rgba(255, 255, 255, 0.85)
+	);
 }
 .dark .select:disabled {
 	border-color: #888888;
-	background: linear-gradient(to bottom, rgba(227, 239, 251, 0.6), rgba(193, 199, 207, 0.6));
+	background: linear-gradient(
+		to bottom,
+		rgba(227, 239, 251, 0.6),
+		rgba(193, 199, 207, 0.6)
+	);
 	color: #444444;
 	box-shadow: none;
 }
@@ -3169,7 +3392,7 @@ p.or:after {
 .dark .pm-window.focused h3,
 .dark .pm-window.focused .pm-log,
 .dark .pm-window.focused .pm-log-add {
-	border-color: #CCC;
+	border-color: #ccc;
 }
 
 /* chat */
@@ -3189,16 +3412,16 @@ p.or:after {
 }
 
 .dark .highlighted {
-	background: rgba(120,220,255,0.25);
+	background: rgba(120, 220, 255, 0.25);
 }
 .dark .message-pm {
 	color: #00af00;
 }
 .dark .revealed {
-	background: rgba(0,255,200,0.18);
+	background: rgba(0, 255, 200, 0.18);
 }
 .dark .chat.mine {
-	background: rgba(255,255,255,0.08);
+	background: rgba(255, 255, 255, 0.08);
 }
 
 /* teambuilder */
@@ -3239,32 +3462,36 @@ p.or:after {
 
 /* teambuilder set */
 
-.dark .utilichart h3, .dark .dexentry h3, .dark .resultheader h3 {
+.dark .utilichart h3,
+.dark .dexentry h3,
+.dark .resultheader h3 {
 	background: #636363;
-	color: #F1F1F1;
-	border: 1px solid #A9A9A9;
+	color: #f1f1f1;
+	border: 1px solid #a9a9a9;
 	text-shadow: 1px 1px 0 rgb(40, 43, 45);
 	box-shadow: inset 0px 1px 0 rgb(49, 49, 49);
 	border-right: none;
 }
 
 .dark .teambar button {
-	background: #5A6570;
-	color: #F1F1F1;
-	border: 1px solid #AAAAAA;
+	background: #5a6570;
+	color: #f1f1f1;
+	border: 1px solid #aaaaaa;
 }
 
 .dark .teambar button:hover {
-	background: #444C54;
-	color: #F1F1F1;
-	border: 1px solid #AAAAAA;
+	background: #444c54;
+	color: #f1f1f1;
+	border: 1px solid #aaaaaa;
 }
 
-.dark .teambar button:disabled, .dark .teambar button:disabled:hover, .dark .teambar button:disabled:active {
-		color: #ffffff;
-		background: #2d343a;
-		border-color: #6bacc5;
-		opacity: 1;
+.dark .teambar button:disabled,
+.dark .teambar button:disabled:hover,
+.dark .teambar button:disabled:active {
+	color: #ffffff;
+	background: #2d343a;
+	border-color: #6bacc5;
+	opacity: 1;
 }
 
 .dark .teambuilder-results .result a.hover,
@@ -3273,16 +3500,16 @@ p.or:after {
 .dark .teamlist button:hover {
 	border-color: #777777;
 	background: rgba(100, 100, 100, 0.5);
-	color: #FFFFFF;
+	color: #ffffff;
 }
 .dark .teambuilder-results .result a.cur {
-	border-color: #BBBBBB;
+	border-color: #bbbbbb;
 	background: rgba(100, 100, 100, 0.2);
 }
 .dark .teambuilder-results .result a.cur:hover {
-	border-color: #BBBBBB;
+	border-color: #bbbbbb;
 	background: rgba(100, 100, 100, 0.4);
-	color: #FFFFFF;
+	color: #ffffff;
 }
 
 .dark .setmenu button,
@@ -3291,35 +3518,39 @@ p.or:after {
 .dark .utilichart .namecol,
 .dark .utilichart .pokemonnamecol,
 .dark .utilichart .movenamecol {
-	color: #DDD;
+	color: #ddd;
 }
 .dark .utilichart .col {
-	color: #DDD;
+	color: #ddd;
 }
 .dark .utilichart .cur .col {
-	color: #FFF;
+	color: #fff;
 }
 .dark .utilichart a:hover .col {
-	color: #FFF;
+	color: #fff;
 }
 
 .dark .setchart,
 .dark .setchart-nickname {
-	background-color: #5A6570;
+	background-color: #5a6570;
 	box-shadow: none;
 }
 .dark .setcol-icon label {
-	text-shadow: #5A6570 1px 1px 0,#5A6570 1px -1px 0,#5A6570 -1px 1px 0,#5A6570 -1px -1px 0;
+	text-shadow:
+		#5a6570 1px 1px 0,
+		#5a6570 1px -1px 0,
+		#5a6570 -1px 1px 0,
+		#5a6570 -1px -1px 0;
 }
 .dark .setchart label,
 .dark .setchart-nickname label,
 .dark .setchart .statrow-head em {
-	color: #BBB;
+	color: #bbb;
 }
 
 /* for testclient */
 .dark iframe.textbox,
 .dark iframe.textbox:hover,
 .dark iframe.textbox:focus {
-	background: #DDDDDD;
+	background: #dddddd;
 }

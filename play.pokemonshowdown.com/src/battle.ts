@@ -40,7 +40,6 @@ declare const app: { user: AnyObject, rooms: AnyObject, ignore?: AnyObject } | u
 export type EffectState = any[] & { 0: ID };
 export type WeatherState = [name: string, minTimeLeft: number, maxTimeLeft: number];
 export type HPColor = 'r' | 'y' | 'g';
-export type PPState = number | [number, number];
 
 export class Pokemon implements PokemonDetails, PokemonHealth {
 	name = '';
@@ -107,7 +106,7 @@ export class Pokemon implements PokemonDetails, PokemonHealth {
 	lastMove = '';
 
 	/** [[moveName, ppUsed]] */
-	moveTrack: [string, PPState][] = [];
+	moveTrack: [string, number][] = [];
 	statusData = { sleepTurns: 0, toxicTurns: 0 };
 	timesAttacked = 0;
 
@@ -341,37 +340,7 @@ export class Pokemon implements PokemonDetails, PokemonHealth {
 		this.clearMovestatuses();
 		this.side.battle.scene.clearEffects(this);
 	}
-	private mergePP(entry: [string, PPState], pp: PPState): PPState {
-		let ppUsed = entry[1];
-		if (typeof ppUsed === 'number') {
-			if (typeof pp === 'number') {
-				ppUsed += pp;
-			} else {
-				ppUsed = [ppUsed + pp[0], ppUsed + pp[1]];
-			}
-		} else {
-			if (typeof pp === 'number') {
-				ppUsed[0] += pp;
-				ppUsed[1] += pp;
-			} else {
-				ppUsed[0] += pp[0];
-				ppUsed[1] += pp[1];
-			}
-		}
-		if (typeof ppUsed === 'number') {
-			if (ppUsed < 0) ppUsed = 0;
-		} else {
-			if (ppUsed[0] < 0) ppUsed[0] = 0;
-			if (ppUsed[1] < 0) ppUsed[1] = 0;
-			const move = this.side.battle.dex.moves.get(entry[0]);
-			const maxpp = (move.pp === 1 || move.noPPBoosts ? move.pp : move.pp * 8 / 5);
-			if (ppUsed[0] > maxpp) ppUsed[0] = maxpp;
-			if (ppUsed[0] < ppUsed[1]) ppUsed[0] = ppUsed[1];
-			if (ppUsed[0] === ppUsed[1]) ppUsed = ppUsed[0];
-		}
-		return ppUsed;
-	}
-	rememberMove(moveName: string, pp: PPState = 1, recursionSource?: string) {
+	rememberMove(moveName: string, pp = 1, recursionSource?: string) {
 		if (recursionSource === this.ident) return;
 		moveName = Dex.moves.get(moveName).name;
 		if (moveName.startsWith('*')) return;
@@ -384,7 +353,8 @@ export class Pokemon implements PokemonDetails, PokemonHealth {
 		}
 		for (const entry of this.moveTrack) {
 			if (moveName === entry[0]) {
-				entry[1] = this.mergePP(entry, pp);
+				entry[1] += pp;
+				if (entry[1] < 0) entry[1] = 0;
 				return;
 			}
 		}
@@ -1567,8 +1537,8 @@ export class Battle {
 					}
 				}
 			}
-			let pp: PPState = callerMoveForPressure ? 0 : 1; // 1 pp was already deducted from using the move itself
-			if ((this.abilityActive('Pressure') || this.gen === 3) && move.id !== 'stickyweb') {
+			let pp = 1;
+			if (this.abilityActive('Pressure') && move.id !== 'stickyweb') {
 				const foeTargets = [];
 				const moveTarget = move.pressureTarget;
 
@@ -1589,35 +1559,24 @@ export class Battle {
 				} else if (target && target.side !== pokemon.side) {
 					foeTargets.push(target);
 				}
-				pp = this.getPressurePP(pp, foeTargets.filter(foe => foe && !foe.fainted) as Pokemon[]);
+
+				for (const foe of foeTargets) {
+					if (foe && !foe.fainted && foe.effectiveAbility() === 'Pressure') {
+						pp += 1;
+					}
+				}
 			}
-			pokemon.rememberMove(callerMoveForPressure ? callerMoveForPressure.name : moveName, pp);
+			if (!callerMoveForPressure) {
+				pokemon.rememberMove(moveName, pp);
+			} else {
+				pokemon.rememberMove(callerMoveForPressure.name, pp - 1); // 1 pp was already deducted from using the move itself
+			}
 		}
 		pokemon.lastMove = move.id;
 		this.lastMove = move.id;
 		if (move.id === 'wish' || move.id === 'healingwish') {
 			pokemon.side.wisher = pokemon;
 		}
-	}
-	private getPressurePP(pp: PPState, foes: Pokemon[]) {
-		for (const foe of foes) {
-			const abilities = Object.values(this.dex.species.get(foe.speciesForme).abilities);
-			const canHavePressure = this.gen === 3 && abilities.includes('Pressure');
-			if (foe.effectiveAbility() === 'Pressure' || (canHavePressure && abilities.length === 1)) {
-				if (typeof pp === 'number') {
-					pp += 1;
-				} else {
-					pp[0] += 1;
-					pp[1] += 1;
-				}
-			} else if (canHavePressure) {
-				if (typeof pp === 'number') {
-					pp = [pp, pp];
-				}
-				pp[0] += 1;
-			}
-		}
-		return pp;
 	}
 	animateMove(pokemon: Pokemon, move: Dex.Move, target: Pokemon | null, kwArgs: KWArgs) {
 		this.activeMoveIsSpread = kwArgs.spread;
