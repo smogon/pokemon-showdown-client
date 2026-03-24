@@ -2,6 +2,8 @@
 	"use strict";
 
 	var CACHE_TTL = 5 * 60 * 1000;
+	var REQUEST_TIMEOUT_MS = 6000;
+	var PERSISTED_CACHE_KEY = "battle_stats_cache_v1";
 	var memoryCache =
 		window.__battleStatsCache || (window.__battleStatsCache = {});
 	var loadedPokemonCount = {};
@@ -60,6 +62,31 @@
 		return format + "|" + range;
 	}
 
+	function hydrateCacheFromStorage() {
+		var now = Date.now();
+		try {
+			var raw = localStorage.getItem(PERSISTED_CACHE_KEY);
+			if (!raw) return;
+			var parsed = JSON.parse(raw);
+			if (!parsed || typeof parsed !== "object") return;
+			Object.keys(parsed).forEach(function (key) {
+				var entry = parsed[key];
+				if (!entry || !entry.expiresAt || entry.expiresAt <= now) return;
+				memoryCache[key] = entry;
+			});
+		} catch (e) {}
+	}
+
+	function persistCacheToStorage() {
+		try {
+			localStorage.setItem(PERSISTED_CACHE_KEY, JSON.stringify(memoryCache));
+		} catch (e) {}
+	}
+
+	function isLocalHost(host) {
+		return host === "localhost" || host === "127.0.0.1";
+	}
+
 	function normalizeApiBase(base) {
 		if (!base) return "";
 		var trimmed = ("" + base).trim();
@@ -97,19 +124,16 @@
 		var host = window.location.hostname;
 		var protocol = window.location.protocol;
 		var port = window.location.port;
+		var useLocalFallbacks = isLocalHost(host);
+		try {
+			useLocalFallbacks =
+				useLocalFallbacks ||
+				new URLSearchParams(window.location.search).get("localapi") === "1";
+		} catch (e) {}
 
 		bases.push.apply(bases, getConfiguredApiBases());
 		bases.push("/api/battlestats");
 		bases.push(protocol + "//" + host + "/api/battlestats");
-
-		if (port !== "8000") {
-			bases.push(protocol + "//" + host + ":8000/api/battlestats");
-		}
-
-		if (host !== "127.0.0.1")
-			bases.push(protocol + "//127.0.0.1:8000/api/battlestats");
-		if (host !== "localhost")
-			bases.push(protocol + "//localhost:8000/api/battlestats");
 
 		if (host.indexOf("play.") === 0) {
 			bases.push(
@@ -124,6 +148,17 @@
 					host.replace(/^play\./, "sim.") +
 					"/api/battlestats",
 			);
+		}
+
+		if (port !== "8000") {
+			bases.push(protocol + "//" + host + ":8000/api/battlestats");
+		}
+
+		if (useLocalFallbacks && host !== "127.0.0.1") {
+			bases.push(protocol + "//127.0.0.1:8000/api/battlestats");
+		}
+		if (useLocalFallbacks && host !== "localhost") {
+			bases.push(protocol + "//localhost:8000/api/battlestats");
 		}
 
 		return bases.filter(function (base, index, arr) {
@@ -160,12 +195,33 @@
 			encodeURIComponent(range);
 		var errors = [];
 
-		function tryBase(index) {
-			if (index >= bases.length) {
-				throw new Error(errors.join(" | ") || "No API endpoints available");
+		function fetchJsonWithTimeout(url) {
+			if (typeof AbortController === "undefined") {
+				return fetch(url).then(function (res) {
+					if (!res.ok)
+						throw new Error(url + " returned HTTP " + res.status);
+					return res.text().then(function (text) {
+						try {
+							return JSON.parse(text);
+						} catch (e) {
+							var preview = text.slice(0, 80).replace(/\s+/g, " ");
+							throw new Error(
+								url +
+									" did not return JSON (starts with: " +
+									preview +
+									")",
+							);
+						}
+					});
+				});
 			}
-			var url = bases[index] + query;
-			return fetch(url)
+
+			var controller = new AbortController();
+			var timeout = setTimeout(function () {
+				controller.abort();
+			}, REQUEST_TIMEOUT_MS);
+
+			return fetch(url, { signal: controller.signal })
 				.then(function (res) {
 					if (!res.ok)
 						throw new Error(url + " returned HTTP " + res.status);
@@ -184,9 +240,27 @@
 					});
 				})
 				.catch(function (err) {
-					errors.push(err && err.message ? err.message : String(err));
-					return tryBase(index + 1);
+					if (err && err.name === "AbortError") {
+						throw new Error(
+							url + " timed out after " + REQUEST_TIMEOUT_MS + "ms",
+						);
+					}
+					throw err;
+				})
+				.finally(function () {
+					clearTimeout(timeout);
 				});
+		}
+
+		function tryBase(index) {
+			if (index >= bases.length) {
+				throw new Error(errors.join(" | ") || "No API endpoints available");
+			}
+			var url = bases[index] + query;
+			return fetchJsonWithTimeout(url).catch(function (err) {
+				errors.push(err && err.message ? err.message : String(err));
+				return tryBase(index + 1);
+			});
 		}
 
 		return tryBase(0).then(function (payload) {
@@ -194,9 +268,12 @@
 				expiresAt: now + CACHE_TTL,
 				payload: payload,
 			};
+			persistCacheToStorage();
 			return payload;
 		});
 	}
+
+	hydrateCacheFromStorage();
 
 	function renderCounts(items) {
 		if (!items || !items.length) return "<em>None</em>";
