@@ -2021,7 +2021,7 @@ export class BattleTooltips {
 			}
 		}
 		if (move.id === 'weatherball') {
-			value.abilityModify(1.5, "Mega Sol");
+			value.abilityModify(2, "Mega Sol");
 			if (this.battle.weather !== 'deltastream') {
 				value.weatherModify(2);
 			}
