@@ -755,6 +755,7 @@ abstract class BattleTypedSearch<T extends SearchType> {
 		speciesOrSet: ID | Dex.PokemonSet = "" as ID,
 	) {
 		this.searchType = searchType;
+		const fullFormatId = toID(format);
 
 		this.baseResults = null;
 		this.baseIllegalResults = null;
