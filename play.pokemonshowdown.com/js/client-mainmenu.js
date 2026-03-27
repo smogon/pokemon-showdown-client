@@ -78,6 +78,8 @@
 					'<p><button class="button mainmenu4" name="send" value="/smogtours">Tournaments</button></p>';
 				buf +=
 					'<p><a class="button mainmenu5" href="stats.html">Stats</a></p>';
+				buf +=
+					'<p><a class="button mainmenu6" href="https://calc.relumishowdown.dpdns.org/" target="_blank" rel="noopener noreferrer">Damage Calc</a></p>';
 				buf += "</div>";
 
 				buf +=

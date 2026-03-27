@@ -949,6 +949,16 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
 									Stats
 								</a>
 							</p>
+							<p>
+								<a
+									class={"mainmenu6 mainmenu" + onlineButton}
+									href="https://calc.relumishowdown.dpdns.org/"
+									target="_blank"
+									rel="noopener noreferrer"
+								>
+									Damage Calc
+								</a>
+							</p>
 						</div>
 
 						<div class="menugroup">
