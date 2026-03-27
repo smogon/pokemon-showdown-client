@@ -1595,6 +1595,10 @@ class BattleOptionsPanel extends PSRoomPanel {
 			PS.mainmenu.disallowSpectators = value;
 			break;
 		}
+		case 'extraoppinfo': {
+			PS.prefs.set('extraoppinfo', value);
+			break;
+		}
 		}
 	};
 	getBattleRoom() {
@@ -1690,6 +1694,14 @@ class BattleOptionsPanel extends PSRoomPanel {
 						name="autohardcore" checked={PS.prefs.autohardcore || false}
 						type="checkbox" onChange={this.handleAllSettings}
 					/> Automatically enable hardcore mode
+				</label>
+			</p>
+			<p>
+				<label class="checkbox">
+					<input
+						name="extraoppinfo" checked={PS.prefs.extraoppinfo !== false}
+						type="checkbox" onChange={this.handleAllSettings}
+					/> Extra opponent info (hover tooltip)
 				</label>
 			</p>
 			{!PS.prefs.onepanel && document.body.offsetWidth >= 800 && <p>

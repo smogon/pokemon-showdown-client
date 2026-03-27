@@ -973,6 +973,9 @@ export class BattleTooltips {
 		illusionIndex?: number,
 	) {
 		const pokemon = clientPokemon || serverPokemon!;
+		const showExtraOpponentInfo = this.shouldShowExtraOpponentInfo(clientPokemon);
+		const species = clientPokemon?.getSpecies(serverPokemon || undefined) ||
+			this.battle.dex.species.get(pokemon.speciesForme);
 		let text = "";
 		let genderBuf = "";
 		const gender = pokemon.gender;
@@ -992,8 +995,12 @@ export class BattleTooltips {
 
 		let levelBuf =
 			pokemon.level !== 100 ? ` <small>L${pokemon.level}</small>` : ``;
+		const dimensionsBuf =
+			showExtraOpponentInfo && species.exists
+				? ` <small>${species.heightm.toFixed(2)}m ${species.weightkg}kg</small>`
+				: "";
 		if (!illusionIndex || illusionIndex === 1) {
-			text += `<h2>${name}${genderBuf}${illusionIndex ? "" : levelBuf}<br />`;
+			text += `<h2>${name}${genderBuf}${illusionIndex ? "" : levelBuf}${dimensionsBuf}<br />`;
 
 			if (clientPokemon?.volatiles.formechange) {
 				if (clientPokemon.volatiles.transform) {
@@ -1035,6 +1042,16 @@ export class BattleTooltips {
 
 		if (illusionIndex) {
 			text += `<p class="tooltip-section"><strong>Possible Illusion #${illusionIndex}</strong>${levelBuf}</p>`;
+		}
+
+		if (showExtraOpponentInfo) {
+			const types: readonly Dex.TypeName[] = serverPokemon?.terastallized
+				? [serverPokemon.teraType as Dex.TypeName]
+				: this.getPokemonTypes(pokemon);
+			text += this.renderTypeEffectiveness(types);
+			if (species.exists) {
+				text += `<p class="tooltip-section"><small><strong>Base stats:</strong> HP: ${species.baseStats.hp} Atk: ${species.baseStats.atk} Def: ${species.baseStats.def} SpA: ${species.baseStats.spa} SpD: ${species.baseStats.spd} Spe: ${species.baseStats.spe}</small></p>`;
+			}
 		}
 
 		if (pokemon.fainted && pokemon.maxhp === 100) {
@@ -1151,15 +1168,21 @@ export class BattleTooltips {
 			for (const moveid of serverPokemon.moves) {
 				const move = this.battle.dex.moves.get(moveid);
 				let moveName = `&#8226; ${move.name}`;
+				let usedMove = false;
 				if (battlePokemon?.moveTrack) {
 					for (const row of battlePokemon.moveTrack) {
 						if (moveName === row[0]) {
 							moveName = this.getPPUseText(row, true);
+							usedMove = true;
 							break;
 						}
 					}
 				}
-				text += `${moveName}<br />`;
+				text += `${moveName}`;
+				if (showExtraOpponentInfo && usedMove) {
+					text += this.renderMoveExtraInfo(move);
+				}
+				text += `<br />`;
 			}
 			text += "</p>";
 		} else if (
@@ -1171,14 +1194,24 @@ export class BattleTooltips {
 			text += `<p class="tooltip-section">`;
 			for (const [moveName] of clientPokemon.moveTrack) {
 				const move = this.battle.dex.moves.get(moveName);
-				text += `&#8226; ${move.name}<br />`;
+				text += `&#8226; ${move.name}`;
+				if (showExtraOpponentInfo) {
+					text += this.renderMoveExtraInfo(move);
+				}
+				text += `<br />`;
 			}
 			text += `</p>`;
 		} else if (!this.battle.hardcoreMode && clientPokemon?.moveTrack.length) {
 			// move list (guessed)
 			text += `<p class="tooltip-section">`;
 			for (const row of clientPokemon.moveTrack) {
-				text += `${this.getPPUseText(row)}<br />`;
+				text += `${this.getPPUseText(row)}`;
+				if (showExtraOpponentInfo) {
+					const moveName = row[0].startsWith("*") ? row[0].slice(1) : row[0];
+					const move = this.battle.dex.moves.get(moveName);
+					text += this.renderMoveExtraInfo(move);
+				}
+				text += `<br />`;
 			}
 			if (
 				clientPokemon.moveTrack.filter(([moveName]) => {
@@ -1198,6 +1231,63 @@ export class BattleTooltips {
 			text += `</p>`;
 		}
 		return text;
+	}
+
+	private shouldShowExtraOpponentInfo(clientPokemon: Pokemon | null) {
+		if (!clientPokemon) return false;
+		if (Dex.prefs("extraoppinfo") === false) return false;
+		if (!this.battle.mySide) return false;
+		return clientPokemon.side !== this.battle.mySide;
+	}
+
+	private getTypeWeakness(type: Dex.TypeName, attackType: Dex.TypeName): 0 | 0.5 | 1 | 2 {
+		const weaknessType = this.battle.dex.types.get(type).damageTaken?.[attackType];
+		if (weaknessType === Dex.IMMUNE) return 0;
+		if (weaknessType === Dex.RESIST) return 0.5;
+		if (weaknessType === Dex.WEAK) return 2;
+		return 1;
+	}
+
+	private getWeaknessMultiplier(types: readonly Dex.TypeName[], attackType: Dex.TypeName): 0 | 0.25 | 0.5 | 1 | 2 | 4 {
+		let multiplier: 0 | 0.25 | 0.5 | 1 | 2 | 4 = 1;
+		for (const type of types) {
+			const weakness = this.getTypeWeakness(type, attackType);
+			if (!weakness) return 0;
+			multiplier = (multiplier * weakness) as 0 | 0.25 | 0.5 | 1 | 2 | 4;
+		}
+		return multiplier;
+	}
+
+	private renderTypeEffectiveness(types: readonly Dex.TypeName[]) {
+		const buckets: Record<"4" | "2" | "0.5" | "0.25" | "0", Dex.TypeName[]> = {
+			"4": [],
+			"2": [],
+			"0.5": [],
+			"0.25": [],
+			"0": [],
+		};
+
+		for (const attackType of this.battle.dex.types.names()) {
+			const multiplier = this.getWeaknessMultiplier(types, attackType);
+			if (multiplier === 4) buckets["4"].push(attackType);
+			if (multiplier === 2) buckets["2"].push(attackType);
+			if (multiplier === 0.5) buckets["0.5"].push(attackType);
+			if (multiplier === 0.25) buckets["0.25"].push(attackType);
+			if (multiplier === 0) buckets["0"].push(attackType);
+		}
+
+		let text = `<p class="tooltip-section"><small><strong>Effectiveness:</strong></small><br />`;
+		for (const [label, typeNames] of [["4x", buckets["4"]], ["2x", buckets["2"]], ["0.5x", buckets["0.5"]], ["0.25x", buckets["0.25"]], ["0x", buckets["0"]]] as const) {
+			if (!typeNames.length) continue;
+			text += `<small>${label}:</small> <span class="textaligned-typeicons">${typeNames.map(typeName => Dex.getTypeIcon(typeName)).join(" ")}</span><br />`;
+		}
+		text += `</p>`;
+		return text;
+	}
+
+	private renderMoveExtraInfo(move: Move) {
+		const basePower = move.basePower || "-";
+		return ` <small>(BP ${basePower}; ${Dex.getTypeIcon(move.type)} ${Dex.getCategoryIcon(move.category)})</small>`;
 	}
 
 	showFieldTooltip() {
