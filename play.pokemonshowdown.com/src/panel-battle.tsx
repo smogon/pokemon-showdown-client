@@ -342,7 +342,15 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 			choices.current.tera = checkbox.checked;
 			break;
 		}
-		this.props.room.update(null);
+		this.forceUpdate();
+	};
+	undoLastChoice = (e: Event) => {
+		e.preventDefault();
+		const choices = this.props.room.choices;
+		if (!choices) return;
+		if (choices.undoLastChoice()) {
+			this.forceUpdate();
+		}
 	};
 	override componentDidMount() {
 		const room = this.props.room;
@@ -800,7 +808,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 			return this.renderPokemonButton({
 				pokemon: serverPokemon,
 				cmd: `/switch ${slot}`,
-				disabled: true,
+				disabled: false,
 				tooltip: `switchpokemon|${slot - 1}`,
 			});
 		});
@@ -811,7 +819,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 		if (choices.isEmpty()) return null;
 
 		let buf: preact.ComponentChild[] = [
-			<button data-cmd="/cancel" class="button"><i class="fa fa-chevron-left" aria-hidden></i> Back</button>, ' ',
+			<button onClick={this.undoLastChoice} class="button"><i class="fa fa-chevron-left" aria-hidden></i> Back</button>, ' ',
 		];
 		if (choices.isDone() && (choices.noCancel || this.props.room.battle.hardcoreMode)) {
 			buf = ['Waiting for opponent...', <br />];
@@ -965,7 +973,9 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 			return <div class="controls">
 				<div class="whatdo">
 					{choices.alreadySwitchingIn.length > 0 ? (
-						[<button data-cmd="/cancel" class="button"><i class="fa fa-chevron-left" aria-hidden></i> Back</button>,
+						[<button onClick={this.undoLastChoice} class="button"><i class="fa fa-undo" aria-hidden></i> Undo</button>,
+							" ",
+							<button data-cmd="/cancel" class="button"><i class="fa fa-times" aria-hidden></i> Cancel</button>,
 							" What about the rest of your team? "]
 					) : (
 						"How will you start the battle? "
