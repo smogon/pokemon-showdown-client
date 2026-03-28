@@ -43,6 +43,7 @@ export declare namespace Dex {
 	export type StatNameExceptHP = DexData.StatNameExceptHP;
 	export type BoostStatName = DexData.BoostStatName;
 	export type TypeName = DexData.TypeName;
+	export type CategoryName = DexData.CategoryName;
 	export type StatusName = DexData.StatusName;
 	export type GenderName = DexData.GenderName;
 	export type NatureName = DexData.NatureName;
