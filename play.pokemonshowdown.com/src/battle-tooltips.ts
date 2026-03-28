@@ -821,7 +821,7 @@ export class BattleTooltips {
 			} else if (effectiveness > 2) {
 				text += `<p>&#x2605; <strong>Extremely effective</strong> vs. ${possibleTarget.name} <small>(${effectiveness}&times;)</small></p>`;
 			} else if (effectiveness > 1) {
-				text += `<p>&#x2609; <strong>Super effective</strong> vs. ${possibleTarget.name} <small>(${effectiveness}&times;)</small></p>`;
+				text += `<p>&#x29BF; <strong>Super effective</strong> vs. ${possibleTarget.name} <small>(${effectiveness}&times;)</small></p>`;
 			}
 		}
 
@@ -1903,7 +1903,9 @@ export class BattleTooltips {
 			} else if (effectiveness > 2) {
 				tags += `\u2605`;
 			} else if (effectiveness > 1) {
-				tags += `\u2609`;
+				tags += `\u29BF`;
+			} else if (category !== 'Status') {
+				tags += `\u25CB`;
 			}
 		}
 
