@@ -1885,7 +1885,7 @@ export class BattleTooltips {
 		const [moveType, category] = this.getMoveType(move, value, forMaxMove);
 
 		const pokemon = value.pokemon;
-		let foeActive = pokemon.side.foe.active;
+		let foeActive = [...pokemon.side.foe.active].reverse();
 		if (this.battle.gameType === 'freeforall') {
 			foeActive = [...foeActive, ...pokemon.side.active].filter(active => active !== pokemon);
 		}
