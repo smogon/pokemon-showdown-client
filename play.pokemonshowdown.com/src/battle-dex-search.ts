@@ -1610,7 +1610,8 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 			return !(dex.gen < 4 && moves.includes('brickbreak')) && !moves.includes('aurasphere') && !moves.includes('focusblast');
 		case 'hiddenpowerfire':
 			return !(dex.gen < 4 && moves.includes('firepunch')) && !moves.includes('flamethrower') &&
-				!moves.includes('mysticalfire') && !moves.includes('burningjealousy');
+				!moves.includes('mysticalfire') && !moves.includes('burningjealousy') &&
+				!(dex.gen > 5 && moves.includes('incinerate'));
 		case 'hiddenpowergrass':
 			return !(dex.gen < 4 && moves.includes('leafblade')) ||
 				(dex.gen > 3 && !moves.includes('energyball') && !moves.includes('grassknot') && !moves.includes('gigadrain'));
@@ -1636,6 +1637,9 @@ class BattleMoveSearch extends BattleTypedSearch<'move'> {
 		case 'icywind':
 			// Keldeo needs Hidden Power for Electric/Ghost
 			return species.baseSpecies === 'Keldeo' || this.isDoubles;
+		case 'incinerate':
+			return dex.gen > 5 &&
+				!moves.includes('flamethrower') && !moves.includes('mysticalfire') && !moves.includes('burningjealousy');
 		case 'infestation':
 			return moves.includes('stickyweb');
 		case 'irondefense':
