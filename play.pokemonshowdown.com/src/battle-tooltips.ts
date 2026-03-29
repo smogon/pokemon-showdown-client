@@ -1887,12 +1887,18 @@ export class BattleTooltips {
 
 		if (targetAbility === 'Wonder Guard' && factor <= 1 && category !== 'Status') return 0;
 		if (sourceAbility === 'Tinted Lens' && factor < 1) factor *= 2;
+		if (targetAbility === 'Sturdy' && move.ohko) return 0;
+		if (targetAbility === 'Damp' && [
+			'explosion', 'mindblown', 'mistyexplosion', 'selfdestruct',
+		].includes(move.id)) return 0;
+
 		if (category === 'Status') {
 			if (!move.flags['bypasssub'] && target.volatiles['substitute'] && sourceAbility !== 'Infiltrator') return 0;
 			if (move.id === 'thunderwave') return factor === 0 ? 0 : 1;
 			if (targetAbility === 'Levitate') return 1; // Levitate acts like a type-based immunity
 			return abilityFactor === 0 ? 0 : 1;
 		}
+
 		if (
 			// static amount, OHKO
 			move.damage || move.ohko ||
