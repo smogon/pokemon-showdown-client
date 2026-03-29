@@ -392,7 +392,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 				}
 				if (isGen9BH) {
 					if ((species.natDexTier === 'Illegal' || species.forme.includes('Totem')) &&
-						!['Floette-Eternal', 'Greninja-Ash', 'Xerneas-Neutral'].includes(species.name)) {
+						!['Eevee-Starter', 'Floette-Eternal', 'Greninja-Ash', 'Pikachu-Starter', 'Xerneas-Neutral'].includes(species.name)) {
 						return 'Illegal';
 					}
 					if ((species.name === 'Xerneas' || species.battleOnly || species.forme === 'Eternamax') &&
