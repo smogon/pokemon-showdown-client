@@ -811,17 +811,17 @@ export class BattleTooltips {
 			if (!possibleTarget) continue;
 			const effectiveness = this.getMoveEffectiveness(pokemon, move, moveType, category, possibleTarget);
 			if (effectiveness === 0) {
-				text += `<p>&times; <strong>No effect</strong> vs. ${possibleTarget.name}</p>`;
+				text += `<p><span class="effectiveness-icon">&times;</span> <strong>No effect</strong> vs. ${possibleTarget.name}</p>`;
 			} else if (effectiveness < 0.5) {
 				const effectivenessText = effectiveness === 0.25 ? '&#x00BC;' : effectiveness;
-				text += `<p>&#x25BC; <strong>Mostly ineffective</strong> vs. ${possibleTarget.name} <small>(${effectivenessText}&times;)</small></p>`;
+				text += `<p><span class="effectiveness-icon">&#x25BC;</span> <strong>Mostly ineffective</strong> vs. ${possibleTarget.name} <small>(${effectivenessText}&times;)</small></p>`;
 			} else if (effectiveness < 1) {
 				const effectivenessText = effectiveness === 0.5 ? '&#x00BD;' : effectiveness;
-				text += `<p>&#x25B3; <strong>Not very effective</strong> vs. ${possibleTarget.name} <small>(${effectivenessText}&times;)</small></p>`;
+				text += `<p><span class="effectiveness-icon">&#x25B3;</span> <strong>Not very effective</strong> vs. ${possibleTarget.name} <small>(${effectivenessText}&times;)</small></p>`;
 			} else if (effectiveness > 2) {
-				text += `<p>&#x2605; <strong>Extremely effective</strong> vs. ${possibleTarget.name} <small>(${effectiveness}&times;)</small></p>`;
+				text += `<p><span class="effectiveness-icon">&#x2605;</span> <strong>Extremely effective</strong> vs. ${possibleTarget.name} <small>(${effectiveness}&times;)</small></p>`;
 			} else if (effectiveness > 1) {
-				text += `<p>&#x29BF; <strong>Super effective</strong> vs. ${possibleTarget.name} <small>(${effectiveness}&times;)</small></p>`;
+				text += `<p><span class="effectiveness-icon">&#x29BF;</span> <strong>Super effective</strong> vs. ${possibleTarget.name} <small>(${effectiveness}&times;)</small></p>`;
 			}
 		}
 
