@@ -1834,12 +1834,16 @@ export class BattleTooltips {
 		const priority = move.priority + (category === 'Status' && sourceAbility === 'Prankster' ? 1 : 0);
 
 		let inflictsStatus = null;
+		let inflictsEffect = null;
 		if (category === 'Status') {
 			if (['thunderwave', 'glare', 'stunspore'].includes(move.id)) inflictsStatus = 'par';
 			if (['toxic', 'poisonpowder'].includes(move.id)) inflictsStatus = 'psn';
-			if (['spore', 'sleeppowder', 'hypnosis', 'sing', 'lovelykiss', 'darkvoid'].includes(move.id)) inflictsStatus = 'slp';
+			if ([
+				'spore', 'sleeppowder', 'hypnosis', 'sing', 'lovelykiss', 'darkvoid', 'yawn',
+			].includes(move.id)) inflictsStatus = 'slp';
 			if (move.id === 'willowisp') inflictsStatus = 'brn';
-			if (['block', 'meanlook', 'spiderweb'].includes(move.id)) inflictsStatus = 'trapped';
+			if (['block', 'meanlook', 'spiderweb'].includes(move.id)) inflictsEffect = 'trapped';
+			if (['confuseray', 'supersonic'].includes(move.id)) inflictsEffect = 'confusion';
 		}
 
 		const abilityFactor = BattleTooltips.getTypeAbilityWeakness(attackType, toID(targetAbility), dex);
@@ -1848,7 +1852,7 @@ export class BattleTooltips {
 			const tType = dex.types.get(targetType);
 
 			// special type immunities
-			if (inflictsStatus && tType.damageTaken?.[inflictsStatus as 'powder'] === Dex.IMMUNE) {
+			if (inflictsStatus && tType.damageTaken?.[(inflictsStatus || inflictsEffect) as 'trapped'] === Dex.IMMUNE) {
 				if (!(inflictsStatus === 'psn' && sourceAbility === 'Corrosion')) {
 					return 0;
 				}
@@ -1876,20 +1880,32 @@ export class BattleTooltips {
 			if (move.id === 'sheercold' && targetType === 'Ice') return 0;
 		}
 
-		if (
-			this.battle.hasPseudoWeather('Misty Terrain') && target.isGrounded() && inflictsStatus && inflictsStatus !== 'trapped'
-		) {
+		if (this.battle.hasPseudoWeather('Misty Terrain') && target.isGrounded() && inflictsStatus) {
 			return 0;
 		}
 		if (this.battle.hasPseudoWeather('Psychic Terrain') && target.isGrounded() && priority > 0) {
 			return 0;
 		}
 
+		// status immunities
+		if (target.status && inflictsStatus) return 0;
+		if (targetAbility === "Comatose" && inflictsStatus) return 0;
+		if (targetAbility === "Shields Down" && target.speciesForme === 'Minior-Meteor' && inflictsStatus) return 0;
+		if (targetAbility === "Leaf Guard" && this.battle.weather === 'sunnyday' && inflictsStatus) return 0;
+		if (targetAbility === "Sweet Veil" && inflictsStatus === 'slp') return 0;
+		if (targetAbility === "Pastel Veil" && inflictsStatus === 'psn') return 0;
+		if (["Water Veil", "Water Bubble", "Thermal Exchange"].includes(targetAbility) && inflictsStatus === 'brn') return 0;
+
 		if (targetAbility === 'Wonder Guard' && factor <= 1 && category !== 'Status') return 0;
+		if (targetAbility === "Good as Gold" && category === 'Status') return 0;
+		if (targetAbility === "Own Tempo" && inflictsEffect === 'confusion') return 0;
 		if (sourceAbility === 'Tinted Lens' && factor < 1) factor *= 2;
 		if (targetAbility === 'Sturdy' && move.ohko) return 0;
 		if (targetAbility === 'Damp' && [
 			'explosion', 'mindblown', 'mistyexplosion', 'selfdestruct',
+		].includes(move.id)) return 0;
+		if (targetAbility === 'Aroma Veil' && [
+			'disable', 'encore', 'healblock', 'taunt', 'torment', 'attract',
 		].includes(move.id)) return 0;
 
 		if (category === 'Status') {
