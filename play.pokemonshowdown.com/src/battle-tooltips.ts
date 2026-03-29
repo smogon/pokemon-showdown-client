@@ -1826,13 +1826,18 @@ export class BattleTooltips {
 
 		const targetTypes = target.getTypeList();
 		const sourceAbility = source.effectiveAbility();
-		const targetAbility = target.effectiveAbility();
+		// Mold Breaker doesn't ignore _everything_, but it sure ignores everything that affects effectiveness
+		const targetAbility = [
+			'Mold Breaker', 'Teravolt', 'Turboblaze',
+		].includes(sourceAbility) ? '' : target.effectiveAbility();
 		const dex = this.battle.dex;
+		const priority = move.priority + (category === 'Status' && sourceAbility === 'Prankster' ? 1 : 0);
 
 		let inflictsStatus = null;
 		if (category === 'Status') {
 			if (['thunderwave', 'glare', 'stunspore'].includes(move.id)) inflictsStatus = 'par';
 			if (['toxic', 'poisonpowder'].includes(move.id)) inflictsStatus = 'psn';
+			if (['spore', 'sleeppowder', 'hypnosis', 'sing', 'lovelykiss', 'darkvoid'].includes(move.id)) inflictsStatus = 'slp';
 			if (move.id === 'willowisp') inflictsStatus = 'brn';
 			if (['block', 'meanlook', 'spiderweb'].includes(move.id)) inflictsStatus = 'trapped';
 		}
@@ -1841,13 +1846,6 @@ export class BattleTooltips {
 		let factor = abilityFactor;
 		for (const targetType of targetTypes) {
 			const tType = dex.types.get(targetType);
-			if (tType.damageTaken?.[attackType] === Dex.IMMUNE) {
-				if (targetType === 'Ghost' && (target.volatiles['foresight'] || target.volatiles['odorsleuth'])) continue;
-				if (targetType === 'Dark' && (target.volatiles['miracleeye'])) continue;
-			}
-			factor *= [1, 2, 0.5, 0][tType.damageTaken?.[attackType] || 0] ?? 1;
-			if (move.id === 'freezedry' && targetType === 'Water') factor *= 4;
-			if (move.id === 'sheercold' && targetType === 'Ice') return 0;
 
 			// special type immunities
 			if (inflictsStatus && tType.damageTaken?.[inflictsStatus as 'powder'] === Dex.IMMUNE) {
@@ -1862,19 +1860,42 @@ export class BattleTooltips {
 			if (move.flags['powder'] && targetAbility === 'Overcoat' && dex.gen >= 6) return 0;
 			if (move.flags['sound'] && targetAbility === 'Soundproof') return 0;
 			if (move.flags['bullet'] && targetAbility === 'Bulletproof') return 0;
+
+			// regular type effectiveness
+			if (tType.damageTaken?.[attackType] === Dex.IMMUNE) {
+				if (target.item === 'Ring Target') continue;
+				if (targetType === 'Ghost' && (sourceAbility === "Scrappy" || sourceAbility === "Mind's Eye")) continue;
+				if (targetType === 'Ghost' && (target.volatiles['foresight'] || target.volatiles['odorsleuth'])) continue;
+				if (targetType === 'Dark' && (target.volatiles['miracleeye'])) continue;
+				factor = 0;
+			} else if (move.id === 'freezedry' && targetType === 'Water') {
+				factor *= 2;
+			} else {
+				factor *= [1, 2, 0.5, 0][tType.damageTaken?.[attackType] || 0] ?? 1;
+			}
+			if (move.id === 'sheercold' && targetType === 'Ice') return 0;
 		}
+
+		if (
+			this.battle.hasPseudoWeather('Misty Terrain') && target.isGrounded() && inflictsStatus && inflictsStatus !== 'trapped'
+		) {
+			return 0;
+		}
+		if (this.battle.hasPseudoWeather('Psychic Terrain') && target.isGrounded() && priority > 0) {
+			return 0;
+		}
+
 		if (targetAbility === 'Wonder Guard' && factor <= 1 && category !== 'Status') return 0;
 		if (sourceAbility === 'Tinted Lens' && factor < 1) factor *= 2;
 		if (category === 'Status') {
+			if (!move.flags['bypasssub'] && target.volatiles['substitute'] && sourceAbility !== 'Infiltrator') return 0;
 			if (move.id === 'thunderwave') return factor === 0 ? 0 : 1;
 			if (targetAbility === 'Levitate') return 1; // Levitate acts like a type-based immunity
 			return abilityFactor === 0 ? 0 : 1;
 		}
 		if (
-			// static amount
-			move.damage ||
-			// OHKO
-			move.ohko ||
+			// static amount, OHKO
+			move.damage || move.ohko ||
 			// countering
 			move.id === 'comeuppance' || move.id === 'counter' || move.id === 'mirrorcoat' || move.id === 'metalburst' ||
 			// special
