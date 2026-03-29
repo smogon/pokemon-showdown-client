@@ -554,7 +554,7 @@ export class BattleTooltips {
 		let text = '';
 
 		let zEffect = '';
-		let foeActive = pokemon.side.foe.active;
+		let foeActive = [...pokemon.side.foe.active].reverse();
 		if (this.battle.gameType === 'freeforall') {
 			foeActive = [...foeActive, ...pokemon.side.active].filter(active => active !== pokemon);
 		}
