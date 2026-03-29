@@ -1172,6 +1172,18 @@
 				}
 				return false;
 
+			case 'blitzanims':
+				if (this.checkBroadcast(cmd, text)) return false;
+				var blitzanims = (toID(target) === 'on');
+				Storage.prefs('blitzanims', blitzanims);
+				this.add('Fast animations ' + (blitzanims ? 'ON' : 'OFF') + " for next battle.");
+				for (var roomid in app.rooms) {
+					var battle = app.rooms[roomid] && app.rooms[roomid].battle;
+					if (!battle) continue;
+					battle.resetToCurrentTurn();
+				}
+				return false;
+
 			// documentation of client commands
 			case 'help':
 			case 'h':
@@ -1268,6 +1280,9 @@
 					this.add('/afd default - Set April Fools\' Day to default (full on April 1st, off otherwise).');
 					this.add('/afd off - Disable April Fools\' Day jokes until the next refresh, and set /afd default.');
 					this.add('/afd never - Disable April Fools\' Day jokes permanently.');
+					return false;
+				case 'blitzanims':
+					this.add('/blitzanims [on|off] - Enable or disable fast animations.');
 					return false;
 				}
 			}
