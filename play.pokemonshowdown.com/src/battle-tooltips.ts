@@ -1841,7 +1841,11 @@ export class BattleTooltips {
 		let factor = abilityFactor;
 		for (const targetType of targetTypes) {
 			const tType = dex.types.get(targetType);
-			factor *= [1, 2, 0.5, 0][tType.damageTaken?.[attackType] || 0];
+			if (tType.damageTaken?.[attackType] === Dex.IMMUNE) {
+				if (targetType === 'Ghost' && (target.volatiles['foresight'] || target.volatiles['odorsleuth'])) continue;
+				if (targetType === 'Dark' && (target.volatiles['miracleeye'])) continue;
+			}
+			factor *= [1, 2, 0.5, 0][tType.damageTaken?.[attackType] || 0] ?? 1;
 			if (move.id === 'freezedry' && targetType === 'Water') factor *= 4;
 			if (move.id === 'sheercold' && targetType === 'Ice') return 0;
 
