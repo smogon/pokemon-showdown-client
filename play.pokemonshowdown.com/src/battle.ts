@@ -2801,7 +2801,7 @@ export class Battle {
 			if (!(effect.id === 'typechange' && poke.terastallized) &&
 				effect.id !== 'futuresight' && effect.id !== 'doomdesire') {
 				if (effect.id === 'slowstart') {
-					poke.addVolatile(effect.id as ID, 5);
+					poke.addVolatile(effect.id, 5);
 				} else {
 					poke.addVolatile(effect.id);
 				}
