@@ -2856,7 +2856,7 @@ export class PokemonSprite extends Sprite {
 		}
 
 		for (let i in pokemon.volatiles) {
-			status += PokemonSprite.getEffectTag(i);
+			status += PokemonSprite.getEffectTag(i, pokemon);
 		}
 		for (let i in pokemon.turnstatuses) {
 			if (i === 'roost' && !pokemon.getTypeList().includes('Flying')) continue;
@@ -2869,7 +2869,17 @@ export class PokemonSprite extends Sprite {
 		statusbar.html(status);
 	}
 
-	private static getEffectTag(id: string) {
+	private static getEffectTag(id: string, pokemon?: Pokemon) {
+		if (id === 'slowstart') {
+			let count = 1;
+			if (pokemon && pokemon.volatiles.slowstart && pokemon.volatiles.slowstart.length > 1) {
+				const raw = Number(pokemon.volatiles.slowstart[1]);
+				if (!isNaN(raw)) {
+					count = Math.max(1, Math.min(5, Math.floor(raw)));
+				}
+			}
+			return `<span class="bad">Slow&nbsp;Start&nbsp;(${count})</span> `;
+		}
 		let effect = PokemonSprite.statusTable[id];
 		if (typeof effect === 'string') return effect;
 		if (effect === null) return (PokemonSprite.statusTable[id] = '');
