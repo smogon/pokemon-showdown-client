@@ -1890,6 +1890,7 @@ export class BattleTooltips {
 		// status immunities
 		if (target.status && inflictsStatus) return 0;
 		if (targetAbility === "Comatose" && inflictsStatus) return 0;
+		if (targetAbility === "Purifying Salt" && inflictsStatus) return 0;
 		if (targetAbility === "Shields Down" && target.speciesForme === 'Minior-Meteor' && inflictsStatus) return 0;
 		if (targetAbility === "Leaf Guard" && this.battle.weather === 'sunnyday' && inflictsStatus) return 0;
 		if (targetAbility === "Sweet Veil" && inflictsStatus === 'slp') return 0;
