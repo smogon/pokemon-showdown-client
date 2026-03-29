@@ -1846,7 +1846,10 @@ export class BattleTooltips {
 			if (['confuseray', 'supersonic'].includes(move.id)) inflictsEffect = 'confusion';
 		}
 
-		const abilityFactor = BattleTooltips.getTypeAbilityWeakness(attackType, toID(targetAbility), dex);
+		let abilityFactor = BattleTooltips.getTypeAbilityWeakness(attackType, toID(targetAbility), dex);
+		if (!abilityFactor && targetAbility === "Levitate" && (target.isGrounded() || move.id === 'thousandarrows')) {
+			abilityFactor = 1;
+		}
 		let factor = abilityFactor;
 		for (const targetType of targetTypes) {
 			const tType = dex.types.get(targetType);
@@ -1871,6 +1874,11 @@ export class BattleTooltips {
 				if (targetType === 'Ghost' && (sourceAbility === "Scrappy" || sourceAbility === "Mind's Eye")) continue;
 				if (targetType === 'Ghost' && (target.volatiles['foresight'] || target.volatiles['odorsleuth'])) continue;
 				if (targetType === 'Dark' && (target.volatiles['miracleeye'])) continue;
+				if (targetType === 'Flying' && target.isGrounded()) continue;
+				if (targetType === 'Flying' && move.id === 'thousandarrows' && !target.isGrounded) {
+					factor = 1;
+					break;
+				}
 				factor = 0;
 			} else if (move.id === 'freezedry' && targetType === 'Water') {
 				factor *= 2;
