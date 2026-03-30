@@ -1946,23 +1946,28 @@ export class BattleTooltips {
 			foeActive = [...foeActive, ...pokemon.side.active].filter(active => active !== pokemon);
 		}
 
-		let tags = '';
+		let tags = '\u00D7';
 		for (const possibleTarget of foeActive) {
 			if (!possibleTarget) continue;
 			const effectiveness = this.getMoveEffectiveness(pokemon, move, moveType, category, possibleTarget);
-			if (effectiveness === 0) {
-				tags += `\u00D7`;
-			} else if (effectiveness < 0.5) {
-				tags += `\u25BC`;
-			} else if (effectiveness < 1) {
-				tags += `\u25B3`;
-			} else if (effectiveness > 2) {
-				tags += `\u2605`;
-			} else if (effectiveness > 1) {
-				tags += `\u29BF`;
-			} else if (category !== 'Status') {
-				tags += `\u25CB`;
+			if (effectiveness !== 0) {
+				tags = '';
+				break;
 			}
+
+			// if (effectiveness === 0) {
+			// 	tags += `\u00D7`;
+			// } else if (effectiveness < 0.5) {
+			// 	tags += `\u25BC`;
+			// } else if (effectiveness < 1) {
+			// 	tags += `\u25B3`;
+			// } else if (effectiveness > 2) {
+			// 	tags += `\u2605`;
+			// } else if (effectiveness > 1) {
+			// 	tags += `\u29BF`;
+			// } else if (category !== 'Status') {
+			// 	tags += `\u25CB`;
+			// }
 		}
 
 		return [moveType, tags] as const;
