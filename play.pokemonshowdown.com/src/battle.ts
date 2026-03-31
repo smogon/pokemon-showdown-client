@@ -1022,6 +1022,10 @@ export interface ServerPokemon extends PokemonDetails, PokemonHealth {
 	teraType: string;
 	/** falsy if the pokemon is not terastallized, otherwise it is the Tera Type of the Pokemon */
 	terastallized: string;
+	/** random-set role metadata for own-side request payloads */
+	role?: string;
+	/** in-game trainer source ID for own-side request payloads */
+	trainerId?: number;
 }
 
 export class Battle {

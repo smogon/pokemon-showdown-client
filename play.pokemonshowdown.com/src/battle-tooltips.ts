@@ -1004,6 +1004,20 @@ export class BattleTooltips {
 			text += '</p>';
 		}
 
+		if (this.shouldShowRelumiOwnSetInfo(clientPokemon, serverPokemon)) {
+			const setInfo: string[] = [];
+			if (serverPokemon?.role) {
+				setInfo.push(`<small>Role:</small> ${BattleLog.escapeHTML(serverPokemon.role)}`);
+			}
+			const trainerId = serverPokemon?.trainerId;
+			if (typeof trainerId === 'number' && Number.isInteger(trainerId) && trainerId > 0) {
+				setInfo.push(`<small>Trainer ID:</small> ${trainerId}`);
+			}
+			if (setInfo.length) {
+				text += `<p>${setInfo.join('<br />')}</p>`;
+			}
+		}
+
 		text += this.renderStats(clientPokemon, serverPokemon, !isActive);
 
 		if (serverPokemon && !isActive) {
@@ -1077,6 +1091,16 @@ export class BattleTooltips {
 		if (Dex.prefs("extraoppinfo") === false) return false;
 		if (!this.battle.mySide) return false;
 		return clientPokemon.side !== this.battle.mySide;
+	}
+
+	private shouldShowRelumiOwnSetInfo(clientPokemon: Pokemon | null, serverPokemon?: ServerPokemon | null) {
+		if (!serverPokemon) return false;
+		if (!this.battle.mySide) return false;
+		if (clientPokemon && clientPokemon.side !== this.battle.mySide && clientPokemon.side !== this.battle.mySide.ally) {
+			return false;
+		}
+		const tierId = toID(this.battle.tier || '');
+		return tierId === 'gen8relumirandombattle' || tierId === 'gen8relumirandomdoublesbattle';
 	}
 
 	private getTypeWeakness(type: Dex.TypeName, attackType: Dex.TypeName): 0 | 0.5 | 1 | 2 {
