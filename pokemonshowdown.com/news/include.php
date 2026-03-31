@@ -18,7 +18,7 @@ function renderNews() {
 		$buf .= '<div class="newsentry" data-newsid="'.$topic_id.'" data-date="'.$topic['date'].'">';
 		$buf .= '<h4>'.$topic['title_html'].'</h4>';
 		$buf .= @$topic['summary_html'];
-		$buf .= '<p>&mdash;<strong>'.$topic['authorname'].'</strong> <small class="date">on '.readableDate($topic['date']).'</small>'.(isset($topic['details']) ? ' <small><a href="http://pokemonshowdown.com/news/'.$topic['topic_id'].'" target="_blank">Read more</a></small>' : '').'</p>';
+		$buf .= '<p>&mdash;<strong>'.$topic['authorname'].'</strong> <small class="date">on '.readableDate($topic['date']).'</small>'/*.(isset($topic['details']) ? ' <small><a href="http://pokemonshowdown.com/news/'.$topic['topic_id'].'" target="_blank">Read more</a></small>' : '')*/.'</p>';
 		$buf .= '</div>';
 		if (++$count >= 2) break;
 	}
