@@ -2,7 +2,7 @@ node_modules/
 .DS_Store
 Thumbs.db
 npm-debug.log
-/config/
+/config/*
 !/config/news.inc.php
 /vendor/
 /caches/
