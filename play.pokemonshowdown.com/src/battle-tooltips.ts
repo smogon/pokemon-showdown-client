@@ -810,7 +810,9 @@ export class BattleTooltips {
 		for (const possibleTarget of foeActive) {
 			if (!possibleTarget) continue;
 			const effectiveness = this.getMoveEffectiveness(pokemon, move, moveType, category, possibleTarget);
-			if (effectiveness === 0) {
+			if (effectiveness === null) {
+				// do nothing
+			} else if (effectiveness === 0) {
 				text += `<p><span class="effectiveness-icon">&times;</span> <strong>No effect</strong> vs. ${BattleLog.escapeHTML(this.getNickname(possibleTarget))}</p>`;
 			} else if (effectiveness < 0.5) {
 				const effectivenessText = effectiveness === 0.25 ? '&#x00BC;' : effectiveness;
@@ -1820,21 +1822,25 @@ export class BattleTooltips {
 	}
 	getMoveEffectiveness(
 		source: Pokemon, move: Dex.Move, attackType: Dex.TypeName, category: Dex.CategoryName, target: Pokemon
-	) {
+	): number | null {
 		if (([
 			'adjacentAlly', 'adjacentAllyOrSelf', 'self', 'allySide', 'foeSide', 'all',
 		] satisfies Dex.MoveTarget[] as Dex.MoveTarget[]).includes(move.target)) {
 			return 1;
 		}
-
+		const hardcoreMode = this.battle.hardcoreMode;
 		const targetTypes = target.getTypeList();
 		const sourceAbility = source.effectiveAbility();
 		// Mold Breaker doesn't ignore _everything_, but it sure ignores everything that affects effectiveness
-		const targetAbility = [
+		const targetAbility = hardcoreMode || [
 			'Mold Breaker', 'Teravolt', 'Turboblaze',
 		].includes(sourceAbility) ? '' : target.effectiveAbility();
 		const dex = this.battle.dex;
 		const priority = move.priority + (category === 'Status' && sourceAbility === 'Prankster' ? 1 : 0);
+
+		if (hardcoreMode && (move.category === 'Status' || dex.gen < 7)) {
+			return null;
+		}
 
 		let inflictsStatus = null;
 		let inflictsEffect = null;
@@ -1849,11 +1855,15 @@ export class BattleTooltips {
 			if (['confuseray', 'supersonic'].includes(move.id)) inflictsEffect = 'confusion';
 		}
 
-		let abilityFactor = BattleTooltips.getTypeAbilityWeakness(attackType, toID(targetAbility), dex);
-		if (!abilityFactor && targetAbility === "Levitate" && (target.isGrounded() || move.id === 'thousandarrows')) {
-			abilityFactor = 1;
+		/** any factor that's "effectiveness-like" rather than literal type effectiveness */
+		let otherFactor = BattleTooltips.getTypeAbilityWeakness(attackType, toID(targetAbility), dex);
+		let factor = 1;
+		if (!otherFactor && targetAbility === "Levitate") {
+			otherFactor = 1;
+			if (!target.isGrounded() && move.id !== 'thousandarrows' && !hardcoreMode) {
+				factor = 0; // Levitate acts as a type-based immunity (doesn't affect most status moves)
+			}
 		}
-		let factor = abilityFactor;
 		for (const targetType of targetTypes) {
 			const tType = dex.types.get(targetType);
 
@@ -1866,10 +1876,10 @@ export class BattleTooltips {
 			if (category === 'Status' && sourceAbility === 'Prankster' && tType.damageTaken?.['prankster'] === Dex.IMMUNE) {
 				return 0;
 			}
-			if (move.flags['powder'] && tType.damageTaken?.['powder'] === Dex.IMMUNE) return 0;
-			if (move.flags['powder'] && targetAbility === 'Overcoat' && dex.gen >= 6) return 0;
-			if (move.flags['sound'] && targetAbility === 'Soundproof') return 0;
-			if (move.flags['bullet'] && targetAbility === 'Bulletproof') return 0;
+			if (move.flags['powder'] && tType.damageTaken?.['powder'] === Dex.IMMUNE) otherFactor = 0;
+			if (move.flags['powder'] && targetAbility === 'Overcoat' && dex.gen >= 6) otherFactor = 0;
+			if (move.flags['sound'] && targetAbility === 'Soundproof') otherFactor = 0;
+			if (move.flags['bullet'] && targetAbility === 'Bulletproof') otherFactor = 0;
 
 			// regular type effectiveness
 			if (tType.damageTaken?.[attackType] === Dex.IMMUNE) {
@@ -1878,7 +1888,7 @@ export class BattleTooltips {
 				if (targetType === 'Ghost' && (target.volatiles['foresight'] || target.volatiles['odorsleuth'])) continue;
 				if (targetType === 'Dark' && (target.volatiles['miracleeye'])) continue;
 				if (targetType === 'Flying' && target.isGrounded()) continue;
-				if (targetType === 'Flying' && move.id === 'thousandarrows' && !target.isGrounded) {
+				if (targetType === 'Flying' && move.id === 'thousandarrows' && !target.isGrounded()) {
 					factor = 1;
 					break;
 				}
@@ -1888,14 +1898,16 @@ export class BattleTooltips {
 			} else {
 				factor *= [1, 2, 0.5, 0][tType.damageTaken?.[attackType] || 0] ?? 1;
 			}
-			if (move.id === 'sheercold' && targetType === 'Ice') return 0;
+			if (move.id === 'sheercold' && targetType === 'Ice') otherFactor = 0;
 		}
 
+		// Air Balloon etc. Levitate is already handled but there are a few that aren't
+		if (category !== 'Status' && attackType === 'Ground' && factor && !target.isGrounded()) otherFactor = 0;
 		if (this.battle.hasPseudoWeather('Misty Terrain') && target.isGrounded() && inflictsStatus) {
 			return 0;
 		}
 		if (this.battle.hasPseudoWeather('Psychic Terrain') && target.isGrounded() && priority > 0) {
-			return 0;
+			otherFactor = 0;
 		}
 
 		// status immunities
@@ -1908,23 +1920,22 @@ export class BattleTooltips {
 		if (targetAbility === "Pastel Veil" && inflictsStatus === 'psn') return 0;
 		if (["Water Veil", "Water Bubble", "Thermal Exchange"].includes(targetAbility) && inflictsStatus === 'brn') return 0;
 
-		if (targetAbility === 'Wonder Guard' && factor <= 1 && category !== 'Status') return 0;
+		if (targetAbility === 'Wonder Guard' && factor < 2 && category !== 'Status') otherFactor = 0;
 		if (targetAbility === "Good as Gold" && category === 'Status') return 0;
 		if (targetAbility === "Own Tempo" && inflictsEffect === 'confusion') return 0;
-		if (sourceAbility === 'Tinted Lens' && factor < 1) factor *= 2;
-		if (targetAbility === 'Sturdy' && move.ohko) return 0;
+		if (sourceAbility === 'Tinted Lens' && factor < 1) otherFactor *= 2;
+		if (targetAbility === 'Sturdy' && move.ohko) otherFactor = 0;
 		if (targetAbility === 'Damp' && [
 			'explosion', 'mindblown', 'mistyexplosion', 'selfdestruct',
-		].includes(move.id)) return 0;
+		].includes(move.id)) otherFactor = 0;
 		if (targetAbility === 'Aroma Veil' && [
 			'disable', 'encore', 'healblock', 'taunt', 'torment', 'attract',
 		].includes(move.id)) return 0;
 
 		if (category === 'Status') {
 			if (!move.flags['bypasssub'] && target.volatiles['substitute'] && sourceAbility !== 'Infiltrator') return 0;
-			if (move.id === 'thunderwave') return factor === 0 ? 0 : 1;
-			if (targetAbility === 'Levitate') return 1; // Levitate acts like a type-based immunity
-			return abilityFactor === 0 ? 0 : 1;
+			if (move.id === 'thunderwave') return factor * otherFactor === 0 ? 0 : null;
+			return otherFactor === 0 ? 0 : null;
 		}
 
 		if (
@@ -1936,9 +1947,16 @@ export class BattleTooltips {
 			move.id === 'endeavor' || move.id === 'bide' || move.id === 'ruination' || move.id === 'superfang' ||
 			move.id === 'finalgambit' || move.id === 'guardianofalola' || move.id === 'naturesmadness' || move.id === 'psywave'
 		) {
-			return factor === 0 ? 0 : 1;
+			if (hardcoreMode) return null;
+			return factor * otherFactor === 0 ? 0 : 1;
 		}
-		return factor;
+		if (hardcoreMode && dex.gen <= 9) {
+			if (factor > 2) return 2;
+			if (factor < 0.5) return 0.5;
+			return factor;
+		}
+		if (hardcoreMode) return factor;
+		return factor * otherFactor;
 	}
 	getMoveTypeText(move: Dex.Move, value: ModifiableValue, forMaxMove?: boolean | Dex.Move) {
 		const [moveType, category] = this.getMoveType(move, value, forMaxMove);
@@ -1949,6 +1967,32 @@ export class BattleTooltips {
 			foeActive = [...foeActive, ...pokemon.side.active].filter(active => active !== pokemon);
 		}
 
+		if (this.battle.hardcoreMode) {
+			let tags = '';
+			for (const possibleTarget of foeActive) {
+				if (!possibleTarget) continue;
+				const effectiveness = this.getMoveEffectiveness(pokemon, move, moveType, category, possibleTarget);
+
+				if (effectiveness === null) {
+					break;
+				} if (effectiveness === 0) {
+					tags += `\u00D7`;
+				} else if (effectiveness < 0.5) {
+					tags += `\u25BC`;
+				} else if (effectiveness < 1) {
+					tags += `\u25B3`;
+				} else if (effectiveness > 2) {
+					tags += `\u2605`;
+				} else if (effectiveness > 1) {
+					tags += `\u29BF`;
+				} else {
+					tags += `\u25CB`;
+				}
+			}
+
+			return [moveType, tags] as const;
+		}
+
 		let tags = '\u00D7';
 		for (const possibleTarget of foeActive) {
 			if (!possibleTarget) continue;
@@ -1957,20 +2001,6 @@ export class BattleTooltips {
 				tags = '';
 				break;
 			}
-
-			// if (effectiveness === 0) {
-			// 	tags += `\u00D7`;
-			// } else if (effectiveness < 0.5) {
-			// 	tags += `\u25BC`;
-			// } else if (effectiveness < 1) {
-			// 	tags += `\u25B3`;
-			// } else if (effectiveness > 2) {
-			// 	tags += `\u2605`;
-			// } else if (effectiveness > 1) {
-			// 	tags += `\u29BF`;
-			// } else if (category !== 'Status') {
-			// 	tags += `\u25CB`;
-			// }
 		}
 
 		return [moveType, tags] as const;
