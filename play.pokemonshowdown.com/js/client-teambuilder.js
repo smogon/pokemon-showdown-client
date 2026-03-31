@@ -1251,6 +1251,7 @@
 					buf += '<li><button name="addPokemon" class="button big"><i class="fa fa-plus"></i> Add Pok&eacute;mon</button></li>';
 				}
 				buf += '</ol>';
+				buf += this.renderDefensiveCoverage();
 				var formatInfo = this.formatResources[this.curTeam.format];
 				// data's there and loaded
 				if (formatInfo && formatInfo !== true) {
@@ -1283,6 +1284,132 @@
 			this.$el.html('<div class="teamwrapper">' + buf + '</div>');
 			this.$(".teamedit textarea").focus().select();
 			if ($(window).width() < 640) this.show();
+		},
+		renderDefensiveCoverage: function () {
+			if (this.curTeam.capacity > 6) return '';
+			if (!this.curSetList || !this.curSetList.length) return '';
+
+			var counters = Object.values(this.teamDefensiveCoverage());
+			counters.sort(function (a, b) {
+				if (a.resists !== b.resists) return a.resists - b.resists;
+				return b.weaknesses - a.weaknesses;
+			});
+
+			var good = '';
+			var medium = '';
+			var bad = '';
+			var renderTypeDefensive = function (counter) {
+				return '<tr>' +
+					'<th>' + BattleLog.escapeHTML(counter.type) + '</th>' +
+					'<td>' + counter.resists + ' <small class="gray">resist</small></td>' +
+					'<td>' + counter.weaknesses + ' <small class="gray">weak</small></td>' +
+				'</tr>';
+			};
+
+			for (var i = 0; i < counters.length; i++) {
+				var counter = counters[i];
+				if (counter.resists > 0) {
+					good += renderTypeDefensive(counter);
+				} else if (counter.weaknesses <= 0) {
+					medium += renderTypeDefensive(counter);
+				} else {
+					bad += renderTypeDefensive(counter);
+				}
+			}
+
+			return '<br /><hr /><br />' +
+				'<details class="details">' +
+					'<summary>' +
+						'<strong>Defensive coverage</strong>' +
+						'<table class="details-preview table">' +
+							bad +
+							'<tr><td colspan="3"><span class="details-preview ilink"><small>See all</small></span></td></tr>' +
+						'</table>' +
+					'</summary>' +
+					'<table class="table">' + bad + medium + good + '</table>' +
+				'</details>';
+		},
+		getTypeWeakness: function (type, attackType) {
+			var damageTaken = this.curTeam.dex.types.get(type).damageTaken || {};
+			var weaknessType = damageTaken[attackType];
+			if (weaknessType === Dex.IMMUNE) return 0;
+			if (weaknessType === Dex.RESIST) return 0.5;
+			if (weaknessType === Dex.WEAK) return 2;
+			return 1;
+		},
+		getWeakness: function (types, abilityid, attackType) {
+			if (attackType === 'Ground' && abilityid === 'levitate') return 0;
+			if (attackType === 'Water' && abilityid === 'dryskin') return 0;
+			if (attackType === 'Fire' && abilityid === 'flashfire') return 0;
+			if (attackType === 'Electric' && abilityid === 'lightningrod' && this.curTeam.gen >= 5) return 0;
+			if (attackType === 'Grass' && abilityid === 'sapsipper') return 0;
+			if (attackType === 'Electric' && abilityid === 'motordrive') return 0;
+			if (attackType === 'Water' && abilityid === 'stormdrain' && this.curTeam.gen >= 5) return 0;
+			if (attackType === 'Electric' && abilityid === 'voltabsorb') return 0;
+			if (attackType === 'Water' && abilityid === 'waterabsorb') return 0;
+			if (attackType === 'Ground' && abilityid === 'eartheater') return 0;
+			if (attackType === 'Fire' && abilityid === 'wellbakedbody') return 0;
+
+			if (attackType === 'Fire' && abilityid === 'primordialsea') return 0;
+			if (attackType === 'Water' && abilityid === 'desolateland') return 0;
+
+			if (abilityid === 'wonderguard') {
+				for (var i = 0; i < types.length; i++) {
+					if (this.getTypeWeakness(types[i], attackType) <= 1) return 0;
+				}
+			}
+
+			var factor = 1;
+			if ((attackType === 'Fire' || attackType === 'Ice') && abilityid === 'thickfat') factor *= 0.5;
+			if (attackType === 'Fire' && abilityid === 'waterbubble') factor *= 0.5;
+			if (attackType === 'Fire' && abilityid === 'heatproof') factor *= 0.5;
+			if (attackType === 'Ghost' && abilityid === 'purifyingsalt') factor *= 0.5;
+			if (attackType === 'Fire' && abilityid === 'fluffy') factor *= 2;
+			if ((attackType === 'Electric' || attackType === 'Rock' || attackType === 'Ice') && abilityid === 'deltastream') {
+				factor *= 0.5;
+			}
+			for (var i = 0; i < types.length; i++) {
+				factor *= this.getTypeWeakness(types[i], attackType);
+			}
+			return factor;
+		},
+		pokemonDefensiveCoverage: function (set) {
+			var coverage = {};
+			var species = this.curTeam.dex.species.get(set.species);
+			var abilityid = toID(set.ability);
+			for (var _i = 0, _types = this.curTeam.dex.types.names(); _i < _types.length; _i++) {
+				var type = _types[_i];
+				coverage[type] = this.getWeakness(species.types, abilityid, type);
+			}
+			return coverage;
+		},
+		teamDefensiveCoverage: function () {
+			var counters = {};
+			for (var _i = 0, _types = this.curTeam.dex.types.names(); _i < _types.length; _i++) {
+				var type = _types[_i];
+				counters[type] = {
+					type: type,
+					resists: 0,
+					neutrals: 0,
+					weaknesses: 0
+				};
+			}
+			for (var i = 0; i < this.curSetList.length; i++) {
+				var set = this.curSetList[i];
+				if (!set.species) continue;
+				var coverage = this.pokemonDefensiveCoverage(set);
+				for (var attackType in coverage) {
+					var value = coverage[attackType];
+					if (value < 1) {
+						counters[attackType].resists++;
+					} else if (value === 1) {
+						counters[attackType].neutrals++;
+					} else {
+						counters[attackType].weaknesses++;
+					}
+				}
+			}
+			return counters;
 		},
 		renderSet: function (set, i) {
 			var species = this.curTeam.dex.species.get(set.species);
