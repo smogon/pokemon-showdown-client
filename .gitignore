@@ -3,6 +3,7 @@ node_modules/
 Thumbs.db
 npm-debug.log
 /config/
+!/config/news.inc.php
 /vendor/
 /caches/
 
