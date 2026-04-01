@@ -650,6 +650,11 @@ abstract class BattleTypedSearch<T extends SearchType> {
 			format = format.slice(9) as ID;
 		}
 
+		if (format.startsWith('champoins')) {
+			this.formatType = 'champoin';
+			format = format.slice(9) as ID;
+		}
+
 		if (format.startsWith('dlc1') && this.dex.gen === 8) {
 			if (format.includes('doubles')) {
 				this.formatType = 'ssdlc1doubles';
