@@ -582,7 +582,7 @@ abstract class BattleTypedSearch<T extends SearchType> {
 
 	protected formatType: 'doubles' | 'bdsp' | 'bdspdoubles' | 'rs' | 'bw1' | 'letsgo' | 'metronome' | 'natdex' | 'nfe' |
 		'ssdlc1' | 'ssdlc1doubles' | 'predlc' | 'predlcdoubles' | 'predlcnatdex' | 'svdlc1' | 'svdlc1doubles' |
-		'svdlc1natdex' | 'stadium' | 'lc' | 'legendsza' | null = null;
+		'svdlc1natdex' | 'stadium' | 'lc' | 'legendsza' | 'champoin' | null = null;
 	isDoubles = false;
 
 	/**
@@ -612,6 +612,11 @@ abstract class BattleTypedSearch<T extends SearchType> {
 			this.dex = Dex.forGen(gen);
 		} else if (!format) {
 			this.dex = Dex;
+		}
+
+		if (format.startsWith('champoins')) {
+			this.formatType = 'champoin';
+			format = format.slice(9) as ID;
 		}
 
 		if (format.startsWith('dlc1') && this.dex.gen === 8) {
@@ -921,6 +926,7 @@ abstract class BattleTypedSearch<T extends SearchType> {
 			this.formatType === 'natdex' ? `gen${gen}natdex` :
 			this.formatType === 'stadium' ? `gen${gen}stadium${gen > 1 ? gen : ''}` :
 			this.formatType === 'legendsza' ? `gen9legendsou` :
+			this.formatType === 'champoin' ? `champoin` :
 			`gen${gen}`;
 		if (table?.[tableKey]) {
 			table = table[tableKey];
@@ -1019,6 +1025,8 @@ class BattlePokemonSearch extends BattleTypedSearch<'pokemon'> {
 		let table = BattleTeambuilderTable;
 		if ((format.endsWith('cap') || format.endsWith('caplc')) && dex.gen < 9) {
 			table = table[`gen${dex.gen}`];
+		} else if (this.formatType === 'champoin') {
+			table = table[`champoin`];
 		} else if (isVGCOrBS) {
 			table = table[`gen${dex.gen}vgc`];
 		} else if (dex.gen === 9 && isHackmons && !this.formatType) {
