@@ -1851,7 +1851,7 @@ export class BattleTooltips {
 				'darkvoid', 'grasswhistle', 'hypnosis', 'lovelykiss', 'sing', 'sleeppowder', 'spore', 'yawn',
 			].includes(move.id)) inflictsStatus = 'slp';
 			if (move.id === 'willowisp') inflictsStatus = 'brn';
-			if (['block', 'fairylock', 'meanlook', 'spiderweb'].includes(move.id)) inflictsEffect = 'trapped';
+			if (['block', 'meanlook', 'spiderweb'].includes(move.id)) inflictsEffect = 'trapped';
 			if (['confuseray', 'supersonic', 'sweetkiss', 'teeterdance'].includes(move.id)) inflictsEffect = 'confusion';
 		}
 
