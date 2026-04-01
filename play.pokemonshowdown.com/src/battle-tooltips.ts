@@ -1793,7 +1793,7 @@ export class BattleTooltips {
 		}
 		return [moveType, category];
 	}
-	static getTypeAbilityWeakness(attackType: Dex.TypeName, abilityid: ID, dex: ModdedDex = Dex) {
+	static getTypeAbilityWeakness(attackType: Dex.TypeName, abilityid: ID, dex: ModdedDex = Dex, strict?: boolean) {
 		if (attackType === 'Ground' && abilityid === 'levitate') return 0;
 		if (attackType === 'Water' && abilityid === 'dryskin') return 0;
 		if (attackType === 'Fire' && abilityid === 'flashfire') return 0;
@@ -1806,8 +1806,8 @@ export class BattleTooltips {
 		if (attackType === 'Ground' && abilityid === 'eartheater') return 0;
 		if (attackType === 'Fire' && abilityid === 'wellbakedbody') return 0;
 
-		if (attackType === 'Fire' && abilityid === 'primordialsea') return 0;
-		if (attackType === 'Water' && abilityid === 'desolateland') return 0;
+		if (attackType === 'Fire' && abilityid === 'primordialsea' && !strict) return 0;
+		if (attackType === 'Water' && abilityid === 'desolateland' && !strict) return 0;
 
 		let factor = 1;
 		if ((attackType === 'Fire' || attackType === 'Ice') && abilityid === 'thickfat') factor *= 0.5;
@@ -1856,7 +1856,7 @@ export class BattleTooltips {
 		}
 
 		/** any factor that's "effectiveness-like" rather than literal type effectiveness */
-		let otherFactor = BattleTooltips.getTypeAbilityWeakness(attackType, toID(targetAbility), dex);
+		let otherFactor = BattleTooltips.getTypeAbilityWeakness(attackType, toID(targetAbility), dex, true);
 		let factor = 1;
 		if (!otherFactor && targetAbility === "Levitate") {
 			otherFactor = 1;
@@ -1907,6 +1907,12 @@ export class BattleTooltips {
 			return 0;
 		}
 		if (this.battle.hasPseudoWeather('Psychic Terrain') && target.isGrounded() && priority > 0) {
+			otherFactor = 0;
+		}
+		if (this.battle.weather === 'primordialsea' && attackType === 'Fire') {
+			otherFactor = 0;
+		}
+		if (this.battle.weather === 'desolateland' && attackType === 'Water') {
 			otherFactor = 0;
 		}
 
