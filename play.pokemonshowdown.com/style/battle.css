@@ -746,6 +746,11 @@ License: GPLv2
 	}
 }
 
+.effectiveness-icon {
+	font-family: monospace;
+	font-size: 13px;
+	letter-spacing: 1px;
+}
 
 /*********************************************************
  * Tooltips

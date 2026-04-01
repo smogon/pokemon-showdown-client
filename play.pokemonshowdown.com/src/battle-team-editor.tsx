@@ -13,7 +13,7 @@ import { Teams } from './battle-teams';
 import { DexSearch, type SearchRow, type SearchType } from "./battle-dex-search";
 import { PSSearchResults } from "./battle-searchresults";
 import { BattleNatures, BattleStatNames, type StatName } from "./battle-dex-data";
-import { BattleStatGuesser, BattleStatOptimizer } from "./battle-tooltips";
+import { BattleStatGuesser, BattleStatOptimizer, BattleTooltips } from "./battle-tooltips";
 import { PSModel } from "./client-core";
 import { Net } from "./client-connection";
 import { PSIcon } from "./panels";
@@ -713,20 +713,8 @@ export class TeamEditorState extends PSModel {
 		return 1;
 	}
 	getWeakness(types: readonly Dex.TypeName[], abilityid: ID, attackType: Dex.TypeName): number {
-		if (attackType === 'Ground' && abilityid === 'levitate') return 0;
-		if (attackType === 'Water' && abilityid === 'dryskin') return 0;
-		if (attackType === 'Fire' && abilityid === 'flashfire') return 0;
-		if (attackType === 'Electric' && abilityid === 'lightningrod' && this.gen >= 5) return 0;
-		if (attackType === 'Grass' && abilityid === 'sapsipper') return 0;
-		if (attackType === 'Electric' && abilityid === 'motordrive') return 0;
-		if (attackType === 'Water' && abilityid === 'stormdrain' && this.gen >= 5) return 0;
-		if (attackType === 'Electric' && abilityid === 'voltabsorb') return 0;
-		if (attackType === 'Water' && abilityid === 'waterabsorb') return 0;
-		if (attackType === 'Ground' && abilityid === 'eartheater') return 0;
-		if (attackType === 'Fire' && abilityid === 'wellbakedbody') return 0;
-
-		if (attackType === 'Fire' && abilityid === 'primordialsea') return 0;
-		if (attackType === 'Water' && abilityid === 'desolateland') return 0;
+		const abilityFactor = BattleTooltips.getTypeAbilityWeakness(attackType, abilityid, this.dex);
+		if (abilityFactor === 0) return 0;
 
 		if (abilityid === 'wonderguard') {
 			for (const type of types) {
@@ -734,15 +722,7 @@ export class TeamEditorState extends PSModel {
 			}
 		}
 
-		let factor = 1;
-		if ((attackType === 'Fire' || attackType === 'Ice') && abilityid === 'thickfat') factor *= 0.5;
-		if (attackType === 'Fire' && abilityid === 'waterbubble') factor *= 0.5;
-		if (attackType === 'Fire' && abilityid === 'heatproof') factor *= 0.5;
-		if (attackType === 'Ghost' && abilityid === 'purifyingsalt') factor *= 0.5;
-		if (attackType === 'Fire' && abilityid === 'fluffy') factor *= 2;
-		if ((attackType === 'Electric' || attackType === 'Rock' || attackType === 'Ice') && abilityid === 'deltastream') {
-			factor *= 0.5;
-		}
+		let factor = abilityFactor;
 		for (const type of types) {
 			factor *= this.getTypeWeakness(type, attackType);
 		}
