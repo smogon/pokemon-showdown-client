@@ -200,6 +200,14 @@ export class ChatRoom extends PSRoom {
 					if (!lines[i - 1]) cutOffEnd = i - 1;
 				}
 			}
+			console.log("Reconnection log splice:");
+			console.log([
+				...lines.slice(0, cutOffStart),
+				'====================',
+				...lines.slice(cutOffStart, cutOffEnd),
+				'====================',
+				...lines.slice(cutOffEnd),
+			].join('\n'));
 			lines = lines.slice(cutOffStart, cutOffEnd);
 
 			if (lines.length) {
