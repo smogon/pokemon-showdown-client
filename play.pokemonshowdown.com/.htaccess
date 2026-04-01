@@ -63,6 +63,11 @@ RewriteRule ^t\/([a-z0-9-]*)$ https://teams.pokemonshowdown.com/view/$1 [R=302,L
 RewriteRule ^r\/?$ https://replay.pokemonshowdown.com/ [R=302,L]
 RewriteRule ^r\/([a-z0-9-]*)$ https://replay.pokemonshowdown.com/$1 [R=302,L]
 
+# data dir names
+RewriteRule ^images?\/?$ /sprites/ [R=302,L]
+RewriteRule ^css\/?$ /style/ [R=302,L]
+RewriteRule ^styles\/?$ /style/ [R=302,L]
+
 # rewrite old sprite directories/files
 RewriteRule ^sprites\/xyani(.*)?$ sprites/ani$1 [L,QSA]
 RewriteRule ^sprites\/xydex(.*)?$ sprites/dex$1 [L,QSA]
