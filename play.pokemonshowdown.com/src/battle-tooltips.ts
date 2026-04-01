@@ -1845,14 +1845,16 @@ export class BattleTooltips {
 		let inflictsStatus = null;
 		let inflictsEffect = null;
 		if (category === 'Status') {
-			if (['thunderwave', 'glare', 'stunspore'].includes(move.id)) inflictsStatus = 'par';
-			if (['toxic', 'poisonpowder'].includes(move.id)) inflictsStatus = 'psn';
+			if (['glare', 'stunspore', 'thunderwave'].includes(move.id)) inflictsStatus = 'par';
+			if (['toxic', 'poisongas', 'poisonpowder', 'toxicthread'].includes(move.id)) inflictsStatus = 'psn';
 			if ([
-				'spore', 'sleeppowder', 'hypnosis', 'sing', 'lovelykiss', 'darkvoid', 'yawn',
+				'darkvoid', 'grasswhistle', 'hypnosis', 'lovelykiss', 'sing', 'sleeppowder', 'spore', 'yawn',
 			].includes(move.id)) inflictsStatus = 'slp';
 			if (move.id === 'willowisp') inflictsStatus = 'brn';
-			if (['block', 'meanlook', 'spiderweb'].includes(move.id)) inflictsEffect = 'trapped';
-			if (['confuseray', 'supersonic'].includes(move.id)) inflictsEffect = 'confusion';
+			if (['block', 'fairylock', 'meanlook', 'octolock', 'spiderweb'].includes(move.id)) inflictsEffect = 'trapped';
+			if ([
+				'confuseray', 'flatter', 'supersonic', 'swagger', 'sweetkiss', 'teeterdance',
+			].includes(move.id)) inflictsEffect = 'confusion';
 		}
 
 		/** any factor that's "effectiveness-like" rather than literal type effectiveness */
