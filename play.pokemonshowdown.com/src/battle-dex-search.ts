@@ -771,8 +771,8 @@ abstract class BattleTypedSearch<T extends SearchType> {
 		// if (!searchType || !this.set) return;
 	}
 	getResults(filters?: SearchFilter[] | null, sortCol?: string | null, reverseSort?: boolean): SearchRow[] {
-			const isRelumiTestingFormat =
-			this.format.includes("relumi") && this.format.includes("testing");
+		const isRelumiTestingFormat =
+			this.format.includes('relumi') && this.format.includes('testing');
 		if (sortCol === 'type') {
 			return [this.sortRow!, ...BattleTypeSearch.prototype.getDefaultResults.call(this, reverseSort)];
 		} else if (sortCol === 'category') {
@@ -785,8 +785,8 @@ abstract class BattleTypedSearch<T extends SearchType> {
 			if (isRelumiTestingFormat) {
 				this.baseResults = this.getDefaultResults();
 			} else {
-			this.baseResults = this.getBaseResults();
-		}
+				this.baseResults = this.getBaseResults();
+			}
 		}
 
 		if (!this.baseIllegalResults) {
@@ -794,12 +794,12 @@ abstract class BattleTypedSearch<T extends SearchType> {
 				this.baseIllegalResults = [];
 				this.illegalReasons = null;
 			} else {
-			const legalityFilter: { [id: string]: 1 } = {};
-			for (const [resultType, value] of this.baseResults) {
-				if (resultType === this.searchType) legalityFilter[value] = 1;
-			}
-			this.baseIllegalResults = [];
-			this.illegalReasons = {};
+				const legalityFilter: { [id: string]: 1 } = {};
+				for (const [resultType, value] of this.baseResults) {
+					if (resultType === this.searchType) legalityFilter[value] = 1;
+				}
+				this.baseIllegalResults = [];
+				this.illegalReasons = {};
 
 				for (const id in this.getTable()) {
 					if (!(id in legalityFilter)) {
@@ -1093,18 +1093,25 @@ class BattlePokemonSearch extends BattleTypedSearch<'pokemon'> {
 					species.forme === "Gigantamax" ||
 					species.forme.startsWith("Gigantamax ") ||
 					species.forme === "Gmax";
+				const isMegaForm =
+					species.id.endsWith('megaz') ||
+					species.forme.toLowerCase().includes('mega');
+				const isTeraForm =
+					species.forme.endsWith('Tera') ||
+					species.forme.endsWith('Terastal');
+				const isStellarForm = species.forme.endsWith('Stellar');
 				if (
 					isRelumiMainLadder &&
-					(species.isMega ||
+					(isMegaForm ||
 						species.isPrimal ||
 						isGigantamaxForm ||
+						isTeraForm ||
+						isStellarForm ||
 						isRevavroomCustomForm)
 				) {
 					continue;
 				}
-				const baseSpecies = this.dex.species.get(
-					species.baseSpecies || species.name,
-				);
+				const baseSpecies = this.dex.species.get(species.baseSpecies || species.name);
 				if (
 					species.isNonstandard &&
 					species.isNonstandard !== "Past" &&
@@ -1115,16 +1122,16 @@ class BattlePokemonSearch extends BattleTypedSearch<'pokemon'> {
 				}
 				const baseId = toID(
 					baseSpecies.baseSpecies ||
-						baseSpecies.name ||
-						species.baseSpecies ||
-						species.name,
-				) as ID;
-				const baseNum =
-					baseSpecies.exists && baseSpecies.num > 0
-						? baseSpecies.num
-						: species.num > 0
-							? species.num
-							: Number.MAX_SAFE_INTEGER;
+					baseSpecies.name ||
+					species.baseSpecies ||
+					species.name
+				);
+				let baseNum = Number.MAX_SAFE_INTEGER;
+				if (baseSpecies.exists && baseSpecies.num > 0) {
+					baseNum = baseSpecies.num;
+				} else if (species.num > 0) {
+					baseNum = species.num;
+				}
 				if (baseNum === Number.MAX_SAFE_INTEGER) continue;
 				let gen = baseSpecies.exists ? baseSpecies.gen : species.gen;
 				if (!gen || gen < 1) gen = 9;
