@@ -441,7 +441,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 					'pokemoves', 'relayrace', 'revelationmons', 'sharingiscaring', 'teradonation', 'teraoverride', 'thecardgame',
 					'thelosersgame', 'trademarked', 'triples', 'typesplit', 'voltturnmayhem', 'flipped', 'monotype',
 					'aaa', 'bh', 'doubles', // natdex abbreviations
-					'tiershift', 'linked',
+					'tiershift', 'linked', 'pokebilitiesaaa',
 				])) {
 					const format = Dex.formats.get(`${gen}${isNatDex ? 'nationaldex' : ''}${meta}`);
 					if (!format.exists) continue;
