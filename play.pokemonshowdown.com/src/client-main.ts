@@ -158,7 +158,7 @@ class PSPrefs extends PSStreamModel<string | null> {
 	notifvolume = 50;
 	uploadprivacy = false;
 
-	afd: boolean | 'sprites' = false;
+	afd: boolean | 'sprites' = undefined!;
 
 	highlights: Record<string, string[]> | null = null;
 	logtimes: { [serverid: ID]: { [roomid: RoomID]: number } } | null = null;

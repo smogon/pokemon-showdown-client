@@ -554,7 +554,7 @@ export class BattleTooltips {
 		let text = '';
 
 		let zEffect = '';
-		let foeActive = pokemon.side.foe.active;
+		let foeActive = [...pokemon.side.foe.active].reverse();
 		if (this.battle.gameType === 'freeforall') {
 			foeActive = [...foeActive, ...pokemon.side.active].filter(active => active !== pokemon);
 		}
@@ -806,7 +806,32 @@ export class BattleTooltips {
 				if (failMessage) text += `<p>${failMessage}</p>`;
 			}
 		}
+
+		for (const possibleTarget of foeActive) {
+			if (!possibleTarget) continue;
+			const effectiveness = this.getMoveEffectiveness(pokemon, move, moveType, category, possibleTarget);
+			if (effectiveness === null) {
+				// do nothing
+			} else if (effectiveness === 0) {
+				text += `<p><span class="effectiveness-icon">&times;</span> <strong>No effect</strong> vs. ${BattleLog.escapeHTML(this.getNickname(possibleTarget))}</p>`;
+			} else if (effectiveness < 0.5) {
+				const effectivenessText = effectiveness === 0.25 ? '&#x00BC;' : effectiveness;
+				text += `<p><span class="effectiveness-icon">&#x25BC;</span> <strong>Mostly ineffective</strong> vs. ${BattleLog.escapeHTML(this.getNickname(possibleTarget))} <small>(${effectivenessText}&times;)</small></p>`;
+			} else if (effectiveness < 1) {
+				const effectivenessText = effectiveness === 0.5 ? '&#x00BD;' : effectiveness;
+				text += `<p><span class="effectiveness-icon">&#x25B3;</span> <strong>Not very effective</strong> vs. ${BattleLog.escapeHTML(this.getNickname(possibleTarget))} <small>(${effectivenessText}&times;)</small></p>`;
+			} else if (effectiveness > 2) {
+				text += `<p><span class="effectiveness-icon">&#x2605;</span> <strong>Extremely effective</strong> vs. ${BattleLog.escapeHTML(this.getNickname(possibleTarget))} <small>(${effectiveness}&times;)</small></p>`;
+			} else if (effectiveness > 1) {
+				text += `<p><span class="effectiveness-icon">&#x29BF;</span> <strong>Super effective</strong> vs. ${BattleLog.escapeHTML(this.getNickname(possibleTarget))} <small>(${effectiveness}&times;)</small></p>`;
+			}
+		}
+
 		return text;
+	}
+	getNickname(pokemon: Pokemon | ServerPokemon) {
+		const ignoreNicks = this.battle.ignoreNicks || this.battle.ignoreOpponent;
+		return ignoreNicks ? Dex.species.get(pokemon.speciesForme).baseSpecies : pokemon.name;
 	}
 
 	/**
@@ -830,8 +855,7 @@ export class BattleTooltips {
 			genderBuf = ` <img src="${Dex.fxPrefix}gender-${gender.toLowerCase()}.png" alt="${gender}" width="7" height="10" class="pixelated" /> `;
 		}
 
-		const ignoreNicks = this.battle.ignoreNicks || this.battle.ignoreOpponent;
-		const nickname = ignoreNicks ? Dex.species.get(pokemon.speciesForme).baseSpecies : pokemon.name;
+		const nickname = this.getNickname(pokemon);
 		let name = BattleLog.escapeHTML(nickname);
 		if (pokemon.speciesForme !== nickname) {
 			name += ` <small>(${BattleLog.escapeHTML(pokemon.speciesForme)})</small>`;
@@ -1571,7 +1595,7 @@ export class BattleTooltips {
 	 */
 	getMoveType(
 		move: Dex.Move, value: ModifiableValue, forMaxMove?: boolean | Dex.Move
-	): [Dex.TypeName, 'Physical' | 'Special' | 'Status'] {
+	): [Dex.TypeName, Dex.CategoryName] {
 		const pokemon = value.pokemon;
 		const serverPokemon = value.serverPokemon;
 
@@ -1601,25 +1625,29 @@ export class BattleTooltips {
 			if (value.itemModify(0)) moveType = item.naturalGift.type;
 		}
 		// Weather and pseudo-weather type changes.
-		if (move.id === 'weatherball' && value.weatherModify(0)) {
-			switch (this.battle.weather) {
-			case 'sunnyday':
-			case 'desolateland':
-				if (item.id === 'utilityumbrella') break;
+		if (move.id === 'weatherball') {
+			if (value.weatherModify(0)) {
+				switch (this.battle.weather) {
+				case 'sunnyday':
+				case 'desolateland':
+					if (item.id === 'utilityumbrella') break;
+					moveType = 'Fire';
+					break;
+				case 'raindance':
+				case 'primordialsea':
+					if (item.id === 'utilityumbrella') break;
+					moveType = 'Water';
+					break;
+				case 'sandstorm':
+					moveType = 'Rock';
+					break;
+				case 'hail':
+				case 'snowscape':
+					moveType = 'Ice';
+					break;
+				}
+			} else if (value.abilityModify(0, 'Mega Sol')) {
 				moveType = 'Fire';
-				break;
-			case 'raindance':
-			case 'primordialsea':
-				if (item.id === 'utilityumbrella') break;
-				moveType = 'Water';
-				break;
-			case 'sandstorm':
-				moveType = 'Rock';
-				break;
-			case 'hail':
-			case 'snowscape':
-				moveType = 'Ice';
-				break;
 			}
 		}
 		if (move.id === 'terrainpulse' && pokemon.isGrounded(serverPokemon)) {
@@ -1691,6 +1719,7 @@ export class BattleTooltips {
 			if (category !== 'Status' && !move.isZ && !move.id.startsWith('hiddenpower')) {
 				if (moveType === 'Normal') {
 					if (value.abilityModify(0, 'Aerilate')) moveType = 'Flying';
+					if (value.abilityModify(0, 'Dragonize')) moveType = 'Dragon';
 					if (value.abilityModify(0, 'Galvanize')) moveType = 'Electric';
 					if (value.abilityModify(0, 'Pixilate')) moveType = 'Fairy';
 					if (value.abilityModify(0, 'Refrigerate')) moveType = 'Ice';
@@ -1763,6 +1792,224 @@ export class BattleTooltips {
 			}
 		}
 		return [moveType, category];
+	}
+	static getTypeAbilityWeakness(attackType: Dex.TypeName, abilityid: ID, dex: ModdedDex = Dex, strict?: boolean) {
+		if (attackType === 'Ground' && abilityid === 'levitate') return 0;
+		if (attackType === 'Water' && abilityid === 'dryskin') return 0;
+		if (attackType === 'Fire' && abilityid === 'flashfire') return 0;
+		if (attackType === 'Electric' && abilityid === 'lightningrod' && dex.gen >= 5) return 0;
+		if (attackType === 'Grass' && abilityid === 'sapsipper') return 0;
+		if (attackType === 'Electric' && abilityid === 'motordrive') return 0;
+		if (attackType === 'Water' && abilityid === 'stormdrain' && dex.gen >= 5) return 0;
+		if (attackType === 'Electric' && abilityid === 'voltabsorb') return 0;
+		if (attackType === 'Water' && abilityid === 'waterabsorb') return 0;
+		if (attackType === 'Ground' && abilityid === 'eartheater') return 0;
+		if (attackType === 'Fire' && abilityid === 'wellbakedbody') return 0;
+
+		if (attackType === 'Fire' && abilityid === 'primordialsea' && !strict) return 0;
+		if (attackType === 'Water' && abilityid === 'desolateland' && !strict) return 0;
+
+		let factor = 1;
+		if ((attackType === 'Fire' || attackType === 'Ice') && abilityid === 'thickfat') factor *= 0.5;
+		if (attackType === 'Fire' && abilityid === 'waterbubble') factor *= 0.5;
+		if (attackType === 'Fire' && abilityid === 'heatproof') factor *= 0.5;
+		if (attackType === 'Ghost' && abilityid === 'purifyingsalt') factor *= 0.5;
+		if (attackType === 'Fire' && abilityid === 'fluffy') factor *= 2;
+		if ((attackType === 'Electric' || attackType === 'Rock' || attackType === 'Ice') && abilityid === 'deltastream') {
+			factor *= 0.5;
+		}
+		return factor;
+	}
+	getMoveEffectiveness(
+		source: Pokemon, move: Dex.Move, attackType: Dex.TypeName, category: Dex.CategoryName, target: Pokemon
+	): number | null {
+		if (([
+			'adjacentAlly', 'adjacentAllyOrSelf', 'self', 'allySide', 'foeSide', 'all',
+		] satisfies Dex.MoveTarget[] as Dex.MoveTarget[]).includes(move.target)) {
+			return 1;
+		}
+		const hardcoreMode = this.battle.hardcoreMode;
+		const targetTypes = target.getTypeList();
+		const sourceAbility = source.effectiveAbility();
+		// Mold Breaker doesn't ignore _everything_, but it sure ignores everything that affects effectiveness
+		const targetAbility = hardcoreMode || [
+			'Mold Breaker', 'Teravolt', 'Turboblaze',
+		].includes(sourceAbility) ? '' : target.effectiveAbility();
+		const dex = this.battle.dex;
+		const priority = move.priority + (category === 'Status' && sourceAbility === 'Prankster' ? 1 : 0);
+
+		if (hardcoreMode && (move.category === 'Status' || dex.gen < 7)) {
+			return null;
+		}
+
+		let inflictsStatus = null;
+		let inflictsEffect = null;
+		if (category === 'Status') {
+			if (['thunderwave', 'glare', 'stunspore'].includes(move.id)) inflictsStatus = 'par';
+			if (['toxic', 'poisonpowder'].includes(move.id)) inflictsStatus = 'psn';
+			if ([
+				'spore', 'sleeppowder', 'hypnosis', 'sing', 'lovelykiss', 'darkvoid', 'yawn',
+			].includes(move.id)) inflictsStatus = 'slp';
+			if (move.id === 'willowisp') inflictsStatus = 'brn';
+			if (['block', 'meanlook', 'spiderweb'].includes(move.id)) inflictsEffect = 'trapped';
+			if (['confuseray', 'supersonic'].includes(move.id)) inflictsEffect = 'confusion';
+		}
+
+		/** any factor that's "effectiveness-like" rather than literal type effectiveness */
+		let otherFactor = BattleTooltips.getTypeAbilityWeakness(attackType, toID(targetAbility), dex, true);
+		let factor = 1;
+		if (!otherFactor && targetAbility === "Levitate") {
+			otherFactor = 1;
+			if (!target.isGrounded() && move.id !== 'thousandarrows' && !hardcoreMode) {
+				factor = 0; // Levitate acts as a type-based immunity (doesn't affect most status moves)
+			}
+		}
+		for (const targetType of targetTypes) {
+			const tType = dex.types.get(targetType);
+
+			// special type immunities
+			if (inflictsStatus && tType.damageTaken?.[(inflictsStatus || inflictsEffect) as 'trapped'] === Dex.IMMUNE) {
+				if (!(inflictsStatus === 'psn' && sourceAbility === 'Corrosion')) {
+					return 0;
+				}
+			}
+			if (category === 'Status' && sourceAbility === 'Prankster' && tType.damageTaken?.['prankster'] === Dex.IMMUNE) {
+				return 0;
+			}
+			if (move.flags['powder'] && tType.damageTaken?.['powder'] === Dex.IMMUNE) otherFactor = 0;
+			if (move.flags['powder'] && targetAbility === 'Overcoat' && dex.gen >= 6) otherFactor = 0;
+			if (move.flags['sound'] && targetAbility === 'Soundproof') otherFactor = 0;
+			if (move.flags['bullet'] && targetAbility === 'Bulletproof') otherFactor = 0;
+
+			// regular type effectiveness
+			if (tType.damageTaken?.[attackType] === Dex.IMMUNE) {
+				if (target.item === 'Ring Target') continue;
+				if (targetType === 'Ghost' && (sourceAbility === "Scrappy" || sourceAbility === "Mind's Eye")) continue;
+				if (targetType === 'Ghost' && (target.volatiles['foresight'] || target.volatiles['odorsleuth'])) continue;
+				if (targetType === 'Dark' && (target.volatiles['miracleeye'])) continue;
+				if (targetType === 'Flying' && target.isGrounded()) continue;
+				if (targetType === 'Flying' && move.id === 'thousandarrows' && !target.isGrounded()) {
+					factor = 1;
+					break;
+				}
+				factor = 0;
+			} else if (move.id === 'freezedry' && targetType === 'Water') {
+				factor *= 2;
+			} else {
+				factor *= [1, 2, 0.5, 0][tType.damageTaken?.[attackType] || 0] ?? 1;
+			}
+			if (move.id === 'sheercold' && targetType === 'Ice') otherFactor = 0;
+		}
+
+		// Air Balloon etc. Levitate is already handled but there are a few that aren't
+		if (category !== 'Status' && attackType === 'Ground' && factor && !target.isGrounded()) otherFactor = 0;
+		if (this.battle.hasPseudoWeather('Misty Terrain') && target.isGrounded() && inflictsStatus) {
+			return 0;
+		}
+		if (this.battle.hasPseudoWeather('Psychic Terrain') && target.isGrounded() && priority > 0) {
+			otherFactor = 0;
+		}
+		if (this.battle.weather === 'primordialsea' && attackType === 'Fire') {
+			otherFactor = 0;
+		}
+		if (this.battle.weather === 'desolateland' && attackType === 'Water') {
+			otherFactor = 0;
+		}
+
+		// status immunities
+		if (target.status && inflictsStatus) return 0;
+		if (targetAbility === "Comatose" && inflictsStatus) return 0;
+		if (targetAbility === "Purifying Salt" && inflictsStatus) return 0;
+		if (targetAbility === "Shields Down" && target.speciesForme === 'Minior-Meteor' && inflictsStatus) return 0;
+		if (targetAbility === "Leaf Guard" && this.battle.weather === 'sunnyday' && inflictsStatus) return 0;
+		if (targetAbility === "Sweet Veil" && inflictsStatus === 'slp') return 0;
+		if (targetAbility === "Pastel Veil" && inflictsStatus === 'psn') return 0;
+		if (["Water Veil", "Water Bubble", "Thermal Exchange"].includes(targetAbility) && inflictsStatus === 'brn') return 0;
+
+		if (targetAbility === 'Wonder Guard' && factor < 2 && category !== 'Status') otherFactor = 0;
+		if (targetAbility === "Good as Gold" && category === 'Status') return 0;
+		if (targetAbility === "Own Tempo" && inflictsEffect === 'confusion') return 0;
+		if (sourceAbility === 'Tinted Lens' && factor < 1) otherFactor *= 2;
+		if (targetAbility === 'Sturdy' && move.ohko) otherFactor = 0;
+		if (targetAbility === 'Damp' && [
+			'explosion', 'mindblown', 'mistyexplosion', 'selfdestruct',
+		].includes(move.id)) otherFactor = 0;
+		if (targetAbility === 'Aroma Veil' && [
+			'disable', 'encore', 'healblock', 'taunt', 'torment', 'attract',
+		].includes(move.id)) return 0;
+
+		if (category === 'Status') {
+			if (!move.flags['bypasssub'] && target.volatiles['substitute'] && sourceAbility !== 'Infiltrator') return 0;
+			if (move.id === 'thunderwave') return factor * otherFactor === 0 ? 0 : null;
+			return otherFactor === 0 ? 0 : null;
+		}
+
+		if (
+			// static amount, OHKO
+			move.damage || move.ohko ||
+			// countering
+			move.id === 'comeuppance' || move.id === 'counter' || move.id === 'mirrorcoat' || move.id === 'metalburst' ||
+			// special
+			move.id === 'endeavor' || move.id === 'bide' || move.id === 'ruination' || move.id === 'superfang' ||
+			move.id === 'finalgambit' || move.id === 'guardianofalola' || move.id === 'naturesmadness' || move.id === 'psywave'
+		) {
+			if (hardcoreMode) return null;
+			return factor * otherFactor === 0 ? 0 : 1;
+		}
+		if (hardcoreMode && dex.gen <= 9) {
+			if (factor > 2) return 2;
+			if (factor < 0.5) return 0.5;
+			return factor;
+		}
+		if (hardcoreMode) return factor;
+		return factor * otherFactor;
+	}
+	getMoveTypeText(move: Dex.Move, value: ModifiableValue, forMaxMove?: boolean | Dex.Move) {
+		const [moveType, category] = this.getMoveType(move, value, forMaxMove);
+
+		const pokemon = value.pokemon;
+		let foeActive = [...pokemon.side.foe.active].reverse();
+		if (this.battle.gameType === 'freeforall') {
+			foeActive = [...foeActive, ...pokemon.side.active].filter(active => active !== pokemon);
+		}
+
+		if (this.battle.hardcoreMode) {
+			let tags = '';
+			for (const possibleTarget of foeActive) {
+				if (!possibleTarget) continue;
+				const effectiveness = this.getMoveEffectiveness(pokemon, move, moveType, category, possibleTarget);
+
+				if (effectiveness === null) {
+					break;
+				} if (effectiveness === 0) {
+					tags += `\u00D7`;
+				} else if (effectiveness < 0.5) {
+					tags += `\u25BC`;
+				} else if (effectiveness < 1) {
+					tags += `\u25B3`;
+				} else if (effectiveness > 2) {
+					tags += `\u2605`;
+				} else if (effectiveness > 1) {
+					tags += `\u29BF`;
+				} else {
+					tags += `\u25CB`;
+				}
+			}
+
+			return [moveType, tags] as const;
+		}
+
+		let tags = '\u00D7';
+		for (const possibleTarget of foeActive) {
+			if (!possibleTarget) continue;
+			const effectiveness = this.getMoveEffectiveness(pokemon, move, moveType, category, possibleTarget);
+			if (effectiveness !== 0) {
+				tags = '';
+				break;
+			}
+		}
+
+		return [moveType, tags] as const;
 	}
 
 	// Gets the current accuracy for a move.
@@ -1883,6 +2130,7 @@ export class BattleTooltips {
 		value.set(move.accuracy as number);
 
 		if (move.id === 'hurricane' || move.id === 'thunder') {
+			if (value.tryAbility('Mega Sol')) value.set(50, 'Mega Sol');
 			if (value.tryWeather('Sunny Day')) value.set(50, 'Sunny Day');
 			if (value.tryWeather('Desolate Land')) value.set(50, 'Desolate Land');
 		}
@@ -2015,6 +2263,7 @@ export class BattleTooltips {
 			}
 		}
 		if (move.id === 'weatherball') {
+			value.abilityModify(2, "Mega Sol");
 			if (this.battle.weather !== 'deltastream') {
 				value.weatherModify(2);
 			}
@@ -2175,7 +2424,8 @@ export class BattleTooltips {
 		) {
 			if (move.type === 'Normal') {
 				value.abilityModify(this.battle.gen > 6 ? 1.2 : 1.3, "Aerilate");
-				value.abilityModify(this.battle.gen > 6 ? 1.2 : 1.3, "Galvanize");
+				value.abilityModify(1.2, "Dragonize");
+				value.abilityModify(1.2, "Galvanize");
 				value.abilityModify(this.battle.gen > 6 ? 1.2 : 1.3, "Pixilate");
 				value.abilityModify(this.battle.gen > 6 ? 1.2 : 1.3, "Refrigerate");
 			}
