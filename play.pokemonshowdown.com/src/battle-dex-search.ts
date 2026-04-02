@@ -1070,6 +1070,16 @@ class BattlePokemonSearch extends BattleTypedSearch<'pokemon'> {
 		if (format.includes("relumi")) {
 			const isRelumiMainLadder =
 				format === "relumisingles" || format === "relumidoubles";
+			const pikachuCapFormes = new Set([
+				"Original",
+				"Hoenn",
+				"Sinnoh",
+				"Unova",
+				"Kalos",
+				"Alola",
+				"Partner",
+				"World",
+			]);
 			const results: SearchRow[] = [];
 			const relumiSpeciesRows: {
 				id: ID,
@@ -1100,6 +1110,9 @@ class BattlePokemonSearch extends BattleTypedSearch<'pokemon'> {
 					species.forme.endsWith('Tera') ||
 					species.forme.endsWith('Terastal');
 				const isStellarForm = species.forme.endsWith('Stellar');
+				const isPikachuCapForm =
+					species.baseSpecies === "Pikachu" &&
+					pikachuCapFormes.has(species.forme);
 				if (
 					isRelumiMainLadder &&
 					(isMegaForm ||
@@ -1107,6 +1120,7 @@ class BattlePokemonSearch extends BattleTypedSearch<'pokemon'> {
 						isGigantamaxForm ||
 						isTeraForm ||
 						isStellarForm ||
+						isPikachuCapForm ||
 						isRevavroomCustomForm)
 				) {
 					continue;
@@ -1116,7 +1130,8 @@ class BattlePokemonSearch extends BattleTypedSearch<'pokemon'> {
 					species.isNonstandard &&
 					species.isNonstandard !== "Past" &&
 					species.isNonstandard !== "Custom" &&
-					species.isNonstandard !== "Future"
+					species.isNonstandard !== "Future" &&
+					species.isNonstandard !== "LGPE"
 				) {
 					continue;
 				}
