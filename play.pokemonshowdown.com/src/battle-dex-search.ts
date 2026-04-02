@@ -581,8 +581,8 @@ abstract class BattleTypedSearch<T extends SearchType> {
 	set: Dex.PokemonSet | null = null;
 
 	protected formatType: 'doubles' | 'bdsp' | 'bdspdoubles' | 'rs' | 'frlg' | 'bw1' | 'letsgo' | 'metronome' | 'natdex' |
-	'nfe' | 'ssdlc1' | 'ssdlc1doubles' | 'predlc' | 'predlcdoubles' | 'predlcnatdex' | 'svdlc1' | 'svdlc1doubles' |
-	'svdlc1natdex' | 'stadium' | 'lc' | 'legendsza' | 'champoin' | null = null;
+		'nfe' | 'ssdlc1' | 'ssdlc1doubles' | 'predlc' | 'predlcdoubles' | 'predlcnatdex' | 'svdlc1' | 'svdlc1doubles' |
+		'svdlc1natdex' | 'stadium' | 'lc' | 'legendsza' | 'champoin' | null = null;
 	isDoubles = false;
 
 	/**
