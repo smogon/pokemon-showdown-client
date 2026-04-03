@@ -15,6 +15,10 @@ import { BattleLog } from "./battle-log";
 import { Move, BattleNatures } from "./battle-dex-data";
 import { BattleTextParser } from "./battle-text-parser";
 
+function serverPokemonHasSharedAbility(serverPokemon: ServerPokemon | null | undefined, abilityId: ID) {
+	return !!serverPokemon?.sharedAbilities?.includes(abilityId);
+}
+
 export class ModifiableValue {
 	value = 0;
 	maxValue = 0;
@@ -33,7 +37,11 @@ export class ModifiableValue {
 		this.serverPokemon = serverPokemon;
 
 		this.itemName = this.battle.dex.items.get(serverPokemon.item).name;
-		const ability = serverPokemon.ability || pokemon?.ability || serverPokemon.baseAbility;
+		const ability = (
+			pokemon?.ability && pokemon.ability !== '(suppressed)' ?
+				pokemon.ability :
+				(serverPokemon.ability || serverPokemon.baseAbility)
+		);
 		this.abilityName = this.battle.dex.abilities.get(ability).name;
 		this.weatherName = this.battle.dex.moves.get(battle.weather).exists ?
 			this.battle.dex.moves.get(battle.weather).name : this.battle.dex.abilities.get(battle.weather).name;
@@ -64,7 +72,12 @@ export class ModifiableValue {
 		return true;
 	}
 	tryAbility(abilityName: string) {
-		if (abilityName !== this.abilityName) return false;
+		const abilityId = toID(abilityName);
+		if (
+			abilityId !== toID(this.abilityName) &&
+			!this.pokemon?.volatiles[abilityId] &&
+			!serverPokemonHasSharedAbility(this.serverPokemon, abilityId)
+		) return false;
 		if (this.pokemon?.volatiles['gastroacid']) {
 			this.comment.push(` (${abilityName} suppressed by Gastro Acid)`);
 			return false;
@@ -560,7 +573,16 @@ export class BattleTooltips {
 		}
 		// TODO: move this somewhere it makes more sense
 		if (pokemon.ability === '(suppressed)') serverPokemon.ability = '(suppressed)';
-		let ability = toID(serverPokemon.ability || pokemon.ability || serverPokemon.baseAbility);
+		let ability = this.getPokemonAbilityID(pokemon, serverPokemon);
+		const hasAbility = (id: string) => {
+			const abilityId = toID(id);
+			if (
+				ability !== abilityId &&
+				!pokemon.volatiles[abilityId] &&
+				!serverPokemonHasSharedAbility(serverPokemon, abilityId)
+			) return false;
+			return !!pokemon.effectiveAbility(serverPokemon);
+		};
 		let item = this.battle.dex.items.get(serverPokemon.item);
 
 		let value = new ModifiableValue(this.battle, pokemon, serverPokemon);
@@ -761,16 +783,16 @@ export class BattleTooltips {
 			if (move.flags.powder && this.battle.gen > 5) {
 				text += `<p class="movetag">&#x2713; Powder <small>(doesn't affect Grass, Overcoat, Safety Goggles)</small></p>`;
 			}
-			if (move.flags.punch && ability === 'ironfist') {
+			if (move.flags.punch && hasAbility('ironfist')) {
 				text += `<p class="movetag">&#x2713; Fist <small>(boosted by Iron Fist)</small></p>`;
 			}
-			if (move.flags.pulse && ability === 'megalauncher') {
+			if (move.flags.pulse && hasAbility('megalauncher')) {
 				text += `<p class="movetag">&#x2713; Pulse <small>(boosted by Mega Launcher)</small></p>`;
 			}
-			if (move.flags.bite && ability === 'strongjaw') {
+			if (move.flags.bite && hasAbility('strongjaw')) {
 				text += `<p class="movetag">&#x2713; Bite <small>(boosted by Strong Jaw)</small></p>`;
 			}
-			if ((move.recoil || move.hasCrashDamage) && ability === 'reckless') {
+			if ((move.recoil || move.hasCrashDamage) && hasAbility('reckless')) {
 				text += `<p class="movetag">&#x2713; Recoil <small>(boosted by Reckless)</small></p>`;
 			}
 			if (move.flags.bullet) {
@@ -1093,13 +1115,20 @@ export class BattleTooltips {
 		}
 		if (statStagesOnly) return stats;
 
-		const ability = toID(
-			clientPokemon?.effectiveAbility(serverPokemon) ?? (serverPokemon.ability || serverPokemon.baseAbility)
-		);
+		const ability = this.getPokemonAbilityID(clientPokemon, serverPokemon);
+		const hasAbility = (id: string) => {
+			const abilityId = toID(id);
+			if (
+				ability !== abilityId &&
+				!clientPokemon?.volatiles[abilityId] &&
+				!serverPokemonHasSharedAbility(serverPokemon, abilityId)
+			) return false;
+			return !clientPokemon || !!clientPokemon.effectiveAbility(serverPokemon);
+		};
 
 		// check for burn, paralysis, guts, quick feet
 		if (pokemon.status) {
-			if (this.battle.gen > 2 && ability === 'guts') {
+			if (this.battle.gen > 2 && hasAbility('guts')) {
 				stats.atk = Math.floor(stats.atk * 1.5);
 			} else if (this.battle.gen < 2 && pokemon.status === 'brn') {
 				stats.atk = Math.floor(stats.atk * 0.5);
@@ -1124,7 +1153,7 @@ export class BattleTooltips {
 			'machobrace', 'poweranklet', 'powerband', 'powerbelt', 'powerbracer', 'powerlens', 'powerweight',
 		];
 		if (
-			(ability === 'klutz' && !speedHalvingEVItems.includes(item)) ||
+			(hasAbility('klutz') && !speedHalvingEVItems.includes(item)) ||
 			this.battle.hasPseudoWeather('Magic Room') ||
 			clientPokemon?.volatiles['embargo']
 		) {
@@ -1179,10 +1208,10 @@ export class BattleTooltips {
 		if (item === 'choiceband' && !clientPokemon?.volatiles['dynamax']) {
 			stats.atk = Math.floor(stats.atk * 1.5);
 		}
-		if (ability === 'purepower' || ability === 'hugepower') {
+		if (hasAbility('purepower') || hasAbility('hugepower')) {
 			stats.atk *= 2;
 		}
-		if (ability === 'hustle' || (ability === 'gorillatactics' && !clientPokemon?.volatiles['dynamax'])) {
+		if (hasAbility('hustle') || (hasAbility('gorillatactics') && !clientPokemon?.volatiles['dynamax'])) {
 			stats.atk = Math.floor(stats.atk * 1.5);
 		}
 		if (weather) {
@@ -1192,21 +1221,21 @@ export class BattleTooltips {
 			if (this.pokemonHasType(pokemon, 'Ice') && weather === 'snowscape') {
 				stats.def = Math.floor(stats.def * 1.5);
 			}
-			if (ability === 'sandrush' && weather === 'sandstorm') {
+			if (hasAbility('sandrush') && weather === 'sandstorm') {
 				speedModifiers.push(2);
 			}
-			if (ability === 'slushrush' && (weather === 'hail' || weather === 'snowscape')) {
+			if (hasAbility('slushrush') && (weather === 'hail' || weather === 'snowscape')) {
 				speedModifiers.push(2);
 			}
 			if (item !== 'utilityumbrella') {
 				if (weather === 'sunnyday' || weather === 'desolateland') {
-					if (ability === 'chlorophyll') {
+					if (hasAbility('chlorophyll')) {
 						speedModifiers.push(2);
 					}
-					if (ability === 'solarpower') {
+					if (hasAbility('solarpower')) {
 						stats.spa = Math.floor(stats.spa * 1.5);
 					}
-					if (ability === 'orichalcumpulse') {
+					if (hasAbility('orichalcumpulse')) {
 						stats.atk = Math.floor(stats.atk * 1.3333);
 					}
 					let allyActive = clientPokemon?.side.active;
@@ -1222,13 +1251,13 @@ export class BattleTooltips {
 					}
 				}
 				if (weather === 'raindance' || weather === 'primordialsea') {
-					if (ability === 'swiftswim') {
+					if (hasAbility('swiftswim')) {
 						speedModifiers.push(2);
 					}
 				}
 			}
 		}
-		if (ability === 'defeatist' && serverPokemon.hp <= serverPokemon.maxhp / 2) {
+		if (hasAbility('defeatist') && serverPokemon.hp <= serverPokemon.maxhp / 2) {
 			stats.atk = Math.floor(stats.atk * 0.5);
 			stats.spa = Math.floor(stats.spa * 0.5);
 		}
@@ -1237,7 +1266,7 @@ export class BattleTooltips {
 				stats.atk = Math.floor(stats.atk * 0.5);
 				speedModifiers.push(0.5);
 			}
-			if (ability === 'unburden' && clientPokemon.volatiles['itemremoved'] && !item) {
+			if (hasAbility('unburden') && clientPokemon.volatiles['itemremoved'] && !item) {
 				speedModifiers.push(2);
 			}
 			for (const statName of Dex.statNamesExceptHP) {
@@ -1251,10 +1280,10 @@ export class BattleTooltips {
 			}
 		}
 		if (pokemon.status) {
-			if (ability === 'marvelscale') {
+			if (hasAbility('marvelscale')) {
 				stats.def = Math.floor(stats.def * 1.5);
 			}
-			if (ability === 'quickfeet') {
+			if (hasAbility('quickfeet')) {
 				speedModifiers.push(1.5);
 			}
 		}
@@ -1262,14 +1291,14 @@ export class BattleTooltips {
 			stats.def = Math.floor(stats.def * 1.5);
 			stats.spd = Math.floor(stats.spd * 1.5);
 		}
-		if (ability === 'grasspelt' && this.battle.hasPseudoWeather('Grassy Terrain')) {
+		if (hasAbility('grasspelt') && this.battle.hasPseudoWeather('Grassy Terrain')) {
 			stats.def = Math.floor(stats.def * 1.5);
 		}
 		if (this.battle.hasPseudoWeather('Electric Terrain')) {
-			if (ability === 'surgesurfer') {
+			if (hasAbility('surgesurfer')) {
 				speedModifiers.push(2);
 			}
-			if (ability === 'hadronengine') {
+			if (hasAbility('hadronengine')) {
 				stats.spa = Math.floor(stats.spa * 1.3333);
 			}
 		}
@@ -1283,10 +1312,10 @@ export class BattleTooltips {
 			stats.spa = Math.floor(stats.spa * 1.5);
 			stats.spd = Math.floor(stats.spd * 1.5);
 		}
-		if (clientPokemon && (ability === 'plus' || ability === 'minus')) {
+		if (clientPokemon && (hasAbility('plus') || hasAbility('minus'))) {
 			let allyActive = clientPokemon.side.active;
 			if (allyActive.length > 1) {
-				let abilityName = (ability === 'plus' ? 'Plus' : 'Minus');
+				let abilityName = hasAbility('plus') ? 'Plus' : 'Minus';
 				for (const ally of allyActive) {
 					if (!ally || ally === clientPokemon || ally.fainted) continue;
 					let allyAbility = this.getAllyAbility(ally);
@@ -1309,26 +1338,26 @@ export class BattleTooltips {
 		if (item === 'ironball' || speedHalvingEVItems.includes(item)) {
 			speedModifiers.push(0.5);
 		}
-		if (ability === 'furcoat') {
+		if (hasAbility('furcoat')) {
 			stats.def *= 2;
 		}
 		if (this.battle.abilityActive('Vessel of Ruin')) {
-			if (ability !== 'vesselofruin') {
+			if (!hasAbility('vesselofruin')) {
 				stats.spa = Math.floor(stats.spa * 0.75);
 			}
 		}
 		if (this.battle.abilityActive('Sword of Ruin')) {
-			if (ability !== 'swordofruin') {
+			if (!hasAbility('swordofruin')) {
 				stats.def = Math.floor(stats.def * 0.75);
 			}
 		}
 		if (this.battle.abilityActive('Tablets of Ruin')) {
-			if (ability !== 'tabletsofruin') {
+			if (!hasAbility('tabletsofruin')) {
 				stats.atk = Math.floor(stats.atk * 0.75);
 			}
 		}
 		if (this.battle.abilityActive('Beads of Ruin')) {
-			if (ability !== 'beadsofruin') {
+			if (!hasAbility('beadsofruin')) {
 				stats.spd = Math.floor(stats.spd * 0.75);
 			}
 		}
@@ -1386,17 +1415,17 @@ export class BattleTooltips {
 				stats.spd = Math.floor(stats.spd * 1.5);
 			}
 			if (this.battle.abilityActive('quagofruin')) {
-				if (ability !== 'quagofruin') {
+				if (!hasAbility('quagofruin')) {
 					stats.def = Math.floor(stats.def * 0.85);
 				}
 			}
 			if (this.battle.abilityActive('clodofruin')) {
-				if (ability !== 'clodofruin') {
+				if (!hasAbility('clodofruin')) {
 					stats.atk = Math.floor(stats.atk * 0.85);
 				}
 			}
 			if (this.battle.abilityActive('blitzofruin')) {
-				if (ability !== 'blitzofruin') {
+				if (!hasAbility('blitzofruin')) {
 					speedModifiers.push(0.75);
 				}
 			}
@@ -1438,7 +1467,7 @@ export class BattleTooltips {
 		stats.spe *= chainedSpeedModifier;
 		stats.spe = stats.spe % 1 > 0.5 ? Math.ceil(stats.spe) : Math.floor(stats.spe);
 
-		if (pokemon.status === 'par' && ability !== 'quickfeet') {
+		if (pokemon.status === 'par' && !hasAbility('quickfeet')) {
 			if (this.battle.gen > 6) {
 				stats.spe = Math.floor(stats.spe * 0.5);
 			} else {
@@ -2066,8 +2095,7 @@ export class BattleTooltips {
 
 		for (const active of pokemon.side.active) {
 			if (!active || active.fainted) continue;
-			const ability = this.getAllyAbility(active);
-			if (ability === 'Victory Star') {
+			if (this.pokemonHasAbility(active, 'Victory Star')) {
 				accuracyModifiers.push(4506);
 				value.modify(1.1, "Victory Star");
 			}
@@ -2442,18 +2470,17 @@ export class BattleTooltips {
 			let auraBroken = false;
 			for (const ally of pokemon.side.active) {
 				if (!ally || ally.fainted) continue;
-				let allyAbility = this.getAllyAbility(ally);
-				if (moveType === 'Fairy' && allyAbility === 'Fairy Aura') {
+				if (moveType === 'Fairy' && this.pokemonHasAbility(ally, 'Fairy Aura')) {
 					auraBoosted = 'Fairy Aura';
-				} else if (moveType === 'Dark' && allyAbility === 'Dark Aura') {
+				} else if (moveType === 'Dark' && this.pokemonHasAbility(ally, 'Dark Aura')) {
 					auraBoosted = 'Dark Aura';
-				} else if (allyAbility === 'Aura Break') {
+				} else if (this.pokemonHasAbility(ally, 'Aura Break')) {
 					auraBroken = true;
-				} else if (allyAbility === 'Battery' && ally !== pokemon && move.category === 'Special') {
+				} else if (this.pokemonHasAbility(ally, 'Battery') && ally !== pokemon && move.category === 'Special') {
 					value.modify(1.3, 'Battery');
-				} else if (allyAbility === 'Power Spot' && ally !== pokemon) {
+				} else if (this.pokemonHasAbility(ally, 'Power Spot') && ally !== pokemon) {
 					value.modify(1.3, 'Power Spot');
-				} else if (allyAbility === 'Steely Spirit' && moveType === 'Steel') {
+				} else if (this.pokemonHasAbility(ally, 'Steely Spirit') && moveType === 'Steel') {
 					value.modify(1.5, 'Steely Spirit');
 				}
 			}
@@ -2748,14 +2775,31 @@ export class BattleTooltips {
 		}
 		return false;
 	}
-	getAllyAbility(ally: Pokemon) {
+	getMyServerPokemon(pokemon: Pokemon): ServerPokemon | undefined {
 		let serverPokemon;
 		if (this.battle.myAllyPokemon) {
-			serverPokemon = this.battle.myAllyPokemon[ally.slot];
+			serverPokemon = this.battle.myAllyPokemon[pokemon.slot];
 		} else if (this.battle.myPokemon) {
-			serverPokemon = this.battle.myPokemon[ally.slot];
+			serverPokemon = this.battle.myPokemon[pokemon.slot];
 		}
-		return ally.effectiveAbility(serverPokemon);
+		return serverPokemon;
+	}
+	getAllyAbility(ally: Pokemon) {
+		return ally.effectiveAbility(this.getMyServerPokemon(ally));
+	}
+	getPokemonAbilityID(pokemon: Pokemon | null | undefined, serverPokemon: ServerPokemon | null | undefined) {
+		if (pokemon?.ability && pokemon.ability !== '(suppressed)') return toID(pokemon.ability);
+		return toID(serverPokemon?.ability || serverPokemon?.baseAbility);
+	}
+	pokemonHasAbility(pokemon: Pokemon, abilityName: string) {
+		const serverPokemon = this.getMyServerPokemon(pokemon);
+		if (!pokemon.effectiveAbility(serverPokemon)) return false;
+		const abilityId = toID(abilityName);
+		return (
+			pokemon.volatiles[abilityId] ||
+			serverPokemonHasSharedAbility(serverPokemon, abilityId) ||
+			this.getPokemonAbilityID(pokemon, serverPokemon) === abilityId
+		);
 	}
 	getPokemonAbilityData(clientPokemon: Pokemon | null, serverPokemon: ServerPokemon | null | undefined) {
 		const abilityData: { ability: string, baseAbility: string, possibilities: string[] } = {
@@ -2786,8 +2830,13 @@ export class BattleTooltips {
 		}
 		if (serverPokemon) {
 			if (!abilityData.ability) abilityData.ability = serverPokemon.ability || serverPokemon.baseAbility;
-			if (!abilityData.baseAbility && serverPokemon.baseAbility) {
+			if (serverPokemon.baseAbility) {
 				abilityData.baseAbility = serverPokemon.baseAbility;
+			}
+			// In Shared Power, -start messages for shared abilities can clobber
+			// clientPokemon.ability. Use server data as authoritative in that case.
+			if (serverPokemon.sharedAbilities?.includes(toID(abilityData.ability) as ID)) {
+				abilityData.ability = serverPokemon.ability || serverPokemon.baseAbility;
 			}
 		}
 		return abilityData;
@@ -2810,6 +2859,16 @@ export class BattleTooltips {
 				text = '<small>Ability:</small> ' + abilityName;
 				const baseAbilityName = this.battle.dex.abilities.get(abilityData.baseAbility).name;
 				if (baseAbilityName && baseAbilityName !== abilityName) text += ' (base: ' + baseAbilityName + ')';
+			}
+		}
+		// Shared Power: show shared abilities from teammates
+		if (serverPokemon?.sharedAbilities?.length) {
+			const sharedNames = serverPokemon.sharedAbilities
+				.map(id => this.battle.dex.abilities.get(id).name)
+				.filter(name => !!name);
+			if (sharedNames.length) {
+				if (text) text += '<br />';
+				text += '<small>Shared:</small> ' + sharedNames.join(', ');
 			}
 		}
 		const tier = this.battle.tier;
@@ -3576,6 +3635,7 @@ declare const require: any;
 declare const global: any;
 if (typeof require === 'function') {
 	// in Node
+	global.BattleTooltips = BattleTooltips;
 	global.BattleStatGuesser = BattleStatGuesser;
 	global.BattleStatOptimizer = BattleStatOptimizer;
 }

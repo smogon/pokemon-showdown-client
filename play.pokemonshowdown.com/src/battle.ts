@@ -528,14 +528,14 @@ export class Pokemon implements PokemonDetails, PokemonHealth {
 
 		let item = toID(serverPokemon ? serverPokemon.item : this.item);
 		let ability = toID(this.effectiveAbility(serverPokemon));
-		if (battle.hasPseudoWeather('Magic Room') || this.volatiles['embargo'] || ability === 'klutz') {
+		if (battle.hasPseudoWeather('Magic Room') || this.volatiles['embargo'] || ability === 'klutz' || this.volatiles['klutz']) {
 			item = '' as ID;
 		}
 
 		if (item === 'ironball') {
 			return true;
 		}
-		if (ability === 'levitate') {
+		if (ability === 'levitate' || this.volatiles['levitate']) {
 			return false;
 		}
 		if (this.volatiles['magnetrise'] || this.volatiles['telekinesis']) {
@@ -1044,6 +1044,8 @@ export interface ServerPokemon extends PokemonDetails, PokemonHealth {
 	baseAbility: string;
 	/** currently an ID, will revise to name */
 	ability?: string;
+	/** currently an array of IDs for additional Shared Power-style abilities */
+	sharedAbilities?: ID[];
 	/** currently an ID, will revise to name */
 	item: string;
 	/** currently an ID, will revise to name */
