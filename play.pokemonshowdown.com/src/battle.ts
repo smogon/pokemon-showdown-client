@@ -1526,6 +1526,14 @@ export class Battle {
 		}
 		for (const poke of [...this.nearSide.active, ...this.farSide.active]) {
 			if (poke) {
+				if (poke.volatiles.slowstart) {
+					let slowstartTurns = Number(poke.volatiles.slowstart[1] || 1);
+					if (isNaN(slowstartTurns) || slowstartTurns < 1) slowstartTurns = 1;
+					if (slowstartTurns > 1) {
+						slowstartTurns--;
+						poke.volatiles.slowstart[1] = slowstartTurns;
+					}
+				}
 				if (poke.status === 'tox') poke.statusData.toxicTurns++;
 				poke.clearTurnstatuses();
 			}
@@ -2792,7 +2800,11 @@ export class Battle {
 			}
 			if (!(effect.id === 'typechange' && poke.terastallized) &&
 				effect.id !== 'futuresight' && effect.id !== 'doomdesire') {
-				poke.addVolatile(effect.id);
+				if (effect.id === 'slowstart') {
+					poke.addVolatile(effect.id, 5);
+				} else {
+					poke.addVolatile(effect.id);
+				}
 			}
 			this.scene.updateStatbar(poke);
 			this.log(args, kwArgs);
