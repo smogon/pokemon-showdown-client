@@ -1857,6 +1857,9 @@ export class BattleTooltips {
 
 		/** any factor that's "effectiveness-like" rather than literal type effectiveness */
 		let otherFactor = BattleTooltips.getTypeAbilityWeakness(attackType, toID(targetAbility), dex, true);
+		// Gen 3 type-immunity abilities don't affect status moves
+		if (category === 'Status' && dex.gen <= 3) otherFactor = 1;
+
 		let factor = 1;
 		if (!otherFactor && targetAbility === "Levitate") {
 			otherFactor = 1;
