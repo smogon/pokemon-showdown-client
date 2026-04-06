@@ -178,7 +178,7 @@ export class MainMenuRoom extends PSRoom {
 				}
 				if (room.type === 'team') (room as any).cancelUpload();
 			}
-			PS.alert(message.replace(/\|\|/g, '\n'));
+			PS.alert(message.replace(/^(\|modal\||\|html\||\|wide\|)/, "").replace(/\|\|/g, '\n'));
 			return;
 		}
 		}
