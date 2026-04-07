@@ -155,7 +155,7 @@ function PokemonSet({ set }: { set: Dex.PokemonSet }) {
 			</>
 		))}<br /></> : <></>}
 
-		{set.nature ? <>{set.nature} Nature<br /></> : <></>}
+		{set.nature ? <>{set.nature.charAt(0).toUpperCase() + set.nature.slice(1)} Nature<br /></> : <></>}
 
 		{set.ivs ? <>{Dex.statNames
 			.filter(stat => !(set.ivs![stat] === undefined || isNaN(set.ivs![stat]) || set.ivs![stat] === 31))
