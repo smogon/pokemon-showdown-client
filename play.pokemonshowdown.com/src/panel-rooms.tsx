@@ -8,7 +8,7 @@
 import { PS, PSRoom, type RoomID, type RoomOptions } from "./client-main";
 import { PSPanelWrapper, PSRoomPanel } from "./panels";
 import type { RoomInfo } from "./panel-mainmenu";
-import { toID } from "./battle-dex";
+import { Dex, toID } from "./battle-dex";
 
 export class RoomsRoom extends PSRoom {
 	override readonly classType: string = 'rooms';
@@ -202,14 +202,14 @@ class RoomsPanel extends PSRoomPanel {
 			<div class="roomcounters">
 				<a class="button" href="users" title="Find an online user">
 					<span
-						class="pixelated usercount"
+						class={`pixelated usercount${Dex.afdMode === true ? ' afd' : ''}`}
 						title="Meloetta is PS's mascot! The Aria forme is about using its voice, and represents our chatrooms."
 					></span>
 					<strong>{rooms.userCount || '-'}</strong> users online
 				</a> {}
 				<a class="button" href="battles" title="Watch an active battle">
 					<span
-						class="pixelated battlecount"
+						class={`pixelated battlecount${Dex.afdMode ? ' afd' : ''}`}
 						title="Meloetta is PS's mascot! The Pirouette forme is Fighting-type, and represents our battles."
 					></span>
 					<strong>{rooms.battleCount || '-'}</strong> active battles

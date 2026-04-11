@@ -5,7 +5,7 @@ License: GPLv2
 
 */
 
-@import url(./battle-log.css?v10);
+@import url(./battle-log.css?v11);
 
 .battle {
 	position: absolute;
@@ -746,6 +746,11 @@ License: GPLv2
 	}
 }
 
+.effectiveness-icon {
+	font-family: monospace;
+	font-size: 13px;
+	letter-spacing: 1px;
+}
 
 /*********************************************************
  * Tooltips

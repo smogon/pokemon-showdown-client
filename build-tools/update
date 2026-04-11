@@ -217,6 +217,8 @@ try {
 
 indexContents = indexContents.replace(/<!-- newsid -->/g, newsid);
 indexContents = indexContents.replace(/<!-- news -->/g, news);
+preactIndexContents = preactIndexContents.replace(/<!-- newsid -->/g, newsid);
+preactIndexContents = preactIndexContents.replace(/<!-- news -->/g, news);
 
 let indexContents2 = '';
 try {

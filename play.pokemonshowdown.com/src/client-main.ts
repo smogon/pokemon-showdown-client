@@ -158,7 +158,7 @@ class PSPrefs extends PSStreamModel<string | null> {
 	notifvolume = 50;
 	uploadprivacy = false;
 
-	afd: boolean | 'sprites' = false;
+	afd: boolean | 'sprites' = undefined!;
 
 	highlights: Record<string, string[]> | null = null;
 	logtimes: { [serverid: ID]: { [roomid: RoomID]: number } } | null = null;
@@ -1928,6 +1928,7 @@ export const PS = new class extends PSModel {
 	arrowKeysUsed = false;
 
 	newsHTML = document.querySelector('#room-news .readable-bg')?.innerHTML || '';
+	newsId = document.getElementById('room-news')?.getAttribute('data-newsid') || null;
 
 	libsLoaded = makeLoadTracker();
 
