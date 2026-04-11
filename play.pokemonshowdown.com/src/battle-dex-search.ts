@@ -653,11 +653,10 @@ abstract class BattleTypedSearch<T extends SearchType> {
 		if (format.includes('champions')) {
 			this.formatType = 'champions';
 			this.dex = Dex.mod('champions' as ID);
-			format = format.slice(9) as ID;
-			if (!format) format = 'ou' as ID;
+			format = 'ou' as ID;
 			if (format.includes('vgc')) this.isDoubles = true;
 		}
-		if (format.startsWith('vgc')) {
+		if (format.startsWith('vgc') && !this.formatType) {
 			this.formatType = 'doubles';
 			this.isDoubles = true;
 		}
@@ -1038,7 +1037,7 @@ class BattlePokemonSearch extends BattleTypedSearch<'pokemon'> {
 			table = table[`gen${dex.gen}`];
 		} else if (this.formatType === 'champions') {
 			table = table[`champions`];
-		} else if (isVGCOrBS) {
+		} else if (isVGCOrBS && !this.formatType) {
 			table = table[`gen${dex.gen}vgc`];
 		} else if (dex.gen === 9 && isHackmons && !this.formatType) {
 			table = table['bh'];
