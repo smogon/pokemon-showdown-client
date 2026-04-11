@@ -884,7 +884,7 @@ export class BattleTooltips {
 			text += `<span class="textaligned-typeicons">${types.map(type => Dex.getTypeIcon(type)).join(' ')}</span>`;
 			if (pokemon.terastallized) {
 				text += `&nbsp; &nbsp; <small>(base: <span class="textaligned-typeicons">${this.getPokemonTypes(pokemon, true).map(type => Dex.getTypeIcon(type)).join(' ')}</span>)</small>`;
-			} else if (knownPokemon.teraType && !this.battle.rules['Terastal Clause']) {
+			} else if (knownPokemon.teraType) {
 				text += `&nbsp; &nbsp; <small>(Tera Type: <span class="textaligned-typeicons">${Dex.getTypeIcon(knownPokemon.teraType)}</span>)</small>`;
 			}
 			text += `</h2>`;
@@ -1508,6 +1508,10 @@ export class BattleTooltips {
 			move = this.battle.dex.moves.get(moveName);
 			maxpp = (move.pp === 1 || move.noPPBoosts ? move.pp : move.pp * 8 / 5);
 			if (this.battle.gen < 3) maxpp = Math.min(61, maxpp);
+			if (this.battle.tier.includes('Champions')) {
+				let pp = move.pp > 20 ? 20 : move.pp;
+				maxpp = (pp === 1 || move.noPPBoosts) ? pp : (pp / 5 + 1) * 4;
+			}
 		}
 		const bullet = moveName.startsWith('*') || move.isZ ? '<span style="color:#888">&#8226;</span>' : '&#8226;';
 		if (ppUsed === Infinity) {
@@ -1582,6 +1586,9 @@ export class BattleTooltips {
 			max = tr(tr(tr((2 * baseSpe + maxIv) * level / 100 + 5) * maxNature) * tr((70 / 255 / 10 + 1) * 100) / 100);
 			if (tier.includes('No Restrictions')) max += 200;
 			else if (tier.includes('Random')) max += 20;
+		} else if (tier.includes('Champions')) {
+			min = tr(minNature * (baseSpe + 20));
+			max = tr(maxNature * (baseSpe + 32 + 20));
 		} else {
 			let maxIvEvOffset = maxIv + ((isRandomBattle && gen >= 3) ? 21 : 63);
 			max = tr(tr((2 * baseSpe + maxIvEvOffset) * level / 100 + 5) * maxNature);
@@ -2835,6 +2842,7 @@ export class BattleStatGuesser {
 	hasMove: any = null;
 
 	ignoreEVLimits: boolean;
+	useStatPoints: boolean;
 	supportsEVs: boolean;
 	supportsAVs: boolean;
 
@@ -2847,7 +2855,8 @@ export class BattleStatGuesser {
 			this.formatid.includes('metronomebattle') ||
 			this.formatid.endsWith('norestrictions')
 		);
-		this.supportsEVs = !this.formatid.includes('letsgo');
+		this.useStatPoints = this.formatid.includes('champions');
+		this.supportsEVs = !this.formatid.includes('letsgo') && !this.useStatPoints;
 		this.supportsAVs = !this.supportsEVs && this.formatid.endsWith('norestrictions');
 	}
 	guess(set: Dex.PokemonSet) {
@@ -3244,18 +3253,24 @@ export class BattleStatGuesser {
 
 			let evTotal = 0;
 
+			const maxPoints = !this.useStatPoints ? 252 : 32;
+			const totalPoints = !this.useStatPoints ? 508 : 66;
 			let primaryStat = statChart[role][0];
-			let stat = this.getStat(primaryStat, set, 252, plusStat === primaryStat ? 1.1 : 1.0);
-			let ev = 252;
-			while (ev > 0 && stat <= this.getStat(primaryStat, set, ev - 4, plusStat === primaryStat ? 1.1 : 1.0)) ev -= 4;
+			let stat = this.getStat(primaryStat, set, maxPoints, plusStat === primaryStat ? 1.1 : 1.0);
+			let ev = !this.useStatPoints ? 252 : 32;
+			const step = !this.useStatPoints ? 4 : 1;
+			while (ev > 0 && stat <= this.getStat(primaryStat, set, ev - step, plusStat === primaryStat ? 1.1 : 1.0)) ev -= step;
+
 			evs[primaryStat] = ev;
 			evTotal += ev;
 
 			let secondaryStat: Dex.StatName | null = statChart[role][1];
 			if (secondaryStat === 'hp' && set.level && set.level < 20) secondaryStat = 'spd';
-			stat = this.getStat(secondaryStat, set, 252, plusStat === secondaryStat ? 1.1 : 1.0);
-			ev = 252;
-			while (ev > 0 && stat <= this.getStat(secondaryStat, set, ev - 4, plusStat === secondaryStat ? 1.1 : 1.0)) ev -= 4;
+			stat = this.getStat(secondaryStat, set, maxPoints, plusStat === secondaryStat ? 1.1 : 1.0);
+			ev = !this.useStatPoints ? 252 : 32;
+			while (ev > 0 && stat <= this.getStat(secondaryStat, set, ev - step, plusStat === secondaryStat ? 1.1 : 1.0)) {
+				ev -= step;
+			}
 			evs[secondaryStat] = ev;
 			evTotal += ev;
 
@@ -3297,19 +3312,19 @@ export class BattleStatGuesser {
 			}
 
 			if (hpDivisibility) {
-				while (hp < 252 && evTotal < 508 && !(stat % hpDivisibility) !== hpShouldBeDivisible) {
-					hp += 4;
+				while (hp < maxPoints && evTotal < totalPoints && !(stat % hpDivisibility) !== hpShouldBeDivisible) {
+					hp += step;
 					stat = this.getStat('hp', set, hp, 1);
-					evTotal += 4;
+					evTotal += step;
 				}
 				while (hp > 0 && !(stat % hpDivisibility) !== hpShouldBeDivisible) {
-					hp -= 4;
+					hp -= step;
 					stat = this.getStat('hp', set, hp, 1);
-					evTotal -= 4;
+					evTotal -= step;
 				}
-				while (hp > 0 && stat === this.getStat('hp', set, hp - 4, 1)) {
-					hp -= 4;
-					evTotal -= 4;
+				while (hp > 0 && stat === this.getStat('hp', set, hp - step, 1)) {
+					hp -= step;
+					evTotal -= step;
 				}
 				if (hp || evs['hp']) evs['hp'] = hp;
 			}
@@ -3330,9 +3345,9 @@ export class BattleStatGuesser {
 				evTotal = this.ensureMaxEVs(evs, 'spe', 220, evTotal);
 			}
 
-			if (evTotal < 508) {
-				let remaining = 508 - evTotal;
-				if (remaining > 252) remaining = 252;
+			if (evTotal < totalPoints) {
+				let remaining = totalPoints - evTotal;
+				if (remaining > maxPoints) remaining = maxPoints;
 				secondaryStat = null;
 				if (!evs['atk'] && moveCount['PhysicalAttack'] >= 1) {
 					secondaryStat = 'atk';
@@ -3350,14 +3365,14 @@ export class BattleStatGuesser {
 				if (secondaryStat) {
 					ev = remaining;
 					stat = this.getStat(secondaryStat, set, ev);
-					while (ev > 0 && stat === this.getStat(secondaryStat, set, ev - 4)) ev -= 4;
+					while (ev > 0 && stat === this.getStat(secondaryStat, set, ev - step)) ev -= step;
 					if (ev) evs[secondaryStat] = ev;
 					remaining -= ev;
 				}
 				if (remaining && !evs['spe']) {
 					ev = remaining;
 					stat = this.getStat('spe', set, ev);
-					while (ev > 0 && stat === this.getStat('spe', set, ev - 4)) ev -= 4;
+					while (ev > 0 && stat === this.getStat('spe', set, ev - step)) ev -= step;
 					if (ev) evs['spe'] = ev;
 				}
 			}
@@ -3411,11 +3426,14 @@ export class BattleStatGuesser {
 
 		if (stat === 'hp') {
 			if (baseStat === 1) return 1;
-			if (!this.supportsEVs) return ~~(~~(2 * baseStat + iv + 100) * level / 100 + 10) + (this.supportsAVs ? ev : 0);
+			if (this.useStatPoints) return baseStat + ev + 75;
+			if (this.supportsAVs) return ~~(~~(2 * baseStat + iv + 100) * level / 100 + 10) + (ev || 0);
 			return ~~(~~(2 * baseStat + iv + ~~(ev / 4) + 100) * level / 100 + 10);
 		}
 		let val = ~~(~~(2 * baseStat + iv + ~~(ev / 4)) * level / 100 + 5);
-		if (!this.supportsEVs) {
+		if (this.useStatPoints) {
+			val = baseStat + ev + 20;
+		} else if (!this.supportsEVs) {
 			val = ~~(~~(2 * baseStat + iv) * level / 100 + 5);
 		}
 		if (natureOverride) {
@@ -3425,9 +3443,9 @@ export class BattleStatGuesser {
 		} else if (BattleNatures[set.nature!]?.minus === stat) {
 			val *= 0.9;
 		}
-		if (!this.supportsEVs) {
+		if (this.supportsAVs) {
 			let friendshipValue = ~~((70 / 255 / 10 + 1) * 100);
-			val = ~~(val) * friendshipValue / 100 + (this.supportsAVs ? ev : 0);
+			val = ~~(val) * friendshipValue / 100 + (ev || 0);
 		}
 		return ~~(val);
 	}
@@ -3442,15 +3460,17 @@ export function BattleStatOptimizer(set: Dex.PokemonSet, formatid: ID) {
 		((formatid.endsWith('hackmons') || formatid.endsWith('bh')) && dex.gen !== 6) ||
 		formatid.includes('metronomebattle') || formatid.endsWith('norestrictions')
 	);
-	const supportsEVs = !formatid.includes('letsgo');
-	if (!supportsEVs || ignoreEVLimits) return null;
+	const useStatPoints = formatid.includes('champions');
+	const supportsEVs = !formatid.includes('letsgo') && !useStatPoints;
+	if (!(useStatPoints || supportsEVs) || ignoreEVLimits) return null;
 
 	const species = dex.species.get(set.species);
 	const level = set.level || 100;
-	const getStat = (stat: Dex.StatNameExceptHP, ev: number, nature: Dex.Nature) => {
+	const getStat = (stat: Dex.StatNameExceptHP, ev: number, nature: Dex.Nature, statPoints: boolean) => {
 		const baseStat = species.baseStats[stat];
 		const iv = set.ivs?.[stat] || 31;
 		let val = ~~(~~(2 * baseStat + iv + ~~(ev / 4)) * level / 100 + 5);
+		if (statPoints) val = baseStat + ev + 20;
 		if (nature.plus === stat) {
 			val *= 1.1;
 		} else if (nature.minus === stat) {
@@ -3462,30 +3482,32 @@ export function BattleStatOptimizer(set: Dex.PokemonSet, formatid: ID) {
 	const origNature = BattleNatures[set.nature!] ?? BattleNatures['Serious'];
 	const origStats = {
 		// no need to calculate hp
-		atk: getStat('atk', set.evs.atk || 0, origNature),
-		def: getStat('def', set.evs.def || 0, origNature),
-		spa: getStat('spa', set.evs.spa || 0, origNature),
-		spd: getStat('spd', set.evs.spd || 0, origNature),
-		spe: getStat('spe', set.evs.spe || 0, origNature),
+		atk: getStat('atk', set.evs.atk || 0, origNature, useStatPoints),
+		def: getStat('def', set.evs.def || 0, origNature, useStatPoints),
+		spa: getStat('spa', set.evs.spa || 0, origNature, useStatPoints),
+		spd: getStat('spd', set.evs.spd || 0, origNature, useStatPoints),
+		spe: getStat('spe', set.evs.spe || 0, origNature, useStatPoints),
 	};
-	const getMinEVs = (stat: Dex.StatNameExceptHP, nature: Dex.Nature) => {
+	const getMinEVs = (stat: Dex.StatNameExceptHP, nature: Dex.Nature, statPoints: boolean) => {
 		let ev = 0;
-		while (getStat(stat, ev, nature) < origStats[stat]) {
-			ev += 4;
+		const step = statPoints ? 1 : 4;
+		while (getStat(stat, ev, nature, statPoints) < origStats[stat]) {
+			ev += step;
 		}
 		return ev;
 	};
 
 	const origSpread = { evs: set.evs, ...origNature };
-	let origLeftoverEVs = 508;
+	let origLeftoverEVs = useStatPoints ? 66 : 508;
 	for (const stat of Dex.statNames) {
 		origLeftoverEVs -= origSpread.evs?.[stat] || 0;
 	}
 	// Only check for optimizations if EVs are completed
-	if (origLeftoverEVs > 4) return null;
+	if (origLeftoverEVs > (useStatPoints ? 2 : 4)) return null;
 
 	// Can't move the plus if it boosts its stat past normal EV limit
-	const plusTooHigh = origNature.plus && getStat(origNature.plus, 252, {}) < origStats[origNature.plus];
+	const plusTooHigh = origNature.plus &&
+		getStat(origNature.plus, (useStatPoints ? 32 : 252), {}, useStatPoints) < origStats[origNature.plus];
 	// Can't move the minus if there's no investment in its stat to redistribute
 	const minusTooLow = origNature.minus && !origSpread.evs?.[origNature.minus];
 	// If we can't move either of them, do nothing
@@ -3501,12 +3523,12 @@ export function BattleStatOptimizer(set: Dex.PokemonSet, formatid: ID) {
 	if (!minusTooLow) {
 		for (const stat of Dex.statNamesExceptHP) {
 			if (origStats[stat] < origStats[bestMinus]) {
-				const minEVs = getMinEVs(stat, { minus: stat });
-				if (minEVs > 252) continue;
+				const minEVs = getMinEVs(stat, { minus: stat }, useStatPoints);
+				if (minEVs > (useStatPoints ? 32 : 252)) continue;
 				// This number can go negative at this point, but we'll make up for it later (and check to make sure)
 				savedEVs = (origSpread.evs[stat] || 0) - minEVs;
 				if (origNature.minus) {
-					savedEVs += (origSpread.evs[origNature.minus] || 0) - getMinEVs(origNature.minus, { minus: stat });
+					savedEVs += (origSpread.evs[origNature.minus] || 0) - getMinEVs(origNature.minus, { minus: stat }, useStatPoints);
 				}
 				bestMinus = stat;
 				bestMinusMinEVs = minEVs;
@@ -3517,17 +3539,21 @@ export function BattleStatOptimizer(set: Dex.PokemonSet, formatid: ID) {
 		for (const stat of Dex.statNamesExceptHP) {
 			// Don't move the plus to an uninvested stat
 			if (stat !== origNature.plus && origSpread.evs[stat] && stat !== bestMinus) {
-				const minEVs = getMinEVs(stat, { plus: stat });
-				let plusEVsSaved = (origNature.minus === stat ? getMinEVs(stat, {}) : origSpread.evs[stat] || 0) - minEVs;
+				const minEVs = getMinEVs(stat, { plus: stat }, useStatPoints);
+				let plusEVsSaved = (origNature.minus === stat ?
+					getMinEVs(stat, {}, useStatPoints) : origSpread.evs[stat] || 0) - minEVs;
 				if (bestPlus && bestPlus !== bestMinus) {
-					plusEVsSaved += bestPlusMinEVs! - getMinEVs(bestPlus, { plus: stat, minus: bestMinus });
+					plusEVsSaved += bestPlusMinEVs! - getMinEVs(bestPlus, { plus: stat, minus: bestMinus }, useStatPoints);
 				}
 				if (plusEVsSaved > 0 && savedEVs + plusEVsSaved > 0) {
 					savedEVs += plusEVsSaved;
 					bestPlus = stat;
 					bestPlusMinEVs = minEVs;
 				} else if (plusEVsSaved === 0 && (bestPlus || savedEVs > 0) || plusEVsSaved > 0 && savedEVs + plusEVsSaved === 0) {
-					if (!bestPlus || getStat(stat, getMinEVs(stat, { plus: stat }), { plus: stat }) > origStats[stat]) {
+					if (!bestPlus ||
+						getStat(
+							stat, getMinEVs(stat, { plus: stat }, useStatPoints), { plus: stat }, useStatPoints
+						) > origStats[stat]) {
 						savedEVs += plusEVsSaved;
 						bestPlus = stat;
 						bestPlusMinEVs = minEVs;
@@ -3547,23 +3573,25 @@ export function BattleStatOptimizer(set: Dex.PokemonSet, formatid: ID) {
 			newSpread.evs[bestPlus] = bestPlusMinEVs!;
 			newSpread.evs[bestMinus] = bestMinusMinEVs!;
 			if (origNature.plus && origNature.plus !== bestPlus && origNature.plus !== bestMinus) {
-				newSpread.evs[origNature.plus] = getMinEVs(origNature.plus, newSpread);
+				newSpread.evs[origNature.plus] = getMinEVs(origNature.plus, newSpread, useStatPoints);
 			}
 			if (origNature.minus && origNature.minus !== bestPlus && origNature.minus !== bestMinus) {
-				newSpread.evs[origNature.minus] = getMinEVs(origNature.minus, newSpread);
+				newSpread.evs[origNature.minus] = getMinEVs(origNature.minus, newSpread, useStatPoints);
 			}
 			for (const stat of Dex.statNames) {
 				if (!newSpread.evs[stat]) delete newSpread.evs[stat];
 			}
 			return { ...newSpread, savedEVs };
 		} else if (!plusTooHigh && !minusTooLow) {
-			if (Math.floor(getStat(bestPlus, bestMinusMinEVs!, newSpread) / 11) <= Math.ceil(origStats[bestMinus] / 9)) {
+			if (Math.floor(
+				getStat(bestPlus, bestMinusMinEVs!, newSpread, useStatPoints) / 11
+			) <= Math.ceil(origStats[bestMinus] / 9)) {
 				// We're not gaining more points from our plus than we're losing to our minus
 				// So a neutral nature would be better
 				delete newSpread.plus;
 				delete newSpread.minus;
-				newSpread.evs[origNature.plus] = getMinEVs(origNature.plus, newSpread);
-				newSpread.evs[origNature.minus] = getMinEVs(origNature.minus, newSpread);
+				newSpread.evs[origNature.plus] = getMinEVs(origNature.plus, newSpread, useStatPoints);
+				newSpread.evs[origNature.minus] = getMinEVs(origNature.minus, newSpread, useStatPoints);
 				savedEVs += (origSpread.evs[origNature.plus] || 0) - newSpread.evs[origNature.plus]!;
 				savedEVs += (origSpread.evs[origNature.minus] || 0) - newSpread.evs[origNature.minus]!;
 				if (savedEVs < 0) return null;

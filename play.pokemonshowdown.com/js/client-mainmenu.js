@@ -921,6 +921,9 @@
 			var teraPreviewDefault = format && BattleFormats[format] ? BattleFormats[format].teraPreviewDefault : false;
 			buf += '<p' + (!teraPreviewDefault ? ' class="hidden">' : '>');
 			buf += '<label class="checkbox"><input type="checkbox" name="terapreview" /> <abbr title="Start a battle with Tera Type Preview">Tera Type Preview</abbr></label></p>';
+			var itemClauseDefault = format && BattleFormats[format] ? BattleFormats[format].itemClauseDefault : false;
+			buf += '<p' + (!itemClauseDefault ? ' class="hidden">' : '>');
+			buf += '<label class="checkbox"><input type="checkbox" name="itemclause" /> <abbr title="Start a battle with Item Clause">Item Clause</abbr></label></p>';
 			buf += '<p class="buttonbar"><button name="makeChallenge" class="button"><strong>Challenge</strong></button> <button type="button" name="dismissChallenge" class="button">Cancel</button></p></form>';
 			$challenge.html(buf);
 		},
@@ -978,6 +981,13 @@
 				var hasCustomRulesT = format.includes('@@@');
 				format += hasCustomRulesT ? ', ' : '@@@';
 				format += 'Tera Type Preview';
+			}
+
+			var itemClause = $pmWindow.find('input[name=itemclause]').is(':checked');
+			if (itemClause) {
+				var hasCustomRulesT = format.includes('@@@');
+				format += hasCustomRulesT ? ', ' : '@@@';
+				format += 'Item Clause = 1';
 			}
 
 			var team = null;
@@ -1436,6 +1446,18 @@
 					} else {
 						$parentTag.addClass('hidden');
 						$teraPreviewCheckbox.prop('checked', false);
+					}
+				}
+
+				var $itemClauseCheckbox = $form.find('input[name=itemclause]');
+				if ($itemClauseCheckbox.length) {
+					var $parentTag = $itemClauseCheckbox.parent().parent();
+					var itemClauseDefault = BattleFormats[format] && BattleFormats[format].itemClauseDefault;
+					if (itemClauseDefault) {
+						$parentTag.removeClass('hidden');
+					} else {
+						$parentTag.addClass('hidden');
+						$itemClauseCheckbox.prop('checked', false);
 					}
 				}
 
