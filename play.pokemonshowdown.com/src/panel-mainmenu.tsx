@@ -720,9 +720,9 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
 				<div class="mainmenu-footer">
 					<div class="bgcredit"></div>
 					<small>
-						<a href="//youtube.com/@smogon" target="_blank" title="Youtube">
+						<a href="//youtube.com/@smogon" target="_blank" title="YouTube">
 							<i class="fa fa-youtube-play fa-lg fa-fw" aria-hidden="true" id="youtube"></i></a> | {}
-						<a href="//x.com/SmogonU" target="_blank" title="X">
+						<a href="//x.com/SmogonU" target="_blank" title="Twitter">
 							<i class="fa fa-twitter fa-lg fa-fw" aria-hidden="true" id="twitter"></i></a>  | {}
 						<a href="//facebook.com/SmogonU" target="_blank" title="Facebook">
 							<i class="fa fa-facebook-square fa-lg fa-fw" aria-hidden="true" id="facebook"></i></a>  | {}
