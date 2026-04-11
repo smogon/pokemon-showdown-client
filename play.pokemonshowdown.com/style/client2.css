@@ -752,6 +752,21 @@ p.or:after {
 	text-decoration: underline;
 	color: #CCDDFF;
 }
+.mainmenu-footer a:hover #youtube {
+	color: #FF0000;
+}
+.mainmenu-footer a:hover #twitter {
+	color: #1DA1F2;
+}
+.mainmenu-footer a:hover #facebook {
+	color: #1877F2;
+}
+.mainmenu-footer a:hover #twitch {
+	color: #9146FF;
+}
+.mainmenu-footer a:hover #discord {
+	color: #5865F2;
+}
 
 .mainmenu.tiny-layout, .mainmenu-mini-windows.tiny-layout {
 	position: static;

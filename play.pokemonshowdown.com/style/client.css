@@ -649,6 +649,21 @@ p.or:after {
 	text-decoration: underline;
 	color: #CCDDFF;
 }
+.mainmenufooter a:hover #youtube {
+	color: #FF0000;
+}
+.mainmenufooter a:hover #twitter {
+	color: #1DA1F2;
+}
+.mainmenufooter a:hover #facebook {
+	color: #1877F2;
+}
+.mainmenufooter a:hover #twitch {
+	color: #9146FF;
+}
+.mainmenufooter a:hover #discord {
+	color: #5865F2;
+}
 
 .pmbox {
 	width: 270px;
