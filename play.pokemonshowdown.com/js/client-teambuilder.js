@@ -913,7 +913,7 @@
 			buf.push(this.curTeam.name);
 			buf.push(this.curTeam.format);
 			buf.push(this.$('input[name=teamprivacy]').get(0).checked ? 1 : 0);
-			var team = Storage.exportTeam(this.curSetList, this.curTeam.gen, false);
+			var team = Storage.exportTeam(this.curSetList);
 			if (!team) return app.addPopupMessage("Add a Pokémon to your team before uploading it!");
 			buf.push(team);
 			app.send(cmd + " " + buf.join(', '));
@@ -923,7 +923,7 @@
 			$('label[name=editMessage]').hide();
 		},
 		pokepasteExport: function (type) {
-			var team = Storage.exportTeam(this.curSetList, this.curTeam.gen, type === 'openteamsheet');
+			var team = Storage.exportTeam(this.curSetList, type === 'openteamsheet');
 			if (!team) return app.addPopupMessage("Add a Pokémon to your team before uploading it!");
 			document.getElementById("pasteData").value = team;
 			document.getElementById("pasteTitle").value = this.curTeam.name;
@@ -965,7 +965,7 @@
 			// 	// Chrome is dumb and doesn't support data URLs in HTTPS
 			// 	urlprefix = "https://" + Config.routes.client + "/action.php?act=dlteam&team=";
 			// }
-			var contents = Storage.exportTeam(team.team, team.gen).replace(/\n/g, '\r\n');
+			var contents = Storage.exportTeam(team.team).replace(/\n/g, '\r\n');
 			var downloadurl = "text/plain:" + filename + ":" + urlprefix + encodeURIComponent(window.btoa(unescape(encodeURIComponent(contents))));
 			console.log(downloadurl);
 			dataTransfer.setData("DownloadURL", downloadurl);
@@ -1211,7 +1211,7 @@
 			var buf = '';
 			if (this.exportMode) {
 				buf = '<div class="pad"><button name="back" class="button"><i class="fa fa-chevron-left"></i> List</button> <input class="textbox teamnameedit" type="text" class="teamnameedit" size="30" value="' + BattleLog.escapeHTML(this.curTeam.name) + '" /> <button name="saveImport" class="button"><i class="fa fa-upload"></i> Import/Export</button> <button name="saveImport" class="savebutton button"><i class="fa fa-floppy-o"></i> Save</button></div>';
-				buf += '<div class="teamedit"><textarea class="textbox" rows="17">' + BattleLog.escapeHTML(Storage.exportTeam(this.curSetList, this.curTeam.gen)) + '</textarea></div>';
+				buf += '<div class="teamedit"><textarea class="textbox" rows="17">' + BattleLog.escapeHTML(Storage.exportTeam(this.curSetList)) + '</textarea></div>';
 			} else {
 				buf = '<div class="pad"><button name="back" class="button"><i class="fa fa-chevron-left"></i> List</button> ';
 				buf += '<input class="textbox teamnameedit" type="text" class="teamnameedit" size="30" value="' + BattleLog.escapeHTML(this.curTeam.name) + '" /> ';
@@ -1790,7 +1790,7 @@
 			this.$('.teambuilder-pokemon-import')
 				.show()
 				.find('textarea')
-				.val(Storage.exportTeam([this.curSet], this.curTeam.gen).trim())
+				.val(Storage.exportTeam([this.curSet]).trim())
 				.focus()
 				.select();
 
@@ -1909,11 +1909,11 @@
 			curSet.name = this.curSet.name || undefined;
 
 			// never preserve current set tera, even if smogon set used default
-			if (this.curSet.gen === 9) {
+			if (this.curSet.gen === 9 && !this.curTeam.format.includes('champions')) {
 				curSet.teraType = sampleSet.teraType || species.requiredTeraType || species.types[0];
 			}
 
-			var text = Storage.exportTeam([curSet], this.curTeam.gen);
+			var text = Storage.exportTeam([curSet]);
 			this.$('.teambuilder-pokemon-import .pokemonedit').val(text);
 		},
 		closePokemonImport: function (force) {
@@ -3065,8 +3065,8 @@
 
 			// Tera type
 			var teraType = this.$chart.find('select[name=teratype]').val();
-			if (Dex.types.isName(teraType) && teraType !== species.types[0]) {
-				set.teraType = teraType;
+			if (!isChampions && Dex.types.isName(teraType)) {
+				set.teraType = teraType || species.requiredTeraType || species.types[0];
 			} else {
 				delete set.teraType;
 			}
