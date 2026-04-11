@@ -3008,7 +3008,6 @@
 			// level
 			var level = parseInt(this.$chart.find('input[name=level]').val(), 10);
 			if (!level || level > 100 || level < 1) level = 100;
-			if (isChampions) level = 50;
 			if (level !== 100 || set.level) set.level = level;
 
 			// happiness

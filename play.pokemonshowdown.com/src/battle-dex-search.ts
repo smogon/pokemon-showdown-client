@@ -654,9 +654,8 @@ abstract class BattleTypedSearch<T extends SearchType> {
 			this.formatType = 'champions';
 			this.dex = Dex.mod('champions' as ID);
 			format = 'ou' as ID;
-			if (format.includes('vgc')) this.isDoubles = true;
 		}
-		if (format.startsWith('vgc') && !this.formatType) {
+		if (format.startsWith('vgc')) {
 			this.formatType = 'doubles';
 			this.isDoubles = true;
 		}
