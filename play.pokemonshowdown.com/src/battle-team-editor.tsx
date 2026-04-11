@@ -66,6 +66,7 @@ export class TeamEditorState extends PSModel {
 	isLetsGo = false;
 	isNatDex = false;
 	isBDSP = false;
+	isChampions = false;
 	formeLegality: 'normal' | 'hackmons' | 'custom' = 'normal';
 	abilityLegality: 'normal' | 'hackmons' = 'normal';
 	defaultLevel = 100;
@@ -98,6 +99,7 @@ export class TeamEditorState extends PSModel {
 		this.isLetsGo = formatid.includes('letsgo');
 		this.isNatDex = formatid.includes('nationaldex') || formatid.includes('natdex');
 		this.isBDSP = formatid.includes('bdsp');
+		this.isChampions = formatid.includes('champions');
 		if (formatid.includes('almostanyability') || formatid.includes('aaa')) {
 			this.abilityLegality = 'hackmons';
 		} else {
@@ -3149,7 +3151,7 @@ class DetailsForm extends preact.Component<{
 						))}
 					</select></label>
 				</p>}
-				{editor.gen === 9 && <p>
+				{editor.gen === 9 && !editor.isChampions && <p>
 					<label class="label" title="Tera Type">
 						Tera Type: {}
 						{species.requiredTeraType && editor.formeLegality === 'normal' ? (
