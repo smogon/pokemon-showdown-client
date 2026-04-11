@@ -2486,6 +2486,10 @@ export const PS = new class extends PSModel {
 			}
 		}
 		if (options.id.startsWith('battle-') && PS.prefs.rightpanelbattles) options.location = 'right';
+		if (options.id.startsWith('help-')) {
+			options.location = 'right';
+			options.type = 'chat';
+		}
 		options.parentRoomid ??= this.getRoom(options.parentElem)?.id;
 		const parentRoom = options.parentRoomid ? this.rooms[options.parentRoomid] : null;
 		let preexistingRoom = this.rooms[options.id];
