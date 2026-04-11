@@ -723,9 +723,9 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
 						<a href="//youtube.com/@smogon" target="_blank" title="YouTube">
 							<i class="fa fa-youtube-play fa-lg fa-fw" aria-hidden="true" id="youtube"></i></a> | {}
 						<a href="//x.com/SmogonU" target="_blank" title="Twitter">
-							<i class="fa fa-twitter fa-lg fa-fw" aria-hidden="true" id="twitter"></i></a>  | {}
+							<i class="fa fa-twitter fa-lg fa-fw" aria-hidden="true" id="twitter"></i></a> | {}
 						<a href="//facebook.com/SmogonU" target="_blank" title="Facebook">
-							<i class="fa fa-facebook-square fa-lg fa-fw" aria-hidden="true" id="facebook"></i></a>  | {}
+							<i class="fa fa-facebook-square fa-lg fa-fw" aria-hidden="true" id="facebook"></i></a> | {}
 						<a href="//twitch.tv/smogonu" target="_blank" title="Twitch">
 							<i class="fa fa-twitch fa-lg fa-fw" aria-hidden="true" id="twitch"></i></a> | {}
 						<a href="//discord.com/invite/smogon" target="_blank" title="Discord">
