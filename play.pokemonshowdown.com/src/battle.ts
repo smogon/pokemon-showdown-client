@@ -364,7 +364,11 @@ export class Pokemon implements PokemonDetails, PokemonHealth {
 			if (ppUsed[0] < 0) ppUsed[0] = 0;
 			if (ppUsed[1] < 0) ppUsed[1] = 0;
 			const move = this.side.battle.dex.moves.get(entry[0]);
-			const maxpp = (move.pp === 1 || move.noPPBoosts ? move.pp : move.pp * 8 / 5);
+			let maxpp = (move.pp === 1 || move.noPPBoosts ? move.pp : move.pp * 8 / 5);
+			if (this.side.battle.tier.includes('Champions')) {
+				maxpp = move.pp > 20 ? 20 : move.pp;
+				maxpp = move.pp === 1 || move.noPPBoosts ? move.pp : (move.pp / 5 + 1) * 4;
+			}
 			if (ppUsed[0] > maxpp) ppUsed[0] = maxpp;
 			if (ppUsed[0] < ppUsed[1]) ppUsed[0] = ppUsed[1];
 			if (ppUsed[0] === ppUsed[1]) ppUsed = ppUsed[0];
@@ -3507,6 +3511,9 @@ export class Battle {
 			}
 			if (this.tier.includes(`Legends`)) {
 				this.dex = Dex.mod('gen9legendsou' as ID);
+			}
+			if (this.tier.includes(`Champions`)) {
+				this.dex = Dex.mod('champions' as ID);
 			}
 			this.log(args);
 			break;

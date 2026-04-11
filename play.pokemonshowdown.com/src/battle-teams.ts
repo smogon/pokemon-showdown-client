@@ -388,7 +388,7 @@ export const Teams = new class {
 		if (set.gigantamax) {
 			text += !newFormat ? `Gigantamax: Yes\n` : `Gigantamax\n`;
 		}
-		if (set.teraType) {
+		if (set.teraType && dex.modid !== 'champions') {
 			text += `Tera Type: ${set.teraType}\n`;
 		}
 
