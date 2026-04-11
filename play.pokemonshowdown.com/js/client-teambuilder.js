@@ -1413,11 +1413,7 @@
 				if (j === 'hp') highestStat = 704;
 				if (isChampions) {
 					if (j === 'hp') highestStat = 267;
-					if (j === 'atk') highestStat = 260;
-					if (j === 'def') highestStat = 310;
-					if (j === 'spa') highestStat = 249;
-					if (j === 'spd') highestStat = 226;
-					if (j === 'spd') highestStat = 222;
+					else highestStat = 310;
 				}
 				var width = stats[j] * 75 / highestStat;
 				if (j === 'hp') width = stats[j] * 75 / highestStat;
@@ -2098,11 +2094,7 @@
 				if (stat === 'hp') highestStat = 704;
 				if (usesStatPoints) {
 					if (stat === 'hp') highestStat = 267;
-					if (stat === 'atk') highestStat = 260;
-					if (stat === 'def') highestStat = 310;
-					if (stat === 'spa') highestStat = 249;
-					if (stat === 'spd') highestStat = 226;
-					if (stat === 'spd') highestStat = 222;
+					else highestStat = 310;
 				}
 				var width = stats[stat] * 75 / highestStat;
 				if (stat === 'hp') width = stats[stat] * 75 / highestStat;
@@ -2131,11 +2123,7 @@
 				if (stat === 'hp') highestStat = 704;
 				if (usesStatPoints) {
 					if (stat === 'hp') highestStat = 267;
-					if (stat === 'atk') highestStat = 260;
-					if (stat === 'def') highestStat = 310;
-					if (stat === 'spa') highestStat = 249;
-					if (stat === 'spd') highestStat = 226;
-					if (stat === 'spd') highestStat = 222;
+					else highestStat = 310;
 				}
 				var width = stats[stat] * 180 / highestStat;
 				if (stat === 'hp') width = stats[stat] * 180 / highestStat;
@@ -2398,11 +2386,7 @@
 				if (i === 'hp') highestStat = 704;
 				if (usesStatPoints) {
 					if (i === 'hp') highestStat = 267;
-					if (i === 'atk') highestStat = 260;
-					if (i === 'def') highestStat = 310;
-					if (i === 'spa') highestStat = 249;
-					if (i === 'spd') highestStat = 226;
-					if (i === 'spd') highestStat = 222;
+					else highestStat = 310;
 				}
 				var width = stats[i] * 180 / highestStat;
 				if (i === 'hp') width = Math.floor(stats[i] * 180 / highestStat);
