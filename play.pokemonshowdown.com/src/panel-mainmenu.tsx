@@ -125,6 +125,10 @@ export class MainMenuRoom extends PSRoom {
 		case 'challstr': {
 			const [, challstr] = args;
 			PS.user.challstr = challstr;
+			if (PS.prefs.avatar != null) {
+				const avatar = String(PS.prefs.avatar).toLowerCase().replace(/[^a-z0-9-]/g, '').slice(0, 64);
+				if (avatar) PS.send(`/avatar ${avatar},1`);
+			}
 			PSLoginServer.query(
 				'upkeep', { challstr }
 			).then(res => {
@@ -141,10 +145,29 @@ export class MainMenuRoom extends PSRoom {
 			});
 			return;
 		} case 'updateuser': {
-			const [, fullName, namedCode, avatar] = args;
+			const [, fullName, namedCode, avatar, settingsJSON] = args;
 			const named = namedCode === '1';
 			if (named) PS.user.initializing = false;
 			PS.user.setName(fullName, named, avatar);
+			if (settingsJSON) {
+				try {
+					const settings = JSON.parse(settingsJSON);
+					if (settings && typeof settings === 'object' && !Array.isArray(settings)) {
+						const existing = PS.prefs.serversettings;
+						const merged = {
+							...(existing && typeof existing === 'object' && !Array.isArray(existing) ? existing : {}),
+							...settings,
+						};
+						const batch: { [key: string]: any } = { serversettings: merged };
+						if ('blockPMs' in settings) batch.blockPMs = settings.blockPMs == null ? null : Boolean(settings.blockPMs);
+						if ('blockChallenges' in settings) {
+							batch.blockChallenges = settings.blockChallenges == null ? null : Boolean(settings.blockChallenges);
+						}
+						if (typeof settings.language === 'string') batch.language = settings.language;
+						PS.prefs.setMany(batch);
+					}
+				} catch {}
+			}
 			PS.teams.loadRemoteTeams();
 			return;
 		} case 'updatechallenges': {

@@ -163,6 +163,10 @@ class PSPrefs extends PSStreamModel<string | null> {
 	highlights: Record<string, string[]> | null = null;
 	logtimes: { [serverid: ID]: { [roomid: RoomID]: number } } | null = null;
 
+	avatar: string | null = null;
+
+	serversettings: Record<string, any> | null = null;
+
 	// PREFS END HERE
 
 	storageEngine: 'localStorage' | 'iframeLocalStorage' | '' = '';
@@ -198,6 +202,25 @@ class PSPrefs extends PSStreamModel<string | null> {
 			(this as any)[key] = value;
 		}
 		this.update(key);
+		this.save();
+	}
+	/**
+	 * change multiple preferences with a single localstorage write.
+	 */
+	setMany(updates: { [key: string]: any }) {
+		for (const key in updates) {
+			if (!(key in PSPrefsDefaults)) continue;
+			const value = updates[key];
+			if (value === undefined) continue;
+			if (value === null) {
+				delete this.storage[key];
+				(this as any)[key] = PSPrefsDefaults[key];
+			} else {
+				this.storage[key] = value;
+				(this as any)[key] = value;
+			}
+			this.update(key);
+		}
 		this.save();
 	}
 
@@ -1309,6 +1332,7 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 			if (/[^a-z0-9-]/.test(target)) target = toID(target);
 			const avatar = window.BattleAvatarNumbers?.[target] || target;
 			PS.user.avatar = avatar;
+			PS.prefs.set('avatar', String(avatar));
 			if (this.type !== 'chat' && this.type !== 'battle') {
 				PS.send(`/avatar ${avatar}`);
 			} else {
