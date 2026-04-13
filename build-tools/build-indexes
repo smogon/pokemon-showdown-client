@@ -622,7 +622,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			if (isVGC || isGen9BH) {
 				return ["Mythical", "Restricted", "Regular", "NFE", "LC"];
 			}
-			if (isRS || isFRLG) {
+			if (isRS) {
 				return ["Regular", "NFE", "LC", "Uber"];
 			}
 			if (isDoubles && genNum > 4) {
