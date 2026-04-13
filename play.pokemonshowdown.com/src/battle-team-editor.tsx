@@ -2843,8 +2843,6 @@ class StatForm extends preact.Component<{
 
 		const baseStats = species.baseStats;
 
-		const nature = BattleNatures[set.nature || 'Serious'];
-
 		const useEVs = !editor.isLetsGo;
 		// const useAVs = !useEVs && team.format.endsWith('norestrictions');
 		const maxEV = useEVs ? 252 : 200;
@@ -2924,9 +2922,9 @@ class StatForm extends preact.Component<{
 					</tr>
 				</table>
 				{editor.gen >= 3 && <p>
-					Nature: <select name="nature" class="button" onChange={this.changeNature}>
+					Nature: <select name="nature" class="button" value={set.nature || 'Serious'} onChange={this.changeNature}>
 						{Object.entries(BattleNatures).map(([natureName, curNature]) => (
-							<option value={natureName} selected={curNature === nature}>
+							<option value={natureName}>
 								{natureName}
 								{curNature.plus && ` (+${BattleStatNames[curNature.plus]}, -${BattleStatNames[curNature.minus!]})`}
 							</option>
