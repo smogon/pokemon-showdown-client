@@ -2276,7 +2276,7 @@ export class BattleTooltips {
 			}
 		}
 		if (move.id === 'weatherball') {
-			if (value.abilityModify(2, "Mega Sol") || this.battle.weather !== 'deltastream') {
+			if (!value.abilityModify(2, "Mega Sol") && this.battle.weather !== 'deltastream') {
 				value.weatherModify(2);
 			}
 		}
