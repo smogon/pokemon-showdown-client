@@ -2922,7 +2922,11 @@ class StatForm extends preact.Component<{
 					</tr>
 				</table>
 				{editor.gen >= 3 && <p>
-					Nature: <select name="nature" class="button" value={(set.nature && BattleNatures[set.nature] ? set.nature : 'Serious')} onChange={this.changeNature}>
+					Nature: <select
+						name="nature" class="button"
+						value={(set.nature && BattleNatures[set.nature] ? set.nature : 'Serious')}
+						onChange={this.changeNature}
+					>
 						{Object.entries(BattleNatures).map(([natureName, curNature]) => (
 							<option value={natureName}>
 								{natureName}
