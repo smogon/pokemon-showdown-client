@@ -297,14 +297,20 @@ export class PSHeader extends preact.Component {
 }
 
 export class PSMiniHeader extends preact.Component {
+	scrollRaf: number | null = null;
 	override componentDidMount() {
 		window.addEventListener('scroll', this.handleScroll);
 	}
 	override componentWillUnmount() {
 		window.removeEventListener('scroll', this.handleScroll);
+		if (this.scrollRaf !== null) cancelAnimationFrame(this.scrollRaf);
 	}
 	handleScroll = () => {
-		this.forceUpdate();
+		if (this.scrollRaf !== null) return;
+		this.scrollRaf = requestAnimationFrame(() => {
+			this.scrollRaf = null;
+			this.forceUpdate();
+		});
 	};
 	override render() {
 		if (PS.leftPanelWidth !== null) return null;
