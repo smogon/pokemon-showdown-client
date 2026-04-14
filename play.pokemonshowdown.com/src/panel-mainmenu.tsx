@@ -148,7 +148,7 @@ export class MainMenuRoom extends PSRoom {
 		} case 'updateuser': {
 			const [, fullName, namedCode, avatar] = args;
 			const named = namedCode === '1';
-			if (named) PS.user.initializing = false;
+			PS.user.initializing = false;
 			PS.user.setName(fullName, named, avatar);
 			PS.teams.loadRemoteTeams();
 			return;
