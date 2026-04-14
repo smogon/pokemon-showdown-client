@@ -990,6 +990,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 	const G2Learnsets = Dex.mod('gen2').data.Learnsets;
 	for (const id in G2Learnsets) {
 		const learnset = G2Learnsets[id].learnset;
+		if (!learnset) continue;
 		for (const moveid in learnset) {
 			const gens = learnset[moveid].map(x => Number(x[0]));
 			const minGen = Math.min(...gens);
@@ -1006,6 +1007,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 		const species = Dex.mod('gen3rs').species.get(id);
 		if (species.isNonstandard && !['Unobtainable', 'CAP'].includes(species.isNonstandard)) continue;
 		const learnset = G3RSLearnsets[id].learnset;
+		if (!learnset) continue;
 		BattleTeambuilderTable['gen3rs'].learnsets[id] = {};
 		for (const moveid in learnset) {
 			BattleTeambuilderTable['gen3rs'].learnsets[id][moveid] = '3';
@@ -1016,6 +1018,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 		const species = Dex.mod('gen3frlg').species.get(id);
 		if (species.isNonstandard && !['Unobtainable', 'CAP'].includes(species.isNonstandard)) continue;
 		const learnset = G3FRLGLearnsets[id].learnset;
+		if (!learnset) continue;
 		BattleTeambuilderTable['gen3frlg'].learnsets[id] = {};
 		for (const moveid in learnset) {
 			BattleTeambuilderTable['gen3frlg'].learnsets[id][moveid] = '3';
@@ -1026,6 +1029,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 		const species = Dex.mod('gen5bw1').species.get(id);
 		if (species.isNonstandard && !['Unobtainable', 'CAP'].includes(species.isNonstandard)) continue;
 		const learnset = G5BW1Learnsets[id].learnset;
+		if (!learnset) continue;
 		BattleTeambuilderTable['gen5bw1'].learnsets[id] = {};
 		for (const moveid in learnset) {
 			BattleTeambuilderTable['gen5bw1'].learnsets[id][moveid] = '5';
@@ -1039,6 +1043,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 		if (!validNum) continue;
 		if (species.forme && !['Alola', 'Mega', 'Mega-X', 'Mega-Y', 'Starter'].includes(species.forme)) continue;
 		const learnset = LGLearnsets[id].learnset;
+		if (!learnset) continue;
 		BattleTeambuilderTable['gen7letsgo'].learnsets[id] = {};
 		for (const moveid in learnset) {
 			BattleTeambuilderTable['gen7letsgo'].learnsets[id][moveid] = '7';
@@ -1049,6 +1054,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 		const species = Dex.mod('gen8bdsp').species.get(id);
 		if (species.isNonstandard && !['Unobtainable', 'CAP'].includes(species.isNonstandard)) continue;
 		const learnset = BDSPLearnsets[id].learnset;
+		if (!learnset) continue;
 		BattleTeambuilderTable['gen8bdsp'].learnsets[id] = {};
 		for (const moveid in learnset) {
 			BattleTeambuilderTable['gen8bdsp'].learnsets[id][moveid] = '8g';
@@ -1059,6 +1065,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 		const species = Dex.mod('champions').species.get(id);
 		if (species.isNonstandard) continue;
 		const learnset = ChampionsLearnsets[id].learnset;
+		if (!learnset) continue;
 		BattleTeambuilderTable['champions'].learnsets[id] = {};
 		for (const moveid in learnset) {
 			BattleTeambuilderTable['champions'].learnsets[id][moveid] = '9a';
