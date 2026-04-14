@@ -1427,6 +1427,15 @@ class ChatPanel extends PSRoomPanel<ChatRoom> {
 export class ChatUserList extends preact.Component<{
 	room: ChatRoom, left?: number, top?: number, minimized?: boolean, static?: boolean,
 }> {
+	subscription: PSSubscription | null = null;
+	override componentDidMount() {
+		this.subscription = this.props.room.subscribe(args => {
+			if (!args) this.forceUpdate();
+		});
+	}
+	override componentWillUnmount() {
+		this.subscription?.unsubscribe();
+	}
 	render() {
 		const room = this.props.room;
 		const pmTargetid = room.pmTarget ? toID(room.pmTarget) : null;
