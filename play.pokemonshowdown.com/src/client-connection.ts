@@ -207,6 +207,7 @@ export class PSConnection {
 
 	static connect() {
 		if (PS.connection?.socket) return;
+		if (PS.connection?.connected) return; // already connected via worker, don't call doAutojoin on live session
 		PS.isOffline = false;
 		if (!PS.connection) {
 			PS.connection = new PSConnection();
