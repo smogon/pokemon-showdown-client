@@ -116,7 +116,8 @@ export class TeamEditorState extends PSModel {
 		this.defaultLevel = 100;
 		if (
 			formatid.includes('vgc') || formatid.includes('bss') || formatid.includes('ultrasinnohclassic') ||
-			formatid.includes('battlespot') || formatid.includes('battlestadium') || formatid.includes('battlefestival')
+			formatid.includes('battlespot') || formatid.includes('battlestadium') || formatid.includes('battlefestival') ||
+			formatid.includes('letsgo') || formatid.includes('champions')
 		) {
 			this.defaultLevel = 50;
 		}
@@ -2449,11 +2450,11 @@ class StatForm extends preact.Component<{
 
 			const stat = editor.getStat(statID, set, ivs[statID]);
 			let ev: number | string = set.evs ? (set.evs[statID] || 0) : defaultEV;
-			let width = stat * 75 / 504;
-			if (statID === 'hp') width = stat * 75 / 704;
-			if (width > 75) width = 75;
-			let hue = Math.floor(stat * 180 / 714);
-			if (hue > 360) hue = 360;
+			const maxStat = statID === 'hp' ?
+				Math.floor(176 * editor.defaultLevel / 25) + 10 :
+				Math.floor(247 * editor.defaultLevel / 50) + 5;
+			const width = Math.min(stat * 75 / maxStat, 75);
+			const hue = Math.min(Math.floor(stat * 180 / maxStat), 360);
 			const statName = editor.gen === 1 && statID === 'spa' ? 'Spc' : BattleStatNames[statID];
 			if (evs && !ev && !set.evs && statID === 'hp') ev = 'EVs';
 			return <span class="statrow">
@@ -2713,11 +2714,12 @@ class StatForm extends preact.Component<{
 	plus: Dex.StatNameExceptHP | null = null;
 	minus: Dex.StatNameExceptHP | null = null;
 	renderStatbar(stat: number, statID: StatName) {
-		let width = stat * 180 / 504;
-		if (statID === 'hp') width = Math.floor(stat * 180 / 704);
-		if (width > 179) width = 179;
-		let hue = Math.floor(stat * 180 / 714);
-		if (hue > 360) hue = 360;
+		const { editor } = this.props;
+		const maxStat = statID === 'hp' ?
+			Math.floor(176 * editor.defaultLevel / 25) + 10 :
+			Math.floor(247 * editor.defaultLevel / 50) + 5;
+		const width = Math.min(stat * 180 / maxStat, 180);
+		const hue = Math.min(Math.floor(stat * 180 / maxStat), 360);
 		return <span
 			style={`width:${Math.floor(width)}px;background:hsl(${hue},85%,45%);border-color:hsl(${hue},85%,35%)`}
 		></span>;
