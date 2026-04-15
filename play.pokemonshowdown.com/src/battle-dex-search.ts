@@ -653,7 +653,8 @@ abstract class BattleTypedSearch<T extends SearchType> {
 		if (format.includes('champions')) {
 			this.formatType = 'champions';
 			this.dex = Dex.mod('champions' as ID);
-			format = 'ou' as ID;
+			format = format.slice(9) as ID;
+			if (format !== 'ou') format = 'ubers' as ID;
 		}
 		if (format.startsWith('vgc')) {
 			this.formatType = 'doubles';
@@ -1143,10 +1144,9 @@ class BattlePokemonSearch extends BattleTypedSearch<'pokemon'> {
 		else if (format === 'uubl') tierSet = tierSet.slice(slices.UUBL);
 		else if (format === 'uu') tierSet = tierSet.slice(slices.UU);
 		else if (format === 'ru') tierSet = tierSet.slice(slices.RU || slices.UU);
-		else if (format === 'nu') tierSet = tierSet.slice(slices.NU || slices.RU || slices.UU);
-		else if (format === 'pu') tierSet = tierSet.slice(slices.PU || slices.NU);
-		else if (format === 'zu' && dex.gen === 5) tierSet = tierSet.slice(slices.PU || slices.NU);
-		else if (format === 'zu') tierSet = tierSet.slice(slices.ZU || slices.PU || slices.NU);
+		else if (format === 'nu') tierSet = tierSet.slice(slices.NU);
+		else if (format === 'pu') tierSet = tierSet.slice(slices.PU);
+		else if (format === 'zu') tierSet = tierSet.slice(slices.ZU);
 		else if (
 			format === 'lc' || format === 'lcuu' || format.startsWith('lc') || (format !== 'caplc' && format.endsWith('lc'))
 		) tierSet = tierSet.slice(slices.LC);
@@ -1235,18 +1235,6 @@ class BattlePokemonSearch extends BattleTypedSearch<'pokemon'> {
 					return true;
 				});
 			}
-		}
-		if (format === 'zu' && dex.gen === 5 && table.gen5zuBans) {
-			tierSet = tierSet.filter(([type, id]) => {
-				if (id in table.gen5zuBans) return false;
-				return true;
-			});
-		}
-		if (format === 'pu' && dex.gen === 4 && table.gen4puBans) {
-			tierSet = tierSet.filter(([type, id]) => {
-				if (id in table.gen4puBans) return false;
-				return true;
-			});
 		}
 
 		// Filter out Gmax Pokemon from standard tier selection
