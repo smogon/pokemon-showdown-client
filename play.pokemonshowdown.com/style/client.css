@@ -898,6 +898,14 @@ p.or:after {
 .button.mainmenu6:hover { background: linear-gradient(to bottom,  hsl(270,40%,62%),  hsl(270,40%,42%)); }
 .button.mainmenu6:active { background: linear-gradient(to bottom,  hsl(270,40%,42%),  hsl(300,40%,58%)); }
 
+.button.mainmenu7 { background: linear-gradient(to bottom,  hsl(320,40%,72%),  hsl(320,40%,52%)); border-color: hsl(320,40%,40%); }
+.button.mainmenu7:hover { background: linear-gradient(to bottom,  hsl(320,40%,62%),  hsl(320,40%,42%)); }
+.button.mainmenu7:active { background: linear-gradient(to bottom,  hsl(320,40%,42%),  hsl(320,40%,58%)); }
+
+.button.mainmenu8 { background: linear-gradient(90deg, hsl(5,40%,72%), hsl(30,40%,72%), hsl(60,40%,62%), hsl(130,40%,72%), hsl(210,40%,72%), hsl(270,40%,72%), hsl(320,40%,72%)); border-color: hsl(282,28%,43%); }
+.button.mainmenu8:hover { background: linear-gradient(90deg, hsl(5,40%,62%), hsl(30,40%,62%), hsl(60,40%,52%), hsl(130,40%,62%), hsl(210,40%,62%), hsl(270,40%,62%), hsl(320,40%,62%)); }
+.button.mainmenu8:active { background: linear-gradient(90deg, hsl(5,40%,42%), hsl(30,40%,42%), hsl(60,40%,32%), hsl(130,40%,42%), hsl(210,40%,42%), hsl(270,40%,42%), hsl(320,40%,42%)); }
+
 .rightmenu {
 	width: 294px;
 }
