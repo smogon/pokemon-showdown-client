@@ -327,7 +327,7 @@ export const PSBackground = new class extends PSStreamModel<string | null> {
 				for (let i = 0; i < MAINMENU_BUTTONS; i++) {
 					const color = colors[i];
 					const hs = PSBackground.getHueSat(color[0] / 255, color[1] / 255, color[2] / 255);
-					menuColors.unshift(hs);
+					menuColors.push(hs);
 				}
 			}
 			this.menuColors = menuColors;

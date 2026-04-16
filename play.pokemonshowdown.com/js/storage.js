@@ -161,7 +161,7 @@ Storage.bg = {
 					for (var i = 0; i < Storage.bg.MENU_BUTTONS; i++) {
 						var color = colors[i];
 						var hs = Storage.bg.getHueSat(color[0] / 255, color[1] / 255, color[2] / 255);
-						hues.unshift(hs);
+						hues.push(hs);
 					}
 				}
 				Storage.bg.loadHues(hues);
