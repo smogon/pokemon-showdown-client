@@ -724,7 +724,8 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
 						<a href={`//${Config.routes.replays}/`} target="_blank">Replays</a> | {}
 						<a href={`//${Config.routes.root}/rules`} target="_blank">Rules</a> | {}
 						<a href={`//${Config.routes.root}/credits`} target="_blank">Credits</a> | {}
-						<a href="//smogon.com/forums/" target="_blank">Forum</a>
+						<a href="//smogon.com/forums/" target="_blank">Forum</a> | {}
+						<a href={`//${Config.routes.root}/privacy`} target="_blank">Privacy Policy</a>
 					</small>
 				</div>
 			</div>
