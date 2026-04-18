@@ -265,7 +265,7 @@ export const PSBackground = new class extends PSStreamModel<string | null> {
 				"344.1891891891892,61.15702479338842%",
 			];
 			attrib = {
-				url: 'i can find their twitter and smogon page, but it seems they\'re retired. what should be here?',
+				url: '',
 				title: 'Pok&eacute;mon Showdown Day background',
 				artist: 'LifeisDANK',
 			};

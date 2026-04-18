@@ -1355,12 +1355,16 @@ class BackgroundListPanel extends PSRoomPanel {
 					Horizon
 				</button>
 				<button onClick={this.setBg} value="ocean" class={option('ocean')}>
-					<span class="bg" style="background-position: 0 -270px"></span>{}
+					<span class="bg" style="background-position: 0 -180px"></span>{}
 					Ocean
 				</button>
 				<button onClick={this.setBg} value="shaymin" class={option('shaymin')}>
-					<span class="bg" style="background-position: 0 -360px"></span>{}
+					<span class="bg" style="background-position: 0 -270px"></span>{}
 					Shaymin
+				</button>
+				<button onClick={this.setBg} value="psday" class={option('psday')}>
+					<span class="bg" style="background-position: 0 -360px"></span>{}
+					PS! Day
 				</button>
 				<button onClick={this.setBg} value="solidblue" class={option('solidblue')}>
 					<span class="bg" style="background: #344b6c"></span>{}
