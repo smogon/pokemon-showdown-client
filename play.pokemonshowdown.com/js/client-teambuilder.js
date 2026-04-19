@@ -2455,7 +2455,7 @@
 				for (var i in stats) {
 					if (set.ivs[i] === undefined || isNaN(set.ivs[i])) set.ivs[i] = 31;
 					var val = '' + (set.ivs[i]);
-					buf += '<div><input type="number" name="iv-' + i + '" value="' + BattleLog.escapeHTML(val) + '" class="textbox inputform numform" min="' + (usesStatPoints ? 31 : 0) + '" max="31" step="1" /></div>';
+					buf += '<div><input type="number" name="iv-' + i + '" value="' + BattleLog.escapeHTML(val) + '" class="textbox inputform numform" min="' + (usesStatPoints ? 31 : 0) + '" max="31" step="1"' + (usesStatPoints ? ' disabled' : '') + ' /></div>';
 				}
 				var hpType = '';
 				if (set.moves) {
@@ -2466,7 +2466,8 @@
 						}
 					}
 				}
-				if (hpType && !this.canHyperTrain(set)) {
+				if (usesStatPoints) {
+				} else if (hpType && !this.canHyperTrain(set)) {
 					var hpIVs;
 					switch (hpType) {
 					case 'dark':
@@ -2549,7 +2550,7 @@
 					buf += '</optgroup>';
 
 					buf += '</select></div>';
-				} else if (!usesStatPoints) {
+				} else {
 					buf += '<div style="margin-left:-80px;text-align:right"><select name="ivspread" class="button">';
 					buf += '<option value="" selected>IV spreads</option>';
 
