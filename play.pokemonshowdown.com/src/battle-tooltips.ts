@@ -1726,8 +1726,8 @@ export class BattleTooltips {
 				}
 			}
 
-			if (category !== 'Status' && !move.isZ && !move.id.startsWith('hiddenpower')) {
-				if (moveType === 'Normal') {
+			if (!move.isZ && !move.id.startsWith('hiddenpower')) {
+				if (category !== 'Status' && moveType === 'Normal') {
 					if (value.abilityModify(0, 'Aerilate')) moveType = 'Flying';
 					if (value.abilityModify(0, 'Dragonize')) moveType = 'Dragon';
 					if (value.abilityModify(0, 'Galvanize')) moveType = 'Electric';
