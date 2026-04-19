@@ -2467,6 +2467,7 @@
 					}
 				}
 				if (usesStatPoints) {
+					// do nothing
 				} else if (hpType && !this.canHyperTrain(set)) {
 					var hpIVs;
 					switch (hpType) {
