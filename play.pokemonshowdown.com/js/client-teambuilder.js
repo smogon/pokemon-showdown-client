@@ -2466,9 +2466,7 @@
 						}
 					}
 				}
-				if (usesStatPoints) {
-					// do nothing
-				} else if (hpType && !this.canHyperTrain(set)) {
+				if (hpType && !this.canHyperTrain(set)) {
 					var hpIVs;
 					switch (hpType) {
 					case 'dark':
@@ -2551,7 +2549,7 @@
 					buf += '</optgroup>';
 
 					buf += '</select></div>';
-				} else {
+				} else if (!usesStatPoints) {
 					buf += '<div style="margin-left:-80px;text-align:right"><select name="ivspread" class="button">';
 					buf += '<option value="" selected>IV spreads</option>';
 
