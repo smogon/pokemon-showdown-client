@@ -120,6 +120,7 @@ class PSPrefs extends PSStreamModel<string | null> {
 	ignoreopp: boolean | null = null;
 	autotimer: boolean | null = null;
 	autohardcore: boolean | null = null;
+	autoTeamSheet: boolean | null = null;
 	rightpanelbattles: boolean | null = null;
 	disallowspectators: boolean | null = null;
 	starredformats: { [formatid: string]: true | undefined } | null = null;
@@ -1421,7 +1422,7 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 			}
 		},
 		'hidedebug'() {
-			PS.prefs.set('showdebug', true);
+			PS.prefs.set('showdebug', false);
 			this.add('||Debug battle messages: OFF');
 			let onCSS = '.debug {display: none;}';
 			let style = document.querySelector('style[id=debugstyle]');
@@ -1476,7 +1477,7 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 				if (curMode === false) curMode = 'NEVER';
 				if (curMode) curMode = curMode.toUpperCase();
 				if (!curMode) curMode = 'DEFAULT (currently ' + (Dex.afdMode ? 'FULL' : 'OFF') + ')';
-				this.add('||AFD is currently set to ' + mode);
+				this.add('||AFD is currently set to ' + curMode);
 				this.send('/help afd');
 			}
 			for (let roomid in PS.rooms) {

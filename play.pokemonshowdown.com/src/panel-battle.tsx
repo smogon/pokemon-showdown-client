@@ -147,6 +147,7 @@ export class BattleRoom extends ChatRoom {
 	request: BattleRequest | null = null;
 	choices: BattleChoiceBuilder | null = null;
 	autoTimerActivated: boolean | null = null;
+	autoTeamSheetAccepted: boolean | null = null;
 
 	loadReplay() {
 		const replayid = this.id.slice(7);
@@ -416,6 +417,10 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 		if (PS.prefs.autotimer && !room.battle.kickingInactive && !room.autoTimerActivated) {
 			this.send('/timer on');
 			room.autoTimerActivated = true;
+		}
+		if (PS.prefs.autoTeamSheet && !room.autoTeamSheetAccepted) {
+			this.send('/acceptopenteamsheets');
+			room.autoTeamSheetAccepted = true;
 		}
 
 		BattleChoiceBuilder.fixRequest(request, room.battle);

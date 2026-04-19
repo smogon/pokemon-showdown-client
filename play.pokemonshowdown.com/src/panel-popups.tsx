@@ -1571,6 +1571,13 @@ class BattleOptionsPanel extends PSRoomPanel {
 			}
 			break;
 		}
+		case 'autoTeamSheet': {
+			PS.prefs.set('autoTeamSheet', value);
+			if (value) {
+				room?.send('/acceptopenteamsheets');
+			}
+			break;
+		}
 		case 'ignoreopp': {
 			PS.prefs.set('ignoreopp', value);
 			this.handleIgnoreOpponent(value);
@@ -1621,6 +1628,14 @@ class BattleOptionsPanel extends PSRoomPanel {
 				<p>
 					<label class="checkbox">
 						<input
+							checked={battleRoom.battle?.ignoreNicks}
+							type="checkbox" onChange={this.handleIgnoreNicks}
+						/> Ignore Pok&eacute;mon nicknames
+					</label>
+				</p>
+				<p>
+					<label class="checkbox">
+						<input
 							checked={battleRoom.battle.ignoreSpects}
 							type="checkbox" onChange={this.handleIgnoreSpectators}
 						/> Ignore spectators
@@ -1632,14 +1647,6 @@ class BattleOptionsPanel extends PSRoomPanel {
 							checked={battleRoom.battle.ignoreOpponent}
 							type="checkbox" onChange={this.handleIgnoreOpponent}
 						/> Ignore opponent
-					</label>
-				</p>
-				<p>
-					<label class="checkbox">
-						<input
-							checked={battleRoom.battle?.ignoreNicks}
-							type="checkbox" onChange={this.handleIgnoreNicks}
-						/> Ignore nicknames
 					</label>
 				</p>
 			</>}
@@ -1690,6 +1697,14 @@ class BattleOptionsPanel extends PSRoomPanel {
 						name="autohardcore" checked={PS.prefs.autohardcore || false}
 						type="checkbox" onChange={this.handleAllSettings}
 					/> Automatically enable hardcore mode
+				</label>
+			</p>
+			<p>
+				<label class="checkbox">
+					<input
+						name="autoTeamSheet" checked={PS.prefs.autoTeamSheet || false}
+						type="checkbox" onChange={this.handleAllSettings}
+					/> Automatically accept Open Team Sheets
 				</label>
 			</p>
 			{!PS.prefs.onepanel && document.body.offsetWidth >= 800 && <p>
@@ -1821,9 +1836,9 @@ class BattleTimerPanel extends PSRoomPanel {
 		const room = this.props.room.getParent() as BattleRoom;
 		return <PSPanelWrapper room={this.props.room}><div class="pad">
 			{room.battle.kickingInactive ? (
-				<button class="button" data-cmd="/closeand /inopener /timer stop">Stop Timer</button>
+				<button class="button" data-cmd="/closeand /inopener /timer off">Stop Timer</button>
 			) : (
-				<button class="button" data-cmd="/closeand /inopener /timer start">Start Timer</button>
+				<button class="button" data-cmd="/closeand /inopener /timer on">Start Timer</button>
 			)}
 		</div>
 		</PSPanelWrapper>;
