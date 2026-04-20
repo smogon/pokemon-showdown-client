@@ -1621,43 +1621,62 @@
 			this.battle = data.battle;
 			this.room = data.room;
 			var rightPanelBattlesPossible = (MainMenuRoom.prototype.bestWidth + BattleRoom.prototype.minWidth < $(window).width());
+			var isPlayer = !!(this.battle && this.battle.myPokemon);
+			var canOfferTie = this.room && (
+				(this.battle.turn >= 100 && isPlayer) || (app.user.group === '~')
+			);
 			var buf = '<p><strong>In this battle</strong></p>';
-			buf += '<p><label class="checkbox"><input type="checkbox" name="hardcoremode"' + (this.battle.hardcoreMode ? ' checked' : '') + '/> Hardcore mode (hide info not shown in-game)</label></p>';
 			buf += '<p><label class="checkbox"><input type="checkbox" name="ignorenicks"' + (this.battle.ignoreNicks ? ' checked' : '') + ' /> Ignore Pok&eacute;mon nicknames</label></p>';
-			buf += '<p><label class="checkbox"><input type="checkbox" name="ignorespects"' + (this.battle.ignoreSpects ? ' checked' : '') + '/> Ignore spectators</label></p>';
-			buf += '<p><label class="checkbox"><input type="checkbox" name="ignoreopp"' + (this.battle.ignoreOpponent ? ' checked' : '') + '/> Ignore opponent</label></p>';
+			buf += '<p><label class="checkbox"><input type="checkbox" name="ignorespects"' + (this.battle.ignoreSpects ? ' checked' : '') + ' /> Ignore spectators</label></p>';
+			buf += '<p><label class="checkbox"><input type="checkbox" name="ignoreopp"' + (this.battle.ignoreOpponent ? ' checked' : '') + ' /> Ignore opponent</label></p>';
+			buf += '<p><label class="checkbox"><input type="checkbox" name="hardcoremode"' + (this.battle.hardcoreMode ? ' checked' : '') + ' /> Hardcore mode (hide info not shown in-game)</label></p>';
 			buf += '<p><strong>All battles</strong></p>';
 			buf += '<p><label class="checkbox"><input type="checkbox" name="disallowspectators"' + (Dex.prefs('disallowspectators') ? ' checked' : '') + ' /> <abbr title="You can still invite spectators by giving them the URL or using the /invite command">Invite only (hide from Battles list)</abbr></label></p>';
+			buf += '<p><label class="checkbox"><input type="checkbox" name="autotimer"' + (Dex.prefs('autotimer') ? ' checked' : '') + ' /> Automatically start timer</label></p>';
 			buf += '<p><label class="checkbox"><input type="checkbox" name="allignorenicks"' + (Dex.prefs('ignorenicks') ? ' checked' : '') + ' /> Ignore Pok&eacute;mon nicknames</label></p>';
-			buf += '<p><label class="checkbox"><input type="checkbox" name="allignorespects"' + (Dex.prefs('ignorespects') ? ' checked' : '') + '/> Ignore spectators</label></p>';
-			buf += '<p><label class="checkbox"><input type="checkbox" name="allignoreopp"' + (Dex.prefs('ignoreopp') ? ' checked' : '') + '/> Ignore opponent</label></p>';
-			buf += '<p><label class="checkbox"><input type="checkbox" name="autotimer"' + (Dex.prefs('autotimer') ? ' checked' : '') + '/> Automatically start timer</label></p>';
-			buf += '<p><label class="checkbox"><input type="checkbox" name="autohardcore"' + (Dex.prefs('autohardcore') ? ' checked' : '') + '/> Automatically enable hardcore mode</label></p>';
-			buf += '<p><label class="checkbox"><input type="checkbox" name="autoTeamSheet"' + (Dex.prefs('autoTeamSheet') ? ' checked' : '') + '/> Automatically accept Open Team Sheets</label></p>';
+			buf += '<p><label class="checkbox"><input type="checkbox" name="allignorespects"' + (Dex.prefs('ignorespects') ? ' checked' : '') + ' /> Ignore spectators</label></p>';
+			buf += '<p><label class="checkbox"><input type="checkbox" name="allignoreopp"' + (Dex.prefs('ignoreopp') ? ' checked' : '') + ' /> Ignore opponent</label></p>';
+			buf += '<p><label class="checkbox"><input type="checkbox" name="autohardcore"' + (Dex.prefs('hardcoremode') ? ' checked' : '') + ' /> Automatically enable hardcore mode</label></p>';
+			buf += '<p><label class="checkbox"><input type="checkbox" name="autoTeamSheet"' + (Dex.prefs('autoTeamSheet') ? ' checked' : '') + ' /> Automatically accept Open Team Sheets</label></p>';
 			if (rightPanelBattlesPossible) buf += '<p><label class="checkbox"><input type="checkbox" name="rightpanelbattles"' + (Dex.prefs('rightpanelbattles') ? ' checked' : '') + ' /> Open new battles in the right-side panel</label></p>';
-			buf += '<p><button name="close" class="button">Done</button></p>';
+			if (this.room && this.room.battle) {
+				buf += '<p class="buttonbar">';
+				buf += '<strong>Battle visibility:</strong> ';
+				buf += '<button name="publicroom" class="button"' + '>Show</button> ';
+				buf += '<button name="hiddenroom" class="button"' + '>Hide</button>';
+				buf += '</p>';
+			}
+			buf += '<p class="buttonbar">';
+			buf += '<button name="close" class="button">Done</button> ';
+			if (this.room && this.room.battle) buf += '<button name="offertie" class="button"' + (canOfferTie ? '' : ' disabled') + '>Offer Tie</button>';
+			buf += '</p>';
 			this.$el.html(buf);
 		},
 		events: {
-			'change input[name=hardcoremode]': 'toggleHardcoreMode',
 			'change input[name=ignorenicks]': 'toggleIgnoreNicks',
 			'change input[name=ignorespects]': 'toggleIgnoreSpects',
 			'change input[name=ignoreopp]': 'toggleIgnoreOpponent',
+			'change input[name=hardcoremode]': 'toggleHardcoreMode',
+			'change input[name=autotimer]': 'toggleAutoTimer',
 			'change input[name=allignorenicks]': 'toggleAllIgnoreNicks',
 			'change input[name=allignorespects]': 'toggleAllIgnoreSpects',
 			'change input[name=allignoreopp]': 'toggleAllIgnoreOpponent',
-			'change input[name=autotimer]': 'toggleAutoTimer',
 			'change input[name=autohardcore]': 'toggleAutoHardcore',
 			'change input[name=autoTeamSheet]': 'toggleAutoTeamSheet',
-			'change input[name=rightpanelbattles]': 'toggleRightPanelBattles'
+			'change input[name=rightpanelbattles]': 'toggleRightPanelBattles',
+			'click button[name=publicroom]': 'makePublic',
+			'click button[name=hiddenroom]': 'makeHidden',
+			'click button[name=offertie]': 'offerTie'
 		},
-		toggleHardcoreMode: function (e) {
-			this.room.setHardcoreMode(!!e.currentTarget.checked);
-			if (this.battle.hardcoreMode) {
-				this.battle.add('Hardcore mode ON: Information not available in-game is now hidden.');
-			} else {
-				this.battle.add('Hardcore mode OFF: Information not available in-game is now shown.');
-			}
+		toggleIgnoreNicks: function (e) {
+			this.battle.ignoreNicks = !!e.currentTarget.checked;
+			this.battle.add('Nicknames ' + (this.battle.ignoreNicks ? '' : 'no longer ') + 'ignored.');
+			this.battle.resetToCurrentTurn();
+		},
+		toggleAllIgnoreNicks: function (e) {
+			var ignoreNicks = !!e.currentTarget.checked;
+			Storage.prefs('ignorenicks', ignoreNicks);
+			if (ignoreNicks && !this.battle.ignoreNicks) this.$el.find('input[name=ignorenicks]').click();
 		},
 		toggleIgnoreSpects: function (e) {
 			this.battle.ignoreSpects = !!e.currentTarget.checked;
@@ -1675,16 +1694,6 @@
 			Storage.prefs('ignorespects', ignoreSpects);
 			if (ignoreSpects && !this.battle.ignoreSpects) this.$el.find('input[name=ignorespects]').click();
 		},
-		toggleIgnoreNicks: function (e) {
-			this.battle.ignoreNicks = !!e.currentTarget.checked;
-			this.battle.add('Nicknames ' + (this.battle.ignoreNicks ? '' : 'no longer ') + 'ignored.');
-			this.battle.resetToCurrentTurn();
-		},
-		toggleAllIgnoreNicks: function (e) {
-			var ignoreNicks = !!e.currentTarget.checked;
-			Storage.prefs('ignorenicks', ignoreNicks);
-			if (ignoreNicks && !this.battle.ignoreNicks) this.$el.find('input[name=ignorenicks]').click();
-		},
 		toggleIgnoreOpponent: function (e) {
 			this.battle.ignoreOpponent = !!e.currentTarget.checked;
 			this.battle.add('Opponent ' + (this.battle.ignoreOpponent ? '' : 'no longer ') + 'ignored.');
@@ -1695,20 +1704,25 @@
 			Storage.prefs('ignoreopp', ignoreOpponent);
 			if (ignoreOpponent && !this.battle.ignoreOpponent) this.$el.find('input[name=ignoreopp]').click();
 		},
+		toggleHardcoreMode: function (e) {
+			this.room.setHardcoreMode(!!e.currentTarget.checked);
+			if (this.battle.hardcoreMode) {
+				this.battle.add('Hardcore mode ON: Information not available in-game is now hidden.');
+			} else {
+				this.battle.add('Hardcore mode OFF: Information not available in-game is now shown.');
+			}
+		},
+		toggleAutoHardcore: function (e) {
+			var hardcoreMode = !!e.currentTarget.checked;
+			Storage.prefs('hardcoremode', hardcoreMode);
+			if (hardcoreMode && !this.battle.hardcoreMode) this.$el.find('input[name=hardcoremode]').click();
+		},
 		toggleAutoTimer: function (e) {
 			var autoTimer = !!e.currentTarget.checked;
 			Storage.prefs('autotimer', autoTimer);
 			if (autoTimer) {
 				this.room.setTimer('on');
 				this.room.autoTimerActivated = true;
-			}
-		},
-		toggleAutoHardcore: function (e) {
-			var autoHardcore = !!e.currentTarget.checked;
-			Storage.prefs('autohardcore', autoHardcore);
-			if (autoHardcore && !this.battle.hardcoreMode) {
-				this.room.setHardcoreMode(true);
-				this.room.autoHardcoreActivated = true;
 			}
 		},
 		toggleAutoTeamSheet: function (e) {
@@ -1721,6 +1735,15 @@
 		},
 		toggleRightPanelBattles: function (e) {
 			Storage.prefs('rightpanelbattles', !!e.currentTarget.checked);
+		},
+		makePublic: function () {
+			this.room.send('/publicroom');
+		},
+		makeHidden: function () {
+			this.room.send('/hiddenroom');
+		},
+		offerTie: function () {
+			this.room.send('/offertie');
 		}
 	});
 

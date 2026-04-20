@@ -1620,14 +1620,6 @@ class BattleOptionsPanel extends PSRoomPanel {
 				<p>
 					<label class="checkbox">
 						<input
-							checked={battleRoom.battle.hardcoreMode}
-							type="checkbox" onChange={this.handleHardcoreMode}
-						/> Hardcore mode (hide info not shown in-game)
-					</label>
-				</p>
-				<p>
-					<label class="checkbox">
-						<input
 							checked={battleRoom.battle?.ignoreNicks}
 							type="checkbox" onChange={this.handleIgnoreNicks}
 						/> Ignore Pok&eacute;mon nicknames
@@ -1649,6 +1641,14 @@ class BattleOptionsPanel extends PSRoomPanel {
 						/> Ignore opponent
 					</label>
 				</p>
+				<p>
+					<label class="checkbox">
+						<input
+							checked={battleRoom.battle.hardcoreMode}
+							type="checkbox" onChange={this.handleHardcoreMode}
+						/> Hardcore mode (hide info not shown in-game)
+					</label>
+				</p>
 			</>}
 			<p><strong>All battles</strong></p>
 			<p>
@@ -1657,6 +1657,14 @@ class BattleOptionsPanel extends PSRoomPanel {
 						name="disallowspectators" checked={PS.prefs.disallowspectators || false}
 						type="checkbox" onChange={this.handleAllSettings}
 					/> <abbr title="You can still invite spectators by giving them the URL or using the /invite command">Invite only (hide from Battles list)</abbr>
+				</label>
+			</p>
+			<p>
+				<label class="checkbox">
+					<input
+						name="autotimer" checked={PS.prefs.autotimer || false}
+						type="checkbox" onChange={this.handleAllSettings}
+					/> Automatically start timer
 				</label>
 			</p>
 			<p>
@@ -1686,14 +1694,6 @@ class BattleOptionsPanel extends PSRoomPanel {
 			<p>
 				<label class="checkbox">
 					<input
-						name="autotimer" checked={PS.prefs.autotimer || false}
-						type="checkbox" onChange={this.handleAllSettings}
-					/> Automatically start timer
-				</label>
-			</p>
-			<p>
-				<label class="checkbox">
-					<input
 						name="autohardcore" checked={PS.prefs.autohardcore || false}
 						type="checkbox" onChange={this.handleAllSettings}
 					/> Automatically enable hardcore mode
@@ -1715,14 +1715,14 @@ class BattleOptionsPanel extends PSRoomPanel {
 					/> Open new battles in the right-side panel
 				</label>
 			</p>}
-			{battleRoom && <p class="buttonbar" style="align-items: center; gap: 0.5em;">
-				<span>Battle visibility:</span>
-				<button data-cmd="/closeand /inopener /publicroom" class="button">Show</button> {}
-				<button data-cmd="/closeand /inopener /hiddenroom on" class="button">Hide</button>
+			{battleRoom && <p class="buttonbar">
+				<span><strong>Battle visibility:</strong></span>
+				<button data-cmd="/inopener /publicroom" class="button">Show</button>
+				<button data-cmd="/inopener /hiddenroom" class="button">Hide</button>
 			</p>}
 			<p class="buttonbar">
 				<button data-cmd="/close" class="button">Done</button> {}
-				{battleRoom && <button data-cmd="/closeand /inopener /offertie" class="button" disabled={!canOfferTie}>
+				{battleRoom && <button data-cmd="/inopener /offertie" class="button" disabled={!canOfferTie}>
 					Offer Tie
 				</button>}
 			</p>
