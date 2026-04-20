@@ -1743,6 +1743,7 @@
 			this.room.send('/hiddenroom');
 		},
 		offerTie: function () {
+			this.close();
 			this.room.send('/offertie');
 		}
 	});

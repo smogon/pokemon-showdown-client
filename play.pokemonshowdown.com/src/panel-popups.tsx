@@ -1722,7 +1722,7 @@ class BattleOptionsPanel extends PSRoomPanel {
 			</p>}
 			<p class="buttonbar">
 				<button data-cmd="/close" class="button">Done</button> {}
-				{battleRoom && <button data-cmd="/inopener /offertie" class="button" disabled={!canOfferTie}>
+				{battleRoom && <button data-cmd="/closeand /inopener /offertie" class="button" disabled={!canOfferTie}>
 					Offer Tie
 				</button>}
 			</p>
