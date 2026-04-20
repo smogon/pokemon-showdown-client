@@ -1700,6 +1700,11 @@ class BattleOptionsPanel extends PSRoomPanel {
 					/> Open new battles in the right-side panel
 				</label>
 			</p>}
+			{battleRoom && <p class="buttonbar" style="align-items: center; gap: 0.5em;">
+				<span>Battle visibility:</span>
+				<button data-cmd="/closeand /inopener /publicroom" class="button">Show</button> {}
+				<button data-cmd="/closeand /inopener /hiddenroom on" class="button">Hide</button>
+			</p>}
 			<p class="buttonbar">
 				<button data-cmd="/close" class="button">Done</button> {}
 				{battleRoom && <button data-cmd="/closeand /inopener /offertie" class="button" disabled={!canOfferTie}>
