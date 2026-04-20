@@ -1634,7 +1634,7 @@
 			buf += '<p><label class="checkbox"><input type="checkbox" name="autotimer"' + (Dex.prefs('autotimer') ? ' checked' : '') + '/> Automatically start timer</label></p>';
 			buf += '<p><label class="checkbox"><input type="checkbox" name="autohardcore"' + (Dex.prefs('autohardcore') ? ' checked' : '') + '/> Automatically enable hardcore mode</label></p>';
 			buf += '<p><label class="checkbox"><input type="checkbox" name="autoTeamSheet"' + (Dex.prefs('autoTeamSheet') ? ' checked' : '') + '/> Automatically accept Open Team Sheets</label></p>';
-			if (rightPanelBattlesPossible) buf += '<p><label class="checkbox"><input type="checkbox" name="rightpanelbattles"' + (Dex.prefs('rightpanelbattles') ? ' checked' : '') + ' /> Open new battles on the right side</label></p>';
+			if (rightPanelBattlesPossible) buf += '<p><label class="checkbox"><input type="checkbox" name="rightpanelbattles"' + (Dex.prefs('rightpanelbattles') ? ' checked' : '') + ' /> Open new battles in the right-side panel</label></p>';
 			buf += '<p><button name="close" class="button">Done</button></p>';
 			this.$el.html(buf);
 		},
