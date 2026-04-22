@@ -734,11 +734,6 @@ export class ChatRoom extends PSRoom {
 	}
 
 	handleJoinLeave(action: 'join' | 'leave', name: string, silent: boolean) {
-		if (action === 'join') {
-			this.addUser(name);
-		} else if (action === 'leave') {
-			this.removeUser(name);
-		}
 		const showjoins = PS.prefs.showjoins?.[PS.server.id];
 		if (!(showjoins?.[this.id] ?? showjoins?.['global'] ?? !silent)) return;
 
