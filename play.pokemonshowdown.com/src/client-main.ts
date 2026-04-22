@@ -1832,6 +1832,7 @@ export const PS = new class extends PSModel {
 		"groupchat-*": "*right",
 		"users": "*popup",
 		"useroptions-*": "*popup",
+		"usermodoptions-*": "*popup",
 		"userlist": "*semimodal-popup",
 		"avatars": "*semimodal-popup",
 		"changepassword": "*semimodal-popup",
