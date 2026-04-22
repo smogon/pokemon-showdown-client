@@ -495,7 +495,8 @@ class NewsPanel extends PSRoomPanel {
 	};
 	override render() {
 		const cookieSet = document.cookie.includes('preactalpha=1');
-		return <PSPanelWrapper room={this.props.room} fullSize scrollable>
+		const tinyLayout = PS.mainmenu.width < 620;
+		return <PSPanelWrapper room={this.props.room} fullSize={tinyLayout} scrollable={!tinyLayout}>
 			<div class="construction">
 				This is the client rewrite beta test.
 				<form>
