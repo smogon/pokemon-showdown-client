@@ -1637,7 +1637,7 @@
 			buf += '<p><label class="checkbox"><input type="checkbox" name="ignoreopp"' + (this.battle.ignoreOpponent ? ' checked' : '') + ' /> Ignore opponent</label></p>';
 			buf += '<p><label class="checkbox"><input type="checkbox" name="hardcoremode"' + (this.battle.hardcoreMode ? ' checked' : '') + ' /> Hardcore mode (hide info not shown in-game)</label></p>';
 			buf += '<p><strong>All battles</strong></p>';
-			buf += '<p><label class="checkbox"><input type="checkbox" name="disallowspectators"' + (Dex.prefs('disallowspectators') ? ' checked' : '') + ' /> <abbr title="You can still invite spectators by giving them the URL or using the /invite command">Invite only (hide from Battles list)</abbr></label></p>';
+			buf += '<p><label class="checkbox"><input type="checkbox" name="disallowspectators"' + (Storage.prefs('disallowspectators') ? ' checked' : '') + ' /> <abbr title="You can still invite spectators by giving them the URL or using the /invite command">Invite only (hide from Battles list)</abbr></label></p>';
 			buf += '<p><label class="checkbox"><input type="checkbox" name="autotimer"' + (Dex.prefs('autotimer') ? ' checked' : '') + ' /> Automatically start timer</label></p>';
 			buf += '<p><label class="checkbox"><input type="checkbox" name="allignorenicks"' + (Dex.prefs('ignorenicks') ? ' checked' : '') + ' /> Ignore Pok&eacute;mon nicknames</label></p>';
 			buf += '<p><label class="checkbox"><input type="checkbox" name="allignorespects"' + (Dex.prefs('ignorespects') ? ' checked' : '') + ' /> Ignore spectators</label></p>';
@@ -1657,6 +1657,7 @@
 			'change input[name=ignorespects]': 'toggleIgnoreSpects',
 			'change input[name=ignoreopp]': 'toggleIgnoreOpponent',
 			'change input[name=hardcoremode]': 'toggleHardcoreMode',
+			'change input[name=disallowspectators]': 'toggleDisallowSpectators',
 			'change input[name=autotimer]': 'toggleAutoTimer',
 			'change input[name=allignorenicks]': 'toggleAllIgnoreNicks',
 			'change input[name=allignorespects]': 'toggleAllIgnoreSpects',
@@ -1718,6 +1719,9 @@
 			var hardcoreMode = !!e.currentTarget.checked;
 			Storage.prefs('hardcoremode', hardcoreMode);
 			if (hardcoreMode && !this.battle.hardcoreMode) this.$el.find('input[name=hardcoremode]').click();
+		},
+		toggleDisallowSpectators: function (e) {
+			Storage.prefs('disallowspectators', !!e.currentTarget.checked);
 		},
 		toggleAutoTimer: function (e) {
 			var autoTimer = !!e.currentTarget.checked;

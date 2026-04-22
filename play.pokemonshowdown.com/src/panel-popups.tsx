@@ -1599,7 +1599,6 @@ class BattleOptionsPanel extends PSRoomPanel {
 		}
 		case 'disallowspectators': {
 			PS.prefs.set('disallowspectators', value);
-			PS.mainmenu.disallowSpectators = value;
 			break;
 		}
 		}
