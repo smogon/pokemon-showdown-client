@@ -1125,6 +1125,7 @@
 			this.choice = choiceText ? { waiting: true } : null;
 			this.finalDecision = this.finalDecisionMove = this.finalDecisionSwitch = false;
 			this.request = request;
+			this.battle.updateWithRequest(request);
 			if (request.side) {
 				this.updateSideLocation(request.side);
 			}
