@@ -140,6 +140,8 @@ export class BattleRoom extends ChatRoom {
 	declare challengeMenuOpen: false;
 	declare challengingFormat: null;
 	declare challengedFormat: null;
+	isHiddenBattle = false;
+	hideBattleToggled = false;
 
 	override battle: Battle = null!;
 	/** null if spectator, otherwise current player's info */
@@ -148,6 +150,15 @@ export class BattleRoom extends ChatRoom {
 	choices: BattleChoiceBuilder | null = null;
 	autoTimerActivated: boolean | null = null;
 	autoTeamSheetAccepted: boolean | null = null;
+
+	static checkHiddenBattle(id: RoomID) {
+		return /^battle-[a-z0-9]+-\d+-[^-]+$/.test(id);
+	}
+	constructor(options: RoomOptions) {
+		super(options);
+		this.isHiddenBattle = BattleRoom.checkHiddenBattle(this.id);
+		this.hideBattleToggled = this.isHiddenBattle;
+	}
 
 	loadReplay() {
 		const replayid = this.id.slice(7);

@@ -1608,6 +1608,15 @@ class BattleOptionsPanel extends PSRoomPanel {
 		const battleRoom = this.props.room.getParent() as BattleRoom | null;
 		return battleRoom?.battle ? battleRoom : null;
 	}
+	handleBattleVisibility = (ev: Event) => {
+		const room = this.getBattleRoom();
+		if (!room) return this.close();
+
+		const hidden = (ev.currentTarget as HTMLInputElement).checked;
+		room.hideBattleToggled = hidden;
+		room.update(null);
+		room.send(hidden ? '/hiddenroom' : '/publicroom');
+	};
 
 	override render() {
 		const room = this.props.room;
@@ -1617,6 +1626,15 @@ class BattleOptionsPanel extends PSRoomPanel {
 		return <PSPanelWrapper room={room} width={380}><div class="pad">
 			{battleRoom && <>
 				<p><strong>In this battle</strong></p>
+				<p>
+					<label class="checkbox">
+						<input
+							type="checkbox"
+							checked={battleRoom.hideBattleToggled}
+							onChange={this.handleBattleVisibility}
+						/> Hide current battle
+					</label>
+				</p>
 				<p>
 					<label class="checkbox">
 						<input
@@ -1714,11 +1732,6 @@ class BattleOptionsPanel extends PSRoomPanel {
 						type="checkbox" onChange={this.handleAllSettings}
 					/> Open new battles in the right-side panel
 				</label>
-			</p>}
-			{battleRoom && <p class="buttonbar">
-				<span><strong>Battle visibility:</strong></span>
-				<button data-cmd="/inopener /publicroom" class="button">Show</button>
-				<button data-cmd="/inopener /hiddenroom" class="button">Hide</button>
 			</p>}
 			<p class="buttonbar">
 				<button data-cmd="/close" class="button">Done</button> {}

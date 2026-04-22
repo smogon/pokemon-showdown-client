@@ -16,7 +16,7 @@ import { ChatRoom } from './panel-chat';
 import type { MainMenuRoom } from './panel-mainmenu';
 import { Dex, toID, type ID } from './battle-dex';
 import { BattleTextParser, type Args } from './battle-text-parser';
-import type { BattleRoom } from './panel-battle';
+import { BattleRoom } from './panel-battle';
 import { Teams } from './battle-teams';
 import type preact from '../js/lib/preact';
 
@@ -2561,6 +2561,10 @@ export const PS = new class extends PSModel {
 
 		const oldid = room.id;
 		room.id = id;
+		if (room.classType === 'battle') {
+			(room as BattleRoom).isHiddenBattle = BattleRoom.checkHiddenBattle(id);
+			if ((room as BattleRoom).battle) (room as BattleRoom).battle.roomid = id;
+		}
 		this.rooms[id] = room;
 		delete this.rooms[oldid];
 

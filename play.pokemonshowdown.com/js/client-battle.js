@@ -15,6 +15,8 @@
 			this.autoTimerActivated = false;
 			this.autoHardcoreActivated = false;
 			this.autoTeamSheetAccepted = false;
+			this.isHiddenBattle = BattleRoom.checkHiddenBattle(this.id);
+			this.hideBattleToggled = this.isHiddenBattle;
 
 			this.isSideRoom = Dex.prefs('rightpanelbattles');
 
@@ -1524,6 +1526,9 @@
 			this.$controls.find('.controls').attr('class', 'controls move-controls');
 		}
 	}, {
+		checkHiddenBattle: function (id) {
+			return /^battle-[a-z0-9]+-\d+-[^-]+$/.test(id);
+		},
 		readReplayFile: function (file) {
 			var reader = new FileReader();
 			reader.onload = function (e) {
@@ -1623,9 +1628,10 @@
 			var rightPanelBattlesPossible = (MainMenuRoom.prototype.bestWidth + BattleRoom.prototype.minWidth < $(window).width());
 			var isPlayer = !!(this.battle && this.battle.myPokemon);
 			var canOfferTie = this.room && (
-				(this.battle.turn >= 100 && isPlayer) || (app.user.group === '~')
+				(this.battle.turn >= 100 && isPlayer) || (app.user.get('group') === '~')
 			);
 			var buf = '<p><strong>In this battle</strong></p>';
+			buf += '<p><label class="checkbox"><input type="checkbox" name="hidecurrentbattle"' + (this.room.hideBattleToggled ? ' checked' : '') + ' /> Hide current battle</label></p>';
 			buf += '<p><label class="checkbox"><input type="checkbox" name="ignorenicks"' + (this.battle.ignoreNicks ? ' checked' : '') + ' /> Ignore Pok&eacute;mon nicknames</label></p>';
 			buf += '<p><label class="checkbox"><input type="checkbox" name="ignorespects"' + (this.battle.ignoreSpects ? ' checked' : '') + ' /> Ignore spectators</label></p>';
 			buf += '<p><label class="checkbox"><input type="checkbox" name="ignoreopp"' + (this.battle.ignoreOpponent ? ' checked' : '') + ' /> Ignore opponent</label></p>';
@@ -1639,13 +1645,6 @@
 			buf += '<p><label class="checkbox"><input type="checkbox" name="autohardcore"' + (Dex.prefs('hardcoremode') ? ' checked' : '') + ' /> Automatically enable hardcore mode</label></p>';
 			buf += '<p><label class="checkbox"><input type="checkbox" name="autoTeamSheet"' + (Dex.prefs('autoTeamSheet') ? ' checked' : '') + ' /> Automatically accept Open Team Sheets</label></p>';
 			if (rightPanelBattlesPossible) buf += '<p><label class="checkbox"><input type="checkbox" name="rightpanelbattles"' + (Dex.prefs('rightpanelbattles') ? ' checked' : '') + ' /> Open new battles in the right-side panel</label></p>';
-			if (this.room && this.room.battle) {
-				buf += '<p class="buttonbar">';
-				buf += '<strong>Battle visibility:</strong> ';
-				buf += '<button name="publicroom" class="button"' + '>Show</button> ';
-				buf += '<button name="hiddenroom" class="button"' + '>Hide</button>';
-				buf += '</p>';
-			}
 			buf += '<p class="buttonbar">';
 			buf += '<button name="close" class="button">Done</button> ';
 			if (this.room && this.room.battle) buf += '<button name="offertie" class="button"' + (canOfferTie ? '' : ' disabled') + '>Offer Tie</button>';
@@ -1653,6 +1652,7 @@
 			this.$el.html(buf);
 		},
 		events: {
+			'change input[name=hidecurrentbattle]': 'toggleBattleVisibility',
 			'change input[name=ignorenicks]': 'toggleIgnoreNicks',
 			'change input[name=ignorespects]': 'toggleIgnoreSpects',
 			'change input[name=ignoreopp]': 'toggleIgnoreOpponent',
@@ -1664,9 +1664,11 @@
 			'change input[name=autohardcore]': 'toggleAutoHardcore',
 			'change input[name=autoTeamSheet]': 'toggleAutoTeamSheet',
 			'change input[name=rightpanelbattles]': 'toggleRightPanelBattles',
-			'click button[name=publicroom]': 'makePublic',
-			'click button[name=hiddenroom]': 'makeHidden',
 			'click button[name=offertie]': 'offerTie'
+		},
+		toggleBattleVisibility: function (e) {
+			this.room.hideBattleToggled = !!e.currentTarget.checked;
+			this.room.send(e.currentTarget.checked ? '/hiddenroom' : '/publicroom');
 		},
 		toggleIgnoreNicks: function (e) {
 			this.battle.ignoreNicks = !!e.currentTarget.checked;
@@ -1735,12 +1737,6 @@
 		},
 		toggleRightPanelBattles: function (e) {
 			Storage.prefs('rightpanelbattles', !!e.currentTarget.checked);
-		},
-		makePublic: function () {
-			this.room.send('/publicroom');
-		},
-		makeHidden: function () {
-			this.room.send('/hiddenroom');
 		},
 		offerTie: function () {
 			this.close();

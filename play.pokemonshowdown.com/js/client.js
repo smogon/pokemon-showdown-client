@@ -1189,6 +1189,7 @@ function toId() {
 				this.user.set({
 					name: parsed.name,
 					userid: userid,
+					group: parsed.group,
 					named: named,
 					avatar: parts[3],
 					settings: settings,
@@ -1973,6 +1974,9 @@ function toId() {
 			}
 			room.id = newid;
 			if (room.battle) room.battle.roomid = newid;
+			if (room.type === 'battle') {
+				room.isHiddenBattle = BattleRoom.checkHiddenBattle(newid);
+			}
 			room.title = newtitle;
 			room.$el[0].id = 'room-' + newid;
 			this.rooms[newid] = room;
