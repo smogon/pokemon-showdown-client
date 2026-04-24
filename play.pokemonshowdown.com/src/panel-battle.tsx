@@ -848,7 +848,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 				if (choice.tera) buf.push(`Terastallize (`, <strong>{active?.canTerastallize || '???'}</strong>, `) and `);
 				if (choice.max && active?.canDynamax) buf.push(active?.gigantamax ? `Gigantamax and ` : `Dynamax and `);
 				buf.push(`use `, <strong>{choices.currentMove(choice, i)?.name}</strong>);
-				if (choice.targetLoc > 0 || battle.gameType === 'freeforall') {
+				if (choice.targetLoc > 0) {
 					const target = battle.farSide.active[choice.targetLoc - 1];
 					if (!target) {
 						buf.push(` at slot ${choice.targetLoc}`);
@@ -857,10 +857,11 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 					}
 				} else if (choice.targetLoc < 0) {
 					const target = battle.nearSide.active[-choice.targetLoc - 1];
+					const ally = battle.gameType !== 'freeforall' ? 'ally' : '';
 					if (!target) {
-						buf.push(` at ally slot ${choice.targetLoc}`);
+						buf.push(` at ${ally} slot ${choice.targetLoc}`);
 					} else {
-						buf.push(` at ally ${target.name}`);
+						buf.push(` at ${ally} ${target.name}`);
 					}
 				}
 			} else if (choice.choiceType === 'switch') {
