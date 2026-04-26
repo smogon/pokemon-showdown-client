@@ -610,6 +610,7 @@ class PSUser extends PSStreamModel<PSLoginState | null> {
 	userid = "" as ID;
 	named = false;
 	away = false;
+	status = '';
 	registered: { name: string, userid: ID } | null = null;
 	avatar = "lucas";
 	challstr = '';
@@ -619,13 +620,14 @@ class PSUser extends PSStreamModel<PSLoginState | null> {
 	nameRegExp: RegExp | null = null;
 	setName(fullName: string, named: boolean, avatar: string) {
 		const loggingIn = (!this.named && named);
-		const { name, group } = BattleTextParser.parseNameParts(fullName);
-		this.name = name;
-		this.group = group;
-		this.userid = toID(name);
+		const parsed = BattleTextParser.parseNameParts(fullName);
+		this.name = parsed.name;
+		this.group = parsed.group;
+		this.userid = toID(parsed.name);
 		this.named = named;
 		this.avatar = avatar;
-		this.away = fullName.endsWith('@!');
+		this.away = ('away' in parsed) ? (parsed as any).away : fullName.endsWith('@!');
+		this.status = ('status' in parsed) ? (parsed as any).status : '';
 		this.update(null);
 		if (loggingIn) {
 			for (const roomid in PS.rooms) {
