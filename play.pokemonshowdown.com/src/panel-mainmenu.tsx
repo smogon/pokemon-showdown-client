@@ -472,7 +472,6 @@ export class MainMenuRoom extends PSRoom {
 			}
 			break;
 		}
-    console.log("SEARCH LISTENERS: " + this.listeners['cmdsearch'])
 		for (const callback of this.listeners[fullid] || []) callback(response);
 		delete this.listeners[fullid];
 	}
