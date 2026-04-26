@@ -381,9 +381,9 @@ export class MainMenuRoom extends PSRoom {
 	 * Most queries are still handled hardcoded, so this is only for certain
 	 * special queries that need a Promise.
 	 */
-	makeQuery(id: string, param?: string) {
+	makeQuery(id: string, param?: string, excludeParamFromListener?: boolean) {
 		let fullid = id;
-		if (param) fullid += ` ${toID(param)}`;
+		if (param && !excludeParamFromListener) fullid += ` ${toID(param)}`;
 		return new Promise<any>(resolve => {
 			if (!this.listeners[fullid]) {
 				this.listeners[fullid] = [];
@@ -472,6 +472,7 @@ export class MainMenuRoom extends PSRoom {
 			}
 			break;
 		}
+    console.log("SEARCH LISTENERS: " + this.listeners['cmdsearch'])
 		for (const callback of this.listeners[fullid] || []) callback(response);
 		delete this.listeners[fullid];
 	}
