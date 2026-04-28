@@ -1243,7 +1243,104 @@ class BackgroundListPanel extends PSRoomPanel {
 		}
 	}
 
-	declare state: { status?: string, bgUrl?: string };
+	declare state: {
+		status?: string,
+		bgUrl?: string,
+		solidColor?: string,
+		solidHue?: number,
+		solidSaturation?: number,
+		solidValue?: number,
+	};
+	solidDragMode: 'square' | 'hue' | null = null;
+	solidDragRect: DOMRect | null = null;
+
+	static readonly defaultSolidColor = '#344b6c';
+
+	normalizeSolidColor(color: string | undefined) {
+		return /^#[0-9A-F]{6}$/i.test(color || '') ? color! : BackgroundListPanel.defaultSolidColor;
+	}
+
+	hexToHSV(hex: string) {
+		const color = this.normalizeSolidColor(hex);
+		const r = parseInt(color.slice(1, 3), 16) / 255;
+		const g = parseInt(color.slice(3, 5), 16) / 255;
+		const b = parseInt(color.slice(5, 7), 16) / 255;
+		const max = Math.max(r, g, b);
+		const min = Math.min(r, g, b);
+		const delta = max - min;
+		let h = 0;
+		if (delta) {
+			if (max === r) {
+				h = 60 * (((g - b) / delta + 6) % 6);
+			} else if (max === g) {
+				h = 60 * ((b - r) / delta + 2);
+			} else {
+				h = 60 * ((r - g) / delta + 4);
+			}
+		}
+		const s = max === 0 ? 0 : (delta / max) * 100;
+		const v = max * 100;
+		return { h, s, v };
+	}
+
+	getSolidHSV() {
+		const hsv = this.hexToHSV(this.getSolidColor());
+		return {
+			h: this.state.solidHue ?? hsv.h,
+			s: this.state.solidSaturation ?? hsv.s,
+			v: this.state.solidValue ?? hsv.v,
+		};
+	}
+
+	hsvToHex(h: number, s: number, v: number) {
+		const sat = Math.max(0, Math.min(100, s)) / 100;
+		const val = Math.max(0, Math.min(100, v)) / 100;
+		const hue = ((h % 360) + 360) % 360;
+		const c = val * sat;
+		const x = c * (1 - Math.abs((hue / 60) % 2 - 1));
+		const m = val - c;
+		let r = 0;
+		let g = 0;
+		let b = 0;
+		if (hue < 60) {
+			r = c;
+			g = x;
+		} else if (hue < 120) {
+			r = x;
+			g = c;
+		} else if (hue < 180) {
+			g = c;
+			b = x;
+		} else if (hue < 240) {
+			g = x;
+			b = c;
+		} else if (hue < 300) {
+			r = x;
+			b = c;
+		} else {
+			r = c;
+			b = x;
+		}
+		const toHex = (component: number) => {
+			const value = Math.round((component + m) * 255).toString(16).toUpperCase();
+			return value.length < 2 ? '0' + value : value;
+		};
+		return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
+	}
+
+	getSolidColor() {
+		const currentColor = PSBackground.id === 'solidcolor' ? PSBackground.bgUrl : undefined;
+		return this.normalizeSolidColor(this.state.solidColor || currentColor);
+	}
+
+	getSolidColorInputValue() {
+		const currentColor = PSBackground.id === 'solidcolor' ? PSBackground.bgUrl : undefined;
+		return (this.state.solidColor || currentColor || BackgroundListPanel.defaultSolidColor).toUpperCase();
+	}
+
+	getHueThumbLeft(hue: number) {
+		return `${Math.max(0, Math.min(99.999, hue / 3.6))}%`;
+	}
 
 	setBg = (ev: Event) => {
 		let curtarget = ev.currentTarget as HTMLButtonElement;
@@ -1251,6 +1348,8 @@ class BackgroundListPanel extends PSRoomPanel {
 		if (bg === 'custom') {
 			PSBackground.set(this.props.room.args?.bgUrl as string || '', 'custom');
 			this.close();
+		} else if (bg === 'solidcolor') {
+			PSBackground.set(this.getSolidColor(), 'solidcolor');
 		} else {
 			PSBackground.set('', bg);
 		}
@@ -1258,6 +1357,81 @@ class BackgroundListPanel extends PSRoomPanel {
 		ev.stopImmediatePropagation();
 		this.forceUpdate();
 	};
+
+	setSolidColor = (ev: Event) => {
+		const solidColor = (ev.currentTarget as HTMLInputElement).value.trim().toUpperCase();
+		const hsv = this.hexToHSV(solidColor);
+		this.setState({
+			solidColor,
+			solidHue: hsv.s > 0 ? hsv.h : (this.state.solidHue ?? hsv.h),
+			solidSaturation: hsv.v > 0 ? hsv.s : (this.state.solidSaturation ?? hsv.s),
+			solidValue: hsv.v,
+		});
+	};
+	setButtonColorMode = (ev: Event) => {
+		const value = (ev.currentTarget as HTMLButtonElement).value;
+		PSBackground.setButtonColorMode(value);
+		this.forceUpdate();
+	};
+
+	setSolidColorFromHSV(h: number, s: number, v: number) {
+		this.setState({
+			solidColor: this.hsvToHex(h, s, v),
+			solidHue: h,
+			solidSaturation: s,
+			solidValue: v,
+		});
+	}
+
+	startSolidDrag = (mode: 'square' | 'hue', ev: PointerEvent) => {
+		if (ev.button) return;
+		ev.preventDefault();
+		this.stopSolidDrag();
+		this.solidDragMode = mode;
+		this.solidDragRect = (ev.currentTarget as HTMLElement).getBoundingClientRect();
+		this.handleSolidDrag(ev);
+		window.addEventListener('pointermove', this.handleSolidDrag);
+		window.addEventListener('pointerup', this.stopSolidDrag);
+		window.addEventListener('pointercancel', this.stopSolidDrag);
+	};
+
+	handleSolidDrag = (ev: PointerEvent) => {
+		if (!this.solidDragMode || !this.solidDragRect) return;
+		const rect = this.solidDragRect;
+		const x = Math.max(0, Math.min(rect.width, ev.clientX - rect.left));
+		const y = Math.max(0, Math.min(rect.height, ev.clientY - rect.top));
+		const hsv = this.getSolidHSV();
+		if (this.solidDragMode === 'square') {
+			this.setState({
+				solidColor: this.hsvToHex(
+					hsv.h,
+					rect.width ? (x / rect.width) * 100 : 0,
+					rect.height ? (1 - y / rect.height) * 100 : 0
+				),
+				solidHue: hsv.h,
+				solidSaturation: rect.width ? (x / rect.width) * 100 : 0,
+				solidValue: rect.height ? (1 - y / rect.height) * 100 : 0,
+			});
+		} else {
+			this.setSolidColorFromHSV(
+				rect.width ? Math.min((x / rect.width) * 360, 359) : 0,
+				hsv.s,
+				hsv.v
+			);
+		}
+	};
+
+	stopSolidDrag = () => {
+		this.solidDragMode = null;
+		this.solidDragRect = null;
+		window.removeEventListener('pointermove', this.handleSolidDrag);
+		window.removeEventListener('pointerup', this.stopSolidDrag);
+		window.removeEventListener('pointercancel', this.stopSolidDrag);
+	};
+
+	override componentWillUnmount() {
+		this.stopSolidDrag();
+	}
 
 	static handleUploadedFiles(files: FileList | null | undefined, skipConfirm?: boolean) {
 		if (!files?.[0]) return;
@@ -1328,6 +1502,9 @@ class BackgroundListPanel extends PSRoomPanel {
 	override render() {
 		const room = this.props.room;
 		const option = (val: string) => val === PSBackground.id ? 'option cur' : 'option';
+		const solidColor = this.getSolidColor();
+		const solidColorInput = this.getSolidColorInputValue();
+		const solidHSV = this.getSolidHSV();
 		return this.renderUpload() || <PSPanelWrapper room={room} width={480}><div class="pad">
 			<p><strong>Default</strong></p>
 			<div class="bglist">
@@ -1366,12 +1543,62 @@ class BackgroundListPanel extends PSRoomPanel {
 					<span class="bg" style="background-position: 0 -360px"></span>{}
 					PS! Day
 				</button>
-				<button onClick={this.setBg} value="solidblue" class={option('solidblue')}>
-					<span class="bg" style="background: #344b6c"></span>{}
-					Solid blue
-				</button>
 			</div>
 			<div style="clear: left"></div>
+			<p><strong>Solid color</strong></p>
+			<div class="solidcolorpicker">
+				<div class="solidcolorpreview bglist">
+					<button onClick={this.setBg} value="solidcolor" class={option('solidcolor')}>
+						<span class="bg" style={`background: ${solidColor}`}></span>{}
+						Use {solidColor.toUpperCase()}
+					</button>
+				</div>
+				<div class="solidcolorpicker-left">
+					<div
+						class="solidcolor-square"
+						style={
+							`background-image: linear-gradient(to top, #000000, transparent), ` +
+							`linear-gradient(to right, #FFFFFF, hsl(${solidHSV.h},100%,50%))`
+						}
+						onPointerDown={ev => this.startSolidDrag('square', ev)}
+					>
+						<span class="solidcolor-square-thumb" style={{ left: `${solidHSV.s}%`, top: `${100 - solidHSV.v}%` }}></span>
+					</div>
+					<div
+						class="solidcolor-hue"
+						onPointerDown={ev => this.startSolidDrag('hue', ev)}
+					>
+						<span class="solidcolor-hue-thumb" style={{ left: this.getHueThumbLeft(solidHSV.h) }}></span>
+					</div>
+					<label>
+						Hex: <input
+							class="textbox"
+							type="text" inputMode="text" maxLength={7}
+							placeholder="#344B6C" value={solidColorInput}
+							onInput={this.setSolidColor} onChange={this.setSolidColor}
+						/>
+					</label>
+				</div>
+				<div class="buttoncolorpicker">
+					<strong>Button colors:</strong>
+					<button
+						type="button" value="1" onClick={this.setButtonColorMode}
+						class={'button' + (PSBackground.buttonColorMode === 1 ? ' disabled' : '')}
+					><strong>1 color</strong></button>
+					<button
+						type="button" value="3" onClick={this.setButtonColorMode}
+						class={'button' + (PSBackground.buttonColorMode === 3 ? ' disabled' : '')}
+					><strong>3 colors</strong></button>
+					<button
+						type="button" value="8" onClick={this.setButtonColorMode}
+						class={'button' + (PSBackground.buttonColorMode === 8 ? ' disabled' : '')}
+					><strong>8 colors</strong></button>
+					<button
+						type="button" value="rainbow" onClick={this.setButtonColorMode}
+						class={'button' + (PSBackground.buttonColorMode === 'rainbow' ? ' disabled' : '')}
+					><strong>Rainbow!</strong></button>
+				</div>
+			</div>
 			<p><strong>Custom</strong></p>
 			<p>
 				Upload:

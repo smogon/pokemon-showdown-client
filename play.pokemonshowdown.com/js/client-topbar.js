@@ -823,11 +823,21 @@
 
 	var CustomBackgroundPopup = this.CustomBackgroundPopup = Popup.extend({
 		events: {
-			'change input[name=bgfile]': 'setBgFile'
+			'change input[name=bgfile]': 'setBgFile',
+			'input input[name=solidcolor]': 'updateSolidColorPreview',
+			'change input[name=solidcolor]': 'updateSolidColorPreview',
+			'pointerdown .solidcolor-square': 'startSolidSquareDrag',
+			'pointerdown .solidcolor-hue': 'startSolidHueDrag'
 		},
 		initialize: function () {
 			var buf = '';
 			var cur = Storage.bg.id;
+			var solidColor = (cur === Storage.bg.SOLID_BG_ID ? Storage.bg.getSolidColor() : Storage.bg.DEFAULT_SOLID_BG);
+			var buttonColorMode = Storage.bg.buttonColorMode;
+			var initialHSV = this.hexToHSV(solidColor);
+			this.solidHue = initialHSV.h;
+			this.solidSaturation = initialHSV.s;
+			this.solidValue = initialHSV.v;
 			buf += '<p><strong>Default</strong></p>';
 			buf += '<div class="bglist">';
 
@@ -842,9 +852,26 @@
 			buf += '<button name="setBg" value="ocean" class="option' + (cur === 'ocean' ? ' cur' : '') + '"><span class="bg" style="background-position:0 -' + (90 * 2) + 'px"></span>Ocean</button>';
 			buf += '<button name="setBg" value="shaymin" class="option' + (cur === 'shaymin' ? ' cur' : '') + '"><span class="bg" style="background-position:0 -' + (90 * 3) + 'px"></span>Shaymin</button>';
 			buf += '<button name="setBg" value="psday" class="option' + (cur === 'psday' ? ' cur' : '') + '"><span class="bg" style="background-position:0 -' + (90 * 4) + 'px"></span>PS! Day</button>';
-			buf += '<button name="setBg" value="solidblue" class="option' + (cur === 'solidblue' ? ' cur' : '') + '"><span class="bg" style="background: #344b6c"></span>Solid blue</button>';
 
 			buf += '</div><div style="clear:left"></div>';
+			buf += '<p><strong>Solid color</strong></p>';
+			buf += '<div class="solidcolorpicker">';
+			buf += '<div class="solidcolorpreview bglist">';
+			buf += '<button name="setBg" value="solidcolor" class="option' + (cur === 'solidcolor' ? ' cur' : '') + '"><span class="bg" style="background:' + BattleLog.escapeHTML(solidColor) + '"></span>Use ' + BattleLog.escapeHTML(solidColor.toUpperCase()) + '</button>';
+			buf += '</div>';
+			buf += '<div class="solidcolorpicker-left">';
+			buf += '<div class="solidcolor-square"><span class="solidcolor-square-thumb"></span></div>';
+			buf += '<div class="solidcolor-hue"><span class="solidcolor-hue-thumb"></span></div>';
+			buf += '<label>Hex: <input class="textbox" type="text" name="solidcolor" maxlength="7" placeholder="#344B6C" value="' + BattleLog.escapeHTML(solidColor.toUpperCase()) + '"></label>';
+			buf += '</div>';
+			buf += '<div class="buttoncolorpicker">';
+			buf += '<strong>Button colors:</strong>';
+			buf += '<button name="setButtonColorMode" value="1" class="button' + (buttonColorMode === '1' ? ' disabled' : '') + '"><strong>1 color</strong></button>';
+			buf += '<button name="setButtonColorMode" value="3" class="button' + (buttonColorMode === '3' ? ' disabled' : '') + '"><strong>3 colors</strong></button>';
+			buf += '<button name="setButtonColorMode" value="8" class="button' + (buttonColorMode === '8' ? ' disabled' : '') + '"><strong>8 colors</strong></button>';
+			buf += '<button name="setButtonColorMode" value="rainbow" class="button' + (buttonColorMode === 'rainbow' ? ' disabled' : '') + '"><strong>Rainbow!</strong></button>';
+			buf += '</div>';
+			buf += '</div>';
 			buf += '<p><strong>Custom</strong></p>';
 			buf += '<p>Drag and drop an image to PS (the background settings don\'t need to be open), or upload:</p>';
 			buf += '<p><input type="file" accept="image/*" name="bgfile"></p>';
@@ -856,13 +883,164 @@
 			// buf = '<p>Sorry, the background chooser is experiencing technical difficulties. Please try again tomorrow!</p><p><button name="close"><strong>Done</strong></button></p>';
 
 			this.$el.css('max-width', 448).html(buf);
-			this.$el.html(buf);
+			this.updateSolidColorPreview();
 		},
 		setBg: function (bgid) {
-			var bgUrl = (bgid === 'solidblue' ? '#344b6c' : Dex.resourcePrefix + 'fx/client-bg-' + bgid + '.jpg');
+			var bgUrl = '';
+			if (bgid === 'solidcolor') {
+				var solidColor = this.normalizeSolidColor(String(this.$('input[name=solidcolor]').val() || Storage.bg.DEFAULT_SOLID_BG).trim().toUpperCase()).toUpperCase();
+				bgUrl = solidColor;
+			} else if (bgid) {
+				bgUrl = Dex.resourcePrefix + 'fx/client-bg-' + bgid + '.jpg';
+			}
 			Storage.bg.set(bgUrl, bgid);
 			this.$('.cur').removeClass('cur');
 			this.$('button[value="' + bgid + '"]').addClass('cur');
+			if (bgid === 'solidcolor') this.updateSolidColorPreview();
+		},
+		normalizeSolidColor: function (color) {
+			return /^#[0-9A-F]{6}$/i.test(color || '') ? color : Storage.bg.DEFAULT_SOLID_BG;
+		},
+		hexToHSV: function (hex) {
+			hex = this.normalizeSolidColor(hex);
+			var r = parseInt(hex.slice(1, 3), 16) / 255;
+			var g = parseInt(hex.slice(3, 5), 16) / 255;
+			var b = parseInt(hex.slice(5, 7), 16) / 255;
+			var max = Math.max(r, g, b);
+			var min = Math.min(r, g, b);
+			var delta = max - min;
+			var h = 0;
+			if (delta) {
+				if (max === r) {
+					h = 60 * (((g - b) / delta + 6) % 6);
+				} else if (max === g) {
+					h = 60 * ((b - r) / delta + 2);
+				} else {
+					h = 60 * ((r - g) / delta + 4);
+				}
+			}
+			var s = max === 0 ? 0 : delta / max * 100;
+			var v = max * 100;
+			return { h: h, s: s, v: v };
+		},
+		getSolidHSV: function (hex) {
+			var hsv = this.hexToHSV(hex);
+			return {
+				h: this.solidHue !== undefined ? this.solidHue : hsv.h,
+				s: this.solidSaturation !== undefined ? this.solidSaturation : hsv.s,
+				v: this.solidValue !== undefined ? this.solidValue : hsv.v
+			};
+		},
+		hsvToHex: function (h, s, v) {
+			var sat = Math.max(0, Math.min(100, s)) / 100;
+			var val = Math.max(0, Math.min(100, v)) / 100;
+			var hue = ((h % 360) + 360) % 360;
+			var c = val * sat;
+			var x = c * (1 - Math.abs((hue / 60) % 2 - 1));
+			var m = val - c;
+			var r = 0;
+			var g = 0;
+			var b = 0;
+			if (hue < 60) {
+				r = c;
+				g = x;
+			} else if (hue < 120) {
+				r = x;
+				g = c;
+			} else if (hue < 180) {
+				g = c;
+				b = x;
+			} else if (hue < 240) {
+				g = x;
+				b = c;
+			} else if (hue < 300) {
+				r = x;
+				b = c;
+			} else {
+				r = c;
+				b = x;
+			}
+			var toHex = function (component) {
+				var value = Math.round((component + m) * 255).toString(16).toUpperCase();
+				return value.length < 2 ? '0' + value : value;
+			};
+			return '#' + toHex(r) + toHex(g) + toHex(b);
+		},
+		startSolidDrag: function (type, e) {
+			if (e.button) return;
+			e.preventDefault();
+			this.stopSolidDrag();
+			this.solidDragType = type;
+			this.solidDragElem = e.currentTarget;
+			this.updateSolidDrag(e);
+			var self = this;
+			var pointerMoveCallback = function (ev) {
+				self.updateSolidDrag(ev);
+			};
+			$(document).on('pointermove.solidbg', pointerMoveCallback)
+				.one('pointerup.solidbg pointercancel.solidbg', function () {
+					$(document).off('pointermove.solidbg', pointerMoveCallback);
+					self.stopSolidDrag();
+				});
+		},
+		startSolidSquareDrag: function (e) {
+			this.startSolidDrag('square', e);
+		},
+		startSolidHueDrag: function (e) {
+			this.startSolidDrag('hue', e);
+		},
+		updateSolidDrag: function (e) {
+			if (!this.solidDragElem || !this.solidDragType) return;
+			var rect = this.solidDragElem.getBoundingClientRect();
+			var x = Math.max(0, Math.min(rect.width, e.clientX - rect.left));
+			var y = Math.max(0, Math.min(rect.height, e.clientY - rect.top));
+			var hsv = this.getSolidHSV(String(this.$('input[name=solidcolor]').val() || Storage.bg.DEFAULT_SOLID_BG).trim().toUpperCase());
+			var color = this.solidDragType === 'square' ?
+				this.hsvToHex(hsv.h, rect.width ? x / rect.width * 100 : 0, rect.height ? (1 - y / rect.height) * 100 : 0) :
+				this.hsvToHex(rect.width ? Math.min(x / rect.width * 360, 359) : 0, hsv.s, hsv.v);
+			if (this.solidDragType === 'square') {
+				this.solidHue = hsv.h;
+				this.solidSaturation = rect.width ? x / rect.width * 100 : 0;
+				this.solidValue = rect.height ? (1 - y / rect.height) * 100 : 0;
+			}
+			if (this.solidDragType === 'hue') this.solidHue = rect.width ? Math.min(x / rect.width * 360, 359) : 0;
+			this.$('input[name=solidcolor]').val(color);
+			this.updateSolidColorPreview();
+		},
+		stopSolidDrag: function () {
+			this.solidDragType = null;
+			this.solidDragElem = null;
+			$(document).off('.solidbg');
+		},
+		updateSolidColorPreview: function (e) {
+			var inputColor = String(this.$('input[name=solidcolor]').val() || '').trim().toUpperCase();
+			var solidColor = this.normalizeSolidColor(inputColor);
+			var parsedHSV = this.hexToHSV(solidColor);
+			if (e && e.currentTarget && e.currentTarget.name === 'solidcolor') {
+				if (parsedHSV.s > 0) {
+					this.solidHue = parsedHSV.h;
+					this.solidSaturation = parsedHSV.s;
+				}
+				this.solidValue = parsedHSV.v;
+			}
+			var hsv = this.getSolidHSV(solidColor);
+			var $button = this.$('button[value="solidcolor"]');
+			$button.find('.bg').attr('style', 'background:' + BattleLog.escapeHTML(solidColor));
+			$button.contents().last()[0].textContent = 'Use ' + solidColor.toUpperCase();
+			this.$('.solidcolor-square').attr('style',
+				'background-image: linear-gradient(to top, #000000, transparent), linear-gradient(to right, #FFFFFF, hsl(' + hsv.h + ',100%,50%))'
+			);
+			this.$('.solidcolor-square-thumb').css({
+				left: hsv.s + '%',
+				top: (100 - hsv.v) + '%'
+			});
+			this.$('.solidcolor-hue-thumb').css('left', Math.max(0, Math.min(99.999, hsv.h / 3.6)) + '%');
+		},
+		setButtonColorMode: function (mode) {
+			Storage.bg.setButtonColorMode(mode);
+			mode = Storage.bg.buttonColorMode;
+			this.$('button[name=setButtonColorMode]').removeClass('disabled');
+			this.$('button[name=setButtonColorMode][value="' + mode + '"]').addClass('disabled');
 		},
 		setBgFile: function (e) {
 			$('.bgstatus').text('Changing background image...');

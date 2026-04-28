@@ -33,12 +33,16 @@ Storage.bg = {
 	// futureproofing in case we ever add more?
 	// because doing this once was annoying
 	MENU_BUTTONS: 8,
+	SOLID_BG_ID: 'solidcolor',
+	DEFAULT_SOLID_BG: '#344b6c',
+	BUTTON_COLOR_MODE_PREFIX: 'buttonmode:',
+	buttonColorMode: '',
 	set: function (bgUrl, bgid, noSave) {
-		if (!this.load(bgUrl, bgid)) {
-			this.extractMenuColors(bgUrl, bgid, noSave);
+		if (!this.load(bgUrl, bgid, null, this.buttonColorMode)) {
+			this.extractMenuColors(this.resolveBgUrl(bgUrl, bgid), bgid, noSave);
 		} else if (bgid) {
 			try {
-				localStorage.setItem('showdown_bg', bgUrl + '\n' + bgid);
+				this.save(this.resolveBgUrl(bgUrl, this.id), this.id);
 			} catch (e) {}
 		} else {
 			try {
@@ -50,8 +54,12 @@ Storage.bg = {
 	 * Load a background. Returns true if hues were loaded, or false if
 	 * they still need to be extracted using Color Thief.
 	 */
-	load: function (bgUrl, bgid, hues) {
+	load: function (bgUrl, bgid, hues, buttonColorMode) {
+		if (bgid === 'solidblue') {
+			bgid = this.SOLID_BG_ID;
+		}
 		this.id = bgid;
+		this.buttonColorMode = this.normalizeButtonColorMode(buttonColorMode);
 		if (!bgid) {
 			if (location.host === 'smogtours.psim.us') {
 				bgid = 'shaymin';
@@ -66,6 +74,10 @@ Storage.bg = {
 				$('#mainmenubuttoncolors').remove();
 				return true;
 			}
+		}
+		if (bgid === this.SOLID_BG_ID) {
+			bgUrl = /^#[0-9A-F]{6}$/i.test(bgUrl) ? bgUrl : this.DEFAULT_SOLID_BG;
+		} else if (!bgUrl && bgid) {
 			bgUrl = Dex.resourcePrefix + 'fx/client-bg-' + bgid + '.jpg';
 		}
 
@@ -74,7 +86,7 @@ Storage.bg = {
 		// bgUrl = Dex.resourcePrefix + 'sprites/afd/digimonbg.jpg';
 
 		var background;
-		if (bgUrl.charAt(0) === '#') {
+		if (bgid === this.SOLID_BG_ID) {
 			background = bgUrl;
 		} else if (bgid !== 'custom') {
 			background = '#546bac url(' + bgUrl + ') no-repeat left center fixed';
@@ -129,15 +141,101 @@ Storage.bg = {
 		}
 		return !!hues;
 	},
+	save: function (bgUrl, bgid, hues) {
+		var storedBg = '';
+		if (bgid !== 'custom' && bgid !== this.SOLID_BG_ID) {
+			storedBg = bgid;
+		} else if (bgid === 'custom' && hues) {
+			storedBg = bgUrl + '\n' + bgid + '\n' + hues.join('\n');
+		} else {
+			storedBg = bgUrl + '\n' + bgid;
+		}
+		if (this.buttonColorMode && this.buttonColorMode !== this.defaultButtonColorMode()) {
+			storedBg += '\n' + this.BUTTON_COLOR_MODE_PREFIX + this.buttonColorMode;
+		}
+		localStorage.setItem('showdown_bg', storedBg);
+	},
+	defaultButtonColorMode: function () {
+		return '' + this.MENU_BUTTONS;
+	},
+	resolveBgUrl: function (bgUrl, bgid) {
+		if (bgid === 'solidblue') bgid = this.SOLID_BG_ID;
+		if (bgid === this.SOLID_BG_ID) {
+			return /^#[0-9A-F]{6}$/i.test(bgUrl) ? bgUrl : this.DEFAULT_SOLID_BG;
+		}
+		return bgUrl || (bgid ? Dex.resourcePrefix + 'fx/client-bg-' + bgid + '.jpg' : '');
+	},
+	getSolidColor: function () {
+		try {
+			var storedBg = localStorage.getItem('showdown_bg').split('\n');
+			if (storedBg[storedBg.length - 1].indexOf(this.BUTTON_COLOR_MODE_PREFIX) === 0) storedBg.pop();
+			if (storedBg.length >= 2 && storedBg[1] === this.SOLID_BG_ID) {
+				return this.resolveBgUrl(storedBg[0], storedBg[1]);
+			}
+		} catch (e) {}
+		return this.DEFAULT_SOLID_BG;
+	},
+	normalizeButtonColorMode: function (buttonColorMode) {
+		switch (buttonColorMode) {
+		case '1':
+		case '3':
+		case '8':
+		case 'rainbow':
+			return buttonColorMode;
+		default:
+			return '';
+		}
+	},
+	setButtonColorMode: function (buttonColorMode) {
+		this.buttonColorMode = this.normalizeButtonColorMode(buttonColorMode);
+		this.loadHues(this.hues || []);
+		this.saveButtonColorMode();
+	},
+	saveButtonColorMode: function () {
+		var storedBg = [];
+		try {
+			storedBg = (localStorage.getItem('showdown_bg') || '').split('\n');
+			if (storedBg.length === 1 && !storedBg[0]) storedBg = [];
+			if (storedBg.length && storedBg[storedBg.length - 1].indexOf(this.BUTTON_COLOR_MODE_PREFIX) === 0) {
+				storedBg.pop();
+			}
+			if (this.buttonColorMode && this.buttonColorMode !== this.defaultButtonColorMode()) {
+				storedBg.push(this.BUTTON_COLOR_MODE_PREFIX + this.buttonColorMode);
+			}
+			if (storedBg.length) {
+				localStorage.setItem('showdown_bg', storedBg.join('\n'));
+			} else {
+				localStorage.removeItem('showdown_bg');
+			}
+		} catch (e) {}
+	},
+	getHueForButton: function (hues, i) {
+		switch (this.buttonColorMode) {
+		case '1':
+			return hues[0];
+		case '3':
+			if (i === 0) return hues[0];
+			if (i < 4) return hues[1] || hues[0];
+			return hues[2] || hues[1] || hues[0];
+		default:
+			return hues[i];
+		}
+	},
+	buttonCSS: function (n, hs) {
+		var sel = 'body .button.mainmenu' + n;
+		return (
+			sel + ' { background: linear-gradient(to bottom, hsl(' + hs + ',72%), hsl(' + hs + ',52%)); border-color: hsl(' + hs + ',40%); }\n' +
+			sel + ':hover { background: linear-gradient(to bottom, hsl(' + hs + ',62%), hsl(' + hs + ',42%)); border-color: hsl(' + hs + ',21%); }\n' +
+			sel + ':active { background: linear-gradient(to bottom, hsl(' + hs + ',42%), hsl(' + hs + ',58%)); border-color: hsl(' + hs + ',21%); }\n'
+		);
+	},
 	loadHues: function (hues) {
+		this.hues = hues;
 		$('#mainmenubuttoncolors').remove();
+		if (this.buttonColorMode === 'rainbow' || !hues || !hues.length) return;
 		var cssBuf = '';
 		for (var i = 0; i < Storage.bg.MENU_BUTTONS; i++) {
-			var n = i + 1;
-			var hs = hues[i];
-			cssBuf += 'body .button.mainmenu' + n + ' { background: linear-gradient(to bottom,  hsl(' + hs + ',72%),  hsl(' + hs + ',52%)); border-color: hsl(' + hs + ',40%); }\n';
-			cssBuf += 'body .button.mainmenu' + n + ':hover { background: linear-gradient(to bottom,  hsl(' + hs + ',62%),  hsl(' + hs + ',42%)); border-color: hsl(' + hs + ',21%); }\n';
-			cssBuf += 'body .button.mainmenu' + n + ':active { background: linear-gradient(to bottom,  hsl(' + hs + ',42%),  hsl(' + hs + ',58%)); border-color: hsl(' + hs + ',21%); }\n';
+			cssBuf += this.buttonCSS(i + 1, this.getHueForButton(hues, i));
 		}
 		$('head').append('<style id="mainmenubuttoncolors">' + cssBuf + '</style>');
 	},
@@ -145,30 +243,29 @@ Storage.bg = {
 		var changeCount = this.changeCount;
 		// We need the image object to load it on a canvas to detect the main color.
 		var img = new Image();
+		if (bgUrl && bgUrl.slice(0, 5) !== 'data:' && bgUrl.charAt(0) !== '#') {
+			img.crossOrigin = 'anonymous';
+		}
 		img.onload = function () {
 			// in case ColorThief throws from canvas,
 			// or localStorage throws
 			try {
 				var colorThief = new ColorThief();
 				var colors = colorThief.getPalette(img, Storage.bg.MENU_BUTTONS);
-				window.colors = colors;
-
 				var hues = [];
-				if (!colors) {
-					hues = [];
+				if (!colors || !colors.length) {
 					for (var i = 0; i < Storage.bg.MENU_BUTTONS; i++) hues.push('0, 0%');
 				} else {
 					for (var i = 0; i < Storage.bg.MENU_BUTTONS; i++) {
-						var color = colors[i];
-						var hs = Storage.bg.getHueSat(color[0] / 255, color[1] / 255, color[2] / 255);
-						hues.push(hs);
+						var color = colors[Math.min(i, colors.length - 1)];
+						hues.push(Storage.bg.getHueSat(color[0] / 255, color[1] / 255, color[2] / 255));
 					}
 				}
 				Storage.bg.loadHues(hues);
 				if (!noSave && Storage.bg.changeCount === changeCount) {
-					localStorage.setItem('showdown_bg', bgUrl + '\n' + Storage.bg.id + '\n' + hues.join('\n'));
+					Storage.bg.save(bgUrl, Storage.bg.id, hues);
 				}
-			} catch (e) {}
+			} catch (e) { }
 		};
 		img.src = bgUrl;
 	},
@@ -194,10 +291,20 @@ Storage.bg = {
 };
 
 try {
-	var bg = localStorage.getItem('showdown_bg').split('\n');
-	if (bg.length >= 2) {
-		Storage.bg.load(bg[0], bg[1]);
-		if (bg.length >= 7) Storage.bg.loadHues(bg.slice(2));
+	var storedBg = localStorage.getItem('showdown_bg').split('\n');
+	var buttonColorMode = '';
+	if (storedBg[storedBg.length - 1].indexOf(Storage.bg.BUTTON_COLOR_MODE_PREFIX) === 0) {
+		buttonColorMode = storedBg.pop().slice(Storage.bg.BUTTON_COLOR_MODE_PREFIX.length);
+	}
+	if (storedBg.length === 1 && storedBg[0]) {
+		if (!Storage.bg.load('', storedBg[0], null, buttonColorMode)) {
+			Storage.bg.extractMenuColors(Storage.bg.resolveBgUrl('', storedBg[0]), storedBg[0], true);
+		}
+	} else if (storedBg.length >= 2) {
+		if (!Storage.bg.load(storedBg[0], storedBg[1], null, buttonColorMode) && storedBg.length < 10) {
+			Storage.bg.extractMenuColors(Storage.bg.resolveBgUrl(storedBg[0], storedBg[1]), storedBg[1], true);
+		}
+		if (storedBg.length >= 10) Storage.bg.load(storedBg[0], storedBg[1], storedBg.slice(2), buttonColorMode);
 	}
 } catch (e) {}
 

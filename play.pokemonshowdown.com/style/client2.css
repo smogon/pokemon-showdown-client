@@ -1021,33 +1021,33 @@ form.menugroup {
 	box-shadow: 0 1px 2px rgba(0,0,0,.1);
 }
 
-.button.mainmenu1 { background: linear-gradient(90deg, hsl(5,40%,72%), hsl(30,40%,72%), hsl(60,40%,62%), hsl(130,40%,72%), hsl(210,40%,72%), hsl(270,40%,72%), hsl(320,40%,72%)); border-color: hsl(282,28%,43%); }
-.button.mainmenu1:hover { background: linear-gradient(90deg, hsl(5,40%,62%), hsl(30,40%,62%), hsl(60,40%,52%), hsl(130,40%,62%), hsl(210,40%,62%), hsl(270,40%,62%), hsl(320,40%,62%)); }
-.button.mainmenu1:active { background: linear-gradient(90deg, hsl(5,40%,42%), hsl(30,40%,42%), hsl(60,40%,32%), hsl(130,40%,42%), hsl(210,40%,42%), hsl(270,40%,42%), hsl(320,40%,42%)); }
+.button.mainmenu1 { background: linear-gradient(to bottom,  hsl(5,40%,72%),  hsl(5,40%,52%)); border-color: hsl(5,40%,40%); }
+.button.mainmenu1:hover { background: linear-gradient(to bottom,  hsl(5,40%,62%),  hsl(5,40%,42%)); }
+.button.mainmenu1:active { background: linear-gradient(to bottom,  hsl(5,40%,42%),  hsl(5,40%,58%)); }
 
-.button.mainmenu2 { background: linear-gradient(to bottom,  hsl(5,40%,72%),  hsl(5,40%,52%)); border-color: hsl(5,40%,40%); }
-.button.mainmenu2:hover { background: linear-gradient(to bottom,  hsl(5,40%,62%),  hsl(5,40%,42%)); }
-.button.mainmenu2:active { background: linear-gradient(to bottom,  hsl(5,40%,42%),  hsl(5,40%,58%)); }
+.button.mainmenu2 { background: linear-gradient(to bottom,  hsl(30,40%,72%),  hsl(30,40%,52%)); border-color: hsl(30,40%,40%); }
+.button.mainmenu2:hover { background: linear-gradient(to bottom,  hsl(30,40%,62%),  hsl(30,40%,42%)); }
+.button.mainmenu2:active { background: linear-gradient(to bottom,  hsl(30,40%,42%),  hsl(30,40%,58%)); }
 
-.button.mainmenu3 { background: linear-gradient(to bottom,  hsl(30,40%,72%),  hsl(30,40%,52%)); border-color: hsl(30,40%,40%); }
-.button.mainmenu3:hover { background: linear-gradient(to bottom,  hsl(30,40%,62%),  hsl(30,40%,42%)); }
-.button.mainmenu3:active { background: linear-gradient(to bottom,  hsl(30,40%,42%),  hsl(30,40%,58%)); }
+.button.mainmenu3 { background: linear-gradient(to bottom,  hsl(60,40%,62%),  hsl(60,40%,42%)); border-color: hsl(60,40%,40%); }
+.button.mainmenu3:hover { background: linear-gradient(to bottom,  hsl(60,40%,52%),  hsl(60,40%,32%)); }
+.button.mainmenu3:active { background: linear-gradient(to bottom,  hsl(60,40%,32%),  hsl(60,40%,48%)); }
 
-.button.mainmenu4 { background: linear-gradient(to bottom,  hsl(60,40%,62%),  hsl(60,40%,42%)); border-color: hsl(60,40%,40%); }
-.button.mainmenu4:hover { background: linear-gradient(to bottom,  hsl(60,40%,52%),  hsl(60,40%,32%)); }
-.button.mainmenu4:active { background: linear-gradient(to bottom,  hsl(60,40%,32%),  hsl(60,40%,48%)); }
+.button.mainmenu4 { background: linear-gradient(to bottom,  hsl(130,40%,72%),  hsl(130,40%,52%)); border-color: hsl(130,40%,40%); }
+.button.mainmenu4:hover { background: linear-gradient(to bottom,  hsl(130,40%,62%),  hsl(130,40%,42%)); }
+.button.mainmenu4:active { background: linear-gradient(to bottom,  hsl(130,40%,42%),  hsl(130,40%,58%)); }
 
-.button.mainmenu5 { background: linear-gradient(to bottom,  hsl(130,40%,72%),  hsl(130,40%,52%)); border-color: hsl(130,40%,40%); }
-.button.mainmenu5:hover { background: linear-gradient(to bottom,  hsl(130,40%,62%),  hsl(130,40%,42%)); }
-.button.mainmenu5:active { background: linear-gradient(to bottom,  hsl(130,40%,42%),  hsl(130,40%,58%)); }
+.button.mainmenu5 { background: linear-gradient(to bottom,  hsl(210,40%,72%),  hsl(210,40%,52%)); border-color: hsl(210,40%,40%); }
+.button.mainmenu5:hover { background: linear-gradient(to bottom,  hsl(210,40%,62%),  hsl(210,40%,42%)); }
+.button.mainmenu5:active { background: linear-gradient(to bottom,  hsl(210,40%,42%),  hsl(210,40%,58%)); }
 
-.button.mainmenu6 { background: linear-gradient(to bottom,  hsl(210,40%,72%),  hsl(210,40%,52%)); border-color: hsl(210,40%,40%); }
-.button.mainmenu6:hover { background: linear-gradient(to bottom,  hsl(210,40%,62%),  hsl(210,40%,42%)); }
-.button.mainmenu6:active { background: linear-gradient(to bottom,  hsl(210,40%,42%),  hsl(210,40%,58%)); }
+.button.mainmenu6 { background: linear-gradient(to bottom,  hsl(240,40%,72%),  hsl(240,40%,52%)); border-color: hsl(240,40%,40%); }
+.button.mainmenu6:hover { background: linear-gradient(to bottom,  hsl(240,40%,62%),  hsl(240,40%,42%)); }
+.button.mainmenu6:active { background: linear-gradient(to bottom,  hsl(240,40%,42%),  hsl(240,40%,58%)); }
 
 .button.mainmenu7 { background: linear-gradient(to bottom,  hsl(270,40%,72%),  hsl(270,40%,52%)); border-color: hsl(270,40%,40%); }
 .button.mainmenu7:hover { background: linear-gradient(to bottom,  hsl(270,40%,62%),  hsl(270,40%,42%)); }
-.button.mainmenu7:active { background: linear-gradient(to bottom,  hsl(270,40%,42%),  hsl(300,40%,58%)); }
+.button.mainmenu7:active { background: linear-gradient(to bottom,  hsl(270,40%,42%),  hsl(270,40%,58%)); }
 
 .button.mainmenu8 { background: linear-gradient(to bottom,  hsl(320,40%,72%),  hsl(320,40%,52%)); border-color: hsl(320,40%,40%); }
 .button.mainmenu8:hover { background: linear-gradient(to bottom,  hsl(320,40%,62%),  hsl(320,40%,42%)); }
@@ -2265,6 +2265,126 @@ pre.textbox.textbox-empty[placeholder]:before {
 	width: 144px;
 	height: 90px;
 	background: url(../fx/client-bgsheet.png) no-repeat scroll 0px 0px;
+}
+.solidcolorpicker {
+	display: grid;
+	grid-template-columns: 148px 150px 140px;
+	align-items: start;
+	column-gap: 8px;
+	row-gap: 10px;
+	margin: 6px -7px 12px;
+}
+.solidcolorpreview {
+	margin: 0;
+	grid-column: 1;
+	grid-row: 1;
+}
+.solidcolorpreview button {
+	float: none;
+	margin: 0;
+	padding: 2px;
+	background: transparent;
+	border: 0;
+	box-shadow: none;
+}
+.solidcolorpicker-left {
+	grid-column: 2;
+	grid-row: 1;
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 8px;
+	min-width: 0;
+}
+.solidcolor-square {
+	position: relative;
+	width: 144px;
+	height: 90px;
+	cursor: crosshair;
+	touch-action: none;
+	border: 1px solid rgba(255, 255, 255, .2);
+	border-radius: 6px;
+	box-shadow: inset 0 1px 0 rgba(255, 255, 255, .15);
+	overflow: hidden;
+}
+.solidcolor-square-thumb,
+.solidcolor-hue-thumb {
+	position: absolute;
+	width: 10px;
+	height: 10px;
+	border: 2px solid #FFFFFF;
+	border-radius: 50%;
+	box-shadow: 0 0 0 1px rgba(0, 0, 0, .45);
+	pointer-events: none;
+	transform: translate(-50%, -50%);
+}
+.solidcolor-hue {
+	position: relative;
+	width: 144px;
+	height: 12px;
+	cursor: ew-resize;
+	touch-action: none;
+	background: linear-gradient(to right, #FF0000, #FFFF00, #00FF00, #00FFFF, #0000FF, #FF00FF, #FF0000);
+	border: 1px solid rgba(255, 255, 255, .2);
+	border-radius: 999px;
+	box-shadow: inset 0 1px 0 rgba(255, 255, 255, .15);
+}
+.solidcolor-hue-thumb {
+	top: 50%;
+}
+.solidcolorpicker label {
+	display: grid;
+	grid-template-columns: auto minmax(0, 1fr);
+	align-items: center;
+	gap: 6px;
+	width: 100%;
+}
+.buttoncolorpicker {
+	grid-column: 3;
+	grid-row: 1;
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+	align-content: start;
+	min-width: 0;
+	width: 124px;
+}
+.buttoncolorpicker > strong {
+	display: block;
+	line-height: 1.1;
+	white-space: nowrap;
+}
+.buttoncolorpicker .button {
+	display: block;
+	width: 100%;
+	margin: 0;
+	text-align: center;
+}
+.solidcolorpicker .textbox {
+	width: 88px;
+	box-sizing: border-box;
+}
+@media (max-width: 500px) {
+	.solidcolorpicker {
+		grid-template-columns: minmax(0, 1fr);
+		margin-left: 0;
+		margin-right: 0;
+	}
+	.solidcolorpreview,
+	.solidcolorpicker-left,
+	.buttoncolorpicker {
+		grid-column: 1;
+		grid-row: auto;
+	}
+	.solidcolorpreview button {
+		margin: 0 auto;
+	}
+	.solidcolorpicker-left {
+		align-items: center;
+	}
+	.buttoncolorpicker {
+		width: auto;
+	}
 }
 .avatarlist button.cur,
 .formlist button.cur,
