@@ -351,7 +351,12 @@ export class ChatRoom extends PSRoom {
 			this.challenged = null;
 			this.teamSent = null;
 			this.update(null);
-			this.sendDirect(`/reject ${target}`);
+			const userid = toID(target || this.pmTarget || '');
+			PS.send(userid ? `/reject ${userid}` : `/reject`);
+		},
+		'accept'(target) {
+			const userid = toID(target || this.pmTarget || '');
+			PS.send(userid ? `/accept ${userid}` : `/accept`);
 		},
 		'clear'() {
 			this.log?.reset();
@@ -598,6 +603,7 @@ export class ChatRoom extends PSRoom {
 			this.add(`|error|Can only be used in a PM.`);
 			return;
 		}
+		if (this.challenged) return;
 		this.challengeMenuOpen = true;
 		this.update(null);
 	}
@@ -679,7 +685,11 @@ export class ChatRoom extends PSRoom {
 	}
 	override sendDirect(line: string) {
 		if (this.pmTarget) {
-			line = line.split('\n').filter(Boolean).map(row => `/pm ${this.pmTarget!}, ${row}`).join('\n');
+			const rows = line.split('\n').filter(Boolean);
+			if (rows.some(row => row.startsWith('/') && !row.startsWith('//'))) {
+				PS.mainmenu.trackPMCommandTarget(this.pmTarget);
+			}
+			line = rows.map(row => `/pm ${this.pmTarget!}, ${row}`).join('\n');
 			PS.send(line);
 			return;
 		}
@@ -1344,7 +1354,7 @@ class ChatPanel extends PSRoomPanel<ChatRoom> {
 		const packedTeam = team ? team.packedTeam : '';
 		if (!room.pmTarget) throw new Error("Not a PM room");
 		PS.send(`/utm ${packedTeam}`);
-		this.props.room.send(`/accept`);
+		PS.send(`/accept ${toID(room.pmTarget)}`);
 		room.teamSent = format || '-';
 		room.update(null);
 	};
