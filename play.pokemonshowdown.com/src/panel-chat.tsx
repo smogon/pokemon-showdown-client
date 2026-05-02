@@ -1112,7 +1112,7 @@ export class ChatTextEntry extends preact.Component<{
 		return false;
 	}
 	// TODO - add support for commands tabcomplete
-	handleTabComplete(reverse: boolean) {
+	handleTabComplete(reverse: boolean): boolean {
 		// Don't tab complete at the start of the text box.
 		let { value, start, end } = this.getSelection();
 		if (start !== end || end === 0) return false;
@@ -1197,7 +1197,7 @@ export class ChatTextEntry extends preact.Component<{
 						cursor: nextCmd,
 					};
 				});
-				return;
+				return true;
 			}
 
 			if (!candidates.length) {
