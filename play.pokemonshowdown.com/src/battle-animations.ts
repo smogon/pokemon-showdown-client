@@ -363,9 +363,11 @@ export class BattleScene implements BattleSceneStub {
 
 		let left = 210;
 		let top = 245;
+		// Relumi back sprites are stored at their actual GIF pixel size, so no perspective
+		// scaling is needed. Front sprites (z=200) already resolve to scale=1.0 naturally.
 		let scale = (obj.gen === 5 ?
 			2.0 - ((loc.z!) / 200) :
-			1.5 - 0.5 * ((loc.z!) / 200));
+			obj.isFrontSprite ? 1.5 - 0.5 * ((loc.z!) / 200) : 1.0);
 		if (scale < 0.1) scale = 0.1;
 
 		left += (410 - 190) * ((loc.z!) / 200);
