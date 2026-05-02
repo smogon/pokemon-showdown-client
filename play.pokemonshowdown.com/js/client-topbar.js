@@ -720,9 +720,9 @@
 					"not all";
 			buf +=
 				'<p><label class="optlabel">Theme: <select name="theme" class="button"><option value="light"' +
-				(!theme || theme === "light" ? ' selected="selected"' : "") +
+				(theme === "light" ? ' selected="selected"' : "") +
 				'>Light</option><option value="dark"' +
-				(theme === "dark" ? ' selected="selected"' : "") +
+				(!theme || theme === "dark" ? ' selected="selected"' : "") +
 				">Dark</option>";
 			if (colorSchemeQuerySupported) {
 				buf +=
