@@ -354,10 +354,6 @@ export class ChatRoom extends PSRoom {
 			const userid = toID(target || this.pmTarget || '');
 			PS.send(userid ? `/reject ${userid}` : `/reject`);
 		},
-		'accept'(target) {
-			const userid = toID(target || this.pmTarget || '');
-			PS.send(userid ? `/accept ${userid}` : `/accept`);
-		},
 		'clear'() {
 			this.log?.reset();
 			this.update(null);
@@ -685,11 +681,7 @@ export class ChatRoom extends PSRoom {
 	}
 	override sendDirect(line: string) {
 		if (this.pmTarget) {
-			const rows = line.split('\n').filter(Boolean);
-			if (rows.some(row => row.startsWith('/') && !row.startsWith('//'))) {
-				PS.mainmenu.trackPMCommandTarget(this.pmTarget);
-			}
-			line = rows.map(row => `/pm ${this.pmTarget!}, ${row}`).join('\n');
+			line = line.split('\n').filter(Boolean).map(row => `/pm ${this.pmTarget!}, ${row}`).join('\n');
 			PS.send(line);
 			return;
 		}

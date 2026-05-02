@@ -49,7 +49,6 @@ export class MainMenuRoom extends PSRoom {
 	search: { searching: string[], games: Record<RoomID, string> | null } = { searching: [], games: null };
 	disallowSpectators: boolean | null = PS.prefs.disallowspectators;
 	lastChallenged: number | null = null;
-	pendingPMCommandTargets: { name: string, time: number }[] = [];
 	constructor(options: RoomOptions) {
 		super(options);
 		if (this.backlog) {
@@ -61,21 +60,6 @@ export class MainMenuRoom extends PSRoom {
 			}
 			this.backlog = null;
 		}
-	}
-	trackPMCommandTarget(name: string) {
-		if (!toID(name)) return;
-		const now = Date.now();
-		this.pendingPMCommandTargets = this.pendingPMCommandTargets.filter(pending => now - pending.time <= 30_000);
-		this.pendingPMCommandTargets.push({ name, time: now });
-		if (this.pendingPMCommandTargets.length > 10) this.pendingPMCommandTargets.shift();
-	}
-	consumePMCommandTarget() {
-		const now = Date.now();
-		while (this.pendingPMCommandTargets.length) {
-			const pending = this.pendingPMCommandTargets.shift()!;
-			if (now - pending.time <= 30_000) return pending.name;
-		}
-		return null;
 	}
 	adjustPrivacy() {
 		PS.prefs.set('disallowspectators', this.disallowSpectators);
@@ -373,15 +357,8 @@ export class MainMenuRoom extends PSRoom {
 	handlePM(user1: string, user2: string, message?: string) {
 		const userid1 = toID(user1);
 		const userid2 = toID(user2);
-		let pmTarget = PS.user.userid === userid1 ? user2 : user1;
-		let pmTargetid = PS.user.userid === userid1 ? userid2 : userid1;
-		if (PS.user.userid === userid1 && !userid2 && message?.startsWith('/error ')) {
-			const pendingPMTarget = this.consumePMCommandTarget();
-			if (pendingPMTarget) {
-				pmTarget = pendingPMTarget;
-				pmTargetid = toID(pendingPMTarget);
-			}
-		}
+		const pmTarget = PS.user.userid === userid1 ? user2 : user1;
+		const pmTargetid = PS.user.userid === userid1 ? userid2 : userid1;
 		let roomid = `dm-${pmTargetid}` as RoomID;
 		if (pmTargetid === PS.user.userid) roomid = 'dm-' as RoomID;
 		let room = PS.rooms[roomid] as ChatRoom | undefined;
