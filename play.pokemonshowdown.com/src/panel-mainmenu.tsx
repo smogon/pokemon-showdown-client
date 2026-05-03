@@ -402,7 +402,7 @@ export class MainMenuRoom extends PSRoom {
 			if (!userdetails) {
 				this.userdetailsCache[userid] = response;
 			} else {
-				if (!response.status) response.status = '';
+				response.status ||= '';
 				Object.assign(userdetails, response);
 			}
 			PS.rooms[`user-${userid}`]?.update(null);
