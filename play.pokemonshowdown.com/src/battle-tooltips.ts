@@ -3253,7 +3253,7 @@ export class BattleStatGuesser {
 			if (!moveCount['PhysicalAttack']) evs.atk = 0;
 			if (!moveCount['SpecialAttack']) evs.spa = 0;
 			if (hasMove['gyroball'] || hasMove['trickroom']) evs.spe = 0;
-		} else if (!this.supportsEVs) {
+		} else if (!this.supportsEVs && !this.useStatPoints) {
 			// Let's Go, AVs disabled
 			// no change
 		} else if (this.ignoreEVLimits) {
@@ -3346,20 +3346,22 @@ export class BattleStatGuesser {
 				if (hp || evs['hp']) evs['hp'] = hp;
 			}
 
-			if (species.id === 'tentacruel') {
-				evTotal = this.ensureMinEVs(evs, 'spe', 16, evTotal);
-			} else if (species.id === 'skarmory') {
-				evTotal = this.ensureMinEVs(evs, 'spe', 24, evTotal);
-			} else if (species.id === 'jirachi') {
-				evTotal = this.ensureMinEVs(evs, 'spe', 32, evTotal);
-			} else if (species.id === 'celebi') {
-				evTotal = this.ensureMinEVs(evs, 'spe', 36, evTotal);
-			} else if (species.id === 'volcarona') {
-				evTotal = this.ensureMinEVs(evs, 'spe', 52, evTotal);
-			} else if (species.id === 'gliscor') {
-				evTotal = this.ensureMinEVs(evs, 'spe', 72, evTotal);
-			} else if (species.id === 'dragonite' && evs['hp']) {
-				evTotal = this.ensureMaxEVs(evs, 'spe', 220, evTotal);
+			if (this.supportsEVs) {
+				if (species.id === 'tentacruel') {
+					evTotal = this.ensureMinEVs(evs, 'spe', 16, evTotal);
+				} else if (species.id === 'skarmory') {
+					evTotal = this.ensureMinEVs(evs, 'spe', 24, evTotal);
+				} else if (species.id === 'jirachi') {
+					evTotal = this.ensureMinEVs(evs, 'spe', 32, evTotal);
+				} else if (species.id === 'celebi') {
+					evTotal = this.ensureMinEVs(evs, 'spe', 36, evTotal);
+				} else if (species.id === 'volcarona') {
+					evTotal = this.ensureMinEVs(evs, 'spe', 52, evTotal);
+				} else if (species.id === 'gliscor') {
+					evTotal = this.ensureMinEVs(evs, 'spe', 72, evTotal);
+				} else if (species.id === 'dragonite' && evs['hp']) {
+					evTotal = this.ensureMaxEVs(evs, 'spe', 220, evTotal);
+				}
 			}
 
 			if (evTotal < totalPoints) {
