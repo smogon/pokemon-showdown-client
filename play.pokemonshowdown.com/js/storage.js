@@ -337,6 +337,12 @@ Storage.whenPrefsLoaded(updatePrefs);
 
 Storage.initPrefs = function () {
 	Storage.loadTeams();
+	if (Config.localclient) {
+		Config.server = Config.server || Config.defaultserver;
+		this.whenPrefsLoaded.load();
+		if (!window.nodewebkit) this.whenTeamsLoaded.load();
+		return;
+	}
 	if (Config.testclient) {
 		return this.initTestClient();
 	} else if (location.protocol + '//' + location.hostname === Storage.origin) {

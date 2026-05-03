@@ -284,7 +284,11 @@ export const Dex = new class implements ModdedDex {
 		if (dex.gen === 9 && formatid.includes('legends')) {
 			dex = Dex.mod('gen9legendsou' as ID);
 		}
-		if (dex.gen === 9 && formatid.includes('champions')) {
+		if (dex.gen === 9 && formatid.includes('natdexchampionsclassic')) {
+			dex = Dex.mod('gen9natdexchampsclassic' as ID);
+		} else if (dex.gen === 9 && formatid.includes('natdexchampionsmodern')) {
+			dex = Dex.mod('gen9natdexchampsmodern' as ID);
+		} else if (dex.gen === 9 && formatid.includes('champions')) {
 			dex = Dex.mod('champions' as ID);
 		}
 		return dex;

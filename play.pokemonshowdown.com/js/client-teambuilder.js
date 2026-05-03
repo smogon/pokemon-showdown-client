@@ -3,6 +3,16 @@
 	// this is a useful global
 	var teams;
 
+	function getNatDexChampionsMod(format) {
+		if (format.includes('natdexchampionsclassic')) return 'gen9natdexchampsclassic';
+		if (format.includes('natdexchampionsmodern')) return 'gen9natdexchampsmodern';
+		return '';
+	}
+
+	function usesChampionsStatPoints(format) {
+		return format.includes('champions') && !format.includes('natdexchampionsclassic');
+	}
+
 	exports.TeambuilderRoom = exports.Room.extend({
 		type: 'teambuilder',
 		title: 'Teambuilder',
@@ -33,7 +43,10 @@
 				if (this.curTeam.format.includes('legends')) {
 					this.curTeam.dex = Dex.mod('gen9legendsou');
 				}
-				if (this.curTeam.format.includes('champions')) {
+				var natDexChampionsMod = getNatDexChampionsMod(this.curTeam.format);
+				if (natDexChampionsMod) {
+					this.curTeam.dex = Dex.mod(natDexChampionsMod);
+				} else if (this.curTeam.format.includes('champions')) {
 					this.curTeam.dex = Dex.mod('champions');
 				}
 				Storage.activeSetList = this.curSetList;
@@ -764,7 +777,10 @@
 			if (this.curTeam.format.includes('legends')) {
 				this.curTeam.dex = Dex.mod('gen9legendsou');
 			}
-			if (this.curTeam.format.includes('champions')) {
+			var natDexChampionsMod = getNatDexChampionsMod(this.curTeam.format);
+			if (natDexChampionsMod) {
+				this.curTeam.dex = Dex.mod(natDexChampionsMod);
+			} else if (this.curTeam.format.includes('champions')) {
 				this.curTeam.dex = Dex.mod('champions');
 			}
 			Storage.activeSetList = this.curSetList = Storage.unpackTeam(this.curTeam.team);
@@ -1294,7 +1310,7 @@
 			var baseFormat = this.curTeam.format;
 			if (baseFormat.substr(-5) === 'draft') baseFormat = baseFormat.substr(0, baseFormat.length - 5);
 			var species = this.curTeam.dex.species.get(set.species);
-			var isChampions = baseFormat.includes('champions');
+			var isChampions = usesChampionsStatPoints(baseFormat);
 			var isLetsGo = baseFormat.includes('letsgo');
 			var isBDSP = baseFormat.includes('bdsp');
 			var isNatDex = baseFormat.includes('nationaldex') || baseFormat.includes('natdex');
@@ -1635,7 +1651,10 @@
 			if (this.curTeam.format.includes('legends')) {
 				this.curTeam.dex = Dex.mod('gen9legendsou');
 			}
-			if (this.curTeam.format.includes('champions')) {
+			var natDexChampionsMod = getNatDexChampionsMod(this.curTeam.format);
+			if (natDexChampionsMod) {
+				this.curTeam.dex = Dex.mod(natDexChampionsMod);
+			} else if (this.curTeam.format.includes('champions')) {
 				this.curTeam.dex = Dex.mod('champions');
 			}
 			this.save();
@@ -2081,7 +2100,7 @@
 
 			var baseFormat = this.curTeam.format;
 			if (baseFormat.substr(-5) === 'draft') baseFormat = baseFormat.substr(0, baseFormat.length - 5);
-			var usesStatPoints = baseFormat.includes('champions');
+			var usesStatPoints = usesChampionsStatPoints(baseFormat);
 			var supportsEVs = !baseFormat.includes('letsgo');
 			var isVGC = baseFormat.includes('battlespot') || baseFormat.includes('bss') ||
 				baseFormat.includes('vgc') || baseFormat.includes('battlefestival');
@@ -2367,7 +2386,7 @@
 
 			var baseFormat = this.curTeam.format;
 			if (baseFormat.substr(-5) === 'draft') baseFormat = baseFormat.substr(0, baseFormat.length - 5);
-			var usesStatPoints = baseFormat.includes('champions');
+			var usesStatPoints = usesChampionsStatPoints(baseFormat);
 			var supportsEVs = !baseFormat.includes('letsgo') && !usesStatPoints;
 			// var supportsAVs = !supportsEVs && baseFormat.endsWith('norestrictions');
 			var defaultEV = this.curTeam.gen <= 2 ? 252 : 0;
@@ -2672,7 +2691,7 @@
 			var inputName = '';
 			inputName = e.currentTarget.name;
 			var val = Math.abs(parseInt(e.currentTarget.value, 10));
-			var usesStatPoints = this.curTeam.format.includes('champions');
+			var usesStatPoints = usesChampionsStatPoints(this.curTeam.format);
 			var supportsEVs = !this.curTeam.format.includes('letsgo') && !usesStatPoints;
 			var supportsAVs = !supportsEVs && this.curTeam.format.endsWith('norestrictions');
 			var set = this.curSet;
@@ -2795,7 +2814,7 @@
 			var val = +slider.value;
 			var originalVal = val;
 			var result = this.getStat(stat, set, val);
-			var usesStatPoints = this.curTeam.format.includes('champions');
+			var usesStatPoints = usesChampionsStatPoints(this.curTeam.format);
 			var supportsEVs = !this.curTeam.format.includes('letsgo') && !usesStatPoints;
 			var supportsAVs = !supportsEVs && this.curTeam.format.endsWith('norestrictions');
 			var step = usesStatPoints ? 1 : 4;
@@ -3601,6 +3620,8 @@
 			if (this.curTeam && this.curTeam.format) {
 				var baseFormat = this.curTeam.format;
 				var format = window.BattleFormats && window.BattleFormats[baseFormat];
+				var fullFormat = baseFormat;
+				if (fullFormat.substr(-5) === 'draft') fullFormat = fullFormat.substr(0, fullFormat.length - 5);
 				if (baseFormat.substr(0, 3) === 'gen') baseFormat = baseFormat.substr(4);
 				if (baseFormat.substr(0, 4) === 'bdsp') baseFormat = baseFormat.substr(4);
 				if (baseFormat.substr(0, 8) === 'pokebank') baseFormat = baseFormat.substr(8);
@@ -3609,7 +3630,9 @@
 				if (baseFormat.substr(-5) === 'draft') baseFormat = baseFormat.substr(0, baseFormat.length - 5);
 				if (!baseFormat) baseFormat = 'ou';
 				if (this.curTeam && this.curTeam.format) {
-					if (baseFormat.substr(0, 9) === 'champions' || baseFormat.substr(0, 10) === 'battlespot' ||
+					if (fullFormat.includes('natdexchampionsmodern')) set.level = 50;
+					else if (fullFormat.includes('natdexchampionsclassic')) set.level = 100;
+					else if (baseFormat.substr(0, 9) === 'champions' || baseFormat.substr(0, 10) === 'battlespot' ||
 						baseFormat.substr(0, 3) === 'bss' || baseFormat.substr(0, 3) === 'vgc' ||
 						baseFormat.substr(0, 14) === 'battlefestival') set.level = 50;
 					if (baseFormat.startsWith('lc') || baseFormat.endsWith('lc')) set.level = 5;
@@ -3648,7 +3671,7 @@
 		// Stat calculator
 
 		getStat: function (stat, set, evOverride, natureOverride) {
-			var usesStatPoints = this.curTeam.format.includes('champions');
+			var usesStatPoints = usesChampionsStatPoints(this.curTeam.format);
 			var supportsEVs = !this.curTeam.format.includes('letsgo') && !usesStatPoints;
 			var supportsAVs = !supportsEVs;
 			if (!set) set = this.curSet;
