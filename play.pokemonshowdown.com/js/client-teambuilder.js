@@ -13,6 +13,10 @@
 		return format.includes('champions') && !format.includes('natdexchampionsclassic');
 	}
 
+	function supportsTeraType(format) {
+		return !format.includes('champions') || format.includes('natdexchampions');
+	}
+
 	exports.TeambuilderRoom = exports.Room.extend({
 		type: 'teambuilder',
 		title: 'Teambuilder',
@@ -1378,7 +1382,7 @@
 						buf += '<span class="detailcell"><label>Gmax</label>' + (set.gigantamax || species.forme === 'Gmax' ? 'Yes' : 'No') + '</span>';
 					}
 				}
-				if (this.curTeam.gen === 9 && !isChampions) {
+				if (this.curTeam.gen === 9 && supportsTeraType(this.curTeam.format)) {
 					buf += '<span class="detailcell"><label>Tera Type</label>' + (set.teraType || species.requiredTeraType || species.types[0]) + '</span>';
 				}
 			}
@@ -2994,7 +2998,7 @@
 				buf += '</select></div></div>';
 			}
 
-			if (this.curTeam.gen === 9 && !isChampions) {
+			if (this.curTeam.gen === 9 && supportsTeraType(this.curTeam.format)) {
 				buf += '<div class="formrow"><label class="formlabel" title="Tera Type">Tera Type:</label><div>';
 				buf += '<select name="teratype" class="button">';
 				var types = Dex.types.all();
@@ -3082,7 +3086,7 @@
 
 			// Tera type
 			var teraType = this.$chart.find('select[name=teratype]').val();
-			if (!isChampions && Dex.types.isName(teraType)) {
+			if (supportsTeraType(this.curTeam.format) && Dex.types.isName(teraType)) {
 				set.teraType = teraType || species.requiredTeraType || species.types[0];
 			} else {
 				delete set.teraType;
@@ -3113,7 +3117,7 @@
 						buf += '<span class="detailcell"><label>Gmax</label>' + (set.gigantamax || species.forme === 'Gmax' ? 'Yes' : 'No') + '</span>';
 					}
 				}
-				if (this.curTeam.gen === 9 && !isChampions) {
+				if (this.curTeam.gen === 9 && supportsTeraType(this.curTeam.format)) {
 					buf += '<span class="detailcell"><label>Tera Type</label>' + (set.teraType || species.requiredTeraType || species.types[0]) + '</span>';
 				}
 			}
@@ -3648,7 +3652,10 @@
 			if (set.shiny) delete set.shiny;
 			if (set.dynamaxLevel) delete set.dynamaxLevel;
 			if (set.gigantamax) delete set.gigantamax;
-			if (set.teraType) delete set.teraType;
+			if (set.teraType && !supportsTeraType(this.curTeam.format)) delete set.teraType;
+			if (this.curTeam.gen === 9 && supportsTeraType(this.curTeam.format) && !set.teraType) {
+				set.teraType = species.requiredTeraType || species.types[0];
+			}
 			if (!(this.curTeam.format.includes('hackmons') || this.curTeam.format.endsWith('bh')) && species.requiredItems.length === 1) {
 				set.item = species.requiredItems[0];
 			} else {

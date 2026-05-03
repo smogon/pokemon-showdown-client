@@ -11,13 +11,14 @@ process.chdir(rootDir);
 const serverPath = process.env.PS_SERVER_PATH ?
 	path.resolve(process.env.PS_SERVER_PATH) :
 	path.resolve('caches/pokemon-showdown');
+const serverRepo = process.env.PS_SERVER_REPO || 'https://github.com/Zylphys/pokemon-showdown.git';
 
 function serverModulePath(modulePath) {
 	return path.join(serverPath, 'dist', modulePath);
 }
 
 if (!process.env.PS_SERVER_PATH && !fs.existsSync('caches/pokemon-showdown')) {
-	child_process.execSync('git clone https://github.com/smogon/pokemon-showdown.git', {
+	child_process.execSync(`git clone ${serverRepo}`, {
 		cwd: 'caches',
 	});
 }
