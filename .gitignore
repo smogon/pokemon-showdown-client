@@ -2,6 +2,8 @@ node_modules/
 .DS_Store
 Thumbs.db
 npm-debug.log
+local-client-server.js
+local-client-server.*.log
 /config/
 /vendor/
 /caches/
@@ -16,6 +18,7 @@ npm-debug.log
 /play.pokemonshowdown.com/index.php
 /play.pokemonshowdown.com/index.html
 /play.pokemonshowdown.com/index-test.html
+/play.pokemonshowdown.com/local.html
 /play.pokemonshowdown.com/preactalpha.html
 /play.pokemonshowdown.com/crossprotocol.html
 /play.pokemonshowdown.com/data/
