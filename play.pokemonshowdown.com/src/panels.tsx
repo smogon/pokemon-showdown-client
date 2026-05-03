@@ -284,9 +284,10 @@ export function PSPanelWrapper(props: {
 	if (room.location === 'mini-window') {
 		const tinyLayout = PS.mainmenu.width < 620;
 		const size = (props.fullSize ?? tinyLayout) ? ' mini-window-flex' : '';
+		const scrollable = (props.scrollable ?? !tinyLayout) === true;
 		return <div
 			id={`room-${room.id}`}
-			class={`mini-window-contents tiny-layout ps-room-light${(props.scrollable ?? !tinyLayout) === true ? ' scrollable' : ''}${size}`}
+			class={`mini-window-contents tiny-layout ps-room-light${scrollable ? ' scrollable' : ''}${size}`}
 			onClick={props.focusClick ? PSView.focusIfNoSelection : undefined} onDragEnter={props.onDragEnter}
 		>
 			{props.children}
