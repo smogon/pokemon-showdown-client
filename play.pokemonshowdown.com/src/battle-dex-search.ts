@@ -1118,6 +1118,8 @@ class BattlePokemonSearch extends BattleTypedSearch<'pokemon'> {
 				if (id === "missingno") continue;
 				const species = this.dex.species.get(id);
 				if (!species.exists) continue;
+				// Cosmetic formes are selectable via the sprite picker on the base species entry, not as separate list items.
+				if (species.isCosmeticForme) continue;
 				const baseSpecies = this.dex.species.get(species.baseSpecies || species.name);
 				const introducedGen = baseSpecies.exists ? baseSpecies.gen : species.gen;
 				if ((isRelumiUbers || isRelumiOU) && introducedGen === 9) {
