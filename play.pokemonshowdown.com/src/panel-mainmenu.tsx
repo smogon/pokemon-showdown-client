@@ -381,9 +381,9 @@ export class MainMenuRoom extends PSRoom {
 	 * Most queries are still handled hardcoded, so this is only for certain
 	 * special queries that need a Promise.
 	 */
-	makeQuery(id: string, param?: string) {
+	makeQuery(id: string, param?: string, excludeParamFromListener?: boolean) {
 		let fullid = id;
-		if (param) fullid += ` ${toID(param)}`;
+		if (param && !excludeParamFromListener) fullid += ` ${toID(param)}`;
 		return new Promise<any>(resolve => {
 			if (!this.listeners[fullid]) {
 				this.listeners[fullid] = [];
@@ -485,7 +485,7 @@ class NewsPanel extends PSRoomPanel {
 	change = (ev: Event) => {
 		const target = ev.currentTarget as HTMLInputElement;
 		if (target.value === '1') {
-			document.cookie = "preactalpha=1; expires=Thu, 1 Jun 2026 12:00:00 UTC; path=/";
+			document.cookie = "preactalpha=1; expires=Thu, 1 Jul 2026 12:00:00 UTC; path=/";
 		} else {
 			document.cookie = "preactalpha=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
 		}

@@ -635,12 +635,12 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			tiers.push(...tierTable[tier]);
 		}
 		if (!isDoubles) {
-			if (!formatSlices['OU']) formatSlices['OU'] = formatSlices['New'];
-			if (!formatSlices['UU']) formatSlices['UU'] = formatSlices['New'];
-			if (!formatSlices['RU']) formatSlices['RU'] = formatSlices['New'];
+			if (formatSlices['OU'] === undefined) formatSlices['OU'] = formatSlices['New'];
+			if (formatSlices['UU'] === undefined) formatSlices['UU'] = formatSlices['New'];
+			if (formatSlices['RU'] === undefined) formatSlices['RU'] = formatSlices['New'];
 		} else {
-			if (!formatSlices['DOU']) formatSlices['DOU'] = formatSlices['New'];
-			if (!formatSlices['DUU']) formatSlices['DUU'] = formatSlices['New'];
+			if (formatSlices['DOU'] === undefined) formatSlices['DOU'] = formatSlices['New'];
+			if (formatSlices['DUU'] === undefined) formatSlices['DUU'] = formatSlices['New'];
 		}
 
 		const itemList = Object.keys(Dex.data.Items);
