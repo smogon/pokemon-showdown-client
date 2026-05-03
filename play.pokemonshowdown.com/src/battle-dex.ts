@@ -241,6 +241,18 @@ export const Dex = new class implements ModdedDex {
 		return `${protocol}//${window.Config ? Config.routes.client : 'play.pokemonshowdown.com'}/fx/`;
 	})();
 
+	/**
+	 * Returns the base URL for sprites. Uses upstream (play.pokemonshowdown.com)
+	 * when useupstreamsprites preference is enabled, otherwise uses local resourcePrefix.
+	 */
+	spriteResourcePrefix() {
+		if (Dex.prefs('useupstreamsprites')) {
+			const prefix = window.document?.location?.protocol !== 'http:' ? 'https:' : '';
+			return `${prefix}//play.pokemonshowdown.com/`;
+		}
+		return Dex.resourcePrefix;
+	}
+
 	loadedSpriteData = { xy: 1, bw: 0 };
 	moddedDexes: { [mod: string]: ModdedDex } = {};
 
@@ -688,7 +700,7 @@ export const Dex = new class implements ModdedDex {
 			w: 96,
 			h: 96,
 			y: 0,
-			url: Dex.resourcePrefix + 'sprites/',
+			url: this.spriteResourcePrefix() + 'sprites/',
 			pixelated: true,
 			isFrontSprite: false,
 			cryurl: '',
@@ -1007,7 +1019,7 @@ export const Dex = new class implements ModdedDex {
 		const data = this.getTeambuilderSpriteData(pokemon, dex);
 		const shiny = (data.shiny ? '-shiny' : '');
 		const resize = (data.h ? `background-size:${data.h}px` : '');
-		return `background-image:url(${Dex.resourcePrefix}${data.spriteDir}${shiny}/${data.spriteid}.png);background-position:${data.x + xOffset}px ${data.y + yOffset}px;background-repeat:no-repeat;${resize}`;
+		return `background-image:url(${this.spriteResourcePrefix()}${data.spriteDir}${shiny}/${data.spriteid}.png);background-position:${data.x + xOffset}px ${data.y + yOffset}px;background-repeat:no-repeat;${resize}`;
 	}
 
 	getItemIcon(item: any) {

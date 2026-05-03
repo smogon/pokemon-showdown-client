@@ -654,6 +654,7 @@
 			"change input[name=nogif]": "setNogif",
 			"change input[name=bwgfx]": "setBwgfx",
 			"change input[name=nopastgens]": "setNopastgens",
+			"change input[name=useupstreamsprites]": "setUseUpstreamSprites",
 			"change input[name=relumiHighlightBalanceChanges]": "setRelumiHighlightBalanceChanges",
 			"change select[name=tournaments]": "setTournaments",
 			"change select[name=language]": "setLanguage",
@@ -760,6 +761,10 @@
 				'<p><label class="checkbox"><input type="checkbox" name="nopastgens"' +
 				(Dex.prefs("nopastgens") ? " checked" : "") +
 				" /> Use modern sprites for past generations</label></p>";
+			buf +=
+				'<p><label class="checkbox"><input type="checkbox" name="useupstreamsprites"' +
+				(Dex.prefs("useupstreamsprites") ? " checked" : "") +
+				" /> Use upstream (official) sprites instead of custom</label></p>";
 			buf +=
 				'<p><label class="checkbox"><input type="checkbox" name="relumiHighlightBalanceChanges"' +
 				(Dex.prefs("relumiHighlightBalanceChanges") !== false ? " checked" : "") +
@@ -925,6 +930,10 @@
 		setNopastgens: function (e) {
 			var nopastgens = !!e.currentTarget.checked;
 			Storage.prefs("nopastgens", nopastgens);
+		},
+		setUseUpstreamSprites: function (e) {
+			var useupstreamsprites = !!e.currentTarget.checked;
+			Storage.prefs("useupstreamsprites", useupstreamsprites);
 		},
 		setRelumiHighlightBalanceChanges: function (e) {
 			var relumiHighlightBalanceChanges = !!e.currentTarget.checked;
