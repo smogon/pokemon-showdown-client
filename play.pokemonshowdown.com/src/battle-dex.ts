@@ -548,11 +548,14 @@ export const Dex = new class implements ModdedDex {
 				const baseSpecies = this.species.get(data.baseSpecies);
 				if (baseSpecies.exists) {
 					const cosmeticName = data.name || baseSpecies.name;
+					// Explicitly preserve forme from cosmetic data to ensure correct spriteid
+					const cosmeticForme = (data as any).forme || '';
 					const cosmeticSpecies = new Species(formid, cosmeticName, {
 						...baseSpecies,
 						...data,
 						name: cosmeticName,
-						baseForme: "",
+						forme: cosmeticForme,
+						baseForme: '',
 						baseSpecies: baseSpecies.name,
 						otherFormes: null,
 					});
