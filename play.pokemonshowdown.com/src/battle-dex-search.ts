@@ -470,6 +470,9 @@ export class DexSearch {
 				) {
 					continue;
 				}
+				// Skip cosmetic formes - they are selectable via sprite picker on base species
+				const species = this.dex.species.get(id);
+				if (species.isCosmeticForme) continue;
 
 				let typeIndex = 1;
 				if (illegal) {
@@ -811,6 +814,9 @@ abstract class BattleTypedSearch<T extends SearchType> {
 
 				for (const id in this.getTable()) {
 					if (!(id in legalityFilter)) {
+						// Cosmetic formes are selectable via sprite picker - don't mark as illegal
+						const species = this.dex.species.get(id);
+						if (species.isCosmeticForme) continue;
 						this.baseIllegalResults.push([this.searchType, id as ID]);
 						this.illegalReasons[id] = 'Illegal';
 					}
@@ -1074,6 +1080,9 @@ class BattlePokemonSearch extends BattleTypedSearch<'pokemon'> {
 			case 'pikachucosplay':
 				continue;
 			}
+			// Filter out cosmetic formes - they are selectable via sprite picker on base species
+			const species = this.dex.species.get(id);
+			if (species.isCosmeticForme) continue;
 			results.push(['pokemon', id as ID]);
 		}
 		return results;
