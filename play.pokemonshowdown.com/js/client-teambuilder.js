@@ -3959,7 +3959,11 @@
 			for (var i = 0; i < formCount; i++) {
 				var formid = forms[i].substring(baseid.length);
 				var form = (formid ? formid[0].toUpperCase() + formid.slice(1) : '');
-				var spriteid = baseid + (form ? '-' + formid : '');
+				// Use the species' own spriteid rather than reconstructing from baseid+formid,
+				// so cosmetic formes whose baseSpecies differs from the picker's baseid (e.g.
+				// Alcremie sweet variants whose baseSpecies is a cream form) get the right path.
+				var formSpecies = dex.species.get(forms[i]);
+				var spriteid = formSpecies.spriteid || (baseid + (form ? '-' + formid : ''));
 				var data = Dex.getTeambuilderSpriteData(spriteid, dex);
 				var spriteSize = data.spriteDir === 'sprites/dex' ? 120 : 96;
 				maxSpriteSize = Math.max(maxSpriteSize, spriteSize);
