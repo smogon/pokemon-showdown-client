@@ -1453,8 +1453,12 @@ export class BattleTooltips {
 		const isTransformed = clientPokemon?.volatiles.transform;
 		if (!serverPokemon || isTransformed) {
 			if (!clientPokemon) throw new Error('Must pass either clientPokemon or serverPokemon');
-			let { min, ev0, ev252, max, scarf } = this.getSpeedRange(clientPokemon);
-			return `<p><small>Spe</small> ${min} to ${ev0} to ${ev252} to ${max} to ${scarf}<br><small>(before items/abilities/modifiers)</small></p>`;
+			let { min, ev0, ev84, ev252, max } = this.getSpeedRange(clientPokemon);
+			if (this.battle.tier.includes('Random')) {
+				return `<p><small>Spe</small> ${min} or ${ev84} <small>(before external modifiers)</small></p>`;
+			} else {
+				return `<p><small>Spe</small> ${min} to ${ev0} to ${ev252} to ${max}<br><small>(before external modifiers)</small></p>`;
+			};
 		}
 		const stats = serverPokemon.stats;
 		const modifiedStats = this.calculateModifiedStats(clientPokemon, serverPokemon);
@@ -1538,7 +1542,7 @@ export class BattleTooltips {
 	/**
 	 * Calculates possible Speed stat range of an opponent
 	 */
-	getSpeedRange(pokemon: Pokemon): { min: number, ev0: number, ev252: number, max: number, scarf: number } {
+	getSpeedRange(pokemon: Pokemon): { min: number, ev0: number, ev84: number, ev252: number, max: number } {
 		const tr = Math.trunc || Math.floor;
 		const species = pokemon.getSpecies();
 		let rules = this.battle.rules;
@@ -1581,32 +1585,32 @@ export class BattleTooltips {
 
 		let min;
 		let ev0;
+		let ev84;
 		let ev252;
 		let max;
-		let scarf;
 		if (tier.includes("Let's Go")) {
 			min = tr(tr(tr(2 * baseSpe * level / 100 + 5) * minNature) * tr((70 / 255 / 10 + 1) * 100) / 100);
 			ev0 = tr(tr(tr((2 * baseSpe + 31) * level / 100 + 5)) * tr((70 / 255 / 10 + 1) * 100) / 100);
-			ev252 = tr(tr(tr((2 * baseSpe + 31 + 63) * level / 100 + 5)) * tr((70 / 255 / 10 + 1) * 100) / 100);
+			ev84 = tr(tr(tr((2 * baseSpe + 31 + 21) * level / 100 + 5)) * tr((70 / 255 / 10 + 1) * 100) / 100);
+			ev252 = tr(tr(tr((2 * baseSpe + 31 + 63) * level / 100 + 5)) * tr((70 / 255 / 10 + 1) * 100) / 100); // probably bugged
 			max = tr(tr(tr((2 * baseSpe + maxIv) * level / 100 + 5) * maxNature) * tr((70 / 255 / 10 + 1) * 100) / 100);
-			scarf = tr(max * 1.5);
 			if (tier.includes('No Restrictions')) max += 200;
 			else if (tier.includes('Random')) max += 20;
 		} else if (tier.includes('Champions')) {
 			min = tr(minNature * (baseSpe + 20));
 			ev0 = tr(baseSpe + 20);
+			ev84 = tr(baseSpe + 13 + 20); // no tier uses this value
 			ev252 = tr(baseSpe + 32 + 20);
 			max = tr(maxNature * (baseSpe + 32 + 20));
-			scarf = tr(max * 1.5);
 		} else {
 			let maxIvEvOffset = maxIv + ((isRandomBattle && gen >= 3) ? 21 : 63);
 			max = tr(tr((2 * baseSpe + maxIvEvOffset) * level / 100 + 5) * maxNature);
-			ev252 = tr(tr((2 * baseSpe + 31 + maxIvEvOffset) * level / 100 + 5));
+			ev252 = tr(tr((2 * baseSpe + 31 + maxIvEvOffset) * level / 100 + 5)); // bugged, fix later
+			ev84 = tr(tr((2 * baseSpe + 31 + 21) * level / 100 + 5));
 			ev0 = tr(tr((2 * baseSpe + 31) * level / 100 + 5));
 			min = isCGT ? max : tr(tr(2 * baseSpe * level / 100 + 5) * minNature);
-			scarf = tr(max * 1.5);
 		}
-		return { min, ev0, ev252, max, scarf };
+		return { min, ev0, ev84, ev252, max };
 	}
 
 	/**
