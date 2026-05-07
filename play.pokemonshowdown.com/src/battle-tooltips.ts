@@ -1592,20 +1592,20 @@ export class BattleTooltips {
 			min = tr(tr(tr(2 * baseSpe * level / 100 + 5) * minNature) * tr((70 / 255 / 10 + 1) * 100) / 100);
 			ev0 = tr(tr(tr((2 * baseSpe + 31) * level / 100 + 5)) * tr((70 / 255 / 10 + 1) * 100) / 100);
 			ev84 = tr(tr(tr((2 * baseSpe + 31 + 21) * level / 100 + 5)) * tr((70 / 255 / 10 + 1) * 100) / 100);
-			ev252 = tr(tr(tr((2 * baseSpe + 31 + 63) * level / 100 + 5)) * tr((70 / 255 / 10 + 1) * 100) / 100); // probably bugged
+			ev252 = tr(tr(tr((2 * baseSpe + 31 + 63) * level / 100 + 5)) * tr((70 / 255 / 10 + 1) * 100) / 100);
 			max = tr(tr(tr((2 * baseSpe + maxIv) * level / 100 + 5) * maxNature) * tr((70 / 255 / 10 + 1) * 100) / 100);
 			if (tier.includes('No Restrictions')) max += 200;
 			else if (tier.includes('Random')) max += 20;
 		} else if (tier.includes('Champions')) {
 			min = tr(minNature * (baseSpe + 20));
 			ev0 = tr(baseSpe + 20);
-			ev84 = tr(baseSpe + 13 + 20); // no tier uses this value
+			ev84 = tr(baseSpe + 13 + 20);
 			ev252 = tr(baseSpe + 32 + 20);
 			max = tr(maxNature * (baseSpe + 32 + 20));
 		} else {
 			let maxIvEvOffset = maxIv + ((isRandomBattle && gen >= 3) ? 21 : 63);
 			max = tr(tr((2 * baseSpe + maxIvEvOffset) * level / 100 + 5) * maxNature);
-			ev252 = tr(tr((2 * baseSpe + 31 + maxIvEvOffset) * level / 100 + 5)); // bugged, fix later
+			ev252 = tr(tr((2 * baseSpe + maxIvEvOffset) * level / 100 + 5));
 			ev84 = tr(tr((2 * baseSpe + 31 + 21) * level / 100 + 5));
 			ev0 = tr(tr((2 * baseSpe + 31) * level / 100 + 5));
 			min = isCGT ? max : tr(tr(2 * baseSpe * level / 100 + 5) * minNature);
