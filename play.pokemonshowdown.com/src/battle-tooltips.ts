@@ -1456,6 +1456,8 @@ export class BattleTooltips {
 			let { min, ev0, ev84, ev252, max } = this.getSpeedRange(clientPokemon);
 			if (this.battle.tier.includes('Random')) {
 				return `<p><small>Spe</small> ${min} or ${ev84} <small>(before external modifiers)</small></p>`;
+			} else if (this.battle.tier.includes("Let's Go")) {
+				return `<p><small>Spe</small> ${min} to ${ev0} to ${max} <small>(before external modifiers)</small></p>`;
 			} else {
 				return `<p><small>Spe</small> ${min} to ${ev0} to ${ev252} to ${max}<br><small>(before external modifiers)</small></p>`;
 			};
@@ -1591,9 +1593,9 @@ export class BattleTooltips {
 		if (tier.includes("Let's Go")) {
 			min = tr(tr(tr(2 * baseSpe * level / 100 + 5) * minNature) * tr((70 / 255 / 10 + 1) * 100) / 100);
 			ev0 = tr(tr(tr((2 * baseSpe + 31) * level / 100 + 5)) * tr((70 / 255 / 10 + 1) * 100) / 100);
-			ev84 = tr(tr(tr((2 * baseSpe + 31 + 21) * level / 100 + 5)) * tr((70 / 255 / 10 + 1) * 100) / 100);
+			ev84 = tr(tr(tr((2 * baseSpe + 31) * level / 100 + 5)) * tr((70 / 255 / 10 + 1) * 100) / 100);
 			ev252 = tr(tr(tr((2 * baseSpe + 31 + 63) * level / 100 + 5)) * tr((70 / 255 / 10 + 1) * 100) / 100);
-			max = tr(tr(tr((2 * baseSpe + maxIv) * level / 100 + 5) * maxNature) * tr((70 / 255 / 10 + 1) * 100) / 100);
+			max = tr(tr(tr((2 * baseSpe + 31) * level / 100 + 5) * maxNature) * tr((70 / 255 / 10 + 1) * 100) / 100);
 			if (tier.includes('No Restrictions')) max += 200;
 			else if (tier.includes('Random')) max += 20;
 		} else if (tier.includes('Champions')) {
