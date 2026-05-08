@@ -3081,7 +3081,7 @@ class DetailsForm extends preact.Component<{
 					name="level" value={set.level ?? ''} placeholder={`${editor.defaultLevel}`}
 					type="number" inputMode="numeric" min="1" max="100" step="1"
 					class="textbox inputform numform default-placeholder" style="width: 50px"
-					onInput={this.changeLevel} onChange={this.changeLevel}
+					onInput={this.changeLevel} onChange={this.changeLevel} disabled={editor.isChampions}
 				/></label><small>(You probably want to change the team's levels by changing the format, not here)</small></p>
 				{editor.gen > 1 && (<>
 					<p><div class="label">Shiny: <div class="labeled">
