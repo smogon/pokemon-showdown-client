@@ -1232,7 +1232,7 @@ export class BattleLog {
 
 	parseChatMessage(
 		message: string, name: string, timestamp: string, isHighlighted?: boolean
-	): [string, string, boolean?] {
+	): [divClass: string, divHTML: string, noNotify?: boolean] {
 		let showMe = !BattleLog.prefs('chatformatting')?.hideme;
 		let group = ' ';
 		if (!/[A-Za-z0-9]/.test(name.charAt(0))) {
