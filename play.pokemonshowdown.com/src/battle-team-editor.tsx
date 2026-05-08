@@ -2919,7 +2919,8 @@ class StatForm extends preact.Component<{
 						/></td>
 						<td><input
 							name={`iv-${statID}`} min={0} max={useIVs ? 31 : 15} placeholder={`${defaultIVs[statID]}`} style="width:40px"
-							type="number" inputMode="numeric" class="textbox default-placeholder" onInput={this.changeIV} onChange={this.changeIV} disabled={usesStatPoints}
+							type="number" inputMode="numeric" class="textbox default-placeholder" onInput={this.changeIV}
+							onChange={this.changeIV} disabled={usesStatPoints}
 						/></td>
 						<td style="text-align:right"><strong>{stat}</strong></td>
 					</tr>)}
