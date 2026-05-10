@@ -269,7 +269,7 @@ export const SimServers = new class SimServersT {
 		if (Config.watchconfig) {
 			fs.watchFile(Config.serverlist, (curr, prev) => {
 				if (curr.mtime > prev.mtime) {
-					this.loadServers();
+					this.servers = this.loadServers();
 				}
 			});
 		}
