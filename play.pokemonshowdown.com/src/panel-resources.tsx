@@ -29,7 +29,7 @@ class ResourcePanel extends PSRoomPanel<ResourceRoom> {
 	override receiveLine() {}
 	override render() {
 		const { room } = this.props;
-		return <PSPanelWrapper room={room} scrollable>
+		return <PSPanelWrapper room={room}>
 			<div className="pad">
 				<h2>PS! Informational Resources</h2>
 				<hr />

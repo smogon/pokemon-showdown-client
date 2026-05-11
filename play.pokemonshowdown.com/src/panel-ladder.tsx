@@ -200,7 +200,7 @@ class LadderFormatPanel extends PSRoomPanel<LadderFormatRoom> {
 	}
 	override render() {
 		const room = this.props.room;
-		return <PSPanelWrapper room={room} scrollable>
+		return <PSPanelWrapper room={room}>
 			<div class="ladder pad">
 				<p>
 					<button class="button" data-href="ladder" data-target="replace">
@@ -253,7 +253,7 @@ class LadderListPanel extends PSRoomPanel {
 	}
 	override render() {
 		const room = this.props.room;
-		return <PSPanelWrapper room={room} scrollable>
+		return <PSPanelWrapper room={room}>
 			<div class="ladder pad">
 				<p>
 					<a class="button" href={`//${Config.routes.users}/`} target="_blank">
