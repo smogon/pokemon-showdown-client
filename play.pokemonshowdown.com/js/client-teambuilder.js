@@ -1291,11 +1291,16 @@
 			if ($(window).width() < 640) this.show();
 		},
 		renderSet: function (set, i) {
+			var baseFormat = this.curTeam.format;
+			if (baseFormat.substr(-5) === 'draft') baseFormat = baseFormat.substr(0, baseFormat.length - 5);
 			var species = this.curTeam.dex.species.get(set.species);
-			var isChampions = this.curTeam.format.includes('champions');
-			var isLetsGo = this.curTeam.format.includes('letsgo');
-			var isBDSP = this.curTeam.format.includes('bdsp');
-			var isNatDex = this.curTeam.format.includes('nationaldex') || this.curTeam.format.includes('natdex');
+			var isChampions = baseFormat.includes('champions');
+			var isLetsGo = baseFormat.includes('letsgo');
+			var isBDSP = baseFormat.includes('bdsp');
+			var isNatDex = baseFormat.includes('nationaldex') || baseFormat.includes('natdex');
+			var isVGC = baseFormat.includes('battlespot') || baseFormat.includes('bss') ||
+				baseFormat.includes('vgc') || baseFormat.includes('battlefestival');
+			var isLC = baseFormat.startsWith('lc') || baseFormat.endsWith('lc');
 			var buf = '<li value="' + i + '">';
 			if (!set.species) {
 				if (this.deletedSet) {
@@ -1409,16 +1414,16 @@
 				} else if (BattleNatures[set.nature] && BattleNatures[set.nature].minus === j) {
 					evBuf += '<small>&minus;</small>';
 				}
-				var highestStat = 504;
-				if (j === 'hp') highestStat = 704;
-				if (isChampions) {
-					if (j === 'hp') highestStat = 267;
-					else highestStat = 310;
+				var highestStat = j === 'hp' ? 714 : 499;
+				if (isChampions || isVGC) {
+					highestStat = j === 'hp' ? 362 : 252;
+				}
+				if (isLC) {
+					highestStat = j === 'hp' ? 45 : 29;
 				}
 				var width = stats[j] * 75 / highestStat;
-				if (j === 'hp') width = stats[j] * 75 / highestStat;
 				if (width > 75) width = 75;
-				var color = Math.floor(stats[j] * 180 / (isChampions ? 310 : 714));
+				var color = Math.floor(stats[j] * 180 / highestStat);
 				if (color > 360) color = 360;
 				var statName = this.curTeam.gen === 1 && j === 'spa' ? 'Spc' : BattleStatNames[j];
 				buf += '<span class="statrow"><label>' + statName + '</label> <span class="statgraph"><span style="width:' + width + 'px;background:hsl(' + color + ',40%,75%);"></span></span> ' + evBuf + '</span>';
@@ -2074,8 +2079,13 @@
 
 			var stats = { hp: '', atk: '', def: '', spa: '', spd: '', spe: '' };
 
-			var usesStatPoints = this.curTeam.format.includes('champions');
-			var supportsEVs = !this.curTeam.format.includes('letsgo');
+			var baseFormat = this.curTeam.format;
+			if (baseFormat.substr(-5) === 'draft') baseFormat = baseFormat.substr(0, baseFormat.length - 5);
+			var usesStatPoints = baseFormat.includes('champions');
+			var supportsEVs = !baseFormat.includes('letsgo');
+			var isVGC = baseFormat.includes('battlespot') || baseFormat.includes('bss') ||
+				baseFormat.includes('vgc') || baseFormat.includes('battlefestival');
+			var isLC = baseFormat.startsWith('lc') || baseFormat.endsWith('lc');
 
 			// stat cell
 			var buf = '<span class="statrow statrow-head"><label></label> <span class="statgraph"></span> <em>' + (usesStatPoints ? 'Points' : supportsEVs ? 'EV' : 'AV') + '</em></span>';
@@ -2090,16 +2100,16 @@
 				} else if (BattleNatures[set.nature] && BattleNatures[set.nature].minus === stat) {
 					evBuf += '<small>&minus;</small>';
 				}
-				var highestStat = 504;
-				if (stat === 'hp') highestStat = 704;
-				if (usesStatPoints) {
-					if (stat === 'hp') highestStat = 267;
-					else highestStat = 310;
+				var highestStat = stat === 'hp' ? 714 : 499;
+				if (usesStatPoints || isVGC) {
+					highestStat = stat === 'hp' ? 362 : 252;
+				}
+				if (isLC) {
+					highestStat = stat === 'hp' ? 45 : 29;
 				}
 				var width = stats[stat] * 75 / highestStat;
-				if (stat === 'hp') width = stats[stat] * 75 / highestStat;
 				if (width > 75) width = 75;
-				var color = Math.floor(stats[stat] * 180 / (usesStatPoints ? 310 : 714));
+				var color = Math.floor(stats[stat] * 180 / highestStat);
 				if (color > 360) color = 360;
 				var statName = this.curTeam.gen === 1 && stat === 'spa' ? 'Spc' : BattleStatNames[stat];
 				buf += '<span class="statrow"><label>' + statName + '</label> <span class="statgraph"><span style="width:' + width + 'px;background:hsl(' + color + ',40%,75%);"></span></span> ' + evBuf + '</span>';
@@ -2119,16 +2129,16 @@
 			var totalev = 0;
 			for (var stat in stats) {
 				if (stat === 'spd' && this.curTeam.gen === 1) continue;
-				var highestStat = 504;
-				if (stat === 'hp') highestStat = 704;
-				if (usesStatPoints) {
-					if (stat === 'hp') highestStat = 267;
-					else highestStat = 310;
+				var highestStat = stat === 'hp' ? 714 : 499;
+				if (usesStatPoints || isVGC) {
+					highestStat = stat === 'hp' ? 362 : 252;
+				}
+				if (isLC) {
+					highestStat = stat === 'hp' ? 45 : 29;
 				}
 				var width = stats[stat] * 180 / highestStat;
-				if (stat === 'hp') width = stats[stat] * 180 / highestStat;
 				if (width > 179) width = 179;
-				var color = Math.floor(stats[stat] * 180 / (usesStatPoints ? 310 : 714));
+				var color = Math.floor(stats[stat] * 180 / highestStat);
 				if (color > 360) color = 360;
 				buf += '<div><em><span style="width:' + Math.floor(width) + 'px;background:hsl(' + color + ',85%,45%);border-color:hsl(' + color + ',85%,35%)"></span></em></div>';
 				totalev += (set.evs[stat] || 0);
@@ -2355,12 +2365,17 @@
 			var nature = BattleNatures[set.nature || 'Serious'];
 			if (!nature) nature = {};
 
-			var usesStatPoints = this.curTeam.format.includes('champions');
-			var supportsEVs = !this.curTeam.format.includes('letsgo') && !usesStatPoints;
-			// var supportsAVs = !supportsEVs && this.curTeam.format.endsWith('norestrictions');
+			var baseFormat = this.curTeam.format;
+			if (baseFormat.substr(-5) === 'draft') baseFormat = baseFormat.substr(0, baseFormat.length - 5);
+			var usesStatPoints = baseFormat.includes('champions');
+			var supportsEVs = !baseFormat.includes('letsgo') && !usesStatPoints;
+			// var supportsAVs = !supportsEVs && baseFormat.endsWith('norestrictions');
 			var defaultEV = this.curTeam.gen <= 2 ? 252 : 0;
 			var maxEV = usesStatPoints ? 32 : supportsEVs ? 252 : 200;
 			var stepEV = supportsEVs ? 4 : 1;
+			var isVGC = baseFormat.includes('battlespot') || baseFormat.includes('bss') ||
+				baseFormat.includes('vgc') || baseFormat.includes('battlefestival');
+			var isLC = baseFormat.startsWith('lc') || baseFormat.endsWith('lc');
 
 			// label column
 			buf += '<div class="col labelcol"><div></div>';
@@ -2382,16 +2397,16 @@
 			buf += '<div class="col graphcol"><div></div>';
 			for (var i in stats) {
 				stats[i] = this.getStat(i);
-				var highestStat = 504;
-				if (i === 'hp') highestStat = 704;
-				if (usesStatPoints) {
-					if (i === 'hp') highestStat = 267;
-					else highestStat = 310;
+				var highestStat = i === 'hp' ? 714 : 499;
+				if (usesStatPoints || isVGC) {
+					highestStat = i === 'hp' ? 362 : 252;
+				}
+				if (isLC) {
+					highestStat = i === 'hp' ? 45 : 29;
 				}
 				var width = stats[i] * 180 / highestStat;
-				if (i === 'hp') width = Math.floor(stats[i] * 180 / highestStat);
 				if (width > 179) width = 179;
-				var color = Math.floor(stats[i] * 180 / (usesStatPoints ? 310 : 714));
+				var color = Math.floor(stats[i] * 180 / highestStat);
 				if (color > 360) color = 360;
 				buf += '<div><em><span style="width:' + Math.floor(width) + 'px;background:hsl(' + color + ',85%,45%);border-color:hsl(' + color + ',85%,35%)"></span></em></div>';
 			}
@@ -2440,7 +2455,7 @@
 				for (var i in stats) {
 					if (set.ivs[i] === undefined || isNaN(set.ivs[i])) set.ivs[i] = 31;
 					var val = '' + (set.ivs[i]);
-					buf += '<div><input type="number" name="iv-' + i + '" value="' + BattleLog.escapeHTML(val) + '" class="textbox inputform numform" min="' + (usesStatPoints ? 31 : 0) + '" max="31" step="1" /></div>';
+					buf += '<div><input type="number" name="iv-' + i + '" value="' + BattleLog.escapeHTML(val) + '" class="textbox inputform numform" min="' + (usesStatPoints ? 31 : 0) + '" max="31" step="1"' + (usesStatPoints ? ' disabled' : '') + ' /></div>';
 				}
 				var hpType = '';
 				if (set.moves) {
@@ -2892,7 +2907,12 @@
 			buf += '<div class="resultheader"><h3>Details</h3></div>';
 			buf += '<form class="detailsform">';
 
-			buf += '<div class="formrow"><label class="formlabel">Level:</label><div><input type="number" min="1" max="100" step="1" name="level" value="' + (typeof set.level === 'number' ? set.level : 100) + '" class="textbox inputform numform" /></div></div>';
+			buf += '<div class="formrow"><label class="formlabel">Level:</label><div>' +
+				'<input type="number" min="1" max="100" step="1" name="level" value="' +
+				(typeof set.level === 'number' ? set.level : 100) +
+				'" class="textbox inputform numform"' +
+				(isChampions ? ' disabled' : '') +
+				' /></div></div>';
 
 			if (this.curTeam.gen > 1) {
 				buf += '<div class="formrow"><label class="formlabel">Gender:</label><div>';
@@ -2911,7 +2931,7 @@
 				buf += '</div></div>';
 
 				if (isLetsGo) {
-					buf += '<div class="formrow"><label class="formlabel">Happiness:</label><div><input type="number" name="happiness" value="70" class="textbox inputform numform" /></div></div>';
+					buf += '<div class="formrow"><label class="formlabel">Happiness:</label><div><input type="number" name="happiness" value="70" class="textbox inputform numform" disabled /></div></div>';
 				} else {
 					if (this.curTeam.gen < 8 || isNatDex) buf += '<div class="formrow"><label class="formlabel">Happiness:</label><div><input type="number" min="0" max="255" step="1" name="happiness" value="' + (typeof set.happiness === 'number' ? set.happiness : 255) + '" class="textbox inputform numform" /></div></div>';
 				}

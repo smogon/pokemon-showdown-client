@@ -813,7 +813,7 @@ class TeambuilderPanel extends PSRoomPanel<TeambuilderRoom> {
 	override render() {
 		const room = this.props.room;
 
-		return <PSPanelWrapper room={room}>
+		return <PSPanelWrapper room={room} noScroll>
 			<div class="folderpane">
 				{this.renderFolderList()}
 			</div>

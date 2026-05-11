@@ -314,8 +314,6 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 		const overrideTier = {};
 		const metagameBans = {};
 		const nonstandardMoves = [];
-		const gen5zuBans = {};
-		const gen4puBans = {};
 		for (const id of pokemon) {
 			const species = Dex.mod(gen).species.get(id);
 			const baseSpecies = Dex.mod(gen).species.get(species.baseSpecies);
@@ -382,7 +380,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 					if (species.tier === 'LC') return 'LC';
 					return 'Regular';
 				}
-				if (isRS || isFRLG) {
+				if (isRS) {
 					if (species.isNonstandard) {
 						if (species.isNonstandard === 'Unobtainable') return 'Unreleased';
 						return 'Illegal';
@@ -481,20 +479,6 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 				if (nd35Pokes.exists && !Dex.formats.getRuleTable(nd35Pokes).isBannedSpecies(species)) {
 					if (!metagameBans['nationaldex35pokes']) metagameBans['nationaldex35pokes'] = {};
 					metagameBans['nationaldex35pokes'][species.id] = 1;
-				}
-			}
-			if (genNum >= 5) {
-				if (genNum === 5) {
-					const gen5zu = Dex.formats.get(gen + 'zu');
-					if (gen5zu.exists && Dex.formats.getRuleTable(gen5zu).isBannedSpecies(species)) {
-						gen5zuBans[species.id] = 1;
-					}
-				}
-			}
-			if (genNum === 4) {
-				const gen4pu = Dex.formats.get(gen + 'pu');
-				if (gen4pu.exists && Dex.formats.getRuleTable(gen4pu).isBannedSpecies(species)) {
-					gen4puBans[species.id] = 1;
 				}
 			}
 		}
@@ -599,12 +583,6 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			BattleTeambuilderTable[gen].learnsets = {};
 		} else {
 			BattleTeambuilderTable[gen] = {};
-			if (genNum === 5) {
-				BattleTeambuilderTable[gen].gen5zuBans = gen5zuBans;
-			}
-			if (genNum === 4) {
-				BattleTeambuilderTable[gen].gen4puBans = gen4puBans;
-			}
 			BattleTeambuilderTable[gen].overrideTier = overrideTier;
 			BattleTeambuilderTable[gen].tiers = tiers;
 			BattleTeambuilderTable[gen].items = items;
@@ -622,14 +600,11 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			if (isVGC || isGen9BH) {
 				return ["Mythical", "Restricted", "Regular", "NFE", "LC"];
 			}
-			if (isRS || isFRLG) {
+			if (isRS) {
 				return ["Regular", "NFE", "LC", "Uber"];
 			}
 			if (isDoubles && genNum > 4) {
 				return ["DUber", "(DUber)", "DOU", "DBL", "(DOU)", "DUU", "(DUU)", "New", "NFE", "LC"];
-			}
-			if (gen === 'gen4') {
-				return ["CAP", "CAP NFE", "CAP LC", "AG", "Uber", "OU", "(OU)", "UUBL", "UU", "NUBL", "NU", "NFE", "LC"];
 			}
 			return [
 				"CAP", "CAP NFE", "CAP LC", "AG", "Uber", "(Uber)", "OU", "(OU)", "UUBL", "UU", "RUBL", "RU", "NUBL", "NU", "PUBL", "PU", "ZUBL", "ZU", "New", "NFE", "LC", "Unreleased",
@@ -660,12 +635,12 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 			tiers.push(...tierTable[tier]);
 		}
 		if (!isDoubles) {
-			if (!formatSlices['OU']) formatSlices['OU'] = formatSlices['New'];
-			if (!formatSlices['UU']) formatSlices['UU'] = formatSlices['New'];
-			if (!formatSlices['RU']) formatSlices['RU'] = formatSlices['New'];
+			if (formatSlices['OU'] === undefined) formatSlices['OU'] = formatSlices['New'];
+			if (formatSlices['UU'] === undefined) formatSlices['UU'] = formatSlices['New'];
+			if (formatSlices['RU'] === undefined) formatSlices['RU'] = formatSlices['New'];
 		} else {
-			if (!formatSlices['DOU']) formatSlices['DOU'] = formatSlices['New'];
-			if (!formatSlices['DUU']) formatSlices['DUU'] = formatSlices['New'];
+			if (formatSlices['DOU'] === undefined) formatSlices['DOU'] = formatSlices['New'];
+			if (formatSlices['DUU'] === undefined) formatSlices['DUU'] = formatSlices['New'];
 		}
 
 		const itemList = Object.keys(Dex.data.Items);
@@ -990,6 +965,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 	const G2Learnsets = Dex.mod('gen2').data.Learnsets;
 	for (const id in G2Learnsets) {
 		const learnset = G2Learnsets[id].learnset;
+		if (!learnset) continue;
 		for (const moveid in learnset) {
 			const gens = learnset[moveid].map(x => Number(x[0]));
 			const minGen = Math.min(...gens);
@@ -1006,6 +982,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 		const species = Dex.mod('gen3rs').species.get(id);
 		if (species.isNonstandard && !['Unobtainable', 'CAP'].includes(species.isNonstandard)) continue;
 		const learnset = G3RSLearnsets[id].learnset;
+		if (!learnset) continue;
 		BattleTeambuilderTable['gen3rs'].learnsets[id] = {};
 		for (const moveid in learnset) {
 			BattleTeambuilderTable['gen3rs'].learnsets[id][moveid] = '3';
@@ -1016,6 +993,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 		const species = Dex.mod('gen3frlg').species.get(id);
 		if (species.isNonstandard && !['Unobtainable', 'CAP'].includes(species.isNonstandard)) continue;
 		const learnset = G3FRLGLearnsets[id].learnset;
+		if (!learnset) continue;
 		BattleTeambuilderTable['gen3frlg'].learnsets[id] = {};
 		for (const moveid in learnset) {
 			BattleTeambuilderTable['gen3frlg'].learnsets[id][moveid] = '3';
@@ -1026,6 +1004,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 		const species = Dex.mod('gen5bw1').species.get(id);
 		if (species.isNonstandard && !['Unobtainable', 'CAP'].includes(species.isNonstandard)) continue;
 		const learnset = G5BW1Learnsets[id].learnset;
+		if (!learnset) continue;
 		BattleTeambuilderTable['gen5bw1'].learnsets[id] = {};
 		for (const moveid in learnset) {
 			BattleTeambuilderTable['gen5bw1'].learnsets[id][moveid] = '5';
@@ -1039,6 +1018,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 		if (!validNum) continue;
 		if (species.forme && !['Alola', 'Mega', 'Mega-X', 'Mega-Y', 'Starter'].includes(species.forme)) continue;
 		const learnset = LGLearnsets[id].learnset;
+		if (!learnset) continue;
 		BattleTeambuilderTable['gen7letsgo'].learnsets[id] = {};
 		for (const moveid in learnset) {
 			BattleTeambuilderTable['gen7letsgo'].learnsets[id][moveid] = '7';
@@ -1049,6 +1029,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 		const species = Dex.mod('gen8bdsp').species.get(id);
 		if (species.isNonstandard && !['Unobtainable', 'CAP'].includes(species.isNonstandard)) continue;
 		const learnset = BDSPLearnsets[id].learnset;
+		if (!learnset) continue;
 		BattleTeambuilderTable['gen8bdsp'].learnsets[id] = {};
 		for (const moveid in learnset) {
 			BattleTeambuilderTable['gen8bdsp'].learnsets[id][moveid] = '8g';
@@ -1059,6 +1040,7 @@ process.stdout.write("Building `data/teambuilder-tables.js`... ");
 		const species = Dex.mod('champions').species.get(id);
 		if (species.isNonstandard) continue;
 		const learnset = ChampionsLearnsets[id].learnset;
+		if (!learnset) continue;
 		BattleTeambuilderTable['champions'].learnsets[id] = {};
 		for (const moveid in learnset) {
 			BattleTeambuilderTable['champions'].learnsets[id][moveid] = '9a';

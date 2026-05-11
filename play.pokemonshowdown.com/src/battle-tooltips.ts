@@ -1636,7 +1636,9 @@ export class BattleTooltips {
 		}
 		// Weather and pseudo-weather type changes.
 		if (move.id === 'weatherball') {
-			if (value.weatherModify(0)) {
+			if (value.abilityModify(0, 'Mega Sol')) {
+				moveType = 'Fire';
+			} else if (value.weatherModify(0)) {
 				switch (this.battle.weather) {
 				case 'sunnyday':
 				case 'desolateland':
@@ -1656,8 +1658,6 @@ export class BattleTooltips {
 					moveType = 'Ice';
 					break;
 				}
-			} else if (value.abilityModify(0, 'Mega Sol')) {
-				moveType = 'Fire';
 			}
 		}
 		if (move.id === 'terrainpulse' && pokemon.isGrounded(serverPokemon)) {
@@ -1839,6 +1839,7 @@ export class BattleTooltips {
 			return 1;
 		}
 		const hardcoreMode = this.battle.hardcoreMode;
+		const inverse = this.battle.rules['Inverse Mod'];
 		const targetTypes = target.getTypeList();
 		const sourceAbility = source.effectiveAbility();
 		// Mold Breaker doesn't ignore _everything_, but it sure ignores everything that affects effectiveness
@@ -1905,7 +1906,15 @@ export class BattleTooltips {
 					factor = 1;
 					break;
 				}
-				factor = 0;
+				// Inverse replaces immunities with weaknesses. This has to
+				// be coded here, else it won't calculate secondary type's
+				// effectiveness. It sets a resistance to be consistent with
+				// the inversion done at the end.
+				if (inverse) {
+					factor *= 0.5;
+				} else {
+					factor = 0;
+				}
 			} else if (move.id === 'freezedry' && targetType === 'Water') {
 				factor *= 2;
 			} else {
@@ -1970,11 +1979,20 @@ export class BattleTooltips {
 			return factor * otherFactor === 0 ? 0 : 1;
 		}
 		if (hardcoreMode && dex.gen <= 9) {
-			if (factor > 2) return 2;
-			if (factor < 0.5) return 0.5;
+			if (factor > 2) factor = 2;
+			if (factor < 0.5) factor = 0.5;
+			if (inverse && dex.gen >= 7) return 1 / factor;
 			return factor;
 		}
-		if (hardcoreMode) return factor;
+		if (hardcoreMode) {
+			if (inverse && dex.gen >= 7) return 1 / factor;
+			return factor;
+		}
+
+		// Inverse Mod reverses effectiveness
+		if (inverse) {
+			return 1 / (factor * otherFactor);
+		}
 		return factor * otherFactor;
 	}
 	getMoveTypeText(move: Dex.Move, value: ModifiableValue, forMaxMove?: boolean | Dex.Move) {
@@ -2143,7 +2161,7 @@ export class BattleTooltips {
 		value.set(move.accuracy as number);
 
 		if (move.id === 'hurricane' || move.id === 'thunder') {
-			if (value.tryAbility('Mega Sol')) value.set(50, 'Mega Sol');
+			if (value.tryAbility('Mega Sol')) value.set(50, 'Mega Sol'); // TODO check implementation
 			if (value.tryWeather('Sunny Day')) value.set(50, 'Sunny Day');
 			if (value.tryWeather('Desolate Land')) value.set(50, 'Desolate Land');
 		}
@@ -2276,8 +2294,7 @@ export class BattleTooltips {
 			}
 		}
 		if (move.id === 'weatherball') {
-			value.abilityModify(2, "Mega Sol");
-			if (this.battle.weather !== 'deltastream') {
+			if (!value.abilityModify(2, "Mega Sol") && this.battle.weather !== 'deltastream') {
 				value.weatherModify(2);
 			}
 		}
@@ -3236,7 +3253,7 @@ export class BattleStatGuesser {
 			if (!moveCount['PhysicalAttack']) evs.atk = 0;
 			if (!moveCount['SpecialAttack']) evs.spa = 0;
 			if (hasMove['gyroball'] || hasMove['trickroom']) evs.spe = 0;
-		} else if (!this.supportsEVs) {
+		} else if (!this.supportsEVs && !this.useStatPoints) {
 			// Let's Go, AVs disabled
 			// no change
 		} else if (this.ignoreEVLimits) {
@@ -3329,20 +3346,22 @@ export class BattleStatGuesser {
 				if (hp || evs['hp']) evs['hp'] = hp;
 			}
 
-			if (species.id === 'tentacruel') {
-				evTotal = this.ensureMinEVs(evs, 'spe', 16, evTotal);
-			} else if (species.id === 'skarmory') {
-				evTotal = this.ensureMinEVs(evs, 'spe', 24, evTotal);
-			} else if (species.id === 'jirachi') {
-				evTotal = this.ensureMinEVs(evs, 'spe', 32, evTotal);
-			} else if (species.id === 'celebi') {
-				evTotal = this.ensureMinEVs(evs, 'spe', 36, evTotal);
-			} else if (species.id === 'volcarona') {
-				evTotal = this.ensureMinEVs(evs, 'spe', 52, evTotal);
-			} else if (species.id === 'gliscor') {
-				evTotal = this.ensureMinEVs(evs, 'spe', 72, evTotal);
-			} else if (species.id === 'dragonite' && evs['hp']) {
-				evTotal = this.ensureMaxEVs(evs, 'spe', 220, evTotal);
+			if (this.supportsEVs) {
+				if (species.id === 'tentacruel') {
+					evTotal = this.ensureMinEVs(evs, 'spe', 16, evTotal);
+				} else if (species.id === 'skarmory') {
+					evTotal = this.ensureMinEVs(evs, 'spe', 24, evTotal);
+				} else if (species.id === 'jirachi') {
+					evTotal = this.ensureMinEVs(evs, 'spe', 32, evTotal);
+				} else if (species.id === 'celebi') {
+					evTotal = this.ensureMinEVs(evs, 'spe', 36, evTotal);
+				} else if (species.id === 'volcarona') {
+					evTotal = this.ensureMinEVs(evs, 'spe', 52, evTotal);
+				} else if (species.id === 'gliscor') {
+					evTotal = this.ensureMinEVs(evs, 'spe', 72, evTotal);
+				} else if (species.id === 'dragonite' && evs['hp']) {
+					evTotal = this.ensureMaxEVs(evs, 'spe', 220, evTotal);
+				}
 			}
 
 			if (evTotal < totalPoints) {
