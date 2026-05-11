@@ -952,7 +952,7 @@ export class TourPopOutPanel extends PSRoomPanel {
 	override render() {
 		const room = this.props.room;
 		const tour = room.args?.tour as ChatTournament;
-		return <PSPanelWrapper room={room} fullSize>
+		return <PSPanelWrapper room={room} noScroll fullSize>
 			{tour && <TournamentBracket tour={tour} poppedOut />}
 		</PSPanelWrapper>;
 	}
