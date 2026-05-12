@@ -199,7 +199,7 @@ export class PSSearchResults extends preact.Component<{
 				href={`${this.URL_ROOT}abilities/${id}`} class={id === this.abilityId ? 'cur' : ''}
 				data-target="push" data-entry={`ability|${ability.name}`}
 			>
-				<span class="col namecol">{id ? this.renderName(ability.name, matchStart, matchEnd) : <i>(no ability)</i>}</span>
+				<span class="col abilitynamecol">{id ? this.renderName(ability.name, matchStart, matchEnd) : <i>(no ability)</i>}</span>
 
 				{errorMessage}
 
