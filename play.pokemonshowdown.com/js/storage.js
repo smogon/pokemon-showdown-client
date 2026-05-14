@@ -29,20 +29,23 @@ Storage.safeJSON = function (callback) {
 
 Storage.bg = {
 	id: '',
+	curId: '',
+	curUrl: '',
 	changeCount: 0,
 	// futureproofing in case we ever add more?
 	// because doing this once was annoying
 	MENU_BUTTONS: 8,
-	SOLID_BG_ID: 'solidcolor',
 	DEFAULT_SOLID_BG: '#344b6c',
+	SOLID_BG_ID: 'solidcolor',
+	DEFAULT_BUTTON_COLOR_MODE: '8',
 	BUTTON_COLOR_MODE_PREFIX: 'buttonmode:',
-	buttonColorMode: '',
+	buttonColorMode: '' + 8,
 	set: function (bgUrl, bgid, noSave) {
 		if (!this.load(bgUrl, bgid, null, this.buttonColorMode)) {
-			this.extractMenuColors(this.resolveBgUrl(bgUrl, bgid), bgid, noSave);
+			this.extractMenuColors(this.curUrl || bgUrl, this.curId || bgid, noSave);
 		} else if (bgid) {
 			try {
-				this.save(this.resolveBgUrl(bgUrl, this.id), this.id);
+				this.save(this.curUrl, this.id);
 			} catch (e) {}
 		} else {
 			try {
@@ -59,7 +62,7 @@ Storage.bg = {
 			bgid = this.SOLID_BG_ID;
 		}
 		this.id = bgid;
-		this.buttonColorMode = this.normalizeButtonColorMode(buttonColorMode);
+		this.buttonColorMode = this.parseButtonColorMode(buttonColorMode);
 		if (!bgid) {
 			if (location.host === 'smogtours.psim.us') {
 				bgid = 'shaymin';
@@ -80,6 +83,8 @@ Storage.bg = {
 		} else if (!bgUrl && bgid) {
 			bgUrl = Dex.resourcePrefix + 'fx/client-bg-' + bgid + '.jpg';
 		}
+		this.curId = bgid;
+		this.curUrl = bgUrl;
 
 		// April Fool's 2016 - Digimon theme
 		// bgid = 'digimon';
@@ -150,64 +155,34 @@ Storage.bg = {
 		} else {
 			storedBg = bgUrl + '\n' + bgid;
 		}
-		if (this.buttonColorMode && this.buttonColorMode !== this.defaultButtonColorMode()) {
+		if (this.buttonColorMode !== this.DEFAULT_BUTTON_COLOR_MODE) {
 			storedBg += '\n' + this.BUTTON_COLOR_MODE_PREFIX + this.buttonColorMode;
 		}
 		localStorage.setItem('showdown_bg', storedBg);
 	},
-	defaultButtonColorMode: function () {
-		return '' + this.MENU_BUTTONS;
+	setButtonColorMode: function (buttonColorMode) {
+		this.buttonColorMode = this.parseButtonColorMode(buttonColorMode);
+		this.loadHues(this.hues || []);
+		this.save(this.curUrl, this.id, this.hues);
 	},
-	resolveBgUrl: function (bgUrl, bgid) {
-		if (bgid === 'solidblue') bgid = this.SOLID_BG_ID;
-		if (bgid === this.SOLID_BG_ID) {
-			return /^#[0-9A-F]{6}$/i.test(bgUrl) ? bgUrl : this.DEFAULT_SOLID_BG;
-		}
-		return bgUrl || (bgid ? Dex.resourcePrefix + 'fx/client-bg-' + bgid + '.jpg' : '');
-	},
-	getSolidColor: function () {
-		try {
-			var storedBg = localStorage.getItem('showdown_bg').split('\n');
-			if (storedBg[storedBg.length - 1].indexOf(this.BUTTON_COLOR_MODE_PREFIX) === 0) storedBg.pop();
-			if (storedBg.length >= 2 && storedBg[1] === this.SOLID_BG_ID) {
-				return this.resolveBgUrl(storedBg[0], storedBg[1]);
-			}
-		} catch (e) {}
-		return this.DEFAULT_SOLID_BG;
-	},
-	normalizeButtonColorMode: function (buttonColorMode) {
-		switch (buttonColorMode) {
+	parseButtonColorMode: function (buttonColorMode) {
+		switch ('' + buttonColorMode) {
 		case '1':
 		case '3':
-		case '8':
 		case 'rainbow':
-			return buttonColorMode;
+			return '' + buttonColorMode;
 		default:
-			return '';
+			return this.DEFAULT_BUTTON_COLOR_MODE;
 		}
 	},
-	setButtonColorMode: function (buttonColorMode) {
-		this.buttonColorMode = this.normalizeButtonColorMode(buttonColorMode);
-		this.loadHues(this.hues || []);
-		this.saveButtonColorMode();
-	},
-	saveButtonColorMode: function () {
-		var storedBg = [];
-		try {
-			storedBg = (localStorage.getItem('showdown_bg') || '').split('\n');
-			if (storedBg.length === 1 && !storedBg[0]) storedBg = [];
-			if (storedBg.length && storedBg[storedBg.length - 1].indexOf(this.BUTTON_COLOR_MODE_PREFIX) === 0) {
-				storedBg.pop();
-			}
-			if (this.buttonColorMode && this.buttonColorMode !== this.defaultButtonColorMode()) {
-				storedBg.push(this.BUTTON_COLOR_MODE_PREFIX + this.buttonColorMode);
-			}
-			if (storedBg.length) {
-				localStorage.setItem('showdown_bg', storedBg.join('\n'));
-			} else {
-				localStorage.removeItem('showdown_bg');
-			}
-		} catch (e) {}
+	normalizeHues: function (hues) {
+		if (!hues || !hues.length) return hues;
+		var normalizedHues = [];
+		var lastHue = hues[hues.length - 1];
+		for (var i = 0; i < this.MENU_BUTTONS; i++) {
+			normalizedHues.push(hues[i] || lastHue);
+		}
+		return normalizedHues;
 	},
 	getHueForButton: function (hues, i) {
 		switch (this.buttonColorMode) {
@@ -230,6 +205,7 @@ Storage.bg = {
 		);
 	},
 	loadHues: function (hues) {
+		hues = this.normalizeHues(hues);
 		this.hues = hues;
 		$('#mainmenubuttoncolors').remove();
 		if (this.buttonColorMode === 'rainbow' || !hues || !hues.length) return;
@@ -292,24 +268,26 @@ Storage.bg = {
 
 try {
 	var storedBg = localStorage.getItem('showdown_bg').split('\n');
-	var buttonColorMode = '';
+	var buttonColorMode = Storage.bg.DEFAULT_BUTTON_COLOR_MODE;
 	if (storedBg[storedBg.length - 1].indexOf(Storage.bg.BUTTON_COLOR_MODE_PREFIX) === 0) {
-		buttonColorMode = storedBg.pop().slice(Storage.bg.BUTTON_COLOR_MODE_PREFIX.length);
+		buttonColorMode = storedBg.pop().slice(Storage.bg.BUTTON_COLOR_MODE_PREFIX.length) || Storage.bg.DEFAULT_BUTTON_COLOR_MODE;
 	}
 	if (storedBg.length === 1 && storedBg[0]) {
 		if (!Storage.bg.load('', storedBg[0], null, buttonColorMode)) {
-			Storage.bg.extractMenuColors(Storage.bg.resolveBgUrl('', storedBg[0]), storedBg[0], true);
+			Storage.bg.extractMenuColors(Storage.bg.curUrl || '', Storage.bg.curId || storedBg[0], true);
 		}
 	} else if (storedBg.length >= 2) {
 		if (!Storage.bg.load(storedBg[0], storedBg[1], null, buttonColorMode) && storedBg.length < 10) {
-			Storage.bg.extractMenuColors(Storage.bg.resolveBgUrl(storedBg[0], storedBg[1]), storedBg[1], true);
+			Storage.bg.extractMenuColors(Storage.bg.curUrl || storedBg[0], Storage.bg.curId || storedBg[1], true);
 		}
 		if (storedBg.length >= 10) Storage.bg.load(storedBg[0], storedBg[1], storedBg.slice(2), buttonColorMode);
 	}
 } catch (e) {}
 
 if (!Storage.bg.id) {
-	Storage.bg.load();
+	if (!Storage.bg.load()) {
+		Storage.bg.extractMenuColors(Storage.bg.curUrl, Storage.bg.curId, true);
+	}
 }
 
 /*********************************************************

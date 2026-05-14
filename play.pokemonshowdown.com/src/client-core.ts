@@ -23,30 +23,41 @@ declare const ColorThief: any;
 
 const PSURL = `${document.location.protocol !== 'http:' ? 'https:' : ''}//${Config.routes.client}/`;
 const MAINMENU_BUTTONS = 8;
-const DEFAULT_SOLID_BG = '#344b6c';
-const SOLID_BG_ID = 'solidcolor';
+export const DEFAULT_SOLID_BG = '#344b6c';
+export const SOLID_BG_ID = 'solidcolor';
 const BUTTON_COLOR_MODE_PREFIX = 'buttonmode:';
 const SOLID_COLOR_REGEX = /^#[0-9A-F]{6}$/i;
-type ButtonColorMode = '' | 1 | 3 | 8 | 'rainbow';
+type ButtonColorMode = 1 | 3 | 8 | 'rainbow';
 
-function parseButtonColorMode(buttonColorMode: string | undefined): ButtonColorMode {
-	if (buttonColorMode === '1') return 1;
-	if (buttonColorMode === '3') return 3;
-	if (buttonColorMode === '8') return 8;
-	if (buttonColorMode === 'rainbow') return 'rainbow';
-	return '';
+function parseButtonColorMode(buttonColorMode: string | number | undefined): ButtonColorMode {
+	switch (String(buttonColorMode)) {
+	case '1':
+		return 1;
+	case '3':
+		return 3;
+	case 'rainbow':
+		return 'rainbow';
+	default:
+		return MAINMENU_BUTTONS;
+	}
 }
 
-function menuColorForButton(menuColors: string[], buttonIndex: number, mode: ButtonColorMode) {
-	switch (mode) {
+function normalizeMenuColors(menuColors: string[] | null) {
+	if (!menuColors?.length) return menuColors;
+	const lastColor = menuColors[menuColors.length - 1];
+	return Array.from({ length: MAINMENU_BUTTONS }, (_, i) => menuColors[i] || lastColor);
+}
+
+function getMenuColorForButton(menuColors: string[], buttonColorMode: ButtonColorMode, i: number) {
+	switch (buttonColorMode) {
 	case 1:
 		return menuColors[0];
 	case 3:
-		if (buttonIndex === 0) return menuColors[0];
-		if (buttonIndex < 4) return menuColors[1] || menuColors[0];
+		if (i === 0) return menuColors[0];
+		if (i < 4) return menuColors[1] || menuColors[0];
 		return menuColors[2] || menuColors[1] || menuColors[0];
 	default:
-		return menuColors[buttonIndex];
+		return menuColors[i];
 	}
 }
 
@@ -148,7 +159,7 @@ export const PSBackground = new class extends PSStreamModel<string | null> {
 	id = '';
 	curId = '';
 	bgUrl = '';
-	buttonColorMode: ButtonColorMode = '';
+	buttonColorMode: ButtonColorMode = MAINMENU_BUTTONS;
 	attrib: { url: string, title: string, artist: string } | null = null;
 	changeCount = 0;
 	menuColors: string[] | null = null;
@@ -157,9 +168,10 @@ export const PSBackground = new class extends PSStreamModel<string | null> {
 		super();
 		try {
 			let storedBg = localStorage.getItem('showdown_bg')?.split('\n') || [''];
-			let buttonColorMode: ButtonColorMode = '';
+			let buttonColorMode: ButtonColorMode = MAINMENU_BUTTONS;
 			if (storedBg[storedBg.length - 1]?.startsWith(BUTTON_COLOR_MODE_PREFIX)) {
-				buttonColorMode = parseButtonColorMode(storedBg.pop()!.slice(BUTTON_COLOR_MODE_PREFIX.length));
+				const storedMode = storedBg.pop()!.slice(BUTTON_COLOR_MODE_PREFIX.length);
+				buttonColorMode = parseButtonColorMode(storedMode);
 			}
 			if (storedBg.length === 1) {
 				// id
@@ -182,7 +194,7 @@ export const PSBackground = new class extends PSStreamModel<string | null> {
 		} else {
 			storedBg = bgUrl + '\n' + this.id;
 		}
-		if (this.buttonColorMode && this.buttonColorMode !== MAINMENU_BUTTONS) {
+		if (this.buttonColorMode !== MAINMENU_BUTTONS) {
 			storedBg += '\n' + BUTTON_COLOR_MODE_PREFIX + String(this.buttonColorMode);
 		}
 		localStorage.setItem('showdown_bg', storedBg);
@@ -199,7 +211,7 @@ export const PSBackground = new class extends PSStreamModel<string | null> {
 
 	load(
 		bgUrl: string, bgid: string, menuColors: string[] | null = null,
-		buttonColorMode: ButtonColorMode = ''
+		buttonColorMode: ButtonColorMode = MAINMENU_BUTTONS
 	) {
 		if (bgid === 'solidblue') {
 			bgid = SOLID_BG_ID;
@@ -343,7 +355,7 @@ export const PSBackground = new class extends PSStreamModel<string | null> {
 			menuColors = Array(MAINMENU_BUTTONS).fill(hs);
 		}
 		this.attrib = attrib;
-		this.menuColors = menuColors;
+		this.menuColors = normalizeMenuColors(menuColors);
 		if (!menuColors) {
 			this.extractMenuColors(bgUrl);
 		}
@@ -441,7 +453,7 @@ PSBackground.subscribe(bgUrl => {
 	let n = 0;
 	if (PSBackground.menuColors && PSBackground.buttonColorMode !== 'rainbow') {
 		for (let i = 0; i < PSBackground.menuColors.length; i++) {
-			const hs = menuColorForButton(PSBackground.menuColors, i, PSBackground.buttonColorMode);
+			const hs = getMenuColorForButton(PSBackground.menuColors, PSBackground.buttonColorMode, i);
 			n++;
 			cssBuf += `body .button.mainmenu${n} { background: linear-gradient(to bottom,  hsl(${hs},72%),  hsl(${hs},52%)); border-color: hsl(${hs},40%); }\n`;
 			cssBuf += `body .button.mainmenu${n}:hover { background: linear-gradient(to bottom,  hsl(${hs},62%),  hsl(${hs},42%)); border-color: hsl(${hs},21%); }\n`;
