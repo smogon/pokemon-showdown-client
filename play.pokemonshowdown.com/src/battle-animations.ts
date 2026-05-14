@@ -11,7 +11,7 @@
  * @license MIT
  */
 
-import type { Battle, Pokemon, Side, WeatherState } from './battle';
+import type { Battle, HPColor, Pokemon, Side, WeatherState } from './battle';
 import type { BattleSceneStub } from './battle-scene-stub';
 import { BattleMoveAnims } from './battle-animations-moves';
 import { BattleLog } from './battle-log';
@@ -593,6 +593,9 @@ export class BattleScene implements BattleSceneStub {
 			this.setBgm(-101);
 		} else if (typeof rated === 'string' && rated.startsWith('National Pokemon Association')) {
 			bg = 'fx/bg-npa.png';
+			this.setBgm(-101);
+		} else if (typeof rated === 'string' && rated.startsWith('World Cup of Pokemon')) {
+			bg = 'fx/bg-wcop.png';
 			this.setBgm(-101);
 		} else if (typeof rated === 'string' && rated.startsWith('Smogon Champions League')) {
 			bg = 'fx/bg-scl.png';
@@ -1705,7 +1708,8 @@ export class BattleScene implements BattleSceneStub {
 		}
 		this.battle = null!;
 	}
-	static getHPColor(pokemon: { hp: number, maxhp: number }) {
+	static getHPColor(pokemon: { hp: number, maxhp: number, hpcolor: HPColor | '' }) {
+		if (pokemon.hpcolor) return pokemon.hpcolor;
 		let ratio = pokemon.hp / pokemon.maxhp;
 		if (ratio > 0.5) return 'g';
 		if (ratio > 0.2) return 'y';

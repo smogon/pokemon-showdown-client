@@ -190,12 +190,12 @@ class RoomsPanel extends PSRoomPanel {
 	override render() {
 		if (this.hidden && PS.isVisible(this.props.room)) this.hidden = false;
 		if (this.hidden) {
-			return <PSPanelWrapper room={this.props.room} scrollable>{null}</PSPanelWrapper>;
+			return <PSPanelWrapper room={this.props.room}>{null}</PSPanelWrapper>;
 		}
 		const rooms = PS.mainmenu.roomsCache;
 		this.updateRoomList();
 
-		return <PSPanelWrapper room={this.props.room} scrollable><div class="pad">
+		return <PSPanelWrapper room={this.props.room}><div class="pad">
 			<button class="button" style="float:right;font-size:10pt;margin-top:3px" onClick={this.hide}>
 				<i class="fa fa-caret-right" aria-hidden></i> Hide
 			</button>

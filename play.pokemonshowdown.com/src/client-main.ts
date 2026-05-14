@@ -1188,6 +1188,9 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 				PS.join("confirmleaveroom" as RoomID, { parentElem: elem });
 				return;
 			}
+			if (room?.type === "chat" && room.challenging) {
+				room.cancelChallenge();
+			}
 
 			PS.leave(roomid);
 		},
