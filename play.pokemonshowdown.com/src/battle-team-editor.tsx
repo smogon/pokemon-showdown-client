@@ -576,10 +576,16 @@ export class TeamEditorState extends PSModel {
 		let minSpe = !set.evs?.spe && set.moves.includes('Gyro Ball');
 		let minAtk = !set.evs?.atk;
 
+		if (this.format.includes('champions')) {
+			minSpe = false;
+			minAtk = false;
+			return { minAtk, minSpe };
+		}
+
 		// only available through an event with 31 Spe IVs
 		if (set.species.startsWith('Terapagos')) minSpe = false;
 
-		const preferMaxAtkFormats = ['1v1', 'categoryswap', 'partnersincrime', 'typesplit', 'champions'];
+		const preferMaxAtkFormats = ['1v1', 'categoryswap', 'partnersincrime', 'typesplit'];
 		if (preferMaxAtkFormats.some(f => this.format.includes(f))) {
 			minAtk = false;
 			return { minAtk, minSpe };
