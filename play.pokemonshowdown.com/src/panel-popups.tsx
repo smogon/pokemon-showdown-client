@@ -1243,7 +1243,7 @@ class BackgroundListPanel extends PSRoomPanel {
 		}
 	}
 
-	declare state: { status?: string, bgUrl?: string };
+	declare state: { status?: string, bgUrl?: string, filename?: string };
 
 	setBg = (ev: Event) => {
 		let curtarget = ev.currentTarget as HTMLButtonElement;
@@ -1292,9 +1292,9 @@ class BackgroundListPanel extends PSRoomPanel {
 	}
 
 	uploadBg = (ev: Event) => {
-		this.setState({ status: undefined });
-		const input = this.base?.querySelector<HTMLInputElement>('input[name=bgfile]');
-		BackgroundListPanel.handleUploadedFiles(input?.files, true);
+		const input = ev.currentTarget as HTMLInputElement;
+		this.setState({ status: undefined, filename: input.files?.[0]?.name });
+		BackgroundListPanel.handleUploadedFiles(input.files, true);
 		ev.preventDefault();
 		ev.stopImmediatePropagation();
 	};
@@ -1325,25 +1325,21 @@ class BackgroundListPanel extends PSRoomPanel {
 		return null;
 	}
 
+	onChooseFileKeyDown = (e: KeyboardEvent) => {
+		if (e.key !== 'Enter' && e.key !== ' ') return;
+		e.preventDefault();
+		const input = (e.currentTarget as HTMLElement).querySelector<HTMLInputElement>('input[type="file"]');
+		if (input) input.click();
+	};
+
 	override render() {
 		const room = this.props.room;
 		const option = (val: string) => val === PSBackground.id ? 'option cur' : 'option';
 		return this.renderUpload() || <PSPanelWrapper room={room} width={480}><div class="pad">
 			<p><strong>Default</strong></p>
-			<div class="bglist">
-				<button onClick={this.setBg} value="" class={option('')}>
-					<strong
-						style="
-						background: #888888;
-						color: white;
-						padding: 16px 18px;
-						display: block;
-						font-size: 12pt;
-					"
-					>Random</strong>
-				</button>
-			</div>
-			<div style="clear: left"></div>
+			<p>
+				<button onClick={this.setBg} value="" class="button">Random</button>
+			</p>
 			<p><strong>Official</strong></p>
 			<div class="bglist">
 				<button onClick={this.setBg} value="charizards" class={option('charizards')}>
@@ -1372,7 +1368,15 @@ class BackgroundListPanel extends PSRoomPanel {
 			<p>
 				Upload:
 			</p>
-			<p><input type="file" accept="image/*" name="bgfile" onChange={this.uploadBg} /></p>
+			<p>
+				<label
+					class="button" role="button" tabIndex={0}
+					onKeyDown={this.onChooseFileKeyDown} style="cursor: pointer; display: inline-block"
+				>
+					<input type="file" accept="image/*" name="bgfile" style="display: none" onChange={this.uploadBg} />{}
+					Choose file
+				</label> {this.state.filename || 'No file chosen.'}
+			</p>
 			{!!this.state.status && <p class="error">{this.state.status}</p>}
 			<p class="buttonbar">
 				<button data-cmd="/close" class="button"><strong>Done</strong></button>
