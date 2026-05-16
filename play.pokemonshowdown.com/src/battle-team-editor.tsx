@@ -2483,6 +2483,7 @@ class StatForm extends preact.Component<{
 		const hpIVdata = hpType && !editor.canHyperTrain(set) && editor.getHPIVs(hpType) || null;
 		const autoSpread = set.ivs && editor.defaultIVs(set, false);
 		const autoSpreadValue = autoSpread && Object.values(autoSpread).join('/');
+		if (editor.isChampions) return <></>;
 		if (!hpIVdata) {
 			return <select name="ivspread" class="button" onChange={this.changeIVSpread} disabled={editor.isChampions}>
 				<option value="" selected>IV spreads</option>
@@ -2900,7 +2901,7 @@ class StatForm extends preact.Component<{
 						<th class="setstatbar">{/* Stat bar */}</th>
 						<th>{useEVs ? 'EVs' : usesStatPoints ? 'Points' : 'AVs'}</th>
 						<th>{/* EV slider */}</th>
-						<th>{useIVs ? 'IVs' : 'DVs'}</th>
+						{!editor.isChampions && <th>{useIVs ? 'IVs' : 'DVs'}</th>}
 						<th>{/* Final stat */}</th>
 					</tr>
 					{stats.map(([statID, statName, stat]) => <tr>
@@ -2917,11 +2918,11 @@ class StatForm extends preact.Component<{
 							type="range" class="evslider" tabIndex={-1} aria-hidden
 							onInput={this.changeEV} onChange={this.changeEV}
 						/></td>
-						<td><input
+						{!editor.isChampions && <td><input
 							name={`iv-${statID}`} min={0} max={useIVs ? 31 : 15} placeholder={`${defaultIVs[statID]}`} style="width:40px"
 							type="number" inputMode="numeric" class="textbox default-placeholder" onInput={this.changeIV}
 							onChange={this.changeIV} disabled={usesStatPoints}
-						/></td>
+						/></td>}
 						<td style="text-align:right"><strong>{stat}</strong></td>
 					</tr>)}
 					<tr>
