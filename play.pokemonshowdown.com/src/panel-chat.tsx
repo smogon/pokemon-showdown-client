@@ -158,6 +158,9 @@ export class ChatRoom extends PSRoom {
 						title: `${this.title}`,
 						body: textContent,
 					});
+				} else if (!isIgnored) {
+					// /nonotify messages (e.g. "friend came online") should still mark the room as unread
+					this.subtleNotify();
 				}
 			} else {
 				this.subtleNotify();
