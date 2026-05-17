@@ -1017,7 +1017,7 @@
 							if (typeof values[j] !== 'number' && typeof values[j] !== 'string' || isNaN(values[j])) return self.add('|raw|Error: corrupted ranking data');
 						}
 
-						buffer += '<td>' + BattleLog.escapeFormat(formatId) + '</td><td><strong>' + Math.round(row.elo) + '</strong></td>';
+						buffer += '<td>' + BattleLog.escapeFormat(formatId) + '</td><td><strong>' + Math.floor(row.elo) + '</strong></td>';
 						if (row.rprd > 100) {
 							// High rating deviation. Provisional rating.
 							buffer += '<td>&ndash;</td>';
