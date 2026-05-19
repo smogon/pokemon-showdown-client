@@ -29,16 +29,23 @@ Storage.safeJSON = function (callback) {
 
 Storage.bg = {
 	id: '',
+	curId: '',
+	curUrl: '',
 	changeCount: 0,
 	// futureproofing in case we ever add more?
 	// because doing this once was annoying
-	MENU_BUTTONS: 7,
+	MENU_BUTTONS: 8,
+	DEFAULT_SOLID_BG: '#344b6c',
+	SOLID_BG_ID: 'solidcolor',
+	DEFAULT_BUTTON_COLOR_MODE: '8',
+	BUTTON_COLOR_MODE_PREFIX: 'buttonmode:',
+	buttonColorMode: '' + 8,
 	set: function (bgUrl, bgid, noSave) {
-		if (!this.load(bgUrl, bgid)) {
-			this.extractMenuColors(bgUrl, bgid, noSave);
+		if (!this.load(bgUrl, bgid, null, this.buttonColorMode)) {
+			this.extractMenuColors(this.curUrl || bgUrl, this.curId || bgid, noSave);
 		} else if (bgid) {
 			try {
-				localStorage.setItem('showdown_bg', bgUrl + '\n' + bgid);
+				this.save(this.curUrl, this.id);
 			} catch (e) {}
 		} else {
 			try {
@@ -50,13 +57,17 @@ Storage.bg = {
 	 * Load a background. Returns true if hues were loaded, or false if
 	 * they still need to be extracted using Color Thief.
 	 */
-	load: function (bgUrl, bgid, hues) {
+	load: function (bgUrl, bgid, hues, buttonColorMode) {
+		if (bgid === 'solidblue') {
+			bgid = this.SOLID_BG_ID;
+		}
 		this.id = bgid;
+		this.buttonColorMode = this.parseButtonColorMode(buttonColorMode);
 		if (!bgid) {
 			if (location.host === 'smogtours.psim.us') {
 				bgid = 'shaymin';
 			} else if (location.host === Config.routes.client || bgid === 'waterfall') {
-				var bgs = ['horizon', 'ocean', 'shaymin', 'charizards', 'psday'];
+				var bgs = ['charizards', 'horizon', 'ocean', 'shaymin', 'psday'];
 				bgid = bgs[Math.floor(Math.random() * bgs.length)];
 			} else {
 				$(document.body).css({
@@ -66,15 +77,21 @@ Storage.bg = {
 				$('#mainmenubuttoncolors').remove();
 				return true;
 			}
+		}
+		if (bgid === this.SOLID_BG_ID) {
+			bgUrl = /^#[0-9A-F]{6}$/i.test(bgUrl) ? bgUrl : this.DEFAULT_SOLID_BG;
+		} else if (!bgUrl && bgid) {
 			bgUrl = Dex.resourcePrefix + 'fx/client-bg-' + bgid + '.jpg';
 		}
+		this.curId = bgid;
+		this.curUrl = bgUrl;
 
 		// April Fool's 2016 - Digimon theme
 		// bgid = 'digimon';
 		// bgUrl = Dex.resourcePrefix + 'sprites/afd/digimonbg.jpg';
 
 		var background;
-		if (bgUrl.charAt(0) === '#') {
+		if (bgid === this.SOLID_BG_ID) {
 			background = bgUrl;
 		} else if (bgid !== 'custom') {
 			background = '#546bac url(' + bgUrl + ') no-repeat left center fixed';
@@ -90,28 +107,28 @@ Storage.bg = {
 
 		if (!hues) {
 			switch (bgid) {
+			case 'charizards':
+				hues = ["211.03448275862067,28.155339805825246%", "36.84782608695652,75.40983606557377%", "22.191780821917806,37.43589743589743%", "178.56,52.30125523012552%", "11.180124223602485,71.55555555555554%", "191.84713375796179,81.34715025906736%", "73.58490566037737,58.241758241758255%", "186.42857142857144,50.000000000000014%"];
+				attrib = '<a href="https://lit.link/en/seiryuuden" target="_blank" class="subtle">"Charizards" <small>background by Jessica Valencia</small></a>';
+				break;
 			case 'horizon':
-				hues = ["318.87640449438203,35.177865612648226%", "216,46.2962962962963%", "221.25,32.25806451612904%", "197.8021978021978,52.60115606936417%", "232.00000000000003,19.480519480519483%", "228.38709677419354,60.7843137254902%"];
+				hues = ["228,65.65656565656568%", "232.00000000000003,19.480519480519483%", "197.6842105263158,54.913294797687875%", "222.65060240963857,33.60323886639676%", "217.05882352941174,47.22222222222222%", "266.8085106382979,22.48803827751196%", "319.09090909090907,34.920634920634924%", "353.33333333333337,32.43243243243244%"];
 				attrib = '<a href="https://vtas.deviantart.com/art/Pokemon-Horizon-312267168" target="_blank" class="subtle">"Horizon" <small>background by Vivian Zou</small></a>';
 				break;
 			case 'ocean':
-				hues = ["82.8169014084507,34.63414634146342%", "216.16438356164383,29.55465587044534%", "212.92682926829266,59.42028985507245%", "209.18918918918916,57.51295336787566%", "199.2857142857143,48.275862068965495%", "213.11999999999998,55.06607929515419%"];
+				hues = ["199.2857142857143,48.275862068965495%", "213.38709677419357,57.4074074074074%", "208.141592920354,56.218905472636806%", "207.95454545454544,66.66666666666664%", "228.81355932203388,35.757575757575744%", "84.32432432432434,36.27450980392157%", "216.9230769230769,40.94488188976379%", "198.3206106870229,52.610441767068274%"];
 				attrib = '<a href="https://quanyails.deviantart.com/art/Sunrise-Ocean-402667154" target="_blank" class="subtle">"Sunrise Ocean" <small>background by Quanyails</small></a>';
 				break;
 			case 'shaymin':
-				hues = ["39.000000000000064,21.7391304347826%", "170.00000000000003,2.380952380952378%", "157.5,11.88118811881188%", "174.78260869565216,12.041884816753928%", "185.00000000000003,12.76595744680851%", "20,5.660377358490567%"];
+				hues = ["44.210526315789515,19.999999999999993%", "175.00000000000003,13.043478260869565%", "170.00000000000003,12.5%", "154.2857142857143,2.766798418972328%", "157.77777777777777,12.79620853080568%", "33.06122448979592,26.77595628415302%", "340.42105263157896,41.85022026431718%", "15.000000000000016,5.660377358490567%"];
 				attrib = '<a href="http://cargocollective.com/bluep" target="_blank" class="subtle">"Shaymin" <small>background by Daniel Kong</small></a>';
 				break;
-			case 'charizards':
-				hues = ["37.159090909090914,74.57627118644066%", "10.874999999999998,70.79646017699115%", "179.51612903225808,52.10084033613446%", "20.833333333333336,36.73469387755102%", "192.3076923076923,80.41237113402063%", "210,29.629629629629633%"];
-				attrib = '<a href="https://lit.link/en/seiryuuden" target="_blank" class="subtle">"Charizards" <small>background by Jessica Valencia</small></a>';
-				break;
 			case 'psday':
-				hues = ["24.705882352941174,25.37313432835821%", "260.4651162790697,59.44700460829492%", "165.3191489361702,46.07843137254901%", "16.363636363636367,42.63565891472869%", "259.04761904761904,34.05405405405405%", "24.705882352941174,25.37313432835821%"];
+				hues = ["24.705882352941195,41.46341463414633%", "254.02597402597405,48.42767295597485%", "165.9574468085106,46.07843137254901%", "20,20.547945205479454%", "260.6106870229008,60.368663594470064%", "300,18.875502008032132%", "206.66666666666666,26.359832635983267%", "344.1891891891892,61.15702479338842%"];
 				attrib = 'Pok&eacute;mon Showdown Day background <small>by LifeisDANK</small>';
 				break;
 			case 'digimon':
-				hues = ["170.45454545454544,27.500000000000004%", "84.70588235294119,13.821138211382115%", "112.50000000000001,7.8431372549019605%", "217.82608695652175,54.761904761904766%", "0,1.6949152542372816%", ""];
+				hues = ["170.45454545454544,27.500000000000004%", "84.70588235294119,13.821138211382115%", "112.50000000000001,7.8431372549019605%", "217.82608695652175,54.761904761904766%", "0,1.6949152542372816%", "170.45454545454544,27.500000000000004%", "217.82608695652175,54.761904761904766%", "84.70588235294119,13.821138211382115%"];
 			}
 		}
 		if (attrib) attrib = '<small style="display:block;padding-bottom:4px">' + attrib + '</small>';
@@ -129,15 +146,72 @@ Storage.bg = {
 		}
 		return !!hues;
 	},
+	save: function (bgUrl, bgid, hues) {
+		var storedBg = '';
+		if (bgid !== 'custom' && bgid !== this.SOLID_BG_ID) {
+			storedBg = bgid;
+		} else if (bgid === 'custom' && hues) {
+			storedBg = bgUrl + '\n' + bgid + '\n' + hues.join('\n');
+		} else {
+			storedBg = bgUrl + '\n' + bgid;
+		}
+		if (this.buttonColorMode !== this.DEFAULT_BUTTON_COLOR_MODE) {
+			storedBg += '\n' + this.BUTTON_COLOR_MODE_PREFIX + this.buttonColorMode;
+		}
+		localStorage.setItem('showdown_bg', storedBg);
+	},
+	setButtonColorMode: function (buttonColorMode) {
+		this.buttonColorMode = this.parseButtonColorMode(buttonColorMode);
+		this.loadHues(this.hues || []);
+		this.save(this.curUrl, this.id, this.hues);
+	},
+	parseButtonColorMode: function (buttonColorMode) {
+		switch ('' + buttonColorMode) {
+		case '1':
+		case '3':
+		case 'rainbow':
+			return '' + buttonColorMode;
+		default:
+			return this.DEFAULT_BUTTON_COLOR_MODE;
+		}
+	},
+	normalizeHues: function (hues) {
+		if (!hues || !hues.length) return hues;
+		var normalizedHues = [];
+		var lastHue = hues[hues.length - 1];
+		for (var i = 0; i < this.MENU_BUTTONS; i++) {
+			normalizedHues.push(hues[i] || lastHue);
+		}
+		return normalizedHues;
+	},
+	getHueForButton: function (hues, i) {
+		switch (this.buttonColorMode) {
+		case '1':
+			return hues[0];
+		case '3':
+			if (i === 0) return hues[0];
+			if (i < 4) return hues[1] || hues[0];
+			return hues[2] || hues[1] || hues[0];
+		default:
+			return hues[i];
+		}
+	},
+	buttonCSS: function (n, hs) {
+		var sel = 'body .button.mainmenu' + n;
+		return (
+			sel + ' { background: linear-gradient(to bottom, hsl(' + hs + ',72%), hsl(' + hs + ',52%)); border-color: hsl(' + hs + ',40%); }\n' +
+			sel + ':hover { background: linear-gradient(to bottom, hsl(' + hs + ',62%), hsl(' + hs + ',42%)); border-color: hsl(' + hs + ',21%); }\n' +
+			sel + ':active { background: linear-gradient(to bottom, hsl(' + hs + ',42%), hsl(' + hs + ',58%)); border-color: hsl(' + hs + ',21%); }\n'
+		);
+	},
 	loadHues: function (hues) {
+		hues = this.normalizeHues(hues);
+		this.hues = hues;
 		$('#mainmenubuttoncolors').remove();
+		if (this.buttonColorMode === 'rainbow' || !hues || !hues.length) return;
 		var cssBuf = '';
 		for (var i = 0; i < Storage.bg.MENU_BUTTONS; i++) {
-			var n = i + 1;
-			var hs = hues[i];
-			cssBuf += 'body .button.mainmenu' + n + ' { background: linear-gradient(to bottom,  hsl(' + hs + ',72%),  hsl(' + hs + ',52%)); border-color: hsl(' + hs + ',40%); }\n';
-			cssBuf += 'body .button.mainmenu' + n + ':hover { background: linear-gradient(to bottom,  hsl(' + hs + ',62%),  hsl(' + hs + ',42%)); border-color: hsl(' + hs + ',21%); }\n';
-			cssBuf += 'body .button.mainmenu' + n + ':active { background: linear-gradient(to bottom,  hsl(' + hs + ',42%),  hsl(' + hs + ',58%)); border-color: hsl(' + hs + ',21%); }\n';
+			cssBuf += this.buttonCSS(i + 1, this.getHueForButton(hues, i));
 		}
 		$('head').append('<style id="mainmenubuttoncolors">' + cssBuf + '</style>');
 	},
@@ -145,30 +219,29 @@ Storage.bg = {
 		var changeCount = this.changeCount;
 		// We need the image object to load it on a canvas to detect the main color.
 		var img = new Image();
+		if (bgUrl && bgUrl.slice(0, 5) !== 'data:' && bgUrl.charAt(0) !== '#') {
+			img.crossOrigin = 'anonymous';
+		}
 		img.onload = function () {
 			// in case ColorThief throws from canvas,
 			// or localStorage throws
 			try {
 				var colorThief = new ColorThief();
 				var colors = colorThief.getPalette(img, Storage.bg.MENU_BUTTONS);
-				window.colors = colors;
-
 				var hues = [];
-				if (!colors) {
-					hues = [];
+				if (!colors || !colors.length) {
 					for (var i = 0; i < Storage.bg.MENU_BUTTONS; i++) hues.push('0, 0%');
 				} else {
 					for (var i = 0; i < Storage.bg.MENU_BUTTONS; i++) {
-						var color = colors[i];
-						var hs = Storage.bg.getHueSat(color[0] / 255, color[1] / 255, color[2] / 255);
-						hues.unshift(hs);
+						var color = colors[Math.min(i, colors.length - 1)];
+						hues.push(Storage.bg.getHueSat(color[0] / 255, color[1] / 255, color[2] / 255));
 					}
 				}
 				Storage.bg.loadHues(hues);
 				if (!noSave && Storage.bg.changeCount === changeCount) {
-					localStorage.setItem('showdown_bg', bgUrl + '\n' + Storage.bg.id + '\n' + hues.join('\n'));
+					Storage.bg.save(bgUrl, Storage.bg.id, hues);
 				}
-			} catch (e) {}
+			} catch (e) { }
 		};
 		img.src = bgUrl;
 	},
@@ -194,15 +267,27 @@ Storage.bg = {
 };
 
 try {
-	var bg = localStorage.getItem('showdown_bg').split('\n');
-	if (bg.length >= 2) {
-		Storage.bg.load(bg[0], bg[1]);
-		if (bg.length >= 7) Storage.bg.loadHues(bg.slice(2));
+	var storedBg = localStorage.getItem('showdown_bg').split('\n');
+	var buttonColorMode = Storage.bg.DEFAULT_BUTTON_COLOR_MODE;
+	if (storedBg[storedBg.length - 1].indexOf(Storage.bg.BUTTON_COLOR_MODE_PREFIX) === 0) {
+		buttonColorMode = storedBg.pop().slice(Storage.bg.BUTTON_COLOR_MODE_PREFIX.length) || Storage.bg.DEFAULT_BUTTON_COLOR_MODE;
+	}
+	if (storedBg.length === 1 && storedBg[0]) {
+		if (!Storage.bg.load('', storedBg[0], null, buttonColorMode)) {
+			Storage.bg.extractMenuColors(Storage.bg.curUrl || '', Storage.bg.curId || storedBg[0], true);
+		}
+	} else if (storedBg.length >= 2) {
+		if (!Storage.bg.load(storedBg[0], storedBg[1], null, buttonColorMode) && storedBg.length < 10) {
+			Storage.bg.extractMenuColors(Storage.bg.curUrl || storedBg[0], Storage.bg.curId || storedBg[1], true);
+		}
+		if (storedBg.length >= 10) Storage.bg.load(storedBg[0], storedBg[1], storedBg.slice(2), buttonColorMode);
 	}
 } catch (e) {}
 
 if (!Storage.bg.id) {
-	Storage.bg.load();
+	if (!Storage.bg.load()) {
+		Storage.bg.extractMenuColors(Storage.bg.curUrl, Storage.bg.curId, true);
+	}
 }
 
 /*********************************************************
