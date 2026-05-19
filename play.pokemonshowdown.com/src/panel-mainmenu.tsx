@@ -125,9 +125,12 @@ export class MainMenuRoom extends PSRoom {
 		case 'challstr': {
 			const [, challstr] = args;
 			PS.user.challstr = challstr;
+			PS.user.loginKey++; // stale callbacks check this key and early-return if it no longer matches
+			const upkeepKey = PS.user.loginKey;
 			PSLoginServer.query(
 				'upkeep', { challstr }
 			).then(res => {
+				if (PS.user.loginKey !== upkeepKey) return;
 				if (!res?.username) {
 					PS.user.initializing = false;
 					return;
@@ -137,13 +140,15 @@ export class MainMenuRoom extends PSRoom {
 				if (res.loggedin) {
 					PS.user.registered = { name: res.username, userid: toID(res.username) };
 				}
-				PS.user.handleAssertion(res.username, res.assertion);
+				// preserve current nick on reconnect rather than reverting to registered name
+				const nameToUse = PS.user.named ? PS.user.name : res.username;
+				PS.user.handleAssertion(nameToUse, res.assertion);
 			});
 			return;
 		} case 'updateuser': {
 			const [, fullName, namedCode, avatar] = args;
 			const named = namedCode === '1';
-			if (named) PS.user.initializing = false;
+			PS.user.initializing = false;
 			PS.user.setName(fullName, named, avatar);
 			PS.teams.loadRemoteTeams();
 			return;

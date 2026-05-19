@@ -614,6 +614,7 @@ class PSUser extends PSStreamModel<PSLoginState | null> {
 	avatar = "lucas";
 	challstr = '';
 	loggingIn: string | null = null;
+	loginKey = 0;
 	initializing = true;
 	gapiLoaded = false;
 	nameRegExp: RegExp | null = null;
@@ -674,16 +675,19 @@ class PSUser extends PSStreamModel<PSLoginState | null> {
 			this.update({ success: true });
 			return;
 		}
+		const key = ++this.loginKey;
 		this.loggingIn = name;
 		this.update(null);
 		PSLoginServer.rawQuery(
 			'getassertion', { userid, challstr: this.challstr }
 		).then(res => {
+			if (this.loginKey !== key) return;
 			this.handleAssertion(name, res);
 			this.updateRegExp();
 		});
 	}
 	changeNameWithPassword(name: string, password: string, special: PSLoginState = { needsPassword: true }) {
+		const key = ++this.loginKey;
 		this.loggingIn = name;
 		if (!password && !special) {
 			this.updateLogin({
@@ -696,6 +700,7 @@ class PSUser extends PSStreamModel<PSLoginState | null> {
 		PSLoginServer.query(
 			'login', { name, pass: password, challstr: this.challstr }
 		).then(data => {
+			if (this.loginKey !== key) return;
 			this.loggingIn = null;
 			if (data?.curuser?.loggedin) {
 				// success!
@@ -1231,8 +1236,8 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 				return this.errorReply(`You are already connected.`);
 			}
 
-			if (!PS.isOffline) {
-				// connect to room
+			if (!PS.isOffline && PS.connection?.connected) {
+				// server connection is active; attempt room-level reconnection
 				try {
 					this.connect();
 				} catch (err: any) {
