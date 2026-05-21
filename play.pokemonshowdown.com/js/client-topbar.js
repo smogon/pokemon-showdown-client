@@ -473,6 +473,7 @@
 			'change select[name=timestamps-lobby]': 'setTimestampsLobby',
 			'change select[name=timestamps-pms]': 'setTimestampsPMs',
 			'change select[name=onepanel]': 'setOnePanel',
+			'change select[name=speedtiptype]': 'setSpeedTipType',
 			'change select[name=theme]': 'setTheme',
 			'change input[name=logchat]': 'setLogChat',
 			'change input[name=selfhighlight]': 'setSelfHighlight',
@@ -516,6 +517,8 @@
 				buf += '<p><label class="optlabel">Layout: <select name="onepanel" class="button"><option value=""' + (!onePanel ? ' selected="selected"' : '') + '>&#x25EB; Left and right panels</option><option value="1"' + (onePanel ? ' selected="selected"' : '') + '>&#x25FB; Single panel</option></select></label></p>';
 			}
 			buf += '<p><label class="optlabel">Background: <button class="button" name="background">Change background</button></label></p>';
+			var speedTipType = Dex.prefs('speedtiptype') || 'full';
+			buf += '<p><label class="optlabel">Speed tooltips: <select name="speedtiptype" class="button"><option value="full"' + (speedTipType === 'full' ? ' selected="selected"' : '') + '>Full (min, 0 EVs, 252 EVs, max</option><option value="partial"' + (speedTipType === 'partial' ? ' selected="selected"' : '') + '>Simple (min, max)</option></select></label></p>';
 			buf += '<p><label class="checkbox"><input type="checkbox" name="noanim"' + (Dex.prefs('noanim') ? ' checked' : '') + ' /> Disable animations</label></p>';
 			if (navigator.userAgent.includes(' Chrome/64.')) {
 				buf += '<p><label class="checkbox"><input type="checkbox" name="nogif"' + (Dex.prefs('nogif') ? ' checked' : '') + ' /> Disable GIFs for Chrome 64 bug</label></p>';
@@ -614,6 +617,10 @@
 				}
 			}
 			$('html').toggleClass('dark', theme === 'dark');
+		},
+		setSpeedTipType: function (e) {
+			var speedtiptype = e.currentTarget.value;
+			Storage.prefs('speedtiptype', speedtiptype);
 		},
 		setBwgfx: function (e) {
 			var bwgfx = !!e.currentTarget.checked;

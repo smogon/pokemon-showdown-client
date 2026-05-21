@@ -584,6 +584,10 @@ class OptionsPanel extends PSRoomPanel {
 		}
 		PS.update();
 	};
+	setSpeedTipType = (e: Event) => {
+		PS.prefs.set('speedtiptype', (e.currentTarget as HTMLSelectElement).value as 'full' | 'partial');
+		this.forceUpdate();
+	};
 	setChatroomTimestamp = (ev: Event) => {
 		const timestamp = (ev.currentTarget as HTMLSelectElement).value as TimestampOptions;
 		PS.prefs.set('timestamps', { ...PS.prefs.timestamps, chatrooms: timestamp || undefined });
@@ -699,6 +703,16 @@ class OptionsPanel extends PSRoomPanel {
 						Change Background
 					</button>
 				</label>
+			</p>
+			<p>
+				<label class="optlabel">Speed tooltips: <select
+					name="speedtiptype" class="button" value={PS.prefs.speedtiptype}
+					onChange={this.setSpeedTipType}
+				>
+					<option value="full">Full (min, 0 EVs, 252 EVs, max)</option>
+					<option value="partial">Simple (min, max)</option>
+
+				</select></label>
 			</p>
 			<p>
 				<label class="checkbox"> <input

@@ -1459,7 +1459,13 @@ export class BattleTooltips {
 			} else if (this.battle.tier.includes("Let's Go")) {
 				return `<p><small>Spe</small> ${min} to ${ev0} to ${max} <small>(before external modifiers)</small></p>`;
 			} else {
-				return `<p><small>Spe</small> ${min} to ${ev0} to ${ev252} to ${max}<br><small>(before external modifiers)</small></p>`;
+				if (Dex.prefs('speedtiptype') === 'full') {
+					return `<p><small>Spe</small> ${min} to ${ev0} to ${ev252} to ${max}<br><small>(before external modifiers)</small></p>`;
+				} else if (Dex.prefs('speedtiptype') === 'partial') {
+					return `<p><small>Spe</small> ${min} to ${max} <small>(before external modifiers)</small></p>`;
+				} else {
+					return `<p><small>Spe</small> ${min} to ${ev0} to ${ev252} to ${max}<br><small>(before external modifiers)</small></p>`;
+				};
 			};
 		}
 		const stats = serverPokemon.stats;
