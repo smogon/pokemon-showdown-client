@@ -158,6 +158,8 @@ export class ChatRoom extends PSRoom {
 						title: `${this.title}`,
 						body: textContent,
 					});
+				} else if (noNotify === 'subtle') {
+					this.subtleNotify();
 				}
 			} else {
 				this.subtleNotify();
