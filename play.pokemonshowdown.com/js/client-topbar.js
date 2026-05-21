@@ -518,7 +518,7 @@
 			}
 			buf += '<p><label class="optlabel">Background: <button class="button" name="background">Change background</button></label></p>';
 			var speedTipType = Dex.prefs('speedtiptype') || 'full';
-			buf += '<p><label class="optlabel">Speed tooltips: <select name="speedtiptype" class="button"><option value="full"' + (speedTipType === 'full' ? ' selected="selected"' : '') + '>Full (min, 0 EVs, 252 EVs, max</option><option value="partial"' + (speedTipType === 'partial' ? ' selected="selected"' : '') + '>Simple (min, max)</option></select></label></p>';
+			buf += '<p><label class="optlabel">Speed tooltips: <select name="speedtiptype" class="button"><option value="full"' + (speedTipType === 'full' ? ' selected="selected"' : '') + '>Full (min, 0 EVs, 252 EVs, max)</option><option value="partial"' + (speedTipType === 'partial' ? ' selected="selected"' : '') + '>Simple (min, max)</option></select></label></p>';
 			buf += '<p><label class="checkbox"><input type="checkbox" name="noanim"' + (Dex.prefs('noanim') ? ' checked' : '') + ' /> Disable animations</label></p>';
 			if (navigator.userAgent.includes(' Chrome/64.')) {
 				buf += '<p><label class="checkbox"><input type="checkbox" name="nogif"' + (Dex.prefs('nogif') ? ' checked' : '') + ' /> Disable GIFs for Chrome 64 bug</label></p>';
