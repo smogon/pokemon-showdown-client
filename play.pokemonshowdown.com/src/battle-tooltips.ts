@@ -1613,8 +1613,8 @@ export class BattleTooltips {
 		} else if (gen < 3) {
 			max = tr((2 * baseSpe + maxIv + 63) * level / 100 + 5);
 			ev252 = max;
-			ev0 = tr((2 * baseSpe + maxIv) * level / 100 + 5);
 			ev84 = 0;
+			ev0 = tr((2 * baseSpe + maxIv) * level / 100 + 5);
 			min = isCGT ? max : tr(2 * baseSpe * level / 100 + 5);
 		} else {
 			let maxIvEvOffset = maxIv + (isRandomBattle ? 21 : 63);
