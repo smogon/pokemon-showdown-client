@@ -1456,9 +1456,9 @@ export class BattleTooltips {
 			let { min, ev0, ev84, ev252, max } = this.getSpeedRange(clientPokemon);
 			if (this.battle.gen < 3) {
 				if (this.battle.tier.includes('Random')) {
-					return `<p><small>Spe</small> ${max} <small>(before external modifiers)</small></p>`;
+					return `<p><small>Spe</small> ${max} <small>(before stat stage changes)</small></p>`;
 				}
-				return `<p><small>Spe</small> ${min} to ${max} <small>(before external modifiers)</small></p>`;
+				return `<p><small>Spe</small> ${min} to ${max} <small>(before stat stage changes)</small></p>`;
 			}
 			if (this.battle.tier.includes('Random')) {
 				return `<p><small>Spe</small> ${min} or ${ev84} <small>(before external modifiers)</small></p>`;
@@ -1612,11 +1612,10 @@ export class BattleTooltips {
 			max = tr(maxNature * (baseSpe + 32 + 20));
 		} else if (gen < 3) {
 			max = tr((2 * baseSpe + maxIv + 63) * level / 100 + 5);
-			min = isCGT ? max : tr(2 * baseSpe * level / 100 + 5);
-			if (isRandomBattle) min = max;
-			ev0 = min;
-			ev84 = max;
 			ev252 = max;
+			ev0 = tr((2 * baseSpe + maxIv) * level / 100 + 5);
+			ev84 = 0;
+			min = isCGT ? max : tr(2 * baseSpe * level / 100 + 5);
 		} else {
 			let maxIvEvOffset = maxIv + (isRandomBattle ? 21 : 63);
 			max = tr(tr((2 * baseSpe + maxIvEvOffset) * level / 100 + 5) * maxNature);
