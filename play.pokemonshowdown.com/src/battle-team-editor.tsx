@@ -2485,7 +2485,7 @@ class StatForm extends preact.Component<{
 		const autoSpreadValue = autoSpread && Object.values(autoSpread).join('/');
 		if (editor.isChampions) return <></>;
 		if (!hpIVdata) {
-			return <select name="ivspread" class="button" onChange={this.changeIVSpread} disabled={editor.isChampions}>
+			return <select name="ivspread" class="button" onChange={this.changeIVSpread}>
 				<option value="" selected>IV spreads</option>
 				{autoSpreadValue && <option value="auto">Auto ({autoSpreadValue})</option>}
 				<optgroup label="min Atk">
