@@ -2060,10 +2060,10 @@ export class BattleTooltips {
 		if (this.battle.hasPseudoWeather('Psychic Terrain') && target.isGrounded() && priority > 0) {
 			otherFactor = 0;
 		}
-		if (this.battle.weather === 'primordialsea' && attackType === 'Fire') {
+		if (this.battle.weather === 'primordialsea' && attackType === 'Fire' && move.category !== 'Status') {
 			otherFactor = 0;
 		}
-		if (this.battle.weather === 'desolateland' && attackType === 'Water') {
+		if (this.battle.weather === 'desolateland' && attackType === 'Water' && move.category !== 'Status') {
 			otherFactor = 0;
 		}
 
