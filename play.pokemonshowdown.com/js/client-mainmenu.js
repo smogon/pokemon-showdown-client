@@ -1144,7 +1144,7 @@
 			$formatButton.addClass('preselected')[0].disabled = true;
 			$teamButton.addClass('preselected')[0].disabled = true;
 			$searchForm.find('button.big').html('<strong><i class="fa fa-refresh fa-spin"></i> Connecting...</strong>').addClass('disabled');
-			$searchForm.append('<p class="cancel buttonbar"><button name="cancelSearch" class="button">Cancel</button></p>');
+			$searchForm.append('<p class="cancel buttonbar"><button name="cancelSearch" class="button mainmenu1">Cancel</button></p>');
 
 			var self = this;
 			app.sendTeam(team, function () {
