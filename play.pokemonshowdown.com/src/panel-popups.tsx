@@ -1736,14 +1736,6 @@ class BattleOptionsPanel extends PSRoomPanel {
 					/> Start at turn 0 when spectating battles
 				</label>
 			</p>
-			<p>
-				<label class="checkbox">
-					<input
-						name="spectatefromstart" checked={!!PS.prefs.spectatefromstart}
-						type="checkbox" onChange={this.handleAllSettings}
-					/> Start at turn 0 when spectating battles
-				</label>
-			</p>
 			{!PS.prefs.onepanel && document.body.offsetWidth >= 800 && <p>
 				<label class="checkbox">
 					<input
