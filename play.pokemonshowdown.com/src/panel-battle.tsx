@@ -147,6 +147,8 @@ export class BattleRoom extends ChatRoom {
 	request: BattleRequest | null = null;
 	choices: BattleChoiceBuilder | null = null;
 	autoTimerActivated: boolean | null = null;
+	/** null = initializing */
+	rejoining: boolean | null = null;
 
 	loadReplay() {
 		const replayid = this.id.slice(7);
@@ -360,7 +362,7 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 		scene.tooltips.listen($elem.find('.battle-controls-container'));
 		scene.tooltips.listen(scene.log.elem);
 		super.componentDidMount();
-		battle.seekTurn(Infinity);
+		this.fastForwardIfRejoining();
 		if (PS.prefs.autohardcore) {
 			battle.setHardcoreMode(true);
 		}
@@ -380,11 +382,18 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 			this.battleHeight = 360;
 		}
 	}
+	fastForwardIfRejoining() {
+		const room = this.props.room;
+		if (!room.rejoining || !room.side) return;
+		room.rejoining = false;
+		if (!PS.prefs.spectatefromstart) room.battle.seekTurn(Infinity);
+	}
 	override receiveLine(args: Args) {
 		const room = this.props.room;
 		switch (args[0]) {
 		case 'initdone':
-			room.battle.seekTurn(Infinity);
+			room.rejoining ||= false;
+			this.fastForwardIfRejoining();
 			return;
 		case 'request':
 			this.receiveRequest(args[1] ? JSON.parse(args[1]) : null);
@@ -395,6 +404,9 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 		case 'c': case 'c:': case 'chat': case 'chatmsg': case 'inactive':
 			room.battle.instantAdd('|' + args.join('|'));
 			return;
+		case 'start':
+			room.rejoining ??= true;
+			break;
 		case 'error':
 			if (args[1].startsWith('[Invalid choice]') && room.request) {
 				room.choices = new BattleChoiceBuilder(room.request);
@@ -421,9 +433,11 @@ class BattlePanel extends PSRoomPanel<BattleRoom> {
 		BattleChoiceBuilder.fixRequest(request, room.battle);
 
 		if (request.side) {
+			const wasPlayer = !!room.side;
 			room.battle.myPokemon = request.side.pokemon;
 			room.battle.setViewpoint(request.side.id);
 			room.side = request.side;
+			if (!wasPlayer) this.fastForwardIfRejoining();
 		}
 		if (request.ally) {
 			room.battle.myAllyPokemon = request.ally.pokemon;

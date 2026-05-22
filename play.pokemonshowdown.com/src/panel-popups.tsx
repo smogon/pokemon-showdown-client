@@ -1580,6 +1580,10 @@ class BattleOptionsPanel extends PSRoomPanel {
 			}
 			break;
 		}
+		case 'spectatefromstart': {
+			PS.prefs.set('spectatefromstart', value);
+			break;
+		}
 		case 'ignoreopp': {
 			PS.prefs.set('ignoreopp', value);
 			this.handleIgnoreOpponent(value);
@@ -1711,6 +1715,14 @@ class BattleOptionsPanel extends PSRoomPanel {
 						name="extraoppinfo" checked={PS.prefs.extraoppinfo !== false}
 						type="checkbox" onChange={this.handleAllSettings}
 					/> Extra opponent info (hover tooltip)
+				</label>
+			</p>
+			<p>
+				<label class="checkbox">
+					<input
+						name="spectatefromstart" checked={!!PS.prefs.spectatefromstart}
+						type="checkbox" onChange={this.handleAllSettings}
+					/> Start at turn 0 when spectating battles
 				</label>
 			</p>
 			{!PS.prefs.onepanel && document.body.offsetWidth >= 800 && <p>
