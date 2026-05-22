@@ -1644,7 +1644,8 @@
 			buf += '<p><label class="checkbox"><input type="checkbox" name="allignoreopp"' + (Dex.prefs('ignoreopp') ? ' checked' : '') + ' /> Ignore opponent</label></p>';
 			buf += '<p><label class="checkbox"><input type="checkbox" name="autohardcore"' + (Dex.prefs('hardcoremode') ? ' checked' : '') + ' /> Automatically enable hardcore mode</label></p>';
 			buf += '<p><label class="checkbox"><input type="checkbox" name="autoTeamSheet"' + (Dex.prefs('autoTeamSheet') ? ' checked' : '') + ' /> Automatically accept Open Team Sheets</label></p>';
-			if (rightPanelBattlesPossible) buf += '<p><label class="checkbox"><input type="checkbox" name="rightpanelbattles"' + (Dex.prefs('rightpanelbattles') ? ' checked' : '') + ' /> Open new battles in the right-side panel</label></p>';
+			buf += '<p><label class="checkbox"><input type="checkbox" name="spectatefromstart"' + (Dex.prefs('spectatefromstart') ? ' checked' : '') + ' /> Automatically accept Open Team Sheets</label></p>';
+			if (rightPanelBattlesPossible) buf += '<p><label class="checkbox"><input type="checkbox" name="rightpanelbattles"' + (Dex.prefs('rightpanelbattles') ? ' checked' : '') + ' /> Start at turn 0 when spectating battles</label></p>';
 			buf += '<p class="buttonbar">';
 			buf += '<button name="close" class="button">Done</button> ';
 			if (this.room && this.room.battle) buf += '<button name="offertie" class="button"' + (canOfferTie ? '' : ' disabled') + '>Offer Tie</button>';
@@ -1664,6 +1665,7 @@
 			'change input[name=allignoreopp]': 'toggleAllIgnoreOpponent',
 			'change input[name=autohardcore]': 'toggleAutoHardcore',
 			'change input[name=autoTeamSheet]': 'toggleAutoTeamSheet',
+			'change input[name=spectatefromstart]': 'togglespectatefromstart',
 			'change input[name=rightpanelbattles]': 'toggleRightPanelBattles',
 			'click button[name=offertie]': 'offerTie'
 		},
@@ -1738,6 +1740,9 @@
 				this.room.send('/acceptopenteamsheets');
 				this.room.autoTeamSheetAccepted = true;
 			}
+		},
+		togglespectatefromstart: function (e) {
+			Storage.prefs('spectatefromstart', !!e.currentTarget.checked);
 		},
 		toggleRightPanelBattles: function (e) {
 			Storage.prefs('rightpanelbattles', !!e.currentTarget.checked);
