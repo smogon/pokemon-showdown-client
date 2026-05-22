@@ -761,11 +761,13 @@ export class PSView extends preact.Component {
 			elem.innerText = 'Copied!';
 			return true;
 		case 'send':
-			PS.send(elem.value);
-			return true;
 		case 'cmd':
 			const room = PS.getRoom(elem) || PS.mainmenu;
-			room.send(elem.value);
+			if (elem.name === 'send') {
+				room.sendDirect(elem.value);
+			} else {
+				room.send(elem.value);
+			}
 			return true;
 		}
 		return false;

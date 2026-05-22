@@ -120,6 +120,7 @@ class PSPrefs extends PSStreamModel<string | null> {
 	ignoreopp: boolean | null = null;
 	autotimer: boolean | null = null;
 	autohardcore: boolean | null = null;
+	spectatefromstart: boolean | null = null;
 	rightpanelbattles: boolean | null = null;
 	disallowspectators: boolean | null = null;
 	starredformats: { [formatid: string]: true | undefined } | null = null;
@@ -2489,6 +2490,10 @@ export const PS = new class extends PSModel {
 			}
 		}
 		if (options.id.startsWith('battle-') && PS.prefs.rightpanelbattles) options.location = 'right';
+		if (options.id.startsWith('help-')) {
+			options.location = 'right';
+			options.type = 'chat';
+		}
 		options.parentRoomid ??= this.getRoom(options.parentElem)?.id;
 		const parentRoom = options.parentRoomid ? this.rooms[options.parentRoomid] : null;
 		let preexistingRoom = this.rooms[options.id];
