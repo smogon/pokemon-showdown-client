@@ -121,6 +121,7 @@ class PSPrefs extends PSStreamModel<string | null> {
 	autotimer: boolean | null = null;
 	autohardcore: boolean | null = null;
 	autoTeamSheet: boolean | null = null;
+	spectatefromstart: boolean | null = null;
 	rightpanelbattles: boolean | null = null;
 	disallowspectators: boolean | null = null;
 	starredformats: { [formatid: string]: true | undefined } | null = null;
@@ -1188,6 +1189,9 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 			if (room?.type === "chat" && room.connected === true && PS.prefs.leavePopupRoom && !target) {
 				PS.join("confirmleaveroom" as RoomID, { parentElem: elem });
 				return;
+			}
+			if (room?.type === "chat" && room.challenging) {
+				room.cancelChallenge();
 			}
 
 			PS.leave(roomid);

@@ -379,9 +379,9 @@ export class MainMenuRoom extends PSRoom {
 	 * Most queries are still handled hardcoded, so this is only for certain
 	 * special queries that need a Promise.
 	 */
-	makeQuery(id: string, param?: string) {
+	makeQuery(id: string, param?: string, excludeParamFromListener?: boolean) {
 		let fullid = id;
-		if (param) fullid += ` ${toID(param)}`;
+		if (param && !excludeParamFromListener) fullid += ` ${toID(param)}`;
 		return new Promise<any>(resolve => {
 			if (!this.listeners[fullid]) {
 				this.listeners[fullid] = [];
@@ -400,6 +400,7 @@ export class MainMenuRoom extends PSRoom {
 			if (!userdetails) {
 				this.userdetailsCache[userid] = response;
 			} else {
+				response.status ||= '';
 				Object.assign(userdetails, response);
 			}
 			PS.rooms[`user-${userid}`]?.update(null);
@@ -483,7 +484,7 @@ class NewsPanel extends PSRoomPanel {
 	change = (ev: Event) => {
 		const target = ev.currentTarget as HTMLInputElement;
 		if (target.value === '1') {
-			document.cookie = "preactalpha=1; expires=Thu, 1 Jun 2026 12:00:00 UTC; path=/";
+			document.cookie = "preactalpha=1; expires=Thu, 1 Jul 2026 12:00:00 UTC; path=/";
 		} else {
 			document.cookie = "preactalpha=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
 		}
@@ -493,7 +494,7 @@ class NewsPanel extends PSRoomPanel {
 	};
 	override render() {
 		const cookieSet = document.cookie.includes('preactalpha=1');
-		return <PSPanelWrapper room={this.props.room} fullSize scrollable>
+		return <PSPanelWrapper room={this.props.room} fullSize>
 			<div class="construction">
 				This is the client rewrite beta test.
 				<form>
@@ -684,7 +685,7 @@ class MainMenuPanel extends PSRoomPanel<MainMenuRoom> {
 	override render() {
 		const onlineButton = ' button' + (PS.isOffline ? ' disabled' : '');
 		const tinyLayout = this.props.room.width < 620 ? ' tiny-layout' : '';
-		return <PSPanelWrapper room={this.props.room} scrollable onDragEnter={this.handleDragEnter}>
+		return <PSPanelWrapper room={this.props.room} onDragEnter={this.handleDragEnter}>
 			<div class={`mainmenu-mini-windows${tinyLayout}`}>
 				{this.renderMiniRooms()}
 			</div>
