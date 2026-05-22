@@ -66,6 +66,7 @@ export class TeamEditorState extends PSModel {
 	isLetsGo = false;
 	isNatDex = false;
 	isBDSP = false;
+	isChampions = false;
 	formeLegality: 'normal' | 'hackmons' | 'custom' = 'normal';
 	abilityLegality: 'normal' | 'hackmons' = 'normal';
 	defaultLevel = 100;
@@ -98,6 +99,7 @@ export class TeamEditorState extends PSModel {
 		this.isLetsGo = formatid.includes('letsgo');
 		this.isNatDex = formatid.includes('nationaldex') || formatid.includes('natdex');
 		this.isBDSP = formatid.includes('bdsp');
+		this.isChampions = formatid.includes('champions');
 		if (formatid.includes('almostanyability') || formatid.includes('aaa')) {
 			this.abilityLegality = 'hackmons';
 		} else {
@@ -663,7 +665,8 @@ export class TeamEditorState extends PSModel {
 		}
 	}
 	getStat(stat: StatName, set: Dex.PokemonSet, ivOverride: number, evOverride?: number, natureOverride?: number) {
-		const supportsEVs = !this.isLetsGo;
+		const usesStatPoints = this.isChampions;
+		const supportsEVs = !this.isLetsGo && !usesStatPoints;
 		const supportsAVs = !supportsEVs;
 
 		// do this after setting set.evs because it's assumed to exist
@@ -1677,7 +1680,7 @@ class TeamTextbox extends preact.Component<{
 			<span class="detailcell">
 				<label>Shiny</label>{set.shiny ? 'Yes' : '\u2014'}
 			</span>
-			{editor.gen === 9 ? (
+			{editor.gen === 9 && !editor.isChampions ? (
 				<span class="detailcell">
 					<label>Tera</label><PSIcon type={set.teraType || species.requiredTeraType || species.types[0]} />
 				</span>
@@ -2001,7 +2004,7 @@ class TeamWizard extends preact.Component<{
 								<strong class="label">Shiny</strong> {}
 								{set.shiny ? <img src={`${Dex.resourcePrefix}sprites/misc/shiny.png`} width={22} height={22} alt="Yes" /> : '\u2014'}
 							</span>}
-							{editor.gen === 9 && <span class="detailcell">
+							{editor.gen === 9 && !editor.isChampions && <span class="detailcell">
 								<strong class="label">Tera</strong> {}
 								<PSIcon type={set.teraType || species.requiredTeraType || species.types[0]} />
 							</span>}
@@ -2480,6 +2483,7 @@ class StatForm extends preact.Component<{
 		const hpIVdata = hpType && !editor.canHyperTrain(set) && editor.getHPIVs(hpType) || null;
 		const autoSpread = set.ivs && editor.defaultIVs(set, false);
 		const autoSpreadValue = autoSpread && Object.values(autoSpread).join('/');
+		if (editor.isChampions) return null;
 		if (!hpIVdata) {
 			return <select name="ivspread" class="button" onChange={this.changeIVSpread}>
 				<option value="" selected>IV spreads</option>
@@ -2836,8 +2840,9 @@ class StatForm extends preact.Component<{
 	};
 	maxEVs() {
 		const editor = this.props.editor;
-		const useEVs = !editor.isLetsGo && editor.gen >= 3;
-		return useEVs ? 510 : Infinity;
+		const usesStatPoints = editor.isChampions;
+		const useEVs = !editor.isLetsGo && editor.gen >= 3 && !usesStatPoints;
+		return usesStatPoints ? 66 : useEVs ? 510 : Infinity;
 	}
 	override render() {
 		const { editor, set } = this.props;
@@ -2847,9 +2852,10 @@ class StatForm extends preact.Component<{
 
 		const nature = BattleNatures[set.nature || 'Serious'];
 
-		const useEVs = !editor.isLetsGo;
+		const usesStatPoints = editor.isChampions;
+		const useEVs = !editor.isLetsGo && !usesStatPoints;
 		// const useAVs = !useEVs && team.format.endsWith('norestrictions');
-		const maxEV = useEVs ? 252 : 200;
+		const maxEV = usesStatPoints ? 32 : useEVs ? 252 : 200;
 		const stepEV = useEVs ? 4 : 1;
 		const defaultEV = useEVs && editor.gen <= 2 && !set.evs ? maxEV : 0;
 		const useIVs = editor.gen > 2;
@@ -2893,9 +2899,9 @@ class StatForm extends preact.Component<{
 						<th>{/* Stat name */}</th>
 						<th>Base</th>
 						<th class="setstatbar">{/* Stat bar */}</th>
-						<th>{useEVs ? 'EVs' : 'AVs'}</th>
+						<th>{useEVs ? 'EVs' : usesStatPoints ? 'Points' : 'AVs'}</th>
 						<th>{/* EV slider */}</th>
-						<th>{useIVs ? 'IVs' : 'DVs'}</th>
+						{!editor.isChampions && <th>{useIVs ? 'IVs' : 'DVs'}</th>}
 						<th>{/* Final stat */}</th>
 					</tr>
 					{stats.map(([statID, statName, stat]) => <tr>
@@ -2912,10 +2918,11 @@ class StatForm extends preact.Component<{
 							type="range" class="evslider" tabIndex={-1} aria-hidden
 							onInput={this.changeEV} onChange={this.changeEV}
 						/></td>
-						<td><input
+						{!editor.isChampions && <td><input
 							name={`iv-${statID}`} min={0} max={useIVs ? 31 : 15} placeholder={`${defaultIVs[statID]}`} style="width:40px"
-							type="number" inputMode="numeric" class="textbox default-placeholder" onInput={this.changeIV} onChange={this.changeIV}
-						/></td>
+							type="number" inputMode="numeric" class="textbox default-placeholder" onInput={this.changeIV}
+							onChange={this.changeIV} disabled={usesStatPoints}
+						/></td>}
 						<td style="text-align:right"><strong>{stat}</strong></td>
 					</tr>)}
 					<tr>
@@ -3075,7 +3082,7 @@ class DetailsForm extends preact.Component<{
 					name="level" value={set.level ?? ''} placeholder={`${editor.defaultLevel}`}
 					type="number" inputMode="numeric" min="1" max="100" step="1"
 					class="textbox inputform numform default-placeholder" style="width: 50px"
-					onInput={this.changeLevel} onChange={this.changeLevel}
+					onInput={this.changeLevel} onChange={this.changeLevel} disabled={editor.isChampions}
 				/></label><small>(You probably want to change the team's levels by changing the format, not here)</small></p>
 				{editor.gen > 1 && (<>
 					<p><div class="label">Shiny: <div class="labeled">
@@ -3151,7 +3158,7 @@ class DetailsForm extends preact.Component<{
 						))}
 					</select></label>
 				</p>}
-				{editor.gen === 9 && <p>
+				{editor.gen === 9 && !editor.isChampions && <p>
 					<label class="label" title="Tera Type">
 						Tera Type: {}
 						{species.requiredTeraType && editor.formeLegality === 'normal' ? (
