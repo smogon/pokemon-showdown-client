@@ -2750,7 +2750,11 @@ class StatForm extends preact.Component<{
 				let totalEv = 0;
 				for (const curEv of Object.values(set.evs || {})) totalEv += curEv;
 				if (totalEv > maxEv && totalEv - value <= maxEv) {
-					set.evs![statID] = maxEv - (totalEv - value) - (maxEv % 4);
+					if (this.props.editor.isChampions) {
+						set.evs![statID] = maxEv - (totalEv - value);
+					} else {
+						set.evs![statID] = maxEv - (totalEv - value) - (maxEv % 4);
+					}
 				}
 			}
 		} else {
