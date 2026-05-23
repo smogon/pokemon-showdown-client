@@ -668,7 +668,7 @@ export class TeamEditorState extends PSModel {
 	getStat(stat: StatName, set: Dex.PokemonSet, ivOverride: number, evOverride?: number, natureOverride?: number) {
 		const usesStatPoints = this.isChampions;
 		const supportsEVs = !this.isLetsGo && !usesStatPoints;
-		const supportsAVs = !supportsEVs;
+		const supportsAVs = !supportsEVs && !usesStatPoints;
 
 		// do this after setting set.evs because it's assumed to exist
 		// after getStat is run
@@ -697,9 +697,9 @@ export class TeamEditorState extends PSModel {
 		} else if (BattleNatures[set.nature!]?.minus === stat) {
 			val *= 0.9;
 		}
-		if (!supportsEVs) {
+		if (supportsAVs) {
 			const friendshipValue = Math.trunc((70 / 255 / 10 + 1) * 100);
-			val = Math.trunc(val) * friendshipValue / 100 + (supportsAVs ? ev : 0);
+			val = Math.trunc(val) * friendshipValue / 100 + ev;
 		}
 		return Math.trunc(val);
 	}
