@@ -179,11 +179,11 @@ export class ChatRoom extends PSRoom {
 		} else {
 			let lines = msg.split('\n');
 
-			// cut off starting lines until we get to PS.lastMessage timestamp
+			// cut off starting lines until we get to this room's last message timestamp
 			// then cut off roomintro from the end
 			let cutOffStart = 0;
 			let cutOffEnd = lines.length;
-			const cutOffTime = parseInt(PS.lastMessageTime);
+			const cutOffTime = (this.lastMessage?.[0] === 'c:') ? parseInt(this.lastMessage[1]) : 0;
 			const cutOffExactLine = this.lastMessage ? '|' + this.lastMessage?.join('|') : '';
 			let reconnectMessage = '|raw|<div class="infobox">You reconnected.</div>';
 			for (let i = 0; i < lines.length; i++) {
@@ -194,7 +194,7 @@ export class ChatRoom extends PSRoom {
 					cutOffStart = i + 1;
 				} else if (lines[i].startsWith(`|c:|`)) {
 					const time = parseInt(lines[i].split('|')[2] || '');
-					if (time < cutOffTime) cutOffStart = i;
+					if (time < cutOffTime) cutOffStart = i + 1;
 				}
 				if (lines[i].startsWith('|raw|<div class="infobox"> You joined ')) {
 					reconnectMessage = `|raw|<div class="infobox">You reconnected to ${lines[i].slice(38)}`;
@@ -202,14 +202,6 @@ export class ChatRoom extends PSRoom {
 					if (!lines[i - 1]) cutOffEnd = i - 1;
 				}
 			}
-			console.log("Reconnection log splice:");
-			console.log([
-				...lines.slice(0, cutOffStart),
-				'====================',
-				...lines.slice(cutOffStart, cutOffEnd),
-				'====================',
-				...lines.slice(cutOffEnd),
-			].join('\n'));
 			lines = lines.slice(cutOffStart, cutOffEnd);
 
 			if (lines.length) {
