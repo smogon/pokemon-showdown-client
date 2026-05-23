@@ -666,10 +666,6 @@ export class TeamEditorState extends PSModel {
 		}
 	}
 	getStat(stat: StatName, set: Dex.PokemonSet, ivOverride: number, evOverride?: number, natureOverride?: number) {
-		const usesStatPoints = this.isChampions;
-		const supportsEVs = !this.isLetsGo && !usesStatPoints;
-		const supportsAVs = !supportsEVs;
-
 		// do this after setting set.evs because it's assumed to exist
 		// after getStat is run
 		const species = this.dex.species.get(set.species);
@@ -679,15 +675,16 @@ export class TeamEditorState extends PSModel {
 
 		const baseStat = species.baseStats[stat];
 		const iv = ivOverride;
-		const ev = evOverride ?? set.evs?.[stat] ?? (this.gen > 2 ? 0 : 252);
+		let ev = evOverride ?? set.evs?.[stat] ?? (this.gen > 2 ? 0 : 252);
+		if (this.isChampions) ev *= 8;
 
 		if (stat === 'hp') {
 			if (baseStat === 1) return 1;
-			if (!supportsEVs) return Math.trunc(Math.trunc(2 * baseStat + iv + 100) * level / 100 + 10) + (supportsAVs ? ev : 0);
+			if (this.isLetsGo) return Math.trunc(Math.trunc(2 * baseStat + iv + 100) * level / 100 + 10) + ev;
 			return Math.trunc(Math.trunc(2 * baseStat + iv + Math.trunc(ev / 4) + 100) * level / 100 + 10);
 		}
 		let val = Math.trunc(Math.trunc(2 * baseStat + iv + Math.trunc(ev / 4)) * level / 100 + 5);
-		if (!supportsEVs) {
+		if (this.isLetsGo) {
 			val = Math.trunc(Math.trunc(2 * baseStat + iv) * level / 100 + 5);
 		}
 		if (natureOverride) {
@@ -697,9 +694,9 @@ export class TeamEditorState extends PSModel {
 		} else if (BattleNatures[set.nature!]?.minus === stat) {
 			val *= 0.9;
 		}
-		if (!supportsEVs) {
+		if (this.isLetsGo) {
 			const friendshipValue = Math.trunc((70 / 255 / 10 + 1) * 100);
-			val = Math.trunc(val) * friendshipValue / 100 + (supportsAVs ? ev : 0);
+			val = Math.trunc(val) * friendshipValue / 100 + ev;
 		}
 		return Math.trunc(val);
 	}
@@ -2841,9 +2838,8 @@ class StatForm extends preact.Component<{
 	};
 	maxEVs() {
 		const editor = this.props.editor;
-		const usesStatPoints = editor.isChampions;
-		const useEVs = !editor.isLetsGo && editor.gen >= 3 && !usesStatPoints;
-		return usesStatPoints ? 66 : useEVs ? 510 : Infinity;
+		const useCappedEVs = !editor.isLetsGo && editor.gen >= 3 && !editor.isChampions;
+		return editor.isChampions ? 66 : useCappedEVs ? 510 : Infinity;
 	}
 	override render() {
 		const { editor, set } = this.props;
@@ -2853,10 +2849,9 @@ class StatForm extends preact.Component<{
 
 		const nature = BattleNatures[set.nature || 'Serious'];
 
-		const usesStatPoints = editor.isChampions;
-		const useEVs = !editor.isLetsGo && !usesStatPoints;
-		// const useAVs = !useEVs && team.format.endsWith('norestrictions');
-		const maxEV = usesStatPoints ? 32 : useEVs ? 252 : 200;
+		const useEVs = !editor.isLetsGo && !editor.isChampions;
+		// const useAVs = editor.isLetsGo && team.format.endsWith('norestrictions');
+		const maxEV = editor.isChampions ? 32 : useEVs ? 252 : 200;
 		const stepEV = useEVs ? 4 : 1;
 		const defaultEV = useEVs && editor.gen <= 2 && !set.evs ? maxEV : 0;
 		const useIVs = editor.gen > 2;
@@ -2882,7 +2877,7 @@ class StatForm extends preact.Component<{
 		if (maxEVs < 6 * 252) {
 			let totalEv = 0;
 			for (const ev of Object.values(set.evs || {})) totalEv += ev;
-			if (totalEv <= maxEVs) {
+			if (totalEv <= maxEVs && !editor.isChampions) {
 				remaining = (totalEv > (maxEVs - 2) ? 0 : (maxEVs - 2) - totalEv);
 			} else {
 				remaining = maxEVs - totalEv;
@@ -2900,7 +2895,7 @@ class StatForm extends preact.Component<{
 						<th>{/* Stat name */}</th>
 						<th>Base</th>
 						<th class="setstatbar">{/* Stat bar */}</th>
-						<th>{useEVs ? 'EVs' : usesStatPoints ? 'Points' : 'AVs'}</th>
+						<th>{editor.isLetsGo ? 'AVs' : editor.isChampions ? 'Points' : 'EVs'}</th>
 						<th>{/* EV slider */}</th>
 						{!editor.isChampions && <th>{useIVs ? 'IVs' : 'DVs'}</th>}
 						<th>{/* Final stat */}</th>
@@ -2922,7 +2917,7 @@ class StatForm extends preact.Component<{
 						{!editor.isChampions && <td><input
 							name={`iv-${statID}`} min={0} max={useIVs ? 31 : 15} placeholder={`${defaultIVs[statID]}`} style="width:40px"
 							type="number" inputMode="numeric" class="textbox default-placeholder" onInput={this.changeIV}
-							onChange={this.changeIV} disabled={usesStatPoints}
+							onChange={this.changeIV}
 						/></td>}
 						<td style="text-align:right"><strong>{stat}</strong></td>
 					</tr>)}
