@@ -2128,6 +2128,9 @@ export const PS = new class extends PSModel {
 						// (the server sometimes sends a popup error message and a new room at the same time)
 						autoclosePopups: false,
 					});
+					if (room && type === 'battle') {
+						(room as BattleRoom).rejoining = msg.includes('\n|start\n');
+					}
 				} else {
 					room.type = type;
 					this.updateRoomTypes();
