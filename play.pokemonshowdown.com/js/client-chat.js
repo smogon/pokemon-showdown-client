@@ -1175,6 +1175,7 @@
 			// documentation of client commands
 			case 'help':
 			case 'h':
+				if (text.charAt(0) === '!') return text;
 				switch (toID(target)) {
 				case 'chal':
 				case 'chall':
