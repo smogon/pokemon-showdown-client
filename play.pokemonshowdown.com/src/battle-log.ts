@@ -142,7 +142,7 @@ export class BattleLog {
 		}
 		let divClass = 'chat';
 		let divHTML = '';
-		let noNotify: boolean | undefined;
+		let noNotify: boolean | 'subtle' | undefined;
 		if (!['name', 'n'].includes(args[0])) this.lastRename = null;
 		switch (args[0]) {
 		case 'chat': case 'c': case 'c:':
@@ -260,6 +260,26 @@ export class BattleLog {
 		case 'pm':
 			divHTML = `<strong data-href="user-${BattleLog.escapeHTML(args[1])}"> ${BattleLog.escapeHTML(args[1])}:</strong> <span class="message-pm"><i style="cursor:pointer" data-href="user-${BattleLog.escapeHTML(args[1], true)}">(Private to ${BattleLog.escapeHTML(args[2])})</i> ${BattleLog.parseMessage(args[3])} </span>`;
 			break;
+
+		case 'b': case 'B': {
+			const showBattlesPref = window.PS?.prefs?.showbattles;
+			if (args[0] === 'B' && showBattlesPref === false) return;
+			const id = args[1];
+			const format = BattleLog.escapeFormat(BattleLog.roomidToFormat(id));
+			let battletype = 'Battle';
+			if (format) {
+				battletype = format + ' battle';
+				if (format === 'Random Battle') battletype = 'Random Battle';
+			}
+			divClass = 'notice';
+			divHTML = `<a href="/${BattleLog.escapeHTML(id)}" class="ilink">` +
+				`${battletype} started between ` +
+				`<strong style="color:${BattleLog.usernameColor(toUserid(args[2]))}">${BattleLog.escapeHTML(args[2])}</strong>` +
+				` and <strong style="color:${BattleLog.usernameColor(toUserid(args[3]))}">${BattleLog.escapeHTML(args[3])}</strong>.` +
+				`</a>`;
+			this.joinLeave = null;
+			break;
+		}
 
 		case 'askreg':
 			this.addDiv('chat', '<div class="broadcast-blue"><b>Register an account to protect your ladder rating!</b><br /><button name="register" value="' + BattleLog.escapeHTML(args[1]) + '"><b>Register</b></button></div>');
@@ -1156,6 +1176,13 @@ export class BattleLog {
 		return str.replace(/&quot;/g, '"').replace(/&gt;/g, '>').replace(/&lt;/g, '<').replace(/&amp;/g, '&');
 	}
 
+	static roomidToFormat(id: string): ID | undefined {
+		if (id.lastIndexOf('-') > 6) {
+			return (/^battle-([a-z0-9]*)-?[0-9]*$/.exec(id))?.[1] as ID;
+		}
+		return (/^battle-([a-z0-9]*[a-z])[0-9]*$/.exec(id))?.[1] as ID;
+	}
+
 	static colorCache: { [userid: string]: string } = {};
 
 	/** @deprecated */
@@ -1232,7 +1259,7 @@ export class BattleLog {
 
 	parseChatMessage(
 		message: string, name: string, timestamp: string, isHighlighted?: boolean
-	): [string, string, boolean?] {
+	): [divClass: string, divHTML: string, noNotify?: boolean | 'subtle'] {
 		let showMe = !BattleLog.prefs('chatformatting')?.hideme;
 		let group = ' ';
 		if (!/[A-Za-z0-9]/.test(name.charAt(0))) {
@@ -1320,6 +1347,8 @@ export class BattleLog {
 			return ['chat', BattleLog.sanitizeHTML(target), true];
 		case 'nonotify':
 			return ['chat', BattleLog.sanitizeHTML(target), true];
+		case 'subtlenotify':
+			return ['chat', BattleLog.sanitizeHTML(target), 'subtle'];
 		default:
 			// Not a command or unsupported. Parsed as a normal chat message.
 			if (!name) {

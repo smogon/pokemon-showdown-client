@@ -191,7 +191,7 @@ export function TeamBox(props: {
 class TeamDropdownPanel extends PSRoomPanel {
 	static readonly id = 'teamdropdown';
 	static readonly routes = ['teamdropdown'];
-	static readonly location = 'semimodal-popup';
+	static readonly location = 'modal-popup';
 	static readonly noURL = true;
 	gen = '';
 	format: string | null = null;
@@ -349,6 +349,7 @@ export interface FormatData {
 	tournamentShow?: boolean;
 	bestOfDefault?: boolean;
 	teraPreviewDefault?: boolean;
+	itemClauseDefault?: boolean;
 	rated: boolean;
 	teambuilderLevel?: number | null;
 	partner?: boolean;
@@ -364,7 +365,7 @@ export type SelectType = 'teambuilder' | 'challenge' | 'search' | 'tournament';
 class FormatDropdownPanel extends PSRoomPanel {
 	static readonly id = 'formatdropdown';
 	static readonly routes = ['formatdropdown'];
-	static readonly location = 'semimodal-popup';
+	static readonly location = 'modal-popup';
 	static readonly noURL = true;
 	gen = '' as ID;
 	format: string | null = null;

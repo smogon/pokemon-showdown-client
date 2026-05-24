@@ -943,7 +943,7 @@ export class TournamentTreeBracket extends preact.Component<{
 export class TourPopOutPanel extends PSRoomPanel {
 	static readonly id = 'tourpopout';
 	static readonly routes = ['tourpopout'];
-	static readonly location = 'semimodal-popup';
+	static readonly location = 'modal-popup';
 	static readonly noURL = true;
 	override componentDidMount() {
 		const tour = this.props.room.args?.tour as ChatTournament;
@@ -952,7 +952,7 @@ export class TourPopOutPanel extends PSRoomPanel {
 	override render() {
 		const room = this.props.room;
 		const tour = room.args?.tour as ChatTournament;
-		return <PSPanelWrapper room={room} fullSize>
+		return <PSPanelWrapper room={room} noScroll fullSize>
 			{tour && <TournamentBracket tour={tour} poppedOut />}
 		</PSPanelWrapper>;
 	}

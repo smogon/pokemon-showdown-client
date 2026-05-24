@@ -2449,135 +2449,137 @@
 			}
 			buf += '</div>';
 
-			if (this.curTeam.gen > 2) {
-				buf += '<div class="col ivcol"><div><strong>IVs</strong></div>';
-				if (!set.ivs) set.ivs = {};
-				for (var i in stats) {
-					if (set.ivs[i] === undefined || isNaN(set.ivs[i])) set.ivs[i] = 31;
-					var val = '' + (set.ivs[i]);
-					buf += '<div><input type="number" name="iv-' + i + '" value="' + BattleLog.escapeHTML(val) + '" class="textbox inputform numform" min="' + (usesStatPoints ? 31 : 0) + '" max="31" step="1" /></div>';
+			if (!usesStatPoints) {
+				if (this.curTeam.gen > 2) {
+					buf += '<div class="col ivcol"><div><strong>IVs</strong></div>';
+					if (!set.ivs) set.ivs = {};
+					for (var i in stats) {
+						if (set.ivs[i] === undefined || isNaN(set.ivs[i])) set.ivs[i] = 31;
+						var val = '' + (set.ivs[i]);
+						buf += '<div><input type="number" name="iv-' + i + '" value="' + BattleLog.escapeHTML(val) + '" class="textbox inputform numform" min="' + (usesStatPoints ? 31 : 0) + '" max="31" step="1"' + (usesStatPoints ? ' disabled' : '') + ' /></div>';
+					}
+					var hpType = '';
+					if (set.moves) {
+						for (var i = 0; i < set.moves.length; i++) {
+							var moveid = toID(set.moves[i]);
+							if (moveid.slice(0, 11) === 'hiddenpower') {
+								hpType = moveid.slice(11);
+							}
+						}
+					}
+					if (hpType && !this.canHyperTrain(set)) {
+						var hpIVs;
+						switch (hpType) {
+						case 'dark':
+							hpIVs = ['111111']; break;
+						case 'dragon':
+							hpIVs = ['011111', '101111', '110111']; break;
+						case 'ice':
+							hpIVs = ['010111', '100111', '111110']; break;
+						case 'psychic':
+							hpIVs = ['011110', '101110', '110110']; break;
+						case 'electric':
+							hpIVs = ['010110', '100110', '111011']; break;
+						case 'grass':
+							hpIVs = ['011011', '101011', '110011']; break;
+						case 'water':
+							hpIVs = ['100011', '111010']; break;
+						case 'fire':
+							hpIVs = ['101010', '110010']; break;
+						case 'steel':
+							hpIVs = ['100010', '111101']; break;
+						case 'ghost':
+							hpIVs = ['101101', '110101']; break;
+						case 'bug':
+							hpIVs = ['100101', '111100', '101100']; break;
+						case 'rock':
+							hpIVs = ['001100', '110100', '100100']; break;
+						case 'ground':
+							hpIVs = ['000100', '111001', '101001']; break;
+						case 'poison':
+							hpIVs = ['001001', '110001', '100001']; break;
+						case 'flying':
+							hpIVs = ['000001', '111000', '101000']; break;
+						case 'fighting':
+							hpIVs = ['001000', '110000', '100000']; break;
+						}
+						buf += '<div style="margin-left:-80px;text-align:right"><select name="ivspread" class="button">';
+						buf += '<option value="" selected>HP ' + hpType.charAt(0).toUpperCase() + hpType.slice(1) + ' IVs</option>';
+
+						var minStat = this.curTeam.gen >= 6 ? 0 : 2;
+
+						buf += '<optgroup label="min Atk">';
+						for (var i = 0; i < hpIVs.length; i++) {
+							var spread = '';
+							for (var j = 0; j < 6; j++) {
+								if (j) spread += '/';
+								spread += (j === 1 ? minStat : 30) + parseInt(hpIVs[i].charAt(j), 10);
+							}
+							buf += '<option value="' + spread + '">' + spread + '</option>';
+						}
+						buf += '</optgroup>';
+						buf += '<optgroup label="min Atk, min Spe">';
+						for (var i = 0; i < hpIVs.length; i++) {
+							var spread = '';
+							for (var j = 0; j < 6; j++) {
+								if (j) spread += '/';
+								spread += (j === 5 || j === 1 ? minStat : 30) + parseInt(hpIVs[i].charAt(j), 10);
+							}
+							buf += '<option value="' + spread + '">' + spread + '</option>';
+						}
+						buf += '</optgroup>';
+						buf += '<optgroup label="max all">';
+						for (var i = 0; i < hpIVs.length; i++) {
+							var spread = '';
+							for (var j = 0; j < 6; j++) {
+								if (j) spread += '/';
+								spread += 30 + parseInt(hpIVs[i].charAt(j), 10);
+							}
+							buf += '<option value="' + spread + '">' + spread + '</option>';
+						}
+						buf += '</optgroup>';
+						buf += '<optgroup label="min Spe">';
+						for (var i = 0; i < hpIVs.length; i++) {
+							var spread = '';
+							for (var j = 0; j < 6; j++) {
+								if (j) spread += '/';
+								spread += (j === 5 ? minStat : 30) + parseInt(hpIVs[i].charAt(j), 10);
+							}
+							buf += '<option value="' + spread + '">' + spread + '</option>';
+						}
+						buf += '</optgroup>';
+
+						buf += '</select></div>';
+					} else if (!usesStatPoints) {
+						buf += '<div style="margin-left:-80px;text-align:right"><select name="ivspread" class="button">';
+						buf += '<option value="" selected>IV spreads</option>';
+
+						buf += '<optgroup label="min Atk">';
+						buf += '<option value="31/0/31/31/31/31">31/0/31/31/31/31</option>';
+						buf += '</optgroup>';
+						buf += '<optgroup label="min Atk, min Spe">';
+						buf += '<option value="31/0/31/31/31/0">31/0/31/31/31/0</option>';
+						buf += '</optgroup>';
+						buf += '<optgroup label="max all">';
+						buf += '<option value="31/31/31/31/31/31">31/31/31/31/31/31</option>';
+						buf += '</optgroup>';
+						buf += '<optgroup label="min Spe">';
+						buf += '<option value="31/31/31/31/31/0">31/31/31/31/31/0</option>';
+						buf += '</optgroup>';
+
+						buf += '</select></div>';
+					}
+					buf += '</div>';
+				} else {
+					buf += '<div class="col ivcol"><div><strong>DVs</strong></div>';
+					if (!set.ivs) set.ivs = {};
+					for (var i in stats) {
+						if (set.ivs[i] === undefined || isNaN(set.ivs[i])) set.ivs[i] = 31;
+						var val = '' + Math.floor(set.ivs[i] / 2);
+						buf += '<div><input type="number" name="iv-' + i + '" value="' + BattleLog.escapeHTML(val) + '" class="textbox inputform numform" min="0" max="15" step="1" /></div>';
+					}
+					buf += '</div>';
 				}
-				var hpType = '';
-				if (set.moves) {
-					for (var i = 0; i < set.moves.length; i++) {
-						var moveid = toID(set.moves[i]);
-						if (moveid.slice(0, 11) === 'hiddenpower') {
-							hpType = moveid.slice(11);
-						}
-					}
-				}
-				if (hpType && !this.canHyperTrain(set)) {
-					var hpIVs;
-					switch (hpType) {
-					case 'dark':
-						hpIVs = ['111111']; break;
-					case 'dragon':
-						hpIVs = ['011111', '101111', '110111']; break;
-					case 'ice':
-						hpIVs = ['010111', '100111', '111110']; break;
-					case 'psychic':
-						hpIVs = ['011110', '101110', '110110']; break;
-					case 'electric':
-						hpIVs = ['010110', '100110', '111011']; break;
-					case 'grass':
-						hpIVs = ['011011', '101011', '110011']; break;
-					case 'water':
-						hpIVs = ['100011', '111010']; break;
-					case 'fire':
-						hpIVs = ['101010', '110010']; break;
-					case 'steel':
-						hpIVs = ['100010', '111101']; break;
-					case 'ghost':
-						hpIVs = ['101101', '110101']; break;
-					case 'bug':
-						hpIVs = ['100101', '111100', '101100']; break;
-					case 'rock':
-						hpIVs = ['001100', '110100', '100100']; break;
-					case 'ground':
-						hpIVs = ['000100', '111001', '101001']; break;
-					case 'poison':
-						hpIVs = ['001001', '110001', '100001']; break;
-					case 'flying':
-						hpIVs = ['000001', '111000', '101000']; break;
-					case 'fighting':
-						hpIVs = ['001000', '110000', '100000']; break;
-					}
-					buf += '<div style="margin-left:-80px;text-align:right"><select name="ivspread" class="button">';
-					buf += '<option value="" selected>HP ' + hpType.charAt(0).toUpperCase() + hpType.slice(1) + ' IVs</option>';
-
-					var minStat = this.curTeam.gen >= 6 ? 0 : 2;
-
-					buf += '<optgroup label="min Atk">';
-					for (var i = 0; i < hpIVs.length; i++) {
-						var spread = '';
-						for (var j = 0; j < 6; j++) {
-							if (j) spread += '/';
-							spread += (j === 1 ? minStat : 30) + parseInt(hpIVs[i].charAt(j), 10);
-						}
-						buf += '<option value="' + spread + '">' + spread + '</option>';
-					}
-					buf += '</optgroup>';
-					buf += '<optgroup label="min Atk, min Spe">';
-					for (var i = 0; i < hpIVs.length; i++) {
-						var spread = '';
-						for (var j = 0; j < 6; j++) {
-							if (j) spread += '/';
-							spread += (j === 5 || j === 1 ? minStat : 30) + parseInt(hpIVs[i].charAt(j), 10);
-						}
-						buf += '<option value="' + spread + '">' + spread + '</option>';
-					}
-					buf += '</optgroup>';
-					buf += '<optgroup label="max all">';
-					for (var i = 0; i < hpIVs.length; i++) {
-						var spread = '';
-						for (var j = 0; j < 6; j++) {
-							if (j) spread += '/';
-							spread += 30 + parseInt(hpIVs[i].charAt(j), 10);
-						}
-						buf += '<option value="' + spread + '">' + spread + '</option>';
-					}
-					buf += '</optgroup>';
-					buf += '<optgroup label="min Spe">';
-					for (var i = 0; i < hpIVs.length; i++) {
-						var spread = '';
-						for (var j = 0; j < 6; j++) {
-							if (j) spread += '/';
-							spread += (j === 5 ? minStat : 30) + parseInt(hpIVs[i].charAt(j), 10);
-						}
-						buf += '<option value="' + spread + '">' + spread + '</option>';
-					}
-					buf += '</optgroup>';
-
-					buf += '</select></div>';
-				} else if (!usesStatPoints) {
-					buf += '<div style="margin-left:-80px;text-align:right"><select name="ivspread" class="button">';
-					buf += '<option value="" selected>IV spreads</option>';
-
-					buf += '<optgroup label="min Atk">';
-					buf += '<option value="31/0/31/31/31/31">31/0/31/31/31/31</option>';
-					buf += '</optgroup>';
-					buf += '<optgroup label="min Atk, min Spe">';
-					buf += '<option value="31/0/31/31/31/0">31/0/31/31/31/0</option>';
-					buf += '</optgroup>';
-					buf += '<optgroup label="max all">';
-					buf += '<option value="31/31/31/31/31/31">31/31/31/31/31/31</option>';
-					buf += '</optgroup>';
-					buf += '<optgroup label="min Spe">';
-					buf += '<option value="31/31/31/31/31/0">31/31/31/31/31/0</option>';
-					buf += '</optgroup>';
-
-					buf += '</select></div>';
-				}
-				buf += '</div>';
-			} else {
-				buf += '<div class="col ivcol"><div><strong>DVs</strong></div>';
-				if (!set.ivs) set.ivs = {};
-				for (var i in stats) {
-					if (set.ivs[i] === undefined || isNaN(set.ivs[i])) set.ivs[i] = 31;
-					var val = '' + Math.floor(set.ivs[i] / 2);
-					buf += '<div><input type="number" name="iv-' + i + '" value="' + BattleLog.escapeHTML(val) + '" class="textbox inputform numform" min="0" max="15" step="1" /></div>';
-				}
-				buf += '</div>';
 			}
 
 			buf += '<div class="col statscol"><div></div>';
@@ -2907,7 +2909,12 @@
 			buf += '<div class="resultheader"><h3>Details</h3></div>';
 			buf += '<form class="detailsform">';
 
-			buf += '<div class="formrow"><label class="formlabel">Level:</label><div><input type="number" min="1" max="100" step="1" name="level" value="' + (typeof set.level === 'number' ? set.level : 100) + '" class="textbox inputform numform" /></div></div>';
+			buf += '<div class="formrow"><label class="formlabel">Level:</label><div>' +
+				'<input type="number" min="1" max="100" step="1" name="level" value="' +
+				(typeof set.level === 'number' ? set.level : 100) +
+				'" class="textbox inputform numform"' +
+				(isChampions ? ' disabled' : '') +
+				' /></div></div>';
 
 			if (this.curTeam.gen > 1) {
 				buf += '<div class="formrow"><label class="formlabel">Gender:</label><div>';
@@ -2926,7 +2933,7 @@
 				buf += '</div></div>';
 
 				if (isLetsGo) {
-					buf += '<div class="formrow"><label class="formlabel">Happiness:</label><div><input type="number" name="happiness" value="70" class="textbox inputform numform" /></div></div>';
+					buf += '<div class="formrow"><label class="formlabel">Happiness:</label><div><input type="number" name="happiness" value="70" class="textbox inputform numform" disabled /></div></div>';
 				} else {
 					if (this.curTeam.gen < 8 || isNatDex) buf += '<div class="formrow"><label class="formlabel">Happiness:</label><div><input type="number" min="0" max="255" step="1" name="happiness" value="' + (typeof set.happiness === 'number' ? set.happiness : 255) + '" class="textbox inputform numform" /></div></div>';
 				}
