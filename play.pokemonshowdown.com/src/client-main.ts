@@ -209,7 +209,10 @@ class PSPrefs extends PSStreamModel<string | null> {
 		for (const key in PSPrefsDefaults) {
 			if (key in newPrefs) (this as any)[key] = (newPrefs as any)[key];
 		}
+
 		this.setAFD();
+		this.setShowDebug();
+
 		this.update(null);
 		if (!noSave) this.save();
 	}
@@ -286,6 +289,18 @@ class PSPrefs extends PSStreamModel<string | null> {
 			} else {
 				(BattleText as any) = BattleTextNotAFD;
 			}
+		}
+	}
+	setShowDebug(mode = this.showdebug) {
+		const css = mode ? `.debug {display: block;}` : `.debug {display: none;}`;
+		let style = document.querySelector('style[id=debugstyle]');
+		if (style) {
+			style.innerHTML = css;
+		} else {
+			style = document.createElement('style');
+			style.id = "debugstyle";
+			style.innerHTML = css;
+			document.querySelector('head')?.append(style);
 		}
 	}
 	doAutojoin() {
@@ -1413,30 +1428,12 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 		'showdebug'() {
 			PS.prefs.set('showdebug', true);
 			this.add('||Debug battle messages: ON');
-			let onCSS = '.debug {display: block;}';
-			let style = document.querySelector('style[id=debugstyle]');
-			if (style) {
-				style.innerHTML = onCSS;
-			} else {
-				style = document.createElement('style');
-				style.id = "debugstyle";
-				style.innerHTML = onCSS;
-				document.querySelector('head')?.append(style);
-			}
+			PS.prefs.setShowDebug(true);
 		},
 		'hidedebug'() {
-			PS.prefs.set('showdebug', true);
+			PS.prefs.set('showdebug', false);
 			this.add('||Debug battle messages: OFF');
-			let onCSS = '.debug {display: none;}';
-			let style = document.querySelector('style[id=debugstyle]');
-			if (style) {
-				style.innerHTML = onCSS;
-			} else {
-				style = document.createElement('style');
-				style.id = "debugstyle";
-				style.innerHTML = onCSS;
-				document.querySelector('head')?.append(style);
-			}
+			PS.prefs.setShowDebug(false);
 		},
 		'showbattles'() {
 			PS.prefs.set('showbattles', true);
