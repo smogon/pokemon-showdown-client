@@ -485,9 +485,9 @@ export class TournamentBox extends preact.Component<{ tour: ChatTournament, left
 					<div class="tournament-challenge-user">vs. {info.challenges[tour.selectedChallenge]}</div>
 					<button type="submit" class="button"><strong>Ready!</strong></button>
 					{info.challenges.length > 1 && <span class="tournament-challenge-user-menu">
-						<select onChange={this.selectChallengeUser}>
+						<select onChange={this.selectChallengeUser} value={tour.selectedChallenge}>
 							{info.challenges.map((challenge, index) => (
-								<option value={index} selected={index === tour.selectedChallenge}>{challenge}</option>
+								<option value={index}>{challenge}</option>
 							))}
 						</select>
 					</span>}

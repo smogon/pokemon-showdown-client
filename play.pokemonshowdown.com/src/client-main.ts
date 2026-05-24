@@ -320,7 +320,8 @@ class PSPrefs extends PSStreamModel<string | null> {
 			}
 			let rooms = autojoin[PS.server.id] || '';
 			for (let title of rooms.split(",")) {
-				PS.addRoom({ id: toID(title) as string as RoomID, title, connected: true, autofocus: false });
+				const id = /[^a-z0-9-]/.test(title) ? toID(title) as any as RoomID : title as RoomID;
+				PS.addRoom({ id, title, connected: true, autofocus: false });
 			};
 			const cmd = `/autojoin ${rooms}`;
 			if (PS.connection?.queue.includes(cmd)) {
@@ -1982,7 +1983,8 @@ export const PS = new class extends PSModel {
 			}
 			let rooms = autojoin[this.server.id] || '';
 			for (let title of rooms.split(",")) {
-				this.addRoom({ id: toID(title) as unknown as RoomID, title, connected: true, autofocus: false });
+				const id = /[^a-z0-9-]/.test(title) ? toID(title) as any as RoomID : title as RoomID;
+				this.addRoom({ id, title, connected: true, autofocus: false });
 			}
 		}
 
@@ -2787,6 +2789,7 @@ export const PS = new class extends PSModel {
 		const room = PS.rooms[roomid];
 		if (room) {
 			this.removeRoom(room);
+			if (room.type === 'chat') this.updateAutojoin();
 			this.update();
 		}
 	}

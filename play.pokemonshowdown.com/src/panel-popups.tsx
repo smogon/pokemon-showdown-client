@@ -683,17 +683,22 @@ class OptionsPanel extends PSRoomPanel {
 			<hr />
 			<h3>Graphics</h3>
 			<p>
-				<label class="optlabel">Theme: <select name="theme" class="button" onChange={this.setTheme}>
-					<option value="light" selected={PS.prefs.theme === 'light'}>Light</option>
-					<option value="dark" selected={PS.prefs.theme === 'dark'}>Dark</option>
-					<option value="system" selected={PS.prefs.theme === 'system'}>Match system theme</option>
+				<label class="optlabel">Theme: <select
+					name="theme" class="button" onChange={this.setTheme} value={PS.prefs.theme || 'light'}
+				>
+					<option value="light">Light</option>
+					<option value="dark">Dark</option>
+					<option value="system">Match system theme</option>
 				</select></label>
 			</p>
 			<p>
-				<label class="optlabel">Layout: <select name="layout" class="button" onChange={this.setLayout}>
-					<option value="" selected={!PS.prefs.onepanel}>Two panels (if wide enough)</option>
-					<option value="onepanel" selected={PS.prefs.onepanel === true}>Single panel</option>
-					<option value="vertical" selected={PS.prefs.onepanel === 'vertical'}>Vertical tabs</option>
+				<label class="optlabel">Layout: <select
+					name="layout" class="button" onChange={this.setLayout}
+					value={PS.prefs.onepanel === true ? 'onepanel' : PS.prefs.onepanel || ''}
+				>
+					<option value="">Two panels (if wide enough)</option>
+					<option value="onepanel">Single panel</option>
+					<option value="vertical">Vertical tabs</option>
 				</select></label>
 			</p>
 			<p>
@@ -723,7 +728,7 @@ class OptionsPanel extends PSRoomPanel {
 			<p>
 				<label class="checkbox"><input
 					name="blockPMs" checked={!!serverSettings.blockPMs} type="checkbox" onChange={this.handleOnChange}
-				/> Block PMs</label>
+				/> Block DMs</label>
 			</p>
 			<p>
 				<label class="checkbox"><input
@@ -733,7 +738,7 @@ class OptionsPanel extends PSRoomPanel {
 			<p>
 				<label class="checkbox"><input
 					name="inchatpm" checked={PS.prefs.inchatpm || false} type="checkbox" onChange={this.handleOnChange}
-				/> Show PMs in chatrooms</label>
+				/> Show DMs in chatrooms</label>
 			</p>
 			<p>
 				<label class="checkbox"><input
@@ -771,25 +776,31 @@ class OptionsPanel extends PSRoomPanel {
 			</p>
 			<p>
 				<label class="optlabel">
-					Tournaments: <select name="tournaments" class="button" onChange={this.handleOnChange}>
-						<option value="" selected={!PS.prefs.tournaments}>Notify when joined</option>
-						<option value="notify" selected={PS.prefs.tournaments === "notify"}>Always notify</option>
-						<option value="hide" selected={PS.prefs.tournaments === "hide"}>Hide</option>
+					Tournaments: <select
+						name="tournaments" class="button" onChange={this.handleOnChange} value={PS.prefs.tournaments || ''}
+					>
+						<option value="">Notify when joined</option>
+						<option value="notify">Always notify</option>
+						<option value="hide">Hide</option>
 					</select>
 				</label>
 			</p>
 			<p>
-				<label class="optlabel">Timestamps: <select name="layout" class="button" onChange={this.setChatroomTimestamp}>
-					<option value="" selected={!PS.prefs.timestamps.chatrooms}>Off</option>
-					<option value="minutes" selected={PS.prefs.timestamps.chatrooms === "minutes"}>[HH:MM]</option>
-					<option value="seconds" selected={PS.prefs.timestamps.chatrooms === "seconds"}>[HH:MM:SS]</option>
+				<label class="optlabel">Timestamps: <select
+					name="layout" class="button" onChange={this.setChatroomTimestamp} value={PS.prefs.timestamps.chatrooms || ''}
+				>
+					<option value="">Off</option>
+					<option value="minutes">[HH:MM]</option>
+					<option value="seconds">[HH:MM:SS]</option>
 				</select></label>
 			</p>
 			<p>
-				<label class="optlabel">Timestamps in DMs: <select name="layout" class="button" onChange={this.setPMsTimestamp}>
-					<option value="" selected={!PS.prefs.timestamps.pms}>Off</option>
-					<option value="minutes" selected={PS.prefs.timestamps.pms === "minutes"}>[HH:MM]</option>
-					<option value="seconds" selected={PS.prefs.timestamps.pms === "seconds"}>[HH:MM:SS]</option>
+				<label class="optlabel">Timestamps in DMs: <select
+					name="layout" class="button" onChange={this.setPMsTimestamp} value={PS.prefs.timestamps.pms || ''}
+				>
+					<option value="">Off</option>
+					<option value="minutes">[HH:MM]</option>
+					<option value="seconds">[HH:MM:SS]</option>
 				</select></label>
 			</p>
 			<p>
@@ -1050,7 +1061,7 @@ class ReplacePlayerPanel extends PSRoomPanel {
 				<p>
 					<input name="newplayer" class="textbox autofocus" />
 				</p>
-				<p>
+				<p class="buttonbar">
 					<button type="submit" class="button">
 						<strong>Replace</strong>
 					</button> {}

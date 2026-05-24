@@ -7,7 +7,7 @@
 
 import preact from "../js/lib/preact";
 import type { PSSubscription } from "./client-core";
-import { PS, PSRoom, type RoomOptions, type RoomID, type Team } from "./client-main";
+import { PS, PSRoom, type RoomOptions, type RoomID, type Team, Config } from "./client-main";
 import { PSView, PSPanelWrapper, PSRoomPanel } from "./panels";
 import { TeamForm } from "./panel-mainmenu";
 import { BattleLog } from "./battle-log";
@@ -111,7 +111,9 @@ export class ChatRoom extends PSRoom {
 				// check the Replays database
 				(this as any as BattleRoom).loadReplay();
 			} else {
-				this.receiveLine(['bigerror', 'Room does not exist']);
+				this.receiveLine(['html',
+					`<div class="broadcast-red pad"><h3>Chatroom "${BattleLog.escapeHTML(this.title)}" not found</h3><p class="buttonbar"><button class="button" data-cmd="/close"><strong>Close</strong></button></p></div>`,
+				]);
 			}
 			return;
 		case 'expire':
@@ -500,7 +502,7 @@ export class ChatRoom extends PSRoom {
 				let userid = toID(targets[0]);
 				let registered = PS.user.registered;
 				if (registered && PS.user.userid === userid) {
-					buffer += `<tr><td colspan="8" style="text-align:right"><a href="//${PS.routes.users}/${userid}">Reset W/L</a></tr></td>`;
+					buffer += `<tr><td colspan="8" style="text-align:right"><a href="//${Config.routes.users}/${userid}">Reset W/L</a></tr></td>`;
 				}
 				buffer += '</table></div>';
 				this.add(`|html|${buffer}`);
@@ -758,7 +760,7 @@ export class ChatRoom extends PSRoom {
 		if (this.joinLeave['join'].length && this.joinLeave['leave'].length) message += '; ';
 		message += this.formatJoinLeave(this.joinLeave['leave'], 'left');
 
-		this.add(`|uhtml|${this.joinLeave.messageId}|<small style="color: #555555">${message}</small>`);
+		this.add(`|uhtml|${this.joinLeave.messageId}|<small class="gray">${message}</small>`);
 	}
 
 	formatJoinLeave(preList: string[], action: 'joined' | 'left') {

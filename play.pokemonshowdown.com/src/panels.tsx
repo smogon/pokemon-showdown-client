@@ -558,10 +558,11 @@ export class PSView extends preact.Component {
 			}
 			const modifierKey = ev.ctrlKey || ev.altKey || ev.metaKey || ev.shiftKey;
 			const altKey = !ev.ctrlKey && ev.altKey && !ev.metaKey && !ev.shiftKey;
-			if (ev.altKey && ev.shiftKey && ev.keyCode === 37) { // alt + shift + left
+			const altShiftKey = !ev.ctrlKey && ev.altKey && !ev.metaKey && ev.shiftKey;
+			if (altShiftKey && ev.keyCode === 37 && !isNonEmptyTextInput) { // alt + shift + left
 				PS.arrowKeysUsed = true;
 				PS.focusUnreadRoom('left');
-			} else if (ev.altKey && ev.shiftKey && ev.keyCode === 39) { // alt + shift + right
+			} else if (altShiftKey && ev.keyCode === 39 && !isNonEmptyTextInput) { // alt + shift + right
 				PS.arrowKeysUsed = true;
 				PS.focusUnreadRoom('right');
 			}
