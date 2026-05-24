@@ -97,14 +97,11 @@ class PSPrefs extends PSStreamModel<string | null> {
 	nopastgens: boolean | null = null;
 
 	/* Chat Preferences */
-	blockPMs: boolean | null = null;
-	blockChallenges: boolean | null = null;
 	inchatpm: boolean | null = null;
 	noselfhighlight: boolean | null = null;
 	temporarynotifications: boolean | null = null;
 	leavePopupRoom: boolean | null = null;
 	refreshprompt: boolean | null = null;
-	language = 'english';
 	chatformatting: Record<string, boolean> = {
 		hidegreentext: false,
 		hideme: false,
@@ -163,6 +160,13 @@ class PSPrefs extends PSStreamModel<string | null> {
 
 	highlights: Record<string, string[]> | null = null;
 	logtimes: { [serverid: ID]: { [roomid: RoomID]: number } } | null = null;
+
+	avatar: string | null = null;
+	serversettings: {
+		blockPMs?: boolean | string,
+		blockChallenges?: boolean,
+		language?: string,
+	} = {};
 
 	// PREFS END HERE
 
@@ -235,6 +239,11 @@ class PSPrefs extends PSStreamModel<string | null> {
 			showjoins[Config.server.id] = serverShowjoins;
 			newPrefs['showjoins'] = showjoins;
 		}
+
+		// incorrect storage of serversettings
+		delete newPrefs['blockPMs'];
+		delete newPrefs['blockChallenges'];
+		delete newPrefs['language'];
 
 		const isChrome64 = navigator.userAgent.includes(' Chrome/64.');
 		if (newPrefs['nogif'] !== undefined) {
@@ -1333,6 +1342,7 @@ export class PSRoom extends PSStreamModel<Args | null> implements RoomOptions {
 			if (/[^a-z0-9-]/.test(target)) target = toID(target);
 			const avatar = window.BattleAvatarNumbers?.[target] || target;
 			PS.user.avatar = avatar;
+			PS.prefs.set('avatar', avatar || null);
 			if (this.type !== 'chat' && this.type !== 'battle') {
 				PS.send(`/avatar ${avatar}`);
 			} else {

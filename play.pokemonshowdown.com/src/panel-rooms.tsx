@@ -14,6 +14,9 @@ export class RoomsRoom extends PSRoom {
 	override readonly classType: string = 'rooms';
 	constructor(options: RoomOptions) {
 		super(options);
+		if (Object.keys(PS.prefs.serversettings).length) {
+			PS.send(`/updatesettings ${JSON.stringify(PS.prefs.serversettings)}`);
+		}
 		PS.send(`/cmd rooms`);
 	}
 }

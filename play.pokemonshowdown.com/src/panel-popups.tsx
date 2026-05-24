@@ -607,12 +607,12 @@ class OptionsPanel extends PSRoomPanel {
 		let value = elem.checked;
 		switch (setting) {
 		case 'blockPMs': {
-			PS.prefs.set("blockPMs", value);
+			PS.prefs.set('serversettings', { ...PS.prefs.serversettings, blockPMs: value });
 			PS.send(value ? '/blockpms' : '/unblockpms');
 			break;
 		}
 		case 'blockChallenges': {
-			PS.prefs.set("blockChallenges", value);
+			PS.prefs.set('serversettings', { ...PS.prefs.serversettings, blockChallenges: value });
 			PS.send(value ? '/blockchallenges' : '/unblockchallenges');
 			break;
 		}
@@ -622,7 +622,7 @@ class OptionsPanel extends PSRoomPanel {
 			break;
 		}
 		case 'language': {
-			PS.prefs.set(setting, elem.value);
+			PS.prefs.set('serversettings', { ...PS.prefs.serversettings, language: elem.value });
 			PS.send(`/language ${elem.value}`);
 			break;
 		}
@@ -651,6 +651,7 @@ class OptionsPanel extends PSRoomPanel {
 
 	override render() {
 		const room = this.props.room;
+		const serverSettings = PS.prefs.serversettings;
 		return <PSPanelWrapper room={room} width={340}><div class="pad">
 			<p>
 				<img
@@ -721,12 +722,12 @@ class OptionsPanel extends PSRoomPanel {
 			<h3>Chat</h3>
 			<p>
 				<label class="checkbox"><input
-					name="blockPMs" checked={PS.prefs.blockPMs || false} type="checkbox" onChange={this.handleOnChange}
+					name="blockPMs" checked={!!serverSettings.blockPMs} type="checkbox" onChange={this.handleOnChange}
 				/> Block PMs</label>
 			</p>
 			<p>
 				<label class="checkbox"><input
-					name="blockChallenges" checked={PS.prefs.blockChallenges || false} type="checkbox" onChange={this.handleOnChange}
+					name="blockChallenges" checked={!!serverSettings.blockChallenges} type="checkbox" onChange={this.handleOnChange}
 				/> Block challenges</label>
 			</p>
 			<p>
@@ -752,19 +753,19 @@ class OptionsPanel extends PSRoomPanel {
 			<p>
 				<label class="optlabel">
 					Language: {}
-					<select name="language" onChange={this.handleOnChange} class="button">
-						<option value="german" selected={PS.prefs.language === "german"}>Deutsch</option>
-						<option value="english" selected={PS.prefs.language === "english"}>English</option>
-						<option value="spanish" selected={PS.prefs.language === "spanish"}>Español</option>
-						<option value="french" selected={PS.prefs.language === "french"}>Français</option>
-						<option value="italian" selected={PS.prefs.language === "italian"}>Italiano</option>
-						<option value="dutch" selected={PS.prefs.language === "dutch"}>Nederlands</option>
-						<option value="portuguese" selected={PS.prefs.language === "portuguese"}>Português</option>
-						<option value="turkish" selected={PS.prefs.language === "turkish"}>Türkçe</option>
-						<option value="hindi" selected={PS.prefs.language === "hindi"}>हिंदी</option>
-						<option value="japanese" selected={PS.prefs.language === "japanese"}>日本語</option>
-						<option value="simplifiedchinese" selected={PS.prefs.language === "simplifiedchinese"}>简体中文</option>
-						<option value="traditionalchinese" selected={PS.prefs.language === "traditionalchinese"}>中文</option>
+					<select name="language" onChange={this.handleOnChange} class="button" value={serverSettings.language}>
+						<option value="german">Deutsch</option>
+						<option value="english">English</option>
+						<option value="spanish">Español</option>
+						<option value="french">Français</option>
+						<option value="italian">Italiano</option>
+						<option value="dutch">Nederlands</option>
+						<option value="portuguese">Português</option>
+						<option value="turkish">Türkçe</option>
+						<option value="hindi">हिंदी</option>
+						<option value="japanese">日本語</option>
+						<option value="simplifiedchinese">简体中文</option>
+						<option value="traditionalchinese">中文</option>
 					</select>
 				</label>
 			</p>
