@@ -764,7 +764,12 @@ export class PSView extends preact.Component {
 		case 'cmd':
 			const room = PS.getRoom(elem) || PS.mainmenu;
 			if (elem.name === 'send') {
-				room.sendDirect(elem.value);
+				// Legacy behavior. Use `data-cmd` or `data-sendraw` once we drop support for the old client.
+				if ((room as ChatRoom).pmTarget) {
+					PS.send(elem.value);
+				} else {
+					room.sendDirect(elem.value);
+				}
 			} else {
 				room.send(elem.value);
 			}
