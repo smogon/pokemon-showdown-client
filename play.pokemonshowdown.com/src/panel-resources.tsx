@@ -29,9 +29,38 @@ class ResourcePanel extends PSRoomPanel<ResourceRoom> {
 	override receiveLine() {}
 	onChangeSearch = (e: Event) => {
 		this.setState({ search: (e.currentTarget as HTMLInputElement).value });
+	};
+
+	getDetailsElements() {
+		return this.base!.querySelectorAll<HTMLDetailsElement>('details.commandlist');
 	}
+
+	onToggleDetails = (e: Event) => {
+		let someOpen = false;
+		let allOpen = true;
+		for (const detail of this.getDetailsElements()) {
+			if (detail.open) {
+				someOpen = true;
+			} else {
+				allOpen = false;
+			}
+		}
+
+		const collapseAll = this.base!.querySelector<HTMLInputElement>('input[name=collapseall]');
+		if (!collapseAll) return;
+		collapseAll.checked = !allOpen;
+		collapseAll.indeterminate = someOpen && !allOpen;
+	};
+
+	onToggleCollapseAll = (e: Event) => {
+		const checked = (e.currentTarget as HTMLInputElement).checked;
+		for (const detail of this.getDetailsElements()) {
+			detail.open = !checked;
+		}
+	};
 	override render() {
 		const { room } = this.props;
+
 		return <PSPanelWrapper room={room}>
 			<div className="pad">
 				<h2>PS! Informational Resources</h2>
@@ -82,7 +111,7 @@ class ResourcePanel extends PSRoomPanel<ResourceRoom> {
 					if you need a place to send these commands without joining a room.
 				</p>
 
-				<details className="readmore">
+				<details class="readmore">
 					<summary>Here's a list of the most useful commands for the average Pokémon Showdown experience:</summary>
 					<p>
 						COMMANDS: /report, /msg, /reply, /logout, {}
@@ -115,14 +144,19 @@ class ResourcePanel extends PSRoomPanel<ResourceRoom> {
 				</p>
 				<hr />
 				<h3>Search</h3>
-				<p><input
-					type="search"
-					name="command-search"
-					placeholder="Filter by command name"
-					style={{ width: '50%' }}
-					value={this.state.search}
-					onInput={this.onChangeSearch}
-				/></p>
+				<p>
+					<label class="checkbox" style={{ float: 'right' }}>
+						<input
+							type="checkbox" name="collapseall"
+							onChange={this.onToggleCollapseAll}
+						/> Collapse all
+					</label>
+					<input
+						type="search" name="command-search" class="textbox" style={{ width: "50%" }}
+						value={this.state.search} placeholder="Filter by command name"
+						onInput={this.onChangeSearch}
+					/>
+				</p>
 				<br />
 				{this.getCommandList()}
 			</div>
@@ -170,7 +204,7 @@ class ResourcePanel extends PSRoomPanel<ResourceRoom> {
 				continue;
 			}
 			buf.push(
-				<details class="readmore" open>
+				<details class="readmore commandlist" open onToggle={this.onToggleDetails}>
 					<summary>
 						<strong>{pluginName}</strong> {search.length ? <>({matchedCmds.length})</> : ''} {}
 						{pluginSection && <small>[{pluginSection}]</small>}
