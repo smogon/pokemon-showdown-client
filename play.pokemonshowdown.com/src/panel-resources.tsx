@@ -4,7 +4,7 @@
  */
 import { PS, PSRoom, type RoomOptions } from "./client-main";
 import { PSPanelWrapper, PSRoomPanel } from "./panels";
-import { toID } from "./battle-dex";
+import { PSUtils, toID } from "./battle-dex";
 declare const BattleChatCommands: Record<string, string[]>;
 
 class ResourceRoom extends PSRoom {
@@ -27,6 +27,9 @@ class ResourcePanel extends PSRoomPanel<ResourceRoom> {
 
 	override state = { search: '' };
 	override receiveLine() {}
+	onChangeSearch = (e: Event) => {
+		this.setState({ search: (e.currentTarget as HTMLInputElement).value });
+	}
 	override render() {
 		const { room } = this.props;
 		return <PSPanelWrapper room={room}>
@@ -36,7 +39,7 @@ class ResourcePanel extends PSRoomPanel<ResourceRoom> {
 				<p>
 					PS! is a wide and varied site, with more facets than can be covered here easily.
 					<br />
-					While this page chiefly documents the ever-shifting set of commands available to PS! users,{' '}
+					While this page chiefly documents the ever-shifting set of commands available to PS! users, {}
 					here are some useful resources for newcomers:
 				</p>
 				<ul>
@@ -66,40 +69,40 @@ class ResourcePanel extends PSRoomPanel<ResourceRoom> {
 					</li>
 				</ul>
 				<hr />
-				<strong>Commands:</strong>
+				<h3>Commands</h3>
 				<p>
-					Within any of the chats, and in private messages,{' '}
-					it is possible to type in commands (messages beginning with <code>/</code>){' '}
-					to perform a particular action. A great number of these commands exist, {' '}
-					with some only available to certain users. For instance, you can broadcast commands to others with the{' '}
+					Within any of the chats, and in private messages, {}
+					it is possible to type in commands (messages beginning with <code>/</code>) {}
+					to perform a particular action. A great number of these commands exist,  {}
+					with some only available to certain users. For instance, you can broadcast commands to others with the {}
 					<code>!</code> prefix, but only when you're a player in a battle or a Voice (+) user.
 					<br />
-					For more information on ranks, type <code>/groups</code> in any chat.{' '}
-					You can also use the "chat self" button on your username in the top right {' '}
+					For more information on ranks, type <code>/groups</code> in any chat. {}
+					You can also use the "chat self" button on your username in the top right  {}
 					if you need a place to send these commands without joining a room.
 				</p>
 
 				<details className="readmore">
 					<summary>Here's a list of the most useful commands for the average Pokémon Showdown experience:</summary>
 					<p>
-						COMMANDS: /report, /msg, /reply, /logout,{' '}
+						COMMANDS: /report, /msg, /reply, /logout, {}
 						/challenge, /search, /rating, /whois, /user, /join, /leave, /userauth, /roomauth
 					</p>
 					<p>
-						BATTLE ROOM COMMANDS: /savereplay, /hideroom, /inviteonly, /invite,{' '}
+						BATTLE ROOM COMMANDS: /savereplay, /hideroom, /inviteonly, /invite, {}
 						/timer, /forfeit
 					</p>
 					<p>
-						OPTION COMMANDS: /nick, /avatar, /ignore, /status, /away, /busy, /back, /timestamps,{' '}
+						OPTION COMMANDS: /nick, /avatar, /ignore, /status, /away, /busy, /back, /timestamps, {}
 						/highlight, /showjoins, /hidejoins, /blockchallenges, /blockpms
 					</p>
 					<p>
-						INFORMATIONAL/RESOURCE COMMANDS: /groups, /faq, /rules, /intro, /formatshelp,{' '}
-						/othermetas, /analysis, /punishments, /calc, /git, /cap, /roomhelp, /roomfaq{' '}
+						INFORMATIONAL/RESOURCE COMMANDS: /groups, /faq, /rules, /intro, /formatshelp, {}
+						/othermetas, /analysis, /punishments, /calc, /git, /cap, /roomhelp, /roomfaq {}
 						(replace / with ! to broadcast. Broadcasting requires: + % @ # ~)
 					</p>
 					<p>
-						DATA COMMANDS: /data, /dexsearch, /movesearch, /itemsearch, /learn,{' '}
+						DATA COMMANDS: /data, /dexsearch, /movesearch, /itemsearch, /learn, {}
 						/statcalc, /effectiveness, /weakness, /coverage, /randommove, /randompokemon</p>
 					<p>For an overview of room commands, use <code>/roomhelp</code></p>
 					<p>For details of a specific command, you can use <code>/help [command]</code>, for example <code>/help data</code>.</p>
@@ -107,20 +110,21 @@ class ResourcePanel extends PSRoomPanel<ResourceRoom> {
 
 				<br />
 				<p>
-					A complete list of commands available to regular users is provided below. Use {' '}
+					A complete list of commands available to regular users is provided below. Use  {}
 					<code>/help [commandname]</code> for more in-depth information on how to use them.
 				</p>
 				<hr />
-				<label for="search">Search/filter commands:</label>{' '}
-				<input
-					name="search"
-					placeholder="search"
-					style={{ width: '25%' }}
+				<h3>Search</h3>
+				<p><input
+					type="search"
+					name="command-search"
+					placeholder="Filter by command name"
+					style={{ width: '50%' }}
 					value={this.state.search}
-					onChange={e => this.setState({ search: toID((e.target as any)?.value) })}
-				/>
+					onInput={this.onChangeSearch}
+				/></p>
 				<br />
-				<span>{this.getCommandList()}</span>
+				{this.getCommandList()}
 			</div>
 		</PSPanelWrapper>;
 	}
@@ -131,24 +135,26 @@ class ResourcePanel extends PSRoomPanel<ResourceRoom> {
 		}
 		const buf = [];
 		const search = this.state.search;
-		const keys = Object.keys(BattleChatCommands).sort((a, b) => {
-			// pin info to the top ALWAYS
-			if (b.endsWith('info')) return 2;
-			// prefer default commands near the top, more generally useful
-			if (b.includes('chat-commands')) return 1;
-			const aCount = BattleChatCommands[a].filter(x => toID(x).includes(search)).length;
-			const bCount = BattleChatCommands[b].filter(x => toID(x).includes(search)).length;
-
-			return (bCount - aCount) || a.localeCompare(b);
-		}).filter(plugin => !(plugin.endsWith('admin')));
+		const keys = Object.keys(BattleChatCommands).filter(plugin => !(plugin.endsWith('admin')));
+		PSUtils.sortBy(keys, key => [
+			key.endsWith('info') ? 0 : // pin info to the top ALWAYS
+			key.includes('chat-commands') ? 1 : // prefer default commands near the top too
+			2,
+			// number of matching commands
+			BattleChatCommands[key].filter(x => toID(x).includes(search)).length,
+			key,
+		]);
 
 		for (let pluginName of keys) {
 			const cmdTable = BattleChatCommands[pluginName];
 			if (!cmdTable.length) continue;
-			if (pluginName.startsWith('chat-plugins')) {
-				pluginName = 'Chat plugin: ' + pluginName.split('/').slice(1).join('/');
-			} else if (pluginName.startsWith('chat-commands')) {
-				pluginName = 'Core commands: ' + pluginName.split('/').slice(1).join('/'); ;
+			let pluginSection = null;
+			if (pluginName.startsWith('chat-plugins/')) {
+				pluginSection = 'Chat plugin';
+				pluginName = pluginName.slice('chat-plugins/'.length);
+			} else if (pluginName.startsWith('chat-commands/')) {
+				pluginSection = 'Core commands';
+				pluginName = pluginName.slice('chat-commands/'.length);
 			}
 			let matchedCmds = [];
 			for (const cmd of cmdTable) {
@@ -158,10 +164,16 @@ class ResourcePanel extends PSRoomPanel<ResourceRoom> {
 				matchedCmds.push(<li>{cmd}</li>);
 			}
 
+			if (!matchedCmds.length) {
+				buf.push(null);
+				buf.push(null);
+				continue;
+			}
 			buf.push(
-				<details class="readmore">
+				<details class="readmore" open>
 					<summary>
-						<strong>{pluginName} {search.length ? <>({matchedCmds.length}))</> : ''}</strong>
+						<strong>{pluginName}</strong> {search.length ? <>({matchedCmds.length})</> : ''} {}
+						{pluginSection && <small>[{pluginSection}]</small>}
 					</summary>
 					<ul>{matchedCmds}</ul>
 				</details>
