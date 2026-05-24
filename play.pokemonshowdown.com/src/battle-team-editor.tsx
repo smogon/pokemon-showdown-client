@@ -2746,11 +2746,12 @@ class StatForm extends preact.Component<{
 		if (target.type === 'range') {
 			// enforce limit
 			const maxEv = this.maxEVs();
+			let usableMaxEv = maxEv === 510 ? 508 : maxEv;
 			if (maxEv < 6 * 252) {
 				let totalEv = 0;
 				for (const curEv of Object.values(set.evs || {})) totalEv += curEv;
 				if (totalEv > maxEv && totalEv - value <= maxEv) {
-					set.evs![statID] = maxEv - (totalEv - value) - (maxEv % 4);
+					set.evs![statID] = usableMaxEv - (totalEv - value);
 				}
 			}
 		} else {
@@ -2923,7 +2924,7 @@ class StatForm extends preact.Component<{
 					</tr>)}
 					<tr>
 						<td colSpan={2}></td>
-						<td class="setstatbar" style="text-align:right">{remaining !== null ? 'Remaining:' : ''}</td>
+						<td class="setstatbar" style="text-align:right">{remaining !== null ? 'Remaining:' : <>&nbsp;</>}</td>
 						<td style="text-align:center">{remaining && remaining < 0 ? <b class="message-error">{remaining}</b> : remaining}</td>
 						<td colSpan={3} style="text-align:right">{this.renderIVMenu()}</td>
 					</tr>
