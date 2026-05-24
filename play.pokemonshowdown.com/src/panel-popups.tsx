@@ -144,6 +144,7 @@ class UserPanel extends PSRoomPanel<UserRoom> {
 				<p class="buttonbar">
 					<button class="button" data-href={`challenge-${user.userid}`}>Challenge</button> {}
 					<button class="button" data-href={`dm-${user.userid}`}>Chat</button> {}
+					<button class="button" data-href={`usermodoptions-${user.userid}-${room.parentRoomid || ''}`}>Mod</button> {}
 					<button class="button" data-href={`useroptions-${user.userid}-${room.parentRoomid || ''}`}>{'\u2026'}</button>
 				</p>
 			));
@@ -222,11 +223,89 @@ class UserOptionsPanel extends PSRoomPanel {
 	static readonly location = 'popup';
 	static readonly noURL = true;
 	declare state: {
+		requestSent?: boolean,
+	};
+	getTargets() {
+		const [, targetUser, targetRoomid] = PSUtils.splitFirst(this.props.room.id, '-', 2);
+		let targetRoom = (PS.rooms[targetRoomid] || null) as ChatRoom | null;
+		if (targetRoom?.type !== 'chat') targetRoom = targetRoom?.getParent() as ChatRoom;
+		if (targetRoom?.type !== 'chat') targetRoom = targetRoom?.getParent() as ChatRoom;
+		if (targetRoom?.type !== 'chat') targetRoom = null;
+		return { targetUser: targetUser as ID, targetRoomid: targetRoomid as RoomID, targetRoom };
+	}
+
+	handleAddFriend = (ev: Event) => {
+		const { targetUser, targetRoom } = this.getTargets();
+		targetRoom?.send(`/friend add ${targetUser}`);
+		this.setState({ requestSent: true });
+		ev.preventDefault();
+		ev.stopImmediatePropagation();
+	};
+
+	handleIgnore = () => {
+		const { targetUser, targetRoom } = this.getTargets();
+		targetRoom?.send(`/ignore ${targetUser}`);
+		this.close();
+	};
+
+	handleUnignore = () => {
+		const { targetUser, targetRoom } = this.getTargets();
+		targetRoom?.send(`/unignore ${targetUser}`);
+		this.close();
+	};
+
+	isIgnoringUser = (userid: string) => {
+		const ignoring = PS.prefs.ignore || {};
+		if (ignoring[userid] === 1) return true;
+		return false;
+	};
+
+	override render() {
+		const room = this.props.room;
+		const { targetUser } = this.getTargets();
+
+		return <PSPanelWrapper room={room} width={280}><div class="pad">
+			<p>
+				{this.isIgnoringUser(targetUser) ? (
+					<button onClick={this.handleUnignore} class="button">
+						Unignore
+					</button>
+				) : (
+					<button onClick={this.handleIgnore} class="button">
+						Ignore
+					</button>
+				)}
+			</p>
+			<p>
+				<button data-href={`view-help-request-report-user-${targetUser}`} class="button">
+					Report
+				</button>
+			</p>
+			<p>
+				{this.state.requestSent ? (
+					<button class="button disabled">
+						Sent request
+					</button>
+				) : (
+					<button onClick={this.handleAddFriend} class="button">
+						Add friend
+					</button>
+				)}
+			</p>
+		</div></PSPanelWrapper>;
+	}
+}
+
+class UserModOptionsPanel extends PSRoomPanel {
+	static readonly id = 'usermodoptions';
+	static readonly routes = ['usermodoptions-*'];
+	static readonly location = 'popup';
+	static readonly noURL = true;
+	declare state: {
 		showMuteInput?: boolean,
 		showBanInput?: boolean,
 		showLockInput?: boolean,
 		showConfirm?: boolean,
-		requestSent?: boolean,
 		data?: Record<string, string>,
 	};
 	getTargets() {
@@ -280,26 +359,8 @@ class UserOptionsPanel extends PSRoomPanel {
 		cmd += `${targetUser} ${data.reason ? ',' + data.reason : ''}`;
 		targetRoom?.send(cmd);
 		this.close();
-	};
-
-	handleAddFriend = (ev: Event) => {
-		const { targetUser, targetRoom } = this.getTargets();
-		targetRoom?.send(`/friend add ${targetUser}`);
-		this.setState({ requestSent: true });
 		ev.preventDefault();
 		ev.stopImmediatePropagation();
-	};
-
-	handleIgnore = () => {
-		const { targetUser, targetRoom } = this.getTargets();
-		targetRoom?.send(`/ignore ${targetUser}`);
-		this.close();
-	};
-
-	handleUnignore = () => {
-		const { targetUser, targetRoom } = this.getTargets();
-		targetRoom?.send(`/unignore ${targetUser}`);
-		this.close();
 	};
 
 	muteUser = (ev: Event) => {
@@ -345,10 +406,13 @@ class UserOptionsPanel extends PSRoomPanel {
 		ev.stopImmediatePropagation();
 	};
 
-	isIgnoringUser = (userid: string) => {
-		const ignoring = PS.prefs.ignore || {};
-		if (ignoring[userid] === 1) return true;
-		return false;
+	handleModlog = (ev: Event) => {
+		const { targetUser, targetRoom } = this.getTargets();
+		const isGlobalModlog = (ev.currentTarget as HTMLButtonElement).value === "globalmodlog";
+		targetRoom?.send(`/modlog userid=${targetUser}, room=${isGlobalModlog ? 'global' : targetRoom?.id}`);
+		this.close();
+		ev.preventDefault();
+		ev.stopImmediatePropagation();
 	};
 
 	override render() {
@@ -370,37 +434,12 @@ class UserOptionsPanel extends PSRoomPanel {
 			if (actionName === 'lock') {
 				return canLock && !this.state.showBanInput && !this.state.showMuteInput && !this.state.showConfirm;
 			}
+			if (actionName === 'modlog') {
+				return !this.state.showLockInput && !this.state.showBanInput && !this.state.showConfirm && !this.state.showMuteInput;
+			}
 		};
 
 		return <PSPanelWrapper room={room} width={280}><div class="pad">
-			<p>
-				{this.isIgnoringUser(targetUser) ? (
-					<button onClick={this.handleUnignore} class="button">
-						Unignore
-					</button>
-				) : (
-					<button onClick={this.handleIgnore} class="button">
-						Ignore
-					</button>
-				)}
-			</p>
-			<p>
-				<button data-href={`view-help-request-report-user-${targetUser}`} class="button">
-					Report
-				</button>
-			</p>
-			<p>
-				{this.state.requestSent ? (
-					<button class="button disabled">
-						Sent request
-					</button>
-				) : (
-					<button onClick={this.handleAddFriend} class="button">
-						Add friend
-					</button>
-				)}
-			</p>
-			{(canMute || canBan || canLock) && <hr />}
 			{this.state.showConfirm && <p>
 				<small>
 					{this.state.data?.action} <b>{targetUser}</b> {}
@@ -416,36 +455,46 @@ class UserOptionsPanel extends PSRoomPanel {
 				</p>
 			</p>}
 			<p class="buttonbar">
-				{isVisible('mute') && (this.state.showMuteInput ? (
-					<div>
-						<label class="label">
-							Reason: {}
-							<input name="mutereason" class="textbox autofocus" placeholder="Mute reason (optional)" />
-						</label> {} <br />
-						<button class="button" onClick={this.muteUser} value="7min">For 7 Mins</button> {}
-						<button class="button" onClick={this.muteUser} value="1hr">For 1 Hour</button> {}
-						<button class="button" onClick={this.handleCancel}> Cancel</button>
-					</div>
-				) : (
-					<button class="button" onClick={this.handleMute}>
-						<i class="fa fa-hourglass-half" aria-hidden></i> Mute
-					</button>
-				))} {}
-				{isVisible('ban') && (this.state.showBanInput ? (
-					<div>
-						<label class="label">
-							Reason: {}
-							<input name="banreason" class="textbox autofocus" placeholder="Ban reason (optional)" />
-						</label><br />
-						<button class="button" onClick={this.banUser} value="2d">For 2 Days</button> {}
-						<button class="button" onClick={this.banUser} value="1wk">For 1 Week</button> {}
-						<button class="button" onClick={this.handleCancel}>Cancel</button>
-					</div>
-				) : (
-					<button class="button" onClick={this.handleBan}>
-						<i class="fa fa-gavel" aria-hidden></i> Ban
-					</button>
-				))} {}
+				<p>
+					{isVisible('mute') && (this.state.showMuteInput ? (
+						<div>
+							<label class="label">
+								Reason: {}
+								<input name="mutereason" class="textbox autofocus" placeholder="Mute reason (optional)" />
+							</label> {} <br />
+							<button class="button" onClick={this.muteUser} value="7min">For 7 Mins</button> {}
+							<button class="button" onClick={this.muteUser} value="1hr">For 1 Hour</button> {}
+							<button class="button" onClick={this.handleCancel}> Cancel</button>
+						</div>
+					) : (
+						<button class="button" onClick={this.handleMute}>
+							<i class="fa fa-hourglass-half" aria-hidden></i> Mute
+						</button>
+					))} {}
+					{isVisible('ban') && (this.state.showBanInput ? (
+						<div>
+							<label class="label">
+								Reason: {}
+								<input name="banreason" class="textbox autofocus" placeholder="Ban reason (optional)" />
+							</label><br />
+							<button class="button" onClick={this.banUser} value="2d">For 2 Days</button> {}
+							<button class="button" onClick={this.banUser} value="1wk">For 1 Week</button> {}
+							<button class="button" onClick={this.handleCancel}>Cancel</button>
+						</div>
+					) : (
+						<button class="button" onClick={this.handleBan}>
+							<i class="fa fa-gavel" aria-hidden></i> Ban
+						</button>
+					))} {}
+				</p>
+				<p>
+					{canMute && isVisible('modlog') && <button class="button" value="modlog" onClick={this.handleModlog}>
+						<i class="fa fa-list-alt" aria-hidden></i> Modlog
+					</button>} {}
+					{canLock && isVisible('modlog') && <button class="button" value="globalmodlog" onClick={this.handleModlog}>
+						<i class="fa fa-list-alt" aria-hidden></i> Global Modlog
+					</button>} {}
+				</p>
 				{isVisible('lock') && (this.state.showLockInput ? (
 					<div>
 						<label class="label">
@@ -1943,6 +1992,7 @@ class RulesPanel extends PSRoomPanel<PopupRoom> {
 PS.addRoomType(
 	UserPanel,
 	UserOptionsPanel,
+	UserModOptionsPanel,
 	UserListPanel,
 	VolumePanel,
 	OptionsPanel,
